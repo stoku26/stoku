@@ -87,7 +87,8 @@
     padding-left: max(16px, env(safe-area-inset-left));
     padding-right: max(16px, env(safe-area-inset-right));
   }
-  header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+  header h1 { margin: 0; font-size: 20px; font-weight: 600; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  #btnMbrapa { flex: none; font-size: 22px; }
   .krye-butona { display: flex; gap: 8px; flex: none; }
   .btn-ikone {
     position: relative;
@@ -172,6 +173,27 @@
   .artikull .kodi { font-size: 12px; color: var(--gri); margin-top: 2px; }
   .artikull .sasia { font-size: 22px; font-weight: 500; }
   .info { color: var(--gri); font-size: 14px; padding: 12px 2px; }
+
+  /* Foldera */
+  .folderat-rrjeti {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    padding: 4px 16px 16px;
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  .folder-karta {
+    position: relative; border: 1px solid var(--vije); border-radius: 16px;
+    padding: 16px 30px 16px 14px; background: var(--fushe-bg); cursor: pointer;
+  }
+  .folder-karta:active { background: var(--hover); }
+  .folder-karta .emri { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+  .folder-karta .numri { font-size: 13px; color: var(--gri); margin-top: 4px; }
+  .folder-fshij {
+    position: absolute; top: 6px; right: 6px; width: 30px; height: 30px;
+    border: 0; border-radius: 15px; background: transparent; color: var(--gri);
+    font-size: 17px; line-height: 1; cursor: pointer;
+  }
+  .folder-fshij:active { background: var(--vije); }
   footer {
     padding: 4px 16px;
     padding-bottom: max(8px, env(safe-area-inset-bottom));
@@ -289,14 +311,22 @@
 <body>
 
 <header>
-  <h1 id="titulli">Malli (0 produkte)</h1>
+  <button id="btnMbrapa" class="btn-ikone" type="button" aria-label="Foldera" title="Foldera" style="display:none">←</button>
+  <h1 id="titulli">Foldera</h1>
   <div class="krye-butona">
     <button id="btnTastiera" class="btn-ikone" type="button" aria-label="Fshih tastierën" title="Fshih tastierën">⌨️</button>
     <button id="btnOpsione" class="btn-ikone" type="button" aria-label="Opsionet" title="Opsionet">⚙️</button>
   </div>
 </header>
 
-<div class="siper">
+<!-- Lista e folderave -->
+<div class="siper" id="siperFolderat">
+  <button class="btn" id="btnKrijoFolder" type="button" style="width:100%">+ Krijo folder</button>
+</div>
+<div id="folderaLista" class="folderat-rrjeti"></div>
+
+<!-- Brenda një folderi -->
+<div class="siper" id="siperFolderi" style="display:none">
   <div class="fushe">
     <label for="barkodi" id="lblBarkodi">Barkodi (scanner Bluetooth ose shkruaje)</label>
     <input id="barkodi" type="text" inputmode="text" enterkeyhint="done"
@@ -314,7 +344,7 @@
 
 <div id="lista"></div>
 
-<footer>
+<footer id="footerFolderi" style="display:none">
   <button class="btn tekst rrezik" id="btnFshiTeGjitha" type="button">Fshij të gjitha produktet</button>
 </footer>
 
@@ -347,6 +377,21 @@
     <div class="veprime">
       <button class="btn tekst" id="fshiAnulo" type="button">Anulo</button>
       <button class="btn tekst rrezik" id="fshiKonfirmo" type="button" disabled>Fshi krejt (10)</button>
+    </div>
+  </div>
+</div>
+
+<!-- Folder i ri -->
+<div class="mbulese" id="dlgFolder">
+  <div class="dialog" role="dialog" aria-modal="true">
+    <h2>Folder i ri</h2>
+    <div class="fushe">
+      <label for="dlgFolderEmri">Emri i folderit</label>
+      <input id="dlgFolderEmri" type="text" autocomplete="off" autocorrect="off" enterkeyhint="done" maxlength="40">
+    </div>
+    <div class="veprime">
+      <button class="btn tekst" id="dlgFolderAnulo" type="button">Anulo</button>
+      <button class="btn tekst" id="dlgFolderRuaj" type="button">Krijo</button>
     </div>
   </div>
 </div>
@@ -471,25 +516,84 @@
 (function () {
   'use strict';
 
-  var KEY = 'stoku:produktet:v1';
+  var KEY_FOLDERA = 'stoku:foldera:v1';
+  var KEY_PRODUKTET = 'stoku:produktet:v2';
+  var KEY_PRODUKTET_VJETER = 'stoku:produktet:v1'; // pa foldera, versioni i vjetër
   var LIMIT_RENDER = 300;
   var MIME_XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
   function $(id) { return document.getElementById(id); }
 
-  // ---------- Baza (localStorage) ----------
-  var produktet = {};
-  try { produktet = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { produktet = {}; }
+  // ---------- Baza (localStorage): foldera + produkte ----------
+  var FOLDERAT_PARAZGJEDHUR = [
+    { id: 'ushqimore', emri: 'Ushqimore' },
+    { id: 'pije', emri: 'Pije' },
+    { id: 'higjiene', emri: 'Higjiene' },
+    { id: 'fresh', emri: 'Fresh' }
+  ];
+
+  var foldera = [];          // [{ id, emri }, ...]
+  var produktet = {};        // çelësi: kategoriaId + '::' + barkodi
+  var folderiAktual = null;  // id i folderit të hapur, ose null = lista e folderave
+
+  function celesiProduktit(kategoriaId, barkodi) { return kategoriaId + '::' + barkodi; }
+
+  function emriFolderit(id) {
+    var f = foldera.filter(function (x) { return x.id === id; })[0];
+    return f ? f.emri : '';
+  }
+
+  function produktetENjeFolderi(kategoriaId) {
+    return Object.keys(produktet)
+      .map(function (k) { return produktet[k]; })
+      .filter(function (p) { return p.kategoriaId === kategoriaId; });
+  }
+
+  function ngarkoBazen() {
+    var f = null, p = null;
+    try { f = JSON.parse(localStorage.getItem(KEY_FOLDERA) || 'null'); } catch (e) { /* ok */ }
+    try { p = JSON.parse(localStorage.getItem(KEY_PRODUKTET) || 'null'); } catch (e) { /* ok */ }
+
+    if (Array.isArray(f) && p && typeof p === 'object') {
+      foldera = f;
+      produktet = p;
+      return;
+    }
+
+    // S'ka të dhëna me foldera ende: fillo me folderat e parazgjedhur
+    foldera = FOLDERAT_PARAZGJEDHUR.map(function (fo) { return { id: fo.id, emri: fo.emri }; });
+    produktet = {};
+
+    // Migro të dhëna të vjetra (para se aplikacioni të kishte foldera), nëse ka
+    var vjeter = null;
+    try { vjeter = JSON.parse(localStorage.getItem(KEY_PRODUKTET_VJETER) || 'null'); } catch (e) { /* ok */ }
+    if (vjeter && typeof vjeter === 'object' && Object.keys(vjeter).length > 0) {
+      var kidVjeter = 'pa-kategori';
+      foldera.push({ id: kidVjeter, emri: 'Pa kategori' });
+      Object.keys(vjeter).forEach(function (b) {
+        var pr = vjeter[b];
+        if (!pr || typeof pr.barkodi !== 'string') return;
+        produktet[celesiProduktit(kidVjeter, pr.barkodi)] = {
+          barkodi: pr.barkodi, emri: pr.emri || '', sasia: pr.sasia | 0, kategoriaId: kidVjeter
+        };
+      });
+    }
+
+    ruajBaze();
+  }
 
   function ruajBaze() {
     try {
-      localStorage.setItem(KEY, JSON.stringify(produktet));
+      localStorage.setItem(KEY_FOLDERA, JSON.stringify(foldera));
+      localStorage.setItem(KEY_PRODUKTET, JSON.stringify(produktet));
       return true;
     } catch (e) {
       toast('Ruajtja dështoi: memoria e shfletuesit është plot.');
       return false;
     }
   }
+
+  ngarkoBazen();
 
   try {
     if (navigator.storage && navigator.storage.persist) navigator.storage.persist();
@@ -503,6 +607,118 @@
     t.classList.add('hapur');
     clearTimeout(toastKohe);
     toastKohe = setTimeout(function () { t.classList.remove('hapur'); }, 2600);
+  }
+
+  // ---------- Foldera ----------
+  function renderFolderat() {
+    var cont = $('folderaLista');
+    cont.textContent = '';
+    var frag = document.createDocumentFragment();
+    foldera.forEach(function (f) {
+      var n = produktetENjeFolderi(f.id).length;
+
+      var karta = document.createElement('div');
+      karta.className = 'folder-karta';
+
+      var emri = document.createElement('div');
+      emri.className = 'emri';
+      emri.textContent = f.emri;
+
+      var numri = document.createElement('div');
+      numri.className = 'numri';
+      numri.textContent = n + (n === 1 ? ' produkt' : ' produkte');
+
+      karta.appendChild(emri);
+      karta.appendChild(numri);
+      karta.addEventListener('click', function () { hapFolderin(f.id); });
+
+      var fshij = document.createElement('button');
+      fshij.type = 'button';
+      fshij.className = 'folder-fshij';
+      fshij.setAttribute('aria-label', 'Fshij folderin ' + f.emri);
+      fshij.title = 'Fshij folderin';
+      fshij.textContent = '✕';
+      fshij.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        fshijFolderin(f);
+      });
+      karta.appendChild(fshij);
+
+      frag.appendChild(karta);
+    });
+    cont.appendChild(frag);
+  }
+
+  function rifreskoPamjen() {
+    var brenda = folderiAktual !== null;
+    $('siperFolderat').style.display = brenda ? 'none' : '';
+    $('folderaLista').style.display = brenda ? 'none' : '';
+    $('siperFolderi').style.display = brenda ? '' : 'none';
+    $('footerFolderi').style.display = brenda ? '' : 'none';
+    $('btnMbrapa').style.display = brenda ? '' : 'none';
+    if (brenda) {
+      renderLista();
+      fokusoBarkodin();
+    } else {
+      $('titulli').textContent = 'Foldera';
+      renderFolderat();
+    }
+  }
+
+  function hapFolderin(id) {
+    folderiAktual = id;
+    $('kerko').value = '';
+    rifreskoPamjen();
+  }
+
+  function mbrapaNeFoldera() {
+    folderiAktual = null;
+    rifreskoPamjen();
+  }
+
+  $('btnMbrapa').addEventListener('click', mbrapaNeFoldera);
+
+  // Folder i ri
+  function hapDialoguFolder() {
+    $('dlgFolderEmri').value = '';
+    $('dlgFolder').classList.add('hapur');
+    $('dlgFolderEmri').focus();
+  }
+  function mbyllDialoguFolder() { $('dlgFolder').classList.remove('hapur'); }
+
+  function krijoFolderin() {
+    var emri = $('dlgFolderEmri').value.trim();
+    if (!emri) { toast('Shkruaj emrin e folderit.'); $('dlgFolderEmri').focus(); return; }
+    var id = 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    foldera.push({ id: id, emri: emri });
+    ruajBaze();
+    mbyllDialoguFolder();
+    renderFolderat();
+  }
+
+  $('btnKrijoFolder').addEventListener('click', hapDialoguFolder);
+  $('dlgFolderRuaj').addEventListener('click', krijoFolderin);
+  $('dlgFolderAnulo').addEventListener('click', mbyllDialoguFolder);
+  $('dlgFolderEmri').addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') { ev.preventDefault(); krijoFolderin(); }
+  });
+  $('dlgFolder').addEventListener('click', function (ev) {
+    if (ev.target === $('dlgFolder')) mbyllDialoguFolder();
+  });
+
+  // Fshirja e një folderi (bashkë me produktet brenda tij)
+  async function fshijFolderin(f) {
+    var brenda = produktetENjeFolderi(f.id);
+    var mesazhi = brenda.length > 0
+      ? 'Do të fshihet folderi «' + f.emri + '» bashkë me ' + brenda.length +
+        (brenda.length === 1 ? ' produktin' : ' produktet') + ' brenda tij.\n\nKy veprim NUK mund të kthehet.'
+      : 'Do të fshihet folderi «' + f.emri + '». Është bosh.';
+    var po = await konfirmo('Të fshihet folderi?', mesazhi, 'Fshij');
+    if (!po) return;
+    foldera = foldera.filter(function (x) { return x.id !== f.id; });
+    brenda.forEach(function (p) { delete produktet[celesiProduktit(f.id, p.barkodi)]; });
+    ruajBaze();
+    renderFolderat();
   }
 
   // ---------- Opsionet ----------
@@ -588,6 +804,7 @@
   // Kthen kursorin te fusha e barkodit (vetëm në modalitetin PDA, dhe vetëm nëse nuk ka dritare të hapur)
   function fokusoBarkodin() {
     if (!opsione.pda) return;
+    if (folderiAktual === null) return;
     if (document.querySelector('.mbulese.hapur')) return;
     $('barkodi').focus();
   }
@@ -747,7 +964,7 @@
   async function ruajKopjen() {
     var te = Object.keys(produktet).map(function (b) { return produktet[b]; });
     if (te.length === 0) { toast('Nuk ka produkte për kopje rezervë.'); return; }
-    var teksti = JSON.stringify({ app: 'stoku', version: 1, koha: new Date().toISOString(), produktet: te });
+    var teksti = JSON.stringify({ app: 'stoku', version: 2, koha: new Date().toISOString(), foldera: foldera, produktet: te });
     var emri = 'stoku-kopje_' + stampaKohes() + '.json';
     var skedari = new File([teksti], emri, { type: 'application/json' });
     var siTekst = new File([teksti], emri, { type: 'text/plain' }); // disa telefona e lejojnë vetëm si tekst
@@ -765,40 +982,68 @@
   }
 
   async function rikthePrejSkedari(skedari) {
-    var lista = null;
+    var teRikthyera = null; // { foldera: [...], produktet: [...] }
     try {
       var te = JSON.parse(await skedari.text());
-      var arr = Array.isArray(te) ? te : (te && te.produktet);
-      if (Array.isArray(arr)) {
-        lista = arr.filter(function (p) {
+      var arrP = Array.isArray(te) ? te : (te && te.produktet);
+      if (Array.isArray(arrP)) {
+        var produktetELexuara = arrP.filter(function (p) {
           return p && typeof p.barkodi === 'string' && p.barkodi.trim() !== '' &&
             typeof p.emri === 'string' && Number.isInteger(p.sasia);
         }).map(function (p) {
-          var b = p.barkodi.trim();
-          return { barkodi: b, emri: p.emri.trim(), sasia: p.sasia };
+          return {
+            barkodi: p.barkodi.trim(),
+            emri: p.emri.trim(),
+            sasia: p.sasia,
+            kategoriaId: (typeof p.kategoriaId === 'string' && p.kategoriaId) ? p.kategoriaId : null
+          };
         });
-      }
-    } catch (e) { lista = null; }
 
-    if (!lista || lista.length === 0) {
+        var arrF = Array.isArray(te && te.foldera) ? te.foldera : null;
+        var folderatELexuara = arrF ? arrF.filter(function (f) {
+          return f && typeof f.id === 'string' && f.id && typeof f.emri === 'string' && f.emri.trim() !== '';
+        }).map(function (f) { return { id: f.id, emri: f.emri.trim() }; }) : null;
+
+        if (folderatELexuara) {
+          // kopje rezervë e re (me foldera): produktet pa një kategori të vlefshme shkojnë te «Pa kategori»
+          var idTeVlefshme = {};
+          folderatELexuara.forEach(function (f) { idTeVlefshme[f.id] = true; });
+          var duhetPaKategori = false;
+          produktetELexuara.forEach(function (p) {
+            if (!p.kategoriaId || !idTeVlefshme[p.kategoriaId]) { p.kategoriaId = 'pa-kategori'; duhetPaKategori = true; }
+          });
+          if (duhetPaKategori && !idTeVlefshme['pa-kategori']) folderatELexuara.push({ id: 'pa-kategori', emri: 'Pa kategori' });
+          teRikthyera = { foldera: folderatELexuara, produktet: produktetELexuara };
+        } else if (produktetELexuara.length > 0) {
+          // kopje e vjetër (para se aplikacioni të kishte foldera): krejt produktet shkojnë te «Pa kategori»
+          produktetELexuara.forEach(function (p) { p.kategoriaId = 'pa-kategori'; });
+          teRikthyera = { foldera: [{ id: 'pa-kategori', emri: 'Pa kategori' }], produktet: produktetELexuara };
+        }
+      }
+    } catch (e) { teRikthyera = null; }
+
+    if (!teRikthyera || teRikthyera.produktet.length === 0) {
       toast('Ky skedar nuk është kopje rezervë e vlefshme.');
       return;
     }
     var aktual = Object.keys(produktet).length;
     var po = await konfirmo(
       'Të rikthehet kopja?',
-      'Do të zëvendësohen të gjitha ' + aktual + ' produktet aktuale me ' + lista.length +
+      'Do të zëvendësohen të gjitha ' + aktual + ' produktet aktuale (dhe folderat) me ' + teRikthyera.produktet.length +
         ' produkte nga kopja.\n\nKy veprim nuk kthehet. Nëse do, ruaj fillimisht një kopje të listës aktuale.',
       'Rikthe'
     );
     if (!po) return;
-    var ri = {};
-    lista.forEach(function (p) { ri[p.barkodi] = p; });
-    produktet = ri;
+    foldera = teRikthyera.foldera;
+    produktet = {};
+    teRikthyera.produktet.forEach(function (p) {
+      produktet[celesiProduktit(p.kategoriaId, p.barkodi)] = p;
+    });
+    folderiAktual = null;
     ruajBaze();
-    renderLista();
+    rifreskoPamjen();
     mbyllOpsionet();
-    toast('U rikthyen ' + lista.length + ' produkte.');
+    toast('U rikthyen ' + teRikthyera.produktet.length + ' produkte.');
   }
 
   $('opsKopje').addEventListener('click', ruajKopjen);
@@ -813,11 +1058,12 @@
 
   // ---------- Lista + kërkimi ----------
   function renderLista() {
+    if (folderiAktual === null) return;
     var k = $('kerko').value.trim().toLowerCase();
-    var te = Object.keys(produktet).map(function (b) { return produktet[b]; });
+    var te = produktetENjeFolderi(folderiAktual);
     te.sort(krahaso);
 
-    $('titulli').textContent = 'Malli (' + te.length + ' produkte)';
+    $('titulli').textContent = emriFolderit(folderiAktual) + ' (' + te.length + ' produkte)';
     $('btnFshiTeGjitha').disabled = te.length === 0;
 
     var fil = te;
@@ -878,7 +1124,8 @@
   var dialogu = null;          // { barkodi, ekzistues }
 
   function hapDialogun(barkodi) {
-    var e = produktet[barkodi] || null;
+    if (folderiAktual === null) return;
+    var e = produktet[celesiProduktit(folderiAktual, barkodi)] || null;
     dialogu = { barkodi: barkodi, ekzistues: e };
     var paEmer = opsione.paEmer;
     $('dlgTitulli').textContent = e ? 'Produkti ekziston (tani: ' + e.sasia + ')' : (paEmer ? 'Produkt i ri (pa emër)' : 'Produkt i ri');
@@ -912,18 +1159,21 @@
     var sasia = parseInt(tekstSasia, 10);
     var e = dialogu.ekzistues;
     var total = (e ? e.sasia : 0) + sasia;
-    produktet[dialogu.barkodi] = { barkodi: dialogu.barkodi, emri: emri, sasia: total };
+    produktet[celesiProduktit(folderiAktual, dialogu.barkodi)] =
+      { barkodi: dialogu.barkodi, emri: emri, sasia: total, kategoriaId: folderiAktual };
     ruajBaze();
     mbyllDialogun();
     renderLista();
+    renderFolderat();
   }
 
   function fshijProduktin() {
     if (!dialogu || !dialogu.ekzistues) return;
-    delete produktet[dialogu.barkodi];
+    delete produktet[celesiProduktit(folderiAktual, dialogu.barkodi)];
     ruajBaze();
     mbyllDialogun();
     renderLista();
+    renderFolderat();
   }
 
   $('dlgRuaj').addEventListener('click', ruajProduktin);
@@ -1204,14 +1454,24 @@
     return !!(navigator.canShare && navigator.share && navigator.canShare({ files: [skedari] }));
   }
 
-  // Ndërton skedarin .xlsx nga lista aktuale
+  function sluguFolderit(emri) {
+    var s = String(emri).toLowerCase()
+      .replace(/ë/g, 'e').replace(/ç/g, 'c')
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+    return s || 'folder';
+  }
+
+  // Ndërton skedarin .xlsx vetëm me produktet e folderit aktual
   function krijoSkedarin() {
-    var te = Object.keys(produktet).map(function (b) { return produktet[b]; });
-    if (te.length === 0) { toast('Nuk ka produkte për eksport.'); return null; }
+    if (folderiAktual === null) return null;
+    var te = produktetENjeFolderi(folderiAktual);
+    if (te.length === 0) { toast('Nuk ka produkte për eksport në këtë folder.'); return null; }
     te.sort(emriKrahaso);
 
     var d = new Date();
-    var emri = 'malli_' + d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate()) +
+    var emri = 'malli_' + sluguFolderit(emriFolderit(folderiAktual)) + '_' +
+      d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate()) +
       '_' + dyShifra(d.getHours()) + dyShifra(d.getMinutes()) + '.xlsx';
 
     var bajtet = StokuXlsx.build(te);
@@ -1258,10 +1518,12 @@
   var kohezues = null;
 
   function hapFshirjen() {
-    var n = Object.keys(produktet).length;
+    if (folderiAktual === null) return;
+    var n = produktetENjeFolderi(folderiAktual).length;
     if (!n) return;
     $('fshiTekst').textContent =
-      'Do të fshihen të gjitha ' + n + ' produktet nga lista. Ky veprim NUK mund të kthehet.\n\n' +
+      'Do të fshihen të gjitha ' + n + ' produktet nga folderi «' + emriFolderit(folderiAktual) +
+      '». Ky veprim NUK mund të kthehet.\n\n' +
       'Nëse do një kopje, shtyp Anulo dhe eksporto fillimisht në Excel.';
     var s = 10;
     var btn = $('fshiKonfirmo');
@@ -1294,11 +1556,15 @@
   });
   $('fshiKonfirmo').addEventListener('click', function () {
     if ($('fshiKonfirmo').disabled) return;
-    produktet = {};
+    if (folderiAktual === null) return;
+    produktetENjeFolderi(folderiAktual).forEach(function (p) {
+      delete produktet[celesiProduktit(folderiAktual, p.barkodi)];
+    });
     ruajBaze();
     mbyllFshirjen();
     renderLista();
-    toast('U fshinë të gjitha produktet.');
+    renderFolderat();
+    toast('U fshinë të gjitha produktet nga folderi.');
   });
 
   // ---------- Service worker (punon edhe pa internet) ----------
@@ -1308,8 +1574,7 @@
     });
   }
 
-  renderLista();
-  fokusoBarkodin();
+  rifreskoPamjen();
 })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" crossorigin="anonymous"></script>
