@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stoku</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Stoku">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1565C0" id="metaTema">
+<script>
+  // Vendos temën para se faqja të vizatohet (që të mos ketë dridhje ndriçimi)
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('stoku:tema'); } catch (e) {}
+    if (t !== 'dark' && t !== 'light') {
+      t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-tema', t);
+  })();
+</script>
+<style>
+  :root {
+    color-scheme: light;
+    --primar: #1565C0;
+    --header: #1565C0;
+    --rrezik: #B3261E;
+    --tekst: #1c1b1f;
+    --gri: #5f5f66;
+    --vije: #e2e2e6;
+    --sfond: #ffffff;
+    --fushe-bg: #ffffff;
+    --fushe-kufi: #79747e;
+    --hover: #f2f4f8;
+    --dialog: #ffffff;
+    --dialog-tekst: #3b3b40;
+    --btn-off-bg: #cfd3d9;
+    --btn-off-tx: #8c9096;
+    --btn-tekst: #1565C0;
+    --toast-bg: #322f35;
+    --toast-tx: #ffffff;
+  }
+  :root[data-tema="dark"] {
+    color-scheme: dark;
+    --header: #0f3f7a;
+    --rrezik: #f2b8b5;
+    --tekst: #e6e1e5;
+    --gri: #a8a6ad;
+    --vije: #38363b;
+    --sfond: #141316;
+    --fushe-bg: #1c1b20;
+    --fushe-kufi: #8d8a93;
+    --hover: #232227;
+    --dialog: #2b2930;
+    --dialog-tekst: #d0cdd4;
+    --btn-off-bg: #3a393e;
+    --btn-off-tx: #77757c;
+    --btn-tekst: #8ab4f8;
+    --toast-bg: #e6e1e5;
+    --toast-tx: #1c1b1f;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--tekst);
+    background: var(--sfond);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    overscroll-behavior: none;
+  }
+  header {
+    background: var(--header);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 16px;
+    padding-top: calc(10px + env(safe-area-inset-top));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+  .krye-butona { display: flex; gap: 8px; flex: none; }
+  .btn-ikone {
+    position: relative;
+    flex: none;
+    width: 42px; height: 42px;
+    padding: 0;
+    border: 0;
+    border-radius: 21px;
+    background: rgba(255,255,255,.18);
+    color: #fff;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .btn-ikone:active { background: rgba(255,255,255,.3); }
+  .btn-ikone.aktiv { background: rgba(255,255,255,.38); }
+  /* vijë e pjerrët mbi ikonën e tastierës kur tastiera është e fshehur */
+  #btnTastiera.aktiv::after {
+    content: ''; position: absolute; left: 8px; right: 8px; top: 50%;
+    height: 2.5px; margin-top: -1px; border-radius: 2px; background: #fff;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.3); transform: rotate(-38deg);
+  }
+  .siper {
+    padding: 12px 16px 4px;
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  label { display: block; font-size: 13px; color: var(--gri); margin: 0 0 4px 2px; }
+  input[type="text"], input[type="search"], input[type="number"] {
+    width: 100%;
+    height: 48px;
+    font-size: 16px; /* 16px parandalon zoom-in automatik në iPhone */
+    padding: 0 12px;
+    border: 1px solid var(--fushe-kufi);
+    border-radius: 8px;
+    background: var(--fushe-bg);
+    color: var(--tekst);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input:focus { border-color: var(--btn-tekst); box-shadow: 0 0 0 1px var(--btn-tekst); }
+  .rreshti { display: flex; gap: 8px; margin: 10px 0 6px; }
+  .btn {
+    flex: 1;
+    min-height: 46px;
+    border: 0;
+    border-radius: 23px;
+    background: var(--primar);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 0 12px;
+    cursor: pointer;
+  }
+  .btn:active { opacity: .85; }
+  .btn:disabled { background: var(--btn-off-bg); color: var(--btn-off-tx); cursor: default; }
+  .btn.tekst { background: transparent; color: var(--btn-tekst); flex: none; padding: 0 14px; }
+  .btn.tekst.rrezik { color: var(--rrezik); }
+  .btn.tekst:disabled { background: transparent; color: var(--btn-off-tx); }
+  .fushe { margin-bottom: 8px; }
+  #lista {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 16px;
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  .artikull {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--vije);
+    cursor: pointer;
+  }
+  .artikull:active { background: var(--hover); }
+  .artikull .majtas { flex: 1; min-width: 0; }
+  .artikull .emri { font-size: 16px; font-weight: 500; overflow-wrap: anywhere; }
+  .artikull .emri.bosh { color: var(--gri); font-style: italic; font-weight: 400; }
+  .artikull .kodi { font-size: 12px; color: var(--gri); margin-top: 2px; }
+  .artikull .sasia { font-size: 22px; font-weight: 500; }
+  .info { color: var(--gri); font-size: 14px; padding: 12px 2px; }
+  footer {
+    padding: 4px 16px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--vije);
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Dialogët */
+  .mbulese {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 20;
+  }
+  .mbulese.hapur { display: flex; }
+  .dialog {
+    width: 100%; max-width: 380px;
+    background: var(--dialog);
+    color: var(--tekst);
+    border-radius: 24px;
+    padding: 22px 20px 12px;
+    max-height: 90%;
+    overflow-y: auto;
+  }
+  .dialog h2 { margin: 0 0 12px; font-size: 20px; font-weight: 600; }
+  .dialog p { margin: 0 0 12px; font-size: 15px; white-space: pre-line; color: var(--dialog-tekst); }
+  .dialog .kodi-dialog { font-size: 15px; margin-bottom: 12px; overflow-wrap: anywhere; white-space: pre-line; }
+  .dialog .fushe { margin-bottom: 12px; }
+  .veprime { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 4px; padding-top: 4px; }
+  .hint { font-size: 13px; color: var(--gri); margin: 2px 0 12px; white-space: normal; }
+
+  /* Opsionet */
+  .dialog.opsione { max-width: 420px; }
+  .dialog.opsione .veprime {
+    position: sticky; bottom: -12px; background: var(--dialog);
+    padding: 6px 0 12px; margin-top: 4px; border-top: 1px solid var(--vije);
+  }
+  .opsione .seksion { padding: 12px 0; border-top: 1px solid var(--vije); }
+  .opsione .seksion:first-of-type { border-top: 0; padding-top: 0; }
+  .opsion-titull { font-size: 13px; font-weight: 700; color: var(--gri); margin-bottom: 8px; }
+  .segment { display: flex; border: 1px solid var(--fushe-kufi); border-radius: 22px; overflow: hidden; }
+  .segment button {
+    flex: 1; min-height: 40px; border: 0; background: transparent; color: var(--tekst);
+    font-size: 14px; font-weight: 600; cursor: pointer; padding: 0 6px;
+  }
+  .segment button + button { border-left: 1px solid var(--fushe-kufi); }
+  .segment button.aktiv { background: var(--primar); color: #fff; }
+  label.opsion-rresht {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    font-size: 16px; color: var(--tekst); margin: 0; padding: 8px 0; cursor: pointer;
+  }
+  .ndez { position: relative; flex: none; width: 52px; height: 32px; }
+  .ndez input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; z-index: 1; }
+  .ndez .pist { position: absolute; inset: 0; border-radius: 16px; background: var(--fushe-kufi); transition: background .15s; }
+  .ndez .pist::after {
+    content: ''; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px;
+    border-radius: 50%; background: #fff; transition: transform .15s;
+  }
+  .ndez input:checked + .pist { background: var(--primar); }
+  .ndez input:checked + .pist::after { transform: translateX(20px); }
+  select {
+    width: 100%; height: 48px; font-size: 16px; padding: 0 36px 0 12px;
+    border: 1px solid var(--fushe-kufi); border-radius: 8px;
+    background-color: var(--fushe-bg); color: var(--tekst); outline: none;
+    -webkit-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'><path d='M1 1l6 6 6-6' fill='none' stroke='%23888' stroke-width='2'/></svg>");
+    background-repeat: no-repeat; background-position: right 12px center;
+  }
+  select:focus { border-color: var(--btn-tekst); box-shadow: 0 0 0 1px var(--btn-tekst); }
+
+  /* Kamera */
+  #kamera {
+    position: fixed; inset: 0;
+    background: #000;
+    z-index: 30;
+    display: none;
+    flex-direction: column;
+  }
+  #kamera.hapur { display: flex; }
+  .kamera-krye {
+    display: flex; align-items: center; justify-content: space-between;
+    color: #fff;
+    padding: 12px 16px;
+    padding-top: max(12px, env(safe-area-inset-top));
+    gap: 12px;
+    font-size: 15px;
+  }
+  .kamera-krye .btn { flex: none; min-height: 40px; background: #fff; color: #000; }
+  #reader { width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; }
+  #reader video { max-width: 100%; }
+
+  #toast {
+    position: fixed;
+    left: 50%; transform: translateX(-50%);
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    background: var(--toast-bg); color: var(--toast-tx);
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    max-width: 90%;
+    z-index: 40;
+    display: none;
+    text-align: center;
+  }
+  #toast.hapur { display: block; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1 id="titulli">Malli (0 produkte)</h1>
+  <div class="krye-butona">
+    <button id="btnTastiera" class="btn-ikone" type="button" aria-label="Fshih tastierën" title="Fshih tastierën">⌨️</button>
+    <button id="btnOpsione" class="btn-ikone" type="button" aria-label="Opsionet" title="Opsionet">⚙️</button>
+  </div>
+</header>
+
+<div class="siper">
+  <div class="fushe">
+    <label for="barkodi" id="lblBarkodi">Barkodi (scanner Bluetooth ose shkruaje)</label>
+    <input id="barkodi" type="text" inputmode="text" enterkeyhint="done"
+           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  </div>
+  <div class="rreshti">
+    <button class="btn" id="btnKamera" type="button">Skano me kamerë</button>
+    <button class="btn" id="btnEksport" type="button">Eksporto në Excel</button>
+  </div>
+  <div class="fushe">
+    <label for="kerko">Kërko sipas emrit ose barkodit</label>
+    <input id="kerko" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  </div>
+</div>
+
+<div id="lista"></div>
+
+<footer>
+  <button class="btn tekst rrezik" id="btnFshiTeGjitha" type="button">Fshij të gjitha produktet</button>
+</footer>
+
+<!-- Dialogu i produktit -->
+<div class="mbulese" id="dlgProdukt">
+  <div class="dialog" role="dialog" aria-modal="true">
+    <h2 id="dlgTitulli">Produkt i ri</h2>
+    <div class="kodi-dialog" id="dlgKodi"></div>
+    <div class="fushe" id="fushaEmri">
+      <label for="dlgEmri">Emri i produktit</label>
+      <input id="dlgEmri" type="text" autocomplete="off" autocorrect="off" enterkeyhint="next">
+    </div>
+    <div class="fushe">
+      <label for="dlgSasia" id="dlgSasiaLabel">Sasia</label>
+      <input id="dlgSasia" type="number" step="1" enterkeyhint="done" autocomplete="off">
+    </div>
+    <div class="veprime">
+      <button class="btn tekst rrezik" id="dlgFshij" type="button">Fshij</button>
+      <button class="btn tekst" id="dlgAnulo" type="button">Anulo</button>
+      <button class="btn tekst" id="dlgRuaj" type="button">Ruaj</button>
+    </div>
+  </div>
+</div>
+
+<!-- Dialogu i fshirjes së të gjithave -->
+<div class="mbulese" id="dlgFshirje">
+  <div class="dialog" role="alertdialog" aria-modal="true">
+    <h2>Të fshihen të gjitha?</h2>
+    <p id="fshiTekst"></p>
+    <div class="veprime">
+      <button class="btn tekst" id="fshiAnulo" type="button">Anulo</button>
+      <button class="btn tekst rrezik" id="fshiKonfirmo" type="button" disabled>Fshi krejt (10)</button>
+    </div>
+  </div>
+</div>
+
+<!-- Opsionet -->
+<div class="mbulese" id="dlgOpsione">
+  <div class="dialog opsione" role="dialog" aria-modal="true">
+    <h2>Opsionet</h2>
+
+    <div class="seksion">
+      <div class="opsion-titull">Pamja</div>
+      <div class="segment" id="segTema">
+        <button type="button" data-v="auto">Automatike</button>
+        <button type="button" data-v="light">E çelët</button>
+        <button type="button" data-v="dark">E errët</button>
+      </div>
+      <div class="hint">«Automatike» ndjek cilësimin e telefonit.</div>
+    </div>
+
+    <div class="seksion">
+      <div class="opsion-titull">Skenimi</div>
+      <label class="opsion-rresht" for="opsPda">
+        <span>Ky është PDA (skaner i brendshëm)</span>
+        <span class="ndez"><input type="checkbox" id="opsPda"><span class="pist"></span></span>
+      </label>
+      <div class="hint">Kur është ndezur, fshihet butoni i kamerës dhe kursori qëndron te fusha e barkodit për skanerin e PDA-së.</div>
+      <label class="opsion-rresht" for="opsPaEmer">
+        <span>Skano vetëm barkodin dhe sasinë (pa emër)</span>
+        <span class="ndez"><input type="checkbox" id="opsPaEmer"><span class="pist"></span></span>
+      </label>
+      <div class="hint">Nuk rekomandohet. Produktet e reja regjistrohen pa emër dhe fusha e emrit fshihet.</div>
+      <label class="opsion-rresht" for="opsTingull" id="rreshtTingull">
+        <span>Tingulli (bip) kur skanon me kamerë</span>
+        <span class="ndez"><input type="checkbox" id="opsTingull"><span class="pist"></span></span>
+      </label>
+      <label class="opsion-rresht" for="opsScanner" id="rreshtScanner">
+        <span>Mbaje kursorin te fusha e barkodit (për scanner)</span>
+        <span class="ndez"><input type="checkbox" id="opsScanner"><span class="pist"></span></span>
+      </label>
+    </div>
+
+    <div class="seksion">
+      <div class="opsion-titull">Lista</div>
+      <div class="fushe">
+        <label for="opsRendi">Rendit sipas</label>
+        <select id="opsRendi">
+          <option value="emri">Emri (A–Z)</option>
+          <option value="sasiaUlet">Sasia: nga më e vogla</option>
+          <option value="sasiaLart">Sasia: nga më e madhja</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="seksion">
+      <div class="opsion-titull">Kopje rezervë</div>
+      <div class="hint">Ruaj një kopje të plotë të listës (skedar .json) dhe rikthe kur të duhet, p.sh. në telefon të ri.</div>
+      <div class="rreshti">
+        <button class="btn" id="opsKopje" type="button">Ruaj kopjen</button>
+        <button class="btn" id="opsRikthe" type="button">Rikthe kopjen</button>
+      </div>
+      <input type="file" id="fileRikthe" hidden>
+    </div>
+
+    <div class="seksion">
+      <div class="hint">Stoku 1.0 · Të dhënat ruhen vetëm në këtë telefon. Bëj kopje rezervë herë pas here.</div>
+    </div>
+
+    <div class="veprime">
+      <button class="btn tekst" id="opsMbyll" type="button">Mbyll</button>
+    </div>
+  </div>
+</div>
+
+<!-- Konfirmim i përgjithshëm -->
+<div class="mbulese" id="dlgKonfirmo">
+  <div class="dialog" role="alertdialog" aria-modal="true">
+    <h2 id="konfTitulli"></h2>
+    <p id="konfTekst"></p>
+    <div class="veprime">
+      <button class="btn tekst" id="konfJo" type="button">Anulo</button>
+      <button class="btn tekst rrezik" id="konfPo" type="button">Vazhdo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Kamera -->
+<div id="kamera">
+  <div class="kamera-krye">
+    <span>Drejtoje kamerën te barkodi</span>
+    <button class="btn" id="mbyllKamere" type="button">Mbyll</button>
+  </div>
+  <div id="reader"></div>
+</div>
+
+<div id="toast"></div>
+
+<script src="xlsx.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var KEY = 'stoku:produktet:v1';
+  var LIMIT_RENDER = 300;
+  var MIME_XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+  function $(id) { return document.getElementById(id); }
+
+  // ---------- Baza (localStorage) ----------
+  var produktet = {};
+  try { produktet = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { produktet = {}; }
+
+  function ruajBaze() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(produktet));
+      return true;
+    } catch (e) {
+      toast('Ruajtja dështoi: memoria e shfletuesit është plot.');
+      return false;
+    }
+  }
+
+  try {
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist();
+  } catch (e) { /* nuk ka problem */ }
+
+  // ---------- Toast ----------
+  var toastKohe = null;
+  function toast(mesazh) {
+    var t = $('toast');
+    t.textContent = mesazh;
+    t.classList.add('hapur');
+    clearTimeout(toastKohe);
+    toastKohe = setTimeout(function () { t.classList.remove('hapur'); }, 2600);
+  }
+
+  // ---------- Opsionet ----------
+  var KEY_OPSIONE = 'stoku:opsione:v1';
+  var KEY_TEMA = 'stoku:tema';
+
+  var opsione = { tingull: true, rendi: 'emri', scanner: true, pda: false, tastieraEFshehur: false, paEmer: false };
+  try {
+    var opsioneRuajtura = JSON.parse(localStorage.getItem(KEY_OPSIONE) || 'null');
+    if (opsioneRuajtura && typeof opsioneRuajtura === 'object') {
+      if (typeof opsioneRuajtura.tingull === 'boolean') opsione.tingull = opsioneRuajtura.tingull;
+      if (typeof opsioneRuajtura.scanner === 'boolean') opsione.scanner = opsioneRuajtura.scanner;
+      if (typeof opsioneRuajtura.pda === 'boolean') opsione.pda = opsioneRuajtura.pda;
+      if (typeof opsioneRuajtura.paEmer === 'boolean') opsione.paEmer = opsioneRuajtura.paEmer;
+      if (typeof opsioneRuajtura.tastieraEFshehur === 'boolean') opsione.tastieraEFshehur = opsioneRuajtura.tastieraEFshehur;
+      if (['emri', 'sasiaUlet', 'sasiaLart'].indexOf(opsioneRuajtura.rendi) !== -1) opsione.rendi = opsioneRuajtura.rendi;
+    }
+  } catch (e) { /* përdor vlerat fillestare */ }
+
+  function ruajOpsionet() {
+    try { localStorage.setItem(KEY_OPSIONE, JSON.stringify(opsione)); } catch (e) { /* ok */ }
+  }
+
+  // Tema: 'auto' (ndjek telefonin), 'light' ose 'dark'
+  function zgjedhjaETemes() {
+    var t = null;
+    try { t = localStorage.getItem(KEY_TEMA); } catch (e) { /* ok */ }
+    return (t === 'dark' || t === 'light') ? t : 'auto';
+  }
+  function temaEfektive() {
+    var z = zgjedhjaETemes();
+    if (z !== 'auto') return z;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function zbatoTemen() {
+    var t = temaEfektive();
+    document.documentElement.setAttribute('data-tema', t);
+    $('metaTema').setAttribute('content', t === 'dark' ? '#0f3f7a' : '#1565C0');
+    var z = zgjedhjaETemes();
+    Array.prototype.forEach.call(document.querySelectorAll('#segTema button'), function (b) {
+      b.classList.toggle('aktiv', b.getAttribute('data-v') === z);
+    });
+  }
+  function vendosTemen(v) {
+    try {
+      if (v === 'auto') localStorage.removeItem(KEY_TEMA); else localStorage.setItem(KEY_TEMA, v);
+    } catch (e) { /* ok */ }
+    zbatoTemen();
+  }
+  if (window.matchMedia) {
+    var mqErret = window.matchMedia('(prefers-color-scheme: dark)');
+    var kurNdryshonTelefoni = function () { if (zgjedhjaETemes() === 'auto') zbatoTemen(); };
+    if (mqErret.addEventListener) mqErret.addEventListener('change', kurNdryshonTelefoni);
+    else if (mqErret.addListener) mqErret.addListener(kurNdryshonTelefoni);
+  }
+  zbatoTemen();
+
+  // Rendi i listës
+  function emriKrahaso(a, b) {
+    if (!a.emri && !b.emri) return a.barkodi.localeCompare(b.barkodi);
+    if (!a.emri) return 1;
+    if (!b.emri) return -1;
+    return a.emri.localeCompare(b.emri, 'sq', { sensitivity: 'base' }) || a.barkodi.localeCompare(b.barkodi);
+  }
+  function krahaso(a, b) {
+    if (opsione.rendi === 'sasiaUlet') return (a.sasia - b.sasia) || emriKrahaso(a, b);
+    if (opsione.rendi === 'sasiaLart') return (b.sasia - a.sasia) || emriKrahaso(a, b);
+    return emriKrahaso(a, b);
+  }
+
+  // Modaliteti PDA: fsheh kamerën dhe e mban kursorin te fusha e barkodit
+  function zbatoPda() {
+    var pda = opsione.pda;
+    $('btnKamera').style.display = pda ? 'none' : '';
+    $('rreshtTingull').style.display = pda ? 'none' : '';
+    $('rreshtScanner').style.display = pda ? 'none' : '';
+    $('lblBarkodi').textContent = pda ? 'Barkodi (skano me PDA ose shkruaje)' : 'Barkodi (scanner Bluetooth ose shkruaje)';
+  }
+
+  // Kthen kursorin te fusha e barkodit (vetëm në modalitetin PDA, dhe vetëm nëse nuk ka dritare të hapur)
+  function fokusoBarkodin() {
+    if (!opsione.pda) return;
+    if (document.querySelector('.mbulese.hapur')) return;
+    $('barkodi').focus();
+  }
+
+  // Tastiera në ekran: "inputmode=none" e fsheh tastierën por fusha mbetet aktive (skaneri vazhdon të shkruajë)
+  function zbatoTastieren() {
+    var fshehur = opsione.tastieraEFshehur;
+    $('barkodi').setAttribute('inputmode', fshehur ? 'none' : 'text');
+    $('btnTastiera').classList.toggle('aktiv', fshehur);
+    $('btnTastiera').setAttribute('aria-label', fshehur ? 'Shfaq tastierën' : 'Fshih tastierën');
+    $('btnTastiera').title = fshehur ? 'Shfaq tastierën' : 'Fshih tastierën';
+  }
+
+  zbatoPda();
+  zbatoTastieren();
+
+  // Dialogu i opsioneve
+  function hapOpsionet() {
+    $('opsTingull').checked = opsione.tingull;
+    $('opsScanner').checked = opsione.scanner;
+    $('opsPda').checked = opsione.pda;
+    $('opsPaEmer').checked = opsione.paEmer;
+    zbatoPda();
+    $('opsRendi').value = opsione.rendi;
+    zbatoTemen();
+    $('dlgOpsione').classList.add('hapur');
+  }
+  function mbyllOpsionet() { $('dlgOpsione').classList.remove('hapur'); fokusoBarkodin(); }
+
+  $('btnOpsione').addEventListener('click', hapOpsionet);
+  $('opsMbyll').addEventListener('click', mbyllOpsionet);
+  $('dlgOpsione').addEventListener('click', function (ev) {
+    if (ev.target === $('dlgOpsione')) mbyllOpsionet();
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#segTema button'), function (b) {
+    b.addEventListener('click', function () { vendosTemen(b.getAttribute('data-v')); });
+  });
+  $('opsTingull').addEventListener('change', function () {
+    opsione.tingull = $('opsTingull').checked;
+    ruajOpsionet();
+    if (opsione.tingull) { pergatitAudion(); bip(); } // një provë e shkurtër
+  });
+  $('opsScanner').addEventListener('change', function () {
+    opsione.scanner = $('opsScanner').checked;
+    ruajOpsionet();
+  });
+  $('opsPda').addEventListener('change', function () {
+    opsione.pda = $('opsPda').checked;
+    ruajOpsionet();
+    zbatoPda();
+  });
+  $('btnTastiera').addEventListener('click', function () {
+    opsione.tastieraEFshehur = !opsione.tastieraEFshehur;
+    ruajOpsionet();
+    zbatoTastieren();
+    // rifokuso që ndryshimi të hyjë në fuqi menjëherë: tastiera zhduket (ose shfaqet) dhe fusha mbetet aktive
+    var f = $('barkodi');
+    f.blur();
+    f.focus();
+    toast(opsione.tastieraEFshehur ? 'Tastiera nuk do të shfaqet për fushën e barkodit.' : 'Tastiera do të shfaqet përsëri.');
+  });
+  $('opsPaEmer').addEventListener('change', async function () {
+    if (!$('opsPaEmer').checked) {          // fikja nuk kërkon paralajmërim
+      opsione.paEmer = false;
+      ruajOpsionet();
+      return;
+    }
+    $('opsPaEmer').checked = false;          // ndizet vetëm pasi ta pranosh paralajmërimin
+    var po = await konfirmo(
+      'Të regjistrohen produktet pa emër?',
+      'Nuk rekomandohet të regjistrohen produktet pa emër. Në listë dhe në Excel do të shihet vetëm barkodi, ' +
+        'kështu që është më e vështirë të gjesh, të kontrollosh ose të njohësh një produkt më vonë, sidomos nëse ' +
+        'ndonjë barkod është skenuar gabim.\n\nProdukteve që kanë tashmë emër nuk u fshihet emri.\n\n' +
+        'Nëse je i sigurt, prit 5 sekonda dhe shtyp «Aktivizo».',
+      'Aktivizo',
+      5
+    );
+    if (po) {
+      opsione.paEmer = true;
+      $('opsPaEmer').checked = true;
+      ruajOpsionet();
+    }
+  });
+  $('opsRendi').addEventListener('change', function () {
+    opsione.rendi = $('opsRendi').value;
+    ruajOpsionet();
+    renderLista();
+  });
+
+  // Konfirmim i përgjithshëm (kthen Promise me true/false)
+  var konfRez = null;
+  var konfKohez = null;
+  // vonesa (opsionale) = sekonda para se butoni i pranimit aktivizohet
+  function konfirmo(titulli, teksti, butoni, vonesa) {
+    return new Promise(function (zgjidh) {
+      $('konfTitulli').textContent = titulli;
+      $('konfTekst').textContent = teksti;
+      var btn = $('konfPo');
+      clearInterval(konfKohez);
+      if (vonesa > 0) {
+        var s = vonesa;
+        btn.disabled = true;
+        btn.textContent = butoni + ' (' + s + ')';
+        konfKohez = setInterval(function () {
+          s--;
+          if (s > 0) {
+            btn.textContent = butoni + ' (' + s + ')';
+          } else {
+            clearInterval(konfKohez);
+            btn.disabled = false;
+            btn.textContent = butoni;
+          }
+        }, 1000);
+      } else {
+        btn.disabled = false;
+        btn.textContent = butoni;
+      }
+      konfRez = zgjidh;
+      $('dlgKonfirmo').classList.add('hapur');
+    });
+  }
+  function mbyllKonfirmo(vlera) {
+    clearInterval(konfKohez);
+    $('dlgKonfirmo').classList.remove('hapur');
+    fokusoBarkodin();
+    if (konfRez) { var r = konfRez; konfRez = null; r(vlera); }
+  }
+  $('konfPo').addEventListener('click', function () { mbyllKonfirmo(true); });
+  $('konfJo').addEventListener('click', function () { mbyllKonfirmo(false); });
+  $('dlgKonfirmo').addEventListener('click', function (ev) {
+    if (ev.target === $('dlgKonfirmo')) mbyllKonfirmo(false);
+  });
+
+  // Kopje rezervë (.json)
+  function stampaKohes() {
+    var d = new Date();
+    return d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate()) +
+      '_' + dyShifra(d.getHours()) + dyShifra(d.getMinutes());
+  }
+
+  async function ruajKopjen() {
+    var te = Object.keys(produktet).map(function (b) { return produktet[b]; });
+    if (te.length === 0) { toast('Nuk ka produkte për kopje rezervë.'); return; }
+    var teksti = JSON.stringify({ app: 'stoku', version: 1, koha: new Date().toISOString(), produktet: te });
+    var emri = 'stoku-kopje_' + stampaKohes() + '.json';
+    var skedari = new File([teksti], emri, { type: 'application/json' });
+    var siTekst = new File([teksti], emri, { type: 'text/plain' }); // disa telefona e lejojnë vetëm si tekst
+    var perShare = kaShare(skedari) ? skedari : (kaShare(siTekst) ? siTekst : null);
+    if (perShare) {
+      try {
+        await navigator.share({ files: [perShare], title: 'Kopje rezervë - Stoku' });
+        return;
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;
+      }
+    }
+    shkarkoDirekt({ skedari: skedari, emri: emri });
+    toast('Kopja rezervë u shkarkua: ' + emri);
+  }
+
+  async function rikthePrejSkedari(skedari) {
+    var lista = null;
+    try {
+      var te = JSON.parse(await skedari.text());
+      var arr = Array.isArray(te) ? te : (te && te.produktet);
+      if (Array.isArray(arr)) {
+        lista = arr.filter(function (p) {
+          return p && typeof p.barkodi === 'string' && p.barkodi.trim() !== '' &&
+            typeof p.emri === 'string' && Number.isInteger(p.sasia);
+        }).map(function (p) {
+          var b = p.barkodi.trim();
+          return { barkodi: b, emri: p.emri.trim(), sasia: p.sasia };
+        });
+      }
+    } catch (e) { lista = null; }
+
+    if (!lista || lista.length === 0) {
+      toast('Ky skedar nuk është kopje rezervë e vlefshme.');
+      return;
+    }
+    var aktual = Object.keys(produktet).length;
+    var po = await konfirmo(
+      'Të rikthehet kopja?',
+      'Do të zëvendësohen të gjitha ' + aktual + ' produktet aktuale me ' + lista.length +
+        ' produkte nga kopja.\n\nKy veprim nuk kthehet. Nëse do, ruaj fillimisht një kopje të listës aktuale.',
+      'Rikthe'
+    );
+    if (!po) return;
+    var ri = {};
+    lista.forEach(function (p) { ri[p.barkodi] = p; });
+    produktet = ri;
+    ruajBaze();
+    renderLista();
+    mbyllOpsionet();
+    toast('U rikthyen ' + lista.length + ' produkte.');
+  }
+
+  $('opsKopje').addEventListener('click', ruajKopjen);
+  $('opsRikthe').addEventListener('click', function () {
+    $('fileRikthe').value = '';
+    $('fileRikthe').click();
+  });
+  $('fileRikthe').addEventListener('change', function () {
+    var f = $('fileRikthe').files && $('fileRikthe').files[0];
+    if (f) rikthePrejSkedari(f);
+  });
+
+  // ---------- Lista + kërkimi ----------
+  function renderLista() {
+    var k = $('kerko').value.trim().toLowerCase();
+    var te = Object.keys(produktet).map(function (b) { return produktet[b]; });
+    te.sort(krahaso);
+
+    $('titulli').textContent = 'Malli (' + te.length + ' produkte)';
+    $('btnFshiTeGjitha').disabled = te.length === 0;
+
+    var fil = te;
+    if (k) {
+      fil = te.filter(function (p) {
+        return p.emri.toLowerCase().indexOf(k) !== -1 || p.barkodi.toLowerCase().indexOf(k) !== -1;
+      });
+    }
+
+    var lista = $('lista');
+    lista.textContent = '';
+    var frag = document.createDocumentFragment();
+
+    if (fil.length === 0 && k) {
+      var i0 = document.createElement('div');
+      i0.className = 'info';
+      i0.textContent = 'Nuk u gjet asnjë produkt.';
+      frag.appendChild(i0);
+    }
+
+    fil.slice(0, LIMIT_RENDER).forEach(function (p) {
+      var rreshti = document.createElement('div');
+      rreshti.className = 'artikull';
+      var majtas = document.createElement('div');
+      majtas.className = 'majtas';
+      var emri = document.createElement('div');
+      emri.className = 'emri';
+      emri.textContent = p.emri || '(pa emër)';
+      if (!p.emri) emri.className = 'emri bosh';
+      var kodi = document.createElement('div');
+      kodi.className = 'kodi';
+      kodi.textContent = p.barkodi;
+      majtas.appendChild(emri);
+      majtas.appendChild(kodi);
+      var sasia = document.createElement('div');
+      sasia.className = 'sasia';
+      sasia.textContent = String(p.sasia);
+      rreshti.appendChild(majtas);
+      rreshti.appendChild(sasia);
+      rreshti.addEventListener('click', function () {
+        burimiIFundit = 'lista';
+        hapDialogun(p.barkodi);
+      });
+      frag.appendChild(rreshti);
+    });
+
+    if (fil.length > LIMIT_RENDER) {
+      var i1 = document.createElement('div');
+      i1.className = 'info';
+      i1.textContent = 'Shfaqen ' + LIMIT_RENDER + ' nga ' + fil.length + ' produkte. Përdor kërkimin për të gjetur të tjerët.';
+      frag.appendChild(i1);
+    }
+    lista.appendChild(frag);
+  }
+
+  // ---------- Dialogu i produktit ----------
+  var burimiIFundit = 'fushe'; // 'fushe' (scanner/tastierë), 'kamera' ose 'lista'
+  var dialogu = null;          // { barkodi, ekzistues }
+
+  function hapDialogun(barkodi) {
+    var e = produktet[barkodi] || null;
+    dialogu = { barkodi: barkodi, ekzistues: e };
+    var paEmer = opsione.paEmer;
+    $('dlgTitulli').textContent = e ? 'Produkti ekziston (tani: ' + e.sasia + ')' : (paEmer ? 'Produkt i ri (pa emër)' : 'Produkt i ri');
+    $('dlgKodi').textContent = 'Barkodi: ' + barkodi + ((paEmer && e && e.emri) ? '\nEmri: ' + e.emri : '');
+    $('fushaEmri').style.display = paEmer ? 'none' : '';
+    $('dlgEmri').value = e ? e.emri : '';
+    $('dlgSasia').value = '';
+    $('dlgSasiaLabel').textContent = e ? "Sasia për t'u shtuar" : 'Sasia';
+    $('dlgFshij').style.display = e ? '' : 'none';
+    $('dlgProdukt').classList.add('hapur');
+    ((e || paEmer) ? $('dlgSasia') : $('dlgEmri')).focus();
+  }
+
+  function mbyllDialogun() {
+    $('dlgProdukt').classList.remove('hapur');
+    dialogu = null;
+    if (opsione.pda || (burimiIFundit === 'fushe' && opsione.scanner)) {
+      // kthe fokusin te fusha e barkodit (për scanner Bluetooth)
+      $('barkodi').focus();
+    } else {
+      document.activeElement && document.activeElement.blur && document.activeElement.blur();
+    }
+  }
+
+  function ruajProduktin() {
+    if (!dialogu) return;
+    var emri = opsione.paEmer ? (dialogu.ekzistues ? dialogu.ekzistues.emri : '') : $('dlgEmri').value.trim();
+    var tekstSasia = $('dlgSasia').value.trim();
+    if (!opsione.paEmer && !emri) { toast('Shkruaj emrin e produktit.'); $('dlgEmri').focus(); return; }
+    if (!/^-?\d+$/.test(tekstSasia)) { toast('Shkruaj sasinë (numër i plotë).'); $('dlgSasia').focus(); return; }
+    var sasia = parseInt(tekstSasia, 10);
+    var e = dialogu.ekzistues;
+    var total = (e ? e.sasia : 0) + sasia;
+    produktet[dialogu.barkodi] = { barkodi: dialogu.barkodi, emri: emri, sasia: total };
+    ruajBaze();
+    mbyllDialogun();
+    renderLista();
+  }
+
+  function fshijProduktin() {
+    if (!dialogu || !dialogu.ekzistues) return;
+    delete produktet[dialogu.barkodi];
+    ruajBaze();
+    mbyllDialogun();
+    renderLista();
+  }
+
+  $('dlgRuaj').addEventListener('click', ruajProduktin);
+  $('dlgAnulo').addEventListener('click', mbyllDialogun);
+  $('dlgFshij').addEventListener('click', fshijProduktin);
+  $('dlgEmri').addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') { ev.preventDefault(); $('dlgSasia').focus(); }
+  });
+  $('dlgSasia').addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') { ev.preventDefault(); ruajProduktin(); }
+  });
+  $('dlgProdukt').addEventListener('click', function (ev) {
+    if (ev.target === $('dlgProdukt')) mbyllDialogun();
+  });
+
+  // ---------- Fusha e barkodit (scanner Bluetooth / tastierë) ----------
+  $('barkodi').addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') {
+      ev.preventDefault();
+      var b = $('barkodi').value.trim();
+      $('barkodi').value = '';
+      if (!b) return;
+      burimiIFundit = 'fushe';
+      hapDialogun(b);
+    }
+  });
+
+  $('kerko').addEventListener('input', renderLista);
+
+  // ---------- Tingulli (vetëm kur skanon me kamerë) ----------
+  var audioCtx = null;
+  function pergatitAudion() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!audioCtx) audioCtx = new AC();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    } catch (e) { /* pa tingull */ }
+  }
+  function bip() {
+    if (!opsione.tingull) return;
+    try {
+      pergatitAudion();
+      if (!audioCtx) return;
+      var o = audioCtx.createOscillator();
+      var g = audioCtx.createGain();
+      o.type = 'square';
+      o.frequency.value = 1800;
+      g.gain.value = 0.15;
+      o.connect(g);
+      g.connect(audioCtx.destination);
+      o.start();
+      o.stop(audioCtx.currentTime + 0.15);
+    } catch (e) { /* pa tingull */ }
+  }
+
+  // ---------- Kamera ----------
+  var skaneri = null;
+  var perpunuar = false;
+
+  async function hapKamere() {
+    pergatitAudion(); // duhet thirrur nga prekja e përdoruesit që tingulli të lejohet në iPhone
+    if (typeof Html5Qrcode === 'undefined') {
+      toast('Kamera nuk është gati. Lidhu me internet dhe hape prapë aplikacionin.');
+      return;
+    }
+    perpunuar = false;
+    $('kamera').classList.add('hapur');
+    try {
+      var F = Html5QrcodeSupportedFormats;
+      skaneri = new Html5Qrcode('reader', {
+        formatsToSupport: [F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E, F.CODE_128, F.CODE_39, F.CODE_93, F.ITF, F.CODABAR, F.QR_CODE],
+        experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+        verbose: false
+      });
+      await skaneri.start(
+        { facingMode: 'environment' },
+        {
+          fps: 10,
+          qrbox: function (w, h) {
+            return { width: Math.floor(Math.min(w * 0.85, 340)), height: Math.floor(Math.min(h * 0.4, 160)) };
+          }
+        },
+        function (tekstiILexuar) {
+          if (perpunuar) return;
+          perpunuar = true;
+          bip();
+          ndalKamere().then(function () {
+            burimiIFundit = 'kamera';
+            hapDialogun(String(tekstiILexuar).trim());
+          });
+        },
+        function () { /* gabimet e vazhdueshme të leximit shpërfillen */ }
+      );
+    } catch (err) {
+      await ndalKamere();
+      toast('Kamera nuk u hap. Lejo kamerën për këtë aplikacion te Settings.');
+    }
+  }
+
+  async function ndalKamere() {
+    var s = skaneri;
+    skaneri = null;
+    if (s) {
+      try { await s.stop(); } catch (e) { /* ok */ }
+      try { s.clear(); } catch (e) { /* ok */ }
+    }
+    $('kamera').classList.remove('hapur');
+  }
+
+  $('btnKamera').addEventListener('click', hapKamere);
+  $('mbyllKamere').addEventListener('click', ndalKamere);
+
+  // ---------- Eksporti në Excel (.xlsx) ----------
+  function dyShifra(n) { return (n < 10 ? '0' : '') + n; }
+
+  function kaShare(skedari) {
+    return !!(navigator.canShare && navigator.share && navigator.canShare({ files: [skedari] }));
+  }
+
+  // Ndërton skedarin .xlsx nga lista aktuale
+  function krijoSkedarin() {
+    var te = Object.keys(produktet).map(function (b) { return produktet[b]; });
+    if (te.length === 0) { toast('Nuk ka produkte për eksport.'); return null; }
+    te.sort(emriKrahaso);
+
+    var d = new Date();
+    var emri = 'malli_' + d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate()) +
+      '_' + dyShifra(d.getHours()) + dyShifra(d.getMinutes()) + '.xlsx';
+
+    var bajtet = StokuXlsx.build(te);
+    return {
+      skedari: new File([bajtet], emri, { type: MIME_XLSX }),
+      emri: emri,
+      n: te.length
+    };
+  }
+
+  // Shkarkim i zakonshëm (Android, kompjuter)
+  function shkarkoDirekt(f) {
+    var url = URL.createObjectURL(f.skedari);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = f.emri;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 4000);
+  }
+
+  // Butoni "Eksporto në Excel": një prekje, pa dritare zgjedhjeje
+  async function eksporto() {
+    var f = krijoSkedarin();
+    if (!f) return;
+
+    // 1) Menuja Share e telefonit (Ruaj te Files, WhatsApp, Mail, ...)
+    if (kaShare(f.skedari)) {
+      try {
+        await navigator.share({ files: [f.skedari], title: 'Malli' });
+        return;
+      } catch (err) {
+        if (err && err.name === 'AbortError') return; // përdoruesi e mbylli menunë
+      }
+    }
+
+    // 2) Zgjidhje rezervë: shkarkim i zakonshëm
+    shkarkoDirekt(f);
+  }
+
+  $('btnEksport').addEventListener('click', eksporto);
+
+  // ---------- Fshirja e të gjithave (me pritje 10 sekonda) ----------
+  var kohezues = null;
+
+  function hapFshirjen() {
+    var n = Object.keys(produktet).length;
+    if (!n) return;
+    $('fshiTekst').textContent =
+      'Do të fshihen të gjitha ' + n + ' produktet nga lista. Ky veprim NUK mund të kthehet.\n\n' +
+      'Nëse do një kopje, shtyp Anulo dhe eksporto fillimisht në Excel.';
+    var s = 10;
+    var btn = $('fshiKonfirmo');
+    btn.disabled = true;
+    btn.textContent = 'Fshi krejt (' + s + ')';
+    $('dlgFshirje').classList.add('hapur');
+    clearInterval(kohezues);
+    kohezues = setInterval(function () {
+      s--;
+      if (s > 0) {
+        btn.textContent = 'Fshi krejt (' + s + ')';
+      } else {
+        clearInterval(kohezues);
+        btn.disabled = false;
+        btn.textContent = 'Fshi krejt';
+      }
+    }, 1000);
+  }
+
+  function mbyllFshirjen() {
+    clearInterval(kohezues);
+    $('dlgFshirje').classList.remove('hapur');
+    fokusoBarkodin();
+  }
+
+  $('btnFshiTeGjitha').addEventListener('click', hapFshirjen);
+  $('fshiAnulo').addEventListener('click', mbyllFshirjen);
+  $('dlgFshirje').addEventListener('click', function (ev) {
+    if (ev.target === $('dlgFshirje')) mbyllFshirjen(); // prekja jashtë = anulim
+  });
+  $('fshiKonfirmo').addEventListener('click', function () {
+    if ($('fshiKonfirmo').disabled) return;
+    produktet = {};
+    ruajBaze();
+    mbyllFshirjen();
+    renderLista();
+    toast('U fshinë të gjitha produktet.');
+  });
+
+  // ---------- Service worker (punon edhe pa internet) ----------
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () { /* ok */ });
+    });
+  }
+
+  renderLista();
+  fokusoBarkodin();
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" crossorigin="anonymous"></script>
+</body>
+</html>
