@@ -5,7 +5,7 @@
  * NDRYSHIM: kur ta përditësosh index.html, ndrysho numrin këtu (v1 -> v2),
  * që telefonat të marrin versionin e ri.
  */
-var CACHE = 'stoku-v10';
+var CACHE = 'stoku-v11';
 var CDN_KAMERA = 'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';
 var SHELL = [
   './',
@@ -46,6 +46,10 @@ self.addEventListener('fetch', function (e) {
   if (kerkesa.mode === 'navigate') {
     e.respondWith(
       fetch(kerkesa).then(function (pergjigja) {
+        // Nëse faqja kthen gabim (p.sh. faqja e pezulluar), mos e ruaj dhe mbaje aplikacionin e ruajtur
+        if (!pergjigja || !pergjigja.ok) {
+          return caches.match('./index.html').then(function (e_ruajtur) { return e_ruajtur || pergjigja; });
+        }
         var kopje = pergjigja.clone();
         caches.open(CACHE).then(function (c) { c.put('./index.html', kopje); });
         return pergjigja;
