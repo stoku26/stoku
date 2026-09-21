@@ -940,15 +940,33 @@
   });
 
   // ---------- Fusha e barkodit (scanner Bluetooth / tastierë) ----------
+  var pdaKohez = null;
+
+  function skanoBarkodin() {
+    clearTimeout(pdaKohez);
+    // Nëse ndërkohë është hapur një dritare tjetër (Opsionet, Eksporti, Fshirja), mos hap dialogun e produktit mbi të
+    if (document.querySelector('.mbulese.hapur')) return;
+    var b = $('barkodi').value.trim();
+    $('barkodi').value = '';
+    if (!b) return;
+    burimiIFundit = 'fushe';
+    hapDialogun(b);
+  }
+
   $('barkodi').addEventListener('keydown', function (ev) {
     if (ev.key === 'Enter') {
       ev.preventDefault();
-      var b = $('barkodi').value.trim();
-      $('barkodi').value = '';
-      if (!b) return;
-      burimiIFundit = 'fushe';
-      hapDialogun(b);
+      skanoBarkodin();
     }
+  });
+
+  // Modaliteti PDA: skaneri i brendshëm shpesh nuk dërgon Enter.
+  // Pasi pushon së shkruari (pak nga skaneri), hapet vetë dritarja e produktit.
+  $('barkodi').addEventListener('input', function () {
+    clearTimeout(pdaKohez);
+    if (!opsione.pda) return;
+    if ($('barkodi').value.trim() === '') return;
+    pdaKohez = setTimeout(skanoBarkodin, 200);
   });
 
   $('kerko').addEventListener('input', renderLista);
