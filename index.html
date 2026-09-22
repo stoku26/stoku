@@ -88,6 +88,7 @@
     padding-right: max(16px, env(safe-area-inset-right));
   }
   header h1 { margin: 0; font-size: 20px; font-weight: 600; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  header h1.logo { font-weight: 800; letter-spacing: 3px; }
   #btnMbrapa { flex: none; font-size: 22px; }
   .krye-butona { display: flex; gap: 8px; flex: none; }
   .btn-ikone {
@@ -149,6 +150,7 @@
   .btn.tekst { background: transparent; color: var(--btn-tekst); flex: none; padding: 0 14px; }
   .btn.tekst.rrezik { color: var(--rrezik); }
   .btn.tekst:disabled { background: transparent; color: var(--btn-off-tx); }
+  .btn.dyte { background: transparent; border: 1px solid var(--fushe-kufi); color: var(--tekst); }
   .fushe { margin-bottom: 8px; }
   #lista {
     flex: 1;
@@ -230,13 +232,29 @@
   .hint { font-size: 13px; color: var(--gri); margin: 2px 0 12px; white-space: normal; }
 
   /* Opsionet */
-  .dialog.opsione { max-width: 420px; }
+  .dialog.opsione { max-width: 420px; padding-left: 0; padding-right: 0; }
+  .dialog.opsione > h2 { padding: 0 20px; }
   .dialog.opsione .veprime {
     position: sticky; bottom: -12px; background: var(--dialog);
-    padding: 6px 0 12px; margin-top: 4px; border-top: 1px solid var(--vije);
+    padding: 6px 20px 12px; margin-top: 4px; border-top: 1px solid var(--vije);
   }
-  .opsione .seksion { padding: 12px 0; border-top: 1px solid var(--vije); }
-  .opsione .seksion:first-of-type { border-top: 0; padding-top: 0; }
+  .tabet {
+    display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    padding: 0 20px 10px; margin-bottom: 6px; border-bottom: 1px solid var(--vije);
+    scrollbar-width: none;
+  }
+  .tabet::-webkit-scrollbar { display: none; }
+  .tabi {
+    flex: none; border: 0; background: transparent; color: var(--gri);
+    font-size: 13px; font-weight: 600; padding: 8px 12px; border-radius: 16px; cursor: pointer;
+    white-space: nowrap;
+  }
+  .tabi.aktiv { background: var(--primar); color: #fff; }
+  .opsione-faqet { padding: 0 20px; }
+  .opsione-faqe { display: none; }
+  .opsione-faqe.aktiv { display: block; }
+  .opsione-faqe .seksion:first-child { padding-top: 0; }
+  .seksion { padding: 12px 0; }
   .opsion-titull { font-size: 13px; font-weight: 700; color: var(--gri); margin-bottom: 8px; }
   .segment { display: flex; border: 1px solid var(--fushe-kufi); border-radius: 22px; overflow: hidden; }
   .segment button {
@@ -289,8 +307,22 @@
   .kamera-tekst { flex: 1; min-width: 0; }
   #kameraEmri { display: block; font-size: 12px; opacity: .75; margin-top: 2px; overflow-wrap: anywhere; }
   .kamera-veprime { display: flex; gap: 8px; flex: none; }
+  .kamera-video-shtrat { position: relative; flex: 1; display: flex; }
   #reader { width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; }
   #reader video { max-width: 100%; }
+  .skan-mbulese {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; pointer-events: none;
+  }
+  .skan-vije {
+    width: min(78%, 300px); height: 2px;
+    background: linear-gradient(90deg, transparent, #ff5252 12%, #ff5252 88%, transparent);
+    box-shadow: 0 0 6px 1px rgba(255,82,82,.7);
+  }
+  .skan-hint {
+    margin-top: 16px; color: #fff; background: rgba(0,0,0,.5);
+    padding: 7px 16px; border-radius: 16px; font-size: 13px; text-align: center; max-width: 80%;
+  }
 
   #toast {
     position: fixed;
@@ -311,33 +343,34 @@
 <body>
 
 <header>
-  <button id="btnMbrapa" class="btn-ikone" type="button" aria-label="Foldera" title="Foldera" style="display:none">←</button>
-  <h1 id="titulli">Foldera</h1>
+  <button id="btnMbrapa" class="btn-ikone" type="button" style="display:none">←</button>
+  <h1 id="titulli" class="logo">STOKU</h1>
   <div class="krye-butona">
-    <button id="btnTastiera" class="btn-ikone" type="button" aria-label="Fshih tastierën" title="Fshih tastierën">⌨️</button>
-    <button id="btnOpsione" class="btn-ikone" type="button" aria-label="Opsionet" title="Opsionet">⚙️</button>
+    <button id="btnTastiera" class="btn-ikone" type="button">⌨️</button>
+    <button id="btnOpsione" class="btn-ikone" type="button" aria-label="Opsionet / Options" title="Opsionet / Options">⚙️</button>
   </div>
 </header>
 
 <!-- Lista e folderave -->
 <div class="siper" id="siperFolderat">
-  <button class="btn" id="btnKrijoFolder" type="button" style="width:100%">+ Krijo folder</button>
+  <button class="btn" id="btnKrijoFolder" type="button" style="width:100%"></button>
 </div>
 <div id="folderaLista" class="folderat-rrjeti"></div>
 
 <!-- Brenda një folderi -->
 <div class="siper" id="siperFolderi" style="display:none">
   <div class="fushe">
-    <label for="barkodi" id="lblBarkodi">Barkodi (scanner Bluetooth ose shkruaje)</label>
+    <label for="barkodi" id="lblBarkodi"></label>
     <input id="barkodi" type="text" inputmode="text" enterkeyhint="done"
            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
   </div>
   <div class="rreshti">
-    <button class="btn" id="btnKamera" type="button">Skano me kamerë</button>
-    <button class="btn" id="btnEksport" type="button">Eksporto në Excel</button>
+    <button class="btn" id="btnKamera" type="button"></button>
+    <button class="btn" id="btnEksport" type="button"></button>
   </div>
+  <button class="btn dyte" id="btnEksportPdf" type="button" style="width:100%;margin-bottom:10px"></button>
   <div class="fushe">
-    <label for="kerko">Kërko sipas emrit ose barkodit</label>
+    <label for="kerko" id="lblKerko"></label>
     <input id="kerko" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
   </div>
 </div>
@@ -345,7 +378,7 @@
 <div id="lista"></div>
 
 <footer id="footerFolderi" style="display:none">
-  <button class="btn tekst rrezik" id="btnFshiTeGjitha" type="button">Fshij të gjitha produktet</button>
+  <button class="btn tekst rrezik" id="btnFshiTeGjitha" type="button"></button>
 </footer>
 
 <!-- Dialogu i produktit -->
@@ -354,17 +387,17 @@
     <h2 id="dlgTitulli">Produkt i ri</h2>
     <div class="kodi-dialog" id="dlgKodi"></div>
     <div class="fushe" id="fushaEmri">
-      <label for="dlgEmri">Emri i produktit</label>
+      <label for="dlgEmri" id="lblDlgEmri"></label>
       <input id="dlgEmri" type="text" autocomplete="off" autocorrect="off" enterkeyhint="next">
     </div>
     <div class="fushe">
-      <label for="dlgSasia" id="dlgSasiaLabel">Sasia</label>
+      <label for="dlgSasia" id="dlgSasiaLabel"></label>
       <input id="dlgSasia" type="number" step="1" enterkeyhint="done" autocomplete="off">
     </div>
     <div class="veprime">
-      <button class="btn tekst rrezik" id="dlgFshij" type="button">Fshij</button>
-      <button class="btn tekst" id="dlgAnulo" type="button">Anulo</button>
-      <button class="btn tekst" id="dlgRuaj" type="button">Ruaj</button>
+      <button class="btn tekst rrezik" id="dlgFshij" type="button"></button>
+      <button class="btn tekst" id="dlgAnulo" type="button"></button>
+      <button class="btn tekst" id="dlgRuaj" type="button"></button>
     </div>
   </div>
 </div>
@@ -372,11 +405,11 @@
 <!-- Dialogu i fshirjes së të gjithave -->
 <div class="mbulese" id="dlgFshirje">
   <div class="dialog" role="alertdialog" aria-modal="true">
-    <h2>Të fshihen të gjitha?</h2>
+    <h2 id="fshiTitulli"></h2>
     <p id="fshiTekst"></p>
     <div class="veprime">
-      <button class="btn tekst" id="fshiAnulo" type="button">Anulo</button>
-      <button class="btn tekst rrezik" id="fshiKonfirmo" type="button" disabled>Fshi krejt (10)</button>
+      <button class="btn tekst" id="fshiAnulo" type="button"></button>
+      <button class="btn tekst rrezik" id="fshiKonfirmo" type="button" disabled></button>
     </div>
   </div>
 </div>
@@ -384,14 +417,14 @@
 <!-- Folder i ri -->
 <div class="mbulese" id="dlgFolder">
   <div class="dialog" role="dialog" aria-modal="true">
-    <h2>Folder i ri</h2>
+    <h2 id="folderIRiTitulli"></h2>
     <div class="fushe">
-      <label for="dlgFolderEmri">Emri i folderit</label>
+      <label for="dlgFolderEmri" id="lblFolderEmri"></label>
       <input id="dlgFolderEmri" type="text" autocomplete="off" autocorrect="off" enterkeyhint="done" maxlength="40">
     </div>
     <div class="veprime">
-      <button class="btn tekst" id="dlgFolderAnulo" type="button">Anulo</button>
-      <button class="btn tekst" id="dlgFolderRuaj" type="button">Krijo</button>
+      <button class="btn tekst" id="dlgFolderAnulo" type="button"></button>
+      <button class="btn tekst" id="dlgFolderRuaj" type="button"></button>
     </div>
   </div>
 </div>
@@ -399,85 +432,111 @@
 <!-- Opsionet -->
 <div class="mbulese" id="dlgOpsione">
   <div class="dialog opsione" role="dialog" aria-modal="true">
-    <h2>Opsionet</h2>
+    <h2 id="opsioneTitulli"></h2>
 
-    <div class="seksion">
-      <div class="opsion-titull">Pamja</div>
-      <div class="segment" id="segTema">
-        <button type="button" data-v="auto">Automatike</button>
-        <button type="button" data-v="light">E çelët</button>
-        <button type="button" data-v="dark">E errët</button>
+    <div class="tabet" id="tabet">
+      <button class="tabi aktiv" type="button" data-faqe="pamja" id="tabPamja"></button>
+      <button class="tabi" type="button" data-faqe="skenimi" id="tabSkenimi"></button>
+      <button class="tabi" type="button" data-faqe="kamera" id="tabKamera"></button>
+      <button class="tabi" type="button" data-faqe="lista" id="tabLista"></button>
+      <button class="tabi" type="button" data-faqe="gjuha" id="tabGjuha"></button>
+      <button class="tabi" type="button" data-faqe="rezerve" id="tabRezerve"></button>
+    </div>
+
+    <div class="opsione-faqet">
+      <div class="opsione-faqe aktiv" data-faqe="pamja">
+        <div class="seksion">
+          <div class="opsion-titull" id="titPamja"></div>
+          <div class="segment" id="segTema">
+            <button type="button" data-v="auto" id="temaAuto"></button>
+            <button type="button" data-v="light" id="temaLight"></button>
+            <button type="button" data-v="dark" id="temaDark"></button>
+          </div>
+          <div class="hint" id="temaHint"></div>
+        </div>
       </div>
-      <div class="hint">«Automatike» ndjek cilësimin e telefonit.</div>
-    </div>
 
-    <div class="seksion">
-      <div class="opsion-titull">Skenimi</div>
-      <label class="opsion-rresht" for="opsPda">
-        <span>Ky është PDA (skaner i brendshëm)</span>
-        <span class="ndez"><input type="checkbox" id="opsPda"><span class="pist"></span></span>
-      </label>
-      <div class="hint">Kur është ndezur, fshihet butoni i kamerës dhe kursori qëndron te fusha e barkodit për skanerin e PDA-së.</div>
-      <label class="opsion-rresht" for="opsPaEmer">
-        <span>Skano vetëm barkodin dhe sasinë (pa emër)</span>
-        <span class="ndez"><input type="checkbox" id="opsPaEmer"><span class="pist"></span></span>
-      </label>
-      <div class="hint">Nuk rekomandohet. Produktet e reja regjistrohen pa emër dhe fusha e emrit fshihet.</div>
-      <label class="opsion-rresht" for="opsTingull" id="rreshtTingull">
-        <span>Tingulli (bip) kur skanon me kamerë</span>
-        <span class="ndez"><input type="checkbox" id="opsTingull"><span class="pist"></span></span>
-      </label>
-      <label class="opsion-rresht" for="opsScanner" id="rreshtScanner">
-        <span>Mbaje kursorin te fusha e barkodit (për scanner)</span>
-        <span class="ndez"><input type="checkbox" id="opsScanner"><span class="pist"></span></span>
-      </label>
-    </div>
-
-    <div class="seksion" id="seksionKamera">
-      <div class="opsion-titull">Kamera</div>
-      <div class="fushe">
-        <label for="opsKamera">Kamera për skenim (pa atë të përparmen)</label>
-        <select id="opsKamera">
-          <option value="">Automatike (e pasmja kryesore)</option>
-        </select>
+      <div class="opsione-faqe" data-faqe="skenimi">
+        <div class="seksion">
+          <label class="opsion-rresht" for="opsPda">
+            <span id="lblOpsPda"></span>
+            <span class="ndez"><input type="checkbox" id="opsPda"><span class="pist"></span></span>
+          </label>
+          <div class="hint" id="pdaHint"></div>
+          <label class="opsion-rresht" for="opsPaEmer">
+            <span id="lblOpsPaEmer"></span>
+            <span class="ndez"><input type="checkbox" id="opsPaEmer"><span class="pist"></span></span>
+          </label>
+          <div class="hint" id="paEmerHint"></div>
+          <label class="opsion-rresht" for="opsTingull" id="rreshtTingull">
+            <span id="lblOpsTingull"></span>
+            <span class="ndez"><input type="checkbox" id="opsTingull"><span class="pist"></span></span>
+          </label>
+          <label class="opsion-rresht" for="opsScanner" id="rreshtScanner">
+            <span id="lblOpsScanner"></span>
+            <span class="ndez"><input type="checkbox" id="opsScanner"><span class="pist"></span></span>
+          </label>
+        </div>
       </div>
-      <button class="btn" id="opsKameraGjej" type="button" style="width:100%">Gjej kamerat e telefonit</button>
-      <div class="hint" id="opsKameraInfo"></div>
-      <label class="opsion-rresht" for="opsAutofokus">
-        <span>Autofokus gjithmonë i ndezur</span>
-        <span class="ndez"><input type="checkbox" id="opsAutofokus"><span class="pist"></span></span>
-      </label>
-      <div class="hint">E mban kamerën në fokus gjatë gjithë kohës kur skanon (nëse telefoni e mbështet).</div>
-    </div>
 
-    <div class="seksion">
-      <div class="opsion-titull">Lista</div>
-      <div class="fushe">
-        <label for="opsRendi">Rendit sipas</label>
-        <select id="opsRendi">
-          <option value="emri">Emri (A–Z)</option>
-          <option value="sasiaUlet">Sasia: nga më e vogla</option>
-          <option value="sasiaLart">Sasia: nga më e madhja</option>
-        </select>
+      <div class="opsione-faqe" data-faqe="kamera" id="seksionKamera">
+        <div class="seksion">
+          <div class="fushe">
+            <label for="opsKamera" id="lblOpsKamera"></label>
+            <select id="opsKamera">
+              <option value=""></option>
+            </select>
+          </div>
+          <button class="btn" id="opsKameraGjej" type="button" style="width:100%"></button>
+          <div class="hint" id="opsKameraInfo"></div>
+          <label class="opsion-rresht" for="opsAutofokus">
+            <span id="lblOpsAutofokus"></span>
+            <span class="ndez"><input type="checkbox" id="opsAutofokus"><span class="pist"></span></span>
+          </label>
+          <div class="hint" id="autofokusHint"></div>
+        </div>
       </div>
-    </div>
 
-    <div class="seksion">
-      <div class="opsion-titull">Kopje rezervë</div>
-      <div class="hint">Ruaj një kopje të plotë të listës (skedar .json) dhe rikthe kur të duhet, p.sh. në telefon të ri.</div>
-      <div class="rreshti">
-        <button class="btn" id="opsKopje" type="button">Ruaj kopjen</button>
-        <button class="btn" id="opsRikthe" type="button">Rikthe kopjen</button>
+      <div class="opsione-faqe" data-faqe="lista">
+        <div class="seksion">
+          <div class="fushe">
+            <label for="opsRendi" id="lblOpsRendi"></label>
+            <select id="opsRendi">
+              <option value="emri" id="optEmriAZ"></option>
+              <option value="sasiaUlet" id="optSasiaUlet"></option>
+              <option value="sasiaLart" id="optSasiaLart"></option>
+            </select>
+          </div>
+        </div>
       </div>
-      <input type="file" id="fileRikthe" hidden>
-    </div>
 
-    <div class="seksion">
-      <div class="hint">Stoku 1.0 · Të dhënat ruhen vetëm në këtë telefon. Bëj kopje rezervë herë pas here.</div>
+      <div class="opsione-faqe" data-faqe="gjuha">
+        <div class="seksion">
+          <div class="opsion-titull" id="titGjuha"></div>
+          <div class="segment" id="segGjuha">
+            <button type="button" data-v="sq">Shqip</button>
+            <button type="button" data-v="en">English</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="opsione-faqe" data-faqe="rezerve">
+        <div class="seksion">
+          <div class="hint" id="rezerveHint"></div>
+          <div class="rreshti">
+            <button class="btn" id="opsKopje" type="button"></button>
+            <button class="btn" id="opsRikthe" type="button"></button>
+          </div>
+          <input type="file" id="fileRikthe" hidden>
+        </div>
+        <div class="seksion">
+          <div class="hint" id="footerHint"></div>
+        </div>
+      </div>
     </div>
 
     <div class="veprime">
-      <button class="btn tekst" id="opsMbyll" type="button">Mbyll</button>
+      <button class="btn tekst" id="opsMbyll" type="button"></button>
     </div>
   </div>
 </div>
@@ -488,8 +547,8 @@
     <h2 id="konfTitulli"></h2>
     <p id="konfTekst"></p>
     <div class="veprime">
-      <button class="btn tekst" id="konfJo" type="button">Anulo</button>
-      <button class="btn tekst rrezik" id="konfPo" type="button">Vazhdo</button>
+      <button class="btn tekst" id="konfJo" type="button"></button>
+      <button class="btn tekst rrezik" id="konfPo" type="button"></button>
     </div>
   </div>
 </div>
@@ -498,15 +557,21 @@
 <div id="kamera">
   <div class="kamera-krye">
     <div class="kamera-tekst">
-      <span>Drejtoje kamerën te barkodi</span>
+      <span id="kameraDrejtoje"></span>
       <span id="kameraEmri"></span>
     </div>
     <div class="kamera-veprime">
-      <button class="btn" id="ndrroKamere" type="button" style="display:none">Ndërro kamerën</button>
-      <button class="btn" id="mbyllKamere" type="button">Mbyll</button>
+      <button class="btn" id="ndrroKamere" type="button" style="display:none"></button>
+      <button class="btn" id="mbyllKamere" type="button"></button>
     </div>
   </div>
-  <div id="reader"></div>
+  <div class="kamera-video-shtrat">
+    <div id="reader"></div>
+    <div class="skan-mbulese">
+      <div class="skan-vije"></div>
+      <div class="skan-hint" id="skanHint"></div>
+    </div>
+  </div>
 </div>
 
 <div id="toast"></div>
@@ -516,15 +581,387 @@
 (function () {
   'use strict';
 
+  function $(id) { return document.getElementById(id); }
+
+  // ================= Gjuha / Language (i18n) =================
+  var FJALORI = {
+    sq: {
+      opsionet: 'Opsionet',
+      mbyll: 'Mbyll',
+      anulo: 'Anulo',
+      ruaj: 'Ruaj',
+      fshij: 'Fshij',
+      krijo: 'Krijo',
+      vazhdo: 'Vazhdo',
+      aktivizo: 'Aktivizo',
+      rikthe: 'Rikthe',
+      foldera: 'Foldera',
+
+      krijoFolder: '+ Krijo folder',
+      folderIRi: 'Folder i ri',
+      emriIFolderit: 'Emri i folderit',
+      shkruajEmrinFolderit: 'Shkruaj emrin e folderit.',
+      teFshihetFolderi: 'Të fshihet folderi?',
+      folderiBoshTekst: function (a) { return 'Do të fshihet folderi «' + a.emri + '». Është bosh.'; },
+      folderiMePrTekst: function (a) {
+        var njesi = a.n === 1 ? 'produktin' : 'produktet';
+        return 'Do të fshihet folderi «' + a.emri + '» bashkë me ' + a.n + ' ' + njesi + ' brenda tij.\n\nKy veprim NUK mund të kthehet.';
+      },
+      njesiaProdukteve: function (a) { return a.n + ' ' + (a.n === 1 ? 'produkt' : 'produkte'); },
+
+      barkodiNormal: 'Barkodi (scanner Bluetooth ose shkruaje)',
+      barkodiPda: 'Barkodi (skano me PDA ose shkruaje)',
+      skanoKamer: 'Skano me kamerë',
+      eksportoExcel: 'Eksporto në Excel',
+      eksportoPdf: 'Eksporto etiketa (PDF)',
+      kerkoLabel: 'Kërko sipas emrit ose barkodit',
+      fshijTeGjitha: 'Fshij të gjitha produktet',
+      nukUGjetAsnjeProdukt: 'Nuk u gjet asnjë produkt.',
+      shfaqenNga: function (a) {
+        return 'Shfaqen ' + a.limit + ' nga ' + a.gjithsej + ' produkte. Përdor kërkimin për të gjetur të tjerët.';
+      },
+      paEmerListe: '(pa emër)',
+
+      produktIRi: 'Produkt i ri',
+      produktIRiPaEmer: 'Produkt i ri (pa emër)',
+      produktiEkziston: function (a) { return 'Produkti ekziston (tani: ' + a.sasia + ')'; },
+      barkodiEtiketa: function (a) { return 'Barkodi: ' + a.barkodi; },
+      emriEtiketa: function (a) { return 'Emri: ' + a.emri; },
+      emriIProduktit: 'Emri i produktit',
+      sasia: 'Sasia',
+      sasiaPerTuShtuar: "Sasia për t'u shtuar",
+      shkruajEmrin: 'Shkruaj emrin e produktit.',
+      shkruajSasine: 'Shkruaj sasinë (numër i plotë).',
+
+      teFshihenTeGjitha: 'Të fshihen të gjitha?',
+      fshirjaTekst: function (a) {
+        if (a.n === 1) {
+          return 'Do të fshihet 1 produkt nga folderi «' + a.folder + '». Ky veprim NUK mund të kthehet.\n\n' +
+            'Nëse do një kopje, shtyp Anulo dhe eksporto fillimisht në Excel.';
+        }
+        return 'Do të fshihen të gjitha ' + a.n + ' produktet nga folderi «' + a.folder + '». Ky veprim NUK mund të kthehet.\n\n' +
+          'Nëse do një kopje, shtyp Anulo dhe eksporto fillimisht në Excel.';
+      },
+      fshiKrejt: 'Fshi krejt',
+      uFshinePrejFolderit: 'U fshinë të gjitha produktet nga folderi.',
+
+      opsioneTitulli: 'Opsionet',
+      tabPamja: 'Pamja',
+      tabSkenimi: 'Skenimi',
+      tabKamera: 'Kamera',
+      tabLista: 'Lista',
+      tabGjuha: 'Gjuha',
+      tabRezerve: 'Rezervë',
+
+      automatike: 'Automatike',
+      eCelet: 'E çelët',
+      eErret: 'E errët',
+      automatikeHint: '«Automatike» ndjek cilësimin e telefonit.',
+
+      pdaLabel: 'Ky është PDA (skaner i brendshëm)',
+      pdaHint: 'Kur është ndezur, fshihet butoni i kamerës dhe kursori qëndron te fusha e barkodit për skanerin e PDA-së.',
+      paEmerLabel: 'Skano vetëm barkodin dhe sasinë (pa emër)',
+      paEmerHint: 'Nuk rekomandohet. Produktet e reja regjistrohen pa emër dhe fusha e emrit fshihet.',
+      paEmerKonfTitulli: 'Të regjistrohen produktet pa emër?',
+      paEmerKonfTekst: 'Nuk rekomandohet të regjistrohen produktet pa emër. Në listë dhe në Excel do të shihet vetëm ' +
+        'barkodi, kështu që është më e vështirë të gjesh, të kontrollosh ose të njohësh një produkt më vonë, sidomos ' +
+        'nëse ndonjë barkod është skenuar gabim.\n\nProdukteve që kanë tashmë emër nuk u fshihet emri.\n\n' +
+        'Nëse je i sigurt, prit 5 sekonda dhe shtyp «Aktivizo».',
+      tingullLabel: 'Tingulli (bip) kur skanon me kamerë',
+      scannerLabel: 'Mbaje kursorin te fusha e barkodit (për scanner)',
+      qrRefuzuar: 'Ke skenuar një kod QR. Skano barkodin e produktit.',
+      qrDyshim: 'Kjo nuk duket si barkod produkti (ngjan me kod QR ose tekst). Provo përsëri.',
+
+      kameraPerSkenim: 'Kamera për skenim (pa atë të përparmen)',
+      automatikeKryesore: 'Automatike (e pasmja kryesore)',
+      gjejKamerat: 'Gjej kamerat e telefonit',
+      autofokusLabel: 'Autofokus gjithmonë i ndezur',
+      autofokusHint: 'E mban kamerën në fokus gjatë gjithë kohës kur skanon (nëse telefoni e mbështet).',
+      kameraShtypGjej: 'Shtyp «Gjej kamerat e telefonit» dhe lejo kamerën që të shfaqet lista.',
+      kameraAsnje: 'Nuk u gjet asnjë kamerë e pasme.',
+      kameraUGjeten: function (a) {
+        return 'U gjetën ' + a.n + ' kamera të pasme (kamera e përparme nuk shfaqet). ' +
+          'Nëse një kamerë nuk fokuson mirë (p.sh. ajo «ultra wide»), provo një tjetër.';
+      },
+      kameraPaMbeshtetje: 'Ky shfletues nuk e mbështet listën e kamerave.',
+      kameraPaLeje: 'Nuk u dha leje për kamerën. Lejoje te cilësimet e shfletuesit.',
+      kameraZgjedhurMore: 'Kamera e zgjedhur më parë',
+      kameraNukUGjet: 'Kamera e zgjedhur nuk u gjet. U përdor kamera automatike.',
+      kameraNukUHap: 'Kamera nuk u hap.',
+      kameraNukUHapLeje: 'Kamera nuk u hap. Lejo kamerën për këtë aplikacion te Settings.',
+      kameraNukEshteGati: 'Kamera nuk është gati. Lidhu me internet dhe hape prapë aplikacionin.',
+      kameraDrejtoje: 'Drejtoje kamerën te barkodi',
+      kameraHint: 'Vendos vetëm një barkod brenda kutisë',
+      ndrroKamere: 'Ndërro kamerën',
+
+      renditSipas: 'Rendit sipas',
+      emriAZ: 'Emri (A–Z)',
+      sasiaUletOpt: 'Sasia: nga më e vogla',
+      sasiaLartOpt: 'Sasia: nga më e madhja',
+
+      gjuhaTitulli: 'Gjuha',
+
+      rezerveHint: 'Ruaj një kopje të plotë të listës (skedar .json) dhe rikthe kur të duhet, p.sh. në telefon të ri.',
+      ruajKopjenBtn: 'Ruaj kopjen',
+      riktheKopjenBtn: 'Rikthe kopjen',
+      footerHint: 'Stoku 1.0 · Të dhënat ruhen vetëm në këtë telefon. Bëj kopje rezervë herë pas here.',
+
+      teRikthehetKopja: 'Të rikthehet kopja?',
+      riktheTekst: function (a) {
+        return 'Do të zëvendësohen të gjitha ' + a.aktual + ' produktet aktuale (dhe folderat) me ' + a.reja +
+          ' produkte nga kopja.\n\nKy veprim nuk kthehet. Nëse do, ruaj fillimisht një kopje të listës aktuale.';
+      },
+      skedariIPavlefshem: 'Ky skedar nuk është kopje rezervë e vlefshme.',
+      uRikthyen: function (a) { return 'U rikthyen ' + a.n + ' produkte.'; },
+      ruajtjaDeshtoi: 'Ruajtja dështoi: memoria e shfletuesit është plot.',
+      kopjaShkarkuar: function (a) { return 'Kopja rezervë u shkarkua: ' + a.emri; },
+      nukKaProduktePerKopje: 'Nuk ka produkte për kopje rezervë.',
+      nukKaProdukteEksport: 'Nuk ka produkte për eksport në këtë folder.',
+
+      pdfDukeKrijuar: 'Duke krijuar…',
+      pdfNukGati: 'PDF-ja nuk është gati. Lidhu me internet dhe hape prapë aplikacionin.',
+      pdfDeshtoi: 'PDF-ja nuk u krijua. Provo përsëri.',
+
+      tastieraFshehur: "Tastiera nuk do të shfaqet për fushën e barkodit.",
+      tastieraShfaqet: 'Tastiera do të shfaqet përsëri.',
+      fshihTastieren: 'Fshih tastierën',
+      shfaqTastieren: 'Shfaq tastierën'
+    },
+
+    en: {
+      opsionet: 'Options',
+      mbyll: 'Close',
+      anulo: 'Cancel',
+      ruaj: 'Save',
+      fshij: 'Delete',
+      krijo: 'Create',
+      vazhdo: 'Continue',
+      aktivizo: 'Enable',
+      rikthe: 'Restore',
+      foldera: 'Folders',
+
+      krijoFolder: '+ Create folder',
+      folderIRi: 'New folder',
+      emriIFolderit: 'Folder name',
+      shkruajEmrinFolderit: 'Enter the folder name.',
+      teFshihetFolderi: 'Delete this folder?',
+      folderiBoshTekst: function (a) { return 'This will delete the folder “' + a.emri + '”. It is empty.'; },
+      folderiMePrTekst: function (a) {
+        var njesi = a.n === 1 ? 'product' : 'products';
+        return 'This will delete the folder “' + a.emri + '” along with its ' + a.n + ' ' + njesi + '.\n\nThis cannot be undone.';
+      },
+      njesiaProdukteve: function (a) { return a.n + ' product' + (a.n === 1 ? '' : 's'); },
+
+      barkodiNormal: 'Barcode (Bluetooth scanner or type it)',
+      barkodiPda: 'Barcode (scan with the PDA or type it)',
+      skanoKamer: 'Scan with camera',
+      eksportoExcel: 'Export to Excel',
+      eksportoPdf: 'Export labels (PDF)',
+      kerkoLabel: 'Search by name or barcode',
+      fshijTeGjitha: 'Delete all products',
+      nukUGjetAsnjeProdukt: 'No product found.',
+      shfaqenNga: function (a) {
+        return 'Showing ' + a.limit + ' of ' + a.gjithsej + ' products. Use search to find others.';
+      },
+      paEmerListe: '(no name)',
+
+      produktIRi: 'New product',
+      produktIRiPaEmer: 'New product (no name)',
+      produktiEkziston: function (a) { return 'Product already exists (now: ' + a.sasia + ')'; },
+      barkodiEtiketa: function (a) { return 'Barcode: ' + a.barkodi; },
+      emriEtiketa: function (a) { return 'Name: ' + a.emri; },
+      emriIProduktit: 'Product name',
+      sasia: 'Quantity',
+      sasiaPerTuShtuar: 'Quantity to add',
+      shkruajEmrin: 'Enter the product name.',
+      shkruajSasine: 'Enter the quantity (a whole number).',
+
+      teFshihenTeGjitha: 'Delete everything?',
+      fshirjaTekst: function (a) {
+        if (a.n === 1) {
+          return 'This will delete the 1 product in the folder “' + a.folder + '”. This CANNOT be undone.\n\n' +
+            'If you want a copy, tap Cancel and export to Excel first.';
+        }
+        return 'This will delete all ' + a.n + ' products in the folder “' + a.folder + '”. This CANNOT be undone.\n\n' +
+          'If you want a copy, tap Cancel and export to Excel first.';
+      },
+      fshiKrejt: 'Delete all',
+      uFshinePrejFolderit: 'All products in the folder were deleted.',
+
+      opsioneTitulli: 'Options',
+      tabPamja: 'Appearance',
+      tabSkenimi: 'Scanning',
+      tabKamera: 'Camera',
+      tabLista: 'List',
+      tabGjuha: 'Language',
+      tabRezerve: 'Backup',
+
+      automatike: 'Automatic',
+      eCelet: 'Light',
+      eErret: 'Dark',
+      automatikeHint: '"Automatic" follows your phone\'s setting.',
+
+      pdaLabel: 'This is a PDA (built-in scanner)',
+      pdaHint: "When on, the camera button is hidden and the cursor stays in the barcode field for the PDA's scanner.",
+      paEmerLabel: 'Scan only the barcode and quantity (no name)',
+      paEmerHint: 'Not recommended. New products are saved without a name and the name field is hidden.',
+      paEmerKonfTitulli: 'Save products without a name?',
+      paEmerKonfTekst: 'Saving products without a name is not recommended. Only the barcode will show in the list ' +
+        'and in Excel, which makes it harder to find, check, or recognize a product later, especially if a barcode ' +
+        'was scanned by mistake.\n\nProducts that already have a name keep it.\n\n' +
+        'If you\u2019re sure, wait 5 seconds and tap "Enable".',
+      tingullLabel: 'Sound (beep) when scanning with the camera',
+      scannerLabel: 'Keep the cursor in the barcode field (for a scanner)',
+      qrRefuzuar: 'You scanned a QR code. Scan the product\u2019s barcode instead.',
+      qrDyshim: "This doesn't look like a product barcode (looks like a QR code or text). Try again.",
+
+      kameraPerSkenim: 'Scanning camera (front camera excluded)',
+      automatikeKryesore: 'Automatic (main rear camera)',
+      gjejKamerat: 'Find the phone\u2019s cameras',
+      autofokusLabel: 'Autofocus always on',
+      autofokusHint: "Keeps the camera in focus the whole time you're scanning (if the phone supports it).",
+      kameraShtypGjej: 'Tap "Find the phone\u2019s cameras" and allow the camera so the list appears.',
+      kameraAsnje: 'No rear camera was found.',
+      kameraUGjeten: function (a) {
+        return 'Found ' + a.n + ' rear camera' + (a.n === 1 ? '' : 's') + ' (the front camera isn\u2019t shown). ' +
+          'If one doesn\u2019t focus well (e.g. an "ultra wide" lens), try another.';
+      },
+      kameraPaMbeshtetje: "This browser doesn't support listing cameras.",
+      kameraPaLeje: "Camera permission wasn't granted. Allow it in the browser's settings.",
+      kameraZgjedhurMore: 'Previously selected camera',
+      kameraNukUGjet: "The selected camera wasn't found. The automatic camera was used.",
+      kameraNukUHap: "The camera didn't open.",
+      kameraNukUHapLeje: "The camera didn't open. Allow the camera for this app in Settings.",
+      kameraNukEshteGati: "The camera isn't ready. Connect to the internet and reopen the app.",
+      kameraDrejtoje: 'Point the camera at the barcode',
+      kameraHint: 'Fit only one barcode inside the box',
+      ndrroKamere: 'Switch camera',
+
+      renditSipas: 'Sort by',
+      emriAZ: 'Name (A–Z)',
+      sasiaUletOpt: 'Quantity: lowest first',
+      sasiaLartOpt: 'Quantity: highest first',
+
+      gjuhaTitulli: 'Language',
+
+      rezerveHint: 'Save a full copy of the list (a .json file) and restore it when needed, e.g. on a new phone.',
+      ruajKopjenBtn: 'Save backup',
+      riktheKopjenBtn: 'Restore backup',
+      footerHint: 'Stoku 1.0 · Data is stored only on this phone. Make a backup from time to time.',
+
+      teRikthehetKopja: 'Restore the backup?',
+      riktheTekst: function (a) {
+        return 'This will replace all ' + a.aktual + ' current products (and folders) with ' + a.reja +
+          ' products from the backup.\n\nThis cannot be undone. If you want, back up the current list first.';
+      },
+      skedariIPavlefshem: "This file isn't a valid backup.",
+      uRikthyen: function (a) { return 'Restored ' + a.n + ' products.'; },
+      ruajtjaDeshtoi: "Saving failed: the browser's storage is full.",
+      kopjaShkarkuar: function (a) { return 'Backup downloaded: ' + a.emri; },
+      nukKaProduktePerKopje: 'There are no products for a backup.',
+      nukKaProdukteEksport: 'There are no products to export in this folder.',
+
+      pdfDukeKrijuar: 'Creating…',
+      pdfNukGati: "The PDF isn't ready. Connect to the internet and reopen the app.",
+      pdfDeshtoi: "The PDF couldn't be created. Try again.",
+
+      tastieraFshehur: "The keyboard won't show for the barcode field.",
+      tastieraShfaqet: 'The keyboard will show again.',
+      fshihTastieren: 'Hide the keyboard',
+      shfaqTastieren: 'Show the keyboard'
+    }
+  };
+
+  function T(kyc, args) {
+    var g = (typeof opsione !== 'undefined' && opsione && opsione.gjuha === 'en') ? 'en' : 'sq';
+    var fj = FJALORI[g] || FJALORI.sq;
+    var v = (kyc in fj) ? fj[kyc] : ((kyc in FJALORI.sq) ? FJALORI.sq[kyc] : kyc);
+    return (typeof v === 'function') ? v(args || {}) : v;
+  }
+
+  // Elementet me tekst statik: { id, prop: 'text' | 'placeholder' | 'title' | 'titleAria', kyc }
+  var STATIKE = [
+    { id: 'btnKrijoFolder', prop: 'text', kyc: 'krijoFolder' },
+    { id: 'btnKamera', prop: 'text', kyc: 'skanoKamer' },
+    { id: 'btnEksport', prop: 'text', kyc: 'eksportoExcel' },
+    { id: 'btnEksportPdf', prop: 'text', kyc: 'eksportoPdf' },
+    { id: 'lblKerko', prop: 'text', kyc: 'kerkoLabel' },
+    { id: 'btnFshiTeGjitha', prop: 'text', kyc: 'fshijTeGjitha' },
+
+    { id: 'lblDlgEmri', prop: 'text', kyc: 'emriIProduktit' },
+    { id: 'dlgFshij', prop: 'text', kyc: 'fshij' },
+    { id: 'dlgAnulo', prop: 'text', kyc: 'anulo' },
+    { id: 'dlgRuaj', prop: 'text', kyc: 'ruaj' },
+
+    { id: 'fshiAnulo', prop: 'text', kyc: 'anulo' },
+    { id: 'folderIRiTitulli', prop: 'text', kyc: 'folderIRi' },
+    { id: 'lblFolderEmri', prop: 'text', kyc: 'emriIFolderit' },
+    { id: 'dlgFolderAnulo', prop: 'text', kyc: 'anulo' },
+    { id: 'dlgFolderRuaj', prop: 'text', kyc: 'krijo' },
+
+    { id: 'opsioneTitulli', prop: 'text', kyc: 'opsioneTitulli' },
+    { id: 'tabPamja', prop: 'text', kyc: 'tabPamja' },
+    { id: 'tabSkenimi', prop: 'text', kyc: 'tabSkenimi' },
+    { id: 'tabKamera', prop: 'text', kyc: 'tabKamera' },
+    { id: 'tabLista', prop: 'text', kyc: 'tabLista' },
+    { id: 'tabGjuha', prop: 'text', kyc: 'tabGjuha' },
+    { id: 'tabRezerve', prop: 'text', kyc: 'tabRezerve' },
+    { id: 'titPamja', prop: 'text', kyc: 'tabPamja' },
+    { id: 'temaAuto', prop: 'text', kyc: 'automatike' },
+    { id: 'temaLight', prop: 'text', kyc: 'eCelet' },
+    { id: 'temaDark', prop: 'text', kyc: 'eErret' },
+    { id: 'temaHint', prop: 'text', kyc: 'automatikeHint' },
+
+    { id: 'lblOpsPda', prop: 'text', kyc: 'pdaLabel' },
+    { id: 'pdaHint', prop: 'text', kyc: 'pdaHint' },
+    { id: 'lblOpsPaEmer', prop: 'text', kyc: 'paEmerLabel' },
+    { id: 'paEmerHint', prop: 'text', kyc: 'paEmerHint' },
+    { id: 'lblOpsTingull', prop: 'text', kyc: 'tingullLabel' },
+    { id: 'lblOpsScanner', prop: 'text', kyc: 'scannerLabel' },
+
+    { id: 'lblOpsKamera', prop: 'text', kyc: 'kameraPerSkenim' },
+    { id: 'opsKameraGjej', prop: 'text', kyc: 'gjejKamerat' },
+    { id: 'lblOpsAutofokus', prop: 'text', kyc: 'autofokusLabel' },
+    { id: 'autofokusHint', prop: 'text', kyc: 'autofokusHint' },
+
+    { id: 'lblOpsRendi', prop: 'text', kyc: 'renditSipas' },
+    { id: 'optEmriAZ', prop: 'text', kyc: 'emriAZ' },
+    { id: 'optSasiaUlet', prop: 'text', kyc: 'sasiaUletOpt' },
+    { id: 'optSasiaLart', prop: 'text', kyc: 'sasiaLartOpt' },
+
+    { id: 'titGjuha', prop: 'text', kyc: 'gjuhaTitulli' },
+
+    { id: 'rezerveHint', prop: 'text', kyc: 'rezerveHint' },
+    { id: 'opsKopje', prop: 'text', kyc: 'ruajKopjenBtn' },
+    { id: 'opsRikthe', prop: 'text', kyc: 'riktheKopjenBtn' },
+    { id: 'footerHint', prop: 'text', kyc: 'footerHint' },
+    { id: 'opsMbyll', prop: 'text', kyc: 'mbyll' },
+
+    { id: 'konfJo', prop: 'text', kyc: 'anulo' },
+
+    { id: 'kameraDrejtoje', prop: 'text', kyc: 'kameraDrejtoje' },
+    { id: 'skanHint', prop: 'text', kyc: 'kameraHint' },
+    { id: 'ndrroKamere', prop: 'text', kyc: 'ndrroKamere' },
+    { id: 'mbyllKamere', prop: 'text', kyc: 'mbyll' }
+  ];
+
+  function perkthoStatiket() {
+    STATIKE.forEach(function (s) {
+      var el = $(s.id);
+      if (!el) return;
+      if (s.prop === 'placeholder') el.placeholder = T(s.kyc);
+      else if (s.prop === 'title') { el.title = T(s.kyc); el.setAttribute('aria-label', T(s.kyc)); }
+      else el.textContent = T(s.kyc);
+    });
+  }
+
+  // ================= Baza (localStorage): foldera + produkte =================
   var KEY_FOLDERA = 'stoku:foldera:v1';
   var KEY_PRODUKTET = 'stoku:produktet:v2';
   var KEY_PRODUKTET_VJETER = 'stoku:produktet:v1'; // pa foldera, versioni i vjetër
   var LIMIT_RENDER = 300;
   var MIME_XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
-  function $(id) { return document.getElementById(id); }
-
-  // ---------- Baza (localStorage): foldera + produkte ----------
   var FOLDERAT_PARAZGJEDHUR = [
     { id: 'ushqimore', emri: 'Ushqimore' },
     { id: 'pije', emri: 'Pije' },
@@ -588,7 +1025,7 @@
       localStorage.setItem(KEY_PRODUKTET, JSON.stringify(produktet));
       return true;
     } catch (e) {
-      toast('Ruajtja dështoi: memoria e shfletuesit është plot.');
+      toast(T('ruajtjaDeshtoi'));
       return false;
     }
   }
@@ -601,13 +1038,42 @@
 
   // ---------- Toast ----------
   var toastKohe = null;
-  function toast(mesazh) {
+  function toast(mesazh, ms) {
     var t = $('toast');
     t.textContent = mesazh;
     t.classList.add('hapur');
     clearTimeout(toastKohe);
-    toastKohe = setTimeout(function () { t.classList.remove('hapur'); }, 2600);
+    toastKohe = setTimeout(function () { t.classList.remove('hapur'); }, ms || 2600);
   }
+
+  // ================= Opsionet (përfshirë gjuha) =================
+  var KEY_OPSIONE = 'stoku:opsione:v1';
+  var KEY_TEMA = 'stoku:tema';
+
+  var opsione = {
+    tingull: true, rendi: 'emri', scanner: true, pda: false, tastieraEFshehur: false,
+    paEmer: false, kameraId: '', autofokus: true, gjuha: 'sq'
+  };
+  try {
+    var opsioneRuajtura = JSON.parse(localStorage.getItem(KEY_OPSIONE) || 'null');
+    if (opsioneRuajtura && typeof opsioneRuajtura === 'object') {
+      if (typeof opsioneRuajtura.tingull === 'boolean') opsione.tingull = opsioneRuajtura.tingull;
+      if (typeof opsioneRuajtura.scanner === 'boolean') opsione.scanner = opsioneRuajtura.scanner;
+      if (typeof opsioneRuajtura.pda === 'boolean') opsione.pda = opsioneRuajtura.pda;
+      if (typeof opsioneRuajtura.paEmer === 'boolean') opsione.paEmer = opsioneRuajtura.paEmer;
+      if (typeof opsioneRuajtura.kameraId === 'string') opsione.kameraId = opsioneRuajtura.kameraId;
+      if (typeof opsioneRuajtura.autofokus === 'boolean') opsione.autofokus = opsioneRuajtura.autofokus;
+      if (typeof opsioneRuajtura.tastieraEFshehur === 'boolean') opsione.tastieraEFshehur = opsioneRuajtura.tastieraEFshehur;
+      if (['emri', 'sasiaUlet', 'sasiaLart'].indexOf(opsioneRuajtura.rendi) !== -1) opsione.rendi = opsioneRuajtura.rendi;
+      if (opsioneRuajtura.gjuha === 'en' || opsioneRuajtura.gjuha === 'sq') opsione.gjuha = opsioneRuajtura.gjuha;
+    }
+  } catch (e) { /* përdor vlerat fillestare */ }
+
+  function ruajOpsionet() {
+    try { localStorage.setItem(KEY_OPSIONE, JSON.stringify(opsione)); } catch (e) { /* ok */ }
+  }
+
+  document.documentElement.lang = opsione.gjuha;
 
   // ---------- Foldera ----------
   function renderFolderat() {
@@ -626,7 +1092,7 @@
 
       var numri = document.createElement('div');
       numri.className = 'numri';
-      numri.textContent = n + (n === 1 ? ' produkt' : ' produkte');
+      numri.textContent = T('njesiaProdukteve', { n: n });
 
       karta.appendChild(emri);
       karta.appendChild(numri);
@@ -635,8 +1101,8 @@
       var fshij = document.createElement('button');
       fshij.type = 'button';
       fshij.className = 'folder-fshij';
-      fshij.setAttribute('aria-label', 'Fshij folderin ' + f.emri);
-      fshij.title = 'Fshij folderin';
+      fshij.setAttribute('aria-label', T('fshij') + ' ' + f.emri);
+      fshij.title = T('fshij');
       fshij.textContent = '✕';
       fshij.addEventListener('click', function (ev) {
         ev.stopPropagation();
@@ -657,10 +1123,14 @@
     $('footerFolderi').style.display = brenda ? '' : 'none';
     $('btnMbrapa').style.display = brenda ? '' : 'none';
     if (brenda) {
+      $('titulli').classList.remove('logo');
+      $('btnMbrapa').setAttribute('aria-label', T('foldera'));
+      $('btnMbrapa').title = T('foldera');
       renderLista();
       fokusoBarkodin();
     } else {
-      $('titulli').textContent = 'Foldera';
+      $('titulli').classList.add('logo');
+      $('titulli').textContent = 'STOKU';
       renderFolderat();
     }
   }
@@ -688,7 +1158,7 @@
 
   function krijoFolderin() {
     var emri = $('dlgFolderEmri').value.trim();
-    if (!emri) { toast('Shkruaj emrin e folderit.'); $('dlgFolderEmri').focus(); return; }
+    if (!emri) { toast(T('shkruajEmrinFolderit')); $('dlgFolderEmri').focus(); return; }
     var id = 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     foldera.push({ id: id, emri: emri });
     ruajBaze();
@@ -710,38 +1180,14 @@
   async function fshijFolderin(f) {
     var brenda = produktetENjeFolderi(f.id);
     var mesazhi = brenda.length > 0
-      ? 'Do të fshihet folderi «' + f.emri + '» bashkë me ' + brenda.length +
-        (brenda.length === 1 ? ' produktin' : ' produktet') + ' brenda tij.\n\nKy veprim NUK mund të kthehet.'
-      : 'Do të fshihet folderi «' + f.emri + '». Është bosh.';
-    var po = await konfirmo('Të fshihet folderi?', mesazhi, 'Fshij');
+      ? T('folderiMePrTekst', { emri: f.emri, n: brenda.length })
+      : T('folderiBoshTekst', { emri: f.emri });
+    var po = await konfirmo(T('teFshihetFolderi'), mesazhi, T('fshij'));
     if (!po) return;
     foldera = foldera.filter(function (x) { return x.id !== f.id; });
     brenda.forEach(function (p) { delete produktet[celesiProduktit(f.id, p.barkodi)]; });
     ruajBaze();
     renderFolderat();
-  }
-
-  // ---------- Opsionet ----------
-  var KEY_OPSIONE = 'stoku:opsione:v1';
-  var KEY_TEMA = 'stoku:tema';
-
-  var opsione = { tingull: true, rendi: 'emri', scanner: true, pda: false, tastieraEFshehur: false, paEmer: false, kameraId: '', autofokus: true };
-  try {
-    var opsioneRuajtura = JSON.parse(localStorage.getItem(KEY_OPSIONE) || 'null');
-    if (opsioneRuajtura && typeof opsioneRuajtura === 'object') {
-      if (typeof opsioneRuajtura.tingull === 'boolean') opsione.tingull = opsioneRuajtura.tingull;
-      if (typeof opsioneRuajtura.scanner === 'boolean') opsione.scanner = opsioneRuajtura.scanner;
-      if (typeof opsioneRuajtura.pda === 'boolean') opsione.pda = opsioneRuajtura.pda;
-      if (typeof opsioneRuajtura.paEmer === 'boolean') opsione.paEmer = opsioneRuajtura.paEmer;
-      if (typeof opsioneRuajtura.kameraId === 'string') opsione.kameraId = opsioneRuajtura.kameraId;
-      if (typeof opsioneRuajtura.autofokus === 'boolean') opsione.autofokus = opsioneRuajtura.autofokus;
-      if (typeof opsioneRuajtura.tastieraEFshehur === 'boolean') opsione.tastieraEFshehur = opsioneRuajtura.tastieraEFshehur;
-      if (['emri', 'sasiaUlet', 'sasiaLart'].indexOf(opsioneRuajtura.rendi) !== -1) opsione.rendi = opsioneRuajtura.rendi;
-    }
-  } catch (e) { /* përdor vlerat fillestare */ }
-
-  function ruajOpsionet() {
-    try { localStorage.setItem(KEY_OPSIONE, JSON.stringify(opsione)); } catch (e) { /* ok */ }
   }
 
   // Tema: 'auto' (ndjek telefonin), 'light' ose 'dark'
@@ -778,6 +1224,39 @@
   }
   zbatoTemen();
 
+  // ---------- Gjuha ----------
+  function zbatoGjuhen() {
+    Array.prototype.forEach.call(document.querySelectorAll('#segGjuha button'), function (b) {
+      b.classList.toggle('aktiv', b.getAttribute('data-v') === opsione.gjuha);
+    });
+  }
+  function vendosGjuhen(v) {
+    if (v !== 'sq' && v !== 'en') return;
+    opsione.gjuha = v;
+    ruajOpsionet();
+    document.documentElement.lang = v;
+    perkthoGjithcka();
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#segGjuha button'), function (b) {
+    b.addEventListener('click', function () { vendosGjuhen(b.getAttribute('data-v')); });
+  });
+
+  // Rifreskon krejt tekstin e dukshëm kur ndryshon gjuha (pa mbyllur asnjë dritare të hapur)
+  function perkthoGjithcka() {
+    perkthoStatiket();
+    zbatoGjuhen();
+    zbatoPda();
+    zbatoTastieren();
+    if (folderiAktual === null) {
+      renderFolderat();
+    } else {
+      renderLista();
+    }
+    if ($('dlgOpsione').classList.contains('hapur')) {
+      plotesoKamerat(false);
+    }
+  }
+
   // Rendi i listës
   function emriKrahaso(a, b) {
     if (!a.emri && !b.emri) return a.barkodi.localeCompare(b.barkodi);
@@ -795,10 +1274,12 @@
   function zbatoPda() {
     var pda = opsione.pda;
     $('btnKamera').style.display = pda ? 'none' : '';
+    $('btnEksportPdf').style.display = ''; // PDF mbetet e dukshme edhe në PDA
     $('rreshtTingull').style.display = pda ? 'none' : '';
     $('rreshtScanner').style.display = pda ? 'none' : '';
     $('seksionKamera').style.display = pda ? 'none' : '';
-    $('lblBarkodi').textContent = pda ? 'Barkodi (skano me PDA ose shkruaje)' : 'Barkodi (scanner Bluetooth ose shkruaje)';
+    $('tabKamera').style.display = pda ? 'none' : '';
+    $('lblBarkodi').textContent = pda ? T('barkodiPda') : T('barkodiNormal');
   }
 
   // Kthen kursorin te fusha e barkodit (vetëm në modalitetin PDA, dhe vetëm nëse nuk ka dritare të hapur)
@@ -814,12 +1295,28 @@
     var fshehur = opsione.tastieraEFshehur;
     $('barkodi').setAttribute('inputmode', fshehur ? 'none' : 'text');
     $('btnTastiera').classList.toggle('aktiv', fshehur);
-    $('btnTastiera').setAttribute('aria-label', fshehur ? 'Shfaq tastierën' : 'Fshih tastierën');
-    $('btnTastiera').title = fshehur ? 'Shfaq tastierën' : 'Fshih tastierën';
+    $('btnTastiera').setAttribute('aria-label', fshehur ? T('shfaqTastieren') : T('fshihTastieren'));
+    $('btnTastiera').title = fshehur ? T('shfaqTastieren') : T('fshihTastieren');
   }
 
   zbatoPda();
   zbatoTastieren();
+  perkthoStatiket();
+  zbatoGjuhen();
+
+  // ---------- Tabet e Opsioneve ----------
+  function aktivizoTabin(emriFaqes) {
+    Array.prototype.forEach.call(document.querySelectorAll('.tabi'), function (b) {
+      b.classList.toggle('aktiv', b.getAttribute('data-faqe') === emriFaqes);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.opsione-faqe'), function (f) {
+      f.classList.toggle('aktiv', f.getAttribute('data-faqe') === emriFaqes);
+    });
+    $('tabet').scrollLeft = 0;
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.tabi'), function (b) {
+    b.addEventListener('click', function () { aktivizoTabin(b.getAttribute('data-faqe')); });
+  });
 
   // Dialogu i opsioneve
   function hapOpsionet() {
@@ -832,6 +1329,8 @@
     zbatoPda();
     $('opsRendi').value = opsione.rendi;
     zbatoTemen();
+    zbatoGjuhen();
+    aktivizoTabin('pamja');
     $('dlgOpsione').classList.add('hapur');
   }
   function mbyllOpsionet() { $('dlgOpsione').classList.remove('hapur'); fokusoBarkodin(); }
@@ -866,7 +1365,7 @@
     var f = $('barkodi');
     f.blur();
     f.focus();
-    toast(opsione.tastieraEFshehur ? 'Tastiera nuk do të shfaqet për fushën e barkodit.' : 'Tastiera do të shfaqet përsëri.');
+    toast(opsione.tastieraEFshehur ? T('tastieraFshehur') : T('tastieraShfaqet'));
   });
   $('opsPaEmer').addEventListener('change', async function () {
     if (!$('opsPaEmer').checked) {          // fikja nuk kërkon paralajmërim
@@ -875,15 +1374,7 @@
       return;
     }
     $('opsPaEmer').checked = false;          // ndizet vetëm pasi ta pranosh paralajmërimin
-    var po = await konfirmo(
-      'Të regjistrohen produktet pa emër?',
-      'Nuk rekomandohet të regjistrohen produktet pa emër. Në listë dhe në Excel do të shihet vetëm barkodi, ' +
-        'kështu që është më e vështirë të gjesh, të kontrollosh ose të njohësh një produkt më vonë, sidomos nëse ' +
-        'ndonjë barkod është skenuar gabim.\n\nProdukteve që kanë tashmë emër nuk u fshihet emri.\n\n' +
-        'Nëse je i sigurt, prit 5 sekonda dhe shtyp «Aktivizo».',
-      'Aktivizo',
-      5
-    );
+    var po = await konfirmo(T('paEmerKonfTitulli'), T('paEmerKonfTekst'), T('aktivizo'), 5);
     if (po) {
       opsione.paEmer = true;
       $('opsPaEmer').checked = true;
@@ -963,7 +1454,7 @@
 
   async function ruajKopjen() {
     var te = Object.keys(produktet).map(function (b) { return produktet[b]; });
-    if (te.length === 0) { toast('Nuk ka produkte për kopje rezervë.'); return; }
+    if (te.length === 0) { toast(T('nukKaProduktePerKopje')); return; }
     var teksti = JSON.stringify({ app: 'stoku', version: 2, koha: new Date().toISOString(), foldera: foldera, produktet: te });
     var emri = 'stoku-kopje_' + stampaKohes() + '.json';
     var skedari = new File([teksti], emri, { type: 'application/json' });
@@ -978,7 +1469,7 @@
       }
     }
     shkarkoDirekt({ skedari: skedari, emri: emri });
-    toast('Kopja rezervë u shkarkua: ' + emri);
+    toast(T('kopjaShkarkuar', { emri: emri }));
   }
 
   async function rikthePrejSkedari(skedari) {
@@ -1023,15 +1514,14 @@
     } catch (e) { teRikthyera = null; }
 
     if (!teRikthyera || teRikthyera.produktet.length === 0) {
-      toast('Ky skedar nuk është kopje rezervë e vlefshme.');
+      toast(T('skedariIPavlefshem'));
       return;
     }
     var aktual = Object.keys(produktet).length;
     var po = await konfirmo(
-      'Të rikthehet kopja?',
-      'Do të zëvendësohen të gjitha ' + aktual + ' produktet aktuale (dhe folderat) me ' + teRikthyera.produktet.length +
-        ' produkte nga kopja.\n\nKy veprim nuk kthehet. Nëse do, ruaj fillimisht një kopje të listës aktuale.',
-      'Rikthe'
+      T('teRikthehetKopja'),
+      T('riktheTekst', { aktual: aktual, reja: teRikthyera.produktet.length }),
+      T('rikthe')
     );
     if (!po) return;
     foldera = teRikthyera.foldera;
@@ -1043,7 +1533,7 @@
     ruajBaze();
     rifreskoPamjen();
     mbyllOpsionet();
-    toast('U rikthyen ' + teRikthyera.produktet.length + ' produkte.');
+    toast(T('uRikthyen', { n: teRikthyera.produktet.length }));
   }
 
   $('opsKopje').addEventListener('click', ruajKopjen);
@@ -1063,7 +1553,7 @@
     var te = produktetENjeFolderi(folderiAktual);
     te.sort(krahaso);
 
-    $('titulli').textContent = emriFolderit(folderiAktual) + ' (' + te.length + ' produkte)';
+    $('titulli').textContent = emriFolderit(folderiAktual) + ' (' + T('njesiaProdukteve', { n: te.length }) + ')';
     $('btnFshiTeGjitha').disabled = te.length === 0;
 
     var fil = te;
@@ -1080,7 +1570,7 @@
     if (fil.length === 0 && k) {
       var i0 = document.createElement('div');
       i0.className = 'info';
-      i0.textContent = 'Nuk u gjet asnjë produkt.';
+      i0.textContent = T('nukUGjetAsnjeProdukt');
       frag.appendChild(i0);
     }
 
@@ -1091,7 +1581,7 @@
       majtas.className = 'majtas';
       var emri = document.createElement('div');
       emri.className = 'emri';
-      emri.textContent = p.emri || '(pa emër)';
+      emri.textContent = p.emri || T('paEmerListe');
       if (!p.emri) emri.className = 'emri bosh';
       var kodi = document.createElement('div');
       kodi.className = 'kodi';
@@ -1113,7 +1603,7 @@
     if (fil.length > LIMIT_RENDER) {
       var i1 = document.createElement('div');
       i1.className = 'info';
-      i1.textContent = 'Shfaqen ' + LIMIT_RENDER + ' nga ' + fil.length + ' produkte. Përdor kërkimin për të gjetur të tjerët.';
+      i1.textContent = T('shfaqenNga', { limit: LIMIT_RENDER, gjithsej: fil.length });
       frag.appendChild(i1);
     }
     lista.appendChild(frag);
@@ -1128,12 +1618,12 @@
     var e = produktet[celesiProduktit(folderiAktual, barkodi)] || null;
     dialogu = { barkodi: barkodi, ekzistues: e };
     var paEmer = opsione.paEmer;
-    $('dlgTitulli').textContent = e ? 'Produkti ekziston (tani: ' + e.sasia + ')' : (paEmer ? 'Produkt i ri (pa emër)' : 'Produkt i ri');
-    $('dlgKodi').textContent = 'Barkodi: ' + barkodi + ((paEmer && e && e.emri) ? '\nEmri: ' + e.emri : '');
+    $('dlgTitulli').textContent = e ? T('produktiEkziston', { sasia: e.sasia }) : (paEmer ? T('produktIRiPaEmer') : T('produktIRi'));
+    $('dlgKodi').textContent = T('barkodiEtiketa', { barkodi: barkodi }) + ((paEmer && e && e.emri) ? '\n' + T('emriEtiketa', { emri: e.emri }) : '');
     $('fushaEmri').style.display = paEmer ? 'none' : '';
     $('dlgEmri').value = e ? e.emri : '';
     $('dlgSasia').value = '';
-    $('dlgSasiaLabel').textContent = e ? "Sasia për t'u shtuar" : 'Sasia';
+    $('dlgSasiaLabel').textContent = e ? T('sasiaPerTuShtuar') : T('sasia');
     $('dlgFshij').style.display = e ? '' : 'none';
     $('dlgProdukt').classList.add('hapur');
     ((e || paEmer) ? $('dlgSasia') : $('dlgEmri')).focus();
@@ -1154,8 +1644,8 @@
     if (!dialogu) return;
     var emri = opsione.paEmer ? (dialogu.ekzistues ? dialogu.ekzistues.emri : '') : $('dlgEmri').value.trim();
     var tekstSasia = $('dlgSasia').value.trim();
-    if (!opsione.paEmer && !emri) { toast('Shkruaj emrin e produktit.'); $('dlgEmri').focus(); return; }
-    if (!/^-?\d+$/.test(tekstSasia)) { toast('Shkruaj sasinë (numër i plotë).'); $('dlgSasia').focus(); return; }
+    if (!opsione.paEmer && !emri) { toast(T('shkruajEmrin')); $('dlgEmri').focus(); return; }
+    if (!/^-?\d+$/.test(tekstSasia)) { toast(T('shkruajSasine')); $('dlgSasia').focus(); return; }
     var sasia = parseInt(tekstSasia, 10);
     var e = dialogu.ekzistues;
     var total = (e ? e.sasia : 0) + sasia;
@@ -1189,8 +1679,18 @@
     if (ev.target === $('dlgProdukt')) mbyllDialogun();
   });
 
-  // ---------- Fusha e barkodit (scanner Bluetooth / tastierë) ----------
+  // ---------- Fusha e barkodit (scanner Bluetooth / tastierë / PDA) ----------
   var pdaKohez = null;
+
+  // Heuristikë: a duket kjo si diçka tjetër përveç barkodit të një produkti (p.sh. kod QR ose tekst i gjatë)?
+  // Barkodet e produkteve janë pothuajse gjithmonë vetëm numra (6-14 shifra).
+  function duketSiDiçkaTjeterVeçBarkod(tekst) {
+    if (/^[0-9]{6,14}$/.test(tekst)) return false;
+    if (tekst.length > 20) return true;
+    if (/^https?:\/\//i.test(tekst)) return true;
+    if (/\s/.test(tekst)) return true;
+    return false;
+  }
 
   function skanoBarkodin() {
     clearTimeout(pdaKohez);
@@ -1199,6 +1699,10 @@
     var b = $('barkodi').value.trim();
     $('barkodi').value = '';
     if (!b) return;
+    if (duketSiDiçkaTjeterVeçBarkod(b)) {
+      toast(T('qrDyshim'));
+      return;
+    }
     burimiIFundit = 'fushe';
     hapDialogun(b);
   }
@@ -1257,7 +1761,7 @@
   // kerkoLejen = true: kërkon lejen e kamerës nëse etiketat ende s'janë të dukshme.
   async function listoKamerat(kerkoLejen) {
     if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
-      return { ok: false, kamerat: [], paEtiketa: false, gabim: 'Ky shfletues nuk e mbështet listën e kamerave.' };
+      return { ok: false, kamerat: [], paEtiketa: false, gabimKyc: 'kameraPaMbeshtetje' };
     }
     function vetemKamerat(pajisjet) {
       return pajisjet.filter(function (d) { return d.kind === 'videoinput'; });
@@ -1277,7 +1781,7 @@
       }).map(function (k) { return { deviceId: k.deviceId, label: k.label || '' }; });
       return { ok: true, kamerat: tePasme, paEtiketa: paEtiketa };
     } catch (err) {
-      return { ok: false, kamerat: [], paEtiketa: false, gabim: 'Nuk u dha leje për kamerën. Lejoje te cilësimet e shfletuesit.' };
+      return { ok: false, kamerat: [], paEtiketa: false, gabimKyc: 'kameraPaLeje' };
     }
   }
 
@@ -1293,19 +1797,18 @@
       sel.appendChild(o);
     }
     sel.textContent = '';
-    shto('', 'Automatike (e pasmja kryesore)');
+    shto('', T('automatikeKryesore'));
     if (r.ok && !r.paEtiketa) {
       r.kamerat.forEach(function (k, i) { shto(k.deviceId, (i + 1) + '. ' + (k.label || 'Kamera')); });
     }
     var ekziston = Array.prototype.some.call(sel.options, function (o) { return o.value === opsione.kameraId; });
-    if (opsione.kameraId && !ekziston) shto(opsione.kameraId, 'Kamera e zgjedhur më parë');
+    if (opsione.kameraId && !ekziston) shto(opsione.kameraId, T('kameraZgjedhurMore'));
     sel.value = opsione.kameraId;
 
-    if (!r.ok) info.textContent = r.gabim;
-    else if (r.paEtiketa) info.textContent = 'Shtyp «Gjej kamerat e telefonit» dhe lejo kamerën që të shfaqet lista.';
-    else if (r.kamerat.length === 0) info.textContent = 'Nuk u gjet asnjë kamerë e pasme.';
-    else info.textContent = 'U gjetën ' + r.kamerat.length + ' kamera të pasme (kamera e përparme nuk shfaqet). ' +
-      'Nëse një kamerë nuk fokuson mirë (p.sh. ajo «ultra wide»), provo një tjetër.';
+    if (!r.ok) info.textContent = T(r.gabimKyc);
+    else if (r.paEtiketa) info.textContent = T('kameraShtypGjej');
+    else if (r.kamerat.length === 0) info.textContent = T('kameraAsnje');
+    else info.textContent = T('kameraUGjeten', { n: r.kamerat.length });
   }
 
   function trackuIKameres() {
@@ -1350,16 +1853,39 @@
     });
   }
 
-  // Nis kamerën e zgjedhur; nëse ajo nuk gjendet, kalon te kamera automatike
+  // Nxjerr emrin e formatit të lexuar (p.sh. 'QR_CODE', 'EAN_13'), nëse librari e jep
+  function formatiIRezultatit(decodedResult) {
+    try {
+      if (!decodedResult) return '';
+      var f = decodedResult.result && decodedResult.result.format;
+      if (f && f.formatName) return f.formatName;
+      if (decodedResult.format && decodedResult.format.formatName) return decodedResult.format.formatName;
+      if (typeof decodedResult.format === 'string') return decodedResult.format;
+    } catch (e) { /* ok */ }
+    return '';
+  }
+
+  // Nis kamerën e zgjedhur; nëse ajo nuk gjendet, kalon te kamera automatike.
+  // Kutia e skenimit është ngushtë (formë "shirit"), e menduar posaçërisht për të kapur VETËM NJË
+  // barkod të vetëm, edhe kur ka shumë barkode të printuara afër njëra-tjetrës (p.sh. në një fletë A4).
   async function nisKamere() {
     var konfigurimi = {
       fps: 10,
       qrbox: function (w, h) {
-        return { width: Math.floor(Math.min(w * 0.85, 340)), height: Math.floor(Math.min(h * 0.4, 160)) };
+        return {
+          width: Math.floor(Math.min(w * 0.82, 320)),
+          height: Math.floor(Math.min(h * 0.22, 90))
+        };
       }
     };
-    var kuSuksesi = function (tekstiILexuar) {
+    var kuSuksesi = function (tekstiILexuar, decodedResult) {
       if (perpunuar) return;
+      var formati = formatiIRezultatit(decodedResult);
+      if (formati === 'QR_CODE') {
+        // Nuk e trajtojmë si barkod produkti: njoftojmë dhe vazhdojmë skenimin pa e ndalur kamerën
+        toast(T('qrRefuzuar'));
+        return;
+      }
       perpunuar = true;
       bip();
       ndalKamere().then(function () {
@@ -1378,7 +1904,7 @@
       skaneri = krijoSkanerin();
       try {
         await skaneri.start(provat[i], konfigurimi, kuSuksesi, kuGabimi);
-        if (opsione.kameraId && i > 0) toast('Kamera e zgjedhur nuk u gjet. U përdor kamera automatike.', 4000);
+        if (opsione.kameraId && i > 0) toast(T('kameraNukUGjet'), 4000);
         await pasNisjes();
         return;
       } catch (err) {
@@ -1394,7 +1920,7 @@
   async function hapKamere() {
     pergatitAudion(); // duhet thirrur nga prekja e përdoruesit që tingulli të lejohet në iPhone
     if (typeof Html5Qrcode === 'undefined') {
-      toast('Kamera nuk është gati. Lidhu me internet dhe hape prapë aplikacionin.');
+      toast(T('kameraNukEshteGati'));
       return;
     }
     perpunuar = false;
@@ -1405,7 +1931,7 @@
       await nisKamere();
     } catch (err) {
       await ndalKamere();
-      toast('Kamera nuk u hap. Lejo kamerën për këtë aplikacion te Settings.');
+      toast(T('kameraNukUHapLeje'));
     }
   }
 
@@ -1439,7 +1965,7 @@
       await nisKamere();
     } catch (err) {
       await ndalKamere();
-      toast('Kamera nuk u hap.');
+      toast(T('kameraNukUHap'));
     }
   }
 
@@ -1466,7 +1992,7 @@
   function krijoSkedarin() {
     if (folderiAktual === null) return null;
     var te = produktetENjeFolderi(folderiAktual);
-    if (te.length === 0) { toast('Nuk ka produkte për eksport në këtë folder.'); return null; }
+    if (te.length === 0) { toast(T('nukKaProdukteEksport')); return null; }
     te.sort(emriKrahaso);
 
     var d = new Date();
@@ -1493,26 +2019,140 @@
     setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 4000);
   }
 
-  // Butoni "Eksporto në Excel": një prekje, pa dritare zgjedhjeje
-  async function eksporto() {
-    var f = krijoSkedarin();
-    if (!f) return;
-
-    // 1) Menuja Share e telefonit (Ruaj te Files, WhatsApp, Mail, ...)
+  // Ndan (ose shkarkon) një skedar tashmë të gatshëm { skedari, emri }
+  async function ndajOseShkarko(f, titulliShpernd) {
     if (kaShare(f.skedari)) {
       try {
-        await navigator.share({ files: [f.skedari], title: 'Malli' });
+        await navigator.share({ files: [f.skedari], title: titulliShpernd || f.emri });
         return;
       } catch (err) {
         if (err && err.name === 'AbortError') return; // përdoruesi e mbylli menunë
       }
     }
-
-    // 2) Zgjidhje rezervë: shkarkim i zakonshëm
     shkarkoDirekt(f);
   }
 
+  // Butoni "Eksporto në Excel": një prekje, pa dritare zgjedhjeje
+  async function eksporto() {
+    var f = krijoSkedarin();
+    if (!f) return;
+    await ndajOseShkarko(f, 'Malli');
+  }
+
   $('btnEksport').addEventListener('click', eksporto);
+
+  // ---------- Eksporti në PDF (etiketa me barkod, për printim dhe riskenim) ----------
+  function formatiBarkodit(b) {
+    if (/^[0-9]{13}$/.test(b)) return 'EAN13';
+    if (/^[0-9]{12}$/.test(b)) return 'UPC';
+    if (/^[0-9]{8}$/.test(b)) return 'EAN8';
+    return 'CODE128';
+  }
+
+  // Vizaton barkodin (grafik + numri poshtë tij) mbi një <canvas>; provon disa formate nëse i pari dështon
+  function vizatoBarkodin(canvas, barkodi) {
+    var formatet = [formatiBarkodit(barkodi)];
+    if (formatet[0] !== 'CODE128') formatet.push('CODE128');
+    for (var i = 0; i < formatet.length; i++) {
+      try {
+        window.JsBarcode(canvas, barkodi, {
+          format: formatet[i], displayValue: true, fontSize: 16,
+          height: 46, margin: 6, background: '#ffffff', lineColor: '#000000'
+        });
+        return true;
+      } catch (e) { /* provo formatin tjetër */ }
+    }
+    return false;
+  }
+
+  function shkurtoTekstin(tekst, maks) {
+    if (!tekst) return '';
+    return tekst.length > maks ? tekst.slice(0, maks - 1) + '…' : tekst;
+  }
+
+  // Krijon një PDF me etiketa (barkod + numër + emër + sasi) të gjitha produktet e folderit,
+  // të rregulluara në rrjetë mbi fletë A4, gati për printim dhe riskenim më vonë.
+  async function eksportoPdf() {
+    if (folderiAktual === null) return;
+    if (typeof window.jspdf === 'undefined' || typeof window.JsBarcode === 'undefined') {
+      toast(T('pdfNukGati'));
+      return;
+    }
+    var te = produktetENjeFolderi(folderiAktual);
+    if (te.length === 0) { toast(T('nukKaProdukteEksport')); return; }
+    te.sort(emriKrahaso);
+
+    var btn = $('btnEksportPdf');
+    var tekstiVjeter = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = T('pdfDukeKrijuar');
+
+    try {
+      var JsPdfKlasa = window.jspdf.jsPDF;
+      var dok = new JsPdfKlasa({ unit: 'mm', format: 'a4' });
+
+      var faqjaGj = 210, faqjaLart = 297;
+      var mV = 8;
+      var kolona = 3, rreshta = 8;
+      var boshllek = 3;
+      var qelizaGj = (faqjaGj - 2 * mV - (kolona - 1) * boshllek) / kolona;
+      var qelizaLart = (faqjaLart - 2 * mV - (rreshta - 1) * boshllek) / rreshta;
+      var perFaqe = kolona * rreshta;
+
+      var canvas = document.createElement('canvas');
+
+      te.forEach(function (p, idx) {
+        var poz = idx % perFaqe;
+        if (idx > 0 && poz === 0) dok.addPage();
+        var kol = poz % kolona;
+        var rr = Math.floor(poz / kolona);
+        var x = mV + kol * (qelizaGj + boshllek);
+        var y = mV + rr * (qelizaLart + boshllek);
+
+        dok.setDrawColor(210);
+        dok.rect(x, y, qelizaGj, qelizaLart);
+
+        var uKrijua = vizatoBarkodin(canvas, p.barkodi);
+        var qendraX = x + qelizaGj / 2;
+
+        if (uKrijua) {
+          var barkodiGj = qelizaGj - 4;
+          var barkodiLart = barkodiGj * (canvas.height / canvas.width);
+          var maksLart = qelizaLart * 0.6;
+          if (barkodiLart > maksLart) barkodiLart = maksLart;
+          var imgX = x + (qelizaGj - barkodiGj) / 2;
+          dok.addImage(canvas.toDataURL('image/png'), 'PNG', imgX, y + 2, barkodiGj, barkodiLart);
+
+          var yTeksti = y + 2 + barkodiLart + 4;
+          dok.setFont('helvetica', 'normal');
+          dok.setFontSize(8);
+          dok.setTextColor(20, 20, 20);
+          dok.text(shkurtoTekstin(p.emri || T('paEmerListe'), 28), qendraX, yTeksti, { align: 'center' });
+          dok.setFont('helvetica', 'bold');
+          dok.setFontSize(9);
+          dok.text(T('sasia') + ': ' + p.sasia, qendraX, yTeksti + 5, { align: 'center' });
+        } else {
+          dok.setFont('helvetica', 'normal');
+          dok.setFontSize(9);
+          dok.text(p.barkodi, qendraX, y + qelizaLart / 2, { align: 'center' });
+        }
+      });
+
+      var d = new Date();
+      var emriSkedarit = 'etiketa_' + sluguFolderit(emriFolderit(folderiAktual)) + '_' +
+        d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate()) + '.pdf';
+      var bajtet = dok.output('arraybuffer');
+      var skedari = new File([bajtet], emriSkedarit, { type: 'application/pdf' });
+      await ndajOseShkarko({ skedari: skedari, emri: emriSkedarit }, 'Etiketa');
+    } catch (err) {
+      toast(T('pdfDeshtoi'));
+    } finally {
+      btn.disabled = false;
+      btn.textContent = tekstiVjeter;
+    }
+  }
+
+  $('btnEksportPdf').addEventListener('click', eksportoPdf);
 
   // ---------- Fshirja e të gjithave (me pritje 10 sekonda) ----------
   var kohezues = null;
@@ -1521,24 +2161,22 @@
     if (folderiAktual === null) return;
     var n = produktetENjeFolderi(folderiAktual).length;
     if (!n) return;
-    $('fshiTekst').textContent =
-      'Do të fshihen të gjitha ' + n + ' produktet nga folderi «' + emriFolderit(folderiAktual) +
-      '». Ky veprim NUK mund të kthehet.\n\n' +
-      'Nëse do një kopje, shtyp Anulo dhe eksporto fillimisht në Excel.';
+    $('fshiTitulli').textContent = T('teFshihenTeGjitha');
+    $('fshiTekst').textContent = T('fshirjaTekst', { n: n, folder: emriFolderit(folderiAktual) });
     var s = 10;
     var btn = $('fshiKonfirmo');
     btn.disabled = true;
-    btn.textContent = 'Fshi krejt (' + s + ')';
+    btn.textContent = T('fshiKrejt') + ' (' + s + ')';
     $('dlgFshirje').classList.add('hapur');
     clearInterval(kohezues);
     kohezues = setInterval(function () {
       s--;
       if (s > 0) {
-        btn.textContent = 'Fshi krejt (' + s + ')';
+        btn.textContent = T('fshiKrejt') + ' (' + s + ')';
       } else {
         clearInterval(kohezues);
         btn.disabled = false;
-        btn.textContent = 'Fshi krejt';
+        btn.textContent = T('fshiKrejt');
       }
     }, 1000);
   }
@@ -1564,7 +2202,7 @@
     mbyllFshirjen();
     renderLista();
     renderFolderat();
-    toast('U fshinë të gjitha produktet nga folderi.');
+    toast(T('uFshinePrejFolderit'));
   });
 
   // ---------- Service worker (punon edhe pa internet) ----------
@@ -1578,5 +2216,7 @@
 })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@3.0.3/dist/jspdf.umd.min.js" crossorigin="anonymous"></script>
 </body>
 </html>

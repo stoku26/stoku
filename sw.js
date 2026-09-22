@@ -5,8 +5,12 @@
  * NDRYSHIM: kur ta përditësosh index.html, ndrysho numrin këtu (v1 -> v2),
  * që telefonat të marrin versionin e ri.
  */
-var CACHE = 'stoku-v13';
-var CDN_KAMERA = 'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';
+var CACHE = 'stoku-v14';
+var CDN_BIBLIOTEKA = [
+  'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
+  'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js',
+  'https://cdn.jsdelivr.net/npm/jspdf@3.0.3/dist/jspdf.umd.min.js'
+];
 var SHELL = [
   './',
   './index.html',
@@ -21,8 +25,8 @@ self.addEventListener('install', function (e) {
   e.waitUntil(
     caches.open(CACHE).then(function (c) {
       return c.addAll(SHELL).then(function () {
-        // libraria e kamerës: nëse dështon, aplikacioni prapë instalohet
-        return c.add(CDN_KAMERA).catch(function () { /* ok */ });
+        // bibliotekat e jashtme (kamera, barkodi, PDF): nëse dështojnë, aplikacioni prapë instalohet
+        return Promise.all(CDN_BIBLIOTEKA.map(function (u) { return c.add(u).catch(function () { /* ok */ }); }));
       });
     })
   );
