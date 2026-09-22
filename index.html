@@ -259,6 +259,9 @@
   .dialog .fushe { margin-bottom: 12px; }
   .veprime { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 4px; padding-top: 4px; }
   .hint { font-size: 13px; color: var(--gri); margin: 2px 0 12px; white-space: normal; }
+  .zhvendos-nxit { display: block; width: 100%; text-align: left; padding: 6px 2px 14px; font-weight: 600; }
+  #zhvendosLista { max-height: 320px; overflow-y: auto; margin: 4px 0 8px; }
+  #zhvendosLista .kategori-rresht { font-weight: 500; }
 
   /* Opsionet */
   .dialog.opsione {
@@ -440,10 +443,23 @@
         <button type="button" class="hap-btn" id="dlgSasiaPlus" aria-label="+1">+</button>
       </div>
     </div>
+    <button type="button" class="btn tekst zhvendos-nxit" id="dlgZhvendosBtn" style="display:none"></button>
     <div class="veprime">
       <button class="btn tekst rrezik" id="dlgFshij" type="button"></button>
       <button class="btn tekst" id="dlgAnulo" type="button"></button>
       <button class="btn tekst" id="dlgRuaj" type="button"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Zhvendos në folder tjetër -->
+<div class="mbulese" id="dlgZhvendos">
+  <div class="dialog" role="dialog" aria-modal="true">
+    <h2 id="zhvendosTitulli"></h2>
+    <div class="hint" id="zhvendosHint"></div>
+    <div id="zhvendosLista"></div>
+    <div class="veprime">
+      <button class="btn tekst" id="zhvendosAnulo" type="button"></button>
     </div>
   </div>
 </div>
@@ -683,6 +699,14 @@
       emriIProduktit: 'Emri i produktit',
       sasia: 'Sasia',
       sasiaPerTuShtuar: "Sasia për t'u shtuar",
+      zhvendosNeFolder: 'Zhvendos në folder tjetër ›',
+      zhvendosTitulli: 'Zhvendos produktin',
+      zhvendosHint: function (a) { return 'Zgjidh folderin ku do të zhvendoset «' + a.emri + '».'; },
+      zhvendosAsnjeFolder: 'Nuk ka asnjë folder tjetër ku ta zhvendosësh.',
+      zhvendosUKry: function (a) { return 'U zhvendos te «' + a.folder + '».'; },
+      zhvendosUBashkua: function (a) {
+        return 'U zhvendos te «' + a.folder + '». Aty ekzistonte tashmë, ndaj sasitë u bashkuan (tani: ' + a.sasia + ').';
+      },
       shkruajEmrin: 'Shkruaj emrin e produktit.',
       shkruajSasine: 'Shkruaj sasinë (numër i plotë).',
 
@@ -828,6 +852,14 @@
       emriIProduktit: 'Product name',
       sasia: 'Quantity',
       sasiaPerTuShtuar: 'Quantity to add',
+      zhvendosNeFolder: 'Move to another folder ›',
+      zhvendosTitulli: 'Move product',
+      zhvendosHint: function (a) { return 'Choose the folder to move “' + a.emri + '” to.'; },
+      zhvendosAsnjeFolder: 'There is no other folder to move it to.',
+      zhvendosUKry: function (a) { return 'Moved to “' + a.folder + '”.'; },
+      zhvendosUBashkua: function (a) {
+        return 'Moved to “' + a.folder + '”. It already existed there, so the quantities were combined (now: ' + a.sasia + ').';
+      },
       shkruajEmrin: 'Enter the product name.',
       shkruajSasine: 'Enter the quantity (a whole number).',
 
@@ -949,6 +981,9 @@
     { id: 'dlgFshij', prop: 'text', kyc: 'fshij' },
     { id: 'dlgAnulo', prop: 'text', kyc: 'anulo' },
     { id: 'dlgRuaj', prop: 'text', kyc: 'ruaj' },
+    { id: 'dlgZhvendosBtn', prop: 'text', kyc: 'zhvendosNeFolder' },
+    { id: 'zhvendosTitulli', prop: 'text', kyc: 'zhvendosTitulli' },
+    { id: 'zhvendosAnulo', prop: 'text', kyc: 'anulo' },
 
     { id: 'fshiAnulo', prop: 'text', kyc: 'anulo' },
     { id: 'folderIRiTitulli', prop: 'text', kyc: 'folderIRi' },
@@ -1731,6 +1766,7 @@
     $('dlgSasia').value = '';
     $('dlgSasiaLabel').textContent = e ? T('sasiaPerTuShtuar') : T('sasia');
     $('dlgFshij').style.display = e ? '' : 'none';
+    $('dlgZhvendosBtn').style.display = e ? 'block' : 'none';
     $('dlgProdukt').classList.add('hapur');
     ((e || paEmer) ? $('dlgSasia') : $('dlgEmri')).focus();
   }
@@ -1771,6 +1807,72 @@
     renderLista();
     renderFolderat();
   }
+
+  // ---------- Zhvendos produktin në folder tjetër ----------
+  function hapZhvendosin() {
+    if (!dialogu || !dialogu.ekzistues) return;
+    var teTjerat = foldera.filter(function (f) { return f.id !== folderiAktual; });
+    $('zhvendosHint').textContent = T('zhvendosHint', { emri: dialogu.ekzistues.emri || dialogu.barkodi });
+
+    var cont = $('zhvendosLista');
+    cont.textContent = '';
+    if (teTjerat.length === 0) {
+      var i0 = document.createElement('div');
+      i0.className = 'info';
+      i0.textContent = T('zhvendosAsnjeFolder');
+      cont.appendChild(i0);
+    } else {
+      teTjerat.forEach(function (f) {
+        var rr = document.createElement('button');
+        rr.type = 'button';
+        rr.className = 'kategori-rresht';
+        var emri = document.createElement('span');
+        emri.textContent = f.emri;
+        var shigjeta = document.createElement('span');
+        shigjeta.className = 'shigjeta';
+        shigjeta.textContent = '›';
+        rr.appendChild(emri);
+        rr.appendChild(shigjeta);
+        rr.addEventListener('click', function () { zhvendosProduktinNeFolderin(f); });
+        cont.appendChild(rr);
+      });
+    }
+    $('dlgZhvendos').classList.add('hapur');
+  }
+
+  function mbyllZhvendosin() { $('dlgZhvendos').classList.remove('hapur'); }
+
+  function zhvendosProduktinNeFolderin(destinacioni) {
+    if (!dialogu || !dialogu.ekzistues) return;
+    var produkti = dialogu.ekzistues;
+    var barkodi = dialogu.barkodi;
+    var celesiVjeter = celesiProduktit(folderiAktual, barkodi);
+    var celesiRi = celesiProduktit(destinacioni.id, barkodi);
+    var ekzistuesNeDestinacion = produktet[celesiRi] || null;
+
+    delete produktet[celesiVjeter];
+    var total = (ekzistuesNeDestinacion ? ekzistuesNeDestinacion.sasia : 0) + produkti.sasia;
+    var emriPerRuajtje = (ekzistuesNeDestinacion && ekzistuesNeDestinacion.emri) ? ekzistuesNeDestinacion.emri : produkti.emri;
+    produktet[celesiRi] = {
+      barkodi: barkodi, emri: emriPerRuajtje, sasia: total,
+      kategoriaId: destinacioni.id, prekurSe: Date.now()
+    };
+    ruajBaze();
+
+    mbyllZhvendosin();
+    mbyllDialogun();
+    renderLista();
+    renderFolderat();
+    toast(ekzistuesNeDestinacion
+      ? T('zhvendosUBashkua', { folder: destinacioni.emri, sasia: total })
+      : T('zhvendosUKry', { folder: destinacioni.emri }), 4000);
+  }
+
+  $('dlgZhvendosBtn').addEventListener('click', hapZhvendosin);
+  $('zhvendosAnulo').addEventListener('click', mbyllZhvendosin);
+  $('dlgZhvendos').addEventListener('click', function (ev) {
+    if (ev.target === $('dlgZhvendos')) mbyllZhvendosin();
+  });
 
   $('dlgRuaj').addEventListener('click', ruajProduktin);
   $('dlgAnulo').addEventListener('click', mbyllDialogun);
