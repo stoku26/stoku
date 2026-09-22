@@ -133,6 +133,34 @@
   }
   input:focus { border-color: var(--btn-tekst); box-shadow: 0 0 0 1px var(--btn-tekst); }
   .rreshti { display: flex; gap: 8px; margin: 10px 0 6px; }
+
+  /* Hapa sasie (+/-) */
+  .sasia-hap { display: flex; align-items: stretch; gap: 8px; }
+  .sasia-hap input { flex: 1; text-align: center; }
+  .hap-btn {
+    flex: none; width: 48px; height: 48px; border: 1px solid var(--fushe-kufi); border-radius: 8px;
+    background: var(--fushe-bg); color: var(--tekst); font-size: 22px; font-weight: 600; line-height: 1;
+    cursor: pointer;
+  }
+  .hap-btn:active { background: var(--hover); }
+
+  /* Fusha e barkodit: kur tastiera është "e fshehur", vetë fusha zhvendoset jashtë ekranit
+     (por mbetet e fokusuar, që skaneri i PDA-së të vazhdojë të shkruajë në të) dhe në vend të saj
+     shfaqet një kuti e thjeshtë që tregon çfarë është shkruar deri tani. */
+  .barkodi-mbeshtjellje { position: relative; }
+  .barkodi-shfaqje {
+    display: none;
+    width: 100%; height: 48px; font-size: 16px; padding: 0 12px;
+    border: 1px solid var(--fushe-kufi); border-radius: 8px;
+    background: var(--fushe-bg); color: var(--tekst);
+    align-items: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    cursor: text;
+  }
+  .barkodi-mbeshtjellje.osk-fshehur #barkodi {
+    position: fixed; left: -9999px; top: 0; width: 1px; height: 1px;
+    padding: 0; border: 0; opacity: 0;
+  }
+  .barkodi-mbeshtjellje.osk-fshehur .barkodi-shfaqje { display: flex; }
   .btn {
     flex: 1;
     min-height: 46px;
@@ -232,34 +260,43 @@
   .hint { font-size: 13px; color: var(--gri); margin: 2px 0 12px; white-space: normal; }
 
   /* Opsionet */
-  .dialog.opsione { max-width: 420px; padding-left: 0; padding-right: 0; }
-  .dialog.opsione > h2 { padding: 0 20px; }
-  .dialog.opsione .veprime {
-    position: sticky; bottom: -12px; background: var(--dialog);
-    padding: 6px 20px 12px; margin-top: 4px; border-top: 1px solid var(--vije);
+  .dialog.opsione {
+    max-width: 420px; padding: 0; display: flex; flex-direction: column;
+    height: min(78vh, 620px);
   }
-  .tabet {
-    display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch;
-    padding: 0 20px 10px; margin-bottom: 6px; border-bottom: 1px solid var(--vije);
-    scrollbar-width: none;
+  .opsione-krye {
+    display: flex; align-items: center; gap: 10px;
+    padding: 20px 20px 12px; flex: none;
   }
-  .tabet::-webkit-scrollbar { display: none; }
-  .tabi {
-    flex: none; border: 0; background: transparent; color: var(--gri);
-    font-size: 13px; font-weight: 600; padding: 8px 12px; border-radius: 16px; cursor: pointer;
-    white-space: nowrap;
+  .opsione-krye h2 { margin: 0; flex: 1; min-width: 0; }
+  #opsPrapa {
+    flex: none; width: 34px; height: 34px; border: 0; border-radius: 17px;
+    background: var(--hover); color: var(--tekst); font-size: 18px; cursor: pointer;
   }
-  .tabi.aktiv { background: var(--primar); color: #fff; }
-  .opsione-faqet { padding: 0 20px; }
+  .opsione-trup { flex: 1; min-height: 0; overflow-y: auto; padding: 0 20px; }
+  .kategori-menu { padding: 4px 0 8px; }
+  .kategori-rresht {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; text-align: left; border: 0; background: transparent;
+    color: var(--tekst); font-size: 16px; font-weight: 600;
+    padding: 14px 2px; border-bottom: 1px solid var(--vije); cursor: pointer;
+  }
+  .kategori-rresht:active { background: var(--hover); }
+  .kategori-rresht .shigjeta { color: var(--gri); font-weight: 400; font-size: 18px; }
+  .opsione-faqet { padding: 4px 0 8px; }
   .opsione-faqe { display: none; }
   .opsione-faqe.aktiv { display: block; }
   .opsione-faqe .seksion:first-child { padding-top: 0; }
+  .dialog.opsione .veprime {
+    flex: none; padding: 10px 20px 16px; margin: 0; border-top: 1px solid var(--vije);
+  }
   .seksion { padding: 12px 0; }
   .opsion-titull { font-size: 13px; font-weight: 700; color: var(--gri); margin-bottom: 8px; }
   .segment { display: flex; border: 1px solid var(--fushe-kufi); border-radius: 22px; overflow: hidden; }
   .segment button {
     flex: 1; min-height: 40px; border: 0; background: transparent; color: var(--tekst);
     font-size: 14px; font-weight: 600; cursor: pointer; padding: 0 6px;
+
   }
   .segment button + button { border-left: 1px solid var(--fushe-kufi); }
   .segment button.aktiv { background: var(--primar); color: #fff; }
@@ -361,8 +398,11 @@
 <div class="siper" id="siperFolderi" style="display:none">
   <div class="fushe">
     <label for="barkodi" id="lblBarkodi"></label>
-    <input id="barkodi" type="text" inputmode="text" enterkeyhint="done"
-           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <div class="barkodi-mbeshtjellje" id="barkodiMbeshtjellje">
+      <input id="barkodi" type="text" inputmode="text" enterkeyhint="done"
+             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <div class="barkodi-shfaqje" id="barkodiShfaqje" tabindex="0"></div>
+    </div>
   </div>
   <div class="rreshti">
     <button class="btn" id="btnKamera" type="button"></button>
@@ -392,7 +432,11 @@
     </div>
     <div class="fushe">
       <label for="dlgSasia" id="dlgSasiaLabel"></label>
-      <input id="dlgSasia" type="number" step="1" enterkeyhint="done" autocomplete="off">
+      <div class="sasia-hap">
+        <button type="button" class="hap-btn" id="dlgSasiaMinus" aria-label="-1">−</button>
+        <input id="dlgSasia" type="number" step="1" enterkeyhint="done" autocomplete="off">
+        <button type="button" class="hap-btn" id="dlgSasiaPlus" aria-label="+1">+</button>
+      </div>
     </div>
     <div class="veprime">
       <button class="btn tekst rrezik" id="dlgFshij" type="button"></button>
@@ -432,105 +476,112 @@
 <!-- Opsionet -->
 <div class="mbulese" id="dlgOpsione">
   <div class="dialog opsione" role="dialog" aria-modal="true">
-    <h2 id="opsioneTitulli"></h2>
-
-    <div class="tabet" id="tabet">
-      <button class="tabi aktiv" type="button" data-faqe="pamja" id="tabPamja"></button>
-      <button class="tabi" type="button" data-faqe="skenimi" id="tabSkenimi"></button>
-      <button class="tabi" type="button" data-faqe="kamera" id="tabKamera"></button>
-      <button class="tabi" type="button" data-faqe="lista" id="tabLista"></button>
-      <button class="tabi" type="button" data-faqe="gjuha" id="tabGjuha"></button>
-      <button class="tabi" type="button" data-faqe="rezerve" id="tabRezerve"></button>
+    <div class="opsione-krye">
+      <button id="opsPrapa" class="btn-ikone" type="button" style="display:none">←</button>
+      <h2 id="opsioneTitulli"></h2>
     </div>
 
-    <div class="opsione-faqet">
-      <div class="opsione-faqe aktiv" data-faqe="pamja">
-        <div class="seksion">
-          <div class="opsion-titull" id="titPamja"></div>
-          <div class="segment" id="segTema">
-            <button type="button" data-v="auto" id="temaAuto"></button>
-            <button type="button" data-v="light" id="temaLight"></button>
-            <button type="button" data-v="dark" id="temaDark"></button>
-          </div>
-          <div class="hint" id="temaHint"></div>
-        </div>
+    <div class="opsione-trup">
+      <div class="kategori-menu" id="kategoriMenu">
+        <button class="kategori-rresht" type="button" data-faqe="pamja" id="tabPamja"><span id="tabPamjaTxt"></span><span class="shigjeta">›</span></button>
+        <button class="kategori-rresht" type="button" data-faqe="skenimi" id="tabSkenimi"><span id="tabSkenimiTxt"></span><span class="shigjeta">›</span></button>
+        <button class="kategori-rresht" type="button" data-faqe="kamera" id="tabKamera"><span id="tabKameraTxt"></span><span class="shigjeta">›</span></button>
+        <button class="kategori-rresht" type="button" data-faqe="lista" id="tabLista"><span id="tabListaTxt"></span><span class="shigjeta">›</span></button>
+        <button class="kategori-rresht" type="button" data-faqe="gjuha" id="tabGjuha"><span id="tabGjuhaTxt"></span><span class="shigjeta">›</span></button>
+        <button class="kategori-rresht" type="button" data-faqe="rezerve" id="tabRezerve"><span id="tabRezerveTxt"></span><span class="shigjeta">›</span></button>
       </div>
 
-      <div class="opsione-faqe" data-faqe="skenimi">
-        <div class="seksion">
-          <label class="opsion-rresht" for="opsPda">
-            <span id="lblOpsPda"></span>
-            <span class="ndez"><input type="checkbox" id="opsPda"><span class="pist"></span></span>
-          </label>
-          <div class="hint" id="pdaHint"></div>
-          <label class="opsion-rresht" for="opsPaEmer">
-            <span id="lblOpsPaEmer"></span>
-            <span class="ndez"><input type="checkbox" id="opsPaEmer"><span class="pist"></span></span>
-          </label>
-          <div class="hint" id="paEmerHint"></div>
-          <label class="opsion-rresht" for="opsTingull" id="rreshtTingull">
-            <span id="lblOpsTingull"></span>
-            <span class="ndez"><input type="checkbox" id="opsTingull"><span class="pist"></span></span>
-          </label>
-          <label class="opsion-rresht" for="opsScanner" id="rreshtScanner">
-            <span id="lblOpsScanner"></span>
-            <span class="ndez"><input type="checkbox" id="opsScanner"><span class="pist"></span></span>
-          </label>
-        </div>
-      </div>
-
-      <div class="opsione-faqe" data-faqe="kamera" id="seksionKamera">
-        <div class="seksion">
-          <div class="fushe">
-            <label for="opsKamera" id="lblOpsKamera"></label>
-            <select id="opsKamera">
-              <option value=""></option>
-            </select>
-          </div>
-          <button class="btn" id="opsKameraGjej" type="button" style="width:100%"></button>
-          <div class="hint" id="opsKameraInfo"></div>
-          <label class="opsion-rresht" for="opsAutofokus">
-            <span id="lblOpsAutofokus"></span>
-            <span class="ndez"><input type="checkbox" id="opsAutofokus"><span class="pist"></span></span>
-          </label>
-          <div class="hint" id="autofokusHint"></div>
-        </div>
-      </div>
-
-      <div class="opsione-faqe" data-faqe="lista">
-        <div class="seksion">
-          <div class="fushe">
-            <label for="opsRendi" id="lblOpsRendi"></label>
-            <select id="opsRendi">
-              <option value="emri" id="optEmriAZ"></option>
-              <option value="sasiaUlet" id="optSasiaUlet"></option>
-              <option value="sasiaLart" id="optSasiaLart"></option>
-            </select>
+      <div class="opsione-faqet">
+        <div class="opsione-faqe" data-faqe="pamja">
+          <div class="seksion">
+            <div class="opsion-titull" id="titPamja"></div>
+            <div class="segment" id="segTema">
+              <button type="button" data-v="auto" id="temaAuto"></button>
+              <button type="button" data-v="light" id="temaLight"></button>
+              <button type="button" data-v="dark" id="temaDark"></button>
+            </div>
+            <div class="hint" id="temaHint"></div>
           </div>
         </div>
-      </div>
 
-      <div class="opsione-faqe" data-faqe="gjuha">
-        <div class="seksion">
-          <div class="opsion-titull" id="titGjuha"></div>
-          <div class="segment" id="segGjuha">
-            <button type="button" data-v="sq">Shqip</button>
-            <button type="button" data-v="en">English</button>
+        <div class="opsione-faqe" data-faqe="skenimi">
+          <div class="seksion">
+            <label class="opsion-rresht" for="opsPda">
+              <span id="lblOpsPda"></span>
+              <span class="ndez"><input type="checkbox" id="opsPda"><span class="pist"></span></span>
+            </label>
+            <div class="hint" id="pdaHint"></div>
+            <label class="opsion-rresht" for="opsPaEmer">
+              <span id="lblOpsPaEmer"></span>
+              <span class="ndez"><input type="checkbox" id="opsPaEmer"><span class="pist"></span></span>
+            </label>
+            <div class="hint" id="paEmerHint"></div>
+            <label class="opsion-rresht" for="opsTingull" id="rreshtTingull">
+              <span id="lblOpsTingull"></span>
+              <span class="ndez"><input type="checkbox" id="opsTingull"><span class="pist"></span></span>
+            </label>
+            <label class="opsion-rresht" for="opsScanner" id="rreshtScanner">
+              <span id="lblOpsScanner"></span>
+              <span class="ndez"><input type="checkbox" id="opsScanner"><span class="pist"></span></span>
+            </label>
           </div>
         </div>
-      </div>
 
-      <div class="opsione-faqe" data-faqe="rezerve">
-        <div class="seksion">
-          <div class="hint" id="rezerveHint"></div>
-          <div class="rreshti">
-            <button class="btn" id="opsKopje" type="button"></button>
-            <button class="btn" id="opsRikthe" type="button"></button>
+        <div class="opsione-faqe" data-faqe="kamera" id="seksionKamera">
+          <div class="seksion">
+            <div class="fushe">
+              <label for="opsKamera" id="lblOpsKamera"></label>
+              <select id="opsKamera">
+                <option value=""></option>
+              </select>
+            </div>
+            <button class="btn" id="opsKameraGjej" type="button" style="width:100%"></button>
+            <div class="hint" id="opsKameraInfo"></div>
+            <label class="opsion-rresht" for="opsAutofokus">
+              <span id="lblOpsAutofokus"></span>
+              <span class="ndez"><input type="checkbox" id="opsAutofokus"><span class="pist"></span></span>
+            </label>
+            <div class="hint" id="autofokusHint"></div>
           </div>
-          <input type="file" id="fileRikthe" hidden>
         </div>
-        <div class="seksion">
-          <div class="hint" id="footerHint"></div>
+
+        <div class="opsione-faqe" data-faqe="lista">
+          <div class="seksion">
+            <div class="fushe">
+              <label for="opsRendi" id="lblOpsRendi"></label>
+              <select id="opsRendi">
+                <option value="i_ri" id="optIRi"></option>
+                <option value="emri" id="optEmriAZ"></option>
+                <option value="emriZA" id="optEmriZA"></option>
+                <option value="sasiaUlet" id="optSasiaUlet"></option>
+                <option value="sasiaLart" id="optSasiaLart"></option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="opsione-faqe" data-faqe="gjuha">
+          <div class="seksion">
+            <div class="opsion-titull" id="titGjuha"></div>
+            <div class="segment" id="segGjuha">
+              <button type="button" data-v="sq">Shqip</button>
+              <button type="button" data-v="en">English</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="opsione-faqe" data-faqe="rezerve">
+          <div class="seksion">
+            <div class="hint" id="rezerveHint"></div>
+            <div class="rreshti">
+              <button class="btn" id="opsKopje" type="button"></button>
+              <button class="btn" id="opsRikthe" type="button"></button>
+            </div>
+            <input type="file" id="fileRikthe" hidden>
+          </div>
+          <div class="seksion">
+            <div class="hint" id="footerHint"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -609,11 +660,11 @@
       },
       njesiaProdukteve: function (a) { return a.n + ' ' + (a.n === 1 ? 'produkt' : 'produkte'); },
 
-      barkodiNormal: 'Barkodi (scanner Bluetooth ose shkruaje)',
+      barkodiNormal: 'Barkodi (shkruaje ose skano me kamerë)',
       barkodiPda: 'Barkodi (skano me PDA ose shkruaje)',
       skanoKamer: 'Skano me kamerë',
       eksportoExcel: 'Eksporto në Excel',
-      eksportoPdf: 'Eksporto etiketa (PDF)',
+      eksportoPdf: 'Eksporto në PDF',
       kerkoLabel: 'Kërko sipas emrit ose barkodit',
       fshijTeGjitha: 'Fshij të gjitha produktet',
       nukUGjetAsnjeProdukt: 'Nuk u gjet asnjë produkt.',
@@ -696,8 +747,10 @@
 
       renditSipas: 'Rendit sipas',
       emriAZ: 'Emri (A–Z)',
+      emriZAOpt: 'Emri (Z–A)',
       sasiaUletOpt: 'Sasia: nga më e vogla',
       sasiaLartOpt: 'Sasia: nga më e madhja',
+      iRiOpt: 'Më të rejat së pari',
 
       gjuhaTitulli: 'Gjuha',
 
@@ -752,11 +805,11 @@
       },
       njesiaProdukteve: function (a) { return a.n + ' product' + (a.n === 1 ? '' : 's'); },
 
-      barkodiNormal: 'Barcode (Bluetooth scanner or type it)',
+      barkodiNormal: 'Barcode (type it or scan with the camera)',
       barkodiPda: 'Barcode (scan with the PDA or type it)',
       skanoKamer: 'Scan with camera',
       eksportoExcel: 'Export to Excel',
-      eksportoPdf: 'Export labels (PDF)',
+      eksportoPdf: 'Export to PDF',
       kerkoLabel: 'Search by name or barcode',
       fshijTeGjitha: 'Delete all products',
       nukUGjetAsnjeProdukt: 'No product found.',
@@ -839,8 +892,10 @@
 
       renditSipas: 'Sort by',
       emriAZ: 'Name (A–Z)',
+      emriZAOpt: 'Name (Z–A)',
       sasiaUletOpt: 'Quantity: lowest first',
       sasiaLartOpt: 'Quantity: highest first',
+      iRiOpt: 'Newest first',
 
       gjuhaTitulli: 'Language',
 
@@ -900,12 +955,12 @@
     { id: 'dlgFolderRuaj', prop: 'text', kyc: 'krijo' },
 
     { id: 'opsioneTitulli', prop: 'text', kyc: 'opsioneTitulli' },
-    { id: 'tabPamja', prop: 'text', kyc: 'tabPamja' },
-    { id: 'tabSkenimi', prop: 'text', kyc: 'tabSkenimi' },
-    { id: 'tabKamera', prop: 'text', kyc: 'tabKamera' },
-    { id: 'tabLista', prop: 'text', kyc: 'tabLista' },
-    { id: 'tabGjuha', prop: 'text', kyc: 'tabGjuha' },
-    { id: 'tabRezerve', prop: 'text', kyc: 'tabRezerve' },
+    { id: 'tabPamjaTxt', prop: 'text', kyc: 'tabPamja' },
+    { id: 'tabSkenimiTxt', prop: 'text', kyc: 'tabSkenimi' },
+    { id: 'tabKameraTxt', prop: 'text', kyc: 'tabKamera' },
+    { id: 'tabListaTxt', prop: 'text', kyc: 'tabLista' },
+    { id: 'tabGjuhaTxt', prop: 'text', kyc: 'tabGjuha' },
+    { id: 'tabRezerveTxt', prop: 'text', kyc: 'tabRezerve' },
     { id: 'titPamja', prop: 'text', kyc: 'tabPamja' },
     { id: 'temaAuto', prop: 'text', kyc: 'automatike' },
     { id: 'temaLight', prop: 'text', kyc: 'eCelet' },
@@ -925,7 +980,9 @@
     { id: 'autofokusHint', prop: 'text', kyc: 'autofokusHint' },
 
     { id: 'lblOpsRendi', prop: 'text', kyc: 'renditSipas' },
+    { id: 'optIRi', prop: 'text', kyc: 'iRiOpt' },
     { id: 'optEmriAZ', prop: 'text', kyc: 'emriAZ' },
+    { id: 'optEmriZA', prop: 'text', kyc: 'emriZAOpt' },
     { id: 'optSasiaUlet', prop: 'text', kyc: 'sasiaUletOpt' },
     { id: 'optSasiaLart', prop: 'text', kyc: 'sasiaLartOpt' },
 
@@ -1051,7 +1108,7 @@
   var KEY_TEMA = 'stoku:tema';
 
   var opsione = {
-    tingull: true, rendi: 'emri', scanner: true, pda: false, tastieraEFshehur: false,
+    tingull: true, rendi: 'i_ri', scanner: true, pda: false, tastieraEFshehur: false,
     paEmer: false, kameraId: '', autofokus: true, gjuha: 'sq'
   };
   try {
@@ -1064,7 +1121,7 @@
       if (typeof opsioneRuajtura.kameraId === 'string') opsione.kameraId = opsioneRuajtura.kameraId;
       if (typeof opsioneRuajtura.autofokus === 'boolean') opsione.autofokus = opsioneRuajtura.autofokus;
       if (typeof opsioneRuajtura.tastieraEFshehur === 'boolean') opsione.tastieraEFshehur = opsioneRuajtura.tastieraEFshehur;
-      if (['emri', 'sasiaUlet', 'sasiaLart'].indexOf(opsioneRuajtura.rendi) !== -1) opsione.rendi = opsioneRuajtura.rendi;
+      if (['i_ri', 'emri', 'emriZA', 'sasiaUlet', 'sasiaLart'].indexOf(opsioneRuajtura.rendi) !== -1) opsione.rendi = opsioneRuajtura.rendi;
       if (opsioneRuajtura.gjuha === 'en' || opsioneRuajtura.gjuha === 'sq') opsione.gjuha = opsioneRuajtura.gjuha;
     }
   } catch (e) { /* përdor vlerat fillestare */ }
@@ -1072,6 +1129,16 @@
   function ruajOpsionet() {
     try { localStorage.setItem(KEY_OPSIONE, JSON.stringify(opsione)); } catch (e) { /* ok */ }
   }
+
+  // Migrim një herë: telefonat që ende ishin te rendi i vjetër i parazgjedhur ('emri') kalojnë
+  // te "më të rejat së pari", siç kërkohet tani si sjellje e parazgjedhur.
+  try {
+    if (!localStorage.getItem('stoku:rendi-migruar-v1')) {
+      if (!opsioneRuajtura || opsioneRuajtura.rendi === 'emri' || !opsioneRuajtura.rendi) opsione.rendi = 'i_ri';
+      localStorage.setItem('stoku:rendi-migruar-v1', '1');
+      ruajOpsionet();
+    }
+  } catch (e) { /* ok */ }
 
   document.documentElement.lang = opsione.gjuha;
 
@@ -1254,6 +1321,8 @@
     }
     if ($('dlgOpsione').classList.contains('hapur')) {
       plotesoKamerat(false);
+      var faqjaAktive = document.querySelector('.opsione-faqe.aktiv');
+      aktivizoTabin(faqjaAktive ? faqjaAktive.getAttribute('data-faqe') : null);
     }
   }
 
@@ -1267,6 +1336,8 @@
   function krahaso(a, b) {
     if (opsione.rendi === 'sasiaUlet') return (a.sasia - b.sasia) || emriKrahaso(a, b);
     if (opsione.rendi === 'sasiaLart') return (b.sasia - a.sasia) || emriKrahaso(a, b);
+    if (opsione.rendi === 'emriZA') return -emriKrahaso(a, b);
+    if (opsione.rendi === 'i_ri') return ((b.prekurSe || 0) - (a.prekurSe || 0)) || emriKrahaso(a, b);
     return emriKrahaso(a, b);
   }
 
@@ -1280,6 +1351,21 @@
     $('seksionKamera').style.display = pda ? 'none' : '';
     $('tabKamera').style.display = pda ? 'none' : '';
     $('lblBarkodi').textContent = pda ? T('barkodiPda') : T('barkodiNormal');
+    zbatoRrotullimin();
+  }
+
+  // Bllokon rrotullimin e ekranit (vetëm portret) kur PDA është ndezur; e liron kur fiket.
+  // Në heshtje krejt: pa asnjë mesazh apo opsion, thjesht provon dhe injoron nëse shfletuesi s'e lejon.
+  function zbatoRrotullimin() {
+    try {
+      if (opsione.pda) {
+        if (screen.orientation && screen.orientation.lock) {
+          screen.orientation.lock('portrait').catch(function () { /* s'lejohet këtu, injoro */ });
+        }
+      } else if (screen.orientation && screen.orientation.unlock) {
+        screen.orientation.unlock();
+      }
+    } catch (e) { /* shfletuesi nuk e mbështet, injoro në heshtje */ }
   }
 
   // Kthen kursorin te fusha e barkodit (vetëm në modalitetin PDA, dhe vetëm nëse nuk ka dritare të hapur)
@@ -1293,11 +1379,20 @@
   // Tastiera në ekran: "inputmode=none" e fsheh tastierën por fusha mbetet aktive (skaneri vazhdon të shkruajë)
   function zbatoTastieren() {
     var fshehur = opsione.tastieraEFshehur;
-    $('barkodi').setAttribute('inputmode', fshehur ? 'none' : 'text');
+    $('barkodi').setAttribute('inputmode', fshehur ? 'none' : 'text'); // mbrojtje shtesë (jo gjithmonë e mjaftueshme vetë)
+    $('barkodiMbeshtjellje').classList.toggle('osk-fshehur', fshehur);
+    $('barkodiShfaqje').textContent = $('barkodi').value;
     $('btnTastiera').classList.toggle('aktiv', fshehur);
     $('btnTastiera').setAttribute('aria-label', fshehur ? T('shfaqTastieren') : T('fshihTastieren'));
     $('btnTastiera').title = fshehur ? T('shfaqTastieren') : T('fshihTastieren');
+    if (fshehur) {
+      // e mban fokusin te fusha e vërtetë (jashtë ekranit), që skaneri i PDA-së të vazhdojë të shkruajë në të;
+      // fokusi i dhënë nga kodi (jo nga një prekje e drejtpërdrejtë) zakonisht NUK e hap tastierën në ekran
+      $('barkodi').focus();
+    }
   }
+  // Nëse tastiera është e fshehur, prekja e kutisë së shfaqjes rikthen fokusin te fusha e vërtetë
+  $('barkodiShfaqje').addEventListener('click', function () { $('barkodi').focus(); });
 
   zbatoPda();
   zbatoTastieren();
@@ -1306,17 +1401,24 @@
 
   // ---------- Tabet e Opsioneve ----------
   function aktivizoTabin(emriFaqes) {
-    Array.prototype.forEach.call(document.querySelectorAll('.tabi'), function (b) {
-      b.classList.toggle('aktiv', b.getAttribute('data-faqe') === emriFaqes);
-    });
+    var neMenu = !emriFaqes;
+    $('kategoriMenu').style.display = neMenu ? '' : 'none';
     Array.prototype.forEach.call(document.querySelectorAll('.opsione-faqe'), function (f) {
       f.classList.toggle('aktiv', f.getAttribute('data-faqe') === emriFaqes);
     });
-    $('tabet').scrollLeft = 0;
+    $('opsPrapa').style.display = neMenu ? 'none' : '';
+    $('opsioneTitulli').textContent = neMenu ? T('opsioneTitulli') : T(TAB_TITULL_KYC[emriFaqes] || 'opsioneTitulli');
+    var trupi = document.querySelector('.opsione-trup');
+    if (trupi) trupi.scrollTop = 0;
   }
-  Array.prototype.forEach.call(document.querySelectorAll('.tabi'), function (b) {
+  var TAB_TITULL_KYC = {
+    pamja: 'tabPamja', skenimi: 'tabSkenimi', kamera: 'tabKamera',
+    lista: 'tabLista', gjuha: 'tabGjuha', rezerve: 'tabRezerve'
+  };
+  Array.prototype.forEach.call(document.querySelectorAll('.kategori-rresht'), function (b) {
     b.addEventListener('click', function () { aktivizoTabin(b.getAttribute('data-faqe')); });
   });
+  $('opsPrapa').addEventListener('click', function () { aktivizoTabin(null); });
 
   // Dialogu i opsioneve
   function hapOpsionet() {
@@ -1330,7 +1432,7 @@
     $('opsRendi').value = opsione.rendi;
     zbatoTemen();
     zbatoGjuhen();
-    aktivizoTabin('pamja');
+    aktivizoTabin(null);
     $('dlgOpsione').classList.add('hapur');
   }
   function mbyllOpsionet() { $('dlgOpsione').classList.remove('hapur'); fokusoBarkodin(); }
@@ -1633,7 +1735,7 @@
     $('dlgProdukt').classList.remove('hapur');
     dialogu = null;
     if (opsione.pda || (burimiIFundit === 'fushe' && opsione.scanner)) {
-      // kthe fokusin te fusha e barkodit (për scanner Bluetooth)
+      // kthe fokusin te fusha e barkodit (për skanerin e jashtëm)
       $('barkodi').focus();
     } else {
       document.activeElement && document.activeElement.blur && document.activeElement.blur();
@@ -1650,7 +1752,7 @@
     var e = dialogu.ekzistues;
     var total = (e ? e.sasia : 0) + sasia;
     produktet[celesiProduktit(folderiAktual, dialogu.barkodi)] =
-      { barkodi: dialogu.barkodi, emri: emri, sasia: total, kategoriaId: folderiAktual };
+      { barkodi: dialogu.barkodi, emri: emri, sasia: total, kategoriaId: folderiAktual, prekurSe: Date.now() };
     ruajBaze();
     mbyllDialogun();
     renderLista();
@@ -1675,11 +1777,19 @@
   $('dlgSasia').addEventListener('keydown', function (ev) {
     if (ev.key === 'Enter') { ev.preventDefault(); ruajProduktin(); }
   });
+  function koregjoSasine(delta) {
+    var v = $('dlgSasia').value.trim();
+    var n = /^-?\d+$/.test(v) ? parseInt(v, 10) : 0;
+    $('dlgSasia').value = String(n + delta);
+    $('dlgSasia').focus();
+  }
+  $('dlgSasiaMinus').addEventListener('click', function () { koregjoSasine(-1); });
+  $('dlgSasiaPlus').addEventListener('click', function () { koregjoSasine(1); });
   $('dlgProdukt').addEventListener('click', function (ev) {
     if (ev.target === $('dlgProdukt')) mbyllDialogun();
   });
 
-  // ---------- Fusha e barkodit (scanner Bluetooth / tastierë / PDA) ----------
+  // ---------- Fusha e barkodit (skaner i jashtëm / tastierë / PDA) ----------
   var pdaKohez = null;
 
   // Heuristikë: a duket kjo si diçka tjetër përveç barkodit të një produkti (p.sh. kod QR ose tekst i gjatë)?
@@ -1698,6 +1808,7 @@
     if (document.querySelector('.mbulese.hapur')) return;
     var b = $('barkodi').value.trim();
     $('barkodi').value = '';
+    $('barkodiShfaqje').textContent = '';
     if (!b) return;
     if (duketSiDiçkaTjeterVeçBarkod(b)) {
       toast(T('qrDyshim'));
@@ -1717,6 +1828,7 @@
   // Modaliteti PDA: skaneri i brendshëm shpesh nuk dërgon Enter.
   // Pasi pushon së shkruari (pak nga skaneri), hapet vetë dritarja e produktit.
   $('barkodi').addEventListener('input', function () {
+    $('barkodiShfaqje').textContent = $('barkodi').value; // mban të njëjtin tekst kur tastiera është e fshehur
     clearTimeout(pdaKohez);
     if (!opsione.pda) return;
     if ($('barkodi').value.trim() === '') return;
