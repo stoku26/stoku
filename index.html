@@ -89,6 +89,7 @@
   }
   header h1 { margin: 0; font-size: 20px; font-weight: 600; flex: 1; min-width: 0; overflow-wrap: anywhere; }
   header h1.logo { font-weight: 800; letter-spacing: 3px; }
+  #logoSlika { display: none; height: 34px; width: auto; flex: 1 1 auto; max-width: 170px; object-fit: contain; object-position: left center; }
   #btnMbrapa { flex: none; font-size: 22px; }
   .krye-butona { display: flex; gap: 8px; flex: none; }
   .btn-ikone {
@@ -382,6 +383,7 @@
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" style="display:none">←</button>
   <h1 id="titulli" class="logo">STOKU</h1>
+  <img id="logoSlika" src="logo.png" alt="Stoku">
   <div class="krye-butona">
     <button id="btnTastiera" class="btn-ikone" type="button">⌨️</button>
     <button id="btnOpsione" class="btn-ikone" type="button" aria-label="Opsionet / Options" title="Opsionet / Options">⚙️</button>
@@ -1190,14 +1192,16 @@
     $('footerFolderi').style.display = brenda ? '' : 'none';
     $('btnMbrapa').style.display = brenda ? '' : 'none';
     if (brenda) {
+      $('titulli').style.display = '';
+      $('logoSlika').style.display = 'none';
       $('titulli').classList.remove('logo');
       $('btnMbrapa').setAttribute('aria-label', T('foldera'));
       $('btnMbrapa').title = T('foldera');
       renderLista();
       fokusoBarkodin();
     } else {
-      $('titulli').classList.add('logo');
-      $('titulli').textContent = 'STOKU';
+      $('titulli').style.display = 'none';
+      $('logoSlika').style.display = 'block';
       renderFolderat();
     }
   }

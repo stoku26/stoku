@@ -5,7 +5,7 @@
  * NDRYSHIM: kur ta përditësosh index.html, ndrysho numrin këtu (v1 -> v2),
  * që telefonat të marrin versionin e ri.
  */
-var CACHE = 'stoku-v16';
+var CACHE = 'stoku-v17';
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js',
@@ -18,7 +18,8 @@ var SHELL = [
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png',
-  './apple-touch-icon.png'
+  './apple-touch-icon.png',
+  './logo.png'
 ];
 
 self.addEventListener('install', function (e) {
