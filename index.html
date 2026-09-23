@@ -88,6 +88,19 @@
     height: 100dvh;
     overscroll-behavior: none;
   }
+  #rrotulloPrapa {
+    display: none;
+    position: fixed; inset: 0; z-index: 9999;
+    background: var(--sfond, #ffffff); color: var(--tekst, #1c1b1f);
+    align-items: center; justify-content: center; text-align: center; padding: 32px;
+  }
+  #rrotulloPrapa svg { margin-bottom: 16px; }
+  #rrotulloPrapa p { margin: 0; font-size: 16px; max-width: 320px; }
+  @media (orientation: landscape) {
+    #rrotulloPrapa { display: flex; }
+    body > *:not(#rrotulloPrapa) { display: none !important; }
+  }
+
   header {
     background: var(--header);
     color: #fff;
@@ -410,6 +423,16 @@
 </style>
 </head>
 <body>
+
+<!-- Mbulesë sigurie: nëse ekrani ndonjëherë gjendet në horizontale (edhe nëse kyçja e JS
+     dështon në ndonjë shfletues), e bllokon krejtësisht përdorimin dhe kërkon rrotullim mbrapa.
+     Kjo funksionon gjithmonë, pa u varur nga asnjë API e shfletuesit. -->
+<div id="rrotulloPrapa">
+  <div>
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"></rect><path d="M12 18h.01"></path></svg>
+    <p>Rrotulloje telefonin prapë në pozicion vertikal (portret) për ta përdorur aplikacionin.</p>
+  </div>
+</div>
 
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" style="display:none">←</button>
@@ -1426,7 +1449,7 @@
     zbatoRrotullimin();
   }
 
-  // Bllokon rrotullimin e ekranit (vetëm portret) kur PDA është ndezur; e liron kur fiket.
+  // Bllokon rrotullimin e ekranit (gjithmonë portret) — në krejt aplikacionin, jo vetëm në PDA.
   // E rëndësishme: Chrome/Android e lejon screen.orientation.lock() VETËM kur faqja është në
   // fullscreen (API-ja Fullscreen) ose kur app-i është instaluar me "display":"fullscreen" — ndaj
   // këtu kërkojmë fullscreen fillimisht (nëse s'jemi tashmë) para se të provojmë kyçjen. Nëse
@@ -1434,38 +1457,30 @@
   // krejt: pa asnjë mesazh apo opsion, thjesht provon dhe injoron nëse shfletuesi s'e lejon.
   async function zbatoRrotullimin() {
     try {
-      if (opsione.pda) {
-        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
-          try { await document.documentElement.requestFullscreen(); } catch (e) { /* s'ka gjest përdoruesi ende, provohet herën tjetër */ }
-        }
-        if (screen.orientation && screen.orientation.lock) {
-          screen.orientation.lock('portrait').catch(function () { /* s'lejohet këtu, injoro */ });
-        }
-      } else {
-        if (screen.orientation && screen.orientation.unlock) {
-          screen.orientation.unlock();
-        }
-        if (document.fullscreenElement && document.exitFullscreen) {
-          try { await document.exitFullscreen(); } catch (e) { /* ok */ }
-        }
+      if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+        try { await document.documentElement.requestFullscreen(); } catch (e) { /* s'ka gjest përdoruesi ende, provohet herën tjetër */ }
+      }
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('portrait').catch(function () { /* s'lejohet këtu, injoro */ });
       }
     } catch (e) { /* shfletuesi nuk e mbështet, injoro në heshtje */ }
   }
 
   // Siguri shtesë: nëse diçka e "shkund" kyçjen e rrotullimit (ndryshim jashtë kontrollit tonë,
-  // rikthim nga sfondi, etj.), e rikyçim menjëherë te portreti — sa herë PDA është ndezur, ekrani
-  // s'duhet të rrotullohet as për një çast.
-  window.addEventListener('orientationchange', function () { if (opsione.pda) zbatoRrotullimin(); });
+  // rikthim nga sfondi, etj.), e rikyçim menjëherë te portreti — ekrani s'duhet të rrotullohet
+  // as për një çast, kurrë, në asnjë pjesë të aplikacionit.
+  window.addEventListener('orientationchange', zbatoRrotullimin);
   document.addEventListener('visibilitychange', function () {
-    if (!document.hidden && opsione.pda) zbatoRrotullimin();
+    if (!document.hidden) zbatoRrotullimin();
   });
   if (screen.orientation && screen.orientation.addEventListener) {
     screen.orientation.addEventListener('change', function () {
-      if (opsione.pda && screen.orientation.type && screen.orientation.type.indexOf('portrait') === -1) {
+      if (screen.orientation.type && screen.orientation.type.indexOf('portrait') === -1) {
         zbatoRrotullimin();
       }
     });
   }
+  window.addEventListener('resize', zbatoRrotullimin);
 
   // Kthen kursorin te fusha e barkodit (vetëm në modalitetin PDA, dhe vetëm nëse nuk ka dritare të hapur)
   function fokusoBarkodin() {
