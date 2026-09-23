@@ -63,6 +63,19 @@
     --toast-bg: #e6e1e5;
     --toast-tx: #1c1b1f;
   }
+
+  /* Aksentet (ngjyra kryesore) */
+  :root[data-aksent="jeshile"] { --primar: #2E7D32; --header: #2E7D32; --btn-tekst: #2E7D32; }
+  :root[data-tema="dark"][data-aksent="jeshile"] { --header: #1b5e20; --btn-tekst: #81c995; }
+  :root[data-aksent="vjollce"] { --primar: #6A1B9A; --header: #6A1B9A; --btn-tekst: #6A1B9A; }
+  :root[data-tema="dark"][data-aksent="vjollce"] { --header: #4a148c; --btn-tekst: #ce93d8; }
+  :root[data-aksent="portokalli"] { --primar: #E65100; --header: #E65100; --btn-tekst: #E65100; }
+  :root[data-tema="dark"][data-aksent="portokalli"] { --header: #bf360c; --btn-tekst: #ffab40; }
+  :root[data-aksent="kuqe"] { --primar: #C62828; --header: #C62828; --btn-tekst: #C62828; }
+  :root[data-tema="dark"][data-aksent="kuqe"] { --header: #8e0000; --btn-tekst: #ef9a9a; }
+
+  /* Madhësia e shkronjave: shkallëzon krejt faqen (edhe elementet me px) */
+  body[data-madhesi="e_madhe"] { zoom: 1.12; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; }
   body {
@@ -233,6 +246,29 @@
     justify-content: center;
   }
 
+  /* Tips & Tricks (ekrani kryesor) */
+  .tipi-mbeshtjellje {
+    padding: 0 16px 16px;
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  .tipi-karta {
+    border: 1px solid var(--vije); border-radius: 16px;
+    background: var(--fushe-bg); padding: 14px 16px;
+  }
+  .tipi-krye { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .tipi-ikona { font-size: 18px; flex: none; line-height: 1; }
+  .tipi-etiketa { font-weight: 600; font-size: 14px; flex: 1; }
+  .tipi-mbyll {
+    flex: none; border: 0; background: transparent; color: var(--gri);
+    font-size: 16px; line-height: 1; cursor: pointer; padding: 4px;
+  }
+  .tipi-tekst { font-size: 14px; color: var(--dialog-tekst); margin: 0 0 8px; }
+  .tipi-tjetri {
+    border: 0; background: transparent; color: var(--btn-tekst);
+    font-weight: 600; font-size: 13px; padding: 0; cursor: pointer;
+  }
+
   /* Dialogët */
   .mbulese {
     position: fixed; inset: 0;
@@ -304,6 +340,21 @@
   }
   .segment button + button { border-left: 1px solid var(--fushe-kufi); }
   .segment button.aktiv { background: var(--primar); color: #fff; }
+  .aksent-rrjeti { display: flex; gap: 12px; flex-wrap: wrap; margin: 4px 0; }
+  .aksent-rreth {
+    width: 40px; height: 40px; border-radius: 50%; border: 3px solid transparent;
+    cursor: pointer; padding: 0; position: relative;
+  }
+  .aksent-rreth[data-v="blu"] { background: #1565C0; }
+  .aksent-rreth[data-v="jeshile"] { background: #2E7D32; }
+  .aksent-rreth[data-v="vjollce"] { background: #6A1B9A; }
+  .aksent-rreth[data-v="portokalli"] { background: #E65100; }
+  .aksent-rreth[data-v="kuqe"] { background: #C62828; }
+  .aksent-rreth.aktiv { border-color: var(--tekst); }
+  .aksent-rreth.aktiv::after {
+    content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 16px; font-weight: 700;
+  }
   label.opsion-rresht {
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
     font-size: 16px; color: var(--tekst); margin: 0; padding: 8px 0; cursor: pointer;
@@ -383,6 +434,27 @@
 </head>
 <body>
 
+<!-- Porta e hyrjes: e detyrueshme nëse s'ke llogari të ruajtur (Firebase Auth) -->
+<div class="mbulese" id="hyrjeEkrani" style="background: var(--sfond); z-index: 40">
+  <div class="dialog" role="dialog" aria-modal="true">
+    <h2 id="hyrjeGateTitulli"></h2>
+    <div class="hint" id="hyrjeGateHint"></div>
+    <div class="fushe">
+      <label for="hyrjeGateUsername" id="lblHyrjeGateUsername"></label>
+      <input id="hyrjeGateUsername" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" maxlength="40">
+    </div>
+    <div class="fushe">
+      <label for="hyrjeGateFjalekalimi" id="lblHyrjeGateFjalekalimi"></label>
+      <input id="hyrjeGateFjalekalimi" type="password" autocomplete="off" enterkeyhint="done" maxlength="100">
+    </div>
+    <div class="hint" id="hyrjeGateGabimHint"></div>
+    <div class="rreshti">
+      <button class="btn" id="hyrjeGateKrijoLlogari" type="button"></button>
+      <button class="btn" id="hyrjeGateHyrBtn" type="button"></button>
+    </div>
+  </div>
+</div>
+
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" style="display:none">←</button>
   <h1 id="titulli" class="logo">STOKU</h1>
@@ -398,6 +470,19 @@
   <button class="btn" id="btnKrijoFolder" type="button" style="width:100%"></button>
 </div>
 <div id="folderaLista" class="folderat-rrjeti"></div>
+
+<!-- Tips & Tricks -->
+<div class="tipi-mbeshtjellje" id="tipiMbeshtjellje">
+  <div class="tipi-karta">
+    <div class="tipi-krye">
+      <span class="tipi-ikona" aria-hidden="true">💡</span>
+      <span class="tipi-etiketa" id="tipiEtiketa"></span>
+      <button type="button" class="tipi-mbyll" id="tipiMbyll">✕</button>
+    </div>
+    <div class="tipi-tekst" id="tipiTeksti"></div>
+    <button type="button" class="tipi-tjetri" id="tipiTjetri"></button>
+  </div>
+</div>
 
 <!-- Brenda një folderi -->
 <div class="siper" id="siperFolderi" style="display:none">
@@ -506,7 +591,6 @@
         <button class="kategori-rresht" type="button" data-faqe="kamera" id="tabKamera"><span id="tabKameraTxt"></span><span class="shigjeta">›</span></button>
         <button class="kategori-rresht" type="button" data-faqe="lista" id="tabLista"><span id="tabListaTxt"></span><span class="shigjeta">›</span></button>
         <button class="kategori-rresht" type="button" data-faqe="gjuha" id="tabGjuha"><span id="tabGjuhaTxt"></span><span class="shigjeta">›</span></button>
-        <button class="kategori-rresht" type="button" data-faqe="rezerve" id="tabRezerve"><span id="tabRezerveTxt"></span><span class="shigjeta">›</span></button>
         <button class="kategori-rresht" type="button" data-faqe="cloud" id="tabCloud"><span id="tabCloudTxt"></span><span class="shigjeta">›</span></button>
       </div>
 
@@ -520,6 +604,24 @@
               <button type="button" data-v="dark" id="temaDark"></button>
             </div>
             <div class="hint" id="temaHint"></div>
+          </div>
+          <div class="seksion">
+            <div class="opsion-titull" id="titAksenti"></div>
+            <div class="aksent-rrjeti" id="aksentRrjeti">
+              <button type="button" class="aksent-rreth" data-v="blu" id="aksentBlu"></button>
+              <button type="button" class="aksent-rreth" data-v="jeshile" id="aksentJeshile"></button>
+              <button type="button" class="aksent-rreth" data-v="vjollce" id="aksentVjollce"></button>
+              <button type="button" class="aksent-rreth" data-v="portokalli" id="aksentPortokalli"></button>
+              <button type="button" class="aksent-rreth" data-v="kuqe" id="aksentKuqe"></button>
+            </div>
+          </div>
+          <div class="seksion">
+            <div class="opsion-titull" id="titMadhesia"></div>
+            <div class="segment" id="segMadhesia">
+              <button type="button" data-v="normale" id="madhesiaNormale"></button>
+              <button type="button" data-v="e_madhe" id="madhesiaEMadhe"></button>
+            </div>
+            <div class="hint" id="madhesiaHint"></div>
           </div>
         </div>
 
@@ -589,20 +691,6 @@
           </div>
         </div>
 
-        <div class="opsione-faqe" data-faqe="rezerve">
-          <div class="seksion">
-            <div class="hint" id="rezerveHint"></div>
-            <div class="rreshti">
-              <button class="btn" id="opsKopje" type="button"></button>
-              <button class="btn" id="opsRikthe" type="button"></button>
-            </div>
-            <input type="file" id="fileRikthe" hidden>
-          </div>
-          <div class="seksion">
-            <div class="hint" id="footerHint"></div>
-          </div>
-        </div>
-
         <div class="opsione-faqe" data-faqe="cloud">
           <div class="seksion" id="cloudHyrjeSeksion">
             <div class="hint" id="cloudHint"></div>
@@ -627,7 +715,18 @@
               <button class="btn" id="cloudSinkronizoTani" type="button"></button>
               <button class="btn" id="cloudRiktheTani" type="button"></button>
             </div>
-            <button class="btn tekst rrezik" id="cloudDilBtn" type="button" style="width:100%"></button>
+            <div class="fushe" style="margin-top:12px">
+              <label for="cloudEmriRi" id="lblCloudEmriRi"></label>
+              <input id="cloudEmriRi" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" maxlength="40">
+            </div>
+            <button class="btn" id="cloudNdryshoEmrin" type="button" style="width:100%"></button>
+            <div class="fushe" style="margin-top:12px">
+              <label for="cloudFjalekalimiRi" id="lblCloudFjalekalimiRi"></label>
+              <input id="cloudFjalekalimiRi" type="password" autocomplete="off" enterkeyhint="done" maxlength="100">
+            </div>
+            <button class="btn" id="cloudNdryshoFjalekalimin" type="button" style="width:100%"></button>
+            <div class="hint" id="cloudNdryshoGabimHint"></div>
+            <button class="btn tekst rrezik" id="cloudDilBtn" type="button" style="width:100%;margin-top:8px"></button>
           </div>
         </div>
       </div>
@@ -695,6 +794,21 @@
       rikthe: 'Rikthe',
       foldera: 'Foldera',
 
+      tipiEtiketaTeksti: 'Ide & Këshilla',
+      tipiTjetriBtn: 'Ide tjetër ›',
+      tipi01: 'Aktivizo modalitetin PDA (Opsionet → Skenimi) për skanim pa prekje me skaner të jashtëm — dialogu i sasisë hapet vetë pas çdo skanimi.',
+      tipi02: 'Rendit produktet "Sasia: nga më e vogla" (Opsionet → Lista) për të parë menjëherë çka po mbaron në stok.',
+      tipi03: 'Kërko sipas emrit ose barkodit brenda një folderi për të gjetur menjëherë një produkt, edhe në listë të gjatë.',
+      tipi04: 'Eksporto në PDF etiketa barkodesh gati për printim dhe ri-ngjitje në raft, jo vetëm në Excel.',
+      tipi05: 'Nëse një produkt është skenuar në kategori të gabuar, hape dhe përdor "Zhvendos në folder tjetër" — sasitë bashkohen vetë nëse ekziston edhe atje.',
+      tipi06: 'Krijo foldera shtesë për kategori të reja (jo vetëm Ushqimore/Pije/Higjiene/Fresh) — sa herë të duhet.',
+      tipi07: 'Kur je i kyçur, të dhënat sinkronizohen vetë me cloud-in pas çdo shtimi ose fshirjeje — s\'ke nevojë me bo asgjë manualisht.',
+      tipi08: 'Ndrysho gjuhën e aplikacionit shqip/anglisht nga Opsionet → Gjuha, në çdo kohë.',
+      tipi09: 'Vendos temën "E errët" (Opsionet → Pamja) për përdorim më të rehatshëm në dritë të fortë ose natën.',
+      tipi10: 'Kur redakton një produkt ekzistues, fut një numër negativ te sasia (p.sh. -3) për ta zvogëluar atë sasi.',
+      tipi11: 'Përdor kamerën e telefonit për skanim kur s\'ke skaner me vete — butoni "Skano me kamerë" e mbështet edhe këtë.',
+      tipi12: 'Kontrollo Opsionet → Cloud për me ndryshu emrin e përdoruesit ose fjalëkalimin kur të duhet, pa humbur të dhënat.',
+
       krijoFolder: '+ Krijo folder',
       folderIRi: 'Folder i ri',
       emriIFolderit: 'Emri i folderit',
@@ -757,9 +871,11 @@
       tabKamera: 'Kamera',
       tabLista: 'Lista',
       tabGjuha: 'Gjuha',
-      tabRezerve: 'Rezervë',
       tabCloud: 'Cloud',
 
+      hyrjeGateTitulli: 'Hyr në Stoku',
+      hyrjeGateHint: 'Të dhënat ruhen në cloud, ndaj duhet të hysh me llogarinë tënde (emër përdoruesi + ' +
+        'fjalëkalim) para se të vazhdosh.',
       cloudHint: 'Ruan automatikisht një kopje të listës në internet (Firebase), që të mos humbet nëse fshihet ' +
         'aplikacioni ose ndërrohet telefoni. Ky NUK është sinkronizim i menjëhershëm mes disa telefonave njëkohësisht.',
       lblCloudUsername: 'Emri i përdoruesit',
@@ -794,11 +910,30 @@
       cloudTeDilet: 'Të dilet nga llogaria?',
       cloudDilTekst: 'Të dhënat në cloud NUK fshihen, por ky telefon nuk do të sinkronizohet më derisa të ' +
         'hysh përsëri.',
+      lblCloudEmriRi: 'Emër i ri përdoruesi',
+      lblCloudFjalekalimiRi: 'Fjalëkalim i ri (të paktën 6 shkronja/numra)',
+      cloudNdryshoEmrinBtn: 'Ndrysho emrin e përdoruesit',
+      cloudNdryshoFjalekaliminBtn: 'Ndrysho fjalëkalimin',
+      cloudPlotesoEmrinRi: 'Shkruaj emrin e ri të përdoruesit.',
+      cloudPlotesoFjalekalimin: 'Shkruaj fjalëkalimin e ri.',
+      cloudEmriURiNdryshuar: 'Emri i përdoruesit u ndryshua.',
+      cloudFjalekalimiURiNdryshuar: 'Fjalëkalimi u ndryshua.',
+      cloudDuhetRihyrje: 'Për siguri, duhet të dalësh dhe të hysh përsëri para se ta ndryshosh këtë.',
 
       automatike: 'Automatike',
       eCelet: 'E çelët',
       eErret: 'E errët',
       automatikeHint: '«Automatike» ndjek cilësimin e telefonit.',
+      titAksentiTeksti: 'Ngjyra kryesore',
+      aksentBluEmri: 'Blu',
+      aksentJeshileEmri: 'Jeshile',
+      aksentVjollceEmri: 'Vjollcë',
+      aksentPortokalliEmri: 'Portokalli',
+      aksentKuqeEmri: 'Kuqe',
+      titMadhesiaTeksti: 'Madhësia e shkronjave',
+      madhesiaNormaleBtn: 'Normale',
+      madhesiaEMadheBtn: 'E madhe',
+      madhesiaHintTeksti: 'Rrit pak madhësinë e krejt tekstit dhe butonave, për lexueshmëri më të lehtë.',
 
       pdaLabel: 'Ky është PDA (skaner i brendshëm)',
       pdaHint: 'Kur është ndezur, fshihet butoni i kamerës dhe kursori qëndron te fusha e barkodit për skanerin e PDA-së.',
@@ -845,21 +980,7 @@
 
       gjuhaTitulli: 'Gjuha',
 
-      rezerveHint: 'Ruaj një kopje të plotë të listës (skedar .json) dhe rikthe kur të duhet, p.sh. në telefon të ri.',
-      ruajKopjenBtn: 'Ruaj kopjen',
-      riktheKopjenBtn: 'Rikthe kopjen',
-      footerHint: 'Stoku 1.0 · Të dhënat ruhen vetëm në këtë telefon. Bëj kopje rezervë herë pas here.',
-
-      teRikthehetKopja: 'Të rikthehet kopja?',
-      riktheTekst: function (a) {
-        return 'Do të zëvendësohen të gjitha ' + a.aktual + ' produktet aktuale (dhe folderat) me ' + a.reja +
-          ' produkte nga kopja.\n\nKy veprim nuk kthehet. Nëse do, ruaj fillimisht një kopje të listës aktuale.';
-      },
-      skedariIPavlefshem: 'Ky skedar nuk është kopje rezervë e vlefshme.',
-      uRikthyen: function (a) { return 'U rikthyen ' + a.n + ' produkte.'; },
       ruajtjaDeshtoi: 'Ruajtja dështoi: memoria e shfletuesit është plot.',
-      kopjaShkarkuar: function (a) { return 'Kopja rezervë u shkarkua: ' + a.emri; },
-      nukKaProduktePerKopje: 'Nuk ka produkte për kopje rezervë.',
       nukKaProdukteEksport: 'Nuk ka produkte për eksport në këtë folder.',
 
       pdfDukeKrijuar: 'Duke krijuar…',
@@ -883,6 +1004,21 @@
       aktivizo: 'Enable',
       rikthe: 'Restore',
       foldera: 'Folders',
+
+      tipiEtiketaTeksti: 'Tips & Tricks',
+      tipiTjetriBtn: 'Next tip ›',
+      tipi01: 'Turn on PDA mode (Options → Scanning) for hands-free scanning with an external scanner — the quantity dialog opens automatically after every scan.',
+      tipi02: 'Sort by "Quantity: lowest first" (Options → List) to instantly see what\u2019s running low in stock.',
+      tipi03: 'Search by name or barcode inside a folder to find a product instantly, even in a long list.',
+      tipi04: 'Export to PDF for print-ready barcode labels to re-stick on the shelf, not just Excel.',
+      tipi05: 'If a product was scanned into the wrong category, open it and use "Move to another folder" — quantities merge automatically if it already exists there.',
+      tipi06: 'Create extra folders for new categories (not just Groceries/Drinks/Hygiene/Fresh) whenever you need to.',
+      tipi07: 'While logged in, your data syncs to the cloud automatically after every add or delete — no manual step needed.',
+      tipi08: 'Switch the app language between Albanian/English anytime from Options → Language.',
+      tipi09: 'Turn on the "Dark" theme (Options → Appearance) for more comfortable use in bright light or at night.',
+      tipi10: 'When editing an existing product, enter a negative number for quantity (e.g. -3) to reduce it by that amount.',
+      tipi11: 'Use the phone\u2019s camera to scan when you don\u2019t have a scanner handy — the "Scan with camera" button supports that too.',
+      tipi12: 'Check Options → Cloud to change your username or password whenever you need to, without losing any data.',
 
       krijoFolder: '+ Create folder',
       folderIRi: 'New folder',
@@ -946,9 +1082,11 @@
       tabKamera: 'Camera',
       tabLista: 'List',
       tabGjuha: 'Language',
-      tabRezerve: 'Backup',
       tabCloud: 'Cloud',
 
+      hyrjeGateTitulli: 'Log in to Stoku',
+      hyrjeGateHint: 'Your data is stored in the cloud, so you need to log in with your account (username + ' +
+        'password) before continuing.',
       cloudHint: 'Automatically keeps a copy of the list online (Firebase), so it isn\u2019t lost if the app is ' +
         'deleted or you switch phones. This is NOT instant sync between several phones at once.',
       lblCloudUsername: 'Username',
@@ -983,11 +1121,30 @@
       cloudTeDilet: 'Log out of the account?',
       cloudDilTekst: 'The data in the cloud is NOT deleted, but this phone won\u2019t sync anymore until you ' +
         'log in again.',
+      lblCloudEmriRi: 'New username',
+      lblCloudFjalekalimiRi: 'New password (at least 6 characters)',
+      cloudNdryshoEmrinBtn: 'Change username',
+      cloudNdryshoFjalekaliminBtn: 'Change password',
+      cloudPlotesoEmrinRi: 'Enter the new username.',
+      cloudPlotesoFjalekalimin: 'Enter the new password.',
+      cloudEmriURiNdryshuar: 'Username changed.',
+      cloudFjalekalimiURiNdryshuar: 'Password changed.',
+      cloudDuhetRihyrje: 'For security, log out and log back in before changing this.',
 
       automatike: 'Automatic',
       eCelet: 'Light',
       eErret: 'Dark',
       automatikeHint: '"Automatic" follows your phone\'s setting.',
+      titAksentiTeksti: 'Accent color',
+      aksentBluEmri: 'Blue',
+      aksentJeshileEmri: 'Green',
+      aksentVjollceEmri: 'Purple',
+      aksentPortokalliEmri: 'Orange',
+      aksentKuqeEmri: 'Red',
+      titMadhesiaTeksti: 'Text size',
+      madhesiaNormaleBtn: 'Normal',
+      madhesiaEMadheBtn: 'Large',
+      madhesiaHintTeksti: 'Slightly increases the size of all text and buttons, for easier reading.',
 
       pdaLabel: 'This is a PDA (built-in scanner)',
       pdaHint: "When on, the camera button is hidden and the cursor stays in the barcode field for the PDA's scanner.",
@@ -1034,21 +1191,7 @@
 
       gjuhaTitulli: 'Language',
 
-      rezerveHint: 'Save a full copy of the list (a .json file) and restore it when needed, e.g. on a new phone.',
-      ruajKopjenBtn: 'Save backup',
-      riktheKopjenBtn: 'Restore backup',
-      footerHint: 'Stoku 1.0 · Data is stored only on this phone. Make a backup from time to time.',
-
-      teRikthehetKopja: 'Restore the backup?',
-      riktheTekst: function (a) {
-        return 'This will replace all ' + a.aktual + ' current products (and folders) with ' + a.reja +
-          ' products from the backup.\n\nThis cannot be undone. If you want, back up the current list first.';
-      },
-      skedariIPavlefshem: "This file isn't a valid backup.",
-      uRikthyen: function (a) { return 'Restored ' + a.n + ' products.'; },
       ruajtjaDeshtoi: "Saving failed: the browser's storage is full.",
-      kopjaShkarkuar: function (a) { return 'Backup downloaded: ' + a.emri; },
-      nukKaProduktePerKopje: 'There are no products for a backup.',
       nukKaProdukteEksport: 'There are no products to export in this folder.',
 
       pdfDukeKrijuar: 'Creating…',
@@ -1072,6 +1215,8 @@
   // Elementet me tekst statik: { id, prop: 'text' | 'placeholder' | 'title' | 'titleAria', kyc }
   var STATIKE = [
     { id: 'btnKrijoFolder', prop: 'text', kyc: 'krijoFolder' },
+    { id: 'tipiEtiketa', prop: 'text', kyc: 'tipiEtiketaTeksti' },
+    { id: 'tipiTjetri', prop: 'text', kyc: 'tipiTjetriBtn' },
     { id: 'btnKamera', prop: 'text', kyc: 'skanoKamer' },
     { id: 'btnEksport', prop: 'text', kyc: 'eksportoExcel' },
     { id: 'btnEksportPdf', prop: 'text', kyc: 'eksportoPdf' },
@@ -1098,13 +1243,22 @@
     { id: 'tabKameraTxt', prop: 'text', kyc: 'tabKamera' },
     { id: 'tabListaTxt', prop: 'text', kyc: 'tabLista' },
     { id: 'tabGjuhaTxt', prop: 'text', kyc: 'tabGjuha' },
-    { id: 'tabRezerveTxt', prop: 'text', kyc: 'tabRezerve' },
     { id: 'tabCloudTxt', prop: 'text', kyc: 'tabCloud' },
     { id: 'titPamja', prop: 'text', kyc: 'tabPamja' },
     { id: 'temaAuto', prop: 'text', kyc: 'automatike' },
     { id: 'temaLight', prop: 'text', kyc: 'eCelet' },
     { id: 'temaDark', prop: 'text', kyc: 'eErret' },
     { id: 'temaHint', prop: 'text', kyc: 'automatikeHint' },
+    { id: 'titAksenti', prop: 'text', kyc: 'titAksentiTeksti' },
+    { id: 'aksentBlu', prop: 'title', kyc: 'aksentBluEmri' },
+    { id: 'aksentJeshile', prop: 'title', kyc: 'aksentJeshileEmri' },
+    { id: 'aksentVjollce', prop: 'title', kyc: 'aksentVjollceEmri' },
+    { id: 'aksentPortokalli', prop: 'title', kyc: 'aksentPortokalliEmri' },
+    { id: 'aksentKuqe', prop: 'title', kyc: 'aksentKuqeEmri' },
+    { id: 'titMadhesia', prop: 'text', kyc: 'titMadhesiaTeksti' },
+    { id: 'madhesiaNormale', prop: 'text', kyc: 'madhesiaNormaleBtn' },
+    { id: 'madhesiaEMadhe', prop: 'text', kyc: 'madhesiaEMadheBtn' },
+    { id: 'madhesiaHint', prop: 'text', kyc: 'madhesiaHintTeksti' },
 
     { id: 'lblOpsPda', prop: 'text', kyc: 'pdaLabel' },
     { id: 'pdaHint', prop: 'text', kyc: 'pdaHint' },
@@ -1127,18 +1281,24 @@
 
     { id: 'titGjuha', prop: 'text', kyc: 'gjuhaTitulli' },
 
-    { id: 'rezerveHint', prop: 'text', kyc: 'rezerveHint' },
-    { id: 'opsKopje', prop: 'text', kyc: 'ruajKopjenBtn' },
-    { id: 'opsRikthe', prop: 'text', kyc: 'riktheKopjenBtn' },
-    { id: 'footerHint', prop: 'text', kyc: 'footerHint' },
     { id: 'opsMbyll', prop: 'text', kyc: 'mbyll' },
 
+    { id: 'hyrjeGateTitulli', prop: 'text', kyc: 'hyrjeGateTitulli' },
+    { id: 'hyrjeGateHint', prop: 'text', kyc: 'hyrjeGateHint' },
+    { id: 'lblHyrjeGateUsername', prop: 'text', kyc: 'lblCloudUsername' },
+    { id: 'lblHyrjeGateFjalekalimi', prop: 'text', kyc: 'lblCloudFjalekalimi' },
+    { id: 'hyrjeGateKrijoLlogari', prop: 'text', kyc: 'cloudKrijoLlogariBtn' },
+    { id: 'hyrjeGateHyrBtn', prop: 'text', kyc: 'cloudHyrBtn' },
     { id: 'cloudHint', prop: 'text', kyc: 'cloudHint' },
     { id: 'lblCloudUsername', prop: 'text', kyc: 'lblCloudUsername' },
     { id: 'lblCloudFjalekalimi', prop: 'text', kyc: 'lblCloudFjalekalimi' },
     { id: 'cloudKrijoLlogari', prop: 'text', kyc: 'cloudKrijoLlogariBtn' },
     { id: 'cloudHyrBtn', prop: 'text', kyc: 'cloudHyrBtn' },
     { id: 'cloudDilBtn', prop: 'text', kyc: 'cloudDilBtn' },
+    { id: 'lblCloudEmriRi', prop: 'text', kyc: 'lblCloudEmriRi' },
+    { id: 'lblCloudFjalekalimiRi', prop: 'text', kyc: 'lblCloudFjalekalimiRi' },
+    { id: 'cloudNdryshoEmrin', prop: 'text', kyc: 'cloudNdryshoEmrinBtn' },
+    { id: 'cloudNdryshoFjalekalimin', prop: 'text', kyc: 'cloudNdryshoFjalekaliminBtn' },
     { id: 'cloudSinkronizoTani', prop: 'text', kyc: 'cloudSinkronizoTaniBtn' },
     { id: 'cloudRiktheTani', prop: 'text', kyc: 'cloudRiktheTaniBtn' },
 
@@ -1236,9 +1396,6 @@
     }
   }
 
-  var __produktetIshinBosh = false;
-  try { __produktetIshinBosh = !localStorage.getItem(KEY_PRODUKTET); } catch (e) { /* ok */ }
-
   ngarkoBazen();
 
   try {
@@ -1261,7 +1418,7 @@
 
   var opsione = {
     tingull: true, rendi: 'i_ri', scanner: true, pda: false, tastieraEFshehur: false,
-    paEmer: false, kameraId: '', autofokus: true, gjuha: 'sq'
+    paEmer: false, kameraId: '', autofokus: true, gjuha: 'sq', aksent: 'blu', madhesia: 'normale'
   };
   try {
     var opsioneRuajtura = JSON.parse(localStorage.getItem(KEY_OPSIONE) || 'null');
@@ -1275,6 +1432,8 @@
       if (typeof opsioneRuajtura.tastieraEFshehur === 'boolean') opsione.tastieraEFshehur = opsioneRuajtura.tastieraEFshehur;
       if (['i_ri', 'emri', 'emriZA', 'sasiaUlet', 'sasiaLart'].indexOf(opsioneRuajtura.rendi) !== -1) opsione.rendi = opsioneRuajtura.rendi;
       if (opsioneRuajtura.gjuha === 'en' || opsioneRuajtura.gjuha === 'sq') opsione.gjuha = opsioneRuajtura.gjuha;
+      if (['blu', 'jeshile', 'vjollce', 'portokalli', 'kuqe'].indexOf(opsioneRuajtura.aksent) !== -1) opsione.aksent = opsioneRuajtura.aksent;
+      if (opsioneRuajtura.madhesia === 'e_madhe' || opsioneRuajtura.madhesia === 'normale') opsione.madhesia = opsioneRuajtura.madhesia;
     }
   } catch (e) { /* përdor vlerat fillestare */ }
 
@@ -1338,6 +1497,7 @@
     var brenda = folderiAktual !== null;
     $('siperFolderat').style.display = brenda ? 'none' : '';
     $('folderaLista').style.display = brenda ? 'none' : '';
+    $('tipiMbeshtjellje').style.display = (brenda || tipiIFshehur) ? 'none' : '';
     $('siperFolderi').style.display = brenda ? '' : 'none';
     $('lista').style.display = brenda ? '' : 'none';
     $('footerFolderi').style.display = brenda ? '' : 'none';
@@ -1448,6 +1608,39 @@
   }
   zbatoTemen();
 
+  // ---------- Aksenti (ngjyra) dhe madhësia e shkronjave ----------
+  function zbatoAksentin() {
+    document.documentElement.setAttribute('data-aksent', opsione.aksent === 'blu' ? '' : opsione.aksent);
+    Array.prototype.forEach.call(document.querySelectorAll('#aksentRrjeti button'), function (b) {
+      b.classList.toggle('aktiv', b.getAttribute('data-v') === opsione.aksent);
+    });
+  }
+  function vendosAksentin(v) {
+    opsione.aksent = v;
+    ruajOpsionet();
+    zbatoAksentin();
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#aksentRrjeti button'), function (b) {
+    b.addEventListener('click', function () { vendosAksentin(b.getAttribute('data-v')); });
+  });
+  zbatoAksentin();
+
+  function zbatoMadhesine() {
+    document.body.setAttribute('data-madhesi', opsione.madhesia === 'e_madhe' ? 'e_madhe' : '');
+    Array.prototype.forEach.call(document.querySelectorAll('#segMadhesia button'), function (b) {
+      b.classList.toggle('aktiv', b.getAttribute('data-v') === opsione.madhesia);
+    });
+  }
+  function vendosMadhesine(v) {
+    opsione.madhesia = v;
+    ruajOpsionet();
+    zbatoMadhesine();
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#segMadhesia button'), function (b) {
+    b.addEventListener('click', function () { vendosMadhesine(b.getAttribute('data-v')); });
+  });
+  zbatoMadhesine();
+
   // ---------- Gjuha ----------
   function zbatoGjuhen() {
     Array.prototype.forEach.call(document.querySelectorAll('#segGjuha button'), function (b) {
@@ -1471,6 +1664,7 @@
     zbatoGjuhen();
     zbatoPda();
     zbatoTastieren();
+    renderTipin();
     if (folderiAktual === null) {
       renderFolderat();
     } else {
@@ -1571,7 +1765,7 @@
   }
   var TAB_TITULL_KYC = {
     pamja: 'tabPamja', skenimi: 'tabSkenimi', kamera: 'tabKamera',
-    lista: 'tabLista', gjuha: 'tabGjuha', rezerve: 'tabRezerve', cloud: 'tabCloud'
+    lista: 'tabLista', gjuha: 'tabGjuha', cloud: 'tabCloud'
   };
   Array.prototype.forEach.call(document.querySelectorAll('.kategori-rresht'), function (b) {
     b.addEventListener('click', function () { aktivizoTabin(b.getAttribute('data-faqe')); });
@@ -1589,6 +1783,8 @@
     zbatoPda();
     $('opsRendi').value = opsione.rendi;
     zbatoTemen();
+    zbatoAksentin();
+    zbatoMadhesine();
     zbatoGjuhen();
     rifreskoDukjenECloud();
     aktivizoTabin(null);
@@ -1707,11 +1903,11 @@
   });
 
   // ================= Cloud (Firebase) — kopje automatike online =================
-  var SINKRONIZIM_INTERVALI_MS = 60000; // çdo 1 minutë
+  var SINKRONIZIM_VONESA_MS = 1500; // pak kohë pas ndryshimit, që skanimet e shpejta rresht të bashkohen në një kërkesë
+  var sinkronizoKohezi = null;
   var dukeSinkronizuar = false;
   var dukeRikthyerNgaCloud = false;
   var dukeRregjistruarApoHyrje = false;
-  var kaNdryshimePaSinkronizuara = false;
 
   function emriEshteVlefshem(v) { return typeof v === 'string' && /^[a-zA-Z0-9_.-]{3,}$/.test(v.trim()); }
   function fjalekalimiEshteVlefshem(v) { return typeof v === 'string' && v.length >= 6; }
@@ -1813,16 +2009,17 @@
     return u.email.split('@')[0];
   }
 
-  // Thjesht shënon që ka ndryshime për t'u sinkronizuar; sinkronizimi i vërtetë ndodh çdo 1 minutë
-  // (shih setInterval poshtë) ose menjëherë kur shtypet "Sinkronizo tani" / pas hyrjes-regjistrimit.
+  // Sinkronizon menjëherë pas çdo shtimi/ndryshimi/fshirjeje të një produkti (me vonesë të vogël,
+  // që disa skanime rresht të mos dërgojnë çdo herë një kërkesë të veçantë).
   function planifikoSinkronizimin() {
     if (!perdoruesiAktual()) return;
-    kaNdryshimePaSinkronizuara = true;
+    clearTimeout(sinkronizoKohezi);
+    sinkronizoKohezi = setTimeout(kryeSinkronizimin, SINKRONIZIM_VONESA_MS);
   }
 
   async function kryeSinkronizimin() {
     if (!perdoruesiAktual() || !window.__stokuCloud) return;
-    kaNdryshimePaSinkronizuara = false;
+    clearTimeout(sinkronizoKohezi);
     dukeSinkronizuar = true;
     vendosStatusinCloud(T('cloudStatusiDukeSink'));
     var meparshme = await window.__stokuCloud.merr();
@@ -1839,10 +2036,6 @@
     }
     vendosStatusinCloud(rez.ok ? T('cloudStatusiUSink', { kur: oraTani() }) : T('cloudStatusiDeshtoi'));
   }
-
-  setInterval(function () {
-    if (kaNdryshimePaSinkronizuara && perdoruesiAktual() && !dukeSinkronizuar) kryeSinkronizimin();
-  }, SINKRONIZIM_INTERVALI_MS);
 
   function zbatoGjendjenNgaCloud(te) {
     var arrF = Array.isArray(te.foldera) && te.foldera.length > 0
@@ -1861,16 +2054,21 @@
     rifreskoPamjen();
   }
 
-  // Provohet një herë, kur gjendja e hyrjes njihet (hyrje e ruajtur më parë nga Firebase):
-  // nëse s'ka të dhëna lokale (telefon i ri / aplikacioni u fshi), rikthehen automatikisht.
-  async function provoRikthimAutomatik() {
-    if (!__produktetIshinBosh) return;
-    if (!perdoruesiAktual() || !window.__stokuCloud) return;
+  // Ekzekutohet një herë për çdo hyrje/sesion: bashkon të dhënat e cloud-it me ato lokale (pa fshi
+  // asgjë lokalisht — shih bashkoPaFshirje), pastaj sinkronizon prapë për të pajtuar krejt anët.
+  var __uidISinkronizuarDarePasHyrjes = null;
+  async function sinkronizoNeHyrje() {
+    var u = perdoruesiAktual();
+    if (!u || !window.__stokuCloud) return;
+    if (__uidISinkronizuarDarePasHyrjes === u.uid) return; // e ba tashmë për këtë hyrje
+    __uidISinkronizuarDarePasHyrjes = u.uid;
+    vendosStatusinCloud(T('cloudStatusiDukeSink'));
     var rez = await window.__stokuCloud.merr();
     if (rez.ok && rez.gjendja) {
-      zbatoGjendjenNgaCloud(rez.gjendja);
-      toast(T('cloudURikthyeAutomatikisht'));
+      var bashkuar = bashkoPaFshirje(rez.gjendja, gjendjaPerCloud());
+      zbatoGjendjenNgaCloud(bashkuar);
     }
+    kryeSinkronizimin();
   }
 
   function rifreskoDukjenECloud() {
@@ -1886,50 +2084,72 @@
   }
   rifreskoDukjenECloud();
 
+  // ---------- Porta e hyrjes (kyçje e detyrueshme) ----------
+  // Meqë të dhënat ruhen në cloud, aplikacioni kërkon hyrje me llogari përpara se të përdoret —
+  // përveç kur Firebase s'arrin të ngarkohet fare (p.sh. pa internet): atëherë lejohet përdorimi
+  // lokal, sepse verifikimi i hyrjes kërkon lidhje interneti sido që të jetë.
+  var __firebaseUProvua = false;
+  function rifreskoPortenEHyrjes() {
+    if (!__firebaseUProvua) return;
+    var u = perdoruesiAktual();
+    var duhetPortaeHyrjes = window.__stokuCloud && !u;
+    $('hyrjeEkrani').classList.toggle('hapur', !!duhetPortaeHyrjes);
+  }
+  function mbyllPortenEHyrjes() { $('hyrjeEkrani').classList.remove('hapur'); }
+
   window.addEventListener('stoku-cloud-gati', function () {
+    __firebaseUProvua = true;
     rifreskoDukjenECloud();
-    provoRikthimAutomatik();
+    rifreskoPortenEHyrjes();
+    sinkronizoNeHyrje();
   });
   window.addEventListener('stoku-auth-ndryshoi', function () {
+    if (!perdoruesiAktual()) __uidISinkronizuarDarePasHyrjes = null;
     rifreskoDukjenECloud();
-    provoRikthimAutomatik();
+    rifreskoPortenEHyrjes();
+    sinkronizoNeHyrje();
   });
-  if (window.__stokuCloud) { rifreskoDukjenECloud(); provoRikthimAutomatik(); }
+  if (window.__stokuCloud) { __firebaseUProvua = true; rifreskoDukjenECloud(); rifreskoPortenEHyrjes(); sinkronizoNeHyrje(); }
 
-  async function kryeRregjistrimHyrje(regjistrim) {
+  function tekstiGabimitCloud(kodi) {
+    if (kodi === 'auth/email-already-in-use') return T('cloudLlogariaEkziston');
+    if (kodi === 'auth/invalid-credential' || kodi === 'auth/wrong-password' || kodi === 'auth/user-not-found') return T('cloudHyrjeGabim');
+    if (kodi === 'auth/weak-password') return T('cloudFjalekalimiIShkurter');
+    if (kodi === 'auth/requires-recent-login') return T('cloudDuhetRihyrje');
+    return T('cloudGabimPergjithshem');
+  }
+
+  async function kryeRregjistrimHyrje(regjistrim, idUsername, idFjalekalimi, idGabim) {
     if (dukeRregjistruarApoHyrje || !window.__stokuCloud) return;
-    var emri = $('cloudUsername').value.trim();
-    var fjalekalimi = $('cloudFjalekalimi').value;
-    if (!emri || !fjalekalimi) { $('cloudGabimHint').textContent = T('cloudPlotesoFushat'); return; }
-    if (!emriEshteVlefshem(emri)) { $('cloudGabimHint').textContent = T('cloudEmriIShkurter'); return; }
-    if (!fjalekalimiEshteVlefshem(fjalekalimi)) { $('cloudGabimHint').textContent = T('cloudFjalekalimiIShkurter'); return; }
-    $('cloudGabimHint').textContent = '';
+    idUsername = idUsername || 'cloudUsername';
+    idFjalekalimi = idFjalekalimi || 'cloudFjalekalimi';
+    idGabim = idGabim || 'cloudGabimHint';
+    var emri = $(idUsername).value.trim();
+    var fjalekalimi = $(idFjalekalimi).value;
+    if (!emri || !fjalekalimi) { $(idGabim).textContent = T('cloudPlotesoFushat'); return; }
+    if (!emriEshteVlefshem(emri)) { $(idGabim).textContent = T('cloudEmriIShkurter'); return; }
+    if (!fjalekalimiEshteVlefshem(fjalekalimi)) { $(idGabim).textContent = T('cloudFjalekalimiIShkurter'); return; }
+    $(idGabim).textContent = '';
     dukeRregjistruarApoHyrje = true;
     var rez = regjistrim
       ? await window.__stokuCloud.regjistrohu(emri, fjalekalimi)
       : await window.__stokuCloud.hyr(emri, fjalekalimi);
     dukeRregjistruarApoHyrje = false;
     if (!rez.ok) {
-      var teksti = T('cloudGabimPergjithshem');
-      if (rez.kodi === 'auth/email-already-in-use') teksti = T('cloudLlogariaEkziston');
-      else if (rez.kodi === 'auth/invalid-credential' || rez.kodi === 'auth/wrong-password' || rez.kodi === 'auth/user-not-found') teksti = T('cloudHyrjeGabim');
-      else if (rez.kodi === 'auth/weak-password') teksti = T('cloudFjalekalimiIShkurter');
-      $('cloudGabimHint').textContent = teksti;
+      $(idGabim).textContent = tekstiGabimitCloud(rez.kodi);
       return;
     }
-    $('cloudFjalekalimi').value = '';
+    $(idFjalekalimi).value = '';
     rifreskoDukjenECloud();
-    if (regjistrim) {
-      toast(T('cloudLlogariaUKrijua'));
-      kryeSinkronizimin();
-    } else {
-      toast(T('cloudHyrjaUKry'));
-      provoRikthimAutomatik();
-    }
+    mbyllPortenEHyrjes();
+    toast(T(regjistrim ? 'cloudLlogariaUKrijua' : 'cloudHyrjaUKry'));
+    sinkronizoNeHyrje();
   }
 
-  $('cloudKrijoLlogari').addEventListener('click', function () { kryeRregjistrimHyrje(true); });
-  $('cloudHyrBtn').addEventListener('click', function () { kryeRregjistrimHyrje(false); });
+  $('cloudKrijoLlogari').addEventListener('click', function () { kryeRregjistrimHyrje(true, 'cloudUsername', 'cloudFjalekalimi', 'cloudGabimHint'); });
+  $('cloudHyrBtn').addEventListener('click', function () { kryeRregjistrimHyrje(false, 'cloudUsername', 'cloudFjalekalimi', 'cloudGabimHint'); });
+  $('hyrjeGateKrijoLlogari').addEventListener('click', function () { kryeRregjistrimHyrje(true, 'hyrjeGateUsername', 'hyrjeGateFjalekalimi', 'hyrjeGateGabimHint'); });
+  $('hyrjeGateHyrBtn').addEventListener('click', function () { kryeRregjistrimHyrje(false, 'hyrjeGateUsername', 'hyrjeGateFjalekalimi', 'hyrjeGateGabimHint'); });
 
   $('cloudSinkronizoTani').addEventListener('click', function () { kryeSinkronizimin(); });
 
@@ -1952,112 +2172,36 @@
     vendosStatusinCloud(T('cloudStatusiUSink', { kur: oraTani() }));
   });
 
+  $('cloudNdryshoEmrin').addEventListener('click', async function () {
+    if (!window.__stokuCloud || !window.__stokuCloud.ndryshoEmrin) return;
+    var emriRi = $('cloudEmriRi').value.trim();
+    if (!emriRi) { $('cloudNdryshoGabimHint').textContent = T('cloudPlotesoEmrinRi'); return; }
+    if (!emriEshteVlefshem(emriRi)) { $('cloudNdryshoGabimHint').textContent = T('cloudEmriIShkurter'); return; }
+    $('cloudNdryshoGabimHint').textContent = '';
+    var rez = await window.__stokuCloud.ndryshoEmrin(emriRi);
+    if (!rez.ok) { $('cloudNdryshoGabimHint').textContent = tekstiGabimitCloud(rez.kodi); return; }
+    $('cloudEmriRi').value = '';
+    rifreskoDukjenECloud();
+    toast(T('cloudEmriURiNdryshuar'));
+  });
+
+  $('cloudNdryshoFjalekalimin').addEventListener('click', async function () {
+    if (!window.__stokuCloud || !window.__stokuCloud.ndryshoFjalekalimin) return;
+    var fjalekalimiRi = $('cloudFjalekalimiRi').value;
+    if (!fjalekalimiRi) { $('cloudNdryshoGabimHint').textContent = T('cloudPlotesoFjalekalimin'); return; }
+    if (!fjalekalimiEshteVlefshem(fjalekalimiRi)) { $('cloudNdryshoGabimHint').textContent = T('cloudFjalekalimiIShkurter'); return; }
+    $('cloudNdryshoGabimHint').textContent = '';
+    var rez = await window.__stokuCloud.ndryshoFjalekalimin(fjalekalimiRi);
+    if (!rez.ok) { $('cloudNdryshoGabimHint').textContent = tekstiGabimitCloud(rez.kodi); return; }
+    $('cloudFjalekalimiRi').value = '';
+    toast(T('cloudFjalekalimiURiNdryshuar'));
+  });
+
   $('cloudDilBtn').addEventListener('click', async function () {
     var po = await konfirmo(T('cloudTeDilet'), T('cloudDilTekst'), T('cloudDilBtn'));
     if (!po) return;
     if (window.__stokuCloud && window.__stokuCloud.dil) await window.__stokuCloud.dil();
     rifreskoDukjenECloud();
-  });
-
-  // Kopje rezervë (.json)
-  function stampaKohes() {
-    var d = new Date();
-    return d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate()) +
-      '_' + dyShifra(d.getHours()) + dyShifra(d.getMinutes());
-  }
-
-  async function ruajKopjen() {
-    var te = Object.keys(produktet).map(function (b) { return produktet[b]; });
-    if (te.length === 0) { toast(T('nukKaProduktePerKopje')); return; }
-    var teksti = JSON.stringify({ app: 'stoku', version: 2, koha: new Date().toISOString(), foldera: foldera, produktet: te });
-    var emri = 'stoku-kopje_' + stampaKohes() + '.json';
-    var skedari = new File([teksti], emri, { type: 'application/json' });
-    var siTekst = new File([teksti], emri, { type: 'text/plain' }); // disa telefona e lejojnë vetëm si tekst
-    var perShare = kaShare(skedari) ? skedari : (kaShare(siTekst) ? siTekst : null);
-    if (perShare) {
-      try {
-        await navigator.share({ files: [perShare], title: 'Kopje rezervë - Stoku' });
-        return;
-      } catch (err) {
-        if (err && err.name === 'AbortError') return;
-      }
-    }
-    shkarkoDirekt({ skedari: skedari, emri: emri });
-    toast(T('kopjaShkarkuar', { emri: emri }));
-  }
-
-  async function rikthePrejSkedari(skedari) {
-    var teRikthyera = null; // { foldera: [...], produktet: [...] }
-    try {
-      var te = JSON.parse(await skedari.text());
-      var arrP = Array.isArray(te) ? te : (te && te.produktet);
-      if (Array.isArray(arrP)) {
-        var produktetELexuara = arrP.filter(function (p) {
-          return p && typeof p.barkodi === 'string' && p.barkodi.trim() !== '' &&
-            typeof p.emri === 'string' && Number.isInteger(p.sasia);
-        }).map(function (p) {
-          return {
-            barkodi: p.barkodi.trim(),
-            emri: p.emri.trim(),
-            sasia: p.sasia,
-            kategoriaId: (typeof p.kategoriaId === 'string' && p.kategoriaId) ? p.kategoriaId : null
-          };
-        });
-
-        var arrF = Array.isArray(te && te.foldera) ? te.foldera : null;
-        var folderatELexuara = arrF ? arrF.filter(function (f) {
-          return f && typeof f.id === 'string' && f.id && typeof f.emri === 'string' && f.emri.trim() !== '';
-        }).map(function (f) { return { id: f.id, emri: f.emri.trim() }; }) : null;
-
-        if (folderatELexuara) {
-          // kopje rezervë e re (me foldera): produktet pa një kategori të vlefshme shkojnë te «Pa kategori»
-          var idTeVlefshme = {};
-          folderatELexuara.forEach(function (f) { idTeVlefshme[f.id] = true; });
-          var duhetPaKategori = false;
-          produktetELexuara.forEach(function (p) {
-            if (!p.kategoriaId || !idTeVlefshme[p.kategoriaId]) { p.kategoriaId = 'pa-kategori'; duhetPaKategori = true; }
-          });
-          if (duhetPaKategori && !idTeVlefshme['pa-kategori']) folderatELexuara.push({ id: 'pa-kategori', emri: 'Pa kategori' });
-          teRikthyera = { foldera: folderatELexuara, produktet: produktetELexuara };
-        } else if (produktetELexuara.length > 0) {
-          // kopje e vjetër (para se aplikacioni të kishte foldera): krejt produktet shkojnë te «Pa kategori»
-          produktetELexuara.forEach(function (p) { p.kategoriaId = 'pa-kategori'; });
-          teRikthyera = { foldera: [{ id: 'pa-kategori', emri: 'Pa kategori' }], produktet: produktetELexuara };
-        }
-      }
-    } catch (e) { teRikthyera = null; }
-
-    if (!teRikthyera || teRikthyera.produktet.length === 0) {
-      toast(T('skedariIPavlefshem'));
-      return;
-    }
-    var aktual = Object.keys(produktet).length;
-    var po = await konfirmo(
-      T('teRikthehetKopja'),
-      T('riktheTekst', { aktual: aktual, reja: teRikthyera.produktet.length }),
-      T('rikthe')
-    );
-    if (!po) return;
-    foldera = teRikthyera.foldera;
-    produktet = {};
-    teRikthyera.produktet.forEach(function (p) {
-      produktet[celesiProduktit(p.kategoriaId, p.barkodi)] = p;
-    });
-    folderiAktual = null;
-    ruajBaze();
-    rifreskoPamjen();
-    mbyllOpsionet();
-    toast(T('uRikthyen', { n: teRikthyera.produktet.length }));
-  }
-
-  $('opsKopje').addEventListener('click', ruajKopjen);
-  $('opsRikthe').addEventListener('click', function () {
-    $('fileRikthe').value = '';
-    $('fileRikthe').click();
-  });
-  $('fileRikthe').addEventListener('change', function () {
-    var f = $('fileRikthe').files && $('fileRikthe').files[0];
-    if (f) rikthePrejSkedari(f);
   });
 
   // ---------- Lista + kërkimi ----------
@@ -2799,6 +2943,25 @@
     toast(T('uFshinePrejFolderit'));
   });
 
+  // ---------- Tips & Tricks (ekrani kryesor) ----------
+  var TIPAT_KYC = ['tipi01', 'tipi02', 'tipi03', 'tipi04', 'tipi05', 'tipi06',
+    'tipi07', 'tipi08', 'tipi09', 'tipi10', 'tipi11', 'tipi12'];
+  var tipiIndeksi = Math.floor(Math.random() * TIPAT_KYC.length);
+  var tipiIFshehur = false;
+
+  function renderTipin() {
+    $('tipiTeksti').textContent = T(TIPAT_KYC[tipiIndeksi]);
+  }
+  $('tipiTjetri').addEventListener('click', function () {
+    tipiIndeksi = (tipiIndeksi + 1) % TIPAT_KYC.length;
+    renderTipin();
+  });
+  $('tipiMbyll').addEventListener('click', function () {
+    tipiIFshehur = true;
+    $('tipiMbeshtjellje').style.display = 'none';
+  });
+  renderTipin();
+
   // ---------- Service worker (punon edhe pa internet) ----------
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
@@ -2819,7 +2982,8 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
   import {
-    getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged
+    getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
+    updateEmail, updatePassword
   } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
@@ -2860,6 +3024,24 @@
       },
       async dil() {
         try { await signOut(auth); } catch (e) { /* ok */ }
+      },
+      async ndryshoEmrin(emriRiPerdoruesit) {
+        if (!auth.currentUser) return { ok: false, arsye: 'pa-hyrje' };
+        try {
+          await updateEmail(auth.currentUser, emailIBrendshem(emriRiPerdoruesit));
+          return { ok: true };
+        } catch (e) {
+          return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) };
+        }
+      },
+      async ndryshoFjalekalimin(fjalekalimiRi) {
+        if (!auth.currentUser) return { ok: false, arsye: 'pa-hyrje' };
+        try {
+          await updatePassword(auth.currentUser, fjalekalimiRi);
+          return { ok: true };
+        } catch (e) {
+          return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) };
+        }
       },
       perdoruesiAktual() {
         return auth.currentUser;
