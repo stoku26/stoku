@@ -445,9 +445,14 @@
 
 <!-- Lista e folderave -->
 <div class="siper" id="siperFolderat">
+  <div class="fushe">
+    <label for="kerkoGlobal" id="lblKerkoGlobal"></label>
+    <input id="kerkoGlobal" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  </div>
   <button class="btn" id="btnKrijoFolder" type="button" style="width:100%"></button>
 </div>
 <div id="folderaLista" class="folderat-rrjeti"></div>
+<div id="kerkoGlobalLista" style="display:none"></div>
 
 <!-- Tips & Tricks -->
 <div class="tipi-mbeshtjellje" id="tipiMbeshtjellje">
@@ -570,6 +575,7 @@
         <button class="kategori-rresht" type="button" data-faqe="gjuha" id="tabGjuha"><span id="tabGjuhaTxt"></span><span class="shigjeta">›</span></button>
         <button class="kategori-rresht" type="button" data-faqe="cloud" id="tabCloud"><span id="tabCloudTxt"></span><span class="shigjeta">›</span></button>
         <button class="kategori-rresht" type="button" data-faqe="llogaria" id="tabLlogaria"><span id="tabLlogariaTxt"></span><span class="shigjeta">›</span></button>
+        <button class="kategori-rresht" type="button" data-faqe="admin" id="tabAdmin" style="display:none"><span id="tabAdminTxt"></span><span class="shigjeta">›</span></button>
       </div>
 
       <div class="opsione-faqet">
@@ -697,6 +703,17 @@
             <div class="hint" id="cloudNdryshoGabimHint"></div>
           </div>
         </div>
+
+        <div class="opsione-faqe" data-faqe="admin">
+          <div class="seksion">
+            <div class="opsion-titull" id="titAdminStatistika"></div>
+            <div class="hint" id="adminStatProduktet"></div>
+            <div class="hint" id="adminStatFoldera"></div>
+          </div>
+          <div class="seksion">
+            <div class="hint" id="adminHint"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -762,28 +779,28 @@
 
       tipiEtiketaTeksti: 'Ide & Këshilla',
       tipiTjetriBtn: 'Ide tjetër ›',
-      tipi01: 'Aktivizo modalitetin PDA (Opsionet → Skenimi) për skanim pa prekje me skaner të jashtëm — dialogu i sasisë hapet vetë pas çdo skanimi.',
-      tipi02: 'Rendit produktet "Sasia: nga më e vogla" (Opsionet → Lista) për të parë menjëherë çka po mbaron në stok.',
-      tipi03: 'Kërko sipas emrit ose barkodit brenda një folderi për të gjetur menjëherë një produkt, edhe në listë të gjatë.',
-      tipi04: 'Eksporto në PDF etiketa barkodesh gati për printim dhe ri-ngjitje në raft, jo vetëm në Excel.',
-      tipi05: 'Nëse një produkt është skenuar në kategori të gabuar, hape dhe përdor "Zhvendos në folder tjetër" — sasitë bashkohen vetë nëse ekziston edhe atje.',
-      tipi06: 'Krijo foldera shtesë për kategori të reja (jo vetëm Ushqimore/Pije/Higjiene/Fresh) — sa herë të duhet.',
-      tipi07: 'Kur je i kyçur, të dhënat sinkronizohen vetë me cloud-in pas çdo shtimi ose fshirjeje — s\'ke nevojë me bo asgjë manualisht.',
-      tipi08: 'Ndrysho gjuhën e aplikacionit shqip/anglisht nga Opsionet → Gjuha, në çdo kohë.',
-      tipi09: 'Vendos temën "E errët" (Opsionet → Pamja) për përdorim më të rehatshëm në dritë të fortë ose natën.',
-      tipi10: 'Kur redakton një produkt ekzistues, fut një numër negativ te sasia (p.sh. -3) për ta zvogëluar atë sasi.',
-      tipi11: 'Përdor kamerën e telefonit për skanim kur s\'ke skaner me vete — butoni "Skano me kamerë" e mbështet edhe këtë.',
-      tipi12: 'Kontrollo Opsionet → Cloud për me ndryshu emrin e përdoruesit ose fjalëkalimin kur të duhet, pa humbur të dhënat.',
+      tipi01: 'Rregulli 80/20 në stok: zakonisht ~20% e produkteve gjenerojnë ~80% të shitjeve. Identifiko cilat produkte lëvizin më shpejt dhe kontrolloji ata më shpesh — jo çdo produkt meriton po atë vëmendje.',
+      tipi02: 'Rendit "Më të rejat së pari" (Opsionet → Lista) tregon çka është prekur së fundmi. Nëse një produkt s\'e ke prekur javë të tëra, mund të ketë pushuar së shituri, ose të ketë humbur nga rafti pa u regjistruar — ia vlen ta kontrollosh fizikisht.',
+      tipi03: 'Për produktet që skadojnë (Fresh): kur shton stok të ri të njëjtit artikull, vendose fizikisht pas atij ekzistues në raft, jo përpara — kështu shitet së pari stoku i vjetër (parimi "hyn i pari, del i pari") dhe zvogëlohet malli i humbur.',
+      tipi04: 'Fut sasi negative kur redakton një produkt ekzistues jo vetëm për korrigjime — përdore si regjistrim shitjeje: shite 5 copë, fut -5, dhe sasia përditësohet menjëherë, pa llogaritje manuale.',
+      tipi05: 'Dallimi mes numrit fizik (kur i numëron vetë raftet) dhe numrit që tregon aplikacioni s\'është gabim për t\'u injoruar — është informacion: zbulon vjedhje, gabime skanimi, ose produkte të harruara diku tjetër.',
+      tipi06: 'Nëse dy produkte krejt të ndryshme "janë shkri" në një hyrje të vetme me sasi të çuditshme, ka gjasa që barkodi është skanuar gabim një herë dhe të dyja artikujt po ndajnë të njëjtin kod — krahaso emrin me atë çka është skanuar realisht.',
+      tipi07: 'Krahaso numrin e produkteve mes folderave (Ushqimore kundrejt Higjiene, p.sh.) — jo vetëm organizim, por tregues i shpejtë se ku është përqendruar stoku yt dhe ku duhet fokusuar blerja e ardhshme.',
+      tipi08: 'Një produkt me sasi shumë të lartë krahasuar me të tjerët në të njëjtin folder shpesh do të thotë mbi-porositje — kapital i bllokuar në raft që mund të përdorej diku tjetër.',
+      tipi09: 'Kontrollo rregullisht (jo vetëm kur klienti pyet) produktet me sasi 0 ose shumë të ulët, rendit sipas "Sasia: nga më e vogla" — kështu e parashikon mungesën e stokut para se të ndodhë, jo pasi klienti ka ikur pa blerë.',
+      tipi10: 'Nëse një produkt tënd s\'ka barkod të printuar nga prodhuesi, eksporto etiketë PDF dhe ngjite vetë në raft — kështu e skanon njësoj si çdo produkt tjetër herës tjetër.',
+      tipi11: 'Foldera me shumë produkte "pa emër" tregon që PDA/skaneri po përdoret shumë shpejt pa u ndalur për me shkru emrin — ia vlen me i plotësu ato më vonë, përndryshe eksporti në Excel/PDF bëhet i palexueshëm.',
+      tipi12: 'Kur kalon prej sezoni në sezon (p.sh. verë→dimër), rishiko folderat me produkte sezonale: sasi e madhe e mbetur nga sezoni i kaluar është shenjë për me ul porositë herës tjetër, jo për me i harru në raft.',
 
       krijoFolder: '+ Krijo folder',
       folderIRi: 'Folder i ri',
       emriIFolderit: 'Emri i folderit',
       shkruajEmrinFolderit: 'Shkruaj emrin e folderit.',
       teFshihetFolderi: 'Të fshihet folderi?',
-      folderiBoshTekst: function (a) { return 'Do të fshihet folderi «' + a.emri + '». Është bosh.'; },
+      folderiBoshTekst: function (a) { return 'Do të fshihet folderi "' + a.emri + '". Është bosh.'; },
       folderiMePrTekst: function (a) {
         var njesi = a.n === 1 ? 'produktin' : 'produktet';
-        return 'Do të fshihet folderi «' + a.emri + '» bashkë me ' + a.n + ' ' + njesi + ' brenda tij.\n\nKy veprim NUK mund të kthehet.';
+        return 'Do të fshihet folderi "' + a.emri + '" bashkë me ' + a.n + ' ' + njesi + ' brenda tij.\n\nKy veprim NUK mund të kthehet.';
       },
       njesiaProdukteve: function (a) { return a.n + ' ' + (a.n === 1 ? 'produkt' : 'produkte'); },
 
@@ -793,6 +810,8 @@
       eksportoExcel: 'Eksporto në Excel',
       eksportoPdf: 'Eksporto në PDF',
       kerkoLabel: 'Kërko sipas emrit ose barkodit',
+      kerkoGlobalLabel: 'Kërko në krejt folderat',
+      kerkoGlobalNukUGjet: 'Nuk u gjet asnjë produkt në asnjë folder.',
       fshijTeGjitha: 'Fshij të gjitha produktet',
       nukUGjetAsnjeProdukt: 'Nuk u gjet asnjë produkt.',
       shfaqenNga: function (a) {
@@ -810,11 +829,11 @@
       sasiaPerTuShtuar: "Sasia për t'u shtuar",
       zhvendosNeFolder: 'Zhvendos në folder tjetër ›',
       zhvendosTitulli: 'Zhvendos produktin',
-      zhvendosHint: function (a) { return 'Zgjidh folderin ku do të zhvendoset «' + a.emri + '».'; },
+      zhvendosHint: function (a) { return 'Zgjidh folderin ku do të zhvendoset "' + a.emri + '".'; },
       zhvendosAsnjeFolder: 'Nuk ka asnjë folder tjetër ku ta zhvendosësh.',
-      zhvendosUKry: function (a) { return 'U zhvendos te «' + a.folder + '».'; },
+      zhvendosUKry: function (a) { return 'U zhvendos te "' + a.folder + '".'; },
       zhvendosUBashkua: function (a) {
-        return 'U zhvendos te «' + a.folder + '». Aty ekzistonte tashmë, ndaj sasitë u bashkuan (tani: ' + a.sasia + ').';
+        return 'U zhvendos te "' + a.folder + '". Aty ekzistonte tashmë, ndaj sasitë u bashkuan (tani: ' + a.sasia + ').';
       },
       shkruajEmrin: 'Shkruaj emrin e produktit.',
       shkruajSasine: 'Shkruaj sasinë (numër i plotë).',
@@ -822,10 +841,10 @@
       teFshihenTeGjitha: 'Të fshihen të gjitha?',
       fshirjaTekst: function (a) {
         if (a.n === 1) {
-          return 'Do të fshihet 1 produkt nga folderi «' + a.folder + '». Ky veprim NUK mund të kthehet.\n\n' +
+          return 'Do të fshihet 1 produkt nga folderi "' + a.folder + '". Ky veprim NUK mund të kthehet.\n\n' +
             'Nëse do një kopje, shtyp Anulo dhe eksporto fillimisht në Excel.';
         }
-        return 'Do të fshihen të gjitha ' + a.n + ' produktet nga folderi «' + a.folder + '». Ky veprim NUK mund të kthehet.\n\n' +
+        return 'Do të fshihen të gjitha ' + a.n + ' produktet nga folderi "' + a.folder + '". Ky veprim NUK mund të kthehet.\n\n' +
           'Nëse do një kopje, shtyp Anulo dhe eksporto fillimisht në Excel.';
       },
       fshiKrejt: 'Fshi krejt',
@@ -838,7 +857,12 @@
       tabGjuha: 'Gjuha',
       tabCloud: 'Cloud',
       tabLlogaria: 'Llogaria',
-      llogariaDuhetHyrjeTeksti: 'Duhet të hysh së pari te tab-i «Cloud» për ta ndryshuar këtë.',
+      llogariaDuhetHyrjeTeksti: 'Duhet të hysh së pari te tab-i "Cloud" për ta ndryshuar këtë.',
+      tabAdmin: 'Admin',
+      titAdminStatistikaTeksti: 'Statistika',
+      adminStatProduktetTeksti: function (a) { return a.n + ' produkte gjithsej (krejt folderat)'; },
+      adminStatFolderaTeksti: function (a) { return a.n + ' foldera'; },
+      adminHintTeksti: 'Ky panel shfaqet vetëm për llogarinë admin. Më shumë mjete admini do të shtohen këtu.',
 
       cloudHint: 'Ruan automatikisht një kopje të listës në internet (Firebase), që të mos humbet nëse fshihet ' +
         'aplikacioni ose ndërrohet telefoni. Ky NUK është sinkronizim i menjëhershëm mes disa telefonave njëkohësisht.',
@@ -849,7 +873,7 @@
       cloudDilBtn: 'Dil',
       cloudSinkronizoTaniBtn: 'Sinkronizo tani',
       cloudRiktheTaniBtn: 'Rikthe nga cloud',
-      cloudHyrePerTeksti: function (a) { return 'Ke hy si «' + a.emri + '».'; },
+      cloudHyrePerTeksti: function (a) { return 'Ke hy si "' + a.emri + '".'; },
       cloudStatusiAsgje: 'Ende s\'është sinkronizuar.',
       cloudStatusiDukeSink: 'Duke sinkronizuar…',
       cloudStatusiUSink: function (a) { return 'U sinkronizua ' + a.kur + '.'; },
@@ -883,11 +907,13 @@
       cloudEmriURiNdryshuar: 'Emri i përdoruesit u ndryshua.',
       cloudFjalekalimiURiNdryshuar: 'Fjalëkalimi u ndryshua.',
       cloudDuhetRihyrje: 'Për siguri, duhet të dalësh dhe të hysh përsëri para se ta ndryshosh këtë.',
+      cloudDuhetKonfigurim: 'Ndryshimi i emrit s\'lejohet nga cilësimet e Firebase-it (Email enumeration protection). ' +
+        'Fike atë opsion te Firebase console → Authentication → Settings → User actions, dhe provo prapë.',
 
       automatike: 'Automatike',
       eCelet: 'E çelët',
       eErret: 'E errët',
-      automatikeHint: '«Automatike» ndjek cilësimin e telefonit.',
+      automatikeHint: '"Automatike" ndjek cilësimin e telefonit.',
       titAksentiTeksti: 'Ngjyra kryesore',
       aksentBluEmri: 'Blu',
       aksentJeshileEmri: 'Jeshile',
@@ -907,7 +933,7 @@
       paEmerKonfTekst: 'Nuk rekomandohet të regjistrohen produktet pa emër. Në listë dhe në Excel do të shihet vetëm ' +
         'barkodi, kështu që është më e vështirë të gjesh, të kontrollosh ose të njohësh një produkt më vonë, sidomos ' +
         'nëse ndonjë barkod është skenuar gabim.\n\nProdukteve që kanë tashmë emër nuk u fshihet emri.\n\n' +
-        'Nëse je i sigurt, prit 5 sekonda dhe shtyp «Aktivizo».',
+        'Nëse je i sigurt, prit 5 sekonda dhe shtyp "Aktivizo".',
       tingullLabel: 'Tingulli (bip) kur skanon me kamerë',
       scannerLabel: 'Mbaje kursorin te fusha e barkodit (për scanner)',
       qrRefuzuar: 'Ke skenuar një kod QR. Skano barkodin e produktit.',
@@ -955,18 +981,18 @@
 
       tipiEtiketaTeksti: 'Tips & Tricks',
       tipiTjetriBtn: 'Next tip ›',
-      tipi01: 'Turn on PDA mode (Options → Scanning) for hands-free scanning with an external scanner — the quantity dialog opens automatically after every scan.',
-      tipi02: 'Sort by "Quantity: lowest first" (Options → List) to instantly see what\u2019s running low in stock.',
-      tipi03: 'Search by name or barcode inside a folder to find a product instantly, even in a long list.',
-      tipi04: 'Export to PDF for print-ready barcode labels to re-stick on the shelf, not just Excel.',
-      tipi05: 'If a product was scanned into the wrong category, open it and use "Move to another folder" — quantities merge automatically if it already exists there.',
-      tipi06: 'Create extra folders for new categories (not just Groceries/Drinks/Hygiene/Fresh) whenever you need to.',
-      tipi07: 'While logged in, your data syncs to the cloud automatically after every add or delete — no manual step needed.',
-      tipi08: 'Switch the app language between Albanian/English anytime from Options → Language.',
-      tipi09: 'Turn on the "Dark" theme (Options → Appearance) for more comfortable use in bright light or at night.',
-      tipi10: 'When editing an existing product, enter a negative number for quantity (e.g. -3) to reduce it by that amount.',
-      tipi11: 'Use the phone\u2019s camera to scan when you don\u2019t have a scanner handy — the "Scan with camera" button supports that too.',
-      tipi12: 'Check Options → Cloud to change your username or password whenever you need to, without losing any data.',
+      tipi01: 'The 80/20 rule of inventory: usually ~20% of products generate ~80% of sales. Identify which products move fastest and check those more often — not every product deserves equal attention.',
+      tipi02: '"Newest first" sorting (Options → List) shows what was touched most recently. If a product hasn\u2019t been touched in weeks, it may have stopped selling — or gone missing from the shelf without being logged. Worth a physical check.',
+      tipi03: 'For perishables (Fresh): when adding new stock of the same item, place it physically behind the existing stock, not in front — first in, first out — so older stock sells first and less gets wasted.',
+      tipi04: 'Enter a negative number when editing an existing product not just for corrections — use it as a quick sale log: sold 5 units, enter -5, and the quantity updates instantly with no manual math.',
+      tipi05: 'A mismatch between a physical count (when you count the shelf yourself) and what the app shows isn\u2019t an error to dismiss — it\u2019s information: it reveals theft, scanning mistakes, or stock misplaced elsewhere.',
+      tipi06: 'If two completely different products seem to have "merged" into one odd entry, chances are a barcode was scanned wrong once and both items are sharing the same code — compare the name against what was actually scanned.',
+      tipi07: 'Compare product counts across folders (Groceries vs. Hygiene, say) — not just organization, but a quick read on where your stock is concentrated and where future buying should focus.',
+      tipi08: 'A product with a much higher quantity than others in the same folder often means over-ordering — capital tied up on a shelf that could be used elsewhere.',
+      tipi09: 'Check products at 0 or very low quantity regularly (not just when a customer asks) — sort by "Quantity: lowest first" — so you catch a stockout before it happens, not after a customer leaves empty-handed.',
+      tipi10: 'If one of your products has no manufacturer barcode, export a PDF label and stick it on yourself — it then scans like any other product from then on.',
+      tipi11: 'A folder full of "no name" products usually means the scanner/PDA is being used too fast without pausing to type the name — worth filling those in later, or Excel/PDF exports become unreadable.',
+      tipi12: 'When moving between seasons (e.g. summer→winter), review folders with seasonal products: a large leftover quantity from last season is a signal to order less next time, not to leave it sitting on the shelf.',
 
       krijoFolder: '+ Create folder',
       folderIRi: 'New folder',
@@ -986,6 +1012,8 @@
       eksportoExcel: 'Export to Excel',
       eksportoPdf: 'Export to PDF',
       kerkoLabel: 'Search by name or barcode',
+      kerkoGlobalLabel: 'Search all folders',
+      kerkoGlobalNukUGjet: 'No product found in any folder.',
       fshijTeGjitha: 'Delete all products',
       nukUGjetAsnjeProdukt: 'No product found.',
       shfaqenNga: function (a) {
@@ -1032,6 +1060,11 @@
       tabCloud: 'Cloud',
       tabLlogaria: 'Account',
       llogariaDuhetHyrjeTeksti: 'You need to log in first from the "Cloud" tab to change this.',
+      tabAdmin: 'Admin',
+      titAdminStatistikaTeksti: 'Statistics',
+      adminStatProduktetTeksti: function (a) { return a.n + ' products total (all folders)'; },
+      adminStatFolderaTeksti: function (a) { return a.n + ' folders'; },
+      adminHintTeksti: 'This panel only shows for the admin account. More admin tools will be added here.',
 
       cloudHint: 'Automatically keeps a copy of the list online (Firebase), so it isn\u2019t lost if the app is ' +
         'deleted or you switch phones. This is NOT instant sync between several phones at once.',
@@ -1076,6 +1109,8 @@
       cloudEmriURiNdryshuar: 'Username changed.',
       cloudFjalekalimiURiNdryshuar: 'Password changed.',
       cloudDuhetRihyrje: 'For security, log out and log back in before changing this.',
+      cloudDuhetKonfigurim: 'Changing the username isn\u2019t allowed by a Firebase setting (Email enumeration protection). ' +
+        'Turn it off at Firebase console → Authentication → Settings → User actions, then try again.',
 
       automatike: 'Automatic',
       eCelet: 'Light',
@@ -1151,6 +1186,7 @@
     { id: 'btnEksport', prop: 'text', kyc: 'eksportoExcel' },
     { id: 'btnEksportPdf', prop: 'text', kyc: 'eksportoPdf' },
     { id: 'lblKerko', prop: 'text', kyc: 'kerkoLabel' },
+    { id: 'lblKerkoGlobal', prop: 'text', kyc: 'kerkoGlobalLabel' },
     { id: 'btnFshiTeGjitha', prop: 'text', kyc: 'fshijTeGjitha' },
 
     { id: 'lblDlgEmri', prop: 'text', kyc: 'emriIProduktit' },
@@ -1174,6 +1210,7 @@
     { id: 'tabGjuhaTxt', prop: 'text', kyc: 'tabGjuha' },
     { id: 'tabCloudTxt', prop: 'text', kyc: 'tabCloud' },
     { id: 'tabLlogariaTxt', prop: 'text', kyc: 'tabLlogaria' },
+    { id: 'tabAdminTxt', prop: 'text', kyc: 'tabAdmin' },
     { id: 'titPamja', prop: 'text', kyc: 'tabPamja' },
     { id: 'temaAuto', prop: 'text', kyc: 'automatike' },
     { id: 'temaLight', prop: 'text', kyc: 'eCelet' },
@@ -1215,6 +1252,8 @@
     { id: 'cloudHyrBtn', prop: 'text', kyc: 'cloudHyrBtn' },
     { id: 'cloudDilBtn', prop: 'text', kyc: 'cloudDilBtn' },
     { id: 'llogariaDuhetHyrje', prop: 'text', kyc: 'llogariaDuhetHyrjeTeksti' },
+    { id: 'titAdminStatistika', prop: 'text', kyc: 'titAdminStatistikaTeksti' },
+    { id: 'adminHint', prop: 'text', kyc: 'adminHintTeksti' },
     { id: 'lblCloudEmriRi', prop: 'text', kyc: 'lblCloudEmriRi' },
     { id: 'lblCloudFjalekalimiRi', prop: 'text', kyc: 'lblCloudFjalekalimiRi' },
     { id: 'cloudNdryshoEmrin', prop: 'text', kyc: 'cloudNdryshoEmrinBtn' },
@@ -1410,11 +1449,76 @@
     cont.appendChild(frag);
   }
 
+  // Kërkimi global: kërkon në krejt produktet e krejt folderave njëkohësisht (jo vetëm brenda
+  // një folderi). Kur ka tekst kërkimi, zëvendëson grafin e folderave me listën e rezultateve.
+  function renderKerkimiGlobal() {
+    var k = $('kerkoGlobal').value.trim().toLowerCase();
+    var kaKerkim = !!k;
+    $('folderaLista').style.display = kaKerkim ? 'none' : '';
+    $('tipiMbeshtjellje').style.display = (kaKerkim || tipiIFshehur) ? 'none' : '';
+    $('kerkoGlobalLista').style.display = kaKerkim ? '' : 'none';
+    if (!kaKerkim) return;
+
+    var te = Object.keys(produktet).map(function (celesi) { return produktet[celesi]; });
+    var fil = te.filter(function (p) {
+      return (p.emri && p.emri.toLowerCase().indexOf(k) !== -1) || (p.barkodi && p.barkodi.toLowerCase().indexOf(k) !== -1);
+    });
+    fil.sort(krahaso);
+
+    var kont = $('kerkoGlobalLista');
+    kont.textContent = '';
+    var frag = document.createDocumentFragment();
+
+    if (fil.length === 0) {
+      var i0 = document.createElement('div');
+      i0.className = 'info';
+      i0.textContent = T('kerkoGlobalNukUGjet');
+      frag.appendChild(i0);
+    }
+
+    fil.slice(0, LIMIT_RENDER).forEach(function (p) {
+      var rreshti = document.createElement('div');
+      rreshti.className = 'artikull';
+      var majtas = document.createElement('div');
+      majtas.className = 'majtas';
+      var emri = document.createElement('div');
+      emri.className = 'emri';
+      emri.textContent = p.emri || T('paEmerListe');
+      if (!p.emri) emri.className = 'emri bosh';
+      var kodi = document.createElement('div');
+      kodi.className = 'kodi';
+      kodi.textContent = emriFolderit(p.kategoriaId) + ' · ' + p.barkodi;
+      majtas.appendChild(emri);
+      majtas.appendChild(kodi);
+      var sasia = document.createElement('div');
+      sasia.className = 'sasia';
+      sasia.textContent = String(p.sasia);
+      rreshti.appendChild(majtas);
+      rreshti.appendChild(sasia);
+      rreshti.addEventListener('click', function () {
+        burimiIFundit = 'lista';
+        hapFolderin(p.kategoriaId);
+        hapDialogun(p.barkodi);
+      });
+      frag.appendChild(rreshti);
+    });
+
+    if (fil.length > LIMIT_RENDER) {
+      var i1 = document.createElement('div');
+      i1.className = 'info';
+      i1.textContent = T('shfaqenNga', { limit: LIMIT_RENDER, gjithsej: fil.length });
+      frag.appendChild(i1);
+    }
+    kont.appendChild(frag);
+  }
+  $('kerkoGlobal').addEventListener('input', renderKerkimiGlobal);
+
   function rifreskoPamjen() {
     var brenda = folderiAktual !== null;
     $('siperFolderat').style.display = brenda ? 'none' : '';
     $('folderaLista').style.display = brenda ? 'none' : '';
     $('tipiMbeshtjellje').style.display = (brenda || tipiIFshehur) ? 'none' : '';
+    $('kerkoGlobalLista').style.display = 'none';
     $('siperFolderi').style.display = brenda ? '' : 'none';
     $('lista').style.display = brenda ? '' : 'none';
     $('footerFolderi').style.display = brenda ? '' : 'none';
@@ -1431,6 +1535,7 @@
       $('titulli').style.display = 'none';
       $('logoSlika').style.display = 'block';
       renderFolderat();
+      renderKerkimiGlobal();
     }
   }
 
@@ -1692,7 +1797,7 @@
   }
   var TAB_TITULL_KYC = {
     pamja: 'tabPamja', skenimi: 'tabSkenimi',
-    lista: 'tabLista', gjuha: 'tabGjuha', cloud: 'tabCloud', llogaria: 'tabLlogaria'
+    lista: 'tabLista', gjuha: 'tabGjuha', cloud: 'tabCloud', llogaria: 'tabLlogaria', admin: 'tabAdmin'
   };
   Array.prototype.forEach.call(document.querySelectorAll('.kategori-rresht'), function (b) {
     b.addEventListener('click', function () { aktivizoTabin(b.getAttribute('data-faqe')); });
@@ -1982,6 +2087,12 @@
     kryeSinkronizimin();
   }
 
+  var ADMIN_USERNAME = 'mendurberisha';
+  function esteAdminIKycyer() {
+    var u = perdoruesiAktual();
+    return !!u && emriPerdoruesitAktual().toLowerCase() === ADMIN_USERNAME;
+  }
+
   function rifreskoDukjenECloud() {
     var u = perdoruesiAktual();
     $('cloudHyrjeSeksion').style.display = u ? 'none' : '';
@@ -1994,6 +2105,15 @@
     } else {
       $('cloudGabimHint').textContent = '';
       $('cloudNdryshoGabimHint').textContent = '';
+    }
+    var admin = esteAdminIKycyer();
+    $('tabAdmin').style.display = admin ? '' : 'none';
+    if (admin) {
+      $('adminStatProduktet').textContent = T('adminStatProduktetTeksti', { n: Object.keys(produktet).length });
+      $('adminStatFoldera').textContent = T('adminStatFolderaTeksti', { n: foldera.length });
+    } else {
+      var faqjaAktive = document.querySelector('.opsione-faqe.aktiv');
+      if (faqjaAktive && faqjaAktive.getAttribute('data-faqe') === 'admin') aktivizoTabin(null);
     }
   }
   rifreskoDukjenECloud();
@@ -2014,6 +2134,7 @@
     if (kodi === 'auth/invalid-credential' || kodi === 'auth/wrong-password' || kodi === 'auth/user-not-found') return T('cloudHyrjeGabim');
     if (kodi === 'auth/weak-password') return T('cloudFjalekalimiIShkurter');
     if (kodi === 'auth/requires-recent-login') return T('cloudDuhetRihyrje');
+    if (kodi === 'auth/operation-not-allowed') return T('cloudDuhetKonfigurim');
     return T('cloudGabimPergjithshem');
   }
 
