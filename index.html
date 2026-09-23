@@ -119,7 +119,7 @@
     padding-right: max(16px, env(safe-area-inset-right));
   }
   label { display: block; font-size: 13px; color: var(--gri); margin: 0 0 4px 2px; }
-  input[type="text"], input[type="search"], input[type="number"] {
+  input[type="text"], input[type="search"], input[type="number"], input[type="password"] {
     width: 100%;
     height: 48px;
     font-size: 16px; /* 16px parandalon zoom-in automatik në iPhone */
@@ -1407,6 +1407,8 @@
     if (!po) return;
     foldera = foldera.filter(function (x) { return x.id !== f.id; });
     brenda.forEach(function (p) { delete produktet[celesiProduktit(f.id, p.barkodi)]; });
+    shenoFolderinEFshire(f.id);
+    brenda.forEach(function (p) { shenoProduktinEFshire(celesiProduktit(f.id, p.barkodi)); });
     ruajBaze();
     renderFolderat();
   }
@@ -1704,19 +1706,89 @@
   });
 
   // ================= Cloud (Firebase) — kopje automatike online =================
-  var sinkronizoKohezi = null;
+  var SINKRONIZIM_INTERVALI_MS = 60000; // çdo 1 minutë
   var dukeSinkronizuar = false;
   var dukeRikthyerNgaCloud = false;
   var dukeRregjistruarApoHyrje = false;
+  var kaNdryshimePaSinkronizuara = false;
 
   function emriEshteVlefshem(v) { return typeof v === 'string' && /^[a-zA-Z0-9_.-]{3,}$/.test(v.trim()); }
   function fjalekalimiEshteVlefshem(v) { return typeof v === 'string' && v.length >= 6; }
+
+  // Regjistri i fshirjeve (lokal): mban mend cilat produkte/foldera janë fshi QËLLIMISHT këtu
+  // (fshirje e vetme, fshirje krejt, fshirje folderi, ose zhvendosje — çelësi i vjetër fshihet), që
+  // sinkronizimi t'i heqë ato nga cloud-i, por asnjëherë të mos heqë diçka që thjesht "mungon"
+  // lokalisht pa qenë fshi qëllimisht (p.sh. të dhëna lokale të pjesshme a të humbura pa dashje).
+  var KEY_FSHIRE = 'stoku:fshira:v1';
+  var fshira = { produktet: {}, foldera: {} };
+  function ngarkoFshiraet() {
+    try {
+      var t = JSON.parse(localStorage.getItem(KEY_FSHIRE) || 'null');
+      if (t && typeof t === 'object') {
+        fshira.produktet = (t.produktet && typeof t.produktet === 'object') ? t.produktet : {};
+        fshira.foldera = (t.foldera && typeof t.foldera === 'object') ? t.foldera : {};
+      }
+    } catch (e) { /* ok */ }
+  }
+  function ruajFshiraet() {
+    try { localStorage.setItem(KEY_FSHIRE, JSON.stringify(fshira)); } catch (e) { /* ok */ }
+  }
+  function shenoProduktinEFshire(celesi) { fshira.produktet[celesi] = Date.now(); ruajFshiraet(); }
+  function shenoFolderinEFshire(id) { fshira.foldera[id] = Date.now(); ruajFshiraet(); }
+  ngarkoFshiraet();
 
   function gjendjaPerCloud() {
     return {
       app: 'stoku', version: 2, koha: new Date().toISOString(),
       foldera: foldera,
       produktet: Object.keys(produktet).map(function (k) { return produktet[k]; })
+    };
+  }
+
+  // Bashkon të dhënat lokale me ato ekzistuese në cloud: shton/përditëson gjithmonë, dhe heq nga
+  // cloud-i VETËM ato produkte/foldera që janë shënuar si fshi qëllimisht këtu (shih «fshira» më
+  // lart) — çdo gjë tjetër që ekziston në cloud por jo lokalisht (pa u fshi qëllimisht) mbetet.
+  function bashkoPaFshirje(gjendjaCloud, gjendjaLokale) {
+    var folderaMap = {};
+    (Array.isArray(gjendjaCloud.foldera) ? gjendjaCloud.foldera : []).forEach(function (f) {
+      if (f && f.id) folderaMap[f.id] = f;
+    });
+    (Array.isArray(gjendjaLokale.foldera) ? gjendjaLokale.foldera : []).forEach(function (f) {
+      if (f && f.id) folderaMap[f.id] = f;
+    });
+    var folderaLokaleIds = {};
+    (Array.isArray(gjendjaLokale.foldera) ? gjendjaLokale.foldera : []).forEach(function (f) {
+      if (f && f.id) folderaLokaleIds[f.id] = true;
+    });
+    Object.keys(fshira.foldera).forEach(function (id) {
+      if (!folderaLokaleIds[id]) delete folderaMap[id];
+    });
+
+    var produktetMap = {};
+    (Array.isArray(gjendjaCloud.produktet) ? gjendjaCloud.produktet : []).forEach(function (p) {
+      if (p && typeof p.barkodi === 'string' && typeof p.kategoriaId === 'string') {
+        produktetMap[celesiProduktit(p.kategoriaId, p.barkodi)] = p;
+      }
+    });
+    (Array.isArray(gjendjaLokale.produktet) ? gjendjaLokale.produktet : []).forEach(function (p) {
+      if (p && typeof p.barkodi === 'string' && typeof p.kategoriaId === 'string') {
+        produktetMap[celesiProduktit(p.kategoriaId, p.barkodi)] = p;
+      }
+    });
+    var produktetLokaleKeys = {};
+    (Array.isArray(gjendjaLokale.produktet) ? gjendjaLokale.produktet : []).forEach(function (p) {
+      if (p && typeof p.barkodi === 'string' && typeof p.kategoriaId === 'string') {
+        produktetLokaleKeys[celesiProduktit(p.kategoriaId, p.barkodi)] = true;
+      }
+    });
+    Object.keys(fshira.produktet).forEach(function (k) {
+      if (!produktetLokaleKeys[k]) delete produktetMap[k];
+    });
+
+    return {
+      app: 'stoku', version: 2, koha: new Date().toISOString(),
+      foldera: Object.keys(folderaMap).map(function (id) { return folderaMap[id]; }),
+      produktet: Object.keys(produktetMap).map(function (k) { return produktetMap[k]; })
     };
   }
 
@@ -1740,20 +1812,36 @@
     return u.email.split('@')[0];
   }
 
+  // Thjesht shënon që ka ndryshime për t'u sinkronizuar; sinkronizimi i vërtetë ndodh çdo 1 minutë
+  // (shih setInterval poshtë) ose menjëherë kur shtypet "Sinkronizo tani" / pas hyrjes-regjistrimit.
   function planifikoSinkronizimin() {
     if (!perdoruesiAktual()) return;
-    clearTimeout(sinkronizoKohezi);
-    sinkronizoKohezi = setTimeout(kryeSinkronizimin, 1500);
+    kaNdryshimePaSinkronizuara = true;
   }
 
   async function kryeSinkronizimin() {
     if (!perdoruesiAktual() || !window.__stokuCloud) return;
+    kaNdryshimePaSinkronizuara = false;
     dukeSinkronizuar = true;
     vendosStatusinCloud(T('cloudStatusiDukeSink'));
-    var rez = await window.__stokuCloud.ruaj(gjendjaPerCloud());
+    var meparshme = await window.__stokuCloud.merr();
+    var perDergim = gjendjaPerCloud();
+    if (meparshme.ok && meparshme.gjendja) {
+      perDergim = bashkoPaFshirje(meparshme.gjendja, perDergim);
+    }
+    var rez = await window.__stokuCloud.ruaj(perDergim);
     dukeSinkronizuar = false;
+    if (rez.ok) {
+      // Fshirjet e shënuara tashmë u zbatuan te cloud-i në këtë sinkronizim; s'ka nevojë t'i mbajmë më.
+      fshira = { produktet: {}, foldera: {} };
+      ruajFshiraet();
+    }
     vendosStatusinCloud(rez.ok ? T('cloudStatusiUSink', { kur: oraTani() }) : T('cloudStatusiDeshtoi'));
   }
+
+  setInterval(function () {
+    if (kaNdryshimePaSinkronizuara && perdoruesiAktual() && !dukeSinkronizuar) kryeSinkronizimin();
+  }, SINKRONIZIM_INTERVALI_MS);
 
   function zbatoGjendjenNgaCloud(te) {
     var arrF = Array.isArray(te.foldera) && te.foldera.length > 0
@@ -2086,6 +2174,7 @@
   function fshijProduktin() {
     if (!dialogu || !dialogu.ekzistues) return;
     delete produktet[celesiProduktit(folderiAktual, dialogu.barkodi)];
+    shenoProduktinEFshire(celesiProduktit(folderiAktual, dialogu.barkodi));
     ruajBaze();
     mbyllDialogun();
     renderLista();
@@ -2135,6 +2224,7 @@
     var ekzistuesNeDestinacion = produktet[celesiRi] || null;
 
     delete produktet[celesiVjeter];
+    shenoProduktinEFshire(celesiVjeter);
     var total = (ekzistuesNeDestinacion ? ekzistuesNeDestinacion.sasia : 0) + produkti.sasia;
     var emriPerRuajtje = (ekzistuesNeDestinacion && ekzistuesNeDestinacion.emri) ? ekzistuesNeDestinacion.emri : produkti.emri;
     produktet[celesiRi] = {
@@ -2699,6 +2789,7 @@
     if (folderiAktual === null) return;
     produktetENjeFolderi(folderiAktual).forEach(function (p) {
       delete produktet[celesiProduktit(folderiAktual, p.barkodi)];
+      shenoProduktinEFshire(celesiProduktit(folderiAktual, p.barkodi));
     });
     ruajBaze();
     mbyllFshirjen();
