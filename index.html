@@ -604,25 +604,30 @@
         </div>
 
         <div class="opsione-faqe" data-faqe="cloud">
-          <div class="seksion">
+          <div class="seksion" id="cloudHyrjeSeksion">
             <div class="hint" id="cloudHint"></div>
             <div class="fushe">
-              <label for="opsKodiCloud" id="lblOpsKodiCloud"></label>
-              <input id="opsKodiCloud" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done">
+              <label for="cloudUsername" id="lblCloudUsername"></label>
+              <input id="cloudUsername" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" maxlength="40">
             </div>
-            <div class="hint" id="cloudKodiHint"></div>
+            <div class="fushe">
+              <label for="cloudFjalekalimi" id="lblCloudFjalekalimi"></label>
+              <input id="cloudFjalekalimi" type="password" autocomplete="off" enterkeyhint="done" maxlength="100">
+            </div>
+            <div class="hint" id="cloudGabimHint"></div>
             <div class="rreshti">
-              <button class="btn" id="cloudGjeneroKod" type="button"></button>
-              <button class="btn" id="cloudRuajKodin" type="button"></button>
+              <button class="btn" id="cloudKrijoLlogari" type="button"></button>
+              <button class="btn" id="cloudHyrBtn" type="button"></button>
             </div>
           </div>
-          <div class="seksion" id="cloudVeprimeSeksion" style="display:none">
+          <div class="seksion" id="cloudBrendaSeksion" style="display:none">
+            <div class="hint" id="cloudHyrePerTeksti"></div>
             <div class="hint" id="cloudStatusi"></div>
             <div class="rreshti">
               <button class="btn" id="cloudSinkronizoTani" type="button"></button>
               <button class="btn" id="cloudRiktheTani" type="button"></button>
             </div>
-            <button class="btn tekst rrezik" id="cloudHiqKodin" type="button" style="width:100%"></button>
+            <button class="btn tekst rrezik" id="cloudDilBtn" type="button" style="width:100%"></button>
           </div>
         </div>
       </div>
@@ -757,15 +762,14 @@
 
       cloudHint: 'Ruan automatikisht një kopje të listës në internet (Firebase), që të mos humbet nëse fshihet ' +
         'aplikacioni ose ndërrohet telefoni. Ky NUK është sinkronizim i menjëhershëm mes disa telefonave njëkohësisht.',
-      lblOpsKodiCloud: 'Kodi sekret (të paktën 20 shkronja/numra)',
-      cloudKodiHintZbrazet: 'Vendos një kod sekret dhe ruaje diku të sigurt (si fjalëkalim). Kush e di këtë kod, ' +
-        'mund t\'i shohë dhe ndryshojë të dhënat.',
-      cloudKodiHintShkurte: 'Kodi duhet të ketë të paktën 20 shkronja/numra.',
-      cloudGjeneroKodBtn: 'Gjenero kod të ri',
-      cloudRuajKodinBtn: 'Aktivizo',
+      lblCloudUsername: 'Emri i përdoruesit',
+      lblCloudFjalekalimi: 'Fjalëkalimi (të paktën 6 shkronja/numra)',
+      cloudKrijoLlogariBtn: 'Krijo llogari',
+      cloudHyrBtn: 'Hyr',
+      cloudDilBtn: 'Dil',
       cloudSinkronizoTaniBtn: 'Sinkronizo tani',
       cloudRiktheTaniBtn: 'Rikthe nga cloud',
-      cloudHiqKodinBtn: 'Fike sinkronizimin (hiq kodin)',
+      cloudHyrePerTeksti: function (a) { return 'Ke hy si «' + a.emri + '».'; },
       cloudStatusiAsgje: 'Ende s\'është sinkronizuar.',
       cloudStatusiDukeSink: 'Duke sinkronizuar…',
       cloudStatusiUSink: function (a) { return 'U sinkronizua ' + a.kur + '.'; },
@@ -774,16 +778,22 @@
       cloudTeRiktheteCloud: 'Të rikthehen të dhënat nga cloud?',
       cloudRiktheTekst: function (a) {
         return 'Do të zëvendësohen të gjitha ' + a.aktual + ' produktet aktuale me ato të ruajtura në cloud ' +
-          'për këtë kod.\n\nKy veprim nuk kthehet.';
+          'për këtë llogari.\n\nKy veprim nuk kthehet.';
       },
-      cloudNukKaAsgje: 'S\'ka asnjë të dhënë të ruajtur në cloud për këtë kod.',
+      cloudNukKaAsgje: 'S\'ka asnjë të dhënë të ruajtur në cloud për këtë llogari.',
       cloudURikthye: 'U rikthye nga cloud.',
       cloudURikthyeAutomatikisht: 'U rikthyen të dhënat e ruajtura më parë në cloud.',
-      cloudKodiUAktivizua: 'Sinkronizimi u aktivizua.',
-      cloudTeHiqetKodi: 'Të fiket sinkronizimi?',
-      cloudHiqKodiTekst: 'Të dhënat në cloud NUK fshihen, por ky telefon nuk do të sinkronizohet më derisa të ' +
-        'fusësh prapë kodin.',
-      cloudEmriMbeshtjellje: 'Fike',
+      cloudPlotesoFushat: 'Plotëso emrin e përdoruesit dhe fjalëkalimin.',
+      cloudEmriIShkurter: 'Emri i përdoruesit duhet të ketë të paktën 3 shkronja/numra (a–z, 0–9, _ . -).',
+      cloudFjalekalimiIShkurter: 'Fjalëkalimi duhet të ketë të paktën 6 shkronja/numra.',
+      cloudLlogariaEkziston: 'Ky emër përdoruesi është zënë tashmë. Provo një tjetër.',
+      cloudHyrjeGabim: 'Emri i përdoruesit ose fjalëkalimi është gabim.',
+      cloudGabimPergjithshem: 'Diçka shkoi keq. Kontrollo internetin dhe provo përsëri.',
+      cloudLlogariaUKrijua: 'Llogaria u krijua dhe u sinkronizua.',
+      cloudHyrjaUKry: 'Hyrje e suksesshme.',
+      cloudTeDilet: 'Të dilet nga llogaria?',
+      cloudDilTekst: 'Të dhënat në cloud NUK fshihen, por ky telefon nuk do të sinkronizohet më derisa të ' +
+        'hysh përsëri.',
 
       automatike: 'Automatike',
       eCelet: 'E çelët',
@@ -941,15 +951,14 @@
 
       cloudHint: 'Automatically keeps a copy of the list online (Firebase), so it isn\u2019t lost if the app is ' +
         'deleted or you switch phones. This is NOT instant sync between several phones at once.',
-      lblOpsKodiCloud: 'Secret code (at least 20 letters/numbers)',
-      cloudKodiHintZbrazet: 'Set a secret code and save it somewhere safe (like a password). Anyone who knows ' +
-        'this code can see and change the data.',
-      cloudKodiHintShkurte: 'The code must be at least 20 letters/numbers.',
-      cloudGjeneroKodBtn: 'Generate a new code',
-      cloudRuajKodinBtn: 'Enable',
+      lblCloudUsername: 'Username',
+      lblCloudFjalekalimi: 'Password (at least 6 characters)',
+      cloudKrijoLlogariBtn: 'Create account',
+      cloudHyrBtn: 'Log in',
+      cloudDilBtn: 'Log out',
       cloudSinkronizoTaniBtn: 'Sync now',
       cloudRiktheTaniBtn: 'Restore from cloud',
-      cloudHiqKodinBtn: 'Turn off sync (remove code)',
+      cloudHyrePerTeksti: function (a) { return 'Logged in as \u201c' + a.emri + '\u201d.'; },
       cloudStatusiAsgje: 'Not synced yet.',
       cloudStatusiDukeSink: 'Syncing…',
       cloudStatusiUSink: function (a) { return 'Synced ' + a.kur + '.'; },
@@ -958,16 +967,22 @@
       cloudTeRiktheteCloud: 'Restore data from the cloud?',
       cloudRiktheTekst: function (a) {
         return 'This will replace all ' + a.aktual + ' current products with the ones saved in the cloud for ' +
-          'this code.\n\nThis cannot be undone.';
+          'this account.\n\nThis cannot be undone.';
       },
-      cloudNukKaAsgje: 'There is no data saved in the cloud for this code.',
+      cloudNukKaAsgje: 'There is no data saved in the cloud for this account.',
       cloudURikthye: 'Restored from the cloud.',
       cloudURikthyeAutomatikisht: 'Restored the data previously saved to the cloud.',
-      cloudKodiUAktivizua: 'Sync enabled.',
-      cloudTeHiqetKodi: 'Turn off sync?',
-      cloudHiqKodiTekst: 'The data in the cloud is NOT deleted, but this phone won\u2019t sync anymore until you ' +
-        'enter the code again.',
-      cloudEmriMbeshtjellje: 'Turn off',
+      cloudPlotesoFushat: 'Fill in the username and password.',
+      cloudEmriIShkurter: 'The username must be at least 3 characters (a\u2013z, 0\u20139, _ . -).',
+      cloudFjalekalimiIShkurter: 'The password must be at least 6 characters.',
+      cloudLlogariaEkziston: 'This username is already taken. Try another.',
+      cloudHyrjeGabim: 'Wrong username or password.',
+      cloudGabimPergjithshem: 'Something went wrong. Check your internet connection and try again.',
+      cloudLlogariaUKrijua: 'Account created and synced.',
+      cloudHyrjaUKry: 'Logged in successfully.',
+      cloudTeDilet: 'Log out of the account?',
+      cloudDilTekst: 'The data in the cloud is NOT deleted, but this phone won\u2019t sync anymore until you ' +
+        'log in again.',
 
       automatike: 'Automatic',
       eCelet: 'Light',
@@ -1119,12 +1134,13 @@
     { id: 'opsMbyll', prop: 'text', kyc: 'mbyll' },
 
     { id: 'cloudHint', prop: 'text', kyc: 'cloudHint' },
-    { id: 'lblOpsKodiCloud', prop: 'text', kyc: 'lblOpsKodiCloud' },
-    { id: 'cloudGjeneroKod', prop: 'text', kyc: 'cloudGjeneroKodBtn' },
-    { id: 'cloudRuajKodin', prop: 'text', kyc: 'cloudRuajKodinBtn' },
+    { id: 'lblCloudUsername', prop: 'text', kyc: 'lblCloudUsername' },
+    { id: 'lblCloudFjalekalimi', prop: 'text', kyc: 'lblCloudFjalekalimi' },
+    { id: 'cloudKrijoLlogari', prop: 'text', kyc: 'cloudKrijoLlogariBtn' },
+    { id: 'cloudHyrBtn', prop: 'text', kyc: 'cloudHyrBtn' },
+    { id: 'cloudDilBtn', prop: 'text', kyc: 'cloudDilBtn' },
     { id: 'cloudSinkronizoTani', prop: 'text', kyc: 'cloudSinkronizoTaniBtn' },
     { id: 'cloudRiktheTani', prop: 'text', kyc: 'cloudRiktheTaniBtn' },
-    { id: 'cloudHiqKodin', prop: 'text', kyc: 'cloudHiqKodinBtn' },
 
     { id: 'konfJo', prop: 'text', kyc: 'anulo' },
 
@@ -1245,7 +1261,7 @@
 
   var opsione = {
     tingull: true, rendi: 'i_ri', scanner: true, pda: false, tastieraEFshehur: false,
-    paEmer: false, kameraId: '', autofokus: true, gjuha: 'sq', kodiCloud: ''
+    paEmer: false, kameraId: '', autofokus: true, gjuha: 'sq'
   };
   try {
     var opsioneRuajtura = JSON.parse(localStorage.getItem(KEY_OPSIONE) || 'null');
@@ -1259,7 +1275,6 @@
       if (typeof opsioneRuajtura.tastieraEFshehur === 'boolean') opsione.tastieraEFshehur = opsioneRuajtura.tastieraEFshehur;
       if (['i_ri', 'emri', 'emriZA', 'sasiaUlet', 'sasiaLart'].indexOf(opsioneRuajtura.rendi) !== -1) opsione.rendi = opsioneRuajtura.rendi;
       if (opsioneRuajtura.gjuha === 'en' || opsioneRuajtura.gjuha === 'sq') opsione.gjuha = opsioneRuajtura.gjuha;
-      if (typeof opsioneRuajtura.kodiCloud === 'string') opsione.kodiCloud = opsioneRuajtura.kodiCloud;
     }
   } catch (e) { /* përdor vlerat fillestare */ }
 
@@ -1689,12 +1704,13 @@
   });
 
   // ================= Cloud (Firebase) — kopje automatike online =================
-  var KODI_CLOUD_MIN = 20;
   var sinkronizoKohezi = null;
   var dukeSinkronizuar = false;
   var dukeRikthyerNgaCloud = false;
+  var dukeRregjistruarApoHyrje = false;
 
-  function kodiCloudEshteVlefshem(k) { return typeof k === 'string' && k.trim().length >= KODI_CLOUD_MIN; }
+  function emriEshteVlefshem(v) { return typeof v === 'string' && /^[a-zA-Z0-9_.-]{3,}$/.test(v.trim()); }
+  function fjalekalimiEshteVlefshem(v) { return typeof v === 'string' && v.length >= 6; }
 
   function gjendjaPerCloud() {
     return {
@@ -1714,18 +1730,27 @@
     return dyShifra(d.getHours()) + ':' + dyShifra(d.getMinutes());
   }
 
+  function perdoruesiAktual() {
+    return (window.__stokuCloud && window.__stokuCloud.perdoruesiAktual) ? window.__stokuCloud.perdoruesiAktual() : null;
+  }
+
+  function emriPerdoruesitAktual() {
+    var u = perdoruesiAktual();
+    if (!u || typeof u.email !== 'string') return '';
+    return u.email.split('@')[0];
+  }
+
   function planifikoSinkronizimin() {
-    if (!kodiCloudEshteVlefshem(opsione.kodiCloud)) return;
+    if (!perdoruesiAktual()) return;
     clearTimeout(sinkronizoKohezi);
     sinkronizoKohezi = setTimeout(kryeSinkronizimin, 1500);
   }
 
   async function kryeSinkronizimin() {
-    if (!kodiCloudEshteVlefshem(opsione.kodiCloud)) return;
-    if (!window.__stokuCloud) return; // Firebase ende nuk është ngarkuar (p.sh. pa internet)
+    if (!perdoruesiAktual() || !window.__stokuCloud) return;
     dukeSinkronizuar = true;
     vendosStatusinCloud(T('cloudStatusiDukeSink'));
-    var rez = await window.__stokuCloud.ruaj(opsione.kodiCloud.trim(), gjendjaPerCloud());
+    var rez = await window.__stokuCloud.ruaj(gjendjaPerCloud());
     dukeSinkronizuar = false;
     vendosStatusinCloud(rez.ok ? T('cloudStatusiUSink', { kur: oraTani() }) : T('cloudStatusiDeshtoi'));
   }
@@ -1747,60 +1772,83 @@
     rifreskoPamjen();
   }
 
-  // Provohet një herë, në hapje të aplikacionit: nëse s'ka të dhëna lokale (telefon i ri /
-  // aplikacioni u fshi) dhe ka kod cloud të ruajtur, rikthehen automatikisht të dhënat.
+  // Provohet një herë, kur gjendja e hyrjes njihet (hyrje e ruajtur më parë nga Firebase):
+  // nëse s'ka të dhëna lokale (telefon i ri / aplikacioni u fshi), rikthehen automatikisht.
   async function provoRikthimAutomatik() {
     if (!__produktetIshinBosh) return;
-    if (!kodiCloudEshteVlefshem(opsione.kodiCloud)) return;
-    if (!window.__stokuCloud) return;
-    var rez = await window.__stokuCloud.merr(opsione.kodiCloud.trim());
+    if (!perdoruesiAktual() || !window.__stokuCloud) return;
+    var rez = await window.__stokuCloud.merr();
     if (rez.ok && rez.gjendja) {
       zbatoGjendjenNgaCloud(rez.gjendja);
       toast(T('cloudURikthyeAutomatikisht'));
     }
   }
-  if (window.__stokuCloud) provoRikthimAutomatik();
-  window.addEventListener('stoku-cloud-gati', provoRikthimAutomatik);
 
   function rifreskoDukjenECloud() {
-    var kaKod = kodiCloudEshteVlefshem(opsione.kodiCloud);
-    $('opsKodiCloud').value = opsione.kodiCloud || '';
-    $('cloudKodiHint').textContent = kaKod ? '' : (opsione.kodiCloud ? T('cloudKodiHintShkurte') : T('cloudKodiHintZbrazet'));
-    $('cloudVeprimeSeksion').style.display = kaKod ? '' : 'none';
-    if (kaKod && !dukeSinkronizuar && !dukeRikthyerNgaCloud) vendosStatusinCloud(T('cloudStatusiAsgje'));
+    var u = perdoruesiAktual();
+    $('cloudHyrjeSeksion').style.display = u ? 'none' : '';
+    $('cloudBrendaSeksion').style.display = u ? '' : 'none';
+    if (u) {
+      $('cloudHyrePerTeksti').textContent = T('cloudHyrePerTeksti', { emri: emriPerdoruesitAktual() });
+      if (!dukeSinkronizuar && !dukeRikthyerNgaCloud) vendosStatusinCloud(T('cloudStatusiAsgje'));
+    } else {
+      $('cloudGabimHint').textContent = '';
+    }
   }
   rifreskoDukjenECloud();
 
-  $('opsKodiCloud').addEventListener('input', function () {
-    var v = $('opsKodiCloud').value;
-    $('cloudKodiHint').textContent = kodiCloudEshteVlefshem(v) ? '' : (v ? T('cloudKodiHintShkurte') : T('cloudKodiHintZbrazet'));
-  });
-
-  $('cloudGjeneroKod').addEventListener('click', function () {
-    var ambel = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
-    var k = '';
-    for (var i = 0; i < 24; i++) k += ambel.charAt(Math.floor(Math.random() * ambel.length));
-    $('opsKodiCloud').value = k;
-    $('cloudKodiHint').textContent = '';
-  });
-
-  $('cloudRuajKodin').addEventListener('click', function () {
-    var v = $('opsKodiCloud').value.trim();
-    if (!kodiCloudEshteVlefshem(v)) { $('cloudKodiHint').textContent = T('cloudKodiHintShkurte'); return; }
-    opsione.kodiCloud = v;
-    ruajOpsionet();
+  window.addEventListener('stoku-cloud-gati', function () {
     rifreskoDukjenECloud();
-    toast(T('cloudKodiUAktivizua'));
-    kryeSinkronizimin();
+    provoRikthimAutomatik();
   });
+  window.addEventListener('stoku-auth-ndryshoi', function () {
+    rifreskoDukjenECloud();
+    provoRikthimAutomatik();
+  });
+  if (window.__stokuCloud) { rifreskoDukjenECloud(); provoRikthimAutomatik(); }
+
+  async function kryeRregjistrimHyrje(regjistrim) {
+    if (dukeRregjistruarApoHyrje || !window.__stokuCloud) return;
+    var emri = $('cloudUsername').value.trim();
+    var fjalekalimi = $('cloudFjalekalimi').value;
+    if (!emri || !fjalekalimi) { $('cloudGabimHint').textContent = T('cloudPlotesoFushat'); return; }
+    if (!emriEshteVlefshem(emri)) { $('cloudGabimHint').textContent = T('cloudEmriIShkurter'); return; }
+    if (!fjalekalimiEshteVlefshem(fjalekalimi)) { $('cloudGabimHint').textContent = T('cloudFjalekalimiIShkurter'); return; }
+    $('cloudGabimHint').textContent = '';
+    dukeRregjistruarApoHyrje = true;
+    var rez = regjistrim
+      ? await window.__stokuCloud.regjistrohu(emri, fjalekalimi)
+      : await window.__stokuCloud.hyr(emri, fjalekalimi);
+    dukeRregjistruarApoHyrje = false;
+    if (!rez.ok) {
+      var teksti = T('cloudGabimPergjithshem');
+      if (rez.kodi === 'auth/email-already-in-use') teksti = T('cloudLlogariaEkziston');
+      else if (rez.kodi === 'auth/invalid-credential' || rez.kodi === 'auth/wrong-password' || rez.kodi === 'auth/user-not-found') teksti = T('cloudHyrjeGabim');
+      else if (rez.kodi === 'auth/weak-password') teksti = T('cloudFjalekalimiIShkurter');
+      $('cloudGabimHint').textContent = teksti;
+      return;
+    }
+    $('cloudFjalekalimi').value = '';
+    rifreskoDukjenECloud();
+    if (regjistrim) {
+      toast(T('cloudLlogariaUKrijua'));
+      kryeSinkronizimin();
+    } else {
+      toast(T('cloudHyrjaUKry'));
+      provoRikthimAutomatik();
+    }
+  }
+
+  $('cloudKrijoLlogari').addEventListener('click', function () { kryeRregjistrimHyrje(true); });
+  $('cloudHyrBtn').addEventListener('click', function () { kryeRregjistrimHyrje(false); });
 
   $('cloudSinkronizoTani').addEventListener('click', function () { kryeSinkronizimin(); });
 
   $('cloudRiktheTani').addEventListener('click', async function () {
-    if (!kodiCloudEshteVlefshem(opsione.kodiCloud) || !window.__stokuCloud) return;
+    if (!perdoruesiAktual() || !window.__stokuCloud) return;
     dukeRikthyerNgaCloud = true;
     vendosStatusinCloud(T('cloudStatusiDukeRikthyer'));
-    var rez = await window.__stokuCloud.merr(opsione.kodiCloud.trim());
+    var rez = await window.__stokuCloud.merr();
     dukeRikthyerNgaCloud = false;
     if (!rez.ok || !rez.gjendja) {
       vendosStatusinCloud(T('cloudStatusiAsgje'));
@@ -1815,11 +1863,10 @@
     vendosStatusinCloud(T('cloudStatusiUSink', { kur: oraTani() }));
   });
 
-  $('cloudHiqKodin').addEventListener('click', async function () {
-    var po = await konfirmo(T('cloudTeHiqetKodi'), T('cloudHiqKodiTekst'), T('cloudEmriMbeshtjellje'));
+  $('cloudDilBtn').addEventListener('click', async function () {
+    var po = await konfirmo(T('cloudTeDilet'), T('cloudDilTekst'), T('cloudDilBtn'));
     if (!po) return;
-    opsione.kodiCloud = '';
-    ruajOpsionet();
+    if (window.__stokuCloud && window.__stokuCloud.dil) await window.__stokuCloud.dil();
     rifreskoDukjenECloud();
   });
 
@@ -2674,45 +2721,80 @@
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@3.0.3/dist/jspdf.umd.min.js" crossorigin="anonymous"></script>
 
-<!-- Firebase (Cloud): modul i vetëm, ekspozon window.__stokuCloud për skriptin kryesor -->
+<!-- Firebase (Cloud): modul i vetëm, ekspozon window.__stokuCloud për skriptin kryesor.
+     Hyrje me emër përdoruesi + fjalëkalim (pa email): emri shndërrohet në një "email" të brendshëm
+     (emri@stoku-app.local) vetëm që Firebase Auth ta pranojë; përdoruesi asnjëherë s'e sheh a s'e fut email. -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import {
+    getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
   var firebaseConfig = {
-    apiKey: "AIzaSyBSa2h7YpPO2qsQ_axB17-v232KQo8qVPk",
-    authDomain: "stoku-app.firebaseapp.com",
-    projectId: "stoku-app",
-    storageBucket: "stoku-app.firebasestorage.app",
-    messagingSenderId: "888947876130",
-    appId: "1:888947876130:web:cec95ff34bb616d1e0057b",
-    measurementId: "G-4QK5EL6827"
+    apiKey: "AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY",
+    authDomain: "stoku-appi.firebaseapp.com",
+    projectId: "stoku-appi",
+    storageBucket: "stoku-appi.firebasestorage.app",
+    messagingSenderId: "107114545225",
+    appId: "1:107114545225:web:f3944cd32f4e772577bf98"
   };
+
+  function emailIBrendshem(emriPerdoruesit) {
+    return emriPerdoruesit.trim().toLowerCase() + '@stoku-app.local';
+  }
 
   try {
     var app = initializeApp(firebaseConfig);
+    var auth = getAuth(app);
     var db = getFirestore(app);
 
     window.__stokuCloud = {
-      async ruaj(kodi, gjendja) {
-        if (!kodi || kodi.length < 20) return { ok: false, arsye: 'kod-i-shkurter' };
+      async regjistrohu(emriPerdoruesit, fjalekalimi) {
         try {
-          await setDoc(doc(db, 'dyqane', kodi), gjendja);
+          var kred = await createUserWithEmailAndPassword(auth, emailIBrendshem(emriPerdoruesit), fjalekalimi);
+          return { ok: true, uid: kred.user.uid };
+        } catch (e) {
+          return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) };
+        }
+      },
+      async hyr(emriPerdoruesit, fjalekalimi) {
+        try {
+          var kred = await signInWithEmailAndPassword(auth, emailIBrendshem(emriPerdoruesit), fjalekalimi);
+          return { ok: true, uid: kred.user.uid };
+        } catch (e) {
+          return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) };
+        }
+      },
+      async dil() {
+        try { await signOut(auth); } catch (e) { /* ok */ }
+      },
+      perdoruesiAktual() {
+        return auth.currentUser;
+      },
+      async ruaj(gjendja) {
+        if (!auth.currentUser) return { ok: false, arsye: 'pa-hyrje' };
+        try {
+          await setDoc(doc(db, 'dyqane', auth.currentUser.uid), gjendja);
           return { ok: true };
         } catch (e) {
           return { ok: false, arsye: String((e && e.message) || e) };
         }
       },
-      async merr(kodi) {
-        if (!kodi || kodi.length < 20) return { ok: false, arsye: 'kod-i-shkurter' };
+      async merr() {
+        if (!auth.currentUser) return { ok: false, arsye: 'pa-hyrje' };
         try {
-          var rez = await getDoc(doc(db, 'dyqane', kodi));
+          var rez = await getDoc(doc(db, 'dyqane', auth.currentUser.uid));
           return { ok: true, gjendja: rez.exists() ? rez.data() : null };
         } catch (e) {
           return { ok: false, arsye: String((e && e.message) || e) };
         }
       }
     };
+
+    onAuthStateChanged(auth, function () {
+      window.dispatchEvent(new Event('stoku-auth-ndryshoi'));
+    });
   } catch (e) {
     window.__stokuCloud = null; // p.sh. pa internet — app-i vazhdon të punojë vetëm lokalisht
   }
