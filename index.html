@@ -754,7 +754,7 @@
       eksportoExcel: 'Eksporto në Excel',
       eksportoPdf: 'Eksporto në PDF',
       kerkoLabel: 'Kërko sipas emrit ose barkodit',
-      kerkoGlobalLabel: 'Kërko në krejt folderat',
+      kerkoGlobalLabel: 'Kërko në të gjitha folderat',
       kerkoGlobalNukUGjet: 'Nuk u gjet asnjë produkt në asnjë folder.',
       fshijTeGjitha: 'Fshij të gjitha produktet',
       nukUGjetAsnjeProdukt: 'Nuk u gjet asnjë produkt.',
@@ -791,7 +791,7 @@
         return 'Do të fshihen të gjitha ' + a.n + ' produktet nga folderi "' + a.folder + '". Ky veprim NUK mund të kthehet.\n\n' +
           'Nëse do një kopje, shtyp Anulo dhe eksporto fillimisht në Excel.';
       },
-      fshiKrejt: 'Fshi krejt',
+      fshiKrejt: 'Fshi të gjitha',
       uFshinePrejFolderit: 'U fshinë të gjitha produktet nga folderi.',
 
       opsioneTitulli: 'Opsionet',
@@ -803,7 +803,7 @@
       llogariaDuhetHyrjeTeksti: 'Duhet të hysh së pari te tab-i "Cloud" për ta ndryshuar këtë.',
       tabAdmin: 'Admin',
       titAdminStatistikaTeksti: 'Statistika',
-      adminStatProduktetTeksti: function (a) { return a.n + ' produkte gjithsej (krejt folderat)'; },
+      adminStatProduktetTeksti: function (a) { return a.n + ' produkte gjithsej (të gjitha folderat)'; },
       adminStatFolderaTeksti: function (a) { return a.n + ' foldera'; },
       adminHintTeksti: 'Ky panel shfaqet vetëm për llogarinë admin. Më shumë mjete admini do të shtohen këtu.',
 
@@ -866,7 +866,7 @@
       titMadhesiaTeksti: 'Madhësia e shkronjave',
       madhesiaNormaleBtn: 'Normale',
       madhesiaEMadheBtn: 'E madhe',
-      madhesiaHintTeksti: 'Rrit pak madhësinë e krejt tekstit dhe butonave, për lexueshmëri më të lehtë.',
+      madhesiaHintTeksti: 'Rrit pak madhësinë e gjithë tekstit dhe butonave, për lexueshmëri më të lehtë.',
 
       pdaLabel: 'Ky është PDA (skaner i brendshëm)',
       pdaHint: 'Kur është ndezur, fshihet butoni i kamerës dhe kursori qëndron te fusha e barkodit për skanerin e PDA-së.',
@@ -1456,6 +1456,21 @@
         }
       }
     } catch (e) { /* shfletuesi nuk e mbështet, injoro në heshtje */ }
+  }
+
+  // Siguri shtesë: nëse diçka e "shkund" kyçjen e rrotullimit (ndryshim jashtë kontrollit tonë,
+  // rikthim nga sfondi, etj.), e rikyçim menjëherë te portreti — sa herë PDA është ndezur, ekrani
+  // s'duhet të rrotullohet as për një çast.
+  window.addEventListener('orientationchange', function () { if (opsione.pda) zbatoRrotullimin(); });
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && opsione.pda) zbatoRrotullimin();
+  });
+  if (screen.orientation && screen.orientation.addEventListener) {
+    screen.orientation.addEventListener('change', function () {
+      if (opsione.pda && screen.orientation.type && screen.orientation.type.indexOf('portrait') === -1) {
+        zbatoRrotullimin();
+      }
+    });
   }
 
   // Kthen kursorin te fusha e barkodit (vetëm në modalitetin PDA, dhe vetëm nëse nuk ka dritare të hapur)
