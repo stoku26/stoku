@@ -434,27 +434,6 @@
 </head>
 <body>
 
-<!-- Porta e hyrjes: e detyrueshme nëse s'ke llogari të ruajtur (Firebase Auth) -->
-<div class="mbulese" id="hyrjeEkrani" style="background: var(--sfond); z-index: 40">
-  <div class="dialog" role="dialog" aria-modal="true">
-    <h2 id="hyrjeGateTitulli"></h2>
-    <div class="hint" id="hyrjeGateHint"></div>
-    <div class="fushe">
-      <label for="hyrjeGateUsername" id="lblHyrjeGateUsername"></label>
-      <input id="hyrjeGateUsername" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" maxlength="40">
-    </div>
-    <div class="fushe">
-      <label for="hyrjeGateFjalekalimi" id="lblHyrjeGateFjalekalimi"></label>
-      <input id="hyrjeGateFjalekalimi" type="password" autocomplete="off" enterkeyhint="done" maxlength="100">
-    </div>
-    <div class="hint" id="hyrjeGateGabimHint"></div>
-    <div class="rreshti">
-      <button class="btn" id="hyrjeGateKrijoLlogari" type="button"></button>
-      <button class="btn" id="hyrjeGateHyrBtn" type="button"></button>
-    </div>
-  </div>
-</div>
-
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" style="display:none">←</button>
   <h1 id="titulli" class="logo">STOKU</h1>
@@ -873,9 +852,6 @@
       tabGjuha: 'Gjuha',
       tabCloud: 'Cloud',
 
-      hyrjeGateTitulli: 'Hyr në Stoku',
-      hyrjeGateHint: 'Të dhënat ruhen në cloud, ndaj duhet të hysh me llogarinë tënde (emër përdoruesi + ' +
-        'fjalëkalim) para se të vazhdosh.',
       cloudHint: 'Ruan automatikisht një kopje të listës në internet (Firebase), që të mos humbet nëse fshihet ' +
         'aplikacioni ose ndërrohet telefoni. Ky NUK është sinkronizim i menjëhershëm mes disa telefonave njëkohësisht.',
       lblCloudUsername: 'Emri i përdoruesit',
@@ -1084,9 +1060,6 @@
       tabGjuha: 'Language',
       tabCloud: 'Cloud',
 
-      hyrjeGateTitulli: 'Log in to Stoku',
-      hyrjeGateHint: 'Your data is stored in the cloud, so you need to log in with your account (username + ' +
-        'password) before continuing.',
       cloudHint: 'Automatically keeps a copy of the list online (Firebase), so it isn\u2019t lost if the app is ' +
         'deleted or you switch phones. This is NOT instant sync between several phones at once.',
       lblCloudUsername: 'Username',
@@ -1283,12 +1256,6 @@
 
     { id: 'opsMbyll', prop: 'text', kyc: 'mbyll' },
 
-    { id: 'hyrjeGateTitulli', prop: 'text', kyc: 'hyrjeGateTitulli' },
-    { id: 'hyrjeGateHint', prop: 'text', kyc: 'hyrjeGateHint' },
-    { id: 'lblHyrjeGateUsername', prop: 'text', kyc: 'lblCloudUsername' },
-    { id: 'lblHyrjeGateFjalekalimi', prop: 'text', kyc: 'lblCloudFjalekalimi' },
-    { id: 'hyrjeGateKrijoLlogari', prop: 'text', kyc: 'cloudKrijoLlogariBtn' },
-    { id: 'hyrjeGateHyrBtn', prop: 'text', kyc: 'cloudHyrBtn' },
     { id: 'cloudHint', prop: 'text', kyc: 'cloudHint' },
     { id: 'lblCloudUsername', prop: 'text', kyc: 'lblCloudUsername' },
     { id: 'lblCloudFjalekalimi', prop: 'text', kyc: 'lblCloudFjalekalimi' },
@@ -2084,32 +2051,16 @@
   }
   rifreskoDukjenECloud();
 
-  // ---------- Porta e hyrjes (kyçje e detyrueshme) ----------
-  // Meqë të dhënat ruhen në cloud, aplikacioni kërkon hyrje me llogari përpara se të përdoret —
-  // përveç kur Firebase s'arrin të ngarkohet fare (p.sh. pa internet): atëherë lejohet përdorimi
-  // lokal, sepse verifikimi i hyrjes kërkon lidhje interneti sido që të jetë.
-  var __firebaseUProvua = false;
-  function rifreskoPortenEHyrjes() {
-    if (!__firebaseUProvua) return;
-    var u = perdoruesiAktual();
-    var duhetPortaeHyrjes = window.__stokuCloud && !u;
-    $('hyrjeEkrani').classList.toggle('hapur', !!duhetPortaeHyrjes);
-  }
-  function mbyllPortenEHyrjes() { $('hyrjeEkrani').classList.remove('hapur'); }
-
   window.addEventListener('stoku-cloud-gati', function () {
-    __firebaseUProvua = true;
     rifreskoDukjenECloud();
-    rifreskoPortenEHyrjes();
     sinkronizoNeHyrje();
   });
   window.addEventListener('stoku-auth-ndryshoi', function () {
     if (!perdoruesiAktual()) __uidISinkronizuarDarePasHyrjes = null;
     rifreskoDukjenECloud();
-    rifreskoPortenEHyrjes();
     sinkronizoNeHyrje();
   });
-  if (window.__stokuCloud) { __firebaseUProvua = true; rifreskoDukjenECloud(); rifreskoPortenEHyrjes(); sinkronizoNeHyrje(); }
+  if (window.__stokuCloud) { rifreskoDukjenECloud(); sinkronizoNeHyrje(); }
 
   function tekstiGabimitCloud(kodi) {
     if (kodi === 'auth/email-already-in-use') return T('cloudLlogariaEkziston');
@@ -2141,15 +2092,12 @@
     }
     $(idFjalekalimi).value = '';
     rifreskoDukjenECloud();
-    mbyllPortenEHyrjes();
     toast(T(regjistrim ? 'cloudLlogariaUKrijua' : 'cloudHyrjaUKry'));
     sinkronizoNeHyrje();
   }
 
   $('cloudKrijoLlogari').addEventListener('click', function () { kryeRregjistrimHyrje(true, 'cloudUsername', 'cloudFjalekalimi', 'cloudGabimHint'); });
   $('cloudHyrBtn').addEventListener('click', function () { kryeRregjistrimHyrje(false, 'cloudUsername', 'cloudFjalekalimi', 'cloudGabimHint'); });
-  $('hyrjeGateKrijoLlogari').addEventListener('click', function () { kryeRregjistrimHyrje(true, 'hyrjeGateUsername', 'hyrjeGateFjalekalimi', 'hyrjeGateGabimHint'); });
-  $('hyrjeGateHyrBtn').addEventListener('click', function () { kryeRregjistrimHyrje(false, 'hyrjeGateUsername', 'hyrjeGateFjalekalimi', 'hyrjeGateGabimHint'); });
 
   $('cloudSinkronizoTani').addEventListener('click', function () { kryeSinkronizimin(); });
 
