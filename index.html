@@ -404,7 +404,7 @@
   <div class="fushe">
     <label for="barkodi" id="lblBarkodi"></label>
     <div class="barkodi-mbeshtjellje" id="barkodiMbeshtjellje">
-      <input id="barkodi" type="text" inputmode="text" enterkeyhint="done"
+      <input id="barkodi" type="text" inputmode="numeric" enterkeyhint="done"
              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
       <div class="barkodi-shfaqje" id="barkodiShfaqje" tabindex="0"></div>
     </div>
@@ -1339,6 +1339,7 @@
     $('siperFolderat').style.display = brenda ? 'none' : '';
     $('folderaLista').style.display = brenda ? 'none' : '';
     $('siperFolderi').style.display = brenda ? '' : 'none';
+    $('lista').style.display = brenda ? '' : 'none';
     $('footerFolderi').style.display = brenda ? '' : 'none';
     $('btnMbrapa').style.display = brenda ? '' : 'none';
     if (brenda) {
@@ -1536,7 +1537,7 @@
   // Tastiera në ekran: "inputmode=none" e fsheh tastierën por fusha mbetet aktive (skaneri vazhdon të shkruajë)
   function zbatoTastieren() {
     var fshehur = opsione.tastieraEFshehur;
-    $('barkodi').setAttribute('inputmode', fshehur ? 'none' : 'text'); // mbrojtje shtesë (jo gjithmonë e mjaftueshme vetë)
+    $('barkodi').setAttribute('inputmode', fshehur ? 'none' : 'numeric'); // mbrojtje shtesë (jo gjithmonë e mjaftueshme vetë)
     $('barkodiMbeshtjellje').classList.toggle('osk-fshehur', fshehur);
     $('barkodiShfaqje').textContent = $('barkodi').value;
     $('btnTastiera').classList.toggle('aktiv', fshehur);
