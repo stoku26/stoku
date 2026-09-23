@@ -569,6 +569,7 @@
         <button class="kategori-rresht" type="button" data-faqe="lista" id="tabLista"><span id="tabListaTxt"></span><span class="shigjeta">›</span></button>
         <button class="kategori-rresht" type="button" data-faqe="gjuha" id="tabGjuha"><span id="tabGjuhaTxt"></span><span class="shigjeta">›</span></button>
         <button class="kategori-rresht" type="button" data-faqe="cloud" id="tabCloud"><span id="tabCloudTxt"></span><span class="shigjeta">›</span></button>
+        <button class="kategori-rresht" type="button" data-faqe="llogaria" id="tabLlogaria"><span id="tabLlogariaTxt"></span><span class="shigjeta">›</span></button>
       </div>
 
       <div class="opsione-faqet">
@@ -674,7 +675,16 @@
               <button class="btn" id="cloudSinkronizoTani" type="button"></button>
               <button class="btn" id="cloudRiktheTani" type="button"></button>
             </div>
-            <div class="fushe" style="margin-top:12px">
+            <button class="btn tekst rrezik" id="cloudDilBtn" type="button" style="width:100%;margin-top:8px"></button>
+          </div>
+        </div>
+
+        <div class="opsione-faqe" data-faqe="llogaria">
+          <div class="seksion" id="llogariaPaHyrje">
+            <div class="hint" id="llogariaDuhetHyrje"></div>
+          </div>
+          <div class="seksion" id="llogariaBrendaSeksion" style="display:none">
+            <div class="fushe">
               <label for="cloudEmriRi" id="lblCloudEmriRi"></label>
               <input id="cloudEmriRi" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" maxlength="40">
             </div>
@@ -685,7 +695,6 @@
             </div>
             <button class="btn" id="cloudNdryshoFjalekalimin" type="button" style="width:100%"></button>
             <div class="hint" id="cloudNdryshoGabimHint"></div>
-            <button class="btn tekst rrezik" id="cloudDilBtn" type="button" style="width:100%;margin-top:8px"></button>
           </div>
         </div>
       </div>
@@ -828,6 +837,8 @@
       tabLista: 'Lista',
       tabGjuha: 'Gjuha',
       tabCloud: 'Cloud',
+      tabLlogaria: 'Llogaria',
+      llogariaDuhetHyrjeTeksti: 'Duhet të hysh së pari te tab-i «Cloud» për ta ndryshuar këtë.',
 
       cloudHint: 'Ruan automatikisht një kopje të listës në internet (Firebase), që të mos humbet nëse fshihet ' +
         'aplikacioni ose ndërrohet telefoni. Ky NUK është sinkronizim i menjëhershëm mes disa telefonave njëkohësisht.',
@@ -1019,6 +1030,8 @@
       tabLista: 'List',
       tabGjuha: 'Language',
       tabCloud: 'Cloud',
+      tabLlogaria: 'Account',
+      llogariaDuhetHyrjeTeksti: 'You need to log in first from the "Cloud" tab to change this.',
 
       cloudHint: 'Automatically keeps a copy of the list online (Firebase), so it isn\u2019t lost if the app is ' +
         'deleted or you switch phones. This is NOT instant sync between several phones at once.',
@@ -1160,6 +1173,7 @@
     { id: 'tabListaTxt', prop: 'text', kyc: 'tabLista' },
     { id: 'tabGjuhaTxt', prop: 'text', kyc: 'tabGjuha' },
     { id: 'tabCloudTxt', prop: 'text', kyc: 'tabCloud' },
+    { id: 'tabLlogariaTxt', prop: 'text', kyc: 'tabLlogaria' },
     { id: 'titPamja', prop: 'text', kyc: 'tabPamja' },
     { id: 'temaAuto', prop: 'text', kyc: 'automatike' },
     { id: 'temaLight', prop: 'text', kyc: 'eCelet' },
@@ -1200,6 +1214,7 @@
     { id: 'cloudKrijoLlogari', prop: 'text', kyc: 'cloudKrijoLlogariBtn' },
     { id: 'cloudHyrBtn', prop: 'text', kyc: 'cloudHyrBtn' },
     { id: 'cloudDilBtn', prop: 'text', kyc: 'cloudDilBtn' },
+    { id: 'llogariaDuhetHyrje', prop: 'text', kyc: 'llogariaDuhetHyrjeTeksti' },
     { id: 'lblCloudEmriRi', prop: 'text', kyc: 'lblCloudEmriRi' },
     { id: 'lblCloudFjalekalimiRi', prop: 'text', kyc: 'lblCloudFjalekalimiRi' },
     { id: 'cloudNdryshoEmrin', prop: 'text', kyc: 'cloudNdryshoEmrinBtn' },
@@ -1677,7 +1692,7 @@
   }
   var TAB_TITULL_KYC = {
     pamja: 'tabPamja', skenimi: 'tabSkenimi',
-    lista: 'tabLista', gjuha: 'tabGjuha', cloud: 'tabCloud'
+    lista: 'tabLista', gjuha: 'tabGjuha', cloud: 'tabCloud', llogaria: 'tabLlogaria'
   };
   Array.prototype.forEach.call(document.querySelectorAll('.kategori-rresht'), function (b) {
     b.addEventListener('click', function () { aktivizoTabin(b.getAttribute('data-faqe')); });
@@ -1971,11 +1986,14 @@
     var u = perdoruesiAktual();
     $('cloudHyrjeSeksion').style.display = u ? 'none' : '';
     $('cloudBrendaSeksion').style.display = u ? '' : 'none';
+    $('llogariaPaHyrje').style.display = u ? 'none' : '';
+    $('llogariaBrendaSeksion').style.display = u ? '' : 'none';
     if (u) {
       $('cloudHyrePerTeksti').textContent = T('cloudHyrePerTeksti', { emri: emriPerdoruesitAktual() });
       if (!dukeSinkronizuar && !dukeRikthyerNgaCloud) vendosStatusinCloud(T('cloudStatusiAsgje'));
     } else {
       $('cloudGabimHint').textContent = '';
+      $('cloudNdryshoGabimHint').textContent = '';
     }
   }
   rifreskoDukjenECloud();
