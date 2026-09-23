@@ -658,6 +658,12 @@
               </select>
             </div>
           </div>
+          <div class="seksion">
+            <div class="opsion-titull" id="titTest"></div>
+            <div class="hint" id="testHint"></div>
+            <button class="btn" id="btnShtoTest" type="button" style="width:100%;margin-bottom:8px"></button>
+            <button class="btn tekst rrezik" id="btnFshiTest" type="button" style="width:100%"></button>
+          </div>
         </div>
 
         <div class="opsione-faqe" data-faqe="gjuha">
@@ -953,6 +959,22 @@
       sasiaUletOpt: 'Sasia: nga më e vogla',
       sasiaLartOpt: 'Sasia: nga më e madhja',
       iRiOpt: 'Më të rejat së pari',
+      testTitulli: 'Të dhëna për testim',
+      testHintTeksti: 'Shton rreth 60 produkte me emra dhe barkode të ndryshëm në secilin folder (Ushqimore, Pije, ' +
+        'Higjiene, Fresh), që ta testosh aplikacionin me listë të gjatë. Me butonin poshtë i fshin vetëm këto produkte test.',
+      testShtoBtn: 'Shto produkte test',
+      testFshiBtn: 'Fshi produktet test',
+      testKonfTitulli: 'Të shtohen produktet test?',
+      testKonfTekst: function (a) {
+        return 'Do të shtohen ' + a.n + ' produkte test në 4 folderat. Produktet e tua ekzistuese nuk preken.' +
+          (a.cloud ? '\n\nJe i kyçur në cloud, ndaj edhe këto do të sinkronizohen. I fshin prapë me «Fshi produktet test».' : '');
+      },
+      testShto: 'Shto',
+      testUShtuan: function (a) { return 'U shtuan ' + a.n + ' produkte test.'; },
+      testKonfFshiTitulli: 'Të fshihen produktet test?',
+      testKonfFshiTekst: function (a) { return 'Do të fshihen ' + a.n + ' produkte test. Produktet e tua të vërteta nuk preken.'; },
+      testUFshine: function (a) { return 'U fshinë ' + a.n + ' produkte test.'; },
+      testAsnje: 'Nuk ka produkte test për t\'u fshirë.',
 
       gjuhaTitulli: 'Gjuha',
 
@@ -1161,6 +1183,22 @@
       sasiaUletOpt: 'Quantity: lowest first',
       sasiaLartOpt: 'Quantity: highest first',
       iRiOpt: 'Newest first',
+      testTitulli: 'Test data',
+      testHintTeksti: 'Adds about 60 products with different names and barcodes to each folder (Groceries, Drinks, ' +
+        'Hygiene, Fresh) so you can test the app with a long list. The button below removes only these test products.',
+      testShtoBtn: 'Add test products',
+      testFshiBtn: 'Delete test products',
+      testKonfTitulli: 'Add test products?',
+      testKonfTekst: function (a) {
+        return 'This will add ' + a.n + ' test products across the 4 folders. Your existing products are not touched.' +
+          (a.cloud ? '\n\nYou are logged in to the cloud, so these will sync too. Remove them with "Delete test products".' : '');
+      },
+      testShto: 'Add',
+      testUShtuan: function (a) { return 'Added ' + a.n + ' test products.'; },
+      testKonfFshiTitulli: 'Delete the test products?',
+      testKonfFshiTekst: function (a) { return 'This will delete ' + a.n + ' test products. Your real products are not touched.'; },
+      testUFshine: function (a) { return 'Deleted ' + a.n + ' test products.'; },
+      testAsnje: 'There are no test products to delete.',
 
       gjuhaTitulli: 'Language',
 
@@ -1251,6 +1289,10 @@
     { id: 'optEmriZA', prop: 'text', kyc: 'emriZAOpt' },
     { id: 'optSasiaUlet', prop: 'text', kyc: 'sasiaUletOpt' },
     { id: 'optSasiaLart', prop: 'text', kyc: 'sasiaLartOpt' },
+    { id: 'titTest', prop: 'text', kyc: 'testTitulli' },
+    { id: 'testHint', prop: 'text', kyc: 'testHintTeksti' },
+    { id: 'btnShtoTest', prop: 'text', kyc: 'testShtoBtn' },
+    { id: 'btnFshiTest', prop: 'text', kyc: 'testFshiBtn' },
 
     { id: 'titGjuha', prop: 'text', kyc: 'gjuhaTitulli' },
 
@@ -2256,8 +2298,9 @@
     var sasia = parseInt(tekstSasia, 10);
     var e = dialogu.ekzistues;
     var total = (e ? e.sasia : 0) + sasia;
-    produktet[celesiProduktit(folderiAktual, dialogu.barkodi)] =
-      { barkodi: dialogu.barkodi, emri: emri, sasia: total, kategoriaId: folderiAktual, prekurSe: Date.now() };
+    var ruajtur = { barkodi: dialogu.barkodi, emri: emri, sasia: total, kategoriaId: folderiAktual, prekurSe: Date.now() };
+    if (e && e.test) ruajtur.test = true; // produkti test mbetet test edhe pas redaktimit
+    produktet[celesiProduktit(folderiAktual, dialogu.barkodi)] = ruajtur;
     ruajBaze();
     mbyllDialogun();
     renderLista();
@@ -2324,6 +2367,7 @@
       barkodi: barkodi, emri: emriPerRuajtje, sasia: total,
       kategoriaId: destinacioni.id, prekurSe: Date.now()
     };
+    if (produkti.test && (!ekzistuesNeDestinacion || ekzistuesNeDestinacion.test)) produktet[celesiRi].test = true;
     ruajBaze();
 
     mbyllZhvendosin();
@@ -2889,6 +2933,89 @@
     renderLista();
     renderFolderat();
     toast(T('uFshinePrejFolderit'));
+  });
+
+  // ---------- Të dhëna për testim ----------
+  // Emrat krijohen nga kombinimi "produkt × variant", kështu çdo emër del i ndryshëm.
+  // Barkodet janë EAN-13 të vlefshme me prefiks 2 (kod i brendshëm dyqani, s'përplaset me produkte reale).
+  var TEST_KATEGORITE = [
+    { id: 'ushqimore', emri: 'Ushqimore', nr: 1,
+      baza: ['Makarona', 'Oriz', 'Miell', 'Sheqer', 'Kripë', 'Vaj luledielli', 'Fasule', 'Thjerrëza', 'Biskota',
+        'Çokollatë', 'Kafe', 'Çaj', 'Mjaltë', 'Reçel', 'Ton', 'Sardele', 'Ketchup', 'Majonezë', 'Supë', 'Drithëra'],
+      variante: ['500g', '1kg', 'ekonomik', 'premium'] },
+    { id: 'pije', emri: 'Pije', nr: 2,
+      baza: ['Ujë natyral', 'Ujë mineral', 'Coca-Cola', 'Fanta', 'Sprite', 'Lëng portokalli', 'Lëng molle',
+        'Lëng dredhze', 'Ice tea limon', 'Ice tea pjeshkë', 'Birrë', 'Pije energjike', 'Kafe e ftohtë', 'Qumësht çokollate',
+        'Limonadë', 'Sodë', 'Lëng ananasi', 'Lëng multivitamin', 'Ujë me gaz', 'Tonik'],
+      variante: ['0.33L', '0.5L', '1L', '1.5L'] },
+    { id: 'higjiene', emri: 'Higjiene', nr: 3,
+      baza: ['Shampo', 'Balsam flokësh', 'Sapun', 'Xhel dushi', 'Pastë dhëmbësh', 'Furçë dhëmbësh', 'Deodorant',
+        'Letër higjienike', 'Peceta lagëse', 'Pelena', 'Detergjent rrobash', 'Zbutës rrobash', 'Detergjent enësh',
+        'Pastrues dyshemeje', 'Çlirues nyjesh', 'Krem duarsh', 'Brisk rroje', 'Shkumë rroje', 'Pambuk', 'Peceta letre'],
+      variante: ['i vogël', 'i madh', 'familjar', 'sensitive'] },
+    { id: 'fresh', emri: 'Fresh', nr: 4,
+      baza: ['Qumësht', 'Kos', 'Djathë i bardhë', 'Kaçkavall', 'Gjalpë', 'Vezë', 'Mish pule', 'Mish viçi', 'Sallam',
+        'Proshutë', 'Bukë', 'Domate', 'Kastravec', 'Mollë', 'Banane', 'Portokall', 'Patate', 'Qepë', 'Spec', 'Sallatë jeshile'],
+      variante: ['copë', '500g', '1kg', 'bio'] }
+  ];
+  var TEST_PER_KATEGORI = 60;
+
+  function shifraKontrolluese(dymbedhjete) {
+    var s = 0;
+    for (var i = 0; i < 12; i++) s += parseInt(dymbedhjete.charAt(i), 10) * (i % 2 === 0 ? 1 : 3);
+    return String((10 - (s % 10)) % 10);
+  }
+  function barkodTest(nrKategorie, indeksi) {
+    var baza = '2' + nrKategorie + '9900' + String(indeksi + 1).padStart(6, '0'); // 12 shifra
+    return baza + shifraKontrolluese(baza);
+  }
+
+  function produktetTest() {
+    return Object.keys(produktet).filter(function (k) { return produktet[k] && produktet[k].test; });
+  }
+
+  $('btnShtoTest').addEventListener('click', async function () {
+    var gjithsej = TEST_KATEGORITE.length * TEST_PER_KATEGORI;
+    var po = await konfirmo(T('testKonfTitulli'), T('testKonfTekst', { n: gjithsej, cloud: !!perdoruesiAktual() }), T('testShto'));
+    if (!po) return;
+    var tani = Date.now();
+    TEST_KATEGORITE.forEach(function (kat) {
+      if (!foldera.some(function (f) { return f.id === kat.id; })) foldera.push({ id: kat.id, emri: kat.emri });
+      var n = 0;
+      for (var v = 0; v < kat.variante.length && n < TEST_PER_KATEGORI; v++) {
+        for (var b = 0; b < kat.baza.length && n < TEST_PER_KATEGORI; b++) {
+          var barkodi = barkodTest(kat.nr, n);
+          produktet[celesiProduktit(kat.id, barkodi)] = {
+            barkodi: barkodi,
+            emri: kat.baza[b] + ' ' + kat.variante[v],
+            sasia: 1 + Math.floor(Math.random() * 120),
+            kategoriaId: kat.id,
+            prekurSe: tani - Math.floor(Math.random() * 7 * 24 * 3600 * 1000),
+            test: true
+          };
+          n++;
+        }
+      }
+    });
+    ruajBaze();
+    rifreskoPamjen();
+    mbyllOpsionet();
+    toast(T('testUShtuan', { n: gjithsej }));
+  });
+
+  $('btnFshiTest').addEventListener('click', async function () {
+    var celesat = produktetTest();
+    if (celesat.length === 0) { toast(T('testAsnje')); return; }
+    var po = await konfirmo(T('testKonfFshiTitulli'), T('testKonfFshiTekst', { n: celesat.length }), T('fshij'));
+    if (!po) return;
+    celesat.forEach(function (k) {
+      delete produktet[k];
+      shenoProduktinEFshire(k);
+    });
+    ruajBaze();
+    rifreskoPamjen();
+    mbyllOpsionet();
+    toast(T('testUFshine', { n: celesat.length }));
   });
 
   // ---------- Tips & Tricks (ekrani kryesor) ----------
