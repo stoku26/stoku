@@ -1700,9 +1700,26 @@
     if (folderiAktual === null) return;
     if (document.querySelector('.mbulese.hapur')) return;
     $('barkodi').focus();
+    if (opsione.tastieraEFshehur) detyroTastierenESistemit(true);
   }
 
-  // Tastiera në ekran: "inputmode=none" e fsheh tastierën por fusha mbetet aktive (skaneri vazhdon të shkruajë)
+  // Tastiera në ekran: "inputmode=none" e fsheh tastierën por fusha mbetet aktive (skaneri vazhdon të shkruajë).
+  // Disa telefona/PDA (p.sh. disa Zebra) e injorojnë inputmode="none" dhe e hapin tastierën sido që
+  // të jetë — ndaj përdorim edhe VirtualKeyboard API (kur ekziston) si shtresë e dytë, më e fortë,
+  // që e detyron heqjen e tastierës në ekran, pavarësisht inputmode.
+  try {
+    if (navigator.virtualKeyboard) navigator.virtualKeyboard.overlaysContent = true;
+  } catch (e) { /* API-ja s'ekziston në këtë shfletues, mbetet vetëm inputmode=none */ }
+
+  function detyroTastierenESistemit(fshih) {
+    try {
+      if (navigator.virtualKeyboard) {
+        if (fshih) navigator.virtualKeyboard.hide();
+        else navigator.virtualKeyboard.show();
+      }
+    } catch (e) { /* injoro në heshtje */ }
+  }
+
   function zbatoTastieren() {
     var fshehur = opsione.tastieraEFshehur;
     $('barkodi').setAttribute('inputmode', fshehur ? 'none' : 'numeric'); // mbrojtje shtesë (jo gjithmonë e mjaftueshme vetë)
@@ -1716,6 +1733,7 @@
       // fokusi i dhënë nga kodi (jo nga një prekje e drejtpërdrejtë) zakonisht NUK e hap tastierën në ekran
       $('barkodi').focus();
     }
+    detyroTastierenESistemit(fshehur);
   }
   // Nëse tastiera është e fshehur, prekja e kutisë së shfaqjes rikthen fokusin te fusha e vërtetë
   $('barkodiShfaqje').addEventListener('click', function () { $('barkodi').focus(); });
