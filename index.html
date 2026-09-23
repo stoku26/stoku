@@ -397,7 +397,6 @@
   }
   .kamera-krye .btn { flex: none; min-height: 40px; background: #fff; color: #000; }
   .kamera-tekst { flex: 1; min-width: 0; }
-  #kameraEmri { display: block; font-size: 12px; opacity: .75; margin-top: 2px; overflow-wrap: anywhere; }
   .kamera-veprime { display: flex; gap: 8px; flex: none; }
   .kamera-video-shtrat { position: relative; flex: 1; display: flex; }
   #reader { width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; }
@@ -567,7 +566,6 @@
       <div class="kategori-menu" id="kategoriMenu">
         <button class="kategori-rresht" type="button" data-faqe="pamja" id="tabPamja"><span id="tabPamjaTxt"></span><span class="shigjeta">›</span></button>
         <button class="kategori-rresht" type="button" data-faqe="skenimi" id="tabSkenimi"><span id="tabSkenimiTxt"></span><span class="shigjeta">›</span></button>
-        <button class="kategori-rresht" type="button" data-faqe="kamera" id="tabKamera"><span id="tabKameraTxt"></span><span class="shigjeta">›</span></button>
         <button class="kategori-rresht" type="button" data-faqe="lista" id="tabLista"><span id="tabListaTxt"></span><span class="shigjeta">›</span></button>
         <button class="kategori-rresht" type="button" data-faqe="gjuha" id="tabGjuha"><span id="tabGjuhaTxt"></span><span class="shigjeta">›</span></button>
         <button class="kategori-rresht" type="button" data-faqe="cloud" id="tabCloud"><span id="tabCloudTxt"></span><span class="shigjeta">›</span></button>
@@ -624,24 +622,6 @@
               <span id="lblOpsScanner"></span>
               <span class="ndez"><input type="checkbox" id="opsScanner"><span class="pist"></span></span>
             </label>
-          </div>
-        </div>
-
-        <div class="opsione-faqe" data-faqe="kamera" id="seksionKamera">
-          <div class="seksion">
-            <div class="fushe">
-              <label for="opsKamera" id="lblOpsKamera"></label>
-              <select id="opsKamera">
-                <option value=""></option>
-              </select>
-            </div>
-            <button class="btn" id="opsKameraGjej" type="button" style="width:100%"></button>
-            <div class="hint" id="opsKameraInfo"></div>
-            <label class="opsion-rresht" for="opsAutofokus">
-              <span id="lblOpsAutofokus"></span>
-              <span class="ndez"><input type="checkbox" id="opsAutofokus"><span class="pist"></span></span>
-            </label>
-            <div class="hint" id="autofokusHint"></div>
           </div>
         </div>
 
@@ -734,10 +714,8 @@
   <div class="kamera-krye">
     <div class="kamera-tekst">
       <span id="kameraDrejtoje"></span>
-      <span id="kameraEmri"></span>
     </div>
     <div class="kamera-veprime">
-      <button class="btn" id="ndrroKamere" type="button" style="display:none"></button>
       <button class="btn" id="mbyllKamere" type="button"></button>
     </div>
   </div>
@@ -847,7 +825,6 @@
       opsioneTitulli: 'Opsionet',
       tabPamja: 'Pamja',
       tabSkenimi: 'Skenimi',
-      tabKamera: 'Kamera',
       tabLista: 'Lista',
       tabGjuha: 'Gjuha',
       tabCloud: 'Cloud',
@@ -925,27 +902,11 @@
       qrRefuzuar: 'Ke skenuar një kod QR. Skano barkodin e produktit.',
       qrDyshim: 'Kjo nuk duket si barkod produkti (ngjan me kod QR ose tekst). Provo përsëri.',
 
-      kameraPerSkenim: 'Kamera për skenim (pa atë të përparmen)',
-      automatikeKryesore: 'Automatike (e pasmja kryesore)',
-      gjejKamerat: 'Gjej kamerat e telefonit',
-      autofokusLabel: 'Autofokus gjithmonë i ndezur',
-      autofokusHint: 'E mban kamerën në fokus gjatë gjithë kohës kur skanon (nëse telefoni e mbështet).',
-      kameraShtypGjej: 'Shtyp «Gjej kamerat e telefonit» dhe lejo kamerën që të shfaqet lista.',
-      kameraAsnje: 'Nuk u gjet asnjë kamerë e pasme.',
-      kameraUGjeten: function (a) {
-        return 'U gjetën ' + a.n + ' kamera të pasme (kamera e përparme nuk shfaqet). ' +
-          'Nëse një kamerë nuk fokuson mirë (p.sh. ajo «ultra wide»), provo një tjetër.';
-      },
-      kameraPaMbeshtetje: 'Ky shfletues nuk e mbështet listën e kamerave.',
-      kameraPaLeje: 'Nuk u dha leje për kamerën. Lejoje te cilësimet e shfletuesit.',
-      kameraZgjedhurMore: 'Kamera e zgjedhur më parë',
-      kameraNukUGjet: 'Kamera e zgjedhur nuk u gjet. U përdor kamera automatike.',
       kameraNukUHap: 'Kamera nuk u hap.',
       kameraNukUHapLeje: 'Kamera nuk u hap. Lejo kamerën për këtë aplikacion te Settings.',
       kameraNukEshteGati: 'Kamera nuk është gati. Lidhu me internet dhe hape prapë aplikacionin.',
       kameraDrejtoje: 'Drejtoje kamerën te barkodi',
       kameraHint: 'Vendos vetëm një barkod brenda kutisë',
-      ndrroKamere: 'Ndërro kamerën',
 
       renditSipas: 'Rendit sipas',
       emriAZ: 'Emri (A–Z)',
@@ -1055,7 +1016,6 @@
       opsioneTitulli: 'Options',
       tabPamja: 'Appearance',
       tabSkenimi: 'Scanning',
-      tabKamera: 'Camera',
       tabLista: 'List',
       tabGjuha: 'Language',
       tabCloud: 'Cloud',
@@ -1133,27 +1093,11 @@
       qrRefuzuar: 'You scanned a QR code. Scan the product\u2019s barcode instead.',
       qrDyshim: "This doesn't look like a product barcode (looks like a QR code or text). Try again.",
 
-      kameraPerSkenim: 'Scanning camera (front camera excluded)',
-      automatikeKryesore: 'Automatic (main rear camera)',
-      gjejKamerat: 'Find the phone\u2019s cameras',
-      autofokusLabel: 'Autofocus always on',
-      autofokusHint: "Keeps the camera in focus the whole time you're scanning (if the phone supports it).",
-      kameraShtypGjej: 'Tap "Find the phone\u2019s cameras" and allow the camera so the list appears.',
-      kameraAsnje: 'No rear camera was found.',
-      kameraUGjeten: function (a) {
-        return 'Found ' + a.n + ' rear camera' + (a.n === 1 ? '' : 's') + ' (the front camera isn\u2019t shown). ' +
-          'If one doesn\u2019t focus well (e.g. an "ultra wide" lens), try another.';
-      },
-      kameraPaMbeshtetje: "This browser doesn't support listing cameras.",
-      kameraPaLeje: "Camera permission wasn't granted. Allow it in the browser's settings.",
-      kameraZgjedhurMore: 'Previously selected camera',
-      kameraNukUGjet: "The selected camera wasn't found. The automatic camera was used.",
       kameraNukUHap: "The camera didn't open.",
       kameraNukUHapLeje: "The camera didn't open. Allow the camera for this app in Settings.",
       kameraNukEshteGati: "The camera isn't ready. Connect to the internet and reopen the app.",
       kameraDrejtoje: 'Point the camera at the barcode',
       kameraHint: 'Fit only one barcode inside the box',
-      ndrroKamere: 'Switch camera',
 
       renditSipas: 'Sort by',
       emriAZ: 'Name (A–Z)',
@@ -1213,7 +1157,6 @@
     { id: 'opsioneTitulli', prop: 'text', kyc: 'opsioneTitulli' },
     { id: 'tabPamjaTxt', prop: 'text', kyc: 'tabPamja' },
     { id: 'tabSkenimiTxt', prop: 'text', kyc: 'tabSkenimi' },
-    { id: 'tabKameraTxt', prop: 'text', kyc: 'tabKamera' },
     { id: 'tabListaTxt', prop: 'text', kyc: 'tabLista' },
     { id: 'tabGjuhaTxt', prop: 'text', kyc: 'tabGjuha' },
     { id: 'tabCloudTxt', prop: 'text', kyc: 'tabCloud' },
@@ -1239,11 +1182,6 @@
     { id: 'paEmerHint', prop: 'text', kyc: 'paEmerHint' },
     { id: 'lblOpsTingull', prop: 'text', kyc: 'tingullLabel' },
     { id: 'lblOpsScanner', prop: 'text', kyc: 'scannerLabel' },
-
-    { id: 'lblOpsKamera', prop: 'text', kyc: 'kameraPerSkenim' },
-    { id: 'opsKameraGjej', prop: 'text', kyc: 'gjejKamerat' },
-    { id: 'lblOpsAutofokus', prop: 'text', kyc: 'autofokusLabel' },
-    { id: 'autofokusHint', prop: 'text', kyc: 'autofokusHint' },
 
     { id: 'lblOpsRendi', prop: 'text', kyc: 'renditSipas' },
     { id: 'optIRi', prop: 'text', kyc: 'iRiOpt' },
@@ -1273,7 +1211,6 @@
 
     { id: 'kameraDrejtoje', prop: 'text', kyc: 'kameraDrejtoje' },
     { id: 'skanHint', prop: 'text', kyc: 'kameraHint' },
-    { id: 'ndrroKamere', prop: 'text', kyc: 'ndrroKamere' },
     { id: 'mbyllKamere', prop: 'text', kyc: 'mbyll' }
   ];
 
@@ -1385,7 +1322,7 @@
 
   var opsione = {
     tingull: true, rendi: 'i_ri', scanner: true, pda: false, tastieraEFshehur: false,
-    paEmer: false, kameraId: '', autofokus: true, gjuha: 'sq', aksent: 'blu', madhesia: 'normale'
+    paEmer: false, gjuha: 'sq', aksent: 'blu', madhesia: 'normale'
   };
   try {
     var opsioneRuajtura = JSON.parse(localStorage.getItem(KEY_OPSIONE) || 'null');
@@ -1394,8 +1331,6 @@
       if (typeof opsioneRuajtura.scanner === 'boolean') opsione.scanner = opsioneRuajtura.scanner;
       if (typeof opsioneRuajtura.pda === 'boolean') opsione.pda = opsioneRuajtura.pda;
       if (typeof opsioneRuajtura.paEmer === 'boolean') opsione.paEmer = opsioneRuajtura.paEmer;
-      if (typeof opsioneRuajtura.kameraId === 'string') opsione.kameraId = opsioneRuajtura.kameraId;
-      if (typeof opsioneRuajtura.autofokus === 'boolean') opsione.autofokus = opsioneRuajtura.autofokus;
       if (typeof opsioneRuajtura.tastieraEFshehur === 'boolean') opsione.tastieraEFshehur = opsioneRuajtura.tastieraEFshehur;
       if (['i_ri', 'emri', 'emriZA', 'sasiaUlet', 'sasiaLart'].indexOf(opsioneRuajtura.rendi) !== -1) opsione.rendi = opsioneRuajtura.rendi;
       if (opsioneRuajtura.gjuha === 'en' || opsioneRuajtura.gjuha === 'sq') opsione.gjuha = opsioneRuajtura.gjuha;
@@ -1651,7 +1586,6 @@
       renderLista();
     }
     if ($('dlgOpsione').classList.contains('hapur')) {
-      plotesoKamerat(false);
       rifreskoDukjenECloud();
       var faqjaAktive = document.querySelector('.opsione-faqe.aktiv');
       aktivizoTabin(faqjaAktive ? faqjaAktive.getAttribute('data-faqe') : null);
@@ -1680,8 +1614,6 @@
     $('btnEksportPdf').style.display = ''; // PDF mbetet e dukshme edhe në PDA
     $('rreshtTingull').style.display = pda ? 'none' : '';
     $('rreshtScanner').style.display = pda ? 'none' : '';
-    $('seksionKamera').style.display = pda ? 'none' : '';
-    $('tabKamera').style.display = pda ? 'none' : '';
     $('lblBarkodi').textContent = pda ? T('barkodiPda') : T('barkodiNormal');
     zbatoRrotullimin();
   }
@@ -1744,7 +1676,7 @@
     if (trupi) trupi.scrollTop = 0;
   }
   var TAB_TITULL_KYC = {
-    pamja: 'tabPamja', skenimi: 'tabSkenimi', kamera: 'tabKamera',
+    pamja: 'tabPamja', skenimi: 'tabSkenimi',
     lista: 'tabLista', gjuha: 'tabGjuha', cloud: 'tabCloud'
   };
   Array.prototype.forEach.call(document.querySelectorAll('.kategori-rresht'), function (b) {
@@ -1758,8 +1690,6 @@
     $('opsScanner').checked = opsione.scanner;
     $('opsPda').checked = opsione.pda;
     $('opsPaEmer').checked = opsione.paEmer;
-    $('opsAutofokus').checked = opsione.autofokus;
-    plotesoKamerat(false);
     zbatoPda();
     $('opsRendi').value = opsione.rendi;
     zbatoTemen();
@@ -1817,20 +1747,6 @@
       $('opsPaEmer').checked = true;
       ruajOpsionet();
     }
-  });
-  $('opsKamera').addEventListener('change', function () {
-    opsione.kameraId = $('opsKamera').value;
-    ruajOpsionet();
-  });
-  $('opsKameraGjej').addEventListener('click', async function () {
-    var btn = $('opsKameraGjej');
-    btn.disabled = true;
-    await plotesoKamerat(true);   // kërkon lejen e kamerës nëse ende s'është dhënë
-    btn.disabled = false;
-  });
-  $('opsAutofokus').addEventListener('change', function () {
-    opsione.autofokus = $('opsAutofokus').checked;
-    ruajOpsionet();
   });
   $('opsRendi').addEventListener('change', function () {
     opsione.rendi = $('opsRendi').value;
@@ -2451,63 +2367,11 @@
   }
 
   // ---------- Kamera ----------
+  // Përdoret gjithmonë kamera kryesore e pasme (jo përzgjedhje manuale), me rezolucion sa më të lartë
+  // (deri në UHD/4K nëse telefoni e mbështet) dhe autofokus të vazhdueshëm — kjo e bën kapjen e
+  // barkodit shumë më të qartë se rezolucioni i parazgjedhur i shfletuesit, sidomos në Safari/iPhone.
   var skaneri = null;
   var perpunuar = false;
-  var kameraAktualeId = '';
-
-  // Kthen kamerat e pasme (pa atë të përparmen).
-  // kerkoLejen = true: kërkon lejen e kamerës nëse etiketat ende s'janë të dukshme.
-  async function listoKamerat(kerkoLejen) {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
-      return { ok: false, kamerat: [], paEtiketa: false, gabimKyc: 'kameraPaMbeshtetje' };
-    }
-    function vetemKamerat(pajisjet) {
-      return pajisjet.filter(function (d) { return d.kind === 'videoinput'; });
-    }
-    try {
-      var kamerat = vetemKamerat(await navigator.mediaDevices.enumerateDevices());
-      var paEtiketa = kamerat.length > 0 && kamerat.every(function (k) { return !k.label; });
-      if (paEtiketa && kerkoLejen) {
-        // emrat e kamerave shfaqen vetëm pasi jepet leja e kamerës
-        var rrjedha = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
-        rrjedha.getTracks().forEach(function (t) { t.stop(); });
-        kamerat = vetemKamerat(await navigator.mediaDevices.enumerateDevices());
-        paEtiketa = kamerat.length > 0 && kamerat.every(function (k) { return !k.label; });
-      }
-      var tePasme = kamerat.filter(function (k) {
-        return !/front|user|selfie|përpara|frontal/i.test(k.label || '');
-      }).map(function (k) { return { deviceId: k.deviceId, label: k.label || '' }; });
-      return { ok: true, kamerat: tePasme, paEtiketa: paEtiketa };
-    } catch (err) {
-      return { ok: false, kamerat: [], paEtiketa: false, gabimKyc: 'kameraPaLeje' };
-    }
-  }
-
-  // Plotëson listën e kamerave te Opsionet
-  async function plotesoKamerat(kerkoLejen) {
-    var sel = $('opsKamera');
-    var info = $('opsKameraInfo');
-    var r = await listoKamerat(kerkoLejen);
-    function shto(vlera, tekst) {
-      var o = document.createElement('option');
-      o.value = vlera;
-      o.textContent = tekst;
-      sel.appendChild(o);
-    }
-    sel.textContent = '';
-    shto('', T('automatikeKryesore'));
-    if (r.ok && !r.paEtiketa) {
-      r.kamerat.forEach(function (k, i) { shto(k.deviceId, (i + 1) + '. ' + (k.label || 'Kamera')); });
-    }
-    var ekziston = Array.prototype.some.call(sel.options, function (o) { return o.value === opsione.kameraId; });
-    if (opsione.kameraId && !ekziston) shto(opsione.kameraId, T('kameraZgjedhurMore'));
-    sel.value = opsione.kameraId;
-
-    if (!r.ok) info.textContent = T(r.gabimKyc);
-    else if (r.paEtiketa) info.textContent = T('kameraShtypGjej');
-    else if (r.kamerat.length === 0) info.textContent = T('kameraAsnje');
-    else info.textContent = T('kameraUGjeten', { n: r.kamerat.length });
-  }
 
   function trackuIKameres() {
     var v = document.querySelector('#reader video');
@@ -2515,9 +2379,9 @@
     return (rrjedha && rrjedha.getVideoTracks && rrjedha.getVideoTracks()[0]) || null;
   }
 
-  // Autofokus i vazhdueshëm (nëse kamera e mbështet)
+  // Autofokus i vazhdueshëm (nëse kamera e mbështet); thirret pas nisjes si masë shtesë sigurie,
+  // meqë disa shfletues (sidomos Android Chrome) e injorojnë focusMode kur jepet vetëm te getUserMedia.
   async function aplikoAutofokusin() {
-    if (!opsione.autofokus) return;
     try {
       var t = trackuIKameres();
       if (!t || !t.getCapabilities) return;
@@ -2528,25 +2392,15 @@
     } catch (e) { /* mbetet fokusi i parazgjedhur i telefonit */ }
   }
 
-  // Pas nisjes: autofokusi, emri i kamerës dhe butoni "Ndërro kamerën"
   async function pasNisjes() {
-    try {
-      await aplikoAutofokusin();
-      var t = trackuIKameres();
-      var cil = (t && t.getSettings) ? t.getSettings() : {};
-      kameraAktualeId = cil.deviceId || '';
-      var r = await listoKamerat(false);
-      var aktuale = r.kamerat.filter(function (k) { return k.deviceId === kameraAktualeId; })[0];
-      $('kameraEmri').textContent = aktuale ? aktuale.label : '';
-      $('ndrroKamere').style.display = r.kamerat.length > 1 ? '' : 'none';
-    } catch (e) { /* nuk e pengon skenimin */ }
+    try { await aplikoAutofokusin(); } catch (e) { /* nuk e pengon skenimin */ }
   }
 
   function krijoSkanerin() {
     var F = Html5QrcodeSupportedFormats;
     return new Html5Qrcode('reader', {
       formatsToSupport: [F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E, F.CODE_128, F.CODE_39, F.CODE_93, F.ITF, F.CODABAR, F.QR_CODE],
-      experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+      experimentalFeatures: { useBarCodeDetectorIfSupported: true }, // API-ja native e shfletuesit kur ekziston — më e shpejtë dhe më e saktë
       verbose: false
     });
   }
@@ -2563,56 +2417,73 @@
     return '';
   }
 
-  // Nis kamerën e zgjedhur; nëse ajo nuk gjendet, kalon te kamera automatike.
   // Kutia e skenimit është ngushtë (formë "shirit"), e menduar posaçërisht për të kapur VETËM NJË
   // barkod të vetëm, edhe kur ka shumë barkode të printuara afër njëra-tjetrës (p.sh. në një fletë A4).
-  async function nisKamere() {
-    var konfigurimi = {
-      fps: 10,
-      qrbox: function (w, h) {
-        return {
-          width: Math.floor(Math.min(w * 0.82, 320)),
-          height: Math.floor(Math.min(h * 0.22, 90))
-        };
-      }
+  var QRBOX_FN = function (w, h) {
+    return {
+      width: Math.floor(Math.min(w * 0.82, 320)),
+      height: Math.floor(Math.min(h * 0.22, 90))
     };
-    var kuSuksesi = function (tekstiILexuar, decodedResult) {
-      if (perpunuar) return;
-      var formati = formatiIRezultatit(decodedResult);
-      if (formati === 'QR_CODE') {
-        // Nuk e trajtojmë si barkod produkti: njoftojmë dhe vazhdojmë skenimin pa e ndalur kamerën
-        toast(T('qrRefuzuar'));
-        return;
-      }
-      perpunuar = true;
-      bip();
-      ndalKamere().then(function () {
-        burimiIFundit = 'kamera';
-        hapDialogun(String(tekstiILexuar).trim());
-      });
-    };
-    var kuGabimi = function () { /* gabimet e vazhdueshme të leximit shpërfillen */ };
+  };
 
-    var provat = [];
-    if (opsione.kameraId) provat.push(opsione.kameraId);
-    provat.push({ facingMode: 'environment' });
-
-    var gabimiIFundit = null;
-    for (var i = 0; i < provat.length; i++) {
-      skaneri = krijoSkanerin();
-      try {
-        await skaneri.start(provat[i], konfigurimi, kuSuksesi, kuGabimi);
-        if (opsione.kameraId && i > 0) toast(T('kameraNukUGjet'), 4000);
-        await pasNisjes();
-        return;
-      } catch (err) {
-        gabimiIFundit = err;
-        var e_deshtuar = skaneri;
-        skaneri = null;
-        try { e_deshtuar.clear(); } catch (e) { /* ok */ }
-      }
+  function kuSuksesiSkanimi(tekstiILexuar, decodedResult) {
+    if (perpunuar) return;
+    var formati = formatiIRezultatit(decodedResult);
+    if (formati === 'QR_CODE') {
+      // Nuk e trajtojmë si barkod produkti: njoftojmë dhe vazhdojmë skenimin pa e ndalur kamerën
+      toast(T('qrRefuzuar'));
+      return;
     }
-    throw gabimiIFundit;
+    perpunuar = true;
+    bip();
+    ndalKamere().then(function () {
+      burimiIFundit = 'kamera';
+      hapDialogun(String(tekstiILexuar).trim());
+    });
+  }
+  function kuGabimiSkanimi() { /* gabimet e vazhdueshme të leximit shpërfillen */ }
+
+  // Kamera kryesore e pasme, me rezolucion sa më afër UHD (3840×2160). "ideal" (jo "exact") që
+  // shfletuesi të mos dështojë nëse kamera s'e mbështet saktë atë rezolucion — thjesht i afrohet.
+  function kufizimetVideoUHD() {
+    return {
+      facingMode: { ideal: 'environment' },
+      width: { ideal: 3840 },
+      height: { ideal: 2160 },
+      advanced: [{ focusMode: 'continuous' }]
+    };
+  }
+
+  async function nisKamere() {
+    var kufizimet = kufizimetVideoUHD();
+    var konfigurimi = { fps: 10, qrbox: QRBOX_FN, videoConstraints: kufizimet };
+
+    skaneri = krijoSkanerin();
+    try {
+      await skaneri.start(kufizimet, konfigurimi, kuSuksesiSkanimi, kuGabimiSkanimi);
+      await pasNisjes();
+      return;
+    } catch (errUHD) {
+      var deshtuar = skaneri;
+      skaneri = null;
+      try { deshtuar.clear(); } catch (e) { /* ok */ }
+    }
+
+    // Provë e dytë, pa kërkesë rezolucioni (disa kamera/shfletues refuzojnë kufizime kaq të larta)
+    skaneri = krijoSkanerin();
+    try {
+      await skaneri.start(
+        { facingMode: { ideal: 'environment' } },
+        { fps: 10, qrbox: QRBOX_FN },
+        kuSuksesiSkanimi, kuGabimiSkanimi
+      );
+      await pasNisjes();
+    } catch (err) {
+      var e2 = skaneri;
+      skaneri = null;
+      try { e2.clear(); } catch (e) { /* ok */ }
+      throw err;
+    }
   }
 
   async function hapKamere() {
@@ -2622,8 +2493,6 @@
       return;
     }
     perpunuar = false;
-    $('kameraEmri').textContent = '';
-    $('ndrroKamere').style.display = 'none';
     $('kamera').classList.add('hapur');
     try {
       await nisKamere();
@@ -2648,28 +2517,8 @@
     $('kamera').classList.remove('hapur');
   }
 
-  // Kalon te kamera e pasme tjetër (pa atë të përparmen) dhe e ruan zgjedhjen
-  async function ndrroKamere() {
-    var r = await listoKamerat(false);
-    if (r.kamerat.length < 2) return;
-    var i = -1;
-    r.kamerat.forEach(function (k, j) { if (k.deviceId === kameraAktualeId) i = j; });
-    var tjetra = r.kamerat[(i + 1) % r.kamerat.length];
-    opsione.kameraId = tjetra.deviceId;
-    ruajOpsionet();
-    perpunuar = false;
-    await ndalSkanerin();
-    try {
-      await nisKamere();
-    } catch (err) {
-      await ndalKamere();
-      toast(T('kameraNukUHap'));
-    }
-  }
-
   $('btnKamera').addEventListener('click', hapKamere);
   $('mbyllKamere').addEventListener('click', ndalKamere);
-  $('ndrroKamere').addEventListener('click', ndrroKamere);
 
   // ---------- Eksporti në Excel (.xlsx) ----------
   function dyShifra(n) { return (n < 10 ? '0' : '') + n; }
