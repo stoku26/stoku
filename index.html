@@ -246,28 +246,6 @@
     justify-content: center;
   }
 
-  /* Tips & Tricks (ekrani kryesor) */
-  .tipi-mbeshtjellje {
-    padding: 0 16px 16px;
-    padding-left: max(16px, env(safe-area-inset-left));
-    padding-right: max(16px, env(safe-area-inset-right));
-  }
-  .tipi-karta {
-    border: 1px solid var(--vije); border-radius: 16px;
-    background: var(--fushe-bg); padding: 14px 16px;
-  }
-  .tipi-krye { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-  .tipi-ikona { font-size: 18px; flex: none; line-height: 1; }
-  .tipi-etiketa { font-weight: 600; font-size: 14px; flex: 1; }
-  .tipi-mbyll {
-    flex: none; border: 0; background: transparent; color: var(--gri);
-    font-size: 16px; line-height: 1; cursor: pointer; padding: 4px;
-  }
-  .tipi-tekst { font-size: 14px; color: var(--dialog-tekst); margin: 0 0 8px; }
-  .tipi-tjetri {
-    border: 0; background: transparent; color: var(--btn-tekst);
-    font-weight: 600; font-size: 13px; padding: 0; cursor: pointer;
-  }
 
   /* Dialogët */
   .mbulese {
@@ -453,19 +431,6 @@
 </div>
 <div id="folderaLista" class="folderat-rrjeti"></div>
 <div id="kerkoGlobalLista" style="display:none"></div>
-
-<!-- Tips & Tricks -->
-<div class="tipi-mbeshtjellje" id="tipiMbeshtjellje">
-  <div class="tipi-karta">
-    <div class="tipi-krye">
-      <span class="tipi-ikona" aria-hidden="true">💡</span>
-      <span class="tipi-etiketa" id="tipiEtiketa"></span>
-      <button type="button" class="tipi-mbyll" id="tipiMbyll">✕</button>
-    </div>
-    <div class="tipi-tekst" id="tipiTeksti"></div>
-    <button type="button" class="tipi-tjetri" id="tipiTjetri"></button>
-  </div>
-</div>
 
 <!-- Brenda një folderi -->
 <div class="siper" id="siperFolderi" style="display:none">
@@ -777,21 +742,6 @@
       rikthe: 'Rikthe',
       foldera: 'Foldera',
 
-      tipiEtiketaTeksti: 'Ide & Këshilla',
-      tipiTjetriBtn: 'Ide tjetër ›',
-      tipi01: 'Rregulli 80/20 në stok: zakonisht ~20% e produkteve gjenerojnë ~80% të shitjeve. Identifiko cilat produkte lëvizin më shpejt dhe kontrolloji ata më shpesh — jo çdo produkt meriton po atë vëmendje.',
-      tipi02: 'Rendit "Më të rejat së pari" (Opsionet → Lista) tregon çka është prekur së fundmi. Nëse një produkt s\'e ke prekur javë të tëra, mund të ketë pushuar së shituri, ose të ketë humbur nga rafti pa u regjistruar — ia vlen ta kontrollosh fizikisht.',
-      tipi03: 'Për produktet që skadojnë (Fresh): kur shton stok të ri të njëjtit artikull, vendose fizikisht pas atij ekzistues në raft, jo përpara — kështu shitet së pari stoku i vjetër (parimi "hyn i pari, del i pari") dhe zvogëlohet malli i humbur.',
-      tipi04: 'Fut sasi negative kur redakton një produkt ekzistues jo vetëm për korrigjime — përdore si regjistrim shitjeje: shite 5 copë, fut -5, dhe sasia përditësohet menjëherë, pa llogaritje manuale.',
-      tipi05: 'Dallimi mes numrit fizik (kur i numëron vetë raftet) dhe numrit që tregon aplikacioni s\'është gabim për t\'u injoruar — është informacion: zbulon vjedhje, gabime skanimi, ose produkte të harruara diku tjetër.',
-      tipi06: 'Nëse dy produkte krejt të ndryshme "janë shkri" në një hyrje të vetme me sasi të çuditshme, ka gjasa që barkodi është skanuar gabim një herë dhe të dyja artikujt po ndajnë të njëjtin kod — krahaso emrin me atë çka është skanuar realisht.',
-      tipi07: 'Krahaso numrin e produkteve mes folderave (Ushqimore kundrejt Higjiene, p.sh.) — jo vetëm organizim, por tregues i shpejtë se ku është përqendruar stoku yt dhe ku duhet fokusuar blerja e ardhshme.',
-      tipi08: 'Një produkt me sasi shumë të lartë krahasuar me të tjerët në të njëjtin folder shpesh do të thotë mbi-porositje — kapital i bllokuar në raft që mund të përdorej diku tjetër.',
-      tipi09: 'Kontrollo rregullisht (jo vetëm kur klienti pyet) produktet me sasi 0 ose shumë të ulët, rendit sipas "Sasia: nga më e vogla" — kështu e parashikon mungesën e stokut para se të ndodhë, jo pasi klienti ka ikur pa blerë.',
-      tipi10: 'Nëse një produkt tënd s\'ka barkod të printuar nga prodhuesi, eksporto etiketë PDF dhe ngjite vetë në raft — kështu e skanon njësoj si çdo produkt tjetër herës tjetër.',
-      tipi11: 'Foldera me shumë produkte "pa emër" tregon që PDA/skaneri po përdoret shumë shpejt pa u ndalur për me shkru emrin — ia vlen me i plotësu ato më vonë, përndryshe eksporti në Excel/PDF bëhet i palexueshëm.',
-      tipi12: 'Kur kalon prej sezoni në sezon (p.sh. verë→dimër), rishiko folderat me produkte sezonale: sasi e madhe e mbetur nga sezoni i kaluar është shenjë për me ul porositë herës tjetër, jo për me i harru në raft.',
-
       krijoFolder: '+ Krijo folder',
       folderIRi: 'Folder i ri',
       emriIFolderit: 'Emri i folderit',
@@ -979,21 +929,6 @@
       rikthe: 'Restore',
       foldera: 'Folders',
 
-      tipiEtiketaTeksti: 'Tips & Tricks',
-      tipiTjetriBtn: 'Next tip ›',
-      tipi01: 'The 80/20 rule of inventory: usually ~20% of products generate ~80% of sales. Identify which products move fastest and check those more often — not every product deserves equal attention.',
-      tipi02: '"Newest first" sorting (Options → List) shows what was touched most recently. If a product hasn\u2019t been touched in weeks, it may have stopped selling — or gone missing from the shelf without being logged. Worth a physical check.',
-      tipi03: 'For perishables (Fresh): when adding new stock of the same item, place it physically behind the existing stock, not in front — first in, first out — so older stock sells first and less gets wasted.',
-      tipi04: 'Enter a negative number when editing an existing product not just for corrections — use it as a quick sale log: sold 5 units, enter -5, and the quantity updates instantly with no manual math.',
-      tipi05: 'A mismatch between a physical count (when you count the shelf yourself) and what the app shows isn\u2019t an error to dismiss — it\u2019s information: it reveals theft, scanning mistakes, or stock misplaced elsewhere.',
-      tipi06: 'If two completely different products seem to have "merged" into one odd entry, chances are a barcode was scanned wrong once and both items are sharing the same code — compare the name against what was actually scanned.',
-      tipi07: 'Compare product counts across folders (Groceries vs. Hygiene, say) — not just organization, but a quick read on where your stock is concentrated and where future buying should focus.',
-      tipi08: 'A product with a much higher quantity than others in the same folder often means over-ordering — capital tied up on a shelf that could be used elsewhere.',
-      tipi09: 'Check products at 0 or very low quantity regularly (not just when a customer asks) — sort by "Quantity: lowest first" — so you catch a stockout before it happens, not after a customer leaves empty-handed.',
-      tipi10: 'If one of your products has no manufacturer barcode, export a PDF label and stick it on yourself — it then scans like any other product from then on.',
-      tipi11: 'A folder full of "no name" products usually means the scanner/PDA is being used too fast without pausing to type the name — worth filling those in later, or Excel/PDF exports become unreadable.',
-      tipi12: 'When moving between seasons (e.g. summer→winter), review folders with seasonal products: a large leftover quantity from last season is a signal to order less next time, not to leave it sitting on the shelf.',
-
       krijoFolder: '+ Create folder',
       folderIRi: 'New folder',
       emriIFolderit: 'Folder name',
@@ -1180,8 +1115,6 @@
   // Elementet me tekst statik: { id, prop: 'text' | 'placeholder' | 'title' | 'titleAria', kyc }
   var STATIKE = [
     { id: 'btnKrijoFolder', prop: 'text', kyc: 'krijoFolder' },
-    { id: 'tipiEtiketa', prop: 'text', kyc: 'tipiEtiketaTeksti' },
-    { id: 'tipiTjetri', prop: 'text', kyc: 'tipiTjetriBtn' },
     { id: 'btnKamera', prop: 'text', kyc: 'skanoKamer' },
     { id: 'btnEksport', prop: 'text', kyc: 'eksportoExcel' },
     { id: 'btnEksportPdf', prop: 'text', kyc: 'eksportoPdf' },
@@ -1455,7 +1388,6 @@
     var k = $('kerkoGlobal').value.trim().toLowerCase();
     var kaKerkim = !!k;
     $('folderaLista').style.display = kaKerkim ? 'none' : '';
-    $('tipiMbeshtjellje').style.display = (kaKerkim || tipiIFshehur) ? 'none' : '';
     $('kerkoGlobalLista').style.display = kaKerkim ? '' : 'none';
     if (!kaKerkim) return;
 
@@ -1517,7 +1449,6 @@
     var brenda = folderiAktual !== null;
     $('siperFolderat').style.display = brenda ? 'none' : '';
     $('folderaLista').style.display = brenda ? 'none' : '';
-    $('tipiMbeshtjellje').style.display = (brenda || tipiIFshehur) ? 'none' : '';
     $('kerkoGlobalLista').style.display = 'none';
     $('siperFolderi').style.display = brenda ? '' : 'none';
     $('lista').style.display = brenda ? '' : 'none';
@@ -1699,7 +1630,6 @@
     zbatoGjuhen();
     zbatoPda();
     zbatoTastieren();
-    renderTipin();
     if (folderiAktual === null) {
       renderFolderat();
     } else {
@@ -1739,15 +1669,27 @@
   }
 
   // Bllokon rrotullimin e ekranit (vetëm portret) kur PDA është ndezur; e liron kur fiket.
-  // Në heshtje krejt: pa asnjë mesazh apo opsion, thjesht provon dhe injoron nëse shfletuesi s'e lejon.
-  function zbatoRrotullimin() {
+  // E rëndësishme: Chrome/Android e lejon screen.orientation.lock() VETËM kur faqja është në
+  // fullscreen (API-ja Fullscreen) ose kur app-i është instaluar me "display":"fullscreen" — ndaj
+  // këtu kërkojmë fullscreen fillimisht (nëse s'jemi tashmë) para se të provojmë kyçjen. Nëse
+  // shfletuesi e refuzon (p.sh. pa gjest të përdoruesit), provohet sërish herën tjetër. Në heshtje
+  // krejt: pa asnjë mesazh apo opsion, thjesht provon dhe injoron nëse shfletuesi s'e lejon.
+  async function zbatoRrotullimin() {
     try {
       if (opsione.pda) {
+        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+          try { await document.documentElement.requestFullscreen(); } catch (e) { /* s'ka gjest përdoruesi ende, provohet herën tjetër */ }
+        }
         if (screen.orientation && screen.orientation.lock) {
           screen.orientation.lock('portrait').catch(function () { /* s'lejohet këtu, injoro */ });
         }
-      } else if (screen.orientation && screen.orientation.unlock) {
-        screen.orientation.unlock();
+      } else {
+        if (screen.orientation && screen.orientation.unlock) {
+          screen.orientation.unlock();
+        }
+        if (document.fullscreenElement && document.exitFullscreen) {
+          try { await document.exitFullscreen(); } catch (e) { /* ok */ }
+        }
       }
     } catch (e) { /* shfletuesi nuk e mbështet, injoro në heshtje */ }
   }
@@ -2946,25 +2888,6 @@
     renderFolderat();
     toast(T('uFshinePrejFolderit'));
   });
-
-  // ---------- Tips & Tricks (ekrani kryesor) ----------
-  var TIPAT_KYC = ['tipi01', 'tipi02', 'tipi03', 'tipi04', 'tipi05', 'tipi06',
-    'tipi07', 'tipi08', 'tipi09', 'tipi10', 'tipi11', 'tipi12'];
-  var tipiIndeksi = Math.floor(Math.random() * TIPAT_KYC.length);
-  var tipiIFshehur = false;
-
-  function renderTipin() {
-    $('tipiTeksti').textContent = T(TIPAT_KYC[tipiIndeksi]);
-  }
-  $('tipiTjetri').addEventListener('click', function () {
-    tipiIndeksi = (tipiIndeksi + 1) % TIPAT_KYC.length;
-    renderTipin();
-  });
-  $('tipiMbyll').addEventListener('click', function () {
-    tipiIFshehur = true;
-    $('tipiMbeshtjellje').style.display = 'none';
-  });
-  renderTipin();
 
   // ---------- Service worker (punon edhe pa internet) ----------
   if ('serviceWorker' in navigator) {
