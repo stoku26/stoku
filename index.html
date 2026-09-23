@@ -2453,37 +2453,92 @@
       advanced: [{ focusMode: 'continuous' }]
     };
   }
+  function kufizimetMePajisje(baza, deviceId) {
+    return { width: baza.width, height: baza.height, advanced: baza.advanced, deviceId: { exact: deviceId } };
+  }
+
+  // Disa telefona (sidomos ca modele Samsung) e zgjedhin vetë kamerën ULTRA-WIDE si "kamerën e
+  // pasme" kur kërkohet thjesht facingMode:environment — për skanim barkodesh na duhet gjithmonë
+  // kamera KRYESORE (wide, jo ultra-wide/makro/telefoto). Meqë s'ka asnjë kufizim standard që e
+  // dallon këtë mes shfletuesve, e njohim nga etiketa (iPhone: "Back Camera" vs "Back Ultra Wide
+  // Camera") ose, kur s'ka etiketë të qartë (shpesh në Android), marrim kamerën e parë të pasme të
+  // kthyer nga sistemi — që zakonisht korrespondon me sensorin kryesor (ID 0) edhe në Android.
+  var ULTRAWIDE_RX = /ultra.?wide|macro|tele(foto|photo)|0[.,]5\s*x/i;
+  var FRONT_RX = /front|user|selfie|përpara|frontal/i;
+  var KEY_KAMERA_KRYESORE = 'stoku:kamera-kryesore-id';
+
+  function idIRuajturIKameres() {
+    try { return localStorage.getItem(KEY_KAMERA_KRYESORE) || null; } catch (e) { return null; }
+  }
+  function ruajIdINeKameres(id) {
+    try { if (id) localStorage.setItem(KEY_KAMERA_KRYESORE, id); } catch (e) { /* ok */ }
+  }
+
+  async function kamerateEPasme() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return [];
+    try {
+      var pajisjet = await navigator.mediaDevices.enumerateDevices();
+      return pajisjet.filter(function (d) { return d.kind === 'videoinput' && !FRONT_RX.test(d.label || ''); });
+    } catch (e) { return []; }
+  }
+  function idIKameresKryesore(kamerat) {
+    var meEtiketa = kamerat.filter(function (k) { return !!k.label; });
+    if (meEtiketa.length === 0) return null; // s'ka ende leje/etiketa, s'dallohet dot asgjë
+    var joUltraWide = meEtiketa.filter(function (k) { return !ULTRAWIDE_RX.test(k.label); });
+    var lista = joUltraWide.length > 0 ? joUltraWide : meEtiketa;
+    return lista[0].deviceId || null;
+  }
+
+  async function provoNisjenSkanerit(kufizimet) {
+    var i = krijoSkanerin();
+    try {
+      await i.start(kufizimet, { fps: 10, qrbox: QRBOX_FN, videoConstraints: kufizimet }, kuSuksesiSkanimi, kuGabimiSkanimi);
+      skaneri = i;
+      return true;
+    } catch (e) {
+      try { i.clear(); } catch (e2) { /* ok */ }
+      return false;
+    }
+  }
+
+  // Pas nisjes fillestare (kur ende s'e dinim kamerën kryesore): rikontrollo etiketat, tani që kemi
+  // leje, dhe nëse ekziston një kamerë jo-ultra-wide e ndryshme nga ajo aktuale, kalo tek ajo.
+  async function kaloTekKameraKryesoreNese() {
+    var kamerat = await kamerateEPasme();
+    var idIri = idIKameresKryesore(kamerat);
+    if (!idIri) return;
+    var t = trackuIKameres();
+    var aktualId = (t && t.getSettings) ? t.getSettings().deviceId : '';
+    if (idIri === aktualId) { ruajIdINeKameres(idIri); return; }
+    await ndalSkanerin();
+    var uHap = await provoNisjenSkanerit(kufizimetMePajisje(kufizimetVideoUHD(), idIri));
+    if (uHap) ruajIdINeKameres(idIri);
+    else await provoNisjenSkanerit(kufizimetVideoUHD()); // s'punoi, kthehu te ajo që punonte
+  }
 
   async function nisKamere() {
-    var kufizimet = kufizimetVideoUHD();
-    var konfigurimi = { fps: 10, qrbox: QRBOX_FN, videoConstraints: kufizimet };
+    var kufizimetAutomatike = kufizimetVideoUHD();
+    var idRuajtur = idIRuajturIKameres();
+    var uHap = false;
 
-    skaneri = krijoSkanerin();
-    try {
-      await skaneri.start(kufizimet, konfigurimi, kuSuksesiSkanimi, kuGabimiSkanimi);
-      await pasNisjes();
-      return;
-    } catch (errUHD) {
-      var deshtuar = skaneri;
-      skaneri = null;
-      try { deshtuar.clear(); } catch (e) { /* ok */ }
+    if (idRuajtur) {
+      uHap = await provoNisjenSkanerit(kufizimetMePajisje(kufizimetAutomatike, idRuajtur));
     }
+    if (!uHap) {
+      var idGjetur = idIKameresKryesore(await kamerateEPasme());
+      if (idGjetur) {
+        uHap = await provoNisjenSkanerit(kufizimetMePajisje(kufizimetAutomatike, idGjetur));
+        if (uHap) ruajIdINeKameres(idGjetur);
+      }
+    }
+    if (!uHap) uHap = await provoNisjenSkanerit(kufizimetAutomatike);
+    if (!uHap) uHap = await provoNisjenSkanerit({ facingMode: { ideal: 'environment' } });
+    if (!uHap) throw new Error('kamera-nuk-u-hap');
 
-    // Provë e dytë, pa kërkesë rezolucioni (disa kamera/shfletues refuzojnë kufizime kaq të larta)
-    skaneri = krijoSkanerin();
-    try {
-      await skaneri.start(
-        { facingMode: { ideal: 'environment' } },
-        { fps: 10, qrbox: QRBOX_FN },
-        kuSuksesiSkanimi, kuGabimiSkanimi
-      );
-      await pasNisjes();
-    } catch (err) {
-      var e2 = skaneri;
-      skaneri = null;
-      try { e2.clear(); } catch (e) { /* ok */ }
-      throw err;
+    if (!idRuajtur) {
+      try { await kaloTekKameraKryesoreNese(); } catch (e) { /* mbetet te ajo çka tashmë punon */ }
     }
+    await pasNisjes();
   }
 
   async function hapKamere() {
