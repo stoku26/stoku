@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Stoku">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#1565C0" id="metaTema">
+<meta name="theme-color" content="#1A1F24" id="metaTema">
 <script>
   // Vendos temën para se faqja të vizatohet (që të mos ketë dridhje ndriçimi)
   (function () {
@@ -26,52 +26,54 @@
 <style>
   :root {
     color-scheme: light;
-    --primar: #1565C0;
-    --header: #1565C0;
+    --primar: #FFC53D;
+    --btn-tekst-primar: #14181C;
+    --header: #1A1F24;
     --rrezik: #B3261E;
-    --tekst: #1c1b1f;
-    --gri: #5f5f66;
-    --vije: #e2e2e6;
-    --sfond: #ffffff;
-    --fushe-bg: #ffffff;
-    --fushe-kufi: #79747e;
-    --hover: #f2f4f8;
-    --dialog: #ffffff;
-    --dialog-tekst: #3b3b40;
-    --btn-off-bg: #cfd3d9;
-    --btn-off-tx: #8c9096;
-    --btn-tekst: #1565C0;
-    --toast-bg: #322f35;
-    --toast-tx: #ffffff;
+    --tekst: #14181C;
+    --gri: #5B6570;
+    --vije: #D8DCE1;
+    --sfond: #F4F5F6;
+    --fushe-bg: #FFFFFF;
+    --fushe-kufi: #C7CCD2;
+    --hover: #ECEDEF;
+    --dialog: #FFFFFF;
+    --dialog-tekst: #3A3F45;
+    --btn-off-bg: #D8DCE1;
+    --btn-off-tx: #9AA0AB;
+    --btn-tekst: #A8710A;
+    --toast-bg: #14181C;
+    --toast-tx: #FFFFFF;
+    --mono: ui-monospace, "SF Mono", "Roboto Mono", monospace;
   }
   :root[data-tema="dark"] {
     color-scheme: dark;
-    --header: #0f3f7a;
-    --rrezik: #f2b8b5;
-    --tekst: #e6e1e5;
-    --gri: #a8a6ad;
-    --vije: #38363b;
-    --sfond: #141316;
-    --fushe-bg: #1c1b20;
-    --fushe-kufi: #8d8a93;
-    --hover: #232227;
-    --dialog: #2b2930;
-    --dialog-tekst: #d0cdd4;
-    --btn-off-bg: #3a393e;
-    --btn-off-tx: #77757c;
-    --btn-tekst: #8ab4f8;
-    --toast-bg: #e6e1e5;
-    --toast-tx: #1c1b1f;
+    --header: #14181C;
+    --rrezik: #F2B8B5;
+    --tekst: #F2F1EC;
+    --gri: #9AA0AB;
+    --vije: #2A333B;
+    --sfond: #14181C;
+    --fushe-bg: #1E252B;
+    --fushe-kufi: #3A434C;
+    --hover: #232B32;
+    --dialog: #1E252B;
+    --dialog-tekst: #D6D9DD;
+    --btn-off-bg: #2A333B;
+    --btn-off-tx: #5B6570;
+    --btn-tekst: #FFC53D;
+    --toast-bg: #F2F1EC;
+    --toast-tx: #14181C;
   }
 
   /* Aksentet (ngjyra kryesore) */
-  :root[data-aksent="jeshile"] { --primar: #2E7D32; --header: #2E7D32; --btn-tekst: #2E7D32; }
+  :root[data-aksent="jeshile"] { --primar: #2E7D32; --header: #2E7D32; --btn-tekst: #2E7D32; --btn-tekst-primar: #FFFFFF; }
   :root[data-tema="dark"][data-aksent="jeshile"] { --header: #1b5e20; --btn-tekst: #81c995; }
-  :root[data-aksent="vjollce"] { --primar: #6A1B9A; --header: #6A1B9A; --btn-tekst: #6A1B9A; }
+  :root[data-aksent="vjollce"] { --primar: #6A1B9A; --header: #6A1B9A; --btn-tekst: #6A1B9A; --btn-tekst-primar: #FFFFFF; }
   :root[data-tema="dark"][data-aksent="vjollce"] { --header: #4a148c; --btn-tekst: #ce93d8; }
-  :root[data-aksent="portokalli"] { --primar: #E65100; --header: #E65100; --btn-tekst: #E65100; }
+  :root[data-aksent="portokalli"] { --primar: #E65100; --header: #E65100; --btn-tekst: #E65100; --btn-tekst-primar: #FFFFFF; }
   :root[data-tema="dark"][data-aksent="portokalli"] { --header: #bf360c; --btn-tekst: #ffab40; }
-  :root[data-aksent="kuqe"] { --primar: #C62828; --header: #C62828; --btn-tekst: #C62828; }
+  :root[data-aksent="kuqe"] { --primar: #C62828; --header: #C62828; --btn-tekst: #C62828; --btn-tekst-primar: #FFFFFF; }
   :root[data-tema="dark"][data-aksent="kuqe"] { --header: #8e0000; --btn-tekst: #ef9a9a; }
 
   /* Madhësia e shkronjave: shkallëzon krejt faqen (edhe elementet me px) */
@@ -111,7 +113,7 @@
     width: 42px; height: 42px;
     padding: 0;
     border: 0;
-    border-radius: 21px;
+    border-radius: 10px;
     background: rgba(255,255,255,.18);
     color: #fff;
     font-size: 20px;
@@ -179,11 +181,13 @@
     flex: 1;
     min-height: 46px;
     border: 0;
-    border-radius: 23px;
+    border-radius: 10px;
     background: var(--primar);
-    color: #fff;
-    font-size: 15px;
-    font-weight: 600;
+    color: var(--btn-tekst-primar, #fff);
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     padding: 0 12px;
     cursor: pointer;
   }
@@ -215,7 +219,7 @@
   .artikull .emri { font-size: 16px; font-weight: 500; overflow-wrap: anywhere; }
   .artikull .emri.bosh { color: var(--gri); font-style: italic; font-weight: 400; }
   .artikull .kodi { font-size: 12px; color: var(--gri); margin-top: 2px; }
-  .artikull .sasia { font-size: 22px; font-weight: 500; }
+  .artikull .sasia { font-size: 22px; font-weight: 700; font-family: var(--mono, monospace); color: var(--btn-tekst); }
   .info { color: var(--gri); font-size: 14px; padding: 12px 2px; }
 
   /* Foldera */
@@ -226,12 +230,12 @@
     padding-right: max(16px, env(safe-area-inset-right));
   }
   .folder-karta {
-    position: relative; border: 1px solid var(--vije); border-radius: 16px;
+    position: relative; border: 1px solid var(--vije); border-top: 3px solid var(--btn-tekst); border-radius: 10px;
     padding: 16px 30px 16px 14px; background: var(--fushe-bg); cursor: pointer;
   }
   .folder-karta:active { background: var(--hover); }
-  .folder-karta .emri { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
-  .folder-karta .numri { font-size: 13px; color: var(--gri); margin-top: 4px; }
+  .folder-karta .emri { font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; overflow-wrap: anywhere; }
+  .folder-karta .numri { font-size: 13px; color: var(--gri); margin-top: 6px; font-family: var(--mono, monospace); }
   .folder-fshij {
     position: absolute; top: 6px; right: 6px; width: 30px; height: 30px;
     border: 0; border-radius: 15px; background: transparent; color: var(--gri);
@@ -262,7 +266,7 @@
     width: 100%; max-width: 380px;
     background: var(--dialog);
     color: var(--tekst);
-    border-radius: 24px;
+    border-radius: 14px;
     padding: 22px 20px 12px;
     max-height: 90%;
     overflow-y: auto;
@@ -275,7 +279,6 @@
   .hint { font-size: 13px; color: var(--gri); margin: 2px 0 12px; white-space: normal; }
   .zhvendos-nxit { display: block; width: 100%; text-align: left; padding: 6px 2px 14px; font-weight: 600; }
   #zhvendosLista { max-height: 320px; overflow-y: auto; margin: 4px 0 8px; }
-  #zhvendosLista .kategori-rresht { font-weight: 500; }
 
   /* Opsionet */
   .dialog.opsione {
@@ -294,11 +297,14 @@
   .opsione-trup { flex: 1; min-height: 0; overflow-y: auto; padding: 0 20px; }
   .kategori-menu { padding: 4px 0 8px; }
   .kategori-rresht {
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex; align-items: center; gap: 12px;
     width: 100%; text-align: left; border: 0; background: transparent;
-    color: var(--tekst); font-size: 16px; font-weight: 600;
-    padding: 14px 2px; border-bottom: 1px solid var(--vije); cursor: pointer;
+    color: var(--tekst); font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
+    padding: 15px 2px; border-bottom: 2px solid var(--vije); cursor: pointer;
   }
+  .kategori-rresht .kat-ikona { flex: none; color: var(--btn-tekst); }
+  .kategori-rresht .kat-tekst { flex: 1; min-width: 0; }
+  #zhvendosLista .kategori-rresht { font-weight: 500; text-transform: none; }
   .kategori-rresht:active { background: var(--hover); }
   .kategori-rresht .shigjeta { color: var(--gri); font-weight: 400; font-size: 18px; }
   .opsione-faqet { padding: 4px 0 8px; }
@@ -310,20 +316,20 @@
   }
   .seksion { padding: 12px 0; }
   .opsion-titull { font-size: 13px; font-weight: 700; color: var(--gri); margin-bottom: 8px; }
-  .segment { display: flex; border: 1px solid var(--fushe-kufi); border-radius: 22px; overflow: hidden; }
+  .segment { display: flex; border: 1px solid var(--fushe-kufi); border-radius: 10px; overflow: hidden; }
   .segment button {
     flex: 1; min-height: 40px; border: 0; background: transparent; color: var(--tekst);
-    font-size: 14px; font-weight: 600; cursor: pointer; padding: 0 6px;
+    font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; cursor: pointer; padding: 0 6px;
 
   }
   .segment button + button { border-left: 1px solid var(--fushe-kufi); }
-  .segment button.aktiv { background: var(--primar); color: #fff; }
+  .segment button.aktiv { background: var(--primar); color: var(--btn-tekst-primar, #fff); }
   .aksent-rrjeti { display: flex; gap: 12px; flex-wrap: wrap; margin: 4px 0; }
   .aksent-rreth {
     width: 40px; height: 40px; border-radius: 50%; border: 3px solid transparent;
     cursor: pointer; padding: 0; position: relative;
   }
-  .aksent-rreth[data-v="blu"] { background: #1565C0; }
+  .aksent-rreth[data-v="blu"] { background: #FFC53D; }
   .aksent-rreth[data-v="jeshile"] { background: #2E7D32; }
   .aksent-rreth[data-v="vjollce"] { background: #6A1B9A; }
   .aksent-rreth[data-v="portokalli"] { background: #E65100; }
@@ -534,13 +540,12 @@
 
     <div class="opsione-trup">
       <div class="kategori-menu" id="kategoriMenu">
-        <button class="kategori-rresht" type="button" data-faqe="pamja" id="tabPamja"><span id="tabPamjaTxt"></span><span class="shigjeta">›</span></button>
-        <button class="kategori-rresht" type="button" data-faqe="skenimi" id="tabSkenimi"><span id="tabSkenimiTxt"></span><span class="shigjeta">›</span></button>
-        <button class="kategori-rresht" type="button" data-faqe="lista" id="tabLista"><span id="tabListaTxt"></span><span class="shigjeta">›</span></button>
-        <button class="kategori-rresht" type="button" data-faqe="gjuha" id="tabGjuha"><span id="tabGjuhaTxt"></span><span class="shigjeta">›</span></button>
-        <button class="kategori-rresht" type="button" data-faqe="cloud" id="tabCloud"><span id="tabCloudTxt"></span><span class="shigjeta">›</span></button>
-        <button class="kategori-rresht" type="button" data-faqe="llogaria" id="tabLlogaria"><span id="tabLlogariaTxt"></span><span class="shigjeta">›</span></button>
-        <button class="kategori-rresht" type="button" data-faqe="admin" id="tabAdmin" style="display:none"><span id="tabAdminTxt"></span><span class="shigjeta">›</span></button>
+        <button class="kategori-rresht" type="button" data-faqe="pamja" id="tabPamja"><svg class="kat-ikona" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg><span id="tabPamjaTxt" class="kat-tekst"></span><span class="shigjeta">›</span></button>
+        <button class="kategori-rresht" type="button" data-faqe="skenimi" id="tabSkenimi"><svg class="kat-ikona" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="15" height="10" rx="2"></rect><path d="m21 8-5 3 5 3Z"></path></svg><span id="tabSkenimiTxt" class="kat-tekst"></span><span class="shigjeta">›</span></button>
+        <button class="kategori-rresht" type="button" data-faqe="lista" id="tabLista"><svg class="kat-ikona" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg><span id="tabListaTxt" class="kat-tekst"></span><span class="shigjeta">›</span></button>
+        <button class="kategori-rresht" type="button" data-faqe="cloud" id="tabCloud"><svg class="kat-ikona" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h.79a4.5 4.5 0 1 1 0 9Z"></path></svg><span id="tabCloudTxt" class="kat-tekst"></span><span class="shigjeta">›</span></button>
+        <button class="kategori-rresht" type="button" data-faqe="llogaria" id="tabLlogaria"><svg class="kat-ikona" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg><span id="tabLlogariaTxt" class="kat-tekst"></span><span class="shigjeta">›</span></button>
+        <button class="kategori-rresht" type="button" data-faqe="admin" id="tabAdmin" style="display:none"><svg class="kat-ikona" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 6v6c0 5 3.8 8.7 9 10 5.2-1.3 9-5 9-10V6Z"></path></svg><span id="tabAdminTxt" class="kat-tekst"></span><span class="shigjeta">›</span></button>
       </div>
 
       <div class="opsione-faqet">
@@ -608,16 +613,6 @@
                 <option value="sasiaUlet" id="optSasiaUlet"></option>
                 <option value="sasiaLart" id="optSasiaLart"></option>
               </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="opsione-faqe" data-faqe="gjuha">
-          <div class="seksion">
-            <div class="opsion-titull" id="titGjuha"></div>
-            <div class="segment" id="segGjuha">
-              <button type="button" data-v="sq">Shqip</button>
-              <button type="button" data-v="en">English</button>
             </div>
           </div>
         </div>
@@ -728,9 +723,8 @@
 
   function $(id) { return document.getElementById(id); }
 
-  // ================= Gjuha / Language (i18n) =================
+  // ================= Fjalori (tekstet, vetëm shqip) =================
   var FJALORI = {
-    sq: {
       opsionet: 'Opsionet',
       mbyll: 'Mbyll',
       anulo: 'Anulo',
@@ -804,7 +798,6 @@
       tabPamja: 'Pamja',
       tabSkenimi: 'Skenimi',
       tabLista: 'Lista',
-      tabGjuha: 'Gjuha',
       tabCloud: 'Cloud',
       tabLlogaria: 'Llogaria',
       llogariaDuhetHyrjeTeksti: 'Duhet të hysh së pari te tab-i "Cloud" për ta ndryshuar këtë.',
@@ -865,7 +858,7 @@
       eErret: 'E errët',
       automatikeHint: '"Automatike" ndjek cilësimin e telefonit.',
       titAksentiTeksti: 'Ngjyra kryesore',
-      aksentBluEmri: 'Blu',
+      aksentBluEmri: 'Qelibar',
       aksentJeshileEmri: 'Jeshile',
       aksentVjollceEmri: 'Vjollcë',
       aksentPortokalliEmri: 'Portokalli',
@@ -902,8 +895,6 @@
       sasiaLartOpt: 'Sasia: nga më e madhja',
       iRiOpt: 'Më të rejat së pari',
 
-      gjuhaTitulli: 'Gjuha',
-
       ruajtjaDeshtoi: 'Ruajtja dështoi: memoria e shfletuesit është plot.',
       nukKaProdukteEksport: 'Nuk ka produkte për eksport në këtë folder.',
 
@@ -915,200 +906,10 @@
       tastieraShfaqet: 'Tastiera do të shfaqet përsëri.',
       fshihTastieren: 'Fshih tastierën',
       shfaqTastieren: 'Shfaq tastierën'
-    },
-
-    en: {
-      opsionet: 'Options',
-      mbyll: 'Close',
-      anulo: 'Cancel',
-      ruaj: 'Save',
-      fshij: 'Delete',
-      krijo: 'Create',
-      vazhdo: 'Continue',
-      aktivizo: 'Enable',
-      rikthe: 'Restore',
-      foldera: 'Folders',
-
-      krijoFolder: '+ Create folder',
-      folderIRi: 'New folder',
-      emriIFolderit: 'Folder name',
-      shkruajEmrinFolderit: 'Enter the folder name.',
-      teFshihetFolderi: 'Delete this folder?',
-      folderiBoshTekst: function (a) { return 'This will delete the folder “' + a.emri + '”. It is empty.'; },
-      folderiMePrTekst: function (a) {
-        var njesi = a.n === 1 ? 'product' : 'products';
-        return 'This will delete the folder “' + a.emri + '” along with its ' + a.n + ' ' + njesi + '.\n\nThis cannot be undone.';
-      },
-      njesiaProdukteve: function (a) { return a.n + ' product' + (a.n === 1 ? '' : 's'); },
-
-      barkodiNormal: 'Barcode (type it or scan with the camera)',
-      barkodiPda: 'Barcode (scan with the PDA or type it)',
-      skanoKamer: 'Scan with camera',
-      eksportoExcel: 'Export to Excel',
-      eksportoPdf: 'Export to PDF',
-      kerkoLabel: 'Search by name or barcode',
-      kerkoGlobalLabel: 'Search all folders',
-      kerkoGlobalNukUGjet: 'No product found in any folder.',
-      fshijTeGjitha: 'Delete all products',
-      nukUGjetAsnjeProdukt: 'No product found.',
-      shfaqenNga: function (a) {
-        return 'Showing ' + a.limit + ' of ' + a.gjithsej + ' products. Use search to find others.';
-      },
-      paEmerListe: '(no name)',
-
-      produktIRi: 'New product',
-      produktIRiPaEmer: 'New product (no name)',
-      produktiEkziston: function (a) { return 'Product already exists (now: ' + a.sasia + ')'; },
-      barkodiEtiketa: function (a) { return 'Barcode: ' + a.barkodi; },
-      emriEtiketa: function (a) { return 'Name: ' + a.emri; },
-      emriIProduktit: 'Product name',
-      sasia: 'Quantity',
-      sasiaPerTuShtuar: 'Quantity to add',
-      zhvendosNeFolder: 'Move to another folder ›',
-      zhvendosTitulli: 'Move product',
-      zhvendosHint: function (a) { return 'Choose the folder to move “' + a.emri + '” to.'; },
-      zhvendosAsnjeFolder: 'There is no other folder to move it to.',
-      zhvendosUKry: function (a) { return 'Moved to “' + a.folder + '”.'; },
-      zhvendosUBashkua: function (a) {
-        return 'Moved to “' + a.folder + '”. It already existed there, so the quantities were combined (now: ' + a.sasia + ').';
-      },
-      shkruajEmrin: 'Enter the product name.',
-      shkruajSasine: 'Enter the quantity (a whole number).',
-
-      teFshihenTeGjitha: 'Delete everything?',
-      fshirjaTekst: function (a) {
-        if (a.n === 1) {
-          return 'This will delete the 1 product in the folder “' + a.folder + '”. This CANNOT be undone.\n\n' +
-            'If you want a copy, tap Cancel and export to Excel first.';
-        }
-        return 'This will delete all ' + a.n + ' products in the folder “' + a.folder + '”. This CANNOT be undone.\n\n' +
-          'If you want a copy, tap Cancel and export to Excel first.';
-      },
-      fshiKrejt: 'Delete all',
-      uFshinePrejFolderit: 'All products in the folder were deleted.',
-
-      opsioneTitulli: 'Options',
-      tabPamja: 'Appearance',
-      tabSkenimi: 'Scanning',
-      tabLista: 'List',
-      tabGjuha: 'Language',
-      tabCloud: 'Cloud',
-      tabLlogaria: 'Account',
-      llogariaDuhetHyrjeTeksti: 'You need to log in first from the "Cloud" tab to change this.',
-      tabAdmin: 'Admin',
-      titAdminStatistikaTeksti: 'Statistics',
-      adminStatProduktetTeksti: function (a) { return a.n + ' products total (all folders)'; },
-      adminStatFolderaTeksti: function (a) { return a.n + ' folders'; },
-      adminHintTeksti: 'This panel only shows for the admin account. More admin tools will be added here.',
-
-      cloudHint: 'Automatically keeps a copy of the list online (Firebase), so it isn\u2019t lost if the app is ' +
-        'deleted or you switch phones. This is NOT instant sync between several phones at once.',
-      lblCloudUsername: 'Username',
-      lblCloudFjalekalimi: 'Password (at least 6 characters)',
-      cloudKrijoLlogariBtn: 'Create account',
-      cloudHyrBtn: 'Log in',
-      cloudDilBtn: 'Log out',
-      cloudSinkronizoTaniBtn: 'Sync now',
-      cloudRiktheTaniBtn: 'Restore from cloud',
-      cloudHyrePerTeksti: function (a) { return 'Logged in as \u201c' + a.emri + '\u201d.'; },
-      cloudStatusiAsgje: 'Not synced yet.',
-      cloudStatusiDukeSink: 'Syncing…',
-      cloudStatusiUSink: function (a) { return 'Synced ' + a.kur + '.'; },
-      cloudStatusiDeshtoi: 'Sync failed. Check your internet connection.',
-      cloudStatusiDukeRikthyer: 'Restoring from cloud…',
-      cloudTeRiktheteCloud: 'Restore data from the cloud?',
-      cloudRiktheTekst: function (a) {
-        return 'This will replace all ' + a.aktual + ' current products with the ones saved in the cloud for ' +
-          'this account.\n\nThis cannot be undone.';
-      },
-      cloudNukKaAsgje: 'There is no data saved in the cloud for this account.',
-      cloudURikthye: 'Restored from the cloud.',
-      cloudURikthyeAutomatikisht: 'Restored the data previously saved to the cloud.',
-      cloudPlotesoFushat: 'Fill in the username and password.',
-      cloudEmriIShkurter: 'The username must be at least 3 characters (a\u2013z, 0\u20139, _ . -).',
-      cloudFjalekalimiIShkurter: 'The password must be at least 6 characters.',
-      cloudLlogariaEkziston: 'This username is already taken. Try another.',
-      cloudHyrjeGabim: 'Wrong username or password.',
-      cloudGabimPergjithshem: 'Something went wrong. Check your internet connection and try again.',
-      cloudLlogariaUKrijua: 'Account created and synced.',
-      cloudHyrjaUKry: 'Logged in successfully.',
-      cloudTeDilet: 'Log out of the account?',
-      cloudDilTekst: 'The data in the cloud is NOT deleted, but this phone won\u2019t sync anymore until you ' +
-        'log in again.',
-      lblCloudEmriRi: 'New username',
-      lblCloudFjalekalimiRi: 'New password (at least 6 characters)',
-      cloudNdryshoEmrinBtn: 'Change username',
-      cloudNdryshoFjalekaliminBtn: 'Change password',
-      cloudPlotesoEmrinRi: 'Enter the new username.',
-      cloudPlotesoFjalekalimin: 'Enter the new password.',
-      cloudEmriURiNdryshuar: 'Username changed.',
-      cloudFjalekalimiURiNdryshuar: 'Password changed.',
-      cloudDuhetRihyrje: 'For security, log out and log back in before changing this.',
-      cloudDuhetKonfigurim: 'Changing the username isn\u2019t allowed by a Firebase setting (Email enumeration protection). ' +
-        'Turn it off at Firebase console → Authentication → Settings → User actions, then try again.',
-
-      automatike: 'Automatic',
-      eCelet: 'Light',
-      eErret: 'Dark',
-      automatikeHint: '"Automatic" follows your phone\'s setting.',
-      titAksentiTeksti: 'Accent color',
-      aksentBluEmri: 'Blue',
-      aksentJeshileEmri: 'Green',
-      aksentVjollceEmri: 'Purple',
-      aksentPortokalliEmri: 'Orange',
-      aksentKuqeEmri: 'Red',
-      titMadhesiaTeksti: 'Text size',
-      madhesiaNormaleBtn: 'Normal',
-      madhesiaEMadheBtn: 'Large',
-      madhesiaHintTeksti: 'Slightly increases the size of all text and buttons, for easier reading.',
-
-      pdaLabel: 'This is a PDA (built-in scanner)',
-      pdaHint: "When on, the camera button is hidden and the cursor stays in the barcode field for the PDA's scanner.",
-      paEmerLabel: 'Scan only the barcode and quantity (no name)',
-      paEmerHint: 'Not recommended. New products are saved without a name and the name field is hidden.',
-      paEmerKonfTitulli: 'Save products without a name?',
-      paEmerKonfTekst: 'Saving products without a name is not recommended. Only the barcode will show in the list ' +
-        'and in Excel, which makes it harder to find, check, or recognize a product later, especially if a barcode ' +
-        'was scanned by mistake.\n\nProducts that already have a name keep it.\n\n' +
-        'If you\u2019re sure, wait 5 seconds and tap "Enable".',
-      tingullLabel: 'Sound (beep) when scanning with the camera',
-      scannerLabel: 'Keep the cursor in the barcode field (for a scanner)',
-      qrRefuzuar: 'You scanned a QR code. Scan the product\u2019s barcode instead.',
-      qrDyshim: "This doesn't look like a product barcode (looks like a QR code or text). Try again.",
-
-      kameraNukUHap: "The camera didn't open.",
-      kameraNukUHapLeje: "The camera didn't open. Allow the camera for this app in Settings.",
-      kameraNukEshteGati: "The camera isn't ready. Connect to the internet and reopen the app.",
-      kameraDrejtoje: 'Point the camera at the barcode',
-      kameraHint: 'Fit only one barcode inside the box',
-
-      renditSipas: 'Sort by',
-      emriAZ: 'Name (A–Z)',
-      emriZAOpt: 'Name (Z–A)',
-      sasiaUletOpt: 'Quantity: lowest first',
-      sasiaLartOpt: 'Quantity: highest first',
-      iRiOpt: 'Newest first',
-
-      gjuhaTitulli: 'Language',
-
-      ruajtjaDeshtoi: "Saving failed: the browser's storage is full.",
-      nukKaProdukteEksport: 'There are no products to export in this folder.',
-
-      pdfDukeKrijuar: 'Creating…',
-      pdfNukGati: "The PDF isn't ready. Connect to the internet and reopen the app.",
-      pdfDeshtoi: "The PDF couldn't be created. Try again.",
-
-      tastieraFshehur: "The keyboard won't show for the barcode field.",
-      tastieraShfaqet: 'The keyboard will show again.',
-      fshihTastieren: 'Hide the keyboard',
-      shfaqTastieren: 'Show the keyboard'
-    }
   };
 
   function T(kyc, args) {
-    var g = (typeof opsione !== 'undefined' && opsione && opsione.gjuha === 'en') ? 'en' : 'sq';
-    var fj = FJALORI[g] || FJALORI.sq;
-    var v = (kyc in fj) ? fj[kyc] : ((kyc in FJALORI.sq) ? FJALORI.sq[kyc] : kyc);
+    var v = (kyc in FJALORI) ? FJALORI[kyc] : kyc;
     return (typeof v === 'function') ? v(args || {}) : v;
   }
 
@@ -1140,7 +941,6 @@
     { id: 'tabPamjaTxt', prop: 'text', kyc: 'tabPamja' },
     { id: 'tabSkenimiTxt', prop: 'text', kyc: 'tabSkenimi' },
     { id: 'tabListaTxt', prop: 'text', kyc: 'tabLista' },
-    { id: 'tabGjuhaTxt', prop: 'text', kyc: 'tabGjuha' },
     { id: 'tabCloudTxt', prop: 'text', kyc: 'tabCloud' },
     { id: 'tabLlogariaTxt', prop: 'text', kyc: 'tabLlogaria' },
     { id: 'tabAdminTxt', prop: 'text', kyc: 'tabAdmin' },
@@ -1173,8 +973,6 @@
     { id: 'optEmriZA', prop: 'text', kyc: 'emriZAOpt' },
     { id: 'optSasiaUlet', prop: 'text', kyc: 'sasiaUletOpt' },
     { id: 'optSasiaLart', prop: 'text', kyc: 'sasiaLartOpt' },
-
-    { id: 'titGjuha', prop: 'text', kyc: 'gjuhaTitulli' },
 
     { id: 'opsMbyll', prop: 'text', kyc: 'mbyll' },
 
@@ -1303,13 +1101,13 @@
     toastKohe = setTimeout(function () { t.classList.remove('hapur'); }, ms || 2600);
   }
 
-  // ================= Opsionet (përfshirë gjuha) =================
+  // ================= Opsionet =================
   var KEY_OPSIONE = 'stoku:opsione:v1';
   var KEY_TEMA = 'stoku:tema';
 
   var opsione = {
     tingull: true, rendi: 'i_ri', scanner: true, pda: false, tastieraEFshehur: false,
-    paEmer: false, gjuha: 'sq', aksent: 'blu', madhesia: 'normale'
+    paEmer: false, aksent: 'blu', madhesia: 'normale'
   };
   try {
     var opsioneRuajtura = JSON.parse(localStorage.getItem(KEY_OPSIONE) || 'null');
@@ -1320,7 +1118,6 @@
       if (typeof opsioneRuajtura.paEmer === 'boolean') opsione.paEmer = opsioneRuajtura.paEmer;
       if (typeof opsioneRuajtura.tastieraEFshehur === 'boolean') opsione.tastieraEFshehur = opsioneRuajtura.tastieraEFshehur;
       if (['i_ri', 'emri', 'emriZA', 'sasiaUlet', 'sasiaLart'].indexOf(opsioneRuajtura.rendi) !== -1) opsione.rendi = opsioneRuajtura.rendi;
-      if (opsioneRuajtura.gjuha === 'en' || opsioneRuajtura.gjuha === 'sq') opsione.gjuha = opsioneRuajtura.gjuha;
       if (['blu', 'jeshile', 'vjollce', 'portokalli', 'kuqe'].indexOf(opsioneRuajtura.aksent) !== -1) opsione.aksent = opsioneRuajtura.aksent;
       if (opsioneRuajtura.madhesia === 'e_madhe' || opsioneRuajtura.madhesia === 'normale') opsione.madhesia = opsioneRuajtura.madhesia;
     }
@@ -1340,7 +1137,7 @@
     }
   } catch (e) { /* ok */ }
 
-  document.documentElement.lang = opsione.gjuha;
+  document.documentElement.lang = 'sq';
 
   // ---------- Foldera ----------
   function renderFolderat() {
@@ -1529,7 +1326,7 @@
 
   // Tema: 'auto' (ndjek telefonin), 'light' ose 'dark'
   var AKSENT_HEADER = {
-    blu: { light: '#1565C0', dark: '#0f3f7a' },
+    blu: { light: '#1A1F24', dark: '#14181C' },
     jeshile: { light: '#2E7D32', dark: '#1b5e20' },
     vjollce: { light: '#6A1B9A', dark: '#4a148c' },
     portokalli: { light: '#E65100', dark: '#bf360c' },
@@ -1607,40 +1404,7 @@
   });
   zbatoMadhesine();
 
-  // ---------- Gjuha ----------
-  function zbatoGjuhen() {
-    Array.prototype.forEach.call(document.querySelectorAll('#segGjuha button'), function (b) {
-      b.classList.toggle('aktiv', b.getAttribute('data-v') === opsione.gjuha);
-    });
-  }
-  function vendosGjuhen(v) {
-    if (v !== 'sq' && v !== 'en') return;
-    opsione.gjuha = v;
-    ruajOpsionet();
-    document.documentElement.lang = v;
-    perkthoGjithcka();
-  }
-  Array.prototype.forEach.call(document.querySelectorAll('#segGjuha button'), function (b) {
-    b.addEventListener('click', function () { vendosGjuhen(b.getAttribute('data-v')); });
-  });
-
-  // Rifreskon krejt tekstin e dukshëm kur ndryshon gjuha (pa mbyllur asnjë dritare të hapur)
-  function perkthoGjithcka() {
-    perkthoStatiket();
-    zbatoGjuhen();
-    zbatoPda();
-    zbatoTastieren();
-    if (folderiAktual === null) {
-      renderFolderat();
-    } else {
-      renderLista();
-    }
-    if ($('dlgOpsione').classList.contains('hapur')) {
-      rifreskoDukjenECloud();
-      var faqjaAktive = document.querySelector('.opsione-faqe.aktiv');
-      aktivizoTabin(faqjaAktive ? faqjaAktive.getAttribute('data-faqe') : null);
-    }
-  }
+  // (gjuha u hoq — aplikacioni tani është vetëm shqip)
 
   // Rendi i listës
   function emriKrahaso(a, b) {
@@ -1741,7 +1505,6 @@
   zbatoPda();
   zbatoTastieren();
   perkthoStatiket();
-  zbatoGjuhen();
 
   // ---------- Tabet e Opsioneve ----------
   function aktivizoTabin(emriFaqes) {
@@ -1757,7 +1520,7 @@
   }
   var TAB_TITULL_KYC = {
     pamja: 'tabPamja', skenimi: 'tabSkenimi',
-    lista: 'tabLista', gjuha: 'tabGjuha', cloud: 'tabCloud', llogaria: 'tabLlogaria', admin: 'tabAdmin'
+    lista: 'tabLista', cloud: 'tabCloud', llogaria: 'tabLlogaria', admin: 'tabAdmin'
   };
   Array.prototype.forEach.call(document.querySelectorAll('.kategori-rresht'), function (b) {
     b.addEventListener('click', function () { aktivizoTabin(b.getAttribute('data-faqe')); });
@@ -1775,7 +1538,6 @@
     zbatoTemen();
     zbatoAksentin();
     zbatoMadhesine();
-    zbatoGjuhen();
     rifreskoDukjenECloud();
     aktivizoTabin(null);
     $('dlgOpsione').classList.add('hapur');
