@@ -79,7 +79,7 @@
   /* Madhësia e shkronjave: shkallëzon krejt faqen (edhe elementet me px) */
   body[data-madhesi="e_madhe"] { zoom: 1.12; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; height: 100%; }
+  html, body { margin: 0; height: 100%; overflow: hidden; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: var(--tekst);
@@ -88,7 +88,11 @@
     flex-direction: column;
     height: 100vh;
     height: 100dvh;
+    overflow: hidden;
     overscroll-behavior: none;
+    position: fixed;
+    inset: 0;
+    width: 100%;
   }
   #rrotulloPrapa {
     display: none;
@@ -235,6 +239,17 @@
     padding: 4px 16px 16px;
     padding-left: max(16px, env(safe-area-inset-left));
     padding-right: max(16px, env(safe-area-inset-right));
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  #kerkoGlobalLista {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 16px;
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
   }
   .folder-karta {
     position: relative; border: 1px solid var(--vije); border-radius: 16px;
@@ -296,12 +311,10 @@
     justify-content: stretch;
     transform: translateX(100%);
     transition: transform .28s ease;
-    visibility: hidden;
     pointer-events: none;
   }
   #dlgOpsione.hapur {
     transform: translateX(0);
-    visibility: visible;
     pointer-events: auto;
   }
   #dlgOpsione .dialog.opsione {
@@ -468,20 +481,45 @@
   .kamera-krye .btn { flex: none; min-height: 40px; background: #fff; color: #000; }
   .kamera-tekst { flex: 1; min-width: 0; }
   .kamera-veprime { display: flex; gap: 8px; flex: none; }
-  .kamera-video-shtrat { position: relative; flex: 1; display: flex; }
+  .kamera-video-shtrat { position: relative; flex: 1; display: flex; overflow: hidden; }
   #reader { width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; }
   #reader video { max-width: 100%; }
+  #kameraVideo {
+    width: 100%; height: 100%; object-fit: cover; background: #000;
+  }
   .skan-mbulese {
     position: absolute; inset: 0; display: flex; flex-direction: column;
     align-items: center; justify-content: center; pointer-events: none;
   }
+  .skan-korniza {
+    position: relative;
+    width: min(84%, 340px); height: min(46%, 200px);
+    box-shadow: 0 0 0 9999px rgba(0,0,0,.55);
+    border-radius: 18px;
+  }
+  .skan-qoshe {
+    position: absolute; width: 30px; height: 30px;
+    border: 4px solid #fff;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,.5));
+  }
+  .skan-qoshe-tl { top: -3px; left: -3px; border-right: 0; border-bottom: 0; border-radius: 14px 0 0 0; }
+  .skan-qoshe-tr { top: -3px; right: -3px; border-left: 0; border-bottom: 0; border-radius: 0 14px 0 0; }
+  .skan-qoshe-bl { bottom: -3px; left: -3px; border-right: 0; border-top: 0; border-radius: 0 0 0 14px; }
+  .skan-qoshe-br { bottom: -3px; right: -3px; border-left: 0; border-top: 0; border-radius: 0 0 14px 0; }
   .skan-vije {
-    width: min(78%, 300px); height: 2px;
-    background: linear-gradient(90deg, transparent, #ff5252 12%, #ff5252 88%, transparent);
-    box-shadow: 0 0 6px 1px rgba(255,82,82,.7);
+    position: absolute; left: 6%; right: 6%; top: 0; height: 2.5px;
+    background: linear-gradient(90deg, transparent, #ff5252 15%, #ff5252 85%, transparent);
+    box-shadow: 0 0 8px 1px rgba(255,82,82,.8);
+    animation: skanRrjedh 1.8s ease-in-out infinite;
+  }
+  @keyframes skanRrjedh {
+    0%   { top: 6%; opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { top: 94%; opacity: 0; }
   }
   .skan-hint {
-    margin-top: 16px; color: #fff; background: rgba(0,0,0,.5);
+    margin-top: 22px; color: #fff; background: rgba(0,0,0,.5);
     padding: 7px 16px; border-radius: 16px; font-size: 13px; text-align: center; max-width: 80%;
   }
 
@@ -819,9 +857,16 @@
     </div>
   </div>
   <div class="kamera-video-shtrat">
-    <div id="reader"></div>
+    <div id="reader" style="display:none"></div>
+    <video id="kameraVideo" autoplay playsinline muted></video>
     <div class="skan-mbulese">
-      <div class="skan-vije"></div>
+      <div class="skan-korniza">
+        <span class="skan-qoshe skan-qoshe-tl"></span>
+        <span class="skan-qoshe skan-qoshe-tr"></span>
+        <span class="skan-qoshe skan-qoshe-bl"></span>
+        <span class="skan-qoshe skan-qoshe-br"></span>
+        <div class="skan-vije"></div>
+      </div>
       <div class="skan-hint" id="skanHint"></div>
     </div>
   </div>
@@ -2415,8 +2460,58 @@
   var skaneri = null;
   var perpunuar = false;
 
+  // API-ja native e shfletuesit (BarcodeDetector) — shumë më e shpejtë dhe më e saktë se motori i
+  // vjetër i bazuar në JS të pastër (ZXing), sepse përdor vetë sistemin/harduerin e telefonit për
+  // ta njohur barkodin. Provohet gjithmonë e para; nëse shfletuesi s'e mbështet (kryesisht Safari
+  // në iPhone), kalohet automatikisht te motori rezervë (html5-qrcode), pa e ndjerë fare përdoruesi.
+  var FORMATET_E_BARKODIT = ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'code_93', 'itf', 'codabar', 'qr_code'];
+  var detektoriNativ = null;
+  try {
+    if ('BarcodeDetector' in window) detektoriNativ = new BarcodeDetector({ formats: FORMATET_E_BARKODIT });
+  } catch (e) { detektoriNativ = null; }
+  var mbeshtetNativisht = !!detektoriNativ;
+  var nativRrjedha = null;
+  var nativDukeSkanuar = false;
+
+  async function ciklikuIDetektimitNativ() {
+    if (!nativDukeSkanuar) return;
+    var v = $('kameraVideo');
+    if (v && v.readyState >= 2) {
+      try {
+        var rezultatet = await detektoriNativ.detect(v);
+        if (nativDukeSkanuar && rezultatet && rezultatet.length > 0) {
+          var r = rezultatet[0];
+          kuSuksesiSkanimi(r.rawValue, { format: String(r.format || '').toUpperCase() });
+        }
+      } catch (e) { /* frame i dështuar, provo tjetrin */ }
+    }
+    if (nativDukeSkanuar) requestAnimationFrame(ciklikuIDetektimitNativ);
+  }
+
+  async function nisKamerenNativisht(kufizimet) {
+    var rrjedha = await navigator.mediaDevices.getUserMedia({ video: kufizimet });
+    nativRrjedha = rrjedha;
+    var v = $('kameraVideo');
+    v.srcObject = rrjedha;
+    await v.play();
+    $('kameraVideo').style.display = '';
+    $('reader').style.display = 'none';
+    nativDukeSkanuar = true;
+    ciklikuIDetektimitNativ();
+  }
+
+  async function ndalSkanerinNativ() {
+    nativDukeSkanuar = false;
+    if (nativRrjedha) {
+      try { nativRrjedha.getTracks().forEach(function (t) { t.stop(); }); } catch (e) { /* ok */ }
+      nativRrjedha = null;
+    }
+    var v = $('kameraVideo');
+    if (v) v.srcObject = null;
+  }
+
   function trackuIKameres() {
-    var v = document.querySelector('#reader video');
+    var v = nativDukeSkanuar ? $('kameraVideo') : document.querySelector('#reader video');
     var rrjedha = v && v.srcObject;
     return (rrjedha && rrjedha.getVideoTracks && rrjedha.getVideoTracks()[0]) || null;
   }
@@ -2505,12 +2600,19 @@
     }, 1000);
   }
 
+  var qrToastFundit = 0;
   function kuSuksesiSkanimi(tekstiILexuar, decodedResult) {
     var barkodi = String(tekstiILexuar).trim();
     var formati = formatiIRezultatit(decodedResult);
     if (formati === 'QR_CODE') {
-      // Nuk e trajtojmë si barkod produkti: njoftojmë dhe vazhdojmë skenimin pa e ndalur kamerën
-      toast(T('qrRefuzuar'));
+      // Nuk e trajtojmë si barkod produkti: njoftojmë (jo më shpesh se çdo 2s, sepse motori nativ
+      // e njeh të njëjtin kod shumë herë në sekondë sa kohë mbahet në kamerë) dhe vazhdojmë skenimin
+      // pa e ndalur kamerën.
+      var tash = Date.now();
+      if (tash - qrToastFundit > 2000) {
+        qrToastFundit = tash;
+        toast(T('qrRefuzuar'));
+      }
       return;
     }
 
@@ -2580,6 +2682,17 @@
   }
 
   async function provoNisjenSkanerit(kufizimet) {
+    if (mbeshtetNativisht) {
+      try {
+        await nisKamerenNativisht(kufizimet);
+        return true;
+      } catch (e) {
+        await ndalSkanerinNativ(); // s'punoi nativisht (p.sh. leje/pajisje), provo motorin rezervë
+      }
+    }
+    if (typeof Html5Qrcode === 'undefined') return false;
+    $('kameraVideo').style.display = 'none';
+    $('reader').style.display = '';
     var i = krijoSkanerin();
     try {
       await i.start(kufizimet, { fps: 10, qrbox: QRBOX_FN, videoConstraints: kufizimet }, kuSuksesiSkanimi, kuGabimiSkanimi);
@@ -2633,7 +2746,7 @@
 
   async function hapKamere() {
     pergatitAudion(); // duhet thirrur nga prekja e përdoruesit që tingulli të lejohet në iPhone
-    if (typeof Html5Qrcode === 'undefined') {
+    if (!mbeshtetNativisht && typeof Html5Qrcode === 'undefined') {
       toast(T('kameraNukEshteGati'));
       return;
     }
@@ -2650,6 +2763,7 @@
 
   // Ndalon vetëm skanerin (dritarja e kamerës mbetet e hapur)
   async function ndalSkanerin() {
+    await ndalSkanerinNativ();
     var s = skaneri;
     skaneri = null;
     if (s) {
