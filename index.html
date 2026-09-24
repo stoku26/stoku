@@ -231,6 +231,14 @@
   .artikull .emri.bosh { color: var(--gri); font-style: italic; font-weight: 400; }
   .artikull .kodi { font-size: 12px; color: var(--gri); margin-top: 2px; }
   .artikull .sasia { font-size: 22px; font-weight: 500; }
+  .sasia-hap { display: flex; align-items: center; gap: 6px; }
+  .sasia-hap .sasia { font-size: 20px; min-width: 28px; text-align: center; }
+  .sasia-hap-btn {
+    flex: none; width: 28px; height: 28px; border-radius: 14px; border: 1px solid var(--fushe-kufi);
+    background: var(--fushe-bg); color: var(--tekst); font-size: 17px; line-height: 1;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
+  }
+  .sasia-hap-btn:active { background: var(--hover); }
   .info { color: var(--gri); font-size: 14px; padding: 12px 2px; }
 
   /* Foldera */
@@ -501,7 +509,7 @@
   <div class="fushe">
     <label for="barkodi" id="lblBarkodi"></label>
     <div class="barkodi-mbeshtjellje" id="barkodiMbeshtjellje">
-      <input id="barkodi" type="text" inputmode="numeric" enterkeyhint="done"
+      <input id="barkodi" type="text" inputmode="text" enterkeyhint="done"
              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
       <div class="barkodi-shfaqje" id="barkodiShfaqje" tabindex="0"></div>
     </div>
@@ -829,6 +837,8 @@
         return 'Do të fshihet folderi "' + a.emri + '" bashkë me ' + a.n + ' ' + njesi + ' brenda tij.\n\nKy veprim NUK mund të kthehet.';
       },
       njesiaProdukteve: function (a) { return a.n + ' ' + (a.n === 1 ? 'produkt' : 'produkte'); },
+      zvogeloSasine: 'Zvogëlo sasinë',
+      rritSasine: 'Rrit sasinë',
 
       barkodiNormal: 'Barkodi (shkruaje ose skano me kamerë)',
       barkodiPda: 'Barkodi (skano me PDA ose shkruaje)',
@@ -1601,7 +1611,7 @@
 
   function zbatoTastieren() {
     var fshehur = opsione.tastieraEFshehur;
-    $('barkodi').setAttribute('inputmode', fshehur ? 'none' : 'numeric'); // mbrojtje shtesë (jo gjithmonë e mjaftueshme vetë)
+    $('barkodi').setAttribute('inputmode', fshehur ? 'none' : 'text'); // mbrojtje shtesë (jo gjithmonë e mjaftueshme vetë)
     $('barkodiMbeshtjellje').classList.toggle('osk-fshehur', fshehur);
     $('barkodiShfaqje').textContent = $('barkodi').value;
     $('btnTastiera').classList.toggle('aktiv', fshehur);
@@ -1944,6 +1954,13 @@
     return !!u && emriPerdoruesitAktual().toLowerCase() === ADMIN_USERNAME;
   }
 
+  // Veçori vetëm për këtë përdorues specifik (butona +/- shpejtë te lista) — për asnjë tjetër.
+  var SASIA_SHPEJTE_USERNAME = 'albidepo34';
+  function eLejuarSasiaShpejte() {
+    var u = perdoruesiAktual();
+    return !!u && emriPerdoruesitAktual().toLowerCase() === SASIA_SHPEJTE_USERNAME;
+  }
+
   function rifreskoDukjenECloud() {
     var u = perdoruesiAktual();
     $('cloudHyrjeSeksion').style.display = u ? 'none' : '';
@@ -2114,11 +2131,49 @@
       kodi.textContent = p.barkodi;
       majtas.appendChild(emri);
       majtas.appendChild(kodi);
-      var sasia = document.createElement('div');
-      sasia.className = 'sasia';
-      sasia.textContent = String(p.sasia);
       rreshti.appendChild(majtas);
-      rreshti.appendChild(sasia);
+
+      if (eLejuarSasiaShpejte()) {
+        var celesiRreshti = celesiProduktit(folderiAktual, p.barkodi);
+        var mbeshtjellesi = document.createElement('div');
+        mbeshtjellesi.className = 'sasia-hap';
+        var btnMinus = document.createElement('button');
+        btnMinus.type = 'button';
+        btnMinus.className = 'sasia-hap-btn';
+        btnMinus.textContent = '−';
+        btnMinus.setAttribute('aria-label', T('zvogeloSasine'));
+        var sasiaNumri = document.createElement('div');
+        sasiaNumri.className = 'sasia';
+        sasiaNumri.textContent = String(p.sasia);
+        var btnPlus = document.createElement('button');
+        btnPlus.type = 'button';
+        btnPlus.className = 'sasia-hap-btn';
+        btnPlus.textContent = '+';
+        btnPlus.setAttribute('aria-label', T('rritSasine'));
+        var ndryshoSasineShpejt = function (delta) {
+          var prod = produktet[celesiRreshti];
+          if (!prod) return;
+          var re = Math.max(0, prod.sasia + delta);
+          if (re === prod.sasia) return;
+          prod.sasia = re;
+          prod.prekurSe = Date.now();
+          ruajBaze();
+          renderLista();
+          renderFolderat();
+        };
+        btnMinus.addEventListener('click', function (ev) { ev.stopPropagation(); ndryshoSasineShpejt(-1); });
+        btnPlus.addEventListener('click', function (ev) { ev.stopPropagation(); ndryshoSasineShpejt(1); });
+        mbeshtjellesi.appendChild(btnMinus);
+        mbeshtjellesi.appendChild(sasiaNumri);
+        mbeshtjellesi.appendChild(btnPlus);
+        rreshti.appendChild(mbeshtjellesi);
+      } else {
+        var sasia = document.createElement('div');
+        sasia.className = 'sasia';
+        sasia.textContent = String(p.sasia);
+        rreshti.appendChild(sasia);
+      }
+
       rreshti.addEventListener('click', function () {
         burimiIFundit = 'lista';
         hapDialogun(p.barkodi);
