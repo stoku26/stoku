@@ -384,7 +384,7 @@
   .opsione-faqe.aktiv { display: block; }
   .opsione-faqe .seksion:first-child { padding-top: 0; }
   .seksion { padding: 18px 0; border-bottom: 1px solid var(--vije); }
-  .seksion:last-child { border-bottom: 0; }
+  .seksion:last-child, .seksion.seksion-fundit { border-bottom: 0; }
   .opsion-titull { font-size: 13px; font-weight: 700; color: var(--gri); margin-bottom: 8px; }
   .segment { display: flex; border: 1px solid var(--fushe-kufi); border-radius: 22px; overflow: hidden; }
   .segment button {
@@ -1427,6 +1427,9 @@
   $('kerkoGlobal').addEventListener('input', renderKerkimiGlobal);
 
   function rifreskoPamjen() {
+    if (folderiAktual !== null && !foldera.some(function (f) { return f.id === folderiAktual; })) {
+      folderiAktual = null; // folderi u fshi ndërkohë (p.sh. nga sinkronizimi) — kthehu te lista
+    }
     var brenda = folderiAktual !== null;
     $('siperFolderat').style.display = brenda ? 'none' : '';
     $('folderaLista').style.display = brenda ? 'none' : '';
@@ -1625,12 +1628,27 @@
   }
 
   // Modaliteti PDA: fsheh kamerën dhe e mban kursorin te fusha e barkodit
+  // Vija ndarëse hiqet nga seksioni i fundit I DUKSHËM i çdo faqeje (jo thjesht i fundit në kod) —
+  // përndryshe, kur disa seksione fshihen (PDA, Llogaria pa hyrje), mbetet një vijë bosh në fund.
+  function rregulloVijatNdarese() {
+    Array.prototype.forEach.call(document.querySelectorAll('.opsione-faqe'), function (faqe) {
+      var seksionet = faqe.querySelectorAll(':scope > .seksion');
+      var iFundit = null;
+      Array.prototype.forEach.call(seksionet, function (sk) {
+        sk.classList.remove('seksion-fundit');
+        if (sk.style.display !== 'none') iFundit = sk;
+      });
+      if (iFundit) iFundit.classList.add('seksion-fundit');
+    });
+  }
+
   function zbatoPda() {
     var pda = opsione.pda;
     $('btnKamera').style.display = pda ? 'none' : '';
     $('btnEksportPdf').style.display = ''; // PDF mbetet e dukshme edhe në PDA
     $('seksionTingull').style.display = pda ? 'none' : '';
     $('seksionScanner').style.display = pda ? 'none' : '';
+    rregulloVijatNdarese();
     $('barkodi').placeholder = pda ? T('barkodiPda') : T('barkodiNormal');
     zbatoRrotullimin();
   }
@@ -1754,7 +1772,11 @@
     aktivizoTabin(null);
     $('dlgOpsione').classList.add('hapur');
   }
-  function mbyllOpsionet() { $('dlgOpsione').classList.remove('hapur'); fokusoBarkodin(); }
+  function mbyllOpsionet() {
+    $('dlgOpsione').classList.remove('hapur');
+    rifreskoPamjen(); // garanton që shfaqet saktë ekrani nga erdhe (folder ose faqja kryesore), sido që të jetë
+    fokusoBarkodin();
+  }
 
   $('btnOpsione').addEventListener('click', hapOpsionet);
   $('dlgOpsione').addEventListener('click', function (ev) {
@@ -2028,6 +2050,7 @@
     $('cloudHyrjeSeksion').style.display = u ? 'none' : '';
     $('cloudBrendaSeksion').style.display = u ? '' : 'none';
     $('llogariaBrendaSeksion').style.display = u ? '' : 'none';
+    rregulloVijatNdarese();
     if (u) {
       $('cloudHyrePerTeksti').textContent = T('cloudHyrePerTeksti', { emri: emriPerdoruesitAktual() });
       if (!dukeSinkronizuar && !dukeRikthyerNgaCloud) vendosStatusinCloud(T('cloudStatusiAsgje'));
@@ -2198,7 +2221,7 @@
     var fil = te;
     if (k) {
       fil = te.filter(function (p) {
-        return p.emri.toLowerCase().indexOf(k) !== -1 || p.barkodi.toLowerCase().indexOf(k) !== -1;
+        return String(p.emri || '').toLowerCase().indexOf(k) !== -1 || String(p.barkodi || '').toLowerCase().indexOf(k) !== -1;
       });
     }
 
@@ -2874,7 +2897,6 @@
   // pa e prekur asnjëherë faqen kryesore. Numërohet edhe thellësia (p.sh. brenda një folderi + një
   // dialog i hapur = 2 nivele), që "mbrapa" t'i mbyllë njërin pas tjetrit, në rendin e saktë.
   var __historiaThellesia = 0;
-  var __dukeMbyllurNgaHistoria = false;
 
   function niveletEHapura() {
     var n = 0;
@@ -2890,10 +2912,20 @@
     return n;
   }
 
+  // Mbyll vetëm shtresën e sipërme. Dialogët mbyllen përmes butonit të tyre "Anulo" (jo duke hequr
+  // thjesht klasën), që logjika e tyre (p.sh. konfirmo() që pret përgjigje) të përfundojë saktë.
+  var ANULO_SIPAS_DIALOGUT = {
+    dlgProdukt: 'dlgAnulo', dlgZhvendos: 'zhvendosAnulo', dlgFshirje: 'fshiAnulo',
+    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo'
+  };
   function mbyllShtresenMeTeFundit() {
-    if ($('kamera').classList.contains('hapur')) { ndalKamere(); return; }
     var dlgTjeter = document.querySelector('.mbulese.hapur:not(#dlgOpsione)');
-    if (dlgTjeter) { dlgTjeter.classList.remove('hapur'); return; }
+    if (dlgTjeter) {
+      var idAnulo = ANULO_SIPAS_DIALOGUT[dlgTjeter.id];
+      if (idAnulo && $(idAnulo)) $(idAnulo).click(); else dlgTjeter.classList.remove('hapur');
+      return;
+    }
+    if ($('kamera').classList.contains('hapur')) { ndalKamere(); return; }
     if ($('dlgOpsione').classList.contains('hapur')) {
       if ($('kategoriMenu').style.display === 'none') { aktivizoTabin(null); return; }
       mbyllOpsionet();
@@ -2902,26 +2934,36 @@
     if (folderiAktual !== null) { mbrapaNeFoldera(); return; }
   }
 
+  // Historia sinkronizohet me vonesë të shkurtër, që kalimet e shpejta (p.sh. kamera mbyllet dhe
+  // menjëherë hapet dialogu i produktit) të mos krijojnë hyrje të tepërta apo të humbura.
+  var __injoroPopstate = 0; // sa "mbrapa" i ka shkaktuar vetë kodi (jo përdoruesi) — këto injorohen
+  var __sinkKohez = null;
   function sinkronizoHistorineEDritareve() {
+    clearTimeout(__sinkKohez);
+    __sinkKohez = setTimeout(sinkronizoTani, 30);
+  }
+  function sinkronizoTani() {
     var thellesiaTani = niveletEHapura();
     if (thellesiaTani > __historiaThellesia) {
-      __historiaThellesia = thellesiaTani;
-      try { history.pushState({ stokuNiveli: thellesiaTani }, ''); } catch (e) { /* ok */ }
-    } else if (thellesiaTani < __historiaThellesia) {
-      __historiaThellesia = thellesiaTani;
-      if (!__dukeMbyllurNgaHistoria) {
-        try { history.back(); } catch (e) { /* ok */ }
+      while (__historiaThellesia < thellesiaTani) {
+        __historiaThellesia++;
+        try { history.pushState({ stokuNiveli: __historiaThellesia }, ''); } catch (e) { /* ok */ }
       }
+    } else if (thellesiaTani < __historiaThellesia) {
+      // U mbyll diçka nga UI (butoni "←", "Anulo", etj.) — hiqi hyrjet e historisë që s'duhen më,
+      // por shëno që ky "mbrapa" vjen nga kodi, që të mos mbyllë edhe një shtresë tjetër.
+      var diferenca = __historiaThellesia - thellesiaTani;
+      __historiaThellesia = thellesiaTani;
+      __injoroPopstate++;
+      try { history.go(-diferenca); } catch (e) { __injoroPopstate--; }
     }
   }
 
   window.addEventListener('popstate', function () {
-    if (niveletEHapura() > 0) {
-      __dukeMbyllurNgaHistoria = true;
-      mbyllShtresenMeTeFundit();
-      setTimeout(function () { __dukeMbyllurNgaHistoria = false; }, 0);
-    }
+    if (__injoroPopstate > 0) { __injoroPopstate--; return; }
+    // Përdoruesi shtypi "mbrapa": një hyrje historie tashmë u hoq — mbyll saktësisht një shtresë.
     __historiaThellesia = Math.max(0, __historiaThellesia - 1);
+    if (niveletEHapura() > 0) mbyllShtresenMeTeFundit();
   });
 
   if (window.MutationObserver) {
