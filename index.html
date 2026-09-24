@@ -593,10 +593,9 @@
 <!-- Brenda një folderi -->
 <div class="siper" id="siperFolderi" style="display:none">
   <div class="fushe">
-    <label for="barkodi" id="lblBarkodi"></label>
     <div class="barkodi-mbeshtjellje kerko-kuti" id="barkodiMbeshtjellje">
       <svg class="kerko-ikona" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5v14"></path><path d="M7 5v14"></path><path d="M11 5v14"></path><path d="M14 5v14"></path><path d="M18 5v14"></path><path d="M21 5v14"></path></svg>
-      <input id="barkodi" type="text" inputmode="text" enterkeyhint="done"
+      <input id="barkodi" type="text" inputmode="text" enterkeyhint="done" aria-label="Barkodi"
              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
   </div>
@@ -606,10 +605,9 @@
   </div>
   <button class="btn dyte" id="btnEksportPdf" type="button" style="width:100%;margin-bottom:10px"></button>
   <div class="fushe">
-    <label for="kerko" id="lblKerko"></label>
     <div class="kerko-kuti">
       <svg class="kerko-ikona" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>
-      <input id="kerko" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <input id="kerko" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Kërko">
     </div>
   </div>
 </div>
@@ -626,14 +624,12 @@
     <h2 id="dlgTitulli">Produkt i ri</h2>
     <div class="kodi-dialog" id="dlgKodi"></div>
     <div class="fushe" id="fushaEmri">
-      <label for="dlgEmri" id="lblDlgEmri"></label>
-      <input id="dlgEmri" type="text" autocomplete="off" autocorrect="off" enterkeyhint="next">
+      <input id="dlgEmri" type="text" autocomplete="off" autocorrect="off" enterkeyhint="next" aria-label="Emri">
     </div>
     <div class="fushe">
-      <label for="dlgSasia" id="dlgSasiaLabel"></label>
       <div class="sasia-hap">
         <button type="button" class="hap-btn" id="dlgSasiaMinus" aria-label="-1">−</button>
-        <input id="dlgSasia" type="number" step="1" enterkeyhint="done" autocomplete="off">
+        <input id="dlgSasia" type="number" step="1" enterkeyhint="done" autocomplete="off" aria-label="Sasia">
         <button type="button" class="hap-btn" id="dlgSasiaPlus" aria-label="+1">+</button>
       </div>
     </div>
@@ -675,8 +671,7 @@
   <div class="dialog" role="dialog" aria-modal="true">
     <h2 id="folderIRiTitulli"></h2>
     <div class="fushe">
-      <label for="dlgFolderEmri" id="lblFolderEmri"></label>
-      <input id="dlgFolderEmri" type="text" autocomplete="off" autocorrect="off" enterkeyhint="done" maxlength="40">
+      <input id="dlgFolderEmri" type="text" autocomplete="off" autocorrect="off" enterkeyhint="done" maxlength="40" aria-label="Emri">
     </div>
     <div class="veprime">
       <button class="btn tekst" id="dlgFolderAnulo" type="button"></button>
@@ -808,11 +803,9 @@
           <div class="seksion" id="cloudHyrjeSeksion">
             <div class="hint" id="cloudHint"></div>
             <div class="fushe">
-              <label for="cloudUsername" id="lblCloudUsername"></label>
               <input id="cloudUsername" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" maxlength="40">
             </div>
             <div class="fushe">
-              <label for="cloudFjalekalimi" id="lblCloudFjalekalimi"></label>
               <input id="cloudFjalekalimi" type="password" autocomplete="off" enterkeyhint="done" maxlength="100">
             </div>
             <div class="hint" id="cloudGabimHint"></div>
@@ -831,12 +824,10 @@
           </div>
           <div class="seksion" id="llogariaBrendaSeksion" style="display:none">
             <div class="fushe">
-              <label for="cloudEmriRi" id="lblCloudEmriRi"></label>
               <input id="cloudEmriRi" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" maxlength="40">
             </div>
             <button class="btn" id="cloudNdryshoEmrin" type="button" style="width:100%"></button>
             <div class="fushe" style="margin-top:12px">
-              <label for="cloudFjalekalimiRi" id="lblCloudFjalekalimiRi"></label>
               <input id="cloudFjalekalimiRi" type="password" autocomplete="off" enterkeyhint="done" maxlength="100">
             </div>
             <button class="btn" id="cloudNdryshoFjalekalimin" type="button" style="width:100%"></button>
@@ -844,7 +835,6 @@
             <div id="cloudRiautSeksion" style="display:none">
               <div class="hint" id="riautHint"></div>
               <div class="fushe">
-                <label for="cloudFjalekalimiAktual" id="lblCloudFjalekalimiAktual"></label>
                 <input id="cloudFjalekalimiAktual" type="password" autocomplete="off" enterkeyhint="done" maxlength="100">
               </div>
               <button class="btn" id="btnRiautentifiko" type="button" style="width:100%"></button>
@@ -922,7 +912,7 @@
 
       krijoFolder: '+ Krijo folder',
       folderIRi: 'Folder i ri',
-      emriIFolderit: 'Emri i folderit',
+      emriIFolderit: 'Emri',
       shkruajEmrinFolderit: 'Shkruaj emrin e folderit.',
       teFshihetFolderi: 'Të fshihet folderi?',
       folderiBoshTekst: function (a) { return 'Do të fshihet folderi "' + a.emri + '". Është bosh.'; },
@@ -934,12 +924,12 @@
       zvogeloSasine: 'Zvogëlo sasinë',
       rritSasine: 'Rrit sasinë',
 
-      barkodiNormal: 'Barkodi (shkruaje ose skano me kamerë)',
-      barkodiPda: 'Barkodi (skano me PDA ose shkruaje)',
+      barkodiNormal: 'Barkodi',
+      barkodiPda: 'Barkodi',
       skanoKamer: 'Skano me kamerë',
       eksportoExcel: 'Eksporto në Excel',
       eksportoPdf: 'Eksporto në PDF',
-      kerkoLabel: 'Kërko sipas emrit ose barkodit',
+      kerkoLabel: 'Kërko',
       kerkoGlobalLabel: 'Kërko',
       kerkoGlobalNukUGjet: 'Nuk u gjet asnjë produkt në asnjë folder.',
       fshijTeGjitha: 'Fshij të gjitha produktet',
@@ -954,9 +944,9 @@
       produktiEkziston: function (a) { return 'Produkti ekziston (tani: ' + a.sasia + ')'; },
       barkodiEtiketa: function (a) { return 'Barkodi: ' + a.barkodi; },
       emriEtiketa: function (a) { return 'Emri: ' + a.emri; },
-      emriIProduktit: 'Emri i produktit',
+      emriIProduktit: 'Emri',
       sasia: 'Sasia',
-      sasiaPerTuShtuar: "Sasia për t'u shtuar",
+      sasiaPerTuShtuar: 'Sasia',
       zhvendosNeFolder: 'Zhvendos në folder tjetër ›',
       zhvendosTitulli: 'Zhvendos produktin',
       zhvendosHint: function (a) { return 'Zgjidh folderin ku do të zhvendoset "' + a.emri + '".'; },
@@ -988,8 +978,8 @@
 
       cloudHint: 'Ruan automatikisht një kopje të listës në internet (Firebase), që të mos humbet nëse fshihet ' +
         'aplikacioni ose ndërrohet telefoni. Ky NUK është sinkronizim i menjëhershëm mes disa telefonave njëkohësisht.',
-      lblCloudUsername: 'Emri i përdoruesit',
-      lblCloudFjalekalimi: 'Fjalëkalimi (të paktën 6 shkronja/numra)',
+      lblCloudUsername: 'Përdoruesi',
+      lblCloudFjalekalimi: 'Fjalëkalimi',
       cloudKrijoLlogariBtn: 'Krijo llogari',
       cloudHyrBtn: 'Hyr',
       cloudDilBtn: 'Dil',
@@ -1020,8 +1010,8 @@
       cloudTeDilet: 'Të dilet nga llogaria?',
       cloudDilTekst: 'Të dhënat në cloud NUK fshihen, por ky telefon nuk do të sinkronizohet më derisa të ' +
         'hysh përsëri.',
-      lblCloudEmriRi: 'Emër i ri përdoruesi',
-      lblCloudFjalekalimiRi: 'Fjalëkalim i ri (të paktën 6 shkronja/numra)',
+      lblCloudEmriRi: 'Emri i ri',
+      lblCloudFjalekalimiRi: 'Fjalëkalimi i ri',
       cloudNdryshoEmrinBtn: 'Ndrysho emrin e përdoruesit',
       cloudNdryshoFjalekaliminBtn: 'Ndrysho fjalëkalimin',
       cloudPlotesoEmrinRi: 'Shkruaj emrin e ri të përdoruesit.',
@@ -1109,11 +1099,11 @@
     { id: 'btnKamera', prop: 'text', kyc: 'skanoKamer' },
     { id: 'btnEksport', prop: 'text', kyc: 'eksportoExcel' },
     { id: 'btnEksportPdf', prop: 'text', kyc: 'eksportoPdf' },
-    { id: 'lblKerko', prop: 'text', kyc: 'kerkoLabel' },
+    { id: 'kerko', prop: 'placeholder', kyc: 'kerkoLabel' },
     { id: 'kerkoGlobal', prop: 'placeholder', kyc: 'kerkoGlobalLabel' },
     { id: 'btnFshiTeGjitha', prop: 'text', kyc: 'fshijTeGjitha' },
 
-    { id: 'lblDlgEmri', prop: 'text', kyc: 'emriIProduktit' },
+    { id: 'dlgEmri', prop: 'placeholder', kyc: 'emriIProduktit' },
     { id: 'dlgFshij', prop: 'text', kyc: 'fshij' },
     { id: 'dlgAnulo', prop: 'text', kyc: 'anulo' },
     { id: 'dlgRuaj', prop: 'text', kyc: 'ruaj' },
@@ -1123,7 +1113,7 @@
 
     { id: 'fshiAnulo', prop: 'text', kyc: 'anulo' },
     { id: 'folderIRiTitulli', prop: 'text', kyc: 'folderIRi' },
-    { id: 'lblFolderEmri', prop: 'text', kyc: 'emriIFolderit' },
+    { id: 'dlgFolderEmri', prop: 'placeholder', kyc: 'emriIFolderit' },
     { id: 'dlgFolderAnulo', prop: 'text', kyc: 'anulo' },
     { id: 'dlgFolderRuaj', prop: 'text', kyc: 'krijo' },
 
@@ -1171,15 +1161,15 @@
     { id: 'optSasiaLart', prop: 'text', kyc: 'sasiaLartOpt' },
 
     { id: 'cloudHint', prop: 'text', kyc: 'cloudHint' },
-    { id: 'lblCloudUsername', prop: 'text', kyc: 'lblCloudUsername' },
-    { id: 'lblCloudFjalekalimi', prop: 'text', kyc: 'lblCloudFjalekalimi' },
+    { id: 'cloudUsername', prop: 'placeholder', kyc: 'lblCloudUsername' },
+    { id: 'cloudFjalekalimi', prop: 'placeholder', kyc: 'lblCloudFjalekalimi' },
     { id: 'cloudKrijoLlogari', prop: 'text', kyc: 'cloudKrijoLlogariBtn' },
     { id: 'cloudHyrBtn', prop: 'text', kyc: 'cloudHyrBtn' },
     { id: 'cloudDilBtn', prop: 'text', kyc: 'cloudDilBtn' },
-    { id: 'lblCloudEmriRi', prop: 'text', kyc: 'lblCloudEmriRi' },
-    { id: 'lblCloudFjalekalimiRi', prop: 'text', kyc: 'lblCloudFjalekalimiRi' },
+    { id: 'cloudEmriRi', prop: 'placeholder', kyc: 'lblCloudEmriRi' },
+    { id: 'cloudFjalekalimiRi', prop: 'placeholder', kyc: 'lblCloudFjalekalimiRi' },
     { id: 'riautHint', prop: 'text', kyc: 'riautHintTeksti' },
-    { id: 'lblCloudFjalekalimiAktual', prop: 'text', kyc: 'lblCloudFjalekalimiAktual' },
+    { id: 'cloudFjalekalimiAktual', prop: 'placeholder', kyc: 'lblCloudFjalekalimiAktual' },
     { id: 'btnRiautentifiko', prop: 'text', kyc: 'btnRiautentifikoBtn' },
     { id: 'cloudNdryshoEmrin', prop: 'text', kyc: 'cloudNdryshoEmrinBtn' },
     { id: 'cloudNdryshoFjalekalimin', prop: 'text', kyc: 'cloudNdryshoFjalekaliminBtn' },
@@ -1641,7 +1631,7 @@
     $('btnEksportPdf').style.display = ''; // PDF mbetet e dukshme edhe në PDA
     $('seksionTingull').style.display = pda ? 'none' : '';
     $('seksionScanner').style.display = pda ? 'none' : '';
-    $('lblBarkodi').textContent = pda ? T('barkodiPda') : T('barkodiNormal');
+    $('barkodi').placeholder = pda ? T('barkodiPda') : T('barkodiNormal');
     zbatoRrotullimin();
   }
 
@@ -2331,7 +2321,7 @@
     $('fushaEmri').style.display = paEmer ? 'none' : '';
     $('dlgEmri').value = e ? e.emri : '';
     $('dlgSasia').value = '';
-    $('dlgSasiaLabel').textContent = e ? T('sasiaPerTuShtuar') : T('sasia');
+    $('dlgSasia').placeholder = e ? T('sasiaPerTuShtuar') : T('sasia');
     $('dlgFshij').style.display = e ? '' : 'none';
     $('dlgZhvendosBtn').style.display = e ? 'block' : 'none';
     $('dlgProdukt').classList.add('hapur');
