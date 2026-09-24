@@ -195,6 +195,18 @@
   .btn.tekst:disabled { background: transparent; color: var(--btn-off-tx); }
   .btn.dyte { background: transparent; border: 1px solid var(--fushe-kufi); color: var(--tekst); }
   .fushe { margin-bottom: 8px; }
+  .kerko-kuti {
+    display: flex; align-items: center; gap: 8px;
+    height: 46px; border-radius: 23px; margin-bottom: 12px;
+    padding: 0 16px; background: var(--fushe-bg); border: 1.5px solid var(--fushe-kufi);
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .kerko-kuti:focus-within { border-color: var(--btn-tekst); box-shadow: 0 0 0 2px var(--btn-tekst); }
+  .kerko-ikona { flex: none; color: var(--gri); }
+  .kerko-kuti input[type="search"] {
+    flex: 1; height: 100%; border: 0; background: transparent; padding: 0;
+  }
+  .kerko-kuti input[type="search"]:focus { box-shadow: none; }
   #lista {
     flex: 1;
     overflow-y: auto;
@@ -567,9 +579,9 @@
 
 <!-- Lista e folderave -->
 <div class="siper" id="siperFolderat">
-  <div class="fushe">
-    <label for="kerkoGlobal" id="lblKerkoGlobal"></label>
-    <input id="kerkoGlobal" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <div class="kerko-kuti">
+    <svg class="kerko-ikona" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>
+    <input id="kerkoGlobal" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Kërko">
   </div>
   <button class="btn" id="btnKrijoFolder" type="button" style="width:100%"></button>
 </div>
@@ -747,15 +759,23 @@
               <span class="ndez"><input type="checkbox" id="opsPda"><span class="pist"></span></span>
             </label>
             <div class="hint" id="pdaHint"></div>
+            <button class="btn" id="btnKycRrotullimin" type="button" style="width:100%"></button>
+            <div class="hint" id="kycRrotullimineHint"></div>
+          </div>
+          <div class="seksion">
             <label class="opsion-rresht" for="opsPaEmer">
               <span id="lblOpsPaEmer"></span>
               <span class="ndez"><input type="checkbox" id="opsPaEmer"><span class="pist"></span></span>
             </label>
             <div class="hint" id="paEmerHint"></div>
+          </div>
+          <div class="seksion">
             <label class="opsion-rresht" for="opsTingull" id="rreshtTingull">
               <span id="lblOpsTingull"></span>
               <span class="ndez"><input type="checkbox" id="opsTingull"><span class="pist"></span></span>
             </label>
+          </div>
+          <div class="seksion">
             <label class="opsion-rresht" for="opsScanner" id="rreshtScanner">
               <span id="lblOpsScanner"></span>
               <span class="ndez"><input type="checkbox" id="opsScanner"><span class="pist"></span></span>
@@ -914,7 +934,7 @@
       eksportoExcel: 'Eksporto në Excel',
       eksportoPdf: 'Eksporto në PDF',
       kerkoLabel: 'Kërko sipas emrit ose barkodit',
-      kerkoGlobalLabel: 'Kërko në të gjitha folderat',
+      kerkoGlobalLabel: 'Kërko',
       kerkoGlobalNukUGjet: 'Nuk u gjet asnjë produkt në asnjë folder.',
       fshijTeGjitha: 'Fshij të gjitha produktet',
       nukUGjetAsnjeProdukt: 'Nuk u gjet asnjë produkt.',
@@ -1036,6 +1056,9 @@
       pdaStatusFikur: 'PDA i fikur',
       cloudStatusJoKycur: 'Jo i kyçur',
       pdaHint: 'Kur është ndezur, fshihet butoni i kamerës dhe kursori qëndron te fusha e barkodit për skanerin e PDA-së.',
+      btnKycRrotullimin: 'Kyç rrotullimin tani',
+      kycRrotullimineHintTeksti: 'Ekrani kyçet vetë në portret; shtype këtë nëse ndonjëherë dyshon se s\'është kyçur ende (p.sh. menjëherë pas hapjes së app-it).',
+      kycuRrotulliminToast: 'Rrotullimi u kyç në portret.',
       paEmerLabel: 'Skano vetëm barkodin dhe sasinë (pa emër)',
       paEmerHint: 'Nuk rekomandohet. Produktet e reja regjistrohen pa emër dhe fusha e emrit fshihet.',
       paEmerKonfTitulli: 'Të regjistrohen produktet pa emër?',
@@ -1081,7 +1104,7 @@
     { id: 'btnEksport', prop: 'text', kyc: 'eksportoExcel' },
     { id: 'btnEksportPdf', prop: 'text', kyc: 'eksportoPdf' },
     { id: 'lblKerko', prop: 'text', kyc: 'kerkoLabel' },
-    { id: 'lblKerkoGlobal', prop: 'text', kyc: 'kerkoGlobalLabel' },
+    { id: 'kerkoGlobal', prop: 'placeholder', kyc: 'kerkoGlobalLabel' },
     { id: 'btnFshiTeGjitha', prop: 'text', kyc: 'fshijTeGjitha' },
 
     { id: 'lblDlgEmri', prop: 'text', kyc: 'emriIProduktit' },
@@ -1127,6 +1150,8 @@
 
     { id: 'lblOpsPda', prop: 'text', kyc: 'pdaLabel' },
     { id: 'pdaHint', prop: 'text', kyc: 'pdaHint' },
+    { id: 'btnKycRrotullimin', prop: 'text', kyc: 'btnKycRrotullimin' },
+    { id: 'kycRrotullimineHint', prop: 'text', kyc: 'kycRrotullimineHintTeksti' },
     { id: 'lblOpsPaEmer', prop: 'text', kyc: 'paEmerLabel' },
     { id: 'paEmerHint', prop: 'text', kyc: 'paEmerHint' },
     { id: 'lblOpsTingull', prop: 'text', kyc: 'tingullLabel' },
@@ -1434,11 +1459,13 @@
     folderiAktual = id;
     $('kerko').value = '';
     rifreskoPamjen();
+    sinkronizoHistorineEDritareve();
   }
 
   function mbrapaNeFoldera() {
     folderiAktual = null;
     rifreskoPamjen();
+    sinkronizoHistorineEDritareve();
   }
 
   $('btnMbrapa').addEventListener('click', mbrapaNeFoldera);
@@ -1753,6 +1780,10 @@
     ruajOpsionet();
     zbatoPda();
     rifreskoStatusetOpsioneve();
+  });
+  $('btnKycRrotullimin').addEventListener('click', function () {
+    zbatoRrotullimin();
+    toast(T('kycuRrotulliminToast'));
   });
   $('opsPaEmer').addEventListener('change', async function () {
     if (!$('opsPaEmer').checked) {          // fikja nuk kërkon paralajmërim
@@ -2838,33 +2869,41 @@
   $('mbyllKamere').addEventListener('click', ndalKamere);
 
   // ---------- Butoni "Mbrapa" i Android-it (histori shfletuesi) ----------
-  // Pa këtë, shtypja e butonit fizik/gjestit "mbrapa" të Android-it, kur ka një dritare/dialog të
-  // hapur (Opsionet, kamera, dialog produkti, etj.), do të mbyllte KREJT faqen web (do të dilte nga
-  // app-i), sepse s'ka "faqe" tjetër historie ku me u kthy. Këtu, sapo hapet çfarëdo dritareje, i
-  // shtojmë historisë së shfletuesit një shënues të padukshëm; nëse shtypet "mbrapa" ndërkohë,
-  // e kapim vetë ngjarjen (popstate) dhe mbyllim vetëm dritaren e hapur — pa e prekur faqen kryesore.
-  var __historiaEShtresesShtuar = false;
+  // Pa këtë, shtypja e butonit fizik/gjestit "mbrapa" të Android-it, kur je diku (brenda një
+  // folderi, te Opsionet, te kamera, te çdo dialog), do të mbyllte KREJT faqen web (do të dilte nga
+  // app-i), sepse s'ka "faqe" tjetër historie ku me u kthy. Këtu, sapo hapet çfarëdo "shtrese" (folder,
+  // dialog, kamerë), i shtojmë historisë së shfletuesit një shënues të padukshëm; nëse shtypet
+  // "mbrapa" ndërkohë, e kapim vetë ngjarjen (popstate) dhe mbyllim vetëm shtresën e fundit —
+  // pa e prekur asnjëherë faqen kryesore. Numërohet edhe thellësia (p.sh. brenda një folderi + një
+  // dialog i hapur = 2 nivele), që "mbrapa" t'i mbyllë njërin pas tjetrit, në rendin e saktë.
+  var __historiaThellesia = 0;
   var __dukeMbyllurNgaHistoria = false;
 
-  function kaDritareTeHapur() {
-    return !!document.querySelector('.mbulese.hapur') || $('kamera').classList.contains('hapur');
+  function niveletEHapura() {
+    var n = 0;
+    if (folderiAktual !== null) n++;
+    if ($('kamera').classList.contains('hapur')) n++;
+    if (document.querySelector('.mbulese.hapur')) n++;
+    return n;
   }
 
-  function mbyllDritarenMeTeFundit() {
+  function mbyllShtresenMeTeFundit() {
     if ($('kamera').classList.contains('hapur')) { ndalKamere(); return; }
     var dlg = document.querySelector('.mbulese.hapur');
-    if (!dlg) return;
-    if (dlg.id === 'dlgOpsione') { mbyllOpsionet(); return; }
-    dlg.classList.remove('hapur');
+    if (dlg) {
+      if (dlg.id === 'dlgOpsione') { mbyllOpsionet(); } else { dlg.classList.remove('hapur'); }
+      return;
+    }
+    if (folderiAktual !== null) { mbrapaNeFoldera(); return; }
   }
 
   function sinkronizoHistorineEDritareve() {
-    var kaHapur = kaDritareTeHapur();
-    if (kaHapur && !__historiaEShtresesShtuar) {
-      __historiaEShtresesShtuar = true;
-      try { history.pushState({ stokuDritare: true }, ''); } catch (e) { /* ok */ }
-    } else if (!kaHapur && __historiaEShtresesShtuar) {
-      __historiaEShtresesShtuar = false;
+    var thellesiaTani = niveletEHapura();
+    if (thellesiaTani > __historiaThellesia) {
+      __historiaThellesia = thellesiaTani;
+      try { history.pushState({ stokuNiveli: thellesiaTani }, ''); } catch (e) { /* ok */ }
+    } else if (thellesiaTani < __historiaThellesia) {
+      __historiaThellesia = thellesiaTani;
       if (!__dukeMbyllurNgaHistoria) {
         try { history.back(); } catch (e) { /* ok */ }
       }
@@ -2872,11 +2911,12 @@
   }
 
   window.addEventListener('popstate', function () {
-    if (kaDritareTeHapur()) {
+    if (niveletEHapura() > 0) {
       __dukeMbyllurNgaHistoria = true;
-      mbyllDritarenMeTeFundit();
+      mbyllShtresenMeTeFundit();
       setTimeout(function () { __dukeMbyllurNgaHistoria = false; }, 0);
     }
+    __historiaThellesia = Math.max(0, __historiaThellesia - 1);
   });
 
   if (window.MutationObserver) {
