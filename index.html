@@ -323,7 +323,6 @@
     max-width: none; width: 100%; height: 100%; max-height: none;
     border-radius: 0; overflow: hidden;
     background: var(--sfond);
-    padding-bottom: env(safe-area-inset-bottom);
   }
   .dialog.opsione {
     max-width: 420px; padding: 0; display: flex; flex-direction: column;
@@ -340,7 +339,7 @@
     color: #fff;
   }
   .opsione-krye h2 { margin: 0; flex: 1; min-width: 0; font-size: 20px; font-weight: 600; }
-  .opsione-trup { flex: 1; min-height: 0; overflow-y: auto; padding: 0 20px; }
+  .opsione-trup { flex: 1; min-height: 0; overflow-y: auto; padding: 0 20px calc(24px + env(safe-area-inset-bottom)); }
   .kategori-menu { padding: 14px 0; display: flex; flex-direction: column; gap: 10px; }
   .kategori-rresht {
     display: flex; align-items: center; gap: 14px;
@@ -370,9 +369,6 @@
   .opsione-faqe { display: none; }
   .opsione-faqe.aktiv { display: block; }
   .opsione-faqe .seksion:first-child { padding-top: 0; }
-  .dialog.opsione .veprime {
-    flex: none; padding: 10px 20px 16px; margin: 0; border-top: 1px solid var(--vije);
-  }
   .seksion { padding: 18px 0; border-bottom: 1px solid var(--vije); }
   .seksion:last-child { border-bottom: 0; }
   .opsion-titull { font-size: 13px; font-weight: 700; color: var(--gri); margin-bottom: 8px; }
@@ -675,7 +671,7 @@
 <div class="mbulese" id="dlgOpsione">
   <div class="dialog opsione" role="dialog" aria-modal="true">
     <div class="opsione-krye">
-      <button id="opsPrapa" class="btn-ikone" type="button" style="display:none">←</button>
+      <button id="opsPrapa" class="btn-ikone" type="button">←</button>
       <h2 id="opsioneTitulli"></h2>
     </div>
 
@@ -819,6 +815,14 @@
             </div>
             <button class="btn" id="cloudNdryshoFjalekalimin" type="button" style="width:100%"></button>
             <div class="hint" id="cloudNdryshoGabimHint"></div>
+            <div id="cloudRiautSeksion" style="display:none">
+              <div class="hint" id="riautHint"></div>
+              <div class="fushe">
+                <label for="cloudFjalekalimiAktual" id="lblCloudFjalekalimiAktual"></label>
+                <input id="cloudFjalekalimiAktual" type="password" autocomplete="off" enterkeyhint="done" maxlength="100">
+              </div>
+              <button class="btn" id="btnRiautentifiko" type="button" style="width:100%"></button>
+            </div>
             <button class="btn tekst rrezik" id="cloudDilBtn" type="button" style="width:100%;margin-top:8px"></button>
           </div>
         </div>
@@ -826,9 +830,6 @@
       </div>
     </div>
 
-    <div class="veprime">
-      <button class="btn tekst" id="opsMbyll" type="button"></button>
-    </div>
   </div>
 </div>
 
@@ -1002,6 +1003,10 @@
       cloudEmriURiNdryshuar: 'Emri i përdoruesit u ndryshua.',
       cloudFjalekalimiURiNdryshuar: 'Fjalëkalimi u ndryshua.',
       cloudDuhetRihyrje: 'Për siguri, duhet të dalësh dhe të hysh përsëri para se ta ndryshosh këtë.',
+      riautHintTeksti: 'Për siguri, konfirmo fjalëkalimin aktual për ta vazhduar ndryshimin.',
+      lblCloudFjalekalimiAktual: 'Fjalëkalimi aktual',
+      btnRiautentifikoBtn: 'Konfirmo dhe vazhdo',
+      riautGabim: 'Fjalëkalimi aktual s\'është i saktë.',
       cloudDuhetKonfigurim: 'Ndryshimi i emrit s\'lejohet nga cilësimet e Firebase-it (Email enumeration protection). ' +
         'Fike atë opsion te Firebase console → Authentication → Settings → User actions, dhe provo prapë.',
 
@@ -1134,8 +1139,6 @@
     { id: 'optSasiaUlet', prop: 'text', kyc: 'sasiaUletOpt' },
     { id: 'optSasiaLart', prop: 'text', kyc: 'sasiaLartOpt' },
 
-    { id: 'opsMbyll', prop: 'text', kyc: 'mbyll' },
-
     { id: 'cloudHint', prop: 'text', kyc: 'cloudHint' },
     { id: 'lblCloudUsername', prop: 'text', kyc: 'lblCloudUsername' },
     { id: 'lblCloudFjalekalimi', prop: 'text', kyc: 'lblCloudFjalekalimi' },
@@ -1144,6 +1147,9 @@
     { id: 'cloudDilBtn', prop: 'text', kyc: 'cloudDilBtn' },
     { id: 'lblCloudEmriRi', prop: 'text', kyc: 'lblCloudEmriRi' },
     { id: 'lblCloudFjalekalimiRi', prop: 'text', kyc: 'lblCloudFjalekalimiRi' },
+    { id: 'riautHint', prop: 'text', kyc: 'riautHintTeksti' },
+    { id: 'lblCloudFjalekalimiAktual', prop: 'text', kyc: 'lblCloudFjalekalimiAktual' },
+    { id: 'btnRiautentifiko', prop: 'text', kyc: 'btnRiautentifikoBtn' },
     { id: 'cloudNdryshoEmrin', prop: 'text', kyc: 'cloudNdryshoEmrinBtn' },
     { id: 'cloudNdryshoFjalekalimin', prop: 'text', kyc: 'cloudNdryshoFjalekaliminBtn' },
     { id: 'cloudSinkronizoTani', prop: 'text', kyc: 'cloudSinkronizoTaniBtn' },
@@ -1679,7 +1685,6 @@
     Array.prototype.forEach.call(document.querySelectorAll('.opsione-faqe'), function (f) {
       f.classList.toggle('aktiv', f.getAttribute('data-faqe') === emriFaqes);
     });
-    $('opsPrapa').style.display = neMenu ? 'none' : '';
     $('opsioneTitulli').textContent = neMenu ? T('opsioneTitulli') : T(TAB_TITULL_KYC[emriFaqes] || 'opsioneTitulli');
     var trupi = document.querySelector('.opsione-trup');
     if (trupi) trupi.scrollTop = 0;
@@ -1691,7 +1696,12 @@
   Array.prototype.forEach.call(document.querySelectorAll('.kategori-rresht'), function (b) {
     b.addEventListener('click', function () { aktivizoTabin(b.getAttribute('data-faqe')); });
   });
-  $('opsPrapa').addEventListener('click', function () { aktivizoTabin(null); });
+  // Në menunë kryesore të Opsioneve, "←" i mbyll Opsionet krejtësisht (kthehu te faqja kryesore);
+  // brenda një kategorie, i njëjti buton kthehet vetëm te menuja e Opsioneve.
+  $('opsPrapa').addEventListener('click', function () {
+    if ($('kategoriMenu').style.display === 'none') aktivizoTabin(null);
+    else mbyllOpsionet();
+  });
 
   // Dialogu i opsioneve
   function rifreskoStatusetOpsioneve() {
@@ -1723,7 +1733,6 @@
   function mbyllOpsionet() { $('dlgOpsione').classList.remove('hapur'); fokusoBarkodin(); }
 
   $('btnOpsione').addEventListener('click', hapOpsionet);
-  $('opsMbyll').addEventListener('click', mbyllOpsionet);
   $('dlgOpsione').addEventListener('click', function (ev) {
     if (ev.target === $('dlgOpsione')) mbyllOpsionet();
   });
@@ -2072,6 +2081,14 @@
     vendosStatusinCloud(T('cloudStatusiUSink', { kur: oraTani() }));
   });
 
+  var veprimiNePritje = null; // funksioni që duhet riprovuar pas ri-identifikimit të suksesshëm
+
+  function fshehRiautentifikimin() {
+    veprimiNePritje = null;
+    $('cloudRiautSeksion').style.display = 'none';
+    $('cloudFjalekalimiAktual').value = '';
+  }
+
   $('cloudNdryshoEmrin').addEventListener('click', async function () {
     if (!window.__stokuCloud || !window.__stokuCloud.ndryshoEmrin) return;
     var emriRi = $('cloudEmriRi').value.trim();
@@ -2079,8 +2096,18 @@
     if (!emriEshteVlefshem(emriRi)) { $('cloudNdryshoGabimHint').textContent = T('cloudEmriIShkurter'); return; }
     $('cloudNdryshoGabimHint').textContent = '';
     var rez = await window.__stokuCloud.ndryshoEmrin(emriRi);
-    if (!rez.ok) { $('cloudNdryshoGabimHint').textContent = tekstiGabimitCloud(rez.kodi); return; }
+    if (!rez.ok) {
+      if (rez.kodi === 'auth/requires-recent-login') {
+        veprimiNePritje = function () { return window.__stokuCloud.ndryshoEmrin(emriRi); };
+        $('cloudRiautSeksion').style.display = '';
+        $('cloudFjalekalimiAktual').focus();
+        return;
+      }
+      $('cloudNdryshoGabimHint').textContent = tekstiGabimitCloud(rez.kodi);
+      return;
+    }
     $('cloudEmriRi').value = '';
+    fshehRiautentifikimin();
     rifreskoDukjenECloud();
     toast(T('cloudEmriURiNdryshuar'));
   });
@@ -2092,8 +2119,34 @@
     if (!fjalekalimiEshteVlefshem(fjalekalimiRi)) { $('cloudNdryshoGabimHint').textContent = T('cloudFjalekalimiIShkurter'); return; }
     $('cloudNdryshoGabimHint').textContent = '';
     var rez = await window.__stokuCloud.ndryshoFjalekalimin(fjalekalimiRi);
-    if (!rez.ok) { $('cloudNdryshoGabimHint').textContent = tekstiGabimitCloud(rez.kodi); return; }
+    if (!rez.ok) {
+      if (rez.kodi === 'auth/requires-recent-login') {
+        veprimiNePritje = function () { return window.__stokuCloud.ndryshoFjalekalimin(fjalekalimiRi); };
+        $('cloudRiautSeksion').style.display = '';
+        $('cloudFjalekalimiAktual').focus();
+        return;
+      }
+      $('cloudNdryshoGabimHint').textContent = tekstiGabimitCloud(rez.kodi);
+      return;
+    }
     $('cloudFjalekalimiRi').value = '';
+    fshehRiautentifikimin();
+    toast(T('cloudFjalekalimiURiNdryshuar'));
+  });
+
+  $('btnRiautentifiko').addEventListener('click', async function () {
+    if (!window.__stokuCloud || !window.__stokuCloud.riautentifikohu || !veprimiNePritje) return;
+    var fjalekalimiAktual = $('cloudFjalekalimiAktual').value;
+    if (!fjalekalimiAktual) return;
+    var rezAut = await window.__stokuCloud.riautentifikohu(fjalekalimiAktual);
+    if (!rezAut.ok) { $('cloudNdryshoGabimHint').textContent = T('riautGabim'); return; }
+    var veprimi = veprimiNePritje;
+    var rez = await veprimi();
+    if (!rez.ok) { $('cloudNdryshoGabimHint').textContent = tekstiGabimitCloud(rez.kodi); return; }
+    fshehRiautentifikimin();
+    $('cloudEmriRi').value = '';
+    $('cloudFjalekalimiRi').value = '';
+    rifreskoDukjenECloud();
     toast(T('cloudFjalekalimiURiNdryshuar'));
   });
 
@@ -2784,6 +2837,55 @@
   $('btnKamera').addEventListener('click', hapKamere);
   $('mbyllKamere').addEventListener('click', ndalKamere);
 
+  // ---------- Butoni "Mbrapa" i Android-it (histori shfletuesi) ----------
+  // Pa këtë, shtypja e butonit fizik/gjestit "mbrapa" të Android-it, kur ka një dritare/dialog të
+  // hapur (Opsionet, kamera, dialog produkti, etj.), do të mbyllte KREJT faqen web (do të dilte nga
+  // app-i), sepse s'ka "faqe" tjetër historie ku me u kthy. Këtu, sapo hapet çfarëdo dritareje, i
+  // shtojmë historisë së shfletuesit një shënues të padukshëm; nëse shtypet "mbrapa" ndërkohë,
+  // e kapim vetë ngjarjen (popstate) dhe mbyllim vetëm dritaren e hapur — pa e prekur faqen kryesore.
+  var __historiaEShtresesShtuar = false;
+  var __dukeMbyllurNgaHistoria = false;
+
+  function kaDritareTeHapur() {
+    return !!document.querySelector('.mbulese.hapur') || $('kamera').classList.contains('hapur');
+  }
+
+  function mbyllDritarenMeTeFundit() {
+    if ($('kamera').classList.contains('hapur')) { ndalKamere(); return; }
+    var dlg = document.querySelector('.mbulese.hapur');
+    if (!dlg) return;
+    if (dlg.id === 'dlgOpsione') { mbyllOpsionet(); return; }
+    dlg.classList.remove('hapur');
+  }
+
+  function sinkronizoHistorineEDritareve() {
+    var kaHapur = kaDritareTeHapur();
+    if (kaHapur && !__historiaEShtresesShtuar) {
+      __historiaEShtresesShtuar = true;
+      try { history.pushState({ stokuDritare: true }, ''); } catch (e) { /* ok */ }
+    } else if (!kaHapur && __historiaEShtresesShtuar) {
+      __historiaEShtresesShtuar = false;
+      if (!__dukeMbyllurNgaHistoria) {
+        try { history.back(); } catch (e) { /* ok */ }
+      }
+    }
+  }
+
+  window.addEventListener('popstate', function () {
+    if (kaDritareTeHapur()) {
+      __dukeMbyllurNgaHistoria = true;
+      mbyllDritarenMeTeFundit();
+      setTimeout(function () { __dukeMbyllurNgaHistoria = false; }, 0);
+    }
+  });
+
+  if (window.MutationObserver) {
+    var __vezhguesiIDritareve = new MutationObserver(sinkronizoHistorineEDritareve);
+    Array.prototype.forEach.call(document.querySelectorAll('.mbulese, #kamera'), function (el) {
+      __vezhguesiIDritareve.observe(el, { attributes: true, attributeFilter: ['class'] });
+    });
+  }
+
   // ---------- Eksporti në Excel (.xlsx) ----------
   function dyShifra(n) { return (n < 10 ? '0' : '') + n; }
 
@@ -3038,7 +3140,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
   import {
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
-    updateEmail, updatePassword
+    updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential
   } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
@@ -3093,6 +3195,18 @@
         if (!auth.currentUser) return { ok: false, arsye: 'pa-hyrje' };
         try {
           await updatePassword(auth.currentUser, fjalekalimiRi);
+          return { ok: true };
+        } catch (e) {
+          return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) };
+        }
+      },
+      // Firebase e refuzon ndryshimin e emrit/fjalëkalimit nëse sesioni s'është "i fresk" —
+      // kërkohet ri-vërtetim me fjalëkalimin AKTUAL para se të lejohet ndryshimi.
+      async riautentifikohu(fjalekalimiAktual) {
+        if (!auth.currentUser || !auth.currentUser.email) return { ok: false, arsye: 'pa-hyrje' };
+        try {
+          var kred = EmailAuthProvider.credential(auth.currentUser.email, fjalekalimiAktual);
+          await reauthenticateWithCredential(auth.currentUser, kred);
           return { ok: true };
         } catch (e) {
           return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) };
