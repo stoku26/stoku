@@ -2472,19 +2472,67 @@
     };
   };
 
+  // ---------- Numërim i vazhdueshëm (vetëm për një përdorues specifik) ----------
+  // Kur mbahet kamera e drejtuar te i njëjti barkod (që tashmë ekziston si produkt), sasia rritet
+  // vetë me +1 çdo 1 sekondë, pa u dashur me e ndalë kamerën apo me hapë dialogun çdo herë. Ndalet
+  // vetë sapo barkodi s'shihet më (kamera lëviz gjetkun) ose kur skanohet një barkod tjetër.
+  var numrimIVazhdueshemBarkodi = null;
+  var numrimIVazhdueshemTimer = null;
+  var numrimIVazhdueshemFundit = 0;
+
+  function ndaloNumrimVazhdues() {
+    if (numrimIVazhdueshemTimer) { clearInterval(numrimIVazhdueshemTimer); numrimIVazhdueshemTimer = null; }
+    numrimIVazhdueshemBarkodi = null;
+  }
+
+  function shtoNjeCopeNumrimVazhdues(barkodi) {
+    var celesi = celesiProduktit(folderiAktual, barkodi);
+    var prod = produktet[celesi];
+    if (!prod) { ndaloNumrimVazhdues(); return; }
+    prod.sasia += 1;
+    prod.prekurSe = Date.now();
+    ruajBaze();
+    renderLista();
+    renderFolderat();
+    bip();
+  }
+
+  function fillojOseVazhdoNumrimin(barkodi) {
+    numrimIVazhdueshemFundit = Date.now();
+    if (numrimIVazhdueshemBarkodi === barkodi && numrimIVazhdueshemTimer) return; // tashmë duke numëruar këtë barkod
+    ndaloNumrimVazhdues();
+    numrimIVazhdueshemBarkodi = barkodi;
+    shtoNjeCopeNumrimVazhdues(barkodi);
+    numrimIVazhdueshemTimer = setInterval(function () {
+      if (Date.now() - numrimIVazhdueshemFundit > 1200) { ndaloNumrimVazhdues(); return; }
+      shtoNjeCopeNumrimVazhdues(barkodi);
+    }, 1000);
+  }
+
   function kuSuksesiSkanimi(tekstiILexuar, decodedResult) {
-    if (perpunuar) return;
+    var barkodi = String(tekstiILexuar).trim();
     var formati = formatiIRezultatit(decodedResult);
     if (formati === 'QR_CODE') {
       // Nuk e trajtojmë si barkod produkti: njoftojmë dhe vazhdojmë skenimin pa e ndalur kamerën
       toast(T('qrRefuzuar'));
       return;
     }
+
+    if (eLejuarSasiaShpejte()) {
+      var ekzistuesi = produktet[celesiProduktit(folderiAktual, barkodi)];
+      if (ekzistuesi) {
+        fillojOseVazhdoNumrimin(barkodi);
+        return; // s'e ndalim kamerën, s'hapim dialog — vazhdon numërimi vetë
+      }
+      ndaloNumrimVazhdues(); // barkod tjetër/i ri: ndal çdo numërim të mëparshëm, vazhdo normalisht
+    }
+
+    if (perpunuar) return;
     perpunuar = true;
     bip();
     ndalKamere().then(function () {
       burimiIFundit = 'kamera';
-      hapDialogun(String(tekstiILexuar).trim());
+      hapDialogun(barkodi);
     });
   }
   function kuGabimiSkanimi() { /* gabimet e vazhdueshme të leximit shpërfillen */ }
@@ -2594,6 +2642,7 @@
       return;
     }
     perpunuar = false;
+    ndaloNumrimVazhdues();
     $('kamera').classList.add('hapur');
     try {
       await nisKamere();
@@ -2614,6 +2663,7 @@
   }
 
   async function ndalKamere() {
+    ndaloNumrimVazhdues();
     await ndalSkanerin();
     $('kamera').classList.remove('hapur');
   }
