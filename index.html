@@ -43,6 +43,7 @@
     --btn-tekst: #1565C0;
     --toast-bg: #322f35;
     --toast-tx: #ffffff;
+    --sfond-motiv: rgba(0,0,0,.05);
   }
   :root[data-tema="dark"] {
     color-scheme: dark;
@@ -62,6 +63,7 @@
     --btn-tekst: #8ab4f8;
     --toast-bg: #e6e1e5;
     --toast-tx: #1c1b1f;
+    --sfond-motiv: rgba(255,255,255,.06);
   }
 
   /* Aksentet (ngjyra kryesore) */
@@ -135,12 +137,6 @@
   }
   .btn-ikone:active { background: rgba(255,255,255,.3); }
   .btn-ikone.aktiv { background: rgba(255,255,255,.38); }
-  /* vijë e pjerrët mbi ikonën e tastierës kur tastiera është e fshehur */
-  #btnTastiera.aktiv::after {
-    content: ''; position: absolute; left: 8px; right: 8px; top: 50%;
-    height: 2.5px; margin-top: -1px; border-radius: 2px; background: #fff;
-    box-shadow: 0 0 0 1px rgba(0,0,0,.3); transform: rotate(-38deg);
-  }
   .siper {
     padding: 12px 16px 4px;
     padding-left: max(16px, env(safe-area-inset-left));
@@ -149,18 +145,20 @@
   label { display: block; font-size: 13px; color: var(--gri); margin: 0 0 4px 2px; }
   input[type="text"], input[type="search"], input[type="number"], input[type="password"] {
     width: 100%;
-    height: 48px;
+    height: 50px;
     font-size: 16px; /* 16px parandalon zoom-in automatik në iPhone */
-    padding: 0 12px;
-    border: 1px solid var(--fushe-kufi);
-    border-radius: 8px;
+    padding: 0 14px;
+    border: 1.5px solid var(--fushe-kufi);
+    border-radius: 12px;
     background: var(--fushe-bg);
     color: var(--tekst);
     outline: none;
     -webkit-appearance: none;
     appearance: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
   }
-  input:focus { border-color: var(--btn-tekst); box-shadow: 0 0 0 1px var(--btn-tekst); }
+  input:focus { border-color: var(--btn-tekst); box-shadow: 0 0 0 2px var(--btn-tekst); }
+  input::placeholder { color: var(--gri); opacity: .8; }
   .rreshti { display: flex; gap: 8px; margin: 10px 0 6px; }
 
   /* Hapa sasie (+/-) */
@@ -173,23 +171,6 @@
   }
   .hap-btn:active { background: var(--hover); }
 
-  /* Fusha e barkodit: kur tastiera është "e fshehur", vetë fusha zhvendoset jashtë ekranit
-     (por mbetet e fokusuar, që skaneri i PDA-së të vazhdojë të shkruajë në të) dhe në vend të saj
-     shfaqet një kuti e thjeshtë që tregon çfarë është shkruar deri tani. */
-  .barkodi-mbeshtjellje { position: relative; }
-  .barkodi-shfaqje {
-    display: none;
-    width: 100%; height: 48px; font-size: 16px; padding: 0 12px;
-    border: 1px solid var(--fushe-kufi); border-radius: 8px;
-    background: var(--fushe-bg); color: var(--tekst);
-    align-items: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
-    cursor: text;
-  }
-  .barkodi-mbeshtjellje.osk-fshehur #barkodi {
-    position: fixed; left: -9999px; top: 0; width: 1px; height: 1px;
-    padding: 0; border: 0; opacity: 0;
-  }
-  .barkodi-mbeshtjellje.osk-fshehur .barkodi-shfaqje { display: flex; }
   .btn {
     flex: 1;
     min-height: 46px;
@@ -313,7 +294,7 @@
     padding: 0;
     align-items: stretch;
     justify-content: stretch;
-    transform: translateX(-100%);
+    transform: translateX(100%);
     transition: transform .28s ease;
     visibility: hidden;
     pointer-events: none;
@@ -402,6 +383,48 @@
     content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     color: #fff; font-size: 16px; font-weight: 700;
   }
+
+  /* Motivet e sfondit (wallpapers të lehta, gjeometrike) */
+  .sfond-rrjeti { display: flex; gap: 12px; flex-wrap: wrap; margin: 4px 0; }
+  .sfond-mostra {
+    width: 56px; height: 56px; border-radius: 12px; border: 2.5px solid var(--fushe-kufi);
+    cursor: pointer; padding: 0; position: relative; overflow: hidden; background: var(--fushe-bg);
+  }
+  .sfond-mostra span { position: absolute; inset: 0; }
+  .sfond-mostra[data-v="pika"] span {
+    background-image: radial-gradient(var(--gri) 1.6px, transparent 1.6px);
+    background-size: 12px 12px;
+  }
+  .sfond-mostra[data-v="rrjete"] span {
+    background-image:
+      linear-gradient(var(--gri) 1px, transparent 1px),
+      linear-gradient(90deg, var(--gri) 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+  .sfond-mostra[data-v="diagonale"] span {
+    background-image: repeating-linear-gradient(45deg, var(--gri) 0, var(--gri) 1.5px, transparent 1.5px, transparent 9px);
+  }
+  .sfond-mostra.aktiv { border-color: var(--btn-tekst); }
+  .sfond-mostra.aktiv::before {
+    content: '✓'; position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center;
+    color: var(--btn-tekst); font-size: 18px; font-weight: 800; background: var(--fushe-bg); opacity: .85;
+  }
+
+  /* Vetë motivi i sfondit, i zbatuar në krejt aplikacionin (shumë i lehtë, prapa përmbajtjes) */
+  body[data-sfond="pika"] {
+    background-image: radial-gradient(var(--sfond-motiv) 1.6px, transparent 1.6px);
+    background-size: 22px 22px;
+  }
+  body[data-sfond="rrjete"] {
+    background-image:
+      linear-gradient(var(--sfond-motiv) 1px, transparent 1px),
+      linear-gradient(90deg, var(--sfond-motiv) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  body[data-sfond="diagonale"] {
+    background-image: repeating-linear-gradient(45deg, var(--sfond-motiv) 0, var(--sfond-motiv) 1.5px, transparent 1.5px, transparent 15px);
+  }
+
   label.opsion-rresht {
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
     font-size: 16px; color: var(--tekst); margin: 0; padding: 8px 0; cursor: pointer;
@@ -495,7 +518,6 @@
   <h1 id="titulli" class="logo">STOKU</h1>
   <img id="logoSlika" src="logo.png" alt="Stoku">
   <div class="krye-butona">
-    <button id="btnTastiera" class="btn-ikone" type="button">⌨️</button>
     <button id="btnOpsione" class="btn-ikone" type="button" aria-label="Opsionet / Options" title="Opsionet / Options">⚙️</button>
   </div>
 </header>
@@ -518,7 +540,6 @@
     <div class="barkodi-mbeshtjellje" id="barkodiMbeshtjellje">
       <input id="barkodi" type="text" inputmode="text" enterkeyhint="done"
              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-      <div class="barkodi-shfaqje" id="barkodiShfaqje" tabindex="0"></div>
     </div>
   </div>
   <div class="rreshti">
@@ -638,11 +659,6 @@
           <span class="kat-info"><span class="kat-tekst" id="tabLlogariaTxt"></span><span class="kat-status" id="tabLlogariaStatus"></span></span>
           <span class="shigjeta">›</span>
         </button>
-        <button class="kategori-rresht" type="button" data-faqe="admin" id="tabAdmin" style="display:none">
-          <span class="kat-ikona-badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 6v6c0 5 3.8 8.7 9 10 5.2-1.3 9-5 9-10V6Z"></path></svg></span>
-          <span class="kat-info"><span class="kat-tekst" id="tabAdminTxt"></span></span>
-          <span class="shigjeta">›</span>
-        </button>
       </div>
 
       <div class="opsione-faqet">
@@ -673,6 +689,16 @@
               <button type="button" data-v="e_madhe" id="madhesiaEMadhe"></button>
             </div>
             <div class="hint" id="madhesiaHint"></div>
+          </div>
+          <div class="seksion">
+            <div class="opsion-titull" id="titSfondi"></div>
+            <div class="sfond-rrjeti" id="sfondRrjeti">
+              <button type="button" class="sfond-mostra" data-v="asnje" id="sfondAsnje"><span></span></button>
+              <button type="button" class="sfond-mostra" data-v="pika" id="sfondPika"><span></span></button>
+              <button type="button" class="sfond-mostra" data-v="rrjete" id="sfondRrjete"><span></span></button>
+              <button type="button" class="sfond-mostra" data-v="diagonale" id="sfondDiagonale"><span></span></button>
+            </div>
+            <div class="hint" id="sfondiHint"></div>
           </div>
         </div>
 
@@ -761,22 +787,6 @@
           </div>
         </div>
 
-        <div class="opsione-faqe" data-faqe="admin">
-          <div class="seksion">
-            <div class="opsion-titull" id="titAdminStatistika"></div>
-            <div class="hint" id="adminStatProduktet"></div>
-            <div class="hint" id="adminStatFoldera"></div>
-          </div>
-          <div class="seksion">
-            <div class="opsion-titull" id="titAdminPerdoruesit"></div>
-            <div class="hint" id="adminPerdoruesitHint"></div>
-            <button class="btn" id="btnAdminNgarkoPerdoruesit" type="button" style="width:100%;margin-bottom:10px"></button>
-            <div id="adminListaPerdoruesve"></div>
-          </div>
-          <div class="seksion">
-            <div class="hint" id="adminHint"></div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -906,22 +916,6 @@
       tabCloud: 'Cloud',
       tabLlogaria: 'Llogaria',
       llogariaDuhetHyrjeTeksti: 'Duhet të hysh së pari te tab-i "Cloud" për ta ndryshuar këtë.',
-      tabAdmin: 'Admin',
-      titAdminStatistikaTeksti: 'Statistika',
-      adminStatProduktetTeksti: function (a) { return a.n + ' produkte gjithsej (të gjitha folderat)'; },
-      adminStatFolderaTeksti: function (a) { return a.n + ' foldera'; },
-      titAdminPerdoruesitTeksti: 'Përdoruesit e regjistruar',
-      adminPerdoruesitHintTeksti: 'Kujdes: për arsye sigurie, Firebase s\'lejon që admini t\'ia ndryshojë ' +
-        'direkt fjalëkalimin një përdoruesi tjetër. Nëse dikush e harron fjalëkalimin, duhet të krijojë ' +
-        'llogari të re — ti mund t\'i shohësh të dhënat e llogarisë së vjetër këtu (nëse duhet) dhe t\'i ' +
-        'ndihmosh t\'i rifusë manualisht.',
-      adminNgarkoPerdoruesitBtn: 'Shfaq përdoruesit',
-      adminDukeNgarkuar: 'Duke ngarkuar…',
-      adminNukUGjetenPerdorues: 'Ende s\'është regjistruar askush.',
-      adminGabimNgarkimi: 'S\'u ngarkua. Kontrollo internetin dhe rregullat e Firestore.',
-      adminRegjistruarSe: function (a) { return 'Regjistruar: ' + a.data; },
-      adminHyrjaFundit: function (a) { return 'Hyrja e fundit: ' + a.data; },
-      adminHintTeksti: 'Ky panel shfaqet vetëm për llogarinë admin. Më shumë mjete admini do të shtohen këtu.',
 
       cloudHint: 'Ruan automatikisht një kopje të listës në internet (Firebase), që të mos humbet nëse fshihet ' +
         'aplikacioni ose ndërrohet telefoni. Ky NUK është sinkronizim i menjëhershëm mes disa telefonave njëkohësisht.',
@@ -983,6 +977,12 @@
       madhesiaNormaleBtn: 'Normale',
       madhesiaEMadheBtn: 'E madhe',
       madhesiaHintTeksti: 'Rrit pak madhësinë e gjithë tekstit dhe butonave, për lexueshmëri më të lehtë.',
+      titSfondiTeksti: 'Motivi i sfondit',
+      sfondAsnjeEmri: 'Pa asnjë',
+      sfondPikaEmri: 'Pika',
+      sfondRrjeteEmri: 'Rrjetë',
+      sfondDiagonaleEmri: 'Diagonale',
+      sfondiHintTeksti: 'Një motiv shumë i lehtë prapa listave, thjesht për pak karakter vizual — nuk e prek lexueshmërinë.',
 
       pdaLabel: 'Ky është PDA (skaner i brendshëm)',
       pdaStatusNdezur: 'PDA i ndezur',
@@ -1019,12 +1019,7 @@
 
       pdfDukeKrijuar: 'Duke krijuar…',
       pdfNukGati: 'PDF-ja nuk është gati. Lidhu me internet dhe hape prapë aplikacionin.',
-      pdfDeshtoi: 'PDF-ja nuk u krijua. Provo përsëri.',
-
-      tastieraFshehur: "Tastiera nuk do të shfaqet për fushën e barkodit.",
-      tastieraShfaqet: 'Tastiera do të shfaqet përsëri.',
-      fshihTastieren: 'Fshih tastierën',
-      shfaqTastieren: 'Shfaq tastierën'
+      pdfDeshtoi: 'PDF-ja nuk u krijua. Provo përsëri.'
   };
 
   function T(kyc, args) {
@@ -1062,7 +1057,6 @@
     { id: 'tabListaTxt', prop: 'text', kyc: 'tabLista' },
     { id: 'tabCloudTxt', prop: 'text', kyc: 'tabCloud' },
     { id: 'tabLlogariaTxt', prop: 'text', kyc: 'tabLlogaria' },
-    { id: 'tabAdminTxt', prop: 'text', kyc: 'tabAdmin' },
     { id: 'titPamja', prop: 'text', kyc: 'tabPamja' },
     { id: 'temaAuto', prop: 'text', kyc: 'automatike' },
     { id: 'temaLight', prop: 'text', kyc: 'eCelet' },
@@ -1078,6 +1072,12 @@
     { id: 'madhesiaNormale', prop: 'text', kyc: 'madhesiaNormaleBtn' },
     { id: 'madhesiaEMadhe', prop: 'text', kyc: 'madhesiaEMadheBtn' },
     { id: 'madhesiaHint', prop: 'text', kyc: 'madhesiaHintTeksti' },
+    { id: 'titSfondi', prop: 'text', kyc: 'titSfondiTeksti' },
+    { id: 'sfondAsnje', prop: 'title', kyc: 'sfondAsnjeEmri' },
+    { id: 'sfondPika', prop: 'title', kyc: 'sfondPikaEmri' },
+    { id: 'sfondRrjete', prop: 'title', kyc: 'sfondRrjeteEmri' },
+    { id: 'sfondDiagonale', prop: 'title', kyc: 'sfondDiagonaleEmri' },
+    { id: 'sfondiHint', prop: 'text', kyc: 'sfondiHintTeksti' },
 
     { id: 'lblOpsPda', prop: 'text', kyc: 'pdaLabel' },
     { id: 'pdaHint', prop: 'text', kyc: 'pdaHint' },
@@ -1102,11 +1102,6 @@
     { id: 'cloudHyrBtn', prop: 'text', kyc: 'cloudHyrBtn' },
     { id: 'cloudDilBtn', prop: 'text', kyc: 'cloudDilBtn' },
     { id: 'llogariaDuhetHyrje', prop: 'text', kyc: 'llogariaDuhetHyrjeTeksti' },
-    { id: 'titAdminStatistika', prop: 'text', kyc: 'titAdminStatistikaTeksti' },
-    { id: 'titAdminPerdoruesit', prop: 'text', kyc: 'titAdminPerdoruesitTeksti' },
-    { id: 'adminPerdoruesitHint', prop: 'text', kyc: 'adminPerdoruesitHintTeksti' },
-    { id: 'btnAdminNgarkoPerdoruesit', prop: 'text', kyc: 'adminNgarkoPerdoruesitBtn' },
-    { id: 'adminHint', prop: 'text', kyc: 'adminHintTeksti' },
     { id: 'lblCloudEmriRi', prop: 'text', kyc: 'lblCloudEmriRi' },
     { id: 'lblCloudFjalekalimiRi', prop: 'text', kyc: 'lblCloudFjalekalimiRi' },
     { id: 'cloudNdryshoEmrin', prop: 'text', kyc: 'cloudNdryshoEmrinBtn' },
@@ -1228,8 +1223,8 @@
   var KEY_TEMA = 'stoku:tema';
 
   var opsione = {
-    tingull: true, rendi: 'i_ri', scanner: true, pda: false, tastieraEFshehur: false,
-    paEmer: false, aksent: 'blu', madhesia: 'normale'
+    tingull: true, rendi: 'i_ri', scanner: true, pda: false,
+    paEmer: false, aksent: 'blu', madhesia: 'normale', sfondi: 'asnje'
   };
   try {
     var opsioneRuajtura = JSON.parse(localStorage.getItem(KEY_OPSIONE) || 'null');
@@ -1238,10 +1233,10 @@
       if (typeof opsioneRuajtura.scanner === 'boolean') opsione.scanner = opsioneRuajtura.scanner;
       if (typeof opsioneRuajtura.pda === 'boolean') opsione.pda = opsioneRuajtura.pda;
       if (typeof opsioneRuajtura.paEmer === 'boolean') opsione.paEmer = opsioneRuajtura.paEmer;
-      if (typeof opsioneRuajtura.tastieraEFshehur === 'boolean') opsione.tastieraEFshehur = opsioneRuajtura.tastieraEFshehur;
       if (['i_ri', 'emri', 'emriZA', 'sasiaUlet', 'sasiaLart'].indexOf(opsioneRuajtura.rendi) !== -1) opsione.rendi = opsioneRuajtura.rendi;
       if (['blu', 'jeshile', 'vjollce', 'portokalli', 'kuqe'].indexOf(opsioneRuajtura.aksent) !== -1) opsione.aksent = opsioneRuajtura.aksent;
       if (opsioneRuajtura.madhesia === 'e_madhe' || opsioneRuajtura.madhesia === 'normale') opsione.madhesia = opsioneRuajtura.madhesia;
+      if (['asnje', 'pika', 'rrjete', 'diagonale'].indexOf(opsioneRuajtura.sfondi) !== -1) opsione.sfondi = opsioneRuajtura.sfondi;
     }
   } catch (e) { /* përdor vlerat fillestare */ }
 
@@ -1527,6 +1522,22 @@
   });
   zbatoMadhesine();
 
+  function zbatoSfondin() {
+    document.body.setAttribute('data-sfond', opsione.sfondi === 'asnje' ? '' : opsione.sfondi);
+    Array.prototype.forEach.call(document.querySelectorAll('#sfondRrjeti button'), function (b) {
+      b.classList.toggle('aktiv', b.getAttribute('data-v') === opsione.sfondi);
+    });
+  }
+  function vendosSfondin(v) {
+    opsione.sfondi = v;
+    ruajOpsionet();
+    zbatoSfondin();
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#sfondRrjeti button'), function (b) {
+    b.addEventListener('click', function () { vendosSfondin(b.getAttribute('data-v')); });
+  });
+  zbatoSfondin();
+
   // (gjuha u hoq — aplikacioni tani është vetëm shqip)
 
   // Rendi i listës
@@ -1616,46 +1627,9 @@
     if (folderiAktual === null) return;
     if (document.querySelector('.mbulese.hapur')) return;
     $('barkodi').focus();
-    if (opsione.tastieraEFshehur) detyroTastierenESistemit(true);
   }
-
-  // Tastiera në ekran: "inputmode=none" e fsheh tastierën por fusha mbetet aktive (skaneri vazhdon të shkruajë).
-  // Disa telefona/PDA (p.sh. disa Zebra) e injorojnë inputmode="none" dhe e hapin tastierën sido që
-  // të jetë — ndaj përdorim edhe VirtualKeyboard API (kur ekziston) si shtresë e dytë, më e fortë,
-  // që e detyron heqjen e tastierës në ekran, pavarësisht inputmode.
-  try {
-    if (navigator.virtualKeyboard) navigator.virtualKeyboard.overlaysContent = true;
-  } catch (e) { /* API-ja s'ekziston në këtë shfletues, mbetet vetëm inputmode=none */ }
-
-  function detyroTastierenESistemit(fshih) {
-    try {
-      if (navigator.virtualKeyboard) {
-        if (fshih) navigator.virtualKeyboard.hide();
-        else navigator.virtualKeyboard.show();
-      }
-    } catch (e) { /* injoro në heshtje */ }
-  }
-
-  function zbatoTastieren() {
-    var fshehur = opsione.tastieraEFshehur;
-    $('barkodi').setAttribute('inputmode', fshehur ? 'none' : 'text'); // mbrojtje shtesë (jo gjithmonë e mjaftueshme vetë)
-    $('barkodiMbeshtjellje').classList.toggle('osk-fshehur', fshehur);
-    $('barkodiShfaqje').textContent = $('barkodi').value;
-    $('btnTastiera').classList.toggle('aktiv', fshehur);
-    $('btnTastiera').setAttribute('aria-label', fshehur ? T('shfaqTastieren') : T('fshihTastieren'));
-    $('btnTastiera').title = fshehur ? T('shfaqTastieren') : T('fshihTastieren');
-    if (fshehur) {
-      // e mban fokusin te fusha e vërtetë (jashtë ekranit), që skaneri i PDA-së të vazhdojë të shkruajë në të;
-      // fokusi i dhënë nga kodi (jo nga një prekje e drejtpërdrejtë) zakonisht NUK e hap tastierën në ekran
-      $('barkodi').focus();
-    }
-    detyroTastierenESistemit(fshehur);
-  }
-  // Nëse tastiera është e fshehur, prekja e kutisë së shfaqjes rikthen fokusin te fusha e vërtetë
-  $('barkodiShfaqje').addEventListener('click', function () { $('barkodi').focus(); });
 
   zbatoPda();
-  zbatoTastieren();
   perkthoStatiket();
 
   // ---------- Tabet e Opsioneve ----------
@@ -1672,7 +1646,7 @@
   }
   var TAB_TITULL_KYC = {
     pamja: 'tabPamja', skenimi: 'tabSkenimi',
-    lista: 'tabLista', cloud: 'tabCloud', llogaria: 'tabLlogaria', admin: 'tabAdmin'
+    lista: 'tabLista', cloud: 'tabCloud', llogaria: 'tabLlogaria'
   };
   Array.prototype.forEach.call(document.querySelectorAll('.kategori-rresht'), function (b) {
     b.addEventListener('click', function () { aktivizoTabin(b.getAttribute('data-faqe')); });
@@ -1701,6 +1675,7 @@
     zbatoTemen();
     zbatoAksentin();
     zbatoMadhesine();
+    zbatoSfondin();
     rifreskoDukjenECloud();
     rifreskoStatusetOpsioneve();
     aktivizoTabin(null);
@@ -1730,16 +1705,6 @@
     ruajOpsionet();
     zbatoPda();
     rifreskoStatusetOpsioneve();
-  });
-  $('btnTastiera').addEventListener('click', function () {
-    opsione.tastieraEFshehur = !opsione.tastieraEFshehur;
-    ruajOpsionet();
-    zbatoTastieren();
-    // rifokuso që ndryshimi të hyjë në fuqi menjëherë: tastiera zhduket (ose shfaqet) dhe fusha mbetet aktive
-    var f = $('barkodi');
-    f.blur();
-    f.focus();
-    toast(opsione.tastieraEFshehur ? T('tastieraFshehur') : T('tastieraShfaqet'));
   });
   $('opsPaEmer').addEventListener('change', async function () {
     if (!$('opsPaEmer').checked) {          // fikja nuk kërkon paralajmërim
@@ -1966,7 +1931,6 @@
     if (!u || !window.__stokuCloud) return;
     if (__uidISinkronizuarDarePasHyrjes === u.uid) return; // e ba tashmë për këtë hyrje
     __uidISinkronizuarDarePasHyrjes = u.uid;
-    if (window.__stokuCloud.ruajProfilinTim) window.__stokuCloud.ruajProfilinTim(emriPerdoruesitAktual());
     vendosStatusinCloud(T('cloudStatusiDukeSink'));
     var rez = await window.__stokuCloud.merr();
     if (rez.ok && rez.gjendja) {
@@ -1975,67 +1939,6 @@
     }
     kryeSinkronizimin();
   }
-
-  var ADMIN_USERNAME = 'mendurberisha';
-  function esteAdminIKycyer() {
-    var u = perdoruesiAktual();
-    return !!u && emriPerdoruesitAktual().toLowerCase() === ADMIN_USERNAME;
-  }
-
-  function formatoDatenAdmin(ms) {
-    if (!ms) return '—';
-    var d = new Date(ms);
-    return dyShifra(d.getDate()) + '.' + dyShifra(d.getMonth() + 1) + '.' + d.getFullYear() +
-      ' ' + dyShifra(d.getHours()) + ':' + dyShifra(d.getMinutes());
-  }
-
-  async function ngarkoPerdoruesitAdmin() {
-    if (!esteAdminIKycyer() || !window.__stokuCloud || !window.__stokuCloud.merrKrejtPerdoruesit) return;
-    var kont = $('adminListaPerdoruesve');
-    kont.textContent = '';
-    var i0 = document.createElement('div');
-    i0.className = 'info';
-    i0.textContent = T('adminDukeNgarkuar');
-    kont.appendChild(i0);
-
-    var rez = await window.__stokuCloud.merrKrejtPerdoruesit();
-    kont.textContent = '';
-    if (!rez.ok) {
-      var iGabim = document.createElement('div');
-      iGabim.className = 'info';
-      iGabim.textContent = T('adminGabimNgarkimi');
-      kont.appendChild(iGabim);
-      return;
-    }
-    var lista = rez.perdoruesit.slice().sort(function (a, b) { return (b.fundit || 0) - (a.fundit || 0); });
-    if (lista.length === 0) {
-      var iAsnje = document.createElement('div');
-      iAsnje.className = 'info';
-      iAsnje.textContent = T('adminNukUGjetenPerdorues');
-      kont.appendChild(iAsnje);
-      return;
-    }
-    var frag = document.createDocumentFragment();
-    lista.forEach(function (p) {
-      var rreshti = document.createElement('div');
-      rreshti.className = 'artikull';
-      var majtas = document.createElement('div');
-      majtas.className = 'majtas';
-      var emri = document.createElement('div');
-      emri.className = 'emri';
-      emri.textContent = p.emri || p.uid;
-      var kodi = document.createElement('div');
-      kodi.className = 'kodi';
-      kodi.textContent = T('adminRegjistruarSe', { data: formatoDatenAdmin(p.krijuarSe) }) +
-        ' · ' + T('adminHyrjaFundit', { data: formatoDatenAdmin(p.fundit) });
-      majtas.appendChild(emri);
-      majtas.appendChild(kodi);
-      rreshti.appendChild(majtas);
-      frag.appendChild(rreshti);
-    });
-    kont.appendChild(frag);
-  }
-  $('btnAdminNgarkoPerdoruesit').addEventListener('click', ngarkoPerdoruesitAdmin);
 
   // Veçori vetëm për këtë përdorues specifik (butona +/- shpejtë te lista) — për asnjë tjetër.
   var SASIA_SHPEJTE_USERNAME = 'albidepo34';
@@ -2057,16 +1960,7 @@
       $('cloudGabimHint').textContent = '';
       $('cloudNdryshoGabimHint').textContent = '';
     }
-    var admin = esteAdminIKycyer();
-    $('tabAdmin').style.display = admin ? '' : 'none';
     rifreskoStatusetOpsioneve();
-    if (admin) {
-      $('adminStatProduktet').textContent = T('adminStatProduktetTeksti', { n: Object.keys(produktet).length });
-      $('adminStatFoldera').textContent = T('adminStatFolderaTeksti', { n: foldera.length });
-    } else {
-      var faqjaAktive = document.querySelector('.opsione-faqe.aktiv');
-      if (faqjaAktive && faqjaAktive.getAttribute('data-faqe') === 'admin') aktivizoTabin(null);
-    }
   }
   rifreskoDukjenECloud();
 
@@ -2148,7 +2042,6 @@
     $('cloudNdryshoGabimHint').textContent = '';
     var rez = await window.__stokuCloud.ndryshoEmrin(emriRi);
     if (!rez.ok) { $('cloudNdryshoGabimHint').textContent = tekstiGabimitCloud(rez.kodi); return; }
-    if (window.__stokuCloud.ruajProfilinTim) window.__stokuCloud.ruajProfilinTim(emriRi);
     $('cloudEmriRi').value = '';
     rifreskoDukjenECloud();
     toast(T('cloudEmriURiNdryshuar'));
@@ -2461,7 +2354,6 @@
     if (document.querySelector('.mbulese.hapur')) return;
     var b = $('barkodi').value.trim();
     $('barkodi').value = '';
-    $('barkodiShfaqje').textContent = '';
     if (!b) return;
     if (duketSiDiçkaTjeterVeçBarkod(b)) {
       toast(T('qrDyshim'));
@@ -2481,7 +2373,6 @@
   // Modaliteti PDA: skaneri i brendshëm shpesh nuk dërgon Enter.
   // Pasi pushon së shkruari (pak nga skaneri), hapet vetë dritarja e produktit.
   $('barkodi').addEventListener('input', function () {
-    $('barkodiShfaqje').textContent = $('barkodi').value; // mban të njëjtin tekst kur tastiera është e fshehur
     clearTimeout(pdaKohez);
     if (!opsione.pda) return;
     if ($('barkodi').value.trim() === '') return;
@@ -3032,7 +2923,7 @@
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
     updateEmail, updatePassword
   } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
   var firebaseConfig = {
     apiKey: "AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY",
@@ -3107,34 +2998,6 @@
         try {
           var rez = await getDoc(doc(db, 'dyqane', auth.currentUser.uid));
           return { ok: true, gjendja: rez.exists() ? rez.data() : null };
-        } catch (e) {
-          return { ok: false, arsye: String((e && e.message) || e) };
-        }
-      },
-      // Regjistri i përdoruesve: çdo llogari e shkruan vetëm rreshtin e vet (emri, kur u regjistrua,
-      // hyrja e fundit) — lejohet nga rregullat vetëm nëse UID-ja përputhet me dokumentin.
-      async ruajProfilinTim(emriPerdoruesit) {
-        if (!auth.currentUser) return { ok: false, arsye: 'pa-hyrje' };
-        try {
-          var ref = doc(db, 'perdoruesit', auth.currentUser.uid);
-          var ekzistues = await getDoc(ref);
-          var te = { emri: emriPerdoruesit, fundit: Date.now() };
-          te.krijuarSe = ekzistues.exists() && ekzistues.data().krijuarSe ? ekzistues.data().krijuarSe : Date.now();
-          await setDoc(ref, te);
-          return { ok: true };
-        } catch (e) {
-          return { ok: false, arsye: String((e && e.message) || e) };
-        }
-      },
-      // Krejt regjistri i përdoruesve — rregullat e lejojnë këtë vetëm nëse llogaria që po e kërkon
-      // ka username 'mendurberisha' te dokumenti i vet (shih rregullat te Firestore console).
-      async merrKrejtPerdoruesit() {
-        if (!auth.currentUser) return { ok: false, arsye: 'pa-hyrje' };
-        try {
-          var pasqyra = await getDocs(collection(db, 'perdoruesit'));
-          var lista = [];
-          pasqyra.forEach(function (d) { lista.push(Object.assign({ uid: d.id }, d.data())); });
-          return { ok: true, perdoruesit: lista };
         } catch (e) {
           return { ok: false, arsye: String((e && e.message) || e) };
         }
