@@ -100,6 +100,8 @@
     #rrotulloPrapa { display: flex; }
     body > *:not(#rrotulloPrapa) { display: none !important; }
   }
+  body[data-permbys="1"] #rrotulloPrapa { display: flex; }
+  body[data-permbys="1"] > *:not(#rrotulloPrapa) { display: none !important; }
 
   header {
     background: var(--header);
@@ -1516,19 +1518,41 @@
     zbatoRrotullimin();
   }
 
-  // Bllokon rrotullimin e ekranit (gjithmonë portret) — në krejt aplikacionin, jo vetëm në PDA.
+  // Bllokon rrotullimin e ekranit (gjithmonë portret, drejtimi i sipërm — jo i përmbysur) — në
+  // krejt aplikacionin, jo vetëm në PDA.
   // SHËNIM: s'e kërkojmë fullscreen të shfletuesit për këtë (requestFullscreen) — edhe pse kjo do
   // ta lejonte screen.orientation.lock() të punojë më shpesh, e detyron Chrome-in në një modalitet
   // krejt tjetër (fsheh status bar-in real, shfaq "To exit full screen…"), gjë që përziente ngjyrat
   // e statusbar-it dhe krijonte përvojë të keqe. Në vend të kësaj mbështetemi te vetë kyçja (kur
-  // shfletuesi e lejon pa fullscreen) plus mbulesa CSS më poshtë, e cila garanton 100% që ekrani
-  // të mos përdoret i rrotulluar, pavarësisht nëse vetë kyçja e JS ka punuar apo jo.
+  // shfletuesi e lejon pa fullscreen) plus mbulesa CSS/JS më poshtë, e cila garanton 100% që ekrani
+  // të mos përdoret i rrotulluar (as anash, as përmbys), pavarësisht nëse vetë kyçja e JS ka punuar.
   async function zbatoRrotullimin() {
     try {
       if (screen.orientation && screen.orientation.lock) {
-        screen.orientation.lock('portrait').catch(function () { /* s'lejohet këtu, injoro — mbulesa CSS e mbron sido që të jetë */ });
+        // "portrait-primary" (jo thjesht "portrait") — përndryshe disa shfletues lejojnë ende
+        // rrotullimin 180° (ekrani "përmbys"), sepse "portrait" vetëm e pranon si portret të dyja
+        // drejtimet, të sipërmen dhe të përmbysurën.
+        screen.orientation.lock('portrait-primary').catch(function () {
+          screen.orientation.lock('portrait').catch(function () { /* s'lejohet këtu, injoro — mbulesa na mbron sido që të jetë */ });
+        });
       }
     } catch (e) { /* shfletuesi nuk e mbështet, injoro në heshtje */ }
+    kontrolloNesePermbys();
+  }
+
+  // CSS-ja (@media orientation:landscape) e kap vetëm rrotullimin anash — s'e dallon portretin e
+  // përmbysur (180°) nga ai normal, sepse për CSS të dyja janë "portrait". Ndaj këtu e kontrollojmë
+  // vetë me JS dhe, nëse ekrani është përmbys, e shfaqim të njëjtën mbulesë "rrotulloje mbrapa".
+  function kontrolloNesePermbys() {
+    var permbys = false;
+    try {
+      if (screen.orientation && screen.orientation.type) {
+        permbys = screen.orientation.type.indexOf('portrait') !== -1 && screen.orientation.type.indexOf('secondary') !== -1;
+      } else if (typeof window.orientation === 'number') {
+        permbys = Math.abs(window.orientation) === 180;
+      }
+    } catch (e) { /* ok */ }
+    document.body.setAttribute('data-permbys', permbys ? '1' : '0');
   }
 
   // Siguri shtesë: nëse diçka e "shkund" kyçjen e rrotullimit (ndryshim jashtë kontrollit tonë,
@@ -1540,12 +1564,14 @@
   });
   if (screen.orientation && screen.orientation.addEventListener) {
     screen.orientation.addEventListener('change', function () {
-      if (screen.orientation.type && screen.orientation.type.indexOf('portrait') === -1) {
+      kontrolloNesePermbys();
+      if (screen.orientation.type && screen.orientation.type.indexOf('portrait-primary') === -1) {
         zbatoRrotullimin();
       }
     });
   }
   window.addEventListener('resize', zbatoRrotullimin);
+  kontrolloNesePermbys();
 
   // Kthen kursorin te fusha e barkodit (vetëm në modalitetin PDA, dhe vetëm nëse nuk ka dritare të hapur)
   function fokusoBarkodin() {
