@@ -239,6 +239,13 @@
     display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
   }
   .sasia-hap-btn:active { background: var(--hover); }
+  .sasia-hap .sasia-input {
+    border: none; background: transparent; color: var(--tekst); text-align: center;
+    font-family: inherit; padding: 0; width: 68px; -moz-appearance: textfield;
+  }
+  .sasia-hap .sasia-input::-webkit-outer-spin-button,
+  .sasia-hap .sasia-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .sasia-hap .sasia-input:focus { outline: none; color: var(--btn-tekst); }
   .info { color: var(--gri); font-size: 14px; padding: 12px 2px; }
 
   /* Foldera */
@@ -761,6 +768,12 @@
             <div class="hint" id="adminStatFoldera"></div>
           </div>
           <div class="seksion">
+            <div class="opsion-titull" id="titAdminPerdoruesit"></div>
+            <div class="hint" id="adminPerdoruesitHint"></div>
+            <button class="btn" id="btnAdminNgarkoPerdoruesit" type="button" style="width:100%;margin-bottom:10px"></button>
+            <div id="adminListaPerdoruesve"></div>
+          </div>
+          <div class="seksion">
             <div class="hint" id="adminHint"></div>
           </div>
         </div>
@@ -897,6 +910,17 @@
       titAdminStatistikaTeksti: 'Statistika',
       adminStatProduktetTeksti: function (a) { return a.n + ' produkte gjithsej (të gjitha folderat)'; },
       adminStatFolderaTeksti: function (a) { return a.n + ' foldera'; },
+      titAdminPerdoruesitTeksti: 'Përdoruesit e regjistruar',
+      adminPerdoruesitHintTeksti: 'Kujdes: për arsye sigurie, Firebase s\'lejon që admini t\'ia ndryshojë ' +
+        'direkt fjalëkalimin një përdoruesi tjetër. Nëse dikush e harron fjalëkalimin, duhet të krijojë ' +
+        'llogari të re — ti mund t\'i shohësh të dhënat e llogarisë së vjetër këtu (nëse duhet) dhe t\'i ' +
+        'ndihmosh t\'i rifusë manualisht.',
+      adminNgarkoPerdoruesitBtn: 'Shfaq përdoruesit',
+      adminDukeNgarkuar: 'Duke ngarkuar…',
+      adminNukUGjetenPerdorues: 'Ende s\'është regjistruar askush.',
+      adminGabimNgarkimi: 'S\'u ngarkua. Kontrollo internetin dhe rregullat e Firestore.',
+      adminRegjistruarSe: function (a) { return 'Regjistruar: ' + a.data; },
+      adminHyrjaFundit: function (a) { return 'Hyrja e fundit: ' + a.data; },
       adminHintTeksti: 'Ky panel shfaqet vetëm për llogarinë admin. Më shumë mjete admini do të shtohen këtu.',
 
       cloudHint: 'Ruan automatikisht një kopje të listës në internet (Firebase), që të mos humbet nëse fshihet ' +
@@ -1079,6 +1103,9 @@
     { id: 'cloudDilBtn', prop: 'text', kyc: 'cloudDilBtn' },
     { id: 'llogariaDuhetHyrje', prop: 'text', kyc: 'llogariaDuhetHyrjeTeksti' },
     { id: 'titAdminStatistika', prop: 'text', kyc: 'titAdminStatistikaTeksti' },
+    { id: 'titAdminPerdoruesit', prop: 'text', kyc: 'titAdminPerdoruesitTeksti' },
+    { id: 'adminPerdoruesitHint', prop: 'text', kyc: 'adminPerdoruesitHintTeksti' },
+    { id: 'btnAdminNgarkoPerdoruesit', prop: 'text', kyc: 'adminNgarkoPerdoruesitBtn' },
     { id: 'adminHint', prop: 'text', kyc: 'adminHintTeksti' },
     { id: 'lblCloudEmriRi', prop: 'text', kyc: 'lblCloudEmriRi' },
     { id: 'lblCloudFjalekalimiRi', prop: 'text', kyc: 'lblCloudFjalekalimiRi' },
@@ -1939,6 +1966,7 @@
     if (!u || !window.__stokuCloud) return;
     if (__uidISinkronizuarDarePasHyrjes === u.uid) return; // e ba tashmë për këtë hyrje
     __uidISinkronizuarDarePasHyrjes = u.uid;
+    if (window.__stokuCloud.ruajProfilinTim) window.__stokuCloud.ruajProfilinTim(emriPerdoruesitAktual());
     vendosStatusinCloud(T('cloudStatusiDukeSink'));
     var rez = await window.__stokuCloud.merr();
     if (rez.ok && rez.gjendja) {
@@ -1953,6 +1981,61 @@
     var u = perdoruesiAktual();
     return !!u && emriPerdoruesitAktual().toLowerCase() === ADMIN_USERNAME;
   }
+
+  function formatoDatenAdmin(ms) {
+    if (!ms) return '—';
+    var d = new Date(ms);
+    return dyShifra(d.getDate()) + '.' + dyShifra(d.getMonth() + 1) + '.' + d.getFullYear() +
+      ' ' + dyShifra(d.getHours()) + ':' + dyShifra(d.getMinutes());
+  }
+
+  async function ngarkoPerdoruesitAdmin() {
+    if (!esteAdminIKycyer() || !window.__stokuCloud || !window.__stokuCloud.merrKrejtPerdoruesit) return;
+    var kont = $('adminListaPerdoruesve');
+    kont.textContent = '';
+    var i0 = document.createElement('div');
+    i0.className = 'info';
+    i0.textContent = T('adminDukeNgarkuar');
+    kont.appendChild(i0);
+
+    var rez = await window.__stokuCloud.merrKrejtPerdoruesit();
+    kont.textContent = '';
+    if (!rez.ok) {
+      var iGabim = document.createElement('div');
+      iGabim.className = 'info';
+      iGabim.textContent = T('adminGabimNgarkimi');
+      kont.appendChild(iGabim);
+      return;
+    }
+    var lista = rez.perdoruesit.slice().sort(function (a, b) { return (b.fundit || 0) - (a.fundit || 0); });
+    if (lista.length === 0) {
+      var iAsnje = document.createElement('div');
+      iAsnje.className = 'info';
+      iAsnje.textContent = T('adminNukUGjetenPerdorues');
+      kont.appendChild(iAsnje);
+      return;
+    }
+    var frag = document.createDocumentFragment();
+    lista.forEach(function (p) {
+      var rreshti = document.createElement('div');
+      rreshti.className = 'artikull';
+      var majtas = document.createElement('div');
+      majtas.className = 'majtas';
+      var emri = document.createElement('div');
+      emri.className = 'emri';
+      emri.textContent = p.emri || p.uid;
+      var kodi = document.createElement('div');
+      kodi.className = 'kodi';
+      kodi.textContent = T('adminRegjistruarSe', { data: formatoDatenAdmin(p.krijuarSe) }) +
+        ' · ' + T('adminHyrjaFundit', { data: formatoDatenAdmin(p.fundit) });
+      majtas.appendChild(emri);
+      majtas.appendChild(kodi);
+      rreshti.appendChild(majtas);
+      frag.appendChild(rreshti);
+    });
+    kont.appendChild(frag);
+  }
+  $('btnAdminNgarkoPerdoruesit').addEventListener('click', ngarkoPerdoruesitAdmin);
 
   // Veçori vetëm për këtë përdorues specifik (butona +/- shpejtë te lista) — për asnjë tjetër.
   var SASIA_SHPEJTE_USERNAME = 'albidepo34';
@@ -2065,6 +2148,7 @@
     $('cloudNdryshoGabimHint').textContent = '';
     var rez = await window.__stokuCloud.ndryshoEmrin(emriRi);
     if (!rez.ok) { $('cloudNdryshoGabimHint').textContent = tekstiGabimitCloud(rez.kodi); return; }
+    if (window.__stokuCloud.ruajProfilinTim) window.__stokuCloud.ruajProfilinTim(emriRi);
     $('cloudEmriRi').value = '';
     rifreskoDukjenECloud();
     toast(T('cloudEmriURiNdryshuar'));
@@ -2142,9 +2226,12 @@
         btnMinus.className = 'sasia-hap-btn';
         btnMinus.textContent = '−';
         btnMinus.setAttribute('aria-label', T('zvogeloSasine'));
-        var sasiaNumri = document.createElement('div');
-        sasiaNumri.className = 'sasia';
-        sasiaNumri.textContent = String(p.sasia);
+        var sasiaNumri = document.createElement('input');
+        sasiaNumri.type = 'number';
+        sasiaNumri.inputMode = 'numeric';
+        sasiaNumri.className = 'sasia sasia-input';
+        sasiaNumri.value = String(p.sasia);
+        sasiaNumri.min = '0';
         var btnPlus = document.createElement('button');
         btnPlus.type = 'button';
         btnPlus.className = 'sasia-hap-btn';
@@ -2161,8 +2248,26 @@
           renderLista();
           renderFolderat();
         };
+        var vendosSasineDrejtperdrejt = function () {
+          var prod = produktet[celesiRreshti];
+          if (!prod) return;
+          var v = parseInt(sasiaNumri.value, 10);
+          if (!Number.isFinite(v) || v < 0) v = prod.sasia;
+          if (v === prod.sasia) { sasiaNumri.value = String(prod.sasia); return; }
+          prod.sasia = v;
+          prod.prekurSe = Date.now();
+          ruajBaze();
+          renderLista();
+          renderFolderat();
+        };
         btnMinus.addEventListener('click', function (ev) { ev.stopPropagation(); ndryshoSasineShpejt(-1); });
         btnPlus.addEventListener('click', function (ev) { ev.stopPropagation(); ndryshoSasineShpejt(1); });
+        sasiaNumri.addEventListener('click', function (ev) { ev.stopPropagation(); });
+        sasiaNumri.addEventListener('focus', function () { sasiaNumri.select(); });
+        sasiaNumri.addEventListener('change', vendosSasineDrejtperdrejt);
+        sasiaNumri.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') { ev.preventDefault(); sasiaNumri.blur(); }
+        });
         mbeshtjellesi.appendChild(btnMinus);
         mbeshtjellesi.appendChild(sasiaNumri);
         mbeshtjellesi.appendChild(btnPlus);
@@ -2927,7 +3032,7 @@
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
     updateEmail, updatePassword
   } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
   var firebaseConfig = {
     apiKey: "AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY",
@@ -3002,6 +3107,34 @@
         try {
           var rez = await getDoc(doc(db, 'dyqane', auth.currentUser.uid));
           return { ok: true, gjendja: rez.exists() ? rez.data() : null };
+        } catch (e) {
+          return { ok: false, arsye: String((e && e.message) || e) };
+        }
+      },
+      // Regjistri i përdoruesve: çdo llogari e shkruan vetëm rreshtin e vet (emri, kur u regjistrua,
+      // hyrja e fundit) — lejohet nga rregullat vetëm nëse UID-ja përputhet me dokumentin.
+      async ruajProfilinTim(emriPerdoruesit) {
+        if (!auth.currentUser) return { ok: false, arsye: 'pa-hyrje' };
+        try {
+          var ref = doc(db, 'perdoruesit', auth.currentUser.uid);
+          var ekzistues = await getDoc(ref);
+          var te = { emri: emriPerdoruesit, fundit: Date.now() };
+          te.krijuarSe = ekzistues.exists() && ekzistues.data().krijuarSe ? ekzistues.data().krijuarSe : Date.now();
+          await setDoc(ref, te);
+          return { ok: true };
+        } catch (e) {
+          return { ok: false, arsye: String((e && e.message) || e) };
+        }
+      },
+      // Krejt regjistri i përdoruesve — rregullat e lejojnë këtë vetëm nëse llogaria që po e kërkon
+      // ka username 'mendurberisha' te dokumenti i vet (shih rregullat te Firestore console).
+      async merrKrejtPerdoruesit() {
+        if (!auth.currentUser) return { ok: false, arsye: 'pa-hyrje' };
+        try {
+          var pasqyra = await getDocs(collection(db, 'perdoruesit'));
+          var lista = [];
+          pasqyra.forEach(function (d) { lista.push(Object.assign({ uid: d.id }, d.data())); });
+          return { ok: true, perdoruesit: lista };
         } catch (e) {
           return { ok: false, arsye: String((e && e.message) || e) };
         }
