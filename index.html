@@ -103,11 +103,11 @@
   #rrotulloPrapa svg { margin-bottom: 16px; }
   #rrotulloPrapa p { margin: 0; font-size: 16px; max-width: 320px; }
   @media (orientation: landscape) {
-    #rrotulloPrapa { display: flex; }
-    body > *:not(#rrotulloPrapa) { display: none !important; }
+    body:not(.pda-rrotullim) #rrotulloPrapa { display: flex; }
+    body:not(.pda-rrotullim) > *:not(#rrotulloPrapa) { display: none !important; }
   }
-  body[data-permbys="1"] #rrotulloPrapa { display: flex; }
-  body[data-permbys="1"] > *:not(#rrotulloPrapa) { display: none !important; }
+  body[data-permbys="1"]:not(.pda-rrotullim) #rrotulloPrapa { display: flex; }
+  body[data-permbys="1"]:not(.pda-rrotullim) > *:not(#rrotulloPrapa) { display: none !important; }
 
   header {
     background: var(--header);
@@ -760,8 +760,6 @@
               <span class="ndez"><input type="checkbox" id="opsPda"><span class="pist"></span></span>
             </label>
             <div class="hint" id="pdaHint"></div>
-            <button class="btn" id="btnKycRrotullimin" type="button" style="width:100%"></button>
-            <div class="hint" id="kycRrotullimineHint"></div>
           </div>
           <div class="seksion">
             <label class="opsion-rresht" for="opsPaEmer">
@@ -1051,10 +1049,7 @@
       pdaStatusNdezur: 'PDA i ndezur',
       pdaStatusFikur: 'PDA i fikur',
       cloudStatusJoKycur: 'Jo i kyçur',
-      pdaHint: 'Kur është ndezur, fshihet butoni i kamerës dhe kursori qëndron te fusha e barkodit për skanerin e PDA-së.',
-      btnKycRrotullimin: 'Kyç rrotullimin tani',
-      kycRrotullimineHintTeksti: 'Ekrani kyçet vetë në portret; shtype këtë nëse ndonjëherë dyshon se s\'është kyçur ende (p.sh. menjëherë pas hapjes së app-it).',
-      kycuRrotulliminToast: 'Rrotullimi u kyç në portret.',
+      pdaHint: 'Kur është ndezur: ekrani kyçet në portret (pa u rrotulluar anash ose përmbys), fshihet butoni i kamerës dhe kursori qëndron te fusha e barkodit.',
       paEmerLabel: 'Skano vetëm barkodin dhe sasinë (pa emër)',
       paEmerHint: 'Nuk rekomandohet. Produktet e reja regjistrohen pa emër dhe fusha e emrit fshihet.',
       paEmerKonfTitulli: 'Të regjistrohen produktet pa emër?',
@@ -1146,8 +1141,6 @@
 
     { id: 'lblOpsPda', prop: 'text', kyc: 'pdaLabel' },
     { id: 'pdaHint', prop: 'text', kyc: 'pdaHint' },
-    { id: 'btnKycRrotullimin', prop: 'text', kyc: 'btnKycRrotullimin' },
-    { id: 'kycRrotullimineHint', prop: 'text', kyc: 'kycRrotullimineHintTeksti' },
     { id: 'lblOpsPaEmer', prop: 'text', kyc: 'paEmerLabel' },
     { id: 'paEmerHint', prop: 'text', kyc: 'paEmerHint' },
     { id: 'lblOpsTingull', prop: 'text', kyc: 'tingullLabel' },
@@ -1653,59 +1646,134 @@
     zbatoRrotullimin();
   }
 
-  // Bllokon rrotullimin e ekranit (gjithmonë portret, drejtimi i sipërm — jo i përmbysur) — në
-  // krejt aplikacionin, jo vetëm në PDA.
-  // SHËNIM: s'e kërkojmë fullscreen të shfletuesit për këtë (requestFullscreen) — edhe pse kjo do
-  // ta lejonte screen.orientation.lock() të punojë më shpesh, e detyron Chrome-in në një modalitet
-  // krejt tjetër (fsheh status bar-in real, shfaq "To exit full screen…"), gjë që përziente ngjyrat
-  // e statusbar-it dhe krijonte përvojë të keqe. Në vend të kësaj mbështetemi te vetë kyçja (kur
-  // shfletuesi e lejon pa fullscreen) plus mbulesa CSS/JS më poshtë, e cila garanton 100% që ekrani
-  // të mos përdoret i rrotulluar (as anash, as përmbys), pavarësisht nëse vetë kyçja e JS ka punuar.
-  async function zbatoRrotullimin() {
-    try {
-      if (screen.orientation && screen.orientation.lock) {
-        // "portrait-primary" (jo thjesht "portrait") — përndryshe disa shfletues lejojnë ende
-        // rrotullimin 180° (ekrani "përmbys"), sepse "portrait" vetëm e pranon si portret të dyja
-        // drejtimet, të sipërmen dhe të përmbysurën.
-        screen.orientation.lock('portrait-primary').catch(function () {
-          screen.orientation.lock('portrait').catch(function () { /* s'lejohet këtu, injoro — mbulesa na mbron sido që të jetë */ });
-        });
-      }
-    } catch (e) { /* shfletuesi nuk e mbështet, injoro në heshtje */ }
-    kontrolloNesePermbys();
+  // ================= Kyçja e ekranit në portret (PDA) =================
+  // PSE S'KISHTE PUNUAR MË PARË: Chrome në Android e lejon screen.orientation.lock() VETËM kur faqja
+  // është në fullscreen (Fullscreen API) ose kur është e instaluar si app. Kodi i vjetër e thërriste
+  // pa asnjërën — pra refuzohej GJITHMONË, në heshtje. Për më tepër, fullscreen-i mund të kërkohet
+  // vetëm gjatë një veprimi të përdoruesit (prekje/tast), jo automatikisht.
+  //
+  // Tani, kur PDA është ndezur, përdoren tri shtresa:
+  //  1) Kyçje e drejtpërdrejtë (punon kur app-i është i instaluar).
+  //  2) Nëse refuzohet: fullscreen + kyçje, në veprimin e parë të përdoruesit (ndezja e PDA-së,
+  //     prekja e parë, ose shtypja e parë e skanerit pas hapjes së app-it).
+  //  3) Kundër-rrotullim: nëse sistemi prapë e rrotullon ekranin, i gjithë app-i rrotullohet vetë
+  //     në drejtimin e kundërt, që të mbetet drejt ndaj pajisjes dhe puna të vazhdojë pa ndërprerje.
+  var __kycjaEKonfirmuar = false;
+  var __hymeNeFullscreenPerKycje = false;
+
+  function kycjaDirekte() {
+    if (!screen.orientation || !screen.orientation.lock) return Promise.reject(new Error('pa-api'));
+    return screen.orientation.lock('portrait-primary');
   }
 
-  // CSS-ja (@media orientation:landscape) e kap vetëm rrotullimin anash — s'e dallon portretin e
-  // përmbysur (180°) nga ai normal, sepse për CSS të dyja janë "portrait". Ndaj këtu e kontrollojmë
-  // vetë me JS dhe, nëse ekrani është përmbys, e shfaqim të njëjtën mbulesë "rrotulloje mbrapa".
-  function kontrolloNesePermbys() {
-    var permbys = false;
+  async function kycMeFullscreen() {
+    var el = document.documentElement;
+    var kerko = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (!kerko) throw new Error('pa-fullscreen');
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      await kerko.call(el, { navigationUI: 'hide' });
+      __hymeNeFullscreenPerKycje = true;
+    }
+    await kycjaDirekte();
+  }
+
+  // Thirret nga një veprim i përdoruesit (click/keydown) — vetëm aty lejohet fullscreen-i.
+  async function provoKycjenPda() {
+    if (!opsione.pda) return;
     try {
-      if (screen.orientation && screen.orientation.type) {
-        permbys = screen.orientation.type.indexOf('portrait') !== -1 && screen.orientation.type.indexOf('secondary') !== -1;
-      } else if (typeof window.orientation === 'number') {
-        permbys = Math.abs(window.orientation) === 180;
-      }
+      await kycjaDirekte();
+      __kycjaEKonfirmuar = true;
+    } catch (e) {
+      try { await kycMeFullscreen(); __kycjaEKonfirmuar = true; } catch (e2) { __kycjaEKonfirmuar = false; }
+    }
+    zbatoKunderRrotullimin();
+  }
+
+  function liroKycjen() {
+    __kycjaEKonfirmuar = false;
+    try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) { /* ok */ }
+    if (__hymeNeFullscreenPerKycje && (document.fullscreenElement || document.webkitFullscreenElement)) {
+      var dil = document.exitFullscreen || document.webkitExitFullscreen;
+      try { if (dil) dil.call(document); } catch (e) { /* ok */ }
+    }
+    __hymeNeFullscreenPerKycje = false;
+  }
+
+  // Këndi aktual i ekranit ndaj pozicionit normal: 0, 90, 180, 270 (-90 → 270).
+  function kendiIEkranit() {
+    var k = 0;
+    try {
+      if (screen.orientation && typeof screen.orientation.angle === 'number') k = screen.orientation.angle;
+      else if (typeof window.orientation === 'number') k = window.orientation;
     } catch (e) { /* ok */ }
-    document.body.setAttribute('data-permbys', permbys ? '1' : '0');
+    k = ((k % 360) + 360) % 360;
+    return (k === 90 || k === 180 || k === 270) ? k : 0;
   }
 
-  // Siguri shtesë: nëse diçka e "shkund" kyçjen e rrotullimit (ndryshim jashtë kontrollit tonë,
-  // rikthim nga sfondi, etj.), e rikyçim menjëherë te portreti — ekrani s'duhet të rrotullohet
-  // as për një çast, kurrë, në asnjë pjesë të aplikacionit.
-  window.addEventListener('orientationchange', zbatoRrotullimin);
-  document.addEventListener('visibilitychange', function () {
-    if (!document.hidden) zbatoRrotullimin();
-  });
-  if (screen.orientation && screen.orientation.addEventListener) {
-    screen.orientation.addEventListener('change', function () {
-      kontrolloNesePermbys();
-      if (screen.orientation.type && screen.orientation.type.indexOf('portrait-primary') === -1) {
-        zbatoRrotullimin();
-      }
-    });
+  // Shtresa 3: nëse ekrani u rrotullua sido që të jetë, e kthejmë përmbajtjen mbrapa me CSS që të
+  // mbetet drejt ndaj pajisjes (si të mos ishte rrotulluar fare). Dialogët/kamera, që janë "fixed",
+  // rrotullohen bashkë me të, sepse transform-i i body-t i përfshin.
+  function zbatoKunderRrotullimin() {
+    var b = document.body;
+    var k = opsione.pda ? kendiIEkranit() : 0;
+    b.classList.toggle('pda-rrotullim', !!opsione.pda);
+    if (!k) {
+      b.style.transform = ''; b.style.width = ''; b.style.height = '';
+      b.style.left = ''; b.style.top = ''; b.style.right = ''; b.style.bottom = '';
+      return;
+    }
+    var w = window.innerWidth, h = window.innerHeight;
+    var anash = (k === 90 || k === 270);
+    var gjeresia = anash ? h : w, lartesia = anash ? w : h;
+    b.style.right = 'auto'; b.style.bottom = 'auto';
+    b.style.width = gjeresia + 'px';
+    b.style.height = lartesia + 'px';
+    b.style.left = ((w - gjeresia) / 2) + 'px';
+    b.style.top = ((h - lartesia) / 2) + 'px';
+    b.style.transform = 'rotate(' + (-k) + 'deg)';
   }
-  window.addEventListener('resize', zbatoRrotullimin);
+
+  // Kontrolli "përmbys" jashtë PDA-së (CSS s'e dallon portretin përmbys nga ai normal).
+  function kontrolloNesePermbys() {
+    document.body.setAttribute('data-permbys', kendiIEkranit() === 180 ? '1' : '0');
+  }
+
+  // Thirret nga zbatoPda() dhe pas çdo ndryshimi orientimi.
+  function zbatoRrotullimin() {
+    if (opsione.pda) {
+      kycjaDirekte().then(function () { __kycjaEKonfirmuar = true; }, function () { /* pret veprimin e përdoruesit */ });
+    } else {
+      liroKycjen();
+    }
+    kontrolloNesePermbys();
+    zbatoKunderRrotullimin();
+  }
+
+  // Veprimi i parë i përdoruesit (prekje ose tast/skaner) pas hapjes ose rikthimit në app: aty
+  // lejohet fullscreen-i, ndaj e provojmë kyçjen e plotë nëse s'është konfirmuar ende.
+  function neVeprimTePerdoruesit() {
+    if (opsione.pda && !__kycjaEKonfirmuar) provoKycjenPda();
+  }
+  document.addEventListener('pointerdown', neVeprimTePerdoruesit, true);
+  document.addEventListener('keydown', neVeprimTePerdoruesit, true);
+
+  function pasNdryshimitTeOrientimit() {
+    kontrolloNesePermbys();
+    zbatoKunderRrotullimin();
+    if (opsione.pda) kycjaDirekte().then(function () { __kycjaEKonfirmuar = true; }, function () { __kycjaEKonfirmuar = false; });
+  }
+  window.addEventListener('orientationchange', function () { setTimeout(pasNdryshimitTeOrientimit, 60); });
+  window.addEventListener('resize', pasNdryshimitTeOrientimit);
+  if (screen.orientation && screen.orientation.addEventListener) {
+    screen.orientation.addEventListener('change', pasNdryshimitTeOrientimit);
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) { __kycjaEKonfirmuar = false; zbatoRrotullimin(); }
+  });
+  document.addEventListener('fullscreenchange', function () {
+    // Nëse përdoruesi del nga fullscreen-i (gjest "mbrapa"), kyçja humbet — provohet sërish në veprimin tjetër.
+    if (!document.fullscreenElement) { __hymeNeFullscreenPerKycje = false; __kycjaEKonfirmuar = false; }
+  });
   kontrolloNesePermbys();
 
   // Kthen kursorin te fusha e barkodit (vetëm në modalitetin PDA, dhe vetëm nëse nuk ka dritare të hapur)
@@ -1799,10 +1867,8 @@
     ruajOpsionet();
     zbatoPda();
     rifreskoStatusetOpsioneve();
-  });
-  $('btnKycRrotullimin').addEventListener('click', function () {
-    zbatoRrotullimin();
-    toast(T('kycuRrotulliminToast'));
+    // Ky është veprim i përdoruesit — i vetmi çast kur Chrome lejon fullscreen + kyçjen e plotë.
+    if (opsione.pda) provoKycjenPda();
   });
   $('opsPaEmer').addEventListener('change', async function () {
     if (!$('opsPaEmer').checked) {          // fikja nuk kërkon paralajmërim
