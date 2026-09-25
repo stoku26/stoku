@@ -1,0 +1,3505 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stoku — Kompjuter</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="theme-color" content="#1565C0" id="metaTema">
+<script>
+  // Tema dhe ngjyra vendosen para vizatimit (pa dridhje ndriçimi)
+  (function () {
+    var o = null;
+    try { o = JSON.parse(localStorage.getItem('stoku:pc:opsione:v1') || 'null'); } catch (e) {}
+    var t = o && o.tema;
+    if (t !== 'dark' && t !== 'light') {
+      t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-tema', t);
+    if (o && o.aksent && o.aksent !== 'blu') document.documentElement.setAttribute('data-aksent', o.aksent);
+    if (o && o.dendesia === 'kompakte') document.documentElement.setAttribute('data-dendesia', 'kompakte');
+    if (o && o.madhesia === 'e_madhe') document.documentElement.setAttribute('data-madhesi', 'e_madhe');
+  })();
+</script>
+<style>
+  :root {
+    color-scheme: light;
+    --primar: #1565C0;
+    --primar-bute: rgba(21,101,192,.10);
+    --primar-mesme: rgba(21,101,192,.18);
+    --header: #1565C0;
+    --rrezik: #B3261E;
+    --rrezik-bute: rgba(179,38,30,.09);
+    --paralajm: #8a5a00;
+    --paralajm-bute: rgba(230,145,0,.14);
+    --mire: #1e7a34;
+    --tekst: #1c1b1f;
+    --gri: #5f5f66;
+    --gri-2: #85858c;
+    --vije: #e2e2e6;
+    --vije-2: #eef0f3;
+    --sfond: #f4f6f9;
+    --karta: #ffffff;
+    --fushe-bg: #ffffff;
+    --fushe-kufi: #c4c6cc;
+    --hover: #f2f5fa;
+    --zgjedhur: #e7f0fb;
+    --btn-tekst: #1565C0;
+    --toast-bg: #322f35;
+    --toast-tx: #ffffff;
+    --hije: 0 1px 2px rgba(20,20,30,.06), 0 1px 3px rgba(20,20,30,.05);
+    --hije-e-larte: 0 12px 40px rgba(10,20,40,.22);
+    --rresht-lart: 44px;
+    --shkronja: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "Roboto Mono", monospace;
+  }
+  :root[data-tema="dark"] {
+    color-scheme: dark;
+    --header: #0f3f7a;
+    --primar-bute: rgba(138,180,248,.12);
+    --primar-mesme: rgba(138,180,248,.22);
+    --rrezik: #f2b8b5;
+    --rrezik-bute: rgba(242,184,181,.10);
+    --paralajm: #ffcc80;
+    --paralajm-bute: rgba(255,204,128,.12);
+    --mire: #81c995;
+    --tekst: #e6e1e5;
+    --gri: #a8a6ad;
+    --gri-2: #85838a;
+    --vije: #34333a;
+    --vije-2: #2a292f;
+    --sfond: #121115;
+    --karta: #1b1a1f;
+    --fushe-bg: #1f1e24;
+    --fushe-kufi: #4a4850;
+    --hover: #24232a;
+    --zgjedhur: #1d2a3d;
+    --btn-tekst: #8ab4f8;
+    --toast-bg: #e6e1e5;
+    --toast-tx: #1c1b1f;
+    --hije: 0 1px 2px rgba(0,0,0,.4);
+    --hije-e-larte: 0 16px 48px rgba(0,0,0,.6);
+  }
+  :root[data-aksent="jeshile"] { --primar: #2E7D32; --header: #2E7D32; --btn-tekst: #2E7D32; --primar-bute: rgba(46,125,50,.10); --primar-mesme: rgba(46,125,50,.18); }
+  :root[data-tema="dark"][data-aksent="jeshile"] { --header: #1b5e20; --btn-tekst: #81c995; }
+  :root[data-aksent="vjollce"] { --primar: #6A1B9A; --header: #6A1B9A; --btn-tekst: #6A1B9A; --primar-bute: rgba(106,27,154,.09); --primar-mesme: rgba(106,27,154,.17); }
+  :root[data-tema="dark"][data-aksent="vjollce"] { --header: #4a148c; --btn-tekst: #ce93d8; }
+  :root[data-aksent="portokalli"] { --primar: #E65100; --header: #E65100; --btn-tekst: #E65100; --primar-bute: rgba(230,81,0,.09); --primar-mesme: rgba(230,81,0,.17); }
+  :root[data-tema="dark"][data-aksent="portokalli"] { --header: #bf360c; --btn-tekst: #ffab40; }
+  :root[data-aksent="kuqe"] { --primar: #C62828; --header: #C62828; --btn-tekst: #C62828; --primar-bute: rgba(198,40,40,.08); --primar-mesme: rgba(198,40,40,.16); }
+  :root[data-tema="dark"][data-aksent="kuqe"] { --header: #8e0000; --btn-tekst: #ef9a9a; }
+  :root[data-dendesia="kompakte"] { --rresht-lart: 34px; }
+  :root[data-madhesi="e_madhe"] body { zoom: 1.12; }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: var(--shkronja); font-size: 14px; color: var(--tekst); background: var(--sfond);
+    display: grid; grid-template-rows: auto 1fr; overflow: hidden;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  svg { flex: none; }
+  .mono { font-family: var(--mono); font-size: 13px; letter-spacing: .2px; }
+  .gri { color: var(--gri); }
+  .fsheh { display: none !important; }
+
+  /* ================= Header ================= */
+  header.krye {
+    background: var(--header); color: #fff; display: flex; align-items: center; gap: 16px;
+    padding: 0 16px 0 20px; height: 60px; position: relative; z-index: 5;
+  }
+  .krye-logo { height: 30px; width: auto; display: block; cursor: pointer; }
+  .krye-kerko {
+    flex: 1; max-width: 560px; margin-left: 28px; position: relative;
+  }
+  .krye-kerko .fusha {
+    display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 12px;
+    background: rgba(255,255,255,.16); border-radius: 10px; border: 1px solid transparent;
+    transition: background .15s, border-color .15s;
+  }
+  .krye-kerko .fusha:focus-within { background: rgba(255,255,255,.26); border-color: rgba(255,255,255,.5); }
+  .krye-kerko input { flex: 1; min-width: 0; height: 100%; border: 0; background: transparent; outline: none; color: #fff; }
+  .krye-kerko input::placeholder { color: rgba(255,255,255,.78); }
+  .tast {
+    display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 20px; padding: 0 5px;
+    border-radius: 5px; font-size: 11px; font-weight: 600; font-family: var(--shkronja);
+    border: 1px solid currentColor; opacity: .75; line-height: 1;
+  }
+  .krye-kerko .tast { color: #fff; }
+  .kerko-rezultate {
+    position: absolute; left: 0; right: 0; top: 44px; background: var(--karta); color: var(--tekst);
+    border-radius: 12px; box-shadow: var(--hije-e-larte); border: 1px solid var(--vije);
+    max-height: 70vh; overflow: auto; padding: 6px; display: none;
+  }
+  .kerko-rezultate.hapur { display: block; }
+  .kr-rresht {
+    display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 8px; cursor: pointer;
+  }
+  .kr-rresht.aktiv, .kr-rresht:hover { background: var(--hover); }
+  .kr-rresht .kr-emri { flex: 1; min-width: 0; }
+  .kr-rresht .kr-emri div:first-child { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .kr-rresht .kr-sasia { font-weight: 700; font-variant-numeric: tabular-nums; min-width: 40px; text-align: right; }
+  .kr-fund { padding: 8px 10px 4px; font-size: 12px; color: var(--gri); border-top: 1px solid var(--vije); margin-top: 4px; }
+  .krye-djathtas { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .sink-status {
+    display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 6px 10px; border-radius: 8px;
+    background: rgba(255,255,255,.10); white-space: nowrap; cursor: pointer; border: 0; color: #fff;
+  }
+  .sink-status:hover { background: rgba(255,255,255,.2); }
+  .pike { width: 8px; height: 8px; border-radius: 50%; background: #9e9e9e; flex: none; }
+  .pike.ok { background: #7ee08a; }
+  .pike.pune { background: #ffd54f; animation: pulso 1s ease-in-out infinite; }
+  .pike.gabim { background: #ff8a80; }
+  @keyframes pulso { 50% { opacity: .35; } }
+  .btn-krye {
+    height: 38px; min-width: 38px; padding: 0 10px; border: 0; border-radius: 10px;
+    background: rgba(255,255,255,.14); color: #fff; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    font-weight: 600;
+  }
+  .btn-krye:hover { background: rgba(255,255,255,.26); }
+  .perdoruesi-cip { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ================= Trupi: sidebar + main ================= */
+  .trupi { display: grid; grid-template-columns: 264px 1fr; min-height: 0; }
+  aside.anesore {
+    background: var(--karta); border-right: 1px solid var(--vije); display: flex; flex-direction: column; min-height: 0;
+  }
+  .nav { padding: 12px 10px 4px; }
+  .nav-rresht, .folder-rresht {
+    display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: transparent;
+    padding: 0 10px; height: 38px; border-radius: 10px; text-align: left; color: var(--tekst); position: relative;
+  }
+  .nav-rresht:hover, .folder-rresht:hover { background: var(--hover); }
+  .nav-rresht.aktiv, .folder-rresht.aktiv { background: var(--primar-bute); color: var(--btn-tekst); font-weight: 600; }
+  .nav-rresht .emri, .folder-rresht .emri { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .numer-cip { font-size: 12px; color: var(--gri); font-variant-numeric: tabular-nums; font-weight: 500; }
+  .aktiv .numer-cip { color: var(--btn-tekst); }
+  .seksion-titull {
+    display: flex; align-items: center; justify-content: space-between; padding: 14px 20px 6px;
+    font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--gri);
+  }
+  .seksion-titull button { border: 0; background: transparent; color: var(--btn-tekst); font-size: 20px; line-height: 1; width: 28px; height: 28px; border-radius: 8px; }
+  .seksion-titull button:hover { background: var(--hover); }
+  .folderat { flex: 1; overflow-y: auto; padding: 0 10px 12px; }
+  .folder-rresht { cursor: pointer; }
+  .folder-rresht .kap { opacity: 0; color: var(--gri-2); cursor: grab; width: 12px; margin-left: -4px; display: flex; }
+  .folder-rresht:hover .kap { opacity: 1; }
+  .folder-rresht .me-shume {
+    position: absolute; right: 6px; top: 6px;
+    opacity: 0; border: 0; background: transparent; width: 26px; height: 26px; border-radius: 6px; color: var(--gri);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .folder-rresht:hover .me-shume, .folder-rresht .me-shume:focus-visible { opacity: 1; }
+  .folder-rresht .me-shume:hover { background: var(--vije); }
+  .folder-rresht:hover .numer-cip { display: none; }
+  .folder-rresht.po-zvarritet { opacity: .4; }
+  .folder-rresht.cak-lart::before, .folder-rresht.cak-poshte::after {
+    content: ''; position: absolute; left: 8px; right: 8px; height: 2px; background: var(--primar); border-radius: 2px;
+  }
+  .folder-rresht.cak-lart::before { top: -1px; }
+  .folder-rresht.cak-poshte::after { bottom: -1px; }
+  .anesore-fund { border-top: 1px solid var(--vije); padding: 10px; display: flex; flex-direction: column; gap: 2px; }
+  .anesore-fund a, .anesore-fund button {
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; color: var(--gri);
+    text-decoration: none; font-size: 13px; border: 0; background: transparent; text-align: left;
+  }
+  .anesore-fund a:hover, .anesore-fund button:hover { background: var(--hover); color: var(--tekst); }
+
+  main.kryesore { min-width: 0; min-height: 0; overflow: auto; padding: 22px 28px 40px; }
+  .faqe-krye { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+  .faqe-krye h1 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -.2px; }
+  .faqe-nen { color: var(--gri); margin-top: 4px; font-size: 13px; }
+  .faqe-veprime { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* ================= Butonat & fushat ================= */
+  .btn {
+    height: 38px; padding: 0 16px; border-radius: 10px; border: 1px solid transparent; font-weight: 600;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
+    background: var(--primar); color: #fff;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn:disabled { opacity: .5; cursor: default; filter: none; }
+  .btn.dyte { background: var(--karta); color: var(--tekst); border-color: var(--fushe-kufi); }
+  .btn.dyte:hover { background: var(--hover); filter: none; }
+  .btn.tekst { background: transparent; color: var(--btn-tekst); padding: 0 12px; }
+  .btn.tekst:hover { background: var(--primar-bute); filter: none; }
+  .btn.rrezik { background: var(--rrezik); color: #fff; }
+  :root[data-tema="dark"] .btn.rrezik:not(.tekst) { color: #3b0a07; }
+  .btn.tekst.rrezik { background: transparent; color: var(--rrezik); }
+  .btn.tekst.rrezik:hover { background: var(--rrezik-bute); }
+  .btn.vogel { height: 32px; padding: 0 12px; font-size: 13px; border-radius: 8px; }
+  .btn-ikone {
+    width: 32px; height: 32px; border-radius: 8px; border: 0; background: transparent; color: var(--gri);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .btn-ikone:hover { background: var(--vije); color: var(--tekst); }
+  .btn-ikone.rrezik:hover { background: var(--rrezik-bute); color: var(--rrezik); }
+
+  .fushe { display: block; margin-bottom: 14px; }
+  .fushe > span { display: block; font-size: 12px; font-weight: 600; color: var(--gri); margin: 0 0 6px 2px; }
+  input.inp, select.inp, textarea.inp {
+    width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--fushe-kufi); border-radius: 10px;
+    background: var(--fushe-bg); outline: none; transition: border-color .12s, box-shadow .12s;
+  }
+  textarea.inp { height: auto; padding: 10px 12px; resize: vertical; }
+  select.inp {
+    appearance: none; -webkit-appearance: none; padding-right: 34px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23888' stroke-width='2'/></svg>");
+    background-repeat: no-repeat; background-position: right 12px center;
+  }
+  .inp:focus { border-color: var(--btn-tekst); box-shadow: 0 0 0 3px var(--primar-mesme); }
+  .inp:disabled { opacity: .6; }
+  input[type="number"].inp { font-variant-numeric: tabular-nums; }
+  .gabim-tekst { color: var(--rrezik); font-size: 13px; min-height: 18px; margin: -6px 0 10px 2px; }
+
+  /* ================= Karta ================= */
+  .karta { background: var(--karta); border: 1px solid var(--vije); border-radius: 14px; box-shadow: var(--hije); }
+  .karta-krye { display: flex; align-items: center; gap: 10px; padding: 14px 18px 8px; }
+  .karta-krye h2 { margin: 0; font-size: 15px; font-weight: 700; }
+  .karta-krye .btn { margin-left: auto; }
+  .karta-trup { padding: 6px 18px 16px; }
+
+  /* ================= Përmbledhja ================= */
+  .kpi-rrjeti { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .kpi {
+    background: var(--karta); border: 1px solid var(--vije); border-radius: 14px; padding: 14px 16px; box-shadow: var(--hije);
+    text-align: left; display: flex; flex-direction: column; gap: 6px; min-height: 96px;
+  }
+  button.kpi:hover { border-color: var(--btn-tekst); }
+  .kpi-etik { font-size: 12px; font-weight: 600; color: var(--gri); display: flex; align-items: center; gap: 6px; }
+  .kpi-vlera { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.5px; line-height: 1.1; }
+  .kpi-nen { font-size: 12px; color: var(--gri); }
+  .kpi.status-kritik .kpi-etik { color: var(--rrezik); }
+  .kpi.status-paralajm .kpi-etik { color: var(--paralajm); }
+  .permb-rrjeti { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+  .permb-rrjeti .karta.gjere { grid-column: 1 / -1; }
+  @media (max-width: 1250px) { .permb-rrjeti { grid-template-columns: 1fr; } }
+  .shirit-rresht {
+    display: grid; grid-template-columns: minmax(110px, 180px) 1fr 70px 80px; align-items: center; gap: 12px;
+    padding: 7px 8px; border-radius: 8px; cursor: pointer; border: 0; background: transparent; width: 100%; text-align: left;
+  }
+  .shirit-rresht:hover { background: var(--hover); }
+  .shirit-emri { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .shirit-pista { height: 14px; position: relative; }
+  .shirit { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; background: var(--primar); min-width: 2px; }
+  .shirit-num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .shirit-num.gri { font-weight: 400; }
+  .shirit-koka { display: grid; grid-template-columns: minmax(110px, 180px) 1fr 70px 80px; gap: 12px; padding: 0 8px 6px; font-size: 11px; font-weight: 700; color: var(--gri); text-transform: uppercase; letter-spacing: .6px; }
+  .shirit-koka span:nth-child(3), .shirit-koka span:nth-child(4) { text-align: right; }
+  .lista-e-shkurter { display: flex; flex-direction: column; }
+  .ls-rresht {
+    display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; cursor: pointer; border: 0; background: transparent;
+    width: 100%; text-align: left;
+  }
+  .ls-rresht:hover { background: var(--hover); }
+  .ls-rresht .ls-emri { flex: 1; min-width: 0; }
+  .ls-rresht .ls-emri > div:first-child { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ls-rresht .ls-djathtas { text-align: right; font-size: 12px; color: var(--gri); white-space: nowrap; }
+  .bosh-mesazh { color: var(--gri); padding: 14px 8px; }
+  .mireseardhje { padding: 28px; display: grid; grid-template-columns: 1fr 360px; gap: 32px; align-items: center; margin-bottom: 18px; }
+  .mireseardhje h2 { margin: 0 0 8px; font-size: 22px; }
+  .mireseardhje p { margin: 0 0 8px; color: var(--gri); line-height: 1.55; }
+  @media (max-width: 1100px) { .mireseardhje { grid-template-columns: 1fr; } }
+
+  /* ================= Mjetet e tabelës ================= */
+  .mjetet { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .kuti-fushe {
+    display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; background: var(--fushe-bg);
+    border: 1px solid var(--fushe-kufi); border-radius: 10px; min-width: 0;
+  }
+  .kuti-fushe:focus-within { border-color: var(--btn-tekst); box-shadow: 0 0 0 3px var(--primar-mesme); }
+  .kuti-fushe input { border: 0; outline: none; background: transparent; flex: 1; min-width: 0; height: 100%; }
+  .kuti-fushe svg { color: var(--gri); }
+  #fushaBarkodit { flex: 1 1 320px; max-width: 460px; }
+  #fushaBarkodit.theksuar { border-color: var(--primar); background: var(--primar-bute); }
+  #kerkoTabele { flex: 1 1 220px; max-width: 340px; }
+  .segmente { display: inline-flex; border: 1px solid var(--fushe-kufi); border-radius: 10px; overflow: hidden; background: var(--fushe-bg); }
+  .segmente button { border: 0; background: transparent; height: 38px; padding: 0 12px; font-weight: 600; font-size: 13px; color: var(--gri); display: inline-flex; align-items: center; gap: 6px; }
+  .segmente button + button { border-left: 1px solid var(--fushe-kufi); }
+  .segmente button:hover { background: var(--hover); color: var(--tekst); }
+  .segmente button.aktiv { background: var(--primar); color: #fff; }
+  .segmente button .n { font-weight: 500; opacity: .8; font-variant-numeric: tabular-nums; }
+
+  .shirit-zgjedhjes {
+    display: flex; align-items: center; gap: 8px; padding: 8px 10px 8px 16px; margin-bottom: 12px;
+    background: var(--zgjedhur); border: 1px solid var(--primar-mesme); border-radius: 12px;
+  }
+  .shirit-zgjedhjes strong { margin-right: 8px; }
+  .shirit-zgjedhjes .hapesire { flex: 1; }
+
+  /* ================= Tabela ================= */
+  .tabela-mbajtese { background: var(--karta); border: 1px solid var(--vije); border-radius: 14px; box-shadow: var(--hije); overflow: hidden; }
+  table.tabela { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+  .tabela th {
+    position: sticky; top: 0; z-index: 1; background: var(--karta); text-align: left; font-size: 12px; font-weight: 700;
+    color: var(--gri); height: 40px; padding: 0 12px; border-bottom: 1px solid var(--vije); white-space: nowrap; user-select: none;
+  }
+  .tabela th.renditshme { cursor: pointer; }
+  .tabela th.renditshme:hover { color: var(--tekst); }
+  .tabela th .shigjete { display: inline-block; margin-left: 4px; opacity: 0; font-size: 11px; }
+  .tabela th.renditur .shigjete { opacity: 1; color: var(--btn-tekst); }
+  .tabela th.renditur { color: var(--tekst); }
+  .tabela td {
+    height: var(--rresht-lart); padding: 0 12px; border-bottom: 1px solid var(--vije-2); white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .tabela tbody tr { cursor: pointer; }
+  .tabela tbody tr:hover td { background: var(--hover); }
+  .tabela tbody tr.zgjedhur td { background: var(--zgjedhur); }
+  .tabela tbody tr.fokus td { box-shadow: inset 0 1px 0 var(--btn-tekst), inset 0 -1px 0 var(--btn-tekst); }
+  .tabela tbody tr.fokus td:first-child { box-shadow: inset 2px 0 0 var(--btn-tekst), inset 0 1px 0 var(--btn-tekst), inset 0 -1px 0 var(--btn-tekst); }
+  .tabela tbody tr.flash td { animation: flash 1.4s ease-out; }
+  @keyframes flash { 0% { background: var(--primar-mesme); } 100% { background: transparent; } }
+  .tabela tbody tr:last-child td { border-bottom: 0; }
+  .tabela .k-zgjedh { width: 44px; padding: 0 0 0 16px; }
+  .tabela .k-barkodi { width: 170px; }
+  .tabela .k-folderi { width: 160px; }
+  .tabela .k-sasia { width: 130px; text-align: right; }
+  .tabela .k-koha { width: 150px; color: var(--gri); }
+  .tabela .k-veprime { width: 116px; text-align: right; padding-right: 10px; }
+  .tabela td.k-veprime { overflow: visible; }
+  .tabela .emri-bosh { color: var(--gri); font-style: italic; }
+  .kutize { width: 16px; height: 16px; accent-color: var(--primar); cursor: pointer; margin: 0; vertical-align: middle; }
+  .veprime-rreshti { display: inline-flex; gap: 2px; opacity: 0; }
+  tr:hover .veprime-rreshti, tr.fokus .veprime-rreshti { opacity: 1; }
+  .sasia-qeliz { font-weight: 700; font-variant-numeric: tabular-nums; font-size: 15px; }
+  .sasia-cip {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-right: 8px;
+    vertical-align: 2px;
+  }
+  .sasia-cip.zero { color: var(--rrezik); background: var(--rrezik-bute); }
+  .sasia-cip.pak { color: var(--paralajm); background: var(--paralajm-bute); }
+  .folder-cip {
+    display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 3px 9px; border-radius: 12px;
+    font-size: 12px; font-weight: 600; color: var(--btn-tekst); background: var(--primar-bute);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle;
+  }
+  .dublikat-cip { font-size: 11px; font-weight: 700; color: var(--gri); border: 1px solid var(--vije); border-radius: 8px; padding: 1px 6px; margin-left: 6px; }
+  .sasia-shpejt { display: inline-flex; align-items: center; gap: 4px; }
+  .sasia-shpejt button {
+    width: 26px; height: 26px; border-radius: 13px; border: 1px solid var(--fushe-kufi); background: var(--fushe-bg);
+    line-height: 1; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; padding: 0;
+  }
+  .sasia-shpejt button:hover { background: var(--hover); }
+  .sasia-shpejt input {
+    width: 64px; height: 28px; text-align: center; border: 1px solid transparent; border-radius: 6px; background: transparent;
+    font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; -moz-appearance: textfield;
+  }
+  .sasia-shpejt input:hover { border-color: var(--vije); }
+  .sasia-shpejt input:focus { outline: none; border-color: var(--btn-tekst); background: var(--fushe-bg); }
+  .sasia-shpejt input::-webkit-outer-spin-button, .sasia-shpejt input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .tabela-bosh { padding: 56px 20px; text-align: center; color: var(--gri); }
+  .tabela-bosh h3 { color: var(--tekst); margin: 12px 0 6px; font-size: 16px; }
+  .tabela-bosh svg { color: var(--gri-2); }
+  .faqosja { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-top: 1px solid var(--vije); color: var(--gri); font-size: 13px; }
+  .faqosja .hapesire { flex: 1; }
+  .faqosja select.inp { width: auto; height: 32px; font-size: 13px; }
+
+  /* ================= Dialogët ================= */
+  .mbulese {
+    position: fixed; inset: 0; background: rgba(10,14,22,.45); display: none; align-items: flex-start; justify-content: center;
+    padding: 8vh 20px 20px; z-index: 50; overflow: auto;
+  }
+  .mbulese.hapur { display: flex; animation: shfaq .12s ease-out; }
+  @keyframes shfaq { from { opacity: 0; } to { opacity: 1; } }
+  .dialog {
+    width: 100%; max-width: 480px; background: var(--karta); border-radius: 16px; box-shadow: var(--hije-e-larte);
+    border: 1px solid var(--vije); animation: ngrite .14s ease-out;
+  }
+  @keyframes ngrite { from { transform: translateY(8px); opacity: .6; } to { transform: none; opacity: 1; } }
+  .dialog.gjere { max-width: 820px; }
+  .dialog.mesme { max-width: 600px; }
+  .dialog-krye { display: flex; align-items: center; gap: 10px; padding: 18px 20px 6px; }
+  .dialog-krye h2 { margin: 0; font-size: 18px; font-weight: 700; flex: 1; min-width: 0; }
+  .dialog-trup { padding: 10px 20px 6px; }
+  .dialog-trup p { margin: 0 0 12px; line-height: 1.55; white-space: pre-line; color: var(--gri); }
+  .dialog-fund { display: flex; align-items: center; gap: 8px; padding: 12px 20px 18px; }
+  .dialog-fund .hapesire { flex: 1; }
+  .dy-kolona { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .info-rresht { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--gri); margin: -4px 0 14px 2px; }
+  .info-rresht .folder-cip { cursor: pointer; }
+  .sasia-kuti { display: flex; align-items: center; gap: 8px; }
+  .sasia-kuti .btn-hap {
+    width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--fushe-kufi); background: var(--fushe-bg);
+    font-size: 18px; font-weight: 600; flex: none;
+  }
+  .sasia-kuti .btn-hap:hover { background: var(--hover); }
+  .sasia-kuti input { text-align: center; font-weight: 700; font-size: 16px; }
+  .parapamje-sasie { font-size: 13px; color: var(--gri); margin: 6px 0 0 2px; min-height: 18px; }
+  .parapamje-sasie strong { color: var(--tekst); font-variant-numeric: tabular-nums; }
+
+  /* Opsionet (dialog me skeda anash) */
+  .opsione-trup { display: grid; grid-template-columns: 190px 1fr; min-height: 420px; }
+  .opsione-skeda { border-right: 1px solid var(--vije); padding: 10px; display: flex; flex-direction: column; gap: 2px; }
+  .opsione-skeda button { border: 0; background: transparent; text-align: left; padding: 9px 12px; border-radius: 8px; font-weight: 600; color: var(--gri); }
+  .opsione-skeda button:hover { background: var(--hover); color: var(--tekst); }
+  .opsione-skeda button.aktiv { background: var(--primar-bute); color: var(--btn-tekst); }
+  .opsione-faqe { padding: 6px 22px 16px; display: none; }
+  .opsione-faqe.aktiv { display: block; }
+  .ops-seksion { padding: 14px 0; border-bottom: 1px solid var(--vije); }
+  .ops-seksion:last-child { border-bottom: 0; }
+  .ops-titull { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .ops-hint { font-size: 12px; color: var(--gri); margin: 6px 0 0; line-height: 1.5; }
+  .aksentet { display: flex; gap: 10px; margin-top: 6px; }
+  .aksent { width: 30px; height: 30px; border-radius: 50%; border: 3px solid transparent; padding: 0; position: relative; }
+  .aksent[data-v="blu"] { background: #1565C0; }
+  .aksent[data-v="jeshile"] { background: #2E7D32; }
+  .aksent[data-v="vjollce"] { background: #6A1B9A; }
+  .aksent[data-v="portokalli"] { background: #E65100; }
+  .aksent[data-v="kuqe"] { background: #C62828; }
+  .aksent.aktiv { border-color: var(--tekst); }
+  .aksent.aktiv::after { content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 13px; }
+  .shkurtoret { width: 100%; border-collapse: collapse; }
+  .shkurtoret td { padding: 7px 0; border-bottom: 1px solid var(--vije-2); }
+  .shkurtoret td:last-child { text-align: right; white-space: nowrap; }
+  .shkurtoret .tast { opacity: 1; color: var(--gri); border-color: var(--fushe-kufi); margin-left: 3px; }
+
+  /* Eksporti / importi */
+  .zgjedhje-lista { display: flex; flex-direction: column; gap: 8px; }
+  .zgjedhje {
+    display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border: 1px solid var(--fushe-kufi);
+    border-radius: 12px; cursor: pointer; background: var(--fushe-bg);
+  }
+  .zgjedhje:hover { background: var(--hover); }
+  .zgjedhje input { margin: 3px 0 0; accent-color: var(--primar); flex: none; }
+  .zgjedhje.aktiv { border-color: var(--primar); background: var(--primar-bute); }
+  .zgjedhje.jo-aktive { opacity: .45; pointer-events: none; }
+  .zgjedhje b { display: block; margin-bottom: 2px; }
+  .zgjedhje small { color: var(--gri); font-size: 12px; }
+  .formatet { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+  .formatet .zgjedhje { flex-direction: column; gap: 6px; align-items: flex-start; }
+  .formatet .zgjedhje input { display: none; }
+  .formatet svg { color: var(--btn-tekst); }
+  .zona-leshimi {
+    border: 2px dashed var(--fushe-kufi); border-radius: 14px; padding: 30px; text-align: center; color: var(--gri); cursor: pointer;
+    transition: border-color .12s, background .12s;
+  }
+  .zona-leshimi:hover, .zona-leshimi.siper { border-color: var(--primar); background: var(--primar-bute); color: var(--tekst); }
+  .zona-leshimi b { color: var(--btn-tekst); }
+  .harta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0 6px; }
+  .parapamje { max-height: 230px; overflow: auto; border: 1px solid var(--vije); border-radius: 10px; margin: 8px 0 12px; }
+  .parapamje table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .parapamje th, .parapamje td { padding: 6px 10px; border-bottom: 1px solid var(--vije-2); text-align: left; white-space: nowrap; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+  .parapamje th { position: sticky; top: 0; background: var(--karta); font-size: 12px; color: var(--gri); }
+  .parapamje .gabuar td { color: var(--rrezik); }
+  .permbledhje-importi { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; margin-bottom: 8px; }
+  .permbledhje-importi span b { font-variant-numeric: tabular-nums; }
+
+  /* Menutë */
+  .menu {
+    position: fixed; z-index: 60; background: var(--karta); border: 1px solid var(--vije); border-radius: 12px;
+    box-shadow: var(--hije-e-larte); padding: 6px; min-width: 220px; display: none;
+  }
+  .menu.hapur { display: block; }
+  .menu button {
+    display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: transparent; text-align: left;
+    padding: 9px 12px; border-radius: 8px; color: var(--tekst);
+  }
+  .menu button:hover, .menu button:focus-visible { background: var(--hover); outline: none; }
+  .menu button.rrezik { color: var(--rrezik); }
+  .menu hr { border: 0; border-top: 1px solid var(--vije); margin: 5px 4px; }
+
+  /* Toast */
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+    background: var(--toast-bg); color: var(--toast-tx); border-radius: 12px; padding: 10px 10px 10px 16px;
+    display: flex; align-items: center; gap: 14px; z-index: 70; box-shadow: var(--hije-e-larte);
+    transition: opacity .15s, transform .15s; max-width: min(640px, 90vw);
+  }
+  .toast.hapur { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+  .toast .btn { height: 32px; background: transparent; color: #8ab4f8; padding: 0 10px; }
+  :root[data-tema="dark"] .toast .btn { color: var(--primar); }
+  .toast-tekst { padding: 6px 0; }
+
+  .nd-spinner { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: rrotull .7s linear infinite; }
+  @keyframes rrotull { to { transform: rotate(360deg); } }
+
+  :focus-visible { outline: 2px solid var(--btn-tekst); outline-offset: 2px; }
+  .inp:focus-visible { outline: none; }
+
+  @media (max-width: 1020px) {
+    .trupi { grid-template-columns: 220px 1fr; }
+    main.kryesore { padding: 18px; }
+    .tabela .k-koha { display: none; }
+    .krye-kerko { margin-left: 8px; }
+    .sink-status .sink-tekst { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="krye">
+  <img class="krye-logo" id="logo" src="logo.png" alt="Stoku" title="Përmbledhja">
+  <div class="krye-kerko">
+    <div class="fusha">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>
+      <input id="kerkoGlobal" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko produkt në të gjithë folderat (emër ose barkod)…" aria-label="Kërko kudo">
+      <span class="tast">Ctrl K</span>
+    </div>
+    <div class="kerko-rezultate" id="kerkoRezultate" role="listbox"></div>
+  </div>
+  <div class="krye-djathtas">
+    <button class="sink-status" id="sinkStatus" type="button" title="Sinkronizo tani">
+      <span class="pike" id="sinkPika"></span><span class="sink-tekst" id="sinkTekst">Vetëm në këtë kompjuter</span>
+    </button>
+    <button class="btn-krye" id="btnLlogaria" type="button">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <span class="perdoruesi-cip" id="perdoruesiCip">Hyr</span>
+    </button>
+    <button class="btn-krye" id="btnOpsione" type="button" title="Opsionet" aria-label="Opsionet">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+    </button>
+  </div>
+</header>
+
+<div class="trupi">
+  <aside class="anesore">
+    <nav class="nav">
+      <button class="nav-rresht" id="navPermbledhja" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>
+        <span class="emri">Përmbledhja</span>
+      </button>
+      <button class="nav-rresht" id="navTeGjitha" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg>
+        <span class="emri">Të gjitha produktet</span>
+        <span class="numer-cip" id="numTeGjitha">0</span>
+      </button>
+    </nav>
+    <div class="seksion-titull"><span>Folderat</span><button type="button" id="btnFolderIRi" title="Folder i ri" aria-label="Folder i ri">+</button></div>
+    <div class="folderat" id="folderat"></div>
+    <div class="anesore-fund">
+      <button type="button" id="btnImport">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path><path d="M12 15V3"></path></svg>
+        Importo nga Excel / CSV
+      </button>
+      <button type="button" id="btnShkurtoret">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"></path></svg>
+        Shkurtoret e tastierës
+      </button>
+      <a href="index.html?mobile=1" id="lidhjaTelefon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"></rect><path d="M12 18h.01"></path></svg>
+        Versioni për telefon
+      </a>
+    </div>
+  </aside>
+
+  <main class="kryesore" id="kryesore">
+    <!-- Përmbledhja -->
+    <section id="pamjaPermbledhja">
+      <div class="faqe-krye">
+        <div>
+          <h1>Përmbledhja</h1>
+          <div class="faqe-nen" id="permbNen"></div>
+        </div>
+        <div class="faqe-veprime">
+          <button class="btn dyte" type="button" data-eksport="excel">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="m8 13 4 5M12 13l-4 5"></path></svg>
+            Eksporto krejt stokun
+          </button>
+        </div>
+      </div>
+      <div class="karta mireseardhje fsheh" id="kartaMireseardhje">
+        <div>
+          <h2>Mirë se erdhe në Stoku për kompjuter</h2>
+          <p>Hyr me të njëjtën llogari që përdor në telefon ose në PDA — produktet shfaqen këtu menjëherë dhe çdo skanim i ri nga telefoni del automatikisht, pa pasur nevojë të rifreskosh faqen.</p>
+          <p>Pa llogari, të dhënat ruhen vetëm në këtë kompjuter.</p>
+        </div>
+        <div>
+          <label class="fushe"><span>Përdoruesi</span><input class="inp" id="mUser" type="text" autocomplete="username" spellcheck="false" maxlength="40"></label>
+          <label class="fushe"><span>Fjalëkalimi</span><input class="inp" id="mPass" type="password" autocomplete="current-password" maxlength="100"></label>
+          <div class="gabim-tekst" id="mGabim"></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn" id="mHyr" type="button" style="flex:1">Hyr</button>
+            <button class="btn dyte" id="mKrijo" type="button">Krijo llogari</button>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-rrjeti" id="kpiRrjeti"></div>
+      <div class="permb-rrjeti">
+        <div class="karta">
+          <div class="karta-krye"><h2>Produktet sipas folderave</h2></div>
+          <div class="karta-trup" id="permbFolderat"></div>
+        </div>
+        <div class="karta">
+          <div class="karta-krye"><h2>Ndryshuar së fundi</h2><button class="btn tekst vogel" type="button" id="btnShihTeFundit">Shih të gjitha</button></div>
+          <div class="karta-trup lista-e-shkurter" id="permbTeFundit"></div>
+        </div>
+        <div class="karta gjere">
+          <div class="karta-krye"><h2>Sasia më e ulët</h2><button class="btn tekst vogel" type="button" id="btnShihTeUleta">Shih të gjitha</button></div>
+          <div class="karta-trup lista-e-shkurter" id="permbTeUleta" style="display:grid;grid-template-columns:1fr 1fr;column-gap:16px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabela (folder ose të gjitha) -->
+    <section id="pamjaTabela" class="fsheh">
+      <div class="faqe-krye">
+        <div>
+          <h1 id="tabTitulli"></h1>
+          <div class="faqe-nen" id="tabNen"></div>
+        </div>
+        <div class="faqe-veprime">
+          <button class="btn" type="button" id="btnShto">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+            Shto produkt
+          </button>
+          <button class="btn dyte" type="button" data-eksport="excel">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="m8 13 4 5M12 13l-4 5"></path></svg>
+            Excel
+          </button>
+          <button class="btn dyte" type="button" data-eksport="pdf">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M8 17h8M8 13h8"></path></svg>
+            PDF
+          </button>
+          <button class="btn dyte" type="button" id="btnFolderMenu" title="Më shumë" aria-label="Më shumë">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="mjetet">
+        <div class="kuti-fushe" id="fushaBarkodit" title="Skano me skaner USB ose shkruaj barkodin dhe shtyp Enter">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 5v14M7 5v14M11 5v14M14 5v14M18 5v14M21 5v14"></path></svg>
+          <input id="barkodi" type="text" autocomplete="off" spellcheck="false" placeholder="Skano ose shkruaj barkodin + Enter">
+          <span class="tast gri">B</span>
+        </div>
+        <div class="kuti-fushe" id="kerkoTabele">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>
+          <input id="kerko" type="search" autocomplete="off" spellcheck="false" placeholder="Filtro listën…">
+          <span class="tast gri">Ctrl F</span>
+        </div>
+        <div class="segmente" id="filtrat">
+          <button type="button" data-f="te-gjitha" class="aktiv">Të gjitha</button>
+          <button type="button" data-f="zero">Sasi 0 <span class="n" data-n="zero"></span></button>
+          <button type="button" data-f="pak">Sasi e ulët <span class="n" data-n="pak"></span></button>
+          <button type="button" data-f="paEmer">Pa emër <span class="n" data-n="paEmer"></span></button>
+          <button type="button" data-f="dublikate" title="Barkode që gjenden në më shumë se një folder">Në disa foldera <span class="n" data-n="dublikate"></span></button>
+        </div>
+      </div>
+
+      <div class="shirit-zgjedhjes fsheh" id="shiritZgjedhjes">
+        <strong id="zgjedhjaNumri"></strong>
+        <button class="btn dyte vogel" type="button" id="zgjZhvendos">Zhvendos në folder…</button>
+        <button class="btn dyte vogel" type="button" id="zgjEksport">Eksporto…</button>
+        <button class="btn tekst rrezik vogel" type="button" id="zgjFshij">Fshij</button>
+        <span class="hapesire"></span>
+        <button class="btn tekst vogel" type="button" id="zgjAnulo">Hiq zgjedhjen</button>
+      </div>
+
+      <div class="tabela-mbajtese">
+        <table class="tabela" id="tabela">
+          <thead>
+            <tr>
+              <th class="k-zgjedh"><input type="checkbox" class="kutize" id="zgjidhKrejt" aria-label="Zgjidh të gjitha"></th>
+              <th class="k-barkodi renditshme" data-k="barkodi">Barkodi<span class="shigjete"></span></th>
+              <th class="k-emri renditshme" data-k="emri">Emri i produktit<span class="shigjete"></span></th>
+              <th class="k-folderi renditshme" data-k="folderi">Folderi<span class="shigjete"></span></th>
+              <th class="k-sasia renditshme" data-k="sasia">Sasia<span class="shigjete"></span></th>
+              <th class="k-koha renditshme" data-k="koha">Ndryshuar<span class="shigjete"></span></th>
+              <th class="k-veprime"></th>
+            </tr>
+          </thead>
+          <tbody id="tabelaTrup"></tbody>
+        </table>
+        <div class="tabela-bosh fsheh" id="tabelaBosh"></div>
+        <div class="faqosja" id="faqosja">
+          <span id="faqInfo"></span>
+          <span class="hapesire"></span>
+          <label>Rreshta për faqe
+            <select class="inp" id="madhFaqes">
+              <option value="50">50</option><option value="100">100</option><option value="250">250</option><option value="500">500</option><option value="0">Të gjitha</option>
+            </select>
+          </label>
+          <button class="btn dyte vogel" type="button" id="faqPara" aria-label="Faqja e mëparshme">‹</button>
+          <span id="faqNr"></span>
+          <button class="btn dyte vogel" type="button" id="faqPas" aria-label="Faqja tjetër">›</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ================= Dialogët ================= -->
+
+<!-- Produkti (i ri / ndrysho) -->
+<div class="mbulese" id="dlgProdukt">
+  <div class="dialog mesme" role="dialog" aria-modal="true" aria-labelledby="prTitulli">
+    <div class="dialog-krye"><h2 id="prTitulli"></h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
+    <div class="dialog-trup">
+      <div class="dy-kolona">
+        <label class="fushe"><span>Barkodi</span><input class="inp mono" id="prBarkodi" type="text" autocomplete="off" spellcheck="false" maxlength="64"></label>
+        <label class="fushe"><span>Folderi</span><select class="inp" id="prFolderi"></select></label>
+      </div>
+      <div class="info-rresht fsheh" id="prGjetur"></div>
+      <label class="fushe"><span>Emri i produktit</span><input class="inp" id="prEmri" type="text" autocomplete="off" maxlength="120"></label>
+      <div class="fushe">
+        <span id="prSasiaEtik">Sasia</span>
+        <div class="sasia-kuti">
+          <button class="btn-hap" type="button" id="prMinus" aria-label="-1">−</button>
+          <input class="inp" id="prSasia" type="number" step="1" autocomplete="off">
+          <button class="btn-hap" type="button" id="prPlus" aria-label="+1">+</button>
+        </div>
+        <div class="parapamje-sasie" id="prParapamje"></div>
+      </div>
+      <div class="gabim-tekst" id="prGabim"></div>
+    </div>
+    <div class="dialog-fund">
+      <button class="btn tekst rrezik" type="button" id="prFshij">Fshij</button>
+      <span class="hapesire" id="prKoha" style="color:var(--gri);font-size:12px"></span>
+      <button class="btn tekst" type="button" data-mbyll>Anulo</button>
+      <button class="btn" type="button" id="prRuaj">Ruaj</button>
+    </div>
+  </div>
+</div>
+
+<!-- Zhvendos -->
+<div class="mbulese" id="dlgZhvendos">
+  <div class="dialog" role="dialog" aria-modal="true">
+    <div class="dialog-krye"><h2 id="zhTitulli">Zhvendos në folder</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
+    <div class="dialog-trup">
+      <p id="zhTekst"></p>
+      <div class="zgjedhje-lista" id="zhLista"></div>
+    </div>
+    <div class="dialog-fund"><span class="hapesire"></span><button class="btn tekst" type="button" data-mbyll>Anulo</button></div>
+  </div>
+</div>
+
+<!-- Folderi (i ri / riemërto) -->
+<div class="mbulese" id="dlgFolder">
+  <div class="dialog" role="dialog" aria-modal="true">
+    <div class="dialog-krye"><h2 id="flTitulli">Folder i ri</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
+    <div class="dialog-trup">
+      <label class="fushe"><span>Emri i folderit</span><input class="inp" id="flEmri" type="text" autocomplete="off" maxlength="40"></label>
+      <div class="gabim-tekst" id="flGabim"></div>
+    </div>
+    <div class="dialog-fund"><span class="hapesire"></span><button class="btn tekst" type="button" data-mbyll>Anulo</button><button class="btn" type="button" id="flRuaj">Krijo</button></div>
+  </div>
+</div>
+
+<!-- Konfirmim -->
+<div class="mbulese" id="dlgKonfirmo">
+  <div class="dialog" role="alertdialog" aria-modal="true">
+    <div class="dialog-krye"><h2 id="kfTitulli"></h2></div>
+    <div class="dialog-trup"><p id="kfTekst"></p></div>
+    <div class="dialog-fund"><span class="hapesire"></span><button class="btn tekst" type="button" id="kfJo">Anulo</button><button class="btn rrezik" type="button" id="kfPo"></button></div>
+  </div>
+</div>
+
+<!-- Eksporti -->
+<div class="mbulese" id="dlgEksport">
+  <div class="dialog mesme" role="dialog" aria-modal="true">
+    <div class="dialog-krye"><h2>Eksporto</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
+    <div class="dialog-trup">
+      <div class="fushe"><span>Formati</span></div>
+      <div class="formatet" id="ekFormatet">
+        <label class="zgjedhje" data-v="excel"><input type="radio" name="ekFormati" value="excel">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="m8 13 4 5M12 13l-4 5"></path></svg>
+          <b>Excel (.xlsx)</b><small>Tabelë me filtra, totale dhe fletë për çdo folder</small></label>
+        <label class="zgjedhje" data-v="pdf-lista"><input type="radio" name="ekFormati" value="pdf-lista">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M8 17h8M8 13h8"></path></svg>
+          <b>PDF — raport</b><small>Listë e stokut për printim, me totale</small></label>
+        <label class="zgjedhje" data-v="pdf-etiketa"><input type="radio" name="ekFormati" value="pdf-etiketa">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 5v14M7 5v14M11 5v14M14 5v14M18 5v14M21 5v14"></path></svg>
+          <b>PDF — etiketa</b><small>Barkodet për printim dhe riskenim (A4, 24 për faqe)</small></label>
+      </div>
+      <div class="fushe"><span>Çfarë të përfshihet</span></div>
+      <div class="zgjedhje-lista" id="ekFushat"></div>
+    </div>
+    <div class="dialog-fund"><span class="hapesire"></span><button class="btn tekst" type="button" data-mbyll>Anulo</button><button class="btn" type="button" id="ekBtn">Eksporto</button></div>
+  </div>
+</div>
+
+<!-- Importi -->
+<div class="mbulese" id="dlgImport">
+  <div class="dialog gjere" role="dialog" aria-modal="true">
+    <div class="dialog-krye"><h2>Importo produkte nga Excel ose CSV</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
+    <div class="dialog-trup">
+      <div id="imHapi1">
+        <div class="zona-leshimi" id="imZona">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m17 8-5-5-5 5"></path><path d="M12 3v12"></path></svg>
+          <p style="margin:10px 0 4px;color:var(--tekst)"><b>Zgjidh skedarin</b> ose tërhiqe këtu</p>
+          <small>.xlsx ose .csv — p.sh. një skedar i eksportuar më parë nga Stoku, ose lista e furnitorit</small>
+        </div>
+        <input type="file" id="imSkedari" accept=".xlsx,.csv,.txt,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" hidden>
+        <div class="gabim-tekst" id="imGabim1" style="margin-top:10px"></div>
+      </div>
+      <div id="imHapi2" class="fsheh">
+        <div class="info-rresht" id="imSkedariInfo" style="margin:0 0 6px"></div>
+        <div class="dy-kolona">
+          <label class="fushe fsheh" id="imFletaMbajtese"><span>Fleta</span><select class="inp" id="imFleta"></select></label>
+          <label class="fushe"><span>Rreshti i parë ka titujt e kolonave</span>
+            <select class="inp" id="imKoka"><option value="1">Po</option><option value="0">Jo</option></select></label>
+        </div>
+        <div class="harta">
+          <label class="fushe"><span>Kolona e barkodit *</span><select class="inp" id="imKolBarkodi"></select></label>
+          <label class="fushe"><span>Kolona e emrit</span><select class="inp" id="imKolEmri"></select></label>
+          <label class="fushe"><span>Kolona e sasisë</span><select class="inp" id="imKolSasia"></select></label>
+          <label class="fushe"><span>Kolona e folderit</span><select class="inp" id="imKolFolderi"></select></label>
+        </div>
+        <div class="dy-kolona">
+          <label class="fushe"><span>Ku të futen produktet</span><select class="inp" id="imCaku"></select></label>
+          <label class="fushe"><span>Nëse produkti ekziston tashmë</span>
+            <select class="inp" id="imMenyra">
+              <option value="shto">Shtoje sasinë te ajo ekzistuese</option>
+              <option value="zevendeso">Zëvendëso sasinë (dhe emrin, nëse ka)</option>
+              <option value="kalo">Mos e prek — shto vetëm produktet e reja</option>
+            </select></label>
+        </div>
+        <div class="permbledhje-importi" id="imPermbledhje"></div>
+        <div class="parapamje" id="imParapamje"></div>
+      </div>
+    </div>
+    <div class="dialog-fund">
+      <button class="btn tekst fsheh" type="button" id="imMbrapa">‹ Skedar tjetër</button>
+      <span class="hapesire"></span>
+      <button class="btn tekst" type="button" data-mbyll>Anulo</button>
+      <button class="btn" type="button" id="imBtn" disabled>Importo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Llogaria -->
+<div class="mbulese" id="dlgLlogaria">
+  <div class="dialog" role="dialog" aria-modal="true">
+    <div class="dialog-krye"><h2 id="llTitulli">Llogaria</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
+    <div class="dialog-trup" id="llJashte">
+      <p>Hyr me të njëjtën llogari që përdor në telefon. Të dhënat bashkohen automatikisht — asgjë nuk fshihet.</p>
+      <label class="fushe"><span>Përdoruesi</span><input class="inp" id="llUser" type="text" autocomplete="username" spellcheck="false" maxlength="40"></label>
+      <label class="fushe"><span>Fjalëkalimi</span><input class="inp" id="llPass" type="password" autocomplete="current-password" maxlength="100"></label>
+      <div class="gabim-tekst" id="llGabim"></div>
+    </div>
+    <div class="dialog-trup fsheh" id="llBrenda">
+      <p id="llHyrePer"></p>
+      <p id="llStatusi" style="margin-top:-6px"></p>
+    </div>
+    <div class="dialog-fund" id="llFundJashte">
+      <button class="btn tekst" type="button" id="llKrijo">Krijo llogari</button>
+      <span class="hapesire"></span>
+      <button class="btn" type="button" id="llHyr">Hyr</button>
+    </div>
+    <div class="dialog-fund fsheh" id="llFundBrenda">
+      <button class="btn tekst rrezik" type="button" id="llDil">Dil</button>
+      <span class="hapesire"></span>
+      <button class="btn dyte" type="button" id="llMenaxho">Ndrysho emrin / fjalëkalimin</button>
+      <button class="btn" type="button" id="llSinkronizo">Sinkronizo tani</button>
+    </div>
+  </div>
+</div>
+
+<!-- Opsionet -->
+<div class="mbulese" id="dlgOpsione">
+  <div class="dialog gjere" role="dialog" aria-modal="true" style="max-width:760px">
+    <div class="dialog-krye"><h2>Opsionet</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
+    <div class="opsione-trup">
+      <div class="opsione-skeda" id="opsSkeda">
+        <button type="button" data-faqe="pamja" class="aktiv">Pamja</button>
+        <button type="button" data-faqe="stoku">Stoku</button>
+        <button type="button" data-faqe="llogaria">Llogaria</button>
+        <button type="button" data-faqe="shkurtoret">Shkurtoret</button>
+      </div>
+      <div>
+        <div class="opsione-faqe aktiv" data-faqe="pamja">
+          <div class="ops-seksion">
+            <div class="ops-titull">Tema</div>
+            <div class="segmente" id="opsTema" style="margin-top:6px">
+              <button type="button" data-v="auto">Automatike</button><button type="button" data-v="light">E çelët</button><button type="button" data-v="dark">E errët</button>
+            </div>
+            <p class="ops-hint">"Automatike" ndjek cilësimin e kompjuterit.</p>
+          </div>
+          <div class="ops-seksion">
+            <div class="ops-titull">Ngjyra kryesore</div>
+            <div class="aksentet" id="opsAksent">
+              <button type="button" class="aksent" data-v="blu" title="Blu"></button>
+              <button type="button" class="aksent" data-v="jeshile" title="Jeshile"></button>
+              <button type="button" class="aksent" data-v="vjollce" title="Vjollcë"></button>
+              <button type="button" class="aksent" data-v="portokalli" title="Portokalli"></button>
+              <button type="button" class="aksent" data-v="kuqe" title="Kuqe"></button>
+            </div>
+          </div>
+          <div class="ops-seksion">
+            <div class="ops-titull">Dendësia e tabelës</div>
+            <div class="segmente" id="opsDendesia" style="margin-top:6px">
+              <button type="button" data-v="normale">Normale</button><button type="button" data-v="kompakte">Kompakte</button>
+            </div>
+            <p class="ops-hint">Kompakte shfaq më shumë rreshta njëherësh në ekran.</p>
+          </div>
+          <div class="ops-seksion">
+            <div class="ops-titull">Madhësia e shkronjave</div>
+            <div class="segmente" id="opsMadhesia" style="margin-top:6px">
+              <button type="button" data-v="normale">Normale</button><button type="button" data-v="e_madhe">E madhe</button>
+            </div>
+          </div>
+        </div>
+        <div class="opsione-faqe" data-faqe="stoku">
+          <div class="ops-seksion">
+            <div class="ops-titull">Kufiri i sasisë së ulët</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+              <input class="inp" id="opsPragu" type="number" min="0" step="1" style="width:110px">
+              <span class="gri">copë ose më pak (por mbi 0)</span>
+            </div>
+            <p class="ops-hint">Produktet me këtë sasi ose më pak shënohen me portokalli si "Sasi e ulët". 0 = çaktivizuar. Produktet me sasi 0 shënohen gjithmonë me të kuqe.</p>
+          </div>
+          <div class="ops-seksion">
+            <div class="ops-titull">Renditja fillestare</div>
+            <select class="inp" id="opsRendi" style="max-width:280px;margin-top:8px">
+              <option value="koha:-1">Më të ndryshuarat së fundi së pari</option>
+              <option value="emri:1">Emri (A–Z)</option>
+              <option value="emri:-1">Emri (Z–A)</option>
+              <option value="sasia:1">Sasia: nga më e vogla</option>
+              <option value="sasia:-1">Sasia: nga më e madhja</option>
+              <option value="barkodi:1">Barkodi</option>
+            </select>
+            <p class="ops-hint">Mund ta ndryshosh kurdo edhe duke klikuar titujt e kolonave në tabelë.</p>
+          </div>
+        </div>
+        <div class="opsione-faqe" data-faqe="llogaria">
+          <div class="ops-seksion" id="opsLlJashte">
+            <p class="ops-hint" style="margin:0 0 10px">Nuk ke hyrë. Të dhënat ruhen vetëm në këtë kompjuter.</p>
+            <button class="btn" type="button" id="opsHapHyrjen">Hyr ose krijo llogari</button>
+          </div>
+          <div id="opsLlBrenda" class="fsheh">
+            <div class="ops-seksion">
+              <div class="ops-titull" id="opsLlEmri"></div>
+              <p class="ops-hint" id="opsLlStatusi"></p>
+              <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+                <button class="btn dyte" type="button" id="opsSinkronizo">Sinkronizo tani</button>
+                <button class="btn dyte" type="button" id="opsRikthe">Rikthe nga cloud</button>
+              </div>
+            </div>
+            <div class="ops-seksion">
+              <div class="ops-titull">Ndrysho emrin e përdoruesit</div>
+              <div style="display:flex;gap:8px;margin-top:8px"><input class="inp" id="opsEmriRi" type="text" autocomplete="off" spellcheck="false" maxlength="40" placeholder="Emri i ri"><button class="btn dyte" type="button" id="opsNdryshoEmrin">Ndrysho</button></div>
+              <div class="ops-titull" style="margin-top:14px">Ndrysho fjalëkalimin</div>
+              <div style="display:flex;gap:8px;margin-top:8px"><input class="inp" id="opsFjalekalimiRi" type="password" autocomplete="new-password" maxlength="100" placeholder="Fjalëkalimi i ri"><button class="btn dyte" type="button" id="opsNdryshoFjalekalimin">Ndrysho</button></div>
+              <div id="opsRiaut" class="fsheh" style="margin-top:12px">
+                <p class="ops-hint" style="margin:0 0 8px">Për siguri, konfirmo fjalëkalimin aktual për ta vazhduar ndryshimin.</p>
+                <div style="display:flex;gap:8px"><input class="inp" id="opsFjalekalimiAktual" type="password" autocomplete="current-password" maxlength="100" placeholder="Fjalëkalimi aktual"><button class="btn" type="button" id="opsKonfirmoRiaut">Konfirmo</button></div>
+              </div>
+              <div class="gabim-tekst" id="opsLlGabim" style="margin:8px 0 0"></div>
+            </div>
+            <div class="ops-seksion">
+              <button class="btn tekst rrezik" type="button" id="opsDil" style="padding:0">Dil nga llogaria</button>
+            </div>
+          </div>
+        </div>
+        <div class="opsione-faqe" data-faqe="shkurtoret">
+          <table class="shkurtoret" id="tabShkurtoret"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="menu" id="menu" role="menu"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"><span class="toast-tekst" id="toastTekst"></span><button class="btn fsheh" type="button" id="toastBtn"></button></div>
+
+<script src="xlsx.js"></script>
+<script src="bashkimi.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  function $(id) { return document.getElementById(id); }
+  function el(tag, klasa, tekst) {
+    var e = document.createElement(tag);
+    if (klasa) e.className = klasa;
+    if (tekst !== undefined && tekst !== null) e.textContent = tekst;
+    return e;
+  }
+  var IKONA = {
+    ndrysho: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>',
+    zhvendos: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"></path><path d="m12 11 3 2-3 2"></path><path d="M8 13h7"></path></svg>',
+    fshij: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path></svg>',
+    folder: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"></path></svg>',
+    kap: '<svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><circle cx="2.5" cy="3" r="1.4"></circle><circle cx="7.5" cy="3" r="1.4"></circle><circle cx="2.5" cy="8" r="1.4"></circle><circle cx="7.5" cy="8" r="1.4"></circle><circle cx="2.5" cy="13" r="1.4"></circle><circle cx="7.5" cy="13" r="1.4"></circle></svg>',
+    me: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg>',
+    zero: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M5.6 5.6l12.8 12.8"></path></svg>',
+    pak: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 21h20Z"></path><path d="M12 10v4"></path></svg>'
+  };
+
+  // ================= Formatimet =================
+  var NF = (function () { try { return new Intl.NumberFormat('sq-AL'); } catch (e) { return null; } })();
+  function num(n) { return NF ? NF.format(n) : String(n); }
+  function dy(n) { return (n < 10 ? '0' : '') + n; }
+  function dataOra(ms) {
+    if (!ms) return '';
+    var d = new Date(ms);
+    return dy(d.getDate()) + '.' + dy(d.getMonth() + 1) + '.' + d.getFullYear() + ' ' + dy(d.getHours()) + ':' + dy(d.getMinutes());
+  }
+  function kohaRelative(ms) {
+    if (!ms) return '—';
+    var tani = Date.now(), dif = Math.max(0, tani - ms);
+    var d = new Date(ms), sot = new Date(); sot.setHours(0, 0, 0, 0);
+    if (dif < 60000) return 'tani';
+    if (dif < 3600000) return 'para ' + Math.floor(dif / 60000) + ' min';
+    if (ms >= sot.getTime()) return 'sot ' + dy(d.getHours()) + ':' + dy(d.getMinutes());
+    if (ms >= sot.getTime() - 86400000) return 'dje ' + dy(d.getHours()) + ':' + dy(d.getMinutes());
+    return dy(d.getDate()) + '.' + dy(d.getMonth() + 1) + '.' + d.getFullYear();
+  }
+  function produkteTekst(n) { return num(n) + ' ' + (n === 1 ? 'produkt' : 'produkte'); }
+  function normalizo(s) {
+    return String(s || '').toLowerCase().replace(/ë/g, 'e').replace(/ç/g, 'c');
+  }
+
+  // ================= Baza lokale (e njëjta me versionin e telefonit) =================
+  var KEY_FOLDERA = 'stoku:foldera:v1';
+  var KEY_PRODUKTET = 'stoku:produktet:v2';
+  var KEY_FSHIRE = 'stoku:fshira:v1';
+  var KEY_RENDI_KOHA = 'stoku:rendi-foldera-koha';
+  var KEY_PC = 'stoku:pc:opsione:v1';
+  var FOLDERAT_PARAZGJEDHUR = [
+    { id: 'ushqimore', emri: 'Ushqimore' }, { id: 'pije', emri: 'Pije' },
+    { id: 'higjiene', emri: 'Higjiene' }, { id: 'fresh', emri: 'Fresh' }
+  ];
+  var MIME_XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+  var foldera = [];
+  var produktet = {};
+  var fshira = { produktet: {}, foldera: {} };
+  var rendiFolderaveKoha = 0;
+
+  function celesi(kid, b) { return kid + '::' + b; }
+
+  function lexoJSON(k, parazgjedhur) {
+    try { var v = JSON.parse(localStorage.getItem(k) || 'null'); return v === null ? parazgjedhur : v; } catch (e) { return parazgjedhur; }
+  }
+
+  function ngarkoBazen() {
+    var f = lexoJSON(KEY_FOLDERA, null), p = lexoJSON(KEY_PRODUKTET, null);
+    if (Array.isArray(f) && p && typeof p === 'object') { foldera = f; produktet = p; }
+    else {
+      foldera = FOLDERAT_PARAZGJEDHUR.map(function (x) { return { id: x.id, emri: x.emri }; });
+      produktet = {};
+      try {
+        localStorage.setItem(KEY_FOLDERA, JSON.stringify(foldera));
+        localStorage.setItem(KEY_PRODUKTET, JSON.stringify(produktet));
+      } catch (e) { /* ok */ }
+    }
+    var t = lexoJSON(KEY_FSHIRE, null);
+    fshira = {
+      produktet: (t && t.produktet && typeof t.produktet === 'object') ? t.produktet : {},
+      foldera: (t && t.foldera && typeof t.foldera === 'object') ? t.foldera : {}
+    };
+    rendiFolderaveKoha = parseInt(localStorage.getItem(KEY_RENDI_KOHA) || '0', 10) || 0;
+  }
+
+  function shkruajLokalisht() {
+    try {
+      localStorage.setItem(KEY_FOLDERA, JSON.stringify(foldera));
+      localStorage.setItem(KEY_PRODUKTET, JSON.stringify(produktet));
+      localStorage.setItem(KEY_FSHIRE, JSON.stringify(fshira));
+      localStorage.setItem(KEY_RENDI_KOHA, String(rendiFolderaveKoha || 0));
+      return true;
+    } catch (e) {
+      toast('Ruajtja dështoi: memoria e shfletuesit është plot.');
+      return false;
+    }
+  }
+
+  // Çdo ndryshim i përdoruesit kalon këtu: ruhet, rivizatohet dhe sinkronizohet.
+  function ruaj() {
+    if (!shkruajLokalisht()) return;
+    rivizato();
+    planifikoSinkronizimin();
+  }
+
+  ngarkoBazen();
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { /* ok */ }
+
+  // Një skedë tjetër e këtij shfletuesi (p.sh. versioni i telefonit) ndryshoi të dhënat: rilexo.
+  window.addEventListener('storage', function (e) {
+    if ([KEY_FOLDERA, KEY_PRODUKTET, KEY_FSHIRE, KEY_RENDI_KOHA].indexOf(e.key) === -1) return;
+    ngarkoBazen();
+    rivizato();
+  });
+
+  // ================= Opsionet e kompjuterit =================
+  var ops = { tema: 'auto', aksent: 'blu', dendesia: 'normale', madhesia: 'normale', pragu: 5, rendi: 'koha:-1', madhFaqes: 100 };
+  (function () {
+    var o = lexoJSON(KEY_PC, null);
+    if (!o || typeof o !== 'object') return;
+    if (['auto', 'light', 'dark'].indexOf(o.tema) !== -1) ops.tema = o.tema;
+    if (['blu', 'jeshile', 'vjollce', 'portokalli', 'kuqe'].indexOf(o.aksent) !== -1) ops.aksent = o.aksent;
+    if (o.dendesia === 'kompakte' || o.dendesia === 'normale') ops.dendesia = o.dendesia;
+    if (o.madhesia === 'e_madhe' || o.madhesia === 'normale') ops.madhesia = o.madhesia;
+    if (typeof o.pragu === 'number' && o.pragu >= 0) ops.pragu = Math.floor(o.pragu);
+    if (typeof o.rendi === 'string' && /^(koha|emri|sasia|barkodi|folderi):-?1$/.test(o.rendi)) ops.rendi = o.rendi;
+    if ([0, 50, 100, 250, 500].indexOf(o.madhFaqes) !== -1) ops.madhFaqes = o.madhFaqes;
+  })();
+  function ruajOps() { try { localStorage.setItem(KEY_PC, JSON.stringify(ops)); } catch (e) { /* ok */ } }
+
+  var AKSENT_HEADER = {
+    blu: ['#1565C0', '#0f3f7a'], jeshile: ['#2E7D32', '#1b5e20'], vjollce: ['#6A1B9A', '#4a148c'],
+    portokalli: ['#E65100', '#bf360c'], kuqe: ['#C62828', '#8e0000']
+  };
+  function temaEfektive() {
+    if (ops.tema !== 'auto') return ops.tema;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function zbatoPamjen() {
+    var r = document.documentElement;
+    var t = temaEfektive();
+    r.setAttribute('data-tema', t);
+    if (ops.aksent === 'blu') r.removeAttribute('data-aksent'); else r.setAttribute('data-aksent', ops.aksent);
+    if (ops.dendesia === 'kompakte') r.setAttribute('data-dendesia', 'kompakte'); else r.removeAttribute('data-dendesia');
+    if (ops.madhesia === 'e_madhe') r.setAttribute('data-madhesi', 'e_madhe'); else r.removeAttribute('data-madhesi');
+    $('metaTema').setAttribute('content', (AKSENT_HEADER[ops.aksent] || AKSENT_HEADER.blu)[t === 'dark' ? 1 : 0]);
+  }
+  if (window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var ndryshoiSistemi = function () { if (ops.tema === 'auto') zbatoPamjen(); };
+    if (mq.addEventListener) mq.addEventListener('change', ndryshoiSistemi); else if (mq.addListener) mq.addListener(ndryshoiSistemi);
+  }
+  zbatoPamjen();
+
+  // ================= Toast (me "Zhbëj") =================
+  var toastKohe = null, toastVeprimi = null;
+  function toast(mesazh, opsionet) {
+    opsionet = opsionet || {};
+    $('toastTekst').textContent = mesazh;
+    var b = $('toastBtn');
+    toastVeprimi = opsionet.veprimi || null;
+    b.classList.toggle('fsheh', !toastVeprimi);
+    b.textContent = opsionet.butoni || 'Zhbëj';
+    $('toast').classList.add('hapur');
+    clearTimeout(toastKohe);
+    toastKohe = setTimeout(mbyllToast, opsionet.ms || (toastVeprimi ? 9000 : 3200));
+  }
+  function mbyllToast() { $('toast').classList.remove('hapur'); toastVeprimi = null; }
+  $('toastBtn').addEventListener('click', function () {
+    var v = toastVeprimi;
+    mbyllToast();
+    if (v) v();
+  });
+
+  // ================= Ndryshimet me mundësi zhbërjeje =================
+  // Çdo veprim që prek të dhënat kalon nga ndrysho(): mban mend gjendjen e mëparshme të çdo produkti
+  // dhe folderi të prekur, që "Zhbëj" ta kthejë saktësisht (edhe pasi është sinkronizuar në cloud).
+  function kopje(o) { return o ? JSON.parse(JSON.stringify(o)) : o; }
+  function ndrysho(fn) {
+    var reg = { produktet: {}, foldera: kopje(foldera) };
+    var api = {
+      vendos: function (k, p) {
+        if (!(k in reg.produktet)) reg.produktet[k] = kopje(produktet[k] || null);
+        produktet[k] = p;
+        delete fshira.produktet[k];
+      },
+      fshij: function (k) {
+        if (!produktet[k]) return;
+        if (!(k in reg.produktet)) reg.produktet[k] = kopje(produktet[k]);
+        delete produktet[k];
+        fshira.produktet[k] = Date.now();
+      }
+    };
+    fn(api);
+    ruaj();
+    return reg;
+  }
+  function zhbej(reg) {
+    var tani = Date.now();
+    ndrysho(function (api) {
+      // 1) Produktet: secili kthehet si ishte (me kohë të re, që të fitojë edhe në cloud).
+      Object.keys(reg.produktet).forEach(function (k) {
+        var para = reg.produktet[k];
+        if (para) { para.prekurSe = tani; api.vendos(k, para); }
+        else api.fshij(k);
+      });
+      // 2) Folderat: të fshirët ringjallen në vendin e tyre; ato që i krijoi vetë veprimi (p.sh. importi)
+      //    hiqen vetëm nëse kanë mbetur bosh — kurrë një folder që ka ardhur ndërkohë nga një pajisje tjetër.
+      var tash = {};
+      foldera.forEach(function (f) { tash[f.id] = f; });
+      var paraIds = {};
+      var renditur = reg.foldera.map(function (f) {
+        paraIds[f.id] = true;
+        if (!tash[f.id]) { f.ndryshuarSe = tani; delete fshira.foldera[f.id]; return f; }
+        return tash[f.id];
+      });
+      foldera.forEach(function (f) {
+        if (paraIds[f.id]) return;
+        if (produktetEFolderit(f.id).length === 0) fshira.foldera[f.id] = tani;
+        else renditur.push(f);
+      });
+      foldera = renditur;
+    });
+    toast('U zhbë.');
+  }
+
+  // ================= Ndihmëse për të dhënat =================
+  function folderSipasId(id) { for (var i = 0; i < foldera.length; i++) if (foldera[i].id === id) return foldera[i]; return null; }
+  function emriFolderit(id) { var f = folderSipasId(id); return f ? f.emri : '(pa folder)'; }
+  function teGjithaProduktet() { return Object.keys(produktet).map(function (k) { return produktet[k]; }); }
+  function produktetEFolderit(id) { return teGjithaProduktet().filter(function (p) { return p.kategoriaId === id; }); }
+  function eshteZero(p) { return (p.sasia | 0) <= 0; }
+  function eshtePak(p) { return ops.pragu > 0 && p.sasia > 0 && p.sasia <= ops.pragu; }
+  // barkodi → [produkte në foldera të ndryshëm]
+  function hartaEBarkodeve() {
+    var h = {};
+    teGjithaProduktet().forEach(function (p) { (h[p.barkodi] = h[p.barkodi] || []).push(p); });
+    return h;
+  }
+  function eLejuarSasiaShpejte() {
+    return emriPerdoruesit().toLowerCase() === 'albidepo34';
+  }
+
+  // ================= Cloud: llogaria + sinkronizimi i drejtpërdrejtë =================
+  function perdoruesi() {
+    return (window.__stokuCloud && window.__stokuCloud.perdoruesiAktual) ? window.__stokuCloud.perdoruesiAktual() : null;
+  }
+  function emriPerdoruesit() {
+    var u = perdoruesi();
+    return (u && typeof u.email === 'string') ? u.email.split('@')[0] : '';
+  }
+  function gjendjaLokale() {
+    return {
+      app: 'stoku', version: 3, rendiKoha: rendiFolderaveKoha, foldera: foldera,
+      produktet: teGjithaProduktet(), fshira: fshira
+    };
+  }
+
+  var sink = { kohez: null, duke: false, serish: false, statusi: 'lokal', koha: 0, cUid: null, degjuesi: null, riprovo: null };
+
+  function vendosStatusin(s) {
+    sink.statusi = s;
+    if (s === 'ok') sink.koha = Date.now();
+    var pika = $('sinkPika'), t = $('sinkTekst');
+    pika.className = 'pike' + (s === 'ok' ? ' ok' : s === 'pune' ? ' pune' : s === 'gabim' ? ' gabim' : '');
+    var tekst = {
+      lokal: 'Vetëm në këtë kompjuter',
+      pune: 'Duke sinkronizuar…',
+      ok: 'Sinkronizuar · ' + dy(new Date().getHours()) + ':' + dy(new Date().getMinutes()),
+      gabim: 'Pa lidhje — provohet sërish'
+    }[s];
+    t.textContent = tekst;
+    $('sinkStatus').title = s === 'lokal' ? 'Hyr në llogari që të dhënat të sinkronizohen me telefonat' : 'Kliko për të sinkronizuar tani';
+    var tx = s === 'ok' ? 'Sinkronizuar në ' + dataOra(sink.koha) + '. Ndryshimet nga telefonat shfaqen këtu automatikisht.' :
+      s === 'pune' ? 'Duke sinkronizuar…' : s === 'gabim' ? 'Sinkronizimi dështoi. Kontrollo internetin — provohet sërish vetë.' : '';
+    if ($('llStatusi')) $('llStatusi').textContent = tx;
+    if ($('opsLlStatusi')) $('opsLlStatusi').textContent = tx;
+  }
+
+  // Zbaton lokalisht një gjendje nga cloud-i, gjithmonë e bashkuar me atë që ka tani ky kompjuter
+  // (pra asnjë ndryshim lokal i pasinkronizuar nuk humbet).
+  function zbatoNgaCloud(remote) {
+    var lok = gjendjaLokale();
+    var b = window.StokuBashkimi.bashko(remote, lok);
+    var ndryshoi = !window.StokuBashkimi.eNjejte(b, lok);
+    if (ndryshoi) {
+      foldera = b.foldera;
+      var pm = {};
+      b.produktet.forEach(function (p) { pm[celesi(p.kategoriaId, p.barkodi)] = p; });
+      produktet = pm;
+    }
+    if ((b.rendiKoha || 0) > rendiFolderaveKoha) rendiFolderaveKoha = b.rendiKoha;
+    if (ndryshoi) { shkruajLokalisht(); rivizato(); }
+    return b;
+  }
+
+  function duhetShkruar(b, remote) {
+    if (!remote) return true;
+    if (!window.StokuBashkimi.eNjejte(b, remote)) return true;
+    if ((b.rendiKoha || 0) !== (Number(remote.rendiKoha) || 0)) return true;
+    var rf = remote.fshira || {};
+    return ['produktet', 'foldera'].some(function (l) {
+      var r = rf[l] || {};
+      return Object.keys(b.fshira[l] || {}).some(function (k) { return !(k in r); });
+    });
+  }
+
+  function planifikoSinkronizimin(ms) {
+    if (!perdoruesi()) return;
+    clearTimeout(sink.kohez);
+    sink.kohez = setTimeout(kryeSinkronizimin, ms === undefined ? 1200 : ms);
+  }
+
+  async function kryeSinkronizimin() {
+    if (!perdoruesi() || !window.__stokuCloud) { vendosStatusin('lokal'); return; }
+    clearTimeout(sink.kohez); clearTimeout(sink.riprovo);
+    if (sink.duke) { sink.serish = true; return; }
+    sink.duke = true;
+    vendosStatusin('pune');
+    var rez = await window.__stokuCloud.bashkoDheRuaj(function (cloud) {
+      return window.StokuBashkimi.bashko(cloud, gjendjaLokale());
+    });
+    sink.duke = false;
+    if (rez.ok) {
+      window.StokuBashkimi.pastroFshirjetEVjetra(fshira);
+      zbatoNgaCloud(rez.gjendja);
+      shkruajLokalisht();
+      vendosStatusin('ok');
+    } else {
+      vendosStatusin(perdoruesi() ? 'gabim' : 'lokal');
+      if (perdoruesi()) sink.riprovo = setTimeout(kryeSinkronizimin, 15000);
+    }
+    if (sink.serish) { sink.serish = false; planifikoSinkronizimin(300); }
+  }
+
+  function pajisjaEshteEPaprekur() {
+    if (Object.keys(produktet).length > 0 || rendiFolderaveKoha) return false;
+    if (foldera.length !== FOLDERAT_PARAZGJEDHUR.length) return false;
+    return FOLDERAT_PARAZGJEDHUR.every(function (d, i) { return foldera[i] && foldera[i].id === d.id && foldera[i].emri === d.emri; });
+  }
+
+  function nisDegjuesin() {
+    ndalDegjuesin();
+    if (!window.__stokuCloud || !window.__stokuCloud.degjo) return;
+    sink.degjuesi = window.__stokuCloud.degjo(function (remote, tePaDerguara) {
+      if (tePaDerguara || sink.duke) return; // ndryshim i yni ende pa u konfirmuar nga serveri
+      if (!remote) return;
+      var b = zbatoNgaCloud(remote);
+      if (sink.statusi !== 'pune') vendosStatusin('ok');
+      if (duhetShkruar(b, remote)) planifikoSinkronizimin(400);
+    }, function () { vendosStatusin('gabim'); });
+  }
+  function ndalDegjuesin() {
+    if (sink.degjuesi) { try { sink.degjuesi(); } catch (e) { /* ok */ } }
+    sink.degjuesi = null;
+  }
+
+  async function sinkronizoNeHyrje() {
+    var u = perdoruesi();
+    if (!u || !window.__stokuCloud) return;
+    if (sink.cUid === u.uid) return;
+    sink.cUid = u.uid;
+    vendosStatusin('pune');
+    if (pajisjaEshteEPaprekur()) {
+      var rez = await window.__stokuCloud.merr();
+      if (rez.ok && rez.gjendja && Array.isArray(rez.gjendja.foldera) && rez.gjendja.foldera.length > 0) {
+        // Kompjuter i ri: merret gjendja e cloud-it ashtu siç është (pa "ringjallur" 4 folderat e parazgjedhur).
+        foldera = rez.gjendja.foldera;
+        var pm = {};
+        (rez.gjendja.produktet || []).forEach(function (p) {
+          if (p && typeof p.barkodi === 'string' && typeof p.kategoriaId === 'string') pm[celesi(p.kategoriaId, p.barkodi)] = p;
+        });
+        produktet = pm;
+        rendiFolderaveKoha = Number(rez.gjendja.rendiKoha) || 0;
+        shkruajLokalisht();
+        rivizato();
+      }
+    }
+    await kryeSinkronizimin();
+    nisDegjuesin();
+  }
+
+  function kurNdryshonLlogaria() {
+    var u = perdoruesi();
+    if (!u) { sink.cUid = null; ndalDegjuesin(); vendosStatusin('lokal'); }
+    rifreskoLlogarine();
+    rivizato();
+    if (u) sinkronizoNeHyrje();
+  }
+  window.addEventListener('stoku-cloud-gati', kurNdryshonLlogaria);
+  window.addEventListener('stoku-auth-ndryshoi', kurNdryshonLlogaria);
+  window.addEventListener('online', function () { if (perdoruesi()) kryeSinkronizimin(); });
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && perdoruesi() && sink.statusi === 'gabim') kryeSinkronizimin();
+  });
+  $('sinkStatus').addEventListener('click', function () {
+    if (perdoruesi()) kryeSinkronizimin(); else hapLlogarine();
+  });
+
+  // ================= Navigimi (me #hash, që "Mbrapa"/"Para" e shfletuesit të punojnë) =================
+  var pamja = 'permbledhja';
+  var tab = { kerkimi: '', filtri: 'te-gjitha', rendiK: 'koha', rendiD: -1, faqja: 0, zgjedhura: {}, fokus: -1, ankoraZgjedhjes: null, flash: null };
+  (function () { var r = ops.rendi.split(':'); tab.rendiK = r[0]; tab.rendiD = parseInt(r[1], 10); })();
+
+  function hashPer(p) { return p === 'permbledhja' ? '#/permbledhja' : p === 'te-gjitha' ? '#/te-gjitha' : '#/f/' + encodeURIComponent(p); }
+  function shkoTe(p, opsionet) {
+    opsionet = opsionet || {};
+    var ePare = pamja !== p;
+    if (ePare || opsionet.reset) {
+      tab.kerkimi = opsionet.kerkimi || '';
+      tab.filtri = opsionet.filtri || 'te-gjitha';
+      tab.faqja = 0; tab.zgjedhura = {}; tab.fokus = -1; tab.ankoraZgjedhjes = null;
+      if (opsionet.rendi) { tab.rendiK = opsionet.rendi[0]; tab.rendiD = opsionet.rendi[1]; }
+    }
+    pamja = p;
+    if (location.hash !== hashPer(p)) history.pushState(null, '', hashPer(p));
+    $('kerko').value = tab.kerkimi;
+    rivizato();
+    $('kryesore').scrollTop = 0;
+  }
+  function lexoHash() {
+    var h = decodeURIComponent(location.hash || '');
+    var p = 'permbledhja';
+    if (h === '#/te-gjitha') p = 'te-gjitha';
+    else if (h.indexOf('#/f/') === 0 && folderSipasId(h.slice(4))) p = h.slice(4);
+    if (p !== pamja) { pamja = p; tab.kerkimi = ''; tab.filtri = 'te-gjitha'; tab.faqja = 0; tab.zgjedhura = {}; tab.fokus = -1; $('kerko').value = ''; }
+    rivizato();
+  }
+  window.addEventListener('popstate', lexoHash);
+
+  function rivizato() {
+    if (pamja !== 'permbledhja' && pamja !== 'te-gjitha' && !folderSipasId(pamja)) {
+      pamja = 'permbledhja';
+      history.replaceState(null, '', hashPer(pamja));
+    }
+    renderAnesoren();
+    var permb = pamja === 'permbledhja';
+    $('pamjaPermbledhja').classList.toggle('fsheh', !permb);
+    $('pamjaTabela').classList.toggle('fsheh', permb);
+    if (permb) renderPermbledhjen(); else renderTabelen();
+    if ($('kerkoGlobal').value.trim()) renderKerkimiGlobal();
+    var titull = permb ? 'Përmbledhja' : pamja === 'te-gjitha' ? 'Të gjitha produktet' : emriFolderit(pamja);
+    document.title = titull + ' — Stoku';
+  }
+
+  // ================= Shiriti anësor =================
+  var zvarritjaFolderit = null;
+  function renderAnesoren() {
+    $('navPermbledhja').classList.toggle('aktiv', pamja === 'permbledhja');
+    $('navTeGjitha').classList.toggle('aktiv', pamja === 'te-gjitha');
+    $('numTeGjitha').textContent = num(Object.keys(produktet).length);
+    var numrat = {};
+    teGjithaProduktet().forEach(function (p) { numrat[p.kategoriaId] = (numrat[p.kategoriaId] || 0) + 1; });
+    var cont = $('folderat');
+    cont.textContent = '';
+    if (!foldera.length) {
+      var b = el('div', 'bosh-mesazh', 'S\'ka asnjë folder. Krijo një me “+”.');
+      b.style.padding = '8px 10px';
+      cont.appendChild(b);
+    }
+    foldera.forEach(function (f, i) {
+      var r = el('div', 'folder-rresht' + (pamja === f.id ? ' aktiv' : ''));
+      r.setAttribute('role', 'button');
+      r.tabIndex = 0;
+      r.draggable = true;
+      r.dataset.id = f.id;
+      r.title = f.emri + (i < 9 ? '  (Alt+' + (i + 1) + ')' : '');
+      var kap = el('span', 'kap'); kap.innerHTML = IKONA.kap;
+      var ik = el('span'); ik.innerHTML = IKONA.folder; ik.style.display = 'flex';
+      var emri = el('span', 'emri', f.emri);
+      var n = el('span', 'numer-cip', num(numrat[f.id] || 0));
+      var me = el('button', 'me-shume'); me.type = 'button'; me.innerHTML = IKONA.me; me.title = 'Veprime'; me.setAttribute('aria-label', 'Veprime për ' + f.emri);
+      r.appendChild(kap); r.appendChild(ik); r.appendChild(emri); r.appendChild(n); r.appendChild(me);
+      r.addEventListener('click', function (ev) {
+        if (ev.target.closest('.me-shume')) { ev.stopPropagation(); hapMenuFolderi(f, me); return; }
+        shkoTe(f.id);
+      });
+      r.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') shkoTe(f.id); });
+      r.addEventListener('contextmenu', function (ev) { ev.preventDefault(); hapMenuFolderi(f, { x: ev.clientX, y: ev.clientY }); });
+      // Zvarritja: renditja e folderave, ose lëshimi i produkteve mbi folder (= zhvendosje)
+      r.addEventListener('dragstart', function (ev) {
+        zvarritjaFolderit = f.id;
+        ev.dataTransfer.effectAllowed = 'move';
+        ev.dataTransfer.setData('application/x-stoku-folder', f.id);
+        setTimeout(function () { r.classList.add('po-zvarritet'); }, 0);
+      });
+      r.addEventListener('dragend', function () { zvarritjaFolderit = null; pastroCaqet(); r.classList.remove('po-zvarritet'); });
+      r.addEventListener('dragover', function (ev) {
+        var tipet = Array.prototype.slice.call(ev.dataTransfer.types || []);
+        if (tipet.indexOf('application/x-stoku-produkte') !== -1) {
+          if (f.id === pamja) return;
+          ev.preventDefault(); ev.dataTransfer.dropEffect = 'move';
+          pastroCaqet(); r.classList.add('aktiv');
+          return;
+        }
+        if (!zvarritjaFolderit || zvarritjaFolderit === f.id) return;
+        ev.preventDefault();
+        var rr = r.getBoundingClientRect();
+        pastroCaqet();
+        r.classList.add(ev.clientY < rr.top + rr.height / 2 ? 'cak-lart' : 'cak-poshte');
+      });
+      r.addEventListener('dragleave', function () {
+        r.classList.remove('cak-lart', 'cak-poshte');
+        if (pamja !== f.id) r.classList.remove('aktiv');
+      });
+      r.addEventListener('drop', function (ev) {
+        ev.preventDefault();
+        var prod = ev.dataTransfer.getData('application/x-stoku-produkte');
+        var lart = r.classList.contains('cak-lart');
+        pastroCaqet();
+        if (prod) { zhvendosProduktet(JSON.parse(prod), f); return; }
+        var id = ev.dataTransfer.getData('application/x-stoku-folder');
+        if (!id || id === f.id) return;
+        var levizur = folderSipasId(id);
+        var lista = foldera.filter(function (x) { return x.id !== id; });
+        var ku = lista.indexOf(f) + (lart ? 0 : 1);
+        lista.splice(ku, 0, levizur);
+        foldera = lista;
+        rendiFolderaveKoha = Date.now();
+        ruaj();
+      });
+      cont.appendChild(r);
+    });
+  }
+  function pastroCaqet() {
+    Array.prototype.forEach.call(document.querySelectorAll('.folder-rresht'), function (x) {
+      x.classList.remove('cak-lart', 'cak-poshte');
+      if (x.dataset.id !== pamja) x.classList.remove('aktiv');
+    });
+  }
+  $('navPermbledhja').addEventListener('click', function () { shkoTe('permbledhja'); });
+  $('navTeGjitha').addEventListener('click', function () { shkoTe('te-gjitha', { reset: true }); });
+  $('logo').addEventListener('click', function () { shkoTe('permbledhja'); });
+
+  // ================= Përmbledhja =================
+  function kpi(etiketa, vlera, nen, statusi, ikona, veprimi) {
+    var b = el(veprimi ? 'button' : 'div', 'kpi' + (statusi ? ' status-' + statusi : ''));
+    if (veprimi) { b.type = 'button'; b.addEventListener('click', veprimi); }
+    var e = el('div', 'kpi-etik');
+    if (ikona) { var i = el('span'); i.innerHTML = ikona; i.style.display = 'flex'; e.appendChild(i); }
+    e.appendChild(document.createTextNode(etiketa));
+    b.appendChild(e);
+    b.appendChild(el('div', 'kpi-vlera', vlera));
+    if (nen) b.appendChild(el('div', 'kpi-nen', nen));
+    return b;
+  }
+
+  function renderPermbledhjen() {
+    var te = teGjithaProduktet();
+    var harta = hartaEBarkodeve();
+    var totSasia = 0, zero = 0, pak = 0, paEmer = 0, sot = 0;
+    var fillimiSot = new Date(); fillimiSot.setHours(0, 0, 0, 0);
+    te.forEach(function (p) {
+      totSasia += (p.sasia | 0);
+      if (eshteZero(p)) zero++;
+      if (eshtePak(p)) pak++;
+      if (!p.emri) paEmer++;
+      if ((p.prekurSe || 0) >= fillimiSot.getTime()) sot++;
+    });
+    var dubl = Object.keys(harta).filter(function (b) { return harta[b].length > 1; }).length;
+
+    var u = perdoruesi();
+    $('kartaMireseardhje').classList.toggle('fsheh', !!u || !window.__stokuCloud);
+    $('permbNen').textContent = (u ? 'Llogaria: ' + emriPerdoruesit() + ' · ' : '') + produkteTekst(te.length) + ' në ' + foldera.length + ' ' + (foldera.length === 1 ? 'folder' : 'foldera');
+
+    var r = $('kpiRrjeti');
+    r.textContent = '';
+    r.appendChild(kpi('Produkte', num(te.length), 'në ' + foldera.length + ' ' + (foldera.length === 1 ? 'folder' : 'foldera'), null, null, function () { shkoTe('te-gjitha', { reset: true }); }));
+    r.appendChild(kpi('Sasia totale', num(totSasia), 'copë gjithsej', null, null, null));
+    r.appendChild(kpi('Sasi 0', num(zero), zero ? 'kliko për t\'i parë' : 'asnjë produkt pa stok', zero ? 'kritik' : null, IKONA.zero, function () { shkoTe('te-gjitha', { reset: true, filtri: 'zero' }); }));
+    if (ops.pragu > 0) r.appendChild(kpi('Sasi e ulët', num(pak), '1–' + ops.pragu + ' copë', pak ? 'paralajm' : null, IKONA.pak, function () { shkoTe('te-gjitha', { reset: true, filtri: 'pak' }); }));
+    r.appendChild(kpi('Pa emër', num(paEmer), 'produkte pa emër', null, null, function () { shkoTe('te-gjitha', { reset: true, filtri: 'paEmer' }); }));
+    r.appendChild(kpi('Në disa foldera', num(dubl), 'barkode të përsëritura', null, null, function () { shkoTe('te-gjitha', { reset: true, filtri: 'dublikate', rendi: ['barkodi', 1] }); }));
+    r.appendChild(kpi('Ndryshuar sot', num(sot), 'produkte', null, null, function () { shkoTe('te-gjitha', { reset: true, rendi: ['koha', -1] }); }));
+
+    // Sipas folderave (renditur sipas numrit të produkteve)
+    var stat = foldera.map(function (f) { return { f: f, n: 0, s: 0 }; });
+    var sipasId = {};
+    stat.forEach(function (x) { sipasId[x.f.id] = x; });
+    te.forEach(function (p) { var x = sipasId[p.kategoriaId]; if (x) { x.n++; x.s += (p.sasia | 0); } });
+    stat.sort(function (a, b) { return b.n - a.n || a.f.emri.localeCompare(b.f.emri, 'sq'); });
+    var maks = stat.reduce(function (m, x) { return Math.max(m, x.n); }, 0) || 1;
+    var pf = $('permbFolderat');
+    pf.textContent = '';
+    if (!stat.length) pf.appendChild(el('div', 'bosh-mesazh', 'S\'ka foldera ende.'));
+    else {
+      var koka = el('div', 'shirit-koka');
+      ['Folderi', 'Produkte', 'Nr.', 'Sasia'].forEach(function (t) { koka.appendChild(el('span', null, t)); });
+      pf.appendChild(koka);
+    }
+    stat.forEach(function (x) {
+      var b = el('button', 'shirit-rresht'); b.type = 'button';
+      b.title = x.f.emri + ': ' + produkteTekst(x.n) + ', ' + num(x.s) + ' copë';
+      b.appendChild(el('span', 'shirit-emri', x.f.emri));
+      var pista = el('span', 'shirit-pista');
+      var sh = el('span', 'shirit'); sh.style.width = (x.n / maks * 100) + '%';
+      if (!x.n) sh.style.opacity = '0';
+      pista.appendChild(sh);
+      b.appendChild(pista);
+      b.appendChild(el('span', 'shirit-num', num(x.n)));
+      b.appendChild(el('span', 'shirit-num gri', num(x.s)));
+      b.addEventListener('click', function () { shkoTe(x.f.id); });
+      pf.appendChild(b);
+    });
+
+    // Ndryshuar së fundi
+    var tf = $('permbTeFundit');
+    tf.textContent = '';
+    var tefundit = te.filter(function (p) { return p.prekurSe; }).sort(function (a, b) { return b.prekurSe - a.prekurSe; }).slice(0, 8);
+    if (!tefundit.length) tf.appendChild(el('div', 'bosh-mesazh', 'Asnjë ndryshim ende.'));
+    tefundit.forEach(function (p) { tf.appendChild(rreshtIShkurter(p, kohaRelative(p.prekurSe))); });
+
+    // Sasia më e ulët
+    var tu = $('permbTeUleta');
+    tu.textContent = '';
+    var teUleta = te.slice().sort(function (a, b) { return (a.sasia - b.sasia) || krahasoEmrin(a, b); }).slice(0, 10);
+    if (!teUleta.length) tu.appendChild(el('div', 'bosh-mesazh', 'S\'ka produkte ende.'));
+    teUleta.forEach(function (p) { tu.appendChild(rreshtIShkurter(p, null)); });
+  }
+
+  function statusCip(p) {
+    if (eshteZero(p)) { var z = el('span', 'sasia-cip zero'); z.innerHTML = IKONA.zero; z.appendChild(document.createTextNode('Pa stok')); return z; }
+    if (eshtePak(p)) { var k = el('span', 'sasia-cip pak'); k.innerHTML = IKONA.pak; k.appendChild(document.createTextNode('E ulët')); return k; }
+    return null;
+  }
+
+  function rreshtIShkurter(p, kohaTekst) {
+    var b = el('button', 'ls-rresht'); b.type = 'button';
+    var m = el('div', 'ls-emri');
+    var e = el('div', p.emri ? null : 'emri-bosh', p.emri || '(pa emër)');
+    if (!p.emri) e.style.cssText = 'color:var(--gri);font-style:italic;font-weight:500';
+    m.appendChild(e);
+    var nen = el('div', 'gri');
+    nen.style.cssText = 'font-size:12px;display:flex;gap:8px;align-items:center;margin-top:2px';
+    nen.appendChild(el('span', 'mono', p.barkodi));
+    nen.appendChild(el('span', 'folder-cip', emriFolderit(p.kategoriaId)));
+    m.appendChild(nen);
+    b.appendChild(m);
+    var d = el('div', 'ls-djathtas');
+    var s = el('div', 'sasia-qeliz');
+    var c = statusCip(p);
+    if (c) s.appendChild(c);
+    s.appendChild(document.createTextNode(num(p.sasia)));
+    d.appendChild(s);
+    if (kohaTekst) { var k = el('div', null, kohaTekst); k.title = dataOra(p.prekurSe); d.appendChild(k); }
+    b.appendChild(d);
+    b.addEventListener('click', function () { hapProduktin(celesi(p.kategoriaId, p.barkodi)); });
+    return b;
+  }
+  $('btnShihTeFundit').addEventListener('click', function () { shkoTe('te-gjitha', { reset: true, rendi: ['koha', -1] }); });
+  $('btnShihTeUleta').addEventListener('click', function () { shkoTe('te-gjitha', { reset: true, rendi: ['sasia', 1] }); });
+
+  // ================= Tabela =================
+  function krahasoEmrin(a, b) {
+    if (!a.emri && !b.emri) return a.barkodi.localeCompare(b.barkodi, undefined, { numeric: true });
+    if (!a.emri) return 1;
+    if (!b.emri) return -1;
+    return a.emri.localeCompare(b.emri, 'sq', { sensitivity: 'base' }) || a.barkodi.localeCompare(b.barkodi, undefined, { numeric: true });
+  }
+  function krahasuesi(k, d) {
+    return function (a, b) {
+      var r = 0;
+      if (k === 'emri') {
+        if (!a.emri !== !b.emri) return a.emri ? -1 : 1; // pa emër gjithmonë në fund
+        r = krahasoEmrin(a, b) * d;
+        return r;
+      }
+      if (k === 'sasia') r = (a.sasia - b.sasia) * d;
+      else if (k === 'koha') r = ((a.prekurSe || 0) - (b.prekurSe || 0)) * d;
+      else if (k === 'barkodi') r = a.barkodi.localeCompare(b.barkodi, undefined, { numeric: true }) * d;
+      else if (k === 'folderi') r = emriFolderit(a.kategoriaId).localeCompare(emriFolderit(b.kategoriaId), 'sq') * d;
+      return r || krahasoEmrin(a, b);
+    };
+  }
+
+  function perputhetMeKerkimin(p, fjalet) {
+    if (!fjalet.length) return true;
+    var tekst = normalizo(p.emri) + ' ' + normalizo(p.barkodi) + ' ' + normalizo(emriFolderit(p.kategoriaId));
+    return fjalet.every(function (f) { return tekst.indexOf(f) !== -1; });
+  }
+
+  // Lista bazë e pamjes (pa filtër/kërkim), lista e filtruar dhe numrat e filtrave.
+  function llogaritTabelen() {
+    var baza = pamja === 'te-gjitha' ? teGjithaProduktet() : produktetEFolderit(pamja);
+    var harta = hartaEBarkodeve();
+    var fjalet = normalizo(tab.kerkimi).split(/\s+/).filter(Boolean);
+    var meKerkim = baza.filter(function (p) { return perputhetMeKerkimin(p, fjalet); });
+    var numrat = { zero: 0, pak: 0, paEmer: 0, dublikate: 0 };
+    meKerkim.forEach(function (p) {
+      if (eshteZero(p)) numrat.zero++;
+      if (eshtePak(p)) numrat.pak++;
+      if (!p.emri) numrat.paEmer++;
+      if (harta[p.barkodi].length > 1) numrat.dublikate++;
+    });
+    var fil = meKerkim.filter(function (p) {
+      if (tab.filtri === 'zero') return eshteZero(p);
+      if (tab.filtri === 'pak') return eshtePak(p);
+      if (tab.filtri === 'paEmer') return !p.emri;
+      if (tab.filtri === 'dublikate') return harta[p.barkodi].length > 1;
+      return true;
+    });
+    fil.sort(krahasuesi(tab.rendiK, tab.rendiD));
+    return { baza: baza, fil: fil, numrat: numrat, harta: harta };
+  }
+
+  var tabelaAktuale = { fil: [], faqe: [] };
+
+  function renderTabelen() {
+    var neFolder = pamja !== 'te-gjitha';
+    var t = llogaritTabelen();
+    tabelaAktuale.fil = t.fil;
+
+    // Titulli dhe nëntitulli
+    var totSasia = 0;
+    t.baza.forEach(function (p) { totSasia += (p.sasia | 0); });
+    $('tabTitulli').textContent = neFolder ? emriFolderit(pamja) : 'Të gjitha produktet';
+    $('tabNen').textContent = produkteTekst(t.baza.length) + ' · ' + num(totSasia) + ' copë' +
+      (neFolder ? '' : ' · ' + foldera.length + ' foldera');
+    $('fushaBarkodit').classList.toggle('fsheh', !neFolder);
+    $('btnFolderMenu').classList.toggle('fsheh', !neFolder);
+    $('kerko').placeholder = neFolder ? 'Filtro këtë folder…' : 'Filtro të gjitha produktet…';
+    $('tabela').classList.toggle('pa-folder', neFolder);
+    Array.prototype.forEach.call(document.querySelectorAll('.k-folderi'), function (x) { x.style.display = neFolder ? 'none' : ''; });
+
+    // Filtrat
+    Array.prototype.forEach.call(document.querySelectorAll('#filtrat button'), function (b) {
+      b.classList.toggle('aktiv', b.dataset.f === tab.filtri);
+      if (b.dataset.f === 'pak') b.classList.toggle('fsheh', ops.pragu <= 0);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#filtrat .n'), function (s) {
+      var n = t.numrat[s.dataset.n];
+      s.textContent = n ? num(n) : '';
+    });
+
+    // Renditja në tituj
+    Array.prototype.forEach.call(document.querySelectorAll('.tabela th.renditshme'), function (th) {
+      var aktiv = th.dataset.k === tab.rendiK;
+      th.classList.toggle('renditur', aktiv);
+      th.querySelector('.shigjete').textContent = aktiv ? (tab.rendiD > 0 ? '▲' : '▼') : '▲';
+      th.setAttribute('aria-sort', aktiv ? (tab.rendiD > 0 ? 'ascending' : 'descending') : 'none');
+    });
+
+    // Pastro zgjedhjet që s'ekzistojnë më
+    Object.keys(tab.zgjedhura).forEach(function (k) { if (!produktet[k]) delete tab.zgjedhura[k]; });
+
+    // Faqosja
+    var madh = ops.madhFaqes || 0;
+    var faqet = madh ? Math.max(1, Math.ceil(t.fil.length / madh)) : 1;
+    if (tab.faqja >= faqet) tab.faqja = faqet - 1;
+    if (tab.faqja < 0) tab.faqja = 0;
+    var fillimi = madh ? tab.faqja * madh : 0;
+    var faqe = madh ? t.fil.slice(fillimi, fillimi + madh) : t.fil;
+    tabelaAktuale.faqe = faqe;
+    if (tab.fokus >= faqe.length) tab.fokus = faqe.length - 1;
+
+    var trup = $('tabelaTrup');
+    trup.textContent = '';
+    var frag = document.createDocumentFragment();
+    var shpejt = eLejuarSasiaShpejte();
+    faqe.forEach(function (p, i) {
+      var k = celesi(p.kategoriaId, p.barkodi);
+      var tr = el('tr', (tab.zgjedhura[k] ? 'zgjedhur' : '') + (i === tab.fokus ? ' fokus' : '') + (tab.flash === k ? ' flash' : ''));
+      tr.dataset.k = k;
+      tr.dataset.i = i;
+      tr.draggable = true;
+
+      var td0 = el('td', 'k-zgjedh');
+      var cb = el('input', 'kutize'); cb.type = 'checkbox'; cb.checked = !!tab.zgjedhura[k]; cb.setAttribute('aria-label', 'Zgjidh');
+      td0.appendChild(cb);
+      tr.appendChild(td0);
+
+      var td1 = el('td', 'k-barkodi');
+      td1.appendChild(el('span', 'mono', p.barkodi));
+      var tjeret = t.harta[p.barkodi];
+      if (tjeret.length > 1) {
+        var dc = el('span', 'dublikat-cip', '×' + tjeret.length);
+        dc.title = 'Gjendet në: ' + tjeret.map(function (x) { return emriFolderit(x.kategoriaId) + ' (' + x.sasia + ')'; }).join(', ');
+        td1.appendChild(dc);
+      }
+      td1.title = p.barkodi;
+      tr.appendChild(td1);
+
+      var td2 = el('td', 'k-emri' + (p.emri ? '' : ' emri-bosh'), p.emri || '(pa emër)');
+      td2.title = p.emri || '';
+      tr.appendChild(td2);
+
+      var td3 = el('td', 'k-folderi');
+      if (neFolder) td3.style.display = 'none';
+      else td3.appendChild(el('span', 'folder-cip', emriFolderit(p.kategoriaId)));
+      tr.appendChild(td3);
+
+      var td4 = el('td', 'k-sasia');
+      if (shpejt) {
+        var w = el('span', 'sasia-shpejt');
+        var mi = el('button', null, '−'); mi.type = 'button'; mi.dataset.v = 'minus'; mi.setAttribute('aria-label', 'Zvogëlo sasinë');
+        var inp = el('input'); inp.type = 'number'; inp.value = String(p.sasia); inp.min = '0'; inp.dataset.v = 'sasia'; inp.setAttribute('aria-label', 'Sasia');
+        var pl = el('button', null, '+'); pl.type = 'button'; pl.dataset.v = 'plus'; pl.setAttribute('aria-label', 'Rrit sasinë');
+        w.appendChild(mi); w.appendChild(inp); w.appendChild(pl);
+        td4.appendChild(w);
+      } else {
+        var c = statusCip(p);
+        if (c) td4.appendChild(c);
+        td4.appendChild(el('span', 'sasia-qeliz', num(p.sasia)));
+      }
+      tr.appendChild(td4);
+
+      var td5 = el('td', 'k-koha', kohaRelative(p.prekurSe));
+      td5.title = p.prekurSe ? dataOra(p.prekurSe) : 'E panjohur (produkt i vjetër)';
+      tr.appendChild(td5);
+
+      var td6 = el('td', 'k-veprime');
+      var vr = el('span', 'veprime-rreshti');
+      [['ndrysho', 'Ndrysho (Enter)', ''], ['zhvendos', 'Zhvendos në folder tjetër', ''], ['fshij', 'Fshij (Delete)', ' rrezik']].forEach(function (x) {
+        var b = el('button', 'btn-ikone' + x[2]); b.type = 'button'; b.dataset.v = x[0]; b.title = x[1]; b.setAttribute('aria-label', x[1]);
+        b.innerHTML = IKONA[x[0]];
+        vr.appendChild(b);
+      });
+      td6.appendChild(vr);
+      tr.appendChild(td6);
+      frag.appendChild(tr);
+    });
+    trup.appendChild(frag);
+    tab.flash = null;
+
+    // Gjendja bosh
+    var bosh = $('tabelaBosh');
+    var kaFiltra = !!tab.kerkimi.trim() || tab.filtri !== 'te-gjitha';
+    bosh.classList.toggle('fsheh', t.fil.length > 0);
+    $('tabela').classList.toggle('fsheh', t.fil.length === 0);
+    if (!t.fil.length) {
+      bosh.textContent = '';
+      var ik = el('div'); ik.innerHTML = '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5Z"></path><path d="M3 8l9 5 9-5M12 13v8"></path></svg>';
+      bosh.appendChild(ik);
+      if (kaFiltra) {
+        bosh.appendChild(el('h3', null, 'Asnjë produkt nuk përputhet'));
+        bosh.appendChild(el('div', null, 'Provo një kërkim tjetër ose hiq filtrin.'));
+        var pb = el('button', 'btn dyte', 'Pastro kërkimin dhe filtrat'); pb.type = 'button'; pb.style.marginTop = '14px';
+        pb.addEventListener('click', function () { tab.kerkimi = ''; $('kerko').value = ''; tab.filtri = 'te-gjitha'; renderTabelen(); });
+        bosh.appendChild(pb);
+      } else if (neFolder) {
+        bosh.appendChild(el('h3', null, 'Ky folder është bosh'));
+        bosh.appendChild(el('div', null, 'Skano me skaner USB në fushën e barkodit lart, ose kliko “Shto produkt”.'));
+      } else {
+        bosh.appendChild(el('h3', null, 'S\'ka produkte ende'));
+        bosh.appendChild(el('div', null, perdoruesi() ? 'Produktet e skanuara në telefon shfaqen këtu automatikisht.' : 'Hyr në llogari për t\'i parë produktet nga telefoni, ose importo nga Excel.'));
+      }
+    }
+
+    // Faqosja
+    $('faqosja').classList.toggle('fsheh', t.fil.length === 0);
+    $('faqInfo').textContent = t.fil.length ? (madh ? (fillimi + 1) + '–' + (fillimi + faqe.length) + ' nga ' + num(t.fil.length) : num(t.fil.length) + ' produkte') +
+      (t.fil.length !== t.baza.length ? ' (filtruar nga ' + num(t.baza.length) + ')' : '') : '';
+    $('faqNr').textContent = 'Faqja ' + (tab.faqja + 1) + ' / ' + faqet;
+    $('faqPara').disabled = tab.faqja <= 0;
+    $('faqPas').disabled = tab.faqja >= faqet - 1;
+    $('madhFaqes').value = String(madh);
+    var faqosjaENevojshme = madh && faqet > 1;
+    $('faqPara').classList.toggle('fsheh', !faqosjaENevojshme);
+    $('faqPas').classList.toggle('fsheh', !faqosjaENevojshme);
+    $('faqNr').classList.toggle('fsheh', !faqosjaENevojshme);
+
+    rifreskoZgjedhjen();
+  }
+
+  function zgjedhuraLista() { return Object.keys(tab.zgjedhura).filter(function (k) { return produktet[k]; }); }
+  function rifreskoZgjedhjen() {
+    var n = zgjedhuraLista().length;
+    $('shiritZgjedhjes').classList.toggle('fsheh', n === 0);
+    $('zgjedhjaNumri').textContent = n === 1 ? '1 i zgjedhur' : num(n) + ' të zgjedhur';
+    var kb = $('zgjidhKrejt');
+    var neFil = tabelaAktuale.fil.filter(function (p) { return tab.zgjedhura[celesi(p.kategoriaId, p.barkodi)]; }).length;
+    kb.checked = tabelaAktuale.fil.length > 0 && neFil === tabelaAktuale.fil.length;
+    kb.indeterminate = neFil > 0 && neFil < tabelaAktuale.fil.length;
+    kb.title = kb.checked ? 'Hiq zgjedhjen' : 'Zgjidh të gjitha ' + tabelaAktuale.fil.length + ' produktet e listës';
+    Array.prototype.forEach.call($('tabelaTrup').children, function (tr) {
+      var z = !!tab.zgjedhura[tr.dataset.k];
+      tr.classList.toggle('zgjedhur', z);
+      var c = tr.querySelector('.kutize'); if (c) c.checked = z;
+    });
+  }
+
+  function zgjidhRreshtin(i, meShift) {
+    var p = tabelaAktuale.faqe[i]; if (!p) return;
+    var k = celesi(p.kategoriaId, p.barkodi);
+    if (meShift && tab.ankoraZgjedhjes !== null) {
+      var a = Math.min(tab.ankoraZgjedhjes, i), b = Math.max(tab.ankoraZgjedhjes, i);
+      var vlera = !tab.zgjedhura[k];
+      for (var j = a; j <= b; j++) {
+        var q = tabelaAktuale.faqe[j];
+        var kk = celesi(q.kategoriaId, q.barkodi);
+        if (vlera) tab.zgjedhura[kk] = true; else delete tab.zgjedhura[kk];
+      }
+    } else {
+      if (tab.zgjedhura[k]) delete tab.zgjedhura[k]; else tab.zgjedhura[k] = true;
+    }
+    tab.ankoraZgjedhjes = i;
+    rifreskoZgjedhjen();
+  }
+
+  function vendosFokusin(i) {
+    var rr = $('tabelaTrup').children;
+    if (!rr.length) return;
+    i = Math.max(0, Math.min(rr.length - 1, i));
+    tab.fokus = i;
+    Array.prototype.forEach.call(rr, function (tr, j) { tr.classList.toggle('fokus', j === i); });
+    rr[i].scrollIntoView({ block: 'nearest' });
+  }
+
+  // Ngjarjet e tabelës (një dëgjues për të gjitha rreshtat)
+  $('tabelaTrup').addEventListener('click', function (ev) {
+    var tr = ev.target.closest('tr'); if (!tr) return;
+    var k = tr.dataset.k, i = parseInt(tr.dataset.i, 10);
+    var p = produktet[k]; if (!p) return;
+    if (ev.target.classList.contains('kutize')) { ev.preventDefault(); zgjidhRreshtin(i, ev.shiftKey); return; }
+    if (ev.target.closest('.k-zgjedh')) { zgjidhRreshtin(i, ev.shiftKey); return; }
+    var btn = ev.target.closest('button');
+    var inp = ev.target.closest('input');
+    if (inp && inp.dataset.v === 'sasia') return;
+    if (btn && btn.dataset.v) {
+      if (btn.dataset.v === 'ndrysho') hapProduktin(k);
+      else if (btn.dataset.v === 'zhvendos') hapZhvendosjen([k]);
+      else if (btn.dataset.v === 'fshij') fshijProduktet([k]);
+      else if (btn.dataset.v === 'minus') ndryshoSasineShpejt(k, -1);
+      else if (btn.dataset.v === 'plus') ndryshoSasineShpejt(k, 1);
+      return;
+    }
+    if (ev.ctrlKey || ev.metaKey) { zgjidhRreshtin(i, false); return; }
+    if (ev.shiftKey) { zgjidhRreshtin(i, true); return; }
+    tab.fokus = i;
+    hapProduktin(k);
+  });
+  $('tabelaTrup').addEventListener('change', function (ev) {
+    var inp = ev.target;
+    if (inp.dataset.v !== 'sasia') return;
+    var k = inp.closest('tr').dataset.k;
+    var p = produktet[k]; if (!p) return;
+    var v = parseInt(inp.value, 10);
+    if (!isFinite(v) || v < 0) { inp.value = String(p.sasia); return; }
+    if (v === p.sasia) return;
+    var reg = ndrysho(function (api) { api.vendos(k, Object.assign({}, p, { sasia: v, prekurSe: Date.now() })); });
+    toast('Sasia u ndryshua: ' + (p.emri || p.barkodi) + ' → ' + v, { veprimi: function () { zhbej(reg); } });
+  });
+  $('tabelaTrup').addEventListener('keydown', function (ev) {
+    if (ev.target.dataset && ev.target.dataset.v === 'sasia' && ev.key === 'Enter') { ev.preventDefault(); ev.target.blur(); }
+  });
+  $('tabelaTrup').addEventListener('focusin', function (ev) {
+    if (ev.target.dataset && ev.target.dataset.v === 'sasia') ev.target.select();
+  });
+  $('tabelaTrup').addEventListener('dragstart', function (ev) {
+    var tr = ev.target.closest && ev.target.closest('tr'); if (!tr) return;
+    var k = tr.dataset.k;
+    var keys = tab.zgjedhura[k] ? zgjedhuraLista() : [k];
+    ev.dataTransfer.effectAllowed = 'move';
+    ev.dataTransfer.setData('application/x-stoku-produkte', JSON.stringify(keys));
+    ev.dataTransfer.setData('text/plain', keys.map(function (x) { return produktet[x] ? produktet[x].barkodi : ''; }).join('\n'));
+  });
+
+  function ndryshoSasineShpejt(k, delta) {
+    var p = produktet[k]; if (!p) return;
+    var re = Math.max(0, p.sasia + delta);
+    if (re === p.sasia) return;
+    ndrysho(function (api) { api.vendos(k, Object.assign({}, p, { sasia: re, prekurSe: Date.now() })); });
+  }
+
+  // Tituj: renditja
+  Array.prototype.forEach.call(document.querySelectorAll('.tabela th.renditshme'), function (th) {
+    th.addEventListener('click', function () {
+      var k = th.dataset.k;
+      if (tab.rendiK === k) tab.rendiD = -tab.rendiD;
+      else { tab.rendiK = k; tab.rendiD = (k === 'koha' ? -1 : 1); }
+      tab.faqja = 0; tab.fokus = -1;
+      renderTabelen();
+    });
+  });
+  $('zgjidhKrejt').addEventListener('change', function () {
+    var krejt = $('zgjidhKrejt').checked;
+    tabelaAktuale.fil.forEach(function (p) {
+      var k = celesi(p.kategoriaId, p.barkodi);
+      if (krejt) tab.zgjedhura[k] = true; else delete tab.zgjedhura[k];
+    });
+    rifreskoZgjedhjen();
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#filtrat button'), function (b) {
+    b.addEventListener('click', function () { tab.filtri = b.dataset.f; tab.faqja = 0; tab.fokus = -1; renderTabelen(); });
+  });
+  var kerkoKohez = null;
+  $('kerko').addEventListener('input', function () {
+    clearTimeout(kerkoKohez);
+    kerkoKohez = setTimeout(function () { tab.kerkimi = $('kerko').value; tab.faqja = 0; tab.fokus = -1; renderTabelen(); }, 90);
+  });
+  $('kerko').addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape' && $('kerko').value) { ev.stopPropagation(); $('kerko').value = ''; tab.kerkimi = ''; renderTabelen(); }
+    if (ev.key === 'ArrowDown') { ev.preventDefault(); $('kerko').blur(); vendosFokusin(0); }
+    if (ev.key === 'Enter' && tabelaAktuale.fil.length === 1) { var p = tabelaAktuale.fil[0]; hapProduktin(celesi(p.kategoriaId, p.barkodi)); }
+  });
+  $('madhFaqes').addEventListener('change', function () { ops.madhFaqes = parseInt($('madhFaqes').value, 10) || 0; ruajOps(); tab.faqja = 0; renderTabelen(); });
+  $('faqPara').addEventListener('click', function () { tab.faqja--; tab.fokus = -1; renderTabelen(); $('kryesore').scrollTop = 0; });
+  $('faqPas').addEventListener('click', function () { tab.faqja++; tab.fokus = -1; renderTabelen(); $('kryesore').scrollTop = 0; });
+  $('zgjAnulo').addEventListener('click', function () { tab.zgjedhura = {}; rifreskoZgjedhjen(); });
+  $('zgjFshij').addEventListener('click', function () { fshijProduktet(zgjedhuraLista()); });
+  $('zgjZhvendos').addEventListener('click', function () { hapZhvendosjen(zgjedhuraLista()); });
+  $('zgjEksport').addEventListener('click', function () { hapEksportin('excel'); });
+
+  // ================= Kërkimi global (lart) =================
+  var kgAktiv = -1, kgRezultatet = [];
+  function renderKerkimiGlobal() {
+    var q = $('kerkoGlobal').value.trim();
+    var box = $('kerkoRezultate');
+    if (!q) { box.classList.remove('hapur'); kgRezultatet = []; return; }
+    var fjalet = normalizo(q).split(/\s+/).filter(Boolean);
+    var qn = normalizo(q);
+    var te = teGjithaProduktet().filter(function (p) { return perputhetMeKerkimin(p, fjalet); });
+    function pike(p) {
+      if (p.barkodi === q) return 0;
+      if (normalizo(p.barkodi).indexOf(qn) === 0) return 1;
+      if (normalizo(p.emri).indexOf(qn) === 0) return 2;
+      return 3;
+    }
+    te.sort(function (a, b) { return pike(a) - pike(b) || krahasoEmrin(a, b); });
+    kgRezultatet = te.slice(0, 8);
+    if (kgAktiv >= kgRezultatet.length) kgAktiv = kgRezultatet.length - 1;
+    box.textContent = '';
+    if (!te.length) box.appendChild(el('div', 'bosh-mesazh', 'Asnjë produkt nuk u gjet në asnjë folder.'));
+    kgRezultatet.forEach(function (p, i) {
+      var r = el('div', 'kr-rresht' + (i === kgAktiv ? ' aktiv' : ''));
+      r.setAttribute('role', 'option');
+      var m = el('div', 'kr-emri');
+      var e = el('div', null, p.emri || '(pa emër)');
+      if (!p.emri) e.style.cssText = 'color:var(--gri);font-style:italic';
+      m.appendChild(e);
+      m.appendChild(el('div', 'mono gri', p.barkodi));
+      r.appendChild(m);
+      r.appendChild(el('span', 'folder-cip', emriFolderit(p.kategoriaId)));
+      var s = el('span', 'kr-sasia', num(p.sasia));
+      if (eshteZero(p)) s.style.color = 'var(--rrezik)';
+      r.appendChild(s);
+      r.addEventListener('mousedown', function (ev) { ev.preventDefault(); zgjidhRezultatin(i); });
+      box.appendChild(r);
+    });
+    if (te.length) {
+      var f = el('div', 'kr-fund', te.length > kgRezultatet.length ? 'Enter: shih të gjitha ' + num(te.length) + ' rezultatet në tabelë' : 'Enter: hap në tabelë · ↑↓ për të zgjedhur');
+      f.style.cursor = 'pointer';
+      f.addEventListener('mousedown', function (ev) { ev.preventDefault(); hapKerkiminNeTabele(); });
+      box.appendChild(f);
+    }
+    box.classList.add('hapur');
+  }
+  function zgjidhRezultatin(i) {
+    var p = kgRezultatet[i]; if (!p) return;
+    mbyllKerkiminGlobal(true);
+    hapProduktin(celesi(p.kategoriaId, p.barkodi));
+  }
+  function hapKerkiminNeTabele() {
+    var q = $('kerkoGlobal').value.trim();
+    mbyllKerkiminGlobal(true);
+    shkoTe('te-gjitha', { reset: true, kerkimi: q });
+  }
+  function mbyllKerkiminGlobal(pastro) {
+    $('kerkoRezultate').classList.remove('hapur');
+    kgAktiv = -1;
+    if (pastro) { $('kerkoGlobal').value = ''; $('kerkoGlobal').blur(); }
+  }
+  $('kerkoGlobal').addEventListener('input', function () { kgAktiv = -1; renderKerkimiGlobal(); });
+  $('kerkoGlobal').addEventListener('focus', function () { if ($('kerkoGlobal').value.trim()) renderKerkimiGlobal(); });
+  $('kerkoGlobal').addEventListener('blur', function () { setTimeout(function () { $('kerkoRezultate').classList.remove('hapur'); }, 120); });
+  $('kerkoGlobal').addEventListener('keydown', function (ev) {
+    if (ev.key === 'ArrowDown') { ev.preventDefault(); kgAktiv = Math.min(kgRezultatet.length - 1, kgAktiv + 1); renderKerkimiGlobal(); }
+    else if (ev.key === 'ArrowUp') { ev.preventDefault(); kgAktiv = Math.max(-1, kgAktiv - 1); renderKerkimiGlobal(); }
+    else if (ev.key === 'Enter') {
+      ev.preventDefault();
+      var q = $('kerkoGlobal').value.trim();
+      if (!q) return;
+      if (kgAktiv >= 0) { zgjidhRezultatin(kgAktiv); return; }
+      var ekzakt = kgRezultatet.filter(function (p) { return p.barkodi === q; });
+      if (ekzakt.length === 1) { zgjidhRezultatin(kgRezultatet.indexOf(ekzakt[0])); return; }
+      hapKerkiminNeTabele();
+    } else if (ev.key === 'Escape') { ev.stopPropagation(); mbyllKerkiminGlobal(true); }
+  });
+
+  // ================= Dialogët: hapja/mbyllja =================
+  var dialogPara = null; // elementi që kishte fokusin para hapjes (kthehet pas mbylljes)
+  function hapDialog(id, fokusId) {
+    mbyllMenune();
+    if (!document.querySelector('.mbulese.hapur')) dialogPara = document.activeElement;
+    $(id).classList.add('hapur');
+    if (fokusId) setTimeout(function () { var f = $(fokusId); if (f) { f.focus(); if (f.select && f.type !== 'number') f.select(); } }, 20);
+  }
+  function mbyllDialog(id) {
+    $(id).classList.remove('hapur');
+    if (id === 'dlgKonfirmo' && konf.zgjidh) { var z = konf.zgjidh; konf.zgjidh = null; clearInterval(konf.kohez); z(false); }
+    if (!document.querySelector('.mbulese.hapur') && dialogPara && dialogPara.focus && document.contains(dialogPara)) {
+      try { dialogPara.focus(); } catch (e) { /* ok */ }
+    }
+  }
+  function dialogISiperm() {
+    var te = document.querySelectorAll('.mbulese.hapur');
+    return te.length ? te[te.length - 1] : null;
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.mbulese'), function (m) {
+    m.addEventListener('mousedown', function (ev) { if (ev.target === m) mbyllDialog(m.id); });
+    Array.prototype.forEach.call(m.querySelectorAll('[data-mbyll]'), function (b) {
+      b.addEventListener('click', function () { mbyllDialog(m.id); });
+    });
+  });
+
+  // Konfirmim (Promise true/false), me vonesë opsionale në sekonda për veprimet e rrezikshme
+  var konf = { zgjidh: null, kohez: null };
+  function konfirmo(titulli, teksti, butoni, vonesa) {
+    return new Promise(function (zgjidh) {
+      $('kfTitulli').textContent = titulli;
+      $('kfTekst').textContent = teksti;
+      var b = $('kfPo');
+      clearInterval(konf.kohez);
+      konf.zgjidh = zgjidh;
+      if (vonesa > 0) {
+        var s = vonesa;
+        b.disabled = true; b.textContent = butoni + ' (' + s + ')';
+        konf.kohez = setInterval(function () {
+          s--;
+          if (s > 0) b.textContent = butoni + ' (' + s + ')';
+          else { clearInterval(konf.kohez); b.disabled = false; b.textContent = butoni; b.focus(); }
+        }, 1000);
+      } else { b.disabled = false; b.textContent = butoni; }
+      hapDialog('dlgKonfirmo');
+      setTimeout(function () { (vonesa > 0 ? $('kfJo') : b).focus(); }, 20);
+    });
+  }
+  $('kfPo').addEventListener('click', function () {
+    if ($('kfPo').disabled) return;
+    var z = konf.zgjidh; konf.zgjidh = null; clearInterval(konf.kohez);
+    $('dlgKonfirmo').classList.remove('hapur');
+    if (z) z(true);
+  });
+  $('kfJo').addEventListener('click', function () { mbyllDialog('dlgKonfirmo'); });
+
+  // ================= Produkti: i ri / ndrysho =================
+  var pr = null; // { k: çelësi ekzistues ose null, ngaBarkodi: bool }
+  function mbushFolderat(select, zgjedhur) {
+    select.textContent = '';
+    foldera.forEach(function (f) {
+      var o = el('option', null, f.emri); o.value = f.id;
+      select.appendChild(o);
+    });
+    if (zgjedhur) select.value = zgjedhur;
+  }
+
+  function hapProduktin(k, ngaBarkodi) {
+    var p = produktet[k]; if (!p) return;
+    pr = { k: k, ngaBarkodi: !!ngaBarkodi };
+    $('prTitulli').textContent = p.emri || 'Produkt pa emër';
+    mbushFolderat($('prFolderi'), p.kategoriaId);
+    $('prBarkodi').value = p.barkodi;
+    $('prEmri').value = p.emri || '';
+    $('prSasia').value = '';
+    $('prSasia').placeholder = 'p.sh. 5 ose -2';
+    $('prSasiaEtik').textContent = 'Shto ose zbrit sasinë (tani: ' + p.sasia + ')';
+    $('prFshij').classList.remove('fsheh');
+    $('prKoha').textContent = p.prekurSe ? 'Ndryshuar: ' + dataOra(p.prekurSe) : '';
+    $('prGabim').textContent = '';
+    rifreskoInfonEProduktit();
+    hapDialog('dlgProdukt', ngaBarkodi ? 'prSasia' : 'prEmri');
+  }
+
+  function hapProduktIRi(barkodi, folderId, ngaBarkodi) {
+    if (!foldera.length) { toast('Krijo fillimisht një folder.'); hapFolderIRi(); return; }
+    pr = { k: null, ngaBarkodi: !!ngaBarkodi };
+    $('prTitulli').textContent = 'Produkt i ri';
+    mbushFolderat($('prFolderi'), folderId || (folderSipasId(pamja) ? pamja : foldera[0].id));
+    $('prBarkodi').value = barkodi || '';
+    // Nëse i njëjti barkod ekziston në një folder tjetër me emër, emri plotësohet vetë.
+    var emriNgaTjeter = '';
+    if (barkodi) {
+      var h = hartaEBarkodeve()[barkodi] || [];
+      h.some(function (x) { if (x.emri) { emriNgaTjeter = x.emri; return true; } return false; });
+    }
+    $('prEmri').value = emriNgaTjeter;
+    $('prSasia').value = '';
+    $('prSasia').placeholder = '0';
+    $('prSasiaEtik').textContent = 'Sasia';
+    $('prFshij').classList.add('fsheh');
+    $('prKoha').textContent = '';
+    $('prGabim').textContent = '';
+    rifreskoInfonEProduktit();
+    hapDialog('dlgProdukt', barkodi ? (emriNgaTjeter ? 'prSasia' : 'prEmri') : 'prBarkodi');
+  }
+
+  function rifreskoInfonEProduktit() {
+    if (!pr) return;
+    var b = $('prBarkodi').value.trim();
+    var fid = $('prFolderi').value;
+    var info = $('prGjetur');
+    info.textContent = '';
+    var tjeret = (hartaEBarkodeve()[b] || []).filter(function (x) { return celesi(x.kategoriaId, x.barkodi) !== pr.k; });
+    var neKetFolder = null;
+    tjeret.forEach(function (x) { if (x.kategoriaId === fid) neKetFolder = x; });
+    if (tjeret.length) {
+      info.appendChild(el('span', null, neKetFolder && !pr.k ? 'Ekziston tashmë në këtë folder — sasia do t\'i shtohet asaj ekzistuese. Gjendet në:' : 'Ky barkod gjendet edhe në:'));
+      tjeret.forEach(function (x) {
+        var c = el('span', 'folder-cip', emriFolderit(x.kategoriaId) + ' · ' + x.sasia);
+        c.title = 'Hap produktin në këtë folder';
+        c.addEventListener('click', function () { hapProduktin(celesi(x.kategoriaId, x.barkodi)); });
+        info.appendChild(c);
+      });
+    }
+    info.classList.toggle('fsheh', !tjeret.length);
+    // Parapamja e sasisë
+    var tekst = $('prSasia').value.trim();
+    var d = /^-?\d+$/.test(tekst) ? parseInt(tekst, 10) : null;
+    var pv = $('prParapamje');
+    pv.textContent = '';
+    if (pr.k && produktet[pr.k]) {
+      var baza = produktet[pr.k].sasia;
+      if (fid !== produktet[pr.k].kategoriaId && neKetFolder) baza += neKetFolder.sasia;
+      var re = Math.max(0, baza + (d || 0));
+      pv.appendChild(document.createTextNode('Sasia e re: '));
+      pv.appendChild(el('strong', null, num(re)));
+      if (fid !== produktet[pr.k].kategoriaId && neKetFolder) pv.appendChild(document.createTextNode(' (bashkuar me atë që ekziston te ' + emriFolderit(fid) + ')'));
+    } else if (!pr.k && neKetFolder && d !== null) {
+      pv.appendChild(document.createTextNode('Sasia e re: '));
+      pv.appendChild(el('strong', null, num(Math.max(0, neKetFolder.sasia + d))));
+    }
+  }
+  ['prBarkodi', 'prSasia'].forEach(function (id) { $(id).addEventListener('input', rifreskoInfonEProduktit); });
+  $('prFolderi').addEventListener('change', rifreskoInfonEProduktit);
+  $('prMinus').addEventListener('click', function () { hapSasine(-1); });
+  $('prPlus').addEventListener('click', function () { hapSasine(1); });
+  function hapSasine(d) {
+    var v = $('prSasia').value.trim();
+    var n = /^-?\d+$/.test(v) ? parseInt(v, 10) : 0;
+    $('prSasia').value = String(n + d);
+    $('prSasia').focus();
+    rifreskoInfonEProduktit();
+  }
+  ['prBarkodi', 'prEmri', 'prSasia'].forEach(function (id) {
+    $(id).addEventListener('keydown', function (ev) {
+      if (ev.key !== 'Enter') return;
+      ev.preventDefault();
+      if (id === 'prBarkodi') $('prEmri').focus();
+      else if (id === 'prEmri') $('prSasia').focus();
+      else ruajProduktin();
+    });
+  });
+
+  function barkodIVlefshem(b) {
+    if (!b) return 'Shkruaj barkodin.';
+    if (b.length > 64) return 'Barkodi është shumë i gjatë.';
+    if (b.indexOf('::') !== -1 || /\s/.test(b)) return 'Barkodi s\'mund të ketë hapësira ose "::".';
+    return null;
+  }
+
+  function ruajProduktin() {
+    if (!pr) return;
+    var b = $('prBarkodi').value.trim();
+    var fid = $('prFolderi').value;
+    var emri = $('prEmri').value.trim();
+    var tekst = $('prSasia').value.trim();
+    var gab = barkodIVlefshem(b);
+    if (gab) { $('prGabim').textContent = gab; $('prBarkodi').focus(); return; }
+    if (!folderSipasId(fid)) { $('prGabim').textContent = 'Zgjidh folderin.'; return; }
+    if (tekst && !/^-?\d+$/.test(tekst)) { $('prGabim').textContent = 'Sasia duhet të jetë numër i plotë.'; $('prSasia').focus(); return; }
+    var d = tekst ? parseInt(tekst, 10) : 0;
+    var kRi = celesi(fid, b);
+    var tani = Date.now();
+    var ishte = pr.k ? produktet[pr.k] : null;
+    if (pr.k && !ishte) { mbyllDialog('dlgProdukt'); return; } // u fshi ndërkohë (p.sh. nga telefoni)
+    if (!emri && !(ishte && !ishte.emri)) { $('prGabim').textContent = 'Shkruaj emrin e produktit.'; $('prEmri').focus(); return; }
+    if (!ishte && !tekst) { $('prGabim').textContent = 'Shkruaj sasinë.'; $('prSasia').focus(); return; }
+    var ekzistues = produktet[kRi] && kRi !== pr.k ? produktet[kRi] : null;
+    if (ishte && ekzistues && b !== ishte.barkodi) {
+      $('prGabim').textContent = 'Ky barkod ekziston tashmë te "' + emriFolderit(fid) + '".'; $('prBarkodi').focus(); return;
+    }
+    var mesazhi;
+    var reg = ndrysho(function (api) {
+      if (ishte) {
+        var baza = ishte.sasia + (ekzistues ? ekzistues.sasia : 0);
+        var ri = { barkodi: b, emri: emri || (ekzistues ? ekzistues.emri : ''), sasia: Math.max(0, baza + d), kategoriaId: fid, prekurSe: tani };
+        if (kRi !== pr.k) api.fshij(pr.k);
+        api.vendos(kRi, ri);
+        mesazhi = ekzistues ? 'U zhvendos te "' + emriFolderit(fid) + '" dhe u bashkua (tani: ' + ri.sasia + ').' :
+          kRi !== pr.k && fid !== ishte.kategoriaId ? 'U zhvendos te "' + emriFolderit(fid) + '".' : 'U ruajt: ' + (ri.emri || ri.barkodi) + ' (' + ri.sasia + ')';
+      } else if (ekzistues) {
+        var r2 = Object.assign({}, ekzistues, { emri: emri || ekzistues.emri, sasia: Math.max(0, ekzistues.sasia + d), prekurSe: tani });
+        api.vendos(kRi, r2);
+        mesazhi = 'Ekzistonte — sasia u shtua (tani: ' + r2.sasia + ').';
+      } else {
+        api.vendos(kRi, { barkodi: b, emri: emri, sasia: Math.max(0, d), kategoriaId: fid, prekurSe: tani });
+        mesazhi = 'U shtua: ' + (emri || b);
+      }
+    });
+    var ngaBarkodi = pr.ngaBarkodi;
+    tab.flash = kRi;
+    renderTabelenNeseDuhet();
+    mbyllDialog('dlgProdukt');
+    pr = null;
+    toast(mesazhi, { veprimi: function () { zhbej(reg); } });
+    if (ngaBarkodi && !$('fushaBarkodit').classList.contains('fsheh')) $('barkodi').focus();
+  }
+  function renderTabelenNeseDuhet() { if (pamja !== 'permbledhja') renderTabelen(); }
+  $('prRuaj').addEventListener('click', ruajProduktin);
+  $('prFshij').addEventListener('click', function () {
+    if (!pr || !pr.k) return;
+    var k = pr.k;
+    mbyllDialog('dlgProdukt');
+    pr = null;
+    fshijProduktet([k]);
+  });
+  $('btnShto').addEventListener('click', function () { hapProduktIRi('', null, false); });
+
+  // Fusha e barkodit (skaner USB = tastierë që shkruan barkodin + Enter)
+  function duketSiDiçkaTjeter(t) {
+    if (/^[0-9]{6,14}$/.test(t)) return false;
+    return t.length > 30 || /^https?:\/\//i.test(t) || /\s/.test(t);
+  }
+  $('barkodi').addEventListener('keydown', function (ev) {
+    if (ev.key !== 'Enter') return;
+    ev.preventDefault();
+    var b = $('barkodi').value.trim();
+    $('barkodi').value = '';
+    if (!b || !folderSipasId(pamja)) return;
+    if (duketSiDiçkaTjeter(b)) { toast('Kjo nuk duket si barkod produkti (ngjan me kod QR ose tekst).'); return; }
+    var gab = barkodIVlefshem(b);
+    if (gab) { toast(gab); return; }
+    var k = celesi(pamja, b);
+    if (produktet[k]) hapProduktin(k, true);
+    else hapProduktIRi(b, pamja, true);
+  });
+  $('barkodi').addEventListener('focus', function () { $('fushaBarkodit').classList.add('theksuar'); });
+  $('barkodi').addEventListener('blur', function () { $('fushaBarkodit').classList.remove('theksuar'); });
+
+  // ================= Fshirja dhe zhvendosja =================
+  async function fshijProduktet(keys) {
+    keys = keys.filter(function (k) { return produktet[k]; });
+    if (!keys.length) return;
+    if (keys.length > 1) {
+      var po = await konfirmo('Të fshihen ' + keys.length + ' produkte?', 'Do të fshihen ' + keys.length + ' produktet e zgjedhura nga të gjitha pajisjet.\n\nMund ta zhbësh menjëherë pas fshirjes.', 'Fshij');
+      if (!po) return;
+    }
+    var emri = keys.length === 1 ? (produktet[keys[0]].emri || produktet[keys[0]].barkodi) : '';
+    var reg = ndrysho(function (api) { keys.forEach(function (k) { api.fshij(k); delete tab.zgjedhura[k]; }); });
+    toast(keys.length === 1 ? 'U fshi: ' + emri : 'U fshinë ' + keys.length + ' produkte.', { veprimi: function () { zhbej(reg); } });
+  }
+
+  var zhKeys = [];
+  function hapZhvendosjen(keys) {
+    zhKeys = keys.filter(function (k) { return produktet[k]; });
+    if (!zhKeys.length) return;
+    var burimet = {};
+    zhKeys.forEach(function (k) { burimet[produktet[k].kategoriaId] = true; });
+    var nj = zhKeys.length === 1 ? produktet[zhKeys[0]] : null;
+    $('zhTitulli').textContent = nj ? 'Zhvendos produktin' : 'Zhvendos ' + zhKeys.length + ' produkte';
+    $('zhTekst').textContent = nj ? 'Zgjidh folderin ku do të zhvendoset "' + (nj.emri || nj.barkodi) + '". Nëse aty ekziston i njëjti barkod, sasitë bashkohen.'
+      : 'Zgjidh folderin. Produktet që ekzistojnë tashmë atje bashkohen (sasitë mblidhen).';
+    var lista = $('zhLista');
+    lista.textContent = '';
+    var cakat = foldera.filter(function (f) { return !(Object.keys(burimet).length === 1 && burimet[f.id]); });
+    if (!cakat.length) lista.appendChild(el('div', 'bosh-mesazh', 'Nuk ka asnjë folder tjetër ku të zhvendoset.'));
+    cakat.forEach(function (f) {
+      var b = el('button', 'zgjedhje'); b.type = 'button';
+      var ik = el('span'); ik.innerHTML = IKONA.folder; ik.style.cssText = 'display:flex;color:var(--btn-tekst)';
+      b.appendChild(ik);
+      var t = el('span'); t.appendChild(el('b', null, f.emri)); t.appendChild(el('small', null, produkteTekst(produktetEFolderit(f.id).length)));
+      b.appendChild(t);
+      b.addEventListener('click', function () { mbyllDialog('dlgZhvendos'); zhvendosProduktet(zhKeys, f); });
+      lista.appendChild(b);
+    });
+    hapDialog('dlgZhvendos');
+    setTimeout(function () { var f = lista.querySelector('button'); if (f) f.focus(); }, 30);
+  }
+
+  function zhvendosProduktet(keys, cak) {
+    keys = keys.filter(function (k) { return produktet[k] && produktet[k].kategoriaId !== cak.id; });
+    if (!keys.length) return;
+    var bashkuar = 0, tani = Date.now();
+    var reg = ndrysho(function (api) {
+      keys.forEach(function (k) {
+        var p = produktet[k];
+        var kRi = celesi(cak.id, p.barkodi);
+        var ek = produktet[kRi];
+        if (ek) bashkuar++;
+        api.fshij(k);
+        delete tab.zgjedhura[k];
+        api.vendos(kRi, {
+          barkodi: p.barkodi, emri: (ek && ek.emri) ? ek.emri : p.emri,
+          sasia: (ek ? ek.sasia : 0) + p.sasia, kategoriaId: cak.id, prekurSe: tani
+        });
+      });
+    });
+    var m = (keys.length === 1 ? 'U zhvendos' : keys.length + ' produkte u zhvendosën') + ' te "' + cak.emri + '"' +
+      (bashkuar ? ' (' + bashkuar + ' u bashkuan me ekzistuesit)' : '') + '.';
+    toast(m, { veprimi: function () { zhbej(reg); } });
+  }
+
+  // ================= Folderat =================
+  var flRiemerto = null;
+  function hapFolderIRi() {
+    flRiemerto = null;
+    $('flTitulli').textContent = 'Folder i ri';
+    $('flRuaj').textContent = 'Krijo';
+    $('flEmri').value = '';
+    $('flGabim').textContent = '';
+    hapDialog('dlgFolder', 'flEmri');
+  }
+  function hapRiemertimin(f) {
+    flRiemerto = f.id;
+    $('flTitulli').textContent = 'Riemërto folderin';
+    $('flRuaj').textContent = 'Ruaj';
+    $('flEmri').value = f.emri;
+    $('flGabim').textContent = '';
+    hapDialog('dlgFolder', 'flEmri');
+  }
+  function ruajFolderin() {
+    var emri = $('flEmri').value.trim();
+    if (!emri) { $('flGabim').textContent = 'Shkruaj emrin e folderit.'; return; }
+    var njejte = foldera.some(function (f) { return f.id !== flRiemerto && f.emri.toLowerCase() === emri.toLowerCase(); });
+    if (njejte) { $('flGabim').textContent = 'Ekziston tashmë një folder me këtë emër.'; return; }
+    if (flRiemerto) {
+      var f = folderSipasId(flRiemerto);
+      if (f) { foldera = foldera.map(function (x) { return x.id === f.id ? { id: x.id, emri: emri, ndryshuarSe: Date.now() } : x; }); ruaj(); }
+      mbyllDialog('dlgFolder');
+      toast('Folderi u riemërtua.');
+      return;
+    }
+    var id = 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    foldera.push({ id: id, emri: emri, ndryshuarSe: Date.now() });
+    ruaj();
+    mbyllDialog('dlgFolder');
+    shkoTe(id);
+    setTimeout(function () { $('barkodi').focus(); }, 30);
+  }
+  $('flRuaj').addEventListener('click', ruajFolderin);
+  $('flEmri').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ruajFolderin(); } });
+  $('btnFolderIRi').addEventListener('click', hapFolderIRi);
+
+  async function fshijFolderin(f) {
+    var brenda = produktetEFolderit(f.id);
+    var po = await konfirmo('Të fshihet folderi "' + f.emri + '"?',
+      brenda.length ? 'Do të fshihet folderi bashkë me ' + produkteTekst(brenda.length) + ' brenda tij, në të gjitha pajisjet.\n\nMund ta zhbësh menjëherë pas fshirjes.' : 'Folderi është bosh.',
+      'Fshij folderin', brenda.length ? 3 : 0);
+    if (!po) return;
+    var reg = ndrysho(function (api) {
+      brenda.forEach(function (p) { api.fshij(celesi(f.id, p.barkodi)); });
+      foldera = foldera.filter(function (x) { return x.id !== f.id; });
+      fshira.foldera[f.id] = Date.now();
+    });
+    if (pamja === f.id) shkoTe('permbledhja');
+    toast('Folderi "' + f.emri + '" u fshi.', { veprimi: function () { zhbej(reg); } });
+  }
+
+  async function fshijTeGjithaNeFolder(f) {
+    var brenda = produktetEFolderit(f.id);
+    if (!brenda.length) { toast('Folderi është bosh.'); return; }
+    var po = await konfirmo('Të fshihen të gjitha produktet?', 'Do të fshihen të gjitha ' + brenda.length + ' produktet nga folderi "' + f.emri + '". Folderi mbetet.\n\nKëshillë: eksporto fillimisht në Excel nëse do një kopje.', 'Fshij të gjitha', 5);
+    if (!po) return;
+    var reg = ndrysho(function (api) { brenda.forEach(function (p) { api.fshij(celesi(f.id, p.barkodi)); }); });
+    toast('U fshinë ' + brenda.length + ' produkte nga "' + f.emri + '".', { veprimi: function () { zhbej(reg); } });
+  }
+
+  // ================= Menutë =================
+  function hapMenu(elementet, poz) {
+    var m = $('menu');
+    m.textContent = '';
+    elementet.forEach(function (x) {
+      if (x === '-') { m.appendChild(el('hr')); return; }
+      var b = el('button', x.rrezik ? 'rrezik' : '', x.t); b.type = 'button';
+      b.addEventListener('click', function () { mbyllMenune(); x.fn(); });
+      m.appendChild(b);
+    });
+    m.classList.add('hapur');
+    var x0, y0;
+    if (poz && poz.getBoundingClientRect) { var r = poz.getBoundingClientRect(); x0 = r.left; y0 = r.bottom + 4; }
+    else { x0 = poz.x; y0 = poz.y; }
+    var w = m.offsetWidth, h = m.offsetHeight;
+    m.style.left = Math.min(x0, window.innerWidth - w - 8) + 'px';
+    m.style.top = Math.min(y0, window.innerHeight - h - 8) + 'px';
+    var f = m.querySelector('button'); if (f) f.focus();
+  }
+  function mbyllMenune() { $('menu').classList.remove('hapur'); }
+  document.addEventListener('mousedown', function (ev) { if (!ev.target.closest('#menu')) mbyllMenune(); });
+  $('menu').addEventListener('keydown', function (ev) {
+    var bb = Array.prototype.slice.call($('menu').querySelectorAll('button'));
+    var i = bb.indexOf(document.activeElement);
+    if (ev.key === 'ArrowDown') { ev.preventDefault(); bb[(i + 1) % bb.length].focus(); }
+    if (ev.key === 'ArrowUp') { ev.preventDefault(); bb[(i - 1 + bb.length) % bb.length].focus(); }
+    if (ev.key === 'Escape') { ev.stopPropagation(); mbyllMenune(); }
+  });
+  function hapMenuFolderi(f, poz) {
+    hapMenu([
+      { t: 'Hap folderin', fn: function () { shkoTe(f.id); } },
+      { t: 'Riemërto…', fn: function () { hapRiemertimin(f); } },
+      '-',
+      { t: 'Eksporto në Excel', fn: function () { eksportoDirekt('excel', produktetEFolderit(f.id), f); } },
+      { t: 'Eksporto PDF (raport)', fn: function () { eksportoDirekt('pdf-lista', produktetEFolderit(f.id), f); } },
+      { t: 'Eksporto PDF (etiketa)', fn: function () { eksportoDirekt('pdf-etiketa', produktetEFolderit(f.id), f); } },
+      { t: 'Importo në këtë folder…', fn: function () { hapImportin(f.id); } },
+      '-',
+      { t: 'Fshij të gjitha produktet…', rrezik: true, fn: function () { fshijTeGjithaNeFolder(f); } },
+      { t: 'Fshij folderin…', rrezik: true, fn: function () { fshijFolderin(f); } }
+    ], poz);
+  }
+  $('btnFolderMenu').addEventListener('click', function () { var f = folderSipasId(pamja); if (f) hapMenuFolderi(f, $('btnFolderMenu')); });
+
+  // ================= Eksporti =================
+  function slug(emri) {
+    return String(emri).toLowerCase().replace(/ë/g, 'e').replace(/ç/g, 'c').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'stoku';
+  }
+  function vulaKohore(meOre) {
+    var d = new Date();
+    return d.getFullYear() + '-' + dy(d.getMonth() + 1) + '-' + dy(d.getDate()) + (meOre ? '_' + dy(d.getHours()) + dy(d.getMinutes()) : '');
+  }
+  function shkarko(bajtet, emri, mime) {
+    var blob = new Blob([bajtet], { type: mime });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = emri;
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 5000);
+  }
+
+  var ek = { formati: 'excel', fusha: 'pamja' };
+  function opsionetEEksportit() {
+    var lista = [];
+    var nZ = zgjedhuraLista().length;
+    if (pamja !== 'permbledhja') {
+      var kaFiltra = !!tab.kerkimi.trim() || tab.filtri !== 'te-gjitha';
+      var emri = pamja === 'te-gjitha' ? 'Të gjitha produktet' : 'Folderi "' + emriFolderit(pamja) + '"';
+      lista.push({ v: 'pamja', t: kaFiltra ? 'Lista aktuale (me kërkimin/filtrin)' : emri, n: tabelaAktuale.fil.length,
+        s: kaFiltra ? emri + ', vetëm ato që shfaqen tani' : 'Siç shfaqen në tabelë, me të njëjtën renditje' });
+    }
+    lista.push({ v: 'zgjedhura', t: 'Vetëm të zgjedhurat', n: nZ, s: nZ ? 'Produktet e shënuara në tabelë' : 'Zgjidh produkte në tabelë me kutizat', jo: !nZ });
+    lista.push({ v: 'krejt', t: 'Krejt stoku', n: Object.keys(produktet).length, s: 'Të gjithë folderat (në Excel: një fletë për çdo folder + përmbledhje)' });
+    return lista;
+  }
+  function hapEksportin(formati) {
+    ek.formati = formati === 'pdf' ? 'pdf-lista' : formati;
+    var lista = opsionetEEksportit();
+    ek.fusha = zgjedhuraLista().length ? 'zgjedhura' : (pamja !== 'permbledhja' ? 'pamja' : 'krejt');
+    var c = $('ekFushat');
+    c.textContent = '';
+    lista.forEach(function (o) {
+      var l = el('label', 'zgjedhje' + (o.jo ? ' jo-aktive' : ''));
+      var r = el('input'); r.type = 'radio'; r.name = 'ekFusha'; r.value = o.v; r.checked = o.v === ek.fusha; r.disabled = !!o.jo;
+      r.addEventListener('change', function () { ek.fusha = o.v; rifreskoEksportin(); });
+      l.appendChild(r);
+      var t = el('span');
+      t.appendChild(el('b', null, o.t + ' — ' + produkteTekst(o.n)));
+      t.appendChild(el('small', null, o.s));
+      l.appendChild(t);
+      l.dataset.v = o.v;
+      c.appendChild(l);
+    });
+    rifreskoEksportin();
+    hapDialog('dlgEksport');
+    setTimeout(function () { $('ekBtn').focus(); }, 30);
+  }
+  function rifreskoEksportin() {
+    Array.prototype.forEach.call(document.querySelectorAll('#ekFormatet .zgjedhje'), function (l) {
+      var a = l.dataset.v === ek.formati;
+      l.classList.toggle('aktiv', a);
+      l.querySelector('input').checked = a;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#ekFushat .zgjedhje'), function (l) { l.classList.toggle('aktiv', l.dataset.v === ek.fusha); });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#ekFormatet .zgjedhje'), function (l) {
+    l.addEventListener('click', function () { ek.formati = l.dataset.v; rifreskoEksportin(); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-eksport]'), function (b) {
+    b.addEventListener('click', function () { hapEksportin(b.dataset.eksport); });
+  });
+  $('ekBtn').addEventListener('click', function () {
+    var lista, folderi = null;
+    if (ek.fusha === 'zgjedhura') {
+      var z = tab.zgjedhura;
+      lista = tabelaAktuale.fil.filter(function (p) { return z[celesi(p.kategoriaId, p.barkodi)]; });
+      // të zgjedhurat që s'janë në filtrin aktual (p.sh. u zgjodhën para ndryshimit të filtrit)
+      var brenda = {};
+      lista.forEach(function (p) { brenda[celesi(p.kategoriaId, p.barkodi)] = true; });
+      zgjedhuraLista().forEach(function (k) { if (!brenda[k]) lista.push(produktet[k]); });
+    } else if (ek.fusha === 'pamja') {
+      lista = tabelaAktuale.fil.slice();
+      if (pamja !== 'te-gjitha') folderi = folderSipasId(pamja);
+    } else {
+      lista = null; // krejt stoku
+    }
+    mbyllDialog('dlgEksport');
+    eksportoDirekt(ek.formati, lista, folderi);
+  });
+
+  // lista = null → krejt stoku; folderi = kur të gjitha janë nga një folder
+  function eksportoDirekt(formati, lista, folderi) {
+    if (lista && !lista.length) { toast('S\'ka produkte për eksport.'); return; }
+    if (!lista && !Object.keys(produktet).length) { toast('S\'ka produkte për eksport.'); return; }
+    if (lista && !folderi) {
+      var ids = {};
+      lista.forEach(function (p) { ids[p.kategoriaId] = true; });
+      if (Object.keys(ids).length === 1) folderi = folderSipasId(Object.keys(ids)[0]);
+    }
+    try {
+      if (formati === 'excel') eksportoExcel(lista, folderi);
+      else if (formati === 'pdf-lista') eksportoPdfRaport(lista, folderi);
+      else eksportoPdfEtiketa(lista, folderi);
+    } catch (e) {
+      console.error(e);
+      toast('Eksporti dështoi. Provo përsëri.');
+    }
+  }
+
+  var KOLONAT_FOLDERI = [
+    { title: 'Barkodi', width: 20, type: 'text' }, { title: 'Emri i produktit', width: 44, type: 'text' },
+    { title: 'Sasia', width: 10, type: 'number' }, { title: 'Ndryshuar më', width: 18, type: 'date' }
+  ];
+  var KOLONAT_ME_FOLDER = [
+    { title: 'Barkodi', width: 20, type: 'text' }, { title: 'Emri i produktit', width: 44, type: 'text' },
+    { title: 'Folderi', width: 20, type: 'text' }, { title: 'Sasia', width: 10, type: 'number' }, { title: 'Ndryshuar më', width: 18, type: 'date' }
+  ];
+  function fletaFolderi(emri, prod) {
+    return { name: emri, columns: KOLONAT_FOLDERI, totalLabel: 'Gjithsej', totalColumns: [2], redZeroColumn: 2,
+      rows: prod.map(function (p) { return [p.barkodi, p.emri || '', p.sasia | 0, p.prekurSe || '']; }) };
+  }
+  function fletaMeFolder(emri, prod) {
+    return { name: emri, columns: KOLONAT_ME_FOLDER, totalLabel: 'Gjithsej', totalColumns: [3], redZeroColumn: 3,
+      rows: prod.map(function (p) { return [p.barkodi, p.emri || '', emriFolderit(p.kategoriaId), p.sasia | 0, p.prekurSe || '']; }) };
+  }
+
+  function eksportoExcel(lista, folderi) {
+    var fletet, emriSk;
+    if (!lista) {
+      var te = teGjithaProduktet();
+      var permb = foldera.map(function (f) {
+        var pp = produktetEFolderit(f.id);
+        var s = 0; pp.forEach(function (p) { s += p.sasia | 0; });
+        var z = pp.filter(eshteZero).length;
+        return [f.emri, pp.length, s, z];
+      });
+      fletet = [{ name: 'Përmbledhje', columns: [
+        { title: 'Folderi', width: 26 }, { title: 'Produkte', width: 12, type: 'number' },
+        { title: 'Sasia totale', width: 14, type: 'number' }, { title: 'Me sasi 0', width: 12, type: 'number' }
+      ], rows: permb, totalLabel: 'Gjithsej', totalColumns: [1, 2, 3] }];
+      foldera.forEach(function (f) { fletet.push(fletaFolderi(f.emri, produktetEFolderit(f.id).sort(krahasoEmrin))); });
+      var jashte = te.filter(function (p) { return !folderSipasId(p.kategoriaId); });
+      if (jashte.length) fletet.push(fletaFolderi('Pa folder', jashte.sort(krahasoEmrin)));
+      fletet.push(fletaMeFolder('Të gjitha', te.sort(krahuesiFolderEmer)));
+      emriSk = 'stoku_krejt_' + vulaKohore(true) + '.xlsx';
+    } else if (folderi) {
+      fletet = [fletaFolderi(folderi.emri, lista)];
+      emriSk = 'malli_' + slug(folderi.emri) + '_' + vulaKohore(true) + '.xlsx';
+    } else {
+      fletet = [fletaMeFolder('Produktet', lista)];
+      emriSk = 'stoku_' + vulaKohore(true) + '.xlsx';
+    }
+    shkarko(window.StokuXlsx.buildWorkbook(fletet), emriSk, MIME_XLSX);
+    toast('U shkarkua: ' + emriSk);
+  }
+  function krahuesiFolderEmer(a, b) {
+    var ia = foldera.findIndex(function (f) { return f.id === a.kategoriaId; });
+    var ib = foldera.findIndex(function (f) { return f.id === b.kategoriaId; });
+    return (ia - ib) || krahasoEmrin(a, b);
+  }
+
+  function jsPdfGati() {
+    if (!window.jspdf || !window.jspdf.jsPDF) { toast('PDF-ja s\'është gati. Kontrollo internetin dhe rifresko faqen.'); return false; }
+    return true;
+  }
+
+  // PDF raport: tabelë e rregullt A4, e grupuar sipas folderave kur ka disa, me totale dhe numra faqesh.
+  function eksportoPdfRaport(lista, folderi) {
+    if (!jsPdfGati()) return;
+    var krejt = !lista;
+    var prod = krejt ? teGjithaProduktet().sort(krahuesiFolderEmer) : lista.slice();
+    var grupet = [];
+    if (krejt || (!folderi && pamja === 'te-gjitha' && tab.rendiK === 'folderi')) {
+      var sipas = {};
+      prod.forEach(function (p) { (sipas[p.kategoriaId] = sipas[p.kategoriaId] || []).push(p); });
+      foldera.forEach(function (f) { if (sipas[f.id]) { grupet.push({ emri: f.emri, prod: sipas[f.id] }); delete sipas[f.id]; } });
+      Object.keys(sipas).forEach(function (id) { grupet.push({ emri: '(pa folder)', prod: sipas[id] }); });
+    } else {
+      grupet.push({ emri: null, prod: prod });
+    }
+    var meFolder = !folderi && !krejt && grupet.length === 1;
+
+    var doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    var W = 210, H = 297, M = 14, y = M;
+    var ngjyra = [21, 101, 192];
+    var kol = meFolder
+      ? [{ t: 'Nr.', w: 11 }, { t: 'Barkodi', w: 36 }, { t: 'Emri i produktit', w: 83 }, { t: 'Folderi', w: 32 }, { t: 'Sasia', w: 20, d: 1 }]
+      : [{ t: 'Nr.', w: 11 }, { t: 'Barkodi', w: 38 }, { t: 'Emri i produktit', w: 113 }, { t: 'Sasia', w: 20, d: 1 }];
+    var RR = 6.6;
+    var titulli = krejt ? 'Raporti i stokut - krejt stoku' : folderi ? 'Raporti i stokut - ' + folderi.emri : 'Raporti i stokut';
+    var totN = 0, totS = 0;
+    grupet.forEach(function (g) { totN += g.prod.length; g.prod.forEach(function (p) { totS += p.sasia | 0; }); });
+
+    function shkurto(t, gjer) {
+      t = String(t || '');
+      if (doc.getTextWidth(t) <= gjer) return t;
+      while (t.length > 1 && doc.getTextWidth(t + '…') > gjer) t = t.slice(0, -1);
+      return t + '…';
+    }
+    function koka() {
+      doc.setFillColor(245, 247, 250); doc.rect(M, y, W - 2 * M, RR, 'F');
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(90, 90, 96);
+      var x = M;
+      kol.forEach(function (c) {
+        if (c.d) doc.text(c.t, x + c.w - 2, y + 4.4, { align: 'right' }); else doc.text(c.t, x + 2, y + 4.4);
+        x += c.w;
+      });
+      y += RR;
+    }
+    function faqeERe() { doc.addPage(); y = M; koka(); }
+    function siguroVend(h) { if (y + h > H - 16) faqeERe(); }
+
+    // Koka e dokumentit
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(20, 20, 24);
+    doc.text(titulli, M, y + 6);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(95, 95, 102);
+    var meta = 'Krijuar: ' + dataOra(Date.now()) + '   ·   ' + produkteTekst(totN) + '   ·   ' + num(totS) + ' copë' + (emriPerdoruesit() ? '   ·   Llogaria: ' + emriPerdoruesit() : '');
+    doc.text(meta, M, y + 12);
+    doc.setDrawColor(ngjyra[0], ngjyra[1], ngjyra[2]); doc.setLineWidth(0.6); doc.line(M, y + 15, W - M, y + 15);
+    y += 20;
+    koka();
+
+    var nr = 0;
+    grupet.forEach(function (g) {
+      if (g.emri) {
+        siguroVend(RR * 2.2);
+        var s = 0; g.prod.forEach(function (p) { s += p.sasia | 0; });
+        doc.setFillColor(232, 238, 247); doc.rect(M, y, W - 2 * M, RR + 0.6, 'F');
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); doc.setTextColor(ngjyra[0], ngjyra[1], ngjyra[2]);
+        doc.text(shkurto(g.emri, 120), M + 2, y + 4.7);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5);
+        doc.text(produkteTekst(g.prod.length) + ' · ' + num(s) + ' copë', W - M - 2, y + 4.7, { align: 'right' });
+        y += RR + 0.6;
+      }
+      g.prod.forEach(function (p, i) {
+        siguroVend(RR);
+        nr++;
+        if (i % 2 === 1) { doc.setFillColor(250, 251, 253); doc.rect(M, y, W - 2 * M, RR, 'F'); }
+        doc.setDrawColor(236, 238, 242); doc.setLineWidth(0.2); doc.line(M, y + RR, W - M, y + RR);
+        doc.setFontSize(9); doc.setTextColor(40, 40, 46);
+        var x = M;
+        var vlerat = meFolder ? [String(nr), p.barkodi, p.emri || '(pa emër)', emriFolderit(p.kategoriaId), num(p.sasia)] : [String(nr), p.barkodi, p.emri || '(pa emër)', num(p.sasia)];
+        kol.forEach(function (c, ci) {
+          var v = vlerat[ci];
+          var eshteSasi = ci === kol.length - 1;
+          doc.setFont(ci === 1 ? 'courier' : 'helvetica', eshteSasi ? 'bold' : 'normal');
+          if (ci === 0) doc.setTextColor(140, 140, 146);
+          else if (eshteSasi && eshteZero(p)) doc.setTextColor(179, 38, 30);
+          else if (ci === 2 && !p.emri) doc.setTextColor(140, 140, 146);
+          else doc.setTextColor(30, 30, 34);
+          if (c.d) doc.text(v, x + c.w - 2, y + 4.4, { align: 'right' });
+          else doc.text(shkurto(v, c.w - 4), x + 2, y + 4.4);
+          x += c.w;
+        });
+        y += RR;
+      });
+    });
+    // Totali
+    siguroVend(RR + 4);
+    y += 1.5;
+    doc.setDrawColor(ngjyra[0], ngjyra[1], ngjyra[2]); doc.setLineWidth(0.5); doc.line(M, y, W - M, y);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(20, 20, 24);
+    doc.text('Gjithsej: ' + produkteTekst(totN), M + 2, y + 5.5);
+    doc.text(num(totS) + ' copë', W - M - 2, y + 5.5, { align: 'right' });
+
+    var n = doc.getNumberOfPages();
+    for (var i = 1; i <= n; i++) {
+      doc.setPage(i);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(150, 150, 156);
+      doc.text('Stoku · stoku.site', M, H - 8);
+      doc.text('Faqja ' + i + ' / ' + n, W - M, H - 8, { align: 'right' });
+    }
+    var emriSk = (krejt ? 'raport_stoku_krejt_' : 'raport_' + slug(folderi ? folderi.emri : 'produktet') + '_') + vulaKohore(true) + '.pdf';
+    shkarko(doc.output('arraybuffer'), emriSk, 'application/pdf');
+    toast('U shkarkua: ' + emriSk);
+  }
+
+  // PDF etiketa: njësoj si në telefon — 3×8 për faqe A4, barkod i riskenueshëm + emër + sasi.
+  function formatiBarkodit(b) {
+    if (/^[0-9]{13}$/.test(b)) return 'EAN13';
+    if (/^[0-9]{12}$/.test(b)) return 'UPC';
+    if (/^[0-9]{8}$/.test(b)) return 'EAN8';
+    return 'CODE128';
+  }
+  function vizatoBarkodin(canvas, barkodi) {
+    var f = [formatiBarkodit(barkodi)];
+    if (f[0] !== 'CODE128') f.push('CODE128');
+    for (var i = 0; i < f.length; i++) {
+      try {
+        window.JsBarcode(canvas, barkodi, { format: f[i], displayValue: true, fontSize: 16, height: 46, margin: 6, background: '#ffffff', lineColor: '#000000' });
+        return true;
+      } catch (e) { /* formati tjetër */ }
+    }
+    return false;
+  }
+  function eksportoPdfEtiketa(lista, folderi) {
+    if (!jsPdfGati()) return;
+    if (!window.JsBarcode) { toast('Biblioteka e barkodeve s\'është gati. Rifresko faqen me internet.'); return; }
+    var prod = lista ? lista.slice() : teGjithaProduktet().sort(krahuesiFolderEmer);
+    var doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    var fGj = 210, fL = 297, mV = 8, kolona = 3, rreshta = 8, bosh = 3;
+    var qGj = (fGj - 2 * mV - (kolona - 1) * bosh) / kolona;
+    var qL = (fL - 2 * mV - (rreshta - 1) * bosh) / rreshta;
+    var perFaqe = kolona * rreshta;
+    var canvas = document.createElement('canvas');
+    prod.forEach(function (p, idx) {
+      var poz = idx % perFaqe;
+      if (idx > 0 && poz === 0) doc.addPage();
+      var x = mV + (poz % kolona) * (qGj + bosh);
+      var y = mV + Math.floor(poz / kolona) * (qL + bosh);
+      doc.setDrawColor(210); doc.setLineWidth(0.2); doc.rect(x, y, qGj, qL);
+      var qx = x + qGj / 2;
+      if (vizatoBarkodin(canvas, p.barkodi)) {
+        var bGj = qGj - 4;
+        var bL = Math.min(bGj * (canvas.height / canvas.width), qL * 0.6);
+        doc.addImage(canvas.toDataURL('image/png'), 'PNG', x + 2, y + 2, bGj, bL);
+        var yt = y + 2 + bL + 4;
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(20, 20, 20);
+        var em = p.emri || '(pa emër)';
+        if (em.length > 28) em = em.slice(0, 27) + '…';
+        doc.text(em, qx, yt, { align: 'center' });
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+        doc.text('Sasia: ' + p.sasia, qx, yt + 5, { align: 'center' });
+      } else {
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+        doc.text(p.barkodi, qx, y + qL / 2, { align: 'center' });
+      }
+    });
+    var emriSk = 'etiketa_' + slug(folderi ? folderi.emri : (lista ? 'produktet' : 'krejt')) + '_' + vulaKohore(false) + '.pdf';
+    shkarko(doc.output('arraybuffer'), emriSk, 'application/pdf');
+    toast('U shkarkua: ' + emriSk + ' (' + prod.length + ' etiketa)');
+  }
+
+  // ================= Importi (Excel / CSV) =================
+  var im = { fletet: [], fleta: 0, emriSkedarit: '' };
+
+  function hapImportin(folderId) {
+    im = { fletet: [], fleta: 0, emriSkedarit: '', folderParazgjedhur: folderId || (folderSipasId(pamja) ? pamja : null) };
+    $('imHapi1').classList.remove('fsheh');
+    $('imHapi2').classList.add('fsheh');
+    $('imMbrapa').classList.add('fsheh');
+    $('imBtn').disabled = true;
+    $('imGabim1').textContent = '';
+    $('imSkedari').value = '';
+    hapDialog('dlgImport');
+  }
+  $('btnImport').addEventListener('click', function () { hapImportin(); });
+  $('imZona').addEventListener('click', function () { $('imSkedari').click(); });
+  $('imZona').addEventListener('dragover', function (ev) { ev.preventDefault(); $('imZona').classList.add('siper'); });
+  $('imZona').addEventListener('dragleave', function () { $('imZona').classList.remove('siper'); });
+  $('imZona').addEventListener('drop', function (ev) {
+    ev.preventDefault(); $('imZona').classList.remove('siper');
+    var f = ev.dataTransfer.files && ev.dataTransfer.files[0];
+    if (f) lexoSkedarin(f);
+  });
+  $('imSkedari').addEventListener('change', function () { var f = $('imSkedari').files[0]; if (f) lexoSkedarin(f); });
+  $('imMbrapa').addEventListener('click', function () { hapImportin(im.folderParazgjedhur); });
+
+  function dekodoTekstin(bajtet) {
+    try { return new TextDecoder('utf-8', { fatal: true }).decode(bajtet); }
+    catch (e) { return new TextDecoder('windows-1252').decode(bajtet); }
+  }
+  function lexoCsv(tekst) {
+    tekst = tekst.replace(/^﻿/, '');
+    var rreshtiPare = tekst.split(/\r?\n/)[0] || '';
+    var ndaresit = [';', ',', '\t'];
+    var ndares = ndaresit.reduce(function (m, d) { return (rreshtiPare.split(d).length > rreshtiPare.split(m).length) ? d : m; }, ',');
+    var rreshtat = [], r = [], fusha = '', thonjeza = false;
+    for (var i = 0; i < tekst.length; i++) {
+      var c = tekst[i];
+      if (thonjeza) {
+        if (c === '"') { if (tekst[i + 1] === '"') { fusha += '"'; i++; } else thonjeza = false; }
+        else fusha += c;
+      } else if (c === '"') thonjeza = true;
+      else if (c === ndares) { r.push(fusha); fusha = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && tekst[i + 1] === '\n') i++;
+        r.push(fusha); rreshtat.push(r); r = []; fusha = '';
+      } else fusha += c;
+    }
+    if (fusha !== '' || r.length) { r.push(fusha); rreshtat.push(r); }
+    return rreshtat.filter(function (x) { return x.some(function (v) { return String(v).trim() !== ''; }); });
+  }
+
+  async function lexoSkedarin(f) {
+    $('imGabim1').textContent = '';
+    try {
+      var buf = await f.arrayBuffer();
+      var bajtet = new Uint8Array(buf);
+      var eshteZip = bajtet[0] === 0x50 && bajtet[1] === 0x4b;
+      if (eshteZip) {
+        im.fletet = (await window.StokuXlsx.read(buf)).map(function (sh) {
+          return { name: sh.name, rows: sh.rows.filter(function (x) { return x.some(function (v) { return String(v).trim() !== ''; }); }) };
+        });
+      } else if (/\.xls$/i.test(f.name)) {
+        $('imGabim1').textContent = 'Formati i vjetër .xls s\'mbështetet. Hape në Excel dhe ruaje si .xlsx ose .csv.';
+        return;
+      } else {
+        im.fletet = [{ name: f.name, rows: lexoCsv(dekodoTekstin(bajtet)) }];
+      }
+    } catch (e) {
+      console.error(e);
+      $('imGabim1').textContent = e && e.message === 'pa-dekompresim'
+        ? 'Ky shfletues s\'e lexon dot këtë .xlsx. Përdor Chrome/Edge të përditësuar, ose ruaje skedarin si .csv.'
+        : 'Skedari s\'u lexua. Sigurohu që është .xlsx ose .csv.';
+      return;
+    }
+    im.fletet = im.fletet.filter(function (s) { return s.rows.length; });
+    if (!im.fletet.length) { $('imGabim1').textContent = 'Skedari është bosh.'; return; }
+    im.emriSkedarit = f.name;
+    // Nëse është një eksport i Stoku-t me disa fletë, zgjidhet fleta "Të gjitha" (ka kolonën Folderi).
+    im.fleta = 0;
+    im.fletet.forEach(function (s, i) { if (/^t[eë] gjitha/i.test(s.name)) im.fleta = i; });
+    if (im.fletet[im.fleta] && /^p[eë]rmbledhje/i.test(im.fletet[im.fleta].name) && im.fletet.length > 1) im.fleta = 1;
+    var sel = $('imFleta');
+    sel.textContent = '';
+    im.fletet.forEach(function (s, i) { var o = el('option', null, s.name + ' (' + s.rows.length + ' rreshta)'); o.value = String(i); sel.appendChild(o); });
+    sel.value = String(im.fleta);
+    $('imFletaMbajtese').classList.toggle('fsheh', im.fletet.length < 2);
+    $('imHapi1').classList.add('fsheh');
+    $('imHapi2').classList.remove('fsheh');
+    $('imMbrapa').classList.remove('fsheh');
+    $('imSkedariInfo').textContent = 'Skedari: ' + f.name;
+    pergatitHarten(true);
+  }
+
+  function hamendesoKolonen(titujt, fjalet) {
+    for (var i = 0; i < titujt.length; i++) {
+      var t = normalizo(titujt[i]);
+      if (fjalet.some(function (f) { return t.indexOf(f) !== -1; })) return i;
+    }
+    return -1;
+  }
+  function pergatitHarten(hamendeso) {
+    var sh = im.fletet[im.fleta];
+    var ka = $('imKoka').value === '1';
+    var nKol = sh.rows.reduce(function (m, r) { return Math.max(m, r.length); }, 0);
+    var titujt = [];
+    for (var i = 0; i < nKol; i++) titujt.push(ka ? String(sh.rows[0][i] === undefined ? '' : sh.rows[0][i]).trim() || ('Kolona ' + (i + 1)) : 'Kolona ' + (i + 1));
+    function mbush(id, lejoBosh) {
+      var s = $(id), v = s.value;
+      s.textContent = '';
+      if (lejoBosh) { var o0 = el('option', null, '— asnjë —'); o0.value = '-1'; s.appendChild(o0); }
+      titujt.forEach(function (t, i) { var o = el('option', null, t); o.value = String(i); s.appendChild(o); });
+      if (!hamendeso && v !== '') s.value = v;
+    }
+    mbush('imKolBarkodi', false); mbush('imKolEmri', true); mbush('imKolSasia', true); mbush('imKolFolderi', true);
+    if (hamendeso) {
+      if (ka) {
+        var hb = hamendesoKolonen(titujt, ['barkod', 'barcode', 'ean', 'kodi', 'code', 'sku']);
+        var he = hamendesoKolonen(titujt, ['emri', 'emer', 'name', 'produkt', 'artikull', 'pershkrim', 'description']);
+        var hs = hamendesoKolonen(titujt, ['sasi', 'qty', 'quantity', 'stok', 'stock', 'cope', 'sasia']);
+        var hf = hamendesoKolonen(titujt, ['folder', 'kategori', 'category', 'grup']);
+        if (he === hb) he = -1;
+        $('imKolBarkodi').value = String(hb >= 0 ? hb : 0);
+        $('imKolEmri').value = String(he);
+        $('imKolSasia').value = String(hs);
+        $('imKolFolderi').value = String(hf);
+      } else {
+        $('imKolBarkodi').value = '0';
+        $('imKolEmri').value = nKol > 1 ? '1' : '-1';
+        $('imKolSasia').value = nKol > 2 ? '2' : '-1';
+        $('imKolFolderi').value = '-1';
+      }
+    }
+    // Caku
+    var c = $('imCaku'), vc = c.value;
+    c.textContent = '';
+    var oF = el('option', null, 'Sipas kolonës "Folderi" (krijohen folderat që mungojnë)'); oF.value = '__kolona';
+    c.appendChild(oF);
+    foldera.forEach(function (f) { var o = el('option', null, 'Në folderin: ' + f.emri); o.value = f.id; c.appendChild(o); });
+    var oR = el('option', null, '+ Në një folder të ri (me emrin e skedarit)'); oR.value = '__ri';
+    c.appendChild(oR);
+    if (hamendeso) c.value = $('imKolFolderi').value !== '-1' ? '__kolona' : (im.folderParazgjedhur || (foldera[0] ? foldera[0].id : '__ri'));
+    else c.value = vc;
+    rifreskoImportin();
+  }
+  ['imKolBarkodi', 'imKolEmri', 'imKolSasia', 'imKolFolderi', 'imCaku', 'imMenyra'].forEach(function (id) { $(id).addEventListener('change', rifreskoImportin); });
+  $('imKoka').addEventListener('change', function () { pergatitHarten(true); });
+  $('imFleta').addEventListener('change', function () { im.fleta = parseInt($('imFleta').value, 10) || 0; pergatitHarten(true); });
+
+  function vleraNeTekst(v) {
+    if (typeof v === 'number') {
+      if (Number.isInteger(v) && Math.abs(v) < 1e21) return v.toLocaleString('en-US', { useGrouping: false, maximumFractionDigits: 0 });
+      return String(v);
+    }
+    return String(v === undefined || v === null ? '' : v).trim();
+  }
+  function vleraNeSasi(v) {
+    if (typeof v === 'number') return isFinite(v) ? Math.round(v) : null;
+    var t = String(v || '').trim().replace(/\s/g, '').replace(',', '.');
+    if (t === '') return null;
+    var n = Number(t);
+    return isFinite(n) ? Math.round(n) : NaN;
+  }
+
+  // Llogarit çfarë do të ndodhë, pa ndryshuar asgjë (edhe për parapamjen edhe për vetë importin).
+  function planiImportit() {
+    var sh = im.fletet[im.fleta];
+    var ka = $('imKoka').value === '1';
+    var kb = parseInt($('imKolBarkodi').value, 10), ke = parseInt($('imKolEmri').value, 10);
+    var ks = parseInt($('imKolSasia').value, 10), kf = parseInt($('imKolFolderi').value, 10);
+    var caku = $('imCaku').value, menyra = $('imMenyra').value;
+    var rreshtat = ka ? sh.rows.slice(1) : sh.rows;
+    var emratFolder = {};
+    foldera.forEach(function (f) { emratFolder[f.emri.toLowerCase()] = f.id; });
+    var plan = { rreshta: [], teRinj: 0, perditesime: 0, kaluar: 0, gabime: 0, folderaTeRinj: {} };
+    var neKete = {}; // për barkodet që përsëriten brenda skedarit
+    rreshtat.forEach(function (r, i) {
+      var b = vleraNeTekst(r[kb]);
+      var emri = ke >= 0 ? vleraNeTekst(r[ke]) : '';
+      var s = ks >= 0 ? vleraNeSasi(r[ks]) : 0;
+      var fEmri = kf >= 0 ? vleraNeTekst(r[kf]) : '';
+      // Rreshti "Gjithsej" (totali në fund të eksporteve të Stoku-t / Excel-it) s'është produkt.
+      if (/^(gjithsej|totali?|shuma|sum)$/i.test(b) && !emri) return;
+      var rr = { nr: i + 1 + (ka ? 1 : 0), b: b, emri: emri, s: s, sRaw: ks >= 0 ? r[ks] : '', fEmri: fEmri, gabim: '', fid: null, veprimi: '' };
+      if (!b) rr.gabim = 'pa barkod';
+      else if (barkodIVlefshem(b)) rr.gabim = 'barkod i pavlefshëm';
+      else if (s === null && ks >= 0) s = rr.s = 0;
+      if (!rr.gabim && isNaN(s)) rr.gabim = 'sasi e pavlefshme';
+      if (!rr.gabim) {
+        if (caku === '__kolona') {
+          var emerF = fEmri || 'Importuar';
+          rr.fid = emratFolder[emerF.toLowerCase()] || ('__ri:' + emerF);
+          if (!emratFolder[emerF.toLowerCase()]) plan.folderaTeRinj[emerF.toLowerCase()] = emerF;
+        } else if (caku === '__ri') {
+          rr.fid = '__ri:' + (im.emriSkedarit.replace(/\.[^.]+$/, '') || 'Importuar');
+          plan.folderaTeRinj['__ri'] = im.emriSkedarit.replace(/\.[^.]+$/, '') || 'Importuar';
+        } else rr.fid = caku;
+        var k = rr.fid + '::' + b;
+        var ek = rr.fid.indexOf('__ri:') === 0 ? null : produktet[celesi(rr.fid, b)];
+        if (neKete[k]) { rr.veprimi = 'bashkohet me rreshtin ' + neKete[k]; }
+        else if (ek) {
+          if (menyra === 'kalo') { rr.veprimi = 'ekziston — kalohet'; plan.kaluar++; }
+          else { rr.veprimi = menyra === 'shto' ? 'ekziston: ' + ek.sasia + ' → ' + Math.max(0, ek.sasia + s) : 'ekziston: ' + ek.sasia + ' → ' + Math.max(0, s); plan.perditesime++; }
+        } else { rr.veprimi = 'i ri'; plan.teRinj++; }
+        if (!neKete[k]) neKete[k] = rr.nr;
+      } else plan.gabime++;
+      plan.rreshta.push(rr);
+    });
+    return plan;
+  }
+
+  function rifreskoImportin() {
+    if (!im.fletet.length) return;
+    $('imKolFolderi').disabled = false;
+    var plan = planiImportit();
+    var pp = $('imPermbledhje');
+    pp.textContent = '';
+    [['Të rinj', plan.teRinj], ['Përditësohen', plan.perditesime], ['Kalohen', plan.kaluar], ['Me gabim (kalohen)', plan.gabime]].forEach(function (x) {
+      if (!x[1] && x[0] !== 'Të rinj') return;
+      var s = el('span'); s.appendChild(document.createTextNode(x[0] + ': ')); s.appendChild(el('b', null, num(x[1]))); pp.appendChild(s);
+    });
+    var fr = Object.keys(plan.folderaTeRinj).map(function (k) { return plan.folderaTeRinj[k]; });
+    if (fr.length) { var s2 = el('span'); s2.appendChild(document.createTextNode('Foldera të rinj: ')); s2.appendChild(el('b', null, fr.join(', '))); pp.appendChild(s2); }
+
+    var t = el('table');
+    var h = el('tr');
+    ['#', 'Barkodi', 'Emri', 'Sasia', 'Folderi', 'Çfarë ndodh'].forEach(function (x) { h.appendChild(el('th', null, x)); });
+    var thead = el('thead'); thead.appendChild(h); t.appendChild(thead);
+    var tb = el('tbody');
+    plan.rreshta.slice(0, 60).forEach(function (r) {
+      var tr = el('tr', r.gabim ? 'gabuar' : '');
+      var fEmri = r.fid ? (r.fid.indexOf('__ri:') === 0 ? r.fid.slice(5) + ' (i ri)' : emriFolderit(r.fid)) : '';
+      [r.nr, r.b, r.emri, (r.s === null || isNaN(r.s)) ? vleraNeTekst(r.sRaw) : r.s, fEmri, r.gabim || r.veprimi].forEach(function (x) { tr.appendChild(el('td', null, String(x))); });
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb);
+    var pv = $('imParapamje');
+    pv.textContent = '';
+    pv.appendChild(t);
+    if (plan.rreshta.length > 60) pv.appendChild(el('div', 'bosh-mesazh', '… dhe ' + (plan.rreshta.length - 60) + ' rreshta të tjerë.'));
+    var nr = plan.teRinj + plan.perditesime;
+    $('imBtn').disabled = nr === 0;
+    $('imBtn').textContent = nr ? 'Importo ' + num(nr) + ' produkte' : 'Importo';
+  }
+
+  $('imBtn').addEventListener('click', function () {
+    var plan = planiImportit();
+    var menyra = $('imMenyra').value;
+    var tani = Date.now();
+    var para = {};             // produktet që ekzistonin para importit
+    Object.keys(produktet).forEach(function (k) { para[k] = true; });
+    var shkruar = {};          // produktet e prekura tashmë nga ky import (barkod i përsëritur në skedar → mblidhet)
+    var idTeRinj = {};
+    var n = 0;
+    var reg = ndrysho(function (api) {
+      plan.rreshta.forEach(function (r) {
+        if (r.gabim) return;
+        var fid = r.fid;
+        if (fid.indexOf('__ri:') === 0) {
+          var emerF = fid.slice(5);
+          if (!idTeRinj[emerF]) {
+            idTeRinj[emerF] = 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+            foldera.push({ id: idTeRinj[emerF], emri: emerF, ndryshuarSe: tani });
+          }
+          fid = idTeRinj[emerF];
+        }
+        var k = celesi(fid, r.b);
+        var ek = produktet[k];
+        var sasia, emri;
+        if (shkruar[k]) { sasia = ek.sasia + r.s; emri = ek.emri || r.emri; }
+        else if (para[k]) {
+          if (menyra === 'kalo') return;
+          if (menyra === 'zevendeso') { sasia = r.s; emri = r.emri || ek.emri; }
+          else { sasia = ek.sasia + r.s; emri = ek.emri || r.emri; }
+        } else { sasia = r.s; emri = r.emri; }
+        api.vendos(k, { barkodi: r.b, emri: emri || '', sasia: Math.max(0, sasia | 0), kategoriaId: fid, prekurSe: tani });
+        shkruar[k] = true;
+        n++;
+      });
+    });
+    mbyllDialog('dlgImport');
+    toast('U importuan ' + num(n) + ' rreshta' + (Object.keys(idTeRinj).length ? ' (' + Object.keys(idTeRinj).length + ' foldera të rinj)' : '') + '.', { veprimi: function () { zhbej(reg); }, ms: 12000 });
+  });
+
+  // ================= Llogaria =================
+  function tekstiGabimit(kodi) {
+    if (kodi === 'auth/email-already-in-use') return 'Ky emër përdoruesi është zënë tashmë. Provo një tjetër.';
+    if (kodi === 'auth/invalid-credential' || kodi === 'auth/wrong-password' || kodi === 'auth/user-not-found' || kodi === 'auth/invalid-email') return 'Emri i përdoruesit ose fjalëkalimi është gabim.';
+    if (kodi === 'auth/weak-password') return 'Fjalëkalimi duhet të ketë të paktën 6 shkronja/numra.';
+    if (kodi === 'auth/too-many-requests') return 'Shumë përpjekje. Prit pak dhe provo përsëri.';
+    if (kodi === 'auth/requires-recent-login') return 'Për siguri, konfirmo fjalëkalimin aktual.';
+    if (kodi === 'auth/operation-not-allowed') return 'Ndryshimi i emrit s\'lejohet nga cilësimet e Firebase (Email enumeration protection).';
+    if (kodi === 'auth/network-request-failed') return 'S\'ka lidhje me internetin.';
+    return 'Diçka shkoi keq. Kontrollo internetin dhe provo përsëri.';
+  }
+  var dukeHyre = false;
+  async function hyrOseKrijo(krijo, idU, idP, idG) {
+    if (dukeHyre) return;
+    if (!window.__stokuCloud) { $(idG).textContent = 'Cloud-i s\'është gati. Kontrollo internetin dhe rifresko faqen.'; return; }
+    var u = $(idU).value.trim(), p = $(idP).value;
+    if (!u || !p) { $(idG).textContent = 'Plotëso emrin e përdoruesit dhe fjalëkalimin.'; return; }
+    if (!/^[a-zA-Z0-9_.-]{3,}$/.test(u)) { $(idG).textContent = 'Emri i përdoruesit duhet të ketë të paktën 3 shkronja/numra (a–z, 0–9, _ . -).'; return; }
+    if (p.length < 6) { $(idG).textContent = 'Fjalëkalimi duhet të ketë të paktën 6 shkronja/numra.'; return; }
+    $(idG).textContent = '';
+    dukeHyre = true;
+    var rez = krijo ? await window.__stokuCloud.regjistrohu(u, p) : await window.__stokuCloud.hyr(u, p);
+    dukeHyre = false;
+    if (!rez.ok) { $(idG).textContent = tekstiGabimit(rez.kodi); return; }
+    $(idP).value = '';
+    mbyllDialog('dlgLlogaria');
+    toast(krijo ? 'Llogaria u krijua.' : 'Hyrje e suksesshme. Po sinkronizohen të dhënat…');
+    kurNdryshonLlogaria();
+  }
+  function hapLlogarine() {
+    rifreskoLlogarine();
+    hapDialog('dlgLlogaria', perdoruesi() ? null : 'llUser');
+  }
+  function rifreskoLlogarine() {
+    var u = perdoruesi();
+    var emri = emriPerdoruesit();
+    $('perdoruesiCip').textContent = u ? emri : 'Hyr';
+    $('llTitulli').textContent = u ? 'Llogaria' : 'Hyr në llogari';
+    $('llJashte').classList.toggle('fsheh', !!u);
+    $('llFundJashte').classList.toggle('fsheh', !!u);
+    $('llBrenda').classList.toggle('fsheh', !u);
+    $('llFundBrenda').classList.toggle('fsheh', !u);
+    $('llHyrePer').textContent = u ? 'Ke hyrë si "' + emri + '". Çdo ndryshim këtu dhe në telefon/PDA sinkronizohet automatikisht në të dyja anët.' : '';
+    $('opsLlJashte').classList.toggle('fsheh', !!u);
+    $('opsLlBrenda').classList.toggle('fsheh', !u);
+    $('opsLlEmri').textContent = u ? 'Ke hyrë si "' + emri + '"' : '';
+    vendosStatusin(u ? (sink.statusi === 'lokal' ? 'pune' : sink.statusi) : 'lokal');
+  }
+  $('btnLlogaria').addEventListener('click', hapLlogarine);
+  $('llHyr').addEventListener('click', function () { hyrOseKrijo(false, 'llUser', 'llPass', 'llGabim'); });
+  $('llKrijo').addEventListener('click', function () { hyrOseKrijo(true, 'llUser', 'llPass', 'llGabim'); });
+  $('llPass').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') hyrOseKrijo(false, 'llUser', 'llPass', 'llGabim'); });
+  $('llUser').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') $('llPass').focus(); });
+  $('mHyr').addEventListener('click', function () { hyrOseKrijo(false, 'mUser', 'mPass', 'mGabim'); });
+  $('mKrijo').addEventListener('click', function () { hyrOseKrijo(true, 'mUser', 'mPass', 'mGabim'); });
+  $('mPass').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') hyrOseKrijo(false, 'mUser', 'mPass', 'mGabim'); });
+  $('mUser').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') $('mPass').focus(); });
+  $('llSinkronizo').addEventListener('click', kryeSinkronizimin);
+  $('opsSinkronizo').addEventListener('click', kryeSinkronizimin);
+  $('llMenaxho').addEventListener('click', function () { mbyllDialog('dlgLlogaria'); hapOpsionet('llogaria'); });
+  $('opsHapHyrjen').addEventListener('click', function () { mbyllDialog('dlgOpsione'); hapLlogarine(); });
+  async function dil() {
+    var po = await konfirmo('Të dilet nga llogaria?', 'Të dhënat në cloud NUK fshihen. Ky kompjuter thjesht nuk sinkronizohet më derisa të hysh përsëri.', 'Dil');
+    if (!po) return;
+    ndalDegjuesin();
+    if (window.__stokuCloud && window.__stokuCloud.dil) await window.__stokuCloud.dil();
+    mbyllDialog('dlgLlogaria');
+    kurNdryshonLlogaria();
+  }
+  $('llDil').addEventListener('click', dil);
+  $('opsDil').addEventListener('click', dil);
+  $('opsRikthe').addEventListener('click', async function () {
+    if (!perdoruesi()) return;
+    var rez = await window.__stokuCloud.merr();
+    if (!rez.ok || !rez.gjendja) { toast('S\'ka asnjë të dhënë në cloud për këtë llogari.'); return; }
+    var n = (rez.gjendja.produktet || []).length;
+    var po = await konfirmo('Të rikthehen të dhënat nga cloud?', 'Të dhënat e këtij kompjuteri (' + produkteTekst(Object.keys(produktet).length) + ') zëvendësohen me ato të cloud-it (' + produkteTekst(n) + ').', 'Rikthe');
+    if (!po) return;
+    foldera = Array.isArray(rez.gjendja.foldera) ? rez.gjendja.foldera : [];
+    var pm = {};
+    (rez.gjendja.produktet || []).forEach(function (p) { if (p && typeof p.barkodi === 'string' && typeof p.kategoriaId === 'string') pm[celesi(p.kategoriaId, p.barkodi)] = p; });
+    produktet = pm;
+    fshira = { produktet: {}, foldera: {} };
+    rendiFolderaveKoha = Number(rez.gjendja.rendiKoha) || 0;
+    shkruajLokalisht();
+    rivizato();
+    toast('U rikthye nga cloud.');
+  });
+
+  var riaut = null;
+  async function ndryshimLlogarie(fn) {
+    $('opsLlGabim').textContent = '';
+    var rez = await fn();
+    if (!rez.ok && rez.kodi === 'auth/requires-recent-login') {
+      riaut = fn;
+      $('opsRiaut').classList.remove('fsheh');
+      $('opsFjalekalimiAktual').focus();
+      return false;
+    }
+    if (!rez.ok) { $('opsLlGabim').textContent = tekstiGabimit(rez.kodi); return false; }
+    return true;
+  }
+  $('opsNdryshoEmrin').addEventListener('click', async function () {
+    var v = $('opsEmriRi').value.trim();
+    if (!/^[a-zA-Z0-9_.-]{3,}$/.test(v)) { $('opsLlGabim').textContent = 'Emri duhet të ketë të paktën 3 shkronja/numra (a–z, 0–9, _ . -).'; return; }
+    if (await ndryshimLlogarie(function () { return window.__stokuCloud.ndryshoEmrin(v); })) {
+      $('opsEmriRi').value = ''; rifreskoLlogarine(); toast('Emri i përdoruesit u ndryshua.');
+    }
+  });
+  $('opsNdryshoFjalekalimin').addEventListener('click', async function () {
+    var v = $('opsFjalekalimiRi').value;
+    if (v.length < 6) { $('opsLlGabim').textContent = 'Fjalëkalimi duhet të ketë të paktën 6 shkronja/numra.'; return; }
+    if (await ndryshimLlogarie(function () { return window.__stokuCloud.ndryshoFjalekalimin(v); })) {
+      $('opsFjalekalimiRi').value = ''; toast('Fjalëkalimi u ndryshua.');
+    }
+  });
+  $('opsKonfirmoRiaut').addEventListener('click', async function () {
+    if (!riaut) return;
+    var a = await window.__stokuCloud.riautentifikohu($('opsFjalekalimiAktual').value);
+    if (!a.ok) { $('opsLlGabim').textContent = 'Fjalëkalimi aktual s\'është i saktë.'; return; }
+    var fn = riaut; riaut = null;
+    $('opsFjalekalimiAktual').value = '';
+    $('opsRiaut').classList.add('fsheh');
+    if (await ndryshimLlogarie(fn)) { $('opsEmriRi').value = ''; $('opsFjalekalimiRi').value = ''; rifreskoLlogarine(); toast('U ndryshua.'); }
+  });
+
+  // ================= Opsionet =================
+  function hapOpsionet(faqja) {
+    zgjidhSkeden(faqja || 'pamja');
+    rifreskoOpsionet();
+    rifreskoLlogarine();
+    hapDialog('dlgOpsione');
+  }
+  function zgjidhSkeden(f) {
+    Array.prototype.forEach.call(document.querySelectorAll('#opsSkeda button'), function (b) { b.classList.toggle('aktiv', b.dataset.faqe === f); });
+    Array.prototype.forEach.call(document.querySelectorAll('.opsione-faqe'), function (x) { x.classList.toggle('aktiv', x.dataset.faqe === f); });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#opsSkeda button'), function (b) {
+    b.addEventListener('click', function () { zgjidhSkeden(b.dataset.faqe); });
+  });
+  function rifreskoOpsionet() {
+    function seg(id, v) { Array.prototype.forEach.call(document.querySelectorAll('#' + id + ' button'), function (b) { b.classList.toggle('aktiv', b.dataset.v === v); }); }
+    seg('opsTema', ops.tema); seg('opsDendesia', ops.dendesia); seg('opsMadhesia', ops.madhesia);
+    Array.prototype.forEach.call(document.querySelectorAll('#opsAksent button'), function (b) { b.classList.toggle('aktiv', b.dataset.v === ops.aksent); });
+    $('opsPragu').value = String(ops.pragu);
+    $('opsRendi').value = ops.rendi;
+  }
+  [['opsTema', 'tema'], ['opsDendesia', 'dendesia'], ['opsMadhesia', 'madhesia'], ['opsAksent', 'aksent']].forEach(function (x) {
+    Array.prototype.forEach.call(document.querySelectorAll('#' + x[0] + ' button'), function (b) {
+      b.addEventListener('click', function () { ops[x[1]] = b.dataset.v; ruajOps(); zbatoPamjen(); rifreskoOpsionet(); });
+    });
+  });
+  $('opsPragu').addEventListener('change', function () {
+    var v = parseInt($('opsPragu').value, 10);
+    ops.pragu = isFinite(v) && v >= 0 ? v : 0;
+    if (ops.pragu === 0 && tab.filtri === 'pak') tab.filtri = 'te-gjitha';
+    ruajOps(); rifreskoOpsionet(); rivizato();
+  });
+  $('opsRendi').addEventListener('change', function () {
+    ops.rendi = $('opsRendi').value; ruajOps();
+    var r = ops.rendi.split(':'); tab.rendiK = r[0]; tab.rendiD = parseInt(r[1], 10);
+    rivizato();
+  });
+  $('btnOpsione').addEventListener('click', function () { hapOpsionet(); });
+
+  // ================= Shkurtoret e tastierës =================
+  var SHKURTORET = [
+    ['Kërko kudo (në të gjithë folderat)', ['Ctrl', 'K'], ['/']],
+    ['Filtro listën aktuale', ['Ctrl', 'F']],
+    ['Fusha e barkodit (skaner USB)', ['B']],
+    ['Produkt i ri', ['N']],
+    ['Lëviz nëpër rreshta', ['↑'], ['↓']],
+    ['Hap produktin e theksuar', ['Enter']],
+    ['Zgjidh / hiq rreshtin', ['Hapësirë']],
+    ['Zgjidh disa rreshta me radhë', ['Shift', 'klik']],
+    ['Zgjidh të gjitha në listë', ['Ctrl', 'A']],
+    ['Fshij të zgjedhurat (ose rreshtin)', ['Delete']],
+    ['Zhvendos të zgjedhurat', ['M']],
+    ['Eksporto në Excel', ['Ctrl', 'E']],
+    ['Eksporto në PDF', ['Ctrl', 'P']],
+    ['Importo', ['Ctrl', 'I']],
+    ['Përmbledhja / Të gjitha produktet', ['Alt', '0'], ['Alt', 'A']],
+    ['Hap folderin 1–9', ['Alt', '1…9']],
+    ['Mbyll dritaren / pastro', ['Esc']],
+    ['Kjo listë', ['?']]
+  ];
+  (function () {
+    var t = $('tabShkurtoret');
+    SHKURTORET.forEach(function (s) {
+      var tr = el('tr');
+      tr.appendChild(el('td', null, s[0]));
+      var td = el('td');
+      s.slice(1).forEach(function (komb, i) {
+        if (i) td.appendChild(document.createTextNode(' ose '));
+        komb.forEach(function (k) { td.appendChild(el('span', 'tast', k)); });
+      });
+      tr.appendChild(td);
+      t.appendChild(tr);
+    });
+  })();
+  $('btnShkurtoret').addEventListener('click', function () { hapOpsionet('shkurtoret'); });
+
+  function poShkruan(t) {
+    return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
+  }
+  document.addEventListener('keydown', function (ev) {
+    var ctrl = ev.ctrlKey || ev.metaKey;
+    var k = ev.key;
+    var dlg = dialogISiperm();
+    if (k === 'Escape') {
+      if ($('menu').classList.contains('hapur')) { mbyllMenune(); return; }
+      if (dlg) { ev.preventDefault(); mbyllDialog(dlg.id); return; }
+      if ($('toast').classList.contains('hapur')) { mbyllToast(); }
+      if (pamja !== 'permbledhja' && zgjedhuraLista().length) { tab.zgjedhura = {}; rifreskoZgjedhjen(); return; }
+      if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+      return;
+    }
+    if (dlg) {
+      // Ctrl+Enter ruan produktin nga çdo fushë e dialogut
+      if (dlg.id === 'dlgProdukt' && ctrl && k === 'Enter') { ev.preventDefault(); ruajProduktin(); }
+      return;
+    }
+    if (ctrl && (k === 'k' || k === 'K')) { ev.preventDefault(); $('kerkoGlobal').focus(); $('kerkoGlobal').select(); return; }
+    if (ctrl && (k === 'f' || k === 'F')) {
+      if (pamja === 'permbledhja') shkoTe('te-gjitha', { reset: true });
+      ev.preventDefault(); $('kerko').focus(); $('kerko').select(); return;
+    }
+    if (ctrl && (k === 'e' || k === 'E')) { ev.preventDefault(); hapEksportin('excel'); return; }
+    if (ctrl && (k === 'p' || k === 'P')) { ev.preventDefault(); hapEksportin('pdf'); return; }
+    if (ctrl && (k === 'i' || k === 'I')) { ev.preventDefault(); hapImportin(); return; }
+    if (ev.altKey && !ctrl) {
+      if (k === '0') { ev.preventDefault(); shkoTe('permbledhja'); return; }
+      if (k === 'a' || k === 'A') { ev.preventDefault(); shkoTe('te-gjitha', { reset: true }); return; }
+      var n = parseInt(k, 10);
+      if (n >= 1 && n <= 9 && foldera[n - 1]) { ev.preventDefault(); shkoTe(foldera[n - 1].id); return; }
+      // Në disa tastiera Alt+numër jep kod tjetër; provo me ev.code
+      var m = /^Digit([1-9])$/.exec(ev.code || '');
+      if (m && foldera[+m[1] - 1]) { ev.preventDefault(); shkoTe(foldera[+m[1] - 1].id); return; }
+    }
+    if (poShkruan(ev.target) || ctrl && k !== 'a' && k !== 'A' || ev.altKey) return;
+
+    var neTabele = pamja !== 'permbledhja';
+    if (k === '/') { ev.preventDefault(); $('kerkoGlobal').focus(); return; }
+    if (k === '?') { ev.preventDefault(); hapOpsionet('shkurtoret'); return; }
+    if (k === 'n' || k === 'N') { ev.preventDefault(); hapProduktIRi('', null, false); return; }
+    if (!neTabele) return;
+    if ((k === 'b' || k === 'B') && folderSipasId(pamja)) { ev.preventDefault(); $('barkodi').focus(); return; }
+    if (ctrl && (k === 'a' || k === 'A')) {
+      ev.preventDefault();
+      tabelaAktuale.fil.forEach(function (p) { tab.zgjedhura[celesi(p.kategoriaId, p.barkodi)] = true; });
+      rifreskoZgjedhjen(); return;
+    }
+    if (k === 'ArrowDown') { ev.preventDefault(); vendosFokusin(tab.fokus + 1); return; }
+    if (k === 'ArrowUp') { ev.preventDefault(); vendosFokusin(tab.fokus - 1); return; }
+    var pf = tabelaAktuale.faqe[tab.fokus];
+    if (k === 'Enter' && pf) { ev.preventDefault(); hapProduktin(celesi(pf.kategoriaId, pf.barkodi)); return; }
+    if (k === ' ' && pf) { ev.preventDefault(); zgjidhRreshtin(tab.fokus, ev.shiftKey); return; }
+    if (k === 'Delete' || k === 'Backspace') {
+      var z = zgjedhuraLista();
+      if (z.length) { ev.preventDefault(); fshijProduktet(z); }
+      else if (pf) { ev.preventDefault(); fshijProduktet([celesi(pf.kategoriaId, pf.barkodi)]); }
+      return;
+    }
+    if (k === 'm' || k === 'M') {
+      var zz = zgjedhuraLista();
+      if (zz.length) { ev.preventDefault(); hapZhvendosjen(zz); }
+      else if (pf) { ev.preventDefault(); hapZhvendosjen([celesi(pf.kategoriaId, pf.barkodi)]); }
+    }
+  });
+
+  // Skaneri USB kur kursori s'është në asnjë fushë: skaneri "shkruan" shumë shpejt — kapet dhe dërgohet
+  // te fusha e barkodit, që skanimi të mos humbasë edhe nëse përdoruesi ka klikuar diku tjetër.
+  var skanBuf = '', skanKoha = 0, skanKohez = null;
+  document.addEventListener('keydown', function (ev) {
+    if (dialogISiperm() || poShkruan(ev.target) || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    if (!folderSipasId(pamja)) return;
+    var tani = performance.now();
+    if (ev.key.length === 1 && /[0-9A-Za-z\-]/.test(ev.key)) {
+      if (tani - skanKoha > 60) skanBuf = '';
+      skanBuf += ev.key; skanKoha = tani;
+      clearTimeout(skanKohez);
+      skanKohez = setTimeout(function () { skanBuf = ''; }, 120);
+    } else if (ev.key === 'Enter' && skanBuf.length >= 6 && tani - skanKoha < 80) {
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+      var b = skanBuf; skanBuf = '';
+      $('barkodi').value = b;
+      $('barkodi').focus();
+      $('barkodi').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    }
+  }, true);
+
+  // ================= Nisja =================
+  (function () {
+    var h = decodeURIComponent(location.hash || '');
+    if (h === '#/te-gjitha') pamja = 'te-gjitha';
+    else if (h.indexOf('#/f/') === 0 && folderSipasId(h.slice(4))) pamja = h.slice(4);
+    history.replaceState(null, '', hashPer(pamja));
+  })();
+  rifreskoLlogarine();
+  rivizato();
+  // Rifreskon kohët relative ("para 5 min") çdo minutë
+  setInterval(function () { if (!dialogISiperm() && !document.hidden) rivizato(); }, 60000);
+  if (window.__stokuCloud) kurNdryshonLlogaria();
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () { /* ok */ }); });
+  }
+
+  // Për testim/diagnozë nga konsola
+  window.__stokuPc = { gjendja: function () { return gjendjaLokale(); }, rivizato: rivizato };
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@3.0.3/dist/jspdf.umd.min.js" crossorigin="anonymous"></script>
+
+<!-- Firebase: i njëjti projekt dhe i njëjti dokument si versioni i telefonit -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import {
+    getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
+    updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential
+  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, runTransaction, onSnapshot } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+  var firebaseConfig = {
+    apiKey: "AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY",
+    authDomain: "stoku-appi.firebaseapp.com",
+    projectId: "stoku-appi",
+    storageBucket: "stoku-appi.firebasestorage.app",
+    messagingSenderId: "107114545225",
+    appId: "1:107114545225:web:f3944cd32f4e772577bf98"
+  };
+  function emailIBrendshem(u) { return u.trim().toLowerCase() + '@stoku-app.local'; }
+  function gabim(e) { return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) }; }
+
+  try {
+    var app = initializeApp(firebaseConfig);
+    var auth = getAuth(app);
+    var db = getFirestore(app);
+    var dokumenti = function () { return doc(db, 'dyqane', auth.currentUser.uid); };
+
+    window.__stokuCloud = {
+      async regjistrohu(u, p) { try { var k = await createUserWithEmailAndPassword(auth, emailIBrendshem(u), p); return { ok: true, uid: k.user.uid }; } catch (e) { return gabim(e); } },
+      async hyr(u, p) { try { var k = await signInWithEmailAndPassword(auth, emailIBrendshem(u), p); return { ok: true, uid: k.user.uid }; } catch (e) { return gabim(e); } },
+      async dil() { try { await signOut(auth); } catch (e) { /* ok */ } },
+      async ndryshoEmrin(u) { if (!auth.currentUser) return { ok: false }; try { await updateEmail(auth.currentUser, emailIBrendshem(u)); return { ok: true }; } catch (e) { return gabim(e); } },
+      async ndryshoFjalekalimin(p) { if (!auth.currentUser) return { ok: false }; try { await updatePassword(auth.currentUser, p); return { ok: true }; } catch (e) { return gabim(e); } },
+      async riautentifikohu(p) {
+        if (!auth.currentUser || !auth.currentUser.email) return { ok: false };
+        try { await reauthenticateWithCredential(auth.currentUser, EmailAuthProvider.credential(auth.currentUser.email, p)); return { ok: true }; } catch (e) { return gabim(e); }
+      },
+      perdoruesiAktual() { return auth.currentUser; },
+      async merr() {
+        if (!auth.currentUser) return { ok: false };
+        try { var r = await getDoc(dokumenti()); return { ok: true, gjendja: r.exists() ? r.data() : null }; } catch (e) { return gabim(e); }
+      },
+      async ruaj(g) {
+        if (!auth.currentUser) return { ok: false };
+        try { await setDoc(dokumenti(), g); return { ok: true }; } catch (e) { return gabim(e); }
+      },
+      async bashkoDheRuaj(fn) {
+        if (!auth.currentUser) return { ok: false };
+        try {
+          var ref = dokumenti();
+          var g = await runTransaction(db, async function (tx) {
+            var s = await tx.get(ref);
+            var e = fn(s.exists() ? s.data() : null);
+            tx.set(ref, e);
+            return e;
+          });
+          return { ok: true, gjendja: g };
+        } catch (e) { return gabim(e); }
+      },
+      // Dëgjim i drejtpërdrejtë: sa herë që telefoni/PDA ruan diçka, kompjuteri e merr brenda sekondës.
+      degjo(cb, cbGabim) {
+        if (!auth.currentUser) return function () {};
+        return onSnapshot(dokumenti(), function (s) {
+          cb(s.exists() ? s.data() : null, s.metadata.hasPendingWrites);
+        }, function (e) { if (cbGabim) cbGabim(e); });
+      }
+    };
+    onAuthStateChanged(auth, function () { window.dispatchEvent(new Event('stoku-auth-ndryshoi')); });
+  } catch (e) {
+    window.__stokuCloud = null;
+  }
+  window.dispatchEvent(new Event('stoku-cloud-gati'));
+</script>
+</body>
+</html>

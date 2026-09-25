@@ -13,6 +13,22 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1565C0" id="metaTema">
 <script>
+  // Në kompjuter (maus + ekran i gjerë) hapet vetë versioni për kompjuter (pc.html).
+  // Telefonat, tabletët me prekje dhe PDA-të (Zebra) nuk ridrejtohen kurrë.
+  // ?mobile=1 e mban përgjithmonë këtë version në atë shfletues (lidhja "Versioni për telefon" te pc.html).
+  (function () {
+    try {
+      if (/[?&]mobile=1(&|$)/.test(location.search)) { localStorage.setItem('stoku:pamja', 'mobile'); return; }
+      var zgjedhja = localStorage.getItem('stoku:pamja');
+      if (zgjedhja === 'mobile') return;
+      var op = JSON.parse(localStorage.getItem('stoku:opsione:v1') || 'null');
+      if (op && op.pda) return;
+      var mm = window.matchMedia ? function (q) { return window.matchMedia(q).matches; } : function () { return false; };
+      var kompjuter = mm('(pointer: fine)') && mm('(hover: hover)') && Math.max(screen.width, screen.height) >= 1024 &&
+        !/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+      if (zgjedhja === 'pc' || kompjuter) location.replace('pc.html');
+    } catch (e) { /* mbetet ky version */ }
+  })();
   // Vendos temën para se faqja të vizatohet (që të mos ketë dridhje ndriçimi)
   (function () {
     var t = null;
@@ -558,6 +574,8 @@
     text-align: center;
   }
   #toast.hapur { display: block; }
+  .lidhje-pc { display: none; padding: 8px 0; text-decoration: none; font-weight: 600; }
+  @media (min-width: 900px) and (hover: hover) { .lidhje-pc { display: inline-block; } }
 </style>
 </head>
 <body>
@@ -742,6 +760,7 @@
               <button type="button" class="sfond-mostra" data-v="diagonale" id="sfondDiagonale"><span></span></button>
             </div>
             <div class="hint" id="sfondiHint"></div>
+            <a class="btn tekst lidhje-pc" id="lidhjaPc" href="pc.html">Hap versionin për kompjuter ›</a>
           </div>
         </div>
 
@@ -881,6 +900,7 @@
 <div id="toast"></div>
 
 <script src="xlsx.js"></script>
+<script src="bashkimi.js"></script>
 <script>
 (function () {
   'use strict';
@@ -1251,10 +1271,15 @@
     ruajBaze();
   }
 
+  // Rritet me çdo ndryshim të bërë këtu (jo nga sinkronizimi) — që një rezultat sinkronizimi që mbërrin
+  // pasi përdoruesi ka ndryshuar diçka ndërkohë të mos e mbulojë atë ndryshim.
+  var __versioniLokal = 0;
+
   function ruajBaze() {
     try {
       localStorage.setItem(KEY_FOLDERA, JSON.stringify(foldera));
       localStorage.setItem(KEY_PRODUKTET, JSON.stringify(produktet));
+      __versioniLokal++;
       planifikoSinkronizimin();
       return true;
     } catch (e) {
@@ -1607,7 +1632,7 @@
     var emri = $('dlgFolderEmri').value.trim();
     if (!emri) { toast(T('shkruajEmrinFolderit')); $('dlgFolderEmri').focus(); return; }
     var id = 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-    foldera.push({ id: id, emri: emri });
+    foldera.push({ id: id, emri: emri, ndryshuarSe: Date.now() });
     ruajBaze();
     mbyllDialoguFolder();
     renderFolderat();
@@ -1980,6 +2005,9 @@
   }
 
   $('btnOpsione').addEventListener('click', hapOpsionet);
+  $('lidhjaPc').addEventListener('click', function () {
+    try { localStorage.setItem('stoku:pamja', 'pc'); } catch (e) { /* ok */ }
+  });
   $('dlgOpsione').addEventListener('click', function (ev) {
     if (ev.target === $('dlgOpsione')) mbyllOpsionet();
   });
@@ -2102,71 +2130,39 @@
 
   function gjendjaPerCloud() {
     return {
-      app: 'stoku', version: 2, koha: new Date().toISOString(),
+      app: 'stoku', version: 3, koha: new Date().toISOString(),
       rendiKoha: rendiFolderaveKoha,
       foldera: foldera,
-      produktet: Object.keys(produktet).map(function (k) { return produktet[k]; })
+      produktet: Object.keys(produktet).map(function (k) { return produktet[k]; }),
+      fshira: fshira
     };
   }
 
-  // Bashkon të dhënat lokale me ato ekzistuese në cloud: shton/përditëson gjithmonë, dhe heq nga
-  // cloud-i VETËM ato produkte/foldera që janë shënuar si fshi qëllimisht këtu (shih «fshira» më
-  // lart) — çdo gjë tjetër që ekziston në cloud por jo lokalisht (pa u fshi qëllimisht) mbetet.
+  // Bashkimi mes cloud-it dhe kësaj pajisjeje — logjika e përbashkët me versionin për kompjuter
+  // (bashkimi.js): fiton ndryshimi më i ri, dhe fshirjet ruhen edhe në cloud që një pajisje tjetër
+  // me kopje të vjetër të mos i ringjallë produktet e fshira.
   function bashkoPaFshirje(gjendjaCloud, gjendjaLokale) {
-    var folderaMap = {};
-    (Array.isArray(gjendjaCloud.foldera) ? gjendjaCloud.foldera : []).forEach(function (f) {
-      if (f && f.id) folderaMap[f.id] = f;
-    });
-    (Array.isArray(gjendjaLokale.foldera) ? gjendjaLokale.foldera : []).forEach(function (f) {
-      if (f && f.id) folderaMap[f.id] = f;
-    });
-    var folderaLokaleIds = {};
-    (Array.isArray(gjendjaLokale.foldera) ? gjendjaLokale.foldera : []).forEach(function (f) {
-      if (f && f.id) folderaLokaleIds[f.id] = true;
-    });
-    Object.keys(fshira.foldera).forEach(function (id) {
-      if (!folderaLokaleIds[id]) delete folderaMap[id];
-    });
+    return window.StokuBashkimi.bashko(gjendjaCloud, gjendjaLokale);
+  }
 
-    var produktetMap = {};
-    (Array.isArray(gjendjaCloud.produktet) ? gjendjaCloud.produktet : []).forEach(function (p) {
-      if (p && typeof p.barkodi === 'string' && typeof p.kategoriaId === 'string') {
-        produktetMap[celesiProduktit(p.kategoriaId, p.barkodi)] = p;
-      }
+  // Zbaton lokalisht rezultatin e sinkronizimit (produktet e shtuara/ndryshuara/fshira nga pajisjet
+  // e tjera), pa nisur sinkronizim të ri dhe pa e nxjerrë përdoruesin nga ekrani ku është.
+  function zbatoBashkimin(g) {
+    if (!g || window.StokuBashkimi.eNjejte(g, gjendjaPerCloud())) return;
+    var pm = {};
+    (Array.isArray(g.produktet) ? g.produktet : []).forEach(function (p) {
+      if (p && typeof p.barkodi === 'string' && typeof p.kategoriaId === 'string') pm[celesiProduktit(p.kategoriaId, p.barkodi)] = p;
     });
-    (Array.isArray(gjendjaLokale.produktet) ? gjendjaLokale.produktet : []).forEach(function (p) {
-      if (p && typeof p.barkodi === 'string' && typeof p.kategoriaId === 'string') {
-        produktetMap[celesiProduktit(p.kategoriaId, p.barkodi)] = p;
-      }
-    });
-    var produktetLokaleKeys = {};
-    (Array.isArray(gjendjaLokale.produktet) ? gjendjaLokale.produktet : []).forEach(function (p) {
-      if (p && typeof p.barkodi === 'string' && typeof p.kategoriaId === 'string') {
-        produktetLokaleKeys[celesiProduktit(p.kategoriaId, p.barkodi)] = true;
-      }
-    });
-    Object.keys(fshira.produktet).forEach(function (k) {
-      if (!produktetLokaleKeys[k]) delete produktetMap[k];
-    });
-
-    // Renditja: fiton ana që e ka ndryshuar renditjen më së fundi (me dorë); folderat që s'janë në
-    // atë renditje (p.sh. të krijuar në pajisjen tjetër) shtohen në fund.
-    var kohaCloud = gjendjaCloud.rendiKoha || 0, kohaLokale = gjendjaLokale.rendiKoha || 0;
-    var burimiRendit = kohaCloud > kohaLokale ? gjendjaCloud.foldera : gjendjaLokale.foldera;
-    var tjetri = kohaCloud > kohaLokale ? gjendjaLokale.foldera : gjendjaCloud.foldera;
-    var renditur = [], vendosur = {};
-    [burimiRendit, tjetri].forEach(function (lista) {
-      (Array.isArray(lista) ? lista : []).forEach(function (f) {
-        if (f && f.id && folderaMap[f.id] && !vendosur[f.id]) { vendosur[f.id] = true; renditur.push(folderaMap[f.id]); }
-      });
-    });
-
-    return {
-      app: 'stoku', version: 2, koha: new Date().toISOString(),
-      rendiKoha: Math.max(kohaCloud, kohaLokale),
-      foldera: renditur,
-      produktet: Object.keys(produktetMap).map(function (k) { return produktetMap[k]; })
-    };
+    foldera = Array.isArray(g.foldera) ? g.foldera : foldera;
+    produktet = pm;
+    if (typeof g.rendiKoha === 'number' && g.rendiKoha > rendiFolderaveKoha) ruajRendinKoha(g.rendiKoha);
+    try {
+      localStorage.setItem(KEY_FOLDERA, JSON.stringify(foldera));
+      localStorage.setItem(KEY_PRODUKTET, JSON.stringify(produktet));
+    } catch (e) { /* ok */ }
+    if (folderiAktual !== null && !foldera.some(function (f) { return f.id === folderiAktual; })) { rifreskoPamjen(); return; }
+    if (folderiAktual !== null) renderLista();
+    else { renderFolderat(); renderKerkimiGlobal(); }
   }
 
   function vendosStatusinCloud(teksti) {
@@ -2197,24 +2193,33 @@
     sinkronizoKohezi = setTimeout(kryeSinkronizimin, SINKRONIZIM_VONESA_MS);
   }
 
+  var __sinkSerish = false;
   async function kryeSinkronizimin() {
     if (!perdoruesiAktual() || !window.__stokuCloud) return;
     clearTimeout(sinkronizoKohezi);
+    if (dukeSinkronizuar) { __sinkSerish = true; return; }
     dukeSinkronizuar = true;
     vendosStatusinCloud(T('cloudStatusiDukeSink'));
-    var meparshme = await window.__stokuCloud.merr();
-    var perDergim = gjendjaPerCloud();
-    if (meparshme.ok && meparshme.gjendja) {
-      perDergim = bashkoPaFshirje(meparshme.gjendja, perDergim);
+    var versioniPara = __versioniLokal;
+    var rez;
+    if (window.__stokuCloud.bashkoDheRuaj) {
+      // Lexim + bashkim + shkrim në një transaksion: dy pajisje që sinkronizojnë njëkohësisht s'ia fshijnë ndryshimet njëra-tjetrës.
+      rez = await window.__stokuCloud.bashkoDheRuaj(function (cloud) { return bashkoPaFshirje(cloud, gjendjaPerCloud()); });
+    } else {
+      var meparshme = await window.__stokuCloud.merr();
+      var perDergim = bashkoPaFshirje(meparshme.ok ? meparshme.gjendja : null, gjendjaPerCloud());
+      rez = await window.__stokuCloud.ruaj(perDergim);
+      if (rez.ok) rez.gjendja = perDergim;
     }
-    var rez = await window.__stokuCloud.ruaj(perDergim);
     dukeSinkronizuar = false;
     if (rez.ok) {
-      // Fshirjet e shënuara tashmë u zbatuan te cloud-i në këtë sinkronizim; s'ka nevojë t'i mbajmë më.
-      fshira = { produktet: {}, foldera: {} };
+      window.StokuBashkimi.pastroFshirjetEVjetra(fshira);
       ruajFshiraet();
+      if (versioniPara === __versioniLokal) zbatoBashkimin(rez.gjendja);
+      else planifikoSinkronizimin();
     }
     vendosStatusinCloud(rez.ok ? T('cloudStatusiUSink', { kur: oraTani() }) : T('cloudStatusiDeshtoi'));
+    if (__sinkSerish) { __sinkSerish = false; planifikoSinkronizimin(); }
   }
 
   function zbatoGjendjenNgaCloud(te) {
@@ -2360,6 +2365,8 @@
     var aktual = Object.keys(produktet).length;
     var po = await konfirmo(T('cloudTeRiktheteCloud'), T('cloudRiktheTekst', { aktual: aktual }), T('rikthe'));
     if (!po) { rifreskoDukjenECloud(); return; }
+    fshira = { produktet: {}, foldera: {} };
+    ruajFshiraet();
     zbatoGjendjenNgaCloud(rez.gjendja);
     toast(T('cloudURikthye'));
     vendosStatusinCloud(T('cloudStatusiUSink', { kur: oraTani() }));
@@ -3462,7 +3469,7 @@
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
     updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential
   } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, runTransaction } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
   var firebaseConfig = {
     apiKey: "AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY",
@@ -3540,6 +3547,22 @@
         try {
           await setDoc(doc(db, 'dyqane', auth.currentUser.uid), gjendja);
           return { ok: true };
+        } catch (e) {
+          return { ok: false, arsye: String((e && e.message) || e) };
+        }
+      },
+      // Lexon gjendjen e cloud-it, e bashkon me funksionin e dhënë dhe e shkruan — gjithçka atomikisht.
+      async bashkoDheRuaj(fnBashko) {
+        if (!auth.currentUser) return { ok: false, arsye: 'pa-hyrje' };
+        try {
+          var ref = doc(db, 'dyqane', auth.currentUser.uid);
+          var gjendja = await runTransaction(db, async function (tx) {
+            var snap = await tx.get(ref);
+            var eRe = fnBashko(snap.exists() ? snap.data() : null);
+            tx.set(ref, eRe);
+            return eRe;
+          });
+          return { ok: true, gjendja: gjendja };
         } catch (e) {
           return { ok: false, arsye: String((e && e.message) || e) };
         }

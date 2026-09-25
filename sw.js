@@ -5,7 +5,7 @@
  * NDRYSHIM: kur ta përditësosh index.html, ndrysho numrin këtu (v1 -> v2),
  * që telefonat të marrin versionin e ri.
  */
-var CACHE = 'stoku-v53';
+var CACHE = 'stoku-v54';
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js',
@@ -14,7 +14,9 @@ var CDN_BIBLIOTEKA = [
 var SHELL = [
   './',
   './index.html',
+  './pc.html',
   './xlsx.js',
+  './bashkimi.js',
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png',
@@ -47,19 +49,21 @@ self.addEventListener('fetch', function (e) {
   var kerkesa = e.request;
   if (kerkesa.method !== 'GET') return;
 
-  // Faqja kryesore: provo internetin së pari (për përditësime), pastaj kopjen e ruajtur
+  // Faqet (telefon = index.html, kompjuter = pc.html): provo internetin së pari (për përditësime),
+  // pastaj kopjen e ruajtur të PO ASAJ faqeje — secila ruhet veç, që njëra të mos e zëvendësojë tjetrën.
   if (kerkesa.mode === 'navigate') {
+    var faqja = /\/pc(\.html)?$/.test(new URL(kerkesa.url).pathname) ? './pc.html' : './index.html';
     e.respondWith(
       fetch(kerkesa).then(function (pergjigja) {
         // Nëse faqja kthen gabim (p.sh. faqja e pezulluar), mos e ruaj dhe mbaje aplikacionin e ruajtur
         if (!pergjigja || !pergjigja.ok) {
-          return caches.match('./index.html').then(function (e_ruajtur) { return e_ruajtur || pergjigja; });
+          return caches.match(faqja).then(function (e_ruajtur) { return e_ruajtur || pergjigja; });
         }
         var kopje = pergjigja.clone();
-        caches.open(CACHE).then(function (c) { c.put('./index.html', kopje); });
+        caches.open(CACHE).then(function (c) { c.put(faqja, kopje); });
         return pergjigja;
       }).catch(function () {
-        return caches.match('./index.html');
+        return caches.match(faqja).then(function (r) { return r || caches.match('./index.html'); });
       })
     );
     return;
