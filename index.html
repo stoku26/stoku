@@ -272,6 +272,13 @@
     padding: 16px 30px 16px 14px; background: var(--fushe-bg); cursor: pointer;
   }
   .folder-karta:active { background: var(--hover); }
+  .folder-karta { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  .folder-karta.po-zvarritet {
+    z-index: 20; pointer-events: none; cursor: grabbing;
+    box-shadow: 0 10px 28px rgba(0,0,0,.35); border-color: var(--btn-tekst);
+    background: var(--fushe-bg); opacity: .96;
+  }
+  .folderat-rrjeti.ne-renditje .folder-karta:not(.po-zvarritet) { transition: transform .15s ease; }
   .folder-karta .emri { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
   .folder-karta .numri { font-size: 13px; color: var(--gri); margin-top: 4px; }
   .folder-fshij {
@@ -1203,6 +1210,15 @@
   var foldera = [];          // [{ id, emri }, ...]
   var produktet = {};        // çelësi: kategoriaId + '::' + barkodi
   var folderiAktual = null;  // id i folderit të hapur, ose null = lista e folderave
+  // Koha e ndryshimit të fundit të renditjes së folderave — gjatë sinkronizimit fiton renditja më e re
+  // (qoftë kjo e telefonit apo e cloud-it), që renditja e vendosur me dorë të mos humbasë.
+  var KEY_RENDI_KOHA = 'stoku:rendi-foldera-koha';
+  var rendiFolderaveKoha = 0;
+  try { rendiFolderaveKoha = parseInt(localStorage.getItem(KEY_RENDI_KOHA) || '0', 10) || 0; } catch (e) { /* ok */ }
+  function ruajRendinKoha(k) {
+    rendiFolderaveKoha = k || 0;
+    try { localStorage.setItem(KEY_RENDI_KOHA, String(rendiFolderaveKoha)); } catch (e) { /* ok */ }
+  }
 
   function celesiProduktit(kategoriaId, barkodi) { return kategoriaId + '::' + barkodi; }
 
@@ -1317,7 +1333,117 @@
   document.documentElement.lang = 'sq';
 
   // ---------- Foldera ----------
+  // ---------- Renditja e folderave me zvarritje (mbaje gishtin ~0.4s, pastaj lëvize) ----------
+  var SHTYPJA_E_GJATE_MS = 400;
+  var __zvarritja = null;          // gjendja e zvarritjes aktuale (null = s'po zvarritet)
+  var __shtypjaKohez = null;
+  var __zvarritjaSapoMbaroi = false;
+
+  function nisShtypjenEGjate(ev, karta) {
+    if (ev.button !== undefined && ev.button !== 0) return;
+    if (document.body.style.transform) return; // PDA e kundër-rrotulluar: koordinatat s'përputhen, mos lejo zvarritje
+    anuloShtypjenEGjate();
+    var x0 = ev.clientX, y0 = ev.clientY, pid = ev.pointerId;
+    function leviz(e) {
+      if (e.pointerId !== pid) return;
+      if (Math.abs(e.clientX - x0) > 8 || Math.abs(e.clientY - y0) > 8) anuloShtypjenEGjate(); // po lëviz/skrollon
+    }
+    function lesho(e) { if (e.pointerId === pid) anuloShtypjenEGjate(); }
+    document.addEventListener('pointermove', leviz, true);
+    document.addEventListener('pointerup', lesho, true);
+    document.addEventListener('pointercancel', lesho, true);
+    __shtypjaKohez = {
+      id: setTimeout(function () { anuloShtypjenEGjate(); nisZvarritjen(karta, x0, y0, pid); }, SHTYPJA_E_GJATE_MS),
+      pastro: function () {
+        document.removeEventListener('pointermove', leviz, true);
+        document.removeEventListener('pointerup', lesho, true);
+        document.removeEventListener('pointercancel', lesho, true);
+      }
+    };
+  }
+  function anuloShtypjenEGjate() {
+    if (!__shtypjaKohez) return;
+    clearTimeout(__shtypjaKohez.id);
+    __shtypjaKohez.pastro();
+    __shtypjaKohez = null;
+  }
+
+  function vendiPaTransform(karta) {
+    var t = karta.style.transform;
+    karta.style.transform = 'none';
+    var r = karta.getBoundingClientRect();
+    karta.style.transform = t;
+    return r;
+  }
+
+  function nisZvarritjen(karta, x, y, pid) {
+    var r = karta.getBoundingClientRect();
+    __zvarritja = { karta: karta, pid: pid, offX: x - r.left, offY: y - r.top, x: x, y: y };
+    karta.classList.add('po-zvarritet');
+    $('folderaLista').classList.add('ne-renditje');
+    try { if (navigator.vibrate) navigator.vibrate(30); } catch (e) { /* ok */ }
+    document.addEventListener('pointermove', leviziZvarritjen, true);
+    document.addEventListener('pointerup', perfundoZvarritjen, true);
+    document.addEventListener('pointercancel', perfundoZvarritjen, true);
+    vendosPozicioninEZvarritjes();
+  }
+
+  function vendosPozicioninEZvarritjes() {
+    var z = __zvarritja; if (!z) return;
+    var vendi = vendiPaTransform(z.karta);
+    z.karta.style.transform = 'translate(' + (z.x - z.offX - vendi.left) + 'px,' + (z.y - z.offY - vendi.top) + 'px) scale(1.04)';
+  }
+
+  function leviziZvarritjen(e) {
+    var z = __zvarritja;
+    if (!z || e.pointerId !== z.pid) return;
+    e.preventDefault();
+    z.x = e.clientX; z.y = e.clientY;
+    // Folderi mbi të cilin ndodhet gishti: vendi i ri
+    var nenGisht = document.elementFromPoint(z.x, z.y);
+    var objektivi = nenGisht && nenGisht.closest ? nenGisht.closest('.folder-karta') : null;
+    if (objektivi && objektivi !== z.karta && objektivi.parentNode === z.karta.parentNode) {
+      var te = Array.prototype.slice.call(z.karta.parentNode.children);
+      if (te.indexOf(objektivi) > te.indexOf(z.karta)) objektivi.after(z.karta); else objektivi.before(z.karta);
+    }
+    // Skrollim automatik kur gishti afrohet te skajet e listës
+    var rrjeti = $('folderaLista'), rr = rrjeti.getBoundingClientRect();
+    if (z.y < rr.top + 40) rrjeti.scrollTop -= 12;
+    else if (z.y > rr.bottom - 40) rrjeti.scrollTop += 12;
+    vendosPozicioninEZvarritjes();
+  }
+
+  function perfundoZvarritjen(e) {
+    var z = __zvarritja;
+    if (!z || (e && e.pointerId !== z.pid)) return;
+    document.removeEventListener('pointermove', leviziZvarritjen, true);
+    document.removeEventListener('pointerup', perfundoZvarritjen, true);
+    document.removeEventListener('pointercancel', perfundoZvarritjen, true);
+    __zvarritja = null;
+    $('folderaLista').classList.remove('ne-renditje');
+    // Renditja e re = renditja e kartave në ekran
+    var rendiRi = Array.prototype.map.call($('folderaLista').querySelectorAll('.folder-karta'), function (k) { return k.getAttribute('data-id'); });
+    var sipasId = {};
+    foldera.forEach(function (f) { sipasId[f.id] = f; });
+    var eReja = rendiRi.map(function (id) { return sipasId[id]; }).filter(Boolean);
+    var ndryshoi = eReja.length === foldera.length && eReja.some(function (f, i) { return f !== foldera[i]; });
+    if (ndryshoi) {
+      foldera = eReja;
+      ruajRendinKoha(Date.now());
+      ruajBaze();
+    }
+    __zvarritjaSapoMbaroi = true;
+    setTimeout(function () { __zvarritjaSapoMbaroi = false; }, 350);
+    renderFolderat();
+  }
+
+  // Gjatë zvarritjes, gishti s'duhet të skrollojë faqen/listën.
+  $('folderaLista').addEventListener('touchmove', function (ev) {
+    if (__zvarritja) ev.preventDefault();
+  }, { passive: false });
+
   function renderFolderat() {
+    if (__zvarritja) return; // mos e rindërto listën nën gishtin e përdoruesit; bëhet në fund të zvarritjes
     var cont = $('folderaLista');
     cont.textContent = '';
     var frag = document.createDocumentFragment();
@@ -1326,6 +1452,9 @@
 
       var karta = document.createElement('div');
       karta.className = 'folder-karta';
+      karta.setAttribute('data-id', f.id);
+      karta.addEventListener('pointerdown', function (ev) { nisShtypjenEGjate(ev, karta); });
+      karta.addEventListener('contextmenu', function (ev) { ev.preventDefault(); });
 
       var emri = document.createElement('div');
       emri.className = 'emri';
@@ -1337,7 +1466,10 @@
 
       karta.appendChild(emri);
       karta.appendChild(numri);
-      karta.addEventListener('click', function () { hapFolderin(f.id); });
+      karta.addEventListener('click', function () {
+        if (__zvarritjaSapoMbaroi) return; // klikimi që vjen menjëherë pas lëshimit të zvarritjes
+        hapFolderin(f.id);
+      });
 
       var fshij = document.createElement('button');
       fshij.type = 'button';
@@ -1345,8 +1477,10 @@
       fshij.setAttribute('aria-label', T('fshij') + ' ' + f.emri);
       fshij.title = T('fshij');
       fshij.textContent = '✕';
+      fshij.addEventListener('pointerdown', function (ev) { ev.stopPropagation(); });
       fshij.addEventListener('click', function (ev) {
         ev.stopPropagation();
+        if (__zvarritjaSapoMbaroi) return;
         fshijFolderin(f);
       });
       karta.appendChild(fshij);
@@ -1422,6 +1556,7 @@
   function rifreskoPamjen() {
     if (folderiAktual !== null && !foldera.some(function (f) { return f.id === folderiAktual; })) {
       folderiAktual = null; // folderi u fshi ndërkohë (p.sh. nga sinkronizimi) — kthehu te lista
+      if (typeof sinkronizoHistorineEDritareve === 'function') sinkronizoHistorineEDritareve();
     }
     var brenda = folderiAktual !== null;
     $('siperFolderat').style.display = brenda ? 'none' : '';
@@ -1970,6 +2105,7 @@
   function gjendjaPerCloud() {
     return {
       app: 'stoku', version: 2, koha: new Date().toISOString(),
+      rendiKoha: rendiFolderaveKoha,
       foldera: foldera,
       produktet: Object.keys(produktet).map(function (k) { return produktet[k]; })
     };
@@ -2015,9 +2151,22 @@
       if (!produktetLokaleKeys[k]) delete produktetMap[k];
     });
 
+    // Renditja: fiton ana që e ka ndryshuar renditjen më së fundi (me dorë); folderat që s'janë në
+    // atë renditje (p.sh. të krijuar në pajisjen tjetër) shtohen në fund.
+    var kohaCloud = gjendjaCloud.rendiKoha || 0, kohaLokale = gjendjaLokale.rendiKoha || 0;
+    var burimiRendit = kohaCloud > kohaLokale ? gjendjaCloud.foldera : gjendjaLokale.foldera;
+    var tjetri = kohaCloud > kohaLokale ? gjendjaLokale.foldera : gjendjaCloud.foldera;
+    var renditur = [], vendosur = {};
+    [burimiRendit, tjetri].forEach(function (lista) {
+      (Array.isArray(lista) ? lista : []).forEach(function (f) {
+        if (f && f.id && folderaMap[f.id] && !vendosur[f.id]) { vendosur[f.id] = true; renditur.push(folderaMap[f.id]); }
+      });
+    });
+
     return {
       app: 'stoku', version: 2, koha: new Date().toISOString(),
-      foldera: Object.keys(folderaMap).map(function (id) { return folderaMap[id]; }),
+      rendiKoha: Math.max(kohaCloud, kohaLokale),
+      foldera: renditur,
       produktet: Object.keys(produktetMap).map(function (k) { return produktetMap[k]; })
     };
   }
@@ -2082,7 +2231,9 @@
     });
     foldera = arrF;
     produktet = produktetENoja;
-    folderiAktual = null;
+    if (typeof te.rendiKoha === 'number' && te.rendiKoha > rendiFolderaveKoha) ruajRendinKoha(te.rendiKoha);
+    // Mos e nxirr përdoruesin nga folderi ku është; rifreskoPamjen() e kthen te lista vetëm nëse
+    // ky folder s'ekziston më.
     ruajBaze();
     rifreskoPamjen();
   }
@@ -2436,7 +2587,7 @@
     if (!/^-?\d+$/.test(tekstSasia)) { toast(T('shkruajSasine')); $('dlgSasia').focus(); return; }
     var sasia = parseInt(tekstSasia, 10);
     var e = dialogu.ekzistues;
-    var total = (e ? e.sasia : 0) + sasia;
+    var total = Math.max(0, (e ? e.sasia : 0) + sasia); // stoku s'mund të jetë negativ
     produktet[celesiProduktit(folderiAktual, dialogu.barkodi)] =
       { barkodi: dialogu.barkodi, emri: emri, sasia: total, kategoriaId: folderiAktual, prekurSe: Date.now() };
     ruajBaze();
