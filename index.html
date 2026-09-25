@@ -94,20 +94,6 @@
     inset: 0;
     width: 100%;
   }
-  #rrotulloPrapa {
-    display: none;
-    position: fixed; inset: 0; z-index: 9999;
-    background: var(--sfond, #ffffff); color: var(--tekst, #1c1b1f);
-    align-items: center; justify-content: center; text-align: center; padding: 32px;
-  }
-  #rrotulloPrapa svg { margin-bottom: 16px; }
-  #rrotulloPrapa p { margin: 0; font-size: 16px; max-width: 320px; }
-  @media (orientation: landscape) {
-    body:not(.pda-rrotullim) #rrotulloPrapa { display: flex; }
-    body:not(.pda-rrotullim) > *:not(#rrotulloPrapa) { display: none !important; }
-  }
-  body[data-permbys="1"]:not(.pda-rrotullim) #rrotulloPrapa { display: flex; }
-  body[data-permbys="1"]:not(.pda-rrotullim) > *:not(#rrotulloPrapa) { display: none !important; }
 
   header {
     background: var(--header);
@@ -575,16 +561,6 @@
 </style>
 </head>
 <body>
-
-<!-- Mbulesë sigurie: nëse ekrani ndonjëherë gjendet në horizontale (edhe nëse kyçja e JS
-     dështon në ndonjë shfletues), e bllokon krejtësisht përdorimin dhe kërkon rrotullim mbrapa.
-     Kjo funksionon gjithmonë, pa u varur nga asnjë API e shfletuesit. -->
-<div id="rrotulloPrapa">
-  <div>
-    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"></rect><path d="M12 18h.01"></path></svg>
-    <p>Rrotulloje telefonin prapë në pozicion vertikal (portret) për ta përdorur aplikacionin.</p>
-  </div>
-</div>
 
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" style="display:none">←</button>
