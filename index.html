@@ -272,6 +272,15 @@
     padding: 16px 30px 16px 14px; background: var(--fushe-bg); cursor: pointer;
   }
   .folder-karta:active { background: var(--hover); }
+  .kerko-djathtas { display: flex; align-items: center; gap: 10px; flex: none; max-width: 58%; min-width: 0; }
+  .folder-etikete {
+    display: inline-flex; align-items: center; gap: 5px; min-width: 0; max-width: 140px;
+    padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; line-height: 1.2;
+    color: var(--btn-tekst); background: var(--hover); border: 1px solid var(--vije);
+  }
+  .folder-etikete svg { flex: none; }
+  .kerko-djathtas .sasia { min-width: 2.4em; text-align: right; }
+  .folder-etikete-tekst { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
   .folder-karta { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
   .folder-karta.po-zvarritet {
     z-index: 20; pointer-events: none; cursor: grabbing;
@@ -1527,14 +1536,27 @@
       if (!p.emri) emri.className = 'emri bosh';
       var kodi = document.createElement('div');
       kodi.className = 'kodi';
-      kodi.textContent = emriFolderit(p.kategoriaId) + ' · ' + p.barkodi;
+      kodi.textContent = p.barkodi;
       majtas.appendChild(emri);
       majtas.appendChild(kodi);
+      // Djathtas: etiketa e folderit ku ndodhet produkti + sasia
+      var djathtas = document.createElement('div');
+      djathtas.className = 'kerko-djathtas';
+      var etiketa = document.createElement('span');
+      etiketa.className = 'folder-etikete';
+      etiketa.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"></path></svg>';
+      var etiketaTeksti = document.createElement('span');
+      etiketaTeksti.className = 'folder-etikete-tekst';
+      etiketaTeksti.textContent = emriFolderit(p.kategoriaId);
+      etiketa.appendChild(etiketaTeksti);
+      etiketa.title = emriFolderit(p.kategoriaId);
       var sasia = document.createElement('div');
       sasia.className = 'sasia';
       sasia.textContent = String(p.sasia);
+      djathtas.appendChild(etiketa);
+      djathtas.appendChild(sasia);
       rreshti.appendChild(majtas);
-      rreshti.appendChild(sasia);
+      rreshti.appendChild(djathtas);
       rreshti.addEventListener('click', function () {
         burimiIFundit = 'lista';
         hapFolderin(p.kategoriaId);
@@ -2249,10 +2271,28 @@
     vendosStatusinCloud(T('cloudStatusiDukeSink'));
     var rez = await window.__stokuCloud.merr();
     if (rez.ok && rez.gjendja) {
-      var bashkuar = bashkoPaFshirje(rez.gjendja, gjendjaPerCloud());
-      zbatoGjendjenNgaCloud(bashkuar);
+      if (pajisjaEshteEPaprekur() && Array.isArray(rez.gjendja.foldera) && rez.gjendja.foldera.length > 0) {
+        // Pajisje e re / adresë e re (p.sh. kalimi te stoku.site): këtu s'ka asgjë të përdoruesit, vetëm
+        // 4 folderat e parazgjedhur bosh. Merret gjendja e cloud-it ashtu siç është — përndryshe folderat
+        // e parazgjedhur që përdoruesi i ka fshirë më parë do të "ringjalleshin" në çdo pajisje.
+        zbatoGjendjenNgaCloud(rez.gjendja);
+      } else {
+        var bashkuar = bashkoPaFshirje(rez.gjendja, gjendjaPerCloud());
+        zbatoGjendjenNgaCloud(bashkuar);
+      }
     }
     kryeSinkronizimin();
+  }
+
+  // E vërtetë vetëm kur kjo pajisje s'ka asnjë të dhënë të përdoruesit: asnjë produkt, folderat janë
+  // pikërisht 4 të parazgjedhurit (të paprekur, pa emra të ndryshuar) dhe renditja s'është ndryshuar kurrë.
+  function pajisjaEshteEPaprekur() {
+    if (Object.keys(produktet).length > 0) return false;
+    if (rendiFolderaveKoha) return false;
+    if (foldera.length !== FOLDERAT_PARAZGJEDHUR.length) return false;
+    return FOLDERAT_PARAZGJEDHUR.every(function (d, i) {
+      return foldera[i] && foldera[i].id === d.id && foldera[i].emri === d.emri;
+    });
   }
 
   // Veçori vetëm për këtë përdorues specifik (butona +/- shpejtë te lista) — për asnjë tjetër.
