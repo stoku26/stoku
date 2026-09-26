@@ -254,6 +254,9 @@
   // Pritja fillestare
   var fundit = hyrjaEFundit();
   shfaqPritjen(fundit && fundit.emri ? 'Duke hyrë si ' + fundit.emri + '…' : 'Duke u lidhur…');
+  // Pa internet (sipas shfletuesit) në një pajisje të kyçur më parë: s'ka pse të pritet — Firebase e ka
+  // hyrjen të ruajtur lokalisht dhe do ta konfirmojë vetë; ndërkohë punohet me të dhënat lokale.
+  var paInternet = typeof navigator !== 'undefined' && navigator.onLine === false;
   gjendja.kohezuesi = setTimeout(function () {
     if (gjendja.gati) return;
     // Firebase s'u përgjigj (pa internet dhe pa kopje të ruajtur të tij)
@@ -263,7 +266,7 @@
       return;
     }
     shfaqFormen('S\'ka lidhje me internetin. Hyrja e parë në këtë pajisje kërkon internet.');
-  }, PRITJA_MAKS_MS);
+  }, paInternet && fundit && fundit.uid && lexo(KEY_PRONARI) === fundit.uid ? 400 : PRITJA_MAKS_MS);
   if (window.__stokuCloud) kontrollo();
 
   window.StokuPorta = { eHapur: function () { return gjendja.eHapur; } };

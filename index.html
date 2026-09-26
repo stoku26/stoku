@@ -818,7 +818,7 @@
 </style>
 </head>
 <body>
-<script src="porta.js?v=77"></script>
+<script src="porta.js?v=86"></script>
 
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" style="display:none">←</button>
@@ -2536,6 +2536,16 @@
 
   // Zbaton lokalisht rezultatin e sinkronizimit (produktet e shtuara/ndryshuara/fshira nga pajisjet
   // e tjera), pa nisur sinkronizim të ri dhe pa e nxjerrë përdoruesin nga ekrani ku është.
+  // Kur përdoruesi po shkruan te një fushë e listës (sasia e shpejtë), rivizatimi shtyhet derisa të dalë prej saj
+  var __rivizatoKurTeLirohet = false;
+  function poShkruanNeListe() {
+    var a = document.activeElement;
+    return !!(a && a.tagName === 'INPUT' && a.closest && a.closest('#lista'));
+  }
+  document.addEventListener('focusout', function () {
+    if (!__rivizatoKurTeLirohet) return;
+    setTimeout(function () { if (__rivizatoKurTeLirohet && !poShkruanNeListe()) { __rivizatoKurTeLirohet = false; if (folderiAktual !== null) renderLista(); } }, 0);
+  });
   function zbatoBashkimin(g) {
     if (!g || window.StokuBashkimi.eNjejte(g, gjendjaPerCloud())) return;
     var pm = {};
@@ -2555,7 +2565,7 @@
       localStorage.setItem(KEY_PRODUKTET, JSON.stringify(produktet));
     } catch (e) { /* ok */ }
     if (folderiAktual !== null && !foldera.some(function (f) { return f.id === folderiAktual; })) { rifreskoPamjen(); return; }
-    if (folderiAktual !== null) renderLista();
+    if (folderiAktual !== null) { if (poShkruanNeListe()) __rivizatoKurTeLirohet = true; else renderLista(); }
     else { renderFolderat(); renderKerkimiGlobal(); }
   }
 
@@ -2578,7 +2588,9 @@
   };
   $('afSinkStatus').addEventListener('click', function () { toast($('afSinkStatus').title); });
 
+  var statusiCloudFundit = ''; // teksti i fundit i statusit (mbetet edhe kur rihapen Opsionet)
   function vendosStatusinCloud(teksti) {
+    statusiCloudFundit = teksti;
     var el = $('cloudStatusi');
     if (el) el.textContent = teksti;
   }
@@ -2615,6 +2627,11 @@
   window.addEventListener('pagehide', sinkronizoMenjehereNesePret);
 
   var __sinkSerish = false;
+  var __sinkDeshtoi = false; // sinkronizimi i fundit dështoi (pa internet) — riprovohet sapo të ketë lidhje
+  window.addEventListener('online', function () { if (perdoruesiAktual()) kryeSinkronizimin(); });
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && __sinkDeshtoi && perdoruesiAktual()) kryeSinkronizimin();
+  });
   async function kryeSinkronizimin() {
     if (!perdoruesiAktual() || !window.__stokuCloud) return;
     clearTimeout(sinkronizoKohezi);
@@ -2645,6 +2662,7 @@
       toast('Të dhënat e dyqanit kanë arritur kufirin e Firebase-it (1 MB) dhe s\'po ruhen në cloud. Fshi afatet/produktet e vjetra ose kontakto administratorin.');
     }
     vendosStatusinEAfateve(rez.ok ? 'ok' : 'gabim');
+    __sinkDeshtoi = !rez.ok;
     if (!rez.ok) { clearTimeout(sinkronizoKohezi); sinkronizoKohezi = setTimeout(kryeSinkronizimin, 15000); } // riprovo vetë
     if (__sinkSerish) { __sinkSerish = false; planifikoSinkronizimin(); }
   }
@@ -2741,7 +2759,7 @@
     rregulloVijatNdarese();
     if (u) {
       $('cloudHyrePerTeksti').textContent = T('cloudHyrePerTeksti', { emri: emriPerdoruesitAktual() });
-      if (!dukeSinkronizuar && !dukeRikthyerNgaCloud) vendosStatusinCloud(T('cloudStatusiAsgje'));
+      if (!statusiCloudFundit) vendosStatusinCloud(T('cloudStatusiAsgje'));
     } else {
       $('cloudGabimHint').textContent = '';
       $('cloudNdryshoGabimHint').textContent = '';
@@ -2755,7 +2773,7 @@
     sinkronizoNeHyrje();
   });
   window.addEventListener('stoku-auth-ndryshoi', function () {
-    if (!perdoruesiAktual()) { __uidISinkronizuarDarePasHyrjes = null; ndalDegjuesinCloud(); vendosStatusinEAfateve(''); }
+    if (!perdoruesiAktual()) { __uidISinkronizuarDarePasHyrjes = null; ndalDegjuesinCloud(); vendosStatusinEAfateve(''); statusiCloudFundit = ''; }
     rifreskoDukjenECloud();
     sinkronizoNeHyrje();
   });
@@ -2898,6 +2916,7 @@
     try { await kryeSinkronizimin(); } catch (e) { /* ndryshimet e fundit mbeten lokalisht */ }
     if (window.__stokuCloud && window.__stokuCloud.dil) await window.__stokuCloud.dil();
     rifreskoDukjenECloud();
+    if ($('dlgOpsione').classList.contains('hapur')) mbyllOpsionet();
   });
 
   // ---------- Lista + kërkimi ----------
@@ -3061,7 +3080,10 @@
     if (!opsione.paEmer && !emri) { toast(T('shkruajEmrin')); $('dlgEmri').focus(); return; }
     if (!/^-?\d+$/.test(tekstSasia)) { toast(T('shkruajSasine')); $('dlgSasia').focus(); return; }
     var sasia = parseInt(tekstSasia, 10);
-    var e = dialogu.ekzistues;
+    // Gjendja AKTUALE e produktit (jo ajo e çastit kur u hap dialogu): nëse ndërkohë një pajisje
+    // tjetër e ndryshoi sasinë, shtesa i mbivendoset asaj, jo vlerës së vjetër.
+    var e = produktet[celesiProduktit(folderiAktual, dialogu.barkodi)] || null;
+    if (opsione.paEmer && !emri && e) emri = e.emri || '';
     var total = Math.max(0, (e ? e.sasia : 0) + sasia); // stoku s'mund të jetë negativ
     produktet[celesiProduktit(folderiAktual, dialogu.barkodi)] =
       { barkodi: dialogu.barkodi, emri: emri, sasia: total, kategoriaId: folderiAktual, prekurSe: Date.now() };
@@ -3073,6 +3095,7 @@
 
   function fshijProduktin() {
     if (!dialogu || !dialogu.ekzistues) return;
+    if (!produktet[celesiProduktit(folderiAktual, dialogu.barkodi)]) { mbyllDialogun(); renderLista(); return; } // u fshi ndërkohë nga një pajisje tjetër
     delete produktet[celesiProduktit(folderiAktual, dialogu.barkodi)];
     shenoProduktinEFshire(celesiProduktit(folderiAktual, dialogu.barkodi));
     ruajBaze();
@@ -3176,7 +3199,7 @@
   // Barkodet e produkteve janë pothuajse gjithmonë vetëm numra (6-14 shifra).
   function duketSiDiçkaTjeterVeçBarkod(tekst) {
     if (/^[0-9]{6,14}$/.test(tekst)) return false;
-    if (tekst.length > 20) return true;
+    if (tekst.length > 30 || tekst.indexOf('::') !== -1) return true;
     if (/^https?:\/\//i.test(tekst)) return true;
     if (/\s/.test(tekst)) return true;
     return false;
