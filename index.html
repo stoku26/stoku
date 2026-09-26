@@ -743,6 +743,26 @@
   #dlgKuFleta { z-index: 24; }
   #dlgKuFleta .dialog { max-width: 420px; }
   #dlgNjoftimet { z-index: 25; }
+  /* "Çka ka të re" */
+  #dlgTeRejat { z-index: 25; }
+  .tr-dialog { max-width: 420px; }
+  .tr-krye { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+  .tr-ikona {
+    flex: none; width: 52px; height: 52px; border-radius: 16px; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(145deg, color-mix(in srgb, var(--primar) 65%, #fff), var(--primar));
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--primar) 35%, transparent);
+  }
+  .tr-krye h2 { margin: 0 0 2px; }
+  .tr-nen { font-size: 13px; font-weight: 600; color: var(--gri); }
+  .tr-lista { max-height: min(56vh, 480px); overflow-y: auto; margin: 0 -6px 4px; padding: 0 6px; }
+  .tr-version { padding: 12px 0 8px; border-top: 1px solid var(--vije); }
+  .tr-version:first-child { border-top: 0; padding-top: 2px; }
+  .tr-version-titulli { font-size: 15.5px; font-weight: 700; }
+  .tr-version-data { font-size: 12px; color: var(--gri); margin: 2px 0 8px; }
+  .tr-version ul { list-style: none; margin: 0; padding: 0; }
+  .tr-version li { position: relative; padding: 4px 0 4px 24px; font-size: 14.5px; line-height: 1.45; color: var(--dialog-tekst); }
+  .tr-version li::before { content: ''; position: absolute; left: 4px; top: 11px; width: 8px; height: 8px; border-radius: 50%; background: var(--primar); }
   .nj-dialog { max-width: 400px; text-align: left; }
   .nj-ikona {
     width: 56px; height: 56px; border-radius: 16px; margin-bottom: 14px; color: #fff;
@@ -1261,6 +1281,18 @@
   </div>
 </div>
 
+<!-- "Çka ka të re": tregohet në hyrje kur ka version të ri që përdoruesi s'e ka parë ende (teRejat.js) -->
+<div class="mbulese" id="dlgTeRejat">
+  <div class="dialog tr-dialog" role="dialog" aria-modal="true" aria-labelledby="trTitulli">
+    <div class="tr-krye">
+      <span class="tr-ikona"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path><path d="M19 14.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"></path><path d="M5 2l.7 1.6 1.6.7-1.6.7L5 6.6l-.7-1.6-1.6-.7 1.6-.7z"></path></svg></span>
+      <div><h2 id="trTitulli">Çka ka të re</h2><div class="tr-nen" id="trNen"></div></div>
+    </div>
+    <div class="tr-lista" id="trLista"></div>
+    <div class="veprime"><button class="btn" id="trMbyll" type="button" style="width:100%">Në rregull</button></div>
+  </div>
+</div>
+
 <!-- Afati: shto / ndrysho -->
 <div class="mbulese" id="dlgAfat">
   <div class="dialog" role="dialog" aria-modal="true">
@@ -1329,6 +1361,7 @@
 <script src="ruajtja.js?v=81"></script>
 <script src="afatet.js?v=88"></script>
 <script src="njoftimet.js?v=85"></script>
+<script src="teRejat.js?v=91"></script>
 <script>
 (function () {
   'use strict';
@@ -1632,6 +1665,9 @@
   var KEY_FOLDERA = 'stoku:foldera:v1';
   var KEY_PRODUKTET = 'stoku:produktet:v2';
   var KEY_PRODUKTET_VJETER = 'stoku:produktet:v1'; // pa foldera, versioni i vjetër
+  // Instalim i ri (asnjë e dhënë ende): "Çka ka të re" s'ka kuptim — shënohet si e parë pa u treguar
+  var __pajisjeERe = false;
+  try { __pajisjeERe = !localStorage.getItem(KEY_FOLDERA); } catch (e) { /* ok */ } // folderat shkruhen që në hapjen e parë të çdo versioni
   var LIMIT_RENDER = 300;
   var MIME_XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
   // Ikona e cloud-it në krye të faqes së afateve (ruajtur / duke u ruajtur / s'u ruajt) — para nisjes, se përdoret që në ngarkim
@@ -3926,7 +3962,7 @@
   // thjesht klasën), që logjika e tyre (p.sh. konfirmo() që pret përgjigje) të përfundojë saktë.
   var ANULO_SIPAS_DIALOGUT = {
     dlgProdukt: 'dlgAnulo', dlgZhvendos: 'zhvendosAnulo', dlgFshirje: 'fshiAnulo',
-    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgNjoftimet: 'njJoTani', dlgAfExcel: 'axAnulo'
+    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgNjoftimet: 'njJoTani', dlgAfExcel: 'axAnulo', dlgTeRejat: 'trMbyll'
   };
   function mbyllShtresenMeTeFundit() {
     // Kamera del mbi çdo dialog (p.sh. skanimi te "Afat i ri"), prandaj mbyllet e para
@@ -5023,14 +5059,102 @@
   if (njoftimetMbeshteten() && Notification.permission === 'granted') regjistroKontrollinPeriodik();
   kontrolloNjoftimet();
 
-  // ---------- Service worker (punon edhe pa internet) ----------
+  // ---------- "Çka ka të re" ----------
+  // Në hyrje, pas ekranit të hyrjes: tregohen hyrjet e teRejat.js më të reja se versioni i fundit që u pa.
+  var KEY_TE_REJAT = 'stoku:te-rejat:pare';
+  function versioniIPare() { try { return Number(localStorage.getItem(KEY_TE_REJAT)) || 0; } catch (e) { return 0; } }
+  function shenoTeRejatSiTePara() { try { localStorage.setItem(KEY_TE_REJAT, String(window.StokuTeRejat.versioni())); } catch (e) { /* ok */ } }
+  function tregoTeRejat() {
+    var TR = window.StokuTeRejat;
+    if (!TR || !TR.versioni()) return false;
+    if (__pajisjeERe && !versioniIPare()) { shenoTeRejatSiTePara(); return false; }
+    var hyrjet = TR.teRejatPas(versioniIPare());
+    if (!hyrjet.length) return false;
+    if (window.StokuPorta && window.StokuPorta.eHapur()) return false;
+    if (document.querySelector('.mbulese.hapur') || $('kamera').classList.contains('hapur')) return false;
+    var lista = $('trLista');
+    lista.textContent = '';
+    hyrjet.forEach(function (h) {
+      var b = document.createElement('div'); b.className = 'tr-version';
+      var t = document.createElement('div'); t.className = 'tr-version-titulli'; t.textContent = h.titulli;
+      var d = document.createElement('div'); d.className = 'tr-version-data'; d.textContent = 'Versioni ' + h.v + ' · ' + TR.formatoDaten(h.data);
+      var ul = document.createElement('ul');
+      (h.pikat || []).forEach(function (pika) { var li = document.createElement('li'); li.textContent = pika; ul.appendChild(li); });
+      b.appendChild(t); b.appendChild(d); b.appendChild(ul);
+      lista.appendChild(b);
+    });
+    $('trNen').textContent = hyrjet.length === 1 ? 'Versioni ' + hyrjet[0].v : hyrjet.length + ' versione të reja';
+    lista.scrollTop = 0;
+    $('dlgTeRejat').classList.add('hapur');
+    shenoTeRejatSiTePara();
+    return true;
+  }
+  $('trMbyll').addEventListener('click', function () {
+    $('dlgTeRejat').classList.remove('hapur');
+    setTimeout(pyetPerNjoftimet, 400); // leja për njoftimet, nëse s'është pyetur ende
+  });
+  $('dlgTeRejat').addEventListener('click', function (ev) { if (ev.target === $('dlgTeRejat')) $('trMbyll').click(); });
+  window.addEventListener('stoku-porta-hapur', function () { setTimeout(tregoTeRejat, 700); });
+  setTimeout(function () { if (!(window.StokuPorta && window.StokuPorta.eHapur())) tregoTeRejat(); }, 2500);
+
+  // ---------- Service worker + përditësimi automatik ----------
+  // Sa herë hapet aplikacioni (dhe sa herë rikthehesh në të), kontrollohet në sfond a ka version të ri (sw.js).
+  // Nëse ka, instalohet dhe aplikacioni rinis vetë në çastin e parë të qetë — pa dritare të hapur, pa fushë ku
+  // po shkruhet, pa ruajtje në cloud në pritje — ose sapo kalon në sfond. Gjendja (folderi, tabi) rikthehet.
+  var KEY_RINISJE = 'stoku:rinisje';
   if ('serviceWorker' in navigator) {
+    var __kishteKontrollues = !!navigator.serviceWorker.controller;
+    var __perditesimGati = false, __perditesimKohez = null;
+    var kontrolloPerditesimin = function () {
+      navigator.serviceWorker.getRegistration().then(function (r) { if (r) return r.update(); }).catch(function () { /* pa internet */ });
+    };
+    var eshteCastIQete = function () {
+      var a = document.activeElement;
+      if (eshteFushe(a) && a.value) return false;                                            // po shkruan diçka
+      if (document.querySelector('.mbulese.hapur:not(#dlgAfatet):not(#dlgOpsione)')) return false; // dialog i hapur
+      if ($('kamera').classList.contains('hapur')) return false;
+      if (dukeSinkronizuar || sinkronizoKohezi) return false;                                // ruajtje në cloud në pritje
+      return true;
+    };
+    var rinis = function () {
+      try {
+        sessionStorage.setItem(KEY_RINISJE, JSON.stringify({
+          folderi: folderiAktual, afatet: $('dlgAfatet').classList.contains('hapur'), cilesimet: $('dlgOpsione').classList.contains('hapur')
+        }));
+      } catch (e) { /* ok */ }
+      location.reload();
+    };
+    var rinisKurTeJeteQete = function () {
+      if (!__perditesimGati) return;
+      if (document.hidden || eshteCastIQete()) { rinis(); return; }
+      clearTimeout(__perditesimKohez);
+      __perditesimKohez = setTimeout(rinisKurTeJeteQete, 10000);
+    };
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!__kishteKontrollues) { __kishteKontrollues = true; return; } // instalimi i parë: faqja është tashmë e reja
+      __perditesimGati = true;
+      rinisKurTeJeteQete();
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) rinisKurTeJeteQete(); else kontrolloPerditesimin();
+    });
+    setInterval(function () { if (!document.hidden) kontrolloPerditesimin(); }, 30 * 60 * 1000);
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('sw.js').catch(function () { /* ok */ });
+      navigator.serviceWorker.register('sw.js').then(function (r) { return r.update(); }).catch(function () { /* ok */ });
     });
   }
 
   rifreskoPamjen();
+
+  // Pas rinisjes për përditësim: kthehu aty ku ishe (folderi i hapur, tabi Afatet ose Cilësimet)
+  (function () {
+    var g = null;
+    try { g = JSON.parse(sessionStorage.getItem(KEY_RINISJE) || 'null'); sessionStorage.removeItem(KEY_RINISJE); } catch (e) { /* ok */ }
+    if (!g) return;
+    if (g.folderi && foldera.some(function (f) { return f.id === g.folderi; })) hapFolderin(g.folderi);
+    else if (g.afatet) hapAfatetFaqe();
+    else if (g.cilesimet) hapOpsionet();
+  })();
 })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" crossorigin="anonymous"></script>

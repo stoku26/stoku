@@ -1,0 +1,52 @@
+/*
+ * "Çka ka të re" — lista e ndryshimeve që u tregohet përdoruesve në hyrje (telefon dhe PC).
+ *
+ * SI PUNON: sa herë del një version i ri, shto NJË HYRJE NË KRYE të listës, me:
+ *   v      = numri i versionit — I NJËJTI me numrin te sw.js (var CACHE = 'stoku-vNN') dhe te "teRejat.js?v=NN"
+ *            në index.html, pc.html dhe sw.js (SHELL);
+ *   data   = data e publikimit (VVVV-MM-DD);
+ *   titulli = një rresht i shkurtër;
+ *   pikat  = çka u shtua ose u përmirësua, me fjalë të thjeshta për punëtorët dhe menaxheren (jo teknike).
+ * Aplikacioni e mban mend versionin e fundit që përdoruesi e ka parë; në hyrje i tregon vetëm hyrjet më të reja.
+ */
+(function (root) {
+  'use strict';
+
+  var LISTA = [
+    { v: 91, data: '2026-09-27', titulli: 'Përditësim automatik dhe kjo dritare', pikat: [
+      'Aplikacioni e kontrollon vetë në sfond a ka version të ri sa herë hapet, dhe kalon te versioni i ri pa u dashur të mbyllet e të rihapet.',
+      'Sa herë shtohet diçka e re ose përmirësohet, të tregohet këtu në hyrje.'
+    ] },
+    { v: 90, data: '2026-09-27', titulli: 'Tabet poshtë ekranit (telefon)', pikat: [
+      'Shirit i ri poshtë ekranit me tri tabe: Stoku, Afatet dhe Cilësimet — arrihen me gishtin e madh, pa e lëvizur dorën.',
+      'Te tabi Afatet shihet gjithmonë numri i produkteve të skaduara ose afër skadimit.',
+      '"Opsionet" tani quhen "Cilësimet".'
+    ] },
+    { v: 89, data: '2026-09-27', titulli: 'Afatet: më lehtë për t\'u shkruar', pikat: [
+      'Data e skadimit shkruhet me vit 2-shifror: 011226 bëhet 01-12-26.',
+      'Fusha e sasisë tregon "Copë" si tekst ndihmës.',
+      'Ekrani nuk zmadhohet më me dy gishta.',
+      'Mesazhi i afateve: "lajmëro furnizuesin sa më parë".'
+    ] },
+    { v: 86, data: '2026-09-26', titulli: 'Njoftime, Excel dhe rregullime', pikat: [
+      'Njoftime në telefon kur një produkti i kanë mbetur 30 ditë deri në skadim, dhe kur skadon.',
+      'Te Afatet: zgjidh produkte dhe eksportoji në Excel, me kolonat që i zgjedh vetë.',
+      'Ikona e cloud-it në krye të faqes së afateve tregon a janë ruajtur në cloud.',
+      '"U hoq nga rafti" del vetëm për produktet e skaduara.',
+      'Emri i aplikacionit tani është vetëm "Stoku".',
+      'U rregulluan disa gabime të sinkronizimit mes telefonit dhe kompjuterit.'
+    ] }
+  ];
+
+  function versioni() { return LISTA.length ? LISTA[0].v : 0; }
+  // Hyrjet më të reja se versioni i fundit që përdoruesi e ka parë (nga më e reja te më e vjetra)
+  function teRejatPas(vPare) { return LISTA.filter(function (h) { return h.v > (Number(vPare) || 0); }); }
+  function formatoDaten(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+    return m ? m[3] + '.' + m[2] + '.' + m[1] : (iso || '');
+  }
+
+  var api = { LISTA: LISTA, versioni: versioni, teRejatPas: teRejatPas, formatoDaten: formatoDaten };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.StokuTeRejat = api;
+})(typeof self !== 'undefined' ? self : this);
