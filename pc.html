@@ -1256,8 +1256,8 @@
 <div class="toast" id="toast" role="status" aria-live="polite"><span class="toast-tekst" id="toastTekst"></span><button class="btn fsheh" type="button" id="toastBtn"></button></div>
 
 <script src="xlsx.js?v=58"></script>
-<script src="bashkimi.js?v=58"></script>
-<script src="afatet.js?v=75"></script>
+<script src="bashkimi.js?v=80"></script>
+<script src="afatet.js?v=80"></script>
 <script>
 (function () {
   'use strict';
@@ -1599,6 +1599,9 @@
       vendosStatusin('ok');
     } else {
       vendosStatusin(perdoruesi() ? 'gabim' : 'lokal');
+      if (/maximum|exceeds|too large/i.test(String(rez.arsye || ''))) {
+        toast('Të dhënat e dyqanit kanë arritur kufirin e Firebase-it (1 MB) dhe s\'po ruhen në cloud. Fshi afatet/produktet e vjetra ose kontakto administratorin.', { ms: 15000 });
+      }
       if (perdoruesi()) sink.riprovo = setTimeout(kryeSinkronizimin, 15000);
     }
     if (sink.serish) { sink.serish = false; planifikoSinkronizimin(300); }
@@ -4299,7 +4302,7 @@
     lx.rreshtat = rreshtatNgaAI(f.rreshtat);
     fotoPamja.pastro();
     fotoPamja.caktoVizatimet('stoku:vizatime:' + f.id);
-    if (f.foto) $('lxFoto').src = f.foto;
+    if (typeof f.foto === 'string' && f.foto.indexOf('data:image/') === 0) $('lxFoto').src = f.foto;
     hapDialog('dlgLexim');
     var nd = lx.rreshtat.filter(function (r) { return r.dyshim; }).length;
     statusiLeximit('Fletë nga telefoni' + (f.nga ? ' (' + f.nga + ')' : '') + (f.krijuarSe ? ', ' + dataOra(f.krijuarSe) : '') + ' — ' +

@@ -1197,8 +1197,8 @@
 <div id="toast"></div>
 
 <script src="xlsx.js?v=58"></script>
-<script src="bashkimi.js?v=58"></script>
-<script src="afatet.js?v=75"></script>
+<script src="bashkimi.js?v=80"></script>
+<script src="afatet.js?v=80"></script>
 <script>
 (function () {
   'use strict';
@@ -2548,6 +2548,9 @@
       else planifikoSinkronizimin();
     }
     vendosStatusinCloud(rez.ok ? T('cloudStatusiUSink', { kur: oraTani() }) : T('cloudStatusiDeshtoi'));
+    if (!rez.ok && /maximum|exceeds|too large/i.test(String(rez.arsye || ''))) {
+      toast('Të dhënat e dyqanit kanë arritur kufirin e Firebase-it (1 MB) dhe s\'po ruhen në cloud. Fshi afatet/produktet e vjetra ose kontakto administratorin.');
+    }
     vendosStatusinEAfateve(rez.ok ? 'ok' : 'gabim');
     if (!rez.ok) { clearTimeout(sinkronizoKohezi); sinkronizoKohezi = setTimeout(kryeSinkronizimin, 15000); } // riprovo vetë
     if (__sinkSerish) { __sinkSerish = false; planifikoSinkronizimin(); }

@@ -13,11 +13,24 @@
  *  - Renditja e folderave: fiton ana që e ka ndryshuar renditjen më së fundi (rendiKoha).
  *  - Shënimet e fshirjeve më të vjetra se 120 ditë hiqen, që dokumenti të mos rritet pafundësisht.
  *  - Afatet (datat e skadimit): njësoj — fiton ndryshimi më i ri (ndryshuarSe), fshirjet ruhen me id.
+ *  - Afatet e vjetra hiqen vetë (njësoj në çdo pajisje, pa shënime fshirjeje): ato të hequra nga rafti
+ *    para më shumë se 60 ditësh dhe ato që kanë skaduar para më shumë se 60 ditësh. Pa këtë, historiku
+ *    rritej pa fund dhe dokumenti i dyqanit në Firebase (kufiri 1 MB) mbushej pas pak muajsh — atëherë
+ *    ndalej krejt sinkronizimi, edhe për produktet.
  */
 (function (root) {
   'use strict';
 
   var MBAJ_FSHIRJET_MS = 120 * 24 * 60 * 60 * 1000;
+  var MBAJ_AFATET_E_VJETRA_MS = 60 * 24 * 60 * 60 * 1000;
+
+  function afatiIVjeteruar(a, tani) {
+    var kufiri = tani - MBAJ_AFATET_E_VJETRA_MS;
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(a.data || ''));
+    if (m && new Date(+m[1], +m[2] - 1, +m[3]).getTime() < kufiri) return true;
+    if (a.statusi === 'hequr' && (Number(a.hequrSe) || Number(a.ndryshuarSe) || 0) < kufiri) return true;
+    return false;
+  }
 
   function celesi(kategoriaId, barkodi) { return kategoriaId + '::' + barkodi; }
 
@@ -117,6 +130,7 @@
       else delete fshira.afatet[id];
     });
     var afatet = Object.keys(am).map(function (id) { return am[id]; })
+      .filter(function (a) { return !afatiIVjeteruar(a, tani); })
       .sort(function (a, b) { return String(a.data || '').localeCompare(String(b.data || '')) || String(a.id).localeCompare(String(b.id)); });
 
     // ---- Renditja ----
@@ -168,7 +182,7 @@
 
   var api = {
     bashko: bashko, celesi: celesi, pastroFshirjetEVjetra: pastroFshirjetEVjetra,
-    eNjejte: eNjejte, MBAJ_FSHIRJET_MS: MBAJ_FSHIRJET_MS
+    eNjejte: eNjejte, MBAJ_FSHIRJET_MS: MBAJ_FSHIRJET_MS, afatiIVjeteruar: afatiIVjeteruar
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuBashkimi = api;
