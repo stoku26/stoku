@@ -6,7 +6,7 @@
  * që telefonat të marrin versionin e ri. Kur ndryshon xlsx.js / bashkimi.js / afatet.js, ndrysho edhe
  * "?v=" te index.html, pc.html dhe më poshtë — që asnjë pajisje të mos përdorë kopjen e vjetër.
  */
-var CACHE = 'stoku-v67';
+var CACHE = 'stoku-v68';
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.2/dist/iife/ponyfill.js',
@@ -74,6 +74,16 @@ self.addEventListener('fetch', function (e) {
     );
     return;
   }
+
+  // Vetëm skedarët e vetë aplikacionit dhe bibliotekat nga CDN ruhen në telefon. Kërkesat e tjera
+  // (Firebase/Firestore — sinkronizimi, hyrja, Worker-i i AI-së…) kalojnë drejt në internet: përndryshe
+  // çdo lidhje e Firestore-it (GET që rri e hapur minuta të tëra, me URL gjithmonë të re) do të ruhej
+  // në telefon pa fund, dhe një URL e përsëritur do të merrte përgjigje të vjetër nga kopja.
+  var url = new URL(kerkesa.url);
+  var eRuajtshme = url.origin === self.location.origin ||
+    /^(cdn|fastly)\.jsdelivr\.net$/.test(url.hostname) ||
+    (url.hostname === 'www.gstatic.com' && url.pathname.indexOf('/firebasejs/') === 0);
+  if (!eRuajtshme) return;
 
   // Gjithçka tjetër: kopja e ruajtur së pari, pastaj interneti
   e.respondWith(
