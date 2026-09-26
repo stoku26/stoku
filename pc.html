@@ -633,6 +633,19 @@
   }
   .lexim-foto-kontrolle button:hover { background: rgba(0,0,0,.8); }
   .lexim-ndihme { margin: 6px 2px 0; font-size: 12px; color: var(--gri); }
+  /* Shenjat e rreshtave të kontrolluar: vija të kuqe që "ngjiten" te fleta (lëvizin e zmadhohen bashkë me të) */
+  .lexim-shenjat { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .lexim-shenje { position: absolute; height: 0; border-top: 3px solid rgba(229,57,53,.85); margin-top: -1px; }
+  .lexim-shenje::before {
+    content: ''; position: absolute; left: 0; top: -6px; width: 26px; height: 10px; background: #e53935;
+    border-radius: 0 5px 5px 0; box-shadow: 0 1px 3px rgba(0,0,0,.4);
+  }
+  .lexim-shenje span {
+    position: absolute; left: 30px; top: -10px; font-size: 11px; font-weight: 800; color: #fff; background: #e53935;
+    border-radius: 8px; padding: 1px 6px; line-height: 16px;
+  }
+  .lexim-foto.shenjim { cursor: crosshair; }
+  .lexim-foto-kontrolle button.aktiv { background: #e53935; border-color: #e53935; }
   .lexim-statusi { display: flex; align-items: center; gap: 10px; padding: 11px 13px; border-radius: 10px; background: var(--hover); margin-bottom: 10px; line-height: 1.45; }
   .lexim-statusi.gabim { background: var(--af-kuqe-bg); color: var(--af-kuqe-tx); }
   .lexim-rreshtat { max-height: calc(98vh - 296px); min-height: 260px; overflow: auto; border: 1px solid var(--vije); border-radius: 12px; }
@@ -1005,9 +1018,10 @@
               <button type="button" id="lxZvogelo" title="Zvogëlo" aria-label="Zvogëlo">−</button>
               <button type="button" id="lxZmadho" title="Zmadho" aria-label="Zmadho">+</button>
               <button type="button" id="lxPershtat" title="Shfaq krejt fletën">Përshtat</button>
+              <button type="button" id="lxShenjo" title="Shëno rreshtat e kontrolluar: kliko rreshtin në foto (kliko vijën për ta hequr)">✓ Shëno</button>
             </div>
           </div>
-          <div class="lexim-ndihme">Rrota e mausit: zmadho/zvogëlo · Tërhiq me maus: lëviz · Dy klikime: zmadho ose përshtat</div>
+          <div class="lexim-ndihme" id="lxNdihme">Rrota e mausit: zmadho/zvogëlo · Tërhiq me maus: lëviz · Dy klikime: zmadho ose përshtat · "✓ Shëno": vijë e kuqe te rreshti i kontrolluar</div>
         </div>
         <div>
           <div class="lexim-statusi" id="lxStatusi"></div>
@@ -4033,8 +4047,48 @@
   var fotoPamja = (function () {
     var kuti = $('lxFotoKuti'), img = $('lxFoto');
     var s = 1, sMin = 1, x = 0, y = 0, terheqje = null;
+    // Shenjat: lartësia e çdo vije si pjesë e lartësisë së fotos (0–1), që të mbeten te i njëjti rresht
+    // sido që të zmadhohet/lëvizet fotoja. Ruhen në këtë kompjuter për fletën (edhe po u mbyll me "Anulo").
+    var shenjat = [], celesiShenjave = null, shenjim = false;
+    var shtresa = document.createElement('div');
+    shtresa.className = 'lexim-shenjat';
+    kuti.insertBefore(shtresa, kuti.querySelector('.lexim-foto-kontrolle'));
+    function vizatoShenjat() {
+      shtresa.textContent = '';
+      if (!img.naturalWidth || !img.getAttribute('src')) return;
+      var h = img.naturalHeight * s, w = img.naturalWidth * s;
+      shenjat.slice().sort(function (a, b) { return a - b; }).forEach(function (yy, i) {
+        var d = document.createElement('div');
+        d.className = 'lexim-shenje';
+        // Vija mbulon vetëm pjesën e dukshme, që shenja e kuqe majtas të shihet edhe kur fotoja është zmadhuar
+        var majtas = Math.max(x, 0), djathtas = Math.min(x + w, kuti.clientWidth);
+        d.style.left = majtas + 'px'; d.style.width = Math.max(0, djathtas - majtas) + 'px'; d.style.top = (y + yy * h) + 'px';
+        var n = document.createElement('span'); n.textContent = String(i + 1); d.appendChild(n);
+        shtresa.appendChild(d);
+      });
+      $('lxShenjo').textContent = shenjat.length ? '✓ Shëno (' + shenjat.length + ')' : '✓ Shëno';
+    }
+    function ruajShenjat() {
+      if (!celesiShenjave) return;
+      try {
+        if (shenjat.length) localStorage.setItem(celesiShenjave, JSON.stringify(shenjat));
+        else localStorage.removeItem(celesiShenjave);
+      } catch (e) { /* ok */ }
+    }
+    function ndryshoShenjen(py) {
+      var h = img.naturalHeight * s;
+      if (!h) return;
+      var yy = (py - y) / h;
+      if (yy < 0 || yy > 1) return;
+      var afer = -1;
+      shenjat.forEach(function (v, i) { if (Math.abs(v - yy) * h < 9) afer = i; });
+      if (afer >= 0) shenjat.splice(afer, 1); else shenjat.push(yy);
+      ruajShenjat();
+      vizatoShenjat();
+    }
     function zbato() {
       img.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')';
+      vizatoShenjat();
     }
     function kufizo() {
       var w = img.naturalWidth * s, h = img.naturalHeight * s, kw = kuti.clientWidth, kh = kuti.clientHeight;
@@ -4066,7 +4120,7 @@
     }, { passive: false });
     kuti.addEventListener('pointerdown', function (ev) {
       if (ev.button !== 0 || !img.naturalWidth || ev.target.closest('button')) return;
-      terheqje = { id: ev.pointerId, px: ev.clientX, py: ev.clientY, x: x, y: y };
+      terheqje = { id: ev.pointerId, px: ev.clientX, py: ev.clientY, x: x, y: y, kur: Date.now() };
       kuti.setPointerCapture(ev.pointerId);
       kuti.classList.add('terhiqet');
       ev.preventDefault();
@@ -4079,13 +4133,18 @@
     });
     function mbaroTerheqjen(ev) {
       if (!terheqje || ev.pointerId !== terheqje.id) return;
+      var t0 = terheqje;
       terheqje = null;
       kuti.classList.remove('terhiqet');
+      // Në "Shëno": një klikim (pa tërheqje) vendos/heq vijën te ai rresht; tërheqja vazhdon ta lëvizë foton
+      if (shenjim && ev.type === 'pointerup' && Math.abs(ev.clientX - t0.px) < 5 && Math.abs(ev.clientY - t0.py) < 5 && Date.now() - t0.kur < 600) {
+        ndryshoShenjen(pika(ev)[1]);
+      }
     }
     kuti.addEventListener('pointerup', mbaroTerheqjen);
     kuti.addEventListener('pointercancel', mbaroTerheqjen);
     kuti.addEventListener('dblclick', function (ev) {
-      if (ev.target.closest('button')) return;
+      if (ev.target.closest('button') || shenjim) return;
       if (s > sMin * 1.05) { pershtat(); return; }
       var p = pika(ev);
       zmadho(3, p[0], p[1]);
@@ -4093,12 +4152,32 @@
     $('lxZmadho').addEventListener('click', function () { zmadho(1.5); });
     $('lxZvogelo').addEventListener('click', function () { zmadho(1 / 1.5); });
     $('lxPershtat').addEventListener('click', pershtat);
+    function vendosShenjimin(po) {
+      shenjim = po;
+      $('lxShenjo').classList.toggle('aktiv', po);
+      kuti.classList.toggle('shenjim', po);
+      $('lxNdihme').textContent = po
+        ? 'Kliko rreshtin e kontrolluar në foto → vijë e kuqe (kliko vijën për ta hequr). Tërhiq me maus: lëviz · Rrota: zmadho'
+        : 'Rrota e mausit: zmadho/zvogëlo · Tërhiq me maus: lëviz · Dy klikime: zmadho ose përshtat · "✓ Shëno": vijë e kuqe te rreshti i kontrolluar';
+    }
+    $('lxShenjo').addEventListener('click', function () { vendosShenjimin(!shenjim); });
     window.addEventListener('resize', function () {
       if (!$('dlgLexim').classList.contains('hapur')) return;
       if (s <= sMin * 1.001) pershtat(); else { kufizo(); zbato(); }
     });
     return {
-      pastro: function () { img.removeAttribute('src'); img.style.transform = ''; s = sMin = 1; x = y = 0; }
+      pastro: function () {
+        img.removeAttribute('src'); img.style.transform = ''; s = sMin = 1; x = y = 0;
+        shenjat = []; celesiShenjave = null; vendosShenjimin(false); vizatoShenjat();
+      },
+      // Për fletët nga telefoni: shenjat ruhen me id-në e fletës (kthehen kur hapet sërish)
+      caktoShenjat: function (celesi) {
+        celesiShenjave = celesi || null;
+        shenjat = [];
+        if (celesiShenjave) { try { shenjat = JSON.parse(localStorage.getItem(celesiShenjave) || '[]') || []; } catch (e) { shenjat = []; } }
+        vizatoShenjat();
+      },
+      fshiShenjat: function (celesi) { try { localStorage.removeItem(celesi); } catch (e) { /* ok */ } }
     };
   })();
 
@@ -4183,6 +4262,7 @@
     });
   }
   function hiqFletenETelefonit(id) {
+    fotoPamja.fshiShenjat('stoku:shenjat:' + id);
     fletetTel.teMbyllura[id] = true;
     fletetTel.lista = fletetTel.lista.filter(function (f) { return f.id !== id; });
     if (window.__stokuCloud && window.__stokuCloud.fshijFleten) window.__stokuCloud.fshijFleten(id);
@@ -4196,6 +4276,7 @@
     fletetTel.hapur = f.id;
     lx.rreshtat = rreshtatNgaAI(f.rreshtat);
     fotoPamja.pastro();
+    fotoPamja.caktoShenjat('stoku:shenjat:' + f.id);
     if (f.foto) $('lxFoto').src = f.foto;
     hapDialog('dlgLexim');
     var nd = lx.rreshtat.filter(function (r) { return r.dyshim; }).length;
