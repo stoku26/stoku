@@ -76,6 +76,10 @@
     --toast-bg: #322f35;
     --toast-tx: #ffffff;
     --sfond-motiv: rgba(0,0,0,.05);
+    --ops-bg: #f2f3f7;
+    --ops-karte: #ffffff;
+    --ops-hije: 0 1px 2px rgba(16,24,40,.05), 0 1px 3px rgba(16,24,40,.06);
+    --rrezik-tekst: #d32f2f;
   }
   :root[data-tema="dark"] {
     color-scheme: dark;
@@ -96,6 +100,10 @@
     --toast-bg: #e6e1e5;
     --toast-tx: #1c1b1f;
     --sfond-motiv: rgba(255,255,255,.06);
+    --ops-bg: #0e0d10;
+    --ops-karte: #1d1c21;
+    --ops-hije: none;
+    --rrezik-tekst: #ff8a80;
   }
 
   /* Aksentet (ngjyra kryesore) */
@@ -387,39 +395,182 @@
     color: #fff;
   }
   .opsione-krye h2 { margin: 0; flex: 1; min-width: 0; font-size: 20px; font-weight: 600; }
-  .opsione-trup { flex: 1; min-height: 0; overflow-y: auto; padding: 0 20px calc(24px + env(safe-area-inset-bottom)); }
-  .kategori-menu { padding: 14px 0; display: flex; flex-direction: column; gap: 10px; }
+  .opsione-trup {
+    flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding: 0 16px calc(28px + env(safe-area-inset-bottom));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    background: var(--ops-bg);
+  }
+  .opsione-trup > * { max-width: 560px; margin-left: auto; margin-right: auto; }
+  #dlgOpsione .dialog.opsione { background: var(--ops-bg); }
+  .kategori-menu { padding: 16px 0 4px; display: flex; flex-direction: column; }
   .kategori-rresht {
     display: flex; align-items: center; gap: 14px;
     width: 100%; text-align: left; border: 0; background: var(--fushe-bg);
     border-radius: 16px; padding: 13px 15px; cursor: pointer;
-    box-shadow: 0 1px 2px rgba(20,20,30,.06);
   }
   #zhvendosLista .kategori-rresht {
     background: transparent; border-radius: 10px; box-shadow: none;
     padding: 12px 8px; border-bottom: 1px solid var(--vije); font-weight: 500;
   }
   .kategori-rresht:active { background: var(--hover); }
-  .kat-ikona-badge {
-    flex: none; width: 38px; height: 38px; border-radius: 11px;
-    background: rgba(21,101,192,.13);
+
+  /* Opsionet — stil "grupe me karta" (si cilësimet e iPhone/Android) */
+  .ops-karte, .opsione-faqe .seksion {
+    background: var(--ops-karte); border-radius: 18px; overflow: hidden;
+    box-shadow: var(--ops-hije);
+  }
+  .ops-karte { margin-bottom: 22px; }
+  .ops-grup-titull, .opsione-faqe .opsion-titull {
+    font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--gri); margin: 0 4px 8px;
+  }
+  .ops-rresht {
+    display: flex; align-items: center; gap: 14px; width: 100%; min-height: 60px;
+    padding: 10px 14px; border: 0; background: transparent; color: var(--tekst);
+    text-align: left; font: inherit; cursor: pointer; text-decoration: none; position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ops-rresht:active { background: var(--hover); }
+  .ops-rresht + .ops-rresht::before, label.opsion-rresht + label.opsion-rresht::before {
+    content: ''; position: absolute; top: 0; right: 0; left: 64px; border-top: 1px solid var(--vije);
+  }
+  .ops-ikona {
+    flex: none; width: 34px; height: 34px; border-radius: 10px; color: #fff;
     display: flex; align-items: center; justify-content: center;
-    color: var(--primar);
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,.12);
   }
-  .kat-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-  .kat-tekst { font-size: 16px; font-weight: 600; color: var(--tekst); }
-  .kat-status {
-    font-size: 13px; color: var(--gri);
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  .ik { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .ng-vjollce { background: linear-gradient(145deg, #8e6cf0, #6a44d6); }
+  .ng-blu { background: linear-gradient(145deg, #3b93f5, #1a6fd8); }
+  .ng-portokalli { background: linear-gradient(145deg, #ffa53a, #f07a12); }
+  .ng-gurkali { background: linear-gradient(145deg, #22b8a5, #0b8f80); }
+  .ng-gri { background: linear-gradient(145deg, #8c98a8, #647284); }
+  .ng-kuqe { background: linear-gradient(145deg, #f2645a, #d93a30); }
+  .ops-tekste { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .ops-emri { font-size: 16px; font-weight: 600; color: var(--tekst); line-height: 1.3; }
+  .ops-nen {
+    font-size: 13px; color: var(--gri); line-height: 1.4;
+    overflow: hidden; text-overflow: ellipsis;
   }
-  .kategori-rresht .shigjeta { color: var(--gri); font-weight: 400; font-size: 18px; flex: none; }
-  .opsione-faqet { padding: 4px 0 8px; }
-  .opsione-faqe { display: none; }
-  .opsione-faqe.aktiv { display: block; }
-  .opsione-faqe .seksion:first-child { padding-top: 0; }
+  .ops-rresht .ops-nen { white-space: nowrap; }
+  .ops-rresht .shigjeta, .ops-profil .shigjeta { color: var(--gri); opacity: .7; font-size: 22px; font-weight: 300; flex: none; line-height: 1; }
+  .ops-rresht-rrezik .ops-emri { color: var(--rrezik-tekst); }
+  .ops-pike { flex: none; width: 9px; height: 9px; border-radius: 50%; background: transparent; }
+  .ops-pike.ok { background: #2fb36d; box-shadow: 0 0 0 3px rgba(47,179,109,.18); }
+  .ops-pike.duke { background: #f0a020; box-shadow: 0 0 0 3px rgba(240,160,32,.18); }
+  .ops-pike.gabim { background: #e5483e; box-shadow: 0 0 0 3px rgba(229,72,62,.18); }
+
+  /* Karta e profilit në krye të menusë */
+  .ops-profil {
+    display: flex; align-items: center; gap: 14px; width: 100%; margin-bottom: 26px;
+    padding: 16px; border: 0; border-radius: 20px; text-align: left; font: inherit; cursor: pointer;
+    background: var(--ops-karte); color: var(--tekst); box-shadow: var(--ops-hije);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ops-profil:active { background: var(--hover); }
+  .ops-avatar {
+    flex: none; width: 54px; height: 54px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 23px; font-weight: 700; color: #fff; text-transform: uppercase;
+    background: linear-gradient(145deg, color-mix(in srgb, var(--primar) 70%, #fff), var(--primar));
+    background-color: var(--primar);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--primar) 35%, transparent);
+  }
+  .ops-avatar-madh { width: 76px; height: 76px; font-size: 32px; margin: 0 auto 10px; }
+  .ops-profil-emri { font-size: 19px; font-weight: 700; color: var(--tekst); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ops-profil .ops-nen { white-space: nowrap; }
+  .ops-fund { text-align: center; font-size: 12px; color: var(--gri); opacity: .8; padding: 2px 0 8px; }
+
+  .lidhje-pc-grup { display: none; }
+  @media (min-width: 900px) and (hover: hover) { .lidhje-pc-grup { display: block; } }
+
+  /* Faqet e brendshme */
+  .opsione-faqet { padding: 0; }
+  .opsione-faqe { display: none; padding: 18px 0 8px; }
+  .opsione-faqe.aktiv { display: block; animation: opsHyr .22s ease; }
+  .kategori-menu:not([style*="none"]) { animation: opsHyr .22s ease; }
+  @keyframes opsHyr { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .opsione-faqe.aktiv, .kategori-menu { animation: none !important; } }
   .seksion { padding: 18px 0; border-bottom: 1px solid var(--vije); }
   .seksion:last-child, .seksion.seksion-fundit { border-bottom: 0; }
+  .opsione-faqe .seksion { padding: 16px; margin-bottom: 18px; border-bottom: 0; }
+  .opsione-faqe .seksion .opsion-titull { margin: 0 0 12px; font-size: 12px; }
+  .opsione-faqe .seksion-lista { padding: 4px 0; }
+  .opsione-faqe .seksion-lista > .opsion-titull { margin: 14px 16px 4px; }
+  .opsione-faqe .seksion > .hint:last-child { margin-bottom: 0; }
+  .opsione-faqe .ops-hint-jashte { margin: -8px 6px 18px; }
+  .opsione-faqe .ops-hint-jashte:empty { display: none; }
+  .opsione-faqe .opsion-titull { color: var(--gri); }
   .opsion-titull { font-size: 13px; font-weight: 700; color: var(--gri); margin-bottom: 8px; }
+
+  /* Zgjedhja e temës me mostra të vogla */
+  .tema-rrjeti { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .tema-karte {
+    border: 0; background: transparent; padding: 0; cursor: pointer; font: inherit; color: var(--tekst);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .tema-mostra {
+    position: relative; display: block; width: 100%; aspect-ratio: 4 / 3.2; border-radius: 12px; overflow: hidden;
+    border: 2px solid var(--vije); transition: border-color .15s, box-shadow .15s;
+  }
+  .tema-karte.aktiv .tema-mostra { border-color: var(--primar); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primar) 22%, transparent); }
+  .tema-emri { font-size: 13.5px; font-weight: 600; }
+  .tema-karte.aktiv .tema-emri { color: var(--btn-tekst); }
+  .tm-light { background: #f4f5f8; }
+  .tm-dark { background: #17161a; }
+  .tm-auto { background: #f4f5f8; }
+  .tm-gjysme { position: absolute; top: 0; right: 0; bottom: 0; width: 50%; background: #17161a; }
+  .tm-krye { position: absolute; top: 0; left: 0; right: 0; height: 24%; background: var(--primar); }
+  .tm-v1, .tm-v2, .tm-v3 { position: absolute; left: 12%; height: 11%; border-radius: 4px; background: #fff; box-shadow: 0 1px 1px rgba(0,0,0,.08); }
+  .tm-v1 { top: 36%; right: 12%; } .tm-v2 { top: 55%; right: 26%; } .tm-v3 { top: 74%; right: 40%; }
+  .tm-dark .tm-v1, .tm-dark .tm-v2, .tm-dark .tm-v3 { background: #2a292f; box-shadow: none; }
+  .tm-auto .tm-v1 { background: linear-gradient(90deg, #fff 50%, #2a292f 50%); }
+  .tm-auto .tm-v2 { background: linear-gradient(90deg, #fff 61%, #2a292f 61%); }
+  .tm-auto .tm-v3 { background: linear-gradient(90deg, #fff 79%, #2a292f 79%); }
+
+  /* Zgjedhjet e renditjes (si radio) */
+  .rendi-opsion {
+    display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 10px 16px;
+    border: 0; background: transparent; color: var(--tekst); font: inherit; font-size: 16px; text-align: left;
+    cursor: pointer; position: relative; -webkit-tap-highlight-color: transparent;
+  }
+  .rendi-opsion:active { background: var(--hover); }
+  .rendi-opsion + .rendi-opsion::before { content: ''; position: absolute; top: 0; right: 0; left: 16px; border-top: 1px solid var(--vije); }
+  .rendi-opsion span { flex: 1; }
+  .rendi-opsion .rendi-shenja {
+    flex: none; width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--fushe-kufi);
+    display: flex; align-items: center; justify-content: center; transition: all .15s;
+  }
+  .rendi-opsion.aktiv .rendi-shenja { border-color: var(--primar); background: var(--primar); }
+  .rendi-opsion.aktiv .rendi-shenja::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+  .rendi-opsion.aktiv span { font-weight: 600; }
+
+  /* Sinkronizimi */
+  .sink-hero { text-align: center; padding: 24px 18px 20px !important; }
+  .sink-rreth {
+    width: 68px; height: 68px; border-radius: 50%; margin: 0 auto 12px;
+    display: flex; align-items: center; justify-content: center; color: #fff;
+    background: linear-gradient(145deg, #22b8a5, #0b8f80); position: relative;
+  }
+  .sink-rreth .ik { width: 32px; height: 32px; }
+  .sink-rreth.duke { background: linear-gradient(145deg, #ffb547, #f0901a); }
+  .sink-rreth.duke .ik { animation: sinkPulso 1.2s ease-in-out infinite; }
+  .sink-rreth.gabim { background: linear-gradient(145deg, #f2645a, #d93a30); }
+  .sink-rreth.ok::after {
+    content: '✓'; position: absolute; right: -2px; bottom: -2px; width: 24px; height: 24px; border-radius: 50%;
+    background: #2fb36d; color: #fff; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center;
+    border: 3px solid var(--ops-karte);
+  }
+  @keyframes sinkPulso { 50% { opacity: .45; } }
+  .sink-statusi { font-size: 17px; font-weight: 700; color: var(--tekst); margin-bottom: 4px; }
+  .ops-rresht:disabled { opacity: .5; cursor: default; }
+
+  /* Llogaria */
+  .llog-krye { text-align: center; padding: 22px 16px 18px !important; }
+  .llog-emri { font-size: 21px; font-weight: 700; color: var(--tekst); overflow-wrap: anywhere; }
+  .opsione-faqe .seksion .fushe { margin-bottom: 10px; }
   .segment { display: flex; border: 1px solid var(--fushe-kufi); border-radius: 22px; overflow: hidden; }
   .segment button {
     flex: 1; min-height: 40px; border: 0; background: transparent; color: var(--tekst);
@@ -489,6 +640,12 @@
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
     font-size: 16px; color: var(--tekst); margin: 0; padding: 8px 0; cursor: pointer;
   }
+  .opsione-faqe label.opsion-rresht {
+    position: relative; gap: 14px; min-height: 62px; padding: 11px 16px; justify-content: flex-start;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .opsione-faqe label.opsion-rresht:active { background: var(--hover); }
+  .opsione-faqe label.opsion-rresht .ops-nen { white-space: normal; }
   .ndez { position: relative; flex: none; width: 52px; height: 32px; }
   .ndez input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; z-index: 1; }
   .ndez .pist { position: absolute; inset: 0; border-radius: 16px; background: var(--fushe-kufi); transition: background .15s; }
@@ -768,8 +925,6 @@
   .lx-shenim { font-size: 12px; margin: -2px 2px 6px; color: var(--gri); }
   .lx-shenim.paralajm { color: var(--af-verdhe-tx); font-weight: 700; }
   .lx-rresht .lx-numri { font-size: 12px; font-weight: 700; color: var(--gri); margin: 0 0 6px 2px; }
-  .lidhje-pc { display: none; padding: 8px 0; text-decoration: none; font-weight: 600; }
-  @media (min-width: 900px) and (hover: hover) { .lidhje-pc { display: inline-block; } }
 </style>
 </head>
 <body>
@@ -890,42 +1045,89 @@
 <div class="mbulese" id="dlgOpsione">
   <div class="dialog opsione" role="dialog" aria-modal="true">
     <div class="opsione-krye">
-      <button id="opsPrapa" class="btn-ikone" type="button">←</button>
+      <button id="opsPrapa" class="btn-ikone" type="button" aria-label="Prapa">←</button>
       <h2 id="opsioneTitulli"></h2>
     </div>
 
     <div class="opsione-trup">
       <div class="kategori-menu" id="kategoriMenu">
-        <button class="kategori-rresht" type="button" data-faqe="pamja" id="tabPamja">
-          <span class="kat-ikona-badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg></span>
-          <span class="kat-info"><span class="kat-tekst" id="tabPamjaTxt"></span><span class="kat-status" id="tabPamjaStatus"></span></span>
+        <!-- Profili: hap faqen e llogarisë -->
+        <button class="ops-profil" type="button" data-faqe="llogaria" id="tabLlogaria">
+          <span class="ops-avatar" id="opsAvatar">S</span>
+          <span class="ops-tekste">
+            <span class="ops-profil-emri" id="opsProfilEmri"></span>
+            <span class="ops-nen" id="tabLlogariaStatus"></span>
+          </span>
           <span class="shigjeta">›</span>
         </button>
-        <button class="kategori-rresht" type="button" data-faqe="skenimi" id="tabSkenimi">
-          <span class="kat-ikona-badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="15" height="10" rx="2"></rect><path d="m21 8-5 3 5 3Z"></path></svg></span>
-          <span class="kat-info"><span class="kat-tekst" id="tabSkenimiTxt"></span><span class="kat-status" id="tabSkenimiStatus"></span></span>
-          <span class="shigjeta">›</span>
-        </button>
-        <button class="kategori-rresht" type="button" data-faqe="lista" id="tabLista">
-          <span class="kat-ikona-badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg></span>
-          <span class="kat-info"><span class="kat-tekst" id="tabListaTxt"></span><span class="kat-status" id="tabListaStatus"></span></span>
-          <span class="shigjeta">›</span>
-        </button>
-        <button class="kategori-rresht" type="button" data-faqe="llogaria" id="tabLlogaria">
-          <span class="kat-ikona-badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
-          <span class="kat-info"><span class="kat-tekst" id="tabLlogariaTxt"></span><span class="kat-status" id="tabLlogariaStatus"></span></span>
-          <span class="shigjeta">›</span>
-        </button>
+
+        <div class="ops-grup-titull" id="grupAplikacioni"></div>
+        <div class="ops-karte">
+          <button class="ops-rresht" type="button" data-faqe="pamja" id="tabPamja">
+            <span class="ops-ikona ng-vjollce"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><circle cx="13.5" cy="6.5" r="1"></circle><circle cx="17.5" cy="10.5" r="1"></circle><circle cx="8.5" cy="7.5" r="1"></circle><circle cx="6.5" cy="12.5" r="1"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.55-2.5 5.55-5.55C21.97 6.01 17.46 2 12 2z"></path></svg></span>
+            <span class="ops-tekste"><span class="ops-emri" id="tabPamjaTxt"></span><span class="ops-nen" id="tabPamjaStatus"></span></span>
+            <span class="shigjeta">›</span>
+          </button>
+          <button class="ops-rresht" type="button" data-faqe="skenimi" id="tabSkenimi">
+            <span class="ops-ikona ng-blu"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path><path d="M8 7v10"></path><path d="M12 7v10"></path><path d="M16 7v10"></path></svg></span>
+            <span class="ops-tekste"><span class="ops-emri" id="tabSkenimiTxt"></span><span class="ops-nen" id="tabSkenimiStatus"></span></span>
+            <span class="shigjeta">›</span>
+          </button>
+          <button class="ops-rresht" type="button" data-faqe="lista" id="tabLista">
+            <span class="ops-ikona ng-portokalli"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 16 4 4 4-4"></path><path d="M7 20V4"></path><path d="M11 4h10"></path><path d="M11 8h7"></path><path d="M11 12h4"></path></svg></span>
+            <span class="ops-tekste"><span class="ops-emri" id="tabListaTxt"></span><span class="ops-nen" id="tabListaStatus"></span></span>
+            <span class="shigjeta">›</span>
+          </button>
+        </div>
+
+        <div class="ops-grup-titull" id="grupTeDhenat"></div>
+        <div class="ops-karte">
+          <button class="ops-rresht" type="button" data-faqe="sinkronizimi" id="tabSinkronizimi">
+            <span class="ops-ikona ng-gurkali"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg></span>
+            <span class="ops-tekste"><span class="ops-emri" id="tabSinkronizimiTxt"></span><span class="ops-nen" id="tabSinkronizimiStatus"></span></span>
+            <span class="ops-pike" id="opsSinkPika"></span>
+            <span class="shigjeta">›</span>
+          </button>
+        </div>
+
+        <div class="lidhje-pc-grup">
+          <div class="ops-karte">
+            <a class="ops-rresht" id="lidhjaPc" href="pc.html">
+              <span class="ops-ikona ng-gri"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8"></path><path d="M12 17v4"></path></svg></span>
+              <span class="ops-tekste"><span class="ops-emri" id="lidhjaPcTxt"></span><span class="ops-nen" id="lidhjaPcNen"></span></span>
+              <span class="shigjeta">›</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="ops-karte ops-karte-dil" id="kartaDil">
+          <button class="ops-rresht ops-rresht-rrezik" type="button" id="opsDilRresht">
+            <span class="ops-ikona ng-kuqe"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path></svg></span>
+            <span class="ops-tekste"><span class="ops-emri" id="opsDilTxt"></span></span>
+          </button>
+        </div>
+
+        <div class="ops-fund" id="opsFund"></div>
       </div>
 
       <div class="opsione-faqet">
+        <!-- ============ Pamja ============ -->
         <div class="opsione-faqe" data-faqe="pamja">
           <div class="seksion">
             <div class="opsion-titull" id="titPamja"></div>
-            <div class="segment" id="segTema">
-              <button type="button" data-v="auto" id="temaAuto"></button>
-              <button type="button" data-v="light" id="temaLight"></button>
-              <button type="button" data-v="dark" id="temaDark"></button>
+            <div class="tema-rrjeti" id="segTema">
+              <button type="button" class="tema-karte" data-v="auto">
+                <span class="tema-mostra tm-auto"><span class="tm-gjysme"></span><span class="tm-krye"></span><span class="tm-v1"></span><span class="tm-v2"></span><span class="tm-v3"></span></span>
+                <span class="tema-emri" id="temaAuto"></span>
+              </button>
+              <button type="button" class="tema-karte" data-v="light">
+                <span class="tema-mostra tm-light"><span class="tm-krye"></span><span class="tm-v1"></span><span class="tm-v2"></span><span class="tm-v3"></span></span>
+                <span class="tema-emri" id="temaLight"></span>
+              </button>
+              <button type="button" class="tema-karte" data-v="dark">
+                <span class="tema-mostra tm-dark"><span class="tm-krye"></span><span class="tm-v1"></span><span class="tm-v2"></span><span class="tm-v3"></span></span>
+                <span class="tema-emri" id="temaDark"></span>
+              </button>
             </div>
             <div class="hint" id="temaHint"></div>
           </div>
@@ -956,54 +1158,84 @@
               <button type="button" class="sfond-mostra" data-v="diagonale" id="sfondDiagonale"><span></span></button>
             </div>
             <div class="hint" id="sfondiHint"></div>
-            <a class="btn tekst lidhje-pc" id="lidhjaPc" href="pc.html">Hap versionin për kompjuter ›</a>
           </div>
         </div>
 
+        <!-- ============ Skenimi ============ -->
         <div class="opsione-faqe" data-faqe="skenimi">
-          <div class="seksion">
-            <label class="opsion-rresht" for="opsPda">
-              <span id="lblOpsPda"></span>
-              <span class="ndez"><input type="checkbox" id="opsPda"><span class="pist"></span></span>
-            </label>
-            <div class="hint" id="pdaHint"></div>
-          </div>
-          <div class="seksion">
-            <label class="opsion-rresht" for="opsPaEmer">
-              <span id="lblOpsPaEmer"></span>
-              <span class="ndez"><input type="checkbox" id="opsPaEmer"><span class="pist"></span></span>
-            </label>
-            <div class="hint" id="paEmerHint"></div>
-          </div>
-          <div class="seksion" id="seksionTingull">
-            <label class="opsion-rresht" for="opsTingull" id="rreshtTingull">
-              <span id="lblOpsTingull"></span>
+          <div class="seksion seksion-lista" id="kartaKamera">
+            <div class="opsion-titull" id="titKamera"></div>
+            <label class="opsion-rresht" for="opsTingull" id="seksionTingull">
+              <span class="ops-ikona ng-blu"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg></span>
+              <span class="ops-tekste"><span class="ops-emri" id="lblOpsTingull"></span><span class="ops-nen" id="tingullNen"></span></span>
               <span class="ndez"><input type="checkbox" id="opsTingull"><span class="pist"></span></span>
             </label>
-          </div>
-          <div class="seksion" id="seksionScanner">
-            <label class="opsion-rresht" for="opsScanner" id="rreshtScanner">
-              <span id="lblOpsScanner"></span>
+            <label class="opsion-rresht" for="opsScanner" id="seksionScanner">
+              <span class="ops-ikona ng-gurkali"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h1a3 3 0 0 1 3 3 3 3 0 0 1 3-3h1"></path><path d="M13 20h-1a3 3 0 0 1-3-3 3 3 0 0 1-3 3H5"></path><path d="M5 16H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h1"></path><path d="M13 8h7a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-7"></path><path d="M9 7v10"></path></svg></span>
+              <span class="ops-tekste"><span class="ops-emri" id="lblOpsScanner"></span><span class="ops-nen" id="scannerNen"></span></span>
               <span class="ndez"><input type="checkbox" id="opsScanner"><span class="pist"></span></span>
             </label>
           </div>
-        </div>
-
-        <div class="opsione-faqe" data-faqe="lista">
-          <div class="seksion">
-            <div class="fushe">
-              <label for="opsRendi" id="lblOpsRendi"></label>
-              <select id="opsRendi">
-                <option value="i_ri" id="optIRi"></option>
-                <option value="emri" id="optEmriAZ"></option>
-                <option value="emriZA" id="optEmriZA"></option>
-                <option value="sasiaUlet" id="optSasiaUlet"></option>
-                <option value="sasiaLart" id="optSasiaLart"></option>
-              </select>
-            </div>
+          <div class="seksion seksion-lista">
+            <div class="opsion-titull" id="titPajisja"></div>
+            <label class="opsion-rresht" for="opsPda">
+              <span class="ops-ikona ng-vjollce"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"></rect><path d="M12 18h.01"></path></svg></span>
+              <span class="ops-tekste"><span class="ops-emri" id="lblOpsPda"></span><span class="ops-nen" id="pdaHint"></span></span>
+              <span class="ndez"><input type="checkbox" id="opsPda"><span class="pist"></span></span>
+            </label>
+          </div>
+          <div class="seksion seksion-lista">
+            <div class="opsion-titull" id="titAvancuar"></div>
+            <label class="opsion-rresht" for="opsPaEmer">
+              <span class="ops-ikona ng-portokalli"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg></span>
+              <span class="ops-tekste"><span class="ops-emri" id="lblOpsPaEmer"></span><span class="ops-nen" id="paEmerHint"></span></span>
+              <span class="ndez"><input type="checkbox" id="opsPaEmer"><span class="pist"></span></span>
+            </label>
           </div>
         </div>
 
+        <!-- ============ Lista ============ -->
+        <div class="opsione-faqe" data-faqe="lista">
+          <div class="seksion seksion-lista">
+            <div class="opsion-titull" id="lblOpsRendi"></div>
+            <div id="rendiZgjedhjet" role="radiogroup"></div>
+            <select id="opsRendi" hidden>
+              <option value="i_ri" id="optIRi"></option>
+              <option value="emri" id="optEmriAZ"></option>
+              <option value="emriZA" id="optEmriZA"></option>
+              <option value="sasiaUlet" id="optSasiaUlet"></option>
+              <option value="sasiaLart" id="optSasiaLart"></option>
+            </select>
+          </div>
+          <div class="hint ops-hint-jashte" id="rendiHint"></div>
+        </div>
+
+        <!-- ============ Sinkronizimi ============ -->
+        <div class="opsione-faqe" data-faqe="sinkronizimi">
+          <div id="cloudBrendaSeksion" style="display:none">
+            <div class="seksion sink-hero">
+              <span class="sink-rreth" id="sinkRreth"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg></span>
+              <div class="sink-statusi" id="cloudStatusi"></div>
+              <div class="ops-nen" id="cloudHyrePerTeksti"></div>
+            </div>
+            <div class="seksion seksion-lista">
+              <button class="ops-rresht" type="button" id="cloudSinkronizoTani">
+                <span class="ops-ikona ng-gurkali"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 16h5v5"></path></svg></span>
+                <span class="ops-tekste"><span class="ops-emri" id="cloudSinkronizoTaniTxt"></span><span class="ops-nen" id="cloudSinkronizoTaniNen"></span></span>
+              </button>
+              <button class="ops-rresht" type="button" id="cloudRiktheTani">
+                <span class="ops-ikona ng-portokalli"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 13v8"></path><path d="m8 17 4 4 4-4"></path><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"></path></svg></span>
+                <span class="ops-tekste"><span class="ops-emri" id="cloudRiktheTaniTxt"></span><span class="ops-nen" id="cloudRiktheTaniNen"></span></span>
+              </button>
+            </div>
+            <div class="hint ops-hint-jashte" id="sinkHint"></div>
+          </div>
+          <div class="seksion" id="sinkJoKycurSeksion" style="display:none">
+            <div class="hint" id="sinkJoKycurHint"></div>
+          </div>
+        </div>
+
+        <!-- ============ Llogaria ============ -->
         <div class="opsione-faqe" data-faqe="llogaria">
           <div class="seksion" id="cloudHyrjeSeksion">
             <div class="hint" id="cloudHint"></div>
@@ -1019,32 +1251,40 @@
               <button class="btn" id="cloudHyrBtn" type="button"></button>
             </div>
           </div>
-          <div class="seksion" id="cloudBrendaSeksion" style="display:none">
-            <div class="hint" id="cloudHyrePerTeksti"></div>
-            <div class="hint" id="cloudStatusi"></div>
-            <div class="rreshti">
-              <button class="btn" id="cloudSinkronizoTani" type="button"></button>
-              <button class="btn" id="cloudRiktheTani" type="button"></button>
+          <div id="llogariaBrendaSeksion" style="display:none">
+            <div class="seksion llog-krye">
+              <span class="ops-avatar ops-avatar-madh" id="llogAvatar">S</span>
+              <div class="llog-emri" id="llogEmri"></div>
+              <div class="ops-nen" id="llogNen"></div>
             </div>
-          </div>
-          <div class="seksion" id="llogariaBrendaSeksion" style="display:none">
-            <div class="fushe">
-              <input id="cloudEmriRi" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" maxlength="40">
+            <div class="seksion">
+              <div class="opsion-titull" id="titEmriRi"></div>
+              <div class="fushe">
+                <input id="cloudEmriRi" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" maxlength="40">
+              </div>
+              <button class="btn" id="cloudNdryshoEmrin" type="button" style="width:100%"></button>
             </div>
-            <button class="btn" id="cloudNdryshoEmrin" type="button" style="width:100%"></button>
-            <div class="fushe" style="margin-top:12px">
-              <input id="cloudFjalekalimiRi" type="password" autocomplete="off" enterkeyhint="done" maxlength="100">
+            <div class="seksion">
+              <div class="opsion-titull" id="titFjalekalimiRi"></div>
+              <div class="fushe">
+                <input id="cloudFjalekalimiRi" type="password" autocomplete="off" enterkeyhint="done" maxlength="100">
+              </div>
+              <button class="btn" id="cloudNdryshoFjalekalimin" type="button" style="width:100%"></button>
             </div>
-            <button class="btn" id="cloudNdryshoFjalekalimin" type="button" style="width:100%"></button>
-            <div class="hint" id="cloudNdryshoGabimHint"></div>
-            <div id="cloudRiautSeksion" style="display:none">
+            <div class="hint ops-hint-jashte" id="cloudNdryshoGabimHint"></div>
+            <div class="seksion" id="cloudRiautSeksion" style="display:none">
               <div class="hint" id="riautHint"></div>
               <div class="fushe">
                 <input id="cloudFjalekalimiAktual" type="password" autocomplete="off" enterkeyhint="done" maxlength="100">
               </div>
               <button class="btn" id="btnRiautentifiko" type="button" style="width:100%"></button>
             </div>
-            <button class="btn tekst rrezik" id="cloudDilBtn" type="button" style="width:100%;margin-top:8px"></button>
+            <div class="seksion seksion-lista">
+              <button class="ops-rresht ops-rresht-rrezik" type="button" id="cloudDilBtn">
+                <span class="ops-ikona ng-kuqe"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path></svg></span>
+                <span class="ops-tekste"><span class="ops-emri" id="cloudDilBtnTxt"></span></span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1284,6 +1524,29 @@
       tabSkenimi: 'Skenimi',
       tabLista: 'Lista',
       tabLlogaria: 'Llogaria',
+      tabSinkronizimi: 'Sinkronizimi',
+      grupAplikacioni: 'Aplikacioni',
+      grupTeDhenat: 'Të dhënat',
+      lidhjaPcTxt: 'Versioni për kompjuter',
+      lidhjaPcNen: 'Hap Stoku-n në pamjen për ekran të madh',
+      opsDilTxt: 'Dil nga llogaria',
+      opsFund: 'Stoku · stoku.site',
+      profilNen: 'Llogaria dhe fjalëkalimi',
+      llogNen: 'Llogari Stoku · të dhënat ruhen në cloud',
+      titKamera: 'Kamera',
+      titPajisja: 'Pajisja',
+      titAvancuar: 'Të avancuara',
+      titEmriRi: 'Emri i përdoruesit',
+      titFjalekalimiRi: 'Fjalëkalimi',
+      rendiHint: 'Vlen për listën e produkteve brenda çdo folderi.',
+      sinkHint: 'Çdo ndryshim ruhet vetë në cloud pas pak sekondash. Me të njëjtën llogari, të dhënat shfaqen ' +
+        'në çdo telefon dhe kompjuter.',
+      cloudSinkronizoTaniNen: 'Dërgo dhe merr ndryshimet menjëherë',
+      cloudRiktheTaniNen: 'Zëvendëso listën e këtij telefoni me atë në cloud',
+      sinkJoKycur: 'Nuk je i kyçur, prandaj të dhënat ruhen vetëm në këtë pajisje.',
+      tingullNen: 'Bip i shkurtër kur skanon me kamerë',
+      scannerNen: 'Për skaner me Bluetooth ose USB',
+      skenimiStatusKamera: function (a) { return 'Kamera · tingulli ' + (a.tingull ? 'i ndezur' : 'i fikur'); },
 
       cloudHint: 'Ruan automatikisht një kopje të listës në internet (Firebase), që të mos humbet nëse fshihet ' +
         'aplikacioni ose ndërrohet telefoni. Ky NUK është sinkronizim i menjëhershëm mes disa telefonave njëkohësisht.',
@@ -1356,20 +1619,20 @@
       sfondDiagonaleEmri: 'Diagonale',
       sfondiHintTeksti: 'Një motiv shumë i lehtë prapa listave, thjesht për pak karakter vizual — nuk e prek lexueshmërinë.',
 
-      pdaLabel: 'Ky është PDA (skaner i brendshëm)',
+      pdaLabel: 'Modaliteti PDA',
       pdaStatusNdezur: 'PDA i ndezur',
       pdaStatusFikur: 'PDA i fikur',
       cloudStatusJoKycur: 'Jo i kyçur',
-      pdaHint: 'Kur është ndezur: ekrani kyçet në portret (pa u rrotulluar anash ose përmbys), fshihet butoni i kamerës dhe kursori qëndron te fusha e barkodit.',
-      paEmerLabel: 'Skano vetëm barkodin dhe sasinë (pa emër)',
-      paEmerHint: 'Nuk rekomandohet. Produktet e reja regjistrohen pa emër dhe fusha e emrit fshihet.',
+      pdaHint: 'Për pajisje me skaner të brendshëm: ekrani kyçet në portret, fshihet kamera dhe kursori qëndron te fusha e barkodit.',
+      paEmerLabel: 'Skano pa emër',
+      paEmerHint: 'Vetëm barkodi dhe sasia — produktet e reja regjistrohen pa emër. Nuk rekomandohet.',
       paEmerKonfTitulli: 'Të regjistrohen produktet pa emër?',
       paEmerKonfTekst: 'Nuk rekomandohet të regjistrohen produktet pa emër. Në listë dhe në Excel do të shihet vetëm ' +
         'barkodi, kështu që është më e vështirë të gjesh, të kontrollosh ose të njohësh një produkt më vonë, sidomos ' +
         'nëse ndonjë barkod është skenuar gabim.\n\nProdukteve që kanë tashmë emër nuk u fshihet emri.\n\n' +
         'Nëse je i sigurt, prit 5 sekonda dhe shtyp "Aktivizo".',
-      tingullLabel: 'Tingulli (bip) kur skanon me kamerë',
-      scannerLabel: 'Mbaje kursorin te fusha e barkodit (për scanner)',
+      tingullLabel: 'Tingulli i skanimit',
+      scannerLabel: 'Kursori te barkodi',
       qrRefuzuar: 'Ke skenuar një kod QR. Skano barkodin e produktit.',
       qrDyshim: 'Kjo nuk duket si barkod produkti (ngjan me kod QR ose tekst). Provo përsëri.',
 
@@ -1427,7 +1690,25 @@
     { id: 'tabPamjaTxt', prop: 'text', kyc: 'tabPamja' },
     { id: 'tabSkenimiTxt', prop: 'text', kyc: 'tabSkenimi' },
     { id: 'tabListaTxt', prop: 'text', kyc: 'tabLista' },
-    { id: 'tabLlogariaTxt', prop: 'text', kyc: 'tabLlogaria' },
+    { id: 'tabSinkronizimiTxt', prop: 'text', kyc: 'tabSinkronizimi' },
+    { id: 'grupAplikacioni', prop: 'text', kyc: 'grupAplikacioni' },
+    { id: 'grupTeDhenat', prop: 'text', kyc: 'grupTeDhenat' },
+    { id: 'lidhjaPcTxt', prop: 'text', kyc: 'lidhjaPcTxt' },
+    { id: 'lidhjaPcNen', prop: 'text', kyc: 'lidhjaPcNen' },
+    { id: 'opsDilTxt', prop: 'text', kyc: 'opsDilTxt' },
+    { id: 'cloudDilBtnTxt', prop: 'text', kyc: 'opsDilTxt' },
+    { id: 'opsFund', prop: 'text', kyc: 'opsFund' },
+    { id: 'llogNen', prop: 'text', kyc: 'llogNen' },
+    { id: 'titKamera', prop: 'text', kyc: 'titKamera' },
+    { id: 'titPajisja', prop: 'text', kyc: 'titPajisja' },
+    { id: 'titAvancuar', prop: 'text', kyc: 'titAvancuar' },
+    { id: 'titEmriRi', prop: 'text', kyc: 'titEmriRi' },
+    { id: 'titFjalekalimiRi', prop: 'text', kyc: 'titFjalekalimiRi' },
+    { id: 'rendiHint', prop: 'text', kyc: 'rendiHint' },
+    { id: 'sinkHint', prop: 'text', kyc: 'sinkHint' },
+    { id: 'sinkJoKycurHint', prop: 'text', kyc: 'sinkJoKycur' },
+    { id: 'cloudSinkronizoTaniNen', prop: 'text', kyc: 'cloudSinkronizoTaniNen' },
+    { id: 'cloudRiktheTaniNen', prop: 'text', kyc: 'cloudRiktheTaniNen' },
     { id: 'titPamja', prop: 'text', kyc: 'tabPamja' },
     { id: 'temaAuto', prop: 'text', kyc: 'automatike' },
     { id: 'temaLight', prop: 'text', kyc: 'eCelet' },
@@ -1456,6 +1737,8 @@
     { id: 'paEmerHint', prop: 'text', kyc: 'paEmerHint' },
     { id: 'lblOpsTingull', prop: 'text', kyc: 'tingullLabel' },
     { id: 'lblOpsScanner', prop: 'text', kyc: 'scannerLabel' },
+    { id: 'tingullNen', prop: 'text', kyc: 'tingullNen' },
+    { id: 'scannerNen', prop: 'text', kyc: 'scannerNen' },
 
     { id: 'lblOpsRendi', prop: 'text', kyc: 'renditSipas' },
     { id: 'optIRi', prop: 'text', kyc: 'iRiOpt' },
@@ -1469,7 +1752,6 @@
     { id: 'cloudFjalekalimi', prop: 'placeholder', kyc: 'lblCloudFjalekalimi' },
     { id: 'cloudKrijoLlogari', prop: 'text', kyc: 'cloudKrijoLlogariBtn' },
     { id: 'cloudHyrBtn', prop: 'text', kyc: 'cloudHyrBtn' },
-    { id: 'cloudDilBtn', prop: 'text', kyc: 'cloudDilBtn' },
     { id: 'cloudEmriRi', prop: 'placeholder', kyc: 'lblCloudEmriRi' },
     { id: 'cloudFjalekalimiRi', prop: 'placeholder', kyc: 'lblCloudFjalekalimiRi' },
     { id: 'riautHint', prop: 'text', kyc: 'riautHintTeksti' },
@@ -1477,8 +1759,8 @@
     { id: 'btnRiautentifiko', prop: 'text', kyc: 'btnRiautentifikoBtn' },
     { id: 'cloudNdryshoEmrin', prop: 'text', kyc: 'cloudNdryshoEmrinBtn' },
     { id: 'cloudNdryshoFjalekalimin', prop: 'text', kyc: 'cloudNdryshoFjalekaliminBtn' },
-    { id: 'cloudSinkronizoTani', prop: 'text', kyc: 'cloudSinkronizoTaniBtn' },
-    { id: 'cloudRiktheTani', prop: 'text', kyc: 'cloudRiktheTaniBtn' },
+    { id: 'cloudSinkronizoTaniTxt', prop: 'text', kyc: 'cloudSinkronizoTaniBtn' },
+    { id: 'cloudRiktheTaniTxt', prop: 'text', kyc: 'cloudRiktheTaniBtn' },
 
     { id: 'konfJo', prop: 'text', kyc: 'anulo' },
 
@@ -2022,6 +2304,7 @@
     opsione.aksent = v;
     ruajOpsionet();
     zbatoAksentin();
+    rifreskoStatusetOpsioneve();
   }
   Array.prototype.forEach.call(document.querySelectorAll('#aksentRrjeti button'), function (b) {
     b.addEventListener('click', function () { vendosAksentin(b.getAttribute('data-v')); });
@@ -2098,6 +2381,7 @@
     $('btnEksportPdf').style.display = ''; // PDF mbetet e dukshme edhe në PDA
     $('seksionTingull').style.display = pda ? 'none' : '';
     $('seksionScanner').style.display = pda ? 'none' : '';
+    $('kartaKamera').style.display = pda ? 'none' : '';
     rregulloVijatNdarese();
     $('barkodi').placeholder = pda ? T('barkodiPda') : T('barkodiNormal');
     zbatoRrotullimin();
@@ -2259,9 +2543,9 @@
   }
   var TAB_TITULL_KYC = {
     pamja: 'tabPamja', skenimi: 'tabSkenimi',
-    lista: 'tabLista', llogaria: 'tabLlogaria'
+    lista: 'tabLista', llogaria: 'tabLlogaria', sinkronizimi: 'tabSinkronizimi'
   };
-  Array.prototype.forEach.call(document.querySelectorAll('.kategori-rresht'), function (b) {
+  Array.prototype.forEach.call(document.querySelectorAll('#kategoriMenu [data-faqe]'), function (b) {
     b.addEventListener('click', function () { aktivizoTabin(b.getAttribute('data-faqe')); });
   });
   // Në menunë kryesore të Opsioneve, "←" i mbyll Opsionet krejtësisht (kthehu te faqja kryesore);
@@ -2272,14 +2556,50 @@
   });
 
   // Dialogu i opsioneve
+  var AKSENT_EMRI_KYC = { blu: 'aksentBluEmri', jeshile: 'aksentJeshileEmri', vjollce: 'aksentVjollceEmri', portokalli: 'aksentPortokalliEmri', kuqe: 'aksentKuqeEmri' };
   function rifreskoStatusetOpsioneve() {
-    $('tabPamjaStatus').textContent = T(zgjedhjaETemes() === 'dark' ? 'eErret' : (zgjedhjaETemes() === 'light' ? 'eCelet' : 'automatike'));
-    $('tabSkenimiStatus').textContent = T(opsione.pda ? 'pdaStatusNdezur' : 'pdaStatusFikur');
+    var tema = T(zgjedhjaETemes() === 'dark' ? 'eErret' : (zgjedhjaETemes() === 'light' ? 'eCelet' : 'automatike'));
+    $('tabPamjaStatus').textContent = tema + ' · ' + T(AKSENT_EMRI_KYC[opsione.aksent] || 'aksentBluEmri');
+    $('tabSkenimiStatus').textContent = opsione.pda ? T('pdaStatusNdezur') : T('skenimiStatusKamera', { tingull: opsione.tingull });
     var rendiKyc = { i_ri: 'iRiOpt', emri: 'emriAZ', emriZA: 'emriZAOpt', sasiaUlet: 'sasiaUletOpt', sasiaLart: 'sasiaLartOpt' }[opsione.rendi];
     $('tabListaStatus').textContent = rendiKyc ? T(rendiKyc) : '';
     var u = perdoruesiAktual();
-    var emriStatus = u ? emriPerdoruesitAktual() : T('cloudStatusJoKycur');
-    $('tabLlogariaStatus').textContent = emriStatus;
+    var emri = u ? emriPerdoruesitAktual() : '';
+    var inicialja = (emri || 'S').charAt(0).toUpperCase();
+    $('opsProfilEmri').textContent = emri || T('tabLlogaria');
+    $('tabLlogariaStatus').textContent = u ? T('profilNen') : T('cloudStatusJoKycur');
+    $('opsAvatar').textContent = inicialja;
+    $('llogAvatar').textContent = inicialja;
+    $('llogEmri').textContent = emri;
+    $('kartaDil').style.display = u ? '' : 'none';
+    var sc = statusiCloud || {}; // mund të thirret para se të inicializohet statusiCloud (më poshtë)
+    $('tabSinkronizimiStatus').textContent = u ? (sc.teksti || T('cloudStatusiAsgje')) : T('cloudStatusJoKycur');
+    $('opsSinkPika').className = 'ops-pike' + (u && sc.gjendja ? ' ' + sc.gjendja : '');
+  }
+
+  // Renditja e listës si zgjedhje me prekje (select-i i fshehur mbetet burimi i vlerës)
+  function ndertoZgjedhjetERenditjes() {
+    var kuti = $('rendiZgjedhjet');
+    kuti.innerHTML = '';
+    Array.prototype.forEach.call($('opsRendi').options, function (o) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'rendi-opsion' + (o.value === opsione.rendi ? ' aktiv' : '');
+      b.setAttribute('role', 'radio');
+      b.setAttribute('aria-checked', o.value === opsione.rendi ? 'true' : 'false');
+      var t = document.createElement('span');
+      t.textContent = o.textContent;
+      var shenja = document.createElement('i');
+      shenja.className = 'rendi-shenja';
+      b.appendChild(t);
+      b.appendChild(shenja);
+      b.addEventListener('click', function () {
+        if ($('opsRendi').value === o.value) return;
+        $('opsRendi').value = o.value;
+        $('opsRendi').dispatchEvent(new Event('change'));
+      });
+      kuti.appendChild(b);
+    });
   }
 
   function hapOpsionet() {
@@ -2294,6 +2614,7 @@
     zbatoMadhesine();
     zbatoSfondin();
     rifreskoDukjenECloud();
+    ndertoZgjedhjetERenditjes();
     rifreskoStatusetOpsioneve();
     aktivizoTabin(null);
     $('dlgOpsione').classList.add('hapur');
@@ -2305,6 +2626,7 @@
   }
 
   $('btnOpsione').addEventListener('click', hapOpsionet);
+  $('opsDilRresht').addEventListener('click', function () { $('cloudDilBtn').click(); });
   $('lidhjaPc').addEventListener('click', function () {
     try { localStorage.setItem('stoku:pamja', 'pc'); } catch (e) { /* ok */ }
   });
@@ -2317,6 +2639,7 @@
   $('opsTingull').addEventListener('change', function () {
     opsione.tingull = $('opsTingull').checked;
     ruajOpsionet();
+    rifreskoStatusetOpsioneve();
     if (opsione.tingull) { pergatitAudion(); bip(); } // një provë e shkurtër
   });
   $('opsScanner').addEventListener('change', function () {
@@ -2349,6 +2672,7 @@
     opsione.rendi = $('opsRendi').value;
     ruajOpsionet();
     renderLista();
+    ndertoZgjedhjetERenditjes();
     rifreskoStatusetOpsioneve();
   });
 
@@ -2486,9 +2810,17 @@
     e.textContent = g === 'ok' ? '✓ Ruajtur në cloud · ' + oraTani() : g === 'gabim' ? 'S\'u ruajt në cloud (pa internet?) — riprovohet vetë' : 'Duke u ruajtur në cloud…';
   }
 
-  function vendosStatusinCloud(teksti) {
+  // gjendja: 'ok' | 'duke' | 'gabim' | '' — ngjyros ikonën te faqja "Sinkronizimi" dhe pikën te menuja
+  var statusiCloud = { teksti: '', gjendja: '' };
+  function vendosStatusinCloud(teksti, gjendja) {
+    statusiCloud = { teksti: teksti, gjendja: gjendja || '' };
     var el = $('cloudStatusi');
     if (el) el.textContent = teksti;
+    var rr = $('sinkRreth');
+    if (rr) rr.className = 'sink-rreth' + (gjendja ? ' ' + gjendja : '');
+    var btn = $('cloudSinkronizoTani');
+    if (btn) btn.disabled = gjendja === 'duke';
+    if ($('opsSinkPika')) rifreskoStatusetOpsioneve();
   }
 
   function oraTani() {
@@ -2529,7 +2861,7 @@
     sinkronizoKohezi = null;
     if (dukeSinkronizuar) { __sinkSerish = true; return; }
     dukeSinkronizuar = true;
-    vendosStatusinCloud(T('cloudStatusiDukeSink'));
+    vendosStatusinCloud(T('cloudStatusiDukeSink'), 'duke');
     var versioniPara = __versioniLokal;
     var rez;
     if (window.__stokuCloud.bashkoDheRuaj) {
@@ -2548,7 +2880,7 @@
       if (versioniPara === __versioniLokal) zbatoBashkimin(rez.gjendja);
       else planifikoSinkronizimin();
     }
-    vendosStatusinCloud(rez.ok ? T('cloudStatusiUSink', { kur: oraTani() }) : T('cloudStatusiDeshtoi'));
+    vendosStatusinCloud(rez.ok ? T('cloudStatusiUSink', { kur: oraTani() }) : T('cloudStatusiDeshtoi'), rez.ok ? 'ok' : 'gabim');
     if (!rez.ok && /maximum|exceeds|too large/i.test(String(rez.arsye || ''))) {
       toast('Të dhënat e dyqanit kanë arritur kufirin e Firebase-it (1 MB) dhe s\'po ruhen në cloud. Fshi afatet/produktet e vjetra ose kontakto administratorin.');
     }
@@ -2589,7 +2921,7 @@
     if (!u || !window.__stokuCloud) return;
     if (__uidISinkronizuarDarePasHyrjes === u.uid) return; // e ba tashmë për këtë hyrje
     __uidISinkronizuarDarePasHyrjes = u.uid;
-    vendosStatusinCloud(T('cloudStatusiDukeSink'));
+    vendosStatusinCloud(T('cloudStatusiDukeSink'), 'duke');
     var rez = await window.__stokuCloud.merr();
     if (rez.ok && rez.gjendja) {
       if (pajisjaEshteEPaprekur() && Array.isArray(rez.gjendja.foldera) && rez.gjendja.foldera.length > 0) {
@@ -2646,10 +2978,11 @@
     $('cloudHyrjeSeksion').style.display = u ? 'none' : '';
     $('cloudBrendaSeksion').style.display = u ? '' : 'none';
     $('llogariaBrendaSeksion').style.display = u ? '' : 'none';
+    $('sinkJoKycurSeksion').style.display = u ? 'none' : '';
     rregulloVijatNdarese();
     if (u) {
       $('cloudHyrePerTeksti').textContent = T('cloudHyrePerTeksti', { emri: emriPerdoruesitAktual() });
-      if (!dukeSinkronizuar && !dukeRikthyerNgaCloud) vendosStatusinCloud(T('cloudStatusiAsgje'));
+      if (!dukeSinkronizuar && !dukeRikthyerNgaCloud && !(statusiCloud && statusiCloud.teksti)) vendosStatusinCloud(T('cloudStatusiAsgje'));
     } else {
       $('cloudGabimHint').textContent = '';
       $('cloudNdryshoGabimHint').textContent = '';
@@ -2712,7 +3045,8 @@
   $('cloudRiktheTani').addEventListener('click', async function () {
     if (!perdoruesiAktual() || !window.__stokuCloud) return;
     dukeRikthyerNgaCloud = true;
-    vendosStatusinCloud(T('cloudStatusiDukeRikthyer'));
+    var statusiPara = statusiCloud;
+    vendosStatusinCloud(T('cloudStatusiDukeRikthyer'), 'duke');
     var rez = await window.__stokuCloud.merr();
     dukeRikthyerNgaCloud = false;
     if (!rez.ok || !rez.gjendja) {
@@ -2722,13 +3056,13 @@
     }
     var aktual = Object.keys(produktet).length;
     var po = await konfirmo(T('cloudTeRiktheteCloud'), T('cloudRiktheTekst', { aktual: aktual }), T('rikthe'));
-    if (!po) { rifreskoDukjenECloud(); return; }
+    if (!po) { vendosStatusinCloud(statusiPara.teksti, statusiPara.gjendja); rifreskoDukjenECloud(); return; }
     fshira = { produktet: {}, foldera: {}, afatet: {} };
     ruajFshiraet();
     if (!Array.isArray(rez.gjendja.afatet)) rez.gjendja.afatet = [];
     zbatoGjendjenNgaCloud(rez.gjendja);
     toast(T('cloudURikthye'));
-    vendosStatusinCloud(T('cloudStatusiUSink', { kur: oraTani() }));
+    vendosStatusinCloud(T('cloudStatusiUSink', { kur: oraTani() }), 'ok');
   });
 
   var veprimiNePritje = null; // funksioni që duhet riprovuar pas ri-identifikimit të suksesshëm
