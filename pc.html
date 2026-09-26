@@ -962,7 +962,7 @@
         <label class="fushe"><span>Barkodi</span><input class="inp mono" id="afdBarkodi" type="text" autocomplete="off" spellcheck="false" maxlength="64"></label>
         <label class="fushe"><span>Data e skadimit</span><input class="inp" id="afdData" type="date"></label>
       </div>
-      <label class="fushe" style="max-width:220px"><span>Sasia (copë)</span><input class="inp" id="afdSasia" type="text" inputmode="numeric" autocomplete="off" placeholder="p.sh. 12 ose 60+30"></label>
+      <label class="fushe" style="max-width:220px"><span>Sasia (copë)</span><input class="inp" id="afdSasia" type="text" inputmode="numeric" autocomplete="off"></label>
       <label class="fushe"><span>Emri i produktit</span><input class="inp" id="afdEmri" type="text" autocomplete="off" maxlength="120"></label>
       <label class="fushe"><span>Furnitori</span><input class="inp" id="afdFurnizuesi" type="text" list="afdFurnizuesit" autocomplete="off" maxlength="80"></label>
       <datalist id="afdFurnizuesit"></datalist>
@@ -3959,7 +3959,7 @@
     var f = $('afdFurnizuesi').value.trim();
     var sasiaTx = $('afdSasia').value.trim();
     var sasia = AF.lexoSasine(sasiaTx);
-    if (sasiaTx && sasia === '') { $('afdGabim').textContent = 'Sasia duhet të jetë numër i plotë (p.sh. 12 ose 60+30).'; $('afdSasia').focus(); return; }
+    if (sasiaTx && sasia === '') { $('afdGabim').textContent = 'Sasia duhet të jetë numër i plotë (p.sh. 12).'; $('afdSasia').focus(); return; }
     if (!b && !emri) { $('afdGabim').textContent = 'Shkruaj barkodin ose emrin e produktit.'; $('afdBarkodi').focus(); return; }
     if (!AF.lexoDaten(data)) { $('afdGabim').textContent = 'Zgjidh datën e skadimit.'; $('afdData').focus(); return; }
     var tani = Date.now();
@@ -4165,7 +4165,7 @@
       qs.td.appendChild(shs);
       function shumaSasise() {
         var ok = AF.sasiaSiShume(r.sasiaTx);
-        shs.textContent = ok ? '= ' + AF.lexoSasine(ok) + ' copë' : (r.sasiaTx && AF.lexoSasine(r.sasiaTx) === '' ? 'Shkruaj numër, p.sh. 12 ose 60+30' : '');
+        shs.textContent = ok ? '= ' + AF.lexoSasine(ok) + ' copë' : (r.sasiaTx && AF.lexoSasine(r.sasiaTx) === '' ? 'Shkruaj numër, p.sh. 12' : '');
         shs.className = !ok && shs.textContent ? 'paralajm' : '';
       }
       shumaSasise();
