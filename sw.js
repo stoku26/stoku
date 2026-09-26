@@ -1,12 +1,16 @@
 /*
- * Service worker: e ruan aplikacionin në telefon që të hapet edhe pa internet
- * pasi të jetë hapur një herë me internet.
+ * Service worker: e ruan aplikacionin në telefon që të hapet edhe pa internet, dhe e përditëson vetë.
  *
- * NDRYSHIM: kur ta përditësosh index.html, ndrysho numrin këtu (v1 -> v2),
- * që telefonat të marrin versionin e ri. Kur ndryshon xlsx.js / bashkimi.js / afatet.js, ndrysho edhe
- * "?v=" te index.html, pc.html dhe më poshtë — që asnjë pajisje të mos përdorë kopjen e vjetër.
+ * VERSION I RI = ndrysho numrin te CACHE (v90 → v91). Faqja e kontrollon sw.js në sfond sa herë hapet
+ * aplikacioni; kur numri ndryshon, instalohet versioni i ri dhe aplikacioni rinis vetë në çastin e parë
+ * të qetë. Kur ndryshon një skedar me "?v=" (xlsx.js, afatet.js, teRejat.js…), ndrysho "?v=" edhe te
+ * index.html, pc.html dhe te SHELL më poshtë. Te teRejat.js shto edhe shënimin "Çka ka të re".
+ *
+ * Instalimi është i lirë: skedarët e pandryshuar (bibliotekat, ikonat, skedarët me të njëjtin ?v=)
+ * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
+ * merren nga interneti.
  */
-var CACHE = 'stoku-v90';
+var CACHE = 'stoku-v91';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
 importScripts('./afatet.js?v=88', './njoftimet.js?v=85');
@@ -17,33 +21,61 @@ var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js',
   'https://cdn.jsdelivr.net/npm/jspdf@3.0.3/dist/jspdf.umd.min.js'
 ];
-var SHELL = [
-  './',
-  './index.html',
-  './pc.html',
+// Faqet: merren gjithmonë nga interneti (duke anashkaluar cache-in HTTP të shfletuesit)
+var FAQET = ['./', './index.html', './pc.html'];
+var SHELL = FAQET.concat([
   './xlsx.js?v=58',
   './bashkimi.js?v=81',
   './ruajtja.js?v=81',
   './afatet.js?v=88',
   './porta.js?v=86',
   './njoftimet.js?v=85',
+  './teRejat.js?v=91',
   './manifest.webmanifest?v=84',
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png',
   './logo.png'
-];
+]);
+
+async function mbushCacheEri() {
+  var c = await caches.open(CACHE);
+  var teVjetrat = [];
+  try {
+    var emrat = await caches.keys();
+    for (var i = 0; i < emrat.length; i++) if (emrat[i] !== CACHE) teVjetrat.push(await caches.open(emrat[i]));
+  } catch (e) { /* pa cache të vjetër */ }
+  async function ngaCacheEVjeter(url) {
+    for (var j = 0; j < teVjetrat.length; j++) { var r = await teVjetrat[j].match(url); if (r) return r; }
+    return null;
+  }
+  // 1) Faqet: gjithmonë të freskëta
+  for (var f = 0; f < FAQET.length; f++) {
+    var pf = await fetch(FAQET[f], { cache: 'reload' });
+    if (!pf || !pf.ok) throw new Error('instalimi dështoi: ' + FAQET[f]);
+    await c.put(FAQET[f], pf);
+  }
+  // 2) Skedarët e aplikacionit: të pandryshuarit kopjohen nga cache-i i vjetër, të rinjtë shkarkohen
+  for (var k = 0; k < SHELL.length; k++) {
+    var url = SHELL[k];
+    if (FAQET.indexOf(url) !== -1) continue;
+    var eVjeter = await ngaCacheEVjeter(url);
+    if (eVjeter) { await c.put(url, eVjeter); continue; }
+    var p = await fetch(url);
+    if (!p || !p.ok) throw new Error('instalimi dështoi: ' + url);
+    await c.put(url, p);
+  }
+  // 3) Bibliotekat e jashtme (kamera, barkodi, PDF): nëse dështojnë, aplikacioni prapë instalohet
+  await Promise.all(CDN_BIBLIOTEKA.map(async function (u) {
+    try {
+      var e = await ngaCacheEVjeter(u);
+      if (e) await c.put(u, e); else await c.add(u);
+    } catch (err) { /* ok */ }
+  }));
+}
 
 self.addEventListener('install', function (e) {
-  e.waitUntil(
-    caches.open(CACHE).then(function (c) {
-      return c.addAll(SHELL).then(function () {
-        // bibliotekat e jashtme (kamera, barkodi, PDF): nëse dështojnë, aplikacioni prapë instalohet
-        return Promise.all(CDN_BIBLIOTEKA.map(function (u) { return c.add(u).catch(function () { /* ok */ }); }));
-      });
-    })
-  );
-  self.skipWaiting();
+  e.waitUntil(mbushCacheEri().then(function () { return self.skipWaiting(); }));
 });
 
 self.addEventListener('activate', function (e) {
@@ -69,7 +101,8 @@ self.addEventListener('fetch', function (e) {
       // Internet i ngadaltë (p.sh. 3G i dobët në dyqan): pas 4 s hapet kopja e ruajtur, që aplikacioni të mos
       // rrijë me ekran të bardhë; versioni i ri (nëse ka) merret ndërkohë dhe përdoret hapjen tjetër.
       var kohezuesi = setTimeout(function () { caches.match(faqja).then(kthe); }, 4000);
-      fetch(kerkesa).then(function (pergjigja) {
+      // cache: 'no-cache' = rivërtetohet me serverin (ETag) — kopja HTTP e shfletuesit s'e mban faqen e vjetër deri 10 min
+      fetch(kerkesa.url, { cache: 'no-cache', redirect: 'manual', credentials: 'same-origin' }).then(function (pergjigja) {
         clearTimeout(kohezuesi);
         // Ridrejtim (p.sh. adresa e vjetër → stoku.site): lëre shfletuesin ta ndjekë, mos e fsheh me kopjen e ruajtur
         if (pergjigja && pergjigja.type === 'opaqueredirect') { kthe(pergjigja); return; }

@@ -425,6 +425,22 @@
   }
   .mbulese.hapur { display: flex; animation: shfaq .12s ease-out; }
   #dlgKonfirmo { z-index: 55; }
+  /* "Çka ka të re" */
+  .tr-krye { gap: 14px; }
+  .tr-ikona {
+    flex: none; width: 46px; height: 46px; border-radius: 14px; color: #fff; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(145deg, color-mix(in srgb, var(--primar) 65%, #fff), var(--primar));
+  }
+  .tr-krye > div { flex: 1; min-width: 0; }
+  .tr-nen { font-size: 12.5px; font-weight: 600; color: var(--gri); margin-top: 2px; }
+  .tr-lista { max-height: 60vh; overflow-y: auto; }
+  .tr-version { padding: 12px 0 6px; border-top: 1px solid var(--vije); }
+  .tr-version:first-child { border-top: 0; padding-top: 0; }
+  .tr-version-titulli { font-size: 15px; font-weight: 700; }
+  .tr-version-data { font-size: 12px; color: var(--gri); margin: 2px 0 8px; }
+  .tr-version ul { list-style: none; margin: 0; padding: 0; }
+  .tr-version li { position: relative; padding: 3px 0 3px 22px; font-size: 14px; line-height: 1.45; }
+  .tr-version li::before { content: ''; position: absolute; left: 4px; top: 10px; width: 7px; height: 7px; border-radius: 50%; background: var(--primar); }
   @keyframes shfaq { from { opacity: 0; } to { opacity: 1; } }
   .dialog {
     width: 100%; max-width: 480px; background: var(--karta); border-radius: 16px; box-shadow: var(--hije-e-larte);
@@ -1038,6 +1054,19 @@
   </div>
 </div>
 
+<!-- "Çka ka të re": tregohet në hyrje kur ka version të ri që përdoruesi s'e ka parë ende (teRejat.js) -->
+<div class="mbulese" id="dlgTeRejat">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="trTitulli">
+    <div class="dialog-krye tr-krye">
+      <span class="tr-ikona"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path><path d="M19 14.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"></path><path d="M5 2l.7 1.6 1.6.7-1.6.7L5 6.6l-.7-1.6-1.6-.7 1.6-.7z"></path></svg></span>
+      <div><h2 id="trTitulli">Çka ka të re</h2><div class="tr-nen" id="trNen"></div></div>
+      <button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button>
+    </div>
+    <div class="dialog-trup tr-lista" id="trLista"></div>
+    <div class="dialog-fund"><span class="hapesire"></span><button class="btn" type="button" id="trMbyll" data-mbyll>Në rregull</button></div>
+  </div>
+</div>
+
 <!-- Konfirmim -->
 <div class="mbulese" id="dlgKonfirmo">
   <div class="dialog" role="alertdialog" aria-modal="true">
@@ -1259,6 +1288,7 @@
 <script src="bashkimi.js?v=81"></script>
 <script src="ruajtja.js?v=81"></script>
 <script src="afatet.js?v=88"></script>
+<script src="teRejat.js?v=91"></script>
 <script>
 (function () {
   'use strict';
@@ -1323,6 +1353,9 @@
   var afatet = [];
   var KEY_AFATET = 'stoku:afatet:v1';
   var rendiFolderaveKoha = 0;
+  // Instalim i ri (asnjë e dhënë ende): "Çka ka të re" s'ka kuptim — shënohet si e parë pa u treguar
+  var __pajisjeERe = false;
+  try { __pajisjeERe = !localStorage.getItem(KEY_FOLDERA); } catch (e) { /* ok */ } // folderat shkruhen që në hapjen e parë të çdo versioni
 
   function celesi(kid, b) { return kid + '::' + b; }
 
@@ -4511,8 +4544,74 @@
   setInterval(function () { if (!dialogISiperm() && !document.hidden && !poShkruan(document.activeElement)) rivizato(); }, 60000);
   if (window.__stokuCloud) kurNdryshonLlogaria();
 
+  // ================= "Çka ka të re" =================
+  var KEY_TE_REJAT = 'stoku:te-rejat:pare';
+  function versioniIPare() { try { return Number(localStorage.getItem(KEY_TE_REJAT)) || 0; } catch (e) { return 0; } }
+  function shenoTeRejatSiTePara() { try { localStorage.setItem(KEY_TE_REJAT, String(window.StokuTeRejat.versioni())); } catch (e) { /* ok */ } }
+  function tregoTeRejat() {
+    var TR = window.StokuTeRejat;
+    if (!TR || !TR.versioni()) return false;
+    if (__pajisjeERe && !versioniIPare()) { shenoTeRejatSiTePara(); return false; }
+    var hyrjet = TR.teRejatPas(versioniIPare());
+    if (!hyrjet.length) return false;
+    if (window.StokuPorta && window.StokuPorta.eHapur()) return false;
+    if (dialogISiperm()) return false;
+    var lista = $('trLista');
+    lista.textContent = '';
+    hyrjet.forEach(function (h) {
+      var b = el('div', 'tr-version');
+      b.appendChild(el('div', 'tr-version-titulli', h.titulli));
+      b.appendChild(el('div', 'tr-version-data', 'Versioni ' + h.v + ' · ' + TR.formatoDaten(h.data)));
+      var ul = el('ul');
+      (h.pikat || []).forEach(function (pika) { ul.appendChild(el('li', null, pika)); });
+      b.appendChild(ul);
+      lista.appendChild(b);
+    });
+    $('trNen').textContent = hyrjet.length === 1 ? 'Versioni ' + hyrjet[0].v : hyrjet.length + ' versione të reja';
+    hapDialog('dlgTeRejat');
+    setTimeout(function () { $('trMbyll').focus(); }, 30);
+    shenoTeRejatSiTePara();
+    return true;
+  }
+  window.addEventListener('stoku-porta-hapur', function () { setTimeout(tregoTeRejat, 700); });
+  setTimeout(function () { if (!(window.StokuPorta && window.StokuPorta.eHapur())) tregoTeRejat(); }, 2500);
+
+  // ================= Service worker + përditësimi automatik =================
+  // Sa herë hapet Stoku (dhe sa herë kthehesh në skedë), kontrollohet në sfond a ka version të ri (sw.js).
+  // Nëse ka, instalohet dhe faqja rinis vetë në çastin e parë të qetë (pa dialog, pa fushë ku po shkruhet,
+  // pa ruajtje në pritje) ose sapo skeda kalon në sfond. Faqja e hapur (#/...) ruhet nga vetë adresa.
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () { /* ok */ }); });
+    var __kishteKontrollues = !!navigator.serviceWorker.controller;
+    var __perditesimGati = false, __perditesimKohez = null;
+    var kontrolloPerditesimin = function () {
+      navigator.serviceWorker.getRegistration().then(function (r) { if (r) return r.update(); }).catch(function () { /* pa internet */ });
+    };
+    var eshteCastIQete = function () {
+      var a = document.activeElement;
+      if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA') && a.value) return false;
+      if (document.querySelector('.mbulese.hapur') || $('menu').classList.contains('hapur')) return false;
+      if (sink.duke || sink.kohez) return false;
+      return true;
+    };
+    var rinisKurTeJeteQete = function () {
+      if (!__perditesimGati) return;
+      // Në sfond: rinis menjëherë, por jo ndërsa një ruajtje në cloud është në rrugë
+      if (document.hidden ? !(sink.duke || sink.kohez) : eshteCastIQete()) { location.reload(); return; }
+      clearTimeout(__perditesimKohez);
+      __perditesimKohez = setTimeout(rinisKurTeJeteQete, 10000);
+    };
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!__kishteKontrollues) { __kishteKontrollues = true; return; } // instalimi i parë: faqja është tashmë e reja
+      __perditesimGati = true;
+      rinisKurTeJeteQete();
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) rinisKurTeJeteQete(); else kontrolloPerditesimin();
+    });
+    setInterval(function () { if (!document.hidden) kontrolloPerditesimin(); }, 30 * 60 * 1000);
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').then(function (r) { return r.update(); }).catch(function () { /* ok */ });
+    });
   }
 
   // Për testim/diagnozë nga konsola
