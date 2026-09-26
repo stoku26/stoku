@@ -13,10 +13,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1565C0" id="metaTema">
 <script>
-  // Në kompjuter (maus + ekran i gjerë) hapet vetë versioni për kompjuter (pc.html).
-  // Telefonat, tabletët me prekje dhe PDA-të (Zebra) nuk ridrejtohen kurrë.
-  // ?mobile=1 e mban përgjithmonë këtë version në atë shfletues.
-  // Adresa mbahet e pastër: stoku.site/ (pa "index.html" ose "?mobile=1" në shiritin e adresës).
+  // Në kompjuter (Windows, Mac, Chromebook, ose Linux me maus/touchpad) hapet gjithmonë versioni për kompjuter (pc.html).
+  // Telefonat, tabletët dhe PDA-të (Zebra) nuk ridrejtohen kurrë.
+  // Nuk varet nga madhësia e ekranit, shkalla e Windows-it (125%/150%), ekrani i dytë apo prekja te laptopët:
+  // këto më parë e hapnin herë pas here versionin e telefonit në kompjuter.
+  // Adresa mbahet e pastër: stoku.site/ (pa "index.html" në shiritin e adresës).
   function adresaEPaster() {
     try {
       var dosja = location.pathname.replace(/[^\/]*$/, '');
@@ -24,18 +25,24 @@
     } catch (e) { /* ok */ }
   }
   (function () {
-    try {
-      if (/[?&]mobile=1(&|$)/.test(location.search)) { localStorage.setItem('stoku:pamja', 'mobile'); return; }
-      var zgjedhja = localStorage.getItem('stoku:pamja');
-      if (zgjedhja === 'mobile') return;
-      var op = JSON.parse(localStorage.getItem('stoku:opsione:v1') || 'null');
-      if (op && op.pda) return;
-      var mm = window.matchMedia ? function (q) { return window.matchMedia(q).matches; } : function () { return false; };
-      var kompjuter = mm('(pointer: fine)') && mm('(hover: hover)') && Math.max(screen.width, screen.height) >= 1024 &&
-        !/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-      // pc.html e fsheh vetë emrin e vet; faqja e hapur (#/f/...) ruhet edhe pas rifreskimit
-      if (zgjedhja === 'pc' || kompjuter) { window.__stokuDrejtPc = true; location.replace('pc.html' + (/^#\//.test(location.hash) ? location.hash : '')); }
-    } catch (e) { /* mbetet ky version */ }
+    function lexo(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    // Zgjedhja e vjetër "Versioni për telefon" (butoni u hoq nga pc.html) s'vlen më
+    try { if (lexo('stoku:pamja') === 'mobile') localStorage.removeItem('stoku:pamja'); } catch (e) { /* ok */ }
+    var op = null;
+    try { op = JSON.parse(lexo('stoku:opsione:v1') || 'null'); } catch (e) { /* ok */ }
+    if (op && op.pda) return;
+    var ua = navigator.userAgent || '';
+    // iPad-i paraqitet si Mac, por ka ekran me prekje (Mac-ët s'kanë)
+    var celular = /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 0);
+    if (celular) return;
+    // Telefoni/tableti Android me "Desktop site" paraqitet si Linux, por pa maus → mbetet ky version
+    var mausi = !!(window.matchMedia && window.matchMedia('(any-pointer: fine)').matches);
+    var kompjuter = /Windows|Macintosh|CrOS/.test(ua) || mausi;
+    // pc.html e fsheh vetë emrin e vet; faqja e hapur (#/f/...) ruhet edhe pas rifreskimit
+    if (kompjuter || lexo('stoku:pamja') === 'pc') {
+      window.__stokuDrejtPc = true;
+      location.replace('pc.html' + (/^#\//.test(location.hash) ? location.hash : ''));
+    }
   })();
   if (!window.__stokuDrejtPc) adresaEPaster();
   // Vendos temën para se faqja të vizatohet (që të mos ketë dridhje ndriçimi)
