@@ -728,7 +728,7 @@
           <p>Pa llogari, të dhënat ruhen vetëm në këtë kompjuter.</p>
         </div>
         <div>
-          <label class="fushe"><span>Përdoruesi</span><input class="inp" id="mUser" placeholder="p.sh. market1" type="text" autocomplete="username" spellcheck="false" maxlength="40"></label>
+          <label class="fushe"><span>Përdoruesi</span><input class="inp" id="mUser" placeholder="Emri i përdoruesit" type="text" autocomplete="username" spellcheck="false" maxlength="40"></label>
           <label class="fushe"><span>Fjalëkalimi</span><input class="inp" id="mPass" placeholder="Shkruaj fjalëkalimin" type="password" autocomplete="current-password" maxlength="100"></label>
           <div class="gabim-tekst" id="mGabim"></div>
           <div style="display:flex;gap:8px">
@@ -902,16 +902,16 @@
     <div class="dialog-krye"><h2 id="prTitulli"></h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
     <div class="dialog-trup">
       <div class="dy-kolona">
-        <label class="fushe"><span>Barkodi</span><input class="inp mono" id="prBarkodi" placeholder="p.sh. 3904434241749" type="text" autocomplete="off" spellcheck="false" maxlength="64"></label>
+        <label class="fushe"><span>Barkodi</span><input class="inp mono" id="prBarkodi" placeholder="Skano ose shkruaj barkodin" type="text" autocomplete="off" spellcheck="false" maxlength="64"></label>
         <label class="fushe"><span>Folderi</span><select class="inp" id="prFolderi"></select></label>
       </div>
       <div class="info-rresht fsheh" id="prGjetur"></div>
-      <label class="fushe"><span>Emri i produktit</span><input class="inp" id="prEmri" placeholder="p.sh. Çaj boronicë 20 qese" type="text" autocomplete="off" maxlength="120"></label>
+      <label class="fushe"><span>Emri i produktit</span><input class="inp" id="prEmri" placeholder="Shkruaj emrin e produktit" type="text" autocomplete="off" maxlength="120"></label>
       <div class="fushe">
         <span id="prSasiaEtik">Sasia</span>
         <div class="sasia-kuti">
           <button class="btn-hap" type="button" id="prMinus" aria-label="-1">−</button>
-          <input class="inp" id="prSasia" placeholder="p.sh. 12" type="number" step="1" autocomplete="off">
+          <input class="inp" id="prSasia" placeholder="Numri i copëve" type="number" step="1" autocomplete="off">
           <button class="btn-hap" type="button" id="prPlus" aria-label="+1">+</button>
         </div>
         <div class="parapamje-sasie" id="prParapamje"></div>
@@ -944,7 +944,7 @@
   <div class="dialog" role="dialog" aria-modal="true">
     <div class="dialog-krye"><h2 id="flTitulli">Folder i ri</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
     <div class="dialog-trup">
-      <label class="fushe"><span>Emri i folderit</span><input class="inp" id="flEmri" placeholder="p.sh. Pije, Ushqimore" type="text" autocomplete="off" maxlength="40"></label>
+      <label class="fushe"><span>Emri i folderit</span><input class="inp" id="flEmri" placeholder="Shkruaj emrin e folderit" type="text" autocomplete="off" maxlength="40"></label>
       <div class="gabim-tekst" id="flGabim"></div>
     </div>
     <div class="dialog-fund"><span class="hapesire"></span><button class="btn tekst" type="button" data-mbyll>Anulo</button><button class="btn" type="button" id="flRuaj">Krijo</button></div>
@@ -959,12 +959,12 @@
     <div class="dialog-trup">
       <div class="af-info fsheh" id="afdInfo"></div>
       <div class="dy-kolona">
-        <label class="fushe"><span>Barkodi</span><input class="inp mono" id="afdBarkodi" placeholder="p.sh. 3904434241749" type="text" autocomplete="off" spellcheck="false" maxlength="64"></label>
+        <label class="fushe"><span>Barkodi</span><input class="inp mono" id="afdBarkodi" placeholder="Skano ose shkruaj barkodin" type="text" autocomplete="off" spellcheck="false" maxlength="64"></label>
         <label class="fushe"><span>Data e skadimit</span><input class="inp" id="afdData" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="DD-MM-VVVV"></label>
       </div>
-      <label class="fushe" style="max-width:220px"><span>Sasia (copë)</span><input class="inp" id="afdSasia" placeholder="p.sh. 12" type="text" inputmode="numeric" autocomplete="off"></label>
-      <label class="fushe"><span>Emri i produktit</span><input class="inp" id="afdEmri" placeholder="p.sh. Çaj i zi Abrend" type="text" autocomplete="off" maxlength="120"></label>
-      <label class="fushe"><span>Furnitori</span><input class="inp" id="afdFurnizuesi" placeholder="p.sh. Albi Commerce" type="text" list="afdFurnizuesit" autocomplete="off" maxlength="80"></label>
+      <label class="fushe" style="max-width:220px"><span>Sasia (copë)</span><input class="inp" id="afdSasia" placeholder="Numri i copëve" type="text" inputmode="numeric" autocomplete="off"></label>
+      <label class="fushe"><span>Emri i produktit</span><input class="inp" id="afdEmri" placeholder="Shkruaj emrin e produktit" type="text" autocomplete="off" maxlength="120"></label>
+      <label class="fushe"><span>Furnitori</span><input class="inp" id="afdFurnizuesi" placeholder="Zgjidh ose shkruaj furnitorin" type="text" list="afdFurnizuesit" autocomplete="off" maxlength="80"></label>
       <datalist id="afdFurnizuesit"></datalist>
       <div class="gabim-tekst" id="afdGabim"></div>
     </div>
@@ -1104,7 +1104,7 @@
     <div class="dialog-krye"><h2 id="llTitulli">Llogaria</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
     <div class="dialog-trup" id="llJashte">
       <p>Hyr me të njëjtën llogari që përdor në telefon. Të dhënat bashkohen automatikisht — asgjë nuk fshihet.</p>
-      <label class="fushe"><span>Përdoruesi</span><input class="inp" id="llUser" placeholder="p.sh. market1" type="text" autocomplete="username" spellcheck="false" maxlength="40"></label>
+      <label class="fushe"><span>Përdoruesi</span><input class="inp" id="llUser" placeholder="Emri i përdoruesit" type="text" autocomplete="username" spellcheck="false" maxlength="40"></label>
       <label class="fushe"><span>Fjalëkalimi</span><input class="inp" id="llPass" placeholder="Shkruaj fjalëkalimin" type="password" autocomplete="current-password" maxlength="100"></label>
       <div class="gabim-tekst" id="llGabim"></div>
     </div>
@@ -1174,7 +1174,7 @@
           <div class="ops-seksion">
             <div class="ops-titull">Kufiri i sasisë së ulët</div>
             <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
-              <input class="inp" id="opsPragu" placeholder="p.sh. 5" type="number" min="0" step="1" style="width:110px">
+              <input class="inp" id="opsPragu" placeholder="Numri i copëve" type="number" min="0" step="1" style="width:110px">
               <span class="gri">copë ose më pak (por mbi 0)</span>
             </div>
             <p class="ops-hint">Produktet me këtë sasi ose më pak shënohen me portokalli si "Sasi e ulët". 0 = çaktivizuar. Produktet me sasi 0 shënohen gjithmonë me të kuqe.</p>
