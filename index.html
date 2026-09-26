@@ -1085,6 +1085,7 @@
       <div class="af-shiriti-zgjedhjes" id="afZgjShirit">
         <button type="button" id="afZgjAnulo" aria-label="Anulo zgjedhjen" title="Anulo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
         <span id="afZgjNumri"></span>
+        <button type="button" id="afZgjExcel" aria-label="Eksporto të zgjedhurat në Excel" title="Eksporto në Excel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M8 13h2M14 13h2M8 17h2M14 17h2"></path></svg></button>
         <button type="button" id="afZgjTeGjitha" aria-label="Zgjidh të gjitha" title="Zgjidh të gjitha"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 17 2 2 4-4"></path><path d="m3 7 2 2 4-4"></path><path d="M13 6h8M13 12h8M13 18h8"></path></svg></button>
         <button type="button" id="afZgjFshij" aria-label="Fshij të zgjedhurat" title="Fshij"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M10 11v6M14 11v6"></path></svg></button>
       </div>
@@ -4168,6 +4169,31 @@
   }
   $('afZgjAnulo').addEventListener('click', dilNgaZgjedhja);
   $('afZgjFshij').addEventListener('click', fshijTeZgjedhurat);
+
+  // Excel vetëm me afatet e zgjedhura (në telefon hapet menuja "Shpërndaj", përndryshe shkarkohet)
+  var AF_ST_EMRI = { skaduar: 'Ka skaduar', 'pa-date': 'Pa datë', afer: 'Afër skadimit', ok: 'Në rregull', hequr: 'I hequr' };
+  async function eksportoTeZgjedhurat() {
+    var zgj = afZgjedhja || {};
+    var lista = afatet.filter(function (a) { return zgj[a.id]; }).sort(AF.krahaso);
+    if (!lista.length) return;
+    var kol = [
+      { title: 'Statusi', width: 15 }, { title: 'Barkodi', width: 18 }, { title: 'Emri i produktit', width: 36 },
+      { title: 'Sasia (copë)', width: 12, type: 'number' }, { title: 'Furnizuesi', width: 22 },
+      { title: 'Skadon më', width: 13, type: 'day' }, { title: 'Ditë të mbetura', width: 14, type: 'number' },
+      { title: 'Çfarë duhet bërë', width: 60 }, { title: 'Shtuar nga', width: 14 }
+    ];
+    var rreshtat = lista.map(function (a) {
+      var st = AF.statusi(a), n = AF.ditetDeri(a.data);
+      return [AF_ST_EMRI[st] || '', a.barkodi || '', a.emri || '', typeof a.sasia === 'number' ? a.sasia : '',
+        a.furnizuesi || '', a.data || '', st === 'hequr' || n === null ? '' : n, AF.pershkrimi(a), a.krijuarNga || ''];
+    });
+    var d = new Date();
+    var emri = 'afatet_' + d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate()) +
+      '_' + dyShifra(d.getHours()) + dyShifra(d.getMinutes()) + '.xlsx';
+    var bajtet = StokuXlsx.buildWorkbook([{ name: 'Afatet', columns: kol, rows: rreshtat, totalLabel: 'Gjithsej', totalColumns: [3] }]);
+    await ndajOseShkarko({ skedari: new File([bajtet], emri, { type: MIME_XLSX }), emri: emri }, 'Afatet');
+  }
+  $('afZgjExcel').addEventListener('click', eksportoTeZgjedhurat);
   $('afZgjTeGjitha').addEventListener('click', function () {
     var kartat = document.querySelectorAll('#afLista .af-karta');
     var teGjitha = Array.prototype.every.call(kartat, function (k) { return afZgjedhja && afZgjedhja[k.getAttribute('data-id')]; });
