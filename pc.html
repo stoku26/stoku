@@ -1256,7 +1256,8 @@
 <div class="toast" id="toast" role="status" aria-live="polite"><span class="toast-tekst" id="toastTekst"></span><button class="btn fsheh" type="button" id="toastBtn"></button></div>
 
 <script src="xlsx.js?v=58"></script>
-<script src="bashkimi.js?v=80"></script>
+<script src="bashkimi.js?v=81"></script>
+<script src="ruajtja.js?v=81"></script>
 <script src="afatet.js?v=80"></script>
 <script>
 (function () {
@@ -4542,6 +4543,9 @@
     var auth = getAuth(app);
     // ignoreUndefinedProperties: një fushë e zbrazët (undefined) s'e prish më krejt sinkronizimin
     var db = initializeFirestore(app, { ignoreUndefinedProperties: true });
+    // Dyqani ruhet i ndarë në disa dokumente (ruajtja.js) — pa kufirin 1 MB të një dokumenti
+    var ruajtja = window.StokuRuajtja.krijo({ doc: doc, getDoc: getDoc, setDoc: setDoc, runTransaction: runTransaction, onSnapshot: onSnapshot, collection: collection },
+      db, function () { return auth.currentUser ? auth.currentUser.uid : null; });
     var dokumenti = function () { return doc(db, 'dyqane', auth.currentUser.uid); };
 
     window.__stokuCloud = {
@@ -4556,34 +4560,12 @@
       },
       perdoruesiAktual() { return auth.currentUser; },
       async token() { return auth.currentUser ? await auth.currentUser.getIdToken() : null; },
-      async merr() {
-        if (!auth.currentUser) return { ok: false };
-        try { var r = await getDoc(dokumenti()); return { ok: true, gjendja: r.exists() ? r.data() : null }; } catch (e) { return gabim(e); }
-      },
-      async ruaj(g) {
-        if (!auth.currentUser) return { ok: false };
-        try { await setDoc(dokumenti(), g); return { ok: true }; } catch (e) { return gabim(e); }
-      },
-      async bashkoDheRuaj(fn) {
-        if (!auth.currentUser) return { ok: false };
-        try {
-          var ref = dokumenti();
-          var g = await runTransaction(db, async function (tx) {
-            var s = await tx.get(ref);
-            var e = fn(s.exists() ? s.data() : null);
-            tx.set(ref, e);
-            return e;
-          });
-          return { ok: true, gjendja: g };
-        } catch (e) { return gabim(e); }
-      },
+      merr() { return ruajtja.merr(); },
+      ruaj(g) { return ruajtja.ruaj(g); },
+      bashkoDheRuaj(fn) { return ruajtja.bashkoDheRuaj(fn); },
       // Dëgjim i drejtpërdrejtë: sa herë që telefoni/PDA ruan diçka, kompjuteri e merr brenda sekondës.
-      degjo(cb, cbGabim) {
-        if (!auth.currentUser) return function () {};
-        return onSnapshot(dokumenti(), function (s) {
-          cb(s.exists() ? s.data() : null, s.metadata.hasPendingWrites);
-        }, function (e) { if (cbGabim) cbGabim(e); });
-      },
+      degjo(cb, cbGabim) { return ruajtja.degjo(cb, cbGabim); },
+      modaPjeseve() { return ruajtja.modaPjeseve(); },
       // Fletët e fotografuara në telefon dhe të dërguara këtu për kontroll (më e vjetra e para)
       degjoFletet(cb, cbGabim) {
         if (!auth.currentUser) return function () {};
