@@ -554,6 +554,18 @@
   .af-cip.kuqe { background: var(--af-kuqe); color: #fff; }
   .af-cip.verdhe { background: var(--af-verdhe); color: #3b2a00; }
   .af-cip:empty { display: none; }
+  .af-cip.fleta { background: var(--primar); color: #fff; gap: 3px; }
+  /* Fletët e dërguara nga telefoni, që presin kontrollin */
+  .fletet-tel { display: flex; flex-direction: column; gap: 8px; margin: 0 0 16px; }
+  .fletet-tel:empty { display: none; }
+  .fleta-tel {
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px;
+    background: var(--primar-mesme, var(--hover)); border: 1px solid var(--primar);
+  }
+  .fleta-tel .ikona { flex: none; color: var(--primar); display: flex; }
+  .fleta-tel .teksti { flex: 1; min-width: 0; line-height: 1.4; }
+  .fleta-tel .teksti b { display: block; font-size: 14.5px; }
+  .fleta-tel .teksti span { font-size: 12.5px; color: var(--gri); }
   .kpi.af-kpi { border-width: 2px; }
   .kpi.af-kpi.aktiv { border-color: currentColor; }
   .kpi.af-kpi.skaduar { color: var(--af-kuqe-tx); background: var(--af-kuqe-bg); }
@@ -691,7 +703,7 @@
       <button class="nav-rresht" id="navAfatet" type="button" title="Afatet e produkteve (datat e skadimit)">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg>
         <span class="emri">Afatet e produkteve</span>
-        <span class="af-cip kuqe" id="afNavKuqe"></span><span class="af-cip verdhe" id="afNavVerdhe"></span>
+        <span class="af-cip fleta" id="afNavFleta" title="Fletë nga telefoni që presin kontrollin"></span><span class="af-cip kuqe" id="afNavKuqe"></span><span class="af-cip verdhe" id="afNavVerdhe"></span>
       </button>
     </nav>
     <div class="anesore-fund">
@@ -862,6 +874,7 @@
           </button>
         </div>
       </div>
+      <div class="fletet-tel" id="afFletetTel"></div>
       <div class="kpi-rrjeti" id="afKpi"></div>
       <div class="mjetet">
         <div class="kuti-fushe" style="flex:1 1 260px;max-width:380px">
@@ -2347,8 +2360,7 @@
   function mbyllDialog(id) {
     if (id === 'dlgLexim' && !anuloLeximin.leje) { anuloLeximin(); return; }
     $(id).classList.remove('hapur');
-    if (id === 'dlgLexim') mbyllFletenETelefonit();
-    setTimeout(hapFletenETelefonitNese, 400); // një fletë nga telefoni mund të ketë pritur këtë dritare
+    if (id === 'dlgLexim') mbyllFletenETelefonit(mbyllDialog.uRuajt === true);
     if (id === 'dlgKonfirmo' && konf.zgjidh) { var z = konf.zgjidh; konf.zgjidh = null; clearInterval(konf.kohez); z(false); }
     if (!document.querySelector('.mbulese.hapur') && dialogPara && dialogPara.focus && document.contains(dialogPara)) {
       try { dialogPara.focus(); } catch (e) { /* ok */ }
@@ -4106,27 +4118,70 @@
 
   // ---------- Fletët e dërguara nga telefoni ----------
   // Telefoni e fotografon dhe e lexon fletën, pastaj e dërgon këtu (Firebase: dyqane/{uid}/fletet).
-  // Sapo mbërrin — ose kur hapet Stoku në PC më vonë — kontrolli i fletës hapet vetë, me foton pranë.
-  // Pas "Ruaj" ose "Anulo" fleta fshihet nga cloud-i, që të mos hapet sërish.
-  var fletetTel = { lista: [], degjuesi: null, hapur: null, teMbyllura: {} };
+  // Fleta NUK hapet vetë: del si njoftim (numri blu te "Afatet" në menunë anësore + kartë te faqja e
+  // afateve), dhe përdoruesi e hap kur të ketë kohë — edhe ditë më vonë. Mbetet në pritje edhe kur
+  // mbyllet me "Anulo"; fshihet vetëm pas "Ruaj" ose me butonin "Fshij".
+  var fletetTel = { lista: [], degjuesi: null, hapur: null, teMbyllura: {}, njoftuar: {} };
+  var IKONA_FLETA = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M8 13h8M8 17h5"></path></svg>';
   function nisDegjuesinEFleteve() {
     ndalDegjuesinEFleteve();
     if (!window.__stokuCloud || !window.__stokuCloud.degjoFletet) return;
+    var ePara = true;
     fletetTel.degjuesi = window.__stokuCloud.degjoFletet(function (lista) {
-      var ishin = fletetTel.lista.length;
       fletetTel.lista = lista.filter(function (f) { return !fletetTel.teMbyllura[f.id]; });
-      if (fletetTel.lista.length > ishin && document.querySelector('.mbulese.hapur')) toast('Mbërriti një fletë nga telefoni — hapet sapo të mbyllësh dritaren.');
-      hapFletenETelefonitNese();
+      var teReja = fletetTel.lista.filter(function (f) { return !fletetTel.njoftuar[f.id]; });
+      teReja.forEach(function (f) { fletetTel.njoftuar[f.id] = true; });
+      if (teReja.length) {
+        var n = fletetTel.lista.length;
+        toast(ePara ? 'Ke ' + (n === 1 ? '1 fletë afatesh' : n + ' fletë afatesh') + ' nga telefoni që presin kontrollin.'
+          : 'Mbërriti një fletë afatesh nga telefoni' + (teReja[0].nga ? ' (' + teReja[0].nga + ')' : '') + '.',
+          { veprimi: function () { hapFletenETelefonit(teReja[0].id); }, butoni: 'Hape', ms: 12000 });
+      }
+      ePara = false;
+      renderFletetETelefonit();
     }, function () { /* rregullat e Firebase-it s'e lejojnë ende — s'pengon asgjë tjetër */ });
   }
   function ndalDegjuesinEFleteve() {
     if (fletetTel.degjuesi) { try { fletetTel.degjuesi(); } catch (e) { /* ok */ } }
     fletetTel.degjuesi = null;
     fletetTel.lista = [];
+    renderFletetETelefonit();
   }
-  function hapFletenETelefonitNese() {
-    if (fletetTel.hapur || document.querySelector('.mbulese.hapur')) return; // mos e ndërprit një punë tjetër
-    var f = fletetTel.lista[0];
+  function renderFletetETelefonit() {
+    var n = fletetTel.lista.length;
+    $('afNavFleta').innerHTML = n ? IKONA_FLETA.replace(/22/g, '12') : '';
+    if (n) $('afNavFleta').appendChild(document.createTextNode(String(n)));
+    var k = $('afFletetTel');
+    k.textContent = '';
+    fletetTel.lista.forEach(function (f) {
+      var r = el('div', 'fleta-tel');
+      var ik = el('span', 'ikona'); ik.innerHTML = IKONA_FLETA; r.appendChild(ik);
+      var tx = el('div', 'teksti');
+      var nr = (f.rreshtat || []).length;
+      tx.appendChild(el('b', null, 'Fletë afatesh nga telefoni — ' + nr + (nr === 1 ? ' rresht' : ' rreshta') + ' presin kontrollin'));
+      tx.appendChild(el('span', null, [f.nga ? 'Dërguar nga ' + f.nga : 'Dërguar nga telefoni', f.krijuarSe ? dataOra(f.krijuarSe) : ''].filter(Boolean).join(' · ')));
+      r.appendChild(tx);
+      var h = el('button', 'btn', 'Hape'); h.type = 'button';
+      h.addEventListener('click', function () { hapFletenETelefonit(f.id); });
+      var fs = el('button', 'btn tekst', 'Fshij'); fs.type = 'button'; fs.title = 'Hiqe pa e kontrolluar';
+      fs.addEventListener('click', async function () {
+        var po = await konfirmo('Të fshihet fleta?', 'Rreshtat e kësaj flete nuk do të shtohen te afatet.', 'Fshij');
+        if (po) hiqFletenETelefonit(f.id);
+      });
+      r.appendChild(h); r.appendChild(fs);
+      k.appendChild(r);
+    });
+  }
+  function hiqFletenETelefonit(id) {
+    fletetTel.teMbyllura[id] = true;
+    fletetTel.lista = fletetTel.lista.filter(function (f) { return f.id !== id; });
+    if (window.__stokuCloud && window.__stokuCloud.fshijFleten) window.__stokuCloud.fshijFleten(id);
+    renderFletetETelefonit();
+  }
+  function hapFletenETelefonit(id) {
+    if (fletetTel.hapur || $('dlgLexim').classList.contains('hapur')) return;
+    var f = null;
+    fletetTel.lista.forEach(function (x) { if (x.id === id) f = x; });
     if (!f) return;
     fletetTel.hapur = f.id;
     lx.rreshtat = rreshtatNgaAI(f.rreshtat);
@@ -4138,14 +4193,12 @@
       lx.rreshtat.length + ' rreshta. Krahasoji me foton dhe korrigjo ku duhet' + (nd ? ' — ' + nd + ' janë shënuar me të verdhë si të paqarta.' : '.'), false);
     if (!lx.rreshtat.length) shtoRreshtLeximi(); else renderLeximinPc();
   }
-  // Thirret kur mbyllet kontrolli i fletës (Ruaj ose Anulo)
-  function mbyllFletenETelefonit() {
+  // Thirret kur mbyllet kontrolli i fletës: pas "Ruaj" fshihet; pas "Anulo" mbetet në pritje për më vonë
+  function mbyllFletenETelefonit(uRuajt) {
     var id = fletetTel.hapur;
     if (!id) return;
     fletetTel.hapur = null;
-    fletetTel.teMbyllura[id] = true;
-    fletetTel.lista = fletetTel.lista.filter(function (f) { return f.id !== id; });
-    if (window.__stokuCloud && window.__stokuCloud.fshijFleten) window.__stokuCloud.fshijFleten(id);
+    if (uRuajt) hiqFletenETelefonit(id);
   }
 
   async function lexoFletenPc(skedari) {
@@ -4240,6 +4293,10 @@
 
   async function anuloLeximin() {
     var kaTeDhena = lx.rreshtat.some(function (r) { return r.barkodi || r.emri || r.data; });
+    if (fletetTel.hapur) {
+      kaTeDhena = false; // fleta nga telefoni mbetet në pritje — mund të hapet sërish më vonë
+      toast('Fleta mbeti në pritje — e gjen te "Afatet e produkteve".');
+    }
     if (kaTeDhena) {
       var po = await konfirmo('Të anulohet leximi?', 'Rreshtat e lexuar nuk do të ruhen.', 'Anulo leximin');
       if (!po) return;
@@ -4275,7 +4332,9 @@
       });
     });
     lx.rreshtat = [];
-    anuloLeximin.leje = true; mbyllDialog('dlgLexim'); anuloLeximin.leje = false;
+    anuloLeximin.leje = true; mbyllDialog.uRuajt = true;
+    mbyllDialog('dlgLexim');
+    anuloLeximin.leje = false; mbyllDialog.uRuajt = false;
     var nk = shtuar.filter(function (a) { return AF.statusi(a) === 'skaduar'; }).length;
     var nv = shtuar.filter(function (a) { return AF.statusi(a) === 'afer'; }).length;
     af.filtri = nk ? 'skaduar' : nv ? 'afer' : 'aktive';
