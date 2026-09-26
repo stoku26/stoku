@@ -2,7 +2,7 @@
 <html lang="sq">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <title>Stoku</title>
 <link rel="manifest" href="manifest.webmanifest?v=84">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -166,6 +166,8 @@
     padding-right: max(16px, env(safe-area-inset-right));
   }
   label { display: block; font-size: 13px; color: var(--gri); margin: 0 0 4px 2px; }
+  /* Pa zmadhim me dy gishta / dy prekje (iPhone e shpërfill "user-scalable=no", por e respekton touch-action) */
+  html, body { touch-action: pan-x pan-y; }
   input[type="text"], input[type="search"], input[type="number"], input[type="password"] {
     width: 100%;
     height: 50px;
@@ -808,6 +810,9 @@
   .lx-sasia { position: relative; }
   .lx-sasia input { padding-right: 52px; }
   .lx-sasia::after { content: 'copë'; position: absolute; right: 14px; top: 22px; transform: translateY(-50%); font-size: 13px; font-weight: 700; color: var(--gri); pointer-events: none; }
+  .njesi-kuti { position: relative; }
+  .njesi-kuti input { padding-right: 56px; }
+  .njesi-kuti .njesi { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 13px; font-weight: 700; color: var(--gri); pointer-events: none; }
   .lx-dy { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
   .lx-hiq { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border: 0; border-radius: 15px; background: transparent; color: var(--gri); font-size: 16px; cursor: pointer; }
   .lx-shenim { font-size: 12px; margin: -2px 2px 6px; color: var(--gri); }
@@ -818,7 +823,7 @@
 </style>
 </head>
 <body>
-<script src="porta.js?v=77"></script>
+<script src="porta.js?v=86"></script>
 
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" style="display:none">←</button>
@@ -1234,7 +1239,7 @@
     <div class="fushe"><input id="afatEmri" type="text" autocomplete="off" autocorrect="off" placeholder="Emri i produktit" aria-label="Emri i produktit" enterkeyhint="next"></div>
     <div class="lx-dy">
       <div class="fushe"><label for="afatData">Data e skadimit</label><input id="afatData" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="DD-MM-VVVV"></div>
-      <div class="fushe"><label for="afatSasia">Sasia (copë)</label><input id="afatSasia" type="text" inputmode="tel" autocomplete="off"></div>
+      <div class="fushe"><label for="afatSasia">Sasia</label><div class="njesi-kuti"><input id="afatSasia" type="text" inputmode="tel" autocomplete="off"><span class="njesi">copë</span></div></div>
     </div>
     <div class="fushe"><input id="afatFurnizuesi" type="text" list="afFurnizuesit" autocomplete="off" autocorrect="off" placeholder="Furnitori" aria-label="Furnitori" enterkeyhint="done"></div>
     <div class="af-status-veprime" id="afatStatusVeprime"></div>
@@ -1280,7 +1285,7 @@
 <script src="xlsx.js?v=58"></script>
 <script src="bashkimi.js?v=81"></script>
 <script src="ruajtja.js?v=81"></script>
-<script src="afatet.js?v=80"></script>
+<script src="afatet.js?v=87"></script>
 <script src="njoftimet.js?v=85"></script>
 <script>
 (function () {
@@ -1585,6 +1590,12 @@
   var KEY_PRODUKTET_VJETER = 'stoku:produktet:v1'; // pa foldera, versioni i vjetër
   var LIMIT_RENDER = 300;
   var MIME_XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  // Ikona e cloud-it në krye të faqes së afateve (ruajtur / duke u ruajtur / s'u ruajt) — para nisjes, se përdoret që në ngarkim
+  var IKONAT_SINK = {
+    ok: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16.5 14.5-4.8 4.8-2.2-2.2"></path><path d="M5 17.74A7 7 0 1 1 15.71 10h1.79a4.5 4.5 0 0 1 1.5 8.74"></path></svg>',
+    pune: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 13v8"></path><path d="M4 14.9A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.24"></path><path d="m8 17 4-4 4 4"></path></svg>',
+    gabim: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2 2 20 20"></path><path d="M5.78 5.78A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.31-.19"></path><path d="M21.53 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7 7 0 0 0 10 5.07"></path></svg>'
+  };
 
   var FOLDERAT_PARAZGJEDHUR = [
     { id: 'ushqimore', emri: 'Ushqimore' },
@@ -1660,13 +1671,13 @@
     try {
       localStorage.setItem(KEY_FOLDERA, JSON.stringify(foldera));
       localStorage.setItem(KEY_PRODUKTET, JSON.stringify(produktet));
-      __versioniLokal++;
-      planifikoSinkronizimin();
-      return true;
     } catch (e) {
-      toast(T('ruajtjaDeshtoi'));
+      toast(T('ruajtjaDeshtoi')); // vetëm ruajtja lokale raportohet si "memoria plot" — jo gabime të tjera
       return false;
     }
+    __versioniLokal++;
+    planifikoSinkronizimin();
+    return true;
   }
 
   ngarkoBazen();
@@ -2536,6 +2547,16 @@
 
   // Zbaton lokalisht rezultatin e sinkronizimit (produktet e shtuara/ndryshuara/fshira nga pajisjet
   // e tjera), pa nisur sinkronizim të ri dhe pa e nxjerrë përdoruesin nga ekrani ku është.
+  // Kur përdoruesi po shkruan te një fushë e listës (sasia e shpejtë), rivizatimi shtyhet derisa të dalë prej saj
+  var __rivizatoKurTeLirohet = false;
+  function poShkruanNeListe() {
+    var a = document.activeElement;
+    return !!(a && a.tagName === 'INPUT' && a.closest && a.closest('#lista'));
+  }
+  document.addEventListener('focusout', function () {
+    if (!__rivizatoKurTeLirohet) return;
+    setTimeout(function () { if (__rivizatoKurTeLirohet && !poShkruanNeListe()) { __rivizatoKurTeLirohet = false; if (folderiAktual !== null) renderLista(); } }, 0);
+  });
   function zbatoBashkimin(g) {
     if (!g || window.StokuBashkimi.eNjejte(g, gjendjaPerCloud())) return;
     var pm = {};
@@ -2555,11 +2576,11 @@
       localStorage.setItem(KEY_PRODUKTET, JSON.stringify(produktet));
     } catch (e) { /* ok */ }
     if (folderiAktual !== null && !foldera.some(function (f) { return f.id === folderiAktual; })) { rifreskoPamjen(); return; }
-    if (folderiAktual !== null) renderLista();
+    if (folderiAktual !== null) { if (poShkruanNeListe()) __rivizatoKurTeLirohet = true; else renderLista(); }
     else { renderFolderat(); renderKerkimiGlobal(); }
   }
 
-  // Rreshti i vogël te "Afatet e produkteve": a janë ruajtur afatet në cloud
+  // Ikona e cloud-it te "Afatet e produkteve": a janë ruajtur afatet në cloud
   function vendosStatusinEAfateve(g) {
     var e = $('afSinkStatus');
     if (!e) return;
@@ -2571,14 +2592,11 @@
     e.title = teksti;
     e.setAttribute('aria-label', teksti);
   }
-  var IKONAT_SINK = {
-    ok: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16.5 14.5-4.8 4.8-2.2-2.2"></path><path d="M5 17.74A7 7 0 1 1 15.71 10h1.79a4.5 4.5 0 0 1 1.5 8.74"></path></svg>',
-    pune: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 13v8"></path><path d="M4 14.9A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.24"></path><path d="m8 17 4-4 4 4"></path></svg>',
-    gabim: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2 2 20 20"></path><path d="M5.78 5.78A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.31-.19"></path><path d="M21.53 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7 7 0 0 0 10 5.07"></path></svg>'
-  };
   $('afSinkStatus').addEventListener('click', function () { toast($('afSinkStatus').title); });
 
+  var statusiCloudFundit = ''; // teksti i fundit i statusit (mbetet edhe kur rihapen Opsionet)
   function vendosStatusinCloud(teksti) {
+    statusiCloudFundit = teksti;
     var el = $('cloudStatusi');
     if (el) el.textContent = teksti;
   }
@@ -2615,6 +2633,11 @@
   window.addEventListener('pagehide', sinkronizoMenjehereNesePret);
 
   var __sinkSerish = false;
+  var __sinkDeshtoi = false; // sinkronizimi i fundit dështoi (pa internet) — riprovohet sapo të ketë lidhje
+  window.addEventListener('online', function () { if (perdoruesiAktual()) kryeSinkronizimin(); });
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && __sinkDeshtoi && perdoruesiAktual()) kryeSinkronizimin();
+  });
   async function kryeSinkronizimin() {
     if (!perdoruesiAktual() || !window.__stokuCloud) return;
     clearTimeout(sinkronizoKohezi);
@@ -2645,6 +2668,7 @@
       toast('Të dhënat e dyqanit kanë arritur kufirin e Firebase-it (1 MB) dhe s\'po ruhen në cloud. Fshi afatet/produktet e vjetra ose kontakto administratorin.');
     }
     vendosStatusinEAfateve(rez.ok ? 'ok' : 'gabim');
+    __sinkDeshtoi = !rez.ok;
     if (!rez.ok) { clearTimeout(sinkronizoKohezi); sinkronizoKohezi = setTimeout(kryeSinkronizimin, 15000); } // riprovo vetë
     if (__sinkSerish) { __sinkSerish = false; planifikoSinkronizimin(); }
   }
@@ -2741,7 +2765,7 @@
     rregulloVijatNdarese();
     if (u) {
       $('cloudHyrePerTeksti').textContent = T('cloudHyrePerTeksti', { emri: emriPerdoruesitAktual() });
-      if (!dukeSinkronizuar && !dukeRikthyerNgaCloud) vendosStatusinCloud(T('cloudStatusiAsgje'));
+      if (!statusiCloudFundit) vendosStatusinCloud(T('cloudStatusiAsgje'));
     } else {
       $('cloudGabimHint').textContent = '';
       $('cloudNdryshoGabimHint').textContent = '';
@@ -2755,7 +2779,7 @@
     sinkronizoNeHyrje();
   });
   window.addEventListener('stoku-auth-ndryshoi', function () {
-    if (!perdoruesiAktual()) { __uidISinkronizuarDarePasHyrjes = null; ndalDegjuesinCloud(); vendosStatusinEAfateve(''); }
+    if (!perdoruesiAktual()) { __uidISinkronizuarDarePasHyrjes = null; ndalDegjuesinCloud(); vendosStatusinEAfateve(''); statusiCloudFundit = ''; }
     rifreskoDukjenECloud();
     sinkronizoNeHyrje();
   });
@@ -2898,6 +2922,7 @@
     try { await kryeSinkronizimin(); } catch (e) { /* ndryshimet e fundit mbeten lokalisht */ }
     if (window.__stokuCloud && window.__stokuCloud.dil) await window.__stokuCloud.dil();
     rifreskoDukjenECloud();
+    if ($('dlgOpsione').classList.contains('hapur')) mbyllOpsionet();
   });
 
   // ---------- Lista + kërkimi ----------
@@ -3061,7 +3086,10 @@
     if (!opsione.paEmer && !emri) { toast(T('shkruajEmrin')); $('dlgEmri').focus(); return; }
     if (!/^-?\d+$/.test(tekstSasia)) { toast(T('shkruajSasine')); $('dlgSasia').focus(); return; }
     var sasia = parseInt(tekstSasia, 10);
-    var e = dialogu.ekzistues;
+    // Gjendja AKTUALE e produktit (jo ajo e çastit kur u hap dialogu): nëse ndërkohë një pajisje
+    // tjetër e ndryshoi sasinë, shtesa i mbivendoset asaj, jo vlerës së vjetër.
+    var e = produktet[celesiProduktit(folderiAktual, dialogu.barkodi)] || null;
+    if (opsione.paEmer && !emri && e) emri = e.emri || '';
     var total = Math.max(0, (e ? e.sasia : 0) + sasia); // stoku s'mund të jetë negativ
     produktet[celesiProduktit(folderiAktual, dialogu.barkodi)] =
       { barkodi: dialogu.barkodi, emri: emri, sasia: total, kategoriaId: folderiAktual, prekurSe: Date.now() };
@@ -3073,6 +3101,7 @@
 
   function fshijProduktin() {
     if (!dialogu || !dialogu.ekzistues) return;
+    if (!produktet[celesiProduktit(folderiAktual, dialogu.barkodi)]) { mbyllDialogun(); renderLista(); return; } // u fshi ndërkohë nga një pajisje tjetër
     delete produktet[celesiProduktit(folderiAktual, dialogu.barkodi)];
     shenoProduktinEFshire(celesiProduktit(folderiAktual, dialogu.barkodi));
     ruajBaze();
@@ -3176,7 +3205,7 @@
   // Barkodet e produkteve janë pothuajse gjithmonë vetëm numra (6-14 shifra).
   function duketSiDiçkaTjeterVeçBarkod(tekst) {
     if (/^[0-9]{6,14}$/.test(tekst)) return false;
-    if (tekst.length > 20) return true;
+    if (tekst.length > 30 || tekst.indexOf('::') !== -1) return true;
     if (/^https?:\/\//i.test(tekst)) return true;
     if (/\s/.test(tekst)) return true;
     return false;
@@ -4745,7 +4774,7 @@
       AF.lidhFushenEDates(fd.inp);
       // Shfaqet vetëm rezultati (fleta "60+30" → 90). Tastiera me "+" lejon edhe shuma me dorë,
       // që kthehen menjëherë në rezultat kur del nga fusha.
-      var fs = fushe('Sasia (copë)', r.sasia === '' || r.sasia === undefined ? '' : String(r.sasia), 'text', function (v) {
+      var fs = fushe('Sasia', r.sasia === '' || r.sasia === undefined ? '' : String(r.sasia), 'text', function (v) {
         r.sasia = AF.lexoSasine(v); r.sasiaTx = v;
       }, 'lx-sasia');
       fs.inp.inputMode = 'tel';

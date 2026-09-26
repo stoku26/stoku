@@ -664,7 +664,7 @@
 </style>
 </head>
 <body>
-<script src="porta.js?v=77"></script>
+<script src="porta.js?v=86"></script>
 
 <header class="krye">
   <img class="krye-logo" id="logo" src="logo.png" alt="Stoku" title="Përmbledhja">
@@ -1258,7 +1258,7 @@
 <script src="xlsx.js?v=58"></script>
 <script src="bashkimi.js?v=81"></script>
 <script src="ruajtja.js?v=81"></script>
-<script src="afatet.js?v=80"></script>
+<script src="afatet.js?v=87"></script>
 <script>
 (function () {
   'use strict';
@@ -1528,15 +1528,17 @@
 
   var sink = { kohez: null, duke: false, serish: false, statusi: 'lokal', koha: 0, cUid: null, degjuesi: null, riprovo: null };
 
-  function vendosStatusin(s) {
+  // vetemRivizato: teksti rifreskohet pa e ndryshuar orën e sinkronizimit të fundit
+  function vendosStatusin(s, vetemRivizato) {
     sink.statusi = s;
-    if (s === 'ok') sink.koha = Date.now();
+    if (s === 'ok' && !vetemRivizato) sink.koha = Date.now();
     var pika = $('sinkPika'), t = $('sinkTekst');
     pika.className = 'pike' + (s === 'ok' ? ' ok' : s === 'pune' ? ' pune' : s === 'gabim' ? ' gabim' : '');
+    var dk = new Date(sink.koha || Date.now());
     var tekst = {
       lokal: 'Vetëm në këtë kompjuter',
       pune: 'Duke sinkronizuar…',
-      ok: 'Sinkronizuar · ' + dy(new Date().getHours()) + ':' + dy(new Date().getMinutes()),
+      ok: 'Sinkronizuar · ' + dy(dk.getHours()) + ':' + dy(dk.getMinutes()),
       gabim: 'Pa lidhje — provohet sërish'
     }[s];
     t.textContent = tekst;
@@ -3452,7 +3454,7 @@
     $('opsLlJashte').classList.toggle('fsheh', !!u);
     $('opsLlBrenda').classList.toggle('fsheh', !u);
     $('opsLlEmri').textContent = u ? 'Ke hyrë si "' + emri + '"' : '';
-    vendosStatusin(u ? (sink.statusi === 'lokal' ? 'pune' : sink.statusi) : 'lokal');
+    vendosStatusin(u ? (sink.statusi === 'lokal' ? 'pune' : sink.statusi) : 'lokal', true);
   }
   $('btnLlogaria').addEventListener('click', hapLlogarine);
   $('llHyr').addEventListener('click', function () { hyrOseKrijo(false, 'llUser', 'llPass', 'llGabim'); });
@@ -3887,7 +3889,7 @@
     }
     // "U hoq" vlen vetëm për produktet e skaduara — ato që ende s'kanë skaduar s'hiqen nga rafti
     if (st === 'skaduar') b('✓ U hoq', 'kuqe', function () { shenoHequr([a.id]); }, 'Shëno që produkti u hoq nga rafti/pozita');
-    else if (st === 'afer' && !a.lajmeruarSe) b('✓ Lajmërova', 'verdhe', function () { shenoLajmeruar([a.id]); }, 'Shëno që furnizuesi/komercialisti u lajmërua');
+    else if (st === 'afer' && !a.lajmeruarSe) b('✓ Lajmërova', 'verdhe', function () { shenoLajmeruar([a.id]); }, 'Shëno që furnizuesi u lajmërua');
     else if (st === 'hequr') b('↺ Rikthe', 'dyte', function () { riktheAktiv(a.id); });
     var ed = el('button', 'btn-ikone'); ed.type = 'button'; ed.innerHTML = IKONA.ndrysho; ed.title = 'Ndrysho';
     ed.addEventListener('click', function (ev) { ev.stopPropagation(); hapAfatinPc(a.id); });
@@ -4011,7 +4013,7 @@
     if (!data) { $('afdGabim').textContent = 'Shkruaj datën e skadimit, p.sh. 31-12-2026.'; $('afdData').focus(); return; }
     var tani = Date.now();
     var reg = ndryshoAfatet(function (api) {
-      var a = afdId ? api.merr(afdId) : { id: AF.idERe(), statusi: 'aktiv', krijuarSe: tani, krijuarNga: emriPerdoruesit() };
+      var a = (afdId && api.merr(afdId)) || { id: afdId || AF.idERe(), statusi: 'aktiv', krijuarSe: tani, krijuarNga: emriPerdoruesit() };
       a.barkodi = b; a.emri = emri; a.data = data; a.sasia = sasia; a.furnizuesi = f;
       api.vendos(a);
     });
@@ -4305,8 +4307,8 @@
     lx.rreshtat = rreshtatNgaAI(f.rreshtat);
     fotoPamja.pastro();
     fotoPamja.caktoVizatimet('stoku:vizatime:' + f.id);
-    if (typeof f.foto === 'string' && f.foto.indexOf('data:image/') === 0) $('lxFoto').src = f.foto;
     hapDialog('dlgLexim');
+    if (typeof f.foto === 'string' && f.foto.indexOf('data:image/') === 0) $('lxFoto').src = f.foto;
     var nd = lx.rreshtat.filter(function (r) { return r.dyshim; }).length;
     statusiLeximit('Fletë nga telefoni' + (f.nga ? ' (' + f.nga + ')' : '') + (f.krijuarSe ? ', ' + dataOra(f.krijuarSe) : '') + ' — ' +
       lx.rreshtat.length + ' rreshta. Krahasoji me foton dhe korrigjo ku duhet' + (nd ? ' — ' + nd + ' janë shënuar me të verdhë si të paqarta.' : '.'), false);
@@ -4506,7 +4508,7 @@
   rifreskoLlogarine();
   rivizato();
   // Rifreskon kohët relative ("para 5 min") çdo minutë
-  setInterval(function () { if (!dialogISiperm() && !document.hidden) rivizato(); }, 60000);
+  setInterval(function () { if (!dialogISiperm() && !document.hidden && !poShkruan(document.activeElement)) rivizato(); }, 60000);
   if (window.__stokuCloud) kurNdryshonLlogaria();
 
   if ('serviceWorker' in navigator) {

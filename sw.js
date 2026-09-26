@@ -6,10 +6,10 @@
  * që telefonat të marrin versionin e ri. Kur ndryshon xlsx.js / bashkimi.js / afatet.js, ndrysho edhe
  * "?v=" te index.html, pc.html dhe më poshtë — që asnjë pajisje të mos përdorë kopjen e vjetër.
  */
-var CACHE = 'stoku-v85';
+var CACHE = 'stoku-v87';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
-importScripts('./afatet.js?v=80', './njoftimet.js?v=85');
+importScripts('./afatet.js?v=87', './njoftimet.js?v=85');
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.2/dist/iife/ponyfill.js',
@@ -24,8 +24,8 @@ var SHELL = [
   './xlsx.js?v=58',
   './bashkimi.js?v=81',
   './ruajtja.js?v=81',
-  './afatet.js?v=80',
-  './porta.js?v=77',
+  './afatet.js?v=87',
+  './porta.js?v=86',
   './njoftimet.js?v=85',
   './manifest.webmanifest?v=84',
   './icon-192.png',
@@ -63,21 +63,26 @@ self.addEventListener('fetch', function (e) {
   // pastaj kopjen e ruajtur të PO ASAJ faqeje — secila ruhet veç, që njëra të mos e zëvendësojë tjetrën.
   if (kerkesa.mode === 'navigate') {
     var faqja = /\/pc(\.html)?$/.test(new URL(kerkesa.url).pathname) ? './pc.html' : './index.html';
-    e.respondWith(
+    e.respondWith(new Promise(function (zgjidh) {
+      var uKthye = false;
+      function kthe(r) { if (!uKthye && r) { uKthye = true; zgjidh(r); } }
+      // Internet i ngadaltë (p.sh. 3G i dobët në dyqan): pas 4 s hapet kopja e ruajtur, që aplikacioni të mos
+      // rrijë me ekran të bardhë; versioni i ri (nëse ka) merret ndërkohë dhe përdoret hapjen tjetër.
+      var kohezuesi = setTimeout(function () { caches.match(faqja).then(kthe); }, 4000);
       fetch(kerkesa).then(function (pergjigja) {
+        clearTimeout(kohezuesi);
         // Ridrejtim (p.sh. adresa e vjetër → stoku.site): lëre shfletuesin ta ndjekë, mos e fsheh me kopjen e ruajtur
-        if (pergjigja && pergjigja.type === 'opaqueredirect') return pergjigja;
+        if (pergjigja && pergjigja.type === 'opaqueredirect') { kthe(pergjigja); return; }
         // Nëse faqja kthen gabim (p.sh. faqja e pezulluar), mos e ruaj dhe mbaje aplikacionin e ruajtur
-        if (!pergjigja || !pergjigja.ok) {
-          return caches.match(faqja).then(function (e_ruajtur) { return e_ruajtur || pergjigja; });
-        }
+        if (!pergjigja || !pergjigja.ok) { caches.match(faqja).then(function (r) { kthe(r || pergjigja); }); return; }
         var kopje = pergjigja.clone();
         caches.open(CACHE).then(function (c) { c.put(faqja, kopje); });
-        return pergjigja;
+        kthe(pergjigja);
       }).catch(function () {
-        return caches.match(faqja).then(function (r) { return r || caches.match('./index.html'); });
-      })
-    );
+        clearTimeout(kohezuesi);
+        caches.match(faqja).then(function (r) { return r || caches.match('./index.html'); }).then(function (r) { kthe(r || Response.error()); });
+      });
+    }));
     return;
   }
 
