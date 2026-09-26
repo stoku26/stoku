@@ -241,6 +241,30 @@
     });
   }
 
+  // Foto e zvogëluar (≤ ~600 KB) që dërgohet nga telefoni në PC për kontroll — mjaft e qartë për ta
+  // krahasuar me zoom, por e vogël sa të hyjë në një dokument të Firebase-it (kufiri 1 MB).
+  function fotoPerDergim(dataUrl) {
+    return new Promise(function (zgjidh, refuzo) {
+      var img = new Image();
+      img.onload = function () {
+        var provat = [[2000, 0.75], [1700, 0.72], [1400, 0.7], [1100, 0.65]];
+        for (var i = 0; i < provat.length; i++) {
+          var k = Math.min(1, provat[i][0] / Math.max(img.naturalWidth, img.naturalHeight));
+          var c = document.createElement('canvas');
+          c.width = Math.max(1, Math.round(img.naturalWidth * k)); c.height = Math.max(1, Math.round(img.naturalHeight * k));
+          var g = c.getContext('2d');
+          g.imageSmoothingQuality = 'high';
+          g.drawImage(img, 0, 0, c.width, c.height);
+          var u = c.toDataURL('image/jpeg', provat[i][1]);
+          c.width = c.height = 0;
+          if (u.length < 800000 || i === provat.length - 1) { zgjidh(u); return; }
+        }
+      };
+      img.onerror = function () { refuzo(new Error('foto-e-palexueshme')); };
+      img.src = dataUrl;
+    });
+  }
+
   // Kthen { ok, rreshtat: [{ barkodi, emri, data, dataOrigjinale, furnizuesi, dyshim }], gabim }
   async function lexoMeAI(foto, tokeni) {
     var url = adresaAI();
@@ -287,7 +311,7 @@
     sot: sot, isoNgaData: isoNgaData, ditetDeri: ditetDeri, statusi: statusi, formato: formato,
     pershkrimi: pershkrimi, lexoDaten: lexoDaten, lexoDatenEFushes: lexoDatenEFushes, lidhFushenEDates: lidhFushenEDates,
     formatoDatenGjateShkrimit: formatoDatenGjateShkrimit, formatoPerFushe: formatoPerFushe, idERe: idERe, krahaso: krahaso, numero: numero,
-    mesazhiFurnizuesit: mesazhiFurnizuesit, pergatitFoton: pergatitFoton, lexoMeAI: lexoMeAI,
+    mesazhiFurnizuesit: mesazhiFurnizuesit, pergatitFoton: pergatitFoton, fotoPerDergim: fotoPerDergim, lexoMeAI: lexoMeAI,
     normalizoRreshtin: normalizoRreshtin, ditetTekst: ditetTekst, lexoSasine: lexoSasine, sasiaSiShume: sasiaSiShume, sasiaTekst: sasiaTekst, shumaCopeve: shumaCopeve
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

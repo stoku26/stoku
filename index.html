@@ -696,6 +696,13 @@
     color: var(--primar); display: flex; align-items: center; justify-content: center; cursor: pointer;
   }
   .af-skano:active { background: var(--hover); }
+  #dlgKuFleta { z-index: 24; }
+  #dlgKuFleta .dialog { max-width: 420px; }
+  .kfh-statusi { display: flex; align-items: flex-start; gap: 10px; margin: 2px 0 16px; font-size: 14.5px; line-height: 1.45; color: var(--gri); }
+  .kfh-statusi.gati { color: var(--af-gjelber-tx); font-weight: 600; }
+  .kfh-statusi.gabim { color: var(--af-kuqe-tx); font-weight: 600; }
+  .kfh-zgjedhjet { display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px; }
+  .kfh-zgjedhjet .btn { width: 100%; flex: none; min-height: 52px; font-size: 15.5px; }
   .af-pda-hint { margin: -6px 2px 12px; font-size: 12.5px; color: var(--gri); }
   .af-majtas { flex: 1; min-width: 0; }
   .af-emri { font-size: 15.5px; font-weight: 600; overflow-wrap: anywhere; }
@@ -1114,6 +1121,19 @@
   </div>
 </div>
 
+<!-- Pas fotografimit të fletës: vazhdo këtu apo dërgo në PC -->
+<div class="mbulese" id="dlgKuFleta">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="kfhTitulli">
+    <h2 id="kfhTitulli">Ku do ta kontrollosh fletën?</h2>
+    <div class="kfh-statusi" id="kfhStatusi"></div>
+    <div class="kfh-zgjedhjet">
+      <button class="btn me-ikone" id="kfhPc" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg>Dërgo në PC</button>
+      <button class="btn dyte me-ikone" id="kfhKetu" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"></rect><path d="M12 18h.01"></path></svg>Vazhdo këtu në telefon</button>
+    </div>
+    <div class="veprime"><button class="btn tekst" id="kfhAnulo" type="button">Anulo</button></div>
+  </div>
+</div>
+
 <!-- Afati: shto / ndrysho -->
 <div class="mbulese" id="dlgAfat">
   <div class="dialog" role="dialog" aria-modal="true">
@@ -1172,7 +1192,7 @@
 
 <script src="xlsx.js?v=58"></script>
 <script src="bashkimi.js?v=58"></script>
-<script src="afatet.js?v=71"></script>
+<script src="afatet.js?v=75"></script>
 <script>
 (function () {
   'use strict';
@@ -3631,7 +3651,7 @@
   // thjesht klasën), që logjika e tyre (p.sh. konfirmo() që pret përgjigje) të përfundojë saktë.
   var ANULO_SIPAS_DIALOGUT = {
     dlgProdukt: 'dlgAnulo', dlgZhvendos: 'zhvendosAnulo', dlgFshirje: 'fshiAnulo',
-    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo'
+    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo'
   };
   function mbyllShtresenMeTeFundit() {
     // Kamera del mbi çdo dialog (p.sh. skanimi te "Afat i ri"), prandaj mbyllet e para
@@ -4346,8 +4366,62 @@
   var lx = { rreshtat: [] };
   $('afFotografo').addEventListener('click', function () { $('afFotoKamera').value = ''; $('afFotoKamera').click(); });
   $('afGaleria').addEventListener('click', function () { $('afFotoGaleria').value = ''; $('afFotoGaleria').click(); });
-  $('afFotoKamera').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) lexoFleten(f); });
-  $('afFotoGaleria').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) lexoFleten(f); });
+  $('afFotoKamera').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) zgjidhKuFleta(f); });
+  $('afFotoGaleria').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) zgjidhKuFleta(f); });
+
+  // ---------- Pas fotos: vazhdo këtu apo dërgo në PC ----------
+  // "Dërgo në PC": fleta lexohet me AI këtu (me foton në cilësi të plotë), pastaj rreshtat + një foto
+  // më e vogël dërgohen në Firebase; PC-ja që ka hapur Stoku-n me të njëjtën llogari e hap vetë
+  // kontrollin e fletës (edhe nëse hapet më vonë).
+  var kfh = { skedari: null, anuluar: false };
+  function zgjidhKuFleta(skedari) {
+    if (!perdoruesiAktual() || !window.__stokuCloud || !window.__stokuCloud.dergoFleten) { lexoFleten(skedari); return; }
+    kfh = { skedari: skedari, anuluar: false };
+    gjendjaKfh('zgjedhje');
+    $('dlgKuFleta').classList.add('hapur');
+  }
+  function gjendjaKfh(g, tekst) {
+    var s = $('kfhStatusi');
+    s.className = 'kfh-statusi' + (g === 'gati' || g === 'gabim' ? ' ' + g : '');
+    s.textContent = '';
+    if (g === 'pune') s.appendChild(Object.assign(document.createElement('span'), { className: 'lx-spinner' }));
+    s.appendChild(document.createTextNode(tekst || 'Në kompjuter ekrani është më i madh: rreshtat kontrollohen dhe korrigjohen më lehtë.'));
+    $('kfhTitulli').textContent = g === 'gati' ? 'U dërgua në PC' : g === 'pune' ? 'Duke e dërguar në PC…' : 'Ku do ta kontrollosh fletën?';
+    $('kfhPc').style.display = g === 'zgjedhje' ? '' : 'none';
+    $('kfhKetu').style.display = g === 'zgjedhje' || g === 'gabim' ? '' : 'none';
+    $('kfhAnulo').textContent = g === 'gati' ? 'Mbyll' : 'Anulo';
+  }
+  function mbyllKfh() { kfh.anuluar = true; $('dlgKuFleta').classList.remove('hapur'); }
+  $('kfhAnulo').addEventListener('click', mbyllKfh);
+  $('kfhKetu').addEventListener('click', function () { var f = kfh.skedari; mbyllKfh(); if (f) lexoFleten(f); });
+  $('kfhPc').addEventListener('click', async function () {
+    var ky = kfh;
+    try {
+      gjendjaKfh('pune', 'Duke përgatitur foton…');
+      var foto = await AF.pergatitFoton(ky.skedari);
+      if (ky.anuluar) return;
+      gjendjaKfh('pune', 'Duke e lexuar fletën me AI… (zakonisht 5–20 sekonda)');
+      var tokeni = null;
+      try { tokeni = await window.__stokuCloud.token(); } catch (e) { /* ok */ }
+      var rez = await AF.lexoMeAI(foto, tokeni);
+      if (ky.anuluar) return;
+      if (!rez.ok) { gjendjaKfh('gabim', (MESAZHET_AI[rez.gabim] || 'Fleta s\'u lexua.') + ' Mund ta vazhdosh këtu në telefon.'); return; }
+      gjendjaKfh('pune', 'Duke e dërguar në PC…');
+      var fotoPc = await AF.fotoPerDergim(foto.dataUrl);
+      var r = await window.__stokuCloud.dergoFleten({ krijuarSe: Date.now(), nga: emriPerdoruesitAktual(), foto: fotoPc, rreshtat: rez.rreshtat });
+      if (ky.anuluar) return;
+      if (!r.ok) {
+        gjendjaKfh('gabim', r.kodi === 'permission-denied'
+          ? 'Dërgimi në PC s\'lejohet ende nga rregullat e Firebase-it (duhen përditësuar një herë). Vazhdoje këtu në telefon.'
+          : 'Fleta s\'u dërgua — kontrollo internetin dhe provo sërish, ose vazhdoje këtu në telefon.');
+        return;
+      }
+      var n = rez.rreshtat.length;
+      gjendjaKfh('gati', 'U lexuan ' + n + (n === 1 ? ' rresht' : ' rreshta') + '. Në kompjuter (me të njëjtën llogari) do të dalë njoftimi për fletën — mund ta kontrollosh kur të kesh kohë.');
+    } catch (e) {
+      if (!ky.anuluar) gjendjaKfh('gabim', 'Diçka s\'shkoi mirë. Vazhdoje këtu në telefon.');
+    }
+  });
   $('lxFoto').addEventListener('click', function () { $('lxFoto').classList.toggle('e-madhe'); });
 
   function statusiLeximit(html, gabim, meSpinner) {
@@ -4541,7 +4615,7 @@
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
     updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential
   } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, runTransaction } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, runTransaction, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
   var firebaseConfig = {
     apiKey: "AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY",
@@ -4640,6 +4714,16 @@
           return { ok: true, gjendja: gjendja };
         } catch (e) {
           return { ok: false, arsye: String((e && e.message) || e) };
+        }
+      },
+      // Fleta e fotografuar (rreshtat e lexuar + foto e vogël) dërgohet në PC për kontroll
+      async dergoFleten(fleta) {
+        if (!auth.currentUser) return { ok: false, arsye: 'pa-hyrje' };
+        try {
+          await addDoc(collection(db, 'dyqane', auth.currentUser.uid, 'fletet'), fleta);
+          return { ok: true };
+        } catch (e) {
+          return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) };
         }
       },
       async merr() {
