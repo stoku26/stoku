@@ -3184,16 +3184,21 @@
 
   // ---------- Numërim i vazhdueshëm (vetëm për një përdorues specifik) ----------
   // Kur mbahet kamera e drejtuar te i njëjti barkod (që tashmë ekziston si produkt), sasia rritet
-  // vetë me +1 çdo 1 sekondë, pa u dashur me e ndalë kamerën apo me hapë dialogun çdo herë. Ndalet
-  // vetë sapo barkodi s'shihet më (kamera lëviz gjetkun) ose kur skanohet një barkod tjetër.
+  // vetë me +1 çdo 1.5 sekonda, pa u dashur me e ndalë kamerën apo me hapë dialogun çdo herë.
+  // Çdo +1 vjen vetëm kur barkodi SHIHET (jo nga një kohëmatës i verbër), dhe asnjëherë më shpesh se
+  // 1 herë në 1.5 s — edhe kur kamera e humb barkodin për një çast (dridhje, fokus, iPhone) dhe e
+  // gjen sërish. Mbyllet kur barkodi s'shihet 3 s ose kur skanohet një barkod tjetër.
+  var NUMRIM_INTERVALI_MS = 1500;
+  var NUMRIM_PUSHIMI_MS = 3000;
   var numrimIVazhdueshemBarkodi = null;
-  var numrimIVazhdueshemTimer = null;
-  var numrimIVazhdueshemFundit = 0;
+  var numrimIVazhdueshemTimer = null;  // mbyll numërimin pasi barkodi s'shihet më
+  var numrimIVazhdueshemFundit = 0;    // koha e +1 të fundit
   var numrimIVazhdueshemSasi = 0; // sa copë janë shtuar në këtë sesion (që nga çasti i parë)
 
   function ndaloNumrimVazhdues() {
-    if (numrimIVazhdueshemTimer) { clearInterval(numrimIVazhdueshemTimer); numrimIVazhdueshemTimer = null; }
+    if (numrimIVazhdueshemTimer) { clearTimeout(numrimIVazhdueshemTimer); numrimIVazhdueshemTimer = null; }
     numrimIVazhdueshemBarkodi = null;
+    numrimIVazhdueshemFundit = 0;
     numrimIVazhdueshemSasi = 0;
     var e = $('skanNumrimi');
     if (e) e.style.display = 'none';
@@ -3217,16 +3222,17 @@
     }
   }
 
+  // Thirret sa herë që kamera e sheh barkodin (shumë herë në sekondë)
   function fillojOseVazhdoNumrimin(barkodi) {
-    numrimIVazhdueshemFundit = Date.now();
-    if (numrimIVazhdueshemBarkodi === barkodi && numrimIVazhdueshemTimer) return; // tashmë duke numëruar këtë barkod
-    ndaloNumrimVazhdues();
-    numrimIVazhdueshemBarkodi = barkodi;
-    shtoNjeCopeNumrimVazhdues(barkodi);
-    numrimIVazhdueshemTimer = setInterval(function () {
-      if (Date.now() - numrimIVazhdueshemFundit > 1200) { ndaloNumrimVazhdues(); return; }
+    var tash = Date.now();
+    if (numrimIVazhdueshemBarkodi !== barkodi) { ndaloNumrimVazhdues(); numrimIVazhdueshemBarkodi = barkodi; }
+    if (tash - numrimIVazhdueshemFundit >= NUMRIM_INTERVALI_MS) {
+      numrimIVazhdueshemFundit = tash;
       shtoNjeCopeNumrimVazhdues(barkodi);
-    }, 1000);
+      if (numrimIVazhdueshemBarkodi !== barkodi) return; // produkti s'u gjet → numërimi u ndal
+    }
+    if (numrimIVazhdueshemTimer) clearTimeout(numrimIVazhdueshemTimer);
+    numrimIVazhdueshemTimer = setTimeout(ndaloNumrimVazhdues, NUMRIM_PUSHIMI_MS);
   }
 
   var qrToastFundit = 0;
