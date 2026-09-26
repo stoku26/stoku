@@ -6,7 +6,7 @@
  * që telefonat të marrin versionin e ri. Kur ndryshon xlsx.js / bashkimi.js / afatet.js, ndrysho edhe
  * "?v=" te index.html, pc.html dhe më poshtë — që asnjë pajisje të mos përdorë kopjen e vjetër.
  */
-var CACHE = 'stoku-v89';
+var CACHE = 'stoku-v90';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
 importScripts('./afatet.js?v=88', './njoftimet.js?v=85');
