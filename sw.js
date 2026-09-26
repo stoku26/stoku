@@ -6,7 +6,7 @@
  * që telefonat të marrin versionin e ri. Kur ndryshon xlsx.js / bashkimi.js / afatet.js, ndrysho edhe
  * "?v=" te index.html, pc.html dhe më poshtë — që asnjë pajisje të mos përdorë kopjen e vjetër.
  */
-var CACHE = 'stoku-v57';
+var CACHE = 'stoku-v58';
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js',
@@ -16,9 +16,9 @@ var SHELL = [
   './',
   './index.html',
   './pc.html',
-  './xlsx.js?v=57',
-  './bashkimi.js?v=57',
-  './afatet.js?v=57',
+  './xlsx.js?v=58',
+  './bashkimi.js?v=58',
+  './afatet.js?v=58',
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png',
@@ -57,6 +57,8 @@ self.addEventListener('fetch', function (e) {
     var faqja = /\/pc(\.html)?$/.test(new URL(kerkesa.url).pathname) ? './pc.html' : './index.html';
     e.respondWith(
       fetch(kerkesa).then(function (pergjigja) {
+        // Ridrejtim (p.sh. adresa e vjetër → stoku.site): lëre shfletuesin ta ndjekë, mos e fsheh me kopjen e ruajtur
+        if (pergjigja && pergjigja.type === 'opaqueredirect') return pergjigja;
         // Nëse faqja kthen gabim (p.sh. faqja e pezulluar), mos e ruaj dhe mbaje aplikacionin e ruajtur
         if (!pergjigja || !pergjigja.ok) {
           return caches.match(faqja).then(function (e_ruajtur) { return e_ruajtur || pergjigja; });

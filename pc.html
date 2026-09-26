@@ -8,6 +8,14 @@
 <link rel="icon" type="image/png" href="icon-192.png">
 <meta name="theme-color" content="#1565C0" id="metaTema">
 <script>
+  // Adresa e pastër: shfaqet stoku.site/#/... në vend të stoku.site/pc.html#/...
+  // (rifreskimi hap stoku.site/, që në kompjuter të kthen vetë këtu, në të njëjtën faqe)
+  (function () {
+    try {
+      var dosja = location.pathname.replace(/[^\/]*$/, '');
+      if (location.pathname !== dosja || location.search) history.replaceState(history.state, '', dosja + location.hash);
+    } catch (e) { /* ok */ }
+  })();
   // Tema dhe ngjyra vendosen para vizatimit (pa dridhje ndriçimi)
   (function () {
     var o = null;
@@ -1206,9 +1214,9 @@
 <div class="menu" id="menu" role="menu"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"><span class="toast-tekst" id="toastTekst"></span><button class="btn fsheh" type="button" id="toastBtn"></button></div>
 
-<script src="xlsx.js?v=57"></script>
-<script src="bashkimi.js?v=57"></script>
-<script src="afatet.js?v=57"></script>
+<script src="xlsx.js?v=58"></script>
+<script src="bashkimi.js?v=58"></script>
+<script src="afatet.js?v=58"></script>
 <script>
 (function () {
   'use strict';

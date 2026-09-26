@@ -16,6 +16,13 @@
   // Në kompjuter (maus + ekran i gjerë) hapet vetë versioni për kompjuter (pc.html).
   // Telefonat, tabletët me prekje dhe PDA-të (Zebra) nuk ridrejtohen kurrë.
   // ?mobile=1 e mban përgjithmonë këtë version në atë shfletues (lidhja "Versioni për telefon" te pc.html).
+  // Adresa mbahet e pastër: stoku.site/ (pa "index.html" ose "?mobile=1" në shiritin e adresës).
+  function adresaEPaster() {
+    try {
+      var dosja = location.pathname.replace(/[^\/]*$/, '');
+      if (location.pathname !== dosja || location.search) history.replaceState(history.state, '', dosja + location.hash);
+    } catch (e) { /* ok */ }
+  }
   (function () {
     try {
       if (/[?&]mobile=1(&|$)/.test(location.search)) { localStorage.setItem('stoku:pamja', 'mobile'); return; }
@@ -26,9 +33,11 @@
       var mm = window.matchMedia ? function (q) { return window.matchMedia(q).matches; } : function () { return false; };
       var kompjuter = mm('(pointer: fine)') && mm('(hover: hover)') && Math.max(screen.width, screen.height) >= 1024 &&
         !/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-      if (zgjedhja === 'pc' || kompjuter) location.replace('pc.html');
+      // pc.html e fsheh vetë emrin e vet; faqja e hapur (#/f/...) ruhet edhe pas rifreskimit
+      if (zgjedhja === 'pc' || kompjuter) { window.__stokuDrejtPc = true; location.replace('pc.html' + (/^#\//.test(location.hash) ? location.hash : '')); }
     } catch (e) { /* mbetet ky version */ }
   })();
+  if (!window.__stokuDrejtPc) adresaEPaster();
   // Vendos temën para se faqja të vizatohet (që të mos ketë dridhje ndriçimi)
   (function () {
     var t = null;
@@ -1102,9 +1111,9 @@
 
 <div id="toast"></div>
 
-<script src="xlsx.js?v=57"></script>
-<script src="bashkimi.js?v=57"></script>
-<script src="afatet.js?v=57"></script>
+<script src="xlsx.js?v=58"></script>
+<script src="bashkimi.js?v=58"></script>
+<script src="afatet.js?v=58"></script>
 <script>
 (function () {
   'use strict';
