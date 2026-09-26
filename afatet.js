@@ -128,8 +128,9 @@
     return null;
   }
 
-  // ---- Fusha e datës me numra (DD-MM-VVVV), pa kalendar: vizat shtohen vetë gjatë shkrimit ----
-  // "01102026" → "01-10-2026"; "1-10-26" ose "1.10.26" → "01-10-26". Vlera e brendshme mbetet 'VVVV-MM-DD'.
+  // ---- Fusha e datës me numra (DD-MM-VV), pa kalendar: vizat shtohen vetë gjatë shkrimit ----
+  // Viti shkruhet me 2 shifra: "011026" → "01-10-26" (= 2026); "1-10-26" ose "1.10.26" → "01-10-26".
+  // Kush e shkruan me 4 shifra ("01102026") pranohet po ashtu. Vlera e brendshme mbetet 'VVVV-MM-DD'.
   function formatoDatenGjateShkrimit(raw) {
     var d = '';
     for (var i = 0; i < raw.length && d.length < 8; i++) {
@@ -142,10 +143,12 @@
     if (d.length >= 4) v += '-' + d.slice(4, 8);
     return v;
   }
-  // Data për fushë: 'VVVV-MM-DD' → 'DD-MM-VVVV'
+  // Data për fushë: 'VVVV-MM-DD' → 'DD-MM-VV' (viti me 2 shifra; jashtë 2000–2099 me 4)
   function formatoPerFushe(iso) {
     var d = dataNgaIso(iso);
-    return d ? dy(d.getDate()) + '-' + dy(d.getMonth() + 1) + '-' + d.getFullYear() : '';
+    if (!d) return '';
+    var v = d.getFullYear();
+    return dy(d.getDate()) + '-' + dy(d.getMonth() + 1) + '-' + (v >= 2000 && v < 2100 ? dy(v - 2000) : v);
   }
   // Vetëm data e plotë (ditë-muaj-vit) → 'VVVV-MM-DD'; gjysmë e shkruar ("12-10") → null
   function lexoDatenEFushes(v) {
@@ -157,7 +160,7 @@
     inp.inputMode = 'numeric';
     inp.autocomplete = 'off';
     inp.maxLength = 10;
-    inp.placeholder = 'DD-MM-VVVV';
+    inp.placeholder = 'DD-MM-VV';
     inp.style.fontVariantNumeric = 'tabular-nums';
     // capture: formatohet para dëgjuesve të tjerë të fushës, që ata të marrin vlerën e rregulluar
     inp.addEventListener('input', function (ev) {

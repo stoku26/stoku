@@ -979,7 +979,7 @@
       <div class="af-info fsheh" id="afdInfo"></div>
       <div class="dy-kolona">
         <label class="fushe"><span>Barkodi</span><input class="inp mono" id="afdBarkodi" placeholder="Skano ose shkruaj barkodin" type="text" autocomplete="off" spellcheck="false" maxlength="64"></label>
-        <label class="fushe"><span>Data e skadimit</span><input class="inp" id="afdData" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="DD-MM-VVVV"></label>
+        <label class="fushe"><span>Data e skadimit</span><input class="inp" id="afdData" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="DD-MM-VV"></label>
       </div>
       <label class="fushe" style="max-width:220px"><span>Sasia (copë)</span><input class="inp" id="afdSasia" placeholder="Numri i copëve" type="text" inputmode="numeric" autocomplete="off"></label>
       <label class="fushe"><span>Emri i produktit</span><input class="inp" id="afdEmri" placeholder="Shkruaj emrin e produktit" type="text" autocomplete="off" maxlength="120"></label>
@@ -1258,7 +1258,7 @@
 <script src="xlsx.js?v=58"></script>
 <script src="bashkimi.js?v=81"></script>
 <script src="ruajtja.js?v=81"></script>
-<script src="afatet.js?v=87"></script>
+<script src="afatet.js?v=88"></script>
 <script>
 (function () {
   'use strict';
@@ -4010,7 +4010,7 @@
     var sasia = AF.lexoSasine(sasiaTx);
     if (sasiaTx && sasia === '') { $('afdGabim').textContent = 'Sasia duhet të jetë numër i plotë (p.sh. 12).'; $('afdSasia').focus(); return; }
     if (!b && !emri) { $('afdGabim').textContent = 'Shkruaj barkodin ose emrin e produktit.'; $('afdBarkodi').focus(); return; }
-    if (!data) { $('afdGabim').textContent = 'Shkruaj datën e skadimit, p.sh. 31-12-2026.'; $('afdData').focus(); return; }
+    if (!data) { $('afdGabim').textContent = 'Shkruaj datën e skadimit, p.sh. 31-12-26.'; $('afdData').focus(); return; }
     var tani = Date.now();
     var reg = ndryshoAfatet(function (api) {
       var a = (afdId && api.merr(afdId)) || { id: afdId || AF.idERe(), statusi: 'aktiv', krijuarSe: tani, krijuarNga: emriPerdoruesit() };
@@ -4384,7 +4384,7 @@
         var iso = AF.lexoDatenEFushes(v) || '';
         r.data = iso; r.dyshim = false;
         tr.className = iso ? AF.statusi({ data: iso }) : '';
-        sh.textContent = iso ? AF.pershkrimi({ data: iso }) : 'Shkruaj datën, p.sh. 31-12-2026';
+        sh.textContent = iso ? AF.pershkrimi({ data: iso }) : 'Shkruaj datën, p.sh. 31-12-26';
         sh.className = iso ? '' : 'paralajm';
       });
       AF.lidhFushenEDates(qd.inp);

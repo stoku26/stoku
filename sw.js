@@ -6,10 +6,10 @@
  * që telefonat të marrin versionin e ri. Kur ndryshon xlsx.js / bashkimi.js / afatet.js, ndrysho edhe
  * "?v=" te index.html, pc.html dhe më poshtë — që asnjë pajisje të mos përdorë kopjen e vjetër.
  */
-var CACHE = 'stoku-v87';
+var CACHE = 'stoku-v89';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
-importScripts('./afatet.js?v=87', './njoftimet.js?v=85');
+importScripts('./afatet.js?v=88', './njoftimet.js?v=85');
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.2/dist/iife/ponyfill.js',
@@ -24,7 +24,7 @@ var SHELL = [
   './xlsx.js?v=58',
   './bashkimi.js?v=81',
   './ruajtja.js?v=81',
-  './afatet.js?v=87',
+  './afatet.js?v=88',
   './porta.js?v=86',
   './njoftimet.js?v=85',
   './manifest.webmanifest?v=84',

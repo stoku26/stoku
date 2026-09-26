@@ -810,9 +810,6 @@
   .lx-sasia { position: relative; }
   .lx-sasia input { padding-right: 52px; }
   .lx-sasia::after { content: 'copë'; position: absolute; right: 14px; top: 22px; transform: translateY(-50%); font-size: 13px; font-weight: 700; color: var(--gri); pointer-events: none; }
-  .njesi-kuti { position: relative; }
-  .njesi-kuti input { padding-right: 56px; }
-  .njesi-kuti .njesi { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 13px; font-weight: 700; color: var(--gri); pointer-events: none; }
   .lx-dy { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
   .lx-hiq { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border: 0; border-radius: 15px; background: transparent; color: var(--gri); font-size: 16px; cursor: pointer; }
   .lx-shenim { font-size: 12px; margin: -2px 2px 6px; color: var(--gri); }
@@ -1238,8 +1235,8 @@
     <div class="af-pda-hint" id="afatPdaHint" style="display:none">Skano barkodin me skanerin e PDA-së.</div>
     <div class="fushe"><input id="afatEmri" type="text" autocomplete="off" autocorrect="off" placeholder="Emri i produktit" aria-label="Emri i produktit" enterkeyhint="next"></div>
     <div class="lx-dy">
-      <div class="fushe"><label for="afatData">Data e skadimit</label><input id="afatData" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="DD-MM-VVVV"></div>
-      <div class="fushe"><label for="afatSasia">Sasia</label><div class="njesi-kuti"><input id="afatSasia" type="text" inputmode="tel" autocomplete="off"><span class="njesi">copë</span></div></div>
+      <div class="fushe"><label for="afatData">Data e skadimit</label><input id="afatData" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="DD-MM-VV"></div>
+      <div class="fushe"><label for="afatSasia">Sasia</label><input id="afatSasia" type="text" inputmode="tel" autocomplete="off" placeholder="Copë"></div>
     </div>
     <div class="fushe"><input id="afatFurnizuesi" type="text" list="afFurnizuesit" autocomplete="off" autocorrect="off" placeholder="Furnitori" aria-label="Furnitori" enterkeyhint="done"></div>
     <div class="af-status-veprime" id="afatStatusVeprime"></div>
@@ -1285,7 +1282,7 @@
 <script src="xlsx.js?v=58"></script>
 <script src="bashkimi.js?v=81"></script>
 <script src="ruajtja.js?v=81"></script>
-<script src="afatet.js?v=87"></script>
+<script src="afatet.js?v=88"></script>
 <script src="njoftimet.js?v=85"></script>
 <script>
 (function () {
@@ -4564,7 +4561,7 @@
     var sasia = AF.lexoSasine(sasiaTx);
     if (sasiaTx && sasia === '') { toast('Sasia duhet të jetë numër i plotë (p.sh. 12).'); $('afatSasia').focus(); return; }
     if (!b && !emri) { toast('Shkruaj barkodin ose emrin e produktit.'); $('afatBarkodi').focus(); return; }
-    if (!data) { toast('Shkruaj datën e skadimit, p.sh. 31-12-2026.'); $('afatData').focus(); return; }
+    if (!data) { toast('Shkruaj datën e skadimit, p.sh. 31-12-26.'); $('afatData').focus(); return; }
     var tani = Date.now();
     if (afatNeDialog) {
       perditesoAfatin(afatNeDialog, { barkodi: b, emri: emri, data: data, sasia: sasia, furnizuesi: f });
@@ -4765,7 +4762,7 @@
       });
       var fe = fushe('Emri i produktit', r.emri, 'text', function (v) { r.emri = v; });
       var dy = document.createElement('div'); dy.className = 'lx-dy';
-      var fd = fushe('Data (DD-MM-VVVV)', r.data ? AF.formatoPerFushe(r.data) : '', 'text', function (v) {
+      var fd = fushe('Data (DD-MM-VV)', r.data ? AF.formatoPerFushe(r.data) : '', 'text', function (v) {
         var iso = AF.lexoDatenEFushes(v) || '';
         r.data = iso; r.dyshim = false;
         d.className = 'lx-rresht ' + (iso ? AF.statusi({ data: iso }) : '');
