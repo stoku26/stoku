@@ -3885,10 +3885,10 @@
       x.addEventListener('click', function (ev) { ev.stopPropagation(); fn(); });
       tv.appendChild(x); tv.appendChild(document.createTextNode(' '));
     }
-    if (st === 'skaduar' || st === 'pa-date') b('✓ U hoq', 'kuqe', function () { shenoHequr([a.id]); }, 'Shëno që produkti u hoq nga rafti/pozita');
+    // "U hoq" vlen vetëm për produktet e skaduara — ato që ende s'kanë skaduar s'hiqen nga rafti
+    if (st === 'skaduar') b('✓ U hoq', 'kuqe', function () { shenoHequr([a.id]); }, 'Shëno që produkti u hoq nga rafti/pozita');
     else if (st === 'afer' && !a.lajmeruarSe) b('✓ Lajmërova', 'verdhe', function () { shenoLajmeruar([a.id]); }, 'Shëno që furnizuesi/komercialisti u lajmërua');
     else if (st === 'hequr') b('↺ Rikthe', 'dyte', function () { riktheAktiv(a.id); });
-    else if (st === 'afer') b('✓ U hoq', 'dyte', function () { shenoHequr([a.id]); }, 'Shëno që produkti u hoq nga rafti/pozita');
     var ed = el('button', 'btn-ikone'); ed.type = 'button'; ed.innerHTML = IKONA.ndrysho; ed.title = 'Ndrysho';
     ed.addEventListener('click', function (ev) { ev.stopPropagation(); hapAfatinPc(a.id); });
     var fs = el('button', 'btn-ikone rrezik'); fs.type = 'button'; fs.innerHTML = IKONA.fshij; fs.title = 'Fshij';
@@ -3960,9 +3960,11 @@
       info.textContent = AF.pershkrimi(a) + (a.krijuarNga ? '\nShtuar nga: ' + a.krijuarNga + (a.krijuarSe ? ' më ' + dataOra(a.krijuarSe) : '') : '') +
         (a.lajmeruarSe ? '\nFurnizuesi u lajmërua më ' + dataOra(a.lajmeruarSe) : '');
       if (st !== 'hequr') {
-        var h = el('button', 'btn dyte', '✓ U hoq nga rafti'); h.type = 'button';
-        h.addEventListener('click', function () { mbyllDialog('dlgAfat'); shenoHequr([a.id]); });
-        sv.appendChild(h);
+        if (st === 'skaduar') {
+          var h = el('button', 'btn dyte', '✓ U hoq nga rafti'); h.type = 'button';
+          h.addEventListener('click', function () { mbyllDialog('dlgAfat'); shenoHequr([a.id]); });
+          sv.appendChild(h);
+        }
         if (!a.lajmeruarSe && (st === 'afer' || st === 'skaduar')) {
           var l = el('button', 'btn dyte', '✓ Lajmërova furnizuesin'); l.type = 'button';
           l.addEventListener('click', function () { mbyllDialog('dlgAfat'); shenoLajmeruar([a.id]); });

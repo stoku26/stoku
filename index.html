@@ -4478,8 +4478,8 @@
       info.style.whiteSpace = 'pre-line';
       info.style.display = '';
       var veprime = [];
-      if (st !== 'hequr') veprime.push(['U hoq nga rafti', function () { shenoHequr(a); }, 'kontroll']);
-      else veprime.push(['Rikthe si aktiv', function () { riktheAktiv(a); }, 'rikthe']);
+      if (st === 'skaduar') veprime.push(['U hoq nga rafti', function () { shenoHequr(a); }, 'kontroll']);
+      else if (st === 'hequr') veprime.push(['Rikthe si aktiv', function () { riktheAktiv(a); }, 'rikthe']);
       if (st === 'afer' || st === 'skaduar') veprime.push([a.lajmeruarSe ? 'Hiq "u lajmërua"' : 'Lajmërova furnizuesin',
         function () { if (a.lajmeruarSe) perditesoAfatin(a.id, { lajmeruarSe: 0 }); else shenoLajmeruar(a); }, a.lajmeruarSe ? 'x' : 'kontroll']);
       veprime.forEach(function (v) {
