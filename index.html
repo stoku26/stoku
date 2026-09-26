@@ -698,6 +698,25 @@
   .af-skano:active { background: var(--hover); }
   #dlgKuFleta { z-index: 24; }
   #dlgKuFleta .dialog { max-width: 420px; }
+  #dlgAfExcel { z-index: 24; }
+  #dlgAfExcel .dialog { max-width: 420px; }
+  .ax-nen { margin: -6px 0 10px; font-size: 14px; color: var(--gri); }
+  .ax-shpejt { display: flex; gap: 8px; margin-bottom: 8px; }
+  .ax-shpejt button {
+    flex: 1; min-height: 36px; border-radius: 18px; border: 1px solid var(--fushe-kufi); background: transparent;
+    color: var(--tekst); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .ax-shpejt button:active { background: var(--hover); }
+  .ax-lista { border: 1px solid var(--vije); border-radius: 14px; overflow: hidden; margin-bottom: 8px; }
+  .ax-rresht {
+    display: flex; align-items: center; gap: 12px; min-height: 46px; padding: 6px 14px; cursor: pointer;
+    font-size: 16px; color: var(--tekst); -webkit-tap-highlight-color: transparent;
+  }
+  .ax-rresht + .ax-rresht { border-top: 1px solid var(--vije); }
+  .ax-rresht:active { background: var(--hover); }
+  .ax-rresht input { width: 22px; height: 22px; margin: 0; flex: none; accent-color: var(--primar); }
+  .ax-gabim { color: var(--rrezik); font-size: 13px; margin: 0 2px 6px; }
+  .ax-gabim:empty { display: none; }
   .kfh-statusi { display: flex; align-items: flex-start; gap: 10px; margin: 2px 0 16px; font-size: 14.5px; line-height: 1.45; color: var(--gri); }
   .kfh-statusi.gati { color: var(--af-gjelber-tx); font-weight: 600; }
   .kfh-statusi.gabim { color: var(--af-kuqe-tx); font-weight: 600; }
@@ -1138,6 +1157,24 @@
       <button class="btn dyte me-ikone" id="kfhKetu" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"></rect><path d="M12 18h.01"></path></svg>Vazhdo këtu në telefon</button>
     </div>
     <div class="veprime"><button class="btn tekst" id="kfhAnulo" type="button">Anulo</button></div>
+  </div>
+</div>
+
+<!-- Afatet: zgjedhja e kolonave për Excel -->
+<div class="mbulese" id="dlgAfExcel">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="axTitulli">
+    <h2 id="axTitulli">Çka të përfshihet në Excel?</h2>
+    <div class="ax-nen" id="axNen"></div>
+    <div class="ax-shpejt">
+      <button type="button" id="axKrejt">Të gjitha</button>
+      <button type="button" id="axBaze">Barkodi, emri, sasia</button>
+    </div>
+    <div class="ax-lista" id="axLista"></div>
+    <div class="ax-gabim" id="axGabim"></div>
+    <div class="veprime">
+      <button class="btn tekst" id="axAnulo" type="button">Anulo</button>
+      <button class="btn" id="axEksporto" type="button">Eksporto</button>
+    </div>
   </div>
 </div>
 
@@ -3702,7 +3739,7 @@
   // thjesht klasën), që logjika e tyre (p.sh. konfirmo() që pret përgjigje) të përfundojë saktë.
   var ANULO_SIPAS_DIALOGUT = {
     dlgProdukt: 'dlgAnulo', dlgZhvendos: 'zhvendosAnulo', dlgFshirje: 'fshiAnulo',
-    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo'
+    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgAfExcel: 'axAnulo'
   };
   function mbyllShtresenMeTeFundit() {
     // Kamera del mbi çdo dialog (p.sh. skanimi te "Afat i ri"), prandaj mbyllet e para
@@ -4170,30 +4207,87 @@
   $('afZgjAnulo').addEventListener('click', dilNgaZgjedhja);
   $('afZgjFshij').addEventListener('click', fshijTeZgjedhurat);
 
-  // Excel vetëm me afatet e zgjedhura (në telefon hapet menuja "Shpërndaj", përndryshe shkarkohet)
+  // Excel vetëm me afatet e zgjedhura: së pari pyetet përdoruesi cilat kolona t'i përfshijë
+  // (zgjedhja mbahet mend për herën tjetër). Në telefon hapet menuja "Shpërndaj", përndryshe shkarkohet.
   var AF_ST_EMRI = { skaduar: 'Ka skaduar', 'pa-date': 'Pa datë', afer: 'Afër skadimit', ok: 'Në rregull', hequr: 'I hequr' };
+  var AX_KOLONAT = [
+    { k: 'barkodi', emri: 'Barkodi', col: { title: 'Barkodi', width: 18 }, v: function (a) { return a.barkodi || ''; } },
+    { k: 'emri', emri: 'Emri i produktit', col: { title: 'Emri i produktit', width: 36 }, v: function (a) { return a.emri || ''; } },
+    { k: 'sasia', emri: 'Sasia (copë)', col: { title: 'Sasia (copë)', width: 12, type: 'number' }, v: function (a) { return typeof a.sasia === 'number' ? a.sasia : ''; } },
+    { k: 'data', emri: 'Data e skadimit', col: { title: 'Skadon më', width: 13, type: 'day' }, v: function (a) { return a.data || ''; } },
+    { k: 'ditet', emri: 'Ditë të mbetura', col: { title: 'Ditë të mbetura', width: 14, type: 'number' }, v: function (a) { var n = AF.ditetDeri(a.data); return AF.statusi(a) === 'hequr' || n === null ? '' : n; } },
+    { k: 'furnizuesi', emri: 'Furnizuesi', col: { title: 'Furnizuesi', width: 22 }, v: function (a) { return a.furnizuesi || ''; } },
+    { k: 'statusi', emri: 'Statusi', col: { title: 'Statusi', width: 15 }, v: function (a) { return AF_ST_EMRI[AF.statusi(a)] || ''; } },
+    { k: 'pershkrimi', emri: 'Çfarë duhet bërë', col: { title: 'Çfarë duhet bërë', width: 60 }, v: function (a) { return AF.pershkrimi(a); } },
+    { k: 'krijuarNga', emri: 'Shtuar nga', col: { title: 'Shtuar nga', width: 14 }, v: function (a) { return a.krijuarNga || ''; } }
+  ];
+  var KEY_AX_KOLONAT = 'stoku:afatet:excel-kolonat';
+  function axKolonatERuajtura() {
+    try {
+      var r = JSON.parse(localStorage.getItem(KEY_AX_KOLONAT) || 'null');
+      if (Array.isArray(r) && r.length) return r;
+    } catch (e) { /* ok */ }
+    return AX_KOLONAT.map(function (c) { return c.k; });
+  }
+  function axVendos(kyçet) {
+    Array.prototype.forEach.call(document.querySelectorAll('#axLista input'), function (i) { i.checked = kyçet.indexOf(i.value) >= 0; });
+    axRifresko();
+  }
+  function axTeZgjedhurat() {
+    return Array.prototype.filter.call(document.querySelectorAll('#axLista input'), function (i) { return i.checked; })
+      .map(function (i) { return i.value; });
+  }
+  function axRifresko() {
+    var n = axTeZgjedhurat().length;
+    $('axEksporto').disabled = !n;
+    $('axGabim').textContent = n ? '' : 'Zgjidh të paktën një kolonë.';
+  }
+  (function ndertoListenAx() {
+    var lista = $('axLista');
+    AX_KOLONAT.forEach(function (c) {
+      var l = document.createElement('label'); l.className = 'ax-rresht';
+      var i = document.createElement('input'); i.type = 'checkbox'; i.value = c.k;
+      i.addEventListener('change', axRifresko);
+      var t = document.createElement('span'); t.textContent = c.emri;
+      l.appendChild(i); l.appendChild(t); lista.appendChild(l);
+    });
+  })();
+  function hapExcelinEAfateve() {
+    var n = Object.keys(afZgjedhja || {}).length;
+    if (!n) return;
+    $('axNen').textContent = n === 1 ? '1 afat i zgjedhur' : n + ' afate të zgjedhura';
+    axVendos(axKolonatERuajtura());
+    $('dlgAfExcel').classList.add('hapur');
+  }
+  function mbyllExcelinEAfateve() { $('dlgAfExcel').classList.remove('hapur'); }
   async function eksportoTeZgjedhurat() {
+    var kyçet = axTeZgjedhurat();
+    if (!kyçet.length) { axRifresko(); return; }
+    try { localStorage.setItem(KEY_AX_KOLONAT, JSON.stringify(kyçet)); } catch (e) { /* ok */ }
+    var kolonat = AX_KOLONAT.filter(function (c) { return kyçet.indexOf(c.k) >= 0; });
     var zgj = afZgjedhja || {};
     var lista = afatet.filter(function (a) { return zgj[a.id]; }).sort(AF.krahaso);
+    mbyllExcelinEAfateve();
     if (!lista.length) return;
-    var kol = [
-      { title: 'Statusi', width: 15 }, { title: 'Barkodi', width: 18 }, { title: 'Emri i produktit', width: 36 },
-      { title: 'Sasia (copë)', width: 12, type: 'number' }, { title: 'Furnizuesi', width: 22 },
-      { title: 'Skadon më', width: 13, type: 'day' }, { title: 'Ditë të mbetura', width: 14, type: 'number' },
-      { title: 'Çfarë duhet bërë', width: 60 }, { title: 'Shtuar nga', width: 14 }
-    ];
-    var rreshtat = lista.map(function (a) {
-      var st = AF.statusi(a), n = AF.ditetDeri(a.data);
-      return [AF_ST_EMRI[st] || '', a.barkodi || '', a.emri || '', typeof a.sasia === 'number' ? a.sasia : '',
-        a.furnizuesi || '', a.data || '', st === 'hequr' || n === null ? '' : n, AF.pershkrimi(a), a.krijuarNga || ''];
-    });
+    var rreshtat = lista.map(function (a) { return kolonat.map(function (c) { return c.v(a); }); });
+    var fleta = { name: 'Afatet', columns: kolonat.map(function (c) { return c.col; }), rows: rreshtat };
+    var iSasise = kyçet.indexOf('sasia') >= 0 ? kolonat.findIndex(function (c) { return c.k === 'sasia'; }) : -1;
+    if (iSasise >= 0) {
+      fleta.totalColumns = [iSasise];
+      if (iSasise > 0) fleta.totalLabel = 'Gjithsej';
+    }
     var d = new Date();
     var emri = 'afatet_' + d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate()) +
       '_' + dyShifra(d.getHours()) + dyShifra(d.getMinutes()) + '.xlsx';
-    var bajtet = StokuXlsx.buildWorkbook([{ name: 'Afatet', columns: kol, rows: rreshtat, totalLabel: 'Gjithsej', totalColumns: [3] }]);
+    var bajtet = StokuXlsx.buildWorkbook([fleta]);
     await ndajOseShkarko({ skedari: new File([bajtet], emri, { type: MIME_XLSX }), emri: emri }, 'Afatet');
   }
-  $('afZgjExcel').addEventListener('click', eksportoTeZgjedhurat);
+  $('afZgjExcel').addEventListener('click', hapExcelinEAfateve);
+  $('axKrejt').addEventListener('click', function () { axVendos(AX_KOLONAT.map(function (c) { return c.k; })); });
+  $('axBaze').addEventListener('click', function () { axVendos(['barkodi', 'emri', 'sasia']); });
+  $('axAnulo').addEventListener('click', mbyllExcelinEAfateve);
+  $('axEksporto').addEventListener('click', eksportoTeZgjedhurat);
+  $('dlgAfExcel').addEventListener('click', function (ev) { if (ev.target === $('dlgAfExcel')) mbyllExcelinEAfateve(); });
   $('afZgjTeGjitha').addEventListener('click', function () {
     var kartat = document.querySelectorAll('#afLista .af-karta');
     var teGjitha = Array.prototype.every.call(kartat, function (k) { return afZgjedhja && afZgjedhja[k.getAttribute('data-id')]; });
