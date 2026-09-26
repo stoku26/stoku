@@ -962,7 +962,7 @@
         <label class="fushe"><span>Barkodi</span><input class="inp mono" id="afdBarkodi" type="text" autocomplete="off" spellcheck="false" maxlength="64"></label>
         <label class="fushe"><span>Data e skadimit</span><input class="inp" id="afdData" type="date"></label>
       </div>
-      <label class="fushe" style="max-width:220px"><span>Sasia (copë)</span><input class="inp" id="afdSasia" type="number" min="0" step="1" autocomplete="off" placeholder="p.sh. 12"></label>
+      <label class="fushe" style="max-width:220px"><span>Sasia (copë)</span><input class="inp" id="afdSasia" type="text" inputmode="numeric" autocomplete="off" placeholder="p.sh. 12 ose 60+30"></label>
       <label class="fushe"><span>Emri i produktit</span><input class="inp" id="afdEmri" type="text" autocomplete="off" maxlength="120"></label>
       <label class="fushe"><span>Furnizuesi / komercialisti</span><input class="inp" id="afdFurnizuesi" type="text" list="afdFurnizuesit" autocomplete="off" maxlength="80"></label>
       <datalist id="afdFurnizuesit"></datalist>
@@ -1235,7 +1235,7 @@
 
 <script src="xlsx.js?v=58"></script>
 <script src="bashkimi.js?v=58"></script>
-<script src="afatet.js?v=58"></script>
+<script src="afatet.js?v=62"></script>
 <script>
 (function () {
   'use strict';
@@ -3959,7 +3959,7 @@
     var f = $('afdFurnizuesi').value.trim();
     var sasiaTx = $('afdSasia').value.trim();
     var sasia = AF.lexoSasine(sasiaTx);
-    if (sasiaTx && sasia === '') { $('afdGabim').textContent = 'Sasia duhet të jetë numër i plotë (p.sh. 12).'; $('afdSasia').focus(); return; }
+    if (sasiaTx && sasia === '') { $('afdGabim').textContent = 'Sasia duhet të jetë numër i plotë (p.sh. 12 ose 60+30).'; $('afdSasia').focus(); return; }
     if (!b && !emri) { $('afdGabim').textContent = 'Shkruaj barkodin ose emrin e produktit.'; $('afdBarkodi').focus(); return; }
     if (!AF.lexoDaten(data)) { $('afdGabim').textContent = 'Zgjidh datën e skadimit.'; $('afdData').focus(); return; }
     var tani = Date.now();
@@ -4108,7 +4108,7 @@
     }
     lx.rreshtat = rez.rreshtat.map(function (r) {
       return { barkodi: r.barkodi, emri: r.emri || emriNgaBarkodi(r.barkodi), data: r.data, dataOrigjinale: r.dataOrigjinale,
-        sasia: r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaBarkodi(r.barkodi), dyshim: r.dyshim };
+        sasia: r.sasia, sasiaTx: r.sasiaOrigjinale || '', furnizuesi: r.furnizuesi || furnizuesiNgaBarkodi(r.barkodi), dyshim: r.dyshim };
     });
     var nd = lx.rreshtat.filter(function (r) { return r.dyshim; }).length;
     if (!lx.rreshtat.length) { statusiLeximit('Në foto s\'u gjet asnjë rresht me afat. Provo një foto më të qartë ose shkruaji me dorë.', true); shtoRreshtLeximi(); return; }
@@ -4155,8 +4155,20 @@
       });
       var sh = el('small', r.data ? '' : 'paralajm', (r.dataOrigjinale ? 'Në fletë: "' + r.dataOrigjinale + '" · ' : '') + (r.data ? AF.pershkrimi({ data: r.data }) : 'Data s\'u kuptua — zgjidhe me dorë'));
       qd.td.appendChild(sh);
-      var qs = qeliza('number', typeof r.sasia === 'number' ? String(r.sasia) : '', 'Sasia', function (v) { r.sasia = AF.lexoSasine(v); r.sasiaTx = v; });
-      qs.inp.min = '0';
+      // Tekst (jo numër), që të pranojë edhe shumat si në fletë: "60+30" = 90 copë
+      var qs = qeliza('text', r.sasiaTx || (typeof r.sasia === 'number' ? String(r.sasia) : ''), 'Sasia', function (v) {
+        r.sasia = AF.lexoSasine(v); r.sasiaTx = v;
+        shumaSasise();
+      });
+      qs.inp.inputMode = 'numeric';
+      var shs = el('small');
+      qs.td.appendChild(shs);
+      function shumaSasise() {
+        var ok = AF.sasiaSiShume(r.sasiaTx);
+        shs.textContent = ok ? '= ' + AF.lexoSasine(ok) + ' copë' : (r.sasiaTx && AF.lexoSasine(r.sasiaTx) === '' ? 'Shkruaj numër, p.sh. 12 ose 60+30' : '');
+        shs.className = !ok && shs.textContent ? 'paralajm' : '';
+      }
+      shumaSasise();
       var qf = qeliza('text', r.furnizuesi, 'Furnizuesi', function (v) { r.furnizuesi = v; });
       qf.inp.setAttribute('list', 'afdFurnizuesit');
       var tdx = el('td');

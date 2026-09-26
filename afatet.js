@@ -57,12 +57,18 @@
 
   function ditetTekst(n) { return n === 1 ? '1 ditë' : n + ' ditë'; }
 
-  // Sasia: numër i plotë ≥ 0, ose '' kur s'është shkruar
+  // Sasia: numër i plotë ≥ 0, ose '' kur s'është shkruar.
+  // Pranon edhe shuma, siç i shkruajnë punëtorët në fletë kur u del mall tjetër: "60+30" → 90, "20 + 30 + 5" → 55.
   function lexoSasine(v) {
     if (v === null || v === undefined) return '';
     var t = String(v).trim().replace(/\s+/g, '').replace(/(cope|copë|cop|pcs|kom|x)$/i, '');
-    if (!/^\d{1,6}$/.test(t)) return '';
-    return parseInt(t, 10);
+    if (!/^\d{1,6}(\+\d{1,6})*$/.test(t)) return '';
+    return t.split('+').reduce(function (s, n) { return s + parseInt(n, 10); }, 0);
+  }
+  // Teksti i sasisë kur është shumë ("60+30"), që të krahasohet me fletën; përndryshe ''
+  function sasiaSiShume(v) {
+    var t = String(v === null || v === undefined ? '' : v).replace(/\s+/g, '');
+    return /\+/.test(t) && lexoSasine(t) !== '' ? t : '';
   }
   function sasiaTekst(a) { return (a && a.sasia !== '' && a.sasia !== undefined && a.sasia !== null) ? a.sasia + ' copë' : ''; }
   // Shuma e copëve për një listë afatesh (vetëm ato që e kanë sasinë)
@@ -227,6 +233,7 @@
       barkodi: b,
       emri: String(x.emri || '').trim(),
       sasia: lexoSasine(x.sasia),
+      sasiaOrigjinale: sasiaSiShume(x.sasia),
       data: iso || '',
       dataOrigjinale: dataOrig,
       furnizuesi: String(x.furnizuesi || '').trim(),
@@ -240,7 +247,7 @@
     sot: sot, isoNgaData: isoNgaData, ditetDeri: ditetDeri, statusi: statusi, formato: formato,
     pershkrimi: pershkrimi, lexoDaten: lexoDaten, idERe: idERe, krahaso: krahaso, numero: numero,
     mesazhiFurnizuesit: mesazhiFurnizuesit, pergatitFoton: pergatitFoton, lexoMeAI: lexoMeAI,
-    normalizoRreshtin: normalizoRreshtin, ditetTekst: ditetTekst, lexoSasine: lexoSasine, sasiaTekst: sasiaTekst, shumaCopeve: shumaCopeve
+    normalizoRreshtin: normalizoRreshtin, ditetTekst: ditetTekst, lexoSasine: lexoSasine, sasiaSiShume: sasiaSiShume, sasiaTekst: sasiaTekst, shumaCopeve: shumaCopeve
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuAfatet = api;
