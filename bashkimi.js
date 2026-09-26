@@ -12,6 +12,7 @@
  *  - Asgjë që thjesht "mungon" në njërën anë (pa u fshirë qëllimisht) nuk fshihet.
  *  - Renditja e folderave: fiton ana që e ka ndryshuar renditjen më së fundi (rendiKoha).
  *  - Shënimet e fshirjeve më të vjetra se 120 ditë hiqen, që dokumenti të mos rritet pafundësisht.
+ *  - Afatet (datat e skadimit): njësoj — fiton ndryshimi më i ri (ndryshuarSe), fshirjet ruhen me id.
  */
 (function (root) {
   'use strict';
@@ -29,8 +30,8 @@
 
   function bashkoFshirjet(a, b, tani) {
     var kufiri = tani - MBAJ_FSHIRJET_MS;
-    var rez = { produktet: {}, foldera: {} };
-    ['produktet', 'foldera'].forEach(function (lloji) {
+    var rez = { produktet: {}, foldera: {}, afatet: {} };
+    ['produktet', 'foldera', 'afatet'].forEach(function (lloji) {
       [a, b].forEach(function (burimi) {
         var m = burimi && burimi[lloji];
         if (!m || typeof m !== 'object') return;
@@ -102,6 +103,22 @@
       if (!fm[kid] && fshira.foldera[kid] !== undefined) delete pm[k];
     });
 
+    // ---- Afatet (datat e skadimit) ----
+    var am = {};
+    lista(cloud.afatet).forEach(function (a) { if (a && a.id) am[a.id] = a; });
+    lista(lokal.afatet).forEach(function (a) {
+      if (!a || !a.id) return;
+      if (!am[a.id] || kohaFold(a) >= kohaFold(am[a.id])) am[a.id] = a;
+    });
+    Object.keys(am).forEach(function (id) {
+      var t = fshira.afatet[id];
+      if (t === undefined) return;
+      if (t >= kohaFold(am[id])) delete am[id];
+      else delete fshira.afatet[id];
+    });
+    var afatet = Object.keys(am).map(function (id) { return am[id]; })
+      .sort(function (a, b) { return String(a.data || '').localeCompare(String(b.data || '')) || String(a.id).localeCompare(String(b.id)); });
+
     // ---- Renditja ----
     var kohaCloud = Number(cloud.rendiKoha) || 0, kohaLokale = Number(lokal.rendiKoha) || 0;
     var burimi = kohaCloud > kohaLokale ? cloud.foldera : lokal.foldera;
@@ -118,6 +135,7 @@
       rendiKoha: Math.max(kohaCloud, kohaLokale),
       foldera: renditur,
       produktet: Object.keys(pm).map(function (k) { return pm[k]; }),
+      afatet: afatet,
       fshira: fshira
     };
   }
@@ -125,7 +143,7 @@
   // Heq shënimet lokale të fshirjeve më të vjetra se afati (thirret pas sinkronizimit të suksesshëm).
   function pastroFshirjetEVjetra(fshira, tani) {
     var kufiri = (tani || Date.now()) - MBAJ_FSHIRJET_MS;
-    ['produktet', 'foldera'].forEach(function (l) {
+    ['produktet', 'foldera', 'afatet'].forEach(function (l) {
       var m = fshira && fshira[l];
       if (!m) return;
       Object.keys(m).forEach(function (k) { if ((Number(m[k]) || 0) < kufiri) delete m[k]; });
@@ -140,7 +158,10 @@
       var p = lista(g.produktet).map(function (x) {
         return celesi(x.kategoriaId, x.barkodi) + '\u0001' + (x.emri || '') + '\u0001' + x.sasia + '\u0001' + kohaProd(x);
       }).sort().join('\u0002');
-      return f + '\u0003' + p;
+      var a = lista(g.afatet).map(function (x) {
+        return x.id + '\u0001' + kohaFold(x) + '\u0001' + (x.statusi || '') + '\u0001' + (x.data || '');
+      }).sort().join('\u0002');
+      return f + '\u0003' + p + '\u0003' + a;
     }
     return nenshkrim(a) === nenshkrim(b);
   }

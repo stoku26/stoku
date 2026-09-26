@@ -211,7 +211,7 @@
     var xmlKok = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
     return xmlKok +
       '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
-      '<numFmts count="1"><numFmt numFmtId="164" formatCode="dd.mm.yyyy hh:mm"/></numFmts>' +
+      '<numFmts count="2"><numFmt numFmtId="164" formatCode="dd.mm.yyyy hh:mm"/><numFmt numFmtId="165" formatCode="dd.mm.yyyy"/></numFmts>' +
       '<fonts count="4">' +
       '<font><sz val="11"/><name val="Calibri"/><family val="2"/></font>' +
       '<font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/><family val="2"/></font>' +
@@ -229,7 +229,7 @@
       '<border><left/><right/><top style="thin"><color rgb="FF1565C0"/></top><bottom/><diagonal/></border>' +
       '</borders>' +
       '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
-      '<cellXfs count="8">' +
+      '<cellXfs count="9">' +
       '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
       '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/>' +
       '<xf numFmtId="49" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
@@ -238,6 +238,7 @@
       '<xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>' +
       '<xf numFmtId="1" fontId="2" fillId="3" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1"/>' +
       '<xf numFmtId="1" fontId="3" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>' +
+      '<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
       '</cellXfs>' +
       '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>' +
       '</styleSheet>';
@@ -254,6 +255,13 @@
       var ms = Number(vlera);
       if (!isFinite(ms) || ms <= 0) return '';
       return '<c r="' + ref + '" s="4"><v>' + dataExcel(ms) + '</v></c>';
+    }
+    if (lloji === 'day') {
+      // vlera: 'VVVV-MM-DD' → datë pa orë
+      var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(vlera));
+      if (!m) return '';
+      var dita = Date.UTC(+m[1], +m[2] - 1, +m[3]) / 86400000 + 25569;
+      return '<c r="' + ref + '" s="8"><v>' + dita + '</v></c>';
     }
     return '<c r="' + ref + '" s="' + stil + '" t="inlineStr"><is><t xml:space="preserve">' + escapeXml(vlera) + '</t></is></c>';
   }
@@ -304,7 +312,7 @@
         var x = '<row r="' + nr + '">';
         cols.forEach(function (c, ci) {
           var v = r[ci];
-          var stil = c.type === 'number' ? ((sh.redZeroColumn === ci && Number(v) === 0) ? 7 : 3) : (c.type === 'date' ? 4 : 2);
+          var stil = c.type === 'number' ? ((sh.redZeroColumn === ci && Number(v) === 0) ? 7 : 3) : (c.type === 'date' ? 4 : c.type === 'day' ? 8 : 2);
           x += qelize(kolonaShkronje(ci) + nr, v, c.type || 'text', stil);
         });
         xmlRows.push(x + '</row>');

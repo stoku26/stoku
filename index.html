@@ -574,6 +574,128 @@
     text-align: center;
   }
   #toast.hapur { display: block; }
+
+  /* ================= Afatet (datat e skadimit) ================= */
+  #dlgKonfirmo { z-index: 26; }
+  .mbulese.faqe-e-plote {
+    display: flex; background: transparent; padding: 0; align-items: stretch; justify-content: stretch;
+    transform: translateX(100%); transition: transform .28s ease; pointer-events: none; z-index: 21;
+  }
+  .mbulese.faqe-e-plote.hapur { transform: translateX(0); pointer-events: auto; }
+  #dlgAfatLexim { z-index: 22; }
+  #dlgAfat { z-index: 23; }
+  .faqe-kuti { width: 100%; height: 100%; background: var(--sfond); display: flex; flex-direction: column; }
+  .faqe-trup {
+    flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding: 12px 16px calc(24px + env(safe-area-inset-bottom));
+    padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right));
+  }
+  .faqe-fund {
+    flex: none; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--vije);
+    background: var(--sfond); display: flex; gap: 8px;
+  }
+  .btn-ikone .af-shenje {
+    position: absolute; top: -3px; right: -3px; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; line-height: 19px; text-align: center; color: #fff; background: #C62828;
+    box-shadow: 0 0 0 2px var(--header);
+  }
+  .btn-ikone .af-shenje.verdhe { background: #F9A825; color: #3b2a00; }
+  :root {
+    --af-kuqe: #C62828; --af-kuqe-tx: #B71C1C; --af-kuqe-bg: rgba(198,40,40,.08);
+    --af-verdhe: #F9A825; --af-verdhe-tx: #7a5000; --af-verdhe-bg: rgba(249,168,37,.14);
+    --af-gjelber: #2E7D32; --af-gjelber-tx: #1b5e20; --af-gjelber-bg: rgba(46,125,50,.08);
+  }
+  :root[data-tema="dark"] {
+    --af-kuqe-tx: #ff8a80; --af-kuqe-bg: rgba(239,83,80,.14);
+    --af-verdhe-tx: #ffd54f; --af-verdhe-bg: rgba(255,213,79,.13);
+    --af-gjelber-tx: #81c995; --af-gjelber-bg: rgba(129,201,149,.10);
+  }
+  .af-permb { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 2px 0 12px; }
+  .af-numer {
+    border: 2px solid transparent; border-radius: 14px; padding: 9px 10px; text-align: left; cursor: pointer;
+    background: var(--fushe-bg); color: var(--tekst); font-family: inherit;
+  }
+  .af-numer b { display: block; font-size: 24px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .af-numer span { font-size: 12px; font-weight: 600; }
+  .af-numer.skaduar { background: var(--af-kuqe-bg); color: var(--af-kuqe-tx); }
+  .af-numer.afer { background: var(--af-verdhe-bg); color: var(--af-verdhe-tx); }
+  .af-numer.ok { background: var(--af-gjelber-bg); color: var(--af-gjelber-tx); }
+  .af-numer.aktiv { border-color: currentColor; }
+  .af-veprime-krye { display: flex; gap: 8px; margin-bottom: 10px; }
+  .af-veprime-krye .btn { min-height: 44px; font-size: 14px; }
+  .af-filtrat { display: flex; gap: 6px; overflow-x: auto; margin: 0 -16px 10px; padding: 0 16px 2px; scrollbar-width: none; }
+  .af-filtrat::-webkit-scrollbar { display: none; }
+  .af-filtrat button {
+    flex: none; border: 1px solid var(--fushe-kufi); background: var(--fushe-bg); color: var(--tekst); border-radius: 18px;
+    height: 34px; padding: 0 13px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer;
+  }
+  .af-filtrat button.aktiv { background: var(--primar); border-color: var(--primar); color: #fff; }
+  .af-karta {
+    --ngj: var(--gri); --ngj-tx: var(--gri);
+    display: flex; gap: 10px; align-items: flex-start; padding: 11px 12px; margin-bottom: 9px; border-radius: 14px;
+    background: var(--fushe-bg); border: 1px solid var(--vije); border-left: 6px solid var(--ngj); cursor: pointer;
+  }
+  .af-karta.skaduar { --ngj: var(--af-kuqe); --ngj-tx: var(--af-kuqe-tx); background: var(--af-kuqe-bg); }
+  .af-karta.afer { --ngj: var(--af-verdhe); --ngj-tx: var(--af-verdhe-tx); background: var(--af-verdhe-bg); }
+  .af-karta.ok { --ngj: var(--af-gjelber); --ngj-tx: var(--af-gjelber-tx); }
+  .af-karta.pa-date { --ngj: var(--af-kuqe); --ngj-tx: var(--af-kuqe-tx); }
+  .af-karta.hequr { opacity: .65; }
+  .af-karta:active { filter: brightness(.97); }
+  .af-majtas { flex: 1; min-width: 0; }
+  .af-emri { font-size: 15.5px; font-weight: 600; overflow-wrap: anywhere; }
+  .af-nen { font-size: 12px; color: var(--gri); margin-top: 2px; overflow-wrap: anywhere; }
+  .af-mesazh { font-size: 13px; font-weight: 700; color: var(--ngj-tx); margin-top: 6px; line-height: 1.35; }
+  .af-djathtas { flex: none; text-align: right; }
+  .af-data { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ngj-tx); }
+  .af-dite { font-size: 12px; color: var(--ngj-tx); font-weight: 600; margin-top: 2px; }
+  .af-pill {
+    display: inline-block; margin-top: 8px; border: 1.5px solid var(--ngj); color: var(--ngj-tx); background: transparent;
+    border-radius: 16px; padding: 5px 11px; font-size: 12.5px; font-weight: 700; font-family: inherit; cursor: pointer;
+  }
+  .af-grup-krye {
+    display: flex; align-items: center; gap: 8px; margin: 14px 0 8px; font-size: 13px; font-weight: 700; color: var(--gri);
+  }
+  .af-grup-krye span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .af-grup-krye button {
+    flex: none; border: 0; background: var(--af-verdhe); color: #3b2a00; border-radius: 16px; height: 30px; padding: 0 12px;
+    font-size: 12.5px; font-weight: 700; font-family: inherit; cursor: pointer;
+  }
+  .af-bosh { text-align: center; color: var(--gri); padding: 36px 16px; line-height: 1.5; }
+  .af-bosh b { color: var(--tekst); display: block; font-size: 16px; margin-bottom: 6px; }
+  #dlgAfat .dialog { max-width: 420px; }
+  #dlgAfat input[type="date"], .lx-rresht input[type="date"] {
+    width: 100%; height: 50px; font-size: 16px; padding: 0 12px; border: 1.5px solid var(--fushe-kufi); border-radius: 12px;
+    background: var(--fushe-bg); color: var(--tekst); font-family: inherit;
+  }
+  .af-status-veprime { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 8px; }
+  .af-status-veprime .btn { flex: 1 1 auto; min-height: 40px; font-size: 13px; }
+  .af-info-dlg { font-size: 13px; font-weight: 600; margin: 0 0 12px; padding: 9px 11px; border-radius: 10px; }
+  .af-info-dlg.skaduar { background: var(--af-kuqe-bg); color: var(--af-kuqe-tx); }
+  .af-info-dlg.afer { background: var(--af-verdhe-bg); color: var(--af-verdhe-tx); }
+  .af-info-dlg.ok { background: var(--af-gjelber-bg); color: var(--af-gjelber-tx); }
+  .af-info-dlg.hequr, .af-info-dlg.pa-date { background: var(--hover); color: var(--gri); }
+  /* Leximi i fletës */
+  .lx-foto { width: 100%; max-height: 180px; object-fit: contain; border-radius: 12px; background: #000; margin-bottom: 10px; cursor: zoom-in; }
+  .lx-foto.e-madhe { max-height: none; cursor: zoom-out; }
+  .lx-statusi { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 12px; background: var(--hover); font-size: 14px; margin-bottom: 12px; line-height: 1.45; }
+  .lx-statusi.gabim { background: var(--af-kuqe-bg); color: var(--af-kuqe-tx); }
+  .lx-spinner { width: 20px; height: 20px; flex: none; border: 2.5px solid var(--primar); border-right-color: transparent; border-radius: 50%; animation: lxRrotull .8s linear infinite; }
+  @keyframes lxRrotull { to { transform: rotate(360deg); } }
+  .lx-rresht {
+    --ngj: var(--vije);
+    position: relative; border: 1px solid var(--vije); border-left: 6px solid var(--ngj); border-radius: 14px; padding: 10px 10px 4px;
+    margin-bottom: 10px; background: var(--fushe-bg);
+  }
+  .lx-rresht.skaduar { --ngj: var(--af-kuqe); } .lx-rresht.afer { --ngj: var(--af-verdhe); } .lx-rresht.ok { --ngj: var(--af-gjelber); }
+  .lx-rresht.dyshim { box-shadow: 0 0 0 2px var(--af-verdhe) inset; }
+  .lx-rresht .fushe { margin-bottom: 6px; }
+  .lx-rresht input[type="text"] { height: 44px; font-size: 15px; }
+  .lx-rresht input[type="date"] { height: 44px; }
+  .lx-dy { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .lx-hiq { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border: 0; border-radius: 15px; background: transparent; color: var(--gri); font-size: 16px; cursor: pointer; }
+  .lx-shenim { font-size: 12px; margin: -2px 2px 6px; color: var(--gri); }
+  .lx-shenim.paralajm { color: var(--af-verdhe-tx); font-weight: 700; }
+  .lx-rresht .lx-numri { font-size: 12px; font-weight: 700; color: var(--gri); margin: 0 0 6px 2px; }
   .lidhje-pc { display: none; padding: 8px 0; text-decoration: none; font-weight: 600; }
   @media (min-width: 900px) and (hover: hover) { .lidhje-pc { display: inline-block; } }
 </style>
@@ -585,6 +707,7 @@
   <h1 id="titulli" class="logo">STOKU</h1>
   <img id="logoSlika" src="logo.png" alt="Stoku">
   <div class="krye-butona">
+    <button id="btnAfatet" class="btn-ikone" type="button" aria-label="Afatet e produkteve" title="Afatet e produkteve"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg><span class="af-shenje" id="afShenja" style="display:none"></span></button>
     <button id="btnOpsione" class="btn-ikone" type="button" aria-label="Opsionet" title="Opsionet"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
   </div>
 </header>
@@ -870,6 +993,78 @@
   </div>
 </div>
 
+
+<!-- ================= Afatet (datat e skadimit) ================= -->
+<div class="mbulese faqe-e-plote" id="dlgAfatet">
+  <div class="faqe-kuti" role="dialog" aria-modal="true" aria-labelledby="afTitulli">
+    <div class="opsione-krye">
+      <button id="afPrapa" class="btn-ikone" type="button" aria-label="Mbrapa">←</button>
+      <h2 id="afTitulli">Afatet e produkteve</h2>
+    </div>
+    <div class="faqe-trup" id="afTrup">
+      <div class="af-permb" id="afPermb"></div>
+      <div class="af-veprime-krye">
+        <button class="btn" id="afFotografo" type="button">📷 Fotografo fletën</button>
+        <button class="btn dyte" id="afGaleria" type="button" style="flex:none;padding:0 14px" aria-label="Zgjidh foto nga galeria" title="Nga galeria">🖼</button>
+        <button class="btn dyte" id="afShto" type="button" style="flex:none;padding:0 16px">+ Shto</button>
+      </div>
+      <div class="kerko-kuti" style="margin-bottom:10px">
+        <svg class="kerko-ikona" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>
+        <input id="afKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko emër, barkod ose furnizues" aria-label="Kërko afatet">
+      </div>
+      <div class="af-filtrat" id="afFiltrat">
+        <button type="button" data-f="aktive" class="aktiv">Të gjitha</button>
+        <button type="button" data-f="skaduar">Të skaduara</button>
+        <button type="button" data-f="afer">Afër skadimit</button>
+        <button type="button" data-f="ok">Në rregull</button>
+        <button type="button" data-f="hequr">Të hequra</button>
+      </div>
+      <div id="afLista"></div>
+    </div>
+  </div>
+</div>
+<input type="file" id="afFotoKamera" accept="image/*" capture="environment" hidden>
+<input type="file" id="afFotoGaleria" accept="image/*" hidden>
+<datalist id="afFurnizuesit"></datalist>
+
+<!-- Kontrollo rreshtat e lexuar nga fleta -->
+<div class="mbulese faqe-e-plote" id="dlgAfatLexim">
+  <div class="faqe-kuti" role="dialog" aria-modal="true">
+    <div class="opsione-krye">
+      <button id="lxPrapa" class="btn-ikone" type="button" aria-label="Anulo">←</button>
+      <h2>Kontrollo fletën</h2>
+    </div>
+    <div class="faqe-trup">
+      <img id="lxFoto" class="lx-foto" alt="Fleta e fotografuar">
+      <div class="lx-statusi" id="lxStatusi"></div>
+      <div id="lxRreshtat"></div>
+      <button class="btn dyte" id="lxShtoRresht" type="button" style="width:100%;margin-top:4px">+ Shto rresht me dorë</button>
+    </div>
+    <div class="faqe-fund">
+      <button class="btn tekst" id="leximAnulo" type="button">Anulo</button>
+      <button class="btn" id="lxRuaj" type="button"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Afati: shto / ndrysho -->
+<div class="mbulese" id="dlgAfat">
+  <div class="dialog" role="dialog" aria-modal="true">
+    <h2 id="afatTitulli">Afat i ri</h2>
+    <div class="af-info-dlg" id="afatInfo" style="display:none"></div>
+    <div class="fushe"><input id="afatBarkodi" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Barkodi" aria-label="Barkodi" enterkeyhint="next"></div>
+    <div class="fushe"><input id="afatEmri" type="text" autocomplete="off" autocorrect="off" placeholder="Emri i produktit" aria-label="Emri i produktit" enterkeyhint="next"></div>
+    <div class="fushe"><label for="afatData">Data e skadimit</label><input id="afatData" type="date"></div>
+    <div class="fushe"><input id="afatFurnizuesi" type="text" list="afFurnizuesit" autocomplete="off" autocorrect="off" placeholder="Furnizuesi / komercialisti" aria-label="Furnizuesi" enterkeyhint="done"></div>
+    <div class="af-status-veprime" id="afatStatusVeprime"></div>
+    <div class="veprime">
+      <button class="btn tekst rrezik" id="afatFshij" type="button">Fshij</button>
+      <button class="btn tekst" id="afatAnulo" type="button">Anulo</button>
+      <button class="btn tekst" id="afatRuaj" type="button">Ruaj</button>
+    </div>
+  </div>
+</div>
+
 <!-- Kamera -->
 <div id="kamera">
   <div class="kamera-krye">
@@ -899,8 +1094,9 @@
 
 <div id="toast"></div>
 
-<script src="xlsx.js"></script>
-<script src="bashkimi.js"></script>
+<script src="xlsx.js?v=55"></script>
+<script src="bashkimi.js?v=55"></script>
+<script src="afatet.js?v=55"></script>
 <script>
 (function () {
   'use strict';
@@ -2111,13 +2307,14 @@
   // sinkronizimi t'i heqë ato nga cloud-i, por asnjëherë të mos heqë diçka që thjesht "mungon"
   // lokalisht pa qenë fshi qëllimisht (p.sh. të dhëna lokale të pjesshme a të humbura pa dashje).
   var KEY_FSHIRE = 'stoku:fshira:v1';
-  var fshira = { produktet: {}, foldera: {} };
+  var fshira = { produktet: {}, foldera: {}, afatet: {} };
   function ngarkoFshiraet() {
     try {
       var t = JSON.parse(localStorage.getItem(KEY_FSHIRE) || 'null');
       if (t && typeof t === 'object') {
         fshira.produktet = (t.produktet && typeof t.produktet === 'object') ? t.produktet : {};
         fshira.foldera = (t.foldera && typeof t.foldera === 'object') ? t.foldera : {};
+        fshira.afatet = (t.afatet && typeof t.afatet === 'object') ? t.afatet : {};
       }
     } catch (e) { /* ok */ }
   }
@@ -2128,12 +2325,18 @@
   function shenoFolderinEFshire(id) { fshira.foldera[id] = Date.now(); ruajFshiraet(); }
   ngarkoFshiraet();
 
+  // Afatet (datat e skadimit) — ruhen lokalisht dhe sinkronizohen bashkë me produktet
+  var KEY_AFATET = 'stoku:afatet:v1';
+  var afatet = [];
+  try { var afRuajtura = JSON.parse(localStorage.getItem(KEY_AFATET) || '[]'); if (Array.isArray(afRuajtura)) afatet = afRuajtura; } catch (e) { /* ok */ }
+
   function gjendjaPerCloud() {
     return {
       app: 'stoku', version: 3, koha: new Date().toISOString(),
       rendiKoha: rendiFolderaveKoha,
       foldera: foldera,
       produktet: Object.keys(produktet).map(function (k) { return produktet[k]; }),
+      afatet: afatet,
       fshira: fshira
     };
   }
@@ -2155,6 +2358,11 @@
     });
     foldera = Array.isArray(g.foldera) ? g.foldera : foldera;
     produktet = pm;
+    if (Array.isArray(g.afatet)) {
+      afatet = g.afatet;
+      try { localStorage.setItem(KEY_AFATET, JSON.stringify(afatet)); } catch (e) { /* ok */ }
+      if (typeof rifreskoAfatet === 'function') rifreskoAfatet();
+    }
     if (typeof g.rendiKoha === 'number' && g.rendiKoha > rendiFolderaveKoha) ruajRendinKoha(g.rendiKoha);
     try {
       localStorage.setItem(KEY_FOLDERA, JSON.stringify(foldera));
@@ -2234,6 +2442,11 @@
     });
     foldera = arrF;
     produktet = produktetENoja;
+    if (Array.isArray(te.afatet)) {
+      afatet = te.afatet;
+      try { localStorage.setItem(KEY_AFATET, JSON.stringify(afatet)); } catch (e) { /* ok */ }
+      if (typeof rifreskoAfatet === 'function') rifreskoAfatet();
+    }
     if (typeof te.rendiKoha === 'number' && te.rendiKoha > rendiFolderaveKoha) ruajRendinKoha(te.rendiKoha);
     // Mos e nxirr përdoruesin nga folderi ku është; rifreskoPamjen() e kthen te lista vetëm nëse
     // ky folder s'ekziston më.
@@ -2365,8 +2578,9 @@
     var aktual = Object.keys(produktet).length;
     var po = await konfirmo(T('cloudTeRiktheteCloud'), T('cloudRiktheTekst', { aktual: aktual }), T('rikthe'));
     if (!po) { rifreskoDukjenECloud(); return; }
-    fshira = { produktet: {}, foldera: {} };
+    fshira = { produktet: {}, foldera: {}, afatet: {} };
     ruajFshiraet();
+    if (!Array.isArray(rez.gjendja.afatet)) rez.gjendja.afatet = [];
     zbatoGjendjenNgaCloud(rez.gjendja);
     toast(T('cloudURikthye'));
     vendosStatusinCloud(T('cloudStatusiUSink', { kur: oraTani() }));
@@ -3142,12 +3356,13 @@
     var n = 0;
     if (folderiAktual !== null) n++;
     if ($('kamera').classList.contains('hapur')) n++;
+    if ($('dlgAfatet').classList.contains('hapur')) n++;
     var opsioneHapur = $('dlgOpsione').classList.contains('hapur');
     if (opsioneHapur) {
       n++;
       if ($('kategoriMenu').style.display === 'none') n++; // brenda një kategorie = 1 nivel shtesë mbi vetë Opsionet
     }
-    var dlgTjeter = document.querySelector('.mbulese.hapur:not(#dlgOpsione)');
+    var dlgTjeter = document.querySelector('.mbulese.hapur:not(#dlgOpsione):not(#dlgAfatet)');
     if (dlgTjeter) n++;
     return n;
   }
@@ -3156,16 +3371,17 @@
   // thjesht klasën), që logjika e tyre (p.sh. konfirmo() që pret përgjigje) të përfundojë saktë.
   var ANULO_SIPAS_DIALOGUT = {
     dlgProdukt: 'dlgAnulo', dlgZhvendos: 'zhvendosAnulo', dlgFshirje: 'fshiAnulo',
-    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo'
+    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo'
   };
   function mbyllShtresenMeTeFundit() {
-    var dlgTjeter = document.querySelector('.mbulese.hapur:not(#dlgOpsione)');
+    var dlgTjeter = document.querySelector('.mbulese.hapur:not(#dlgOpsione):not(#dlgAfatet)');
     if (dlgTjeter) {
       var idAnulo = ANULO_SIPAS_DIALOGUT[dlgTjeter.id];
       if (idAnulo && $(idAnulo)) $(idAnulo).click(); else dlgTjeter.classList.remove('hapur');
       return;
     }
     if ($('kamera').classList.contains('hapur')) { ndalKamere(); return; }
+    if ($('dlgAfatet').classList.contains('hapur')) { mbyllAfatetFaqe(); return; }
     if ($('dlgOpsione').classList.contains('hapur')) {
       if ($('kategoriMenu').style.display === 'none') { aktivizoTabin(null); return; }
       mbyllOpsionet();
@@ -3446,6 +3662,467 @@
     toast(T('uFshinePrejFolderit'));
   });
 
+
+  // ================= Afatet (datat e skadimit) =================
+  // Punëtorët i fotografojnë fletët ku kanë shkruar afatet → AI i lexon → punëtori i kontrollon → ruhen.
+  // Menaxherja i sheh me ngjyra: e kuqe = ka skaduar (hiqe nga rafti), e verdhë = skadon brenda 1 muaji
+  // (lajmëro furnizuesin), e gjelbër = në rregull. Sinkronizohen me cloud-in bashkë me produktet.
+  var AF = window.StokuAfatet;
+  var afFiltri = 'aktive';
+
+  function ruajAfatet() {
+    try { localStorage.setItem(KEY_AFATET, JSON.stringify(afatet)); } catch (e) { toast(T('ruajtjaDeshtoi')); return; }
+    __versioniLokal++;
+    planifikoSinkronizimin();
+    rifreskoAfatet();
+  }
+  function shenoAfatinEFshire(id) { fshira.afatet = fshira.afatet || {}; fshira.afatet[id] = Date.now(); ruajFshiraet(); }
+
+  function emriNgaProduktet(barkodi) {
+    if (!barkodi) return '';
+    var gjetur = '';
+    Object.keys(produktet).some(function (k) {
+      var p = produktet[k];
+      if (p.barkodi === barkodi && p.emri) { gjetur = p.emri; return true; }
+      return false;
+    });
+    if (!gjetur) afatet.some(function (a) { if (a.barkodi === barkodi && a.emri) { gjetur = a.emri; return true; } return false; });
+    return gjetur;
+  }
+  function furnizuesiNgaAfatet(barkodi) {
+    var f = '';
+    afatet.slice().sort(function (a, b) { return (b.ndryshuarSe || 0) - (a.ndryshuarSe || 0); })
+      .some(function (a) { if (a.barkodi === barkodi && a.furnizuesi) { f = a.furnizuesi; return true; } return false; });
+    return f;
+  }
+
+  // Shenja në butonin e kokës: numri i të skaduarave + atyre afër skadimit
+  function rifreskoShenjen() {
+    var n = AF.numero(afatet);
+    var sh = $('afShenja');
+    var tot = n.skaduar + n.afer + n['pa-date'];
+    sh.style.display = tot ? '' : 'none';
+    sh.textContent = tot > 99 ? '99+' : String(tot);
+    sh.classList.toggle('verdhe', n.skaduar + n['pa-date'] === 0);
+    $('btnAfatet').title = n.skaduar ? n.skaduar + ' produkte kanë skaduar' : (n.afer ? n.afer + ' produkte skadojnë së shpejti' : 'Afatet e produkteve');
+  }
+
+  function rifreskoAfatet() {
+    rifreskoShenjen();
+    if ($('dlgAfatet').classList.contains('hapur')) renderAfatet();
+  }
+
+  function renderAfatet() {
+    var n = AF.numero(afatet);
+    var permb = $('afPermb');
+    permb.textContent = '';
+    [['skaduar', n.skaduar + n['pa-date'], 'Të skaduara'], ['afer', n.afer, 'Afër skadimit'], ['ok', n.ok, 'Në rregull']].forEach(function (x) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'af-numer ' + x[0] + (afFiltri === x[0] ? ' aktiv' : '');
+      b.innerHTML = '<b></b><span></span>';
+      b.firstChild.textContent = String(x[1]);
+      b.lastChild.textContent = x[2];
+      b.addEventListener('click', function () { afFiltri = afFiltri === x[0] ? 'aktive' : x[0]; renderAfatet(); });
+      permb.appendChild(b);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#afFiltrat button'), function (b) {
+      b.classList.toggle('aktiv', b.getAttribute('data-f') === afFiltri);
+    });
+
+    var k = $('afKerko').value.trim().toLowerCase();
+    var lista = afatet.filter(function (a) {
+      var st = AF.statusi(a);
+      if (afFiltri === 'aktive' && st === 'hequr') return false;
+      if (afFiltri === 'skaduar' && st !== 'skaduar' && st !== 'pa-date') return false;
+      if (afFiltri === 'afer' && st !== 'afer') return false;
+      if (afFiltri === 'ok' && st !== 'ok') return false;
+      if (afFiltri === 'hequr' && st !== 'hequr') return false;
+      if (k) {
+        var t = ((a.emri || '') + ' ' + (a.barkodi || '') + ' ' + (a.furnizuesi || '')).toLowerCase();
+        if (t.indexOf(k) === -1) return false;
+      }
+      return true;
+    }).sort(AF.krahaso);
+
+    var cont = $('afLista');
+    cont.textContent = '';
+    if (!lista.length) {
+      var b0 = document.createElement('div');
+      b0.className = 'af-bosh';
+      if (!afatet.length) b0.innerHTML = '<b>S\'ka ende asnjë afat</b>Fotografo fletën ku janë shkruar afatet, ose shtoji me "+ Shto".';
+      else if (k) b0.innerHTML = '<b>Asgjë s\'u gjet</b>Provo një kërkim tjetër.';
+      else b0.innerHTML = { skaduar: '<b>Asnjë produkt i skaduar</b>Shumë mirë!', afer: '<b>Asnjë produkt afër skadimit</b>Asgjë nuk skadon brenda 30 ditëve.',
+        ok: '<b>Asnjë</b>', hequr: '<b>Asnjë produkt i hequr ende</b>', aktive: '<b>Asnjë afat aktiv</b>' }[afFiltri] || '';
+      cont.appendChild(b0);
+      return;
+    }
+    var frag = document.createDocumentFragment();
+    // Te "Afër skadimit": grupim sipas furnizuesit, me buton për t'ia dërguar listën
+    if (afFiltri === 'afer') {
+      var grupet = {};
+      lista.forEach(function (a) { var f = a.furnizuesi || ''; (grupet[f] = grupet[f] || []).push(a); });
+      Object.keys(grupet).sort(function (a, b) { return !a ? 1 : !b ? -1 : a.localeCompare(b, 'sq'); }).forEach(function (f) {
+        var h = document.createElement('div');
+        h.className = 'af-grup-krye';
+        var s = document.createElement('span');
+        s.textContent = (f || 'Pa furnizues') + ' · ' + grupet[f].length;
+        h.appendChild(s);
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = 'Dërgo listën';
+        btn.addEventListener('click', function () { dergoListen(f, grupet[f]); });
+        h.appendChild(btn);
+        frag.appendChild(h);
+        grupet[f].forEach(function (a) { frag.appendChild(kartaEAfatit(a)); });
+      });
+    } else {
+      lista.forEach(function (a) { frag.appendChild(kartaEAfatit(a)); });
+    }
+    cont.appendChild(frag);
+  }
+
+  function kartaEAfatit(a) {
+    var st = AF.statusi(a);
+    var n = AF.ditetDeri(a.data);
+    var k = document.createElement('div');
+    k.className = 'af-karta ' + st;
+    var m = document.createElement('div'); m.className = 'af-majtas';
+    var e = document.createElement('div'); e.className = 'af-emri'; e.textContent = a.emri || a.barkodi || '(pa emër)';
+    var nen = document.createElement('div'); nen.className = 'af-nen';
+    nen.textContent = [a.emri ? a.barkodi : '', a.furnizuesi].filter(Boolean).join(' · ');
+    var ms = document.createElement('div'); ms.className = 'af-mesazh'; ms.textContent = AF.pershkrimi(a);
+    m.appendChild(e); if (nen.textContent) m.appendChild(nen); m.appendChild(ms);
+    // Veprimi i shpejtë sipas ngjyrës
+    var pill = null;
+    if (st === 'skaduar') pill = ['✓ U hoq nga rafti', function () { shenoHequr(a); }];
+    else if (st === 'afer' && !a.lajmeruarSe) pill = ['✓ Lajmërova furnizuesin', function () { shenoLajmeruar(a); }];
+    else if (st === 'hequr') pill = ['↺ Rikthe si aktiv', function () { riktheAktiv(a); }];
+    if (pill) {
+      var pb = document.createElement('button'); pb.type = 'button'; pb.className = 'af-pill'; pb.textContent = pill[0];
+      pb.addEventListener('click', function (ev) { ev.stopPropagation(); pill[1](); });
+      m.appendChild(pb);
+    }
+    var d = document.createElement('div'); d.className = 'af-djathtas';
+    var dt = document.createElement('div'); dt.className = 'af-data'; dt.textContent = a.data ? AF.formato(a.data) : '—';
+    d.appendChild(dt);
+    if (n !== null && st !== 'hequr') {
+      var dd = document.createElement('div'); dd.className = 'af-dite';
+      dd.textContent = n < 0 ? 'para ' + AF.ditetTekst(-n) : n === 0 ? 'sot' : n + ' ditë';
+      d.appendChild(dd);
+    }
+    k.appendChild(m); k.appendChild(d);
+    k.addEventListener('click', function () { hapAfatin(a.id); });
+    return k;
+  }
+
+  function perditesoAfatin(id, ndryshimet) {
+    afatet = afatet.map(function (x) { return x.id === id ? Object.assign({}, x, ndryshimet, { ndryshuarSe: Date.now() }) : x; });
+    ruajAfatet();
+  }
+  function shenoHequr(a) {
+    perditesoAfatin(a.id, { statusi: 'hequr', hequrSe: Date.now(), hequrNga: emriPerdoruesitAktual() });
+    toast('"' + (a.emri || a.barkodi) + '" u shënua si i hequr nga rafti.');
+  }
+  function shenoLajmeruar(a) {
+    perditesoAfatin(a.id, { lajmeruarSe: Date.now() });
+    toast('U shënua: furnizuesi u lajmërua.');
+  }
+  function riktheAktiv(a) { perditesoAfatin(a.id, { statusi: 'aktiv', hequrSe: 0 }); }
+
+  async function dergoListen(furnizuesi, lista) {
+    var tekst = AF.mesazhiFurnizuesit(furnizuesi, lista);
+    try {
+      if (navigator.share) { await navigator.share({ text: tekst }); }
+      else { await navigator.clipboard.writeText(tekst); toast('Mesazhi u kopjua. Ngjite në WhatsApp/Viber.', 3500); }
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;
+      try { await navigator.clipboard.writeText(tekst); toast('Mesazhi u kopjua.'); } catch (e2) { toast('Mesazhi s\'u nda dot. Provo përsëri.'); return; }
+    }
+    var po = await konfirmo('Të shënohen si të lajmëruara?', 'A ia dërgove listën furnizuesit "' + (furnizuesi || 'pa emër') + '"? Produktet e tij do të shënohen "Furnizuesi u lajmërua".', 'Po, u lajmërua');
+    if (!po) return;
+    var ids = {};
+    lista.forEach(function (a) { ids[a.id] = true; });
+    var tani = Date.now();
+    afatet = afatet.map(function (x) { return ids[x.id] ? Object.assign({}, x, { lajmeruarSe: tani, ndryshuarSe: tani }) : x; });
+    ruajAfatet();
+  }
+
+  function hapAfatetFaqe() {
+    afFiltri = 'aktive';
+    $('afKerko').value = '';
+    renderAfatet();
+    $('afTrup').scrollTop = 0;
+    $('dlgAfatet').classList.add('hapur');
+  }
+  function mbyllAfatetFaqe() {
+    $('dlgAfatet').classList.remove('hapur');
+    rifreskoPamjen();
+    fokusoBarkodin();
+  }
+  $('btnAfatet').addEventListener('click', hapAfatetFaqe);
+  $('afPrapa').addEventListener('click', mbyllAfatetFaqe);
+  $('afKerko').addEventListener('input', renderAfatet);
+  Array.prototype.forEach.call(document.querySelectorAll('#afFiltrat button'), function (b) {
+    b.addEventListener('click', function () { afFiltri = b.getAttribute('data-f'); renderAfatet(); });
+  });
+
+  // ---------- Dialogu: shto / ndrysho një afat ----------
+  var afatNeDialog = null;
+  function mbushFurnizuesit() {
+    var dl = $('afFurnizuesit');
+    dl.textContent = '';
+    var pa = {};
+    afatet.forEach(function (a) { if (a.furnizuesi) pa[a.furnizuesi] = true; });
+    Object.keys(pa).sort().forEach(function (f) { var o = document.createElement('option'); o.value = f; dl.appendChild(o); });
+  }
+  function hapAfatin(id) {
+    var a = null;
+    afatet.some(function (x) { if (x.id === id) { a = x; return true; } return false; });
+    afatNeDialog = a ? a.id : null;
+    mbushFurnizuesit();
+    $('afatTitulli').textContent = a ? (a.emri || a.barkodi || 'Afati') : 'Afat i ri';
+    $('afatBarkodi').value = a ? (a.barkodi || '') : '';
+    $('afatEmri').value = a ? (a.emri || '') : '';
+    $('afatData').value = a ? (a.data || '') : '';
+    $('afatFurnizuesi').value = a ? (a.furnizuesi || '') : '';
+    $('afatFshij').style.display = a ? '' : 'none';
+    var info = $('afatInfo');
+    var sv = $('afatStatusVeprime');
+    sv.textContent = '';
+    if (a) {
+      var st = AF.statusi(a);
+      info.className = 'af-info-dlg ' + st;
+      info.textContent = AF.pershkrimi(a) + (a.krijuarNga ? '\nShtuar nga: ' + a.krijuarNga : '');
+      info.style.whiteSpace = 'pre-line';
+      info.style.display = '';
+      var veprime = [];
+      if (st !== 'hequr') veprime.push(['✓ U hoq nga rafti', function () { shenoHequr(a); }]);
+      else veprime.push(['↺ Rikthe si aktiv', function () { riktheAktiv(a); }]);
+      if (st === 'afer' || st === 'skaduar') veprime.push([a.lajmeruarSe ? 'Hiq "u lajmërua"' : '✓ Lajmërova furnizuesin',
+        function () { if (a.lajmeruarSe) perditesoAfatin(a.id, { lajmeruarSe: 0 }); else shenoLajmeruar(a); }]);
+      veprime.forEach(function (v) {
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'btn dyte'; b.textContent = v[0];
+        b.addEventListener('click', function () { mbyllAfatin(); v[1](); });
+        sv.appendChild(b);
+      });
+    } else {
+      info.style.display = 'none';
+    }
+    $('dlgAfat').classList.add('hapur');
+    if (!a) $('afatBarkodi').focus();
+  }
+  function mbyllAfatin() { $('dlgAfat').classList.remove('hapur'); afatNeDialog = null; }
+  function ruajAfatin() {
+    var b = $('afatBarkodi').value.trim().replace(/\s+/g, '');
+    var emri = $('afatEmri').value.trim();
+    var data = $('afatData').value;
+    var f = $('afatFurnizuesi').value.trim();
+    if (!b && !emri) { toast('Shkruaj barkodin ose emrin e produktit.'); $('afatBarkodi').focus(); return; }
+    if (!AF.lexoDaten(data)) { toast('Zgjidh datën e skadimit.'); $('afatData').focus(); return; }
+    var tani = Date.now();
+    if (afatNeDialog) {
+      perditesoAfatin(afatNeDialog, { barkodi: b, emri: emri, data: data, furnizuesi: f });
+    } else {
+      afatet = afatet.concat([{ id: AF.idERe(), barkodi: b, emri: emri, data: data, furnizuesi: f, statusi: 'aktiv',
+        krijuarSe: tani, ndryshuarSe: tani, krijuarNga: emriPerdoruesitAktual() }]);
+      ruajAfatet();
+    }
+    mbyllAfatin();
+    toast('Afati u ruajt.');
+  }
+  async function fshijAfatin() {
+    if (!afatNeDialog) return;
+    var id = afatNeDialog;
+    var po = await konfirmo('Të fshihet afati?', 'Afati fshihet nga të gjitha pajisjet. Nëse produkti thjesht u hoq nga rafti, përdor "U hoq nga rafti" (mbetet si histori).', T('fshij'));
+    if (!po) return;
+    afatet = afatet.filter(function (x) { return x.id !== id; });
+    shenoAfatinEFshire(id);
+    mbyllAfatin();
+    ruajAfatet();
+  }
+  $('afShto').addEventListener('click', function () { hapAfatin(null); });
+  $('afatRuaj').addEventListener('click', ruajAfatin);
+  $('afatAnulo').addEventListener('click', mbyllAfatin);
+  $('afatFshij').addEventListener('click', fshijAfatin);
+  $('dlgAfat').addEventListener('click', function (ev) { if (ev.target === $('dlgAfat')) mbyllAfatin(); });
+  $('afatBarkodi').addEventListener('change', function () {
+    var b = $('afatBarkodi').value.trim();
+    if (!$('afatEmri').value.trim()) $('afatEmri').value = emriNgaProduktet(b);
+    if (!$('afatFurnizuesi').value.trim()) $('afatFurnizuesi').value = furnizuesiNgaAfatet(b);
+  });
+  $('afatBarkodi').addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') { ev.preventDefault(); $('afatBarkodi').dispatchEvent(new Event('change')); $('afatEmri').focus(); }
+  });
+  $('afatEmri').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('afatData').focus(); } });
+  $('afatFurnizuesi').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ruajAfatin(); } });
+
+  // ---------- Fotografimi i fletës → leximi me AI → kontrolli ----------
+  var lx = { rreshtat: [] };
+  $('afFotografo').addEventListener('click', function () { $('afFotoKamera').value = ''; $('afFotoKamera').click(); });
+  $('afGaleria').addEventListener('click', function () { $('afFotoGaleria').value = ''; $('afFotoGaleria').click(); });
+  $('afFotoKamera').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) lexoFleten(f); });
+  $('afFotoGaleria').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) lexoFleten(f); });
+  $('lxFoto').addEventListener('click', function () { $('lxFoto').classList.toggle('e-madhe'); });
+
+  function statusiLeximit(html, gabim, meSpinner) {
+    var s = $('lxStatusi');
+    s.className = 'lx-statusi' + (gabim ? ' gabim' : '');
+    s.innerHTML = (meSpinner ? '<span class="lx-spinner"></span>' : '') + '<span></span>';
+    s.lastChild.textContent = html;
+  }
+
+  var MESAZHET_AI = {
+    'pa-konfigurim': 'Leximi automatik me AI s\'është aktivizuar ende. Shkruaji rreshtat me dorë duke parë foton (kliko foton për ta zmadhuar).',
+    'pa-hyrje': 'Për leximin me AI duhet të jesh i kyçur në llogari (Opsionet → Llogaria). Deri atëherë, shkruaji rreshtat me dorë.',
+    'rrjeti': 'S\'ka lidhje me internetin. Shkruaji rreshtat me dorë ose provo përsëri më vonë.',
+    'foto-shume-e-madhe': 'Fotoja është shumë e madhe. Provo përsëri.',
+    'pa-celes': 'Leximi me AI s\'është konfiguruar plotësisht (mungon çelësi API në Worker). Shkruaji rreshtat me dorë.',
+    'ai': 'Shërbimi i AI-së s\'u përgjigj për momentin. Provo përsëri pas pak, ose shkruaji rreshtat me dorë.',
+    'origjina': 'Kjo adresë nuk lejohet nga shërbimi i leximit. Shkruaji rreshtat me dorë.'
+  };
+
+  async function lexoFleten(skedari) {
+    lx.rreshtat = [];
+    renderLeximin();
+    $('lxFoto').classList.remove('e-madhe');
+    $('dlgAfatLexim').classList.add('hapur');
+    statusiLeximit('Duke përgatitur foton…', false, true);
+    var foto;
+    try { foto = await AF.pergatitFoton(skedari); }
+    catch (e) { statusiLeximit('Fotoja s\'u hap. Provo një foto tjetër.', true); return; }
+    $('lxFoto').src = foto.dataUrl;
+    if (!perdoruesiAktual()) { statusiLeximit(MESAZHET_AI['pa-hyrje'], true); shtoRreshtLeximi(); return; }
+    statusiLeximit('Duke e lexuar fletën… (zakonisht 5–20 sekonda)', false, true);
+    var tokeni = null;
+    try { tokeni = window.__stokuCloud && window.__stokuCloud.token ? await window.__stokuCloud.token() : null; } catch (e) { /* ok */ }
+    var rez = await AF.lexoMeAI(foto, tokeni);
+    if (!$('dlgAfatLexim').classList.contains('hapur')) return; // u anulua ndërkohë
+    if (!rez.ok) {
+      statusiLeximit(MESAZHET_AI[rez.gabim] || 'Fleta s\'u lexua (' + rez.gabim + '). Provo një foto më të qartë, ose shkruaji rreshtat me dorë.', true);
+      shtoRreshtLeximi();
+      return;
+    }
+    lx.rreshtat = rez.rreshtat.map(function (r) {
+      return { barkodi: r.barkodi, emri: r.emri || emriNgaProduktet(r.barkodi), data: r.data, dataOrigjinale: r.dataOrigjinale,
+        furnizuesi: r.furnizuesi || furnizuesiNgaAfatet(r.barkodi), dyshim: r.dyshim };
+    });
+    var nDyshim = lx.rreshtat.filter(function (r) { return r.dyshim; }).length;
+    statusiLeximit(lx.rreshtat.length
+      ? 'U lexuan ' + lx.rreshtat.length + ' rreshta. Krahasoji me foton dhe korrigjo ku duhet' + (nDyshim ? ' — ' + nDyshim + ' janë shënuar me të verdhë si të paqarta.' : '.')
+      : 'Në foto s\'u gjet asnjë rresht me afat. Provo një foto më të qartë ose shkruaji me dorë.', !lx.rreshtat.length);
+    if (!lx.rreshtat.length) shtoRreshtLeximi(); else renderLeximin();
+  }
+
+  function shtoRreshtLeximi() {
+    lx.rreshtat.push({ barkodi: '', emri: '', data: '', dataOrigjinale: '', furnizuesi: lx.rreshtat.length ? lx.rreshtat[lx.rreshtat.length - 1].furnizuesi : '', dyshim: false, iRi: true });
+    renderLeximin();
+  }
+  $('lxShtoRresht').addEventListener('click', function () {
+    shtoRreshtLeximi();
+    var te = document.querySelectorAll('#lxRreshtat .lx-rresht');
+    if (te.length) { te[te.length - 1].scrollIntoView({ block: 'center' }); te[te.length - 1].querySelector('input').focus(); }
+  });
+
+  function renderLeximin() {
+    mbushFurnizuesit();
+    var c = $('lxRreshtat');
+    c.textContent = '';
+    lx.rreshtat.forEach(function (r, i) {
+      var d = document.createElement('div');
+      d.className = 'lx-rresht ' + (r.data ? AF.statusi({ data: r.data }) : '') + (r.dyshim ? ' dyshim' : '');
+      var nr = document.createElement('div'); nr.className = 'lx-numri';
+      nr.textContent = 'Rreshti ' + (i + 1) + (r.dyshim ? ' · ⚠ kontrolloje' : '');
+      d.appendChild(nr);
+      var hiq = document.createElement('button'); hiq.type = 'button'; hiq.className = 'lx-hiq'; hiq.textContent = '✕'; hiq.setAttribute('aria-label', 'Hiq rreshtin');
+      hiq.addEventListener('click', function () { lx.rreshtat.splice(i, 1); renderLeximin(); });
+      d.appendChild(hiq);
+      function fushe(ph, vl, lloji, vendos, klasa) {
+        var w = document.createElement('div'); w.className = 'fushe' + (klasa ? ' ' + klasa : '');
+        var inp = document.createElement('input'); inp.type = lloji; inp.value = vl || ''; inp.placeholder = ph; inp.setAttribute('aria-label', ph);
+        inp.autocomplete = 'off';
+        if (lloji === 'text') { inp.setAttribute('autocorrect', 'off'); inp.spellcheck = false; }
+        inp.addEventListener('input', function () { vendos(inp.value); });
+        w.appendChild(inp);
+        return { w: w, inp: inp };
+      }
+      var fb = fushe('Barkodi', r.barkodi, 'text', function (v) { r.barkodi = v.trim(); });
+      fb.inp.addEventListener('change', function () {
+        if (!r.emri) { r.emri = emriNgaProduktet(r.barkodi); fe.inp.value = r.emri; }
+      });
+      var fe = fushe('Emri i produktit', r.emri, 'text', function (v) { r.emri = v; });
+      var dy = document.createElement('div'); dy.className = 'lx-dy';
+      var fd = fushe('Data', r.data, 'date', function (v) {
+        r.data = v; r.dyshim = false;
+        d.className = 'lx-rresht ' + (v ? AF.statusi({ data: v }) : '');
+        nr.textContent = 'Rreshti ' + (i + 1);
+      });
+      var ff = fushe('Furnizuesi', r.furnizuesi, 'text', function (v) { r.furnizuesi = v; });
+      ff.inp.setAttribute('list', 'afFurnizuesit');
+      dy.appendChild(fd.w); dy.appendChild(ff.w);
+      d.appendChild(fb.w); d.appendChild(fe.w); d.appendChild(dy);
+      if (r.dataOrigjinale || (r.data && !r.iRi)) {
+        var sh = document.createElement('div');
+        sh.className = 'lx-shenim' + (!r.data ? ' paralajm' : '');
+        sh.textContent = (r.dataOrigjinale ? 'Në fletë: "' + r.dataOrigjinale + '"' : '') +
+          (r.data ? ' → ' + AF.pershkrimi({ data: r.data }) : ' — data s\'u kuptua, zgjidhe me dorë.');
+        d.appendChild(sh);
+      }
+      c.appendChild(d);
+    });
+    var n = lx.rreshtat.length;
+    $('lxRuaj').textContent = n ? 'Ruaj ' + n + (n === 1 ? ' afat' : ' afate') : 'Ruaj';
+    $('lxRuaj').disabled = !n;
+  }
+
+  function mbyllLeximin() { $('dlgAfatLexim').classList.remove('hapur'); }
+  $('lxPrapa').addEventListener('click', function () { $('leximAnulo').click(); });
+  $('leximAnulo').addEventListener('click', async function () {
+    var kaTeDhena = lx.rreshtat.some(function (r) { return r.barkodi || r.emri || r.data; });
+    if (kaTeDhena) {
+      var po = await konfirmo('Të anulohet?', 'Rreshtat e lexuar nuk do të ruhen.', 'Anulo leximin');
+      if (!po) return;
+    }
+    lx.rreshtat = [];
+    mbyllLeximin();
+  });
+  $('lxRuaj').addEventListener('click', function () {
+    var teVlefshem = [], pa = 0;
+    lx.rreshtat.forEach(function (r, i) {
+      var bosh = !r.barkodi && !r.emri && !r.data;
+      if (bosh) return;
+      if (!AF.lexoDaten(r.data) || (!r.barkodi && !r.emri)) { pa++; return; }
+      teVlefshem.push(r);
+    });
+    if (pa) { toast(pa === 1 ? '1 rresht s\'ka datë ose emër/barkod. Plotësoje ose hiqe me ✕.' : pa + ' rreshta s\'kanë datë ose emër/barkod. Plotësoji ose hiqi me ✕.', 4000); return; }
+    if (!teVlefshem.length) { mbyllLeximin(); return; }
+    var tani = Date.now(), perseritur = 0;
+    var ekzistuese = {};
+    afatet.forEach(function (a) { if (a.statusi !== 'hequr') ekzistuese[(a.barkodi || a.emri) + '|' + a.data] = true; });
+    var te_reja = [];
+    teVlefshem.forEach(function (r, i) {
+      var celes = (r.barkodi || r.emri.trim()) + '|' + r.data;
+      if (ekzistuese[celes]) { perseritur++; return; }
+      ekzistuese[celes] = true;
+      te_reja.push({ id: AF.idERe(), barkodi: r.barkodi, emri: r.emri.trim(), data: r.data, furnizuesi: r.furnizuesi.trim(), statusi: 'aktiv',
+        krijuarSe: tani + i, ndryshuarSe: tani, krijuarNga: emriPerdoruesitAktual(), ngaFoto: true });
+    });
+    afatet = afatet.concat(te_reja);
+    ruajAfatet();
+    lx.rreshtat = [];
+    mbyllLeximin();
+    var nk = te_reja.filter(function (a) { return AF.statusi(a) === 'skaduar'; }).length;
+    var nv = te_reja.filter(function (a) { return AF.statusi(a) === 'afer'; }).length;
+    toast('U ruajtën ' + te_reja.length + ' afate' + (perseritur ? ' (' + perseritur + ' ekzistonin tashmë)' : '') +
+      (nk ? ' · ' + nk + ' kanë skaduar!' : '') + (nv ? ' · ' + nv + ' skadojnë brenda 30 ditëve' : '') + '.', 5000);
+    afFiltri = nk ? 'skaduar' : (nv ? 'afer' : 'aktive');
+    renderAfatet();
+  });
+
+  // Rifreskim i përditshëm i ngjyrave (p.sh. kur aplikacioni mbetet hapur pas mesnatës)
+  setInterval(rifreskoShenjen, 10 * 60 * 1000);
+  rifreskoShenjen();
+
   // ---------- Service worker (punon edhe pa internet) ----------
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
@@ -3541,6 +4218,9 @@
       },
       perdoruesiAktual() {
         return auth.currentUser;
+      },
+      async token() {
+        return auth.currentUser ? await auth.currentUser.getIdToken() : null;
       },
       async ruaj(gjendja) {
         if (!auth.currentUser) return { ok: false, arsye: 'pa-hyrje' };

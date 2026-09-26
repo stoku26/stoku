@@ -1,0 +1,215 @@
+/*
+ * Afatet (datat e skadimit të produkteve) — logjika e përbashkët për telefonin (index.html) dhe kompjuterin (pc.html).
+ *
+ * Ngjyrat:
+ *   E KUQE    = ka skaduar          → produkti duhet të hiqet nga rafti/pozita.
+ *   E VERDHË  = skadon brenda 30 ditëve (1 muaj) → lajmëro furnizuesin/komercialistin sa më parë.
+ *   E GJELBËR = në rregull.
+ *   GRI       = i hequr nga rafti (i mbyllur, mbetet si histori).
+ *
+ * Afati: { id, barkodi, emri, data: 'VVVV-MM-DD', furnizuesi, shenim, statusi: 'aktiv'|'hequr',
+ *          lajmeruarSe, hequrSe, krijuarSe, ndryshuarSe, krijuarNga }
+ */
+(function (root) {
+  'use strict';
+
+  // Adresa e Cloudflare Worker-it që e lexon foton me AI. Plotësohet pasi të krijohet Worker-i.
+  // (Mund të mbishkruhet edhe për një pajisje të vetme me localStorage 'stoku:ai-url'.)
+  var AI_URL = 'https://stoku-afatet.mendurb.workers.dev';
+
+  var DITET_PARALAJMERIMI = 30;
+  var DITA_MS = 86400000;
+
+  function dy(n) { return (n < 10 ? '0' : '') + n; }
+  function isoNgaData(d) { return d.getFullYear() + '-' + dy(d.getMonth() + 1) + '-' + dy(d.getDate()); }
+  function sot() { return isoNgaData(new Date()); }
+
+  function dataNgaIso(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+    if (!m) return null;
+    var d = new Date(+m[1], +m[2] - 1, +m[3]);
+    return (d.getMonth() === +m[2] - 1 && d.getDate() === +m[3]) ? d : null;
+  }
+
+  // Sa ditë kanë mbetur deri në afat (0 = skadon sot, negativ = ka skaduar).
+  function ditetDeri(iso, tani) {
+    var d = dataNgaIso(iso);
+    if (!d) return null;
+    var s = tani ? new Date(tani) : new Date();
+    s.setHours(0, 0, 0, 0);
+    return Math.round((d.getTime() - s.getTime()) / DITA_MS);
+  }
+
+  function statusi(a, tani) {
+    if (!a) return 'ok';
+    if (a.statusi === 'hequr') return 'hequr';
+    var n = ditetDeri(a.data, tani);
+    if (n === null) return 'pa-date';
+    if (n < 0) return 'skaduar';
+    if (n <= DITET_PARALAJMERIMI) return 'afer';
+    return 'ok';
+  }
+
+  function formato(iso) {
+    var d = dataNgaIso(iso);
+    return d ? dy(d.getDate()) + '.' + dy(d.getMonth() + 1) + '.' + d.getFullYear() : (iso || '');
+  }
+
+  function ditetTekst(n) { return n === 1 ? '1 ditë' : n + ' ditë'; }
+
+  // Teksti i veprimit të sugjeruar për menaxheren
+  function pershkrimi(a, tani) {
+    var st = statusi(a, tani);
+    var n = ditetDeri(a.data, tani);
+    if (st === 'hequr') return 'U hoq nga rafti' + (a.hequrSe ? ' më ' + formato(isoNgaData(new Date(a.hequrSe))) : '') + '.';
+    if (st === 'pa-date') return 'Mungon data e skadimit — plotësoje.';
+    if (st === 'skaduar') return (n === -1 ? 'Skadoi dje' : 'Ka skaduar para ' + ditetTekst(-n)) + ' — ky produkt duhet të hiqet nga rafti/pozita.';
+    if (st === 'afer') {
+      var kur = n === 0 ? 'Skadon SOT' : n === 1 ? 'Skadon nesër' : 'Skadon për ' + ditetTekst(n);
+      return kur + (a.lajmeruarSe ? ' — furnizuesi u lajmërua më ' + formato(isoNgaData(new Date(a.lajmeruarSe))) + '.' :
+        ' — lajmëro furnizuesin ose komercialistin sa më parë.');
+    }
+    return 'Në rregull — skadon për ' + ditetTekst(n) + '.';
+  }
+
+  // Lexon data në formate të zakonshme të shkruara me dorë. Kthen 'VVVV-MM-DD' ose null.
+  //   12.10.2026, 12/10/26, 12-10-2026, 2026-10-12, 12.10 (viti aktual/tjetër), 10/2026 ose 10.26 (fundi i muajit)
+  var MUAJT = { jan: 1, shk: 2, feb: 2, mar: 3, pri: 4, apr: 4, maj: 5, may: 5, qer: 6, jun: 6, kor: 7, jul: 7, gus: 8, aug: 8,
+    sht: 9, sep: 9, tet: 10, oct: 10, okt: 10, nen: 11, nën: 11, nov: 11, dhj: 12, dec: 12, dhe: 12 };
+  function vitiPlote(v) { v = +v; return v < 100 ? 2000 + v : v; }
+  function ndertoIso(v, m, d) {
+    var dt = new Date(v, m - 1, d);
+    if (dt.getFullYear() !== v || dt.getMonth() !== m - 1 || dt.getDate() !== d) return null;
+    return isoNgaData(dt);
+  }
+  function fundiMuajit(v, m) { return m >= 1 && m <= 12 ? isoNgaData(new Date(v, m, 0)) : null; }
+
+  function lexoDaten(t) {
+    if (t === null || t === undefined) return null;
+    var s = String(t).trim().toLowerCase().replace(/\s+/g, ' ');
+    if (!s) return null;
+    var m;
+    if ((m = /^(\d{4})[-./](\d{1,2})[-./](\d{1,2})$/.exec(s))) return ndertoIso(+m[1], +m[2], +m[3]);
+    if ((m = /^(\d{1,2})[ .\/-](\d{1,2})[ .\/-](\d{2}|\d{4})$/.exec(s))) return ndertoIso(vitiPlote(m[3]), +m[2], +m[1]);
+    if ((m = /^(\d{1,2})[.\/-](\d{4})$/.exec(s))) return fundiMuajit(+m[2], +m[1]);
+    if ((m = /^(\d{1,2})[.\/-](\d{1,2})$/.exec(s))) {
+      // "12.10" (ditë.muaj) — viti më i afërt në të ardhmen; "10/27" (muaj/vit) nëse numri i dytë > 12
+      var a = +m[1], b = +m[2];
+      if (b > 12) return fundiMuajit(vitiPlote(b), a);
+      var tani = new Date(); var v = tani.getFullYear();
+      var iso = ndertoIso(v, b, a);
+      if (iso && ditetDeri(iso) < -180) iso = ndertoIso(v + 1, b, a);
+      return iso;
+    }
+    if ((m = /^(\d{1,2})\s*([a-zëç]{3,})\.?\s*(\d{2}|\d{4})$/.exec(s)) && MUAJT[m[2].slice(0, 3)]) return ndertoIso(vitiPlote(m[3]), MUAJT[m[2].slice(0, 3)], +m[1]);
+    if ((m = /^([a-zëç]{3,})\.?\s*(\d{2}|\d{4})$/.exec(s)) && MUAJT[m[1].slice(0, 3)]) return fundiMuajit(vitiPlote(m[2]), MUAJT[m[1].slice(0, 3)]);
+    if ((m = /^(\d{2})(\d{2})(\d{2}|\d{4})$/.exec(s))) return ndertoIso(vitiPlote(m[3]), +m[2], +m[1]);
+    return null;
+  }
+
+  function idERe() { return 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+  // Renditja: të skaduarat (më të vjetrat së pari), pastaj ato afër, pastaj në rregull, në fund të hequrat.
+  var RENDI_STATUSIT = { skaduar: 0, 'pa-date': 1, afer: 2, ok: 3, hequr: 4 };
+  function krahaso(a, b) {
+    var sa = RENDI_STATUSIT[statusi(a)], sb = RENDI_STATUSIT[statusi(b)];
+    if (sa !== sb) return sa - sb;
+    if (sa === 4) return (b.hequrSe || 0) - (a.hequrSe || 0);
+    return String(a.data || '').localeCompare(String(b.data || '')) || String(a.emri || '').localeCompare(String(b.emri || ''), 'sq');
+  }
+
+  function numero(lista, tani) {
+    var n = { skaduar: 0, afer: 0, ok: 0, hequr: 0, 'pa-date': 0, aktive: 0 };
+    (lista || []).forEach(function (a) { var s = statusi(a, tani); n[s]++; if (s !== 'hequr') n.aktive++; });
+    return n;
+  }
+
+  // Mesazhi për furnizuesin/komercialistin (për WhatsApp/Viber/email)
+  function mesazhiFurnizuesit(furnizuesi, lista) {
+    var rr = lista.slice().sort(function (a, b) { return String(a.data).localeCompare(String(b.data)); }).map(function (a, i) {
+      var n = ditetDeri(a.data);
+      return (i + 1) + '. ' + (a.emri || 'Produkt') + (a.barkodi ? ' (' + a.barkodi + ')' : '') + ' — skadon ' + formato(a.data) +
+        (n < 0 ? ' (KA SKADUAR)' : n === 0 ? ' (sot)' : ' (për ' + ditetTekst(n) + ')');
+    });
+    return 'Përshëndetje' + (furnizuesi ? ' ' + furnizuesi : '') + ',\n\n' +
+      'Këto produkte në dyqanin tonë ' + (lista.length === 1 ? 'i afrohet' : 'u afrohen') + ' afatit të skadimit:\n\n' +
+      rr.join('\n') + '\n\nJu lutem na kontaktoni për kthim ose zëvendësim sa më parë. Faleminderit!';
+  }
+
+  // ================= Leximi i fotos me AI =================
+  function adresaAI() {
+    try { var u = localStorage.getItem('stoku:ai-url'); if (u) return u; } catch (e) { /* ok */ }
+    return AI_URL;
+  }
+
+  // Zvogëlon foton (max 2000 px, JPEG) që ngarkimi të jetë i shpejtë edhe me internet të dobët.
+  function pergatitFoton(skedari) {
+    return new Promise(function (zgjidh, refuzo) {
+      var url = URL.createObjectURL(skedari);
+      var img = new Image();
+      img.onload = function () {
+        var maks = 2000, w = img.naturalWidth, h = img.naturalHeight;
+        var k = Math.min(1, maks / Math.max(w, h));
+        var c = document.createElement('canvas');
+        c.width = Math.round(w * k); c.height = Math.round(h * k);
+        var ctx = c.getContext('2d');
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        var dataUrl = c.toDataURL('image/jpeg', 0.86);
+        zgjidh({ dataUrl: dataUrl, base64: dataUrl.split(',')[1], mime: 'image/jpeg' });
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); refuzo(new Error('foto-e-palexueshme')); };
+      img.src = url;
+    });
+  }
+
+  // Kthen { ok, rreshtat: [{ barkodi, emri, data, dataOrigjinale, furnizuesi, dyshim }], gabim }
+  async function lexoMeAI(foto, tokeni) {
+    var url = adresaAI();
+    if (!url) return { ok: false, gabim: 'pa-konfigurim' };
+    try {
+      var r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': tokeni ? 'Bearer ' + tokeni : '' },
+        body: JSON.stringify({ image: foto.base64, mime: foto.mime, sot: sot() })
+      });
+      var j = null;
+      try { j = await r.json(); } catch (e) { /* ok */ }
+      if (!r.ok) return { ok: false, gabim: (j && j.gabim) || ('http-' + r.status) };
+      var rreshtat = (j && Array.isArray(j.rreshtat) ? j.rreshtat : []).map(normalizoRreshtin).filter(function (x) {
+        return x.barkodi || x.emri || x.data;
+      });
+      return { ok: true, rreshtat: rreshtat };
+    } catch (e) {
+      return { ok: false, gabim: 'rrjeti' };
+    }
+  }
+
+  function normalizoRreshtin(x) {
+    x = x || {};
+    var b = String(x.barkodi || '').replace(/[\s-]/g, '');
+    if (/^[0-9oO]+$/.test(b)) b = b.replace(/[oO]/g, '0'); // "O" e lexuar në vend të zeros
+    var dataOrig = String(x.data_origjinale || x.dataOrigjinale || x.data || '').trim();
+    var iso = /^\d{4}-\d{2}-\d{2}$/.test(String(x.data || '')) && dataNgaIso(x.data) ? x.data : lexoDaten(x.data || dataOrig);
+    return {
+      barkodi: b,
+      emri: String(x.emri || '').trim(),
+      data: iso || '',
+      dataOrigjinale: dataOrig,
+      furnizuesi: String(x.furnizuesi || '').trim(),
+      dyshim: !!x.dyshim || !iso
+    };
+  }
+
+  var api = {
+    get AI_URL() { return adresaAI(); },
+    DITET_PARALAJMERIMI: DITET_PARALAJMERIMI,
+    sot: sot, isoNgaData: isoNgaData, ditetDeri: ditetDeri, statusi: statusi, formato: formato,
+    pershkrimi: pershkrimi, lexoDaten: lexoDaten, idERe: idERe, krahaso: krahaso, numero: numero,
+    mesazhiFurnizuesit: mesazhiFurnizuesit, pergatitFoton: pergatitFoton, lexoMeAI: lexoMeAI,
+    normalizoRreshtin: normalizoRreshtin, ditetTekst: ditetTekst
+  };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.StokuAfatet = api;
+})(typeof self !== 'undefined' ? self : this);
