@@ -1120,7 +1120,7 @@
     <div class="af-pda-hint" id="afatPdaHint" style="display:none">Skano barkodin me skanerin e PDA-së.</div>
     <div class="fushe"><input id="afatEmri" type="text" autocomplete="off" autocorrect="off" placeholder="Emri i produktit" aria-label="Emri i produktit" enterkeyhint="next"></div>
     <div class="lx-dy">
-      <div class="fushe"><label for="afatData">Data e skadimit</label><input id="afatData" type="date"></div>
+      <div class="fushe"><label for="afatData">Data e skadimit</label><input id="afatData" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="DD.MM.VVVV"></div>
       <div class="fushe"><label for="afatSasia">Sasia (copë)</label><input id="afatSasia" type="text" inputmode="tel" autocomplete="off"></div>
     </div>
     <div class="fushe"><input id="afatFurnizuesi" type="text" list="afFurnizuesit" autocomplete="off" autocorrect="off" placeholder="Furnitori" aria-label="Furnitori" enterkeyhint="done"></div>
@@ -1164,7 +1164,7 @@
 
 <script src="xlsx.js?v=58"></script>
 <script src="bashkimi.js?v=58"></script>
-<script src="afatet.js?v=62"></script>
+<script src="afatet.js?v=70"></script>
 <script>
 (function () {
   'use strict';
@@ -4129,7 +4129,7 @@
     $('afatTitulli').textContent = a ? (a.emri || a.barkodi || 'Afati') : 'Afat i ri';
     $('afatBarkodi').value = a ? (a.barkodi || '') : '';
     $('afatEmri').value = a ? (a.emri || '') : '';
-    $('afatData').value = a ? (a.data || '') : '';
+    $('afatData').value = a && a.data ? AF.formato(a.data) : '';
     $('afatFurnizuesi').value = a ? (a.furnizuesi || '') : '';
     $('afatSasia').value = a && a.sasia !== '' && a.sasia !== undefined ? String(a.sasia) : '';
     $('afatFshij').style.display = a ? '' : 'none';
@@ -4166,13 +4166,13 @@
   function ruajAfatin() {
     var b = $('afatBarkodi').value.trim().replace(/\s+/g, '');
     var emri = $('afatEmri').value.trim();
-    var data = $('afatData').value;
+    var data = AF.lexoDatenEFushes($('afatData').value) || '';
     var f = $('afatFurnizuesi').value.trim();
     var sasiaTx = $('afatSasia').value.trim();
     var sasia = AF.lexoSasine(sasiaTx);
     if (sasiaTx && sasia === '') { toast('Sasia duhet të jetë numër i plotë (p.sh. 12).'); $('afatSasia').focus(); return; }
     if (!b && !emri) { toast('Shkruaj barkodin ose emrin e produktit.'); $('afatBarkodi').focus(); return; }
-    if (!AF.lexoDaten(data)) { toast('Zgjidh datën e skadimit.'); $('afatData').focus(); return; }
+    if (!data) { toast('Shkruaj datën e skadimit, p.sh. 31.12.2026.'); $('afatData').focus(); return; }
     var tani = Date.now();
     if (afatNeDialog) {
       perditesoAfatin(afatNeDialog, { barkodi: b, emri: emri, data: data, sasia: sasia, furnizuesi: f });
@@ -4219,6 +4219,7 @@
     if (ev.key === 'Enter') { ev.preventDefault(); $('afatBarkodi').dispatchEvent(new Event('change')); $('afatEmri').focus(); }
   });
   $('afatEmri').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('afatData').focus(); } });
+  AF.lidhFushenEDates($('afatData'));
   $('afatSasia').addEventListener('change', function () { vendosRezultatinESasise($('afatSasia')); });
   $('afatSasia').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('afatFurnizuesi').focus(); } });
   $('afatFurnizuesi').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ruajAfatin(); } });
@@ -4318,11 +4319,13 @@
       });
       var fe = fushe('Emri i produktit', r.emri, 'text', function (v) { r.emri = v; });
       var dy = document.createElement('div'); dy.className = 'lx-dy';
-      var fd = fushe('Data', r.data, 'date', function (v) {
-        r.data = v; r.dyshim = false;
-        d.className = 'lx-rresht ' + (v ? AF.statusi({ data: v }) : '');
+      var fd = fushe('Data (DD.MM.VVVV)', r.data ? AF.formato(r.data) : '', 'text', function (v) {
+        var iso = AF.lexoDatenEFushes(v) || '';
+        r.data = iso; r.dyshim = false;
+        d.className = 'lx-rresht ' + (iso ? AF.statusi({ data: iso }) : '');
         nr.textContent = 'Rreshti ' + (i + 1);
       });
+      AF.lidhFushenEDates(fd.inp);
       // Shfaqet vetëm rezultati (fleta "60+30" → 90). Tastiera me "+" lejon edhe shuma me dorë,
       // që kthehen menjëherë në rezultat kur del nga fusha.
       var fs = fushe('Sasia (copë)', r.sasia === '' || r.sasia === undefined ? '' : String(r.sasia), 'text', function (v) {

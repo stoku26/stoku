@@ -128,6 +128,41 @@
     return null;
   }
 
+  // ---- Fusha e datës me numra (DD.MM.VVVV), pa kalendar: pikat shtohen vetë gjatë shkrimit ----
+  // "01102026" → "01.10.2026"; "1.10.26" → "01.10.26". Vlera e brendshme mbetet 'VVVV-MM-DD'.
+  function formatoDatenGjateShkrimit(raw) {
+    var d = '';
+    for (var i = 0; i < raw.length && d.length < 8; i++) {
+      var c = raw.charAt(i);
+      if (c >= '0' && c <= '9') d += c;
+      else if (d.length === 1 || d.length === 3) d = d.slice(0, -1) + '0' + d.slice(-1); // "1." → "01."
+    }
+    var v = d.slice(0, 2);
+    if (d.length >= 2) v += '.' + d.slice(2, 4);
+    if (d.length >= 4) v += '.' + d.slice(4, 8);
+    return v;
+  }
+  // Vetëm data e plotë (ditë.muaj.vit) → 'VVVV-MM-DD'; gjysmë e shkruar ("12.10") → null
+  function lexoDatenEFushes(v) {
+    var t = String(v || '').trim();
+    return /^\d{1,2}[.\/-]\d{1,2}[.\/-](\d{2}|\d{4})$/.test(t) ? lexoDaten(t) : null;
+  }
+  function lidhFushenEDates(inp) {
+    inp.type = 'text';
+    inp.inputMode = 'numeric';
+    inp.autocomplete = 'off';
+    inp.maxLength = 10;
+    inp.placeholder = 'DD.MM.VVVV';
+    inp.style.fontVariantNumeric = 'tabular-nums';
+    // capture: formatohet para dëgjuesve të tjerë të fushës, që ata të marrin vlerën e rregulluar
+    inp.addEventListener('input', function (ev) {
+      if (ev.inputType && /^delete/.test(ev.inputType)) return; // fshirja lihet siç është
+      if (inp.selectionStart !== null && inp.selectionStart < inp.value.length) return; // korrigjim në mes
+      var v = formatoDatenGjateShkrimit(inp.value);
+      if (v !== inp.value) inp.value = v;
+    }, true);
+  }
+
   function idERe() { return 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 
   // Renditja: të skaduarat (më të vjetrat së pari), pastaj ato afër, pastaj në rregull, në fund të hequrat.
@@ -245,7 +280,8 @@
     get AI_URL() { return adresaAI(); },
     DITET_PARALAJMERIMI: DITET_PARALAJMERIMI,
     sot: sot, isoNgaData: isoNgaData, ditetDeri: ditetDeri, statusi: statusi, formato: formato,
-    pershkrimi: pershkrimi, lexoDaten: lexoDaten, idERe: idERe, krahaso: krahaso, numero: numero,
+    pershkrimi: pershkrimi, lexoDaten: lexoDaten, lexoDatenEFushes: lexoDatenEFushes, lidhFushenEDates: lidhFushenEDates,
+    formatoDatenGjateShkrimit: formatoDatenGjateShkrimit, idERe: idERe, krahaso: krahaso, numero: numero,
     mesazhiFurnizuesit: mesazhiFurnizuesit, pergatitFoton: pergatitFoton, lexoMeAI: lexoMeAI,
     normalizoRreshtin: normalizoRreshtin, ditetTekst: ditetTekst, lexoSasine: lexoSasine, sasiaSiShume: sasiaSiShume, sasiaTekst: sasiaTekst, shumaCopeve: shumaCopeve
   };
