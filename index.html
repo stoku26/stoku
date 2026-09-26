@@ -703,6 +703,10 @@
   .kfh-statusi.gabim { color: var(--af-kuqe-tx); font-weight: 600; }
   .kfh-zgjedhjet { display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px; }
   .kfh-zgjedhjet .btn { width: 100%; flex: none; min-height: 52px; font-size: 15.5px; }
+  .af-sink { margin: -4px 2px 10px; font-size: 12px; color: var(--gri); min-height: 0; }
+  .af-sink:empty { display: none; }
+  .af-sink.ok { color: var(--af-gjelber-tx); }
+  .af-sink.gabim { color: var(--af-kuqe-tx); font-weight: 700; }
   .af-pda-hint { margin: -6px 2px 12px; font-size: 12.5px; color: var(--gri); }
   .af-majtas { flex: 1; min-width: 0; }
   .af-emri { font-size: 15.5px; font-weight: 600; overflow-wrap: anywhere; }
@@ -1072,6 +1076,7 @@
     </div>
     <div class="faqe-trup" id="afTrup">
       <div class="af-permb" id="afPermb"></div>
+      <div class="af-sink" id="afSinkStatus" aria-live="polite"></div>
       <div class="af-veprime-krye">
         <button class="btn me-ikone" id="afFotografo" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>Fotografo fletën</button>
         <button class="btn dyte me-ikone" id="afGaleria" type="button" style="flex:none;padding:0 14px" aria-label="Zgjidh foto nga galeria" title="Nga galeria"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"></path></svg></button>
@@ -2471,6 +2476,15 @@
     else { renderFolderat(); renderKerkimiGlobal(); }
   }
 
+  // Rreshti i vogël te "Afatet e produkteve": a janë ruajtur afatet në cloud
+  function vendosStatusinEAfateve(g) {
+    var e = $('afSinkStatus');
+    if (!e) return;
+    if (!perdoruesiAktual()) { e.textContent = ''; e.className = 'af-sink'; return; }
+    e.className = 'af-sink ' + g;
+    e.textContent = g === 'ok' ? '✓ Ruajtur në cloud · ' + oraTani() : g === 'gabim' ? 'S\'u ruajt në cloud (pa internet?) — riprovohet vetë' : 'Duke u ruajtur në cloud…';
+  }
+
   function vendosStatusinCloud(teksti) {
     var el = $('cloudStatusi');
     if (el) el.textContent = teksti;
@@ -2493,16 +2507,25 @@
 
   // Sinkronizon menjëherë pas çdo shtimi/ndryshimi/fshirjeje të një produkti (me vonesë të vogël,
   // që disa skanime rresht të mos dërgojnë çdo herë një kërkesë të veçantë).
-  function planifikoSinkronizimin() {
+  function planifikoSinkronizimin(ms) {
     if (!perdoruesiAktual()) return;
     clearTimeout(sinkronizoKohezi);
-    sinkronizoKohezi = setTimeout(kryeSinkronizimin, SINKRONIZIM_VONESA_MS);
+    sinkronizoKohezi = setTimeout(kryeSinkronizimin, ms === undefined ? SINKRONIZIM_VONESA_MS : ms);
+    vendosStatusinEAfateve('pune');
   }
+  // Kur app-i mbyllet/kalon në sfond me një ruajtje në pritje: dërgohet menjëherë (përndryshe
+  // telefoni e "ngrin" kohëmatësin dhe ndryshimi i fundit s'arrin në cloud deri në hapjen tjetër).
+  function sinkronizoMenjehereNesePret() {
+    if (sinkronizoKohezi && perdoruesiAktual()) { clearTimeout(sinkronizoKohezi); sinkronizoKohezi = null; kryeSinkronizimin(); }
+  }
+  document.addEventListener('visibilitychange', function () { if (document.hidden) sinkronizoMenjehereNesePret(); });
+  window.addEventListener('pagehide', sinkronizoMenjehereNesePret);
 
   var __sinkSerish = false;
   async function kryeSinkronizimin() {
     if (!perdoruesiAktual() || !window.__stokuCloud) return;
     clearTimeout(sinkronizoKohezi);
+    sinkronizoKohezi = null;
     if (dukeSinkronizuar) { __sinkSerish = true; return; }
     dukeSinkronizuar = true;
     vendosStatusinCloud(T('cloudStatusiDukeSink'));
@@ -2525,6 +2548,8 @@
       else planifikoSinkronizimin();
     }
     vendosStatusinCloud(rez.ok ? T('cloudStatusiUSink', { kur: oraTani() }) : T('cloudStatusiDeshtoi'));
+    vendosStatusinEAfateve(rez.ok ? 'ok' : 'gabim');
+    if (!rez.ok) { clearTimeout(sinkronizoKohezi); sinkronizoKohezi = setTimeout(kryeSinkronizimin, 15000); } // riprovo vetë
     if (__sinkSerish) { __sinkSerish = false; planifikoSinkronizimin(); }
   }
 
@@ -2573,13 +2598,31 @@
         zbatoGjendjenNgaCloud(bashkuar);
       }
     }
-    kryeSinkronizimin();
+    await kryeSinkronizimin();
+    nisDegjuesinCloud();
+  }
+
+  var degjuesiCloud = null;
+  function nisDegjuesinCloud() {
+    ndalDegjuesinCloud();
+    if (!window.__stokuCloud || !window.__stokuCloud.degjo || !perdoruesiAktual()) return;
+    degjuesiCloud = window.__stokuCloud.degjo(function (remote, tePaDerguara) {
+      if (tePaDerguara || dukeSinkronizuar || sinkronizoKohezi || !remote) return; // ndryshim i yni ende në rrugë
+      var b = bashkoPaFshirje(remote, gjendjaPerCloud());
+      zbatoBashkimin(b);
+      if (!window.StokuBashkimi.eNjejte(b, remote)) planifikoSinkronizimin(); // kjo pajisje ka diçka më të re
+    }, function () { /* do të riprovohet në sinkronizimin tjetër */ });
+  }
+  function ndalDegjuesinCloud() {
+    if (degjuesiCloud) { try { degjuesiCloud(); } catch (e) { /* ok */ } }
+    degjuesiCloud = null;
   }
 
   // E vërtetë vetëm kur kjo pajisje s'ka asnjë të dhënë të përdoruesit: asnjë produkt, folderat janë
   // pikërisht 4 të parazgjedhurit (të paprekur, pa emra të ndryshuar) dhe renditja s'është ndryshuar kurrë.
   function pajisjaEshteEPaprekur() {
     if (Object.keys(produktet).length > 0) return false;
+    if (afatet.length > 0) return false; // afatet lokale (p.sh. të pa-sinkronizuara) s'duhet të humbin kurrë
     if (rendiFolderaveKoha) return false;
     if (foldera.length !== FOLDERAT_PARAZGJEDHUR.length) return false;
     return FOLDERAT_PARAZGJEDHUR.every(function (d, i) {
@@ -2616,7 +2659,7 @@
     sinkronizoNeHyrje();
   });
   window.addEventListener('stoku-auth-ndryshoi', function () {
-    if (!perdoruesiAktual()) __uidISinkronizuarDarePasHyrjes = null;
+    if (!perdoruesiAktual()) { __uidISinkronizuarDarePasHyrjes = null; ndalDegjuesinCloud(); vendosStatusinEAfateve(''); }
     rifreskoDukjenECloud();
     sinkronizoNeHyrje();
   });
@@ -3958,7 +4001,7 @@
   function ruajAfatet() {
     try { localStorage.setItem(KEY_AFATET, JSON.stringify(afatet)); } catch (e) { toast(T('ruajtjaDeshtoi')); return; }
     __versioniLokal++;
-    planifikoSinkronizimin();
+    planifikoSinkronizimin(300); // afatet dërgohen në cloud menjëherë pas çdo ndryshimi
     rifreskoAfatet();
   }
   function shenoAfatinEFshire(id) { fshira.afatet = fshira.afatet || {}; fshira.afatet[id] = Date.now(); ruajFshiraet(); }
@@ -4618,7 +4661,7 @@
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
     updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential
   } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, runTransaction, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  import { initializeFirestore, doc, getDoc, setDoc, runTransaction, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
   var firebaseConfig = {
     apiKey: "AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY",
@@ -4636,7 +4679,8 @@
   try {
     var app = initializeApp(firebaseConfig);
     var auth = getAuth(app);
-    var db = getFirestore(app);
+    // ignoreUndefinedProperties: një fushë e zbrazët (undefined) s'e prish më krejt sinkronizimin
+    var db = initializeFirestore(app, { ignoreUndefinedProperties: true });
 
     window.__stokuCloud = {
       async regjistrohu(emriPerdoruesit, fjalekalimi) {
@@ -4728,6 +4772,13 @@
         } catch (e) {
           return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) };
         }
+      },
+      // Dëgjim i drejtpërdrejtë i dyqanit: çdo ndryshim nga një pajisje tjetër vjen brenda sekondës
+      degjo(cb, cbGabim) {
+        if (!auth.currentUser) return function () {};
+        return onSnapshot(doc(db, 'dyqane', auth.currentUser.uid), function (s) {
+          cb(s.exists() ? s.data() : null, s.metadata.hasPendingWrites);
+        }, function (e) { if (cbGabim) cbGabim(e); });
       },
       async merr() {
         if (!auth.currentUser) return { ok: false, arsye: 'pa-hyrje' };
