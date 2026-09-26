@@ -1,7 +1,7 @@
 {
-  "name": "Stoku - Malli",
+  "name": "Stoku",
   "short_name": "Stoku",
-  "description": "Regjistrimi i mallit në market: barkodi, emri, sasia, eksport në Excel.",
+  "description": "Regjistrimi i mallit dhe i afateve të skadimit.",
   "lang": "sq",
   "start_url": "./index.html",
   "scope": "./",
