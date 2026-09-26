@@ -3,7 +3,7 @@
  *
  * Ngjyrat:
  *   E KUQE    = ka skaduar          → produkti duhet të hiqet nga rafti/pozita.
- *   E VERDHË  = skadon brenda 30 ditëve (1 muaj) → lajmëro furnizuesin/komercialistin sa më parë.
+ *   E VERDHË  = skadon brenda 30 ditëve (1 muaj) → lajmëro furnizuesin sa më parë.
  *   E GJELBËR = në rregull.
  *   GRI       = i hequr nga rafti (i mbyllur, mbetet si histori).
  *
@@ -88,7 +88,7 @@
     if (st === 'afer') {
       var kur = n === 0 ? 'Skadon SOT' : n === 1 ? 'Skadon nesër' : 'Skadon për ' + ditetTekst(n);
       return kur + (a.lajmeruarSe ? ' — furnizuesi u lajmërua më ' + formato(isoNgaData(new Date(a.lajmeruarSe))) + '.' :
-        ' — lajmëro furnizuesin ose komercialistin sa më parë.');
+        ' — lajmëro furnizuesin sa më parë.');
     }
     return 'Në rregull — skadon për ' + ditetTekst(n) + '.';
   }
@@ -185,7 +185,7 @@
     return n;
   }
 
-  // Mesazhi për furnizuesin/komercialistin (për WhatsApp/Viber/email)
+  // Mesazhi për furnizuesin (për WhatsApp/Viber/email)
   function mesazhiFurnizuesit(furnizuesi, lista) {
     var rr = lista.slice().sort(function (a, b) { return String(a.data).localeCompare(String(b.data)); }).map(function (a, i) {
       var n = ditetDeri(a.data);

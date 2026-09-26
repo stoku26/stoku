@@ -1258,7 +1258,7 @@
 <script src="xlsx.js?v=58"></script>
 <script src="bashkimi.js?v=81"></script>
 <script src="ruajtja.js?v=81"></script>
-<script src="afatet.js?v=80"></script>
+<script src="afatet.js?v=87"></script>
 <script>
 (function () {
   'use strict';
@@ -3889,7 +3889,7 @@
     }
     // "U hoq" vlen vetëm për produktet e skaduara — ato që ende s'kanë skaduar s'hiqen nga rafti
     if (st === 'skaduar') b('✓ U hoq', 'kuqe', function () { shenoHequr([a.id]); }, 'Shëno që produkti u hoq nga rafti/pozita');
-    else if (st === 'afer' && !a.lajmeruarSe) b('✓ Lajmërova', 'verdhe', function () { shenoLajmeruar([a.id]); }, 'Shëno që furnizuesi/komercialisti u lajmërua');
+    else if (st === 'afer' && !a.lajmeruarSe) b('✓ Lajmërova', 'verdhe', function () { shenoLajmeruar([a.id]); }, 'Shëno që furnizuesi u lajmërua');
     else if (st === 'hequr') b('↺ Rikthe', 'dyte', function () { riktheAktiv(a.id); });
     var ed = el('button', 'btn-ikone'); ed.type = 'button'; ed.innerHTML = IKONA.ndrysho; ed.title = 'Ndrysho';
     ed.addEventListener('click', function (ev) { ev.stopPropagation(); hapAfatinPc(a.id); });
