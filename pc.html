@@ -960,7 +960,7 @@
       <div class="af-info fsheh" id="afdInfo"></div>
       <div class="dy-kolona">
         <label class="fushe"><span>Barkodi</span><input class="inp mono" id="afdBarkodi" type="text" autocomplete="off" spellcheck="false" maxlength="64"></label>
-        <label class="fushe"><span>Data e skadimit</span><input class="inp" id="afdData" type="date"></label>
+        <label class="fushe"><span>Data e skadimit</span><input class="inp" id="afdData" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="DD-MM-VVVV"></label>
       </div>
       <label class="fushe" style="max-width:220px"><span>Sasia (copë)</span><input class="inp" id="afdSasia" type="text" inputmode="numeric" autocomplete="off"></label>
       <label class="fushe"><span>Emri i produktit</span><input class="inp" id="afdEmri" type="text" autocomplete="off" maxlength="120"></label>
@@ -1235,7 +1235,7 @@
 
 <script src="xlsx.js?v=58"></script>
 <script src="bashkimi.js?v=58"></script>
-<script src="afatet.js?v=62"></script>
+<script src="afatet.js?v=71"></script>
 <script>
 (function () {
   'use strict';
@@ -3910,7 +3910,7 @@
     $('afdTitulli').textContent = a ? (a.emri || a.barkodi || 'Afati') : 'Afat i ri';
     $('afdBarkodi').value = a ? a.barkodi || '' : (barkodi || '');
     $('afdEmri').value = a ? a.emri || '' : emriNgaBarkodi(barkodi);
-    $('afdData').value = a ? a.data || '' : '';
+    $('afdData').value = a && a.data ? AF.formatoPerFushe(a.data) : '';
     $('afdFurnizuesi').value = a ? a.furnizuesi || '' : furnizuesiNgaBarkodi(barkodi);
     $('afdSasia').value = a && typeof a.sasia === 'number' ? String(a.sasia) : '';
     $('afdGabim').textContent = '';
@@ -3958,17 +3958,18 @@
     inp.value = String(AF.lexoSasine(inp.value));
     inp.dispatchEvent(new Event('input'));
   }
+  AF.lidhFushenEDates($('afdData'));
   $('afdSasia').addEventListener('change', function () { vendosRezultatinESasise($('afdSasia')); });
   function ruajAfatinPc() {
     var b = $('afdBarkodi').value.trim().replace(/\s+/g, '');
     var emri = $('afdEmri').value.trim();
-    var data = $('afdData').value;
+    var data = AF.lexoDatenEFushes($('afdData').value) || '';
     var f = $('afdFurnizuesi').value.trim();
     var sasiaTx = $('afdSasia').value.trim();
     var sasia = AF.lexoSasine(sasiaTx);
     if (sasiaTx && sasia === '') { $('afdGabim').textContent = 'Sasia duhet të jetë numër i plotë (p.sh. 12).'; $('afdSasia').focus(); return; }
     if (!b && !emri) { $('afdGabim').textContent = 'Shkruaj barkodin ose emrin e produktit.'; $('afdBarkodi').focus(); return; }
-    if (!AF.lexoDaten(data)) { $('afdGabim').textContent = 'Zgjidh datën e skadimit.'; $('afdData').focus(); return; }
+    if (!data) { $('afdGabim').textContent = 'Shkruaj datën e skadimit, p.sh. 31-12-2026.'; $('afdData').focus(); return; }
     var tani = Date.now();
     var reg = ndryshoAfatet(function (api) {
       var a = afdId ? api.merr(afdId) : { id: AF.idERe(), statusi: 'aktiv', krijuarSe: tani, krijuarNga: emriPerdoruesit() };
@@ -4154,12 +4155,14 @@
       var qb = qeliza('text', r.barkodi, 'Barkodi', function (v) { r.barkodi = v.trim(); }, 'mono');
       qb.inp.addEventListener('change', function () { if (!r.emri) { r.emri = emriNgaBarkodi(r.barkodi); qe.inp.value = r.emri; } });
       qe = qeliza('text', r.emri, 'Emri i produktit', function (v) { r.emri = v; });
-      var qd = qeliza('date', r.data, 'Data', function (v) {
-        r.data = v; r.dyshim = false;
-        tr.className = v ? AF.statusi({ data: v }) : '';
-        sh.textContent = v ? AF.pershkrimi({ data: v }) : 'Zgjidh datën';
-        sh.className = v ? '' : 'paralajm';
+      var qd = qeliza('text', r.data ? AF.formatoPerFushe(r.data) : '', 'Data', function (v) {
+        var iso = AF.lexoDatenEFushes(v) || '';
+        r.data = iso; r.dyshim = false;
+        tr.className = iso ? AF.statusi({ data: iso }) : '';
+        sh.textContent = iso ? AF.pershkrimi({ data: iso }) : 'Shkruaj datën, p.sh. 31-12-2026';
+        sh.className = iso ? '' : 'paralajm';
       });
+      AF.lidhFushenEDates(qd.inp);
       var sh = el('small', r.data ? '' : 'paralajm', (r.dataOrigjinale ? 'Në fletë: "' + r.dataOrigjinale + '" · ' : '') + (r.data ? AF.pershkrimi({ data: r.data }) : 'Data s\'u kuptua — zgjidhe me dorë'));
       qd.td.appendChild(sh);
       // Shfaqet vetëm rezultati (fleta "60+30" → 90). Një shumë e shkruar me dorë kthehet në rezultat kur del nga fusha.
