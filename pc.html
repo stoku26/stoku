@@ -1235,7 +1235,7 @@
 
 <script src="xlsx.js?v=58"></script>
 <script src="bashkimi.js?v=58"></script>
-<script src="afatet.js?v=71"></script>
+<script src="afatet.js?v=75"></script>
 <script>
 (function () {
   'use strict';
@@ -1627,11 +1627,12 @@
     }
     await kryeSinkronizimin();
     nisDegjuesin();
+    nisDegjuesinEFleteve();
   }
 
   function kurNdryshonLlogaria() {
     var u = perdoruesi();
-    if (!u) { sink.cUid = null; ndalDegjuesin(); vendosStatusin('lokal'); }
+    if (!u) { sink.cUid = null; ndalDegjuesin(); ndalDegjuesinEFleteve(); vendosStatusin('lokal'); }
     rifreskoLlogarine();
     rivizato();
     if (u) sinkronizoNeHyrje();
@@ -2346,6 +2347,8 @@
   function mbyllDialog(id) {
     if (id === 'dlgLexim' && !anuloLeximin.leje) { anuloLeximin(); return; }
     $(id).classList.remove('hapur');
+    if (id === 'dlgLexim') mbyllFletenETelefonit();
+    setTimeout(hapFletenETelefonitNese, 400); // një fletë nga telefoni mund të ketë pritur këtë dritare
     if (id === 'dlgKonfirmo' && konf.zgjidh) { var z = konf.zgjidh; konf.zgjidh = null; clearInterval(konf.kohez); z(false); }
     if (!document.querySelector('.mbulese.hapur') && dialogPara && dialogPara.focus && document.contains(dialogPara)) {
       try { dialogPara.focus(); } catch (e) { /* ok */ }
@@ -4094,6 +4097,57 @@
     'origjina': 'Kjo adresë nuk lejohet nga shërbimi i leximit. Shkruaji rreshtat me dorë.'
   };
 
+  function rreshtatNgaAI(rreshtat) {
+    return (rreshtat || []).map(function (r) {
+      return { barkodi: r.barkodi || '', emri: r.emri || emriNgaBarkodi(r.barkodi), data: r.data || '', dataOrigjinale: r.dataOrigjinale || '',
+        sasia: r.sasia === undefined ? '' : r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaBarkodi(r.barkodi), dyshim: !!r.dyshim };
+    });
+  }
+
+  // ---------- Fletët e dërguara nga telefoni ----------
+  // Telefoni e fotografon dhe e lexon fletën, pastaj e dërgon këtu (Firebase: dyqane/{uid}/fletet).
+  // Sapo mbërrin — ose kur hapet Stoku në PC më vonë — kontrolli i fletës hapet vetë, me foton pranë.
+  // Pas "Ruaj" ose "Anulo" fleta fshihet nga cloud-i, që të mos hapet sërish.
+  var fletetTel = { lista: [], degjuesi: null, hapur: null, teMbyllura: {} };
+  function nisDegjuesinEFleteve() {
+    ndalDegjuesinEFleteve();
+    if (!window.__stokuCloud || !window.__stokuCloud.degjoFletet) return;
+    fletetTel.degjuesi = window.__stokuCloud.degjoFletet(function (lista) {
+      var ishin = fletetTel.lista.length;
+      fletetTel.lista = lista.filter(function (f) { return !fletetTel.teMbyllura[f.id]; });
+      if (fletetTel.lista.length > ishin && document.querySelector('.mbulese.hapur')) toast('Mbërriti një fletë nga telefoni — hapet sapo të mbyllësh dritaren.');
+      hapFletenETelefonitNese();
+    }, function () { /* rregullat e Firebase-it s'e lejojnë ende — s'pengon asgjë tjetër */ });
+  }
+  function ndalDegjuesinEFleteve() {
+    if (fletetTel.degjuesi) { try { fletetTel.degjuesi(); } catch (e) { /* ok */ } }
+    fletetTel.degjuesi = null;
+    fletetTel.lista = [];
+  }
+  function hapFletenETelefonitNese() {
+    if (fletetTel.hapur || document.querySelector('.mbulese.hapur')) return; // mos e ndërprit një punë tjetër
+    var f = fletetTel.lista[0];
+    if (!f) return;
+    fletetTel.hapur = f.id;
+    lx.rreshtat = rreshtatNgaAI(f.rreshtat);
+    fotoPamja.pastro();
+    if (f.foto) $('lxFoto').src = f.foto;
+    hapDialog('dlgLexim');
+    var nd = lx.rreshtat.filter(function (r) { return r.dyshim; }).length;
+    statusiLeximit('Fletë nga telefoni' + (f.nga ? ' (' + f.nga + ')' : '') + (f.krijuarSe ? ', ' + dataOra(f.krijuarSe) : '') + ' — ' +
+      lx.rreshtat.length + ' rreshta. Krahasoji me foton dhe korrigjo ku duhet' + (nd ? ' — ' + nd + ' janë shënuar me të verdhë si të paqarta.' : '.'), false);
+    if (!lx.rreshtat.length) shtoRreshtLeximi(); else renderLeximinPc();
+  }
+  // Thirret kur mbyllet kontrolli i fletës (Ruaj ose Anulo)
+  function mbyllFletenETelefonit() {
+    var id = fletetTel.hapur;
+    if (!id) return;
+    fletetTel.hapur = null;
+    fletetTel.teMbyllura[id] = true;
+    fletetTel.lista = fletetTel.lista.filter(function (f) { return f.id !== id; });
+    if (window.__stokuCloud && window.__stokuCloud.fshijFleten) window.__stokuCloud.fshijFleten(id);
+  }
+
   async function lexoFletenPc(skedari) {
     lx.rreshtat = [];
     renderLeximinPc();
@@ -4114,10 +4168,7 @@
       shtoRreshtLeximi();
       return;
     }
-    lx.rreshtat = rez.rreshtat.map(function (r) {
-      return { barkodi: r.barkodi, emri: r.emri || emriNgaBarkodi(r.barkodi), data: r.data, dataOrigjinale: r.dataOrigjinale,
-        sasia: r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaBarkodi(r.barkodi), dyshim: r.dyshim };
-    });
+    lx.rreshtat = rreshtatNgaAI(rez.rreshtat);
     var nd = lx.rreshtat.filter(function (r) { return r.dyshim; }).length;
     if (!lx.rreshtat.length) { statusiLeximit('Në foto s\'u gjet asnjë rresht me afat. Provo një foto më të qartë ose shkruaji me dorë.', true); shtoRreshtLeximi(); return; }
     statusiLeximit('U lexuan ' + lx.rreshtat.length + ' rreshta. Krahasoji me foton dhe korrigjo ku duhet' + (nd ? ' — ' + nd + ' janë shënuar me të verdhë si të paqarta.' : '.'), false);
@@ -4298,7 +4349,7 @@
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
     updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential
   } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, runTransaction, onSnapshot } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, runTransaction, onSnapshot, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
   var firebaseConfig = {
     apiKey: "AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY",
@@ -4356,6 +4407,20 @@
         return onSnapshot(dokumenti(), function (s) {
           cb(s.exists() ? s.data() : null, s.metadata.hasPendingWrites);
         }, function (e) { if (cbGabim) cbGabim(e); });
+      },
+      // Fletët e fotografuara në telefon dhe të dërguara këtu për kontroll (më e vjetra e para)
+      degjoFletet(cb, cbGabim) {
+        if (!auth.currentUser) return function () {};
+        return onSnapshot(collection(db, 'dyqane', auth.currentUser.uid, 'fletet'), function (s) {
+          var l = [];
+          s.forEach(function (d) { l.push(Object.assign({}, d.data(), { id: d.id })); });
+          l.sort(function (a, b) { return (a.krijuarSe || 0) - (b.krijuarSe || 0); });
+          cb(l);
+        }, function (e) { if (cbGabim) cbGabim(e); });
+      },
+      async fshijFleten(id) {
+        if (!auth.currentUser) return { ok: false };
+        try { await deleteDoc(doc(db, 'dyqane', auth.currentUser.uid, 'fletet', id)); return { ok: true }; } catch (e) { return gabim(e); }
       }
     };
     onAuthStateChanged(auth, function () { window.dispatchEvent(new Event('stoku-auth-ndryshoi')); });
