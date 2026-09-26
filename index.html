@@ -1077,7 +1077,7 @@
     <div class="fushe"><input id="afatEmri" type="text" autocomplete="off" autocorrect="off" placeholder="Emri i produktit" aria-label="Emri i produktit" enterkeyhint="next"></div>
     <div class="lx-dy">
       <div class="fushe"><label for="afatData">Data e skadimit</label><input id="afatData" type="date"></div>
-      <div class="fushe"><label for="afatSasia">Sasia (copë)</label><input id="afatSasia" type="number" inputmode="numeric" min="0" step="1" autocomplete="off" placeholder="p.sh. 12"></div>
+      <div class="fushe"><label for="afatSasia">Sasia (copë)</label><input id="afatSasia" type="text" inputmode="tel" autocomplete="off" placeholder="p.sh. 12 ose 60+30"></div>
     </div>
     <div class="fushe"><input id="afatFurnizuesi" type="text" list="afFurnizuesit" autocomplete="off" autocorrect="off" placeholder="Furnizuesi / komercialisti" aria-label="Furnizuesi" enterkeyhint="done"></div>
     <div class="af-status-veprime" id="afatStatusVeprime"></div>
@@ -1120,7 +1120,7 @@
 
 <script src="xlsx.js?v=58"></script>
 <script src="bashkimi.js?v=58"></script>
-<script src="afatet.js?v=58"></script>
+<script src="afatet.js?v=62"></script>
 <script>
 (function () {
   'use strict';
@@ -3947,7 +3947,7 @@
     var f = $('afatFurnizuesi').value.trim();
     var sasiaTx = $('afatSasia').value.trim();
     var sasia = AF.lexoSasine(sasiaTx);
-    if (sasiaTx && sasia === '') { toast('Sasia duhet të jetë numër i plotë (p.sh. 12).'); $('afatSasia').focus(); return; }
+    if (sasiaTx && sasia === '') { toast('Sasia duhet të jetë numër i plotë (p.sh. 12 ose 60+30).'); $('afatSasia').focus(); return; }
     if (!b && !emri) { toast('Shkruaj barkodin ose emrin e produktit.'); $('afatBarkodi').focus(); return; }
     if (!AF.lexoDaten(data)) { toast('Zgjidh datën e skadimit.'); $('afatData').focus(); return; }
     var tani = Date.now();
@@ -4036,7 +4036,7 @@
     }
     lx.rreshtat = rez.rreshtat.map(function (r) {
       return { barkodi: r.barkodi, emri: r.emri || emriNgaProduktet(r.barkodi), data: r.data, dataOrigjinale: r.dataOrigjinale,
-        sasia: r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaAfatet(r.barkodi), dyshim: r.dyshim };
+        sasia: r.sasia, sasiaTx: r.sasiaOrigjinale || '', furnizuesi: r.furnizuesi || furnizuesiNgaAfatet(r.barkodi), dyshim: r.dyshim };
     });
     var nDyshim = lx.rreshtat.filter(function (r) { return r.dyshim; }).length;
     statusiLeximit(lx.rreshtat.length
@@ -4088,7 +4088,20 @@
         d.className = 'lx-rresht ' + (v ? AF.statusi({ data: v }) : '');
         nr.textContent = 'Rreshti ' + (i + 1);
       });
-      var fs = fushe('Sasia (copë)', r.sasia === '' || r.sasia === undefined ? '' : String(r.sasia), 'number', function (v) { r.sasia = AF.lexoSasine(v); r.sasiaTx = v; }, 'lx-sasia');
+      // Tekst me tastierë numrash që ka "+", që të pranojë edhe shumat si në fletë: "60+30" = 90 copë
+      var fs = fushe('Sasia (copë)', r.sasiaTx || (r.sasia === '' || r.sasia === undefined ? '' : String(r.sasia)), 'text', function (v) {
+        r.sasia = AF.lexoSasine(v); r.sasiaTx = v;
+        shumaSasise();
+      }, 'lx-sasia');
+      fs.inp.inputMode = 'tel';
+      var shs = document.createElement('small');
+      shs.style.cssText = 'display:block;margin:4px 2px 0;font-size:12px;font-weight:700';
+      fs.w.appendChild(shs);
+      function shumaSasise() {
+        var ok = AF.sasiaSiShume(r.sasiaTx);
+        shs.textContent = ok ? '= ' + AF.lexoSasine(ok) + ' copë' : '';
+      }
+      shumaSasise();
       fs.inp.inputMode = 'numeric'; fs.inp.min = '0';
       var ff = fushe('Furnizuesi', r.furnizuesi, 'text', function (v) { r.furnizuesi = v; });
       ff.inp.setAttribute('list', 'afFurnizuesit');
