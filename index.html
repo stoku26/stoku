@@ -526,6 +526,12 @@
     font-size: 15px;
   }
   .kamera-krye .btn { flex: none; min-height: 40px; background: #fff; color: #000; }
+  .kamera-ikone {
+    flex: none; min-width: 40px; height: 40px; padding: 0 10px; border: 0; border-radius: 20px;
+    background: rgba(255,255,255,.18); color: #fff; font-family: inherit; font-size: 14px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .kamera-ikone.aktiv { background: #fff; color: #000; }
   .kamera-tekst { flex: 1; min-width: 0; }
   .kamera-veprime { display: flex; gap: 8px; flex: none; }
   .kamera-video-shtrat { position: relative; flex: 1; display: flex; overflow: hidden; }
@@ -1140,6 +1146,8 @@
       <span id="kameraDrejtoje"></span>
     </div>
     <div class="kamera-veprime">
+      <button class="kamera-ikone" id="kameraZoom" type="button" aria-label="Zmadhimi i kamerës" title="Zmadho (për barkod më larg)" style="display:none">1×</button>
+      <button class="kamera-ikone" id="kameraDrita" type="button" aria-label="Drita e kamerës" title="Drita (për vende të errëta)" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6c0 2-2 2-2 4v10a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V10c0-2-2-2-2-4V2h12z"></path><path d="M6 6h12M12 12v.01"></path></svg></button>
       <button class="btn" id="mbyllKamere" type="button"></button>
     </div>
   </div>
@@ -3049,6 +3057,11 @@
   var audioCtx = null;
   function pergatitAudion() {
     try {
+      // iPhone: pa këtë, çelësi anësor "Silent" e hesht krejt tingullin e faqes. Me "playback" bip-i
+      // dëgjohet edhe kur telefoni është në silent/vibrim (si te videot).
+      if (navigator.audioSession && navigator.audioSession.type !== 'playback') navigator.audioSession.type = 'playback';
+    } catch (e) { /* shfletues pa Audio Session API */ }
+    try {
       var AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return;
       if (!audioCtx) audioCtx = new AC();
@@ -3056,19 +3069,26 @@
     } catch (e) { /* pa tingull */ }
   }
   function bip() {
+    // Dridhja vjen gjithmonë (Android), që skanimi të ndihet edhe kur telefoni s'ka zë fare
+    try { if (navigator.vibrate) navigator.vibrate(70); } catch (e) { /* ok */ }
     if (!opsione.tingull) return;
     try {
       pergatitAudion();
       if (!audioCtx) return;
-      var o = audioCtx.createOscillator();
-      var g = audioCtx.createGain();
-      o.type = 'square';
-      o.frequency.value = 1800;
-      g.gain.value = 0.15;
-      o.connect(g);
-      g.connect(audioCtx.destination);
-      o.start();
-      o.stop(audioCtx.currentTime + 0.15);
+      var luaj = function () {
+        var o = audioCtx.createOscillator();
+        var g = audioCtx.createGain();
+        o.type = 'square';
+        o.frequency.value = 1800;
+        g.gain.value = 0.2;
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        o.start();
+        o.stop(audioCtx.currentTime + 0.15);
+      };
+      // Pas fikjes së ekranit/kalimit në app tjetër, zëri "fle": zgjohet dhe pastaj bie bip-i (jo i humbur)
+      if (audioCtx.state !== 'running') audioCtx.resume().then(luaj, function () { /* pa tingull */ });
+      else luaj();
     } catch (e) { /* pa tingull */ }
   }
 
@@ -3151,19 +3171,55 @@
     return c;
   }
 
+  // Shifra e kontrollit të EAN-13 / EAN-8 / UPC-A: nëse përputhet, leximi është i sigurt që në kuadrin e parë
+  function shifraKontrollitOk(kodi) {
+    if (!/^(\d{8}|\d{12}|\d{13})$/.test(kodi)) return false;
+    var s = 0;
+    for (var i = kodi.length - 2, peshe = 3; i >= 0; i--, peshe = 4 - peshe) s += (+kodi.charAt(i)) * peshe;
+    return (10 - s % 10) % 10 === +kodi.charAt(kodi.length - 1);
+  }
+  // Kodet pa shifër kontrolli (Code 39, Codabar, ITF…) pranohen vetëm kur lexohen njësoj 2 herë
+  // rresht brenda 0.8 s — kështu një lexim i gabuar nga një kuadër i turbullt s'kalon kurrë.
+  var leximiParaprak = { v: '', t: 0 };
+  function leximiIKonfirmuar(v, formati) {
+    if (/^(EAN_13|EAN_8|UPC_A|QR_CODE)$/.test(formati) && (formati === 'QR_CODE' || shifraKontrollitOk(v))) return true;
+    var tash = Date.now();
+    var ok = leximiParaprak.v === v && tash - leximiParaprak.t < 800;
+    leximiParaprak = { v: v, t: tash };
+    return ok;
+  }
+  // Kur në kuti ka disa barkode, merret ai më afër qendrës
+  function meIAferQendres(rezultatet, w, h) {
+    var mi = rezultatet[0], dMin = Infinity;
+    rezultatet.forEach(function (r) {
+      var b = r.boundingBox;
+      if (!b) return;
+      var d = Math.pow(b.x + b.width / 2 - w / 2, 2) + Math.pow(b.y + b.height / 2 - h / 2, 2);
+      if (d < dMin) { dMin = d; mi = r; }
+    });
+    return mi;
+  }
+
   async function ciklikuIDetektimitNativ() {
     if (!nativDukeSkanuar) return;
     var v = $('kameraVideo');
     if (v && v.readyState >= 2 && v.videoWidth) {
       try {
-        var rezultatet = await detektoriAktiv.detect(detektoriAktiv === detektoriNativ ? v : figuraNenKuti(v));
+        // Lexohet vetëm pjesa nën kuti, me rezolucion të plotë: më shpejt (më shumë prova në sekondë)
+        // dhe pa kapur barkodin e produktit ngjitur jashtë kutisë.
+        var figura = figuraNenKuti(v);
+        var rezultatet = await detektoriAktiv.detect(figura);
         if (nativDukeSkanuar && rezultatet && rezultatet.length > 0) {
-          var r = rezultatet[0];
-          kuSuksesiSkanimi(r.rawValue, { format: String(r.format || '').toUpperCase() });
+          var r = meIAferQendres(rezultatet, figura.width, figura.height);
+          var formati = String(r.format || '').toUpperCase();
+          if (leximiIKonfirmuar(r.rawValue, formati)) kuSuksesiSkanimi(r.rawValue, { format: formati });
         }
       } catch (e) { /* frame i dështuar, provo tjetrin */ }
     }
-    if (nativDukeSkanuar) requestAnimationFrame(ciklikuIDetektimitNativ);
+    if (!nativDukeSkanuar) return;
+    // Një provë për çdo kuadër të ri të kamerës (jo dy herë i njëjti kuadër)
+    if (v && v.requestVideoFrameCallback) v.requestVideoFrameCallback(function () { ciklikuIDetektimitNativ(); });
+    else requestAnimationFrame(ciklikuIDetektimitNativ);
   }
 
   async function nisKamerenNativisht(kufizimet, detektori) {
@@ -3210,7 +3266,67 @@
 
   async function pasNisjes() {
     try { await aplikoAutofokusin(); } catch (e) { /* nuk e pengon skenimin */ }
+    try { pergatitKontrolletEKameres(); } catch (e) { /* butonat mbeten të fshehur */ }
   }
+
+  // Zmadhimi (1× / 2× / 3×), drita dhe fokusi me prekje — vetëm kur telefoni i mbështet (kryesisht Android).
+  var kontrolletKam = { nivelet: [1], zoomI: 0, drita: false };
+  function pergatitKontrolletEKameres() {
+    var t = nativDukeSkanuar ? trackuIKameres() : null;
+    var cap = (t && t.getCapabilities) ? t.getCapabilities() : {};
+    kontrolletKam = { nivelet: [1], zoomI: 0, drita: false };
+    var z = cap.zoom;
+    if (z && z.max >= 1.5) {
+      var min = z.min || 1;
+      kontrolletKam.nivelet = [min].concat([2, 3].filter(function (n) { return n > min && n <= z.max; }));
+      if (kontrolletKam.nivelet.length === 1) kontrolletKam.nivelet.push(z.max);
+    }
+    $('kameraZoom').textContent = '1×';
+    $('kameraZoom').classList.remove('aktiv');
+    $('kameraZoom').style.display = kontrolletKam.nivelet.length > 1 ? '' : 'none';
+    $('kameraDrita').classList.remove('aktiv');
+    $('kameraDrita').style.display = cap.torch ? '' : 'none';
+  }
+  function fshihKontrolletEKameres() {
+    $('kameraZoom').style.display = 'none';
+    $('kameraDrita').style.display = 'none';
+  }
+  $('kameraZoom').addEventListener('click', async function () {
+    var t = trackuIKameres();
+    if (!t) return;
+    var i = (kontrolletKam.zoomI + 1) % kontrolletKam.nivelet.length;
+    var niv = kontrolletKam.nivelet[i];
+    try {
+      await t.applyConstraints({ advanced: [{ zoom: niv }] });
+      kontrolletKam.zoomI = i;
+      this.textContent = (Math.round(niv * 10) / 10) + '×';
+      this.classList.toggle('aktiv', i > 0);
+    } catch (e) { /* ky telefon s'e lejon */ }
+  });
+  $('kameraDrita').addEventListener('click', async function () {
+    var t = trackuIKameres();
+    if (!t) return;
+    try {
+      await t.applyConstraints({ advanced: [{ torch: !kontrolletKam.drita }] });
+      kontrolletKam.drita = !kontrolletKam.drita;
+      this.classList.toggle('aktiv', kontrolletKam.drita);
+    } catch (e) { /* ky telefon s'e lejon */ }
+  });
+  // Prek figurën → fokusohet aty (pastaj kthehet te autofokusi i vazhdueshëm)
+  $('kameraVideo').addEventListener('click', async function (ev) {
+    var t = trackuIKameres();
+    if (!t || !t.getCapabilities) return;
+    var cap = t.getCapabilities();
+    if (!cap.focusMode || cap.focusMode.indexOf('single-shot') === -1) return;
+    var r = this.getBoundingClientRect();
+    var pika = { x: Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width)), y: Math.min(1, Math.max(0, (ev.clientY - r.top) / r.height)) };
+    try {
+      await t.applyConstraints({ advanced: [{ pointsOfInterest: [pika], focusMode: 'single-shot' }] });
+    } catch (e) {
+      try { await t.applyConstraints({ advanced: [{ focusMode: 'single-shot' }] }); } catch (e2) { return; }
+    }
+    setTimeout(aplikoAutofokusin, 1500);
+  });
 
   function krijoSkanerin() {
     var F = Html5QrcodeSupportedFormats;
@@ -3341,11 +3457,12 @@
       facingMode: { ideal: 'environment' },
       width: { ideal: 3840 },
       height: { ideal: 2160 },
+      frameRate: { ideal: 30 },
       advanced: [{ focusMode: 'continuous' }]
     };
   }
   function kufizimetMePajisje(baza, deviceId) {
-    return { width: baza.width, height: baza.height, advanced: baza.advanced, deviceId: { exact: deviceId } };
+    return { width: baza.width, height: baza.height, frameRate: baza.frameRate, advanced: baza.advanced, deviceId: { exact: deviceId } };
   }
 
   // Disa telefona (sidomos ca modele Samsung) e zgjedhin vetë kamerën ULTRA-WIDE si "kamerën e
@@ -3475,6 +3592,7 @@
   var kameraPerAfat = null; // kur kamera hapet nga dialogu "Afat i ri": ku dërgohet barkodi i skanuar
   async function ndalKamere() {
     kameraPerAfat = null;
+    fshihKontrolletEKameres();
     ndaloNumrimVazhdues();
     await ndalSkanerin();
     $('kamera').classList.remove('hapur');
