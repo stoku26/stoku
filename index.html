@@ -4105,6 +4105,13 @@
     b.addEventListener('click', function () { afFiltri = b.getAttribute('data-f'); renderAfatet(); });
   });
 
+  // Sasia e shkruar si shumë ("60+30") zëvendësohet në fushë me rezultatin (90)
+  function vendosRezultatinESasise(inp) {
+    if (!AF.sasiaSiShume(inp.value)) return;
+    inp.value = String(AF.lexoSasine(inp.value));
+    inp.dispatchEvent(new Event('input'));
+  }
+
   // ---------- Dialogu: shto / ndrysho një afat ----------
   var afatNeDialog = null;
   function mbushFurnizuesit() {
@@ -4212,6 +4219,7 @@
     if (ev.key === 'Enter') { ev.preventDefault(); $('afatBarkodi').dispatchEvent(new Event('change')); $('afatEmri').focus(); }
   });
   $('afatEmri').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('afatData').focus(); } });
+  $('afatSasia').addEventListener('change', function () { vendosRezultatinESasise($('afatSasia')); });
   $('afatSasia').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('afatFurnizuesi').focus(); } });
   $('afatFurnizuesi').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ruajAfatin(); } });
 
@@ -4263,7 +4271,7 @@
     }
     lx.rreshtat = rez.rreshtat.map(function (r) {
       return { barkodi: r.barkodi, emri: r.emri || emriNgaProduktet(r.barkodi), data: r.data, dataOrigjinale: r.dataOrigjinale,
-        sasia: r.sasia, sasiaTx: r.sasiaOrigjinale || '', furnizuesi: r.furnizuesi || furnizuesiNgaAfatet(r.barkodi), dyshim: r.dyshim };
+        sasia: r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaAfatet(r.barkodi), dyshim: r.dyshim };
     });
     var nDyshim = lx.rreshtat.filter(function (r) { return r.dyshim; }).length;
     statusiLeximit(lx.rreshtat.length
@@ -4315,21 +4323,13 @@
         d.className = 'lx-rresht ' + (v ? AF.statusi({ data: v }) : '');
         nr.textContent = 'Rreshti ' + (i + 1);
       });
-      // Tekst me tastierë numrash që ka "+", që të pranojë edhe shumat si në fletë: "60+30" = 90 copë
-      var fs = fushe('Sasia (copë)', r.sasiaTx || (r.sasia === '' || r.sasia === undefined ? '' : String(r.sasia)), 'text', function (v) {
+      // Shfaqet vetëm rezultati (fleta "60+30" → 90). Tastiera me "+" lejon edhe shuma me dorë,
+      // që kthehen menjëherë në rezultat kur del nga fusha.
+      var fs = fushe('Sasia (copë)', r.sasia === '' || r.sasia === undefined ? '' : String(r.sasia), 'text', function (v) {
         r.sasia = AF.lexoSasine(v); r.sasiaTx = v;
-        shumaSasise();
       }, 'lx-sasia');
       fs.inp.inputMode = 'tel';
-      var shs = document.createElement('small');
-      shs.style.cssText = 'display:block;margin:4px 2px 0;font-size:12px;font-weight:700';
-      fs.w.appendChild(shs);
-      function shumaSasise() {
-        var ok = AF.sasiaSiShume(r.sasiaTx);
-        shs.textContent = ok ? '= ' + AF.lexoSasine(ok) + ' copë' : '';
-      }
-      shumaSasise();
-      fs.inp.inputMode = 'numeric'; fs.inp.min = '0';
+      fs.inp.addEventListener('change', function () { vendosRezultatinESasise(fs.inp); });
       var ff = fushe('Furnizuesi', r.furnizuesi, 'text', function (v) { r.furnizuesi = v; });
       ff.inp.setAttribute('list', 'afFurnizuesit');
       dy.appendChild(fd.w); dy.appendChild(fs.w);
