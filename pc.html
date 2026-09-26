@@ -603,15 +603,28 @@
   input[type="date"].inp { font-variant-numeric: tabular-nums; }
   .zona-foto-pc.siper { outline: 3px dashed var(--primar); outline-offset: -6px; }
   /* Kontrolli i fletës së lexuar */
-  .lexim-grid { display: grid; grid-template-columns: 360px 1fr; gap: 18px; align-items: start; }
-  .lexim-foto { position: sticky; top: 0; border: 1px solid var(--vije); border-radius: 12px; overflow: auto; max-height: 64vh; background: #111; cursor: zoom-in; }
-  .lexim-foto img { display: block; width: 100%; }
-  .lexim-foto.zmadhuar { cursor: zoom-out; }
-  .lexim-foto.zmadhuar img { width: 220%; max-width: none; }
+  #dlgLexim { padding: 2vh 16px 16px; }
+  #dlgLexim .dialog { max-width: 1720px; }
+  .lexim-grid { display: grid; grid-template-columns: minmax(320px, 1fr) minmax(0, 1.9fr); gap: 18px; align-items: start; }
+  .lexim-majtas { position: sticky; top: 0; }
+  /* Fotoja: rrota e mausit zmadhon, tërheqja e lëviz (shih fotoPamja) */
+  .lexim-foto {
+    position: relative; height: calc(98vh - 216px); min-height: 340px; border: 1px solid var(--vije); border-radius: 12px;
+    overflow: hidden; background: #111; cursor: grab; touch-action: none; user-select: none;
+  }
+  .lexim-foto.terhiqet { cursor: grabbing; }
+  .lexim-foto img { position: absolute; left: 0; top: 0; max-width: none; transform-origin: 0 0; -webkit-user-drag: none; }
+  .lexim-foto-kontrolle { position: absolute; top: 8px; right: 8px; display: flex; gap: 4px; }
+  .lexim-foto-kontrolle button {
+    min-width: 32px; height: 32px; padding: 0 9px; border-radius: 8px; border: 1px solid rgba(255,255,255,.25);
+    background: rgba(0,0,0,.6); color: #fff; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .lexim-foto-kontrolle button:hover { background: rgba(0,0,0,.8); }
+  .lexim-ndihme { margin: 6px 2px 0; font-size: 12px; color: var(--gri); }
   .lexim-statusi { display: flex; align-items: center; gap: 10px; padding: 11px 13px; border-radius: 10px; background: var(--hover); margin-bottom: 10px; line-height: 1.45; }
   .lexim-statusi.gabim { background: var(--af-kuqe-bg); color: var(--af-kuqe-tx); }
-  .lexim-rreshtat { max-height: 52vh; overflow: auto; border: 1px solid var(--vije); border-radius: 12px; }
-  .lexim-rreshtat table { width: 100%; border-collapse: collapse; }
+  .lexim-rreshtat { max-height: calc(98vh - 296px); min-height: 260px; overflow: auto; border: 1px solid var(--vije); border-radius: 12px; }
+  .lexim-rreshtat table { width: 100%; min-width: 820px; border-collapse: collapse; }
   .lexim-rreshtat th { position: sticky; top: 0; z-index: 1; background: var(--karta); font-size: 12px; color: var(--gri); text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--vije); }
   .lexim-rreshtat td { padding: 5px 4px; border-bottom: 1px solid var(--vije-2); vertical-align: top; }
   .lexim-rreshtat td:first-child { box-shadow: inset 4px 0 0 var(--lx-ngj, transparent); padding-left: 10px; font-size: 12px; color: var(--gri); padding-top: 14px; }
@@ -967,16 +980,26 @@
 
 <!-- Kontrolli i fletës së lexuar nga foto -->
 <div class="mbulese" id="dlgLexim">
-  <div class="dialog gjere" role="dialog" aria-modal="true" style="max-width:1180px">
+  <div class="dialog gjere" role="dialog" aria-modal="true">
     <div class="dialog-krye"><h2>Kontrollo fletën e lexuar</h2><button class="btn-ikone" type="button" id="lxMbyll" aria-label="Mbyll">✕</button></div>
     <div class="dialog-trup">
       <div class="lexim-grid">
-        <div class="lexim-foto" id="lxFotoKuti" title="Kliko për ta zmadhuar"><img id="lxFoto" alt="Fleta e fotografuar"></div>
+        <div class="lexim-majtas">
+          <div class="lexim-foto" id="lxFotoKuti">
+            <img id="lxFoto" alt="Fleta e fotografuar" draggable="false">
+            <div class="lexim-foto-kontrolle">
+              <button type="button" id="lxZvogelo" title="Zvogëlo" aria-label="Zvogëlo">−</button>
+              <button type="button" id="lxZmadho" title="Zmadho" aria-label="Zmadho">+</button>
+              <button type="button" id="lxPershtat" title="Shfaq krejt fletën">Përshtat</button>
+            </div>
+          </div>
+          <div class="lexim-ndihme">Rrota e mausit: zmadho/zvogëlo · Tërhiq me maus: lëviz · Dy klikime: zmadho ose përshtat</div>
+        </div>
         <div>
           <div class="lexim-statusi" id="lxStatusi"></div>
           <div class="lexim-rreshtat">
             <table>
-              <thead><tr><th style="width:34px">#</th><th style="width:150px">Barkodi</th><th>Emri i produktit</th><th style="width:170px">Data e skadimit</th><th style="width:90px">Sasia</th><th style="width:170px">Furnizuesi</th><th style="width:36px"></th></tr></thead>
+              <thead><tr><th style="width:34px">#</th><th style="width:140px">Barkodi</th><th>Emri i produktit</th><th style="width:150px">Data e skadimit</th><th style="width:80px">Sasia</th><th style="width:160px">Furnizuesi</th><th style="width:36px"></th></tr></thead>
               <tbody id="lxTrup"></tbody>
             </table>
           </div>
@@ -3972,7 +3995,79 @@
       lexoFletenPc(f);
     });
   })();
-  $('lxFotoKuti').addEventListener('click', function () { $('lxFotoKuti').classList.toggle('zmadhuar'); });
+  // Fotoja e fletës: rrota e mausit zmadhon aty ku është kursori, tërheqja me maus e lëviz,
+  // dy klikime zmadhojnë (ose kthejnë te krejt fleta). Fotoja s'del kurrë krejt jashtë kutisë.
+  var fotoPamja = (function () {
+    var kuti = $('lxFotoKuti'), img = $('lxFoto');
+    var s = 1, sMin = 1, x = 0, y = 0, terheqje = null;
+    function zbato() {
+      img.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')';
+    }
+    function kufizo() {
+      var w = img.naturalWidth * s, h = img.naturalHeight * s, kw = kuti.clientWidth, kh = kuti.clientHeight;
+      x = w <= kw ? (kw - w) / 2 : Math.min(0, Math.max(kw - w, x));
+      y = h <= kh ? (kh - h) / 2 : Math.min(0, Math.max(kh - h, y));
+    }
+    function pershtat() {
+      if (!img.naturalWidth || !kuti.clientWidth) return;
+      sMin = s = Math.min(kuti.clientWidth / img.naturalWidth, kuti.clientHeight / img.naturalHeight);
+      kufizo(); zbato();
+    }
+    function zmadho(faktori, cx, cy) {
+      if (!img.naturalWidth) return;
+      if (cx == null) { cx = kuti.clientWidth / 2; cy = kuti.clientHeight / 2; }
+      var sRe = Math.min(sMin * 12, Math.max(sMin, s * faktori));
+      x = cx - (cx - x) * sRe / s;
+      y = cy - (cy - y) * sRe / s;
+      s = sRe;
+      kufizo(); zbato();
+    }
+    function pika(ev) { var r = kuti.getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; }
+    img.addEventListener('load', pershtat);
+    kuti.addEventListener('wheel', function (ev) {
+      if (!img.naturalWidth) return;
+      ev.preventDefault();
+      var dy = ev.deltaMode === 1 ? ev.deltaY * 16 : ev.deltaY;
+      var p = pika(ev);
+      zmadho(Math.exp(-dy * 0.0015), p[0], p[1]);
+    }, { passive: false });
+    kuti.addEventListener('pointerdown', function (ev) {
+      if (ev.button !== 0 || !img.naturalWidth || ev.target.closest('button')) return;
+      terheqje = { id: ev.pointerId, px: ev.clientX, py: ev.clientY, x: x, y: y };
+      kuti.setPointerCapture(ev.pointerId);
+      kuti.classList.add('terhiqet');
+      ev.preventDefault();
+    });
+    kuti.addEventListener('pointermove', function (ev) {
+      if (!terheqje || ev.pointerId !== terheqje.id) return;
+      x = terheqje.x + ev.clientX - terheqje.px;
+      y = terheqje.y + ev.clientY - terheqje.py;
+      kufizo(); zbato();
+    });
+    function mbaroTerheqjen(ev) {
+      if (!terheqje || ev.pointerId !== terheqje.id) return;
+      terheqje = null;
+      kuti.classList.remove('terhiqet');
+    }
+    kuti.addEventListener('pointerup', mbaroTerheqjen);
+    kuti.addEventListener('pointercancel', mbaroTerheqjen);
+    kuti.addEventListener('dblclick', function (ev) {
+      if (ev.target.closest('button')) return;
+      if (s > sMin * 1.05) { pershtat(); return; }
+      var p = pika(ev);
+      zmadho(3, p[0], p[1]);
+    });
+    $('lxZmadho').addEventListener('click', function () { zmadho(1.5); });
+    $('lxZvogelo').addEventListener('click', function () { zmadho(1 / 1.5); });
+    $('lxPershtat').addEventListener('click', pershtat);
+    window.addEventListener('resize', function () {
+      if (!$('dlgLexim').classList.contains('hapur')) return;
+      if (s <= sMin * 1.001) pershtat(); else { kufizo(); zbato(); }
+    });
+    return {
+      pastro: function () { img.removeAttribute('src'); img.style.transform = ''; s = sMin = 1; x = y = 0; }
+    };
+  })();
 
   function statusiLeximit(tekst, gabim, spinner) {
     var s = $('lxStatusi');
@@ -3982,7 +4077,7 @@
     s.appendChild(el('span', null, tekst));
   }
   var MESAZHET_AI = {
-    'pa-konfigurim': 'Leximi automatik me AI s\'është aktivizuar ende. Shkruaji rreshtat me dorë duke parë foton (kliko foton për ta zmadhuar).',
+    'pa-konfigurim': 'Leximi automatik me AI s\'është aktivizuar ende. Shkruaji rreshtat me dorë duke parë foton (zmadhoje me rrotën e mausit).',
     'pa-hyrje': 'Për leximin me AI duhet të jesh i kyçur në llogari. Deri atëherë, shkruaji rreshtat me dorë.',
     'rrjeti': 'S\'ka lidhje me internetin. Shkruaji rreshtat me dorë ose provo përsëri.',
     'foto-shume-e-madhe': 'Fotoja është shumë e madhe. Provo përsëri.',
@@ -3994,8 +4089,7 @@
   async function lexoFletenPc(skedari) {
     lx.rreshtat = [];
     renderLeximinPc();
-    $('lxFotoKuti').classList.remove('zmadhuar');
-    $('lxFoto').removeAttribute('src');
+    fotoPamja.pastro();
     hapDialog('dlgLexim');
     statusiLeximit('Duke përgatitur foton…', false, true);
     var foto;
