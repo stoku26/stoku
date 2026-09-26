@@ -1121,7 +1121,7 @@
     <div class="fushe"><input id="afatEmri" type="text" autocomplete="off" autocorrect="off" placeholder="Emri i produktit" aria-label="Emri i produktit" enterkeyhint="next"></div>
     <div class="lx-dy">
       <div class="fushe"><label for="afatData">Data e skadimit</label><input id="afatData" type="date"></div>
-      <div class="fushe"><label for="afatSasia">Sasia (copë)</label><input id="afatSasia" type="text" inputmode="tel" autocomplete="off" placeholder="p.sh. 12 ose 60+30"></div>
+      <div class="fushe"><label for="afatSasia">Sasia (copë)</label><input id="afatSasia" type="text" inputmode="tel" autocomplete="off"></div>
     </div>
     <div class="fushe"><input id="afatFurnizuesi" type="text" list="afFurnizuesit" autocomplete="off" autocorrect="off" placeholder="Furnitori" aria-label="Furnitori" enterkeyhint="done"></div>
     <div class="af-status-veprime" id="afatStatusVeprime"></div>
@@ -4163,7 +4163,7 @@
     var f = $('afatFurnizuesi').value.trim();
     var sasiaTx = $('afatSasia').value.trim();
     var sasia = AF.lexoSasine(sasiaTx);
-    if (sasiaTx && sasia === '') { toast('Sasia duhet të jetë numër i plotë (p.sh. 12 ose 60+30).'); $('afatSasia').focus(); return; }
+    if (sasiaTx && sasia === '') { toast('Sasia duhet të jetë numër i plotë (p.sh. 12).'); $('afatSasia').focus(); return; }
     if (!b && !emri) { toast('Shkruaj barkodin ose emrin e produktit.'); $('afatBarkodi').focus(); return; }
     if (!AF.lexoDaten(data)) { toast('Zgjidh datën e skadimit.'); $('afatData').focus(); return; }
     var tani = Date.now();
