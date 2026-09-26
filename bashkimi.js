@@ -159,7 +159,7 @@
         return celesi(x.kategoriaId, x.barkodi) + '\u0001' + (x.emri || '') + '\u0001' + x.sasia + '\u0001' + kohaProd(x);
       }).sort().join('\u0002');
       var a = lista(g.afatet).map(function (x) {
-        return x.id + '\u0001' + kohaFold(x) + '\u0001' + (x.statusi || '') + '\u0001' + (x.data || '');
+        return x.id + '\u0001' + kohaFold(x) + '\u0001' + (x.statusi || '') + '\u0001' + (x.data || '') + '\u0001' + (x.sasia === undefined ? '' : x.sasia);
       }).sort().join('\u0002');
       return f + '\u0003' + p + '\u0003' + a;
     }

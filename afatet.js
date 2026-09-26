@@ -7,7 +7,7 @@
  *   E GJELBËR = në rregull.
  *   GRI       = i hequr nga rafti (i mbyllur, mbetet si histori).
  *
- * Afati: { id, barkodi, emri, data: 'VVVV-MM-DD', furnizuesi, shenim, statusi: 'aktiv'|'hequr',
+ * Afati: { id, barkodi, emri, data: 'VVVV-MM-DD', sasia (copë, ose '' nëse s'dihet), furnizuesi, statusi: 'aktiv'|'hequr',
  *          lajmeruarSe, hequrSe, krijuarSe, ndryshuarSe, krijuarNga }
  */
 (function (root) {
@@ -56,6 +56,21 @@
   }
 
   function ditetTekst(n) { return n === 1 ? '1 ditë' : n + ' ditë'; }
+
+  // Sasia: numër i plotë ≥ 0, ose '' kur s'është shkruar
+  function lexoSasine(v) {
+    if (v === null || v === undefined) return '';
+    var t = String(v).trim().replace(/\s+/g, '').replace(/(cope|copë|cop|pcs|kom|x)$/i, '');
+    if (!/^\d{1,6}$/.test(t)) return '';
+    return parseInt(t, 10);
+  }
+  function sasiaTekst(a) { return (a && a.sasia !== '' && a.sasia !== undefined && a.sasia !== null) ? a.sasia + ' copë' : ''; }
+  // Shuma e copëve për një listë afatesh (vetëm ato që e kanë sasinë)
+  function shumaCopeve(lista) {
+    var s = 0;
+    (lista || []).forEach(function (a) { if (typeof a.sasia === 'number') s += a.sasia; });
+    return s;
+  }
 
   // Teksti i veprimit të sugjeruar për menaxheren
   function pershkrimi(a, tani) {
@@ -128,7 +143,7 @@
   function mesazhiFurnizuesit(furnizuesi, lista) {
     var rr = lista.slice().sort(function (a, b) { return String(a.data).localeCompare(String(b.data)); }).map(function (a, i) {
       var n = ditetDeri(a.data);
-      return (i + 1) + '. ' + (a.emri || 'Produkt') + (a.barkodi ? ' (' + a.barkodi + ')' : '') + ' — skadon ' + formato(a.data) +
+      return (i + 1) + '. ' + (a.emri || 'Produkt') + (a.barkodi ? ' (' + a.barkodi + ')' : '') + (sasiaTekst(a) ? ' — ' + sasiaTekst(a) : '') + ' — skadon ' + formato(a.data) +
         (n < 0 ? ' (KA SKADUAR)' : n === 0 ? ' (sot)' : ' (për ' + ditetTekst(n) + ')');
     });
     return 'Përshëndetje' + (furnizuesi ? ' ' + furnizuesi : '') + ',\n\n' +
@@ -195,6 +210,7 @@
     return {
       barkodi: b,
       emri: String(x.emri || '').trim(),
+      sasia: lexoSasine(x.sasia),
       data: iso || '',
       dataOrigjinale: dataOrig,
       furnizuesi: String(x.furnizuesi || '').trim(),
@@ -208,7 +224,7 @@
     sot: sot, isoNgaData: isoNgaData, ditetDeri: ditetDeri, statusi: statusi, formato: formato,
     pershkrimi: pershkrimi, lexoDaten: lexoDaten, idERe: idERe, krahaso: krahaso, numero: numero,
     mesazhiFurnizuesit: mesazhiFurnizuesit, pergatitFoton: pergatitFoton, lexoMeAI: lexoMeAI,
-    normalizoRreshtin: normalizoRreshtin, ditetTekst: ditetTekst
+    normalizoRreshtin: normalizoRreshtin, ditetTekst: ditetTekst, lexoSasine: lexoSasine, sasiaTekst: sasiaTekst, shumaCopeve: shumaCopeve
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuAfatet = api;
