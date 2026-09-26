@@ -1576,6 +1576,7 @@
   async function kryeSinkronizimin() {
     if (!perdoruesi() || !window.__stokuCloud) { vendosStatusin('lokal'); return; }
     clearTimeout(sink.kohez); clearTimeout(sink.riprovo);
+    sink.kohez = null;
     if (sink.duke) { sink.serish = true; return; }
     sink.duke = true;
     vendosStatusin('pune');
@@ -1654,6 +1655,12 @@
   window.addEventListener('stoku-cloud-gati', kurNdryshonLlogaria);
   window.addEventListener('stoku-auth-ndryshoi', kurNdryshonLlogaria);
   window.addEventListener('online', function () { if (perdoruesi()) kryeSinkronizimin(); });
+  // Mbyllja e skedës/dritares me një ruajtje në pritje: dërgohet menjëherë
+  function sinkronizoMenjehereNesePret() {
+    if (sink.kohez && perdoruesi() && !sink.duke) { clearTimeout(sink.kohez); sink.kohez = null; kryeSinkronizimin(); }
+  }
+  document.addEventListener('visibilitychange', function () { if (document.hidden) sinkronizoMenjehereNesePret(); });
+  window.addEventListener('pagehide', sinkronizoMenjehereNesePret);
   document.addEventListener('visibilitychange', function () {
     if (!document.hidden && perdoruesi() && sink.statusi === 'gabim') kryeSinkronizimin();
   });
@@ -3715,6 +3722,7 @@
     };
     fn(api);
     ruaj();
+    planifikoSinkronizimin(300); // afatet dërgohen në cloud menjëherë pas çdo ndryshimi
     return para;
   }
   function zhbejAfatet(para) {
@@ -4410,7 +4418,7 @@
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
     updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential
   } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, runTransaction, onSnapshot, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  import { initializeFirestore, doc, getDoc, setDoc, runTransaction, onSnapshot, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
   var firebaseConfig = {
     apiKey: "AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY",
@@ -4426,7 +4434,8 @@
   try {
     var app = initializeApp(firebaseConfig);
     var auth = getAuth(app);
-    var db = getFirestore(app);
+    // ignoreUndefinedProperties: një fushë e zbrazët (undefined) s'e prish më krejt sinkronizimin
+    var db = initializeFirestore(app, { ignoreUndefinedProperties: true });
     var dokumenti = function () { return doc(db, 'dyqane', auth.currentUser.uid); };
 
     window.__stokuCloud = {
