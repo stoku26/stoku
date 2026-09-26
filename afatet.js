@@ -190,7 +190,7 @@
     var rr = lista.slice().sort(function (a, b) { return String(a.data).localeCompare(String(b.data)); }).map(function (a, i) {
       var n = ditetDeri(a.data);
       return (i + 1) + '. ' + (a.emri || 'Produkt') + (a.barkodi ? ' (' + a.barkodi + ')' : '') + (sasiaTekst(a) ? ' — ' + sasiaTekst(a) : '') + ' — skadon ' + formato(a.data) +
-        (n < 0 ? ' (KA SKADUAR)' : n === 0 ? ' (sot)' : ' (për ' + ditetTekst(n) + ')');
+        (n === null ? '' : n < 0 ? ' (KA SKADUAR)' : n === 0 ? ' (sot)' : ' (për ' + ditetTekst(n) + ')');
     });
     return 'Përshëndetje' + (furnizuesi ? ' ' + furnizuesi : '') + ',\n\n' +
       'Këto produkte në dyqanin tonë ' + (lista.length === 1 ? 'i afrohet' : 'u afrohen') + ' afatit të skadimit:\n\n' +

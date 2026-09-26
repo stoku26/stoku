@@ -13,6 +13,8 @@
  *  - Renditja e folderave: fiton ana që e ka ndryshuar renditjen më së fundi (rendiKoha).
  *  - Shënimet e fshirjeve më të vjetra se 120 ditë hiqen, që dokumenti të mos rritet pafundësisht.
  *  - Afatet (datat e skadimit): njësoj — fiton ndryshimi më i ri (ndryshuarSe), fshirjet ruhen me id.
+ *  - Historiku i afateve ruhet i plotë: dyqani në Firebase ndahet në disa dokumente (ruajtja.js),
+ *    kështu s'ka më kufirin 1 MB të një dokumenti.
  */
 (function (root) {
   'use strict';

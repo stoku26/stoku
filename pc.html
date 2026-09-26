@@ -633,6 +633,11 @@
   }
   .lexim-foto-kontrolle button:hover { background: rgba(0,0,0,.8); }
   .lexim-ndihme { margin: 6px 2px 0; font-size: 12px; color: var(--gri); }
+  /* Lapsi i kuq: vizatimet e përdoruesit mbi foto (ngjiten te fleta kur zmadhohet/lëvizet) */
+  .lexim-vizatime { position: absolute; left: 0; top: 0; transform-origin: 0 0; pointer-events: none; overflow: visible; }
+  .lexim-foto.laps { cursor: crosshair; }
+  .lexim-foto-kontrolle button.aktiv { background: #e53935; border-color: #e53935; }
+  .lexim-foto-kontrolle button:disabled { opacity: .45; cursor: default; }
   .lexim-statusi { display: flex; align-items: center; gap: 10px; padding: 11px 13px; border-radius: 10px; background: var(--hover); margin-bottom: 10px; line-height: 1.45; }
   .lexim-statusi.gabim { background: var(--af-kuqe-bg); color: var(--af-kuqe-tx); }
   .lexim-rreshtat { max-height: calc(98vh - 296px); min-height: 260px; overflow: auto; border: 1px solid var(--vije); border-radius: 12px; }
@@ -1005,9 +1010,12 @@
               <button type="button" id="lxZvogelo" title="Zvogëlo" aria-label="Zvogëlo">−</button>
               <button type="button" id="lxZmadho" title="Zmadho" aria-label="Zmadho">+</button>
               <button type="button" id="lxPershtat" title="Shfaq krejt fletën">Përshtat</button>
+              <button type="button" id="lxLaps" title="Laps i kuq: vizato mbi foto rreshtat që i ke kontrolluar">✎ Laps</button>
+              <button type="button" id="lxZhbejVize" title="Zhbëj vizatimin e fundit (Ctrl+Z)" disabled>↶</button>
+              <button type="button" id="lxFshiVizat" title="Fshi krejt vizatimet" disabled>Fshi</button>
             </div>
           </div>
-          <div class="lexim-ndihme">Rrota e mausit: zmadho/zvogëlo · Tërhiq me maus: lëviz · Dy klikime: zmadho ose përshtat</div>
+          <div class="lexim-ndihme" id="lxNdihme">Rrota e mausit: zmadho/zvogëlo · Tërhiq me maus: lëviz · Dy klikime: zmadho ose përshtat · ✎ Laps: shëno me të kuqe</div>
         </div>
         <div>
           <div class="lexim-statusi" id="lxStatusi"></div>
@@ -1248,8 +1256,9 @@
 <div class="toast" id="toast" role="status" aria-live="polite"><span class="toast-tekst" id="toastTekst"></span><button class="btn fsheh" type="button" id="toastBtn"></button></div>
 
 <script src="xlsx.js?v=58"></script>
-<script src="bashkimi.js?v=58"></script>
-<script src="afatet.js?v=75"></script>
+<script src="bashkimi.js?v=81"></script>
+<script src="ruajtja.js?v=81"></script>
+<script src="afatet.js?v=80"></script>
 <script>
 (function () {
   'use strict';
@@ -1591,6 +1600,9 @@
       vendosStatusin('ok');
     } else {
       vendosStatusin(perdoruesi() ? 'gabim' : 'lokal');
+      if (/maximum|exceeds|too large/i.test(String(rez.arsye || ''))) {
+        toast('Të dhënat e dyqanit kanë arritur kufirin e Firebase-it (1 MB) dhe s\'po ruhen në cloud. Fshi afatet/produktet e vjetra ose kontakto administratorin.', { ms: 15000 });
+      }
       if (perdoruesi()) sink.riprovo = setTimeout(kryeSinkronizimin, 15000);
     }
     if (sink.serish) { sink.serish = false; planifikoSinkronizimin(300); }
@@ -4033,8 +4045,54 @@
   var fotoPamja = (function () {
     var kuti = $('lxFotoKuti'), img = $('lxFoto');
     var s = 1, sMin = 1, x = 0, y = 0, terheqje = null;
+    // ---- Lapsi i kuq ----
+    // Vizatimet ruhen në koordinatat e fotos (piksela të fotos), në një SVG që merr të njëjtin
+    // zhvendosje/zmadhim si fotoja — kështu çdo vijë mbetet saktë te rreshti ku u vizatua.
+    // Për fletët nga telefoni ruhen përkohësisht në këtë kompjuter derisa fleta të ruhet/fshihet.
+    var SVGNS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(SVGNS, 'svg');
+    svg.setAttribute('class', 'lexim-vizatime');
+    kuti.insertBefore(svg, kuti.querySelector('.lexim-foto-kontrolle'));
+    var vizatime = [], laps = false, celesiVizatimeve = null, vizaAktive = null;
+    function pikaNeFoto(ev) { var p = pika(ev); return [(p[0] - x) / s, (p[1] - y) / s]; }
+    function dNgaPikat(pp) {
+      return pp.map(function (q, i) { return (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1); }).join('') + (pp.length === 1 ? 'l0.1 0' : '');
+    }
+    function vizatoTeGjitha() {
+      svg.textContent = '';
+      vizatime.forEach(function (v) {
+        var path = document.createElementNS(SVGNS, 'path');
+        path.setAttribute('d', dNgaPikat(v.p));
+        path.setAttribute('fill', 'none'); path.setAttribute('stroke', '#e53935'); path.setAttribute('stroke-opacity', '0.9');
+        path.setAttribute('stroke-width', String(v.w)); path.setAttribute('stroke-linecap', 'round'); path.setAttribute('stroke-linejoin', 'round');
+        svg.appendChild(path);
+        v.el = path;
+      });
+      rifreskoButonatELapsit();
+    }
+    function rifreskoButonatELapsit() {
+      $('lxZhbejVize').disabled = !vizatime.length;
+      $('lxFshiVizat').disabled = !vizatime.length;
+    }
+    function ruajVizatimet() {
+      if (!celesiVizatimeve) return;
+      try {
+        if (vizatime.length) localStorage.setItem(celesiVizatimeve, JSON.stringify(vizatime.map(function (v) { return { w: v.w, p: v.p }; })));
+        else localStorage.removeItem(celesiVizatimeve);
+      } catch (e) { /* p.sh. hapësirë e plotë — vizatimet mbeten vetëm në këtë seancë */ }
+    }
+    function zhbejVizatimin() { if (vizatime.length) { vizatime.pop(); vizatoTeGjitha(); ruajVizatimet(); } }
+    function vendosLapsin(po) {
+      laps = po;
+      $('lxLaps').classList.toggle('aktiv', po);
+      kuti.classList.toggle('laps', po);
+      $('lxNdihme').textContent = po
+        ? '✎ Laps: vizato me maus mbi rreshtin e kontrolluar · Rrota: zmadho/zvogëlo · Për ta lëvizur foton: fik lapsin ose tërhiq me butonin e djathtë · Ctrl+Z: zhbëj'
+        : 'Rrota e mausit: zmadho/zvogëlo · Tërhiq me maus: lëviz · Dy klikime: zmadho ose përshtat · ✎ Laps: shëno me të kuqe';
+    }
     function zbato() {
       img.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')';
+      svg.style.transform = img.style.transform;
     }
     function kufizo() {
       var w = img.naturalWidth * s, h = img.naturalHeight * s, kw = kuti.clientWidth, kh = kuti.clientHeight;
@@ -4043,6 +4101,8 @@
     }
     function pershtat() {
       if (!img.naturalWidth || !kuti.clientWidth) return;
+      svg.setAttribute('width', img.naturalWidth); svg.setAttribute('height', img.naturalHeight);
+      svg.setAttribute('viewBox', '0 0 ' + img.naturalWidth + ' ' + img.naturalHeight);
       sMin = s = Math.min(kuti.clientWidth / img.naturalWidth, kuti.clientHeight / img.naturalHeight);
       kufizo(); zbato();
     }
@@ -4064,20 +4124,41 @@
       var p = pika(ev);
       zmadho(Math.exp(-dy * 0.0015), p[0], p[1]);
     }, { passive: false });
+    kuti.addEventListener('contextmenu', function (ev) { if (laps) ev.preventDefault(); });
     kuti.addEventListener('pointerdown', function (ev) {
-      if (ev.button !== 0 || !img.naturalWidth || ev.target.closest('button')) return;
+      if (!img.naturalWidth || ev.target.closest('button')) return;
+      // Me laps: butoni i majtë vizaton; i djathti (ose i mesmi) e lëviz foton
+      if (laps && ev.button === 0) {
+        var q = pikaNeFoto(ev);
+        vizaAktive = { w: Math.max(1, 3.5 / s), p: [q] };
+        vizatime.push(vizaAktive);
+        vizatoTeGjitha();
+        kuti.setPointerCapture(ev.pointerId);
+        vizaAktive.id = ev.pointerId;
+        ev.preventDefault();
+        return;
+      }
+      if (ev.button !== 0 && !(laps && (ev.button === 2 || ev.button === 1))) return;
       terheqje = { id: ev.pointerId, px: ev.clientX, py: ev.clientY, x: x, y: y };
       kuti.setPointerCapture(ev.pointerId);
       kuti.classList.add('terhiqet');
       ev.preventDefault();
     });
     kuti.addEventListener('pointermove', function (ev) {
+      if (vizaAktive && ev.pointerId === vizaAktive.id) {
+        var q = pikaNeFoto(ev), f = vizaAktive.p[vizaAktive.p.length - 1];
+        if (Math.abs(q[0] - f[0]) * s + Math.abs(q[1] - f[1]) * s < 1.5) return;
+        vizaAktive.p.push(q);
+        vizaAktive.el.setAttribute('d', dNgaPikat(vizaAktive.p));
+        return;
+      }
       if (!terheqje || ev.pointerId !== terheqje.id) return;
       x = terheqje.x + ev.clientX - terheqje.px;
       y = terheqje.y + ev.clientY - terheqje.py;
       kufizo(); zbato();
     });
     function mbaroTerheqjen(ev) {
+      if (vizaAktive && ev.pointerId === vizaAktive.id) { vizaAktive = null; ruajVizatimet(); rifreskoButonatELapsit(); return; }
       if (!terheqje || ev.pointerId !== terheqje.id) return;
       terheqje = null;
       kuti.classList.remove('terhiqet');
@@ -4085,7 +4166,7 @@
     kuti.addEventListener('pointerup', mbaroTerheqjen);
     kuti.addEventListener('pointercancel', mbaroTerheqjen);
     kuti.addEventListener('dblclick', function (ev) {
-      if (ev.target.closest('button')) return;
+      if (ev.target.closest('button') || laps) return;
       if (s > sMin * 1.05) { pershtat(); return; }
       var p = pika(ev);
       zmadho(3, p[0], p[1]);
@@ -4093,12 +4174,36 @@
     $('lxZmadho').addEventListener('click', function () { zmadho(1.5); });
     $('lxZvogelo').addEventListener('click', function () { zmadho(1 / 1.5); });
     $('lxPershtat').addEventListener('click', pershtat);
+    $('lxLaps').addEventListener('click', function () { vendosLapsin(!laps); });
+    $('lxZhbejVize').addEventListener('click', zhbejVizatimin);
+    $('lxFshiVizat').addEventListener('click', async function () {
+      if (!vizatime.length) return;
+      if (!(await konfirmo('Të fshihen krejt vizatimet?', 'Vijat e kuqe në foto hiqen.', 'Fshi'))) return;
+      vizatime = []; vizatoTeGjitha(); ruajVizatimet();
+    });
+    document.addEventListener('keydown', function (ev) {
+      if (!$('dlgLexim').classList.contains('hapur') || !(ev.ctrlKey || ev.metaKey) || ev.key.toLowerCase() !== 'z') return;
+      if (ev.target && /^(INPUT|TEXTAREA)$/.test(ev.target.tagName)) return; // Ctrl+Z në fushë = zhbëj tekstin
+      ev.preventDefault();
+      zhbejVizatimin();
+    });
     window.addEventListener('resize', function () {
       if (!$('dlgLexim').classList.contains('hapur')) return;
       if (s <= sMin * 1.001) pershtat(); else { kufizo(); zbato(); }
     });
     return {
-      pastro: function () { img.removeAttribute('src'); img.style.transform = ''; s = sMin = 1; x = y = 0; }
+      pastro: function () {
+        img.removeAttribute('src'); img.style.transform = ''; svg.style.transform = ''; s = sMin = 1; x = y = 0;
+        vizatime = []; vizaAktive = null; celesiVizatimeve = null; vendosLapsin(false); vizatoTeGjitha();
+      },
+      // Fletët nga telefoni: vizatimet ruhen me id-në e fletës (kthehen kur hapet sërish)
+      caktoVizatimet: function (celesi) {
+        celesiVizatimeve = celesi || null;
+        vizatime = [];
+        if (celesiVizatimeve) { try { vizatime = JSON.parse(localStorage.getItem(celesiVizatimeve) || '[]') || []; } catch (e) { vizatime = []; } }
+        vizatoTeGjitha();
+      },
+      fshiVizatimet: function (celesi) { try { localStorage.removeItem(celesi); } catch (e) { /* ok */ } }
     };
   })();
 
@@ -4183,6 +4288,7 @@
     });
   }
   function hiqFletenETelefonit(id) {
+    fotoPamja.fshiVizatimet('stoku:vizatime:' + id);
     fletetTel.teMbyllura[id] = true;
     fletetTel.lista = fletetTel.lista.filter(function (f) { return f.id !== id; });
     if (window.__stokuCloud && window.__stokuCloud.fshijFleten) window.__stokuCloud.fshijFleten(id);
@@ -4196,7 +4302,8 @@
     fletetTel.hapur = f.id;
     lx.rreshtat = rreshtatNgaAI(f.rreshtat);
     fotoPamja.pastro();
-    if (f.foto) $('lxFoto').src = f.foto;
+    fotoPamja.caktoVizatimet('stoku:vizatime:' + f.id);
+    if (typeof f.foto === 'string' && f.foto.indexOf('data:image/') === 0) $('lxFoto').src = f.foto;
     hapDialog('dlgLexim');
     var nd = lx.rreshtat.filter(function (r) { return r.dyshim; }).length;
     statusiLeximit('Fletë nga telefoni' + (f.nga ? ' (' + f.nga + ')' : '') + (f.krijuarSe ? ', ' + dataOra(f.krijuarSe) : '') + ' — ' +
@@ -4436,6 +4543,9 @@
     var auth = getAuth(app);
     // ignoreUndefinedProperties: një fushë e zbrazët (undefined) s'e prish më krejt sinkronizimin
     var db = initializeFirestore(app, { ignoreUndefinedProperties: true });
+    // Dyqani ruhet i ndarë në disa dokumente (ruajtja.js) — pa kufirin 1 MB të një dokumenti
+    var ruajtja = window.StokuRuajtja.krijo({ doc: doc, getDoc: getDoc, setDoc: setDoc, runTransaction: runTransaction, onSnapshot: onSnapshot, collection: collection },
+      db, function () { return auth.currentUser ? auth.currentUser.uid : null; });
     var dokumenti = function () { return doc(db, 'dyqane', auth.currentUser.uid); };
 
     window.__stokuCloud = {
@@ -4450,34 +4560,12 @@
       },
       perdoruesiAktual() { return auth.currentUser; },
       async token() { return auth.currentUser ? await auth.currentUser.getIdToken() : null; },
-      async merr() {
-        if (!auth.currentUser) return { ok: false };
-        try { var r = await getDoc(dokumenti()); return { ok: true, gjendja: r.exists() ? r.data() : null }; } catch (e) { return gabim(e); }
-      },
-      async ruaj(g) {
-        if (!auth.currentUser) return { ok: false };
-        try { await setDoc(dokumenti(), g); return { ok: true }; } catch (e) { return gabim(e); }
-      },
-      async bashkoDheRuaj(fn) {
-        if (!auth.currentUser) return { ok: false };
-        try {
-          var ref = dokumenti();
-          var g = await runTransaction(db, async function (tx) {
-            var s = await tx.get(ref);
-            var e = fn(s.exists() ? s.data() : null);
-            tx.set(ref, e);
-            return e;
-          });
-          return { ok: true, gjendja: g };
-        } catch (e) { return gabim(e); }
-      },
+      merr() { return ruajtja.merr(); },
+      ruaj(g) { return ruajtja.ruaj(g); },
+      bashkoDheRuaj(fn) { return ruajtja.bashkoDheRuaj(fn); },
       // Dëgjim i drejtpërdrejtë: sa herë që telefoni/PDA ruan diçka, kompjuteri e merr brenda sekondës.
-      degjo(cb, cbGabim) {
-        if (!auth.currentUser) return function () {};
-        return onSnapshot(dokumenti(), function (s) {
-          cb(s.exists() ? s.data() : null, s.metadata.hasPendingWrites);
-        }, function (e) { if (cbGabim) cbGabim(e); });
-      },
+      degjo(cb, cbGabim) { return ruajtja.degjo(cb, cbGabim); },
+      modaPjeseve() { return ruajtja.modaPjeseve(); },
       // Fletët e fotografuara në telefon dhe të dërguara këtu për kontroll (më e vjetra e para)
       degjoFletet(cb, cbGabim) {
         if (!auth.currentUser) return function () {};
