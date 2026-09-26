@@ -158,21 +158,37 @@
   }
 
   // Zvogëlon foton (max 2000 px, JPEG) që ngarkimi të jetë i shpejtë edhe me internet të dobët.
+  // Fotoja dërgohet në rezolucionin më të madh të mundshëm (sa e bën kamera), pa e zvogëluar.
+  // Kufijtë vijnë vetëm nga pajisja/shërbimi: kanvasi i iPhone-it (~16.7 MP) dhe madhësia që pranon AI-ja.
+  var FOTO_PIKSELA_MAKS = 16777216;          // 4096×4096 — kufiri i kanvasit në Safari/iPhone
+  var FOTO_ANA_MAKS = 8192;
+  var FOTO_BASE64_MAKS = 14 * 1024 * 1024;   // ≈ 10 MB JPEG (Worker-i pranon deri 16 MB)
   function pergatitFoton(skedari) {
     return new Promise(function (zgjidh, refuzo) {
       var url = URL.createObjectURL(skedari);
       var img = new Image();
       img.onload = function () {
-        var maks = 2000, w = img.naturalWidth, h = img.naturalHeight;
-        var k = Math.min(1, maks / Math.max(w, h));
-        var c = document.createElement('canvas');
-        c.width = Math.round(w * k); c.height = Math.round(h * k);
-        var ctx = c.getContext('2d');
-        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
-        ctx.drawImage(img, 0, 0, c.width, c.height);
-        URL.revokeObjectURL(url);
-        var dataUrl = c.toDataURL('image/jpeg', 0.86);
-        zgjidh({ dataUrl: dataUrl, base64: dataUrl.split(',')[1], mime: 'image/jpeg' });
+        var w = img.naturalWidth, h = img.naturalHeight;
+        var k = Math.min(1, FOTO_ANA_MAKS / Math.max(w, h), Math.sqrt(FOTO_PIKSELA_MAKS / (w * h)));
+        // Cilësia e JPEG-ut: e lartë; ulet (e pastaj zvogëlohet) vetëm nëse fotoja kalon kufirin e madhësisë
+        var provat = [[k, 0.95], [k, 0.9], [k, 0.85], [k * 0.85, 0.88], [k * 0.7, 0.88], [k * 0.55, 0.88]];
+        function prova(i) {
+          var kk = provat[i][0], cil = provat[i][1];
+          var c = document.createElement('canvas');
+          c.width = Math.max(1, Math.round(w * kk)); c.height = Math.max(1, Math.round(h * kk));
+          var ctx = c.getContext('2d');
+          ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, c.width, c.height);
+          var dataUrl = c.toDataURL('image/jpeg', cil);
+          c.width = c.height = 0; // liro memorien menjëherë (telefonat/PDA me pak RAM)
+          if (dataUrl.length < 100) { URL.revokeObjectURL(url); refuzo(new Error('foto-e-palexueshme')); return; }
+          var base64 = dataUrl.slice(dataUrl.indexOf(',') + 1);
+          if (base64.length > FOTO_BASE64_MAKS && i < provat.length - 1) { prova(i + 1); return; }
+          URL.revokeObjectURL(url);
+          zgjidh({ dataUrl: dataUrl, base64: base64, mime: 'image/jpeg', gjeresia: Math.round(w * kk), lartesia: Math.round(h * kk) });
+        }
+        try { prova(0); } catch (e) { URL.revokeObjectURL(url); refuzo(e); }
       };
       img.onerror = function () { URL.revokeObjectURL(url); refuzo(new Error('foto-e-palexueshme')); };
       img.src = url;

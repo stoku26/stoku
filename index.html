@@ -1102,9 +1102,9 @@
 
 <div id="toast"></div>
 
-<script src="xlsx.js?v=56"></script>
-<script src="bashkimi.js?v=56"></script>
-<script src="afatet.js?v=56"></script>
+<script src="xlsx.js?v=57"></script>
+<script src="bashkimi.js?v=57"></script>
+<script src="afatet.js?v=57"></script>
 <script>
 (function () {
   'use strict';
@@ -4008,7 +4008,7 @@
     catch (e) { statusiLeximit('Fotoja s\'u hap. Provo një foto tjetër.', true); return; }
     $('lxFoto').src = foto.dataUrl;
     if (!perdoruesiAktual()) { statusiLeximit(MESAZHET_AI['pa-hyrje'], true); shtoRreshtLeximi(); return; }
-    statusiLeximit('Duke e lexuar fletën… (zakonisht 5–20 sekonda)', false, true);
+    statusiLeximit('Duke e lexuar fletën me AI… (zakonisht 5–20 sekonda)' + (foto.gjeresia ? ' · foto ' + foto.gjeresia + '×' + foto.lartesia + ' (' + (foto.gjeresia * foto.lartesia / 1e6).toFixed(1) + ' MP)' : ''), false, true);
     var tokeni = null;
     try { tokeni = window.__stokuCloud && window.__stokuCloud.token ? await window.__stokuCloud.token() : null; } catch (e) { /* ok */ }
     var rez = await AF.lexoMeAI(foto, tokeni);
