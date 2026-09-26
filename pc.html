@@ -4588,14 +4588,15 @@
     };
     var eshteCastIQete = function () {
       var a = document.activeElement;
-      if (poShkruan(a) && a.value) return false;
+      if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA') && a.value) return false;
       if (document.querySelector('.mbulese.hapur') || $('menu').classList.contains('hapur')) return false;
       if (sink.duke || sink.kohez) return false;
       return true;
     };
     var rinisKurTeJeteQete = function () {
       if (!__perditesimGati) return;
-      if (document.hidden || eshteCastIQete()) { location.reload(); return; }
+      // Në sfond: rinis menjëherë, por jo ndërsa një ruajtje në cloud është në rrugë
+      if (document.hidden ? !(sink.duke || sink.kohez) : eshteCastIQete()) { location.reload(); return; }
       clearTimeout(__perditesimKohez);
       __perditesimKohez = setTimeout(rinisKurTeJeteQete, 10000);
     };

@@ -5053,6 +5053,7 @@
     });
   }
   window.addEventListener('stoku-porta-hapur', function () { setTimeout(pyetPerNjoftimet, 1500); });
+  window.addEventListener('stoku-porta-hapur', fokusoBarkodin); // PDA: kursori te barkodi sapo hapet dyqani (edhe pas rinisjes për përditësim)
   setTimeout(pyetPerNjoftimet, 2000);
   document.addEventListener('visibilitychange', function () { if (!document.hidden) kontrolloNjoftimet(); });
   setInterval(function () { if (!document.hidden) kontrolloNjoftimet(); }, 30 * 60 * 1000);
@@ -5110,7 +5111,7 @@
     };
     var eshteCastIQete = function () {
       var a = document.activeElement;
-      if (eshteFushe(a) && a.value) return false;                                            // po shkruan diçka
+      if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA') && a.value) return false;  // po shkruan diçka
       if (document.querySelector('.mbulese.hapur:not(#dlgAfatet):not(#dlgOpsione)')) return false; // dialog i hapur
       if ($('kamera').classList.contains('hapur')) return false;
       if (dukeSinkronizuar || sinkronizoKohezi) return false;                                // ruajtje në cloud në pritje
@@ -5126,7 +5127,8 @@
     };
     var rinisKurTeJeteQete = function () {
       if (!__perditesimGati) return;
-      if (document.hidden || eshteCastIQete()) { rinis(); return; }
+      // Në sfond: rinis menjëherë, por jo ndërsa një ruajtje në cloud është në rrugë (do të priste sinkronizimin tjetër)
+      if (document.hidden ? !(dukeSinkronizuar || sinkronizoKohezi) : eshteCastIQete()) { rinis(); return; }
       clearTimeout(__perditesimKohez);
       __perditesimKohez = setTimeout(rinisKurTeJeteQete, 10000);
     };
