@@ -722,10 +722,24 @@
   .kfh-statusi.gabim { color: var(--af-kuqe-tx); font-weight: 600; }
   .kfh-zgjedhjet { display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px; }
   .kfh-zgjedhjet .btn { width: 100%; flex: none; min-height: 52px; font-size: 15.5px; }
-  .af-sink { margin: -4px 2px 10px; font-size: 12px; color: var(--gri); min-height: 0; }
-  .af-sink:empty { display: none; }
-  .af-sink.ok { color: var(--af-gjelber-tx); }
-  .af-sink.gabim { color: var(--af-kuqe-tx); font-weight: 700; }
+  /* Ikona e cloud-it në krye të faqes së afateve (ruajtur / duke u ruajtur / s'u ruajt) */
+  .af-sink {
+    flex: none; position: relative; width: 42px; height: 42px; border-radius: 50%; border: 0; padding: 0;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    background: rgba(255,255,255,.14); color: #fff; -webkit-tap-highlight-color: transparent;
+    transition: background .2s;
+  }
+  .af-sink[hidden] { display: none; }
+  .af-sink:active { background: rgba(255,255,255,.28); }
+  .af-sink svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .af-sink.pune svg { animation: afSinkPulso 1.1s ease-in-out infinite; }
+  .af-sink.gabim { background: #e5483e; }
+  .af-sink.ok::after {
+    content: ''; position: absolute; right: 5px; top: 5px; width: 9px; height: 9px; border-radius: 50%;
+    background: #4ade80; box-shadow: 0 0 0 2px var(--header);
+  }
+  @keyframes afSinkPulso { 50% { opacity: .4; transform: translateY(-1px); } }
+  @media (prefers-reduced-motion: reduce) { .af-sink.pune svg { animation: none; } }
   .af-pda-hint { margin: -6px 2px 12px; font-size: 12.5px; color: var(--gri); }
   .af-majtas { flex: 1; min-width: 0; }
   .af-emri { font-size: 15.5px; font-weight: 600; overflow-wrap: anywhere; }
@@ -1092,10 +1106,10 @@
     <div class="opsione-krye">
       <button id="afPrapa" class="btn-ikone" type="button" aria-label="Mbrapa">←</button>
       <h2 id="afTitulli">Afatet e produkteve</h2>
+      <button class="af-sink" id="afSinkStatus" type="button" hidden></button>
     </div>
     <div class="faqe-trup" id="afTrup">
       <div class="af-permb" id="afPermb"></div>
-      <div class="af-sink" id="afSinkStatus" aria-live="polite"></div>
       <div class="af-veprime-krye">
         <button class="btn me-ikone" id="afFotografo" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>Fotografo fletën</button>
         <button class="btn dyte me-ikone" id="afGaleria" type="button" style="flex:none;padding:0 14px" aria-label="Zgjidh foto nga galeria" title="Nga galeria"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"></path></svg></button>
@@ -2519,10 +2533,20 @@
   function vendosStatusinEAfateve(g) {
     var e = $('afSinkStatus');
     if (!e) return;
-    if (!perdoruesiAktual()) { e.textContent = ''; e.className = 'af-sink'; return; }
+    if (!perdoruesiAktual()) { e.hidden = true; return; }
+    var teksti = g === 'ok' ? 'Ruajtur në cloud · ' + oraTani() : g === 'gabim' ? 'S\'u ruajt në cloud (pa internet?) — riprovohet vetë' : 'Duke u ruajtur në cloud…';
+    e.hidden = false;
     e.className = 'af-sink ' + g;
-    e.textContent = g === 'ok' ? '✓ Ruajtur në cloud · ' + oraTani() : g === 'gabim' ? 'S\'u ruajt në cloud (pa internet?) — riprovohet vetë' : 'Duke u ruajtur në cloud…';
+    e.innerHTML = IKONAT_SINK[g] || IKONAT_SINK.pune;
+    e.title = teksti;
+    e.setAttribute('aria-label', teksti);
   }
+  var IKONAT_SINK = {
+    ok: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16.5 14.5-4.8 4.8-2.2-2.2"></path><path d="M5 17.74A7 7 0 1 1 15.71 10h1.79a4.5 4.5 0 0 1 1.5 8.74"></path></svg>',
+    pune: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 13v8"></path><path d="M4 14.9A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.24"></path><path d="m8 17 4-4 4 4"></path></svg>',
+    gabim: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2 2 20 20"></path><path d="M5.78 5.78A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.31-.19"></path><path d="M21.53 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7 7 0 0 0 10 5.07"></path></svg>'
+  };
+  $('afSinkStatus').addEventListener('click', function () { toast($('afSinkStatus').title); });
 
   function vendosStatusinCloud(teksti) {
     var el = $('cloudStatusi');
