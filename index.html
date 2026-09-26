@@ -810,9 +810,6 @@
   .lx-sasia { position: relative; }
   .lx-sasia input { padding-right: 52px; }
   .lx-sasia::after { content: 'copë'; position: absolute; right: 14px; top: 22px; transform: translateY(-50%); font-size: 13px; font-weight: 700; color: var(--gri); pointer-events: none; }
-  .njesi-kuti { position: relative; }
-  .njesi-kuti input { padding-right: 56px; }
-  .njesi-kuti .njesi { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 13px; font-weight: 700; color: var(--gri); pointer-events: none; }
   .lx-dy { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
   .lx-hiq { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border: 0; border-radius: 15px; background: transparent; color: var(--gri); font-size: 16px; cursor: pointer; }
   .lx-shenim { font-size: 12px; margin: -2px 2px 6px; color: var(--gri); }
@@ -1239,7 +1236,7 @@
     <div class="fushe"><input id="afatEmri" type="text" autocomplete="off" autocorrect="off" placeholder="Emri i produktit" aria-label="Emri i produktit" enterkeyhint="next"></div>
     <div class="lx-dy">
       <div class="fushe"><label for="afatData">Data e skadimit</label><input id="afatData" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="DD-MM-VVVV"></div>
-      <div class="fushe"><label for="afatSasia">Sasia</label><div class="njesi-kuti"><input id="afatSasia" type="text" inputmode="tel" autocomplete="off"><span class="njesi">copë</span></div></div>
+      <div class="fushe"><label for="afatSasia">Sasia</label><input id="afatSasia" type="text" inputmode="tel" autocomplete="off" placeholder="Copë"></div>
     </div>
     <div class="fushe"><input id="afatFurnizuesi" type="text" list="afFurnizuesit" autocomplete="off" autocorrect="off" placeholder="Furnitori" aria-label="Furnitori" enterkeyhint="done"></div>
     <div class="af-status-veprime" id="afatStatusVeprime"></div>
