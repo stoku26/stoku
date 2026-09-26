@@ -128,21 +128,26 @@
     return null;
   }
 
-  // ---- Fusha e datës me numra (DD.MM.VVVV), pa kalendar: pikat shtohen vetë gjatë shkrimit ----
-  // "01102026" → "01.10.2026"; "1.10.26" → "01.10.26". Vlera e brendshme mbetet 'VVVV-MM-DD'.
+  // ---- Fusha e datës me numra (DD-MM-VVVV), pa kalendar: vizat shtohen vetë gjatë shkrimit ----
+  // "01102026" → "01-10-2026"; "1-10-26" ose "1.10.26" → "01-10-26". Vlera e brendshme mbetet 'VVVV-MM-DD'.
   function formatoDatenGjateShkrimit(raw) {
     var d = '';
     for (var i = 0; i < raw.length && d.length < 8; i++) {
       var c = raw.charAt(i);
       if (c >= '0' && c <= '9') d += c;
-      else if (d.length === 1 || d.length === 3) d = d.slice(0, -1) + '0' + d.slice(-1); // "1." → "01."
+      else if (d.length === 1 || d.length === 3) d = d.slice(0, -1) + '0' + d.slice(-1); // "1-" → "01-"
     }
     var v = d.slice(0, 2);
-    if (d.length >= 2) v += '.' + d.slice(2, 4);
-    if (d.length >= 4) v += '.' + d.slice(4, 8);
+    if (d.length >= 2) v += '-' + d.slice(2, 4);
+    if (d.length >= 4) v += '-' + d.slice(4, 8);
     return v;
   }
-  // Vetëm data e plotë (ditë.muaj.vit) → 'VVVV-MM-DD'; gjysmë e shkruar ("12.10") → null
+  // Data për fushë: 'VVVV-MM-DD' → 'DD-MM-VVVV'
+  function formatoPerFushe(iso) {
+    var d = dataNgaIso(iso);
+    return d ? dy(d.getDate()) + '-' + dy(d.getMonth() + 1) + '-' + d.getFullYear() : '';
+  }
+  // Vetëm data e plotë (ditë-muaj-vit) → 'VVVV-MM-DD'; gjysmë e shkruar ("12-10") → null
   function lexoDatenEFushes(v) {
     var t = String(v || '').trim();
     return /^\d{1,2}[.\/-]\d{1,2}[.\/-](\d{2}|\d{4})$/.test(t) ? lexoDaten(t) : null;
@@ -152,7 +157,7 @@
     inp.inputMode = 'numeric';
     inp.autocomplete = 'off';
     inp.maxLength = 10;
-    inp.placeholder = 'DD.MM.VVVV';
+    inp.placeholder = 'DD-MM-VVVV';
     inp.style.fontVariantNumeric = 'tabular-nums';
     // capture: formatohet para dëgjuesve të tjerë të fushës, që ata të marrin vlerën e rregulluar
     inp.addEventListener('input', function (ev) {
@@ -281,7 +286,7 @@
     DITET_PARALAJMERIMI: DITET_PARALAJMERIMI,
     sot: sot, isoNgaData: isoNgaData, ditetDeri: ditetDeri, statusi: statusi, formato: formato,
     pershkrimi: pershkrimi, lexoDaten: lexoDaten, lexoDatenEFushes: lexoDatenEFushes, lidhFushenEDates: lidhFushenEDates,
-    formatoDatenGjateShkrimit: formatoDatenGjateShkrimit, idERe: idERe, krahaso: krahaso, numero: numero,
+    formatoDatenGjateShkrimit: formatoDatenGjateShkrimit, formatoPerFushe: formatoPerFushe, idERe: idERe, krahaso: krahaso, numero: numero,
     mesazhiFurnizuesit: mesazhiFurnizuesit, pergatitFoton: pergatitFoton, lexoMeAI: lexoMeAI,
     normalizoRreshtin: normalizoRreshtin, ditetTekst: ditetTekst, lexoSasine: lexoSasine, sasiaSiShume: sasiaSiShume, sasiaTekst: sasiaTekst, shumaCopeve: shumaCopeve
   };
