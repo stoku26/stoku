@@ -769,6 +769,7 @@
 </style>
 </head>
 <body>
+<script src="porta.js?v=77"></script>
 
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" style="display:none">←</button>
@@ -1310,8 +1311,8 @@
       cloudLlogariaUKrijua: 'Llogaria u krijua dhe u sinkronizua.',
       cloudHyrjaUKry: 'Hyrje e suksesshme.',
       cloudTeDilet: 'Të dilet nga llogaria?',
-      cloudDilTekst: 'Të dhënat në cloud NUK fshihen, por ky telefon nuk do të sinkronizohet më derisa të ' +
-        'hysh përsëri.',
+      cloudDilTekst: 'Të dhënat mbeten të ruajtura në llogari (cloud). Pas daljes, aplikacioni kërkon përsëri ' +
+        'emrin e përdoruesit dhe fjalëkalimin.',
       lblCloudEmriRi: 'Emri i ri',
       lblCloudFjalekalimiRi: 'Fjalëkalimi i ri',
       cloudNdryshoEmrinBtn: 'Ndrysho emrin e përdoruesit',
@@ -2229,6 +2230,7 @@
   // Kthen kursorin te fusha e barkodit (vetëm në modalitetin PDA, dhe vetëm nëse nuk ka dritare të hapur)
   function fokusoBarkodin() {
     if (!opsione.pda) return;
+    if (window.StokuPorta && window.StokuPorta.eHapur()) return; // ekrani i hyrjes është sipër
     if (folderiAktual === null) return;
     if (document.querySelector('.mbulese.hapur')) return;
     $('barkodi').focus();
@@ -2754,6 +2756,7 @@
   $('cloudDilBtn').addEventListener('click', async function () {
     var po = await konfirmo(T('cloudTeDilet'), T('cloudDilTekst'), T('cloudDilBtn'));
     if (!po) return;
+    try { await kryeSinkronizimin(); } catch (e) { /* ndryshimet e fundit mbeten lokalisht */ }
     if (window.__stokuCloud && window.__stokuCloud.dil) await window.__stokuCloud.dil();
     rifreskoDukjenECloud();
   });
@@ -4738,6 +4741,7 @@
     };
 
     onAuthStateChanged(auth, function () {
+      window.__stokuCloud.authGati = true; // porta e hyrjes pret këtë: tani dihet a është hyrë
       window.dispatchEvent(new Event('stoku-auth-ndryshoi'));
     });
   } catch (e) {

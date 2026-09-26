@@ -659,6 +659,7 @@
 </style>
 </head>
 <body>
+<script src="porta.js?v=77"></script>
 
 <header class="krye">
   <img class="krye-logo" id="logo" src="logo.png" alt="Stoku" title="Përmbledhja">
@@ -3448,8 +3449,9 @@
   $('llMenaxho').addEventListener('click', function () { mbyllDialog('dlgLlogaria'); hapOpsionet('llogaria'); });
   $('opsHapHyrjen').addEventListener('click', function () { mbyllDialog('dlgOpsione'); hapLlogarine(); });
   async function dil() {
-    var po = await konfirmo('Të dilet nga llogaria?', 'Të dhënat në cloud NUK fshihen. Ky kompjuter thjesht nuk sinkronizohet më derisa të hysh përsëri.', 'Dil');
+    var po = await konfirmo('Të dilet nga llogaria?', 'Të dhënat mbeten të ruajtura në llogari (cloud). Pas daljes, Stoku kërkon përsëri emrin e përdoruesit dhe fjalëkalimin.', 'Dil');
     if (!po) return;
+    try { await kryeSinkronizimin(); } catch (e) { /* ndryshimet e fundit mbeten lokalisht */ }
     ndalDegjuesin();
     if (window.__stokuCloud && window.__stokuCloud.dil) await window.__stokuCloud.dil();
     mbyllDialog('dlgLlogaria');
@@ -4482,7 +4484,10 @@
         try { await deleteDoc(doc(db, 'dyqane', auth.currentUser.uid, 'fletet', id)); return { ok: true }; } catch (e) { return gabim(e); }
       }
     };
-    onAuthStateChanged(auth, function () { window.dispatchEvent(new Event('stoku-auth-ndryshoi')); });
+    onAuthStateChanged(auth, function () {
+      window.__stokuCloud.authGati = true; // porta e hyrjes pret këtë: tani dihet a është hyrë
+      window.dispatchEvent(new Event('stoku-auth-ndryshoi'));
+    });
   } catch (e) {
     window.__stokuCloud = null;
   }
