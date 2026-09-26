@@ -657,6 +657,40 @@
   .af-karta.pa-date { --ngj: var(--af-kuqe); --ngj-tx: var(--af-kuqe-tx); }
   .af-karta.hequr { opacity: .65; }
   .af-karta:active { filter: brightness(.97); }
+  /* Zgjedhja e shumëfishtë: mbaj gishtin mbi një afat, pastaj prek të tjerët */
+  .af-karta { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  .af-zgjedh {
+    display: none; flex: none; width: 22px; height: 22px; margin-top: 1px; border-radius: 50%;
+    border: 2px solid var(--fushe-kufi); align-items: center; justify-content: center; color: #fff;
+  }
+  .af-zgjedh svg { visibility: hidden; }
+  #dlgAfatet.zgjedhje .af-zgjedh { display: flex; }
+  #dlgAfatet.zgjedhje .af-pill { display: none; }
+  .af-karta.zgjedhur { box-shadow: 0 0 0 2px var(--primar); }
+  .af-karta.zgjedhur .af-zgjedh { background: var(--primar); border-color: var(--primar); }
+  .af-karta.zgjedhur .af-zgjedh svg { visibility: visible; }
+  .af-shiriti-zgjedhjes {
+    display: none; position: sticky; top: 0; z-index: 2; align-items: center; gap: 2px; min-height: 46px; margin-bottom: 10px;
+    padding: 3px 4px; border-radius: 23px; background: var(--primar); color: #fff;
+  }
+  #dlgAfatet.zgjedhje .af-shiriti-zgjedhjes { display: flex; }
+  #dlgAfatet.zgjedhje .af-veprime-krye { display: none; }
+  .af-shiriti-zgjedhjes span { flex: 1; min-width: 0; padding: 0 4px; font-size: 15px; font-weight: 700; }
+  .af-shiriti-zgjedhjes button {
+    flex: none; width: 40px; height: 40px; border: 0; border-radius: 50%; background: transparent; color: #fff;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .af-shiriti-zgjedhjes button:active { background: rgba(255,255,255,.2); }
+  .btn.me-ikone { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn.me-ikone svg { flex: none; }
+  .af-barkodi-rresht { display: flex; gap: 8px; align-items: stretch; }
+  .af-barkodi-rresht input { flex: 1; min-width: 0; }
+  .af-skano {
+    flex: none; width: 52px; border: 1.5px solid var(--fushe-kufi); border-radius: 12px; background: var(--fushe-bg);
+    color: var(--primar); display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .af-skano:active { background: var(--hover); }
+  .af-pda-hint { margin: -6px 2px 12px; font-size: 12.5px; color: var(--gri); }
   .af-majtas { flex: 1; min-width: 0; }
   .af-emri { font-size: 15.5px; font-weight: 600; overflow-wrap: anywhere; }
   .af-nen { font-size: 12px; color: var(--gri); margin-top: 2px; overflow-wrap: anywhere; }
@@ -667,7 +701,7 @@
   .af-sasia { display: inline-block; margin-top: 6px; font-size: 13px; font-weight: 700; padding: 2px 9px; border-radius: 10px; background: var(--fushe-bg); border: 1px solid var(--vije); color: var(--tekst); white-space: nowrap; }
   .lx-rresht input[type="number"] { height: 44px; font-size: 15px; }
   .af-pill {
-    display: inline-block; margin-top: 8px; border: 1.5px solid var(--ngj); color: var(--ngj-tx); background: transparent;
+    display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; border: 1.5px solid var(--ngj); color: var(--ngj-tx); background: transparent;
     border-radius: 16px; padding: 5px 11px; font-size: 12.5px; font-weight: 700; font-family: inherit; cursor: pointer;
   }
   .af-grup-krye {
@@ -1025,9 +1059,15 @@
     <div class="faqe-trup" id="afTrup">
       <div class="af-permb" id="afPermb"></div>
       <div class="af-veprime-krye">
-        <button class="btn" id="afFotografo" type="button">📷 Fotografo fletën</button>
-        <button class="btn dyte" id="afGaleria" type="button" style="flex:none;padding:0 14px" aria-label="Zgjidh foto nga galeria" title="Nga galeria">🖼</button>
-        <button class="btn dyte" id="afShto" type="button" style="flex:none;padding:0 16px">+ Shto</button>
+        <button class="btn me-ikone" id="afFotografo" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>Fotografo fletën</button>
+        <button class="btn dyte me-ikone" id="afGaleria" type="button" style="flex:none;padding:0 14px" aria-label="Zgjidh foto nga galeria" title="Nga galeria"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"></path></svg></button>
+        <button class="btn dyte me-ikone" id="afShto" type="button" style="flex:none;padding:0 16px 0 13px;gap:6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Shto</button>
+      </div>
+      <div class="af-shiriti-zgjedhjes" id="afZgjShirit">
+        <button type="button" id="afZgjAnulo" aria-label="Anulo zgjedhjen" title="Anulo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+        <span id="afZgjNumri"></span>
+        <button type="button" id="afZgjTeGjitha" aria-label="Zgjidh të gjitha" title="Zgjidh të gjitha"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 17 2 2 4-4"></path><path d="m3 7 2 2 4-4"></path><path d="M13 6h8M13 12h8M13 18h8"></path></svg></button>
+        <button type="button" id="afZgjFshij" aria-label="Fshij të zgjedhurat" title="Fshij"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M10 11v6M14 11v6"></path></svg></button>
       </div>
       <div class="kerko-kuti" style="margin-bottom:10px">
         <svg class="kerko-ikona" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>
@@ -1073,7 +1113,11 @@
   <div class="dialog" role="dialog" aria-modal="true">
     <h2 id="afatTitulli">Afat i ri</h2>
     <div class="af-info-dlg" id="afatInfo" style="display:none"></div>
-    <div class="fushe"><input id="afatBarkodi" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Barkodi" aria-label="Barkodi" enterkeyhint="next"></div>
+    <div class="fushe af-barkodi-rresht">
+      <input id="afatBarkodi" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Barkodi" aria-label="Barkodi" enterkeyhint="next">
+      <button class="af-skano" id="afatSkano" type="button" aria-label="Skano barkodin me kamerë" title="Skano me kamerë"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><path d="M8 7v10M12 7v10M16 7v10"></path></svg></button>
+    </div>
+    <div class="af-pda-hint" id="afatPdaHint" style="display:none">Skano barkodin me skanerin e PDA-së.</div>
     <div class="fushe"><input id="afatEmri" type="text" autocomplete="off" autocorrect="off" placeholder="Emri i produktit" aria-label="Emri i produktit" enterkeyhint="next"></div>
     <div class="lx-dy">
       <div class="fushe"><label for="afatData">Data e skadimit</label><input id="afatData" type="date"></div>
@@ -3213,7 +3257,10 @@
     if (perpunuar) return;
     perpunuar = true;
     bip();
+    var perAfat = kameraPerAfat;
+    kameraPerAfat = null;
     ndalKamere().then(function () {
+      if (perAfat) { perAfat(barkodi); return; } // skanuar nga "Afat i ri" → barkodi shkon atje
       burimiIFundit = 'kamera';
       hapDialogun(barkodi);
     });
@@ -3357,7 +3404,9 @@
     }
   }
 
+  var kameraPerAfat = null; // kur kamera hapet nga dialogu "Afat i ri": ku dërgohet barkodi i skanuar
   async function ndalKamere() {
+    kameraPerAfat = null;
     ndaloNumrimVazhdues();
     await ndalSkanerin();
     $('kamera').classList.remove('hapur');
@@ -3381,6 +3430,7 @@
     if (folderiAktual !== null) n++;
     if ($('kamera').classList.contains('hapur')) n++;
     if ($('dlgAfatet').classList.contains('hapur')) n++;
+    if ($('dlgAfatet').classList.contains('zgjedhje')) n++; // "mbrapa" së pari e mbyll zgjedhjen
     var opsioneHapur = $('dlgOpsione').classList.contains('hapur');
     if (opsioneHapur) {
       n++;
@@ -3398,13 +3448,15 @@
     dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo'
   };
   function mbyllShtresenMeTeFundit() {
+    // Kamera del mbi çdo dialog (p.sh. skanimi te "Afat i ri"), prandaj mbyllet e para
+    if ($('kamera').classList.contains('hapur')) { ndalKamere(); return; }
     var dlgTjeter = document.querySelector('.mbulese.hapur:not(#dlgOpsione):not(#dlgAfatet)');
     if (dlgTjeter) {
       var idAnulo = ANULO_SIPAS_DIALOGUT[dlgTjeter.id];
       if (idAnulo && $(idAnulo)) $(idAnulo).click(); else dlgTjeter.classList.remove('hapur');
       return;
     }
-    if ($('kamera').classList.contains('hapur')) { ndalKamere(); return; }
+    if ($('dlgAfatet').classList.contains('zgjedhje')) { dilNgaZgjedhja(); return; }
     if ($('dlgAfatet').classList.contains('hapur')) { mbyllAfatetFaqe(); return; }
     if ($('dlgOpsione').classList.contains('hapur')) {
       if ($('kategoriMenu').style.display === 'none') { aktivizoTabin(null); return; }
@@ -3779,6 +3831,7 @@
       else b0.innerHTML = { skaduar: '<b>Asnjë produkt i skaduar</b>Shumë mirë!', afer: '<b>Asnjë produkt afër skadimit</b>Asgjë nuk skadon brenda 30 ditëve.',
         ok: '<b>Asnjë</b>', hequr: '<b>Asnjë produkt i hequr ende</b>', aktive: '<b>Asnjë afat aktiv</b>' }[afFiltri] || '';
       cont.appendChild(b0);
+      dilNgaZgjedhja();
       return;
     }
     var frag = document.createDocumentFragment();
@@ -3804,13 +3857,77 @@
       lista.forEach(function (a) { frag.appendChild(kartaEAfatit(a)); });
     }
     cont.appendChild(frag);
+    if (afZgjedhja) {
+      var shihen = {};
+      lista.forEach(function (a) { shihen[a.id] = true; });
+      Object.keys(afZgjedhja).forEach(function (id) { if (!shihen[id]) delete afZgjedhja[id]; });
+    }
+    rifreskoZgjedhjen();
   }
+
+  var IKONAT_AF = (function () {
+    function s(d, w) { return '<svg width="' + (w || 15) + '" height="' + (w || 15) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>'; }
+    return {
+      kontroll: s('<path d="M20 6 9 17l-5-5"></path>'),
+      rikthe: s('<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path>'),
+      x: s('<path d="M18 6 6 18M6 6l12 12"></path>'),
+      zgjedhur: s('<path d="M20 6 9 17l-5-5"></path>', 14)
+    };
+  })();
+
+  // ---------- Zgjedhja e shumëfishtë (mbaj gishtin → zgjidh; pastaj prek të tjerat) ----------
+  var afZgjedhja = null;       // null = jashtë zgjedhjes; përndryshe { id: true }
+  var afKlikuInjoro = false;   // pas shtypjes së gjatë, "click"-u i po asaj prekjeje shpërfillet
+  document.addEventListener('pointerdown', function () { afKlikuInjoro = false; }, true); // prekje e re → vlen
+  function zgjidhAfatin(id) {
+    if (!afZgjedhja) afZgjedhja = {};
+    if (afZgjedhja[id]) delete afZgjedhja[id]; else afZgjedhja[id] = true;
+    rifreskoZgjedhjen();
+  }
+  function rifreskoZgjedhjen() {
+    var n = afZgjedhja ? Object.keys(afZgjedhja).length : 0;
+    if (afZgjedhja && !n) afZgjedhja = null; // u hoq edhe e fundit → del nga zgjedhja
+    $('dlgAfatet').classList.toggle('zgjedhje', !!afZgjedhja);
+    $('afZgjNumri').textContent = n === 1 ? '1 e zgjedhur' : n + ' të zgjedhura';
+    Array.prototype.forEach.call(document.querySelectorAll('#afLista .af-karta'), function (k) {
+      var po = !!(afZgjedhja && afZgjedhja[k.getAttribute('data-id')]);
+      k.classList.toggle('zgjedhur', po);
+      k.setAttribute('aria-selected', po ? 'true' : 'false');
+    });
+  }
+  function dilNgaZgjedhja() { afZgjedhja = null; rifreskoZgjedhjen(); }
+  async function fshijTeZgjedhurat() {
+    var ids = Object.keys(afZgjedhja || {});
+    if (!ids.length) return;
+    var po = await konfirmo(ids.length === 1 ? 'Të fshihet 1 afat?' : 'Të fshihen ' + ids.length + ' afate?',
+      'Fshihen nga të gjitha pajisjet. Nëse produktet thjesht u hoqën nga rafti, përdor "U hoq nga rafti" (mbeten si histori).', T('fshij'));
+    if (!po) return;
+    var hiq = {};
+    ids.forEach(function (id) { hiq[id] = true; shenoAfatinEFshire(id); });
+    afatet = afatet.filter(function (x) { return !hiq[x.id]; });
+    afZgjedhja = null;
+    ruajAfatet();
+    rifreskoZgjedhjen();
+    toast(ids.length === 1 ? 'U fshi 1 afat.' : 'U fshinë ' + ids.length + ' afate.');
+  }
+  $('afZgjAnulo').addEventListener('click', dilNgaZgjedhja);
+  $('afZgjFshij').addEventListener('click', fshijTeZgjedhurat);
+  $('afZgjTeGjitha').addEventListener('click', function () {
+    var kartat = document.querySelectorAll('#afLista .af-karta');
+    var teGjitha = Array.prototype.every.call(kartat, function (k) { return afZgjedhja && afZgjedhja[k.getAttribute('data-id')]; });
+    afZgjedhja = {};
+    if (!teGjitha) Array.prototype.forEach.call(kartat, function (k) { afZgjedhja[k.getAttribute('data-id')] = true; });
+    rifreskoZgjedhjen();
+  });
 
   function kartaEAfatit(a) {
     var st = AF.statusi(a);
     var n = AF.ditetDeri(a.data);
     var k = document.createElement('div');
     k.className = 'af-karta ' + st;
+    k.setAttribute('data-id', a.id);
+    var zg = document.createElement('span'); zg.className = 'af-zgjedh'; zg.innerHTML = IKONAT_AF.zgjedhur;
+    k.appendChild(zg);
     var m = document.createElement('div'); m.className = 'af-majtas';
     var e = document.createElement('div'); e.className = 'af-emri'; e.textContent = a.emri || a.barkodi || '(pa emër)';
     var nen = document.createElement('div'); nen.className = 'af-nen';
@@ -3820,11 +3937,12 @@
     m.appendChild(e); if (nen.textContent) m.appendChild(nen); m.appendChild(ms);
     // Veprimi i shpejtë sipas ngjyrës
     var pill = null;
-    if (st === 'skaduar') pill = ['✓ U hoq nga rafti', function () { shenoHequr(a); }];
-    else if (st === 'afer' && !a.lajmeruarSe) pill = ['✓ Lajmërova furnizuesin', function () { shenoLajmeruar(a); }];
-    else if (st === 'hequr') pill = ['↺ Rikthe si aktiv', function () { riktheAktiv(a); }];
+    if (st === 'skaduar') pill = ['U hoq nga rafti', function () { shenoHequr(a); }, 'kontroll'];
+    else if (st === 'afer' && !a.lajmeruarSe) pill = ['Lajmërova furnizuesin', function () { shenoLajmeruar(a); }, 'kontroll'];
+    else if (st === 'hequr') pill = ['Rikthe si aktiv', function () { riktheAktiv(a); }, 'rikthe'];
     if (pill) {
-      var pb = document.createElement('button'); pb.type = 'button'; pb.className = 'af-pill'; pb.textContent = pill[0];
+      var pb = document.createElement('button'); pb.type = 'button'; pb.className = 'af-pill';
+      pb.innerHTML = IKONAT_AF[pill[2]]; pb.appendChild(document.createTextNode(pill[0]));
       pb.addEventListener('click', function (ev) { ev.stopPropagation(); pill[1](); });
       m.appendChild(pb);
     }
@@ -3838,7 +3956,31 @@
       d.appendChild(dd);
     }
     k.appendChild(m); k.appendChild(d);
-    k.addEventListener('click', function () { hapAfatin(a.id); });
+    // Shtypje e gjatë (~0.5 s) → nis zgjedhjen; lëvizja e gishtit (scroll) e anulon
+    var shtypja = null;
+    function anuloShtypjen() { if (shtypja) { clearTimeout(shtypja.t); shtypja = null; } }
+    k.addEventListener('pointerdown', function (ev) {
+      if (ev.pointerType === 'mouse' && ev.button !== 0) return;
+      anuloShtypjen();
+      shtypja = { x: ev.clientX, y: ev.clientY, t: setTimeout(function () {
+        shtypja = null;
+        afKlikuInjoro = true;
+        try { if (navigator.vibrate) navigator.vibrate(15); } catch (e) { /* ok */ }
+        zgjidhAfatin(a.id);
+      }, 480) };
+    });
+    k.addEventListener('pointermove', function (ev) {
+      if (shtypja && (Math.abs(ev.clientX - shtypja.x) > 10 || Math.abs(ev.clientY - shtypja.y) > 10)) anuloShtypjen();
+    });
+    k.addEventListener('pointerup', anuloShtypjen);
+    k.addEventListener('pointercancel', anuloShtypjen);
+    k.addEventListener('pointerleave', anuloShtypjen);
+    k.addEventListener('contextmenu', function (ev) { ev.preventDefault(); });
+    k.addEventListener('click', function () {
+      if (afKlikuInjoro) { afKlikuInjoro = false; return; }
+      if (afZgjedhja) { zgjidhAfatin(a.id); return; }
+      hapAfatin(a.id);
+    });
     return k;
   }
 
@@ -3882,12 +4024,14 @@
     $('dlgAfatet').classList.add('hapur');
   }
   function mbyllAfatetFaqe() {
+    afZgjedhja = null;
+    $('dlgAfatet').classList.remove('zgjedhje');
     $('dlgAfatet').classList.remove('hapur');
     rifreskoPamjen();
     fokusoBarkodin();
   }
   $('btnAfatet').addEventListener('click', hapAfatetFaqe);
-  $('afPrapa').addEventListener('click', mbyllAfatetFaqe);
+  $('afPrapa').addEventListener('click', function () { if (afZgjedhja) dilNgaZgjedhja(); else mbyllAfatetFaqe(); });
   $('afKerko').addEventListener('input', renderAfatet);
   Array.prototype.forEach.call(document.querySelectorAll('#afFiltrat button'), function (b) {
     b.addEventListener('click', function () { afFiltri = b.getAttribute('data-f'); renderAfatet(); });
@@ -3914,6 +4058,9 @@
     $('afatFurnizuesi').value = a ? (a.furnizuesi || '') : '';
     $('afatSasia').value = a && a.sasia !== '' && a.sasia !== undefined ? String(a.sasia) : '';
     $('afatFshij').style.display = a ? '' : 'none';
+    // Barkodi: me kamerë (butoni) ose, në modalitetin PDA, me skanerin e PDA-së direkt në fushë
+    $('afatSkano').style.display = opsione.pda ? 'none' : '';
+    $('afatPdaHint').style.display = opsione.pda && !a ? '' : 'none';
     var info = $('afatInfo');
     var sv = $('afatStatusVeprime');
     sv.textContent = '';
@@ -3924,12 +4071,13 @@
       info.style.whiteSpace = 'pre-line';
       info.style.display = '';
       var veprime = [];
-      if (st !== 'hequr') veprime.push(['✓ U hoq nga rafti', function () { shenoHequr(a); }]);
-      else veprime.push(['↺ Rikthe si aktiv', function () { riktheAktiv(a); }]);
-      if (st === 'afer' || st === 'skaduar') veprime.push([a.lajmeruarSe ? 'Hiq "u lajmërua"' : '✓ Lajmërova furnizuesin',
-        function () { if (a.lajmeruarSe) perditesoAfatin(a.id, { lajmeruarSe: 0 }); else shenoLajmeruar(a); }]);
+      if (st !== 'hequr') veprime.push(['U hoq nga rafti', function () { shenoHequr(a); }, 'kontroll']);
+      else veprime.push(['Rikthe si aktiv', function () { riktheAktiv(a); }, 'rikthe']);
+      if (st === 'afer' || st === 'skaduar') veprime.push([a.lajmeruarSe ? 'Hiq "u lajmërua"' : 'Lajmërova furnizuesin',
+        function () { if (a.lajmeruarSe) perditesoAfatin(a.id, { lajmeruarSe: 0 }); else shenoLajmeruar(a); }, a.lajmeruarSe ? 'x' : 'kontroll']);
       veprime.forEach(function (v) {
-        var b = document.createElement('button'); b.type = 'button'; b.className = 'btn dyte'; b.textContent = v[0];
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'btn dyte me-ikone';
+        b.innerHTML = IKONAT_AF[v[2]]; b.appendChild(document.createTextNode(v[0]));
         b.addEventListener('click', function () { mbyllAfatin(); v[1](); });
         sv.appendChild(b);
       });
@@ -3972,6 +4120,17 @@
     ruajAfatet();
   }
   $('afShto').addEventListener('click', function () { hapAfatin(null); });
+  $('afatSkano').addEventListener('click', function () {
+    var perAfat = function (barkodi) {
+      $('afatBarkodi').value = barkodi;
+      $('afatBarkodi').dispatchEvent(new Event('change')); // plotëson emrin/furnizuesin nëse njihen
+      ($('afatEmri').value.trim() ? $('afatData') : $('afatEmri')).focus();
+    };
+    kameraPerAfat = perAfat; // vendoset para hapjes, që edhe skanimi më i shpejtë të shkojë te afati
+    hapKamere().then(function () {
+      if (!$('kamera').classList.contains('hapur') && kameraPerAfat === perAfat) kameraPerAfat = null; // s'u hap
+    });
+  });
   $('afatRuaj').addEventListener('click', ruajAfatin);
   $('afatAnulo').addEventListener('click', mbyllAfatin);
   $('afatFshij').addEventListener('click', fshijAfatin);
