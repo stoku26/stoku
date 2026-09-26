@@ -380,6 +380,7 @@
   }
   .opsione-krye {
     display: flex; align-items: center; gap: 10px;
+    min-height: calc(62px + env(safe-area-inset-top)); /* e njëjta lartësi me a pa buton (Cilësimet s'ka shigjetë në menu) */
     padding: 10px 16px;
     padding-top: calc(10px + env(safe-area-inset-top));
     padding-left: max(16px, env(safe-area-inset-left));
@@ -624,6 +625,47 @@
     box-shadow: 0 0 0 2px var(--header);
   }
   .btn-ikone .af-shenje.verdhe { background: #F9A825; color: #3b2a00; }
+
+  /* ================= Shiriti me tabe poshtë: Stoku · Afatet · Cilësimet ================= */
+  /* Shfaqet vetëm në nivelin kryesor (lista e folderave, Afatet, Cilësimet). Brenda një folderi, te kamera,
+     te kontrolli i fletës dhe sa kohë është hapur tastiera, fshihet — që të mos zërë vend dhe të mos mbulojë fushat. */
+  :root { --tabet-lartesia: 66px; }
+  #tabet {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 19;
+    display: none; height: calc(var(--tabet-lartesia) + env(safe-area-inset-bottom));
+    padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    background: var(--sfond); border-top: 1px solid var(--vije);
+    box-shadow: 0 -4px 16px rgba(0,0,0,.08);
+  }
+  html[data-tema="dark"] #tabet { box-shadow: 0 -4px 16px rgba(0,0,0,.35); }
+  body.me-tabe #tabet { display: flex; }
+  body.me-tabe { height: auto; bottom: calc(var(--tabet-lartesia) + env(safe-area-inset-bottom)); }
+  #tabet .tab {
+    flex: 1; min-width: 0; border: 0; background: transparent; color: var(--gri); font: inherit;
+    font-size: 11.5px; font-weight: 700; cursor: pointer; padding: 6px 0 4px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #tabet .tab.aktiv { color: var(--btn-tekst); }
+  #tabet .tab-ikona {
+    position: relative; width: 56px; height: 30px; border-radius: 15px;
+    display: flex; align-items: center; justify-content: center; transition: background .15s;
+  }
+  #tabet .tab.aktiv .tab-ikona { background: color-mix(in srgb, var(--btn-tekst) 18%, transparent); }
+  #tabet .tab:active .tab-ikona { background: var(--hover); }
+  #tabet svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  #tabet .af-shenje {
+    position: absolute; top: -5px; right: 7px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+    background: #D93025; color: #fff; font-size: 11px; font-weight: 800; line-height: 18px; text-align: center;
+    box-sizing: content-box; border: 2px solid var(--sfond);
+  }
+  #tabet .af-shenje.verdhe { background: #F9A825; color: #3b2a00; }
+  /* Afatet dhe Cilësimet janë tabe: faqja e tyre mbaron mbi shirit, dhe s'kanë shigjetë "prapa" (tabi Stoku i mbyll) */
+  body.me-tabe #dlgAfatet, body.me-tabe #dlgOpsione { bottom: calc(var(--tabet-lartesia) + env(safe-area-inset-bottom)); }
+  body.me-tabe #toast { bottom: calc(var(--tabet-lartesia) + env(safe-area-inset-bottom) + 14px); }
+  #afPrapa { display: none; }
+  /* Kalimi nga një tab te tjetri: pa rrëshqitje anash (ajo mbetet vetëm kur hapen si dritare, p.sh. nga njoftimi) */
+  body.pa-animim .mbulese { transition: none !important; }
   :root {
     --af-kuqe: #C62828; --af-kuqe-tx: #B71C1C; --af-kuqe-bg: rgba(198,40,40,.08);
     --af-verdhe: #F9A825; --af-verdhe-tx: #7a5000; --af-verdhe-bg: rgba(249,168,37,.14);
@@ -826,10 +868,6 @@
   <button id="btnMbrapa" class="btn-ikone" type="button" style="display:none">←</button>
   <h1 id="titulli" class="logo">STOKU</h1>
   <img id="logoSlika" src="logo.png" alt="Stoku">
-  <div class="krye-butona">
-    <button id="btnAfatet" class="btn-ikone" type="button" aria-label="Afatet e produkteve" title="Afatet e produkteve"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg><span class="af-shenje" id="afShenja" style="display:none"></span></button>
-    <button id="btnOpsione" class="btn-ikone" type="button" aria-label="Opsionet" title="Opsionet"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
-  </div>
 </header>
 
 <!-- Lista e folderave -->
@@ -1277,6 +1315,13 @@
   </div>
 </div>
 
+<!-- Shiriti me tabe poshtë (vetëm në nivelin kryesor) -->
+<nav id="tabet" aria-label="Faqet kryesore">
+  <button type="button" class="tab aktiv" id="tabStoku" aria-current="page"><span class="tab-ikona"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5Z"></path><path d="M3 8l9 5 9-5M12 13v8"></path></svg></span><span class="tab-tekst">Stoku</span></button>
+  <button type="button" class="tab" id="btnAfatet" title="Afatet e produkteve"><span class="tab-ikona"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg><span class="af-shenje" id="afShenja" style="display:none"></span></span><span class="tab-tekst">Afatet</span></button>
+  <button type="button" class="tab" id="btnOpsione"><span class="tab-ikona"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></span><span class="tab-tekst" id="tabCilesimetTxt"></span></button>
+</nav>
+
 <div id="toast"></div>
 
 <script src="xlsx.js?v=58"></script>
@@ -1292,7 +1337,7 @@
 
   // ================= Fjalori (tekstet, vetëm shqip) =================
   var FJALORI = {
-      opsionet: 'Opsionet',
+      opsionet: 'Cilësimet',
       mbyll: 'Mbyll',
       anulo: 'Anulo',
       ruaj: 'Ruaj',
@@ -1363,7 +1408,7 @@
       fshiKrejt: 'Fshi të gjitha',
       uFshinePrejFolderit: 'U fshinë të gjitha produktet nga folderi.',
 
-      opsioneTitulli: 'Opsionet',
+      opsioneTitulli: 'Cilësimet',
       tabPamja: 'Pamja',
       tabSkenimi: 'Skenimi',
       tabLista: 'Lista',
@@ -1508,6 +1553,8 @@
     { id: 'dlgFolderRuaj', prop: 'text', kyc: 'krijo' },
 
     { id: 'opsioneTitulli', prop: 'text', kyc: 'opsioneTitulli' },
+    { id: 'tabCilesimetTxt', prop: 'text', kyc: 'opsionet' },
+    { id: 'btnOpsione', prop: 'title', kyc: 'opsionet' },
     { id: 'tabPamjaTxt', prop: 'text', kyc: 'tabPamja' },
     { id: 'tabSkenimiTxt', prop: 'text', kyc: 'tabSkenimi' },
     { id: 'tabListaTxt', prop: 'text', kyc: 'tabLista' },
@@ -1992,6 +2039,7 @@
       renderFolderat();
       renderKerkimiGlobal();
     }
+    rifreskoTabet();
   }
 
   function hapFolderin(id) {
@@ -2343,6 +2391,7 @@
       f.classList.toggle('aktiv', f.getAttribute('data-faqe') === emriFaqes);
     });
     $('opsioneTitulli').textContent = neMenu ? T('opsioneTitulli') : T(TAB_TITULL_KYC[emriFaqes] || 'opsioneTitulli');
+    $('opsPrapa').style.display = neMenu ? 'none' : '';
     var trupi = document.querySelector('.opsione-trup');
     if (trupi) trupi.scrollTop = 0;
     if (typeof sinkronizoHistorineEDritareve === 'function') sinkronizoHistorineEDritareve();
@@ -2394,7 +2443,6 @@
     fokusoBarkodin();
   }
 
-  $('btnOpsione').addEventListener('click', hapOpsionet);
   $('lidhjaPc').addEventListener('click', function () {
     try { localStorage.setItem('stoku:pamja', 'pc'); } catch (e) { /* ok */ }
   });
@@ -3789,6 +3837,65 @@
   $('btnKamera').addEventListener('click', hapKamere);
   $('mbyllKamere').addEventListener('click', ndalKamere);
 
+  // ---------- Shiriti me tabe poshtë: Stoku · Afatet · Cilësimet ----------
+  // Afatet dhe Cilësimet mbeten "dritare" të plota (dlgAfatet, dlgOpsione) — kështu butoni "mbrapa" i Android-it
+  // dhe historia punojnë si më parë — por hapen/mbyllen nga tabet, pa rrëshqitje, dhe shiriti tregon ku je.
+  var tastieraHapur = false, __tastieraKohez = null;
+  function rifreskoTabet() {
+    var afatetHapur = $('dlgAfatet').classList.contains('hapur');
+    var cilesimetHapur = $('dlgOpsione').classList.contains('hapur');
+    var dukshem = (folderiAktual === null || afatetHapur || cilesimetHapur) &&
+      !$('kamera').classList.contains('hapur') && !$('dlgAfatLexim').classList.contains('hapur') && !tastieraHapur;
+    document.body.classList.toggle('me-tabe', dukshem);
+    var aktiv = cilesimetHapur ? 'btnOpsione' : afatetHapur ? 'btnAfatet' : 'tabStoku';
+    ['tabStoku', 'btnAfatet', 'btnOpsione'].forEach(function (id) {
+      var po = id === aktiv;
+      $(id).classList.toggle('aktiv', po);
+      if (po) $(id).setAttribute('aria-current', 'page'); else $(id).removeAttribute('aria-current');
+    });
+  }
+  function kaloTab(fn) {
+    document.body.classList.add('pa-animim');
+    fn();
+    rifreskoTabet();
+    setTimeout(function () { document.body.classList.remove('pa-animim'); }, 80);
+  }
+  $('tabStoku').addEventListener('click', function () {
+    kaloTab(function () {
+      if ($('dlgOpsione').classList.contains('hapur')) mbyllOpsionet();
+      if ($('dlgAfatet').classList.contains('hapur')) mbyllAfatetFaqe();
+      if (folderiAktual === null) { $('folderaLista').scrollTop = 0; $('kerkoGlobalLista').scrollTop = 0; }
+    });
+  });
+  $('btnAfatet').addEventListener('click', function () {
+    kaloTab(function () {
+      if ($('dlgOpsione').classList.contains('hapur')) mbyllOpsionet();
+      if ($('dlgAfatet').classList.contains('hapur')) { $('afTrup').scrollTop = 0; return; }
+      hapAfatetFaqe();
+    });
+  });
+  $('btnOpsione').addEventListener('click', function () {
+    kaloTab(function () {
+      if ($('dlgAfatet').classList.contains('hapur')) mbyllAfatetFaqe();
+      if ($('dlgOpsione').classList.contains('hapur')) { aktivizoTabin(null); return; }
+      hapOpsionet();
+    });
+  });
+  // Tastiera e hapur (një fushë ka fokusin): shiriti fshihet, që të mos ngjitet mbi tastierë dhe të mos mbulojë fushat
+  function eshteFushe(el) { return !!(el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT')); }
+  document.addEventListener('focusin', function (ev) {
+    if (!eshteFushe(ev.target)) return;
+    clearTimeout(__tastieraKohez);
+    if (!tastieraHapur) { tastieraHapur = true; rifreskoTabet(); }
+  });
+  document.addEventListener('focusout', function () {
+    clearTimeout(__tastieraKohez);
+    __tastieraKohez = setTimeout(function () {
+      if (eshteFushe(document.activeElement)) return; // kaloi te një fushë tjetër
+      if (tastieraHapur) { tastieraHapur = false; rifreskoTabet(); }
+    }, 120);
+  });
+
   // ---------- Butoni "Mbrapa" i Android-it (histori shfletuesi) ----------
   // Pa këtë, shtypja e butonit fizik/gjestit "mbrapa" të Android-it, kur je diku (brenda një
   // folderi, te Opsionet, te kamera, te çdo dialog), do të mbyllte KREJT faqen web (do të dilte nga
@@ -3873,7 +3980,7 @@
   });
 
   if (window.MutationObserver) {
-    var __vezhguesiIDritareve = new MutationObserver(sinkronizoHistorineEDritareve);
+    var __vezhguesiIDritareve = new MutationObserver(function () { rifreskoTabet(); sinkronizoHistorineEDritareve(); });
     Array.prototype.forEach.call(document.querySelectorAll('.mbulese, #kamera'), function (el) {
       __vezhguesiIDritareve.observe(el, { attributes: true, attributeFilter: ['class'] });
     });
@@ -4487,7 +4594,6 @@
     rifreskoPamjen();
     fokusoBarkodin();
   }
-  $('btnAfatet').addEventListener('click', hapAfatetFaqe);
   $('afPrapa').addEventListener('click', function () { if (afZgjedhja) dilNgaZgjedhja(); else mbyllAfatetFaqe(); });
   $('afKerko').addEventListener('input', renderAfatet);
   Array.prototype.forEach.call(document.querySelectorAll('#afFiltrat button'), function (b) {
@@ -4684,7 +4790,7 @@
 
   var MESAZHET_AI = {
     'pa-konfigurim': 'Leximi automatik me AI s\'është aktivizuar ende. Shkruaji rreshtat me dorë duke parë foton (kliko foton për ta zmadhuar).',
-    'pa-hyrje': 'Për leximin me AI duhet të jesh i kyçur në llogari (Opsionet → Llogaria). Deri atëherë, shkruaji rreshtat me dorë.',
+    'pa-hyrje': 'Për leximin me AI duhet të jesh i kyçur në llogari (Cilësimet → Llogaria). Deri atëherë, shkruaji rreshtat me dorë.',
     'rrjeti': 'S\'ka lidhje me internetin. Shkruaji rreshtat me dorë ose provo përsëri më vonë.',
     'foto-shume-e-madhe': 'Fotoja është shumë e madhe. Provo përsëri.',
     'pa-celes': 'Leximi me AI s\'është konfiguruar plotësisht (mungon çelësi API në Worker). Shkruaji rreshtat me dorë.',
