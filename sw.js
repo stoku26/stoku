@@ -7,6 +7,9 @@
  * "?v=" te index.html, pc.html dhe më poshtë — që asnjë pajisje të mos përdorë kopjen e vjetër.
  */
 var CACHE = 'stoku-v85';
+
+// Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
+importScripts('./afatet.js?v=80', './njoftimet.js?v=85');
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.2/dist/iife/ponyfill.js',
@@ -23,6 +26,7 @@ var SHELL = [
   './ruajtja.js?v=81',
   './afatet.js?v=80',
   './porta.js?v=77',
+  './njoftimet.js?v=85',
   './manifest.webmanifest?v=84',
   './icon-192.png',
   './icon-512.png',
@@ -100,4 +104,26 @@ self.addEventListener('fetch', function (e) {
       });
     })
   );
+});
+
+// ---------- Njoftimet për afatet ----------
+// Chrome në Android (app e instaluar) e zgjon service worker-in herë pas here (zakonisht ~1 herë në ditë).
+self.addEventListener('periodicsync', function (e) {
+  if (e.tag === 'stoku-afatet') e.waitUntil(self.StokuNjoftimet.kontrollo(self.registration));
+});
+
+// Prekja e njoftimit hap aplikacionin te "Afatet e produkteve"
+self.addEventListener('notificationclick', function (e) {
+  e.notification.close();
+  var url = (e.notification.data && e.notification.data.url) || './index.html#afatet';
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (dritaret) {
+    for (var i = 0; i < dritaret.length; i++) {
+      var d = dritaret[i];
+      if (!/\/pc(\.html)?$/.test(new URL(d.url).pathname)) {
+        d.postMessage({ lloji: 'hap-afatet' });
+        return d.focus();
+      }
+    }
+    return self.clients.openWindow(url);
+  }));
 });

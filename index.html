@@ -698,6 +698,18 @@
   .af-skano:active { background: var(--hover); }
   #dlgKuFleta { z-index: 24; }
   #dlgKuFleta .dialog { max-width: 420px; }
+  #dlgNjoftimet { z-index: 25; }
+  .nj-dialog { max-width: 400px; text-align: left; }
+  .nj-ikona {
+    width: 56px; height: 56px; border-radius: 16px; margin-bottom: 14px; color: #fff;
+    display: flex; align-items: center; justify-content: center; background: var(--primar);
+  }
+  .nj-dialog .nj-tekst { margin-bottom: 8px; }
+  .nj-lista { list-style: none; margin: 0 0 14px; padding: 0; font-size: 15px; color: var(--dialog-tekst); }
+  .nj-lista li { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; line-height: 1.4; }
+  .nj-pike { flex: none; width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; }
+  .nj-pike.verdhe { background: #f5b400; }
+  .nj-pike.kuqe { background: #e5483e; }
   #dlgAfExcel { z-index: 24; }
   #dlgAfExcel .dialog { max-width: 420px; }
   .ax-nen { margin: -6px 0 10px; font-size: 14px; color: var(--gri); }
@@ -1192,6 +1204,23 @@
   </div>
 </div>
 
+<!-- Leje për njoftimet e afateve (pyetet kur aplikacioni hapet i instaluar) -->
+<div class="mbulese" id="dlgNjoftimet">
+  <div class="dialog nj-dialog" role="dialog" aria-modal="true" aria-labelledby="njTitulli">
+    <div class="nj-ikona"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg></div>
+    <h2 id="njTitulli">Njoftimet për afatet</h2>
+    <p class="nj-tekst">Të lajmërojmë me njoftim në telefon:</p>
+    <ul class="nj-lista">
+      <li><span class="nj-pike verdhe"></span><span>kur një produkti i kanë mbetur <b>30 ditë</b> deri në skadim</span></li>
+      <li><span class="nj-pike kuqe"></span><span>kur një produkt <b>skadon</b> — që ta heqësh nga rafti/pozita</span></li>
+    </ul>
+    <div class="veprime">
+      <button class="btn tekst" id="njJoTani" type="button">Jo tani</button>
+      <button class="btn" id="njAktivizo" type="button">Aktivizo njoftimet</button>
+    </div>
+  </div>
+</div>
+
 <!-- Afati: shto / ndrysho -->
 <div class="mbulese" id="dlgAfat">
   <div class="dialog" role="dialog" aria-modal="true">
@@ -1252,6 +1281,7 @@
 <script src="bashkimi.js?v=81"></script>
 <script src="ruajtja.js?v=81"></script>
 <script src="afatet.js?v=80"></script>
+<script src="njoftimet.js?v=85"></script>
 <script>
 (function () {
   'use strict';
@@ -3763,7 +3793,7 @@
   // thjesht klasën), që logjika e tyre (p.sh. konfirmo() që pret përgjigje) të përfundojë saktë.
   var ANULO_SIPAS_DIALOGUT = {
     dlgProdukt: 'dlgAnulo', dlgZhvendos: 'zhvendosAnulo', dlgFshirje: 'fshiAnulo',
-    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgAfExcel: 'axAnulo'
+    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgNjoftimet: 'njJoTani', dlgAfExcel: 'axAnulo'
   };
   function mbyllShtresenMeTeFundit() {
     // Kamera del mbi çdo dialog (p.sh. skanimi te "Afat i ri"), prandaj mbyllet e para
@@ -4102,6 +4132,7 @@
   }
 
   function rifreskoAfatet() {
+    kontrolloNjoftimet();
     rifreskoShenjen();
     if ($('dlgAfatet').classList.contains('hapur')) renderAfatet();
   }
@@ -4784,6 +4815,81 @@
   // Rifreskim i përditshëm i ngjyrave (p.sh. kur aplikacioni mbetet hapur pas mesnatës)
   setInterval(rifreskoShenjen, 10 * 60 * 1000);
   rifreskoShenjen();
+
+  // ---------- Njoftimet për afatet (30 ditë para skadimit, dhe kur skadon) ----------
+  // Lista e afateve kopjohet në IndexedDB që service worker-i ta kontrollojë edhe kur aplikacioni është mbyllur;
+  // kur aplikacioni është hapur, kontrolli bëhet këtu pas çdo ndryshimi dhe kur rikthehesh në aplikacion.
+  var KEY_NJ_JO_TANI = 'stoku:njoftimet:jo-tani';
+  var njKohezi = null, njZinxhiri = Promise.resolve();
+  function njoftimetMbeshteten() { return 'Notification' in window && 'serviceWorker' in navigator && !!window.StokuNjoftimet; }
+  function kontrolloNjoftimet() {
+    if (!njoftimetMbeshteten()) return;
+    clearTimeout(njKohezi);
+    njKohezi = setTimeout(function () {
+      var kopje = afatet.slice();
+      njZinxhiri = njZinxhiri.then(function () { return window.StokuNjoftimet.ruajAfatet(kopje); }).then(function () {
+        if (Notification.permission !== 'granted') return;
+        return navigator.serviceWorker.ready.then(function (reg) { return window.StokuNjoftimet.kontrollo(reg); });
+      }).catch(function () { /* ok */ });
+    }, 1500);
+  }
+  function regjistroKontrollinPeriodik() {
+    if (!njoftimetMbeshteten()) return;
+    navigator.serviceWorker.ready.then(function (reg) {
+      if (!reg.periodicSync || !navigator.permissions) return;
+      return navigator.permissions.query({ name: 'periodic-background-sync' }).then(function (leja) {
+        if (leja.state === 'granted') return reg.periodicSync.register('stoku-afatet', { minInterval: 12 * 3600 * 1000 });
+      });
+    }).catch(function () { /* s'mbështetet — kontrolli bëhet kur hapet aplikacioni */ });
+  }
+  function eshteInstaluar() {
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  }
+  function pyetPerNjoftimet() {
+    if (!njoftimetMbeshteten() || Notification.permission !== 'default' || !eshteInstaluar()) return;
+    if (window.StokuPorta && window.StokuPorta.eHapur()) return;
+    var jo = 0;
+    try { jo = Number(localStorage.getItem(KEY_NJ_JO_TANI)) || 0; } catch (e) { /* ok */ }
+    if (Date.now() - jo < 3 * 86400000) return; // "Jo tani" → pyet sërish pas 3 ditësh
+    if (document.querySelector('.mbulese.hapur')) return; // mos e ndërprit punën — pyetet herën tjetër
+    $('dlgNjoftimet').classList.add('hapur');
+  }
+  $('njJoTani').addEventListener('click', function () {
+    try { localStorage.setItem(KEY_NJ_JO_TANI, String(Date.now())); } catch (e) { /* ok */ }
+    $('dlgNjoftimet').classList.remove('hapur');
+  });
+  $('njAktivizo').addEventListener('click', function () {
+    $('dlgNjoftimet').classList.remove('hapur');
+    Promise.resolve(Notification.requestPermission()).then(function (p) {
+      if (p === 'granted') {
+        regjistroKontrollinPeriodik();
+        kontrolloNjoftimet();
+        toast('Njoftimet u aktivizuan.');
+      } else if (p === 'denied') {
+        toast('Njoftimet u refuzuan. Mund t\'i lejosh te cilësimet e telefonit → Aplikacionet → Stoku → Njoftimet.');
+      }
+    }).catch(function () { /* ok */ });
+  });
+  function hapAfatetNgaNjoftimi() {
+    if (window.StokuPorta && window.StokuPorta.eHapur()) return false;
+    if (!$('dlgAfatet').classList.contains('hapur')) hapAfatetFaqe();
+    return true;
+  }
+  if (location.hash === '#afatet') {
+    try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) { /* ok */ }
+    if (!hapAfatetNgaNjoftimi()) window.addEventListener('stoku-porta-hapur', hapAfatetNgaNjoftimi, { once: true });
+  }
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', function (ev) {
+      if (ev.data && ev.data.lloji === 'hap-afatet') hapAfatetNgaNjoftimi();
+    });
+  }
+  window.addEventListener('stoku-porta-hapur', function () { setTimeout(pyetPerNjoftimet, 1500); });
+  setTimeout(pyetPerNjoftimet, 2000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) kontrolloNjoftimet(); });
+  setInterval(function () { if (!document.hidden) kontrolloNjoftimet(); }, 30 * 60 * 1000);
+  if (njoftimetMbeshteten() && Notification.permission === 'granted') regjistroKontrollinPeriodik();
+  kontrolloNjoftimet();
 
   // ---------- Service worker (punon edhe pa internet) ----------
   if ('serviceWorker' in navigator) {
