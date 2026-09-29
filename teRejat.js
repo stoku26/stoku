@@ -13,6 +13,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 93, data: '2026-09-29', titulli: 'Importi i stokut: krijo folder të ri aty për aty', pikat: [
+      'Te importi i stokut nga foto, në zgjedhjen e folderit tani ka edhe "+ Folder i ri…" — e krijon dhe e zgjedh menjëherë, pa dalë nga kontrolli i listës.'
+    ] },
     { v: 92, data: '2026-09-29', titulli: 'Importo stokun nga një fletë e fotografuar', pikat: [
       'Në faqen kryesore, lart djathtas: fotografo (ose zgjidh nga galeria) një fletë ku janë shkruar produktet — barkodi, emri, sasia — dhe AI-ja i lexon rreshtat.',
       'I kontrollon dhe i korrigjon njësoj si te Afatet, zgjedh folderin ku shkojnë, dhe i ruan; nëse barkodi ekziston tashmë atje, sasia i shtohet.'

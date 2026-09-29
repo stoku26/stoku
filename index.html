@@ -609,6 +609,7 @@
   .mbulese.faqe-e-plote.hapur { transform: translateX(0); pointer-events: auto; }
   #dlgAfatLexim { z-index: 22; }
   #dlgImportStok { z-index: 22; }
+  #dlgFolder { z-index: 23; } /* mbi #dlgImportStok — hapet edhe nga aty, "+ Folder i ri" */
   #dlgAfat { z-index: 23; }
   .faqe-kuti { width: 100%; height: 100%; background: var(--sfond); display: flex; flex-direction: column; }
   .faqe-trup {
@@ -1393,7 +1394,7 @@
 <script src="ruajtja.js?v=81"></script>
 <script src="afatet.js?v=89"></script>
 <script src="njoftimet.js?v=85"></script>
-<script src="teRejat.js?v=92"></script>
+<script src="teRejat.js?v=93"></script>
 <script>
 (function () {
   'use strict';
@@ -2127,12 +2128,21 @@
   $('btnMbrapa').addEventListener('click', mbrapaNeFoldera);
 
   // Folder i ri
+  // pasKrijimitTeFolderit/pasAnulimitTeFolderit: thirren opsionalisht nga vende të tjera (p.sh. "+ Folder
+  // i ri" te importi i stokut) që duan të dinë rezultatin pa e ndërlikuar hapjen e zakonshme të dialogut.
+  var pasKrijimitTeFolderit = null;
+  var pasAnulimitTeFolderit = null;
   function hapDialoguFolder() {
     $('dlgFolderEmri').value = '';
     $('dlgFolder').classList.add('hapur');
     $('dlgFolderEmri').focus();
   }
   function mbyllDialoguFolder() { $('dlgFolder').classList.remove('hapur'); }
+  function anuloDialoguFolder() {
+    mbyllDialoguFolder();
+    pasKrijimitTeFolderit = null;
+    if (pasAnulimitTeFolderit) { var cb = pasAnulimitTeFolderit; pasAnulimitTeFolderit = null; cb(); }
+  }
 
   function krijoFolderin() {
     var emri = $('dlgFolderEmri').value.trim();
@@ -2142,16 +2152,18 @@
     ruajBaze();
     mbyllDialoguFolder();
     renderFolderat();
+    pasAnulimitTeFolderit = null;
+    if (pasKrijimitTeFolderit) { var cb = pasKrijimitTeFolderit; pasKrijimitTeFolderit = null; cb(id); }
   }
 
   $('btnKrijoFolder').addEventListener('click', hapDialoguFolder);
   $('dlgFolderRuaj').addEventListener('click', krijoFolderin);
-  $('dlgFolderAnulo').addEventListener('click', mbyllDialoguFolder);
+  $('dlgFolderAnulo').addEventListener('click', anuloDialoguFolder);
   $('dlgFolderEmri').addEventListener('keydown', function (ev) {
     if (ev.key === 'Enter') { ev.preventDefault(); krijoFolderin(); }
   });
   $('dlgFolder').addEventListener('click', function (ev) {
-    if (ev.target === $('dlgFolder')) mbyllDialoguFolder();
+    if (ev.target === $('dlgFolder')) anuloDialoguFolder();
   });
 
   // Fshirja e një folderi (bashkë me produktet brenda tij)
@@ -5037,19 +5049,32 @@
   $('impFotoGaleria').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) lexoFletenStok(f); });
 
   var KEY_FOLDER_IMPORTIT = 'stoku:import-stok:folderi';
-  function mbushFolderatImportit() {
+  var IMP_FOLDER_RI = '__ri__';
+  function mbushFolderatImportit(zgjidhId) {
     var s = $('impFolderi');
     s.textContent = '';
     foldera.forEach(function (f) {
       var o = document.createElement('option'); o.value = f.id; o.textContent = f.emri;
       s.appendChild(o);
     });
-    var i = null;
-    try { i = localStorage.getItem(KEY_FOLDER_IMPORTIT); } catch (e) { /* ok */ }
+    var oRi = document.createElement('option'); oRi.value = IMP_FOLDER_RI; oRi.textContent = '+ Folder i ri…';
+    s.appendChild(oRi);
+    var i = zgjidhId || null;
+    if (!i) { try { i = localStorage.getItem(KEY_FOLDER_IMPORTIT); } catch (e) { /* ok */ } }
     s.value = (i && foldera.some(function (f) { return f.id === i; })) ? i : foldera[0].id;
   }
   $('impFolderi').addEventListener('change', function () {
-    try { localStorage.setItem(KEY_FOLDER_IMPORTIT, $('impFolderi').value); } catch (e) { /* ok */ }
+    var s = $('impFolderi');
+    if (s.value !== IMP_FOLDER_RI) { try { localStorage.setItem(KEY_FOLDER_IMPORTIT, s.value); } catch (e) { /* ok */ } return; }
+    var iParaprak = null;
+    try { iParaprak = localStorage.getItem(KEY_FOLDER_IMPORTIT); } catch (e) { /* ok */ }
+    if (!iParaprak || !foldera.some(function (f) { return f.id === iParaprak; })) iParaprak = foldera[0].id;
+    pasAnulimitTeFolderit = function () { s.value = iParaprak; };
+    pasKrijimitTeFolderit = function (idIRi) {
+      mbushFolderatImportit(idIRi);
+      try { localStorage.setItem(KEY_FOLDER_IMPORTIT, idIRi); } catch (e) { /* ok */ }
+    };
+    hapDialoguFolder();
   });
 
   function statusiImportit(tekst, gabim, meSpinner) {
