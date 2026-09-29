@@ -10,7 +10,7 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v109';
+var CACHE = 'stoku-v110';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
 importScripts('./afatet.js?v=90', './njoftimet.js?v=85');
@@ -26,12 +26,12 @@ var FAQET = ['./', './index.html', './pc.html'];
 var SHELL = FAQET.concat([
   './xlsx.js?v=58',
   './bashkimi.js?v=81',
-  './ruajtja.js?v=81',
+  './ruajtja.js?v=110',
   './afatet.js?v=90',
-  './ekipa.js?v=1',
+  './ekipa.js?v=2',
   './porta.js?v=86',
   './njoftimet.js?v=85',
-  './teRejat.js?v=100',
+  './teRejat.js?v=110',
   './manifest.webmanifest?v=84',
   './icon-192.png',
   './icon-512.png',
@@ -157,7 +157,7 @@ self.addEventListener('notificationclick', function (e) {
   e.notification.close();
   var url = (e.notification.data && e.notification.data.url) || './index.html#afatet';
   var perPc = /pc\.html/.test(url);
-  var mesazhi = /#\/?ekipa/.test(url) ? { lloji: 'hap-ekipa', pamja: /chat/.test(url) ? 'chat' : 'afatet' } : { lloji: 'hap-afatet' };
+  var mesazhi = /#\/?ekipa/.test(url) ? { lloji: 'hap-ekipa', pamja: /chat/.test(url) ? 'chat' : /anetaret/.test(url) ? 'anetaret' : 'afatet' } : { lloji: 'hap-afatet' };
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (dritaret) {
     for (var i = 0; i < dritaret.length; i++) {
       var d = dritaret[i];

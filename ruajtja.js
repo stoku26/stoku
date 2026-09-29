@@ -39,6 +39,28 @@
   function kohaP(p) { return (p && typeof p.prekurSe === 'number') ? p.prekurSe : 0; }
   function kohaA(a) { return (a && typeof a.ndryshuarSe === 'number') ? a.ndryshuarSe : 0; }
 
+  // Paraqitje e qëndrueshme e një vlere: fushat e renditura (Firestore i kthen me rend tjetër nga objekti
+  // lokal) dhe fushat `undefined` jashtë (s'ruhen fare në Firestore).
+  function kanonik(x) {
+    if (Array.isArray(x)) return '[' + x.map(kanonik).join(',') + ']';
+    if (x && typeof x === 'object') {
+      return '{' + Object.keys(x).sort().filter(function (k) { return x[k] !== undefined; })
+        .map(function (k) { return JSON.stringify(k) + ':' + kanonik(x[k]); }).join(',') + '}';
+    }
+    return JSON.stringify(x === undefined ? null : x);
+  }
+  // Një pjesë, pa marrë parasysh rendin e produkteve/afateve brenda saj — që një pjesë e pandryshuar të
+  // mos rishkruhet në çdo ruajtje (përndryshe çdo sinkronizim i rishkruante krejt pjesët dhe çdo pajisje
+  // i shkarkonte sërish të gjitha).
+  function pjesaKanonike(pj) {
+    if (!pj) return null;
+    var o = {};
+    Object.keys(pj).forEach(function (k) {
+      o[k] = (k === 'produktet' || k === 'afatet') && Array.isArray(pj[k]) ? pj[k].map(kanonik).sort() : pj[k];
+    });
+    return kanonik(o);
+  }
+
   // Bashkon kryesorin + pjesët në gjendjen e plotë (një produkt/afat që del në dy vende → merret më i riu)
   function bashkoPjeset(kryesori, pjeset) {
     if (!kryesori && !(pjeset && pjeset.length)) return null;
@@ -126,15 +148,16 @@
             var s = await tx.get(refKryesor());
             var k = s.exists() ? s.data() : null;
             var nPara = (k && Number(k.pjeset)) || 0;
-            var teVjetrat = [];
-            for (var i = 0; i < nPara; i++) teVjetrat.push(await tx.get(refPjesa(i)));
+            var leximet = [];
+            for (var i = 0; i < nPara; i++) leximet.push(tx.get(refPjesa(i))); // njëkohësisht, jo një nga një
+            var teVjetrat = await Promise.all(leximet);
             var pjesetPara = teVjetrat.map(function (x) { return x.exists() ? x.data() : null; });
             var eRe = fnBashko(bashkoPjeset(k, pjesetPara));
             var nd = ndajNePjese(eRe, nPara);
             tx.set(refKryesor(), nd.kryesori);
             nd.pjeset.forEach(function (pj, i) {
               var para = pjesetPara[i];
-              if (!para || JSON.stringify(para) !== JSON.stringify(pj)) tx.set(refPjesa(i), pj); // vetëm pjesët që ndryshuan
+              if (!para || pjesaKanonike(para) !== pjesaKanonike(pj)) tx.set(refPjesa(i), pj); // vetëm pjesët që ndryshuan
             });
             return eRe;
           });
@@ -196,7 +219,7 @@
     return { merr: merr, bashkoDheRuaj: bashkoDheRuaj, ruaj: ruaj, degjo: degjo, modaPjeseve: function () { return modaPjeseve; } };
   }
 
-  var api = { krijo: krijo, bashkoPjeset: bashkoPjeset, ndajNePjese: ndajNePjese };
+  var api = { krijo: krijo, bashkoPjeset: bashkoPjeset, ndajNePjese: ndajNePjese, pjesaKanonike: pjesaKanonike };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuRuajtja = api;
 })(typeof self !== 'undefined' ? self : this);
