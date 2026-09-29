@@ -13,10 +13,6 @@
   'use strict';
 
   var LISTA = [
-    { v: 95, data: '2026-09-29', titulli: 'Kompjuteri: dy taba lart — Stoku dhe Afatet', pikat: [
-      'Lart, poshtë kërkimit, tani ka dy taba të mëdhenj: "Stoku" dhe "Afatet" — kalon nga njëri te tjetri me një klikim.',
-      '"Afatet e produkteve" u hoq nga fundi i anësores, tani është tabi djathtas lart.'
-    ] },
     { v: 94, data: '2026-09-29', titulli: 'Importi i stokut: furnizuesi + dërgo në kompjuter', pikat: [
       'Te importi i stokut nga foto, tani lexohet edhe furnizuesi për çdo produkt (jo vetëm barkodi/emri/sasia).',
       'Pas fotos, mund të zgjedhësh: vazhdo këtu në telefon, ose dërgoje në kompjuter për ta kontrolluar atje — njësoj si te Afatet.'
