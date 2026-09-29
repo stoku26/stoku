@@ -67,6 +67,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    përmirësim i dukshëm), SHTO NJË HYRJE në krye të `LISTA` në `teRejat.js`, me `v` = numri i ri i CACHE,
    `data`, `titulli` i shkurtër, dhe `pikat` — fjali të thjeshta për punëtorë/menaxhere, jo teknike, në
    shqip. Kjo shfaqet automatikisht si dritare "Çka ka të re" në hyrje të parë pas versionit të ri.
+   **Që nga v109: `platforma: 'tel'` ose `'pc'`** te hyrjet që vlejnë vetëm për njërën (p.sh. "Kompjuteri: …"
+   → `'pc'`); pa `platforma` = të dyja. Telefoni thërret `teRejatPas(v, 'tel')`, PC-ja `teRejatPas(v, 'pc')`
+   — kërkesë e përdoruesit: "në telefon mos i shfaq të rejat e PC-së, dhe anasjelltas".
 
 4. **Firebase (projekti `stoku-appi`):**
    - Auth me emër përdoruesi (jo email): shndërrohet vetë në `emri@stoku-app.local` për Firebase Auth,
@@ -111,39 +114,39 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 
 9. **"Opsionet" quhet tani "Cilësimet"** (që nga v90) — mos e kthe mbrapsht pa u pyetur.
 
-10. **"Ekipi" (v105):** pamje e re, e përbashkët për KREJT llogaritë ekzistuese të Stoku-t (s'ka ftesë,
-    s'ka "ekipe" të ndara — çdo llogari e sheh çdo llogari tjetër, kërkesë eksplicite e përdoruesit:
-    "Krejt llogaritë e Stoku-t sot, një ekip i vetëm"). Telefon: tabi i tretë `#btnEkipi`/`#dlgEkipi`
-    (mes Afatet dhe Cilësimet). PC: seksioni i tretë i akordionit `#btnAkordEkipi`/`#akordEkipiTrupi`
-    (nën Afatet), faqja `#pamjaEkipi` (`shkoTe('ekipi')`).
-    - **Vetëm-lexim, e thjeshtë me qëllim**: Ekipi tregon produktet+afatet e krejt përdoruesve, por s'ka
-      butona fshij/ndrysho fare — as për të vetat, as për të të tjerëve. Kjo e plotëson vetë kërkesën
-      ("të tjerët s'i fshijnë të miat") pa dashur logjikë e re lejesh: për t'i ndryshuar TË TUAT, shkon
-      te tabi normal Stoku/Afatet (janë të njëjtat të dhëna, thjesht të paraqitura ndryshe këtu).
-    - **Dizajni (v107, pas 4 provash të refuzuara si "palidhje")**: Ekipi NUK ka stil të vetin — përdor
-      saktësisht pjesët që ekzistojnë te Stoku/Afatet, që të duket pjesë e aplikacionit.
-      Telefon: faqja e parë = kartat e kolegëve si `.folder-karta` (si folderat e Stokut; "Krejt ekipi" e
-      gjerë lart, pastaj secili koleg, me "N produkte · M afate" dhe "K të skaduara" me të kuqe). Prek një
-      kartë → lista e atij (titulli bëhet emri i tij), me `.af-filtrat` Stoku/Afatet, `.kerko-kuti`, produktet
-      si `.artikull` (si te kërkimi global, me etiketën e folderit) dhe afatet si `.af-karta` me ngjyra (si te
-      Afatet, pa butona). "←"/mbrapa i Android-it kthehen te kartat (klasa `ne-anetar` në `#dlgEkipi`).
-      PC: kartat e kolegëve si `kpi()` të Përmbledhjes (e zgjedhura me kornizë), pastaj `.segmente`
-      Stoku/Afatet + kërkim, dhe e njëjta `.tabela` si "Të gjitha produktet" / tabela e Afateve (statusi me
-      ngjyra). "Krejt ekipi" shton kolonën "Përdoruesi". Maks. 300 (tel) / 500 (PC) rreshta, pastaj "kërko".
-      Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo pamje, PYET së pari çka saktësisht don
-      ndryshe (u provuan dhe u refuzuan: karta të palosshme, grid me karta, tabelë+çipa).
-    - **Client:** `window.__stokuCloud.krejtPerdoruesit()` (getDocs mbi `perdoruesit`) +
-      `merrDyqaninEPerdoruesit(uid)` (instancë e re, vetëm-lexim, e `ruajtja.krijo(...)` me `uidFn` fiks
-      në vend të `auth.currentUser.uid`) — shto në TË DYJA index.html dhe pc.html nëse ndryshon API-ja.
-      Vetë-regjistrimi te `perdoruesit/{uid}` (`{emri, kycurSe}`) ndodh në `regjistrohu`/`hyr` DHE në
-      `onAuthStateChanged` (që llogaritë ekzistuese, të kyçura para v105, të regjistrohen vetë herën
-      tjetër që hapin app-in, pa pasur nevojë të hyjnë sërish).
-    - **Rifreskohet vetëm kur hapet faqja** (jo në çdo ndryshim lokal) — flamuri `__ekipiNgarkuar` (tel)
-      / `__ekipiPcNgarkuar` (PC). S'është "live"; nëse duhet real-time në të ardhmen, kërkon degjim
-      (`onSnapshot`) mbi dyqanin e secilit përdorues — jo bërë me qëllim, do të shtonte kompleksitet.
-    - **Rregullat e Firestore duhen zgjeruar** (shih fundi i këtij skedari) — pa to, `krejtPerdoruesit()`
-      dhe `merrDyqaninEPerdoruesit()` dështojnë në heshtje (faqja thotë "S'u gjet asnjë llogari" ose
-      "kërkon lidhje me cloud-in").
+10. **"Ekipa" (v105 si "Ekipi"; rindërtuar krejt në v109).** Tab/seksion për KREJT llogaritë e Stoku-t si një
+    ekip i vetëm (s'ka ftesa/grupe — kërkesë eksplicite). **Vetëm afatet, jo stoku** (v109, kërkesë e
+    përdoruesit). Telefon: tabi i tretë `#btnEkipi`/`#dlgEkipi`; PC: seksioni i tretë i akordionit
+    (`#btnAkordEkipi`) me nën-zëra `[data-ek]`, faqja `#pamjaEkipi`, adresa `#/ekipa[/<nën-pamja>]`
+    (`#/ekipi` i vjetër pranohet). ID-të e brendshme mbetën "ekipi" — vetëm tekstet u bënë "Ekipa".
+    - **`ekipa.js` (i ri, i përbashkët tel+PC)**: (1) `krijoCloud(fs, db, auth, platforma)` → `__stokuCloud.ekipa`
+      (prania, aktiviteti, chat-i, njoftimet personale); (2) funksione të pastra të testueshme me node
+      (`kohaRelative`, `eshteOnline`, `kalendari`, `statistikat`, `tekstiNgjarjes`, `duhetZbatuarHeqja`…);
+      (3) `krijoKontrollues(o)` — mban gjendjen + dëgjuesit; faqet (index/pc) VETËM vizatojnë kur thirret
+      `o.ndryshoi(cfare)`. Çdo ndryshim logjike bëje TE ekipa.js, jo dy herë.
+    - **Firestore**: `perdoruesit/{uid}` (+ `aktivSe`, `online`, `platforma` për praninë — rrahje çdo 90 s kur
+      aplikacioni është përpara; "online" = `online:true` dhe rrahja < 4 min), `perdoruesit/{uid}/njoftimet`
+      (njoftimet personale; pronari i lexon/shënon `lexuar`), `ekipa_feed` (aktiviteti), `ekipa_chat`.
+      Asnjë indeks i përbërë s'nevojitet (vetëm `orderBy('koha')` ose `where('lexuar','==',false)`).
+    - **Dyqani i secilit mbetet i PRONARIT.** "Unë e hoqa" te një afat i SKADUAR i kolegut: shkruan një
+      njoftim te `perdoruesit/{pronari}/njoftimet` + një ngjarje te `ekipa_feed`. Aplikacioni i pronarit (kur
+      hapet, ose menjëherë nëse është hapur) e zbaton vetë (`zbatoHeqjetEKolegeve` tel / `ekZbatoHeqjet` PC):
+      `statusi:'hequr'`, `hequrNga` = emri i kolegut — VETËM nëse `duhetZbatuarHeqja()` (afati ka skaduar
+      vërtet dhe s'është ndryshuar pas heqjes). Deri atëherë, të tjerët e shohin si "të hequr" nga aktiviteti
+      (`mbivendosHeqjen`). Kështu askush s'ka nevojë për leje shkrimi te dyqani i tjetrit.
+    - **Aktiviteti** mbushet nga: `shenoHequr`, `shenoLajmeruar`/lista e furnizuesit, `riktheAktiv`, afatet e
+      reja (mblidhen 20 s → "shtoi N afate"), anëtar i ri. Afatet e kolegëve lexohen (jo dëgjohen) kur hapet
+      Ekipa, dhe rifreskohen vetëm për kolegun që ka një ngjarje të re (stoku ndryshon shpesh — s'ia vlen).
+    - **Zilja** = njoftimet personale; **njoftim i sistemit** vetëm kur aplikacioni është HAPUR në sfond (s'ka
+      server/FCM — kur aplikacioni është krejt i mbyllur, njoftimi del te zilja herën tjetër që hapet).
+      SW-ja (`notificationclick`) i dërgon dritares `hap-ekipa` (tel: `#ekipa-<pamja>`, PC: `#/ekipa/…`).
+    - **Pamjet** (tel: çipat `#ekMenu`; PC: `.segmente#ekMenu` + anësorja): Afatet (kartat e anëtarëve →
+      lista/tabela me "Unë e hoqa"), Aktiviteti, Chat, Kalendari (ngjyra për ditë: e kuqe/verdhë/gjelbër,
+      e ndërprerë = të hequra), Anëtarët (online/parë së fundi, pajisja), Statistika. Dizajni përdor VETËM pjesët
+      ekzistuese (folder-karta, af-numer, af-karta, artikull, af-filtrat / kpi, segmente, tabela, shiritat e
+      Përmbledhjes) — 5 dizajne të veçanta u refuzuan si "palidhje" para këtij.
+    - Testi me dy përdorues: `ekipa-server.js` (Firebase i simuluar në node, `exposeBinding`) +
+      `ekipa-tel-test.js` / `ekipa-pc-test.js` (scratchpad) — agimi në telefon, blerta në PC.
 
 11. **Leja e "sasisë së shpejtë" (butonat +/- te lista) ndjek LLOGARINË, jo emrin (v108).** Më parë ishte e
     lidhur me emrin `albidepo34` në kod — kur ai e ndërroi emrin në `tonnyaliu`, e humbi. Tani: flamuri
@@ -293,34 +296,59 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
-## Rregulla Firestore të propozuara — "Ekipi" (v105) — DUHEN VENDOSUR NGA PËRDORUESI
+## Rregullat e Firestore — "Ekipa" (v109) — i vendos PËRDORUESI (unë s'kam qasje)
 
-Që "Ekipi" të funksionojë, rregullat e Firestore duhen zgjeruar që çdo përdorues i KYÇUR të mund të
-LEXOJË (jo shkruajë) `perdoruesit/*` dhe `dyqane/*` (+ `pjeset`) të CILITDO përdoruesi tjetër. Shto
-(bashko, mos zëvendëso krejt skedarin) diçka si më poshtë te rregullat ekzistuese:
+Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Përmban edhe mbylljen e një vrime
+të vjetër: më parë çdo përdorues mund të shkruante `emri: 'mendurberisha'` te `perdoruesit/{uid}` i vet dhe të
+bëhej admin; tani aplikacioni s'mund ta shtojë/ndryshojë fushën `emri` (admin-i ndreqet vetëm nga Console).
 
 ```
-match /perdoruesit/{uid} {
-  allow read: if request.auth != null;                 // Ekipi: kush jam unë vs. të tjerët
-  allow write: if request.auth != null && request.auth.uid == uid;
-}
-match /dyqane/{uid} {
-  allow read: if request.auth != null;                 // Ekipi: lexo dyqanin e cilitdo
-  allow write: if request.auth != null && request.auth.uid == uid;
-  match /pjeset/{pjesa} {
-    allow read: if request.auth != null;
-    allow write: if request.auth != null && request.auth.uid == uid;
-  }
-  match /fletet/{fleta} {
-    allow read, write: if request.auth != null && request.auth.uid == uid; // fletët MBETEN private
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function eshteAdmin() {
+      return get(/databases/$(database)/documents/perdoruesit/$(request.auth.uid)).data.emri == 'mendurberisha';
+    }
+    match /dyqane/{kodi} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && (request.auth.uid == kodi || eshteAdmin());
+      match /pjeset/{pjesa} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null && (request.auth.uid == kodi || eshteAdmin());
+      }
+      match /fletet/{fleta} {
+        allow read, write: if request.auth != null && (request.auth.uid == kodi || eshteAdmin());
+      }
+    }
+    match /perdoruesit/{uid} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == uid
+        && !request.resource.data.keys().hasAny(['emri']);
+      allow update: if request.auth != null && request.auth.uid == uid
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['emri']);
+      match /njoftimet/{nid} {
+        allow read, update, delete: if request.auth != null && request.auth.uid == uid;
+        allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      }
+    }
+    match /ekipa_feed/{id} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+    match /ekipa_chat/{id} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid
+        && request.resource.data.tekst is string
+        && request.resource.data.tekst.size() > 0 && request.resource.data.tekst.size() <= 2000;
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
   }
 }
 ```
 
-**MOS e prek/hiq admin-in (`mendurberisha`) apo ndonjë rregull tjetër ekzistuese** — vetëm shto/bashko
-këto `allow read` shtesë. Nëse rregullat ekzistuese tashmë kanë `match /dyqane/{uid}` (ka gjasa, meqë
-sinkronizimi telefon↔PC funksionon), thjesht ZGJERO `allow read` aty (dhe te `pjeset`) nga
-`request.auth.uid == uid` në `request.auth != null`, DUKE E LËNË `allow write` siç është (vetëm pronari).
+Pa këto rregulla: aktiviteti, chat-i dhe zilja thjesht s'mbushen (dëgjuesit marrin "permission-denied" dhe
+heshtin); pjesa tjetër e aplikacionit punon njësoj.
 
 ## Kontakte/aksese që s'i kam
 
