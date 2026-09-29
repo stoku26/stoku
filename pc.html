@@ -4105,7 +4105,8 @@
       var rrezja = Math.max(16, img.naturalWidth / 55);
       numratRreshtat.forEach(function (r, i) {
         if (r.x == null || r.y == null) return;
-        var cx = r.x * img.naturalWidth, cy = r.y * img.naturalHeight;
+        // Zhvendos majtas (jashtë tekstit të rreshtit), jo mbi vetë barkodin: rrezja e rrethit + hapësirë e vogël.
+        var cx = r.x * img.naturalWidth - rrezja * 1.3, cy = r.y * img.naturalHeight;
         var rrethi = document.createElementNS(SVGNS, 'circle');
         rrethi.setAttribute('cx', cx); rrethi.setAttribute('cy', cy); rrethi.setAttribute('r', rrezja);
         rrethi.setAttribute('fill', '#fff'); rrethi.setAttribute('stroke', '#e53935'); rrethi.setAttribute('stroke-width', String(rrezja / 4.5));
