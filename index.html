@@ -1342,7 +1342,7 @@
         <button type="button" data-n="aktiviteti">Aktiviteti</button>
         <button type="button" data-n="chat">Chat<span class="ek-pike" id="ekChatPike" style="display:none"></span></button>
         <button type="button" data-n="kalendari">Kalendari</button>
-        <button type="button" data-n="anetaret">Anëtarët</button>
+        <button type="button" data-n="anetaret">Anëtarët<span class="ek-pike" id="ekKerkesaPike" style="display:none" title="Kërkesa për t'u bashkuar"></span></button>
         <button type="button" data-n="statistika">Statistika</button>
       </div>
     </div>
@@ -1549,11 +1549,11 @@
 
 <script src="xlsx.js?v=58"></script>
 <script src="bashkimi.js?v=81"></script>
-<script src="ruajtja.js?v=81"></script>
+<script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=90"></script>
-<script src="ekipa.js?v=1"></script>
+<script src="ekipa.js?v=2"></script>
 <script src="njoftimet.js?v=85"></script>
-<script src="teRejat.js?v=100"></script>
+<script src="teRejat.js?v=110"></script>
 <script>
 (function () {
   'use strict';
@@ -2949,6 +2949,7 @@
       ruajFshiraet();
       if (versioniPara === __versioniLokal) zbatoBashkimin(rez.gjendja);
       else planifikoSinkronizimin();
+      if (typeof ekK !== 'undefined' && ekK) ekK.publikoAfatet(afatet); // kolegët i shohin afatet e mia (vetëm afatet)
     }
     vendosStatusinCloud(rez.ok ? T('cloudStatusiUSink', { kur: oraTani() }) : T('cloudStatusiDeshtoi'));
     if (!rez.ok && /maximum|exceeds|too large/i.test(String(rez.arsye || ''))) {
@@ -2958,6 +2959,7 @@
     __sinkDeshtoi = !rez.ok;
     if (!rez.ok) { clearTimeout(sinkronizoKohezi); sinkronizoKohezi = setTimeout(kryeSinkronizimin, 15000); } // riprovo vetë
     if (__sinkSerish) { __sinkSerish = false; planifikoSinkronizimin(); }
+    zbatoRemoteNePritje();
   }
 
   function zbatoGjendjenNgaCloud(te) {
@@ -3010,19 +3012,39 @@
   }
 
   var degjuesiCloud = null;
+  // Gjendja e fundit nga cloud-i që mbërriti ndërsa një ruajtja jonë ishte në rrugë. S'hidhet më: zbatohet
+  // sapo mbaron ruajtja (përndryshe ndryshimi i një pajisjeje tjetër, i ruajtur menjëherë pas nesh, s'shfaqej
+  // këtu deri në ndryshimin e radhës).
+  var __remoteNePritje = null;
+  function zbatoNgaCloudBashkuar(remote) {
+    var b = bashkoPaFshirje(remote, gjendjaPerCloud());
+    zbatoBashkimin(b);
+    // Kjo pajisje ka diçka më të re → dërgohet (pa e shtyrë një ruajtje që pret tashmë)
+    if (!window.StokuBashkimi.eNjejte(b, remote) && !sinkronizoKohezi) planifikoSinkronizimin();
+  }
+  function zbatoRemoteNePritje() {
+    var r = __remoteNePritje;
+    if (!r || dukeSinkronizuar) return;
+    __remoteNePritje = null;
+    var lok = gjendjaPerCloud();
+    if (window.StokuBashkimi.eNjejte(bashkoPaFshirje(r, lok), lok)) return; // kopje e vjetër: s'sjell asgjë të re
+    zbatoNgaCloudBashkuar(r);
+  }
   function nisDegjuesinCloud() {
     ndalDegjuesinCloud();
     if (!window.__stokuCloud || !window.__stokuCloud.degjo || !perdoruesiAktual()) return;
     degjuesiCloud = window.__stokuCloud.degjo(function (remote, tePaDerguara) {
-      if (tePaDerguara || dukeSinkronizuar || sinkronizoKohezi || !remote) return; // ndryshim i yni ende në rrugë
-      var b = bashkoPaFshirje(remote, gjendjaPerCloud());
-      zbatoBashkimin(b);
-      if (!window.StokuBashkimi.eNjejte(b, remote)) planifikoSinkronizimin(); // kjo pajisje ka diçka më të re
+      if (!remote) return;
+      if (tePaDerguara || dukeSinkronizuar) { __remoteNePritje = remote; return; } // ndryshim i yni ende në rrugë
+      __remoteNePritje = null;
+      // Edhe kur një ruajtje lokale pret (kohëmatësi): bashkimi s'humb asgjë lokale, kështu që zbatohet menjëherë
+      zbatoNgaCloudBashkuar(remote);
     }, function () { /* do të riprovohet në sinkronizimin tjetër */ });
   }
   function ndalDegjuesinCloud() {
     if (degjuesiCloud) { try { degjuesiCloud(); } catch (e) { /* ok */ } }
     degjuesiCloud = null;
+    __remoteNePritje = null;
   }
 
   // E vërtetë vetëm kur kjo pajisje s'ka asnjë të dhënë të përdoruesit: asnjë produkt, folderat janë
@@ -3040,7 +3062,7 @@
   // Veçori vetëm për llogari të caktuara (butona +/- shpejtë te lista). Lidhet me LLOGARINË (uid), jo me emrin:
   // kur një llogari e ndryshon emrin, e mban lejen. Emrat më poshtë janë vetëm "farë" për herën e parë —
   // sapo llogaria hyn me njërin prej tyre, leja ruhet te perdoruesit/{uid}.sasiaShpejte dhe këtu (KEY_LEJA_SASIA).
-  var SASIA_SHPEJTE_EMRAT = ['albidepo34', 'tonnyaliu'];
+  var SASIA_SHPEJTE_EMRAT = ['tonnyaliu']; // 'albidepo34' u hoq: emri u lirua pas ndërrimit, s'duhet t'i japë lejen një llogarie të re
   var KEY_LEJA_SASIA = 'stoku:leja:sasia-shpejte';
   function eLejuarSasiaShpejte() {
     var u = perdoruesiAktual();
@@ -3439,10 +3461,14 @@
 
   function zhvendosProduktinNeFolderin(destinacioni) {
     if (!dialogu || !dialogu.ekzistues) return;
-    var produkti = dialogu.ekzistues;
     var barkodi = dialogu.barkodi;
     var celesiVjeter = celesiProduktit(folderiAktual, barkodi);
     var celesiRi = celesiProduktit(destinacioni.id, barkodi);
+    // Gjendja AKTUALE e produktit, jo kopja e marrë kur u hap dritarja: një pajisje tjetër mund ta ketë
+    // ndryshuar sasinë (ose fshirë produktin) ndërkohë.
+    var produkti = produktet[celesiVjeter];
+    if (!produkti) { mbyllZhvendosin(); mbyllDialogun(); renderLista(); renderFolderat(); return; } // u fshi ndërkohë
+    if (!foldera.some(function (f) { return f.id === destinacioni.id; })) { mbyllZhvendosin(); renderFolderat(); return; } // folderi u fshi ndërkohë
     var ekzistuesNeDestinacion = produktet[celesiRi] || null;
 
     delete produktet[celesiVjeter];
@@ -4979,9 +5005,11 @@
   function rifreskoShenjatEEkipes() {
     var n = ekK ? ekK.numriNjoftimeve() : 0;
     var chat = ekK ? ekK.kaChatTePalexuar() : false;
+    var kr = ekK ? ekK.numriKerkesave() : 0;
     var z = $('ekZileNr'); z.textContent = n ? String(n) : ''; z.style.display = n ? '' : 'none';
-    var t = $('ekTabShenja'); t.textContent = n ? String(n) : ''; t.style.display = (n || chat) ? '' : 'none';
+    var t = $('ekTabShenja'); t.textContent = (n + kr) ? String(n + kr) : ''; t.style.display = (n || kr || chat) ? '' : 'none';
     $('ekChatPike').style.display = chat ? '' : 'none';
+    $('ekKerkesaPike').style.display = kr ? '' : 'none';
   }
 
   function vizatoEkipen(rifreskim) {
@@ -4999,6 +5027,15 @@
       c.appendChild(ekBosh('Ekipa s\'është e lidhur', !window.__stokuCloud ? 'Ekipa kërkon lidhje me internetin.' : 'Hyr me llogarinë tënde që ta shohësh ekipën.'));
       return;
     }
+    var qasja = ekK.gjendjaEQasjes();
+    if (qasja !== 'ok') {
+      $('ekChatFund').hidden = true;
+      c.textContent = '';
+      c.appendChild(qasja === 'ne-pritje'
+        ? ekBosh('Në pritje të miratimit', 'Administratori duhet ta pranojë llogarinë tënde në ekipë. Sapo të pranohesh, Ekipa hapet vetë këtu. Stoku dhe afatet e tua punojnë si zakonisht.')
+        : ekInfo('Duke u lidhur me ekipën…'));
+      return;
+    }
     if (ekPamja === 'aktiviteti') vizatoAktivitetin(c);
     else if (ekPamja === 'chat') vizatoChatin(c, rifreskim);
     else if (ekPamja === 'kalendari') vizatoKalendarin(c);
@@ -5010,7 +5047,7 @@
   // ---- Afatet: kartat e anëtarëve (si folderat) → lista e njërit ----
   function vizatoAfatetEEkipes(c, rifreskim) {
     var anetaret = ekAnetaret();
-    var krejt = { uid: 'krejt', emri: 'Krejt ekipa', afatet: ekTeGjithaAfatet(anetaret), ngarkuar: !ekK.gj.dukeNgarkuar || ekK.gj.ngarkuarSe > 0 };
+    var krejt = { uid: 'krejt', emri: 'Krejt ekipa', afatet: ekTeGjithaAfatet(anetaret), ngarkuar: ekK.eGatshme() };
     var zgj = __ekipiAnetari === 'krejt' ? krejt : anetaret.filter(function (a) { return a.uid === __ekipiAnetari; })[0];
     if (__ekipiAnetari !== null && !zgj) { __ekipiAnetari = null; $('dlgEkipi').classList.remove('ne-anetar'); $('ekipiPrapa').style.display = 'none'; }
     if (__ekipiAnetari === null) {
@@ -5025,7 +5062,7 @@
         if (x.uneJam) e.appendChild(ekEl('span', 'ekipi-ti', 'ti'));
         k.appendChild(e);
         var n = ekNumero(x.afatet);
-        k.appendChild(ekEl('div', 'numri', !x.ngarkuar ? 'Duke ngarkuar…' : n.aktive + (n.aktive === 1 ? ' afat në raft' : ' afate në raft')));
+        k.appendChild(ekEl('div', 'numri', !x.ngarkuar ? 'Duke ngarkuar…' : x.paTeDhena ? 'Pa të dhëna ende' : n.aktive + (n.aktive === 1 ? ' afat në raft' : ' afate në raft')));
         if (n.skaduar) k.appendChild(ekEl('div', 'ekipi-kuqe', n.skaduar + (n.skaduar === 1 ? ' i skaduar' : ' të skaduara')));
         else if (n.afer) k.appendChild(ekEl('div', 'ekipi-verdhe', n.afer + ' afër skadimit'));
         k.addEventListener('click', function () { ekHapAnetarin(x.uid); });
@@ -5052,6 +5089,12 @@
       c.appendChild(kk);
       lista = ekEl('div'); lista.id = 'ekipiRreshtat';
       c.appendChild(lista);
+      if (ekK.eshteAdmin() && !zgj.uneJam && zgj.uid !== 'krejt') {
+        var hq = ekEl('button', 'btn tekst rrezik', 'Hiq ' + zgj.emri + ' nga ekipa');
+        hq.type = 'button'; hq.style.cssText = 'width:100%;margin-top:14px';
+        hq.addEventListener('click', function () { ekHiqNgaEkipa(zgj); });
+        c.appendChild(hq);
+      }
     }
     var n = ekNumero(zgj.afatet);
     permb.textContent = '';
@@ -5077,6 +5120,7 @@
     if (ekFiltri === 'hequr') te.sort(function (x, y) { return (y.hequrSe || 0) - (x.hequrSe || 0); }); else te.sort(AF.krahaso);
     lista.textContent = '';
     if (!zgj.ngarkuar) { lista.appendChild(ekInfo('Duke ngarkuar afatet…')); return; }
+    if (zgj.paTeDhena) { lista.appendChild(ekBosh('Pa të dhëna ende', 'Afatet e ' + zgj.emri + ' shfaqen këtu sapo ta hapë Stoku-n (versionin e ri) në telefon ose kompjuter.')); return; }
     if (!te.length) {
       lista.appendChild(k ? ekBosh('Asgjë s\'u gjet', 'Provo një kërkim tjetër.') :
         ekFiltri === 'skaduar' ? ekBosh('Asnjë produkt i skaduar', 'Shumë mirë!') :
@@ -5130,8 +5174,12 @@
     if (!po) return;
     if (btn) btn.disabled = true;
     var r = await ekK.heqAfatinEKolegut(a);
-    if (!r.ok) { if (btn) btn.disabled = false; toast('S\'u dërgua. Kontrollo internetin dhe provo përsëri.', 4000); return; }
-    toast('"' + emri + '" u shënua si i hequr. ' + (a.pronariEmri || 'Pronari') + ' u njoftua.', 3500);
+    if (!r.ok) {
+      if (btn) btn.disabled = false;
+      toast(r.leje ? 'S\'u lejua: vetëm anëtarët e pranuar të ekipës mund ta bëjnë këtë.' : 'S\'u dërgua. Kontrollo internetin dhe provo përsëri.', 4000);
+      return;
+    }
+    toast('"' + emri + '" u shënua si i hequr. ' + (a.pronariEmri || 'Pronari') + (r.neRadhe ? ' njoftohet sapo të ketë internet.' : ' u njoftua.'), 3500);
   }
 
   // ---- Aktiviteti ----
@@ -5159,7 +5207,7 @@
       if (t !== dita) { dita = t; var h = ekEl('div', 'af-grup-krye'); h.appendChild(ekEl('span', null, t)); frag.appendChild(h); }
       var tx = EKL.tekstiNgjarjes(x, uidIm);
       var r = ekEl('div', 'ek-ngjarje ' + tx.lloji);
-      r.appendChild(ekAvatar({ emri: x.emri }, false));
+      r.appendChild(ekAvatar({ emri: tx.avatar || x.emri }, false));
       var b = ekEl('div', 'ek-ngjarje-trup');
       var rr = ekEl('div');
       rr.appendChild(ekEl('b', null, tx.kush));
@@ -5192,10 +5240,11 @@
       if (!imi && iFundit !== m.uid) w.appendChild(ekEl('div', 'kush', m.emri || ''));
       iFundit = m.uid;
       var f = ekEl('div', 'flluska', m.tekst);
-      if (imi) {
+      if (imi || ekK.eshteAdmin()) { // administratori mund të fshijë edhe mesazhet e të tjerëve
         f.title = 'Prek për ta fshirë';
+        f.style.cursor = 'pointer';
         f.addEventListener('click', async function () {
-          var po = await konfirmo('Të fshihet mesazhi?', '"' + String(m.tekst).slice(0, 80) + '" fshihet për krejt ekipën.', T('fshij'));
+          var po = await konfirmo('Të fshihet mesazhi?', '"' + String(m.tekst).slice(0, 80) + '"' + (imi ? '' : ' (i ' + (m.emri || 'kolegut') + ')') + ' fshihet për krejt ekipën.', T('fshij'));
           if (po) { var r = await ekK.fshijMesazhin(m.id); if (!r.ok) toast('Mesazhi s\'u fshi. Provo përsëri.'); }
         });
       }
@@ -5212,7 +5261,7 @@
     if (!t || !ekK) return;
     inp.value = '';
     var r = await ekK.dergoMesazh(t);
-    if (!r.ok) { if (!inp.value) inp.value = t; toast('Mesazhi s\'u dërgua. Kontrollo internetin dhe provo përsëri.', 4000); }
+    if (!r.ok) { if (!inp.value) inp.value = t; toast(r.leje ? 'S\'u lejua: vetëm anëtarët e pranuar të ekipës shkruajnë në chat.' : 'Mesazhi s\'u dërgua. Kontrollo internetin dhe provo përsëri.', 4000); }
     var trup = $('ekipiTrup'); trup.scrollTop = trup.scrollHeight;
   }
   $('ekChatDergo').addEventListener('click', function () { ekDergoMesazhin(); $('ekChatTekst').focus(); });
@@ -5270,6 +5319,31 @@
   function vizatoAnetaret(c) {
     c.textContent = '';
     var anetaret = ekAnetaret();
+    var kr = ekK.kerkesat();
+    if (kr.length) {
+      var hk = ekEl('div', 'af-grup-krye'); hk.appendChild(ekEl('span', null, 'Kërkojnë të bashkohen me ekipën (' + kr.length + ')')); c.appendChild(hk);
+      kr.forEach(function (a) {
+        var r = ekEl('div', 'artikull'); r.style.cursor = 'default';
+        r.appendChild(ekAvatar(a, false));
+        var m = ekEl('div', 'majtas');
+        m.appendChild(ekEl('div', 'emri', a.emri));
+        var kur = a.kycurSe || a.aktivSe;
+        m.appendChild(ekEl('div', 'kodi', kur ? 'U kyç ' + EKL.kohaRelative(kur) : 'Pret miratimin'));
+        r.appendChild(m);
+        var b = ekEl('button', 'af-pill'); b.type = 'button';
+        b.innerHTML = IKONAT_AF.kontroll;
+        b.appendChild(document.createTextNode('Prano'));
+        b.addEventListener('click', function () { ekPrano([a], b); });
+        r.appendChild(b);
+        c.appendChild(r);
+      });
+      if (kr.length > 1) {
+        var bk = ekEl('button', 'btn', 'Prano krejt (' + kr.length + ')'); bk.type = 'button'; bk.style.cssText = 'width:100%;margin:12px 0 4px';
+        bk.addEventListener('click', function () { ekPrano(kr, bk); });
+        c.appendChild(bk);
+      }
+      var ha = ekEl('div', 'af-grup-krye'); ha.appendChild(ekEl('span', null, 'Anëtarët')); c.appendChild(ha);
+    }
     var nOnline = anetaret.filter(function (a) { return a.uneJam || EKL.eshteOnline(a); }).length;
     c.appendChild(ekEl('div', 'ek-info-rresht', nOnline + ' online nga ' + anetaret.length + (anetaret.length === 1 ? ' anëtar' : ' anëtarë')));
     anetaret.forEach(function (a) {
@@ -5278,6 +5352,7 @@
       var m = ekEl('div', 'majtas');
       var e = ekEl('div', 'emri', a.emri);
       if (a.uneJam) e.appendChild(ekEl('span', 'ekipi-ti', 'ti'));
+      if (a.admin) e.appendChild(ekEl('span', 'ekipi-ti', 'admin'));
       m.appendChild(e);
       var online = a.uneJam || EKL.eshteOnline(a);
       var pl = EKL.tekstiPlatformes(a.uneJam ? 'tel' : a.platforma);
@@ -5285,13 +5360,29 @@
       r.appendChild(m);
       var n = ekNumero(a.afatet);
       var d = ekEl('div', 'ek-anetar-nr');
-      d.appendChild(ekEl('b', null, a.ngarkuar ? String(n.aktive) : '…'));
+      d.appendChild(ekEl('b', null, !a.ngarkuar ? '…' : a.paTeDhena ? '—' : String(n.aktive)));
       d.appendChild(ekEl('span', null, 'në raft'));
       if (n.skaduar) d.appendChild(ekEl('span', 'ek-kuqe', n.skaduar === 1 ? '1 i skaduar' : n.skaduar + ' të skaduara'));
       r.appendChild(d);
       r.addEventListener('click', function () { ekHapAnetarin(a.uid); });
       c.appendChild(r);
     });
+  }
+
+  // ---- Administratori: prano / hiq nga ekipa ----
+  async function ekPrano(lista, btn) {
+    if (btn) btn.disabled = true;
+    var r = await ekK.pranoAnetaret(lista);
+    if (!r.ok) { if (btn) btn.disabled = false; toast('S\'u pranua. Kontrollo internetin dhe provo përsëri.', 4000); return; }
+    toast(lista.length === 1 ? lista[0].emri + ' u pranua në ekipë.' : lista.length + ' llogari u pranuan në ekipë.');
+  }
+  async function ekHiqNgaEkipa(a) {
+    var po = await konfirmo('Të hiqet nga ekipa?', a.emri + ' s\'do ta shohë më Ekipën (afatet e kolegëve, aktivitetin, chat-in) derisa ta pranosh sërish. Stoku dhe afatet e tij s\'preken.', 'Hiqe');
+    if (!po) return;
+    var r = await ekK.hiqNgaEkipa(a);
+    if (!r.ok) { toast('S\'u hoq. Kontrollo internetin dhe provo përsëri.', 4000); return; }
+    ekipiKthehuTeKartat();
+    toast(a.emri + ' u hoq nga ekipa.');
   }
 
   // ---- Statistikat ----
@@ -5389,18 +5480,19 @@
   function njoftoNgaEkipa(nj) {
     if (!document.hidden) {
       if (nj.pamja === 'chat' && !($('dlgEkipi').classList.contains('hapur') && ekPamja === 'chat')) toast(nj.titulli.replace(' · Chat', '') + ': ' + nj.teksti, 4000);
+      else if (nj.pamja === 'anetaret') toast(nj.teksti, 5000);
       return;
     }
     if (!njoftimetMbeshteten() || Notification.permission !== 'granted') return;
     navigator.serviceWorker.ready.then(function (reg) {
       return reg.showNotification(nj.titulli, { body: nj.teksti, tag: nj.tag, icon: './icon-192.png', badge: './icon-192.png',
-        data: { url: './index.html#ekipa-' + (nj.pamja === 'chat' ? 'chat' : 'afatet') } });
+        data: { url: './index.html#ekipa-' + (nj.pamja === 'chat' || nj.pamja === 'anetaret' ? nj.pamja : 'afatet') } });
     }).catch(function () { /* ok */ });
   }
   function hapEkipenNgaNjoftimi(pamja) {
     if (window.StokuPorta && window.StokuPorta.eHapur()) return false;
     if (!$('dlgEkipi').classList.contains('hapur')) $('btnEkipi').click();
-    if (pamja === 'chat') ekZgjidhPamjen('chat');
+    if (['aktiviteti', 'chat', 'kalendari', 'anetaret', 'statistika'].indexOf(pamja) !== -1) ekZgjidhPamjen(pamja);
     return true;
   }
 
@@ -6230,7 +6322,7 @@
     var ruajtja = window.StokuRuajtja.krijo({ doc: doc, getDoc: getDoc, setDoc: setDoc, runTransaction: runTransaction, onSnapshot: onSnapshot, collection: collection },
       db, function () { return auth.currentUser ? auth.currentUser.uid : null; });
     // Ekipa (ekipa.js): prania, aktiviteti, chat-i, njoftimet personale
-    var ekipa = window.StokuEkipa ? window.StokuEkipa.krijoCloud({ doc: doc, getDocs: getDocs, setDoc: setDoc, addDoc: addDoc, deleteDoc: deleteDoc,
+    var ekipa = window.StokuEkipa ? window.StokuEkipa.krijoCloud({ doc: doc, getDoc: getDoc, getDocs: getDocs, setDoc: setDoc, addDoc: addDoc, deleteDoc: deleteDoc,
       collection: collection, onSnapshot: onSnapshot, query: query, where: where, orderBy: orderBy, limit: limit, writeBatch: writeBatch }, db, auth, 'tel') : null;
 
     // Regjistrohet vetja te perdoruesit/{uid} (emri i dukshëm + kur u kyç së fundi) — përdoret nga
@@ -6238,18 +6330,26 @@
     // Fusha `emri` NUK preket: rregullat e Firestore e përdorin për admin-in. Hyrja s'e pret kurrë këtë shkrim.
     // Leja e sasisë së shpejtë ndjek llogarinë (uid): lexohet nga perdoruesit/{uid}.sasiaShpejte; llogaritë e
     // "farës" (emrat e njohur) e marrin sapo hyjnë, dhe e mbajnë edhe pas ndërrimit të emrit.
-    var EMRAT_FARE_SASIA = ['albidepo34', 'tonnyaliu'];
-    async function regjistroPerdoruesin(emriPerdoruesit, uid) {
+    var EMRAT_FARE_SASIA = ['tonnyaliu'];
+    // "X u bashkua me ekipën" s'shkruhet më këtu: e shkruan administratori kur e pranon llogarinë në ekipë.
+    var __regjistrimet = {}; // uid → { emri, p }: hyr()/regjistrohu() dhe onAuthStateChanged e thërrasin njëkohësisht
+    function regjistroPerdoruesin(emriPerdoruesit, uid) {
       var emri = String(emriPerdoruesit).trim().toLowerCase();
+      var ne = __regjistrimet[uid];
+      if (ne && ne.emri === emri) return ne.p;
+      var p = (ne ? ne.p : Promise.resolve()).then(function () { return regjistroTani(emri, uid); });
+      __regjistrimet[uid] = { emri: emri, p: p };
+      p.then(function () { if (__regjistrimet[uid] && __regjistrimet[uid].p === p) delete __regjistrimet[uid]; });
+      return p;
+    }
+    async function regjistroTani(emri, uid) {
       try {
         var ref = doc(db, 'perdoruesit', uid);
         var te = { perdoruesi: emri, kycurSe: Date.now() };
         var ka = false;
-        var iRi = false;
-        try { var s0 = await getDoc(ref); ka = !!(s0.exists() && s0.data().sasiaShpejte === true); iRi = !s0.exists(); } catch (e) { /* ok */ }
+        try { var s0 = await getDoc(ref); ka = !!(s0.exists() && s0.data().sasiaShpejte === true); } catch (e) { /* ok */ }
         if (!ka && EMRAT_FARE_SASIA.indexOf(emri) !== -1) { te.sasiaShpejte = true; ka = true; }
         await setDoc(ref, te, { merge: true });
-        if (iRi && ekipa) ekipa.shtoNgjarje({ lloji: 'anetar-i-ri' }); // "X u bashkua me ekipën" te aktiviteti
         if (ka) {
           try { localStorage.setItem('stoku:leja:sasia-shpejte', uid); } catch (e) { /* ok */ }
           window.dispatchEvent(new Event('stoku-leja-ndryshoi'));

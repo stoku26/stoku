@@ -84,18 +84,29 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    - Rregullat e Firestore i mban dhe i vendos vetë përdoruesi (unë s'kam akses direkt); duhet lejuar
      nënkoleksioni `pjeset` dhe `fletet`, plus rregulla ekzistuese për `perdoruesit/{uid}` dhe admin
      (`mendurberisha`). **Mos i propozoj kurrë rregulla që heqin admin-in ose `perdoruesit`.**
-   - **Që nga "Ekipi" (v105):** klienti tani SHKRUAN vetë te `perdoruesit/{uid}` (`{emri, kycurSe}`) në
-     çdo `regjistrohu`/`hyr`/`onAuthStateChanged`, dhe LEXON (`getDocs`) krejt koleksionin `perdoruesit`,
-     plus LEXON dyqanin (`dyqane/{uidTjeter}` + `dyqane/{uidTjeter}/pjeset/*`) të cilitdo uid tjetër —
-     kjo kërkon rregulla shtesë: `list`/`get` mbi `dyqane/{uid}` dhe `pjeset` për CDO përdorues të
-     kyçur (jo vetëm `request.auth.uid == uid`), ndërsa `write` mbetet i kufizuar vetëm te vetja. Shih
-     rregullat e propozuara në fund të këtij skedari.
+   - **Që nga "Ekipi" (v105):** klienti SHKRUAN vetë te `perdoruesit/{uid}` (`{perdoruesi, kycurSe}` — kurrë
+     `emri`) në çdo `regjistrohu`/`hyr`/`onAuthStateChanged` (pa dyfishim: `regjistroPerdoruesin` mban një
+     premtim për uid, v110).
+   - **Që nga v110 dyqani (`dyqane/{uid}` + `pjeset`) lexohet sërish VETËM nga pronari dhe admin-i.** Kolegët
+     s'e lexojnë më stokun e tjetrit: Ekipa lexon `ekipa_afatet/{uid}` (përmbledhje vetëm e afateve, shih pikën 10).
+     Shih rregullat aktuale në fund të këtij skedari.
+   - **ruajtja.js (v110):** një pjesë rishkruhet vetëm nëse ndryshoi — krahasimi bëhet me `pjesaKanonike()`
+     (fushat e renditura + listat pa rend), sepse Firestore i kthen fushat me rend tjetër nga objekti lokal
+     (me `JSON.stringify` çdo sinkronizim i rishkruante KREJT pjesët dhe çdo pajisje i shkarkonte sërish).
+     Leximet e pjesëve në transaksion bëhen njëkohësisht (`Promise.all`).
    - **S'kam Firebase real as pajisje reale për testim.** Krejt testimi bëhet me Playwright + mock
      `window.__stokuCloud` (shih "Testimi" poshtë).
 
 5. **Bashkimi i të dhënave (bashkimi.js):** LWW (last-write-wins) sipas kohës (`prekurSe`/`ndryshuarSe`);
    fshirjet ruhen si "tombstones" (kohë fshirjeje) 120 ditë, që një pajisje me kopje të vjetër të mos
    "ringjallë" diçka të fshirë; asgjë që thjesht mungon (pa u fshi qëllimisht) s'fshihet kurrë.
+   Dy ndryshime të njëkohshme të sasisë së TË NJËJTIT produkt nga dy pajisje: fiton më i riu (s'mblidhen) —
+   vendim i qëllimshëm (bashkimi me 3 anë do të kërkonte "bazën" për çdo produkt dhe rrezikon dyfishime).
+   **Dëgjuesi i cloud-it (v110, tel `__remoteNePritje` / PC `sink.remoteNePritje`):** një gjendje nga cloud-i
+   që mbërrin ndërsa ruajtja jonë është në rrugë NUK hidhet më — ruhet dhe bashkohet sapo mbaron ruajtja
+   (më parë ndryshimi i një pajisjeje tjetër, i ruajtur menjëherë pas nesh, s'shfaqej deri në ndryshimin e
+   radhës). Kur pret vetëm kohëmatësi i ruajtjes, gjendja e cloud-it bashkohet menjëherë (bashkimi s'humb
+   asgjë lokale). Testi: `sink-pritje.js` (scratchpad).
 
 6. **Porta (porta.js):** ekran hyrjeje i detyrueshëm para faqes kryesore (telefon dhe PC). Lejon punë pa
    internet vetëm nëse kjo pajisje ka hyrë më parë. Kur hyn një llogari tjetër në të njëjtën pajisje, të
@@ -114,9 +125,32 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 
 9. **"Opsionet" quhet tani "Cilësimet"** (që nga v90) — mos e kthe mbrapsht pa u pyetur.
 
-10. **"Ekipa" (v105 si "Ekipi"; rindërtuar krejt në v109).** Tab/seksion për KREJT llogaritë e Stoku-t si një
-    ekip i vetëm (s'ka ftesa/grupe — kërkesë eksplicite). **Vetëm afatet, jo stoku** (v109, kërkesë e
-    përdoruesit). Telefon: tabi i tretë `#btnEkipi`/`#dlgEkipi`; PC: seksioni i tretë i akordionit
+10. **"Ekipa" (v105 si "Ekipi"; rindërtuar krejt në v109; siguria në v110).** Tab/seksion për llogaritë e Stoku-t
+    si një ekip i vetëm (s'ka ftesa/grupe — kërkesë eksplicite). **Vetëm afatet, jo stoku** (v109, kërkesë e
+    përdoruesit).
+    - **Anëtarësia me miratim (v110):** regjistrimi është i hapur për këdo, prandaj një llogari e re e sheh Ekipën
+      vetëm pasi ta pranojë administratori (`mendurberisha`) — `ekipa_anetaret/{uid}` (e shkruan vetëm admin-i).
+      Llogaria në pritje sheh "Në pritje të miratimit"; stoku/afatet e saj punojnë normalisht. Admin-i sheh
+      kërkesat te Ekipa → Anëtarët ("Prano" / "Prano krejt"), shenjë te tabi/anësorja dhe një njoftim; "Hiq nga
+      ekipa" (tel: poshtë listës së anëtarit; PC: kolona e fundit te Anëtarët). **Migrimi:** herën e parë që
+      aplikacioni i admin-it gjen rregullat e reja dhe `ekipa_anetaret` bosh, i pranon krejt llogaritë ekzistuese
+      njëherësh (shënohet `perdoruesit/{admin}.ekipaMigruarSe`, bëhet vetëm një herë). "X u bashkua me ekipën" te
+      aktiviteti e shkruan admin-i kur pranon (`anetariUid`/`anetariEmri`), jo më llogaria e re.
+      **Me rregullat e vjetra** (para se përdoruesi t'i vendosë): `ekipa_anetaret` s'lexohet → `anetaresia =
+      'pa-rregulla'` → gjithçka punon si në v109 (krejt llogaritë = ekipa, afatet nga dyqanet).
+    - **`ekipa_afatet/{uid}` (v110):** përmbledhja e afateve të secilit (`permbledhjaEAfateve`: vetëm fushat që
+      duhen, afatet në raft + të hequrat e 40 ditëve, ≤700 KB), e publikon pronari pas çdo sinkronizimi të
+      suksesshëm (`ekK.publikoAfatet(afatet)`, vetëm kur ndryshon nënshkrimi). Ekipa e dëgjon në kohë reale.
+      Koleg pa përmbledhje (s'e ka hapur ende versionin e ri) → provohet dyqani i tij (vetëm me rregullat e
+      vjetra/admin); ndryshe "Pa të dhëna ende".
+    - **Radha e dërgimit (v110):** aktiviteti, chat-i dhe njoftimet shkruhen me `setDoc` me id të caktuar dhe
+      ruhen te `stoku:ekipa:radha:{uid}` derisa serveri t'i pranojë → pa internet s'humbin, edhe nëse
+      aplikacioni mbyllet. Rregullat lejojnë vetëm krijimin, kështu një ridërgim i së njëjtës id refuzohet (s'ka
+      dyfishime) dhe hiqet nga radha. "Unë e hoqa" pa internet: "njoftohet sapo të ketë internet".
+    - **Emrat s'falsifikohen (rregullat v110):** `emri` te aktiviteti/chat-i/njoftimet dhe `perdoruesi` te
+      `perdoruesit/{uid}` duhet të jenë = emri i llogarisë (`request.auth.token.email`). Admin-i mund të fshijë
+      çdo mesazh të chat-it.
+    - Heqja e mbivendosur (`mbivendosHeqjen`) vlen vetëm për afate të SKADUARA — njësoj si `duhetZbatuarHeqja`. Telefon: tabi i tretë `#btnEkipi`/`#dlgEkipi`; PC: seksioni i tretë i akordionit
     (`#btnAkordEkipi`) me nën-zëra `[data-ek]`, faqja `#pamjaEkipi`, adresa `#/ekipa[/<nën-pamja>]`
     (`#/ekipi` i vjetër pranohet). ID-të e brendshme mbetën "ekipi" — vetëm tekstet u bënë "Ekipa".
     - **`ekipa.js` (i ri, i përbashkët tel+PC)**: (1) `krijoCloud(fs, db, auth, platforma)` → `__stokuCloud.ekipa`
@@ -147,11 +181,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
       Përmbledhjes) — 5 dizajne të veçanta u refuzuan si "palidhje" para këtij.
     - Testi me dy përdorues: `ekipa-server.js` (Firebase i simuluar në node, `exposeBinding`) +
       `ekipa-tel-test.js` / `ekipa-pc-test.js` (scratchpad) — agimi në telefon, blerta në PC.
+    - **Testi me kodin e VËRTETË (v110):** `fs-server.js` (scratchpad) = Firestore i simuluar me rregullat
+      (`rregullat: 'reja'` ose `'vjetra'`); faqet përdorin `ruajtja.js` + `ekipa.js` të vërteta mbi një `fs` të rremë
+      (`__stokuCloud` ndërtohet te `DOMContentLoaded`). `ekipa-v110-test.js` (miratimi, migrimi, përmbledhjet,
+      radha offline me rihapje, mashtrimet e refuzuara, admin-i) dhe `ekipa-v110-vjetra-test.js` (rregullat e vjetra).
 
 11. **Leja e "sasisë së shpejtë" (butonat +/- te lista) ndjek LLOGARINË, jo emrin (v108).** Më parë ishte e
     lidhur me emrin `albidepo34` në kod — kur ai e ndërroi emrin në `tonnyaliu`, e humbi. Tani: flamuri
     `sasiaShpejte:true` te `perdoruesit/{uid}` + kopje lokale `stoku:leja:sasia-shpejte` (= uid). Emrat në
-    `SASIA_SHPEJTE_EMRAT`/`EMRAT_FARE_SASIA` (albidepo34, tonnyaliu) janë vetëm "farë": sapo llogaria hyn me
+    `SASIA_SHPEJTE_EMRAT`/`EMRAT_FARE_SASIA` (vetëm `tonnyaliu` që nga v110 — `albidepo34` u hoq, sepse emri u
+    lirua dhe kushdo që regjistrohej me të do ta merrte lejen) janë vetëm "farë": sapo llogaria hyn me
     njërin, flamuri ruhet dhe e mban edhe pas çdo ndërrimi emri. Për t'ia dhënë këtë leje dikujt tjetër:
     shto emrin e tij në të dyja listat (index.html + pc.html), ose vendos `sasiaShpejte: true` te dokumenti i tij
     në Firebase. `ndryshoEmrin()` tani përditëson menjëherë `perdoruesit/{uid}.perdoruesi` (lista e Ekipit).
@@ -245,9 +284,9 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 ## Rrjedha e punës (git/PR)
 
 - Branch pune: `claude/qysh-funksionon-ilbmdw` (emër fiks, mos e ndrysho pa u kërkuar).
-- Përdoruesi VETË i bën merge PR-të (jo unë — provat për merge janë refuzuar nga sistemi). Pas çdo
-  ndryshimi: commit + push + hap PR, pastaj shpjegoj shqip çka ndryshoi dhe pse, thjesht, si për dikë
-  jo-teknik.
+- Pas çdo ndryshimi: commit + push + hap PR, pastaj shpjegoj shqip çka ndryshoi dhe pse, thjesht, si për dikë
+  jo-teknik. Kur përdoruesi e kërkon ("bone merge"), e bëj vetë merge-in me mjetin e GitHub-it
+  (p.sh. PR #45–#50 u bënë merge kështu).
 - Nëse PR paraardhëse u bë merge para se të fillonte puna e re: `git fetch origin main` dhe
   `git checkout -B claude/qysh-funksionon-ilbmdw origin/main` (rifillo nga main i pastër), mos vazhdo mbi
   histori të vjetruar.
@@ -296,11 +335,13 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
-## Rregullat e Firestore — "Ekipa" (v109) — i vendos PËRDORUESI (unë s'kam qasje)
+## Rregullat e Firestore — "Ekipa" (v110) — i vendos PËRDORUESI (unë s'kam qasje)
 
-Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Përmban edhe mbylljen e një vrime
-të vjetër: më parë çdo përdorues mund të shkruante `emri: 'mendurberisha'` te `perdoruesit/{uid}` i vet dhe të
-bëhej admin; tani aplikacioni s'mund ta shtojë/ndryshojë fushën `emri` (admin-i ndreqet vetëm nga Console).
+Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Krahasuar me v109: dyqani lexohet
+vetëm nga pronari/admin-i; Ekipa (anëtarët, aktiviteti, chat-i, `ekipa_afatet`) vetëm nga anëtarët e pranuar
+(`ekipa_anetaret/{uid}`, i shkruan vetëm admin-i); `emri`/`perdoruesi` s'falsifikohen (= emri i llogarisë);
+admin-i fshin çdo mesazh. Vazhdon mbrojtja e vjetër: aplikacioni s'mund ta shtojë/ndryshojë fushën `emri` te
+`perdoruesit/{uid}` (admin-i ndreqet vetëm nga Console).
 
 ```
 rules_version = '2';
@@ -309,46 +350,69 @@ service cloud.firestore {
     function eshteAdmin() {
       return get(/databases/$(database)/documents/perdoruesit/$(request.auth.uid)).data.emri == 'mendurberisha';
     }
+    // Anëtar i pranuar i ekipës (ose administratori)
+    function neEkipe() {
+      return exists(/databases/$(database)/documents/ekipa_anetaret/$(request.auth.uid)) || eshteAdmin();
+    }
+    // Emri i llogarisë (emri@stoku-app.local) — s'mund të falsifikohet nga aplikacioni
+    function emriIm() {
+      return request.auth.token.email.split('@')[0];
+    }
     match /dyqane/{kodi} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && (request.auth.uid == kodi || eshteAdmin());
+      allow read, write: if request.auth != null && (request.auth.uid == kodi || eshteAdmin());
       match /pjeset/{pjesa} {
-        allow read: if request.auth != null;
-        allow write: if request.auth != null && (request.auth.uid == kodi || eshteAdmin());
+        allow read, write: if request.auth != null && (request.auth.uid == kodi || eshteAdmin());
       }
       match /fletet/{fleta} {
         allow read, write: if request.auth != null && (request.auth.uid == kodi || eshteAdmin());
       }
     }
     match /perdoruesit/{uid} {
-      allow read: if request.auth != null;
+      allow read: if request.auth != null && (request.auth.uid == uid || neEkipe());
       allow create: if request.auth != null && request.auth.uid == uid
-        && !request.resource.data.keys().hasAny(['emri']);
+        && !request.resource.data.keys().hasAny(['emri'])
+        && (!('perdoruesi' in request.resource.data) || request.resource.data.perdoruesi == emriIm());
       allow update: if request.auth != null && request.auth.uid == uid
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['emri']);
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['emri'])
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['perdoruesi'])
+            || request.resource.data.perdoruesi == emriIm());
       match /njoftimet/{nid} {
         allow read, update, delete: if request.auth != null && request.auth.uid == uid;
-        allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+        allow create: if request.auth != null && neEkipe()
+          && request.resource.data.uid == request.auth.uid && request.resource.data.emri == emriIm();
       }
     }
+    match /ekipa_anetaret/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || neEkipe());
+      allow write: if request.auth != null && eshteAdmin();
+    }
+    match /ekipa_afatet/{uid} {
+      allow read: if request.auth != null && neEkipe();
+      allow create, update: if request.auth != null && request.auth.uid == uid;
+      allow delete: if request.auth != null && (request.auth.uid == uid || eshteAdmin());
+    }
     match /ekipa_feed/{id} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
-      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow read: if request.auth != null && neEkipe();
+      allow create: if request.auth != null && neEkipe()
+        && request.resource.data.uid == request.auth.uid && request.resource.data.emri == emriIm();
+      allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || eshteAdmin());
     }
     match /ekipa_chat/{id} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid
+      allow read: if request.auth != null && neEkipe();
+      allow create: if request.auth != null && neEkipe()
+        && request.resource.data.uid == request.auth.uid && request.resource.data.emri == emriIm()
         && request.resource.data.tekst is string
         && request.resource.data.tekst.size() > 0 && request.resource.data.tekst.size() <= 2000;
-      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || eshteAdmin());
     }
   }
 }
 ```
 
-Pa këto rregulla: aktiviteti, chat-i dhe zilja thjesht s'mbushen (dëgjuesit marrin "permission-denied" dhe
-heshtin); pjesa tjetër e aplikacionit punon njësoj.
+Pas vendosjes: admin-i duhet ta hapë aplikacionin një herë (telefon ose PC) — migrimi i pranon vetë krejt
+llogaritë ekzistuese. Deri atëherë anëtarët shohin "Në pritje të miratimit" te Ekipa (stoku/afatet punojnë).
+Pa këto rregulla (me v109): aplikacioni punon si më parë; vetëm `ekipa_afatet` s'shkruhet (heshtje, riprovon pas
+10 min).
 
 ## Kontakte/aksese që s'i kam
 

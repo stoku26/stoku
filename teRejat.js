@@ -15,6 +15,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 110, data: '2026-09-29', titulli: 'Ekipa më e sigurt, sinkronizim më i shpejtë', pikat: [
+      'Një llogari e re e sheh Ekipën vetëm pasi ta pranojë administratori (te Ekipa → Anëtarët). Anëtarët e sotëm mbeten në ekipë.',
+      'Kolegët shohin vetëm afatet e tua — stoku yt mbetet vetëm i yti.',
+      'Mesazhet e chat-it dhe "Unë e hoqa" s\'humbin pa internet: dërgohen vetë sapo të kthehet interneti, edhe nëse e mbyll aplikacionin.',
+      'Ndryshimet nga pajisjet e tjera s\'humbin më kur mbërrijnë gjatë një ruajtjeje, dhe ruajtja në cloud dërgon vetëm pjesët që ndryshuan (më shpejt, më pak internet).'
+    ] },
     { v: 109, data: '2026-09-29', titulli: 'Ekipa: afatet, aktiviteti, chat-i dhe më shumë', pikat: [
       '"Ekipi" tani quhet "Ekipa" dhe tregon vetëm afatet e kolegëve (jo stokun).',
       'Kur një produkt i një kolegu ka skaduar, mund ta heqësh ti nga rafti me "Unë e hoqa" — kolegu njoftohet me emrin tënd.',
