@@ -4953,6 +4953,9 @@
   // Numrat e rreshtave mbi foto (nga r.x/r.y, 0..1, dhënë nga AI) — për "impFoto"/"lxFoto" njësoj.
   function vizatoNumratMbiFoton(imgEl, kutiaEl, rreshtat) {
     kutiaEl.textContent = '';
+    // Në pamjen e vogël (para se të zmadhohet) rreshtat janë shumë afër njëri-tjetrit — numrat mbivendosen
+    // dhe duken si njolla. I shfaqim vetëm pasi fotoja të zmadhohet (klikohet).
+    if (!imgEl.classList.contains('e-madhe')) return;
     if (!imgEl.naturalWidth || !imgEl.clientWidth) return;
     var kw = imgEl.clientWidth, kh = imgEl.clientHeight;
     var shk = Math.min(kw / imgEl.naturalWidth, kh / imgEl.naturalHeight);
