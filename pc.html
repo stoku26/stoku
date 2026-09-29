@@ -1810,8 +1810,12 @@
   // Të dyja seksionet mund të jenë të hapura njëkohësisht — gjendja e hapjes ndiqet veç e veç nga
   // pamja aktuale (seksioni i pamjes aktuale hapet vetë, por klikimi mund ta hap/mbyllë edhe tjetrin).
   var akordoniStokuHapur = true, akordoniAfatetHapur = false;
+  var __pamjaParaAkordionit = null; // vetëm kur PAMJA ndryshon vërtet hapet vetë seksioni i saj — jo në çdo rirendering
   function vendosAkordionin() {
-    if (pamja === 'afatet') akordoniAfatetHapur = true; else akordoniStokuHapur = true;
+    if (pamja !== __pamjaParaAkordionit) {
+      if (pamja === 'afatet') akordoniAfatetHapur = true; else akordoniStokuHapur = true;
+      __pamjaParaAkordionit = pamja;
+    }
     $('akordStokuTrupi').classList.toggle('hapur', akordoniStokuHapur);
     $('akordAfatetTrupi').classList.toggle('hapur', akordoniAfatetHapur);
     $('btnAkordStoku').setAttribute('aria-expanded', String(akordoniStokuHapur));
