@@ -120,19 +120,18 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
       butona fshij/ndrysho fare — as për të vetat, as për të të tjerëve. Kjo e plotëson vetë kërkesën
       ("të tjerët s'i fshijnë të miat") pa dashur logjikë e re lejesh: për t'i ndryshuar TË TUAT, shkon
       te tabi normal Stoku/Afatet (janë të njëjtat të dhëna, thjesht të paraqitura ndryshe këtu).
-    - **Dizajni (~v106, i konfirmuar nga përdoruesi pas 3 opsionesh të provuara në një canvas)**: JO karta
-      të ndara për grup as listë sipas përdoruesit ("palidhje", fjala e përdoruesit) — një TABELË E
-      VETME me krejt rreshtat (produktet+afatet e të gjithëve së bashku, secili rresht i shënuar me
-      emrin e pronarit + "(ti)" për të vetat), dhe përsipër saj një rresht ÇIPASH (një çip për koleg,
-      me avatar+emër). Klikimi i një çipi e HEQ atë koleg nga tabela (çipi bëhet gri, "i fshehur");
-      klikim tjetër e rikthen. Kjo është vetë mënyra e kërkuar për "me i minimizu" kolegët — jo hap/mbyll
-      kartë, por hiq/shto krejt rreshtat e tij nga pamja, njësoj në telefon dhe PC. Klasat: `.ekipi-cipat`/
-      `.ekipi-cip` (gjendja `.fshehur`), `.ekipi-tabela`/`.ekipi-rresht2`. Gjendja e fshehjes
-      (`__ekipiFshehur` tel / `__ekipiPcFshehur` PC) mbahet në memorie, ndahet nga të dhënat e
-      ngarkuara (`__ekipiTeDhena`/`__ekipiPcTeDhena`), dhe rirendos pa rifreskim rrjeti (funksioni
-      `vizatoEkipin()`/`vizatoEkipiPc()`).
+    - **Dizajni (v107, pas 4 provash të refuzuara si "palidhje")**: Ekipi NUK ka stil të vetin — përdor
+      saktësisht pjesët që ekzistojnë te Stoku/Afatet, që të duket pjesë e aplikacionit.
+      Telefon: faqja e parë = kartat e kolegëve si `.folder-karta` (si folderat e Stokut; "Krejt ekipi" e
+      gjerë lart, pastaj secili koleg, me "N produkte · M afate" dhe "K të skaduara" me të kuqe). Prek një
+      kartë → lista e atij (titulli bëhet emri i tij), me `.af-filtrat` Stoku/Afatet, `.kerko-kuti`, produktet
+      si `.artikull` (si te kërkimi global, me etiketën e folderit) dhe afatet si `.af-karta` me ngjyra (si te
+      Afatet, pa butona). "←"/mbrapa i Android-it kthehen te kartat (klasa `ne-anetar` në `#dlgEkipi`).
+      PC: kartat e kolegëve si `kpi()` të Përmbledhjes (e zgjedhura me kornizë), pastaj `.segmente`
+      Stoku/Afatet + kërkim, dhe e njëjta `.tabela` si "Të gjitha produktet" / tabela e Afateve (statusi me
+      ngjyra). "Krejt ekipi" shton kolonën "Përdoruesi". Maks. 300 (tel) / 500 (PC) rreshta, pastaj "kërko".
       Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo pamje, PYET së pari çka saktësisht don
-      ndryshe (u provuan tashmë: karta të palosshme, grid me karta, listë+panel, tabelë+çipa).
+      ndryshe (u provuan dhe u refuzuan: karta të palosshme, grid me karta, tabelë+çipa).
     - **Client:** `window.__stokuCloud.krejtPerdoruesit()` (getDocs mbi `perdoruesit`) +
       `merrDyqaninEPerdoruesit(uid)` (instancë e re, vetëm-lexim, e `ruajtja.krijo(...)` me `uidFn` fiks
       në vend të `auth.currentUser.uid`) — shto në TË DYJA index.html dhe pc.html nëse ndryshon API-ja.
