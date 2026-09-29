@@ -269,14 +269,17 @@
   }
 
   // Kthen { ok, rreshtat: [{ barkodi, emri, data, dataOrigjinale, furnizuesi, dyshim }], gabim }
-  async function lexoMeAI(foto, tokeni) {
+  // ekstra (opsionale): fusha shtesë të dërguara te Worker-i (p.sh. { synim: 'stok' } — përdoret nga
+  // importi i stokut nga foto, jo nga Afatet). Worker-i aktual i injoron fushat e panjohura; kjo është
+  // përgatitje për t'i dhënë Worker-it një udhëzim tjetër më vonë, pa e prishur thirrjen ekzistuese.
+  async function lexoMeAI(foto, tokeni, ekstra) {
     var url = adresaAI();
     if (!url) return { ok: false, gabim: 'pa-konfigurim' };
     try {
       var r = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': tokeni ? 'Bearer ' + tokeni : '' },
-        body: JSON.stringify({ image: foto.base64, mime: foto.mime, sot: sot() })
+        body: JSON.stringify(Object.assign({ image: foto.base64, mime: foto.mime, sot: sot() }, ekstra || {}))
       });
       var j = null;
       try { j = await r.json(); } catch (e) { /* ok */ }
