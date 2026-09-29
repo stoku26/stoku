@@ -1035,9 +1035,10 @@
         </div>
         <div>
           <div class="lexim-statusi" id="lxStatusi"></div>
+          <label class="fushe" id="lxFolderKuti" style="display:none"><span>Importo në folderin</span><select class="inp" id="lxFolderi"></select></label>
           <div class="lexim-rreshtat">
             <table>
-              <thead><tr><th style="width:34px">#</th><th style="width:140px">Barkodi</th><th>Emri i produktit</th><th style="width:150px">Data e skadimit</th><th style="width:80px">Sasia</th><th style="width:160px">Furnizuesi</th><th style="width:36px"></th></tr></thead>
+              <thead><tr id="lxThead"><th style="width:34px">#</th><th style="width:140px">Barkodi</th><th>Emri i produktit</th><th style="width:150px">Data e skadimit</th><th style="width:80px">Sasia</th><th style="width:160px">Furnizuesi</th><th style="width:36px"></th></tr></thead>
               <tbody id="lxTrup"></tbody>
             </table>
           </div>
@@ -1288,7 +1289,7 @@
 <script src="bashkimi.js?v=81"></script>
 <script src="ruajtja.js?v=81"></script>
 <script src="afatet.js?v=89"></script>
-<script src="teRejat.js?v=93"></script>
+<script src="teRejat.js?v=94"></script>
 <script>
 (function () {
   'use strict';
@@ -4057,7 +4058,7 @@
   $('afdFshij').addEventListener('click', function () { var id = afdId; mbyllDialog('dlgAfat'); if (id) fshijAfatet([id]); });
 
   // ---------- Leximi i fletës nga foto ----------
-  var lx = { rreshtat: [] };
+  var lx = { rreshtat: [], lloji: 'afatet' }; // lloji: 'afatet' (parazgjedhur) ose 'stok' (fletë stoku nga telefoni)
   $('afBtnFoto').addEventListener('click', function () { $('afFoto').value = ''; $('afFoto').click(); });
   $('afFoto').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) lexoFletenPc(f); });
   // Tërhiq e lësho foton kudo te faqja e afateve
@@ -4285,8 +4286,8 @@
       teReja.forEach(function (f) { fletetTel.njoftuar[f.id] = true; });
       if (teReja.length) {
         var n = fletetTel.lista.length;
-        toast(ePara ? 'Ke ' + (n === 1 ? '1 fletë afatesh' : n + ' fletë afatesh') + ' nga telefoni që presin kontrollin.'
-          : 'Mbërriti një fletë afatesh nga telefoni' + (teReja[0].nga ? ' (' + teReja[0].nga + ')' : '') + '.',
+        toast(ePara ? 'Ke ' + (n === 1 ? '1 fletë' : n + ' fletë') + ' nga telefoni që presin kontrollin.'
+          : 'Mbërriti ' + (teReja[0].lloji === 'stok' ? 'një fletë stoku' : 'një fletë afatesh') + ' nga telefoni' + (teReja[0].nga ? ' (' + teReja[0].nga + ')' : '') + '.',
           { veprimi: function () { hapFletenETelefonit(teReja[0].id); }, butoni: 'Hape', ms: 12000 });
       }
       ePara = false;
@@ -4310,14 +4311,14 @@
       var ik = el('span', 'ikona'); ik.innerHTML = IKONA_FLETA; r.appendChild(ik);
       var tx = el('div', 'teksti');
       var nr = (f.rreshtat || []).length;
-      tx.appendChild(el('b', null, 'Fletë afatesh nga telefoni — ' + nr + (nr === 1 ? ' rresht' : ' rreshta') + ' presin kontrollin'));
+      tx.appendChild(el('b', null, (f.lloji === 'stok' ? 'Fletë stoku' : 'Fletë afatesh') + ' nga telefoni — ' + nr + (nr === 1 ? ' rresht' : ' rreshta') + ' presin kontrollin'));
       tx.appendChild(el('span', null, [f.nga ? 'Dërguar nga ' + f.nga : 'Dërguar nga telefoni', f.krijuarSe ? dataOra(f.krijuarSe) : ''].filter(Boolean).join(' · ')));
       r.appendChild(tx);
       var h = el('button', 'btn', 'Hape'); h.type = 'button';
       h.addEventListener('click', function () { hapFletenETelefonit(f.id); });
       var fs = el('button', 'btn tekst', 'Fshij'); fs.type = 'button'; fs.title = 'Hiqe pa e kontrolluar';
       fs.addEventListener('click', async function () {
-        var po = await konfirmo('Të fshihet fleta?', 'Rreshtat e kësaj flete nuk do të shtohen te afatet.', 'Fshij');
+        var po = await konfirmo('Të fshihet fleta?', 'Rreshtat e kësaj flete nuk do të ' + (f.lloji === 'stok' ? 'shtohen te stoku' : 'shtohen te afatet') + '.', 'Fshij');
         if (po) hiqFletenETelefonit(f.id);
       });
       r.appendChild(h); r.appendChild(fs);
@@ -4337,14 +4338,21 @@
     fletetTel.lista.forEach(function (x) { if (x.id === id) f = x; });
     if (!f) return;
     fletetTel.hapur = f.id;
-    lx.rreshtat = rreshtatNgaAI(f.rreshtat);
+    var stok = f.lloji === 'stok';
+    vendosPamjenELeximit(stok ? 'stok' : 'afatet');
+    lx.rreshtat = stok ? rreshtatStokNgaAI(f.rreshtat) : rreshtatNgaAI(f.rreshtat);
     fotoPamja.pastro();
     fotoPamja.caktoVizatimet('stoku:vizatime:' + f.id);
     hapDialog('dlgLexim');
     if (typeof f.foto === 'string' && f.foto.indexOf('data:image/') === 0) $('lxFoto').src = f.foto;
-    var nd = lx.rreshtat.filter(function (r) { return r.dyshim; }).length;
-    statusiLeximit('Fletë nga telefoni' + (f.nga ? ' (' + f.nga + ')' : '') + (f.krijuarSe ? ', ' + dataOra(f.krijuarSe) : '') + ' — ' +
-      lx.rreshtat.length + ' rreshta. Krahasoji me foton dhe korrigjo ku duhet' + (nd ? ' — ' + nd + ' janë shënuar me të verdhë si të paqarta.' : '.'), false);
+    var origjina = (f.nga ? ' (' + f.nga + ')' : '') + (f.krijuarSe ? ', ' + dataOra(f.krijuarSe) : '');
+    if (stok) {
+      statusiLeximit('Fletë stoku nga telefoni' + origjina + ' — ' + lx.rreshtat.length + ' rreshta. Krahasoji me foton dhe korrigjo ku duhet.', false);
+    } else {
+      var nd = lx.rreshtat.filter(function (r) { return r.dyshim; }).length;
+      statusiLeximit('Fletë nga telefoni' + origjina + ' — ' +
+        lx.rreshtat.length + ' rreshta. Krahasoji me foton dhe korrigjo ku duhet' + (nd ? ' — ' + nd + ' janë shënuar me të verdhë si të paqarta.' : '.'), false);
+    }
     if (!lx.rreshtat.length) shtoRreshtLeximi(); else renderLeximinPc();
   }
   // Thirret kur mbyllet kontrolli i fletës: pas "Ruaj" fshihet; pas "Anulo" mbetet në pritje për më vonë
@@ -4357,6 +4365,7 @@
 
   async function lexoFletenPc(skedari) {
     lx.rreshtat = [];
+    vendosPamjenELeximit('afatet');
     renderLeximinPc();
     fotoPamja.pastro();
     hapDialog('dlgLexim');
@@ -4392,13 +4401,42 @@
     if (rr.length) rr[rr.length - 1].querySelector('input').focus();
   });
 
+  var LX_THEAD_AFATET = '<th style="width:34px">#</th><th style="width:140px">Barkodi</th><th>Emri i produktit</th><th style="width:150px">Data e skadimit</th><th style="width:80px">Sasia</th><th style="width:160px">Furnizuesi</th><th style="width:36px"></th>';
+  var LX_THEAD_STOK = '<th style="width:34px">#</th><th style="width:150px">Barkodi</th><th>Emri i produktit</th><th style="width:90px">Sasia</th><th style="width:170px">Furnizuesi</th><th style="width:36px"></th>';
+  var KEY_FOLDER_IMPORTIT_PC = 'stoku:import-stok:folderi';
+  function mbushFolderatELeximit() {
+    var s = $('lxFolderi'); s.textContent = '';
+    foldera.forEach(function (f) { var o = el('option'); o.value = f.id; o.textContent = f.emri; s.appendChild(o); });
+    var i = null;
+    try { i = localStorage.getItem(KEY_FOLDER_IMPORTIT_PC); } catch (e) { /* ok */ }
+    s.value = (i && folderSipasId(i)) ? i : (foldera[0] ? foldera[0].id : '');
+  }
+  $('lxFolderi').addEventListener('change', function () {
+    try { localStorage.setItem(KEY_FOLDER_IMPORTIT_PC, $('lxFolderi').value); } catch (e) { /* ok */ }
+  });
+  // Përgatit dialogun "Kontrollo fletën e lexuar" për njërin nga dy llojet: 'afatet' (parazgjedhur,
+  // me datë) ose 'stok' (barkodi/emri/sasia/furnizuesi, plus zgjedhja e folderit).
+  function vendosPamjenELeximit(lloji) {
+    lx.lloji = lloji;
+    var stok = lloji === 'stok';
+    $('lxThead').innerHTML = stok ? LX_THEAD_STOK : LX_THEAD_AFATET;
+    $('lxFolderKuti').style.display = stok ? '' : 'none';
+    if (stok) mbushFolderatELeximit();
+  }
+  function rreshtatStokNgaAI(rreshtat) {
+    return (rreshtat || []).map(function (r) {
+      return { barkodi: r.barkodi || '', emri: r.emri || emriNgaBarkodi(r.barkodi), sasia: r.sasia === undefined ? '' : r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaBarkodi(r.barkodi) };
+    });
+  }
+
   function renderLeximinPc() {
+    var stok = lx.lloji === 'stok';
     var dl = $('afdFurnizuesit'); dl.textContent = '';
     furnizuesit().forEach(function (f) { var o = el('option'); o.value = f; dl.appendChild(o); });
     var t = $('lxTrup');
     t.textContent = '';
     lx.rreshtat.forEach(function (r, i) {
-      var tr = el('tr', (r.data ? AF.statusi({ data: r.data }) : '') + (r.dyshim ? ' dyshim' : ''));
+      var tr = el('tr', stok ? '' : (r.data ? AF.statusi({ data: r.data }) : '') + (r.dyshim ? ' dyshim' : ''));
       tr.appendChild(el('td', null, String(i + 1)));
       function qeliza(lloji, vl, ph, vendos, klasa) {
         var td = el('td');
@@ -4413,16 +4451,18 @@
       var qb = qeliza('text', r.barkodi, 'Barkodi', function (v) { r.barkodi = v.trim(); }, 'mono');
       qb.inp.addEventListener('change', function () { if (!r.emri) { r.emri = emriNgaBarkodi(r.barkodi); qe.inp.value = r.emri; } });
       qe = qeliza('text', r.emri, 'Emri i produktit', function (v) { r.emri = v; });
-      var qd = qeliza('text', r.data ? AF.formatoPerFushe(r.data) : '', 'Data', function (v) {
-        var iso = AF.lexoDatenEFushes(v) || '';
-        r.data = iso; r.dyshim = false;
-        tr.className = iso ? AF.statusi({ data: iso }) : '';
-        sh.textContent = iso ? AF.pershkrimi({ data: iso }) : 'Shkruaj datën, p.sh. 31-12-26';
-        sh.className = iso ? '' : 'paralajm';
-      });
-      AF.lidhFushenEDates(qd.inp);
-      var sh = el('small', r.data ? '' : 'paralajm', (r.dataOrigjinale ? 'Në fletë: "' + r.dataOrigjinale + '" · ' : '') + (r.data ? AF.pershkrimi({ data: r.data }) : 'Data s\'u kuptua — zgjidhe me dorë'));
-      qd.td.appendChild(sh);
+      if (!stok) {
+        var qd = qeliza('text', r.data ? AF.formatoPerFushe(r.data) : '', 'Data', function (v) {
+          var iso = AF.lexoDatenEFushes(v) || '';
+          r.data = iso; r.dyshim = false;
+          tr.className = iso ? AF.statusi({ data: iso }) : '';
+          sh.textContent = iso ? AF.pershkrimi({ data: iso }) : 'Shkruaj datën, p.sh. 31-12-26';
+          sh.className = iso ? '' : 'paralajm';
+        });
+        AF.lidhFushenEDates(qd.inp);
+        var sh = el('small', r.data ? '' : 'paralajm', (r.dataOrigjinale ? 'Në fletë: "' + r.dataOrigjinale + '" · ' : '') + (r.data ? AF.pershkrimi({ data: r.data }) : 'Data s\'u kuptua — zgjidhe me dorë'));
+        qd.td.appendChild(sh);
+      }
       // Shfaqet vetëm rezultati (fleta "60+30" → 90). Një shumë e shkruar me dorë kthehet në rezultat kur del nga fusha.
       var qs = qeliza('text', typeof r.sasia === 'number' ? String(r.sasia) : '', 'Sasia', function (v) {
         r.sasia = AF.lexoSasine(v); r.sasiaTx = v;
@@ -4441,12 +4481,12 @@
       t.appendChild(tr);
     });
     var n = lx.rreshtat.length;
-    $('lxRuaj').textContent = n ? 'Ruaj ' + n + (n === 1 ? ' afat' : ' afate') : 'Ruaj';
+    $('lxRuaj').textContent = n ? (stok ? 'Importo ' + n + (n === 1 ? ' produkt' : ' produkte') : 'Ruaj ' + n + (n === 1 ? ' afat' : ' afate')) : (stok ? 'Importo' : 'Ruaj');
     $('lxRuaj').disabled = !n;
   }
 
   async function anuloLeximin() {
-    var kaTeDhena = lx.rreshtat.some(function (r) { return r.barkodi || r.emri || r.data; });
+    var kaTeDhena = lx.rreshtat.some(function (r) { return r.barkodi || r.emri || r.data || r.furnizuesi; });
     if (fletetTel.hapur) {
       kaTeDhena = false; // fleta nga telefoni mbetet në pritje — mund të hapet sërish më vonë
       toast('Fleta mbeti në pritje — e gjen te "Afatet e produkteve".');
@@ -4462,7 +4502,51 @@
   }
   $('lxAnulo').addEventListener('click', anuloLeximin);
   $('lxMbyll').addEventListener('click', anuloLeximin);
+  function mbyllLeximinPasRuajtjes() {
+    lx.rreshtat = [];
+    anuloLeximin.leje = true; mbyllDialog.uRuajt = true;
+    mbyllDialog('dlgLexim');
+    anuloLeximin.leje = false; mbyllDialog.uRuajt = false;
+  }
+  function ruajLeximinStok() {
+    var fid = $('lxFolderi').value;
+    if (!fid || !folderSipasId(fid)) { toast('Zgjidh folderin ku do të importohen produktet.'); return; }
+    var teVlefshem = [], pa = 0;
+    lx.rreshtat.forEach(function (r) {
+      var bosh = !r.barkodi && !r.emri && !r.furnizuesi && (r.sasia === '' || r.sasia === undefined);
+      if (bosh) return;
+      var b = (r.barkodi || '').trim();
+      if (!b || r.sasia === '' || r.sasia === undefined || (r.sasiaTx && AF.lexoSasine(r.sasiaTx) === '')) { pa++; return; }
+      teVlefshem.push(r);
+    });
+    if (pa) {
+      toast(pa === 1 ? '1 rresht s\'ka barkod ose sasi (numër i plotë). Plotësoje ose hiqe me ✕.' : pa + ' rreshta s\'kanë barkod ose sasi (numër i plotë). Plotësoji ose hiqi me ✕.', { ms: 4000 });
+      return;
+    }
+    if (!teVlefshem.length) { mbyllLeximinPasRuajtjes(); return; }
+    var tani = Date.now(), ndryshimet = {};
+    var reg = ndrysho(function (api) {
+      teVlefshem.forEach(function (r) {
+        var b = r.barkodi.trim();
+        var k = celesi(fid, b);
+        var baza = ndryshimet[k] || produktet[k] || null;
+        var emriRi = (baza && baza.emri) || (r.emri || '').trim();
+        var furnizuesiRi = (baza && baza.furnizuesi) || (r.furnizuesi || '').trim();
+        var sasiaRe = Math.max(0, (baza ? baza.sasia : 0) + r.sasia);
+        var ri = { barkodi: b, emri: emriRi, sasia: sasiaRe, kategoriaId: fid, prekurSe: tani };
+        if (furnizuesiRi) ri.furnizuesi = furnizuesiRi;
+        ndryshimet[k] = ri;
+        api.vendos(k, ri);
+      });
+    });
+    var numri = Object.keys(ndryshimet).length;
+    mbyllLeximinPasRuajtjes();
+    renderTabelenNeseDuhet();
+    toast('U importuan ' + numri + ' produkte në folderin "' + emriFolderit(fid) + '".' +
+      (teVlefshem.length !== numri ? ' (disa rreshta u bashkuan te i njëjti barkod)' : ''), { veprimi: function () { zhbej(reg); }, ms: 9000 });
+  }
   $('lxRuaj').addEventListener('click', function () {
+    if (lx.lloji === 'stok') { ruajLeximinStok(); return; }
     var teVlefshem = [], gabime = 0;
     lx.rreshtat.forEach(function (r) {
       if (!r.barkodi && !r.emri && !r.data) return;

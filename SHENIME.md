@@ -125,11 +125,24 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 - Skedar shënimesh `SHENIME.md` (ky skedar).
 - Importi i stokut nga foto (faqja kryesore, ikonat lart djathtas): fotografo/zgjidh nga galeria →
   AF.lexoMeAI() (i njëjti endpoint AI si Afatet, me `ekstra: {synim:'stok'}` — Worker-i aktual s'e
-  përdor ende, është përgatitje) → kontrollo/korrigjo rreshtat (barkodi+emri+sasia, jo data) →
-  zgjidh folderin → ruaj (bashkohet me barkodin ekzistues në atë folder). VETËM telefon (~v92).
-  **S'është testuar me AI real** — worker-i s'e di ende se sheti s'ka datë, mund të mos i lexojë
-  saktë rreshtat pa datë; nëse rezultatet janë të dobëta, kërko kodin aktual të Worker-it dhe do
-  ta përshtas prompt-in për `synim==='stok'`.
+  përdor ende, është përgatitje) → kontrollo/korrigjo rreshtat (barkodi+emri+sasia+furnizuesi, jo
+  data) → zgjidh folderin (ose "+ Folder i ri…" aty për aty, hap dlgFolder mbi dlgImportStok) → ruaj
+  (bashkohet me barkodin ekzistues në atë folder: sasia mblidhet, emri/furnizuesi ekzistues mbeten
+  nëse janë vendosur). **Konfirmuar me AI real** (~19 rreshta të lexuar saktë nga një faturë e vërtetë).
+  Pas fotos, telefoni pyet "Ku do ta kontrollosh fletën?" (dialogu i përbashkët `dlgKuFleta`, njësoj si
+  te Afatet): "Vazhdo këtu" → dlgImportStok si më sipër; "Dërgo në PC" → e lexon këtu (me
+  `synim:'stok'`), e dërgon te `dyqane/{uid}/fletet` me `lloji:'stok'`, dhe kompjuteri (i njëjti
+  llogari) e hap vetë dialogun ekzistues `dlgLexim` në "modin stok" (`lx.lloji`): heq kolonën e
+  datës, shton kutinë e zgjedhjes së folderit (`#lxFolderKuti`/`#lxFolderi`, kujtohet si
+  `stoku:import-stok:folderi`), dhe ruajtja (`ruajLeximinStok()`) bashkohet me `produktet` njësoj si
+  në telefon. Folderi NUK zgjidhet në telefon para dërgimit — zgjidhet vetëm në anën ku kontrollohet
+  (telefon ose PC). (~v94; furnizuesi + dërgo-në-PC janë ~v94, pjesa bazë ~v92-93.)
+  **Radhitja e rreshtave në fotot me disa kolona**: udhëzimi (`UDHEZIMI`) i Worker-it (kopja lokale në
+  scratchpad, JO në këtë depo) u përditësua për të kërkuar leximin kolonë-për-kolonë (majtas→djathtas,
+  secila kolonë lart→poshtë) në vend të rresht-për-rresht përgjatë gjithë gjerësisë — **por kjo NUK
+  është ende e dërguar (deployed) në Cloudflare**, sepse s'kam qasje ta bëj vetë; përdoruesi duhet ta
+  ngjesë kodin e ri në Cloudflare Workers kur t'i vijë radha, ose të ma japë kodin aktual nëse ka
+  ndryshuar që nga kopja ime lokale.
 
 ## Konventat e testimit (S'KA Firebase real, s'ka telefon real)
 

@@ -13,6 +13,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 94, data: '2026-09-29', titulli: 'Importi i stokut: furnizuesi + dërgo në kompjuter', pikat: [
+      'Te importi i stokut nga foto, tani lexohet edhe furnizuesi për çdo produkt (jo vetëm barkodi/emri/sasia).',
+      'Pas fotos, mund të zgjedhësh: vazhdo këtu në telefon, ose dërgoje në kompjuter për ta kontrolluar atje — njësoj si te Afatet.'
+    ] },
     { v: 93, data: '2026-09-29', titulli: 'Importi i stokut: krijo folder të ri aty për aty', pikat: [
       'Te importi i stokut nga foto, në zgjedhjen e folderit tani ka edhe "+ Folder i ri…" — e krijon dhe e zgjedh menjëherë, pa dalë nga kontrolli i listës.'
     ] },

@@ -1394,7 +1394,7 @@
 <script src="ruajtja.js?v=81"></script>
 <script src="afatet.js?v=89"></script>
 <script src="njoftimet.js?v=85"></script>
-<script src="teRejat.js?v=93"></script>
+<script src="teRejat.js?v=94"></script>
 <script>
 (function () {
   'use strict';
@@ -4812,10 +4812,16 @@
   // "Dërgo në PC": fleta lexohet me AI këtu (me foton në cilësi të plotë), pastaj rreshtat + një foto
   // më e vogël dërgohen në Firebase; PC-ja që ka hapur Stoku-n me të njëjtën llogari e hap vetë
   // kontrollin e fletës (edhe nëse hapet më vonë).
-  var kfh = { skedari: null, anuluar: false };
-  function zgjidhKuFleta(skedari) {
-    if (!perdoruesiAktual() || !window.__stokuCloud || !window.__stokuCloud.dergoFleten) { lexoFleten(skedari); return; }
-    kfh = { skedari: skedari, anuluar: false };
+  var kfh = { skedari: null, anuluar: false, lloji: 'afatet' };
+  // lloji: 'afatet' (parazgjedhur) ose 'stok' (importi i stokut) — përcakton çfarë lexohet këtu në
+  // telefon ("Vazhdo këtu") dhe çfarë i thuhet Worker-it të AI-së kur dërgohet në PC.
+  function zgjidhKuFleta(skedari, lloji) {
+    var l = lloji || 'afatet';
+    if (!perdoruesiAktual() || !window.__stokuCloud || !window.__stokuCloud.dergoFleten) {
+      if (l === 'stok') lexoFletenStok(skedari); else lexoFleten(skedari);
+      return;
+    }
+    kfh = { skedari: skedari, anuluar: false, lloji: l };
     gjendjaKfh('zgjedhje');
     $('dlgKuFleta').classList.add('hapur');
   }
@@ -4832,7 +4838,10 @@
   }
   function mbyllKfh() { kfh.anuluar = true; $('dlgKuFleta').classList.remove('hapur'); }
   $('kfhAnulo').addEventListener('click', mbyllKfh);
-  $('kfhKetu').addEventListener('click', function () { var f = kfh.skedari; mbyllKfh(); if (f) lexoFleten(f); });
+  $('kfhKetu').addEventListener('click', function () {
+    var f = kfh.skedari, l = kfh.lloji; mbyllKfh();
+    if (f) { if (l === 'stok') lexoFletenStok(f); else lexoFleten(f); }
+  });
   $('kfhPc').addEventListener('click', async function () {
     var ky = kfh;
     try {
@@ -4842,12 +4851,14 @@
       gjendjaKfh('pune', 'Duke e lexuar fletën me AI… (zakonisht 5–20 sekonda)');
       var tokeni = null;
       try { tokeni = await window.__stokuCloud.token(); } catch (e) { /* ok */ }
-      var rez = await AF.lexoMeAI(foto, tokeni);
+      var rez = await AF.lexoMeAI(foto, tokeni, ky.lloji === 'stok' ? { synim: 'stok' } : undefined);
       if (ky.anuluar) return;
       if (!rez.ok) { gjendjaKfh('gabim', (MESAZHET_AI[rez.gabim] || 'Fleta s\'u lexua.') + ' Mund ta vazhdosh këtu në telefon.'); return; }
       gjendjaKfh('pune', 'Duke e dërguar në PC…');
       var fotoPc = await AF.fotoPerDergim(foto.dataUrl);
-      var r = await window.__stokuCloud.dergoFleten({ krijuarSe: Date.now(), nga: emriPerdoruesitAktual(), foto: fotoPc, rreshtat: rez.rreshtat });
+      var fleta = { krijuarSe: Date.now(), nga: emriPerdoruesitAktual(), foto: fotoPc, rreshtat: rez.rreshtat };
+      if (ky.lloji === 'stok') fleta.lloji = 'stok';
+      var r = await window.__stokuCloud.dergoFleten(fleta);
       if (ky.anuluar) return;
       if (!r.ok) {
         gjendjaKfh('gabim', r.kodi === 'permission-denied'
@@ -5045,8 +5056,8 @@
     if (importiHapurNukKaFolder()) return;
     $('impFotoGaleria').value = ''; $('impFotoGaleria').click();
   });
-  $('impFotoKamera').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) lexoFletenStok(f); });
-  $('impFotoGaleria').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) lexoFletenStok(f); });
+  $('impFotoKamera').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) zgjidhKuFleta(f, 'stok'); });
+  $('impFotoGaleria').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) zgjidhKuFleta(f, 'stok'); });
 
   var KEY_FOLDER_IMPORTIT = 'stoku:import-stok:folderi';
   var IMP_FOLDER_RI = '__ri__';
@@ -5109,7 +5120,7 @@
       return;
     }
     imp.rreshtat = rez.rreshtat.map(function (r) {
-      return { barkodi: r.barkodi || '', emri: r.emri || emriNgaProduktet(r.barkodi), sasia: r.sasia };
+      return { barkodi: r.barkodi || '', emri: r.emri || emriNgaProduktet(r.barkodi), sasia: r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaAfatet(r.barkodi) };
     });
     statusiImportit(imp.rreshtat.length
       ? 'U lexuan ' + imp.rreshtat.length + ' rreshta. Krahasoji me foton dhe korrigjo ku duhet.'
@@ -5118,7 +5129,8 @@
   }
 
   function shtoRreshtImportit() {
-    imp.rreshtat.push({ barkodi: '', emri: '', sasia: '', iRi: true });
+    var fund = imp.rreshtat[imp.rreshtat.length - 1];
+    imp.rreshtat.push({ barkodi: '', emri: '', sasia: '', furnizuesi: fund ? fund.furnizuesi : '', iRi: true });
     renderImportin();
   }
   $('impShtoRresht').addEventListener('click', function () {
@@ -5128,6 +5140,7 @@
   });
 
   function renderImportin() {
+    mbushFurnizuesit();
     var c = $('impRreshtat');
     c.textContent = '';
     imp.rreshtat.forEach(function (r, i) {
@@ -5161,7 +5174,9 @@
         fsas.inp.value = String(AF.lexoSasine(fsas.inp.value));
         fsas.inp.dispatchEvent(new Event('input'));
       });
-      d.appendChild(fb.w); d.appendChild(fe.w); d.appendChild(fsas.w);
+      var ffur = fushe('Furnizuesi', r.furnizuesi, function (v) { r.furnizuesi = v; });
+      ffur.inp.setAttribute('list', 'afFurnizuesit');
+      d.appendChild(fb.w); d.appendChild(fe.w); d.appendChild(fsas.w); d.appendChild(ffur.w);
       c.appendChild(d);
     });
     var n = imp.rreshtat.length;
@@ -5173,7 +5188,7 @@
   $('impFoto').addEventListener('click', function () { $('impFoto').classList.toggle('e-madhe'); });
   $('impPrapa').addEventListener('click', function () { $('impAnulo').click(); });
   $('impAnulo').addEventListener('click', async function () {
-    var kaTeDhena = imp.rreshtat.some(function (r) { return r.barkodi || r.emri; });
+    var kaTeDhena = imp.rreshtat.some(function (r) { return r.barkodi || r.emri || r.furnizuesi; });
     if (kaTeDhena) {
       var po = await konfirmo('Të anulohet?', 'Rreshtat e lexuar nuk do të importohen.', 'Anulo importin');
       if (!po) return;
@@ -5186,7 +5201,7 @@
     if (!fid || !foldera.some(function (f) { return f.id === fid; })) { toast('Zgjidh folderin ku do të importohen produktet.'); return; }
     var teVlefshem = [], pa = 0;
     imp.rreshtat.forEach(function (r) {
-      var bosh = !r.barkodi && !r.emri && (r.sasia === '' || r.sasia === undefined);
+      var bosh = !r.barkodi && !r.emri && !r.furnizuesi && (r.sasia === '' || r.sasia === undefined);
       if (bosh) return;
       var b = (r.barkodi || '').trim();
       if (!b || r.sasia === '' || r.sasia === undefined || (r.sasiaTx && AF.lexoSasine(r.sasiaTx) === '')) { pa++; return; }
@@ -5203,8 +5218,11 @@
       var k = celesiProduktit(fid, b);
       var baza = ndryshimet[k] || produktet[k] || null;
       var emriRi = (baza && baza.emri) || (r.emri || '').trim();
+      var furnizuesiRi = (baza && baza.furnizuesi) || (r.furnizuesi || '').trim();
       var sasiaRe = Math.max(0, (baza ? baza.sasia : 0) + r.sasia);
-      ndryshimet[k] = { barkodi: b, emri: emriRi, sasia: sasiaRe, kategoriaId: fid, prekurSe: tani };
+      var ri = { barkodi: b, emri: emriRi, sasia: sasiaRe, kategoriaId: fid, prekurSe: tani };
+      if (furnizuesiRi) ri.furnizuesi = furnizuesiRi;
+      ndryshimet[k] = ri;
     });
     var numri = Object.keys(ndryshimet).length;
     Object.keys(ndryshimet).forEach(function (k) { produktet[k] = ndryshimet[k]; });
