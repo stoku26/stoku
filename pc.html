@@ -243,6 +243,16 @@
     text-decoration: none; font-size: 13px; border: 0; background: transparent; text-align: left;
   }
   .anesore-fund a:hover, .anesore-fund button:hover { background: var(--hover); color: var(--tekst); }
+  /* ================= Ekipi (stoku i përbashkët i krejt llogarive) ================= */
+  .ekipi-anetar { margin-bottom: 26px; }
+  .ekipi-anetar h2 { font-size: 17px; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+  .ekipi-anetar .ekipi-joti { font-size: 11px; font-weight: 700; color: var(--btn-tekst); background: color-mix(in srgb, var(--btn-tekst) 16%, transparent); padding: 2px 9px; border-radius: 10px; }
+  .ekipi-nendarje { font-size: 12px; font-weight: 700; color: var(--gri); text-transform: uppercase; letter-spacing: .06em; margin: 8px 0 6px; }
+  .ekipi-rreshtat { border: 1px solid var(--vije); border-radius: 10px; overflow: hidden; margin-bottom: 6px; }
+  .ekipi-rresht { display: flex; justify-content: space-between; gap: 14px; padding: 8px 12px; font-size: 13.5px; border-bottom: 1px solid var(--vije); }
+  .ekipi-rresht:last-child { border-bottom: 0; }
+  .ekipi-rresht .ekipi-dyt { color: var(--gri); flex-shrink: 0; text-align: right; }
+  .ekipi-bosh, .ekipi-ngarkim { color: var(--gri); font-size: 13.5px; padding: 8px 0 16px; }
 
   main.kryesore { min-width: 0; min-height: 0; overflow: auto; padding: 22px 28px 40px; }
   .faqe-krye { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
@@ -767,6 +777,17 @@
         </nav>
       </div>
     </div>
+    <button class="akordion-krye" id="btnAkordEkipi" type="button" aria-expanded="false"><span>Ekipi</span><svg class="akordion-shigjeta" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+    <div class="akordion-trup" id="akordEkipiTrupi">
+      <div class="akordion-brendia">
+        <nav class="nav">
+          <button class="nav-rresht" id="navEkipi" type="button" title="Stoku dhe afatet e krejt përdoruesve">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <span class="emri">Stoku i ekipit</span>
+          </button>
+        </nav>
+      </div>
+    </div>
     <div class="anesore-fund">
       <button type="button" id="btnImport">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path><path d="M12 15V3"></path></svg>
@@ -965,6 +986,17 @@
         <div class="tabela-bosh fsheh" id="afBosh"></div>
       </div>
       <input type="file" id="afFoto" accept="image/*" hidden>
+    </section>
+
+    <!-- Ekipi: stoku + afatet e krejt llogarive, vetëm për t'i parë -->
+    <section id="pamjaEkipi" class="fsheh">
+      <div class="faqe-krye">
+        <div>
+          <h1>Stoku i ekipit</h1>
+          <div class="faqe-nen">Stoku dhe afatet e krejt përdoruesve, të shënuara me emrin e secilit. Fshirja/ndryshimi bëhet vetëm te "Stoku"/"Afatet", për të dhënat e tua.</div>
+        </div>
+      </div>
+      <div id="ekipiPc"></div>
     </section>
   </main>
 </div>
@@ -1329,7 +1361,7 @@
 <script src="bashkimi.js?v=81"></script>
 <script src="ruajtja.js?v=81"></script>
 <script src="afatet.js?v=90"></script>
-<script src="teRejat.js?v=98"></script>
+<script src="teRejat.js?v=99"></script>
 <script>
 (function () {
   'use strict';
@@ -1761,7 +1793,7 @@
   var tab = { kerkimi: '', filtri: 'te-gjitha', rendiK: 'koha', rendiD: -1, faqja: 0, zgjedhura: {}, fokus: -1, ankoraZgjedhjes: null, flash: null };
   (function () { var r = ops.rendi.split(':'); tab.rendiK = r[0]; tab.rendiD = parseInt(r[1], 10); })();
 
-  function hashPer(p) { return p === 'permbledhja' ? '#/permbledhja' : p === 'te-gjitha' ? '#/te-gjitha' : p === 'afatet' ? '#/afatet' : '#/f/' + encodeURIComponent(p); }
+  function hashPer(p) { return p === 'permbledhja' ? '#/permbledhja' : p === 'te-gjitha' ? '#/te-gjitha' : p === 'afatet' ? '#/afatet' : p === 'ekipi' ? '#/ekipi' : '#/f/' + encodeURIComponent(p); }
   function shkoTe(p, opsionet) {
     opsionet = opsionet || {};
     var ePare = pamja !== p;
@@ -1782,6 +1814,7 @@
     var p = 'permbledhja';
     if (h === '#/te-gjitha') p = 'te-gjitha';
     else if (h === '#/afatet') p = 'afatet';
+    else if (h === '#/ekipi') p = 'ekipi';
     else if (h.indexOf('#/f/') === 0 && folderSipasId(h.slice(4))) p = h.slice(4);
     if (p !== pamja) { pamja = p; tab.kerkimi = ''; tab.filtri = 'te-gjitha'; tab.faqja = 0; tab.zgjedhura = {}; tab.fokus = -1; $('kerko').value = ''; }
     rivizato();
@@ -1789,19 +1822,20 @@
   window.addEventListener('popstate', lexoHash);
 
   function rivizato() {
-    if (pamja !== 'permbledhja' && pamja !== 'te-gjitha' && pamja !== 'afatet' && !folderSipasId(pamja)) {
+    if (pamja !== 'permbledhja' && pamja !== 'te-gjitha' && pamja !== 'afatet' && pamja !== 'ekipi' && !folderSipasId(pamja)) {
       pamja = 'permbledhja';
       history.replaceState(null, '', hashPer(pamja));
     }
     renderAnesoren();
     renderAfatetAnesore();
-    var permb = pamja === 'permbledhja', neAfate = pamja === 'afatet';
+    var permb = pamja === 'permbledhja', neAfate = pamja === 'afatet', neEkipi = pamja === 'ekipi';
     $('pamjaPermbledhja').classList.toggle('fsheh', !permb);
     $('pamjaAfatet').classList.toggle('fsheh', !neAfate);
-    $('pamjaTabela').classList.toggle('fsheh', permb || neAfate);
-    if (permb) renderPermbledhjen(); else if (neAfate) renderAfatetPc(); else renderTabelen();
+    $('pamjaEkipi').classList.toggle('fsheh', !neEkipi);
+    $('pamjaTabela').classList.toggle('fsheh', permb || neAfate || neEkipi);
+    if (permb) renderPermbledhjen(); else if (neAfate) renderAfatetPc(); else if (neEkipi) renderEkipiPc(); else renderTabelen();
     if ($('kerkoGlobal').value.trim()) renderKerkimiGlobal();
-    var titull = permb ? 'Përmbledhja' : neAfate ? 'Afatet' : pamja === 'te-gjitha' ? 'Të gjitha produktet' : emriFolderit(pamja);
+    var titull = permb ? 'Përmbledhja' : neAfate ? 'Afatet' : neEkipi ? 'Ekipi' : pamja === 'te-gjitha' ? 'Të gjitha produktet' : emriFolderit(pamja);
     document.title = titull + ' — Stoku';
   }
 
@@ -1809,20 +1843,22 @@
   var zvarritjaFolderit = null;
   // Të dyja seksionet mund të jenë të hapura njëkohësisht — gjendja e hapjes ndiqet veç e veç nga
   // pamja aktuale (seksioni i pamjes aktuale hapet vetë, por klikimi mund ta hap/mbyllë edhe tjetrin).
-  var akordoniStokuHapur = true, akordoniAfatetHapur = false;
+  var akordoniStokuHapur = true, akordoniAfatetHapur = false, akordoniEkipiHapur = false;
   var __pamjaParaAkordionit = null; // vetëm kur PAMJA ndryshon vërtet hapet vetë seksioni i saj — jo në çdo rirendering
   function vendosAkordionin() {
     if (pamja !== __pamjaParaAkordionit) {
-      if (pamja === 'afatet') akordoniAfatetHapur = true; else akordoniStokuHapur = true;
+      if (pamja === 'afatet') akordoniAfatetHapur = true; else if (pamja === 'ekipi') akordoniEkipiHapur = true; else akordoniStokuHapur = true;
       __pamjaParaAkordionit = pamja;
     }
     $('akordStokuTrupi').classList.toggle('hapur', akordoniStokuHapur);
     $('akordAfatetTrupi').classList.toggle('hapur', akordoniAfatetHapur);
+    $('akordEkipiTrupi').classList.toggle('hapur', akordoniEkipiHapur);
     $('btnAkordStoku').setAttribute('aria-expanded', String(akordoniStokuHapur));
     $('btnAkordAfatet').setAttribute('aria-expanded', String(akordoniAfatetHapur));
+    $('btnAkordEkipi').setAttribute('aria-expanded', String(akordoniEkipiHapur));
   }
   $('btnAkordStoku').addEventListener('click', function () {
-    if (pamja === 'afatet') { shkoTe('permbledhja'); return; }
+    if (pamja === 'afatet' || pamja === 'ekipi') { shkoTe('permbledhja'); return; }
     akordoniStokuHapur = !akordoniStokuHapur;
     vendosAkordionin();
   });
@@ -1831,11 +1867,18 @@
     akordoniAfatetHapur = !akordoniAfatetHapur;
     vendosAkordionin();
   });
+  $('btnAkordEkipi').addEventListener('click', function () {
+    if (pamja !== 'ekipi') { shkoTe('ekipi'); return; }
+    akordoniEkipiHapur = !akordoniEkipiHapur;
+    vendosAkordionin();
+  });
+  $('navEkipi').addEventListener('click', function () { shkoTe('ekipi'); });
 
   function renderAnesoren() {
     vendosAkordionin();
     $('navPermbledhja').classList.toggle('aktiv', pamja === 'permbledhja');
     $('navTeGjitha').classList.toggle('aktiv', pamja === 'te-gjitha');
+    $('navEkipi').classList.toggle('aktiv', pamja === 'ekipi');
     $('numTeGjitha').textContent = num(Object.keys(produktet).length);
     var numrat = {};
     teGjithaProduktet().forEach(function (p) { numrat[p.kategoriaId] = (numrat[p.kategoriaId] || 0) + 1; });
@@ -3753,9 +3796,10 @@
     }
     if (poShkruan(ev.target) || ctrl && k !== 'a' && k !== 'A' || ev.altKey) return;
 
-    var neTabele = pamja !== 'permbledhja' && pamja !== 'afatet';
+    var neTabele = pamja !== 'permbledhja' && pamja !== 'afatet' && pamja !== 'ekipi';
     if (k === '/') { ev.preventDefault(); $('kerkoGlobal').focus(); return; }
     if (k === '?') { ev.preventDefault(); hapOpsionet('shkurtoret'); return; }
+    if (pamja === 'ekipi') return;
     if (k === 'n' || k === 'N') { ev.preventDefault(); if (pamja === 'afatet') hapAfatinPc(null); else hapProduktIRi('', null, false); return; }
     if (!neTabele) return;
     if ((k === 'b' || k === 'B') && folderSipasId(pamja)) { ev.preventDefault(); $('barkodi').focus(); return; }
@@ -3894,6 +3938,65 @@
   }
 
   var ST_EMRI = { skaduar: 'Ka skaduar', 'pa-date': 'Pa datë', afer: 'Afër skadimit', ok: 'Në rregull', hequr: 'I hequr' };
+
+  // ---------- Ekipi: stoku + afatet e krejt llogarive, të shënuara me emrin e secilit ----------
+  var __ekipiPcNgarkuar = false;
+  async function renderEkipiPc() {
+    var cont = $('ekipiPc');
+    if (!window.__stokuCloud) { cont.textContent = ''; cont.appendChild(el('p', 'ekipi-bosh', 'Ekipi kërkon lidhje me cloud-in.')); return; }
+    if (__ekipiPcNgarkuar) return; // rifreskohet vetëm kur hapet faqja, jo në çdo rirendering
+    cont.textContent = '';
+    cont.appendChild(el('p', 'ekipi-ngarkim', 'Duke ngarkuar…'));
+    var uPerdoruesi = window.__stokuCloud.perdoruesiAktual();
+    var uidIm = uPerdoruesi && uPerdoruesi.uid;
+    var rez = await window.__stokuCloud.krejtPerdoruesit();
+    if (pamja !== 'ekipi') return; // ndërkohë u largua nga faqja
+    cont.textContent = '';
+    if (!rez.ok || !rez.lista.length) { cont.appendChild(el('p', 'ekipi-bosh', 'S\'u gjet asnjë llogari.')); return; }
+    rez.lista.sort(function (a, b) { return a.uid === uidIm ? -1 : b.uid === uidIm ? 1 : a.emri.localeCompare(b.emri); });
+    var dyqanet = await Promise.all(rez.lista.map(function (p) { return window.__stokuCloud.merrDyqaninEPerdoruesit(p.uid); }));
+    if (pamja !== 'ekipi') return;
+    cont.textContent = '';
+    for (var i = 0; i < rez.lista.length; i++) {
+      var p = rez.lista[i], d = dyqanet[i];
+      var g = d && d.ok && d.gjendja;
+      var foldMap = {};
+      (g && g.foldera || []).forEach(function (f) { foldMap[f.id] = f.emri; });
+      var anetari = el('div', 'ekipi-anetar');
+      var h2 = el('h2', null, p.emri);
+      if (p.uid === uidIm) h2.appendChild(el('span', 'ekipi-joti', 'ti'));
+      anetari.appendChild(h2);
+      anetari.appendChild(el('div', 'ekipi-nendarje', 'Stoku'));
+      var produktet2 = (g && g.produktet || []).slice().sort(function (a, b) { return (a.emri || '').localeCompare(b.emri || ''); });
+      if (!produktet2.length) anetari.appendChild(el('p', 'ekipi-bosh', 'Pa produkte.'));
+      else {
+        var kutiaP = el('div', 'ekipi-rreshtat');
+        produktet2.forEach(function (pr) {
+          var r = el('div', 'ekipi-rresht');
+          r.appendChild(el('span', null, pr.emri || pr.barkodi));
+          r.appendChild(el('span', 'ekipi-dyt', (foldMap[pr.kategoriaId] || '') + ' · ' + (pr.sasia != null ? pr.sasia : '') + ' copë'));
+          kutiaP.appendChild(r);
+        });
+        anetari.appendChild(kutiaP);
+      }
+      anetari.appendChild(el('div', 'ekipi-nendarje', 'Afatet'));
+      var afatetLista2 = (g && g.afatet || []).filter(function (a) { return a.statusi !== 'hequr'; }).slice()
+        .sort(function (a, b) { return (a.data || '').localeCompare(b.data || ''); });
+      if (!afatetLista2.length) anetari.appendChild(el('p', 'ekipi-bosh', 'Pa afate.'));
+      else {
+        var kutiaA = el('div', 'ekipi-rreshtat');
+        afatetLista2.forEach(function (a) {
+          var r = el('div', 'ekipi-rresht');
+          r.appendChild(el('span', null, a.emri || a.barkodi));
+          r.appendChild(el('span', 'ekipi-dyt', a.data ? AF.formato(a.data) : ''));
+          kutiaA.appendChild(r);
+        });
+        anetari.appendChild(kutiaA);
+      }
+      cont.appendChild(anetari);
+    }
+    __ekipiPcNgarkuar = true;
+  }
 
   function renderAfatetPc() {
     var n = AF.numero(afatet);
@@ -4827,7 +4930,7 @@
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
     updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential
   } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-  import { initializeFirestore, doc, getDoc, setDoc, runTransaction, onSnapshot, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  import { initializeFirestore, doc, getDoc, getDocs, setDoc, runTransaction, onSnapshot, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
   var firebaseConfig = {
     apiKey: "AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY",
@@ -4849,10 +4952,14 @@
     var ruajtja = window.StokuRuajtja.krijo({ doc: doc, getDoc: getDoc, setDoc: setDoc, runTransaction: runTransaction, onSnapshot: onSnapshot, collection: collection },
       db, function () { return auth.currentUser ? auth.currentUser.uid : null; });
     var dokumenti = function () { return doc(db, 'dyqane', auth.currentUser.uid); };
+    // Regjistrohet vetja te perdoruesit/{uid} — përdoret nga pamja e "Ekipit" për të gjetur llogaritë
+    async function regjistroPerdoruesin(emri, uid) {
+      try { await setDoc(doc(db, 'perdoruesit', uid), { emri: emri.trim(), kycurSe: Date.now() }, { merge: true }); } catch (e) { /* ok */ }
+    }
 
     window.__stokuCloud = {
-      async regjistrohu(u, p) { try { var k = await createUserWithEmailAndPassword(auth, emailIBrendshem(u), p); return { ok: true, uid: k.user.uid }; } catch (e) { return gabim(e); } },
-      async hyr(u, p) { try { var k = await signInWithEmailAndPassword(auth, emailIBrendshem(u), p); return { ok: true, uid: k.user.uid }; } catch (e) { return gabim(e); } },
+      async regjistrohu(u, p) { try { var k = await createUserWithEmailAndPassword(auth, emailIBrendshem(u), p); await regjistroPerdoruesin(u, k.user.uid); return { ok: true, uid: k.user.uid }; } catch (e) { return gabim(e); } },
+      async hyr(u, p) { try { var k = await signInWithEmailAndPassword(auth, emailIBrendshem(u), p); await regjistroPerdoruesin(u, k.user.uid); return { ok: true, uid: k.user.uid }; } catch (e) { return gabim(e); } },
       async dil() { try { await signOut(auth); } catch (e) { /* ok */ } },
       async ndryshoEmrin(u) { if (!auth.currentUser) return { ok: false }; try { await updateEmail(auth.currentUser, emailIBrendshem(u)); return { ok: true }; } catch (e) { return gabim(e); } },
       async ndryshoFjalekalimin(p) { if (!auth.currentUser) return { ok: false }; try { await updatePassword(auth.currentUser, p); return { ok: true }; } catch (e) { return gabim(e); } },
@@ -4881,10 +4988,28 @@
       async fshijFleten(id) {
         if (!auth.currentUser) return { ok: false };
         try { await deleteDoc(doc(db, 'dyqane', auth.currentUser.uid, 'fletet', id)); return { ok: true }; } catch (e) { return gabim(e); }
+      },
+      // Ekipi: krejt llogaritë e regjistruara (emri i dukshëm + uid), për pamjen e përbashkët
+      async krejtPerdoruesit() {
+        try {
+          var pikteka = await getDocs(collection(db, 'perdoruesit'));
+          var lista = [];
+          pikteka.forEach(function (d) { lista.push({ uid: d.id, emri: (d.data() && d.data().emri) || d.id }); });
+          return { ok: true, lista: lista };
+        } catch (e) { var g = gabim(e); g.lista = []; return g; }
+      },
+      // Lexim (vetëm-lexim) i dyqanit të një llogarie tjetër — për të bashkuar stokun/afatet e ekipit
+      async merrDyqaninEPerdoruesit(uid) {
+        try {
+          var rTjeter = window.StokuRuajtja.krijo({ doc: doc, getDoc: getDoc, setDoc: setDoc, runTransaction: runTransaction, onSnapshot: onSnapshot, collection: collection },
+            db, function () { return uid; });
+          return await rTjeter.merr();
+        } catch (e) { return gabim(e); }
       }
     };
-    onAuthStateChanged(auth, function () {
+    onAuthStateChanged(auth, function (perdoruesi) {
       window.__stokuCloud.authGati = true; // porta e hyrjes pret këtë: tani dihet a është hyrë
+      if (perdoruesi && perdoruesi.email) regjistroPerdoruesin(perdoruesi.email.replace(/@stoku-app\.local$/, ''), perdoruesi.uid);
       window.dispatchEvent(new Event('stoku-auth-ndryshoi'));
     });
   } catch (e) {

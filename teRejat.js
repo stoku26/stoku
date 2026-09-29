@@ -13,6 +13,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 105, data: '2026-09-29', titulli: 'Ekipi: stoku i përbashkët i krejt llogarive', pikat: [
+      'U shtua "Ekipi" — te telefoni si tab i tretë (mas Stoku dhe Afatet), te kompjuteri si seksion i tretë në anësore.',
+      'Aty shihen stoku dhe afatet e KREJT llogarive, të shënuara me emrin e secilit përdorues.',
+      'Secili sheh gjithçka, por fshin/ndryshon vetëm produktet dhe afatet e veta — të tjerëve u shikohen, s\'u ndryshohen.'
+    ] },
     { v: 103, data: '2026-09-29', titulli: 'Kompjuteri: përmirësime te anësorja', pikat: [
       '"Stoku" dhe "Afatet" tani mund të jenë të dyja të hapura njëkohësisht, dhe hapja/mbyllja rrëshqet butë.',
       'Nën "Afatet" u shtuan "Të skaduara" dhe "Afër skadimit" si shkurtore të drejtpërdrejta.',
