@@ -224,9 +224,23 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   automatikisht; gjendja e hapur/mbyllur ndiqet nga `pamja` (`vendosAkordionin()`, e thirrur nga
   `renderAnesoren()`). "Stoku" i hapur → kthehet gjithmonë te "Përmbledhja" (jo te pamja e fundit — u hoq
   qëllimisht kompleksiteti i `fundiPamjesStoku`). `#navAfatet` mbetet brenda `#akordAfatetTrupi`.
-  **KJO ËSHTË GJENDJA PËRFUNDIMTARE (~v101)**. Testet Playwright që lidhen me këtë zonë duhet të klikojnë
+  **PAS PROVËS REALE, 3 rregullime shtesë (~v102-103)**: (a) tranzicioni u bë "slide" i vërtetë me
+  `grid-template-rows: 0fr→1fr` (jo `max-height` që s'animohet në CSS) + `.anesore-fund{margin-top:auto}`
+  që footer-i të mbetet gjithmonë në fund; (b) të dyja seksionet mund të jenë të hapura NJËKOHËSISHT tani
+  (`akordoniStokuHapur`/`akordoniAfatetHapur`, dy boolean të pavarur — jo më "vetëm njëri i hapur"; klikimi
+  i titullit kur je TASHMË te ajo pamje thjesht e hap/mbyll atë, pa e prekur tjetrin; navigimi nga një pamje
+  tjetër e hap tjetrin PA e mbyllur këtë); (c) nën "Afatet" u shtuan edhe "Të skaduara"/"Afër skadimit"
+  (`#navAfSkaduara`/`#navAfAfer`, vendosin `af.filtri` dhe lundrojnë te 'afatet'); (d) **RREGULLIM I
+  RËNDËSISHËM**: fletët e dërguara nga telefoni ndaheshin vetëm me TEKST ("Fletë stoku" vs "Fletë afatesh")
+  por të dyja llojet shfaqeshin GJITHMONË brenda faqes së Afateve (`#afFletetTel`, i vetmi kontejner që
+  ekzistonte) — përdoruesi e pa këtë si "gabim, fletë stoku po del te Afatet". Tani ka DY kontejnerë të
+  veçantë: `#stokFletetTel` (brenda `#pamjaPermbledhja`, vetëm fletë `lloji==='stok'`) dhe `#afFletetTel`
+  (vetëm afatet), me badge-e të veçanta `#stokTabFleta` (mbi titullin "Stoku") dhe `#afTabFleta`, filtruar
+  brenda `renderFletetETelefonit()`.
+  **KJO ËSHTË GJENDJA PËRFUNDIMTARE (~v103)**. Testet Playwright që lidhen me këtë zonë duhet të klikojnë
   `#btnAkordStoku`/`#btnAkordAfatet` PARA se të klikojnë diçka brenda tyre (p.sh. `#navPermbledhja`,
-  `#afBtnShto`), sepse elementet brenda seksionit të mbyllur s'janë të klikueshme (të fshehura, `max-height:0`).
+  `#afBtnShto`) — një seksion i mbyllur mund të hapet pa e mbyllur tjetrin, por elementet brenda TIJ vetë
+  s'janë të klikueshme derisa të hapet.
   Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
