@@ -155,9 +155,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
   asnjë numër s'do të shfaqet** — kodi klientit është gati dhe pret vetëm updatin e Worker-it.
 - **Furnizuesi i shpikur**: përdoruesi raportoi që AI-ja po vendoste TË NJËJTIN emër furnizuesi (të
   shpikur, s'ekzistonte në fletë) te ÇDO rresht. Udhëzimi (`UDHEZIMI`, fusha `furnizuesi`) u fortësua
-  eksplicit: "KURRË MOS E SHPIK... lëre bosh te ÇDO rresht" nëse s'shkruhet askund në fletë. **Kjo NUK
-  është ende e dërguar (deployed)** — është shtesa e fundit te kopja lokale e Worker-it, ende s'i është
-  dhënë përdoruesit skedari i ri për ta ngjitur.
+  eksplicit: "KURRË MOS E SHPIK... lëre bosh te ÇDO rresht" nëse s'shkruhet askund në fletë.
+- **Saktësia e `y`**: me fleta të gjata (50+ rreshta reale), numrat mbi foto dilnin dukshëm mbi rreshtin e
+  vet (jo saktë në vijë). Udhëzimi i `y` u bë më eksplicit: "SAKTËSISHT në QENDRËN E SHKRONJAVE, jo maja
+  e rreshtit", dhe theksohet të mos llogaritet si distancë e barabartë mes rreshtash (shkrimi dorë s'është
+  i barabartë) — çdo rresht të kontrollohet veç e veç.
+  **As furnizuesi-i-shpikur, as saktësia e `y` NUK janë ende të konfirmuara si deployed** — ia dhashë
+  përdoruesit skedarin e ri (të konsoliduar me krejt ndryshimet deri tash), por s'e kam konfirmimin
+  "u ngjit" për këta të dy specifikisht (ndryshe nga radhitja+x/y bazë, që u konfirmua me "version saved").
 
 ## Konventat e testimit (S'KA Firebase real, s'ka telefon real)
 
