@@ -2917,11 +2917,17 @@
     });
   }
 
-  // Veçori vetëm për këtë përdorues specifik (butona +/- shpejtë te lista) — për asnjë tjetër.
-  var SASIA_SHPEJTE_USERNAME = 'albidepo34';
+  // Veçori vetëm për llogari të caktuara (butona +/- shpejtë te lista). Lidhet me LLOGARINË (uid), jo me emrin:
+  // kur një llogari e ndryshon emrin, e mban lejen. Emrat më poshtë janë vetëm "farë" për herën e parë —
+  // sapo llogaria hyn me njërin prej tyre, leja ruhet te perdoruesit/{uid}.sasiaShpejte dhe këtu (KEY_LEJA_SASIA).
+  var SASIA_SHPEJTE_EMRAT = ['albidepo34', 'tonnyaliu'];
+  var KEY_LEJA_SASIA = 'stoku:leja:sasia-shpejte';
   function eLejuarSasiaShpejte() {
     var u = perdoruesiAktual();
-    return !!u && emriPerdoruesitAktual().toLowerCase() === SASIA_SHPEJTE_USERNAME;
+    if (!u) return false;
+    var ruajtur = null;
+    try { ruajtur = localStorage.getItem(KEY_LEJA_SASIA); } catch (e) { /* ok */ }
+    return ruajtur === u.uid || SASIA_SHPEJTE_EMRAT.indexOf(emriPerdoruesitAktual().toLowerCase()) !== -1;
   }
 
   function rifreskoDukjenECloud() {
@@ -5730,9 +5736,22 @@
     // Regjistrohet vetja te perdoruesit/{uid} (emri i dukshëm + kur u kyç së fundi) — përdoret nga
     // pamja e "Ekipit" për të gjetur krejt llogaritë ekzistuese dhe emrat e tyre.
     // Fusha `emri` NUK preket: rregullat e Firestore e përdorin për admin-in. Hyrja s'e pret kurrë këtë shkrim.
+    // Leja e sasisë së shpejtë ndjek llogarinë (uid): lexohet nga perdoruesit/{uid}.sasiaShpejte; llogaritë e
+    // "farës" (emrat e njohur) e marrin sapo hyjnë, dhe e mbajnë edhe pas ndërrimit të emrit.
+    var EMRAT_FARE_SASIA = ['albidepo34', 'tonnyaliu'];
     async function regjistroPerdoruesin(emriPerdoruesit, uid) {
+      var emri = String(emriPerdoruesit).trim().toLowerCase();
       try {
-        await setDoc(doc(db, 'perdoruesit', uid), { perdoruesi: String(emriPerdoruesit).trim().toLowerCase(), kycurSe: Date.now() }, { merge: true });
+        var ref = doc(db, 'perdoruesit', uid);
+        var te = { perdoruesi: emri, kycurSe: Date.now() };
+        var ka = false;
+        try { var s0 = await getDoc(ref); ka = !!(s0.exists() && s0.data().sasiaShpejte === true); } catch (e) { /* ok */ }
+        if (!ka && EMRAT_FARE_SASIA.indexOf(emri) !== -1) { te.sasiaShpejte = true; ka = true; }
+        await setDoc(ref, te, { merge: true });
+        if (ka) {
+          try { localStorage.setItem('stoku:leja:sasia-shpejte', uid); } catch (e) { /* ok */ }
+          window.dispatchEvent(new Event('stoku-leja-ndryshoi'));
+        }
       } catch (e) { /* p.sh. pa internet — provohet sërish herën tjetër që hyn */ }
     }
 
@@ -5762,6 +5781,7 @@
         if (!auth.currentUser) return { ok: false, arsye: 'pa-hyrje' };
         try {
           await updateEmail(auth.currentUser, emailIBrendshem(emriRiPerdoruesit));
+          regjistroPerdoruesin(emriRiPerdoruesit, auth.currentUser.uid); // lista e Ekipit e merr emrin e ri menjëherë
           return { ok: true };
         } catch (e) {
           return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) };

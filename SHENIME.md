@@ -145,6 +145,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
       dhe `merrDyqaninEPerdoruesit()` dështojnë në heshtje (faqja thotë "S'u gjet asnjë llogari" ose
       "kërkon lidhje me cloud-in").
 
+11. **Leja e "sasisë së shpejtë" (butonat +/- te lista) ndjek LLOGARINË, jo emrin (v108).** Më parë ishte e
+    lidhur me emrin `albidepo34` në kod — kur ai e ndërroi emrin në `tonnyaliu`, e humbi. Tani: flamuri
+    `sasiaShpejte:true` te `perdoruesit/{uid}` + kopje lokale `stoku:leja:sasia-shpejte` (= uid). Emrat në
+    `SASIA_SHPEJTE_EMRAT`/`EMRAT_FARE_SASIA` (albidepo34, tonnyaliu) janë vetëm "farë": sapo llogaria hyn me
+    njërin, flamuri ruhet dhe e mban edhe pas çdo ndërrimi emri. Për t'ia dhënë këtë leje dikujt tjetër:
+    shto emrin e tij në të dyja listat (index.html + pc.html), ose vendos `sasiaShpejte: true` te dokumenti i tij
+    në Firebase. `ndryshoEmrin()` tani përditëson menjëherë `perdoruesit/{uid}.perdoruesi` (lista e Ekipit).
+    Rregulla: kurrë mos lidh leje/veçori me emër përdoruesi — përdor uid ose flamur te `perdoruesit/{uid}`.
+
 ## Historiku i shkurtër i veçorive kryesore (kronologjik, PR-të kryesore)
 
 - Skanimi i barkodeve: BarcodeDetector nativ (Android), ZXing-WASM me rezolucion të plotë për iPhone
