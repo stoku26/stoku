@@ -293,21 +293,29 @@
     }
   }
 
-  function normalizoRreshtin(x) {
-    x = x || {};
-    var b = String(x.barkodi || '').replace(/[\s-]/g, '');
+  function pozicioniIVlefshem(v) {
+    var n = Number(v);
+    return isFinite(n) && v !== null && v !== '' ? Math.max(0, Math.min(1, n)) : null;
+  }
+  function normalizoRreshtin(rresht) {
+    rresht = rresht || {};
+    var b = String(rresht.barkodi || '').replace(/[\s-]/g, '');
     if (/^[0-9oO]+$/.test(b)) b = b.replace(/[oO]/g, '0'); // "O" e lexuar në vend të zeros
-    var dataOrig = String(x.data_origjinale || x.dataOrigjinale || x.data || '').trim();
-    var iso = /^\d{4}-\d{2}-\d{2}$/.test(String(x.data || '')) && dataNgaIso(x.data) ? x.data : lexoDaten(x.data || dataOrig);
+    var dataOrig = String(rresht.data_origjinale || rresht.dataOrigjinale || rresht.data || '').trim();
+    var iso = /^\d{4}-\d{2}-\d{2}$/.test(String(rresht.data || '')) && dataNgaIso(rresht.data) ? rresht.data : lexoDaten(rresht.data || dataOrig);
     return {
       barkodi: b,
-      emri: String(x.emri || '').trim(),
-      sasia: lexoSasine(x.sasia),
-      sasiaOrigjinale: sasiaSiShume(x.sasia),
+      emri: String(rresht.emri || '').trim(),
+      sasia: lexoSasine(rresht.sasia),
+      sasiaOrigjinale: sasiaSiShume(rresht.sasia),
       data: iso || '',
       dataOrigjinale: dataOrig,
-      furnizuesi: String(x.furnizuesi || '').trim(),
-      dyshim: !!x.dyshim || !iso
+      furnizuesi: String(rresht.furnizuesi || '').trim(),
+      dyshim: !!rresht.dyshim || !iso,
+      // Pozicioni i rreshtit në foto (0..1, majtas/lart→djathtas/poshtë), për të shënuar numrin e
+      // rreshtit mbi foto gjatë kontrollit; null nëse Worker-i s'e ka dhënë (kopje më e vjetër).
+      x: pozicioniIVlefshem(rresht.x),
+      y: pozicioniIVlefshem(rresht.y)
     };
   }
 

@@ -651,6 +651,8 @@
   .lexim-ndihme { margin: 6px 2px 0; font-size: 12px; color: var(--gri); }
   /* Lapsi i kuq: vizatimet e përdoruesit mbi foto (ngjiten te fleta kur zmadhohet/lëvizet) */
   .lexim-vizatime { position: absolute; left: 0; top: 0; transform-origin: 0 0; pointer-events: none; overflow: visible; }
+  /* Numrat e rreshtave mbi foto (nga pozicioni x/y i dhënë nga AI) — mbi lapsin, s'preken nga "Fshi vizatimet" */
+  .lexim-numrat { position: absolute; left: 0; top: 0; transform-origin: 0 0; pointer-events: none; overflow: visible; }
   .lexim-foto.laps { cursor: crosshair; }
   .lexim-foto-kontrolle button.aktiv { background: #e53935; border-color: #e53935; }
   .lexim-foto-kontrolle button:disabled { opacity: .45; cursor: default; }
@@ -1288,7 +1290,7 @@
 <script src="xlsx.js?v=58"></script>
 <script src="bashkimi.js?v=81"></script>
 <script src="ruajtja.js?v=81"></script>
-<script src="afatet.js?v=89"></script>
+<script src="afatet.js?v=90"></script>
 <script src="teRejat.js?v=94"></script>
 <script>
 (function () {
@@ -4091,6 +4093,30 @@
     var svg = document.createElementNS(SVGNS, 'svg');
     svg.setAttribute('class', 'lexim-vizatime');
     kuti.insertBefore(svg, kuti.querySelector('.lexim-foto-kontrolle'));
+    // Numrat e rreshtave (automatikë, nga AI) — SVG e veçantë, mbi lapsin, mbahet gjithmonë e sinkronizuar
+    // me të njëjtin zmadhim/zhvendosje, por s'preket nga laps/zhbëj/fshi (s'është vizatim i përdoruesit).
+    var numratSvg = document.createElementNS(SVGNS, 'svg');
+    numratSvg.setAttribute('class', 'lexim-numrat');
+    kuti.insertBefore(numratSvg, kuti.querySelector('.lexim-foto-kontrolle'));
+    var numratRreshtat = [];
+    function vizatoNumrat() {
+      numratSvg.textContent = '';
+      if (!img.naturalWidth) return;
+      var rrezja = Math.max(16, img.naturalWidth / 55);
+      numratRreshtat.forEach(function (r, i) {
+        if (r.x == null || r.y == null) return;
+        var cx = r.x * img.naturalWidth, cy = r.y * img.naturalHeight;
+        var rrethi = document.createElementNS(SVGNS, 'circle');
+        rrethi.setAttribute('cx', cx); rrethi.setAttribute('cy', cy); rrethi.setAttribute('r', rrezja);
+        rrethi.setAttribute('fill', '#fff'); rrethi.setAttribute('stroke', '#e53935'); rrethi.setAttribute('stroke-width', String(rrezja / 4.5));
+        var teksti = document.createElementNS(SVGNS, 'text');
+        teksti.setAttribute('x', cx); teksti.setAttribute('y', cy);
+        teksti.setAttribute('text-anchor', 'middle'); teksti.setAttribute('dominant-baseline', 'central');
+        teksti.setAttribute('fill', '#e53935'); teksti.setAttribute('font-weight', '800'); teksti.setAttribute('font-size', String(rrezja * 1.15));
+        teksti.textContent = String(i + 1);
+        numratSvg.appendChild(rrethi); numratSvg.appendChild(teksti);
+      });
+    }
     var vizatime = [], laps = false, celesiVizatimeve = null, vizaAktive = null;
     function pikaNeFoto(ev) { var p = pika(ev); return [(p[0] - x) / s, (p[1] - y) / s]; }
     function dNgaPikat(pp) {
@@ -4131,6 +4157,7 @@
     function zbato() {
       img.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')';
       svg.style.transform = img.style.transform;
+      numratSvg.style.transform = img.style.transform;
     }
     function kufizo() {
       var w = img.naturalWidth * s, h = img.naturalHeight * s, kw = kuti.clientWidth, kh = kuti.clientHeight;
@@ -4141,6 +4168,9 @@
       if (!img.naturalWidth || !kuti.clientWidth) return;
       svg.setAttribute('width', img.naturalWidth); svg.setAttribute('height', img.naturalHeight);
       svg.setAttribute('viewBox', '0 0 ' + img.naturalWidth + ' ' + img.naturalHeight);
+      numratSvg.setAttribute('width', img.naturalWidth); numratSvg.setAttribute('height', img.naturalHeight);
+      numratSvg.setAttribute('viewBox', '0 0 ' + img.naturalWidth + ' ' + img.naturalHeight);
+      vizatoNumrat();
       sMin = s = Math.min(kuti.clientWidth / img.naturalWidth, kuti.clientHeight / img.naturalHeight);
       kufizo(); zbato();
     }
@@ -4231,9 +4261,12 @@
     });
     return {
       pastro: function () {
-        img.removeAttribute('src'); img.style.transform = ''; svg.style.transform = ''; s = sMin = 1; x = y = 0;
+        img.removeAttribute('src'); img.style.transform = ''; svg.style.transform = ''; numratSvg.style.transform = ''; s = sMin = 1; x = y = 0;
         vizatime = []; vizaAktive = null; celesiVizatimeve = null; vendosLapsin(false); vizatoTeGjitha();
+        numratRreshtat = []; vizatoNumrat();
       },
+      // Numrat e rreshtave (rendi i tabelës), vendosur mbi foto sipas r.x/r.y (0..1) të secilit rresht.
+      vendosNumrat: function (rreshtat) { numratRreshtat = rreshtat || []; vizatoNumrat(); },
       // Fletët nga telefoni: vizatimet ruhen me id-në e fletës (kthehen kur hapet sërish)
       caktoVizatimet: function (celesi) {
         celesiVizatimeve = celesi || null;
@@ -4265,7 +4298,8 @@
   function rreshtatNgaAI(rreshtat) {
     return (rreshtat || []).map(function (r) {
       return { barkodi: r.barkodi || '', emri: r.emri || emriNgaBarkodi(r.barkodi), data: r.data || '', dataOrigjinale: r.dataOrigjinale || '',
-        sasia: r.sasia === undefined ? '' : r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaBarkodi(r.barkodi), dyshim: !!r.dyshim };
+        sasia: r.sasia === undefined ? '' : r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaBarkodi(r.barkodi), dyshim: !!r.dyshim,
+        x: typeof r.x === 'number' ? r.x : null, y: typeof r.y === 'number' ? r.y : null };
     });
   }
 
@@ -4426,7 +4460,8 @@
   }
   function rreshtatStokNgaAI(rreshtat) {
     return (rreshtat || []).map(function (r) {
-      return { barkodi: r.barkodi || '', emri: r.emri || emriNgaBarkodi(r.barkodi), sasia: r.sasia === undefined ? '' : r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaBarkodi(r.barkodi) };
+      return { barkodi: r.barkodi || '', emri: r.emri || emriNgaBarkodi(r.barkodi), sasia: r.sasia === undefined ? '' : r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaBarkodi(r.barkodi),
+        x: typeof r.x === 'number' ? r.x : null, y: typeof r.y === 'number' ? r.y : null };
     });
   }
 
@@ -4484,6 +4519,7 @@
     var n = lx.rreshtat.length;
     $('lxRuaj').textContent = n ? (stok ? 'Importo ' + n + (n === 1 ? ' produkt' : ' produkte') : 'Ruaj ' + n + (n === 1 ? ' afat' : ' afate')) : (stok ? 'Importo' : 'Ruaj');
     $('lxRuaj').disabled = !n;
+    fotoPamja.vendosNumrat(lx.rreshtat);
   }
 
   async function anuloLeximin() {

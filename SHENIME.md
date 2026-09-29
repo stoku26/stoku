@@ -143,6 +143,18 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
   është ende e dërguar (deployed) në Cloudflare**, sepse s'kam qasje ta bëj vetë; përdoruesi duhet ta
   ngjesë kodin e ri në Cloudflare Workers kur t'i vijë radha, ose të ma japë kodin aktual nëse ka
   ndryshuar që nga kopja ime lokale.
+- **Numrat mbi foto** (~v96, kërkon të njëjtin update të pandërguar të Worker-it si radhitja më sipër):
+  Worker-i tani i kërkohet edhe pozicionin `x`/`y` (0..1, fraksion i gjerësisë/lartësisë) të secilit
+  rresht në foto — shtuar te `SKEMA`, `UDHEZIMI` dhe të tri format-hints-et (`meWorkersAI`/`meGemini`/
+  `meClaude`) të kopjes lokale të Worker-it. `AF.normalizoRreshtin()` (afatet.js) i kalon tej si `r.x`/
+  `r.y` (ose `null` nëse mungojnë/kopje e vjetër e Worker-it). Klienti (telefon: `vizatoNumratMbiFoton()`
+  në index.html, mbi `#impFoto`/`#lxFoto`; PC: `fotoPamja.vendosNumrat()` në pc.html, si SVG e veçantë
+  `lexim-numrat` mbi lapsin, me TË NJËJTIN transform zoom/pan si foto+lapsi) vizaton nga këto koordinata
+  një numër (1, 2, 3…, sipas rendit në tabelë/listë) të kuq mbi foto, pranë fillimit të rreshtit — që
+  përdoruesi ta krahasojë lehtë rreshtin e tabelës me rreshtin në foto. Rreshtat pa `x`/`y` (shtuar me
+  dorë, ose lexuar me kopje të vjetër të Worker-it) thjesht s'kanë numër mbi foto — nuk është gabim.
+  **Deri sa Worker-i i ri të vendoset (deploy), fusha `x`/`y` do të vijnë bosh nga AI-ja aktuale dhe
+  asnjë numër s'do të shfaqet** — kodi klientit është gati dhe pret vetëm updatin e Worker-it.
 
 ## Konventat e testimit (S'KA Firebase real, s'ka telefon real)
 

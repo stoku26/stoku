@@ -855,8 +855,16 @@
   .af-info-dlg.ok { background: var(--af-gjelber-bg); color: var(--af-gjelber-tx); }
   .af-info-dlg.hequr, .af-info-dlg.pa-date { background: var(--hover); color: var(--gri); }
   /* Leximi i fletës */
-  .lx-foto { width: 100%; max-height: 180px; object-fit: contain; border-radius: 12px; background: #000; margin-bottom: 10px; cursor: zoom-in; }
+  .lx-foto { width: 100%; max-height: 180px; object-fit: contain; border-radius: 12px; background: #000; display: block; cursor: zoom-in; }
   .lx-foto.e-madhe { max-height: none; cursor: zoom-out; }
+  .lx-foto-kuti { position: relative; margin-bottom: 10px; }
+  /* Numrat e rreshtave mbi foto (nga pozicioni x/y i dhënë nga AI) */
+  .lx-numrat { position: absolute; inset: 0; pointer-events: none; }
+  .foto-numri {
+    position: absolute; transform: translate(-50%, -50%); width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; border: 2px solid #e53935; color: #e53935; font-weight: 800; font-size: 11px;
+    display: flex; align-items: center; justify-content: center; line-height: 1;
+  }
   .lx-statusi { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 12px; background: var(--hover); font-size: 14px; margin-bottom: 12px; line-height: 1.45; }
   .lx-statusi.gabim { background: var(--af-kuqe-bg); color: var(--af-kuqe-tx); }
   .lx-spinner { width: 20px; height: 20px; flex: none; border: 2.5px solid var(--primar); border-right-color: transparent; border-radius: 50%; animation: lxRrotull .8s linear infinite; }
@@ -1230,7 +1238,10 @@
       <h2>Kontrollo listën</h2>
     </div>
     <div class="faqe-trup">
-      <img id="impFoto" class="lx-foto" alt="Fleta e fotografuar">
+      <div class="lx-foto-kuti">
+        <img id="impFoto" class="lx-foto" alt="Fleta e fotografuar">
+        <div class="lx-numrat" id="impNumrat"></div>
+      </div>
       <div class="lx-statusi" id="impStatusi"></div>
       <div class="fushe">
         <label for="impFolderi">Importo në folderin</label>
@@ -1254,7 +1265,10 @@
       <h2>Kontrollo fletën</h2>
     </div>
     <div class="faqe-trup">
-      <img id="lxFoto" class="lx-foto" alt="Fleta e fotografuar">
+      <div class="lx-foto-kuti">
+        <img id="lxFoto" class="lx-foto" alt="Fleta e fotografuar">
+        <div class="lx-numrat" id="lxNumrat"></div>
+      </div>
       <div class="lx-statusi" id="lxStatusi"></div>
       <div id="lxRreshtat"></div>
       <button class="btn dyte" id="lxShtoRresht" type="button" style="width:100%;margin-top:4px">+ Shto rresht me dorë</button>
@@ -1392,7 +1406,7 @@
 <script src="xlsx.js?v=58"></script>
 <script src="bashkimi.js?v=81"></script>
 <script src="ruajtja.js?v=81"></script>
-<script src="afatet.js?v=89"></script>
+<script src="afatet.js?v=90"></script>
 <script src="njoftimet.js?v=85"></script>
 <script src="teRejat.js?v=94"></script>
 <script>
@@ -2437,6 +2451,8 @@
     kontrolloNesePermbys();
     zbatoKunderRrotullimin();
     if (opsione.pda) kycjaDirekte().then(function () { __kycjaEKonfirmuar = true; }, function () { __kycjaEKonfirmuar = false; });
+    if ($('dlgAfatLexim').classList.contains('hapur')) vizatoNumratMbiFoton($('lxFoto'), $('lxNumrat'), lx.rreshtat);
+    if ($('dlgImportStok').classList.contains('hapur')) vizatoNumratMbiFoton($('impFoto'), $('impNumrat'), imp.rreshtat);
   }
   window.addEventListener('orientationchange', function () { setTimeout(pasNdryshimitTeOrientimit, 60); });
   window.addEventListener('resize', pasNdryshimitTeOrientimit);
@@ -4872,7 +4888,8 @@
       if (!ky.anuluar) gjendjaKfh('gabim', 'Diçka s\'shkoi mirë. Vazhdoje këtu në telefon.');
     }
   });
-  $('lxFoto').addEventListener('click', function () { $('lxFoto').classList.toggle('e-madhe'); });
+  $('lxFoto').addEventListener('click', function () { $('lxFoto').classList.toggle('e-madhe'); vizatoNumratMbiFoton($('lxFoto'), $('lxNumrat'), lx.rreshtat); });
+  $('lxFoto').addEventListener('load', function () { vizatoNumratMbiFoton($('lxFoto'), $('lxNumrat'), lx.rreshtat); });
 
   function statusiLeximit(html, gabim, meSpinner) {
     var s = $('lxStatusi');
@@ -4914,7 +4931,7 @@
     }
     lx.rreshtat = rez.rreshtat.map(function (r) {
       return { barkodi: r.barkodi, emri: r.emri || emriNgaProduktet(r.barkodi), data: r.data, dataOrigjinale: r.dataOrigjinale,
-        sasia: r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaAfatet(r.barkodi), dyshim: r.dyshim };
+        sasia: r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaAfatet(r.barkodi), dyshim: r.dyshim, x: r.x, y: r.y };
     });
     var nDyshim = lx.rreshtat.filter(function (r) { return r.dyshim; }).length;
     statusiLeximit(lx.rreshtat.length
@@ -4932,6 +4949,25 @@
     var te = document.querySelectorAll('#lxRreshtat .lx-rresht');
     if (te.length) { te[te.length - 1].scrollIntoView({ block: 'center' }); te[te.length - 1].querySelector('input').focus(); }
   });
+
+  // Numrat e rreshtave mbi foto (nga r.x/r.y, 0..1, dhënë nga AI) — për "impFoto"/"lxFoto" njësoj.
+  function vizatoNumratMbiFoton(imgEl, kutiaEl, rreshtat) {
+    kutiaEl.textContent = '';
+    if (!imgEl.naturalWidth || !imgEl.clientWidth) return;
+    var kw = imgEl.clientWidth, kh = imgEl.clientHeight;
+    var shk = Math.min(kw / imgEl.naturalWidth, kh / imgEl.naturalHeight);
+    var rw = imgEl.naturalWidth * shk, rh = imgEl.naturalHeight * shk;
+    var ox = (kw - rw) / 2, oy = (kh - rh) / 2;
+    rreshtat.forEach(function (r, i) {
+      if (r.x == null || r.y == null) return;
+      var d = document.createElement('div');
+      d.className = 'foto-numri';
+      d.style.left = (ox + r.x * rw) + 'px';
+      d.style.top = (oy + r.y * rh) + 'px';
+      d.textContent = String(i + 1);
+      kutiaEl.appendChild(d);
+    });
+  }
 
   function renderLeximin() {
     mbushFurnizuesit();
@@ -4991,6 +5027,7 @@
     var n = lx.rreshtat.length;
     $('lxRuaj').textContent = n ? 'Ruaj ' + n + (n === 1 ? ' afat' : ' afate') : 'Ruaj';
     $('lxRuaj').disabled = !n;
+    vizatoNumratMbiFoton($('lxFoto'), $('lxNumrat'), lx.rreshtat);
   }
 
   function mbyllLeximin() { $('dlgAfatLexim').classList.remove('hapur'); }
@@ -5120,7 +5157,7 @@
       return;
     }
     imp.rreshtat = rez.rreshtat.map(function (r) {
-      return { barkodi: r.barkodi || '', emri: r.emri || emriNgaProduktet(r.barkodi), sasia: r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaAfatet(r.barkodi) };
+      return { barkodi: r.barkodi || '', emri: r.emri || emriNgaProduktet(r.barkodi), sasia: r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaAfatet(r.barkodi), x: r.x, y: r.y };
     });
     statusiImportit(imp.rreshtat.length
       ? 'U lexuan ' + imp.rreshtat.length + ' rreshta. Krahasoji me foton dhe korrigjo ku duhet.'
@@ -5182,10 +5219,12 @@
     var n = imp.rreshtat.length;
     $('impRuaj').textContent = n ? 'Importo ' + n + (n === 1 ? ' produkt' : ' produkte') : 'Importo';
     $('impRuaj').disabled = !n;
+    vizatoNumratMbiFoton($('impFoto'), $('impNumrat'), imp.rreshtat);
   }
 
   function mbyllImportin() { $('dlgImportStok').classList.remove('hapur'); }
-  $('impFoto').addEventListener('click', function () { $('impFoto').classList.toggle('e-madhe'); });
+  $('impFoto').addEventListener('click', function () { $('impFoto').classList.toggle('e-madhe'); vizatoNumratMbiFoton($('impFoto'), $('impNumrat'), imp.rreshtat); });
+  $('impFoto').addEventListener('load', function () { vizatoNumratMbiFoton($('impFoto'), $('impNumrat'), imp.rreshtat); });
   $('impPrapa').addEventListener('click', function () { $('impAnulo').click(); });
   $('impAnulo').addEventListener('click', async function () {
     var kaTeDhena = imp.rreshtat.some(function (r) { return r.barkodi || r.emri || r.furnizuesi; });
