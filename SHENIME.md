@@ -121,12 +121,6 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 - Ridizajnimi i Opsioneve/Cilësimeve në telefon (grupe, ikona me ngjyra) — **u ANULUA** një herë me kërkesë
   të përdoruesit ("palidhje"), pastaj u ri-implementua ndryshe (shirit tabesh) dhe u pranua.
 - Shiriti me tabe poshtë ekranit (telefon), riemërtimi "Cilësimet".
-- Kompjuteri: dy taba lart (poshtë kërkimit globalit), `#tabStoku` / `#tabAfatet`, ndajnë faqen përgjysmë —
-  zëvendësojnë linkun e vjetër "Afatet e produkteve" që ishte në fund të anësores. Anësorja (folderat)
-  mbetet gjithmonë e dukshme, pavarësisht cilit tab je. `#tabStoku` kthehet te `fundiPamjesStoku` (pamja
-  e fundit jo-Afatet, e mbajtur në `rivizato()`), jo gjithmonë te "Përmbledhja". Ikonat/numrat e fletëve
-  në pritje dhe afateve të skaduara/afërta janë tani te `#afTabFleta`/`#afTabKuqe`/`#afTabVerdhe` (jo më
-  `#afNav*`). (~v95)
 - Përditësimi automatik në sfond + "Çka ka të re" (kjo bisedë/PR më e fundit, ~v91).
 - Skedar shënimesh `SHENIME.md` (ky skedar).
 - Importi i stokut nga foto (faqja kryesore, ikonat lart djathtas): fotografo/zgjidh nga galeria →
@@ -198,6 +192,9 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Placeholder-a tip "p.sh." në fusha — përdoruesi i pëlqen hint-e përshkruese, jo shembuj konkretë.
 - Teksti "ose komercialistin" te mesazhet e afateve — u hoq, mbetet vetëm "furnizuesin".
 - Zoom me pinch-to-zoom në telefon — u ç'aktivizua (maximum-scale=1, user-scalable=no, touch-action).
+- Kompjuteri: dy taba lart (Stoku/Afatet) poshtë kërkimit global, në vend të linkut "Afatet e produkteve"
+  në fund të anësores — u provua (PR #32) dhe u ANULUA menjëherë ("tepër palidhje", u kthye mbrapa te
+  gjendja origjinale me `#navAfatet` në anësore). Mos e rikthe pa u pyetur sërish.
 
 ## Kontakte/aksese që s'i kam
 
