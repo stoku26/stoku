@@ -5640,9 +5640,10 @@
 
     // Regjistrohet vetja te perdoruesit/{uid} (emri i dukshëm + kur u kyç së fundi) — përdoret nga
     // pamja e "Ekipit" për të gjetur krejt llogaritë ekzistuese dhe emrat e tyre.
+    // Fusha `emri` NUK preket: rregullat e Firestore e përdorin për admin-in. Hyrja s'e pret kurrë këtë shkrim.
     async function regjistroPerdoruesin(emriPerdoruesit, uid) {
       try {
-        await setDoc(doc(db, 'perdoruesit', uid), { emri: emriPerdoruesit.trim(), kycurSe: Date.now() }, { merge: true });
+        await setDoc(doc(db, 'perdoruesit', uid), { perdoruesi: String(emriPerdoruesit).trim().toLowerCase(), kycurSe: Date.now() }, { merge: true });
       } catch (e) { /* p.sh. pa internet — provohet sërish herën tjetër që hyn */ }
     }
 
@@ -5650,7 +5651,7 @@
       async regjistrohu(emriPerdoruesit, fjalekalimi) {
         try {
           var kred = await createUserWithEmailAndPassword(auth, emailIBrendshem(emriPerdoruesit), fjalekalimi);
-          await regjistroPerdoruesin(emriPerdoruesit, kred.user.uid);
+          regjistroPerdoruesin(emriPerdoruesit, kred.user.uid);
           return { ok: true, uid: kred.user.uid };
         } catch (e) {
           return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) };
@@ -5659,7 +5660,7 @@
       async hyr(emriPerdoruesit, fjalekalimi) {
         try {
           var kred = await signInWithEmailAndPassword(auth, emailIBrendshem(emriPerdoruesit), fjalekalimi);
-          await regjistroPerdoruesin(emriPerdoruesit, kred.user.uid);
+          regjistroPerdoruesin(emriPerdoruesit, kred.user.uid);
           return { ok: true, uid: kred.user.uid };
         } catch (e) {
           return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) };
@@ -5726,7 +5727,7 @@
         try {
           var pikteka = await getDocs(collection(db, 'perdoruesit'));
           var lista = [];
-          pikteka.forEach(function (d) { lista.push({ uid: d.id, emri: (d.data() && d.data().emri) || d.id }); });
+          pikteka.forEach(function (d) { var x = d.data() || {}; lista.push({ uid: d.id, emri: x.perdoruesi || x.emri || d.id }); });
           return { ok: true, lista: lista };
         } catch (e) {
           return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e), lista: [] };
