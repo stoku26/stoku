@@ -197,9 +197,21 @@
   .numer-cip { font-size: 12px; color: var(--gri); font-variant-numeric: tabular-nums; font-weight: 500; }
   .aktiv .numer-cip { color: var(--btn-tekst); }
   /* Dy grupet kryesore të anësores (Stoku / Afatet) — titull më i dukshëm se nën-titujt (p.sh. "Folderat") */
-  .seksion-kryesor { padding-top: 18px; }
-  .seksion-kryesor > span { font-size: 13px; font-weight: 800; letter-spacing: .3px; text-transform: none; color: var(--tekst); }
-  .anesore .seksion-kryesor:first-child { padding-top: 14px; }
+  /* Akordioni "Stoku" / "Afatet" në krye të anësores — vetëm njëri i hapur, sipas pamjes aktuale */
+  .akordion-krye {
+    display: flex; align-items: center; justify-content: space-between; width: 100%;
+    padding: 14px 20px; margin-top: 4px; border: none; background: transparent; cursor: pointer;
+    font-size: 13.5px; font-weight: 800; letter-spacing: .3px; color: var(--tekst); font-family: inherit;
+  }
+  .anesore .akordion-krye:first-child { margin-top: 0; }
+  .akordion-krye:hover { background: var(--hover); }
+  .akordion-shigjeta { transition: transform .15s ease; color: var(--gri); flex-shrink: 0; }
+  .akordion-krye[aria-expanded="true"] .akordion-shigjeta { transform: rotate(180deg); }
+  .akordion-trup { max-height: 0; overflow: hidden; }
+  .akordion-trup.hapur { max-height: none; overflow: visible; }
+  /* "Stoku" ka listën e folderave (mund të jetë e gjatë) — kur hapet, rritet dhe rrëshqet, dhe e shtyn
+     "anesore-fund" në fund; "Afatet" ka vetëm një rresht, s'i duhet të njëjtën sjellje. */
+  #akordStokuTrupi.hapur { display: flex; flex-direction: column; flex: 1; min-height: 0; }
   .seksion-titull {
     display: flex; align-items: center; justify-content: space-between; padding: 14px 20px 6px;
     font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--gri);
@@ -714,28 +726,32 @@
 
 <div class="trupi">
   <aside class="anesore">
-    <div class="seksion-titull seksion-kryesor"><span>Stoku</span></div>
-    <nav class="nav">
-      <button class="nav-rresht" id="navPermbledhja" type="button">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>
-        <span class="emri">Përmbledhja</span>
-      </button>
-      <button class="nav-rresht" id="navTeGjitha" type="button">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg>
-        <span class="emri">Të gjitha produktet</span>
-        <span class="numer-cip" id="numTeGjitha">0</span>
-      </button>
-    </nav>
-    <div class="seksion-titull"><span>Folderat</span><button type="button" id="btnFolderIRi" title="Folder i ri" aria-label="Folder i ri">+</button></div>
-    <div class="folderat" id="folderat"></div>
-    <div class="seksion-titull seksion-kryesor"><span>Afatet</span></div>
-    <nav class="nav">
-      <button class="nav-rresht" id="navAfatet" type="button" title="Afatet e produkteve (datat e skadimit)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg>
-        <span class="emri">Afatet e produkteve</span>
-        <span class="af-cip fleta" id="afTabFleta" title="Fletë nga telefoni që presin kontrollin"></span><span class="af-cip kuqe" id="afTabKuqe"></span><span class="af-cip verdhe" id="afTabVerdhe"></span>
-      </button>
-    </nav>
+    <button class="akordion-krye" id="btnAkordStoku" type="button" aria-expanded="true"><span>Stoku</span><svg class="akordion-shigjeta" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+    <div class="akordion-trup" id="akordStokuTrupi">
+      <nav class="nav">
+        <button class="nav-rresht" id="navPermbledhja" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>
+          <span class="emri">Përmbledhja</span>
+        </button>
+        <button class="nav-rresht" id="navTeGjitha" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg>
+          <span class="emri">Të gjitha produktet</span>
+          <span class="numer-cip" id="numTeGjitha">0</span>
+        </button>
+      </nav>
+      <div class="seksion-titull"><span>Folderat</span><button type="button" id="btnFolderIRi" title="Folder i ri" aria-label="Folder i ri">+</button></div>
+      <div class="folderat" id="folderat"></div>
+    </div>
+    <button class="akordion-krye" id="btnAkordAfatet" type="button" aria-expanded="false"><span>Afatet</span><svg class="akordion-shigjeta" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+    <div class="akordion-trup" id="akordAfatetTrupi">
+      <nav class="nav">
+        <button class="nav-rresht" id="navAfatet" type="button" title="Afatet e produkteve (datat e skadimit)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg>
+          <span class="emri">Afatet e produkteve</span>
+          <span class="af-cip fleta" id="afTabFleta" title="Fletë nga telefoni që presin kontrollin"></span><span class="af-cip kuqe" id="afTabKuqe"></span><span class="af-cip verdhe" id="afTabVerdhe"></span>
+        </button>
+      </nav>
+    </div>
     <div class="anesore-fund">
       <button type="button" id="btnImport">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path><path d="M12 15V3"></path></svg>
@@ -1297,7 +1313,7 @@
 <script src="bashkimi.js?v=81"></script>
 <script src="ruajtja.js?v=81"></script>
 <script src="afatet.js?v=90"></script>
-<script src="teRejat.js?v=96"></script>
+<script src="teRejat.js?v=97"></script>
 <script>
 (function () {
   'use strict';
@@ -1775,7 +1791,22 @@
 
   // ================= Shiriti anësor =================
   var zvarritjaFolderit = null;
+  function vendosAkordionin() {
+    var neAfate = pamja === 'afatet';
+    $('akordStokuTrupi').classList.toggle('hapur', !neAfate);
+    $('akordAfatetTrupi').classList.toggle('hapur', neAfate);
+    $('btnAkordStoku').setAttribute('aria-expanded', String(!neAfate));
+    $('btnAkordAfatet').setAttribute('aria-expanded', String(neAfate));
+  }
+  $('btnAkordStoku').addEventListener('click', function () {
+    if (pamja === 'afatet') shkoTe('permbledhja'); else vendosAkordionin();
+  });
+  $('btnAkordAfatet').addEventListener('click', function () {
+    if (pamja !== 'afatet') shkoTe('afatet'); else vendosAkordionin();
+  });
+
   function renderAnesoren() {
+    vendosAkordionin();
     $('navPermbledhja').classList.toggle('aktiv', pamja === 'permbledhja');
     $('navTeGjitha').classList.toggle('aktiv', pamja === 'te-gjitha');
     $('numTeGjitha').textContent = num(Object.keys(produktet).length);
