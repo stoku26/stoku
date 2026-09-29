@@ -4962,7 +4962,8 @@
       if (r.x == null || r.y == null) return;
       var d = document.createElement('div');
       d.className = 'foto-numri';
-      d.style.left = (ox + r.x * rw) + 'px';
+      // Zhvendos majtas (jashtë tekstit të rreshtit), jo mbi vetë barkodin: rrezja e rrethit + hapësirë e vogël.
+      d.style.left = (ox + r.x * rw - 13) + 'px';
       d.style.top = (oy + r.y * rh) + 'px';
       d.textContent = String(i + 1);
       kutiaEl.appendChild(d);
