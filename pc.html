@@ -184,7 +184,7 @@
   /* ================= Trupi: sidebar + main ================= */
   .trupi { display: grid; grid-template-columns: 264px 1fr; min-height: 0; }
   aside.anesore {
-    background: var(--karta); border-right: 1px solid var(--vije); display: flex; flex-direction: column; min-height: 0;
+    background: var(--karta); border-right: 1px solid var(--vije); display: flex; flex-direction: column; min-height: 0; overflow-y: auto;
   }
   .nav { padding: 12px 10px 4px; }
   .nav-rresht, .folder-rresht {
@@ -207,11 +207,11 @@
   .akordion-krye:hover { background: var(--hover); }
   .akordion-shigjeta { transition: transform .15s ease; color: var(--gri); flex-shrink: 0; }
   .akordion-krye[aria-expanded="true"] .akordion-shigjeta { transform: rotate(180deg); }
-  .akordion-trup { max-height: 0; overflow: hidden; }
-  .akordion-trup.hapur { max-height: none; overflow: visible; }
-  /* "Stoku" ka listën e folderave (mund të jetë e gjatë) — kur hapet, rritet dhe rrëshqet, dhe e shtyn
-     "anesore-fund" në fund; "Afatet" ka vetëm një rresht, s'i duhet të njëjtën sjellje. */
-  #akordStokuTrupi.hapur { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  /* Hapja/mbyllja si "slide" e vërtetë (jo max-height në një numër arbitrar): grid-template-rows nga
+     0fr në 1fr animohet butë deri te lartësia natyrale e përmbajtjes, sido qoftë madhësia e saj. */
+  .akordion-trup { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .22s ease; }
+  .akordion-trup.hapur { grid-template-rows: 1fr; }
+  .akordion-brendia { overflow: hidden; min-height: 0; }
   .seksion-titull {
     display: flex; align-items: center; justify-content: space-between; padding: 14px 20px 6px;
     font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--gri);
@@ -236,7 +236,7 @@
   }
   .folder-rresht.cak-lart::before { top: -1px; }
   .folder-rresht.cak-poshte::after { bottom: -1px; }
-  .anesore-fund { border-top: 1px solid var(--vije); padding: 10px; display: flex; flex-direction: column; gap: 2px; }
+  .anesore-fund { border-top: 1px solid var(--vije); padding: 10px; display: flex; flex-direction: column; gap: 2px; margin-top: auto; flex-shrink: 0; }
   .anesore-fund a, .anesore-fund button {
     display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; color: var(--gri);
     text-decoration: none; font-size: 13px; border: 0; background: transparent; text-align: left;
@@ -728,29 +728,33 @@
   <aside class="anesore">
     <button class="akordion-krye" id="btnAkordStoku" type="button" aria-expanded="true"><span>Stoku</span><svg class="akordion-shigjeta" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
     <div class="akordion-trup" id="akordStokuTrupi">
-      <nav class="nav">
-        <button class="nav-rresht" id="navPermbledhja" type="button">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>
-          <span class="emri">Përmbledhja</span>
-        </button>
-        <button class="nav-rresht" id="navTeGjitha" type="button">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg>
-          <span class="emri">Të gjitha produktet</span>
-          <span class="numer-cip" id="numTeGjitha">0</span>
-        </button>
-      </nav>
-      <div class="seksion-titull"><span>Folderat</span><button type="button" id="btnFolderIRi" title="Folder i ri" aria-label="Folder i ri">+</button></div>
-      <div class="folderat" id="folderat"></div>
+      <div class="akordion-brendia">
+        <nav class="nav">
+          <button class="nav-rresht" id="navPermbledhja" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>
+            <span class="emri">Përmbledhja</span>
+          </button>
+          <button class="nav-rresht" id="navTeGjitha" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg>
+            <span class="emri">Të gjitha produktet</span>
+            <span class="numer-cip" id="numTeGjitha">0</span>
+          </button>
+        </nav>
+        <div class="seksion-titull"><span>Folderat</span><button type="button" id="btnFolderIRi" title="Folder i ri" aria-label="Folder i ri">+</button></div>
+        <div class="folderat" id="folderat"></div>
+      </div>
     </div>
     <button class="akordion-krye" id="btnAkordAfatet" type="button" aria-expanded="false"><span>Afatet</span><svg class="akordion-shigjeta" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
     <div class="akordion-trup" id="akordAfatetTrupi">
-      <nav class="nav">
-        <button class="nav-rresht" id="navAfatet" type="button" title="Afatet e produkteve (datat e skadimit)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg>
-          <span class="emri">Afatet e produkteve</span>
-          <span class="af-cip fleta" id="afTabFleta" title="Fletë nga telefoni që presin kontrollin"></span><span class="af-cip kuqe" id="afTabKuqe"></span><span class="af-cip verdhe" id="afTabVerdhe"></span>
-        </button>
-      </nav>
+      <div class="akordion-brendia">
+        <nav class="nav">
+          <button class="nav-rresht" id="navAfatet" type="button" title="Afatet e produkteve (datat e skadimit)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg>
+            <span class="emri">Afatet e produkteve</span>
+            <span class="af-cip fleta" id="afTabFleta" title="Fletë nga telefoni që presin kontrollin"></span><span class="af-cip kuqe" id="afTabKuqe"></span><span class="af-cip verdhe" id="afTabVerdhe"></span>
+          </button>
+        </nav>
+      </div>
     </div>
     <div class="anesore-fund">
       <button type="button" id="btnImport">
