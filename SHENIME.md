@@ -139,11 +139,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
   (telefon ose PC). (~v94; furnizuesi + dërgo-në-PC janë ~v94, pjesa bazë ~v92-93.)
   **Radhitja e rreshtave në fotot me disa kolona**: udhëzimi (`UDHEZIMI`) i Worker-it (kopja lokale në
   scratchpad, JO në këtë depo) u përditësua për të kërkuar leximin kolonë-për-kolonë (majtas→djathtas,
-  secila kolonë lart→poshtë) në vend të rresht-për-rresht përgjatë gjithë gjerësisë — **por kjo NUK
-  është ende e dërguar (deployed) në Cloudflare**, sepse s'kam qasje ta bëj vetë; përdoruesi duhet ta
-  ngjesë kodin e ri në Cloudflare Workers kur t'i vijë radha, ose të ma japë kodin aktual nëse ka
-  ndryshuar që nga kopja ime lokale.
-- **Numrat mbi foto** (~v96, kërkon të njëjtin update të pandërguar të Worker-it si radhitja më sipër):
+  secila kolonë lart→poshtë) në vend të rresht-për-rresht përgjatë gjithë gjerësisë. **Kjo ËSHTË
+  DEPLOYED** (përdoruesi e konfirmoi "version saved" pas kopjimit të kodit në Cloudflare).
+- **Numrat mbi foto** (~v96-97, i njëjti update i Worker-it si radhitja më sipër — **gjithashtu DEPLOYED**):
   Worker-i tani i kërkohet edhe pozicionin `x`/`y` (0..1, fraksion i gjerësisë/lartësisë) të secilit
   rresht në foto — shtuar te `SKEMA`, `UDHEZIMI` dhe të tri format-hints-et (`meWorkersAI`/`meGemini`/
   `meClaude`) të kopjes lokale të Worker-it. `AF.normalizoRreshtin()` (afatet.js) i kalon tej si `r.x`/
@@ -155,6 +153,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
   dorë, ose lexuar me kopje të vjetër të Worker-it) thjesht s'kanë numër mbi foto — nuk është gabim.
   **Deri sa Worker-i i ri të vendoset (deploy), fusha `x`/`y` do të vijnë bosh nga AI-ja aktuale dhe
   asnjë numër s'do të shfaqet** — kodi klientit është gati dhe pret vetëm updatin e Worker-it.
+- **Furnizuesi i shpikur**: përdoruesi raportoi që AI-ja po vendoste TË NJËJTIN emër furnizuesi (të
+  shpikur, s'ekzistonte në fletë) te ÇDO rresht. Udhëzimi (`UDHEZIMI`, fusha `furnizuesi`) u fortësua
+  eksplicit: "KURRË MOS E SHPIK... lëre bosh te ÇDO rresht" nëse s'shkruhet askund në fletë. **Kjo NUK
+  është ende e dërguar (deployed)** — është shtesa e fundit te kopja lokale e Worker-it, ende s'i është
+  dhënë përdoruesit skedari i ri për ta ngjitur.
 
 ## Konventat e testimit (S'KA Firebase real, s'ka telefon real)
 
@@ -204,9 +207,10 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Placeholder-a tip "p.sh." në fusha — përdoruesi i pëlqen hint-e përshkruese, jo shembuj konkretë.
 - Teksti "ose komercialistin" te mesazhet e afateve — u hoq, mbetet vetëm "furnizuesin".
 - Zoom me pinch-to-zoom në telefon — u ç'aktivizua (maximum-scale=1, user-scalable=no, touch-action).
-- Kompjuteri: dy taba lart (Stoku/Afatet) poshtë kërkimit global, në vend të linkut "Afatet e produkteve"
-  në fund të anësores — u provua (PR #32) dhe u ANULUA menjëherë ("tepër palidhje", u kthye mbrapa te
-  gjendja origjinale me `#navAfatet` në anësore). Mos e rikthe pa u pyetur sërish.
+- Kompjuteri: dy taba lart (Stoku/Afatet) — u provua (PR #32), u ANULUA menjëherë ("tepër palidhje", PR #33),
+  PASTAJ u kërkua sërish nga përdoruesi (i njëjti shembull/foto) dhe u rivendos përfundimisht (~v98).
+  Gjendja PËRFUNDIMTARE: `#tabStoku`/`#tabAfatet` (JO `#navAfatet` në anësore). Mos e hiq/anulo më pa
+  pyetur eksplicit përdoruesin — nuk është më "e refuzuar", është kërkesa aktuale.
 
 ## Kontakte/aksese që s'i kam
 
