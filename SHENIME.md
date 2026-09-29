@@ -81,6 +81,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    - Rregullat e Firestore i mban dhe i vendos vetë përdoruesi (unë s'kam akses direkt); duhet lejuar
      nënkoleksioni `pjeset` dhe `fletet`, plus rregulla ekzistuese për `perdoruesit/{uid}` dhe admin
      (`mendurberisha`). **Mos i propozoj kurrë rregulla që heqin admin-in ose `perdoruesit`.**
+   - **Që nga "Ekipi" (v105):** klienti tani SHKRUAN vetë te `perdoruesit/{uid}` (`{emri, kycurSe}`) në
+     çdo `regjistrohu`/`hyr`/`onAuthStateChanged`, dhe LEXON (`getDocs`) krejt koleksionin `perdoruesit`,
+     plus LEXON dyqanin (`dyqane/{uidTjeter}` + `dyqane/{uidTjeter}/pjeset/*`) të cilitdo uid tjetër —
+     kjo kërkon rregulla shtesë: `list`/`get` mbi `dyqane/{uid}` dhe `pjeset` për CDO përdorues të
+     kyçur (jo vetëm `request.auth.uid == uid`), ndërsa `write` mbetet i kufizuar vetëm te vetja. Shih
+     rregullat e propozuara në fund të këtij skedari.
    - **S'kam Firebase real as pajisje reale për testim.** Krejt testimi bëhet me Playwright + mock
      `window.__stokuCloud` (shih "Testimi" poshtë).
 
@@ -98,12 +104,35 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    Kur shtohet një dialog/tab i ri, duhet përfshirë në këtë logjikë (shiko si janë `dlgTeRejat`,
    `dlgNjoftimet` etj. në `ANULO_SIPAS_DIALOGUT`).
 
-8. **Shiriti me tabe (telefon, që nga v90):** navigimi kryesor në telefon tani është 3 tabe poshtë ekranit
-   (Stoku / Afatet / Cilësimet), jo butona në kokë. Shiriti fshihet automatikisht brenda një folderi, te
-   kamera, te leximi i fletës, dhe kur një fushë ka fokusin (tastiera hapur). Shiko `#tabet` në CSS/JS
-   të index.html nëse ndryshon navigimin.
+8. **Shiriti me tabe (telefon, që nga v90; 4 tabe që nga v105):** navigimi kryesor në telefon tani është
+   4 tabe poshtë ekranit (Stoku / Afatet / Ekipi / Cilësimet), jo butona në kokë. Shiriti fshihet
+   automatikisht brenda një folderi, te kamera, te leximi i fletës, dhe kur një fushë ka fokusin
+   (tastiera hapur). Shiko `#tabet` në CSS/JS të index.html nëse ndryshon navigimin.
 
 9. **"Opsionet" quhet tani "Cilësimet"** (që nga v90) — mos e kthe mbrapsht pa u pyetur.
+
+10. **"Ekipi" (v105):** pamje e re, e përbashkët për KREJT llogaritë ekzistuese të Stoku-t (s'ka ftesë,
+    s'ka "ekipe" të ndara — çdo llogari e sheh çdo llogari tjetër, kërkesë eksplicite e përdoruesit:
+    "Krejt llogaritë e Stoku-t sot, një ekip i vetëm"). Telefon: tabi i tretë `#btnEkipi`/`#dlgEkipi`
+    (mes Afatet dhe Cilësimet). PC: seksioni i tretë i akordionit `#btnAkordEkipi`/`#akordEkipiTrupi`
+    (nën Afatet), faqja `#pamjaEkipi` (`shkoTe('ekipi')`).
+    - **Vetëm-lexim, e thjeshtë me qëllim**: Ekipi tregon produktet+afatet e krejt përdoruesve, të
+      grupuara nën emrin e secilit (emri i vetes shënohet me "ti"), por s'ka butona fshij/ndrysho
+      fare — as për të vetat, as për të të tjerëve. Kjo e plotëson vetë kërkesën ("të tjerët s'i fshijnë
+      të miat") pa dashur logjikë e re lejesh: për t'i ndryshuar TË TUAT, shkon te tabi normal
+      Stoku/Afatet (janë të njëjtat të dhëna, thjesht të grupuara ndryshe këtu).
+    - **Client:** `window.__stokuCloud.krejtPerdoruesit()` (getDocs mbi `perdoruesit`) +
+      `merrDyqaninEPerdoruesit(uid)` (instancë e re, vetëm-lexim, e `ruajtja.krijo(...)` me `uidFn` fiks
+      në vend të `auth.currentUser.uid`) — shto në TË DYJA index.html dhe pc.html nëse ndryshon API-ja.
+      Vetë-regjistrimi te `perdoruesit/{uid}` (`{emri, kycurSe}`) ndodh në `regjistrohu`/`hyr` DHE në
+      `onAuthStateChanged` (që llogaritë ekzistuese, të kyçura para v105, të regjistrohen vetë herën
+      tjetër që hapin app-in, pa pasur nevojë të hyjnë sërish).
+    - **Rifreskohet vetëm kur hapet faqja** (jo në çdo ndryshim lokal) — flamuri `__ekipiNgarkuar` (tel)
+      / `__ekipiPcNgarkuar` (PC). S'është "live"; nëse duhet real-time në të ardhmen, kërkon degjim
+      (`onSnapshot`) mbi dyqanin e secilit përdorues — jo bërë me qëllim, do të shtonte kompleksitet.
+    - **Rregullat e Firestore duhen zgjeruar** (shih fundi i këtij skedari) — pa to, `krejtPerdoruesit()`
+      dhe `merrDyqaninEPerdoruesit()` dështojnë në heshtje (faqja thotë "S'u gjet asnjë llogari" ose
+      "kërkon lidhje me cloud-in").
 
 ## Historiku i shkurtër i veçorive kryesore (kronologjik, PR-të kryesore)
 
@@ -243,6 +272,35 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   s'janë të klikueshme derisa të hapet.
   Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
+
+## Rregulla Firestore të propozuara — "Ekipi" (v105) — DUHEN VENDOSUR NGA PËRDORUESI
+
+Që "Ekipi" të funksionojë, rregullat e Firestore duhen zgjeruar që çdo përdorues i KYÇUR të mund të
+LEXOJË (jo shkruajë) `perdoruesit/*` dhe `dyqane/*` (+ `pjeset`) të CILITDO përdoruesi tjetër. Shto
+(bashko, mos zëvendëso krejt skedarin) diçka si më poshtë te rregullat ekzistuese:
+
+```
+match /perdoruesit/{uid} {
+  allow read: if request.auth != null;                 // Ekipi: kush jam unë vs. të tjerët
+  allow write: if request.auth != null && request.auth.uid == uid;
+}
+match /dyqane/{uid} {
+  allow read: if request.auth != null;                 // Ekipi: lexo dyqanin e cilitdo
+  allow write: if request.auth != null && request.auth.uid == uid;
+  match /pjeset/{pjesa} {
+    allow read: if request.auth != null;
+    allow write: if request.auth != null && request.auth.uid == uid;
+  }
+  match /fletet/{fleta} {
+    allow read, write: if request.auth != null && request.auth.uid == uid; // fletët MBETEN private
+  }
+}
+```
+
+**MOS e prek/hiq admin-in (`mendurberisha`) apo ndonjë rregull tjetër ekzistuese** — vetëm shto/bashko
+këto `allow read` shtesë. Nëse rregullat ekzistuese tashmë kanë `match /dyqane/{uid}` (ka gjasa, meqë
+sinkronizimi telefon↔PC funksionon), thjesht ZGJERO `allow read` aty (dhe te `pjeset`) nga
+`request.auth.uid == uid` në `request.auth != null`, DUKE E LËNË `allow write` siç është (vetëm pronari).
 
 ## Kontakte/aksese që s'i kam
 
