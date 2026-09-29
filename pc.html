@@ -4339,6 +4339,7 @@
     if (!f) return;
     fletetTel.hapur = f.id;
     var stok = f.lloji === 'stok';
+    if (stok && pamja === 'afatet') shkoTe('permbledhja'); // fletë stoku: mos e lër faqen prapa te Afatet
     vendosPamjenELeximit(stok ? 'stok' : 'afatet');
     lx.rreshtat = stok ? rreshtatStokNgaAI(f.rreshtat) : rreshtatNgaAI(f.rreshtat);
     fotoPamja.pastro();
