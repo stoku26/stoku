@@ -13,6 +13,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 103, data: '2026-09-29', titulli: 'Kompjuteri: përmirësime te anësorja', pikat: [
+      '"Stoku" dhe "Afatet" tani mund të jenë të dyja të hapura njëkohësisht, dhe hapja/mbyllja rrëshqet butë.',
+      'Nën "Afatet" u shtuan "Të skaduara" dhe "Afër skadimit" si shkurtore të drejtpërdrejta.',
+      'Fletët e dërguara nga telefoni tani shfaqen te faqja e duhur: fletët e stokut te "Stoku", fletët e afateve te "Afatet" (jo më të dyja te Afatet).'
+    ] },
     { v: 101, data: '2026-09-29', titulli: 'Kompjuteri: "Stoku"/"Afatet" si akordion në anësore', pikat: [
       '"Stoku" dhe "Afatet" tani janë ngjitur njëri pas tjetrit lart në anësore — kliko njërin dhe hapet vetëm ai, me opsionet e tij poshtë emrit.'
     ] },
