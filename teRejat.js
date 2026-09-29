@@ -13,6 +13,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 101, data: '2026-09-29', titulli: 'Kompjuteri: "Stoku"/"Afatet" si akordion në anësore', pikat: [
+      '"Stoku" dhe "Afatet" tani janë ngjitur njëri pas tjetrit lart në anësore — kliko njërin dhe hapet vetëm ai, me opsionet e tij poshtë emrit.'
+    ] },
     { v: 99, data: '2026-09-29', titulli: 'Kompjuteri: "Stoku" dhe "Afatet" të ndarë në anësore', pikat: [
       'Anësorja majtas tani i ka të dyja të qarta: "Stoku" lart (Përmbledhja, Të gjitha produktet, folderat) dhe "Afatet" poshtë (Afatet e produkteve).'
     ] },

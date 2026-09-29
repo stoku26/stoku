@@ -208,15 +208,22 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Teksti "ose komercialistin" te mesazhet e afateve — u hoq, mbetet vetëm "furnizuesin".
 - Zoom me pinch-to-zoom në telefon — u ç'aktivizua (maximum-scale=1, user-scalable=no, touch-action).
 - Kompjuteri, ndarja Stoku/Afatet — HISTORIA (mos e rifillo pa pyetur, thjesht respekto gjendjen aktuale):
-  1) taba lart me `#tabStoku`/`#tabAfatet` (PR #32) → 2) u ANULUA menjëherë ("tepër palidhje", PR #33,
-  mbrapa te `#navAfatet` në fund të anësores) → 3) u kërkua sërish (PR #37, e rivendosi tabet lart) →
-  4) u ANULUA PËRSËRI ("tmerr u doka" — taba lart s'i pëlqeu) dhe u kërkua NJË STRUKTURË E TRETË: **të
-  dyja në anësore (majtas)**, jo lart si tabe — "Stoku" dhe "Afatet" si dy tituj/grupe (`.seksion-kryesor`)
-  brenda vetë anësores, secili me nën-artikujt e vet poshtë emrit (Stoku: Përmbledhja/Të gjitha/Folderat;
-  Afatet: "Afatet e produkteve", përsëri me id `#navAfatet`). **KJO ËSHTË GJENDJA PËRFUNDIMTARE (~v99)**:
-  s'ka më `.tabet-kryesore`/`#tabStoku`/`#tabAfatet` — vetëm `#navAfatet` brenda anësores, nën titullin
-  "Afatet". Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht
-  don ndryshe, në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 3 herë tashmë.
+  1) taba lart me `#tabStoku`/`#tabAfatet` (PR #32) → 2) u ANULUA ("tepër palidhje", PR #33, mbrapa te
+  `#navAfatet` në fund të anësores) → 3) u kërkua sërish (PR #37, tabet lart) → 4) u ANULUA PËRSËRI
+  ("tmerr u doka") dhe u kërkua "Stoku"/"Afatet" si dy tituj statikë në anësore, secili me nën-artikujt
+  gjithmonë të dukshëm poshtë emrit (PR #38) → 5) u kërkua NJË RREGULLIM I FUNDIT: jo dy seksione
+  gjithmonë të hapura njëkohësisht (dukeshin "të ndara"/larg njëra-tjetrës) — në vend të kësaj, **AKORDION**:
+  të dyja titujt ("Stoku"/"Afatet", butona `#btnAkordStoku`/`#btnAkordAfatet`, klasë `.akordion-krye`,
+  me shigjetë `.akordion-shigjeta` që rrotullohet) ngjitur njëri pas tjetrit lart në anësore; kliko njërin
+  → hapet VETËM ai (nën-artikujt e tij shfaqen poshtë, brenda `.akordion-trup.hapur`) dhe tjetri mbyllet
+  automatikisht; gjendja e hapur/mbyllur ndiqet nga `pamja` (`vendosAkordionin()`, e thirrur nga
+  `renderAnesoren()`). "Stoku" i hapur → kthehet gjithmonë te "Përmbledhja" (jo te pamja e fundit — u hoq
+  qëllimisht kompleksiteti i `fundiPamjesStoku`). `#navAfatet` mbetet brenda `#akordAfatetTrupi`.
+  **KJO ËSHTË GJENDJA PËRFUNDIMTARE (~v101)**. Testet Playwright që lidhen me këtë zonë duhet të klikojnë
+  `#btnAkordStoku`/`#btnAkordAfatet` PARA se të klikojnë diçka brenda tyre (p.sh. `#navPermbledhja`,
+  `#afBtnShto`), sepse elementet brenda seksionit të mbyllur s'janë të klikueshme (të fshehura, `max-height:0`).
+  Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
+  në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
 ## Kontakte/aksese që s'i kam
 
