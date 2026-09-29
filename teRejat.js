@@ -13,6 +13,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 92, data: '2026-09-29', titulli: 'Importo stokun nga një fletë e fotografuar', pikat: [
+      'Në faqen kryesore, lart djathtas: fotografo (ose zgjidh nga galeria) një fletë ku janë shkruar produktet — barkodi, emri, sasia — dhe AI-ja i lexon rreshtat.',
+      'I kontrollon dhe i korrigjon njësoj si te Afatet, zgjedh folderin ku shkojnë, dhe i ruan; nëse barkodi ekziston tashmë atje, sasia i shtohet.'
+    ] },
     { v: 91, data: '2026-09-27', titulli: 'Përditësim automatik dhe kjo dritare', pikat: [
       'Aplikacioni e kontrollon vetë në sfond a ka version të ri sa herë hapet, dhe kalon te versioni i ri pa u dashur të mbyllet e të rihapet.',
       'Sa herë shtohet diçka e re ose përmirësohet, të tregohet këtu në hyrje.'

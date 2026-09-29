@@ -122,6 +122,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
   të përdoruesit ("palidhje"), pastaj u ri-implementua ndryshe (shirit tabesh) dhe u pranua.
 - Shiriti me tabe poshtë ekranit (telefon), riemërtimi "Cilësimet".
 - Përditësimi automatik në sfond + "Çka ka të re" (kjo bisedë/PR më e fundit, ~v91).
+- Skedar shënimesh `SHENIME.md` (ky skedar).
+- Importi i stokut nga foto (faqja kryesore, ikonat lart djathtas): fotografo/zgjidh nga galeria →
+  AF.lexoMeAI() (i njëjti endpoint AI si Afatet, me `ekstra: {synim:'stok'}` — Worker-i aktual s'e
+  përdor ende, është përgatitje) → kontrollo/korrigjo rreshtat (barkodi+emri+sasia, jo data) →
+  zgjidh folderin → ruaj (bashkohet me barkodin ekzistues në atë folder). VETËM telefon (~v92).
+  **S'është testuar me AI real** — worker-i s'e di ende se sheti s'ka datë, mund të mos i lexojë
+  saktë rreshtat pa datë; nëse rezultatet janë të dobëta, kërko kodin aktual të Worker-it dhe do
+  ta përshtas prompt-in për `synim==='stok'`.
 
 ## Konventat e testimit (S'KA Firebase real, s'ka telefon real)
 

@@ -608,6 +608,7 @@
   }
   .mbulese.faqe-e-plote.hapur { transform: translateX(0); pointer-events: auto; }
   #dlgAfatLexim { z-index: 22; }
+  #dlgImportStok { z-index: 22; }
   #dlgAfat { z-index: 23; }
   .faqe-kuti { width: 100%; height: 100%; background: var(--sfond); display: flex; flex-direction: column; }
   .faqe-trup {
@@ -888,6 +889,10 @@
   <button id="btnMbrapa" class="btn-ikone" type="button" style="display:none">←</button>
   <h1 id="titulli" class="logo">STOKU</h1>
   <img id="logoSlika" src="logo.png" alt="Stoku">
+  <div class="krye-butona" id="kryeButonatImport">
+    <button id="btnImportGaleria" class="btn-ikone" type="button" aria-label="Importo stokun nga galeria" title="Importo nga galeria"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"></path></svg></button>
+    <button id="btnImportStok" class="btn-ikone" type="button" aria-label="Importo stokun nga një fletë (foto)" title="Importo stokun nga fletë (foto)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg></button>
+  </div>
 </header>
 
 <!-- Lista e folderave -->
@@ -1213,6 +1218,33 @@
 <input type="file" id="afFotoGaleria" accept="image/*" hidden>
 <datalist id="afFurnizuesit"></datalist>
 
+<input type="file" id="impFotoKamera" accept="image/*" capture="environment" hidden>
+<input type="file" id="impFotoGaleria" accept="image/*" hidden>
+
+<!-- Importo stokun nga një fletë (foto): barkodi + emri + sasia, njësoj si te Afatet -->
+<div class="mbulese faqe-e-plote" id="dlgImportStok">
+  <div class="faqe-kuti" role="dialog" aria-modal="true">
+    <div class="opsione-krye">
+      <button id="impPrapa" class="btn-ikone" type="button" aria-label="Anulo">←</button>
+      <h2>Kontrollo listën</h2>
+    </div>
+    <div class="faqe-trup">
+      <img id="impFoto" class="lx-foto" alt="Fleta e fotografuar">
+      <div class="lx-statusi" id="impStatusi"></div>
+      <div class="fushe">
+        <label for="impFolderi">Importo në folderin</label>
+        <select id="impFolderi"></select>
+      </div>
+      <div id="impRreshtat"></div>
+      <button class="btn dyte" id="impShtoRresht" type="button" style="width:100%;margin-top:4px">+ Shto rresht me dorë</button>
+    </div>
+    <div class="faqe-fund">
+      <button class="btn tekst" id="impAnulo" type="button">Anulo</button>
+      <button class="btn" id="impRuaj" type="button"></button>
+    </div>
+  </div>
+</div>
+
 <!-- Kontrollo rreshtat e lexuar nga fleta -->
 <div class="mbulese faqe-e-plote" id="dlgAfatLexim">
   <div class="faqe-kuti" role="dialog" aria-modal="true">
@@ -1359,9 +1391,9 @@
 <script src="xlsx.js?v=58"></script>
 <script src="bashkimi.js?v=81"></script>
 <script src="ruajtja.js?v=81"></script>
-<script src="afatet.js?v=88"></script>
+<script src="afatet.js?v=89"></script>
 <script src="njoftimet.js?v=85"></script>
-<script src="teRejat.js?v=91"></script>
+<script src="teRejat.js?v=92"></script>
 <script>
 (function () {
   'use strict';
@@ -2055,6 +2087,7 @@
     }
     var brenda = folderiAktual !== null;
     $('siperFolderat').style.display = brenda ? 'none' : '';
+    $('kryeButonatImport').style.display = brenda ? 'none' : '';
     $('folderaLista').style.display = brenda ? 'none' : '';
     $('kerkoGlobalLista').style.display = 'none';
     $('siperFolderi').style.display = brenda ? '' : 'none';
@@ -3881,7 +3914,8 @@
     var afatetHapur = $('dlgAfatet').classList.contains('hapur');
     var cilesimetHapur = $('dlgOpsione').classList.contains('hapur');
     var dukshem = (folderiAktual === null || afatetHapur || cilesimetHapur) &&
-      !$('kamera').classList.contains('hapur') && !$('dlgAfatLexim').classList.contains('hapur') && !tastieraHapur;
+      !$('kamera').classList.contains('hapur') && !$('dlgAfatLexim').classList.contains('hapur') &&
+      !$('dlgImportStok').classList.contains('hapur') && !tastieraHapur;
     document.body.classList.toggle('me-tabe', dukshem);
     var aktiv = cilesimetHapur ? 'btnOpsione' : afatetHapur ? 'btnAfatet' : 'tabStoku';
     ['tabStoku', 'btnAfatet', 'btnOpsione'].forEach(function (id) {
@@ -3962,7 +3996,7 @@
   // thjesht klasën), që logjika e tyre (p.sh. konfirmo() që pret përgjigje) të përfundojë saktë.
   var ANULO_SIPAS_DIALOGUT = {
     dlgProdukt: 'dlgAnulo', dlgZhvendos: 'zhvendosAnulo', dlgFshirje: 'fshiAnulo',
-    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgNjoftimet: 'njJoTani', dlgAfExcel: 'axAnulo', dlgTeRejat: 'trMbyll'
+    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgNjoftimet: 'njJoTani', dlgAfExcel: 'axAnulo', dlgTeRejat: 'trMbyll', dlgImportStok: 'impAnulo'
   };
   function mbyllShtresenMeTeFundit() {
     // Kamera del mbi çdo dialog (p.sh. skanimi te "Afat i ri"), prandaj mbyllet e para
@@ -4979,6 +5013,185 @@
     afFiltri = nk ? 'skaduar' : (nv ? 'afer' : 'aktive');
     renderAfatet();
   });
+
+  // ---------- Importo stokun nga një fletë (foto) → lexim me AI → kontroll → ruaj në një folder ----------
+  // E njëjta rrugë si te Afatet (foto → AI → kontroll → ruaj), por lexohen vetëm barkodi + emri + sasia
+  // (jo data/furnizuesi, që s'kanë kuptim për stokun). Rreshtat shkojnë në folderin e zgjedhur: nëse
+  // barkodi ekziston aty, sasia i shtohet atij ekzistues (si te skanimi i zakonshëm); emri ekzistues mbetet.
+  var imp = { rreshtat: [] };
+  function importiHapurNukKaFolder() {
+    if (foldera.length) return false;
+    toast('Krijo fillimisht një folder.');
+    hapDialoguFolder();
+    return true;
+  }
+  $('btnImportStok').addEventListener('click', function () {
+    if (importiHapurNukKaFolder()) return;
+    $('impFotoKamera').value = ''; $('impFotoKamera').click();
+  });
+  $('btnImportGaleria').addEventListener('click', function () {
+    if (importiHapurNukKaFolder()) return;
+    $('impFotoGaleria').value = ''; $('impFotoGaleria').click();
+  });
+  $('impFotoKamera').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) lexoFletenStok(f); });
+  $('impFotoGaleria').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) lexoFletenStok(f); });
+
+  var KEY_FOLDER_IMPORTIT = 'stoku:import-stok:folderi';
+  function mbushFolderatImportit() {
+    var s = $('impFolderi');
+    s.textContent = '';
+    foldera.forEach(function (f) {
+      var o = document.createElement('option'); o.value = f.id; o.textContent = f.emri;
+      s.appendChild(o);
+    });
+    var i = null;
+    try { i = localStorage.getItem(KEY_FOLDER_IMPORTIT); } catch (e) { /* ok */ }
+    s.value = (i && foldera.some(function (f) { return f.id === i; })) ? i : foldera[0].id;
+  }
+  $('impFolderi').addEventListener('change', function () {
+    try { localStorage.setItem(KEY_FOLDER_IMPORTIT, $('impFolderi').value); } catch (e) { /* ok */ }
+  });
+
+  function statusiImportit(tekst, gabim, meSpinner) {
+    var s = $('impStatusi');
+    s.className = 'lx-statusi' + (gabim ? ' gabim' : '');
+    s.innerHTML = (meSpinner ? '<span class="lx-spinner"></span>' : '') + '<span></span>';
+    s.lastChild.textContent = tekst;
+  }
+
+  async function lexoFletenStok(skedari) {
+    imp.rreshtat = [];
+    renderImportin();
+    mbushFolderatImportit();
+    $('impFoto').classList.remove('e-madhe');
+    $('dlgImportStok').classList.add('hapur');
+    statusiImportit('Duke përgatitur foton…', false, true);
+    var foto;
+    try { foto = await AF.pergatitFoton(skedari); }
+    catch (e) { statusiImportit('Fotoja s\'u hap. Provo një foto tjetër.', true); return; }
+    $('impFoto').src = foto.dataUrl;
+    if (!perdoruesiAktual()) { statusiImportit(MESAZHET_AI['pa-hyrje'], true); shtoRreshtImportit(); return; }
+    statusiImportit('Duke e lexuar fletën me AI… (zakonisht 5–20 sekonda)', false, true);
+    var tokeni = null;
+    try { tokeni = window.__stokuCloud && window.__stokuCloud.token ? await window.__stokuCloud.token() : null; } catch (e) { /* ok */ }
+    // "synim: 'stok'" i jepet Worker-it si shenjë shtesë (për t'u përdorur më vonë, nëse i duhet një
+    // prompt tjetër); tani për tani Worker-i i injoron fushat e panjohura dhe përgjigjet njësoj.
+    var rez = await AF.lexoMeAI(foto, tokeni, { synim: 'stok' });
+    if (!$('dlgImportStok').classList.contains('hapur')) return; // u anulua ndërkohë
+    if (!rez.ok) {
+      statusiImportit(MESAZHET_AI[rez.gabim] || 'Fleta s\'u lexua (' + rez.gabim + '). Provo një foto më të qartë, ose shkruaji rreshtat me dorë.', true);
+      shtoRreshtImportit();
+      return;
+    }
+    imp.rreshtat = rez.rreshtat.map(function (r) {
+      return { barkodi: r.barkodi || '', emri: r.emri || emriNgaProduktet(r.barkodi), sasia: r.sasia };
+    });
+    statusiImportit(imp.rreshtat.length
+      ? 'U lexuan ' + imp.rreshtat.length + ' rreshta. Krahasoji me foton dhe korrigjo ku duhet.'
+      : 'Në foto s\'u gjet asnjë rresht. Provo një foto më të qartë ose shkruaji me dorë.', !imp.rreshtat.length);
+    if (!imp.rreshtat.length) shtoRreshtImportit(); else renderImportin();
+  }
+
+  function shtoRreshtImportit() {
+    imp.rreshtat.push({ barkodi: '', emri: '', sasia: '', iRi: true });
+    renderImportin();
+  }
+  $('impShtoRresht').addEventListener('click', function () {
+    shtoRreshtImportit();
+    var te = document.querySelectorAll('#impRreshtat .lx-rresht');
+    if (te.length) { te[te.length - 1].scrollIntoView({ block: 'center' }); te[te.length - 1].querySelector('input').focus(); }
+  });
+
+  function renderImportin() {
+    var c = $('impRreshtat');
+    c.textContent = '';
+    imp.rreshtat.forEach(function (r, i) {
+      var d = document.createElement('div');
+      d.className = 'lx-rresht';
+      var nr = document.createElement('div'); nr.className = 'lx-numri'; nr.textContent = 'Rreshti ' + (i + 1);
+      d.appendChild(nr);
+      var hiq = document.createElement('button'); hiq.type = 'button'; hiq.className = 'lx-hiq'; hiq.textContent = '✕'; hiq.setAttribute('aria-label', 'Hiq rreshtin');
+      hiq.addEventListener('click', function () { imp.rreshtat.splice(i, 1); renderImportin(); });
+      d.appendChild(hiq);
+      function fushe(ph, vl, vendos, klasa) {
+        var w = document.createElement('div'); w.className = 'fushe' + (klasa ? ' ' + klasa : '');
+        var inp = document.createElement('input'); inp.type = 'text'; inp.value = vl || ''; inp.placeholder = ph; inp.setAttribute('aria-label', ph);
+        inp.autocomplete = 'off'; inp.setAttribute('autocorrect', 'off'); inp.spellcheck = false;
+        inp.addEventListener('input', function () { vendos(inp.value); });
+        w.appendChild(inp);
+        return { w: w, inp: inp };
+      }
+      var fb = fushe('Barkodi', r.barkodi, function (v) { r.barkodi = v.trim(); });
+      fb.inp.addEventListener('change', function () {
+        if (!r.emri) { r.emri = emriNgaProduktet(r.barkodi); fe.inp.value = r.emri; }
+      });
+      var fe = fushe('Emri i produktit', r.emri, function (v) { r.emri = v; });
+      var fsas = fushe('Sasia', r.sasia === '' || r.sasia === undefined ? '' : String(r.sasia), function (v) {
+        r.sasia = AF.lexoSasine(v); r.sasiaTx = v;
+      }, 'lx-sasia');
+      fsas.inp.inputMode = 'tel';
+      // Shfaqet vetëm rezultati (fleta "60+30" → 90), si te Afatet.
+      fsas.inp.addEventListener('change', function () {
+        if (!AF.sasiaSiShume(fsas.inp.value)) return;
+        fsas.inp.value = String(AF.lexoSasine(fsas.inp.value));
+        fsas.inp.dispatchEvent(new Event('input'));
+      });
+      d.appendChild(fb.w); d.appendChild(fe.w); d.appendChild(fsas.w);
+      c.appendChild(d);
+    });
+    var n = imp.rreshtat.length;
+    $('impRuaj').textContent = n ? 'Importo ' + n + (n === 1 ? ' produkt' : ' produkte') : 'Importo';
+    $('impRuaj').disabled = !n;
+  }
+
+  function mbyllImportin() { $('dlgImportStok').classList.remove('hapur'); }
+  $('impFoto').addEventListener('click', function () { $('impFoto').classList.toggle('e-madhe'); });
+  $('impPrapa').addEventListener('click', function () { $('impAnulo').click(); });
+  $('impAnulo').addEventListener('click', async function () {
+    var kaTeDhena = imp.rreshtat.some(function (r) { return r.barkodi || r.emri; });
+    if (kaTeDhena) {
+      var po = await konfirmo('Të anulohet?', 'Rreshtat e lexuar nuk do të importohen.', 'Anulo importin');
+      if (!po) return;
+    }
+    imp.rreshtat = [];
+    mbyllImportin();
+  });
+  $('impRuaj').addEventListener('click', function () {
+    var fid = $('impFolderi').value;
+    if (!fid || !foldera.some(function (f) { return f.id === fid; })) { toast('Zgjidh folderin ku do të importohen produktet.'); return; }
+    var teVlefshem = [], pa = 0;
+    imp.rreshtat.forEach(function (r) {
+      var bosh = !r.barkodi && !r.emri && (r.sasia === '' || r.sasia === undefined);
+      if (bosh) return;
+      var b = (r.barkodi || '').trim();
+      if (!b || r.sasia === '' || r.sasia === undefined || (r.sasiaTx && AF.lexoSasine(r.sasiaTx) === '')) { pa++; return; }
+      teVlefshem.push(r);
+    });
+    if (pa) {
+      toast(pa === 1 ? '1 rresht s\'ka barkod ose sasi (numër i plotë). Plotësoje ose hiqe me ✕.' : pa + ' rreshta s\'kanë barkod ose sasi (numër i plotë). Plotësoji ose hiqi me ✕.', 4000);
+      return;
+    }
+    if (!teVlefshem.length) { mbyllImportin(); return; }
+    var tani = Date.now(), ndryshimet = {};
+    teVlefshem.forEach(function (r) {
+      var b = r.barkodi.trim();
+      var k = celesiProduktit(fid, b);
+      var baza = ndryshimet[k] || produktet[k] || null;
+      var emriRi = (baza && baza.emri) || (r.emri || '').trim();
+      var sasiaRe = Math.max(0, (baza ? baza.sasia : 0) + r.sasia);
+      ndryshimet[k] = { barkodi: b, emri: emriRi, sasia: sasiaRe, kategoriaId: fid, prekurSe: tani };
+    });
+    var numri = Object.keys(ndryshimet).length;
+    Object.keys(ndryshimet).forEach(function (k) { produktet[k] = ndryshimet[k]; });
+    ruajBaze();
+    imp.rreshtat = [];
+    mbyllImportin();
+    renderFolderat();
+    renderKerkimiGlobal();
+    toast('U importuan ' + numri + ' produkte në folderin "' + emriFolderit(fid) + '".' +
+      (teVlefshem.length !== numri ? ' (disa rreshta u bashkuan te i njëjti barkod)' : ''), 4000);
+  });
+
 
   // Rifreskim i përditshëm i ngjyrave (p.sh. kur aplikacioni mbetet hapur pas mesnatës)
   setInterval(rifreskoShenjen, 10 * 60 * 1000);
