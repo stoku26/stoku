@@ -207,10 +207,16 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Placeholder-a tip "p.sh." në fusha — përdoruesi i pëlqen hint-e përshkruese, jo shembuj konkretë.
 - Teksti "ose komercialistin" te mesazhet e afateve — u hoq, mbetet vetëm "furnizuesin".
 - Zoom me pinch-to-zoom në telefon — u ç'aktivizua (maximum-scale=1, user-scalable=no, touch-action).
-- Kompjuteri: dy taba lart (Stoku/Afatet) — u provua (PR #32), u ANULUA menjëherë ("tepër palidhje", PR #33),
-  PASTAJ u kërkua sërish nga përdoruesi (i njëjti shembull/foto) dhe u rivendos përfundimisht (~v98).
-  Gjendja PËRFUNDIMTARE: `#tabStoku`/`#tabAfatet` (JO `#navAfatet` në anësore). Mos e hiq/anulo më pa
-  pyetur eksplicit përdoruesin — nuk është më "e refuzuar", është kërkesa aktuale.
+- Kompjuteri, ndarja Stoku/Afatet — HISTORIA (mos e rifillo pa pyetur, thjesht respekto gjendjen aktuale):
+  1) taba lart me `#tabStoku`/`#tabAfatet` (PR #32) → 2) u ANULUA menjëherë ("tepër palidhje", PR #33,
+  mbrapa te `#navAfatet` në fund të anësores) → 3) u kërkua sërish (PR #37, e rivendosi tabet lart) →
+  4) u ANULUA PËRSËRI ("tmerr u doka" — taba lart s'i pëlqeu) dhe u kërkua NJË STRUKTURË E TRETË: **të
+  dyja në anësore (majtas)**, jo lart si tabe — "Stoku" dhe "Afatet" si dy tituj/grupe (`.seksion-kryesor`)
+  brenda vetë anësores, secili me nën-artikujt e vet poshtë emrit (Stoku: Përmbledhja/Të gjitha/Folderat;
+  Afatet: "Afatet e produkteve", përsëri me id `#navAfatet`). **KJO ËSHTË GJENDJA PËRFUNDIMTARE (~v99)**:
+  s'ka më `.tabet-kryesore`/`#tabStoku`/`#tabAfatet` — vetëm `#navAfatet` brenda anësores, nën titullin
+  "Afatet". Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht
+  don ndryshe, në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 3 herë tashmë.
 
 ## Kontakte/aksese që s'i kam
 
