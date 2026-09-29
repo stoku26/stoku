@@ -4996,12 +4996,13 @@
     var dokumenti = function () { return doc(db, 'dyqane', auth.currentUser.uid); };
     // Regjistrohet vetja te perdoruesit/{uid} — përdoret nga pamja e "Ekipit" për të gjetur llogaritë
     async function regjistroPerdoruesin(emri, uid) {
-      try { await setDoc(doc(db, 'perdoruesit', uid), { emri: emri.trim(), kycurSe: Date.now() }, { merge: true }); } catch (e) { /* ok */ }
+      // Fusha `emri` NUK preket: rregullat e Firestore e përdorin për admin-in. Hyrja s'e pret kurrë këtë shkrim.
+      try { await setDoc(doc(db, 'perdoruesit', uid), { perdoruesi: String(emri).trim().toLowerCase(), kycurSe: Date.now() }, { merge: true }); } catch (e) { /* ok */ }
     }
 
     window.__stokuCloud = {
-      async regjistrohu(u, p) { try { var k = await createUserWithEmailAndPassword(auth, emailIBrendshem(u), p); await regjistroPerdoruesin(u, k.user.uid); return { ok: true, uid: k.user.uid }; } catch (e) { return gabim(e); } },
-      async hyr(u, p) { try { var k = await signInWithEmailAndPassword(auth, emailIBrendshem(u), p); await regjistroPerdoruesin(u, k.user.uid); return { ok: true, uid: k.user.uid }; } catch (e) { return gabim(e); } },
+      async regjistrohu(u, p) { try { var k = await createUserWithEmailAndPassword(auth, emailIBrendshem(u), p); regjistroPerdoruesin(u, k.user.uid); return { ok: true, uid: k.user.uid }; } catch (e) { return gabim(e); } },
+      async hyr(u, p) { try { var k = await signInWithEmailAndPassword(auth, emailIBrendshem(u), p); regjistroPerdoruesin(u, k.user.uid); return { ok: true, uid: k.user.uid }; } catch (e) { return gabim(e); } },
       async dil() { try { await signOut(auth); } catch (e) { /* ok */ } },
       async ndryshoEmrin(u) { if (!auth.currentUser) return { ok: false }; try { await updateEmail(auth.currentUser, emailIBrendshem(u)); return { ok: true }; } catch (e) { return gabim(e); } },
       async ndryshoFjalekalimin(p) { if (!auth.currentUser) return { ok: false }; try { await updatePassword(auth.currentUser, p); return { ok: true }; } catch (e) { return gabim(e); } },
@@ -5036,7 +5037,7 @@
         try {
           var pikteka = await getDocs(collection(db, 'perdoruesit'));
           var lista = [];
-          pikteka.forEach(function (d) { lista.push({ uid: d.id, emri: (d.data() && d.data().emri) || d.id }); });
+          pikteka.forEach(function (d) { var x = d.data() || {}; lista.push({ uid: d.id, emri: x.perdoruesi || x.emri || d.id }); });
           return { ok: true, lista: lista };
         } catch (e) { var g = gabim(e); g.lista = []; return g; }
       },
