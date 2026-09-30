@@ -327,6 +327,12 @@
   :is(#ekTabela, #ekPultTabela) .k-av .btn + .btn { margin-left: 4px; }
   #ekTabAnetaret .k-av, #ekTabKerkesat .k-av { width: 195px; white-space: nowrap; text-align: right; padding-right: 12px; overflow: visible; }
   .ek-ne-linje { color: #1e8e3e; font-weight: 700; }
+  .ek-prania { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; border-radius: 999px; font-size: 12px; font-weight: 600; vertical-align: middle; white-space: nowrap; }
+  .ek-prania.on { background: rgba(30,142,62,.12); color: #1e8e3e; }
+  .ek-prania.off { background: rgba(120,120,130,.12); color: var(--gri); }
+  .ek-prania .pk { width: 7px; height: 7px; border-radius: 50%; background: #22a350; box-shadow: 0 0 0 3px rgba(34,163,80,.22); animation: ekPulsi 2s ease-in-out infinite; }
+  @keyframes ekPulsi { 50% { box-shadow: 0 0 0 5px rgba(34,163,80,.08); } }
+  @media (prefers-reduced-motion: reduce) { .ek-prania .pk { animation: none; } }
   .ek-anetar-qeliza { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
   .ek-anetar-qeliza .ek-ti { flex: none; }
   .ek-anetar-emri { font-weight: 600; }
@@ -800,21 +806,26 @@
   #afTabela tr.afer .k-msg { color: var(--af-verdhe-tx); }
   #afTabela tr.ok .k-msg { color: var(--af-gjelber-tx); font-weight: 500; }
   #afTabela .k-av { width: 190px; text-align: right; padding-right: 10px; overflow: visible; }
-  @media (max-width: 1366px) { #afTabela .k-msg { width: 22%; } #afTabela .k-st { width: 124px; } }
+  @media (max-width: 1366px) { #afTabela .k-st { width: 124px; } }
   #afTabela .af-prod div:first-child { font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
   #afTabela .af-prod div + div { font-size: 12px; color: var(--gri); overflow: hidden; text-overflow: ellipsis; }
   #afTabela .af-fur-nen { font-weight: 600; color: var(--tekst) !important; opacity: .8; }
   #afTabela tr.af-grup td { background: var(--karta) !important; font-weight: 700; height: 46px; border-top: 1px solid var(--vije); cursor: default; }
-  #afTabela tr.af-grup td .btn { margin-left: 8px; }
   /* Afatet më të lexueshme: numra më të mëdhenj me fontin e numrave, shkronja pak më të mëdha */
   #afTabela td { font-size: 15.5px; }
   #afTabela .af-prod div:first-child { font-size: 16px; }
   #afTabela .af-prod div + div { font-size: 13px; }
   #afTabela td.k-msg { font-size: 14.5px; }
-  #afTabela td.k-sas, #afTabela td.k-data, .kpi.af-kpi .kpi-vlera { font-family: 'StokuNumrat', var(--shkronja); }
-  #afTabela td.k-sas { font-size: 18px; font-weight: 800; }
-  #afTabela td.k-data { font-size: 17px; font-weight: 800; letter-spacing: -.2px; }
-  #afTabela .k-data { width: 140px; }
+  :is(#afTabela, #ekTabela, #ekPultTabela) td.k-sas, :is(#afTabela, #ekTabela, #ekPultTabela) td.k-data, td.k-ditet b, .kpi.af-kpi .kpi-vlera { font-family: 'StokuNumrat', var(--shkronja); }
+  :is(#afTabela, #ekTabela, #ekPultTabela) td.k-sas { font-size: 18px; font-weight: 800; }
+  :is(#afTabela, #ekTabela, #ekPultTabela) td.k-data { font-size: 19px; font-weight: 800; letter-spacing: -.2px; }
+  #afTabela .k-data { width: 150px; }
+  #ekTabela .k-data, #ekPultTabela .k-data { width: 150px; }
+  #afTabela .k-msg { width: 180px; white-space: nowrap; }
+  #ekTabela .k-msg { width: 150px; white-space: nowrap; }
+  td.k-ditet { font-size: 14px; font-weight: 600; }
+  td.k-ditet b { font-size: 21px; font-weight: 800; }
+  td.k-ditet .k-ditet-mbi { display: block; font-size: 12.5px; line-height: 1.2; }
   #afTabela .k-sas { width: 80px; }
   #afTabela .k-data small { font-size: 13px; font-weight: 700; }
   .kpi.af-kpi .kpi-vlera { font-size: 34px; font-weight: 800; }
@@ -871,10 +882,9 @@
   .inp:focus-visible { outline: none; }
 
   /* Ekrane të ngushta (laptop 1024–1440): emri i produktit s'duhet të zhduket kurrë nga tabelat. Kolonat fikse
-     ngushtohen, "Çfarë duhet bërë" fshihet (statusi + data e tregojnë njësoj) dhe anësorja ngushtohet pak. */
+     ngushtohen; nën 1180px fshihet kolona "Statusi" (ngjyra e rreshtit + "Ditët e mbetura" e tregojnë njësoj). */
   #ekTabela .k-av { width: 214px; }
   @media (max-width: 1440px) {
-    #ekTabela .k-msg { display: none; }
     :is(#ekTabela, #ekPultTabela) .k-pronari { width: 120px; }
     :is(#ekTabela, #ekPultTabela) .k-st { width: 128px; }
   }
@@ -884,8 +894,10 @@
     .tabela .k-folderi { width: 124px; }
     .tabela .k-sasia { width: 112px; }
     .tabela .k-koha { width: 112px; }
-    :is(#ekTabela, #ekPultTabela) .k-data { width: 112px; }
-    #afTabela .k-data { width: 136px; }
+    :is(#ekTabela, #ekPultTabela) .k-data { width: 140px; }
+    #afTabela .k-data { width: 140px; }
+    #afTabela .k-msg { width: 160px; }
+    #ekTabela .k-msg { width: 140px; }
     #afTabela .k-st { width: 140px; }
   }
   @media (max-width: 1366px) {
@@ -895,6 +907,12 @@
     #ekTabAnetaret tr > :nth-child(6) { display: none; }
   }
   @media (max-width: 1180px) {
+    :is(#afTabela, #ekTabela) .k-st { display: none; }
+    :is(#afTabela, #ekTabela) .k-data { width: 128px; }
+    :is(#afTabela, #ekTabela) td.k-data { font-size: 17px; }
+    :is(#afTabela, #ekTabela) .k-msg { width: 122px; }
+    :is(#afTabela, #ekTabela) .k-sas { width: 60px; }
+    #ekTabela .k-pronari { width: 100px; }
     #ekTabAnetaret tr > :nth-child(2) { display: none; }
     #ekTabAnetaret .k-sas { width: 84px; }
     .ek-pult-rrjeti { grid-template-columns: minmax(0, 1fr); }
@@ -902,7 +920,6 @@
   @media (max-width: 1180px) {
     .trupi { grid-template-columns: 220px minmax(0, 1fr); }
     .tabela .k-koha { display: none; }
-    #afTabela .k-msg { display: none; }
     .tabela .k-barkodi { width: 124px; }
     .tabela .k-folderi { width: 110px; }
   }
@@ -1217,7 +1234,7 @@
         <table class="tabela" id="afTabela">
           <thead><tr>
             <th class="k-st">Statusi</th><th>Produkti · Furnizuesi</th><th class="k-sas">Sasia</th><th class="k-data">Skadon më</th>
-            <th class="k-msg">Çfarë duhet bërë</th><th class="k-av"></th>
+            <th class="k-msg">Ditët e mbetura</th><th class="k-av"></th>
           </tr></thead>
           <tbody id="afTrup"></tbody>
         </table>
@@ -1796,9 +1813,9 @@
 <script src="xlsx.js?v=113"></script>
 <script src="bashkimi.js?v=113"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=121"></script>
-<script src="ekipa.js?v=5"></script>
-<script src="teRejat.js?v=121"></script>
+<script src="afatet.js?v=122"></script>
+<script src="ekipa.js?v=6"></script>
+<script src="teRejat.js?v=122"></script>
 <script>
 (function () {
   'use strict';
@@ -4545,6 +4562,14 @@
     }).sort(AF.krahaso);
   }
 
+  // Qeliza "Ditët e mbetura": numri i theksuar me fontin e numrave
+  function qelizaEDiteve(a) {
+    var d = AF.ditetEMbetura(a), td = el('td', 'k-msg k-ditet');
+    if (d.para) td.appendChild(el('span', d.nr ? 'k-ditet-mbi' : null, d.para + ' '));
+    if (d.nr) td.appendChild(el('b', null, d.nr));
+    if (d.pas) td.appendChild(el('span', null, ' ' + d.pas));
+    return td;
+  }
   var ST_EMRI = { skaduar: 'Ka skaduar', 'pa-date': 'Pa datë', afer: 'Afër skadimit', ok: 'Në rregull', hequr: 'I hequr' };
 
   // ---------- Ekipa (PC): afatet e ekipës, aktiviteti, chat-i, kalendari, anëtarët, statistikat ----------
@@ -4713,6 +4738,13 @@
     if (lista.length > 15) { bosh.textContent = '… dhe ' + (lista.length - 15) + ' të tjera. Shiko "Krejt afatet e ekipës" për listën e plotë.'; bosh.classList.remove('fsheh'); }
     ekPultAnetaret(anetaret);
   }
+  // Prania si ikonë: telefon/kompjuter me pikë të gjelbër kur është online; ikonë "jashtë linje" + koha kur s'është
+  function ekPraniaEl(a) {
+    var pr = EKL.praniaIkone(a, a.uneJam, 'pc');
+    var x = el('span', 'ek-prania ' + (pr.online ? 'on' : 'off'));
+    x.innerHTML = pr.html; x.title = pr.titulli; x.setAttribute('aria-label', pr.titulli);
+    return x;
+  }
   function ekPultAnetaret(anetaret) {
     var c = $('ekPultAnetaret');
     c.textContent = '';
@@ -4723,8 +4755,7 @@
       b.appendChild(ekAvatar(a, true));
       var m = el('div');
       m.appendChild(el('div', 'ek-pult-an-emri', a.emri + (a.uneJam ? ' (ti)' : '')));
-      var online = a.uneJam || EKL.eshteOnline(a);
-      m.appendChild(el('div', 'ek-pult-an-nen', online ? 'Online tani' : EKL.tekstiPranise(a)));
+      var nen = el('div', 'ek-pult-an-nen'); nen.appendChild(ekPraniaEl(a)); m.appendChild(nen);
       b.appendChild(m);
       b.appendChild(el('div', 'ek-pult-an-nr' + (nn.skaduar ? ' kuqe' : ''), !a.ngarkuar ? '…' : a.paTeDhena ? 'pa të dhëna' : nn.skaduar ? nn.skaduar + (nn.skaduar === 1 ? ' i skaduar' : ' të skaduara') : nn.aktive + ' në raft'));
       b.addEventListener('click', function () { ekV.anetari = a.uid; ekV.filtri = ''; ekShkoTe('afatet'); });
@@ -4781,7 +4812,7 @@
     var koka = $('ekKoka'), trup = $('ekTrup');
     koka.textContent = ''; trup.textContent = '';
     var tr0 = el('tr');
-    [['Statusi', 'k-st'], ['Produkti · Furnizuesi', ''], ['Sasia', 'k-sas'], ['Skadon më', 'k-data'], ['Çfarë duhet bërë', 'k-msg']].forEach(function (x) { tr0.appendChild(el('th', x[1] || null, x[0])); });
+    [['Statusi', 'k-st'], ['Produkti · Furnizuesi', ''], ['Sasia', 'k-sas'], ['Skadon më', 'k-data'], ['Ditët e mbetura', 'k-msg']].forEach(function (x) { tr0.appendChild(el('th', x[1] || null, x[0])); });
     if (meEmer) tr0.appendChild(el('th', 'k-pronari', 'Përdoruesi'));
     tr0.appendChild(el('th', 'k-av'));
     koka.appendChild(tr0);
@@ -4815,11 +4846,13 @@
     tr.appendChild(t1);
     tr.appendChild(el('td', 'k-sas', typeof x.sasia === 'number' ? num(x.sasia) : '–'));
     var td = el('td', 'k-data', x.data ? AF.formato(x.data) : '–');
-    if (n !== null && st !== 'hequr') td.appendChild(el('small', null, n < 0 ? 'para ' + AF.ditetTekst(-n) : n === 0 ? 'sot' : 'për ' + AF.ditetTekst(n)));
+    // Te Pulti s'ka kolonë "Ditët e mbetura": ditët mbeten nën datë
+    if (pult && n !== null && st !== 'hequr') td.appendChild(el('small', null, n < 0 ? 'para ' + AF.ditetTekst(-n) : n === 0 ? 'sot' : 'për ' + AF.ditetTekst(n)));
     tr.appendChild(td);
-    if (!pult) tr.appendChild(el('td', 'k-msg', st === 'hequr'
-      ? 'U hoq nga rafti' + (x.hequrNga ? ' nga ' + x.hequrNga : '') + (x.hequrSe ? ' · ' + EKL.kohaRelative(x.hequrSe) : '')
-      : AF.pershkrimi(x)));
+    if (!pult) {
+      if (st === 'hequr') tr.appendChild(el('td', 'k-msg', 'U hoq' + (x.hequrNga ? ' nga ' + x.hequrNga : '') + (x.hequrSe ? ' · ' + EKL.kohaRelative(x.hequrSe) : '')));
+      else tr.appendChild(qelizaEDiteve(x));
+    }
     if (meEmer) tr.appendChild(el('td', 'k-pronari', (x.pronariEmri || '') + (perdoruesi() && x.pronariUid === perdoruesi().uid ? ' (ti)' : '')));
     var tv = el('td', 'k-av');
     if (st === 'skaduar') {
@@ -4891,7 +4924,7 @@
     var c = $('ekAktLista');
     c.textContent = '';
     if (!ekK.gj.ngjarjetGati) { c.appendChild(el('div', 'bosh-mesazh', 'Duke ngarkuar…')); return; }
-    if (!ekK.gj.ngjarjet.length) { c.appendChild(el('div', 'bosh-mesazh', 'S\'ka aktivitet ende. Kur dikush heq nga rafti, shton afate ose lajmëron furnizuesin, del këtu.')); return; }
+    if (!ekK.gj.ngjarjet.length) { c.appendChild(el('div', 'bosh-mesazh', 'S\'ka aktivitet ende. Kur dikush heq nga rafti, ose shton afate, del këtu.')); return; }
     var uidIm = perdoruesi() ? perdoruesi().uid : null;
     var dita = '';
     var frag = document.createDocumentFragment();
@@ -5073,9 +5106,7 @@
       if (a.uneJam) t0.appendChild(el('span', 'ek-ti', 'ti'));
       if (a.admin) t0.appendChild(el('span', 'ek-ti', 'admin'));
       tr.appendChild(el('td')).appendChild(t0);
-      var online = a.uneJam || EKL.eshteOnline(a);
-      var pl = EKL.tekstiPlatformes(a.uneJam ? 'pc' : a.platforma);
-      tr.appendChild(el('td', online ? 'ek-ne-linje' : 'k-gri', (online ? 'Online tani' : EKL.tekstiPranise(a)) + (pl ? ' · ' + pl : '')));
+      tr.appendChild(el('td')).appendChild(ekPraniaEl(a));
       tr.appendChild(el('td', 'k-sas', !a.ngarkuar ? '…' : a.paTeDhena ? '–' : num(n.aktive)));
       tr.appendChild(el('td', 'k-sas' + (n.skaduar ? ' ek-kuqe' : ''), num(n.skaduar)));
       tr.appendChild(el('td', 'k-sas', num(n.afer)));
@@ -5402,12 +5433,6 @@
         var td = el('td'); td.colSpan = 6;
         var copeGr = AF.shumaCopeve(g);
         td.appendChild(document.createTextNode((f || 'Pa furnizues') + ' · ' + g.length + ' produkte' + (copeGr ? ' · ' + num(copeGr) + ' copë' : '')));
-        var pert = g.filter(function (a) { var s = AF.statusi(a); return s === 'afer' || s === 'skaduar'; });
-        if (pert.length) {
-          var b1 = el('button', 'btn dyte vogel', 'Kopjo mesazhin për furnizuesin'); b1.type = 'button';
-          b1.addEventListener('click', function () { kopjoMesazhin(f, pert); });
-          td.appendChild(b1);
-        }
         tr.appendChild(td);
         frag.appendChild(tr);
         g.forEach(function (a) { frag.appendChild(rreshtIAfatit(a)); });
@@ -5420,7 +5445,6 @@
 
   function rreshtIAfatit(a) {
     var st = AF.statusi(a);
-    var n = AF.ditetDeri(a.data);
     var tr = el('tr', st);
     tr.dataset.id = a.id;
     var t0 = el('td', 'k-st'); t0.appendChild(el('span', 'af-status ' + st, ST_EMRI[st])); tr.appendChild(t0);
@@ -5432,10 +5456,8 @@
     t1.title = (a.emri || '') + (a.krijuarNga ? '\nShtuar nga: ' + a.krijuarNga : '') + (a.krijuarSe ? ' · ' + dataOra(a.krijuarSe) : '');
     tr.appendChild(t1);
     tr.appendChild(el('td', 'k-sas', typeof a.sasia === 'number' ? num(a.sasia) : '–'));
-    var td = el('td', 'k-data', a.data ? AF.formato(a.data) : '–');
-    if (st !== 'hequr' && n !== null) td.appendChild(el('small', null, n < 0 ? 'para ' + AF.ditetTekst(-n) : n === 0 ? 'sot' : 'për ' + AF.ditetTekst(n)));
-    tr.appendChild(td);
-    tr.appendChild(el('td', 'k-msg', AF.pershkrimi(a)));
+    tr.appendChild(el('td', 'k-data', a.data ? AF.formato(a.data) : '–'));
+    tr.appendChild(qelizaEDiteve(a));
     var tv = el('td', 'k-av');
     function b(tekst, klasa, fn, titull) {
       var x = el('button', 'btn af-btn ' + klasa, tekst); x.type = 'button'; if (titull) x.title = titull;
@@ -5478,11 +5500,6 @@
   function fshijAfatet(ids) {
     var reg = ndryshoAfatet(function (api) { ids.forEach(function (id) { api.fshij(id); }); });
     toast(ids.length === 1 ? 'Afati u fshi.' : ids.length + ' afate u fshinë.', { veprimi: function () { zhbejAfatet(reg); } });
-  }
-  async function kopjoMesazhin(furnizuesi, lista) {
-    var t = AF.mesazhiFurnizuesit(furnizuesi, lista);
-    try { await navigator.clipboard.writeText(t); toast('Mesazhi për "' + (furnizuesi || 'furnizuesin') + '" u kopjua. Ngjite në email, WhatsApp ose Viber.', { ms: 5000 }); }
-    catch (e) { window.prompt('Kopjo mesazhin:', t); }
   }
 
   $('navAfatet').addEventListener('click', function () { af.filtri = 'aktive'; shkoTe('afatet'); });

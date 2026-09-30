@@ -187,18 +187,6 @@
     return n;
   }
 
-  // Mesazhi për furnizuesin (për WhatsApp/Viber/email)
-  function mesazhiFurnizuesit(furnizuesi, lista) {
-    var rr = lista.slice().sort(function (a, b) { return String(a.data).localeCompare(String(b.data)); }).map(function (a, i) {
-      var n = ditetDeri(a.data);
-      return (i + 1) + '. ' + (a.emri || 'Produkt') + (a.barkodi ? ' (' + a.barkodi + ')' : '') + (sasiaTekst(a) ? ', ' + sasiaTekst(a) : '') + ', skadon ' + formato(a.data) +
-        (n === null ? '' : n < 0 ? ' (KA SKADUAR)' : n === 0 ? ' (sot)' : ' (për ' + ditetTekst(n) + ')');
-    });
-    return 'Përshëndetje' + (furnizuesi ? ' ' + furnizuesi : '') + ',\n\n' +
-      'Këto produkte në dyqanin tonë ' + (lista.length === 1 ? 'i afrohet' : 'u afrohen') + ' afatit të skadimit:\n\n' +
-      rr.join('\n') + '\n\nJu lutem na kontaktoni për kthim ose zëvendësim sa më parë. Faleminderit!';
-  }
-
   // ================= Leximi i fotos me AI =================
   function adresaAI() {
     try { var u = localStorage.getItem('stoku:ai-url'); if (u) return u; } catch (e) { /* ok */ }
@@ -316,6 +304,18 @@
       x: pozicioniIVlefshem(rresht.x),
       y: pozicioniIVlefshem(rresht.y)
     };
+  }
+
+  // Kolona "Ditët e mbetura": { para, nr, pas } — numri shfaqet i theksuar ("Skadoi para" 2 "ditësh", 5 "ditë", "Sot")
+  function ditetEMbetura(a, tani) {
+    var st = statusi(a, tani), n = ditetDeri(a && a.data, tani);
+    if (st === 'hequr') return { para: 'U hoq nga rafti', nr: '', pas: '' };
+    if (n === null) return { para: 'Pa datë', nr: '', pas: '' };
+    if (n < -1) return { para: 'Skadoi para', nr: String(-n), pas: 'ditësh' };
+    if (n === -1) return { para: 'Skadoi', nr: '', pas: 'dje' };
+    if (n === 0) return { para: '', nr: 'Sot', pas: 'skadon' };
+    if (n === 1) return { para: '', nr: '1', pas: 'ditë (nesër)' };
+    return { para: '', nr: String(n), pas: 'ditë' };
   }
 
   // ---------- Muajt (filtri dhe eksporti sipas muajit të skadimit) ----------
@@ -481,9 +481,9 @@
     sot: sot, isoNgaData: isoNgaData, ditetDeri: ditetDeri, statusi: statusi, formato: formato,
     pershkrimi: pershkrimi, lexoDaten: lexoDaten, lexoDatenEFushes: lexoDatenEFushes, lidhFushenEDates: lidhFushenEDates,
     formatoDatenGjateShkrimit: formatoDatenGjateShkrimit, formatoPerFushe: formatoPerFushe, idERe: idERe, krahaso: krahaso, numero: numero,
-    mesazhiFurnizuesit: mesazhiFurnizuesit, pergatitFoton: pergatitFoton, fotoPerDergim: fotoPerDergim, lexoMeAI: lexoMeAI,
+    pergatitFoton: pergatitFoton, fotoPerDergim: fotoPerDergim, lexoMeAI: lexoMeAI,
     normalizoRreshtin: normalizoRreshtin, EMRAT_MUAJVE: EMRAT_MUAJVE, muajiNgaEmri: muajiNgaEmri, celesiMuajit: celesiMuajit, emriMuajit: emriMuajit,
-    muajtELista: muajtELista, dataNgaQeliza: dataNgaQeliza, hamendesoKolonatEAfateve: hamendesoKolonatEAfateve,
+    muajtELista: muajtELista, ditetEMbetura: ditetEMbetura, dataNgaQeliza: dataNgaQeliza, hamendesoKolonatEAfateve: hamendesoKolonatEAfateve,
     planiImportitAfateve: planiImportitAfateve, afatetNgaPlani: afatetNgaPlani, tekstNgaQeliza: tekstNgaQeliza, ditetTekst: ditetTekst, lexoSasine: lexoSasine, sasiaSiShume: sasiaSiShume, sasiaTekst: sasiaTekst, shumaCopeve: shumaCopeve
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

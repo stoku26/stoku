@@ -15,6 +15,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 122, data: '2026-09-30', titulli: 'Ekipa me ikona dhe afatet më të qarta', pikat: [
+      'Te Ekipa, kush është online tregohet me ikonën e telefonit ose të kompjuterit dhe një pikë të gjelbër; kush s\'është, me ikonën "jashtë linje" dhe kohën kur u pa.',
+      'Te Afatet në kompjuter, kolona "Çfarë duhet bërë" u bë "Ditët e mbetura", me numrin të madh; nën datë s\'përsëriten më ditët.',
+      'Numrat në kompjuter kanë të njëjtin font si në telefon; shkronjat në telefon u kthyen në madhësinë e mëparshme.',
+      'U hoqën butonat për mesazhin e furnizuesit ("Kopjo mesazhin për furnizuesin" dhe "Dërgo listën").'
+    ] },
     { v: 121, data: '2026-09-30', titulli: 'Afatet më të lexueshme', pikat: [
       'Datat, sasitë dhe ditët te Afatet kanë font të ri, më të madh dhe më të trashë, që lexohen menjëherë.',
       'Emrat e produkteve dhe tekstet te Afatet janë pak më të mëdha.',

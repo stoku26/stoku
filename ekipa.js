@@ -387,6 +387,25 @@
     return 'S\'është parë ende';
   }
   function tekstiPlatformes(p) { return p === 'pc' ? 'në kompjuter' : p === 'tel' ? 'në telefon' : ''; }
+  // Prania si ikonë (jo tekst): online = ikona e pajisjes (telefon/kompjuter) me pikë të gjelbër;
+  // offline = ikonë "jashtë linje" + koha kur u pa. Kthen { online, html, titulli } (html vetëm me ikona + kohë).
+  var IK_TEL = '<rect x="6" y="2" width="12" height="20" rx="2.5"></rect><path d="M11 18h2"></path>';
+  var IK_PC = '<rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path>';
+  var IK_OFF = '<path d="M2 2l20 20"></path><path d="M8.5 16.5a5 5 0 0 1 7 0"></path><path d="M5 12.9a10 10 0 0 1 5.2-2.8"></path><path d="M19 12.9a10 10 0 0 0-2.3-1.6"></path><path d="M2 8.8a15 15 0 0 1 4.2-2.6"></path><path d="M22 8.8a15 15 0 0 0-11.3-3.8"></path><path d="M12 20h.01"></path>';
+  function svgIk(p, m) { return '<svg width="' + (m || 15) + '" height="' + (m || 15) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>'; }
+  function praniaIkone(a, uneJam, platformaIme, tani) {
+    tani = tani || Date.now();
+    var online = !!uneJam || eshteOnline(a, tani);
+    var pl = uneJam ? platformaIme : (a && a.platforma);
+    var emriPl = pl === 'pc' ? 'në kompjuter' : pl === 'tel' ? 'në telefon' : '';
+    if (online) {
+      return { online: true, titulli: 'Online tani' + (emriPl ? ' ' + emriPl : ''),
+        html: (pl ? svgIk(pl === 'pc' ? IK_PC : IK_TEL) : '') + '<span class="pk"></span>' };
+    }
+    var kur = a && a.aktivSe ? kohaRelative(a.aktivSe, tani) : '';
+    return { online: false, titulli: 'Jashtë linje' + (kur ? ' · parë ' + kur : '') + (emriPl ? ' (' + emriPl + ')' : ''),
+      html: svgIk(IK_OFF) + (kur ? '<span class="kur">' + String(kur).replace(/[<>&"]/g, '') + '</span>' : '') };
+  }
 
   // Heqjet nga rafti të bëra nga kolegët (nga aktiviteti) → afati tregohet "i hequr" te të gjithë,
   // edhe para se aplikacioni i pronarit ta ketë zbatuar në dyqanin e tij.
@@ -1160,7 +1179,7 @@
     ONLINE_MS: ONLINE_MS, MUAJT: MUAJT, DITET_SHKURT: DITET_SHKURT,
     krijoCloud: krijoCloud, krijoKontrollues: krijoKontrollues,
     eshteOnline: eshteOnline, kohaRelative: kohaRelative, titulliDites: titulliDites,
-    tekstiPranise: tekstiPranise, tekstiPlatformes: tekstiPlatformes,
+    tekstiPranise: tekstiPranise, tekstiPlatformes: tekstiPlatformes, praniaIkone: praniaIkone,
     ADMIN_EMRI: ADMIN_EMRI, permbledhjaEAfateve: permbledhjaEAfateve, nenshkrimi: nenshkrimi,
     ndryshoAfatinNeGjendje: ndryshoAfatinNeGjendje, fletetEStokut: fletetEStokut,
     hartaEHeqjeve: hartaEHeqjeve, mbivendosHeqjen: mbivendosHeqjen, duhetZbatuarHeqja: duhetZbatuarHeqja,
