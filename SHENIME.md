@@ -60,8 +60,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    - SW i veçantë: `beta/sw.js` (gjeneruar nga `beta/sw-shabllon.js`), scope /beta/, cache `stoku-beta-<VERSIONI_BETA>-<CACHE i rrënjës>`.
      sw.js i rrënjës: s'i fshin cache-t `stoku-beta-*` dhe s'i trajton kërkesat /beta/. Kur ndryshon stoku-beta.css ose
      beta.js: rrit `VERSIONI_BETA` te nderto.py.
-   - Qasja: Cilësimet → Pamja → "Provo pamjen e re (Beta) ›" vetëm për administratorin (`ekK.eshteAdmin()`); në betë
-     e njëjta lidhje thotë "Kthehu te pamja e zakonshme ›".
+   - Qasja: telefoni Cilësimet → Pamja → "Provo pamjen e re (Beta) ›"; PC Cilësimet → Pamja → "Pamja e re (Beta)" →
+     "Shiko Beta" (hap `beta/?tel`: beta e telefonit në mes të ekranit, 440px; `?tel` ruhet në sessionStorage
+     `stoku:beta-tel` që të mos ridrejtohet te pc.html). Vetëm administratori: `ekK.eshteAdmin()` OSE emri i llogarisë
+     `mendurberisha` (v125: më parë vetëm eshteAdmin(), që s'ishte gati kur hapeshin Cilësimet, dhe lidhja s'dukej).
+     Në betë e njëjta lidhje thotë "Kthehu te pamja e zakonshme ›".
    - Ende pa bërë nga dizajni: karta e errët e skanimit me PDA te "Afat i ri", stepper-i i sasisë, klikimi i "Sasi e ulët"/
      "Sasi 0" (telefoni s'ka listë të filtruar), zilja te kryefaqja. Folderat mbeten rrjetë (jo rresht horizontal) që
      zvarritja për renditje të punojë. Dizajni origjinal (README, .dc.html, stoku-beta.css e dizajnit): `beta/dizajni/` (hapi 2 = seksioni 5 i README). Testet: scratchpad `beta-shot.js` (BW=320,390 TEMA=dark), `beta-funk.js`, `beta-sw.js`, `beta-lidhja.js`.

@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <title>Stoku Beta</title>
-<link rel="manifest" href="manifest.webmanifest?v=1">
+<link rel="manifest" href="manifest.webmanifest?v=2">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="icon" type="image/png" href="../icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -32,6 +32,7 @@
     var op = null;
     try { op = JSON.parse(lexo('stoku:opsione:v1') || 'null'); } catch (e) { /* ok */ }
     if (op && op.pda) return;
+    try { if (/[?&]tel\b/.test(location.search)) sessionStorage.setItem('stoku:beta-tel', '1'); if (sessionStorage.getItem('stoku:beta-tel')) return; } catch (e) { /* ok */ }
     var ua = navigator.userAgent || '';
     // iPad-i paraqitet si Mac, por ka ekran me prekje (Mac-ët s'kanë)
     var celular = /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 0);
@@ -1102,7 +1103,7 @@
   /* Pamja e re (stoku.site/beta/): vetëm për administratorin, derisa të testohet */
   .lidhje-beta:not([hidden]) { display: block; padding: 8px 0; text-decoration: none; font-weight: 600; }
 </style>
-<link rel="stylesheet" href="stoku-beta.css?v=1">
+<link rel="stylesheet" href="stoku-beta.css?v=2">
 </head>
 <body>
 <script src="../porta.js?v=117"></script>
@@ -1699,7 +1700,7 @@
 
 <div id="toast"></div>
 
-<script src="beta.js?v=1"></script>
+<script src="beta.js?v=2"></script>
 <script src="../xlsx.js?v=113"></script>
 <script src="../bashkimi.js?v=113"></script>
 <script src="../ruajtja.js?v=110"></script>
@@ -2784,7 +2785,13 @@
   perkthoStatiket();
 
   // ---------- Tabet e Opsioneve ----------
+  // "Provo pamjen e re (Beta)": vetëm administratori (qasja e ekipës, ose emri i llogarisë kur ekipa s'është lidhur ende)
+  function rifreskoLidhjenBeta() {
+    var admin = (typeof ekK !== 'undefined' && ekK && ekK.eshteAdmin()) || emriPerdoruesitAktual().toLowerCase() === 'mendurberisha';
+    $('lidhjaBeta').hidden = !admin && false; // në betë lidhja (kthimi) shihet nga krejt
+  }
   function aktivizoTabin(emriFaqes) {
+    if (emriFaqes === 'pamja') rifreskoLidhjenBeta();
     var neMenu = !emriFaqes;
     $('kategoriMenu').style.display = neMenu ? '' : 'none';
     Array.prototype.forEach.call(document.querySelectorAll('.opsione-faqe'), function (f) {
@@ -2822,6 +2829,7 @@
   }
 
   function hapOpsionet() {
+    rifreskoLidhjenBeta();
     $('opsTingull').checked = opsione.tingull;
     $('opsScanner').checked = opsione.scanner;
     $('opsPda').checked = opsione.pda;

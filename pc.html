@@ -1732,6 +1732,11 @@
               <button type="button" data-v="normale">Normale</button><button type="button" data-v="e_madhe">E madhe</button>
             </div>
           </div>
+          <div class="ops-seksion" id="opsBeta" hidden>
+            <div class="ops-titull">Pamja e re (Beta)</div>
+            <p class="ops-hint">Dizajni i ri i Stoku-t, për provë. Tani është gati pamja e telefonit (hape në telefon: stoku.site/beta/). Pamja e re për kompjuter vjen pas saj.</p>
+            <a class="btn dyte" id="opsBetaLidhja" href="beta/?tel" target="_blank" rel="noopener" style="margin-top:8px;display:inline-flex;text-decoration:none">Shiko Beta (pamja e telefonit) ›</a>
+          </div>
         </div>
         <div class="opsione-faqe" data-faqe="stoku">
           <div class="ops-seksion">
@@ -4288,6 +4293,8 @@
 
   // ================= Opsionet =================
   function hapOpsionet(faqja) {
+    // Pamja e re (Beta): vetëm administratori (qasja e ekipës, ose emri i llogarisë)
+    $('opsBeta').hidden = !((ekK && ekK.eshteAdmin()) || String(emriPerdoruesit() || '').toLowerCase() === 'mendurberisha');
     zgjidhSkeden(faqja || 'pamja');
     rifreskoOpsionet();
     rifreskoLlogarine();
