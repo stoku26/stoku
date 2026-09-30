@@ -172,6 +172,37 @@
       hiqNgaEkipa: async function (u) {
         try { await fs.deleteDoc(fs.doc(db, 'ekipa_anetaret', u)); return { ok: true }; } catch (e) { return gabim(e); }
       },
+      // Administratori: fshin llogarinë komplet. Së pari shënohet te ekipa_fshire/{uid} (rregullat ia mbyllin çdo
+      // qasje menjëherë, dhe aplikacioni i tij e fshin llogarinë e Firebase-it sapo hapet), pastaj fshihen krejt të
+      // dhënat: dyqani (me pjesët dhe fletët), afatet e ekipës, anëtarësia, njoftimet dhe profili.
+      fshijLlogarine: async function (u, emriTjeter) {
+        if (!uid() || !u || u === uid()) return { ok: false };
+        try { await fs.setDoc(fs.doc(db, 'ekipa_fshire', u), { emri: emriTjeter || '', fshireSe: Date.now(), fshireNga: emri() }); }
+        catch (e) { return gabim(e); }
+        var mbetur = 0;
+        async function fshij(ref) { try { await fs.deleteDoc(ref); } catch (e) { mbetur++; } }
+        async function fshijKoleksionin(rruga) {
+          try {
+            var s = await fs.getDocs(fs.collection.apply(null, [db].concat(rruga)));
+            var l = []; s.forEach(function (d) { l.push(d.id); });
+            for (var i = 0; i < l.length; i++) await fshij(fs.doc.apply(null, [db].concat(rruga, [l[i]])));
+          } catch (e) { mbetur++; }
+        }
+        await fshij(fs.doc(db, 'ekipa_anetaret', u));
+        await fshij(fs.doc(db, 'ekipa_afatet', u));
+        await fshijKoleksionin(['dyqane', u, 'pjeset']);
+        await fshijKoleksionin(['dyqane', u, 'fletet']);
+        await fshij(fs.doc(db, 'dyqane', u));
+        await fshijKoleksionin(['perdoruesit', u, 'njoftimet']);
+        await fshij(fs.doc(db, 'perdoruesit', u));
+        return { ok: true, mbetur: mbetur };
+      },
+      // Kjo llogari u fshi nga administratori? cb() thirret sapo shënimi ekziston (edhe kur je duke punuar)
+      degjoFshirjen: function (cb) {
+        if (!uid()) return function () {};
+        return fs.onSnapshot(fs.doc(db, 'ekipa_fshire', uid()), function (s) { if (s.exists()) cb(s.data() || {}); },
+          function () { /* rregullat e vjetra: ekipa_fshire s'lexohet — s'ka fshirje */ });
+      },
       // Administratori: llogaritë që presin miratimin (lexim i njëhershëm — për shenjën kur Ekipa s'është e hapur)
       merrKerkesat: async function () {
         if (!uid()) return { ok: false, lista: [] };
@@ -716,6 +747,21 @@
       if (!e || !gj.admin || !a || a.uid === o.uidIm()) return { ok: false };
       return e.hiqNgaEkipa(a.uid);
     }
+    // Administratori: fshin llogarinë komplet (jo veten, jo një administrator tjetër)
+    async function fshijLlogarine(a) {
+      var e = E();
+      if (!e || !e.fshijLlogarine || !gj.admin || !a || a.uid === o.uidIm() || a.admin) return { ok: false };
+      var r = await e.fshijLlogarine(a.uid, a.emri);
+      if (r.ok) {
+        gj.anetaret = gj.anetaret.filter(function (x) { return x.uid !== a.uid; });
+        delete gj.dyqanet[a.uid];
+        if (gj.permbledhjet) delete gj.permbledhjet[a.uid];
+        if (gj.teMiratuarit) delete gj.teMiratuarit[a.uid];
+        perditesoKerkesat();
+        thirr('anetaret');
+      }
+      return r;
+    }
     // Administratori: leja e butonave +/- (sasia e shpejtë) për një anëtar
     async function vendosLejen(a, po) {
       var e = E();
@@ -785,6 +831,8 @@
         kontrolloAdminin();
       } else gj.anetaresia = 'pa-rregulla';
       nisDegjuesitPersonale();
+      // Administratori e fshiu këtë llogari → aplikacioni e mbyll dhe e fshin (o.llogariaUFshi)
+      if (e.degjoFshirjen && o.llogariaUFshi) d.fshirja = e.degjoFshirjen(function (x) { ndal('fshirja'); try { o.llogariaUFshi(x); } catch (er) { /* ok */ } });
       if (gj.hapur) hap(); // Ekipa ishte e hapur kur u hyr në llogari → lidhu tani
     }
     // Njoftimet personale + mesazhi i fundit i chat-it (për shenjat), vetëm kur ke qasje në ekipë
@@ -820,7 +868,7 @@
       }, 1, function () { /* ok */ });
     }
     function ndalGjithmone(vetemDegjuesit) {
-      ndal('njoftimet'); ndal('chatFundit'); ndal('anetaresia');
+      ndal('njoftimet'); ndal('chatFundit'); ndal('anetaresia'); ndal('fshirja');
       if (!vetemDegjuesit) {
         var e = E(); if (e) e.ndalPranine();
         mbyll();
@@ -1101,7 +1149,7 @@
       eshteAdmin: function () { return !!gj.admin; },
       kerkesat: kerkesat,
       numriKerkesave: function () { return gj.admin ? gj.nKerkesa : 0; },
-      pranoAnetaret: pranoAnetaret, hiqNgaEkipa: hiqNgaEkipa,
+      pranoAnetaret: pranoAnetaret, hiqNgaEkipa: hiqNgaEkipa, fshijLlogarine: fshijLlogarine,
       vendosLejen: vendosLejen, lajmeroEkipen: lajmeroEkipen,
       pastroChatin: function () { return pastro('ekipa_chat'); }, pastroAktivitetin: function () { return pastro('ekipa_feed'); },
       merrStokun: merrStokun, adminNdryshoAfatin: adminNdryshoAfatin

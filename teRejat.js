@@ -15,6 +15,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 116, data: '2026-09-30', titulli: 'Administratori: heqja dhe fshirja e anëtarëve', pikat: [
+      'Te Ekipa → Anëtarët administratori mund ta heqë kujtdo nga ekipa, ose ta fshijë llogarinë komplet (stoku, afatet dhe profili).',
+      'Llogaria e fshirë del vetë nga Stoku dhe s\'mund të hyjë më; emri lirohet për një llogari të re.',
+      'Edhe kërkesat për t\'u bashkuar kanë butonin "Fshij", për llogaritë e panjohura.'
+    ] },
     { v: 115, data: '2026-09-30', titulli: 'Hyrja më e qëndrueshme', pikat: [
       'Me internet të dobët, "Hyr" pret derisa të lidhet me serverin, në vend që të thotë menjëherë "s\'ka internet".',
       'Në telefona ose PDA me shfletues shumë të vjetër, ekrani i hyrjes tregon saktë se duhet përditësuar Chrome / Android System WebView.',

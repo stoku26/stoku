@@ -720,6 +720,8 @@
   .ek-hero-nr .skaduar b { color: var(--af-kuqe-tx); } .ek-hero-nr .afer b { color: var(--af-verdhe-tx); } .ek-hero-nr .ok b { color: var(--af-gjelber-tx); }
   .ek-hero-shirit { display: flex; gap: 3px; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 12px; background: var(--hover); }
   .ek-hero-shirit i { display: block; height: 100%; }
+  .ek-menaxho .af-pill { flex: none; margin-left: 6px; }
+  .af-pill.ek-pill-rrezik { color: var(--rrezik); border-color: color-mix(in srgb, var(--rrezik) 40%, transparent); }
   .ek-pult-kerkesat { position: relative; display: flex; align-items: center; gap: 12px; margin: 14px 0 0; padding: 12px 14px; border-radius: 16px;
     background: color-mix(in srgb, var(--primar) 10%, var(--sfond)); border: 1.5px solid color-mix(in srgb, var(--primar) 35%, transparent); }
   .ek-pult-kerkesat .tk { flex: 1; min-width: 0; font-size: 13.5px; line-height: 1.35; }
@@ -1079,7 +1081,7 @@
 </style>
 </head>
 <body>
-<script src="porta.js?v=115"></script>
+<script src="porta.js?v=116"></script>
 
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" style="display:none">←</button>
@@ -1635,9 +1637,9 @@
 <script src="bashkimi.js?v=113"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=90"></script>
-<script src="ekipa.js?v=4"></script>
+<script src="ekipa.js?v=5"></script>
 <script src="njoftimet.js?v=85"></script>
-<script src="teRejat.js?v=115"></script>
+<script src="teRejat.js?v=116"></script>
 <script>
 (function () {
   'use strict';
@@ -5007,8 +5009,20 @@
   var ekFiltri = null;             // null (në raft) | skaduar | afer | ok | hequr
   var ekKal = null;                // { viti, muaji, dita } — kalendari
   var EKIPI_LIMITI = 300;
+  // Administratori e fshiu këtë llogari: hiqen krejt të dhënat lokale, fshihet llogaria e Firebase-it (emri lirohet)
+  // dhe faqja rinis te hyrja me mesazh. Rregullat ia kanë mbyllur tashmë çdo qasje në cloud.
+  var __llogariaUFshi = false;
+  function llogariaUFshiNgaAdmini() {
+    if (__llogariaUFshi) return;
+    __llogariaUFshi = true;
+    try { Object.keys(localStorage).filter(function (k) { return k.indexOf('stoku:') === 0; }).forEach(function (k) { localStorage.removeItem(k); }); } catch (e) { /* ok */ }
+    try { localStorage.setItem('stoku:porta:mesazh', 'Kjo llogari u fshi nga administratori.'); } catch (e) { /* ok */ }
+    var c = window.__stokuCloud;
+    Promise.resolve(c && c.fshiVeten ? c.fshiVeten() : null).catch(function () { /* ok */ }).then(function () { location.reload(); });
+  }
   var ekK = EKL ? EKL.krijoKontrollues({
     cloud: function () { return window.__stokuCloud; },
+    llogariaUFshi: llogariaUFshiNgaAdmini,
     uidIm: function () { var u = perdoruesiAktual(); return u ? u.uid : null; },
     emriIm: emriPerdoruesitAktual,
     afatetEMia: function () { return afatet; },
@@ -5200,6 +5214,12 @@
         hq.type = 'button'; hq.style.cssText = 'width:100%;margin-top:14px';
         hq.addEventListener('click', function () { ekHiqNgaEkipa(zgj); });
         c.appendChild(hq);
+        if (!zgj.admin) {
+          var hf = ekEl('button', 'btn tekst rrezik', 'Fshij llogarinë e ' + zgj.emri + ' komplet');
+          hf.type = 'button'; hf.style.cssText = 'width:100%;margin-top:4px';
+          hf.addEventListener('click', function () { ekFshijLlogarine(zgj); });
+          c.appendChild(hf);
+        }
       }
     }
     var n = ekNumero(zgj.afatet);
@@ -5592,6 +5612,9 @@
         b.appendChild(document.createTextNode('Prano'));
         b.addEventListener('click', function () { ekPrano([a], b); });
         r.appendChild(b);
+        var bf = ekEl('button', 'af-pill ek-pill-rrezik', 'Fshij'); bf.type = 'button'; bf.title = 'Fshij llogarinë e ' + a.emri + ' komplet';
+        bf.addEventListener('click', function () { ekFshijLlogarine(a); });
+        r.appendChild(bf);
         c.appendChild(r);
       });
       if (kr.length > 1) {
@@ -5664,6 +5687,24 @@
       });
       l.appendChild(cb);
       c.appendChild(l);
+    });
+    var hm = ekEl('div', 'af-grup-krye'); hm.appendChild(ekEl('span', null, 'Hiq nga ekipa ose fshij llogarinë')); c.appendChild(hm);
+    if (!tjeret.length) c.appendChild(ekInfo('S\'ka anëtarë të tjerë.'));
+    tjeret.forEach(function (a) {
+      var r = ekEl('div', 'artikull ek-menaxho'); r.style.cursor = 'default';
+      r.appendChild(ekAvatar(a, false));
+      var m = ekEl('div', 'majtas');
+      m.appendChild(ekEl('div', 'emri', a.emri));
+      m.appendChild(ekEl('div', 'kodi', a.admin ? 'Administrator' : EKL.tekstiPranise(a)));
+      r.appendChild(m);
+      if (!a.admin) {
+        var bh = ekEl('button', 'af-pill', 'Hiq'); bh.type = 'button'; bh.title = 'Hiq ' + a.emri + ' nga ekipa';
+        bh.addEventListener('click', function () { ekHiqNgaEkipa(a, true); });
+        var bf = ekEl('button', 'af-pill ek-pill-rrezik', 'Fshij'); bf.type = 'button'; bf.title = 'Fshij llogarinë e ' + a.emri + ' komplet';
+        bf.addEventListener('click', function () { ekFshijLlogarine(a); });
+        r.appendChild(bh); r.appendChild(bf);
+      }
+      c.appendChild(r);
     });
     var hp = ekEl('div', 'af-grup-krye'); hp.appendChild(ekEl('span', null, 'Pastrimi')); c.appendChild(hp);
     [['Pastro krejt chat-in', 'Të fshihet krejt chat-i?', 'Krejt mesazhet e chat-it fshihen për krejt ekipën. S\'kthehen më.', function () { return ekK.pastroChatin(); }],
@@ -5768,13 +5809,23 @@
     if (!r.ok) { if (btn) btn.disabled = false; toast('S\'u pranua. Kontrollo internetin dhe provo përsëri.', 4000); return; }
     toast(lista.length === 1 ? lista[0].emri + ' u pranua në ekipë.' : lista.length + ' llogari u pranuan në ekipë.');
   }
-  async function ekHiqNgaEkipa(a) {
+  async function ekHiqNgaEkipa(a, qendro) {
     var po = await konfirmo('Të hiqet nga ekipa?', a.emri + ' s\'do ta shohë më Ekipën (afatet e kolegëve, aktivitetin, chat-in) derisa ta pranosh sërish. Stoku dhe afatet e tij s\'preken.', 'Hiqe');
     if (!po) return;
     var r = await ekK.hiqNgaEkipa(a);
     if (!r.ok) { toast('S\'u hoq. Kontrollo internetin dhe provo përsëri.', 4000); return; }
-    ekipiKthehuTeKartat();
+    if (!qendro) ekipiKthehuTeKartat();
     toast(a.emri + ' u hoq nga ekipa.');
+  }
+  // Administratori: fshirja e plotë e një llogarie (stoku, afatet, profili; llogaria e hyrjes fshihet kur ai e hap Stoku-n)
+  async function ekFshijLlogarine(a) {
+    var po = await konfirmo('Të fshihet llogaria e ' + a.emri + '?',
+      'Fshihen komplet stoku, afatet, fletët dhe profili i ' + a.emri + '. Nuk mund të hyjë më me këtë llogari (emri lirohet dhe mund të krijohet sërish si llogari e re, bosh). Kjo S\'KTHEHET MË.', 'Fshije komplet', 3);
+    if (!po) return;
+    var r = await ekK.fshijLlogarine(a);
+    if (!r.ok) { toast(r.leje ? 'S\'u fshi: rregullat e Firebase-it s\'e lejojnë ende (duhen rregullat v116).' : 'S\'u fshi. Kontrollo internetin dhe provo përsëri.', 5000); return; }
+    if (__ekipiAnetari === a.uid) ekipiKthehuTeKartat(); else vizatoEkipen();
+    toast('Llogaria e ' + a.emri + ' u fshi' + (r.mbetur ? ' (disa të dhëna s\'u fshinë — provo përsëri më vonë).' : '.'), 4000);
   }
 
   // ---- Statistikat ----
@@ -6688,7 +6739,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
   import {
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
-    updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential
+    updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser
   } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
   import { initializeFirestore, doc, getDoc, getDocs, setDoc, runTransaction, collection, addDoc, onSnapshot, deleteDoc, query, where, orderBy, limit, writeBatch } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
@@ -6779,6 +6830,12 @@
       async dil() {
         if (ekipa) ekipa.ndalPranine(); // "offline" para daljes, sa ende lejohet shkrimi
         try { await signOut(auth); } catch (e) { /* ok */ }
+      },
+      // Llogaria u fshi nga administratori: fshihet edhe llogaria e Firebase-it (emri lirohet). Nëse Firebase kërkon
+      // hyrje të freskët, vetëm dilet — herën tjetër që hyn, fshirja provohet sërish.
+      async fshiVeten() {
+        if (!auth.currentUser) return;
+        try { await deleteUser(auth.currentUser); } catch (e) { try { await signOut(auth); } catch (e2) { /* ok */ } }
       },
       async ndryshoEmrin(emriRiPerdoruesit) {
         if (!auth.currentUser) return { ok: false, arsye: 'pa-hyrje' };
