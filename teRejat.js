@@ -15,6 +15,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 119, data: '2026-09-30', titulli: '"Çka ka të re" s\'humbet më', pikat: [
+      'Kjo dritare s\'zhduket më kur aplikacioni rifreskohet vetë për përditësim: del pasi të përfundojë përditësimi.',
+      'Shënohet si e lexuar vetëm kur e mbyll ti. Nëse e humb, del sërish herën tjetër.'
+    ] },
     { v: 118, data: '2026-09-30', titulli: 'Kompjuter me ekran më të vogël', pikat: [
       'Në laptopë dhe ekrane më të vogla (1024 deri 1366), emri i produktit s\'zhduket më nga tabelat e stokut, afateve dhe ekipës.',
       'Te Ekipa, butonat e administratorit dhe emrat e anëtarëve s\'dalin më jashtë tabelës.',

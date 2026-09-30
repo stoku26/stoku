@@ -46,6 +46,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+000. **"Çka ka të re" (v119)**: shfaqet me `tregoTeRejatKurGati()`: jo kur faqja është në sfond, jo kur një service
+   worker po instalohet (pret rifreskimin); shënohet si e parë (`stoku:te-rejat:pare`) VETËM kur dritarja mbyllet
+   (MutationObserver te `#dlgTeRejat`), jo kur shfaqet. Më parë rifreskimi i përditësimit e zhdukte dhe s'dilte më.
+   Testi me service worker real: `swtest/sw-test2.js` (scratchpad, server në portin 8766).
 00. **Tabelat e PC-së me `table-layout: fixed`**: kolona e emrit s'ka gjerësi, merr çka mbetet. Nëse kolonat fikse
    i kalojnë gjerësisë së tabelës, emri ZHDUKET pa asnjë gabim (ndodhi te 1024–1280px, v118). Kur shton kolonë
    fikse, kontrollo me `skano-gjeresi.js` (scratchpad, `GJ=1024,1280,1366`) dhe shto rregull te blloqet

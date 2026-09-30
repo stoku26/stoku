@@ -1712,7 +1712,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=117"></script>
 <script src="ekipa.js?v=5"></script>
-<script src="teRejat.js?v=118"></script>
+<script src="teRejat.js?v=119"></script>
 <script>
 (function () {
   'use strict';
@@ -6031,11 +6031,33 @@
     $('trNen').textContent = hyrjet.length === 1 ? 'Versioni ' + hyrjet[0].v : hyrjet.length + ' versione të reja';
     hapDialog('dlgTeRejat');
     setTimeout(function () { $('trMbyll').focus(); }, 30);
-    shenoTeRejatSiTePara();
     return true;
   }
-  window.addEventListener('stoku-porta-hapur', function () { setTimeout(tregoTeRejat, 700); });
-  setTimeout(function () { if (!(window.StokuPorta && window.StokuPorta.eHapur())) tregoTeRejat(); }, 2500);
+
+  // Shfaqet vetëm kur faqja shihet dhe s'ka përditësim në instalim (përndryshe rifreskimi e zhdukte menjëherë);
+  // shënohet "e parë" vetëm kur mbyllet, jo kur shfaqet, që një rifreskim i papritur të mos e humbasë.
+  var __teRejatShfaqur = false;
+  function perditesimNeRruge(cb) {
+    if (!('serviceWorker' in navigator)) { cb(false); return; }
+    navigator.serviceWorker.getRegistration().then(function (r) { cb(!!(r && (r.installing || r.waiting))); }, function () { cb(false); });
+  }
+  function tregoTeRejatKurGati(prova) {
+    prova = prova || 0;
+    if (document.hidden) {
+      var kurShihet = function () { if (document.hidden) return; document.removeEventListener('visibilitychange', kurShihet); setTimeout(tregoTeRejatKurGati, 1200); };
+      document.addEventListener('visibilitychange', kurShihet);
+      return;
+    }
+    perditesimNeRruge(function (po) {
+      if (po && prova < 20) { setTimeout(function () { tregoTeRejatKurGati(prova + 1); }, 1500); return; } // rifreskimi vjen së shpejti
+      if (tregoTeRejat()) __teRejatShfaqur = true;
+    });
+  }
+  new MutationObserver(function () {
+    if (__teRejatShfaqur && !$('dlgTeRejat').classList.contains('hapur')) { __teRejatShfaqur = false; shenoTeRejatSiTePara(); }
+  }).observe($('dlgTeRejat'), { attributes: true, attributeFilter: ['class'] });
+  window.addEventListener('stoku-porta-hapur', function () { setTimeout(tregoTeRejatKurGati, 700); });
+  setTimeout(function () { if (!(window.StokuPorta && window.StokuPorta.eHapur())) tregoTeRejatKurGati(); }, 2500);
 
   // ================= Service worker + përditësimi automatik =================
   // Sa herë hapet Stoku (dhe sa herë kthehesh në skedë), kontrollohet në sfond a ka version të ri (sw.js).
