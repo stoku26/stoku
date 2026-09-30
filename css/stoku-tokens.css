@@ -1,0 +1,118 @@
+/* Stoku: fontet dhe ngjyrat e dizajnit (Claude Design, "Stoku Premium"), për telefonin (index.html) dhe kompjuterin (pc.html).
+   Tema: vendoset nga vetë aplikacioni te <html data-tema="light|dark"> (cilësimi Pamja/Tema: Automatike, E çelët, E errët).
+   Ngjyrat në hex (jo oklch), për shfletuesit e vjetër të PDA-ve. */
+
+@font-face { font-family: 'Onest'; src: url('../fonts/onest.woff2') format('woff2'); font-weight: 400 800; font-style: normal; font-display: swap; }
+@font-face { font-family: 'JetBrains Mono'; src: url('../fonts/jetbrains-mono.woff2') format('woff2'); font-weight: 400 500; font-style: normal; font-display: swap; }
+
+:root {
+  --sb-bg: #f6f5f2;
+  --sb-surface: #ffffff;
+  --sb-surface-2: #f1efeb;
+  --sb-sunken: #ebe9e4;
+  --sb-head: #faf9f7;
+  --sb-sidebar: #efede9;
+  --sb-sidebar-line: #e3e1db;
+  --sb-line: #e6e4df;
+  --sb-line-2: #efede9;
+  --sb-ink: #14161b;
+  --sb-ink-2: #3a3d44;
+  --sb-ink-nav: #4a4d55;
+  --sb-ink-3: #5b5e66;
+  --sb-ink-4: #6b6e76;
+  --sb-muted: #7a7d85;
+  --sb-faint: #8a8d94;
+  --sb-faint-2: #9a9da4;
+  --sb-disabled: #b3b5ba;
+  --sb-control: #c9c7c1;
+  --sb-track: #d9d7d2;
+  --sb-accent: #1f5fc4;
+  --sb-accent-press: #16479a;
+  --sb-accent-text: #1f5fc4;
+  --sb-accent-tint: #eef3fc;
+  --sb-accent-line: #d6e2f5;
+  --sb-inv-bg: #14161b;
+  --sb-inv-fg: #ffffff;
+  --sb-hero: #14161b;
+  --sb-hero-2: #1c1f25;
+  --sb-hero-muted: #a3a6ae;
+  --sb-seg-on: #ffffff;
+  --sb-tabbar: rgba(255,255,255,.92);
+  --sb-overlay: rgba(20,22,27,.5);
+  --sb-exp: #c23a33;
+  --sb-exp-tint: #fdecea;
+  --sb-exp-ink: #8f2c27;
+  --sb-near: #a45f10;
+  --sb-near-tint: #fcefd9;
+  --sb-near-ink: #7a4e14;
+  --sb-ok: #2e7d4f;
+  --sb-ok-tint: #e6f5ea;
+  --sb-ok-ink: #2a5e3f;
+  --sb-ok-dot: #3fae6c;
+  --sb-ok-ring: #c5e6cf;
+  --sb-rem: #6b6e76;
+  --sb-rem-tint: #f1efeb;
+  --sb-badge: #d13c32;
+  --sb-r-sm: 10px; --sb-r-md: 14px; --sb-r-lg: 18px; --sb-r-xl: 22px; --sb-r-sheet: 32px;
+  --sb-font: 'Onest', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --sb-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --sb-ring: 0 0 0 1px var(--sb-line);
+  --sb-shadow-accent: 0 14px 30px -12px rgba(31,95,196,.8);
+}
+:root[data-tema="dark"] {
+  --sb-bg: #0f1115;
+  --sb-surface: #171a20;
+  --sb-surface-2: #1f232a;
+  --sb-sunken: #1b1e25;
+  --sb-head: #1b1e24;
+  --sb-sidebar: #0b0d10;
+  --sb-sidebar-line: #22262d;
+  --sb-line: #2a2e36;
+  --sb-line-2: #22262d;
+  --sb-ink: #eceef2;
+  --sb-ink-2: #c9ccd3;
+  --sb-ink-nav: #b4b8c0;
+  --sb-ink-3: #a9adb5;
+  --sb-ink-4: #9ca1aa;
+  --sb-muted: #8f949e;
+  --sb-faint: #858a94;
+  --sb-faint-2: #6f747e;
+  --sb-disabled: #4a4f58;
+  --sb-control: #4a4f59;
+  --sb-track: #3a3f48;
+  --sb-accent: #2f6fd8;
+  --sb-accent-press: #255bb8;
+  --sb-accent-text: #7aaaf2;
+  --sb-accent-tint: #16223a;
+  --sb-accent-line: #24406a;
+  --sb-inv-bg: #eceef2;
+  --sb-inv-fg: #14161b;
+  --sb-hero: #1e232c;
+  --sb-hero-2: #272d37;
+  --sb-hero-muted: #a3a6ae;
+  --sb-seg-on: #2b3039;
+  --sb-tabbar: rgba(23,26,32,.92);
+  --sb-overlay: rgba(0,0,0,.6);
+  --sb-exp: #f07a6f;
+  --sb-exp-tint: #35191a;
+  --sb-exp-ink: #f2a39b;
+  --sb-near: #f0b95a;
+  --sb-near-tint: #33260f;
+  --sb-near-ink: #eec989;
+  --sb-ok: #5cc98b;
+  --sb-ok-tint: #13301f;
+  --sb-ok-ink: #9ad9b1;
+  --sb-ok-dot: #4fbf7f;
+  --sb-ok-ring: #1d4a2e;
+  --sb-rem: #9ca1aa;
+  --sb-rem-tint: #1f232a;
+  --sb-badge: #d13c32;
+  --sb-shadow-accent: 0 14px 30px -12px rgba(0,0,0,.7);
+}
+
+/* "Ngjyra kryesore" (cilësim): blu = ngjyra e dizajnit; ngjyrat e tjera vijnë nga aplikacioni (--primar, --btn-tekst) */
+:root[data-aksent="jeshile"], :root[data-aksent="vjollce"], :root[data-aksent="portokalli"], :root[data-aksent="kuqe"] {
+  --sb-accent: var(--primar); --sb-accent-press: var(--primar); --sb-accent-text: var(--btn-tekst);
+  --sb-accent-tint: color-mix(in srgb, var(--primar) 10%, var(--sb-surface));
+  --sb-accent-line: color-mix(in srgb, var(--primar) 28%, var(--sb-surface));
+}

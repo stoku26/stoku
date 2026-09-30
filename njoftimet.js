@@ -78,7 +78,7 @@
 
   function opsionet(teksti, tag) {
     return {
-      body: teksti, tag: tag, icon: 'icon-192.png', lang: 'sq',
+      body: teksti, tag: tag, icon: 'icon-192.png?v=2', lang: 'sq',
       data: { url: URL_AFATET }, renotify: false
     };
   }

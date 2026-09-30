@@ -1,17 +1,18 @@
 <!DOCTYPE html>
-<html lang="sq">
+<html lang="sq" class="sb">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <title>Stoku</title>
-<link rel="manifest" href="manifest.webmanifest?v=84">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest?v=85">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
+<link rel="icon" href="logo/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="logo/favicon-32.png" sizes="32x32">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Stoku">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#1565C0" id="metaTema">
+<meta name="theme-color" content="#f6f5f2" id="metaTema">
 <script>
   // Në kompjuter (Windows, Mac, Chromebook, ose Linux me maus/touchpad) hapet gjithmonë versioni për kompjuter (pc.html).
   // Telefonat, tabletët dhe PDA-të (Zebra) nuk ridrejtohen kurrë.
@@ -884,8 +885,6 @@
   .af-numer.afer { background: var(--af-verdhe-bg); color: var(--af-verdhe-tx); }
   .af-numer.ok { background: var(--af-gjelber-bg); color: var(--af-gjelber-tx); }
   .af-numer.aktiv { border-color: currentColor; }
-  .af-veprime-krye { display: flex; gap: 8px; margin-bottom: 10px; }
-  .af-veprime-krye .btn { min-height: 44px; font-size: 14px; }
   .af-filtrat { display: flex; gap: 6px; overflow-x: auto; margin: 0 -16px 10px; padding: 0 16px 2px; scrollbar-width: none; }
   .af-filtrat::-webkit-scrollbar { display: none; }
   .af-filtrat button {
@@ -921,7 +920,6 @@
     padding: 3px 4px; border-radius: 23px; background: var(--primar); color: #fff;
   }
   #dlgAfatet.zgjedhje .af-shiriti-zgjedhjes { display: flex; }
-  #dlgAfatet.zgjedhje .af-veprime-krye { display: none; }
   .af-shiriti-zgjedhjes span { flex: 1; min-width: 0; padding: 0 4px; font-size: 15px; font-weight: 700; }
   .af-shiriti-zgjedhjes button {
     flex: none; width: 40px; height: 40px; border: 0; border-radius: 50%; background: transparent; color: #fff;
@@ -971,9 +969,6 @@
   .nj-pike { flex: none; width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; }
   .nj-pike.verdhe { background: #f5b400; }
   .nj-pike.kuqe { background: #e5483e; }
-  .af-excel-rresht .btn { flex: 1; min-height: 40px; font-size: 13.5px; gap: 6px; }
-  #dlgAfatet.zgjedhje .af-excel-rresht { display: none; }
-  @media (max-width: 359px) { .af-excel-rresht svg { display: none; } .af-excel-rresht .btn { font-size: 13px; padding: 0 8px; } }
   .af-muajt button .n { margin-left: 5px; font-weight: 600; opacity: .7; }
   #dlgAfImport { z-index: 24; }
   #dlgAfImport .dialog { max-width: 520px; }
@@ -1036,10 +1031,6 @@
   .af-emri { font-size: 15.5px; font-weight: 600; overflow-wrap: anywhere; }
   .af-nen { font-size: 12px; color: var(--gri); margin-top: 2px; overflow-wrap: anywhere; }
   .af-mesazh { font-size: 13px; font-weight: 700; color: var(--ngj-tx); margin-top: 6px; line-height: 1.35; }
-  .af-djathtas { flex: none; text-align: right; }
-  .af-data { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ngj-tx); }
-  .af-dite { font-size: 12px; color: var(--ngj-tx); font-weight: 600; margin-top: 2px; }
-  .af-sasia { display: inline-block; margin-top: 6px; font-size: 13px; font-weight: 700; padding: 2px 9px; border-radius: 10px; background: var(--fushe-bg); border: 1px solid var(--vije); color: var(--tekst); white-space: nowrap; }
   .lx-rresht input[type="number"] { height: 44px; font-size: 15px; }
   .af-pill {
     display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; border: 1.5px solid var(--ngj); color: var(--ngj-tx); background: transparent;
@@ -1098,17 +1089,21 @@
   .lx-rresht .lx-numri { font-size: 12px; font-weight: 700; color: var(--gri); margin: 0 0 6px 2px; }
   .lidhje-pc { display: none; padding: 8px 0; text-decoration: none; font-weight: 600; }
   @media (min-width: 900px) and (hover: hover) { .lidhje-pc { display: inline-block; } }
-  /* Pamja e re (stoku.site/beta/): vetëm për administratorin, derisa të testohet */
-  .lidhje-beta:not([hidden]) { display: block; padding: 8px 0; text-decoration: none; font-weight: 600; }
 </style>
+<link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/stoku-tokens.css?v=1">
+<link rel="stylesheet" href="css/stoku.css?v=1">
 </head>
 <body>
-<script src="porta.js?v=117"></script>
+<script src="porta.js?v=118"></script>
 
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" style="display:none">←</button>
   <h1 id="titulli" class="logo">STOKU</h1>
-  <img id="logoSlika" src="logo.png" alt="Stoku">
+  <div class="sb-brand" id="logoSlika">
+    <img class="sb-logo" src="logo/stoku-icon.svg" alt="" width="36" height="36">
+    <div class="sb-brand__tekst"><span class="sb-store" id="sbDyqani">Vetëm në këtë telefon</span><span class="sb-title">Stoku</span></div>
+  </div>
   <div class="krye-butona" id="kryeButonatImport">
     <button id="btnImportGaleria" class="btn-ikone" type="button" aria-label="Importo stokun nga galeria" title="Importo nga galeria"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"></path></svg></button>
     <button id="btnImportStok" class="btn-ikone" type="button" aria-label="Importo stokun nga një fletë (foto)" title="Importo stokun nga fletë (foto)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg></button>
@@ -1287,7 +1282,6 @@
             </div>
             <div class="hint" id="sfondiHint"></div>
             <a class="btn tekst lidhje-pc" id="lidhjaPc" href="pc.html">Hap versionin për kompjuter ›</a>
-            <a class="btn tekst lidhje-beta" id="lidhjaBeta" href="beta/" hidden>Provo pamjen e re (Beta) ›</a>
           </div>
         </div>
 
@@ -1403,19 +1397,24 @@
   <div class="faqe-kuti" role="dialog" aria-modal="true" aria-labelledby="afTitulli">
     <div class="opsione-krye">
       <button id="afPrapa" class="btn-ikone" type="button" aria-label="Mbrapa">←</button>
-      <h2 id="afTitulli">Afatet e produkteve</h2>
+      <h2 id="afTitulli">Afatet</h2>
+      <span class="sb-muaji" id="afMuaji"></span>
       <button class="af-sink" id="afSinkStatus" type="button" hidden></button>
     </div>
     <div class="faqe-trup" id="afTrup">
-      <div class="af-permb" id="afPermb"></div>
-      <div class="af-veprime-krye">
-        <button class="btn me-ikone" id="afFotografo" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>Fotografo fletën</button>
-        <button class="btn dyte me-ikone" id="afGaleria" type="button" style="flex:none;padding:0 14px" aria-label="Zgjidh foto nga galeria" title="Nga galeria"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"></path></svg></button>
-        <button class="btn dyte me-ikone" id="afShto" type="button" style="flex:none;padding:0 16px 0 13px;gap:6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Shto</button>
-      </div>
-      <div class="af-veprime-krye af-excel-rresht">
-        <button class="btn dyte me-ikone" id="afImporto" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m17 8-5-5-5 5"></path><path d="M12 3v12"></path></svg>Importo Excel</button>
-        <button class="btn dyte me-ikone" id="afEksporto" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M8 13h2M14 13h2M8 17h2M14 17h2"></path></svg>Eksporto Excel</button>
+      <div class="sb-actions" id="afVeprime">
+        <div class="sb-action-primary-kuti">
+          <button class="sb-action-primary" id="afFotografo" type="button"><span class="sb-action-primary__ik"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg></span><span><span class="sb-action-primary__title">Fotografo fletën</span><span class="sb-action-primary__sub">Afatet lexohen nga foto automatikisht</span></span></button>
+          <button class="sb-action-galeria" id="afGaleria" type="button" aria-label="Zgjidh foto nga galeria" title="Nga galeria"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"></path></svg></button>
+        </div>
+        <button class="sb-action" id="afShto" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg><span>Shto</span></button>
+        <div class="sb-excel">
+          <button class="sb-action" id="afExcel" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="afExcelMenu"><span class="sb-xls">XLS</span><span>Excel</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+          <div class="sb-menu" id="afExcelMenu" hidden>
+            <button class="sb-menu__item" id="afImporto" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m17 8-5-5-5 5"></path><path d="M12 3v12"></path></svg>Importo Excel</button>
+            <button class="sb-menu__item" id="afEksporto" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M8 13h2M14 13h2M8 17h2M14 17h2"></path></svg>Eksporto Excel</button>
+          </div>
+        </div>
       </div>
       <div class="af-shiriti-zgjedhjes" id="afZgjShirit">
         <button type="button" id="afZgjAnulo" aria-label="Anulo zgjedhjen" title="Anulo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
@@ -1429,11 +1428,11 @@
         <input id="afKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko emër, barkod ose furnizues" aria-label="Kërko afatet">
       </div>
       <div class="af-filtrat" id="afFiltrat">
-        <button type="button" data-f="aktive" class="aktiv">Të gjitha</button>
-        <button type="button" data-f="skaduar">Të skaduara</button>
-        <button type="button" data-f="afer">Afër skadimit</button>
-        <button type="button" data-f="ok">Në rregull</button>
-        <button type="button" data-f="hequr">Të hequra</button>
+        <button type="button" data-f="aktive" class="aktiv">Të gjitha<span class="sb-chip__count"></span></button>
+        <button type="button" data-f="skaduar">Të skaduara<span class="sb-chip__count"></span></button>
+        <button type="button" data-f="afer">Afër skadimit<span class="sb-chip__count"></span></button>
+        <button type="button" data-f="ok">Në rregull<span class="sb-chip__count"></span></button>
+        <button type="button" data-f="hequr">Të hequra<span class="sb-chip__count"></span></button>
       </div>
       <div class="af-filtrat af-muajt" id="afMuajt" role="group" aria-label="Filtro sipas muajit të skadimit" hidden></div>
       <div id="afLista"></div>
@@ -1635,25 +1634,39 @@
 
 <!-- Afati: shto / ndrysho -->
 <div class="mbulese" id="dlgAfat">
-  <div class="dialog" role="dialog" aria-modal="true">
-    <h2 id="afatTitulli">Afat i ri</h2>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="afatTitulli">
+    <div class="sb-sheet-krye">
+      <h2 id="afatTitulli">Afat i ri</h2>
+      <button class="btn tekst" id="afatAnulo" type="button">Anulo</button>
+    </div>
     <div class="af-info-dlg" id="afatInfo" style="display:none"></div>
-    <div class="fushe af-barkodi-rresht">
-      <input id="afatBarkodi" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Barkodi" aria-label="Barkodi" enterkeyhint="next">
-      <button class="af-skano" id="afatSkano" type="button" aria-label="Skano barkodin me kamerë" title="Skano me kamerë"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><path d="M8 7v10M12 7v10M16 7v10"></path></svg></button>
+    <div class="sb-scan">
+      <div class="sb-scan__status" id="afatPdaHint" style="display:none">Skano barkodin me skanerin e PDA-së.</div>
+      <div class="af-barkodi-rresht">
+        <input id="afatBarkodi" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Barkodi" aria-label="Barkodi" enterkeyhint="next">
+        <button class="af-skano" id="afatSkano" type="button" aria-label="Skano barkodin me kamerë" title="Skano me kamerë"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><path d="M8 7v10M12 7v10M16 7v10"></path></svg></button>
+      </div>
+      <input id="afatEmri" type="text" autocomplete="off" autocorrect="off" placeholder="Emri i produktit" aria-label="Emri i produktit" enterkeyhint="next">
     </div>
-    <div class="af-pda-hint" id="afatPdaHint" style="display:none">Skano barkodin me skanerin e PDA-së.</div>
-    <div class="fushe"><input id="afatEmri" type="text" autocomplete="off" autocorrect="off" placeholder="Emri i produktit" aria-label="Emri i produktit" enterkeyhint="next"></div>
-    <div class="lx-dy">
-      <div class="fushe"><label for="afatData">Data e skadimit</label><input id="afatData" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="DD-MM-VV"></div>
-      <div class="fushe"><label for="afatSasia">Sasia</label><input id="afatSasia" type="text" inputmode="tel" autocomplete="off" placeholder="Copë"></div>
+    <div class="sb-afat-seksion">
+      <label class="sb-field-label" for="afatData">Data e skadimit</label>
+      <div class="sb-dates" id="afatDatat" role="group" aria-label="Data e shpejtë"></div>
+      <input id="afatData" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="DD-MM-VV" aria-describedby="afatDataHint">
+      <div class="sb-hint" id="afatDataHint"></div>
     </div>
-    <div class="fushe"><input id="afatFurnizuesi" type="text" list="afFurnizuesit" autocomplete="off" autocorrect="off" placeholder="Furnitori" aria-label="Furnitori" enterkeyhint="done"></div>
+    <div class="sb-stepper">
+      <label for="afatSasia"><span class="sb-field-label">Sasia</span><span class="sb-hint">copë</span></label>
+      <div class="sb-stepper__controls">
+        <button class="sb-stepper__btn" id="afatSasiaMinus" type="button" aria-label="Një copë më pak">−</button>
+        <input class="sb-stepper__value" id="afatSasia" type="text" inputmode="tel" autocomplete="off" placeholder="0">
+        <button class="sb-stepper__btn sb-stepper__btn--plus" id="afatSasiaPlus" type="button" aria-label="Një copë më shumë">+</button>
+      </div>
+    </div>
+    <input id="afatFurnizuesi" type="text" list="afFurnizuesit" autocomplete="off" autocorrect="off" placeholder="Furnitori" aria-label="Furnitori" enterkeyhint="done">
     <div class="af-status-veprime" id="afatStatusVeprime"></div>
     <div class="veprime">
       <button class="btn tekst rrezik" id="afatFshij" type="button">Fshij</button>
-      <button class="btn tekst" id="afatAnulo" type="button">Anulo</button>
-      <button class="btn tekst" id="afatRuaj" type="button">Ruaj</button>
+      <button class="btn" id="afatRuaj" type="button">Ruaj afatin</button>
     </div>
   </div>
 </div>
@@ -1702,8 +1715,8 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=122"></script>
 <script src="ekipa.js?v=6"></script>
-<script src="njoftimet.js?v=117"></script>
-<script src="teRejat.js?v=123"></script>
+<script src="njoftimet.js?v=118"></script>
+<script src="teRejat.js?v=126"></script>
 <script>
 (function () {
   'use strict';
@@ -1743,7 +1756,7 @@
       eksportoExcel: 'Eksporto në Excel',
       eksportoPdf: 'Eksporto në PDF',
       kerkoLabel: 'Kërko',
-      kerkoGlobalLabel: 'Kërko',
+      kerkoGlobalLabel: 'Kërko produkt ose barkod',
       kerkoGlobalNukUGjet: 'Nuk u gjet asnjë produkt në asnjë folder.',
       fshijTeGjitha: 'Fshij të gjitha produktet',
       nukUGjetAsnjeProdukt: 'Nuk u gjet asnjë produkt.',
@@ -2316,6 +2329,85 @@
       frag.appendChild(karta);
     });
     cont.appendChild(frag);
+    vizatoKryefaqen(cont);
+  }
+
+  // Kryefaqja (dizajni i ri): karta e errët me numrat, titulli "Folderat", katrori me ngjyrë te çdo folder
+  // dhe "Ndryshuar së fundi". Brenda #folderaLista (rrjeta), që zvarritja e folderave të punojë si më parë.
+  var PRAGU_PAK = 5; // "Sasi e ulët" = 1–5 copë (si parazgjedhja te kompjuteri)
+  var NGJYRAT_FOLDERAVE = ['#d9e4f7', '#d5eedc', '#f6e3c4', '#f6d9d6', '#e6dcf3', '#f3d8e0', '#dcebc9', '#f3dfcb'];
+  function numerMeHapesire(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+  function vizatoKryefaqen(cont) {
+    var te = Object.keys(produktet).map(function (k) { return produktet[k]; });
+    var sot = new Date(); sot.setHours(0, 0, 0, 0);
+    var pak = 0, zero = 0, sotN = 0;
+    te.forEach(function (p) {
+      var sas = Number(p.sasia) || 0;
+      if (sas <= 0) zero++; else if (sas <= PRAGU_PAK) pak++;
+      if ((p.prekurSe || 0) >= sot.getTime()) sotN++;
+    });
+    function el(tag, cls, tekst) { var e = document.createElement(tag); if (cls) e.className = cls; if (tekst !== undefined) e.textContent = tekst; return e; }
+
+    var krye = el('div', 'sb-home-krye');
+    var karta = el('div', 'sb-summary');
+    var lart = el('div', 'sb-summary__top');
+    var ma = el('div');
+    ma.appendChild(el('div', 'sb-summary__label', 'Produkte gjithsej'));
+    ma.appendChild(el('div', 'sb-summary__value', numerMeHapesire(te.length)));
+    lart.appendChild(ma);
+    if (sotN) lart.appendChild(el('span', 'sb-pill', sotN + ' ndryshuar sot'));
+    karta.appendChild(lart);
+    var st = el('div', 'sb-stats');
+    [[foldera.length, 'Folderat', ''], [pak, 'Sasi e ulët', ' sb-stat__value--near'], [zero, 'Sasi 0', ' sb-stat__value--exp']].forEach(function (x) {
+      var q = el('div', 'sb-stat');
+      q.appendChild(el('span', 'sb-stat__value' + x[2], numerMeHapesire(x[0])));
+      q.appendChild(el('span', 'sb-stat__label', x[1]));
+      st.appendChild(q);
+    });
+    karta.appendChild(st);
+    krye.appendChild(karta);
+    var koka = el('div', 'sb-section__head');
+    koka.appendChild(el('h2', 'sb-section__title', 'Folderat'));
+    var ri = el('button', 'sb-link', '+ Folder i ri'); ri.type = 'button';
+    ri.addEventListener('click', hapDialoguFolder);
+    koka.appendChild(ri);
+    krye.appendChild(koka);
+    if (!foldera.length) krye.appendChild(el('div', 'sb-empty', 'S\'ka ende foldera. Krijo të parin me "+ Folder i ri".'));
+    cont.insertBefore(krye, cont.firstChild);
+
+    Array.prototype.forEach.call(cont.querySelectorAll('.folder-karta'), function (k, i) {
+      var q = el('span', 'sb-folder__swatch');
+      q.style.background = NGJYRAT_FOLDERAVE[i % NGJYRAT_FOLDERAVE.length];
+      k.insertBefore(q, k.firstChild);
+    });
+
+    var tefundit = te.filter(function (p) { return p.prekurSe; })
+      .sort(function (a, b) { return (b.prekurSe || 0) - (a.prekurSe || 0); }).slice(0, 5);
+    if (tefundit.length) {
+      var seks = el('div', 'sb-home-fund');
+      var kk = el('div', 'sb-section__head');
+      kk.appendChild(el('h2', 'sb-section__title', 'Ndryshuar së fundi'));
+      seks.appendChild(kk);
+      var lista = el('div', 'sb-list');
+      tefundit.forEach(function (p) {
+        var r = el('button', 'sb-row'); r.type = 'button';
+        var m = el('span', 'sb-row__main');
+        var em = el('span', 'sb-row__name', p.emri || 'Pa emër');
+        if (!p.emri) em.classList.add('sb-row__name--bosh');
+        m.appendChild(em);
+        var fe = emriFolderit(p.kategoriaId);
+        m.appendChild(el('span', 'sb-row__code', p.barkodi + (fe ? '  ·  ' + fe : '')));
+        r.appendChild(m);
+        var sas = Number(p.sasia) || 0;
+        r.appendChild(el('span', 'sb-row__qty' + (sas <= 0 ? ' sb-row__qty--exp' : sas <= PRAGU_PAK ? ' sb-row__qty--near' : ''), numerMeHapesire(sas)));
+        r.addEventListener('click', function () { hapFolderin(p.kategoriaId); });
+        lista.appendChild(r);
+      });
+      seks.appendChild(lista);
+      cont.appendChild(seks);
+    }
+    var u = perdoruesiAktual();
+    $('sbDyqani').textContent = u ? (emriPerdoruesitAktual() || 'Llogaria ime') : 'Vetëm në këtë telefon';
   }
 
   // Kërkimi global: kërkon në krejt produktet e krejt folderave njëkohësisht (jo vetëm brenda
@@ -2418,7 +2510,7 @@
       fokusoBarkodin();
     } else {
       $('titulli').style.display = 'none';
-      $('logoSlika').style.display = 'block';
+      $('logoSlika').style.display = '';
       renderFolderat();
       renderKerkimiGlobal();
     }
@@ -2496,17 +2588,9 @@
   }
 
   // Tema: 'auto' (ndjek telefonin), 'light' ose 'dark'
-  var AKSENT_HEADER = {
-    blu: { light: '#1565C0', dark: '#0f3f7a' },
-    jeshile: { light: '#2E7D32', dark: '#1b5e20' },
-    vjollce: { light: '#6A1B9A', dark: '#4a148c' },
-    portokalli: { light: '#E65100', dark: '#bf360c' },
-    kuqe: { light: '#C62828', dark: '#8e0000' }
-  };
+  // Shiriti i shfletuesit/telefonit merr ngjyrën e sfondit (header-i është i çelët/i errët, jo me ngjyrë)
   function rifreskoMetaTemen() {
-    var t = temaEfektive();
-    var pale = AKSENT_HEADER[opsione.aksent] || AKSENT_HEADER.blu;
-    $('metaTema').setAttribute('content', t === 'dark' ? pale.dark : pale.light);
+    $('metaTema').setAttribute('content', temaEfektive() === 'dark' ? '#0f1115' : '#f6f5f2');
   }
   function zgjedhjaETemes() {
     var t = null;
@@ -2780,13 +2864,7 @@
   perkthoStatiket();
 
   // ---------- Tabet e Opsioneve ----------
-  // "Provo pamjen e re (Beta)": vetëm administratori (qasja e ekipës, ose emri i llogarisë kur ekipa s'është lidhur ende)
-  function rifreskoLidhjenBeta() {
-    var admin = (typeof ekK !== 'undefined' && ekK && ekK.eshteAdmin()) || emriPerdoruesitAktual().toLowerCase() === 'mendurberisha';
-    $('lidhjaBeta').hidden = !admin;
-  }
   function aktivizoTabin(emriFaqes) {
-    if (emriFaqes === 'pamja') rifreskoLidhjenBeta();
     var neMenu = !emriFaqes;
     $('kategoriMenu').style.display = neMenu ? '' : 'none';
     Array.prototype.forEach.call(document.querySelectorAll('.opsione-faqe'), function (f) {
@@ -2824,7 +2902,6 @@
   }
 
   function hapOpsionet() {
-    rifreskoLidhjenBeta();
     $('opsTingull').checked = opsione.tingull;
     $('opsScanner').checked = opsione.scanner;
     $('opsPda').checked = opsione.pda;
@@ -4772,23 +4849,18 @@
     });
   }
 
+  var MUAJT_PLOTE = ['Janar', 'Shkurt', 'Mars', 'Prill', 'Maj', 'Qershor', 'Korrik', 'Gusht', 'Shtator', 'Tetor', 'Nëntor', 'Dhjetor'];
   function renderAfatet() {
     var n = AF.numero(afatet);
-    var permb = $('afPermb');
-    permb.textContent = '';
-    [['skaduar', n.skaduar + n['pa-date'], 'Të skaduara'], ['afer', n.afer, 'Afër skadimit'], ['ok', n.ok, 'Në rregull']].forEach(function (x) {
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'af-numer ' + x[0] + (afFiltri === x[0] ? ' aktiv' : '');
-      b.innerHTML = '<b></b><span></span>';
-      b.firstChild.textContent = String(x[1]);
-      b.lastChild.textContent = x[2];
-      b.addEventListener('click', function () { afFiltri = afFiltri === x[0] ? 'aktive' : x[0]; renderAfatet(); });
-      permb.appendChild(b);
-    });
+    var numrat = { aktive: n.aktive, skaduar: n.skaduar + n['pa-date'], afer: n.afer, ok: n.ok, hequr: n.hequr };
     Array.prototype.forEach.call(document.querySelectorAll('#afFiltrat button'), function (b) {
-      b.classList.toggle('aktiv', b.getAttribute('data-f') === afFiltri);
+      var f = b.getAttribute('data-f');
+      b.classList.toggle('aktiv', f === afFiltri);
+      var c = b.querySelector('.sb-chip__count');
+      if (c) c.textContent = numrat[f] ? String(numrat[f]) : '';
     });
+    var dSot = new Date();
+    $('afMuaji').textContent = MUAJT_PLOTE[dSot.getMonth()] + ' ' + dSot.getFullYear();
 
     var k = $('afKerko').value.trim().toLowerCase();
     vizatoMuajtEAfateve();
@@ -4957,6 +5029,19 @@
   }
   $('axMuaji').addEventListener('change', axInfoKrejt);
   $('afEksporto').addEventListener('click', hapEksportinEAfateve);
+  // Butoni "Excel" te Afatet: menu me Importo / Eksporto
+  (function () {
+    var b = $('afExcel'), menu = $('afExcelMenu');
+    function mbyll() { menu.hidden = true; b.setAttribute('aria-expanded', 'false'); }
+    b.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      menu.hidden = !menu.hidden;
+      b.setAttribute('aria-expanded', menu.hidden ? 'false' : 'true');
+    });
+    $('afImporto').addEventListener('click', mbyll);
+    $('afEksporto').addEventListener('click', mbyll);
+    document.addEventListener('click', function (ev) { if (!menu.hidden && !menu.parentNode.contains(ev.target)) mbyll(); });
+  })();
   function mbyllExcelinEAfateve() { $('dlgAfExcel').classList.remove('hapur'); }
   async function eksportoTeZgjedhurat() {
     var kyçet = axTeZgjedhurat();
@@ -5117,6 +5202,26 @@
     rifreskoZgjedhjen();
   });
 
+  // Kutia e ditëve majtas te karta e afatit (dizajni): "3 ditë më parë", "Sot skadon", "12 ditë", "4 muaj", "✓ hequr"
+  function kutiaEDiteve(st, n) {
+    var k = document.createElement('div');
+    var madh, vogel, lloji;
+    if (st === 'hequr') { madh = '✓'; vogel = 'hequr'; lloji = 'rem'; }
+    else if (n === null || n === undefined) { madh = '–'; vogel = 'pa datë'; lloji = 'exp'; }
+    else if (n < 0) { madh = String(-n); vogel = 'ditë më parë'; lloji = 'exp'; }
+    else if (n === 0) { madh = 'Sot'; vogel = 'skadon'; lloji = 'exp'; }
+    else if (n >= 60) { madh = String(Math.round(n / 30)); vogel = 'muaj'; lloji = 'ok'; }
+    else { madh = String(n); vogel = 'ditë'; lloji = st === 'afer' ? 'near' : 'ok'; }
+    k.className = 'sb-days sb-days--' + lloji;
+    var b = document.createElement('span'); b.className = 'sb-days__big'; b.textContent = madh;
+    var v = document.createElement('span'); v.className = 'sb-days__small'; v.textContent = vogel;
+    k.appendChild(b); k.appendChild(v);
+    return k;
+  }
+  // "Furnizuesi · 12 copë · 04.10.2026" (+ emri i kolegut te Ekipa)
+  function rreshtiIAfatit(a, kolegu) {
+    return [a.furnizuesi, AF.sasiaTekst(a), a.data ? AF.formato(a.data) : '', kolegu || ''].filter(Boolean).join(' · ');
+  }
   function kartaEAfatit(a) {
     var st = AF.statusi(a);
     var n = AF.ditetDeri(a.data);
@@ -5125,13 +5230,15 @@
     k.setAttribute('data-id', a.id);
     var zg = document.createElement('span'); zg.className = 'af-zgjedh'; zg.innerHTML = IKONAT_AF.zgjedhur;
     k.appendChild(zg);
+    k.appendChild(kutiaEDiteve(st, n));
     var m = document.createElement('div'); m.className = 'af-majtas';
     var e = document.createElement('div'); e.className = 'af-emri'; e.textContent = a.emri || a.barkodi || '(pa emër)';
-    var nen = document.createElement('div'); nen.className = 'af-nen';
-    nen.textContent = [a.emri ? a.barkodi : '', a.furnizuesi].filter(Boolean).join(' · ');
-    var sas = AF.sasiaTekst(a);
+    m.appendChild(e);
+    var nen = rreshtiIAfatit(a);
+    if (nen) { var ne = document.createElement('div'); ne.className = 'af-nen'; ne.textContent = nen; m.appendChild(ne); }
+    if (a.emri && a.barkodi) { var kd = document.createElement('div'); kd.className = 'af-kodi'; kd.textContent = a.barkodi; m.appendChild(kd); }
     var ms = document.createElement('div'); ms.className = 'af-mesazh'; ms.textContent = AF.pershkrimi(a);
-    m.appendChild(e); if (nen.textContent) m.appendChild(nen); m.appendChild(ms);
+    m.appendChild(ms);
     // Veprimi i shpejtë sipas ngjyrës
     var pill = null;
     if (st === 'skaduar') pill = ['U hoq nga rafti', function () { shenoHequr(a); }, 'kontroll'];
@@ -5142,16 +5249,7 @@
       pb.addEventListener('click', function (ev) { ev.stopPropagation(); pill[1](); });
       m.appendChild(pb);
     }
-    var d = document.createElement('div'); d.className = 'af-djathtas';
-    var dt = document.createElement('div'); dt.className = 'af-data'; dt.textContent = a.data ? AF.formato(a.data) : '–';
-    d.appendChild(dt);
-    if (sas) { var sq = document.createElement('div'); sq.className = 'af-sasia'; sq.textContent = sas; d.appendChild(sq); }
-    if (n !== null && st !== 'hequr') {
-      var dd = document.createElement('div'); dd.className = 'af-dite';
-      dd.textContent = n < 0 ? 'para ' + AF.ditetTekst(-n) : n === 0 ? 'sot' : n + ' ditë';
-      d.appendChild(dd);
-    }
-    k.appendChild(m); k.appendChild(d);
+    k.appendChild(m);
     // Shtypje e gjatë (~0.5 s) → nis zgjedhjen; lëvizja e gishtit (scroll) e anulon
     var shtypja = null;
     function anuloShtypjen() { if (shtypja) { clearTimeout(shtypja.t); shtypja = null; } }
@@ -5600,10 +5698,12 @@
     var st = AF.statusi(a);
     var n = AF.ditetDeri(a.data);
     var k = ekEl('div', 'af-karta ' + st);
+    k.appendChild(kutiaEDiteve(st, n));
     var m = ekEl('div', 'af-majtas');
     m.appendChild(ekEl('div', 'af-emri', a.emri || a.barkodi || '(pa emër)'));
-    var nen = [a.emri ? a.barkodi : '', a.furnizuesi, meEmer ? a.pronariEmri : ''].filter(Boolean).join(' · ');
+    var nen = rreshtiIAfatit(a, meEmer ? a.pronariEmri : '');
     if (nen) m.appendChild(ekEl('div', 'af-nen', nen));
+    if (a.emri && a.barkodi) m.appendChild(ekEl('div', 'af-kodi', a.barkodi));
     m.appendChild(ekEl('div', 'af-mesazh', st === 'hequr'
       ? 'U hoq nga rafti' + (a.hequrNga ? ' nga ' + a.hequrNga : '') + (a.hequrSe ? ' · ' + EKL.kohaRelative(a.hequrSe) : '') + '.'
       : AF.pershkrimi(a)));
@@ -5622,12 +5722,7 @@
       rr.appendChild(ekPillAdmin('Fshije', a, 'fshij'));
       m.appendChild(rr);
     }
-    var d = ekEl('div', 'af-djathtas');
-    d.appendChild(ekEl('div', 'af-data', a.data ? AF.formato(a.data) : '–'));
-    var sas = AF.sasiaTekst(a);
-    if (sas) d.appendChild(ekEl('div', 'af-sasia', sas));
-    if (n !== null && st !== 'hequr') d.appendChild(ekEl('div', 'af-dite', n < 0 ? 'para ' + AF.ditetTekst(-n) : n === 0 ? 'sot' : n + ' ditë'));
-    k.appendChild(m); k.appendChild(d);
+    k.appendChild(m);
     k.style.cursor = 'default';
     return k;
   }
@@ -6142,7 +6237,7 @@
     }
     if (!njoftimetMbeshteten() || Notification.permission !== 'granted') return;
     navigator.serviceWorker.ready.then(function (reg) {
-      return reg.showNotification(nj.titulli, { body: nj.teksti, tag: nj.tag, icon: './icon-192.png', badge: './icon-192.png',
+      return reg.showNotification(nj.titulli, { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=2', badge: './icon-192.png?v=2',
         data: { url: './index.html#ekipa-' + (nj.pamja === 'chat' || nj.pamja === 'anetaret' ? nj.pamja : 'afatet') } });
     }).catch(function () { /* ok */ });
   }
@@ -6221,6 +6316,7 @@
     } else {
       info.style.display = 'none';
     }
+    vizatoDatatEShpejta();
     $('dlgAfat').classList.add('hapur');
     if (!a) $('afatBarkodi').focus();
   }
@@ -6284,6 +6380,53 @@
   $('afatEmri').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('afatData').focus(); } });
   AF.lidhFushenEDates($('afatData'));
   $('afatSasia').addEventListener('change', function () { vendosRezultatinESasise($('afatSasia')); });
+  // Datat e shpejta (1 javë, 2 javë, 1 muaj, 3 muaj): vetëm e plotësojnë fushën e datës
+  var AF_DATAT_SHPEJTA = [['1 javë', 7, 0], ['2 javë', 14, 0], ['1 muaj', 0, 1], ['3 muaj', 0, 3]];
+  var AF_MUAJT_SHKURT = ['Jan', 'Shk', 'Mar', 'Pri', 'Maj', 'Qer', 'Kor', 'Gus', 'Sht', 'Tet', 'Nën', 'Dhj'];
+  function dataEShpejte(z) {
+    var d = new Date(); d.setHours(12, 0, 0, 0);
+    if (z[1]) d.setDate(d.getDate() + z[1]);
+    if (z[2]) d.setMonth(d.getMonth() + z[2]);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function vizatoDatatEShpejta() {
+    var c = $('afatDatat');
+    c.textContent = '';
+    AF_DATAT_SHPEJTA.forEach(function (z) {
+      var iso = dataEShpejte(z);
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'sb-date'; b.setAttribute('data-iso', iso);
+      var p = iso.split('-');
+      b.innerHTML = '<span class="sb-date__day"></span><span class="sb-date__mon"></span><span class="sb-date__sa"></span>';
+      b.children[0].textContent = p[2];
+      b.children[1].textContent = AF_MUAJT_SHKURT[parseInt(p[1], 10) - 1];
+      b.children[2].textContent = z[0];
+      b.addEventListener('click', function () {
+        $('afatData').value = AF.formatoPerFushe(iso);
+        rifreskoDatenEAfatit();
+      });
+      c.appendChild(b);
+    });
+    rifreskoDatenEAfatit();
+  }
+  function rifreskoDatenEAfatit() {
+    var iso = AF.lexoDatenEFushes($('afatData').value);
+    Array.prototype.forEach.call(document.querySelectorAll('#afatDatat .sb-date'), function (b) {
+      b.setAttribute('aria-pressed', iso && b.getAttribute('data-iso') === iso ? 'true' : 'false');
+    });
+    var n = iso ? AF.ditetDeri(iso) : null;
+    $('afatDataHint').textContent = n === null ? '' : n < -1 ? 'Ka skaduar para ' + AF.ditetTekst(-n) + '.' :
+      n === -1 ? 'Skadoi dje.' : n === 0 ? 'Skadon sot.' : n === 1 ? 'Skadon nesër.' : 'Skadon për ' + AF.ditetTekst(n) + '.';
+  }
+  $('afatData').addEventListener('input', rifreskoDatenEAfatit);
+  function ndryshoSasineEAfatit(hapi) {
+    var inp = $('afatSasia');
+    vendosRezultatinESasise(inp);
+    var v = parseInt(inp.value, 10);
+    inp.value = String(Math.max(0, (isNaN(v) ? 0 : v) + hapi));
+  }
+  $('afatSasiaMinus').addEventListener('click', function () { ndryshoSasineEAfatit(-1); });
+  $('afatSasiaPlus').addEventListener('click', function () { ndryshoSasineEAfatit(1); });
   $('afatSasia').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('afatFurnizuesi').focus(); } });
   $('afatFurnizuesi').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ruajAfatin(); } });
 

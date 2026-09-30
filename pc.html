@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html lang="sq">
+<html lang="sq" class="sbp">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stoku • Kompjuter</title>
-<link rel="manifest" href="manifest.webmanifest?v=84">
-<link rel="icon" type="image/png" href="icon-192.png">
-<meta name="theme-color" content="#1565C0" id="metaTema">
+<link rel="manifest" href="manifest.webmanifest?v=85">
+<link rel="icon" href="logo/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="logo/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
+<meta name="theme-color" content="#f6f5f2" id="metaTema">
 <script>
   // Adresa e pastër: shfaqet stoku.site/#/... në vend të stoku.site/pc.html#/...
   // (rifreskimi hap stoku.site/, që në kompjuter të kthen vetë këtu, në të njëjtën faqe)
@@ -106,7 +108,6 @@
   :root[data-dendesia="kompakte"] { --rresht-lart: 28px; --tabela-shkronja: 12.5px; --sasia-shkronja: 13px; --btn-rreshti: 24px; --lista-pad: 3px; --anesore-lart: 30px; }
   :root[data-dendesia="gjere"] { --rresht-lart: 58px; --tabela-shkronja: 15.5px; --sasia-shkronja: 18px; --btn-rreshti: 38px; --lista-pad: 13px; --anesore-lart: 46px; }
   :root[data-dendesia="kompakte"] .tabela th { height: 32px; }
-  :root[data-dendesia="kompakte"] .sasia-cip { padding: 0 6px; font-size: 10px; }
   :root[data-dendesia="kompakte"] .folder-cip { padding: 1px 7px; font-size: 11px; }
   :root[data-dendesia="kompakte"] .mono { font-size: 12px; }
   :root[data-dendesia="gjere"] .mono { font-size: 14.5px; }
@@ -125,12 +126,7 @@
   .gri { color: var(--gri); }
   .fsheh { display: none !important; }
 
-  /* ================= Header ================= */
-  header.krye {
-    background: var(--header); color: #fff; display: flex; align-items: center; gap: 16px;
-    padding: 0 16px 0 20px; height: 60px; position: relative; z-index: 5;
-  }
-  .krye-logo { height: 30px; width: auto; display: block; cursor: pointer; }
+  /* ================= Kërkimi (në krye të anësores) ================= */
   .krye-kerko {
     flex: 1; max-width: 560px; margin-left: 28px; position: relative;
   }
@@ -162,7 +158,6 @@
   .kr-rresht .kr-emri div:first-child { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .kr-rresht .kr-sasia { font-weight: 700; font-variant-numeric: tabular-nums; min-width: 40px; text-align: right; }
   .kr-fund { padding: 8px 10px 4px; font-size: 12px; color: var(--gri); border-top: 1px solid var(--vije); margin-top: 4px; }
-  .krye-djathtas { margin-left: auto; display: flex; align-items: center; gap: 8px; }
   .sink-status {
     display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 6px 10px; border-radius: 8px;
     background: rgba(255,255,255,.10); white-space: nowrap; cursor: pointer; border: 0; color: #fff;
@@ -173,12 +168,6 @@
   .pike.pune { background: #ffd54f; animation: pulso 1s ease-in-out infinite; }
   .pike.gabim { background: #ff8a80; }
   @keyframes pulso { 50% { opacity: .35; } }
-  .btn-krye {
-    height: 38px; min-width: 38px; padding: 0 10px; border: 0; border-radius: 10px;
-    background: rgba(255,255,255,.14); color: #fff; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    font-weight: 600;
-  }
-  .btn-krye:hover { background: rgba(255,255,255,.26); }
   .perdoruesi-cip { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   /* ================= Trupi: sidebar + main ================= */
@@ -567,12 +556,6 @@
   tr:hover .veprime-rreshti, tr.fokus .veprime-rreshti { opacity: 1; }
   .sasia-qeliz { font-weight: 700; font-variant-numeric: tabular-nums; font-size: var(--sasia-shkronja); }
   .tabela .btn-ikone { width: var(--btn-rreshti); height: var(--btn-rreshti); }
-  .sasia-cip {
-    display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-right: 8px;
-    vertical-align: 2px;
-  }
-  .sasia-cip.zero { color: var(--rrezik); background: var(--rrezik-bute); }
-  .sasia-cip.pak { color: var(--paralajm); background: var(--paralajm-bute); }
   .folder-cip {
     display: inline-block; max-width: 100%; box-sizing: border-box; padding: 3px 9px; border-radius: 12px;
     font-size: 12px; font-weight: 600; color: var(--btn-tekst); background: var(--primar-bute);
@@ -913,40 +896,33 @@
     .trupi { grid-template-columns: 220px minmax(0, 1fr); }
     main.kryesore { padding: 18px; }
     .tabela .k-koha { display: none; }
-    .krye-kerko { margin-left: 8px; }
     .sink-status .sink-tekst { display: none; }
   }
 </style>
+<link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/stoku-tokens.css?v=1">
+<link rel="stylesheet" href="css/stoku-pc.css?v=1">
 </head>
 <body>
-<script src="porta.js?v=117"></script>
-
-<header class="krye">
-  <img class="krye-logo" id="logo" src="logo.png" alt="Stoku" title="Përmbledhja">
-  <div class="krye-kerko">
-    <div class="fusha">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>
-      <input id="kerkoGlobal" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko produkt në të gjithë folderat (emër ose barkod)…" aria-label="Kërko kudo">
-      <span class="tast">Ctrl K</span>
-    </div>
-    <div class="kerko-rezultate" id="kerkoRezultate" role="listbox"></div>
-  </div>
-  <div class="krye-djathtas">
-    <button class="sink-status" id="sinkStatus" type="button" title="Sinkronizo tani">
-      <span class="pike" id="sinkPika"></span><span class="sink-tekst" id="sinkTekst">Vetëm në këtë kompjuter</span>
-    </button>
-    <button class="btn-krye" id="btnLlogaria" type="button">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
-      <span class="perdoruesi-cip" id="perdoruesiCip">Hyr</span>
-    </button>
-    <button class="btn-krye" id="btnOpsione" type="button" title="Cilësimet" aria-label="Cilësimet">
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-    </button>
-  </div>
-</header>
+<script src="porta.js?v=118"></script>
 
 <div class="trupi">
   <aside class="anesore">
+    <div class="sbp-krye">
+      <div class="sbp-brand" id="logo" role="button" tabindex="0" title="Përmbledhja">
+        <img src="logo/stoku-icon.svg" alt="" width="34" height="34">
+        <div class="sbp-brand__tekst"><span class="sbp-brand__emri">Stoku</span><span class="sbp-brand__nen">Stoku dhe afatet</span></div>
+      </div>
+      <div class="krye-kerko">
+        <div class="fusha">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>
+          <input id="kerkoGlobal" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko kudo" aria-label="Kërko kudo (emër ose barkod, në të gjithë folderat)">
+          <span class="tast">Ctrl K</span>
+        </div>
+        <div class="kerko-rezultate" id="kerkoRezultate" role="listbox"></div>
+      </div>
+    </div>
+    <div class="sbp-menyja">
     <div class="akordion-krye ak-stoku"><button class="akordion-emri" id="btnAkordStoku" type="button" aria-expanded="true" aria-controls="akordStokuTrupi"><span class="akordion-ikona"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5z"></path><path d="m3 8 9 5 9-5"></path><path d="M12 13v8"></path></svg></span><span class="akordion-titulli">Stoku<span class="af-cip fleta" id="stokTabFleta" title="Fletë stoku nga telefoni që presin kontrollin"></span></span></button><button class="akordion-shigjeta-btn" id="btnAkordStokuShigjeta" type="button" aria-expanded="true" aria-controls="akordStokuTrupi" aria-label="Mbyll Stoku" title="Mbyll Stoku"><svg class="akordion-shigjeta" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
     <div class="akordion-trup" id="akordStokuTrupi">
       <div class="akordion-brendia">
@@ -961,7 +937,7 @@
             <span class="numer-cip" id="numTeGjitha">0</span>
           </button>
         </nav>
-        <div class="seksion-titull"><span>Folderat</span><button type="button" id="btnFolderIRi" title="Folder i ri" aria-label="Folder i ri">+</button></div>
+        <div class="seksion-titull"><span>Folderat</span><span class="numer-cip" id="numFolderat"></span><button type="button" id="btnFolderIRi" title="Folder i ri" aria-label="Folder i ri">+</button></div>
         <div class="folderat" id="folderat"></div>
       </div>
     </div>
@@ -1024,6 +1000,7 @@
         </nav>
       </div>
     </div>
+    </div>
     <div class="anesore-fund">
       <button type="button" id="btnImport">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path><path d="M12 15V3"></path></svg>
@@ -1033,6 +1010,24 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"></path></svg>
         Shkurtoret e tastierës
       </button>
+      <div class="sbp-tema">
+        <span>Tema</span>
+        <div class="sbp-seg" id="sbpTema" role="group" aria-label="Tema">
+          <button type="button" data-v="light" aria-pressed="false">E çelët</button><button type="button" data-v="dark" aria-pressed="false">E errët</button>
+        </div>
+      </div>
+      <div class="sbp-account">
+        <button class="sbp-account__user" id="btnLlogaria" type="button" title="Llogaria">
+          <span class="sbp-avatar" id="sbpAvatar" aria-hidden="true"></span>
+          <span class="perdoruesi-cip" id="perdoruesiCip">Hyr</span>
+        </button>
+        <button class="sbp-account__gear" id="btnOpsione" type="button" title="Cilësimet" aria-label="Cilësimet">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+        <button class="sink-status" id="sinkStatus" type="button" title="Sinkronizo tani">
+          <span class="pike" id="sinkPika"></span><span class="sink-tekst" id="sinkTekst">Vetëm në këtë kompjuter</span>
+        </button>
+      </div>
     </div>
   </aside>
 
@@ -1071,16 +1066,16 @@
       <div class="kpi-rrjeti" id="kpiRrjeti"></div>
       <div class="permb-rrjeti">
         <div class="karta">
-          <div class="karta-krye"><h2>Produktet sipas folderave</h2></div>
+          <div class="karta-krye"><h2>Produktet sipas folderave</h2><span class="karta-krye-nr" id="permbFolderatNr"></span></div>
           <div class="karta-trup" id="permbFolderat"></div>
         </div>
         <div class="karta">
           <div class="karta-krye"><h2>Ndryshuar së fundi</h2><button class="btn tekst vogel" type="button" id="btnShihTeFundit">Shih të gjitha</button></div>
           <div class="karta-trup lista-e-shkurter" id="permbTeFundit"></div>
         </div>
-        <div class="karta gjere">
+        <div class="karta">
           <div class="karta-krye"><h2>Sasia më e ulët</h2><button class="btn tekst vogel" type="button" id="btnShihTeUleta">Shih të gjitha</button></div>
-          <div class="karta-trup lista-e-shkurter" id="permbTeUleta" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:16px"></div>
+          <div class="karta-trup lista-e-shkurter" id="permbTeUleta"></div>
         </div>
       </div>
     </section>
@@ -1123,7 +1118,7 @@
           <span class="tast gri">Ctrl F</span>
         </div>
         <div class="segmente" id="filtrat">
-          <button type="button" data-f="te-gjitha" class="aktiv">Të gjitha</button>
+          <button type="button" data-f="te-gjitha" class="aktiv">Të gjitha <span class="n" data-n="teGjitha"></span></button>
           <button type="button" data-f="zero">Sasi 0 <span class="n" data-n="zero"></span></button>
           <button type="button" data-f="pak">Sasi e ulët <span class="n" data-n="pak"></span></button>
           <button type="button" data-f="paEmer">Pa emër <span class="n" data-n="paEmer"></span></button>
@@ -1198,18 +1193,17 @@
         </div>
       </div>
       <div class="fletet-tel" id="afFletetTel"></div>
-      <div class="kpi-rrjeti" id="afKpi"></div>
       <div class="mjetet">
         <div class="kuti-fushe" style="flex:1 1 260px;max-width:380px">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>
           <input id="afKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko produkt, barkod ose furnizues…">
         </div>
         <div class="segmente" id="afFiltrat">
-          <button type="button" data-f="aktive" class="aktiv">Aktive</button>
-          <button type="button" data-f="skaduar">Të skaduara</button>
-          <button type="button" data-f="afer">Afër skadimit</button>
-          <button type="button" data-f="ok">Në rregull</button>
-          <button type="button" data-f="hequr">Të hequra</button>
+          <button type="button" data-f="aktive" class="aktiv">Aktive <span class="n" data-afn="aktive"></span></button>
+          <button type="button" data-f="skaduar">Të skaduara <span class="n" data-afn="skaduar"></span></button>
+          <button type="button" data-f="afer">Afër skadimit <span class="n" data-afn="afer"></span></button>
+          <button type="button" data-f="ok">Në rregull <span class="n" data-afn="ok"></span></button>
+          <button type="button" data-f="hequr">Të hequra <span class="n" data-afn="hequr"></span></button>
         </div>
         <label style="display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:13px;color:var(--gri);cursor:pointer">
           <input type="checkbox" class="kutize" id="afGrupo"> Grupo sipas furnizuesit
@@ -1732,11 +1726,6 @@
               <button type="button" data-v="normale">Normale</button><button type="button" data-v="e_madhe">E madhe</button>
             </div>
           </div>
-          <div class="ops-seksion" id="opsBeta" hidden>
-            <div class="ops-titull">Pamja e re (Beta)</div>
-            <p class="ops-hint">Dizajni i ri i Stoku-t, për provë. Tani është gati pamja e telefonit (hape në telefon: stoku.site/beta/). Pamja e re për kompjuter vjen pas saj.</p>
-            <a class="btn dyte" id="opsBetaLidhja" href="beta/?tel" target="_blank" rel="noopener" style="margin-top:8px;display:inline-flex;text-decoration:none">Shiko Beta (pamja e telefonit) ›</a>
-          </div>
         </div>
         <div class="opsione-faqe" data-faqe="stoku">
           <div class="ops-seksion">
@@ -1806,7 +1795,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=122"></script>
 <script src="ekipa.js?v=6"></script>
-<script src="teRejat.js?v=123"></script>
+<script src="teRejat.js?v=126"></script>
 <script>
 (function () {
   'use strict';
@@ -1954,10 +1943,6 @@
   })();
   function ruajOps() { try { localStorage.setItem(KEY_PC, JSON.stringify(ops)); } catch (e) { /* ok */ } }
 
-  var AKSENT_HEADER = {
-    blu: ['#1565C0', '#0f3f7a'], jeshile: ['#2E7D32', '#1b5e20'], vjollce: ['#6A1B9A', '#4a148c'],
-    portokalli: ['#E65100', '#bf360c'], kuqe: ['#C62828', '#8e0000']
-  };
   function temaEfektive() {
     if (ops.tema !== 'auto') return ops.tema;
     return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
@@ -1969,7 +1954,11 @@
     if (ops.aksent === 'blu') r.removeAttribute('data-aksent'); else r.setAttribute('data-aksent', ops.aksent);
     if (ops.dendesia === 'normale') r.removeAttribute('data-dendesia'); else r.setAttribute('data-dendesia', ops.dendesia);
     if (ops.madhesia === 'e_madhe') r.setAttribute('data-madhesi', 'e_madhe'); else r.removeAttribute('data-madhesi');
-    $('metaTema').setAttribute('content', (AKSENT_HEADER[ops.aksent] || AKSENT_HEADER.blu)[t === 'dark' ? 1 : 0]);
+    $('metaTema').setAttribute('content', t === 'dark' ? '#0f1115' : '#f6f5f2');
+    // Çelësi i shpejtë "Tema" në fund të anësores
+    Array.prototype.forEach.call(document.querySelectorAll('#sbpTema button'), function (b) {
+      b.setAttribute('aria-pressed', b.dataset.v === t ? 'true' : 'false');
+    });
   }
   if (window.matchMedia) {
     var mq = window.matchMedia('(prefers-color-scheme: dark)');
@@ -2052,6 +2041,19 @@
 
   // ================= Ndihmëse për të dhënat =================
   function folderSipasId(id) { for (var i = 0; i < foldera.length; i++) if (foldera[i].id === id) return foldera[i]; return null; }
+  // Ngjyra e folderit (dizajni): me radhë sipas renditjes së folderave; përdoret te anësorja, shiritat dhe tabela
+  var NGJYRAT_FOLDERAVE = ['#5b86c9', '#4f9a6e', '#c08a3e', '#c46a5f', '#8a6cc0', '#b85f7c', '#6f9a45', '#b27a45'];
+  function ngjyraEFolderit(id) {
+    var ind = -1;
+    foldera.some(function (f, k) { if (f.id === id) { ind = k; return true; } return false; });
+    return ind < 0 ? '' : NGJYRAT_FOLDERAVE[ind % NGJYRAT_FOLDERAVE.length];
+  }
+  function folderCip(id, tekst) {
+    var c = el('span', 'folder-cip', tekst === undefined ? emriFolderit(id) : tekst);
+    var ng = ngjyraEFolderit(id);
+    if (ng) c.style.setProperty('--f', ng);
+    return c;
+  }
   function emriFolderit(id) { var f = folderSipasId(id); return f ? f.emri : '(pa folder)'; }
   function teGjithaProduktet() { return Object.keys(produktet).map(function (k) { return produktet[k]; }); }
   function produktetEFolderit(id) { return teGjithaProduktet().filter(function (p) { return p.kategoriaId === id; }); }
@@ -2362,6 +2364,7 @@
     $('navTeGjitha').classList.toggle('aktiv', pamja === 'te-gjitha');
     Array.prototype.forEach.call(document.querySelectorAll('[data-ek]'), function (b) { b.classList.toggle('aktiv', pamja === 'ekipi' && b.dataset.ek === ekNen); });
     $('numTeGjitha').textContent = num(Object.keys(produktet).length);
+    $('numFolderat').textContent = foldera.length ? num(foldera.length) : '';
     var numrat = {};
     teGjithaProduktet().forEach(function (p) { numrat[p.kategoriaId] = (numrat[p.kategoriaId] || 0) + 1; });
     var cont = $('folderat');
@@ -2379,7 +2382,7 @@
       r.dataset.id = f.id;
       r.title = f.emri + (i < 9 ? '  (Alt+' + (i + 1) + ')' : '');
       var kap = el('span', 'kap'); kap.innerHTML = IKONA.kap;
-      var ik = el('span'); ik.innerHTML = IKONA.folder; ik.style.display = 'flex';
+      var ik = el('span', 'sbp-dot'); ik.style.background = NGJYRAT_FOLDERAVE[i % NGJYRAT_FOLDERAVE.length];
       var emri = el('span', 'emri', f.emri);
       var n = el('span', 'numer-cip', num(numrat[f.id] || 0));
       var me = el('button', 'me-shume'); me.type = 'button'; me.innerHTML = IKONA.me; me.title = 'Veprime'; me.setAttribute('aria-label', 'Veprime për ' + f.emri);
@@ -2444,10 +2447,11 @@
   $('navPermbledhja').addEventListener('click', function () { shkoTe('permbledhja'); });
   $('navTeGjitha').addEventListener('click', function () { shkoTe('te-gjitha', { reset: true }); });
   $('logo').addEventListener('click', function () { shkoTe('permbledhja'); });
+  $('logo').addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); shkoTe('permbledhja'); } });
 
   // ================= Përmbledhja =================
-  function kpi(etiketa, vlera, nen, statusi, ikona, veprimi) {
-    var b = el(veprimi ? 'button' : 'div', 'kpi' + (statusi ? ' status-' + statusi : ''));
+  function kpi(etiketa, vlera, nen, statusi, ikona, veprimi, klasa) {
+    var b = el(veprimi ? 'button' : 'div', 'kpi' + (statusi ? ' status-' + statusi : '') + (klasa ? ' ' + klasa : ''));
     if (veprimi) { b.type = 'button'; b.addEventListener('click', veprimi); }
     var e = el('div', 'kpi-etik');
     if (ikona) { var i = el('span'); i.innerHTML = ikona; i.style.display = 'flex'; e.appendChild(i); }
@@ -2460,17 +2464,13 @@
 
   function renderPermbledhjen() {
     var te = teGjithaProduktet();
-    var harta = hartaEBarkodeve();
-    var totSasia = 0, zero = 0, pak = 0, paEmer = 0, sot = 0;
+    var zero = 0, pak = 0, sot = 0;
     var fillimiSot = new Date(); fillimiSot.setHours(0, 0, 0, 0);
     te.forEach(function (p) {
-      totSasia += (p.sasia | 0);
       if (eshteZero(p)) zero++;
       if (eshtePak(p)) pak++;
-      if (!p.emri) paEmer++;
       if ((p.prekurSe || 0) >= fillimiSot.getTime()) sot++;
     });
-    var dubl = Object.keys(harta).filter(function (b) { return harta[b].length > 1; }).length;
 
     var u = perdoruesi();
     $('kartaMireseardhje').classList.toggle('fsheh', !!u || !window.__stokuCloud);
@@ -2478,19 +2478,13 @@
 
     var r = $('kpiRrjeti');
     r.textContent = '';
-    r.appendChild(kpi('Produkte', num(te.length), 'në ' + foldera.length + ' ' + (foldera.length === 1 ? 'folder' : 'foldera'), null, null, function () { shkoTe('te-gjitha', { reset: true }); }));
-    r.appendChild(kpi('Sasia totale', num(totSasia), 'copë gjithsej', null, null, null));
-    r.appendChild(kpi('Sasi 0', num(zero), zero ? 'kliko për t\'i parë' : 'asnjë produkt pa stok', zero ? 'kritik' : null, IKONA.zero, function () { shkoTe('te-gjitha', { reset: true, filtri: 'zero' }); }));
-    if (ops.pragu > 0) r.appendChild(kpi('Sasi e ulët', num(pak), '1–' + ops.pragu + ' copë', pak ? 'paralajm' : null, IKONA.pak, function () { shkoTe('te-gjitha', { reset: true, filtri: 'pak' }); }));
-    r.appendChild(kpi('Pa emër', num(paEmer), 'produkte pa emër', null, null, function () { shkoTe('te-gjitha', { reset: true, filtri: 'paEmer' }); }));
-    r.appendChild(kpi('Në disa foldera', num(dubl), 'barkode të përsëritura', null, null, function () { shkoTe('te-gjitha', { reset: true, filtri: 'dublikate', rendi: ['barkodi', 1] }); }));
+    // Dizajni: numri i produkteve (karta e errët, "+N sot"), sasi e ulët, sasi 0, afatet e skaduara në raft
+    r.appendChild(kpi('Produkte gjithsej', num(te.length), sot ? '+' + num(sot) + ' sot' : '', null, null, function () { shkoTe('te-gjitha', { reset: true }); }, 'kpi-hero'));
+    if (ops.pragu > 0) r.appendChild(kpi('Sasi e ulët', num(pak), ops.pragu + ' copë ose më pak', pak ? 'paralajm' : null, null, function () { shkoTe('te-gjitha', { reset: true, filtri: 'pak' }); }));
+    r.appendChild(kpi('Sasi 0', num(zero), zero ? 'duhen porositur' : 'asnjë produkt pa stok', zero ? 'kritik' : null, null, function () { shkoTe('te-gjitha', { reset: true, filtri: 'zero' }); }));
     var nAf = window.StokuAfatet.numero(afatet);
-    if (afatet.length) {
-      var kk = kpi('Afate të skaduara', num(nAf.skaduar + nAf['pa-date']), 'duhen hequr nga rafti', (nAf.skaduar + nAf['pa-date']) ? 'kritik' : null, IKONA.zero, function () { af.filtri = 'skaduar'; shkoTe('afatet'); });
-      r.appendChild(kk);
-      r.appendChild(kpi('Skadojnë ≤ 30 ditë', num(nAf.afer), 'afër skadimit', nAf.afer ? 'paralajm' : null, IKONA.pak, function () { af.filtri = 'afer'; shkoTe('afatet'); }));
-    }
-    r.appendChild(kpi('Ndryshuar sot', num(sot), 'produkte', null, null, function () { shkoTe('te-gjitha', { reset: true, rendi: ['koha', -1] }); }));
+    var nSkad = nAf.skaduar + nAf['pa-date'];
+    r.appendChild(kpi('Të skaduara në raft', num(nSkad), 'Shiko afatet →', nSkad ? 'kritik' : null, null, function () { af.filtri = 'skaduar'; shkoTe('afatet'); }, 'kpi-lidhje'));
 
     // Sipas folderave (renditur sipas numrit të produkteve)
     var stat = foldera.map(function (f) { return { f: f, n: 0, s: 0 }; });
@@ -2502,22 +2496,18 @@
     var pf = $('permbFolderat');
     pf.textContent = '';
     if (!stat.length) pf.appendChild(el('div', 'bosh-mesazh', 'S\'ka foldera ende.'));
-    else {
-      var koka = el('div', 'shirit-koka');
-      ['Folderi', 'Produkte', 'Nr.', 'Sasia'].forEach(function (t) { koka.appendChild(el('span', null, t)); });
-      pf.appendChild(koka);
-    }
+    $('permbFolderatNr').textContent = foldera.length ? foldera.length + ' ' + (foldera.length === 1 ? 'folder' : 'foldera') : '';
     stat.forEach(function (x) {
       var b = el('button', 'shirit-rresht'); b.type = 'button';
       b.title = x.f.emri + ': ' + produkteTekst(x.n) + ', ' + num(x.s) + ' copë';
       b.appendChild(el('span', 'shirit-emri', x.f.emri));
       var pista = el('span', 'shirit-pista');
       var sh = el('span', 'shirit'); sh.style.width = (x.n / maks * 100) + '%';
+      var ngj = ngjyraEFolderit(x.f.id); if (ngj) sh.style.background = ngj;
       if (!x.n) sh.style.opacity = '0';
       pista.appendChild(sh);
       b.appendChild(pista);
       b.appendChild(el('span', 'shirit-num', num(x.n)));
-      b.appendChild(el('span', 'shirit-num gri', num(x.s)));
       b.addEventListener('click', function () { shkoTe(x.f.id); });
       pf.appendChild(b);
     });
@@ -2525,44 +2515,30 @@
     // Ndryshuar së fundi
     var tf = $('permbTeFundit');
     tf.textContent = '';
-    var tefundit = te.filter(function (p) { return p.prekurSe; }).sort(function (a, b) { return b.prekurSe - a.prekurSe; }).slice(0, 8);
+    var tefundit = te.filter(function (p) { return p.prekurSe; }).sort(function (a, b) { return b.prekurSe - a.prekurSe; }).slice(0, 6);
     if (!tefundit.length) tf.appendChild(el('div', 'bosh-mesazh', 'Asnjë ndryshim ende.'));
     tefundit.forEach(function (p) { tf.appendChild(rreshtIShkurter(p, kohaRelative(p.prekurSe))); });
 
     // Sasia më e ulët
     var tu = $('permbTeUleta');
     tu.textContent = '';
-    var teUleta = te.slice().sort(function (a, b) { return (a.sasia - b.sasia) || krahasoEmrin(a, b); }).slice(0, 10);
+    var teUleta = te.slice().sort(function (a, b) { return (a.sasia - b.sasia) || krahasoEmrin(a, b); }).slice(0, 6);
     if (!teUleta.length) tu.appendChild(el('div', 'bosh-mesazh', 'S\'ka produkte ende.'));
     teUleta.forEach(function (p) { tu.appendChild(rreshtIShkurter(p, null)); });
-  }
-
-  function statusCip(p) {
-    if (eshteZero(p)) { var z = el('span', 'sasia-cip zero'); z.innerHTML = IKONA.zero; z.appendChild(document.createTextNode('Pa stok')); return z; }
-    if (eshtePak(p)) { var k = el('span', 'sasia-cip pak'); k.innerHTML = IKONA.pak; k.appendChild(document.createTextNode('E ulët')); return k; }
-    return null;
   }
 
   function rreshtIShkurter(p, kohaTekst) {
     var b = el('button', 'ls-rresht'); b.type = 'button';
     var m = el('div', 'ls-emri');
-    var e = el('div', p.emri ? null : 'emri-bosh', p.emri || '(pa emër)');
-    if (!p.emri) e.style.cssText = 'color:var(--gri);font-style:italic;font-weight:500';
+    var e = el('div', p.emri ? null : 'emri-bosh', p.emri || 'Pa emër');
     m.appendChild(e);
-    var nen = el('div', 'gri');
-    nen.style.cssText = 'font-size:12px;display:flex;gap:8px;align-items:center;margin-top:2px';
-    nen.appendChild(el('span', 'mono', p.barkodi));
-    nen.appendChild(el('span', 'folder-cip', emriFolderit(p.kategoriaId)));
+    var nen = el('div', 'ls-nen', kohaTekst || emriFolderit(p.kategoriaId));
+    if (kohaTekst) nen.title = dataOra(p.prekurSe);
     m.appendChild(nen);
     b.appendChild(m);
-    var d = el('div', 'ls-djathtas');
-    var s = el('div', 'sasia-qeliz');
-    var c = statusCip(p);
-    if (c) s.appendChild(c);
-    s.appendChild(document.createTextNode(num(p.sasia)));
-    d.appendChild(s);
-    if (kohaTekst) { var k = el('div', null, kohaTekst); k.title = dataOra(p.prekurSe); d.appendChild(k); }
-    b.appendChild(d);
+    var q = el('span', 'ls-sasia' + (kohaTekst ? '' : ' cip') + (eshteZero(p) ? ' zero' : eshtePak(p) ? ' pak' : ''), num(p.sasia));
+    b.appendChild(q);
+    b.title = (p.emri || 'Pa emër') + ' · ' + p.barkodi + ' · ' + emriFolderit(p.kategoriaId);
     b.addEventListener('click', function () { hapProduktin(celesi(p.kategoriaId, p.barkodi)); });
     return b;
   }
@@ -2604,7 +2580,8 @@
     var harta = hartaEBarkodeve();
     var fjalet = normalizo(tab.kerkimi).split(/\s+/).filter(Boolean);
     var meKerkim = baza.filter(function (p) { return perputhetMeKerkimin(p, fjalet); });
-    var numrat = { zero: 0, pak: 0, paEmer: 0, dublikate: 0 };
+    var numrat = { teGjitha: 0, zero: 0, pak: 0, paEmer: 0, dublikate: 0 };
+    numrat.teGjitha = meKerkim.length;
     meKerkim.forEach(function (p) {
       if (eshteZero(p)) numrat.zero++;
       if (eshtePak(p)) numrat.pak++;
@@ -2705,7 +2682,7 @@
 
       var td3 = el('td', 'k-folderi');
       if (neFolder) td3.style.display = 'none';
-      else td3.appendChild(el('span', 'folder-cip', emriFolderit(p.kategoriaId)));
+      else td3.appendChild(folderCip(p.kategoriaId));
       tr.appendChild(td3);
 
       var td4 = el('td', 'k-sasia');
@@ -2717,9 +2694,10 @@
         w.appendChild(mi); w.appendChild(inp); w.appendChild(pl);
         td4.appendChild(w);
       } else {
-        var c = statusCip(p);
-        if (c) td4.appendChild(c);
-        td4.appendChild(el('span', 'sasia-qeliz', num(p.sasia)));
+        // Dizajni: sasia me ngjyrën e statusit (e kuqe = 0, portokalli = e ulët)
+        var sq = el('span', 'sasia-qeliz' + (eshteZero(p) ? ' zero' : eshtePak(p) ? ' pak' : ''), num(p.sasia));
+        if (eshteZero(p)) sq.title = 'Pa stok'; else if (eshtePak(p)) sq.title = 'Sasi e ulët (' + ops.pragu + ' copë ose më pak)';
+        td4.appendChild(sq);
       }
       tr.appendChild(td4);
 
@@ -2949,7 +2927,7 @@
       m.appendChild(e);
       m.appendChild(el('div', 'mono gri', p.barkodi));
       r.appendChild(m);
-      r.appendChild(el('span', 'folder-cip', emriFolderit(p.kategoriaId)));
+      r.appendChild(folderCip(p.kategoriaId));
       var s = el('span', 'kr-sasia', num(p.sasia));
       if (eshteZero(p)) s.style.color = 'var(--rrezik)';
       r.appendChild(s);
@@ -3118,7 +3096,7 @@
     if (tjeret.length) {
       info.appendChild(el('span', null, neKetFolder && !pr.k ? 'Ekziston tashmë në këtë folder: sasia do t\'i shtohet asaj ekzistuese. Gjendet në:' : 'Ky barkod gjendet edhe në:'));
       tjeret.forEach(function (x) {
-        var c = el('span', 'folder-cip', emriFolderit(x.kategoriaId) + ' · ' + x.sasia);
+        var c = folderCip(x.kategoriaId, emriFolderit(x.kategoriaId) + ' · ' + x.sasia);
         c.title = 'Hap produktin në këtë folder';
         c.addEventListener('click', function () { hapProduktin(celesi(x.kategoriaId, x.barkodi)); });
         info.appendChild(c);
@@ -4193,6 +4171,8 @@
     var u = perdoruesi();
     var emri = emriPerdoruesit();
     $('perdoruesiCip').textContent = u ? emri : 'Hyr';
+    $('sbpAvatar').textContent = u ? String(emri || '?').charAt(0).toUpperCase() : '';
+    $('sbpAvatar').classList.toggle('bosh', !u);
     $('llTitulli').textContent = u ? 'Llogaria' : 'Hyr në llogari';
     $('llJashte').classList.toggle('fsheh', !!u);
     $('llFundJashte').classList.toggle('fsheh', !!u);
@@ -4293,8 +4273,6 @@
 
   // ================= Opsionet =================
   function hapOpsionet(faqja) {
-    // Pamja e re (Beta): vetëm administratori (qasja e ekipës, ose emri i llogarisë)
-    $('opsBeta').hidden = !((ekK && ekK.eshteAdmin()) || String(emriPerdoruesit() || '').toLowerCase() === 'mendurberisha');
     zgjidhSkeden(faqja || 'pamja');
     rifreskoOpsionet();
     rifreskoLlogarine();
@@ -4331,6 +4309,9 @@
     rivizato();
   });
   $('btnOpsione').addEventListener('click', function () { hapOpsionet(); });
+  Array.prototype.forEach.call(document.querySelectorAll('#sbpTema button'), function (b) {
+    b.addEventListener('click', function () { ops.tema = b.dataset.v; ruajOps(); zbatoPamjen(); rifreskoOpsionet(); });
+  });
 
   // ================= Shkurtoret e tastierës =================
   var SHKURTORET = [
@@ -5359,7 +5340,7 @@
     }
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
     var url = './pc.html#/ekipa' + (nj.pamja === 'chat' || nj.pamja === 'anetaret' ? '/' + nj.pamja : '');
-    var opsionet = { body: nj.teksti, tag: nj.tag, icon: './icon-192.png', data: { url: url } };
+    var opsionet = { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=2', data: { url: url } };
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then(function (reg) { return reg.showNotification(nj.titulli, opsionet); })
         .catch(function () { try { new Notification(nj.titulli, opsionet); } catch (e) { /* ok */ } });
@@ -5379,21 +5360,15 @@
   function renderAfatetPc() {
     var n = AF.numero(afatet);
     var fur = furnizuesit().length;
-    $('afNen').textContent = n.aktive + ' afate aktive' + (fur ? ' · ' + fur + ' furnizues' : '') + ' · e verdha = skadon brenda ' + AF.DITET_PARALAJMERIMI + ' ditëve';
-    var k = $('afKpi');
-    k.textContent = '';
-    var copeSt = { skaduar: 0, afer: 0 };
-    afatet.forEach(function (a) { var s = AF.statusi(a); if (s === 'pa-date') s = 'skaduar'; if (typeof a.sasia === 'number' && copeSt[s] !== undefined) copeSt[s] += a.sasia; });
-    [['skaduar', 'Të skaduara', n.skaduar + n['pa-date'], (copeSt.skaduar ? num(copeSt.skaduar) + ' copë · ' : '') + 'hiqi nga rafti/pozita', IKONA.zero],
-     ['afer', 'Skadojnë brenda 30 ditëve', n.afer, (copeSt.afer ? num(copeSt.afer) + ' copë' : 'afër skadimit'), IKONA.pak],
-     ['ok', 'Në rregull', n.ok, 'më shumë se 30 ditë', null],
-     ['hequr', 'Të hequra nga rafti', n.hequr, 'historiku', null]].forEach(function (x) {
-      var b = kpi(x[1], num(x[2]), x[3], null, x[4], function () { af.filtri = af.filtri === x[0] ? 'aktive' : x[0]; renderAfatetPc(); });
-      b.classList.add('af-kpi', x[0]);
-      if (af.filtri === x[0]) b.classList.add('aktiv');
-      k.appendChild(b);
+    var copeSkad = 0;
+    afatet.forEach(function (a) { var st0 = AF.statusi(a); if ((st0 === 'skaduar' || st0 === 'pa-date') && typeof a.sasia === 'number') copeSkad += a.sasia; });
+    $('afNen').textContent = n.aktive + ' afate aktive' + (fur ? ' · ' + fur + ' furnizues' : '') + (copeSkad ? ' · ' + num(copeSkad) + ' copë të skaduara' : '');
+    var numratF = { aktive: n.aktive, skaduar: n.skaduar + n['pa-date'], afer: n.afer, ok: n.ok, hequr: n.hequr };
+    Array.prototype.forEach.call(document.querySelectorAll('#afFiltrat button'), function (b) {
+      b.classList.toggle('aktiv', b.dataset.f === af.filtri);
+      var c = b.querySelector('.n');
+      if (c) c.textContent = numratF[b.dataset.f] ? num(numratF[b.dataset.f]) : '';
     });
-    Array.prototype.forEach.call(document.querySelectorAll('#afFiltrat button'), function (b) { b.classList.toggle('aktiv', b.dataset.f === af.filtri); });
     $('afGrupo').checked = af.grupo;
     vizatoMuajtEAfateve();
 
@@ -5444,8 +5419,10 @@
     var t1 = el('td', 'af-prod');
     var e = el('div', null, a.emri || '(pa emër)'); if (!a.emri) e.style.cssText = 'color:var(--gri);font-style:italic';
     t1.appendChild(e);
-    t1.appendChild(el('div', 'mono', a.barkodi || '–'));
-    if (a.furnizuesi) t1.appendChild(el('div', 'af-fur-nen', a.furnizuesi));
+    var nenP = el('div', 'af-prod-nen');
+    if (a.furnizuesi) { nenP.appendChild(el('span', null, a.furnizuesi)); nenP.appendChild(document.createTextNode(' · ')); }
+    nenP.appendChild(el('span', 'mono', a.barkodi || '–'));
+    t1.appendChild(nenP);
     t1.title = (a.emri || '') + (a.krijuarNga ? '\nShtuar nga: ' + a.krijuarNga : '') + (a.krijuarSe ? ' · ' + dataOra(a.krijuarSe) : '');
     tr.appendChild(t1);
     tr.appendChild(el('td', 'k-sas', typeof a.sasia === 'number' ? num(a.sasia) : '–'));
@@ -5458,7 +5435,7 @@
       tv.appendChild(x); tv.appendChild(document.createTextNode(' '));
     }
     // "U hoq" vlen vetëm për produktet e skaduara — ato që ende s'kanë skaduar s'hiqen nga rafti
-    if (st === 'skaduar') b('✓ U hoq', 'kuqe', function () { shenoHequr([a.id]); }, 'Shëno që produkti u hoq nga rafti/pozita');
+    if (st === 'skaduar') b('Shëno të hequr', 'kuqe', function () { shenoHequr([a.id]); }, 'Shëno që produkti u hoq nga rafti/pozita');
     else if (st === 'hequr') b('↺ Rikthe', 'dyte', function () { riktheAktiv(a.id); });
     var ed = el('button', 'btn-ikone'); ed.type = 'button'; ed.innerHTML = IKONA.ndrysho; ed.title = 'Ndrysho';
     ed.addEventListener('click', function (ev) { ev.stopPropagation(); hapAfatinPc(a.id); });
