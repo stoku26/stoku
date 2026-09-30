@@ -116,6 +116,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 6. **Porta (porta.js):** ekran hyrjeje i detyrueshëm para faqes kryesore (telefon dhe PC). Lejon punë pa
    internet vetëm nëse kjo pajisje ka hyrë më parë. Kur hyn një llogari tjetër në të njëjtën pajisje, të
    dhënat lokale të llogarisë së mëparshme hiqen (janë të ruajtura në cloud-in e saj).
+   **v115 ("userat s'po mund të kyçen"):** Firebase v12 kërkon ES2020 (Chrome/WebView 80+, Safari 13.1+) —
+   në shfletues të vjetër moduli s'ngarkohet fare; porta e zbulon (`SHFLETUES_I_VJETER`, provë me `?.`/`??`)
+   dhe thotë "përditëso Chrome / Android System WebView", jo "s'ka internet". Kur Firebase vonon (>7 s),
+   mesazhi është "lidhja po zgjat" dhe "Hyr" PRET deri 25 s (`pritCloudin`) në vend që të dështojë menjëherë.
+   Gabimet e panjohura tregojnë kodin (p.sh. "(auth/…)") që përdoruesi ta raportojë. Nëse shkrimi i
+   `stoku:pronari-uid` dështon (memoria plot) gjatë ndërrimit të llogarisë, pronari zbrazet → pa rifreskime
+   pa fund. Testi: `porta-v115.js` + `porta-test.js` (scratchpad). Kujdes: me rregullat v110+ një llogari e re
+   HYN normalisht, por Ekipa i thotë "Në pritje të miratimit" derisa administratori ta pranojë — v115 i tregon
+   adminit një baner "X pret miratimin · Prano" në krye të Pultit (tel + PC). Migrimi (një herë) tani i pranon
+   krejt llogaritë që mungojnë, jo vetëm kur `ekipa_anetaret` është bosh. Testi: `kerkesat-v115.js`.
 
 7. **Butoni "mbrapa" i Android-it / historia e shfletuesit** (index.html): çdo "shtresë" e hapur (folder,
    dialog, kamerë, tab) i shton një hyrje historisë; "mbrapa" mbyll vetëm shtresën e fundit, kurrë s'del

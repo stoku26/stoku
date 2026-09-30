@@ -15,6 +15,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 115, data: '2026-09-30', titulli: 'Hyrja më e qëndrueshme', pikat: [
+      'Me internet të dobët, "Hyr" pret derisa të lidhet me serverin, në vend që të thotë menjëherë "s\'ka internet".',
+      'Në telefona ose PDA me shfletues shumë të vjetër, ekrani i hyrjes tregon saktë se duhet përditësuar Chrome / Android System WebView.',
+      'Administratori sheh në krye të Ekipës kush pret miratimin dhe i pranon me një prekje.'
+    ] },
     { v: 114, data: '2026-09-30', titulli: 'Ekipa me pamje të re', pikat: [
       'Ekipa hapet me një përmbledhje: sa produkte kanë skaduar, sa janë afër skadimit dhe sa janë në rregull te krejt ekipa.',
       'Poshtë saj: kush është online tani, çka duhet hequr nga rafti (me "Unë e hoqa" aty për aty) dhe çka skadon këtë javë.',
