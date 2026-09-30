@@ -67,7 +67,7 @@
       var emri = a.emri || a.barkodi || 'Produkt pa emër';
       var n = AF.ditetDeri(a.data, tani);
       var teksti = st === 'skaduar'
-        ? 'Ka skaduar — hiqe këtë produkt nga rafti/pozita.'
+        ? 'Ka skaduar. Hiqe këtë produkt nga rafti/pozita.'
         : (n === 0 ? 'Skadon sot' : 'Skadon edhe ' + AF.ditetTekst(n)) + ' (' + AF.formato(a.data) + ').';
       dalja.push({ celesi: celesi, id: a.id, lloji: st, emri: emri, teksti: teksti, n: n });
     });

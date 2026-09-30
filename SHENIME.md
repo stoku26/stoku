@@ -40,6 +40,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 
 ## Rregulla teknike THEMELORE (mos i harro)
 
+0. **PA VIZË TË GJATË ("—") në asnjë tekst që e sheh përdoruesi** (tituj, mesazhe, toast, "Çka ka të re",
+   njoftime, placeholder). Përdoruesi e sheh si shenjë që teksti është shkruar me AI (v117 u pastruan krejt).
+   Në fjali: presje, pikë, dy pika ose kllapa. Si ndarës: "·" (p.sh. "Sinkronizuar · 12:21") ose "•" (titulli
+   i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
+   s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
+
 1. **Cache-busting është MANUAL dhe i domosdoshëm.** Kur ndryshon një skedar JS të përbashkët
    (`afatet.js`, `bashkimi.js`, `ruajtja.js`, `porta.js`, `njoftimet.js`, `teRejat.js`, `xlsx.js`), duhet
    me dorë:
@@ -345,7 +351,11 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   me shigjetë `.akordion-shigjeta` që rrotullohet) ngjitur njëri pas tjetrit lart në anësore; kliko njërin
   → hapet VETËM ai (nën-artikujt e tij shfaqen poshtë, brenda `.akordion-trup.hapur`) dhe tjetri mbyllet
   automatikisht; gjendja e hapur/mbyllur ndiqet nga `pamja` (`vendosAkordionin()`, e thirrur nga
-  `renderAnesoren()`). "Stoku" i hapur → kthehet gjithmonë te "Përmbledhja" (jo te pamja e fundit — u hoq
+  `renderAnesoren()`). **v117 (kërkesë e përdoruesit):** secili titull (Stoku/Afatet/Ekipa) është
+  `div.akordion-krye.ak-{stoku|afatet|ekipi}` me DY butona: emri `#btnAkordX` (`.akordion-emri`, me ikonë me
+  ngjyrë `.akordion-ikona`: blu/portokalli/jeshile) të çon te kategoria (ose e hap/mbyll kur je aty), dhe
+  shigjeta `#btnAkordXShigjeta` (`.akordion-shigjeta-btn`, me kornizë) vetëm e hap/mbyll PA navigim. Vijë
+  ndarëse sipër çdo kategorie (përveç të parës). Testi: `anesorja-v117.js`. "Stoku" i hapur → kthehet gjithmonë te "Përmbledhja" (jo te pamja e fundit — u hoq
   qëllimisht kompleksiteti i `fundiPamjesStoku`). `#navAfatet` mbetet brenda `#akordAfatetTrupi`.
   **PAS PROVËS REALE, 3 rregullime shtesë (~v102-103)**: (a) tranzicioni u bë "slide" i vërtetë me
   `grid-template-rows: 0fr→1fr` (jo `max-height` që s'animohet në CSS) + `.anesore-fund{margin-top:auto}`
