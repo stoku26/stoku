@@ -692,6 +692,13 @@
   .zona-leshimi:hover, .zona-leshimi.siper { border-color: var(--primar); background: var(--primar-bute); color: var(--tekst); }
   .zona-leshimi b { color: var(--btn-tekst); }
   .harta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0 6px; }
+  .af-muajt { display: flex; flex-wrap: wrap; gap: 6px; margin: -4px 0 12px; }
+  .af-muajt button { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 1px solid var(--vije); border-radius: 999px;
+    background: var(--karta); color: var(--tekst); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .af-muajt button .n { font-size: 12px; font-weight: 600; color: var(--gri); font-variant-numeric: tabular-nums; }
+  .af-muajt button:hover { background: var(--hover); }
+  .af-muajt button.aktiv { background: var(--primar); border-color: var(--primar); color: #fff; }
+  .af-muajt button.aktiv .n { color: rgba(255,255,255,.85); }
   .parapamje { max-height: 230px; overflow: auto; border: 1px solid var(--vije); border-radius: 10px; margin: 8px 0 12px; }
   .parapamje table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .parapamje th, .parapamje td { padding: 6px 10px; border-bottom: 1px solid var(--vije-2); text-align: left; white-space: nowrap; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
@@ -1160,7 +1167,11 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
             Shto afat
           </button>
-          <button class="btn dyte" type="button" id="afBtnExcel">
+          <button class="btn dyte" type="button" id="afBtnImport" title="Importo afate nga një skedar Excel (.xlsx) ose CSV">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m17 8-5-5-5 5"></path><path d="M12 3v12"></path></svg>
+            Importo
+          </button>
+          <button class="btn dyte" type="button" id="afBtnExcel" title="Eksporto afatet në Excel (krejt ose një muaj)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="m8 13 4 5M12 13l-4 5"></path></svg>
             Excel
           </button>
@@ -1184,6 +1195,7 @@
           <input type="checkbox" class="kutize" id="afGrupo"> Grupo sipas furnizuesit
         </label>
       </div>
+      <div class="af-muajt fsheh" id="afMuajt" role="group" aria-label="Filtro sipas muajit të skadimit"></div>
       <div class="tabela-mbajtese">
         <table class="tabela" id="afTabela">
           <thead><tr>
@@ -1572,6 +1584,63 @@
   </div>
 </div>
 
+<!-- Importi i afateve nga Excel/CSV -->
+<div class="mbulese" id="dlgAfImport">
+  <div class="dialog gjere" role="dialog" aria-modal="true" aria-labelledby="aiTitulli">
+    <div class="dialog-krye"><h2 id="aiTitulli">Importo afate nga Excel ose CSV</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
+    <div class="dialog-trup">
+      <div id="aiHapi1">
+        <div class="zona-leshimi" id="aiZona">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m17 8-5-5-5 5"></path><path d="M12 3v12"></path></svg>
+          <p style="margin:10px 0 4px;color:var(--tekst)"><b>Zgjidh skedarin</b> ose tërhiqe këtu</p>
+          <small>.xlsx ose .csv me barkodin/emrin dhe datën e skadimit. Fletët me emër muaji (Nëntor, Nëntor2…) lexohen si ai muaj.</small>
+        </div>
+        <input type="file" id="aiSkedari" accept=".xlsx,.csv,.txt,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" hidden>
+        <div class="gabim-tekst" id="aiGabim1" style="margin-top:10px"></div>
+      </div>
+      <div id="aiHapi2" class="fsheh">
+        <div class="info-rresht" id="aiSkedariInfo" style="margin:0 0 6px"></div>
+        <div class="dy-kolona">
+          <label class="fushe" id="aiFletaMbajtese"><span>Fleta</span><select class="inp" id="aiFleta"></select></label>
+          <label class="fushe"><span>Rreshti i parë ka titujt e kolonave</span>
+            <select class="inp" id="aiKoka"><option value="1">Po</option><option value="0">Jo</option></select></label>
+        </div>
+        <div class="harta" style="grid-template-columns: repeat(5, minmax(0, 1fr))">
+          <label class="fushe"><span>Barkodi</span><select class="inp" id="aiKolBarkodi"></select></label>
+          <label class="fushe"><span>Emri</span><select class="inp" id="aiKolEmri"></select></label>
+          <label class="fushe"><span>Data e skadimit *</span><select class="inp" id="aiKolData"></select></label>
+          <label class="fushe"><span>Sasia</span><select class="inp" id="aiKolSasia"></select></label>
+          <label class="fushe"><span>Furnizuesi</span><select class="inp" id="aiKolFurnizuesi"></select></label>
+        </div>
+        <div class="permbledhje-importi" id="aiPermbledhje"></div>
+        <div class="parapamje" id="aiParapamje"></div>
+      </div>
+    </div>
+    <div class="dialog-fund">
+      <button class="btn tekst fsheh" type="button" id="aiMbrapa">‹ Skedar tjetër</button>
+      <span class="hapesire"></span>
+      <button class="btn tekst" type="button" data-mbyll>Anulo</button>
+      <button class="btn" type="button" id="aiBtn" disabled>Importo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Eksporti i afateve: krejt ose një muaj -->
+<div class="mbulese" id="dlgAfEksport">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="aeTitulli">
+    <div class="dialog-krye"><h2 id="aeTitulli">Eksporto afatet në Excel</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
+    <div class="dialog-trup">
+      <label class="fushe"><span>Cili muaj?</span><select class="inp" id="aeMuaji"></select></label>
+      <div class="parapamje-sasie" id="aeInfo"></div>
+    </div>
+    <div class="dialog-fund">
+      <span class="hapesire"></span>
+      <button class="btn tekst" type="button" data-mbyll>Anulo</button>
+      <button class="btn" type="button" id="aeBtn">Eksporto</button>
+    </div>
+  </div>
+</div>
+
 <!-- Llogaria -->
 <div class="mbulese" id="dlgLlogaria">
   <div class="dialog" role="dialog" aria-modal="true">
@@ -1710,9 +1779,9 @@
 <script src="xlsx.js?v=113"></script>
 <script src="bashkimi.js?v=113"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=117"></script>
+<script src="afatet.js?v=120"></script>
 <script src="ekipa.js?v=5"></script>
-<script src="teRejat.js?v=119"></script>
+<script src="teRejat.js?v=120"></script>
 <script>
 (function () {
   'use strict';
@@ -3939,6 +4008,129 @@
     toast('U importuan ' + num(n) + ' rreshta' + (Object.keys(idTeRinj).length ? ' (' + Object.keys(idTeRinj).length + ' foldera të rinj)' : '') + '.', { veprimi: function () { zhbej(reg); }, ms: 12000 });
   });
 
+  // ================= Importi i afateve (Excel / CSV) =================
+  // Çdo fletë lexohet; një fletë me emër muaji ("Nëntor", "Nëntor2"…) e jep muajin kur data ka vetëm ditën.
+  // Afatet që ekzistojnë (i njëjti barkod/emër + e njëjta datë) kalohen; rreshtat e përsëritur bashkohen.
+  var ai = { fletet: [], emriSkedarit: '' };
+  function hapImportinEAfateve() {
+    ai = { fletet: [], emriSkedarit: '' };
+    $('aiHapi1').classList.remove('fsheh'); $('aiHapi2').classList.add('fsheh'); $('aiMbrapa').classList.add('fsheh');
+    $('aiBtn').disabled = true; $('aiBtn').textContent = 'Importo'; $('aiGabim1').textContent = ''; $('aiSkedari').value = '';
+    hapDialog('dlgAfImport');
+  }
+  async function lexoFletetESkedarit(f) {
+    var buf = await f.arrayBuffer(), bajtet = new Uint8Array(buf);
+    if (bajtet[0] === 0x50 && bajtet[1] === 0x4b) {
+      return (await window.StokuXlsx.read(buf)).map(function (sh) {
+        return { name: sh.name, rows: sh.rows.filter(function (x) { return x.some(function (v) { return String(v).trim() !== ''; }); }) };
+      }).filter(function (sh) { return sh.rows.length; });
+    }
+    if (/\.xls$/i.test(f.name)) throw new Error('xls');
+    return [{ name: f.name.replace(/\.[^.]+$/, ''), rows: lexoCsv(dekodoTekstin(bajtet)) }].filter(function (sh) { return sh.rows.length; });
+  }
+  async function aiLexo(f) {
+    $('aiGabim1').textContent = '';
+    try { ai.fletet = await lexoFletetESkedarit(f); }
+    catch (e) {
+      $('aiGabim1').textContent = e && e.message === 'xls' ? 'Formati i vjetër .xls s\'mbështetet. Hape në Excel dhe ruaje si .xlsx ose .csv.'
+        : e && e.message === 'pa-dekompresim' ? 'Ky shfletues s\'e lexon dot këtë .xlsx. Përdor Chrome/Edge të përditësuar, ose ruaje si .csv.'
+        : 'Skedari s\'u lexua. Sigurohu që është .xlsx ose .csv.';
+      return;
+    }
+    if (!ai.fletet.length) { $('aiGabim1').textContent = 'Skedari është bosh.'; return; }
+    ai.emriSkedarit = f.name;
+    var sel = $('aiFleta');
+    sel.textContent = '';
+    if (ai.fletet.length > 1) {
+      var tot = ai.fletet.reduce(function (m, sh) { return m + sh.rows.length; }, 0);
+      var oK = el('option', null, 'Të gjitha fletët (' + ai.fletet.length + ' fletë, ' + tot + ' rreshta)'); oK.value = 'krejt'; sel.appendChild(oK);
+    }
+    ai.fletet.forEach(function (sh, i) {
+      var m = AF.muajiNgaEmri(sh.name);
+      var o = el('option', null, sh.name + (m ? ' → ' + AF.EMRAT_MUAJVE[m - 1] : '') + ' (' + sh.rows.length + ' rreshta)'); o.value = String(i); sel.appendChild(o);
+    });
+    sel.value = ai.fletet.length > 1 ? 'krejt' : '0';
+    $('aiFletaMbajtese').classList.toggle('fsheh', ai.fletet.length < 2);
+    $('aiHapi1').classList.add('fsheh'); $('aiHapi2').classList.remove('fsheh'); $('aiMbrapa').classList.remove('fsheh');
+    $('aiSkedariInfo').textContent = 'Skedari: ' + f.name;
+    // Rreshti i parë ka tituj? Po, nëse s'ka asnjë datë në të
+    var r0 = ai.fletet[0].rows[0] || [];
+    $('aiKoka').value = r0.some(function (v) { return !!AF.dataNgaQeliza(v); }) ? '0' : '1';
+    aiPergatit(true);
+  }
+  function aiFletet() { var v = $('aiFleta').value; return v === 'krejt' || v === '' ? ai.fletet : [ai.fletet[+v]]; }
+  var AI_FUSHAT = [['barkodi', 'aiKolBarkodi'], ['emri', 'aiKolEmri'], ['data', 'aiKolData'], ['sasia', 'aiKolSasia'], ['furnizuesi', 'aiKolFurnizuesi']];
+  function aiPergatit(hamendeso) {
+    var sh = aiFletet()[0], ka = $('aiKoka').value === '1';
+    var nKol = sh.rows.reduce(function (m, r) { return Math.max(m, r.length); }, 0);
+    var titujt = [];
+    for (var i = 0; i < nKol; i++) titujt.push(ka ? (AF.tekstNgaQeliza(sh.rows[0][i]) || 'Kolona ' + (i + 1)) : 'Kolona ' + (i + 1));
+    var h = hamendeso ? AF.hamendesoKolonatEAfateve(sh.rows, ka) : null;
+    AI_FUSHAT.forEach(function (x) {
+      var s = $(x[1]), v = s.value;
+      s.textContent = '';
+      var o0 = el('option', null, '(asnjë)'); o0.value = '-1'; s.appendChild(o0);
+      titujt.forEach(function (t, j) { var o = el('option', null, t); o.value = String(j); s.appendChild(o); });
+      s.value = h ? String(h[x[0]]) : (v || '-1');
+    });
+    aiRifresko();
+  }
+  function aiPlani() {
+    var kol = {};
+    AI_FUSHAT.forEach(function (x) { kol[x[0]] = parseInt($(x[1]).value, 10); });
+    return AF.planiImportitAfateve(aiFletet(), { meKoke: $('aiKoka').value === '1', kol: kol, ekzistuese: afatet });
+  }
+  function aiRifresko() {
+    if (!ai.fletet.length) return;
+    var plan = aiPlani();
+    var pp = $('aiPermbledhje');
+    pp.textContent = '';
+    [['Afate të reja', plan.teRinj], ['Ekzistojnë (kalohen)', plan.ekzistojne], ['Bashkohen (i njëjti produkt dhe datë)', plan.bashkuar], ['Me gabim (kalohen)', plan.gabime]].forEach(function (x) {
+      if (!x[1] && x[0] !== 'Afate të reja') return;
+      var sp = el('span'); sp.appendChild(document.createTextNode(x[0] + ': ')); sp.appendChild(el('b', null, num(x[1]))); pp.appendChild(sp);
+    });
+    var muajt = AF.muajtELista(plan.rreshta.filter(function (r) { return r.veprimi === 'i ri'; }));
+    if (muajt.length) { var sm = el('span'); sm.appendChild(document.createTextNode('Muajt: ')); sm.appendChild(el('b', null, muajt.map(function (m) { return m.emri + ' (' + m.n + ')'; }).join(', '))); pp.appendChild(sm); }
+    var t = el('table'), h = el('tr');
+    var meFleta = aiFletet().length > 1;
+    (meFleta ? ['Fleta'] : []).concat(['#', 'Barkodi', 'Emri', 'Skadon më', 'Sasia', 'Furnizuesi', 'Çfarë ndodh']).forEach(function (x) { h.appendChild(el('th', null, x)); });
+    var th = el('thead'); th.appendChild(h); t.appendChild(th);
+    var tb = el('tbody');
+    plan.rreshta.slice(0, 80).forEach(function (r) {
+      var tr = el('tr', r.gabim ? 'gabuar' : '');
+      (meFleta ? [r.fleta] : []).concat([r.nr, r.barkodi, r.emri, r.data ? AF.formato(r.data) : r.dataOrigjinale, r.sasia, r.furnizuesi, r.gabim || r.veprimi])
+        .forEach(function (x) { tr.appendChild(el('td', null, String(x === undefined || x === null ? '' : x))); });
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb);
+    var pv = $('aiParapamje'); pv.textContent = ''; pv.appendChild(t);
+    if (plan.rreshta.length > 80) pv.appendChild(el('div', 'bosh-mesazh', '… dhe ' + (plan.rreshta.length - 80) + ' rreshta të tjerë.'));
+    $('aiBtn').disabled = !plan.teRinj;
+    $('aiBtn').textContent = plan.teRinj ? 'Importo ' + num(plan.teRinj) + ' afate' : 'Importo';
+  }
+  $('afBtnImport').addEventListener('click', hapImportinEAfateve);
+  $('aiZona').addEventListener('click', function () { $('aiSkedari').click(); });
+  $('aiZona').addEventListener('dragover', function (ev) { ev.preventDefault(); $('aiZona').classList.add('siper'); });
+  $('aiZona').addEventListener('dragleave', function () { $('aiZona').classList.remove('siper'); });
+  $('aiZona').addEventListener('drop', function (ev) { ev.preventDefault(); $('aiZona').classList.remove('siper'); var f = ev.dataTransfer.files && ev.dataTransfer.files[0]; if (f) aiLexo(f); });
+  $('aiSkedari').addEventListener('change', function () { var f = $('aiSkedari').files[0]; if (f) aiLexo(f); });
+  $('aiMbrapa').addEventListener('click', hapImportinEAfateve);
+  $('aiFleta').addEventListener('change', function () { aiPergatit(true); });
+  $('aiKoka').addEventListener('change', function () { aiPergatit(true); });
+  AI_FUSHAT.forEach(function (x) { $(x[1]).addEventListener('change', aiRifresko); });
+  $('aiBtn').addEventListener('click', function () {
+    var plan = aiPlani();
+    var teReja = AF.afatetNgaPlani(plan, { krijuarNga: emriPerdoruesit() });
+    if (!teReja.length) return;
+    var reg = ndryshoAfatet(function (api) { teReja.forEach(function (a) { api.vendos(a); }); });
+    mbyllDialog('dlgAfImport');
+    af.muaji = ''; af.filtri = 'aktive';
+    if (pamja !== 'afatet') shkoTe('afatet'); else renderAfatetPc();
+    var n = AF.numero(teReja);
+    toast('U importuan ' + num(teReja.length) + ' afate' + (n.skaduar ? ' · ' + n.skaduar + ' kanë skaduar!' : '') + (n.afer ? ' · ' + n.afer + ' skadojnë brenda 30 ditëve' : '') + '.',
+      { veprimi: function () { zhbejAfatet(reg); }, ms: 12000 });
+  });
+
   // ================= Llogaria =================
   function tekstiGabimit(kodi) {
     if (kodi === 'auth/email-already-in-use') return 'Ky emër përdoruesi është zënë tashmë. Provo një tjetër.';
@@ -4248,7 +4440,7 @@
 
   // ================= Afatet e produkteve (datat e skadimit) =================
   var AF = window.StokuAfatet;
-  var af = { filtri: 'aktive', kerkimi: '', grupo: false };
+  var af = { filtri: 'aktive', kerkimi: '', grupo: false, muaji: '' };
 
   function ndryshoAfatet(fn) {
     var para = {};
@@ -4316,9 +4508,12 @@
     $('navAfAfer').classList.toggle('aktiv', neAfate && af.filtri === 'afer');
   }
 
-  function filtroAfatet() {
+  // paMuaj: pa filtrin e muajit (për numrat e butonave të muajve); muaji: muaj tjetër nga ai i zgjedhur (eksporti)
+  function filtroAfatet(paMuaj, muaji) {
     var fjalet = normalizo(af.kerkimi).split(/\s+/).filter(Boolean);
+    var mu = muaji !== undefined ? muaji : (paMuaj ? '' : af.muaji);
     return afatet.filter(function (a) {
+      if (mu && AF.celesiMuajit(a) !== mu) return false;
       var st = AF.statusi(a);
       if (af.filtri === 'aktive' && st === 'hequr') return false;
       if (af.filtri === 'skaduar' && st !== 'skaduar' && st !== 'pa-date') return false;
@@ -5159,6 +5354,7 @@
     });
     Array.prototype.forEach.call(document.querySelectorAll('#afFiltrat button'), function (b) { b.classList.toggle('aktiv', b.dataset.f === af.filtri); });
     $('afGrupo').checked = af.grupo;
+    vizatoMuajtEAfateve();
 
     var lista = filtroAfatet();
     var trup = $('afTrup');
@@ -5301,7 +5497,7 @@
   $('afKerko').addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && $('afKerko').value) { ev.stopPropagation(); $('afKerko').value = ''; af.kerkimi = ''; renderAfatetPc(); } });
   $('afGrupo').addEventListener('change', function () { af.grupo = $('afGrupo').checked; renderAfatetPc(); });
   $('afBtnShto').addEventListener('click', function () { hapAfatinPc(null); });
-  $('afBtnExcel').addEventListener('click', eksportoAfatet);
+  $('afBtnExcel').addEventListener('click', hapEksportinEAfateve);
 
   // ---------- Dialogu shto/ndrysho ----------
   var afdId = null;
@@ -5957,11 +6153,48 @@
       (nk ? ' · ' + nk + ' kanë skaduar!' : '') + (nv ? ' · ' + nv + ' skadojnë brenda 30 ditëve' : '') + '.', { veprimi: function () { zhbejAfatet(reg); }, ms: 9000 });
   });
 
+  // ---------- Filtri sipas muajit të skadimit ----------
+  function vizatoMuajtEAfateve() {
+    var c = $('afMuajt');
+    var muajt = AF.muajtELista(filtroAfatet(true));
+    if (af.muaji && !muajt.some(function (m) { return m.celes === af.muaji; })) muajt.push({ celes: af.muaji, n: 0, emri: AF.emriMuajit(af.muaji) });
+    c.classList.toggle('fsheh', muajt.length < 2 && !af.muaji);
+    c.textContent = '';
+    [{ celes: '', emri: 'Të gjithë muajt', n: null }].concat(muajt).forEach(function (m) {
+      var b = el('button', af.muaji === m.celes ? 'aktiv' : null); b.type = 'button';
+      b.setAttribute('aria-pressed', String(af.muaji === m.celes));
+      b.appendChild(document.createTextNode(m.emri));
+      if (m.n !== null) b.appendChild(el('span', 'n', String(m.n)));
+      b.addEventListener('click', function () { af.muaji = m.celes; renderAfatetPc(); });
+      c.appendChild(b);
+    });
+  }
+
   // ---------- Excel i afateve ----------
-  function eksportoAfatet() {
+  function hapEksportinEAfateve() {
     if (!afatet.length) { toast('S\'ka afate për eksport.'); return; }
-    var lista = filtroAfatet();
-    if (!lista.length) lista = afatet.slice().sort(AF.krahaso);
+    var s = $('aeMuaji');
+    s.textContent = '';
+    var o0 = el('option', null, 'Të gjithë muajt'); o0.value = ''; s.appendChild(o0);
+    AF.muajtELista(filtroAfatet(true)).forEach(function (m) { var o = el('option', null, m.emri + ' (' + m.n + ')'); o.value = m.celes; s.appendChild(o); });
+    s.value = af.muaji && Array.prototype.some.call(s.options, function (o) { return o.value === af.muaji; }) ? af.muaji : '';
+    rifreskoInfonEEksportit();
+    hapDialog('dlgAfEksport', 'aeMuaji');
+  }
+  function rifreskoInfonEEksportit() {
+    var n = filtroAfatet(true, $('aeMuaji').value).length;
+    var st = { aktive: 'aktive', skaduar: 'të skaduara', afer: 'afër skadimit', ok: 'në rregull', hequr: 'të hequra' }[af.filtri] || '';
+    $('aeInfo').textContent = n ? 'Do të eksportohen ' + (n === 1 ? '1 afat' : n + ' afate') + (af.filtri !== 'aktive' ? ' (' + st + ')' : '') + (af.kerkimi ? ', sipas kërkimit' : '') + '.' : 'S\'ka afate ' + st + ' për këtë muaj.';
+    $('aeBtn').disabled = !n;
+  }
+  $('aeMuaji').addEventListener('change', rifreskoInfonEEksportit);
+  $('aeBtn').addEventListener('click', function () { var m = $('aeMuaji').value; mbyllDialog('dlgAfEksport'); eksportoAfatet(m); });
+
+  function eksportoAfatet(muaji) {
+    if (!afatet.length) { toast('S\'ka afate për eksport.'); return; }
+    muaji = muaji || '';
+    var lista = filtroAfatet(true, muaji);
+    if (!lista.length) { toast('S\'ka afate për këtë muaj.'); return; }
     function rresht(a) {
       var n = AF.ditetDeri(a.data);
       var st = AF.statusi(a);
@@ -5975,7 +6208,7 @@
       { title: 'Hequr nga rafti', width: 18, type: 'date' }, { title: 'Shtuar nga', width: 14 }
     ];
     var fletet = [{ name: 'Afatet', columns: kol, rows: lista.map(rresht), totalLabel: 'Gjithsej', totalColumns: [3] }];
-    var perFurnizues = afatet.filter(function (a) { var s = AF.statusi(a); return s === 'afer' || s === 'skaduar'; })
+    var perFurnizues = afatet.filter(function (a) { var s = AF.statusi(a); return (s === 'afer' || s === 'skaduar') && (!muaji || AF.celesiMuajit(a) === muaji); })
       .sort(function (a, b) { return (a.furnizuesi || '~').localeCompare(b.furnizuesi || '~', 'sq') || String(a.data).localeCompare(String(b.data)); });
     if (perFurnizues.length) {
       fletet.push({ name: 'Për furnizuesit', columns: [
@@ -5983,7 +6216,8 @@
         { title: 'Sasia (copë)', width: 12, type: 'number' }, { title: 'Skadon më', width: 13, type: 'day' }, { title: 'Ditë të mbetura', width: 14, type: 'number' }, { title: 'Lajmëruar më', width: 18, type: 'date' }
       ], totalLabel: 'Gjithsej', totalColumns: [3], rows: perFurnizues.map(function (a) { return [a.furnizuesi || '(pa furnizues)', a.emri || '', a.barkodi || '', typeof a.sasia === 'number' ? a.sasia : '', a.data, AF.ditetDeri(a.data), a.lajmeruarSe || '']; }) });
     }
-    var emri = 'afatet_' + vulaKohore(true) + '.xlsx';
+    if (muaji) fletet[0].name = AF.emriMuajit(muaji);
+    var emri = 'afatet_' + (muaji ? slug(AF.emriMuajit(muaji)) + '_' : '') + vulaKohore(true) + '.xlsx';
     shkarko(window.StokuXlsx.buildWorkbook(fletet), emri, MIME_XLSX);
     toast('U shkarkua: ' + emri);
   }
