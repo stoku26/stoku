@@ -83,14 +83,14 @@
     var st = statusi(a, tani);
     var n = ditetDeri(a.data, tani);
     if (st === 'hequr') return 'U hoq nga rafti' + (a.hequrSe ? ' më ' + formato(isoNgaData(new Date(a.hequrSe))) : '') + '.';
-    if (st === 'pa-date') return 'Mungon data e skadimit — plotësoje.';
-    if (st === 'skaduar') return (n === -1 ? 'Skadoi dje' : 'Ka skaduar para ' + ditetTekst(-n)) + ' — ky produkt duhet të hiqet nga rafti/pozita.';
+    if (st === 'pa-date') return 'Mungon data e skadimit. Plotësoje.';
+    if (st === 'skaduar') return (n === -1 ? 'Skadoi dje' : 'Ka skaduar para ' + ditetTekst(-n)) + '. Ky produkt duhet të hiqet nga rafti/pozita.';
     if (st === 'afer') {
       var kur = n === 0 ? 'Skadon SOT' : n === 1 ? 'Skadon nesër' : 'Skadon për ' + ditetTekst(n);
-      return kur + (a.lajmeruarSe ? ' — furnizuesi u lajmërua më ' + formato(isoNgaData(new Date(a.lajmeruarSe))) + '.' :
-        ' — lajmëro furnizuesin sa më parë.');
+      return kur + (a.lajmeruarSe ? '. Furnizuesi u lajmërua më ' + formato(isoNgaData(new Date(a.lajmeruarSe))) + '.' :
+        '. Lajmëro furnizuesin sa më parë.');
     }
-    return 'Në rregull — skadon për ' + ditetTekst(n) + '.';
+    return 'Në rregull, skadon për ' + ditetTekst(n) + '.';
   }
 
   // Lexon data në formate të zakonshme të shkruara me dorë. Kthen 'VVVV-MM-DD' ose null.
@@ -192,7 +192,7 @@
   function mesazhiFurnizuesit(furnizuesi, lista) {
     var rr = lista.slice().sort(function (a, b) { return String(a.data).localeCompare(String(b.data)); }).map(function (a, i) {
       var n = ditetDeri(a.data);
-      return (i + 1) + '. ' + (a.emri || 'Produkt') + (a.barkodi ? ' (' + a.barkodi + ')' : '') + (sasiaTekst(a) ? ' — ' + sasiaTekst(a) : '') + ' — skadon ' + formato(a.data) +
+      return (i + 1) + '. ' + (a.emri || 'Produkt') + (a.barkodi ? ' (' + a.barkodi + ')' : '') + (sasiaTekst(a) ? ', ' + sasiaTekst(a) : '') + ', skadon ' + formato(a.data) +
         (n === null ? '' : n < 0 ? ' (KA SKADUAR)' : n === 0 ? ' (sot)' : ' (për ' + ditetTekst(n) + ')');
     });
     return 'Përshëndetje' + (furnizuesi ? ' ' + furnizuesi : '') + ',\n\n' +

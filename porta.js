@@ -32,7 +32,7 @@
   function mesazhiPaLidhje() {
     if (SHFLETUES_I_VJETER) return MESAZHI_VJETER;
     if (typeof navigator !== 'undefined' && navigator.onLine === false) return 'S\'ka lidhje me internetin. Hyrja e parë në këtë pajisje kërkon internet.';
-    return 'Lidhja me serverin po zgjat (internet i dobët?). Mund të provosh të hysh — pritet derisa të lidhet.';
+    return 'Lidhja me serverin po zgjat (internet i dobët?). Mund të provosh të hysh, pritet derisa të lidhet.';
   }
 
   function lexo(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -146,7 +146,7 @@
     $('pkFjalekalimi').setAttribute('autocomplete', krijo ? 'new-password' : 'current-password');
     $('pkDergo').textContent = krijo ? 'Krijo llogarinë' : 'Hyr';
     $('pkShenim').textContent = krijo
-      ? 'Emri: të paktën 3 shkronja ose numra (a–z, 0–9, _ . -). Fjalëkalimi: të paktën 6 shenja. Mbaje mend — të duhet në çdo pajisje.'
+      ? 'Emri: të paktën 3 shkronja ose numra (a–z, 0–9, _ . -). Fjalëkalimi: të paktën 6 shenja. Mbaje mend, të duhet në çdo pajisje.'
       : 'Hyr me llogarinë e dyqanit. Të dhënat sinkronizohen vetë në telefon, PDA dhe kompjuter.';
     $('pkGabim').textContent = '';
   }

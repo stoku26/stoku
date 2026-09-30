@@ -1081,7 +1081,7 @@
 </style>
 </head>
 <body>
-<script src="porta.js?v=116"></script>
+<script src="porta.js?v=117"></script>
 
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" style="display:none">←</button>
@@ -1548,7 +1548,7 @@
     <p class="nj-tekst">Të lajmërojmë me njoftim në telefon:</p>
     <ul class="nj-lista">
       <li><span class="nj-pike verdhe"></span><span>kur një produkti i kanë mbetur <b>30 ditë</b> deri në skadim</span></li>
-      <li><span class="nj-pike kuqe"></span><span>kur një produkt <b>skadon</b> — që ta heqësh nga rafti/pozita</span></li>
+      <li><span class="nj-pike kuqe"></span><span>kur një produkt <b>skadon</b>, që ta heqësh nga rafti/pozita</span></li>
     </ul>
     <div class="veprime">
       <button class="btn tekst" id="njJoTani" type="button">Jo tani</button>
@@ -1636,10 +1636,10 @@
 <script src="xlsx.js?v=113"></script>
 <script src="bashkimi.js?v=113"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=90"></script>
+<script src="afatet.js?v=117"></script>
 <script src="ekipa.js?v=5"></script>
-<script src="njoftimet.js?v=85"></script>
-<script src="teRejat.js?v=116"></script>
+<script src="njoftimet.js?v=117"></script>
+<script src="teRejat.js?v=117"></script>
 <script>
 (function () {
   'use strict';
@@ -1794,7 +1794,7 @@
       sfondPikaEmri: 'Pika',
       sfondRrjeteEmri: 'Rrjetë',
       sfondDiagonaleEmri: 'Diagonale',
-      sfondiHintTeksti: 'Një motiv shumë i lehtë prapa listave, thjesht për pak karakter vizual — nuk e prek lexueshmërinë.',
+      sfondiHintTeksti: 'Një motiv shumë i lehtë prapa listave, thjesht për pak karakter vizual. Nuk e prek lexueshmërinë.',
 
       pdaLabel: 'Ky është PDA (skaner i brendshëm)',
       pdaStatusNdezur: 'PDA i ndezur',
@@ -2962,7 +2962,7 @@
     var e = $('afSinkStatus');
     if (!e) return;
     if (!perdoruesiAktual()) { e.hidden = true; return; }
-    var teksti = g === 'ok' ? 'Ruajtur në cloud · ' + oraTani() : g === 'gabim' ? 'S\'u ruajt në cloud (pa internet?) — riprovohet vetë' : 'Duke u ruajtur në cloud…';
+    var teksti = g === 'ok' ? 'Ruajtur në cloud · ' + oraTani() : g === 'gabim' ? 'S\'u ruajt në cloud (pa internet?) · riprovohet vetë' : 'Duke u ruajtur në cloud…';
     e.hidden = false;
     e.className = 'af-sink ' + g;
     e.innerHTML = IKONAT_SINK[g] || IKONAT_SINK.pune;
@@ -3333,7 +3333,7 @@
     try { await kryeSinkronizimin(); } catch (e) { /* ndryshimet e fundit mbeten lokalisht */ }
     if (__sinkDeshtoi || dukeSinkronizuar) {
       var gjithsesi = await konfirmo('Ndryshimet e fundit s\'janë ruajtur në cloud',
-        'S\'ka lidhje me internetin. Nëse del tani dhe në këtë telefon hyn një llogari tjetër, ndryshimet e paruajtura humbin. Më mirë prit internetin — të dilet gjithsesi?', 'Dil gjithsesi');
+        'S\'ka lidhje me internetin. Nëse del tani dhe në këtë telefon hyn një llogari tjetër, ndryshimet e paruajtura humbin. Më mirë prit internetin. Të dilet gjithsesi?', 'Dil gjithsesi');
       if (!gjithsesi) return;
     }
     if (window.__stokuCloud && window.__stokuCloud.dil) await window.__stokuCloud.dil();
@@ -4905,7 +4905,7 @@
       m.appendChild(pb);
     }
     var d = document.createElement('div'); d.className = 'af-djathtas';
-    var dt = document.createElement('div'); dt.className = 'af-data'; dt.textContent = a.data ? AF.formato(a.data) : '—';
+    var dt = document.createElement('div'); dt.className = 'af-data'; dt.textContent = a.data ? AF.formato(a.data) : '–';
     d.appendChild(dt);
     if (sas) { var sq = document.createElement('div'); sq.className = 'af-sasia'; sq.textContent = sas; d.appendChild(sq); }
     if (n !== null && st !== 'hequr') {
@@ -5256,7 +5256,7 @@
     }
     var frag = document.createDocumentFragment();
     te.slice(0, EKIPI_LIMITI).forEach(function (a) { frag.appendChild(ekKartaAfati(a, __ekipiAnetari === 'krejt')); });
-    if (te.length > EKIPI_LIMITI) frag.appendChild(ekInfo('Shfaqen ' + EKIPI_LIMITI + ' nga ' + te.length + ' — kërko për t\'i gjetur të tjerat.'));
+    if (te.length > EKIPI_LIMITI) frag.appendChild(ekInfo('Shfaqen ' + EKIPI_LIMITI + ' nga ' + te.length + '. Kërko për t\'i gjetur të tjerat.'));
     lista.appendChild(frag);
   }
   // ---- Pulti (faqja kryesore e Ekipës) ----
@@ -5334,7 +5334,7 @@
       var bk = ekEl('div', 'ek-pult-kerkesat');
       var tk = ekEl('div', 'tk');
       tk.appendChild(ekEl('b', null, kr.length === 1 ? kr[0].emri + ' pret miratimin' : kr.length + ' llogari presin miratimin'));
-      tk.appendChild(document.createTextNode(kr.length === 1 ? 'Pa u pranuar s\'e sheh Ekipën.' : kr.slice(0, 3).map(function (a) { return a.emri; }).join(', ') + (kr.length > 3 ? '…' : '') + ' — pa u pranuar s\'e shohin Ekipën.'));
+      tk.appendChild(document.createTextNode(kr.length === 1 ? 'Pa u pranuar s\'e sheh Ekipën.' : kr.slice(0, 3).map(function (a) { return a.emri; }).join(', ') + (kr.length > 3 ? '…' : '') + ': pa u pranuar s\'e shohin Ekipën.'));
       bk.appendChild(tk);
       var bp = ekEl('button', 'btn', kr.length === 1 ? 'Prano' : 'Prano krejt'); bp.type = 'button';
       bp.addEventListener('click', function () { ekPrano(kr, bp); });
@@ -5366,7 +5366,7 @@
     c.appendChild(s2);
     var l2 = ekEl('div', 'ek-kartat');
     if (!krejt.ngarkuar) l2.appendChild(ekInfo('Duke ngarkuar…'));
-    else if (!skaduara.length) l2.appendChild(ekEl('div', 'ek-kart mire', 'Asnjë produkt i skaduar në raft — shumë mirë!'));
+    else if (!skaduara.length) l2.appendChild(ekEl('div', 'ek-kart mire', 'Asnjë produkt i skaduar në raft. Shumë mirë!'));
     skaduara.slice(0, 5).forEach(function (a) { l2.appendChild(ekKartaPultit(a)); });
     c.appendChild(l2);
     // Skadojnë këtë javë
@@ -5379,7 +5379,7 @@
       javes.slice(0, 5).forEach(function (a) { l3.appendChild(ekKartaPultit(a)); });
       c.appendChild(l3);
     }
-    if (ekK.gj.gabimNgarkimi) c.appendChild(ekInfo('S\'u lidh me ekipën. Kontrollo internetin — ose rregullat e Firebase-it s\'janë vendosur ende.'));
+    if (ekK.gj.gabimNgarkimi) c.appendChild(ekInfo('S\'u lidh me ekipën. Kontrollo internetin, ose rregullat e Firebase-it s\'janë vendosur ende.'));
   }
 
   function ekKartaAfati(a, meEmer) {
@@ -5409,7 +5409,7 @@
       m.appendChild(rr);
     }
     var d = ekEl('div', 'af-djathtas');
-    d.appendChild(ekEl('div', 'af-data', a.data ? AF.formato(a.data) : '—'));
+    d.appendChild(ekEl('div', 'af-data', a.data ? AF.formato(a.data) : '–'));
     var sas = AF.sasiaTekst(a);
     if (sas) d.appendChild(ekEl('div', 'af-sasia', sas));
     if (n !== null && st !== 'hequr') d.appendChild(ekEl('div', 'af-dite', n < 0 ? 'para ' + AF.ditetTekst(-n) : n === 0 ? 'sot' : n + ' ditë'));
@@ -5505,7 +5505,7 @@
     c.textContent = '';
     var gj = ekK.gj;
     if (!gj.chatGati) { c.appendChild(ekInfo('Duke ngarkuar…')); return; }
-    if (!gj.chat.length) { c.appendChild(ekBosh('Asnjë mesazh ende', 'Shkruaj të parin — e sheh krejt ekipa.')); return; }
+    if (!gj.chat.length) { c.appendChild(ekBosh('Asnjë mesazh ende', 'Shkruaj të parin, e sheh krejt ekipa.')); return; }
     var uidIm = perdoruesiAktual() ? perdoruesiAktual().uid : null;
     var kuti = ekEl('div', 'ek-chat');
     var dita = '', iFundit = null;
@@ -5640,7 +5640,7 @@
       r.appendChild(m);
       var n = ekNumero(a.afatet);
       var d = ekEl('div', 'ek-anetar-nr');
-      d.appendChild(ekEl('b', null, !a.ngarkuar ? '…' : a.paTeDhena ? '—' : String(n.aktive)));
+      d.appendChild(ekEl('b', null, !a.ngarkuar ? '…' : a.paTeDhena ? '–' : String(n.aktive)));
       d.appendChild(ekEl('span', null, 'në raft'));
       if (n.skaduar) d.appendChild(ekEl('span', 'ek-kuqe', n.skaduar === 1 ? '1 i skaduar' : n.skaduar + ' të skaduara'));
       r.appendChild(d);
@@ -5654,7 +5654,7 @@
   function vizatoPanelinEAdminit(c, anetaret) {
     var h = ekEl('div', 'af-grup-krye'); h.appendChild(ekEl('span', null, 'Njoftim për krejt ekipën')); c.appendChild(h);
     var nj = ekEl('div', 'ek-admin-njoftim');
-    var ta = ekEl('textarea'); ta.id = 'ekAdminTekst'; ta.maxLength = 1000; ta.placeholder = 'Shkruaj njoftimin — i del secilit te zilja';
+    var ta = ekEl('textarea'); ta.id = 'ekAdminTekst'; ta.maxLength = 1000; ta.placeholder = 'Shkruaj njoftimin (i del secilit te zilja)';
     var bd = ekEl('button', 'btn', 'Dërgo te krejt ekipa'); bd.type = 'button';
     bd.addEventListener('click', async function () {
       var t = ta.value.trim();
@@ -5790,7 +5790,7 @@
       r.appendChild(ekEl('div', 'sasia', String(p.sasia | 0)));
       frag.appendChild(r);
     });
-    if (te.length > EKIPI_LIMITI) frag.appendChild(ekInfo('Shfaqen ' + EKIPI_LIMITI + ' nga ' + te.length + ' — kërko për t\'i gjetur të tjerat.'));
+    if (te.length > EKIPI_LIMITI) frag.appendChild(ekInfo('Shfaqen ' + EKIPI_LIMITI + ' nga ' + te.length + '. Kërko për t\'i gjetur të tjerat.'));
     lista.appendChild(frag);
   }
   async function ekHapStokun(uid) {
@@ -5825,7 +5825,7 @@
     var r = await ekK.fshijLlogarine(a);
     if (!r.ok) { toast(r.leje ? 'S\'u fshi: rregullat e Firebase-it s\'e lejojnë ende (duhen rregullat v116).' : 'S\'u fshi. Kontrollo internetin dhe provo përsëri.', 5000); return; }
     if (__ekipiAnetari === a.uid) ekipiKthehuTeKartat(); else vizatoEkipen();
-    toast('Llogaria e ' + a.emri + ' u fshi' + (r.mbetur ? ' (disa të dhëna s\'u fshinë — provo përsëri më vonë).' : '.'), 4000);
+    toast('Llogaria e ' + a.emri + ' u fshi' + (r.mbetur ? ' (disa të dhëna s\'u fshinë, provo përsëri më vonë).' : '.'), 4000);
   }
 
   // ---- Statistikat ----
@@ -6137,11 +6137,11 @@
       if (!r.ok) {
         gjendjaKfh('gabim', r.kodi === 'permission-denied'
           ? 'Dërgimi në PC s\'lejohet ende nga rregullat e Firebase-it (duhen përditësuar një herë). Vazhdoje këtu në telefon.'
-          : 'Fleta s\'u dërgua — kontrollo internetin dhe provo sërish, ose vazhdoje këtu në telefon.');
+          : 'Fleta s\'u dërgua. Kontrollo internetin dhe provo sërish, ose vazhdoje këtu në telefon.');
         return;
       }
       var n = rez.rreshtat.length;
-      gjendjaKfh('gati', 'U lexuan ' + n + (n === 1 ? ' rresht' : ' rreshta') + '. Në kompjuter (me të njëjtën llogari) do të dalë njoftimi për fletën — mund ta kontrollosh kur të kesh kohë.');
+      gjendjaKfh('gati', 'U lexuan ' + n + (n === 1 ? ' rresht' : ' rreshta') + '. Në kompjuter (me të njëjtën llogari) do të dalë njoftimi për fletën. Mund ta kontrollosh kur të kesh kohë.');
     } catch (e) {
       if (!ky.anuluar) gjendjaKfh('gabim', 'Diçka s\'shkoi mirë. Vazhdoje këtu në telefon.');
     }
@@ -6193,7 +6193,7 @@
     });
     var nDyshim = lx.rreshtat.filter(function (r) { return r.dyshim; }).length;
     statusiLeximit(lx.rreshtat.length
-      ? 'U lexuan ' + lx.rreshtat.length + ' rreshta. Krahasoji me foton dhe korrigjo ku duhet' + (nDyshim ? ' — ' + nDyshim + ' janë shënuar me të verdhë si të paqarta.' : '.')
+      ? 'U lexuan ' + lx.rreshtat.length + ' rreshta. Krahasoji me foton dhe korrigjo ku duhet' + (nDyshim ? '. ' + nDyshim + ' janë shënuar me të verdhë si të paqarta.' : '.')
       : 'Në foto s\'u gjet asnjë rresht me afat. Provo një foto më të qartë ose shkruaji me dorë.', !lx.rreshtat.length);
     if (!lx.rreshtat.length) shtoRreshtLeximi(); else renderLeximin();
   }
@@ -6281,7 +6281,7 @@
         var sh = document.createElement('div');
         sh.className = 'lx-shenim' + (!r.data ? ' paralajm' : '');
         sh.textContent = (r.dataOrigjinale ? 'Në fletë: "' + r.dataOrigjinale + '"' : '') +
-          (r.data ? ' → ' + AF.pershkrimi({ data: r.data }) : ' — data s\'u kuptua, zgjidhe me dorë.');
+          (r.data ? ' → ' + AF.pershkrimi({ data: r.data }) : '. Data s\'u kuptua, zgjidhe me dorë.');
         d.appendChild(sh);
       }
       c.appendChild(d);
