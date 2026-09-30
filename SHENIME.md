@@ -37,6 +37,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 | `xlsx.js` | Ndërton dhe lexon skedarë `.xlsx` pa librari të jashtme. |
 | `sw.js` | Service worker: cache për punë pa internet + **përditësim automatik** (shih poshtë). |
 | `manifest.webmanifest` | PWA manifest (emri "Stoku", ikonat). |
+| `css/` | Pamja (v126): `stoku-tokens.css` (fontet, ngjyrat e çelëta/errëta), `stoku.css` (telefoni), `stoku-pc.css` (kompjuteri). |
+| `fonts/` | Onest dhe JetBrains Mono (woff2, OFL), që pamja të punojë edhe pa internet. |
+| `logo/` | Logo e re (SVG, favicon, ikona "maskable"). |
+| `beta/` | Vetëm ridrejtim te Stoku (Beta u hoq te v126). |
 
 ## Rregulla teknike THEMELORE (mos i harro)
 
@@ -46,28 +50,41 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
-0000000. **STOKU BETA (v124): stoku.site/beta/, pamja e re e telefonit nga Claude Design** (dizajni "Stoku Premium",
-   handoff i përdoruesit: telefoni së pari, kompjuteri më vonë në /beta/pc.html; ende s'ekziston, beta te kompjuteri hap
-   ../pc.html). Vendimet e përdoruesit: kolona/rreshti mbetet "Ditët e mbetura" (jo "Çfarë duhet bërë" e dizajnit),
-   fonti Onest për krejt betën (lokal, `beta/fonts/`, OFL).
-   - **`beta/index.html` është I GJENERUAR nga `index.html`** me `python3 beta/nderto.py`. PAS ÇDO NDRYSHIMI te
-     index.html (ose te versionet `?v=` / CACHE i sw.js) EKZEKUTO `python3 beta/nderto.py` dhe commit-o edhe
-     beta/index.html + beta/sw.js. Skripti ndalet me gabim nëse s'gjen një pjesë të kodit që e ndryshon (grepat):
-     atëherë përshtate `nderto.py`, jo beta/index.html me dorë.
-   - Beta = i njëjti kod + `beta/stoku-beta.css` (klasa `sb-`, gjithçka nën `html.sb`) + `beta/beta.js`
-     (StokuBeta.pasFolderave / kartaAfatit / gati; lexon të dhënat nga `window.StokuBetaAPI`, vetëm në betë).
-     Skedarët e përbashkët (afatet.js, ekipa.js…) merren nga `../`. Të dhënat, llogaria, ekipa: të njëjtat (i njëjti domen).
-   - SW i veçantë: `beta/sw.js` (gjeneruar nga `beta/sw-shabllon.js`), scope /beta/, cache `stoku-beta-<VERSIONI_BETA>-<CACHE i rrënjës>`.
-     sw.js i rrënjës: s'i fshin cache-t `stoku-beta-*` dhe s'i trajton kërkesat /beta/. Kur ndryshon stoku-beta.css ose
-     beta.js: rrit `VERSIONI_BETA` te nderto.py.
-   - Qasja: telefoni Cilësimet → Pamja → "Provo pamjen e re (Beta) ›"; PC Cilësimet → Pamja → "Pamja e re (Beta)" →
-     "Shiko Beta" (hap `beta/?tel`: beta e telefonit në mes të ekranit, 440px; `?tel` ruhet në sessionStorage
-     `stoku:beta-tel` që të mos ridrejtohet te pc.html). Vetëm administratori: `ekK.eshteAdmin()` OSE emri i llogarisë
-     `mendurberisha` (v125: më parë vetëm eshteAdmin(), që s'ishte gati kur hapeshin Cilësimet, dhe lidhja s'dukej).
-     Në betë e njëjta lidhje thotë "Kthehu te pamja e zakonshme ›".
-   - Ende pa bërë nga dizajni: karta e errët e skanimit me PDA te "Afat i ri", stepper-i i sasisë, klikimi i "Sasi e ulët"/
-     "Sasi 0" (telefoni s'ka listë të filtruar), zilja te kryefaqja. Folderat mbeten rrjetë (jo rresht horizontal) që
-     zvarritja për renditje të punojë. Dizajni origjinal (README, .dc.html, stoku-beta.css e dizajnit): `beta/dizajni/` (hapi 2 = seksioni 5 i README). Testet: scratchpad `beta-shot.js` (BW=320,390 TEMA=dark), `beta-funk.js`, `beta-sw.js`, `beta-lidhja.js`.
+0000000. **PAMJA E RE (v126), nga Claude Design ("Stoku Premium" / "Stoku PC", paketa "stoku_publikimi"), DIREKT te
+   Stoku (telefon + kompjuter). Beta (/beta/, v124–v125) U HOQ me kërkesë të përdoruesit ("Heke beta").**
+   - Skedarët: `css/stoku-tokens.css` (fontet Onest + JetBrains Mono nga `fonts/`, ngjyrat e temës së çelët dhe të
+     errët: tema e errët = `html[data-tema="dark"]`, që e vendos vetë aplikacioni nga cilësimi Tema; ngjyrat e
+     aksentit jo-blu vijnë nga `--primar`), `css/stoku.css` (telefoni, gjithçka nën `html.sb`), `css/stoku-pc.css`
+     (kompjuteri, nën `html.sbp`). Ngarkohen PAS stilit të brendshëm dhe e mbishkruajnë atë (variablat e vjetra
+     `--sfond`, `--tekst`, `--karta`… marrin vlerat e tokenave). Ngjyrat VETËM nga tokenat `var(--sb-…)`.
+   - Logo e re (S me pikë të verdhë): `logo/` (svg + favicon + maskable); `icon-192.png`, `icon-512.png`,
+     `apple-touch-icon.png`, `logo.png` u zëvendësuan (me `?v=2` kudo: SW i kopjon skedarët me të njëjtën adresë
+     nga cache-i i vjetër, pa `?v` të ri telefonat do mbanin ikonat e vjetra). Hyrja (porta.js) me `logo/stoku-logo(-dark).svg`.
+   - Telefoni (index.html): header i çelët me logo katrore + emri i llogarisë (`#logoSlika` = `.sb-brand`); kryefaqja
+     `vizatoKryefaqen()` brenda `#folderaLista` (karta e errët me numrat, "Folderat" + "+ Folder i ri", katrori me ngjyrë
+     te folderat, "Ndryshuar së fundi"); folderat mbeten rrjetë (zvarritja punon). Afatet: "Fotografo fletën" e madhe +
+     galeria, Shto, "Excel" me menu (`#afExcel` → `#afImporto`/`#afEksporto`), filtrat me numra, karta me kutinë e
+     ditëve `kutiaEDiteve()` (edhe te Ekipa). "Afat i ri": karta e errët e skanimit (barkodi + emri), datat e shpejta
+     (1 javë, 2 javë, 1 muaj, 3 muaj) + "Skadon për N ditë", sasia − / +, "Ruaj afatin"; Anulo lart djathtas.
+     Dialogët si "bottom sheet". Pragu "Sasi e ulët" në telefon = 5 (s'ka cilësim).
+   - Kompjuteri (pc.html): header-i blu U HOQ; logo + "Kërko kudo" (Ctrl K) në krye të anësores, menyja lëviz
+     (`.sbp-menyja`), poshtë: Importo, Shkurtoret, "Tema: E çelët/E errët" (`#sbpTema`, ndërron `ops.tema`) dhe
+     karta e llogarisë (`#btnLlogaria` me avatar, `#btnOpsione` ingranazhi, `#sinkStatus`). Përmbledhja: 4 numrat e
+     dizajnit (kartela e errët "Produkte gjithsej" + "+N sot", Sasi e ulët, Sasi 0, Të skaduara në raft), 3 kartat.
+     Ngjyrat e folderave me radhë `ngjyraEFolderit()`/`folderCip()` (anësore, shirita, tabela). Tabela: sasia me ngjyrë
+     (pa "Pa stok"/"E ulët"), filtrat si "chips". Afatet: pa rreshtin e numrave, numrat te filtrat (me pikë ngjyre),
+     "Grupo sipas furnizuesit" si çelës, "Shëno të hequr" (butoni i errët). Ekipa: skedat me vijë poshtë.
+   - **Kthimi mbrapa** (nëse duhet pamja e vjetër): gjendja para ridizajnit = commit `b66a98b` (main pas PR #66, v125).
+     Tag-u `para-ridizajnit` s'u pranua nga proxy-ja e git-it. Kthimi: rikthe skedarët nga `b66a98b` dhe rrit CACHE te sw.js.
+   - Mbeti me vendim të përdoruesit: kolona "Ditët e mbetura" (jo "Çfarë duhet bërë" e dizajnit), teksti i afatit
+     (pershkrimi) në telefon.
+   - /beta/: `beta/index.html` vetëm e kthen te Stoku dhe çregjistron SW-në e betës; `beta/sw.js` fshin cache-t
+     `stoku-beta-*`, çregjistrohet dhe i kthen dritaret te `../`. sw.js i rrënjës i fshin krejt cache-t e tjera dhe
+     s'e trajton /beta/ (që faqja e ridrejtimit të mos ruhet si index.html).
+   - Testet (scratchpad): `tel-shot.js` (BW, TEMA), `pc-shot.js` (PW, PH, TEMA, FAQET), `dlg-shot.js` (krejt dialogët,
+     TEMA) + `flete.js` (fletë kontakti), `dizajn-funk.js` (zvarritja, sasia − / +, datat, tema, Ctrl K, KPI),
+     `swtest/sw-test3.js` (përditësimi v125 → v126), `sw-root.js` (pa internet), `md-shot.js` (PDA, "E madhe", dendësia),
+     `porta-shot.js`. `audit.js` u përditësua (Excel te afatet në PC hap dialogun e muajit; s'ka më "Lajmërova").
 
 000000. **v122, kërkesë e përdoruesit:** Ekipa tregon praninë me IKONA (jo tekst): `EK.praniaIkone()` në ekipa.js
    (telefon/monitor + pikë e gjelbër kur është online; wifi-off gri + koha kur s'është), klasa `.ek-prania.on/.off`
@@ -391,6 +408,7 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   të kuq të vizatuar me dorë nga përdoruesi mbi foton, që mbetet gjatë zoom-it).
 - Butoni "versioni për telefon" te pc.html (u hoq krejt).
 - Font i veçantë / numra më të mëdhenj te Afatet (v121/v122, u kthyen si më parë te v123).
+- Pamje/dizajne të mia (dy raunde u refuzuan); pamja e sotme (v126) është dizajni i vetë përdoruesit nga Claude Design.
 - Çdo gjë për furnizuesin si mesazh/lajmërim (v121 + v122): "Lajmëro furnizuesin", "Lajmërova", "Dërgo listën",
   "Kopjo mesazhin për furnizuesin". Grupimi sipas furnizuesit mbetet (vetëm si listë).
 - Placeholder-a tip "p.sh." në fusha — përdoruesi i pëlqen hint-e përshkruese, jo shembuj konkretë.

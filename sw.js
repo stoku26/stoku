@@ -10,10 +10,10 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v125';
+var CACHE = 'stoku-v126';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
-importScripts('./afatet.js?v=122', './njoftimet.js?v=117');
+importScripts('./afatet.js?v=122', './njoftimet.js?v=118');
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.2/dist/iife/ponyfill.js',
@@ -29,14 +29,25 @@ var SHELL = FAQET.concat([
   './ruajtja.js?v=110',
   './afatet.js?v=122',
   './ekipa.js?v=6',
-  './porta.js?v=117',
-  './njoftimet.js?v=117',
-  './teRejat.js?v=123',
-  './manifest.webmanifest?v=84',
-  './icon-192.png',
-  './icon-512.png',
-  './apple-touch-icon.png',
-  './logo.png',
+  './porta.js?v=118',
+  './njoftimet.js?v=118',
+  './teRejat.js?v=126',
+  './manifest.webmanifest?v=85',
+  './css/stoku-tokens.css?v=1',
+  './css/stoku.css?v=1',
+  './css/stoku-pc.css?v=1',
+  './fonts/onest.woff2',
+  './fonts/jetbrains-mono.woff2',
+  './logo/stoku-icon.svg',
+  './logo/stoku-logo.svg',
+  './logo/stoku-logo-dark.svg',
+  './logo/favicon.svg',
+  './logo/favicon-32.png',
+  './logo/icon-maskable-512.png',
+  './icon-192.png?v=2',
+  './icon-512.png?v=2',
+  './apple-touch-icon.png?v=2',
+  './logo.png?v=2',
 ]);
 
 async function mbushCacheEri() {
@@ -82,8 +93,8 @@ self.addEventListener('install', function (e) {
 self.addEventListener('activate', function (e) {
   e.waitUntil(
     caches.keys().then(function (emrat) {
-      // Cache-t e Stoku Beta ("stoku-beta-…", /beta/sw.js) s'preken: i fshin vetë beta
-      return Promise.all(emrat.filter(function (k) { return k !== CACHE && k.indexOf('stoku-beta-') !== 0; })
+      // Fshihen krejt cache-t e tjera, edhe ato të Stoku Beta-s së hequr ("stoku-beta-…")
+      return Promise.all(emrat.filter(function (k) { return k !== CACHE; })
         .map(function (k) { return caches.delete(k); }));
     }).then(function () { return self.clients.claim(); })
   );
@@ -93,7 +104,7 @@ self.addEventListener('fetch', function (e) {
   var kerkesa = e.request;
   if (kerkesa.method !== 'GET') return;
 
-  // Stoku Beta (/beta/…) ka service worker-in e vet; këtu s'ruhet, që të mos e zëvendësojë faqen e Stoku-t
+  // /beta/ (Stoku Beta u hoq; aty ka vetëm një faqe që të kthen te Stoku): s'ruhet, që të mos e zëvendësojë faqen e Stoku-t
   if (new URL(kerkesa.url).pathname.indexOf('/beta/') !== -1) return;
 
   // Faqet (telefon = index.html, kompjuter = pc.html): provo internetin së pari (për përditësime),

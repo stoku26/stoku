@@ -15,6 +15,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 126, data: '2026-09-30', titulli: 'Stoku me pamje të re', pikat: [
+      'Pamje e re në telefon dhe në kompjuter: ngjyra më të qeta, shkronja më të qarta dhe logo e re.',
+      'Tema e errët punon kudo. Në kompjuter ndërrohet shpejt poshtë menysë anësore (Tema: E çelët / E errët).',
+      'Telefoni: faqja kryesore tregon sa produkte ke, sasitë e ulëta dhe çka ndryshove së fundi. Te "Afat i ri" ka data të shpejta dhe butonat − / + për sasinë.',
+      'Kompjuteri: logo, kërkimi dhe llogaria janë te menyja anësore; numrat kryesorë dalin në krye të Përmbledhjes.'
+    ] },
     { v: 123, data: '2026-09-30', titulli: 'Numrat e afateve si më parë', pikat: [
       'Numrat te Afatet (datat, sasitë, ditët) u kthyen në fontin dhe madhësinë e mëparshme, në telefon dhe në kompjuter.'
     ] },
