@@ -49,6 +49,30 @@
 
   function lista(x) { return Array.isArray(x) ? x : []; }
 
+  // Pastrimi i të dhënave që vijnë nga cloud-i ose nga telefoni (një rresht i dëmtuar — null, pa id, sasi tekst —
+  // s'duhet ta rrëzojë krejt aplikacionin). Kthen kopje të pastra; objektet e vlefshme mbeten të njëjtat.
+  function folderIVlefshem(f) { return !!f && typeof f === 'object' && typeof f.id === 'string' && f.id !== ''; }
+  function pastroFolderat(l) {
+    return lista(l).filter(folderIVlefshem).map(function (f) {
+      return typeof f.emri === 'string' ? f : Object.assign({}, f, { emri: f.emri == null ? '' : String(f.emri) });
+    });
+  }
+  function pastroProduktin(p) {
+    if (typeof p.sasia === 'number' && isFinite(p.sasia) && (p.emri == null || typeof p.emri === 'string')) return p;
+    var n = Number(p.sasia);
+    return Object.assign({}, p, { sasia: isFinite(n) ? Math.round(n) : 0, emri: p.emri == null ? '' : String(p.emri) });
+  }
+  function pastroProduktet(l) {
+    return lista(l).map(function (p) {
+      return p && typeof p.barkodi === 'number' && isFinite(p.barkodi) ? Object.assign({}, p, { barkodi: String(p.barkodi) }) : p;
+    }).filter(produktIVlefshem).map(pastroProduktin);
+  }
+  function pastroAfatet(l) {
+    return lista(l).filter(function (a) { return !!a && typeof a === 'object' && a.id != null && a.id !== ''; }).map(function (a) {
+      return typeof a.id === 'string' ? a : Object.assign({}, a, { id: String(a.id) });
+    });
+  }
+
   /**
    * cloud, lokal: { foldera: [...], produktet: [...], rendiKoha, fshira: { produktet: {}, foldera: {} } }
    * cloud mund të jetë null (s'ka ende asgjë në cloud).
@@ -58,6 +82,8 @@
     tani = tani || Date.now();
     cloud = cloud || {};
     lokal = lokal || {};
+    cloud = Object.assign({}, cloud, { foldera: pastroFolderat(cloud.foldera), produktet: pastroProduktet(cloud.produktet), afatet: pastroAfatet(cloud.afatet) });
+    lokal = Object.assign({}, lokal, { foldera: pastroFolderat(lokal.foldera), produktet: pastroProduktet(lokal.produktet), afatet: pastroAfatet(lokal.afatet) });
     var fshira = bashkoFshirjet(cloud.fshira, lokal.fshira, tani);
 
     // ---- Produktet ----
@@ -156,11 +182,12 @@
   // A kanë dy gjendje të njëjtat foldera dhe produkte? (për të mos rivizatuar kot)
   function eNjejte(a, b) {
     function nenshkrim(g) {
-      var f = lista(g.foldera).map(function (x) { return x.id + '\u0001' + x.emri; }).join('\u0002');
-      var p = lista(g.produktet).map(function (x) {
+      g = g || {};
+      var f = lista(g.foldera).filter(Boolean).map(function (x) { return x.id + '\u0001' + x.emri; }).join('\u0002');
+      var p = lista(g.produktet).filter(Boolean).map(function (x) {
         return celesi(x.kategoriaId, x.barkodi) + '\u0001' + (x.emri || '') + '\u0001' + x.sasia + '\u0001' + kohaProd(x);
       }).sort().join('\u0002');
-      var a = lista(g.afatet).map(function (x) {
+      var a = lista(g.afatet).filter(Boolean).map(function (x) {
         return x.id + '\u0001' + kohaFold(x) + '\u0001' + (x.statusi || '') + '\u0001' + (x.data || '') + '\u0001' + (x.sasia === undefined ? '' : x.sasia);
       }).sort().join('\u0002');
       return f + '\u0003' + p + '\u0003' + a;
@@ -170,6 +197,7 @@
 
   var api = {
     bashko: bashko, celesi: celesi, pastroFshirjetEVjetra: pastroFshirjetEVjetra,
+    pastroFolderat: pastroFolderat, pastroProduktet: pastroProduktet, pastroAfatet: pastroAfatet,
     eNjejte: eNjejte, MBAJ_FSHIRJET_MS: MBAJ_FSHIRJET_MS
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
