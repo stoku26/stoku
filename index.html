@@ -112,10 +112,6 @@
   body[data-madhesi="e_madhe"] { zoom: 1.12; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; overflow: hidden; }
-  /* Numrat e afateve (datat, sasitë, ditët): font i veçantë me shifra të qarta (Manrope 800, lokal, OFL: numrat-LICENSE.txt).
-     unicode-range: vetëm shifrat dhe . , - / + : %, shkronjat mbeten me fontin e zakonshëm. */
-  @font-face { font-family: 'StokuNumrat'; src: url('numrat.woff2') format('woff2'); font-weight: 500 900; font-style: normal; font-display: swap;
-    unicode-range: U+0030-0039, U+002B-002F, U+003A, U+0025; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: var(--tekst);
@@ -1044,12 +1040,6 @@
   .af-data { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ngj-tx); }
   .af-dite { font-size: 12px; color: var(--ngj-tx); font-weight: 600; margin-top: 2px; }
   .af-sasia { display: inline-block; margin-top: 6px; font-size: 13px; font-weight: 700; padding: 2px 9px; border-radius: 10px; background: var(--fushe-bg); border: 1px solid var(--vije); color: var(--tekst); white-space: nowrap; }
-  /* Afatet: numra më të mëdhenj me fontin e numrave (shkronjat mbeten në madhësinë e tyre) */
-  .af-data, .af-dite, .af-sasia, .af-numer b { font-family: 'StokuNumrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-  .af-data { font-size: 19px; font-weight: 800; letter-spacing: -.2px; }
-  .af-dite { font-size: 13.5px; font-weight: 700; }
-  .af-sasia { font-size: 15.5px; font-weight: 800; padding: 3px 10px; }
-  .af-numer b { font-size: 30px; font-weight: 800; }
   .lx-rresht input[type="number"] { height: 44px; font-size: 15px; }
   .af-pill {
     display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; border: 1.5px solid var(--ngj); color: var(--ngj-tx); background: transparent;
@@ -1710,7 +1700,7 @@
 <script src="afatet.js?v=122"></script>
 <script src="ekipa.js?v=6"></script>
 <script src="njoftimet.js?v=117"></script>
-<script src="teRejat.js?v=122"></script>
+<script src="teRejat.js?v=123"></script>
 <script>
 (function () {
   'use strict';
