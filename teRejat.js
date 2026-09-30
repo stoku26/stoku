@@ -15,6 +15,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 113, data: '2026-09-30', titulli: 'Rregullime gabimesh', pikat: [
+      'Një e dhënë e dëmtuar (p.sh. një folder ose afat pa emër/id) s\'e bllokon më aplikacionin — hiqet ose rregullohet vetë.',
+      'Kur del nga llogaria pa internet, aplikacioni të paralajmëron që ndryshimet e fundit s\'janë ruajtur ende në cloud.',
+      'Importi i Excel-it (kompjuter) s\'ngrin më me skedarë që kanë shumë rreshta bosh në fund.'
+    ] },
     { v: 112, data: '2026-09-30', titulli: 'Administratori: opsione të reja', pikat: [
       'Administratori sheh te Ekipa → "Stoku" stokun e plotë të secilit anëtar dhe e shkarkon në Excel.',
       'Administratori mund ta heqë nga rafti, ta kthejë ose ta fshijë afatin e kujtdo — pronari njoftohet.',

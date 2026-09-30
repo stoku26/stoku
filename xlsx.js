@@ -498,6 +498,9 @@
           rresht[kol] = vlera;
         }
         for (var q = 0; q < rresht.length; q++) if (rresht[q] === undefined) rresht[q] = '';
+        // Rreshtat bosh (vetëm formatim, shpesh me numër shumë të madh p.sh. 1048576) anashkalohen —
+        // përndryshe lista mbushej me qindra-mijëra rreshta bosh dhe importi ngrinte.
+        if (!rresht.some(function (x) { return x !== '' && x !== null; })) continue;
         rreshtat[idx] = rresht;
       }
       for (var w = 0; w < rreshtat.length; w++) if (!rreshtat[w]) rreshtat[w] = [];

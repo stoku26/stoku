@@ -1623,12 +1623,12 @@
 <div class="menu" id="menu" role="menu"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"><span class="toast-tekst" id="toastTekst"></span><button class="btn fsheh" type="button" id="toastBtn"></button></div>
 
-<script src="xlsx.js?v=58"></script>
-<script src="bashkimi.js?v=81"></script>
+<script src="xlsx.js?v=113"></script>
+<script src="bashkimi.js?v=113"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=90"></script>
 <script src="ekipa.js?v=3"></script>
-<script src="teRejat.js?v=112"></script>
+<script src="teRejat.js?v=113"></script>
 <script>
 (function () {
   'use strict';
@@ -1705,7 +1705,12 @@
 
   function ngarkoBazen() {
     var f = lexoJSON(KEY_FOLDERA, null), p = lexoJSON(KEY_PRODUKTET, null);
-    if (Array.isArray(f) && p && typeof p === 'object') { foldera = f; produktet = p; }
+    if (Array.isArray(f) && p && typeof p === 'object') {
+      // Një rresht i dëmtuar (null, pa id…) hiqet, që të mos e rrëzojë krejt faqen
+      foldera = window.StokuBashkimi.pastroFolderat(f);
+      produktet = {};
+      window.StokuBashkimi.pastroProduktet(Object.keys(p).map(function (k) { return p[k]; })).forEach(function (x) { produktet[celesi(x.kategoriaId, x.barkodi)] = x; });
+    }
     else {
       foldera = FOLDERAT_PARAZGJEDHUR.map(function (x) { return { id: x.id, emri: x.emri }; });
       produktet = {};
@@ -1721,7 +1726,7 @@
       afatet: (t && t.afatet && typeof t.afatet === 'object') ? t.afatet : {}
     };
     var af0 = lexoJSON(KEY_AFATET, []);
-    afatet = Array.isArray(af0) ? af0 : [];
+    afatet = window.StokuBashkimi.pastroAfatet(af0);
     rendiFolderaveKoha = parseInt(localStorage.getItem(KEY_RENDI_KOHA) || '0', 10) || 0;
   }
 
@@ -2037,15 +2042,14 @@
     vendosStatusin('pune');
     if (pajisjaEshteEPaprekur()) {
       var rez = await window.__stokuCloud.merr();
-      if (rez.ok && rez.gjendja && Array.isArray(rez.gjendja.foldera) && rez.gjendja.foldera.length > 0) {
+      var B = window.StokuBashkimi;
+      if (rez.ok && rez.gjendja && B.pastroFolderat(rez.gjendja.foldera).length > 0) {
         // Kompjuter i ri: merret gjendja e cloud-it ashtu siç është (pa "ringjallur" 4 folderat e parazgjedhur).
-        foldera = rez.gjendja.foldera;
+        foldera = B.pastroFolderat(rez.gjendja.foldera);
         var pm = {};
-        (rez.gjendja.produktet || []).forEach(function (p) {
-          if (p && typeof p.barkodi === 'string' && typeof p.kategoriaId === 'string') pm[celesi(p.kategoriaId, p.barkodi)] = p;
-        });
+        B.pastroProduktet(rez.gjendja.produktet).forEach(function (p) { pm[celesi(p.kategoriaId, p.barkodi)] = p; });
         produktet = pm;
-        afatet = Array.isArray(rez.gjendja.afatet) ? rez.gjendja.afatet : [];
+        afatet = B.pastroAfatet(rez.gjendja.afatet);
         rendiFolderaveKoha = Number(rez.gjendja.rendiKoha) || 0;
         shkruajLokalisht();
         rivizato();
@@ -3907,7 +3911,14 @@
   async function dil() {
     var po = await konfirmo('Të dilet nga llogaria?', 'Të dhënat mbeten të ruajtura në llogari (cloud). Pas daljes, Stoku kërkon përsëri emrin e përdoruesit dhe fjalëkalimin.', 'Dil');
     if (!po) return;
+    for (var i = 0; i < 40 && sink.duke; i++) await new Promise(function (r) { setTimeout(r, 250); });
     try { await kryeSinkronizimin(); } catch (e) { /* ndryshimet e fundit mbeten lokalisht */ }
+    // S'u ruajt në cloud (pa internet): kur hyn një llogari tjetër këtu, të dhënat lokale hiqen → paralajmëro
+    if (sink.statusi === 'gabim' || sink.duke) {
+      var gjithsesi = await konfirmo('Ndryshimet e fundit s\'janë ruajtur në cloud',
+        'S\'ka lidhje me internetin. Nëse del tani dhe në këtë kompjuter hyn një llogari tjetër, ndryshimet e paruajtura humbin. Më mirë prit internetin — të dilet gjithsesi?', 'Dil gjithsesi');
+      if (!gjithsesi) return;
+    }
     ndalDegjuesin();
     if (window.__stokuCloud && window.__stokuCloud.dil) await window.__stokuCloud.dil();
     mbyllDialog('dlgLlogaria');

@@ -1562,13 +1562,13 @@
 
 <div id="toast"></div>
 
-<script src="xlsx.js?v=58"></script>
-<script src="bashkimi.js?v=81"></script>
+<script src="xlsx.js?v=113"></script>
+<script src="bashkimi.js?v=113"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=90"></script>
 <script src="ekipa.js?v=3"></script>
 <script src="njoftimet.js?v=85"></script>
-<script src="teRejat.js?v=112"></script>
+<script src="teRejat.js?v=113"></script>
 <script>
 (function () {
   'use strict';
@@ -1923,8 +1923,12 @@
     try { p = JSON.parse(localStorage.getItem(KEY_PRODUKTET) || 'null'); } catch (e) { /* ok */ }
 
     if (Array.isArray(f) && p && typeof p === 'object') {
-      foldera = f;
-      produktet = p;
+      // Një rresht i dëmtuar (null, pa id…) hiqet, që të mos e rrëzojë krejt faqen
+      foldera = window.StokuBashkimi.pastroFolderat(f);
+      produktet = {};
+      window.StokuBashkimi.pastroProduktet(Object.keys(p).map(function (k) { return p[k]; })).forEach(function (x) {
+        produktet[celesiProduktit(x.kategoriaId, x.barkodi)] = x;
+      });
       return;
     }
 
@@ -2827,7 +2831,7 @@
   // Afatet (datat e skadimit) — ruhen lokalisht dhe sinkronizohen bashkë me produktet
   var KEY_AFATET = 'stoku:afatet:v1';
   var afatet = [];
-  try { var afRuajtura = JSON.parse(localStorage.getItem(KEY_AFATET) || '[]'); if (Array.isArray(afRuajtura)) afatet = afRuajtura; } catch (e) { /* ok */ }
+  try { var afRuajtura = JSON.parse(localStorage.getItem(KEY_AFATET) || '[]'); if (Array.isArray(afRuajtura)) afatet = window.StokuBashkimi.pastroAfatet(afRuajtura); } catch (e) { /* ok */ }
 
   function gjendjaPerCloud() {
     return {
@@ -2978,7 +2982,9 @@
   }
 
   function zbatoGjendjenNgaCloud(te) {
-    var arrF = Array.isArray(te.foldera) && te.foldera.length > 0
+    var B = window.StokuBashkimi;
+    te = Object.assign({}, te, { foldera: B.pastroFolderat(te.foldera), produktet: B.pastroProduktet(te.produktet), afatet: B.pastroAfatet(te.afatet) });
+    var arrF = te.foldera.length > 0
       ? te.foldera
       : FOLDERAT_PARAZGJEDHUR.map(function (fo) { return { id: fo.id, emri: fo.emri }; });
     var produktetENoja = {};
@@ -3250,7 +3256,15 @@
   $('cloudDilBtn').addEventListener('click', async function () {
     var po = await konfirmo(T('cloudTeDilet'), T('cloudDilTekst'), T('cloudDilBtn'));
     if (!po) return;
+    // Ruajtja e fundit para daljes; nëse s'arrin në cloud (pa internet), paralajmëro: kur në këtë pajisje hyn
+    // një llogari tjetër, të dhënat lokale hiqen — ndryshimet e paruajtura do të humbnin.
+    for (var i = 0; i < 40 && dukeSinkronizuar; i++) await new Promise(function (r) { setTimeout(r, 250); });
     try { await kryeSinkronizimin(); } catch (e) { /* ndryshimet e fundit mbeten lokalisht */ }
+    if (__sinkDeshtoi || dukeSinkronizuar) {
+      var gjithsesi = await konfirmo('Ndryshimet e fundit s\'janë ruajtur në cloud',
+        'S\'ka lidhje me internetin. Nëse del tani dhe në këtë telefon hyn një llogari tjetër, ndryshimet e paruajtura humbin. Më mirë prit internetin — të dilet gjithsesi?', 'Dil gjithsesi');
+      if (!gjithsesi) return;
+    }
     if (window.__stokuCloud && window.__stokuCloud.dil) await window.__stokuCloud.dil();
     rifreskoDukjenECloud();
     if ($('dlgOpsione').classList.contains('hapur')) mbyllOpsionet();

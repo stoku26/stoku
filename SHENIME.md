@@ -100,6 +100,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 5. **Bashkimi i të dhënave (bashkimi.js):** LWW (last-write-wins) sipas kohës (`prekurSe`/`ndryshuarSe`);
    fshirjet ruhen si "tombstones" (kohë fshirjeje) 120 ditë, që një pajisje me kopje të vjetër të mos
    "ringjallë" diçka të fshirë; asgjë që thjesht mungon (pa u fshi qëllimisht) s'fshihet kurrë.
+   **Pastrimi (v113):** `bashko()` i pastron vetë hyrjet (`pastroFolderat`/`pastroProduktet`/`pastroAfatet` — rreshtat
+   null/pa id hiqen, sasia tekst → numër, barkodi numër → tekst); faqet i përdorin edhe kur lexojnë localStorage dhe
+   kur marrin gjendjen e cloud-it "ashtu siç është" (pajisje e re). Më parë një `null` te folderat e rrëzonte telefonin.
+   Testi: `fuzz-te-dhena.js` (scratchpad). "Dil" pa internet paralajmëron (porta i fshin të dhënat lokale kur hyn
+   llogari tjetër).
    Dy ndryshime të njëkohshme të sasisë së TË NJËJTIT produkt nga dy pajisje: fiton më i riu (s'mblidhen) —
    vendim i qëllimshëm (bashkimi me 3 anë do të kërkonte "bazën" për çdo produkt dhe rrezikon dyfishime).
    **Dëgjuesi i cloud-it (v110, tel `__remoteNePritje` / PC `sink.remoteNePritje`):** një gjendje nga cloud-i
