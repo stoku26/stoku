@@ -46,9 +46,18 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+000000. **v122, kërkesë e përdoruesit:** Ekipa tregon praninë me IKONA (jo tekst): `EK.praniaIkone()` në ekipa.js
+   (telefon/monitor + pikë e gjelbër kur është online; wifi-off gri + koha kur s'është), klasa `.ek-prania.on/.off`
+   në të dy faqet. Te telefoni, shkronjat e afateve janë në madhësinë e VJETËR (përdoruesi s'i deshi më të mëdha);
+   vetëm numrat mbeten StokuNumrat të mëdhenj. Te PC, numrat e tabelave të afateve (data 19px, sasia 18px, ditët 21px)
+   janë StokuNumrat si në telefon. Kolona "Çfarë duhet bërë" u bë "Ditët e mbetura" (`AF.ditetEMbetura()` →
+   {para, nr, pas}, qeliza `qelizaEDiteve()` në pc.html; "Skadoi para" del si rresht i vogël mbi numrin); nën datë
+   s'shfaqen më ditët (përveç Pultit). Nën 1180px fshihet kolona "Statusi" te #afTabela/#ekTabela që emri të mos zhduket.
+
 00000. **Afatet (v121), kërkesë e përdoruesit:** U HOQ krejt lajmërimi i furnizuesit nga UI ("Lajmëro furnizuesin", "…sa më
    parë", butoni "Lajmërova", "Shëno si të lajmëruara", kolonat e Excel-it). MOS I RIKTHE pa pyetur. (Fusha `lajmeruarSe`
-   mbetet në të dhënat e vjetra, s'përdoret; "Dërgo listën / Kopjo mesazhin për furnizuesin" mbeten.) Numrat e afateve
+   mbetet në të dhënat e vjetra, s'përdoret.) Te v122 u hoqën edhe "Dërgo listën" (tel) dhe "Kopjo mesazhin për
+   furnizuesin" (PC), bashkë me `mesazhiFurnizuesit` në afatet.js. MOS I RIKTHE pa pyetur. Numrat e afateve
    (data, sasia, ditët, KPI) me fontin lokal `numrat.woff2` (Manrope 800, OFL, `numrat-LICENSE.txt`, `font-family:
    'StokuNumrat'`, vetëm për shifrat me unicode-range), më të mëdhenj; tekstet e afateve pak më të mëdha. Font-i është te SHELL i sw.js.
 0000. **Afatet: importi nga Excel + muajt (v120)**: logjika e përbashkët në `afatet.js`: `muajiNgaEmri` ("Nëntor2" → 11,
@@ -359,6 +368,8 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Marking/vijëzim automatik i rreshtave në fletë (u keqkuptua kërkesa origjinale; u zëvendësua me "laps"
   të kuq të vizatuar me dorë nga përdoruesi mbi foton, që mbetet gjatë zoom-it).
 - Butoni "versioni për telefon" te pc.html (u hoq krejt).
+- Çdo gjë për furnizuesin si mesazh/lajmërim (v121 + v122): "Lajmëro furnizuesin", "Lajmërova", "Dërgo listën",
+  "Kopjo mesazhin për furnizuesin". Grupimi sipas furnizuesit mbetet (vetëm si listë).
 - Placeholder-a tip "p.sh." në fusha — përdoruesi i pëlqen hint-e përshkruese, jo shembuj konkretë.
 - Teksti "ose komercialistin" te mesazhet e afateve — u hoq, mbetet vetëm "furnizuesin".
 - Zoom me pinch-to-zoom në telefon — u ç'aktivizua (maximum-scale=1, user-scalable=no, touch-action).

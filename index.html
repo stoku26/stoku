@@ -787,6 +787,12 @@
   .ek-info-rresht { font-size: 13px; color: var(--gri); margin: 2px 0 6px; }
   button.artikull { width: 100%; background: transparent; border: 0; border-bottom: 1px solid var(--vije); font: inherit; color: inherit; text-align: left; }
   .ek-ne-linje { color: #1e8e3e !important; font-weight: 700; }
+  .ek-prania { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; border-radius: 999px; font-size: 12px; font-weight: 600; vertical-align: middle; white-space: nowrap; }
+  .ek-prania.on { background: rgba(30,142,62,.12); color: #1e8e3e; }
+  .ek-prania.off { background: rgba(120,120,130,.12); color: var(--gri); }
+  .ek-prania .pk { width: 7px; height: 7px; border-radius: 50%; background: #22a350; box-shadow: 0 0 0 3px rgba(34,163,80,.22); animation: ekPulsi 2s ease-in-out infinite; }
+  @keyframes ekPulsi { 50% { box-shadow: 0 0 0 5px rgba(34,163,80,.08); } }
+  @media (prefers-reduced-motion: reduce) { .ek-prania .pk { animation: none; } }
   .ek-anetar-nr { flex: none; text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
   .ek-anetar-nr b { font-size: 20px; font-weight: 600; line-height: 1.1; }
   .ek-anetar-nr span { font-size: 12px; color: var(--gri); }
@@ -1038,16 +1044,12 @@
   .af-data { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ngj-tx); }
   .af-dite { font-size: 12px; color: var(--ngj-tx); font-weight: 600; margin-top: 2px; }
   .af-sasia { display: inline-block; margin-top: 6px; font-size: 13px; font-weight: 700; padding: 2px 9px; border-radius: 10px; background: var(--fushe-bg); border: 1px solid var(--vije); color: var(--tekst); white-space: nowrap; }
-  /* Afatet më të lexueshme: numra më të mëdhenj me fontin e numrave, shkronja pak më të mëdha */
-  .af-emri { font-size: 17px; }
-  .af-nen { font-size: 13.5px; }
-  .af-mesazh { font-size: 14.5px; }
+  /* Afatet: numra më të mëdhenj me fontin e numrave (shkronjat mbeten në madhësinë e tyre) */
   .af-data, .af-dite, .af-sasia, .af-numer b { font-family: 'StokuNumrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
   .af-data { font-size: 19px; font-weight: 800; letter-spacing: -.2px; }
   .af-dite { font-size: 13.5px; font-weight: 700; }
   .af-sasia { font-size: 15.5px; font-weight: 800; padding: 3px 10px; }
   .af-numer b { font-size: 30px; font-weight: 800; }
-  .af-numer span { font-size: 13px; }
   .lx-rresht input[type="number"] { height: 44px; font-size: 15px; }
   .af-pill {
     display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; border: 1.5px solid var(--ngj); color: var(--ngj-tx); background: transparent;
@@ -1057,10 +1059,6 @@
     display: flex; align-items: center; gap: 8px; margin: 14px 0 8px; font-size: 13px; font-weight: 700; color: var(--gri);
   }
   .af-grup-krye span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .af-grup-krye button {
-    flex: none; border: 0; background: var(--af-verdhe); color: #3b2a00; border-radius: 16px; height: 30px; padding: 0 12px;
-    font-size: 12.5px; font-weight: 700; font-family: inherit; cursor: pointer;
-  }
   .af-bosh { text-align: center; color: var(--gri); padding: 36px 16px; line-height: 1.5; }
   .af-bosh b { color: var(--tekst); display: block; font-size: 16px; margin-bottom: 6px; }
   #dlgAfat .dialog { max-width: 420px; }
@@ -1709,10 +1707,10 @@
 <script src="xlsx.js?v=113"></script>
 <script src="bashkimi.js?v=113"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=121"></script>
-<script src="ekipa.js?v=5"></script>
+<script src="afatet.js?v=122"></script>
+<script src="ekipa.js?v=6"></script>
 <script src="njoftimet.js?v=117"></script>
-<script src="teRejat.js?v=121"></script>
+<script src="teRejat.js?v=122"></script>
 <script>
 (function () {
   'use strict';
@@ -4810,7 +4808,7 @@
       return;
     }
     var frag = document.createDocumentFragment();
-    // Te "Afër skadimit": grupim sipas furnizuesit, me buton për t'ia dërguar listën
+    // Te "Afër skadimit": grupim sipas furnizuesit
     if (afFiltri === 'afer') {
       var grupet = {};
       lista.forEach(function (a) { var f = a.furnizuesi || ''; (grupet[f] = grupet[f] || []).push(a); });
@@ -4820,11 +4818,6 @@
         var s = document.createElement('span');
         s.textContent = (f || 'Pa furnizues') + ' · ' + grupet[f].length;
         h.appendChild(s);
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.textContent = 'Dërgo listën';
-        btn.addEventListener('click', function () { dergoListen(f, grupet[f]); });
-        h.appendChild(btn);
         frag.appendChild(h);
         grupet[f].forEach(function (a) { frag.appendChild(kartaEAfatit(a)); });
       });
@@ -5204,17 +5197,6 @@
     ekNgjarjeAfati('hequr', a);
   }
   function riktheAktiv(a) { perditesoAfatin(a.id, { statusi: 'aktiv', hequrSe: 0 }); ekNgjarjeAfati('rikthyer', a); }
-
-  async function dergoListen(furnizuesi, lista) {
-    var tekst = AF.mesazhiFurnizuesit(furnizuesi, lista);
-    try {
-      if (navigator.share) { await navigator.share({ text: tekst }); }
-      else { await navigator.clipboard.writeText(tekst); toast('Mesazhi u kopjua. Ngjite në WhatsApp/Viber.', 3500); }
-    } catch (e) {
-      if (e && e.name === 'AbortError') return;
-      try { await navigator.clipboard.writeText(tekst); toast('Mesazhi u kopjua.'); } catch (e2) { toast('Mesazhi s\'u nda dot. Provo përsëri.'); return; }
-    }
-  }
 
   function hapAfatetFaqe() {
     afFiltri = 'aktive';
@@ -5707,7 +5689,7 @@
     c.appendChild(p);
     var ng = ekK.gj.ngjarjet;
     if (!ekK.gj.ngjarjetGati) { c.appendChild(ekInfo('Duke ngarkuar…')); return; }
-    if (!ng.length) { c.appendChild(ekBosh('S\'ka aktivitet ende', 'Kur dikush heq nga rafti, shton afate ose lajmëron furnizuesin, del këtu.')); return; }
+    if (!ng.length) { c.appendChild(ekBosh('S\'ka aktivitet ende', 'Kur dikush heq nga rafti, ose shton afate, del këtu.')); return; }
     var uidIm = perdoruesiAktual() ? perdoruesiAktual().uid : null;
     var dita = '';
     var frag = document.createDocumentFragment();
@@ -5866,9 +5848,9 @@
       if (a.uneJam) e.appendChild(ekEl('span', 'ekipi-ti', 'ti'));
       if (a.admin) e.appendChild(ekEl('span', 'ekipi-ti', 'admin'));
       m.appendChild(e);
-      var online = a.uneJam || EKL.eshteOnline(a);
-      var pl = EKL.tekstiPlatformes(a.uneJam ? 'tel' : a.platforma);
-      m.appendChild(ekEl('div', 'kodi' + (online ? ' ek-ne-linje' : ''), (online ? 'Online tani' : EKL.tekstiPranise(a)) + (pl ? ' · ' + pl : '')));
+      var pr = EKL.praniaIkone(a, a.uneJam, 'tel');
+      var prEl = ekEl('span', 'ek-prania ' + (pr.online ? 'on' : 'off')); prEl.innerHTML = pr.html; prEl.title = pr.titulli; prEl.setAttribute('aria-label', pr.titulli);
+      var prR = ekEl('div', 'kodi'); prR.style.marginTop = '3px'; prR.appendChild(prEl); m.appendChild(prR);
       r.appendChild(m);
       var n = ekNumero(a.afatet);
       var d = ekEl('div', 'ek-anetar-nr');
