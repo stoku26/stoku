@@ -367,13 +367,20 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
-## Rregullat e Firestore — "Ekipa" (v112) — i vendos PËRDORUESI (unë s'kam qasje)
+## Rregullat e Firestore — "Ekipa" (v116) — i vendos PËRDORUESI (unë s'kam qasje)
 
 Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Krahasuar me v109: dyqani lexohet
 vetëm nga pronari/admin-i; Ekipa (anëtarët, aktiviteti, chat-i, `ekipa_afatet`) vetëm nga anëtarët e pranuar
 (`ekipa_anetaret/{uid}`, i shkruan vetëm admin-i); `emri`/`perdoruesi` s'falsifikohen (= emri i llogarisë);
 admin-i fshin çdo mesazh. Vazhdon mbrojtja e vjetër: aplikacioni s'mund ta shtojë/ndryshojë fushën `emri` te
 `perdoruesit/{uid}` (admin-i ndreqet vetëm nga Console).
+**v116 (fshirja e llogarisë nga admin-i):** `ekipa_fshire/{uid}` (shkruan vetëm admin-i, lexon vetë llogaria) —
+llogaria e shënuar s'ka më qasje te dyqani/profili/`ekipa_afatet` (s'mund t'i rikrijojë); admin-i fshin
+`perdoruesit/{uid}` dhe njoftimet e tij. Aplikacioni i llogarisë së fshirë (`degjoFshirjen` te ekipa.js) i fshin
+të dhënat lokale, thërret `deleteUser` (emri lirohet; nëse Firebase kërkon hyrje të freskët, vetëm del dhe
+provohet herën tjetër) dhe tregon "Kjo llogari u fshi nga administratori." te porta. Llogaria e hyrjes (Auth)
+S'MUND të fshihet nga admin-i pa server — fshihet vetëm kur vetë pajisja e tij e hap Stoku-n. Testi:
+`fshirja-v116.js` (scratchpad).
 
 ```
 rules_version = '2';
@@ -386,34 +393,44 @@ service cloud.firestore {
     function neEkipe() {
       return exists(/databases/$(database)/documents/ekipa_anetaret/$(request.auth.uid)) || eshteAdmin();
     }
+    // Llogari e fshirë nga administratori: s'ka më qasje në asgjë
+    function uFshi(uid) {
+      return exists(/databases/$(database)/documents/ekipa_fshire/$(uid));
+    }
     // Emri i llogarisë (emri@stoku-app.local) — s'mund të falsifikohet nga aplikacioni
     function emriIm() {
       return request.auth.token.email.split('@')[0];
     }
     match /dyqane/{kodi} {
-      allow read, write: if request.auth != null && (request.auth.uid == kodi || eshteAdmin());
+      allow read, write: if request.auth != null && ((request.auth.uid == kodi && !uFshi(kodi)) || eshteAdmin());
       match /pjeset/{pjesa} {
-        allow read, write: if request.auth != null && (request.auth.uid == kodi || eshteAdmin());
+        allow read, write: if request.auth != null && ((request.auth.uid == kodi && !uFshi(kodi)) || eshteAdmin());
       }
       match /fletet/{fleta} {
-        allow read, write: if request.auth != null && (request.auth.uid == kodi || eshteAdmin());
+        allow read, write: if request.auth != null && ((request.auth.uid == kodi && !uFshi(kodi)) || eshteAdmin());
       }
     }
     match /perdoruesit/{uid} {
       allow read: if request.auth != null && (request.auth.uid == uid || neEkipe());
-      allow create: if request.auth != null && request.auth.uid == uid
+      allow create: if request.auth != null && request.auth.uid == uid && !uFshi(uid)
         && !request.resource.data.keys().hasAny(['emri'])
         && (!('perdoruesi' in request.resource.data) || request.resource.data.perdoruesi == emriIm());
-      allow update: if request.auth != null && ((request.auth.uid == uid
+      allow update: if request.auth != null && ((request.auth.uid == uid && !uFshi(uid)
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['emri'])
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['perdoruesi'])
             || request.resource.data.perdoruesi == emriIm()))
         || (eshteAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sasiaShpejte'])));
+      allow delete: if request.auth != null && eshteAdmin();
       match /njoftimet/{nid} {
-        allow read, update, delete: if request.auth != null && request.auth.uid == uid;
+        allow read, delete: if request.auth != null && (request.auth.uid == uid || eshteAdmin());
+        allow update: if request.auth != null && request.auth.uid == uid;
         allow create: if request.auth != null && neEkipe()
           && request.resource.data.uid == request.auth.uid && request.resource.data.emri == emriIm();
       }
+    }
+    match /ekipa_fshire/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || eshteAdmin());
+      allow write: if request.auth != null && eshteAdmin();
     }
     match /ekipa_anetaret/{uid} {
       allow read: if request.auth != null && (request.auth.uid == uid || neEkipe());
@@ -421,7 +438,7 @@ service cloud.firestore {
     }
     match /ekipa_afatet/{uid} {
       allow read: if request.auth != null && neEkipe();
-      allow write: if request.auth != null && (request.auth.uid == uid || eshteAdmin());
+      allow write: if request.auth != null && ((request.auth.uid == uid && !uFshi(uid)) || eshteAdmin());
     }
     match /ekipa_feed/{id} {
       allow read: if request.auth != null && neEkipe();

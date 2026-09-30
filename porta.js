@@ -17,6 +17,7 @@
   var KEY_HYRJA = 'stoku:porta:hyrja';      // { uid, emri } e hyrjes së fundit (për hyrje pa internet)
   var KEY_PRONARI = 'stoku:pronari-uid';    // llogaria të cilës i përkasin të dhënat lokale
   var KEY_EMRI_FUNDIT = 'stoku:porta:emri'; // emri i fundit i shkruar (plotësohet vetë)
+  var KEY_MESAZHI = 'stoku:porta:mesazh';   // mesazh një-herësh për ekranin e hyrjes pas rifreskimit
   var CELESAT_E_TE_DHENAVE = ['stoku:foldera:v1', 'stoku:produktet:v2', 'stoku:produktet:v1', 'stoku:fshira:v1',
     'stoku:rendi-foldera-koha', 'stoku:afatet:v1'];
   var PRITJA_MAKS_MS = 7000;
@@ -128,6 +129,8 @@
     $('pkForma').classList.add('pk-fsheh');
   }
   function shfaqFormen(mesazh) {
+    var ruajtur = lexo(KEY_MESAZHI); // p.sh. "Kjo llogari u fshi nga administratori." (vendoset para rifreskimit)
+    if (ruajtur) { shkruaj(KEY_MESAZHI, null); mesazh = ruajtur; }
     $('pkPritje').classList.add('pk-fsheh');
     $('pkForma').classList.remove('pk-fsheh');
     $('pkGabim').textContent = mesazh || '';
