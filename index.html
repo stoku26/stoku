@@ -683,6 +683,9 @@
   .ek-menu-kuti .af-filtrat { margin-bottom: 10px; }
   .ek-pike { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #D93025; margin-left: 6px; vertical-align: 1px; }
   .af-filtrat button.aktiv .ek-pike { background: #fff; }
+  /* Chat-i: ikonë lart djathtas, pranë ziles */
+  #ekChatBtn .ek-pike { position: absolute; top: 6px; right: 6px; margin: 0; width: 10px; height: 10px; box-shadow: 0 0 0 2px var(--header); }
+  #ekChatBtn.aktiv { background: rgba(255,255,255,.22); }
   .ek-permb { grid-template-columns: 1fr 1fr; }
   .af-numer.hequr { background: var(--hover); color: var(--gri); }
   div.af-numer { cursor: default; }
@@ -1334,13 +1337,13 @@
     <div class="opsione-krye">
       <button id="ekipiPrapa" class="btn-ikone" type="button" aria-label="Mbrapa" style="display:none">←</button>
       <h2 id="ekipiTitulli">Ekipa</h2>
+      <button id="ekChatBtn" class="btn-ikone" type="button" aria-label="Chat-i i ekipës" title="Chat-i i ekipës"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span class="ek-pike" id="ekChatPike" style="display:none"></span></button>
       <button id="ekZile" class="btn-ikone" type="button" aria-label="Njoftimet" title="Njoftimet"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg><span class="af-shenje" id="ekZileNr" style="display:none"></span></button>
     </div>
     <div class="ek-menu-kuti">
       <div class="af-filtrat" id="ekMenu">
         <button type="button" data-n="afatet" class="aktiv">Afatet</button>
         <button type="button" data-n="aktiviteti">Aktiviteti</button>
-        <button type="button" data-n="chat">Chat<span class="ek-pike" id="ekChatPike" style="display:none"></span></button>
         <button type="button" data-n="kalendari">Kalendari</button>
         <button type="button" data-n="anetaret">Anëtarët<span class="ek-pike" id="ekKerkesaPike" style="display:none" title="Kërkesa për t'u bashkuar"></span></button>
         <button type="button" data-n="statistika">Statistika</button>
@@ -1553,7 +1556,7 @@
 <script src="afatet.js?v=90"></script>
 <script src="ekipa.js?v=2"></script>
 <script src="njoftimet.js?v=85"></script>
-<script src="teRejat.js?v=110"></script>
+<script src="teRejat.js?v=111"></script>
 <script>
 (function () {
   'use strict';
@@ -4993,6 +4996,13 @@
   Array.prototype.forEach.call(document.querySelectorAll('#ekMenu button'), function (b) {
     b.addEventListener('click', function () { ekZgjidhPamjen(b.getAttribute('data-n')); });
   });
+  // Chat-i hapet nga ikona lart djathtas (pranë ziles); prekja sërish kthen te Afatet
+  var __ekParaChatit = 'afatet';
+  $('ekChatBtn').addEventListener('click', function () {
+    if (ekPamja === 'chat') { ekZgjidhPamjen(__ekParaChatit); return; }
+    __ekParaChatit = ekPamja;
+    ekZgjidhPamjen('chat');
+  });
 
   // Rivizatim kur ndryshon diçka (anëtarët, aktiviteti, chat-i, afatet e mia…)
   function kurNdryshonEkipa(cfare) {
@@ -5019,8 +5029,9 @@
       if (po && !rifreskim && b.scrollIntoView) { try { b.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e) { /* ok */ } }
     });
     $('ekChatFund').hidden = ekPamja !== 'chat';
+    $('ekChatBtn').classList.toggle('aktiv', ekPamja === 'chat');
     $('ekipiPrapa').style.display = (ekPamja === 'afatet' && __ekipiAnetari !== null) ? '' : 'none';
-    $('ekipiTitulli').textContent = 'Ekipa';
+    $('ekipiTitulli').textContent = ekPamja === 'chat' ? 'Chat-i i ekipës' : 'Ekipa';
     var c = $('ekipiLista');
     if (!ekK || !ekK.kaLidhje()) {
       c.textContent = '';
