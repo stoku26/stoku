@@ -49,17 +49,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 000000. **v122, kërkesë e përdoruesit:** Ekipa tregon praninë me IKONA (jo tekst): `EK.praniaIkone()` në ekipa.js
    (telefon/monitor + pikë e gjelbër kur është online; wifi-off gri + koha kur s'është), klasa `.ek-prania.on/.off`
    në të dy faqet. Te telefoni, shkronjat e afateve janë në madhësinë e VJETËR (përdoruesi s'i deshi më të mëdha);
-   vetëm numrat mbeten StokuNumrat të mëdhenj. Te PC, numrat e tabelave të afateve (data 19px, sasia 18px, ditët 21px)
-   janë StokuNumrat si në telefon. Kolona "Çfarë duhet bërë" u bë "Ditët e mbetura" (`AF.ditetEMbetura()` →
+   **v123: edhe NUMRAT u kthyen si para v121** (fonti i zakonshëm, madhësitë e vjetra, telefon + PC); fonti
+   `numrat.woff2` (StokuNumrat) u fshi krejt, edhe nga SHELL i sw.js. MOS I RIKTHE fonte/madhësi të reja pa pyetur. Kolona "Çfarë duhet bërë" u bë "Ditët e mbetura" (`AF.ditetEMbetura()` →
    {para, nr, pas}, qeliza `qelizaEDiteve()` në pc.html; "Skadoi para" del si rresht i vogël mbi numrin); nën datë
    s'shfaqen më ditët (përveç Pultit). Nën 1180px fshihet kolona "Statusi" te #afTabela/#ekTabela që emri të mos zhduket.
 
 00000. **Afatet (v121), kërkesë e përdoruesit:** U HOQ krejt lajmërimi i furnizuesit nga UI ("Lajmëro furnizuesin", "…sa më
    parë", butoni "Lajmërova", "Shëno si të lajmëruara", kolonat e Excel-it). MOS I RIKTHE pa pyetur. (Fusha `lajmeruarSe`
    mbetet në të dhënat e vjetra, s'përdoret.) Te v122 u hoqën edhe "Dërgo listën" (tel) dhe "Kopjo mesazhin për
-   furnizuesin" (PC), bashkë me `mesazhiFurnizuesit` në afatet.js. MOS I RIKTHE pa pyetur. Numrat e afateve
-   (data, sasia, ditët, KPI) me fontin lokal `numrat.woff2` (Manrope 800, OFL, `numrat-LICENSE.txt`, `font-family:
-   'StokuNumrat'`, vetëm për shifrat me unicode-range), më të mëdhenj; tekstet e afateve pak më të mëdha. Font-i është te SHELL i sw.js.
+   furnizuesin" (PC), bashkë me `mesazhiFurnizuesit` në afatet.js. MOS I RIKTHE pa pyetur. (Fonti i numrave i v121
+   u hoq te v123 me kërkesë të përdoruesit; te PC tekstet e tabelës së afateve mbetën pak më të mëdha.)
 0000. **Afatet: importi nga Excel + muajt (v120)**: logjika e përbashkët në `afatet.js`: `muajiNgaEmri` ("Nëntor2" → 11,
    numrat/shenjat harrohen; "Marketi" s'është muaj), `dataNgaQeliza` (serial Excel, tekst, ose vetëm dita + muaji i
    fletës), `hamendesoKolonatEAfateve` (sipas titujve ose përmbajtjes), `planiImportitAfateve` (ekzistuese = i njëjti
@@ -368,6 +367,7 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Marking/vijëzim automatik i rreshtave në fletë (u keqkuptua kërkesa origjinale; u zëvendësua me "laps"
   të kuq të vizatuar me dorë nga përdoruesi mbi foton, që mbetet gjatë zoom-it).
 - Butoni "versioni për telefon" te pc.html (u hoq krejt).
+- Font i veçantë / numra më të mëdhenj te Afatet (v121/v122, u kthyen si më parë te v123).
 - Çdo gjë për furnizuesin si mesazh/lajmërim (v121 + v122): "Lajmëro furnizuesin", "Lajmërova", "Dërgo listën",
   "Kopjo mesazhin për furnizuesin". Grupimi sipas furnizuesit mbetet (vetëm si listë).
 - Placeholder-a tip "p.sh." në fusha — përdoruesi i pëlqen hint-e përshkruese, jo shembuj konkretë.

@@ -31,10 +31,6 @@
   })();
 </script>
 <style>
-  /* Numrat e afateve (datat, sasitë, ditët): font i veçantë me shifra të qarta (Manrope 800, lokal, OFL: numrat-LICENSE.txt).
-     unicode-range: vetëm shifrat dhe . , - / + : %, shkronjat mbeten me fontin e zakonshëm. */
-  @font-face { font-family: 'StokuNumrat'; src: url('numrat.woff2') format('woff2'); font-weight: 500 900; font-style: normal; font-display: swap;
-    unicode-range: U+0030-0039, U+002B-002F, U+003A, U+0025; }
   :root {
     color-scheme: light;
     --primar: #1565C0;
@@ -811,24 +807,17 @@
   #afTabela .af-prod div + div { font-size: 12px; color: var(--gri); overflow: hidden; text-overflow: ellipsis; }
   #afTabela .af-fur-nen { font-weight: 600; color: var(--tekst) !important; opacity: .8; }
   #afTabela tr.af-grup td { background: var(--karta) !important; font-weight: 700; height: 46px; border-top: 1px solid var(--vije); cursor: default; }
-  /* Afatet më të lexueshme: numra më të mëdhenj me fontin e numrave, shkronja pak më të mëdha */
+  /* Afatet: shkronja pak më të mëdha; numrat me fontin e zakonshëm */
   #afTabela td { font-size: 15.5px; }
   #afTabela .af-prod div:first-child { font-size: 16px; }
   #afTabela .af-prod div + div { font-size: 13px; }
   #afTabela td.k-msg { font-size: 14.5px; }
-  :is(#afTabela, #ekTabela, #ekPultTabela) td.k-sas, :is(#afTabela, #ekTabela, #ekPultTabela) td.k-data, td.k-ditet b, .kpi.af-kpi .kpi-vlera { font-family: 'StokuNumrat', var(--shkronja); }
-  :is(#afTabela, #ekTabela, #ekPultTabela) td.k-sas { font-size: 18px; font-weight: 800; }
-  :is(#afTabela, #ekTabela, #ekPultTabela) td.k-data { font-size: 19px; font-weight: 800; letter-spacing: -.2px; }
-  #afTabela .k-data { width: 150px; }
-  #ekTabela .k-data, #ekPultTabela .k-data { width: 150px; }
+  #afTabela .k-data { width: 130px; }
   #afTabela .k-msg { width: 180px; white-space: nowrap; }
   #ekTabela .k-msg { width: 150px; white-space: nowrap; }
   td.k-ditet { font-size: 14px; font-weight: 600; }
-  td.k-ditet b { font-size: 21px; font-weight: 800; }
+  td.k-ditet b { font-size: 16px; font-weight: 800; }
   td.k-ditet .k-ditet-mbi { display: block; font-size: 12.5px; line-height: 1.2; }
-  #afTabela .k-sas { width: 80px; }
-  #afTabela .k-data small { font-size: 13px; font-weight: 700; }
-  .kpi.af-kpi .kpi-vlera { font-size: 34px; font-weight: 800; }
   .btn.af-btn { height: 30px; padding: 0 10px; font-size: 12.5px; border-radius: 8px; }
   .btn.af-btn.kuqe { background: var(--af-kuqe); color: #fff; }
   .btn.af-btn.verdhe { background: var(--af-verdhe); color: #3b2a00; }
@@ -894,8 +883,6 @@
     .tabela .k-folderi { width: 124px; }
     .tabela .k-sasia { width: 112px; }
     .tabela .k-koha { width: 112px; }
-    :is(#ekTabela, #ekPultTabela) .k-data { width: 140px; }
-    #afTabela .k-data { width: 140px; }
     #afTabela .k-msg { width: 160px; }
     #ekTabela .k-msg { width: 140px; }
     #afTabela .k-st { width: 140px; }
@@ -908,8 +895,7 @@
   }
   @media (max-width: 1180px) {
     :is(#afTabela, #ekTabela) .k-st { display: none; }
-    :is(#afTabela, #ekTabela) .k-data { width: 128px; }
-    :is(#afTabela, #ekTabela) td.k-data { font-size: 17px; }
+    :is(#afTabela, #ekTabela) .k-data { width: 118px; }
     :is(#afTabela, #ekTabela) .k-msg { width: 122px; }
     :is(#afTabela, #ekTabela) .k-sas { width: 60px; }
     #ekTabela .k-pronari { width: 100px; }
@@ -1815,7 +1801,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=122"></script>
 <script src="ekipa.js?v=6"></script>
-<script src="teRejat.js?v=122"></script>
+<script src="teRejat.js?v=123"></script>
 <script>
 (function () {
   'use strict';

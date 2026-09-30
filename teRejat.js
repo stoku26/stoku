@@ -15,6 +15,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 123, data: '2026-09-30', titulli: 'Numrat e afateve si më parë', pikat: [
+      'Numrat te Afatet (datat, sasitë, ditët) u kthyen në fontin dhe madhësinë e mëparshme, në telefon dhe në kompjuter.'
+    ] },
     { v: 122, data: '2026-09-30', titulli: 'Ekipa me ikona dhe afatet më të qarta', pikat: [
       'Te Ekipa, kush është online tregohet me ikonën e telefonit ose të kompjuterit dhe një pikë të gjelbër; kush s\'është, me ikonën "jashtë linje" dhe kohën kur u pa.',
       'Te Afatet në kompjuter, kolona "Çfarë duhet bërë" u bë "Ditët e mbetura", me numrin të madh; nën datë s\'përsëriten më ditët.',
