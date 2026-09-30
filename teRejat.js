@@ -15,6 +15,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 121, data: '2026-09-30', titulli: 'Afatet më të lexueshme', pikat: [
+      'Datat, sasitë dhe ditët te Afatet kanë font të ri, më të madh dhe më të trashë, që lexohen menjëherë.',
+      'Emrat e produkteve dhe tekstet te Afatet janë pak më të mëdha.',
+      'U hoqën "Lajmëro furnizuesin" dhe butoni "Lajmërova".'
+    ] },
     { v: 120, data: '2026-09-30', titulli: 'Afatet: import nga Excel dhe muajt', pikat: [
       'Te Afatet ka butonin "Importo" (Excel ose CSV): kolonat gjenden vetë, dhe para importit sheh çka shtohet, çka ekziston dhe çka ka gabim.',
       'Fletët me emër muaji në Excel (p.sh. "Nëntor", "Nëntor2") lexohen si ai muaj; numri pas emrit harrohet.',

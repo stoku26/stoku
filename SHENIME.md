@@ -46,6 +46,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+00000. **Afatet (v121), kërkesë e përdoruesit:** U HOQ krejt lajmërimi i furnizuesit nga UI ("Lajmëro furnizuesin", "…sa më
+   parë", butoni "Lajmërova", "Shëno si të lajmëruara", kolonat e Excel-it). MOS I RIKTHE pa pyetur. (Fusha `lajmeruarSe`
+   mbetet në të dhënat e vjetra, s'përdoret; "Dërgo listën / Kopjo mesazhin për furnizuesin" mbeten.) Numrat e afateve
+   (data, sasia, ditët, KPI) me fontin lokal `numrat.woff2` (Manrope 800, OFL, `numrat-LICENSE.txt`, `font-family:
+   'StokuNumrat'`, vetëm për shifrat me unicode-range), më të mëdhenj; tekstet e afateve pak më të mëdha. Font-i është te SHELL i sw.js.
 0000. **Afatet: importi nga Excel + muajt (v120)**: logjika e përbashkët në `afatet.js`: `muajiNgaEmri` ("Nëntor2" → 11,
    numrat/shenjat harrohen; "Marketi" s'është muaj), `dataNgaQeliza` (serial Excel, tekst, ose vetëm dita + muaji i
    fletës), `hamendesoKolonatEAfateve` (sipas titujve ose përmbajtjes), `planiImportitAfateve` (ekzistuese = i njëjti

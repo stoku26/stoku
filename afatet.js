@@ -3,7 +3,7 @@
  *
  * Ngjyrat:
  *   E KUQE    = ka skaduar          → produkti duhet të hiqet nga rafti/pozita.
- *   E VERDHË  = skadon brenda 30 ditëve (1 muaj) → lajmëro furnizuesin sa më parë.
+ *   E VERDHË  = skadon brenda 30 ditëve (1 muaj).
  *   E GJELBËR = në rregull.
  *   GRI       = i hequr nga rafti (i mbyllur, mbetet si histori).
  *
@@ -87,8 +87,7 @@
     if (st === 'skaduar') return (n === -1 ? 'Skadoi dje' : 'Ka skaduar para ' + ditetTekst(-n)) + '. Ky produkt duhet të hiqet nga rafti/pozita.';
     if (st === 'afer') {
       var kur = n === 0 ? 'Skadon SOT' : n === 1 ? 'Skadon nesër' : 'Skadon për ' + ditetTekst(n);
-      return kur + (a.lajmeruarSe ? '. Furnizuesi u lajmërua më ' + formato(isoNgaData(new Date(a.lajmeruarSe))) + '.' :
-        '. Lajmëro furnizuesin sa më parë.');
+      return kur + '.';
     }
     return 'Në rregull, skadon për ' + ditetTekst(n) + '.';
   }

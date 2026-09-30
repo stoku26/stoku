@@ -10,10 +10,10 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v120';
+var CACHE = 'stoku-v121';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
-importScripts('./afatet.js?v=120', './njoftimet.js?v=117');
+importScripts('./afatet.js?v=121', './njoftimet.js?v=117');
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.2/dist/iife/ponyfill.js',
@@ -27,16 +27,17 @@ var SHELL = FAQET.concat([
   './xlsx.js?v=113',
   './bashkimi.js?v=113',
   './ruajtja.js?v=110',
-  './afatet.js?v=120',
+  './afatet.js?v=121',
   './ekipa.js?v=5',
   './porta.js?v=117',
   './njoftimet.js?v=117',
-  './teRejat.js?v=120',
+  './teRejat.js?v=121',
   './manifest.webmanifest?v=84',
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png',
-  './logo.png'
+  './logo.png',
+  './numrat.woff2'
 ]);
 
 async function mbushCacheEri() {
