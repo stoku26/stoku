@@ -4,7 +4,7 @@
  * e vet ("stoku-beta-…") dhe fshin vetëm cache-t e veta të vjetra, kurrë ato të Stoku-t.
  * Skedarët e përbashkët (afatet.js, ekipa.js…) merren nga "../", me të njëjtat versione si te Stoku.
  */
-var CACHE = 'stoku-beta-1-stoku-v124';
+var CACHE = 'stoku-beta-2-stoku-v125';
 
 importScripts('../afatet.js?v=122', '../njoftimet.js?v=117');
 var CDN_BIBLIOTEKA = [
@@ -24,9 +24,9 @@ var SHELL = FAQET.concat([
   '../ekipa.js?v=6',
   '../njoftimet.js?v=117',
   '../teRejat.js?v=123',
-  './stoku-beta.css?v=1',
-  './beta.js?v=1',
-  './manifest.webmanifest?v=1',
+  './stoku-beta.css?v=2',
+  './beta.js?v=2',
+  './manifest.webmanifest?v=2',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',
   '../icon-192.png',

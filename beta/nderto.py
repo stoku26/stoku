@@ -13,7 +13,7 @@ import sys
 
 KETU = os.path.dirname(os.path.abspath(__file__))
 RRENJA = os.path.dirname(KETU)
-VERSIONI_BETA = '1'  # rrite kur ndryshon stoku-beta.css ose beta.js (edhe te beta/sw.js)
+VERSIONI_BETA = '2'  # rrite kur ndryshon stoku-beta.css ose beta.js (edhe te beta/sw.js)
 
 t = open(os.path.join(RRENJA, 'index.html'), encoding='utf-8').read()
 
@@ -35,6 +35,10 @@ nderro(r'<link rel="manifest" href="manifest\.webmanifest\?v=\d+">',
        '<link rel="manifest" href="manifest.webmanifest?v=' + VERSIONI_BETA + '">', rx=True)
 nderro('<img id="logoSlika" src="logo.png" alt="Stoku">', '<img id="logoSlika" src="../logo.png" alt="Stoku">')
 nderro("icon: './icon-192.png', badge: './icon-192.png'", "icon: '../icon-192.png', badge: '../icon-192.png'")
+# Nga kompjuteri (Cilësimet > Pamja e re): "beta/?tel" e mban pamjen e telefonit, pa ridrejtim te pc.html
+nderro("    if (op && op.pda) return;\n", """    if (op && op.pda) return;
+    try { if (/[?&]tel\\b/.test(location.search)) sessionStorage.setItem('stoku:beta-tel', '1'); if (sessionStorage.getItem('stoku:beta-tel')) return; } catch (e) { /* ok */ }
+""")
 # Kompjuteri s'ka ende version beta: hapet pc.html i zakonshëm
 nderro("location.replace('pc.html' +", "location.replace('../pc.html' +")
 nderro('id="lidhjaPc" href="pc.html"', 'id="lidhjaPc" href="../pc.html"')
@@ -44,7 +48,7 @@ nderro(r'<title>[^<]*</title>', '<title>Stoku Beta</title>', rx=True)
 # Lidhja "Provo Beta" (te Stoku vetëm për administratorin) këtu kthen te pamja e zakonshme, për krejt
 nderro('<a class="btn tekst lidhje-beta" id="lidhjaBeta" href="beta/" hidden>Provo pamjen e re (Beta) ›</a>',
        '<a class="btn tekst lidhje-beta" id="lidhjaBeta" href="../">Kthehu te pamja e zakonshme ›</a>')
-nderro("    $('lidhjaBeta').hidden = !(typeof ekK !== 'undefined' && ekK && ekK.eshteAdmin());\n", '')
+nderro("    $('lidhjaBeta').hidden = !admin;\n", "    $('lidhjaBeta').hidden = !admin && false; // në betë lidhja (kthimi) shihet nga krejt\n")
 
 # Tekste të dizajnit
 nderro("      kerkoGlobalLabel: 'Kërko',", "      kerkoGlobalLabel: 'Kërko produkt ose barkod',")

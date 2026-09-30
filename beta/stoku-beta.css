@@ -258,3 +258,12 @@
 
 /* Tost */
 .sb #toast { border-radius: 14px; background: var(--sb-ink); color: var(--sb-bg); }
+
+/* Në kompjuter (lidhja "Shiko Beta" nga Cilësimet e pc.html): pamja e telefonit në mes, me gjerësi telefoni */
+@media (min-width: 700px) {
+  .sb { background: var(--sb-sunken); }
+  .sb body, .sb #tabet, .sb .mbulese.faqe-e-plote, .sb #dlgOpsione, .sb #kamera { max-width: 440px; margin-left: auto; margin-right: auto; }
+  .sb body { box-shadow: 0 0 0 1px var(--sb-line), 0 30px 80px -30px rgba(0,0,0,.25); }
+  /* faqet e mbyllura rrinë jashtë djathtas (translateX 100%); në ekran të gjerë do të dukeshin */
+  .sb .mbulese.faqe-e-plote:not(.hapur), .sb #dlgOpsione:not(.hapur) { visibility: hidden; }
+}

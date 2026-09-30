@@ -2780,7 +2780,13 @@
   perkthoStatiket();
 
   // ---------- Tabet e Opsioneve ----------
+  // "Provo pamjen e re (Beta)": vetëm administratori (qasja e ekipës, ose emri i llogarisë kur ekipa s'është lidhur ende)
+  function rifreskoLidhjenBeta() {
+    var admin = (typeof ekK !== 'undefined' && ekK && ekK.eshteAdmin()) || emriPerdoruesitAktual().toLowerCase() === 'mendurberisha';
+    $('lidhjaBeta').hidden = !admin;
+  }
   function aktivizoTabin(emriFaqes) {
+    if (emriFaqes === 'pamja') rifreskoLidhjenBeta();
     var neMenu = !emriFaqes;
     $('kategoriMenu').style.display = neMenu ? '' : 'none';
     Array.prototype.forEach.call(document.querySelectorAll('.opsione-faqe'), function (f) {
@@ -2818,7 +2824,7 @@
   }
 
   function hapOpsionet() {
-    $('lidhjaBeta').hidden = !(typeof ekK !== 'undefined' && ekK && ekK.eshteAdmin());
+    rifreskoLidhjenBeta();
     $('opsTingull').checked = opsione.tingull;
     $('opsScanner').checked = opsione.scanner;
     $('opsPda').checked = opsione.pda;
