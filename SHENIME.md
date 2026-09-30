@@ -176,7 +176,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
       SW-ja (`notificationclick`) i dërgon dritares `hap-ekipa` (tel: `#ekipa-<pamja>`, PC: `#/ekipa/…`).
     - **Pamjet** (tel: çipat `#ekMenu`; PC: `.segmente#ekMenu` + anësorja): Afatet (kartat e anëtarëve →
       lista/tabela me "Unë e hoqa"), Aktiviteti, Chat, Kalendari (ngjyra për ditë: e kuqe/verdhë/gjelbër,
-      e ndërprerë = të hequra), Anëtarët (online/parë së fundi, pajisja), Statistika. Dizajni përdor VETËM pjesët
+      e ndërprerë = të hequra), Anëtarët (online/parë së fundi, pajisja), Statistika. **Chat-i (v111) s'është më çip te menuja:** hapet nga ikona/butoni lart djathtas pranë ziles (`#ekChatBtn`, pika `#ekChatPike`; prekja sërish kthen te pamja e mëparshme) — kërkesë e përdoruesit. Dizajni përdor VETËM pjesët
       ekzistuese (folder-karta, af-numer, af-karta, artikull, af-filtrat / kpi, segmente, tabela, shiritat e
       Përmbledhjes) — 5 dizajne të veçanta u refuzuan si "palidhje" para këtij.
     - Testi me dy përdorues: `ekipa-server.js` (Firebase i simuluar në node, `exposeBinding`) +

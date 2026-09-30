@@ -254,6 +254,8 @@
   .ek-menu { margin-bottom: 16px; }
   .ek-zile { position: relative; }
   .ek-zile .af-cip { position: absolute; top: -8px; right: -8px; }
+  .ek-zile .ek-pike { position: absolute; top: -4px; right: -4px; margin: 0; width: 11px; height: 11px; }
+  .btn.dyte.ek-zile.aktiv { background: var(--primar-bute); color: var(--btn-tekst); border-color: var(--btn-tekst); }
   #ekKerkoKuti { flex: 1 1 220px; max-width: 360px; }
   #ekTabela tbody tr { cursor: default; }
   #ekTabela .k-pronari { width: 150px; color: var(--gri); }
@@ -1127,6 +1129,11 @@
           <div class="faqe-nen" id="ekNen"></div>
         </div>
         <div class="faqe-veprime">
+          <button class="btn dyte ek-zile" type="button" id="ekChatBtn" title="Chat-i i ekipës">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            Chat
+            <span class="ek-pike" id="ekChatPike" style="display:none"></span>
+          </button>
           <button class="btn dyte ek-zile" type="button" id="ekZile" title="Njoftimet (p.sh. kur një koleg e heq nga rafti një produkt tëndin)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
             Njoftimet
@@ -1137,7 +1144,6 @@
       <div class="segmente ek-menu" id="ekMenu">
         <button type="button" data-n="afatet" class="aktiv">Afatet</button>
         <button type="button" data-n="aktiviteti">Aktiviteti</button>
-        <button type="button" data-n="chat">Chat<span class="ek-pike" id="ekChatPike" style="display:none"></span></button>
         <button type="button" data-n="kalendari">Kalendari</button>
         <button type="button" data-n="anetaret">Anëtarët</button>
         <button type="button" data-n="statistika">Statistika</button>
@@ -1585,7 +1591,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=90"></script>
 <script src="ekipa.js?v=2"></script>
-<script src="teRejat.js?v=110"></script>
+<script src="teRejat.js?v=111"></script>
 <script>
 (function () {
   'use strict';
@@ -4268,6 +4274,7 @@
 
   function ekVizato(rifreskim) {
     Array.prototype.forEach.call(document.querySelectorAll('#ekMenu button'), function (b) { b.classList.toggle('aktiv', b.dataset.n === ekNen); });
+    $('ekChatBtn').classList.toggle('aktiv', ekNen === 'chat');
     var lidhur = !!(ekK && ekK.kaLidhje());
     var qasja = lidhur ? ekK.gjendjaEQasjes() : '';
     $('ekPaLidhje').classList.toggle('fsheh', lidhur && qasja === 'ok');
@@ -4701,6 +4708,13 @@
     ekK.shenoNjoftimetTeLexuara();
   }
   $('ekZile').addEventListener('click', ekHapNjoftimet);
+  // Chat-i: butoni lart djathtas, pranë "Njoftimet"; klikimi sërish kthen te pamja e mëparshme
+  var ekParaChatit = 'afatet';
+  $('ekChatBtn').addEventListener('click', function () {
+    if (ekNen === 'chat') { ekShkoTe(ekParaChatit); return; }
+    ekParaChatit = ekNen;
+    ekShkoTe('chat');
+  });
   $('ekNjLejo').addEventListener('click', function () {
     $('ekNjLejo').style.display = 'none';
     Promise.resolve(Notification.requestPermission()).then(function (p) {

@@ -15,6 +15,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 111, data: '2026-09-30', titulli: 'Ekipa: chat-i lart djathtas', pikat: [
+      'Chat-i i ekipës tani hapet nga ikona lart djathtas, pranë njoftimeve — pika e kuqe tregon mesazh të ri. Prekja sërish të kthen aty ku ishe.'
+    ] },
     { v: 110, data: '2026-09-29', titulli: 'Ekipa më e sigurt, sinkronizim më i shpejtë', pikat: [
       'Një llogari e re e sheh Ekipën vetëm pasi ta pranojë administratori (te Ekipa → Anëtarët). Anëtarët e sotëm mbeten në ekipë.',
       'Kolegët shohin vetëm afatet e tua — stoku yt mbetet vetëm i yti.',
