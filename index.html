@@ -112,6 +112,10 @@
   body[data-madhesi="e_madhe"] { zoom: 1.12; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; overflow: hidden; }
+  /* Numrat e afateve (datat, sasitë, ditët): font i veçantë me shifra të qarta (Manrope 800, lokal, OFL: numrat-LICENSE.txt).
+     unicode-range: vetëm shifrat dhe . , - / + : %, shkronjat mbeten me fontin e zakonshëm. */
+  @font-face { font-family: 'StokuNumrat'; src: url('numrat.woff2') format('woff2'); font-weight: 500 900; font-style: normal; font-display: swap;
+    unicode-range: U+0030-0039, U+002B-002F, U+003A, U+0025; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: var(--tekst);
@@ -967,6 +971,7 @@
   .nj-pike.kuqe { background: #e5483e; }
   .af-excel-rresht .btn { flex: 1; min-height: 40px; font-size: 13.5px; gap: 6px; }
   #dlgAfatet.zgjedhje .af-excel-rresht { display: none; }
+  @media (max-width: 359px) { .af-excel-rresht svg { display: none; } .af-excel-rresht .btn { font-size: 13px; padding: 0 8px; } }
   .af-muajt button .n { margin-left: 5px; font-weight: 600; opacity: .7; }
   #dlgAfImport { z-index: 24; }
   #dlgAfImport .dialog { max-width: 520px; }
@@ -1033,6 +1038,16 @@
   .af-data { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ngj-tx); }
   .af-dite { font-size: 12px; color: var(--ngj-tx); font-weight: 600; margin-top: 2px; }
   .af-sasia { display: inline-block; margin-top: 6px; font-size: 13px; font-weight: 700; padding: 2px 9px; border-radius: 10px; background: var(--fushe-bg); border: 1px solid var(--vije); color: var(--tekst); white-space: nowrap; }
+  /* Afatet më të lexueshme: numra më të mëdhenj me fontin e numrave, shkronja pak më të mëdha */
+  .af-emri { font-size: 17px; }
+  .af-nen { font-size: 13.5px; }
+  .af-mesazh { font-size: 14.5px; }
+  .af-data, .af-dite, .af-sasia, .af-numer b { font-family: 'StokuNumrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .af-data { font-size: 19px; font-weight: 800; letter-spacing: -.2px; }
+  .af-dite { font-size: 13.5px; font-weight: 700; }
+  .af-sasia { font-size: 15.5px; font-weight: 800; padding: 3px 10px; }
+  .af-numer b { font-size: 30px; font-weight: 800; }
+  .af-numer span { font-size: 13px; }
   .lx-rresht input[type="number"] { height: 44px; font-size: 15px; }
   .af-pill {
     display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; border: 1.5px solid var(--ngj); color: var(--ngj-tx); background: transparent;
@@ -1694,10 +1709,10 @@
 <script src="xlsx.js?v=113"></script>
 <script src="bashkimi.js?v=113"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=120"></script>
+<script src="afatet.js?v=121"></script>
 <script src="ekipa.js?v=5"></script>
 <script src="njoftimet.js?v=117"></script>
-<script src="teRejat.js?v=120"></script>
+<script src="teRejat.js?v=121"></script>
 <script>
 (function () {
   'use strict';
@@ -4674,7 +4689,7 @@
   // ================= Afatet (datat e skadimit) =================
   // Punëtorët i fotografojnë fletët ku kanë shkruar afatet → AI i lexon → punëtori i kontrollon → ruhen.
   // Menaxherja i sheh me ngjyra: e kuqe = ka skaduar (hiqe nga rafti), e verdhë = skadon brenda 1 muaji
-  // (lajmëro furnizuesin), e gjelbër = në rregull. Sinkronizohen me cloud-in bashkë me produktet.
+  // (afër skadimit), e gjelbër = në rregull. Sinkronizohen me cloud-in bashkë me produktet.
   var AF = window.StokuAfatet;
   var afFiltri = 'aktive';
   var afMuaji = ''; // '' = krejt muajt, 'VVVV-MM' ose 'pa-date' (sipas datës së skadimit)
@@ -5127,7 +5142,6 @@
     // Veprimi i shpejtë sipas ngjyrës
     var pill = null;
     if (st === 'skaduar') pill = ['U hoq nga rafti', function () { shenoHequr(a); }, 'kontroll'];
-    else if (st === 'afer' && !a.lajmeruarSe) pill = ['Lajmërova furnizuesin', function () { shenoLajmeruar(a); }, 'kontroll'];
     else if (st === 'hequr') pill = ['Rikthe si aktiv', function () { riktheAktiv(a); }, 'rikthe'];
     if (pill) {
       var pb = document.createElement('button'); pb.type = 'button'; pb.className = 'af-pill';
@@ -5189,11 +5203,6 @@
     toast('"' + (a.emri || a.barkodi) + '" u shënua si i hequr nga rafti.');
     ekNgjarjeAfati('hequr', a);
   }
-  function shenoLajmeruar(a) {
-    perditesoAfatin(a.id, { lajmeruarSe: Date.now() });
-    toast('U shënua: furnizuesi u lajmërua.');
-    if (perdoruesiAktual() && typeof ekK !== 'undefined' && ekK) ekK.ngjarje({ lloji: 'lajmeruar', furnizuesi: a.furnizuesi || '', n: 1 });
-  }
   function riktheAktiv(a) { perditesoAfatin(a.id, { statusi: 'aktiv', hequrSe: 0 }); ekNgjarjeAfati('rikthyer', a); }
 
   async function dergoListen(furnizuesi, lista) {
@@ -5205,14 +5214,6 @@
       if (e && e.name === 'AbortError') return;
       try { await navigator.clipboard.writeText(tekst); toast('Mesazhi u kopjua.'); } catch (e2) { toast('Mesazhi s\'u nda dot. Provo përsëri.'); return; }
     }
-    var po = await konfirmo('Të shënohen si të lajmëruara?', 'A ia dërgove listën furnizuesit "' + (furnizuesi || 'pa emër') + '"? Produktet e tij do të shënohen "Furnizuesi u lajmërua".', 'Po, u lajmërua');
-    if (!po) return;
-    var ids = {};
-    lista.forEach(function (a) { ids[a.id] = true; });
-    var tani = Date.now();
-    afatet = afatet.map(function (x) { return ids[x.id] ? Object.assign({}, x, { lajmeruarSe: tani, ndryshuarSe: tani }) : x; });
-    ruajAfatet();
-    if (perdoruesiAktual() && typeof ekK !== 'undefined' && ekK) ekK.ngjarje({ lloji: 'lajmeruar', furnizuesi: furnizuesi || '', n: lista.length });
   }
 
   function hapAfatetFaqe() {
@@ -6229,8 +6230,6 @@
       var veprime = [];
       if (st === 'skaduar') veprime.push(['U hoq nga rafti', function () { shenoHequr(a); }, 'kontroll']);
       else if (st === 'hequr') veprime.push(['Rikthe si aktiv', function () { riktheAktiv(a); }, 'rikthe']);
-      if (st === 'afer' || st === 'skaduar') veprime.push([a.lajmeruarSe ? 'Hiq "u lajmërua"' : 'Lajmërova furnizuesin',
-        function () { if (a.lajmeruarSe) perditesoAfatin(a.id, { lajmeruarSe: 0 }); else shenoLajmeruar(a); }, a.lajmeruarSe ? 'x' : 'kontroll']);
       veprime.forEach(function (v) {
         var b = document.createElement('button'); b.type = 'button'; b.className = 'btn dyte me-ikone';
         b.innerHTML = IKONAT_AF[v[2]]; b.appendChild(document.createTextNode(v[0]));
