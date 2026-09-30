@@ -10,7 +10,7 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v123';
+var CACHE = 'stoku-v124';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
 importScripts('./afatet.js?v=122', './njoftimet.js?v=117');
@@ -82,7 +82,8 @@ self.addEventListener('install', function (e) {
 self.addEventListener('activate', function (e) {
   e.waitUntil(
     caches.keys().then(function (emrat) {
-      return Promise.all(emrat.filter(function (k) { return k !== CACHE; })
+      // Cache-t e Stoku Beta ("stoku-beta-…", /beta/sw.js) s'preken: i fshin vetë beta
+      return Promise.all(emrat.filter(function (k) { return k !== CACHE && k.indexOf('stoku-beta-') !== 0; })
         .map(function (k) { return caches.delete(k); }));
     }).then(function () { return self.clients.claim(); })
   );
@@ -91,6 +92,9 @@ self.addEventListener('activate', function (e) {
 self.addEventListener('fetch', function (e) {
   var kerkesa = e.request;
   if (kerkesa.method !== 'GET') return;
+
+  // Stoku Beta (/beta/…) ka service worker-in e vet; këtu s'ruhet, që të mos e zëvendësojë faqen e Stoku-t
+  if (new URL(kerkesa.url).pathname.indexOf('/beta/') !== -1) return;
 
   // Faqet (telefon = index.html, kompjuter = pc.html): provo internetin së pari (për përditësime),
   // pastaj kopjen e ruajtur të PO ASAJ faqeje — secila ruhet veç, që njëra të mos e zëvendësojë tjetrën.

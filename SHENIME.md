@@ -46,6 +46,26 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **STOKU BETA (v124): stoku.site/beta/, pamja e re e telefonit nga Claude Design** (dizajni "Stoku Premium",
+   handoff i përdoruesit: telefoni së pari, kompjuteri më vonë në /beta/pc.html; ende s'ekziston, beta te kompjuteri hap
+   ../pc.html). Vendimet e përdoruesit: kolona/rreshti mbetet "Ditët e mbetura" (jo "Çfarë duhet bërë" e dizajnit),
+   fonti Onest për krejt betën (lokal, `beta/fonts/`, OFL).
+   - **`beta/index.html` është I GJENERUAR nga `index.html`** me `python3 beta/nderto.py`. PAS ÇDO NDRYSHIMI te
+     index.html (ose te versionet `?v=` / CACHE i sw.js) EKZEKUTO `python3 beta/nderto.py` dhe commit-o edhe
+     beta/index.html + beta/sw.js. Skripti ndalet me gabim nëse s'gjen një pjesë të kodit që e ndryshon (grepat):
+     atëherë përshtate `nderto.py`, jo beta/index.html me dorë.
+   - Beta = i njëjti kod + `beta/stoku-beta.css` (klasa `sb-`, gjithçka nën `html.sb`) + `beta/beta.js`
+     (StokuBeta.pasFolderave / kartaAfatit / gati; lexon të dhënat nga `window.StokuBetaAPI`, vetëm në betë).
+     Skedarët e përbashkët (afatet.js, ekipa.js…) merren nga `../`. Të dhënat, llogaria, ekipa: të njëjtat (i njëjti domen).
+   - SW i veçantë: `beta/sw.js` (gjeneruar nga `beta/sw-shabllon.js`), scope /beta/, cache `stoku-beta-<VERSIONI_BETA>-<CACHE i rrënjës>`.
+     sw.js i rrënjës: s'i fshin cache-t `stoku-beta-*` dhe s'i trajton kërkesat /beta/. Kur ndryshon stoku-beta.css ose
+     beta.js: rrit `VERSIONI_BETA` te nderto.py.
+   - Qasja: Cilësimet → Pamja → "Provo pamjen e re (Beta) ›" vetëm për administratorin (`ekK.eshteAdmin()`); në betë
+     e njëjta lidhje thotë "Kthehu te pamja e zakonshme ›".
+   - Ende pa bërë nga dizajni: karta e errët e skanimit me PDA te "Afat i ri", stepper-i i sasisë, klikimi i "Sasi e ulët"/
+     "Sasi 0" (telefoni s'ka listë të filtruar), zilja te kryefaqja. Folderat mbeten rrjetë (jo rresht horizontal) që
+     zvarritja për renditje të punojë. Dizajni origjinal (README, .dc.html, stoku-beta.css e dizajnit): `beta/dizajni/` (hapi 2 = seksioni 5 i README). Testet: scratchpad `beta-shot.js` (BW=320,390 TEMA=dark), `beta-funk.js`, `beta-sw.js`, `beta-lidhja.js`.
+
 000000. **v122, kërkesë e përdoruesit:** Ekipa tregon praninë me IKONA (jo tekst): `EK.praniaIkone()` në ekipa.js
    (telefon/monitor + pikë e gjelbër kur është online; wifi-off gri + koha kur s'është), klasa `.ek-prania.on/.off`
    në të dy faqet. Te telefoni, shkronjat e afateve janë në madhësinë e VJETËR (përdoruesi s'i deshi më të mëdha);

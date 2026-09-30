@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f6f5f2;font-family:'Onest',system-ui,sans-serif;color:#14161b;-webkit-font-smoothing:antialiased}
+a{color:#1f5fc4;text-decoration:none}a:hover{color:#16479a}
+*{box-sizing:border-box}
+input{font-family:inherit}
+</style>
+</helmet>
+<div style="display:grid;grid-template-columns:264px minmax(0,1fr);min-height:100vh">
+
+  <aside style="position:sticky;top:0;height:100vh;overflow:auto;background:#efede9;border-right:1px solid #e3e1db;padding:20px 14px;display:flex;flex-direction:column;gap:22px">
+    <div onClick="{{ goOverview }}" style="display:flex;align-items:center;gap:10px;padding:0 6px;cursor:pointer">
+      <div style="width:34px;height:34px;border-radius:10px;background:#1f5fc4;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px">S</div>
+      <div style="display:flex;flex-direction:column;line-height:1.2"><span style="font-size:17px;font-weight:700;letter-spacing:-.02em">Stoku</span><span style="font-size:12px;color:#7a7d85">Market Qendra</span></div>
+    </div>
+    <div style="height:38px;border-radius:10px;background:#fff;box-shadow:0 0 0 1px #e3e1db;display:flex;align-items:center;gap:8px;padding:0 10px;color:#8a8d94;font-size:13px">
+      <span style="width:12px;height:12px;border-radius:50%;border:1.75px solid #8a8d94;flex-shrink:0"></span><span style="flex:1">Kërko kudo</span><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:2px 6px;border-radius:5px;background:#f1efeb;color:#6b6e76">Ctrl K</span>
+    </div>
+    <nav style="display:flex;flex-direction:column;gap:18px">
+      <sc-for list="{{ navGroups }}" as="g" hint-placeholder-count="3">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#8a8d94;padding:0 10px 6px">{{ g.title }}</span>
+          <sc-for list="{{ g.items }}" as="n" hint-placeholder-count="3">
+            <div onClick="{{ n.onClick }}" style="height:34px;padding:0 10px;border-radius:9px;display:flex;align-items:center;gap:9px;cursor:pointer;font-size:14px;background:{{ n.bg }};color:{{ n.fg }};font-weight:{{ n.fw }};box-shadow:{{ n.ring }}">
+              <span style="width:7px;height:7px;border-radius:50%;flex-shrink:0;background:{{ n.dot }}"></span>
+              <span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ n.label }}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ n.countColor }}">{{ n.count }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </nav>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:2px">
+      <div style="height:34px;padding:0 10px;border-radius:9px;display:flex;align-items:center;gap:9px;font-size:14px;color:#4a4d55"><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:oklch(0.5 0.12 155)">XLS</span>Importo nga Excel / CSV</div>
+      <div style="height:34px;padding:0 10px;border-radius:9px;display:flex;align-items:center;gap:9px;font-size:14px;color:#4a4d55"><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#8a8d94">⌘/</span>Shkurtoret e tastierës</div>
+      <div style="margin-top:10px;padding:10px;border-radius:12px;background:#fff;box-shadow:0 0 0 1px #e3e1db;display:flex;align-items:center;gap:10px">
+        <span style="width:32px;height:32px;border-radius:50%;background:#1f5fc4;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">AK</span>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3"><span style="font-size:13px;font-weight:600">Arben Krasniqi</span><span style="font-size:11.5px;color:#7a7d85;display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:oklch(0.65 0.15 155)"></span>Sinkronizuar tani</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <main style="min-width:0;padding:28px 40px 64px;display:flex;flex-direction:column;gap:24px;max-width:1440px">
+
+    <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;color:#7a7d85">E mërkurë, 30 Shtator 2026</span><h1 style="margin:0;font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1">Përmbledhja</h1></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <span style="height:38px;padding:0 14px;border-radius:10px;background:oklch(0.96 0.03 155);color:oklch(0.4 0.09 155);font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px"><span style="width:7px;height:7px;border-radius:50%;background:oklch(0.62 0.15 155);box-shadow:0 0 0 3px oklch(0.88 0.06 155)"></span>Skanimet nga telefoni dalin këtu menjëherë</span>
+          <div style="height:38px;padding:0 16px;border-radius:10px;background:#14161b;color:#fff;font-size:14px;font-weight:600;display:flex;align-items:center;cursor:pointer">Eksporto krejt stokun</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px">
+        <div style="border-radius:18px;background:#14161b;color:#fff;padding:20px;display:flex;flex-direction:column;gap:14px">
+          <span style="font-size:13px;color:#a3a6ae">Produkte gjithsej</span>
+          <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:36px;font-weight:700;letter-spacing:-.03em;line-height:1">1 248</span><span style="font-size:12px;padding:4px 9px;border-radius:20px;background:rgba(255,255,255,.1);color:#d7d9de">+36 sot</span></div>
+        </div>
+        <div onClick="{{ goLow }}" style="cursor:pointer;border-radius:18px;background:#fff;box-shadow:0 0 0 1px #e6e4df;padding:20px;display:flex;flex-direction:column;gap:14px">
+          <span style="font-size:13px;color:#7a7d85">Sasi e ulët</span>
+          <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:36px;font-weight:700;letter-spacing:-.03em;line-height:1;color:oklch(0.56 0.14 65)">23</span><span style="font-size:12px;color:#7a7d85">5 copë ose më pak</span></div>
+        </div>
+        <div onClick="{{ goZero }}" style="cursor:pointer;border-radius:18px;background:#fff;box-shadow:0 0 0 1px #e6e4df;padding:20px;display:flex;flex-direction:column;gap:14px">
+          <span style="font-size:13px;color:#7a7d85">Sasi 0</span>
+          <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:36px;font-weight:700;letter-spacing:-.03em;line-height:1;color:oklch(0.52 0.19 25)">4</span><span style="font-size:12px;color:#7a7d85">duhen porositur</span></div>
+        </div>
+        <div onClick="{{ goExpired }}" style="cursor:pointer;border-radius:18px;background:#fff;box-shadow:0 0 0 1px #e6e4df;padding:20px;display:flex;flex-direction:column;gap:14px">
+          <span style="font-size:13px;color:#7a7d85">Të skaduara në raft</span>
+          <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:36px;font-weight:700;letter-spacing:-.03em;line-height:1;color:oklch(0.52 0.19 25)">{{ cntExp }}</span><span style="font-size:12px;color:#1f5fc4;font-weight:600">Shiko afatet →</span></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;align-items:start">
+        <div style="border-radius:18px;background:#fff;box-shadow:0 0 0 1px #e6e4df;padding:20px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:16px;font-weight:700">Produktet sipas folderave</span><span style="font-size:12px;color:#7a7d85">8 foldera</span></div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ folderBars }}" as="f" hint-placeholder-count="6">
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;justify-content:space-between;font-size:13px"><span style="font-weight:500">{{ f.name }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#6b6e76">{{ f.count }}</span></div>
+                <div style="height:6px;border-radius:3px;background:#f1efeb;overflow:hidden"><div style="height:100%;border-radius:3px;width:{{ f.pct }};background:{{ f.fill }}"></div></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="border-radius:18px;background:#fff;box-shadow:0 0 0 1px #e6e4df;padding:20px 20px 8px;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:16px;font-weight:700">Ndryshuar së fundi</span><span onClick="{{ goProducts }}" style="font-size:13px;color:#1f5fc4;font-weight:600;cursor:pointer">Shih të gjitha</span></div>
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ recentList }}" as="p" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-top:{{ p.border }}">
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ p.nameColor }};font-style:{{ p.nameStyle }}">{{ p.nameShown }}</span><span style="font-size:12px;color:#8a8d94">{{ p.changed }}</span></div>
+                <span style="font-size:15px;font-weight:700;color:{{ p.qtyColor }}">{{ p.qty }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="border-radius:18px;background:#fff;box-shadow:0 0 0 1px #e6e4df;padding:20px 20px 8px;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:16px;font-weight:700">Sasia më e ulët</span><span onClick="{{ goLow }}" style="font-size:13px;color:#1f5fc4;font-weight:600;cursor:pointer">Shih të gjitha</span></div>
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ lowList }}" as="p" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-top:{{ p.border }}">
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ p.nameColor }};font-style:{{ p.nameStyle }}">{{ p.nameShown }}</span><span style="font-size:12px;color:#8a8d94">{{ p.folder }}</span></div>
+                <span style="min-width:36px;text-align:center;font-size:13px;font-weight:700;padding:4px 8px;border-radius:8px;background:{{ p.qtyBg }};color:{{ p.qtyColor }}">{{ p.qty }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isProducts }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;color:#7a7d85">Stoku</span><h1 style="margin:0;font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1">Të gjitha produktet</h1></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div style="height:38px;padding:0 14px;border-radius:10px;background:#fff;box-shadow:0 0 0 1px #e6e4df;font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:oklch(0.5 0.12 155)">XLS</span>Excel</div>
+          <div style="height:38px;padding:0 14px;border-radius:10px;background:#fff;box-shadow:0 0 0 1px #e6e4df;font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:oklch(0.52 0.19 25)">PDF</span>PDF</div>
+          <div style="height:38px;padding:0 16px;border-radius:10px;background:#1f5fc4;color:#fff;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 8px 18px -10px rgba(31,95,196,.9)"><span style="font-size:18px;font-weight:400;line-height:1">+</span>Shto produkt</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <div style="height:38px;min-width:280px;flex:0 1 360px;border-radius:10px;background:#fff;box-shadow:0 0 0 1px #e6e4df;display:flex;align-items:center;gap:8px;padding:0 12px">
+          <span style="width:12px;height:12px;border-radius:50%;border:1.75px solid #8a8d94;flex-shrink:0"></span>
+          <input value="{{ q }}" onChange="{{ onQ }}" placeholder="Kërko sipas emrit ose barkodit" style="flex:1;min-width:0;border:0;outline:0;background:transparent;font-size:14px;color:#14161b">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:2px 6px;border-radius:5px;background:#f1efeb;color:#6b6e76">Ctrl F</span>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <sc-for list="{{ prodChips }}" as="c" hint-placeholder-count="5">
+            <div onClick="{{ c.onClick }}" style="height:34px;padding:0 12px;border-radius:17px;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;cursor:pointer;background:{{ c.bg }};color:{{ c.fg }};box-shadow:{{ c.ring }}">{{ c.label }}<span style="font-size:11px;opacity:.65">{{ c.count }}</span></div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="border-radius:16px;background:#fff;box-shadow:0 0 0 1px #e6e4df;overflow:hidden">
+        <sc-if value="{{ hasSel }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#14161b;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px">
+            <span style="font-weight:600;margin-right:10px">{{ selLabel }}</span>
+            <span style="padding:6px 10px;border-radius:8px;background:rgba(255,255,255,.1);cursor:pointer">Zhvendos në folder…</span>
+            <span style="padding:6px 10px;border-radius:8px;background:rgba(255,255,255,.1);cursor:pointer">Eksporto…</span>
+            <span onClick="{{ delSel }}" style="padding:6px 10px;border-radius:8px;background:oklch(0.52 0.19 25);cursor:pointer;font-weight:600">Fshij</span>
+            <span onClick="{{ clearSel }}" style="margin-left:auto;color:#a3a6ae;cursor:pointer">Hiq zgjedhjen</span>
+          </div>
+        </sc-if>
+        <div style="overflow-x:auto">
+          <div style="min-width:860px">
+            <div style="display:grid;grid-template-columns:48px 170px minmax(220px,1fr) 160px 90px 130px;align-items:center;padding:0 16px;height:42px;background:#faf9f7;border-bottom:1px solid #efede9;font-size:12px;font-weight:600;color:#7a7d85">
+              <span onClick="{{ toggleAll }}" style="width:18px;height:18px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;background:{{ allBg }};box-shadow:{{ allRing }}">{{ allCheck }}</span>
+              <span>Barkodi</span><span>Emri i produktit</span><span>Folderi</span><span style="text-align:right">Sasia</span><span style="text-align:right">Ndryshuar</span>
+            </div>
+            <sc-for list="{{ prodRows }}" as="r" hint-placeholder-count="10">
+              <div onClick="{{ r.onClick }}" style="display:grid;grid-template-columns:48px 170px minmax(220px,1fr) 160px 90px 130px;align-items:center;cursor:pointer;border-top:{{ r.border }};background:{{ r.rowBg }};padding:{{ r.pad }};font-size:{{ r.fs }}">
+                <span style="width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;background:{{ r.cbBg }};box-shadow:{{ r.cbRing }}">{{ r.check }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#5b5e66">{{ r.bc }}</span>
+                <span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:16px;color:{{ r.nameColor }};font-style:{{ r.nameStyle }}">{{ r.nameShown }}</span>
+                <span style="display:flex;align-items:center;gap:7px;font-size:13px;color:#3a3d44"><span style="width:8px;height:8px;border-radius:3px;background:{{ r.fDot }}"></span>{{ r.folder }}<span style="font-size:11px;color:#8a8d94">{{ r.multiLabel }}</span></span>
+                <span style="text-align:right;font-weight:700;color:{{ r.qtyColor }}">{{ r.qty }}</span>
+                <span style="text-align:right;font-size:13px;color:#7a7d85">{{ r.changed }}</span>
+              </div>
+            </sc-for>
+            <sc-if value="{{ prodEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:48px 16px;text-align:center;color:#8a8d94;font-size:14px">Asnjë produkt nuk përputhet me filtrin.</div>
+            </sc-if>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 16px;border-top:1px solid #efede9;font-size:13px;color:#6b6e76;flex-wrap:wrap">
+          <span>{{ prodFooter }}</span>
+          <div style="display:flex;align-items:center;gap:14px">
+            <span style="display:flex;align-items:center;gap:8px">Rreshta për faqe<span style="padding:4px 10px;border-radius:8px;box-shadow:0 0 0 1px #e6e4df;color:#14161b;font-weight:600">50</span></span>
+            <span style="display:flex;gap:4px"><span style="width:30px;height:30px;border-radius:8px;box-shadow:0 0 0 1px #e6e4df;display:flex;align-items:center;justify-content:center;color:#b3b5ba">‹</span><span style="width:30px;height:30px;border-radius:8px;box-shadow:0 0 0 1px #e6e4df;display:flex;align-items:center;justify-content:center;color:#14161b">›</span></span>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isExpiry }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;color:#7a7d85">Afatet</span><h1 style="margin:0;font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1">Afatet e produkteve</h1></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div style="height:38px;padding:0 14px;border-radius:10px;background:#fff;box-shadow:0 0 0 1px #e6e4df;font-size:14px;font-weight:600;display:flex;align-items:center">Importo</div>
+          <div style="height:38px;padding:0 14px;border-radius:10px;background:#fff;box-shadow:0 0 0 1px #e6e4df;font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:oklch(0.5 0.12 155)">XLS</span>Excel</div>
+          <div style="height:38px;padding:0 14px;border-radius:10px;background:#fff;box-shadow:0 0 0 1px #e6e4df;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px"><span style="font-size:18px;font-weight:400;line-height:1;color:#1f5fc4">+</span>Shto afat</div>
+          <div style="height:38px;padding:0 16px;border-radius:10px;background:#1f5fc4;color:#fff;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 8px 18px -10px rgba(31,95,196,.9)"><span style="width:12px;height:12px;border-radius:50%;border:2px solid #fff"></span>Lexo fletën nga foto</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+        <div style="padding:4px;border-radius:12px;background:#ebe9e4;display:flex;gap:2px;flex-wrap:wrap">
+          <sc-for list="{{ expTabs }}" as="t" hint-placeholder-count="5">
+            <div onClick="{{ t.onClick }}" style="height:34px;padding:0 14px;border-radius:9px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer;background:{{ t.bg }};color:{{ t.fg }};box-shadow:{{ t.shadow }}"><span style="width:7px;height:7px;border-radius:50%;background:{{ t.dot }}"></span>{{ t.label }}<span style="font-family:'JetBrains Mono',monospace;font-size:11px;opacity:.6">{{ t.count }}</span></div>
+          </sc-for>
+        </div>
+        <div onClick="{{ toggleGroup }}" style="display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;cursor:pointer;user-select:none">
+          <span style="width:36px;height:22px;border-radius:11px;padding:2px;display:flex;background:{{ grpTrack }};justify-content:{{ grpJustify }}"><span style="width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)"></span></span>
+          Grupo sipas furnizuesit
+        </div>
+      </div>
+      <div style="border-radius:16px;background:#fff;box-shadow:0 0 0 1px #e6e4df;overflow:hidden">
+        <div style="overflow-x:auto">
+          <div style="min-width:920px">
+            <div style="display:grid;grid-template-columns:150px minmax(240px,1fr) 80px 130px minmax(220px,1fr) 150px;align-items:center;padding:0 16px;height:42px;background:#faf9f7;border-bottom:1px solid #efede9;font-size:12px;font-weight:600;color:#7a7d85">
+              <span>Statusi</span><span>Produkti · Furnizuesi</span><span style="text-align:right;padding-right:20px">Sasia</span><span>Skadon më</span><span>Çfarë duhet bërë</span><span></span>
+            </div>
+            <sc-for list="{{ expRows }}" as="r" hint-placeholder-count="8">
+              <sc-if value="{{ r.isGroup }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:10px 16px;background:#faf9f7;border-top:1px solid #efede9;display:flex;align-items:center;gap:10px;font-size:12px;font-weight:600;color:#5b5e66"><span style="text-transform:uppercase;letter-spacing:.06em">{{ r.sup }}</span><span style="font-family:'JetBrains Mono',monospace;color:#8a8d94;font-weight:400">{{ r.count }}</span></div>
+              </sc-if>
+              <sc-if value="{{ r.isRow }}" hint-placeholder-val="{{ true }}">
+                <div style="display:grid;grid-template-columns:150px minmax(240px,1fr) 80px 130px minmax(220px,1fr) 150px;align-items:center;border-top:{{ r.border }};padding:{{ r.pad }};font-size:{{ r.fs }}">
+                  <span><span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;background:{{ r.tint }};color:{{ r.color }}"><span style="width:6px;height:6px;border-radius:50%;background:{{ r.color }}"></span>{{ r.stLabel }}</span></span>
+                  <span style="display:flex;flex-direction:column;gap:2px;min-width:0;padding-right:16px"><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span><span style="font-size:12px;color:#8a8d94">{{ r.sup }} · <span style="font-family:'JetBrains Mono',monospace">{{ r.bc }}</span></span></span>
+                  <span style="text-align:right;padding-right:20px;font-weight:700">{{ r.qty }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#3a3d44">{{ r.date }}</span>
+                  <span style="font-size:13px;color:{{ r.actColor }};font-weight:{{ r.actWeight }}">{{ r.action }}</span>
+                  <span style="display:flex;justify-content:flex-end">
+                    <sc-if value="{{ r.canRemove }}" hint-placeholder-val="{{ false }}">
+                      <span onClick="{{ r.onRemove }}" style="height:32px;padding:0 12px;border-radius:9px;background:#14161b;color:#fff;font-size:12.5px;font-weight:600;display:flex;align-items:center;cursor:pointer">Shëno të hequr</span>
+                    </sc-if>
+                  </span>
+                </div>
+              </sc-if>
+            </sc-for>
+            <sc-if value="{{ expEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:48px 16px;text-align:center;color:#8a8d94;font-size:14px">Asnjë afat në këtë listë.</div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isTeam }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;color:#7a7d85">Market Qendra · {{ memberCount }} anëtarë</span><h1 style="margin:0;font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1">Ekipa</h1></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div style="height:38px;padding:0 14px;border-radius:10px;background:#fff;box-shadow:0 0 0 1px #e6e4df;font-size:14px;font-weight:600;display:flex;align-items:center">Njoftim për krejt ekipën</div>
+          <div style="height:38px;padding:0 14px;border-radius:10px;background:#fff;box-shadow:0 0 0 1px #e6e4df;font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:oklch(0.5 0.12 155)">XLS</span>Shkarko Excel</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:4px;border-bottom:1px solid #e3e1db;flex-wrap:wrap">
+        <sc-for list="{{ teamTabs }}" as="t" hint-placeholder-count="6">
+          <span style="padding:10px 14px;font-size:14px;white-space:nowrap;margin-bottom:-1px;color:{{ t.fg }};font-weight:{{ t.fw }};border-bottom:{{ t.line }}">{{ t.label }}</span>
+        </sc-for>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;align-items:start">
+        <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+          <sc-if value="{{ hasJoin }}" hint-placeholder-val="{{ true }}">
+            <div style="border-radius:16px;background:oklch(0.97 0.02 258);box-shadow:0 0 0 1px oklch(0.9 0.04 258);padding:14px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <span style="width:36px;height:36px;border-radius:50%;background:oklch(0.55 0.1 200);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">BG</span>
+              <div style="flex:1;min-width:160px;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:600">Blerim Gashi kërkon të bashkohet me ekipën</span><span style="font-size:12px;color:#6b6e76">Para 2 orësh · nga telefoni</span></div>
+              <span style="font-size:13px;color:#6b6e76;padding:0 8px;cursor:pointer">Refuzo</span>
+              <span onClick="{{ acceptJoin }}" style="height:34px;padding:0 14px;border-radius:9px;background:#1f5fc4;color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;cursor:pointer">Prano</span>
+            </div>
+          </sc-if>
+          <div style="border-radius:18px;background:#fff;box-shadow:0 0 0 1px #e6e4df;padding:18px;display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:16px;font-weight:700">Duhet vepruar</span><span onClick="{{ goExpiry }}" style="font-size:13px;color:#1f5fc4;font-weight:600;cursor:pointer">Krejt afatet e ekipës →</span></div>
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">
+              <div style="border-radius:14px;background:oklch(0.96 0.03 25);padding:14px;display:flex;flex-direction:column;gap:4px"><span style="font-size:26px;font-weight:700;color:oklch(0.52 0.19 25);line-height:1">7</span><span style="font-size:12px;color:oklch(0.45 0.12 25);font-weight:500">Të skaduara</span></div>
+              <div style="border-radius:14px;background:oklch(0.96 0.045 75);padding:14px;display:flex;flex-direction:column;gap:4px"><span style="font-size:26px;font-weight:700;color:oklch(0.56 0.14 65);line-height:1">19</span><span style="font-size:12px;color:oklch(0.45 0.09 65);font-weight:500">Afër skadimit</span></div>
+              <div style="border-radius:14px;background:oklch(0.96 0.03 155);padding:14px;display:flex;flex-direction:column;gap:4px"><span style="font-size:26px;font-weight:700;color:oklch(0.5 0.12 155);line-height:1">312</span><span style="font-size:12px;color:oklch(0.42 0.08 155);font-weight:500">Në rregull</span></div>
+            </div>
+          </div>
+          <div style="border-radius:16px;background:#fff;box-shadow:0 0 0 1px #e6e4df;overflow:hidden">
+            <div style="overflow-x:auto">
+              <div style="min-width:640px">
+                <div style="display:grid;grid-template-columns:minmax(190px,1fr) 110px 70px 90px 100px 100px;align-items:center;padding:0 16px;height:42px;background:#faf9f7;border-bottom:1px solid #efede9;font-size:12px;font-weight:600;color:#7a7d85">
+                  <span>Anëtari</span><span>Statusi</span><span style="text-align:right">Në raft</span><span style="text-align:right">Të skaduara</span><span style="text-align:right">Afër skadimit</span><span style="text-align:right">Hequr (30 ditë)</span>
+                </div>
+                <sc-for list="{{ members }}" as="m" hint-placeholder-count="4">
+                  <div style="display:grid;grid-template-columns:minmax(190px,1fr) 110px 70px 90px 100px 100px;align-items:center;border-top:{{ m.border }};padding:{{ m.pad }};font-size:{{ m.fs }}">
+                    <span style="display:flex;align-items:center;gap:10px;min-width:0"><span style="width:32px;height:32px;border-radius:50%;flex-shrink:0;background:{{ m.bg }};color:#fff;font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ m.i }}</span><span style="display:flex;flex-direction:column;min-width:0"><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.name }}</span><span style="font-size:12px;color:#8a8d94">{{ m.role }}</span></span></span>
+                    <span style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:#5b5e66"><span style="width:7px;height:7px;border-radius:50%;background:{{ m.dot }}"></span>{{ m.status }}</span>
+                    <span style="text-align:right;font-weight:600">{{ m.shelf }}</span>
+                    <span style="text-align:right;font-weight:700;color:oklch(0.52 0.19 25)">{{ m.exp }}</span>
+                    <span style="text-align:right;font-weight:700;color:oklch(0.56 0.14 65)">{{ m.near }}</span>
+                    <span style="text-align:right;color:#5b5e66">{{ m.rem }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="border-radius:18px;background:#fff;box-shadow:0 0 0 1px #e6e4df;display:flex;flex-direction:column;height:560px;min-width:0">
+          <div style="padding:16px 18px;border-bottom:1px solid #efede9;display:flex;justify-content:space-between;align-items:center"><span style="font-size:16px;font-weight:700">Chat</span><span style="font-size:12px;color:#7a7d85;display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:oklch(0.65 0.15 155)"></span>3 online</span></div>
+          <div style="flex:1;overflow:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px">
+            <sc-for list="{{ msgs }}" as="c" hint-placeholder-count="3">
+              <div style="display:flex;flex-direction:column;gap:4px;max-width:82%;align-self:{{ c.align }};align-items:{{ c.align }}">
+                <span style="font-size:11.5px;color:#8a8d94">{{ c.meta }}</span>
+                <span style="font-size:14px;line-height:1.45;padding:10px 13px;border-radius:14px;background:{{ c.bg }};color:{{ c.fg }}">{{ c.text }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="padding:12px;border-top:1px solid #efede9;display:flex;gap:8px">
+            <input value="{{ draft }}" onChange="{{ onDraft }}" onKeyDown="{{ onKey }}" placeholder="Shkruaj një mesazh për ekipën" style="flex:1;min-width:0;height:40px;border:0;outline:0;border-radius:10px;background:#f6f5f2;padding:0 12px;font-size:14px;color:#14161b">
+            <span onClick="{{ send }}" style="height:40px;padding:0 16px;border-radius:10px;background:#1f5fc4;color:#fff;font-size:14px;font-weight:600;display:flex;align-items:center;cursor:pointer">Dërgo</span>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Përmbledhja&quot;,&quot;Të gjitha produktet&quot;,&quot;Afatet e produkteve&quot;,&quot;Ekipa&quot;],&quot;default&quot;:&quot;Përmbledhja&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Kompakte&quot;,&quot;Normale&quot;,&quot;E gjerë&quot;],&quot;default&quot;:&quot;Normale&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  navFor(v) { return ({ 'Të gjitha produktet': 'products', 'Afatet e produkteve': 'expiry', 'Ekipa': 'team' })[v] || 'overview'; }
+  state = {
+    nav: this.navFor(this.props.startView), pf: 'all', sel: [], del: [], q: '', et: 'active', grouped: false,
+    removed: { e11: 'Hequr nga Drita M. · 26 Sht' }, accepted: false, draft: '',
+    msgs: [
+      { who: 'Drita M.', text: 'Djathi Sharri te rafti 3 skadon sot, po e heq tani.', time: '09:02' },
+      { who: 'Arben K.', me: true, text: 'Faleminderit. Kos Ajka erdhi sot, 48 copë, i futa në stok.', time: '09:10' },
+      { who: 'Leutrim B.', text: 'E fotografova fletën e Ajkës, afatet dalin te lista.', time: '09:14' }
+    ]
+  };
+  componentDidUpdate(pp) { if (pp.startView !== this.props.startView) this.setState({ nav: this.navFor(this.props.startView) }); }
+  go(k, extra) { this.setState({ nav: k, ...(extra || {}) }); }
+  renderVals() {
+    const st = this.state;
+    const S = {
+      exp: { color: 'oklch(0.52 0.19 25)', tint: 'oklch(0.96 0.03 25)' },
+      near: { color: 'oklch(0.56 0.14 65)', tint: 'oklch(0.96 0.045 75)' },
+      ok: { color: 'oklch(0.5 0.12 155)', tint: 'oklch(0.96 0.03 155)' },
+      rem: { color: '#6b6e76', tint: '#f1efeb' }
+    };
+    const dens = this.props.density ?? 'Normale';
+    const pad = ({ 'Kompakte': '7px 16px', 'Normale': '11px 16px', 'E gjerë': '16px 16px' })[dens] || '11px 16px';
+    const fs = ({ 'Kompakte': '13px', 'Normale': '14px', 'E gjerë': '15px' })[dens] || '14px';
+    const FH = { Pije: 155, Bulmet: 258, 'Ëmbëlsira': 70, 'Pastë': 25, Pastrim: 300, Mish: 350, 'Fruta & perime': 125, 'Bukë': 50 };
+    const FC = { Pije: 312, Bulmet: 246, 'Ëmbëlsira': 198, 'Pastë': 142, Pastrim: 128, Mish: 96, 'Fruta & perime': 78, 'Bukë': 48 };
+
+    const nav = st.nav;
+    const view = nav.startsWith('expiry') ? 'expiry' : nav.startsWith('team') ? 'team' : (nav === 'products' || nav === 'folders') ? 'products' : 'overview';
+
+    const P0 = [
+      { id: 1, bc: '5300123456789', name: 'Kos Ajka 500g', folder: 'Bulmet', qty: 22, changed: 'Para 4 min' },
+      { id: 2, bc: '5300987112034', name: 'Ujë Rugova 1.5L', folder: 'Pije', qty: 3, changed: 'Para 18 min' },
+      { id: 3, bc: '5300445019822', name: 'Djathë i bardhë Sharri 400g', folder: 'Bulmet', qty: 0, changed: 'Para 1 ore' },
+      { id: 4, bc: '5300771203318', name: 'Lëng Frutti portokall 1L', folder: 'Pije', qty: 18, changed: 'Sot, 09:12', multi: 2 },
+      { id: 5, bc: '5300214598870', name: 'Çokollatë qumështi 100g', folder: 'Ëmbëlsira', qty: 40, changed: 'Sot, 08:40' },
+      { id: 6, bc: '5300009912345', name: '', folder: 'Pije', qty: 7, changed: 'Sot, 08:31' },
+      { id: 7, bc: '5300662019345', name: 'Makarona Spageti 500g', folder: 'Pastë', qty: 55, changed: 'Dje, 18:02' },
+      { id: 8, bc: '5300118830021', name: 'Qumësht Vita 1L', folder: 'Bulmet', qty: 14, changed: 'Dje, 16:25' },
+      { id: 9, bc: '5300903348812', name: 'Biskota me kakao 200g', folder: 'Ëmbëlsira', qty: 5, changed: 'Dje, 11:10' },
+      { id: 10, bc: '5300550027741', name: 'Detergjent enësh 1L', folder: 'Pastrim', qty: 12, changed: '27 Sht' },
+      { id: 11, bc: '5300338812096', name: 'Ujë mineral Bllaca 0.5L', folder: 'Pije', qty: 96, changed: '27 Sht', multi: 3 },
+      { id: 12, bc: '5300771112309', name: 'Salcë domatesh 500g', folder: 'Pastë', qty: 0, changed: '26 Sht' },
+      { id: 13, bc: '5300420087713', name: 'Sallam pule 300g', folder: 'Mish', qty: 9, changed: '26 Sht' },
+      { id: 14, bc: '5300118845550', name: 'Bukë e zezë 500g', folder: 'Bukë', qty: 2, changed: '25 Sht' }
+    ];
+    const P = P0.filter(p => !st.del.includes(p.id));
+    const deco = (p, k) => ({
+      ...p, nameShown: p.name || 'Pa emër', nameColor: p.name ? '#14161b' : '#9a9da4', nameStyle: p.name ? 'normal' : 'italic',
+      qtyColor: p.qty === 0 ? S.exp.color : p.qty <= 5 ? S.near.color : '#14161b',
+      qtyBg: p.qty === 0 ? S.exp.tint : p.qty <= 5 ? S.near.tint : '#f1efeb',
+      fDot: `oklch(0.66 0.11 ${FH[p.folder]})`, multiLabel: p.multi ? `+${p.multi - 1}` : '',
+      border: k ? '1px solid #efede9' : 'none'
+    });
+    const PF = { all: () => true, zero: p => p.qty === 0, low: p => p.qty > 0 && p.qty <= 5, noname: p => !p.name, multi: p => !!p.multi };
+    const q = st.q.trim().toLowerCase();
+    const shown = P.filter(PF[st.pf]).filter(p => !q || (p.name || '').toLowerCase().includes(q) || p.bc.includes(q));
+    const toggle = id => this.setState(s => ({ sel: s.sel.includes(id) ? s.sel.filter(x => x !== id) : [...s.sel, id] }));
+    const prodRows = shown.map((p, k) => {
+      const on = st.sel.includes(p.id);
+      return { ...deco(p, k), pad, fs, rowBg: on ? 'oklch(0.97 0.02 258)' : '#fff', cbBg: on ? '#1f5fc4' : '#fff', cbRing: on ? 'none' : 'inset 0 0 0 1.5px #c9c7c1', check: on ? '✓' : '', onClick: () => toggle(p.id) };
+    });
+    const allOn = shown.length > 0 && shown.every(p => st.sel.includes(p.id));
+    const chipDefs = [['all', 'Të gjitha', 1248], ['zero', 'Sasi 0'], ['low', 'Sasi e ulët'], ['noname', 'Pa emër'], ['multi', 'Në disa foldera']];
+    const prodChips = chipDefs.map(([k, label, fixed]) => {
+      const on = st.pf === k;
+      return { label, count: fixed ?? P.filter(PF[k]).length, bg: on ? '#14161b' : '#fff', fg: on ? '#fff' : '#3a3d44', ring: on ? 'none' : '0 0 0 1px #e6e4df', onClick: () => this.setState({ pf: k, sel: [] }) };
+    });
+
+    const E = [
+      { id: 'e1', name: 'Qumësht Vita 1L', sup: 'Vita', bc: '5300118830021', qty: 14, date: '27.09.2026', days: -3 },
+      { id: 'e2', name: 'Djathë i bardhë Sharri 400g', sup: 'Sharri', bc: '5300445019822', qty: 6, date: '30.09.2026', days: 0 },
+      { id: 'e3', name: 'Bukë e zezë 500g', sup: 'Furra Dea', bc: '5300118845550', qty: 8, date: '29.09.2026', days: -1 },
+      { id: 'e4', name: 'Kos Ajka 500g', sup: 'Ajka', bc: '5300123456789', qty: 22, date: '04.10.2026', days: 4 },
+      { id: 'e5', name: 'Jogurt me fruta 150g', sup: 'Abi Milk', bc: '5300120045671', qty: 30, date: '11.10.2026', days: 11 },
+      { id: 'e6', name: 'Kos Ajka 1kg', sup: 'Ajka', bc: '5300123456796', qty: 10, date: '18.10.2026', days: 18 },
+      { id: 'e7', name: 'Lëng Frutti portokall 1L', sup: 'Frutti', bc: '5300771203318', qty: 18, date: '24.10.2026', days: 24 },
+      { id: 'e8', name: 'Salcë domatesh 500g', sup: 'Pastifici', bc: '5300771112309', qty: 12, date: '20.02.2027', days: 143 },
+      { id: 'e9', name: 'Çokollatë qumështi 100g', sup: 'Cocoa Ks', bc: '5300214598870', qty: 40, date: '12.01.2027', days: 104 },
+      { id: 'e10', name: 'Makarona Spageti 500g', sup: 'Pastifici', bc: '5300662019345', qty: 55, date: '03.05.2027', days: 215 },
+      { id: 'e11', name: 'Biskota me kakao 200g', sup: 'Cocoa Ks', bc: '5300903348812', qty: 5, date: '26.09.2026', days: -4 }
+    ];
+    const stOf = e => st.removed[e.id] ? 'rem' : e.days <= 0 ? 'exp' : e.days <= 30 ? 'near' : 'ok';
+    const inTab = (e, t) => t === 'active' ? stOf(e) !== 'rem' : stOf(e) === t;
+    const cnt = t => E.filter(e => inTab(e, t)).length;
+    let ex = E.filter(e => inTab(e, st.et)).sort((a, b) => a.days - b.days);
+    const toRow = (e, k) => {
+      const s = stOf(e), c = S[s];
+      let stLabel, action, actColor = '#3a3d44', actWeight = 500;
+      if (s === 'rem') { stLabel = 'Hequr'; action = st.removed[e.id]; actColor = '#7a7d85'; }
+      else if (s === 'exp') { stLabel = e.days < 0 ? `Skadoi ${Math.abs(e.days)} ditë` : 'Skadon sot'; action = 'Hiqe nga rafti/pozita'; actColor = c.color; actWeight = 600; }
+      else if (s === 'near') { stLabel = `${e.days} ditë`; action = e.days <= 7 ? 'Vendose përpara, ul çmimin' : 'Vendose përpara në raft'; }
+      else { stLabel = `${Math.round(e.days / 30)} muaj`; action = 'Asgjë për momentin'; actColor = '#8a8d94'; }
+      return { ...e, ...c, isRow: true, isGroup: false, stLabel, action, actColor, actWeight, pad, fs, border: k ? '1px solid #efede9' : 'none', canRemove: s === 'exp', onRemove: () => this.setState(z => ({ removed: { ...z.removed, [e.id]: 'Hequr nga Arben K. · tani' } })) };
+    };
+    let expRows;
+    if (st.grouped) {
+      const sups = [...new Set(ex.map(e => e.sup))].sort((a, b) => a.localeCompare(b));
+      expRows = [];
+      sups.forEach(sp => { const g = ex.filter(e => e.sup === sp); expRows.push({ isGroup: true, isRow: false, sup: sp, count: g.length }); g.forEach((e, k) => expRows.push(toRow(e, 0))); });
+    } else expRows = ex.map(toRow);
+    const tabDefs = [['active', 'Aktive', '#1f5fc4'], ['exp', 'Të skaduara', S.exp.color], ['near', 'Afër skadimit', S.near.color], ['ok', 'Në rregull', S.ok.color], ['rem', 'Të hequra', '#9a9da4']];
+    const expTabs = tabDefs.map(([k, label, dot]) => {
+      const on = st.et === k;
+      return { label, dot, count: cnt(k), bg: on ? '#fff' : 'transparent', fg: on ? '#14161b' : '#6b6e76', shadow: on ? '0 1px 3px rgba(0,0,0,.08)' : 'none', onClick: () => this.setState({ et: k, nav: k === 'exp' ? 'expiry-exp' : k === 'near' ? 'expiry-near' : 'expiry' }) };
+    });
+
+    const n = (k, label, count, dot, extra) => {
+      const on = nav === k;
+      return { label, count: count ?? '', dot: dot || 'transparent', bg: on ? '#fff' : 'transparent', fg: on ? '#14161b' : '#4a4d55', fw: on ? 600 : 500, ring: on ? '0 0 0 1px #e3e1db, 0 1px 2px rgba(0,0,0,.04)' : 'none', countColor: on ? '#6b6e76' : '#8a8d94', onClick: () => this.go(k, extra) };
+    };
+    const navGroups = [
+      { title: 'Stoku', items: [n('overview', 'Përmbledhja'), n('products', 'Të gjitha produktet', '1 248', null, { pf: 'all' }), n('folders', 'Folderat', 8)] },
+      { title: 'Afatet', items: [n('expiry', 'Afatet e produkteve', cnt('active'), null, { et: 'active' }), n('expiry-exp', 'Të skaduara', cnt('exp'), S.exp.color, { et: 'exp' }), n('expiry-near', 'Afër skadimit', cnt('near'), S.near.color, { et: 'near' })] },
+      { title: 'Ekipa', items: [n('team', 'Përmbledhja'), n('team-chat', 'Chat', 3, '#1f5fc4'), n('team-act', 'Aktiviteti'), n('team-cal', 'Kalendari'), n('team-mem', 'Anëtarët'), n('team-stat', 'Statistika')] }
+    ];
+
+    const cols = ['#1f5fc4', 'oklch(0.55 0.13 155)', 'oklch(0.6 0.14 50)', 'oklch(0.5 0.14 300)', 'oklch(0.55 0.1 200)'];
+    const M = [
+      { name: 'Arben Krasniqi', i: 'AK', role: 'Administrator', status: 'Online', on: true, shelf: 142, exp: 3, near: 8, rem: 21 },
+      { name: 'Drita Morina', i: 'DM', role: 'Anëtare', status: 'Online', on: true, shelf: 96, exp: 2, near: 5, rem: 34 },
+      { name: 'Leutrim Berisha', i: 'LB', role: 'Anëtar', status: 'Online', on: true, shelf: 61, exp: 1, near: 4, rem: 12 },
+      { name: 'Vjosa Hoxha', i: 'VH', role: 'Anëtare', status: 'Para 3 orësh', shelf: 38, exp: 1, near: 2, rem: 9 }
+    ];
+    if (st.accepted) M.push({ name: 'Blerim Gashi', i: 'BG', role: 'Anëtar i ri', status: 'Sapo u bashkua', on: true, shelf: 0, exp: 0, near: 0, rem: 0 });
+    const members = M.map((m, k) => ({ ...m, bg: cols[k], dot: m.on ? 'oklch(0.65 0.15 155)' : '#c9c7c1', border: k ? '1px solid #efede9' : 'none', pad, fs }));
+    const teamTabs = ['Përmbledhja', 'Afatet', 'Aktiviteti', 'Chat', 'Kalendari', 'Anëtarët', 'Statistika'].map((label, k) => ({ label, fg: k ? '#6b6e76' : '#14161b', fw: k ? 500 : 600, line: k ? '2px solid transparent' : '2px solid #14161b' }));
+    const send = () => { const t = st.draft.trim(); if (!t) return; this.setState(s => ({ msgs: [...s.msgs, { who: 'Arben K.', me: true, text: t, time: 'tani' }], draft: '' })); };
+
+    const maxF = Math.max(...Object.values(FC));
+    return {
+      navGroups,
+      goOverview: () => this.go('overview'), goProducts: () => this.go('products', { pf: 'all' }),
+      goLow: () => this.go('products', { pf: 'low', sel: [] }), goZero: () => this.go('products', { pf: 'zero', sel: [] }),
+      goExpired: () => this.go('expiry-exp', { et: 'exp' }), goExpiry: () => this.go('expiry', { et: 'active' }),
+      isOverview: view === 'overview', isProducts: view === 'products', isExpiry: view === 'expiry', isTeam: view === 'team',
+      cntExp: cnt('exp'),
+      folderBars: Object.keys(FC).map(k => ({ name: k, count: FC[k], pct: Math.round(FC[k] / maxF * 100) + '%', fill: `oklch(0.66 0.11 ${FH[k]})` })),
+      recentList: P.slice(0, 6).map(deco),
+      lowList: [...P].sort((a, b) => a.qty - b.qty).slice(0, 6).map(deco),
+      q: st.q, onQ: e => this.setState({ q: e.target.value }),
+      prodChips, prodRows, prodEmpty: prodRows.length === 0,
+      hasSel: st.sel.length > 0, selLabel: `${st.sel.length} të zgjedhura`,
+      delSel: () => this.setState(s => ({ del: [...s.del, ...s.sel], sel: [] })), clearSel: () => this.setState({ sel: [] }),
+      toggleAll: () => this.setState({ sel: allOn ? [] : shown.map(p => p.id) }),
+      allBg: allOn ? '#1f5fc4' : '#fff', allRing: allOn ? 'none' : 'inset 0 0 0 1.5px #c9c7c1', allCheck: allOn ? '✓' : '',
+      prodFooter: `Duke shfaqur ${prodRows.length} nga ${st.pf === 'all' && !q ? '1 248' : prodRows.length}`,
+      expTabs, expRows, expEmpty: expRows.length === 0,
+      toggleGroup: () => this.setState(s => ({ grouped: !s.grouped })),
+      grpTrack: st.grouped ? '#1f5fc4' : '#d9d7d2', grpJustify: st.grouped ? 'flex-end' : 'flex-start',
+      memberCount: members.length, members, teamTabs,
+      hasJoin: !st.accepted, acceptJoin: () => this.setState({ accepted: true }),
+      msgs: st.msgs.map(m => ({ ...m, meta: m.me ? m.time : `${m.who} · ${m.time}`, align: m.me ? 'flex-end' : 'flex-start', bg: m.me ? '#1f5fc4' : '#f1efeb', fg: m.me ? '#fff' : '#14161b' })),
+      draft: st.draft, onDraft: e => this.setState({ draft: e.target.value }),
+      onKey: e => { if (e.key === 'Enter') send(); }, send
+    };
+  }
+}
+</script>
+</body>
+</html>
