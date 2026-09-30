@@ -188,7 +188,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
     - **Zilja** = njoftimet personale; **njoftim i sistemit** vetëm kur aplikacioni është HAPUR në sfond (s'ka
       server/FCM — kur aplikacioni është krejt i mbyllur, njoftimi del te zilja herën tjetër që hapet).
       SW-ja (`notificationclick`) i dërgon dritares `hap-ekipa` (tel: `#ekipa-<pamja>`, PC: `#/ekipa/…`).
-    - **Pamjet** (tel: çipat `#ekMenu`; PC: `.segmente#ekMenu` + anësorja): Afatet (kartat e anëtarëve →
+    - **Dizajni "Pulti" (v114, opsioni A nga 5 dizajne që përdoruesi i zgjodhi — mos e ndrysho pa pyetur):**
+      tel: faqja kryesore e Ekipës = `ekEshteShtepi()` (pamja 'afatet' pa anëtar) → `vizatoPultin()`: koka blu me datën
+      (`#ekipiData`), karta e madhe me 3 numrat + shiritin me ngjyra (klik → lista e krejt ekipës me filtër), pllakat me
+      ikona (`.ek-pult-pllakat`, `ekPllaka()`), "Online tani" (`.ek-online-rrip`, klik → afatet e atij), "Duhet hequr nga
+      rafti" (me "Unë e hoqa") dhe "Skadojnë këtë javë". Në çdo pamje tjetër pllakat dalin si shirit sipër (`#ekMenu`, i
+      fshehur te faqja kryesore) dhe `ne-anetar` e bën "mbrapa" të kthehet te Pulti. PC: nën-pamja `pulti` ("Përmbledhja",
+      e parazgjedhura; `#/ekipa` = pulti, `#/ekipa/afatet` = afatet) me 4 KPI, tabelën "Duhet vepruar" (`ekRreshtAfati(x, true,
+      true)`) dhe listën e anëtarëve djathtas.
+    - **Pamjet** (tel: pllakat `#ekMenu`; PC: `.segmente#ekMenu` + anësorja): Afatet (kartat e anëtarëve →
       lista/tabela me "Unë e hoqa"), Aktiviteti, Chat, Kalendari (ngjyra për ditë: e kuqe/verdhë/gjelbër,
       e ndërprerë = të hequra), Anëtarët (online/parë së fundi, pajisja), Statistika. **Chat-i (v111) s'është më çip te menuja:** hapet nga ikona/butoni lart djathtas pranë ziles (`#ekChatBtn`, pika `#ekChatPike`; prekja sërish kthen te pamja e mëparshme) — kërkesë e përdoruesit. Dizajni përdor VETËM pjesët
       ekzistuese (folder-karta, af-numer, af-karta, artikull, af-filtrat / kpi, segmente, tabela, shiritat e

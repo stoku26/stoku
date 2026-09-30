@@ -15,6 +15,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 114, data: '2026-09-30', titulli: 'Ekipa me pamje të re', pikat: [
+      'Ekipa hapet me një përmbledhje: sa produkte kanë skaduar, sa janë afër skadimit dhe sa janë në rregull te krejt ekipa.',
+      'Poshtë saj: kush është online tani, çka duhet hequr nga rafti (me "Unë e hoqa" aty për aty) dhe çka skadon këtë javë.',
+      'Aktiviteti, Kalendari, Anëtarët dhe Statistika hapen nga butonat me ikona; "mbrapa" të kthen te përmbledhja.'
+    ] },
     { v: 113, data: '2026-09-30', titulli: 'Rregullime gabimesh', pikat: [
       'Një e dhënë e dëmtuar (p.sh. një folder ose afat pa emër/id) s\'e bllokon më aplikacionin — hiqet ose rregullohet vetë.',
       'Kur del nga llogaria pa internet, aplikacioni të paralajmëron që ndryshimet e fundit s\'janë ruajtur ende në cloud.',

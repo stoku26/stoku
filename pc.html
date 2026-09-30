@@ -257,30 +257,39 @@
   .ek-zile .ek-pike { position: absolute; top: -4px; right: -4px; margin: 0; width: 11px; height: 11px; }
   .btn.dyte.ek-zile.aktiv { background: var(--primar-bute); color: var(--btn-tekst); border-color: var(--btn-tekst); }
   #ekKerkoKuti { flex: 1 1 220px; max-width: 360px; }
-  #ekTabela tbody tr { cursor: default; }
-  #ekTabela .k-pronari { width: 150px; color: var(--gri); }
-  #ekTabela .k-st { width: 140px; padding-left: 16px; }
-  #ekTabela .k-sas { width: 80px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
-  #ekTabela .k-data { width: 130px; font-variant-numeric: tabular-nums; font-weight: 700; line-height: 1.3; }
-  #ekTabela .k-data small { display: block; font-weight: 500; font-size: 12px; color: var(--gri); }
-  #ekTabela .k-av { width: 150px; text-align: right; padding-right: 12px; overflow: visible; }
-  #ekTabela .af-prod { line-height: 1.3; }
-  #ekTabela .af-prod div:first-child { font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
-  #ekTabela .af-prod div + div { font-size: 12px; color: var(--gri); overflow: hidden; text-overflow: ellipsis; }
-  #ekTabela td { height: auto; padding-top: 7px; padding-bottom: 7px; }
-  #ekTabela tbody tr.skaduar td, #ekTabela tbody tr.pa-date td { background: var(--af-kuqe-bg); }
-  #ekTabela tbody tr.afer td { background: var(--af-verdhe-bg); }
-  #ekTabela tbody tr.hequr td { color: var(--gri); }
-  #ekTabela tbody tr td:first-child { box-shadow: inset 4px 0 0 var(--af-ngj, transparent); }
-  #ekTabela tbody tr.skaduar, #ekTabela tbody tr.pa-date { --af-ngj: var(--af-kuqe); }
-  #ekTabela tbody tr.afer { --af-ngj: var(--af-verdhe); }
-  #ekTabela tbody tr.ok { --af-ngj: var(--af-gjelber); }
-  #ekTabela .k-msg { width: 26%; white-space: normal; line-height: 1.35; font-size: 13px; font-weight: 600; }
-  #ekTabela tr.skaduar .k-msg, #ekTabela tr.pa-date .k-msg { color: var(--af-kuqe-tx); }
-  #ekTabela tr.afer .k-msg { color: var(--af-verdhe-tx); }
-  #ekTabela tr.ok .k-msg { color: var(--af-gjelber-tx); font-weight: 500; }
+  :is(#ekTabela, #ekPultTabela) tbody tr { cursor: default; }
+  :is(#ekTabela, #ekPultTabela) .k-pronari { width: 150px; color: var(--gri); }
+  :is(#ekTabela, #ekPultTabela) .k-st { width: 140px; padding-left: 16px; }
+  :is(#ekTabela, #ekPultTabela) .k-sas { width: 80px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  :is(#ekTabela, #ekPultTabela) .k-data { width: 130px; font-variant-numeric: tabular-nums; font-weight: 700; line-height: 1.3; }
+  :is(#ekTabela, #ekPultTabela) .k-data small { display: block; font-weight: 500; font-size: 12px; color: var(--gri); }
+  :is(#ekTabela, #ekPultTabela) .k-av { width: 150px; text-align: right; padding-right: 12px; overflow: visible; }
+  :is(#ekTabela, #ekPultTabela) .af-prod { line-height: 1.3; }
+  :is(#ekTabela, #ekPultTabela) .af-prod div:first-child { font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+  :is(#ekTabela, #ekPultTabela) .af-prod div + div { font-size: 12px; color: var(--gri); overflow: hidden; text-overflow: ellipsis; }
+  :is(#ekTabela, #ekPultTabela) td { height: auto; padding-top: 7px; padding-bottom: 7px; }
+  :is(#ekTabela, #ekPultTabela) tbody tr.skaduar td, :is(#ekTabela, #ekPultTabela) tbody tr.pa-date td { background: var(--af-kuqe-bg); }
+  :is(#ekTabela, #ekPultTabela) tbody tr.afer td { background: var(--af-verdhe-bg); }
+  :is(#ekTabela, #ekPultTabela) tbody tr.hequr td { color: var(--gri); }
+  :is(#ekTabela, #ekPultTabela) tbody tr td:first-child { box-shadow: inset 4px 0 0 var(--af-ngj, transparent); }
+  :is(#ekTabela, #ekPultTabela) tbody tr.skaduar, :is(#ekTabela, #ekPultTabela) tbody tr.pa-date { --af-ngj: var(--af-kuqe); }
+  :is(#ekTabela, #ekPultTabela) tbody tr.afer { --af-ngj: var(--af-verdhe); }
+  :is(#ekTabela, #ekPultTabela) tbody tr.ok { --af-ngj: var(--af-gjelber); }
+  :is(#ekTabela, #ekPultTabela) .k-msg { width: 26%; white-space: normal; line-height: 1.35; font-size: 13px; font-weight: 600; }
+  :is(#ekTabela, #ekPultTabela) tr.skaduar .k-msg, :is(#ekTabela, #ekPultTabela) tr.pa-date .k-msg { color: var(--af-kuqe-tx); }
+  :is(#ekTabela, #ekPultTabela) tr.afer .k-msg { color: var(--af-verdhe-tx); }
+  :is(#ekTabela, #ekPultTabela) tr.ok .k-msg { color: var(--af-gjelber-tx); font-weight: 500; }
   #ekTabAnetaret tbody tr { cursor: pointer; }
   #ekKerkesat { margin-bottom: 16px; }
+  .ek-pult-rrjeti { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; margin-top: 16px; align-items: start; }
+  .ek-pult-tabela { border: 0; border-radius: 0; box-shadow: none; }
+  .ek-pult-an { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 0; border: 0; border-bottom: 1px solid var(--vije); background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+  .ek-pult-an:last-child { border-bottom: 0; }
+  .ek-pult-an:hover .ek-pult-an-emri { color: var(--btn-tekst); }
+  .ek-pult-an-emri { font-weight: 700; font-size: 14px; }
+  .ek-pult-an-nen { font-size: 12.5px; color: var(--gri); }
+  .ek-pult-an-nr { margin-left: auto; font-size: 13px; font-weight: 800; color: var(--gri); white-space: nowrap; }
+  .ek-pult-an-nr.kuqe { color: var(--af-kuqe-tx, #b71c1c); }
   #ekKerkesat .karta-trup { padding-top: 0; }
   #ekTabKerkesat td { vertical-align: middle; }
   #ekTabAnetaret .k-sas { width: 112px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -289,7 +298,7 @@
   #ekTabAnetaret .k-leja input { width: 18px; height: 18px; accent-color: var(--primar); cursor: pointer; }
   #ekStokTabela .k-sas { width: 110px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
   #ekStokTabela tbody tr { cursor: default; }
-  #ekTabela .k-av .btn + .btn { margin-left: 4px; }
+  :is(#ekTabela, #ekPultTabela) .k-av .btn + .btn { margin-left: 4px; }
   #ekTabAnetaret .k-av, #ekTabKerkesat .k-av { width: 140px; text-align: right; padding-right: 12px; overflow: visible; }
   .ek-ne-linje { color: #1e8e3e; font-weight: 700; }
   .ek-anetar-qeliza { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
@@ -897,6 +906,10 @@
     <div class="akordion-trup" id="akordEkipiTrupi">
       <div class="akordion-brendia">
         <nav class="nav">
+          <button class="nav-rresht" id="navEkPulti" type="button" data-ek="pulti" title="Përmbledhja e ekipës: çka duhet bërë sot">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>
+            <span class="emri">Përmbledhja</span>
+          </button>
           <button class="nav-rresht" id="navEkipi" type="button" data-ek="afatet" title="Afatet e krejt ekipës">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
             <span class="emri">Afatet e ekipës</span>
@@ -1147,7 +1160,8 @@
         </div>
       </div>
       <div class="segmente ek-menu" id="ekMenu">
-        <button type="button" data-n="afatet" class="aktiv">Afatet</button>
+        <button type="button" data-n="pulti" class="aktiv">Përmbledhja</button>
+        <button type="button" data-n="afatet">Afatet</button>
         <button type="button" data-n="aktiviteti">Aktiviteti</button>
         <button type="button" data-n="kalendari">Kalendari</button>
         <button type="button" data-n="anetaret">Anëtarët</button>
@@ -1156,7 +1170,18 @@
       </div>
       <div class="karta fsheh" id="ekPaLidhje"><div class="bosh-mesazh" id="ekPaLidhjeTekst" style="padding:24px"></div></div>
 
-      <div id="ekVAfatet">
+      <div id="ekVPulti">
+        <div class="kpi-rrjeti" id="ekPultKpi"></div>
+        <div class="ek-pult-rrjeti">
+          <div class="karta">
+            <div class="karta-krye"><h2>Duhet vepruar</h2><button class="btn tekst vogel" type="button" id="ekPultKrejt">Krejt afatet e ekipës →</button></div>
+            <div class="tabela-mbajtese ek-pult-tabela"><table class="tabela" id="ekPultTabela"><thead id="ekPultKoka"></thead><tbody id="ekPultTrup"></tbody></table><div class="tabela-bosh fsheh" id="ekPultBosh"></div></div>
+          </div>
+          <div class="karta"><div class="karta-krye"><h2 id="ekPultAnTitulli">Anëtarët</h2></div><div class="karta-trup" id="ekPultAnetaret" style="padding-top:0"></div></div>
+        </div>
+      </div>
+
+      <div id="ekVAfatet" class="fsheh">
         <div class="kpi-rrjeti" id="ekAnetaret"></div>
         <div class="mjetet">
           <div class="segmente" id="ekFiltrat">
@@ -1628,7 +1653,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=90"></script>
 <script src="ekipa.js?v=3"></script>
-<script src="teRejat.js?v=113"></script>
+<script src="teRejat.js?v=114"></script>
 <script>
 (function () {
   'use strict';
@@ -2089,7 +2114,7 @@
   var tab = { kerkimi: '', filtri: 'te-gjitha', rendiK: 'koha', rendiD: -1, faqja: 0, zgjedhura: {}, fokus: -1, ankoraZgjedhjes: null, flash: null };
   (function () { var r = ops.rendi.split(':'); tab.rendiK = r[0]; tab.rendiD = parseInt(r[1], 10); })();
 
-  function hashPer(p) { return p === 'permbledhja' ? '#/permbledhja' : p === 'te-gjitha' ? '#/te-gjitha' : p === 'afatet' ? '#/afatet' : p === 'ekipi' ? '#/ekipa' + (ekNen !== 'afatet' ? '/' + ekNen : '') : '#/f/' + encodeURIComponent(p); }
+  function hashPer(p) { return p === 'permbledhja' ? '#/permbledhja' : p === 'te-gjitha' ? '#/te-gjitha' : p === 'afatet' ? '#/afatet' : p === 'ekipi' ? '#/ekipa' + (ekNen !== 'pulti' ? '/' + ekNen : '') : '#/f/' + encodeURIComponent(p); }
   function shkoTe(p, opsionet) {
     opsionet = opsionet || {};
     var ePare = pamja !== p;
@@ -2110,7 +2135,7 @@
     var p = 'permbledhja';
     if (h === '#/te-gjitha') p = 'te-gjitha';
     else if (h === '#/afatet') p = 'afatet';
-    else if (h === '#/ekipi' || h === '#/ekipa' || h.indexOf('#/ekipa/') === 0) { p = 'ekipi'; ekNen = EK_NENET.indexOf(h.slice(8)) !== -1 ? h.slice(8) : 'afatet'; }
+    else if (h === '#/ekipi' || h === '#/ekipa' || h.indexOf('#/ekipa/') === 0) { p = 'ekipi'; ekNen = EK_NENET.indexOf(h.slice(8)) !== -1 ? h.slice(8) : 'pulti'; }
     else if (h.indexOf('#/f/') === 0 && folderSipasId(h.slice(4))) p = h.slice(4);
     if (p !== pamja) { pamja = p; tab.kerkimi = ''; tab.filtri = 'te-gjitha'; tab.faqja = 0; tab.zgjedhura = {}; tab.fokus = -1; $('kerko').value = ''; }
     rivizato();
@@ -4247,10 +4272,10 @@
   // Logjika e përbashkët (Firestore, prania, kalendari, statistikat) është te ekipa.js; këtu vetëm vizatimi,
   // me pjesët e PC-së (kpi, segmente, tabela, karta, shiritat e Përmbledhjes). Vetëm afatet — jo stoku.
   var EKL = window.StokuEkipa;
-  var EK_NENET = ['afatet', 'aktiviteti', 'chat', 'kalendari', 'anetaret', 'statistika', 'stoku'];
-  var EK_PAMJET = { afatet: 'ekVAfatet', aktiviteti: 'ekVAktiviteti', chat: 'ekVChat', kalendari: 'ekVKalendari', anetaret: 'ekVAnetaret', statistika: 'ekVStatistika', stoku: 'ekVStoku' };
-  var EK_TITUJT = { afatet: 'Afatet e ekipës', aktiviteti: 'Aktiviteti', chat: 'Chat', kalendari: 'Kalendari', anetaret: 'Anëtarët', statistika: 'Statistika', stoku: 'Stoku i anëtarëve' };
-  var ekNen = 'afatet';
+  var EK_NENET = ['pulti', 'afatet', 'aktiviteti', 'chat', 'kalendari', 'anetaret', 'statistika', 'stoku'];
+  var EK_PAMJET = { pulti: 'ekVPulti', afatet: 'ekVAfatet', aktiviteti: 'ekVAktiviteti', chat: 'ekVChat', kalendari: 'ekVKalendari', anetaret: 'ekVAnetaret', statistika: 'ekVStatistika', stoku: 'ekVStoku' };
+  var EK_TITUJT = { pulti: 'Përmbledhja', afatet: 'Afatet e ekipës', aktiviteti: 'Aktiviteti', chat: 'Chat', kalendari: 'Kalendari', anetaret: 'Anëtarët', statistika: 'Statistika', stoku: 'Stoku i anëtarëve' };
+  var ekNen = 'pulti';
   var ekV = { anetari: 'krejt', filtri: '', kerkimi: '', kal: null };
   var EK_LIMITI = 500;
   var ekDukeHapur = false;
@@ -4265,7 +4290,7 @@
   }) : null;
 
   function ekShkoTe(nen) {
-    if (EK_NENET.indexOf(nen) === -1) nen = 'afatet';
+    if (EK_NENET.indexOf(nen) === -1) nen = 'pulti';
     if (ekNen === 'chat' && nen !== 'chat' && ekK) ekK.mbyllChatin();
     ekNen = nen;
     shkoTe('ekipi');
@@ -4326,7 +4351,7 @@
     $('ekChatBtn').classList.toggle('aktiv', ekNen === 'chat');
     var admin = !!(ekK && ekK.eshteAdmin());
     $('ekSegStoku').hidden = !admin;
-    if (ekNen === 'stoku' && !admin) ekNen = 'afatet';
+    if (ekNen === 'stoku' && !admin) ekNen = 'pulti';
     var lidhur = !!(ekK && ekK.kaLidhje());
     var qasja = lidhur ? ekK.gjendjaEQasjes() : '';
     $('ekPaLidhje').classList.toggle('fsheh', lidhur && qasja === 'ok');
@@ -4345,8 +4370,65 @@
     else if (ekNen === 'anetaret') ekVAnetaret(anetaret);
     else if (ekNen === 'statistika') ekVStatistika(anetaret);
     else if (ekNen === 'stoku') ekVStoku(anetaret);
+    else if (ekNen === 'pulti') ekVPulti(anetaret);
     else ekVAfatet(anetaret);
   }
+
+  // ---- Përmbledhja (faqja kryesore e Ekipës, dizajni "Pulti") ----
+  function ekVPulti(anetaret) {
+    var te = ekTeGjitha(anetaret), n = ekNumero(te), gati = ekK.eGatshme();
+    var d = new Date();
+    var DITET = ['E diel', 'E hënë', 'E martë', 'E mërkurë', 'E enjte', 'E premte', 'E shtunë'];
+    var MUAJT = ['janar', 'shkurt', 'mars', 'prill', 'maj', 'qershor', 'korrik', 'gusht', 'shtator', 'tetor', 'nëntor', 'dhjetor'];
+    $('ekNen').textContent = DITET[d.getDay()] + ', ' + d.getDate() + ' ' + MUAJT[d.getMonth()] + ' · ' + anetaret.length + (anetaret.length === 1 ? ' anëtar' : ' anëtarë') + ' · ' + (gati ? n.aktive + ' afate në raft' : 'duke ngarkuar…');
+    function afatet(filtri) { return function () { ekV.anetari = 'krejt'; ekV.filtri = filtri; ekShkoTe('afatet'); }; }
+    var r = $('ekPultKpi');
+    r.textContent = '';
+    r.appendChild(kpi('Të skaduara', gati ? num(n.skaduar) : '…', 'duhen hequr nga rafti', n.skaduar ? 'kritik' : null, IKONA.zero, afatet('skaduar')));
+    r.appendChild(kpi('Afër skadimit', gati ? num(n.afer) : '…', 'brenda 30 ditëve', n.afer ? 'paralajm' : null, IKONA.pak, afatet('afer')));
+    r.appendChild(kpi('Në rregull', gati ? num(n.ok) : '…', 'krejt ekipa', null, null, afatet('ok')));
+    var onl = anetaret.filter(function (a) { return a.uneJam || EKL.eshteOnline(a); });
+    r.appendChild(kpi('Online tani', onl.length + '/' + anetaret.length, onl.map(function (a) { return a.uneJam ? 'ti' : a.emri; }).join(', ') || 'askush', null, null, function () { ekShkoTe('anetaret'); }));
+    // Duhet vepruar: të skaduarat + ato që skadojnë brenda 7 ditëve
+    var koka = $('ekPultKoka'), trup = $('ekPultTrup'), bosh = $('ekPultBosh');
+    koka.textContent = ''; trup.textContent = '';
+    var tr0 = el('tr');
+    [['Statusi', 'k-st'], ['Produkti · Furnizuesi', ''], ['Sasia', 'k-sas'], ['Skadon më', 'k-data'], ['Kolegu', 'k-pronari'], ['', 'k-av']].forEach(function (x) { tr0.appendChild(el('th', x[1] || null, x[0])); });
+    koka.appendChild(tr0);
+    var lista = te.filter(function (a) {
+      var st = AF.statusi(a);
+      if (st === 'skaduar') return true;
+      if (st !== 'afer') return false;
+      var dd = AF.ditetDeri(a.data); return dd !== null && dd <= 7;
+    }).sort(AF.krahaso);
+    if (!gati) { bosh.textContent = 'Duke ngarkuar afatet e ekipës…'; bosh.classList.remove('fsheh'); return ekPultAnetaret(anetaret); }
+    if (!lista.length) { bosh.textContent = 'Asgjë për të bërë: asnjë produkt i skaduar dhe asgjë s\'skadon këtë javë.'; bosh.classList.remove('fsheh'); }
+    else bosh.classList.add('fsheh');
+    var frag = document.createDocumentFragment();
+    lista.slice(0, 15).forEach(function (x) { frag.appendChild(ekRreshtAfati(x, true, true)); });
+    trup.appendChild(frag);
+    if (lista.length > 15) { bosh.textContent = '… dhe ' + (lista.length - 15) + ' të tjera — "Krejt afatet e ekipës" për listën e plotë.'; bosh.classList.remove('fsheh'); }
+    ekPultAnetaret(anetaret);
+  }
+  function ekPultAnetaret(anetaret) {
+    var c = $('ekPultAnetaret');
+    c.textContent = '';
+    $('ekPultAnTitulli').textContent = 'Anëtarët · ' + anetaret.length;
+    anetaret.forEach(function (a) {
+      var nn = ekNumero(a.afatet);
+      var b = el('button', 'ek-pult-an'); b.type = 'button';
+      b.appendChild(ekAvatar(a, true));
+      var m = el('div');
+      m.appendChild(el('div', 'ek-pult-an-emri', a.emri + (a.uneJam ? ' (ti)' : '')));
+      var online = a.uneJam || EKL.eshteOnline(a);
+      m.appendChild(el('div', 'ek-pult-an-nen', online ? 'Online tani' : EKL.tekstiPranise(a)));
+      b.appendChild(m);
+      b.appendChild(el('div', 'ek-pult-an-nr' + (nn.skaduar ? ' kuqe' : ''), !a.ngarkuar ? '…' : a.paTeDhena ? 'pa të dhëna' : nn.skaduar ? nn.skaduar + (nn.skaduar === 1 ? ' i skaduar' : ' të skaduara') : nn.aktive + ' në raft'));
+      b.addEventListener('click', function () { ekV.anetari = a.uid; ekV.filtri = ''; ekShkoTe('afatet'); });
+      c.appendChild(b);
+    });
+  }
+  $('ekPultKrejt').addEventListener('click', function () { ekV.anetari = 'krejt'; ekV.filtri = ''; ekShkoTe('afatet'); });
 
   // ---- Afatet: një kartë për koleg, pastaj tabela ----
   function ekVAfatet(anetaret) {
@@ -4419,7 +4501,8 @@
     trup.appendChild(frag);
     if (lista.length > EK_LIMITI) { bosh.textContent = 'Shfaqen ' + num(EK_LIMITI) + ' nga ' + num(lista.length) + ' — kërko për t\'i gjetur të tjerat.'; bosh.classList.remove('fsheh'); }
   }
-  function ekRreshtAfati(x, meEmer) {
+  // pult: rreshti i shkurtër i Përmbledhjes (pa tekstin e veprimit dhe pa butonat e administratorit)
+  function ekRreshtAfati(x, meEmer, pult) {
     var st = AF.statusi(x), n = AF.ditetDeri(x.data);
     var tr = el('tr'); tr.className = st;
     var t0 = el('td', 'k-st'); t0.appendChild(el('span', 'af-status ' + st, ST_EMRI[st])); tr.appendChild(t0);
@@ -4431,7 +4514,7 @@
     var td = el('td', 'k-data', x.data ? AF.formato(x.data) : '—');
     if (n !== null && st !== 'hequr') td.appendChild(el('small', null, n < 0 ? 'para ' + AF.ditetTekst(-n) : n === 0 ? 'sot' : 'për ' + AF.ditetTekst(n)));
     tr.appendChild(td);
-    tr.appendChild(el('td', 'k-msg', st === 'hequr'
+    if (!pult) tr.appendChild(el('td', 'k-msg', st === 'hequr'
       ? 'U hoq nga rafti' + (x.hequrNga ? ' nga ' + x.hequrNga : '') + (x.hequrSe ? ' · ' + EKL.kohaRelative(x.hequrSe) : '')
       : AF.pershkrimi(x)));
     if (meEmer) tr.appendChild(el('td', 'k-pronari', (x.pronariEmri || '') + (perdoruesi() && x.pronariUid === perdoruesi().uid ? ' (ti)' : '')));
@@ -4443,7 +4526,7 @@
       tv.appendChild(b);
     }
     var uIm = perdoruesi();
-    if (ekK && ekK.eshteAdmin() && x.pronariUid && uIm && x.pronariUid !== uIm.uid) {
+    if (!pult && ekK && ekK.eshteAdmin() && x.pronariUid && uIm && x.pronariUid !== uIm.uid) {
       if (st === 'hequr') tv.appendChild(ekBtnAdmin('Ktheje', x, 'kthe'));
       else if (st !== 'skaduar') tv.appendChild(ekBtnAdmin('Hiqe', x, 'hiq'));
       tv.appendChild(ekBtnAdmin('Fshije', x, 'fshij'));
@@ -5801,7 +5884,7 @@
     var h = decodeURIComponent(location.hash || '');
     if (h === '#/te-gjitha') pamja = 'te-gjitha';
     else if (h === '#/afatet') pamja = 'afatet';
-    else if (h === '#/ekipi' || h === '#/ekipa' || h.indexOf('#/ekipa/') === 0) { pamja = 'ekipi'; ekNen = EK_NENET.indexOf(h.slice(8)) !== -1 ? h.slice(8) : 'afatet'; }
+    else if (h === '#/ekipi' || h === '#/ekipa' || h.indexOf('#/ekipa/') === 0) { pamja = 'ekipi'; ekNen = EK_NENET.indexOf(h.slice(8)) !== -1 ? h.slice(8) : 'pulti'; }
     else if (h.indexOf('#/f/') === 0 && folderSipasId(h.slice(4))) pamja = h.slice(4);
     history.replaceState(null, '', hashPer(pamja));
   })();
