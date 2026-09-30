@@ -182,7 +182,7 @@
   .perdoruesi-cip { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   /* ================= Trupi: sidebar + main ================= */
-  .trupi { display: grid; grid-template-columns: 264px 1fr; min-height: 0; }
+  .trupi { display: grid; grid-template-columns: 264px minmax(0, 1fr); min-height: 0; }
   aside.anesore {
     background: var(--karta); border-right: 1px solid var(--vije); display: flex; flex-direction: column; min-height: 0; overflow-y: auto;
   }
@@ -361,7 +361,7 @@
   .ek-chat-fund .kuti-fushe { flex: 1; }
   /* Kalendari */
   .ek-kal-rrjeti { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; align-items: start; }
-  @media (max-width: 1250px) { .ek-kal-rrjeti { grid-template-columns: 1fr; } }
+  @media (max-width: 1250px) { .ek-kal-rrjeti { grid-template-columns: minmax(0, 1fr); } }
   .ek-kal-krye { display: flex; align-items: center; gap: 8px; margin: 2px 0 12px; }
   .ek-kal-krye b { flex: 1; font-size: 17px; }
   .ek-kal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
@@ -467,9 +467,10 @@
   .kpi-nen { font-size: 12px; color: var(--gri); }
   .kpi.status-kritik .kpi-etik { color: var(--rrezik); }
   .kpi.status-paralajm .kpi-etik { color: var(--paralajm); }
-  .permb-rrjeti { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+  .permb-rrjeti { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; }
+  .permb-rrjeti > .karta { min-width: 0; }
   .permb-rrjeti .karta.gjere { grid-column: 1 / -1; }
-  @media (max-width: 1250px) { .permb-rrjeti { grid-template-columns: 1fr; } }
+  @media (max-width: 1250px) { .permb-rrjeti { grid-template-columns: minmax(0, 1fr); } }
   .shirit-rresht {
     display: grid; grid-template-columns: minmax(110px, 180px) 1fr 70px 80px; align-items: center; gap: 12px;
     padding: 7px 8px; border-radius: 8px; cursor: pointer; border: 0; background: transparent; width: 100%; text-align: left;
@@ -567,7 +568,7 @@
   .sasia-cip.zero { color: var(--rrezik); background: var(--rrezik-bute); }
   .sasia-cip.pak { color: var(--paralajm); background: var(--paralajm-bute); }
   .folder-cip {
-    display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 3px 9px; border-radius: 12px;
+    display: inline-block; max-width: 100%; box-sizing: border-box; padding: 3px 9px; border-radius: 12px;
     font-size: 12px; font-weight: 600; color: var(--btn-tekst); background: var(--primar-bute);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle;
   }
@@ -846,8 +847,43 @@
   :focus-visible { outline: 2px solid var(--btn-tekst); outline-offset: 2px; }
   .inp:focus-visible { outline: none; }
 
+  /* Ekrane të ngushta (laptop 1024–1440): emri i produktit s'duhet të zhduket kurrë nga tabelat. Kolonat fikse
+     ngushtohen, "Çfarë duhet bërë" fshihet (statusi + data e tregojnë njësoj) dhe anësorja ngushtohet pak. */
+  #ekTabela .k-av { width: 214px; }
+  @media (max-width: 1440px) {
+    #ekTabela .k-msg { display: none; }
+    :is(#ekTabela, #ekPultTabela) .k-pronari { width: 120px; }
+    :is(#ekTabela, #ekPultTabela) .k-st { width: 128px; }
+  }
+  @media (max-width: 1366px) {
+    .trupi { grid-template-columns: 236px minmax(0, 1fr); }
+    .tabela .k-barkodi { width: 136px; }
+    .tabela .k-folderi { width: 124px; }
+    .tabela .k-sasia { width: 112px; }
+    .tabela .k-koha { width: 112px; }
+    :is(#ekTabela, #ekPultTabela) .k-data, #afTabela .k-data { width: 112px; }
+    #afTabela .k-st { width: 140px; }
+  }
+  @media (max-width: 1366px) {
+    #ekTabAnetaret th:nth-child(2) { width: 150px; }
+    #ekTabAnetaret .k-sas { width: 96px; }
+    #ekTabAnetaret .k-av, #ekTabKerkesat .k-av { width: 190px; }
+    #ekTabAnetaret tr > :nth-child(6) { display: none; }
+  }
+  @media (max-width: 1180px) {
+    #ekTabAnetaret tr > :nth-child(2) { display: none; }
+    #ekTabAnetaret .k-sas { width: 84px; }
+    .ek-pult-rrjeti { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 1180px) {
+    .trupi { grid-template-columns: 220px minmax(0, 1fr); }
+    .tabela .k-koha { display: none; }
+    #afTabela .k-msg { display: none; }
+    .tabela .k-barkodi { width: 124px; }
+    .tabela .k-folderi { width: 110px; }
+  }
   @media (max-width: 1020px) {
-    .trupi { grid-template-columns: 220px 1fr; }
+    .trupi { grid-template-columns: 220px minmax(0, 1fr); }
     main.kryesore { padding: 18px; }
     .tabela .k-koha { display: none; }
     .krye-kerko { margin-left: 8px; }
@@ -1017,7 +1053,7 @@
         </div>
         <div class="karta gjere">
           <div class="karta-krye"><h2>Sasia më e ulët</h2><button class="btn tekst vogel" type="button" id="btnShihTeUleta">Shih të gjitha</button></div>
-          <div class="karta-trup lista-e-shkurter" id="permbTeUleta" style="display:grid;grid-template-columns:1fr 1fr;column-gap:16px"></div>
+          <div class="karta-trup lista-e-shkurter" id="permbTeUleta" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:16px"></div>
         </div>
       </div>
     </section>
@@ -1676,7 +1712,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=117"></script>
 <script src="ekipa.js?v=5"></script>
-<script src="teRejat.js?v=117"></script>
+<script src="teRejat.js?v=118"></script>
 <script>
 (function () {
   'use strict';

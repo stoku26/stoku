@@ -46,6 +46,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+00. **Tabelat e PC-së me `table-layout: fixed`**: kolona e emrit s'ka gjerësi, merr çka mbetet. Nëse kolonat fikse
+   i kalojnë gjerësisë së tabelës, emri ZHDUKET pa asnjë gabim (ndodhi te 1024–1280px, v118). Kur shton kolonë
+   fikse, kontrollo me `skano-gjeresi.js` (scratchpad, `GJ=1024,1280,1366`) dhe shto rregull te blloqet
+   `@media (max-width: 1440/1366/1180px)` në fund të stilit të pc.html. Rrjetet (grid) me `minmax(0, 1fr)`, jo `1fr`.
+
 1. **Cache-busting është MANUAL dhe i domosdoshëm.** Kur ndryshon një skedar JS të përbashkët
    (`afatet.js`, `bashkimi.js`, `ruajtja.js`, `porta.js`, `njoftimet.js`, `teRejat.js`, `xlsx.js`), duhet
    me dorë:

@@ -15,6 +15,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 118, data: '2026-09-30', titulli: 'Kompjuter me ekran më të vogël', pikat: [
+      'Në laptopë dhe ekrane më të vogla (1024 deri 1366), emri i produktit s\'zhduket më nga tabelat e stokut, afateve dhe ekipës.',
+      'Te Ekipa, butonat e administratorit dhe emrat e anëtarëve s\'dalin më jashtë tabelës.',
+      'Përmbledhja s\'del më jashtë ekranit kur një folder ka emër të gjatë.'
+    ], platforma: 'pc' },
     { v: 117, data: '2026-09-30', titulli: 'Anësore më e qartë në kompjuter', pikat: [
       'Kategoritë Stoku, Afatet dhe Ekipa kanë secila ikonën dhe ngjyrën e vet, me një vijë ndarëse, që dallohet menjëherë ku fillon secila.',
       'Shigjeta në të djathtë të secilës kategori tani është buton më vete: e hap ose e mbyll kategorinë pa të çuar te ajo.',
