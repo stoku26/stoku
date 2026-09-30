@@ -46,6 +46,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000. **Afatet: importi nga Excel + muajt (v120)**: logjika e përbashkët në `afatet.js`: `muajiNgaEmri` ("Nëntor2" → 11,
+   numrat/shenjat harrohen; "Marketi" s'është muaj), `dataNgaQeliza` (serial Excel, tekst, ose vetëm dita + muaji i
+   fletës), `hamendesoKolonatEAfateve` (sipas titujve ose përmbajtjes), `planiImportitAfateve` (ekzistuese = i njëjti
+   barkod/emër + datë, kalohen; të përsëriturat bashkohen, sasitë mblidhen), `afatetNgaPlani`, `muajtELista`,
+   `celesiMuajit`. PC: `#afBtnImport` → `#dlgAfImport`, filtri `af.muaji` (`#afMuajt`), eksporti `#dlgAfEksport`.
+   Telefon: `#afImporto`/`#afEksporto`, `afMuaji`, `#dlgAfImport`, muaji te `#dlgAfExcel` (`axKrejt`). Filtri i
+   muajit është sipas DATËS SË SKADIMIT (jo foldera). Testet: `import-af-njesi.js`, `import-af-pc.js`, `import-af-tel.js`.
 000. **"Çka ka të re" (v119)**: shfaqet me `tregoTeRejatKurGati()`: jo kur faqja është në sfond, jo kur një service
    worker po instalohet (pret rifreskimin); shënohet si e parë (`stoku:te-rejat:pare`) VETËM kur dritarja mbyllet
    (MutationObserver te `#dlgTeRejat`), jo kur shfaqet. Më parë rifreskimi i përditësimit e zhdukte dhe s'dilte më.

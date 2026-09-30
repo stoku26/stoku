@@ -965,6 +965,23 @@
   .nj-pike { flex: none; width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; }
   .nj-pike.verdhe { background: #f5b400; }
   .nj-pike.kuqe { background: #e5483e; }
+  .af-excel-rresht .btn { flex: 1; min-height: 40px; font-size: 13.5px; gap: 6px; }
+  #dlgAfatet.zgjedhje .af-excel-rresht { display: none; }
+  .af-muajt button .n { margin-left: 5px; font-weight: 600; opacity: .7; }
+  #dlgAfImport { z-index: 24; }
+  #dlgAfImport .dialog { max-width: 520px; }
+  #dlgAfImport .veprime { position: sticky; bottom: -12px; background: var(--dialog); padding-bottom: 12px; margin-top: 4px; }
+  .ai-harta { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 10px; }
+  .ai-permb { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 13px; color: var(--gri); margin: 4px 0 8px; }
+  .ai-permb b { color: var(--tekst); }
+  .ai-lista { border: 1px solid var(--vije); border-radius: 14px; max-height: 260px; overflow-y: auto; margin-bottom: 8px; }
+  .ai-rr { display: flex; gap: 10px; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--vije); font-size: 13.5px; }
+  .ai-rr:last-child { border-bottom: 0; }
+  .ai-rr .m { flex: 1; min-width: 0; }
+  .ai-rr .m b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+  .ai-rr .m span { font-size: 12px; color: var(--gri); }
+  .ai-rr .v { font-size: 12px; color: var(--gri); text-align: right; flex: none; max-width: 42%; }
+  .ai-rr.gabuar .v, .ai-rr.gabuar .m b { color: var(--rrezik); }
   #dlgAfExcel { z-index: 24; }
   #dlgAfExcel .dialog { max-width: 420px; }
   .ax-nen { margin: -6px 0 10px; font-size: 14px; color: var(--gri); }
@@ -1390,6 +1407,10 @@
         <button class="btn dyte me-ikone" id="afGaleria" type="button" style="flex:none;padding:0 14px" aria-label="Zgjidh foto nga galeria" title="Nga galeria"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"></path></svg></button>
         <button class="btn dyte me-ikone" id="afShto" type="button" style="flex:none;padding:0 16px 0 13px;gap:6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Shto</button>
       </div>
+      <div class="af-veprime-krye af-excel-rresht">
+        <button class="btn dyte me-ikone" id="afImporto" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m17 8-5-5-5 5"></path><path d="M12 3v12"></path></svg>Importo Excel</button>
+        <button class="btn dyte me-ikone" id="afEksporto" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M8 13h2M14 13h2M8 17h2M14 17h2"></path></svg>Eksporto Excel</button>
+      </div>
       <div class="af-shiriti-zgjedhjes" id="afZgjShirit">
         <button type="button" id="afZgjAnulo" aria-label="Anulo zgjedhjen" title="Anulo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
         <span id="afZgjNumri"></span>
@@ -1408,6 +1429,7 @@
         <button type="button" data-f="ok">Në rregull</button>
         <button type="button" data-f="hequr">Të hequra</button>
       </div>
+      <div class="af-filtrat af-muajt" id="afMuajt" role="group" aria-label="Filtro sipas muajit të skadimit" hidden></div>
       <div id="afLista"></div>
     </div>
   </div>
@@ -1527,6 +1549,10 @@
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="axTitulli">
     <h2 id="axTitulli">Çka të përfshihet në Excel?</h2>
     <div class="ax-nen" id="axNen"></div>
+    <div class="fushe" id="axMuajiRresht" hidden>
+      <label for="axMuaji">Cili muaj?</label>
+      <select id="axMuaji"></select>
+    </div>
     <div class="ax-shpejt">
       <button type="button" id="axKrejt">Të gjitha</button>
       <button type="button" id="axBaze">Barkodi, emri, sasia</button>
@@ -1536,6 +1562,38 @@
     <div class="veprime">
       <button class="btn tekst" id="axAnulo" type="button">Anulo</button>
       <button class="btn" id="axEksporto" type="button">Eksporto</button>
+    </div>
+  </div>
+</div>
+
+<!-- Importi i afateve nga Excel/CSV -->
+<div class="mbulese" id="dlgAfImport">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="aiTitulli">
+    <h2 id="aiTitulli">Importo afate nga Excel</h2>
+    <div id="aiHapi1">
+      <p class="hint" style="margin-top:0">Zgjidh një skedar .xlsx ose .csv me barkodin ose emrin dhe datën e skadimit. Fletët me emër muaji (Nëntor, Nëntor2…) lexohen si ai muaj.</p>
+      <button class="btn me-ikone" id="aiZgjidh" type="button" style="width:100%"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m17 8-5-5-5 5"></path><path d="M12 3v12"></path></svg>Zgjidh skedarin</button>
+      <input type="file" id="aiSkedari" accept=".xlsx,.csv,.txt,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" hidden>
+      <div class="ax-gabim" id="aiGabim1"></div>
+    </div>
+    <div id="aiHapi2" hidden>
+      <div class="ax-nen" id="aiSkedariInfo"></div>
+      <div class="fushe" id="aiFletaMbajtese"><label for="aiFleta">Fleta</label><select id="aiFleta"></select></div>
+      <div class="fushe"><label for="aiKoka">Rreshti i parë ka titujt</label><select id="aiKoka"><option value="1">Po</option><option value="0">Jo</option></select></div>
+      <div class="ai-harta">
+        <div class="fushe"><label for="aiKolBarkodi">Barkodi</label><select id="aiKolBarkodi"></select></div>
+        <div class="fushe"><label for="aiKolEmri">Emri</label><select id="aiKolEmri"></select></div>
+        <div class="fushe"><label for="aiKolData">Data e skadimit *</label><select id="aiKolData"></select></div>
+        <div class="fushe"><label for="aiKolSasia">Sasia</label><select id="aiKolSasia"></select></div>
+        <div class="fushe"><label for="aiKolFurnizuesi">Furnizuesi</label><select id="aiKolFurnizuesi"></select></div>
+      </div>
+      <div class="ai-permb" id="aiPermbledhje"></div>
+      <div class="ai-lista" id="aiParapamje"></div>
+    </div>
+    <div class="veprime">
+      <button class="btn tekst" id="aiMbrapa" type="button" hidden>Skedar tjetër</button>
+      <button class="btn tekst" id="aiAnulo" type="button">Anulo</button>
+      <button class="btn" id="aiBtn" type="button" disabled>Importo</button>
     </div>
   </div>
 </div>
@@ -1636,10 +1694,10 @@
 <script src="xlsx.js?v=113"></script>
 <script src="bashkimi.js?v=113"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=117"></script>
+<script src="afatet.js?v=120"></script>
 <script src="ekipa.js?v=5"></script>
 <script src="njoftimet.js?v=117"></script>
-<script src="teRejat.js?v=119"></script>
+<script src="teRejat.js?v=120"></script>
 <script>
 (function () {
   'use strict';
@@ -4317,7 +4375,7 @@
   // thjesht klasën), që logjika e tyre (p.sh. konfirmo() që pret përgjigje) të përfundojë saktë.
   var ANULO_SIPAS_DIALOGUT = {
     dlgProdukt: 'dlgAnulo', dlgZhvendos: 'zhvendosAnulo', dlgFshirje: 'fshiAnulo',
-    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgNjoftimet: 'njJoTani', dlgAfExcel: 'axAnulo', dlgTeRejat: 'trMbyll', dlgImportStok: 'impAnulo', dlgEkNjoftimet: 'ekNjMbyll'
+    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgNjoftimet: 'njJoTani', dlgAfExcel: 'axAnulo', dlgTeRejat: 'trMbyll', dlgImportStok: 'impAnulo', dlgEkNjoftimet: 'ekNjMbyll', dlgAfImport: 'aiAnulo'
   };
   function mbyllShtresenMeTeFundit() {
     // Kamera del mbi çdo dialog (p.sh. skanimi te "Afat i ri"), prandaj mbyllet e para
@@ -4619,6 +4677,7 @@
   // (lajmëro furnizuesin), e gjelbër = në rregull. Sinkronizohen me cloud-in bashkë me produktet.
   var AF = window.StokuAfatet;
   var afFiltri = 'aktive';
+  var afMuaji = ''; // '' = krejt muajt, 'VVVV-MM' ose 'pa-date' (sipas datës së skadimit)
 
   function ruajAfatet() {
     try { localStorage.setItem(KEY_AFATET, JSON.stringify(afatet)); } catch (e) { toast(T('ruajtjaDeshtoi')); return; }
@@ -4664,6 +4723,42 @@
     if ($('dlgEkipi').classList.contains('hapur') && typeof kurNdryshonEkipa === 'function') kurNdryshonEkipa('dyqanet');
   }
 
+  // Afatet sipas filtrit të statusit, kërkimit dhe muajit (muaji: undefined = ai i zgjedhur, '' = krejt)
+  function afatetEFiltruara(muaji) {
+    var k = $('afKerko').value.trim().toLowerCase();
+    var mu = muaji === undefined ? afMuaji : muaji;
+    return afatet.filter(function (a) {
+      if (mu && AF.celesiMuajit(a) !== mu) return false;
+      var st = AF.statusi(a);
+      if (afFiltri === 'aktive' && st === 'hequr') return false;
+      if (afFiltri === 'skaduar' && st !== 'skaduar' && st !== 'pa-date') return false;
+      if (afFiltri === 'afer' && st !== 'afer') return false;
+      if (afFiltri === 'ok' && st !== 'ok') return false;
+      if (afFiltri === 'hequr' && st !== 'hequr') return false;
+      if (k) {
+        var t = ((a.emri || '') + ' ' + (a.barkodi || '') + ' ' + (a.furnizuesi || '')).toLowerCase();
+        if (t.indexOf(k) === -1) return false;
+      }
+      return true;
+    }).sort(AF.krahaso);
+  }
+  function vizatoMuajtEAfateve() {
+    var c = $('afMuajt');
+    var muajt = AF.muajtELista(afatetEFiltruara(''));
+    if (afMuaji && !muajt.some(function (m) { return m.celes === afMuaji; })) muajt.push({ celes: afMuaji, n: 0, emri: AF.emriMuajit(afMuaji) });
+    c.hidden = muajt.length < 2 && !afMuaji;
+    c.textContent = '';
+    [{ celes: '', emri: 'Të gjithë muajt', n: null }].concat(muajt).forEach(function (m) {
+      var b = document.createElement('button'); b.type = 'button';
+      if (afMuaji === m.celes) b.className = 'aktiv';
+      b.setAttribute('aria-pressed', String(afMuaji === m.celes));
+      b.textContent = m.emri;
+      if (m.n !== null) { var n = document.createElement('span'); n.className = 'n'; n.textContent = String(m.n); b.appendChild(n); }
+      b.addEventListener('click', function () { afMuaji = m.celes; renderAfatet(); });
+      c.appendChild(b);
+    });
+  }
+
   function renderAfatet() {
     var n = AF.numero(afatet);
     var permb = $('afPermb');
@@ -4683,19 +4778,8 @@
     });
 
     var k = $('afKerko').value.trim().toLowerCase();
-    var lista = afatet.filter(function (a) {
-      var st = AF.statusi(a);
-      if (afFiltri === 'aktive' && st === 'hequr') return false;
-      if (afFiltri === 'skaduar' && st !== 'skaduar' && st !== 'pa-date') return false;
-      if (afFiltri === 'afer' && st !== 'afer') return false;
-      if (afFiltri === 'ok' && st !== 'ok') return false;
-      if (afFiltri === 'hequr' && st !== 'hequr') return false;
-      if (k) {
-        var t = ((a.emri || '') + ' ' + (a.barkodi || '') + ' ' + (a.furnizuesi || '')).toLowerCase();
-        if (t.indexOf(k) === -1) return false;
-      }
-      return true;
-    }).sort(AF.krahaso);
+    vizatoMuajtEAfateve();
+    var lista = afatetEFiltruara();
 
     var cont = $('afLista');
     cont.textContent = '';
@@ -4821,7 +4905,7 @@
   }
   function axRifresko() {
     var n = axTeZgjedhurat().length;
-    $('axEksporto').disabled = !n;
+    $('axEksporto').disabled = !n || (typeof axKrejt !== 'undefined' && axKrejt && !afatetEFiltruara($('axMuaji').value).length);
     $('axGabim').textContent = n ? '' : 'Zgjidh të paktën një kolonë.';
   }
   (function ndertoListenAx() {
@@ -4834,13 +4918,37 @@
       l.appendChild(i); l.appendChild(t); lista.appendChild(l);
     });
   })();
+  var axKrejt = false; // true = eksport i krejt listës (me zgjedhjen e muajit), false = vetëm të zgjedhurat
   function hapExcelinEAfateve() {
     var n = Object.keys(afZgjedhja || {}).length;
     if (!n) return;
+    axKrejt = false;
+    $('axMuajiRresht').hidden = true;
     $('axNen').textContent = n === 1 ? '1 afat i zgjedhur' : n + ' afate të zgjedhura';
     axVendos(axKolonatERuajtura());
     $('dlgAfExcel').classList.add('hapur');
   }
+  function hapEksportinEAfateve() {
+    if (!afatet.length) { toast('S\'ka afate për eksport.'); return; }
+    axKrejt = true;
+    var s = $('axMuaji');
+    s.textContent = '';
+    var o0 = document.createElement('option'); o0.value = ''; o0.textContent = 'Të gjithë muajt'; s.appendChild(o0);
+    AF.muajtELista(afatetEFiltruara('')).forEach(function (m) { var o = document.createElement('option'); o.value = m.celes; o.textContent = m.emri + ' (' + m.n + ')'; s.appendChild(o); });
+    s.value = afMuaji && Array.prototype.some.call(s.options, function (o) { return o.value === afMuaji; }) ? afMuaji : '';
+    $('axMuajiRresht').hidden = false;
+    axInfoKrejt();
+    axVendos(axKolonatERuajtura());
+    $('dlgAfExcel').classList.add('hapur');
+  }
+  function axInfoKrejt() {
+    var n = afatetEFiltruara($('axMuaji').value).length;
+    var st = { aktive: 'aktive', skaduar: 'të skaduara', afer: 'afër skadimit', ok: 'në rregull', hequr: 'të hequra' }[afFiltri] || '';
+    $('axNen').textContent = n ? 'Do të eksportohen ' + (n === 1 ? '1 afat' : n + ' afate') + (afFiltri !== 'aktive' ? ' (' + st + ')' : '') : 'S\'ka afate ' + st + ' për këtë muaj';
+    $('axEksporto').disabled = !n || !axTeZgjedhurat().length;
+  }
+  $('axMuaji').addEventListener('change', axInfoKrejt);
+  $('afEksporto').addEventListener('click', hapEksportinEAfateve);
   function mbyllExcelinEAfateve() { $('dlgAfExcel').classList.remove('hapur'); }
   async function eksportoTeZgjedhurat() {
     var kyçet = axTeZgjedhurat();
@@ -4848,23 +4956,146 @@
     try { localStorage.setItem(KEY_AX_KOLONAT, JSON.stringify(kyçet)); } catch (e) { /* ok */ }
     var kolonat = AX_KOLONAT.filter(function (c) { return kyçet.indexOf(c.k) >= 0; });
     var zgj = afZgjedhja || {};
-    var lista = afatet.filter(function (a) { return zgj[a.id]; }).sort(AF.krahaso);
+    var muajiEks = axKrejt ? $('axMuaji').value : '';
+    var lista = axKrejt ? afatetEFiltruara(muajiEks) : afatet.filter(function (a) { return zgj[a.id]; }).sort(AF.krahaso);
     mbyllExcelinEAfateve();
     if (!lista.length) return;
     var rreshtat = lista.map(function (a) { return kolonat.map(function (c) { return c.v(a); }); });
-    var fleta = { name: 'Afatet', columns: kolonat.map(function (c) { return c.col; }), rows: rreshtat };
+    var fleta = { name: muajiEks ? AF.emriMuajit(muajiEks) : 'Afatet', columns: kolonat.map(function (c) { return c.col; }), rows: rreshtat };
     var iSasise = kyçet.indexOf('sasia') >= 0 ? kolonat.findIndex(function (c) { return c.k === 'sasia'; }) : -1;
     if (iSasise >= 0) {
       fleta.totalColumns = [iSasise];
       if (iSasise > 0) fleta.totalLabel = 'Gjithsej';
     }
     var d = new Date();
-    var emri = 'afatet_' + d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate()) +
+    var emri = 'afatet_' + (muajiEks ? AF.emriMuajit(muajiEks).toLowerCase().replace(/ë/g, 'e').replace(/\s+/g, '_') + '_' : '') + d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate()) +
       '_' + dyShifra(d.getHours()) + dyShifra(d.getMinutes()) + '.xlsx';
     var bajtet = StokuXlsx.buildWorkbook([fleta]);
     await ndajOseShkarko({ skedari: new File([bajtet], emri, { type: MIME_XLSX }), emri: emri }, 'Afatet');
   }
   $('afZgjExcel').addEventListener('click', hapExcelinEAfateve);
+
+  // ---------- Importi i afateve nga Excel/CSV ----------
+  // Çdo fletë lexohet; fleta me emër muaji ("Nëntor", "Nëntor2"…) e jep muajin kur data ka vetëm ditën.
+  // Afatet që ekzistojnë (i njëjti barkod/emër + data) kalohen; rreshtat e përsëritur bashkohen (sasitë mblidhen).
+  var ai = { fletet: [] };
+  function lexoCsvTel(tekst) {
+    tekst = tekst.replace(/^\uFEFF/, '');
+    var r0 = tekst.split(/\r?\n/)[0] || '';
+    var nd = [';', ',', '\t'].reduce(function (m, d) { return r0.split(d).length > r0.split(m).length ? d : m; }, ',');
+    var rr = [], r = [], f = '', q = false;
+    for (var i = 0; i < tekst.length; i++) {
+      var c = tekst[i];
+      if (q) { if (c === '"') { if (tekst[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+      else if (c === '"') q = true;
+      else if (c === nd) { r.push(f); f = ''; }
+      else if (c === '\n' || c === '\r') { if (c === '\r' && tekst[i + 1] === '\n') i++; r.push(f); rr.push(r); r = []; f = ''; }
+      else f += c;
+    }
+    if (f !== '' || r.length) { r.push(f); rr.push(r); }
+    return rr.filter(function (x) { return x.some(function (v) { return String(v).trim() !== ''; }); });
+  }
+  function aiHap() {
+    ai = { fletet: [] };
+    $('aiHapi1').hidden = false; $('aiHapi2').hidden = true; $('aiMbrapa').hidden = true;
+    $('aiBtn').disabled = true; $('aiBtn').textContent = 'Importo'; $('aiGabim1').textContent = ''; $('aiSkedari').value = '';
+    $('dlgAfImport').classList.add('hapur');
+  }
+  function aiMbyll() { $('dlgAfImport').classList.remove('hapur'); }
+  async function aiLexo(f) {
+    $('aiGabim1').textContent = '';
+    try {
+      var buf = await f.arrayBuffer(), b = new Uint8Array(buf);
+      if (b[0] === 0x50 && b[1] === 0x4b) ai.fletet = (await StokuXlsx.read(buf)).map(function (sh) { return { name: sh.name, rows: sh.rows.filter(function (x) { return x.some(function (v) { return String(v).trim() !== ''; }); }) }; });
+      else if (/\.xls$/i.test(f.name)) { $('aiGabim1').textContent = 'Formati i vjetër .xls s\'mbështetet. Ruaje si .xlsx ose .csv.'; return; }
+      else {
+        var tekst; try { tekst = new TextDecoder('utf-8', { fatal: true }).decode(b); } catch (e) { tekst = new TextDecoder('windows-1252').decode(b); }
+        ai.fletet = [{ name: f.name.replace(/\.[^.]+$/, ''), rows: lexoCsvTel(tekst) }];
+      }
+    } catch (e) { $('aiGabim1').textContent = 'Skedari s\'u lexua. Sigurohu që është .xlsx ose .csv.'; return; }
+    ai.fletet = ai.fletet.filter(function (sh) { return sh.rows.length; });
+    if (!ai.fletet.length) { $('aiGabim1').textContent = 'Skedari është bosh.'; return; }
+    var sel = $('aiFleta');
+    sel.textContent = '';
+    if (ai.fletet.length > 1) { var oK = document.createElement('option'); oK.value = 'krejt'; oK.textContent = 'Të gjitha fletët (' + ai.fletet.length + ')'; sel.appendChild(oK); }
+    ai.fletet.forEach(function (sh, i) {
+      var m = AF.muajiNgaEmri(sh.name);
+      var o = document.createElement('option'); o.value = String(i); o.textContent = sh.name + (m ? ' → ' + AF.EMRAT_MUAJVE[m - 1] : '') + ' (' + sh.rows.length + ')'; sel.appendChild(o);
+    });
+    sel.value = ai.fletet.length > 1 ? 'krejt' : '0';
+    $('aiFletaMbajtese').hidden = ai.fletet.length < 2;
+    $('aiSkedariInfo').textContent = f.name;
+    var r0 = ai.fletet[0].rows[0] || [];
+    $('aiKoka').value = r0.some(function (v) { return !!AF.dataNgaQeliza(v); }) ? '0' : '1';
+    $('aiHapi1').hidden = true; $('aiHapi2').hidden = false; $('aiMbrapa').hidden = false;
+    aiPergatit(true);
+  }
+  function aiFletet() { var v = $('aiFleta').value; return v === 'krejt' || v === '' ? ai.fletet : [ai.fletet[+v]]; }
+  var AI_FUSHAT = [['barkodi', 'aiKolBarkodi'], ['emri', 'aiKolEmri'], ['data', 'aiKolData'], ['sasia', 'aiKolSasia'], ['furnizuesi', 'aiKolFurnizuesi']];
+  function aiPergatit(hamendeso) {
+    var sh = aiFletet()[0], ka = $('aiKoka').value === '1';
+    var nKol = sh.rows.reduce(function (m, r) { return Math.max(m, r.length); }, 0);
+    var titujt = [];
+    for (var i = 0; i < nKol; i++) titujt.push(ka ? (AF.tekstNgaQeliza(sh.rows[0][i]) || 'Kolona ' + (i + 1)) : 'Kolona ' + (i + 1));
+    var h = hamendeso ? AF.hamendesoKolonatEAfateve(sh.rows, ka) : null;
+    AI_FUSHAT.forEach(function (x) {
+      var s = $(x[1]), v = s.value;
+      s.textContent = '';
+      var o0 = document.createElement('option'); o0.value = '-1'; o0.textContent = '(asnjë)'; s.appendChild(o0);
+      titujt.forEach(function (t, j) { var o = document.createElement('option'); o.value = String(j); o.textContent = t; s.appendChild(o); });
+      s.value = h ? String(h[x[0]]) : (v || '-1');
+    });
+    aiRifresko();
+  }
+  function aiPlani() {
+    var kol = {};
+    AI_FUSHAT.forEach(function (x) { kol[x[0]] = parseInt($(x[1]).value, 10); });
+    return AF.planiImportitAfateve(aiFletet(), { meKoke: $('aiKoka').value === '1', kol: kol, ekzistuese: afatet });
+  }
+  function aiRifresko() {
+    if (!ai.fletet.length) return;
+    var plan = aiPlani();
+    var pp = $('aiPermbledhje');
+    pp.textContent = '';
+    [['Të reja', plan.teRinj], ['Ekzistojnë', plan.ekzistojne], ['Bashkohen', plan.bashkuar], ['Me gabim', plan.gabime]].forEach(function (x) {
+      if (!x[1] && x[0] !== 'Të reja') return;
+      var sp = document.createElement('span'); sp.textContent = x[0] + ': '; var bb = document.createElement('b'); bb.textContent = String(x[1]); sp.appendChild(bb); pp.appendChild(sp);
+    });
+    var muajt = AF.muajtELista(plan.rreshta.filter(function (r) { return r.veprimi === 'i ri'; }));
+    if (muajt.length) { var sm = document.createElement('span'); sm.textContent = muajt.map(function (m) { return m.emri + ' (' + m.n + ')'; }).join(', '); pp.appendChild(sm); }
+    var l = $('aiParapamje');
+    l.textContent = '';
+    plan.rreshta.slice(0, 80).forEach(function (r) {
+      var d = document.createElement('div'); d.className = 'ai-rr' + (r.gabim ? ' gabuar' : '');
+      var m = document.createElement('div'); m.className = 'm';
+      var e = document.createElement('b'); e.textContent = r.emri || r.barkodi || '(pa emër)';
+      var nn = document.createElement('span'); nn.textContent = [r.data ? AF.formato(r.data) : r.dataOrigjinale, r.sasia !== '' ? r.sasia + ' copë' : '', r.furnizuesi].filter(Boolean).join(' · ');
+      m.appendChild(e); m.appendChild(nn);
+      var v = document.createElement('div'); v.className = 'v'; v.textContent = r.gabim || r.veprimi;
+      d.appendChild(m); d.appendChild(v); l.appendChild(d);
+    });
+    $('aiBtn').disabled = !plan.teRinj;
+    $('aiBtn').textContent = plan.teRinj ? 'Importo ' + plan.teRinj : 'Importo';
+  }
+  $('afImporto').addEventListener('click', aiHap);
+  $('aiZgjidh').addEventListener('click', function () { $('aiSkedari').click(); });
+  $('aiSkedari').addEventListener('change', function () { var f = $('aiSkedari').files[0]; if (f) aiLexo(f); });
+  $('aiMbrapa').addEventListener('click', aiHap);
+  $('aiAnulo').addEventListener('click', aiMbyll);
+  $('dlgAfImport').addEventListener('click', function (ev) { if (ev.target === $('dlgAfImport')) aiMbyll(); });
+  $('aiFleta').addEventListener('change', function () { aiPergatit(true); });
+  $('aiKoka').addEventListener('change', function () { aiPergatit(true); });
+  AI_FUSHAT.forEach(function (x) { $(x[1]).addEventListener('change', aiRifresko); });
+  $('aiBtn').addEventListener('click', function () {
+    var teReja = AF.afatetNgaPlani(aiPlani(), { krijuarNga: emriPerdoruesitAktual() });
+    if (!teReja.length) return;
+    afatet = afatet.concat(teReja);
+    aiMbyll();
+    afMuaji = ''; afFiltri = 'aktive';
+    ruajAfatet();
+    var n = AF.numero(teReja);
+    toast('U importuan ' + teReja.length + ' afate' + (n.skaduar ? ' · ' + n.skaduar + ' kanë skaduar!' : '') + (n.afer ? ' · ' + n.afer + ' skadojnë brenda 30 ditëve' : '') + '.', 4500);
+  });
   $('axKrejt').addEventListener('click', function () { axVendos(AX_KOLONAT.map(function (c) { return c.k; })); });
   $('axBaze').addEventListener('click', function () { axVendos(['barkodi', 'emri', 'sasia']); });
   $('axAnulo').addEventListener('click', mbyllExcelinEAfateve);

@@ -15,6 +15,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 120, data: '2026-09-30', titulli: 'Afatet: import nga Excel dhe muajt', pikat: [
+      'Te Afatet ka butonin "Importo" (Excel ose CSV): kolonat gjenden vetë, dhe para importit sheh çka shtohet, çka ekziston dhe çka ka gabim.',
+      'Fletët me emër muaji në Excel (p.sh. "Nëntor", "Nëntor2") lexohen si ai muaj; numri pas emrit harrohet.',
+      'Mbi listën e afateve ka butona për muajt (Tetor, Nëntor…): kliko njërin dhe shfaqen vetëm afatet që skadojnë atë muaj.',
+      'Eksporti në Excel të pyet cilin muaj don: vetëm Tetorin, vetëm Nëntorin, ose të gjithë muajt.'
+    ] },
     { v: 119, data: '2026-09-30', titulli: '"Çka ka të re" s\'humbet më', pikat: [
       'Kjo dritare s\'zhduket më kur aplikacioni rifreskohet vetë për përditësim: del pasi të përfundojë përditësimi.',
       'Shënohet si e lexuar vetëm kur e mbyll ti. Nëse e humb, del sërish herën tjetër.'
