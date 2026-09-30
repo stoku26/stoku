@@ -195,17 +195,17 @@
           var une = await fs.getDoc(fs.doc(db, 'perdoruesit', uid()));
           if (une.exists() && une.data().ekipaMigruarSe) return { ok: true, n: 0 };
           var r = await Promise.all([fs.getDocs(fs.collection(db, 'perdoruesit')), fs.getDocs(fs.collection(db, 'ekipa_anetaret'))]);
-          var n = 0;
-          if (r[1].empty) {
-            var b = fs.writeBatch(db), tani = Date.now();
-            r[0].forEach(function (d) {
-              if (n >= 400) return;
-              var x = d.data() || {};
-              b.set(fs.doc(db, 'ekipa_anetaret', d.id), { emri: x.perdoruesi || x.emri || d.id, pranuarSe: tani, pranuarNga: emri(), migruar: true });
-              n++;
-            });
-            if (n) await b.commit();
-          }
+          // Krejt llogaritë që s'janë ende në ekipë (edhe kur administratori ka pranuar dikë para migrimit)
+          var pranuar = {};
+          r[1].forEach(function (d) { pranuar[d.id] = true; });
+          var n = 0, b = fs.writeBatch(db), tani = Date.now();
+          r[0].forEach(function (d) {
+            if (n >= 400 || pranuar[d.id]) return;
+            var x = d.data() || {};
+            b.set(fs.doc(db, 'ekipa_anetaret', d.id), { emri: x.perdoruesi || x.emri || d.id, pranuarSe: tani, pranuarNga: emri(), migruar: true });
+            n++;
+          });
+          if (n) await b.commit();
           await fs.setDoc(fs.doc(db, 'perdoruesit', uid()), { ekipaMigruarSe: Date.now() }, { merge: true });
           return { ok: true, n: n };
         } catch (e) { return gabim(e); }

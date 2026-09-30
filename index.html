@@ -720,6 +720,11 @@
   .ek-hero-nr .skaduar b { color: var(--af-kuqe-tx); } .ek-hero-nr .afer b { color: var(--af-verdhe-tx); } .ek-hero-nr .ok b { color: var(--af-gjelber-tx); }
   .ek-hero-shirit { display: flex; gap: 3px; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 12px; background: var(--hover); }
   .ek-hero-shirit i { display: block; height: 100%; }
+  .ek-pult-kerkesat { position: relative; display: flex; align-items: center; gap: 12px; margin: 14px 0 0; padding: 12px 14px; border-radius: 16px;
+    background: color-mix(in srgb, var(--primar) 10%, var(--sfond)); border: 1.5px solid color-mix(in srgb, var(--primar) 35%, transparent); }
+  .ek-pult-kerkesat .tk { flex: 1; min-width: 0; font-size: 13.5px; line-height: 1.35; }
+  .ek-pult-kerkesat .tk b { display: block; font-size: 14.5px; font-weight: 800; }
+  .ek-pult-kerkesat .btn { flex: none; height: 38px; padding: 0 14px; font-size: 13.5px; }
   .ek-pult-pllakat { display: flex; gap: 4px; margin: 18px 0 4px; overflow-x: auto; scrollbar-width: none; padding-top: 2px; }
   .ek-pult-pllakat::-webkit-scrollbar { display: none; }
   .ek-seksion { display: flex; align-items: baseline; justify-content: space-between; margin: 22px 2px 10px; }
@@ -1074,7 +1079,7 @@
 </style>
 </head>
 <body>
-<script src="porta.js?v=86"></script>
+<script src="porta.js?v=115"></script>
 
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" style="display:none">←</button>
@@ -1630,9 +1635,9 @@
 <script src="bashkimi.js?v=113"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=90"></script>
-<script src="ekipa.js?v=3"></script>
+<script src="ekipa.js?v=4"></script>
 <script src="njoftimet.js?v=85"></script>
-<script src="teRejat.js?v=114"></script>
+<script src="teRejat.js?v=115"></script>
 <script>
 (function () {
   'use strict';
@@ -3192,7 +3197,7 @@
     if (kodi === 'auth/weak-password') return T('cloudFjalekalimiIShkurter');
     if (kodi === 'auth/requires-recent-login') return T('cloudDuhetRihyrje');
     if (kodi === 'auth/operation-not-allowed') return T('cloudDuhetKonfigurim');
-    return T('cloudGabimPergjithshem');
+    return T('cloudGabimPergjithshem') + (kodi ? ' (' + kodi + ')' : '');
   }
 
   async function kryeRregjistrimHyrje(regjistrim, idUsername, idFjalekalimi, idGabim) {
@@ -5153,7 +5158,7 @@
       $('ekChatFund').hidden = true;
       c.textContent = '';
       c.appendChild(qasja === 'ne-pritje'
-        ? ekBosh('Në pritje të miratimit', 'Administratori duhet ta pranojë llogarinë tënde në ekipë. Sapo të pranohesh, Ekipa hapet vetë këtu. Stoku dhe afatet e tua punojnë si zakonisht.')
+        ? ekBosh('Në pritje të miratimit', 'Administratori duhet ta pranojë llogarinë tënde në ekipë (te Ekipa → Anëtarët). Sapo të pranohesh, Ekipa hapet vetë këtu. Stoku dhe afatet e tua punojnë si zakonisht.')
         : ekInfo('Duke u lidhur me ekipën…'));
       return;
     }
@@ -5303,6 +5308,20 @@
     });
     h.appendChild(sh);
     c.appendChild(h);
+    // Administratori: llogaritë që presin miratimin — pa u pranuar, ato s'e shohin Ekipën
+    var kr = ekK.eshteAdmin() ? ekK.kerkesat() : [];
+    if (kr.length) {
+      var bk = ekEl('div', 'ek-pult-kerkesat');
+      var tk = ekEl('div', 'tk');
+      tk.appendChild(ekEl('b', null, kr.length === 1 ? kr[0].emri + ' pret miratimin' : kr.length + ' llogari presin miratimin'));
+      tk.appendChild(document.createTextNode(kr.length === 1 ? 'Pa u pranuar s\'e sheh Ekipën.' : kr.slice(0, 3).map(function (a) { return a.emri; }).join(', ') + (kr.length > 3 ? '…' : '') + ' — pa u pranuar s\'e shohin Ekipën.'));
+      bk.appendChild(tk);
+      var bp = ekEl('button', 'btn', kr.length === 1 ? 'Prano' : 'Prano krejt'); bp.type = 'button';
+      bp.addEventListener('click', function () { ekPrano(kr, bp); });
+      bk.appendChild(bp);
+      bk.addEventListener('click', function (ev) { if (ev.target !== bp) ekZgjidhPamjen('anetaret'); });
+      c.appendChild(bk);
+    }
     var pl = ekEl('div', 'ek-pult-pllakat');
     [['afatet', 'Afatet'], ['aktiviteti', 'Aktiviteti'], ['kalendari', 'Kalendari'], ['anetaret', 'Anëtarët'], ['statistika', 'Statistika']]
       .concat(ekK.eshteAdmin() ? [['stoku', 'Stoku']] : []).forEach(function (x) { pl.appendChild(ekPllakaEl(x[0], x[1], x[0] === 'afatet')); });

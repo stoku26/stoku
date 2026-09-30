@@ -281,6 +281,9 @@
   :is(#ekTabela, #ekPultTabela) tr.ok .k-msg { color: var(--af-gjelber-tx); font-weight: 500; }
   #ekTabAnetaret tbody tr { cursor: pointer; }
   #ekKerkesat { margin-bottom: 16px; }
+  .karta.ek-pult-kerkesat { display: flex; align-items: center; gap: 12px; padding: 14px 18px; margin-bottom: 16px; background: var(--primar-bute); border: 1.5px solid var(--primar-mesme); }
+  .ek-pult-kerkesat .tk { flex: 1; min-width: 0; font-size: 13.5px; line-height: 1.4; }
+  .ek-pult-kerkesat .tk b { display: block; font-size: 15px; font-weight: 800; }
   .ek-pult-rrjeti { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; margin-top: 16px; align-items: start; }
   .ek-pult-tabela { border: 0; border-radius: 0; box-shadow: none; }
   .ek-pult-an { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 0; border: 0; border-bottom: 1px solid var(--vije); background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; }
@@ -834,7 +837,7 @@
 </style>
 </head>
 <body>
-<script src="porta.js?v=86"></script>
+<script src="porta.js?v=115"></script>
 
 <header class="krye">
   <img class="krye-logo" id="logo" src="logo.png" alt="Stoku" title="Përmbledhja">
@@ -1171,6 +1174,7 @@
       <div class="karta fsheh" id="ekPaLidhje"><div class="bosh-mesazh" id="ekPaLidhjeTekst" style="padding:24px"></div></div>
 
       <div id="ekVPulti">
+        <div class="karta fsheh ek-pult-kerkesat" id="ekPultKerkesat"><div class="tk"><b id="ekPultKerkTitulli"></b><span id="ekPultKerkEmrat"></span></div><button class="btn tekst vogel" type="button" id="ekPultKerkShiko">Shiko</button><button class="btn vogel" type="button" id="ekPultKerkPrano">Prano krejt</button></div>
         <div class="kpi-rrjeti" id="ekPultKpi"></div>
         <div class="ek-pult-rrjeti">
           <div class="karta">
@@ -1652,8 +1656,8 @@
 <script src="bashkimi.js?v=113"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=90"></script>
-<script src="ekipa.js?v=3"></script>
-<script src="teRejat.js?v=114"></script>
+<script src="ekipa.js?v=4"></script>
+<script src="teRejat.js?v=115"></script>
 <script>
 (function () {
   'use strict';
@@ -4356,7 +4360,7 @@
     var qasja = lidhur ? ekK.gjendjaEQasjes() : '';
     $('ekPaLidhje').classList.toggle('fsheh', lidhur && qasja === 'ok');
     if (!lidhur) $('ekPaLidhjeTekst').textContent = !window.__stokuCloud ? 'Ekipa kërkon lidhje me internetin.' : 'Hyr me llogarinë tënde (lart djathtas) që ta shohësh ekipën.';
-    else if (qasja === 'ne-pritje') $('ekPaLidhjeTekst').textContent = 'Në pritje të miratimit: administratori duhet ta pranojë llogarinë tënde në ekipë. Sapo të pranohesh, Ekipa hapet vetë këtu. Stoku dhe afatet e tua punojnë si zakonisht.';
+    else if (qasja === 'ne-pritje') $('ekPaLidhjeTekst').textContent = 'Në pritje të miratimit: administratori duhet ta pranojë llogarinë tënde në ekipë (te Ekipa → Anëtarët). Sapo të pranohesh, Ekipa hapet vetë këtu. Stoku dhe afatet e tua punojnë si zakonisht.';
     else if (qasja !== 'ok') $('ekPaLidhjeTekst').textContent = 'Duke u lidhur me ekipën…';
     if (lidhur && qasja !== 'ok') lidhur = false;
     EK_NENET.forEach(function (n) { $(EK_PAMJET[n]).classList.toggle('fsheh', !lidhur || n !== ekNen); });
@@ -4382,6 +4386,18 @@
     var MUAJT = ['janar', 'shkurt', 'mars', 'prill', 'maj', 'qershor', 'korrik', 'gusht', 'shtator', 'tetor', 'nëntor', 'dhjetor'];
     $('ekNen').textContent = DITET[d.getDay()] + ', ' + d.getDate() + ' ' + MUAJT[d.getMonth()] + ' · ' + anetaret.length + (anetaret.length === 1 ? ' anëtar' : ' anëtarë') + ' · ' + (gati ? n.aktive + ' afate në raft' : 'duke ngarkuar…');
     function afatet(filtri) { return function () { ekV.anetari = 'krejt'; ekV.filtri = filtri; ekShkoTe('afatet'); }; }
+    // Administratori: llogaritë që presin miratimin — pa u pranuar, ato s'e shohin Ekipën
+    var kr = ekK.eshteAdmin() ? ekK.kerkesat() : [];
+    $('ekPultKerkesat').classList.toggle('fsheh', !kr.length);
+    if (kr.length) {
+      $('ekPultKerkTitulli').textContent = kr.length === 1 ? kr[0].emri + ' pret miratimin' : kr.length + ' llogari presin miratimin';
+      $('ekPultKerkEmrat').textContent = (kr.length === 1 ? 'Pa u pranuar' : kr.slice(0, 5).map(function (a) { return a.emri; }).join(', ') + (kr.length > 5 ? '…' : '') + ' — pa u pranuar') +
+        ' s\'e ' + (kr.length === 1 ? 'sheh' : 'shohin') + ' Ekipën (afatet e kolegëve, aktivitetin, chat-in).';
+      $('ekPultKerkPrano').textContent = kr.length === 1 ? '✓ Prano' : '✓ Prano krejt (' + kr.length + ')';
+      $('ekPultKerkPrano').disabled = false;
+      $('ekPultKerkPrano').onclick = function () { ekPrano(kr, $('ekPultKerkPrano')); };
+      $('ekPultKerkShiko').onclick = function () { ekShkoTe('anetaret'); };
+    }
     var r = $('ekPultKpi');
     r.textContent = '';
     r.appendChild(kpi('Të skaduara', gati ? num(n.skaduar) : '…', 'duhen hequr nga rafti', n.skaduar ? 'kritik' : null, IKONA.zero, afatet('skaduar')));

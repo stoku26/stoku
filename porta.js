@@ -20,6 +20,19 @@
   var CELESAT_E_TE_DHENAVE = ['stoku:foldera:v1', 'stoku:produktet:v2', 'stoku:produktet:v1', 'stoku:fshira:v1',
     'stoku:rendi-foldera-koha', 'stoku:afatet:v1'];
   var PRITJA_MAKS_MS = 7000;
+  var PRITJA_DERGIMIT_MS = 25000; // "Hyr" para se të ngarkohet Firebase (internet i ngadaltë): pritet deri kaq
+
+  // Firebase (v12) kërkon shfletues të ri (ES2020: Chrome/WebView 80+, Safari 13.1+). Në një shfletues të vjetër
+  // moduli i Firebase-it s'ngarkohet fare — kjo s'është mungesë interneti dhe përdoruesit i thuhet saktë.
+  var SHFLETUES_I_VJETER = (function () {
+    try { new Function('var a = null; return a?.b ?? 1;'); return false; } catch (e) { return true; }
+  })();
+  var MESAZHI_VJETER = 'Ky shfletues është shumë i vjetër për hyrjen në Stoku. Përditëso Chrome (dhe "Android System WebView" nga Play Store) ose Safari, pastaj hape sërish.';
+  function mesazhiPaLidhje() {
+    if (SHFLETUES_I_VJETER) return MESAZHI_VJETER;
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) return 'S\'ka lidhje me internetin. Hyrja e parë në këtë pajisje kërkon internet.';
+    return 'Lidhja me serverin po zgjat (internet i dobët?). Mund të provosh të hysh — pritet derisa të lidhet.';
+  }
 
   function lexo(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function shkruaj(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { /* ok */ } }
@@ -156,7 +169,14 @@
       case 'auth/network-request-failed': return 'S\'ka lidhje me internetin. Kontrollo internetin dhe provo përsëri.';
       case 'auth/user-disabled': return 'Kjo llogari është çaktivizuar. Kontakto administratorin.';
       case 'auth/operation-not-allowed': return 'Krijimi i llogarive s\'është i lejuar në Firebase (Authentication → Email/Password).';
-      default: return 'Diçka shkoi keq. Kontrollo internetin dhe provo përsëri.';
+      case 'auth/missing-password': return 'Shkruaj fjalëkalimin.';
+      case 'auth/internal-error': case 'auth/timeout': return 'Serveri s\'u përgjigj si duhet. Provo përsëri pas pak.';
+      case 'auth/quota-exceeded': return 'Shumë hyrje njëkohësisht në Stoku. Provo përsëri pas pak minuta.';
+      case 'auth/unauthorized-domain': case 'auth/invalid-api-key': case 'auth/app-not-authorized':
+        return 'Kjo adresë s\'lejohet për hyrje. Hape Stoku-n nga stoku.site. (' + kodi + ')';
+      default:
+        if (/^auth\/requests-from-referer|api-key-not-valid|blocked/.test(String(kodi))) return 'Kjo adresë s\'lejohet për hyrje. Hape Stoku-n nga stoku.site. (' + kodi + ')';
+        return 'Diçka shkoi keq. Kontrollo internetin dhe provo përsëri.' + (kodi ? ' (' + kodi + ')' : '');
     }
   }
 
@@ -173,13 +193,23 @@
     if (!fjalekalimi) { gabim.textContent = 'Shkruaj fjalëkalimin.'; $('pkFjalekalimi').focus(); return; }
     if (fjalekalimi.length < 6) { gabim.textContent = 'Fjalëkalimi duhet të ketë të paktën 6 shenja.'; $('pkFjalekalimi').focus(); return; }
     if (krijo && $('pkPerserit').value !== fjalekalimi) { gabim.textContent = 'Fjalëkalimet nuk përputhen.'; $('pkPerserit').focus(); return; }
-    var cloud = window.__stokuCloud;
-    if (!cloud || !cloud.hyr) { gabim.textContent = 'S\'ka lidhje me internetin. Kontrollo internetin dhe rifresko faqen.'; return; }
+    if (SHFLETUES_I_VJETER) { gabim.textContent = MESAZHI_VJETER; return; }
     gabim.textContent = '';
     gjendja.dukePunuar = true;
     var btn = $('pkDergo');
     btn.disabled = true;
     btn.innerHTML = '<span class="pk-rrotull"></span>' + (krijo ? 'Duke krijuar llogarinë…' : 'Duke hyrë…');
+    // Firebase ende s'është ngarkuar (internet i ngadaltë): prit pak në vend që të dështohet menjëherë
+    var cloud = window.__stokuCloud;
+    if (!cloud || !cloud.hyr) {
+      if (!window.__stokuCloudUNgarkua) cloud = await pritCloudin(PRITJA_DERGIMIT_MS);
+      if (!cloud || !cloud.hyr) {
+        gjendja.dukePunuar = false; btn.disabled = false; btn.textContent = krijo ? 'Krijo llogarinë' : 'Hyr';
+        gabim.textContent = navigator.onLine === false ? 'S\'ka lidhje me internetin. Kontrollo internetin dhe provo përsëri.'
+          : 'S\'u lidh me serverin. Kontrollo internetin, pastaj rifresko faqen dhe provo përsëri.';
+        return;
+      }
+    }
     var rez;
     try { rez = krijo ? await cloud.regjistrohu(emri, fjalekalimi) : await cloud.hyr(emri, fjalekalimi); }
     catch (e) { rez = { ok: false }; }
@@ -196,6 +226,17 @@
     shfaqPritjen(krijo ? 'Llogaria u krijua. Duke hapur…' : 'Duke hapur…');
     // Pjesa tjetër ndodh te "stoku-auth-ndryshoi" (Firebase e njofton hyrjen)
   });
+
+  // Pret ngarkimin e modulit të Firebase-it (ngjarja "stoku-cloud-gati"), deri në `ms`
+  function pritCloudin(ms) {
+    return new Promise(function (zgjidh) {
+      var u = false;
+      function mbaro() { if (u) return; u = true; window.removeEventListener('stoku-cloud-gati', mbaro); clearTimeout(k); zgjidh(window.__stokuCloud); }
+      window.addEventListener('stoku-cloud-gati', mbaro);
+      var k = setTimeout(mbaro, ms);
+    });
+  }
+  window.addEventListener('stoku-cloud-gati', function () { window.__stokuCloudUNgarkua = true; });
 
   // Tastet (shkurtoret e faqes) s'duhet të veprojnë pas portës
   window.addEventListener('keydown', function (ev) {
@@ -228,7 +269,10 @@
     var u = cloud.perdoruesiAktual && cloud.perdoruesiAktual();
     if (!u) {
       shkruaj(KEY_HYRJA, null); // pas "Dil" (ose kur hyrja ka skaduar) s'lejohet hyrja pa internet
-      if (!gjendja.eHapur) hap(); else if (!gjendja.dukePunuar) shfaqFormen($('pkGabim').textContent);
+      // Mesazhi "po zgjat / s'ka internet" s'vlen më: Firebase sapo u përgjigj
+      var m = gjendja.mesazhiLidhjes ? '' : $('pkGabim').textContent;
+      gjendja.mesazhiLidhjes = false;
+      if (!gjendja.eHapur) hap(); else if (!gjendja.dukePunuar) shfaqFormen(m);
       return;
     }
     // Të dhënat lokale i përkasin një llogarie tjetër? Hiqen para se faqja t'i sinkronizojë në
@@ -238,6 +282,9 @@
       if (ev && ev.stopImmediatePropagation) ev.stopImmediatePropagation();
       CELESAT_E_TE_DHENAVE.forEach(function (k) { shkruaj(k, null); });
       shkruaj(KEY_PRONARI, u.uid);
+      // Memoria e shfletuesit plot → shkrimi dështoi: pa këtë, faqja do të rifreskohej pafund (pronari s'ndryshon kurrë).
+      // Të dhënat e llogarisë tjetër u hoqën tashmë; pronari i zbrazët = "hyrja e parë" pas rifreskimit.
+      if (lexo(KEY_PRONARI) !== u.uid) shkruaj(KEY_PRONARI, null);
       shfaqPritjen('Duke hapur dyqanin tënd…');
       location.reload();
       return;
@@ -265,8 +312,9 @@
       mbyll(); // kjo pajisje ka qenë e kyçur — punohet lokalisht derisa të kthehet interneti
       return;
     }
-    shfaqFormen('S\'ka lidhje me internetin. Hyrja e parë në këtë pajisje kërkon internet.');
-  }, paInternet && fundit && fundit.uid && lexo(KEY_PRONARI) === fundit.uid ? 400 : PRITJA_MAKS_MS);
+    shfaqFormen(mesazhiPaLidhje());
+    gjendja.mesazhiLidhjes = !SHFLETUES_I_VJETER;
+  }, SHFLETUES_I_VJETER ? 0 : paInternet && fundit && fundit.uid && lexo(KEY_PRONARI) === fundit.uid ? 400 : PRITJA_MAKS_MS);
   if (window.__stokuCloud) kontrollo();
 
   window.StokuPorta = { eHapur: function () { return gjendja.eHapur; } };
