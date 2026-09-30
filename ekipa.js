@@ -131,7 +131,7 @@
         return fs.onSnapshot(fs.collection(db, 'perdoruesit'), function (s) {
           cb(listaNga(s).map(function (x) {
             return { uid: x.id, emri: x.perdoruesi || x.emri || x.id, aktivSe: x.aktivSe || x.kycurSe || 0, online: x.online === true,
-              platforma: x.platforma || '', kycurSe: x.kycurSe || 0, admin: x.emri === ADMIN_EMRI };
+              platforma: x.platforma || '', kycurSe: x.kycurSe || 0, admin: x.emri === ADMIN_EMRI, sasiaShpejte: x.sasiaShpejte === true };
           }));
         }, function (e) { if (cbGabim) cbGabim(e); });
       },
@@ -209,6 +209,40 @@
           await fs.setDoc(fs.doc(db, 'perdoruesit', uid()), { ekipaMigruarSe: Date.now() }, { merge: true });
           return { ok: true, n: n };
         } catch (e) { return gabim(e); }
+      },
+
+      // ---------- Administratori: leja e sasisë së shpejtë, njoftim për krejt ekipën, pastrimi ----------
+      vendosLejen: async function (u, po) {
+        try { await fs.setDoc(fs.doc(db, 'perdoruesit', u), { sasiaShpejte: !!po }, { merge: true }); return { ok: true }; } catch (e) { return gabim(e); }
+      },
+      // Njoftim te zilja e secilit (lista e uid-ve) + në aktivitet; kalon nga radha (s'humbet pa internet)
+      lajmeroEkipen: function (tekst, listaUid) {
+        tekst = String(tekst || '').trim().slice(0, 1000);
+        if (!tekst || !uid()) return Promise.resolve({ ok: false, arsye: 'bosh' });
+        var koha = Date.now();
+        (listaUid || []).forEach(function (u) {
+          if (u === uid()) return;
+          shtoNeRadhe(['perdoruesit', u, 'njoftimet'], { lloji: 'lajmerim', tekst: tekst, uid: uid(), emri: emri(), koha: koha, lexuar: false });
+        });
+        return pritPak(shtoNeRadhe(['ekipa_feed'], { lloji: 'lajmerim', tekst: tekst, uid: uid(), emri: emri(), koha: koha }));
+      },
+      // Fshin krejt dokumentet e një koleksioni (ekipa_chat / ekipa_feed), me grupe nga 400
+      pastroKoleksionin: async function (emriKol) {
+        var n = 0;
+        try {
+          for (var i = 0; i < 50; i++) {
+            var s = await fs.getDocs(fs.query(fs.collection(db, emriKol), fs.limit(400)));
+            if (s.empty) break;
+            var b = fs.writeBatch(db);
+            s.forEach(function (d) { b.delete(fs.doc(db, emriKol, d.id)); n++; });
+            await b.commit();
+          }
+          return { ok: true, n: n };
+        } catch (e) { var g = gabim(e); g.n = n; return g; }
+      },
+      // Përmbledhja e afateve të një kolegu, pasi administratori ia ndryshoi afatet
+      publikoAfatetPer: async function (u, emriPronarit, afatet) {
+        try { await fs.setDoc(fs.doc(db, 'ekipa_afatet', u), { uid: u, emri: emriPronarit || '', afatet: afatet, ndryshuarSe: Date.now() }); return { ok: true }; } catch (e) { return gabim(e); }
       },
 
       // ---------- Përmbledhja e afateve (ekipa_afatet/{uid}) ----------
@@ -382,6 +416,43 @@
     return (h >>> 0).toString(36) + ':' + s.length;
   }
 
+  // Administratori ndryshon një afat të një kolegu direkt në dyqanin e tij: kthen gjendjen e re (ose null nëse s'u gjet).
+  // veprimi: 'hiq' (shëno të hequr) | 'kthe' (ktheje në raft) | 'fshij'
+  function ndryshoAfatinNeGjendje(gjendja, afatId, veprimi, emriAdminit, tani) {
+    tani = tani || Date.now();
+    var g = Object.assign({}, gjendja || {});
+    var afatet = Array.isArray(g.afatet) ? g.afatet : [];
+    if (!afatet.some(function (a) { return a && a.id === afatId; })) return null;
+    if (veprimi === 'fshij') {
+      g.afatet = afatet.filter(function (a) { return a.id !== afatId; });
+      var f = Object.assign({ produktet: {}, foldera: {}, afatet: {} }, g.fshira || {});
+      f.afatet = Object.assign({}, f.afatet || {});
+      f.afatet[afatId] = tani;
+      g.fshira = f;
+    } else {
+      g.afatet = afatet.map(function (a) {
+        if (a.id !== afatId) return a;
+        return veprimi === 'kthe'
+          ? Object.assign({}, a, { statusi: 'aktiv', hequrSe: 0, hequrNga: '', ndryshuarSe: tani })
+          : Object.assign({}, a, { statusi: 'hequr', hequrSe: tani, hequrNga: emriAdminit || '', ndryshuarSe: tani });
+      });
+    }
+    return g;
+  }
+  var FJALA_E_VEPRIMIT = { hiq: 'e hoqi nga rafti', kthe: 'e ktheu në raft', fshij: 'e fshiu' };
+
+  // Fletët e Excel-it për stokun e një anëtari (xlsx.js buildWorkbook)
+  function fletetEStokut(emriAnetarit, produktet, foldera) {
+    var emriF = {};
+    (foldera || []).forEach(function (f) { emriF[f.id] = f.emri; });
+    var rreshtat = (produktet || []).slice().sort(function (a, b) {
+      return String(emriF[a.kategoriaId] || '').localeCompare(String(emriF[b.kategoriaId] || ''), 'sq') || String(a.emri || '').localeCompare(String(b.emri || ''), 'sq');
+    }).map(function (p) { return [p.barkodi, p.emri || '', emriF[p.kategoriaId] || 'Pa folder', p.sasia | 0, p.prekurSe || '']; });
+    return [{ name: String(emriAnetarit || 'Stoku').slice(0, 28), totalLabel: 'Gjithsej', totalColumns: [3], redZeroColumn: 3, rows: rreshtat, columns: [
+      { title: 'Barkodi', width: 20, type: 'text' }, { title: 'Emri i produktit', width: 44, type: 'text' },
+      { title: 'Folderi', width: 20, type: 'text' }, { title: 'Sasia', width: 10, type: 'number' }, { title: 'Ndryshuar më', width: 18, type: 'date' }] }];
+  }
+
   var RENDI_STATUSIT = { skaduar: 4, 'pa-date': 3, afer: 2, ok: 1, hequr: 0 };
   function statusiMeIKeq(lista) {
     var m = null;
@@ -484,6 +555,11 @@
             detaje: 'pranuar nga ' + (ng.uid === uidIm ? 'ti' : (ng.emri || 'administratori')), avatar: ng.anetariEmri || '' };
         }
         return { lloji: 'anetar-i-ri', kush: kush, cfare: ng.uid === uidIm ? 'u bashkove me ekipën' : 'u bashkua me ekipën', detaje: '' };
+      case 'lajmerim':
+        return { lloji: 'lajmerim', kush: kush, cfare: ng.uid === uidIm ? 'njoftove krejt ekipën' : 'njoftoi krejt ekipën', detaje: ng.tekst || '' };
+      case 'admin-afat':
+        return { lloji: 'admin-afat', kush: kush, cfare: (FJALA_E_VEPRIMIT[ng.veprimi] || 'ndryshoi') + ': ' + (ng.produkti || ng.barkodi || 'produkt'),
+          detaje: ng.pronariUid === uidIm ? 'produkt i yti' : 'i përket: ' + (ng.pronariEmri || 'kolegut') };
       default:
         return { lloji: ng.lloji || '', kush: kush, cfare: ng.tekst || '', detaje: '' };
     }
@@ -496,6 +572,8 @@
       return (nj.emri || 'Një koleg') + ' e hoqi nga rafti: ' + (nj.produkti || nj.barkodi || 'produkt') +
         (nj.data && A ? ' (skadoi më ' + A.formato(nj.data) + ')' : '');
     }
+    if (nj.lloji === 'lajmerim') return (nj.emri || 'Administratori') + ': ' + (nj.tekst || '');
+    if (nj.lloji === 'admin-afat') return (nj.emri || 'Administratori') + ' ' + (FJALA_E_VEPRIMIT[nj.veprimi] || 'ndryshoi') + ': ' + (nj.produkti || nj.barkodi || 'produkt');
     return nj.tekst || '';
   }
 
@@ -637,6 +715,55 @@
       var e = E();
       if (!e || !gj.admin || !a || a.uid === o.uidIm()) return { ok: false };
       return e.hiqNgaEkipa(a.uid);
+    }
+    // Administratori: leja e butonave +/- (sasia e shpejtë) për një anëtar
+    async function vendosLejen(a, po) {
+      var e = E();
+      if (!e || !gj.admin || !e.vendosLejen) return { ok: false };
+      return e.vendosLejen(a.uid, po);
+    }
+    // Administratori: njoftim te zilja e krejt anëtarëve
+    async function lajmeroEkipen(tekst) {
+      var e = E();
+      if (!e || !gj.admin || !e.lajmeroEkipen) return { ok: false };
+      return e.lajmeroEkipen(tekst, anetaretEDukshem().map(function (a) { return a.uid; }));
+    }
+    async function pastro(emriKol) {
+      var e = E();
+      if (!e || !gj.admin || !e.pastroKoleksionin) return { ok: false };
+      return e.pastroKoleksionin(emriKol);
+    }
+    // Administratori: stoku i plotë i një anëtari (vetëm lexim)
+    async function merrStokun(uid) {
+      var c = o.cloud && o.cloud();
+      if (!c || !c.merrDyqaninEPerdoruesit || !gj.admin) return { ok: false };
+      if (uid === o.uidIm() && o.stokuIm) return { ok: true, produktet: o.stokuIm().produktet, foldera: o.stokuIm().foldera };
+      var r = await c.merrDyqaninEPerdoruesit(uid);
+      if (!r || !r.ok) return { ok: false, kodi: r && r.kodi };
+      return { ok: true, produktet: (r.gjendja && r.gjendja.produktet) || [], foldera: (r.gjendja && r.gjendja.foldera) || [] };
+    }
+    // Administratori: heq / kthen / fshin një afat të një kolegu direkt në dyqanin e tij; pronari njoftohet
+    async function adminNdryshoAfatin(afat, veprimi) {
+      var c = o.cloud && o.cloud(), e = E();
+      if (!c || !c.ndryshoDyqaninEPerdoruesit || !e || !gj.admin || !afat || afat.pronariUid === o.uidIm()) return { ok: false };
+      var uGjet = true;
+      var r = await c.ndryshoDyqaninEPerdoruesit(afat.pronariUid, function (gjendja) {
+        var g = ndryshoAfatinNeGjendje(gjendja, afat.id, veprimi, o.emriIm());
+        if (!g) { uGjet = false; return gjendja; }
+        return g;
+      });
+      if (!r || !r.ok) return r || { ok: false };
+      if (!uGjet) return { ok: false, arsye: 'nuk-u-gjet' };
+      var p = permbledhjaEAfateve((r.gjendja && r.gjendja.afatet) || []);
+      if (!gj.permbledhjet) gj.permbledhjet = {};
+      gj.permbledhjet[afat.pronariUid] = { emri: afat.pronariEmri || '', afatet: p, ndryshuarSe: Date.now() };
+      if (gj.dyqanet[afat.pronariUid]) gj.dyqanet[afat.pronariUid] = { afatet: (r.gjendja && r.gjendja.afatet) || [], merrurSe: Date.now() };
+      thirr('dyqanet');
+      if (e.publikoAfatetPer) e.publikoAfatetPer(afat.pronariUid, afat.pronariEmri || '', p);
+      var te = { lloji: 'admin-afat', veprimi: veprimi, afatId: afat.id, produkti: afat.emri || afat.barkodi || '', barkodi: afat.barkodi || '', data: afat.data || '' };
+      e.dergoNjoftim(afat.pronariUid, te);
+      e.shtoNgjarje(Object.assign({ pronariUid: afat.pronariUid, pronariEmri: afat.pronariEmri || '' }, te));
+      return { ok: true };
     }
 
     // ---------- Gjithmonë, sa kohë je i kyçur ----------
@@ -974,7 +1101,10 @@
       eshteAdmin: function () { return !!gj.admin; },
       kerkesat: kerkesat,
       numriKerkesave: function () { return gj.admin ? gj.nKerkesa : 0; },
-      pranoAnetaret: pranoAnetaret, hiqNgaEkipa: hiqNgaEkipa
+      pranoAnetaret: pranoAnetaret, hiqNgaEkipa: hiqNgaEkipa,
+      vendosLejen: vendosLejen, lajmeroEkipen: lajmeroEkipen,
+      pastroChatin: function () { return pastro('ekipa_chat'); }, pastroAktivitetin: function () { return pastro('ekipa_feed'); },
+      merrStokun: merrStokun, adminNdryshoAfatin: adminNdryshoAfatin
     };
   }
 
@@ -984,6 +1114,7 @@
     eshteOnline: eshteOnline, kohaRelative: kohaRelative, titulliDites: titulliDites,
     tekstiPranise: tekstiPranise, tekstiPlatformes: tekstiPlatformes,
     ADMIN_EMRI: ADMIN_EMRI, permbledhjaEAfateve: permbledhjaEAfateve, nenshkrimi: nenshkrimi,
+    ndryshoAfatinNeGjendje: ndryshoAfatinNeGjendje, fletetEStokut: fletetEStokut,
     hartaEHeqjeve: hartaEHeqjeve, mbivendosHeqjen: mbivendosHeqjen, duhetZbatuarHeqja: duhetZbatuarHeqja,
     kalendari: kalendari, statistikat: statistikat, tekstiNgjarjes: tekstiNgjarjes, tekstiNjoftimit: tekstiNjoftimit,
     isoDites: isoDites
