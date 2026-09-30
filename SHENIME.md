@@ -150,7 +150,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
     - **Emrat s'falsifikohen (rregullat v110):** `emri` te aktiviteti/chat-i/njoftimet dhe `perdoruesi` te
       `perdoruesit/{uid}` duhet të jenë = emri i llogarisë (`request.auth.token.email`). Admin-i mund të fshijë
       çdo mesazh të chat-it.
-    - Heqja e mbivendosur (`mbivendosHeqjen`) vlen vetëm për afate të SKADUARA — njësoj si `duhetZbatuarHeqja`. Telefon: tabi i tretë `#btnEkipi`/`#dlgEkipi`; PC: seksioni i tretë i akordionit
+    - Heqja e mbivendosur (`mbivendosHeqjen`) vlen vetëm për afate të SKADUARA — njësoj si `duhetZbatuarHeqja`.
+    - **Administratori 100% (v112)** — vetëm `mendurberisha` (`ekK.eshteAdmin()`): (1) pamja "Stoku" (tel: çipi
+      `#ekChipStoku`, PC: segmenti `#ekSegStoku`, `#/ekipa/stoku`) — stoku i plotë i secilit, vetëm lexim, + Excel
+      (`fletetEStokut`); (2) te afatet e kolegëve: "Shëno të hequr"/"Ktheje"/"Fshije" (`adminNdryshoAfatin` →
+      `__stokuCloud.ndryshoDyqaninEPerdoruesit(uid, fn)` = transaksion direkt në dyqanin e tij, `ndryshoAfatinNeGjendje`
+      me `ndryshuarSe`/tombstone që bashkimi te pronari ta pranojë; pastaj ripublikon `ekipa_afatet/{uid}` dhe e
+      njofton pronarin `lloji:'admin-afat'`); (3) te Anëtarët: leja +/- për secilin (`perdoruesit/{uid}.sasiaShpejte`,
+      `false` = e hequr qëllimisht — "fara" me emër s'e rikthen; lokalisht `stoku:leja:sasia-shpejte = '!uid'`; vlen
+      herën tjetër që hapet aplikacioni); (4) njoftim për krejt ekipën (`lloji:'lajmerim'` te zilja e secilit + aktiviteti)
+      dhe "Pastro krejt chat-in/aktivitetin". Testi: `ekipa-admin-test.js` (scratchpad). Telefon: tabi i tretë `#btnEkipi`/`#dlgEkipi`; PC: seksioni i tretë i akordionit
     (`#btnAkordEkipi`) me nën-zëra `[data-ek]`, faqja `#pamjaEkipi`, adresa `#/ekipa[/<nën-pamja>]`
     (`#/ekipi` i vjetër pranohet). ID-të e brendshme mbetën "ekipi" — vetëm tekstet u bënë "Ekipa".
     - **`ekipa.js` (i ri, i përbashkët tel+PC)**: (1) `krijoCloud(fs, db, auth, platforma)` → `__stokuCloud.ekipa`
@@ -335,7 +344,7 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
-## Rregullat e Firestore — "Ekipa" (v110) — i vendos PËRDORUESI (unë s'kam qasje)
+## Rregullat e Firestore — "Ekipa" (v112) — i vendos PËRDORUESI (unë s'kam qasje)
 
 Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Krahasuar me v109: dyqani lexohet
 vetëm nga pronari/admin-i; Ekipa (anëtarët, aktiviteti, chat-i, `ekipa_afatet`) vetëm nga anëtarët e pranuar
@@ -372,10 +381,11 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == uid
         && !request.resource.data.keys().hasAny(['emri'])
         && (!('perdoruesi' in request.resource.data) || request.resource.data.perdoruesi == emriIm());
-      allow update: if request.auth != null && request.auth.uid == uid
+      allow update: if request.auth != null && ((request.auth.uid == uid
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['emri'])
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['perdoruesi'])
-            || request.resource.data.perdoruesi == emriIm());
+            || request.resource.data.perdoruesi == emriIm()))
+        || (eshteAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sasiaShpejte'])));
       match /njoftimet/{nid} {
         allow read, update, delete: if request.auth != null && request.auth.uid == uid;
         allow create: if request.auth != null && neEkipe()
@@ -388,8 +398,7 @@ service cloud.firestore {
     }
     match /ekipa_afatet/{uid} {
       allow read: if request.auth != null && neEkipe();
-      allow create, update: if request.auth != null && request.auth.uid == uid;
-      allow delete: if request.auth != null && (request.auth.uid == uid || eshteAdmin());
+      allow write: if request.auth != null && (request.auth.uid == uid || eshteAdmin());
     }
     match /ekipa_feed/{id} {
       allow read: if request.auth != null && neEkipe();

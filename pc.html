@@ -285,6 +285,11 @@
   #ekTabKerkesat td { vertical-align: middle; }
   #ekTabAnetaret .k-sas { width: 112px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
   #ekTabAnetaret td.k-gri { color: var(--gri); }
+  #ekTabAnetaret .k-leja { width: 70px; text-align: center; }
+  #ekTabAnetaret .k-leja input { width: 18px; height: 18px; accent-color: var(--primar); cursor: pointer; }
+  #ekStokTabela .k-sas { width: 110px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  #ekStokTabela tbody tr { cursor: default; }
+  #ekTabela .k-av .btn + .btn { margin-left: 4px; }
   #ekTabAnetaret .k-av, #ekTabKerkesat .k-av { width: 140px; text-align: right; padding-right: 12px; overflow: visible; }
   .ek-ne-linje { color: #1e8e3e; font-weight: 700; }
   .ek-anetar-qeliza { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
@@ -1147,6 +1152,7 @@
         <button type="button" data-n="kalendari">Kalendari</button>
         <button type="button" data-n="anetaret">Anëtarët</button>
         <button type="button" data-n="statistika">Statistika</button>
+        <button type="button" data-n="stoku" id="ekSegStoku" hidden>Stoku</button>
       </div>
       <div class="karta fsheh" id="ekPaLidhje"><div class="bosh-mesazh" id="ekPaLidhjeTekst" style="padding:24px"></div></div>
 
@@ -1203,9 +1209,40 @@
         </div>
         <div class="tabela-mbajtese">
           <table class="tabela" id="ekTabAnetaret">
-            <thead><tr><th>Anëtari</th><th>Statusi</th><th class="k-sas">Në raft</th><th class="k-sas">Të skaduara</th><th class="k-sas">Afër skadimit</th><th class="k-sas">Hequr (30 ditë)</th><th class="k-av" id="ekKolVeprime"></th></tr></thead>
+            <thead><tr><th>Anëtari</th><th>Statusi</th><th class="k-sas">Në raft</th><th class="k-sas">Të skaduara</th><th class="k-sas">Afër skadimit</th><th class="k-sas">Hequr (30 ditë)</th><th class="k-leja" id="ekKolLeja" title="Butonat +/- te lista (sasia e shpejtë)"></th><th class="k-av" id="ekKolVeprime"></th></tr></thead>
             <tbody id="ekAnetaretTrup"></tbody>
           </table>
+        </div>
+        <div class="karta fsheh" id="ekAdminPanel" style="margin-top:16px">
+          <div class="karta-krye"><h2>Administratori</h2></div>
+          <div class="karta-trup">
+            <label class="fushe"><span>Njoftim për krejt ekipën (i del secilit te zilja)</span>
+              <textarea class="inp" id="ekAdminTekst" rows="3" maxlength="1000" placeholder="Shkruaj njoftimin…"></textarea></label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+              <button class="btn" type="button" id="ekAdminDergo">Dërgo te krejt ekipa</button>
+              <span style="flex:1"></span>
+              <button class="btn tekst rrezik" type="button" id="ekAdminPastroChat">Pastro krejt chat-in</button>
+              <button class="btn tekst rrezik" type="button" id="ekAdminPastroAkt">Pastro krejt aktivitetin</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="ekVStoku" class="fsheh">
+        <div class="kpi-rrjeti" id="ekStokAnetaret"></div>
+        <div class="mjetet">
+          <div class="kuti-fushe">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>
+            <input id="ekStokKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko emër, barkod ose folder…">
+          </div>
+          <button class="btn dyte" type="button" id="ekStokExcel">Shkarko Excel</button>
+        </div>
+        <div class="tabela-mbajtese">
+          <table class="tabela" id="ekStokTabela">
+            <thead><tr><th>Produkti</th><th>Barkodi</th><th>Folderi</th><th class="k-sas">Sasia</th></tr></thead>
+            <tbody id="ekStokTrup"></tbody>
+          </table>
+          <div class="tabela-bosh fsheh" id="ekStokBosh"></div>
         </div>
       </div>
 
@@ -1590,8 +1627,8 @@
 <script src="bashkimi.js?v=81"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=90"></script>
-<script src="ekipa.js?v=2"></script>
-<script src="teRejat.js?v=111"></script>
+<script src="ekipa.js?v=3"></script>
+<script src="teRejat.js?v=112"></script>
 <script>
 (function () {
   'use strict';
@@ -1851,6 +1888,7 @@
     if (!u) return false;
     var ruajtur = null;
     try { ruajtur = localStorage.getItem('stoku:leja:sasia-shpejte'); } catch (e) { /* ok */ }
+    if (ruajtur === '!' + u.uid) return false; // administratori ia hoqi lejen
     return ruajtur === u.uid || SASIA_SHPEJTE_EMRAT.indexOf(emriPerdoruesit().toLowerCase()) !== -1;
   }
   window.addEventListener('stoku-leja-ndryshoi', function () { rivizato(); });
@@ -4198,9 +4236,9 @@
   // Logjika e përbashkët (Firestore, prania, kalendari, statistikat) është te ekipa.js; këtu vetëm vizatimi,
   // me pjesët e PC-së (kpi, segmente, tabela, karta, shiritat e Përmbledhjes). Vetëm afatet — jo stoku.
   var EKL = window.StokuEkipa;
-  var EK_NENET = ['afatet', 'aktiviteti', 'chat', 'kalendari', 'anetaret', 'statistika'];
-  var EK_PAMJET = { afatet: 'ekVAfatet', aktiviteti: 'ekVAktiviteti', chat: 'ekVChat', kalendari: 'ekVKalendari', anetaret: 'ekVAnetaret', statistika: 'ekVStatistika' };
-  var EK_TITUJT = { afatet: 'Afatet e ekipës', aktiviteti: 'Aktiviteti', chat: 'Chat', kalendari: 'Kalendari', anetaret: 'Anëtarët', statistika: 'Statistika' };
+  var EK_NENET = ['afatet', 'aktiviteti', 'chat', 'kalendari', 'anetaret', 'statistika', 'stoku'];
+  var EK_PAMJET = { afatet: 'ekVAfatet', aktiviteti: 'ekVAktiviteti', chat: 'ekVChat', kalendari: 'ekVKalendari', anetaret: 'ekVAnetaret', statistika: 'ekVStatistika', stoku: 'ekVStoku' };
+  var EK_TITUJT = { afatet: 'Afatet e ekipës', aktiviteti: 'Aktiviteti', chat: 'Chat', kalendari: 'Kalendari', anetaret: 'Anëtarët', statistika: 'Statistika', stoku: 'Stoku i anëtarëve' };
   var ekNen = 'afatet';
   var ekV = { anetari: 'krejt', filtri: '', kerkimi: '', kal: null };
   var EK_LIMITI = 500;
@@ -4275,6 +4313,9 @@
   function ekVizato(rifreskim) {
     Array.prototype.forEach.call(document.querySelectorAll('#ekMenu button'), function (b) { b.classList.toggle('aktiv', b.dataset.n === ekNen); });
     $('ekChatBtn').classList.toggle('aktiv', ekNen === 'chat');
+    var admin = !!(ekK && ekK.eshteAdmin());
+    $('ekSegStoku').hidden = !admin;
+    if (ekNen === 'stoku' && !admin) ekNen = 'afatet';
     var lidhur = !!(ekK && ekK.kaLidhje());
     var qasja = lidhur ? ekK.gjendjaEQasjes() : '';
     $('ekPaLidhje').classList.toggle('fsheh', lidhur && qasja === 'ok');
@@ -4292,6 +4333,7 @@
     else if (ekNen === 'kalendari') ekVKalendari(anetaret);
     else if (ekNen === 'anetaret') ekVAnetaret(anetaret);
     else if (ekNen === 'statistika') ekVStatistika(anetaret);
+    else if (ekNen === 'stoku') ekVStoku(anetaret);
     else ekVAfatet(anetaret);
   }
 
@@ -4389,8 +4431,32 @@
       b.addEventListener('click', function (ev) { ev.stopPropagation(); ekHeq(x, b); });
       tv.appendChild(b);
     }
+    var uIm = perdoruesi();
+    if (ekK && ekK.eshteAdmin() && x.pronariUid && uIm && x.pronariUid !== uIm.uid) {
+      if (st === 'hequr') tv.appendChild(ekBtnAdmin('Ktheje', x, 'kthe'));
+      else if (st !== 'skaduar') tv.appendChild(ekBtnAdmin('Hiqe', x, 'hiq'));
+      tv.appendChild(ekBtnAdmin('Fshije', x, 'fshij'));
+    }
     tr.appendChild(tv);
     return tr;
+  }
+  // Administratori: ndryshon direkt afatin e një kolegu (pronari njoftohet)
+  function ekBtnAdmin(tekst, a, veprimi) {
+    var b = el('button', 'btn af-btn ' + (veprimi === 'fshij' ? 'tekst rrezik' : 'dyte'), tekst); b.type = 'button';
+    b.title = 'Administratori: ' + tekst.toLowerCase() + ' afatin e ' + (a.pronariEmri || 'kolegut') + ' — pronari njoftohet';
+    b.addEventListener('click', function (ev) { ev.stopPropagation(); ekAdminAfat(a, veprimi, b); });
+    return b;
+  }
+  async function ekAdminAfat(a, veprimi, btn) {
+    var emri = a.emri || a.barkodi || 'produkti';
+    var tx = { hiq: ['Të shënohet si i hequr?', 'shënohet si i hequr nga rafti', 'Po, hiqe'],
+      kthe: ['Të kthehet në raft?', 'kthehet si aktiv në raft', 'Po, ktheje'], fshij: ['Të fshihet afati?', 'fshihet krejt', 'Fshije'] }[veprimi];
+    var po = await konfirmo(tx[0], '"' + emri + '" (i përket: ' + (a.pronariEmri || 'kolegut') + ') ' + tx[1] + '. ' + (a.pronariEmri || 'Pronari') + ' njoftohet.', tx[2]);
+    if (!po) return;
+    if (btn) btn.disabled = true;
+    var r = await ekK.adminNdryshoAfatin(a, veprimi);
+    if (!r.ok) { if (btn) btn.disabled = false; toast(r.arsye === 'nuk-u-gjet' ? 'Ky afat s\'ekziston më.' : 'S\'u ndryshua. Kontrollo internetin dhe provo përsëri.'); return; }
+    toast('"' + emri + '" u ' + (veprimi === 'fshij' ? 'fshi' : veprimi === 'kthe' ? 'kthye në raft' : 'shënua si i hequr') + '. ' + (a.pronariEmri || 'Pronari') + ' u njoftua.');
   }
   // "Unë e hoqa": i imi → si te Afatet; i kolegut → njoftim te pronari + aktiviteti
   async function ekHeq(a, btn) {
@@ -4592,6 +4658,8 @@
       tk.appendChild(tr);
     });
     $('ekKolVeprime').textContent = '';
+    $('ekKolLeja').textContent = admin ? '+/-' : '';
+    $('ekAdminPanel').classList.toggle('fsheh', !admin);
     var t = $('ekAnetaretTrup');
     t.textContent = '';
     anetaret.forEach(function (a) {
@@ -4611,6 +4679,21 @@
       tr.appendChild(el('td', 'k-sas' + (n.skaduar ? ' ek-kuqe' : ''), num(n.skaduar)));
       tr.appendChild(el('td', 'k-sas', num(n.afer)));
       tr.appendChild(el('td', 'k-sas', num(h30)));
+      var tl = el('td', 'k-leja');
+      if (admin && !a.uneJam) {
+        var cb = el('input'); cb.type = 'checkbox'; cb.checked = !!a.sasiaShpejte;
+        cb.title = 'Butonat +/- te lista (sasia e shpejtë) për ' + a.emri;
+        cb.addEventListener('click', function (ev) { ev.stopPropagation(); });
+        cb.addEventListener('change', async function () {
+          cb.disabled = true;
+          var r = await ekK.vendosLejen(a, cb.checked);
+          cb.disabled = false;
+          if (!r.ok) { cb.checked = !cb.checked; toast('S\'u ndryshua leja. Kontrollo internetin.'); return; }
+          toast(a.emri + (cb.checked ? ' tani i ka' : ' s\'i ka më') + ' butonat +/- (herën tjetër që e hap Stoku-n).');
+        });
+        tl.appendChild(cb);
+      }
+      tr.appendChild(tl);
       var tv = el('td', 'k-av');
       if (admin && !a.uneJam) {
         var hq = el('button', 'btn tekst rrezik vogel', 'Hiq nga ekipa'); hq.type = 'button';
@@ -4623,6 +4706,92 @@
       t.appendChild(tr);
     });
   }
+
+  // ---- Paneli i administratorit ----
+  $('ekAdminDergo').addEventListener('click', async function () {
+    var ta = $('ekAdminTekst'), t = ta.value.trim();
+    if (!t) { ta.focus(); return; }
+    this.disabled = true;
+    var r = await ekK.lajmeroEkipen(t);
+    this.disabled = false;
+    if (!r.ok) { toast('Njoftimi s\'u dërgua. Kontrollo internetin dhe provo përsëri.'); return; }
+    ta.value = '';
+    toast('Njoftimi u dërgua te krejt ekipa' + (r.neRadhe ? ' (sapo të ketë internet).' : '.'));
+  });
+  [['ekAdminPastroChat', 'Të fshihet krejt chat-i?', 'Krejt mesazhet e chat-it fshihen për krejt ekipën. S\'kthehen më.', function () { return ekK.pastroChatin(); }],
+   ['ekAdminPastroAkt', 'Të fshihet krejt aktiviteti?', 'Krejt historiku i aktivitetit fshihet për krejt ekipën. Afatet s\'preken.', function () { return ekK.pastroAktivitetin(); }]].forEach(function (x) {
+    $(x[0]).addEventListener('click', async function () {
+      var b = this;
+      var po = await konfirmo(x[1], x[2], 'Fshij krejt');
+      if (!po) return;
+      b.disabled = true;
+      var r = await x[3]();
+      b.disabled = false;
+      toast(r.ok ? 'U fshinë ' + r.n + ' rreshta.' : 'S\'u fshi krejt. Kontrollo internetin dhe provo përsëri.');
+    });
+  });
+
+  // ---- Stoku i krejt anëtarëve (vetëm administratori, vetëm lexim) ----
+  var ekStoku = { uid: null, te: {}, duke: {} };
+  function ekVStoku(anetaret) {
+    if (!ekStoku.uid || !anetaret.some(function (a) { return a.uid === ekStoku.uid; })) ekStoku.uid = anetaret.length ? anetaret[0].uid : null;
+    var r = $('ekStokAnetaret');
+    r.textContent = '';
+    anetaret.forEach(function (x) {
+      var d = ekStoku.te[x.uid];
+      var k = kpi(x.emri, d && d.ok ? num(d.produktet.length) : '…', 'produkte', null, null, function () { ekHapStokun(x.uid); });
+      k.classList.add('ek-anetar');
+      if (ekStoku.uid === x.uid) k.classList.add('zgjedhur');
+      if (x.uneJam) k.querySelector('.kpi-etik').appendChild(el('span', 'ek-ti', 'ti'));
+      r.appendChild(k);
+    });
+    if (ekStoku.uid && !ekStoku.te[ekStoku.uid]) ekHapStokun(ekStoku.uid, true);
+    ekTabelaEStokut();
+  }
+  function ekTabelaEStokut() {
+    var d = ekStoku.te[ekStoku.uid], trup = $('ekStokTrup'), bosh = $('ekStokBosh');
+    trup.textContent = '';
+    bosh.classList.remove('fsheh');
+    if (!d) { bosh.textContent = 'Duke ngarkuar stokun…'; return; }
+    if (!d.ok) { bosh.textContent = 'S\'u lexua stoku. Kontrollo internetin (ose rregullat e Firebase-it).'; return; }
+    var emriF = {}; d.foldera.forEach(function (f) { emriF[f.id] = f.emri; });
+    var k = $('ekStokKerko').value.trim().toLowerCase();
+    var te = d.produktet.filter(function (p) { return !k || ((p.emri || '') + ' ' + p.barkodi + ' ' + (emriF[p.kategoriaId] || '')).toLowerCase().indexOf(k) !== -1; })
+      .sort(function (a, b) { return String(a.emri || '').localeCompare(String(b.emri || ''), 'sq'); });
+    if (!te.length) { bosh.textContent = k ? 'Asgjë s\'u gjet për "' + k + '".' : 'Stoku është bosh.'; return; }
+    bosh.classList.add('fsheh');
+    var frag = document.createDocumentFragment();
+    te.slice(0, EK_LIMITI).forEach(function (p) {
+      var tr = el('tr');
+      tr.appendChild(el('td', null, p.emri || '(pa emër)'));
+      tr.appendChild(el('td', 'mono', p.barkodi));
+      tr.appendChild(el('td', null, emriF[p.kategoriaId] || 'Pa folder'));
+      tr.appendChild(el('td', 'k-sas' + ((p.sasia | 0) <= 0 ? ' ek-kuqe' : ''), num(p.sasia | 0)));
+      frag.appendChild(tr);
+    });
+    trup.appendChild(frag);
+    if (te.length > EK_LIMITI) { bosh.textContent = 'Shfaqen ' + num(EK_LIMITI) + ' nga ' + num(te.length) + ' — kërko për t\'i gjetur të tjerat.'; bosh.classList.remove('fsheh'); }
+  }
+  // Klikimi e rilexon gjithmonë (stoku i freskët); vizatimi e lexon vetëm herën e parë
+  async function ekHapStokun(uid, ngaVizatimi) {
+    ekStoku.uid = uid;
+    if (!ngaVizatimi) ekVizato(true);
+    if (ekStoku.duke[uid]) return;
+    ekStoku.duke[uid] = true;
+    var r = await ekK.merrStokun(uid);
+    delete ekStoku.duke[uid];
+    ekStoku.te[uid] = r.ok ? { ok: true, produktet: r.produktet, foldera: r.foldera } : { ok: false };
+    if (pamja === 'ekipi' && ekNen === 'stoku') ekVizato(true);
+  }
+  $('ekStokKerko').addEventListener('input', ekTabelaEStokut);
+  $('ekStokExcel').addEventListener('click', function () {
+    var d = ekStoku.te[ekStoku.uid];
+    var a = (ekK ? ekK.anetaretMeAfate() : []).filter(function (x) { return x.uid === ekStoku.uid; })[0];
+    if (!d || !d.ok || !a) return;
+    var emriSk = 'stoku_' + slug(a.emri) + '_' + vulaKohore(true) + '.xlsx';
+    shkarko(window.StokuXlsx.buildWorkbook(EKL.fletetEStokut(a.emri, d.produktet, d.foldera)), emriSk, MIME_XLSX);
+    toast('U shkarkua: ' + emriSk);
+  });
 
   // ---- Administratori: prano / hiq nga ekipa ----
   async function ekPrano(lista, btn) {
@@ -5756,12 +5925,20 @@
       try {
         var ref = doc(db, 'perdoruesit', uid);
         var te = { perdoruesi: emri, kycurSe: Date.now() };
-        var ka = false;
-        try { var s0 = await getDoc(ref); ka = !!(s0.exists() && s0.data().sasiaShpejte === true); } catch (e) { /* ok */ }
-        if (!ka && EMRAT_FARE_SASIA.indexOf(emri) !== -1) { te.sasiaShpejte = true; ka = true; }
+        var ka = false, hequr = false;
+        try {
+          var s0 = await getDoc(ref);
+          var d0 = s0.exists() ? s0.data() : {};
+          ka = d0.sasiaShpejte === true;
+          hequr = d0.sasiaShpejte === false; // administratori ia hoqi lejen — "fara" me emër s'e rikthen
+        } catch (e) { /* ok */ }
+        if (!ka && !hequr && EMRAT_FARE_SASIA.indexOf(emri) !== -1) { te.sasiaShpejte = true; ka = true; }
         await setDoc(ref, te, { merge: true });
-        if (ka) {
-          try { localStorage.setItem('stoku:leja:sasia-shpejte', uid); } catch (e) { /* ok */ }
+        var vlera = ka ? uid : hequr ? '!' + uid : null;
+        var para = null;
+        try { para = localStorage.getItem('stoku:leja:sasia-shpejte'); } catch (e) { /* ok */ }
+        if (vlera !== null && vlera !== para) {
+          try { localStorage.setItem('stoku:leja:sasia-shpejte', vlera); } catch (e) { /* ok */ }
           window.dispatchEvent(new Event('stoku-leja-ndryshoi'));
         }
       } catch (e) { /* ok */ }
@@ -5815,6 +5992,16 @@
             db, function () { return uid; });
           return await rTjeter.merr();
         } catch (e) { return gabim(e); }
+      },
+      // Administratori: ndryshim (lexim + bashkim + shkrim atomik) në dyqanin e një llogarie tjetër
+      async ndryshoDyqaninEPerdoruesit(uid, fn) {
+        try {
+          var rTjeter = window.StokuRuajtja.krijo({ doc: doc, getDoc: getDoc, setDoc: setDoc, runTransaction: runTransaction, onSnapshot: onSnapshot, collection: collection },
+            db, function () { return uid; });
+          return await rTjeter.bashkoDheRuaj(fn);
+        } catch (e) {
+          return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) };
+        }
       },
       ekipa: ekipa
     };
