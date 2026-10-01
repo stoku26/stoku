@@ -43,7 +43,7 @@
 .sbp .kerko-rezultate { top: 44px; right: auto; width: min(560px, calc(100vw - 40px)); z-index: 40; border: 0; box-shadow: 0 0 0 1px var(--sb-line), 0 24px 60px -20px rgba(0,0,0,.35); border-radius: 14px; }
 
 .sbp .akordion-krye { border-top: 0; margin-top: 14px; padding: 0 2px 4px 10px; gap: 4px; }
-.sbp .akordion-emri { padding: 4px 0; font-family: var(--sb-mono); font-size: 10.5px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--sb-faint); border-radius: 6px; }
+.sbp .akordion-emri { padding: 4px 0; font-family: var(--sb-mono); font-size: 10.5px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--sb-muted); border-radius: 6px; }
 .sbp .akordion-emri:hover { background: transparent; color: var(--sb-ink-3); }
 .sbp .akordion-ikona { display: none; }
 .sbp .akordion-titulli { gap: 8px; }
@@ -55,8 +55,8 @@
 .sbp .nav-rresht:hover, .sbp .folder-rresht:hover { background: rgba(255,255,255,.6); }
 :root.sbp[data-tema="dark"] .nav-rresht:hover, :root.sbp[data-tema="dark"] .folder-rresht:hover { background: rgba(255,255,255,.05); }
 .sbp .nav-rresht.aktiv, .sbp .folder-rresht.aktiv { background: var(--sb-surface); color: var(--sb-ink); font-weight: 600; box-shadow: 0 0 0 1px var(--sb-sidebar-line), 0 1px 2px rgba(0,0,0,.04); }
-.sbp .numer-cip, .sbp .aktiv .numer-cip { font-family: var(--sb-mono); font-size: 11px; font-weight: 400; color: var(--sb-faint); }
-.sbp .nav-rresht .af-cip.kuqe, .sbp .nav-rresht .af-cip.verdhe { background: transparent; color: var(--sb-faint); font-family: var(--sb-mono); font-size: 11px; font-weight: 400; min-width: 0; padding: 0; }
+.sbp .numer-cip, .sbp .aktiv .numer-cip { font-family: var(--sb-mono); font-size: 11px; font-weight: 400; color: var(--sb-muted); }
+.sbp .nav-rresht .af-cip.kuqe, .sbp .nav-rresht .af-cip.verdhe { background: transparent; color: var(--sb-muted); font-family: var(--sb-mono); font-size: 11px; font-weight: 400; min-width: 0; padding: 0; }
 .sbp .af-cip.fleta { background: var(--sb-accent); }
 /* Pikat me ngjyrë para disa rreshtave (si në dizajn) */
 .sbp #navAfSkaduara::before, .sbp #navAfAfer::before, .sbp #navEkChat::before {
@@ -213,7 +213,7 @@
 .sbp #filtrat button + button { border-left: 0; }
 .sbp #filtrat button:hover { background: var(--sb-surface-2); color: var(--sb-ink); }
 .sbp #filtrat button.aktiv { background: var(--sb-inv-bg); color: var(--sb-inv-fg); box-shadow: none; }
-.sbp .segmente .n, .sbp #filtrat .n { font-family: var(--sb-mono); font-size: 11px; font-weight: 400; opacity: .7; }
+.sbp .segmente .n, .sbp #filtrat .n { font-family: var(--sb-mono); font-size: 11px; font-weight: 400; opacity: .85; }
 .sbp .segmente .n:empty { display: none; }
 /* Kontrollet me segmente (Afatet, Cilësimet) */
 .sbp .segmente { gap: 2px; padding: 4px; border: 0; border-radius: 12px; background: var(--sb-sunken); overflow: visible; }

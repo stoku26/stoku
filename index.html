@@ -360,6 +360,9 @@
     transform: translateX(0);
     pointer-events: auto;
   }
+  /* Faqet e mbyllura (jashtë ekranit) fshihen krejt: s'marrin fokus nga tastiera/skaneri, s'lexohen nga lexuesit e ekranit */
+  #dlgOpsione:not(.hapur), .mbulese.faqe-e-plote:not(.hapur) { visibility: hidden; transition: transform .28s ease, visibility 0s linear .28s; }
+  #dlgOpsione.hapur, .mbulese.faqe-e-plote.hapur { visibility: visible; transition: transform .28s ease, visibility 0s; }
   #dlgOpsione .dialog.opsione {
     max-width: none; width: 100%; height: 100%; max-height: none;
     border-radius: 0; overflow: hidden;
@@ -1020,12 +1023,10 @@
   .lx-shenim { font-size: 12px; margin: -2px 2px 6px; color: var(--gri); }
   .lx-shenim.paralajm { color: var(--af-verdhe-tx); font-weight: 700; }
   .lx-rresht .lx-numri { font-size: 12px; font-weight: 700; color: var(--gri); margin: 0 0 6px 2px; }
-  .lidhje-pc { display: none; padding: 8px 0; text-decoration: none; font-weight: 600; }
-  @media (min-width: 900px) and (hover: hover) { .lidhje-pc { display: inline-block; } }
 </style>
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=2">
-<link rel="stylesheet" href="css/stoku.css?v=2">
+<link rel="stylesheet" href="css/stoku.css?v=3">
 </head>
 <body>
 <script src="porta.js?v=119"></script>
@@ -1195,11 +1196,6 @@
             <span class="kat-info"><span class="kat-tekst">Çka ka të re</span><span class="kat-status" id="opsTeRejatStatus"></span></span>
             <span class="shigjeta">›</span>
           </button>
-          <a class="kategori-rresht" id="lidhjaPc" href="pc.html">
-            <span class="kat-ikona-badge ngj-gri"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg></span>
-            <span class="kat-info"><span class="kat-tekst">Versioni për kompjuter</span><span class="kat-status">Tabela, shkurtoret e tastierës, ekrani i madh</span></span>
-            <span class="shigjeta">›</span>
-          </a>
         </div>
         <div class="ops-fundi"><img src="logo/stoku-icon.svg?v=3" alt="" width="28" height="28"><span><b>Stoku</b><span id="opsVersioni"></span></span></div>
       </div>
@@ -1686,7 +1682,7 @@
 <script src="afatet.js?v=122"></script>
 <script src="ekipa.js?v=6"></script>
 <script src="njoftimet.js?v=119"></script>
-<script src="teRejat.js?v=128"></script>
+<script src="teRejat.js?v=129"></script>
 <script>
 (function () {
   'use strict';
@@ -2866,9 +2862,6 @@
     fokusoBarkodin();
   }
 
-  $('lidhjaPc').addEventListener('click', function () {
-    try { localStorage.setItem('stoku:pamja', 'pc'); } catch (e) { /* ok */ }
-  });
   $('dlgOpsione').addEventListener('click', function (ev) {
     if (ev.target === $('dlgOpsione')) mbyllOpsionet();
   });
@@ -3489,7 +3482,7 @@
         var sasiaNumri = document.createElement('input');
         sasiaNumri.type = 'number';
         sasiaNumri.inputMode = 'numeric';
-        sasiaNumri.className = 'sasia sasia-input';
+        sasiaNumri.className = 'sasia sasia-input' + (p.sasia <= 0 ? ' sasia--zero' : p.sasia <= PRAGU_PAK ? ' sasia--pak' : '');
         sasiaNumri.value = String(p.sasia);
         sasiaNumri.min = '0';
         var btnPlus = document.createElement('button');
@@ -3534,7 +3527,8 @@
         rreshti.appendChild(mbeshtjellesi);
       } else {
         var sasia = document.createElement('div');
-        sasia.className = 'sasia';
+        // 0 = e kuqe, 1–5 = portokalli (si te kryefaqja: "Sasi 0" / "Sasi e ulët")
+        sasia.className = 'sasia' + (p.sasia <= 0 ? ' sasia--zero' : p.sasia <= PRAGU_PAK ? ' sasia--pak' : '');
         sasia.textContent = String(p.sasia);
         rreshti.appendChild(sasia);
       }

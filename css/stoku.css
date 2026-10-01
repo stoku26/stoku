@@ -101,6 +101,8 @@
 .sb .sb-row__qty { font-size: 15px; font-weight: 700; min-width: 34px; text-align: right; }
 .sb .sb-row__qty--near { color: var(--sb-near); }
 .sb .sb-row__qty--exp { color: var(--sb-exp); }
+.sb .artikull .sasia--pak { color: var(--sb-near); }
+.sb .artikull .sasia--zero { color: var(--sb-exp); }
 
 /* Lista brenda folderit dhe kërkimi */
 .sb #lista, .sb #kerkoGlobalLista { padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); }
@@ -125,6 +127,10 @@
 .sb #tabet .af-shenje.verdhe { background: #f0b95a; color: #3b2a00; }
 
 /* ---------- Faqet e plota (Afatet, Ekipa, Cilësimet, leximi i fletës, importi) ---------- */
+.sb .af-sink { background: var(--sb-surface); color: var(--sb-ink-3); box-shadow: var(--sb-ring); }
+.sb .af-sink:active { background: var(--sb-surface-2); }
+.sb .af-sink.gabim { background: var(--sb-exp-tint); color: var(--sb-exp); box-shadow: 0 0 0 1px var(--sb-card-exp-line); }
+.sb .af-sink.ok::after { background: var(--sb-ok-dot); box-shadow: 0 0 0 2px var(--sb-surface); }
 .sb .faqe-kuti { background: var(--sb-bg); }
 .sb .opsione-krye { background: var(--sb-bg); color: var(--sb-ink); padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); min-height: calc(58px + env(safe-area-inset-top)); }
 .sb .opsione-krye h2 { font-size: 26px; font-weight: 700; letter-spacing: -.025em; line-height: 1.1; }
