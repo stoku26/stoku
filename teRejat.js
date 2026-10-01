@@ -18,6 +18,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 139, versioni: '1.0.1', data: '2026-10-01', titulli: 'Pa zgjedhje të krejt faqes', platforma: 'tel', pikat: [
+      'Shtypja e gjatë s\'e zgjedh më krejt faqen (titujt, butonat, menytë). Barkodet, emrat e produkteve, mesazhet e chat-it dhe fushat mund të zgjidhen dhe kopjohen si më parë.'
+    ] },
+    { v: 139, versioni: '1.0.1', data: '2026-10-01', titulli: 'Butonat pa zgjedhje teksti', platforma: 'pc', pikat: [
+      'Dykliku te butonat, menyja anësore dhe titujt s\'e zgjedh më tekstin e tyre.'
+    ] },
     { v: 138, versioni: '1.0.0', data: '2026-10-01', titulli: 'Stoku 1.0.0', pikat: [
       'Versionet tani kanë tre numra. Numri i fundit rritet për rregullime të vogla (1.0.1, 1.0.2…), ai i mesit kur shtohet diçka e re (1.1.0) dhe i pari vetëm kur ndryshon krejt aplikacioni (2.0.0).'
     ] },

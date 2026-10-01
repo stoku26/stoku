@@ -423,3 +423,17 @@ body.pa-animim .mbulese > .dialog { animation: none; }
 
 /* Tost */
 .sb #toast { border-radius: 14px; background: var(--sb-inv-bg); color: var(--sb-inv-fg); }
+
+/* ---------- Zgjedhja e tekstit (v139 / 1.0.1) ----------
+   Shtypja e gjatë s'e zgjedh më krejt faqen (titujt, butonat, menytë, numrat). Zgjidhen dhe kopjohen vetëm:
+   barkodet, emrat e produkteve, mesazhet e chat-it dhe krejt fushat ku shkruhet.
+   (Kartat e afateve mbeten pa zgjedhje: aty shtypja e gjatë nis zgjedhjen e shumë afateve; barkodi kopjohet te dritarja e afatit.) */
+html.sb body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.sb input, .sb textarea, .sb select, .sb [contenteditable="true"],
+.sb .artikull .emri, .sb .artikull .kodi,
+.sb .sb-row__name, .sb .sb-row__code,
+.sb .kodi-dialog,
+.sb .ek-mesazh .flluska {
+  -webkit-user-select: text; user-select: text; -webkit-touch-callout: default;
+}
+
