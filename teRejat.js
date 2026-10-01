@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 143, versioni: '1.1.2', data: '2026-10-01', titulli: 'Më mbaj mend emrin', pikat: [
+      'Te hyrja ka një kuti "Më mbaj mend emrin e përdoruesit". Kur është e shënuar, emri del i shkruar vetë herën tjetër; kur e heq shenjën, emri s\'ruhet. Fjalëkalimi nuk ruhet kurrë.'
+    ] },
     { v: 142, versioni: '1.1.1', data: '2026-10-01', titulli: 'Logo e re në krye', pikat: [
       'Lart majtas Stoku ka logo të re si etiketë barkodi, me emrin tënd poshtë. Përshtatet vetë me temën e çelët dhe të errët.'
     ] },
