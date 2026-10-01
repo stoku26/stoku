@@ -319,6 +319,16 @@
 
   // Pritja fillestare
   var fundit = hyrjaEFundit();
+  if (fundit && fundit.uid && lexo(KEY_PRONARI) === fundit.uid && !SHFLETUES_I_VJETER) {
+    // Kjo pajisje është e kyçur me këtë llogari: dyqani hapet menjëherë, pa ekranin "Duke hyrë si…" (në Android
+    // dilte pas ekranit të hapjes së sistemit, si dy ekrane njëri pas tjetrit). Firebase e konfirmon hyrjen në sfond:
+    // pa përdorues → porta hapet (kontrollo → hap); llogari tjetër → të dhënat hiqen dhe faqja rinis (si më parë).
+    gjendja.eHapur = false;
+    porta.style.display = 'none';
+    html.classList.remove('porta-hapur');
+    var lajmero = function () { if (!gjendja.eHapur) window.dispatchEvent(new Event('stoku-porta-hapur')); };
+    if (document.readyState === 'complete') setTimeout(lajmero, 0); else window.addEventListener('load', lajmero, { once: true });
+  }
   shfaqPritjen(fundit && fundit.emri ? 'Duke hyrë si ' + fundit.emri + '…' : 'Duke u lidhur…');
   // Pa internet (sipas shfletuesit) në një pajisje të kyçur më parë: s'ka pse të pritet — Firebase e ka
   // hyrjen të ruajtur lokalisht dhe do ta konfirmojë vetë; ndërkohë punohet me të dhënat lokale.

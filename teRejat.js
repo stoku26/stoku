@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 145, versioni: '1.2.1', data: '2026-10-01', titulli: 'Hapje më e shpejtë', pikat: [
+      'Kur je i kyçur, Stoku hapet direkt te dyqani, pa ekranin "Duke hyrë si…" pas ekranit të hapjes së telefonit.'
+    ] },
     { v: 144, versioni: '1.2.0', data: '2026-10-01', titulli: 'Ikona për folderat', pikat: [
       'Folderat kanë tani ikona (shportë, pije, gjethe, bulmet, furrë, të ngrira e të tjera) që përshtaten me temën e çelët dhe të errët. Folderat ekzistues e marrin ikonën vetë sipas emrit.',
       'Te "Folder i ri" zgjedh ikonën nga 16; në kompjuter mund ta ndryshosh edhe më vonë (Veprime → Ndrysho emrin / ikonën).',
