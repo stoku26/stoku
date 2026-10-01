@@ -15,6 +15,14 @@
   'use strict';
 
   var LISTA = [
+    { v: 130, data: '2026-10-01', titulli: 'Njoftimet e chat-it edhe me Stoku të mbyllur', platforma: 'tel', pikat: [
+      'Kur dikush shkruan te chat-i i ekipës, të vjen njoftim edhe kur Stoku është krejt i mbyllur.',
+      'Njoftimet dalin edhe në orë (p.sh. Galaxy Watch). Te Cilësimet → Njoftimet ke udhëzimin hap pas hapi dhe butonin "Dërgo njoftim provë".',
+      'Ikona e vogël e njoftimeve tani është barkodi i Stoku-t.'
+    ] },
+    { v: 130, data: '2026-10-01', titulli: 'Njoftimet e chat-it edhe me Stoku të mbyllur', platforma: 'pc', pikat: [
+      'Kur dikush shkruan te chat-i i ekipës, të vjen njoftim edhe kur Stoku është i mbyllur (pasi t\'i lejosh njoftimet te Ekipa → zilja).'
+    ] },
     { v: 129, data: '2026-10-01', titulli: 'Rregullime të vogla', platforma: 'tel', pikat: [
       'Butoni i sinkronizimit lart te Afatet (reja me pikën e gjelbër) tani shihet qartë.',
       'Brenda folderit, sasia 0 del me të kuqe dhe sasia e ulët (1 deri 5) me portokalli.',

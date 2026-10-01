@@ -31,6 +31,12 @@
   var PERMBLEDHJA_HEQUR_DITE = 40; // të hequrat e kaq ditëve të fundit hyjnë te përmbledhja (statistikat e muajit)
   var PERMBLEDHJA_MAKS = 700 * 1024; // larg kufirit 1 MB të një dokumenti
   var RADHA_MAKS = 200;
+  // Njoftimet push të chat-it (worker/stoku-push.js te Cloudflare). Çelësi publik VAPID: çifti i tij privat është
+  // vetëm te Worker-i (VAPID_PRIVATE). Pa Worker-in (ose pa leje për njoftime) punohet si më parë.
+  var PUSH_URL = 'https://stoku-push.mendurb.workers.dev';
+  var PUSH_VAPID = 'BJ_OXYJsYC00MdMvM1z5WICalHw1CVDrDqNdIxi6zXLd7xIDXlxxCvi7qT9mA-o00zT5PRWGkI50UMMImh5DNyc';
+  var KEY_PUSH = 'stoku:push:pajisja';      // { uid, id, endpoint, koha } — kjo pajisje është regjistruar
+  var KEY_PUSH_SERVER = 'stoku:push:server'; // koha e përgjigjes së fundit të mirë nga Worker-i
   var MUAJT = ['Janar', 'Shkurt', 'Mars', 'Prill', 'Maj', 'Qershor', 'Korrik', 'Gusht', 'Shtator', 'Tetor', 'Nëntor', 'Dhjetor'];
   var DITET_SHKURT = ['Hën', 'Mar', 'Mër', 'Enj', 'Pre', 'Sht', 'Die'];
 
@@ -75,6 +81,7 @@
       catch (e) { hiqNgaRadha(op.id); return Promise.resolve(gabim(e)); } // p.sh. rrugë e pavlefshme — s'riprovohet
       p = p.then(function () {
         hiqNgaRadha(op.id);
+        if (op.rruga[0] === 'ekipa_chat') njoftoPushChat(op.id); // kolegët e marrin njoftimin edhe me aplikacion të mbyllur
         return { ok: true, id: op.id };
       }, function (e) {
         // Vetëm gabimet e përkohshme (lidhja) riprovohen; "s'lejohet" (ose ekziston tashmë nga një dërgim i
@@ -96,6 +103,81 @@
       return Promise.race([dergimi.premtimi, new Promise(function (r) { setTimeout(function () { r({ ok: true, id: dergimi.id, neRadhe: true }); }, ms || 4000); })]);
     }
     if (typeof window !== 'undefined') window.addEventListener('online', dergoRadhen);
+
+    // ---------- Njoftimet push (chat-i edhe kur aplikacioni është krejt i mbyllur) ----------
+    function lexoLS(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
+    function shkruajLS(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ok */ } }
+    function pushMbeshtetet() {
+      return typeof navigator !== 'undefined' && 'serviceWorker' in navigator && typeof window !== 'undefined' &&
+        'PushManager' in window && typeof Notification !== 'undefined';
+    }
+    function bytesNgaB64u(t) {
+      t = t.replace(/-/g, '+').replace(/_/g, '/'); while (t.length % 4) t += '=';
+      var b = atob(t), u = new Uint8Array(b.length);
+      for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+      return u;
+    }
+    function b64uNgaBytes(buf) {
+      var u = new Uint8Array(buf), t = '';
+      for (var i = 0; i < u.length; i++) t += String.fromCharCode(u[i]);
+      return btoa(t).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+    function hashTekst(t) { var h = 5381; for (var i = 0; i < t.length; i++) h = ((h * 33) ^ t.charCodeAt(i)) >>> 0; return h.toString(36); }
+    async function thirrPush(rruga, trup) {
+      if (!auth.currentUser || typeof fetch !== 'function') return { ok: false, arsye: 'pa-hyrje' };
+      var token = await auth.currentUser.getIdToken();
+      var r = await fetch(PUSH_URL + rruga, { method: 'POST', keepalive: true, headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(trup || {}) });
+      var j = {}; try { j = await r.json(); } catch (e) { /* ok */ }
+      if (r.ok && j.ok) shkruajLS(KEY_PUSH_SERVER, Date.now());
+      return j;
+    }
+    function njoftoPushChat(id) { thirrPush('/chat', { id: id }).catch(function () { /* pa internet / pa Worker — s'ka gjë */ }); }
+    // Worker-i u përgjigj mirë së fundi (7 ditë)? Vetëm atëherë i besohet push-it dhe hiqen njoftimet lokale të chat-it.
+    async function kontrolloServerin() {
+      try {
+        var r = await fetch(PUSH_URL, { method: 'GET' });
+        var j = await r.json();
+        if (r.ok && j && j.ok && j.celesat !== false) { shkruajLS(KEY_PUSH_SERVER, Date.now()); return true; }
+      } catch (e) { /* ok */ }
+      return false;
+    }
+    function pushAktiv() {
+      var p = lexoLS(KEY_PUSH), s = lexoLS(KEY_PUSH_SERVER);
+      return !!(p && p.uid === uid() && s && (Date.now() - s) < 7 * 86400000) &&
+        typeof Notification !== 'undefined' && Notification.permission === 'granted';
+    }
+    // Regjistron këtë pajisje për njoftime (vetëm me leje të dhënë). Shkruan te ekipa_push vetëm kur ndryshon diçka
+    // ose çdo 7 ditë, që lista e Worker-it të mbetet e freskët.
+    async function aktivizoPush(detyro) {
+      if (!uid()) return { ok: false, arsye: 'pa-hyrje' };
+      if (!pushMbeshtetet()) return { ok: false, arsye: 'pa-mbeshtetje' };
+      if (Notification.permission !== 'granted') return { ok: false, arsye: 'pa-leje' };
+      try {
+        var reg = await navigator.serviceWorker.ready;
+        var sub = await reg.pushManager.getSubscription();
+        if (sub && sub.options && sub.options.applicationServerKey && b64uNgaBytes(sub.options.applicationServerKey) !== PUSH_VAPID) {
+          try { await sub.unsubscribe(); } catch (e) { /* ok */ }
+          sub = null;
+        }
+        if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: bytesNgaB64u(PUSH_VAPID) });
+        var j = sub.toJSON();
+        var id = uid() + '_' + hashTekst(j.endpoint);
+        var ruajtur = lexoLS(KEY_PUSH);
+        if (detyro || !ruajtur || ruajtur.id !== id || ruajtur.endpoint !== j.endpoint || (Date.now() - (ruajtur.koha || 0)) > 7 * 86400000) {
+          if (ruajtur && ruajtur.id && ruajtur.id !== id && ruajtur.uid === uid()) { try { await fs.deleteDoc(fs.doc(db, 'ekipa_push', ruajtur.id)); } catch (e) { /* ok */ } }
+          await fs.setDoc(fs.doc(db, 'ekipa_push', id), { uid: uid(), emri: emri(), endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, platforma: platforma, koha: Date.now() });
+          shkruajLS(KEY_PUSH, { uid: uid(), id: id, endpoint: j.endpoint, koha: Date.now() });
+        }
+        var serveri = await kontrolloServerin();
+        return { ok: true, serveri: serveri };
+      } catch (e) { return gabim(e); }
+    }
+    // Në dalje nga llogaria: kjo pajisje s'merr më njoftimet e kësaj llogarie
+    async function caktivizoPush() {
+      var ruajtur = lexoLS(KEY_PUSH);
+      shkruajLS(KEY_PUSH, null);
+      if (ruajtur && ruajtur.id && uid() === ruajtur.uid) { try { await fs.deleteDoc(fs.doc(db, 'ekipa_push', ruajtur.id)); } catch (e) { /* ok */ } }
+    }
 
     // ---------- Prania: "online tani" / "parë para 5 min" ----------
     var rrahjaKohez = null, praniaNisur = false;
@@ -302,6 +384,13 @@
         var q = fs.query(fs.collection(db, 'ekipa_feed'), fs.orderBy('koha', 'desc'), fs.limit(n || 150));
         return fs.onSnapshot(q, function (s) { cb(listaNga(s)); }, function (e) { if (cbGabim) cbGabim(e); });
       },
+
+      // ---------- Njoftimet push ----------
+      pushMbeshtetet: pushMbeshtetet,
+      aktivizoPush: aktivizoPush,
+      caktivizoPush: caktivizoPush,
+      pushAktiv: pushAktiv,
+      provoPush: function (o) { return thirrPush('/prove', { vonesa: (o && o.vonesa) || 0 }).catch(function (e) { return { ok: false, arsye: String(e && e.message || e) }; }); },
 
       // ---------- Chat ----------
       dergoMesazh: function (tekst) {
@@ -874,13 +963,15 @@
         });
         thirr('njoftimet');
       }, function () { /* p.sh. rregullat ende pa u vendosur — thjesht s'ka njoftime */ });
+      if (e.aktivizoPush) e.aktivizoPush().then(function () { thirr('push'); }, function () { /* ok */ });
       chatNisurSe = Date.now();
       d.chatFundit = e.degjoChatin(function (lista) {
         var m = lista[0] || null;
         gj.mesazhiFundit = m;
         if (m && m.uid !== o.uidIm() && m.koha > chatNisurSe - 5000 && !uNjoftua('ch:' + m.id)) {
           var neChat = gj.chatHapur && !document.hidden;
-          if (!neChat && o.njofto) o.njofto({ titulli: (m.emri || 'Ekipa') + ' · Chat', teksti: m.tekst, tag: 'ek-chat', pamja: 'chat' });
+          // Me push aktiv, njoftimin e sistemit e jep service worker-i (edhe kur aplikacioni është i mbyllur) — pa dyfishim
+          if (!neChat && o.njofto && !(e.pushAktiv && e.pushAktiv())) o.njofto({ titulli: (m.emri || 'Ekipa') + ' · Chat', teksti: m.tekst, tag: 'ek-chat', pamja: 'chat' });
         }
         if (gj.chatHapur && !document.hidden) shenoChatinTeLexuar();
         thirr('chat-fundit');
