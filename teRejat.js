@@ -15,6 +15,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 127, data: '2026-10-01', titulli: 'Logo e re', pikat: [
+      'Stoku ka logo të re: një barkod i bardhë me një vijë të verdhë, në telefon, në kompjuter dhe te ikona e aplikacionit.'
+    ] },
     { v: 126, data: '2026-09-30', titulli: 'Stoku me pamje të re', pikat: [
       'Pamje e re në telefon dhe në kompjuter: ngjyra më të qeta, shkronja më të qarta dhe logo e re.',
       'Tema e errët punon kudo. Në kompjuter ndërrohet shpejt poshtë menysë anësore (Tema: E çelët / E errët).',

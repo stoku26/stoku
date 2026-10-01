@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stoku • Kompjuter</title>
 <link rel="manifest" href="manifest.webmanifest?v=85">
-<link rel="icon" href="logo/favicon.svg" type="image/svg+xml">
-<link rel="icon" href="logo/favicon-32.png" sizes="32x32">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
+<link rel="icon" href="logo/favicon.svg?v=3" type="image/svg+xml">
+<link rel="icon" href="logo/favicon-32.png?v=3" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <meta name="theme-color" content="#f6f5f2" id="metaTema">
 <script>
   // Adresa e pastër: shfaqet stoku.site/#/... në vend të stoku.site/pc.html#/...
@@ -904,13 +904,13 @@
 <link rel="stylesheet" href="css/stoku-pc.css?v=1">
 </head>
 <body>
-<script src="porta.js?v=118"></script>
+<script src="porta.js?v=119"></script>
 
 <div class="trupi">
   <aside class="anesore">
     <div class="sbp-krye">
       <div class="sbp-brand" id="logo" role="button" tabindex="0" title="Përmbledhja">
-        <img src="logo/stoku-icon.svg" alt="" width="34" height="34">
+        <img src="logo/stoku-icon.svg?v=3" alt="" width="34" height="34">
         <div class="sbp-brand__tekst"><span class="sbp-brand__emri">Stoku</span><span class="sbp-brand__nen">Stoku dhe afatet</span></div>
       </div>
       <div class="krye-kerko">
@@ -1795,7 +1795,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=122"></script>
 <script src="ekipa.js?v=6"></script>
-<script src="teRejat.js?v=126"></script>
+<script src="teRejat.js?v=127"></script>
 <script>
 (function () {
   'use strict';
@@ -5340,7 +5340,7 @@
     }
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
     var url = './pc.html#/ekipa' + (nj.pamja === 'chat' || nj.pamja === 'anetaret' ? '/' + nj.pamja : '');
-    var opsionet = { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=2', data: { url: url } };
+    var opsionet = { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=3', data: { url: url } };
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then(function (reg) { return reg.showNotification(nj.titulli, opsionet); })
         .catch(function () { try { new Notification(nj.titulli, opsionet); } catch (e) { /* ok */ } });
