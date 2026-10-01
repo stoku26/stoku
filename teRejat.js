@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 141, versioni: '1.1.0', data: '2026-10-01', titulli: 'Foto e profilit', pikat: [
+      'Te Cilësimet → Llogaria mund të vendosësh foton tënde të profilit (ose ta heqësh). Fotoja del te Ekipa, chat-i, aktiviteti dhe Cilësimet, dhe e sheh krejt ekipa.'
+    ] },
     { v: 140, versioni: '1.0.2', data: '2026-10-01', titulli: 'Administratori njihet gjithmonë', pikat: [
       'Llogaria "mendurberisha" njihet si administrator direkt nga llogaria: pranimi i anëtarëve, fshirja e llogarive, lejet dhe veprimet te afatet e kolegëve punojnë pa ndonjë cilësim shtesë në Firebase.'
     ] },

@@ -50,6 +50,88 @@
   function emriNgaEmail(email) { return String(email || '').replace(/@stoku-app\.local$/, ''); }
 
   // ======================================================================================
+  // 0. Fotot e profilit: ruhen te Worker-i (Cloudflare KV), jo te Firebase. Indeksi { uid: koha } mbahet edhe
+  //    te localStorage që fotot të dalin menjëherë (edhe pa internet, nga cache-i i shfletuesit).
+  //    Çdo vend me avatar thërret Fotot.apliko(el, { uid, emri }): ka foto → sfond me foton, përndryshe shkronja.
+  // ======================================================================================
+  var KEY_FOTOT = 'stoku:fotot:indeksi', KEY_FOTOT_EMRAT = 'stoku:fotot:emrat';
+  var FOTO_MASA = 256, FOTO_CILESIA = 0.82;
+  var Fotot = (function () {
+    function lexo(k) { try { return JSON.parse(localStorage.getItem(k) || 'null') || {}; } catch (e) { return {}; } }
+    function shkruaj(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ok */ } }
+    var indeksi = lexo(KEY_FOTOT), emrat = lexo(KEY_FOTOT_EMRAT);
+    function celesEmri(e) { return String(e || '').trim().toLowerCase(); }
+    function url(u) { return u && indeksi[u] ? PUSH_URL + '/foto/' + encodeURIComponent(u) + '?v=' + indeksi[u] : ''; }
+    function uidPer(kush) {
+      if (!kush) return '';
+      if (typeof kush === 'string') return emrat[celesEmri(kush)] || '';
+      return kush.uid || emrat[celesEmri(kush.emri)] || '';
+    }
+    function vendos(el) {
+      var src = url(el.getAttribute('data-foto-uid') || emrat[celesEmri(el.getAttribute('data-foto-emri'))] || '');
+      if (src) { el.style.backgroundImage = 'url("' + src + '")'; el.classList.add('me-foto'); }
+      else if (el.classList.contains('me-foto')) { el.style.backgroundImage = ''; el.classList.remove('me-foto'); }
+    }
+    function apliko(el, kush) {
+      if (!el) return el;
+      var u = typeof kush === 'string' ? '' : (kush && kush.uid) || '';
+      el.setAttribute('data-foto-uid', u);
+      el.setAttribute('data-foto-emri', typeof kush === 'string' ? kush : (kush && kush.emri) || '');
+      vendos(el);
+      return el;
+    }
+    function riapliko() {
+      if (typeof document === 'undefined') return;
+      Array.prototype.forEach.call(document.querySelectorAll('[data-foto-emri]'), vendos);
+    }
+    function vendosIndeksin(ind) {
+      ind = ind && typeof ind === 'object' ? ind : {};
+      if (JSON.stringify(ind) === JSON.stringify(indeksi)) return;
+      indeksi = ind; shkruaj(KEY_FOTOT, indeksi); riapliko();
+      try { window.dispatchEvent(new Event('stoku-fotot-ndryshuan')); } catch (e) { /* node */ }
+    }
+    function ndryshoNjeren(u, koha) {
+      var ind = Object.assign({}, indeksi);
+      if (koha) ind[u] = koha; else delete ind[u];
+      vendosIndeksin(ind);
+    }
+    function vendosEmrat(lista) {
+      var ri = Object.assign({}, emrat), ndr = false;
+      (lista || []).forEach(function (a) {
+        if (!a || !a.uid || !a.emri) return;
+        var k = celesEmri(a.emri);
+        if (ri[k] !== a.uid) { ri[k] = a.uid; ndr = true; }
+      });
+      if (!ndr) return;
+      emrat = ri; shkruaj(KEY_FOTOT_EMRAT, emrat); riapliko();
+    }
+    // Fotoja e zgjedhur → katror 256×256 (prerë në mes), JPEG. Kthen Blob.
+    function pergatit(skedari) {
+      return new Promise(function (ok, gabim) {
+        if (!skedari || !/^image\//.test(skedari.type || 'image/')) { gabim(new Error('jo-foto')); return; }
+        var img = new Image(), src = URL.createObjectURL(skedari);
+        img.onload = function () {
+          try {
+            var w = img.naturalWidth, h = img.naturalHeight, m = Math.min(w, h);
+            if (!m) throw new Error('jo-foto');
+            var c = document.createElement('canvas'); c.width = c.height = FOTO_MASA;
+            var x = c.getContext('2d');
+            x.fillStyle = '#fff'; x.fillRect(0, 0, FOTO_MASA, FOTO_MASA);
+            x.imageSmoothingQuality = 'high';
+            x.drawImage(img, (w - m) / 2, (h - m) / 2, m, m, 0, 0, FOTO_MASA, FOTO_MASA);
+            URL.revokeObjectURL(src);
+            c.toBlob(function (b) { if (b) ok(b); else gabim(new Error('jo-foto')); }, 'image/jpeg', FOTO_CILESIA);
+          } catch (e) { URL.revokeObjectURL(src); gabim(e); }
+        };
+        img.onerror = function () { URL.revokeObjectURL(src); gabim(new Error('jo-foto')); };
+        img.src = src;
+      });
+    }
+    return { apliko: apliko, riapliko: riapliko, url: url, uidPer: uidPer, kaFoto: function (kush) { return !!url(uidPer(kush)); },
+      vendosIndeksin: vendosIndeksin, ndryshoNjeren: ndryshoNjeren, vendosEmrat: vendosEmrat, pergatit: pergatit };
+  })();
+
+  // ======================================================================================
   // 1. Cloud
   // ======================================================================================
   function krijoCloud(fs, db, auth, platforma) {
@@ -131,6 +213,52 @@
       if (r.ok && j.ok) shkruajLS(KEY_PUSH_SERVER, Date.now());
       return j;
     }
+    // ---------- Fotot e profilit (te Worker-i) ----------
+    var fototMarreSe = 0;
+    async function thirrFotot(metoda, rruga, trup) {
+      if (!auth.currentUser || typeof fetch !== 'function') return { ok: false, arsye: 'pa-hyrje' };
+      var token = await auth.currentUser.getIdToken();
+      var h = { 'Authorization': 'Bearer ' + token };
+      if (trup) h['Content-Type'] = trup.type || 'image/jpeg';
+      var r = await fetch(PUSH_URL + rruga, { method: metoda, headers: h, body: trup || undefined });
+      var j = {}; try { j = await r.json(); } catch (e) { /* ok */ }
+      if (!r.ok && !j.arsye) j.arsye = 'http-' + r.status;
+      return j;
+    }
+    async function rifreskoFotot(detyrimisht) {
+      if (!uid() || (!detyrimisht && Date.now() - fototMarreSe < 10 * 60000)) return false;
+      fototMarreSe = Date.now();
+      try {
+        var j = await thirrFotot('GET', '/fotot');
+        if (j && j.ok) { Fotot.vendosIndeksin(j.fotot); return true; }
+      } catch (e) { /* pa internet / pa Worker */ }
+      fototMarreSe = 0;
+      return false;
+    }
+    async function ngarkoFoton(skedari) {
+      if (!uid()) return { ok: false, arsye: 'pa-hyrje' };
+      var b;
+      try { b = await Fotot.pergatit(skedari); } catch (e) { return { ok: false, arsye: 'jo-foto' }; }
+      try {
+        var j = await thirrFotot('PUT', '/foto', b);
+        if (j && j.ok) Fotot.ndryshoNjeren(uid(), j.koha);
+        return j && j.ok ? { ok: true } : { ok: false, arsye: (j && j.arsye) || 'gabim' };
+      } catch (e) { return { ok: false, arsye: 'rrjeti' }; }
+    }
+    async function hiqFoton() {
+      if (!uid()) return { ok: false, arsye: 'pa-hyrje' };
+      try {
+        var j = await thirrFotot('DELETE', '/foto');
+        if (j && j.ok) Fotot.ndryshoNjeren(uid(), 0);
+        return j && j.ok ? { ok: true } : { ok: false, arsye: (j && j.arsye) || 'gabim' };
+      } catch (e) { return { ok: false, arsye: 'rrjeti' }; }
+    }
+    function vetjaTeFotot() { if (uid()) Fotot.vendosEmrat([{ uid: uid(), emri: emri() }]); }
+    if (typeof window !== 'undefined' && window.addEventListener) {
+      window.addEventListener('stoku-auth-ndryshoi', function () { vetjaTeFotot(); rifreskoFotot(true); });
+      document.addEventListener('visibilitychange', function () { if (!document.hidden) rifreskoFotot(false); });
+    }
+
     function njoftoPushChat(id) { thirrPush('/chat', { id: id }).catch(function () { /* pa internet / pa Worker — s'ka gjë */ }); }
     // Worker-i u përgjigj mirë së fundi (7 ditë)? Vetëm atëherë i besohet push-it dhe hiqen njoftimet lokale të chat-it.
     async function kontrolloServerin() {
@@ -206,15 +334,18 @@
     return {
       nisPranine: nisPranine,
       ndalPranine: ndalPranine,
+      rifreskoFotot: rifreskoFotot, ngarkoFoton: ngarkoFoton, hiqFoton: hiqFoton,
       dergoRadhen: dergoRadhen,
 
       // Anëtarët (perdoruesit/*) me praninë, në kohë reale
       degjoAnetaret: function (cb, cbGabim) {
         return fs.onSnapshot(fs.collection(db, 'perdoruesit'), function (s) {
-          cb(listaNga(s).map(function (x) {
+          var lista = listaNga(s).map(function (x) {
             return { uid: x.id, emri: x.perdoruesi || x.emri || x.id, aktivSe: x.aktivSe || x.kycurSe || 0, online: x.online === true,
               platforma: x.platforma || '', kycurSe: x.kycurSe || 0, admin: x.emri === ADMIN_EMRI || x.perdoruesi === ADMIN_EMRI, sasiaShpejte: x.sasiaShpejte === true };
-          }));
+          });
+          Fotot.vendosEmrat(lista);
+          cb(lista);
         }, function (e) { if (cbGabim) cbGabim(e); });
       },
 
@@ -1279,7 +1410,7 @@
     ndryshoAfatinNeGjendje: ndryshoAfatinNeGjendje, fletetEStokut: fletetEStokut,
     hartaEHeqjeve: hartaEHeqjeve, mbivendosHeqjen: mbivendosHeqjen, duhetZbatuarHeqja: duhetZbatuarHeqja,
     kalendari: kalendari, statistikat: statistikat, tekstiNgjarjes: tekstiNgjarjes, tekstiNjoftimit: tekstiNjoftimit,
-    isoDites: isoDites
+    isoDites: isoDites, Fotot: Fotot
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuEkipa = api;

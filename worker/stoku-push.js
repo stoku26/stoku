@@ -15,6 +15,13 @@
  *        të enkriptuar (Web Push, RFC 8291 + VAPID RFC 8292). Pajisjet që s'ekzistojnë më (404/410) fshihen.
  *   POST /prove  → njoftim prove vetëm te pajisjet e vetë përdoruesit (p.sh. për ta parë te ora).
  *
+ * Fotot e profilit (v141) — ruhen te Cloudflare KV (binding "FOTO"), JO te Firebase:
+ *   PUT    /foto        (Bearer token)  → ruan foton e vetë përdoruesit (JPEG/PNG/WebP, ≤ 150 KB)
+ *   DELETE /foto        (Bearer token)  → heq foton e vet
+ *   GET    /fotot       (Bearer token)  → { uid: koha } për krejt fotot (për t'i shfaqur me ?v=koha)
+ *   GET    /foto/{uid}?v=koha           → vetë fotoja (publike, me cache të gjatë)
+ *   Tokeni verifikohet me çelësat publikë të Google-it (nënshkrimi RS256), pa lexuar databazën e Firebase-it.
+ *
  * Pa varësi të jashtme: vetëm WebCrypto e Cloudflare-it.
  */
 
@@ -28,14 +35,16 @@ export default {
     const origin = req.headers.get('Origin') || '';
     const cors = {
       'Access-Control-Allow-Origin': ORIGJINAT.includes(origin) ? origin : ORIGJINAT[0],
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Authorization, Content-Type',
       'Access-Control-Max-Age': '86400',
       'Vary': 'Origin'
     };
     const pergjigju = (o, status) => new Response(JSON.stringify(o), { status: status || 200, headers: Object.assign({ 'Content-Type': 'application/json' }, cors) });
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
-    if (req.method !== 'POST') return pergjigju({ ok: true, sherbimi: 'stoku-push', celesat: !!(env.VAPID_PUBLIC && env.VAPID_PRIVATE) });
+    const rrugaF = new URL(req.url).pathname.replace(/\/+$/, '');
+    if (rrugaF === '/foto' || rrugaF === '/fotot' || rrugaF.indexOf('/foto/') === 0) return trajtoFotot(req, env, rrugaF, cors, pergjigju);
+    if (req.method !== 'POST') return pergjigju({ ok: true, sherbimi: 'stoku-push', celesat: !!(env.VAPID_PUBLIC && env.VAPID_PRIVATE), fotot: !!env.FOTO });
     if (!env.VAPID_PUBLIC || !env.VAPID_PRIVATE) return pergjigju({ ok: false, arsye: 'mungojne-celesat' }, 500);
 
     const token = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
@@ -98,6 +107,81 @@ export default {
     }
   }
 };
+
+// ---------------- Fotot e profilit (Cloudflare KV) ----------------
+const FOTO_MAKS = 150 * 1024;
+const PROJEKTI_ISS = 'https://securetoken.google.com/' + PROJEKTI;
+const JWK_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
+let jwkCache = { celesat: null, skadon: 0 };
+async function celesatEGoogle() {
+  if (jwkCache.celesat && Date.now() < jwkCache.skadon) return jwkCache.celesat;
+  const r = await fetch(JWK_URL);
+  if (!r.ok) throw new Error('jwk-' + r.status);
+  const j = await r.json();
+  const m = /max-age=(\d+)/.exec(r.headers.get('Cache-Control') || '');
+  jwkCache = { celesat: j.keys || [], skadon: Date.now() + (m ? Number(m[1]) * 1000 : 3600e3) };
+  return jwkCache.celesat;
+}
+// Verifikon tokenin e Firebase Auth (RS256, iss/aud/exp) dhe kthen uid-in — ose null
+export async function verifikoTokenin(token, celesat) {
+  try {
+    const p = String(token || '').split('.');
+    if (p.length !== 3) return null;
+    const krye = JSON.parse(new TextDecoder().decode(b64uDekodo(p[0])));
+    const trup = JSON.parse(new TextDecoder().decode(b64uDekodo(p[1])));
+    if (krye.alg !== 'RS256' || !krye.kid) return null;
+    const tani = Math.floor(Date.now() / 1000);
+    if (trup.iss !== PROJEKTI_ISS || trup.aud !== PROJEKTI || !trup.sub || typeof trup.sub !== 'string' || trup.sub.length > 128) return null;
+    if (!(trup.exp > tani) || !(trup.iat <= tani + 300)) return null;
+    const jwk = (celesat || await celesatEGoogle()).find(k => k.kid === krye.kid);
+    if (!jwk) return null;
+    const celesi = await crypto.subtle.importKey('jwk', { kty: jwk.kty, n: jwk.n, e: jwk.e, alg: 'RS256', ext: true }, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);
+    const ok = await crypto.subtle.verify('RSASSA-PKCS1-v1_5', celesi, b64uDekodo(p[2]), tekst(p[0] + '.' + p[1]));
+    return ok ? trup.sub : null;
+  } catch (e) { return null; }
+}
+function llojiIFotos(b) {
+  if (b.length > 3 && b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF) return 'image/jpeg';
+  if (b.length > 8 && b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47) return 'image/png';
+  if (b.length > 12 && b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 && b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50) return 'image/webp';
+  return null;
+}
+async function lexoIndeksin(env) { try { return (await env.FOTO.get('indeksi', 'json')) || {}; } catch (e) { return {}; } }
+async function trajtoFotot(req, env, rruga, cors, pergjigju) {
+  if (!env.FOTO) return pergjigju({ ok: false, arsye: 'mungon-kv' }, 500);
+  // Vetë fotoja: publike (uid-i s'merret me mend), me cache të gjatë kur ka ?v=
+  if (req.method === 'GET' && rruga.indexOf('/foto/') === 0) {
+    const uid = decodeURIComponent(rruga.slice(6));
+    if (!/^[A-Za-z0-9_-]{1,128}$/.test(uid)) return new Response('', { status: 400, headers: cors });
+    const r = await env.FOTO.getWithMetadata('foto:' + uid, 'arrayBuffer');
+    if (!r || !r.value) return new Response('', { status: 404, headers: Object.assign({ 'Cache-Control': 'public, max-age=60' }, cors) });
+    const meV = new URL(req.url).searchParams.has('v');
+    return new Response(r.value, { headers: Object.assign({ 'Content-Type': (r.metadata && r.metadata.lloji) || 'image/jpeg', 'Cache-Control': meV ? 'public, max-age=31536000, immutable' : 'public, max-age=300' }, cors) });
+  }
+  const token = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
+  const uid = await verifikoTokenin(token);
+  if (!uid) return pergjigju({ ok: false, arsye: 'pa-hyrje' }, 401);
+  if (req.method === 'GET' && rruga === '/fotot') return pergjigju({ ok: true, fotot: await lexoIndeksin(env) });
+  if (rruga !== '/foto') return pergjigju({ ok: false, arsye: 'rruga' }, 404);
+  if (req.method === 'PUT') {
+    const b = new Uint8Array(await req.arrayBuffer());
+    if (!b.length || b.length > FOTO_MAKS) return pergjigju({ ok: false, arsye: 'madhesia' }, 413);
+    const lloji = llojiIFotos(b);
+    if (!lloji) return pergjigju({ ok: false, arsye: 'jo-foto' }, 415);
+    const koha = Date.now();
+    await env.FOTO.put('foto:' + uid, b, { metadata: { koha, lloji } });
+    const ind = await lexoIndeksin(env); ind[uid] = koha;
+    await env.FOTO.put('indeksi', JSON.stringify(ind));
+    return pergjigju({ ok: true, koha });
+  }
+  if (req.method === 'DELETE') {
+    await env.FOTO.delete('foto:' + uid);
+    const ind = await lexoIndeksin(env); delete ind[uid];
+    await env.FOTO.put('indeksi', JSON.stringify(ind));
+    return pergjigju({ ok: true });
+  }
+  return pergjigju({ ok: false, arsye: 'metoda' }, 405);
+}
 
 // ---------------- Firestore REST (me tokenin e përdoruesit: rregullat vlejnë si në aplikacion) ----------------
 function uidNgaTokeni(t) {

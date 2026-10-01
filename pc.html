@@ -886,7 +886,7 @@
 </style>
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=2">
-<link rel="stylesheet" href="css/stoku-pc.css?v=8">
+<link rel="stylesheet" href="css/stoku-pc.css?v=9">
 </head>
 <body>
 <script src="porta.js?v=119"></script>
@@ -1764,6 +1764,16 @@
             </div>
             <div class="ops-karta">
               <div class="ops-fusha">
+                <span class="ops-ik ngj-vjollce"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"></path><circle cx="12" cy="13" r="3.5"></circle></svg></span>
+                <div class="ops-titull">Fotoja e profilit</div>
+                <p class="ops-hint" id="opsFotoHint">E sheh krejt ekipa.</p>
+                <div class="ops-foto-rresht">
+                  <button class="btn dyte ops-foto-hiq" type="button" id="opsFotoHiq" style="display:none">Hiq foton</button>
+                  <button class="btn dyte" type="button" id="opsFotoNdrysho">Shto foto</button>
+                  <input type="file" id="opsFotoSkedari" accept="image/*" hidden>
+                </div>
+              </div>
+              <div class="ops-fusha">
                 <span class="ops-ik ngj-blu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
                 <div class="ops-titull">Emri i përdoruesit</div>
                 <input class="inp" id="opsEmriRi" type="text" autocomplete="off" spellcheck="false" maxlength="40" placeholder="Emri i ri"><button class="btn dyte" type="button" id="opsNdryshoEmrin">Ndrysho</button>
@@ -1799,8 +1809,8 @@
 <script src="bashkimi.js?v=113"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=123"></script>
-<script src="ekipa.js?v=9"></script>
-<script src="teRejat.js?v=140"></script>
+<script src="ekipa.js?v=10"></script>
+<script src="teRejat.js?v=141"></script>
 <script>
 (function () {
   'use strict';
@@ -4185,9 +4195,44 @@
     $('opsNavAv').textContent = u ? shkronja : '?';
     $('opsNavAv').classList.toggle('bosh', !u);
     $('opsNavEmri').textContent = u ? emri : 'Pa llogari';
+    var FT = window.StokuEkipa && window.StokuEkipa.Fotot;
+    if (FT) {
+      var kush = u ? { uid: u.uid, emri: emri } : null;
+      FT.apliko($('sbpAvatar'), kush); FT.apliko($('opsLlAv'), kush); FT.apliko($('opsNavAv'), kush);
+      var kaFoto = !!(u && FT.url(u.uid));
+      $('opsFotoNdrysho').textContent = kaFoto ? 'Ndrysho foton' : 'Shto foto';
+      $('opsFotoHiq').style.display = kaFoto ? '' : 'none';
+    }
     vendosStatusin(u ? (sink.statusi === 'lokal' ? 'pune' : sink.statusi) : 'lokal', true);
   }
   $('btnLlogaria').addEventListener('click', hapLlogarine);
+  // Fotoja e profilit: ruhet te Worker-i (Cloudflare), e sheh krejt ekipa
+  var __fotoDukeDerguar = false;
+  function tekstiGabimitFotos(a) {
+    return a === 'jo-foto' ? 'Ky skedar nuk është foto.' : a === 'madhesia' ? 'Fotoja është shumë e madhe.' :
+      a === 'pa-hyrje' ? 'Hyr në llogari për të vendosur foto.' : a === 'mungon-kv' ? 'Fotot ende s\'janë aktivizuar në server.' :
+      'Fotoja nuk u ruajt. Kontrollo internetin dhe provo sërish.';
+  }
+  async function veproMeFoton(veprimi, skedari) {
+    var c = window.__stokuCloud, e = c && c.ekipa;
+    if (!e || __fotoDukeDerguar) return;
+    __fotoDukeDerguar = true;
+    $('opsFotoNdrysho').disabled = $('opsFotoHiq').disabled = true;
+    $('opsFotoHint').textContent = veprimi === 'hiq' ? 'Po hiqet fotoja…' : 'Po ngarkohet fotoja…';
+    var r = veprimi === 'hiq' ? await e.hiqFoton() : await e.ngarkoFoton(skedari);
+    __fotoDukeDerguar = false;
+    $('opsFotoNdrysho').disabled = $('opsFotoHiq').disabled = false;
+    $('opsFotoHint').textContent = r.ok ? 'E sheh krejt ekipa.' : tekstiGabimitFotos(r.arsye);
+    if (r.ok) toast(veprimi === 'hiq' ? 'Fotoja u hoq.' : 'Fotoja u ruajt. E sheh krejt ekipa.');
+    rifreskoLlogarine();
+  }
+  $('opsFotoNdrysho').addEventListener('click', function () { $('opsFotoSkedari').value = ''; $('opsFotoSkedari').click(); });
+  $('opsLlAv').addEventListener('click', function () { $('opsFotoNdrysho').click(); });
+  $('opsFotoSkedari').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) veproMeFoton('ngarko', f); });
+  $('opsFotoHiq').addEventListener('click', async function () {
+    if (await konfirmo('Ta heqim foton?', 'Në vend të fotos do të dalë shkronja e emrit tënd.', 'Hiqe')) veproMeFoton('hiq');
+  });
+  window.addEventListener('stoku-fotot-ndryshuan', rifreskoLlogarine);
   $('llHyr').addEventListener('click', function () { hyrOseKrijo(false, 'llUser', 'llPass', 'llGabim'); });
   $('llKrijo').addEventListener('click', function () { hyrOseKrijo(true, 'llUser', 'llPass', 'llGabim'); });
   $('llPass').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') hyrOseKrijo(false, 'llUser', 'llPass', 'llGabim'); });
@@ -4677,7 +4722,8 @@
     return n;
   }
   function ekAvatar(a, meOnline) {
-    return el('span', 'ek-avatar' + (meOnline && (a.uneJam || EKL.eshteOnline(a)) ? ' online' : ''), String(a.emri || '?').charAt(0).toUpperCase());
+    var av = el('span', 'ek-avatar' + (meOnline && (a.uneJam || EKL.eshteOnline(a)) ? ' online' : ''), String(a.emri || '?').charAt(0).toUpperCase());
+    return EKL.Fotot.apliko(av, { uid: a.uid, emri: a.emri });
   }
   function ekOra(ts) { var d = new Date(ts); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
   function ekTeGjitha(anetaret) { var l = []; anetaret.forEach(function (a) { l = l.concat(a.afatet); }); return l; }
