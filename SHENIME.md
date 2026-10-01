@@ -50,6 +50,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **LOGOJA NË KRYE (v142 = 1.1.1)**: varianti nr 14 "Etiketë barkodi" (zgjedhur nga 20 në Claude Design):
+   `.stk-etiketa` te `css/stoku-tokens.css` (e përbashkët tel + PC): STOKU 18/800, barkodi SVG (shufra `currentColor`,
+   një `--stk-qelibar`), poshtë emri i përdoruesit me JetBrains Mono. Telefoni: `#logoSlika` (teksti `#sbDyqani`);
+   PC: `#logo` (teksti `#sbpBrandNen`: emri ose "Stoku dhe afatet"). Ikona e jashtme e aplikacionit s'preket.
+
 0000000. **FOTOT E PROFILIT (v141 = 1.1.0)**, pa Firebase: ruhen te Cloudflare KV përmes të njëjtit Worker `stoku-push`.
    - Worker-i (`worker/stoku-push.js`): binding KV me emrin `FOTO` (namespace `stoku-foto`, e krijon PËRDORUESI te
      Cloudflare). `GET /foto/{uid}?v=koha` publike (uid s'merret me mend; me `?v=` cache 1 vit, immutable),

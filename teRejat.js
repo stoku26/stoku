@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 142, versioni: '1.1.1', data: '2026-10-01', titulli: 'Logo e re në krye', pikat: [
+      'Lart majtas Stoku ka logo të re si etiketë barkodi, me emrin tënd poshtë. Përshtatet vetë me temën e çelët dhe të errët.'
+    ] },
     { v: 141, versioni: '1.1.0', data: '2026-10-01', titulli: 'Foto e profilit', pikat: [
       'Te Cilësimet → Llogaria mund të vendosësh foton tënde të profilit (ose ta heqësh). Fotoja del te Ekipa, chat-i, aktiviteti dhe Cilësimet, dhe e sheh krejt ekipa.'
     ] },
