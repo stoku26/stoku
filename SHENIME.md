@@ -50,6 +50,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **HAPJA PA "DUKE HYRË SI…" (v145 = 1.2.1)**: në Android (PWA e instaluar) pas splash-it të sistemit (ikona e
+   madhe në `background_color`, s'mund të hiqet) dilte edhe karta e portës "Duke hyrë si X…" → dukej si dy ekrane.
+   Tani `porta.js`: nëse `stoku:porta:hyrja.uid === stoku:pronari-uid`, porta fshihet menjëherë (pa animacion) dhe
+   `stoku-porta-hapur` dërgohet pas `load` (që dëgjuesit e faqes të jenë regjistruar). Firebase konfirmon në sfond:
+   pa përdorues → `hap()`; llogari tjetër → pastrim + rinisje (si më parë). Pas "Dil" hyrja fshihet → porta del normalisht.
+   Test: `porta-shpejt.js`.
+
 0000000. **IKONAT E FOLDERAVE + LOGOJA PA DRIDHJE (v144 = 1.2.0)**:
    - `afatet.js`: `IKONAT_FOLDERAVE` (16 ikona, `d` = path-at SVG, `ngj` = klasa `.ngj-*`), `ikonaEFolderit(f)` (`f.ikona` ose
      sipas emrit me regex, përndryshe "kutia"), `svgEIkones(ik, masa)`, `zgjedhesIIkonave(cont, emriFn)` (rrjetë radio;
