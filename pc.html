@@ -266,6 +266,13 @@
   :is(#ekTabela, #ekPultTabela) .k-data small { display: block; font-weight: 500; font-size: 12px; color: var(--gri); }
   :is(#ekTabela, #ekPultTabela) .k-av { width: 150px; text-align: right; padding-right: 12px; overflow: visible; }
   :is(#ekTabela, #ekPultTabela) .af-prod { line-height: 1.3; }
+  /* Përmbledhja e Ekipës: tabela është në një kartë më të ngushtë — kolonat anësore më të ngushta, që emri i produktit të ketë vend */
+  #ekPultTabela .k-st { width: 164px; }
+  #ekPultTabela .k-sas { width: 56px; }
+  #ekPultTabela .k-data { width: 118px; }
+  #ekPultTabela .k-pronari { width: 104px; }
+  #ekPultTabela .k-av { width: 128px; }
+  #ekPultTabela th { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   :is(#ekTabela, #ekPultTabela) .af-prod div:first-child { font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
   :is(#ekTabela, #ekPultTabela) .af-prod div + div { font-size: 12px; color: var(--gri); overflow: hidden; text-overflow: ellipsis; }
   :is(#ekTabela, #ekPultTabela) td { height: auto; padding-top: 7px; padding-bottom: 7px; }
@@ -1835,8 +1842,8 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=144"></script>
-<script src="ekipa.js?v=149"></script>
-<script src="teRejat.js?v=149"></script>
+<script src="ekipa.js?v=150"></script>
+<script src="teRejat.js?v=150"></script>
 <script>
 (function () {
   'use strict';
@@ -5470,7 +5477,8 @@
   $('ekZile').addEventListener('click', ekHapNjoftimet);
   function ekButoniKerkeses(n) {
     var w = el('div', 'ek-nj-veprim');
-    if (n.kryer) { w.appendChild(el('span', 'ek-nj-kryer', '✓ E hoqe nga rafti')); return w; }
+    var kr = ekK.kryeresiIKerkeses(n);
+    if (kr) { w.appendChild(el('span', 'ek-nj-kryer', kr.uneJam ? '✓ E hoqe nga rafti' : '✓ E hoqi ' + kr.emri)); return w; }
     var bt = el('button', 'btn dyte vogel', 'E hoqa nga rafti'); bt.type = 'button';
     bt.addEventListener('click', async function () {
       bt.disabled = true; bt.textContent = 'Duke ruajtur…';

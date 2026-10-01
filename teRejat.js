@@ -18,6 +18,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 150, versioni: '1.4.1', data: '2026-10-01', titulli: 'Rregullime pas kontrollit të plotë', pikat: [
+      'Kërkesat për heqje nga rafti mbeten te zilja derisa të shtypet "E hoqa". Kur i kërkohet krejt ekipës dhe një koleg e heq, të tjerët shohin "✓ E hoqi …" në vend të butonit.',
+      'Telefon: tabet e Ekipës (Afatet … Statistika) s\'priten më në ekranet e ngushta.',
+      'Kompjuter: tabela "Duhet vepruar" te Ekipa ka më shumë vend për emrin e produktit.'
+    ] },
     { v: 149, versioni: '1.4.0', data: '2026-10-01', titulli: 'Njoftimi ditor në orën tënde', platforma: 'tel', pikat: [
       'Te Cilësimet → Njoftimet ndiz "Përmbledhje çdo ditë" dhe zgjedh orën. Çdo ditë në atë orë të vjen një njoftim me produktet e skaduara dhe ato që skadojnë këtë javë, edhe kur Stoku është i mbyllur.',
       'Butoni "Dërgo njoftim provë" u hoq.'

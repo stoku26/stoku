@@ -50,6 +50,17 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **KONTROLLI I PLOTË (v150 = 1.4.1)**: zvarritësi `zv2.js` (416 klikime, tel + PC, e çelët + e errët; shtuar
+   cil-njoftimet, ekipa-kerko, ekipa-zile; `zv-lib.js KONTROLLO` tani i kalon elementet me `visibility:hidden`, që
+   jepnin alarme të rreme për dritaret e mbyllura jashtë ekranit), `tur-errët.js` (pamje me llogari, 2 tema), lint,
+   krejt testet e regresionit. Rregullime:
+   - Kërkesat `kerkese-heqje` të pakryera s'shënohen të lexuara kur hapet lista (mbeten te zilja deri "E hoqa");
+     `kryeresiIKerkeses(nj)` (njoftimi im `kryer` ose feed `kerkese-kryer` me të njëjtin `kerkeseId`) → "✓ E hoqi X";
+     `numriNjoftimeve` s'i numëron kërkesat e kryera nga një koleg.
+   - Tel: `.ek-pllakat/.ek-pult-pllakat` me `flex-wrap` + padding më i vogël (në 375px "Statistika" pritej).
+   - PC: `#ekPultTabela` kolona anësore më të ngushta (emri i produktit kishte ~80px; "Furnizuesi" pritej).
+   - Tel: lidhja e shkarkimit (Excel) `display:none`; hoqa `NGJYRAT_FOLDERAVE` të papërdorur.
+
 0000000. **NJOFTIMI DITOR NË ORËN E ZGJEDHUR + PA PROVË (v149 = 1.4.0)**:
    - Hoqa "Dërgo njoftim provë" (butoni, `provoPush`, rruga `/prove` te Worker-i); hapat e orës s'e përmendin më.
    - Telefoni, Cilësimet → Njoftimet: "Përmbledhje çdo ditë" (`#njDitor`) + "Ora e njoftimit" (`#njOra`, çdo 15 min, 96
