@@ -3,7 +3,9 @@
  *
  * SI PUNON: sa herë del një version i ri, shto NJË HYRJE NË KRYE të listës, me:
  *   v      = numri i versionit — I NJËJTI me numrin te sw.js (var CACHE = 'stoku-vNN') dhe te "teRejat.js?v=NN"
- *            (përdoruesi e sheh si "Stoku 1.N", shih emriVersionit() poshtë)
+ *   versioni = ai që sheh përdoruesi, "1.0.1" (MAJOR.MINOR.PATCH): rregullim i vogël → rrit të fundit (1.0.1 → 1.0.2);
+ *            diçka e re → rrit të mesit, i fundit 0 (1.0.2 → 1.1.0); ndryshim i madh i krejt aplikacionit → 2.0.0.
+ *            Nëse ka dy hyrje me të njëjtin v (tel + pc), të dyja e kanë të njëjtin `versioni`.
  *            në index.html, pc.html dhe sw.js (SHELL);
  *   data   = data e publikimit (VVVV-MM-DD);
  *   titulli = një rresht i shkurtër;
@@ -16,13 +18,13 @@
   'use strict';
 
   var LISTA = [
+    { v: 138, versioni: '1.0.0', data: '2026-10-01', titulli: 'Stoku 1.0.0', pikat: [
+      'Versionet tani kanë tre numra. Numri i fundit rritet për rregullime të vogla (1.0.1, 1.0.2…), ai i mesit kur shtohet diçka e re (1.1.0) dhe i pari vetëm kur ndryshon krejt aplikacioni (2.0.0).'
+    ] },
     { v: 137, data: '2026-10-01', titulli: 'Furnizuesit te Cilësimet', pikat: [
       'Për administratorin: te Cilësimet → Stoku ka listën e krejt furnizuesve, me sa afate ka secili.',
       'Prek një furnizues për t\'ia ndryshuar emrin: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër (p.sh. "laberion" dhe "Laberion"), të dy bashkohen në një.',
       'Në telefon, kategoria "Lista" te Cilësimet tani quhet "Stoku", si te kompjuteri.'
-    ] },
-    { v: 136, data: '2026-10-01', titulli: 'Stoku 1.0', pikat: [
-      'Versionet tani numërohen nga 1.0: ky është Stoku 1.0, përditësimet e ardhshme do të jenë 1.1, 1.2 e kështu me radhë.'
     ] },
     { v: 134, data: '2026-10-01', titulli: 'Pa "Sasi e ulët"', platforma: 'tel', pikat: [
       'U hoq "Sasi e ulët" dhe ngjyra portokalli te sasitë. Me të kuqe mbetet vetëm sasia 0.',
@@ -223,13 +225,11 @@
     return m ? m[3] + '.' + m[2] + '.' + m[1] : (iso || '');
   }
 
-  // Emri i versionit që sheh përdoruesi: "Stoku 1.0". Numri i brendshëm (v, CACHE te sw.js) mbetet për përditësimet.
-  // Numërimi nis te v136 = 1.0, v137 = 1.1 … Për 2.0: shto [v_e_re, 2] në krye të listës.
-  // Përditësimet para v136 s'kanë emër versioni (te "Çka ka të re" shfaqet vetëm data).
-  var MAJORET = [[136, 1]];
+  // Emri i versionit që sheh përdoruesi ("Stoku 1.0.1") = fusha `versioni` e hyrjes me atë `v` (numri i brendshëm v,
+  // CACHE te sw.js, mbetet për përditësimet). Hyrjet pa `versioni` (para 1.0.0) shfaqen vetëm me datë.
   function emriVersionit(v) {
     v = Number(v) || 0;
-    for (var i = 0; i < MAJORET.length; i++) if (v >= MAJORET[i][0]) return MAJORET[i][1] + '.' + (v - MAJORET[i][0]);
+    for (var i = 0; i < LISTA.length; i++) if (LISTA[i].v === v && LISTA[i].versioni) return LISTA[i].versioni;
     return '';
   }
   var MUAJT = ['janar', 'shkurt', 'mars', 'prill', 'maj', 'qershor', 'korrik', 'gusht', 'shtator', 'tetor', 'nëntor', 'dhjetor'];
