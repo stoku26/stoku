@@ -164,6 +164,7 @@
       p = p.then(function () {
         hiqNgaRadha(op.id);
         if (op.rruga[0] === 'ekipa_chat') njoftoPushChat(op.id); // kolegët e marrin njoftimin edhe me aplikacion të mbyllur
+        if (op.rruga[0] === 'ekipa_feed' && /^kerkese-/.test(op.te.lloji)) njoftoPushKerkese(op.id);
         return { ok: true, id: op.id };
       }, function (e) {
         // Vetëm gabimet e përkohshme (lidhja) riprovohen; "s'lejohet" (ose ekziston tashmë nga një dërgim i
@@ -259,6 +260,7 @@
       document.addEventListener('visibilitychange', function () { if (!document.hidden) rifreskoFotot(false); });
     }
 
+    function njoftoPushKerkese(id) { thirrPush('/kerkese', { id: id }).catch(function () { /* pa internet / pa Worker */ }); }
     function njoftoPushChat(id) { thirrPush('/chat', { id: id }).catch(function () { /* pa internet / pa Worker — s'ka gjë */ }); }
     // Worker-i u përgjigj mirë së fundi (7 ditë)? Vetëm atëherë i besohet push-it dhe hiqen njoftimet lokale të chat-it.
     async function kontrolloServerin() {
@@ -473,6 +475,32 @@
           shtoNeRadhe(['perdoruesit', u, 'njoftimet'], { lloji: 'lajmerim', tekst: tekst, uid: uid(), emri: emri(), koha: koha, lexuar: false });
         });
         return pritPak(shtoNeRadhe(['ekipa_feed'], { lloji: 'lajmerim', tekst: tekst, uid: uid(), emri: emri(), koha: koha }));
+      },
+      // Kërkesë që një koleg (ose krejt ekipa) ta heqë nga rafti një produkt (edhe pa afat në Stoku).
+      // Ngjarja te aktiviteti + njoftim te zilja e secilit marrës; Worker-i dërgon push (/kerkese).
+      kerkoHeqjen: function (k, listaUid) {
+        var produkti = String(k.produkti || '').trim().slice(0, 120), barkodi = String(k.barkodi || '').trim().slice(0, 40);
+        if ((!produkti && !barkodi) || !uid()) return Promise.resolve({ ok: false, arsye: 'bosh' });
+        var shenim = String(k.shenim || '').trim().slice(0, 300), koha = Date.now();
+        var ng = shtoNeRadhe(['ekipa_feed'], { lloji: 'kerkese-heqje', uid: uid(), emri: emri(), koha: koha, produkti: produkti,
+          barkodi: barkodi, shenim: shenim, perUid: k.perUid || '', perEmri: k.perEmri || '' });
+        (listaUid || []).forEach(function (u) {
+          if (u === uid()) return;
+          shtoNeRadhe(['perdoruesit', u, 'njoftimet'], { lloji: 'kerkese-heqje', kerkeseId: ng.id, produkti: produkti, barkodi: barkodi,
+            shenim: shenim, perKrejt: !k.perUid, uid: uid(), emri: emri(), koha: koha, lexuar: false });
+        });
+        return pritPak(ng);
+      },
+      // Marrësi e shënon të kryer: njoftimi i vet (kryer), ngjarje te aktiviteti dhe njoftim te ai që e kërkoi
+      kryejKerkesen: async function (nj) {
+        if (!uid() || !nj || !nj.id) return { ok: false };
+        var koha = Date.now();
+        try { await fs.setDoc(fs.doc(db, 'perdoruesit', uid(), 'njoftimet', nj.id), { kryer: true, kryerSe: koha, lexuar: true }, { merge: true }); }
+        catch (e) { if (!/unavailable|deadline/.test(String(e && e.code))) return gabim(e); }
+        var te = { kerkeseId: nj.kerkeseId || '', produkti: nj.produkti || '', barkodi: nj.barkodi || '' };
+        if (nj.uid && nj.uid !== uid()) shtoNeRadhe(['perdoruesit', nj.uid, 'njoftimet'], Object.assign({ lloji: 'kerkese-kryer', uid: uid(), emri: emri(), koha: koha, lexuar: false }, te));
+        return pritPak(shtoNeRadhe(['ekipa_feed'], Object.assign({ lloji: 'kerkese-kryer', uid: uid(), emri: emri(), koha: koha,
+          kerkuesUid: nj.uid || '', kerkuesEmri: nj.emri || '' }, te)));
       },
       // Fshin krejt dokumentet e një koleksioni (ekipa_chat / ekipa_feed), me grupe nga 400
       pastroKoleksionin: async function (emriKol) {
@@ -831,6 +859,12 @@
         return { lloji: 'anetar-i-ri', kush: kush, cfare: ng.uid === uidIm ? 'u bashkove me ekipën' : 'u bashkua me ekipën', detaje: '' };
       case 'lajmerim':
         return { lloji: 'lajmerim', kush: kush, cfare: ng.uid === uidIm ? 'njoftove krejt ekipën' : 'njoftoi krejt ekipën', detaje: ng.tekst || '' };
+      case 'kerkese-heqje':
+        return { lloji: 'lajmeruar', kush: kush, cfare: (ng.uid === uidIm ? 'kërkove' : 'kërkoi') + ' heqjen nga rafti: ' + produktiIKerkeses(ng),
+          detaje: (ng.perUid ? 'për ' + (ng.perUid === uidIm ? 'ty' : (ng.perEmri || 'një koleg')) : 'për krejt ekipën') + (ng.shenim ? ' · ' + ng.shenim : '') };
+      case 'kerkese-kryer':
+        return { lloji: 'hequr', kush: kush, cfare: (ng.uid === uidIm ? 'e hoqe' : 'e hoqi') + ' nga rafti: ' + produktiIKerkeses(ng),
+          detaje: 'me kërkesë të ' + (ng.kerkuesUid === uidIm ? 'teje' : (ng.kerkuesEmri || 'një kolegu')) };
       case 'admin-afat':
         return { lloji: 'admin-afat', kush: kush, cfare: (FJALA_E_VEPRIMIT[ng.veprimi] || 'ndryshoi') + ': ' + (ng.produkti || ng.barkodi || 'produkt'),
           detaje: ng.pronariUid === uidIm ? 'produkt i yti' : 'i përket: ' + (ng.pronariEmri || 'kolegut') };
@@ -839,8 +873,30 @@
     }
   }
 
+  function produktiIKerkeses(k) {
+    var p = String(k.produkti || '').trim(), b = String(k.barkodi || '').trim();
+    return p && b && p !== b ? p + ' (' + b + ')' : (p || b || 'produkt');
+  }
+  // Teksti i shkruar te "Kërko heqje" → { produkti, barkodi }: emri ose barkodi i një produkti të njohur plotësohet vetë
+  function kerkesaNgaTeksti(tekst, produktet) {
+    var t = String(tekst || '').trim();
+    if (!t) return { produkti: '', barkodi: '' };
+    var tl = t.toLowerCase(), gjetur = null;
+    (produktet || []).some(function (p) {
+      if (!p) return false;
+      var b = String(p.barkodi || ''), e = String(p.emri || '').trim();
+      if (b && b === t) { gjetur = p; return true; }
+      if (e && (e.toLowerCase() === tl || (b && (e + ' · ' + b).toLowerCase() === tl))) { gjetur = p; return true; }
+      return false;
+    });
+    if (gjetur) return { produkti: String(gjetur.emri || '').trim(), barkodi: String(gjetur.barkodi || '') };
+    return /^[0-9]{6,20}$/.test(t) ? { produkti: '', barkodi: t } : { produkti: t, barkodi: '' };
+  }
   // Teksti i një njoftimi personal (zilja + njoftimi i sistemit)
   function tekstiNjoftimit(nj) {
+    if (nj.lloji === 'kerkese-heqje') return (nj.emri || 'Një koleg') + (nj.perKrejt ? ' i kërkon ekipës ta heqë nga rafti: ' : ' të kërkon ta heqësh nga rafti: ') +
+      produktiIKerkeses(nj) + (nj.shenim ? ' · ' + nj.shenim : '');
+    if (nj.lloji === 'kerkese-kryer') return (nj.emri || 'Një koleg') + ' e hoqi nga rafti: ' + produktiIKerkeses(nj) + ' (kërkesa jote)';
     if (nj.lloji === 'hequr') {
       var A = AF();
       return (nj.emri || 'Një koleg') + ' e hoqi nga rafti: ' + (nj.produkti || nj.barkodi || 'produkt') +
@@ -1011,6 +1067,24 @@
       if (!e || !gj.admin || !e.vendosLejen) return { ok: false };
       return e.vendosLejen(a.uid, po);
     }
+    // Kërkesë për heqje nga rafti (çdo anëtar): te një koleg (perUid) ose te krejt ekipa
+    function koleget() { var im = o.uidIm(); return anetaretEDukshem().filter(function (a) { return a.uid !== im; }); }
+    async function kerkoHeqjen(k) {
+      var e = E();
+      if (!e || !e.kerkoHeqjen) return { ok: false };
+      var lista = koleget(), per = null;
+      if (k.perUid) { lista.forEach(function (a) { if (a.uid === k.perUid) per = a; }); if (!per) return { ok: false, arsye: 'anetari' }; }
+      if (!lista.length) return { ok: false, arsye: 'pa-kolege' };
+      return e.kerkoHeqjen({ produkti: k.produkti, barkodi: k.barkodi, shenim: k.shenim, perUid: per ? per.uid : '', perEmri: per ? per.emri : '' },
+        per ? [per.uid] : lista.map(function (a) { return a.uid; }));
+    }
+    async function kryejKerkesen(nj) {
+      var e = E();
+      if (!e || !e.kryejKerkesen) return { ok: false };
+      var r = await e.kryejKerkesen(nj);
+      if (r && r.ok) { nj.kryer = true; gj.njoftimetPalexuara = gj.njoftimetPalexuara.filter(function (x) { return x.id !== nj.id; }); thirr('njoftimet'); }
+      return r;
+    }
     // Administratori: njoftim te zilja e krejt anëtarëve
     async function lajmeroEkipen(tekst) {
       var e = E();
@@ -1094,7 +1168,10 @@
         if (heqjet.length && o.zbatoHeqjet) { try { o.zbatoHeqjet(heqjet); } catch (er) { /* ok */ } }
         lista.forEach(function (n) {
           if (uNjoftua('nj:' + n.id)) return;
-          if ((Date.now() - (n.koha || 0)) < 2 * 86400000 && o.njofto) o.njofto({ titulli: 'Stoku · Ekipa', teksti: tekstiNjoftimit(n), tag: 'ek-nj-' + n.id, pamja: 'njoftimet' });
+          if ((Date.now() - (n.koha || 0)) >= 2 * 86400000 || !o.njofto) return;
+          // Kërkesat vijnë edhe si push nga Worker-i: kur push-i punon, njoftimi lokal do të ishte i dyfishtë (si te chat-i)
+          var ngaPush = /^kerkese-/.test(n.lloji) && e.pushAktiv && e.pushAktiv();
+          o.njofto({ titulli: /^kerkese-/.test(n.lloji) ? 'Stoku · Hiqe nga rafti' : 'Stoku · Ekipa', teksti: tekstiNjoftimit(n), tag: 'ek-nj-' + n.id, pamja: 'njoftimet', vetemNePerpara: ngaPush });
         });
         thirr('njoftimet');
       }, function () { /* p.sh. rregullat ende pa u vendosur — thjesht s'ka njoftime */ });
@@ -1396,6 +1473,7 @@
       numriKerkesave: function () { return gj.admin ? gj.nKerkesa : 0; },
       pranoAnetaret: pranoAnetaret, hiqNgaEkipa: hiqNgaEkipa, fshijLlogarine: fshijLlogarine,
       vendosLejen: vendosLejen, lajmeroEkipen: lajmeroEkipen,
+      koleget: koleget, kerkoHeqjen: kerkoHeqjen, kryejKerkesen: kryejKerkesen,
       pastroChatin: function () { return pastro('ekipa_chat'); }, pastroAktivitetin: function () { return pastro('ekipa_feed'); },
       merrStokun: merrStokun, adminNdryshoAfatin: adminNdryshoAfatin
     };
@@ -1410,7 +1488,7 @@
     ndryshoAfatinNeGjendje: ndryshoAfatinNeGjendje, fletetEStokut: fletetEStokut,
     hartaEHeqjeve: hartaEHeqjeve, mbivendosHeqjen: mbivendosHeqjen, duhetZbatuarHeqja: duhetZbatuarHeqja,
     kalendari: kalendari, statistikat: statistikat, tekstiNgjarjes: tekstiNgjarjes, tekstiNjoftimit: tekstiNjoftimit,
-    isoDites: isoDites, Fotot: Fotot
+    isoDites: isoDites, Fotot: Fotot, kerkesaNgaTeksti: kerkesaNgaTeksti
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuEkipa = api;

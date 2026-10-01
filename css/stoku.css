@@ -447,3 +447,15 @@ html.sb body { -webkit-user-select: none; user-select: none; -webkit-touch-callo
 /* Ikonat e folderave te kryefaqja (në vend të katrorëve me ngjyrë) */
 .sb .sb-folder__swatch.folder-ikona { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; opacity: 1; }
 .sb #dlgFolder .fl-ikonat-titull { margin-top: 4px; }
+
+/* Ekipa: "Kërko heqje nga rafti" (pulti) + butoni "E hoqa nga rafti" te njoftimet */
+.sb .ek-kerko-heqje { display: flex; align-items: center; gap: 12px; width: 100%; margin: 14px 0 4px; padding: 12px 14px; border: 0; border-radius: 18px; background: var(--sb-surface); box-shadow: var(--sb-ring); color: var(--sb-ink); font: inherit; text-align: left; cursor: pointer; }
+.sb .ek-kerko-heqje:active { background: var(--sb-surface-2); }
+.sb .ek-kerko-heqje__ik { flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--sb-ic-kuqe-bg); color: var(--sb-ic-kuqe); }
+.sb .ek-kerko-heqje__tk { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.sb .ek-kerko-heqje__tk b { font-size: 15px; font-weight: 700; }
+.sb .ek-kerko-heqje__tk span { font-size: 12.5px; color: var(--sb-muted); }
+.sb .ek-kerko-heqje .shigjeta { color: var(--sb-faint); font-size: 20px; }
+.sb .ek-nj-veprim { margin-top: 8px; }
+.sb .ek-nj-btn { height: 36px; padding: 0 14px; font-size: 13.5px; border-radius: 10px; }
+.sb .ek-nj-kryer { display: inline-block; font-size: 13px; font-weight: 700; color: var(--sb-ic-gjelber); }

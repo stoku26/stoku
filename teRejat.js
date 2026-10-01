@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 147, versioni: '1.3.0', data: '2026-10-01', titulli: 'Kërko heqje nga rafti', pikat: [
+      'Te Ekipa ka butonin "Kërko heqje nga rafti": zgjedh produktin (ose shkruan barkodin), kolegun ose krejt ekipën dhe një shënim. Vlen edhe për produkte pa afat në Stoku.',
+      'Kolegu e merr njoftimin edhe në telefon. Te Njoftimet shtyp "E hoqa nga rafti" dhe ti njoftohesh që u krye. Krejt kjo shihet edhe te Aktiviteti.'
+    ] },
     { v: 146, versioni: '1.2.2', data: '2026-10-01', titulli: 'Cilësimet më të pastra', pikat: [
       'Poshtë te Cilësimet mbeti vetëm "Stoku" me versionin, pa ikonën.'
     ] },

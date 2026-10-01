@@ -66,6 +66,27 @@ export default {
         const tekst = String(m.tekst || '');
         ngarkesa = { lloji: 'chat', titulli: (m.emri || 'Ekipa') + ' · Chat', teksti: tekst.length > 180 ? tekst.slice(0, 177) + '…' : tekst, tag: 'ek-chat-' + id, url: './index.html#ekipa/chat', koha: Number(m.koha) || Date.now() };
         perKe = a => a.uid !== uid;
+      } else if (rruga === '/kerkese') {
+        // Kërkesë për heqje nga rafti (ose "u krye"): ngjarja te ekipa_feed, e lexuar me tokenin e dërguesit
+        const id = String(trupi.id || '');
+        if (!/^[A-Za-z0-9_-]{6,80}$/.test(id)) return pergjigju({ ok: false, arsye: 'id' }, 400);
+        const k = await lexoDoc('ekipa_feed/' + id, token);
+        if (!k) return pergjigju({ ok: false, arsye: 's-u-gjet' }, 404);
+        if (k.uid !== uid) return pergjigju({ ok: false, arsye: 'jo-i-yti' }, 403);
+        if (k.lloji !== 'kerkese-heqje' && k.lloji !== 'kerkese-kryer') return pergjigju({ ok: false, arsye: 'lloji' }, 400);
+        if (!(Math.abs(Date.now() - Number(k.koha || 0)) < MESAZH_MAKS_MS)) return pergjigju({ ok: false, arsye: 'i-vjeter' }, 409);
+        const p = String(k.produkti || '').trim(), b = String(k.barkodi || '').trim();
+        const produkti = p && b && p !== b ? p + ' (' + b + ')' : (p || b || 'produkt');
+        const kush = k.emri || 'Një koleg';
+        let tekst;
+        if (k.lloji === 'kerkese-heqje') {
+          tekst = (k.perUid ? kush + ' të kërkon ta heqësh nga rafti: ' : kush + ' i kërkon ekipës ta heqë nga rafti: ') + produkti + (k.shenim ? ' · ' + String(k.shenim) : '');
+          perKe = a => a.uid !== uid && (!k.perUid || a.uid === k.perUid);
+        } else {
+          tekst = kush + ' e hoqi nga rafti: ' + produkti + ' (kërkesa jote)';
+          perKe = a => a.uid !== uid && a.uid === k.kerkuesUid;
+        }
+        ngarkesa = { lloji: 'kerkese', titulli: 'Stoku · Hiqe nga rafti', teksti: tekst.length > 180 ? tekst.slice(0, 177) + '…' : tekst, tag: 'ek-kerkese-' + id, koha: Number(k.koha) || Date.now(), pamja: 'njoftimet' };
       } else if (rruga === '/prove') {
         ngarkesa = { lloji: 'prove', titulli: 'Stoku · Provë', teksti: 'Njoftimet punojnë. Kështu do të vijnë mesazhet e chat-it.', tag: 'stoku-prove', url: './index.html#ekipa/chat', koha: Date.now() };
         perKe = a => a.uid === uid;
@@ -79,7 +100,7 @@ export default {
       const teMiat = new Set(teGjitha.filter(a => a.uid === uid).map(a => a.endpoint));
       const pare = new Set();
       const pajisjet = teGjitha.filter(perKe).filter(a => {
-        if (rruga === '/chat' && teMiat.has(a.endpoint)) return false;
+        if (rruga !== '/prove' && teMiat.has(a.endpoint)) return false;
         if (pare.has(a.endpoint)) return false;
         pare.add(a.endpoint); return true;
       });
@@ -88,7 +109,8 @@ export default {
       const dergoKrejt = () => Promise.all(pajisjet.map(async a => {
         try {
           // prekja e njoftimit hap të njëjtin lloj dritareje: kompjuteri → pc.html, telefoni → index.html
-          const ng = Object.assign({}, ngarkesa, { url: a.platforma === 'pc' ? './pc.html#/ekipa/chat' : './index.html#ekipa/chat' });
+          const nen = ngarkesa.pamja === 'njoftimet' ? 'njoftimet' : 'chat';
+          const ng = Object.assign({}, ngarkesa, { url: a.platforma === 'pc' ? './pc.html#/ekipa/' + nen : './index.html#ekipa-' + nen });
           const st = await dergoPush(a, ng, vapid);
           if (st >= 200 && st < 300) derguar++;
           else if (st === 404 || st === 410) { fshire++; await fshiDoc('ekipa_push/' + a.id, token); }

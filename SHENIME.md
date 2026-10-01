@@ -50,6 +50,22 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **KËRKO HEQJE NGA RAFTI (v147 = 1.3.0)**: çdo anëtar i kërkon një kolegu (ose krejt ekipës) ta heqë nga rafti
+   një produkt, edhe pa afat në Stoku. S'ka rregulla të reja Firestore (përdor ekipa_feed + perdoruesit/{uid}/njoftimet).
+   - `ekipa.js` cloud: `kerkoHeqjen(k, listaUid)` → `ekipa_feed` {lloji:'kerkese-heqje', produkti, barkodi, shenim, perUid,
+     perEmri} + njoftim te secili marrës {lloji:'kerkese-heqje', kerkeseId, perKrejt}; `kryejKerkesen(nj)` → njoftimi i vet
+     {kryer:true} (setDoc merge), njoftim te kërkuesi {lloji:'kerkese-kryer'} + feed {lloji:'kerkese-kryer', kerkuesUid}.
+     Pas shkrimit të feed-it me lloji `kerkese-*` → push `/kerkese {id}`. Kontrolluesi: `koleget()`, `kerkoHeqjen`,
+     `kryejKerkesen`. `kerkesaNgaTeksti(tekst, produktet)` (emri / barkodi / "Emri · barkodi" → produkt i njohur).
+     Njoftimi lokal i sistemit për `kerkese-*` s'del kur push-i është aktiv (`vetemNePerpara`), si te chat-i.
+   - Worker: `POST /kerkese {id}`: lexon ekipa_feed/{id} me tokenin e dërguesit, kërkon uid = dërguesi, lloji kerkese-*,
+     koha < 3 min; marrësit: perUid ose krejt përveç dërguesit; "u krye" → vetëm kerkuesUid. URL: tel
+     `./index.html#ekipa-njoftimet`, PC `./pc.html#/ekipa/njoftimet` (edhe chat-i tani `#ekipa-chat`). sw.js: pamja
+     'njoftimet' → hapet Ekipa + dritarja e njoftimeve (tel `hapEkipenNgaNjoftimi`, PC mesazhi + hash në nisje).
+     **Kërkon që përdoruesi ta ngjisë sërish kodin e Worker-it** (pa binding të ri); pa të, njoftimi brenda aplikacionit punon.
+   - Telefoni: karta `#ekKerkoHeqje` te pulti i Ekipës, `#dlgKerkese`; PC: butoni "Kërko heqje" te koka e Ekipës.
+     Te Njoftimet: "E hoqa nga rafti" / "✓ E hoqe nga rafti". Testet: `kerkese-test.js`, `wp/kerkese-prova.mjs`.
+
 0000000. **PA IKONË TE VERSIONI (v146 = 1.2.2)**: hoqa ikonën e Stoku-t te fundi i Cilësimeve (tel `.ops-fundi`,
    PC `.ops-versioni`); mbeti vetëm "Stoku 1.x.x".
 
