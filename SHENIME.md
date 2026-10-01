@@ -50,6 +50,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **KONTROLLI I PLOTË (v129)**: zvarritës automatik (379 klikime në çdo buton, tel + PC) pa asnjë gabim JS, kontroll
+   i kontrastit (tel + PC, i çelët + i errët), 23 testet e regresionit në rregull. Rregullime:
+   - `.af-sink` (reja e sinkronizimit te Afatet) kishte ende stilin e header-it blu (e bardhë mbi të bardhë) → stil i ri te stoku.css.
+   - Te folderi (telefon) sasia 0 = `.sasia--zero` (e kuqe), 1–5 = `.sasia--pak` (portokalli), me `PRAGU_PAK` si te kryefaqja.
+   - Faqet e plota të mbyllura (`#dlgOpsione`, `.faqe-e-plote`) marrin `visibility: hidden` (me vonesë pas animacionit):
+     Tab-i/skaneri s'futet më në fusha të fshehura.
+   - PC: numrat/titujt e anësores me `--sb-muted` (ishin `--sb-faint`, kontrast i ulët).
+   - Telefoni: u hoq "Versioni për kompjuter" nga Cilësimet (+ `.lidhje-pc`).
+
 0000000. **CILËSIMET E REJA + AFATET ME NGJYRA (v128)**:
    - U HOQËN "Ngjyra kryesore" (telefon + PC) dhe "Motivi i sfondit" (telefon): markup, CSS, JS dhe `data-aksent`/`data-sfond`
      s'vendosen më (opsionet e vjetra `aksent`/`sfondi` në localStorage injorohen). Stoku ka vetëm blunë e dizajnit.

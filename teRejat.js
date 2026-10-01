@@ -15,6 +15,14 @@
   'use strict';
 
   var LISTA = [
+    { v: 129, data: '2026-10-01', titulli: 'Rregullime të vogla', platforma: 'tel', pikat: [
+      'Butoni i sinkronizimit lart te Afatet (reja me pikën e gjelbër) tani shihet qartë.',
+      'Brenda folderit, sasia 0 del me të kuqe dhe sasia e ulët (1 deri 5) me portokalli.',
+      'Te Cilësimet u hoq "Versioni për kompjuter".'
+    ] },
+    { v: 129, data: '2026-10-01', titulli: 'Rregullime të vogla', platforma: 'pc', pikat: [
+      'Numrat dhe titujt te menyja anësore lexohen më lehtë.'
+    ] },
     { v: 128, data: '2026-10-01', titulli: 'Cilësimet e reja dhe afatet me ngjyra', platforma: 'tel', pikat: [
       'Cilësimet kanë pamje të re: llogaria në krye, grupe të qarta me ikona me ngjyra dhe shembull i drejtpërdrejtë te Pamja.',
       'Te Afatet, kartat kanë sërish ngjyra të lehta: e kuqe për të skaduarat, e verdhë për ato afër skadimit, e gjelbër për ato në rregull.',
