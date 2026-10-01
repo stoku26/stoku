@@ -886,7 +886,7 @@
 </style>
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=2">
-<link rel="stylesheet" href="css/stoku-pc.css?v=5">
+<link rel="stylesheet" href="css/stoku-pc.css?v=6">
 </head>
 <body>
 <script src="porta.js?v=119"></script>
@@ -1056,7 +1056,7 @@
           <div class="karta-trup lista-e-shkurter" id="permbTeFundit"></div>
         </div>
         <div class="karta">
-          <div class="karta-krye"><h2>Sasia më e ulët</h2><button class="btn tekst vogel" type="button" id="btnShihTeUleta">Shih të gjitha</button></div>
+          <div class="karta-krye"><h2>Pa stok <span class="karta-krye-nr" id="permbPaStokNr"></span></h2><button class="btn tekst vogel" type="button" id="btnShihTeUleta">Shih të gjitha</button></div>
           <div class="karta-trup lista-e-shkurter" id="permbTeUleta"></div>
         </div>
       </div>
@@ -1102,7 +1102,6 @@
         <div class="segmente" id="filtrat">
           <button type="button" data-f="te-gjitha" class="aktiv">Të gjitha <span class="n" data-n="teGjitha"></span></button>
           <button type="button" data-f="zero">Sasi 0 <span class="n" data-n="zero"></span></button>
-          <button type="button" data-f="pak">Sasi e ulët <span class="n" data-n="pak"></span></button>
           <button type="button" data-f="paEmer">Pa emër <span class="n" data-n="paEmer"></span></button>
           <button type="button" data-f="dublikate" title="Barkode që gjenden në më shumë se një folder">Në disa foldera <span class="n" data-n="dublikate"></span></button>
         </div>
@@ -1790,7 +1789,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=122"></script>
 <script src="ekipa.js?v=8"></script>
-<script src="teRejat.js?v=133"></script>
+<script src="teRejat.js?v=134"></script>
 <script>
 (function () {
   'use strict';
@@ -1924,7 +1923,7 @@
   });
 
   // ================= Opsionet e kompjuterit =================
-  var ops = { tema: 'auto', dendesia: 'normale', madhesia: 'normale', pragu: 5 /* "Sasi e ulët" = 1–5 copë, si te telefoni (cilësimi u hoq në v133) */, rendi: 'koha:-1', madhFaqes: 100 };
+  var ops = { tema: 'auto', dendesia: 'normale', madhesia: 'normale', rendi: 'koha:-1', madhFaqes: 100 };
   (function () {
     var o = lexoJSON(KEY_PC, null);
     if (!o || typeof o !== 'object') return;
@@ -2051,7 +2050,6 @@
   function teGjithaProduktet() { return Object.keys(produktet).map(function (k) { return produktet[k]; }); }
   function produktetEFolderit(id) { return teGjithaProduktet().filter(function (p) { return p.kategoriaId === id; }); }
   function eshteZero(p) { return (p.sasia | 0) <= 0; }
-  function eshtePak(p) { return ops.pragu > 0 && p.sasia > 0 && p.sasia <= ops.pragu; }
   // barkodi → [produkte në foldera të ndryshëm]
   function hartaEBarkodeve() {
     var h = {};
@@ -2458,11 +2456,10 @@
 
   function renderPermbledhjen() {
     var te = teGjithaProduktet();
-    var zero = 0, pak = 0, sot = 0;
+    var zero = 0, sot = 0;
     var fillimiSot = new Date(); fillimiSot.setHours(0, 0, 0, 0);
     te.forEach(function (p) {
       if (eshteZero(p)) zero++;
-      if (eshtePak(p)) pak++;
       if ((p.prekurSe || 0) >= fillimiSot.getTime()) sot++;
     });
 
@@ -2472,9 +2469,8 @@
 
     var r = $('kpiRrjeti');
     r.textContent = '';
-    // Dizajni: numri i produkteve (karta e errët, "+N sot"), sasi e ulët, sasi 0, afatet e skaduara në raft
+    // Dizajni: numri i produkteve (karta e errët, "+N sot"), sasi 0, afatet e skaduara në raft ("Sasi e ulët" u hoq në v134)
     r.appendChild(kpi('Produkte gjithsej', num(te.length), sot ? '+' + num(sot) + ' sot' : '', null, null, function () { shkoTe('te-gjitha', { reset: true }); }, 'kpi-hero'));
-    if (ops.pragu > 0) r.appendChild(kpi('Sasi e ulët', num(pak), ops.pragu + ' copë ose më pak', pak ? 'paralajm' : null, null, function () { shkoTe('te-gjitha', { reset: true, filtri: 'pak' }); }));
     r.appendChild(kpi('Sasi 0', num(zero), zero ? 'duhen porositur' : 'asnjë produkt pa stok', zero ? 'kritik' : null, null, function () { shkoTe('te-gjitha', { reset: true, filtri: 'zero' }); }));
     var nAf = window.StokuAfatet.numero(afatet);
     var nSkad = nAf.skaduar + nAf['pa-date'];
@@ -2513,12 +2509,13 @@
     if (!tefundit.length) tf.appendChild(el('div', 'bosh-mesazh', 'Asnjë ndryshim ende.'));
     tefundit.forEach(function (p) { tf.appendChild(rreshtIShkurter(p, kohaRelative(p.prekurSe))); });
 
-    // Sasia më e ulët
+    // Pa stok (sasi 0) — më të ndryshuarat së fundi lart
     var tu = $('permbTeUleta');
     tu.textContent = '';
-    var teUleta = te.slice().sort(function (a, b) { return (a.sasia - b.sasia) || krahasoEmrin(a, b); }).slice(0, 6);
-    if (!teUleta.length) tu.appendChild(el('div', 'bosh-mesazh', 'S\'ka produkte ende.'));
-    teUleta.forEach(function (p) { tu.appendChild(rreshtIShkurter(p, null)); });
+    var paStok = te.filter(eshteZero).sort(function (a, b) { return ((b.prekurSe || 0) - (a.prekurSe || 0)) || krahasoEmrin(a, b); });
+    $('permbPaStokNr').textContent = paStok.length ? num(paStok.length) : '';
+    if (!paStok.length) tu.appendChild(el('div', 'bosh-mesazh', te.length ? 'Asnjë produkt pa stok.' : 'S\'ka produkte ende.'));
+    paStok.slice(0, 6).forEach(function (p) { tu.appendChild(rreshtIShkurter(p, null)); });
   }
 
   function rreshtIShkurter(p, kohaTekst) {
@@ -2530,14 +2527,14 @@
     if (kohaTekst) nen.title = dataOra(p.prekurSe);
     m.appendChild(nen);
     b.appendChild(m);
-    var q = el('span', 'ls-sasia' + (kohaTekst ? '' : ' cip') + (eshteZero(p) ? ' zero' : eshtePak(p) ? ' pak' : ''), num(p.sasia));
+    var q = el('span', 'ls-sasia' + (kohaTekst ? '' : ' cip') + (eshteZero(p) ? ' zero' : ''), num(p.sasia));
     b.appendChild(q);
     b.title = (p.emri || 'Pa emër') + ' · ' + p.barkodi + ' · ' + emriFolderit(p.kategoriaId);
     b.addEventListener('click', function () { hapProduktin(celesi(p.kategoriaId, p.barkodi)); });
     return b;
   }
   $('btnShihTeFundit').addEventListener('click', function () { shkoTe('te-gjitha', { reset: true, rendi: ['koha', -1] }); });
-  $('btnShihTeUleta').addEventListener('click', function () { shkoTe('te-gjitha', { reset: true, rendi: ['sasia', 1] }); });
+  $('btnShihTeUleta').addEventListener('click', function () { shkoTe('te-gjitha', { reset: true, filtri: 'zero' }); });
 
   // ================= Tabela =================
   function krahasoEmrin(a, b) {
@@ -2574,17 +2571,15 @@
     var harta = hartaEBarkodeve();
     var fjalet = normalizo(tab.kerkimi).split(/\s+/).filter(Boolean);
     var meKerkim = baza.filter(function (p) { return perputhetMeKerkimin(p, fjalet); });
-    var numrat = { teGjitha: 0, zero: 0, pak: 0, paEmer: 0, dublikate: 0 };
+    var numrat = { teGjitha: 0, zero: 0, paEmer: 0, dublikate: 0 };
     numrat.teGjitha = meKerkim.length;
     meKerkim.forEach(function (p) {
       if (eshteZero(p)) numrat.zero++;
-      if (eshtePak(p)) numrat.pak++;
       if (!p.emri) numrat.paEmer++;
       if (harta[p.barkodi].length > 1) numrat.dublikate++;
     });
     var fil = meKerkim.filter(function (p) {
       if (tab.filtri === 'zero') return eshteZero(p);
-      if (tab.filtri === 'pak') return eshtePak(p);
       if (tab.filtri === 'paEmer') return !p.emri;
       if (tab.filtri === 'dublikate') return harta[p.barkodi].length > 1;
       return true;
@@ -2615,7 +2610,6 @@
     // Filtrat
     Array.prototype.forEach.call(document.querySelectorAll('#filtrat button'), function (b) {
       b.classList.toggle('aktiv', b.dataset.f === tab.filtri);
-      if (b.dataset.f === 'pak') b.classList.toggle('fsheh', ops.pragu <= 0);
     });
     Array.prototype.forEach.call(document.querySelectorAll('#filtrat .n'), function (s) {
       var n = t.numrat[s.dataset.n];
@@ -2688,9 +2682,9 @@
         w.appendChild(mi); w.appendChild(inp); w.appendChild(pl);
         td4.appendChild(w);
       } else {
-        // Dizajni: sasia me ngjyrën e statusit (e kuqe = 0, portokalli = e ulët)
-        var sq = el('span', 'sasia-qeliz' + (eshteZero(p) ? ' zero' : eshtePak(p) ? ' pak' : ''), num(p.sasia));
-        if (eshteZero(p)) sq.title = 'Pa stok'; else if (eshtePak(p)) sq.title = 'Sasi e ulët (' + ops.pragu + ' copë ose më pak)';
+        // Dizajni: sasia 0 me të kuqe ("Pa stok")
+        var sq = el('span', 'sasia-qeliz' + (eshteZero(p) ? ' zero' : ''), num(p.sasia));
+        if (eshteZero(p)) sq.title = 'Pa stok';
         td4.appendChild(sq);
       }
       tr.appendChild(td4);
