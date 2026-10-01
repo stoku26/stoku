@@ -885,7 +885,7 @@
   }
 </style>
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/stoku-tokens.css?v=2">
+<link rel="stylesheet" href="css/stoku-tokens.css?v=3">
 <link rel="stylesheet" href="css/stoku-pc.css?v=9">
 </head>
 <body>
@@ -895,8 +895,11 @@
   <aside class="anesore">
     <div class="sbp-krye">
       <div class="sbp-brand" id="logo" role="button" tabindex="0" title="Përmbledhja">
-        <img src="logo/stoku-icon.svg?v=3" alt="" width="34" height="34">
-        <div class="sbp-brand__tekst"><span class="sbp-brand__emri">Stoku</span><span class="sbp-brand__nen">Stoku dhe afatet</span></div>
+        <div class="stk-etiketa" role="img" aria-label="Stoku">
+          <span class="stk-etiketa__emri">STOKU</span>
+          <svg class="stk-etiketa__barkodi" viewBox="0 0 36 32" preserveAspectRatio="none" aria-hidden="true"><rect x="0" width="3" height="32"></rect><rect x="5" width="2" height="32"></rect><rect x="9" width="4" height="32"></rect><rect x="15" width="2" height="32"></rect><rect class="stk-etiketa__qelibar" x="19" width="3" height="32"></rect><rect x="24" width="2" height="32"></rect><rect x="28" width="4" height="32"></rect><rect x="34" width="2" height="32"></rect></svg>
+          <span class="stk-etiketa__nen" id="sbpBrandNen">Stoku dhe afatet</span>
+        </div>
       </div>
       <div class="krye-kerko">
         <div class="fusha">
@@ -1810,7 +1813,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=123"></script>
 <script src="ekipa.js?v=10"></script>
-<script src="teRejat.js?v=141"></script>
+<script src="teRejat.js?v=142"></script>
 <script>
 (function () {
   'use strict';
@@ -4179,6 +4182,7 @@
     var u = perdoruesi();
     var emri = emriPerdoruesit();
     $('perdoruesiCip').textContent = u ? emri : 'Hyr';
+    $('sbpBrandNen').textContent = u ? emri : 'Stoku dhe afatet';
     $('sbpAvatar').textContent = u ? String(emri || '?').charAt(0).toUpperCase() : '';
     $('sbpAvatar').classList.toggle('bosh', !u);
     $('llTitulli').textContent = u ? 'Llogaria' : 'Hyr në llogari';
