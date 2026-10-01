@@ -50,6 +50,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **MË MBAJ MEND EMRIN (v143 = 1.1.2)**: porta (`porta.js`) ka kutinë `#pkMbaj` "Më mbaj mend emrin e përdoruesit"
+   (e shënuar si parazgjedhje). `stoku:porta:mbaj-emrin` = '0' kur hiqet shenja → `stoku:porta:emri` fshihet menjëherë
+   dhe s'shkruhet më (as te hyrja, as te `kontrollo`). Fjalëkalimi s'ruhet kurrë. Test: `mbaj-test.js`.
+
 0000000. **LOGOJA NË KRYE (v142 = 1.1.1)**: varianti nr 14 "Etiketë barkodi" (zgjedhur nga 20 në Claude Design):
    `.stk-etiketa` te `css/stoku-tokens.css` (e përbashkët tel + PC): STOKU 18/800, barkodi SVG (shufra `currentColor`,
    një `--stk-qelibar`), poshtë emri i përdoruesit me JetBrains Mono. Telefoni: `#logoSlika` (teksti `#sbDyqani`);

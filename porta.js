@@ -16,7 +16,8 @@
 
   var KEY_HYRJA = 'stoku:porta:hyrja';      // { uid, emri } e hyrjes së fundit (për hyrje pa internet)
   var KEY_PRONARI = 'stoku:pronari-uid';    // llogaria të cilës i përkasin të dhënat lokale
-  var KEY_EMRI_FUNDIT = 'stoku:porta:emri'; // emri i fundit i shkruar (plotësohet vetë)
+  var KEY_EMRI_FUNDIT = 'stoku:porta:emri'; // emri i fundit i shkruar (plotësohet vetë, nëse "Më mbaj mend" është aktiv)
+  var KEY_MBAJ_EMRIN = 'stoku:porta:mbaj-emrin'; // '0' = mos e mbaj mend emrin (parazgjedhja: mbahet mend). Fjalëkalimi s'ruhet kurrë.
   var KEY_MESAZHI = 'stoku:porta:mesazh';   // mesazh një-herësh për ekranin e hyrjes pas rifreskimit
   var CELESAT_E_TE_DHENAVE = ['stoku:foldera:v1', 'stoku:produktet:v2', 'stoku:produktet:v1', 'stoku:fshira:v1',
     'stoku:rendi-foldera-koha', 'stoku:afatet:v1'];
@@ -86,6 +87,14 @@
     '  border-top-color: var(--sb-accent, #1f5fc4); border-radius: 50%; animation: pkRrotull .8s linear infinite; }',
     '#porta .pk-btn .pk-rrotull { width: 18px; height: 18px; border-width: 2.5px; border-color: rgba(255,255,255,.35); border-top-color: #fff; }',
     '@keyframes pkRrotull { to { transform: rotate(360deg); } }',
+    '#porta .pk-mbaj { display: flex; align-items: center; gap: 10px; margin: 2px 2px 8px; min-height: 44px; cursor: pointer;',
+    '  font-size: 14.5px; font-weight: 600; color: var(--sb-ink-2, #3a3d44); -webkit-user-select: none; user-select: none; }',
+    '#porta .pk-mbaj input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; padding: 0; box-shadow: none; }',
+    '#porta .pk-tick { flex: none; width: 24px; height: 24px; border-radius: 7px; box-sizing: border-box; display: flex; align-items: center;',
+    '  justify-content: center; background: var(--sb-surface, #fff); box-shadow: inset 0 0 0 1.5px var(--sb-control, #c9c7c1); color: transparent;',
+    '  transition: background .15s, box-shadow .15s; }',
+    '#porta .pk-mbaj input:checked + .pk-tick { background: var(--sb-accent, #1f5fc4); box-shadow: none; color: #fff; }',
+    '#porta .pk-mbaj input:focus-visible + .pk-tick { outline: 2px solid var(--sb-accent, #1f5fc4); outline-offset: 2px; }',
     '.pk-fsheh { display: none !important; }'
   ].join('\n');
   document.head.appendChild(stili);
@@ -111,6 +120,7 @@
         '<label><span>Emri i përdoruesit</span><input id="pkEmri" name="username" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="40" enterkeyhint="next" placeholder="Emri i përdoruesit"></label>' +
         '<label><span>Fjalëkalimi</span><div class="pk-fusha"><input id="pkFjalekalimi" class="me-sy" name="password" type="password" autocomplete="current-password" maxlength="100" enterkeyhint="go" placeholder="Fjalëkalimi"><button type="button" class="pk-sy" id="pkSy" aria-label="Shfaq fjalëkalimin" title="Shfaq fjalëkalimin">' + SY + '</button></div></label>' +
         '<label id="pkPerseritLbl" class="pk-fsheh"><span>Përsërit fjalëkalimin</span><input id="pkPerserit" class="me-sy" name="password2" type="password" autocomplete="new-password" maxlength="100" enterkeyhint="go" placeholder="Shkruaje edhe një herë"></label>' +
+        '<label class="pk-mbaj" for="pkMbaj"><input type="checkbox" id="pkMbaj"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Më mbaj mend emrin e përdoruesit</div></label>' +
         '<div class="pk-gabim" id="pkGabim" role="alert"></div>' +
         '<button type="submit" class="pk-btn" id="pkDergo">Hyr</button>' +
         '<p class="pk-shenim" id="pkShenim">Hyr me llogarinë e dyqanit. Të dhënat sinkronizohen vetë në telefon, PDA dhe kompjuter.</p>' +
@@ -119,6 +129,13 @@
   document.body.insertBefore(porta, document.body.firstChild);
 
   function $(id) { return document.getElementById(id); }
+  function mbajEmrin() { return lexo(KEY_MBAJ_EMRIN) !== '0'; }
+  function ruajEmrin(emri) { if (mbajEmrin() && emri) shkruaj(KEY_EMRI_FUNDIT, emri); }
+  $('pkMbaj').checked = mbajEmrin();
+  $('pkMbaj').addEventListener('change', function () {
+    shkruaj(KEY_MBAJ_EMRIN, this.checked ? null : '0');
+    if (!this.checked) shkruaj(KEY_EMRI_FUNDIT, null); // hiqet menjëherë emri i ruajtur
+  });
   var gjendja = { modaliteti: 'hyr', dukePunuar: false, gati: false, eHapur: true, kohezuesi: null };
 
   function shfaqPritjen(tekst) {
@@ -132,7 +149,8 @@
     $('pkPritje').classList.add('pk-fsheh');
     $('pkForma').classList.remove('pk-fsheh');
     $('pkGabim').textContent = mesazh || '';
-    if (!$('pkEmri').value) $('pkEmri').value = lexo(KEY_EMRI_FUNDIT) || '';
+    $('pkMbaj').checked = mbajEmrin();
+    if (!$('pkEmri').value && mbajEmrin()) $('pkEmri').value = lexo(KEY_EMRI_FUNDIT) || '';
     setTimeout(function () { ($('pkEmri').value ? $('pkFjalekalimi') : $('pkEmri')).focus(); }, 60);
   }
   function vendosModalitetin(m) {
@@ -222,7 +240,7 @@
       $('pkFjalekalimi').select();
       return;
     }
-    shkruaj(KEY_EMRI_FUNDIT, emri);
+    ruajEmrin(emri);
     $('pkFjalekalimi').value = ''; $('pkPerserit').value = '';
     shfaqPritjen(krijo ? 'Llogaria u krijua. Duke hapur…' : 'Duke hapur…');
     // Pjesa tjetër ndodh te "stoku-auth-ndryshoi" (Firebase e njofton hyrjen)
@@ -293,7 +311,7 @@
     if (!pronari) shkruaj(KEY_PRONARI, u.uid); // hyrja e parë: të dhënat e kësaj pajisjeje i kalojnë kësaj llogarie
     var emri = String(u.email || '').replace(/@stoku-app\.local$/, '');
     shkruaj(KEY_HYRJA, JSON.stringify({ uid: u.uid, emri: emri }));
-    if (emri) shkruaj(KEY_EMRI_FUNDIT, emri);
+    ruajEmrin(emri);
     mbyll();
   }
   window.addEventListener('stoku-cloud-gati', kontrollo);
