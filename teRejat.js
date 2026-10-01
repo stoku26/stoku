@@ -3,6 +3,7 @@
  *
  * SI PUNON: sa herë del një version i ri, shto NJË HYRJE NË KRYE të listës, me:
  *   v      = numri i versionit — I NJËJTI me numrin te sw.js (var CACHE = 'stoku-vNN') dhe te "teRejat.js?v=NN"
+ *            (përdoruesi e sheh si "Stoku 2.N", shih emriVersionit() poshtë)
  *            në index.html, pc.html dhe sw.js (SHELL);
  *   data   = data e publikimit (VVVV-MM-DD);
  *   titulli = një rresht i shkurtër;
@@ -15,6 +16,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 135, data: '2026-10-01', titulli: 'Versionet me numër të ri', pikat: [
+      'Versioni tani shkruhet shkurt: ky është Stoku 2.9. Pamja e re ishte 2.0 dhe çdo përditësim e rrit numrin pas pikës.'
+    ] },
     { v: 134, data: '2026-10-01', titulli: 'Pa "Sasi e ulët"', platforma: 'tel', pikat: [
       'U hoq "Sasi e ulët" dhe ngjyra portokalli te sasitë. Me të kuqe mbetet vetëm sasia 0.',
       'Te karta e kryefaqes, në vend të "Sasi e ulët" tani shihet sa afate të skaduara janë ende në raft.'
@@ -214,7 +218,23 @@
     return m ? m[3] + '.' + m[2] + '.' + m[1] : (iso || '');
   }
 
-  var api = { LISTA: LISTA, versioni: versioni, teRejatPas: teRejatPas, formatoDaten: formatoDaten };
+  // Emri i versionit që sheh përdoruesi: "Stoku 2.8". Numri i brendshëm (v, CACHE te sw.js) mbetet për përditësimet.
+  // Çdo ndryshim i madh fillon një numër të ri: v126 (pamja e re) = 2.0, v127 = 2.1 … Para v126: 1.x (v123 = 1.23).
+  // Për 3.0: shto [v_e_re, 3] në krye të listës.
+  var MAJORET = [[126, 2], [100, 1]];
+  function emriVersionit(v) {
+    v = Number(v) || 0;
+    for (var i = 0; i < MAJORET.length; i++) if (v >= MAJORET[i][0]) return MAJORET[i][1] + '.' + (v - MAJORET[i][0]);
+    return '1.0';
+  }
+  var MUAJT = ['janar', 'shkurt', 'mars', 'prill', 'maj', 'qershor', 'korrik', 'gusht', 'shtator', 'tetor', 'nëntor', 'dhjetor'];
+  // "2026-10-01" → "1 tetor 2026"
+  function dataEPlote(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+    return m ? Number(m[3]) + ' ' + MUAJT[Number(m[2]) - 1] + ' ' + m[1] : (iso || '');
+  }
+
+  var api = { LISTA: LISTA, versioni: versioni, teRejatPas: teRejatPas, formatoDaten: formatoDaten, emriVersionit: emriVersionit, dataEPlote: dataEPlote };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuTeRejat = api;
 })(typeof self !== 'undefined' ? self : this);
