@@ -10,10 +10,10 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v129';
+var CACHE = 'stoku-v130';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
-importScripts('./afatet.js?v=122', './njoftimet.js?v=119');
+importScripts('./afatet.js?v=122', './njoftimet.js?v=120');
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.2/dist/iife/ponyfill.js',
@@ -28,13 +28,13 @@ var SHELL = FAQET.concat([
   './bashkimi.js?v=113',
   './ruajtja.js?v=110',
   './afatet.js?v=122',
-  './ekipa.js?v=6',
+  './ekipa.js?v=7',
   './porta.js?v=119',
-  './njoftimet.js?v=119',
-  './teRejat.js?v=129',
+  './njoftimet.js?v=120',
+  './teRejat.js?v=130',
   './manifest.webmanifest?v=85',
   './css/stoku-tokens.css?v=2',
-  './css/stoku.css?v=3',
+  './css/stoku.css?v=4',
   './css/stoku-pc.css?v=3',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',
@@ -48,6 +48,7 @@ var SHELL = FAQET.concat([
   './icon-512.png?v=3',
   './apple-touch-icon.png?v=3',
   './logo.png?v=3',
+  './logo/badge-96.png?v=1',
 ]);
 
 async function mbushCacheEri() {
@@ -164,6 +165,34 @@ self.addEventListener('fetch', function (e) {
 // Chrome në Android (app e instaluar) e zgjon service worker-in herë pas here (zakonisht ~1 herë në ditë).
 self.addEventListener('periodicsync', function (e) {
   if (e.tag === 'stoku-afatet') e.waitUntil(self.StokuNjoftimet.kontrollo(self.registration));
+});
+
+// ---------- Njoftimet push të chat-it (worker/stoku-push.js) ----------
+// Vijnë edhe kur Stoku është krejt i mbyllur. Nëse aplikacioni është përpara (i dukshëm dhe aktiv), s'del njoftim
+// sistemi: chat-i shihet në aplikacion. Njoftimet e sistemit kalojnë vetë edhe te ora (p.sh. Galaxy Watch), nëse
+// Stoku lejohet te aplikacioni i orës.
+self.addEventListener('push', function (e) {
+  var d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (x) { d = { teksti: e.data ? e.data.text() : '' }; }
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (dritaret) {
+    var perpara = dritaret.some(function (c) { return c.visibilityState === 'visible' && c.focused; });
+    if (perpara && d.lloji === 'chat') {
+      dritaret.forEach(function (c) { c.postMessage({ lloji: 'push-chat' }); });
+      return;
+    }
+    return self.registration.showNotification(d.titulli || 'Stoku', {
+      body: d.teksti || '',
+      tag: d.tag || 'stoku-push',
+      renotify: true,
+      icon: './icon-192.png?v=3',
+      badge: './logo/badge-96.png?v=1',
+      vibrate: [180, 80, 180],
+      timestamp: d.koha || Date.now(),
+      lang: 'sq',
+      data: { url: d.url || './index.html#ekipa/chat' },
+      actions: [{ action: 'hap', title: 'Hap chat-in' }]
+    });
+  }));
 });
 
 // Prekja e njoftimit: afatet → "Afatet e produkteve"; Ekipa (#ekipa… / #/ekipa…) → tabi Ekipa, në të njëjtin lloj

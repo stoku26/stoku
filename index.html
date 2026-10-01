@@ -1026,7 +1026,7 @@
 </style>
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=2">
-<link rel="stylesheet" href="css/stoku.css?v=3">
+<link rel="stylesheet" href="css/stoku.css?v=4">
 </head>
 <body>
 <script src="porta.js?v=119"></script>
@@ -1173,6 +1173,11 @@
             <span class="kat-info"><span class="kat-tekst" id="tabSkenimiTxt"></span><span class="kat-status" id="tabSkenimiStatus"></span></span>
             <span class="shigjeta">›</span>
           </button>
+          <button class="kategori-rresht" type="button" data-faqe="njoftimet" id="tabNjoftimet">
+            <span class="kat-ikona-badge ngj-kuqe"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg></span>
+            <span class="kat-info"><span class="kat-tekst">Njoftimet</span><span class="kat-status" id="tabNjoftimetStatus"></span></span>
+            <span class="shigjeta">›</span>
+          </button>
           <button class="kategori-rresht" type="button" data-faqe="lista" id="tabLista">
             <span class="kat-ikona-badge ngj-portokalli"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 4 4 4-4M7 20V4M21 8l-4-4-4 4M17 4v16"></path></svg></span>
             <span class="kat-info"><span class="kat-tekst" id="tabListaTxt"></span><span class="kat-status" id="tabListaStatus"></span></span>
@@ -1259,6 +1264,35 @@
                 <span class="ndez"><input type="checkbox" id="opsScanner"><span class="pist"></span></span>
               </label>
             </div>
+          </div>
+        </div>
+
+        <div class="opsione-faqe" data-faqe="njoftimet">
+          <div class="ops-intro">Njoftimet për chat-in e ekipës dhe për afatet. Vijnë edhe kur Stoku është i mbyllur.</div>
+          <div class="seksion ops-karta">
+            <div class="ops-ll-krye">
+              <span class="kat-ikona-badge ops-ik-madh" id="njGjendjaIk"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg></span>
+              <div class="kat-info"><div class="ops-ll-titull" id="njGjendjaTitulli"></div><div class="kat-status ops-ll-status" id="njGjendjaTeksti"></div></div>
+            </div>
+            <div class="rreshti ops-nj-veprime">
+              <button class="btn" id="njBtnAktivizo" type="button">Aktivizo njoftimet</button>
+              <button class="btn ops-btn-dyte" id="njBtnProve" type="button">Dërgo njoftim provë</button>
+            </div>
+            <div class="hint" id="njProveHint"></div>
+          </div>
+          <div class="ops-grupi-titull">Galaxy Watch (ose orë tjetër)</div>
+          <div class="seksion ops-karta ops-ora">
+            <div class="ops-ll-krye">
+              <span class="kat-ikona-badge ngj-blu ops-ik-madh"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle><path d="M12 10v2l1 1"></path><path d="m16.13 7.66-.81-4.05a2 2 0 0 0-2-1.61h-2.68a2 2 0 0 0-2 1.61l-.78 4.05"></path><path d="m7.88 16.36.8 4a2 2 0 0 0 2 1.61h2.72a2 2 0 0 0 2-1.61l.81-4.05"></path></svg></span>
+              <div class="kat-info"><div class="ops-ll-titull">Njoftimet edhe në orë</div><div class="kat-status">Ora i shfaq vetë njoftimet e telefonit, kur Stoku lejohet.</div></div>
+            </div>
+            <ol class="ops-hapat">
+              <li>Instalo Stoku në telefon: Chrome → menyja <b>⋮</b> → <b>Shto në ekranin kryesor</b> / <b>Instalo aplikacionin</b>.</li>
+              <li>Këtu lart shtyp <b>Aktivizo njoftimet</b> dhe lejoji.</li>
+              <li>Hap aplikacionin <b>Galaxy Wearable</b> → <b>Cilësimet e orës</b> → <b>Njoftimet</b> → <b>Njoftimet e aplikacioneve</b> → ndize <b>Stoku</b> (nëse s'del, shtyp "Të gjitha" dhe kërko "Stoku" ose "Chrome").</li>
+              <li>Shtyp <b>Dërgo njoftim provë</b>, fike ekranin e telefonit dhe prit pak: njoftimi del në orë.</li>
+            </ol>
+            <div class="hint">Ora i merr njoftimet kur telefoni është me ekran të fikur ose s'po e përdor. Kur ekrani i telefonit është i ndezur, Samsung i lë vetëm te telefoni (mund ta ndryshosh te Galaxy Wearable → Njoftimet, te opsioni për njoftimet gjatë përdorimit të telefonit).</div>
           </div>
         </div>
 
@@ -1680,9 +1714,9 @@
 <script src="bashkimi.js?v=113"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=122"></script>
-<script src="ekipa.js?v=6"></script>
-<script src="njoftimet.js?v=119"></script>
-<script src="teRejat.js?v=129"></script>
+<script src="ekipa.js?v=7"></script>
+<script src="njoftimet.js?v=120"></script>
+<script src="teRejat.js?v=130"></script>
 <script>
 (function () {
   'use strict';
@@ -1822,6 +1856,7 @@
       eCelet: 'E çelët',
       eErret: 'E errët',
       titTemaTeksti: 'Tema',
+      tabNjoftimet: 'Njoftimet',
       automatikeHint: '"Automatike" ndjek cilësimin e telefonit.',
       titMadhesiaTeksti: 'Madhësia e shkronjave',
       madhesiaNormaleBtn: 'Normale',
@@ -2786,7 +2821,7 @@
     if (typeof sinkronizoHistorineEDritareve === 'function') sinkronizoHistorineEDritareve();
   }
   var TAB_TITULL_KYC = {
-    pamja: 'tabPamja', skenimi: 'tabSkenimi',
+    pamja: 'tabPamja', skenimi: 'tabSkenimi', njoftimet: 'tabNjoftimet',
     lista: 'tabLista', llogaria: 'tabLlogaria'
   };
   Array.prototype.forEach.call(document.querySelectorAll('#kategoriMenu [data-faqe]'), function (b) {
@@ -2839,7 +2874,78 @@
     var emriStatus = u ? emriPerdoruesitAktual() : T('cloudStatusJoKycur');
     $('tabLlogariaStatus').textContent = emriStatus;
     rifreskoProfilin();
+    rifreskoNjoftimet();
   }
+
+  // ---------- Njoftimet (Cilësimet → Njoftimet): leja, push-i i chat-it, prova, ora ----------
+  function ekipaCloud() { var c = window.__stokuCloud; return (c && c.ekipa) || null; }
+  function aktivizoPushin(detyro) {
+    var e = ekipaCloud();
+    if (!e || !e.aktivizoPush) return Promise.resolve(null);
+    return e.aktivizoPush(detyro !== false).then(function (r) { rifreskoNjoftimet(); return r; }, function () { return null; });
+  }
+  function gjendjaENjoftimeve() {
+    if (!('Notification' in window)) return 'pa';
+    if (Notification.permission === 'denied') return 'bllokuar';
+    if (Notification.permission !== 'granted') return 'fikur';
+    var e = ekipaCloud();
+    return (e && e.pushAktiv && e.pushAktiv()) ? 'push' : 'lokale';
+  }
+  var NJ_GJENDJET = {
+    push: ['ngj-gjelber', 'Aktive', 'Vijnë edhe kur Stoku është i mbyllur, edhe në orë.', 'Aktive'],
+    lokale: ['ngj-portokalli', 'Aktive kur Stoku është hapur', 'Njoftimet e chat-it vijnë kur Stoku është i hapur ose në sfond. Që të vijnë edhe kur mbyllet, duhet hyrë në llogari dhe shërbimi i njoftimeve duhet të jetë gati.', 'Kur Stoku është hapur'],
+    fikur: ['ngj-gri', 'Të fikura', 'Shtyp "Aktivizo njoftimet" dhe lejoji kur të pyet telefoni.', 'Të fikura'],
+    bllokuar: ['ngj-kuqe', 'Të bllokuara', 'I ke refuzuar njoftimet. Lejoji te: Cilësimet e telefonit → Aplikacionet → Stoku (ose Chrome) → Njoftimet → Lejo.', 'Të bllokuara'],
+    pa: ['ngj-gri', 'S\'mbështeten këtu', 'Ky shfletues s\'i jep njoftimet. Në iPhone: instaloje Stoku (Shpërndaj → Shto në ekranin bazë) dhe hape nga ikona.', 'S\'mbështeten']
+  };
+  function rifreskoNjoftimet() {
+    if (!$('njGjendjaTitulli') || !NJ_GJENDJET) return; // (thirret edhe gjatë nisjes, para se lista të përcaktohet)
+    var g = gjendjaENjoftimeve(), x = NJ_GJENDJET[g];
+    $('njGjendjaIk').className = 'kat-ikona-badge ops-ik-madh ' + x[0];
+    $('njGjendjaTitulli').textContent = x[1];
+    $('njGjendjaTeksti').textContent = x[2];
+    $('tabNjoftimetStatus').textContent = x[3];
+    $('njBtnAktivizo').style.display = (g === 'fikur' || g === 'lokale') ? '' : 'none';
+    $('njBtnAktivizo').textContent = g === 'lokale' ? 'Provo sërish lidhjen' : 'Aktivizo njoftimet';
+    $('njBtnProve').style.display = (g === 'push' || g === 'lokale') ? '' : 'none';
+  }
+  $('njBtnAktivizo').addEventListener('click', function () {
+    if (!('Notification' in window)) return;
+    Promise.resolve(Notification.permission === 'granted' ? 'granted' : Notification.requestPermission()).then(function (p) {
+      if (p === 'granted') {
+        regjistroKontrollinPeriodik();
+        kontrolloNjoftimet();
+        $('njProveHint').textContent = 'Duke u lidhur…';
+        aktivizoPushin(true).then(function (r) {
+          $('njProveHint').textContent = gjendjaENjoftimeve() === 'push' ? 'Gati. Tani mund të dërgosh një njoftim provë.' :
+            (!perdoruesiAktual() ? 'Hyr në llogari që të vijnë njoftimet e chat-it edhe kur Stoku është i mbyllur.' :
+              'Shërbimi i njoftimeve s\'u gjet ende. Njoftimet vijnë kur Stoku është hapur.');
+        });
+      }
+      rifreskoNjoftimet();
+    }).catch(function () { /* ok */ });
+  });
+  $('njBtnProve').addEventListener('click', function () {
+    var e = ekipaCloud();
+    $('njBtnProve').disabled = true;
+    setTimeout(function () { $('njBtnProve').disabled = false; }, 12000);
+    if (gjendjaENjoftimeve() === 'push' && e && e.provoPush) {
+      $('njProveHint').textContent = 'Duke dërguar…';
+      e.provoPush({ vonesa: 8 }).then(function (r) {
+        $('njProveHint').textContent = r && r.ok && r.pajisje ? 'Njoftimi vjen pas rreth 8 sekondash. Fike ekranin e telefonit tani dhe shiko orën.' :
+          'Njoftimi s\'u dërgua (' + ((r && r.arsye) || 'pa lidhje') + '). Kontrollo internetin dhe provo sërish.';
+      });
+      return;
+    }
+    // Pa push: njoftim lokal pas 8 sekondash (sa Stoku është ende i hapur ose në sfond)
+    $('njProveHint').textContent = 'Njoftimi vjen pas rreth 8 sekondash. Fike ekranin e telefonit tani dhe shiko orën.';
+    setTimeout(function () {
+      if (!('serviceWorker' in navigator) || Notification.permission !== 'granted') return;
+      navigator.serviceWorker.ready.then(function (reg) {
+        return reg.showNotification('Stoku · Provë', { body: 'Njoftimet punojnë. Kështu do të vijnë mesazhet e chat-it.', tag: 'stoku-prove', icon: './icon-192.png?v=3', badge: './logo/badge-96.png?v=1', vibrate: [180, 80, 180], lang: 'sq', data: { url: './index.html#ekipa/chat' } });
+      }).catch(function () { /* ok */ });
+    }, 8000);
+  });
 
   function hapOpsionet() {
     $('opsTingull').checked = opsione.tingull;
@@ -6143,7 +6249,7 @@
   $('ekNjLejo').addEventListener('click', function () {
     $('dlgEkNjoftimet').classList.remove('hapur');
     Promise.resolve(Notification.requestPermission()).then(function (p) {
-      if (p === 'granted') { regjistroKontrollinPeriodik(); toast('Njoftimet u aktivizuan.'); }
+      if (p === 'granted') { regjistroKontrollinPeriodik(); aktivizoPushin(); toast('Njoftimet u aktivizuan.'); }
       else if (p === 'denied') toast('Njoftimet u refuzuan. Mund t\'i lejosh te cilësimet e telefonit → Aplikacionet → Stoku → Njoftimet.', 5000);
     }).catch(function () { /* ok */ });
   });
@@ -6175,7 +6281,7 @@
     }
     if (!njoftimetMbeshteten() || Notification.permission !== 'granted') return;
     navigator.serviceWorker.ready.then(function (reg) {
-      return reg.showNotification(nj.titulli, { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=3', badge: './icon-192.png?v=3',
+      return reg.showNotification(nj.titulli, { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=3', badge: './logo/badge-96.png?v=1', vibrate: [180, 80, 180],
         data: { url: './index.html#ekipa-' + (nj.pamja === 'chat' || nj.pamja === 'anetaret' ? nj.pamja : 'afatet') } });
     }).catch(function () { /* ok */ });
   }
@@ -6882,6 +6988,7 @@
     Promise.resolve(Notification.requestPermission()).then(function (p) {
       if (p === 'granted') {
         regjistroKontrollinPeriodik();
+        aktivizoPushin();
         kontrolloNjoftimet();
         toast('Njoftimet u aktivizuan.');
       } else if (p === 'denied') {
@@ -7161,6 +7268,7 @@
       },
       async dil() {
         if (ekipa) ekipa.ndalPranine(); // "offline" para daljes, sa ende lejohet shkrimi
+        if (ekipa && ekipa.caktivizoPush) { try { await ekipa.caktivizoPush(); } catch (e) { /* ok */ } } // kjo pajisje s'merr më njoftimet e kësaj llogarie
         try { await signOut(auth); } catch (e) { /* ok */ }
       },
       // Llogaria u fshi nga administratori: fshihet edhe llogaria e Firebase-it (emri lirohet). Nëse Firebase kërkon

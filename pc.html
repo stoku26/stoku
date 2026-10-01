@@ -1797,8 +1797,8 @@
 <script src="bashkimi.js?v=113"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=122"></script>
-<script src="ekipa.js?v=6"></script>
-<script src="teRejat.js?v=129"></script>
+<script src="ekipa.js?v=7"></script>
+<script src="teRejat.js?v=130"></script>
 <script>
 (function () {
   'use strict';
@@ -5316,7 +5316,11 @@
   $('ekNjLejo').addEventListener('click', function () {
     $('ekNjLejo').style.display = 'none';
     Promise.resolve(Notification.requestPermission()).then(function (p) {
-      if (p === 'granted') toast('Njoftimet u aktivizuan. Do të të dalin edhe kur Stoku është në sfond.');
+      if (p === 'granted') {
+        var c = window.__stokuCloud;
+        if (c && c.ekipa && c.ekipa.aktivizoPush) c.ekipa.aktivizoPush(true).catch(function () { /* ok */ });
+        toast('Njoftimet u aktivizuan. Do të të dalin edhe kur Stoku është i mbyllur.');
+      }
     }).catch(function () { /* ok */ });
   });
   Array.prototype.forEach.call(document.querySelectorAll('#ekMenu button'), function (b) {
@@ -5347,7 +5351,7 @@
     }
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
     var url = './pc.html#/ekipa' + (nj.pamja === 'chat' || nj.pamja === 'anetaret' ? '/' + nj.pamja : '');
-    var opsionet = { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=3', data: { url: url } };
+    var opsionet = { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=3', badge: './logo/badge-96.png?v=1', data: { url: url } };
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then(function (reg) { return reg.showNotification(nj.titulli, opsionet); })
         .catch(function () { try { new Notification(nj.titulli, opsionet); } catch (e) { /* ok */ } });
@@ -6411,7 +6415,11 @@
     window.__stokuCloud = {
       async regjistrohu(u, p) { try { var k = await createUserWithEmailAndPassword(auth, emailIBrendshem(u), p); regjistroPerdoruesin(u, k.user.uid); return { ok: true, uid: k.user.uid }; } catch (e) { return gabim(e); } },
       async hyr(u, p) { try { var k = await signInWithEmailAndPassword(auth, emailIBrendshem(u), p); regjistroPerdoruesin(u, k.user.uid); return { ok: true, uid: k.user.uid }; } catch (e) { return gabim(e); } },
-      async dil() { if (ekipa) ekipa.ndalPranine(); try { await signOut(auth); } catch (e) { /* ok */ } },
+      async dil() {
+        if (ekipa) ekipa.ndalPranine();
+        if (ekipa && ekipa.caktivizoPush) { try { await ekipa.caktivizoPush(); } catch (e) { /* ok */ } } // kjo pajisje s'merr më njoftimet e kësaj llogarie
+        try { await signOut(auth); } catch (e) { /* ok */ }
+      },
       // Llogaria u fshi nga administratori: fshihet edhe llogaria e Firebase-it (emri lirohet). Nëse Firebase kërkon
       // hyrje të freskët, vetëm dilet — herën tjetër që hyn, fshirja provohet sërish.
       async fshiVeten() {

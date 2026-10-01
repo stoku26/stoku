@@ -50,6 +50,26 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **NJOFTIMET PUSH TË CHAT-IT + ORA (v130)**: mesazhet e chat-it vijnë si njoftim edhe kur Stoku është krejt i mbyllur.
+   - Serveri: `worker/stoku-push.js` (Cloudflare Worker "stoku-push" → `https://stoku-push.mendurb.workers.dev`), pa varësi.
+     Secrets: `VAPID_PUBLIC`, `VAPID_PRIVATE` (VETËM te Cloudflare, kurrë në repo), `VAPID_SUBJECT`. POST `/chat {id}` me
+     `Authorization: Bearer <ID token i Firebase>`: lexon `ekipa_chat/{id}` me tokenin e dërguesit (Firestore REST → rregullat
+     vlejnë), kërkon `uid` = dërguesi dhe `koha` < 3 min, lexon `ekipa_push` dhe dërgon Web Push (RFC 8291 aes128gcm + VAPID
+     RFC 8292) secilës pajisje përveç dërguesit (një herë për endpoint; 404/410 → fshihet). POST `/prove {vonesa}` → vetëm te
+     pajisjet e veta (me vonesë deri 10 s, që të fiket ekrani). GET → `{ok, celesat}` (kontrolli i shëndetit).
+   - Klienti (`ekipa.js` → krijoCloud): `aktivizoPush()` (me leje: `pushManager.subscribe` me `PUSH_VAPID`, shkruan
+     `ekipa_push/{uid}_{hash}`; rishkruan vetëm kur ndryshon ose çdo 7 ditë), `caktivizoPush()` (në dalje), `pushAktiv()`
+     (pajisja e regjistruar + Worker-i u përgjigj mirë brenda 7 ditëve — vetëm atëherë hiqet njoftimi lokal i chat-it, pa
+     dyfishim; pa Worker punohet si më parë), `provoPush()`. Pas çdo mesazhi të dërguar (edhe nga radha offline) →
+     `/chat`. Thirret vetë kur qasja në ekipë është 'ok' dhe pas dhënies së lejes.
+   - `sw.js`: `push` → `showNotification` (badge `logo/badge-96.png` monokrom, vibrim, veprimi "Hap chat-in", url sipas
+     platformës: pc → `pc.html#/ekipa/chat`); nëse dritarja e Stoku-t është përpara dhe aktive, chat-i s'nxjerr njoftim.
+   - Telefoni: Cilësimet → **Njoftimet** (`data-faqe="njoftimet"`): gjendja (Aktive / kur është hapur / të fikura /
+     të bllokuara / s'mbështeten), "Aktivizo njoftimet", "Dërgo njoftim provë" (8 s), udhëzimi për Galaxy Watch (Galaxy
+     Wearable → Njoftimet → Njoftimet e aplikacioneve → Stoku). Ora i pasqyron vetë njoftimet e sistemit të telefonit.
+   - Testet (scratchpad): `push-test.js` (dy përdorues, Firestore i simuluar me rregullat e reja), `sw-push.js` (SW i
+     vërtetë, CDP `ServiceWorker.deliverPushMessage`), `wp/prova.mjs` (Worker-i: enkriptimi verifikohet me `http_ece`).
+
 0000000. **KONTROLLI I PLOTË (v129)**: zvarritës automatik (379 klikime në çdo buton, tel + PC) pa asnjë gabim JS, kontroll
    i kontrastit (tel + PC, i çelët + i errët), 23 testet e regresionit në rregull. Rregullime:
    - `.af-sink` (reja e sinkronizimit te Afatet) kishte ende stilin e header-it blu (e bardhë mbi të bardhë) → stil i ri te stoku.css.
@@ -481,7 +501,7 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
-## Rregullat e Firestore — "Ekipa" (v116) — i vendos PËRDORUESI (unë s'kam qasje)
+## Rregullat e Firestore — "Ekipa" (v116 + v130 ekipa_push) — i vendos PËRDORUESI (unë s'kam qasje)
 
 Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Krahasuar me v109: dyqani lexohet
 vetëm nga pronari/admin-i; Ekipa (anëtarët, aktiviteti, chat-i, `ekipa_afatet`) vetëm nga anëtarët e pranuar
@@ -568,6 +588,14 @@ service cloud.firestore {
         && request.resource.data.tekst.size() > 0 && request.resource.data.tekst.size() <= 2000;
       allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || eshteAdmin());
     }
+    // v130: pajisjet për njoftimet push të chat-it (worker/stoku-push.js). Id = {uid}_{hash i endpoint-it}.
+    // Lexohen nga anëtarët (Worker-i i lexon me tokenin e dërguesit); fshihen nga anëtarët (Worker-i heq pajisjet e vdekura).
+    match /ekipa_push/{id} {
+      allow read: if request.auth != null && neEkipe();
+      allow create, update: if request.auth != null && neEkipe() && request.resource.data.uid == request.auth.uid
+        && id.matches(request.auth.uid + '_[A-Za-z0-9]+');
+      allow delete: if request.auth != null && neEkipe();
+    }
   }
 }
 ```
@@ -581,6 +609,9 @@ Pa këto rregulla (me v109): aplikacioni punon si më parë; vetëm `ekipa_afate
 
 - Cloudflare Worker-i që lexon fotot me AI (`afatet-worker.js`) — **s'është në këtë repo**; përdoruesi e
   bën deploy vetë manualisht kur i jap kodin. Mos supozo qasje direkte në Cloudflare.
+- Cloudflare Worker-i i njoftimeve (`worker/stoku-push.js`, NË repo) — e vendos përdoruesi te Cloudflare; çelësi privat
+  VAPID i është dhënë vetëm atij (s'ruhet në repo). Nëse humbet: gjenero çift të ri, ndrysho `PUSH_VAPID` te ekipa.js
+  dhe secrets te Worker-i (pajisjet riregjistrohen vetë, sepse çelësi ndryshon).
 - Firebase console (rregullat, konfigurimi) — vetëm përdoruesi ka qasje; unë i jap tekstin e rregullave,
   ai i ngjit vetë.
 - Pajisje reale (telefon/PDA/tablet) — asnjë provë s'është bërë në pajisje fizike, gjithçka është
