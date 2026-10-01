@@ -10,10 +10,10 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v143';
+var CACHE = 'stoku-v144';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
-importScripts('./afatet.js?v=123', './njoftimet.js?v=120');
+importScripts('./afatet.js?v=144', './njoftimet.js?v=120');
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.2/dist/iife/ponyfill.js',
@@ -25,17 +25,17 @@ var CDN_BIBLIOTEKA = [
 var FAQET = ['./', './index.html', './pc.html'];
 var SHELL = FAQET.concat([
   './xlsx.js?v=113',
-  './bashkimi.js?v=113',
+  './bashkimi.js?v=144',
   './ruajtja.js?v=110',
-  './afatet.js?v=123',
+  './afatet.js?v=144',
   './ekipa.js?v=10',
   './porta.js?v=143',
   './njoftimet.js?v=120',
-  './teRejat.js?v=143',
+  './teRejat.js?v=144',
   './manifest.webmanifest?v=85',
-  './css/stoku-tokens.css?v=3',
-  './css/stoku.css?v=9',
-  './css/stoku-pc.css?v=9',
+  './css/stoku-tokens.css?v=4',
+  './css/stoku.css?v=10',
+  './css/stoku-pc.css?v=10',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',
   './logo/stoku-icon.svg?v=3',

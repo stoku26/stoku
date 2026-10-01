@@ -183,7 +183,7 @@
   function eNjejte(a, b) {
     function nenshkrim(g) {
       g = g || {};
-      var f = lista(g.foldera).filter(Boolean).map(function (x) { return x.id + '\u0001' + x.emri; }).join('\u0002');
+      var f = lista(g.foldera).filter(Boolean).map(function (x) { return x.id + '\u0001' + x.emri + '\u0001' + (x.ikona || ''); }).join('\u0002');
       var p = lista(g.produktet).filter(Boolean).map(function (x) {
         return celesi(x.kategoriaId, x.barkodi) + '\u0001' + (x.emri || '') + '\u0001' + x.sasia + '\u0001' + kohaProd(x);
       }).sort().join('\u0002');

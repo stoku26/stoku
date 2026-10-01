@@ -18,6 +18,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 144, versioni: '1.2.0', data: '2026-10-01', titulli: 'Ikona për folderat', pikat: [
+      'Folderat kanë tani ikona (shportë, pije, gjethe, bulmet, furrë, të ngrira e të tjera) që përshtaten me temën e çelët dhe të errët. Folderat ekzistues e marrin ikonën vetë sipas emrit.',
+      'Te "Folder i ri" zgjedh ikonën nga 16; në kompjuter mund ta ndryshosh edhe më vonë (Veprime → Ndrysho emrin / ikonën).',
+      'Logoja lart s\'dridhet më kur hapet aplikacioni.'
+    ] },
     { v: 143, versioni: '1.1.2', data: '2026-10-01', titulli: 'Më mbaj mend emrin', pikat: [
       'Te hyrja ka një kuti "Më mbaj mend emrin e përdoruesit". Kur është e shënuar, emri del i shkruar vetë herën tjetër; kur e heq shenjën, emri s\'ruhet. Fjalëkalimi nuk ruhet kurrë.'
     ] },

@@ -503,3 +503,7 @@
 .sbp #opsLlAv { cursor: pointer; }
 .sbp .ops-foto-rresht { display: flex; gap: 8px; margin-top: 12px; }
 .sbp .ops-foto-rresht .btn.ops-foto-hiq { color: var(--sb-exp); }
+
+/* Ikona e folderit te anësorja (në vend të pikës me ngjyrë) */
+.sbp .sbp-fik { flex: none; width: 24px; height: 24px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; }
+.sbp #dlgFolder .fl-ikonat { grid-template-columns: repeat(8, minmax(0, 1fr)); }

@@ -885,8 +885,9 @@
   }
 </style>
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/stoku-tokens.css?v=3">
-<link rel="stylesheet" href="css/stoku-pc.css?v=9">
+<link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/stoku-tokens.css?v=4">
+<link rel="stylesheet" href="css/stoku-pc.css?v=10">
 </head>
 <body>
 <script src="porta.js?v=143"></script>
@@ -900,6 +901,7 @@
           <svg class="stk-etiketa__barkodi" viewBox="0 0 36 32" preserveAspectRatio="none" aria-hidden="true"><rect x="0" width="3" height="32"></rect><rect x="5" width="2" height="32"></rect><rect x="9" width="4" height="32"></rect><rect x="15" width="2" height="32"></rect><rect class="stk-etiketa__qelibar" x="19" width="3" height="32"></rect><rect x="24" width="2" height="32"></rect><rect x="28" width="4" height="32"></rect><rect x="34" width="2" height="32"></rect></svg>
           <span class="stk-etiketa__nen" id="sbpBrandNen">Stoku dhe afatet</span>
         </div>
+        <script>try { var h0 = JSON.parse(localStorage.getItem('stoku:porta:hyrja') || 'null'); if (h0 && h0.emri) document.getElementById('sbpBrandNen').textContent = h0.emri; } catch (e) { /* ok */ }</script>
       </div>
       <div class="krye-kerko">
         <div class="fusha">
@@ -1403,6 +1405,8 @@
     <div class="dialog-krye"><h2 id="flTitulli">Folder i ri</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
     <div class="dialog-trup">
       <label class="fushe"><span>Emri i folderit</span><input class="inp" id="flEmri" placeholder="Shkruaj emrin e folderit" type="text" autocomplete="off" maxlength="40"></label>
+      <div class="fl-ikonat-titull">Ikona</div>
+      <div class="fl-ikonat" id="flIkonat" aria-label="Ikona e folderit"></div>
       <div class="gabim-tekst" id="flGabim"></div>
     </div>
     <div class="dialog-fund"><span class="hapesire"></span><button class="btn tekst" type="button" data-mbyll>Anulo</button><button class="btn" type="button" id="flRuaj">Krijo</button></div>
@@ -1809,11 +1813,11 @@
 <div class="toast" id="toast" role="status" aria-live="polite"><span class="toast-tekst" id="toastTekst"></span><button class="btn fsheh" type="button" id="toastBtn"></button></div>
 
 <script src="xlsx.js?v=113"></script>
-<script src="bashkimi.js?v=113"></script>
+<script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=123"></script>
+<script src="afatet.js?v=144"></script>
 <script src="ekipa.js?v=10"></script>
-<script src="teRejat.js?v=143"></script>
+<script src="teRejat.js?v=144"></script>
 <script>
 (function () {
   'use strict';
@@ -2398,7 +2402,8 @@
       r.dataset.id = f.id;
       r.title = f.emri + (i < 9 ? '  (Alt+' + (i + 1) + ')' : '');
       var kap = el('span', 'kap'); kap.innerHTML = IKONA.kap;
-      var ik = el('span', 'sbp-dot'); ik.style.background = NGJYRAT_FOLDERAVE[i % NGJYRAT_FOLDERAVE.length];
+      var ikF = window.StokuAfatet.ikonaEFolderit(f);
+      var ik = el('span', 'sbp-fik ngj-' + ikF.ngj); ik.innerHTML = window.StokuAfatet.svgEIkones(ikF, 14);
       var emri = el('span', 'emri', f.emri);
       var n = el('span', 'numer-cip', num(numrat[f.id] || 0));
       var me = el('button', 'me-shume'); me.type = 'button'; me.innerHTML = IKONA.me; me.title = 'Veprime'; me.setAttribute('aria-label', 'Veprime për ' + f.emri);
@@ -3304,8 +3309,11 @@
 
   // ================= Folderat =================
   var flRiemerto = null;
+  var zgjedhesIkonave = window.StokuAfatet.zgjedhesIIkonave($('flIkonat'), function () { return $('flEmri').value; });
+  $('flEmri').addEventListener('input', zgjedhesIkonave.sugjero);
   function hapFolderIRi() {
     flRiemerto = null;
+    zgjedhesIkonave.fillo(null);
     $('flTitulli').textContent = 'Folder i ri';
     $('flRuaj').textContent = 'Krijo';
     $('flEmri').value = '';
@@ -3314,7 +3322,8 @@
   }
   function hapRiemertimin(f) {
     flRiemerto = f.id;
-    $('flTitulli').textContent = 'Riemërto folderin';
+    $('flTitulli').textContent = 'Ndrysho folderin';
+    zgjedhesIkonave.fillo(window.StokuAfatet.ikonaEFolderit(f).id);
     $('flRuaj').textContent = 'Ruaj';
     $('flEmri').value = f.emri;
     $('flGabim').textContent = '';
@@ -3327,13 +3336,13 @@
     if (njejte) { $('flGabim').textContent = 'Ekziston tashmë një folder me këtë emër.'; return; }
     if (flRiemerto) {
       var f = folderSipasId(flRiemerto);
-      if (f) { foldera = foldera.map(function (x) { return x.id === f.id ? { id: x.id, emri: emri, ndryshuarSe: Date.now() } : x; }); ruaj(); }
+      if (f) { foldera = foldera.map(function (x) { return x.id === f.id ? { id: x.id, emri: emri, ikona: zgjedhesIkonave.vlera() || undefined, ndryshuarSe: Date.now() } : x; }); ruaj(); }
       mbyllDialog('dlgFolder');
-      toast('Folderi u riemërtua.');
+      toast('Folderi u ndryshua.');
       return;
     }
     var id = 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-    foldera.push({ id: id, emri: emri, ndryshuarSe: Date.now() });
+    foldera.push({ id: id, emri: emri, ikona: zgjedhesIkonave.vlera() || undefined, ndryshuarSe: Date.now() });
     ruaj();
     mbyllDialog('dlgFolder');
     shkoTe(id);
@@ -3398,7 +3407,7 @@
   function hapMenuFolderi(f, poz) {
     hapMenu([
       { t: 'Hap folderin', fn: function () { shkoTe(f.id); } },
-      { t: 'Riemërto…', fn: function () { hapRiemertimin(f); } },
+      { t: 'Ndrysho emrin / ikonën…', fn: function () { hapRiemertimin(f); } },
       '-',
       { t: 'Eksporto në Excel', fn: function () { eksportoDirekt('excel', produktetEFolderit(f.id), f); } },
       { t: 'Eksporto PDF (raport)', fn: function () { eksportoDirekt('pdf-lista', produktetEFolderit(f.id), f); } },
@@ -4182,7 +4191,9 @@
     var u = perdoruesi();
     var emri = emriPerdoruesit();
     $('perdoruesiCip').textContent = u ? emri : 'Hyr';
-    $('sbpBrandNen').textContent = u ? emri : 'Stoku dhe afatet';
+    var cl = window.__stokuCloud;
+    if (u) $('sbpBrandNen').textContent = emri;
+    else if (cl && cl.authGati) $('sbpBrandNen').textContent = 'Stoku dhe afatet';
     $('sbpAvatar').textContent = u ? String(emri || '?').charAt(0).toUpperCase() : '';
     $('sbpAvatar').classList.toggle('bosh', !u);
     $('llTitulli').textContent = u ? 'Llogaria' : 'Hyr në llogari';
