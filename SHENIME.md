@@ -50,6 +50,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **APPLE WATCH (v131)**: iPhone (iOS 16.4+, Stoku i shtuar në ekranin bazë nga Safari) merr Web Push nga i njëjti
+   Worker; Apple Watch i pasqyron vetë (Watch → Njoftimet → "Mirror iPhone Alerts From" → Stoku). Ndryshime: JWT VAPID
+   me afat 1 orë (Apple refuzon afat të gjatë; ruhet deri 10 min para skadimit); `sw.js` në Apple (iPhone/iPad/Safari)
+   tregon GJITHMONË njoftim për çdo push (përndryshe Apple e anulon regjistrimin); `fetch` pa `keepalive`. Cilësimet →
+   Njoftimet: karta "Njoftimet në orë" me `#segOra` (Galaxy Watch / Apple Watch, zgjidhet vetë sipas pajisjes).
+   Testi: `sw-push-ios.js` (UA i iPhone-it në nivel shfletuesi, që ta shohë edhe SW-ja).
+
 0000000. **NJOFTIMET PUSH TË CHAT-IT + ORA (v130)**: mesazhet e chat-it vijnë si njoftim edhe kur Stoku është krejt i mbyllur.
    - Serveri: `worker/stoku-push.js` (Cloudflare Worker "stoku-push" → `https://stoku-push.mendurb.workers.dev`), pa varësi.
      Secrets: `VAPID_PUBLIC`, `VAPID_PRIVATE` (VETËM te Cloudflare, kurrë në repo), `VAPID_SUBJECT`. POST `/chat {id}` me

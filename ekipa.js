@@ -126,7 +126,7 @@
     async function thirrPush(rruga, trup) {
       if (!auth.currentUser || typeof fetch !== 'function') return { ok: false, arsye: 'pa-hyrje' };
       var token = await auth.currentUser.getIdToken();
-      var r = await fetch(PUSH_URL + rruga, { method: 'POST', keepalive: true, headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(trup || {}) });
+      var r = await fetch(PUSH_URL + rruga, { method: 'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(trup || {}) });
       var j = {}; try { j = await r.json(); } catch (e) { /* ok */ }
       if (r.ok && j.ok) shkruajLS(KEY_PUSH_SERVER, Date.now());
       return j;
