@@ -346,7 +346,9 @@
 .sbp .ops-hint { color: var(--sb-muted); }
 
 /* ---------- Cilësimet (v128): menyja majtas me ikona, faqet si karta ---------- */
-.sbp .ops-dlg { max-width: 940px; height: min(700px, calc(100vh - 48px)); padding: 0; overflow: hidden; display: flex; }
+.sbp .ops-dlg { max-width: 940px; height: min(700px, calc(92vh - 24px)); padding: 0; overflow: hidden; display: flex; }
+/* Me "E madhe" dritarja zmadhohet 12%: lartësia ndahet me aq, që të mbetet brenda ekranit (sipër ka 8vh hapësirë) */
+:root.sbp[data-madhesi="e_madhe"] .ops-dlg { height: min(625px, calc((92vh - 24px) / 1.12)); max-width: 840px; }
 .sbp .ops-dlg .opsione-trup { display: grid; grid-template-columns: 250px 1fr; min-height: 0; flex: 1; width: 100%; }
 .sbp .ops-dlg .opsione-skeda { background: var(--sb-sidebar); border-right: 1px solid var(--sb-sidebar-line); padding: 22px 14px 14px; display: flex; flex-direction: column; gap: 3px; min-height: 0; overflow-y: auto; }
 .sbp .ops-nav-krye { font-size: 20px; font-weight: 700; letter-spacing: -.015em; color: var(--sb-ink); padding: 0 8px 14px; }
@@ -450,14 +452,18 @@
 .sbp .toast .btn { background: transparent; color: #9cc0f5; box-shadow: none; }
 :root.sbp[data-tema="dark"] .toast .btn { color: #1f5fc4; }
 
+/* "E madhe": anësorja 12% më e gjerë (përmbajtja e saj zmadhohet me zoom te pc.html) */
+:root.sbp[data-madhesi="e_madhe"] .trupi { grid-template-columns: 296px minmax(0, 1fr); }
 /* ---------- Ekrane më të ngushta ---------- */
 @media (max-width: 1366px) {
   .sbp main.kryesore { padding: 24px 28px 48px; }
   .sbp .tabela th, .sbp .tabela td { padding-left: 12px; padding-right: 12px; }
   .sbp .trupi { grid-template-columns: 248px minmax(0, 1fr); }
+  :root.sbp[data-madhesi="e_madhe"] .trupi { grid-template-columns: 278px minmax(0, 1fr); }
 }
 @media (max-width: 1180px) {
   .sbp .trupi { grid-template-columns: 232px minmax(0, 1fr); }
+  :root.sbp[data-madhesi="e_madhe"] .trupi { grid-template-columns: 260px minmax(0, 1fr); }
   .sbp .faqe-krye h1 { font-size: 30px; }
 }
 @media (max-width: 1100px) {
@@ -467,4 +473,5 @@
 @media (max-width: 1020px) {
   .sbp main.kryesore { padding: 18px 20px 40px; }
   .sbp .trupi { grid-template-columns: 220px minmax(0, 1fr); }
+  :root.sbp[data-madhesi="e_madhe"] .trupi { grid-template-columns: 246px minmax(0, 1fr); }
 }

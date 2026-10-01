@@ -50,6 +50,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **"E MADHE" NË PC + BUTONI CILËSIMET (v132)**: me `madhesia: 'e_madhe'` pc.html vinte `zoom: 1.12` te `body` →
+   `.trupi` (100dvh) bëhej 12% më e lartë se ekrani; `body` ka `overflow: hidden`, prandaj kur fokusi kthehej te butoni
+   poshtë (p.sh. pas mbylljes së Cilësimeve) shfletuesi e zhvendoste faqen lart dhe s'kishte kthim me scroll (foto e
+   përdoruesit: pa logo/kërkim, KPI të prera). Tani zoom-i vendoset te `.trupi > aside`, `.trupi > main`, `.mbulese > *`,
+   `.toast` (JO te body dhe jo te `.menu`, që pozicionohet me koordinatat e mausit); anësorja 296/278/260/246px me
+   E madhe; `.ops-dlg` lartësia `min(700px, 92vh - 24px)` (me E madhe ndahet me 1.12). Telefoni s'e kishte problemin
+   (faqja = ekrani, u mat). Zvarritësi (`zv-lib.js`) kontrollon tani edhe "faqja më e lartë se ekrani" dhe `scrollY > 0`.
+   PC: rresht "Cilësimet" (`#btnCilesimetAnes`) te `.anesore-fund`, pranë ikonës ⚙ te karta e llogarisë.
+
 0000000. **APPLE WATCH (v131)**: iPhone (iOS 16.4+, Stoku i shtuar në ekranin bazë nga Safari) merr Web Push nga i njëjti
    Worker; Apple Watch i pasqyron vetë (Watch → Njoftimet → "Mirror iPhone Alerts From" → Stoku). Ndryshime: JWT VAPID
    me afat 1 orë (Apple refuzon afat të gjatë; ruhet deri 10 min para skadimit); `sw.js` në Apple (iPhone/iPad/Safari)
