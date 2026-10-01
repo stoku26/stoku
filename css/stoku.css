@@ -437,3 +437,9 @@ html.sb body { -webkit-user-select: none; user-select: none; -webkit-touch-callo
   -webkit-user-select: text; user-select: text; -webkit-touch-callout: default;
 }
 
+
+/* Fotoja e profilit (Fotot.apliko te ekipa.js): fotoja mbulon shkronjën */
+.sb .me-foto { background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; background-color: var(--sb-sunken) !important; color: transparent !important; text-shadow: none !important; }
+.sb #opsLlAv { cursor: pointer; }
+.sb .ops-foto-rresht { margin-top: 12px; }
+.sb .ops-foto-rresht .ops-foto-hiq { color: var(--sb-exp); }

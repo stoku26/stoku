@@ -496,3 +496,10 @@
 }
 .sbp aside.anesore input { -webkit-user-select: text; user-select: text; }
 
+
+/* Fotoja e profilit (Fotot.apliko te ekipa.js): fotoja mbulon shkronjën */
+.sbp .me-foto { background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; background-color: var(--sb-sunken) !important; color: transparent !important; text-shadow: none !important; }
+.sbp .me-foto.bosh::after { display: none; }
+.sbp #opsLlAv { cursor: pointer; }
+.sbp .ops-foto-rresht { display: flex; gap: 8px; margin-top: 12px; }
+.sbp .ops-foto-rresht .btn.ops-foto-hiq { color: var(--sb-exp); }

@@ -50,6 +50,22 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **FOTOT E PROFILIT (v141 = 1.1.0)**, pa Firebase: ruhen te Cloudflare KV përmes të njëjtit Worker `stoku-push`.
+   - Worker-i (`worker/stoku-push.js`): binding KV me emrin `FOTO` (namespace `stoku-foto`, e krijon PËRDORUESI te
+     Cloudflare). `GET /foto/{uid}?v=koha` publike (uid s'merret me mend; me `?v=` cache 1 vit, immutable),
+     `GET /fotot` → `{uid: koha}` (çelësi KV `indeksi`), `PUT /foto` (trupi = fotoja, maks 150KB, JPEG/PNG/WebP nga
+     bajtët e parë), `DELETE /foto`. Tri të fundit kërkojnë `Authorization: Bearer <ID token>`, që Worker-i e VERIFIKON
+     vetë (RS256 me çelësat publikë të Google `securetoken@system`, `iss/aud = stoku-appi`, `exp/iat`) → uid = `sub`;
+     secili ndryshon vetëm foton e vet. Pa binding → 500 `mungon-kv`. GET `/` tregon `fotot: true/false`.
+   - Klienti (`ekipa.js`): `StokuEkipa.Fotot` (moduli): `apliko(el, {uid, emri} | emri)` vendos `data-foto-uid/-emri`,
+     klasën `.me-foto` dhe `background-image` (shkronja mbetet poshtë, `color: transparent`); `riapliko()` kur ndryshon
+     indeksi ose harta emër→uid (nga `degjoAnetaret`). Indeksi + emrat te localStorage (`stoku:fotot:*`).
+     `pergatit(file)` → katror 256×256 (prerë në mes), JPEG 0.82 (~10KB). Cloud: `rifreskoFotot()` (në hyrje dhe kur
+     faqja bëhet e dukshme, maks 1 herë / 10 min), `ngarkoFoton(file)`, `hiqFoton()`. Ngjarja `stoku-fotot-ndryshuan`.
+   - Telefoni: Cilësimet → Llogaria "Shto foto / Ndrysho foton / Hiq foton" (+ klik te avatari); avatarët: karta e
+     profilit, Llogaria, `ekAvatar`, `ekAv`. PC: Llogaria rreshti "Fotoja e profilit"; `#sbpAvatar`, `#opsNavAv`,
+     `#opsLlAv`, `ekAvatar`. Testet: `foto-test.js` (Worker i simuluar, tel + PC), `wp/foto-prova.mjs` (Worker-i real).
+
 0000000. **ADMINI NGA LLOGARIA (v140 = 1.0.2)**: përdoruesi s'mund të bënte asgjë si admin (s'fshinte llogari etj.) —
    admini njihej VETËM nga `perdoruesit/{uid}.emri == 'mendurberisha'` (fushë që vendoset vetëm nga Console, që
    te ai mungonte). Tani: ekipa.js `eshteAdmin()` → true nëse emri i llogarisë (email-i i hyrjes) është

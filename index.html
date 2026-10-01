@@ -1026,7 +1026,7 @@
 </style>
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=2">
-<link rel="stylesheet" href="css/stoku.css?v=8">
+<link rel="stylesheet" href="css/stoku.css?v=9">
 </head>
 <body>
 <script src="porta.js?v=119"></script>
@@ -1363,6 +1363,12 @@
               <span class="ops-av ops-av--madh" id="opsLlAv" aria-hidden="true">?</span>
               <div class="kat-info"><div class="ops-ll-titull" id="cloudHyrePerTeksti"></div><div class="kat-status ops-ll-status"><span class="ops-pika"></span><span id="cloudStatusi"></span></div></div>
             </div>
+            <div class="rreshti ops-foto-rresht">
+              <button class="btn ops-btn-dyte" id="opsFotoNdrysho" type="button">Shto foto</button>
+              <button class="btn ops-btn-dyte ops-foto-hiq" id="opsFotoHiq" type="button" style="display:none">Hiq foton</button>
+              <input type="file" id="opsFotoSkedari" accept="image/*" hidden>
+            </div>
+            <div class="hint" id="opsFotoHint"></div>
             <div class="rreshti">
               <button class="btn ops-btn-dyte" id="cloudSinkronizoTani" type="button"></button>
               <button class="btn ops-btn-dyte" id="cloudRiktheTani" type="button"></button>
@@ -1736,9 +1742,9 @@
 <script src="bashkimi.js?v=113"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=123"></script>
-<script src="ekipa.js?v=9"></script>
+<script src="ekipa.js?v=10"></script>
 <script src="njoftimet.js?v=120"></script>
-<script src="teRejat.js?v=140"></script>
+<script src="teRejat.js?v=141"></script>
 <script>
 (function () {
   'use strict';
@@ -2970,6 +2976,14 @@
     $('opsProfilAv').textContent = u ? shkronjaEPare(emri) : '?';
     $('opsProfilAv').classList.toggle('bosh', !u);
     $('opsLlAv').textContent = shkronjaEPare(emri);
+    var FT = window.StokuEkipa && window.StokuEkipa.Fotot;
+    if (FT) {
+      var kush = u ? { uid: u.uid, emri: emri } : null;
+      FT.apliko($('opsProfilAv'), kush); FT.apliko($('opsLlAv'), kush);
+      var kaFoto = !!(u && FT.url(u.uid));
+      $('opsFotoNdrysho').textContent = kaFoto ? 'Ndrysho foton' : 'Shto foto';
+      $('opsFotoHiq').style.display = kaFoto ? '' : 'none';
+    }
     $('opsProfilEmri').textContent = u ? emri : 'Pa llogari';
     $('opsProfilSub').textContent = u ? (statusiCloudFundit || T('cloudStatusiAsgje')) : 'Hyr që lista të ruhet edhe në internet';
     var TR = window.StokuTeRejat;
@@ -2977,6 +2991,34 @@
     $('opsVersioni').textContent = v ? ' ' + TR.emriVersionit(v) : '';
     $('opsTeRejatStatus').textContent = v ? 'Ndryshimet e fundit në Stoku' : '';
   }
+  // Fotoja e profilit: ruhet te Worker-i (Cloudflare), e sheh krejt ekipa
+  var __fotoDukeDerguar = false;
+  function tekstiGabimitFotos(a) {
+    return a === 'jo-foto' ? 'Ky skedar nuk është foto.' : a === 'madhesia' ? 'Fotoja është shumë e madhe.' :
+      a === 'pa-hyrje' ? 'Hyr në llogari për të vendosur foto.' : a === 'mungon-kv' ? 'Fotot ende s\'janë aktivizuar në server.' :
+      'Fotoja nuk u ruajt. Kontrollo internetin dhe provo sërish.';
+  }
+  async function veproMeFoton(veprimi, skedari) {
+    var c = window.__stokuCloud, e = c && c.ekipa;
+    if (!e || __fotoDukeDerguar) return;
+    __fotoDukeDerguar = true;
+    $('opsFotoNdrysho').disabled = $('opsFotoHiq').disabled = true;
+    $('opsFotoHint').textContent = veprimi === 'hiq' ? 'Po hiqet fotoja…' : 'Po ngarkohet fotoja…';
+    var r = veprimi === 'hiq' ? await e.hiqFoton() : await e.ngarkoFoton(skedari);
+    __fotoDukeDerguar = false;
+    $('opsFotoNdrysho').disabled = $('opsFotoHiq').disabled = false;
+    $('opsFotoHint').textContent = r.ok ? '' : tekstiGabimitFotos(r.arsye);
+    if (r.ok) toast(veprimi === 'hiq' ? 'Fotoja u hoq.' : 'Fotoja u ruajt. E sheh krejt ekipa.');
+    rifreskoProfilin();
+  }
+  $('opsFotoNdrysho').addEventListener('click', function () { $('opsFotoSkedari').value = ''; $('opsFotoSkedari').click(); });
+  $('opsLlAv').addEventListener('click', function () { $('opsFotoNdrysho').click(); });
+  $('opsFotoSkedari').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) veproMeFoton('ngarko', f); });
+  $('opsFotoHiq').addEventListener('click', async function () {
+    if (await konfirmo('Ta heqim foton?', 'Në vend të fotos do të dalë shkronja e emrit tënd.', 'Hiqe')) veproMeFoton('hiq');
+  });
+  window.addEventListener('stoku-fotot-ndryshuan', rifreskoProfilin);
+
   // Në menunë kryesore të Opsioneve, "←" i mbyll Opsionet krejtësisht (kthehu te faqja kryesore);
   // brenda një kategorie, i njëjti buton kthehet vetëm te menuja e Opsioneve.
   $('opsPrapa').addEventListener('click', function () {
@@ -5534,7 +5576,8 @@
     return b;
   }
   function ekAvatar(a, meOnline) {
-    return ekEl('span', 'ek-avatar' + (meOnline && (a.uneJam || EKL.eshteOnline(a)) ? ' online' : ''), String(a.emri || '?').charAt(0).toUpperCase());
+    var el = ekEl('span', 'ek-avatar' + (meOnline && (a.uneJam || EKL.eshteOnline(a)) ? ' online' : ''), String(a.emri || '?').charAt(0).toUpperCase());
+    return EKL.Fotot.apliko(el, { uid: a.uid, emri: a.emri });
   }
   function ekOra(ts) { var d = new Date(ts); return dyShifra(d.getHours()) + ':' + dyShifra(d.getMinutes()); }
   function ekNumero(lista) {
@@ -5758,7 +5801,7 @@
   function ekAv(emri, m, online) {
     var a = ekEl('span', 'ek-av' + (online ? ' online' : ''), String(emri || '?').charAt(0).toUpperCase());
     a.style.cssText = 'width:' + m + 'px;height:' + m + 'px;font-size:' + Math.round(m * 0.4) + 'px;background:' + ekNgjyra(emri);
-    return a;
+    return EKL.Fotot.apliko(a, String(emri || ''));
   }
   function ekKurTekst(n) { return n === null ? '' : n < -1 ? 'para ' + AF.ditetTekst(-n) : n === -1 ? 'dje' : n === 0 ? 'sot' : n === 1 ? 'nesër' : 'për ' + AF.ditetTekst(n); }
   function ekPllakaEl(p, tekst, aktiv) {
