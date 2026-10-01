@@ -15,6 +15,14 @@
   'use strict';
 
   var LISTA = [
+    { v: 134, data: '2026-10-01', titulli: 'Pa "Sasi e ulët"', platforma: 'tel', pikat: [
+      'U hoq "Sasi e ulët" dhe ngjyra portokalli te sasitë. Me të kuqe mbetet vetëm sasia 0.',
+      'Te karta e kryefaqes, në vend të "Sasi e ulët" tani shihet sa afate të skaduara janë ende në raft.'
+    ] },
+    { v: 134, data: '2026-10-01', titulli: 'Pa "Sasi e ulët"', platforma: 'pc', pikat: [
+      'U hoqën kutia dhe filtri "Sasi e ulët" dhe ngjyra portokalli te sasitë. Me të kuqe mbetet vetëm sasia 0.',
+      'Te Përmbledhja, karta "Sasia më e ulët" u bë "Pa stok": produktet me sasi 0, që duhen porositur.'
+    ] },
     { v: 133, data: '2026-10-01', titulli: 'Anësorja më e pastër', platforma: 'pc', pikat: [
       'Cilësimet hapen nga rreshti "Cilësimet" te menyja anësore (ikona e vogël pranë emrit u hoq).',
       'U hoq "Importo nga Excel / CSV" nga fundi i anësores. Importi mbetet: klik i djathtë (ose ···) te një folder → "Importo në këtë folder…", ose Ctrl+I.',

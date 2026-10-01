@@ -1026,7 +1026,7 @@
 </style>
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=2">
-<link rel="stylesheet" href="css/stoku.css?v=5">
+<link rel="stylesheet" href="css/stoku.css?v=6">
 </head>
 <body>
 <script src="porta.js?v=119"></script>
@@ -1731,7 +1731,7 @@
 <script src="afatet.js?v=122"></script>
 <script src="ekipa.js?v=8"></script>
 <script src="njoftimet.js?v=120"></script>
-<script src="teRejat.js?v=133"></script>
+<script src="teRejat.js?v=134"></script>
 <script>
 (function () {
   'use strict';
@@ -2325,16 +2325,15 @@
 
   // Kryefaqja (dizajni i ri): karta e errët me numrat, titulli "Folderat", katrori me ngjyrë te çdo folder
   // dhe "Ndryshuar së fundi". Brenda #folderaLista (rrjeta), që zvarritja e folderave të punojë si më parë.
-  var PRAGU_PAK = 5; // "Sasi e ulët" = 1–5 copë (si parazgjedhja te kompjuteri)
   var NGJYRAT_FOLDERAVE = ['#d9e4f7', '#d5eedc', '#f6e3c4', '#f6d9d6', '#e6dcf3', '#f3d8e0', '#dcebc9', '#f3dfcb'];
   function numerMeHapesire(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
   function vizatoKryefaqen(cont) {
     var te = Object.keys(produktet).map(function (k) { return produktet[k]; });
     var sot = new Date(); sot.setHours(0, 0, 0, 0);
-    var pak = 0, zero = 0, sotN = 0;
+    var zero = 0, sotN = 0;
     te.forEach(function (p) {
       var sas = Number(p.sasia) || 0;
-      if (sas <= 0) zero++; else if (sas <= PRAGU_PAK) pak++;
+      if (sas <= 0) zero++;
       if ((p.prekurSe || 0) >= sot.getTime()) sotN++;
     });
     function el(tag, cls, tekst) { var e = document.createElement(tag); if (cls) e.className = cls; if (tekst !== undefined) e.textContent = tekst; return e; }
@@ -2349,7 +2348,10 @@
     if (sotN) lart.appendChild(el('span', 'sb-pill', sotN + ' ndryshuar sot'));
     karta.appendChild(lart);
     var st = el('div', 'sb-stats');
-    [[foldera.length, 'Folderat', ''], [pak, 'Sasi e ulët', ' sb-stat__value--near'], [zero, 'Sasi 0', ' sb-stat__value--exp']].forEach(function (x) {
+    // "Sasi e ulët" u hoq (v134); në vend të saj: afatet e skaduara që janë ende në raft (si te kompjuteri)
+    var nAf = (window.StokuAfatet && typeof afatet !== 'undefined' && afatet) ? window.StokuAfatet.numero(afatet) : null;
+    var skaduara = nAf ? (nAf.skaduar || 0) + (nAf['pa-date'] || 0) : 0;
+    [[foldera.length, 'Folderat', ''], [zero, 'Sasi 0', zero ? ' sb-stat__value--exp' : ''], [skaduara, 'Të skaduara', skaduara ? ' sb-stat__value--exp' : '']].forEach(function (x) {
       var q = el('div', 'sb-stat');
       q.appendChild(el('span', 'sb-stat__value' + x[2], numerMeHapesire(x[0])));
       q.appendChild(el('span', 'sb-stat__label', x[1]));
@@ -2390,7 +2392,7 @@
         m.appendChild(el('span', 'sb-row__code', p.barkodi + (fe ? '  ·  ' + fe : '')));
         r.appendChild(m);
         var sas = Number(p.sasia) || 0;
-        r.appendChild(el('span', 'sb-row__qty' + (sas <= 0 ? ' sb-row__qty--exp' : sas <= PRAGU_PAK ? ' sb-row__qty--near' : ''), numerMeHapesire(sas)));
+        r.appendChild(el('span', 'sb-row__qty' + (sas <= 0 ? ' sb-row__qty--exp' : ''), numerMeHapesire(sas)));
         r.addEventListener('click', function () { hapFolderin(p.kategoriaId); });
         lista.appendChild(r);
       });
@@ -3616,7 +3618,7 @@
         var sasiaNumri = document.createElement('input');
         sasiaNumri.type = 'number';
         sasiaNumri.inputMode = 'numeric';
-        sasiaNumri.className = 'sasia sasia-input' + (p.sasia <= 0 ? ' sasia--zero' : p.sasia <= PRAGU_PAK ? ' sasia--pak' : '');
+        sasiaNumri.className = 'sasia sasia-input' + (p.sasia <= 0 ? ' sasia--zero' : '');
         sasiaNumri.value = String(p.sasia);
         sasiaNumri.min = '0';
         var btnPlus = document.createElement('button');
@@ -3661,8 +3663,8 @@
         rreshti.appendChild(mbeshtjellesi);
       } else {
         var sasia = document.createElement('div');
-        // 0 = e kuqe, 1–5 = portokalli (si te kryefaqja: "Sasi 0" / "Sasi e ulët")
-        sasia.className = 'sasia' + (p.sasia <= 0 ? ' sasia--zero' : p.sasia <= PRAGU_PAK ? ' sasia--pak' : '');
+        // 0 = e kuqe ("Sasi 0" te kryefaqja)
+        sasia.className = 'sasia' + (p.sasia <= 0 ? ' sasia--zero' : '');
         sasia.textContent = String(p.sasia);
         rreshti.appendChild(sasia);
       }

@@ -50,6 +50,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PA "SASI E ULËT" (v134)**, me kërkesë, telefon + PC: u hoq krejt koncepti 1–5 copë (`eshtePak`, `ops.pragu`,
+   `PRAGU_PAK`, filtri `data-f="pak"`, KPI, ngjyra portokalli `.pak`/`--near`/`sasia--pak`). Mbetet vetëm "Sasi 0" (e kuqe).
+   PC: karta "Sasia më e ulët" → **"Pa stok"** (`#permbTeUleta`, sasi 0, më të ndryshuarat lart, numri te `#permbPaStokNr`,
+   "Shih të gjitha" → filtri `zero`); 3 KPI. Telefoni: karta e kryefaqes ka [Folderat, Sasi 0, Të skaduara] (afatet e
+   skaduara + pa datë, nga `StokuAfatet.numero(afatet)`). Renditja "Sasia: nga më e vogla" mbetet (s'është "sasi e ulët").
+
 0000000. **ANËSORJA E PC-SË (v133)**, me kërkesë: u hoq ⚙ te karta e llogarisë (rreshti "Cilësimet" i anësores mori id-në
    `#btnOpsione`); u hoq `#btnImport` ("Importo nga Excel / CSV") nga `.anesore-fund` (importi i stokut: menyja e
    folderit "Importo në këtë folder…" + Ctrl+I); u hoq cilësimi "Kufiri i sasisë së ulët" (`#opsPragu`) — `ops.pragu`
