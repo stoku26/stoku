@@ -27,7 +27,6 @@
       t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
     }
     document.documentElement.setAttribute('data-tema', t);
-    if (o && o.aksent && o.aksent !== 'blu') document.documentElement.setAttribute('data-aksent', o.aksent);
     if (o && (o.dendesia === 'kompakte' || o.dendesia === 'gjere')) document.documentElement.setAttribute('data-dendesia', o.dendesia);
     if (o && o.madhesia === 'e_madhe') document.documentElement.setAttribute('data-madhesi', 'e_madhe');
   })();
@@ -96,14 +95,6 @@
     --hije: 0 1px 2px rgba(0,0,0,.4);
     --hije-e-larte: 0 16px 48px rgba(0,0,0,.6);
   }
-  :root[data-aksent="jeshile"] { --primar: #2E7D32; --header: #2E7D32; --btn-tekst: #2E7D32; --primar-bute: rgba(46,125,50,.10); --primar-mesme: rgba(46,125,50,.18); }
-  :root[data-tema="dark"][data-aksent="jeshile"] { --header: #1b5e20; --btn-tekst: #81c995; }
-  :root[data-aksent="vjollce"] { --primar: #6A1B9A; --header: #6A1B9A; --btn-tekst: #6A1B9A; --primar-bute: rgba(106,27,154,.09); --primar-mesme: rgba(106,27,154,.17); }
-  :root[data-tema="dark"][data-aksent="vjollce"] { --header: #4a148c; --btn-tekst: #ce93d8; }
-  :root[data-aksent="portokalli"] { --primar: #E65100; --header: #E65100; --btn-tekst: #E65100; --primar-bute: rgba(230,81,0,.09); --primar-mesme: rgba(230,81,0,.17); }
-  :root[data-tema="dark"][data-aksent="portokalli"] { --header: #bf360c; --btn-tekst: #ffab40; }
-  :root[data-aksent="kuqe"] { --primar: #C62828; --header: #C62828; --btn-tekst: #C62828; --primar-bute: rgba(198,40,40,.08); --primar-mesme: rgba(198,40,40,.16); }
-  :root[data-tema="dark"][data-aksent="kuqe"] { --header: #8e0000; --btn-tekst: #ef9a9a; }
   /* Dendësia: ndikon rreshtat e tabelës, listat e përmbledhjes dhe shiritin anësor */
   :root[data-dendesia="kompakte"] { --rresht-lart: 28px; --tabela-shkronja: 12.5px; --sasia-shkronja: 13px; --btn-rreshti: 24px; --lista-pad: 3px; --anesore-lart: 30px; }
   :root[data-dendesia="gjere"] { --rresht-lart: 58px; --tabela-shkronja: 15.5px; --sasia-shkronja: 18px; --btn-rreshti: 38px; --lista-pad: 13px; --anesore-lart: 46px; }
@@ -644,15 +635,6 @@
   .ops-seksion:last-child { border-bottom: 0; }
   .ops-titull { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
   .ops-hint { font-size: 12px; color: var(--gri); margin: 6px 0 0; line-height: 1.5; }
-  .aksentet { display: flex; gap: 10px; margin-top: 6px; }
-  .aksent { width: 30px; height: 30px; border-radius: 50%; border: 3px solid transparent; padding: 0; position: relative; }
-  .aksent[data-v="blu"] { background: #1565C0; }
-  .aksent[data-v="jeshile"] { background: #2E7D32; }
-  .aksent[data-v="vjollce"] { background: #6A1B9A; }
-  .aksent[data-v="portokalli"] { background: #E65100; }
-  .aksent[data-v="kuqe"] { background: #C62828; }
-  .aksent.aktiv { border-color: var(--tekst); }
-  .aksent.aktiv::after { content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 13px; }
   .shkurtoret { width: 100%; border-collapse: collapse; }
   .shkurtoret td { padding: 7px 0; border-bottom: 1px solid var(--vije-2); }
   .shkurtoret td:last-child { text-align: right; white-space: nowrap; }
@@ -900,8 +882,8 @@
   }
 </style>
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/stoku-tokens.css?v=1">
-<link rel="stylesheet" href="css/stoku-pc.css?v=1">
+<link rel="stylesheet" href="css/stoku-tokens.css?v=2">
+<link rel="stylesheet" href="css/stoku-pc.css?v=2">
 </head>
 <body>
 <script src="porta.js?v=119"></script>
@@ -1685,60 +1667,70 @@
 
 <!-- Opsionet -->
 <div class="mbulese" id="dlgOpsione">
-  <div class="dialog gjere" role="dialog" aria-modal="true" style="max-width:760px">
-    <div class="dialog-krye"><h2>Cilësimet</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
+  <div class="dialog gjere ops-dlg" role="dialog" aria-modal="true" aria-label="Cilësimet">
     <div class="opsione-trup">
-      <div class="opsione-skeda" id="opsSkeda">
-        <button type="button" data-faqe="pamja" class="aktiv">Pamja</button>
-        <button type="button" data-faqe="stoku">Stoku</button>
-        <button type="button" data-faqe="llogaria">Llogaria</button>
-        <button type="button" data-faqe="shkurtoret">Shkurtoret</button>
-      </div>
-      <div>
+      <nav class="opsione-skeda" id="opsSkeda">
+        <div class="ops-nav-krye">Cilësimet</div>
+        <div class="ops-nav-profil">
+          <span class="ops-av" id="opsNavAv" aria-hidden="true">?</span>
+          <span class="ops-nav-profil__info"><span class="ops-nav-profil__emri" id="opsNavEmri"></span><span class="ops-nav-profil__sub" id="opsNavSub"></span></span>
+        </div>
+        <button type="button" data-faqe="pamja" class="aktiv"><span class="ops-ik ngj-vjollce"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg></span><span class="ops-nav-tekst">Pamja<small>Tema, dendësia, shkronjat</small></span></button>
+        <button type="button" data-faqe="stoku"><span class="ops-ik ngj-portokalli"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5M12 22V12"></path></svg></span><span class="ops-nav-tekst">Stoku<small>Sasia e ulët, renditja</small></span></button>
+        <button type="button" data-faqe="llogaria"><span class="ops-ik ngj-gjelber"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg></span><span class="ops-nav-tekst">Llogaria<small>Sinkronizimi, fjalëkalimi</small></span></button>
+        <button type="button" data-faqe="shkurtoret"><span class="ops-ik ngj-blu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"></rect><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M8 15h8"></path></svg></span><span class="ops-nav-tekst">Shkurtoret<small>Tastiera</small></span></button>
+        <div class="ops-nav-fund">
+          <button type="button" class="ops-nav-terejat" id="opsTeRejat"><span class="ops-ik ngj-roze"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path></svg></span><span class="ops-nav-tekst">Çka ka të re</span></button>
+          <div class="ops-versioni"><img src="logo/stoku-icon.svg?v=3" alt="" width="20" height="20"><span>Stoku <b id="opsVersioni"></b></span></div>
+        </div>
+      </nav>
+      <div class="ops-djathtas">
+        <button class="btn-ikone ops-mbyll" type="button" data-mbyll aria-label="Mbyll">✕</button>
+
         <div class="opsione-faqe aktiv" data-faqe="pamja">
-          <div class="ops-seksion">
-            <div class="ops-titull">Tema</div>
-            <div class="segmente" id="opsTema" style="margin-top:6px">
-              <button type="button" data-v="auto">Automatike</button><button type="button" data-v="light">E çelët</button><button type="button" data-v="dark">E errët</button>
-            </div>
-            <p class="ops-hint">"Automatike" ndjek cilësimin e kompjuterit.</p>
-          </div>
-          <div class="ops-seksion">
-            <div class="ops-titull">Ngjyra kryesore</div>
-            <div class="aksentet" id="opsAksent">
-              <button type="button" class="aksent" data-v="blu" title="Blu"></button>
-              <button type="button" class="aksent" data-v="jeshile" title="Jeshile"></button>
-              <button type="button" class="aksent" data-v="vjollce" title="Vjollcë"></button>
-              <button type="button" class="aksent" data-v="portokalli" title="Portokalli"></button>
-              <button type="button" class="aksent" data-v="kuqe" title="Kuqe"></button>
+          <div class="ops-faqe-krye"><h2>Pamja</h2><p>Si duket Stoku në këtë kompjuter. Ndryshimet zbatohen menjëherë.</p></div>
+          <div class="ops-karta">
+            <div class="ops-karta-krye"><div class="ops-titull">Tema</div><p class="ops-hint">"Automatike" ndjek cilësimin e kompjuterit.</p></div>
+            <div class="ops-zgjedhje ops-zgjedhje--3" id="opsTema">
+              <button type="button" data-v="auto"><span class="ops-mock ops-mock--auto"><span class="m-an"></span><span class="m-tr"><b></b><i></i><i></i></span></span><span class="ops-zgj-emri">Automatike</span></button>
+              <button type="button" data-v="light"><span class="ops-mock ops-mock--light"><span class="m-an"></span><span class="m-tr"><b></b><i></i><i></i></span></span><span class="ops-zgj-emri">E çelët</span></button>
+              <button type="button" data-v="dark"><span class="ops-mock ops-mock--dark"><span class="m-an"></span><span class="m-tr"><b></b><i></i><i></i></span></span><span class="ops-zgj-emri">E errët</span></button>
             </div>
           </div>
-          <div class="ops-seksion">
-            <div class="ops-titull">Dendësia e tabelës</div>
-            <div class="segmente" id="opsDendesia" style="margin-top:6px">
-              <button type="button" data-v="kompakte">Kompakte</button><button type="button" data-v="normale">Normale</button><button type="button" data-v="gjere">E gjerë</button>
+          <div class="ops-karta">
+            <div class="ops-karta-krye"><div class="ops-titull">Dendësia e tabelës</div><p class="ops-hint">Sa rreshta shihen njëherësh. Ndikon tabelën, listat e përmbledhjes dhe folderat anash.</p></div>
+            <div class="ops-zgjedhje ops-zgjedhje--3" id="opsDendesia">
+              <button type="button" data-v="kompakte"><span class="ops-rreshta ops-rreshta--k"><i></i><i></i><i></i><i></i><i></i></span><span class="ops-zgj-emri">Kompakte</span></button>
+              <button type="button" data-v="normale"><span class="ops-rreshta ops-rreshta--n"><i></i><i></i><i></i><i></i></span><span class="ops-zgj-emri">Normale</span></button>
+              <button type="button" data-v="gjere"><span class="ops-rreshta ops-rreshta--g"><i></i><i></i><i></i></span><span class="ops-zgj-emri">E gjerë</span></button>
             </div>
-            <p class="ops-hint">Kompakte: shumë rreshta njëherësh në ekran (rreshta të ulët, shkronja më të vogla). E gjerë: rreshta të lartë dhe shkronja më të mëdha, më e lehtë për sytë. Ndikon tabelën, listat e përmbledhjes dhe folderat anash.</p>
           </div>
-          <div class="ops-seksion">
-            <div class="ops-titull">Madhësia e shkronjave</div>
-            <div class="segmente" id="opsMadhesia" style="margin-top:6px">
-              <button type="button" data-v="normale">Normale</button><button type="button" data-v="e_madhe">E madhe</button>
+          <div class="ops-karta">
+            <div class="ops-karta-krye"><div class="ops-titull">Madhësia e shkronjave</div><p class="ops-hint">"E madhe" rrit tekstin dhe butonat në krejt aplikacionin.</p></div>
+            <div class="ops-zgjedhje ops-zgjedhje--2" id="opsMadhesia">
+              <button type="button" data-v="normale"><span class="ops-aa">Aa</span><span class="ops-zgj-emri">Normale</span></button>
+              <button type="button" data-v="e_madhe"><span class="ops-aa ops-aa--madh">Aa</span><span class="ops-zgj-emri">E madhe</span></button>
             </div>
           </div>
         </div>
+
         <div class="opsione-faqe" data-faqe="stoku">
-          <div class="ops-seksion">
-            <div class="ops-titull">Kufiri i sasisë së ulët</div>
-            <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
-              <input class="inp" id="opsPragu" placeholder="Numri i copëve" type="number" min="0" step="1" style="width:110px">
-              <span class="gri">copë ose më pak (por mbi 0)</span>
+          <div class="ops-faqe-krye"><h2>Stoku</h2><p>Si shënohen dhe renditen produktet në tabelë.</p></div>
+          <div class="ops-karta ops-rresht">
+            <span class="ops-ik ops-ik--madh ngj-portokalli"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h4M3 9h7M3 14h11M3 19h16"></path></svg></span>
+            <div class="ops-rresht__tekst">
+              <div class="ops-titull">Kufiri i sasisë së ulët</div>
+              <p class="ops-hint">Produktet me këtë sasi ose më pak shënohen me portokalli si "Sasi e ulët". 0 = çaktivizuar. Produktet me sasi 0 shënohen gjithmonë me të kuqe.</p>
             </div>
-            <p class="ops-hint">Produktet me këtë sasi ose më pak shënohen me portokalli si "Sasi e ulët". 0 = çaktivizuar. Produktet me sasi 0 shënohen gjithmonë me të kuqe.</p>
+            <div class="ops-pragu"><input class="inp" id="opsPragu" placeholder="0" type="number" min="0" step="1"><span>copë</span></div>
           </div>
-          <div class="ops-seksion">
-            <div class="ops-titull">Renditja fillestare</div>
-            <select class="inp" id="opsRendi" style="max-width:280px;margin-top:8px">
+          <div class="ops-karta ops-rresht">
+            <span class="ops-ik ops-ik--madh ngj-blu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 4 4 4-4M7 20V4M21 8l-4-4-4 4M17 4v16"></path></svg></span>
+            <div class="ops-rresht__tekst">
+              <div class="ops-titull">Renditja fillestare</div>
+              <p class="ops-hint">Mund ta ndryshosh kurdo edhe duke klikuar titujt e kolonave në tabelë.</p>
+            </div>
+            <select class="inp" id="opsRendi">
               <option value="koha:-1">Më të ndryshuarat së fundi së pari</option>
               <option value="emri:1">Emri (A–Z)</option>
               <option value="emri:-1">Emri (Z–A)</option>
@@ -1746,41 +1738,52 @@
               <option value="sasia:-1">Sasia: nga më e madhja</option>
               <option value="barkodi:1">Barkodi</option>
             </select>
-            <p class="ops-hint">Mund ta ndryshosh kurdo edhe duke klikuar titujt e kolonave në tabelë.</p>
           </div>
         </div>
+
         <div class="opsione-faqe" data-faqe="llogaria">
-          <div class="ops-seksion" id="opsLlJashte">
-            <p class="ops-hint" style="margin:0 0 10px">Nuk ke hyrë. Të dhënat ruhen vetëm në këtë kompjuter.</p>
+          <div class="ops-faqe-krye"><h2>Llogaria</h2><p>Llogaria ruan stokun në internet dhe e sinkronizon me telefonat.</p></div>
+          <div class="ops-karta ops-rresht" id="opsLlJashte">
+            <span class="ops-ik ops-ik--madh ngj-gjelber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg></span>
+            <div class="ops-rresht__tekst"><div class="ops-titull">Nuk ke hyrë</div><p class="ops-hint">Të dhënat ruhen vetëm në këtë kompjuter.</p></div>
             <button class="btn" type="button" id="opsHapHyrjen">Hyr ose krijo llogari</button>
           </div>
           <div id="opsLlBrenda" class="fsheh">
-            <div class="ops-seksion">
-              <div class="ops-titull" id="opsLlEmri"></div>
-              <p class="ops-hint" id="opsLlStatusi"></p>
-              <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <div class="ops-karta ops-profil">
+              <span class="ops-av ops-av--madh" id="opsLlAv" aria-hidden="true">?</span>
+              <div class="ops-rresht__tekst">
+                <div class="ops-profil__emri" id="opsLlEmri"></div>
+                <p class="ops-hint ops-ll-status"><span class="ops-pika"></span><span id="opsLlStatusi"></span></p>
+              </div>
+              <div class="ops-profil__veprime">
                 <button class="btn dyte" type="button" id="opsSinkronizo">Sinkronizo tani</button>
                 <button class="btn dyte" type="button" id="opsRikthe">Rikthe nga cloud</button>
               </div>
             </div>
-            <div class="ops-seksion">
-              <div class="ops-titull">Ndrysho emrin e përdoruesit</div>
-              <div style="display:flex;gap:8px;margin-top:8px"><input class="inp" id="opsEmriRi" type="text" autocomplete="off" spellcheck="false" maxlength="40" placeholder="Emri i ri"><button class="btn dyte" type="button" id="opsNdryshoEmrin">Ndrysho</button></div>
-              <div class="ops-titull" style="margin-top:14px">Ndrysho fjalëkalimin</div>
-              <div style="display:flex;gap:8px;margin-top:8px"><input class="inp" id="opsFjalekalimiRi" type="password" autocomplete="new-password" maxlength="100" placeholder="Fjalëkalimi i ri"><button class="btn dyte" type="button" id="opsNdryshoFjalekalimin">Ndrysho</button></div>
-              <div id="opsRiaut" class="fsheh" style="margin-top:12px">
+            <div class="ops-karta">
+              <div class="ops-fusha">
+                <span class="ops-ik ngj-blu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+                <div class="ops-titull">Emri i përdoruesit</div>
+                <input class="inp" id="opsEmriRi" type="text" autocomplete="off" spellcheck="false" maxlength="40" placeholder="Emri i ri"><button class="btn dyte" type="button" id="opsNdryshoEmrin">Ndrysho</button>
+              </div>
+              <div class="ops-fusha">
+                <span class="ops-ik ngj-portokalli"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="15.5" r="5.5"></circle><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"></path></svg></span>
+                <div class="ops-titull">Fjalëkalimi</div>
+                <input class="inp" id="opsFjalekalimiRi" type="password" autocomplete="new-password" maxlength="100" placeholder="Fjalëkalimi i ri"><button class="btn dyte" type="button" id="opsNdryshoFjalekalimin">Ndrysho</button>
+              </div>
+              <div id="opsRiaut" class="fsheh ops-riaut">
                 <p class="ops-hint" style="margin:0 0 8px">Për siguri, konfirmo fjalëkalimin aktual për ta vazhduar ndryshimin.</p>
                 <div style="display:flex;gap:8px"><input class="inp" id="opsFjalekalimiAktual" type="password" autocomplete="current-password" maxlength="100" placeholder="Fjalëkalimi aktual"><button class="btn" type="button" id="opsKonfirmoRiaut">Konfirmo</button></div>
               </div>
-              <div class="gabim-tekst" id="opsLlGabim" style="margin:8px 0 0"></div>
+              <div class="gabim-tekst" id="opsLlGabim"></div>
             </div>
-            <div class="ops-seksion">
-              <button class="btn tekst rrezik" type="button" id="opsDil" style="padding:0">Dil nga llogaria</button>
-            </div>
+            <button class="ops-dil" type="button" id="opsDil"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>Dil nga llogaria</button>
           </div>
         </div>
+
         <div class="opsione-faqe" data-faqe="shkurtoret">
-          <table class="shkurtoret" id="tabShkurtoret"></table>
+          <div class="ops-faqe-krye"><h2>Shkurtoret e tastierës</h2><p>Puno më shpejt pa maus. Shtyp <span class="tast">?</span> kudo për këtë listë.</p></div>
+          <div class="ops-karta ops-karta--tabele"><table class="shkurtoret" id="tabShkurtoret"></table></div>
         </div>
       </div>
     </div>
@@ -1795,7 +1798,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=122"></script>
 <script src="ekipa.js?v=6"></script>
-<script src="teRejat.js?v=127"></script>
+<script src="teRejat.js?v=128"></script>
 <script>
 (function () {
   'use strict';
@@ -1929,12 +1932,11 @@
   });
 
   // ================= Opsionet e kompjuterit =================
-  var ops = { tema: 'auto', aksent: 'blu', dendesia: 'normale', madhesia: 'normale', pragu: 5, rendi: 'koha:-1', madhFaqes: 100 };
+  var ops = { tema: 'auto', dendesia: 'normale', madhesia: 'normale', pragu: 5, rendi: 'koha:-1', madhFaqes: 100 };
   (function () {
     var o = lexoJSON(KEY_PC, null);
     if (!o || typeof o !== 'object') return;
     if (['auto', 'light', 'dark'].indexOf(o.tema) !== -1) ops.tema = o.tema;
-    if (['blu', 'jeshile', 'vjollce', 'portokalli', 'kuqe'].indexOf(o.aksent) !== -1) ops.aksent = o.aksent;
     if (['kompakte', 'normale', 'gjere'].indexOf(o.dendesia) !== -1) ops.dendesia = o.dendesia;
     if (o.madhesia === 'e_madhe' || o.madhesia === 'normale') ops.madhesia = o.madhesia;
     if (typeof o.pragu === 'number' && o.pragu >= 0) ops.pragu = Math.floor(o.pragu);
@@ -1951,7 +1953,7 @@
     var r = document.documentElement;
     var t = temaEfektive();
     r.setAttribute('data-tema', t);
-    if (ops.aksent === 'blu') r.removeAttribute('data-aksent'); else r.setAttribute('data-aksent', ops.aksent);
+    r.removeAttribute('data-aksent'); // "Ngjyra kryesore" u hoq në v128
     if (ops.dendesia === 'normale') r.removeAttribute('data-dendesia'); else r.setAttribute('data-dendesia', ops.dendesia);
     if (ops.madhesia === 'e_madhe') r.setAttribute('data-madhesi', 'e_madhe'); else r.removeAttribute('data-madhesi');
     $('metaTema').setAttribute('content', t === 'dark' ? '#0f1115' : '#f6f5f2');
@@ -2114,6 +2116,7 @@
       s === 'pune' ? 'Duke sinkronizuar…' : s === 'gabim' ? 'Sinkronizimi dështoi. Kontrollo internetin. Provohet sërish vetë.' : '';
     if ($('llStatusi')) $('llStatusi').textContent = tx;
     if ($('opsLlStatusi')) $('opsLlStatusi').textContent = tx;
+    if ($('opsNavSub')) $('opsNavSub').textContent = tekst;
   }
 
   // Zbaton lokalisht një gjendje nga cloud-i, gjithmonë e bashkuar me atë që ka tani ky kompjuter
@@ -4181,7 +4184,12 @@
     $('llHyrePer').textContent = u ? 'Ke hyrë si "' + emri + '". Çdo ndryshim këtu dhe në telefon/PDA sinkronizohet automatikisht në të dyja anët.' : '';
     $('opsLlJashte').classList.toggle('fsheh', !!u);
     $('opsLlBrenda').classList.toggle('fsheh', !u);
-    $('opsLlEmri').textContent = u ? 'Ke hyrë si "' + emri + '"' : '';
+    $('opsLlEmri').textContent = u ? emri : '';
+    var shkronja = String(emri || '?').charAt(0).toUpperCase();
+    $('opsLlAv').textContent = shkronja;
+    $('opsNavAv').textContent = u ? shkronja : '?';
+    $('opsNavAv').classList.toggle('bosh', !u);
+    $('opsNavEmri').textContent = u ? emri : 'Pa llogari';
     vendosStatusin(u ? (sink.statusi === 'lokal' ? 'pune' : sink.statusi) : 'lokal', true);
   }
   $('btnLlogaria').addEventListener('click', hapLlogarine);
@@ -4279,20 +4287,19 @@
     hapDialog('dlgOpsione');
   }
   function zgjidhSkeden(f) {
-    Array.prototype.forEach.call(document.querySelectorAll('#opsSkeda button'), function (b) { b.classList.toggle('aktiv', b.dataset.faqe === f); });
+    Array.prototype.forEach.call(document.querySelectorAll('#opsSkeda button[data-faqe]'), function (b) { b.classList.toggle('aktiv', b.dataset.faqe === f); });
     Array.prototype.forEach.call(document.querySelectorAll('.opsione-faqe'), function (x) { x.classList.toggle('aktiv', x.dataset.faqe === f); });
   }
-  Array.prototype.forEach.call(document.querySelectorAll('#opsSkeda button'), function (b) {
+  Array.prototype.forEach.call(document.querySelectorAll('#opsSkeda button[data-faqe]'), function (b) {
     b.addEventListener('click', function () { zgjidhSkeden(b.dataset.faqe); });
   });
   function rifreskoOpsionet() {
     function seg(id, v) { Array.prototype.forEach.call(document.querySelectorAll('#' + id + ' button'), function (b) { b.classList.toggle('aktiv', b.dataset.v === v); }); }
     seg('opsTema', ops.tema); seg('opsDendesia', ops.dendesia); seg('opsMadhesia', ops.madhesia);
-    Array.prototype.forEach.call(document.querySelectorAll('#opsAksent button'), function (b) { b.classList.toggle('aktiv', b.dataset.v === ops.aksent); });
     $('opsPragu').value = String(ops.pragu);
     $('opsRendi').value = ops.rendi;
   }
-  [['opsTema', 'tema'], ['opsDendesia', 'dendesia'], ['opsMadhesia', 'madhesia'], ['opsAksent', 'aksent']].forEach(function (x) {
+  [['opsTema', 'tema'], ['opsDendesia', 'dendesia'], ['opsMadhesia', 'madhesia']].forEach(function (x) {
     Array.prototype.forEach.call(document.querySelectorAll('#' + x[0] + ' button'), function (b) {
       b.addEventListener('click', function () { ops[x[1]] = b.dataset.v; ruajOps(); zbatoPamjen(); rifreskoOpsionet(); });
     });
@@ -6230,6 +6237,13 @@
     if (!hyrjet.length) return false;
     if (window.StokuPorta && window.StokuPorta.eHapur()) return false;
     if (dialogISiperm()) return false;
+    mbushTeRejat(hyrjet, hyrjet.length === 1 ? 'Versioni ' + hyrjet[0].v : hyrjet.length + ' versione të reja');
+    hapDialog('dlgTeRejat');
+    setTimeout(function () { $('trMbyll').focus(); }, 30);
+    return true;
+  }
+  function mbushTeRejat(hyrjet, nen) {
+    var TR = window.StokuTeRejat;
     var lista = $('trLista');
     lista.textContent = '';
     hyrjet.forEach(function (h) {
@@ -6241,11 +6255,21 @@
       b.appendChild(ul);
       lista.appendChild(b);
     });
-    $('trNen').textContent = hyrjet.length === 1 ? 'Versioni ' + hyrjet[0].v : hyrjet.length + ' versione të reja';
+    $('trNen').textContent = nen;
+    lista.scrollTop = 0;
+  }
+  // Nga Cilësimet → "Çka ka të re": 6 versionet e fundit të kompjuterit, kurdo
+  $('opsTeRejat').addEventListener('click', function () {
+    var TR = window.StokuTeRejat;
+    if (!TR || !TR.versioni()) return;
+    var hyrjet = TR.teRejatPas(0, 'pc').slice(0, 6);
+    if (!hyrjet.length) return;
+    mbushTeRejat(hyrjet, 'Versioni ' + TR.versioni() + ' dhe më parë');
+    mbyllDialog('dlgOpsione'); // dritarja e të rejave del mbi faqe, jo poshtë Cilësimeve
     hapDialog('dlgTeRejat');
     setTimeout(function () { $('trMbyll').focus(); }, 30);
-    return true;
-  }
+  });
+  if (window.StokuTeRejat && window.StokuTeRejat.versioni()) $('opsVersioni').textContent = 'v' + window.StokuTeRejat.versioni();
 
   // Shfaqet vetëm kur faqja shihet dhe s'ka përditësim në instalim (përndryshe rifreskimi e zhdukte menjëherë);
   // shënohet "e parë" vetëm kur mbyllet, jo kur shfaqet, që një rifreskim i papritur të mos e humbasë.

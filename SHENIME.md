@@ -50,6 +50,22 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **CILËSIMET E REJA + AFATET ME NGJYRA (v128)**:
+   - U HOQËN "Ngjyra kryesore" (telefon + PC) dhe "Motivi i sfondit" (telefon): markup, CSS, JS dhe `data-aksent`/`data-sfond`
+     s'vendosen më (opsionet e vjetra `aksent`/`sfondi` në localStorage injorohen). Stoku ka vetëm blunë e dizajnit.
+   - Telefoni (index.html, `#dlgOpsione`): karta e profilit `#opsProfil` (avatari, emri, statusi i sinkronizimit), grupe
+     si karta (`.ops-grupi`, `.ops-grupi-titull`) me ikona me ngjyrë (`.ngj-blu/vjollce/portokalli/gjelber/roze/gri/kuqe`,
+     tokenat `--sb-ic-*` te stoku-tokens.css), "Çka ka të re" (`#opsTeRejat`, 6 versionet e fundit) dhe versioni në fund.
+     Pamja: shembull i një karte afati + tema me mostra (`.ops-tema`/`.ops-mock`) + madhësia "Aa". Skenimi: rreshta me
+     ikonë dhe shpjegim. Lista: rreshta me rreth (`#rendiLista`) që ndryshojnë select-in e fshehur `#opsRendi`.
+     Llogaria: avatari + statusi, emri/fjalëkalimi në një kartë, "Dil nga llogaria". `rregulloVijatNdarese()` punon
+     edhe brenda `.ops-grupi`. CSS: seksioni "Cilësimet (v128)" te css/stoku.css.
+   - Kompjuteri (pc.html): dialogu `.ops-dlg` (940px): menyja majtas me profil, ikona dhe "Çka ka të re"; faqet me
+     titull + karta; tema/dendësia/madhësia me mostra (`.ops-zgjedhje`). CSS te css/stoku-pc.css.
+   - Afatet: kartat e telefonit dhe rreshtat e tabelës në PC kanë ngjyra të lehta sipas statusit (tokenat
+     `--sb-card-exp/near/ok/rem` + `-line`).
+   - CSS `?v=2`, CACHE `stoku-v128`.
+
 0000000. **LOGO BARKODI (v127)**: logoja "S me pikë" u zëvendësua me barkodin (nr. 5 nga 20 propozimet): katror
    `#14161b`, 8 vija të bardha, vija e 5-të e verdhë `#f5b942`, plus një vijë e hollë e bardhë (16%) rreth katrorit që
    të duket në temën e errët (jo te PNG-të e aplikacionit). Krejt `logo/` + `icon-192/512.png`, `apple-touch-icon.png`,
