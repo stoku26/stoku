@@ -479,15 +479,16 @@
       // Kërkesë që një koleg (ose krejt ekipa) ta heqë nga rafti një produkt (edhe pa afat në Stoku).
       // Ngjarja te aktiviteti + njoftim te zilja e secilit marrës; Worker-i dërgon push (/kerkese).
       kerkoHeqjen: function (k, listaUid) {
-        var produkti = String(k.produkti || '').trim().slice(0, 120), barkodi = String(k.barkodi || '').trim().slice(0, 40);
-        if ((!produkti && !barkodi) || !uid()) return Promise.resolve({ ok: false, arsye: 'bosh' });
+        var produktet = listaEKerkeses(k);
+        if (!produktet.length || !uid()) return Promise.resolve({ ok: false, arsye: 'bosh' });
+        var produkti = produktet[0].produkti, barkodi = produktet[0].barkodi; // për kërkesat e para (pa listë)
         var shenim = String(k.shenim || '').trim().slice(0, 300), koha = Date.now();
         var ng = shtoNeRadhe(['ekipa_feed'], { lloji: 'kerkese-heqje', uid: uid(), emri: emri(), koha: koha, produkti: produkti,
-          barkodi: barkodi, shenim: shenim, perUid: k.perUid || '', perEmri: k.perEmri || '' });
+          barkodi: barkodi, produktet: produktet, shenim: shenim, perUid: k.perUid || '', perEmri: k.perEmri || '' });
         (listaUid || []).forEach(function (u) {
           if (u === uid()) return;
           shtoNeRadhe(['perdoruesit', u, 'njoftimet'], { lloji: 'kerkese-heqje', kerkeseId: ng.id, produkti: produkti, barkodi: barkodi,
-            shenim: shenim, perKrejt: !k.perUid, uid: uid(), emri: emri(), koha: koha, lexuar: false });
+            produktet: produktet, shenim: shenim, perKrejt: !k.perUid, uid: uid(), emri: emri(), koha: koha, lexuar: false });
         });
         return pritPak(ng);
       },
@@ -497,7 +498,7 @@
         var koha = Date.now();
         try { await fs.setDoc(fs.doc(db, 'perdoruesit', uid(), 'njoftimet', nj.id), { kryer: true, kryerSe: koha, lexuar: true }, { merge: true }); }
         catch (e) { if (!/unavailable|deadline/.test(String(e && e.code))) return gabim(e); }
-        var te = { kerkeseId: nj.kerkeseId || '', produkti: nj.produkti || '', barkodi: nj.barkodi || '' };
+        var te = { kerkeseId: nj.kerkeseId || '', produkti: nj.produkti || '', barkodi: nj.barkodi || '', produktet: listaEKerkeses(nj) };
         if (nj.uid && nj.uid !== uid()) shtoNeRadhe(['perdoruesit', nj.uid, 'njoftimet'], Object.assign({ lloji: 'kerkese-kryer', uid: uid(), emri: emri(), koha: koha, lexuar: false }, te));
         return pritPak(shtoNeRadhe(['ekipa_feed'], Object.assign({ lloji: 'kerkese-kryer', uid: uid(), emri: emri(), koha: koha,
           kerkuesUid: nj.uid || '', kerkuesEmri: nj.emri || '' }, te)));
@@ -873,24 +874,80 @@
     }
   }
 
-  function produktiIKerkeses(k) {
-    var p = String(k.produkti || '').trim(), b = String(k.barkodi || '').trim();
-    return p && b && p !== b ? p + ' (' + b + ')' : (p || b || 'produkt');
-  }
-  // Teksti i shkruar te "Kërko heqje" → { produkti, barkodi }: emri ose barkodi i një produkti të njohur plotësohet vetë
-  function kerkesaNgaTeksti(tekst, produktet) {
-    var t = String(tekst || '').trim();
-    if (!t) return { produkti: '', barkodi: '' };
-    var tl = t.toLowerCase(), gjetur = null;
-    (produktet || []).some(function (p) {
-      if (!p) return false;
-      var b = String(p.barkodi || ''), e = String(p.emri || '').trim();
-      if (b && b === t) { gjetur = p; return true; }
-      if (e && (e.toLowerCase() === tl || (b && (e + ' · ' + b).toLowerCase() === tl))) { gjetur = p; return true; }
-      return false;
+  // Produktet e një kërkese për heqje: lista `produktet` (v148), ose produkti/barkodi i vetëm (kërkesat e para)
+  var KERKESA_MAKS = 30;
+  function listaEKerkeses(k) {
+    var l = (k && Array.isArray(k.produktet) && k.produktet.length) ? k.produktet : [{ produkti: k && k.produkti, barkodi: k && k.barkodi, data: k && k.data }];
+    return l.filter(function (x) { return x && (x.produkti || x.barkodi); }).slice(0, KERKESA_MAKS).map(function (x) {
+      return { produkti: String(x.produkti || '').trim().slice(0, 120), barkodi: String(x.barkodi || '').trim().slice(0, 40), data: /^\d{4}-\d{2}-\d{2}$/.test(x.data || '') ? x.data : '' };
     });
-    if (gjetur) return { produkti: String(gjetur.emri || '').trim(), barkodi: String(gjetur.barkodi || '') };
-    return /^[0-9]{6,20}$/.test(t) ? { produkti: '', barkodi: t } : { produkti: t, barkodi: '' };
+  }
+  function emriIProduktit(x) { var p = x.produkti, b = x.barkodi; return p && b && p !== b ? p + ' (' + b + ')' : (p || b || 'produkt'); }
+  // Një rresht për listën te njoftimet: "Kos Vita · 3900… · skadoi më 12.09.2026"
+  function rreshtiIProduktit(x) {
+    var A = AF();
+    return [x.produkti || x.barkodi || 'produkt', x.produkti && x.barkodi ? x.barkodi : '', x.data && A ? 'skadoi më ' + A.formato(x.data) : ''].filter(Boolean).join(' · ');
+  }
+  function produktiIKerkeses(k) {
+    var l = listaEKerkeses(k);
+    if (l.length <= 1) return emriIProduktit(l[0] || {});
+    var emrat = l.slice(0, 3).map(function (x) { return x.produkti || x.barkodi; });
+    return l.length + ' produkte (' + emrat.join(', ') + (l.length > 3 ? ' e ' + (l.length - 3) + (l.length - 3 === 1 ? ' tjetër' : ' të tjera') : '') + ')';
+  }
+
+  // Zgjedhësi i produkteve te "Kërko heqje nga rafti" (tel + PC): dy lista (të skaduarat / krejt produktet), kërkim
+  // dhe shenja (disa njëherësh). burimet: { skaduara: [{ produkti, barkodi, data, nen }], produktet: [...] }
+  function zgjedhesIKerkeses(rrenja, burimet, kurNdryshon) {
+    var zgjedhur = {}, rendi = [], tabi = (burimet.skaduara || []).length ? 'skaduara' : 'produktet', kerkimi = '';
+    function celes(x) { return (x.barkodi || '') + '|' + (x.produkti || '') + '|' + (x.data || ''); }
+    function el(tag, kl, tk) { var e = document.createElement(tag); if (kl) e.className = kl; if (tk != null) e.textContent = tk; return e; }
+    rrenja.textContent = '';
+    var tabet = el('div', 'krk-tabet'); tabet.setAttribute('role', 'tablist');
+    var bT = {};
+    [['skaduara', 'Të skaduarat'], ['produktet', 'Produktet e mia']].forEach(function (t) {
+      var b = el('button', 'krk-tab'); b.type = 'button'; b.setAttribute('role', 'tab');
+      b.appendChild(el('span', null, t[1])); b.appendChild(el('span', 'krk-tab__nr', String((burimet[t[0]] || []).length)));
+      b.addEventListener('click', function () { tabi = t[0]; vizato(); });
+      bT[t[0]] = b; tabet.appendChild(b);
+    });
+    var kerko = el('input', 'krk-kerko inp'); kerko.type = 'search'; kerko.placeholder = 'Kërko në listë…'; kerko.setAttribute('aria-label', 'Kërko në listë');
+    kerko.autocomplete = 'off'; kerko.spellcheck = false;
+    kerko.addEventListener('input', function () { kerkimi = kerko.value.trim().toLowerCase(); vizato(); });
+    var lista = el('div', 'krk-lista'); lista.setAttribute('role', 'listbox'); lista.setAttribute('aria-multiselectable', 'true');
+    rrenja.appendChild(tabet); rrenja.appendChild(kerko); rrenja.appendChild(lista);
+    function vizato() {
+      Object.keys(bT).forEach(function (k) { bT[k].classList.toggle('aktiv', k === tabi); bT[k].setAttribute('aria-selected', k === tabi ? 'true' : 'false'); });
+      lista.textContent = '';
+      var te = (burimet[tabi] || []).filter(function (x) {
+        return !kerkimi || (String(x.produkti || '') + ' ' + String(x.barkodi || '')).toLowerCase().indexOf(kerkimi) !== -1;
+      });
+      if (!te.length) {
+        lista.appendChild(el('div', 'krk-bosh', kerkimi ? 'Asgjë s\'përputhet me kërkimin.' : tabi === 'skaduara' ? 'S\'ke produkte të skaduara në raft.' : 'S\'ke ende produkte në Stoku.'));
+        return;
+      }
+      te.slice(0, 300).forEach(function (x) {
+        var c = celes(x), on = !!zgjedhur[c];
+        var b = el('button', 'krk-rresht' + (on ? ' zgjedhur' : '')); b.type = 'button';
+        b.setAttribute('role', 'option'); b.setAttribute('aria-selected', on ? 'true' : 'false');
+        var sh = el('span', 'krk-shenja'); sh.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>';
+        var tk = el('span', 'krk-tk');
+        tk.appendChild(el('b', null, x.produkti || x.barkodi || 'produkt'));
+        var nen = [x.produkti && x.barkodi ? x.barkodi : '', x.nen || ''].filter(Boolean).join(' · ');
+        if (nen) tk.appendChild(el('span', null, nen));
+        b.appendChild(sh); b.appendChild(tk);
+        b.addEventListener('click', function () {
+          if (zgjedhur[c]) { delete zgjedhur[c]; rendi = rendi.filter(function (k) { return k !== c; }); }
+          else { if (rendi.length >= KERKESA_MAKS) return; zgjedhur[c] = x; rendi.push(c); }
+          vizato(); if (kurNdryshon) kurNdryshon(rendi.length);
+        });
+        lista.appendChild(b);
+      });
+    }
+    vizato();
+    return {
+      zgjedhur: function () { return rendi.map(function (k) { return { produkti: zgjedhur[k].produkti || '', barkodi: zgjedhur[k].barkodi || '', data: zgjedhur[k].data || '' }; }); },
+      numri: function () { return rendi.length; }
+    };
   }
   // Teksti i një njoftimi personal (zilja + njoftimi i sistemit)
   function tekstiNjoftimit(nj) {
@@ -1075,7 +1132,7 @@
       var lista = koleget(), per = null;
       if (k.perUid) { lista.forEach(function (a) { if (a.uid === k.perUid) per = a; }); if (!per) return { ok: false, arsye: 'anetari' }; }
       if (!lista.length) return { ok: false, arsye: 'pa-kolege' };
-      return e.kerkoHeqjen({ produkti: k.produkti, barkodi: k.barkodi, shenim: k.shenim, perUid: per ? per.uid : '', perEmri: per ? per.emri : '' },
+      return e.kerkoHeqjen({ produktet: k.produktet, shenim: k.shenim, perUid: per ? per.uid : '', perEmri: per ? per.emri : '' },
         per ? [per.uid] : lista.map(function (a) { return a.uid; }));
     }
     async function kryejKerkesen(nj) {
@@ -1488,7 +1545,7 @@
     ndryshoAfatinNeGjendje: ndryshoAfatinNeGjendje, fletetEStokut: fletetEStokut,
     hartaEHeqjeve: hartaEHeqjeve, mbivendosHeqjen: mbivendosHeqjen, duhetZbatuarHeqja: duhetZbatuarHeqja,
     kalendari: kalendari, statistikat: statistikat, tekstiNgjarjes: tekstiNgjarjes, tekstiNjoftimit: tekstiNjoftimit,
-    isoDites: isoDites, Fotot: Fotot, kerkesaNgaTeksti: kerkesaNgaTeksti
+    isoDites: isoDites, Fotot: Fotot, listaEKerkeses: listaEKerkeses, rreshtiIProduktit: rreshtiIProduktit, zgjedhesIKerkeses: zgjedhesIKerkeses
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuEkipa = api;

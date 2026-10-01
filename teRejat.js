@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 148, versioni: '1.3.1', data: '2026-10-01', titulli: 'Kërko heqje: zgjedh nga lista', pikat: [
+      'Te "Kërko heqje nga rafti" s\'ke më nevojë të shkruash emrin ose barkodin: shëno produktet nga lista, te "Të skaduarat" ose "Produktet e mia". Mund të zgjedhësh disa njëherësh.',
+      'Kolegu i sheh krejt produktet e kërkesës te Njoftimet, me barkodin dhe datën e skadimit.'
+    ] },
     { v: 147, versioni: '1.3.0', data: '2026-10-01', titulli: 'Kërko heqje nga rafti', pikat: [
       'Te Ekipa ka butonin "Kërko heqje nga rafti": zgjedh produktin (ose shkruan barkodin), kolegun ose krejt ekipën dhe një shënim. Vlen edhe për produkte pa afat në Stoku.',
       'Kolegu e merr njoftimin edhe në telefon. Te Njoftimet shtyp "E hoqa nga rafti" dhe ti njoftohesh që u krye. Krejt kjo shihet edhe te Aktiviteti.'

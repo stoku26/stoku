@@ -50,6 +50,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **KËRKO HEQJE: ZGJEDHJE NGA LISTA (v148 = 1.3.1)**: pa fushë teksti; `ekipa.js zgjedhesIKerkeses(rrenja, burimet,
+   kurNdryshon)` (tabet "Të skaduarat" = afatet e mia me statusi 'skaduar', "Produktet e mia" = stoku; kërkim + shenja,
+   maks 30). Kërkesa ka `produktet: [{ produkti, barkodi, data }]` (produkti/barkodi = i pari, për të vjetrat);
+   `listaEKerkeses(k)`, `rreshtiIProduktit(x)`; teksti me disa: "3 produkte (A, B, C)". Te njoftimet del lista
+   `.ek-nj-produktet`. Worker: `vleraNga` lexon edhe `arrayValue`; teksti i push-it me listën. `kerkesaNgaTeksti` u hoq.
+   **Kodi i Worker-it duhet ngjitur sërish** (pa të, push-i për disa produkte tregon vetëm të parin).
+
 0000000. **KËRKO HEQJE NGA RAFTI (v147 = 1.3.0)**: çdo anëtar i kërkon një kolegu (ose krejt ekipës) ta heqë nga rafti
    një produkt, edhe pa afat në Stoku. S'ka rregulla të reja Firestore (përdor ekipa_feed + perdoruesit/{uid}/njoftimet).
    - `ekipa.js` cloud: `kerkoHeqjen(k, listaUid)` → `ekipa_feed` {lloji:'kerkese-heqje', produkti, barkodi, shenim, perUid,

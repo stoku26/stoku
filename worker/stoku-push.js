@@ -75,8 +75,12 @@ export default {
         if (k.uid !== uid) return pergjigju({ ok: false, arsye: 'jo-i-yti' }, 403);
         if (k.lloji !== 'kerkese-heqje' && k.lloji !== 'kerkese-kryer') return pergjigju({ ok: false, arsye: 'lloji' }, 400);
         if (!(Math.abs(Date.now() - Number(k.koha || 0)) < MESAZH_MAKS_MS)) return pergjigju({ ok: false, arsye: 'i-vjeter' }, 409);
-        const p = String(k.produkti || '').trim(), b = String(k.barkodi || '').trim();
-        const produkti = p && b && p !== b ? p + ' (' + b + ')' : (p || b || 'produkt');
+        // Një produkt: "Kos Vita (3900…)"; disa (lista `produktet`): "3 produkte (Kos Vita, Ujë, Bukë)"
+        const lista = (Array.isArray(k.produktet) && k.produktet.length ? k.produktet : [{ produkti: k.produkti, barkodi: k.barkodi }])
+          .filter(x => x && (x.produkti || x.barkodi));
+        const emri1 = x => { const p = String(x.produkti || '').trim(), b = String(x.barkodi || '').trim(); return p && b && p !== b ? p + ' (' + b + ')' : (p || b || 'produkt'); };
+        const produkti = lista.length <= 1 ? emri1(lista[0] || {}) : lista.length + ' produkte (' +
+          lista.slice(0, 3).map(x => x.produkti || x.barkodi).join(', ') + (lista.length > 3 ? ' e ' + (lista.length - 3) + (lista.length - 3 === 1 ? ' tjetër' : ' të tjera') : '') + ')';
         const kush = k.emri || 'Një koleg';
         let tekst;
         if (k.lloji === 'kerkese-heqje') {
@@ -218,6 +222,7 @@ function vleraNga(v) {
   if ('doubleValue' in v) return v.doubleValue;
   if ('booleanValue' in v) return v.booleanValue;
   if ('mapValue' in v) return objektNga(v.mapValue.fields || {});
+  if ('arrayValue' in v) return (v.arrayValue.values || []).map(vleraNga);
   if ('nullValue' in v) return null;
   return null;
 }
