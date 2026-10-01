@@ -15,6 +15,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 132, data: '2026-10-01', titulli: 'Rregullime në kompjuter', platforma: 'pc', pikat: [
+      'Me "Madhësia e shkronjave: E madhe" faqja mund të mbetej e prerë lart (pa titull dhe pa kërkim) dhe s\'kthehej me scroll. U rregullua: faqja mbetet gjithmonë sa ekrani.',
+      'Te menyja anësore ka tani butonin "Cilësimet" (poshtë "Shkurtoret e tastierës").',
+      'Dritarja e Cilësimeve del e plotë edhe në ekrane të ulëta (laptopë).'
+    ] },
     { v: 131, data: '2026-10-01', titulli: 'Njoftimet edhe në Apple Watch', platforma: 'tel', pikat: [
       'Njoftimet e chat-it vijnë edhe në iPhone (Stoku i shtuar në ekranin bazë) dhe në Apple Watch.',
       'Te Cilësimet → Njoftimet, te "Njoftimet në orë" zgjidh Galaxy Watch ose Apple Watch për udhëzimin hap pas hapi.'
