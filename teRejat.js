@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 146, versioni: '1.2.2', data: '2026-10-01', titulli: 'Cilësimet më të pastra', pikat: [
+      'Poshtë te Cilësimet mbeti vetëm "Stoku" me versionin, pa ikonën.'
+    ] },
     { v: 145, versioni: '1.2.1', data: '2026-10-01', titulli: 'Hapje më e shpejtë', pikat: [
       'Kur je i kyçur, Stoku hapet direkt te dyqani, pa ekranin "Duke hyrë si…" pas ekranit të hapjes së telefonit.'
     ] },

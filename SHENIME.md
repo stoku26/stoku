@@ -50,6 +50,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PA IKONË TE VERSIONI (v146 = 1.2.2)**: hoqa ikonën e Stoku-t te fundi i Cilësimeve (tel `.ops-fundi`,
+   PC `.ops-versioni`); mbeti vetëm "Stoku 1.x.x".
+
 0000000. **HAPJA PA "DUKE HYRË SI…" (v145 = 1.2.1)**: në Android (PWA e instaluar) pas splash-it të sistemit (ikona e
    madhe në `background_color`, s'mund të hiqet) dilte edhe karta e portës "Duke hyrë si X…" → dukej si dy ekrane.
    Tani `porta.js`: nëse `stoku:porta:hyrja.uid === stoku:pronari-uid`, porta fshihet menjëherë (pa animacion) dhe
