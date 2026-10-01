@@ -1731,7 +1731,7 @@
 <script src="afatet.js?v=122"></script>
 <script src="ekipa.js?v=8"></script>
 <script src="njoftimet.js?v=120"></script>
-<script src="teRejat.js?v=134"></script>
+<script src="teRejat.js?v=135"></script>
 <script>
 (function () {
   'use strict';
@@ -2871,7 +2871,7 @@
     $('opsProfilSub').textContent = u ? (statusiCloudFundit || T('cloudStatusiAsgje')) : 'Hyr që lista të ruhet edhe në internet';
     var TR = window.StokuTeRejat;
     var v = TR && TR.versioni ? TR.versioni() : 0;
-    $('opsVersioni').textContent = v ? ' · versioni ' + v : '';
+    $('opsVersioni').textContent = v ? ' ' + TR.emriVersionit(v) : '';
     $('opsTeRejatStatus').textContent = v ? 'Ndryshimet e fundit në Stoku' : '';
   }
   // Në menunë kryesore të Opsioneve, "←" i mbyll Opsionet krejtësisht (kthehu te faqja kryesore);
@@ -7069,7 +7069,7 @@
     if (!hyrjet.length) return false;
     if (window.StokuPorta && window.StokuPorta.eHapur()) return false;
     if (document.querySelector('.mbulese.hapur') || $('kamera').classList.contains('hapur')) return false;
-    mbushTeRejat(hyrjet, hyrjet.length === 1 ? 'Versioni ' + hyrjet[0].v : hyrjet.length + ' versione të reja');
+    mbushTeRejat(hyrjet, hyrjet.length === 1 ? 'Stoku ' + TR.emriVersionit(hyrjet[0].v) : hyrjet.length + ' përditësime të reja');
     __teRejatNgaCilesimet = false;
     $('dlgTeRejat').classList.add('hapur');
     return true;
@@ -7082,7 +7082,7 @@
     hyrjet.forEach(function (h) {
       var b = document.createElement('div'); b.className = 'tr-version';
       var t = document.createElement('div'); t.className = 'tr-version-titulli'; t.textContent = h.titulli;
-      var d = document.createElement('div'); d.className = 'tr-version-data'; d.textContent = 'Versioni ' + h.v + ' · ' + TR.formatoDaten(h.data);
+      var d = document.createElement('div'); d.className = 'tr-version-data'; d.textContent = 'Stoku ' + TR.emriVersionit(h.v) + ' · ' + TR.dataEPlote(h.data);
       var ul = document.createElement('ul');
       (h.pikat || []).forEach(function (pika) { var li = document.createElement('li'); li.textContent = pika; ul.appendChild(li); });
       b.appendChild(t); b.appendChild(d); b.appendChild(ul);
@@ -7097,7 +7097,7 @@
     if (!TR || !TR.versioni()) return;
     var hyrjet = TR.teRejatPas(0, 'tel').slice(0, 6);
     if (!hyrjet.length) return;
-    mbushTeRejat(hyrjet, 'Versioni ' + TR.versioni() + ' dhe më parë');
+    mbushTeRejat(hyrjet, 'Stoku ' + TR.emriVersionit(TR.versioni()) + ' dhe më parë');
     __teRejatNgaCilesimet = true;
     $('dlgTeRejat').classList.add('hapur');
   });

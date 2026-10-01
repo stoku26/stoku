@@ -50,6 +50,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **EMRI I VERSIONIT (v135 = "Stoku 2.9")**: përdoruesi s'e sheh më numrin e brendshëm ("Versioni 134"), por
+   `StokuTeRejat.emriVersionit(v)`: `MAJORET = [[126, 2], [100, 1]]` → v126 = 2.0, v127 = 2.1 … v135 = 2.9; para v126
+   1.x (v123 = 1.23). Për 3.0 shto `[v, 3]` në krye. Data si "1 tetor 2026" (`dataEPlote`). Përdoret te "Çka ka të re"
+   (titulli i hyrjes, nëntitulli, "N përditësime të reja") dhe te fundi i Cilësimeve (tel: "Stoku 2.9", PC: "Stoku 2.9").
+   Numri i brendshëm (`v`, CACHE, `?v=`) vazhdon si më parë për përditësimet.
+
 0000000. **PA "SASI E ULËT" (v134)**, me kërkesë, telefon + PC: u hoq krejt koncepti 1–5 copë (`eshtePak`, `ops.pragu`,
    `PRAGU_PAK`, filtri `data-f="pak"`, KPI, ngjyra portokalli `.pak`/`--near`/`sasia--pak`). Mbetet vetëm "Sasi 0" (e kuqe).
    PC: karta "Sasia më e ulët" → **"Pa stok"** (`#permbTeUleta`, sasi 0, më të ndryshuarat lart, numri te `#permbPaStokNr`,
