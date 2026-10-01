@@ -520,6 +520,73 @@
     return { afatet: aRe, produktet: pRe, nAfate: nA, nProdukte: nP };
   }
 
+  // ---------- Ikonat e folderave (telefon + PC) ----------
+  // folder.ikona = id nga kjo listë (zgjidhet te "Folder i ri"); folderat pa ikonë e marrin sipas emrit.
+  // ngj = klasa e ngjyrës te stoku-tokens.css (.ngj-*), që përshtatet vetë me temën e çelët/të errët.
+  var IKONAT_FOLDERAVE = [
+    { id: 'kutia', emri: 'Kuti', ngj: 'gri', d: 'M12 2.5 21 7v10l-9 4.5L3 17V7l9-4.5Z M3 7l9 4.5L21 7 M12 11.5v10 M7.5 4.8l9 4.5' },
+    { id: 'shporta', emri: 'Ushqim', ngj: 'blu', d: 'M3 10h18l-1.7 8.4A2 2 0 0 1 17.3 20H6.7a2 2 0 0 1-2-1.6L3 10Z M7.5 10l3-6 M16.5 10l-3-6 M9 14v2.5 M15 14v2.5 M12 14v2.5' },
+    { id: 'shishe', emri: 'Pije', ngj: 'vjollce', d: 'M10 2h4 M10.5 2v3.5L8.6 8.3A3 3 0 0 0 8 10.1V20a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-9.9a3 3 0 0 0-.6-1.8L13.5 5.5V2 M8 13.5h8' },
+    { id: 'gjethe', emri: 'Fresh', ngj: 'gjelber', d: 'M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.8 10-10 10Z M2 21c0-3 1.9-5.4 5.1-6 2.4-.5 4.9-2 5.9-3' },
+    { id: 'molla', emri: 'Fruta', ngj: 'kuqe', d: 'M12 7.5c-1-1.8-3-2.6-5-1.8-3.2 1.2-3.8 5.6-1.8 10 1.5 3.4 3.5 4.9 5 4.4.7-.3 1.1-.5 1.8-.5s1.1.2 1.8.5c1.5.5 3.5-1 5-4.4 2-4.4 1.4-8.8-1.8-10-2-.8-4 0-5 1.8Z M12 7.5c0-2 .8-3.6 2.8-4.5' },
+    { id: 'qumesht', emri: 'Bulmet', ngj: 'blu', d: 'M8 2h8 M9 2v3L7 8.5V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V8.5L15 5V2 M7 8.5h10 M10 14h4' },
+    { id: 'buka', emri: 'Furra', ngj: 'portokalli', d: 'M5 10.5a3.5 3.5 0 0 1 3.5-3.5h7a3.5 3.5 0 0 1 3.5 3.5 2 2 0 0 1-1.5 1.9V19a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1v-6.6A2 2 0 0 1 5 10.5Z M10 7v2.5 M14 7v2.5' },
+    { id: 'akull', emri: 'Të ngrira', ngj: 'blu', d: 'M12 2v20 M3.3 7l17.4 10 M20.7 7 3.3 17 M9.5 3.5 12 6l2.5-2.5 M9.5 20.5 12 18l2.5 2.5' },
+    { id: 'embelsira', emri: 'Ëmbëlsira', ngj: 'roze', d: 'M3 21h18 M4 21v-7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v7 M4 16c2 1.4 4 1.4 6 0s4-1.4 6 0 3 1 4 0 M12 12V8 M12 5v.01' },
+    { id: 'kafe', emri: 'Kafe', ngj: 'portokalli', d: 'M17 9h1a3.5 3.5 0 0 1 0 7h-1 M3 9h14v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9Z M7 2.5v3 M10.5 2.5v3 M14 2.5v3' },
+    { id: 'pika', emri: 'Higjiene', ngj: 'vjollce', d: 'M12 2.7l5.7 5.7a8 8 0 1 1-11.4 0L12 2.7Z M8.5 14.5a3.5 3.5 0 0 0 3.5 3.5' },
+    { id: 'shtepia', emri: 'Shtëpia', ngj: 'gjelber', d: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9.5Z M9.5 21v-6.5h5V21' },
+    { id: 'kryq', emri: 'Farmaci', ngj: 'kuqe', d: 'M9 3h6v6h6v6h-6v6H9v-6H3V9h6V3Z' },
+    { id: 'etiketa', emri: 'Oferta', ngj: 'roze', d: 'M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9-9-9Z M7.5 7.5h.01' },
+    { id: 'yll', emri: 'Të tjera', ngj: 'portokalli', d: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z' },
+    { id: 'zemra', emri: 'Të preferuara', ngj: 'kuqe', d: 'M19.5 13.6 12 21l-7.5-7.4A5 5 0 1 1 12 7a5 5 0 1 1 7.5 6.6Z' }
+  ];
+  var IKONAT_SIPAS_EMRIT = [
+    [/ushq|market|shport/, 'shporta'], [/pije|leng|uj[eë]|birr|ver[eë]/, 'shishe'], [/fresh|perim|sallat/, 'gjethe'],
+    [/frut|moll/, 'molla'], [/bulm|qum[eë]sht|djath|kos|jogurt/, 'qumesht'], [/buk|furr|pasticer/, 'buka'],
+    [/ngrir|akull|frigo/, 'akull'], [/[eë]mb[eë]l|[cç]okoll|biskot|sheqer/, 'embelsira'], [/kafe|[cç]aj/, 'kafe'],
+    [/higjien|pastr|detergj|sapun|kozmet/, 'pika'], [/sht[eë]pi|kuzhin/, 'shtepia'], [/farmac|sh[eë]ndet|barn/, 'kryq'],
+    [/ofert|zbritj|akcion/, 'etiketa']
+  ];
+  function ikonaEFolderit(f) {
+    var id = f && f.ikona;
+    for (var i = 0; i < IKONAT_FOLDERAVE.length; i++) if (IKONAT_FOLDERAVE[i].id === id) return IKONAT_FOLDERAVE[i];
+    var emri = String((f && f.emri) || '').toLowerCase();
+    for (var j = 0; j < IKONAT_SIPAS_EMRIT.length; j++) if (IKONAT_SIPAS_EMRIT[j][0].test(emri)) return ikonaEFolderit({ ikona: IKONAT_SIPAS_EMRIT[j][1] });
+    return IKONAT_FOLDERAVE[0];
+  }
+  // SVG si tekst (pa DOM), me ngjyrën e tekstit (currentColor)
+  function svgEIkones(ik, masa) {
+    var m = masa || 20;
+    return '<svg width="' + m + '" height="' + m + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      String(ik.d).split(' M').map(function (x, i) { return '<path d="' + (i ? 'M' : '') + x + '"></path>'; }).join('') + '</svg>';
+  }
+
+  // Zgjedhësi i ikonës (dialogu "Folder i ri" / "Riemërto"): rrjetë butonash me radio. emriFn → emri i shkruar,
+  // që ikona të sugjerohet vetë derisa përdoruesi të zgjedhë një me dorë.
+  function zgjedhesIIkonave(cont, emriFn) {
+    var zgjedhur = null, meDore = false, butonat = [];
+    cont.textContent = '';
+    cont.setAttribute('role', 'radiogroup');
+    IKONAT_FOLDERAVE.forEach(function (ik) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'fl-ikona ngj-' + ik.ngj; b.setAttribute('role', 'radio');
+      b.setAttribute('aria-label', ik.emri); b.title = ik.emri; b.innerHTML = svgEIkones(ik, 22);
+      b.addEventListener('click', function () { meDore = true; vendos(ik.id); });
+      butonat.push([ik.id, b]); cont.appendChild(b);
+    });
+    function vendos(id) {
+      zgjedhur = id;
+      butonat.forEach(function (x) { x[1].classList.toggle('zgjedhur', x[0] === id); x[1].setAttribute('aria-checked', x[0] === id ? 'true' : 'false'); });
+    }
+    function sugjero() { if (!meDore) vendos(ikonaEFolderit({ emri: emriFn ? emriFn() : '' }).id); }
+    return {
+      fillo: function (id) { meDore = !!id; if (id) vendos(id); else sugjero(); },
+      sugjero: sugjero,
+      vlera: function () { return zgjedhur; }
+    };
+  }
+
   var api = {
     get AI_URL() { return adresaAI(); },
     DITET_PARALAJMERIMI: DITET_PARALAJMERIMI,
@@ -530,7 +597,8 @@
     normalizoRreshtin: normalizoRreshtin, EMRAT_MUAJVE: EMRAT_MUAJVE, muajiNgaEmri: muajiNgaEmri, celesiMuajit: celesiMuajit, emriMuajit: emriMuajit,
     muajtELista: muajtELista, ditetEMbetura: ditetEMbetura, dataNgaQeliza: dataNgaQeliza, hamendesoKolonatEAfateve: hamendesoKolonatEAfateve,
     planiImportitAfateve: planiImportitAfateve, afatetNgaPlani: afatetNgaPlani, tekstNgaQeliza: tekstNgaQeliza, ditetTekst: ditetTekst, lexoSasine: lexoSasine, sasiaSiShume: sasiaSiShume, sasiaTekst: sasiaTekst, shumaCopeve: shumaCopeve,
-    listaEFurnizuesve: listaEFurnizuesve, furnizuesiEkzistues: furnizuesiEkzistues, riemertoFurnizuesin: riemertoFurnizuesin
+    listaEFurnizuesve: listaEFurnizuesve, furnizuesiEkzistues: furnizuesiEkzistues, riemertoFurnizuesin: riemertoFurnizuesin,
+    IKONAT_FOLDERAVE: IKONAT_FOLDERAVE, ikonaEFolderit: ikonaEFolderit, svgEIkones: svgEIkones, zgjedhesIIkonave: zgjedhesIIkonave
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuAfatet = api;

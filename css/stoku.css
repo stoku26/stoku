@@ -443,3 +443,7 @@ html.sb body { -webkit-user-select: none; user-select: none; -webkit-touch-callo
 .sb #opsLlAv { cursor: pointer; }
 .sb .ops-foto-rresht { margin-top: 12px; }
 .sb .ops-foto-rresht .ops-foto-hiq { color: var(--sb-exp); }
+
+/* Ikonat e folderave te kryefaqja (në vend të katrorëve me ngjyrë) */
+.sb .sb-folder__swatch.folder-ikona { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; opacity: 1; }
+.sb #dlgFolder .fl-ikonat-titull { margin-top: 4px; }

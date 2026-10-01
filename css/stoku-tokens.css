@@ -146,8 +146,16 @@
 /* Logoja në krye (telefon + PC): "Etiketë barkodi" — STOKU, barkodi, emri i përdoruesit */
 :root { --stk-qelibar: #e3a42e; }
 :root[data-tema="dark"] { --stk-qelibar: #f5b942; }
-.stk-etiketa { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; flex: none; max-width: 100%; box-sizing: border-box; padding: 7px 14px 6px; border-radius: 10px; background: var(--sb-surface); box-shadow: inset 0 0 0 1px var(--sb-line); color: var(--sb-ink); font-family: 'Onest', system-ui, sans-serif; }
+.stk-etiketa { display: inline-flex; width: 152px; flex-direction: column; align-items: center; gap: 3px; flex: none; max-width: 100%; box-sizing: border-box; padding: 7px 14px 6px; border-radius: 10px; background: var(--sb-surface); box-shadow: inset 0 0 0 1px var(--sb-line); color: var(--sb-ink); font-family: 'Onest', system-ui, sans-serif; }
 .stk-etiketa__emri { font-size: 18px; font-weight: 800; letter-spacing: 3px; line-height: 1; margin-right: -3px; }
 .stk-etiketa__barkodi { display: block; width: 104px; height: 14px; fill: currentColor; }
 .stk-etiketa__qelibar { fill: var(--stk-qelibar); }
-.stk-etiketa__nen { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; font-weight: 500; letter-spacing: 1px; line-height: 1.2; color: var(--sb-muted); }
+.stk-etiketa__nen { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; font-weight: 500; letter-spacing: 1px; line-height: 1.2; color: var(--sb-muted); }
+
+/* Ikonat e folderave (afatet.js IKONAT_FOLDERAVE): ngjyrat .ngj-* përshtaten me temën */
+.fl-ikonat { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 8px; margin: 4px 0 6px; }
+.fl-ikona { height: 44px; border: 0; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; font: inherit; transition: transform .12s, box-shadow .12s; }
+.fl-ikona:active { transform: scale(.94); }
+.fl-ikona.zgjedhur { box-shadow: 0 0 0 2px var(--sb-surface), 0 0 0 4.5px var(--sb-accent); transform: scale(1.04); }
+.fl-ikonat-titull { font-size: 13px; font-weight: 600; color: var(--sb-ink-3); margin: 14px 2px 8px; }
+.folder-ikona { display: flex; align-items: center; justify-content: center; flex: none; width: 40px; height: 40px; border-radius: 12px; }

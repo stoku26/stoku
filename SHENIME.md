@@ -50,6 +50,20 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **IKONAT E FOLDERAVE + LOGOJA PA DRIDHJE (v144 = 1.2.0)**:
+   - `afatet.js`: `IKONAT_FOLDERAVE` (16 ikona, `d` = path-at SVG, `ngj` = klasa `.ngj-*`), `ikonaEFolderit(f)` (`f.ikona` ose
+     sipas emrit me regex, përndryshe "kutia"), `svgEIkones(ik, masa)`, `zgjedhesIIkonave(cont, emriFn)` (rrjetë radio;
+     sugjeron sipas emrit derisa përdoruesi zgjedh me dorë). Folderi ruan `ikona` (opsionale; undefined s'ruhet).
+     `bashkimi.js eNjejte` përfshin `ikona` (që ndryshimi i ikonës të rivizatohet te pajisja tjetër).
+   - Telefoni: `.folder-ikona` në vend të katrorëve me ngjyrë; "Folder i ri" ka `#dlgFolderIkonat`. PC: `.sbp-fik` te
+     anësorja; `#dlgFolder` ka `#flIkonat` edhe për "Ndrysho emrin / ikonën…" (ish "Riemërto…"). Telefoni s'ka ende
+     ndryshim të folderit ekzistues. Ngjyrat e tjera të folderave në PC (çipat, shiritat) mbetën si ishin.
+   - Logoja dridhej në hapje: (1) `#titulli` "STOKU" ishte i dukshëm derisa `renderFolderat` e fshihte (shtynte logon
+     51px) → tani `display:none` në HTML; (2) teksti kalonte "Vetëm në këtë telefon" → emri → tani skript inline lexon
+     `stoku:porta:hyrja.emri` menjëherë, dhe teksti i parazgjedhur vendoset vetëm kur `authGati` pa përdorues
+     (`emriNeKrye()` tel, `rifreskoLlogarine` PC); (3) `.stk-etiketa` gjerësi fikse 152px; preload JetBrains Mono.
+     Test: `ikonat-test.js` (mat pozicionin/tekstin e logos çdo frame gjatë 3 s).
+
 0000000. **MË MBAJ MEND EMRIN (v143 = 1.1.2)**: porta (`porta.js`) ka kutinë `#pkMbaj` "Më mbaj mend emrin e përdoruesit"
    (e shënuar si parazgjedhje). `stoku:porta:mbaj-emrin` = '0' kur hiqet shenja → `stoku:porta:emri` fshihet menjëherë
    dhe s'shkruhet më (as te hyrja, as te `kontrollo`). Fjalëkalimi s'ruhet kurrë. Test: `mbaj-test.js`.
