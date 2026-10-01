@@ -13,7 +13,13 @@
  *     2. mesazhi duhet të jetë i dërguesit dhe i freskët (< 3 min) — s'mund të ridërgohen mesazhe të vjetra;
  *     3. lexon ekipa_push (pajisjet e regjistruara) dhe i dërgon secilës (përveç dërguesit) një njoftim
  *        të enkriptuar (Web Push, RFC 8291 + VAPID RFC 8292). Pajisjet që s'ekzistojnë më (404/410) fshihen.
- *   POST /prove  → njoftim prove vetëm te pajisjet e vetë përdoruesit (p.sh. për ta parë te ora).
+ *   POST /kerkese { id } → kërkesa "Hiqe nga rafti" (ose "u krye") te kolegët (v147).
+ *
+ * Njoftimi ditor për afatet (v149) — në orën që zgjedh secili përdorues, edhe me Stoku të mbyllur:
+ *   POST /orari (Bearer token, i verifikuar) { aktiv, ora: "08:00", tz, platforma, pajisja: { endpoint, p256dh, auth } }
+ *     → ruan/heq orarin e kësaj pajisjeje; { afatet: [{ e, b, d }] } → afatet e përdoruesit (kopja e fundit).
+ *   Cron Trigger (Settings → Triggers → Cron: "0,15,30,45 * * * *") → scheduled(): kur te pajisja është ora e zgjedhur,
+ *     dërgon një njoftim me afatet e skaduara (dhe ato që skadojnë këtë javë). Ruhet te i njëjti KV ("FOTO").
  *
  * Fotot e profilit (v141) — ruhen te Cloudflare KV (binding "FOTO"), JO te Firebase:
  *   PUT    /foto        (Bearer token)  → ruan foton e vetë përdoruesit (JPEG/PNG/WebP, ≤ 150 KB)
@@ -44,6 +50,7 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
     const rrugaF = new URL(req.url).pathname.replace(/\/+$/, '');
     if (rrugaF === '/foto' || rrugaF === '/fotot' || rrugaF.indexOf('/foto/') === 0) return trajtoFotot(req, env, rrugaF, cors, pergjigju);
+    if (rrugaF === '/orari' && req.method === 'POST') return trajtoOrarin(req, env, pergjigju);
     if (req.method !== 'POST') return pergjigju({ ok: true, sherbimi: 'stoku-push', celesat: !!(env.VAPID_PUBLIC && env.VAPID_PRIVATE), fotot: !!env.FOTO });
     if (!env.VAPID_PUBLIC || !env.VAPID_PRIVATE) return pergjigju({ ok: false, arsye: 'mungojne-celesat' }, 500);
 
@@ -91,9 +98,6 @@ export default {
           perKe = a => a.uid !== uid && a.uid === k.kerkuesUid;
         }
         ngarkesa = { lloji: 'kerkese', titulli: 'Stoku · Hiqe nga rafti', teksti: tekst.length > 180 ? tekst.slice(0, 177) + '…' : tekst, tag: 'ek-kerkese-' + id, koha: Number(k.koha) || Date.now(), pamja: 'njoftimet' };
-      } else if (rruga === '/prove') {
-        ngarkesa = { lloji: 'prove', titulli: 'Stoku · Provë', teksti: 'Njoftimet punojnë. Kështu do të vijnë mesazhet e chat-it.', tag: 'stoku-prove', url: './index.html#ekipa/chat', koha: Date.now() };
-        perKe = a => a.uid === uid;
       } else {
         return pergjigju({ ok: false, arsye: 'rruga' }, 404);
       }
@@ -104,7 +108,7 @@ export default {
       const teMiat = new Set(teGjitha.filter(a => a.uid === uid).map(a => a.endpoint));
       const pare = new Set();
       const pajisjet = teGjitha.filter(perKe).filter(a => {
-        if (rruga !== '/prove' && teMiat.has(a.endpoint)) return false;
+        if (teMiat.has(a.endpoint)) return false;
         if (pare.has(a.endpoint)) return false;
         pare.add(a.endpoint); return true;
       });
@@ -120,19 +124,122 @@ export default {
           else if (st === 404 || st === 410) { fshire++; await fshiDoc('ekipa_push/' + a.id, token); }
         } catch (e) { /* një pajisje e prishur s'i ndal të tjerat */ }
       }));
-      // Prova me vonesë (deri 10 s): përdoruesi ka kohë ta fikë ekranin e telefonit dhe ta shohë njoftimin në orë
-      const vonesa = rruga === '/prove' ? Math.min(10, Math.max(0, Number(trupi.vonesa) || 0)) : 0;
-      if (vonesa && ctx && ctx.waitUntil) {
-        ctx.waitUntil(new Promise(r => setTimeout(r, vonesa * 1000)).then(dergoKrejt));
-        return pergjigju({ ok: true, pajisje: pajisjet.length, vonesa });
-      }
       await dergoKrejt();
       return pergjigju({ ok: true, pajisje: pajisjet.length, derguar, fshire });
     } catch (e) {
       return pergjigju({ ok: false, arsye: String(e && e.message || e) }, e && e.status === 403 ? 403 : 500);
     }
+  },
+  // Cron Trigger (çdo 15 min): njoftimi ditor për afatet
+  async scheduled(event, env, ctx) {
+    if (!env.FOTO || !env.VAPID_PUBLIC || !env.VAPID_PRIVATE) return;
+    const p = dergoNjoftimetDitore(env, event && event.scheduledTime ? Number(event.scheduledTime) : Date.now());
+    if (ctx && ctx.waitUntil) ctx.waitUntil(p); else await p;
   }
 };
+
+// ---------------- Njoftimi ditor për afatet (Cloudflare KV + Cron) ----------------
+const ORA_RE = /^([01]\d|2[0-3]):(00|15|30|45)$/;
+const DATA_RE = /^\d{4}-\d{2}-\d{2}$/;
+const AFATET_MAKS = 1500;
+function tzIVlefshem(tz) { try { new Intl.DateTimeFormat('en', { timeZone: tz }); return true; } catch (e) { return false; } }
+// Data dhe minutat e ditës në zonën kohore të pajisjes
+function kohaLokale(tani, tz) {
+  const pj = {};
+  new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+    .formatToParts(new Date(tani)).forEach(x => { pj[x.type] = x.value; });
+  return { dita: pj.year + '-' + pj.month + '-' + pj.day, minuta: Number(pj.hour) * 60 + Number(pj.minute) };
+}
+function shtoDite(iso, n) { const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+// Teksti i njoftimit ditor; null kur s'ka çka të thuhet
+function njoftimiDitor(afatet, sot) {
+  const javaFund = shtoDite(sot, 7);
+  const skaduara = [], java = [];
+  (afatet || []).forEach(a => {
+    if (!a || !DATA_RE.test(a.d || '')) return;
+    if (a.d < sot) skaduara.push(a); else if (a.d <= javaFund) java.push(a);
+  });
+  if (!skaduara.length && !java.length) return null;
+  skaduara.sort((x, y) => x.d < y.d ? -1 : x.d > y.d ? 1 : 0);
+  const emri = a => a.e || a.b || 'produkt';
+  let teksti = '';
+  if (skaduara.length === 1) teksti = emri(skaduara[0]) + ' ka skaduar. Hiqe nga rafti.';
+  else if (skaduara.length) teksti = skaduara.length + ' produkte kanë skaduar: ' + skaduara.slice(0, 4).map(emri).join(', ') + (skaduara.length > 4 ? '…' : '') + '.';
+  const sotN = java.filter(a => a.d === sot).length;
+  if (java.length) teksti += (teksti ? ' ' : '') + (sotN === java.length ? (sotN === 1 ? '1 skadon sot.' : sotN + ' skadojnë sot.')
+    : (java.length === 1 ? '1 skadon këtë javë.' : java.length + ' skadojnë këtë javë.'));
+  return { titulli: skaduara.length ? 'Stoku · Hiqi nga rafti' : 'Stoku · Afatet', teksti: teksti.length > 220 ? teksti.slice(0, 217) + '…' : teksti, skaduara: skaduara.length, java: java.length };
+}
+async function hashEndpoint(endpoint) {
+  const h = new Uint8Array(await crypto.subtle.digest('SHA-256', tekst(endpoint)));
+  return Array.from(h.slice(0, 10)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+async function lexoIndeksinEOrareve(env) { try { return (await env.FOTO.get('orari-indeksi', 'json')) || {}; } catch (e) { return {}; } }
+async function trajtoOrarin(req, env, pergjigju) {
+  if (!env.FOTO) return pergjigju({ ok: false, arsye: 'mungon-kv' }, 500);
+  const token = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
+  const uid = await verifikoTokenin(token);
+  if (!uid) return pergjigju({ ok: false, arsye: 'pa-hyrje' }, 401);
+  let t = {};
+  try { t = await req.json(); } catch (e) { return pergjigju({ ok: false, arsye: 'json' }, 400); }
+  // Afatet e përdoruesit (të përbashkëta për krejt pajisjet e tij)
+  if (Array.isArray(t.afatet)) {
+    const af = t.afatet.slice(0, AFATET_MAKS).filter(a => a && DATA_RE.test(a.d || '')).map(a => ({ e: String(a.e || '').slice(0, 120), b: String(a.b || '').slice(0, 40), d: a.d }));
+    await env.FOTO.put('orari-afatet:' + uid, JSON.stringify(af));
+  }
+  if (t.aktiv === undefined) return pergjigju({ ok: true });
+  const pj = t.pajisja || {};
+  if (typeof pj.endpoint !== 'string' || !/^https:\/\//.test(pj.endpoint) || pj.endpoint.length > 1000) return pergjigju({ ok: false, arsye: 'pajisja' }, 400);
+  const celesi = 'orari:' + uid + ':' + await hashEndpoint(pj.endpoint);
+  const ind = await lexoIndeksinEOrareve(env);
+  if (!t.aktiv) {
+    await env.FOTO.delete(celesi);
+    if (ind[celesi]) { delete ind[celesi]; await env.FOTO.put('orari-indeksi', JSON.stringify(ind)); }
+    return pergjigju({ ok: true, aktiv: false });
+  }
+  if (!ORA_RE.test(t.ora || '')) return pergjigju({ ok: false, arsye: 'ora' }, 400);
+  const tz = String(t.tz || 'Europe/Belgrade');
+  if (!tzIVlefshem(tz)) return pergjigju({ ok: false, arsye: 'tz' }, 400);
+  if (!/^[A-Za-z0-9_-]{20,200}$/.test(pj.p256dh || '') || !/^[A-Za-z0-9_-]{10,100}$/.test(pj.auth || '')) return pergjigju({ ok: false, arsye: 'pajisja' }, 400);
+  const rek = { uid, ora: t.ora, tz, platforma: t.platforma === 'pc' ? 'pc' : 'tel', pajisja: { endpoint: pj.endpoint, p256dh: pj.p256dh, auth: pj.auth } };
+  await env.FOTO.put(celesi, JSON.stringify(rek));
+  // Nëse ora e re është ende përpara sot, njoftimi i sotëm vjen; nëse ka kaluar, nga nesër
+  const lok = kohaLokale(Date.now(), tz), [hh, mm] = t.ora.split(':').map(Number);
+  const dita = lok.minuta >= hh * 60 + mm ? lok.dita : ((ind[celesi] && ind[celesi].dita === lok.dita) ? lok.dita : '');
+  ind[celesi] = { ora: t.ora, tz, dita };
+  await env.FOTO.put('orari-indeksi', JSON.stringify(ind));
+  return pergjigju({ ok: true, aktiv: true, ora: t.ora });
+}
+async function dergoNjoftimetDitore(env, tani) {
+  const ind = await lexoIndeksinEOrareve(env);
+  let ndryshoi = false, derguar = 0;
+  const afatetPerUid = {};
+  let vapid = null;
+  for (const celesi of Object.keys(ind)) {
+    const x = ind[celesi];
+    if (!x || !ORA_RE.test(x.ora || '') || !tzIVlefshem(x.tz)) { delete ind[celesi]; ndryshoi = true; continue; }
+    const lok = kohaLokale(tani, x.tz), [hh, mm] = x.ora.split(':').map(Number), synimi = hh * 60 + mm;
+    // Brenda orës pas kohës së zgjedhur (Cron mund të vonohet pak) dhe vetëm një herë në ditë
+    if (x.dita === lok.dita || lok.minuta < synimi || lok.minuta >= synimi + 60) continue;
+    x.dita = lok.dita; ndryshoi = true;
+    try {
+      const rek = await env.FOTO.get(celesi, 'json');
+      if (!rek) { delete ind[celesi]; continue; }
+      if (!(rek.uid in afatetPerUid)) afatetPerUid[rek.uid] = (await env.FOTO.get('orari-afatet:' + rek.uid, 'json')) || [];
+      const nj = njoftimiDitor(afatetPerUid[rek.uid], lok.dita);
+      if (!nj) continue;
+      if (!vapid) vapid = await pergatitVapid(env);
+      const ng = { lloji: 'afatet', titulli: nj.titulli, teksti: nj.teksti, tag: 'stoku-ditor', koha: tani,
+        url: rek.platforma === 'pc' ? './pc.html#/afatet' : './index.html#afatet' };
+      const st = await dergoPush(rek.pajisja, ng, vapid);
+      if (st >= 200 && st < 300) derguar++;
+      else if (st === 404 || st === 410) { await env.FOTO.delete(celesi); delete ind[celesi]; }
+    } catch (e) { /* një pajisje e prishur s'i ndal të tjerat */ }
+  }
+  if (ndryshoi) await env.FOTO.put('orari-indeksi', JSON.stringify(ind));
+  return derguar;
+}
+export { njoftimiDitor, kohaLokale, dergoNjoftimetDitore };
 
 // ---------------- Fotot e profilit (Cloudflare KV) ----------------
 const FOTO_MAKS = 150 * 1024;
