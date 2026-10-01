@@ -50,6 +50,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ANËSORJA E PC-SË (v133)**, me kërkesë: u hoq ⚙ te karta e llogarisë (rreshti "Cilësimet" i anësores mori id-në
+   `#btnOpsione`); u hoq `#btnImport` ("Importo nga Excel / CSV") nga `.anesore-fund` (importi i stokut: menyja e
+   folderit "Importo në këtë folder…" + Ctrl+I); u hoq cilësimi "Kufiri i sasisë së ulët" (`#opsPragu`) — `ops.pragu`
+   mbetet fiks 5 (si `PRAGU_PAK` te telefoni), vlera e ruajtur injorohet.
+
 0000000. **"E MADHE" NË PC + BUTONI CILËSIMET (v132)**: me `madhesia: 'e_madhe'` pc.html vinte `zoom: 1.12` te `body` →
    `.trupi` (100dvh) bëhej 12% më e lartë se ekrani; `body` ka `overflow: hidden`, prandaj kur fokusi kthehej te butoni
    poshtë (p.sh. pas mbylljes së Cilësimeve) shfletuesi e zhvendoste faqen lart dhe s'kishte kthim me scroll (foto e

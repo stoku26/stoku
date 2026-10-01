@@ -15,6 +15,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 133, data: '2026-10-01', titulli: 'Anësorja më e pastër', platforma: 'pc', pikat: [
+      'Cilësimet hapen nga rreshti "Cilësimet" te menyja anësore (ikona e vogël pranë emrit u hoq).',
+      'U hoq "Importo nga Excel / CSV" nga fundi i anësores. Importi mbetet: klik i djathtë (ose ···) te një folder → "Importo në këtë folder…", ose Ctrl+I.',
+      'U hoq cilësimi "Kufiri i sasisë së ulët". "Sasi e ulët" është tani gjithmonë 1 deri 5 copë, si te telefoni.'
+    ] },
     { v: 132, data: '2026-10-01', titulli: 'Rregullime në kompjuter', platforma: 'pc', pikat: [
       'Me "Madhësia e shkronjave: E madhe" faqja mund të mbetej e prerë lart (pa titull dhe pa kërkim) dhe s\'kthehej me scroll. U rregullua: faqja mbetet gjithmonë sa ekrani.',
       'Te menyja anësore ka tani butonin "Cilësimet" (poshtë "Shkurtoret e tastierës").',
