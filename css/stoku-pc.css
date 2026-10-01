@@ -487,3 +487,12 @@
   .sbp .trupi { grid-template-columns: 220px minmax(0, 1fr); }
   :root.sbp[data-madhesi="e_madhe"] .trupi { grid-template-columns: 246px minmax(0, 1fr); }
 }
+
+/* ---------- Zgjedhja e tekstit (v139 / 1.0.1): butonat, menyja, titujt dhe filtrat s'zgjidhen me dyklik/tërheqje.
+   Tabela, emrat, barkodet, chat-i dhe fushat mbeten për kopjim. */
+.sbp aside.anesore, .sbp button, .sbp .kpi, .sbp .karta-krye, .sbp .faqe-krye, .sbp .segmente, .sbp th,
+.sbp .opsione-skeda, .sbp .ops-faqe-krye, .sbp .dialog-krye, .sbp .menu {
+  -webkit-user-select: none; user-select: none;
+}
+.sbp aside.anesore input { -webkit-user-select: text; user-select: text; }
+

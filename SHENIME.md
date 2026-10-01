@@ -50,6 +50,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ZGJEDHJA E TEKSTIT (v139 = 1.0.1)**: telefoni — `html.sb body` ka `user-select: none` + `-webkit-touch-callout:
+   none` (shtypja e gjatë zgjidhte krejt faqen, foto e përdoruesit); zgjidhen vetëm `input/textarea/select`,
+   `.artikull .emri/.kodi`, `.sb-row__name/__code`, `.kodi-dialog`, `.ek-mesazh .flluska` (inputet DUHET të kenë `text`,
+   përndryshe iOS s'lejon shkrim). Kartat e afateve mbeten pa zgjedhje (shtypja e gjatë = zgjedhje e shumë afateve).
+   PC — `none` vetëm te anësorja, butonat, KPI, titujt, filtrat, dialog-krye; tabela ishte tashmë pa zgjedhje teksti
+   (barkodi kopjohet nga dritarja e produktit). Testet: `zgjedhja.js`, `zg3.js` (scratchpad).
+
 0000000. **FURNIZUESIT TE CILËSIMET (v137 = Stoku 1.1)**, vetëm për `mendurberisha` (kontroll me emrin e llogarisë së kyçur;
    të dhënat janë të dyqanit lokal, s'ka rrezik sigurie): telefoni — kategoria "Lista" u quajt "Stoku" (`tabLista`),
    seksioni `#furnSeksion` (lista `#furnLista`, kërkimi `#furnKerko` vetëm me 8+ furnizues, editim në rresht); PC —
