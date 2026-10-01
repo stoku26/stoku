@@ -887,7 +887,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=4">
-<link rel="stylesheet" href="css/stoku-pc.css?v=10">
+<link rel="stylesheet" href="css/stoku-pc.css?v=11">
 </head>
 <body>
 <script src="porta.js?v=145"></script>
@@ -1217,6 +1217,10 @@
           <div class="faqe-nen" id="ekNen"></div>
         </div>
         <div class="faqe-veprime">
+          <button class="btn dyte ek-zile" type="button" id="ekKerkoHeqje" title="Kërkoji një kolegu (ose krejt ekipës) ta heqë nga rafti një produkt">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18"></path><path d="M5 7v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7"></path><path d="M9 7V4h6v3"></path><path d="m10 12 4 4M14 12l-4 4"></path></svg>
+            Kërko heqje
+          </button>
           <button class="btn dyte ek-zile" type="button" id="ekChatBtn" title="Chat-i i ekipës">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
             Chat
@@ -1501,6 +1505,22 @@
     <div class="dialog-krye"><h2 id="ekNjTitulli">Njoftimet</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
     <div class="dialog-trup ek-nj-lista" id="ekNjLista"></div>
     <div class="dialog-fund"><button class="btn tekst" type="button" id="ekNjLejo" style="display:none">Lejo njoftimet në kompjuter</button><span class="hapesire"></span><button class="btn" type="button" data-mbyll>Mbyll</button></div>
+  </div>
+</div>
+
+<!-- Kërkesë që një koleg (ose krejt ekipa) ta heqë nga rafti një produkt (edhe pa afat në Stoku) -->
+<div class="mbulese" id="dlgKerkese">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="krkTitulli" style="max-width:480px">
+    <div class="dialog-krye"><h2 id="krkTitulli">Kërko heqje nga rafti</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
+    <div class="dialog-trup">
+      <p class="ops-hint" style="margin:0 0 14px">Për një produkt që duhet hequr nga rafti (i dëmtuar, i skaduar pa afat në Stoku etj.). Kolegu e merr njoftimin edhe në telefon.</p>
+      <label class="fushe"><span>Produkti ose barkodi</span><input class="inp" id="krkProdukti" type="text" list="krkLista" autocomplete="off" spellcheck="false" maxlength="120" placeholder="p.sh. Kos Vita ose 3900000000028"></label>
+      <datalist id="krkLista"></datalist>
+      <label class="fushe"><span>Kujt t'ia kërkosh</span><select class="inp" id="krkPer"></select></label>
+      <label class="fushe"><span>Shënim (s'është i detyrueshëm)</span><input class="inp" id="krkShenim" type="text" autocomplete="off" maxlength="300" placeholder="p.sh. paketimi është i dëmtuar"></label>
+      <div class="gabim-tekst" id="krkGabim"></div>
+    </div>
+    <div class="dialog-fund"><span class="hapesire"></span><button class="btn tekst" type="button" data-mbyll>Anulo</button><button class="btn" type="button" id="krkDergo">Dërgo</button></div>
   </div>
 </div>
 
@@ -1816,8 +1836,8 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=144"></script>
-<script src="ekipa.js?v=10"></script>
-<script src="teRejat.js?v=146"></script>
+<script src="ekipa.js?v=147"></script>
+<script src="teRejat.js?v=147"></script>
 <script>
 (function () {
   'use strict';
@@ -5434,12 +5454,64 @@
       r.appendChild(ekAvatar({ emri: n.emri }, false));
       var b = el('div', 'ek-nj-trup', EKL.tekstiNjoftimit(n));
       b.appendChild(el('div', 'ek-nj-koha', EKL.kohaRelative(n.koha)));
+      if (n.lloji === 'kerkese-heqje') b.appendChild(ekButoniKerkeses(n));
       r.appendChild(b);
       l.appendChild(r);
     });
     ekK.shenoNjoftimetTeLexuara();
   }
   $('ekZile').addEventListener('click', ekHapNjoftimet);
+  function ekButoniKerkeses(n) {
+    var w = el('div', 'ek-nj-veprim');
+    if (n.kryer) { w.appendChild(el('span', 'ek-nj-kryer', '✓ E hoqe nga rafti')); return w; }
+    var bt = el('button', 'btn dyte vogel', 'E hoqa nga rafti'); bt.type = 'button';
+    bt.addEventListener('click', async function () {
+      bt.disabled = true; bt.textContent = 'Duke ruajtur…';
+      var res = await ekK.kryejKerkesen(n);
+      if (res && res.ok) { w.textContent = ''; w.appendChild(el('span', 'ek-nj-kryer', '✓ E hoqe nga rafti')); toast((n.emri || 'Kolegu') + ' u njoftua që e hoqe.'); }
+      else { bt.disabled = false; bt.textContent = 'E hoqa nga rafti'; toast('S\'u ruajt. Kontrollo internetin dhe provo sërish.'); }
+    });
+    w.appendChild(bt);
+    return w;
+  }
+  // ---- Kërko heqje nga rafti ----
+  function hapKerkesen(perUid) {
+    if (!ekK) return;
+    var kol = ekK.koleget();
+    var sel = $('krkPer'); sel.textContent = '';
+    var o0 = document.createElement('option'); o0.value = ''; o0.textContent = 'Krejt ekipa (' + kol.length + ')'; sel.appendChild(o0);
+    kol.slice().sort(function (a, b) { return String(a.emri).localeCompare(String(b.emri)); }).forEach(function (a) {
+      var o = document.createElement('option'); o.value = a.uid; o.textContent = a.emri; sel.appendChild(o);
+    });
+    sel.value = perUid || '';
+    var dl = $('krkLista'); dl.textContent = '';
+    var pare = {};
+    teGjithaProduktet().filter(function (p) { return p && (p.emri || p.barkodi); }).slice(0, 400).forEach(function (p) {
+      var v = p.emri ? String(p.emri).trim() + (p.barkodi ? ' · ' + p.barkodi : '') : String(p.barkodi);
+      if (pare[v]) return; pare[v] = true;
+      var o = document.createElement('option'); o.value = v; dl.appendChild(o);
+    });
+    $('krkProdukti').value = ''; $('krkShenim').value = '';
+    $('krkGabim').textContent = kol.length ? '' : 'S\'ka ende kolegë në ekipë.';
+    $('krkDergo').disabled = false; $('krkDergo').textContent = 'Dërgo';
+    hapDialog('dlgKerkese', 'krkProdukti');
+  }
+  async function dergoKerkesen() {
+    var k = EKL.kerkesaNgaTeksti($('krkProdukti').value, teGjithaProduktet());
+    if (!k.produkti && !k.barkodi) { $('krkGabim').textContent = 'Shkruaj produktin ose barkodin.'; $('krkProdukti').focus(); return; }
+    var per = $('krkPer').value, perEmri = per ? $('krkPer').options[$('krkPer').selectedIndex].textContent : '';
+    $('krkDergo').disabled = true; $('krkDergo').textContent = 'Duke dërguar…';
+    var r = await ekK.kerkoHeqjen({ produkti: k.produkti, barkodi: k.barkodi, shenim: $('krkShenim').value, perUid: per });
+    $('krkDergo').disabled = false; $('krkDergo').textContent = 'Dërgo';
+    if (!r || !r.ok) { $('krkGabim').textContent = r && r.arsye === 'pa-kolege' ? 'S\'ka ende kolegë në ekipë.' : 'S\'u dërgua. Kontrollo internetin dhe provo sërish.'; return; }
+    mbyllDialog('dlgKerkese');
+    toast(r.neRadhe ? 'Kërkesa do të dërgohet sapo të kthehet interneti.' : 'Kërkesa u dërgua te ' + (per ? perEmri : 'krejt ekipa') + '.');
+  }
+  $('ekKerkoHeqje').addEventListener('click', function () { hapKerkesen(); });
+  $('krkDergo').addEventListener('click', dergoKerkesen);
+  $('krkProdukti').addEventListener('input', function () { $('krkGabim').textContent = ''; });
+  $('krkShenim').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); dergoKerkesen(); } });
+  $('krkProdukti').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('krkShenim').focus(); } });
   // Chat-i: butoni lart djathtas, pranë "Njoftimet"; klikimi sërish kthen te pamja e mëparshme
   var ekParaChatit = 'afatet';
   $('ekChatBtn').addEventListener('click', function () {
@@ -5481,10 +5553,12 @@
     if (!document.hidden) {
       if (nj.pamja === 'chat' && !(pamja === 'ekipi' && ekNen === 'chat')) toast(nj.titulli.replace(' · Chat', '') + ': ' + nj.teksti, { ms: 5000 });
       else if (nj.pamja === 'anetaret') toast(nj.teksti, { ms: 8000, veprimi: function () { ekShkoTe('anetaret'); }, butoni: 'Hape' });
+      else if (/^Stoku · Hiqe/.test(nj.titulli)) toast(nj.teksti, { ms: 9000, veprimi: ekHapNjoftimet, butoni: 'Hape' });
       return;
     }
+    if (nj.vetemNePerpara) return; // vjen si push nga Worker-i
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    var url = './pc.html#/ekipa' + (nj.pamja === 'chat' || nj.pamja === 'anetaret' ? '/' + nj.pamja : '');
+    var url = './pc.html#/ekipa' + (nj.pamja === 'chat' || nj.pamja === 'anetaret' || nj.pamja === 'njoftimet' ? '/' + nj.pamja : '');
     var opsionet = { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=3', badge: './logo/badge-96.png?v=1', data: { url: url } };
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then(function (reg) { return reg.showNotification(nj.titulli, opsionet); })
@@ -5493,7 +5567,10 @@
   }
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.addEventListener('message', function (ev) {
-      if (ev.data && ev.data.lloji === 'hap-ekipa') ekShkoTe(EK_NENET.indexOf(ev.data.pamja) !== -1 ? ev.data.pamja : 'afatet');
+      if (ev.data && ev.data.lloji === 'hap-ekipa') {
+        if (ev.data.pamja === 'njoftimet') { ekShkoTe('pulti'); setTimeout(ekHapNjoftimet, 50); }
+        else ekShkoTe(EK_NENET.indexOf(ev.data.pamja) !== -1 ? ev.data.pamja : 'afatet');
+      }
     });
   }
   function ekNisOseNdal() {
@@ -6355,6 +6432,11 @@
     else if (h === '#/afatet') pamja = 'afatet';
     else if (h === '#/ekipi' || h === '#/ekipa' || h.indexOf('#/ekipa/') === 0) { pamja = 'ekipi'; ekNen = EK_NENET.indexOf(h.slice(8)) !== -1 ? h.slice(8) : 'pulti'; }
     else if (h.indexOf('#/f/') === 0 && folderSipasId(h.slice(4))) pamja = h.slice(4);
+    // Njoftimi "Hiqe nga rafti" hap "#/ekipa/njoftimet": Ekipa + dritarja e njoftimeve
+    if (h === '#/ekipa/njoftimet') {
+      var hapNj = function () { if (window.StokuPorta && window.StokuPorta.eHapur()) return false; setTimeout(ekHapNjoftimet, 300); return true; };
+      if (!hapNj()) window.addEventListener('stoku-porta-hapur', hapNj, { once: true });
+    }
     history.replaceState(null, '', hashPer(pamja));
   })();
   rifreskoLlogarine();

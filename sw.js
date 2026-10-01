@@ -10,7 +10,7 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v146';
+var CACHE = 'stoku-v147';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
 importScripts('./afatet.js?v=144', './njoftimet.js?v=120');
@@ -28,14 +28,14 @@ var SHELL = FAQET.concat([
   './bashkimi.js?v=144',
   './ruajtja.js?v=110',
   './afatet.js?v=144',
-  './ekipa.js?v=10',
+  './ekipa.js?v=147',
   './porta.js?v=145',
   './njoftimet.js?v=120',
-  './teRejat.js?v=146',
+  './teRejat.js?v=147',
   './manifest.webmanifest?v=85',
   './css/stoku-tokens.css?v=4',
-  './css/stoku.css?v=10',
-  './css/stoku-pc.css?v=10',
+  './css/stoku.css?v=11',
+  './css/stoku-pc.css?v=11',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',
   './logo/stoku-icon.svg?v=3',
@@ -192,8 +192,8 @@ self.addEventListener('push', function (e) {
       vibrate: [180, 80, 180],
       timestamp: d.koha || Date.now(),
       lang: 'sq',
-      data: { url: d.url || './index.html#ekipa/chat' },
-      actions: [{ action: 'hap', title: 'Hap chat-in' }]
+      data: { url: d.url || './index.html#ekipa-chat' },
+      actions: [{ action: 'hap', title: d.lloji === 'kerkese' ? 'Hap njoftimet' : 'Hap chat-in' }]
     });
   }));
 });
@@ -204,7 +204,7 @@ self.addEventListener('notificationclick', function (e) {
   e.notification.close();
   var url = (e.notification.data && e.notification.data.url) || './index.html#afatet';
   var perPc = /pc\.html/.test(url);
-  var mesazhi = /#\/?ekipa/.test(url) ? { lloji: 'hap-ekipa', pamja: /chat/.test(url) ? 'chat' : /anetaret/.test(url) ? 'anetaret' : 'afatet' } : { lloji: 'hap-afatet' };
+  var mesazhi = /#\/?ekipa/.test(url) ? { lloji: 'hap-ekipa', pamja: /chat/.test(url) ? 'chat' : /anetaret/.test(url) ? 'anetaret' : /njoftimet/.test(url) ? 'njoftimet' : 'afatet' } : { lloji: 'hap-afatet' };
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (dritaret) {
     for (var i = 0; i < dritaret.length; i++) {
       var d = dritaret[i];
