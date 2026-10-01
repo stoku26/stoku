@@ -50,6 +50,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **FURNIZUESIT TE CILËSIMET (v137 = Stoku 1.1)**, vetëm për `mendurberisha` (kontroll me emrin e llogarisë së kyçur;
+   të dhënat janë të dyqanit lokal, s'ka rrezik sigurie): telefoni — kategoria "Lista" u quajt "Stoku" (`tabLista`),
+   seksioni `#furnSeksion` (lista `#furnLista`, kërkimi `#furnKerko` vetëm me 8+ furnizues, editim në rresht); PC —
+   Cilësimet → Stoku, karta `#opsFurnSeksion` (`#opsFurnLista`, `#opsFurnKerko`, Enter = ruaj, Escape = anulo vetëm
+   editimin). Logjika e përbashkët te afatet.js: `listaEFurnizuesve(afatet, produktet)`, `furnizuesiEkzistues(lista, emri,
+   pervec)` (pa dallim shkronjash), `riemertoFurnizuesin(...)` (afatet: `ndryshuarSe = tani`; produktet: `prekurSe + 1`
+   që të fitojnë sinkronizimin pa u ngjitur te "Ndryshuar së fundi"). Bashkimi (emër që ekziston pa dallim shkronjash)
+   pyet me `konfirmo` dhe të dy grupet marrin saktësisht emrin e shkruar. Testi: `furn-test.js` (scratchpad).
+
 0000000. **EMRI I VERSIONIT (v136 = "Stoku 1.0")**: përdoruesi s'e sheh më numrin e brendshëm ("Versioni 134"), por
    `StokuTeRejat.emriVersionit(v)`: `MAJORET = [[136, 1]]` → v136 = 1.0, v137 = 1.1 … (me kërkesë: "nise prej 1.0";
    v135 kishte shkurt "2.9", u zëvendësua). Para v136: pa emër versioni, te "Çka ka të re" vetëm data

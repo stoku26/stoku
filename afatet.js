@@ -475,6 +475,51 @@
     return out;
   }
 
+  // ---------- Furnizuesit (Cilësimet → Stoku, vetëm për administratorin) ----------
+  // Lista e furnizuesve me sa afate (dhe produkte) i kanë: [{ emri, afate, produkte }], renditur sipas alfabetit.
+  function listaEFurnizuesve(afatet, produktet) {
+    var m = {};
+    function shto(emri, fusha) {
+      emri = String(emri || '').trim();
+      if (!emri) return;
+      (m[emri] = m[emri] || { emri: emri, afate: 0, produkte: 0 })[fusha]++;
+    }
+    (afatet || []).forEach(function (a) { if (a) shto(a.furnizuesi, 'afate'); });
+    var p = produktet || {};
+    Object.keys(p).forEach(function (k) { if (p[k]) shto(p[k].furnizuesi, 'produkte'); });
+    return Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) { return a.emri.localeCompare(b.emri, 'sq', { sensitivity: 'base' }) || a.emri.localeCompare(b.emri); });
+  }
+  // A ekziston tashmë një furnizues tjetër me këtë emër (pa dallim shkronjash të mëdha/vogla)? Kthen emrin e tij ose ''.
+  function furnizuesiEkzistues(lista, emri, pervec) {
+    var e = String(emri || '').trim().toLocaleLowerCase('sq');
+    for (var i = 0; i < (lista || []).length; i++) {
+      var x = lista[i].emri;
+      if (x !== pervec && x.toLocaleLowerCase('sq') === e) return x;
+    }
+    return '';
+  }
+  // Ndryshon emrin e furnizuesit `vjeter` në `iRi` te krejt afatet dhe produktet (pa i prekur origjinalet).
+  // Afatet marrin ndryshuarSe = tani; produktet prekurSe + 1 ms (fitojnë sinkronizimin pa u ngjitur te "Ndryshuar së fundi").
+  // Kthen { afatet, produktet, nAfate, nProdukte }.
+  function riemertoFurnizuesin(afatet, produktet, vjeter, iRi, tani) {
+    vjeter = String(vjeter || '').trim(); iRi = String(iRi || '').trim(); tani = tani || Date.now();
+    var nA = 0, nP = 0, pRe = {};
+    var aRe = (afatet || []).map(function (a) {
+      if (!a || String(a.furnizuesi || '').trim() !== vjeter || !vjeter || !iRi) return a;
+      nA++;
+      return Object.assign({}, a, { furnizuesi: iRi, ndryshuarSe: tani });
+    });
+    var p = produktet || {};
+    Object.keys(p).forEach(function (k) {
+      var x = p[k];
+      if (x && vjeter && iRi && String(x.furnizuesi || '').trim() === vjeter) {
+        nP++;
+        pRe[k] = Object.assign({}, x, { furnizuesi: iRi, prekurSe: (typeof x.prekurSe === 'number' ? x.prekurSe : 0) + 1 });
+      } else pRe[k] = x;
+    });
+    return { afatet: aRe, produktet: pRe, nAfate: nA, nProdukte: nP };
+  }
+
   var api = {
     get AI_URL() { return adresaAI(); },
     DITET_PARALAJMERIMI: DITET_PARALAJMERIMI,
@@ -484,7 +529,8 @@
     pergatitFoton: pergatitFoton, fotoPerDergim: fotoPerDergim, lexoMeAI: lexoMeAI,
     normalizoRreshtin: normalizoRreshtin, EMRAT_MUAJVE: EMRAT_MUAJVE, muajiNgaEmri: muajiNgaEmri, celesiMuajit: celesiMuajit, emriMuajit: emriMuajit,
     muajtELista: muajtELista, ditetEMbetura: ditetEMbetura, dataNgaQeliza: dataNgaQeliza, hamendesoKolonatEAfateve: hamendesoKolonatEAfateve,
-    planiImportitAfateve: planiImportitAfateve, afatetNgaPlani: afatetNgaPlani, tekstNgaQeliza: tekstNgaQeliza, ditetTekst: ditetTekst, lexoSasine: lexoSasine, sasiaSiShume: sasiaSiShume, sasiaTekst: sasiaTekst, shumaCopeve: shumaCopeve
+    planiImportitAfateve: planiImportitAfateve, afatetNgaPlani: afatetNgaPlani, tekstNgaQeliza: tekstNgaQeliza, ditetTekst: ditetTekst, lexoSasine: lexoSasine, sasiaSiShume: sasiaSiShume, sasiaTekst: sasiaTekst, shumaCopeve: shumaCopeve,
+    listaEFurnizuesve: listaEFurnizuesve, furnizuesiEkzistues: furnizuesiEkzistues, riemertoFurnizuesin: riemertoFurnizuesin
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuAfatet = api;
