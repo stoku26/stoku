@@ -10,10 +10,10 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v126';
+var CACHE = 'stoku-v127';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
-importScripts('./afatet.js?v=122', './njoftimet.js?v=118');
+importScripts('./afatet.js?v=122', './njoftimet.js?v=119');
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.2/dist/iife/ponyfill.js',
@@ -29,25 +29,25 @@ var SHELL = FAQET.concat([
   './ruajtja.js?v=110',
   './afatet.js?v=122',
   './ekipa.js?v=6',
-  './porta.js?v=118',
-  './njoftimet.js?v=118',
-  './teRejat.js?v=126',
+  './porta.js?v=119',
+  './njoftimet.js?v=119',
+  './teRejat.js?v=127',
   './manifest.webmanifest?v=85',
   './css/stoku-tokens.css?v=1',
   './css/stoku.css?v=1',
   './css/stoku-pc.css?v=1',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',
-  './logo/stoku-icon.svg',
-  './logo/stoku-logo.svg',
-  './logo/stoku-logo-dark.svg',
-  './logo/favicon.svg',
-  './logo/favicon-32.png',
-  './logo/icon-maskable-512.png',
-  './icon-192.png?v=2',
-  './icon-512.png?v=2',
-  './apple-touch-icon.png?v=2',
-  './logo.png?v=2',
+  './logo/stoku-icon.svg?v=3',
+  './logo/stoku-logo.svg?v=3',
+  './logo/stoku-logo-dark.svg?v=3',
+  './logo/favicon.svg?v=3',
+  './logo/favicon-32.png?v=3',
+  './logo/icon-maskable-512.png?v=3',
+  './icon-192.png?v=3',
+  './icon-512.png?v=3',
+  './apple-touch-icon.png?v=3',
+  './logo.png?v=3',
 ]);
 
 async function mbushCacheEri() {

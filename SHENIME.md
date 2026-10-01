@@ -50,6 +50,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **LOGO BARKODI (v127)**: logoja "S me pikë" u zëvendësua me barkodin (nr. 5 nga 20 propozimet): katror
+   `#14161b`, 8 vija të bardha, vija e 5-të e verdhë `#f5b942`, plus një vijë e hollë e bardhë (16%) rreth katrorit që
+   të duket në temën e errët (jo te PNG-të e aplikacionit). Krejt `logo/` + `icon-192/512.png`, `apple-touch-icon.png`,
+   `logo.png` u rikrijuan; referencat kaluan në `?v=3` (index, pc, manifest, sw.js SHELL, porta.js?v=119,
+   njoftimet.js?v=119). Fjala "stoku" në `stoku-logo(-dark).svg` mbeti e njëjtë.
+
 0000000. **PAMJA E RE (v126), nga Claude Design ("Stoku Premium" / "Stoku PC", paketa "stoku_publikimi"), DIREKT te
    Stoku (telefon + kompjuter). Beta (/beta/, v124–v125) U HOQ me kërkesë të përdoruesit ("Heke beta").**
    - Skedarët: `css/stoku-tokens.css` (fontet Onest + JetBrains Mono nga `fonts/`, ngjyrat e temës së çelët dhe të
