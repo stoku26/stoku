@@ -10,7 +10,7 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v137';
+var CACHE = 'stoku-v138';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
 importScripts('./afatet.js?v=123', './njoftimet.js?v=120');
@@ -31,7 +31,7 @@ var SHELL = FAQET.concat([
   './ekipa.js?v=8',
   './porta.js?v=119',
   './njoftimet.js?v=120',
-  './teRejat.js?v=137',
+  './teRejat.js?v=138',
   './manifest.webmanifest?v=85',
   './css/stoku-tokens.css?v=2',
   './css/stoku.css?v=7',

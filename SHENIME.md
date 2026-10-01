@@ -59,11 +59,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    që të fitojnë sinkronizimin pa u ngjitur te "Ndryshuar së fundi"). Bashkimi (emër që ekziston pa dallim shkronjash)
    pyet me `konfirmo` dhe të dy grupet marrin saktësisht emrin e shkruar. Testi: `furn-test.js` (scratchpad).
 
-0000000. **EMRI I VERSIONIT (v136 = "Stoku 1.0")**: përdoruesi s'e sheh më numrin e brendshëm ("Versioni 134"), por
-   `StokuTeRejat.emriVersionit(v)`: `MAJORET = [[136, 1]]` → v136 = 1.0, v137 = 1.1 … (me kërkesë: "nise prej 1.0";
-   v135 kishte shkurt "2.9", u zëvendësua). Para v136: pa emër versioni, te "Çka ka të re" vetëm data
-   (`etiketa(h)` = "Stoku 1.0 · 1 tetor 2026" ose "1 tetor 2026"). Për 2.0 shto `[v, 2]` në krye. Fundi i Cilësimeve
-   (tel + PC): "Stoku 1.0". Numri i brendshëm (`v`, CACHE, `?v=`) vazhdon si më parë për përditësimet.
+0000000. **EMRI I VERSIONIT (MAJOR.MINOR.PATCH, nga v138 = "Stoku 1.0.0")**, me kërkesë të përdoruesit: çdo hyrje e re
+   te teRejat.js ka fushën `versioni` ("1.0.1"); `emriVersionit(v)` e merr nga hyrja me atë `v` (hyrjet pa `versioni`,
+   para 1.0.0, shfaqen vetëm me datë). RREGULLI për hyrjet e ardhshme: rregullim i vogël/gabim/tekst → rrit të fundit
+   (1.0.0 → 1.0.1); diçka e re që përdoret → rrit të mesit dhe i fundit 0 (→ 1.1.0); ndryshim i madh i krejt
+   aplikacionit → 2.0.0. Hyrjet tel + pc me të njëjtin `v` kanë të njëjtin `versioni`. Gjithmonë i thuhet përdoruesit
+   cili version u bë. Historia: v135 "2.9" dhe v136/v137 "1.0"/"1.1" (numra të shkurtër) u zëvendësuan nga kjo skemë.
+   Numri i brendshëm (`v`, CACHE, `?v=`) vazhdon si më parë për përditësimet.
 
 0000000. **PA "SASI E ULËT" (v134)**, me kërkesë, telefon + PC: u hoq krejt koncepti 1–5 copë (`eshtePak`, `ops.pragu`,
    `PRAGU_PAK`, filtri `data-f="pak"`, KPI, ngjyra portokalli `.pak`/`--near`/`sasia--pak`). Mbetet vetëm "Sasi 0" (e kuqe).
