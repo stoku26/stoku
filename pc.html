@@ -1789,7 +1789,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=122"></script>
 <script src="ekipa.js?v=8"></script>
-<script src="teRejat.js?v=135"></script>
+<script src="teRejat.js?v=136"></script>
 <script>
 (function () {
   'use strict';
@@ -6218,7 +6218,7 @@
     if (!hyrjet.length) return false;
     if (window.StokuPorta && window.StokuPorta.eHapur()) return false;
     if (dialogISiperm()) return false;
-    mbushTeRejat(hyrjet, hyrjet.length === 1 ? 'Stoku ' + TR.emriVersionit(hyrjet[0].v) : hyrjet.length + ' përditësime të reja');
+    mbushTeRejat(hyrjet, hyrjet.length === 1 ? TR.etiketa(hyrjet[0]) : hyrjet.length + ' përditësime të reja');
     hapDialog('dlgTeRejat');
     setTimeout(function () { $('trMbyll').focus(); }, 30);
     return true;
@@ -6230,7 +6230,7 @@
     hyrjet.forEach(function (h) {
       var b = el('div', 'tr-version');
       b.appendChild(el('div', 'tr-version-titulli', h.titulli));
-      b.appendChild(el('div', 'tr-version-data', 'Stoku ' + TR.emriVersionit(h.v) + ' · ' + TR.dataEPlote(h.data)));
+      b.appendChild(el('div', 'tr-version-data', TR.etiketa(h)));
       var ul = el('ul');
       (h.pikat || []).forEach(function (pika) { ul.appendChild(el('li', null, pika)); });
       b.appendChild(ul);
@@ -6245,7 +6245,7 @@
     if (!TR || !TR.versioni()) return;
     var hyrjet = TR.teRejatPas(0, 'pc').slice(0, 6);
     if (!hyrjet.length) return;
-    mbushTeRejat(hyrjet, 'Stoku ' + TR.emriVersionit(TR.versioni()) + ' dhe më parë');
+    mbushTeRejat(hyrjet, 'Përditësimet e fundit');
     mbyllDialog('dlgOpsione'); // dritarja e të rejave del mbi faqe, jo poshtë Cilësimeve
     hapDialog('dlgTeRejat');
     setTimeout(function () { $('trMbyll').focus(); }, 30);
