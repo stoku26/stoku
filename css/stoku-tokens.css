@@ -159,3 +159,23 @@
 .fl-ikona.zgjedhur { box-shadow: 0 0 0 2px var(--sb-surface), 0 0 0 4.5px var(--sb-accent); transform: scale(1.04); }
 .fl-ikonat-titull { font-size: 13px; font-weight: 600; color: var(--sb-ink-3); margin: 14px 2px 8px; }
 .folder-ikona { display: flex; align-items: center; justify-content: center; flex: none; width: 40px; height: 40px; border-radius: 12px; }
+
+/* "Kërko heqje nga rafti": zgjedhësi i produkteve (ekipa.js zgjedhesIKerkeses), tel + PC */
+.krk-zgjedhes { display: flex; flex-direction: column; gap: 8px; }
+.krk-tabet { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: var(--sb-sunken); }
+.krk-tab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; height: 36px; border: 0; border-radius: 9px; background: transparent; color: var(--sb-ink-3); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+.krk-tab.aktiv { background: var(--sb-surface); color: var(--sb-ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.krk-tab__nr { min-width: 20px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 10px; background: var(--sb-sunken); color: var(--sb-ink-3); font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+.krk-tab.aktiv .krk-tab__nr { background: var(--sb-ic-blu-bg); color: var(--sb-ic-blu); }
+.krk-kerko { width: 100%; box-sizing: border-box; height: 40px !important; padding: 0 12px; border-radius: 10px; font-size: 14px; }
+.krk-lista { max-height: 260px; overflow-y: auto; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--sb-line); background: var(--sb-surface); -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+.krk-rresht { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 8px 12px; border: 0; border-bottom: 1px solid var(--sb-line-2); background: transparent; color: var(--sb-ink); font: inherit; text-align: left; cursor: pointer; }
+.krk-rresht:last-child { border-bottom: 0; }
+.krk-rresht.zgjedhur { background: var(--sb-ic-blu-bg); }
+.krk-shenja { flex: none; width: 22px; height: 22px; border-radius: 7px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 1.5px var(--sb-control); color: transparent; background: var(--sb-surface); }
+.krk-rresht.zgjedhur .krk-shenja { background: var(--sb-accent); box-shadow: none; color: #fff; }
+.krk-tk { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.krk-tk b { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.krk-tk span { font-size: 12px; color: var(--sb-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.krk-bosh { padding: 20px 14px; text-align: center; font-size: 13.5px; color: var(--sb-muted); }
+.ek-nj-produktet { margin: 6px 0 0; padding-left: 18px; font-size: 13px; font-weight: 400; line-height: 1.5; color: var(--sb-ink-2); }
