@@ -1551,11 +1551,20 @@
       if (heqjet.length && o.zbatoHeqjet) { try { o.zbatoHeqjet(heqjet); } catch (er) { /* ok */ } }
       return lista;
     }
+    // Kush e kreu një kërkesë për heqje: unë (njoftimi im ka kryer) ose një koleg (ngjarja "kerkese-kryer" te aktiviteti)
+    function kryeresiIKerkeses(nj) {
+      if (!nj) return null;
+      if (nj.kryer) return { uneJam: true, emri: '' };
+      var ng = nj.kerkeseId && gj.ngjarjet.filter(function (x) { return x.lloji === 'kerkese-kryer' && x.kerkeseId === nj.kerkeseId; })[0];
+      return ng ? { uneJam: ng.uid === o.uidIm(), emri: ng.emri || 'Një koleg' } : null;
+    }
+    // Kërkesat për heqje që s'janë kryer ende mbeten "të palexuara" (shenja te zilja) derisa të shtypet "E hoqa"
+    function ePritur(n) { return n.lloji === 'kerkese-heqje' && !kryeresiIKerkeses(n); }
     async function shenoNjoftimetTeLexuara() {
       var e = E();
-      var ids = gj.njoftimetPalexuara.map(function (n) { return n.id; });
+      var ids = gj.njoftimetPalexuara.filter(function (n) { return !ePritur(n); }).map(function (n) { return n.id; });
       if (!e || !ids.length) return;
-      gj.njoftimetPalexuara = [];
+      gj.njoftimetPalexuara = gj.njoftimetPalexuara.filter(ePritur);
       thirr('njoftimet');
       await e.shenoTeLexuara(ids);
     }
@@ -1571,7 +1580,7 @@
       hapChatin: hapChatin, mbyllChatin: mbyllChatin, kaChatTePalexuar: kaChatTePalexuar, shenoChatinTeLexuar: shenoChatinTeLexuar,
       dergoMesazh: dergoMesazh, fshijMesazhin: fshijMesazhin,
       merrNjoftimet: merrNjoftimet, shenoNjoftimetTeLexuara: shenoNjoftimetTeLexuara,
-      numriNjoftimeve: function () { return gj.njoftimetPalexuara.length; },
+      numriNjoftimeve: function () { return gj.njoftimetPalexuara.filter(function (n) { return !(n.lloji === 'kerkese-heqje' && kryeresiIKerkeses(n)); }).length; },
       kaLidhje: function () { return !!E() && !!o.uidIm(); },
       // A janë marrë anëtarët dhe afatet e tyre (për "Krejt ekipa")
       eGatshme: function () { return gj.anetaret.length > 0 && (!!gj.permbledhjet || gj.ngarkuarSe > 0) && !gj.dukeNgarkuar; },
@@ -1582,7 +1591,7 @@
       numriKerkesave: function () { return gj.admin ? gj.nKerkesa : 0; },
       pranoAnetaret: pranoAnetaret, hiqNgaEkipa: hiqNgaEkipa, fshijLlogarine: fshijLlogarine,
       vendosLejen: vendosLejen, lajmeroEkipen: lajmeroEkipen,
-      koleget: koleget, kerkoHeqjen: kerkoHeqjen, kryejKerkesen: kryejKerkesen,
+      koleget: koleget, kerkoHeqjen: kerkoHeqjen, kryejKerkesen: kryejKerkesen, kryeresiIKerkeses: kryeresiIKerkeses,
       pastroChatin: function () { return pastro('ekipa_chat'); }, pastroAktivitetin: function () { return pastro('ekipa_feed'); },
       merrStokun: merrStokun, adminNdryshoAfatin: adminNdryshoAfatin
     };

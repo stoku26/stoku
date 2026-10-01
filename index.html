@@ -1029,7 +1029,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=12">
+<link rel="stylesheet" href="css/stoku.css?v=13">
 </head>
 <body>
 <script src="porta.js?v=145"></script>
@@ -1782,9 +1782,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=144"></script>
-<script src="ekipa.js?v=149"></script>
+<script src="ekipa.js?v=150"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=149"></script>
+<script src="teRejat.js?v=150"></script>
 <script>
 (function () {
   'use strict';
@@ -2378,7 +2378,6 @@
 
   // Kryefaqja (dizajni i ri): karta e errët me numrat, titulli "Folderat", katrori me ngjyrë te çdo folder
   // dhe "Ndryshuar së fundi". Brenda #folderaLista (rrjeta), që zvarritja e folderave të punojë si më parë.
-  var NGJYRAT_FOLDERAVE = ['#d9e4f7', '#d5eedc', '#f6e3c4', '#f6d9d6', '#e6dcf3', '#f3d8e0', '#dcebc9', '#f3dfcb'];
   function numerMeHapesire(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
   function vizatoKryefaqen(cont) {
     var te = Object.keys(produktet).map(function (k) { return produktet[k]; });
@@ -4867,6 +4866,7 @@
     var a = document.createElement('a');
     a.href = url;
     a.download = f.emri;
+    a.style.display = 'none'; // vetëm për shkarkim: s'duhet të shihet as të fokusohet
     document.body.appendChild(a);
     a.click();
     setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 4000);
@@ -6514,7 +6514,8 @@
   }
   function ekButoniKerkeses(n) {
     var w = ekEl('div', 'ek-nj-veprim');
-    if (n.kryer) { w.appendChild(ekEl('span', 'ek-nj-kryer', '✓ E hoqe nga rafti')); return w; }
+    var kr = ekK.kryeresiIKerkeses(n);
+    if (kr) { w.appendChild(ekEl('span', 'ek-nj-kryer', kr.uneJam ? '✓ E hoqe nga rafti' : '✓ E hoqi ' + kr.emri)); return w; }
     var bt = ekEl('button', 'btn ek-nj-btn', 'E hoqa nga rafti'); bt.type = 'button';
     bt.addEventListener('click', async function () {
       bt.disabled = true; bt.textContent = 'Duke ruajtur…';
