@@ -138,6 +138,108 @@
 .sb .kategori-rresht { border: 0; box-shadow: var(--sb-ring); background: var(--sb-surface); border-radius: 18px; }
 .sb .kat-ikona-badge { background: var(--sb-accent-tint); color: var(--sb-accent-text); }
 
+/* ---------- Cilësimet (v128): grupe si karta, ikona me ngjyrë, profili në krye ---------- */
+.sb #dlgOpsione .dialog.opsione { background: var(--sb-bg); }
+.sb .kategori-menu { padding: 6px 0 18px; gap: 0; }
+.sb .ops-grupi-titull { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--sb-faint); margin: 22px 4px 8px; }
+.sb .ops-grupi { background: var(--sb-surface); border-radius: 20px; box-shadow: var(--sb-ring); overflow: hidden; }
+.sb .ops-grupi > .kategori-rresht { border-radius: 0; box-shadow: none; background: transparent; padding: 13px 16px; position: relative; text-decoration: none; color: inherit; }
+.sb .ops-grupi > .kategori-rresht + .kategori-rresht::before { content: ''; position: absolute; left: 66px; right: 0; top: 0; border-top: 1px solid var(--sb-line-2); }
+.sb .ops-grupi > .kategori-rresht:active { background: var(--sb-surface-2); }
+.sb .kat-ikona-badge { width: 36px; height: 36px; border-radius: 11px; }
+.sb .kat-tekst { font-size: 15.5px; font-weight: 600; color: var(--sb-ink); }
+.sb .kat-status { font-size: 12.5px; color: var(--sb-muted); }
+.sb .kategori-rresht .shigjeta { color: var(--sb-faint-2); font-size: 20px; }
+
+.sb .ops-profil { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; border: 0; cursor: pointer; font: inherit; color: var(--sb-ink); background: var(--sb-surface); box-shadow: var(--sb-ring); border-radius: 22px; padding: 16px; margin-top: 4px; }
+.sb .ops-profil:active { background: var(--sb-surface-2); }
+.sb .ops-profil .shigjeta { color: var(--sb-faint-2); font-size: 20px; flex: none; }
+.sb .ops-profil__emri { font-size: 18px; font-weight: 700; letter-spacing: -.01em; color: var(--sb-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb .ops-av { flex: none; width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 21px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #3b7be0, #1f5fc4); box-shadow: 0 6px 14px -6px rgba(31,95,196,.7); }
+.sb .ops-av.bosh { background: var(--sb-sunken); color: var(--sb-faint); box-shadow: none; }
+.sb .ops-av--madh { width: 56px; height: 56px; font-size: 23px; }
+.sb .ops-fundi { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 26px 0 6px; color: var(--sb-muted); font-size: 13px; }
+.sb .ops-fundi img { border-radius: 8px; display: block; }
+.sb .ops-fundi b { color: var(--sb-ink-2); font-weight: 700; }
+
+/* Faqet brenda */
+.sb .opsione-faqet { padding: 2px 0 18px; }
+.sb .ops-intro { font-size: 14px; line-height: 1.45; color: var(--sb-ink-4); margin: 2px 4px 16px; }
+.sb .opsione-faqe .seksion { padding: 0; border-bottom: 0; }
+.sb .ops-karta, .sb .opsione-faqe > .seksion.ops-karta { background: var(--sb-surface); border-radius: 20px; box-shadow: var(--sb-ring); padding: 16px; margin-bottom: 12px; }
+.sb .opsion-titull { font-size: 15px; font-weight: 700; color: var(--sb-ink); margin: 0 0 12px; letter-spacing: -.005em; }
+.sb .ops-karta .hint { margin: 12px 0 0; font-size: 12.5px; line-height: 1.45; }
+
+/* Shembulli (pamja) */
+.sb .ops-shembull { margin: 0 0 12px; padding: 12px; border-radius: 22px; background: var(--sb-sunken); }
+.sb .ops-shembull .af-karta { display: flex; margin: 0; pointer-events: none; }
+
+/* Zgjedhjet me pamje (tema, madhësia) */
+.sb .ops-tema, .sb .ops-madhesia { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.sb .ops-madhesia { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sb .ops-zgjedhja__emri { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 360px) { .sb .ops-tema { gap: 7px; } .sb .ops-tema button { padding: 8px 4px 9px; font-size: 11.5px; letter-spacing: -.01em; } }
+.sb .ops-tema button, .sb .ops-madhesia button { display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 10px 8px 11px; border-radius: 16px; border: 0; background: var(--sb-surface-2); box-shadow: inset 0 0 0 1.5px transparent; color: var(--sb-ink-3); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: box-shadow .15s, background .15s; }
+.sb .ops-tema button.aktiv, .sb .ops-madhesia button.aktiv { background: var(--sb-accent-tint); box-shadow: inset 0 0 0 2px var(--sb-accent); color: var(--sb-accent-text); }
+.sb .ops-mock { position: relative; width: 100%; max-width: 84px; height: 66px; border-radius: 11px; overflow: hidden; display: flex; flex-direction: column; gap: 5px; padding: 8px 8px 0; box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
+.sb .ops-mock b { display: block; width: 46%; height: 6px; border-radius: 3px; margin-bottom: 2px; }
+.sb .ops-mock i { display: block; height: 16px; border-radius: 5px; }
+.sb .ops-mock--light { background: #f6f5f2; }
+.sb .ops-mock--light b { background: #14161b; } .sb .ops-mock--light i { background: #fff; box-shadow: 0 0 0 1px #e6e4df; }
+.sb .ops-mock--dark { background: #0f1115; box-shadow: 0 0 0 1px rgba(255,255,255,.1); }
+.sb .ops-mock--dark b { background: #eceef2; } .sb .ops-mock--dark i { background: #1f232a; }
+.sb .ops-mock--auto { background: linear-gradient(90deg, #f6f5f2 50%, #0f1115 50%); }
+.sb .ops-mock--auto b { background: linear-gradient(90deg, #14161b 0 50%, transparent 50%); width: 92%; }
+.sb .ops-mock--auto b { background: linear-gradient(90deg, #14161b 0 46%, transparent 46% 54%, #eceef2 54% 100%); }
+.sb .ops-mock--auto i { background: linear-gradient(90deg, #fff 50%, #1f232a 50%); }
+.sb .ops-mock i:nth-of-type(1) { position: relative; }
+.sb .ops-mock i:nth-of-type(1)::after { content: ''; position: absolute; left: 4px; top: 4px; width: 8px; height: 8px; border-radius: 3px; background: #f0b95a; }
+.sb .ops-aa { height: 52px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: var(--sb-ink); letter-spacing: -.02em; }
+.sb .ops-aa--madh { font-size: 30px; }
+
+/* Rreshtat me ikonë (Skenimi, Renditja) */
+.sb .ops-grupi > .seksion { padding: 14px 16px; position: relative; }
+.sb .ops-grupi > .seksion + .seksion::before { content: ''; position: absolute; left: 66px; right: 0; top: 0; border-top: 1px solid var(--sb-line-2); }
+.sb .ops-grupi label.opsion-rresht { display: flex; align-items: center; gap: 14px; padding: 0; font-size: 15px; font-weight: 600; color: var(--sb-ink); }
+.sb .ops-rresht__tekst { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; text-align: left; }
+.sb .ops-rresht__tekst .hint { font-size: 12.5px; font-weight: 400; line-height: 1.4; color: var(--sb-muted); margin: 0; }
+.sb .ops-grupi .kat-ikona-badge { flex: none; display: flex; align-items: center; justify-content: center; }
+.sb .ops-grupi label.opsion-rresht .kat-ikona-badge { align-self: flex-start; }
+.sb .ndez .pist { background: var(--sb-track); }
+.sb .ndez input:checked + .pist { background: var(--sb-ok-dot); }
+.sb .ops-radio button { display: flex; align-items: center; gap: 14px; width: 100%; padding: 13px 16px; border: 0; background: transparent; font: inherit; font-size: 15px; font-weight: 600; color: var(--sb-ink); cursor: pointer; position: relative; text-align: left; }
+.sb .ops-radio button + button::before { content: ''; position: absolute; left: 66px; right: 0; top: 0; border-top: 1px solid var(--sb-line-2); }
+.sb .ops-radio button:active { background: var(--sb-surface-2); }
+.sb .ops-radio__rreth { flex: none; width: 22px; height: 22px; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--sb-control); transition: box-shadow .15s; }
+.sb .ops-radio button.aktiv .ops-radio__rreth { box-shadow: inset 0 0 0 7px var(--sb-accent); }
+.sb .fsheh-plote { display: none !important; }
+
+/* Llogaria */
+.sb .ops-ll-krye { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.sb .ops-ll-titull { font-size: 18px; font-weight: 700; letter-spacing: -.01em; color: var(--sb-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb .ops-ik-madh { width: 48px; height: 48px; border-radius: 15px; flex: none; display: flex; align-items: center; justify-content: center; }
+.sb .ops-ll-status { display: flex; align-items: center; gap: 6px; white-space: normal; }
+.sb .ops-pika { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--sb-ok-dot); box-shadow: 0 0 0 3px var(--sb-ok-tint); }
+.sb #dlgOpsione .rreshti { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0; }
+.sb #dlgOpsione .rreshti .btn { width: 100%; margin: 0; }
+.sb #cloudHyrjeSeksion .fushe { margin: 10px 0 0; }
+.sb #cloudHyrjeSeksion .rreshti { margin-top: 14px; }
+.sb #cloudHyrjeSeksion > .hint#cloudHint { margin: 0 0 4px; }
+.sb .btn.ops-btn-dyte { background: var(--sb-surface-2); color: var(--sb-accent-text); box-shadow: none; min-height: 44px; font-size: 14.5px; }
+.sb .btn.ops-btn-dyte:active { background: var(--sb-sunken); }
+.sb #llogariaBrendaSeksion > .ops-grupi-titull { margin-top: 18px; }
+.sb .ops-fusha-titull { display: flex; align-items: center; gap: 10px; font-size: 14.5px; font-weight: 700; color: var(--sb-ink); margin-bottom: 10px; }
+.sb .ops-fusha-titull .kat-ikona-badge { width: 28px; height: 28px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+.sb .ops-inline { display: flex; gap: 8px; align-items: stretch; }
+.sb .ops-inline .fushe { flex: 1; min-width: 0; margin: 0; }
+.sb .ops-inline .fushe input { height: 46px; }
+.sb .ops-inline .btn { flex: none; min-height: 46px; padding: 0 16px; }
+.sb .ops-ndares { border-top: 1px solid var(--sb-line-2); margin: 16px -16px 14px; }
+.sb #cloudRiautSeksion { margin-top: 12px; }
+.sb #cloudRiautSeksion .fushe { margin: 8px 0; }
+.sb .ops-dil { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 50px; margin-top: 4px; border: 0; border-radius: 18px; background: var(--sb-surface); box-shadow: var(--sb-ring); color: var(--sb-exp); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+.sb .ops-dil:active { background: var(--sb-exp-tint); }
+
 /* ---------- Afatet ---------- */
 .sb .sb-actions { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; margin: 4px 0 14px; }
 .sb #dlgAfatet.zgjedhje .sb-actions { display: none; }
@@ -167,7 +269,11 @@
 .sb .sb-chip__count:empty { display: none; }
 
 .sb .af-karta { border: 0; border-radius: 18px; background: var(--sb-surface); box-shadow: var(--sb-ring); padding: 14px; gap: 14px; align-items: flex-start; margin-bottom: 10px; }
-.sb .af-karta.skaduar, .sb .af-karta.afer, .sb .af-karta.ok, .sb .af-karta.pa-date, .sb .af-karta.hequr { background: var(--sb-surface); opacity: 1; }
+/* Ngjyra të lehta sipas statusit (v128): e kuqe e lehtë = skaduar, e verdhë = afër, e gjelbër = në rregull */
+.sb .af-karta.skaduar, .sb .af-karta.pa-date { background: var(--sb-card-exp); box-shadow: 0 0 0 1px var(--sb-card-exp-line); opacity: 1; }
+.sb .af-karta.afer { background: var(--sb-card-near); box-shadow: 0 0 0 1px var(--sb-card-near-line); opacity: 1; }
+.sb .af-karta.ok { background: var(--sb-card-ok); box-shadow: 0 0 0 1px var(--sb-card-ok-line); opacity: 1; }
+.sb .af-karta.hequr { background: var(--sb-card-rem); box-shadow: 0 0 0 1px var(--sb-card-rem-line); opacity: 1; }
 .sb .af-karta:active { filter: none; background: var(--sb-surface-2); }
 .sb .af-karta.zgjedhur { box-shadow: 0 0 0 2px var(--sb-accent); }
 .sb .af-zgjedh { align-self: center; }

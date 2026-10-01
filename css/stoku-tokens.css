@@ -58,6 +58,19 @@
   --sb-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
   --sb-ring: 0 0 0 1px var(--sb-line);
   --sb-shadow-accent: 0 14px 30px -12px rgba(31,95,196,.8);
+  /* Ikonat me ngjyrë (Cilësimet): sfondi i lehtë + ngjyra e vijës */
+  --sb-ic-blu-bg: #e8f0fc; --sb-ic-blu: #1f5fc4;
+  --sb-ic-vjollce-bg: #efeafd; --sb-ic-vjollce: #6a4bd1;
+  --sb-ic-portokalli-bg: #fdf0e1; --sb-ic-portokalli: #b5600f;
+  --sb-ic-gjelber-bg: #e5f4ea; --sb-ic-gjelber: #2e7d4f;
+  --sb-ic-roze-bg: #fce8f0; --sb-ic-roze: #c0306b;
+  --sb-ic-gri-bg: #eceae6; --sb-ic-gri: #5b5e66;
+  --sb-ic-kuqe-bg: #fdecea; --sb-ic-kuqe: #c23a33;
+  /* Kartat e afateve: ngjyra shumë të lehta sipas statusit */
+  --sb-card-exp: #fff6f5; --sb-card-exp-line: #f5d8d4;
+  --sb-card-near: #fffaf0; --sb-card-near-line: #f1e0c0;
+  --sb-card-ok: #f5fbf7; --sb-card-ok-line: #d5ecdc;
+  --sb-card-rem: #f7f6f3; --sb-card-rem-line: #e6e4df;
 }
 :root[data-tema="dark"] {
   --sb-bg: #0f1115;
@@ -108,11 +121,24 @@
   --sb-rem-tint: #1f232a;
   --sb-badge: #d13c32;
   --sb-shadow-accent: 0 14px 30px -12px rgba(0,0,0,.7);
+  --sb-ic-blu-bg: #16223a; --sb-ic-blu: #7aaaf2;
+  --sb-ic-vjollce-bg: #241e3b; --sb-ic-vjollce: #b4a2f6;
+  --sb-ic-portokalli-bg: #33250f; --sb-ic-portokalli: #f0b95a;
+  --sb-ic-gjelber-bg: #13301f; --sb-ic-gjelber: #5cc98b;
+  --sb-ic-roze-bg: #351a27; --sb-ic-roze: #f08bb3;
+  --sb-ic-gri-bg: #23272e; --sb-ic-gri: #a9adb5;
+  --sb-ic-kuqe-bg: #35191a; --sb-ic-kuqe: #f07a6f;
+  --sb-card-exp: #1e1517; --sb-card-exp-line: #46262a;
+  --sb-card-near: #1e1a12; --sb-card-near-line: #45361b;
+  --sb-card-ok: #131b17; --sb-card-ok-line: #1f3a2a;
+  --sb-card-rem: #171a20; --sb-card-rem-line: #2a2e36;
 }
 
-/* "Ngjyra kryesore" (cilësim): blu = ngjyra e dizajnit; ngjyrat e tjera vijnë nga aplikacioni (--primar, --btn-tekst) */
-:root[data-aksent="jeshile"], :root[data-aksent="vjollce"], :root[data-aksent="portokalli"], :root[data-aksent="kuqe"] {
-  --sb-accent: var(--primar); --sb-accent-press: var(--primar); --sb-accent-text: var(--btn-tekst);
-  --sb-accent-tint: color-mix(in srgb, var(--primar) 10%, var(--sb-surface));
-  --sb-accent-line: color-mix(in srgb, var(--primar) 28%, var(--sb-surface));
-}
+/* Ikonat me ngjyrë (telefoni dhe kompjuteri) */
+.ngj-blu { background: var(--sb-ic-blu-bg) !important; color: var(--sb-ic-blu) !important; }
+.ngj-vjollce { background: var(--sb-ic-vjollce-bg) !important; color: var(--sb-ic-vjollce) !important; }
+.ngj-portokalli { background: var(--sb-ic-portokalli-bg) !important; color: var(--sb-ic-portokalli) !important; }
+.ngj-gjelber { background: var(--sb-ic-gjelber-bg) !important; color: var(--sb-ic-gjelber) !important; }
+.ngj-roze { background: var(--sb-ic-roze-bg) !important; color: var(--sb-ic-roze) !important; }
+.ngj-gri { background: var(--sb-ic-gri-bg) !important; color: var(--sb-ic-gri) !important; }
+.ngj-kuqe { background: var(--sb-ic-kuqe-bg) !important; color: var(--sb-ic-kuqe) !important; }

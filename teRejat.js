@@ -15,6 +15,18 @@
   'use strict';
 
   var LISTA = [
+    { v: 128, data: '2026-10-01', titulli: 'Cilësimet e reja dhe afatet me ngjyra', platforma: 'tel', pikat: [
+      'Cilësimet kanë pamje të re: llogaria në krye, grupe të qarta me ikona me ngjyra dhe shembull i drejtpërdrejtë te Pamja.',
+      'Te Afatet, kartat kanë sërish ngjyra të lehta: e kuqe për të skaduarat, e verdhë për ato afër skadimit, e gjelbër për ato në rregull.',
+      'Renditja e listës zgjidhet me një prekje. Te "Çka ka të re" mund t\'i shohësh ndryshimet e fundit kurdo.',
+      'U hoqën "Ngjyra kryesore" dhe "Motivi i sfondit".'
+    ] },
+    { v: 128, data: '2026-10-01', titulli: 'Cilësimet e reja dhe afatet me ngjyra', platforma: 'pc', pikat: [
+      'Cilësimet kanë pamje të re: menyja me ikona majtas, llogaria në krye dhe zgjedhje me pamje për temën, dendësinë dhe shkronjat.',
+      'Te Afatet, rreshtat kanë ngjyra të lehta: e kuqe për të skaduarat, e verdhë për ato afër skadimit, e gjelbër për ato në rregull.',
+      'Te Cilësimet ka "Çka ka të re", për t\'i parë ndryshimet e fundit kurdo.',
+      'U hoq "Ngjyra kryesore".'
+    ] },
     { v: 127, data: '2026-10-01', titulli: 'Logo e re', pikat: [
       'Stoku ka logo të re: një barkod i bardhë me një vijë të verdhë, në telefon, në kompjuter dhe te ikona e aplikacionit.'
     ] },
