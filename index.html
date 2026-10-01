@@ -1026,7 +1026,7 @@
 </style>
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=2">
-<link rel="stylesheet" href="css/stoku.css?v=4">
+<link rel="stylesheet" href="css/stoku.css?v=5">
 </head>
 <body>
 <script src="porta.js?v=119"></script>
@@ -1280,19 +1280,34 @@
             </div>
             <div class="hint" id="njProveHint"></div>
           </div>
-          <div class="ops-grupi-titull">Galaxy Watch (ose orë tjetër)</div>
+          <div class="ops-grupi-titull">Njoftimet në orë</div>
           <div class="seksion ops-karta ops-ora">
             <div class="ops-ll-krye">
               <span class="kat-ikona-badge ngj-blu ops-ik-madh"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle><path d="M12 10v2l1 1"></path><path d="m16.13 7.66-.81-4.05a2 2 0 0 0-2-1.61h-2.68a2 2 0 0 0-2 1.61l-.78 4.05"></path><path d="m7.88 16.36.8 4a2 2 0 0 0 2 1.61h2.72a2 2 0 0 0 2-1.61l.81-4.05"></path></svg></span>
               <div class="kat-info"><div class="ops-ll-titull">Njoftimet edhe në orë</div><div class="kat-status">Ora i shfaq vetë njoftimet e telefonit, kur Stoku lejohet.</div></div>
             </div>
-            <ol class="ops-hapat">
-              <li>Instalo Stoku në telefon: Chrome → menyja <b>⋮</b> → <b>Shto në ekranin kryesor</b> / <b>Instalo aplikacionin</b>.</li>
-              <li>Këtu lart shtyp <b>Aktivizo njoftimet</b> dhe lejoji.</li>
-              <li>Hap aplikacionin <b>Galaxy Wearable</b> → <b>Cilësimet e orës</b> → <b>Njoftimet</b> → <b>Njoftimet e aplikacioneve</b> → ndize <b>Stoku</b> (nëse s'del, shtyp "Të gjitha" dhe kërko "Stoku" ose "Chrome").</li>
-              <li>Shtyp <b>Dërgo njoftim provë</b>, fike ekranin e telefonit dhe prit pak: njoftimi del në orë.</li>
-            </ol>
-            <div class="hint">Ora i merr njoftimet kur telefoni është me ekran të fikur ose s'po e përdor. Kur ekrani i telefonit është i ndezur, Samsung i lë vetëm te telefoni (mund ta ndryshosh te Galaxy Wearable → Njoftimet, te opsioni për njoftimet gjatë përdorimit të telefonit).</div>
+            <div class="segment ops-ora-zgjedhja" id="segOra" role="tablist">
+              <button type="button" data-v="galaxy" role="tab">Galaxy Watch</button>
+              <button type="button" data-v="apple" role="tab">Apple Watch</button>
+            </div>
+            <div class="ops-ora-faqe" data-ora="galaxy">
+              <ol class="ops-hapat">
+                <li>Instalo Stoku në telefon: Chrome → menyja <b>⋮</b> → <b>Shto në ekranin kryesor</b> / <b>Instalo aplikacionin</b>.</li>
+                <li>Këtu lart shtyp <b>Aktivizo njoftimet</b> dhe lejoji.</li>
+                <li>Hap aplikacionin <b>Galaxy Wearable</b> → <b>Cilësimet e orës</b> → <b>Njoftimet</b> → <b>Njoftimet e aplikacioneve</b> → ndize <b>Stoku</b> (nëse s'del, shtyp "Të gjitha" dhe kërko "Stoku" ose "Chrome").</li>
+                <li>Shtyp <b>Dërgo njoftim provë</b>, fike ekranin e telefonit dhe prit pak: njoftimi del në orë.</li>
+              </ol>
+              <div class="hint">Ora i merr njoftimet kur telefoni është me ekran të fikur ose s'po e përdor. Kur ekrani i telefonit është i ndezur, Samsung i lë vetëm te telefoni (mund ta ndryshosh te Galaxy Wearable → Njoftimet, te opsioni për njoftimet gjatë përdorimit të telefonit).</div>
+            </div>
+            <div class="ops-ora-faqe" data-ora="apple">
+              <ol class="ops-hapat">
+                <li>Në iPhone hap <b>stoku.site</b> me <b>Safari</b> → butoni <b>Shpërndaj</b> (katrori me shigjetë) → <b>Shto në ekranin bazë</b> (Add to Home Screen). Duhet iOS 16.4 ose më i ri.</li>
+                <li>Hape Stoku <b>nga ikona</b> në ekranin bazë (jo nga Safari), hyr në llogari dhe këtu shtyp <b>Aktivizo njoftimet</b> → <b>Lejo</b>.</li>
+                <li>Në iPhone hap aplikacionin <b>Watch</b> → <b>Njoftimet</b> (Notifications) → poshtë te <b>Pasqyro sinjalizimet e iPhone nga</b> (Mirror iPhone Alerts From) → ndize <b>Stoku</b>.</li>
+                <li>Shtyp <b>Dërgo njoftim provë</b>, kyçe iPhone-in dhe prit pak: njoftimi del në orë.</li>
+              </ol>
+              <div class="hint">Apple Watch i merr njoftimet vetëm kur iPhone-i është i kyçur (ekrani i fikur) dhe ora është në dorë dhe e shkyçur. Nëse s'e sheh Stoku te lista e aplikacionit Watch, hape Stoku një herë nga ikona dhe lejo njoftimet, pastaj kontrollo prapë.</div>
+            </div>
           </div>
         </div>
 
@@ -1714,9 +1729,9 @@
 <script src="bashkimi.js?v=113"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=122"></script>
-<script src="ekipa.js?v=7"></script>
+<script src="ekipa.js?v=8"></script>
 <script src="njoftimet.js?v=120"></script>
-<script src="teRejat.js?v=130"></script>
+<script src="teRejat.js?v=131"></script>
 <script>
 (function () {
   'use strict';
@@ -2896,7 +2911,7 @@
     lokale: ['ngj-portokalli', 'Aktive kur Stoku është hapur', 'Njoftimet e chat-it vijnë kur Stoku është i hapur ose në sfond. Që të vijnë edhe kur mbyllet, duhet hyrë në llogari dhe shërbimi i njoftimeve duhet të jetë gati.', 'Kur Stoku është hapur'],
     fikur: ['ngj-gri', 'Të fikura', 'Shtyp "Aktivizo njoftimet" dhe lejoji kur të pyet telefoni.', 'Të fikura'],
     bllokuar: ['ngj-kuqe', 'Të bllokuara', 'I ke refuzuar njoftimet. Lejoji te: Cilësimet e telefonit → Aplikacionet → Stoku (ose Chrome) → Njoftimet → Lejo.', 'Të bllokuara'],
-    pa: ['ngj-gri', 'S\'mbështeten këtu', 'Ky shfletues s\'i jep njoftimet. Në iPhone: instaloje Stoku (Shpërndaj → Shto në ekranin bazë) dhe hape nga ikona.', 'S\'mbështeten']
+    pa: ['ngj-gri', 'S\'mbështeten këtu', 'Ky shfletues s\'i jep njoftimet. Në iPhone: hap stoku.site me Safari → Shpërndaj → Shto në ekranin bazë, pastaj hape Stoku nga ikona (iOS 16.4 ose më i ri).', 'S\'mbështeten']
   };
   function rifreskoNjoftimet() {
     if (!$('njGjendjaTitulli') || !NJ_GJENDJET) return; // (thirret edhe gjatë nisjes, para se lista të përcaktohet)
@@ -2909,6 +2924,19 @@
     $('njBtnAktivizo').textContent = g === 'lokale' ? 'Provo sërish lidhjen' : 'Aktivizo njoftimet';
     $('njBtnProve').style.display = (g === 'push' || g === 'lokale') ? '' : 'none';
   }
+  // Udhëzimi për orën: Galaxy Watch (Android) ose Apple Watch (iPhone) — hapet vetë sipas telefonit
+  function zgjidhOren(v) {
+    Array.prototype.forEach.call(document.querySelectorAll('#segOra button'), function (b) {
+      var po = b.getAttribute('data-v') === v;
+      b.classList.toggle('aktiv', po); b.setAttribute('aria-selected', po ? 'true' : 'false');
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.ops-ora-faqe'), function (f) { f.hidden = f.getAttribute('data-ora') !== v; });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#segOra button'), function (b) {
+    b.addEventListener('click', function () { zgjidhOren(b.getAttribute('data-v')); });
+  });
+  zgjidhOren(/iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1) ? 'apple' : 'galaxy');
+
   $('njBtnAktivizo').addEventListener('click', function () {
     if (!('Notification' in window)) return;
     Promise.resolve(Notification.permission === 'granted' ? 'granted' : Notification.requestPermission()).then(function (p) {

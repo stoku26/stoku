@@ -175,9 +175,10 @@ async function pergatitVapid(env) {
 async function jwtVapid(vapid, aud) {
   const tani = Math.floor(Date.now() / 1000);
   const ruajtur = vapid.jwt[aud];
-  if (ruajtur && ruajtur.skadon - tani > 3600) return ruajtur.t;
+  if (ruajtur && ruajtur.skadon - tani > 600) return ruajtur.t;
   const krye = b64uKodo(tekst(JSON.stringify({ typ: 'JWT', alg: 'ES256' })));
-  const skadon = tani + 12 * 3600;
+  // 1 orë: Apple (web.push.apple.com) i refuzon tokenat me afat të gjatë; Google/Mozilla e pranojnë po ashtu
+  const skadon = tani + 3600;
   const trup = b64uKodo(tekst(JSON.stringify({ aud, exp: skadon, sub: vapid.subjekti })));
   const nenshkrimi = await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, vapid.celesi, tekst(krye + '.' + trup));
   const t = krye + '.' + trup + '.' + b64uKodo(nenshkrimi);

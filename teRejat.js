@@ -15,6 +15,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 131, data: '2026-10-01', titulli: 'Njoftimet edhe në Apple Watch', platforma: 'tel', pikat: [
+      'Njoftimet e chat-it vijnë edhe në iPhone (Stoku i shtuar në ekranin bazë) dhe në Apple Watch.',
+      'Te Cilësimet → Njoftimet, te "Njoftimet në orë" zgjidh Galaxy Watch ose Apple Watch për udhëzimin hap pas hapi.'
+    ] },
     { v: 130, data: '2026-10-01', titulli: 'Njoftimet e chat-it edhe me Stoku të mbyllur', platforma: 'tel', pikat: [
       'Kur dikush shkruan te chat-i i ekipës, të vjen njoftim edhe kur Stoku është krejt i mbyllur.',
       'Njoftimet dalin edhe në orë (p.sh. Galaxy Watch). Te Cilësimet → Njoftimet ke udhëzimin hap pas hapi dhe butonin "Dërgo njoftim provë".',

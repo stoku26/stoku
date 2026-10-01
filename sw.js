@@ -10,7 +10,7 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v130';
+var CACHE = 'stoku-v131';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
 importScripts('./afatet.js?v=122', './njoftimet.js?v=120');
@@ -28,13 +28,13 @@ var SHELL = FAQET.concat([
   './bashkimi.js?v=113',
   './ruajtja.js?v=110',
   './afatet.js?v=122',
-  './ekipa.js?v=7',
+  './ekipa.js?v=8',
   './porta.js?v=119',
   './njoftimet.js?v=120',
-  './teRejat.js?v=130',
+  './teRejat.js?v=131',
   './manifest.webmanifest?v=85',
   './css/stoku-tokens.css?v=2',
-  './css/stoku.css?v=4',
+  './css/stoku.css?v=5',
   './css/stoku-pc.css?v=3',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',
@@ -176,7 +176,10 @@ self.addEventListener('push', function (e) {
   try { d = e.data ? e.data.json() : {}; } catch (x) { d = { teksti: e.data ? e.data.text() : '' }; }
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (dritaret) {
     var perpara = dritaret.some(function (c) { return c.visibilityState === 'visible' && c.focused; });
-    if (perpara && d.lloji === 'chat') {
+    // iPhone/iPad/Safari: çdo push DUHET të tregojë njoftim, përndryshe Apple e anulon regjistrimin pas disa herësh
+    var ua = (self.navigator && self.navigator.userAgent) || '';
+    var apple = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && !/Chrome|Chromium|Edg|Firefox/.test(ua));
+    if (perpara && d.lloji === 'chat' && !apple) {
       dritaret.forEach(function (c) { c.postMessage({ lloji: 'push-chat' }); });
       return;
     }
