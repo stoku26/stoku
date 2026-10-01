@@ -10,10 +10,10 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v148';
+var CACHE = 'stoku-v149';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
-importScripts('./afatet.js?v=144', './njoftimet.js?v=120');
+importScripts('./afatet.js?v=144', './njoftimet.js?v=149');
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.2/dist/iife/ponyfill.js',
@@ -28,13 +28,13 @@ var SHELL = FAQET.concat([
   './bashkimi.js?v=144',
   './ruajtja.js?v=110',
   './afatet.js?v=144',
-  './ekipa.js?v=148',
+  './ekipa.js?v=149',
   './porta.js?v=145',
-  './njoftimet.js?v=120',
-  './teRejat.js?v=148',
+  './njoftimet.js?v=149',
+  './teRejat.js?v=149',
   './manifest.webmanifest?v=85',
   './css/stoku-tokens.css?v=5',
-  './css/stoku.css?v=11',
+  './css/stoku.css?v=12',
   './css/stoku-pc.css?v=11',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',
@@ -167,7 +167,7 @@ self.addEventListener('periodicsync', function (e) {
   if (e.tag === 'stoku-afatet') e.waitUntil(self.StokuNjoftimet.kontrollo(self.registration));
 });
 
-// ---------- Njoftimet push të chat-it (worker/stoku-push.js) ----------
+// ---------- Njoftimet push (worker/stoku-push.js): chat-i, kërkesat, njoftimi ditor për afatet ----------
 // Vijnë edhe kur Stoku është krejt i mbyllur. Nëse aplikacioni është përpara (i dukshëm dhe aktiv), s'del njoftim
 // sistemi: chat-i shihet në aplikacion. Njoftimet e sistemit kalojnë vetë edhe te ora (p.sh. Galaxy Watch), nëse
 // Stoku lejohet te aplikacioni i orës.
@@ -193,7 +193,7 @@ self.addEventListener('push', function (e) {
       timestamp: d.koha || Date.now(),
       lang: 'sq',
       data: { url: d.url || './index.html#ekipa-chat' },
-      actions: [{ action: 'hap', title: d.lloji === 'kerkese' ? 'Hap njoftimet' : 'Hap chat-in' }]
+      actions: [{ action: 'hap', title: d.lloji === 'kerkese' ? 'Hap njoftimet' : d.lloji === 'afatet' ? 'Hap afatet' : 'Hap chat-in' }]
     });
   }));
 });

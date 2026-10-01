@@ -84,10 +84,14 @@
   }
 
   // Shfaq njoftimet e reja; reg = ServiceWorkerRegistration. Kthen numrin e njoftimeve të dhëna.
+  // Kur përdoruesi ka zgjedhur një orë për njoftimin ditor (v149), njoftimet e menjëhershme për afatet s'dalin:
+  // përmbledhja vjen nga serveri në atë orë.
+  function vendosOrarin(aktiv) { return vendos('orari', !!aktiv).catch(function () { return false; }); }
   function kontrollo(reg) {
     if (!reg || !reg.showNotification) return Promise.resolve(0);
     if (typeof Notification !== 'undefined' && Notification.permission !== 'granted') return Promise.resolve(0);
-    return Promise.all([merr('afatet'), merr('njoftuar')]).then(function (v) {
+    return Promise.all([merr('afatet'), merr('njoftuar'), merr('orari')]).then(function (v) {
+      if (v[2]) return 0;
       var afatet = v[0] || [];
       var njoftuar = v[1] || {};
       var reja = teReja(afatet, njoftuar, Date.now());
@@ -116,5 +120,5 @@
     }).catch(function () { return 0; });
   }
 
-  root.StokuNjoftimet = { ruajAfatet: ruajAfatet, kontrollo: kontrollo, teReja: teReja, URL_AFATET: URL_AFATET };
+  root.StokuNjoftimet = { ruajAfatet: ruajAfatet, kontrollo: kontrollo, teReja: teReja, vendosOrarin: vendosOrarin, URL_AFATET: URL_AFATET };
 })(typeof self !== 'undefined' ? self : this);

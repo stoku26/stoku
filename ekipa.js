@@ -298,12 +298,64 @@
           await fs.setDoc(fs.doc(db, 'ekipa_push', id), { uid: uid(), emri: emri(), endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, platforma: platforma, koha: Date.now() });
           shkruajLS(KEY_PUSH, { uid: uid(), id: id, endpoint: j.endpoint, koha: Date.now() });
         }
+        // Orari ditor i kësaj pajisjeje ishte për një regjistrim tjetër (p.sh. çelës i ri): rinovohet me të riun
+        var o = orariIm();
+        if (o && o.aktiv && o.endpoint !== j.endpoint) vendosOrarin({ aktiv: true, ora: o.ora }).catch(function () { /* ok */ });
         var serveri = await kontrolloServerin();
         return { ok: true, serveri: serveri };
       } catch (e) { return gabim(e); }
     }
+    // ---------- Njoftimi ditor për afatet (Worker-i e dërgon në orën e zgjedhur, me Cron) ----------
+    var KEY_ORARI = 'stoku:orari', KEY_ORARI_AFATET = 'stoku:orari:afatet';
+    function orariIm() { var o = lexoLS(KEY_ORARI); return o && o.uid === uid() ? o : null; }
+    async function thirrOrarin(trup) {
+      var token = await auth.currentUser.getIdToken();
+      var r = await fetch(PUSH_URL + '/orari', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(trup) });
+      var j = {}; try { j = await r.json(); } catch (e) { /* ok */ }
+      if (!r.ok && !j.arsye) j.arsye = 'http-' + r.status;
+      return j;
+    }
+    function zonaKohore() { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Belgrade'; } catch (e) { return 'Europe/Belgrade'; } }
+    async function vendosOrarin(o) {
+      if (!uid() || typeof fetch !== 'function') return { ok: false, arsye: 'pa-hyrje' };
+      try {
+        var sub = null;
+        if (pushMbeshtetet()) { var reg = await navigator.serviceWorker.ready; sub = await reg.pushManager.getSubscription(); }
+        if (o.aktiv && !sub) {
+          var a = await aktivizoPush(true);
+          if (!a || !a.ok) return { ok: false, arsye: (a && a.arsye) || 'pa-push' };
+          sub = await (await navigator.serviceWorker.ready).pushManager.getSubscription();
+        }
+        var ishte = orariIm();
+        if (!sub) { shkruajLS(KEY_ORARI, null); return { ok: !o.aktiv, arsye: 'pa-push' }; }
+        var j = sub.toJSON();
+        var r = await thirrOrarin({ aktiv: !!o.aktiv, ora: o.ora, tz: zonaKohore(), platforma: platforma, pajisja: { endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth } });
+        if (!r || !r.ok) return { ok: false, arsye: (r && r.arsye) || 'gabim' };
+        shkruajLS(KEY_ORARI, o.aktiv ? { uid: uid(), aktiv: true, ora: o.ora, endpoint: j.endpoint, koha: Date.now() } : null);
+        if (o.aktiv && !(ishte && ishte.aktiv)) shkruajLS(KEY_ORARI_AFATET, null); // afatet dërgohen sërish menjëherë
+        return { ok: true };
+      } catch (e) { return { ok: false, arsye: 'rrjeti' }; }
+    }
+    // Kopja e afateve te Worker-i (vetëm kur kjo pajisje ka orar dhe kur lista ndryshon, ose një herë në ditë)
+    async function dergoAfatetPerOrarin(afatet) {
+      var o = orariIm();
+      if (!o || !o.aktiv || !uid()) return { ok: false, arsye: 'pa-orar' };
+      var l = (afatet || []).filter(function (a) { return a && a.statusi !== 'hequr' && /^\d{4}-\d{2}-\d{2}$/.test(a.data || ''); })
+        .map(function (a) { return { e: String(a.emri || '').slice(0, 120), b: String(a.barkodi || '').slice(0, 40), d: a.data }; });
+      var h = hashTekst(JSON.stringify(l)), ruajtur = lexoLS(KEY_ORARI_AFATET);
+      if (ruajtur && ruajtur.uid === uid() && ruajtur.h === h && Date.now() - ruajtur.koha < 86400000) return { ok: true, pandryshuar: true };
+      try {
+        var r = await thirrOrarin({ afatet: l });
+        if (r && r.ok) shkruajLS(KEY_ORARI_AFATET, { uid: uid(), h: h, koha: Date.now() });
+        return r;
+      } catch (e) { return { ok: false, arsye: 'rrjeti' }; }
+    }
+
     // Në dalje nga llogaria: kjo pajisje s'merr më njoftimet e kësaj llogarie
     async function caktivizoPush() {
+      var o = orariIm();
+      if (o && o.aktiv) { try { await vendosOrarin({ aktiv: false }); } catch (e) { /* ok */ } }
+      shkruajLS(KEY_ORARI, null); shkruajLS(KEY_ORARI_AFATET, null);
       var ruajtur = lexoLS(KEY_PUSH);
       shkruajLS(KEY_PUSH, null);
       if (ruajtur && ruajtur.id && uid() === ruajtur.uid) { try { await fs.deleteDoc(fs.doc(db, 'ekipa_push', ruajtur.id)); } catch (e) { /* ok */ } }
@@ -554,7 +606,7 @@
       aktivizoPush: aktivizoPush,
       caktivizoPush: caktivizoPush,
       pushAktiv: pushAktiv,
-      provoPush: function (o) { return thirrPush('/prove', { vonesa: (o && o.vonesa) || 0 }).catch(function (e) { return { ok: false, arsye: String(e && e.message || e) }; }); },
+      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin,
 
       // ---------- Chat ----------
       dergoMesazh: function (tekst) {

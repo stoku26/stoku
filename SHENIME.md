@@ -50,6 +50,25 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **NJOFTIMI DITOR NË ORËN E ZGJEDHUR + PA PROVË (v149 = 1.4.0)**:
+   - Hoqa "Dërgo njoftim provë" (butoni, `provoPush`, rruga `/prove` te Worker-i); hapat e orës s'e përmendin më.
+   - Telefoni, Cilësimet → Njoftimet: "Përmbledhje çdo ditë" (`#njDitor`) + "Ora e njoftimit" (`#njOra`, çdo 15 min, 96
+     opsione; parazgjedhur 08:00, ora e zgjedhur mbahet te `stoku:orari:ora-zgjedhur`). Kërkon leje njoftimesh + hyrje.
+   - `ekipa.js` cloud: `vendosOrarin({aktiv, ora})` → POST `/orari` {aktiv, ora, tz (Intl), platforma, pajisja (abonimi
+     push)}; `orariIm()` (LS `stoku:orari`, për uid-in aktual); `dergoAfatetPerOrarin(afatet)` → POST `/orari` {afatet:
+     [{e,b,d}]} (pa të hequrat; vetëm kur ndryshon hash-i ose 1 herë/ditë; thirret te `kontrolloNjoftimet`). `caktivizoPush`
+     (dalja) e fik orarin e pajisjes. `aktivizoPush` e rinovon orarin kur ndryshon endpoint-i.
+   - `njoftimet.js vendosOrarin(aktiv)` (IndexedDB 'orari'): me orar aktiv `kontrollo()` s'nxjerr njoftimet e menjëhershme
+     për afatet (as nga periodicsync), që të mos dalin në orë të rastit.
+   - Worker: POST `/orari` (token i VERIFIKUAR RS256) → KV (i njëjti binding `FOTO`): `orari:{uid}:{hash endpoint}`
+     {uid, ora, tz, platforma, pajisja}, `orari-indeksi` {celes: {ora, tz, dita}}, `orari-afatet:{uid}`. `scheduled()`
+     (Cron Trigger "0,15,30,45 * * * *", e shton PËRDORUESI te Cloudflare): për çdo orar, kur ora lokale (tz) është
+     brenda [ora, ora+60 min) dhe s'është dërguar sot → `njoftimiDitor(afatet, sot)`: "Kos ka skaduar. Hiqe nga rafti." /
+     "3 produkte kanë skaduar: A, B, C. 2 skadojnë këtë javë." (asgjë kur s'ka); 404/410 → orari fshihet. URL: afatet.
+   - Testet: `orari-test.js` (UI + thirrjet), `wp/orari-prova.mjs` (Worker-i: tekstet, zona kohore, cron, 410).
+   - Kufizim: kopja e afateve te serveri rifreskohet nga telefoni me orar (kur hapet/ndryshon); ndryshimet e bëra vetëm në
+     PC arrijnë kur telefoni hapet herën tjetër.
+
 0000000. **KËRKO HEQJE: ZGJEDHJE NGA LISTA (v148 = 1.3.1)**: pa fushë teksti; `ekipa.js zgjedhesIKerkeses(rrenja, burimet,
    kurNdryshon)` (tabet "Të skaduarat" = afatet e mia me statusi 'skaduar', "Produktet e mia" = stoku; kërkim + shenja,
    maks 30). Kërkesa ka `produktet: [{ produkti, barkodi, data }]` (produkti/barkodi = i pari, për të vjetrat);

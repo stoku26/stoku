@@ -1029,7 +1029,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=11">
+<link rel="stylesheet" href="css/stoku.css?v=12">
 </head>
 <body>
 <script src="porta.js?v=145"></script>
@@ -1285,9 +1285,25 @@
             </div>
             <div class="rreshti ops-nj-veprime">
               <button class="btn" id="njBtnAktivizo" type="button">Aktivizo njoftimet</button>
-              <button class="btn ops-btn-dyte" id="njBtnProve" type="button">Dërgo njoftim provë</button>
             </div>
             <div class="hint" id="njProveHint"></div>
+          </div>
+          <div class="ops-grupi-titull">Njoftimi ditor për afatet</div>
+          <div class="ops-grupi">
+            <div class="seksion">
+              <label class="opsion-rresht" for="njDitor">
+                <span class="kat-ikona-badge ngj-portokalli"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4M16 2v4"></path><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M3 10h18"></path><path d="m9 16 2 2 4-4"></path></svg></span>
+                <span class="ops-rresht__tekst"><span>Përmbledhje çdo ditë</span><span class="hint">Në orën që zgjedh të vjen një njoftim me produktet e skaduara dhe ato që skadojnë këtë javë, edhe kur Stoku është i mbyllur.</span></span>
+                <span class="ndez"><input type="checkbox" id="njDitor"><span class="pist"></span></span>
+              </label>
+            </div>
+            <div class="seksion">
+              <label class="opsion-rresht" for="njOra">
+                <span class="kat-ikona-badge ngj-blu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path><path d="M5 3 2 6M22 6l-3-3"></path></svg></span>
+                <span class="ops-rresht__tekst"><span>Ora e njoftimit</span><span class="hint" id="njOraHint"></span></span>
+                <select id="njOra" class="nj-ora" aria-label="Ora e njoftimit ditor"></select>
+              </label>
+            </div>
           </div>
           <div class="ops-grupi-titull">Njoftimet në orë</div>
           <div class="seksion ops-karta ops-ora">
@@ -1304,7 +1320,7 @@
                 <li>Instalo Stoku në telefon: Chrome → menyja <b>⋮</b> → <b>Shto në ekranin kryesor</b> / <b>Instalo aplikacionin</b>.</li>
                 <li>Këtu lart shtyp <b>Aktivizo njoftimet</b> dhe lejoji.</li>
                 <li>Hap aplikacionin <b>Galaxy Wearable</b> → <b>Cilësimet e orës</b> → <b>Njoftimet</b> → <b>Njoftimet e aplikacioneve</b> → ndize <b>Stoku</b> (nëse s'del, shtyp "Të gjitha" dhe kërko "Stoku" ose "Chrome").</li>
-                <li>Shtyp <b>Dërgo njoftim provë</b>, fike ekranin e telefonit dhe prit pak: njoftimi del në orë.</li>
+                <li>Fike ekranin e telefonit: njoftimet e Stoku-t (chat-i, afatet, kërkesat) dalin edhe në orë.</li>
               </ol>
               <div class="hint">Ora i merr njoftimet kur telefoni është me ekran të fikur ose s'po e përdor. Kur ekrani i telefonit është i ndezur, Samsung i lë vetëm te telefoni (mund ta ndryshosh te Galaxy Wearable → Njoftimet, te opsioni për njoftimet gjatë përdorimit të telefonit).</div>
             </div>
@@ -1313,7 +1329,7 @@
                 <li>Në iPhone hap <b>stoku.site</b> me <b>Safari</b> → butoni <b>Shpërndaj</b> (katrori me shigjetë) → <b>Shto në ekranin bazë</b> (Add to Home Screen). Duhet iOS 16.4 ose më i ri.</li>
                 <li>Hape Stoku <b>nga ikona</b> në ekranin bazë (jo nga Safari), hyr në llogari dhe këtu shtyp <b>Aktivizo njoftimet</b> → <b>Lejo</b>.</li>
                 <li>Në iPhone hap aplikacionin <b>Watch</b> → <b>Njoftimet</b> (Notifications) → poshtë te <b>Pasqyro sinjalizimet e iPhone nga</b> (Mirror iPhone Alerts From) → ndize <b>Stoku</b>.</li>
-                <li>Shtyp <b>Dërgo njoftim provë</b>, kyçe iPhone-in dhe prit pak: njoftimi del në orë.</li>
+                <li>Kyçe iPhone-in: njoftimet e Stoku-t (chat-i, afatet, kërkesat) dalin edhe në orë.</li>
               </ol>
               <div class="hint">Apple Watch i merr njoftimet vetëm kur iPhone-i është i kyçur (ekrani i fikur) dhe ora është në dorë dhe e shkyçur. Nëse s'e sheh Stoku te lista e aplikacionit Watch, hape Stoku një herë nga ikona dhe lejo njoftimet, pastaj kontrollo prapë.</div>
             </div>
@@ -1766,9 +1782,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=144"></script>
-<script src="ekipa.js?v=148"></script>
-<script src="njoftimet.js?v=120"></script>
-<script src="teRejat.js?v=148"></script>
+<script src="ekipa.js?v=149"></script>
+<script src="njoftimet.js?v=149"></script>
+<script src="teRejat.js?v=149"></script>
 <script>
 (function () {
   'use strict';
@@ -3104,8 +3120,58 @@
     $('tabNjoftimetStatus').textContent = x[3];
     $('njBtnAktivizo').style.display = (g === 'fikur' || g === 'lokale') ? '' : 'none';
     $('njBtnAktivizo').textContent = g === 'lokale' ? 'Provo sërish lidhjen' : 'Aktivizo njoftimet';
-    $('njBtnProve').style.display = (g === 'push' || g === 'lokale') ? '' : 'none';
+    rifreskoOrarin();
   }
+  // ---- Njoftimi ditor për afatet: ora që zgjedh secili përdorues (Worker-i e dërgon me Cron) ----
+  var KEY_NJ_ORA = 'stoku:orari:ora-zgjedhur';
+  (function () {
+    var sel = $('njOra');
+    for (var h = 0; h < 24; h++) [0, 15, 30, 45].forEach(function (m) {
+      var v = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+      var o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o);
+    });
+  })();
+  var __orariDukePunuar = false;
+  function oraEZgjedhur() { var e = ekipaCloud(), o = e && e.orariIm ? e.orariIm() : null; var v = (o && o.ora) || localStorage.getItem(KEY_NJ_ORA); return /^\d\d:\d\d$/.test(v || '') ? v : '08:00'; }
+  function rifreskoOrarin() {
+    if (!$('njDitor') || __orariDukePunuar) return;
+    var e = ekipaCloud(), o = e && e.orariIm ? e.orariIm() : null, g = gjendjaENjoftimeve();
+    var aktiv = !!(o && o.aktiv);
+    $('njDitor').checked = aktiv;
+    $('njOra').value = oraEZgjedhur();
+    $('njOraHint').textContent = !perdoruesiAktual() ? 'Hyr në llogari që ta përdorësh.' :
+      (g === 'pa' ? 'Ky shfletues s\'i mbështet njoftimet.' : g === 'bllokuar' ? 'Njoftimet janë të bllokuara te cilësimet e telefonit.' :
+        g === 'fikur' ? 'Shtyp më lart "Aktivizo njoftimet".' : aktiv ? 'Çdo ditë në ' + o.ora + '.' : 'Zgjidh orën dhe ndiz "Përmbledhje çdo ditë".');
+    $('tabNjoftimetStatus').textContent = aktiv && g !== 'fikur' && g !== 'bllokuar' ? NJ_GJENDJET[g][3] + ' · ditore ' + o.ora : NJ_GJENDJET[g][3];
+  }
+  function tekstiGabimitOrarit(a) {
+    return a === 'mungon-kv' || a === 'http-404' ? 'Shërbimi i njoftimit ditor s\'është gati ende në server.' :
+      a === 'pa-leje' || a === 'pa-push' || a === 'pa-mbeshtetje' ? 'Lejo njoftimet më lart, pastaj provo sërish.' :
+      a === 'pa-hyrje' ? 'Hyr në llogari që ta përdorësh.' : 'S\'u ruajt. Kontrollo internetin dhe provo sërish.';
+  }
+  async function ruajOrarin(aktiv) {
+    var e = ekipaCloud(), ora = $('njOra').value;
+    try { localStorage.setItem(KEY_NJ_ORA, ora); } catch (x) { /* ok */ }
+    if (!e || !e.vendosOrarin || !perdoruesiAktual()) { toast('Hyr në llogari që ta përdorësh.'); rifreskoOrarin(); return; }
+    if (aktiv && Notification.permission !== 'granted') { toast('Lejo njoftimet më lart, pastaj provo sërish.'); rifreskoOrarin(); return; }
+    __orariDukePunuar = true;
+    $('njDitor').disabled = $('njOra').disabled = true;
+    $('njOraHint').textContent = 'Duke ruajtur…';
+    var r = await e.vendosOrarin({ aktiv: aktiv, ora: ora });
+    __orariDukePunuar = false;
+    $('njDitor').disabled = $('njOra').disabled = false;
+    if (r && r.ok) {
+      window.StokuNjoftimet.vendosOrarin(aktiv);
+      if (aktiv) { e.dergoAfatetPerOrarin(afatet); toast('Njoftimi ditor: çdo ditë në ' + ora + '.'); }
+      else toast('Njoftimi ditor u fik.');
+    } else toast(tekstiGabimitOrarit(r && r.arsye), 4500);
+    rifreskoOrarin();
+  }
+  $('njDitor').addEventListener('change', function () { ruajOrarin(this.checked); });
+  $('njOra').addEventListener('change', function () {
+    try { localStorage.setItem(KEY_NJ_ORA, this.value); } catch (x) { /* ok */ }
+    if ($('njDitor').checked) ruajOrarin(true); else rifreskoOrarin();
+  });
   // Udhëzimi për orën: Galaxy Watch (Android) ose Apple Watch (iPhone) — hapet vetë sipas telefonit
   function zgjidhOren(v) {
     Array.prototype.forEach.call(document.querySelectorAll('#segOra button'), function (b) {
@@ -3127,7 +3193,7 @@
         kontrolloNjoftimet();
         $('njProveHint').textContent = 'Duke u lidhur…';
         aktivizoPushin(true).then(function (r) {
-          $('njProveHint').textContent = gjendjaENjoftimeve() === 'push' ? 'Gati. Tani mund të dërgosh një njoftim provë.' :
+          $('njProveHint').textContent = gjendjaENjoftimeve() === 'push' ? 'Gati. Njoftimet vijnë edhe kur Stoku është i mbyllur.' :
             (!perdoruesiAktual() ? 'Hyr në llogari që të vijnë njoftimet e chat-it edhe kur Stoku është i mbyllur.' :
               'Shërbimi i njoftimeve s\'u gjet ende. Njoftimet vijnë kur Stoku është hapur.');
         });
@@ -3135,28 +3201,6 @@
       rifreskoNjoftimet();
     }).catch(function () { /* ok */ });
   });
-  $('njBtnProve').addEventListener('click', function () {
-    var e = ekipaCloud();
-    $('njBtnProve').disabled = true;
-    setTimeout(function () { $('njBtnProve').disabled = false; }, 12000);
-    if (gjendjaENjoftimeve() === 'push' && e && e.provoPush) {
-      $('njProveHint').textContent = 'Duke dërguar…';
-      e.provoPush({ vonesa: 8 }).then(function (r) {
-        $('njProveHint').textContent = r && r.ok && r.pajisje ? 'Njoftimi vjen pas rreth 8 sekondash. Fike ekranin e telefonit tani dhe shiko orën.' :
-          'Njoftimi s\'u dërgua (' + ((r && r.arsye) || 'pa lidhje') + '). Kontrollo internetin dhe provo sërish.';
-      });
-      return;
-    }
-    // Pa push: njoftim lokal pas 8 sekondash (sa Stoku është ende i hapur ose në sfond)
-    $('njProveHint').textContent = 'Njoftimi vjen pas rreth 8 sekondash. Fike ekranin e telefonit tani dhe shiko orën.';
-    setTimeout(function () {
-      if (!('serviceWorker' in navigator) || Notification.permission !== 'granted') return;
-      navigator.serviceWorker.ready.then(function (reg) {
-        return reg.showNotification('Stoku · Provë', { body: 'Njoftimet punojnë. Kështu do të vijnë mesazhet e chat-it.', tag: 'stoku-prove', icon: './icon-192.png?v=3', badge: './logo/badge-96.png?v=1', vibrate: [180, 80, 180], lang: 'sq', data: { url: './index.html#ekipa/chat' } });
-      }).catch(function () { /* ok */ });
-    }, 8000);
-  });
-
   function hapOpsionet() {
     $('opsTingull').checked = opsione.tingull;
     $('opsScanner').checked = opsione.scanner;
@@ -7240,7 +7284,10 @@
     clearTimeout(njKohezi);
     njKohezi = setTimeout(function () {
       var kopje = afatet.slice();
-      njZinxhiri = njZinxhiri.then(function () { return window.StokuNjoftimet.ruajAfatet(kopje); }).then(function () {
+      var e = ekipaCloud(), o = e && e.orariIm ? e.orariIm() : null;
+      if (o && o.aktiv) e.dergoAfatetPerOrarin(kopje).catch(function () { /* ok */ }); // kopja për njoftimin ditor
+      njZinxhiri = njZinxhiri.then(function () { return window.StokuNjoftimet.vendosOrarin(!!(o && o.aktiv)); })
+        .then(function () { return window.StokuNjoftimet.ruajAfatet(kopje); }).then(function () {
         if (Notification.permission !== 'granted') return;
         return navigator.serviceWorker.ready.then(function (reg) { return window.StokuNjoftimet.kontrollo(reg); });
       }).catch(function () { /* ok */ });

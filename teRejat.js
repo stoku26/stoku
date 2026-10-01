@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 149, versioni: '1.4.0', data: '2026-10-01', titulli: 'Njoftimi ditor në orën tënde', platforma: 'tel', pikat: [
+      'Te Cilësimet → Njoftimet ndiz "Përmbledhje çdo ditë" dhe zgjedh orën. Çdo ditë në atë orë të vjen një njoftim me produktet e skaduara dhe ato që skadojnë këtë javë, edhe kur Stoku është i mbyllur.',
+      'Butoni "Dërgo njoftim provë" u hoq.'
+    ] },
     { v: 148, versioni: '1.3.1', data: '2026-10-01', titulli: 'Kërko heqje: zgjedh nga lista', pikat: [
       'Te "Kërko heqje nga rafti" s\'ke më nevojë të shkruash emrin ose barkodin: shëno produktet nga lista, te "Të skaduarat" ose "Produktet e mia". Mund të zgjedhësh disa njëherësh.',
       'Kolegu i sheh krejt produktet e kërkesës te Njoftimet, me barkodin dhe datën e skadimit.'
