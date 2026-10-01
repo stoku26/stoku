@@ -50,6 +50,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ADMINI NGA LLOGARIA (v140 = 1.0.2)**: përdoruesi s'mund të bënte asgjë si admin (s'fshinte llogari etj.) —
+   admini njihej VETËM nga `perdoruesit/{uid}.emri == 'mendurberisha'` (fushë që vendoset vetëm nga Console, që
+   te ai mungonte). Tani: ekipa.js `eshteAdmin()` → true nëse emri i llogarisë (email-i i hyrjes) është
+   `mendurberisha`, përndryshe si më parë; lista e anëtarëve/kërkesave e njeh adminin edhe nga `perdoruesi`. Rregullat:
+   `eshteAdmin()` = `request.auth.token.email == 'mendurberisha@stoku-app.local' || ...data.get('emri','') == ...`
+   (email-i s'falsifikohet; `perdoruesi` mbrohet nga rregullat). Emulatori `fs-server.js` njësoj. Testet:
+   `ekipa-admin-paemri-test.js`, `fshirja-v116-paemri.js`, `kerkesat-v115-paemri.js` (admin pa fushën `emri`).
+
 0000000. **ZGJEDHJA E TEKSTIT (v139 = 1.0.1)**: telefoni — `html.sb body` ka `user-select: none` + `-webkit-touch-callout:
    none` (shtypja e gjatë zgjidhte krejt faqen, foto e përdoruesit); zgjidhen vetëm `input/textarea/select`,
    `.artikull .emri/.kodi`, `.sb-row__name/__code`, `.kodi-dialog`, `.ek-mesazh .flluska` (inputet DUHET të kenë `text`,
@@ -552,7 +560,7 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
-## Rregullat e Firestore — "Ekipa" (v116 + v130 ekipa_push) — i vendos PËRDORUESI (unë s'kam qasje)
+## Rregullat e Firestore — "Ekipa" (v116 + v130 ekipa_push + v140 admini nga llogaria) — i vendos PËRDORUESI (unë s'kam qasje)
 
 Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Krahasuar me v109: dyqani lexohet
 vetëm nga pronari/admin-i; Ekipa (anëtarët, aktiviteti, chat-i, `ekipa_afatet`) vetëm nga anëtarët e pranuar
@@ -571,8 +579,11 @@ S'MUND të fshihet nga admin-i pa server — fshihet vetëm kur vetë pajisja e 
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Administratori: llogaria "mendurberisha" (email-i i hyrjes, s'falsifikohet) — ose, si më parë, fusha `emri`
+    // te perdoruesit/{uid} e vendosur nga Console (v140)
     function eshteAdmin() {
-      return get(/databases/$(database)/documents/perdoruesit/$(request.auth.uid)).data.emri == 'mendurberisha';
+      return request.auth != null && (request.auth.token.email == 'mendurberisha@stoku-app.local'
+        || get(/databases/$(database)/documents/perdoruesit/$(request.auth.uid)).data.get('emri', '') == 'mendurberisha');
     }
     // Anëtar i pranuar i ekipës (ose administratori)
     function neEkipe() {

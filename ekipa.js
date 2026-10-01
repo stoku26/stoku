@@ -27,7 +27,7 @@
 
   var ONLINE_MS = 4 * 60 * 1000;   // pa shenjë jete më shumë se kaq → s'numërohet më "online"
   var RRAHJA_MS = 90 * 1000;       // sa shpesh aplikacioni i hapur thotë "jam këtu"
-  var ADMIN_EMRI = 'mendurberisha'; // pasqyron eshteAdmin() te rregullat e Firestore-it (perdoruesit/{uid}.emri)
+  var ADMIN_EMRI = 'mendurberisha'; // pasqyron eshteAdmin() te rregullat e Firestore-it: llogaria (email-i i hyrjes) OSE perdoruesit/{uid}.emri
   var PERMBLEDHJA_HEQUR_DITE = 40; // të hequrat e kaq ditëve të fundit hyjnë te përmbledhja (statistikat e muajit)
   var PERMBLEDHJA_MAKS = 700 * 1024; // larg kufirit 1 MB të një dokumenti
   var RADHA_MAKS = 200;
@@ -213,7 +213,7 @@
         return fs.onSnapshot(fs.collection(db, 'perdoruesit'), function (s) {
           cb(listaNga(s).map(function (x) {
             return { uid: x.id, emri: x.perdoruesi || x.emri || x.id, aktivSe: x.aktivSe || x.kycurSe || 0, online: x.online === true,
-              platforma: x.platforma || '', kycurSe: x.kycurSe || 0, admin: x.emri === ADMIN_EMRI, sasiaShpejte: x.sasiaShpejte === true };
+              platforma: x.platforma || '', kycurSe: x.kycurSe || 0, admin: x.emri === ADMIN_EMRI || x.perdoruesi === ADMIN_EMRI, sasiaShpejte: x.sasiaShpejte === true };
           }));
         }, function (e) { if (cbGabim) cbGabim(e); });
       },
@@ -237,8 +237,12 @@
         }, function (e) { if (cbGabim) cbGabim(e); });
       },
       // A është kjo llogari administratori? (true/false; null = s'dihet, p.sh. pa internet)
+      // (v140) Llogaria me emrin "mendurberisha" është administratori edhe pa fushën `emri` te Firestore — emri i llogarisë
+      // vjen nga Firebase Auth dhe s'falsifikohet; rregullat e Firestore-it e njohin njësoj (request.auth.token.email).
       eshteAdmin: async function () {
-        if (!uid() || !fs.getDoc) return null;
+        if (!uid()) return null;
+        if (emri() === ADMIN_EMRI) return true;
+        if (!fs.getDoc) return null;
         try { var s = await fs.getDoc(fs.doc(db, 'perdoruesit', uid())); return !!(s.exists() && s.data().emri === ADMIN_EMRI); } catch (e) { return null; }
       },
       // Administratori: prano në ekipë (lista: [{ uid, emri }])
@@ -295,7 +299,7 @@
           var lista = [];
           r[0].forEach(function (d) {
             var x = d.data() || {};
-            if (!pranuar[d.id] && d.id !== uid() && x.emri !== ADMIN_EMRI) lista.push({ uid: d.id, emri: x.perdoruesi || x.emri || d.id, kycurSe: x.kycurSe || 0, aktivSe: x.aktivSe || 0 });
+            if (!pranuar[d.id] && d.id !== uid() && x.emri !== ADMIN_EMRI && x.perdoruesi !== ADMIN_EMRI) lista.push({ uid: d.id, emri: x.perdoruesi || x.emri || d.id, kycurSe: x.kycurSe || 0, aktivSe: x.aktivSe || 0 });
           });
           return { ok: true, lista: lista };
         } catch (e) { var g = gabim(e); g.lista = []; return g; }
