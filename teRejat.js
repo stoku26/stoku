@@ -16,6 +16,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 137, data: '2026-10-01', titulli: 'Furnizuesit te Cilësimet', pikat: [
+      'Për administratorin: te Cilësimet → Stoku ka listën e krejt furnizuesve, me sa afate ka secili.',
+      'Prek një furnizues për t\'ia ndryshuar emrin: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër (p.sh. "laberion" dhe "Laberion"), të dy bashkohen në një.',
+      'Në telefon, kategoria "Lista" te Cilësimet tani quhet "Stoku", si te kompjuteri.'
+    ] },
     { v: 136, data: '2026-10-01', titulli: 'Stoku 1.0', pikat: [
       'Versionet tani numërohen nga 1.0: ky është Stoku 1.0, përditësimet e ardhshme do të jenë 1.1, 1.2 e kështu me radhë.'
     ] },
