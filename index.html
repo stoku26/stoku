@@ -1794,7 +1794,7 @@
 <script src="afatet.js?v=144"></script>
 <script src="ekipa.js?v=160"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=160"></script>
+<script src="teRejat.js?v=161"></script>
 <script>
 (function () {
   'use strict';
@@ -3261,7 +3261,8 @@
       $('oraKodi').value = '';
       h.textContent = '✓ Sahati u lidh. Pas pak sekondash në sahat del lista e produkteve që skadojnë sot.';
       e.dergoAfatetPerOrarin(afatet).catch(function () { /* ok */ });
-    } else h.textContent = r && r.arsye === 'kodi' ? 'Ky kod s\'u gjet ose ka skaduar. Shiko kodin e ri në sahat.'
+    } else h.textContent = r && r.arsye === 'rruga' ? 'Serveri (Cloudflare) ka kodin e vjetër: ngjite kodin e ri te stoku-push (versioni 157 ose më i ri) dhe provo prapë.'
+      : r && r.arsye === 'kodi' ? 'Ky kod s\'u gjet ose ka skaduar. Shiko kodin e ri në sahat.'
       : r && r.arsye === 'rrjeti' ? 'S\'ka internet. Provo prapë.' : 'S\'u lidh (' + ((r && r.arsye) || 'gabim') + '). Provo prapë.';
   }
   $('oraLidh').addEventListener('click', lidhSahatin);
