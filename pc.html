@@ -1952,11 +1952,22 @@
       localStorage.setItem(KEY_FSHIRE, JSON.stringify(fshira));
       localStorage.setItem(KEY_RENDI_KOHA, String(rendiFolderaveKoha || 0));
       localStorage.setItem(KEY_AFATET, JSON.stringify(afatet));
+      dergoAfatetPerNjoftiminDitor();
       return true;
     } catch (e) {
       toast('Ruajtja dështoi: memoria e shfletuesit është plot.');
       return false;
     }
+  }
+
+  // Njoftimi ditor (te telefoni) e merr listën e afateve nga serveri: edhe ndryshimet e bëra këtu i dërgohen atij.
+  var afatetDitorKohez = null;
+  function dergoAfatetPerNjoftiminDitor() {
+    clearTimeout(afatetDitorKohez);
+    afatetDitorKohez = setTimeout(function () {
+      var e = window.__stokuCloud && window.__stokuCloud.ekipa;
+      if (e && e.dergoAfatetPerOrarin && perdoruesi()) e.dergoAfatetPerOrarin(afatet.slice(), true).catch(function () { /* ok */ });
+    }, 4000);
   }
 
   // Çdo ndryshim i përdoruesit kalon këtu: ruhet, rivizatohet dhe sinkronizohet.

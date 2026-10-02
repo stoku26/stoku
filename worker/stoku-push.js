@@ -35,7 +35,7 @@ const PROJEKTI = 'stoku-appi';
 const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databases/(default)/documents';
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
-const VERSIONI_WORKER = 155; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 156; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 export default {
@@ -200,6 +200,8 @@ async function trajtoOrarin(req, env, pergjigju) {
   try { t = await req.json(); } catch (e) { return pergjigju({ ok: false, arsye: 'json' }, 400); }
   // Afatet e përdoruesit (të përbashkëta për krejt pajisjet e tij)
   if (Array.isArray(t.afatet)) {
+    // Nga kompjuteri: ruhen vetëm nëse përdoruesi e ka njoftimin ditor të ndezur në ndonjë pajisje (kursehen shkrimet)
+    if (t.vetemMeOrar && !Object.keys(await lexoIndeksinEOrareve(env)).some(k => k.indexOf('orari:' + uid + ':') === 0)) return pergjigju({ ok: true, paOrar: true });
     const af = t.afatet.slice(0, AFATET_MAKS).filter(a => a && DATA_RE.test(a.d || '')).map(a => ({ e: String(a.e || '').slice(0, 120), b: String(a.b || '').slice(0, 40), d: a.d }));
     await env.FOTO.put('orari-afatet:' + uid, JSON.stringify(af));
   }

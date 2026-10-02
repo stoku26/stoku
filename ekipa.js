@@ -385,16 +385,18 @@
       return false;
     }
     // Kopja e afateve te Worker-i (vetëm kur kjo pajisje ka orar dhe kur lista ndryshon, ose një herë në ditë)
-    async function dergoAfatetPerOrarin(afatet) {
+    // ngaPC: kompjuteri s'ka orar vetë, por ia dërgon serverit afatet e reja që njoftimi ditor i telefonit të jetë i saktë
+    // edhe kur produktet ndryshohen vetëm në kompjuter (serveri i ruan vetëm nëse ka orar në ndonjë pajisje).
+    async function dergoAfatetPerOrarin(afatet, ngaPC) {
       var o = orariIm();
-      if (!o || !o.aktiv || !uid()) return { ok: false, arsye: 'pa-orar' };
+      if (!uid() || (!ngaPC && (!o || !o.aktiv))) return { ok: false, arsye: 'pa-orar' };
       var l = (afatet || []).filter(function (a) { return a && a.statusi !== 'hequr' && /^\d{4}-\d{2}-\d{2}$/.test(a.data || ''); })
         .map(function (a) { return { e: String(a.emri || '').slice(0, 120), b: String(a.barkodi || '').slice(0, 40), d: a.data }; });
       var h = hashTekst(JSON.stringify(l)), ruajtur = lexoLS(KEY_ORARI_AFATET);
       if (ruajtur && ruajtur.uid === uid() && ruajtur.h === h && Date.now() - ruajtur.koha < 86400000) return { ok: true, pandryshuar: true };
       try {
-        var r = await thirrOrarin({ afatet: l });
-        if (r && r.ok) shkruajLS(KEY_ORARI_AFATET, { uid: uid(), h: h, koha: Date.now() });
+        var r = await thirrOrarin(ngaPC ? { afatet: l, vetemMeOrar: true } : { afatet: l });
+        if (r && r.ok && !r.paOrar) shkruajLS(KEY_ORARI_AFATET, { uid: uid(), h: h, koha: Date.now() });
         return r;
       } catch (e) { return { ok: false, arsye: 'rrjeti' }; }
     }
@@ -654,7 +656,7 @@
       aktivizoPush: aktivizoPush,
       caktivizoPush: caktivizoPush,
       pushAktiv: pushAktiv,
-      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 155,
+      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 156,
 
       // ---------- Chat ----------
       dergoMesazh: function (tekst) {
