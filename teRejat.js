@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 157, versioni: '1.4.8', data: '2026-10-02', titulli: 'Kontroll më i qartë i serverit', platforma: 'tel', pikat: [
+      'Te Cilësimet → Njoftimet, kontrolli i serverit tregon me fjalë sa shpesh punon ora automatike dhe, nëse serveri ka gabim, çka saktësisht nuk po punon.'
+    ] },
     { v: 156, versioni: '1.4.7', data: '2026-10-02', titulli: 'Njoftimi ditor rregullohet vetë', platforma: 'tel', pikat: [
       'Nëse serveri e humb lidhjen me telefonin (p.sh. pas riinstalimit të Stoku-t), njoftimi ditor regjistrohet vetë sërish kur e hap aplikacionin.'
     ] },

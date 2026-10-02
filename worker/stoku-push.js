@@ -35,7 +35,7 @@ const PROJEKTI = 'stoku-appi';
 const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databases/(default)/documents';
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
-const VERSIONI_WORKER = 153; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 154; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 export default {
@@ -56,7 +56,11 @@ export default {
     if (req.method !== 'POST') {
       // Kontrolli i shëndetit: a janë çelësat, KV-ja, versioni i kodit dhe kur punoi Cron-i së fundi (njoftimi ditor)
       const c = env.FOTO ? await lexoCronin(env) : {};
-      return pergjigju({ ok: true, sherbimi: 'stoku-push', versioni: VERSIONI_WORKER, celesat: !!(env.VAPID_PUBLIC && env.VAPID_PRIVATE), fotot: !!env.FOTO, cron: c.koha || null, cronShprehja: c.shprehja || null });
+      let cronGabim = null, kv;
+      if (env.FOTO) { try { cronGabim = await env.FOTO.get('orari-cron-gabim', 'json'); } catch (e) { /* ok */ } }
+      // "?kv=1": provë a pranon KV-ja shkrime (limiti falas: 1000 shkrime në ditë). Më së shumti një herë në 10 min.
+      if (env.FOTO && new URL(req.url).searchParams.get('kv') === '1') kv = await provoShkrimin(env);
+      return pergjigju({ ok: true, sherbimi: 'stoku-push', versioni: VERSIONI_WORKER, celesat: !!(env.VAPID_PUBLIC && env.VAPID_PRIVATE), fotot: !!env.FOTO, cron: c.koha || null, cronShprehja: c.shprehja || null, cronGabim, kv, tani: Date.now() });
     }
     if (!env.VAPID_PUBLIC || !env.VAPID_PRIVATE) return pergjigju({ ok: false, arsye: 'mungojne-celesat' }, 500);
 
@@ -136,11 +140,15 @@ export default {
       return pergjigju({ ok: false, arsye: String(e && e.message || e) }, e && e.status === 403 ? 403 : 500);
     }
   },
-  // Cron Trigger (çdo 15 min): njoftimi ditor për afatet
+  // Cron Trigger (çdo minutë): njoftimi ditor për afatet
   async scheduled(event, env, ctx) {
     if (!env.FOTO || !env.VAPID_PUBLIC || !env.VAPID_PRIVATE) return;
-    const p = dergoNjoftimetDitore(env, event && event.scheduledTime ? Number(event.scheduledTime) : Date.now(), event && event.cron);
-    if (ctx && ctx.waitUntil) ctx.waitUntil(p); else await p;
+    const tani = event && event.scheduledTime ? Number(event.scheduledTime) : Date.now(), shprehja = (event && event.cron) || null;
+    // Shenja që Cron-i u nis, SË PARI, që të shihet edhe nëse diçka më poshtë dështon (edhe te Logs i Cloudflare)
+    console.log('stoku-push cron:', shprehja, new Date(tani).toISOString());
+    await shenoCronin(env, tani, shprehja);
+    try { await dergoNjoftimetDitore(env, tani, shprehja); }
+    catch (e) { await shenoGabimin(env, tani, String(e && e.stack || e)); }
   }
 };
 
@@ -269,13 +277,35 @@ async function dergoNjoftimetDitore(env, tani, shprehja) {
     } catch (e) { x.rez = 'gabim'; /* një pajisje e prishur s'i ndal të tjerat */ }
   }
   if (ndryshoi) await env.FOTO.put('orari-indeksi', JSON.stringify(ind));
-  // Shenja që Cron-i punon (e sheh aplikacioni te Cilësimet → Njoftimet)
+  return derguar;
+}
+// Shenja që Cron-i punon (e sheh aplikacioni te Cilësimet → Njoftimet). Gabimi i shkrimit ruhet te 'orari-cron-gabim'.
+async function shenoCronin(env, tani, shprehja) {
   try {
     const para = await lexoCronin(env);
     if (!para.koha || tani - para.koha >= 10 * 60000 || (shprehja || null) !== (para.shprehja || null))
       await env.FOTO.put('orari-cron', JSON.stringify({ koha: tani, shprehja: shprehja || null }));
-  } catch (e) { /* ok */ }
-  return derguar;
+  } catch (e) { await shenoGabimin(env, tani, 'shenja: ' + String(e && e.message || e)); }
+}
+// Gabimi i Cron-it: del te Logs i Cloudflare dhe te health ("cronGabim"). I njëjti gabim rishkruhet më së shumti
+// një herë në 10 min, që të mos harxhohen shkrimet e KV-së kur Cron-i punon çdo minutë.
+async function shenoGabimin(env, tani, mesazh) {
+  mesazh = mesazh.slice(0, 300);
+  console.error('stoku-push cron:', mesazh);
+  try {
+    const para = await env.FOTO.get('orari-cron-gabim', 'json');
+    if (para && para.mesazh === mesazh && tani - para.koha < 10 * 60000) return;
+    await env.FOTO.put('orari-cron-gabim', JSON.stringify({ koha: tani, mesazh }));
+  } catch (x) { console.error('stoku-push cron: gabimi s\'u ruajt:', String(x && x.message || x)); }
+}
+async function provoShkrimin(env) {
+  try {
+    const para = await env.FOTO.get('kv-prove', 'json');
+    if (para && Date.now() - para.koha < 10 * 60000) return { ok: para.ok, koha: para.koha, mesazh: para.mesazh || null };
+    const o = { ok: true, koha: Date.now() };
+    await env.FOTO.put('kv-prove', JSON.stringify(o));
+    return o;
+  } catch (e) { return { ok: false, koha: Date.now(), mesazh: String(e && e.message || e).slice(0, 200) }; }
 }
 export { njoftimiDitor, kohaLokale, dergoNjoftimetDitore };
 

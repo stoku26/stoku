@@ -50,6 +50,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **DIAGNOZA E CRON-IT (v157 = 1.4.8, Worker 154)**: shenja `orari-cron` s'u rifreskua pas ndryshimit të Cron-it
+   në "Every minute" (mbeti 18:00:49 me `0,15,30,45`), ndërsa Metrics s'tregonte gabime: Worker 153 e shkruante shenjën
+   në fund të `dergoNjoftimetDitore` dhe çdo gabim (edhe `put` i KV-së) gëlltitej. Worker 154: `scheduled()` e shkruan
+   shenjën SË PARI (`shenoCronin`), `console.log('stoku-push cron: …')` për Logs, gabimet ruhen te `orari-cron-gabim`
+   (`shenoGabimin`: i njëjti mesazh më së shumti një herë në 10 min, që Cron-i çdo minutë të mos e harxhojë limitin 1000
+   shkrime/ditë) dhe dalin te health si `cronGabim`. `GET /?kv=1` provon një shkrim (`kv-prove`, maks një herë në 10 min)
+   e kthen `kv: {ok, mesazh}`, që të dallohet limiti ditor i KV-së (atëherë as gabimi s'ruhet dot). Aplikacioni:
+   `cronMeFjale` ("çdo 15 minuta" në vend të yjeve që s'shfaqeshin), `cronVonesaMaks` (Cron i ndalur sipas shpeshtësisë,
+   jo 45 min fikse), `gabimiICronit`, dhe `provoKV()` (ekipa.js) thirret vetëm kur Cron-i duket i ndalur.
+   `VERSIONI_WORKER: 154`.
 0000000. **ORARI RIREGJISTROHET VETË (v156 = 1.4.7)**: te Metrics u pa `fcm.googleapis.com 4xx` (adresa push e vjetër, pas
    riinstalimit) → Worker-i e fshin orarin (404/410), por telefoni mbetej "i ndezur". `ekipa.js
    rinovoOrarinNesesMungon(detyro, stNjohur)`: nëse orari lokal është aktiv dhe `/orari {statusi}` thotë `!ekziston` →
