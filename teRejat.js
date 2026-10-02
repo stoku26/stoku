@@ -18,6 +18,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 160, versioni: '1.5.0', data: '2026-10-02', titulli: 'Stoku në sahat (Galaxy Watch)', pikat: [
+      'Aplikacioni i ri Stoku për Galaxy Watch: në sahat sheh produktet që skadojnë sot, me tile dhe numër në fytyrën e orës.',
+      'Lidhja: hape Stoku në sahat dhe shkruaje kodin te Cilësimet → Njoftimet → Galaxy Watch → Lidh sahatin.',
+      'Kur e shënon një produkt "u hoq" në sahat, shënohet vetë edhe këtu sapo e hap Stoku-n.'
+    ] },
     { v: 159, versioni: '1.4.10', data: '2026-10-02', titulli: 'Njoftimi ditor merr edhe afatet nga kompjuteri', pikat: [
       'Afatet që i shton ose i ndryshon në kompjuter futen menjëherë edhe në njoftimin ditor të telefonit, pa pasur nevojë ta hapësh Stoku-n në telefon.'
     ] },
