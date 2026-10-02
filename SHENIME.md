@@ -50,6 +50,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PA NJOFTIME TË TEPËRTA NË HAPJE (v155 = 1.4.6)**: me orar aktiv, `kontrolloNjoftimet` e vendoste flamurin e
+   IndexedDB ('orari') para se `kontrolloServerin()` (në `aktivizoPush`) të shkruante `cron-ok` → në hapje dilte
+   "34 produkte skadojnë brenda 30 ditëve". Tani, kur orari është aktiv dhe `orariPunon()` s'është konfirmuar, pritet
+   `kontrolloServerin()` (maks 6 s) para vendimit. Njoftimi "Chrome · Stoku · Tap to copy the URL for this app" është i
+   Chrome-it: del kur Stoku është i shtuar si shkurtore (jo WebAPK); s'varet nga kodi.
+
 0000000. **ORA E RE VLEN QË SOT (v154 = 1.4.5, Worker 153)**: `/orari` me orë të re: `dita = ''` kur ora e re s'ka kaluar
    sot (më parë, nëse sot ishte dërguar/kontrolluar një herë, mbetej `dita = sot` → asgjë deri nesër); e njëjta orë
    sërish → asgjë s'ndryshon. App: paralajmërim kur ora te serveri (`im.ora`) ≠ ora te telefoni. Përdoruesi kishte
