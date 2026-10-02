@@ -466,3 +466,5 @@ html.sb body { -webkit-user-select: none; user-select: none; -webkit-touch-callo
 /* Ekipa: tabet (Afatet…Statistika) s'priten më në telefonat e ngushtë (360–375px): ngushtohen, e kur s'mjafton, kalojnë në rresht të dytë */
 .sb .ek-pllakat, .sb .ek-pult-pllakat { flex-wrap: wrap; overflow: visible; }
 .sb .ek-pllakat button, .sb .ek-pllaka { flex: 1 1 auto; padding: 0 6px; }
+.sb .nj-serveri { margin: -4px 4px 14px; padding: 10px 12px; border-radius: 12px; font-size: 13px; line-height: 1.45; background: var(--sb-ic-gjelber-bg); color: var(--sb-ic-gjelber); }
+.sb .nj-serveri.keq { background: var(--sb-ic-portokalli-bg); color: var(--sb-ic-portokalli); }

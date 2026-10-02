@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 151, versioni: '1.4.2', data: '2026-10-02', titulli: 'Njoftimi ditor: kontroll i serverit', platforma: 'tel', pikat: [
+      'Te Cilësimet → Njoftimet, kur njoftimi ditor është ndezur, shfaqet a punon serveri dhe çka ndodhi sot ("u dërgua", "s\'kishte afate", ose çka duhet rregulluar).',
+      'Derisa serveri i njoftimit ditor të mos jetë gati, njoftimet e zakonshme për afatet vijnë si më parë, që të mos mbetesh pa asnjë njoftim.'
+    ] },
     { v: 150, versioni: '1.4.1', data: '2026-10-01', titulli: 'Rregullime pas kontrollit të plotë', pikat: [
       'Kërkesat për heqje nga rafti mbeten te zilja derisa të shtypet "E hoqa". Kur i kërkohet krejt ekipës dhe një koleg e heq, të tjerët shohin "✓ E hoqi …" në vend të butonit.',
       'Telefon: tabet e Ekipës (Afatet … Statistika) s\'priten më në ekranet e ngushta.',

@@ -267,7 +267,7 @@
       try {
         var r = await fetch(PUSH_URL, { method: 'GET' });
         var j = await r.json();
-        if (r.ok && j && j.ok && j.celesat !== false) { shkruajLS(KEY_PUSH_SERVER, Date.now()); return true; }
+        if (r.ok && j && j.ok && j.celesat !== false) { shkruajLS(KEY_PUSH_SERVER, Date.now()); shenoCronin(j); return true; }
       } catch (e) { /* ok */ }
       return false;
     }
@@ -335,6 +335,32 @@
         if (o.aktiv && !(ishte && ishte.aktiv)) shkruajLS(KEY_ORARI_AFATET, null); // afatet dërgohen sërish menjëherë
         return { ok: true };
       } catch (e) { return { ok: false, arsye: 'rrjeti' }; }
+    }
+    // Cron-i i njoftimit ditor punon (kodi i ri + Cron që ka punuar në 45 min e fundit)? Vetëm atëherë njoftimet e
+    // menjëhershme për afatet lihen mënjanë; përndryshe vijnë si më parë, që përdoruesi të mos mbetet pa asnjë njoftim.
+    var KEY_CRON_OK = 'stoku:orari:cron-ok';
+    function shenoCronin(j) {
+      var ok = !!(j && j.versioni >= 151 && j.fotot && j.cron && Math.abs(Date.now() - j.cron) < 45 * 60000);
+      shkruajLS(KEY_CRON_OK, ok ? Date.now() : null);
+      return ok;
+    }
+    function orariPunon() {
+      var o = orariIm(), k = lexoLS(KEY_CRON_OK);
+      return !!(o && o.aktiv && k && Date.now() - k < 36 * 3600000);
+    }
+    // Gjendja për Cilësimet → Njoftimet: versioni i Worker-it, Cron-i dhe rezultati i fundit për këtë pajisje
+    async function statusiIOrarit() {
+      var dalja = { serveri: null, im: null };
+      try { var r0 = await fetch(PUSH_URL, { method: 'GET' }); dalja.serveri = await r0.json(); shenoCronin(dalja.serveri); } catch (e) { return dalja; }
+      var o = orariIm();
+      if (!o || !o.aktiv || !uid() || !pushMbeshtetet()) return dalja;
+      try {
+        var sub = await (await navigator.serviceWorker.ready).pushManager.getSubscription();
+        if (!sub) return dalja;
+        var j = sub.toJSON();
+        dalja.im = await thirrOrarin({ statusi: true, pajisja: { endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth } });
+      } catch (e) { /* ok */ }
+      return dalja;
     }
     // Kopja e afateve te Worker-i (vetëm kur kjo pajisje ka orar dhe kur lista ndryshon, ose një herë në ditë)
     async function dergoAfatetPerOrarin(afatet) {
@@ -606,7 +632,7 @@
       aktivizoPush: aktivizoPush,
       caktivizoPush: caktivizoPush,
       pushAktiv: pushAktiv,
-      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin,
+      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, statusiIOrarit: statusiIOrarit, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 151,
 
       // ---------- Chat ----------
       dergoMesazh: function (tekst) {
