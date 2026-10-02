@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 153, versioni: '1.4.4', data: '2026-10-02', titulli: 'Ora 24-orëshe', platforma: 'tel', pikat: [
+      'Ora e njoftimit ditor shkruhet në formatin 24-orësh (p.sh. 17:05), pa AM/PM. Mjafton të shkruash shifrat, ":" vendoset vetë.'
+    ] },
     { v: 152, versioni: '1.4.3', data: '2026-10-02', titulli: 'Njoftimi ditor në minutë të saktë', platforma: 'tel', pikat: [
       'Te Cilësimet → Njoftimet ora e njoftimit ditor shkruhet lirshëm, me orë dhe minuta (p.sh. 17:07), dhe njoftimi vjen pikërisht atëherë.'
     ] },
