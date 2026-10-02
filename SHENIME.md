@@ -50,6 +50,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **STOKU PËR SAHAT (v160 = 1.5.0, Worker 157)**: aplikacion Wear OS te `ora/` (Kotlin + Compose for Wear OS:
+   lista e sotme me ✓/Zhbëj, tile, komplikacion SHORT_TEXT). APK ndërtohet nga `.github/workflows/ora-apk.yml`
+   (artifact; në main edhe Release `ora-vNN`), i nënshkruar me `ora/stoku-ora.jks` (në repo, që përditësimet të
+   instalohen sipër). Worker 157: `POST /ora/kodi` (sahati: kodi 6-shifror + sekret 64-hex, `ora-kodi:*` TTL 15 min),
+   `POST /ora/lidh` (telefoni, me llogari → `ora-tok:{sha256(sekret)}` = uid, `ora-ka:{uid}`), `GET /ora/sot?tz=`
+   (header `X-Stoku-Ora`), `POST /ora/hiq {i, zhbej}` → `ora-hequr:{uid}`, `POST /ora/hequrat {pastro}` (telefoni/PC i
+   zbatojnë si heqje dhe i pastrojnë; ato që s'gjenden lokalisht mbeten). Afatet e dërguara kanë tash `i` (id) dhe `s`
+   (sasia); dërgohen nga çdo pajisje me `vetemMeOrar` kur s'ka orar këtu (serveri i ruan nëse ka orar ose sahat;
+   `paOrar` mbahet 10 min në LS). Njoftimi ditor i përjashton të hequrat nga sahati. UI: `#oraKodi`/`#oraLidh` te
+   Njoftimet → Galaxy Watch.
 0000000. **KONTROLLI I PLOTË + AFATET NGA PC (v159 = 1.4.10, Worker 156)**: zvarritësi (416 klikime, tel + PC, temë e
    çelët + e errët) pa asnjë problem; regresioni krejt OK. Mangësia e gjetur: serveri e merrte listën e afateve vetëm nga
    telefoni (kur hapej), kështu afati i shtuar në PC që skadon sot s'dilte te njoftimi ditor. Tash `shkruajLokalisht` te

@@ -1842,8 +1842,8 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=144"></script>
-<script src="ekipa.js?v=159"></script>
-<script src="teRejat.js?v=159"></script>
+<script src="ekipa.js?v=160"></script>
+<script src="teRejat.js?v=160"></script>
 <script>
 (function () {
   'use strict';
@@ -1966,7 +1966,7 @@
     clearTimeout(afatetDitorKohez);
     afatetDitorKohez = setTimeout(function () {
       var e = window.__stokuCloud && window.__stokuCloud.ekipa;
-      if (e && e.dergoAfatetPerOrarin && perdoruesi()) e.dergoAfatetPerOrarin(afatet.slice(), true).catch(function () { /* ok */ });
+      if (e && e.dergoAfatetPerOrarin && perdoruesi()) e.dergoAfatetPerOrarin(afatet.slice()).catch(function () { /* ok */ });
     }, 4000);
   }
 
@@ -2305,6 +2305,23 @@
     rivizato();
     if (u) sinkronizoNeHyrje();
   }
+  // Heqjet nga rafti të bëra në sahat (Galaxy Watch) zbatohen këtu si çdo heqje tjetër
+  async function zbatoHeqjetNgaOra(detyro) {
+    var e = window.__stokuCloud && window.__stokuCloud.ekipa;
+    if (!e || !e.merrHeqjetNgaOra || !perdoruesi()) return;
+    var l = await e.merrHeqjetNgaOra(detyro), kryer = [], te = [];
+    l.forEach(function (h) { var a = afatSipasId(h.i); if (!a) return; kryer.push(h.i); if (a.statusi !== 'hequr') te.push(h); });
+    if (te.length) {
+      ndryshoAfatet(function (api) { te.forEach(function (h) { var a = api.merr(h.i); if (a) { a.statusi = 'hequr'; a.hequrSe = h.koha || Date.now(); a.hequrNga = emriPerdoruesit(); api.vendos(a); } }); });
+      te.forEach(function (h) { ekNgjarjeAfati('hequr', afatSipasId(h.i)); });
+      toast(te.length === 1 ? '1 produkt u shënua i hequr nga rafti (nga sahati).' : te.length + ' produkte u shënuan të hequra nga rafti (nga sahati).');
+    }
+    if (kryer.length) e.pastroHeqjetNgaOra(kryer);
+  }
+  function zbatoHeqjetMePritje() { setTimeout(function () { zbatoHeqjetNgaOra(true).catch(function () { /* ok */ }); }, 4000); }
+  window.addEventListener('stoku-cloud-gati', zbatoHeqjetMePritje);
+  window.addEventListener('stoku-auth-ndryshoi', zbatoHeqjetMePritje);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) zbatoHeqjetNgaOra(false).catch(function () { /* ok */ }); });
   window.addEventListener('stoku-cloud-gati', kurNdryshonLlogaria);
   window.addEventListener('stoku-auth-ndryshoi', kurNdryshonLlogaria);
   window.addEventListener('online', function () { if (perdoruesi()) kryeSinkronizimin(); });
