@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 159, versioni: '1.4.10', data: '2026-10-02', titulli: 'Njoftimi ditor merr edhe afatet nga kompjuteri', pikat: [
+      'Afatet që i shton ose i ndryshon në kompjuter futen menjëherë edhe në njoftimin ditor të telefonit, pa pasur nevojë ta hapësh Stoku-n në telefon.'
+    ] },
     { v: 158, versioni: '1.4.9', data: '2026-10-02', titulli: 'Njoftimi ditor vetëm për sot', platforma: 'tel', pikat: [
       'Në orën që zgjedh, njoftimi të tregon vetëm produktet që skadojnë atë ditë. Nëse s\'skadon asnjë, s\'vjen njoftim.'
     ] },
