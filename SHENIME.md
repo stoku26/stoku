@@ -50,6 +50,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ORARI RIREGJISTROHET VETË (v156 = 1.4.7)**: te Metrics u pa `fcm.googleapis.com 4xx` (adresa push e vjetër, pas
+   riinstalimit) → Worker-i e fshin orarin (404/410), por telefoni mbetej "i ndezur". `ekipa.js
+   rinovoOrarinNesesMungon(detyro, stNjohur)`: nëse orari lokal është aktiv dhe `/orari {statusi}` thotë `!ekziston` →
+   `vendosOrarin` sërish (+ afatet). Thirret pas `kontrolloServerin` te `aktivizoPush` (maks 1 herë/3 orë) dhe te
+   Cilësimet → Njoftimet (menjëherë). Cron-i i përdoruesit tani "Every minute".
+
 0000000. **PA NJOFTIME TË TEPËRTA NË HAPJE (v155 = 1.4.6)**: me orar aktiv, `kontrolloNjoftimet` e vendoste flamurin e
    IndexedDB ('orari') para se `kontrolloServerin()` (në `aktivizoPush`) të shkruante `cron-ok` → në hapje dilte
    "34 produkte skadojnë brenda 30 ditëve". Tani, kur orari është aktiv dhe `orariPunon()` s'është konfirmuar, pritet

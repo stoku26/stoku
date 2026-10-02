@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 156, versioni: '1.4.7', data: '2026-10-02', titulli: 'Njoftimi ditor rregullohet vetë', platforma: 'tel', pikat: [
+      'Nëse serveri e humb lidhjen me telefonin (p.sh. pas riinstalimit të Stoku-t), njoftimi ditor regjistrohet vetë sërish kur e hap aplikacionin.'
+    ] },
     { v: 155, versioni: '1.4.6', data: '2026-10-02', titulli: 'Pa njoftime të tepërta', platforma: 'tel', pikat: [
       'Kur njoftimi ditor është i ndezur, njoftimi "X produkte skadojnë brenda 30 ditëve" s\'del më kur hapet Stoku: afatet vijnë vetëm në orën e zgjedhur.'
     ] },

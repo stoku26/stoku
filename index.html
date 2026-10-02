@@ -1783,9 +1783,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=144"></script>
-<script src="ekipa.js?v=154"></script>
+<script src="ekipa.js?v=156"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=155"></script>
+<script src="teRejat.js?v=156"></script>
 <script>
 (function () {
   'use strict';
@@ -3180,6 +3180,11 @@
     if (!e || !e.statusiIOrarit || !o || !o.aktiv) { el.hidden = true; return; }
     el.hidden = false; el.className = 'nj-serveri'; el.textContent = 'Duke kontrolluar serverin…';
     var st = await e.statusiIOrarit(), sv = st.serveri, im = st.im, tani = Date.now();
+    // Serveri s'e ka më orarin (p.sh. pas riinstalimit): regjistrohet vetë dhe kontrollohet sërish
+    if (im && im.ok && !im.ekziston && e.rinovoOrarinNesesMungon && await e.rinovoOrarinNesesMungon(true, st)) {
+      await e.dergoAfatetPerOrarin(afatet);
+      st = await e.statusiIOrarit(); sv = st.serveri; im = st.im;
+    }
     var keq = true, t;
     if (!sv) t = 'S\'u lidh me serverin për ta kontrolluar. Kontrollo internetin.';
     else if (!sv.versioni || sv.versioni < e.VERSIONI_WORKER) t = 'Serveri (Cloudflare) ka kodin e vjetër: ngjite kodin e ri te stoku-push, përndryshe njoftimi ditor s\'vjen.';
