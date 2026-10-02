@@ -50,6 +50,18 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **NJOFTIMI DITOR: DIAGNOZA + RRUGËDALJA (v151 = 1.4.2)**: përdoruesi s'mori njoftim (Galaxy Watch). Gabim imi:
+   me orar aktiv, njoftimet lokale ndaleshin edhe kur Cron-i/kodi i ri s'ishte vendosur → asgjë s'vinte. Tani:
+   - Worker `VERSIONI_WORKER = 151`; GET `/` kthen edhe `versioni` dhe `cron` (koha e ekzekutimit të fundit të
+     `scheduled()`, KV `orari-cron`). Indeksi ruan `rez` ('derguar' | 'asgje' | 'gabim-<status>') dhe `kohaRez`.
+     POST `/orari {statusi:true, pajisja}` → { ekziston, ora, dita, rez, kohaRez, cron, afatet }.
+   - `ekipa.js`: `shenoCronin(health)` → LS `stoku:orari:cron-ok` (versioni ≥ 151, KV, Cron < 45 min); `orariPunon()`
+     (orar aktiv + cron-ok < 36 orë). Vetëm atëherë `StokuNjoftimet.vendosOrarin(true)` (ndalen njoftimet lokale).
+     `statusiIOrarit()` për Cilësimet.
+   - Tel, Cilësimet → Njoftimet: `#njOraServer` (jeshile/portokalli): kodi i vjetër, mungon KV, mungon/ndalur Cron-i,
+     pajisja s'ka orar te serveri, ose "✓ Sot u dërgua në 08:00" / "s'kishte afate".
+   **Kodi i Worker-it duhet ngjitur sërish.**
+
 0000000. **KONTROLLI I PLOTË (v150 = 1.4.1)**: zvarritësi `zv2.js` (416 klikime, tel + PC, e çelët + e errët; shtuar
    cil-njoftimet, ekipa-kerko, ekipa-zile; `zv-lib.js KONTROLLO` tani i kalon elementet me `visibility:hidden`, që
    jepnin alarme të rreme për dritaret e mbyllura jashtë ekranit), `tur-errët.js` (pamje me llogari, 2 tema), lint,

@@ -1029,7 +1029,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=13">
+<link rel="stylesheet" href="css/stoku.css?v=14">
 </head>
 <body>
 <script src="porta.js?v=145"></script>
@@ -1305,6 +1305,7 @@
               </label>
             </div>
           </div>
+          <div class="nj-serveri" id="njOraServer" role="status" hidden></div>
           <div class="ops-grupi-titull">Njoftimet në orë</div>
           <div class="seksion ops-karta ops-ora">
             <div class="ops-ll-krye">
@@ -1782,9 +1783,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=144"></script>
-<script src="ekipa.js?v=150"></script>
+<script src="ekipa.js?v=151"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=150"></script>
+<script src="teRejat.js?v=151"></script>
 <script>
 (function () {
   'use strict';
@@ -3160,12 +3161,42 @@
     __orariDukePunuar = false;
     $('njDitor').disabled = $('njOra').disabled = false;
     if (r && r.ok) {
-      window.StokuNjoftimet.vendosOrarin(aktiv);
+      window.StokuNjoftimet.vendosOrarin(aktiv && e.orariPunon());
       if (aktiv) { e.dergoAfatetPerOrarin(afatet); toast('Njoftimi ditor: çdo ditë në ' + ora + '.'); }
       else toast('Njoftimi ditor u fik.');
     } else toast(tekstiGabimitOrarit(r && r.arsye), 4500);
     rifreskoOrarin();
+    kontrolloServerinEOrarit();
   }
+  // Kontrolli i serverit (Cloudflare): kodi i ri, Cron-i dhe çka ndodhi sot me njoftimin e kësaj pajisjeje
+  function oraNga(ts) { var d = new Date(ts); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
+  function sotIso() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  async function kontrolloServerinEOrarit() {
+    var e = ekipaCloud(), o = e && e.orariIm ? e.orariIm() : null, el = $('njOraServer');
+    if (!e || !e.statusiIOrarit || !o || !o.aktiv) { el.hidden = true; return; }
+    el.hidden = false; el.className = 'nj-serveri'; el.textContent = 'Duke kontrolluar serverin…';
+    var st = await e.statusiIOrarit(), sv = st.serveri, im = st.im, tani = Date.now();
+    var keq = true, t;
+    if (!sv) t = 'S\'u lidh me serverin për ta kontrolluar. Kontrollo internetin.';
+    else if (!sv.versioni || sv.versioni < e.VERSIONI_WORKER) t = 'Serveri (Cloudflare) ka kodin e vjetër: ngjite kodin e ri te stoku-push, përndryshe njoftimi ditor s\'vjen.';
+    else if (!sv.fotot) t = 'Serverit i mungon KV-ja "FOTO" (Cloudflare → stoku-push → Bindings).';
+    else if (!sv.cron) t = 'Ora automatike (Cron) s\'është vendosur te Cloudflare: stoku-push → Settings → Trigger Events → Cron "0,15,30,45 * * * *". Pa të njoftimi ditor s\'vjen.';
+    else if (tani - sv.cron > 45 * 60000) t = 'Ora automatike (Cron) s\'ka punuar që nga ' + oraNga(sv.cron) + '. Kontrollo Cron-in te Cloudflare.';
+    else if (!im || !im.ok) t = 'Serveri s\'u përgjigj për këtë pajisje. Provo ta fikësh dhe ta ndezësh njoftimin ditor.';
+    else if (!im.ekziston) t = 'Serveri s\'e ka orarin e kësaj pajisjeje. Fike dhe ndize sërish "Përmbledhje çdo ditë".';
+    else {
+      keq = false;
+      var sot = im.dita === sotIso();
+      if (sot && im.rez === 'derguar') t = '✓ Sot njoftimi u dërgua në ' + oraNga(im.kohaRez) + '.';
+      else if (sot && im.rez === 'asgje') t = '✓ Serveri punon. Sot s\'kishte produkte të skaduara apo që skadojnë këtë javë, prandaj s\'erdhi njoftim.';
+      else if (sot && im.rez) { keq = true; t = 'Sot njoftimi s\'u dorëzua në telefon (' + im.rez + '). Fike dhe ndize sërish "Përmbledhje çdo ditë".'; }
+      else t = '✓ Serveri punon. Njoftimi i radhës: ' + (sot ? 'nesër' : 'sot ose nesër') + ' në ' + o.ora + '.';
+      if (im.afatet === 0) t += ' (Serveri s\'ka ende listën e afateve: hape Stoku-n një herë.)';
+    }
+    el.classList.toggle('keq', keq);
+    el.textContent = t;
+  }
+  $('tabNjoftimet').addEventListener('click', function () { setTimeout(kontrolloServerinEOrarit, 50); });
   $('njDitor').addEventListener('change', function () { ruajOrarin(this.checked); });
   $('njOra').addEventListener('change', function () {
     try { localStorage.setItem(KEY_NJ_ORA, this.value); } catch (x) { /* ok */ }
@@ -7287,7 +7318,9 @@
       var kopje = afatet.slice();
       var e = ekipaCloud(), o = e && e.orariIm ? e.orariIm() : null;
       if (o && o.aktiv) e.dergoAfatetPerOrarin(kopje).catch(function () { /* ok */ }); // kopja për njoftimin ditor
-      njZinxhiri = njZinxhiri.then(function () { return window.StokuNjoftimet.vendosOrarin(!!(o && o.aktiv)); })
+      // Njoftimet e menjëhershme ndalen vetëm kur serveri i njoftimit ditor është konfirmuar që punon
+      var ngaServeri = !!(e && e.orariPunon && e.orariPunon());
+      njZinxhiri = njZinxhiri.then(function () { return window.StokuNjoftimet.vendosOrarin(ngaServeri); })
         .then(function () { return window.StokuNjoftimet.ruajAfatet(kopje); }).then(function () {
         if (Notification.permission !== 'granted') return;
         return navigator.serviceWorker.ready.then(function (reg) { return window.StokuNjoftimet.kontrollo(reg); });

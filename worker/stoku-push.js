@@ -35,6 +35,8 @@ const PROJEKTI = 'stoku-appi';
 const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databases/(default)/documents';
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
+const VERSIONI_WORKER = 151; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+
 
 export default {
   async fetch(req, env, ctx) {
@@ -51,7 +53,12 @@ export default {
     const rrugaF = new URL(req.url).pathname.replace(/\/+$/, '');
     if (rrugaF === '/foto' || rrugaF === '/fotot' || rrugaF.indexOf('/foto/') === 0) return trajtoFotot(req, env, rrugaF, cors, pergjigju);
     if (rrugaF === '/orari' && req.method === 'POST') return trajtoOrarin(req, env, pergjigju);
-    if (req.method !== 'POST') return pergjigju({ ok: true, sherbimi: 'stoku-push', celesat: !!(env.VAPID_PUBLIC && env.VAPID_PRIVATE), fotot: !!env.FOTO });
+    if (req.method !== 'POST') {
+      // Kontrolli i shëndetit: a janë çelësat, KV-ja, versioni i kodit dhe kur punoi Cron-i së fundi (njoftimi ditor)
+      let cron = null;
+      if (env.FOTO) { try { cron = Number(await env.FOTO.get('orari-cron')) || null; } catch (e) { /* ok */ } }
+      return pergjigju({ ok: true, sherbimi: 'stoku-push', versioni: VERSIONI_WORKER, celesat: !!(env.VAPID_PUBLIC && env.VAPID_PRIVATE), fotot: !!env.FOTO, cron });
+    }
     if (!env.VAPID_PUBLIC || !env.VAPID_PRIVATE) return pergjigju({ ok: false, arsye: 'mungojne-celesat' }, 500);
 
     const token = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
@@ -187,11 +194,18 @@ async function trajtoOrarin(req, env, pergjigju) {
     const af = t.afatet.slice(0, AFATET_MAKS).filter(a => a && DATA_RE.test(a.d || '')).map(a => ({ e: String(a.e || '').slice(0, 120), b: String(a.b || '').slice(0, 40), d: a.d }));
     await env.FOTO.put('orari-afatet:' + uid, JSON.stringify(af));
   }
-  if (t.aktiv === undefined) return pergjigju({ ok: true });
   const pj = t.pajisja || {};
+  if (t.aktiv === undefined && !t.statusi) return pergjigju({ ok: true });
   if (typeof pj.endpoint !== 'string' || !/^https:\/\//.test(pj.endpoint) || pj.endpoint.length > 1000) return pergjigju({ ok: false, arsye: 'pajisja' }, 400);
   const celesi = 'orari:' + uid + ':' + await hashEndpoint(pj.endpoint);
   const ind = await lexoIndeksinEOrareve(env);
+  // Gjendja e orarit të kësaj pajisjeje (për Cilësimet → Njoftimet): a ekziston, kur u dërgua së fundi dhe si
+  if (t.statusi) {
+    const x = ind[celesi] || null;
+    let cron = null; try { cron = Number(await env.FOTO.get('orari-cron')) || null; } catch (e) { /* ok */ }
+    const af = await env.FOTO.get('orari-afatet:' + uid, 'json');
+    return pergjigju({ ok: true, ekziston: !!x, ora: x && x.ora, dita: x && x.dita, rez: x && x.rez, kohaRez: x && x.kohaRez, cron, afatet: af ? af.length : null });
+  }
   if (!t.aktiv) {
     await env.FOTO.delete(celesi);
     if (ind[celesi]) { delete ind[celesi]; await env.FOTO.put('orari-indeksi', JSON.stringify(ind)); }
@@ -221,22 +235,25 @@ async function dergoNjoftimetDitore(env, tani) {
     const lok = kohaLokale(tani, x.tz), [hh, mm] = x.ora.split(':').map(Number), synimi = hh * 60 + mm;
     // Brenda orës pas kohës së zgjedhur (Cron mund të vonohet pak) dhe vetëm një herë në ditë
     if (x.dita === lok.dita || lok.minuta < synimi || lok.minuta >= synimi + 60) continue;
-    x.dita = lok.dita; ndryshoi = true;
+    x.dita = lok.dita; x.kohaRez = tani; ndryshoi = true;
     try {
       const rek = await env.FOTO.get(celesi, 'json');
       if (!rek) { delete ind[celesi]; continue; }
       if (!(rek.uid in afatetPerUid)) afatetPerUid[rek.uid] = (await env.FOTO.get('orari-afatet:' + rek.uid, 'json')) || [];
       const nj = njoftimiDitor(afatetPerUid[rek.uid], lok.dita);
-      if (!nj) continue;
+      if (!nj) { x.rez = 'asgje'; continue; }
       if (!vapid) vapid = await pergatitVapid(env);
       const ng = { lloji: 'afatet', titulli: nj.titulli, teksti: nj.teksti, tag: 'stoku-ditor', koha: tani,
         url: rek.platforma === 'pc' ? './pc.html#/afatet' : './index.html#afatet' };
       const st = await dergoPush(rek.pajisja, ng, vapid);
+      x.rez = st >= 200 && st < 300 ? 'derguar' : 'gabim-' + st;
       if (st >= 200 && st < 300) derguar++;
       else if (st === 404 || st === 410) { await env.FOTO.delete(celesi); delete ind[celesi]; }
-    } catch (e) { /* një pajisje e prishur s'i ndal të tjerat */ }
+    } catch (e) { x.rez = 'gabim'; /* një pajisje e prishur s'i ndal të tjerat */ }
   }
   if (ndryshoi) await env.FOTO.put('orari-indeksi', JSON.stringify(ind));
+  // Shenja që Cron-i punon (e sheh aplikacioni te Cilësimet → Njoftimet)
+  try { await env.FOTO.put('orari-cron', String(tani)); } catch (e) { /* ok */ }
   return derguar;
 }
 export { njoftimiDitor, kohaLokale, dergoNjoftimetDitore };
