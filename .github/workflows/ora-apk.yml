@@ -1,0 +1,42 @@
+# Ndërton aplikacionin Stoku për sahat (Wear OS, Galaxy Watch) dhe e vendos APK-në si "artifact"
+# dhe, në main, si Release (shkarkohet nga faqja e Releases në GitHub).
+name: Stoku Ora APK
+
+on:
+  push:
+    paths:
+      - 'ora/**'
+      - '.github/workflows/ora-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Ndërto APK
+        run: gradle -p ora assembleRelease --stacktrace --no-daemon
+      - name: Emri i skedarit
+        run: cp ora/app/build/outputs/apk/release/app-release.apk stoku-ora-${{ github.run_number }}.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stoku-ora-apk
+          path: stoku-ora-${{ github.run_number }}.apk
+      - name: Release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ora-v${{ github.run_number }}
+          name: Stoku për sahat ${{ github.run_number }}
+          body: Aplikacioni Stoku për Galaxy Watch (Wear OS). Instalimi përshkruhet te ora/README.md.
+          files: stoku-ora-${{ github.run_number }}.apk
