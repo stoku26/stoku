@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 155, versioni: '1.4.6', data: '2026-10-02', titulli: 'Pa njoftime të tepërta', platforma: 'tel', pikat: [
+      'Kur njoftimi ditor është i ndezur, njoftimi "X produkte skadojnë brenda 30 ditëve" s\'del më kur hapet Stoku: afatet vijnë vetëm në orën e zgjedhur.'
+    ] },
     { v: 154, versioni: '1.4.5', data: '2026-10-02', titulli: 'Ndryshimi i orës vlen që sot', platforma: 'tel', pikat: [
       'Kur e ndryshon orën e njoftimit ditor, njoftimi vjen që sot në orën e re (nëse ajo s\'ka kaluar), edhe nëse sot ka ardhur një herë.'
     ] },

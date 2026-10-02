@@ -1785,7 +1785,7 @@
 <script src="afatet.js?v=144"></script>
 <script src="ekipa.js?v=154"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=154"></script>
+<script src="teRejat.js?v=155"></script>
 <script>
 (function () {
   'use strict';
@@ -7341,9 +7341,12 @@
       var kopje = afatet.slice();
       var e = ekipaCloud(), o = e && e.orariIm ? e.orariIm() : null;
       if (o && o.aktiv) e.dergoAfatetPerOrarin(kopje).catch(function () { /* ok */ }); // kopja për njoftimin ditor
-      // Njoftimet e menjëhershme ndalen vetëm kur serveri i njoftimit ditor është konfirmuar që punon
-      var ngaServeri = !!(e && e.orariPunon && e.orariPunon());
-      njZinxhiri = njZinxhiri.then(function () { return window.StokuNjoftimet.vendosOrarin(ngaServeri); })
+      // Njoftimet e menjëhershme ndalen vetëm kur serveri i njoftimit ditor është konfirmuar që punon. Me orar të
+      // ndezur, serveri kontrollohet PARA se të vendoset (përndryshe në hapje dilnin "34 produkte skadojnë…").
+      var pyetServerin = (o && o.aktiv && e.kontrolloServerin && !(e.orariPunon && e.orariPunon()))
+        ? Promise.race([e.kontrolloServerin(), new Promise(function (r) { setTimeout(r, 6000); })]) : Promise.resolve();
+      njZinxhiri = njZinxhiri.then(function () { return pyetServerin; })
+        .then(function () { return window.StokuNjoftimet.vendosOrarin(!!(e && e.orariPunon && e.orariPunon())); })
         .then(function () { return window.StokuNjoftimet.ruajAfatet(kopje); }).then(function () {
         if (Notification.permission !== 'granted') return;
         return navigator.serviceWorker.ready.then(function (reg) { return window.StokuNjoftimet.kontrollo(reg); });
