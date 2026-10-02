@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 152, versioni: '1.4.3', data: '2026-10-02', titulli: 'Njoftimi ditor në minutë të saktë', platforma: 'tel', pikat: [
+      'Te Cilësimet → Njoftimet ora e njoftimit ditor shkruhet lirshëm, me orë dhe minuta (p.sh. 17:07), dhe njoftimi vjen pikërisht atëherë.'
+    ] },
     { v: 151, versioni: '1.4.2', data: '2026-10-02', titulli: 'Njoftimi ditor: kontroll i serverit', platforma: 'tel', pikat: [
       'Te Cilësimet → Njoftimet, kur njoftimi ditor është ndezur, shfaqet a punon serveri dhe çka ndodhi sot ("u dërgua", "s\'kishte afate", ose çka duhet rregulluar).',
       'Derisa serveri i njoftimit ditor të mos jetë gati, njoftimet e zakonshme për afatet vijnë si më parë, që të mos mbetesh pa asnjë njoftim.'
