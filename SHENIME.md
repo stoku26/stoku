@@ -50,6 +50,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ORA 24-ORËSHE (v153 = 1.4.4)**: `input type=time` tregonte AM/PM sipas gjuhës së telefonit → `#njOra` tani
+   `type=text inputmode=numeric maxlength=5`; gjatë shkrimit vetëm shifra dhe ":" pas orës; `oraNgaTeksti()` ("9" →
+   09:00, "905" → 09:05, "1705" → 17:05; jashtë 00:00–23:59 refuzohet). Ruhet te `change` (blur/Enter).
+
 0000000. **ORA E LIRË NË MINUTË (v152 = 1.4.3)**: `#njOra` = `<input type="time" step="60">` (çdo minutë). Worker 152:
    `ORA_RE` pranon HH:MM; Cron-i duhet **`* * * * *`** (çdo minutë) — kështu e ka vendosur përdoruesi; `orari-cron` tani
    JSON {koha, shprehja} (nga `event.cron`) dhe shkruhet vetëm kur ndryshon shprehja ose çdo 10 min (kufiri 1000
