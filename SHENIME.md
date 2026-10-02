@@ -50,6 +50,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **NJOFTIMI DITOR VETËM PËR SOT (v158 = 1.4.9, Worker 155)**: sipas kërkesës, `njoftimiDitor` s'bën më
+   përmbledhje (të skaduarat + java): merr vetëm afatet me `d === sot` ("X skadon sot. Hiqe nga rafti." / "N produkte
+   skadojnë sot: …", titulli "Stoku · Skadon sot"); pa to kthen `null` dhe `rez = 'asgje'`, pa njoftim. `shtoDite` u hoq.
+   Te Cilësimet "Përmbledhje çdo ditë" → "Njoftimi ditor", teksti ndihmës dhe "Sot s'skadon asnjë produkt".
+   `VERSIONI_WORKER: 155`.
 0000000. **DIAGNOZA E CRON-IT (v157 = 1.4.8, Worker 154)**: shenja `orari-cron` s'u rifreskua pas ndryshimit të Cron-it
    në "Every minute" (mbeti 18:00:49 me `0,15,30,45`), ndërsa Metrics s'tregonte gabime: Worker 153 e shkruante shenjën
    në fund të `dergoNjoftimetDitore` dhe çdo gabim (edhe `put` i KV-së) gëlltitej. Worker 154: `scheduled()` e shkruan

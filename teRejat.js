@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 158, versioni: '1.4.9', data: '2026-10-02', titulli: 'Njoftimi ditor vetëm për sot', platforma: 'tel', pikat: [
+      'Në orën që zgjedh, njoftimi të tregon vetëm produktet që skadojnë atë ditë. Nëse s\'skadon asnjë, s\'vjen njoftim.'
+    ] },
     { v: 157, versioni: '1.4.8', data: '2026-10-02', titulli: 'Kontroll më i qartë i serverit', platforma: 'tel', pikat: [
       'Te Cilësimet → Njoftimet, kontrolli i serverit tregon me fjalë sa shpesh punon ora automatike dhe, nëse serveri ka gabim, çka saktësisht nuk po punon.'
     ] },
