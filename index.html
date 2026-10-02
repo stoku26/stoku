@@ -1293,7 +1293,7 @@
             <div class="seksion">
               <label class="opsion-rresht" for="njDitor">
                 <span class="kat-ikona-badge ngj-portokalli"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4M16 2v4"></path><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M3 10h18"></path><path d="m9 16 2 2 4-4"></path></svg></span>
-                <span class="ops-rresht__tekst"><span>Përmbledhje çdo ditë</span><span class="hint">Në orën që zgjedh të vjen një njoftim me produktet e skaduara dhe ato që skadojnë këtë javë, edhe kur Stoku është i mbyllur.</span></span>
+                <span class="ops-rresht__tekst"><span>Njoftimi ditor</span><span class="hint">Në orën që zgjedh të vjen një njoftim për produktet që skadojnë atë ditë, edhe kur Stoku është i mbyllur. Nëse s'skadon asnjë, s'vjen njoftim.</span></span>
                 <span class="ndez"><input type="checkbox" id="njDitor"><span class="pist"></span></span>
               </label>
             </div>
@@ -1783,9 +1783,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=144"></script>
-<script src="ekipa.js?v=157"></script>
+<script src="ekipa.js?v=158"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=157"></script>
+<script src="teRejat.js?v=158"></script>
 <script>
 (function () {
   'use strict';
@@ -3134,7 +3134,7 @@
     $('njOra').value = oraEZgjedhur();
     $('njOraHint').textContent = !perdoruesiAktual() ? 'Hyr në llogari që ta përdorësh.' :
       (g === 'pa' ? 'Ky shfletues s\'i mbështet njoftimet.' : g === 'bllokuar' ? 'Njoftimet janë të bllokuara te cilësimet e telefonit.' :
-        g === 'fikur' ? 'Shtyp më lart "Aktivizo njoftimet".' : aktiv ? 'Çdo ditë në ' + o.ora + '.' : 'Zgjidh orën dhe ndiz "Përmbledhje çdo ditë".');
+        g === 'fikur' ? 'Shtyp më lart "Aktivizo njoftimet".' : aktiv ? 'Çdo ditë në ' + o.ora + '.' : 'Zgjidh orën dhe ndiz "Njoftimi ditor".');
     $('tabNjoftimetStatus').textContent = aktiv && g !== 'fikur' && g !== 'bllokuar' ? NJ_GJENDJET[g][3] + ' · ditore ' + o.ora : NJ_GJENDJET[g][3];
   }
   function tekstiGabimitOrarit(a) {
@@ -3225,14 +3225,14 @@
     else if (tani - sv.cron > cronVonesaMaks(sv.cronShprehja) * 60000) t = 'Ora automatike (Cron) s\'ka punuar që nga ' + oraNga(sv.cron) + (sv.cronShprehja ? ' (atëherë ishte ' + cronMeFjale(sv.cronShprehja) + ')' : '') + '. Te Cloudflare → stoku-push → Settings → Trigger Events duhet të jetë vetëm "Every minute". Pastaj te stoku-push → Logs shih a del "stoku-push cron".';
     else if (!im || !im.ok) t = 'Serveri s\'u përgjigj për këtë pajisje. Provo ta fikësh dhe ta ndezësh njoftimin ditor.';
     else if (!cronKapMinuten(sv.cronShprehja, o.ora)) t = 'Cron-i te Cloudflare punon ' + cronMeFjale(sv.cronShprehja) + ', jo çdo minutë, prandaj njoftimi për ' + o.ora + ' vjen me vonesë. Te stoku-push → Settings → Trigger Events fshije Cron-in e vjetër dhe zgjidh "Every minute" (çdo minutë).';
-    else if (!im.ekziston) t = 'Serveri s\'e ka orarin e kësaj pajisjeje. Fike dhe ndize sërish "Përmbledhje çdo ditë".';
+    else if (!im.ekziston) t = 'Serveri s\'e ka orarin e kësaj pajisjeje. Fike dhe ndize sërish "Njoftimi ditor".';
     else if (im.ora && im.ora !== o.ora) t = 'Serveri ka ende orën ' + im.ora + ' (jo ' + o.ora + '). Shkruaje orën sërish dhe shtyp Enter.';
     else {
       keq = false;
       var sot = im.dita === sotIso();
       if (sot && im.rez === 'derguar') t = '✓ Sot njoftimi u dërgua në ' + oraNga(im.kohaRez) + '.';
-      else if (sot && im.rez === 'asgje') t = '✓ Serveri punon. Sot s\'kishte produkte të skaduara apo që skadojnë këtë javë, prandaj s\'erdhi njoftim.';
-      else if (sot && im.rez) { keq = true; t = 'Sot njoftimi s\'u dorëzua në telefon (' + im.rez + '). Fike dhe ndize sërish "Përmbledhje çdo ditë".'; }
+      else if (sot && im.rez === 'asgje') t = '✓ Serveri punon. Sot s\'skadon asnjë produkt, prandaj s\'erdhi njoftim.';
+      else if (sot && im.rez) { keq = true; t = 'Sot njoftimi s\'u dorëzua në telefon (' + im.rez + '). Fike dhe ndize sërish "Njoftimi ditor".'; }
       else t = '✓ Serveri punon. Njoftimi i radhës: ' + (sot ? 'nesër' : 'sot ose nesër') + ' në ' + o.ora + '.';
       if (im.afatet === 0) t += ' (Serveri s\'ka ende listën e afateve: hape Stoku-n një herë.)';
     }

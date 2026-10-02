@@ -35,7 +35,7 @@ const PROJEKTI = 'stoku-appi';
 const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databases/(default)/documents';
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
-const VERSIONI_WORKER = 154; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 155; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 export default {
@@ -176,25 +176,15 @@ function kohaLokale(tani, tz) {
     .formatToParts(new Date(tani)).forEach(x => { pj[x.type] = x.value; });
   return { dita: pj.year + '-' + pj.month + '-' + pj.day, minuta: Number(pj.hour) * 60 + Number(pj.minute) };
 }
-function shtoDite(iso, n) { const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
 // Teksti i njoftimit ditor; null kur s'ka çka të thuhet
+// Vetëm produktet që skadojnë SOT; pa to s'dërgohet asgjë
 function njoftimiDitor(afatet, sot) {
-  const javaFund = shtoDite(sot, 7);
-  const skaduara = [], java = [];
-  (afatet || []).forEach(a => {
-    if (!a || !DATA_RE.test(a.d || '')) return;
-    if (a.d < sot) skaduara.push(a); else if (a.d <= javaFund) java.push(a);
-  });
-  if (!skaduara.length && !java.length) return null;
-  skaduara.sort((x, y) => x.d < y.d ? -1 : x.d > y.d ? 1 : 0);
+  const sotL = (afatet || []).filter(a => a && DATA_RE.test(a.d || '') && a.d === sot);
+  if (!sotL.length) return null;
   const emri = a => a.e || a.b || 'produkt';
-  let teksti = '';
-  if (skaduara.length === 1) teksti = emri(skaduara[0]) + ' ka skaduar. Hiqe nga rafti.';
-  else if (skaduara.length) teksti = skaduara.length + ' produkte kanë skaduar: ' + skaduara.slice(0, 4).map(emri).join(', ') + (skaduara.length > 4 ? '…' : '') + '.';
-  const sotN = java.filter(a => a.d === sot).length;
-  if (java.length) teksti += (teksti ? ' ' : '') + (sotN === java.length ? (sotN === 1 ? '1 skadon sot.' : sotN + ' skadojnë sot.')
-    : (java.length === 1 ? '1 skadon këtë javë.' : java.length + ' skadojnë këtë javë.'));
-  return { titulli: skaduara.length ? 'Stoku · Hiqi nga rafti' : 'Stoku · Afatet', teksti: teksti.length > 220 ? teksti.slice(0, 217) + '…' : teksti, skaduara: skaduara.length, java: java.length };
+  const teksti = sotL.length === 1 ? emri(sotL[0]) + ' skadon sot. Hiqe nga rafti.'
+    : sotL.length + ' produkte skadojnë sot: ' + sotL.slice(0, 5).map(emri).join(', ') + (sotL.length > 5 ? '…' : '') + '.';
+  return { titulli: 'Stoku · Skadon sot', teksti: teksti.length > 220 ? teksti.slice(0, 217) + '…' : teksti, sot: sotL.length };
 }
 async function hashEndpoint(endpoint) {
   const h = new Uint8Array(await crypto.subtle.digest('SHA-256', tekst(endpoint)));
