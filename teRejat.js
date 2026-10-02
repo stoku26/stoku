@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 154, versioni: '1.4.5', data: '2026-10-02', titulli: 'Ndryshimi i orës vlen që sot', platforma: 'tel', pikat: [
+      'Kur e ndryshon orën e njoftimit ditor, njoftimi vjen që sot në orën e re (nëse ajo s\'ka kaluar), edhe nëse sot ka ardhur një herë.'
+    ] },
     { v: 153, versioni: '1.4.4', data: '2026-10-02', titulli: 'Ora 24-orëshe', platforma: 'tel', pikat: [
       'Ora e njoftimit ditor shkruhet në formatin 24-orësh (p.sh. 17:05), pa AM/PM. Mjafton të shkruash shifrat, ":" vendoset vetë.'
     ] },

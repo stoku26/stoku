@@ -35,7 +35,7 @@ const PROJEKTI = 'stoku-appi';
 const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databases/(default)/documents';
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
-const VERSIONI_WORKER = 152; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 153; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 export default {
@@ -228,10 +228,16 @@ async function trajtoOrarin(req, env, pergjigju) {
   if (!/^[A-Za-z0-9_-]{20,200}$/.test(pj.p256dh || '') || !/^[A-Za-z0-9_-]{10,100}$/.test(pj.auth || '')) return pergjigju({ ok: false, arsye: 'pajisja' }, 400);
   const rek = { uid, ora: t.ora, tz, platforma: t.platforma === 'pc' ? 'pc' : 'tel', pajisja: { endpoint: pj.endpoint, p256dh: pj.p256dh, auth: pj.auth } };
   await env.FOTO.put(celesi, JSON.stringify(rek));
-  // Nëse ora e re është ende përpara sot, njoftimi i sotëm vjen; nëse ka kaluar, nga nesër
+  // E njëjta orë → s'ndryshon asgjë (s'ridërgohet sot). Orë e re: nëse është ende përpara sot, njoftimi vjen sot në
+  // orën e re (edhe nëse sot është dërguar një herë në orën e vjetër); nëse ka kaluar, nga nesër.
+  const para = ind[celesi];
+  if (para && para.ora === t.ora && para.tz === tz) {
+    await env.FOTO.put('orari-indeksi', JSON.stringify(ind));
+    return pergjigju({ ok: true, aktiv: true, ora: t.ora });
+  }
   const lok = kohaLokale(Date.now(), tz), [hh, mm] = t.ora.split(':').map(Number);
-  const dita = lok.minuta >= hh * 60 + mm ? lok.dita : ((ind[celesi] && ind[celesi].dita === lok.dita) ? lok.dita : '');
-  ind[celesi] = { ora: t.ora, tz, dita };
+  const dita = lok.minuta >= hh * 60 + mm ? lok.dita : '';
+  ind[celesi] = Object.assign({}, para || {}, { ora: t.ora, tz, dita });
   await env.FOTO.put('orari-indeksi', JSON.stringify(ind));
   return pergjigju({ ok: true, aktiv: true, ora: t.ora });
 }
