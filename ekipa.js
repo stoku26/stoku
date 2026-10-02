@@ -632,7 +632,7 @@
       aktivizoPush: aktivizoPush,
       caktivizoPush: caktivizoPush,
       pushAktiv: pushAktiv,
-      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, statusiIOrarit: statusiIOrarit, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 152,
+      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, statusiIOrarit: statusiIOrarit, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 153,
 
       // ---------- Chat ----------
       dergoMesazh: function (tekst) {

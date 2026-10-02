@@ -1783,9 +1783,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=144"></script>
-<script src="ekipa.js?v=152"></script>
+<script src="ekipa.js?v=154"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=153"></script>
+<script src="teRejat.js?v=154"></script>
 <script>
 (function () {
   'use strict';
@@ -3189,6 +3189,7 @@
     else if (!im || !im.ok) t = 'Serveri s\'u përgjigj për këtë pajisje. Provo ta fikësh dhe ta ndezësh njoftimin ditor.';
     else if (!cronKapMinuten(sv.cronShprehja, o.ora)) t = 'Cron-i te Cloudflare (' + sv.cronShprehja + ') s\'punon çdo minutë, prandaj njoftimi për ' + o.ora + ' vjen me vonesë. Te stoku-push → Settings → Trigger Events ndryshoje Cron-in në "* * * * *".';
     else if (!im.ekziston) t = 'Serveri s\'e ka orarin e kësaj pajisjeje. Fike dhe ndize sërish "Përmbledhje çdo ditë".';
+    else if (im.ora && im.ora !== o.ora) t = 'Serveri ka ende orën ' + im.ora + ' (jo ' + o.ora + '). Shkruaje orën sërish dhe shtyp Enter.';
     else {
       keq = false;
       var sot = im.dita === sotIso();
