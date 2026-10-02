@@ -1783,9 +1783,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=144"></script>
-<script src="ekipa.js?v=156"></script>
+<script src="ekipa.js?v=157"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=156"></script>
+<script src="teRejat.js?v=157"></script>
 <script>
 (function () {
   'use strict';
@@ -3175,6 +3175,34 @@
     if (hap) return m % Number(hap[1]) === 0;
     return f.split(',').some(function (x) { return Number(x) === m; });
   }
+  // Shprehja e Cron-it me fjalë (yjet "* * * * *" s'lexohen mirë): "çdo minutë", "çdo 15 minuta", "në minutat 5, 35"
+  function cronMeFjale(shprehja) {
+    var f = String(shprehja || '').trim().split(/\s+/)[0], hap = /^\*\/(\d+)$/.exec(f);
+    if (f === '*' || f === '*/1') return 'çdo minutë';
+    if (hap) return 'çdo ' + hap[1] + ' minuta';
+    var l = f.split(',').map(Number);
+    if (l.length > 1 && l.every(function (x) { return !isNaN(x); })) {
+      var d = l[1] - l[0];
+      if (l[0] < d && d > 0 && 60 % d === 0 && l.length === 60 / d && l.every(function (x, i) { return x === l[0] + i * d; })) return 'çdo ' + d + ' minuta';
+      return 'në minutat ' + l.join(', ') + ' të çdo ore';
+    }
+    return /^\d+$/.test(f) ? 'një herë në orë' : 'jo çdo minutë';
+  }
+  // Sa minuta pa shenjë të re nga Cron-i janë normale: serveri e rishkruan shenjën më së shpeshti çdo 10 min
+  function cronVonesaMaks(shprehja) {
+    if (!shprehja) return 45;
+    var f = String(shprehja).trim().split(/\s+/)[0], hap = /^\*\/(\d+)$/.exec(f), l = f.split(',').map(Number), p = 60;
+    if (f === '*') p = 1; else if (hap) p = Number(hap[1]); else if (l.length > 1 && l.every(function (x) { return !isNaN(x); })) p = Math.max.apply(null, l.map(function (x, i) { return (l[(i + 1) % l.length] - x + 60) % 60 || 60; }));
+    return Math.max(p, 10) + 7;
+  }
+  function gabimiICronit(g) {
+    var m = String(g.mesazh || '').replace(/^shenja:\s*/, '');
+    if (/limit exceeded|429/i.test(m)) {
+      var d = new Date(), mes = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 1);
+      return 'Cloudflare ka arritur limitin falas të shkrimeve të KV-së (1000 në ditë), prandaj serveri s\'po e ruan dot se kujt ia dërgoi njoftimin. Rifillon vetë në ' + oraNga(mes) + '.';
+    }
+    return 'Serveri pati gabim në ' + oraNga(g.koha) + ': ' + m.split('\n')[0].slice(0, 160) + '. Dërgoja këtë tekst atij që e mirëmban Stoku-n.';
+  }
   async function kontrolloServerinEOrarit() {
     var e = ekipaCloud(), o = e && e.orariIm ? e.orariIm() : null, el = $('njOraServer');
     if (!e || !e.statusiIOrarit || !o || !o.aktiv) { el.hidden = true; return; }
@@ -3185,14 +3213,18 @@
       await e.dergoAfatetPerOrarin(afatet);
       st = await e.statusiIOrarit(); sv = st.serveri; im = st.im;
     }
-    var keq = true, t;
+    var keq = true, t, kvProva = null;
+    // Cron-i duket i ndalur: provohet a pranon KV-ja shkrime (kur limiti ditor mbaron, shenja s'ruhet dot)
+    if (sv && sv.versioni >= 154 && sv.fotot && sv.cron && tani - sv.cron > cronVonesaMaks(sv.cronShprehja) * 60000 && e.provoKV) kvProva = await e.provoKV();
     if (!sv) t = 'S\'u lidh me serverin për ta kontrolluar. Kontrollo internetin.';
     else if (!sv.versioni || sv.versioni < e.VERSIONI_WORKER) t = 'Serveri (Cloudflare) ka kodin e vjetër: ngjite kodin e ri te stoku-push, përndryshe njoftimi ditor s\'vjen.';
     else if (!sv.fotot) t = 'Serverit i mungon KV-ja "FOTO" (Cloudflare → stoku-push → Bindings).';
-    else if (!sv.cron) t = 'Ora automatike (Cron) s\'është vendosur te Cloudflare: stoku-push → Settings → Trigger Events → Cron "* * * * *" (çdo minutë). Pa të njoftimi ditor s\'vjen.';
-    else if (tani - sv.cron > 45 * 60000) t = 'Ora automatike (Cron) s\'ka punuar që nga ' + oraNga(sv.cron) + '. Kontrollo Cron-in te Cloudflare.';
+    else if (!sv.cron) t = 'Ora automatike (Cron) s\'është vendosur te Cloudflare: stoku-push → Settings → Trigger Events → Cron Triggers → "Every minute" (çdo minutë). Pa të njoftimi ditor s\'vjen.';
+    else if (sv.cronGabim && sv.cronGabim.koha && tani - sv.cronGabim.koha < 60 * 60000 && sv.cronGabim.koha >= sv.cron - 60000) t = gabimiICronit(sv.cronGabim);
+    else if (kvProva && kvProva.ok === false) t = gabimiICronit(kvProva);
+    else if (tani - sv.cron > cronVonesaMaks(sv.cronShprehja) * 60000) t = 'Ora automatike (Cron) s\'ka punuar që nga ' + oraNga(sv.cron) + (sv.cronShprehja ? ' (atëherë ishte ' + cronMeFjale(sv.cronShprehja) + ')' : '') + '. Te Cloudflare → stoku-push → Settings → Trigger Events duhet të jetë vetëm "Every minute". Pastaj te stoku-push → Logs shih a del "stoku-push cron".';
     else if (!im || !im.ok) t = 'Serveri s\'u përgjigj për këtë pajisje. Provo ta fikësh dhe ta ndezësh njoftimin ditor.';
-    else if (!cronKapMinuten(sv.cronShprehja, o.ora)) t = 'Cron-i te Cloudflare (' + sv.cronShprehja + ') s\'punon çdo minutë, prandaj njoftimi për ' + o.ora + ' vjen me vonesë. Te stoku-push → Settings → Trigger Events ndryshoje Cron-in në "* * * * *".';
+    else if (!cronKapMinuten(sv.cronShprehja, o.ora)) t = 'Cron-i te Cloudflare punon ' + cronMeFjale(sv.cronShprehja) + ', jo çdo minutë, prandaj njoftimi për ' + o.ora + ' vjen me vonesë. Te stoku-push → Settings → Trigger Events fshije Cron-in e vjetër dhe zgjidh "Every minute" (çdo minutë).';
     else if (!im.ekziston) t = 'Serveri s\'e ka orarin e kësaj pajisjeje. Fike dhe ndize sërish "Përmbledhje çdo ditë".';
     else if (im.ora && im.ora !== o.ora) t = 'Serveri ka ende orën ' + im.ora + ' (jo ' + o.ora + '). Shkruaje orën sërish dhe shtyp Enter.';
     else {

@@ -363,6 +363,10 @@
       } catch (e) { /* ok */ }
       return dalja;
     }
+    // A pranon KV-ja e serverit shkrime (limiti falas 1000 në ditë)? Thirret vetëm kur Cron-i duket i ndalur.
+    async function provoKV() {
+      try { var r = await fetch(PUSH_URL + '/?kv=1', { method: 'GET' }); return (await r.json()).kv || null; } catch (e) { return null; }
+    }
     // Serveri e fshin orarin kur Google/Apple e refuzojnë adresën e njoftimeve (p.sh. pas riinstalimit të aplikacionit).
     // Nëse telefoni e ka ende orarin të ndezur, regjistrohet sërish vetë (maks një herë në 3 orë).
     var KEY_ORARI_KONTROLL = 'stoku:orari:kontrolli';
@@ -650,7 +654,7 @@
       aktivizoPush: aktivizoPush,
       caktivizoPush: caktivizoPush,
       pushAktiv: pushAktiv,
-      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, statusiIOrarit: statusiIOrarit, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 153,
+      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 154,
 
       // ---------- Chat ----------
       dergoMesazh: function (tekst) {
