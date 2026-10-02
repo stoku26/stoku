@@ -50,6 +50,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **IKONA E SAHATIT (v161 = 1.5.1)**: ikona adaptive e `ora/` kishte sfond #14161B (s'dukej mbi sfondin e zi
+   të Galaxy Watch); tash sfond #F5B70A me shufrat e barkodit të zeza (+ kënde skanimi), shkallë 1.08 (këndet brenda rrethit të dukshëm). `lidhSahatin`:
+   `arsye 'rruga'` (Worker i vjetër pa `/ora/*`) → mesazh "ngjite kodin e ri".
 0000000. **STOKU PËR SAHAT (v160 = 1.5.0, Worker 157)**: aplikacion Wear OS te `ora/` (Kotlin + Compose for Wear OS:
    lista e sotme me ✓/Zhbëj, tile, komplikacion SHORT_TEXT). APK ndërtohet nga `.github/workflows/ora-apk.yml`
    (artifact; në main edhe Release `ora-vNN`), i nënshkruar me `ora/stoku-ora.jks` (në repo, që përditësimet të

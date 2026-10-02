@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 161, versioni: '1.5.1', data: '2026-10-02', titulli: 'Ikona e sahatit më e qartë', platforma: 'tel', pikat: [
+      'Ikona e Stoku-t në sahat tash është e verdhë, që të duket mirë mbi sfondin e zi të Galaxy Watch.',
+      'Kur serveri s\'është përditësuar, "Lidh sahatin" e thotë qartë këtë.'
+    ] },
     { v: 160, versioni: '1.5.0', data: '2026-10-02', titulli: 'Stoku në sahat (Galaxy Watch)', pikat: [
       'Aplikacioni i ri Stoku për Galaxy Watch: në sahat sheh produktet që skadojnë sot, me tile dhe numër në fytyrën e orës.',
       'Lidhja: hape Stoku në sahat dhe shkruaje kodin te Cilësimet → Njoftimet → Galaxy Watch → Lidh sahatin.',
