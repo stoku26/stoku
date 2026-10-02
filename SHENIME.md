@@ -50,6 +50,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **KONTROLLI I PLOTË + AFATET NGA PC (v159 = 1.4.10, Worker 156)**: zvarritësi (416 klikime, tel + PC, temë e
+   çelët + e errët) pa asnjë problem; regresioni krejt OK. Mangësia e gjetur: serveri e merrte listën e afateve vetëm nga
+   telefoni (kur hapej), kështu afati i shtuar në PC që skadon sot s'dilte te njoftimi ditor. Tash `shkruajLokalisht` te
+   pc.html thërret `dergoAfatetPerNjoftiminDitor` (pritje 4 s) → `dergoAfatetPerOrarin(afatet, true)` me `vetemMeOrar`;
+   Worker 156 i ruan vetëm nëse uid-i ka orar në ndonjë pajisje (`paOrar` përndryshe, pa shkrim në KV). Worker 155 i
+   ruan gjithsesi, prandaj `VERSIONI_WORKER` te aplikacioni mbetet 155 (s'del "kodi i vjetër").
 0000000. **NJOFTIMI DITOR VETËM PËR SOT (v158 = 1.4.9, Worker 155)**: sipas kërkesës, `njoftimiDitor` s'bën më
    përmbledhje (të skaduarat + java): merr vetëm afatet me `d === sot` ("X skadon sot. Hiqe nga rafti." / "N produkte
    skadojnë sot: …", titulli "Stoku · Skadon sot"); pa to kthen `null` dhe `rez = 'asgje'`, pa njoftim. `shtoDite` u hoq.
