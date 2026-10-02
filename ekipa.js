@@ -309,9 +309,9 @@
     // ---------- Njoftimi ditor për afatet (Worker-i e dërgon në orën e zgjedhur, me Cron) ----------
     var KEY_ORARI = 'stoku:orari', KEY_ORARI_AFATET = 'stoku:orari:afatet';
     function orariIm() { var o = lexoLS(KEY_ORARI); return o && o.uid === uid() ? o : null; }
-    async function thirrOrarin(trup) {
+    async function thirrOrarin(trup, rruga) {
       var token = await auth.currentUser.getIdToken();
-      var r = await fetch(PUSH_URL + '/orari', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(trup) });
+      var r = await fetch(PUSH_URL + (rruga || '/orari'), { method: 'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(trup) });
       var j = {}; try { j = await r.json(); } catch (e) { /* ok */ }
       if (!r.ok && !j.arsye) j.arsye = 'http-' + r.status;
       return j;
@@ -387,18 +387,44 @@
     // Kopja e afateve te Worker-i (vetëm kur kjo pajisje ka orar dhe kur lista ndryshon, ose një herë në ditë)
     // ngaPC: kompjuteri s'ka orar vetë, por ia dërgon serverit afatet e reja që njoftimi ditor i telefonit të jetë i saktë
     // edhe kur produktet ndryshohen vetëm në kompjuter (serveri i ruan vetëm nëse ka orar në ndonjë pajisje).
-    async function dergoAfatetPerOrarin(afatet, ngaPC) {
+    // Pa orar në këtë pajisje dërgohet me "vetemMeOrar": serveri e ruan vetëm kur përdoruesi ka orar në ndonjë pajisje
+    // ose sahat të lidhur (kështu lista e sahatit/njoftimit ditor mbetet e saktë nga çdo pajisje).
+    async function dergoAfatetPerOrarin(afatet) {
       var o = orariIm();
-      if (!uid() || (!ngaPC && (!o || !o.aktiv))) return { ok: false, arsye: 'pa-orar' };
+      if (!uid()) return { ok: false, arsye: 'pa-hyrje' };
+      var vetemMeOrar = !(o && o.aktiv);
       var l = (afatet || []).filter(function (a) { return a && a.statusi !== 'hequr' && /^\d{4}-\d{2}-\d{2}$/.test(a.data || ''); })
-        .map(function (a) { return { e: String(a.emri || '').slice(0, 120), b: String(a.barkodi || '').slice(0, 40), d: a.data }; });
+        .map(function (a) { var x = { i: String(a.id || '').slice(0, 60), e: String(a.emri || '').slice(0, 120), b: String(a.barkodi || '').slice(0, 40), d: a.data }; if (typeof a.sasia === 'number') x.s = a.sasia; return x; });
       var h = hashTekst(JSON.stringify(l)), ruajtur = lexoLS(KEY_ORARI_AFATET);
+      // Serveri tha para pak që s'ka as orar as sahat: s'pyetet sërish për 10 min
+      if (vetemMeOrar && ruajtur && ruajtur.uid === uid() && ruajtur.paOrar && Date.now() - ruajtur.koha < 600000) return { ok: true, paOrar: true };
       if (ruajtur && ruajtur.uid === uid() && ruajtur.h === h && Date.now() - ruajtur.koha < 86400000) return { ok: true, pandryshuar: true };
       try {
-        var r = await thirrOrarin(ngaPC ? { afatet: l, vetemMeOrar: true } : { afatet: l });
-        if (r && r.ok && !r.paOrar) shkruajLS(KEY_ORARI_AFATET, { uid: uid(), h: h, koha: Date.now() });
+        var r = await thirrOrarin(vetemMeOrar ? { afatet: l, vetemMeOrar: true } : { afatet: l });
+        if (r && r.ok && r.paOrar) shkruajLS(KEY_ORARI_AFATET, { uid: uid(), paOrar: true, koha: Date.now() });
+        else if (r && r.ok) shkruajLS(KEY_ORARI_AFATET, { uid: uid(), h: h, koha: Date.now() });
         return r;
       } catch (e) { return { ok: false, arsye: 'rrjeti' }; }
+    }
+
+    // ---------- Sahati (Galaxy Watch): lidhja me kod dhe heqjet e bëra nga sahati ----------
+    async function lidhOren(kodi) {
+      if (!uid()) return { ok: false, arsye: 'pa-hyrje' };
+      try {
+        var r = await thirrOrarin({ kodi: String(kodi || '').replace(/\D/g, ''), emri: emri() }, '/ora/lidh');
+        if (r && r.ok) shkruajLS(KEY_ORARI_AFATET, null); // lista e afateve i dërgohet menjëherë serverit
+        return r;
+      } catch (e) { return { ok: false, arsye: 'rrjeti' }; }
+    }
+    var heqjetOraKoha = 0;
+    async function merrHeqjetNgaOra(detyro) {
+      if (!uid() || (!detyro && Date.now() - heqjetOraKoha < 120000)) return [];
+      heqjetOraKoha = Date.now();
+      try { var r = await thirrOrarin({}, '/ora/hequrat'); return (r && r.ok && r.hequrat) || []; } catch (e) { return []; }
+    }
+    async function pastroHeqjetNgaOra(ids) {
+      if (!uid() || !ids || !ids.length) return;
+      try { await thirrOrarin({ pastro: ids }, '/ora/hequrat'); } catch (e) { /* ok */ }
     }
 
     // Në dalje nga llogaria: kjo pajisje s'merr më njoftimet e kësaj llogarie
@@ -656,7 +682,7 @@
       aktivizoPush: aktivizoPush,
       caktivizoPush: caktivizoPush,
       pushAktiv: pushAktiv,
-      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 155,
+      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 155,
 
       // ---------- Chat ----------
       dergoMesazh: function (tekst) {

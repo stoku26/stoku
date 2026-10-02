@@ -1029,7 +1029,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=16">
+<link rel="stylesheet" href="css/stoku.css?v=17">
 </head>
 <body>
 <script src="porta.js?v=145"></script>
@@ -1317,6 +1317,15 @@
               <button type="button" data-v="apple" role="tab">Apple Watch</button>
             </div>
             <div class="ops-ora-faqe" data-ora="galaxy">
+              <div class="ora-lidh">
+                <div class="ops-ll-titull">Aplikacioni Stoku në sahat</div>
+                <div class="hint">Hape Stoku në sahat: del një kod me 6 shifra. Shkruaje këtu që sahati të lidhet me llogarinë tënde.</div>
+                <div class="ora-lidh__rresht">
+                  <input type="text" id="oraKodi" class="nj-ora ora-kodi" inputmode="numeric" maxlength="7" placeholder="482913" autocomplete="off" enterkeyhint="go" aria-label="Kodi që del në sahat">
+                  <button class="btn" id="oraLidh" type="button">Lidh sahatin</button>
+                </div>
+                <div class="hint" id="oraLidhHint" role="status"></div>
+              </div>
               <ol class="ops-hapat">
                 <li>Instalo Stoku në telefon: Chrome → menyja <b>⋮</b> → <b>Shto në ekranin kryesor</b> / <b>Instalo aplikacionin</b>.</li>
                 <li>Këtu lart shtyp <b>Aktivizo njoftimet</b> dhe lejoji.</li>
@@ -3240,6 +3249,42 @@
     el.textContent = t;
   }
   $('tabNjoftimet').addEventListener('click', function () { setTimeout(kontrolloServerinEOrarit, 50); });
+  // ---------- Sahati: lidhja me kod ----------
+  async function lidhSahatin() {
+    var e = ekipaCloud(), kodi = $('oraKodi').value.replace(/\D/g, ''), h = $('oraLidhHint');
+    if (!perdoruesiAktual() || !e || !e.lidhOren) { h.textContent = 'Hyr në llogari që ta lidhësh sahatin.'; return; }
+    if (kodi.length !== 6) { h.textContent = 'Kodi ka 6 shifra (p.sh. 482913).'; $('oraKodi').focus(); return; }
+    $('oraLidh').disabled = true; h.textContent = 'Duke lidhur…';
+    var r = await e.lidhOren(kodi);
+    $('oraLidh').disabled = false;
+    if (r && r.ok) {
+      $('oraKodi').value = '';
+      h.textContent = '✓ Sahati u lidh. Pas pak sekondash në sahat del lista e produkteve që skadojnë sot.';
+      e.dergoAfatetPerOrarin(afatet).catch(function () { /* ok */ });
+    } else h.textContent = r && r.arsye === 'kodi' ? 'Ky kod s\'u gjet ose ka skaduar. Shiko kodin e ri në sahat.'
+      : r && r.arsye === 'rrjeti' ? 'S\'ka internet. Provo prapë.' : 'S\'u lidh (' + ((r && r.arsye) || 'gabim') + '). Provo prapë.';
+  }
+  $('oraLidh').addEventListener('click', lidhSahatin);
+  $('oraKodi').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); lidhSahatin(); } });
+  // Heqjet nga rafti të bëra në sahat zbatohen këtu (dhe dërgohen te cloud-i si çdo heqje tjetër)
+  async function zbatoHeqjetNgaOra(detyro) {
+    var e = ekipaCloud();
+    if (!e || !e.merrHeqjetNgaOra || !perdoruesiAktual()) return;
+    var l = await e.merrHeqjetNgaOra(detyro), kryer = [], n = 0;
+    l.forEach(function (h) {
+      var a = afatet.filter(function (x) { return x.id === h.i; })[0];
+      if (!a) return; // ende pa u sinkronizuar këtu: mbetet për herën tjetër
+      kryer.push(h.i);
+      if (a.statusi === 'hequr') return;
+      perditesoAfatin(a.id, { statusi: 'hequr', hequrSe: h.koha || Date.now(), hequrNga: emriPerdoruesitAktual() });
+      ekNgjarjeAfati('hequr', a); n++;
+    });
+    if (n) toast(n === 1 ? '1 produkt u shënua i hequr nga rafti (nga sahati).' : n + ' produkte u shënuan të hequra nga rafti (nga sahati).');
+    if (kryer.length) e.pastroHeqjetNgaOra(kryer);
+  }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) zbatoHeqjetNgaOra(false).catch(function () { /* ok */ }); });
+  window.addEventListener('stoku-cloud-gati', function () { setTimeout(function () { zbatoHeqjetNgaOra(true).catch(function () { /* ok */ }); }, 4000); });
+  window.addEventListener('stoku-auth-ndryshoi', function () { setTimeout(function () { zbatoHeqjetNgaOra(true).catch(function () { /* ok */ }); }, 4000); });
   $('njDitor').addEventListener('change', function () { ruajOrarin(this.checked); });
   // Ora 24-orëshe e shkruar me dorë: vetëm shifra, ":" vendoset vetë pas orës ("1705" → "17:05")
   function oraNgaTeksti(t) {
@@ -7377,7 +7422,7 @@
     njKohezi = setTimeout(function () {
       var kopje = afatet.slice();
       var e = ekipaCloud(), o = e && e.orariIm ? e.orariIm() : null;
-      if (o && o.aktiv) e.dergoAfatetPerOrarin(kopje).catch(function () { /* ok */ }); // kopja për njoftimin ditor
+      if (e && e.dergoAfatetPerOrarin) e.dergoAfatetPerOrarin(kopje).catch(function () { /* ok */ }); // kopja për njoftimin ditor dhe sahatin
       // Njoftimet e menjëhershme ndalen vetëm kur serveri i njoftimit ditor është konfirmuar që punon. Me orar të
       // ndezur, serveri kontrollohet PARA se të vendoset (përndryshe në hapje dilnin "34 produkte skadojnë…").
       var pyetServerin = (o && o.aktiv && e.kontrolloServerin && !(e.orariPunon && e.orariPunon()))

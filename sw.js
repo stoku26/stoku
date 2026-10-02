@@ -34,7 +34,7 @@ var SHELL = FAQET.concat([
   './teRejat.js?v=159',
   './manifest.webmanifest?v=85',
   './css/stoku-tokens.css?v=5',
-  './css/stoku.css?v=16',
+  './css/stoku.css?v=17',
   './css/stoku-pc.css?v=11',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',

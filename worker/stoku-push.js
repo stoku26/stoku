@@ -35,7 +35,7 @@ const PROJEKTI = 'stoku-appi';
 const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databases/(default)/documents';
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
-const VERSIONI_WORKER = 156; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 157; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 export default {
@@ -44,7 +44,7 @@ export default {
     const cors = {
       'Access-Control-Allow-Origin': ORIGJINAT.includes(origin) ? origin : ORIGJINAT[0],
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Authorization, Content-Type',
+      'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-Stoku-Ora',
       'Access-Control-Max-Age': '86400',
       'Vary': 'Origin'
     };
@@ -53,6 +53,7 @@ export default {
     const rrugaF = new URL(req.url).pathname.replace(/\/+$/, '');
     if (rrugaF === '/foto' || rrugaF === '/fotot' || rrugaF.indexOf('/foto/') === 0) return trajtoFotot(req, env, rrugaF, cors, pergjigju);
     if (rrugaF === '/orari' && req.method === 'POST') return trajtoOrarin(req, env, pergjigju);
+    if (rrugaF.indexOf('/ora/') === 0) return trajtoOren(req, env, rrugaF, pergjigju);
     if (req.method !== 'POST') {
       // Kontrolli i shëndetit: a janë çelësat, KV-ja, versioni i kodit dhe kur punoi Cron-i së fundi (njoftimi ditor)
       const c = env.FOTO ? await lexoCronin(env) : {};
@@ -186,6 +187,82 @@ function njoftimiDitor(afatet, sot) {
     : sotL.length + ' produkte skadojnë sot: ' + sotL.slice(0, 5).map(emri).join(', ') + (sotL.length > 5 ? '…' : '') + '.';
   return { titulli: 'Stoku · Skadon sot', teksti: teksti.length > 220 ? teksti.slice(0, 217) + '…' : teksti, sot: sotL.length };
 }
+// ---------- Sahati (Galaxy Watch / Wear OS) ----------
+// Lidhja: sahati krijon kodin 6-shifror + një sekret 64-hex (POST /ora/kodi, pa llogari); përdoruesi e shkruan kodin
+// te telefoni (POST /ora/lidh, me llogari) dhe sekreti i sahatit lidhet me uid-in. Pastaj sahati thërret me
+// "X-Stoku-Ora: <sekret>": GET /ora/sot (lista e sotme), POST /ora/hiq {i, zhbej}. Heqjet e sahatit ruhen te
+// 'ora-hequr:{uid}' dhe telefoni/PC i zbatojnë në afate (POST /ora/hequrat), pastaj i pastrojnë.
+const KODI_RE = /^\d{6}$/, SEKRET_RE = /^[0-9a-f]{64}$/;
+async function sha256Hex(t) { const h = new Uint8Array(await crypto.subtle.digest('SHA-256', tekst(t))); return Array.from(h).map(b => b.toString(16).padStart(2, '0')).join(''); }
+async function afatetPaTeHequrat(env, uid) {
+  const af = (await env.FOTO.get('orari-afatet:' + uid, 'json')) || [];
+  const hq = (await env.FOTO.get('ora-hequr:' + uid, 'json')) || [];
+  if (!hq.length) return af;
+  const ids = new Set(hq.map(x => x.i));
+  return af.filter(a => !a.i || !ids.has(a.i));
+}
+function shtoDite(iso, n) { const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+async function trajtoOren(req, env, rruga, pergjigju) {
+  if (!env.FOTO) return pergjigju({ ok: false, arsye: 'mungon-kv' }, 500);
+  let t = {};
+  if (req.method === 'POST') { try { t = await req.json(); } catch (e) { return pergjigju({ ok: false, arsye: 'json' }, 400); } }
+  if (rruga === '/ora/kodi' && req.method === 'POST') {
+    if (!KODI_RE.test(t.kodi || '') || !SEKRET_RE.test(t.sekret || '')) return pergjigju({ ok: false, arsye: 'forma' }, 400);
+    const h = await sha256Hex(t.sekret), para = await env.FOTO.get('ora-kodi:' + t.kodi, 'json');
+    if (para && para.h !== h) return pergjigju({ ok: false, arsye: 'zene' }, 409);
+    if (!para) await env.FOTO.put('ora-kodi:' + t.kodi, JSON.stringify({ h, koha: Date.now() }), { expirationTtl: 900 });
+    const tok = await env.FOTO.get('ora-tok:' + h, 'json');
+    return pergjigju({ ok: true, lidhur: !!tok, emri: tok ? tok.emri || '' : '' });
+  }
+  if (rruga === '/ora/lidh' || rruga === '/ora/hequrat') {
+    const token = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
+    const uid = await verifikoTokenin(token);
+    if (!uid) return pergjigju({ ok: false, arsye: 'pa-hyrje' }, 401);
+    if (rruga === '/ora/lidh') {
+      const kodi = String(t.kodi || '').replace(/\D/g, '');
+      if (!KODI_RE.test(kodi)) return pergjigju({ ok: false, arsye: 'kodi' }, 400);
+      const k = await env.FOTO.get('ora-kodi:' + kodi, 'json');
+      if (!k || Date.now() - k.koha > 900000) return pergjigju({ ok: false, arsye: 'kodi' }, 404);
+      await env.FOTO.put('ora-tok:' + k.h, JSON.stringify({ uid, emri: String(t.emri || '').slice(0, 60), koha: Date.now() }));
+      await env.FOTO.put('ora-ka:' + uid, '1');
+      await env.FOTO.delete('ora-kodi:' + kodi);
+      return pergjigju({ ok: true });
+    }
+    // Heqjet nga sahati: kthehen për t'u zbatuar; "pastro" i heq ato që u zbatuan
+    const hq = (await env.FOTO.get('ora-hequr:' + uid, 'json')) || [];
+    if (Array.isArray(t.pastro) && t.pastro.length) {
+      const pastro = new Set(t.pastro.map(String)), mbet = hq.filter(x => !pastro.has(x.i));
+      if (mbet.length !== hq.length) { if (mbet.length) await env.FOTO.put('ora-hequr:' + uid, JSON.stringify(mbet)); else await env.FOTO.delete('ora-hequr:' + uid); }
+      return pergjigju({ ok: true, hequrat: mbet });
+    }
+    return pergjigju({ ok: true, hequrat: hq });
+  }
+  // Thirrjet e sahatit
+  const sekret = String(req.headers.get('X-Stoku-Ora') || '');
+  if (!SEKRET_RE.test(sekret)) return pergjigju({ ok: false, arsye: 'pa-lidhje' }, 401);
+  const tok = await env.FOTO.get('ora-tok:' + await sha256Hex(sekret), 'json');
+  if (!tok || !tok.uid) return pergjigju({ ok: false, arsye: 'pa-lidhje' }, 401);
+  const uid = tok.uid;
+  if (rruga === '/ora/sot' && req.method === 'GET') {
+    const u = new URL(req.url), tz = u.searchParams.get('tz') || 'Europe/Belgrade';
+    const sot = kohaLokale(Date.now(), tzIVlefshem(tz) ? tz : 'Europe/Belgrade').dita, javaFund = shtoDite(sot, 7);
+    const af = await afatetPaTeHequrat(env, uid);
+    const lista = af.filter(a => a.d === sot).sort((x, y) => (x.e || '').localeCompare(y.e || '')).slice(0, 60);
+    const java = af.filter(a => a.d > sot && a.d <= javaFund).sort((x, y) => x.d < y.d ? -1 : x.d > y.d ? 1 : 0);
+    return pergjigju({ ok: true, dita: sot, emri: tok.emri || '', sot: lista, java: java.slice(0, 60), javaN: java.length, skaduara: af.filter(a => a.d < sot).length });
+  }
+  if (rruga === '/ora/hiq' && req.method === 'POST') {
+    const i = String(t.i || '').slice(0, 60);
+    if (!i) return pergjigju({ ok: false, arsye: 'id' }, 400);
+    let hq = (await env.FOTO.get('ora-hequr:' + uid, 'json')) || [];
+    hq = hq.filter(x => x.i !== i);
+    if (!t.zhbej) hq.push({ i, koha: Date.now() });
+    hq = hq.slice(-200);
+    if (hq.length) await env.FOTO.put('ora-hequr:' + uid, JSON.stringify(hq)); else await env.FOTO.delete('ora-hequr:' + uid);
+    return pergjigju({ ok: true });
+  }
+  return pergjigju({ ok: false, arsye: 'rruga' }, 404);
+}
 async function hashEndpoint(endpoint) {
   const h = new Uint8Array(await crypto.subtle.digest('SHA-256', tekst(endpoint)));
   return Array.from(h.slice(0, 10)).map(b => b.toString(16).padStart(2, '0')).join('');
@@ -201,8 +278,13 @@ async function trajtoOrarin(req, env, pergjigju) {
   // Afatet e përdoruesit (të përbashkëta për krejt pajisjet e tij)
   if (Array.isArray(t.afatet)) {
     // Nga kompjuteri: ruhen vetëm nëse përdoruesi e ka njoftimin ditor të ndezur në ndonjë pajisje (kursehen shkrimet)
-    if (t.vetemMeOrar && !Object.keys(await lexoIndeksinEOrareve(env)).some(k => k.indexOf('orari:' + uid + ':') === 0)) return pergjigju({ ok: true, paOrar: true });
-    const af = t.afatet.slice(0, AFATET_MAKS).filter(a => a && DATA_RE.test(a.d || '')).map(a => ({ e: String(a.e || '').slice(0, 120), b: String(a.b || '').slice(0, 40), d: a.d }));
+    if (t.vetemMeOrar && !(await env.FOTO.get('ora-ka:' + uid)) && !Object.keys(await lexoIndeksinEOrareve(env)).some(k => k.indexOf('orari:' + uid + ':') === 0)) return pergjigju({ ok: true, paOrar: true });
+    const af = t.afatet.slice(0, AFATET_MAKS).filter(a => a && DATA_RE.test(a.d || '')).map(a => {
+      const x = { e: String(a.e || '').slice(0, 120), b: String(a.b || '').slice(0, 40), d: a.d };
+      if (a.i) x.i = String(a.i).slice(0, 60);
+      if (typeof a.s === 'number' && isFinite(a.s)) x.s = a.s;
+      return x;
+    });
     await env.FOTO.put('orari-afatet:' + uid, JSON.stringify(af));
   }
   const pj = t.pajisja || {};
@@ -256,7 +338,7 @@ async function dergoNjoftimetDitore(env, tani, shprehja) {
     try {
       const rek = await env.FOTO.get(celesi, 'json');
       if (!rek) { delete ind[celesi]; continue; }
-      if (!(rek.uid in afatetPerUid)) afatetPerUid[rek.uid] = (await env.FOTO.get('orari-afatet:' + rek.uid, 'json')) || [];
+      if (!(rek.uid in afatetPerUid)) afatetPerUid[rek.uid] = await afatetPaTeHequrat(env, rek.uid);
       const nj = njoftimiDitor(afatetPerUid[rek.uid], lok.dita);
       if (!nj) { x.rez = 'asgje'; continue; }
       if (!vapid) vapid = await pergatitVapid(env);
