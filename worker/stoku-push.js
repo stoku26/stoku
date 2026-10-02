@@ -18,7 +18,7 @@
  * Njoftimi ditor për afatet (v149) — në orën që zgjedh secili përdorues, edhe me Stoku të mbyllur:
  *   POST /orari (Bearer token, i verifikuar) { aktiv, ora: "08:00", tz, platforma, pajisja: { endpoint, p256dh, auth } }
  *     → ruan/heq orarin e kësaj pajisjeje; { afatet: [{ e, b, d }] } → afatet e përdoruesit (kopja e fundit).
- *   Cron Trigger (Settings → Triggers → Cron: "0,15,30,45 * * * *") → scheduled(): kur te pajisja është ora e zgjedhur,
+ *   Cron Trigger (Settings → Trigger Events → Cron: "* * * * *" = çdo minutë) → scheduled(): kur te pajisja është ora e zgjedhur,
  *     dërgon një njoftim me afatet e skaduara (dhe ato që skadojnë këtë javë). Ruhet te i njëjti KV ("FOTO").
  *
  * Fotot e profilit (v141) — ruhen te Cloudflare KV (binding "FOTO"), JO te Firebase:
@@ -35,7 +35,7 @@ const PROJEKTI = 'stoku-appi';
 const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databases/(default)/documents';
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
-const VERSIONI_WORKER = 151; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 152; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 export default {
@@ -55,9 +55,8 @@ export default {
     if (rrugaF === '/orari' && req.method === 'POST') return trajtoOrarin(req, env, pergjigju);
     if (req.method !== 'POST') {
       // Kontrolli i shëndetit: a janë çelësat, KV-ja, versioni i kodit dhe kur punoi Cron-i së fundi (njoftimi ditor)
-      let cron = null;
-      if (env.FOTO) { try { cron = Number(await env.FOTO.get('orari-cron')) || null; } catch (e) { /* ok */ } }
-      return pergjigju({ ok: true, sherbimi: 'stoku-push', versioni: VERSIONI_WORKER, celesat: !!(env.VAPID_PUBLIC && env.VAPID_PRIVATE), fotot: !!env.FOTO, cron });
+      const c = env.FOTO ? await lexoCronin(env) : {};
+      return pergjigju({ ok: true, sherbimi: 'stoku-push', versioni: VERSIONI_WORKER, celesat: !!(env.VAPID_PUBLIC && env.VAPID_PRIVATE), fotot: !!env.FOTO, cron: c.koha || null, cronShprehja: c.shprehja || null });
     }
     if (!env.VAPID_PUBLIC || !env.VAPID_PRIVATE) return pergjigju({ ok: false, arsye: 'mungojne-celesat' }, 500);
 
@@ -140,13 +139,25 @@ export default {
   // Cron Trigger (çdo 15 min): njoftimi ditor për afatet
   async scheduled(event, env, ctx) {
     if (!env.FOTO || !env.VAPID_PUBLIC || !env.VAPID_PRIVATE) return;
-    const p = dergoNjoftimetDitore(env, event && event.scheduledTime ? Number(event.scheduledTime) : Date.now());
+    const p = dergoNjoftimetDitore(env, event && event.scheduledTime ? Number(event.scheduledTime) : Date.now(), event && event.cron);
     if (ctx && ctx.waitUntil) ctx.waitUntil(p); else await p;
   }
 };
 
 // ---------------- Njoftimi ditor për afatet (Cloudflare KV + Cron) ----------------
-const ORA_RE = /^([01]\d|2[0-3]):(00|15|30|45)$/;
+// Çdo minutë e ditës (v152). Që njoftimi të vijë saktë në minutë, Cron-i duhet "* * * * *" (çdo minutë);
+// me Cron më të rrallë vjen në ekzekutimin e parë pas orës së zgjedhur (brenda 60 min).
+const ORA_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+// Shenja që Cron-i punon: { koha, shprehja }. Shkruhet vetëm kur ndryshon shprehja ose çdo 10 min (me Cron çdo
+// minutë, 1440 shkrime në ditë do ta kalonin kufirin falas të KV-së).
+async function lexoCronin(env) {
+  try {
+    const v = await env.FOTO.get('orari-cron');
+    if (!v) return {};
+    if (/^\d+$/.test(v)) return { koha: Number(v) };
+    const o = JSON.parse(v); return { koha: Number(o.koha) || null, shprehja: o.shprehja || null };
+  } catch (e) { return {}; }
+}
 const DATA_RE = /^\d{4}-\d{2}-\d{2}$/;
 const AFATET_MAKS = 1500;
 function tzIVlefshem(tz) { try { new Intl.DateTimeFormat('en', { timeZone: tz }); return true; } catch (e) { return false; } }
@@ -202,7 +213,7 @@ async function trajtoOrarin(req, env, pergjigju) {
   // Gjendja e orarit të kësaj pajisjeje (për Cilësimet → Njoftimet): a ekziston, kur u dërgua së fundi dhe si
   if (t.statusi) {
     const x = ind[celesi] || null;
-    let cron = null; try { cron = Number(await env.FOTO.get('orari-cron')) || null; } catch (e) { /* ok */ }
+    const cron = (await lexoCronin(env)).koha || null;
     const af = await env.FOTO.get('orari-afatet:' + uid, 'json');
     return pergjigju({ ok: true, ekziston: !!x, ora: x && x.ora, dita: x && x.dita, rez: x && x.rez, kohaRez: x && x.kohaRez, cron, afatet: af ? af.length : null });
   }
@@ -224,7 +235,7 @@ async function trajtoOrarin(req, env, pergjigju) {
   await env.FOTO.put('orari-indeksi', JSON.stringify(ind));
   return pergjigju({ ok: true, aktiv: true, ora: t.ora });
 }
-async function dergoNjoftimetDitore(env, tani) {
+async function dergoNjoftimetDitore(env, tani, shprehja) {
   const ind = await lexoIndeksinEOrareve(env);
   let ndryshoi = false, derguar = 0;
   const afatetPerUid = {};
@@ -253,7 +264,11 @@ async function dergoNjoftimetDitore(env, tani) {
   }
   if (ndryshoi) await env.FOTO.put('orari-indeksi', JSON.stringify(ind));
   // Shenja që Cron-i punon (e sheh aplikacioni te Cilësimet → Njoftimet)
-  try { await env.FOTO.put('orari-cron', String(tani)); } catch (e) { /* ok */ }
+  try {
+    const para = await lexoCronin(env);
+    if (!para.koha || tani - para.koha >= 10 * 60000 || (shprehja || null) !== (para.shprehja || null))
+      await env.FOTO.put('orari-cron', JSON.stringify({ koha: tani, shprehja: shprehja || null }));
+  } catch (e) { /* ok */ }
   return derguar;
 }
 export { njoftimiDitor, kohaLokale, dergoNjoftimetDitore };

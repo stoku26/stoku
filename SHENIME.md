@@ -50,6 +50,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ORA E LIRË NË MINUTË (v152 = 1.4.3)**: `#njOra` = `<input type="time" step="60">` (çdo minutë). Worker 152:
+   `ORA_RE` pranon HH:MM; Cron-i duhet **`* * * * *`** (çdo minutë) — kështu e ka vendosur përdoruesi; `orari-cron` tani
+   JSON {koha, shprehja} (nga `event.cron`) dhe shkruhet vetëm kur ndryshon shprehja ose çdo 10 min (kufiri 1000
+   shkrime/ditë i KV-së falas); GET `/` kthen edhe `cronShprehja`. App: `cronKapMinuten(shprehja, ora)` → paralajmërim
+   kur Cron-i s'e kap minutën e zgjedhur; serveri i vjetër kthen 400 'ora' për minutat jashtë :00/:15/:30/:45.
+
 0000000. **NJOFTIMI DITOR: DIAGNOZA + RRUGËDALJA (v151 = 1.4.2)**: përdoruesi s'mori njoftim (Galaxy Watch). Gabim imi:
    me orar aktiv, njoftimet lokale ndaleshin edhe kur Cron-i/kodi i ri s'ishte vendosur → asgjë s'vinte. Tani:
    - Worker `VERSIONI_WORKER = 151`; GET `/` kthen edhe `versioni` dhe `cron` (koha e ekzekutimit të fundit të

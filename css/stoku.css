@@ -461,7 +461,9 @@ html.sb body { -webkit-user-select: none; user-select: none; -webkit-touch-callo
 .sb .ek-nj-kryer { display: inline-block; font-size: 13px; font-weight: 700; color: var(--sb-ic-gjelber); }
 
 /* Njoftimi ditor: zgjedhja e orës */
-.sb select.nj-ora { flex: none; width: auto; min-width: 92px; height: 42px; padding: 0 12px; border-radius: 12px; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.sb input.nj-ora { flex: none; width: 138px; height: 44px; box-sizing: border-box; padding: 0 8px; border: 1px solid var(--sb-line); border-radius: 12px; background: var(--sb-surface); color: var(--sb-ink); font: inherit; font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: center; color-scheme: light dark; }
+.sb input.nj-ora:focus { border-color: transparent; box-shadow: 0 0 0 2px var(--sb-accent); outline: none; }
+.sb input.nj-ora::-webkit-calendar-picker-indicator { margin-left: 2px; opacity: .6; }
 
 /* Ekipa: tabet (Afatet…Statistika) s'priten më në telefonat e ngushtë (360–375px): ngushtohen, e kur s'mjafton, kalojnë në rresht të dytë */
 .sb .ek-pllakat, .sb .ek-pult-pllakat { flex-wrap: wrap; overflow: visible; }

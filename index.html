@@ -1029,7 +1029,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=14">
+<link rel="stylesheet" href="css/stoku.css?v=15">
 </head>
 <body>
 <script src="porta.js?v=145"></script>
@@ -1301,7 +1301,7 @@
               <label class="opsion-rresht" for="njOra">
                 <span class="kat-ikona-badge ngj-blu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path><path d="M5 3 2 6M22 6l-3-3"></path></svg></span>
                 <span class="ops-rresht__tekst"><span>Ora e njoftimit</span><span class="hint" id="njOraHint"></span></span>
-                <select id="njOra" class="nj-ora" aria-label="Ora e njoftimit ditor"></select>
+                <input type="time" id="njOra" class="nj-ora" step="60" value="08:00" aria-label="Ora e njoftimit ditor">
               </label>
             </div>
           </div>
@@ -1783,9 +1783,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=144"></script>
-<script src="ekipa.js?v=151"></script>
+<script src="ekipa.js?v=152"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=151"></script>
+<script src="teRejat.js?v=152"></script>
 <script>
 (function () {
   'use strict';
@@ -3124,13 +3124,6 @@
   }
   // ---- Njoftimi ditor për afatet: ora që zgjedh secili përdorues (Worker-i e dërgon me Cron) ----
   var KEY_NJ_ORA = 'stoku:orari:ora-zgjedhur';
-  (function () {
-    var sel = $('njOra');
-    for (var h = 0; h < 24; h++) [0, 15, 30, 45].forEach(function (m) {
-      var v = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
-      var o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o);
-    });
-  })();
   var __orariDukePunuar = false;
   function oraEZgjedhur() { var e = ekipaCloud(), o = e && e.orariIm ? e.orariIm() : null; var v = (o && o.ora) || localStorage.getItem(KEY_NJ_ORA); return /^\d\d:\d\d$/.test(v || '') ? v : '08:00'; }
   function rifreskoOrarin() {
@@ -3147,10 +3140,12 @@
   function tekstiGabimitOrarit(a) {
     return a === 'mungon-kv' || a === 'http-404' ? 'Shërbimi i njoftimit ditor s\'është gati ende në server.' :
       a === 'pa-leje' || a === 'pa-push' || a === 'pa-mbeshtetje' ? 'Lejo njoftimet më lart, pastaj provo sërish.' :
-      a === 'pa-hyrje' ? 'Hyr në llogari që ta përdorësh.' : 'S\'u ruajt. Kontrollo internetin dhe provo sërish.';
+      a === 'pa-hyrje' ? 'Hyr në llogari që ta përdorësh.' :
+      a === 'ora' ? 'Serveri ka kodin e vjetër dhe pranon vetëm :00, :15, :30, :45. Ngjite kodin e ri te Cloudflare.' : 'S\'u ruajt. Kontrollo internetin dhe provo sërish.';
   }
   async function ruajOrarin(aktiv) {
-    var e = ekipaCloud(), ora = $('njOra').value;
+    var e = ekipaCloud(), ora = String($('njOra').value || '').slice(0, 5);
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(ora)) { toast('Shkruaj orën si 17:05.'); rifreskoOrarin(); return; }
     try { localStorage.setItem(KEY_NJ_ORA, ora); } catch (x) { /* ok */ }
     if (!e || !e.vendosOrarin || !perdoruesiAktual()) { toast('Hyr në llogari që ta përdorësh.'); rifreskoOrarin(); return; }
     if (aktiv && Notification.permission !== 'granted') { toast('Lejo njoftimet më lart, pastaj provo sërish.'); rifreskoOrarin(); return; }
@@ -3171,6 +3166,15 @@
   // Kontrolli i serverit (Cloudflare): kodi i ri, Cron-i dhe çka ndodhi sot me njoftimin e kësaj pajisjeje
   function oraNga(ts) { var d = new Date(ts); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
   function sotIso() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  // A e kap Cron-i minutën e zgjedhur? "* * * * *" po; "0,15,30,45 * * * *" / "*/15 * * * *" vetëm ato minuta
+  function cronKapMinuten(shprehja, ora) {
+    if (!shprehja) return true; // s'dihet (kod i vjetër): s'paralajmërohet
+    var m = Number(String(ora).slice(3, 5)), f = String(shprehja).trim().split(/\s+/)[0];
+    if (f === '*' || f === '*/1') return true;
+    var hap = /^\*\/(\d+)$/.exec(f);
+    if (hap) return m % Number(hap[1]) === 0;
+    return f.split(',').some(function (x) { return Number(x) === m; });
+  }
   async function kontrolloServerinEOrarit() {
     var e = ekipaCloud(), o = e && e.orariIm ? e.orariIm() : null, el = $('njOraServer');
     if (!e || !e.statusiIOrarit || !o || !o.aktiv) { el.hidden = true; return; }
@@ -3180,9 +3184,10 @@
     if (!sv) t = 'S\'u lidh me serverin për ta kontrolluar. Kontrollo internetin.';
     else if (!sv.versioni || sv.versioni < e.VERSIONI_WORKER) t = 'Serveri (Cloudflare) ka kodin e vjetër: ngjite kodin e ri te stoku-push, përndryshe njoftimi ditor s\'vjen.';
     else if (!sv.fotot) t = 'Serverit i mungon KV-ja "FOTO" (Cloudflare → stoku-push → Bindings).';
-    else if (!sv.cron) t = 'Ora automatike (Cron) s\'është vendosur te Cloudflare: stoku-push → Settings → Trigger Events → Cron "0,15,30,45 * * * *". Pa të njoftimi ditor s\'vjen.';
+    else if (!sv.cron) t = 'Ora automatike (Cron) s\'është vendosur te Cloudflare: stoku-push → Settings → Trigger Events → Cron "* * * * *" (çdo minutë). Pa të njoftimi ditor s\'vjen.';
     else if (tani - sv.cron > 45 * 60000) t = 'Ora automatike (Cron) s\'ka punuar që nga ' + oraNga(sv.cron) + '. Kontrollo Cron-in te Cloudflare.';
     else if (!im || !im.ok) t = 'Serveri s\'u përgjigj për këtë pajisje. Provo ta fikësh dhe ta ndezësh njoftimin ditor.';
+    else if (!cronKapMinuten(sv.cronShprehja, o.ora)) t = 'Cron-i te Cloudflare (' + sv.cronShprehja + ') s\'punon çdo minutë, prandaj njoftimi për ' + o.ora + ' vjen me vonesë. Te stoku-push → Settings → Trigger Events ndryshoje Cron-in në "* * * * *".';
     else if (!im.ekziston) t = 'Serveri s\'e ka orarin e kësaj pajisjeje. Fike dhe ndize sërish "Përmbledhje çdo ditë".';
     else {
       keq = false;
@@ -3199,7 +3204,8 @@
   $('tabNjoftimet').addEventListener('click', function () { setTimeout(kontrolloServerinEOrarit, 50); });
   $('njDitor').addEventListener('change', function () { ruajOrarin(this.checked); });
   $('njOra').addEventListener('change', function () {
-    try { localStorage.setItem(KEY_NJ_ORA, this.value); } catch (x) { /* ok */ }
+    if (!/^\d\d:\d\d/.test(this.value || '')) return; // gjatë shkrimit
+    try { localStorage.setItem(KEY_NJ_ORA, this.value.slice(0, 5)); } catch (x) { /* ok */ }
     if ($('njDitor').checked) ruajOrarin(true); else rifreskoOrarin();
   });
   // Udhëzimi për orën: Galaxy Watch (Android) ose Apple Watch (iPhone) — hapet vetë sipas telefonit
