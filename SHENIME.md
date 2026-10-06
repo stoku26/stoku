@@ -50,7 +50,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
-0000000. **SAHATI: TË SKADUARAT NË KRYE (ora, pa ndryshim në web)**: lista e sahatit tash fillon me "KANË SKADUAR" (të kuqe),
+0000000. **"SAHAT" → "ORA" + KONTROLL I PLOTË (v168 = 1.9.1)**: përdoruesi s'e do fjalën "sahat" (krahinore); kudo (web
+   tel/PC, teRejat, ora/, worker, README, SHENIME) u zëvendësua sipas gramatikës: sahati → ora, sahatin → orën, sahatit →
+   orës, sahat → orë (p.sh. "Lidh orën", "Shkëput orën", "Stoku në orë"). MOS e përdor më "sahat" në asnjë tekst.
+   - Android: `onNewIntent` → `window.__stokuHapNgaNjoftimi(hash)` (index.html) hap chat-in/afatet pa ringarkim; kontrolli i
+     versionit edhe në `onResume` (6 orë); fotot e përkohshme të kamerës fshihen pas 1 dite. Udhëzimi i orës (Galaxy) tregon
+     aplikacionin Android si hapin e parë.
+   - Kontrolli: regresioni + testet e vjetra + zvarritësi (çdo buton, tel/PC, temë e çelët/e errët) + offline (SW v168).
+     Testet e vjetruara (para grupeve/dizajnit të ri, s'janë gabime): `ekipa-admin-paemri-test.js`,
+     `kerkesat-v115-paemri.js`, `fshirja-v116-paemri.js`, `v133.js` (KPI), `sw-root.js` (#logoSlika), `flete.js` (s'është test).
+0000000. **SAHATI: TË SKADUARAT NË KRYE (ora, pa ndryshim në web)**: lista e orës tash fillon me "KANË SKADUAR" (të kuqe),
    pastaj "SKADOJNË SOT", "KËTË JAVË"; titulli "PËR T'U HEQUR · n" (sot + të skaduara). Detaji i të skaduarës: "Skadoi më
    dd.MM" + "✓ E hoqa nga rafti"; me 2+ të skaduara chip "Hiqi krejt nga rafti" → konfirmim (`Pamja.HiqKrejt`, `/ora/hiq` për
    secilën). Tile: rresht i kuq "n kanë skaduar"; komplikacioni = sot + të skaduara. Serveri (`/ora/sot` skaduaraL) s'ndryshoi.
@@ -71,7 +80,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      {endpoint,p256dh,auth} ose Android {endpoint:'fcm:'+t, fcm:t} (dokumenti te `grupet/{g}/push`, `/orari` pajisja).
    - Cilësimet → Njoftimet: karta "Aplikacioni Stoku për Android" (Chrome Android: shkarko → `android.html`, faqe që
      gjen APK-në e fundit; brenda aplikacionit: versioni + "Kontrollo për version të ri").
-   - Sahati (`ora/`): `Perditesimi.kt` + chip "Përditëso" te lista kur ka `ora-vNN` më të ri (FileProvider, leje instalimi).
+   - Ora (`ora/`): `Perditesimi.kt` + chip "Përditëso" te lista kur ka `ora-vNN` më të ri (FileProvider, leje instalimi).
    - Testet: `android-test.js` (urë e simuluar, 12 OK), `wp/fcm-prova.mjs` (10 OK). APK-të ndërtohen vetëm në GitHub
      (dl.google.com është i bllokuar këtu); gabimet shihen me `gh api .../actions/runs/{id}/jobs` + logs.
 0000000. **v166 = 1.8.2: U HOQ "MOS DIL KUR I FSHIN TË DHËNAT" (v165)**: karta te Cilësimet → Llogaria (fjalëkalimi →
@@ -131,20 +140,20 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    (ekipa_anetaret pa veten), `POST /ora/kerkese {produktet, perUid, perEmri}` shkruan `ekipa_feed/{id}` +
    `perdoruesit/{u}/njoftimet/*` (të njëjtat fusha si `kerkoHeqjen` te ekipa.js) dhe dërgon push përmes `W.fetch('/kerkese')`.
    Pa `rt` (lidhje e vjetër) → 403 `rilidh`. `POST /ora/shkeput` e fshin lidhjen. `/ora/sot` kthen edhe `skaduaraL` dhe
-   `ekipa`. Sahati: prekja e produktit hap detajin (✓ U hoq / Kërko heqje → Krejt ekipa ose koleg), seksioni "Kanë skaduar";
+   `ekipa`. Ora: prekja e produktit hap detajin (✓ U hoq / Kërko heqje → Krejt ekipa ose koleg), seksioni "Kanë skaduar";
    ikona opsioni 5 (gri e ndritshme, gradient #4B505B→#2A2D34, shufra të bardha + një e verdhë).
 0000000. **IKONA E SAHATIT (v161 = 1.5.1)**: ikona adaptive e `ora/` kishte sfond #14161B (s'dukej mbi sfondin e zi
-   të Galaxy Watch); tash sfond #F5B70A me shufrat e barkodit të zeza (+ kënde skanimi), shkallë 1.08 (këndet brenda rrethit të dukshëm). `lidhSahatin`:
+   të Galaxy Watch); tash sfond #F5B70A me shufrat e barkodit të zeza (+ kënde skanimi), shkallë 1.08 (këndet brenda rrethit të dukshëm). `lidhOrenMeKod`:
    `arsye 'rruga'` (Worker i vjetër pa `/ora/*`) → mesazh "ngjite kodin e ri".
 0000000. **STOKU PËR SAHAT (v160 = 1.5.0, Worker 157)**: aplikacion Wear OS te `ora/` (Kotlin + Compose for Wear OS:
    lista e sotme me ✓/Zhbëj, tile, komplikacion SHORT_TEXT). APK ndërtohet nga `.github/workflows/ora-apk.yml`
    (artifact; në main edhe Release `ora-vNN`), i nënshkruar me `ora/stoku-ora.jks` (në repo, që përditësimet të
-   instalohen sipër). Worker 157: `POST /ora/kodi` (sahati: kodi 6-shifror + sekret 64-hex, `ora-kodi:*` TTL 15 min),
+   instalohen sipër). Worker 157: `POST /ora/kodi` (ora: kodi 6-shifror + sekret 64-hex, `ora-kodi:*` TTL 15 min),
    `POST /ora/lidh` (telefoni, me llogari → `ora-tok:{sha256(sekret)}` = uid, `ora-ka:{uid}`), `GET /ora/sot?tz=`
    (header `X-Stoku-Ora`), `POST /ora/hiq {i, zhbej}` → `ora-hequr:{uid}`, `POST /ora/hequrat {pastro}` (telefoni/PC i
    zbatojnë si heqje dhe i pastrojnë; ato që s'gjenden lokalisht mbeten). Afatet e dërguara kanë tash `i` (id) dhe `s`
-   (sasia); dërgohen nga çdo pajisje me `vetemMeOrar` kur s'ka orar këtu (serveri i ruan nëse ka orar ose sahat;
-   `paOrar` mbahet 10 min në LS). Njoftimi ditor i përjashton të hequrat nga sahati. UI: `#oraKodi`/`#oraLidh` te
+   (sasia); dërgohen nga çdo pajisje me `vetemMeOrar` kur s'ka orar këtu (serveri i ruan nëse ka orar ose orë;
+   `paOrar` mbahet 10 min në LS). Njoftimi ditor i përjashton të hequrat nga ora. UI: `#oraKodi`/`#oraLidh` te
    Njoftimet → Galaxy Watch.
 0000000. **KONTROLLI I PLOTË + AFATET NGA PC (v159 = 1.4.10, Worker 156)**: zvarritësi (416 klikime, tel + PC, temë e
    çelët + e errët) pa asnjë problem; regresioni krejt OK. Mangësia e gjetur: serveri e merrte listën e afateve vetëm nga

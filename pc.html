@@ -1880,8 +1880,8 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=163"></script>
-<script src="ekipa.js?v=167"></script>
-<script src="teRejat.js?v=167"></script>
+<script src="ekipa.js?v=168"></script>
+<script src="teRejat.js?v=168"></script>
 <script>
 (function () {
   'use strict';
@@ -2343,7 +2343,7 @@
     rivizato();
     if (u) sinkronizoNeHyrje();
   }
-  // Heqjet nga rafti të bëra në sahat (Galaxy Watch) zbatohen këtu si çdo heqje tjetër
+  // Heqjet nga rafti të bëra në orë (Galaxy Watch) zbatohen këtu si çdo heqje tjetër
   async function zbatoHeqjetNgaOra(detyro) {
     var e = window.__stokuCloud && window.__stokuCloud.ekipa;
     if (!e || !e.merrHeqjetNgaOra || !perdoruesi()) return;
@@ -2352,7 +2352,7 @@
     if (te.length) {
       ndryshoAfatet(function (api) { te.forEach(function (h) { var a = api.merr(h.i); if (a) { a.statusi = 'hequr'; a.hequrSe = h.koha || Date.now(); a.hequrNga = emriPerdoruesit(); api.vendos(a); } }); });
       te.forEach(function (h) { ekNgjarjeAfati('hequr', afatSipasId(h.i)); });
-      toast(te.length === 1 ? '1 produkt u shënua i hequr nga rafti (nga sahati).' : te.length + ' produkte u shënuan të hequra nga rafti (nga sahati).');
+      toast(te.length === 1 ? '1 produkt u shënua i hequr nga rafti (nga ora).' : te.length + ' produkte u shënuan të hequra nga rafti (nga ora).');
     }
     if (kryer.length) e.pastroHeqjetNgaOra(kryer);
   }

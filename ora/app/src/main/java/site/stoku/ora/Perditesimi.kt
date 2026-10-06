@@ -13,8 +13,8 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * Versioni i ri i aplikacionit të sahatit: GitHub Actions e nxjerr si Release "ora-vNN" (NN = versionCode).
- * Sahati e kontrollon vetë (më së shumti një herë në 6 orë) dhe e tregon te lista; instalimi kërkon konfirmim.
+ * Versioni i ri i aplikacionit të orës: GitHub Actions e nxjerr si Release "ora-vNN" (NN = versionCode).
+ * Ora e kontrollon vetë (më së shumti një herë në 6 orë) dhe e tregon te lista; instalimi kërkon konfirmim.
  */
 object Perditesimi {
     private const val RELEASES = "https://api.github.com/repos/stoku26/stoku/releases?per_page=40"
@@ -55,7 +55,7 @@ object Perditesimi {
             try {
                 ctx.startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + ctx.packageName)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                 return@withContext "Lejo instalimin për Stoku, pastaj shtyp prapë Përditëso."
-            } catch (e: Exception) { return@withContext "Sahati s'e lejon. Përditësoje me Bugjaeger (shih udhëzimin)." }
+            } catch (e: Exception) { return@withContext "Ora s'e lejon. Përditësoje me Bugjaeger (shih udhëzimin)." }
         }
         try {
             val dir = File(ctx.cacheDir, "perditesim").apply { mkdirs(); listFiles()?.forEach { it.delete() } }
@@ -77,6 +77,6 @@ object Perditesimi {
             ctx.startActivity(Intent(Intent.ACTION_VIEW).setDataAndType(uri, "application/vnd.android.package-archive")
                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK))
             null
-        } catch (e: Exception) { "Sahati s'e hapi instaluesin. Përditësoje me Bugjaeger (shih udhëzimin)." }
+        } catch (e: Exception) { "Ora s'e hapi instaluesin. Përditësoje me Bugjaeger (shih udhëzimin)." }
     }
 }

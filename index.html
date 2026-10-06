@@ -1349,16 +1349,16 @@
             </div>
             <div class="ops-ora-faqe" data-ora="galaxy">
               <div class="ora-lidh">
-                <div class="ops-ll-titull">Aplikacioni Stoku në sahat</div>
-                <div class="hint">Hape Stoku në sahat: del një kod me 6 shifra. Shkruaje këtu që sahati të lidhet me llogarinë tënde.</div>
+                <div class="ops-ll-titull">Aplikacioni Stoku në orë</div>
+                <div class="hint">Hape Stoku në orë: del një kod me 6 shifra. Shkruaje këtu që ora të lidhet me llogarinë tënde.</div>
                 <div class="ora-lidh__rresht">
-                  <input type="text" id="oraKodi" class="nj-ora ora-kodi" inputmode="numeric" maxlength="7" placeholder="482913" autocomplete="off" enterkeyhint="go" aria-label="Kodi që del në sahat">
-                  <button class="btn" id="oraLidh" type="button">Lidh sahatin</button>
+                  <input type="text" id="oraKodi" class="nj-ora ora-kodi" inputmode="numeric" maxlength="7" placeholder="482913" autocomplete="off" enterkeyhint="go" aria-label="Kodi që del në orë">
+                  <button class="btn" id="oraLidh" type="button">Lidh orën</button>
                 </div>
                 <div class="hint" id="oraLidhHint" role="status"></div>
               </div>
               <ol class="ops-hapat">
-                <li>Instalo Stoku në telefon: Chrome → menyja <b>⋮</b> → <b>Shto në ekranin kryesor</b> / <b>Instalo aplikacionin</b>.</li>
+                <li>Instalo aplikacionin <b>Stoku për Android</b> (karta "Aplikacioni Stoku për Android" më lart), ose në Chrome: menyja <b>⋮</b> → <b>Shto në ekranin kryesor</b>.</li>
                 <li>Këtu lart shtyp <b>Aktivizo njoftimet</b> dhe lejoji.</li>
                 <li>Hap aplikacionin <b>Galaxy Wearable</b> → <b>Cilësimet e orës</b> → <b>Njoftimet</b> → <b>Njoftimet e aplikacioneve</b> → ndize <b>Stoku</b> (nëse s'del, shtyp "Të gjitha" dhe kërko "Stoku" ose "Chrome").</li>
                 <li>Fike ekranin e telefonit: njoftimet e Stoku-t (chat-i, afatet, kërkesat) dalin edhe në orë.</li>
@@ -1827,9 +1827,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=163"></script>
-<script src="ekipa.js?v=167"></script>
+<script src="ekipa.js?v=168"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=167"></script>
+<script src="teRejat.js?v=168"></script>
 <script>
 (function () {
   'use strict';
@@ -3284,25 +3284,25 @@
     el.textContent = t;
   }
   $('tabNjoftimet').addEventListener('click', function () { setTimeout(kontrolloServerinEOrarit, 50); });
-  // ---------- Sahati: lidhja me kod ----------
-  async function lidhSahatin() {
+  // ---------- Ora: lidhja me kod ----------
+  async function lidhOrenMeKod() {
     var e = ekipaCloud(), kodi = $('oraKodi').value.replace(/\D/g, ''), h = $('oraLidhHint');
-    if (!perdoruesiAktual() || !e || !e.lidhOren) { h.textContent = 'Hyr në llogari që ta lidhësh sahatin.'; return; }
+    if (!perdoruesiAktual() || !e || !e.lidhOren) { h.textContent = 'Hyr në llogari që ta lidhësh orën.'; return; }
     if (kodi.length !== 6) { h.textContent = 'Kodi ka 6 shifra (p.sh. 482913).'; $('oraKodi').focus(); return; }
     $('oraLidh').disabled = true; h.textContent = 'Duke lidhur…';
     var r = await e.lidhOren(kodi);
     $('oraLidh').disabled = false;
     if (r && r.ok) {
       $('oraKodi').value = '';
-      h.textContent = '✓ Sahati u lidh. Pas pak sekondash në sahat del lista e produkteve që skadojnë sot.';
+      h.textContent = '✓ Ora u lidh. Pas pak sekondash në orë del lista e produkteve që skadojnë sot.';
       e.dergoAfatetPerOrarin(afatet).catch(function () { /* ok */ });
     } else h.textContent = r && r.arsye === 'rruga' ? 'Serveri (Cloudflare) ka kodin e vjetër: ngjite kodin e ri te stoku-push (versioni 157 ose më i ri) dhe provo prapë.'
-      : r && r.arsye === 'kodi' ? 'Ky kod s\'u gjet ose ka skaduar. Shiko kodin e ri në sahat.'
+      : r && r.arsye === 'kodi' ? 'Ky kod s\'u gjet ose ka skaduar. Shiko kodin e ri në orë.'
       : r && r.arsye === 'rrjeti' ? 'S\'ka internet. Provo prapë.' : 'S\'u lidh (' + ((r && r.arsye) || 'gabim') + '). Provo prapë.';
   }
-  $('oraLidh').addEventListener('click', lidhSahatin);
-  $('oraKodi').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); lidhSahatin(); } });
-  // Heqjet nga rafti të bëra në sahat zbatohen këtu (dhe dërgohen te cloud-i si çdo heqje tjetër)
+  $('oraLidh').addEventListener('click', lidhOrenMeKod);
+  $('oraKodi').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); lidhOrenMeKod(); } });
+  // Heqjet nga rafti të bëra në orë zbatohen këtu (dhe dërgohen te cloud-i si çdo heqje tjetër)
   async function zbatoHeqjetNgaOra(detyro) {
     var e = ekipaCloud();
     if (!e || !e.merrHeqjetNgaOra || !perdoruesiAktual()) return;
@@ -3315,7 +3315,7 @@
       perditesoAfatin(a.id, { statusi: 'hequr', hequrSe: h.koha || Date.now(), hequrNga: emriPerdoruesitAktual() });
       ekNgjarjeAfati('hequr', a); n++;
     });
-    if (n) toast(n === 1 ? '1 produkt u shënua i hequr nga rafti (nga sahati).' : n + ' produkte u shënuan të hequra nga rafti (nga sahati).');
+    if (n) toast(n === 1 ? '1 produkt u shënua i hequr nga rafti (nga ora).' : n + ' produkte u shënuan të hequra nga rafti (nga ora).');
     if (kryer.length) e.pastroHeqjetNgaOra(kryer);
   }
   document.addEventListener('visibilitychange', function () { if (!document.hidden) zbatoHeqjetNgaOra(false).catch(function () { /* ok */ }); });
@@ -7681,7 +7681,7 @@
     njKohezi = setTimeout(function () {
       var kopje = afatet.slice();
       var e = ekipaCloud(), o = e && e.orariIm ? e.orariIm() : null;
-      if (e && e.dergoAfatetPerOrarin) e.dergoAfatetPerOrarin(kopje).catch(function () { /* ok */ }); // kopja për njoftimin ditor dhe sahatin
+      if (e && e.dergoAfatetPerOrarin) e.dergoAfatetPerOrarin(kopje).catch(function () { /* ok */ }); // kopja për njoftimin ditor dhe orën
       // Njoftimet e menjëhershme ndalen vetëm kur serveri i njoftimit ditor është konfirmuar që punon. Me orar të
       // ndezur, serveri kontrollohet PARA se të vendoset (përndryshe në hapje dilnin "34 produkte skadojnë…").
       var pyetServerin = (o && o.aktiv && e.kontrolloServerin && !(e.orariPunon && e.orariPunon()))
@@ -7747,6 +7747,13 @@
       if (ev.data && ev.data.lloji === 'hap-ekipa') hapEkipenNgaNjoftimi(ev.data.pamja);
     });
   }
+  // Aplikacioni Android: njoftimi i prekur kur Stoku është tashmë i hapur (pa e ringarkuar faqen)
+  window.__stokuHapNgaNjoftimi = function (hash) {
+    hash = String(hash || '');
+    if (hash === '#afatet') return hapAfatetNgaNjoftimi();
+    if (/^#ekipa/.test(hash)) return hapEkipenNgaNjoftimi(hash.split('#ekipa-')[1] || '');
+    return true;
+  };
   // Njoftimet e Ekipës hapin "./index.html#ekipa-<pamja>"
   if (/^#ekipa/.test(location.hash)) {
     var __pamjaEkipesNgaAdresa = location.hash.split('#ekipa-')[1] || '';

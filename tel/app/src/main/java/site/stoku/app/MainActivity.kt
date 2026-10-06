@@ -106,7 +106,6 @@ class MainActivity : Activity() {
         else web.loadUrl(adresaNga(intent) ?: (StokuApp.BAZA + "index.html"))
 
         StokuApp.rifreskoKonfigurimin(this)
-        Perditesimi.kontrollo(this, false)
     }
 
     private fun eStokut(u: Uri?): Boolean = u != null && u.scheme == "https" && (u.host == "stoku.site" || u.host == "www.stoku.site")
@@ -123,7 +122,16 @@ class MainActivity : Activity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        adresaNga(intent)?.let { web.loadUrl(it) }
+        val u = adresaNga(intent) ?: return
+        val tani = web.url
+        // Stoku është tashmë i hapur: hapet vetëm pamja (chat-i, afatet…), pa e ringarkuar faqen
+        if (tani != null && eStokut(Uri.parse(tani)) && u.contains("#")) {
+            val hash = "#" + u.substringAfter("#")
+            web.evaluateJavascript("(function(){try{return window.__stokuHapNgaNjoftimi?(window.__stokuHapNgaNjoftimi(" +
+                JSONObject.quote(hash) + ")!==false):false}catch(e){return false}})()") { r ->
+                if (r != "true") web.loadUrl(u)
+            }
+        } else web.loadUrl(u)
     }
 
     fun thirrJs(js: String) { if (this::web.isInitialized) web.evaluateJavascript(js, null) }
@@ -180,6 +188,7 @@ class MainActivity : Activity() {
     private fun hapKameren() {
         try {
             val dir = File(cacheDir, "foto").apply { mkdirs() }
+            dir.listFiles()?.forEach { if (System.currentTimeMillis() - it.lastModified() > 86400_000L) it.delete() }
             val f = File(dir, "foto_" + System.currentTimeMillis() + ".jpg")
             fotoUri = FileProvider.getUriForFile(this, "$packageName.skedaret", f)
             val i = Intent(MediaStore.ACTION_IMAGE_CAPTURE).putExtra(MediaStore.EXTRA_OUTPUT, fotoUri)
@@ -223,6 +232,7 @@ class MainActivity : Activity() {
     override fun onResume() {
         super.onResume(); nePerpara = true; web.onResume()
         Perditesimi.vazhdoNesePritej(this)
+        Perditesimi.kontrollo(this, false) // më së shumti një herë në 6 orë (aplikacioni mund të rrijë i hapur me ditë)
     }
     override fun onPause() {
         nePerpara = false; web.onPause(); CookieManager.getInstance().flush(); super.onPause()

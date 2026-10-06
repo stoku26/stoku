@@ -33,8 +33,8 @@ class DuhetRilidhur : Exception("rilidh")
 
 class PaLidhje : Exception("pa-lidhje")
 
-// Lidhja me serverin stoku-push (Cloudflare). Sahati identifikohet me një sekret 64-hex që krijohet këtu dhe
-// lidhet me llogarinë kur përdoruesi e shkruan kodin 6-shifror te telefoni (Cilësimet → Njoftimet → Lidh sahatin).
+// Lidhja me serverin stoku-push (Cloudflare). Ora identifikohet me një sekret 64-hex që krijohet këtu dhe
+// lidhet me llogarinë kur përdoruesi e shkruan kodin 6-shifror te telefoni (Cilësimet → Njoftimet → Lidh orën).
 object Api {
     private const val SERVERI = "https://stoku-push.mendurb.workers.dev"
     private val rastesi = SecureRandom()
@@ -64,7 +64,7 @@ object Api {
 
     fun lidhur(ctx: Context) = prefs(ctx).getBoolean("lidhur", false)
 
-    // Shkëputja: serveri e fshin lidhjen dhe këtu krijohet sekret i ri, që sahati të mos e lexojë më llogarinë e vjetër
+    // Shkëputja: serveri e fshin lidhjen dhe këtu krijohet sekret i ri, që ora të mos e lexojë më llogarinë e vjetër
     suspend fun shkeput(ctx: Context) {
         val sekret = prefs(ctx).getString("sekret", null)
         if (sekret != null) withContext(Dispatchers.IO) { try { thirr("POST", "/ora/shkeput", JSONObject(), sekret) } catch (e: Exception) { } }
@@ -93,10 +93,10 @@ object Api {
         }
     }
 
-    // Kthen true kur telefoni e ka lidhur sahatin me llogarinë
+    // Kthen true kur telefoni e ka lidhur orën me llogarinë
     suspend fun kontrolloLidhjen(ctx: Context): Boolean = withContext(Dispatchers.IO) {
         var (st, j) = thirr("POST", "/ora/kodi", JSONObject().put("kodi", kodi(ctx)).put("sekret", sekreti(ctx)), null)
-        if (st == 409) { // kodi i zënë nga një sahat tjetër: krijohet një i ri
+        if (st == 409) { // kodi i zënë nga një orë tjetër: krijohet një i ri
             kodiIRi(ctx)
             val r = thirr("POST", "/ora/kodi", JSONObject().put("kodi", kodi(ctx)).put("sekret", sekreti(ctx)), null)
             st = r.first; j = r.second

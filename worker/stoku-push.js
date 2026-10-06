@@ -201,10 +201,10 @@ function njoftimiDitor(afatet, sot) {
     : sotL.length + ' produkte skadojnë sot: ' + sotL.slice(0, 5).map(emri).join(', ') + (sotL.length > 5 ? '…' : '') + '.';
   return { titulli: 'Stoku · Skadon sot', teksti: teksti.length > 220 ? teksti.slice(0, 217) + '…' : teksti, sot: sotL.length };
 }
-// ---------- Sahati (Galaxy Watch / Wear OS) ----------
-// Lidhja: sahati krijon kodin 6-shifror + një sekret 64-hex (POST /ora/kodi, pa llogari); përdoruesi e shkruan kodin
-// te telefoni (POST /ora/lidh, me llogari) dhe sekreti i sahatit lidhet me uid-in. Pastaj sahati thërret me
-// "X-Stoku-Ora: <sekret>": GET /ora/sot (lista e sotme), POST /ora/hiq {i, zhbej}. Heqjet e sahatit ruhen te
+// ---------- Ora (Galaxy Watch / Wear OS) ----------
+// Lidhja: ora krijon kodin 6-shifror + një sekret 64-hex (POST /ora/kodi, pa llogari); përdoruesi e shkruan kodin
+// te telefoni (POST /ora/lidh, me llogari) dhe sekreti i orës lidhet me uid-in. Pastaj ora thërret me
+// "X-Stoku-Ora: <sekret>": GET /ora/sot (lista e sotme), POST /ora/hiq {i, zhbej}. Heqjet e orës ruhen te
 // 'ora-hequr:{uid}' dhe telefoni/PC i zbatojnë në afate (POST /ora/hequrat), pastaj i pastrojnë.
 const KODI_RE = /^\d{6}$/, SEKRET_RE = /^[0-9a-f]{64}$/;
 async function sha256Hex(t) { const h = new Uint8Array(await crypto.subtle.digest('SHA-256', tekst(t))); return Array.from(h).map(b => b.toString(16).padStart(2, '0')).join(''); }
@@ -237,14 +237,14 @@ async function trajtoOren(req, env, rruga, pergjigju) {
       if (!KODI_RE.test(kodi)) return pergjigju({ ok: false, arsye: 'kodi' }, 400);
       const k = await env.FOTO.get('ora-kodi:' + kodi, 'json');
       if (!k || Date.now() - k.koha > 900000) return pergjigju({ ok: false, arsye: 'kodi' }, 404);
-      // rt = refresh token i llogarisë: me të sahati vepron si përdoruesi (kërkesat te ekipa), sipas rregullave të Firestore
+      // rt = refresh token i llogarisë: me të ora vepron si përdoruesi (kërkesat te ekipa), sipas rregullave të Firestore
       const rt = typeof t.rt === 'string' && t.rt.length > 20 && t.rt.length < 2000 ? t.rt : '';
       await env.FOTO.put('ora-tok:' + k.h, JSON.stringify({ uid, emri: String(t.emri || '').slice(0, 60), rt, koha: Date.now() }));
       await env.FOTO.put('ora-ka:' + uid, '1');
       await env.FOTO.delete('ora-kodi:' + kodi);
       return pergjigju({ ok: true });
     }
-    // Heqjet nga sahati: kthehen për t'u zbatuar; "pastro" i heq ato që u zbatuan
+    // Heqjet nga ora: kthehen për t'u zbatuar; "pastro" i heq ato që u zbatuan
     const hq = (await env.FOTO.get('ora-hequr:' + uid, 'json')) || [];
     if (Array.isArray(t.pastro) && t.pastro.length) {
       const pastro = new Set(t.pastro.map(String)), mbet = hq.filter(x => !pastro.has(x.i));
@@ -253,7 +253,7 @@ async function trajtoOren(req, env, rruga, pergjigju) {
     }
     return pergjigju({ ok: true, hequrat: hq });
   }
-  // Thirrjet e sahatit
+  // Thirrjet e orës
   const sekret = String(req.headers.get('X-Stoku-Ora') || '');
   if (!SEKRET_RE.test(sekret)) return pergjigju({ ok: false, arsye: 'pa-lidhje' }, 401);
   const tok = await env.FOTO.get('ora-tok:' + await sha256Hex(sekret), 'json');
@@ -334,7 +334,7 @@ async function trajtoOren(req, env, rruga, pergjigju) {
   }
   return pergjigju({ ok: false, arsye: 'rruga' }, 404);
 }
-// ID token i Firebase për sahatin, nga refresh token-i që telefoni ia dha gjatë lidhjes
+// ID token i Firebase për orën, nga refresh token-i që telefoni ia dha gjatë lidhjes
 const FIREBASE_API_KEY = 'AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY';
 async function idTokenPerOren(env, sekret, tok) {
   if (!tok.rt) return null;
