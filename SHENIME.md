@@ -50,18 +50,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
-0000000. **MOS DIL KUR I FSHIN TË DHËNAT (v165 = 1.8.1)**: përdoruesi i fshiu sërish cookies/të dhënat në Chrome dhe doli.
-   Asnjë faqe s'mund ta mbajë hyrjen pasi shfletuesi ia fshin krejt të dhënat (IndexedDB i Firebase-it, localStorage,
-   SW): e vetmja gjë që mbetet është menaxheri i fjalëkalimeve. Shkaku më i mundshëm: llogaria ishte kyçur PARA v163,
-   pra Stoku s'ia kishte dhënë kurrë fjalëkalimin Chrome-it (jepet vetëm në hyrje me formë). Tash:
-   - Cilësimet → Llogaria → "Mos dil kur i fshin të dhënat" (tel `#mbajHyrjenKarta`, PC `#opsMbajHyrjen`): fjalëkalimi
-     verifikohet me `riautentifikohu`, pastaj `StokuPorta.mbajHyrjen` → `credentials.store` (Chrome pyet "Ruaj?").
-     Pa API (Safari/Firefox): vetëm udhëzim (iPhone: Keychain + Face ID, ose Stoku në ekranin kryesor).
-   - Porta: kur `credentials.get` (optional) s'kthen asgjë, `#pkShenim` thotë të shtypet "Ruaj" kur Chrome pyet
-     (jo pas "Dil" me dorë). LS `stoku:porta:kred` = fjalëkalimi iu dha Chrome-it në këtë shfletues.
-   - Kushtet e Chrome-it: "Ofro ruajtjen e fjalëkalimeve" dhe "Hyrja automatike" aktive te Password Manager; nëse ka
-     disa llogari të ruajtura për stoku.site (ose pas "Dil"), Chrome pyet me një prekje në vend që të hyjë vetë.
-   Testi: `hyrja-test.js` (13 OK).
+0000000. **v166 = 1.8.2: U HOQ "MOS DIL KUR I FSHIN TË DHËNAT" (v165)**: karta te Cilësimet → Llogaria (fjalëkalimi →
+   `credentials.store`) dhe udhëzimi te porta ("shtyp Ruaj") u hoqën me kërkesë të përdoruesit: në Chrome Android
+   (Delete browsing data → "Cookies, cache, and other site data") prapë dilte. porta.js, index.html, pc.html = si te v164
+   (mbetet vetëm `credentials.store` pas hyrjes me formë dhe `credentials.get` në portë, pa asnjë tekst/opsion).
+   E vërteta teknike: ajo fshirje heq KREJT të dhënat e faqes (IndexedDB i Firebase-it, localStorage, service worker-in
+   dhe abonimin push), pra dalja + humbja e njoftimeve s'ndalohen dot nga brenda faqes. Mos u mundo me "ruajtje që i
+   mbijeton fshirjes" (cache/supercookie): është teknikë gjurmimi dhe s'bëhet. Zgjidhja e vërtetë: aplikacion Android
+   me hapësirë të vetën (WebView), që Chrome s'e prek; i propozuar përdoruesit, pret përgjigjen.
 0000000. **GRUPET TE EKIPA (v164 = 1.8.0, Worker 159, RREGULLA TË REJA)**: kush sapo regjistrohet s'sheh askënd derisa
    ta krijojë një grup ose ta pranojë një ftesë. Një përdorues = një grup.
    - Të dhënat: `grupet/{g}` {emri, pronarUid, pronarEmri, krijuarSe}; `grupet/{g}/anetaret/{uid}` {emri, roli
@@ -757,6 +753,9 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Çdo PR duhet përshkrim të plotë shqip: çka ndryshoi, si u testua, çfarë numrash versioni u prekën.
 
 ## Gjëra që përdoruesi i ka refuzuar/anuluar shprehimisht (mos i propozo/rikthe pa pyetur)
+
+- Opsioni "Mos dil kur i fshin të dhënat" te Cilësimet → Llogaria dhe udhëzimi "shtyp Ruaj" te porta (v165, u hoq
+  te v166): "hiq bash kurgjo ske bo, hiqe fshije".
 
 - Marking/vijëzim automatik i rreshtave në fletë (u keqkuptua kërkesa origjinale; u zëvendësua me "laps"
   të kuq të vizatuar me dorë nga përdoruesi mbi foton, që mbetet gjatë zoom-it).

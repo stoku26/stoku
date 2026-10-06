@@ -20,7 +20,6 @@
   var KEY_MBAJ_EMRIN = 'stoku:porta:mbaj-emrin'; // '0' = mos e mbaj mend emrin (parazgjedhja: mbahet mend). Fjalëkalimi s'ruhet kurrë.
   var KEY_MESAZHI = 'stoku:porta:mesazh';   // mesazh një-herësh për ekranin e hyrjes pas rifreskimit
   var KEY_DIL = 'stoku:porta:dil';          // '1' pas "Dil" me dorë: llogaria e ruajtur s'ofrohet vetë sapo hapet porta
-  var KEY_KRED = 'stoku:porta:kred';        // '1' = në këtë shfletues fjalëkalimi iu dha menaxherit të fjalëkalimeve
   var CELESAT_E_TE_DHENAVE = ['stoku:foldera:v1', 'stoku:produktet:v2', 'stoku:produktet:v1', 'stoku:fshira:v1',
     'stoku:rendi-foldera-koha', 'stoku:afatet:v1'];
   var PRITJA_MAKS_MS = 7000;
@@ -165,7 +164,6 @@
     $('pkDergo').textContent = krijo ? 'Krijo llogarinë' : 'Hyr';
     $('pkShenim').textContent = krijo
       ? 'Emri: të paktën 3 shkronja ose numra (a–z, 0–9, _ . -). Fjalëkalimi: të paktën 6 shenja. Mbaje mend, të duhet në çdo pajisje.'
-      : gjendja.paKredenciale ? NDIHMA_RUAJ
       : 'Hyr me llogarinë e dyqanit. Të dhënat sinkronizohen vetë në telefon, PDA dhe kompjuter.';
     $('pkGabim').textContent = '';
   }
@@ -259,28 +257,13 @@
   function kaMenaxherFjalekalimesh() {
     return !SHFLETUES_I_VJETER && typeof window.PasswordCredential === 'function' && !!(navigator.credentials && navigator.credentials.get);
   }
-  var NDIHMA_RUAJ = 'Kur të hysh, Chrome të pyet a ta ruajë fjalëkalimin: shtyp "Ruaj". Herën tjetër Stoku hyn vetë, edhe pasi t\'i fshish cookies dhe të dhënat.';
   function ruajKredencialet(emri, fjalekalimi) {
     shkruaj(KEY_DIL, null);
     if (!kaMenaxherFjalekalimesh() || !emri || !fjalekalimi) return;
     try {
       var k = new window.PasswordCredential({ id: emri, password: fjalekalimi, name: emri });
-      navigator.credentials.store(k).then(function () { shkruaj(KEY_KRED, '1'); }, function () { /* përdoruesi s'e ruajti */ });
+      navigator.credentials.store(k).catch(function () { /* përdoruesi s'e ruajti */ });
     } catch (e) { /* ok */ }
-  }
-  // Cilësimet → "Mos dil kur i fshin të dhënat": për llogaritë e kyçura para se Stoku ta jepte fjalëkalimin te
-  // Chrome (v163). Fjalëkalimi verifikohet me Firebase, pastaj i jepet menaxherit të fjalëkalimeve.
-  async function mbajHyrjen(fjalekalimi) {
-    var cloud = window.__stokuCloud;
-    var u = cloud && cloud.perdoruesiAktual && cloud.perdoruesiAktual();
-    if (!u || !cloud.riautentifikohu) return { ok: false, arsye: 'pa-hyrje' };
-    if (!kaMenaxherFjalekalimesh()) return { ok: false, arsye: 'pa-menaxher' };
-    if (!fjalekalimi) return { ok: false, arsye: 'bosh' };
-    var r;
-    try { r = await cloud.riautentifikohu(fjalekalimi); } catch (e) { r = { ok: false }; }
-    if (!r || !r.ok) return { ok: false, arsye: r && r.kodi === 'auth/network-request-failed' ? 'internet' : r && r.kodi === 'auth/too-many-requests' ? 'shume-prova' : 'fjalekalimi' };
-    ruajKredencialet(String(u.email || '').replace(/@stoku-app\.local$/, ''), fjalekalimi);
-    return { ok: true };
   }
   // "Dil" me dorë: mos hyr vetë menjëherë me fjalëkalimin e ruajtur (përndryshe dalja s'do të ishte e mundur)
   function dilMeDore() {
@@ -294,14 +277,8 @@
     try {
       // Pas "Dil": vetëm pa pyetje (Chrome s'e lejon pas preventSilentAccess). Përndryshe (p.sh. pas fshirjes së
       // të dhënave): Chrome hyn vetë, ose pyet me një prekje cilën llogari të ruajtur.
-      var paPyetje = lexo(KEY_DIL) === '1';
-      kred = await navigator.credentials.get({ password: true, mediation: paPyetje ? 'silent' : 'optional' });
+      kred = await navigator.credentials.get({ password: true, mediation: lexo(KEY_DIL) === '1' ? 'silent' : 'optional' });
     } catch (e) { return; }
-    if (!kred && !paPyetje && gjendja.eHapur) {
-      // S'ka fjalëkalim të ruajtur për Stoku-n (ose u anulua zgjedhja): tregohet si të ruhet këtë herë
-      gjendja.paKredenciale = true;
-      if (gjendja.modaliteti === 'hyr') $('pkShenim').textContent = NDIHMA_RUAJ;
-    }
     if (!kred || kred.type !== 'password' || !kred.id || !kred.password || !gjendja.eHapur || gjendja.dukePunuar) return;
     var cloud = window.__stokuCloud;
     if (!cloud || !cloud.hyr) return;
@@ -310,7 +287,7 @@
     var rez;
     try { rez = await cloud.hyr(kred.id, kred.password); } catch (e) { rez = { ok: false }; }
     gjendja.dukePunuar = false;
-    if (rez && rez.ok) { ruajEmrin(kred.id); shkruaj(KEY_DIL, null); shkruaj(KEY_KRED, '1'); return; } // pjesa tjetër te "stoku-auth-ndryshoi"
+    if (rez && rez.ok) { ruajEmrin(kred.id); shkruaj(KEY_DIL, null); return; } // pjesa tjetër te "stoku-auth-ndryshoi"
     $('pkEmri').value = kred.id;
     $('pkFjalekalimi').value = '';
     shfaqFormen(tekstiGabimit(rez && rez.kodi));
@@ -417,6 +394,5 @@
   }, SHFLETUES_I_VJETER ? 0 : paInternet && fundit && fundit.uid && lexo(KEY_PRONARI) === fundit.uid ? 400 : PRITJA_MAKS_MS);
   if (window.__stokuCloud) kontrollo();
 
-  window.StokuPorta = { eHapur: function () { return gjendja.eHapur; }, ruajKredencialet: ruajKredencialet, dilMeDore: dilMeDore,
-    mbajHyrjen: mbajHyrjen, kaMenaxherFjalekalimesh: kaMenaxherFjalekalimesh, kredencialiURuajt: function () { return lexo(KEY_KRED) === '1'; } };
+  window.StokuPorta = { eHapur: function () { return gjendja.eHapur; }, ruajKredencialet: ruajKredencialet, dilMeDore: dilMeDore };
 })();

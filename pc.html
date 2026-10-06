@@ -908,7 +908,7 @@
 <link rel="stylesheet" href="css/stoku-pc.css?v=11">
 </head>
 <body>
-<script src="porta.js?v=165"></script>
+<script src="porta.js?v=166"></script>
 
 <div class="trupi">
   <aside class="anesore">
@@ -1854,13 +1854,6 @@
                 <div class="ops-titull">Fjalëkalimi</div>
                 <input class="inp" id="opsFjalekalimiRi" type="password" autocomplete="new-password" maxlength="100" placeholder="Fjalëkalimi i ri"><button class="btn dyte" type="button" id="opsNdryshoFjalekalimin">Ndrysho</button>
               </div>
-              <!-- Hyrja pas fshirjes së cookies/të dhënave: fjalëkalimi te menaxheri i shfletuesit (porta.js) -->
-              <div class="ops-fusha" id="opsMbajHyrjen">
-                <span class="ops-ik ngj-gjelber"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg></span>
-                <div class="ops-titull">Mos dil kur i fshin të dhënat</div>
-                <input class="inp" id="opsMbajHyrjenFjalekalimi" type="password" autocomplete="current-password" maxlength="100" placeholder="Fjalëkalimi yt"><button class="btn dyte" type="button" id="opsMbajHyrjenRuaj">Ruaje në Chrome</button>
-                <p class="ops-hint" id="opsMbajHyrjenTekst" style="grid-column: 2 / -1; margin: 0"></p>
-              </div>
               <div id="opsRiaut" class="fsheh ops-riaut">
                 <p class="ops-hint" style="margin:0 0 8px">Për siguri, konfirmo fjalëkalimin aktual për ta vazhduar ndryshimin.</p>
                 <div style="display:flex;gap:8px"><input class="inp" id="opsFjalekalimiAktual" type="password" autocomplete="current-password" maxlength="100" placeholder="Fjalëkalimi aktual"><button class="btn" type="button" id="opsKonfirmoRiaut">Konfirmo</button></div>
@@ -1888,7 +1881,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=163"></script>
 <script src="ekipa.js?v=164"></script>
-<script src="teRejat.js?v=165"></script>
+<script src="teRejat.js?v=166"></script>
 <script>
 (function () {
   'use strict';
@@ -4318,39 +4311,7 @@
       $('opsFotoHiq').style.display = kaFoto ? '' : 'none';
     }
     vendosStatusin(u ? (sink.statusi === 'lokal' ? 'pune' : sink.statusi) : 'lokal', true);
-    vizatoMbajHyrjen();
   }
-  // "Mos dil kur i fshin të dhënat": fshirja e cookies/të dhënave e fshin edhe hyrjen (s'ndalohet dot nga asnjë faqe).
-  // Fjalëkalimi i ruajtur në Chrome mbetet: me të Stoku hyn vetë (porta.js).
-  var mbajHyrjenPrek = false;
-  function vizatoMbajHyrjen() {
-    var P = window.StokuPorta, chrome = !!(P && P.kaMenaxherFjalekalimesh && P.kaMenaxherFjalekalimesh());
-    $('opsMbajHyrjenFjalekalimi').hidden = !chrome;
-    $('opsMbajHyrjenRuaj').hidden = !chrome;
-    if (mbajHyrjenPrek) return;
-    $('opsMbajHyrjenTekst').textContent = chrome
-      ? 'Kur i fshin cookies dhe të dhënat e Chrome-it, Chrome të nxjerr nga çdo faqe. Ruaje fjalëkalimin e Stoku-t në Chrome një herë: pastaj Stoku hyn vetë, pa e shkruar.'
-        + (P.kredencialiURuajt && P.kredencialiURuajt() ? ' (Në këtë kompjuter Stoku ia ka dhënë tashmë; nëse Chrome s\'të pyeti a ta ruajë, ruaje edhe një herë.)' : '')
-      : 'Ruaje fjalëkalimin kur shfletuesi të pyet: pas fshirjes së të dhënave, forma e hyrjes plotësohet vetë.';
-  }
-  async function mbajHyrjenRuaj() {
-    var P = window.StokuPorta, inp = $('opsMbajHyrjenFjalekalimi'), st = $('opsMbajHyrjenTekst'), btn = $('opsMbajHyrjenRuaj');
-    if (!P || !P.mbajHyrjen) return;
-    if (!inp.value) { mbajHyrjenPrek = true; st.textContent = 'Shkruaj fjalëkalimin e llogarisë.'; inp.focus(); return; }
-    btn.disabled = true; mbajHyrjenPrek = true; st.textContent = 'Duke e kontrolluar…';
-    var r = await P.mbajHyrjen(inp.value);
-    btn.disabled = false;
-    if (!r.ok) {
-      st.textContent = r.arsye === 'internet' ? 'S\'ka internet. Provo përsëri.' : r.arsye === 'shume-prova' ? 'Shumë prova. Prit pak minuta.' : 'Fjalëkalimi s\'është i saktë.';
-      inp.select();
-      return;
-    }
-    inp.value = '';
-    st.textContent = 'Gati. Nëse Chrome të pyet "Ruaj fjalëkalimin?", shtyp Ruaj. Herën tjetër që i fshin të dhënat, Stoku hyn vetë.';
-    toast('Fjalëkalimi iu dha Chrome-it.');
-  }
-  $('opsMbajHyrjenRuaj').addEventListener('click', mbajHyrjenRuaj);
-  $('opsMbajHyrjenFjalekalimi').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); mbajHyrjenRuaj(); } });
   $('btnLlogaria').addEventListener('click', hapLlogarine);
   // Fotoja e profilit: ruhet te Worker-i (Cloudflare), e sheh krejt ekipa
   var __fotoDukeDerguar = false;
