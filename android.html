@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="sq">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stoku për Android</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; font-family: system-ui, sans-serif; background: #f6f5f2; color: #14161b; display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
+  @media (prefers-color-scheme: dark) { body { background: #0f1115; color: #eceef2; } .k { background: #181b21 !important; } }
+  .k { background: #fff; border-radius: 20px; padding: 26px 22px; max-width: 420px; width: 100%; box-shadow: 0 20px 60px -30px rgba(0,0,0,.3); }
+  h1 { font-size: 22px; margin: 0 0 8px; }
+  p, li { line-height: 1.5; font-size: 15px; }
+  a.b { display: block; text-align: center; background: #1f5fd1; color: #fff; text-decoration: none; padding: 14px; border-radius: 14px; font-weight: 700; margin: 16px 0 6px; }
+  .g { color: #8a8f98; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="k">
+  <h1>Stoku për Android</h1>
+  <p>Aplikacioni s'del nga llogaria kur i fshin të dhënat e Chrome-it, dhe njoftimet vijnë menjëherë.</p>
+  <a class="b" id="shkarko" href="https://github.com/stoku26/stoku/releases">Shkarko aplikacionin</a>
+  <p class="g" id="info">Duke e gjetur versionin e fundit…</p>
+  <ol>
+    <li>Shtyp <b>Shkarko aplikacionin</b>, pastaj hape skedarin e shkarkuar.</li>
+    <li>Nëse Android të pyet, lejo <b>"Instalo aplikacione të panjohura"</b> për Chrome-in.</li>
+    <li>Shtyp <b>Instalo</b>, pastaj hape <b>Stoku</b> dhe hyr një herë.</li>
+  </ol>
+  <p class="g">Versionet e reja i ofron vetë aplikacioni.</p>
+</div>
+<script>
+  fetch('https://api.github.com/repos/stoku26/stoku/releases?per_page=40').then(function (r) { return r.json(); }).then(function (l) {
+    var m = null;
+    (l || []).forEach(function (r) {
+      var n = /^tel-v(\d+)$/.exec(r.tag_name || ''); if (!n || r.draft) return;
+      (r.assets || []).forEach(function (a) { if (/\.apk$/.test(a.name) && (!m || +n[1] > m.n)) m = { n: +n[1], url: a.browser_download_url }; });
+    });
+    if (m) { document.getElementById('shkarko').href = m.url; document.getElementById('info').textContent = 'Versioni 1.0.' + m.n; }
+    else document.getElementById('info').textContent = 'Versioni i parë po përgatitet. Provo pas pak minutash.';
+  }).catch(function () { document.getElementById('info').textContent = ''; });
+</script>
+</body>
+</html>

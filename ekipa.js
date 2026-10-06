@@ -200,9 +200,31 @@
     // ---------- Njoftimet push (chat-i edhe kur aplikacioni është krejt i mbyllur) ----------
     function lexoLS(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
     function shkruajLS(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ok */ } }
+    // Aplikacioni Android (tel/): njoftimet vijnë me Firebase Cloud Messaging, jo me Web Push
+    function androidApp() { return typeof window !== 'undefined' && !!window.StokuAndroid && typeof window.StokuAndroid.tokenFcm === 'function'; }
     function pushMbeshtetet() {
+      if (androidApp()) return true;
       return typeof navigator !== 'undefined' && 'serviceWorker' in navigator && typeof window !== 'undefined' &&
         'PushManager' in window && typeof Notification !== 'undefined';
+    }
+    // Adresa e njoftimeve të kësaj pajisjeje: { endpoint, p256dh, auth } (Web Push) ose { endpoint: 'fcm:…', fcm } (Android).
+    // krijo: abonohet nëse s'ka (vetëm Web Push; në Android tokeni vjen nga aplikacioni).
+    async function pajisjaPush(krijo) {
+      if (androidApp()) {
+        var t = '';
+        try { t = String(window.StokuAndroid.tokenFcm() || ''); } catch (e) { /* ok */ }
+        return t ? { endpoint: 'fcm:' + t, fcm: t } : null;
+      }
+      var reg = await navigator.serviceWorker.ready;
+      var sub = await reg.pushManager.getSubscription();
+      if (krijo && sub && sub.options && sub.options.applicationServerKey && b64uNgaBytes(sub.options.applicationServerKey) !== PUSH_VAPID) {
+        try { await sub.unsubscribe(); } catch (e) { /* ok */ }
+        sub = null;
+      }
+      if (!sub && krijo) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: bytesNgaB64u(PUSH_VAPID) });
+      if (!sub) return null;
+      var j = sub.toJSON();
+      return { endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth };
     }
     function bytesNgaB64u(t) {
       t = t.replace(/-/g, '+').replace(/_/g, '/'); while (t.length % 4) t += '=';
@@ -293,14 +315,8 @@
       if (!pushMbeshtetet()) return { ok: false, arsye: 'pa-mbeshtetje' };
       if (Notification.permission !== 'granted') return { ok: false, arsye: 'pa-leje' };
       try {
-        var reg = await navigator.serviceWorker.ready;
-        var sub = await reg.pushManager.getSubscription();
-        if (sub && sub.options && sub.options.applicationServerKey && b64uNgaBytes(sub.options.applicationServerKey) !== PUSH_VAPID) {
-          try { await sub.unsubscribe(); } catch (e) { /* ok */ }
-          sub = null;
-        }
-        if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: bytesNgaB64u(PUSH_VAPID) });
-        var j = sub.toJSON();
+        var j = await pajisjaPush(true);
+        if (!j) return { ok: false, arsye: 'pa-token' }; // Android: tokeni ende s'ka ardhur (vjen me "stoku-android-token")
         var id = uid() + '_' + hashTekst(j.endpoint);
         var ruajtur = lexoLS(KEY_PUSH);
         // Pajisja regjistrohet te grupi (grupet/{g}/push): Worker-i ua dërgon chat-in/kërkesat vetëm anëtarëve të grupit
@@ -308,7 +324,7 @@
           if (ruajtur && ruajtur.id && ruajtur.uid === uid() && ruajtur.grupi && (ruajtur.id !== id || ruajtur.grupi !== grupi)) {
             try { await fs.deleteDoc(fs.doc(db, 'grupet', ruajtur.grupi, 'push', ruajtur.id)); } catch (e) { /* ok — p.sh. s'je më në atë grup */ }
           }
-          await fs.setDoc(fs.doc(db, 'grupet', grupi, 'push', id), { uid: uid(), emri: emri(), endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, platforma: platforma, koha: Date.now() });
+          await fs.setDoc(fs.doc(db, 'grupet', grupi, 'push', id), Object.assign({ uid: uid(), emri: emri(), platforma: platforma, koha: Date.now() }, j));
           shkruajLS(KEY_PUSH, { uid: uid(), id: id, endpoint: j.endpoint, grupi: grupi, koha: Date.now() });
         }
         // Orari ditor i kësaj pajisjeje ishte për një regjistrim tjetër (p.sh. çelës i ri): rinovohet me të riun
@@ -333,17 +349,15 @@
     async function vendosOrarin(o) {
       if (!uid() || typeof fetch !== 'function') return { ok: false, arsye: 'pa-hyrje' };
       try {
-        var sub = null;
-        if (pushMbeshtetet()) { var reg = await navigator.serviceWorker.ready; sub = await reg.pushManager.getSubscription(); }
-        if (o.aktiv && !sub) {
+        var j = pushMbeshtetet() ? await pajisjaPush(false) : null;
+        if (o.aktiv && !j) {
           var a = await aktivizoPush(true);
           if (!a || !a.ok) return { ok: false, arsye: (a && a.arsye) || 'pa-push' };
-          sub = await (await navigator.serviceWorker.ready).pushManager.getSubscription();
+          j = await pajisjaPush(false);
         }
         var ishte = orariIm();
-        if (!sub) { shkruajLS(KEY_ORARI, null); return { ok: !o.aktiv, arsye: 'pa-push' }; }
-        var j = sub.toJSON();
-        var r = await thirrOrarin({ aktiv: !!o.aktiv, ora: o.ora, tz: zonaKohore(), platforma: platforma, pajisja: { endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth } });
+        if (!j) { shkruajLS(KEY_ORARI, null); return { ok: !o.aktiv, arsye: 'pa-push' }; }
+        var r = await thirrOrarin({ aktiv: !!o.aktiv, ora: o.ora, tz: zonaKohore(), platforma: platforma, pajisja: j });
         if (!r || !r.ok) return { ok: false, arsye: (r && r.arsye) || 'gabim' };
         shkruajLS(KEY_ORARI, o.aktiv ? { uid: uid(), aktiv: true, ora: o.ora, endpoint: j.endpoint, koha: Date.now() } : null);
         if (o.aktiv && !(ishte && ishte.aktiv)) shkruajLS(KEY_ORARI_AFATET, null); // afatet dërgohen sërish menjëherë
@@ -369,10 +383,9 @@
       var o = orariIm();
       if (!o || !o.aktiv || !uid() || !pushMbeshtetet()) return dalja;
       try {
-        var sub = await (await navigator.serviceWorker.ready).pushManager.getSubscription();
-        if (!sub) return dalja;
-        var j = sub.toJSON();
-        dalja.im = await thirrOrarin({ statusi: true, pajisja: { endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth } });
+        var j = await pajisjaPush(false);
+        if (!j) return dalja;
+        dalja.im = await thirrOrarin({ statusi: true, pajisja: j });
       } catch (e) { /* ok */ }
       return dalja;
     }
@@ -910,7 +923,7 @@
       aktivizoPush: aktivizoPush,
       caktivizoPush: caktivizoPush,
       pushAktiv: pushAktiv,
-      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 159,
+      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 160,
 
       // ---------- Chat ----------
       dergoMesazh: function (tekst) {

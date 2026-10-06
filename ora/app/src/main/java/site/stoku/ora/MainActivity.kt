@@ -146,7 +146,10 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
         }
         duke = false
     }
+    var iRi by remember { mutableStateOf<Pair<Int, String>?>(null) }
+    var dukePerditesuar by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { ngarko() }
+    LaunchedEffect(Unit) { iRi = Perditesimi.kontrollo(ctx) }
     BackHandler(enabled = pamja !is Pamja.Lista) { pamja = Pamja.Lista }
 
     when (val p = pamja) {
@@ -200,6 +203,22 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                     item {
                         ListHeader {
                             Text(if (l == null) "STOKU" else "SKADOJNË SOT · ${l.sot.size}", color = Gri, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                    iRi?.let { v ->
+                        item {
+                            Chip(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = {
+                                    if (!dukePerditesuar) {
+                                        dukePerditesuar = true
+                                        scope.launch { gabim = Perditesimi.instalo(ctx, v.second); dukePerditesuar = false }
+                                    }
+                                },
+                                label = { Text(if (dukePerditesuar) "Duke shkarkuar…" else "Përditëso", fontWeight = FontWeight.Bold) },
+                                secondaryLabel = { Text("Version i ri 1.0.${v.first}", color = Color.Black) },
+                                colors = ChipDefaults.primaryChipColors(),
+                            )
                         }
                     }
                     if (l == null && duke) item { CircularProgressIndicator(indicatorColor = Verdhe) }

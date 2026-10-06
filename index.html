@@ -65,6 +65,7 @@
     if (iphone && !instaluar) document.documentElement.classList.add('ios-shfletues');
   })();
 </script>
+<script src="android.js?v=167"></script>
 <style>
   :root {
     color-scheme: light;
@@ -1312,6 +1313,12 @@
             </div>
             <div class="hint" id="njProveHint"></div>
           </div>
+          <!-- Aplikacioni Android (tel/): në Chrome Android ofrohet shkarkimi, brenda aplikacionit versioni + përditësimi -->
+          <div class="seksion ops-karta" id="njAndroidKarta" hidden>
+            <div class="ops-fusha-titull"><span class="kat-ikona-badge ngj-gjelber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"></rect><path d="M11 18h2"></path></svg></span><span id="njAndroidTitulli">Aplikacioni Stoku për Android</span></div>
+            <div class="hint" id="njAndroidTekst"></div>
+            <div class="rreshti" style="margin-top:10px"><button class="btn" id="njAndroidBtn" type="button">Shkarko aplikacionin</button></div>
+          </div>
           <div class="ops-grupi-titull">Njoftimi ditor për afatet</div>
           <div class="ops-grupi">
             <div class="seksion">
@@ -1820,9 +1827,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=163"></script>
-<script src="ekipa.js?v=164"></script>
+<script src="ekipa.js?v=167"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=166"></script>
+<script src="teRejat.js?v=167"></script>
 <script>
 (function () {
   'use strict';
@@ -3375,7 +3382,23 @@
     rifreskoRenditjen();
     zbatoTemen();
     zbatoMadhesine();
-    rifreskoDukjenECloud();
+    // ---- Aplikacioni Android: në Chrome Android ofrohet; brenda aplikacionit tregohet versioni dhe kontrolli ----
+  (function () {
+    var A = window.StokuAndroid, android = /Android/i.test(navigator.userAgent || '');
+    if (!A && !android) return;
+    $('njAndroidKarta').hidden = false;
+    if (A) {
+      var v = 0; try { v = A.versioni(); } catch (e) { /* ok */ }
+      $('njAndroidTitulli').textContent = 'Aplikacioni Android · versioni 1.0.' + v;
+      $('njAndroidTekst').textContent = 'Pamja dhe veçoritë e reja vijnë vetë. Kur del version i ri i aplikacionit, të pyet vetë për përditësim.';
+      $('njAndroidBtn').textContent = 'Kontrollo për version të ri';
+      $('njAndroidBtn').addEventListener('click', function () { try { A.kontrolloPerditesimin(); } catch (e) { /* ok */ } });
+    } else {
+      $('njAndroidBtn').addEventListener('click', function () { window.open('android.html', '_blank', 'noopener'); });
+      $('njAndroidTekst').textContent = 'Stoku si aplikacion: s\'del nga llogaria kur i fshin cookies dhe të dhënat e Chrome-it, dhe njoftimet vijnë menjëherë. Instalohet një herë; versionet e reja i ofron vetë.';
+    }
+  })();
+  rifreskoDukjenECloud();
     rifreskoStatusetOpsioneve();
     aktivizoTabin(null);
     $('dlgOpsione').classList.add('hapur');

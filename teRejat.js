@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 167, versioni: '1.9.0', data: '2026-10-06', titulli: 'Stoku si aplikacion Android', pikat: [
+      'Aplikacioni i ri Stoku për Android: s\'del nga llogaria kur i fshin cookies dhe të dhënat e Chrome-it, dhe njoftimet vijnë menjëherë. Shkarkohet te Cilësimet → Njoftimet → "Shkarko aplikacionin".',
+      'Çdo përmirësim i Stoku-t del njëkohësisht në telefon, kompjuter dhe aplikacion. Kur del version i ri i vetë aplikacionit (edhe në sahat), të pyet vetë "Përditëso".'
+    ] },
     { v: 166, versioni: '1.8.2', data: '2026-10-06', titulli: 'Cilësimet e llogarisë më të thjeshta', pikat: [
       'U hoq opsioni "Mos dil kur i fshin të dhënat" te Cilësimet → Llogaria.'
     ] },

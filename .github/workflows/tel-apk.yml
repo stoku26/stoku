@@ -1,0 +1,42 @@
+# Ndërton aplikacionin Stoku për telefon (Android) dhe e vendos APK-në si "artifact"
+# dhe, në main, si Release (shkarkohet nga faqja e Releases në GitHub).
+name: Stoku Tel APK
+
+on:
+  push:
+    paths:
+      - 'tel/**'
+      - '.github/workflows/tel-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Ndërto APK
+        run: gradle -p tel assembleRelease --stacktrace --no-daemon
+      - name: Emri i skedarit
+        run: cp tel/app/build/outputs/apk/release/app-release.apk stoku-tel-${{ github.run_number }}.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stoku-tel-apk
+          path: stoku-tel-${{ github.run_number }}.apk
+      - name: Release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: tel-v${{ github.run_number }}
+          name: Stoku për telefon (Android) ${{ github.run_number }}
+          body: Aplikacioni Stoku për telefon Android. Instalohet një herë; versionet e reja i ofron vetë aplikacioni. Udhëzimi te tel/README.md.
+          files: stoku-tel-${{ github.run_number }}.apk
