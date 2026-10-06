@@ -50,6 +50,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **SAHATI: TË SKADUARAT NË KRYE (ora, pa ndryshim në web)**: lista e sahatit tash fillon me "KANË SKADUAR" (të kuqe),
+   pastaj "SKADOJNË SOT", "KËTË JAVË"; titulli "PËR T'U HEQUR · n" (sot + të skaduara). Detaji i të skaduarës: "Skadoi më
+   dd.MM" + "✓ E hoqa nga rafti"; me 2+ të skaduara chip "Hiqi krejt nga rafti" → konfirmim (`Pamja.HiqKrejt`, `/ora/hiq` për
+   secilën). Tile: rresht i kuq "n kanë skaduar"; komplikacioni = sot + të skaduara. Serveri (`/ora/sot` skaduaraL) s'ndryshoi.
 0000000. **APLIKACIONI ANDROID `tel/` (v167 = 1.9.0, Worker 160, APK `tel-vNN`)**: përdoruesi s'donte të dilte kur fshin
    "Cookies, cache, and other site data" në Chrome Android (dhe njoftimet ndaleshin). Asnjë faqe s'e mbijeton atë fshirje,
    prandaj: aplikacion Android (WebView me hapësirë të vetën) që e hap stoku.site. Paketa `site.stoku.app`, minSdk 26,
