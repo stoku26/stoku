@@ -18,6 +18,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 163, versioni: '1.7.0', data: '2026-10-06', titulli: 'Excel sipas furnizuesit dhe hyrje që mbetet', pikat: [
+      'Te Afatet → Eksporto Excel mund të zgjedhësh vetëm një furnizues: në skedar dalin vetëm afatet e tij.',
+      'Kur e fshin historinë dhe të dhënat e shfletuesit, Stoku hyn vetë me fjalëkalimin e ruajtur në Chrome (ose të pyet me një prekje). Në iPhone, Keychain e plotëson vetë emrin dhe fjalëkalimin.',
+      'iPhone (Safari): shiriti me tabe poshtë rri tash sa më poshtë.'
+    ] },
     { v: 162, versioni: '1.6.0', data: '2026-10-06', titulli: 'Kërkesa te ekipa nga sahati', pikat: [
       'Nga sahati mund t\'i kërkosh një kolegu (ose krejt ekipës) ta heqë një produkt nga rafti; ai merr njoftim si nga telefoni.',
       'Në sahat dalin edhe produktet që kanë skaduar, jo vetëm ato të sotme.',

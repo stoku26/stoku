@@ -355,6 +355,27 @@
       .map(function (k) { return { celes: k, n: m[k], emri: emriMuajit(k, meVit) }; });
   }
 
+  // Furnizuesit që ka lista (për eksportin vetëm të një furnizuesi), me numrin e afateve; "Pa furnizues" në fund.
+  // Emrat krahasohen pa dallim shkronjash të mëdha/vogla dhe hapësirash ("Meridian " = "meridian").
+  var PA_FURNIZUES = '__pa__';
+  function celesiFurnizuesit(a) {
+    var f = String((a && a.furnizuesi) || '').trim().replace(/\s+/g, ' ').toLowerCase();
+    return f || PA_FURNIZUES;
+  }
+  function furnizuesitELista(lista) {
+    var m = {};
+    (lista || []).forEach(function (a) {
+      var k = celesiFurnizuesit(a);
+      if (!m[k]) m[k] = { celes: k, n: 0, emri: k === PA_FURNIZUES ? 'Pa furnizues' : String(a.furnizuesi).trim().replace(/\s+/g, ' ') };
+      m[k].n++;
+    });
+    return Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) {
+      if (a.celes === PA_FURNIZUES) return 1;
+      if (b.celes === PA_FURNIZUES) return -1;
+      return a.emri.localeCompare(b.emri, 'sq');
+    });
+  }
+
   // ---------- Importi i afateve nga Excel/CSV ----------
   function tekstNgaQeliza(v) {
     if (typeof v === 'number') return Number.isInteger(v) && Math.abs(v) < 1e21 ? v.toLocaleString('en-US', { useGrouping: false, maximumFractionDigits: 0 }) : String(v);
@@ -595,7 +616,7 @@
     formatoDatenGjateShkrimit: formatoDatenGjateShkrimit, formatoPerFushe: formatoPerFushe, idERe: idERe, krahaso: krahaso, numero: numero,
     pergatitFoton: pergatitFoton, fotoPerDergim: fotoPerDergim, lexoMeAI: lexoMeAI,
     normalizoRreshtin: normalizoRreshtin, EMRAT_MUAJVE: EMRAT_MUAJVE, muajiNgaEmri: muajiNgaEmri, celesiMuajit: celesiMuajit, emriMuajit: emriMuajit,
-    muajtELista: muajtELista, ditetEMbetura: ditetEMbetura, dataNgaQeliza: dataNgaQeliza, hamendesoKolonatEAfateve: hamendesoKolonatEAfateve,
+    muajtELista: muajtELista, furnizuesitELista: furnizuesitELista, celesiFurnizuesit: celesiFurnizuesit, ditetEMbetura: ditetEMbetura, dataNgaQeliza: dataNgaQeliza, hamendesoKolonatEAfateve: hamendesoKolonatEAfateve,
     planiImportitAfateve: planiImportitAfateve, afatetNgaPlani: afatetNgaPlani, tekstNgaQeliza: tekstNgaQeliza, ditetTekst: ditetTekst, lexoSasine: lexoSasine, sasiaSiShume: sasiaSiShume, sasiaTekst: sasiaTekst, shumaCopeve: shumaCopeve,
     listaEFurnizuesve: listaEFurnizuesve, furnizuesiEkzistues: furnizuesiEkzistues, riemertoFurnizuesin: riemertoFurnizuesin,
     IKONAT_FOLDERAVE: IKONAT_FOLDERAVE, ikonaEFolderit: ikonaEFolderit, svgEIkones: svgEIkones, zgjedhesIIkonave: zgjedhesIIkonave

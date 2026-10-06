@@ -371,7 +371,7 @@
 
 /* ---------- Dialogët: "bottom sheet" ---------- */
 .sb .mbulese:not(.faqe-e-plote):not(#dlgOpsione) { background: var(--sb-overlay); align-items: flex-end; padding: 0; }
-.sb .mbulese:not(.faqe-e-plote):not(#dlgOpsione) > .dialog { max-width: 560px; border-radius: 32px 32px 0 0; padding: 10px 20px calc(20px + env(safe-area-inset-bottom)); max-height: 92%; position: relative; animation: sbSheet .24s cubic-bezier(.2,.8,.2,1); }
+.sb .mbulese:not(.faqe-e-plote):not(#dlgOpsione) > .dialog { max-width: 560px; border-radius: 32px 32px 0 0; padding: 10px 20px calc(20px + var(--sab, env(safe-area-inset-bottom))); max-height: 92%; position: relative; animation: sbSheet .24s cubic-bezier(.2,.8,.2,1); }
 .sb .mbulese:not(.faqe-e-plote):not(#dlgOpsione) > .dialog::before { content: ''; display: block; width: 40px; height: 5px; border-radius: 3px; background: var(--sb-track); margin: 0 auto 14px; }
 @keyframes sbSheet { from { transform: translateY(100%); } to { transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { .sb .mbulese:not(.faqe-e-plote):not(#dlgOpsione) > .dialog { animation: none; } }

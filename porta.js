@@ -19,6 +19,7 @@
   var KEY_EMRI_FUNDIT = 'stoku:porta:emri'; // emri i fundit i shkruar (plotësohet vetë, nëse "Më mbaj mend" është aktiv)
   var KEY_MBAJ_EMRIN = 'stoku:porta:mbaj-emrin'; // '0' = mos e mbaj mend emrin (parazgjedhja: mbahet mend). Fjalëkalimi s'ruhet kurrë.
   var KEY_MESAZHI = 'stoku:porta:mesazh';   // mesazh një-herësh për ekranin e hyrjes pas rifreskimit
+  var KEY_DIL = 'stoku:porta:dil';          // '1' pas "Dil" me dorë: llogaria e ruajtur s'ofrohet vetë sapo hapet porta
   var CELESAT_E_TE_DHENAVE = ['stoku:foldera:v1', 'stoku:produktet:v2', 'stoku:produktet:v1', 'stoku:fshira:v1',
     'stoku:rendi-foldera-koha', 'stoku:afatet:v1'];
   var PRITJA_MAKS_MS = 7000;
@@ -241,10 +242,56 @@
       return;
     }
     ruajEmrin(emri);
+    ruajKredencialet(emri, fjalekalimi); // Chrome: "Ruaje fjalëkalimin?" → hyrja vetë edhe pas fshirjes së të dhënave
     $('pkFjalekalimi').value = ''; $('pkPerserit').value = '';
     shfaqPritjen(krijo ? 'Llogaria u krijua. Duke hapur…' : 'Duke hapur…');
     // Pjesa tjetër ndodh te "stoku-auth-ndryshoi" (Firebase e njofton hyrjen)
   });
+
+  // ---------- Hyrja nga fjalëkalimi i ruajtur në shfletues ----------
+  // Fshirja e "cookies dhe të dhënave" në shfletues e fshin edhe hyrjen e Firebase-it (s'ka si të ruhet në faqe).
+  // Fjalëkalimet e ruajta në Chrome / Google Password Manager mbeten: pas çdo hyrjeje fjalëkalimi i jepet
+  // shfletuesit (Credential Management API) dhe, kur porta hapet pa hyrje, Stoku hyn vetë me të (ose Chrome
+  // pyet me një prekje cilën llogari). Safari s'e ka këtë API: atje iCloud Keychain e plotëson formën
+  // (autocomplete="username"/"current-password").
+  function kaMenaxherFjalekalimesh() {
+    return !SHFLETUES_I_VJETER && typeof window.PasswordCredential === 'function' && !!(navigator.credentials && navigator.credentials.get);
+  }
+  function ruajKredencialet(emri, fjalekalimi) {
+    shkruaj(KEY_DIL, null);
+    if (!kaMenaxherFjalekalimesh() || !emri || !fjalekalimi) return;
+    try {
+      var k = new window.PasswordCredential({ id: emri, password: fjalekalimi, name: emri });
+      navigator.credentials.store(k).catch(function () { /* përdoruesi s'e ruajti */ });
+    } catch (e) { /* ok */ }
+  }
+  // "Dil" me dorë: mos hyr vetë menjëherë me fjalëkalimin e ruajtur (përndryshe dalja s'do të ishte e mundur)
+  function dilMeDore() {
+    shkruaj(KEY_DIL, '1');
+    try { if (navigator.credentials && navigator.credentials.preventSilentAccess) navigator.credentials.preventSilentAccess().catch(function () { /* ok */ }); } catch (e) { /* ok */ }
+  }
+  async function provoHyrjenMeTeRuajturin() {
+    if (gjendja.provuarVete || !kaMenaxherFjalekalimesh()) return;
+    gjendja.provuarVete = true; // një herë për çdo hapje të faqes
+    var kred = null;
+    try {
+      // Pas "Dil": vetëm pa pyetje (Chrome s'e lejon pas preventSilentAccess). Përndryshe (p.sh. pas fshirjes së
+      // të dhënave): Chrome hyn vetë, ose pyet me një prekje cilën llogari të ruajtur.
+      kred = await navigator.credentials.get({ password: true, mediation: lexo(KEY_DIL) === '1' ? 'silent' : 'optional' });
+    } catch (e) { return; }
+    if (!kred || kred.type !== 'password' || !kred.id || !kred.password || !gjendja.eHapur || gjendja.dukePunuar) return;
+    var cloud = window.__stokuCloud;
+    if (!cloud || !cloud.hyr) return;
+    gjendja.dukePunuar = true;
+    shfaqPritjen('Duke hyrë si ' + kred.id + '…');
+    var rez;
+    try { rez = await cloud.hyr(kred.id, kred.password); } catch (e) { rez = { ok: false }; }
+    gjendja.dukePunuar = false;
+    if (rez && rez.ok) { ruajEmrin(kred.id); shkruaj(KEY_DIL, null); return; } // pjesa tjetër te "stoku-auth-ndryshoi"
+    $('pkEmri').value = kred.id;
+    $('pkFjalekalimi').value = '';
+    shfaqFormen(tekstiGabimit(rez && rez.kodi));
+  }
 
   // Pret ngarkimin e modulit të Firebase-it (ngjarja "stoku-cloud-gati"), deri në `ms`
   function pritCloudin(ms) {
@@ -292,6 +339,7 @@
       var m = gjendja.mesazhiLidhjes ? '' : $('pkGabim').textContent;
       gjendja.mesazhiLidhjes = false;
       if (!gjendja.eHapur) hap(); else if (!gjendja.dukePunuar) shfaqFormen(m);
+      provoHyrjenMeTeRuajturin();
       return;
     }
     // Të dhënat lokale i përkasin një llogarie tjetër? Hiqen para se faqja t'i sinkronizojë në
@@ -346,5 +394,5 @@
   }, SHFLETUES_I_VJETER ? 0 : paInternet && fundit && fundit.uid && lexo(KEY_PRONARI) === fundit.uid ? 400 : PRITJA_MAKS_MS);
   if (window.__stokuCloud) kontrollo();
 
-  window.StokuPorta = { eHapur: function () { return gjendja.eHapur; } };
+  window.StokuPorta = { eHapur: function () { return gjendja.eHapur; }, ruajKredencialet: ruajKredencialet, dilMeDore: dilMeDore };
 })();
