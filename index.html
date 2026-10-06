@@ -55,6 +55,15 @@
     }
     document.documentElement.setAttribute('data-tema', t);
   })();
+  // iPhone në Safari (jo nga ekrani kryesor): shiriti i Safari-t poshtë e mbulon vetë zonën e "home indicator",
+  // ndërsa Safari (iOS 26) e raporton prapë env(safe-area-inset-bottom) dhe tabet ngriheshin shumë lart.
+  // Atje hapësira poshtë = 0 (--sab), që tabet të rrinë sa më poshtë; në aplikacionin e instaluar mbetet env().
+  (function () {
+    var ua = navigator.userAgent || '';
+    var iphone = /iPhone|iPod/.test(ua);
+    var instaluar = navigator.standalone === true || !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    if (iphone && !instaluar) document.documentElement.classList.add('ios-shfletues');
+  })();
 </script>
 <style>
   :root {
@@ -309,7 +318,7 @@
   .folder-fshij:active { background: var(--vije); }
   footer {
     padding: 4px 16px;
-    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    padding-bottom: max(8px, var(--sab));
     border-top: 1px solid var(--vije);
     display: flex;
     justify-content: center;
@@ -384,7 +393,7 @@
     color: #fff;
   }
   .opsione-krye h2 { margin: 0; flex: 1; min-width: 0; font-size: 20px; font-weight: 600; }
-  .opsione-trup { flex: 1; min-height: 0; overflow-y: auto; padding: 0 20px calc(24px + env(safe-area-inset-bottom)); }
+  .opsione-trup { flex: 1; min-height: 0; overflow-y: auto; padding: 0 20px calc(24px + var(--sab)); }
   .kategori-menu { padding: 14px 0; display: flex; flex-direction: column; gap: 10px; }
   .kategori-rresht {
     display: flex; align-items: center; gap: 14px;
@@ -525,7 +534,7 @@
   #toast {
     position: fixed;
     left: 50%; transform: translateX(-50%);
-    bottom: calc(80px + env(safe-area-inset-bottom));
+    bottom: calc(80px + var(--sab));
     background: var(--toast-bg); color: var(--toast-tx);
     padding: 12px 18px;
     border-radius: 10px;
@@ -551,11 +560,11 @@
   .faqe-kuti { width: 100%; height: 100%; background: var(--sfond); display: flex; flex-direction: column; }
   .faqe-trup {
     flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
-    padding: 12px 16px calc(24px + env(safe-area-inset-bottom));
+    padding: 12px 16px calc(24px + var(--sab));
     padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right));
   }
   .faqe-fund {
-    flex: none; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--vije);
+    flex: none; padding: 10px 16px calc(10px + var(--sab)); border-top: 1px solid var(--vije);
     background: var(--sfond); display: flex; gap: 8px;
   }
   .btn-ikone .af-shenje {
@@ -568,17 +577,18 @@
   /* ================= Shiriti me tabe poshtë: Stoku · Afatet · Cilësimet ================= */
   /* Shfaqet vetëm në nivelin kryesor (lista e folderave, Afatet, Cilësimet). Brenda një folderi, te kamera,
      te kontrolli i fletës dhe sa kohë është hapur tastiera, fshihet — që të mos zërë vend dhe të mos mbulojë fushat. */
-  :root { --tabet-lartesia: 66px; }
+  :root { --tabet-lartesia: 66px; --sab: env(safe-area-inset-bottom, 0px); }
+  html.ios-shfletues { --sab: 0px; }
   #tabet {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 19;
-    display: none; height: calc(var(--tabet-lartesia) + env(safe-area-inset-bottom));
-    padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    display: none; height: calc(var(--tabet-lartesia) + var(--sab));
+    padding: 0 env(safe-area-inset-right) var(--sab) env(safe-area-inset-left);
     background: var(--sfond); border-top: 1px solid var(--vije);
     box-shadow: 0 -4px 16px rgba(0,0,0,.08);
   }
   html[data-tema="dark"] #tabet { box-shadow: 0 -4px 16px rgba(0,0,0,.35); }
   body.me-tabe #tabet { display: flex; }
-  body.me-tabe { height: auto; bottom: calc(var(--tabet-lartesia) + env(safe-area-inset-bottom)); }
+  body.me-tabe { height: auto; bottom: calc(var(--tabet-lartesia) + var(--sab)); }
   #tabet .tab {
     flex: 1; min-width: 0; border: 0; background: transparent; color: var(--gri); font: inherit;
     font-size: 11.5px; font-weight: 700; cursor: pointer; padding: 6px 0 4px;
@@ -797,8 +807,8 @@
   .ek-nj.e-re .ek-nj-trup { font-weight: 600; }
   .ek-nj-koha { font-size: 12px; color: var(--gri); font-weight: 400; margin-top: 2px; }
   /* Afatet dhe Cilësimet janë tabe: faqja e tyre mbaron mbi shirit, dhe s'kanë shigjetë "prapa" (tabi Stoku i mbyll) */
-  body.me-tabe #dlgAfatet, body.me-tabe #dlgOpsione, body.me-tabe #dlgEkipi { bottom: calc(var(--tabet-lartesia) + env(safe-area-inset-bottom)); }
-  body.me-tabe #toast { bottom: calc(var(--tabet-lartesia) + env(safe-area-inset-bottom) + 14px); }
+  body.me-tabe #dlgAfatet, body.me-tabe #dlgOpsione, body.me-tabe #dlgEkipi { bottom: calc(var(--tabet-lartesia) + var(--sab)); }
+  body.me-tabe #toast { bottom: calc(var(--tabet-lartesia) + var(--sab) + 14px); }
   #afPrapa { display: none; }
   /* Kalimi nga një tab te tjetri: pa rrëshqitje anash (ajo mbetet vetëm kur hapen si dritare, p.sh. nga njoftimi) */
   body.pa-animim .mbulese { transition: none !important; }
@@ -1029,10 +1039,10 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=17">
+<link rel="stylesheet" href="css/stoku.css?v=18">
 </head>
 <body>
-<script src="porta.js?v=145"></script>
+<script src="porta.js?v=163"></script>
 
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" style="display:none">←</button>
@@ -1636,6 +1646,10 @@
       <label for="axMuaji">Cili muaj?</label>
       <select id="axMuaji"></select>
     </div>
+    <div class="fushe" id="axFurnRresht" hidden>
+      <label for="axFurn">Cili furnizues?</label>
+      <select id="axFurn"></select>
+    </div>
     <div class="ax-shpejt">
       <button type="button" id="axKrejt">Të gjitha</button>
       <button type="button" id="axBaze">Barkodi, emri, sasia</button>
@@ -1791,10 +1805,10 @@
 <script src="xlsx.js?v=113"></script>
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=144"></script>
+<script src="afatet.js?v=163"></script>
 <script src="ekipa.js?v=162"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=162"></script>
+<script src="teRejat.js?v=163"></script>
 <script>
 (function () {
   'use strict';
@@ -5421,7 +5435,7 @@
   }
   function axRifresko() {
     var n = axTeZgjedhurat().length;
-    $('axEksporto').disabled = !n || (typeof axKrejt !== 'undefined' && axKrejt && !afatetEFiltruara($('axMuaji').value).length);
+    $('axEksporto').disabled = !n || (typeof axKrejt !== 'undefined' && axKrejt && !axAfatetEKrejt().length);
     $('axGabim').textContent = n ? '' : 'Zgjidh të paktën një kolonë.';
   }
   (function ndertoListenAx() {
@@ -5440,6 +5454,7 @@
     if (!n) return;
     axKrejt = false;
     $('axMuajiRresht').hidden = true;
+    $('axFurnRresht').hidden = true;
     $('axNen').textContent = n === 1 ? '1 afat i zgjedhur' : n + ' afate të zgjedhura';
     axVendos(axKolonatERuajtura());
     $('dlgAfExcel').classList.add('hapur');
@@ -5453,17 +5468,40 @@
     AF.muajtELista(afatetEFiltruara('')).forEach(function (m) { var o = document.createElement('option'); o.value = m.celes; o.textContent = m.emri + ' (' + m.n + ')'; s.appendChild(o); });
     s.value = afMuaji && Array.prototype.some.call(s.options, function (o) { return o.value === afMuaji; }) ? afMuaji : '';
     $('axMuajiRresht').hidden = false;
+    $('axFurn').value = '';
+    axMbushFurnizuesit();
     axInfoKrejt();
     axVendos(axKolonatERuajtura());
     $('dlgAfExcel').classList.add('hapur');
   }
+  // Furnizuesit e muajit të zgjedhur (zgjedhja ruhet nëse furnizuesi ka ende afate atë muaj)
+  function axMbushFurnizuesit() {
+    var s = $('axFurn'), para = s.value;
+    var lista = AF.furnizuesitELista(afatetEFiltruara($('axMuaji').value));
+    s.textContent = '';
+    var o0 = document.createElement('option'); o0.value = ''; o0.textContent = 'Të gjithë furnizuesit'; s.appendChild(o0);
+    lista.forEach(function (f) { var o = document.createElement('option'); o.value = f.celes; o.textContent = f.emri + ' (' + f.n + ')'; s.appendChild(o); });
+    s.value = lista.some(function (f) { return f.celes === para; }) ? para : '';
+    // Me vetëm një furnizues (ose asnjë) zgjedhja s'ka kuptim
+    $('axFurnRresht').hidden = lista.length < 2;
+  }
+  function axAfatetEKrejt() {
+    var f = $('axFurn').value;
+    return afatetEFiltruara($('axMuaji').value).filter(function (a) { return !f || AF.celesiFurnizuesit(a) === f; });
+  }
+  function axEmriFurnizuesit() {
+    var s = $('axFurn'), o = s.options[s.selectedIndex];
+    return s.value && o ? o.textContent.replace(/\s*\(\d+\)$/, '') : '';
+  }
   function axInfoKrejt() {
-    var n = afatetEFiltruara($('axMuaji').value).length;
+    var n = axAfatetEKrejt().length;
     var st = { aktive: 'aktive', skaduar: 'të skaduara', afer: 'afër skadimit', ok: 'në rregull', hequr: 'të hequra' }[afFiltri] || '';
-    $('axNen').textContent = n ? 'Do të eksportohen ' + (n === 1 ? '1 afat' : n + ' afate') + (afFiltri !== 'aktive' ? ' (' + st + ')' : '') : 'S\'ka afate ' + st + ' për këtë muaj';
+    var fe = axEmriFurnizuesit();
+    $('axNen').textContent = n ? 'Do të eksportohen ' + (n === 1 ? '1 afat' : n + ' afate') + (afFiltri !== 'aktive' ? ' (' + st + ')' : '') + (fe ? ' të furnizuesit ' + fe : '') : 'S\'ka afate ' + st + ' për këtë zgjedhje';
     $('axEksporto').disabled = !n || !axTeZgjedhurat().length;
   }
-  $('axMuaji').addEventListener('change', axInfoKrejt);
+  $('axMuaji').addEventListener('change', function () { axMbushFurnizuesit(); axInfoKrejt(); });
+  $('axFurn').addEventListener('change', axInfoKrejt);
   $('afEksporto').addEventListener('click', hapEksportinEAfateve);
   // Butoni "Excel" te Afatet: menu me Importo / Eksporto
   (function () {
@@ -5486,18 +5524,20 @@
     var kolonat = AX_KOLONAT.filter(function (c) { return kyçet.indexOf(c.k) >= 0; });
     var zgj = afZgjedhja || {};
     var muajiEks = axKrejt ? $('axMuaji').value : '';
-    var lista = axKrejt ? afatetEFiltruara(muajiEks) : afatet.filter(function (a) { return zgj[a.id]; }).sort(AF.krahaso);
+    var furnEks = axKrejt ? axEmriFurnizuesit() : '';
+    var lista = axKrejt ? axAfatetEKrejt() : afatet.filter(function (a) { return zgj[a.id]; }).sort(AF.krahaso);
     mbyllExcelinEAfateve();
     if (!lista.length) return;
     var rreshtat = lista.map(function (a) { return kolonat.map(function (c) { return c.v(a); }); });
-    var fleta = { name: muajiEks ? AF.emriMuajit(muajiEks) : 'Afatet', columns: kolonat.map(function (c) { return c.col; }), rows: rreshtat };
+    var fleta = { name: furnEks || (muajiEks ? AF.emriMuajit(muajiEks) : 'Afatet'), columns: kolonat.map(function (c) { return c.col; }), rows: rreshtat };
     var iSasise = kyçet.indexOf('sasia') >= 0 ? kolonat.findIndex(function (c) { return c.k === 'sasia'; }) : -1;
     if (iSasise >= 0) {
       fleta.totalColumns = [iSasise];
       if (iSasise > 0) fleta.totalLabel = 'Gjithsej';
     }
     var d = new Date();
-    var emri = 'afatet_' + (muajiEks ? AF.emriMuajit(muajiEks).toLowerCase().replace(/ë/g, 'e').replace(/\s+/g, '_') + '_' : '') + d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate()) +
+    var pjeseEmri = function (t) { return t.toLowerCase().replace(/ë/g, 'e').replace(/ç/g, 'c').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40); };
+    var emri = 'afatet_' + (furnEks && pjeseEmri(furnEks) ? pjeseEmri(furnEks) + '_' : '') + (muajiEks ? pjeseEmri(AF.emriMuajit(muajiEks)) + '_' : '') + d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate()) +
       '_' + dyShifra(d.getHours()) + dyShifra(d.getMinutes()) + '.xlsx';
     var bajtet = StokuXlsx.buildWorkbook([fleta]);
     await ndajOseShkarko({ skedari: new File([bajtet], emri, { type: MIME_XLSX }), emri: emri }, 'Afatet');
@@ -7747,12 +7787,14 @@
       async dil() {
         if (ekipa) ekipa.ndalPranine(); // "offline" para daljes, sa ende lejohet shkrimi
         if (ekipa && ekipa.caktivizoPush) { try { await ekipa.caktivizoPush(); } catch (e) { /* ok */ } } // kjo pajisje s'merr më njoftimet e kësaj llogarie
+        if (window.StokuPorta && window.StokuPorta.dilMeDore) window.StokuPorta.dilMeDore(); // mos hyr vetë me fjalëkalimin e ruajtur
         try { await signOut(auth); } catch (e) { /* ok */ }
       },
       // Llogaria u fshi nga administratori: fshihet edhe llogaria e Firebase-it (emri lirohet). Nëse Firebase kërkon
       // hyrje të freskët, vetëm dilet — herën tjetër që hyn, fshirja provohet sërish.
       async fshiVeten() {
         if (!auth.currentUser) return;
+        if (window.StokuPorta && window.StokuPorta.dilMeDore) window.StokuPorta.dilMeDore();
         try { await deleteUser(auth.currentUser); } catch (e) { try { await signOut(auth); } catch (e2) { /* ok */ } }
       },
       async ndryshoEmrin(emriRiPerdoruesit) {
@@ -7769,6 +7811,8 @@
         if (!auth.currentUser) return { ok: false, arsye: 'pa-hyrje' };
         try {
           await updatePassword(auth.currentUser, fjalekalimiRi);
+          // Fjalëkalimi i ri edhe te menaxheri i fjalëkalimeve (që hyrja vetë të mos dështojë me të vjetrin)
+          if (window.StokuPorta && window.StokuPorta.ruajKredencialet) window.StokuPorta.ruajKredencialet(String(auth.currentUser.email || '').replace(/@stoku-app\.local$/, ''), fjalekalimiRi);
           return { ok: true };
         } catch (e) {
           return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) };

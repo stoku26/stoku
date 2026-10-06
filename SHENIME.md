@@ -50,6 +50,21 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **EXCEL SIPAS FURNIZUESIT, HYRJA PAS FSHIRJES, TABET NË iPHONE (v163 = 1.7.0)**:
+   - `afatet.js`: `furnizuesitELista(lista)` (emrat pa dallim shkronjash/hapësirash, "Pa furnizues" = `__pa__` në fund)
+     dhe `celesiFurnizuesit(a)`. Tel: `#axFurn` te dritarja e eksportit (lista sipas muajit të zgjedhur; fshihet me < 2
+     furnizues), fleta dhe skedari marrin emrin e furnizuesit. PC: `#aeFurn`, `afatetPerEksport(muaji, furn)`, edhe fleta
+     "Për furnizuesit" filtrohet.
+   - Hyrja: fshirja e të dhënave të shfletuesit e fshin edhe sesionin e Firebase-it (s'ka vend tjetër në faqe ku të ruhet).
+     `porta.js`: pas hyrjes `navigator.credentials.store(new PasswordCredential({id, password}))` (Chrome / Google
+     Password Manager); kur porta hapet pa hyrje, `credentials.get({password: true, mediation: 'optional'})` një herë →
+     hyn vetë ose Chrome pyet me një prekje; pas "Dil" me dorë (`StokuPorta.dilMeDore`: `preventSilentAccess` + LS
+     `stoku:porta:dil`) vetëm `silent`. Ndryshimi i fjalëkalimit e përditëson kredencialin. Safari s'e ka API-n: forma ka
+     `autocomplete="username"`/`"current-password"` për iCloud Keychain; aplikacioni i instaluar në iPhone (ekrani kryesor)
+     ka hapësirë të veçantë, që s'fshihet me "Clear History and Website Data" të Safari-t.
+   - iPhone në Safari (jo i instaluar): Safari (iOS 26) e raporton `env(safe-area-inset-bottom)` edhe pse shiriti i tij
+     e mbulon zonën poshtë → tabet ngriheshin. Klasa `ios-shfletues` (skript në `<head>`) e bën `--sab: 0px`; krejt
+     `env(safe-area-inset-bottom)` te index.html/stoku.css → `var(--sab)`.
 0000000. **KËRKESAT NGA SAHATI (v162 = 1.6.0, Worker 158)**: te `/ora/lidh` telefoni dërgon edhe `rt`
    (`auth.currentUser.refreshToken`), i ruajtur te `ora-tok:*`; Worker-i e kthen në ID token (securetoken.googleapis.com,
    çelësi publik i Firebase) dhe vepron SI PËRDORUESI, pra rregullat e Firestore vlejnë njësoj: `GET /ora/koleget`

@@ -897,7 +897,7 @@
 <link rel="stylesheet" href="css/stoku-pc.css?v=11">
 </head>
 <body>
-<script src="porta.js?v=145"></script>
+<script src="porta.js?v=163"></script>
 
 <div class="trupi">
   <aside class="anesore">
@@ -1659,6 +1659,7 @@
     <div class="dialog-krye"><h2 id="aeTitulli">Eksporto afatet në Excel</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
     <div class="dialog-trup">
       <label class="fushe"><span>Cili muaj?</span><select class="inp" id="aeMuaji"></select></label>
+      <label class="fushe" id="aeFurnRresht"><span>Cili furnizues?</span><select class="inp" id="aeFurn"></select></label>
       <div class="parapamje-sasie" id="aeInfo"></div>
     </div>
     <div class="dialog-fund">
@@ -1841,9 +1842,9 @@
 <script src="xlsx.js?v=113"></script>
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=144"></script>
+<script src="afatet.js?v=163"></script>
 <script src="ekipa.js?v=162"></script>
-<script src="teRejat.js?v=162"></script>
+<script src="teRejat.js?v=163"></script>
 <script>
 (function () {
   'use strict';
@@ -6428,23 +6429,43 @@
     var o0 = el('option', null, 'Të gjithë muajt'); o0.value = ''; s.appendChild(o0);
     AF.muajtELista(filtroAfatet(true)).forEach(function (m) { var o = el('option', null, m.emri + ' (' + m.n + ')'); o.value = m.celes; s.appendChild(o); });
     s.value = af.muaji && Array.prototype.some.call(s.options, function (o) { return o.value === af.muaji; }) ? af.muaji : '';
+    $('aeFurn').value = '';
+    mbushFurnizuesitEEksportit();
     rifreskoInfonEEksportit();
     hapDialog('dlgAfEksport', 'aeMuaji');
   }
+  // Furnizuesit e muajit të zgjedhur, me numrin e afateve (zgjedhja ruhet nëse ka ende afate)
+  function mbushFurnizuesitEEksportit() {
+    var s = $('aeFurn'), para = s.value;
+    var lista = AF.furnizuesitELista(filtroAfatet(true, $('aeMuaji').value));
+    s.textContent = '';
+    var o0 = el('option', null, 'Të gjithë furnizuesit'); o0.value = ''; s.appendChild(o0);
+    lista.forEach(function (f) { var o = el('option', null, f.emri + ' (' + f.n + ')'); o.value = f.celes; s.appendChild(o); });
+    s.value = lista.some(function (f) { return f.celes === para; }) ? para : '';
+    $('aeFurnRresht').hidden = lista.length < 2;
+  }
+  function emriIFurnizuesitTeEksporti() {
+    var s = $('aeFurn'), o = s.options[s.selectedIndex];
+    return s.value && o ? o.textContent.replace(/\s*\(\d+\)$/, '') : '';
+  }
+  function afatetPerEksport(muaji, furn) {
+    return filtroAfatet(true, muaji).filter(function (a) { return !furn || AF.celesiFurnizuesit(a) === furn; });
+  }
   function rifreskoInfonEEksportit() {
-    var n = filtroAfatet(true, $('aeMuaji').value).length;
+    var n = afatetPerEksport($('aeMuaji').value, $('aeFurn').value).length, fe = emriIFurnizuesitTeEksporti();
     var st = { aktive: 'aktive', skaduar: 'të skaduara', afer: 'afër skadimit', ok: 'në rregull', hequr: 'të hequra' }[af.filtri] || '';
-    $('aeInfo').textContent = n ? 'Do të eksportohen ' + (n === 1 ? '1 afat' : n + ' afate') + (af.filtri !== 'aktive' ? ' (' + st + ')' : '') + (af.kerkimi ? ', sipas kërkimit' : '') + '.' : 'S\'ka afate ' + st + ' për këtë muaj.';
+    $('aeInfo').textContent = n ? 'Do të eksportohen ' + (n === 1 ? '1 afat' : n + ' afate') + (af.filtri !== 'aktive' ? ' (' + st + ')' : '') + (fe ? ' të furnizuesit ' + fe : '') + (af.kerkimi ? ', sipas kërkimit' : '') + '.' : 'S\'ka afate ' + st + ' për këtë zgjedhje.';
     $('aeBtn').disabled = !n;
   }
-  $('aeMuaji').addEventListener('change', rifreskoInfonEEksportit);
-  $('aeBtn').addEventListener('click', function () { var m = $('aeMuaji').value; mbyllDialog('dlgAfEksport'); eksportoAfatet(m); });
+  $('aeMuaji').addEventListener('change', function () { mbushFurnizuesitEEksportit(); rifreskoInfonEEksportit(); });
+  $('aeFurn').addEventListener('change', rifreskoInfonEEksportit);
+  $('aeBtn').addEventListener('click', function () { var m = $('aeMuaji').value, f = $('aeFurn').value, fe = emriIFurnizuesitTeEksporti(); mbyllDialog('dlgAfEksport'); eksportoAfatet(m, f, fe); });
 
-  function eksportoAfatet(muaji) {
+  function eksportoAfatet(muaji, furn, emriFurn) {
     if (!afatet.length) { toast('S\'ka afate për eksport.'); return; }
-    muaji = muaji || '';
-    var lista = filtroAfatet(true, muaji);
-    if (!lista.length) { toast('S\'ka afate për këtë muaj.'); return; }
+    muaji = muaji || ''; furn = furn || '';
+    var lista = afatetPerEksport(muaji, furn);
+    if (!lista.length) { toast('S\'ka afate për këtë zgjedhje.'); return; }
     function rresht(a) {
       var n = AF.ditetDeri(a.data);
       var st = AF.statusi(a);
@@ -6458,7 +6479,7 @@
       { title: 'Hequr nga rafti', width: 18, type: 'date' }, { title: 'Shtuar nga', width: 14 }
     ];
     var fletet = [{ name: 'Afatet', columns: kol, rows: lista.map(rresht), totalLabel: 'Gjithsej', totalColumns: [3] }];
-    var perFurnizues = afatet.filter(function (a) { var s = AF.statusi(a); return (s === 'afer' || s === 'skaduar') && (!muaji || AF.celesiMuajit(a) === muaji); })
+    var perFurnizues = afatet.filter(function (a) { var s = AF.statusi(a); return (s === 'afer' || s === 'skaduar') && (!muaji || AF.celesiMuajit(a) === muaji) && (!furn || AF.celesiFurnizuesit(a) === furn); })
       .sort(function (a, b) { return (a.furnizuesi || '~').localeCompare(b.furnizuesi || '~', 'sq') || String(a.data).localeCompare(String(b.data)); });
     if (perFurnizues.length) {
       fletet.push({ name: 'Për furnizuesit', columns: [
@@ -6467,7 +6488,8 @@
       ], totalLabel: 'Gjithsej', totalColumns: [3], rows: perFurnizues.map(function (a) { return [a.furnizuesi || '(pa furnizues)', a.emri || '', a.barkodi || '', typeof a.sasia === 'number' ? a.sasia : '', a.data, AF.ditetDeri(a.data)]; }) });
     }
     if (muaji) fletet[0].name = AF.emriMuajit(muaji);
-    var emri = 'afatet_' + (muaji ? slug(AF.emriMuajit(muaji)) + '_' : '') + vulaKohore(true) + '.xlsx';
+    if (emriFurn) fletet[0].name = emriFurn;
+    var emri = 'afatet_' + (emriFurn && slug(emriFurn) ? slug(emriFurn) + '_' : '') + (muaji ? slug(AF.emriMuajit(muaji)) + '_' : '') + vulaKohore(true) + '.xlsx';
     shkarko(window.StokuXlsx.buildWorkbook(fletet), emri, MIME_XLSX);
     toast('U shkarkua: ' + emri);
   }
@@ -6683,16 +6705,26 @@
       async dil() {
         if (ekipa) ekipa.ndalPranine();
         if (ekipa && ekipa.caktivizoPush) { try { await ekipa.caktivizoPush(); } catch (e) { /* ok */ } } // kjo pajisje s'merr më njoftimet e kësaj llogarie
+        if (window.StokuPorta && window.StokuPorta.dilMeDore) window.StokuPorta.dilMeDore(); // mos hyr vetë me fjalëkalimin e ruajtur
         try { await signOut(auth); } catch (e) { /* ok */ }
       },
       // Llogaria u fshi nga administratori: fshihet edhe llogaria e Firebase-it (emri lirohet). Nëse Firebase kërkon
       // hyrje të freskët, vetëm dilet — herën tjetër që hyn, fshirja provohet sërish.
       async fshiVeten() {
         if (!auth.currentUser) return;
+        if (window.StokuPorta && window.StokuPorta.dilMeDore) window.StokuPorta.dilMeDore();
         try { await deleteUser(auth.currentUser); } catch (e) { try { await signOut(auth); } catch (e2) { /* ok */ } }
       },
       async ndryshoEmrin(u) { if (!auth.currentUser) return { ok: false }; try { await updateEmail(auth.currentUser, emailIBrendshem(u)); regjistroPerdoruesin(u, auth.currentUser.uid); return { ok: true }; } catch (e) { return gabim(e); } },
-      async ndryshoFjalekalimin(p) { if (!auth.currentUser) return { ok: false }; try { await updatePassword(auth.currentUser, p); return { ok: true }; } catch (e) { return gabim(e); } },
+      async ndryshoFjalekalimin(p) {
+        if (!auth.currentUser) return { ok: false };
+        try {
+          await updatePassword(auth.currentUser, p);
+          // Fjalëkalimi i ri edhe te menaxheri i fjalëkalimeve (që hyrja vetë të mos dështojë me të vjetrin)
+          if (window.StokuPorta && window.StokuPorta.ruajKredencialet) window.StokuPorta.ruajKredencialet(String(auth.currentUser.email || '').replace(/@stoku-app\.local$/, ''), p);
+          return { ok: true };
+        } catch (e) { return gabim(e); }
+      },
       async riautentifikohu(p) {
         if (!auth.currentUser || !auth.currentUser.email) return { ok: false };
         try { await reauthenticateWithCredential(auth.currentUser, EmailAuthProvider.credential(auth.currentUser.email, p)); return { ok: true }; } catch (e) { return gabim(e); }
