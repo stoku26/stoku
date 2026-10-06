@@ -50,6 +50,34 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **GRUPET TE EKIPA (v164 = 1.8.0, Worker 159, RREGULLA TË REJA)**: kush sapo regjistrohet s'sheh askënd derisa
+   ta krijojë një grup ose ta pranojë një ftesë. Një përdorues = një grup.
+   - Të dhënat: `grupet/{g}` {emri, pronarUid, pronarEmri, krijuarSe}; `grupet/{g}/anetaret/{uid}` {emri, roli
+     'pronar'|'anetar', hyriSe, aktivSe, online, platforma, sasiaShpejte?}; nënkoleksionet `afatet`, `feed`, `chat`, `push`
+     (si `ekipa_*` më parë); `ftesat/{g}_{emri}` {gid, grupiEmri, perdoruesi, ngaUid, ngaEmri, koha}. Treguesi
+     `perdoruesit/{uid}.grupi`: '' = pa grup; pa fushën fare = ende pa kaluar (provohet ekipa e vjetër një herë).
+     Njoftimet (`perdoruesit/{u}/njoftimet`) kanë fushën `grupi` (rregullat: dërguesi dhe marrësi në të njëjtin grup).
+   - Ekipa e vjetër = grupi me id `ekipa` (emri "Ekipa"). Admini, kur e hap versionin e ri, e migron një herë
+     (`migroEkipenEVjeter`, shenja `perdoruesit/{admin}.grupetMigruarSe`): anëtarët e `ekipa_anetaret`, 150 mesazhet/ngjarjet
+     e fundit, `ekipa_afatet`; admini bëhet pronar. Anëtari i vjetër hyn vetë te `ekipa` (`provoGrupinEVjeter`, rregulla:
+     ekziston `ekipa_anetaret/{uid}`); kur largohet ose hiqet nga "ekipa", fshihet edhe `ekipa_anetaret/{uid}` (s'rihyn).
+   - Pronari: fton (me emrin e përdoruesit), anulon ftesat, heq anëtarë (edhe afatet dhe pajisjet e tyre për push),
+     ndryshon rolin (gjithmonë të paktën një pronar), riemërton, lajmëron grupin, pastron chat-in/aktivitetin, jep lejen e
+     +/- (`sasiaShpejte` te anëtarësia). Admini global (mendurberisha) mban vetëm: fshirjen e llogarive ("Llogaritë e
+     tjera", lista e `perdoruesit` lejohet vetëm për të) dhe pamjen e stokut. Kur fshin pronarin e vetëm, anëtari më i
+     vjetër bëhet pronar.
+   - Krijimi i grupit: grupi + anëtarësia e pronarit në NJË batch (rregulla me `getAfter`: pronari hyn vetë vetëm në
+     çastin e krijimit, që themeluesi i hequr mos ta rimarrë grupin). Pranimi i ftesës: së pari anëtarësia e re + fshirja
+     e ftesës (batch), pastaj largimi nga grupi i vjetër (i fundit → grupi fshihet krejt), pastaj treguesi; ftesa e
+     anuluar → `arsye: 'ftesa-skadoi'` dhe mbetesh ku ishe. Kur pronari të heq, aplikacioni yt e pastron treguesin.
+   - Worker 159: `/chat` dhe `/kerkese` marrin `grupi` (rrugët `grupet/{g}/chat|feed|push`; pa të: `ekipa_*` për
+     versionet e vjetra); push vetëm te pajisjet e anëtarëve të tanishëm (të tjerat fshihen). `/ora/*` sipas
+     `perdoruesit/{uid}.grupi`: '' ose i hequr nga grupi → s'ka kolegë (jo "rilidh").
+   - UI pa grup: tel "Ose krijo grupin tënd" + ftesat (Prano/Refuzo); PC `#ekPaGrup`, dhe `ekShenjat` i fsheh nën-faqet e
+     Ekipës te anësorja, "Kërko heqje" dhe "Chat" (mbetet Përmbledhja me ftesat).
+   - Pa rregullat e reja: Ekipa tregon "Grupet s'janë gati ende" (stoku/afatet punojnë). Testet: `grupet-test.js`
+     (3 përdorues + admini, tel + PC, siguria), `wp/grupi-prova.mjs`, mock-u `fs-server.js` me rregullat e grupeve
+     (edhe `getAfter` te batch-i).
 0000000. **EXCEL SIPAS FURNIZUESIT, HYRJA PAS FSHIRJES, TABET NË iPHONE (v163 = 1.7.0)**:
    - `afatet.js`: `furnizuesitELista(lista)` (emrat pa dallim shkronjash/hapësirash, "Pa furnizues" = `__pa__` në fund)
      dhe `celesiFurnizuesit(a)`. Tel: `#axFurn` te dritarja e eksportit (lista sipas muajit të zgjedhur; fshihet me < 2
@@ -690,6 +718,12 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
     userAgent Android Chrome.
   - viewport PC: `{ width: 1280-1600, height: 700-800 }`, pa userAgent special (ridrejtohet vetë te
     pc.html sipas rregullit "kompjuter = ka maus / s'është touch-only").
+- **Rregullat e Firestore me emulatorin e vërtetë** (v164): Java është në mjedis; JAR-i shkarkohet nga
+  `https://storage.googleapis.com/firebase-preview-drop/emulator/cloud-firestore-emulator-v1.19.9.jar` (~64 MB),
+  `npm i @firebase/rules-unit-testing@4 firebase@11` në një dosje të scratchpad-it (`emu/`), nisja
+  `java -jar firestore-emu.jar --host=127.0.0.1 --port=8089`, provat `node rregullat-prova.mjs` (lexon `firestore.rules`
+  të nxjerrë nga ky skedar). v164: 105 prova OK (krijimi i grupit me `getAfter`, ftesat me query `gid ==`, njoftimet
+  brenda grupit, heqja/rihyrja, llogaria pa profil). Scratchpad-i s'mbetet mes bisedave: rikrijoje kur ndryshojnë rregullat.
 - **Gjithmonë bëhet edhe një regresion i plotë** (folderat, skanimi, eksporti, afatet, sinkronizimi) para
   se të hapet PR, jo vetëm testi i veçorisë së re — disa gabime u zbuluan kështu (jo nga testi i
   synuar, por nga regresioni i plotë).
@@ -758,32 +792,30 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
-## Rregullat e Firestore — "Ekipa" (v116 + v130 ekipa_push + v140 admini nga llogaria) — i vendos PËRDORUESI (unë s'kam qasje)
+## Rregullat e Firestore (v164 grupet; më parë v116 + v130 ekipa_push + v140 admini nga llogaria) — i vendos PËRDORUESI (unë s'kam qasje)
 
-Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Krahasuar me v109: dyqani lexohet
-vetëm nga pronari/admin-i; Ekipa (anëtarët, aktiviteti, chat-i, `ekipa_afatet`) vetëm nga anëtarët e pranuar
-(`ekipa_anetaret/{uid}`, i shkruan vetëm admin-i); `emri`/`perdoruesi` s'falsifikohen (= emri i llogarisë);
-admin-i fshin çdo mesazh. Vazhdon mbrojtja e vjetër: aplikacioni s'mund ta shtojë/ndryshojë fushën `emri` te
+Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Dyqani lexohet vetëm nga pronari/admin-i;
+`emri`/`perdoruesi` s'falsifikohen (= emri i llogarisë); aplikacioni s'mund ta shtojë/ndryshojë fushën `emri` te
 `perdoruesit/{uid}` (admin-i ndreqet vetëm nga Console).
-**v116 (fshirja e llogarisë nga admin-i):** `ekipa_fshire/{uid}` (shkruan vetëm admin-i, lexon vetë llogaria) —
-llogaria e shënuar s'ka më qasje te dyqani/profili/`ekipa_afatet` (s'mund t'i rikrijojë); admin-i fshin
-`perdoruesit/{uid}` dhe njoftimet e tij. Aplikacioni i llogarisë së fshirë (`degjoFshirjen` te ekipa.js) i fshin
-të dhënat lokale, thërret `deleteUser` (emri lirohet; nëse Firebase kërkon hyrje të freskët, vetëm del dhe
-provohet herën tjetër) dhe tregon "Kjo llogari u fshi nga administratori." te porta. Llogaria e hyrjes (Auth)
-S'MUND të fshihet nga admin-i pa server — fshihet vetëm kur vetë pajisja e tij e hap Stoku-n. Testi:
-`fshirja-v116.js` (scratchpad).
+**v116 (fshirja e llogarisë nga admin-i):** `ekipa_fshire/{uid}` (shkruan vetëm admin-i, lexon vetë llogaria): llogaria e
+shënuar s'ka më qasje te dyqani/profili/afatet; admin-i fshin `perdoruesit/{uid}`, njoftimet, anëtarësinë në grup dhe
+pajisjet e tij. Aplikacioni i llogarisë së fshirë (`degjoFshirjen`) i fshin të dhënat lokale, thërret `deleteUser` dhe
+tregon "Kjo llogari u fshi nga administratori." te porta. Testi: `fshirja-v116.js` (scratchpad).
+**v164 (grupet):** Ekipa = `grupet/{g}` me anëtarësinë, ftesat te `ftesat/{g}_{emri}`; lista e `perdoruesit` vetëm për
+admin-in; njoftimet vetëm brenda grupit (fusha `grupi`). Koleksionet e vjetra `ekipa_*` mbeten vetëm për aplikacionin
+e vjetër (para përditësimit). Mock-u në scratchpad (`fs-server.js`, `rregullat: 'reja'`) i ndjek këto rregulla.
 
 ```
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Administratori: llogaria "mendurberisha" (email-i i hyrjes, s'falsifikohet) — ose, si më parë, fusha `emri`
+    // Administratori: llogaria "mendurberisha" (email-i i hyrjes, s'falsifikohet) ose, si më parë, fusha `emri`
     // te perdoruesit/{uid} e vendosur nga Console (v140)
     function eshteAdmin() {
       return request.auth != null && (request.auth.token.email == 'mendurberisha@stoku-app.local'
         || get(/databases/$(database)/documents/perdoruesit/$(request.auth.uid)).data.get('emri', '') == 'mendurberisha');
     }
-    // Anëtar i pranuar i ekipës (ose administratori)
+    // Anëtar i ekipës së vjetër (para grupeve): vetëm për versionet e vjetra të aplikacionit
     function neEkipe() {
       return exists(/databases/$(database)/documents/ekipa_anetaret/$(request.auth.uid)) || eshteAdmin();
     }
@@ -791,9 +823,20 @@ service cloud.firestore {
     function uFshi(uid) {
       return exists(/databases/$(database)/documents/ekipa_fshire/$(uid));
     }
-    // Emri i llogarisë (emri@stoku-app.local) — s'mund të falsifikohet nga aplikacioni
+    // Emri i llogarisë (emri@stoku-app.local), s'mund të falsifikohet nga aplikacioni
     function emriIm() {
       return request.auth.token.email.split('@')[0];
+    }
+    // v164: grupet
+    function anetarIGrupit(g) {
+      return exists(/databases/$(database)/documents/grupet/$(g)/anetaret/$(request.auth.uid));
+    }
+    function pronarIGrupit(g) {
+      return anetarIGrupit(g)
+        && get(/databases/$(database)/documents/grupet/$(g)/anetaret/$(request.auth.uid)).data.get('roli', '') == 'pronar';
+    }
+    function emriIGrupitOk(d) {
+      return d.emri is string && d.emri.size() >= 2 && d.emri.size() <= 60;
     }
     match /dyqane/{kodi} {
       allow read, write: if request.auth != null && ((request.auth.uid == kodi && !uFshi(kodi)) || eshteAdmin());
@@ -805,7 +848,9 @@ service cloud.firestore {
       }
     }
     match /perdoruesit/{uid} {
-      allow read: if request.auth != null && (request.auth.uid == uid || neEkipe());
+      allow get: if request.auth != null && (request.auth.uid == uid || neEkipe());
+      // v164: lista e krejt llogarive vetëm për administratorin
+      allow list: if request.auth != null && eshteAdmin();
       allow create: if request.auth != null && request.auth.uid == uid && !uFshi(uid)
         && !request.resource.data.keys().hasAny(['emri'])
         && (!('perdoruesi' in request.resource.data) || request.resource.data.perdoruesi == emriIm());
@@ -818,17 +863,25 @@ service cloud.firestore {
       match /njoftimet/{nid} {
         allow read, delete: if request.auth != null && (request.auth.uid == uid || eshteAdmin());
         allow update: if request.auth != null && request.auth.uid == uid;
-        allow create: if request.auth != null && neEkipe()
-          && request.resource.data.uid == request.auth.uid && request.resource.data.emri == emriIm();
+        // v164: dërguesi dhe marrësi në të njëjtin grup (fusha `grupi`), ose administratori
+        allow create: if request.auth != null
+          && request.resource.data.uid == request.auth.uid && request.resource.data.emri == emriIm()
+          && ((request.resource.data.get('grupi', '') is string && request.resource.data.get('grupi', '') != ''
+               && anetarIGrupit(request.resource.data.grupi)
+               && exists(/databases/$(database)/documents/grupet/$(request.resource.data.grupi)/anetaret/$(uid)))
+              || eshteAdmin());
       }
     }
     match /ekipa_fshire/{uid} {
       allow read: if request.auth != null && (request.auth.uid == uid || eshteAdmin());
       allow write: if request.auth != null && eshteAdmin();
     }
+    // Ekipa e vjetër (para grupeve): mbetet për versionet e vjetra të aplikacionit
     match /ekipa_anetaret/{uid} {
       allow read: if request.auth != null && (request.auth.uid == uid || neEkipe());
       allow write: if request.auth != null && eshteAdmin();
+      // v164: largimi nga grupi "ekipa" (vetë) ose heqja nga pronari i tij
+      allow delete: if request.auth != null && (request.auth.uid == uid || pronarIGrupit('ekipa'));
     }
     match /ekipa_afatet/{uid} {
       allow read: if request.auth != null && neEkipe();
@@ -848,22 +901,91 @@ service cloud.firestore {
         && request.resource.data.tekst.size() > 0 && request.resource.data.tekst.size() <= 2000;
       allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || eshteAdmin());
     }
-    // v130: pajisjet për njoftimet push të chat-it (worker/stoku-push.js). Id = {uid}_{hash i endpoint-it}.
-    // Lexohen nga anëtarët (Worker-i i lexon me tokenin e dërguesit); fshihen nga anëtarët (Worker-i heq pajisjet e vdekura).
     match /ekipa_push/{id} {
       allow read: if request.auth != null && neEkipe();
       allow create, update: if request.auth != null && neEkipe() && request.resource.data.uid == request.auth.uid
         && id.matches(request.auth.uid + '_[A-Za-z0-9]+');
       allow delete: if request.auth != null && neEkipe();
     }
+    // v164: grupet. Anëtarët te grupet/{g}/anetaret/{uid} (roli 'pronar' | 'anetar'); treguesi te perdoruesit/{uid}.grupi
+    match /grupet/{g} {
+      allow read: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());
+      allow create: if request.auth != null && (eshteAdmin() || (!uFshi(request.auth.uid)
+        && request.resource.data.pronarUid == request.auth.uid && request.resource.data.pronarEmri == emriIm()
+        && request.resource.data.keys().hasOnly(['emri', 'pronarUid', 'pronarEmri', 'krijuarSe'])
+        && emriIGrupitOk(request.resource.data) && g != 'ekipa'));
+      allow update: if request.auth != null && (eshteAdmin() || (pronarIGrupit(g)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['emri']) && emriIGrupitOk(request.resource.data)));
+      allow delete: if request.auth != null && (pronarIGrupit(g) || eshteAdmin());
+      match /anetaret/{u} {
+        allow read: if request.auth != null && (request.auth.uid == u || anetarIGrupit(g) || eshteAdmin());
+        // Hyrja vetë: pronari vetëm bashkë me krijimin e grupit (i njëjti batch); anëtari vetëm me ftesë;
+        // anëtari i ekipës së vjetër te grupi "ekipa". Administratori shton kë të dojë (migrimi).
+        allow create: if request.auth != null && (eshteAdmin() || (request.auth.uid == u && !uFshi(u)
+          && request.resource.data.emri == emriIm()
+          && request.resource.data.keys().hasOnly(['emri', 'roli', 'hyriSe', 'aktivSe', 'online', 'platforma'])
+          && ((request.resource.data.roli == 'pronar' && !exists(/databases/$(database)/documents/grupet/$(g))
+                && getAfter(/databases/$(database)/documents/grupet/$(g)).data.pronarUid == u)
+              || (request.resource.data.roli == 'anetar' && exists(/databases/$(database)/documents/grupet/$(g))
+                && exists(/databases/$(database)/documents/ftesat/$(g + '_' + emriIm())))
+              || (g == 'ekipa' && request.resource.data.roli == 'anetar'
+                && exists(/databases/$(database)/documents/ekipa_anetaret/$(u))))));
+        // Vetë: prania. Pronari: roli dhe leja e +/- (sasiaShpejte).
+        allow update: if request.auth != null && (eshteAdmin()
+          || (request.auth.uid == u && request.resource.data.emri == emriIm()
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['emri', 'aktivSe', 'online', 'platforma']))
+          || (pronarIGrupit(g) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['roli', 'sasiaShpejte'])
+              && request.resource.data.roli in ['pronar', 'anetar']));
+        allow delete: if request.auth != null && (request.auth.uid == u || pronarIGrupit(g) || eshteAdmin());
+      }
+      match /afatet/{u} {
+        allow read: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());
+        allow write: if request.auth != null && ((request.auth.uid == u && !uFshi(u) && anetarIGrupit(g)) || eshteAdmin());
+        allow delete: if request.auth != null && (request.auth.uid == u || pronarIGrupit(g));
+      }
+      match /feed/{id} {
+        allow read: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());
+        allow create: if request.auth != null && (eshteAdmin() || (anetarIGrupit(g)
+          && request.resource.data.uid == request.auth.uid && request.resource.data.emri == emriIm()));
+        allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || pronarIGrupit(g) || eshteAdmin());
+      }
+      match /chat/{id} {
+        allow read: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());
+        allow create: if request.auth != null && (eshteAdmin() || (anetarIGrupit(g)
+          && request.resource.data.uid == request.auth.uid && request.resource.data.emri == emriIm()
+          && request.resource.data.tekst is string
+          && request.resource.data.tekst.size() > 0 && request.resource.data.tekst.size() <= 2000));
+        allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || pronarIGrupit(g) || eshteAdmin());
+      }
+      // Pajisjet për push (Worker-i i lexon me tokenin e dërguesit). Id = {uid}_{hash i endpoint-it}.
+      match /push/{id} {
+        allow read: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());
+        allow create, update: if request.auth != null && anetarIGrupit(g) && request.resource.data.uid == request.auth.uid
+          && id.matches(request.auth.uid + '_[A-Za-z0-9]+');
+        allow delete: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());
+      }
+    }
+    // v164: ftesat. Id = {grupi}_{emri i përdoruesit}. I ftuari i sheh me pyetjen perdoruesi == emri i tij,
+    // anëtarët e grupit me gid == grupi.
+    match /ftesat/{id} {
+      allow read: if request.auth != null
+        && (resource.data.perdoruesi == emriIm() || anetarIGrupit(resource.data.gid) || eshteAdmin());
+      allow create, update: if request.auth != null && pronarIGrupit(request.resource.data.gid)
+        && id == request.resource.data.gid + '_' + request.resource.data.perdoruesi
+        && request.resource.data.perdoruesi is string && request.resource.data.perdoruesi.matches('[a-z0-9_.-]{3,40}')
+        && request.resource.data.ngaUid == request.auth.uid && request.resource.data.ngaEmri == emriIm()
+        && request.resource.data.keys().hasOnly(['gid', 'grupiEmri', 'perdoruesi', 'ngaUid', 'ngaEmri', 'koha'])
+        && request.resource.data.get('grupiEmri', '') is string && request.resource.data.get('grupiEmri', '').size() <= 60;
+      allow delete: if request.auth != null
+        && (resource.data.perdoruesi == emriIm() || pronarIGrupit(resource.data.gid) || eshteAdmin());
+    }
   }
 }
 ```
 
-Pas vendosjes: admin-i duhet ta hapë aplikacionin një herë (telefon ose PC) — migrimi i pranon vetë krejt
-llogaritë ekzistuese. Deri atëherë anëtarët shohin "Në pritje të miratimit" te Ekipa (stoku/afatet punojnë).
-Pa këto rregulla (me v109): aplikacioni punon si më parë; vetëm `ekipa_afatet` s'shkruhet (heshtje, riprovon pas
-10 min).
+Pas vendosjes: admin-i duhet ta hapë aplikacionin një herë (telefon ose PC) me v164: ekipa e vjetër bëhet grupi "Ekipa"
+(anëtarët, chat-i, aktiviteti, afatet). Anëtarët e vjetër hyjnë vetë aty; të tjerët s'shohin askënd derisa të krijojnë
+grup ose të pranojnë ftesë. Pa këto rregulla, Ekipa tregon "Grupet s'janë gati ende" (stoku/afatet punojnë).
 
 ## Kontakte/aksese që s'i kam
 

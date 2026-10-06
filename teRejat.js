@@ -18,6 +18,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 164, versioni: '1.8.0', data: '2026-10-06', titulli: 'Grupet te Ekipa', pikat: [
+      'Ekipa tash punon me grupe: krijo grupin tënd dhe fto shokët me emrin e tyre të përdoruesit. Vetëm anëtarët e një grupi e shohin njëri-tjetrin, chat-in, aktivitetin dhe kërkesat.',
+      'Kush sapo është regjistruar s\'sheh askënd derisa ta krijojë një grup ose ta pranojë një ftesë.',
+      'Pronari i grupit fton dhe heq anëtarë, ia ndërron emrin grupit dhe mund ta bëjë edhe dikë tjetër pronar.',
+      'Ekipa e deritanishme vazhdon si grupi "Ekipa", me anëtarët dhe historikun e vet.'
+    ] },
     { v: 163, versioni: '1.7.0', data: '2026-10-06', titulli: 'Excel sipas furnizuesit dhe hyrje që mbetet', pikat: [
       'Te Afatet → Eksporto Excel mund të zgjedhësh vetëm një furnizues: në skedar dalin vetëm afatet e tij.',
       'Kur e fshin historinë dhe të dhënat e shfletuesit, Stoku hyn vetë me fjalëkalimin e ruajtur në Chrome (ose të pyet me një prekje). Në iPhone, Keychain e plotëson vetë emrin dhe fjalëkalimin.',
