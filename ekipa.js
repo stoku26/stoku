@@ -2,21 +2,24 @@
  * Ekipa — pjesa e përbashkët e telefonit (index.html) dhe kompjuterit (pc.html) për tabin "Ekipa".
  *
  * Çka ka brenda:
- *  1. krijoCloud(fs, db, auth, platforma) — leximet/shkrimet në Firestore për ekipën:
- *       perdoruesit/{uid}              → emri + prania (aktivSe, online, platforma)
- *       perdoruesit/{uid}/njoftimet    → njoftimet personale (p.sh. "Blerta e hoqi nga rafti Qumështin tënd")
- *       ekipa_anetaret/{uid}           → kush është pranuar në ekipë (e shkruan vetëm administratori)
- *       ekipa_afatet/{uid}             → përmbledhja e afateve të secilit (vetëm afatet, jo stoku) — kolegët
+ *  1. krijoCloud(fs, db, auth, platforma) — leximet/shkrimet në Firestore për ekipën (v164: GRUPET):
+ *       grupet/{g}                     → { emri, pronarUid, pronarEmri, krijuarSe } — secili grup është një ekipë më vete;
+ *                                        anëtarët e një grupi s'shohin asgjë nga grupet e tjera
+ *       grupet/{g}/anetaret/{uid}      → anëtarët + prania (roli 'pronar'|'anetar', aktivSe, online, platforma, sasiaShpejte)
+ *       grupet/{g}/afatet/{uid}        → përmbledhja e afateve të secilit (vetëm afatet, jo stoku) — kolegët
  *                                        lexojnë këtë, jo dyqanin e plotë (dyqane/{uid} mbetet vetëm i pronarit)
- *       ekipa_feed                     → aktiviteti i ekipës (kush çka hoqi, shtoi, lajmëroi…)
- *       ekipa_chat                     → chat-i i ekipës
+ *       grupet/{g}/feed, grupet/{g}/chat, grupet/{g}/push → aktiviteti, chat-i, pajisjet për njoftimet push
+ *       ftesat/{g}_{emri}              → ftesa e pronarit të grupit për një emër përdoruesi; i ftuari e pranon (ose jo)
+ *       perdoruesit/{uid}.grupi        → treguesi i grupit (qasjen e jep vetëm anëtarësia te grupet/{g}/anetaret)
+ *       perdoruesit/{uid}/njoftimet    → njoftimet personale (me `grupi`: vetëm brenda të njëjtit grup)
+ *     Ekipa e vjetër (ekipa_anetaret, ekipa_feed, ekipa_chat…) kalon te grupi "ekipa": administratori e krijon dhe i
+ *     kopjon historikun; anëtarët e pranuar më parë hyjnë vetë.
  *     Dyqani i secilit (dyqane/{uid}) mbetet i PRONARIT: askush tjetër s'shkruan aty. Kur një koleg e heq nga
  *     rafti një afat të skaduar të dikujt tjetër, i dërgon pronarit një njoftim; aplikacioni i pronarit e zbaton
  *     vetë (vetëm nëse afati ka skaduar vërtet dhe s'është ndryshuar pas heqjes).
  *     Aktiviteti, chat-i dhe njoftimet kalojnë nga një radhë lokale (localStorage): pa internet s'humbin, dërgohen
  *     sapo të ketë lidhje — edhe nëse aplikacioni mbyllet ndërkohë.
- *     Anëtarësia: një llogari e re sheh Ekipën vetëm pasi ta pranojë administratori. Derisa rregullat e reja të
- *     Firestore-it të vendosen (ekipa_anetaret s'lexohet), punohet si më parë: krejt llogaritë janë ekipa.
+ *     Anëtarësia: një llogari e re s'sheh askënd derisa të krijojë grupin e vet ose të pranojë një ftesë.
  *  2. Funksione të pastra (pa DOM, testohen me node): koha relative, prania, mbivendosja e heqjeve,
  *     kalendari, statistikat, teksti i aktivitetit.
  *  3. krijoKontrollues(o) — mban gjendjen e ekipës (anëtarët, afatet e secilit, aktivitetin, chat-in,
@@ -143,6 +146,11 @@
     function listaNga(s) { var l = []; s.forEach(function (d) { l.push(Object.assign({}, d.data(), { id: d.id })); }); return l; }
     function idERe() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6); }
 
+    // ---------- Grupi aktual: krejt Ekipa lexohet/shkruhet brenda grupet/{grupi} ----------
+    var grupi = null;
+    function vendosGrupin(g) { grupi = g || null; }
+    function rrG(k) { return ['grupet', grupi, k]; }
+
     // ---------- Radha e dërgimit (aktiviteti, chat-i, njoftimet) ----------
     // Çdo shkrim merr një id të caktuar dhe ruhet te localStorage derisa serveri ta pranojë. Pa internet, SDK-ja e
     // mban vetë sa kohë faqja është e hapur; nëse aplikacioni mbyllet para kësaj, dërgohet në hapjen tjetër.
@@ -163,8 +171,10 @@
       catch (e) { hiqNgaRadha(op.id); return Promise.resolve(gabim(e)); } // p.sh. rrugë e pavlefshme — s'riprovohet
       p = p.then(function () {
         hiqNgaRadha(op.id);
-        if (op.rruga[0] === 'ekipa_chat') njoftoPushChat(op.id); // kolegët e marrin njoftimin edhe me aplikacion të mbyllur
-        if (op.rruga[0] === 'ekipa_feed' && /^kerkese-/.test(op.te.lloji)) njoftoPushKerkese(op.id);
+        // kolegët e marrin njoftimin edhe me aplikacion të mbyllur
+        var g0 = op.rruga[0] === 'grupet' ? op.rruga[1] : '', lloji0 = op.rruga[0] === 'grupet' ? op.rruga[2] : op.rruga[0];
+        if (lloji0 === 'chat' || lloji0 === 'ekipa_chat') njoftoPushChat(op.id, g0);
+        if ((lloji0 === 'feed' || lloji0 === 'ekipa_feed') && /^kerkese-/.test(op.te.lloji)) njoftoPushKerkese(op.id, g0);
         return { ok: true, id: op.id };
       }, function (e) {
         // Vetëm gabimet e përkohshme (lidhja) riprovohen; "s'lejohet" (ose ekziston tashmë nga një dërgim i
@@ -260,8 +270,8 @@
       document.addEventListener('visibilitychange', function () { if (!document.hidden) rifreskoFotot(false); });
     }
 
-    function njoftoPushKerkese(id) { thirrPush('/kerkese', { id: id }).catch(function () { /* pa internet / pa Worker */ }); }
-    function njoftoPushChat(id) { thirrPush('/chat', { id: id }).catch(function () { /* pa internet / pa Worker — s'ka gjë */ }); }
+    function njoftoPushKerkese(id, g) { thirrPush('/kerkese', g ? { id: id, grupi: g } : { id: id }).catch(function () { /* pa internet / pa Worker */ }); }
+    function njoftoPushChat(id, g) { thirrPush('/chat', g ? { id: id, grupi: g } : { id: id }).catch(function () { /* pa internet / pa Worker — s'ka gjë */ }); }
     // Worker-i u përgjigj mirë së fundi (7 ditë)? Vetëm atëherë i besohet push-it dhe hiqen njoftimet lokale të chat-it.
     async function kontrolloServerin() {
       try {
@@ -273,7 +283,7 @@
     }
     function pushAktiv() {
       var p = lexoLS(KEY_PUSH), s = lexoLS(KEY_PUSH_SERVER);
-      return !!(p && p.uid === uid() && s && (Date.now() - s) < 7 * 86400000) &&
+      return !!(p && p.uid === uid() && grupi && p.grupi === grupi && s && (Date.now() - s) < 7 * 86400000) &&
         typeof Notification !== 'undefined' && Notification.permission === 'granted';
     }
     // Regjistron këtë pajisje për njoftime (vetëm me leje të dhënë). Shkruan te ekipa_push vetëm kur ndryshon diçka
@@ -293,10 +303,13 @@
         var j = sub.toJSON();
         var id = uid() + '_' + hashTekst(j.endpoint);
         var ruajtur = lexoLS(KEY_PUSH);
-        if (detyro || !ruajtur || ruajtur.id !== id || ruajtur.endpoint !== j.endpoint || (Date.now() - (ruajtur.koha || 0)) > 7 * 86400000) {
-          if (ruajtur && ruajtur.id && ruajtur.id !== id && ruajtur.uid === uid()) { try { await fs.deleteDoc(fs.doc(db, 'ekipa_push', ruajtur.id)); } catch (e) { /* ok */ } }
-          await fs.setDoc(fs.doc(db, 'ekipa_push', id), { uid: uid(), emri: emri(), endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, platforma: platforma, koha: Date.now() });
-          shkruajLS(KEY_PUSH, { uid: uid(), id: id, endpoint: j.endpoint, koha: Date.now() });
+        // Pajisja regjistrohet te grupi (grupet/{g}/push): Worker-i ua dërgon chat-in/kërkesat vetëm anëtarëve të grupit
+        if (grupi && (detyro || !ruajtur || ruajtur.id !== id || ruajtur.endpoint !== j.endpoint || ruajtur.grupi !== grupi || (Date.now() - (ruajtur.koha || 0)) > 7 * 86400000)) {
+          if (ruajtur && ruajtur.id && ruajtur.uid === uid() && ruajtur.grupi && (ruajtur.id !== id || ruajtur.grupi !== grupi)) {
+            try { await fs.deleteDoc(fs.doc(db, 'grupet', ruajtur.grupi, 'push', ruajtur.id)); } catch (e) { /* ok — p.sh. s'je më në atë grup */ }
+          }
+          await fs.setDoc(fs.doc(db, 'grupet', grupi, 'push', id), { uid: uid(), emri: emri(), endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, platforma: platforma, koha: Date.now() });
+          shkruajLS(KEY_PUSH, { uid: uid(), id: id, endpoint: j.endpoint, grupi: grupi, koha: Date.now() });
         }
         // Orari ditor i kësaj pajisjeje ishte për një regjistrim tjetër (p.sh. çelës i ri): rinovohet me të riun
         var o = orariIm();
@@ -433,17 +446,23 @@
       var o = orariIm();
       if (o && o.aktiv) { try { await vendosOrarin({ aktiv: false }); } catch (e) { /* ok */ } }
       shkruajLS(KEY_ORARI, null); shkruajLS(KEY_ORARI_AFATET, null);
+      await hiqPajisjenNgaGrupi();
+    }
+    // Kjo pajisje s'merr më chat-in/kërkesat e grupit (dalja nga llogaria ose largimi nga grupi)
+    async function hiqPajisjenNgaGrupi() {
       var ruajtur = lexoLS(KEY_PUSH);
       shkruajLS(KEY_PUSH, null);
-      if (ruajtur && ruajtur.id && uid() === ruajtur.uid) { try { await fs.deleteDoc(fs.doc(db, 'ekipa_push', ruajtur.id)); } catch (e) { /* ok */ } }
+      if (ruajtur && ruajtur.id && uid() === ruajtur.uid) {
+        try { await fs.deleteDoc(ruajtur.grupi ? fs.doc(db, 'grupet', ruajtur.grupi, 'push', ruajtur.id) : fs.doc(db, 'ekipa_push', ruajtur.id)); } catch (e) { /* ok */ }
+      }
     }
 
     // ---------- Prania: "online tani" / "parë para 5 min" ----------
     var rrahjaKohez = null, praniaNisur = false;
     function rrahZemren(online) {
-      if (!uid()) return Promise.resolve();
-      return fs.setDoc(fs.doc(db, 'perdoruesit', uid()), { aktivSe: Date.now(), online: online !== false, platforma: platforma }, { merge: true })
-        .catch(function () { /* pa internet — provohet sërish */ });
+      if (!uid() || !grupi) return Promise.resolve(); // pa grup s'ka kush ta shohë praninë
+      return fs.setDoc(fs.doc(db, 'grupet', grupi, 'anetaret', uid()), { emri: emri(), aktivSe: Date.now(), online: online !== false, platforma: platforma }, { merge: true })
+        .catch(function () { /* pa internet (ose s'je më në grup) — provohet sërish */ });
     }
     function nisPranine() {
       clearInterval(rrahjaKohez);
@@ -462,40 +481,251 @@
       window.addEventListener('pagehide', function () { if (praniaNisur && uid()) rrahZemren(false); });
     }
 
+    // ---------- Grupi: hera e parë, largimi, pastrimi ----------
+    // Ekipa e vjetër (para grupeve) → grupi "ekipa": anëtari i pranuar më parë (ekipa_anetaret) hyn vetë aty.
+    // Kthen grupin ('ekipa' ose '' = pa grup), 'pa-rregulla' (rregullat e grupeve s'janë vendosur) ose null (pa internet).
+    var GRUPI_I_VJETER = 'ekipa';
+    function anetaresiaERe(roli) { return { emri: emri(), roli: roli, hyriSe: Date.now(), aktivSe: Date.now(), online: true, platforma: platforma }; }
+    function vendosTreguesin(g) { return fs.setDoc(fs.doc(db, 'perdoruesit', uid()), { grupi: g || '' }, { merge: true }); }
+    async function provoGrupinEVjeter() {
+      var u0 = uid();
+      if (!u0) return null;
+      var g = '';
+      try {
+        var s = await fs.getDoc(fs.doc(db, 'grupet', GRUPI_I_VJETER, 'anetaret', u0));
+        if (s.exists()) g = GRUPI_I_VJETER;
+      } catch (e) { return eshteLeje(e) ? 'pa-rregulla' : null; }
+      if (!g) {
+        var ishte = false;
+        try { ishte = (await fs.getDoc(fs.doc(db, 'ekipa_anetaret', u0))).exists(); } catch (e) { /* s'ka ekipë të vjetër */ }
+        if (ishte) {
+          try { await fs.setDoc(fs.doc(db, 'grupet', GRUPI_I_VJETER, 'anetaret', u0), anetaresiaERe('anetar')); g = GRUPI_I_VJETER; }
+          catch (e) { if (!eshteLeje(e)) return null; }
+        }
+      }
+      try { await vendosTreguesin(g); } catch (e) { return null; }
+      return g;
+    }
+    // Fshin krejt dokumentet e një koleksioni (rruga si listë), me grupe nga 400
+    async function pastroKol(rruga) {
+      var n = 0;
+      for (var i = 0; i < 50; i++) {
+        var s = await fs.getDocs(fs.query(fs.collection.apply(null, [db].concat(rruga)), fs.limit(400)));
+        if (s.empty) break;
+        var b = fs.writeBatch(db);
+        s.forEach(function (d) { b.delete(fs.doc.apply(null, [db].concat(rruga, [d.id]))); n++; });
+        await b.commit();
+      }
+      return n;
+    }
+    async function fshijFtesatEGrupit(g) {
+      try {
+        var s = await fs.getDocs(fs.query(fs.collection(db, 'ftesat'), fs.where('gid', '==', g)));
+        var ids = []; s.forEach(function (d) { ids.push(d.id); });
+        for (var i = 0; i < ids.length; i++) { try { await fs.deleteDoc(fs.doc(db, 'ftesat', ids[i])); } catch (e) { /* ok */ } }
+      } catch (e) { /* ok */ }
+    }
+    // Largimi nga grupi aktual. fshiGrupin: ishte anëtari i fundit → fshihet krejt grupi me historikun.
+    // paTregues: kalim te një grup tjetër (treguesin e shkruan pranimi i ftesës).
+    var veprimeNeGrup = 0; // krijimi/pranimi/largimi në vazhdim: treguesin e grupit e shkruajnë ato vetë
+    async function largohu(fshiGrupin, paTregues) {
+      if (!uid() || !grupi) return { ok: true };
+      var g = grupi;
+      veprimeNeGrup++;
+      try {
+        await hiqPajisjenNgaGrupi();
+        try { await fs.deleteDoc(fs.doc(db, 'grupet', g, 'afatet', uid())); } catch (e) { /* ok */ }
+        if (fshiGrupin) {
+          var kol = ['chat', 'feed', 'afatet', 'push'];
+          for (var i = 0; i < kol.length; i++) { try { await pastroKol(['grupet', g, kol[i]]); } catch (e) { /* ok */ } }
+          await fshijFtesatEGrupit(g);
+          try { await fs.deleteDoc(fs.doc(db, 'grupet', g)); } catch (e) { /* ok */ }
+        }
+        await fs.deleteDoc(fs.doc(db, 'grupet', g, 'anetaret', uid()));
+        // Ekipa e vjetër: pa këtë, rihyrja te "ekipa" do të lejohej pa ftesë
+        if (g === GRUPI_I_VJETER) { try { await fs.deleteDoc(fs.doc(db, 'ekipa_anetaret', uid())); } catch (e) { /* ok */ } }
+        if (!paTregues) await vendosTreguesin('');
+        grupi = null;
+        return { ok: true };
+      } catch (e) { return gabim(e); } finally { veprimeNeGrup--; }
+    }
+    async function kopjoKoleksionin(kolVjeter, kolRi, n, rendit) {
+      var q = rendit ? fs.query(fs.collection(db, kolVjeter), fs.orderBy('koha', 'desc'), fs.limit(n)) : fs.query(fs.collection(db, kolVjeter), fs.limit(n));
+      var s = await fs.getDocs(q);
+      var l = []; s.forEach(function (d) { l.push({ id: d.id, te: d.data() }); });
+      for (var i = 0; i < l.length; i += 400) {
+        var b = fs.writeBatch(db);
+        l.slice(i, i + 400).forEach(function (x) { b.set(fs.doc(db, 'grupet', GRUPI_I_VJETER, kolRi, x.id), x.te); });
+        await b.commit();
+      }
+      return l.length;
+    }
+
     return {
       nisPranine: nisPranine,
       ndalPranine: ndalPranine,
       rifreskoFotot: rifreskoFotot, ngarkoFoton: ngarkoFoton, hiqFoton: hiqFoton,
       dergoRadhen: dergoRadhen,
 
-      // Anëtarët (perdoruesit/*) me praninë, në kohë reale
+      // ---------- Grupi im ----------
+      vendosGrupin: vendosGrupin,
+      grupiAktual: function () { return grupi; },
+      GRUPI_I_VJETER: GRUPI_I_VJETER,
+      // cb({ gjendja, grupi, roli, sasiaShpejte }):
+      //   'anetar'      → anëtar i grupit `grupi` (roli 'pronar' | 'anetar')
+      //   'pa-grup'     → s'është në asnjë grup (krijon një, ose pranon një ftesë); uHoq = grupi nga u hoq
+      //   'pa-rregulla' → rregullat e grupeve të Firestore-it ende s'janë vendosur
+      //   'gabim'       → p.sh. pa internet: mbetet gjendja e fundit e ditur
+      degjoGrupin: function (cb) {
+        if (!uid()) return function () {};
+        var u0 = uid(), mbyllur = false, gNdjekur, ndalA = null, treguesi;
+        function ndalAnetaresine() { if (ndalA) { try { ndalA(); } catch (e) { /* ok */ } ndalA = null; } }
+        function ndiq(g) {
+          if (mbyllur || g === gNdjekur) return;
+          gNdjekur = g; ndalAnetaresine();
+          if (!g) { cb({ gjendja: 'pa-grup' }); return; }
+          ndalA = fs.onSnapshot(fs.doc(db, 'grupet', g, 'anetaret', u0), function (s) {
+            if (mbyllur) return;
+            if (!s.exists()) {
+              if (s.metadata && s.metadata.fromCache) return; // pa internet: ende s'dihet
+              // Pronari të hoqi (ose grupi u fshi): treguesi pastrohet, që Worker-i dhe admini të mos të shohin ende në grup
+              if (!veprimeNeGrup && treguesi === g) vendosTreguesin('').catch(function () { /* herën tjetër */ });
+              cb({ gjendja: 'pa-grup', uHoq: g });
+              return;
+            }
+            var x = s.data() || {};
+            cb({ gjendja: 'anetar', grupi: g, roli: x.roli === 'pronar' ? 'pronar' : 'anetar', sasiaShpejte: x.sasiaShpejte });
+          }, function (e) { if (!mbyllur) cb({ gjendja: eshteLeje(e) ? 'pa-rregulla' : 'gabim' }); });
+        }
+        var ndalP = fs.onSnapshot(fs.doc(db, 'perdoruesit', u0), function (s) {
+          if (mbyllur) return;
+          if (!s.exists() && s.metadata && s.metadata.fromCache) return;
+          var x = s.exists() ? (s.data() || {}) : {};
+          treguesi = x.grupi;
+          if (typeof x.grupi === 'string') { ndiq(x.grupi); return; }
+          // Pa tregues ende (hera e parë me grupet): anëtari i ekipës së vjetër kalon te grupi "ekipa"
+          provoGrupinEVjeter().then(function (r) {
+            if (mbyllur) return;
+            if (r === 'pa-rregulla') { cb({ gjendja: 'pa-rregulla' }); return; }
+            if (r === null) { cb({ gjendja: 'gabim' }); return; }
+            ndiq(r);
+          });
+        }, function () { if (!mbyllur) cb({ gjendja: 'gabim' }); });
+        return function () { mbyllur = true; ndalAnetaresine(); try { ndalP(); } catch (e) { /* ok */ } };
+      },
+      // Të dhënat e grupit (emri, pronari), në kohë reale
+      degjoGrupinDoc: function (g, cb) {
+        return fs.onSnapshot(fs.doc(db, 'grupet', g), function (s) { cb(s.exists() ? Object.assign({}, s.data(), { id: g }) : null); }, function () { cb(null); });
+      },
+      krijoGrupin: async function (emriGrupit) {
+        var em = String(emriGrupit || '').trim().replace(/\s+/g, ' ').slice(0, 60);
+        if (!uid()) return { ok: false, arsye: 'pa-hyrje' };
+        if (em.length < 2) return { ok: false, arsye: 'emri' };
+        var g = 'g' + idERe().slice(0, 22);
+        veprimeNeGrup++;
+        try {
+          // Grupi dhe pronari bashkë (rregullat: pronari hyn vetë vetëm në çastin e krijimit të grupit)
+          var b = fs.writeBatch(db);
+          b.set(fs.doc(db, 'grupet', g), { emri: em, pronarUid: uid(), pronarEmri: emri(), krijuarSe: Date.now() });
+          b.set(fs.doc(db, 'grupet', g, 'anetaret', uid()), anetaresiaERe('pronar'));
+          await b.commit();
+          await vendosTreguesin(g);
+          grupi = g;
+          return { ok: true, grupi: g };
+        } catch (e) { return gabim(e); } finally { veprimeNeGrup--; }
+      },
+      riemertoGrupin: async function (emriGrupit) {
+        var em = String(emriGrupit || '').trim().replace(/\s+/g, ' ').slice(0, 60);
+        if (!grupi) return { ok: false, arsye: 'pa-grup' };
+        if (em.length < 2) return { ok: false, arsye: 'emri' };
+        try { await fs.setDoc(fs.doc(db, 'grupet', grupi), { emri: em }, { merge: true }); return { ok: true }; } catch (e) { return gabim(e); }
+      },
+      // Ftesa për një emër përdoruesi (pronari). I ftuari e sheh te Ekipa dhe e pranon ose e refuzon.
+      ftoNeGrup: async function (perdoruesi, emriGrupit) {
+        var p = String(perdoruesi || '').trim().toLowerCase().replace(/@stoku-app\.local$/, '');
+        if (!uid() || !grupi) return { ok: false, arsye: 'pa-grup' };
+        if (!/^[a-z0-9_.-]{3,40}$/.test(p)) return { ok: false, arsye: 'emri' };
+        if (p === emri()) return { ok: false, arsye: 'vetja' };
+        try {
+          await fs.setDoc(fs.doc(db, 'ftesat', grupi + '_' + p), { gid: grupi, grupiEmri: String(emriGrupit || '').slice(0, 60), perdoruesi: p, ngaUid: uid(), ngaEmri: emri(), koha: Date.now() });
+          return { ok: true };
+        } catch (e) { return gabim(e); }
+      },
+      anuloFtesen: async function (id) {
+        try { await fs.deleteDoc(fs.doc(db, 'ftesat', id)); return { ok: true }; } catch (e) { return gabim(e); }
+      },
+      degjoFtesatEGrupit: function (cb, cbGabim) {
+        if (!grupi) return function () {};
+        return fs.onSnapshot(fs.query(fs.collection(db, 'ftesat'), fs.where('gid', '==', grupi)), function (s) { cb(listaNga(s)); }, function (e) { if (cbGabim) cbGabim(e); });
+      },
+      degjoFtesatEMia: function (cb, cbGabim) {
+        if (!uid() || !emri()) return function () {};
+        return fs.onSnapshot(fs.query(fs.collection(db, 'ftesat'), fs.where('perdoruesi', '==', emri())), function (s) { cb(listaNga(s)); }, function (e) { if (cbGabim) cbGabim(e); });
+      },
+      // Pranimi i ftesës. Së pari hyrja te grupi i ri (ftesa fshihet bashkë me të): nëse ftesa s'vlen më,
+      // mbetesh ku ishe. Vetëm pastaj largohesh nga grupi i mëparshëm (fshiGrupinEVjeter: ishe i fundit aty).
+      pranoFtesen: async function (f, fshiGrupinEVjeter) {
+        if (!uid() || !f || !f.gid) return { ok: false };
+        veprimeNeGrup++;
+        try {
+          var b = fs.writeBatch(db);
+          b.set(fs.doc(db, 'grupet', f.gid, 'anetaret', uid()), anetaresiaERe('anetar'));
+          b.delete(fs.doc(db, 'ftesat', f.id));
+          try { await b.commit(); }
+          catch (e) {
+            if (!eshteLeje(e)) return gabim(e);
+            // Ftesa u anulua ose grupi u fshi ndërkohë
+            try { await fs.deleteDoc(fs.doc(db, 'ftesat', f.id)); } catch (e2) { /* ok */ }
+            return { ok: false, arsye: 'ftesa-skadoi' };
+          }
+          if (grupi && grupi !== f.gid) await largohu(!!fshiGrupinEVjeter, true);
+          await vendosTreguesin(f.gid);
+          grupi = f.gid;
+          shtoNeRadhe(['grupet', f.gid, 'feed'], { lloji: 'anetar-i-ri', anetariUid: uid(), anetariEmri: emri(), ftuarNga: f.ngaEmri || '', uid: uid(), emri: emri(), koha: Date.now() });
+          return { ok: true, grupi: f.gid };
+        } catch (e) { return gabim(e); } finally { veprimeNeGrup--; }
+      },
+      refuzoFtesen: async function (f) {
+        try { await fs.deleteDoc(fs.doc(db, 'ftesat', f.id)); return { ok: true }; } catch (e) { return gabim(e); }
+      },
+      largohuNgaGrupi: function (fshiGrupin) { return largohu(!!fshiGrupin); },
+      // Pronari: heq një anëtar (anëtarësia, përmbledhja e afateve dhe pajisjet e tij në grup)
+      hiqNgaGrupi: async function (u) {
+        if (!grupi || !u || u === uid()) return { ok: false };
+        try {
+          await fs.deleteDoc(fs.doc(db, 'grupet', grupi, 'anetaret', u));
+          if (grupi === GRUPI_I_VJETER) { try { await fs.deleteDoc(fs.doc(db, 'ekipa_anetaret', u)); } catch (e) { /* ok */ } }
+          try { await fs.deleteDoc(fs.doc(db, 'grupet', grupi, 'afatet', u)); } catch (e) { /* ok */ }
+          try {
+            var s = await fs.getDocs(fs.query(fs.collection(db, 'grupet', grupi, 'push'), fs.where('uid', '==', u)));
+            var ids = []; s.forEach(function (d) { ids.push(d.id); });
+            for (var i = 0; i < ids.length; i++) await fs.deleteDoc(fs.doc(db, 'grupet', grupi, 'push', ids[i]));
+          } catch (e) { /* ok */ }
+          return { ok: true };
+        } catch (e) { return gabim(e); }
+      },
+      // Pronari: 'pronar' | 'anetar'
+      ndryshoRolin: async function (u, roli) {
+        if (!grupi) return { ok: false };
+        try { await fs.setDoc(fs.doc(db, 'grupet', grupi, 'anetaret', u), { roli: roli === 'pronar' ? 'pronar' : 'anetar' }, { merge: true }); return { ok: true }; } catch (e) { return gabim(e); }
+      },
+      // Pronari: leja e butonave +/- (sasia e shpejtë) për një anëtar të grupit
+      vendosLejen: async function (u, po) {
+        if (!grupi) return { ok: false };
+        try { await fs.setDoc(fs.doc(db, 'grupet', grupi, 'anetaret', u), { sasiaShpejte: !!po }, { merge: true }); return { ok: true }; } catch (e) { return gabim(e); }
+      },
+
+      // Anëtarët e grupit me praninë, në kohë reale
       degjoAnetaret: function (cb, cbGabim) {
-        return fs.onSnapshot(fs.collection(db, 'perdoruesit'), function (s) {
+        if (!grupi) return function () {};
+        return fs.onSnapshot(fs.collection(db, 'grupet', grupi, 'anetaret'), function (s) {
           var lista = listaNga(s).map(function (x) {
-            return { uid: x.id, emri: x.perdoruesi || x.emri || x.id, aktivSe: x.aktivSe || x.kycurSe || 0, online: x.online === true,
-              platforma: x.platforma || '', kycurSe: x.kycurSe || 0, admin: x.emri === ADMIN_EMRI || x.perdoruesi === ADMIN_EMRI, sasiaShpejte: x.sasiaShpejte === true };
+            return { uid: x.id, emri: x.emri || x.id, aktivSe: x.aktivSe || x.hyriSe || 0, online: x.online === true, platforma: x.platforma || '',
+              kycurSe: x.hyriSe || 0, roli: x.roli === 'pronar' ? 'pronar' : 'anetar', pronar: x.roli === 'pronar',
+              admin: x.emri === ADMIN_EMRI, sasiaShpejte: x.sasiaShpejte === true };
           });
           Fotot.vendosEmrat(lista);
           cb(lista);
-        }, function (e) { if (cbGabim) cbGabim(e); });
-      },
-
-      // ---------- Anëtarësia (miratimi nga administratori) ----------
-      // cb({ gjendja }): 'anetar' | 'jo' (në pritje të miratimit) | 'pa-rregulla' (rregullat e reja ende s'janë
-      // vendosur: ekipa_anetaret s'lexohet → punohet si më parë, pa miratim)
-      degjoAnetaresine: function (cb) {
-        if (!uid()) return function () {};
-        return fs.onSnapshot(fs.doc(db, 'ekipa_anetaret', uid()), function (s) {
-          if (!s.exists() && s.metadata && s.metadata.fromCache) return; // pa internet: ende s'dihet
-          cb({ gjendja: s.exists() ? 'anetar' : 'jo' });
-        }, function (e) { cb({ gjendja: eshteLeje(e) ? 'pa-rregulla' : 'gabim' }); });
-      },
-      // Krejt të pranuarit: { uid: { emri, pranuarSe, pranuarNga } }
-      degjoTeMiratuarit: function (cb, cbGabim) {
-        return fs.onSnapshot(fs.collection(db, 'ekipa_anetaret'), function (s) {
-          var m = {};
-          s.forEach(function (d) { m[d.id] = Object.assign({}, d.data()); });
-          cb(m);
         }, function (e) { if (cbGabim) cbGabim(e); });
       },
       // A është kjo llogari administratori? (true/false; null = s'dihet, p.sh. pa internet)
@@ -507,24 +737,22 @@
         if (!fs.getDoc) return null;
         try { var s = await fs.getDoc(fs.doc(db, 'perdoruesit', uid())); return !!(s.exists() && s.data().emri === ADMIN_EMRI); } catch (e) { return null; }
       },
-      // Administratori: prano në ekipë (lista: [{ uid, emri }])
-      pranoAnetaret: async function (lista) {
-        if (!uid() || !lista || !lista.length) return { ok: true };
-        try {
-          var b = fs.writeBatch(db), tani = Date.now();
-          lista.slice(0, 400).forEach(function (a) { b.set(fs.doc(db, 'ekipa_anetaret', a.uid), { emri: a.emri || '', pranuarSe: tani, pranuarNga: emri() }); });
-          await b.commit();
-          return { ok: true };
-        } catch (e) { return gabim(e); }
-      },
-      hiqNgaEkipa: async function (u) {
-        try { await fs.deleteDoc(fs.doc(db, 'ekipa_anetaret', u)); return { ok: true }; } catch (e) { return gabim(e); }
+      // Administratori: krejt llogaritë (për "Llogaritë e tjera": fshirja, ftesa)
+      degjoKrejtLlogarite: function (cb, cbGabim) {
+        return fs.onSnapshot(fs.collection(db, 'perdoruesit'), function (s) {
+          cb(listaNga(s).map(function (x) {
+            return { uid: x.id, emri: x.perdoruesi || x.emri || x.id, kycurSe: x.kycurSe || 0, aktivSe: x.aktivSe || 0,
+              grupi: typeof x.grupi === 'string' ? x.grupi : null, admin: x.emri === ADMIN_EMRI || x.perdoruesi === ADMIN_EMRI };
+          }));
+        }, function (e) { if (cbGabim) cbGabim(e); });
       },
       // Administratori: fshin llogarinë komplet. Së pari shënohet te ekipa_fshire/{uid} (rregullat ia mbyllin çdo
       // qasje menjëherë, dhe aplikacioni i tij e fshin llogarinë e Firebase-it sapo hapet), pastaj fshihen krejt të
-      // dhënat: dyqani (me pjesët dhe fletët), afatet e ekipës, anëtarësia, njoftimet dhe profili.
+      // dhënat: dyqani (me pjesët dhe fletët), anëtarësia në grup, afatet e grupit, njoftimet dhe profili.
       fshijLlogarine: async function (u, emriTjeter) {
         if (!uid() || !u || u === uid()) return { ok: false };
+        var gU = null;
+        try { var pu = await fs.getDoc(fs.doc(db, 'perdoruesit', u)); gU = pu.exists() ? pu.data().grupi : null; } catch (e) { /* ok */ }
         try { await fs.setDoc(fs.doc(db, 'ekipa_fshire', u), { emri: emriTjeter || '', fshireSe: Date.now(), fshireNga: emri() }); }
         catch (e) { return gabim(e); }
         var mbetur = 0;
@@ -536,8 +764,25 @@
             for (var i = 0; i < l.length; i++) await fshij(fs.doc.apply(null, [db].concat(rruga, [l[i]])));
           } catch (e) { mbetur++; }
         }
-        await fshij(fs.doc(db, 'ekipa_anetaret', u));
-        await fshij(fs.doc(db, 'ekipa_afatet', u));
+        if (gU) {
+          await fshij(fs.doc(db, 'grupet', gU, 'anetaret', u)); await fshij(fs.doc(db, 'grupet', gU, 'afatet', u));
+          try {
+            var sp = await fs.getDocs(fs.query(fs.collection(db, 'grupet', gU, 'push'), fs.where('uid', '==', u)));
+            var pp = []; sp.forEach(function (d) { pp.push(d.id); });
+            for (var j = 0; j < pp.length; j++) await fshij(fs.doc(db, 'grupet', gU, 'push', pp[j]));
+          } catch (e) { /* ok */ }
+          // Ishte pronari i vetëm: pronar bëhet anëtari më i vjetër (përndryshe askush s'mund të ftojë a të heqë)
+          try {
+            var mbet = listaNga(await fs.getDocs(fs.collection(db, 'grupet', gU, 'anetaret')));
+            if (mbet.length && !mbet.some(function (x) { return x.roli === 'pronar'; })) {
+              mbet.sort(function (x, y) { return (x.hyriSe || 0) - (y.hyriSe || 0); });
+              await fs.setDoc(fs.doc(db, 'grupet', gU, 'anetaret', mbet[0].id), { roli: 'pronar' }, { merge: true });
+            }
+          } catch (e) { /* ok */ }
+        }
+        if (grupi && grupi !== gU) { try { await fs.deleteDoc(fs.doc(db, 'grupet', grupi, 'anetaret', u)); } catch (e) { /* ok */ } }
+        try { await fs.deleteDoc(fs.doc(db, 'ekipa_anetaret', u)); } catch (e) { /* ok */ }
+        try { await fs.deleteDoc(fs.doc(db, 'ekipa_afatet', u)); } catch (e) { /* ok */ }
         await fshijKoleksionin(['dyqane', u, 'pjeset']);
         await fshijKoleksionin(['dyqane', u, 'fletet']);
         await fshij(fs.doc(db, 'dyqane', u));
@@ -551,73 +796,59 @@
         return fs.onSnapshot(fs.doc(db, 'ekipa_fshire', uid()), function (s) { if (s.exists()) cb(s.data() || {}); },
           function () { /* rregullat e vjetra: ekipa_fshire s'lexohet — s'ka fshirje */ });
       },
-      // Administratori: llogaritë që presin miratimin (lexim i njëhershëm — për shenjën kur Ekipa s'është e hapur)
-      merrKerkesat: async function () {
-        if (!uid()) return { ok: false, lista: [] };
-        try {
-          var r = await Promise.all([fs.getDocs(fs.collection(db, 'perdoruesit')), fs.getDocs(fs.collection(db, 'ekipa_anetaret'))]);
-          var pranuar = {};
-          r[1].forEach(function (d) { pranuar[d.id] = true; });
-          var lista = [];
-          r[0].forEach(function (d) {
-            var x = d.data() || {};
-            if (!pranuar[d.id] && d.id !== uid() && x.emri !== ADMIN_EMRI && x.perdoruesi !== ADMIN_EMRI) lista.push({ uid: d.id, emri: x.perdoruesi || x.emri || d.id, kycurSe: x.kycurSe || 0, aktivSe: x.aktivSe || 0 });
-          });
-          return { ok: true, lista: lista };
-        } catch (e) { var g = gabim(e); g.lista = []; return g; }
-      },
-      // Administratori, herën e parë me rregullat e reja: krejt llogaritë ekzistuese (ekipa e sotme) pranohen njëherësh.
-      // Bëhet vetëm një herë (shënohet te perdoruesit/{admin}.ekipaMigruarSe), që një ekipë e zbrazur qëllimisht të mos mbushet sërish.
-      migroAnetaret: async function () {
-        if (!uid() || !fs.getDoc) return { ok: false };
+      // Administratori, një herë: ekipa e vjetër → grupi "ekipa" (anëtarët e pranuar, chat-i, aktiviteti, përmbledhjet).
+      // Shënohet te perdoruesit/{admin}.grupetMigruarSe, që të mos përsëritet (p.sh. pasi të jetë larguar qëllimisht).
+      migroEkipenEVjeter: async function () {
+        if (!uid()) return { ok: false };
         try {
           var une = await fs.getDoc(fs.doc(db, 'perdoruesit', uid()));
-          if (une.exists() && une.data().ekipaMigruarSe) return { ok: true, n: 0 };
-          var r = await Promise.all([fs.getDocs(fs.collection(db, 'perdoruesit')), fs.getDocs(fs.collection(db, 'ekipa_anetaret'))]);
-          // Krejt llogaritë që s'janë ende në ekipë (edhe kur administratori ka pranuar dikë para migrimit)
-          var pranuar = {};
-          r[1].forEach(function (d) { pranuar[d.id] = true; });
-          var n = 0, b = fs.writeBatch(db), tani = Date.now();
-          r[0].forEach(function (d) {
-            if (n >= 400 || pranuar[d.id]) return;
-            var x = d.data() || {};
-            b.set(fs.doc(db, 'ekipa_anetaret', d.id), { emri: x.perdoruesi || x.emri || d.id, pranuarSe: tani, pranuarNga: emri(), migruar: true });
-            n++;
-          });
-          if (n) await b.commit();
-          await fs.setDoc(fs.doc(db, 'perdoruesit', uid()), { ekipaMigruarSe: Date.now() }, { merge: true });
-          return { ok: true, n: n };
+          if (une.exists() && une.data().grupetMigruarSe) return { ok: true, n: 0, bere: true };
+          var g = GRUPI_I_VJETER, tani = Date.now();
+          var ekz = await fs.getDoc(fs.doc(db, 'grupet', g));
+          if (!ekz.exists()) await fs.setDoc(fs.doc(db, 'grupet', g), { emri: 'Ekipa', pronarUid: uid(), pronarEmri: emri(), krijuarSe: tani, migruarSe: tani });
+          await fs.setDoc(fs.doc(db, 'grupet', g, 'anetaret', uid()), anetaresiaERe('pronar'));
+          var an = await fs.getDocs(fs.collection(db, 'ekipa_anetaret'));
+          var lista = []; an.forEach(function (d) { if (d.id !== uid()) lista.push({ uid: d.id, te: d.data() || {} }); });
+          for (var i = 0; i < lista.length; i += 400) {
+            var b = fs.writeBatch(db);
+            lista.slice(i, i + 400).forEach(function (a) { b.set(fs.doc(db, 'grupet', g, 'anetaret', a.uid), { emri: a.te.emri || a.uid, roli: 'anetar', hyriSe: a.te.pranuarSe || tani }, { merge: true }); });
+            await b.commit();
+          }
+          var nChat = 0, nFeed = 0, nAfate = 0;
+          try { nChat = await kopjoKoleksionin('ekipa_chat', 'chat', 150, true); } catch (e) { /* ok */ }
+          try { nFeed = await kopjoKoleksionin('ekipa_feed', 'feed', 150, true); } catch (e) { /* ok */ }
+          try { nAfate = await kopjoKoleksionin('ekipa_afatet', 'afatet', 400, false); } catch (e) { /* ok */ }
+          await fs.setDoc(fs.doc(db, 'perdoruesit', uid()), { grupi: g, grupetMigruarSe: tani }, { merge: true });
+          grupi = g;
+          return { ok: true, n: lista.length, chat: nChat, feed: nFeed, afate: nAfate };
         } catch (e) { return gabim(e); }
       },
 
-      // ---------- Administratori: leja e sasisë së shpejtë, njoftim për krejt ekipën, pastrimi ----------
-      vendosLejen: async function (u, po) {
-        try { await fs.setDoc(fs.doc(db, 'perdoruesit', u), { sasiaShpejte: !!po }, { merge: true }); return { ok: true }; } catch (e) { return gabim(e); }
-      },
+      // ---------- Pronari i grupit: njoftim për krejt grupin, pastrimi ----------
       // Njoftim te zilja e secilit (lista e uid-ve) + në aktivitet; kalon nga radha (s'humbet pa internet)
       lajmeroEkipen: function (tekst, listaUid) {
         tekst = String(tekst || '').trim().slice(0, 1000);
-        if (!tekst || !uid()) return Promise.resolve({ ok: false, arsye: 'bosh' });
+        if (!tekst || !uid() || !grupi) return Promise.resolve({ ok: false, arsye: 'bosh' });
         var koha = Date.now();
         (listaUid || []).forEach(function (u) {
           if (u === uid()) return;
-          shtoNeRadhe(['perdoruesit', u, 'njoftimet'], { lloji: 'lajmerim', tekst: tekst, uid: uid(), emri: emri(), koha: koha, lexuar: false });
+          shtoNeRadhe(['perdoruesit', u, 'njoftimet'], { lloji: 'lajmerim', tekst: tekst, grupi: grupi, uid: uid(), emri: emri(), koha: koha, lexuar: false });
         });
-        return pritPak(shtoNeRadhe(['ekipa_feed'], { lloji: 'lajmerim', tekst: tekst, uid: uid(), emri: emri(), koha: koha }));
+        return pritPak(shtoNeRadhe(rrG('feed'), { lloji: 'lajmerim', tekst: tekst, uid: uid(), emri: emri(), koha: koha }));
       },
-      // Kërkesë që një koleg (ose krejt ekipa) ta heqë nga rafti një produkt (edhe pa afat në Stoku).
+      // Kërkesë që një koleg (ose krejt grupi) ta heqë nga rafti një produkt (edhe pa afat në Stoku).
       // Ngjarja te aktiviteti + njoftim te zilja e secilit marrës; Worker-i dërgon push (/kerkese).
       kerkoHeqjen: function (k, listaUid) {
         var produktet = listaEKerkeses(k);
-        if (!produktet.length || !uid()) return Promise.resolve({ ok: false, arsye: 'bosh' });
+        if (!produktet.length || !uid() || !grupi) return Promise.resolve({ ok: false, arsye: 'bosh' });
         var produkti = produktet[0].produkti, barkodi = produktet[0].barkodi; // për kërkesat e para (pa listë)
         var shenim = String(k.shenim || '').trim().slice(0, 300), koha = Date.now();
-        var ng = shtoNeRadhe(['ekipa_feed'], { lloji: 'kerkese-heqje', uid: uid(), emri: emri(), koha: koha, produkti: produkti,
+        var ng = shtoNeRadhe(rrG('feed'), { lloji: 'kerkese-heqje', uid: uid(), emri: emri(), koha: koha, produkti: produkti,
           barkodi: barkodi, produktet: produktet, shenim: shenim, perUid: k.perUid || '', perEmri: k.perEmri || '' });
         (listaUid || []).forEach(function (u) {
           if (u === uid()) return;
           shtoNeRadhe(['perdoruesit', u, 'njoftimet'], { lloji: 'kerkese-heqje', kerkeseId: ng.id, produkti: produkti, barkodi: barkodi,
-            produktet: produktet, shenim: shenim, perKrejt: !k.perUid, uid: uid(), emri: emri(), koha: koha, lexuar: false });
+            produktet: produktet, shenim: shenim, perKrejt: !k.perUid, grupi: grupi, uid: uid(), emri: emri(), koha: koha, lexuar: false });
         });
         return pritPak(ng);
       },
@@ -627,41 +858,36 @@
         var koha = Date.now();
         try { await fs.setDoc(fs.doc(db, 'perdoruesit', uid(), 'njoftimet', nj.id), { kryer: true, kryerSe: koha, lexuar: true }, { merge: true }); }
         catch (e) { if (!/unavailable|deadline/.test(String(e && e.code))) return gabim(e); }
+        if (!grupi) return { ok: true };
         var te = { kerkeseId: nj.kerkeseId || '', produkti: nj.produkti || '', barkodi: nj.barkodi || '', produktet: listaEKerkeses(nj) };
-        if (nj.uid && nj.uid !== uid()) shtoNeRadhe(['perdoruesit', nj.uid, 'njoftimet'], Object.assign({ lloji: 'kerkese-kryer', uid: uid(), emri: emri(), koha: koha, lexuar: false }, te));
-        return pritPak(shtoNeRadhe(['ekipa_feed'], Object.assign({ lloji: 'kerkese-kryer', uid: uid(), emri: emri(), koha: koha,
+        if (nj.uid && nj.uid !== uid()) shtoNeRadhe(['perdoruesit', nj.uid, 'njoftimet'], Object.assign({ lloji: 'kerkese-kryer', grupi: grupi, uid: uid(), emri: emri(), koha: koha, lexuar: false }, te));
+        return pritPak(shtoNeRadhe(rrG('feed'), Object.assign({ lloji: 'kerkese-kryer', uid: uid(), emri: emri(), koha: koha,
           kerkuesUid: nj.uid || '', kerkuesEmri: nj.emri || '' }, te)));
       },
-      // Fshin krejt dokumentet e një koleksioni (ekipa_chat / ekipa_feed), me grupe nga 400
-      pastroKoleksionin: async function (emriKol) {
-        var n = 0;
-        try {
-          for (var i = 0; i < 50; i++) {
-            var s = await fs.getDocs(fs.query(fs.collection(db, emriKol), fs.limit(400)));
-            if (s.empty) break;
-            var b = fs.writeBatch(db);
-            s.forEach(function (d) { b.delete(fs.doc(db, emriKol, d.id)); n++; });
-            await b.commit();
-          }
-          return { ok: true, n: n };
-        } catch (e) { var g = gabim(e); g.n = n; return g; }
+      // Fshin krejt chat-in ose aktivitetin e grupit ('chat' | 'feed')
+      pastroKoleksionin: async function (k) {
+        if (!grupi || (k !== 'chat' && k !== 'feed')) return { ok: false, n: 0 };
+        try { return { ok: true, n: await pastroKol(rrG(k)) }; } catch (e) { var g = gabim(e); g.n = 0; return g; }
       },
       // Përmbledhja e afateve të një kolegu, pasi administratori ia ndryshoi afatet
       publikoAfatetPer: async function (u, emriPronarit, afatet) {
-        try { await fs.setDoc(fs.doc(db, 'ekipa_afatet', u), { uid: u, emri: emriPronarit || '', afatet: afatet, ndryshuarSe: Date.now() }); return { ok: true }; } catch (e) { return gabim(e); }
+        if (!grupi) return { ok: false };
+        try { await fs.setDoc(fs.doc(db, 'grupet', grupi, 'afatet', u), { uid: u, emri: emriPronarit || '', afatet: afatet, ndryshuarSe: Date.now() }); return { ok: true }; } catch (e) { return gabim(e); }
       },
 
-      // ---------- Përmbledhja e afateve (ekipa_afatet/{uid}) ----------
+      // ---------- Përmbledhja e afateve (grupet/{g}/afatet/{uid}) ----------
       publikoAfatet: async function (afatet) {
         if (!uid()) return { ok: false, arsye: 'pa-hyrje' };
+        if (!grupi) return { ok: false, arsye: 'pa-grup' };
         try {
-          await fs.setDoc(fs.doc(db, 'ekipa_afatet', uid()), { uid: uid(), emri: emri(), afatet: afatet, ndryshuarSe: Date.now() });
+          await fs.setDoc(fs.doc(db, 'grupet', grupi, 'afatet', uid()), { uid: uid(), emri: emri(), afatet: afatet, ndryshuarSe: Date.now() });
           return { ok: true };
         } catch (e) { return gabim(e); }
       },
       // { uid: { emri, afatet, ndryshuarSe } }, në kohë reale
       degjoAfatetEEkipes: function (cb, cbGabim) {
-        return fs.onSnapshot(fs.collection(db, 'ekipa_afatet'), function (s) {
+        if (!grupi) return function () {};
+        return fs.onSnapshot(fs.collection(db, 'grupet', grupi, 'afatet'), function (s) {
           var m = {};
           s.forEach(function (d) { var x = d.data() || {}; m[d.id] = { emri: x.emri || '', afatet: Array.isArray(x.afatet) ? x.afatet : [], ndryshuarSe: x.ndryshuarSe || 0 }; });
           cb(m);
@@ -670,11 +896,12 @@
 
       // ---------- Aktiviteti ----------
       shtoNgjarje: function (ng) {
-        if (!uid()) return Promise.resolve({ ok: false, arsye: 'pa-hyrje' });
-        return pritPak(shtoNeRadhe(['ekipa_feed'], Object.assign({}, ng, { uid: uid(), emri: emri(), koha: Date.now() })));
+        if (!uid() || !grupi) return Promise.resolve({ ok: false, arsye: 'pa-grup' });
+        return pritPak(shtoNeRadhe(rrG('feed'), Object.assign({}, ng, { uid: uid(), emri: emri(), koha: Date.now() })));
       },
       degjoNgjarjet: function (cb, n, cbGabim) {
-        var q = fs.query(fs.collection(db, 'ekipa_feed'), fs.orderBy('koha', 'desc'), fs.limit(n || 150));
+        if (!grupi) return function () {};
+        var q = fs.query(fs.collection(db, 'grupet', grupi, 'feed'), fs.orderBy('koha', 'desc'), fs.limit(n || 150));
         return fs.onSnapshot(q, function (s) { cb(listaNga(s)); }, function (e) { if (cbGabim) cbGabim(e); });
       },
 
@@ -683,28 +910,32 @@
       aktivizoPush: aktivizoPush,
       caktivizoPush: caktivizoPush,
       pushAktiv: pushAktiv,
-      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 158,
+      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 159,
 
       // ---------- Chat ----------
       dergoMesazh: function (tekst) {
         tekst = String(tekst || '').trim().slice(0, 2000);
         if (!tekst) return Promise.resolve({ ok: false, arsye: 'bosh' });
         if (!uid()) return Promise.resolve({ ok: false, arsye: 'pa-hyrje' });
-        return pritPak(shtoNeRadhe(['ekipa_chat'], { uid: uid(), emri: emri(), tekst: tekst, koha: Date.now() }, true));
+        if (!grupi) return Promise.resolve({ ok: false, arsye: 'pa-grup' });
+        return pritPak(shtoNeRadhe(rrG('chat'), { uid: uid(), emri: emri(), tekst: tekst, koha: Date.now() }, true));
       },
       degjoChatin: function (cb, n, cbGabim) {
-        var q = fs.query(fs.collection(db, 'ekipa_chat'), fs.orderBy('koha', 'desc'), fs.limit(n || 150));
+        if (!grupi) return function () {};
+        var q = fs.query(fs.collection(db, 'grupet', grupi, 'chat'), fs.orderBy('koha', 'desc'), fs.limit(n || 150));
         return fs.onSnapshot(q, function (s) { cb(listaNga(s)); }, function (e) { if (cbGabim) cbGabim(e); });
       },
       fshijMesazhin: async function (id) {
         hiqNgaRadha(id); // nëse s'është dërguar ende, s'dërgohet më
-        try { await fs.deleteDoc(fs.doc(db, 'ekipa_chat', id)); return { ok: true }; } catch (e) { return gabim(e); }
+        if (!grupi) return { ok: false };
+        try { await fs.deleteDoc(fs.doc(db, 'grupet', grupi, 'chat', id)); return { ok: true }; } catch (e) { return gabim(e); }
       },
 
-      // ---------- Njoftimet personale ----------
+      // ---------- Njoftimet personale (vetëm brenda grupit: rregullat e kontrollojnë me fushën `grupi`) ----------
       dergoNjoftim: function (pronariUid, nj) {
         if (!uid()) return Promise.resolve({ ok: false, arsye: 'pa-hyrje' });
-        return pritPak(shtoNeRadhe(['perdoruesit', pronariUid, 'njoftimet'], Object.assign({}, nj, { uid: uid(), emri: emri(), koha: Date.now(), lexuar: false })));
+        if (!grupi) return Promise.resolve({ ok: false, arsye: 'pa-grup' });
+        return pritPak(shtoNeRadhe(['perdoruesit', pronariUid, 'njoftimet'], Object.assign({}, nj, { grupi: grupi, uid: uid(), emri: emri(), koha: Date.now(), lexuar: false })));
       },
       degjoNjoftimetEPalexuara: function (cb, cbGabim) {
         if (!uid()) return function () {};
@@ -1115,12 +1346,16 @@
       anetaret: [], dyqanet: {}, ngarkuarSe: 0, dukeNgarkuar: false, gabimNgarkimi: '',
       ngjarjet: [], ngjarjetGati: false, chat: [], chatGati: false, chatHapur: false,
       njoftimetPalexuara: [], mesazhiFundit: null, hapur: false,
-      anetaresia: null,          // 'anetar' | 'jo' (në pritje të miratimit) | 'pa-rregulla' (rregullat e vjetra) | null (s'dihet ende)
+      anetaresia: null,          // 'anetar' (i një grupi) | 'pa-grup' | 'pa-rregulla' (rregullat e grupeve mungojnë) | null (s'dihet ende)
+      grupi: null,               // id e grupit (grupet/{grupi})
+      grupiInfo: null,           // { id, emri, pronarUid, pronarEmri }
+      roli: 'anetar',            // 'pronar' (fton, heq, menaxhon) | 'anetar'
+      ftesatEMia: [],            // ftesat që më kanë ardhur: [{ id, gid, grupiEmri, ngaEmri, koha }]
+      ftesatEGrupit: [],         // ftesat e dërguara nga grupi im, ende pa u pranuar
+      krejtLlogarite: null,      // administratori: krejt llogaritë (për "Llogaritë e tjera")
       admin: false,
-      teMiratuarit: null,        // { uid: { emri, pranuarSe, pranuarNga } } — null derisa të lexohet
-      permbledhjet: null,        // { uid: { emri, afatet, ndryshuarSe } } nga ekipa_afatet
-      permbledhjetGabim: false,  // ekipa_afatet s'lexohet (rregullat e vjetra) → lexohen dyqanet si më parë
-      nKerkesa: 0                // administratori: sa llogari presin miratimin
+      permbledhjet: null,        // { uid: { emri, afatet, ndryshuarSe } } nga grupet/{g}/afatet
+      permbledhjetGabim: false   // përmbledhjet s'lexohen → lexohen dyqanet (vetëm administratori mundet)
     };
     var d = {};
     var chatNisurSe = 0, rifreskimKohez = {}, afateTeReja = { n: 0, ngaFoto: false, kohez: null };
@@ -1142,95 +1377,200 @@
       return false;
     }
 
-    // ---------- Anëtarësia ----------
+    // ---------- Grupi (anëtarësia) ----------
     function ruajAnetaresine() {
       var u = o.uidIm();
-      if (u) shkruaj(KEY_ANETARESIA, JSON.stringify({ uid: u, gjendja: gj.anetaresia, admin: gj.admin }));
+      if (u) shkruaj(KEY_ANETARESIA, JSON.stringify({ uid: u, gjendja: gj.anetaresia, admin: gj.admin, grupi: gj.grupi, roli: gj.roli, grupiEmri: gj.grupiInfo ? gj.grupiInfo.emri : '' }));
     }
     function ngarkoAnetaresine() {
       var x = null;
       try { x = JSON.parse(lexo(KEY_ANETARESIA) || 'null'); } catch (e) { x = null; }
-      var ok = x && x.uid === o.uidIm();
-      gj.anetaresia = ok ? (x.gjendja || null) : null;
-      gj.admin = ok ? !!x.admin : false;
+      var imi = !!(x && x.uid === o.uidIm());
+      // Vetëm gjendjet e grupeve (ruajtja e vjetër 'jo'/'anetar' pa grup s'vlen më)
+      var ok = imi && ((x.gjendja === 'anetar' && x.grupi) || x.gjendja === 'pa-grup');
+      gj.anetaresia = ok ? x.gjendja : null;
+      gj.admin = imi ? !!x.admin : false;
+      gj.grupi = ok && x.gjendja === 'anetar' ? x.grupi : null;
+      gj.roli = ok && x.roli === 'pronar' ? 'pronar' : 'anetar';
+      gj.grupiInfo = gj.grupi ? { id: gj.grupi, emri: x.grupiEmri || '' } : null;
+      var e = E(); if (e && e.vendosGrupin) e.vendosGrupin(gj.grupi);
     }
-    function rregullatEReja() { return gj.anetaresia === 'anetar' || gj.anetaresia === 'jo'; }
-    // A e sheh ekipën kjo llogari? 'ok' | 'ne-pritje' (pret miratimin e administratorit) | 'duke-kontrolluar'
+    // 'ok' (anëtar i një grupi) | 'pa-grup' (krijon grupin e vet ose pranon një ftesë) | 'pa-rregulla' | 'duke-kontrolluar'
     function gjendjaEQasjes() {
-      if (gj.admin || gj.anetaresia === 'anetar' || gj.anetaresia === 'pa-rregulla') return 'ok';
-      return gj.anetaresia === 'jo' ? 'ne-pritje' : 'duke-kontrolluar';
+      if (gj.anetaresia === 'anetar' && gj.grupi) return 'ok';
+      if (gj.anetaresia === 'pa-grup' || gj.anetaresia === 'pa-rregulla') return gj.anetaresia;
+      return 'duke-kontrolluar';
     }
-    // Pranimi (ose heqja nga ekipa, ose zbulimi i rregullave) ndryshon krejt çka shihet: dëgjuesit rinisen
+    function eshtePronar() { return gjendjaEQasjes() === 'ok' && gj.roli === 'pronar'; }
+    function pastroTeDhenatEGrupit() {
+      gj.anetaret = []; gj.permbledhjet = null; gj.permbledhjetGabim = false; gj.ngjarjet = []; gj.ngjarjetGati = false;
+      gj.chat = []; gj.chatGati = false; gj.dyqanet = {}; gj.ngarkuarSe = 0; gj.ftesatEGrupit = []; gj.mesazhiFundit = null;
+    }
+    // Grupi ndryshoi (u krijua, u pranua një ftesë, u hoq, u largua): krejt dëgjuesit rinisen me rrugët e grupit të ri
     function kurNdryshonQasja() {
-      gj.permbledhjetGabim = false;
+      var e = E();
+      if (e && e.vendosGrupin) e.vendosGrupin(gjendjaEQasjes() === 'ok' ? gj.grupi : null);
+      var hapur = gj.hapur, chati = gj.chatHapur;
+      mbyllDegjuesitEFaqes(); mbyllChatin();
+      pastroTeDhenatEGrupit();
+      nisDegjuesitEGrupit();
       nisDegjuesitPersonale();
-      if (gj.admin && rregullatEReja()) migroNeseDuhet();
-      if (gj.hapur) {
-        var chati = gj.chatHapur;
-        mbyllDegjuesitEFaqes(); mbyllChatin();
-        gj.teMiratuarit = null; gj.permbledhjet = null;
-        hap();
-        if (chati) hapChatin();
-      } else thirr('te-gjitha');
+      if (gj.admin && gj.anetaresia === 'pa-grup') migroNeseDuhet();
+      if (hapur) { hap(); if (chati) hapChatin(); }
+      else thirr('te-gjitha');
+    }
+    // Grupi i ri vendoset menjëherë (pa pritur dëgjuesin e Firestore-it, që e konfirmon pak më vonë)
+    function aplikoGrupin(g, roli, emriG) {
+      var gjendja = g ? 'anetar' : 'pa-grup';
+      var ndryshoi = g !== gj.grupi || gj.anetaresia !== gjendja;
+      gj.anetaresia = gjendja; gj.grupi = g || null; gj.roli = roli === 'pronar' ? 'pronar' : 'anetar';
+      gj.grupiInfo = g ? { id: g, emri: emriG || (gj.grupiInfo && gj.grupiInfo.id === g ? gj.grupiInfo.emri : '') } : null;
+      ruajAnetaresine();
+      if (ndryshoi) kurNdryshonQasja(); else thirr('te-gjitha');
+    }
+    // Leja e butonave +/- nga pronari i grupit (anëtarësia ime): vlen si leja e administratorit
+    function vendosLejenLokale(po) {
+      var u = o.uidIm();
+      if (!u) return;
+      var v = po ? u : '!' + u;
+      if (lexo('stoku:leja:sasia-shpejte') === v) return;
+      shkruaj('stoku:leja:sasia-shpejte', v);
+      try { window.dispatchEvent(new Event('stoku-leja-ndryshoi')); } catch (e) { /* node */ }
+    }
+    function nisDegjuesitEGrupit() {
+      var e = E();
+      ndal('grupiDoc');
+      if (!e || !e.degjoGrupinDoc || gjendjaEQasjes() !== 'ok') return;
+      var g = gj.grupi;
+      d.grupiDoc = e.degjoGrupinDoc(g, function (x) {
+        if (g !== gj.grupi) return;
+        gj.grupiInfo = x ? { id: g, emri: x.emri || '', pronarUid: x.pronarUid || '', pronarEmri: x.pronarEmri || '' }
+          : { id: g, emri: g === 'ekipa' ? 'Ekipa' : ((gj.grupiInfo && gj.grupiInfo.emri) || '') };
+        ruajAnetaresine();
+        thirr('grupi');
+      });
+    }
+    // Ftesat që më vijnë (gjithmonë, sa kohë jam i kyçur): shenja te Ekipa + njoftim një herë
+    function nisFtesatEMia() {
+      var e = E();
+      ndal('ftesatEMia');
+      gj.ftesatEMia = [];
+      if (!e || !e.degjoFtesatEMia || !o.uidIm()) return;
+      d.ftesatEMia = e.degjoFtesatEMia(function (lista) {
+        gj.ftesatEMia = lista.filter(function (f) { return f.gid && f.gid !== gj.grupi; }).sort(function (a, b) { return (b.koha || 0) - (a.koha || 0); });
+        gj.ftesatEMia.forEach(function (f) {
+          if ((Date.now() - (f.koha || 0)) > 7 * 86400000 || uNjoftua('ft:' + f.id + ':' + (f.koha || 0)) || !o.njofto) return;
+          o.njofto({ titulli: 'Stoku · Ftesë në grup', tag: 'ek-ft-' + f.id, pamja: 'anetaret',
+            teksti: (f.ngaEmri || 'Dikush') + ' të fton në grupin "' + (f.grupiEmri || 'pa emër') + '". Hape Ekipën për ta pranuar.' });
+        });
+        thirr('ftesat');
+      }, function () { gj.ftesatEMia = []; thirr('ftesat'); });
     }
     async function kontrolloAdminin() {
       var e = E();
       if (!e || !e.eshteAdmin) return;
       var a = await e.eshteAdmin();
       if (a === null || !o.uidIm()) return; // pa internet: mbetet e fundit e ditur
-      if (a !== gj.admin) { gj.admin = a; ruajAnetaresine(); kurNdryshonQasja(); }
-      else if (a && rregullatEReja()) migroNeseDuhet();
+      if (a !== gj.admin) { gj.admin = a; ruajAnetaresine(); thirr('te-gjitha'); }
+      if (a && gj.anetaresia === 'pa-grup') migroNeseDuhet();
     }
-    // Administratori, herën e parë me rregullat e reja: ekipa e sotme pranohet krejt njëherësh
+    // Administratori, një herë: ekipa e vjetër (para grupeve) bëhet grupi "ekipa", me historikun
     async function migroNeseDuhet() {
       var e = E();
-      if (migrimiNeRruge || !e || !e.migroAnetaret || !gj.admin || !rregullatEReja()) return;
+      if (migrimiNeRruge || !e || !e.migroEkipenEVjeter || !gj.admin || gj.anetaresia !== 'pa-grup') return;
       migrimiNeRruge = true;
-      var r = await e.migroAnetaret();
+      var r = await e.migroEkipenEVjeter();
       migrimiNeRruge = false;
-      if (r && r.ok && r.n) thirr('anetaret');
-      if (!gj.hapur) numeroKerkesatNjeHere(); // shenja e kërkesave edhe kur Ekipa s'është e hapur
+      if (r && r.ok && !r.bere && e.grupiAktual && e.grupiAktual()) aplikoGrupin(e.grupiAktual(), 'pronar', 'Ekipa');
     }
-    // Llogaritë që presin miratimin (vetëm administratori i sheh)
-    function kerkesat() {
-      if (!gj.admin || !gj.teMiratuarit || !rregullatEReja()) return [];
-      var uidIm = o.uidIm();
-      return gj.anetaret.filter(function (a) { return !gj.teMiratuarit[a.uid] && !a.admin && a.uid !== uidIm; })
-        .sort(function (x, y) { return (y.kycurSe || y.aktivSe || 0) - (x.kycurSe || x.aktivSe || 0); });
-    }
-    function njoftoKerkesat(lista) {
-      var teReja = lista.filter(function (a) { return !uNjoftua('kr:' + a.uid) && (Date.now() - (a.kycurSe || a.aktivSe || 0)) < 7 * 86400000; });
-      if (!teReja.length || !o.njofto) return;
-      o.njofto({ titulli: 'Stoku · Ekipa', tag: 'ek-kr', pamja: 'anetaret',
-        teksti: (teReja.length === 1 ? teReja[0].emri + ' kërkon të bashkohet' : teReja.length + ' llogari kërkojnë të bashkohen') + ' me ekipën. Prano te Ekipa → Anëtarët.' });
-    }
-    function perditesoKerkesat() {
-      if (!gj.admin || !gj.teMiratuarit) return;
-      var l = kerkesat();
-      gj.nKerkesa = l.length;
-      njoftoKerkesat(l);
-    }
-    async function numeroKerkesatNjeHere() {
+
+    // ---------- Veprimet e grupit ----------
+    async function krijoGrupin(emriG) {
       var e = E();
-      if (!e || !e.merrKerkesat || !gj.admin || !rregullatEReja()) return;
-      var r = await e.merrKerkesat();
-      if (!r || !r.ok || gj.hapur) return;
-      gj.nKerkesa = r.lista.length;
-      njoftoKerkesat(r.lista);
-      thirr('kerkesat');
-    }
-    // Veprimet e administratorit
-    async function pranoAnetaret(lista) {
-      var e = E();
-      if (!e || !gj.admin || !lista || !lista.length) return { ok: false };
-      var r = await e.pranoAnetaret(lista.map(function (a) { return { uid: a.uid, emri: a.emri }; }));
-      if (r.ok) lista.forEach(function (a) { e.shtoNgjarje({ lloji: 'anetar-i-ri', anetariUid: a.uid, anetariEmri: a.emri }); });
+      if (!e || !e.krijoGrupin) return { ok: false };
+      if (gjendjaEQasjes() === 'ok') return { ok: false, arsye: 'ne-grup' };
+      var r = await e.krijoGrupin(emriG);
+      if (r.ok) aplikoGrupin(r.grupi, 'pronar', String(emriG || '').trim().replace(/\s+/g, ' ').slice(0, 60));
       return r;
     }
+    // A mund të largohet nga grupi aktual? Pronari i vetëm (me anëtarë të tjerë) duhet ta bëjë dikë tjetër pronar më parë.
+    function mundTeLargohet() {
+      if (gjendjaEQasjes() !== 'ok') return { ok: true, iFundit: false };
+      if (!gj.anetaret.length) return { ok: false, arsye: 'duke-ngarkuar' };
+      var uIm = o.uidIm();
+      var tjeret = gj.anetaret.filter(function (a) { return a.uid !== uIm; });
+      if (gj.roli === 'pronar' && tjeret.length && !tjeret.some(function (a) { return a.pronar; })) return { ok: false, arsye: 'pronari-i-vetem' };
+      return { ok: true, iFundit: !tjeret.length };
+    }
+    async function pranoFtesen(f) {
+      var e = E();
+      if (!e || !e.pranoFtesen || !f) return { ok: false };
+      var neGrup = gjendjaEQasjes() === 'ok', m = mundTeLargohet();
+      if (neGrup && !m.ok) return m;
+      var r = await e.pranoFtesen(f, neGrup && m.iFundit);
+      if (r.ok || r.arsye === 'ftesa-skadoi') gj.ftesatEMia = gj.ftesatEMia.filter(function (x) { return x.id !== f.id; });
+      if (r.ok) aplikoGrupin(f.gid, 'anetar', f.grupiEmri || '');
+      else if (r.arsye === 'ftesa-skadoi') thirr('ftesat');
+      return r;
+    }
+    async function refuzoFtesen(f) {
+      var e = E();
+      if (!e || !e.refuzoFtesen || !f) return { ok: false };
+      var r = await e.refuzoFtesen(f);
+      if (r.ok) { gj.ftesatEMia = gj.ftesatEMia.filter(function (x) { return x.id !== f.id; }); thirr('ftesat'); }
+      return r;
+    }
+    async function largohuNgaGrupi() {
+      var e = E();
+      if (!e || !e.largohuNgaGrupi || gjendjaEQasjes() !== 'ok') return { ok: false };
+      var m = mundTeLargohet();
+      if (!m.ok) return m;
+      var r = await e.largohuNgaGrupi(m.iFundit);
+      if (r.ok) aplikoGrupin(null);
+      return r;
+    }
+    // Pronari: fton një emër përdoruesi
+    async function ftoNeGrup(emriP) {
+      var e = E();
+      if (!e || !e.ftoNeGrup || !eshtePronar()) return { ok: false, arsye: 'jo-pronar' };
+      var p = String(emriP || '').trim().toLowerCase();
+      if (gj.anetaret.some(function (a) { return String(a.emri || '').toLowerCase() === p; })) return { ok: false, arsye: 'anetar' };
+      if (gj.ftesatEGrupit.some(function (f) { return f.perdoruesi === p; })) return { ok: false, arsye: 'e-ftuar' };
+      return e.ftoNeGrup(p, gj.grupiInfo ? gj.grupiInfo.emri : '');
+    }
+    async function anuloFtesen(f) {
+      var e = E();
+      if (!e || !e.anuloFtesen || !eshtePronar() || !f) return { ok: false };
+      return e.anuloFtesen(f.id);
+    }
+    async function ndryshoRolin(a, roli) {
+      var e = E();
+      if (!e || !e.ndryshoRolin || !eshtePronar() || !a) return { ok: false };
+      if (roli !== 'pronar' && !gj.anetaret.some(function (x) { return x.uid !== a.uid && x.pronar; })) return { ok: false, arsye: 'pronari-i-vetem' };
+      return e.ndryshoRolin(a.uid, roli);
+    }
+    async function riemertoGrupin(emriG) {
+      var e = E();
+      if (!e || !e.riemertoGrupin || !eshtePronar()) return { ok: false };
+      var r = await e.riemertoGrupin(emriG);
+      if (r.ok && gj.grupiInfo) { gj.grupiInfo.emri = String(emriG).trim().replace(/\s+/g, ' ').slice(0, 60); ruajAnetaresine(); thirr('grupi'); }
+      return r;
+    }
+    // Administratori: llogaritë jashtë grupit tim (për fshirje ose ftesë)
+    function llogariteJashte() {
+      if (!gj.admin || !gj.krejtLlogarite) return [];
+      var uIm = o.uidIm(), neGrup = {};
+      gj.anetaret.forEach(function (a) { neGrup[a.uid] = true; });
+      return gj.krejtLlogarite.filter(function (a) { return !neGrup[a.uid] && a.uid !== uIm; })
+        .sort(function (x, y) { return (y.kycurSe || y.aktivSe || 0) - (x.kycurSe || x.aktivSe || 0); });
+    }
+    // Pronari: heq një anëtar nga grupi (jo veten)
     async function hiqNgaEkipa(a) {
       var e = E();
-      if (!e || !gj.admin || !a || a.uid === o.uidIm()) return { ok: false };
-      return e.hiqNgaEkipa(a.uid);
+      if (!e || !e.hiqNgaGrupi || !eshtePronar() || !a || a.uid === o.uidIm()) return { ok: false };
+      var r = await e.hiqNgaGrupi(a.uid);
+      if (r.ok) { gj.anetaret = gj.anetaret.filter(function (x) { return x.uid !== a.uid; }); thirr('anetaret'); }
+      return r;
     }
     // Administratori: fshin llogarinë komplet (jo veten, jo një administrator tjetër)
     async function fshijLlogarine(a) {
@@ -1239,18 +1579,17 @@
       var r = await e.fshijLlogarine(a.uid, a.emri);
       if (r.ok) {
         gj.anetaret = gj.anetaret.filter(function (x) { return x.uid !== a.uid; });
+        if (gj.krejtLlogarite) gj.krejtLlogarite = gj.krejtLlogarite.filter(function (x) { return x.uid !== a.uid; });
         delete gj.dyqanet[a.uid];
         if (gj.permbledhjet) delete gj.permbledhjet[a.uid];
-        if (gj.teMiratuarit) delete gj.teMiratuarit[a.uid];
-        perditesoKerkesat();
         thirr('anetaret');
       }
       return r;
     }
-    // Administratori: leja e butonave +/- (sasia e shpejtë) për një anëtar
+    // Pronari: leja e butonave +/- (sasia e shpejtë) për një anëtar
     async function vendosLejen(a, po) {
       var e = E();
-      if (!e || !gj.admin || !e.vendosLejen) return { ok: false };
+      if (!e || !eshtePronar() || !e.vendosLejen) return { ok: false };
       return e.vendosLejen(a.uid, po);
     }
     // Kërkesë për heqje nga rafti (çdo anëtar): te një koleg (perUid) ose te krejt ekipa
@@ -1271,16 +1610,17 @@
       if (r && r.ok) { nj.kryer = true; gj.njoftimetPalexuara = gj.njoftimetPalexuara.filter(function (x) { return x.id !== nj.id; }); thirr('njoftimet'); }
       return r;
     }
-    // Administratori: njoftim te zilja e krejt anëtarëve
+    // Pronari i grupit: njoftim te zilja e krejt anëtarëve
     async function lajmeroEkipen(tekst) {
       var e = E();
-      if (!e || !gj.admin || !e.lajmeroEkipen) return { ok: false };
+      if (!e || !eshtePronar() || !e.lajmeroEkipen) return { ok: false };
       return e.lajmeroEkipen(tekst, anetaretEDukshem().map(function (a) { return a.uid; }));
     }
-    async function pastro(emriKol) {
+    // Pronari i grupit: 'chat' | 'feed'
+    async function pastro(k) {
       var e = E();
-      if (!e || !gj.admin || !e.pastroKoleksionin) return { ok: false };
-      return e.pastroKoleksionin(emriKol);
+      if (!e || !eshtePronar() || !e.pastroKoleksionin) return { ok: false };
+      return e.pastroKoleksionin(k);
     }
     // Administratori: stoku i plotë i një anëtari (vetëm lexim)
     async function merrStokun(uid) {
@@ -1323,16 +1663,23 @@
       ngarkoAnetaresine();
       e.nisPranine();
       if (e.dergoRadhen) e.dergoRadhen(); // aktiviteti/chat-i/njoftimet që mbetën pa u dërguar herën e kaluar
-      if (e.degjoAnetaresine) {
-        d.anetaresia = e.degjoAnetaresine(function (r) {
-          var g = r.gjendja === 'gabim' ? (gj.anetaresia || 'pa-rregulla') : r.gjendja;
-          if (g === gj.anetaresia) return;
-          gj.anetaresia = g;
+      if (e.degjoGrupin) {
+        d.anetaresia = e.degjoGrupin(function (r) {
+          if (r.gjendja === 'gabim') return; // pa internet: mbetet gjendja e fundit e ditur
+          var gRi = r.gjendja === 'anetar' ? r.grupi : null;
+          var roliRi = r.gjendja === 'anetar' && r.roli === 'pronar' ? 'pronar' : 'anetar';
+          if (r.gjendja === 'anetar' && typeof r.sasiaShpejte === 'boolean') vendosLejenLokale(r.sasiaShpejte);
+          var ndryshoiGrupi = r.gjendja !== gj.anetaresia || gRi !== gj.grupi;
+          if (!ndryshoiGrupi && roliRi === gj.roli) return;
+          gj.anetaresia = r.gjendja; gj.grupi = gRi; gj.roli = roliRi;
+          if (ndryshoiGrupi) gj.grupiInfo = gRi ? { id: gRi, emri: '' } : null;
           ruajAnetaresine();
-          kurNdryshonQasja();
+          if (ndryshoiGrupi) kurNdryshonQasja(); else thirr('te-gjitha');
         });
         kontrolloAdminin();
       } else gj.anetaresia = 'pa-rregulla';
+      nisDegjuesitEGrupit();
+      nisFtesatEMia();
       nisDegjuesitPersonale();
       // Administratori e fshiu këtë llogari → aplikacioni e mbyll dhe e fshin (o.llogariaUFshi)
       if (e.degjoFshirjen && o.llogariaUFshi) d.fshirja = e.degjoFshirjen(function (x) { ndal('fshirja'); try { o.llogariaUFshi(x); } catch (er) { /* ok */ } });
@@ -1376,14 +1723,16 @@
       }, 1, function () { /* ok */ });
     }
     function ndalGjithmone(vetemDegjuesit) {
-      ndal('njoftimet'); ndal('chatFundit'); ndal('anetaresia'); ndal('fshirja');
+      ndal('njoftimet'); ndal('chatFundit'); ndal('anetaresia'); ndal('fshirja'); ndal('grupiDoc'); ndal('ftesatEMia');
       if (!vetemDegjuesit) {
         var e = E(); if (e) e.ndalPranine();
         mbyll();
         clearTimeout(publikimi.kohez);
         gj.njoftimetPalexuara = []; gj.mesazhiFundit = null; gj.dyqanet = {}; gj.ngarkuarSe = 0; gj.anetaret = [];
         gj.ngjarjet = []; gj.ngjarjetGati = false; gj.chat = []; gj.chatGati = false;
-        gj.anetaresia = null; gj.admin = false; gj.teMiratuarit = null; gj.permbledhjet = null; gj.permbledhjetGabim = false; gj.nKerkesa = 0;
+        gj.anetaresia = null; gj.admin = false; gj.permbledhjet = null; gj.permbledhjetGabim = false;
+        gj.grupi = null; gj.grupiInfo = null; gj.roli = 'anetar'; gj.ftesatEMia = []; gj.ftesatEGrupit = []; gj.krejtLlogarite = null;
+        if (e && e.vendosGrupin) e.vendosGrupin(null);
         publikimi = { kohez: null, nenshkrimi: null, bllokuarDeri: 0, afatet: null };
         thirr('te-gjitha');
       }
@@ -1394,22 +1743,22 @@
       var e = E();
       gj.hapur = true;
       if (!e || !o.uidIm()) { thirr('te-gjitha'); return; }
-      if (gjendjaEQasjes() !== 'ok') { mbyllDegjuesitEFaqes(); thirr('te-gjitha'); return; } // në pritje të miratimit / duke kontrolluar
+      if (gjendjaEQasjes() !== 'ok') { mbyllDegjuesitEFaqes(); thirr('te-gjitha'); return; } // pa grup / duke kontrolluar
       if (!d.anetaret) {
         d.anetaret = e.degjoAnetaret(function (lista) {
           gj.anetaret = lista;
-          perditesoKerkesat();
           ngarkoMungesat();
           thirr('anetaret');
         }, function () { gj.gabimNgarkimi = 'rregullat'; thirr('anetaret'); });
       }
-      if (!d.teMiratuarit && e.degjoTeMiratuarit && rregullatEReja()) {
-        d.teMiratuarit = e.degjoTeMiratuarit(function (m) {
-          gj.teMiratuarit = m;
-          perditesoKerkesat();
-          ngarkoMungesat();
+      if (!d.ftesatEGrupit && e.degjoFtesatEGrupit) {
+        d.ftesatEGrupit = e.degjoFtesatEGrupit(function (l) {
+          gj.ftesatEGrupit = l.sort(function (a, b) { return (b.koha || 0) - (a.koha || 0); });
           thirr('anetaret');
-        }, function () { ndal('teMiratuarit'); thirr('anetaret'); });
+        }, function () { ndal('ftesatEGrupit'); });
+      }
+      if (gj.admin && !d.krejtLlogarite && e.degjoKrejtLlogarite) {
+        d.krejtLlogarite = e.degjoKrejtLlogarite(function (l) { gj.krejtLlogarite = l; thirr('anetaret'); }, function () { ndal('krejtLlogarite'); });
       }
       if (!d.permbledhjet && e.degjoAfatetEEkipes && !gj.permbledhjetGabim) {
         d.permbledhjet = e.degjoAfatetEEkipes(function (m) {
@@ -1441,7 +1790,7 @@
       }
       thirr('te-gjitha');
     }
-    function mbyllDegjuesitEFaqes() { ndal('anetaret'); ndal('ngjarjet'); ndal('teMiratuarit'); ndal('permbledhjet'); }
+    function mbyllDegjuesitEFaqes() { ndal('anetaret'); ndal('ngjarjet'); ndal('permbledhjet'); ndal('ftesatEGrupit'); ndal('krejtLlogarite'); }
     function mbyll() {
       gj.hapur = false;
       mbyllDegjuesitEFaqes();
@@ -1451,11 +1800,7 @@
     // ---------- Afatet e kolegëve ----------
     // Kryesisht nga përmbledhjet (ekipa_afatet, në kohë reale). Vetëm për kolegët pa përmbledhje ende (version i
     // vjetër i aplikacionit) ose me rregullat e vjetra, lexohet dyqani i tyre (nëse rregullat e lejojnë).
-    function anetaretEDukshem() {
-      if (!rregullatEReja()) return gj.anetaret;
-      if (!gj.teMiratuarit) return gj.anetaret.filter(function (a) { return a.uid === o.uidIm(); }); // ende s'dihet kush është pranuar
-      return gj.anetaret.filter(function (a) { return gj.teMiratuarit[a.uid] || a.admin; });
-    }
+    function anetaretEDukshem() { return gjendjaEQasjes() === 'ok' ? gj.anetaret : []; }
     function kaPermbledhje(uid) { return !!(gj.permbledhjet && gj.permbledhjet[uid]); }
     async function ngarkoMungesat() {
       var c = o.cloud && o.cloud();
@@ -1563,7 +1908,7 @@
     // ---------- Aktiviteti nga faqja (heqje e vetes, lajmërim, afate të reja) ----------
     function ngjarje(ng) {
       var e = E();
-      if (!e || !o.uidIm() || gjendjaEQasjes() === 'ne-pritje') return;
+      if (!e || !o.uidIm() || gjendjaEQasjes() !== 'ok') return;
       e.shtoNgjarje(ng);
     }
     // Afatet e reja mblidhen 20 s, që "shtoi 12 afate" të dalë një herë, jo 12 herë
@@ -1661,15 +2006,22 @@
       kaLidhje: function () { return !!E() && !!o.uidIm(); },
       // A janë marrë anëtarët dhe afatet e tyre (për "Krejt ekipa")
       eGatshme: function () { return gj.anetaret.length > 0 && (!!gj.permbledhjet || gj.ngarkuarSe > 0) && !gj.dukeNgarkuar; },
-      // Anëtarësia
+      // Grupi
       gjendjaEQasjes: gjendjaEQasjes,
       eshteAdmin: function () { return !!gj.admin; },
-      kerkesat: kerkesat,
-      numriKerkesave: function () { return gj.admin ? gj.nKerkesa : 0; },
-      pranoAnetaret: pranoAnetaret, hiqNgaEkipa: hiqNgaEkipa, fshijLlogarine: fshijLlogarine,
+      eshtePronar: eshtePronar,
+      grupiInfo: function () { return gjendjaEQasjes() === 'ok' ? (gj.grupiInfo || { id: gj.grupi, emri: '' }) : null; },
+      ftesatEMia: function () { return gj.ftesatEMia; },
+      ftesatEGrupit: function () { return gj.ftesatEGrupit; },
+      // Shenja te Ekipa: ftesat e reja që më kanë ardhur
+      numriKerkesave: function () { return gj.ftesatEMia.length; },
+      krijoGrupin: krijoGrupin, pranoFtesen: pranoFtesen, refuzoFtesen: refuzoFtesen, largohuNgaGrupi: largohuNgaGrupi,
+      mundTeLargohet: mundTeLargohet, ftoNeGrup: ftoNeGrup, anuloFtesen: anuloFtesen, ndryshoRolin: ndryshoRolin, riemertoGrupin: riemertoGrupin,
+      llogariteJashte: llogariteJashte,
+      hiqNgaEkipa: hiqNgaEkipa, fshijLlogarine: fshijLlogarine,
       vendosLejen: vendosLejen, lajmeroEkipen: lajmeroEkipen,
       koleget: koleget, kerkoHeqjen: kerkoHeqjen, kryejKerkesen: kryejKerkesen, kryeresiIKerkeses: kryeresiIKerkeses,
-      pastroChatin: function () { return pastro('ekipa_chat'); }, pastroAktivitetin: function () { return pastro('ekipa_feed'); },
+      pastroChatin: function () { return pastro('chat'); }, pastroAktivitetin: function () { return pastro('feed'); },
       merrStokun: merrStokun, adminNdryshoAfatin: adminNdryshoAfatin
     };
   }

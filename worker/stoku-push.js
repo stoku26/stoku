@@ -7,13 +7,14 @@
  *   VAPID_SUBJECT  = mailto:adresa-jote@... (kërkohet nga Google/Apple/Mozilla, për kontakt)
  *
  * Si punon:
- *   POST /chat  { id }  + "Authorization: Bearer <tokeni i Firebase-it>"
- *     1. lexon mesazhin ekipa_chat/{id} ME TOKENIN E DËRGUESIT (Firestore REST) — rregullat e Firestore-it
- *        vendosin vetë a lejohet (anëtar i ekipës); emri dhe teksti merren nga mesazhi, jo nga kërkesa;
+ *   POST /chat  { id, grupi }  + "Authorization: Bearer <tokeni i Firebase-it>"
+ *     1. lexon mesazhin grupet/{grupi}/chat/{id} ME TOKENIN E DËRGUESIT (Firestore REST) — rregullat e Firestore-it
+ *        vendosin vetë a lejohet (anëtar i grupit); emri dhe teksti merren nga mesazhi, jo nga kërkesa;
  *     2. mesazhi duhet të jetë i dërguesit dhe i freskët (< 3 min) — s'mund të ridërgohen mesazhe të vjetra;
- *     3. lexon ekipa_push (pajisjet e regjistruara) dhe i dërgon secilës (përveç dërguesit) një njoftim
+ *     3. lexon grupet/{grupi}/push (pajisjet e anëtarëve të grupit) dhe i dërgon secilës (përveç dërguesit) një njoftim
  *        të enkriptuar (Web Push, RFC 8291 + VAPID RFC 8292). Pajisjet që s'ekzistojnë më (404/410) fshihen.
- *   POST /kerkese { id } → kërkesa "Hiqe nga rafti" (ose "u krye") te kolegët (v147).
+ *     Pa `grupi` (versioni i vjetër i aplikacionit, para v164): ekipa_chat / ekipa_feed / ekipa_push.
+ *   POST /kerkese { id, grupi } → kërkesa "Hiqe nga rafti" (ose "u krye") te kolegët e grupit (v147, v164).
  *
  * Njoftimi ditor për afatet (v149) — në orën që zgjedh secili përdorues, edhe me Stoku të mbyllur:
  *   POST /orari (Bearer token, i verifikuar) { aktiv, ora: "08:00", tz, platforma, pajisja: { endpoint, p256dh, auth } }
@@ -35,7 +36,7 @@ const PROJEKTI = 'stoku-appi';
 const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databases/(default)/documents';
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
-const VERSIONI_WORKER = 158; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 159; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 const W = {
@@ -74,10 +75,14 @@ const W = {
 
     try {
       let ngarkesa, perKe;
+      // v164: mesazhet/kërkesat janë brenda grupit (grupet/{g}/chat, /feed); pajisjet te grupet/{g}/push.
+      // Pa `grupi` (versioni i vjetër i aplikacionit): koleksionet e vjetra ekipa_*.
+      const grupi = /^[A-Za-z0-9_-]{2,64}$/.test(String(trupi.grupi || '')) ? String(trupi.grupi) : '';
+      const rrugaE = k => grupi ? 'grupet/' + grupi + '/' + k : 'ekipa_' + k;
       if (rruga === '/chat') {
         const id = String(trupi.id || '');
         if (!/^[A-Za-z0-9_-]{6,80}$/.test(id)) return pergjigju({ ok: false, arsye: 'id' }, 400);
-        const m = await lexoDoc('ekipa_chat/' + id, token);
+        const m = await lexoDoc(rrugaE('chat') + '/' + id, token);
         if (!m) return pergjigju({ ok: false, arsye: 's-u-gjet' }, 404);
         if (m.uid !== uid) return pergjigju({ ok: false, arsye: 'jo-i-yti' }, 403);
         if (!(Math.abs(Date.now() - Number(m.koha || 0)) < MESAZH_MAKS_MS)) return pergjigju({ ok: false, arsye: 'i-vjeter' }, 409);
@@ -88,7 +93,7 @@ const W = {
         // Kërkesë për heqje nga rafti (ose "u krye"): ngjarja te ekipa_feed, e lexuar me tokenin e dërguesit
         const id = String(trupi.id || '');
         if (!/^[A-Za-z0-9_-]{6,80}$/.test(id)) return pergjigju({ ok: false, arsye: 'id' }, 400);
-        const k = await lexoDoc('ekipa_feed/' + id, token);
+        const k = await lexoDoc(rrugaE('feed') + '/' + id, token);
         if (!k) return pergjigju({ ok: false, arsye: 's-u-gjet' }, 404);
         if (k.uid !== uid) return pergjigju({ ok: false, arsye: 'jo-i-yti' }, 403);
         if (k.lloji !== 'kerkese-heqje' && k.lloji !== 'kerkese-kryer') return pergjigju({ ok: false, arsye: 'lloji' }, 400);
@@ -113,7 +118,15 @@ const W = {
         return pergjigju({ ok: false, arsye: 'rruga' }, 404);
       }
 
-      const teGjitha = await listoPajisjet(token);
+      let teGjitha = await listoPajisjet(token, rrugaE('push'));
+      // v164: vetëm pajisjet e anëtarëve të tanishëm të grupit. Një i hequr nga grupi s'merr më asgjë, edhe nëse
+      // pajisja e tij ka mbetur e regjistruar (p.sh. pronari e hoqi ndërsa telefoni ishte pa internet); ajo fshihet.
+      if (grupi) {
+        const anetaret = await listoIdte(token, 'grupet/' + grupi + '/anetaret');
+        const jashte = teGjitha.filter(a => !anetaret.has(a.uid));
+        teGjitha = teGjitha.filter(a => anetaret.has(a.uid));
+        await Promise.all(jashte.map(a => fshiDoc(rrugaE('push') + '/' + a.id, token)));
+      }
       // Një pajisje (endpoint) merr vetëm një njoftim; dhe kurrë njoftimin e mesazhit që e dërgoi vetë
       // (p.sh. një regjistrim i vjetër i një llogarie tjetër në të njëjtin telefon)
       const teMiat = new Set(teGjitha.filter(a => a.uid === uid).map(a => a.endpoint));
@@ -132,7 +145,7 @@ const W = {
           const ng = Object.assign({}, ngarkesa, { url: a.platforma === 'pc' ? './pc.html#/ekipa/' + nen : './index.html#ekipa-' + nen });
           const st = await dergoPush(a, ng, vapid);
           if (st >= 200 && st < 300) derguar++;
-          else if (st === 404 || st === 410) { fshire++; await fshiDoc('ekipa_push/' + a.id, token); }
+          else if (st === 404 || st === 410) { fshire++; await fshiDoc(rrugaE('push') + '/' + a.id, token); }
         } catch (e) { /* një pajisje e prishur s'i ndal të tjerat */ }
       }));
       await dergoKrejt();
@@ -272,10 +285,18 @@ async function trajtoOren(req, env, rruga, pergjigju) {
   if (rruga === '/ora/koleget' || rruga === '/ora/kerkese') {
     const id = await idTokenPerOren(env, sekret, tok);
     if (!id) return pergjigju({ ok: false, arsye: 'rilidh' }, 403);
+    // Grupi i përdoruesit (perdoruesit/{uid}.grupi, v164): '' = s'është në asnjë grup (s'ka kolegë);
+    // pa fushën fare (aplikacioni ende i vjetër): ekipa e vjetër (ekipa_anetaret)
+    let grupiOres = null;
+    try { const pu = await lexoDoc('perdoruesit/' + uid, id.token); grupiOres = pu && typeof pu.grupi === 'string' ? pu.grupi : null; } catch (e) { /* ok */ }
+    if (grupiOres === '') return pergjigju(rruga === '/ora/koleget' ? { ok: true, koleget: [] } : { ok: false, arsye: 'pa-grup' }, rruga === '/ora/koleget' ? 200 : 400);
+    const anetaretRruga = grupiOres ? 'grupet/' + grupiOres + '/anetaret' : 'ekipa_anetaret';
     if (rruga === '/ora/koleget') {
       const lista = [];
       try {
-        const r = await fetch(FS + '/ekipa_anetaret?pageSize=300', { headers: { Authorization: 'Bearer ' + id.token } });
+        const r = await fetch(FS + '/' + anetaretRruga + '?pageSize=300', { headers: { Authorization: 'Bearer ' + id.token } });
+        // s'është më anëtar (p.sh. pronari e hoqi nga grupi): s'ka kolegë
+        if (r.status === 403 && grupiOres) return pergjigju({ ok: true, koleget: [] });
         if (!r.ok) return pergjigju({ ok: false, arsye: 'firestore-' + r.status }, 502);
         const j = await r.json();
         (j.documents || []).forEach(d => {
@@ -294,20 +315,20 @@ async function trajtoOren(req, env, rruga, pergjigju) {
     const perUid = /^[A-Za-z0-9_-]{1,128}$/.test(t.perUid || '') ? t.perUid : '';
     let marresit = [];
     try {
-      const r = await fetch(FS + '/ekipa_anetaret?pageSize=300', { headers: { Authorization: 'Bearer ' + id.token } });
+      const r = await fetch(FS + '/' + anetaretRruga + '?pageSize=300', { headers: { Authorization: 'Bearer ' + id.token } });
       const j = r.ok ? await r.json() : {};
       marresit = (j.documents || []).map(d => d.name.split('/').pop()).filter(u => u !== uid && (!perUid || u === perUid));
     } catch (e) { /* bosh */ }
     if (!marresit.length) return pergjigju({ ok: false, arsye: perUid ? 'anetari' : 'pa-kolege' }, 400);
     const koha = Date.now(), fid = idERe(), shenim = String(t.shenim || '').slice(0, 300);
     const baza = { lloji: 'kerkese-heqje', uid, emri: id.emri, koha, produkti: produktet[0].produkti, barkodi: produktet[0].barkodi, produktet, shenim };
-    const ok1 = await shkruajDoc('ekipa_feed', fid, Object.assign({}, baza, { perUid, perEmri: String(t.perEmri || '').slice(0, 60) }), id.token);
+    const ok1 = await shkruajDoc(grupiOres ? 'grupet/' + grupiOres + '/feed' : 'ekipa_feed', fid, Object.assign({}, baza, { perUid, perEmri: String(t.perEmri || '').slice(0, 60) }), id.token);
     if (!ok1) return pergjigju({ ok: false, arsye: 'firestore' }, 502);
     await Promise.all(marresit.map(u => shkruajDoc('perdoruesit/' + u + '/njoftimet', idERe(),
-      Object.assign({}, baza, { kerkeseId: fid, perKrejt: !perUid, lexuar: false }), id.token)));
+      Object.assign({}, baza, { kerkeseId: fid, perKrejt: !perUid, lexuar: false }, grupiOres ? { grupi: grupiOres } : {}), id.token)));
     // Push te pajisjet e marrësve, me të njëjtën rrugë si telefoni
     try {
-      await W.fetch(new Request('https://stoku-push.local/kerkese', { method: 'POST', headers: { Authorization: 'Bearer ' + id.token, 'Content-Type': 'application/json', Origin: ORIGJINAT[0] }, body: JSON.stringify({ id: fid }) }), env, {});
+      await W.fetch(new Request('https://stoku-push.local/kerkese', { method: 'POST', headers: { Authorization: 'Bearer ' + id.token, 'Content-Type': 'application/json', Origin: ORIGJINAT[0] }, body: JSON.stringify(grupiOres ? { id: fid, grupi: grupiOres } : { id: fid }) }), env, {});
     } catch (e) { /* njoftimi te zilja mbetet */ }
     return pergjigju({ ok: true, n: marresit.length });
   }
@@ -574,11 +595,11 @@ async function lexoDoc(rruga, token) {
   const j = await r.json();
   return objektNga(j.fields || {});
 }
-async function listoPajisjet(token) {
+async function listoPajisjet(token, koleksioni) {
   const lista = [];
   let faqja = '';
   for (let i = 0; i < 5; i++) {
-    const r = await fetch(FS + '/ekipa_push?pageSize=300' + (faqja ? '&pageToken=' + encodeURIComponent(faqja) : ''), { headers: { Authorization: 'Bearer ' + token } });
+    const r = await fetch(FS + '/' + (koleksioni || 'ekipa_push') + '?pageSize=300' + (faqja ? '&pageToken=' + encodeURIComponent(faqja) : ''), { headers: { Authorization: 'Bearer ' + token } });
     if (!r.ok) { const e = new Error('firestore-' + r.status); e.status = r.status; throw e; }
     const j = await r.json();
     (j.documents || []).forEach(d => {
@@ -590,6 +611,20 @@ async function listoPajisjet(token) {
     faqja = j.nextPageToken;
   }
   return lista;
+}
+// Id-të e dokumenteve të një koleksioni (p.sh. anëtarët e grupit)
+async function listoIdte(token, koleksioni) {
+  const ids = new Set();
+  let faqja = '';
+  for (let i = 0; i < 5; i++) {
+    const r = await fetch(FS + '/' + koleksioni + '?pageSize=300&mask.fieldPaths=roli' + (faqja ? '&pageToken=' + encodeURIComponent(faqja) : ''), { headers: { Authorization: 'Bearer ' + token } });
+    if (!r.ok) { const e = new Error('firestore-' + r.status); e.status = r.status; throw e; }
+    const j = await r.json();
+    (j.documents || []).forEach(d => ids.add(d.name.split('/').pop()));
+    if (!j.nextPageToken) break;
+    faqja = j.nextPageToken;
+  }
+  return ids;
 }
 async function fshiDoc(rruga, token) {
   try { await fetch(FS + '/' + rruga, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } }); } catch (e) { /* ok */ }
