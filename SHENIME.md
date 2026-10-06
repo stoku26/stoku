@@ -50,6 +50,23 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **CILËSIMET "ORA DHE APLIKACIONI" + EKIPA PA "GRUP" + ORA: CILËSIMET (v169 = 1.10.0)**: përdoruesi s'e kuptonte
+   pse lidhja e orës dhe shkarkimi i aplikacionit ishin te Njoftimet, dhe "Ekipa / Anëtarët / Grupi" i dukeshin tri gjëra.
+   - Telefoni: kategori e re te Cilësimet `#tabOra` → faqja `data-faqe="ora"` ("Ora e dorës": `#segOra`, `#oraKodi`,
+     `#oraLidh`, udhëzimet Galaxy/Apple; "Aplikacioni Android": `#njAndroidGrupi` + `#njAndroidKarta`). Njoftimet kanë
+     vetëm njoftimet. Statusi i kategorisë `#tabOraStatus` sipas pajisjes (aplikacioni + versioni / Chrome Android / iPhone).
+     Në Android karta e aplikacionit del E PARA (hapi 1 i Galaxy: "më lart në këtë faqe"). Pa Android (iPhone, shfletues
+     tjetër): kategoria quhet "Ora e dorës" (`FJALORI.tabOra` + `.kat-tekst`), `#oraIntro` pa aplikacionin.
+   - BUG i rregulluar (nga v167): blloku i kartës Android ishte BRENDA `hapOpsionet()` → çdo hapje e Cilësimeve shtonte
+     edhe një "click" te `#njAndroidBtn` (3 hapje = 3 dritare "Shkarko" / 3 kontrolle). Tash ekzekutohet një herë.
+   - Ekipa: në UI s'ka më "grup": kudo "ekipa" (tel + PC + ekipa.js + teRejat): "Krijo ekipën tënde", "Fto një shok në
+     ekipë", "Pronari i ekipës", "Largohu nga ekipa", "Pa ekipë" etj. Kodi/Firestore mbeten `grupet/{g}`, `grupiInfo`,
+     `ekGrupi*` (vetëm tekstet u ndryshuan; u verifikua me krahasim të kodit pa stringje/komente: 0 ndryshime kodi).
+     Struktura: Ekipa (titulli = emri i ekipës) → Anëtarët = "Ekipa jote" (karta) + fto + "Anëtarët" + largohu.
+   - Ora (`ora/`): ekran `Pamja.Cilesimet` (chip-i i fundit i listës, në vend të "Shkëput orën"): versioni, llogaria,
+     "Kontrollo për përditësim" → "Përditëso tani" (`Perditesimi.kontrollo(detyro = true)` / `instalo`), mesazhi
+     "S'u kontrollua: s'ka internet" kur `Perditesimi.deshtoi`, "Shkëput orën" me dy prekje. Rruga te telefoni:
+     "Cilësimet → Ora dhe aplikacioni → Lidh orën".
 0000000. **"SAHAT" → "ORA" + KONTROLL I PLOTË (v168 = 1.9.1)**: përdoruesi s'e do fjalën "sahat" (krahinore); kudo (web
    tel/PC, teRejat, ora/, worker, README, SHENIME) u zëvendësua sipas gramatikës: sahati → ora, sahatin → orën, sahatit →
    orës, sahat → orë (p.sh. "Lidh orën", "Shkëput orën", "Stoku në orë"). MOS e përdor më "sahat" në asnjë tekst.

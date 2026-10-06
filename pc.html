@@ -1264,11 +1264,11 @@
       <div class="fsheh" id="ekPaGrup">
         <div id="ekPaGrupFtesat"></div>
         <div class="karta">
-          <div class="karta-krye"><h2>Krijo grupin tënd</h2></div>
+          <div class="karta-krye"><h2>Krijo ekipën tënde</h2></div>
           <div class="karta-trup">
-            <p class="ek-grupi-hint" style="margin:0 0 12px">Ekipa punon me grupe: secili grup sheh vetëm anëtarët e vet (afatet, aktivitetin, chat-in). Krijo grupin e dyqanit tënd dhe fto shokët, ose prano një ftesë.</p>
-            <div class="ek-rresht-forma"><input class="inp" type="text" id="ekGrupiEmri" maxlength="60" autocomplete="off" placeholder="Emri i grupit, p.sh. Market Agimi" aria-label="Emri i grupit të ri"><button class="btn" type="button" id="ekGrupiKrijo">Krijo grupin</button></div>
-            <p class="ek-grupi-hint">Për t'u futur në grupin e dikujt tjetër, jepja pronarit të grupit emrin tënd të përdoruesit: <b id="ekEmriIm"></b>. Ftesa del këtu.</p>
+            <p class="ek-grupi-hint" style="margin:0 0 12px">Secila ekipë sheh vetëm anëtarët e vet (afatet, aktivitetin, chat-in). Krijo ekipën e dyqanit tënd dhe fto shokët, ose prano një ftesë.</p>
+            <div class="ek-rresht-forma"><input class="inp" type="text" id="ekGrupiEmri" maxlength="60" autocomplete="off" placeholder="Emri i ekipës, p.sh. Market Agimi" aria-label="Emri i ekipës së re"><button class="btn" type="button" id="ekGrupiKrijo">Krijo ekipën</button></div>
+            <p class="ek-grupi-hint">Për t'u futur në ekipën e dikujt tjetër, jepja pronarit të ekipës emrin tënd të përdoruesit: <b id="ekEmriIm"></b>. Ftesa del këtu.</p>
           </div>
         </div>
       </div>
@@ -1335,15 +1335,15 @@
         <div id="ekFtesatEMia"></div>
         <div class="karta ek-grupi-krye" id="ekGrupiKarta">
           <div class="tk"><b id="ekGrupiTitulli"></b><span id="ekGrupiNen"></span></div>
-          <div class="ek-rresht-forma fsheh" id="ekRiemertoForma" style="flex:1"><input class="inp" type="text" id="ekGrupiEmriRi" maxlength="60" aria-label="Emri i ri i grupit"><button class="btn vogel" type="button" id="ekRiemertoRuaj">Ruaj</button><button class="btn tekst vogel" type="button" id="ekRiemertoAnulo">Anulo</button></div>
+          <div class="ek-rresht-forma fsheh" id="ekRiemertoForma" style="flex:1"><input class="inp" type="text" id="ekGrupiEmriRi" maxlength="60" aria-label="Emri i ri i ekipës"><button class="btn vogel" type="button" id="ekRiemertoRuaj">Ruaj</button><button class="btn tekst vogel" type="button" id="ekRiemertoAnulo">Anulo</button></div>
           <button class="btn tekst vogel" type="button" id="ekRiemerto">Ndrysho emrin</button>
-          <button class="btn tekst rrezik vogel" type="button" id="ekLargohu">Largohu nga grupi</button>
+          <button class="btn tekst rrezik vogel" type="button" id="ekLargohu">Largohu nga ekipa</button>
         </div>
         <div class="karta fsheh" id="ekFtoKarta" style="margin-bottom:16px">
-          <div class="karta-krye"><h2>Fto një shok në grup</h2></div>
+          <div class="karta-krye"><h2>Fto një shok në ekipë</h2></div>
           <div class="karta-trup">
             <div class="ek-rresht-forma"><input class="inp" type="text" id="ekFtoEmri" maxlength="40" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Emri i përdoruesit të tij" aria-label="Emri i përdoruesit që fton"><button class="btn" type="button" id="ekFtoBtn">Fto</button></div>
-            <p class="ek-grupi-hint">Shkruaj emrin e përdoruesit me të cilin shoku hyn në Stoku. Ai e sheh ftesën te Ekipa dhe e pranon. Pa ftesë askush s'e sheh grupin.</p>
+            <p class="ek-grupi-hint">Shkruaj emrin e përdoruesit me të cilin shoku hyn në Stoku. Ai e sheh ftesën te Ekipa dhe e pranon. Pa ftesë askush s'e sheh ekipën.</p>
             <table class="tabela fsheh" id="ekTabFtesat" style="margin-top:10px"><tbody id="ekFtesatTrup"></tbody></table>
           </div>
         </div>
@@ -1354,12 +1354,12 @@
           </table>
         </div>
         <div class="karta fsheh" id="ekAdminPanel" style="margin-top:16px">
-          <div class="karta-krye"><h2>Pronari i grupit</h2></div>
+          <div class="karta-krye"><h2>Pronari i ekipës</h2></div>
           <div class="karta-trup">
-            <label class="fushe"><span>Njoftim për krejt grupin (i del secilit te zilja)</span>
+            <label class="fushe"><span>Njoftim për krejt ekipën (i del secilit te zilja)</span>
               <textarea class="inp" id="ekAdminTekst" rows="3" maxlength="1000" placeholder="Shkruaj njoftimin…"></textarea></label>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-              <button class="btn" type="button" id="ekAdminDergo">Dërgo te krejt grupi</button>
+              <button class="btn" type="button" id="ekAdminDergo">Dërgo te krejt ekipa</button>
               <span style="flex:1"></span>
               <button class="btn tekst rrezik" type="button" id="ekAdminPastroChat">Pastro krejt chat-in</button>
               <button class="btn tekst rrezik" type="button" id="ekAdminPastroAkt">Pastro krejt aktivitetin</button>
@@ -1880,8 +1880,8 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=163"></script>
-<script src="ekipa.js?v=168"></script>
-<script src="teRejat.js?v=168"></script>
+<script src="ekipa.js?v=169"></script>
+<script src="teRejat.js?v=169"></script>
 <script>
 (function () {
   'use strict';
@@ -4855,7 +4855,7 @@
     ekVizato(true);
   }
   function ekShenjat() {
-    // Pa grup: s'ka chat, kolegë as afate të ekipës, mbetet vetëm Përmbledhja (me "Krijo grupin tënd" dhe ftesat)
+    // Pa grup: s'ka chat, kolegë as afate të ekipës, mbetet vetëm Përmbledhja (me "Krijo ekipën tënde" dhe ftesat)
     var paGrup = !!(ekK && ekK.kaLidhje() && /^pa-(grup|rregulla)$/.test(ekK.gjendjaEQasjes()));
     ['navEkipi', 'navEkAktiviteti', 'navEkChat', 'navEkKalendari', 'navEkAnetaret', 'navEkStatistika', 'ekKerkoHeqje', 'ekChatBtn'].forEach(function (id) { $(id).hidden = paGrup; });
     var n = ekK ? ekK.numriNjoftimeve() : 0;
@@ -4885,7 +4885,7 @@
     $('ekPaGrup').classList.toggle('fsheh', !(lidhur && qasja === 'pa-grup'));
     if (lidhur && qasja === 'pa-grup') ekVPaGrup();
     if (!lidhur) $('ekPaLidhjeTekst').textContent = !window.__stokuCloud ? 'Ekipa kërkon lidhje me internetin.' : 'Hyr me llogarinë tënde (lart djathtas) që ta shohësh ekipën.';
-    else if (qasja === 'pa-rregulla') $('ekPaLidhjeTekst').textContent = 'Grupet s\'janë gati ende: administratori duhet t\'i vendosë rregullat e reja të Firebase-it (Firestore → Rules). Stoku dhe afatet e tua punojnë si zakonisht.';
+    else if (qasja === 'pa-rregulla') $('ekPaLidhjeTekst').textContent = 'Ekipa s\'është gati ende: administratori duhet t\'i vendosë rregullat e reja të Firebase-it (Firestore → Rules). Stoku dhe afatet e tua punojnë si zakonisht.';
     else if (qasja !== 'ok') $('ekPaLidhjeTekst').textContent = 'Duke u lidhur me ekipën…';
     $('ekMenu').classList.toggle('fsheh', !!lidhur && qasja !== 'ok');
     if (lidhur && qasja !== 'ok') lidhur = false;
@@ -4917,8 +4917,8 @@
     var ft = ekK.ftesatEMia();
     $('ekPultKerkesat').classList.toggle('fsheh', !ft.length);
     if (ft.length) {
-      $('ekPultKerkTitulli').textContent = 'Ftesë: grupi "' + (ft[0].grupiEmri || '') + '"' + (ft.length > 1 ? ' (+' + (ft.length - 1) + ' të tjera)' : '');
-      $('ekPultKerkEmrat').textContent = (ft[0].ngaEmri || 'Dikush') + ' të fton në këtë grup.';
+      $('ekPultKerkTitulli').textContent = 'Ftesë: ekipa "' + (ft[0].grupiEmri || '') + '"' + (ft.length > 1 ? ' (+' + (ft.length - 1) + ' të tjera)' : '');
+      $('ekPultKerkEmrat').textContent = (ft[0].ngaEmri || 'Dikush') + ' të fton në këtë ekipë.';
       $('ekPultKerkPrano').textContent = '✓ Prano';
       $('ekPultKerkPrano').disabled = false;
       $('ekPultKerkPrano').onclick = function () { ekPranoFtesen(ft[0], $('ekPultKerkPrano')); };
@@ -5277,12 +5277,12 @@
   }
 
   // ---- Anëtarët ----
-  // ---- Grupet ----
+  // ---- Ekipat ----
   function ekFtesaKarta(f) {
     var k = el('div', 'karta ek-pult-kerkesat');
     var tk = el('div', 'tk');
-    tk.appendChild(el('b', null, 'Ftesë: grupi "' + (f.grupiEmri || '') + '"'));
-    tk.appendChild(el('span', null, (f.ngaEmri || 'Dikush') + ' të fton në këtë grup' + (f.koha ? ' · ' + EKL.kohaRelative(f.koha) : '') + '.'));
+    tk.appendChild(el('b', null, 'Ftesë: ekipa "' + (f.grupiEmri || '') + '"'));
+    tk.appendChild(el('span', null, (f.ngaEmri || 'Dikush') + ' të fton në këtë ekipë' + (f.koha ? ' · ' + EKL.kohaRelative(f.koha) : '') + '.'));
     k.appendChild(tk);
     var br = el('button', 'btn tekst vogel', 'Refuzo'); br.type = 'button';
     br.addEventListener('click', async function () { br.disabled = true; var r = await ekK.refuzoFtesen(f); if (!r.ok) { br.disabled = false; toast('S\'u refuzua. Kontrollo internetin.'); } });
@@ -5299,47 +5299,47 @@
   }
   async function ekKrijoGrupin() {
     var inp = $('ekGrupiEmri'), em = inp.value.trim();
-    if (em.length < 2) { toast('Shkruaj emrin e grupit (të paktën 2 shkronja).'); inp.focus(); return; }
+    if (em.length < 2) { toast('Shkruaj emrin e ekipës (të paktën 2 shkronja).'); inp.focus(); return; }
     var b = $('ekGrupiKrijo');
     b.disabled = true;
     var r = await ekK.krijoGrupin(em);
     b.disabled = false;
-    if (!r.ok) { toast(r.leje ? 'S\'u krijua: rregullat e Firebase-it për grupet s\'janë vendosur ende.' : 'S\'u krijua. Kontrollo internetin dhe provo përsëri.'); return; }
+    if (!r.ok) { toast(r.leje ? 'S\'u krijua: rregullat e Firebase-it për ekipat s\'janë vendosur ende.' : 'S\'u krijua. Kontrollo internetin dhe provo përsëri.'); return; }
     inp.value = '';
-    toast('Grupi "' + em + '" u krijua. Tash fto shokët te Anëtarët.');
+    toast('Ekipa "' + em + '" u krijua. Tash fto shokët te Anëtarët.');
     ekShkoTe('anetaret');
   }
   $('ekGrupiKrijo').addEventListener('click', ekKrijoGrupin);
   $('ekGrupiEmri').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ekKrijoGrupin(); } });
   function ekTekstiLargimit(m) {
-    return m.arsye === 'pronari-i-vetem' ? 'Je pronari i vetëm i grupit. Bëje dikë tjetër pronar (te Anëtarët) para se të largohesh.'
-      : m.arsye === 'duke-ngarkuar' ? 'Prit pak, po ngarkohen anëtarët e grupit…' : 'S\'mund të largohesh tani.';
+    return m.arsye === 'pronari-i-vetem' ? 'Je pronari i vetëm i ekipës. Bëje dikë tjetër pronar (te Anëtarët) para se të largohesh.'
+      : m.arsye === 'duke-ngarkuar' ? 'Prit pak, po ngarkohen anëtarët e ekipës…' : 'S\'mund të largohesh tani.';
   }
   async function ekPranoFtesen(f, btn) {
     if (ekK.gjendjaEQasjes() === 'ok') {
       var g = ekK.grupiInfo() || {}, m = ekK.mundTeLargohet();
       if (!m.ok) { toast(ekTekstiLargimit(m)); return; }
-      var po = await konfirmo('Të kalosh te grupi "' + (f.grupiEmri || '') + '"?',
-        'Largohesh nga grupi "' + (g.emri || '') + '"' + (m.iFundit ? ' (je anëtari i fundit: grupi fshihet me chat-in dhe aktivitetin)' : '') + '. Stoku dhe afatet e tua s\'preken.', 'Kalo');
+      var po = await konfirmo('Të kalosh te ekipa "' + (f.grupiEmri || '') + '"?',
+        'Largohesh nga ekipa "' + (g.emri || '') + '"' + (m.iFundit ? ' (je anëtari i fundit: ekipa fshihet me chat-in dhe aktivitetin)' : '') + '. Stoku dhe afatet e tua s\'preken.', 'Kalo');
       if (!po) return;
     }
     if (btn) btn.disabled = true;
     var r = await ekK.pranoFtesen(f);
     if (btn) btn.disabled = false;
-    if (!r.ok) { toast(r.arsye === 'pronari-i-vetem' || r.arsye === 'duke-ngarkuar' ? ekTekstiLargimit(r) : r.leje || r.arsye === 'ftesa-skadoi' ? 'Kjo ftesë s\'vlen më (u anulua ose grupi u fshi).' : 'S\'u pranua. Kontrollo internetin dhe provo përsëri.'); return; }
-    toast('U bashkove me grupin "' + (f.grupiEmri || '') + '".');
+    if (!r.ok) { toast(r.arsye === 'pronari-i-vetem' || r.arsye === 'duke-ngarkuar' ? ekTekstiLargimit(r) : r.leje || r.arsye === 'ftesa-skadoi' ? 'Kjo ftesë s\'vlen më (u anulua ose ekipa u fshi).' : 'S\'u pranua. Kontrollo internetin dhe provo përsëri.'); return; }
+    toast('U bashkove me ekipën "' + (f.grupiEmri || '') + '".');
     ekShkoTe('anetaret');
   }
   $('ekLargohu').addEventListener('click', async function () {
     var g = ekK.grupiInfo() || {}, m = ekK.mundTeLargohet();
     if (!m.ok) { toast(ekTekstiLargimit(m)); return; }
-    var po = await konfirmo('Të largohesh nga grupi "' + (g.emri || '') + '"?',
-      m.iFundit ? 'Je anëtari i fundit: grupi fshihet komplet (chat-i, aktiviteti). Stoku dhe afatet e tua s\'preken.'
-        : 'S\'do t\'i shohësh më kolegët, aktivitetin dhe chat-in e këtij grupi. Stoku dhe afatet e tua s\'preken.', 'Largohu');
+    var po = await konfirmo('Të largohesh nga ekipa "' + (g.emri || '') + '"?',
+      m.iFundit ? 'Je anëtari i fundit: ekipa fshihet komplet (chat-i, aktiviteti). Stoku dhe afatet e tua s\'preken.'
+        : 'S\'do t\'i shohësh më kolegët, aktivitetin dhe chat-in e kësaj ekipe. Stoku dhe afatet e tua s\'preken.', 'Largohu');
     if (!po) return;
     var r = await ekK.largohuNgaGrupi();
     if (!r.ok) { toast(r.arsye ? ekTekstiLargimit(r) : 'S\'u largove. Kontrollo internetin dhe provo përsëri.'); return; }
-    toast('U largove nga grupi "' + (g.emri || '') + '".');
+    toast('U largove nga ekipa "' + (g.emri || '') + '".');
   });
   $('ekRiemerto').addEventListener('click', function () {
     var g = ekK.grupiInfo() || {};
@@ -5360,7 +5360,7 @@
   $('ekGrupiEmriRi').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ekRuajEmrinEGrupit(); } else if (ev.key === 'Escape') ekMbyllRiemertimin(); });
   function tekstiGabimitTeFtesa(r) {
     return r.arsye === 'emri' ? 'Emri i përdoruesit: 3–40 shkronja/numra (a–z, 0–9, _ . -).'
-      : r.arsye === 'vetja' ? 'Ky është emri yt.' : r.arsye === 'anetar' ? 'Ky përdorues është tashmë në grup.'
+      : r.arsye === 'vetja' ? 'Ky është emri yt.' : r.arsye === 'anetar' ? 'Ky përdorues është tashmë në ekipë.'
       : r.arsye === 'e-ftuar' ? 'Ky përdorues është ftuar tashmë.' : 'Ftesa s\'u dërgua. Kontrollo internetin dhe provo përsëri.';
   }
   async function ekFto() {
@@ -5385,8 +5385,8 @@
     fm.textContent = '';
     ekK.ftesatEMia().forEach(function (f) { fm.appendChild(ekFtesaKarta(f)); });
     // Karta e grupit
-    $('ekGrupiTitulli').textContent = g.emri || 'Grupi';
-    $('ekGrupiNen').textContent = (pronar ? 'Ti je pronar i grupit' : 'Anëtar i grupit') + ' · ' + anetaret.length + (anetaret.length === 1 ? ' anëtar' : ' anëtarë');
+    $('ekGrupiTitulli').textContent = g.emri || 'Ekipa';
+    $('ekGrupiNen').textContent = (pronar ? 'Ti je pronar i ekipës' : 'Anëtar i ekipës') + ' · ' + anetaret.length + (anetaret.length === 1 ? ' anëtar' : ' anëtarë');
     if ($('ekRiemertoForma').classList.contains('fsheh')) $('ekRiemerto').classList.toggle('fsheh', !pronar);
     // Pronari: fto + ftesat në pritje
     $('ekFtoKarta').classList.toggle('fsheh', !pronar);
@@ -5446,16 +5446,16 @@
       var tv = el('td', 'k-av');
       if (pronar && !a.uneJam) {
         var bp = el('button', 'btn tekst vogel', a.pronar ? 'Hiq pronarin' : 'Bëje pronar'); bp.type = 'button';
-        bp.title = a.pronar ? a.emri + ' mbetet anëtar i thjeshtë' : a.emri + ' mund të ftojë dhe të menaxhojë grupin';
+        bp.title = a.pronar ? a.emri + ' mbetet anëtar i thjeshtë' : a.emri + ' mund të ftojë dhe të menaxhojë ekipën';
         bp.addEventListener('click', async function (ev) {
           ev.stopPropagation();
           bp.disabled = true;
           var x = await ekK.ndryshoRolin(a, a.pronar ? 'anetar' : 'pronar');
           bp.disabled = false;
-          if (!x.ok) toast(x.arsye === 'pronari-i-vetem' ? 'Grupi duhet të ketë të paktën një pronar.' : 'S\'u ndryshua. Kontrollo internetin.');
+          if (!x.ok) toast(x.arsye === 'pronari-i-vetem' ? 'Ekipa duhet të ketë të paktën një pronar.' : 'S\'u ndryshua. Kontrollo internetin.');
         });
         tv.appendChild(bp);
-        var hq = el('button', 'btn tekst rrezik vogel', 'Hiq nga grupi'); hq.type = 'button';
+        var hq = el('button', 'btn tekst rrezik vogel', 'Hiq nga ekipa'); hq.type = 'button';
         hq.addEventListener('click', function (ev) { ev.stopPropagation(); ekHiqNgaEkipa(a); });
         tv.appendChild(hq);
       }
@@ -5469,7 +5469,7 @@
       tr.addEventListener('click', function () { ekV.anetari = a.uid; ekV.filtri = ''; ekShkoTe('afatet'); });
       t.appendChild(tr);
     });
-    // Administratori: llogaritë jashtë grupit
+    // Administratori: llogaritë jashtë ekipës
     $('ekLlogaritePanel').classList.toggle('fsheh', !admin);
     if (admin) {
       var l = ekK.llogariteJashte();
@@ -5483,7 +5483,7 @@
         t0.appendChild(el('span', 'ek-anetar-emri', a.emri));
         tr.appendChild(el('td')).appendChild(t0);
         var kur = a.kycurSe || a.aktivSe;
-        tr.appendChild(el('td', 'k-gri', (a.grupi ? 'Në një grup tjetër' : 'Pa grup') + (kur ? ' · u kyç ' + EKL.kohaRelative(kur) : '')));
+        tr.appendChild(el('td', 'k-gri', (a.grupi ? 'Në një ekipë tjetër' : 'Pa ekipë') + (kur ? ' · u kyç ' + EKL.kohaRelative(kur) : '')));
         var tv = el('td', 'k-av');
         if (pronar) {
           var bt = el('button', 'btn tekst vogel', 'Fto'); bt.type = 'button';
@@ -5513,10 +5513,10 @@
     this.disabled = false;
     if (!r.ok) { toast('Njoftimi s\'u dërgua. Kontrollo internetin dhe provo përsëri.'); return; }
     ta.value = '';
-    toast('Njoftimi u dërgua te krejt grupi' + (r.neRadhe ? ' (sapo të ketë internet).' : '.'));
+    toast('Njoftimi u dërgua te krejt ekipa' + (r.neRadhe ? ' (sapo të ketë internet).' : '.'));
   });
-  [['ekAdminPastroChat', 'Të fshihet krejt chat-i?', 'Krejt mesazhet e chat-it fshihen për krejt grupin. S\'kthehen më.', function () { return ekK.pastroChatin(); }],
-   ['ekAdminPastroAkt', 'Të fshihet krejt aktiviteti?', 'Krejt historiku i aktivitetit fshihet për krejt grupin. Afatet s\'preken.', function () { return ekK.pastroAktivitetin(); }]].forEach(function (x) {
+  [['ekAdminPastroChat', 'Të fshihet krejt chat-i?', 'Krejt mesazhet e chat-it fshihen për krejt ekipën. S\'kthehen më.', function () { return ekK.pastroChatin(); }],
+   ['ekAdminPastroAkt', 'Të fshihet krejt aktiviteti?', 'Krejt historiku i aktivitetit fshihet për krejt ekipën. Afatet s\'preken.', function () { return ekK.pastroAktivitetin(); }]].forEach(function (x) {
     $(x[0]).addEventListener('click', async function () {
       var b = this;
       var po = await konfirmo(x[1], x[2], 'Fshij krejt');
@@ -5592,12 +5592,12 @@
 
   // ---- Pronari i grupit: heq një anëtar ----
   async function ekHiqNgaEkipa(a) {
-    var po = await konfirmo('Të hiqet nga grupi?', a.emri + ' s\'do ta shohë më grupin (afatet e kolegëve, aktivitetin, chat-in) derisa ta ftosh sërish. Stoku dhe afatet e tij s\'preken.', 'Hiqe');
+    var po = await konfirmo('Të hiqet nga ekipa?', a.emri + ' s\'do ta shohë më ekipën (afatet e kolegëve, aktivitetin, chat-in) derisa ta ftosh sërish. Stoku dhe afatet e tij s\'preken.', 'Hiqe');
     if (!po) return;
     var r = await ekK.hiqNgaEkipa(a);
     if (!r.ok) { toast('S\'u hoq. Kontrollo internetin dhe provo përsëri.'); return; }
     if (ekV.anetari === a.uid) ekV.anetari = 'krejt';
-    toast(a.emri + ' u hoq nga grupi.');
+    toast(a.emri + ' u hoq nga ekipa.');
   }
   // Administratori: fshirja e plotë e një llogarie (stoku, afatet, profili; llogaria e hyrjes fshihet kur ai e hap Stoku-n)
   async function ekFshijLlogarine(a) {

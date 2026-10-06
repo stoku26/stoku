@@ -707,7 +707,7 @@
   .ek-kart.mire { color: var(--af-gjelber-tx); background: var(--af-gjelber-bg); border-color: transparent; font-size: 14px; font-weight: 700; }
   /* Administratori */
   .ek-admin-njoftim { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 10px; }
-  /* Grupet (v164) */
+  /* Ekipat (v164) */
   .ek-grupi-karta { display: flex; align-items: center; gap: 12px; margin: 2px 0 12px; padding: 14px 16px; border-radius: 18px;
     background: var(--sb-surface, var(--sfond)); box-shadow: 0 0 0 1px var(--sb-line, var(--vije)); }
   .ek-grupi-karta .tk { flex: 1; min-width: 0; }
@@ -1212,6 +1212,11 @@
             <span class="kat-info"><span class="kat-tekst">Njoftimet</span><span class="kat-status" id="tabNjoftimetStatus"></span></span>
             <span class="shigjeta">›</span>
           </button>
+          <button class="kategori-rresht" type="button" data-faqe="ora" id="tabOra">
+            <span class="kat-ikona-badge ngj-blu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="3"></rect><path d="M9 6l.6-3h4.8L15 6M9 18l.6 3h4.8l.6-3"></path><path d="M12 10v2.2l1.4 1"></path></svg></span>
+            <span class="kat-info"><span class="kat-tekst">Ora dhe aplikacioni</span><span class="kat-status" id="tabOraStatus">Lidh orën · Stoku për Android</span></span>
+            <span class="shigjeta">›</span>
+          </button>
           <button class="kategori-rresht" type="button" data-faqe="lista" id="tabLista">
             <span class="kat-ikona-badge ngj-portokalli"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 4 4 4-4M7 20V4M21 8l-4-4-4 4M17 4v16"></path></svg></span>
             <span class="kat-info"><span class="kat-tekst" id="tabListaTxt"></span><span class="kat-status" id="tabListaStatus"></span></span>
@@ -1313,12 +1318,6 @@
             </div>
             <div class="hint" id="njProveHint"></div>
           </div>
-          <!-- Aplikacioni Android (tel/): në Chrome Android ofrohet shkarkimi, brenda aplikacionit versioni + përditësimi -->
-          <div class="seksion ops-karta" id="njAndroidKarta" hidden>
-            <div class="ops-fusha-titull"><span class="kat-ikona-badge ngj-gjelber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"></rect><path d="M11 18h2"></path></svg></span><span id="njAndroidTitulli">Aplikacioni Stoku për Android</span></div>
-            <div class="hint" id="njAndroidTekst"></div>
-            <div class="rreshti" style="margin-top:10px"><button class="btn" id="njAndroidBtn" type="button">Shkarko aplikacionin</button></div>
-          </div>
           <div class="ops-grupi-titull">Njoftimi ditor për afatet</div>
           <div class="ops-grupi">
             <div class="seksion">
@@ -1337,11 +1336,21 @@
             </div>
           </div>
           <div class="nj-serveri" id="njOraServer" role="status" hidden></div>
-          <div class="ops-grupi-titull">Njoftimet në orë</div>
+        </div>
+
+        <div class="opsione-faqe" data-faqe="ora">
+          <div class="ops-intro" id="oraIntro">Ora e dorës (Galaxy Watch, Apple Watch) dhe aplikacioni Stoku për Android.</div>
+          <div class="ops-grupi-titull ops-grupi-titull--pare" id="njAndroidGrupi" hidden>Aplikacioni Android</div>
+          <div class="seksion ops-karta" id="njAndroidKarta" hidden>
+            <div class="ops-fusha-titull"><span class="kat-ikona-badge ngj-gjelber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"></rect><path d="M11 18h2"></path></svg></span><span id="njAndroidTitulli">Aplikacioni Stoku për Android</span></div>
+            <div class="hint" id="njAndroidTekst"></div>
+            <div class="rreshti" style="margin-top:10px"><button class="btn" id="njAndroidBtn" type="button" style="flex:1;white-space:nowrap">Shkarko aplikacionin</button></div>
+          </div>
+          <div class="ops-grupi-titull" id="oraGrupi">Ora e dorës</div>
           <div class="seksion ops-karta ops-ora">
             <div class="ops-ll-krye">
               <span class="kat-ikona-badge ngj-blu ops-ik-madh"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle><path d="M12 10v2l1 1"></path><path d="m16.13 7.66-.81-4.05a2 2 0 0 0-2-1.61h-2.68a2 2 0 0 0-2 1.61l-.78 4.05"></path><path d="m7.88 16.36.8 4a2 2 0 0 0 2 1.61h2.72a2 2 0 0 0 2-1.61l.81-4.05"></path></svg></span>
-              <div class="kat-info"><div class="ops-ll-titull">Njoftimet edhe në orë</div><div class="kat-status">Ora i shfaq vetë njoftimet e telefonit, kur Stoku lejohet.</div></div>
+              <div class="kat-info"><div class="ops-ll-titull">Stoku në orë</div><div class="kat-status">Produktet që skadojnë, heqja nga rafti dhe njoftimet e telefonit, direkt në dorë.</div></div>
             </div>
             <div class="segment ops-ora-zgjedhja" id="segOra" role="tablist">
               <button type="button" data-v="galaxy" role="tab">Galaxy Watch</button>
@@ -1358,8 +1367,8 @@
                 <div class="hint" id="oraLidhHint" role="status"></div>
               </div>
               <ol class="ops-hapat">
-                <li>Instalo aplikacionin <b>Stoku për Android</b> (karta "Aplikacioni Stoku për Android" më lart), ose në Chrome: menyja <b>⋮</b> → <b>Shto në ekranin kryesor</b>.</li>
-                <li>Këtu lart shtyp <b>Aktivizo njoftimet</b> dhe lejoji.</li>
+                <li>Instalo aplikacionin <b>Stoku për Android</b> (më lart në këtë faqe), ose në Chrome: menyja <b>⋮</b> → <b>Shto në ekranin kryesor</b>.</li>
+                <li>Te Cilësimet → <b>Njoftimet</b> shtyp <b>Aktivizo njoftimet</b> dhe lejoji.</li>
                 <li>Hap aplikacionin <b>Galaxy Wearable</b> → <b>Cilësimet e orës</b> → <b>Njoftimet</b> → <b>Njoftimet e aplikacioneve</b> → ndize <b>Stoku</b> (nëse s'del, shtyp "Të gjitha" dhe kërko "Stoku" ose "Chrome").</li>
                 <li>Fike ekranin e telefonit: njoftimet e Stoku-t (chat-i, afatet, kërkesat) dalin edhe në orë.</li>
               </ol>
@@ -1368,7 +1377,7 @@
             <div class="ops-ora-faqe" data-ora="apple">
               <ol class="ops-hapat">
                 <li>Në iPhone hap <b>stoku.site</b> me <b>Safari</b> → butoni <b>Shpërndaj</b> (katrori me shigjetë) → <b>Shto në ekranin bazë</b> (Add to Home Screen). Duhet iOS 16.4 ose më i ri.</li>
-                <li>Hape Stoku <b>nga ikona</b> në ekranin bazë (jo nga Safari), hyr në llogari dhe këtu shtyp <b>Aktivizo njoftimet</b> → <b>Lejo</b>.</li>
+                <li>Hape Stoku <b>nga ikona</b> në ekranin bazë (jo nga Safari), hyr në llogari dhe te Cilësimet → <b>Njoftimet</b> shtyp <b>Aktivizo njoftimet</b> → <b>Lejo</b>.</li>
                 <li>Në iPhone hap aplikacionin <b>Watch</b> → <b>Njoftimet</b> (Notifications) → poshtë te <b>Pasqyro sinjalizimet e iPhone nga</b> (Mirror iPhone Alerts From) → ndize <b>Stoku</b>.</li>
                 <li>Kyçe iPhone-in: njoftimet e Stoku-t (chat-i, afatet, kërkesat) dalin edhe në orë.</li>
               </ol>
@@ -1827,9 +1836,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=163"></script>
-<script src="ekipa.js?v=168"></script>
+<script src="ekipa.js?v=169"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=168"></script>
+<script src="teRejat.js?v=169"></script>
 <script>
 (function () {
   'use strict';
@@ -1970,6 +1979,7 @@
       eErret: 'E errët',
       titTemaTeksti: 'Tema',
       tabNjoftimet: 'Njoftimet',
+      tabOra: 'Ora dhe aplikacioni',
       automatikeHint: '"Automatike" ndjek cilësimin e telefonit.',
       titMadhesiaTeksti: 'Madhësia e shkronjave',
       madhesiaNormaleBtn: 'Normale',
@@ -2947,7 +2957,7 @@
     if (typeof sinkronizoHistorineEDritareve === 'function') sinkronizoHistorineEDritareve();
   }
   var TAB_TITULL_KYC = {
-    pamja: 'tabPamja', skenimi: 'tabSkenimi', njoftimet: 'tabNjoftimet',
+    pamja: 'tabPamja', skenimi: 'tabSkenimi', njoftimet: 'tabNjoftimet', ora: 'tabOra',
     lista: 'tabLista', llogaria: 'tabLlogaria'
   };
   Array.prototype.forEach.call(document.querySelectorAll('#kategoriMenu [data-faqe]'), function (b) {
@@ -3372,21 +3382,22 @@
       rifreskoNjoftimet();
     }).catch(function () { /* ok */ });
   });
-  function hapOpsionet() {
-    $('opsTingull').checked = opsione.tingull;
-    $('opsScanner').checked = opsione.scanner;
-    $('opsPda').checked = opsione.pda;
-    $('opsPaEmer').checked = opsione.paEmer;
-    zbatoPda();
-    $('opsRendi').value = opsione.rendi;
-    rifreskoRenditjen();
-    zbatoTemen();
-    zbatoMadhesine();
-    // ---- Aplikacioni Android: në Chrome Android ofrohet; brenda aplikacionit tregohet versioni dhe kontrolli ----
+  // ---- Aplikacioni Android: në Chrome Android ofrohet; brenda aplikacionit tregohet versioni dhe kontrolli ----
+  // (një herë, jo sa herë hapen Cilësimet: përndryshe butoni merr disa klikime)
   (function () {
-    var A = window.StokuAndroid, android = /Android/i.test(navigator.userAgent || '');
-    if (!A && !android) return;
-    $('njAndroidKarta').hidden = false;
+    var A = window.StokuAndroid, ua = navigator.userAgent || '', android = /Android/i.test(ua);
+    var iphone = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    $('tabOraStatus').textContent = A ? 'Lidh orën · Aplikacioni 1.0.' + (function () { try { return A.versioni(); } catch (e) { return 0; } })()
+      : android ? 'Lidh orën · Shkarko aplikacionin' : iphone ? 'Lidh Apple Watch' : 'Lidh orën';
+    if (!A && !android) {
+      // pa Android: s'ka aplikacion, kategoria është vetëm për orën
+      FJALORI.tabOra = 'Ora e dorës';
+      $('tabOra').querySelector('.kat-tekst').textContent = 'Ora e dorës';
+      $('oraIntro').textContent = 'Lidhe orën e dorës (Apple Watch ose Galaxy Watch) me Stoku-n.';
+      $('oraGrupi').classList.add('ops-grupi-titull--pare');
+      return;
+    }
+    $('njAndroidKarta').hidden = false; $('njAndroidGrupi').hidden = false;
     if (A) {
       var v = 0; try { v = A.versioni(); } catch (e) { /* ok */ }
       $('njAndroidTitulli').textContent = 'Aplikacioni Android · versioni 1.0.' + v;
@@ -3398,7 +3409,17 @@
       $('njAndroidTekst').textContent = 'Stoku si aplikacion: s\'del nga llogaria kur i fshin cookies dhe të dhënat e Chrome-it, dhe njoftimet vijnë menjëherë. Instalohet një herë; versionet e reja i ofron vetë.';
     }
   })();
-  rifreskoDukjenECloud();
+  function hapOpsionet() {
+    $('opsTingull').checked = opsione.tingull;
+    $('opsScanner').checked = opsione.scanner;
+    $('opsPda').checked = opsione.pda;
+    $('opsPaEmer').checked = opsione.paEmer;
+    zbatoPda();
+    $('opsRendi').value = opsione.rendi;
+    rifreskoRenditjen();
+    zbatoTemen();
+    zbatoMadhesine();
+    rifreskoDukjenECloud();
     rifreskoStatusetOpsioneve();
     aktivizoTabin(null);
     $('dlgOpsione').classList.add('hapur');
@@ -6002,7 +6023,7 @@
       if (qasja === 'pa-grup') { vizatoPaGrup(c); return; }
       c.textContent = '';
       c.appendChild(qasja === 'pa-rregulla'
-        ? ekBosh('Grupet s\'janë gati ende', 'Administratori duhet t\'i vendosë rregullat e reja të Firebase-it (Firestore → Rules) për grupet. Stoku dhe afatet e tua punojnë si zakonisht.')
+        ? ekBosh('Ekipa s\'është gati ende', 'Administratori duhet t\'i vendosë rregullat e reja të Firebase-it (Firestore → Rules) për ekipat. Stoku dhe afatet e tua punojnë si zakonisht.')
         : ekInfo('Duke u lidhur me ekipën…'));
       return;
     }
@@ -6043,7 +6064,7 @@
       c.appendChild(lista);
       if ((ekK.eshtePronar() || ekK.eshteAdmin()) && !zgj.uneJam && zgj.uid !== 'krejt') {
         if (ekK.eshtePronar()) {
-          var hq = ekEl('button', 'btn tekst rrezik', 'Hiq ' + zgj.emri + ' nga grupi');
+          var hq = ekEl('button', 'btn tekst rrezik', 'Hiq ' + zgj.emri + ' nga ekipa');
           hq.type = 'button'; hq.style.cssText = 'width:100%;margin-top:14px';
           hq.addEventListener('click', function () { ekHiqNgaEkipa(zgj); });
           c.appendChild(hq);
@@ -6416,7 +6437,7 @@
   }
 
   // ---- Anëtarët ----
-  // ---- Grupet: pa grup (krijo grupin ose prano një ftesë) ----
+  // ---- Ekipat: pa ekipë (krijo ekipën ose prano një ftesë) ----
   function vizatoPaGrup(c) {
     c.textContent = '';
     var ft = ekK.ftesatEMia();
@@ -6424,20 +6445,20 @@
       var hf = ekEl('div', 'af-grup-krye'); hf.appendChild(ekEl('span', null, ft.length === 1 ? 'Ke një ftesë' : 'Ke ' + ft.length + ' ftesa')); c.appendChild(hf);
       ft.forEach(function (f) { c.appendChild(ekFtesaEl(f)); });
     }
-    c.appendChild(ekBosh(ft.length ? 'Ose krijo grupin tënd' : 'Krijo grupin tënd',
-      'Ekipa punon me grupe: secili grup sheh vetëm anëtarët e vet (afatet, aktivitetin, chat-in). Krijo grupin e dyqanit tënd dhe fto shokët, ose prano një ftesë.'));
+    c.appendChild(ekBosh(ft.length ? 'Ose krijo ekipën tënde' : 'Krijo ekipën tënde',
+      'Secila ekipë sheh vetëm anëtarët e vet (afatet, aktivitetin, chat-in). Krijo ekipën e dyqanit tënd dhe fto shokët, ose prano një ftesë.'));
     var f = ekEl('div', 'ek-rresht-forma');
     var inp = ekEl('input'); inp.type = 'text'; inp.id = 'ekGrupiEmri'; inp.maxLength = 60; inp.autocomplete = 'off';
-    inp.placeholder = 'Emri i grupit, p.sh. Market Agimi'; inp.setAttribute('aria-label', 'Emri i grupit të ri'); inp.setAttribute('enterkeyhint', 'done');
+    inp.placeholder = 'Emri i ekipës, p.sh. Market Agimi'; inp.setAttribute('aria-label', 'Emri i ekipës së re'); inp.setAttribute('enterkeyhint', 'done');
     var b = ekEl('button', 'btn', 'Krijo'); b.type = 'button'; b.id = 'ekGrupiKrijo';
     async function krijo() {
       var em = inp.value.trim();
-      if (em.length < 2) { toast('Shkruaj emrin e grupit (të paktën 2 shkronja).'); inp.focus(); return; }
+      if (em.length < 2) { toast('Shkruaj emrin e ekipës (të paktën 2 shkronja).'); inp.focus(); return; }
       b.disabled = true;
       var r = await ekK.krijoGrupin(em);
       b.disabled = false;
-      if (!r.ok) { toast(r.leje ? 'S\'u krijua: rregullat e Firebase-it për grupet s\'janë vendosur ende.' : 'S\'u krijua. Kontrollo internetin dhe provo përsëri.', 5000); return; }
-      toast('Grupi "' + em + '" u krijua. Tash fto shokët te Anëtarët.', 4500);
+      if (!r.ok) { toast(r.leje ? 'S\'u krijua: rregullat e Firebase-it për ekipat s\'janë vendosur ende.' : 'S\'u krijua. Kontrollo internetin dhe provo përsëri.', 5000); return; }
+      toast('Ekipa "' + em + '" u krijua. Tash fto shokët te Anëtarët.', 4500);
       __ekipiAnetari = null;
       ekZgjidhPamjen('anetaret');
     }
@@ -6446,7 +6467,7 @@
     f.appendChild(inp); f.appendChild(b);
     c.appendChild(f);
     var h = ekEl('div', 'ek-grupi-hint');
-    h.appendChild(document.createTextNode('Për t\'u futur në grupin e dikujt tjetër, jepja pronarit të grupit emrin tënd të përdoruesit: '));
+    h.appendChild(document.createTextNode('Për t\'u futur në ekipën e dikujt tjetër, jepja pronarit të ekipës emrin tënd të përdoruesit: '));
     h.appendChild(ekEl('b', null, emriPerdoruesitAktual() || ''));
     h.appendChild(document.createTextNode('. Ftesa del këtu.'));
     c.appendChild(h);
@@ -6454,8 +6475,8 @@
   function ekFtesaEl(f) {
     var bk = ekEl('div', 'ek-pult-kerkesat ek-ftesa');
     var tk = ekEl('div', 'tk');
-    tk.appendChild(ekEl('b', null, f.grupiEmri || 'Grup'));
-    tk.appendChild(document.createTextNode((f.ngaEmri || 'Dikush') + ' të fton në këtë grup' + (f.koha ? ' · ' + EKL.kohaRelative(f.koha) : '') + '.'));
+    tk.appendChild(ekEl('b', null, f.grupiEmri || 'Ekipë'));
+    tk.appendChild(document.createTextNode((f.ngaEmri || 'Dikush') + ' të fton në këtë ekipë' + (f.koha ? ' · ' + EKL.kohaRelative(f.koha) : '') + '.'));
     bk.appendChild(tk);
     var bp = ekEl('button', 'btn', 'Prano'); bp.type = 'button';
     bp.addEventListener('click', function () { ekPranoFtesen(f, bp); });
@@ -6469,43 +6490,43 @@
     return bk;
   }
   function ekTekstiLargimit(m) {
-    return m.arsye === 'pronari-i-vetem' ? 'Je pronari i vetëm i grupit. Bëje dikë tjetër pronar (te Anëtarët) para se të largohesh.'
-      : m.arsye === 'duke-ngarkuar' ? 'Prit pak, po ngarkohen anëtarët e grupit…' : 'S\'mund të largohesh tani.';
+    return m.arsye === 'pronari-i-vetem' ? 'Je pronari i vetëm i ekipës. Bëje dikë tjetër pronar (te Anëtarët) para se të largohesh.'
+      : m.arsye === 'duke-ngarkuar' ? 'Prit pak, po ngarkohen anëtarët e ekipës…' : 'S\'mund të largohesh tani.';
   }
   async function ekPranoFtesen(f, btn) {
     if (ekK.gjendjaEQasjes() === 'ok') {
       var g = ekK.grupiInfo() || {}, m = ekK.mundTeLargohet();
       if (!m.ok) { toast(ekTekstiLargimit(m), 5000); return; }
-      var po = await konfirmo('Të kalosh te grupi "' + (f.grupiEmri || '') + '"?',
-        'Largohesh nga grupi "' + (g.emri || '') + '"' + (m.iFundit ? ' (je anëtari i fundit: grupi fshihet me chat-in dhe aktivitetin)' : '') + '. Stoku dhe afatet e tua s\'preken.', 'Kalo');
+      var po = await konfirmo('Të kalosh te ekipa "' + (f.grupiEmri || '') + '"?',
+        'Largohesh nga ekipa "' + (g.emri || '') + '"' + (m.iFundit ? ' (je anëtari i fundit: ekipa fshihet me chat-in dhe aktivitetin)' : '') + '. Stoku dhe afatet e tua s\'preken.', 'Kalo');
       if (!po) return;
     }
     if (btn) btn.disabled = true;
     var r = await ekK.pranoFtesen(f);
     if (!r.ok) {
       if (btn) btn.disabled = false;
-      toast(r.arsye === 'pronari-i-vetem' || r.arsye === 'duke-ngarkuar' ? ekTekstiLargimit(r) : r.leje || r.arsye === 'ftesa-skadoi' ? 'Kjo ftesë s\'vlen më (u anulua ose grupi u fshi).' : 'S\'u pranua. Kontrollo internetin dhe provo përsëri.', 5000);
+      toast(r.arsye === 'pronari-i-vetem' || r.arsye === 'duke-ngarkuar' ? ekTekstiLargimit(r) : r.leje || r.arsye === 'ftesa-skadoi' ? 'Kjo ftesë s\'vlen më (u anulua ose ekipa u fshi).' : 'S\'u pranua. Kontrollo internetin dhe provo përsëri.', 5000);
       return;
     }
-    toast('U bashkove me grupin "' + (f.grupiEmri || '') + '".');
+    toast('U bashkove me ekipën "' + (f.grupiEmri || '') + '".');
     __ekipiAnetari = null;
     ekZgjidhPamjen('anetaret');
   }
   async function ekLargohu() {
     var g = ekK.grupiInfo() || {}, m = ekK.mundTeLargohet();
     if (!m.ok) { toast(ekTekstiLargimit(m), 5000); return; }
-    var po = await konfirmo('Të largohesh nga grupi "' + (g.emri || '') + '"?',
-      m.iFundit ? 'Je anëtari i fundit: grupi fshihet komplet (chat-i, aktiviteti). Stoku dhe afatet e tua s\'preken.'
-        : 'S\'do t\'i shohësh më kolegët, aktivitetin dhe chat-in e këtij grupi. Stoku dhe afatet e tua s\'preken.', 'Largohu');
+    var po = await konfirmo('Të largohesh nga ekipa "' + (g.emri || '') + '"?',
+      m.iFundit ? 'Je anëtari i fundit: ekipa fshihet komplet (chat-i, aktiviteti). Stoku dhe afatet e tua s\'preken.'
+        : 'S\'do t\'i shohësh më kolegët, aktivitetin dhe chat-in e kësaj ekipe. Stoku dhe afatet e tua s\'preken.', 'Largohu');
     if (!po) return;
     var r = await ekK.largohuNgaGrupi();
     if (!r.ok) { toast(r.arsye ? ekTekstiLargimit(r) : 'S\'u largove. Kontrollo internetin dhe provo përsëri.', 5000); return; }
-    toast('U largove nga grupi "' + (g.emri || '') + '".');
+    toast('U largove nga ekipa "' + (g.emri || '') + '".');
   }
   var ekRiemertim = false;
   function tekstiGabimitTeFtesa(r) {
     return r.arsye === 'emri' ? 'Emri i përdoruesit: 3–40 shkronja/numra (a–z, 0–9, _ . -).'
-      : r.arsye === 'vetja' ? 'Ky është emri yt.' : r.arsye === 'anetar' ? 'Ky përdorues është tashmë në grup.'
+      : r.arsye === 'vetja' ? 'Ky është emri yt.' : r.arsye === 'anetar' ? 'Ky përdorues është tashmë në ekipë.'
       : r.arsye === 'e-ftuar' ? 'Ky përdorues është ftuar tashmë.' : 'Ftesa s\'u dërgua. Kontrollo internetin dhe provo përsëri.';
   }
 
@@ -6516,14 +6537,15 @@
     var pronar = ekK.eshtePronar();
     var ft = ekK.ftesatEMia();
     if (ft.length) {
-      var hf = ekEl('div', 'af-grup-krye'); hf.appendChild(ekEl('span', null, 'Ftesë për një grup tjetër')); c.appendChild(hf);
+      var hf = ekEl('div', 'af-grup-krye'); hf.appendChild(ekEl('span', null, 'Ftesë për një ekipë tjetër')); c.appendChild(hf);
       ft.forEach(function (f) { c.appendChild(ekFtesaEl(f)); });
     }
-    // Karta e grupit (pronari e riemërton)
+    // Karta e ekipës (pronari e riemërton)
+    var hk = ekEl('div', 'af-grup-krye'); hk.appendChild(ekEl('span', null, 'Ekipa jote')); c.appendChild(hk);
     var kg = ekEl('div', 'ek-grupi-karta');
     if (pronar && ekRiemertim) {
       var fr = ekEl('div', 'ek-rresht-forma'); fr.style.cssText = 'flex:1;margin:0';
-      var ir = ekEl('input'); ir.type = 'text'; ir.id = 'ekGrupiEmriRi'; ir.maxLength = 60; ir.value = g.emri || ''; ir.setAttribute('aria-label', 'Emri i ri i grupit');
+      var ir = ekEl('input'); ir.type = 'text'; ir.id = 'ekGrupiEmriRi'; ir.maxLength = 60; ir.value = g.emri || ''; ir.setAttribute('aria-label', 'Emri i ri i ekipës');
       var bs = ekEl('button', 'btn', 'Ruaj'); bs.type = 'button';
       var ruaj = async function () {
         var em = ir.value.trim();
@@ -6540,8 +6562,8 @@
       setTimeout(function () { ir.focus(); }, 30);
     } else {
       var tg = ekEl('div', 'tk');
-      tg.appendChild(ekEl('b', null, g.emri || 'Grupi'));
-      tg.appendChild(ekEl('span', null, (pronar ? 'Ti je pronar i grupit' : 'Anëtar i grupit') + ' · ' + anetaret.length + (anetaret.length === 1 ? ' anëtar' : ' anëtarë')));
+      tg.appendChild(ekEl('b', null, g.emri || 'Ekipa'));
+      tg.appendChild(ekEl('span', null, (pronar ? 'Ti je pronar i ekipës' : 'Anëtar i ekipës') + ' · ' + anetaret.length + (anetaret.length === 1 ? ' anëtar' : ' anëtarë')));
       kg.appendChild(tg);
       if (pronar) {
         var br = ekEl('button', 'af-pill', 'Ndrysho emrin'); br.type = 'button';
@@ -6552,7 +6574,7 @@
     c.appendChild(kg);
     // Pronari: fto shokët
     if (pronar) {
-      var hi = ekEl('div', 'af-grup-krye'); hi.appendChild(ekEl('span', null, 'Fto një shok në grup')); c.appendChild(hi);
+      var hi = ekEl('div', 'af-grup-krye'); hi.appendChild(ekEl('span', null, 'Fto një shok në ekipë')); c.appendChild(hi);
       var ff = ekEl('div', 'ek-rresht-forma');
       var ie = ekEl('input'); ie.type = 'text'; ie.id = 'ekFtoEmri'; ie.maxLength = 40; ie.autocomplete = 'off';
       ie.setAttribute('autocapitalize', 'none'); ie.setAttribute('autocorrect', 'off'); ie.spellcheck = false; ie.setAttribute('enterkeyhint', 'send');
@@ -6571,7 +6593,7 @@
       bf.addEventListener('click', fto);
       ie.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); fto(); } });
       ff.appendChild(ie); ff.appendChild(bf); c.appendChild(ff);
-      c.appendChild(ekEl('div', 'ek-grupi-hint', 'Shkruaj emrin e përdoruesit me të cilin shoku hyn në Stoku. Ai e sheh ftesën te Ekipa dhe e pranon. Pa ftesë askush s\'e sheh grupin.'));
+      c.appendChild(ekEl('div', 'ek-grupi-hint', 'Shkruaj emrin e përdoruesit me të cilin shoku hyn në Stoku. Ai e sheh ftesën te Ekipa dhe e pranon. Pa ftesë askush s\'e sheh ekipën.'));
       var fe = ekK.ftesatEGrupit();
       if (fe.length) {
         var hp = ekEl('div', 'af-grup-krye'); hp.appendChild(ekEl('span', null, 'Ftesa në pritje (' + fe.length + ')')); c.appendChild(hp);
@@ -6616,17 +6638,17 @@
     });
     if (pronar) vizatoPanelinEPronarit(c, anetaret);
     if (ekK.eshteAdmin()) vizatoLlogariteETjera(c);
-    var bl = ekEl('button', 'btn tekst rrezik', 'Largohu nga grupi'); bl.type = 'button'; bl.id = 'ekLargohu'; bl.style.cssText = 'width:100%;margin-top:18px';
+    var bl = ekEl('button', 'btn tekst rrezik', 'Largohu nga ekipa'); bl.type = 'button'; bl.id = 'ekLargohu'; bl.style.cssText = 'width:100%;margin-top:18px';
     bl.addEventListener('click', ekLargohu);
     c.appendChild(bl);
   }
 
   // ---- Paneli i pronarit të grupit (te Anëtarët) ----
   function vizatoPanelinEPronarit(c, anetaret) {
-    var h = ekEl('div', 'af-grup-krye'); h.appendChild(ekEl('span', null, 'Njoftim për krejt grupin')); c.appendChild(h);
+    var h = ekEl('div', 'af-grup-krye'); h.appendChild(ekEl('span', null, 'Njoftim për krejt ekipën')); c.appendChild(h);
     var nj = ekEl('div', 'ek-admin-njoftim');
     var ta = ekEl('textarea'); ta.id = 'ekAdminTekst'; ta.maxLength = 1000; ta.placeholder = 'Shkruaj njoftimin (i del secilit te zilja)';
-    var bd = ekEl('button', 'btn', 'Dërgo te krejt grupi'); bd.type = 'button';
+    var bd = ekEl('button', 'btn', 'Dërgo te krejt ekipa'); bd.type = 'button';
     bd.addEventListener('click', async function () {
       var t = ta.value.trim();
       if (!t) { ta.focus(); return; }
@@ -6635,7 +6657,7 @@
       bd.disabled = false;
       if (!r.ok) { toast('Njoftimi s\'u dërgua. Kontrollo internetin dhe provo përsëri.', 4000); return; }
       ta.value = '';
-      toast('Njoftimi u dërgua te krejt grupi' + (r.neRadhe ? ' (sapo të ketë internet).' : '.'));
+      toast('Njoftimi u dërgua te krejt ekipa' + (r.neRadhe ? ' (sapo të ketë internet).' : '.'));
     });
     nj.appendChild(ta); nj.appendChild(bd);
     c.appendChild(nj);
@@ -6669,15 +6691,15 @@
       m.appendChild(ekEl('div', 'kodi', a.pronar ? 'Pronar' : EKL.tekstiPranise(a)));
       r.appendChild(m);
       var bp = ekEl('button', 'af-pill', a.pronar ? 'Hiq pronarin' : 'Bëje pronar'); bp.type = 'button';
-      bp.title = a.pronar ? a.emri + ' mbetet anëtar i thjeshtë' : a.emri + ' mund të ftojë dhe të menaxhojë grupin';
+      bp.title = a.pronar ? a.emri + ' mbetet anëtar i thjeshtë' : a.emri + ' mund të ftojë dhe të menaxhojë ekipën';
       bp.addEventListener('click', async function () {
         bp.disabled = true;
         var x = await ekK.ndryshoRolin(a, a.pronar ? 'anetar' : 'pronar');
         bp.disabled = false;
-        if (!x.ok) toast(x.arsye === 'pronari-i-vetem' ? 'Grupi duhet të ketë të paktën një pronar.' : 'S\'u ndryshua. Kontrollo internetin.', 4000);
+        if (!x.ok) toast(x.arsye === 'pronari-i-vetem' ? 'Ekipa duhet të ketë të paktën një pronar.' : 'S\'u ndryshua. Kontrollo internetin.', 4000);
       });
       r.appendChild(bp);
-      var bh = ekEl('button', 'af-pill', 'Hiq'); bh.type = 'button'; bh.title = 'Hiq ' + a.emri + ' nga grupi';
+      var bh = ekEl('button', 'af-pill', 'Hiq'); bh.type = 'button'; bh.title = 'Hiq ' + a.emri + ' nga ekipa';
       bh.addEventListener('click', function () { ekHiqNgaEkipa(a, true); });
       r.appendChild(bh);
       if (ekK.eshteAdmin() && !a.admin) {
@@ -6688,8 +6710,8 @@
       c.appendChild(r);
     });
     var hp = ekEl('div', 'af-grup-krye'); hp.appendChild(ekEl('span', null, 'Pastrimi')); c.appendChild(hp);
-    [['Pastro krejt chat-in', 'Të fshihet krejt chat-i?', 'Krejt mesazhet e chat-it fshihen për krejt grupin. S\'kthehen më.', function () { return ekK.pastroChatin(); }],
-     ['Pastro krejt aktivitetin', 'Të fshihet krejt aktiviteti?', 'Krejt historiku i aktivitetit fshihet për krejt grupin. Afatet s\'preken.', function () { return ekK.pastroAktivitetin(); }]].forEach(function (x) {
+    [['Pastro krejt chat-in', 'Të fshihet krejt chat-i?', 'Krejt mesazhet e chat-it fshihen për krejt ekipën. S\'kthehen më.', function () { return ekK.pastroChatin(); }],
+     ['Pastro krejt aktivitetin', 'Të fshihet krejt aktiviteti?', 'Krejt historiku i aktivitetit fshihet për krejt ekipën. Afatet s\'preken.', function () { return ekK.pastroAktivitetin(); }]].forEach(function (x) {
       var b = ekEl('button', 'btn tekst rrezik', x[0]); b.type = 'button'; b.style.cssText = 'width:100%';
       b.addEventListener('click', async function () {
         var po = await konfirmo(x[1], x[2], 'Fshij krejt');
@@ -6715,7 +6737,7 @@
       var m = ekEl('div', 'majtas');
       m.appendChild(ekEl('div', 'emri', a.emri));
       var kur = a.kycurSe || a.aktivSe;
-      m.appendChild(ekEl('div', 'kodi', (a.grupi ? 'Në një grup tjetër' : 'Pa grup') + (kur ? ' · u kyç ' + EKL.kohaRelative(kur) : '')));
+      m.appendChild(ekEl('div', 'kodi', (a.grupi ? 'Në një ekipë tjetër' : 'Pa ekipë') + (kur ? ' · u kyç ' + EKL.kohaRelative(kur) : '')));
       r.appendChild(m);
       if (ekK.eshtePronar()) {
         var bt = ekEl('button', 'af-pill', 'Fto'); bt.type = 'button';
@@ -6818,12 +6840,12 @@
 
   // ---- Pronari i grupit: heq një anëtar ----
   async function ekHiqNgaEkipa(a, qendro) {
-    var po = await konfirmo('Të hiqet nga grupi?', a.emri + ' s\'do ta shohë më grupin (afatet e kolegëve, aktivitetin, chat-in) derisa ta ftosh sërish. Stoku dhe afatet e tij s\'preken.', 'Hiqe');
+    var po = await konfirmo('Të hiqet nga ekipa?', a.emri + ' s\'do ta shohë më ekipën (afatet e kolegëve, aktivitetin, chat-in) derisa ta ftosh sërish. Stoku dhe afatet e tij s\'preken.', 'Hiqe');
     if (!po) return;
     var r = await ekK.hiqNgaEkipa(a);
     if (!r.ok) { toast('S\'u hoq. Kontrollo internetin dhe provo përsëri.', 4000); return; }
     if (!qendro) ekipiKthehuTeKartat();
-    toast(a.emri + ' u hoq nga grupi.');
+    toast(a.emri + ' u hoq nga ekipa.');
   }
   // Administratori: fshirja e plotë e një llogarie (stoku, afatet, profili; llogaria e hyrjes fshihet kur ai e hap Stoku-n)
   async function ekFshijLlogarine(a) {
