@@ -1473,8 +1473,8 @@
         gj.ftesatEMia = lista.filter(function (f) { return f.gid && f.gid !== gj.grupi; }).sort(function (a, b) { return (b.koha || 0) - (a.koha || 0); });
         gj.ftesatEMia.forEach(function (f) {
           if ((Date.now() - (f.koha || 0)) > 7 * 86400000 || uNjoftua('ft:' + f.id + ':' + (f.koha || 0)) || !o.njofto) return;
-          o.njofto({ titulli: 'Stoku · Ftesë në grup', tag: 'ek-ft-' + f.id, pamja: 'anetaret',
-            teksti: (f.ngaEmri || 'Dikush') + ' të fton në grupin "' + (f.grupiEmri || 'pa emër') + '". Hape Ekipën për ta pranuar.' });
+          o.njofto({ titulli: 'Stoku · Ftesë në ekipë', tag: 'ek-ft-' + f.id, pamja: 'anetaret',
+            teksti: (f.ngaEmri || 'Dikush') + ' të fton në ekipën "' + (f.grupiEmri || 'pa emër') + '". Hape Ekipën për ta pranuar.' });
         });
         thirr('ftesat');
       }, function () { gj.ftesatEMia = []; thirr('ftesat'); });

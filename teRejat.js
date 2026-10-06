@@ -18,23 +18,28 @@
   'use strict';
 
   var LISTA = [
+    { v: 169, versioni: '1.10.0', data: '2026-10-07', titulli: 'Cilësimet e orës dhe Ekipa më e qartë', pikat: [
+      'Te Cilësimet ka kategori të re "Ora dhe aplikacioni" (në iPhone "Ora e dorës"): aty e lidh orën dhe, në Android, e shkarkon aplikacionin Stoku. Njoftimet tash kanë vetëm njoftimet.',
+      'Ekipa tash është një gjë e vetme: s\'ka më "grup". Te Ekipa → Anëtarët e sheh ekipën tënde, i fton shokët dhe largohesh.',
+      'Ora: Cilësimet e reja në orë, me "Kontrollo për përditësim" dhe "Përditëso tani" direkt nga ora.'
+    ] },
     { v: 168, versioni: '1.9.1', data: '2026-10-07', titulli: 'Ora e dorës dhe rregullime', pikat: [
       'Kudo në Stoku (telefon, kompjuter, aplikacioni Android dhe ora) tash shkruan "ora" në vend të "sahat".',
       'Ora: produktet që kanë skaduar dalin të parat, me butonin "Hiqi krejt nga rafti".',
       'Aplikacioni Android: njoftimi i prekur hap direkt chat-in ose afatet, pa e ringarkuar Stoku-n.'
     ] },
     { v: 167, versioni: '1.9.0', data: '2026-10-06', titulli: 'Stoku si aplikacion Android', pikat: [
-      'Aplikacioni i ri Stoku për Android: s\'del nga llogaria kur i fshin cookies dhe të dhënat e Chrome-it, dhe njoftimet vijnë menjëherë. Shkarkohet te Cilësimet → Njoftimet → "Shkarko aplikacionin".',
+      'Aplikacioni i ri Stoku për Android: s\'del nga llogaria kur i fshin cookies dhe të dhënat e Chrome-it, dhe njoftimet vijnë menjëherë. Shkarkohet te Cilësimet → Ora dhe aplikacioni → "Shkarko aplikacionin".',
       'Çdo përmirësim i Stoku-t del njëkohësisht në telefon, kompjuter dhe aplikacion. Kur del version i ri i vetë aplikacionit (edhe në orë), të pyet vetë "Përditëso".'
     ] },
     { v: 166, versioni: '1.8.2', data: '2026-10-06', titulli: 'Cilësimet e llogarisë më të thjeshta', pikat: [
       'U hoq opsioni "Mos dil kur i fshin të dhënat" te Cilësimet → Llogaria.'
     ] },
-    { v: 164, versioni: '1.8.0', data: '2026-10-06', titulli: 'Grupet te Ekipa', pikat: [
-      'Ekipa tash punon me grupe: krijo grupin tënd dhe fto shokët me emrin e tyre të përdoruesit. Vetëm anëtarët e një grupi e shohin njëri-tjetrin, chat-in, aktivitetin dhe kërkesat.',
-      'Kush sapo është regjistruar s\'sheh askënd derisa ta krijojë një grup ose ta pranojë një ftesë.',
-      'Pronari i grupit fton dhe heq anëtarë, ia ndërron emrin grupit dhe mund ta bëjë edhe dikë tjetër pronar.',
-      'Ekipa e deritanishme vazhdon si grupi "Ekipa", me anëtarët dhe historikun e vet.'
+    { v: 164, versioni: '1.8.0', data: '2026-10-06', titulli: 'Ekipa me ftesa', pikat: [
+      'Ekipa tash është me ftesa: krijo ekipën tënde dhe fto shokët me emrin e tyre të përdoruesit. Vetëm anëtarët e një ekipe e shohin njëri-tjetrin, chat-in, aktivitetin dhe kërkesat.',
+      'Kush sapo është regjistruar s\'sheh askënd derisa ta krijojë një ekipë ose ta pranojë një ftesë.',
+      'Pronari i ekipës fton dhe heq anëtarë, ia ndërron emrin ekipës dhe mund ta bëjë edhe dikë tjetër pronar.',
+      'Ekipa e deritanishme vazhdon si ekipa "Ekipa", me anëtarët dhe historikun e vet.'
     ] },
     { v: 163, versioni: '1.7.0', data: '2026-10-06', titulli: 'Excel sipas furnizuesit dhe hyrje që mbetet', pikat: [
       'Te Afatet → Eksporto Excel mund të zgjedhësh vetëm një furnizues: në skedar dalin vetëm afatet e tij.',
