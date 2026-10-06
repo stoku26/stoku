@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <cache-path name="ndarje" path="ndarje/" />
+    <cache-path name="foto" path="foto/" />
+    <cache-path name="perditesim" path="perditesim/" />
+</paths>
