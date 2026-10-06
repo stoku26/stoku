@@ -50,6 +50,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **"SAHAT" → "ORA" + KONTROLL I PLOTË (v168 = 1.9.1)**: përdoruesi s'e do fjalën "sahat" (krahinore); kudo (web
+   tel/PC, teRejat, ora/, worker, README, SHENIME) u zëvendësua sipas gramatikës: sahati → ora, sahatin → orën, sahatit →
+   orës, sahat → orë (p.sh. "Lidh orën", "Shkëput orën", "Stoku në orë"). MOS e përdor më "sahat" në asnjë tekst.
+   - Android: `onNewIntent` → `window.__stokuHapNgaNjoftimi(hash)` (index.html) hap chat-in/afatet pa ringarkim; kontrolli i
+     versionit edhe në `onResume` (6 orë); fotot e përkohshme të kamerës fshihen pas 1 dite. Udhëzimi i orës (Galaxy) tregon
+     aplikacionin Android si hapin e parë.
+   - Kontrolli: regresioni + testet e vjetra + zvarritësi (çdo buton, tel/PC, temë e çelët/e errët) + offline (SW v168).
+     Testet e vjetruara (para grupeve/dizajnit të ri, s'janë gabime): `ekipa-admin-paemri-test.js`,
+     `kerkesat-v115-paemri.js`, `fshirja-v116-paemri.js`, `v133.js` (KPI), `sw-root.js` (#logoSlika), `flete.js` (s'është test).
 0000000. **SAHATI: TË SKADUARAT NË KRYE (ora, pa ndryshim në web)**: lista e orës tash fillon me "KANË SKADUAR" (të kuqe),
    pastaj "SKADOJNË SOT", "KËTË JAVË"; titulli "PËR T'U HEQUR · n" (sot + të skaduara). Detaji i të skaduarës: "Skadoi më
    dd.MM" + "✓ E hoqa nga rafti"; me 2+ të skaduara chip "Hiqi krejt nga rafti" → konfirmim (`Pamja.HiqKrejt`, `/ora/hiq` për
