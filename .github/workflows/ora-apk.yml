@@ -1,4 +1,4 @@
-# Ndërton aplikacionin Stoku për sahat (Wear OS, Galaxy Watch) dhe e vendos APK-në si "artifact"
+# Ndërton aplikacionin Stoku për orë (Wear OS, Galaxy Watch) dhe e vendos APK-në si "artifact"
 # dhe, në main, si Release (shkarkohet nga faqja e Releases në GitHub).
 name: Stoku Ora APK
 
@@ -37,6 +37,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ora-v${{ github.run_number }}
-          name: Stoku për sahat ${{ github.run_number }}
+          name: Stoku për orë ${{ github.run_number }}
           body: Aplikacioni Stoku për Galaxy Watch (Wear OS). Instalimi përshkruhet te ora/README.md.
           files: stoku-ora-${{ github.run_number }}.apk

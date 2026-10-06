@@ -414,7 +414,7 @@
     // ngaPC: kompjuteri s'ka orar vetë, por ia dërgon serverit afatet e reja që njoftimi ditor i telefonit të jetë i saktë
     // edhe kur produktet ndryshohen vetëm në kompjuter (serveri i ruan vetëm nëse ka orar në ndonjë pajisje).
     // Pa orar në këtë pajisje dërgohet me "vetemMeOrar": serveri e ruan vetëm kur përdoruesi ka orar në ndonjë pajisje
-    // ose sahat të lidhur (kështu lista e sahatit/njoftimit ditor mbetet e saktë nga çdo pajisje).
+    // ose orë të lidhur (kështu lista e orës/njoftimit ditor mbetet e saktë nga çdo pajisje).
     async function dergoAfatetPerOrarin(afatet) {
       var o = orariIm();
       if (!uid()) return { ok: false, arsye: 'pa-hyrje' };
@@ -422,7 +422,7 @@
       var l = (afatet || []).filter(function (a) { return a && a.statusi !== 'hequr' && /^\d{4}-\d{2}-\d{2}$/.test(a.data || ''); })
         .map(function (a) { var x = { i: String(a.id || '').slice(0, 60), e: String(a.emri || '').slice(0, 120), b: String(a.barkodi || '').slice(0, 40), d: a.data }; if (typeof a.sasia === 'number') x.s = a.sasia; return x; });
       var h = hashTekst(JSON.stringify(l)), ruajtur = lexoLS(KEY_ORARI_AFATET);
-      // Serveri tha para pak që s'ka as orar as sahat: s'pyetet sërish për 10 min
+      // Serveri tha para pak që s'ka as orar as orë: s'pyetet sërish për 10 min
       if (vetemMeOrar && ruajtur && ruajtur.uid === uid() && ruajtur.paOrar && Date.now() - ruajtur.koha < 600000) return { ok: true, paOrar: true };
       if (ruajtur && ruajtur.uid === uid() && ruajtur.h === h && Date.now() - ruajtur.koha < 86400000) return { ok: true, pandryshuar: true };
       try {
@@ -433,11 +433,11 @@
       } catch (e) { return { ok: false, arsye: 'rrjeti' }; }
     }
 
-    // ---------- Sahati (Galaxy Watch): lidhja me kod dhe heqjet e bëra nga sahati ----------
+    // ---------- Ora (Galaxy Watch): lidhja me kod dhe heqjet e bëra nga ora ----------
     async function lidhOren(kodi) {
       if (!uid()) return { ok: false, arsye: 'pa-hyrje' };
       try {
-        // rt: që sahati të mund t'i dërgojë kërkesa ekipës në emrin tënd (sipas rregullave të Firestore)
+        // rt: që ora të mund t'i dërgojë kërkesa ekipës në emrin tënd (sipas rregullave të Firestore)
         var r = await thirrOrarin({ kodi: String(kodi || '').replace(/\D/g, ''), emri: emri(), rt: auth.currentUser.refreshToken || '' }, '/ora/lidh');
         if (r && r.ok) shkruajLS(KEY_ORARI_AFATET, null); // lista e afateve i dërgohet menjëherë serverit
         return r;

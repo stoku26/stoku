@@ -18,9 +18,14 @@
   'use strict';
 
   var LISTA = [
+    { v: 168, versioni: '1.9.1', data: '2026-10-07', titulli: 'Ora e dorës dhe rregullime', pikat: [
+      'Kudo në Stoku (telefon, kompjuter, aplikacioni Android dhe ora) tash shkruan "ora" në vend të "sahat".',
+      'Ora: produktet që kanë skaduar dalin të parat, me butonin "Hiqi krejt nga rafti".',
+      'Aplikacioni Android: njoftimi i prekur hap direkt chat-in ose afatet, pa e ringarkuar Stoku-n.'
+    ] },
     { v: 167, versioni: '1.9.0', data: '2026-10-06', titulli: 'Stoku si aplikacion Android', pikat: [
       'Aplikacioni i ri Stoku për Android: s\'del nga llogaria kur i fshin cookies dhe të dhënat e Chrome-it, dhe njoftimet vijnë menjëherë. Shkarkohet te Cilësimet → Njoftimet → "Shkarko aplikacionin".',
-      'Çdo përmirësim i Stoku-t del njëkohësisht në telefon, kompjuter dhe aplikacion. Kur del version i ri i vetë aplikacionit (edhe në sahat), të pyet vetë "Përditëso".'
+      'Çdo përmirësim i Stoku-t del njëkohësisht në telefon, kompjuter dhe aplikacion. Kur del version i ri i vetë aplikacionit (edhe në orë), të pyet vetë "Përditëso".'
     ] },
     { v: 166, versioni: '1.8.2', data: '2026-10-06', titulli: 'Cilësimet e llogarisë më të thjeshta', pikat: [
       'U hoq opsioni "Mos dil kur i fshin të dhënat" te Cilësimet → Llogaria.'
@@ -36,19 +41,19 @@
       'Kur e fshin historinë dhe të dhënat e shfletuesit, Stoku hyn vetë me fjalëkalimin e ruajtur në Chrome (ose të pyet me një prekje). Në iPhone, Keychain e plotëson vetë emrin dhe fjalëkalimin.',
       'iPhone (Safari): shiriti me tabe poshtë rri tash sa më poshtë.'
     ] },
-    { v: 162, versioni: '1.6.0', data: '2026-10-06', titulli: 'Kërkesa te ekipa nga sahati', pikat: [
-      'Nga sahati mund t\'i kërkosh një kolegu (ose krejt ekipës) ta heqë një produkt nga rafti; ai merr njoftim si nga telefoni.',
-      'Në sahat dalin edhe produktet që kanë skaduar, jo vetëm ato të sotme.',
-      'Ikona e re e Stoku-t në sahat. Sahatin e lidhur më herët lidhe edhe një herë me kodin, që të mund të dërgojë kërkesa.'
+    { v: 162, versioni: '1.6.0', data: '2026-10-06', titulli: 'Kërkesa te ekipa nga ora', pikat: [
+      'Nga ora mund t\'i kërkosh një kolegu (ose krejt ekipës) ta heqë një produkt nga rafti; ai merr njoftim si nga telefoni.',
+      'Në orë dalin edhe produktet që kanë skaduar, jo vetëm ato të sotme.',
+      'Ikona e re e Stoku-t në orë. Orën e lidhur më herët lidhe edhe një herë me kodin, që të mund të dërgojë kërkesa.'
     ] },
-    { v: 161, versioni: '1.5.1', data: '2026-10-02', titulli: 'Ikona e sahatit më e qartë', platforma: 'tel', pikat: [
-      'Ikona e Stoku-t në sahat tash është e verdhë, që të duket mirë mbi sfondin e zi të Galaxy Watch.',
-      'Kur serveri s\'është përditësuar, "Lidh sahatin" e thotë qartë këtë.'
+    { v: 161, versioni: '1.5.1', data: '2026-10-02', titulli: 'Ikona e orës më e qartë', platforma: 'tel', pikat: [
+      'Ikona e Stoku-t në orë tash është e verdhë, që të duket mirë mbi sfondin e zi të Galaxy Watch.',
+      'Kur serveri s\'është përditësuar, "Lidh orën" e thotë qartë këtë.'
     ] },
-    { v: 160, versioni: '1.5.0', data: '2026-10-02', titulli: 'Stoku në sahat (Galaxy Watch)', pikat: [
-      'Aplikacioni i ri Stoku për Galaxy Watch: në sahat sheh produktet që skadojnë sot, me tile dhe numër në fytyrën e orës.',
-      'Lidhja: hape Stoku në sahat dhe shkruaje kodin te Cilësimet → Njoftimet → Galaxy Watch → Lidh sahatin.',
-      'Kur e shënon një produkt "u hoq" në sahat, shënohet vetë edhe këtu sapo e hap Stoku-n.'
+    { v: 160, versioni: '1.5.0', data: '2026-10-02', titulli: 'Stoku në orë (Galaxy Watch)', pikat: [
+      'Aplikacioni i ri Stoku për Galaxy Watch: në orë sheh produktet që skadojnë sot, me tile dhe numër në fytyrën e orës.',
+      'Lidhja: hape Stoku në orë dhe shkruaje kodin te Cilësimet → Njoftimet → Galaxy Watch → Lidh orën.',
+      'Kur e shënon një produkt "u hoq" në orë, shënohet vetë edhe këtu sapo e hap Stoku-n.'
     ] },
     { v: 159, versioni: '1.4.10', data: '2026-10-02', titulli: 'Njoftimi ditor merr edhe afatet nga kompjuteri', pikat: [
       'Afatet që i shton ose i ndryshon në kompjuter futen menjëherë edhe në njoftimin ditor të telefonit, pa pasur nevojë ta hapësh Stoku-n në telefon.'

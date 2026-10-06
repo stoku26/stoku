@@ -99,7 +99,7 @@ fun Lidhja(kurLidhet: () -> Unit) {
         Text("Lidhe me telefonin", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
         Text(kodi.substring(0, 3) + " " + kodi.substring(3), fontSize = 34.sp, fontWeight = FontWeight.ExtraBold, color = Verdhe, letterSpacing = 3.sp)
         Text(
-            if (gabim) "S'ka internet. Po provoj prapë…" else "Te telefoni: Cilësimet → Njoftimet → Galaxy Watch → Lidh sahatin",
+            if (gabim) "S'ka internet. Po provoj prapë…" else "Te telefoni: Cilësimet → Njoftimet → Galaxy Watch → Lidh orën",
             fontSize = 11.sp, color = Gri, textAlign = TextAlign.Center,
         )
     }
@@ -282,7 +282,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                     item {
                         Chip(
                             onClick = kurShkeputet,
-                            label = { Text("Shkëput sahatin", fontSize = 12.sp) },
+                            label = { Text("Shkëput orën", fontSize = 12.sp) },
                             colors = ChipDefaults.childChipColors(),
                         )
                     }
@@ -329,7 +329,7 @@ fun Detaji(a: Afat, sot: Boolean, skaduar: Boolean = false, ekipa: Boolean, kurH
                     onClick = kurKerkon,
                     enabled = ekipa,
                     label = { Text("Kërko heqje nga ekipa", fontWeight = FontWeight.Bold) },
-                    secondaryLabel = { Text(if (ekipa) "Dërgoja një kolegu" else "Lidhe sërish sahatin nga telefoni", maxLines = 2, color = Gri) },
+                    secondaryLabel = { Text(if (ekipa) "Dërgoja një kolegu" else "Lidhe sërish orën nga telefoni", maxLines = 2, color = Gri) },
                     colors = ChipDefaults.secondaryChipColors(),
                 )
             }
@@ -349,7 +349,7 @@ fun ZgjedhKolegun(a: Afat, kurDergohet: (String) -> Unit, kurShkeputet: () -> Un
     LaunchedEffect(Unit) {
         try { koleget = Api.koleget(ctx) }
         catch (e: PaLidhje) { kurShkeputet() }
-        catch (e: DuhetRilidhur) { gabim = "Lidhe sërish sahatin nga telefoni (Cilësimet → Njoftimet → Galaxy Watch)." }
+        catch (e: DuhetRilidhur) { gabim = "Lidhe sërish orën nga telefoni (Cilësimet → Njoftimet → Galaxy Watch)." }
         catch (e: Exception) { gabim = "S'ka lidhje me serverin." }
     }
     fun dergo(k: Koleg?) {
@@ -360,7 +360,7 @@ fun ZgjedhKolegun(a: Afat, kurDergohet: (String) -> Unit, kurShkeputet: () -> Un
                 val n = Api.kerkoHeqjen(ctx, a, k)
                 kurDergohet(if (k != null) "Kërkesa iu dërgua: ${k.emri}" else "Kërkesa iu dërgua ekipës ($n)")
             } catch (e: PaLidhje) { kurShkeputet() }
-            catch (e: DuhetRilidhur) { gabim = "Lidhe sërish sahatin nga telefoni." }
+            catch (e: DuhetRilidhur) { gabim = "Lidhe sërish orën nga telefoni." }
             catch (e: Exception) { gabim = "S'u dërgua. Provo prapë." }
             duke = false
         }
