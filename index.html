@@ -1056,7 +1056,7 @@
 <link rel="stylesheet" href="css/stoku.css?v=18">
 </head>
 <body>
-<script src="porta.js?v=163"></script>
+<script src="porta.js?v=165"></script>
 
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" style="display:none">←</button>
@@ -1456,6 +1456,16 @@
                 <button class="btn" id="btnRiautentifiko" type="button" style="width:100%"></button>
               </div>
             </div>
+            <!-- Hyrja pas fshirjes së cookies/të dhënave: fjalëkalimi te menaxheri i shfletuesit (porta.js) -->
+            <div class="ops-karta" id="mbajHyrjenKarta">
+              <div class="ops-fusha-titull"><span class="kat-ikona-badge ngj-gjelber"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg></span>Mos dil kur i fshin të dhënat</div>
+              <div class="hint" id="mbajHyrjenTekst"></div>
+              <div class="ops-inline" id="mbajHyrjenRresht">
+                <div class="fushe"><input id="mbajHyrjenFjalekalimi" type="password" autocomplete="current-password" enterkeyhint="done" maxlength="100" placeholder="Fjalëkalimi yt"></div>
+                <button class="btn ops-btn-dyte" id="mbajHyrjenRuaj" type="button">Ruaje</button>
+              </div>
+              <div class="hint" id="mbajHyrjenStatus"></div>
+            </div>
             <button class="ops-dil" id="cloudDilBtn" type="button"></button>
           </div>
         </div>
@@ -1822,7 +1832,7 @@
 <script src="afatet.js?v=163"></script>
 <script src="ekipa.js?v=164"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=164"></script>
+<script src="teRejat.js?v=165"></script>
 <script>
 (function () {
   'use strict';
@@ -3788,7 +3798,40 @@
       $('cloudNdryshoGabimHint').textContent = '';
     }
     rifreskoStatusetOpsioneve();
+    vizatoMbajHyrjen();
   }
+
+  // ---- "Mos dil kur i fshin të dhënat": fshirja e cookies/të dhënave të shfletuesit e fshin edhe hyrjen (kjo
+  // s'ndalohet dot nga asnjë faqe). Fjalëkalimi i ruajtur në Chrome mbetet: me të Stoku hyn vetë (porta.js). ----
+  function vizatoMbajHyrjen() {
+    var P = window.StokuPorta, chrome = !!(P && P.kaMenaxherFjalekalimesh && P.kaMenaxherFjalekalimesh());
+    var iphone = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    $('mbajHyrjenRresht').hidden = !chrome;
+    $('mbajHyrjenTekst').textContent = chrome
+      ? 'Kur i fshin cookies dhe të dhënat e Chrome-it, Chrome të nxjerr nga çdo faqe. Ruaje fjalëkalimin e Stoku-t në Chrome një herë: pastaj Stoku hyn vetë, pa e shkruar.'
+      : iphone
+        ? 'Kur të hysh, Safari të pyet a ta ruajë fjalëkalimin: zgjidh "Ruaj" (iCloud Keychain). Pas fshirjes së të dhënave, prek fushën e emrit dhe zgjidhe llogarinë me Face ID. Stoku i shtuar në ekranin kryesor (Shpërndaj → Shto në ekranin bazë) s\'del fare kur e pastron Safari-n.'
+        : 'Ruaje fjalëkalimin kur shfletuesi të pyet: pas fshirjes së të dhënave, forma e hyrjes plotësohet vetë.';
+    if (chrome && !$('mbajHyrjenStatus').dataset.prek) $('mbajHyrjenStatus').textContent = P.kredencialiURuajt && P.kredencialiURuajt() ? 'Stoku ia ka dhënë fjalëkalimin Chrome-it në këtë pajisje. Nëse Chrome s\'të pyeti a ta ruajë, ruaje edhe një herë këtu.' : '';
+  }
+  async function mbajHyrjenRuaj() {
+    var P = window.StokuPorta, inp = $('mbajHyrjenFjalekalimi'), st = $('mbajHyrjenStatus'), btn = $('mbajHyrjenRuaj');
+    if (!P || !P.mbajHyrjen) return;
+    if (!inp.value) { st.textContent = 'Shkruaj fjalëkalimin e llogarisë.'; inp.focus(); return; }
+    btn.disabled = true; st.dataset.prek = '1'; st.textContent = 'Duke e kontrolluar…';
+    var r = await P.mbajHyrjen(inp.value);
+    btn.disabled = false;
+    if (!r.ok) {
+      st.textContent = r.arsye === 'internet' ? 'S\'ka internet. Provo përsëri.' : r.arsye === 'shume-prova' ? 'Shumë prova. Prit pak minuta.' : 'Fjalëkalimi s\'është i saktë.';
+      inp.select();
+      return;
+    }
+    inp.value = '';
+    st.textContent = 'Gati. Nëse Chrome të pyet "Ruaj fjalëkalimin?", shtyp Ruaj. Herën tjetër që i fshin të dhënat, Stoku hyn vetë.';
+    toast('Fjalëkalimi iu dha Chrome-it.');
+  }
+  $('mbajHyrjenRuaj').addEventListener('click', mbajHyrjenRuaj);
+  $('mbajHyrjenFjalekalimi').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); mbajHyrjenRuaj(); } });
   rifreskoDukjenECloud();
 
   window.addEventListener('stoku-cloud-gati', function () {
