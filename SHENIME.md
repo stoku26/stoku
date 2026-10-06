@@ -50,6 +50,26 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **APLIKACIONI ANDROID `tel/` (v167 = 1.9.0, Worker 160, APK `tel-vNN`)**: përdoruesi s'donte të dilte kur fshin
+   "Cookies, cache, and other site data" në Chrome Android (dhe njoftimet ndaleshin). Asnjë faqe s'e mbijeton atë fshirje,
+   prandaj: aplikacion Android (WebView me hapësirë të vetën) që e hap stoku.site. Paketa `site.stoku.app`, minSdk 26,
+   çelësi `tel/stoku-tel.jks` (fjalëkalimi `stokutel`, në repo si te ora). Workflow `tel-apk.yml` → Release `tel-v{run}`.
+   - Kotlin: `MainActivity` (WebView vetëm për stoku.site, të tjerat hapen jashtë; kamera me leje; zgjedhësi i skedarëve
+     me foto nga kamera; faqe "pa internet"), `Ura` (`window.StokuAndroid`: tokenFcm, leja, kerkoLejen, njofto, ndaj,
+     ngjyrat, versioni, kontrolloPerditesimin), `FcmSherbimi`, `Njoftimet` (kanali "stoku"), `Perditesimi` (GitHub API
+     → "Version i ri" → shkarkim + instalues; 1 herë në 6 orë), `StokuApp` (Firebase nis nga `android.json` i faqes).
+   - Firebase për Android NUK është në APK: `android.json` (rrënja e faqes) {projectId, senderId, apiKey, appId}; pa
+     `appId` (Android App ID nga Firebase Console) aplikacioni punon pa push. Worker-i: sekreti `FCM_SA` (service account
+     JSON) → OAuth RS256 → FCM HTTP v1, mesazhe "data" me prioritet të lartë; 404/UNREGISTERED → pajisja fshihet.
+   - Web: `android.js` (i pari te index.html, s'bën asgjë në shfletues): polyfill `Notification` + `showNotification` →
+     njoftimet e Android-it, `navigator.share`/`<a download>` blob → "Ndaj", `navigator.standalone`, ngjyra e shiritave
+     sipas `#metaTema`, ngjarja `stoku-android-token` → `aktivizoPush(true)`. ekipa.js: `pajisjaPush()` = Web Push
+     {endpoint,p256dh,auth} ose Android {endpoint:'fcm:'+t, fcm:t} (dokumenti te `grupet/{g}/push`, `/orari` pajisja).
+   - Cilësimet → Njoftimet: karta "Aplikacioni Stoku për Android" (Chrome Android: shkarko → `android.html`, faqe që
+     gjen APK-në e fundit; brenda aplikacionit: versioni + "Kontrollo për version të ri").
+   - Sahati (`ora/`): `Perditesimi.kt` + chip "Përditëso" te lista kur ka `ora-vNN` më të ri (FileProvider, leje instalimi).
+   - Testet: `android-test.js` (urë e simuluar, 12 OK), `wp/fcm-prova.mjs` (10 OK). APK-të ndërtohen vetëm në GitHub
+     (dl.google.com është i bllokuar këtu); gabimet shihen me `gh api .../actions/runs/{id}/jobs` + logs.
 0000000. **v166 = 1.8.2: U HOQ "MOS DIL KUR I FSHIN TË DHËNAT" (v165)**: karta te Cilësimet → Llogaria (fjalëkalimi →
    `credentials.store`) dhe udhëzimi te porta ("shtyp Ruaj") u hoqën me kërkesë të përdoruesit: në Chrome Android
    (Delete browsing data → "Cookies, cache, and other site data") prapë dilte. porta.js, index.html, pc.html = si te v164
