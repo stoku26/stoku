@@ -1,9 +1,11 @@
 package site.stoku.app
 
 import android.content.Intent
+import android.graphics.Color
 import android.util.Base64
 import android.webkit.JavascriptInterface
 import androidx.core.content.FileProvider
+import androidx.core.view.WindowCompat
 import java.io.File
 
 /**
@@ -34,6 +36,19 @@ class Ura(private val a: MainActivity) {
                 .putExtra(Intent.EXTRA_STREAM, uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             a.runOnUiThread { a.startActivity(Intent.createChooser(i, titulli?.ifBlank { null } ?: emriI)) }
         } catch (e: Exception) { /* skedar i prishur */ }
+    }
+
+    /** Ngjyra e sfondit të Stoku-t (tema e çelët / e errët) → shiritat e sistemit sipër dhe poshtë. */
+    @JavascriptInterface fun ngjyrat(ngjyra: String?) {
+        val c = try { Color.parseColor(ngjyra ?: return) } catch (e: Exception) { return }
+        val ielet = (Color.red(c) * 299 + Color.green(c) * 587 + Color.blue(c) * 114) / 1000 > 140
+        a.runOnUiThread {
+            a.window.statusBarColor = c
+            a.window.navigationBarColor = c
+            val k = WindowCompat.getInsetsController(a.window, a.window.decorView)
+            k.isAppearanceLightStatusBars = ielet
+            k.isAppearanceLightNavigationBars = ielet
+        }
     }
 
     @JavascriptInterface fun kontrolloPerditesimin() { a.runOnUiThread { Perditesimi.kontrollo(a, true) } }

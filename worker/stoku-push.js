@@ -36,7 +36,7 @@ const PROJEKTI = 'stoku-appi';
 const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databases/(default)/documents';
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
-const VERSIONI_WORKER = 159; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 160; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 const W = {
@@ -62,7 +62,7 @@ const W = {
       if (env.FOTO) { try { cronGabim = await env.FOTO.get('orari-cron-gabim', 'json'); } catch (e) { /* ok */ } }
       // "?kv=1": provë a pranon KV-ja shkrime (limiti falas: 1000 shkrime në ditë). Më së shumti një herë në 10 min.
       if (env.FOTO && new URL(req.url).searchParams.get('kv') === '1') kv = await provoShkrimin(env);
-      return pergjigju({ ok: true, sherbimi: 'stoku-push', versioni: VERSIONI_WORKER, celesat: !!(env.VAPID_PUBLIC && env.VAPID_PRIVATE), fotot: !!env.FOTO, cron: c.koha || null, cronShprehja: c.shprehja || null, cronGabim, kv, tani: Date.now() });
+      return pergjigju({ ok: true, sherbimi: 'stoku-push', versioni: VERSIONI_WORKER, celesat: !!(env.VAPID_PUBLIC && env.VAPID_PRIVATE), fcm: !!env.FCM_SA, fotot: !!env.FOTO, cron: c.koha || null, cronShprehja: c.shprehja || null, cronGabim, kv, tani: Date.now() });
     }
     if (!env.VAPID_PUBLIC || !env.VAPID_PRIVATE) return pergjigju({ ok: false, arsye: 'mungojne-celesat' }, 500);
 
@@ -401,7 +401,9 @@ async function trajtoOrarin(req, env, pergjigju) {
   }
   const pj = t.pajisja || {};
   if (t.aktiv === undefined && !t.statusi) return pergjigju({ ok: true });
-  if (typeof pj.endpoint !== 'string' || !/^https:\/\//.test(pj.endpoint) || pj.endpoint.length > 1000) return pergjigju({ ok: false, arsye: 'pajisja' }, 400);
+  const fcm = typeof pj.fcm === 'string' && FCM_RE.test(pj.fcm) ? pj.fcm : ''; // aplikacioni Android (Firebase Cloud Messaging)
+  if (fcm) pj.endpoint = 'fcm:' + fcm;
+  else if (typeof pj.endpoint !== 'string' || !/^https:\/\//.test(pj.endpoint) || pj.endpoint.length > 1000) return pergjigju({ ok: false, arsye: 'pajisja' }, 400);
   const celesi = 'orari:' + uid + ':' + await hashEndpoint(pj.endpoint);
   const ind = await lexoIndeksinEOrareve(env);
   // Gjendja e orarit të kësaj pajisjeje (për Cilësimet → Njoftimet): a ekziston, kur u dërgua së fundi dhe si
@@ -419,8 +421,8 @@ async function trajtoOrarin(req, env, pergjigju) {
   if (!ORA_RE.test(t.ora || '')) return pergjigju({ ok: false, arsye: 'ora' }, 400);
   const tz = String(t.tz || 'Europe/Belgrade');
   if (!tzIVlefshem(tz)) return pergjigju({ ok: false, arsye: 'tz' }, 400);
-  if (!/^[A-Za-z0-9_-]{20,200}$/.test(pj.p256dh || '') || !/^[A-Za-z0-9_-]{10,100}$/.test(pj.auth || '')) return pergjigju({ ok: false, arsye: 'pajisja' }, 400);
-  const rek = { uid, ora: t.ora, tz, platforma: t.platforma === 'pc' ? 'pc' : 'tel', pajisja: { endpoint: pj.endpoint, p256dh: pj.p256dh, auth: pj.auth } };
+  if (!fcm && (!/^[A-Za-z0-9_-]{20,200}$/.test(pj.p256dh || '') || !/^[A-Za-z0-9_-]{10,100}$/.test(pj.auth || ''))) return pergjigju({ ok: false, arsye: 'pajisja' }, 400);
+  const rek = { uid, ora: t.ora, tz, platforma: t.platforma === 'pc' ? 'pc' : 'tel', pajisja: fcm ? { endpoint: pj.endpoint, fcm } : { endpoint: pj.endpoint, p256dh: pj.p256dh, auth: pj.auth } };
   await env.FOTO.put(celesi, JSON.stringify(rek));
   // E njëjta orë → s'ndryshon asgjë (s'ridërgohet sot). Orë e re: nëse është ende përpara sot, njoftimi vjen sot në
   // orën e re (edhe nëse sot është dërguar një herë në orën e vjetër); nëse ka kaluar, nga nesër.
@@ -606,6 +608,7 @@ async function listoPajisjet(token, koleksioni) {
       const o = objektNga(d.fields || {});
       o.id = d.name.split('/').pop();
       if (o.endpoint && o.p256dh && o.auth && /^https:\/\//.test(o.endpoint)) lista.push(o);
+      else if (typeof o.fcm === 'string' && FCM_RE.test(o.fcm)) { o.endpoint = 'fcm:' + o.fcm; lista.push(o); } // aplikacioni Android
     });
     if (!j.nextPageToken) break;
     faqja = j.nextPageToken;
@@ -656,7 +659,56 @@ async function pergatitVapid(env) {
   const pub = b64uDekodo(env.VAPID_PUBLIC);
   const jwk = { kty: 'EC', crv: 'P-256', d: env.VAPID_PRIVATE, x: b64uKodo(pub.slice(1, 33)), y: b64uKodo(pub.slice(33, 65)), ext: true };
   const celesi = await crypto.subtle.importKey('jwk', jwk, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']);
-  return { celesi, publik: env.VAPID_PUBLIC, subjekti: env.VAPID_SUBJECT || 'mailto:stoku@stoku.site', jwt: {} };
+  return { celesi, publik: env.VAPID_PUBLIC, subjekti: env.VAPID_SUBJECT || 'mailto:stoku@stoku.site', jwt: {}, env };
+}
+// ---------------- Aplikacioni Android: Firebase Cloud Messaging (HTTP v1) ----------------
+// Sekreti FCM_SA = skedari JSON i "service account" (Firebase Console → Project settings → Service accounts →
+// Generate new private key), i ngjitur i tëri te Cloudflare si sekret. Pa të, telefonat Android s'marrin push.
+const FCM_RE = /^[A-Za-z0-9_:\-]{20,4096}$/;
+let fcmCache = { token: null, skadon: 0 };
+function pemNeBajte(pem) {
+  const b = atob(String(pem).replace(/-----[^-]+-----/g, '').replace(/\s+/g, ''));
+  const o = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) o[i] = b.charCodeAt(i); return o;
+}
+let fcmNePritje = null; // dy pajisje njëkohësisht → një kërkesë e vetme për tokenin
+function tokeniFcm(env) {
+  if (fcmCache.token && Date.now() < fcmCache.skadon) return Promise.resolve(fcmCache.token);
+  if (!fcmNePritje) fcmNePritje = merrTokeninFcm(env).finally(() => { fcmNePritje = null; });
+  return fcmNePritje;
+}
+async function merrTokeninFcm(env) {
+  const sa = JSON.parse(env.FCM_SA);
+  const tani = Math.floor(Date.now() / 1000);
+  const krye = b64uKodo(tekst(JSON.stringify({ alg: 'RS256', typ: 'JWT' })));
+  const trup = b64uKodo(tekst(JSON.stringify({ iss: sa.client_email, scope: 'https://www.googleapis.com/auth/firebase.messaging',
+    aud: 'https://oauth2.googleapis.com/token', iat: tani, exp: tani + 3600 })));
+  const celesi = await crypto.subtle.importKey('pkcs8', pemNeBajte(sa.private_key), { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
+  const nen = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', celesi, tekst(krye + '.' + trup));
+  const r = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'grant_type=' + encodeURIComponent('urn:ietf:params:oauth:grant-type:jwt-bearer') + '&assertion=' + krye + '.' + trup + '.' + b64uKodo(nen) });
+  if (!r.ok) throw new Error('fcm-oauth-' + r.status);
+  const j = await r.json();
+  fcmCache = { token: j.access_token, skadon: Date.now() + Math.max(60, (j.expires_in || 3600) - 300) * 1000, projekti: sa.project_id || PROJEKTI };
+  return fcmCache.token;
+}
+// Kthen statusin si Web Push: 2xx dërguar; 404/410 = pajisja s'ekziston më (fshihet)
+async function dergoFcm(env, tokeni, ng) {
+  if (!env || !env.FCM_SA) return 503;
+  let at;
+  try { at = await tokeniFcm(env); } catch (e) { return 503; }
+  const data = {};
+  for (const k of ['lloji', 'titulli', 'teksti', 'tag', 'url', 'pamja']) if (ng[k] !== undefined && ng[k] !== null) data[k] = String(ng[k]);
+  // Android: adresa relative ndaj stoku.site (si te telefoni)
+  if (data.url && /pc\.html/.test(data.url)) data.url = data.pamja === 'njoftimet' ? './index.html#ekipa-njoftimet' : data.lloji === 'chat' ? './index.html#ekipa-chat' : './index.html';
+  const r = await fetch('https://fcm.googleapis.com/v1/projects/' + (fcmCache.projekti || PROJEKTI) + '/messages:send', {
+    method: 'POST', headers: { Authorization: 'Bearer ' + at, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: { token: tokeni, data, android: { priority: 'HIGH', ttl: '86400s' } } })
+  });
+  if (r.ok) return 200;
+  let teksti = '';
+  try { teksti = await r.text(); } catch (e) { /* ok */ }
+  if (r.status === 404 || /UNREGISTERED|registration token is not a valid/i.test(teksti)) return 410;
+  return r.status;
 }
 async function jwtVapid(vapid, aud) {
   const tani = Math.floor(Date.now() / 1000);
@@ -693,6 +745,7 @@ export async function enkripto(p256dh, authSekret, teDhenat, prova) {
   return bashko(salt, rs, new Uint8Array([asPub.length]), asPub, shifruar);
 }
 async function dergoPush(a, ngarkesa, vapid) {
+  if (a.fcm) return dergoFcm(vapid.env, a.fcm, ngarkesa);
   const url = new URL(a.endpoint);
   const jwt = await jwtVapid(vapid, url.origin);
   const trupi = await enkripto(a.p256dh, a.auth, tekst(JSON.stringify(ngarkesa)));

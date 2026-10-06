@@ -106,7 +106,6 @@ class MainActivity : Activity() {
         else web.loadUrl(adresaNga(intent) ?: (StokuApp.BAZA + "index.html"))
 
         StokuApp.rifreskoKonfigurimin(this)
-        kerkoLejenNjoftimeveHerenEPare()
         Perditesimi.kontrollo(this, false)
     }
 
@@ -143,14 +142,6 @@ class MainActivity : Activity() {
 
     // ---------- Lejet ----------
     private fun kaLeje(p: String) = checkSelfPermission(p) == PackageManager.PERMISSION_GRANTED
-
-    private fun kerkoLejenNjoftimeveHerenEPare() {
-        val pr = StokuApp.prefs(this)
-        if (Njoftimet.duhetLeja() && !kaLeje(Manifest.permission.POST_NOTIFICATIONS) && !pr.getBoolean("pyetur_njoftimet", false)) {
-            pr.edit().putBoolean("pyetur_njoftimet", true).apply()
-            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), L_NJOFTIMET)
-        }
-    }
 
     fun kerkoLejenNjoftimeve() {
         if (Njoftimet.duhetLeja() && !kaLeje(Manifest.permission.POST_NOTIFICATIONS)) {
