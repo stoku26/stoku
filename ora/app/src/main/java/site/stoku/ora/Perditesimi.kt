@@ -18,6 +18,8 @@ import java.net.URL
  */
 object Perditesimi {
     private const val RELEASES = "https://api.github.com/repos/stoku26/stoku/releases?per_page=40"
+    /** Kontrolli i fundit dështoi (pa internet / GitHub s'u përgjigj). */
+    @Volatile var deshtoi = false
 
     /** (numri, adresa e APK-së) nëse ka version më të ri se ky; përndryshe null. */
     suspend fun kontrollo(ctx: Context, detyro: Boolean = false): Pair<Int, String>? = withContext(Dispatchers.IO) {
@@ -26,11 +28,12 @@ object Perditesimi {
         val versioni = ctx.packageManager.getPackageInfo(ctx.packageName, 0).longVersionCode.toInt()
         if (!detyro && System.currentTimeMillis() - pr.getLong("koha", 0) < 6 * 3600_000L)
             return@withContext if (ruajtur > versioni) ruajtur to (pr.getString("url", "") ?: "") else null
+        deshtoi = false
         try {
             val c = URL(RELEASES).openConnection() as HttpURLConnection
             c.setRequestProperty("Accept", "application/vnd.github+json")
             c.connectTimeout = 10000; c.readTimeout = 15000
-            if (c.responseCode != 200) return@withContext null
+            if (c.responseCode != 200) { deshtoi = true; return@withContext null }
             val l = JSONArray(c.inputStream.bufferedReader().readText())
             var m: Pair<Int, String>? = null
             for (i in 0 until l.length()) {
@@ -46,7 +49,7 @@ object Perditesimi {
             }
             pr.edit().putLong("koha", System.currentTimeMillis()).putInt("numri", m?.first ?: 0).putString("url", m?.second ?: "").apply()
             if (m != null && m.first > versioni) m else null
-        } catch (e: Exception) { null }
+        } catch (e: Exception) { deshtoi = true; null }
     }
 
     /** Shkarkon APK-në dhe hap instaluesin. Kthen tekstin për ekranin kur s'mund të vazhdojë. */

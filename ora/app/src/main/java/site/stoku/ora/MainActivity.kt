@@ -99,7 +99,7 @@ fun Lidhja(kurLidhet: () -> Unit) {
         Text("Lidhe me telefonin", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
         Text(kodi.substring(0, 3) + " " + kodi.substring(3), fontSize = 34.sp, fontWeight = FontWeight.ExtraBold, color = Verdhe, letterSpacing = 3.sp)
         Text(
-            if (gabim) "S'ka internet. Po provoj prapë…" else "Te telefoni: Cilësimet → Njoftimet → Galaxy Watch → Lidh orën",
+            if (gabim) "S'ka internet. Po provoj prapë…" else "Te telefoni: Cilësimet → Ora dhe aplikacioni → Lidh orën",
             fontSize = 11.sp, color = Gri, textAlign = TextAlign.Center,
         )
     }
@@ -121,6 +121,7 @@ sealed class Pamja {
     object Lista : Pamja()
     data class Detaji(val a: Afat, val sot: Boolean, val skaduar: Boolean = false) : Pamja()
     data class HiqKrejt(val l: List<Afat>) : Pamja()
+    object Cilesimet : Pamja()
     data class Kolegu(val a: Afat) : Pamja()
     data class Hequr(val a: Afat) : Pamja()
     data class Derguar(val tekst: String) : Pamja()
@@ -187,6 +188,13 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                     Api.rifreskoTileDheKomplikacionin(ctx)
                 }
             },
+            mbrapa = { pamja = Pamja.Lista },
+        )
+        Pamja.Cilesimet -> Cilesimet(
+            emri = lista?.emri ?: "",
+            iRiFillim = iRi,
+            kurGjendetIRi = { iRi = it },
+            kurShkeputet = kurShkeputet,
             mbrapa = { pamja = Pamja.Lista },
         )
         is Pamja.Kolegu -> ZgjedhKolegun(
@@ -281,9 +289,11 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                     }
                     item {
                         Chip(
-                            onClick = kurShkeputet,
-                            label = { Text("Shkëput orën", fontSize = 12.sp) },
-                            colors = ChipDefaults.childChipColors(),
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { pamja = Pamja.Cilesimet },
+                            label = { Text("Cilësimet") },
+                            secondaryLabel = { Text(if (iRi != null) "Version i ri: 1.0.${iRi!!.first}" else "Versioni, përditësimi, lidhja", color = Gri, maxLines = 1) },
+                            colors = ChipDefaults.secondaryChipColors(),
                         )
                     }
                 }
@@ -349,7 +359,7 @@ fun ZgjedhKolegun(a: Afat, kurDergohet: (String) -> Unit, kurShkeputet: () -> Un
     LaunchedEffect(Unit) {
         try { koleget = Api.koleget(ctx) }
         catch (e: PaLidhje) { kurShkeputet() }
-        catch (e: DuhetRilidhur) { gabim = "Lidhe sërish orën nga telefoni (Cilësimet → Njoftimet → Galaxy Watch)." }
+        catch (e: DuhetRilidhur) { gabim = "Lidhe sërish orën nga telefoni (Cilësimet → Ora dhe aplikacioni)." }
         catch (e: Exception) { gabim = "S'ka lidhje me serverin." }
     }
     fun dergo(k: Koleg?) {
@@ -448,6 +458,61 @@ fun HiqKrejt(n: Int, kurPo: () -> Unit, mbrapa: () -> Unit) {
                     onClick = kurPo,
                     label = { Text("✓ Po, i hoqa krejt", fontWeight = FontWeight.Bold) },
                     colors = ChipDefaults.chipColors(backgroundColor = Kuqe, contentColor = Color.Black),
+                )
+            }
+            item { Chip(onClick = mbrapa, label = { Text("Mbrapa") }, colors = ChipDefaults.childChipColors()) }
+        }
+    }
+}
+
+// Cilësimet e orës: versioni, përditësimi direkt nga ora, llogaria e lidhur, shkëputja
+@Composable
+fun Cilesimet(emri: String, iRiFillim: Pair<Int, String>?, kurGjendetIRi: (Pair<Int, String>?) -> Unit, kurShkeputet: () -> Unit, mbrapa: () -> Unit) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val versioni = remember { try { ctx.packageManager.getPackageInfo(ctx.packageName, 0).longVersionCode.toInt() } catch (e: Exception) { 0 } }
+    var iRi by remember { mutableStateOf(iRiFillim) }
+    var duke by remember { mutableStateOf(false) }
+    var mesazh by remember { mutableStateOf<String?>(null) }
+    var pyetShkeputje by remember { mutableStateOf(false) }
+    val gjendja = rememberScalingLazyListState()
+    Scaffold(positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
+        ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
+            item { ListHeader { Text("CILËSIMET", color = Gri, fontWeight = FontWeight.SemiBold) } }
+            item { Text("Stoku për orë · 1.0.$versioni", fontSize = 13.sp, color = Color.White, textAlign = TextAlign.Center) }
+            if (emri.isNotBlank()) item { Text("Llogaria: $emri", fontSize = 12.sp, color = Gri, textAlign = TextAlign.Center) }
+            item {
+                val v = iRi
+                Chip(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        if (!duke) {
+                            duke = true; mesazh = null
+                            scope.launch {
+                                if (v != null) {
+                                    mesazh = Perditesimi.instalo(ctx, v.second)
+                                } else {
+                                    val r = Perditesimi.kontrollo(ctx, detyro = true)
+                                    iRi = r; kurGjendetIRi(r)
+                                    mesazh = if (r != null) null else if (Perditesimi.deshtoi) "S'u kontrollua: s'ka internet." else "Ke versionin më të ri ✓"
+                                }
+                                duke = false
+                            }
+                        }
+                    },
+                    label = { Text(if (duke) (if (v != null) "Duke shkarkuar…" else "Duke kontrolluar…") else if (v != null) "Përditëso tani" else "Kontrollo për përditësim", fontWeight = FontWeight.Bold) },
+                    secondaryLabel = { Text(if (v != null) "Version i ri: 1.0.${v.first}" else "Version i ri i aplikacionit", color = if (v != null) Color.Black else Gri, maxLines = 1) },
+                    colors = if (v != null) ChipDefaults.primaryChipColors() else ChipDefaults.secondaryChipColors(),
+                )
+            }
+            mesazh?.let { m -> item { Text(m, fontSize = 11.sp, color = if (m.endsWith("✓")) Gjelber else Kuqe, textAlign = TextAlign.Center, modifier = Modifier.padding(6.dp)) } }
+            item {
+                Chip(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { if (pyetShkeputje) kurShkeputet() else pyetShkeputje = true },
+                    label = { Text(if (pyetShkeputje) "Prek sërish për ta shkëputur" else "Shkëput orën", fontSize = 13.sp) },
+                    secondaryLabel = { Text("Ora s'e sheh më llogarinë", color = Gri, maxLines = 1) },
+                    colors = if (pyetShkeputje) ChipDefaults.chipColors(backgroundColor = Kuqe, contentColor = Color.Black) else ChipDefaults.secondaryChipColors(),
                 )
             }
             item { Chip(onClick = mbrapa, label = { Text("Mbrapa") }, colors = ChipDefaults.childChipColors()) }

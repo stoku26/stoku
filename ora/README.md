@@ -21,5 +21,5 @@ Në `main` del edhe si **Release** (`ora-vNN`).
    adb connect IP:PORTA
    adb install -r stoku-ora-NN.apk
    ```
-5. Hape **Stoku** në orë: del kodi 6-shifror → në telefon: Stoku → Cilësimet → Njoftimet → Galaxy Watch → **Lidh orën**.
+5. Hape **Stoku** në orë: del kodi 6-shifror → në telefon: Stoku → Cilësimet → **Ora dhe aplikacioni** → **Lidh orën**.
 6. Tile: rrëshqit djathtas në orë → **+ Shto tile** → Stoku. Komplikacioni: mbaj gishtin te fytyra e orës → Customize → zgjidh **Stoku: skadojnë sot**.

@@ -1212,6 +1212,11 @@
             <span class="kat-info"><span class="kat-tekst">Njoftimet</span><span class="kat-status" id="tabNjoftimetStatus"></span></span>
             <span class="shigjeta">›</span>
           </button>
+          <button class="kategori-rresht" type="button" data-faqe="ora" id="tabOra">
+            <span class="kat-ikona-badge ngj-blu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="3"></rect><path d="M9 6l.6-3h4.8L15 6M9 18l.6 3h4.8l.6-3"></path><path d="M12 10v2.2l1.4 1"></path></svg></span>
+            <span class="kat-info"><span class="kat-tekst">Ora dhe aplikacioni</span><span class="kat-status" id="tabOraStatus">Lidh orën · Stoku për Android</span></span>
+            <span class="shigjeta">›</span>
+          </button>
           <button class="kategori-rresht" type="button" data-faqe="lista" id="tabLista">
             <span class="kat-ikona-badge ngj-portokalli"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 4 4 4-4M7 20V4M21 8l-4-4-4 4M17 4v16"></path></svg></span>
             <span class="kat-info"><span class="kat-tekst" id="tabListaTxt"></span><span class="kat-status" id="tabListaStatus"></span></span>
@@ -1313,12 +1318,6 @@
             </div>
             <div class="hint" id="njProveHint"></div>
           </div>
-          <!-- Aplikacioni Android (tel/): në Chrome Android ofrohet shkarkimi, brenda aplikacionit versioni + përditësimi -->
-          <div class="seksion ops-karta" id="njAndroidKarta" hidden>
-            <div class="ops-fusha-titull"><span class="kat-ikona-badge ngj-gjelber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"></rect><path d="M11 18h2"></path></svg></span><span id="njAndroidTitulli">Aplikacioni Stoku për Android</span></div>
-            <div class="hint" id="njAndroidTekst"></div>
-            <div class="rreshti" style="margin-top:10px"><button class="btn" id="njAndroidBtn" type="button">Shkarko aplikacionin</button></div>
-          </div>
           <div class="ops-grupi-titull">Njoftimi ditor për afatet</div>
           <div class="ops-grupi">
             <div class="seksion">
@@ -1337,11 +1336,15 @@
             </div>
           </div>
           <div class="nj-serveri" id="njOraServer" role="status" hidden></div>
-          <div class="ops-grupi-titull">Njoftimet në orë</div>
+        </div>
+
+        <div class="opsione-faqe" data-faqe="ora">
+          <div class="ops-intro">Ora e dorës (Galaxy Watch, Apple Watch) dhe aplikacioni Stoku për Android.</div>
+          <div class="ops-grupi-titull ops-grupi-titull--pare">Ora e dorës</div>
           <div class="seksion ops-karta ops-ora">
             <div class="ops-ll-krye">
               <span class="kat-ikona-badge ngj-blu ops-ik-madh"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle><path d="M12 10v2l1 1"></path><path d="m16.13 7.66-.81-4.05a2 2 0 0 0-2-1.61h-2.68a2 2 0 0 0-2 1.61l-.78 4.05"></path><path d="m7.88 16.36.8 4a2 2 0 0 0 2 1.61h2.72a2 2 0 0 0 2-1.61l.81-4.05"></path></svg></span>
-              <div class="kat-info"><div class="ops-ll-titull">Njoftimet edhe në orë</div><div class="kat-status">Ora i shfaq vetë njoftimet e telefonit, kur Stoku lejohet.</div></div>
+              <div class="kat-info"><div class="ops-ll-titull">Stoku në orë</div><div class="kat-status">Produktet që skadojnë, heqja nga rafti dhe njoftimet e telefonit, direkt në dorë.</div></div>
             </div>
             <div class="segment ops-ora-zgjedhja" id="segOra" role="tablist">
               <button type="button" data-v="galaxy" role="tab">Galaxy Watch</button>
@@ -1358,8 +1361,8 @@
                 <div class="hint" id="oraLidhHint" role="status"></div>
               </div>
               <ol class="ops-hapat">
-                <li>Instalo aplikacionin <b>Stoku për Android</b> (karta "Aplikacioni Stoku për Android" më lart), ose në Chrome: menyja <b>⋮</b> → <b>Shto në ekranin kryesor</b>.</li>
-                <li>Këtu lart shtyp <b>Aktivizo njoftimet</b> dhe lejoji.</li>
+                <li>Instalo aplikacionin <b>Stoku për Android</b> (më poshtë në këtë faqe), ose në Chrome: menyja <b>⋮</b> → <b>Shto në ekranin kryesor</b>.</li>
+                <li>Te Cilësimet → <b>Njoftimet</b> shtyp <b>Aktivizo njoftimet</b> dhe lejoji.</li>
                 <li>Hap aplikacionin <b>Galaxy Wearable</b> → <b>Cilësimet e orës</b> → <b>Njoftimet</b> → <b>Njoftimet e aplikacioneve</b> → ndize <b>Stoku</b> (nëse s'del, shtyp "Të gjitha" dhe kërko "Stoku" ose "Chrome").</li>
                 <li>Fike ekranin e telefonit: njoftimet e Stoku-t (chat-i, afatet, kërkesat) dalin edhe në orë.</li>
               </ol>
@@ -1368,12 +1371,18 @@
             <div class="ops-ora-faqe" data-ora="apple">
               <ol class="ops-hapat">
                 <li>Në iPhone hap <b>stoku.site</b> me <b>Safari</b> → butoni <b>Shpërndaj</b> (katrori me shigjetë) → <b>Shto në ekranin bazë</b> (Add to Home Screen). Duhet iOS 16.4 ose më i ri.</li>
-                <li>Hape Stoku <b>nga ikona</b> në ekranin bazë (jo nga Safari), hyr në llogari dhe këtu shtyp <b>Aktivizo njoftimet</b> → <b>Lejo</b>.</li>
+                <li>Hape Stoku <b>nga ikona</b> në ekranin bazë (jo nga Safari), hyr në llogari dhe te Cilësimet → <b>Njoftimet</b> shtyp <b>Aktivizo njoftimet</b> → <b>Lejo</b>.</li>
                 <li>Në iPhone hap aplikacionin <b>Watch</b> → <b>Njoftimet</b> (Notifications) → poshtë te <b>Pasqyro sinjalizimet e iPhone nga</b> (Mirror iPhone Alerts From) → ndize <b>Stoku</b>.</li>
                 <li>Kyçe iPhone-in: njoftimet e Stoku-t (chat-i, afatet, kërkesat) dalin edhe në orë.</li>
               </ol>
               <div class="hint">Apple Watch i merr njoftimet vetëm kur iPhone-i është i kyçur (ekrani i fikur) dhe ora është në dorë dhe e shkyçur. Nëse s'e sheh Stoku te lista e aplikacionit Watch, hape Stoku një herë nga ikona dhe lejo njoftimet, pastaj kontrollo prapë.</div>
             </div>
+          </div>
+          <div class="ops-grupi-titull" id="njAndroidGrupi" hidden>Aplikacioni Android</div>
+          <div class="seksion ops-karta" id="njAndroidKarta" hidden>
+            <div class="ops-fusha-titull"><span class="kat-ikona-badge ngj-gjelber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"></rect><path d="M11 18h2"></path></svg></span><span id="njAndroidTitulli">Aplikacioni Stoku për Android</span></div>
+            <div class="hint" id="njAndroidTekst"></div>
+            <div class="rreshti" style="margin-top:10px"><button class="btn" id="njAndroidBtn" type="button">Shkarko aplikacionin</button></div>
           </div>
         </div>
 
@@ -1970,6 +1979,7 @@
       eErret: 'E errët',
       titTemaTeksti: 'Tema',
       tabNjoftimet: 'Njoftimet',
+      tabOra: 'Ora dhe aplikacioni',
       automatikeHint: '"Automatike" ndjek cilësimin e telefonit.',
       titMadhesiaTeksti: 'Madhësia e shkronjave',
       madhesiaNormaleBtn: 'Normale',
@@ -2947,7 +2957,7 @@
     if (typeof sinkronizoHistorineEDritareve === 'function') sinkronizoHistorineEDritareve();
   }
   var TAB_TITULL_KYC = {
-    pamja: 'tabPamja', skenimi: 'tabSkenimi', njoftimet: 'tabNjoftimet',
+    pamja: 'tabPamja', skenimi: 'tabSkenimi', njoftimet: 'tabNjoftimet', ora: 'tabOra',
     lista: 'tabLista', llogaria: 'tabLlogaria'
   };
   Array.prototype.forEach.call(document.querySelectorAll('#kategoriMenu [data-faqe]'), function (b) {
@@ -3386,7 +3396,7 @@
   (function () {
     var A = window.StokuAndroid, android = /Android/i.test(navigator.userAgent || '');
     if (!A && !android) return;
-    $('njAndroidKarta').hidden = false;
+    $('njAndroidKarta').hidden = false; $('njAndroidGrupi').hidden = false;
     if (A) {
       var v = 0; try { v = A.versioni(); } catch (e) { /* ok */ }
       $('njAndroidTitulli').textContent = 'Aplikacioni Android · versioni 1.0.' + v;
