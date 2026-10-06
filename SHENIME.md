@@ -50,6 +50,18 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **MOS DIL KUR I FSHIN TË DHËNAT (v165 = 1.8.1)**: përdoruesi i fshiu sërish cookies/të dhënat në Chrome dhe doli.
+   Asnjë faqe s'mund ta mbajë hyrjen pasi shfletuesi ia fshin krejt të dhënat (IndexedDB i Firebase-it, localStorage,
+   SW): e vetmja gjë që mbetet është menaxheri i fjalëkalimeve. Shkaku më i mundshëm: llogaria ishte kyçur PARA v163,
+   pra Stoku s'ia kishte dhënë kurrë fjalëkalimin Chrome-it (jepet vetëm në hyrje me formë). Tash:
+   - Cilësimet → Llogaria → "Mos dil kur i fshin të dhënat" (tel `#mbajHyrjenKarta`, PC `#opsMbajHyrjen`): fjalëkalimi
+     verifikohet me `riautentifikohu`, pastaj `StokuPorta.mbajHyrjen` → `credentials.store` (Chrome pyet "Ruaj?").
+     Pa API (Safari/Firefox): vetëm udhëzim (iPhone: Keychain + Face ID, ose Stoku në ekranin kryesor).
+   - Porta: kur `credentials.get` (optional) s'kthen asgjë, `#pkShenim` thotë të shtypet "Ruaj" kur Chrome pyet
+     (jo pas "Dil" me dorë). LS `stoku:porta:kred` = fjalëkalimi iu dha Chrome-it në këtë shfletues.
+   - Kushtet e Chrome-it: "Ofro ruajtjen e fjalëkalimeve" dhe "Hyrja automatike" aktive te Password Manager; nëse ka
+     disa llogari të ruajtura për stoku.site (ose pas "Dil"), Chrome pyet me një prekje në vend që të hyjë vetë.
+   Testi: `hyrja-test.js` (13 OK).
 0000000. **GRUPET TE EKIPA (v164 = 1.8.0, Worker 159, RREGULLA TË REJA)**: kush sapo regjistrohet s'sheh askënd derisa
    ta krijojë një grup ose ta pranojë një ftesë. Një përdorues = një grup.
    - Të dhënat: `grupet/{g}` {emri, pronarUid, pronarEmri, krijuarSe}; `grupet/{g}/anetaret/{uid}` {emri, roli

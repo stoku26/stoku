@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 165, versioni: '1.8.1', data: '2026-10-06', titulli: 'Mos dil kur i fshin të dhënat', pikat: [
+      'Cilësimet → Llogaria → "Mos dil kur i fshin të dhënat": shkruaje fjalëkalimin një herë dhe Stoku ia jep Chrome-it. Pastaj, edhe kur i fshin cookies dhe të dhënat, Stoku hyn vetë.',
+      'Kur Chrome të pyet "Ruaj fjalëkalimin?", shtyp Ruaj. Ekrani i hyrjes ta kujton këtë kur s\'ka fjalëkalim të ruajtur.'
+    ] },
     { v: 164, versioni: '1.8.0', data: '2026-10-06', titulli: 'Grupet te Ekipa', pikat: [
       'Ekipa tash punon me grupe: krijo grupin tënd dhe fto shokët me emrin e tyre të përdoruesit. Vetëm anëtarët e një grupi e shohin njëri-tjetrin, chat-in, aktivitetin dhe kërkesat.',
       'Kush sapo është regjistruar s\'sheh askënd derisa ta krijojë një grup ose ta pranojë një ftesë.',
