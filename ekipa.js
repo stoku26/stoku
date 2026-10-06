@@ -411,7 +411,8 @@
     async function lidhOren(kodi) {
       if (!uid()) return { ok: false, arsye: 'pa-hyrje' };
       try {
-        var r = await thirrOrarin({ kodi: String(kodi || '').replace(/\D/g, ''), emri: emri() }, '/ora/lidh');
+        // rt: që sahati të mund t'i dërgojë kërkesa ekipës në emrin tënd (sipas rregullave të Firestore)
+        var r = await thirrOrarin({ kodi: String(kodi || '').replace(/\D/g, ''), emri: emri(), rt: auth.currentUser.refreshToken || '' }, '/ora/lidh');
         if (r && r.ok) shkruajLS(KEY_ORARI_AFATET, null); // lista e afateve i dërgohet menjëherë serverit
         return r;
       } catch (e) { return { ok: false, arsye: 'rrjeti' }; }
@@ -682,7 +683,7 @@
       aktivizoPush: aktivizoPush,
       caktivizoPush: caktivizoPush,
       pushAktiv: pushAktiv,
-      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 157,
+      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 158,
 
       // ---------- Chat ----------
       dergoMesazh: function (tekst) {
