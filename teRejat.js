@@ -18,6 +18,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 162, versioni: '1.6.0', data: '2026-10-06', titulli: 'Kërkesa te ekipa nga sahati', pikat: [
+      'Nga sahati mund t\'i kërkosh një kolegu (ose krejt ekipës) ta heqë një produkt nga rafti; ai merr njoftim si nga telefoni.',
+      'Në sahat dalin edhe produktet që kanë skaduar, jo vetëm ato të sotme.',
+      'Ikona e re e Stoku-t në sahat. Sahatin e lidhur më herët lidhe edhe një herë me kodin, që të mund të dërgojë kërkesa.'
+    ] },
     { v: 161, versioni: '1.5.1', data: '2026-10-02', titulli: 'Ikona e sahatit më e qartë', platforma: 'tel', pikat: [
       'Ikona e Stoku-t në sahat tash është e verdhë, që të duket mirë mbi sfondin e zi të Galaxy Watch.',
       'Kur serveri s\'është përditësuar, "Lidh sahatin" e thotë qartë këtë.'

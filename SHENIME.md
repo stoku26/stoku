@@ -50,6 +50,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **KËRKESAT NGA SAHATI (v162 = 1.6.0, Worker 158)**: te `/ora/lidh` telefoni dërgon edhe `rt`
+   (`auth.currentUser.refreshToken`), i ruajtur te `ora-tok:*`; Worker-i e kthen në ID token (securetoken.googleapis.com,
+   çelësi publik i Firebase) dhe vepron SI PËRDORUESI, pra rregullat e Firestore vlejnë njësoj: `GET /ora/koleget`
+   (ekipa_anetaret pa veten), `POST /ora/kerkese {produktet, perUid, perEmri}` shkruan `ekipa_feed/{id}` +
+   `perdoruesit/{u}/njoftimet/*` (të njëjtat fusha si `kerkoHeqjen` te ekipa.js) dhe dërgon push përmes `W.fetch('/kerkese')`.
+   Pa `rt` (lidhje e vjetër) → 403 `rilidh`. `POST /ora/shkeput` e fshin lidhjen. `/ora/sot` kthen edhe `skaduaraL` dhe
+   `ekipa`. Sahati: prekja e produktit hap detajin (✓ U hoq / Kërko heqje → Krejt ekipa ose koleg), seksioni "Kanë skaduar";
+   ikona opsioni 5 (gri e ndritshme, gradient #4B505B→#2A2D34, shufra të bardha + një e verdhë).
 0000000. **IKONA E SAHATIT (v161 = 1.5.1)**: ikona adaptive e `ora/` kishte sfond #14161B (s'dukej mbi sfondin e zi
    të Galaxy Watch); tash sfond #F5B70A me shufrat e barkodit të zeza (+ kënde skanimi), shkallë 1.08 (këndet brenda rrethit të dukshëm). `lidhSahatin`:
    `arsye 'rruga'` (Worker i vjetër pa `/ora/*`) → mesazh "ngjite kodin e ri".

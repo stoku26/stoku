@@ -35,10 +35,10 @@ const PROJEKTI = 'stoku-appi';
 const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databases/(default)/documents';
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
-const VERSIONI_WORKER = 157; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 158; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
-export default {
+const W = {
   async fetch(req, env, ctx) {
     const origin = req.headers.get('Origin') || '';
     const cors = {
@@ -152,6 +152,7 @@ export default {
     catch (e) { await shenoGabimin(env, tani, String(e && e.stack || e)); }
   }
 };
+export default W;
 
 // ---------------- Njoftimi ditor për afatet (Cloudflare KV + Cron) ----------------
 // Çdo minutë e ditës (v152). Që njoftimi të vijë saktë në minutë, Cron-i duhet "* * * * *" (çdo minutë);
@@ -223,7 +224,9 @@ async function trajtoOren(req, env, rruga, pergjigju) {
       if (!KODI_RE.test(kodi)) return pergjigju({ ok: false, arsye: 'kodi' }, 400);
       const k = await env.FOTO.get('ora-kodi:' + kodi, 'json');
       if (!k || Date.now() - k.koha > 900000) return pergjigju({ ok: false, arsye: 'kodi' }, 404);
-      await env.FOTO.put('ora-tok:' + k.h, JSON.stringify({ uid, emri: String(t.emri || '').slice(0, 60), koha: Date.now() }));
+      // rt = refresh token i llogarisë: me të sahati vepron si përdoruesi (kërkesat te ekipa), sipas rregullave të Firestore
+      const rt = typeof t.rt === 'string' && t.rt.length > 20 && t.rt.length < 2000 ? t.rt : '';
+      await env.FOTO.put('ora-tok:' + k.h, JSON.stringify({ uid, emri: String(t.emri || '').slice(0, 60), rt, koha: Date.now() }));
       await env.FOTO.put('ora-ka:' + uid, '1');
       await env.FOTO.delete('ora-kodi:' + kodi);
       return pergjigju({ ok: true });
@@ -249,7 +252,8 @@ async function trajtoOren(req, env, rruga, pergjigju) {
     const af = await afatetPaTeHequrat(env, uid);
     const lista = af.filter(a => a.d === sot).sort((x, y) => (x.e || '').localeCompare(y.e || '')).slice(0, 60);
     const java = af.filter(a => a.d > sot && a.d <= javaFund).sort((x, y) => x.d < y.d ? -1 : x.d > y.d ? 1 : 0);
-    return pergjigju({ ok: true, dita: sot, emri: tok.emri || '', sot: lista, java: java.slice(0, 60), javaN: java.length, skaduara: af.filter(a => a.d < sot).length });
+    const skaduaraL = af.filter(a => a.d < sot).sort((x, y) => x.d < y.d ? 1 : x.d > y.d ? -1 : 0);
+    return pergjigju({ ok: true, dita: sot, emri: tok.emri || '', ekipa: !!tok.rt, sot: lista, java: java.slice(0, 60), javaN: java.length, skaduara: skaduaraL.length, skaduaraL: skaduaraL.slice(0, 60) });
   }
   if (rruga === '/ora/hiq' && req.method === 'POST') {
     const i = String(t.i || '').slice(0, 60);
@@ -261,7 +265,94 @@ async function trajtoOren(req, env, rruga, pergjigju) {
     if (hq.length) await env.FOTO.put('ora-hequr:' + uid, JSON.stringify(hq)); else await env.FOTO.delete('ora-hequr:' + uid);
     return pergjigju({ ok: true });
   }
+  if (rruga === '/ora/shkeput' && req.method === 'POST') {
+    await env.FOTO.delete('ora-tok:' + await sha256Hex(sekret));
+    return pergjigju({ ok: true });
+  }
+  if (rruga === '/ora/koleget' || rruga === '/ora/kerkese') {
+    const id = await idTokenPerOren(env, sekret, tok);
+    if (!id) return pergjigju({ ok: false, arsye: 'rilidh' }, 403);
+    if (rruga === '/ora/koleget') {
+      const lista = [];
+      try {
+        const r = await fetch(FS + '/ekipa_anetaret?pageSize=300', { headers: { Authorization: 'Bearer ' + id.token } });
+        if (!r.ok) return pergjigju({ ok: false, arsye: 'firestore-' + r.status }, 502);
+        const j = await r.json();
+        (j.documents || []).forEach(d => {
+          const u = d.name.split('/').pop(), x = objektNga(d.fields || {});
+          if (u !== uid) lista.push({ uid: u, emri: String(x.emri || u) });
+        });
+      } catch (e) { return pergjigju({ ok: false, arsye: 'rrjeti' }, 502); }
+      lista.sort((a, b) => a.emri.localeCompare(b.emri));
+      return pergjigju({ ok: true, koleget: lista });
+    }
+    // Kërkesë për heqje nga rafti: si te telefoni (ekipa.js kerkoHeqjen) + push te marrësit (/kerkese)
+    const produktet = (Array.isArray(t.produktet) ? t.produktet : []).slice(0, 20)
+      .map(x => ({ produkti: String((x && x.produkti) || '').slice(0, 120), barkodi: String((x && x.barkodi) || '').slice(0, 40) }))
+      .filter(x => x.produkti || x.barkodi);
+    if (!produktet.length) return pergjigju({ ok: false, arsye: 'bosh' }, 400);
+    const perUid = /^[A-Za-z0-9_-]{1,128}$/.test(t.perUid || '') ? t.perUid : '';
+    let marresit = [];
+    try {
+      const r = await fetch(FS + '/ekipa_anetaret?pageSize=300', { headers: { Authorization: 'Bearer ' + id.token } });
+      const j = r.ok ? await r.json() : {};
+      marresit = (j.documents || []).map(d => d.name.split('/').pop()).filter(u => u !== uid && (!perUid || u === perUid));
+    } catch (e) { /* bosh */ }
+    if (!marresit.length) return pergjigju({ ok: false, arsye: perUid ? 'anetari' : 'pa-kolege' }, 400);
+    const koha = Date.now(), fid = idERe(), shenim = String(t.shenim || '').slice(0, 300);
+    const baza = { lloji: 'kerkese-heqje', uid, emri: id.emri, koha, produkti: produktet[0].produkti, barkodi: produktet[0].barkodi, produktet, shenim };
+    const ok1 = await shkruajDoc('ekipa_feed', fid, Object.assign({}, baza, { perUid, perEmri: String(t.perEmri || '').slice(0, 60) }), id.token);
+    if (!ok1) return pergjigju({ ok: false, arsye: 'firestore' }, 502);
+    await Promise.all(marresit.map(u => shkruajDoc('perdoruesit/' + u + '/njoftimet', idERe(),
+      Object.assign({}, baza, { kerkeseId: fid, perKrejt: !perUid, lexuar: false }), id.token)));
+    // Push te pajisjet e marrësve, me të njëjtën rrugë si telefoni
+    try {
+      await W.fetch(new Request('https://stoku-push.local/kerkese', { method: 'POST', headers: { Authorization: 'Bearer ' + id.token, 'Content-Type': 'application/json', Origin: ORIGJINAT[0] }, body: JSON.stringify({ id: fid }) }), env, {});
+    } catch (e) { /* njoftimi te zilja mbetet */ }
+    return pergjigju({ ok: true, n: marresit.length });
+  }
   return pergjigju({ ok: false, arsye: 'rruga' }, 404);
+}
+// ID token i Firebase për sahatin, nga refresh token-i që telefoni ia dha gjatë lidhjes
+const FIREBASE_API_KEY = 'AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY';
+async function idTokenPerOren(env, sekret, tok) {
+  if (!tok.rt) return null;
+  try {
+    const r = await fetch('https://securetoken.googleapis.com/v1/token?key=' + FIREBASE_API_KEY, {
+      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(tok.rt)
+    });
+    if (!r.ok) return null;
+    const j = await r.json();
+    if (!j.id_token || j.user_id !== tok.uid) return null;
+    if (j.refresh_token && j.refresh_token !== tok.rt) {
+      tok.rt = j.refresh_token;
+      await env.FOTO.put('ora-tok:' + await sha256Hex(sekret), JSON.stringify(tok));
+    }
+    let email = '';
+    try { email = JSON.parse(new TextDecoder().decode(b64uNeBajte(j.id_token.split('.')[1]))).email || ''; } catch (e) { /* ok */ }
+    return { token: j.id_token, emri: String(email).split('@')[0] || tok.emri || '' };
+  } catch (e) { return null; }
+}
+function b64uNeBajte(s) {
+  s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '=';
+  const b = atob(s), o = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) o[i] = b.charCodeAt(i); return o;
+}
+function idERe() { const a = new Uint8Array(15); crypto.getRandomValues(a); return Array.from(a).map(b => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'[b % 62]).join('').slice(0, 20); }
+function vleraPer(v) {
+  if (v === null || v === undefined) return { nullValue: null };
+  if (typeof v === 'boolean') return { booleanValue: v };
+  if (typeof v === 'number') return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+  if (typeof v === 'string') return { stringValue: v };
+  if (Array.isArray(v)) return { arrayValue: { values: v.map(vleraPer) } };
+  const fields = {}; for (const k in v) fields[k] = vleraPer(v[k]); return { mapValue: { fields } };
+}
+async function shkruajDoc(koleksioni, id, obj, token) {
+  const fields = {}; for (const k in obj) fields[k] = vleraPer(obj[k]);
+  try {
+    const r = await fetch(FS + '/' + koleksioni + '?documentId=' + encodeURIComponent(id), { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify({ fields }) });
+    return r.ok;
+  } catch (e) { return false; }
 }
 async function hashEndpoint(endpoint) {
   const h = new Uint8Array(await crypto.subtle.digest('SHA-256', tekst(endpoint)));

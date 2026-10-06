@@ -22,8 +22,14 @@ data class Lista(
     val java: List<Afat>,
     val javaN: Int,
     val skaduara: Int,
+    val skaduaraL: List<Afat>,
+    val ekipa: Boolean,
     val emri: String,
 )
+
+data class Koleg(val uid: String, val emri: String)
+
+class DuhetRilidhur : Exception("rilidh")
 
 class PaLidhje : Exception("pa-lidhje")
 
@@ -58,8 +64,10 @@ object Api {
 
     fun lidhur(ctx: Context) = prefs(ctx).getBoolean("lidhur", false)
 
-    // Shkëputja: sekret i ri, që sahati të mos e lexojë më llogarinë e vjetër
-    fun shkeput(ctx: Context) {
+    // Shkëputja: serveri e fshin lidhjen dhe këtu krijohet sekret i ri, që sahati të mos e lexojë më llogarinë e vjetër
+    suspend fun shkeput(ctx: Context) {
+        val sekret = prefs(ctx).getString("sekret", null)
+        if (sekret != null) withContext(Dispatchers.IO) { try { thirr("POST", "/ora/shkeput", JSONObject(), sekret) } catch (e: Exception) { } }
         prefs(ctx).edit().clear().apply()
         rifreskoTileDheKomplikacionin(ctx)
     }
@@ -130,6 +138,28 @@ object Api {
         st == 200
     }
 
+    // Kolegët e ekipës (për kërkesat "hiqe nga rafti")
+    suspend fun koleget(ctx: Context): List<Koleg> = withContext(Dispatchers.IO) {
+        val (st, j) = thirr("GET", "/ora/koleget", null, sekreti(ctx))
+        if (st == 401) throw PaLidhje()
+        if (st == 403) throw DuhetRilidhur()
+        if (st != 200) throw Exception("serveri-$st")
+        val a = j.optJSONArray("koleget") ?: JSONArray()
+        (0 until a.length()).map { val o = a.getJSONObject(it); Koleg(o.optString("uid"), o.optString("emri")) }
+    }
+
+    // Kërkesë për heqje nga rafti te një koleg (ose te krejt ekipa kur koleg == null); kthen sa marrës
+    suspend fun kerkoHeqjen(ctx: Context, a: Afat, koleg: Koleg?): Int = withContext(Dispatchers.IO) {
+        val p = JSONArray().put(JSONObject().put("produkti", a.emri).put("barkodi", a.barkodi))
+        val t = JSONObject().put("produktet", p)
+        if (koleg != null) t.put("perUid", koleg.uid).put("perEmri", koleg.emri)
+        val (st, j) = thirr("POST", "/ora/kerkese", t, sekreti(ctx))
+        if (st == 401) throw PaLidhje()
+        if (st == 403) throw DuhetRilidhur()
+        if (st != 200) throw Exception(j.optString("arsye", "serveri-$st"))
+        j.optInt("n")
+    }
+
     private fun afatet(a: JSONArray?): List<Afat> {
         if (a == null) return emptyList()
         return (0 until a.length()).map { i ->
@@ -150,6 +180,8 @@ object Api {
         java = afatet(j.optJSONArray("java")),
         javaN = j.optInt("javaN"),
         skaduara = j.optInt("skaduara"),
+        skaduaraL = afatet(j.optJSONArray("skaduaraL")),
+        ekipa = j.optBoolean("ekipa"),
         emri = j.optString("emri"),
     )
 
