@@ -119,7 +119,8 @@ fun Logo() {
 // Ekranet brenda listës
 sealed class Pamja {
     object Lista : Pamja()
-    data class Detaji(val a: Afat, val sot: Boolean) : Pamja()
+    data class Detaji(val a: Afat, val sot: Boolean, val skaduar: Boolean = false) : Pamja()
+    data class HiqKrejt(val l: List<Afat>) : Pamja()
     data class Kolegu(val a: Afat) : Pamja()
     data class Hequr(val a: Afat) : Pamja()
     data class Derguar(val tekst: String) : Pamja()
@@ -156,11 +157,13 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
         is Pamja.Detaji -> Detaji(
             a = p.a,
             sot = p.sot,
+            skaduar = p.skaduar,
             ekipa = lista?.ekipa == true,
             kurHiqet = {
                 val a = p.a
                 pamja = Pamja.Hequr(a)
-                lista = lista?.let { l -> l.copy(sot = l.sot.filter { it.id != a.id }, java = l.java.filter { it.id != a.id }, skaduaraL = l.skaduaraL.filter { it.id != a.id }) }
+                lista = lista?.let { l -> l.copy(sot = l.sot.filter { it.id != a.id }, java = l.java.filter { it.id != a.id }, skaduaraL = l.skaduaraL.filter { it.id != a.id },
+                    skaduara = if (l.skaduaraL.any { it.id == a.id }) (l.skaduara - 1).coerceAtLeast(0) else l.skaduara) }
                 scope.launch {
                     try { Api.hiq(ctx, a.id) } catch (e: PaLidhje) { kurShkeputet() } catch (e: Exception) { gabim = "Heqja s'u ruajt. Provo prapë." }
                     Api.rifreskoTileDheKomplikacionin(ctx)
@@ -169,11 +172,28 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
             kurKerkon = { pamja = Pamja.Kolegu(p.a) },
             mbrapa = { pamja = Pamja.Lista },
         )
+        is Pamja.HiqKrejt -> HiqKrejt(
+            n = p.l.size,
+            kurPo = {
+                val ids = p.l.map { it.id }.toSet()
+                lista = lista?.let { l -> l.copy(skaduaraL = l.skaduaraL.filter { it.id !in ids }, skaduara = (l.skaduara - ids.size).coerceAtLeast(0)) }
+                pamja = Pamja.Derguar("U shënuan ${ids.size} produkte: hequr nga rafti")
+                scope.launch {
+                    var deshtoi = 0
+                    for (id in ids) {
+                        try { Api.hiq(ctx, id) } catch (e: PaLidhje) { kurShkeputet(); return@launch } catch (e: Exception) { deshtoi++ }
+                    }
+                    if (deshtoi > 0) gabim = "$deshtoi heqje s'u ruajtën. Provo prapë."
+                    Api.rifreskoTileDheKomplikacionin(ctx)
+                }
+            },
+            mbrapa = { pamja = Pamja.Lista },
+        )
         is Pamja.Kolegu -> ZgjedhKolegun(
             a = p.a,
             kurDergohet = { tekst -> pamja = Pamja.Derguar(tekst) },
             kurShkeputet = kurShkeputet,
-            mbrapa = { pamja = Pamja.Detaji(p.a, false) },
+            mbrapa = { pamja = Pamja.Detaji(p.a, false, lista?.skaduaraL?.any { it.id == p.a.id } == true) },
         )
         is Pamja.Hequr -> {
             val a = p.a
@@ -202,7 +222,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                     val l = lista
                     item {
                         ListHeader {
-                            Text(if (l == null) "STOKU" else "SKADOJNË SOT · ${l.sot.size}", color = Gri, fontWeight = FontWeight.SemiBold)
+                            Text(if (l == null) "STOKU" else "PËR T'U HEQUR · ${l.sot.size + l.skaduara}", color = Gri, fontWeight = FontWeight.SemiBold)
                         }
                     }
                     iRi?.let { v ->
@@ -222,17 +242,28 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                         }
                     }
                     if (l == null && duke) item { CircularProgressIndicator(indicatorColor = Verdhe) }
+                    // Të skaduarat të parat: duhen hequr nga rafti menjëherë
+                    if (l != null && l.skaduaraL.isNotEmpty()) {
+                        item { ListHeader { Text("KANË SKADUAR · ${l.skaduara}", color = Kuqe, fontWeight = FontWeight.Bold) } }
+                        items(l.skaduaraL, key = { "k" + it.id + it.data }) { a ->
+                            RreshtiAfatit(a, "Skadoi " + dataShkurt(a.data) + (a.sasia?.let { " · $it copë" } ?: ""), Kuqe) { pamja = Pamja.Detaji(a, false, true) }
+                        }
+                        if (l.skaduaraL.size > 1) item {
+                            Chip(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = { pamja = Pamja.HiqKrejt(l.skaduaraL) },
+                                label = { Text("Hiqi krejt nga rafti", fontWeight = FontWeight.Bold) },
+                                secondaryLabel = { Text("${l.skaduaraL.size} të skaduara", color = Color.Black) },
+                                colors = ChipDefaults.chipColors(backgroundColor = Kuqe, contentColor = Color.Black),
+                            )
+                        }
+                    }
+                    item { ListHeader { Text("SKADOJNË SOT · ${l?.sot?.size ?: 0}", color = Verdhe, fontWeight = FontWeight.SemiBold) } }
                     if (l != null && l.sot.isEmpty()) item {
                         Text("Asnjë produkt s'skadon sot ✓", textAlign = TextAlign.Center, color = Color.White, modifier = Modifier.padding(8.dp))
                     }
                     if (l != null) items(l.sot, key = { "s" + it.id }) { a ->
-                        RreshtiAfatit(a, pershkrimi(a), Kuqe) { pamja = Pamja.Detaji(a, true) }
-                    }
-                    if (l != null && l.skaduaraL.isNotEmpty()) {
-                        item { ListHeader { Text("KANË SKADUAR · ${l.skaduara}", color = Kuqe, fontWeight = FontWeight.SemiBold) } }
-                        items(l.skaduaraL, key = { "k" + it.id + it.data }) { a ->
-                            RreshtiAfatit(a, "Skadoi " + dataShkurt(a.data) + (a.sasia?.let { " · $it copë" } ?: ""), Kuqe) { pamja = Pamja.Detaji(a, false) }
-                        }
+                        RreshtiAfatit(a, pershkrimi(a), Verdhe) { pamja = Pamja.Detaji(a, true) }
                     }
                     if (l != null && l.java.isNotEmpty()) {
                         item { ListHeader { Text("KËTË JAVË · ${l.javaN}", color = Gri, fontWeight = FontWeight.SemiBold) } }
@@ -275,20 +306,20 @@ fun RreshtiAfatit(a: Afat, poshte: String, ngjyra: Color, kurPreket: () -> Unit)
 
 // Produkti i zgjedhur: "U hoq nga rafti" ose "Kërko heqje nga ekipa"
 @Composable
-fun Detaji(a: Afat, sot: Boolean, ekipa: Boolean, kurHiqet: () -> Unit, kurKerkon: () -> Unit, mbrapa: () -> Unit) {
+fun Detaji(a: Afat, sot: Boolean, skaduar: Boolean = false, ekipa: Boolean, kurHiqet: () -> Unit, kurKerkon: () -> Unit, mbrapa: () -> Unit) {
     val gjendja = rememberScalingLazyListState()
     Scaffold(positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
         ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
             item { Text(a.emri, fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis) }
             item {
-                Text((if (sot) "Skadon sot" else "Afati " + dataShkurt(a.data)) + (a.sasia?.let { " · $it copë" } ?: "") + (if (a.barkodi.isNotBlank()) " · " + a.barkodi else ""),
-                    fontSize = 12.sp, color = Gri, textAlign = TextAlign.Center)
+                Text((if (sot) "Skadon sot" else if (skaduar) "Skadoi më " + dataShkurt(a.data) else "Afati " + dataShkurt(a.data)) + (a.sasia?.let { " · $it copë" } ?: "") + (if (a.barkodi.isNotBlank()) " · " + a.barkodi else ""),
+                    fontSize = 12.sp, color = if (skaduar) Kuqe else Gri, textAlign = TextAlign.Center)
             }
             item {
                 Chip(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = kurHiqet,
-                    label = { Text("✓ U hoq nga rafti", fontWeight = FontWeight.Bold) },
+                    label = { Text("✓ E hoqa nga rafti", fontWeight = FontWeight.Bold) },
                     colors = ChipDefaults.primaryChipColors(),
                 )
             }
@@ -401,4 +432,25 @@ fun pershkrimi(a: Afat): String {
 fun dataShkurt(iso: String): String {
     val x = iso.split("-")
     return if (x.size == 3) x[2] + "." + x[1] else iso
+}
+
+// Konfirmimi: krejt të skaduarat u hoqën nga rafti
+@Composable
+fun HiqKrejt(n: Int, kurPo: () -> Unit, mbrapa: () -> Unit) {
+    val gjendja = rememberScalingLazyListState()
+    Scaffold(positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
+        ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
+            item { Text("Hiqi krejt?", fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, textAlign = TextAlign.Center) }
+            item { Text("$n produkte që kanë skaduar shënohen \"hequr nga rafti\".", fontSize = 12.sp, color = Gri, textAlign = TextAlign.Center) }
+            item {
+                Chip(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = kurPo,
+                    label = { Text("✓ Po, i hoqa krejt", fontWeight = FontWeight.Bold) },
+                    colors = ChipDefaults.chipColors(backgroundColor = Kuqe, contentColor = Color.Black),
+                )
+            }
+            item { Chip(onClick = mbrapa, label = { Text("Mbrapa") }, colors = ChipDefaults.childChipColors()) }
+        }
+    }
 }

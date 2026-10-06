@@ -81,6 +81,7 @@ class StokuTile : TileService() {
         } else {
             kolona.addContent(teksti(l.sot.size.toString(), 64f, if (l.sot.isEmpty()) GJELBER else VERDHE, true))
                 .addContent(teksti(if (l.sot.size == 1) "skadon sot" else "skadojnë sot", 17f, BARDHE, true))
+            if (l.skaduara > 0) kolona.addContent(hapesire(2f)).addContent(teksti("${l.skaduara} kanë skaduar", 14f, KUQE, true))
             if (l.javaN > 0) kolona.addContent(hapesire(2f)).addContent(teksti("+ ${l.javaN} këtë javë", 13f, GRI))
         }
         kolona.addContent(hapesire(10f))
@@ -125,6 +126,7 @@ class StokuTile : TileService() {
         const val GJELBER = 0xFF3DDC84.toInt()
         const val GRI = 0xFF9AA0A8.toInt()
         const val BARDHE = 0xFFFFFFFF.toInt()
+        const val KUQE = 0xFFFF5A4E.toInt()
         const val ZEZE = 0xFF111111.toInt()
     }
 }
