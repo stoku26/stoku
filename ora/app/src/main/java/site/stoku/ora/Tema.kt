@@ -5,7 +5,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.rotate
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -17,11 +23,9 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathParser
-import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
-import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.Icon
 
 // Ngjyra kryesore e aplikacionit të orës (Cilësimet → Pamja). Ruhet në orë; e verdha është ajo e Stoku-t.
@@ -54,15 +58,6 @@ object Tema {
     }
 }
 
-// Shigjeta "mbrapa", e njëjta me atë të telefonit (SVG: M15 18l-6-6 6-6, vija 2.4, cepat e rrumbullakët)
-val ShigjetaMbrapa: ImageVector by lazy {
-    ImageVector.Builder(name = "mbrapa", defaultWidth = 24.dp, defaultHeight = 24.dp, viewportWidth = 24f, viewportHeight = 24f)
-        .path(stroke = SolidColor(Color.White), strokeLineWidth = 2.4f, strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round) {
-            moveTo(15f, 18f); lineTo(9f, 12f); lineTo(15f, 6f)
-        }
-        .build()
-}
-
 // Ikona e Cilësimeve: e njëjta ingranazh si te shiriti i telefonit (rrethi + dhëmbët, vija 2)
 private const val GEAR_D = "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
 private const val RRETHI_D = "M15 12a3 3 0 1 1-6 0a3 3 0 1 1 6 0z"
@@ -90,17 +85,24 @@ val IkonaRifresko: ImageVector by lazy {
     b.build()
 }
 
-// Butoni i rrumbullakët i rifreskimit (gjatë ngarkimit: rrotullim)
+// Butoni i rrumbullakët i rifreskimit: gjatë ngarkimit vetë ikona sillet rreth vetes (pa e ndërruar butonin)
 @Composable
 fun ButoniRifresko(duke: Boolean, onClick: () -> Unit) {
+    val kendi = remember { Animatable(0f) }
+    LaunchedEffect(duke) {
+        if (duke) {
+            while (true) kendi.animateTo(kendi.value + 360f, tween(durationMillis = 800, easing = LinearEasing))
+        } else if (kendi.value % 360f != 0f) {
+            // e përfundon rrotullimin e nisur, që ikona të ndalet drejt
+            kendi.animateTo((kendi.value / 360f).toInt() * 360f + 360f, tween(durationMillis = 300, easing = LinearEasing))
+        }
+    }
     Button(
-        onClick = onClick,
-        enabled = !duke,
+        onClick = { if (!duke) onClick() },
         modifier = Modifier.size(ButtonDefaults.DefaultButtonSize),
-        colors = ButtonDefaults.buttonColors(backgroundColor = Kartela, contentColor = Color.White, disabledBackgroundColor = Kartela, disabledContentColor = Color.White),
+        colors = ButtonDefaults.buttonColors(backgroundColor = Kartela, contentColor = if (duke) Verdhe else Color.White),
     ) {
-        if (duke) CircularProgressIndicator(modifier = Modifier.size(24.dp), indicatorColor = Verdhe, strokeWidth = 2.dp)
-        else Icon(imageVector = IkonaRifresko, contentDescription = "Rifresko", modifier = Modifier.size(22.dp))
+        Icon(imageVector = IkonaRifresko, contentDescription = "Rifresko", modifier = Modifier.size(22.dp).rotate(kendi.value))
     }
 }
 
@@ -116,18 +118,6 @@ fun ButoniCilesimet(kaTeRe: Boolean, onClick: () -> Unit) {
             Icon(imageVector = IkonaCilesimet, contentDescription = "Cilësimet", modifier = Modifier.size(24.dp))
         }
         if (kaTeRe) Box(Modifier.size(12.dp).background(Verdhe, CircleShape))
-    }
-}
-
-// Butoni i rrumbullakët "mbrapa" (si te telefoni: rreth me sfond, shigjeta në mes)
-@Composable
-fun ButoniMbrapa(onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
-        colors = ButtonDefaults.buttonColors(backgroundColor = Kartela, contentColor = Color.White),
-    ) {
-        Icon(imageVector = ShigjetaMbrapa, contentDescription = "Mbrapa", modifier = Modifier.size(20.dp))
     }
 }
 
