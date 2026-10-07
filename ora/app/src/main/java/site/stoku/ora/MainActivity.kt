@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterialApi::class)
-
 package site.stoku.ora
 
 import android.os.Bundle
@@ -47,10 +45,10 @@ import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.foundation.clickable
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -61,7 +59,15 @@ val Gri = Color(0xFF9AA0A8)
 val Kartela = Color(0xFF1D2026)
 val Gjelber = Color(0xFF3DDC84)
 
+// Rifreskimi automatik: sa herë hapet/rikthehet aplikacioni dhe çdo minutë ndërsa është në ekran
+object Rikthimi {
+    var n by mutableStateOf(0)
+    @Volatile var neEkran = false
+}
+
 class MainActivity : ComponentActivity() {
+    override fun onResume() { super.onResume(); Rikthimi.neEkran = true; Rikthimi.n++ }
+    override fun onPause() { Rikthimi.neEkran = false; super.onPause() }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Tema.ngarko(this)
@@ -174,7 +180,14 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
     }
     var iRi by remember { mutableStateOf<Pair<Int, String>?>(null) }
     var dukePerditesuar by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { ngarko() }
+    var rifreskuar by remember { mutableStateOf(Api.listaERuajtur(ctx)?.let { System.currentTimeMillis() }) }
+    LaunchedEffect(Rikthimi.n) { ngarko(); rifreskuar = System.currentTimeMillis() }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(60_000)
+            if (Rikthimi.neEkran && pamja is Pamja.Lista && !duke) { ngarko(); rifreskuar = System.currentTimeMillis() }
+        }
+    }
     LaunchedEffect(Unit) { iRi = Perditesimi.kontrollo(ctx) }
     BackHandler(enabled = pamja !is Pamja.Lista) { pamja = if (pamja is Pamja.Ngjyrat) Pamja.Cilesimet else Pamja.Lista }
 
@@ -251,10 +264,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
         }
         Pamja.Lista -> {
             val gjendja = rememberScalingLazyListState()
-            // Rrëshqit listën poshtë (nga maja) për ta rifreskuar
-            val rifreskimi = rememberPullRefreshState(refreshing = duke && lista != null, onRefresh = { scope.launch { ngarko() } })
             Scaffold(timeText = { TimeText() }, positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
-              Box(Modifier.fillMaxSize().pullRefresh(rifreskimi)) {
                 ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
                     val l = lista
                     item {
@@ -309,25 +319,21 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                         }
                     }
                     gabim?.let { g -> item { Text(g, fontSize = 11.sp, color = Kuqe, textAlign = TextAlign.Center, modifier = Modifier.padding(6.dp)) } }
+                    // Rifreskohet vetë (hapje, rikthim, çdo minutë); prekja e këtij rreshti e rifreskon menjëherë
                     item {
-                        Chip(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = { pamja = Pamja.Cilesimet },
-                            label = { Text("Cilësimet") },
-                            secondaryLabel = { Text(if (iRi != null) "Version i ri: 1.0.${iRi!!.first}" else "Pamja, përditësimi, lidhja", color = Gri, maxLines = 1) },
-                            colors = ChipDefaults.secondaryChipColors(),
+                        val koha = rifreskuar?.let { SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(it)) }
+                        Text(
+                            if (duke) "Duke rifreskuar…" else if (koha != null) "Rifreskuar $koha · prek për rifreskim" else "Prek për rifreskim",
+                            fontSize = 10.sp, color = Gri, textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(top = 4.dp).clickable(enabled = !duke) { scope.launch { ngarko(); rifreskuar = System.currentTimeMillis() } },
                         )
                     }
-                    item { Text("Tërhiqe listën poshtë për ta rifreskuar", fontSize = 10.sp, color = Gri, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 4.dp)) }
+                    item {
+                        Box(Modifier.fillMaxWidth().padding(top = 4.dp), contentAlignment = Alignment.Center) {
+                            ButoniCilesimet(kaTeRe = iRi != null) { pamja = Pamja.Cilesimet }
+                        }
+                    }
                 }
-                PullRefreshIndicator(
-                    refreshing = duke && lista != null,
-                    state = rifreskimi,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                    backgroundColor = Kartela,
-                    contentColor = Verdhe,
-                )
-              }
             }
         }
     }
@@ -520,8 +526,6 @@ fun Cilesimet(emri: String, iRiFillim: Pair<Int, String>?, kurGjendetIRi: (Pair<
                     colors = ChipDefaults.secondaryChipColors(),
                 )
             }
-            item { Text("Stoku për orë · 1.0.$versioni", fontSize = 13.sp, color = Color.White, textAlign = TextAlign.Center) }
-            if (emri.isNotBlank()) item { Text("Llogaria: $emri", fontSize = 12.sp, color = Gri, textAlign = TextAlign.Center) }
             item {
                 val v = iRi
                 Chip(
@@ -556,6 +560,9 @@ fun Cilesimet(emri: String, iRiFillim: Pair<Int, String>?, kurGjendetIRi: (Pair<
                     colors = if (pyetShkeputje) ChipDefaults.chipColors(backgroundColor = Kuqe, contentColor = Color.Black) else ChipDefaults.secondaryChipColors(),
                 )
             }
+            // Në fund: llogaria dhe versioni (si "Stoku 1.x" te telefoni)
+            if (emri.isNotBlank()) item { Text("Llogaria: $emri", fontSize = 11.sp, color = Gri, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 8.dp)) }
+            item { Text("Stoku për orë · 1.0.$versioni", fontSize = 11.sp, color = Gri, textAlign = TextAlign.Center) }
         }
     }
 }

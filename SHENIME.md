@@ -50,6 +50,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ORA: PA PULLREFRESH, INGRANAZH, VERSIONI NË FUND (v175 = 1.11.3)**: rrëshqitja poshtë në orë hapte panelin e
+   sistemit → u hoq `pullRefresh` (dhe varësia compose-material). Tash `Rikthimi` (onResume → n++, rifreskim) + çdo 60 s kur
+   lista është në ekran + rreshti "Rifreskuar HH:mm · prek për rifreskim". `ButoniCilesimet` (ImageVector nga SVG-ja e
+   ingranazhit të telefonit, me PathParser; pikë kur ka version të ri). Cilësimet: llogaria + "Stoku për orë · 1.0.N" në fund.
 0000000. **HERO E ÇELËT NË TEMËN E ÇELËT (v174 = 1.11.2)**: `.sb-summary` (tel) dhe `.kpi-hero` (PC) ishin `--sb-hero`
    (#14161b) edhe në temën e çelët; tash `html.sb(p):not([data-tema="dark"])` → `--sb-surface` + vijë. `.sb-scan` (afati i ri) mbeti i errët.
 0000000. **#oraKodi PA NUMËR SHEMBULL (v173 = 1.11.1)**: placeholder "482913" dukej si kod i vërtetë → "Kodi nga ora"

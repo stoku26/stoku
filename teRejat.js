@@ -18,6 +18,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 175, versioni: '1.11.3', data: '2026-10-07', titulli: 'Ora: rifreskim vetë dhe Cilësimet me ingranazh', pikat: [
+      'Ora: lista rifreskohet vetë kur e hap ose kthehesh në Stoku, dhe çdo minutë; prekja e "Rifreskuar ..." e rifreskon menjëherë. Rrëshqitja poshtë u hoq, sepse hapte panelin e orës.',
+      'Ora: Cilësimet hapen me butonin e rrumbullakët me ingranazh, si te telefoni.',
+      'Ora: llogaria dhe versioni dalin në fund të Cilësimeve.'
+    ] },
     { v: 174, versioni: '1.11.2', data: '2026-10-07', titulli: 'Përmbledhja e bardhë në temën e çelët', pikat: [
       'Në temën e çelët kartela "Produkte gjithsej" tash është e bardhë si kartelat e tjera; në temën e errët mbetet e errët.'
     ] },
