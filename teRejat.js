@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 184, versioni: '1.13.2', data: '2026-10-08', titulli: 'Rolet me ikona', pikat: [
+      'Te Ekipa, në vend të teksteve "pronar" dhe "admin" tash dalin ikona të vogla: kurora për pronarin, mburoja për administratorin. Kur i prek, të tregon çka janë.',
+      'Shenja "ti" u hoq.'
+    ] },
     { v: 183, versioni: '1.13.1', data: '2026-10-08', titulli: 'Ekipa: pa Stokun, ikona e re offline', pikat: [
       'Te Ekipa u hoq "Stoku".',
       'Kur një koleg është offline, tash del pajisja e tij (telefon ose kompjuter) me ngjyrë gri dhe pikë gri, pastaj kur u pa së fundi.'

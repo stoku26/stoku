@@ -50,6 +50,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ROLET SI IKONA (v184 = 1.13.2)**: `ekIkonaRoli(roli, krijo, njofto)` (tel + PC): kurora (pronar, `--sb-near`) dhe mburoja
+   (admin, `--sb-accent`), 22px, title/aria-label, prekja → toast me shpjegimin. Shenja "ti" u hoq kudo (edhe rripi Online tregon emrin).
 0000000. **EKIPA: PA STOKUN, IKONA OFFLINE (v183 = 1.13.1)**: `#ekChipStoku` (tel) dhe `#ekSegStoku` (PC) gjithmonë të fshehur, pamja
    'stoku' → përmbledhja/pulti, edhe për adminin. `praniaIkone` offline: ikona e pajisjes (IK_TEL/IK_PC) + `.pk` gri në vend të IK_OFF
    (wifi e prerë); përdoruesi zgjodhi "Pajisja gri + pikë gri".
