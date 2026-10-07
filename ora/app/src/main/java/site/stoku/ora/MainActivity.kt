@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterialApi::class)
+
 package site.stoku.ora
 
 import android.os.Bundle
@@ -8,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,10 +47,15 @@ import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-val Verdhe = Color(0xFFF5B70A)
+// Ngjyra kryesore: ndiqet zgjedhja te Cilësimet → Pamja (e verdha e Stoku-t si parazgjedhje)
+val Verdhe: Color get() = Tema.theks
 val Kuqe = Color(0xFFFF5A4E)
 val Gri = Color(0xFF9AA0A8)
 val Kartela = Color(0xFF1D2026)
@@ -56,6 +64,7 @@ val Gjelber = Color(0xFF3DDC84)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Tema.ngarko(this)
         setContent {
             MaterialTheme(colors = Colors(primary = Verdhe, onPrimary = Color.Black, surface = Kartela)) {
                 Aplikacioni()
@@ -73,20 +82,33 @@ fun Aplikacioni() {
     else ListaEkrani(kurShkeputet = { scope.launch { Api.shkeput(ctx); lidhur = false } })
 }
 
-// Ekrani i parë: kodi që shkruhet te telefoni. Kontrollohet çdo 3 sekonda derisa telefoni ta lidhë.
+// Ekrani i parë: kodi që shkruhet te telefoni. Kodi ndërrohet çdo 15 sekonda; lidhja kontrollohet çdo 3 sekonda.
+const val KODI_SEKONDA = 15
+
 @Composable
 fun Lidhja(kurLidhet: () -> Unit) {
     val ctx = LocalContext.current
-    var kodi by remember { mutableStateOf(Api.kodi(ctx)) }
+    var kodi by remember { mutableStateOf(Api.kodiIRi(ctx)) }
+    var mbeten by remember { mutableStateOf(KODI_SEKONDA) }
     var gabim by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
+        var kohaKodit = System.currentTimeMillis()
+        var kontrolli = 0L
         while (true) {
-            try {
-                if (Api.kontrolloLidhjen(ctx)) { kurLidhet(); break }
-                gabim = false
-            } catch (e: Exception) { gabim = true }
-            kodi = Api.kodi(ctx)
-            delay(3000)
+            val tani = System.currentTimeMillis()
+            if (tani - kohaKodit >= KODI_SEKONDA * 1000L) {
+                kodi = Api.kodiIRi(ctx); kohaKodit = tani; kontrolli = 0L
+            }
+            mbeten = (KODI_SEKONDA - ((tani - kohaKodit) / 1000L).toInt()).coerceIn(1, KODI_SEKONDA)
+            if (tani - kontrolli >= 3000L) {
+                kontrolli = tani
+                try {
+                    if (Api.kontrolloLidhjen(ctx)) { kurLidhet(); break }
+                    gabim = false
+                } catch (e: Exception) { gabim = true }
+                kodi = Api.kodi(ctx) // mund të ndryshojë kur kodi është i zënë
+            }
+            delay(250)
         }
     }
     Column(
@@ -98,6 +120,7 @@ fun Lidhja(kurLidhet: () -> Unit) {
         Spacer(Modifier.height(6.dp))
         Text("Lidhe me telefonin", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
         Text(kodi.substring(0, 3) + " " + kodi.substring(3), fontSize = 34.sp, fontWeight = FontWeight.ExtraBold, color = Verdhe, letterSpacing = 3.sp)
+        Text("Kod i ri pas $mbeten s", fontSize = 11.sp, color = Color.White)
         Text(
             if (gabim) "S'ka internet. Po provoj prapë…" else "Te telefoni: Cilësimet → Ora e dorës → Lidh orën",
             fontSize = 11.sp, color = Gri, textAlign = TextAlign.Center,
@@ -122,6 +145,7 @@ sealed class Pamja {
     data class Detaji(val a: Afat, val sot: Boolean, val skaduar: Boolean = false) : Pamja()
     data class HiqKrejt(val l: List<Afat>) : Pamja()
     object Cilesimet : Pamja()
+    object Ngjyrat : Pamja()
     data class Kolegu(val a: Afat) : Pamja()
     data class Hequr(val a: Afat) : Pamja()
     data class Derguar(val tekst: String) : Pamja()
@@ -152,7 +176,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
     var dukePerditesuar by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { ngarko() }
     LaunchedEffect(Unit) { iRi = Perditesimi.kontrollo(ctx) }
-    BackHandler(enabled = pamja !is Pamja.Lista) { pamja = Pamja.Lista }
+    BackHandler(enabled = pamja !is Pamja.Lista) { pamja = if (pamja is Pamja.Ngjyrat) Pamja.Cilesimet else Pamja.Lista }
 
     when (val p = pamja) {
         is Pamja.Detaji -> Detaji(
@@ -195,8 +219,10 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
             iRiFillim = iRi,
             kurGjendetIRi = { iRi = it },
             kurShkeputet = kurShkeputet,
+            kurPamja = { pamja = Pamja.Ngjyrat },
             mbrapa = { pamja = Pamja.Lista },
         )
+        Pamja.Ngjyrat -> PamjaEkrani(mbrapa = { pamja = Pamja.Cilesimet })
         is Pamja.Kolegu -> ZgjedhKolegun(
             a = p.a,
             kurDergohet = { tekst -> pamja = Pamja.Derguar(tekst) },
@@ -225,7 +251,10 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
         }
         Pamja.Lista -> {
             val gjendja = rememberScalingLazyListState()
+            // Rrëshqit listën poshtë (nga maja) për ta rifreskuar
+            val rifreskimi = rememberPullRefreshState(refreshing = duke && lista != null, onRefresh = { scope.launch { ngarko() } })
             Scaffold(timeText = { TimeText() }, positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
+              Box(Modifier.fillMaxSize().pullRefresh(rifreskimi)) {
                 ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
                     val l = lista
                     item {
@@ -282,21 +311,23 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                     gabim?.let { g -> item { Text(g, fontSize = 11.sp, color = Kuqe, textAlign = TextAlign.Center, modifier = Modifier.padding(6.dp)) } }
                     item {
                         Chip(
-                            onClick = { scope.launch { ngarko() } },
-                            label = { Text(if (duke) "Duke rifreskuar…" else "Rifresko") },
-                            colors = ChipDefaults.primaryChipColors(),
-                        )
-                    }
-                    item {
-                        Chip(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = { pamja = Pamja.Cilesimet },
                             label = { Text("Cilësimet") },
-                            secondaryLabel = { Text(if (iRi != null) "Version i ri: 1.0.${iRi!!.first}" else "Versioni, përditësimi, lidhja", color = Gri, maxLines = 1) },
+                            secondaryLabel = { Text(if (iRi != null) "Version i ri: 1.0.${iRi!!.first}" else "Pamja, përditësimi, lidhja", color = Gri, maxLines = 1) },
                             colors = ChipDefaults.secondaryChipColors(),
                         )
                     }
+                    item { Text("Tërhiqe listën poshtë për ta rifreskuar", fontSize = 10.sp, color = Gri, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 4.dp)) }
                 }
+                PullRefreshIndicator(
+                    refreshing = duke && lista != null,
+                    state = rifreskimi,
+                    modifier = Modifier.align(Alignment.TopCenter),
+                    backgroundColor = Kartela,
+                    contentColor = Verdhe,
+                )
+              }
             }
         }
     }
@@ -467,7 +498,7 @@ fun HiqKrejt(n: Int, kurPo: () -> Unit, mbrapa: () -> Unit) {
 
 // Cilësimet e orës: versioni, përditësimi direkt nga ora, llogaria e lidhur, shkëputja
 @Composable
-fun Cilesimet(emri: String, iRiFillim: Pair<Int, String>?, kurGjendetIRi: (Pair<Int, String>?) -> Unit, kurShkeputet: () -> Unit, mbrapa: () -> Unit) {
+fun Cilesimet(emri: String, iRiFillim: Pair<Int, String>?, kurGjendetIRi: (Pair<Int, String>?) -> Unit, kurShkeputet: () -> Unit, kurPamja: () -> Unit, mbrapa: () -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val versioni = remember { try { ctx.packageManager.getPackageInfo(ctx.packageName, 0).longVersionCode.toInt() } catch (e: Exception) { 0 } }
@@ -478,7 +509,17 @@ fun Cilesimet(emri: String, iRiFillim: Pair<Int, String>?, kurGjendetIRi: (Pair<
     val gjendja = rememberScalingLazyListState()
     Scaffold(positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
         ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
-            item { ListHeader { Text("CILËSIMET", color = Gri, fontWeight = FontWeight.SemiBold) } }
+            item { Koka("Cilësimet", mbrapa) }
+            item {
+                Chip(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = kurPamja,
+                    label = { Text("Pamja", fontWeight = FontWeight.Bold) },
+                    secondaryLabel = { Text("Ngjyra: " + Tema.NGJYRAT[Tema.zgjedhur].emri, color = Gri, maxLines = 1) },
+                    icon = { RrethiNgjyres(Verdhe, false) },
+                    colors = ChipDefaults.secondaryChipColors(),
+                )
+            }
             item { Text("Stoku për orë · 1.0.$versioni", fontSize = 13.sp, color = Color.White, textAlign = TextAlign.Center) }
             if (emri.isNotBlank()) item { Text("Llogaria: $emri", fontSize = 12.sp, color = Gri, textAlign = TextAlign.Center) }
             item {
@@ -515,7 +556,40 @@ fun Cilesimet(emri: String, iRiFillim: Pair<Int, String>?, kurGjendetIRi: (Pair<
                     colors = if (pyetShkeputje) ChipDefaults.chipColors(backgroundColor = Kuqe, contentColor = Color.Black) else ChipDefaults.secondaryChipColors(),
                 )
             }
-            item { Chip(onClick = mbrapa, label = { Text("Mbrapa") }, colors = ChipDefaults.childChipColors()) }
+        }
+    }
+}
+
+// Koka e ekraneve të Cilësimeve: butoni i rrumbullakët mbrapa + titulli
+@Composable
+fun Koka(titulli: String, mbrapa: () -> Unit) {
+    Row(Modifier.fillMaxWidth().padding(bottom = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+        ButoniMbrapa(mbrapa)
+        Spacer(Modifier.size(8.dp))
+        Text(titulli, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
+    }
+}
+
+// Cilësimet → Pamja: ngjyra kryesore e aplikacionit në orë
+@Composable
+fun PamjaEkrani(mbrapa: () -> Unit) {
+    val ctx = LocalContext.current
+    val gjendja = rememberScalingLazyListState()
+    Scaffold(positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
+        ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
+            item { Koka("Pamja", mbrapa) }
+            item { Text("Ngjyra kryesore", fontSize = 12.sp, color = Gri, textAlign = TextAlign.Center) }
+            items(Tema.NGJYRAT.size) { i ->
+                val n = Tema.NGJYRAT[i]
+                val po = Tema.zgjedhur == i
+                Chip(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { Tema.ruaj(ctx, i) },
+                    label = { Text(if (po) n.emri + "  ✓" else n.emri, fontWeight = if (po) FontWeight.Bold else FontWeight.Normal) },
+                    icon = { RrethiNgjyres(n.c, po) },
+                    colors = ChipDefaults.secondaryChipColors(),
+                )
+            }
         }
     }
 }
