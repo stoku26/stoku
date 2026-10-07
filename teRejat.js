@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 185, versioni: '1.13.3', data: '2026-10-08', titulli: 'Rregullime të vogla në pamje', pikat: [
+      'Kur prek kurorën ose mburojën te Anëtarët, shpjegimi del në një flluskë të vogël pikërisht te ikona.',
+      'Te Afatet, rreshtat e filtrave (statusi dhe muajt) rrëshqasin brenda kufijve të faqes, pa dalë skaj më skaj.'
+    ] },
     { v: 184, versioni: '1.13.2', data: '2026-10-08', titulli: 'Rolet me ikona', pikat: [
       'Te Ekipa, në vend të teksteve "pronar" dhe "admin" tash dalin ikona të vogla: kurora për pronarin, mburoja për administratorin. Kur i prek, të tregon çka janë.',
       'Shenja "ti" u hoq.'
