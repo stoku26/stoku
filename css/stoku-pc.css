@@ -516,3 +516,7 @@
 html.sbp:not([data-tema="dark"]) .kpi.kpi-hero { background: var(--sb-surface); color: var(--sb-ink); box-shadow: var(--sb-ring); }
 html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-etik { color: var(--sb-muted); }
 html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-nen { background: var(--sb-surface-2); color: var(--sb-ink-3); }
+
+/* v179: heqja e kolegut pret miratimin e pronarit */
+.sbp .ek-pritje { display: inline-block; padding: 4px 10px; border-radius: 20px; background: var(--sb-surface-2); color: var(--sb-ink-3); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.sbp .ek-nj-veprim .btn + .btn { margin-left: 6px; }

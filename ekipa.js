@@ -877,6 +877,18 @@
         return pritPak(shtoNeRadhe(rrG('feed'), Object.assign({ lloji: 'kerkese-kryer', uid: uid(), emri: emri(), koha: koha,
           kerkuesUid: nj.uid || '', kerkuesEmri: nj.emri || '' }, te)));
       },
+      // Pronari vendos për heqjen e një kolegu: njoftimi i vet (vendim), njoftim te kolegu dhe ngjarje te aktiviteti
+      vendosPerHeqjen: async function (nj, pranoj) {
+        if (!uid() || !nj || !nj.id) return { ok: false };
+        var koha = Date.now(), lloji = pranoj ? 'heqje-pranuar' : 'heqje-refuzuar';
+        try { await fs.setDoc(fs.doc(db, 'perdoruesit', uid(), 'njoftimet', nj.id), { vendim: pranoj ? 'pranuar' : 'refuzuar', vendosurSe: koha, lexuar: true }, { merge: true }); }
+        catch (e) { if (!/unavailable|deadline/.test(String(e && e.code))) return gabim(e); }
+        if (!grupi) return { ok: true };
+        var te = { afatId: nj.afatId || '', produkti: nj.produkti || '', barkodi: nj.barkodi || '', data: nj.data || '' };
+        if (nj.uid && nj.uid !== uid()) shtoNeRadhe(['perdoruesit', nj.uid, 'njoftimet'], Object.assign({ lloji: lloji, grupi: grupi, uid: uid(), emri: emri(), koha: koha, lexuar: false }, te));
+        return pritPak(shtoNeRadhe(rrG('feed'), Object.assign({ lloji: lloji, uid: uid(), emri: emri(), koha: koha, pronariUid: uid(),
+          kerkuesUid: nj.uid || '', kerkuesEmri: nj.emri || '' }, te)));
+      },
       // Fshin krejt chat-in ose aktivitetin e grupit ('chat' | 'feed')
       pastroKoleksionin: async function (k) {
         if (!grupi || (k !== 'chat' && k !== 'feed')) return { ok: false, n: 0 };
@@ -1035,21 +1047,33 @@
 
   // Heqjet nga rafti të bëra nga kolegët (nga aktiviteti) → afati tregohet "i hequr" te të gjithë,
   // edhe para se aplikacioni i pronarit ta ketë zbatuar në dyqanin e tij.
+  // Heqjet nga rafti që një koleg i bëri në afatet e dikujt tjetër (ngjarja "hequr" me pronariUid) dhe vendimi i pronarit
+  // ("heqje-pranuar" / "heqje-refuzuar"). Çelësi: pronariUid|afatId → { heqja, vendimi }.
+  function eshteHeqjeKolegu(ng) { return ng && ng.lloji === 'hequr' && ng.pronariUid && ng.afatId && ng.pronariUid !== ng.uid; }
   function hartaEHeqjeve(ngjarjet) {
     var m = {};
     (ngjarjet || []).forEach(function (ng) {
-      if (ng.lloji !== 'hequr' || !ng.pronariUid || !ng.afatId) return;
-      var k = ng.pronariUid + '|' + ng.afatId;
-      if (!m[k] || m[k].koha < ng.koha) m[k] = ng;
+      if (!ng || !ng.afatId) return;
+      if (eshteHeqjeKolegu(ng)) {
+        var k = ng.pronariUid + '|' + ng.afatId;
+        m[k] = m[k] || {};
+        if (!m[k].heqja || m[k].heqja.koha < ng.koha) m[k].heqja = ng;
+      } else if (ng.lloji === 'heqje-pranuar' || ng.lloji === 'heqje-refuzuar') {
+        var kv = (ng.pronariUid || ng.uid) + '|' + ng.afatId;
+        m[kv] = m[kv] || {};
+        if (!m[kv].vendimi || m[kv].vendimi.koha < ng.koha) m[kv].vendimi = ng;
+      }
     });
     return m;
   }
+  // v179: heqja e kolegut s'e heq më afatin; afati shfaqet "në pritje" derisa pronari ta pranojë (atëherë vjen i hequr
+  // nga vetë pronari) ose ta refuzojë.
   function mbivendosHeqjen(afat, pronariUid, harta) {
-    var ng = harta && harta[pronariUid + '|' + afat.id];
+    var h = harta && harta[pronariUid + '|' + afat.id];
+    var ng = h && h.heqja;
     if (!ng || afat.statusi === 'hequr' || (afat.ndryshuarSe || 0) >= ng.koha) return afat;
-    // Njësoj si pronari (duhetZbatuarHeqja): vetëm një afat që ka skaduar vërtet shfaqet i hequr
-    if (AF().statusi(afat) !== 'skaduar') return afat;
-    return Object.assign({}, afat, { statusi: 'hequr', hequrSe: ng.koha, hequrNga: ng.emri });
+    if (h.vendimi && h.vendimi.koha >= ng.koha) return afat;
+    return Object.assign({}, afat, { nePritjeNga: ng.emri || 'Një koleg', nePritjeUid: ng.uid, nePritjeSe: ng.koha });
   }
   // A duhet ta zbatojë pronari heqjen që i dërgoi një koleg? Vetëm për afate të skaduara vërtet, dhe jo nëse
   // pronari e ka ndryshuar afatin pas heqjes (p.sh. e ktheu si aktiv).
@@ -1214,7 +1238,13 @@
       case 'hequr':
         var iKujt = !ng.pronariUid || ng.pronariUid === ng.uid ? '' : (ng.pronariUid === uidIm ? 'produkt i yti' : 'i përket: ' + (ng.pronariEmri || 'kolegut'));
         return { lloji: 'hequr', kush: kush, cfare: (ng.uid === uidIm ? 'e hoqe' : 'e hoqi') + ' nga rafti: ' + (ng.produkti || ng.barkodi || 'produkt'),
-          detaje: [iKujt, dataTx ? 'skadoi më ' + dataTx : '', ng.sasia ? ng.sasia + ' copë' : ''].filter(Boolean).join(' · ') };
+          detaje: [iKujt, iKujt ? 'kërkon miratimin e pronarit' : '', dataTx ? 'skadoi më ' + dataTx : '', ng.sasia ? ng.sasia + ' copë' : ''].filter(Boolean).join(' · ') };
+      case 'heqje-pranuar':
+        return { lloji: 'hequr', kush: kush, cfare: (ng.uid === uidIm ? 'e pranove' : 'e pranoi') + ' heqjen nga rafti: ' + (ng.produkti || ng.barkodi || 'produkt'),
+          detaje: 'e hoqi ' + (ng.kerkuesUid === uidIm ? 'ti' : (ng.kerkuesEmri || 'një koleg')) };
+      case 'heqje-refuzuar':
+        return { lloji: 'rikthyer', kush: kush, cfare: (ng.uid === uidIm ? 'e refuzove' : 'e refuzoi') + ' heqjen nga rafti: ' + (ng.produkti || ng.barkodi || 'produkt'),
+          detaje: 'mbetet në raft · e kishte hequr ' + (ng.kerkuesUid === uidIm ? 'ti' : (ng.kerkuesEmri || 'një koleg')) };
       case 'lajmeruar':
         return { lloji: 'lajmeruar', kush: kush, cfare: (ng.uid === uidIm ? 'e lajmërove' : 'e lajmëroi') + ' furnizuesin' + (ng.furnizuesi ? ' ' + ng.furnizuesi : ''),
           detaje: ng.n ? ng.n + (ng.n === 1 ? ' produkt afër skadimit' : ' produkte afër skadimit') : '' };
@@ -1330,8 +1360,11 @@
     if (nj.lloji === 'hequr') {
       var A = AF();
       return (nj.emri || 'Një koleg') + ' e hoqi nga rafti: ' + (nj.produkti || nj.barkodi || 'produkt') +
-        (nj.data && A ? ' (skadoi më ' + A.formato(nj.data) + ')' : '');
+        (nj.data && A ? ' (skadoi më ' + A.formato(nj.data) + ')' : '') +
+        (nj.vendim === 'pranuar' ? '. E pranove.' : nj.vendim === 'refuzuar' ? '. E refuzove: mbetet në raft.' : '. Pranoje që të hiqet edhe te afatet e tua.');
     }
+    if (nj.lloji === 'heqje-pranuar') return (nj.emri || 'Pronari') + ' e pranoi heqjen nga rafti: ' + (nj.produkti || nj.barkodi || 'produkt');
+    if (nj.lloji === 'heqje-refuzuar') return (nj.emri || 'Pronari') + ' e refuzoi heqjen nga rafti: ' + (nj.produkti || nj.barkodi || 'produkt') + ' (mbetet në raft)';
     if (nj.lloji === 'lajmerim') return (nj.emri || 'Administratori') + ': ' + (nj.tekst || '');
     if (nj.lloji === 'admin-afat') return (nj.emri || 'Administratori') + ' ' + (FJALA_E_VEPRIMIT[nj.veprimi] || 'ndryshoi') + ': ' + (nj.produkti || nj.barkodi || 'produkt');
     return nj.tekst || '';
@@ -1710,8 +1743,6 @@
       d.njoftimet = e.degjoNjoftimetEPalexuara(function (lista) {
         lista.sort(function (a, b) { return (b.koha || 0) - (a.koha || 0); });
         gj.njoftimetPalexuara = lista;
-        var heqjet = lista.filter(function (n) { return n.lloji === 'hequr'; });
-        if (heqjet.length && o.zbatoHeqjet) { try { o.zbatoHeqjet(heqjet); } catch (er) { /* ok */ } }
         lista.forEach(function (n) {
           if (uNjoftua('nj:' + n.id)) return;
           if ((Date.now() - (n.koha || 0)) >= 2 * 86400000 || !o.njofto) return;
@@ -1918,6 +1949,21 @@
       return r || { ok: false };
     }
 
+    // Pronari pranon ose refuzon heqjen e një kolegu. Kur e pranon, faqja e heq afatin te afatet e veta (o.zbatoHeqjet).
+    async function vendosPerHeqjen(nj, pranoj) {
+      var e = E();
+      if (!e || !nj) return { ok: false, arsye: 'pa-lidhje' };
+      var r = await e.vendosPerHeqjen(nj, pranoj);
+      if (!r || !r.ok) return r || { ok: false };
+      if (pranoj && o.zbatoHeqjet) { try { o.zbatoHeqjet([nj]); } catch (er) { /* ok */ } }
+      nj.vendim = pranoj ? 'pranuar' : 'refuzuar';
+      gj.njoftimetPalexuara = gj.njoftimetPalexuara.filter(function (x) { return x.id !== nj.id; });
+      gj.ngjarjet = [{ id: 'lokal-v-' + Date.now(), lloji: pranoj ? 'heqje-pranuar' : 'heqje-refuzuar', uid: o.uidIm(), emri: o.emriIm(), koha: Date.now(),
+        pronariUid: o.uidIm(), afatId: nj.afatId, produkti: nj.produkti || '', kerkuesUid: nj.uid || '', kerkuesEmri: nj.emri || '' }].concat(gj.ngjarjet);
+      thirr('ngjarjet'); thirr('njoftimet');
+      return r;
+    }
+
     // ---------- Aktiviteti nga faqja (heqje e vetes, lajmërim, afate të reja) ----------
     function ngjarje(ng) {
       var e = E();
@@ -1981,10 +2027,7 @@
       var e = E();
       if (!e) return [];
       var r = await e.merrNjoftimet(40);
-      var lista = (r && r.lista) || [];
-      var heqjet = lista.filter(function (n) { return n.lloji === 'hequr'; });
-      if (heqjet.length && o.zbatoHeqjet) { try { o.zbatoHeqjet(heqjet); } catch (er) { /* ok */ } }
-      return lista;
+      return (r && r.lista) || [];
     }
     // Kush e kreu një kërkesë për heqje: unë (njoftimi im ka kryer) ose një koleg (ngjarja "kerkese-kryer" te aktiviteti)
     function kryeresiIKerkeses(nj) {
@@ -1994,7 +2037,7 @@
       return ng ? { uneJam: ng.uid === o.uidIm(), emri: ng.emri || 'Një koleg' } : null;
     }
     // Kërkesat për heqje që s'janë kryer ende mbeten "të palexuara" (shenja te zilja) derisa të shtypet "E hoqa"
-    function ePritur(n) { return n.lloji === 'kerkese-heqje' && !kryeresiIKerkeses(n); }
+    function ePritur(n) { return (n.lloji === 'kerkese-heqje' && !kryeresiIKerkeses(n)) || (n.lloji === 'hequr' && !n.vendim); }
     async function shenoNjoftimetTeLexuara() {
       var e = E();
       var ids = gj.njoftimetPalexuara.filter(function (n) { return !ePritur(n); }).map(function (n) { return n.id; });
@@ -2009,7 +2052,7 @@
       nisGjithmone: nisGjithmone, ndalGjithmone: ndalGjithmone,
       hap: hap, mbyll: mbyll, ngarkoDyqanet: ngarkoMungesat,
       anetaretMeAfate: anetaretMeAfate,
-      heqAfatinEKolegut: heqAfatinEKolegut,
+      heqAfatinEKolegut: heqAfatinEKolegut, vendosPerHeqjen: vendosPerHeqjen,
       ngjarje: ngjarje, afateTeReja: afateTeRejaU,
       publikoAfatet: publikoAfatet,
       hapChatin: hapChatin, mbyllChatin: mbyllChatin, kaChatTePalexuar: kaChatTePalexuar, shenoChatinTeLexuar: shenoChatinTeLexuar,

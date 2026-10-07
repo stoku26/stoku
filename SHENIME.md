@@ -50,6 +50,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **HEQJA NGA KOLEGU ME MIRATIM (v179 = 1.12.0, pa ndryshim rregullash)**: më parë "Unë e hoqa" te afati i kolegut e
+   hiqte vetë te pronari (`zbatoHeqjet` nga dëgjuesi i njoftimeve). Tash:
+   - Kolegu: i njëjti njoftim `hequr` + ngjarje `hequr` (me pronariUid). `mbivendosHeqjen` s'e shfaq më të hequr, por
+     `nePritjeNga/nePritjeUid/nePritjeSe` → "Në pritje" (tel: `ek-kart-pritje`, `ek-pill-pritje`; PC: `.ek-pritje`).
+   - Pronari: s'ka zbatim automatik. Zilja: `ekButonatEHeqjes` (Prano / Refuzo) → `ekK.vendosPerHeqjen(nj, pranoj)` →
+     njoftimi i vet {vendim, vendosurSe, lexuar}, njoftim te kolegu `heqje-pranuar|heqje-refuzuar`, ngjarje me të njëjtin
+     lloji te feed-i (pronariUid, afatId, kerkuesUid/Emri). Pranimi → `o.zbatoHeqjet([nj])` (pa kushtin "ka skaduar").
+   - `ePritur` mban të palexuar `hequr` pa vendim (shenja e ziljes mbetet). Test: `miratimi-test.js` (tel + PC).
 0000000. **ORA: KARTELAT E KUQE/TË VERDHA (v178 = 1.11.6)**: `RreshtiAfatit` s'është më gri: e skaduar = sfond #3A1513 + vijë e
    kuqe, afër (sot/këtë javë) = #33280A + vijë e verdhë (`AfatAfer`, fikse, s'ndjek ngjyrën e Pamjes).
 0000000. **ORA: RIFRESKO SILLET, CILËSIMET PA MBRAPA (v177 = 1.11.5)**: `ButoniRifresko` s'çaktivizohet më dhe s'ndërrohet me

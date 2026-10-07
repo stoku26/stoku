@@ -18,6 +18,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 179, versioni: '1.12.0', data: '2026-10-08', titulli: 'Heqja nga kolegu me miratim', pikat: [
+      'Kur një koleg e heq nga rafti një produkt tëndin, ai s\'hiqet menjëherë: te zilja e Ekipës të del njoftimi me "Prano" dhe "Refuzo".',
+      'Produkti hiqet nga afatet e tua vetëm kur e pranon; nëse e refuzon, mbetet në raft dhe kolegu njoftohet.',
+      'Deri atëherë te Ekipa produkti shfaqet "Në pritje" të miratimit.'
+    ] },
     { v: 178, versioni: '1.11.6', data: '2026-10-08', titulli: 'Ora: produktet me ngjyra si te telefoni', pikat: [
       'Ora: produktet që kanë skaduar dalin në kartela të kuqe, ato që skadojnë sot ose këtë javë në kartela të verdha, njësoj si te telefoni.'
     ] },

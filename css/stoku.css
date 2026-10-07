@@ -487,3 +487,8 @@ html.sb:not([data-tema="dark"]) .sb-pill { background: var(--sb-surface-2); colo
 html.sb:not([data-tema="dark"]) .sb-stats { background: var(--sb-line); }
 html.sb:not([data-tema="dark"]) .sb-stat { background: var(--sb-head); }
 html.sb:not([data-tema="dark"]) .sb-stat__value--exp { color: var(--sb-exp, #d0453a); }
+
+/* v179: heqja e kolegut pret miratimin e pronarit */
+.sb .ek-kart-hiq.ek-kart-pritje { background: var(--sb-surface-2); color: var(--sb-ink-3); cursor: default; display: inline-flex; align-items: center; padding: 8px 12px; font-size: 12.5px; font-weight: 600; }
+.sb .af-pill.ek-pill-pritje { display: inline-flex; color: var(--sb-ink-3); box-shadow: 0 0 0 1.5px var(--sb-line); cursor: default; margin-top: 8px; }
+.sb .ek-nj-veprim .btn.tekst { margin-left: 6px; }
