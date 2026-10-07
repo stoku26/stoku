@@ -18,6 +18,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 172, versioni: '1.11.0', data: '2026-10-07', titulli: 'Ora: Pamja me ngjyra dhe rifreskim me rrëshqitje', pikat: [
+      'Ora: te Cilësimet ka opsion të ri "Pamja" ku zgjedh ngjyrën kryesore (8 ngjyra).',
+      'Ora: lista rifreskohet duke e tërhequr poshtë; butoni "Rifresko" u hoq.',
+      'Ora: Cilësimet kanë shigjetën mbrapa në rreth, njësoj si telefoni.',
+      'Kodi 6-shifror për lidhjen e orës ndërrohet çdo 15 sekonda.'
+    ] },
     { v: 171, versioni: '1.10.2', data: '2026-10-07', titulli: 'Shigjeta mbrapa më e pastër', platforma: 'tel', pikat: [
       'Butoni mbrapa në krye të faqeve ka tash një shigjetë të re, të hollë dhe në mes të rrethit.'
     ] },

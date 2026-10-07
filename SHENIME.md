@@ -50,6 +50,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ORA: PAMJA, MBRAPA, RRËSHQIT PËR RIFRESKIM, KODI ÇDO 15 S (v172 = 1.11.0)**: `ora/Tema.kt`: `Tema` (8 ngjyra,
+   prefs "stoku-pamja"/"ngjyra"), `Verdhe` tash getter i `Tema.theks` (tile mbetet e verdhë), `ButoniMbrapa` (ImageVector i njëjtë
+   me SVG-në e telefonit), ekrani `PamjaEkrani` te Cilësimet. Lista: `pullRefresh` (androidx.compose.material) në vend
+   të chip-it "Rifresko". Lidhja: `Api.kodiIRi` çdo 15 s me numërim; kodet e vjetra vlejnë sa i lë Worker-i (15 min, pa ndryshim).
 0000000. **SHIGJETA MBRAPA SVG (v171 = 1.10.2)**: "←" (germë) brenda rrethit dukej keq; tash SVG chevron (`M15 18l-6-6 6-6`, 20px,
    stroke 2.4) te #btnMbrapa, #opsPrapa, #afPrapa, #ekipiPrapa, #impPrapa, #lxPrapa (+ aria-label "Mbrapa"); css/stoku.css v20.
 0000000. **CILËSIMET MË TË PASTRA (v170 = 1.10.1, ora pa ndryshim funksional)**: përdoruesi: "Ora dhe aplikacioni" të ketë
