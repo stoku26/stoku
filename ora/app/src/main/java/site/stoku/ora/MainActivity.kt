@@ -45,10 +45,6 @@ import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
-import androidx.compose.foundation.clickable
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -59,15 +55,13 @@ val Gri = Color(0xFF9AA0A8)
 val Kartela = Color(0xFF1D2026)
 val Gjelber = Color(0xFF3DDC84)
 
-// Rifreskimi automatik: sa herë hapet/rikthehet aplikacioni dhe çdo minutë ndërsa është në ekran
+// Rifreskimi automatik: vetëm kur hyn në aplikacion (hapje ose rikthim); përndryshe me butonin poshtë
 object Rikthimi {
     var n by mutableStateOf(0)
-    @Volatile var neEkran = false
 }
 
 class MainActivity : ComponentActivity() {
-    override fun onResume() { super.onResume(); Rikthimi.neEkran = true; Rikthimi.n++ }
-    override fun onPause() { Rikthimi.neEkran = false; super.onPause() }
+    override fun onResume() { super.onResume(); Rikthimi.n++ }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Tema.ngarko(this)
@@ -180,14 +174,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
     }
     var iRi by remember { mutableStateOf<Pair<Int, String>?>(null) }
     var dukePerditesuar by remember { mutableStateOf(false) }
-    var rifreskuar by remember { mutableStateOf(Api.listaERuajtur(ctx)?.let { System.currentTimeMillis() }) }
-    LaunchedEffect(Rikthimi.n) { ngarko(); rifreskuar = System.currentTimeMillis() }
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(60_000)
-            if (Rikthimi.neEkran && pamja is Pamja.Lista && !duke) { ngarko(); rifreskuar = System.currentTimeMillis() }
-        }
-    }
+    LaunchedEffect(Rikthimi.n) { ngarko() }
     LaunchedEffect(Unit) { iRi = Perditesimi.kontrollo(ctx) }
     BackHandler(enabled = pamja !is Pamja.Lista) { pamja = if (pamja is Pamja.Ngjyrat) Pamja.Cilesimet else Pamja.Lista }
 
@@ -319,17 +306,11 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                         }
                     }
                     gabim?.let { g -> item { Text(g, fontSize = 11.sp, color = Kuqe, textAlign = TextAlign.Center, modifier = Modifier.padding(6.dp)) } }
-                    // Rifreskohet vetë (hapje, rikthim, çdo minutë); prekja e këtij rreshti e rifreskon menjëherë
+                    // Poshtë: rifresko (majtas) dhe Cilësimet (djathtas)
                     item {
-                        val koha = rifreskuar?.let { SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(it)) }
-                        Text(
-                            if (duke) "Duke rifreskuar…" else if (koha != null) "Rifreskuar $koha · prek për rifreskim" else "Prek për rifreskim",
-                            fontSize = 10.sp, color = Gri, textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(top = 4.dp).clickable(enabled = !duke) { scope.launch { ngarko(); rifreskuar = System.currentTimeMillis() } },
-                        )
-                    }
-                    item {
-                        Box(Modifier.fillMaxWidth().padding(top = 4.dp), contentAlignment = Alignment.Center) {
+                        Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                            ButoniRifresko(duke = duke) { scope.launch { ngarko() } }
+                            Spacer(Modifier.size(12.dp))
                             ButoniCilesimet(kaTeRe = iRi != null) { pamja = Pamja.Cilesimet }
                         }
                     }

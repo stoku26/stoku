@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
+import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.Icon
 
 // Ngjyra kryesore e aplikacionit të orës (Cilësimet → Pamja). Ruhet në orë; e verdha është ajo e Stoku-t.
@@ -75,6 +76,32 @@ val IkonaCilesimet: ImageVector by lazy {
         )
     }
     b.build()
+}
+
+// Ikona e rifreskimit (shigjetë rrethore, vija 2, stili i ikonave të telefonit)
+val IkonaRifresko: ImageVector by lazy {
+    val b = ImageVector.Builder(name = "rifresko", defaultWidth = 24.dp, defaultHeight = 24.dp, viewportWidth = 24f, viewportHeight = 24f)
+    for (d in listOf("M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8", "M21 3v5h-5")) {
+        b.addPath(
+            pathData = PathParser().parsePathString(d).toNodes(),
+            stroke = SolidColor(Color.White), strokeLineWidth = 2f, strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round,
+        )
+    }
+    b.build()
+}
+
+// Butoni i rrumbullakët i rifreskimit (gjatë ngarkimit: rrotullim)
+@Composable
+fun ButoniRifresko(duke: Boolean, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        enabled = !duke,
+        modifier = Modifier.size(ButtonDefaults.DefaultButtonSize),
+        colors = ButtonDefaults.buttonColors(backgroundColor = Kartela, contentColor = Color.White, disabledBackgroundColor = Kartela, disabledContentColor = Color.White),
+    ) {
+        if (duke) CircularProgressIndicator(modifier = Modifier.size(24.dp), indicatorColor = Verdhe, strokeWidth = 2.dp)
+        else Icon(imageVector = IkonaRifresko, contentDescription = "Rifresko", modifier = Modifier.size(22.dp))
+    }
 }
 
 // Butoni i rrumbullakët i Cilësimeve (ingranazhi), me pikë kur ka version të ri
