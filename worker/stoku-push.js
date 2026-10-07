@@ -107,7 +107,7 @@ const W = {
         const kush = k.emri || 'Një koleg';
         let tekst;
         if (k.lloji === 'kerkese-heqje') {
-          tekst = (k.perUid ? kush + ' të kërkon ta heqësh nga rafti: ' : kush + ' i kërkon ekipës ta heqë nga rafti: ') + produkti + (k.shenim ? ' · ' + String(k.shenim) : '');
+          tekst = (k.perUid ? kush + ' të kërkon ta heqësh nga rafti: ' : kush + ' i kërkon grupit ta heqë nga rafti: ') + produkti + (k.shenim ? ' · ' + String(k.shenim) : '');
           perKe = a => a.uid !== uid && (!k.perUid || a.uid === k.perUid);
         } else {
           tekst = kush + ' e hoqi nga rafti: ' + produkti + ' (kërkesa jote)';
