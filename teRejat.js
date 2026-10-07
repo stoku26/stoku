@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 181, versioni: '1.12.2', data: '2026-10-08', titulli: 'Ekipa më e pastër', platforma: 'tel', pikat: [
+      'Te Ekipa u hoq kartela "Në raft te krejt ekipa".',
+      'Afatet, Aktiviteti, Kalendari, Anëtarët, Statistika dhe Stoku tash janë butona me ikona, me emrin poshtë, në temë të çelët dhe të errët.'
+    ] },
     { v: 180, versioni: '1.12.1', data: '2026-10-08', titulli: 'Njoftimet më të shkurtra', pikat: [
       'Njoftimi kur një koleg e heq produktin tënd tash është i shkurtër; poshtë tij janë vetëm butonat "Prano" dhe "Refuzo".'
     ] },

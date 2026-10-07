@@ -50,6 +50,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **EKIPA (TEL): PA HERO, MENYJA ME IKONA (v181 = 1.12.2)**: `vizatoPultin` s'e ka më `.ek-pult-hero`. `.ek-pllakat` (#ekMenu)
+   dhe `.ek-pult-pllakat`: kuti 46px me SVG-në `.ek-pl-ik` (ishte e fshehur) + emri poshtë; aktiv = `--sb-accent`. css v24. Vetëm tel.
 0000000. **NJOFTIMI I HEQJES PA FJALI SHTESË (v180 = 1.12.1)**: `tekstiNjoftimit` (hequr) s'ka më "Pranoje që të hiqet..." /
    "E pranove/E refuzove"; vendimi del vetëm te butonat (✓ E pranove / ✕ E refuzove).
 0000000. **HEQJA NGA KOLEGU ME MIRATIM (v179 = 1.12.0, pa ndryshim rregullash)**: më parë "Unë e hoqa" te afati i kolegut e
