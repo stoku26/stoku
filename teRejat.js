@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 177, versioni: '1.11.5', data: '2026-10-07', titulli: 'Ora: rifreskimi sillet', pikat: [
+      'Ora: kur e prek butonin e rifreskimit, ikona sillet derisa të ngarkohet lista.',
+      'Ora: Cilësimet s\'kanë më butonin mbrapa; kthehesh me butonin e orës ose duke rrëshqitur djathtas.'
+    ] },
     { v: 176, versioni: '1.11.4', data: '2026-10-07', titulli: 'Ora: butoni i rifreskimit', pikat: [
       'Ora: lista rifreskohet vetë vetëm kur hyn në Stoku; poshtë, majtas ingranazhit të Cilësimeve, ka butonin e rifreskimit.'
     ] },

@@ -162,6 +162,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
 
     suspend fun ngarko() {
         duke = true
+        val fillimi = System.currentTimeMillis()
         try {
             lista = Api.merrListen(ctx); gabim = null
             Api.rifreskoTileDheKomplikacionin(ctx)
@@ -170,6 +171,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
         } catch (e: Exception) {
             gabim = "S'ka lidhje me serverin. Lista mund të jetë e vjetër."
         }
+        delay((700L - (System.currentTimeMillis() - fillimi)).coerceAtLeast(0L))
         duke = false
     }
     var iRi by remember { mutableStateOf<Pair<Int, String>?>(null) }
@@ -496,7 +498,7 @@ fun Cilesimet(emri: String, iRiFillim: Pair<Int, String>?, kurGjendetIRi: (Pair<
     val gjendja = rememberScalingLazyListState()
     Scaffold(positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
         ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
-            item { Koka("Cilësimet", mbrapa) }
+            item { Koka("Cilësimet") }
             item {
                 Chip(
                     modifier = Modifier.fillMaxWidth(),
@@ -548,14 +550,10 @@ fun Cilesimet(emri: String, iRiFillim: Pair<Int, String>?, kurGjendetIRi: (Pair<
     }
 }
 
-// Koka e ekraneve të Cilësimeve: butoni i rrumbullakët mbrapa + titulli
+// Koka e ekraneve të Cilësimeve: vetëm titulli (mbrapa me butonin e orës ose me rrëshqitje djathtas)
 @Composable
-fun Koka(titulli: String, mbrapa: () -> Unit) {
-    Row(Modifier.fillMaxWidth().padding(bottom = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-        ButoniMbrapa(mbrapa)
-        Spacer(Modifier.size(8.dp))
-        Text(titulli, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
-    }
+fun Koka(titulli: String) {
+    Text(titulli, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = Color.White, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp))
 }
 
 // Cilësimet → Pamja: ngjyra kryesore e aplikacionit në orë
@@ -565,7 +563,7 @@ fun PamjaEkrani(mbrapa: () -> Unit) {
     val gjendja = rememberScalingLazyListState()
     Scaffold(positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
         ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
-            item { Koka("Pamja", mbrapa) }
+            item { Koka("Pamja") }
             item { Text("Ngjyra kryesore", fontSize = 12.sp, color = Gri, textAlign = TextAlign.Center) }
             items(Tema.NGJYRAT.size) { i ->
                 val n = Tema.NGJYRAT[i]
