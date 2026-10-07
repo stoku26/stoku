@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 180, versioni: '1.12.1', data: '2026-10-08', titulli: 'Njoftimet më të shkurtra', pikat: [
+      'Njoftimi kur një koleg e heq produktin tënd tash është i shkurtër; poshtë tij janë vetëm butonat "Prano" dhe "Refuzo".'
+    ] },
     { v: 179, versioni: '1.12.0', data: '2026-10-08', titulli: 'Heqja nga kolegu me miratim', pikat: [
       'Kur një koleg e heq nga rafti një produkt tëndin, ai s\'hiqet menjëherë: te zilja e Ekipës të del njoftimi me "Prano" dhe "Refuzo".',
       'Produkti hiqet nga afatet e tua vetëm kur e pranon; nëse e refuzon, mbetet në raft dhe kolegu njoftohet.',

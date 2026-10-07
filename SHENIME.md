@@ -50,6 +50,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **NJOFTIMI I HEQJES PA FJALI SHTESË (v180 = 1.12.1)**: `tekstiNjoftimit` (hequr) s'ka më "Pranoje që të hiqet..." /
+   "E pranove/E refuzove"; vendimi del vetëm te butonat (✓ E pranove / ✕ E refuzove).
 0000000. **HEQJA NGA KOLEGU ME MIRATIM (v179 = 1.12.0, pa ndryshim rregullash)**: më parë "Unë e hoqa" te afati i kolegut e
    hiqte vetë te pronari (`zbatoHeqjet` nga dëgjuesi i njoftimeve). Tash:
    - Kolegu: i njëjti njoftim `hequr` + ngjarje `hequr` (me pronariUid). `mbivendosHeqjen` s'e shfaq më të hequr, por
