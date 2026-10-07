@@ -18,6 +18,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 182, versioni: '1.13.0', data: '2026-10-08', titulli: 'Ekipa: Përmbledhja e re, pa chat', pikat: [
+      'Chat-i i ekipës u hoq.',
+      'Te Ekipa e para del Përmbledhja: numrat (në raft, të skaduara, ≤ 7 ditë, afër skadimit, hequr këtë muaj, online), kërkesa për heqje, kolegët, çka duhet hequr, aktiviteti i fundit dhe statistikat.',
+      'Statistika u bashkua te Përmbledhja.',
+      'Menyja e Ekipës rri gjithmonë në të njëjtin vend: kur kalon te Afatet, Aktiviteti e të tjerat, faqja s\'lëviz më lart e poshtë.'
+    ] },
     { v: 181, versioni: '1.12.2', data: '2026-10-08', titulli: 'Ekipa më e pastër', platforma: 'tel', pikat: [
       'Te Ekipa u hoq kartela "Në raft te krejt ekipa".',
       'Afatet, Aktiviteti, Kalendari, Anëtarët, Statistika dhe Stoku tash janë butona me ikona, me emrin poshtë, në temë të çelët dhe të errët.'
