@@ -479,3 +479,11 @@ html.sb body { -webkit-user-select: none; user-select: none; -webkit-touch-callo
 .sb .ek-pllakat button, .sb .ek-pllaka { flex: 1 1 auto; padding: 0 6px; }
 .sb .nj-serveri { margin: -4px 4px 14px; padding: 10px 12px; border-radius: 12px; font-size: 13px; line-height: 1.45; background: var(--sb-ic-gjelber-bg); color: var(--sb-ic-gjelber); }
 .sb .nj-serveri.keq { background: var(--sb-ic-portokalli-bg); color: var(--sb-ic-portokalli); }
+
+/* Tema e çelët: kartela "Produkte gjithsej" e bardhë (në temën e errët mbetet e errët) */
+html.sb:not([data-tema="dark"]) .sb-summary { background: var(--sb-surface); color: var(--sb-ink); box-shadow: 0 0 0 1px var(--sb-line), 0 6px 18px rgba(20,22,27,.05); }
+html.sb:not([data-tema="dark"]) .sb-summary__label, html.sb:not([data-tema="dark"]) .sb-stat__label { color: var(--sb-muted); }
+html.sb:not([data-tema="dark"]) .sb-pill { background: var(--sb-surface-2); color: var(--sb-ink-3); }
+html.sb:not([data-tema="dark"]) .sb-stats { background: var(--sb-line); }
+html.sb:not([data-tema="dark"]) .sb-stat { background: var(--sb-head); }
+html.sb:not([data-tema="dark"]) .sb-stat__value--exp { color: var(--sb-exp, #d0453a); }

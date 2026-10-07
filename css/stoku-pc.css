@@ -511,3 +511,8 @@
 /* Ekipa: butoni "E hoqa nga rafti" te njoftimet e kërkesave */
 .sbp .ek-nj-veprim { margin-top: 8px; font-weight: 400; }
 .sbp .ek-nj-kryer { display: inline-block; font-size: 12.5px; font-weight: 700; color: var(--sb-ic-gjelber); }
+
+/* Tema e çelët: KPI-ja kryesore e bardhë si të tjerat (në temën e errët mbetet e errët) */
+html.sbp:not([data-tema="dark"]) .kpi.kpi-hero { background: var(--sb-surface); color: var(--sb-ink); box-shadow: var(--sb-ring); }
+html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-etik { color: var(--sb-muted); }
+html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-nen { background: var(--sb-surface-2); color: var(--sb-ink-3); }

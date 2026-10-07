@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 174, versioni: '1.11.2', data: '2026-10-07', titulli: 'Përmbledhja e bardhë në temën e çelët', pikat: [
+      'Në temën e çelët kartela "Produkte gjithsej" tash është e bardhë si kartelat e tjera; në temën e errët mbetet e errët.'
+    ] },
     { v: 173, versioni: '1.11.1', data: '2026-10-07', titulli: 'Lidhja e orës më e qartë', platforma: 'tel', pikat: [
       'Te "Lidh orën" fusha e kodit tash shkruan "Kodi nga ora" në vend të një numri shembull që dukej si kod i vërtetë.'
     ] },
