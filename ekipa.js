@@ -1360,8 +1360,7 @@
     if (nj.lloji === 'hequr') {
       var A = AF();
       return (nj.emri || 'Një koleg') + ' e hoqi nga rafti: ' + (nj.produkti || nj.barkodi || 'produkt') +
-        (nj.data && A ? ' (skadoi më ' + A.formato(nj.data) + ')' : '') +
-        (nj.vendim === 'pranuar' ? '. E pranove.' : nj.vendim === 'refuzuar' ? '. E refuzove: mbetet në raft.' : '. Pranoje që të hiqet edhe te afatet e tua.');
+        (nj.data && A ? ' (skadoi më ' + A.formato(nj.data) + ')' : '');
     }
     if (nj.lloji === 'heqje-pranuar') return (nj.emri || 'Pronari') + ' e pranoi heqjen nga rafti: ' + (nj.produkti || nj.barkodi || 'produkt');
     if (nj.lloji === 'heqje-refuzuar') return (nj.emri || 'Pronari') + ' e refuzoi heqjen nga rafti: ' + (nj.produkti || nj.barkodi || 'produkt') + ' (mbetet në raft)';
