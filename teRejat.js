@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 178, versioni: '1.11.6', data: '2026-10-08', titulli: 'Ora: produktet me ngjyra si te telefoni', pikat: [
+      'Ora: produktet që kanë skaduar dalin në kartela të kuqe, ato që skadojnë sot ose këtë javë në kartela të verdha, njësoj si te telefoni.'
+    ] },
     { v: 177, versioni: '1.11.5', data: '2026-10-07', titulli: 'Ora: rifreskimi sillet', pikat: [
       'Ora: kur e prek butonin e rifreskimit, ikona sillet derisa të ngarkohet lista.',
       'Ora: Cilësimet s\'kanë më butonin mbrapa; kthehesh me butonin e orës ose duke rrëshqitur djathtas.'

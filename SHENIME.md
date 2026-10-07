@@ -50,6 +50,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ORA: KARTELAT E KUQE/TË VERDHA (v178 = 1.11.6)**: `RreshtiAfatit` s'është më gri: e skaduar = sfond #3A1513 + vijë e
+   kuqe, afër (sot/këtë javë) = #33280A + vijë e verdhë (`AfatAfer`, fikse, s'ndjek ngjyrën e Pamjes).
 0000000. **ORA: RIFRESKO SILLET, CILËSIMET PA MBRAPA (v177 = 1.11.5)**: `ButoniRifresko` s'çaktivizohet më dhe s'ndërrohet me
    spinner (dukej si bug): ikona rrotullohet (Animatable, 800 ms/rrotullim, përfundon drejt), ngarkimi zgjat ≥700 ms. `Koka` vetëm
    titull: Wear OS ka butonin fizik + rrëshqitjen për mbrapa (`ButoniMbrapa`/`ShigjetaMbrapa` u hoqën).
