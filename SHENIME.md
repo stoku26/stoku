@@ -50,6 +50,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **EKIPA: PËRMBLEDHJA, PA CHAT, MENYJA E PALËVIZSHME (v182 = 1.13.0)**:
+   - Chat-i u hoq nga UI (tel + PC): `#ekChatBtn`/`#navEkChat`/`ekAdminPastroChat` të fshehur, pamja 'chat' → përmbledhja,
+     njoftimet me pamja 'chat' injorohen, s'ka pikë chat-i. Kodi i chat-it te ekipa.js mbeti (s'thirret nga UI).
+   - Tel: `ekPamja` = permbledhja | afatet | aktiviteti | kalendari | anetaret | stoku; shtëpia = 'permbledhja'
+     (`vizatoPermbledhjen`: 6 numra të prekshëm + kërko heqje + online + duhet hequr + këtë javë + aktiviteti i fundit (3)
+     + `ekSeksionetEStatistikave`). 'statistika' u hoq; 'afatet' pa anëtar = krejt ekipa ("Afatet").
+   - Menyja `#ekMenu` gjithmonë në kokë (u hoq `.ek-shtepi .ek-menu-kuti {display:none}` dhe `.ek-pult-pllakat` brenda
+     listës, pa `scrollIntoView`), koka me min-height e njëjtë → menyja s'lëviz kur ndërron pamjen. css v25.
 0000000. **EKIPA (TEL): PA HERO, MENYJA ME IKONA (v181 = 1.12.2)**: `vizatoPultin` s'e ka më `.ek-pult-hero`. `.ek-pllakat` (#ekMenu)
    dhe `.ek-pult-pllakat`: kuti 46px me SVG-në `.ek-pl-ik` (ishte e fshehur) + emri poshtë; aktiv = `--sb-accent`. css v24. Vetëm tel.
 0000000. **NJOFTIMI I HEQJES PA FJALI SHTESË (v180 = 1.12.1)**: `tekstiNjoftimit` (hequr) s'ka më "Pranoje që të hiqet..." /
