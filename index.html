@@ -1054,7 +1054,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=22">
+<link rel="stylesheet" href="css/stoku.css?v=23">
 </head>
 <body>
 <script src="porta.js?v=166"></script>
@@ -1831,9 +1831,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=163"></script>
-<script src="ekipa.js?v=169"></script>
+<script src="ekipa.js?v=179"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=178"></script>
+<script src="teRejat.js?v=179"></script>
 <script>
 (function () {
   'use strict';
@@ -6135,7 +6135,10 @@
     nen.appendChild(ekEl('span', null, (a.pronariEmri || '') + (a.data ? ' · ' + ekKurTekst(n) : '') + (AF.sasiaTekst(a) ? ' · ' + AF.sasiaTekst(a) : '')));
     t.appendChild(nen);
     k.appendChild(t);
-    if (st === 'skaduar') {
+    if (st === 'skaduar' && a.nePritjeNga) {
+      var pr = ekEl('span', 'ek-kart-hiq ek-kart-pritje', 'Në pritje'); pr.title = ekTekstiNePritje(a);
+      k.appendChild(pr);
+    } else if (st === 'skaduar') {
       var b = ekEl('button', 'ek-kart-hiq'); b.type = 'button';
       b.innerHTML = IKONAT_AF.kontroll;
       b.appendChild(document.createTextNode('Unë e hoqa'));
@@ -6226,8 +6229,9 @@
     if (a.emri && a.barkodi) m.appendChild(ekEl('div', 'af-kodi', a.barkodi));
     m.appendChild(ekEl('div', 'af-mesazh', st === 'hequr'
       ? 'U hoq nga rafti' + (a.hequrNga ? ' nga ' + a.hequrNga : '') + (a.hequrSe ? ' · ' + EKL.kohaRelative(a.hequrSe) : '') + '.'
-      : AF.pershkrimi(a)));
-    if (st === 'skaduar') {
+      : a.nePritjeNga ? ekTekstiNePritje(a) : AF.pershkrimi(a)));
+    if (st === 'skaduar' && a.nePritjeNga) m.appendChild(ekEl('span', 'af-pill ek-pill-pritje', 'Në pritje të miratimit'));
+    else if (st === 'skaduar') {
       var pb = ekEl('button', 'af-pill'); pb.type = 'button';
       pb.innerHTML = IKONAT_AF.kontroll;
       pb.appendChild(document.createTextNode('Unë e hoqa'));
@@ -6266,7 +6270,13 @@
     toast('"' + emri + '" u ' + (veprimi === 'fshij' ? 'fshi' : veprimi === 'kthe' ? 'kthye në raft' : 'shënua si i hequr') + '. ' + (a.pronariEmri || 'Pronari') + ' u njoftua.', 3500);
   }
 
-  // "Unë e hoqa": i imi → si te Afatet; i kolegut → njoftim te pronari + aktiviteti
+  // Heqja e kolegut pret miratimin e pronarit (v179)
+  function ekTekstiNePritje(a) {
+    var u = perdoruesiAktual(), uneE = u && a.nePritjeUid === u.uid;
+    return (uneE ? 'E hoqe nga rafti' : 'E hoqi ' + a.nePritjeNga) + (a.nePritjeSe ? ' ' + EKL.kohaRelative(a.nePritjeSe) : '') +
+      '. Pret miratimin e ' + (a.pronariEmri || 'pronarit') + '.';
+  }
+  // "Unë e hoqa": i imi → si te Afatet; i kolegut → kërkesë te pronari, që hiqet vetëm kur ai e pranon
   async function ekHeqNgaRafti(a, btn) {
     var u = perdoruesiAktual();
     if (u && a.pronariUid === u.uid) {
@@ -6275,8 +6285,7 @@
       return;
     }
     var emri = a.emri || a.barkodi || 'produktin';
-    var po = await konfirmo('E hoqe nga rafti?', '"' + emri + '" (i përket: ' + (a.pronariEmri || 'kolegut') + ') do të shënohet si i hequr, dhe ' +
-      (a.pronariEmri || 'pronari') + ' do të njoftohet që e hoqe ti.', 'Po, e hoqa');
+    var po = await konfirmo('E hoqe nga rafti?', '"' + emri + '" i përket ' + (a.pronariEmri || 'kolegut') + '. Atij i shkon njoftim, dhe produkti hiqet nga afatet e tij vetëm kur ai e pranon.', 'Po, e hoqa');
     if (!po) return;
     if (btn) btn.disabled = true;
     var r = await ekK.heqAfatinEKolegut(a);
@@ -6285,7 +6294,7 @@
       toast(r.leje ? 'S\'u lejua: vetëm anëtarët e pranuar të ekipës mund ta bëjnë këtë.' : 'S\'u dërgua. Kontrollo internetin dhe provo përsëri.', 4000);
       return;
     }
-    toast('"' + emri + '" u shënua si i hequr. ' + (a.pronariEmri || 'Pronari') + (r.neRadhe ? ' njoftohet sapo të ketë internet.' : ' u njoftua.'), 3500);
+    toast('"' + emri + '": ' + (a.pronariEmri || 'pronarit') + (r.neRadhe ? ' i shkon për miratim sapo të ketë internet.' : ' i shkoi për miratim.'), 3500);
   }
 
   // ---- Aktiviteti ----
@@ -6909,10 +6918,31 @@
         }
       }
       if (n.lloji === 'kerkese-heqje') b.appendChild(ekButoniKerkeses(n));
+      if (n.lloji === 'hequr' && n.afatId) b.appendChild(ekButonatEHeqjes(n, b.firstChild));
       r.appendChild(b);
       lista.appendChild(r);
     });
     ekK.shenoNjoftimetTeLexuara();
+  }
+  // Heqja nga një koleg: pronari e pranon (hiqet te afatet e tij) ose e refuzon (mbetet në raft)
+  function ekButonatEHeqjes(n, tekstiEl) {
+    var w = ekEl('div', 'ek-nj-veprim');
+    if (n.vendim) { w.appendChild(ekEl('span', 'ek-nj-kryer', n.vendim === 'pranuar' ? '✓ E pranove' : '✕ E refuzove')); return w; }
+    var bp = ekEl('button', 'btn ek-nj-btn', 'Prano'); bp.type = 'button';
+    var br = ekEl('button', 'btn tekst ek-nj-btn', 'Refuzo'); br.type = 'button';
+    async function vendos(pranoj) {
+      bp.disabled = br.disabled = true;
+      var res = await ekK.vendosPerHeqjen(n, pranoj);
+      if (!res || !res.ok) { bp.disabled = br.disabled = false; toast('S\'u ruajt. Kontrollo internetin dhe provo sërish.'); return; }
+      if (tekstiEl && tekstiEl.nodeType === 3) tekstiEl.nodeValue = EKL.tekstiNjoftimit(n);
+      w.textContent = '';
+      w.appendChild(ekEl('span', 'ek-nj-kryer', pranoj ? '✓ E pranove' : '✕ E refuzove'));
+      toast(pranoj ? '"' + (n.produkti || 'Produkti') + '" u hoq nga rafti. ' + (n.emri || 'Kolegu') + ' u njoftua.' : (n.emri || 'Kolegu') + ' u njoftua që produkti mbetet në raft.');
+    }
+    bp.addEventListener('click', function () { vendos(true); });
+    br.addEventListener('click', function () { vendos(false); });
+    w.appendChild(bp); w.appendChild(br);
+    return w;
   }
   function ekButoniKerkeses(n) {
     var w = ekEl('div', 'ek-nj-veprim');
@@ -6986,13 +7016,13 @@
     }).catch(function () { /* ok */ });
   });
 
-  // Pronari: heqjet e bëra nga kolegët zbatohen vetë në afatet e mia (vetëm nëse afati ka skaduar vërtet)
+  // Pronari e pranoi heqjen e një kolegu: afati shënohet i hequr (me emrin e kolegut)
   function zbatoHeqjetEKolegeve(lista) {
     var zbatuar = [];
     lista.forEach(function (nj) {
       for (var i = 0; i < afatet.length; i++) {
         if (afatet[i].id !== nj.afatId) continue;
-        if (EKL.duhetZbatuarHeqja(afatet[i], nj)) {
+        if (afatet[i].statusi !== 'hequr') {
           afatet[i] = Object.assign({}, afatet[i], { statusi: 'hequr', hequrSe: nj.koha || Date.now(), hequrNga: nj.emri || '', ndryshuarSe: Date.now() });
           zbatuar.push(nj);
         }
@@ -7002,7 +7032,7 @@
     if (!zbatuar.length) return;
     afatet = afatet.slice();
     ruajAfatet();
-    toast(zbatuar.length === 1 ? EKL.tekstiNjoftimit(zbatuar[0]) + '.' : zbatuar.length + ' afate të tua u hoqën nga rafti nga kolegët.', 4500);
+    // (toast-in e jep butoni "Prano")
   }
   // Njoftim i sistemit kur aplikacioni është në sfond; kur është përpara, mjafton shenja/toast-i
   function njoftoNgaEkipa(nj) {
