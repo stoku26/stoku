@@ -32,8 +32,8 @@
 .sb .sb-title { font-size: 22px; font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
 .sb .btn-ikone { width: 44px; height: 44px; border-radius: 50%; background: var(--sb-surface); color: var(--sb-ink); box-shadow: var(--sb-ring); }
 .sb .btn-ikone:active, .sb .btn-ikone.aktiv { background: var(--sb-surface-2); }
-.sb #btnMbrapa, .sb .opsione-krye #opsPrapa, .sb .opsione-krye #afPrapa, .sb .opsione-krye #ekipiPrapa { background: transparent; box-shadow: none; }
-.sb #btnMbrapa { width: 36px; margin-left: -8px; }
+.sb #btnMbrapa, .sb .opsione-krye #opsPrapa, .sb .opsione-krye #afPrapa, .sb .opsione-krye #ekipiPrapa { width: 40px; height: 40px; font-size: 20px; margin-right: 4px; }
+.sb #btnMbrapa { margin-left: 0; }
 .sb .btn-ikone .af-shenje { box-shadow: 0 0 0 2px var(--sb-surface); background: var(--sb-badge); }
 
 /* ---------- Fushat dhe butonat ---------- */
@@ -164,6 +164,11 @@
 .sb .ops-fundi { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 26px 0 6px; color: var(--sb-muted); font-size: 13px; }
 .sb .ops-fundi img { border-radius: 8px; display: block; }
 .sb .ops-fundi b { color: var(--sb-ink-2); font-weight: 700; }
+.sb .ops-app-btn { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 18px auto 0; padding: 7px 16px; min-height: 34px; border: 1px solid var(--sb-line, rgba(127,127,127,.28)); border-radius: 999px; background: transparent; color: var(--sb-ink-2); font: inherit; font-size: 13px; font-weight: 600; letter-spacing: .005em; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.sb .ops-app-btn[hidden] { display: none; }
+.sb .ops-app-btn svg { color: var(--sb-muted); flex: none; }
+.sb .ops-app-btn:active { background: var(--sb-surface-2); }
+.sb .ops-app-btn + .ops-fundi { margin-top: 12px; }
 
 /* Faqet brenda */
 .sb .opsione-faqet { padding: 2px 0 18px; }

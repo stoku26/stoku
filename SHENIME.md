@@ -50,6 +50,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **CILËSIMET MË TË PASTRA (v170 = 1.10.1, ora pa ndryshim funksional)**: përdoruesi: "Ora dhe aplikacioni" të ketë
+   vetëm orën; kontrolli i përditësimit të aplikacionit si buton i hollë mes "Çka ka të re" dhe versionit; "←" me rreth.
+   - Kategoria `#tabOra` → "Ora e dorës" (status "Galaxy Watch, Apple Watch"), faqja vetëm me orën (karta Android u hoq).
+   - `#njAndroidBtn.ops-app-btn` (css/stoku.css, pill i hollë me kufi) para `.ops-fundi`: brenda aplikacionit "Kontrollo
+     për përditësim" → `StokuAndroid.kontrolloPerditesimin()` (Toast-i native jep përgjigjen); Chrome Android "Shkarko
+     aplikacionin Android" → android.html; tjetërkund i fshehur. Listener-i vendoset NJË herë (jashtë `hapOpsionet`).
+   - css/stoku.css: `#opsPrapa/#afPrapa/#ekipiPrapa/#btnMbrapa` s'janë më transparente: rreth si `.btn-ikone` (40px).
+   - Ora: tekstet e rrugës → "Cilësimet → Ora e dorës".
 0000000. **CILËSIMET "ORA DHE APLIKACIONI" + EKIPA PA "GRUP" + ORA: CILËSIMET (v169 = 1.10.0)**: përdoruesi s'e kuptonte
    pse lidhja e orës dhe shkarkimi i aplikacionit ishin te Njoftimet, dhe "Ekipa / Anëtarët / Grupi" i dukeshin tri gjëra.
    - Telefoni: kategori e re te Cilësimet `#tabOra` → faqja `data-faqe="ora"` ("Ora e dorës": `#segOra`, `#oraKodi`,

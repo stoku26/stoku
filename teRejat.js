@@ -18,6 +18,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 170, versioni: '1.10.1', data: '2026-10-07', titulli: 'Cilësimet më të pastra', platforma: 'tel', pikat: [
+      'Te Cilësimet kategoria "Ora e dorës" ka vetëm lidhjen e orës.',
+      'Aplikacioni Android: "Kontrollo për përditësim" (ose "Shkarko aplikacionin Android" në Chrome) është tash një buton i hollë poshtë "Çka ka të re".',
+      'Shigjeta "←" në krye të faqeve ka tash rreth, si butonat e tjerë.'
+    ] },
     { v: 169, versioni: '1.10.0', data: '2026-10-07', titulli: 'Cilësimet e orës dhe Ekipa më e qartë', pikat: [
       'Te Cilësimet ka kategori të re "Ora dhe aplikacioni" (në iPhone "Ora e dorës"): aty e lidh orën dhe, në Android, e shkarkon aplikacionin Stoku. Njoftimet tash kanë vetëm njoftimet.',
       'Ekipa tash është një gjë e vetme: s\'ka më "grup". Te Ekipa → Anëtarët e sheh ekipën tënde, i fton shokët dhe largohesh.',
@@ -29,7 +34,7 @@
       'Aplikacioni Android: njoftimi i prekur hap direkt chat-in ose afatet, pa e ringarkuar Stoku-n.'
     ] },
     { v: 167, versioni: '1.9.0', data: '2026-10-06', titulli: 'Stoku si aplikacion Android', pikat: [
-      'Aplikacioni i ri Stoku për Android: s\'del nga llogaria kur i fshin cookies dhe të dhënat e Chrome-it, dhe njoftimet vijnë menjëherë. Shkarkohet te Cilësimet → Ora dhe aplikacioni → "Shkarko aplikacionin".',
+      'Aplikacioni i ri Stoku për Android: s\'del nga llogaria kur i fshin cookies dhe të dhënat e Chrome-it, dhe njoftimet vijnë menjëherë. Shkarkohet te Cilësimet, poshtë "Çka ka të re": "Shkarko aplikacionin Android".',
       'Çdo përmirësim i Stoku-t del njëkohësisht në telefon, kompjuter dhe aplikacion. Kur del version i ri i vetë aplikacionit (edhe në orë), të pyet vetë "Përditëso".'
     ] },
     { v: 166, versioni: '1.8.2', data: '2026-10-06', titulli: 'Cilësimet e llogarisë më të thjeshta', pikat: [
