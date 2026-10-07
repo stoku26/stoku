@@ -750,6 +750,7 @@
   .ek-prania .pk { width: 7px; height: 7px; border-radius: 50%; background: #22a350; box-shadow: 0 0 0 3px rgba(34,163,80,.22); animation: ekPulsi 2s ease-in-out infinite; }
   @keyframes ekPulsi { 50% { box-shadow: 0 0 0 5px rgba(34,163,80,.08); } }
   @media (prefers-reduced-motion: reduce) { .ek-prania .pk { animation: none; } }
+  .ek-prania.off .pk { background: currentColor; opacity: .55; box-shadow: none; animation: none; }
   .ek-anetar-nr { flex: none; text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
   .ek-anetar-nr b { font-size: 20px; font-weight: 600; line-height: 1.1; }
   .ek-anetar-nr span { font-size: 12px; color: var(--gri); }
@@ -1053,7 +1054,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=25">
+<link rel="stylesheet" href="css/stoku.css?v=26">
 </head>
 <body>
 <script src="porta.js?v=166"></script>
@@ -1830,9 +1831,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=163"></script>
-<script src="ekipa.js?v=180"></script>
+<script src="ekipa.js?v=183"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=182"></script>
+<script src="teRejat.js?v=183"></script>
 <script>
 (function () {
   'use strict';
@@ -5984,8 +5985,8 @@
     $('ekChatFund').hidden = true;
     $('ekChatBtn').classList.toggle('aktiv', ekPamja === 'chat');
     var admin = !!(ekK && ekK.eshteAdmin());
-    $('ekChipStoku').hidden = !admin;
-    if (ekPamja === 'stoku' && !admin) ekPamja = 'permbledhja';
+    $('ekChipStoku').hidden = true; // Stoku te Ekipa u hoq (v183)
+    if (ekPamja === 'stoku') ekPamja = 'permbledhja';
     var shtepi = ekEshteShtepi();
     $('dlgEkipi').classList.toggle('ek-shtepi', shtepi);
     $('ekipiPrapa').style.display = shtepi ? 'none' : '';

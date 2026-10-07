@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 183, versioni: '1.13.1', data: '2026-10-08', titulli: 'Ekipa: pa Stokun, ikona e re offline', pikat: [
+      'Te Ekipa u hoq "Stoku".',
+      'Kur një koleg është offline, tash del pajisja e tij (telefon ose kompjuter) me ngjyrë gri dhe pikë gri, pastaj kur u pa së fundi.'
+    ] },
     { v: 182, versioni: '1.13.0', data: '2026-10-08', titulli: 'Ekipa: Përmbledhja e re, pa chat', pikat: [
       'Chat-i i ekipës u hoq.',
       'Te Ekipa e para del Përmbledhja: numrat (në raft, të skaduara, ≤ 7 ditë, afër skadimit, hequr këtë muaj, online), kërkesa për heqje, kolegët, çka duhet hequr, aktiviteti i fundit dhe statistikat.',

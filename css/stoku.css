@@ -505,3 +505,4 @@ html.sb:not([data-tema="dark"]) .sb-stat__value--exp { color: var(--sb-exp, #d04
 }
 /* v182: koka e Ekipës me lartësi të njëjtë në çdo pamje, që menyja poshtë saj të mos lëvizë */
 .sb #dlgEkipi .opsione-krye { min-height: calc(76px + env(safe-area-inset-top)); box-sizing: border-box; }
+.sb .ekipi-ti { white-space: nowrap; display: inline-block; }

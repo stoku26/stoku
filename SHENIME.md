@@ -50,6 +50,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **EKIPA: PA STOKUN, IKONA OFFLINE (v183 = 1.13.1)**: `#ekChipStoku` (tel) dhe `#ekSegStoku` (PC) gjithmonë të fshehur, pamja
+   'stoku' → përmbledhja/pulti, edhe për adminin. `praniaIkone` offline: ikona e pajisjes (IK_TEL/IK_PC) + `.pk` gri në vend të IK_OFF
+   (wifi e prerë); përdoruesi zgjodhi "Pajisja gri + pikë gri".
 0000000. **EKIPA: PËRMBLEDHJA, PA CHAT, MENYJA E PALËVIZSHME (v182 = 1.13.0)**:
    - Chat-i u hoq nga UI (tel + PC): `#ekChatBtn`/`#navEkChat`/`ekAdminPastroChat` të fshehur, pamja 'chat' → përmbledhja,
      njoftimet me pamja 'chat' injorohen, s'ka pikë chat-i. Kodi i chat-it te ekipa.js mbeti (s'thirret nga UI).
