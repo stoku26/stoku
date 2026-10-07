@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 176, versioni: '1.11.4', data: '2026-10-07', titulli: 'Ora: butoni i rifreskimit', pikat: [
+      'Ora: lista rifreskohet vetë vetëm kur hyn në Stoku; poshtë, majtas ingranazhit të Cilësimeve, ka butonin e rifreskimit.'
+    ] },
     { v: 175, versioni: '1.11.3', data: '2026-10-07', titulli: 'Ora: rifreskim vetë dhe Cilësimet me ingranazh', pikat: [
       'Ora: lista rifreskohet vetë kur e hap ose kthehesh në Stoku, dhe çdo minutë; prekja e "Rifreskuar ..." e rifreskon menjëherë. Rrëshqitja poshtë u hoq, sepse hapte panelin e orës.',
       'Ora: Cilësimet hapen me butonin e rrumbullakët me ingranazh, si te telefoni.',
