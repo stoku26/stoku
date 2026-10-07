@@ -50,6 +50,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ORA: RIFRESKO SILLET, CILËSIMET PA MBRAPA (v177 = 1.11.5)**: `ButoniRifresko` s'çaktivizohet më dhe s'ndërrohet me
+   spinner (dukej si bug): ikona rrotullohet (Animatable, 800 ms/rrotullim, përfundon drejt), ngarkimi zgjat ≥700 ms. `Koka` vetëm
+   titull: Wear OS ka butonin fizik + rrëshqitjen për mbrapa (`ButoniMbrapa`/`ShigjetaMbrapa` u hoqën).
 0000000. **ORA: RIFRESKIM VETËM NË HYRJE + BUTONI RIFRESKO (v176 = 1.11.4)**: u hoq cikli 60 s dhe rreshti "prek për
    rifreskim"; mbetet `Rikthimi.n` (onResume). Poshtë listës: `ButoniRifresko` (majtas, rrotullim gjatë ngarkimit) + `ButoniCilesimet`.
 0000000. **ORA: PA PULLREFRESH, INGRANAZH, VERSIONI NË FUND (v175 = 1.11.3)**: rrëshqitja poshtë në orë hapte panelin e
