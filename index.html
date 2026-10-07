@@ -1054,7 +1054,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=28">
+<link rel="stylesheet" href="css/stoku.css?v=29">
 </head>
 <body>
 <script src="porta.js?v=166"></script>
@@ -1833,7 +1833,7 @@
 <script src="afatet.js?v=163"></script>
 <script src="ekipa.js?v=183"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=185"></script>
+<script src="teRejat.js?v=186"></script>
 <script>
 (function () {
   'use strict';
@@ -6302,23 +6302,25 @@
   // Flluska e vogël pranë ikonës (me shigjetë që del prej saj); mbyllet me prekje tjetër ose pas 3.5 s
   var __ekFlluska = null;
   function ekMbyllFlluske() { if (__ekFlluska) { __ekFlluska.remove(); __ekFlluska = null; } }
+  // Flluska vendoset brenda vetë ikonës (position: absolute), që të dalë gjithmonë mbi të edhe me zmadhim / WebView
   function ekTregoFlluskeRoli(ikona, tekst) {
     var ishte = __ekFlluska && __ekFlluska.__per === ikona;
     ekMbyllFlluske();
     if (ishte) return;
-    var f = document.createElement('div');
-    f.className = 'ek-flluska'; f.setAttribute('role', 'tooltip'); f.textContent = tekst; f.__per = ikona;
-    document.body.appendChild(f);
-    var r = ikona.getBoundingClientRect(), w = f.offsetWidth, h = f.offsetHeight, vw = document.documentElement.clientWidth;
-    var x = Math.max(12, Math.min(vw - w - 12, r.left + r.width / 2 - w / 2));
-    var lart = r.top - h - 10 >= 8;
-    f.style.left = x + 'px';
-    f.style.top = (lart ? r.top - h - 10 : r.bottom + 10) + 'px';
-    f.style.setProperty('--shigjeta-x', (r.left + r.width / 2 - x) + 'px');
-    f.classList.add(lart ? 'lart' : 'poshte');
+    var f = document.createElement('span');
+    f.className = 'ek-flluska lart'; f.setAttribute('role', 'tooltip'); f.textContent = tekst; f.__per = ikona;
+    ikona.appendChild(f);
+    // mos dil jashtë ekranit: zhvendose anash, shigjeta mbetet te ikona
+    var r = f.getBoundingClientRect(), vw = document.documentElement.clientWidth, dx = 0;
+    if (r.left < 12) dx = 12 - r.left; else if (r.right > vw - 12) dx = vw - 12 - r.right;
+    f.style.setProperty('--zhvendosja', dx + 'px');
+    // pa vend lart (afër kokës): poshtë ikonës
+    var koka = document.querySelector('.mbulese.hapur .opsione-krye, .sbp .faqe-krye');
+    var kufiri = koka ? koka.getBoundingClientRect().bottom : 0;
+    if (f.getBoundingClientRect().top < kufiri + 6) { f.classList.remove('lart'); f.classList.add('poshte'); }
     __ekFlluska = f;
     clearTimeout(ekTregoFlluskeRoli.k);
-    ekTregoFlluskeRoli.k = setTimeout(ekMbyllFlluske, 3500);
+    ekTregoFlluskeRoli.k = setTimeout(ekMbyllFlluske, 5000);
   }
   document.addEventListener('click', ekMbyllFlluske, true);
   window.addEventListener('scroll', ekMbyllFlluske, true);
@@ -7917,6 +7919,22 @@
   }).observe($('dlgTeRejat'), { attributes: true, attributeFilter: ['class'] });
   window.addEventListener('stoku-porta-hapur', function () { setTimeout(tregoTeRejatKurGati, 700); });
   setTimeout(function () { if (!(window.StokuPorta && window.StokuPorta.eHapur())) tregoTeRejatKurGati(); }, 2500);
+
+  // ---------- Rreshtat e filtrave: skajet zbehen (fade) kur ka edhe butona anash ----------
+  (function () {
+    function perditeso(el) {
+      var maks = el.scrollWidth - el.clientWidth;
+      el.classList.toggle('fade-majtas', el.scrollLeft > 2);
+      el.classList.toggle('fade-djathtas', maks - el.scrollLeft > 2);
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('.af-filtrat'), function (el) {
+      var p = function () { perditeso(el); };
+      el.addEventListener('scroll', p, { passive: true });
+      if (window.ResizeObserver) new ResizeObserver(p).observe(el);
+      if (window.MutationObserver) new MutationObserver(function () { requestAnimationFrame(p); }).observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'class'] });
+      p();
+    });
+  })();
 
   // ---------- Service worker + përditësimi automatik ----------
   // Sa herë hapet aplikacioni (dhe sa herë rikthehesh në të), kontrollohet në sfond a ka version të ri (sw.js).

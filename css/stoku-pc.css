@@ -525,9 +525,14 @@ html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-nen { background: var(--sb-s
 .sbp .ek-roli { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; margin-left: 6px; border-radius: 50%; vertical-align: middle; cursor: help; flex: none; }
 .sbp .ek-roli.pronar { background: var(--sb-near-tint); color: var(--sb-near); }
 .sbp .ek-roli.admin { background: var(--sb-accent-tint); color: var(--sb-accent-text); }
-/* v185: flluska e rolit pranë ikonës, me shigjetë që del prej saj */
-.sbp .ek-flluska { position: fixed; z-index: 9999; max-width: min(280px, calc(100vw - 24px)); padding: 9px 12px; border-radius: 12px; background: var(--sb-inv-bg); color: var(--sb-inv-fg); font-size: 13px; font-weight: 500; line-height: 1.35; box-shadow: 0 8px 24px rgba(0,0,0,.22); pointer-events: none; animation: ekFlluska .14s ease-out; }
-.sbp .ek-flluska::after { content: ''; position: absolute; left: calc(var(--shigjeta-x, 50%) - 6px); width: 12px; height: 12px; background: inherit; transform: rotate(45deg); border-radius: 2px; }
+/* v186: flluska e rolit brenda ikonës (absolute): del mbi ikonë, shigjeta tregon ikonën */
+.sbp .ek-roli { position: relative; }
+.sbp .ek-flluska { position: absolute; left: 50%; z-index: 50; width: max-content; max-width: min(260px, calc(100vw - 24px)); white-space: normal; text-align: left;
+  padding: 9px 12px; border-radius: 12px; background: var(--sb-inv-bg); color: var(--sb-inv-fg); font-size: 13px; font-weight: 500; line-height: 1.35; letter-spacing: 0;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25); pointer-events: none; transform: translateX(calc(-50% + var(--zhvendosja, 0px))); animation: ekFlluska .14s ease-out; }
+.sbp .ek-flluska.lart { bottom: calc(100% + 10px); }
+.sbp .ek-flluska.poshte { top: calc(100% + 10px); }
+.sbp .ek-flluska::after { content: ''; position: absolute; left: calc(50% - 6px - var(--zhvendosja, 0px)); width: 12px; height: 12px; background: inherit; transform: rotate(45deg); border-radius: 2px; }
 .sbp .ek-flluska.lart::after { bottom: -5px; }
 .sbp .ek-flluska.poshte::after { top: -5px; }
-@keyframes ekFlluska { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+@keyframes ekFlluska { from { opacity: 0; } to { opacity: 1; } }
