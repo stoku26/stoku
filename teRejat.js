@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 187, versioni: '1.14.0', data: '2026-10-08', titulli: 'Ekipa tash quhet Grupi', pikat: [
+      'Kudo në Stoku (telefon, kompjuter, ora dhe aplikacioni Android) "Ekipa" tash quhet "Grupi".',
+      'S\'ka më "pronar": kurora te emri tregon "Admin i Grupit", mburoja "Administrator".'
+    ] },
     { v: 186, versioni: '1.13.4', data: '2026-10-08', titulli: 'Flluska mbi ikonë, filtrat me zbehje', pikat: [
       'Flluska e kurorës dhe e mburojës tash del gjithmonë mbi ikonë dhe mbyllet vetë pas 5 sekondash.',
       'Te Afatet, rreshtat e filtrave zbehen butë te skajet kur ka edhe butona anash.'

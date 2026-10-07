@@ -50,6 +50,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **EKIPA → GRUPI, PA "PRONAR" (v187 = 1.14.0)**: përdoruesi do "Grupi" kudo. Vetëm tekstet u ndryshuan (tel, PC,
+   ekipa.js, ora, kanali i njoftimeve në Android, teksti i push-it te Worker-i pa ndryshim versioni): ekipa→grupi, ekipën→grupin,
+   ekipës→grupit, ekipë→grup, "Krijo grupin tënd", "Grupi yt", "Emri i grupit të ri", "e këtij grupi", "Secili grup".
+   Roli: "pronar" → "admin i grupit" (Bëje admin / Hiqe si admin / Ti je admin i grupit); flluskat: "Admin i Grupit",
+   "Administrator". Fallback-et e emrit (pronari i afatit) → "Kolegu/kolegut".
+   - MOS i ndrysho: identifikuesit (`ekipa`, `ekK`, `ekGrupi*`, `#ekipa-`), çelësat `stoku:ekipa:*` (gjendja e ruajtur),
+     id-ja e grupit të vjetër "ekipa" dhe emri i tij 'Ekipa' në migrim (të dhëna). U verifikua me kodi-krahaso: 0 ndryshime kodi.
 0000000. **FLLUSKA BRENDA IKONËS + FADE TE FILTRAT (v186 = 1.13.4)**: flluska (fixed) dilte e zhvendosur te aplikacioni Android;
    tash është fëmijë i `.ek-roli` (position: absolute, bottom: 100% + 10px), `--zhvendosja` e mban brenda ekranit, poshtë kur s'ka vend
    nën kokë; mbyllet pas 5 s. `.af-filtrat`: klasat `fade-majtas/fade-djathtas` (scroll + ResizeObserver + MutationObserver) → mask-image.

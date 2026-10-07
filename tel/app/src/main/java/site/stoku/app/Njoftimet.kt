@@ -14,7 +14,7 @@ object Njoftimet {
 
     fun krijoKanalin(ctx: Context) {
         val k = NotificationChannel(KANALI, "Njoftimet e Stoku-t", NotificationManager.IMPORTANCE_HIGH)
-        k.description = "Afatet që skadojnë, chat-i dhe kërkesat e ekipës"
+        k.description = "Afatet që skadojnë dhe kërkesat e grupit"
         k.enableVibration(true)
         ctx.getSystemService(NotificationManager::class.java).createNotificationChannel(k)
     }

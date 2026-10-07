@@ -345,7 +345,7 @@ fun RreshtiAfatit(a: Afat, poshte: String, ngjyra: Color, kurPreket: () -> Unit)
     )
 }
 
-// Produkti i zgjedhur: "U hoq nga rafti" ose "Kërko heqje nga ekipa"
+// Produkti i zgjedhur: "U hoq nga rafti" ose "Kërko heqje nga grupi"
 @Composable
 fun Detaji(a: Afat, sot: Boolean, skaduar: Boolean = false, ekipa: Boolean, kurHiqet: () -> Unit, kurKerkon: () -> Unit, mbrapa: () -> Unit) {
     val gjendja = rememberScalingLazyListState()
@@ -369,7 +369,7 @@ fun Detaji(a: Afat, sot: Boolean, skaduar: Boolean = false, ekipa: Boolean, kurH
                     modifier = Modifier.fillMaxWidth(),
                     onClick = kurKerkon,
                     enabled = ekipa,
-                    label = { Text("Kërko heqje nga ekipa", fontWeight = FontWeight.Bold) },
+                    label = { Text("Kërko heqje nga grupi", fontWeight = FontWeight.Bold) },
                     secondaryLabel = { Text(if (ekipa) "Dërgoja një kolegu" else "Lidhe sërish orën nga telefoni", maxLines = 2, color = Gri) },
                     colors = ChipDefaults.secondaryChipColors(),
                 )
@@ -399,7 +399,7 @@ fun ZgjedhKolegun(a: Afat, kurDergohet: (String) -> Unit, kurShkeputet: () -> Un
         scope.launch {
             try {
                 val n = Api.kerkoHeqjen(ctx, a, k)
-                kurDergohet(if (k != null) "Kërkesa iu dërgua: ${k.emri}" else "Kërkesa iu dërgua ekipës ($n)")
+                kurDergohet(if (k != null) "Kërkesa iu dërgua: ${k.emri}" else "Kërkesa iu dërgua grupit ($n)")
             } catch (e: PaLidhje) { kurShkeputet() }
             catch (e: DuhetRilidhur) { gabim = "Lidhe sërish orën nga telefoni." }
             catch (e: Exception) { gabim = "S'u dërgua. Provo prapë." }
@@ -414,12 +414,12 @@ fun ZgjedhKolegun(a: Afat, kurDergohet: (String) -> Unit, kurShkeputet: () -> Un
             val l = koleget
             if (l == null && gabim == null) item { CircularProgressIndicator(indicatorColor = Verdhe) }
             if (l != null) {
-                if (l.isEmpty()) item { Text("S'ka kolegë në ekipë.", color = Gri, textAlign = TextAlign.Center) }
+                if (l.isEmpty()) item { Text("S'ka kolegë në grup.", color = Gri, textAlign = TextAlign.Center) }
                 else item {
                     Chip(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { dergo(null) },
-                        label = { Text("Krejt ekipa", fontWeight = FontWeight.Bold) },
+                        label = { Text("Krejt grupi", fontWeight = FontWeight.Bold) },
                         secondaryLabel = { Text("${l.size} kolegë", color = Gri) },
                         colors = ChipDefaults.primaryChipColors(),
                     )
