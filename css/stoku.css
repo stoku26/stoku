@@ -506,3 +506,7 @@ html.sb:not([data-tema="dark"]) .sb-stat__value--exp { color: var(--sb-exp, #d04
 /* v182: koka e Ekipës me lartësi të njëjtë në çdo pamje, që menyja poshtë saj të mos lëvizë */
 .sb #dlgEkipi .opsione-krye { min-height: calc(76px + env(safe-area-inset-top)); box-sizing: border-box; }
 .sb .ekipi-ti { white-space: nowrap; display: inline-block; }
+/* v184: rolet si ikona (kurora = pronar, mburoja = admin); prekja tregon çka janë */
+.sb .ek-roli { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; margin-left: 6px; border-radius: 50%; vertical-align: middle; cursor: help; flex: none; }
+.sb .ek-roli.pronar { background: var(--sb-near-tint); color: var(--sb-near); }
+.sb .ek-roli.admin { background: var(--sb-accent-tint); color: var(--sb-accent-text); }

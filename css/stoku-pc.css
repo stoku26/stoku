@@ -521,3 +521,7 @@ html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-nen { background: var(--sb-s
 .sbp .ek-pritje { display: inline-block; padding: 4px 10px; border-radius: 20px; background: var(--sb-surface-2); color: var(--sb-ink-3); font-size: 12px; font-weight: 600; white-space: nowrap; }
 .sbp .ek-nj-veprim .btn + .btn { margin-left: 6px; }
 .sbp .ek-prania.off .pk { background: var(--sb-faint); box-shadow: none; animation: none; opacity: 1; }
+/* v184: rolet si ikona (kurora = pronar, mburoja = admin) */
+.sbp .ek-roli { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; margin-left: 6px; border-radius: 50%; vertical-align: middle; cursor: help; flex: none; }
+.sbp .ek-roli.pronar { background: var(--sb-near-tint); color: var(--sb-near); }
+.sbp .ek-roli.admin { background: var(--sb-accent-tint); color: var(--sb-accent-text); }

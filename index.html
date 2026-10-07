@@ -1054,7 +1054,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=26">
+<link rel="stylesheet" href="css/stoku.css?v=27">
 </head>
 <body>
 <script src="porta.js?v=166"></script>
@@ -1833,7 +1833,7 @@
 <script src="afatet.js?v=163"></script>
 <script src="ekipa.js?v=183"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=183"></script>
+<script src="teRejat.js?v=184"></script>
 <script>
 (function () {
   'use strict';
@@ -6182,7 +6182,7 @@
       var b = ekEl('button'); b.type = 'button';
       b.title = a.emri + ' · ' + (a.uneJam ? 'ti' : EKL.tekstiPranise(a));
       b.appendChild(ekAv(a.emri, 46, a.uneJam || EKL.eshteOnline(a)));
-      b.appendChild(ekEl('span', null, a.uneJam ? 'ti' : a.emri));
+      b.appendChild(ekEl('span', null, a.emri));
       b.addEventListener('click', function () { ekHapAnetarin(a.uid); });
       rr.appendChild(b);
     });
@@ -6286,6 +6286,19 @@
   }
 
   // Heqja e kolegut pret miratimin e pronarit (v179)
+  // Rolet si ikona të vogla (prekja tregon çka janë): kurora = pronari i ekipës, mburoja = administratori
+  var EK_ROLET = {
+    pronar: ['Pronari i ekipës: fton dhe heq anëtarë, ndryshon emrin e ekipës', '<path d="M3 7l4 4 5-6 5 6 4-4-2 11H5L3 7z"></path><path d="M5 21h14"></path>'],
+    admin: ['Administratori i Stoku-t: menaxhon llogaritë dhe afatet e krejt ekipës', '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path>']
+  };
+  function ekIkonaRoli(roli, krijo, njofto) {
+    var r = EK_ROLET[roli];
+    var s = krijo('span', 'ek-roli ' + roli);
+    s.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + r[1] + '</svg>';
+    s.title = r[0]; s.setAttribute('role', 'img'); s.setAttribute('aria-label', r[0]);
+    s.addEventListener('click', function (ev) { ev.stopPropagation(); njofto(r[0]); });
+    return s;
+  }
   function ekTekstiNePritje(a) {
     var u = perdoruesiAktual(), uneE = u && a.nePritjeUid === u.uid;
     return (uneE ? 'E hoqe nga rafti' : 'E hoqi ' + a.nePritjeNga) + (a.nePritjeSe ? ' ' + EKL.kohaRelative(a.nePritjeSe) : '') +
@@ -6628,9 +6641,8 @@
       r.appendChild(ekAvatar(a, true));
       var m = ekEl('div', 'majtas');
       var e = ekEl('div', 'emri', a.emri);
-      if (a.uneJam) e.appendChild(ekEl('span', 'ekipi-ti', 'ti'));
-      if (a.pronar) e.appendChild(ekEl('span', 'ekipi-ti', 'pronar'));
-      if (a.admin) e.appendChild(ekEl('span', 'ekipi-ti', 'admin'));
+      if (a.pronar) e.appendChild(ekIkonaRoli('pronar', ekEl, function (t) { toast(t, 3500); }));
+      if (a.admin) e.appendChild(ekIkonaRoli('admin', ekEl, function (t) { toast(t, 3500); }));
       m.appendChild(e);
       var pr = EKL.praniaIkone(a, a.uneJam, 'tel');
       var prEl = ekEl('span', 'ek-prania ' + (pr.online ? 'on' : 'off')); prEl.innerHTML = pr.html; prEl.title = pr.titulli; prEl.setAttribute('aria-label', pr.titulli);
@@ -6779,7 +6791,6 @@
       anetaret.forEach(function (x) {
         var k = ekEl('button', 'folder-karta ekipi-karta'); k.type = 'button';
         var e = ekEl('div', 'emri', x.emri);
-        if (x.uneJam) e.appendChild(ekEl('span', 'ekipi-ti', 'ti'));
         k.appendChild(e);
         var d = ekStoku.te[x.uid];
         k.appendChild(ekEl('div', 'numri', d && d.ok ? d.produktet.length + (d.produktet.length === 1 ? ' produkt' : ' produkte') : 'Prek për ta parë'));
