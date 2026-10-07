@@ -906,7 +906,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku-pc.css?v=15">
+<link rel="stylesheet" href="css/stoku-pc.css?v=16">
 </head>
 <body>
 <script src="porta.js?v=166"></script>
@@ -1882,7 +1882,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=163"></script>
 <script src="ekipa.js?v=183"></script>
-<script src="teRejat.js?v=184"></script>
+<script src="teRejat.js?v=185"></script>
 <script>
 (function () {
   'use strict';
@@ -5115,9 +5115,32 @@
     var s = krijo('span', 'ek-roli ' + roli);
     s.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + r[1] + '</svg>';
     s.title = r[0]; s.setAttribute('role', 'img'); s.setAttribute('aria-label', r[0]);
-    s.addEventListener('click', function (ev) { ev.stopPropagation(); njofto(r[0]); });
+    s.addEventListener('click', function (ev) { ev.stopPropagation(); ekTregoFlluskeRoli(s, r[0]); });
     return s;
   }
+  // Flluska e vogël pranë ikonës (me shigjetë që del prej saj); mbyllet me prekje tjetër ose pas 3.5 s
+  var __ekFlluska = null;
+  function ekMbyllFlluske() { if (__ekFlluska) { __ekFlluska.remove(); __ekFlluska = null; } }
+  function ekTregoFlluskeRoli(ikona, tekst) {
+    var ishte = __ekFlluska && __ekFlluska.__per === ikona;
+    ekMbyllFlluske();
+    if (ishte) return;
+    var f = document.createElement('div');
+    f.className = 'ek-flluska'; f.setAttribute('role', 'tooltip'); f.textContent = tekst; f.__per = ikona;
+    document.body.appendChild(f);
+    var r = ikona.getBoundingClientRect(), w = f.offsetWidth, h = f.offsetHeight, vw = document.documentElement.clientWidth;
+    var x = Math.max(12, Math.min(vw - w - 12, r.left + r.width / 2 - w / 2));
+    var lart = r.top - h - 10 >= 8;
+    f.style.left = x + 'px';
+    f.style.top = (lart ? r.top - h - 10 : r.bottom + 10) + 'px';
+    f.style.setProperty('--shigjeta-x', (r.left + r.width / 2 - x) + 'px');
+    f.classList.add(lart ? 'lart' : 'poshte');
+    __ekFlluska = f;
+    clearTimeout(ekTregoFlluskeRoli.k);
+    ekTregoFlluskeRoli.k = setTimeout(ekMbyllFlluske, 3500);
+  }
+  document.addEventListener('click', ekMbyllFlluske, true);
+  window.addEventListener('scroll', ekMbyllFlluske, true);
   function ekTekstiNePritje(a) {
     var u = perdoruesi(), uneE = u && a.nePritjeUid === u.uid;
     return (uneE ? 'E hoqe' : 'E hoqi ' + a.nePritjeNga) + (a.nePritjeSe ? ' ' + EKL.kohaRelative(a.nePritjeSe) : '') + ', pret miratimin e ' + (a.pronariEmri || 'pronarit');
