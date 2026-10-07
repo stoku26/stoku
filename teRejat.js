@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 171, versioni: '1.10.2', data: '2026-10-07', titulli: 'Shigjeta mbrapa më e pastër', platforma: 'tel', pikat: [
+      'Butoni mbrapa në krye të faqeve ka tash një shigjetë të re, të hollë dhe në mes të rrethit.'
+    ] },
     { v: 170, versioni: '1.10.1', data: '2026-10-07', titulli: 'Cilësimet më të pastra', platforma: 'tel', pikat: [
       'Te Cilësimet kategoria "Ora e dorës" ka vetëm lidhjen e orës.',
       'Aplikacioni Android: "Kontrollo për përditësim" (ose "Shkarko aplikacionin Android" në Chrome) është tash një buton i hollë poshtë "Çka ka të re".',

@@ -50,6 +50,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **SHIGJETA MBRAPA SVG (v171 = 1.10.2)**: "←" (germë) brenda rrethit dukej keq; tash SVG chevron (`M15 18l-6-6 6-6`, 20px,
+   stroke 2.4) te #btnMbrapa, #opsPrapa, #afPrapa, #ekipiPrapa, #impPrapa, #lxPrapa (+ aria-label "Mbrapa"); css/stoku.css v20.
 0000000. **CILËSIMET MË TË PASTRA (v170 = 1.10.1, ora pa ndryshim funksional)**: përdoruesi: "Ora dhe aplikacioni" të ketë
    vetëm orën; kontrolli i përditësimit të aplikacionit si buton i hollë mes "Çka ka të re" dhe versionit; "←" me rreth.
    - Kategoria `#tabOra` → "Ora e dorës" (status "Galaxy Watch, Apple Watch"), faqja vetëm me orën (karta Android u hoq).
