@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -54,6 +55,8 @@ val Kuqe = Color(0xFFFF5A4E)
 val Gri = Color(0xFF9AA0A8)
 val Kartela = Color(0xFF1D2026)
 val Gjelber = Color(0xFF3DDC84)
+// Ngjyra e afateve që skadojnë së shpejti (gjithmonë e verdhë, si te telefoni)
+val AfatAfer = Color(0xFFF5B70A)
 
 // Rifreskimi automatik: vetëm kur hyn në aplikacion (hapje ose rikthim); përndryshe me butonin poshtë
 object Rikthimi {
@@ -299,12 +302,12 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                         Text("Asnjë produkt s'skadon sot ✓", textAlign = TextAlign.Center, color = Color.White, modifier = Modifier.padding(8.dp))
                     }
                     if (l != null) items(l.sot, key = { "s" + it.id }) { a ->
-                        RreshtiAfatit(a, pershkrimi(a), Verdhe) { pamja = Pamja.Detaji(a, true) }
+                        RreshtiAfatit(a, pershkrimi(a), AfatAfer) { pamja = Pamja.Detaji(a, true) }
                     }
                     if (l != null && l.java.isNotEmpty()) {
                         item { ListHeader { Text("KËTË JAVË · ${l.javaN}", color = Gri, fontWeight = FontWeight.SemiBold) } }
                         items(l.java, key = { "j" + it.id + it.data }) { a ->
-                            RreshtiAfatit(a, dataShkurt(a.data) + (a.sasia?.let { " · $it copë" } ?: ""), Verdhe) { pamja = Pamja.Detaji(a, false) }
+                            RreshtiAfatit(a, dataShkurt(a.data) + (a.sasia?.let { " · $it copë" } ?: ""), AfatAfer) { pamja = Pamja.Detaji(a, false) }
                         }
                     }
                     gabim?.let { g -> item { Text(g, fontSize = 11.sp, color = Kuqe, textAlign = TextAlign.Center, modifier = Modifier.padding(6.dp)) } }
@@ -322,15 +325,23 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
     }
 }
 
+// Kartela e produktit si te telefoni: e kuqe kur ka skaduar, e verdhë kur skadon së shpejti (ngjyrat s'varen nga Pamja)
 @Composable
 fun RreshtiAfatit(a: Afat, poshte: String, ngjyra: Color, kurPreket: () -> Unit) {
+    val kuq = ngjyra == Kuqe
     Chip(
         modifier = Modifier.fillMaxWidth(),
         onClick = kurPreket,
-        label = { Text(a.emri, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Bold) },
-        secondaryLabel = { Text(poshte, maxLines = 1, color = Gri) },
+        label = { Text(a.emri, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Bold, color = Color.White) },
+        secondaryLabel = { Text(poshte, maxLines = 1, color = if (kuq) Color(0xFFFFA39B) else Color(0xFFFFD36B)) },
         icon = { Box(Modifier.size(10.dp).background(ngjyra, CircleShape)) },
-        colors = ChipDefaults.secondaryChipColors(),
+        colors = ChipDefaults.chipColors(
+            backgroundColor = if (kuq) Color(0xFF3A1513) else Color(0xFF33280A),
+            contentColor = Color.White,
+            secondaryContentColor = if (kuq) Color(0xFFFFA39B) else Color(0xFFFFD36B),
+            iconColor = ngjyra,
+        ),
+        border = ChipDefaults.chipBorder(borderStroke = BorderStroke(1.dp, ngjyra.copy(alpha = 0.45f))),
     )
 }
 
