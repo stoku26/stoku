@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 186, versioni: '1.13.4', data: '2026-10-08', titulli: 'Flluska mbi ikonë, filtrat me zbehje', pikat: [
+      'Flluska e kurorës dhe e mburojës tash del gjithmonë mbi ikonë dhe mbyllet vetë pas 5 sekondash.',
+      'Te Afatet, rreshtat e filtrave zbehen butë te skajet kur ka edhe butona anash.'
+    ] },
     { v: 185, versioni: '1.13.3', data: '2026-10-08', titulli: 'Rregullime të vogla në pamje', pikat: [
       'Kur prek kurorën ose mburojën te Anëtarët, shpjegimi del në një flluskë të vogël pikërisht te ikona.',
       'Te Afatet, rreshtat e filtrave (statusi dhe muajt) rrëshqasin brenda kufijve të faqes, pa dalë skaj më skaj.'

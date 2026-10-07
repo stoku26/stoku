@@ -50,6 +50,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **FLLUSKA BRENDA IKONËS + FADE TE FILTRAT (v186 = 1.13.4)**: flluska (fixed) dilte e zhvendosur te aplikacioni Android;
+   tash është fëmijë i `.ek-roli` (position: absolute, bottom: 100% + 10px), `--zhvendosja` e mban brenda ekranit, poshtë kur s'ka vend
+   nën kokë; mbyllet pas 5 s. `.af-filtrat`: klasat `fade-majtas/fade-djathtas` (scroll + ResizeObserver + MutationObserver) → mask-image.
 0000000. **FLLUSKA E ROLIT + FILTRAT BRENDA VIJAVE (v185 = 1.13.3)**: `ekTregoFlluskeRoli` (tel + PC): `.ek-flluska` fixed mbi/nën
    ikonën, shigjeta te `--shigjeta-x`, mbyllet me prekje/scroll ose pas 3.5 s. `.sb .af-filtrat` pa margin negative (-20px):
    rreshtat e statusit/muajve rrëshqasin brenda gutter-it 20px.
