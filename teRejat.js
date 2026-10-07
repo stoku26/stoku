@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 173, versioni: '1.11.1', data: '2026-10-07', titulli: 'Lidhja e orës më e qartë', platforma: 'tel', pikat: [
+      'Te "Lidh orën" fusha e kodit tash shkruan "Kodi nga ora" në vend të një numri shembull që dukej si kod i vërtetë.'
+    ] },
     { v: 172, versioni: '1.11.0', data: '2026-10-07', titulli: 'Ora: Pamja me ngjyra dhe rifreskim me rrëshqitje', pikat: [
       'Ora: te Cilësimet ka opsion të ri "Pamja" ku zgjedh ngjyrën kryesore (8 ngjyra).',
       'Ora: lista rifreskohet duke e tërhequr poshtë; butoni "Rifresko" u hoq.',

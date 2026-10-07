@@ -471,6 +471,7 @@ html.sb body { -webkit-user-select: none; user-select: none; -webkit-touch-callo
 .sb .ora-lidh { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; margin-bottom: 12px; border-radius: 14px; background: var(--sb-surface-2, var(--sb-surface)); box-shadow: inset 0 0 0 1px var(--sb-line); }
 .sb .ora-lidh__rresht { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .sb input.nj-ora.ora-kodi { width: 140px; letter-spacing: 3px; }
+.sb input.nj-ora.ora-kodi::placeholder { letter-spacing: 0; font-weight: 500; font-size: 15px; color: var(--sb-muted); opacity: 1; }
 .sb input.nj-ora:focus { border-color: transparent; box-shadow: 0 0 0 2px var(--sb-accent); outline: none; }
 
 /* Ekipa: tabet (Afatet…Statistika) s'priten më në telefonat e ngushtë (360–375px): ngushtohen, e kur s'mjafton, kalojnë në rresht të dytë */
