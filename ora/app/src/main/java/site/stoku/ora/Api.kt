@@ -34,7 +34,7 @@ class DuhetRilidhur : Exception("rilidh")
 class PaLidhje : Exception("pa-lidhje")
 
 // Lidhja me serverin stoku-push (Cloudflare). Ora identifikohet me një sekret 64-hex që krijohet këtu dhe
-// lidhet me llogarinë kur përdoruesi e shkruan kodin 6-shifror te telefoni (Cilësimet → Ora dhe aplikacioni → Lidh orën).
+// lidhet me llogarinë kur përdoruesi e shkruan kodin 6-shifror te telefoni (Cilësimet → Ora e dorës → Lidh orën).
 object Api {
     private const val SERVERI = "https://stoku-push.mendurb.workers.dev"
     private val rastesi = SecureRandom()

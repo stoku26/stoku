@@ -1054,7 +1054,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=18">
+<link rel="stylesheet" href="css/stoku.css?v=19">
 </head>
 <body>
 <script src="porta.js?v=166"></script>
@@ -1214,7 +1214,7 @@
           </button>
           <button class="kategori-rresht" type="button" data-faqe="ora" id="tabOra">
             <span class="kat-ikona-badge ngj-blu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="3"></rect><path d="M9 6l.6-3h4.8L15 6M9 18l.6 3h4.8l.6-3"></path><path d="M12 10v2.2l1.4 1"></path></svg></span>
-            <span class="kat-info"><span class="kat-tekst">Ora dhe aplikacioni</span><span class="kat-status" id="tabOraStatus">Lidh orën · Stoku për Android</span></span>
+            <span class="kat-info"><span class="kat-tekst">Ora e dorës</span><span class="kat-status" id="tabOraStatus">Galaxy Watch, Apple Watch</span></span>
             <span class="shigjeta">›</span>
           </button>
           <button class="kategori-rresht" type="button" data-faqe="lista" id="tabLista">
@@ -1241,6 +1241,7 @@
             <span class="shigjeta">›</span>
           </button>
         </div>
+        <button class="ops-app-btn" type="button" id="njAndroidBtn" hidden><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"></rect><path d="M11 18h2"></path></svg><span id="njAndroidTekst"></span></button>
         <div class="ops-fundi"><span><b>Stoku</b><span id="opsVersioni"></span></span></div>
       </div>
 
@@ -1339,14 +1340,8 @@
         </div>
 
         <div class="opsione-faqe" data-faqe="ora">
-          <div class="ops-intro" id="oraIntro">Ora e dorës (Galaxy Watch, Apple Watch) dhe aplikacioni Stoku për Android.</div>
-          <div class="ops-grupi-titull ops-grupi-titull--pare" id="njAndroidGrupi" hidden>Aplikacioni Android</div>
-          <div class="seksion ops-karta" id="njAndroidKarta" hidden>
-            <div class="ops-fusha-titull"><span class="kat-ikona-badge ngj-gjelber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"></rect><path d="M11 18h2"></path></svg></span><span id="njAndroidTitulli">Aplikacioni Stoku për Android</span></div>
-            <div class="hint" id="njAndroidTekst"></div>
-            <div class="rreshti" style="margin-top:10px"><button class="btn" id="njAndroidBtn" type="button" style="flex:1;white-space:nowrap">Shkarko aplikacionin</button></div>
-          </div>
-          <div class="ops-grupi-titull" id="oraGrupi">Ora e dorës</div>
+          <div class="ops-intro">Lidhe orën e dorës (Galaxy Watch ose Apple Watch) me Stoku-n.</div>
+          <div class="ops-grupi-titull ops-grupi-titull--pare">Ora e dorës</div>
           <div class="seksion ops-karta ops-ora">
             <div class="ops-ll-krye">
               <span class="kat-ikona-badge ngj-blu ops-ik-madh"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle><path d="M12 10v2l1 1"></path><path d="m16.13 7.66-.81-4.05a2 2 0 0 0-2-1.61h-2.68a2 2 0 0 0-2 1.61l-.78 4.05"></path><path d="m7.88 16.36.8 4a2 2 0 0 0 2 1.61h2.72a2 2 0 0 0 2-1.61l.81-4.05"></path></svg></span>
@@ -1367,7 +1362,7 @@
                 <div class="hint" id="oraLidhHint" role="status"></div>
               </div>
               <ol class="ops-hapat">
-                <li>Instalo aplikacionin <b>Stoku për Android</b> (më lart në këtë faqe), ose në Chrome: menyja <b>⋮</b> → <b>Shto në ekranin kryesor</b>.</li>
+                <li>Instalo aplikacionin <b>Stoku për Android</b> (Cilësimet → poshtë, <b>Shkarko aplikacionin</b>), ose në Chrome: menyja <b>⋮</b> → <b>Shto në ekranin kryesor</b>.</li>
                 <li>Te Cilësimet → <b>Njoftimet</b> shtyp <b>Aktivizo njoftimet</b> dhe lejoji.</li>
                 <li>Hap aplikacionin <b>Galaxy Wearable</b> → <b>Cilësimet e orës</b> → <b>Njoftimet</b> → <b>Njoftimet e aplikacioneve</b> → ndize <b>Stoku</b> (nëse s'del, shtyp "Të gjitha" dhe kërko "Stoku" ose "Chrome").</li>
                 <li>Fike ekranin e telefonit: njoftimet e Stoku-t (chat-i, afatet, kërkesat) dalin edhe në orë.</li>
@@ -1838,7 +1833,7 @@
 <script src="afatet.js?v=163"></script>
 <script src="ekipa.js?v=169"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=169"></script>
+<script src="teRejat.js?v=170"></script>
 <script>
 (function () {
   'use strict';
@@ -1979,7 +1974,7 @@
       eErret: 'E errët',
       titTemaTeksti: 'Tema',
       tabNjoftimet: 'Njoftimet',
-      tabOra: 'Ora dhe aplikacioni',
+      tabOra: 'Ora e dorës',
       automatikeHint: '"Automatike" ndjek cilësimin e telefonit.',
       titMadhesiaTeksti: 'Madhësia e shkronjave',
       madhesiaNormaleBtn: 'Normale',
@@ -3382,31 +3377,21 @@
       rifreskoNjoftimet();
     }).catch(function () { /* ok */ });
   });
-  // ---- Aplikacioni Android: në Chrome Android ofrohet; brenda aplikacionit tregohet versioni dhe kontrolli ----
+  // ---- Aplikacioni Android: butoni i hollë poshtë "Çka ka të re" (brenda aplikacionit: kontrolli i versionit; Chrome Android: shkarkimi) ----
   // (një herë, jo sa herë hapen Cilësimet: përndryshe butoni merr disa klikime)
   (function () {
-    var A = window.StokuAndroid, ua = navigator.userAgent || '', android = /Android/i.test(ua);
-    var iphone = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
-    $('tabOraStatus').textContent = A ? 'Lidh orën · Aplikacioni 1.0.' + (function () { try { return A.versioni(); } catch (e) { return 0; } })()
-      : android ? 'Lidh orën · Shkarko aplikacionin' : iphone ? 'Lidh Apple Watch' : 'Lidh orën';
-    if (!A && !android) {
-      // pa Android: s'ka aplikacion, kategoria është vetëm për orën
-      FJALORI.tabOra = 'Ora e dorës';
-      $('tabOra').querySelector('.kat-tekst').textContent = 'Ora e dorës';
-      $('oraIntro').textContent = 'Lidhe orën e dorës (Apple Watch ose Galaxy Watch) me Stoku-n.';
-      $('oraGrupi').classList.add('ops-grupi-titull--pare');
-      return;
-    }
-    $('njAndroidKarta').hidden = false; $('njAndroidGrupi').hidden = false;
+    var A = window.StokuAndroid, android = /Android/i.test(navigator.userAgent || '');
+    if (!A && !android) return;
+    var b = $('njAndroidBtn');
+    b.hidden = false;
     if (A) {
-      var v = 0; try { v = A.versioni(); } catch (e) { /* ok */ }
-      $('njAndroidTitulli').textContent = 'Aplikacioni Android · versioni 1.0.' + v;
-      $('njAndroidTekst').textContent = 'Pamja dhe veçoritë e reja vijnë vetë. Kur del version i ri i aplikacionit, të pyet vetë për përditësim.';
-      $('njAndroidBtn').textContent = 'Kontrollo për version të ri';
-      $('njAndroidBtn').addEventListener('click', function () { try { A.kontrolloPerditesimin(); } catch (e) { /* ok */ } });
+      $('njAndroidTekst').textContent = 'Kontrollo për përditësim';
+      b.title = 'Aplikacioni Stoku për Android: kontrollo a ka version të ri';
+      b.addEventListener('click', function () { try { A.kontrolloPerditesimin(); } catch (e) { /* ok */ } });
     } else {
-      $('njAndroidBtn').addEventListener('click', function () { window.open('android.html', '_blank', 'noopener'); });
-      $('njAndroidTekst').textContent = 'Stoku si aplikacion: s\'del nga llogaria kur i fshin cookies dhe të dhënat e Chrome-it, dhe njoftimet vijnë menjëherë. Instalohet një herë; versionet e reja i ofron vetë.';
+      $('njAndroidTekst').textContent = 'Shkarko aplikacionin Android';
+      b.title = 'Stoku si aplikacion: s\'del nga llogaria kur i fshin të dhënat e Chrome-it, dhe njoftimet vijnë menjëherë';
+      b.addEventListener('click', function () { window.open('android.html', '_blank', 'noopener'); });
     }
   })();
   function hapOpsionet() {

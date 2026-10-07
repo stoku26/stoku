@@ -99,7 +99,7 @@ fun Lidhja(kurLidhet: () -> Unit) {
         Text("Lidhe me telefonin", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
         Text(kodi.substring(0, 3) + " " + kodi.substring(3), fontSize = 34.sp, fontWeight = FontWeight.ExtraBold, color = Verdhe, letterSpacing = 3.sp)
         Text(
-            if (gabim) "S'ka internet. Po provoj prapë…" else "Te telefoni: Cilësimet → Ora dhe aplikacioni → Lidh orën",
+            if (gabim) "S'ka internet. Po provoj prapë…" else "Te telefoni: Cilësimet → Ora e dorës → Lidh orën",
             fontSize = 11.sp, color = Gri, textAlign = TextAlign.Center,
         )
     }
@@ -359,7 +359,7 @@ fun ZgjedhKolegun(a: Afat, kurDergohet: (String) -> Unit, kurShkeputet: () -> Un
     LaunchedEffect(Unit) {
         try { koleget = Api.koleget(ctx) }
         catch (e: PaLidhje) { kurShkeputet() }
-        catch (e: DuhetRilidhur) { gabim = "Lidhe sërish orën nga telefoni (Cilësimet → Ora dhe aplikacioni)." }
+        catch (e: DuhetRilidhur) { gabim = "Lidhe sërish orën nga telefoni (Cilësimet → Ora e dorës)." }
         catch (e: Exception) { gabim = "S'ka lidhje me serverin." }
     }
     fun dergo(k: Koleg?) {
