@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Button
@@ -59,6 +60,36 @@ val ShigjetaMbrapa: ImageVector by lazy {
             moveTo(15f, 18f); lineTo(9f, 12f); lineTo(15f, 6f)
         }
         .build()
+}
+
+// Ikona e Cilësimeve: e njëjta ingranazh si te shiriti i telefonit (rrethi + dhëmbët, vija 2)
+private const val GEAR_D = "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+private const val RRETHI_D = "M15 12a3 3 0 1 1-6 0a3 3 0 1 1 6 0z"
+
+val IkonaCilesimet: ImageVector by lazy {
+    val b = ImageVector.Builder(name = "cilesimet", defaultWidth = 24.dp, defaultHeight = 24.dp, viewportWidth = 24f, viewportHeight = 24f)
+    for (d in listOf(RRETHI_D, GEAR_D)) {
+        b.addPath(
+            pathData = PathParser().parsePathString(d).toNodes(),
+            stroke = SolidColor(Color.White), strokeLineWidth = 2f, strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round,
+        )
+    }
+    b.build()
+}
+
+// Butoni i rrumbullakët i Cilësimeve (ingranazhi), me pikë kur ka version të ri
+@Composable
+fun ButoniCilesimet(kaTeRe: Boolean, onClick: () -> Unit) {
+    Box(contentAlignment = Alignment.TopEnd) {
+        Button(
+            onClick = onClick,
+            modifier = Modifier.size(ButtonDefaults.DefaultButtonSize),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Kartela, contentColor = Color.White),
+        ) {
+            Icon(imageVector = IkonaCilesimet, contentDescription = "Cilësimet", modifier = Modifier.size(24.dp))
+        }
+        if (kaTeRe) Box(Modifier.size(12.dp).background(Verdhe, CircleShape))
+    }
 }
 
 // Butoni i rrumbullakët "mbrapa" (si te telefoni: rreth me sfond, shigjeta në mes)
