@@ -1054,7 +1054,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=23">
+<link rel="stylesheet" href="css/stoku.css?v=24">
 </head>
 <body>
 <script src="porta.js?v=166"></script>
@@ -1833,7 +1833,7 @@
 <script src="afatet.js?v=163"></script>
 <script src="ekipa.js?v=180"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=180"></script>
+<script src="teRejat.js?v=181"></script>
 <script>
 (function () {
   'use strict';
@@ -6151,26 +6151,6 @@
     c.textContent = '';
     var te = krejt.afatet, n = ekNumero(te);
     c.appendChild(ekEl('div', 'ek-pult-sfond'));
-    var h = ekEl('div', 'ek-pult-hero');
-    h.appendChild(ekEl('div', 'ek-hero-titulli', !krejt.ngarkuar ? 'Duke ngarkuar afatet e ekipës…' :
-      'Në raft te krejt ekipa · ' + n.aktive + (n.aktive === 1 ? ' afat' : ' afate')));
-    var nr = ekEl('div', 'ek-hero-nr');
-    [['skaduar', n.skaduar, 'Të skaduara'], ['afer', n.afer, 'Afër skadimit'], ['ok', n.ok, 'Në rregull']].forEach(function (x) {
-      var b = ekEl('button', x[0]); b.type = 'button';
-      b.appendChild(ekEl('b', null, krejt.ngarkuar ? String(x[1]) : '–'));
-      b.appendChild(document.createTextNode(x[2]));
-      b.addEventListener('click', function () { ekHapAnetarin('krejt', x[0]); });
-      nr.appendChild(b);
-    });
-    h.appendChild(nr);
-    var sh = ekEl('div', 'ek-hero-shirit');
-    var tot = n.skaduar + n.afer + n.ok;
-    if (tot) [[n.skaduar, 'var(--af-kuqe)'], [n.afer, 'var(--af-verdhe)'], [n.ok, '#4CAF6A']].forEach(function (x) {
-      if (!x[0]) return;
-      var i = ekEl('i'); i.style.cssText = 'width:' + (x[0] * 100 / tot) + '%;background:' + x[1]; sh.appendChild(i);
-    });
-    h.appendChild(sh);
-    c.appendChild(h);
     // Ftesat për një grup tjetër (shfaqen edhe te Anëtarët)
     ekK.ftesatEMia().forEach(function (f) { c.appendChild(ekFtesaEl(f)); });
     var pl = ekEl('div', 'ek-pult-pllakat');

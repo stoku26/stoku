@@ -338,12 +338,7 @@
 /* ---------- Ekipa ---------- */
 .sb #ekipiData { font-size: 13px; font-weight: 500; color: var(--sb-muted); opacity: 1; }
 .sb .ek-menu-kuti { padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); }
-.sb .ek-pllakat, .sb .ek-pult-pllakat { gap: 2px; padding: 4px; border-radius: 14px; background: var(--sb-sunken); }
 .sb .ek-pult-pllakat { margin: 16px 0 4px; }
-.sb .ek-pllakat button, .sb .ek-pllaka { flex: 1 0 auto; min-height: 36px; padding: 0 10px; border-radius: 10px; border: 0; background: transparent; color: var(--sb-ink-4); font-size: 12px; font-weight: 600; white-space: nowrap; flex-direction: row; gap: 0; position: relative; }
-.sb .ek-pllakat .ek-pl-ik, .sb .ek-pllaka .ek-pl-ik { display: none; }
-.sb .ek-pllakat button.aktiv, .sb .ek-pllaka.aktiv { background: var(--sb-seg-on); color: var(--sb-ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-.sb .ek-pllakat .ek-pike, .sb .ek-pllaka .ek-pike { top: 4px; right: 4px; width: 7px; height: 7px; }
 .sb .ek-pult-sfond { display: none; }
 .sb .ek-pult-hero { margin-top: 4px; border: 0; box-shadow: var(--sb-ring); border-radius: 20px; background: var(--sb-surface); padding: 16px; }
 .sb .ek-pult-hero .ek-hero-titulli { font-size: 16px; font-weight: 700; color: var(--sb-ink); margin-bottom: 14px; }
@@ -475,8 +470,6 @@ html.sb body { -webkit-user-select: none; user-select: none; -webkit-touch-callo
 .sb input.nj-ora:focus { border-color: transparent; box-shadow: 0 0 0 2px var(--sb-accent); outline: none; }
 
 /* Ekipa: tabet (Afatet…Statistika) s'priten më në telefonat e ngushtë (360–375px): ngushtohen, e kur s'mjafton, kalojnë në rresht të dytë */
-.sb .ek-pllakat, .sb .ek-pult-pllakat { flex-wrap: wrap; overflow: visible; }
-.sb .ek-pllakat button, .sb .ek-pllaka { flex: 1 1 auto; padding: 0 6px; }
 .sb .nj-serveri { margin: -4px 4px 14px; padding: 10px 12px; border-radius: 12px; font-size: 13px; line-height: 1.45; background: var(--sb-ic-gjelber-bg); color: var(--sb-ic-gjelber); }
 .sb .nj-serveri.keq { background: var(--sb-ic-portokalli-bg); color: var(--sb-ic-portokalli); }
 
@@ -492,3 +485,21 @@ html.sb:not([data-tema="dark"]) .sb-stat__value--exp { color: var(--sb-exp, #d04
 .sb .ek-kart-hiq.ek-kart-pritje { background: var(--sb-surface-2); color: var(--sb-ink-3); cursor: default; display: inline-flex; align-items: center; padding: 8px 12px; font-size: 12.5px; font-weight: 600; }
 .sb .af-pill.ek-pill-pritje { display: inline-flex; color: var(--sb-ink-3); box-shadow: 0 0 0 1.5px var(--sb-line); cursor: default; margin-top: 8px; }
 .sb .ek-nj-veprim .btn.tekst { margin-left: 6px; }
+
+/* Ekipa: menyja si butona me ikona (ikona në kuti + emri poshtë), e çelët dhe e errët */
+.sb .ek-pllakat, .sb .ek-pult-pllakat { display: flex; flex-wrap: nowrap; gap: 4px; padding: 0; border-radius: 0; background: transparent; overflow: visible; }
+.sb .ek-pult-pllakat { margin: 14px 0 6px; }
+.sb .ek-pllakat button, .sb .ek-pllaka { position: relative; flex: 1 1 0; min-width: 0; min-height: 0; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 2px 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: var(--sb-ink-4); font: inherit; font-size: 11px; font-weight: 600; letter-spacing: 0;
+  white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.sb .ek-pllakat .ek-pl-ik, .sb .ek-pllaka .ek-pl-ik { display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 15px;
+  background: var(--sb-surface); color: var(--sb-ink-2); box-shadow: var(--sb-ring); border: 0; transition: background .15s, color .15s, transform .1s; }
+.sb .ek-pllakat .ek-pl-ik svg, .sb .ek-pllaka .ek-pl-ik svg { width: 21px; height: 21px; }
+.sb .ek-pllakat button:active .ek-pl-ik, .sb .ek-pllaka:active .ek-pl-ik { transform: scale(.94); }
+.sb .ek-pllakat button.aktiv, .sb .ek-pllaka.aktiv { background: transparent; box-shadow: none; color: var(--sb-accent-text); }
+.sb .ek-pllakat button.aktiv .ek-pl-ik, .sb .ek-pllaka.aktiv .ek-pl-ik { background: var(--sb-accent); color: #fff; box-shadow: none; }
+.sb .ek-pllakat .ek-pike, .sb .ek-pllaka .ek-pike { position: absolute; top: -2px; right: calc(50% - 27px); width: 10px; height: 10px; margin: 0; box-shadow: 0 0 0 2px var(--sb-bg); }
+@media (max-width: 370px) {
+  .sb .ek-pllakat .ek-pl-ik, .sb .ek-pllaka .ek-pl-ik { width: 42px; height: 42px; border-radius: 14px; }
+  .sb .ek-pllakat button, .sb .ek-pllaka { font-size: 10.5px; }
+}
