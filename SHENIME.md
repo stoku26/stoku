@@ -50,6 +50,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **#oraKodi PA NUMËR SHEMBULL (v173 = 1.11.1)**: placeholder "482913" dukej si kod i vërtetë → "Kodi nga ora"
+   (::placeholder pa letter-spacing, css v21); mesazhi i gabimit pa shembull numri.
 0000000. **ORA: PAMJA, MBRAPA, RRËSHQIT PËR RIFRESKIM, KODI ÇDO 15 S (v172 = 1.11.0)**: `ora/Tema.kt`: `Tema` (8 ngjyra,
    prefs "stoku-pamja"/"ngjyra"), `Verdhe` tash getter i `Tema.theks` (tile mbetet e verdhë), `ButoniMbrapa` (ImageVector i njëjtë
    me SVG-në e telefonit), ekrani `PamjaEkrani` te Cilësimet. Lista: `pullRefresh` (androidx.compose.material) në vend
