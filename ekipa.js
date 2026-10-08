@@ -1729,7 +1729,7 @@
       if (e.degjoFshirjen && o.llogariaUFshi) d.fshirja = e.degjoFshirjen(function (x) { ndal('fshirja'); try { o.llogariaUFshi(x); } catch (er) { /* ok */ } });
       if (gj.hapur) hap(); // Grupi ishte i hapur kur u hyr në llogari → lidhu tani
     }
-    // Njoftimet personale + mesazhi i fundit i chat-it (për shenjat), vetëm kur ke qasje në grup
+    // Njoftimet personale, vetëm kur ke qasje në grup (chat-i u hoq në v182, ndaj s'dëgjohet më)
     function nisDegjuesitPersonale() {
       var e = E();
       ndal('njoftimet'); ndal('chatFundit');
@@ -1751,18 +1751,6 @@
         thirr('njoftimet');
       }, function () { /* p.sh. rregullat ende pa u vendosur — thjesht s'ka njoftime */ });
       if (e.aktivizoPush) e.aktivizoPush().then(function () { thirr('push'); }, function () { /* ok */ });
-      chatNisurSe = Date.now();
-      d.chatFundit = e.degjoChatin(function (lista) {
-        var m = lista[0] || null;
-        gj.mesazhiFundit = m;
-        if (m && m.uid !== o.uidIm() && m.koha > chatNisurSe - 5000 && !uNjoftua('ch:' + m.id)) {
-          var neChat = gj.chatHapur && !document.hidden;
-          // Me push aktiv, njoftimin e sistemit e jep service worker-i (edhe kur aplikacioni është i mbyllur) — pa dyfishim
-          if (!neChat && o.njofto && !(e.pushAktiv && e.pushAktiv())) o.njofto({ titulli: (m.emri || 'Grupi') + ' · Chat', teksti: m.tekst, tag: 'ek-chat', pamja: 'chat' });
-        }
-        if (gj.chatHapur && !document.hidden) shenoChatinTeLexuar();
-        thirr('chat-fundit');
-      }, 1, function () { /* ok */ });
     }
     function ndalGjithmone(vetemDegjuesit) {
       ndal('njoftimet'); ndal('chatFundit'); ndal('anetaresia'); ndal('fshirja'); ndal('grupiDoc'); ndal('ftesatEMia');

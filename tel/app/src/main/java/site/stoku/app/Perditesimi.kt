@@ -18,7 +18,7 @@ import java.net.URL
  * pjesa e Android-it. Kontrollohet më së shumti një herë në 6 orë; Android-i e kërkon konfirmimin e instalimit.
  */
 object Perditesimi {
-    private const val RELEASES = "https://api.github.com/repos/stoku26/stoku/releases?per_page=40"
+    private const val RELEASES = "https://api.github.com/repos/stoku26/stoku/releases?per_page=100"
     private var apkNePritje: File? = null
 
     fun kontrollo(a: Activity, detyro: Boolean) {

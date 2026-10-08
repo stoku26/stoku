@@ -50,6 +50,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **IKONAT E ROLEVE KUDO + KONTROLLI I PROJEKTIT (v188 = 1.14.1)**: `ekIkonaRoli(roli, krijo, njofto, vogel)`; ikonat e vogla
+   (`.ek-roli.vogel`) nën avatar te "Online tani" (`.ek-rrip-rolet`, tel) dhe te anëtarët e pultit + kartat KPI (PC), pa " (ti)".
+   Kontrolli: `releases?per_page=100` (tel/Perditesimi.kt, ora/Perditesimi.kt, android.html), se me shumë publikime `ora-v*`
+   `tel-v*` dilte jashtë 40 të parave dhe përditësimi s'gjendej. ekipa.js: u hoq dëgjuesi `chatFundit` (chat-i u hoq në v182,
+   ishte lexim i kotë + njoftim "Chat" që s'hapej). Tekstet e Grupit (tel: prania "sot 00:03", "Sipas anëtarëve", ftesat, leja e sasisë): `.kodi.ek-stat-nen` pa shkronjën mono.
 0000000. **EKIPA → GRUPI, PA "PRONAR" (v187 = 1.14.0)**: përdoruesi do "Grupi" kudo. Vetëm tekstet u ndryshuan (tel, PC,
    ekipa.js, ora, kanali i njoftimeve në Android, teksti i push-it te Worker-i pa ndryshim versioni): ekipa→grupi, ekipën→grupin,
    ekipës→grupit, ekipë→grup, "Krijo grupin tënd", "Grupi yt", "Emri i grupit të ri", "e këtij grupi", "Secili grup".
