@@ -527,10 +527,4 @@ html.sb:not([data-tema="dark"]) .sb-stat__value--exp { color: var(--sb-exp, #d04
 .sb .af-filtrat.fade-djathtas { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - var(--fade)), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - var(--fade)), transparent); }
 .sb .af-filtrat.fade-majtas { -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--fade)); mask-image: linear-gradient(90deg, transparent, #000 var(--fade)); }
 .sb .af-filtrat.fade-majtas.fade-djathtas { -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent); mask-image: linear-gradient(90deg, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent); }
-/* v188: ikonat e roleve kudo ku del emri (variant i vogël) */
-.sb .ek-roli.vogel { width: 18px; height: 18px; margin-left: 4px; }
-.sb .ek-roli.vogel svg { width: 11px; height: 11px; }
-.sb .ek-rrip-rolet { display: flex; gap: 3px; justify-content: center; margin: -10px 0 -2px; position: relative; z-index: 1; }
-.sb .ek-rrip-rolet .ek-roli.vogel { margin-left: 0; box-shadow: 0 0 0 2px var(--sb-bg); }
-.sb .ek-rrip-rolet .ek-roli { pointer-events: none; } /* prekja e rripit hap anëtarin */
 .sb .artikull .kodi.ek-stat-nen { font-family: inherit; font-size: 12px; letter-spacing: 0; }

@@ -906,7 +906,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku-pc.css?v=18">
+<link rel="stylesheet" href="css/stoku-pc.css?v=19">
 </head>
 <body>
 <script src="porta.js?v=166"></script>
@@ -1882,7 +1882,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=163"></script>
 <script src="ekipa.js?v=188"></script>
-<script src="teRejat.js?v=188"></script>
+<script src="teRejat.js?v=189"></script>
 <script>
 (function () {
   'use strict';
@@ -4970,8 +4970,6 @@
       b.appendChild(ekAvatar(a, true));
       var m = el('div');
       var em = el('div', 'ek-pult-an-emri', a.emri);
-      if (a.pronar) em.appendChild(ekIkonaRoli('pronar', el, null, true));
-      if (a.admin) em.appendChild(ekIkonaRoli('admin', el, null, true));
       m.appendChild(em);
       var nen = el('div', 'ek-pult-an-nen'); nen.appendChild(ekPraniaEl(a)); m.appendChild(nen);
       b.appendChild(m);
@@ -4994,8 +4992,6 @@
       if (ekV.anetari === x.uid) k.classList.add('zgjedhur');
       var et = k.querySelector('.kpi-etik');
       if (x.uid !== 'krejt' && (x.uneJam || EKL.eshteOnline(x))) { var pk = el('span', 'ek-online'); pk.title = 'Online tani'; et.insertBefore(pk, et.firstChild); }
-      if (x.pronar) et.appendChild(ekIkonaRoli('pronar', el, null, true));
-      if (x.admin) et.appendChild(ekIkonaRoli('admin', el, null, true));
       var nen = k.querySelector('.kpi-nen');
       if (!x.ngarkuar) nen.textContent = 'duke ngarkuar…';
       if (n.skaduar) { nen.appendChild(document.createTextNode(' · ')); nen.appendChild(el('span', 'ek-kuqe', n.skaduar === 1 ? '1 i skaduar' : n.skaduar + ' të skaduara')); }
@@ -5115,9 +5111,9 @@
     pronar: ['Admin i Grupit', '<path d="M3 7l4 4 5-6 5 6 4-4-2 11H5L3 7z"></path><path d="M5 21h14"></path>'],
     admin: ['Administrator', '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path>']
   };
-  function ekIkonaRoli(roli, krijo, njofto, vogel) {
+  function ekIkonaRoli(roli, krijo, njofto) {
     var r = EK_ROLET[roli];
-    var s = krijo('span', 'ek-roli ' + roli + (vogel ? ' vogel' : ''));
+    var s = krijo('span', 'ek-roli ' + roli);
     s.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + r[1] + '</svg>';
     s.title = r[0]; s.setAttribute('role', 'img'); s.setAttribute('aria-label', r[0]);
     s.addEventListener('click', function (ev) { ev.stopPropagation(); ekTregoFlluskeRoli(s, r[0]); });
