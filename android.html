@@ -29,7 +29,7 @@
   <p class="g">Versionet e reja i ofron vetë aplikacioni.</p>
 </div>
 <script>
-  fetch('https://api.github.com/repos/stoku26/stoku/releases?per_page=40').then(function (r) { return r.json(); }).then(function (l) {
+  fetch('https://api.github.com/repos/stoku26/stoku/releases?per_page=100').then(function (r) { return r.json(); }).then(function (l) {
     var m = null;
     (l || []).forEach(function (r) {
       var n = /^tel-v(\d+)$/.exec(r.tag_name || ''); if (!n || r.draft) return;

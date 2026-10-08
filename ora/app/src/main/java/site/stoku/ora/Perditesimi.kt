@@ -17,7 +17,7 @@ import java.net.URL
  * Ora e kontrollon vetë (më së shumti një herë në 6 orë) dhe e tregon te lista; instalimi kërkon konfirmim.
  */
 object Perditesimi {
-    private const val RELEASES = "https://api.github.com/repos/stoku26/stoku/releases?per_page=40"
+    private const val RELEASES = "https://api.github.com/repos/stoku26/stoku/releases?per_page=100"
     /** Kontrolli i fundit dështoi (pa internet / GitHub s'u përgjigj). */
     @Volatile var deshtoi = false
 

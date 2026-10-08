@@ -18,6 +18,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 188, versioni: '1.14.1', data: '2026-10-08', titulli: 'Ikonat e roleve kudo, rregullime', pikat: [
+      'Kurora dhe mburoja shihen tash edhe te "Online tani" dhe te anëtarët në kompjuter.',
+      'Te Grupi, koha e fundit online dhe statistikat me shkrim më të lexueshëm.',
+      'Aplikacioni Android dhe ora e gjejnë gjithmonë versionin e ri, edhe kur ka shumë publikime.',
+      'Grupi harxhon më pak internet (u hoq dëgjimi i chat-it që s\'ekziston më).'
+    ] },
     { v: 187, versioni: '1.14.0', data: '2026-10-08', titulli: 'Ekipa tash quhet Grupi', pikat: [
       'Kudo në Stoku (telefon, kompjuter, ora dhe aplikacioni Android) "Ekipa" tash quhet "Grupi".',
       'S\'ka më "pronar": kurora te emri tregon "Admin i Grupit", mburoja "Administrator".'

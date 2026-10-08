@@ -1054,7 +1054,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=29">
+<link rel="stylesheet" href="css/stoku.css?v=30">
 </head>
 <body>
 <script src="porta.js?v=166"></script>
@@ -1831,9 +1831,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=163"></script>
-<script src="ekipa.js?v=187"></script>
+<script src="ekipa.js?v=188"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=187"></script>
+<script src="teRejat.js?v=188"></script>
 <script>
 (function () {
   'use strict';
@@ -6182,6 +6182,12 @@
       var b = ekEl('button'); b.type = 'button';
       b.title = a.emri + ' · ' + (a.uneJam ? 'ti' : EKL.tekstiPranise(a));
       b.appendChild(ekAv(a.emri, 46, a.uneJam || EKL.eshteOnline(a)));
+      if (a.pronar || a.admin) {
+        var rl = ekEl('span', 'ek-rrip-rolet');
+        if (a.pronar) rl.appendChild(ekIkonaRoli('pronar', ekEl, null, true));
+        if (a.admin) rl.appendChild(ekIkonaRoli('admin', ekEl, null, true));
+        b.appendChild(rl);
+      }
       b.appendChild(ekEl('span', null, a.emri));
       b.addEventListener('click', function () { ekHapAnetarin(a.uid); });
       rr.appendChild(b);
@@ -6291,9 +6297,9 @@
     pronar: ['Admin i Grupit', '<path d="M3 7l4 4 5-6 5 6 4-4-2 11H5L3 7z"></path><path d="M5 21h14"></path>'],
     admin: ['Administrator', '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path>']
   };
-  function ekIkonaRoli(roli, krijo, njofto) {
+  function ekIkonaRoli(roli, krijo, njofto, vogel) {
     var r = EK_ROLET[roli];
-    var s = krijo('span', 'ek-roli ' + roli);
+    var s = krijo('span', 'ek-roli ' + roli + (vogel ? ' vogel' : ''));
     s.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + r[1] + '</svg>';
     s.title = r[0]; s.setAttribute('role', 'img'); s.setAttribute('aria-label', r[0]);
     s.addEventListener('click', function (ev) { ev.stopPropagation(); ekTregoFlluskeRoli(s, r[0]); });
@@ -6649,7 +6655,7 @@
           r.appendChild(ekAvatar({ emri: f.perdoruesi }, false));
           var m = ekEl('div', 'majtas');
           m.appendChild(ekEl('div', 'emri', f.perdoruesi));
-          m.appendChild(ekEl('div', 'kodi', 'Ftuar nga ' + (f.ngaEmri || '') + (f.koha ? ' · ' + EKL.kohaRelative(f.koha) : '')));
+          m.appendChild(ekEl('div', 'kodi ek-stat-nen', 'Ftuar nga ' + (f.ngaEmri || '') + (f.koha ? ' · ' + EKL.kohaRelative(f.koha) : '')));
           r.appendChild(m);
           var ba = ekEl('button', 'af-pill', 'Anulo'); ba.type = 'button';
           ba.addEventListener('click', async function () { ba.disabled = true; var x = await ekK.anuloFtesen(f); if (!x.ok) { ba.disabled = false; toast('S\'u anulua. Kontrollo internetin.', 4000); } });
@@ -6671,7 +6677,7 @@
       m.appendChild(e);
       var pr = EKL.praniaIkone(a, a.uneJam, 'tel');
       var prEl = ekEl('span', 'ek-prania ' + (pr.online ? 'on' : 'off')); prEl.innerHTML = pr.html; prEl.title = pr.titulli; prEl.setAttribute('aria-label', pr.titulli);
-      var prR = ekEl('div', 'kodi'); prR.style.marginTop = '3px'; prR.appendChild(prEl); m.appendChild(prR);
+      var prR = ekEl('div', 'kodi ek-stat-nen'); prR.style.marginTop = '3px'; prR.appendChild(prEl); m.appendChild(prR);
       r.appendChild(m);
       var n = ekNumero(a.afatet);
       var d = ekEl('div', 'ek-anetar-nr');
@@ -6714,7 +6720,7 @@
       var l = ekEl('label', 'artikull');
       var m = ekEl('div', 'majtas');
       m.appendChild(ekEl('div', 'emri', a.emri));
-      m.appendChild(ekEl('div', 'kodi', a.sasiaShpejte ? 'Lejohet' : 'S\'lejohet'));
+      m.appendChild(ekEl('div', 'kodi ek-stat-nen', a.sasiaShpejte ? 'Lejohet' : 'S\'lejohet'));
       l.appendChild(m);
       var cb = ekEl('input'); cb.type = 'checkbox'; cb.checked = !!a.sasiaShpejte;
       cb.addEventListener('change', async function () {
@@ -6734,7 +6740,7 @@
       r.appendChild(ekAvatar(a, false));
       var m = ekEl('div', 'majtas');
       m.appendChild(ekEl('div', 'emri', a.emri));
-      m.appendChild(ekEl('div', 'kodi', a.pronar ? 'Admin i grupit' : EKL.tekstiPranise(a)));
+      m.appendChild(ekEl('div', 'kodi ek-stat-nen', a.pronar ? 'Admin i grupit' : EKL.tekstiPranise(a)));
       r.appendChild(m);
       var bp = ekEl('button', 'af-pill', a.pronar ? 'Hiqe si admin' : 'Bëje admin'); bp.type = 'button';
       bp.title = a.pronar ? a.emri + ' mbetet anëtar i thjeshtë' : a.emri + ' mund të ftojë dhe të menaxhojë grupin';
@@ -6782,7 +6788,7 @@
       var m = ekEl('div', 'majtas');
       m.appendChild(ekEl('div', 'emri', a.emri));
       var kur = a.kycurSe || a.aktivSe;
-      m.appendChild(ekEl('div', 'kodi', (a.grupi ? 'Në një grup tjetër' : 'Pa grup') + (kur ? ' · u kyç ' + EKL.kohaRelative(kur) : '')));
+      m.appendChild(ekEl('div', 'kodi ek-stat-nen', (a.grupi ? 'Në një grup tjetër' : 'Pa grup') + (kur ? ' · u kyç ' + EKL.kohaRelative(kur) : '')));
       r.appendChild(m);
       if (ekK.eshtePronar()) {
         var bt = ekEl('button', 'af-pill', 'Fto'); bt.type = 'button';
@@ -6911,7 +6917,7 @@
         var r = ekEl('div', 'artikull'); r.style.cursor = 'default';
         var m = ekEl('div', 'majtas');
         m.appendChild(ekEl('div', 'emri', x[0]));
-        if (x[1]) m.appendChild(ekEl('div', 'kodi', x[1]));
+        if (x[1]) m.appendChild(ekEl('div', 'kodi ek-stat-nen', x[1]));
         r.appendChild(m);
         r.appendChild(ekEl('div', 'ek-nr', String(x[2])));
         c.appendChild(r);
