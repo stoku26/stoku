@@ -536,8 +536,3 @@ html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-nen { background: var(--sb-s
 .sbp .ek-flluska.lart::after { bottom: -5px; }
 .sbp .ek-flluska.poshte::after { top: -5px; }
 @keyframes ekFlluska { from { opacity: 0; } to { opacity: 1; } }
-/* v188: ikonat e roleve kudo ku del emri (variant i vogël) */
-.sbp .ek-roli.vogel { width: 18px; height: 18px; margin-left: 4px; }
-.sbp .ek-roli.vogel svg { width: 11px; height: 11px; }
-.sbp .ek-rrip-rolet { display: flex; gap: 3px; justify-content: center; margin: -10px 0 -2px; position: relative; z-index: 1; }
-.sbp .ek-rrip-rolet .ek-roli.vogel { margin-left: 0; box-shadow: 0 0 0 2px var(--sb-bg); }

@@ -50,6 +50,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **IKONAT E ROLEVE VETËM TE ANËTARËT (v189 = 1.14.2)**: përdoruesi s'i do ikonat e vogla nën avatar (dukeshin keq).
+   U hoqën nga "Online tani" (tel), pulti dhe kartat e Afateve (PC); mbeten vetëm te lista e Anëtarëve (tel `vizatoAnetaret`,
+   PC tabela `#ekAnetaretTrup`). U hoq varianti `vogel` (`.ek-roli.vogel`, `.ek-rrip-rolet`) nga `ekIkonaRoli` dhe CSS.
 0000000. **IKONAT E ROLEVE KUDO + KONTROLLI I PROJEKTIT (v188 = 1.14.1)**: `ekIkonaRoli(roli, krijo, njofto, vogel)`; ikonat e vogla
    (`.ek-roli.vogel`) nën avatar te "Online tani" (`.ek-rrip-rolet`, tel) dhe te anëtarët e pultit + kartat KPI (PC), pa " (ti)".
    Kontrolli: `releases?per_page=100` (tel/Perditesimi.kt, ora/Perditesimi.kt, android.html), se me shumë publikime `ora-v*`

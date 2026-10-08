@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 189, versioni: '1.14.2', data: '2026-10-08', titulli: 'Ikonat e roleve vetëm te Anëtarët', pikat: [
+      'Kurora dhe mburoja shihen tash vetëm te Grupi → Anëtarët, jo më te "Online tani" apo te pulti.'
+    ] },
     { v: 188, versioni: '1.14.1', data: '2026-10-08', titulli: 'Ikonat e roleve kudo, rregullime', pikat: [
       'Kurora dhe mburoja shihen tash edhe te "Online tani" dhe te anëtarët në kompjuter.',
       'Te Grupi, koha e fundit online dhe statistikat me shkrim më të lexueshëm.',
