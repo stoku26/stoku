@@ -1881,8 +1881,8 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=163"></script>
-<script src="ekipa.js?v=188"></script>
-<script src="teRejat.js?v=189"></script>
+<script src="ekipa.js?v=190"></script>
+<script src="teRejat.js?v=190"></script>
 <script>
 (function () {
   'use strict';
@@ -4877,7 +4877,6 @@
   function ekVizato(rifreskim) {
     Array.prototype.forEach.call(document.querySelectorAll('#ekMenu button'), function (b) { b.classList.toggle('aktiv', b.dataset.n === ekNen); });
     $('ekChatBtn').classList.toggle('aktiv', ekNen === 'chat');
-    var admin = !!(ekK && ekK.eshteAdmin());
     $('ekSegStoku').hidden = true; // Stoku te Grupi u hoq (v183)
     if (ekNen === 'stoku') ekNen = 'pulti';
     var lidhur = !!(ekK && ekK.kaLidhje());
@@ -4931,7 +4930,7 @@
     r.appendChild(kpi('Afër skadimit', gati ? num(n.afer) : '…', 'brenda 30 ditëve', n.afer ? 'paralajm' : null, IKONA.pak, afatet('afer')));
     r.appendChild(kpi('Në rregull', gati ? num(n.ok) : '…', 'krejt grupi', null, null, afatet('ok')));
     var onl = anetaret.filter(function (a) { return a.uneJam || EKL.eshteOnline(a); });
-    r.appendChild(kpi('Online tani', onl.length + '/' + anetaret.length, onl.map(function (a) { return a.uneJam ? 'ti' : a.emri; }).join(', ') || 'askush', null, null, function () { ekShkoTe('anetaret'); }));
+    r.appendChild(kpi('Online tani', onl.length + '/' + anetaret.length, onl.map(function (a) { return a.emri; }).join(', ') || 'askush', null, null, function () { ekShkoTe('anetaret'); }));
     // Duhet vepruar: të skaduarat + ato që skadojnë brenda 7 ditëve
     var koka = $('ekPultKoka'), trup = $('ekPultTrup'), bosh = $('ekPultBosh');
     koka.textContent = ''; trup.textContent = '';
@@ -5069,7 +5068,7 @@
       else if (x.nePritjeNga) tr.appendChild(el('td', 'k-msg', ekTekstiNePritje(x)));
       else tr.appendChild(qelizaEDiteve(x));
     }
-    if (meEmer) tr.appendChild(el('td', 'k-pronari', (x.pronariEmri || '') + (perdoruesi() && x.pronariUid === perdoruesi().uid ? ' (ti)' : '')));
+    if (meEmer) tr.appendChild(el('td', 'k-pronari', x.pronariEmri || ''));
     var tv = el('td', 'k-av');
     if (st === 'skaduar' && x.nePritjeNga) { var sp = el('span', 'ek-pritje', 'Në pritje'); sp.title = ekTekstiNePritje(x); tv.appendChild(sp); }
     else if (st === 'skaduar') {

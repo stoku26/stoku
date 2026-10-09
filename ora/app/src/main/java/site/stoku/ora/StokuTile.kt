@@ -83,6 +83,9 @@ class StokuTile : TileService() {
                 .addContent(teksti(if (l.sot.size == 1) "skadon sot" else "skadojnë sot", 17f, BARDHE, true))
             if (l.skaduara > 0) kolona.addContent(hapesire(2f)).addContent(teksti("${l.skaduara} kanë skaduar", 14f, KUQE, true))
             if (l.javaN > 0) kolona.addContent(hapesire(2f)).addContent(teksti("+ ${l.javaN} këtë javë", 13f, GRI))
+            // Pa internet: lista e ruajtur mund të jetë e një dite tjetër ("sot" s'është më sot)
+            if (l.dita.isNotBlank() && l.dita != java.time.LocalDate.now().toString())
+                kolona.addContent(hapesire(2f)).addContent(teksti("Pa lidhje · lista e " + dataShkurt(l.dita), 12f, GRI))
         }
         kolona.addContent(hapesire(10f))
             .addContent(
