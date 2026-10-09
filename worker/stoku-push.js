@@ -15,6 +15,8 @@
  *        të enkriptuar (Web Push, RFC 8291 + VAPID RFC 8292). Pajisjet që s'ekzistojnë më (404/410) fshihen.
  *     Pa `grupi` (versioni i vjetër i aplikacionit, para v164): ekipa_chat / ekipa_feed / ekipa_push.
  *   POST /kerkese { id, grupi } → kërkesa "Hiqe nga rafti" (ose "u krye") te kolegët e grupit (v147, v164).
+ *   POST /njoftim { id, per, grupi } → njoftimi personal perdoruesit/{per}/njoftimet/{id} te pajisjet e marrësit (v161):
+ *     heqja e kolegut që pret miratimin, pranimi/refuzimi, ndryshimet e administratorit, njoftimi për krejt grupin.
  *
  * Njoftimi ditor për afatet (v149) — në orën që zgjedh secili përdorues, edhe me Stoku të mbyllur:
  *   POST /orari (Bearer token, i verifikuar) { aktiv, ora: "08:00", tz, platforma, pajisja: { endpoint, p256dh, auth } }
@@ -36,7 +38,7 @@ const PROJEKTI = 'stoku-appi';
 const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databases/(default)/documents';
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
-const VERSIONI_WORKER = 160; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 161; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 const W = {
@@ -114,6 +116,25 @@ const W = {
           perKe = a => a.uid !== uid && a.uid === k.kerkuesUid;
         }
         ngarkesa = { lloji: 'kerkese', titulli: 'Stoku · Hiqe nga rafti', teksti: tekst.length > 180 ? tekst.slice(0, 177) + '…' : tekst, tag: 'ek-kerkese-' + id, koha: Number(k.koha) || Date.now(), pamja: 'njoftimet' };
+      } else if (rruga === '/njoftim') {
+        // v161: njoftimet personale të grupit (heqje në pritje të miratimit, pranim/refuzim, ndryshime nga administratori,
+        // njoftimi për krejt grupin) te pajisjet e marrësit, edhe me Stoku të mbyllur. Njoftimi lexohet ME TOKENIN E
+        // DËRGUESIT: rregulli i ri (perdoruesit/{uid}/njoftimet: `allow get` kur resource.data.uid == auth.uid) e lejon vetëm
+        // atë që e shkroi; teksti ndërtohet këtu nga dokumenti, jo nga kërkesa.
+        const id = String(trupi.id || ''), per = String(trupi.per || '');
+        if (!/^[A-Za-z0-9_-]{6,80}$/.test(id) || !/^[A-Za-z0-9_-]{1,128}$/.test(per) || !grupi) return pergjigju({ ok: false, arsye: 'id' }, 400);
+        let n;
+        try { n = await lexoDoc('perdoruesit/' + per + '/njoftimet/' + id, token); }
+        catch (e) { if (e.status === 403) return pergjigju({ ok: false, arsye: 'rregullat' }, 403); throw e; }
+        if (!n) return pergjigju({ ok: false, arsye: 's-u-gjet' }, 404);
+        if (n.uid !== uid || n.grupi !== grupi || per === uid) return pergjigju({ ok: false, arsye: 'jo-i-yti' }, 403);
+        if (/^kerkese-/.test(String(n.lloji || ''))) return pergjigju({ ok: false, arsye: 'lloji' }, 400); // këto i dërgon /kerkese
+        if (!(Math.abs(Date.now() - Number(n.koha || 0)) < MESAZH_MAKS_MS)) return pergjigju({ ok: false, arsye: 'i-vjeter' }, 409);
+        const tekst = tekstiINjoftimit(n);
+        if (!tekst) return pergjigju({ ok: false, arsye: 'bosh' }, 400);
+        // tag-u i njëjtë me njoftimin që e nxjerr vetë aplikacioni ("ek-nj-" + id): s'del dy herë, njëri e zëvendëson tjetrin
+        ngarkesa = { lloji: 'njoftim', titulli: 'Stoku · Grupi', teksti: tekst.length > 180 ? tekst.slice(0, 177) + '…' : tekst, tag: 'ek-nj-' + id, koha: Number(n.koha) || Date.now(), pamja: 'njoftimet' };
+        perKe = a => a.uid === per;
       } else {
         return pergjigju({ ok: false, arsye: 'rruga' }, 404);
       }
@@ -590,6 +611,18 @@ function vleraNga(v) {
   return null;
 }
 function objektNga(fields) { const o = {}; for (const k in fields) o[k] = vleraNga(fields[k]); return o; }
+// Teksti i një njoftimi personal të grupit (i njëjtë me tekstiNjoftimit te ekipa.js)
+const FJALA_E_VEPRIMIT = { hiq: 'e hoqi nga rafti', kthe: 'e ktheu në raft', fshij: 'e fshiu' };
+function dataShkurtNjoftimi(iso) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || '')); return m ? m[3] + '.' + m[2] + '.' + m[1] : ''; }
+function tekstiINjoftimit(n) {
+  const kush = String(n.emri || '').slice(0, 40), produkti = String(n.produkti || n.barkodi || 'produkt').slice(0, 120);
+  if (n.lloji === 'hequr') { const d = dataShkurtNjoftimi(n.data); return (kush || 'Një koleg') + ' e hoqi nga rafti: ' + produkti + (d ? ' (skadoi më ' + d + ')' : ''); }
+  if (n.lloji === 'heqje-pranuar') return (kush || 'Kolegu') + ' e pranoi heqjen nga rafti: ' + produkti;
+  if (n.lloji === 'heqje-refuzuar') return (kush || 'Kolegu') + ' e refuzoi heqjen nga rafti: ' + produkti + ' (mbetet në raft)';
+  if (n.lloji === 'lajmerim') return (kush || 'Administratori') + ': ' + String(n.tekst || '').slice(0, 300);
+  if (n.lloji === 'admin-afat') return (kush || 'Administratori') + ' ' + (FJALA_E_VEPRIMIT[n.veprimi] || 'ndryshoi') + ': ' + produkti;
+  return String(n.tekst || '').slice(0, 300);
+}
 async function lexoDoc(rruga, token) {
   const r = await fetch(FS + '/' + rruga, { headers: { Authorization: 'Bearer ' + token } });
   if (r.status === 404) return null;

@@ -40,6 +40,7 @@
   var PUSH_VAPID = 'BJ_OXYJsYC00MdMvM1z5WICalHw1CVDrDqNdIxi6zXLd7xIDXlxxCvi7qT9mA-o00zT5PRWGkI50UMMImh5DNyc';
   var KEY_PUSH = 'stoku:push:pajisja';      // { uid, id, endpoint, koha } — kjo pajisje është regjistruar
   var KEY_PUSH_SERVER = 'stoku:push:server'; // koha e përgjigjes së fundit të mirë nga Worker-i
+  var KEY_PUSH_VERSIONI = 'stoku:push:versioni'; // versioni i Worker-it (161+: dërgon edhe njoftimet personale të grupit)
   var MUAJT = ['Janar', 'Shkurt', 'Mars', 'Prill', 'Maj', 'Qershor', 'Korrik', 'Gusht', 'Shtator', 'Tetor', 'Nëntor', 'Dhjetor'];
   var DITET_SHKURT = ['Hën', 'Mar', 'Mër', 'Enj', 'Pre', 'Sht', 'Die'];
 
@@ -175,6 +176,8 @@
         var g0 = op.rruga[0] === 'grupet' ? op.rruga[1] : '', lloji0 = op.rruga[0] === 'grupet' ? op.rruga[2] : op.rruga[0];
         if (lloji0 === 'chat' || lloji0 === 'ekipa_chat') njoftoPushChat(op.id, g0);
         if ((lloji0 === 'feed' || lloji0 === 'ekipa_feed') && /^kerkese-/.test(op.te.lloji)) njoftoPushKerkese(op.id, g0);
+        // v195: njoftimi personal te një koleg (heqja që pret miratimin, pranimi/refuzimi, administratori, njoftimi për krejt grupin)
+        if (op.rruga[0] === 'perdoruesit' && op.rruga[2] === 'njoftimet' && op.te.grupi && !/^kerkese-/.test(op.te.lloji || '')) njoftoPushNjoftim(op.id, op.rruga[1], op.te.grupi);
         return { ok: true, id: op.id };
       }, function (e) {
         // Vetëm gabimet e përkohshme (lidhja) riprovohen; "s'lejohet" (ose ekziston tashmë nga një dërgim i
@@ -293,16 +296,19 @@
     }
 
     function njoftoPushKerkese(id, g) { thirrPush('/kerkese', g ? { id: id, grupi: g } : { id: id }).catch(function () { /* pa internet / pa Worker */ }); }
+    function njoftoPushNjoftim(id, per, g) { thirrPush('/njoftim', { id: id, per: per, grupi: g }).catch(function () { /* pa internet / pa Worker */ }); }
     function njoftoPushChat(id, g) { thirrPush('/chat', g ? { id: id, grupi: g } : { id: id }).catch(function () { /* pa internet / pa Worker — s'ka gjë */ }); }
     // Worker-i u përgjigj mirë së fundi (7 ditë)? Vetëm atëherë i besohet push-it dhe hiqen njoftimet lokale të chat-it.
     async function kontrolloServerin() {
       try {
         var r = await fetch(PUSH_URL, { method: 'GET' });
         var j = await r.json();
-        if (r.ok && j && j.ok && j.celesat !== false) { shkruajLS(KEY_PUSH_SERVER, Date.now()); shenoCronin(j); return true; }
+        if (r.ok && j && j.ok && j.celesat !== false) { shkruajLS(KEY_PUSH_SERVER, Date.now()); shkruajLS(KEY_PUSH_VERSIONI, Number(j.versioni) || 0); shenoCronin(j); return true; }
       } catch (e) { /* ok */ }
       return false;
     }
+    // Worker-i 161+ i dërgon vetë edhe njoftimet personale të grupit: atëherë aplikacioni s'i nxjerr dy herë kur është në sfond
+    function pushPerNjoftimet() { return pushAktiv() && (Number(lexoLS(KEY_PUSH_VERSIONI)) || 0) >= 161; }
     function pushAktiv() {
       var p = lexoLS(KEY_PUSH), s = lexoLS(KEY_PUSH_SERVER);
       return !!(p && p.uid === uid() && grupi && p.grupi === grupi && s && (Date.now() - s) < 7 * 86400000) &&
@@ -934,8 +940,8 @@
       pushMbeshtetet: pushMbeshtetet,
       aktivizoPush: aktivizoPush,
       caktivizoPush: caktivizoPush,
-      pushAktiv: pushAktiv,
-      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 160,
+      pushAktiv: pushAktiv, pushPerNjoftimet: pushPerNjoftimet,
+      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 161,
 
       // ---------- Chat ----------
       dergoMesazh: function (tekst) {
@@ -1744,8 +1750,9 @@
         lista.forEach(function (n) {
           if (uNjoftua('nj:' + n.id)) return;
           if ((Date.now() - (n.koha || 0)) >= 2 * 86400000 || !o.njofto) return;
-          // Kërkesat vijnë edhe si push nga Worker-i: kur push-i punon, njoftimi lokal do të ishte i dyfishtë (si te chat-i)
-          var ngaPush = /^kerkese-/.test(n.lloji) && e.pushAktiv && e.pushAktiv();
+          // Kërkesat (dhe, me Worker-in 161+, krejt njoftimet e grupit) vijnë edhe si push: kur push-i punon, njoftimi lokal
+          // në sfond do të ishte i dyfishtë
+          var ngaPush = (/^kerkese-/.test(n.lloji) && e.pushAktiv && e.pushAktiv()) || !!(e.pushPerNjoftimet && e.pushPerNjoftimet());
           o.njofto({ titulli: /^kerkese-/.test(n.lloji) ? 'Stoku · Hiqe nga rafti' : 'Stoku · Grupi', teksti: tekstiNjoftimit(n), tag: 'ek-nj-' + n.id, pamja: 'njoftimet', vetemNePerpara: ngaPush });
         });
         thirr('njoftimet');

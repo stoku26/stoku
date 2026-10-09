@@ -1831,9 +1831,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=163"></script>
-<script src="ekipa.js?v=190"></script>
+<script src="ekipa.js?v=195"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=194"></script>
+<script src="teRejat.js?v=195"></script>
 <script>
 (function () {
   'use strict';
@@ -3266,7 +3266,7 @@
     // Cron-i duket i ndalur: provohet a pranon KV-ja shkrime (kur limiti ditor mbaron, shenja s'ruhet dot)
     if (sv && sv.versioni >= 154 && sv.fotot && sv.cron && tani - sv.cron > cronVonesaMaks(sv.cronShprehja) * 60000 && e.provoKV) kvProva = await e.provoKV();
     if (!sv) t = 'S\'u lidh me serverin për ta kontrolluar. Kontrollo internetin.';
-    else if (!sv.versioni || sv.versioni < e.VERSIONI_WORKER) t = 'Serveri (Cloudflare) ka kodin e vjetër: ngjite kodin e ri te stoku-push, përndryshe njoftimi ditor s\'vjen.';
+    else if (!sv.versioni || sv.versioni < e.VERSIONI_WORKER) t = 'Serveri (Cloudflare) ka kodin e vjetër: ngjite kodin e ri te stoku-push' + (sv.versioni >= 160 ? ', që të vijnë edhe njoftimet e Grupit me Stoku të mbyllur.' : ', përndryshe njoftimi ditor s\'vjen.');
     else if (!sv.fotot) t = 'Serverit i mungon KV-ja "FOTO" (Cloudflare → stoku-push → Bindings).';
     else if (!sv.cron) t = 'Ora automatike (Cron) s\'është vendosur te Cloudflare: stoku-push → Settings → Trigger Events → Cron Triggers → "Every minute" (çdo minutë). Pa të njoftimi ditor s\'vjen.';
     else if (sv.cronGabim && sv.cronGabim.koha && tani - sv.cronGabim.koha < 60 * 60000 && sv.cronGabim.koha >= sv.cron - 60000) t = gabimiICronit(sv.cronGabim);
