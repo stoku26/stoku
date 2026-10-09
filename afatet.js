@@ -608,16 +608,37 @@
     };
   }
 
-  // ---------- Kujtesa e produkteve (v196): barkodi → { emri, furnizuesi } ----------
-  // Ruhet VETËM në këtë pajisje (localStorage), jo në Firebase. Mëson kur ruhet një afat ose produkt me barkod, nga afatet
-  // dhe stoku ekzistues dhe nga afatet e kolegëve të grupit; ndryshohet te Cilësimet → Stoku → Produktet. Kur skanohet një
-  // barkod i njohur, emri dhe furnizuesi plotësohen vetë. Hyrja: { e: emri, f: furnizuesi, k: koha e ndryshimit, m: 1 me dorë },
-  // ose { x: 1, k } = i harruar me dorë ("Harroje"): mësimi në sfond s'e kthen, vetëm një ruajtje e re nga përdoruesi.
-  var KUJTESA_KEY = 'stoku:kujtesa:v1', KUJTESA_MAKS = 20000;
+  // ---------- Kujtesa e produkteve (v196, grupi v197): barkodi → { emri, furnizuesi } ----------
+  // Kopja në pajisje (localStorage) mbahet gjithmonë: plotësimi është i menjëhershëm edhe pa internet. Brenda një grupi,
+  // ekipa.js e sinkronizon me grupet/{g}/kujtesa (e përbashkët për krejt grupin). Mëson kur përdoruesi ruan një afat ose
+  // produkt me barkod, dhe në sfond nga afatet/stoku ekzistues dhe nga afatet e kolegëve; ndryshohet te Cilësimet → Stoku →
+  // Produktet. Hyrja: { e: emri, f: furnizuesi, k: koha, a: 1 = mësuar automatikisht, m: 1 = ndryshuar me dorë,
+  // x: 1 = harruar me dorë ("Harroje") }. Kur dy hyrje përplasen: ajo e përdoruesit (pa `a`) fiton mbi atë automatike;
+  // ndërmjet të njëjtës klasë fiton më e reja.
+  var KUJTESA_KEY = 'stoku:kujtesa:v1', KUJTESA_MAKS = 20000, KUJTESA_BARKODI = /^[^\s]{1,40}$/;
   function pastroBarkodin(b) { return String(b == null ? '' : b).replace(/\s+/g, '').slice(0, 40); }
   function pastroTekstin(t, n) { return String(t == null ? '' : t).replace(/\s+/g, ' ').trim().slice(0, n); }
+  function klasaEHyrjes(x) { return x && x.a && !x.m && !x.x ? 0 : 1; }
+  // A duhet që hyrja r (p.sh. nga grupi) ta zëvendësojë hyrjen l (këtu)?
+  function hyrjaFiton(r, l) {
+    if (!l) return true;
+    var cr = klasaEHyrjes(r), cl = klasaEHyrjes(l);
+    if (cr !== cl) return cr > cl;
+    return (Number(r.k) || 0) > (Number(l.k) || 0);
+  }
+  // Hyrje e pastër (për ruajtje dhe për t'u marrë nga grupi): vetëm fushat e njohura, me gjatësi të kufizuar
+  function hyrjaEPastruar(x) {
+    if (!x || typeof x !== 'object') return null;
+    var k = Number(x.k) || 0;
+    if (x.x) return { x: 1, k: k };
+    var e = pastroTekstin(typeof x.e === 'string' ? x.e : '', 120), f = pastroTekstin(typeof x.f === 'string' ? x.f : '', 80);
+    if (!e && !f) return null;
+    var r = { e: e, f: f, k: k };
+    if (x.m) r.m = 1; else if (x.a) r.a = 1;
+    return r;
+  }
   function krijoKujtesen(ruajtja) {
-    var harta = null;
+    var harta = null, degjuesit = [];
     function lexo() {
       if (harta) return harta;
       try { harta = JSON.parse((ruajtja && ruajtja.getItem(KUJTESA_KEY)) || '{}'); } catch (e) { harta = null; }
@@ -631,19 +652,26 @@
       }
       try { if (ruajtja) ruajtja.setItem(KUJTESA_KEY, JSON.stringify(h)); } catch (e) { /* memoria e shfletuesit plot: mbetet vetëm për këtë seancë */ }
     }
-    // menyra 'mbishkruaj' (ruajtje nga përdoruesi: fushat jo-bosh zëvendësojnë) | 'plotëso' (vetëm fushat që mungojnë)
+    // Ndryshimet e bëra këtu (jo ato që vijnë nga grupi): ekipa.js i dërgon te grupi
+    function njofto(barkodet) { if (barkodet.length) degjuesit.forEach(function (fn) { try { fn(barkodet.slice()); } catch (e) { /* ok */ } }); }
+    // menyra 'mbishkruaj' (ruajtje nga përdoruesi: fushat jo-bosh zëvendësojnë) | 'plotëso' (në sfond: vetëm hyrje të reja
+    // ose plotësim i atyre automatike; hyrjet e përdoruesit, me dorë ose të harruara s'preken)
     function mesoNje(h, b, emri, furn, menyra, tani) {
       b = pastroBarkodin(b); emri = pastroTekstin(emri, 120); furn = pastroTekstin(furn, 80);
       if (!b || (!emri && !furn)) return false;
-      var x = h[b] || {}, ri = { e: x.e || '', f: x.f || '', k: x.k || 0 };
-      if ((x.m || x.x) && menyra === 'plotëso') return false; // e ndryshuar/harruar me dorë: mësimi në sfond s'e prek
-      if (x.m) ri.m = 1;
-      if (emri && (menyra === 'plotëso' ? !ri.e : ri.e !== emri)) ri.e = emri;
-      if (furn && (menyra === 'plotëso' ? !ri.f : ri.f !== furn)) ri.f = furn;
-      if (h[b] && !x.x && ri.e === x.e && ri.f === x.f) return false;
-      ri.k = tani || Date.now();
+      var x = h[b], ri;
+      if (menyra === 'plotëso') {
+        if (x && klasaEHyrjes(x) !== 0) return false;
+        ri = { e: (x && x.e) || emri, f: (x && x.f) || furn, k: tani || Date.now(), a: 1 };
+        if (x && ri.e === x.e && ri.f === x.f) return false;
+      } else {
+        var vjeter = x && !x.x ? x : null;
+        ri = { e: emri || (vjeter && vjeter.e) || '', f: furn || (vjeter && vjeter.f) || '', k: tani || Date.now() };
+        if (vjeter && vjeter.m) ri.m = 1;
+        if (vjeter && !vjeter.a && ri.e === vjeter.e && ri.f === vjeter.f) return false;
+      }
       h[b] = ri;
-      return true;
+      return b;
     }
     if (typeof window !== 'undefined' && window.addEventListener) {
       window.addEventListener('storage', function (ev) { if (!ev || ev.key === KUJTESA_KEY || ev.key === null) harta = null; }); // ndryshim nga një dritare tjetër
@@ -654,32 +682,32 @@
         var x = b ? lexo()[b] : null;
         return x && !x.x ? { barkodi: b, emri: x.e || '', furnizuesi: x.f || '', koha: x.k || 0, meDore: !!x.m } : null;
       },
-      meso: function (b, emri, furn, menyra) { var h = lexo(); if (!mesoNje(h, b, emri, furn, menyra)) return false; shkruaj(); return true; },
+      meso: function (b, emri, furn, menyra) { var h = lexo(), r = mesoNje(h, b, emri, furn, menyra); if (!r) return false; shkruaj(); njofto([r]); return true; },
       // lista: [{ barkodi, emri, furnizuesi }]; një shkrim i vetëm në fund
       mesoShume: function (lista, menyra) {
-        var h = lexo(), n = 0, tani = Date.now();
-        (lista || []).forEach(function (x) { if (x && mesoNje(h, x.barkodi, x.emri, x.furnizuesi, menyra, tani)) n++; });
-        if (n) shkruaj();
-        return n;
+        var h = lexo(), ndr = [], tani = Date.now();
+        (lista || []).forEach(function (x) { var r = x && mesoNje(h, x.barkodi, x.emri, x.furnizuesi, menyra, tani); if (r) ndr.push(r); });
+        if (ndr.length) { shkruaj(); njofto(ndr); }
+        return ndr.length;
       },
-      // Ndryshim me dorë (Cilësimet → Produktet): vendos saktësisht; pa emër dhe pa furnizues hiqet
+      // Ndryshim me dorë (Cilësimet → Produktet): vendos saktësisht; pa emër dhe pa furnizues = e harruar
       vendos: function (b, emri, furn) {
         b = pastroBarkodin(b); emri = pastroTekstin(emri, 120); furn = pastroTekstin(furn, 80);
         if (!b) return false;
         var h = lexo();
         h[b] = !emri && !furn ? { x: 1, k: Date.now() } : { e: emri, f: furn, k: Date.now(), m: 1 };
-        shkruaj();
+        shkruaj(); njofto([b]);
         return true;
       },
-      fshij: function (b) { b = pastroBarkodin(b); var h = lexo(); if (!h[b] || h[b].x) return false; h[b] = { x: 1, k: Date.now() }; shkruaj(); return true; },
+      fshij: function (b) { b = pastroBarkodin(b); var h = lexo(); if (!h[b] || h[b].x) return false; h[b] = { x: 1, k: Date.now() }; shkruaj(); njofto([b]); return true; },
       // Furnizuesi u riemërtua (Cilësimet → Furnizuesit): edhe në kujtesë
       riemertoFurnizuesin: function (vjeter, iRi) {
         vjeter = pastroTekstin(vjeter, 80); iRi = pastroTekstin(iRi, 80);
         if (!vjeter || !iRi || vjeter === iRi) return 0;
-        var h = lexo(), n = 0, v = vjeter.toLocaleLowerCase('sq');
-        Object.keys(h).forEach(function (b) { if (!h[b].x && h[b].f && h[b].f.toLocaleLowerCase('sq') === v) { h[b].f = iRi; n++; } });
-        if (n) shkruaj();
-        return n;
+        var h = lexo(), ndr = [], v = vjeter.toLocaleLowerCase('sq'), tani = Date.now();
+        Object.keys(h).forEach(function (b) { if (!h[b].x && h[b].f && h[b].f.toLocaleLowerCase('sq') === v) { h[b].f = iRi; h[b].k = tani; delete h[b].a; ndr.push(b); } });
+        if (ndr.length) { shkruaj(); njofto(ndr); }
+        return ndr.length;
       },
       lista: function () {
         var h = lexo();
@@ -687,6 +715,40 @@
           .sort(function (a, b) { return (a.emri || a.barkodi).localeCompare(b.emri || b.barkodi, 'sq'); });
       },
       numri: function () { var h = lexo(); return Object.keys(h).filter(function (b) { return !h[b].x; }).length; },
+      // ---- Sinkronizimi me grupin (ekipa.js) ----
+      degjo: function (fn) { degjuesit.push(fn); return function () { degjuesit = degjuesit.filter(function (x) { return x !== fn; }); }; },
+      // Hyrjet që vijnë nga grupi: zëvendësojnë këtu vetëm kur fitojnë (pa njoftuar dëgjuesit: s'kthehen te grupi)
+      bashko: function (remote) {
+        if (!remote || typeof remote !== 'object') return 0;
+        var h = lexo(), n = 0;
+        Object.keys(remote).forEach(function (b) {
+          if (!KUJTESA_BARKODI.test(b)) return;
+          var r = hyrjaEPastruar(remote[b]);
+          if (r && hyrjaFiton(r, h[b])) { h[b] = r; n++; }
+        });
+        if (n) shkruaj();
+        return n;
+      },
+      // Barkodet ku kjo pajisje ka diçka më të mirë se grupi (p.sh. hera e parë në grup, ose ndryshime pa internet)
+      perDergim: function (remote) {
+        var h = lexo(); remote = remote || {};
+        return Object.keys(h).filter(function (b) {
+          if (!KUJTESA_BARKODI.test(b)) return false;
+          var r = hyrjaEPastruar(remote[b]);
+          return !r || hyrjaFiton(h[b], r);
+        });
+      },
+      // Hyrjet e plota për grupin (me krejt fushat, që bashkimi i Firebase-it të mos lërë mbetje nga hyrja e vjetër)
+      hyrjePerGrup: function (barkodet) {
+        var h = lexo(), o = {};
+        (barkodet || []).forEach(function (b) {
+          var x = h[b];
+          if (!x || !KUJTESA_BARKODI.test(b)) return;
+          o[b] = x.x ? { e: '', f: '', k: x.k || 0, a: 0, m: 0, x: 1 } : { e: x.e || '', f: x.f || '', k: x.k || 0, a: x.a ? 1 : 0, m: x.m ? 1 : 0, x: 0 };
+        });
+        return o;
+      },
+      pastro: function () { harta = {}; shkruaj(); },
       harro: function () { harta = null; } // lexohet sërish nga ruajtja (p.sh. pas pastrimit të të dhënave)
     };
   }

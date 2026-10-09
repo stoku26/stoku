@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 197, versioni: '1.17.0', data: '2026-10-09', titulli: 'Produktet e përbashkëta për krejt grupin', pikat: [
+      'Produktet që Stoku i mban mend (emri dhe furnitori sipas barkodit) tash janë të përbashkëta për krejt kolegët e grupit: kur dikush e plotëson një produkt, e njohin të gjithë, në telefon, aplikacionin Android dhe kompjuter.',
+      'Ndryshimet te Cilësimet → Stoku → Produktet (ndrysho ose harroje) vlejnë për krejt grupin. Pa grup, produktet mbeten vetëm në pajisjen tënde.'
+    ] },
     { v: 196, versioni: '1.16.0', data: '2026-10-09', titulli: 'Stoku i mban mend produktet', pikat: [
       'Kur e skanon një barkod që e ke plotësuar një herë, emri (p.sh. "Coca Cola 1.25L") dhe furnitori plotësohen vetë: te afati i ri, te leximi i fletës me foto dhe te Stoku.',
       'Stoku i mëson edhe nga afatet dhe produktet që i ke tashmë, si dhe nga afatet e kolegëve të grupit. Ruhen vetëm në këtë pajisje, nuk zënë vend në llogari.',

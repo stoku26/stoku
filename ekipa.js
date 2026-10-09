@@ -50,6 +50,8 @@
     return null;
   }
   function dy(n) { return (n < 10 ? '0' : '') + n; }
+  // Kujtesa e produkteve e grupit: dokumenti sipas shifrës së fundit të barkodit (p0..p9), të tjerat te px
+  function pjesaEKujteses(b) { var c = String(b).slice(-1); return /[0-9]/.test(c) ? 'p' + c : 'px'; }
   function isoDites(d) { return d.getFullYear() + '-' + dy(d.getMonth() + 1) + '-' + dy(d.getDate()); }
   function emriNgaEmail(email) { return String(email || '').replace(/@stoku-app\.local$/, ''); }
 
@@ -555,7 +557,7 @@
         await hiqPajisjenNgaGrupi();
         try { await fs.deleteDoc(fs.doc(db, 'grupet', g, 'afatet', uid())); } catch (e) { /* ok */ }
         if (fshiGrupin) {
-          var kol = ['chat', 'feed', 'afatet', 'push'];
+          var kol = ['chat', 'feed', 'afatet', 'push', 'kujtesa'];
           for (var i = 0; i < kol.length; i++) { try { await pastroKol(['grupet', g, kol[i]]); } catch (e) { /* ok */ } }
           await fshijFtesatEGrupit(g);
           try { await fs.deleteDoc(fs.doc(db, 'grupet', g)); } catch (e) { /* ok */ }
@@ -960,6 +962,28 @@
         hiqNgaRadha(id); // nëse s'është dërguar ende, s'dërgohet më
         if (!grupi) return { ok: false };
         try { await fs.deleteDoc(fs.doc(db, 'grupet', grupi, 'chat', id)); return { ok: true }; } catch (e) { return gabim(e); }
+      },
+
+      // ---------- Kujtesa e produkteve e grupit (v197): grupet/{g}/kujtesa/{p0..p9, px} → { p: { barkodi: {e,f,k,a,m,x} } } ----------
+      // E ndarë sipas shifrës së fundit të barkodit (çdo dokument ≤ 1 MB), që të nxërë dhjetëra mijëra produkte.
+      degjoKujtesen: function (cb, cbGabim) {
+        if (!grupi) return function () {};
+        return fs.onSnapshot(fs.collection(db, 'grupet', grupi, 'kujtesa'), function (s) {
+          var h = {};
+          listaNga(s).forEach(function (d) { var p = d.p; if (p && typeof p === 'object') Object.keys(p).forEach(function (b) { h[b] = p[b]; }); });
+          cb(h);
+        }, function (e) { if (cbGabim) cbGabim(e); });
+      },
+      // setDoc me merge: krejt fushat e hyrjes shkruhen (a/m/x 0 ose 1), që bashkimi të mos lërë mbetje të hyrjes së vjetër
+      ruajKujtesen: async function (hyrjet) {
+        if (!uid() || !grupi) return { ok: false, arsye: 'pa-grup' };
+        var pjeset = {};
+        Object.keys(hyrjet || {}).forEach(function (b) { var k = pjesaEKujteses(b); (pjeset[k] = pjeset[k] || {})[b] = hyrjet[b]; });
+        try {
+          var g = grupi;
+          await Promise.all(Object.keys(pjeset).map(function (k) { return fs.setDoc(fs.doc(db, 'grupet', g, 'kujtesa', k), { p: pjeset[k], ndryshuarSe: Date.now() }, { merge: true }); }));
+          return { ok: true };
+        } catch (e) { return gabim(e); }
       },
 
       // ---------- Njoftimet personale (vetëm brenda grupit: rregullat e kontrollojnë me fushën `grupi`) ----------
@@ -1736,9 +1760,49 @@
       if (gj.hapur) hap(); // Grupi ishte i hapur kur u hyr në llogari → lidhu tani
     }
     // Njoftimet personale, vetëm kur ke qasje në grup (chat-i u hoq në v182, ndaj s'dëgjohet më)
+    // ---------- Kujtesa e produkteve e përbashkët për grupin (v197) ----------
+    // Kopja në pajisje plotëson menjëherë (edhe pa internet); grupi është burimi i përbashkët. Ndryshimet e bëra këtu
+    // dërgohen te grupi 2 s më vonë (bashkë), ato të kolegëve vijnë në kohë reale.
+    var KEY_KUJTESA_GRUPI = 'stoku:kujtesa:grupi';
+    var kujtesaGj = { gati: false, pritje: {}, kohez: null, degjon: false };
+    function kujtesaPajisjes() { var A = AF(); return A && A.kujtesa ? A.kujtesa() : null; }
+    function nisKujtesen() {
+      var e = E(), K = kujtesaPajisjes();
+      ndal('kujtesa'); kujtesaGj.gati = false;
+      if (!e || !K || !e.degjoKujtesen || !o.uidIm() || gjendjaEQasjes() !== 'ok' || !gj.grupi) return;
+      if (!kujtesaGj.degjon) {
+        kujtesaGj.degjon = true;
+        K.degjo(function (barkodet) { barkodet.forEach(function (b) { kujtesaGj.pritje[b] = true; }); planifikoDergiminEKujteses(); });
+      }
+      // Kopja e një grupi tjetër (para ndërrimit të grupit) s'kalon te ky grup; afatet/stoku i tij mësohen sërish në sfond
+      var ishte = lexo(KEY_KUJTESA_GRUPI);
+      if (ishte && ishte !== gj.grupi) { K.pastro(); kujtesaGj.pritje = {}; }
+      shkruaj(KEY_KUJTESA_GRUPI, gj.grupi);
+      d.kujtesa = e.degjoKujtesen(function (remote) {
+        K.bashko(remote);
+        if (!kujtesaGj.gati) { // hera e parë: ajo që kjo pajisje di më mirë (p.sh. e mësuar para grupit) shkon te grupi
+          kujtesaGj.gati = true;
+          K.perDergim(remote).forEach(function (b) { kujtesaGj.pritje[b] = true; });
+        }
+        planifikoDergiminEKujteses();
+        thirr('kujtesa');
+      }, function () { /* p.sh. rregullat e reja s'janë vendosur ende: mbetet kujtesa e pajisjes */ });
+    }
+    function planifikoDergiminEKujteses() {
+      if (!kujtesaGj.gati) return; // pritet gjendja e grupit, që të mos mbishkruhet diçka më e mirë atje
+      clearTimeout(kujtesaGj.kohez);
+      kujtesaGj.kohez = setTimeout(async function () {
+        var e = E(), K = kujtesaPajisjes(), bs = Object.keys(kujtesaGj.pritje);
+        if (!e || !K || !bs.length || !gj.grupi || !kujtesaGj.gati) return;
+        kujtesaGj.pritje = {};
+        var r = await e.ruajKujtesen(K.hyrjePerGrup(bs));
+        if (!r || !r.ok) bs.forEach(function (b) { kujtesaGj.pritje[b] = true; }); // provohet sërish me ndryshimin e radhës
+      }, 2000);
+    }
     function nisDegjuesitPersonale() {
       var e = E();
       ndal('njoftimet'); ndal('chatFundit');
+      nisKujtesen();
       if (!e || !o.uidIm() || gjendjaEQasjes() !== 'ok') {
         gj.njoftimetPalexuara = []; gj.mesazhiFundit = null;
         thirr('njoftimet');
@@ -1760,7 +1824,8 @@
       if (e.aktivizoPush) e.aktivizoPush().then(function () { thirr('push'); }, function () { /* ok */ });
     }
     function ndalGjithmone(vetemDegjuesit) {
-      ndal('njoftimet'); ndal('chatFundit'); ndal('anetaresia'); ndal('fshirja'); ndal('grupiDoc'); ndal('ftesatEMia');
+      ndal('njoftimet'); ndal('chatFundit'); ndal('anetaresia'); ndal('fshirja'); ndal('grupiDoc'); ndal('ftesatEMia'); ndal('kujtesa');
+      kujtesaGj.gati = false; clearTimeout(kujtesaGj.kohez);
       if (!vetemDegjuesit) {
         var e = E(); if (e) e.ndalPranine();
         mbyll();
