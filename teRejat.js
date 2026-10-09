@@ -18,6 +18,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 196, versioni: '1.16.0', data: '2026-10-09', titulli: 'Stoku i mban mend produktet', pikat: [
+      'Kur e skanon një barkod që e ke plotësuar një herë, emri (p.sh. "Coca Cola 1.25L") dhe furnitori plotësohen vetë: te afati i ri, te leximi i fletës me foto dhe te Stoku.',
+      'Stoku i mëson edhe nga afatet dhe produktet që i ke tashmë, si dhe nga afatet e kolegëve të grupit. Ruhen vetëm në këtë pajisje, nuk zënë vend në llogari.',
+      'Cilësimet → Stoku → Produktet: kërko, ndrysho emrin ose furnitorin e një produkti, ose harroje.',
+      'Rregullim: kur ndryshon sasinë e një produkti te Stoku, furnitori i tij s\'humb më.'
+    ] },
     { v: 195, versioni: '1.15.0', data: '2026-10-09', titulli: 'Njoftimet e Grupit edhe me Stoku të mbyllur', pikat: [
       'Kur një koleg heq një produkt tëndin dhe pret miratimin, kur e pranon ose e refuzon heqjen, kur administratori të ndryshon një afat ose njofton krejt grupin: njoftimi vjen menjëherë, edhe kur Stoku është i mbyllur (telefon, aplikacioni Android, kompjuter).',
       'Njoftimi s\'del dy herë: kur e hap Stoku-n, i njëjti njoftim vetëm përditësohet.'

@@ -528,3 +528,5 @@ html.sb:not([data-tema="dark"]) .sb-stat__value--exp { color: var(--sb-exp, #d04
 .sb .af-filtrat.fade-majtas { -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--fade)); mask-image: linear-gradient(90deg, transparent, #000 var(--fade)); }
 .sb .af-filtrat.fade-majtas.fade-djathtas { -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent); mask-image: linear-gradient(90deg, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent); }
 .sb .artikull .kodi.ek-stat-nen { font-family: inherit; font-size: 12px; letter-spacing: 0; }
+/* v196: Cilësimet → Stoku → Produktet (kujtesa e produkteve) */
+.sb .btn.ops-kuj-harro { color: var(--sb-exp); }

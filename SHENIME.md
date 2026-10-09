@@ -50,6 +50,17 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **KUJTESA E PRODUKTEVE (v196 = 1.16.0)**: barkodi → { emri, furnizuesi } vetëm në pajisje (localStorage
+   `stoku:kujtesa:v1`, JO Firebase/Cloudflare), `AF.kujtesa()` / `AF.krijoKujtesen(ruajtja)` te afatet.js. Hyrja `{e, f, k, m}`
+   (m = ndryshuar me dorë) ose `{x:1, k}` = harruar ("Harroje"); maks 20000 (hiqen më të vjetrat). Mësimi: `meso(..., 'mbishkruaj')`
+   kur përdoruesi ruan afatin / produktin / leximin me foto / importin e stokut; `mesoShume(..., 'plotëso')` në sfond
+   (`planifikoMesimin`, 1,5 s pas çdo ruajtjeje dhe në hapje) nga afatet (më të rejat të parat), stoku dhe `ekK.anetaretMeAfate()`
+   (kolegët). 'plotëso' s'prek hyrjet me dorë/të harruara. Kërkimi: `emriNgaProduktet`/`furnizuesiNgaAfatet` (tel) dhe
+   `emriNgaBarkodi`/`furnizuesiNgaBarkodi` (PC) pyesin kujtesën të parën; Stoku → produkt i ri merr emrin (fokusi te sasia).
+   Riemërtimi i furnizuesit (admin) ndryshon edhe kujtesën. Cilësimet → Stoku → "Produktet" (për të gjithë, jo vetëm admin):
+   kërkim, ndrysho (emri + furnitori), Harroje. porta.js: çelësi hiqet kur në pajisje hyn një llogari tjetër.
+   Bug i vjetër i rregulluar: ruajtja e produktit (tel `ruajProduktin`, PC `ruajProduktin`) e rishkruante objektin dhe humbte
+   `furnizuesi`; tash `Object.assign`. Testet: kujtesa-njesi.js (19), kujtesa-test.js (17, tel + PC).
 0000000. **NJOFTIMET E GRUPIT ME STOKU TË MBYLLUR (v195 = 1.15.0, Worker 161, rregullat v195)**: më parë vetëm kërkesat
    "Hiqe nga rafti" (feed → /kerkese) vinin si push; njoftimet personale (`perdoruesit/{uid}/njoftimet`: `hequr` që pret
    miratimin, `heqje-pranuar`/`heqje-refuzuar`, `admin-afat`, `lajmerim`) dilnin vetëm kur hapej aplikacioni (dëgjuesi i

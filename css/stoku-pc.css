@@ -550,3 +550,7 @@ html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-nen { background: var(--sb-s
 /* emri shkurtohet me "…", ikonat e roleve (dhe avatari) mbeten gjithmonë të dukshme */
 .sbp #ekTabAnetaret .ek-anetar-qeliza > * { flex: none; }
 .sbp #ekTabAnetaret .ek-anetar-qeliza > .ek-anetar-emri { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* v196: Cilësimet → Stoku → Produktet (kujtesa e produkteve) */
+.sbp .ops-kuj-shkronja { background: var(--sb-accent-tint); color: var(--sb-accent-text); }
+.sbp .ops-kuj-fushat { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 8px; }
+.sbp .ops-kuj-fushat .ops-furn-nen { grid-column: 1 / -1; }
