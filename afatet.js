@@ -608,6 +608,98 @@
     };
   }
 
+  // ---------- Kujtesa e produkteve (v196): barkodi → { emri, furnizuesi } ----------
+  // Ruhet VETËM në këtë pajisje (localStorage), jo në Firebase. Mëson kur ruhet një afat ose produkt me barkod, nga afatet
+  // dhe stoku ekzistues dhe nga afatet e kolegëve të grupit; ndryshohet te Cilësimet → Stoku → Produktet. Kur skanohet një
+  // barkod i njohur, emri dhe furnizuesi plotësohen vetë. Hyrja: { e: emri, f: furnizuesi, k: koha e ndryshimit, m: 1 me dorë },
+  // ose { x: 1, k } = i harruar me dorë ("Harroje"): mësimi në sfond s'e kthen, vetëm një ruajtje e re nga përdoruesi.
+  var KUJTESA_KEY = 'stoku:kujtesa:v1', KUJTESA_MAKS = 20000;
+  function pastroBarkodin(b) { return String(b == null ? '' : b).replace(/\s+/g, '').slice(0, 40); }
+  function pastroTekstin(t, n) { return String(t == null ? '' : t).replace(/\s+/g, ' ').trim().slice(0, n); }
+  function krijoKujtesen(ruajtja) {
+    var harta = null;
+    function lexo() {
+      if (harta) return harta;
+      try { harta = JSON.parse((ruajtja && ruajtja.getItem(KUJTESA_KEY)) || '{}'); } catch (e) { harta = null; }
+      if (!harta || typeof harta !== 'object' || Array.isArray(harta)) harta = {};
+      return harta;
+    }
+    function shkruaj() {
+      var h = lexo(), ks = Object.keys(h);
+      if (ks.length > KUJTESA_MAKS) {
+        ks.sort(function (a, b) { return (h[a].k || 0) - (h[b].k || 0); }).slice(0, ks.length - KUJTESA_MAKS).forEach(function (x) { delete h[x]; });
+      }
+      try { if (ruajtja) ruajtja.setItem(KUJTESA_KEY, JSON.stringify(h)); } catch (e) { /* memoria e shfletuesit plot: mbetet vetëm për këtë seancë */ }
+    }
+    // menyra 'mbishkruaj' (ruajtje nga përdoruesi: fushat jo-bosh zëvendësojnë) | 'plotëso' (vetëm fushat që mungojnë)
+    function mesoNje(h, b, emri, furn, menyra, tani) {
+      b = pastroBarkodin(b); emri = pastroTekstin(emri, 120); furn = pastroTekstin(furn, 80);
+      if (!b || (!emri && !furn)) return false;
+      var x = h[b] || {}, ri = { e: x.e || '', f: x.f || '', k: x.k || 0 };
+      if ((x.m || x.x) && menyra === 'plotëso') return false; // e ndryshuar/harruar me dorë: mësimi në sfond s'e prek
+      if (x.m) ri.m = 1;
+      if (emri && (menyra === 'plotëso' ? !ri.e : ri.e !== emri)) ri.e = emri;
+      if (furn && (menyra === 'plotëso' ? !ri.f : ri.f !== furn)) ri.f = furn;
+      if (h[b] && !x.x && ri.e === x.e && ri.f === x.f) return false;
+      ri.k = tani || Date.now();
+      h[b] = ri;
+      return true;
+    }
+    if (typeof window !== 'undefined' && window.addEventListener) {
+      window.addEventListener('storage', function (ev) { if (!ev || ev.key === KUJTESA_KEY || ev.key === null) harta = null; }); // ndryshim nga një dritare tjetër
+    }
+    return {
+      merr: function (b) {
+        b = pastroBarkodin(b);
+        var x = b ? lexo()[b] : null;
+        return x && !x.x ? { barkodi: b, emri: x.e || '', furnizuesi: x.f || '', koha: x.k || 0, meDore: !!x.m } : null;
+      },
+      meso: function (b, emri, furn, menyra) { var h = lexo(); if (!mesoNje(h, b, emri, furn, menyra)) return false; shkruaj(); return true; },
+      // lista: [{ barkodi, emri, furnizuesi }]; një shkrim i vetëm në fund
+      mesoShume: function (lista, menyra) {
+        var h = lexo(), n = 0, tani = Date.now();
+        (lista || []).forEach(function (x) { if (x && mesoNje(h, x.barkodi, x.emri, x.furnizuesi, menyra, tani)) n++; });
+        if (n) shkruaj();
+        return n;
+      },
+      // Ndryshim me dorë (Cilësimet → Produktet): vendos saktësisht; pa emër dhe pa furnizues hiqet
+      vendos: function (b, emri, furn) {
+        b = pastroBarkodin(b); emri = pastroTekstin(emri, 120); furn = pastroTekstin(furn, 80);
+        if (!b) return false;
+        var h = lexo();
+        h[b] = !emri && !furn ? { x: 1, k: Date.now() } : { e: emri, f: furn, k: Date.now(), m: 1 };
+        shkruaj();
+        return true;
+      },
+      fshij: function (b) { b = pastroBarkodin(b); var h = lexo(); if (!h[b] || h[b].x) return false; h[b] = { x: 1, k: Date.now() }; shkruaj(); return true; },
+      // Furnizuesi u riemërtua (Cilësimet → Furnizuesit): edhe në kujtesë
+      riemertoFurnizuesin: function (vjeter, iRi) {
+        vjeter = pastroTekstin(vjeter, 80); iRi = pastroTekstin(iRi, 80);
+        if (!vjeter || !iRi || vjeter === iRi) return 0;
+        var h = lexo(), n = 0, v = vjeter.toLocaleLowerCase('sq');
+        Object.keys(h).forEach(function (b) { if (!h[b].x && h[b].f && h[b].f.toLocaleLowerCase('sq') === v) { h[b].f = iRi; n++; } });
+        if (n) shkruaj();
+        return n;
+      },
+      lista: function () {
+        var h = lexo();
+        return Object.keys(h).filter(function (b) { return !h[b].x; }).map(function (b) { return { barkodi: b, emri: h[b].e || '', furnizuesi: h[b].f || '', koha: h[b].k || 0, meDore: !!h[b].m }; })
+          .sort(function (a, b) { return (a.emri || a.barkodi).localeCompare(b.emri || b.barkodi, 'sq'); });
+      },
+      numri: function () { var h = lexo(); return Object.keys(h).filter(function (b) { return !h[b].x; }).length; },
+      harro: function () { harta = null; } // lexohet sërish nga ruajtja (p.sh. pas pastrimit të të dhënave)
+    };
+  }
+  var kujtesaEPajisjes = null;
+  function kujtesa() {
+    if (!kujtesaEPajisjes) {
+      var ls = null;
+      try { ls = typeof localStorage !== 'undefined' ? localStorage : null; } catch (e) { ls = null; }
+      kujtesaEPajisjes = krijoKujtesen(ls);
+    }
+    return kujtesaEPajisjes;
+  }
+
   var api = {
     get AI_URL() { return adresaAI(); },
     DITET_PARALAJMERIMI: DITET_PARALAJMERIMI,
@@ -619,7 +711,8 @@
     muajtELista: muajtELista, furnizuesitELista: furnizuesitELista, celesiFurnizuesit: celesiFurnizuesit, ditetEMbetura: ditetEMbetura, dataNgaQeliza: dataNgaQeliza, hamendesoKolonatEAfateve: hamendesoKolonatEAfateve,
     planiImportitAfateve: planiImportitAfateve, afatetNgaPlani: afatetNgaPlani, tekstNgaQeliza: tekstNgaQeliza, ditetTekst: ditetTekst, lexoSasine: lexoSasine, sasiaSiShume: sasiaSiShume, sasiaTekst: sasiaTekst, shumaCopeve: shumaCopeve,
     listaEFurnizuesve: listaEFurnizuesve, furnizuesiEkzistues: furnizuesiEkzistues, riemertoFurnizuesin: riemertoFurnizuesin,
-    IKONAT_FOLDERAVE: IKONAT_FOLDERAVE, ikonaEFolderit: ikonaEFolderit, svgEIkones: svgEIkones, zgjedhesIIkonave: zgjedhesIIkonave
+    IKONAT_FOLDERAVE: IKONAT_FOLDERAVE, ikonaEFolderit: ikonaEFolderit, svgEIkones: svgEIkones, zgjedhesIIkonave: zgjedhesIIkonave,
+    kujtesa: kujtesa, krijoKujtesen: krijoKujtesen, KUJTESA_KEY: KUJTESA_KEY
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuAfatet = api;

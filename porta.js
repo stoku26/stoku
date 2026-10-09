@@ -21,7 +21,7 @@
   var KEY_MESAZHI = 'stoku:porta:mesazh';   // mesazh një-herësh për ekranin e hyrjes pas rifreskimit
   var KEY_DIL = 'stoku:porta:dil';          // '1' pas "Dil" me dorë: llogaria e ruajtur s'ofrohet vetë sapo hapet porta
   var CELESAT_E_TE_DHENAVE = ['stoku:foldera:v1', 'stoku:produktet:v2', 'stoku:produktet:v1', 'stoku:fshira:v1',
-    'stoku:rendi-foldera-koha', 'stoku:afatet:v1'];
+    'stoku:rendi-foldera-koha', 'stoku:afatet:v1', 'stoku:kujtesa:v1'];
   var PRITJA_MAKS_MS = 7000;
   var PRITJA_DERGIMIT_MS = 25000; // "Hyr" para se të ngarkohet Firebase (internet i ngadaltë): pritet deri kaq
 
