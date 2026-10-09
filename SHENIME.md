@@ -50,6 +50,19 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **NJOFTIMET E GRUPIT ME STOKU TË MBYLLUR (v195 = 1.15.0, Worker 161, rregullat v195)**: më parë vetëm kërkesat
+   "Hiqe nga rafti" (feed → /kerkese) vinin si push; njoftimet personale (`perdoruesit/{uid}/njoftimet`: `hequr` që pret
+   miratimin, `heqje-pranuar`/`heqje-refuzuar`, `admin-afat`, `lajmerim`) dilnin vetëm kur hapej aplikacioni (dëgjuesi i
+   Firestore-it). Tash: ekipa.js `dergoOp` → pas shkrimit të njoftimit `njoftoPushNjoftim(id, per, grupi)` → Worker
+   `POST /njoftim {id, per, grupi}`: e lexon dokumentin ME TOKENIN E DËRGUESIT (rregulli i ri `allow get` kur
+   `resource.data.uid == request.auth.uid`), kontrollon uid/grupi/freskinë (< 3 min) dhe që s'është `kerkese-*`, ndërton tekstin
+   (`tekstiINjoftimit`, i njëjti me `tekstiNjoftimit`) dhe e dërgon vetëm te pajisjet e marrësit në `grupet/{g}/push` (vetëm
+   anëtarë të tanishëm). Tag-u `ek-nj-{id}` = ai i njoftimit lokal, ndaj s'dyfishohet. `kontrolloServerin` ruan `versioni`
+   (`stoku:push:versioni`); `pushPerNjoftimet()` (push aktiv + Worker ≥ 161) → njoftimi lokal në sfond lihet (`vetemNePerpara`).
+   VERSIONI_WORKER 161 (Cilësimet → Njoftimet: "ngjite kodin e ri… që të vijnë edhe njoftimet e Grupit"). sw.js: veprimi
+   "Hap njoftimet" (jo më "Hap chat-in"). Testet: wp/njoftim-prova.mjs (17), njoftim-push-test.js (5).
+   **Vendosja (përdoruesi): 1) rregullat e reja te Firebase (blloku më poshtë, rreshti `allow get` te njoftimet), 2) Worker-i
+   `worker/stoku-push.js` te Cloudflare.** Pa rregullat, /njoftim kthen 403 `rregullat` dhe njoftimet vijnë si më parë vetëm në hapje.
 0000000. **ANËTARËT → KOLEGËT (v194 = 1.14.7)**: vetëm tekstet e dukshme te index.html dhe pc.html (skripti anetar-koleg.py:
    anëtar/anëtari/anëtarë/anëtarët/anëtarëve → koleg/kolegu/kolegë/kolegët/kolegëve; "je anëtari i fundit" → "je i fundit në grup";
    "mbetet anëtar i thjeshtë" → "mbetet koleg pa rol admini"). Identifikuesit (`anetaret`, `#/ekipa/anetaret`, Firestore
@@ -1023,6 +1036,8 @@ service cloud.firestore {
       allow delete: if request.auth != null && eshteAdmin();
       match /njoftimet/{nid} {
         allow read, delete: if request.auth != null && (request.auth.uid == uid || eshteAdmin());
+        // v195: dërguesi e lexon njoftimin që e shkroi vetë (Worker-i, me tokenin e tij, e dërgon si push te marrësi)
+        allow get: if request.auth != null && resource.data.uid == request.auth.uid;
         allow update: if request.auth != null && request.auth.uid == uid;
         // v164: dërguesi dhe marrësi në të njëjtin grup (fusha `grupi`), ose administratori
         allow create: if request.auth != null

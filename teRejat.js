@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 195, versioni: '1.15.0', data: '2026-10-09', titulli: 'Njoftimet e Grupit edhe me Stoku të mbyllur', pikat: [
+      'Kur një koleg heq një produkt tëndin dhe pret miratimin, kur e pranon ose e refuzon heqjen, kur administratori të ndryshon një afat ose njofton krejt grupin: njoftimi vjen menjëherë, edhe kur Stoku është i mbyllur (telefon, aplikacioni Android, kompjuter).',
+      'Njoftimi s\'del dy herë: kur e hap Stoku-n, i njëjti njoftim vetëm përditësohet.'
+    ] },
     { v: 194, versioni: '1.14.7', data: '2026-10-09', titulli: 'Anëtarët tash quhen Kolegët', pikat: [
       'Te Grupi, "Anëtarët" tash quhen "Kolegët" (telefon dhe kompjuter), një fjalë që vlen për të gjithë.'
     ] },
