@@ -18,6 +18,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 193, versioni: '1.14.6', data: '2026-10-09', titulli: 'Tabela e anëtarëve rregulluar', platforma: 'pc', pikat: [
+      'Te Grupi → Anëtarët, butonat "Bëje admin", "Hiq nga grupi" dhe "Fshij" tash nxihen të plotë brenda tabelës (më parë "Fshij" s\'shihej).',
+      'Flluska e kurorës / mburojës s\'i nxjerr më butonat jashtë tabelës; kur s\'ka vend lart, del poshtë ose anash ikonës.',
+      'Në ekrane më të ngushta emri shkurtohet, ndërsa kurora dhe mburoja mbeten gjithmonë të dukshme.'
+    ] },
     { v: 192, versioni: '1.14.5', data: '2026-10-09', titulli: 'Flluska e rolit te Anëtarët', platforma: 'pc', pikat: [
       'Te Grupi → Anëtarët, kur klikon kurorën ose mburojën, flluska "Admin i Grupit" / "Administrator" tash shihet e plotë (më parë mbetej e prerë nën kokën e tabelës).'
     ] },

@@ -50,6 +50,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **TABELA E ANËTARËVE (v193 = 1.14.6, pc)**: v192 e bënte edhe `.tabela-mbajtese` overflow: visible kur hapej flluska, dhe
+   kjo nxori jashtë kartës butonat e kolonës `.k-av`, që ishte e ngushtë (195px) për tre butona (~270px) që kur u shtua "Fshij"
+   (ishin të prerë edhe pa flluskë: "Fshij" s'shihej). Tash: vetëm `td` merr `.me-flluske`; kornizat e tjera janë kufi (lart →
+   poshtë → `anash`, djathtas ikonës). `#ekTabAnetaret .k-av` 300px (≤1366px: 262px + butona me padding 8px), `.k-leja` 60px
+   pa "…"; te `.ek-anetar-qeliza` emri shkurtohet me "…" dhe ikonat mbeten `flex: none`. Provuar 1947/1366/1280/1180px + grup
+   me një anëtar.
 0000000. **FLLUSKA E ROLIT NË TABELË (v192 = 1.14.5, pc)**: flluska (fëmijë i `.ek-roli`) mbetej e prerë nga `td { overflow: hidden }`
    dhe `.tabela-mbajtese { overflow: hidden }`. Tash `ekTregoFlluskeRoli` u vë klasën `.me-flluske` (overflow: visible) paraardhësve
    me overflow hidden/clip sa kohë është e hapur (hiqet te `ekMbyllFlluske`); paraardhësit me auto/scroll mbeten kufi. Në tabelë s'del
