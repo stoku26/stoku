@@ -536,3 +536,8 @@ html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-nen { background: var(--sb-s
 .sbp .ek-flluska.lart::after { bottom: -5px; }
 .sbp .ek-flluska.poshte::after { top: -5px; }
 @keyframes ekFlluska { from { opacity: 0; } to { opacity: 1; } }
+/* v192: kornizat (qeliza, .tabela-mbajtese) s'e presin flluskën e rolit sa kohë është e hapur; qoshet e kokës së tabelës
+   rrumbullakohen vetë, që të mos dalin katrore kur korniza e lë përmbajtjen jashtë */
+.sbp .me-flluske { overflow: visible !important; }
+.sbp .tabela-mbajtese > .tabela thead tr:first-child th:first-child { border-top-left-radius: 16px; }
+.sbp .tabela-mbajtese > .tabela thead tr:first-child th:last-child { border-top-right-radius: 16px; }

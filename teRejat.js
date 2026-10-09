@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 192, versioni: '1.14.5', data: '2026-10-09', titulli: 'Flluska e rolit te Anëtarët', platforma: 'pc', pikat: [
+      'Te Grupi → Anëtarët, kur klikon kurorën ose mburojën, flluska "Admin i Grupit" / "Administrator" tash shihet e plotë (më parë mbetej e prerë nën kokën e tabelës).'
+    ] },
     { v: 191, versioni: '1.14.4', data: '2026-10-09', titulli: 'Grupi pa butonin mbrapa', platforma: 'tel', pikat: [
       'Te Grupi, kur je te Afatet, Aktiviteti, Kalendari ose Anëtarët, s\'ka më buton mbrapa lart. Kalon nga kategoritë sipër; mbrapa i telefonit të kthen te Përmbledhja.'
     ] },
