@@ -1818,7 +1818,7 @@
               <span class="ops-ik ops-ik--madh ngj-blu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5v14"></path><path d="M8 5v14"></path><path d="M12 5v14"></path><path d="M17 5v14"></path><path d="M21 5v14"></path></svg></span>
               <div class="ops-rresht__tekst">
                 <div class="ops-titull">Produktet</div>
-                <p class="ops-hint">Emri dhe furnitori që Stoku i mban mend për çdo barkod, vetëm në këtë kompjuter. Kur e skanon një barkod të njohur, plotësohen vetë. Ndryshimi vlen për skanimet e ardhshme.</p>
+                <p class="ops-hint">Emri dhe furnitori që Stoku i mban mend për çdo barkod. Kur e skanon një barkod të njohur, plotësohen vetë. Brenda grupit janë të përbashkëta për krejt kolegët; pa grup ruhen vetëm në këtë kompjuter. Ndryshimi vlen për skanimet e ardhshme.</p>
               </div>
               <input class="inp" id="opsKujKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko emrin, barkodin ose furnitorin" aria-label="Kërko produktin">
             </div>
@@ -1891,9 +1891,9 @@
 <script src="xlsx.js?v=113"></script>
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=196"></script>
-<script src="ekipa.js?v=195"></script>
-<script src="teRejat.js?v=196"></script>
+<script src="afatet.js?v=197"></script>
+<script src="ekipa.js?v=197"></script>
+<script src="teRejat.js?v=197"></script>
 <script>
 (function () {
   'use strict';
@@ -4943,6 +4943,10 @@
     ekVizato();
   }
   function ekKurNdryshon(cfare) {
+    if (cfare === 'kujtesa') { // produktet e grupit u ndryshuan (nga një koleg): vetëm lista te Cilësimet → Stoku, nëse është hapur
+      if (kujNeEditim === null && $('opsKujLista').offsetParent) rifreskoKujtesen();
+      return;
+    }
     ekShenjat();
     if (cfare === 'dyqanet' || cfare === 'te-gjitha') planifikoMesimin(); // kujtesa nga afatet e kolegëve
     if (ekDukeHapur || pamja !== 'ekipi') return;

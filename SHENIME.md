@@ -50,6 +50,17 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **KUJTESA E GRUPIT (v197 = 1.17.0, rregullat v197)**: kujtesa e produkteve sinkronizohet me
+   `grupet/{g}/kujtesa/{p0..p9,px}` (sipas shifrës së fundit të barkodit; `{ p: { barkodi: {e,f,k,a,m,x} }, ndryshuarSe }`).
+   ekipa.js: `degjoKujtesen` (onSnapshot i koleksionit) → `K.bashko(remote)`; ndryshimet lokale (`K.degjo`) → `pritje` → pas 2 s
+   `ruajKujtesen` (setDoc merge për çdo pjesë të prekur; hyrjet me krejt fushat a/m/x 0|1, që bashkimi i thellë i Firestore-it
+   të mos lërë mbetje). Hera e parë në grup: `K.perDergim(remote)` (çka di pajisja më mirë). Rregulli i fituesit (`hyrjaFiton`):
+   hyrja e përdoruesit (pa `a`) mbi atë automatike; e njëjta klasë → më e reja. 'plotëso' s'prek më hyrjet e përdoruesit (vetëm
+   të rejat ose automatiket). Ndërrimi i grupit (`stoku:kujtesa:grupi`) e pastron kopjen e pajisjes. Fshirja e grupit fshin edhe
+   `kujtesa`. Faqet: `thirr('kujtesa')` rifreskon vetëm listën Produktet nëse është hapur. Rregulli i ri te `grupet/{g}`:
+   `match /kujtesa/{pjesa}` (lexim/shkrim anëtarët, `pjesa` p0-9/px, vetëm fushat p + ndryshuarSe). Mock-u fs-server: merge i
+   thellë (si Firestore) + rregulli. Testet: kujtesa-njesi.js (+9), kujtesa-grupi-test.js (11, agim tel + besa PC).
+   **Vendosja: rregullat e reja te Firebase** (pa to, kujtesa mbetet vetëm në pajisje, pa gabime).
 0000000. **KUJTESA E PRODUKTEVE (v196 = 1.16.0)**: barkodi → { emri, furnizuesi } vetëm në pajisje (localStorage
    `stoku:kujtesa:v1`, JO Firebase/Cloudflare), `AF.kujtesa()` / `AF.krijoKujtesen(ruajtja)` te afatet.js. Hyrja `{e, f, k, m}`
    (m = ndryshuar me dorë) ose `{x:1, k}` = harruar ("Harroje"); maks 20000 (hiqen më të vjetrat). Mësimi: `meso(..., 'mbishkruaj')`
@@ -1143,6 +1154,14 @@ service cloud.firestore {
           && request.resource.data.tekst is string
           && request.resource.data.tekst.size() > 0 && request.resource.data.tekst.size() <= 2000));
         allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || pronarIGrupit(g) || eshteAdmin());
+      }
+      // v197: kujtesa e produkteve e grupit (barkodi → emri, furnizuesi), e ndarë sipas shifrës së fundit: p0..p9, px
+      match /kujtesa/{pjesa} {
+        allow read: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());
+        allow create, update: if request.auth != null && (anetarIGrupit(g) || eshteAdmin())
+          && pjesa.matches('p[0-9x]') && request.resource.data.keys().hasOnly(['p', 'ndryshuarSe'])
+          && request.resource.data.p is map;
+        allow delete: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());
       }
       // Pajisjet për push (Worker-i i lexon me tokenin e dërguesit). Id = {uid}_{hash i endpoint-it}.
       match /push/{id} {

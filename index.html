@@ -1409,7 +1409,7 @@
           </div>
           <div id="kujtesaSeksion">
             <div class="ops-grupi-titull">Produktet</div>
-            <div class="ops-intro">Emri dhe furnitori që Stoku i mban mend për çdo barkod, vetëm në këtë telefon. Kur e skanon një barkod të njohur, plotësohen vetë. Prek një produkt për ta ndryshuar.</div>
+            <div class="ops-intro">Emri dhe furnitori që Stoku i mban mend për çdo barkod. Kur e skanon një barkod të njohur, plotësohen vetë. Brenda grupit janë të përbashkëta për krejt kolegët; pa grup ruhen vetëm në këtë telefon. Prek një produkt për ta ndryshuar.</div>
             <div class="fushe ops-furn-kerko" id="kujtesaKerkoKuti"><input id="kujtesaKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko emrin, barkodin ose furnitorin" aria-label="Kërko produktin"></div>
             <div class="ops-grupi ops-furn" id="kujtesaLista"></div>
           </div>
@@ -1836,10 +1836,10 @@
 <script src="xlsx.js?v=113"></script>
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=196"></script>
-<script src="ekipa.js?v=195"></script>
+<script src="afatet.js?v=197"></script>
+<script src="ekipa.js?v=197"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=196"></script>
+<script src="teRejat.js?v=197"></script>
 <script>
 (function () {
   'use strict';
@@ -6063,6 +6063,10 @@
 
   // Rivizatim kur ndryshon diçka (kolegët, aktiviteti, chat-i, afatet e mia…)
   function kurNdryshonEkipa(cfare) {
+    if (cfare === 'kujtesa') { // produktet e grupit u ndryshuan (nga një koleg): vetëm lista te Cilësimet → Stoku, nëse është hapur
+      if (kujNeEditim === null && $('kujtesaLista').offsetParent) rifreskoKujtesen();
+      return;
+    }
     rifreskoShenjatEEkipes();
     if (cfare === 'dyqanet' || cfare === 'te-gjitha') planifikoMesimin(); // kujtesa nga afatet e kolegëve
     if (!$('dlgEkipi').classList.contains('hapur')) return;
