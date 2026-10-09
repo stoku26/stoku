@@ -999,7 +999,7 @@
           </button>
           <button class="nav-rresht" id="navEkAnetaret" type="button" data-ek="anetaret" title="Kush është online">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>
-            <span class="emri">Anëtarët</span>
+            <span class="emri">Kolegët</span>
             <span class="numer-cip" id="ekNavOnline" title="Online / gjithsej"></span>
           </button>
           <button class="nav-rresht" id="navEkStatistika" type="button" data-ek="statistika" title="Statistikat e grupit">
@@ -1228,7 +1228,7 @@
       <input type="file" id="afFoto" accept="image/*" hidden>
     </section>
 
-    <!-- Grupi: afatet e krejt llogarive (vetëm afatet), aktiviteti, chat-i, kalendari, anëtarët, statistikat -->
+    <!-- Grupi: afatet e krejt llogarive (vetëm afatet), aktiviteti, chat-i, kalendari, kolegët, statistikat -->
     <section id="pamjaEkipi" class="fsheh">
       <div class="faqe-krye">
         <div>
@@ -1257,7 +1257,7 @@
         <button type="button" data-n="afatet">Afatet</button>
         <button type="button" data-n="aktiviteti">Aktiviteti</button>
         <button type="button" data-n="kalendari">Kalendari</button>
-        <button type="button" data-n="anetaret">Anëtarët</button>
+        <button type="button" data-n="anetaret">Kolegët</button>
         <button type="button" data-n="statistika">Statistika</button>
         <button type="button" data-n="stoku" id="ekSegStoku" hidden>Stoku</button>
       </div>
@@ -1267,7 +1267,7 @@
         <div class="karta">
           <div class="karta-krye"><h2>Krijo grupin tënd</h2></div>
           <div class="karta-trup">
-            <p class="ek-grupi-hint" style="margin:0 0 12px">Secili grup sheh vetëm anëtarët e vet (afatet, aktivitetin, chat-in). Krijo grupin e dyqanit tënd dhe fto shokët, ose prano një ftesë.</p>
+            <p class="ek-grupi-hint" style="margin:0 0 12px">Secili grup sheh vetëm kolegët e vet (afatet, aktivitetin, chat-in). Krijo grupin e dyqanit tënd dhe fto shokët, ose prano një ftesë.</p>
             <div class="ek-rresht-forma"><input class="inp" type="text" id="ekGrupiEmri" maxlength="60" autocomplete="off" placeholder="Emri i grupit, p.sh. Market Agimi" aria-label="Emri i grupit të ri"><button class="btn" type="button" id="ekGrupiKrijo">Krijo grupin</button></div>
             <p class="ek-grupi-hint">Për t'u futur në grupin e dikujt tjetër, jepja adminit të grupit emrin tënd të përdoruesit: <b id="ekEmriIm"></b>. Ftesa del këtu.</p>
           </div>
@@ -1282,7 +1282,7 @@
             <div class="karta-krye"><h2>Duhet vepruar</h2><button class="btn tekst vogel" type="button" id="ekPultKrejt">Krejt afatet e grupit →</button></div>
             <div class="tabela-mbajtese ek-pult-tabela"><table class="tabela" id="ekPultTabela"><thead id="ekPultKoka"></thead><tbody id="ekPultTrup"></tbody></table><div class="tabela-bosh fsheh" id="ekPultBosh"></div></div>
           </div>
-          <div class="karta"><div class="karta-krye"><h2 id="ekPultAnTitulli">Anëtarët</h2></div><div class="karta-trup" id="ekPultAnetaret" style="padding-top:0"></div></div>
+          <div class="karta"><div class="karta-krye"><h2 id="ekPultAnTitulli">Kolegët</h2></div><div class="karta-trup" id="ekPultAnetaret" style="padding-top:0"></div></div>
         </div>
       </div>
 
@@ -1350,7 +1350,7 @@
         </div>
         <div class="tabela-mbajtese">
           <table class="tabela" id="ekTabAnetaret">
-            <thead><tr><th>Anëtari</th><th>Statusi</th><th class="k-sas">Në raft</th><th class="k-sas">Të skaduara</th><th class="k-sas">Afër skadimit</th><th class="k-sas">Hequr (30 ditë)</th><th class="k-leja" id="ekKolLeja" title="Butonat +/- te lista (sasia e shpejtë)"></th><th class="k-av" id="ekKolVeprime"></th></tr></thead>
+            <thead><tr><th>Kolegu</th><th>Statusi</th><th class="k-sas">Në raft</th><th class="k-sas">Të skaduara</th><th class="k-sas">Afër skadimit</th><th class="k-sas">Hequr (30 ditë)</th><th class="k-leja" id="ekKolLeja" title="Butonat +/- te lista (sasia e shpejtë)"></th><th class="k-av" id="ekKolVeprime"></th></tr></thead>
             <tbody id="ekAnetaretTrup"></tbody>
           </table>
         </div>
@@ -1394,7 +1394,7 @@
       <div id="ekVStatistika" class="fsheh">
         <div class="kpi-rrjeti" id="ekStatKpi"></div>
         <div class="permb-rrjeti">
-          <div class="karta"><div class="karta-krye"><h2>Sipas anëtarëve</h2></div><div class="karta-trup" id="ekStatAnetaret"></div></div>
+          <div class="karta"><div class="karta-krye"><h2>Sipas kolegëve</h2></div><div class="karta-trup" id="ekStatAnetaret"></div></div>
           <div class="karta"><div class="karta-krye"><h2>Furnizuesit me më shumë produkte që skadojnë</h2></div><div class="karta-trup" id="ekStatFurnizuesit"></div></div>
           <div class="karta gjere"><div class="karta-krye"><h2>Kush hoqi më shumë nga rafti (30 ditët e fundit)</h2></div><div class="karta-trup" id="ekStatHeqesit"></div></div>
         </div>
@@ -1882,7 +1882,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=163"></script>
 <script src="ekipa.js?v=190"></script>
-<script src="teRejat.js?v=193"></script>
+<script src="teRejat.js?v=194"></script>
 <script>
 (function () {
   'use strict';
@@ -4779,13 +4779,13 @@
   }
   var ST_EMRI = { skaduar: 'Ka skaduar', 'pa-date': 'Pa datë', afer: 'Afër skadimit', ok: 'Në rregull', hequr: 'I hequr' };
 
-  // ---------- Grupi (PC): afatet e grupit, aktiviteti, chat-i, kalendari, anëtarët, statistikat ----------
+  // ---------- Grupi (PC): afatet e grupit, aktiviteti, chat-i, kalendari, kolegët, statistikat ----------
   // Logjika e përbashkët (Firestore, prania, kalendari, statistikat) është te ekipa.js; këtu vetëm vizatimi,
   // me pjesët e PC-së (kpi, segmente, tabela, karta, shiritat e Përmbledhjes). Vetëm afatet — jo stoku.
   var EKL = window.StokuEkipa;
   var EK_NENET = ['pulti', 'afatet', 'aktiviteti', 'chat', 'kalendari', 'anetaret', 'statistika', 'stoku'];
   var EK_PAMJET = { pulti: 'ekVPulti', afatet: 'ekVAfatet', aktiviteti: 'ekVAktiviteti', chat: 'ekVChat', kalendari: 'ekVKalendari', anetaret: 'ekVAnetaret', statistika: 'ekVStatistika', stoku: 'ekVStoku' };
-  var EK_TITUJT = { pulti: 'Përmbledhja', afatet: 'Afatet e grupit', aktiviteti: 'Aktiviteti', chat: 'Chat', kalendari: 'Kalendari', anetaret: 'Anëtarët', statistika: 'Statistika', stoku: 'Stoku i anëtarëve' };
+  var EK_TITUJT = { pulti: 'Përmbledhja', afatet: 'Afatet e grupit', aktiviteti: 'Aktiviteti', chat: 'Chat', kalendari: 'Kalendari', anetaret: 'Kolegët', statistika: 'Statistika', stoku: 'Stoku i kolegëve' };
   var ekNen = 'pulti';
   var ekV = { anetari: 'krejt', filtri: '', kerkimi: '', kal: null };
   var EK_LIMITI = 500;
@@ -4894,7 +4894,7 @@
     if (!lidhur) { $('ekNen').textContent = ''; return; }
     var anetaret = ekK.anetaretMeAfate();
     var gI = ekK.grupiInfo();
-    $('ekNen').textContent = (gI && gI.emri ? gI.emri + ' · ' : '') + anetaret.length + (anetaret.length === 1 ? ' anëtar' : ' anëtarë') + ' · ' + ekOnline(anetaret) + ' online · vetëm afatet, secili ndryshon vetëm të vetat';
+    $('ekNen').textContent = (gI && gI.emri ? gI.emri + ' · ' : '') + anetaret.length + (anetaret.length === 1 ? ' koleg' : ' kolegë') + ' · ' + ekOnline(anetaret) + ' online · vetëm afatet, secili ndryshon vetëm të vetat';
     if (ekNen === 'aktiviteti') ekVAktiviteti(anetaret);
     else if (ekNen === 'chat') ekVChat(rifreskim);
     else if (ekNen === 'kalendari') ekVKalendari(anetaret);
@@ -4911,7 +4911,7 @@
     var d = new Date();
     var DITET = ['E diel', 'E hënë', 'E martë', 'E mërkurë', 'E enjte', 'E premte', 'E shtunë'];
     var MUAJT = ['janar', 'shkurt', 'mars', 'prill', 'maj', 'qershor', 'korrik', 'gusht', 'shtator', 'tetor', 'nëntor', 'dhjetor'];
-    $('ekNen').textContent = DITET[d.getDay()] + ', ' + d.getDate() + ' ' + MUAJT[d.getMonth()] + ' · ' + anetaret.length + (anetaret.length === 1 ? ' anëtar' : ' anëtarë') + ' · ' + (gati ? n.aktive + ' afate në raft' : 'duke ngarkuar…');
+    $('ekNen').textContent = DITET[d.getDay()] + ', ' + d.getDate() + ' ' + MUAJT[d.getMonth()] + ' · ' + anetaret.length + (anetaret.length === 1 ? ' koleg' : ' kolegë') + ' · ' + (gati ? n.aktive + ' afate në raft' : 'duke ngarkuar…');
     function afatet(filtri) { return function () { ekV.anetari = 'krejt'; ekV.filtri = filtri; ekShkoTe('afatet'); }; }
     // Ftesa për në një grup tjetër
     var ft = ekK.ftesatEMia();
@@ -4962,7 +4962,7 @@
   function ekPultAnetaret(anetaret) {
     var c = $('ekPultAnetaret');
     c.textContent = '';
-    $('ekPultAnTitulli').textContent = 'Anëtarët · ' + anetaret.length;
+    $('ekPultAnTitulli').textContent = 'Kolegët · ' + anetaret.length;
     anetaret.forEach(function (a) {
       var nn = ekNumero(a.afatet);
       var b = el('button', 'ek-pult-an'); b.type = 'button';
@@ -5147,7 +5147,7 @@
         lart = Math.max(lart, ra.top); poshte = Math.min(poshte, ra.bottom);
       }
     }
-    // në tabelë: jo mbi kokën e saj (Anëtari, Statusi…)
+    // në tabelë: jo mbi kokën e saj (Kolegu, Statusi…)
     var tb = ikona.closest('tbody'), th = tb && tb.parentElement.querySelector('thead');
     if (th) lart = Math.max(lart, th.getBoundingClientRect().bottom);
     ikona.appendChild(f);
@@ -5180,7 +5180,7 @@
     var r = await ekK.heqAfatinEKolegut(a);
     if (!r.ok) {
       if (btn) btn.disabled = false;
-      toast(r.leje ? 'S\'u lejua: vetëm anëtarët e pranuar të grupit mund ta bëjnë këtë.' : 'S\'u dërgua. Kontrollo internetin dhe provo përsëri.');
+      toast(r.leje ? 'S\'u lejua: vetëm kolegët e pranuar të grupit mund ta bëjnë këtë.' : 'S\'u dërgua. Kontrollo internetin dhe provo përsëri.');
       return;
     }
     toast('"' + emri + '": ' + (a.pronariEmri || 'kolegut') + (r.neRadhe ? ' i shkon për miratim sapo të ketë internet.' : ' i shkoi për miratim.'));
@@ -5200,7 +5200,7 @@
     r.appendChild(kpi('Skadojnë sot', num(st.sot), 'afër skadimit', st.sot ? 'paralajm' : null, IKONA.pak, afatet('afer')));
     r.appendChild(kpi('Të skaduara në raft', num(st.skaduara), 'duhen hequr nga rafti', st.skaduara ? 'kritik' : null, IKONA.zero, afatet('skaduar')));
     r.appendChild(kpi('Hequr sot', num(st.hequrSot), 'nga krejt grupi', null, null, afatet('hequr')));
-    r.appendChild(kpi('Online tani', ekOnline(anetaret) + '/' + anetaret.length, 'anëtarë', null, null, function () { ekShkoTe('anetaret'); }));
+    r.appendChild(kpi('Online tani', ekOnline(anetaret) + '/' + anetaret.length, 'kolegë', null, null, function () { ekShkoTe('anetaret'); }));
     var c = $('ekAktLista');
     c.textContent = '';
     if (!ekK.gj.ngjarjetGati) { c.appendChild(el('div', 'bosh-mesazh', 'Duke ngarkuar…')); return; }
@@ -5265,7 +5265,7 @@
     if (!t || !ekK) return;
     inp.value = '';
     var r = await ekK.dergoMesazh(t);
-    if (!r.ok) { if (!inp.value) inp.value = t; toast(r.leje ? 'S\'u lejua: vetëm anëtarët e pranuar të grupit shkruajnë në chat.' : 'Mesazhi s\'u dërgua. Kontrollo internetin dhe provo përsëri.'); }
+    if (!r.ok) { if (!inp.value) inp.value = t; toast(r.leje ? 'S\'u lejua: vetëm kolegët e pranuar të grupit shkruajnë në chat.' : 'Mesazhi s\'u dërgua. Kontrollo internetin dhe provo përsëri.'); }
     var l = $('ekChatLista'); l.scrollTop = l.scrollHeight;
   }
   $('ekChatDergo').addEventListener('click', function () { ekDergoMesazhin(); $('ekChatTekst').focus(); });
@@ -5343,7 +5343,7 @@
     ekVizato();
   }
 
-  // ---- Anëtarët ----
+  // ---- Kolegët ----
   // ---- Ekipat ----
   function ekFtesaKarta(f) {
     var k = el('div', 'karta ek-pult-kerkesat');
@@ -5373,21 +5373,21 @@
     b.disabled = false;
     if (!r.ok) { toast(r.leje ? 'S\'u krijua: rregullat e Firebase-it për grupet s\'janë vendosur ende.' : 'S\'u krijua. Kontrollo internetin dhe provo përsëri.'); return; }
     inp.value = '';
-    toast('Grupi "' + em + '" u krijua. Tash fto shokët te Anëtarët.');
+    toast('Grupi "' + em + '" u krijua. Tash fto shokët te Kolegët.');
     ekShkoTe('anetaret');
   }
   $('ekGrupiKrijo').addEventListener('click', ekKrijoGrupin);
   $('ekGrupiEmri').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ekKrijoGrupin(); } });
   function ekTekstiLargimit(m) {
-    return m.arsye === 'pronari-i-vetem' ? 'Je admini i vetëm i grupit. Bëje dikë tjetër admin (te Anëtarët) para se të largohesh.'
-      : m.arsye === 'duke-ngarkuar' ? 'Prit pak, po ngarkohen anëtarët e grupit…' : 'S\'mund të largohesh tani.';
+    return m.arsye === 'pronari-i-vetem' ? 'Je admini i vetëm i grupit. Bëje dikë tjetër admin (te Kolegët) para se të largohesh.'
+      : m.arsye === 'duke-ngarkuar' ? 'Prit pak, po ngarkohen kolegët e grupit…' : 'S\'mund të largohesh tani.';
   }
   async function ekPranoFtesen(f, btn) {
     if (ekK.gjendjaEQasjes() === 'ok') {
       var g = ekK.grupiInfo() || {}, m = ekK.mundTeLargohet();
       if (!m.ok) { toast(ekTekstiLargimit(m)); return; }
       var po = await konfirmo('Të kalosh te grupi "' + (f.grupiEmri || '') + '"?',
-        'Largohesh nga grupi "' + (g.emri || '') + '"' + (m.iFundit ? ' (je anëtari i fundit: grupi fshihet me chat-in dhe aktivitetin)' : '') + '. Stoku dhe afatet e tua s\'preken.', 'Kalo');
+        'Largohesh nga grupi "' + (g.emri || '') + '"' + (m.iFundit ? ' (je i fundit në grup: grupi fshihet me chat-in dhe aktivitetin)' : '') + '. Stoku dhe afatet e tua s\'preken.', 'Kalo');
       if (!po) return;
     }
     if (btn) btn.disabled = true;
@@ -5401,7 +5401,7 @@
     var g = ekK.grupiInfo() || {}, m = ekK.mundTeLargohet();
     if (!m.ok) { toast(ekTekstiLargimit(m)); return; }
     var po = await konfirmo('Të largohesh nga grupi "' + (g.emri || '') + '"?',
-      m.iFundit ? 'Je anëtari i fundit: grupi fshihet komplet (chat-i, aktiviteti). Stoku dhe afatet e tua s\'preken.'
+      m.iFundit ? 'Je i fundit në grup: grupi fshihet komplet (chat-i, aktiviteti). Stoku dhe afatet e tua s\'preken.'
         : 'S\'do t\'i shohësh më kolegët, aktivitetin dhe chat-in e këtij grupi. Stoku dhe afatet e tua s\'preken.', 'Largohu');
     if (!po) return;
     var r = await ekK.largohuNgaGrupi();
@@ -5453,7 +5453,7 @@
     ekK.ftesatEMia().forEach(function (f) { fm.appendChild(ekFtesaKarta(f)); });
     // Karta e grupit
     $('ekGrupiTitulli').textContent = g.emri || 'Grupi';
-    $('ekGrupiNen').textContent = (pronar ? 'Ti je admin i grupit' : 'Anëtar i grupit') + ' · ' + anetaret.length + (anetaret.length === 1 ? ' anëtar' : ' anëtarë');
+    $('ekGrupiNen').textContent = (pronar ? 'Ti je admin i grupit' : 'Koleg i grupit') + ' · ' + anetaret.length + (anetaret.length === 1 ? ' koleg' : ' kolegë');
     if ($('ekRiemertoForma').classList.contains('fsheh')) $('ekRiemerto').classList.toggle('fsheh', !pronar);
     // Pronari: fto + ftesat në pritje
     $('ekFtoKarta').classList.toggle('fsheh', !pronar);
@@ -5512,7 +5512,7 @@
       var tv = el('td', 'k-av');
       if (pronar && !a.uneJam) {
         var bp = el('button', 'btn tekst vogel', a.pronar ? 'Hiqe si admin' : 'Bëje admin'); bp.type = 'button';
-        bp.title = a.pronar ? a.emri + ' mbetet anëtar i thjeshtë' : a.emri + ' mund të ftojë dhe të menaxhojë grupin';
+        bp.title = a.pronar ? a.emri + ' mbetet koleg pa rol admini' : a.emri + ' mund të ftojë dhe të menaxhojë grupin';
         bp.addEventListener('click', async function (ev) {
           ev.stopPropagation();
           bp.disabled = true;
@@ -5594,7 +5594,7 @@
     });
   });
 
-  // ---- Stoku i krejt anëtarëve (vetëm administratori, vetëm lexim) ----
+  // ---- Stoku i krejt kolegëve (vetëm administratori, vetëm lexim) ----
   var ekStoku = { uid: null, te: {}, duke: {} };
   function ekVStoku(anetaret) {
     if (!ekStoku.uid || !anetaret.some(function (a) { return a.uid === ekStoku.uid; })) ekStoku.uid = anetaret.length ? anetaret[0].uid : null;
@@ -5655,7 +5655,7 @@
     toast('U shkarkua: ' + emriSk);
   });
 
-  // ---- Pronari i grupit: heq një anëtar ----
+  // ---- Pronari i grupit: heq një koleg ----
   async function ekHiqNgaEkipa(a) {
     var po = await konfirmo('Të hiqet nga grupi?', a.emri + ' s\'do ta shohë më grupin (afatet e kolegëve, aktivitetin, chat-in) derisa ta ftosh sërish. Stoku dhe afatet e tij s\'preken.', 'Hiqe');
     if (!po) return;
@@ -5687,7 +5687,7 @@
     r.appendChild(kpi('Skadojnë ≤ 7 ditë', num(st.javes), 'këtë javë', st.javes ? 'paralajm' : null, IKONA.pak, afatet('afer')));
     r.appendChild(kpi('Afër skadimit', num(st.afer), '≤ 30 ditë', st.afer ? 'paralajm' : null, IKONA.pak, afatet('afer')));
     r.appendChild(kpi('Hequr këtë muaj', num(st.hequrMuajit), 'nga rafti', null, null, afatet('hequr')));
-    r.appendChild(kpi('Online tani', ekOnline(anetaret) + '/' + anetaret.length, 'anëtarë', null, null, function () { ekShkoTe('anetaret'); }));
+    r.appendChild(kpi('Online tani', ekOnline(anetaret) + '/' + anetaret.length, 'kolegë', null, null, function () { ekShkoTe('anetaret'); }));
     function shirita(cont, koka, rreshtat, bosh, veprimi) {
       cont.textContent = '';
       if (!rreshtat.length) { cont.appendChild(el('div', 'bosh-mesazh', bosh)); return; }
@@ -5710,8 +5710,8 @@
         cont.appendChild(b);
       });
     }
-    shirita($('ekStatAnetaret'), ['Anëtari', 'Afate në raft', 'Nr.', 'Të skaduara'],
-      st.perAnetar.map(function (x) { return [x.emri, x.aktive, x.skaduara, x.skaduara > 0, x.uid]; }), 'Asnjë anëtar.',
+    shirita($('ekStatAnetaret'), ['Kolegu', 'Afate në raft', 'Nr.', 'Të skaduara'],
+      st.perAnetar.map(function (x) { return [x.emri, x.aktive, x.skaduara, x.skaduara > 0, x.uid]; }), 'Asnjë koleg.',
       function (x) { ekV.anetari = x[4]; ekV.filtri = ''; ekShkoTe('afatet'); });
     shirita($('ekStatFurnizuesit'), ['Furnizuesi', 'Të skaduara ose afër skadimit', 'Nr.', ''],
       st.furnizuesit.map(function (x) { return [x.emri, x.n, '']; }), 'Asnjë produkt afër skadimit me furnizues të shënuar.');

@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 194, versioni: '1.14.7', data: '2026-10-09', titulli: 'Anëtarët tash quhen Kolegët', pikat: [
+      'Te Grupi, "Anëtarët" tash quhen "Kolegët" (telefon dhe kompjuter), një fjalë që vlen për të gjithë.'
+    ] },
     { v: 193, versioni: '1.14.6', data: '2026-10-09', titulli: 'Tabela e anëtarëve rregulluar', platforma: 'pc', pikat: [
       'Te Grupi → Anëtarët, butonat "Bëje admin", "Hiq nga grupi" dhe "Fshij" tash nxihen të plotë brenda tabelës (më parë "Fshij" s\'shihej).',
       'Flluska e kurorës / mburojës s\'i nxjerr më butonat jashtë tabelës; kur s\'ka vend lart, del poshtë ose anash ikonës.',

@@ -50,6 +50,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ANËTARËT → KOLEGËT (v194 = 1.14.7)**: vetëm tekstet e dukshme te index.html dhe pc.html (skripti anetar-koleg.py:
+   anëtar/anëtari/anëtarë/anëtarët/anëtarëve → koleg/kolegu/kolegë/kolegët/kolegëve; "je anëtari i fundit" → "je i fundit në grup";
+   "mbetet anëtar i thjeshtë" → "mbetet koleg pa rol admini"). Identifikuesit (`anetaret`, `#/ekipa/anetaret`, Firestore
+   `grupet/{g}/anetaret`) s'u prekën; kodi-krahaso: 0 ndryshime kodi. Ora, Android dhe Worker s'kishin tekst "anëtar" të dukshëm.
 0000000. **TABELA E ANËTARËVE (v193 = 1.14.6, pc)**: v192 e bënte edhe `.tabela-mbajtese` overflow: visible kur hapej flluska, dhe
    kjo nxori jashtë kartës butonat e kolonës `.k-av`, që ishte e ngushtë (195px) për tre butona (~270px) që kur u shtua "Fshij"
    (ishin të prerë edhe pa flluskë: "Fshij" s'shihej). Tash: vetëm `td` merr `.me-flluske`; kornizat e tjera janë kufi (lart →
