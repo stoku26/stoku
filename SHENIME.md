@@ -50,6 +50,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **KONTROLL I PLOTË I PROJEKTIT (v190 = 1.14.3)**: ESLint (no-undef, no-unused-vars etj.) mbi krejt JS-në + skriptet
+   inline, zvarritësi (686 klikime tel+PC, e çelët/e errët: 0 gabime konsole), regresioni + testet e vjetra, leximi i Kotlin-it
+   (tel/ora) dhe i Worker-it. Rregullime: " (ti)"/"ti" pas emrit u hoq (tel titulli i afateve të anëtarit, PC KPI "Online tani",
+   kolona e pronarit te afatet e grupit); `cloudRiktheTani` tash e kontrollon `dukeRikthyerNgaCloud` (ishte vendosur por s'lexohej);
+   kodi i vdekur: `vizatoChatin`, `ekPllakaEl`, `chatNisurSe`, `admin` i papërdorur; `#impRuaj`/`#lxRuaj` me tekst fillestar.
+   Ora: tile-i shkruan "Pa lidhje · lista e DD.MM" kur `dita` e listës së ruajtur s'është sot. Testi wp/orari-prova kishte
+   `iat` të biletës 2 ditë para kohës reale, ndërsa koha e testit është 6 tetor: pas 8 tetorit Worker-i e refuzonte (401).
+   S'ishte bug i serverit; në test `iat` u bë 400 ditë më parë.
 0000000. **IKONAT E ROLEVE VETËM TE ANËTARËT (v189 = 1.14.2)**: përdoruesi s'i do ikonat e vogla nën avatar (dukeshin keq).
    U hoqën nga "Online tani" (tel), pulti dhe kartat e Afateve (PC); mbeten vetëm te lista e Anëtarëve (tel `vizatoAnetaret`,
    PC tabela `#ekAnetaretTrup`). U hoq varianti `vogel` (`.ek-roli.vogel`, `.ek-rrip-rolet`) nga `ekIkonaRoli` dhe CSS.

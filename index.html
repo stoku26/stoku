@@ -1621,7 +1621,7 @@
     </div>
     <div class="faqe-fund">
       <button class="btn tekst" id="impAnulo" type="button">Anulo</button>
-      <button class="btn" id="impRuaj" type="button"></button>
+      <button class="btn" id="impRuaj" type="button">Importo</button>
     </div>
   </div>
 </div>
@@ -1644,7 +1644,7 @@
     </div>
     <div class="faqe-fund">
       <button class="btn tekst" id="leximAnulo" type="button">Anulo</button>
-      <button class="btn" id="lxRuaj" type="button"></button>
+      <button class="btn" id="lxRuaj" type="button">Ruaj</button>
     </div>
   </div>
 </div>
@@ -1831,9 +1831,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=163"></script>
-<script src="ekipa.js?v=188"></script>
+<script src="ekipa.js?v=190"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=189"></script>
+<script src="teRejat.js?v=190"></script>
 <script>
 (function () {
   'use strict';
@@ -3873,7 +3873,7 @@
   $('cloudSinkronizoTani').addEventListener('click', function () { kryeSinkronizimin(); });
 
   $('cloudRiktheTani').addEventListener('click', async function () {
-    if (!perdoruesiAktual() || !window.__stokuCloud) return;
+    if (!perdoruesiAktual() || !window.__stokuCloud || dukeRikthyerNgaCloud) return; // jo dy rikthime njëkohësisht
     dukeRikthyerNgaCloud = true;
     vendosStatusinCloud(T('cloudStatusiDukeRikthyer'));
     var rez = await window.__stokuCloud.merr();
@@ -5984,7 +5984,6 @@
     });
     $('ekChatFund').hidden = true;
     $('ekChatBtn').classList.toggle('aktiv', ekPamja === 'chat');
-    var admin = !!(ekK && ekK.eshteAdmin());
     $('ekChipStoku').hidden = true; // Stoku te Grupi u hoq (v183)
     if (ekPamja === 'stoku') ekPamja = 'permbledhja';
     var shtepi = ekEshteShtepi();
@@ -6028,7 +6027,7 @@
     if (__ekipiAnetari === null) __ekipiAnetari = 'krejt';
     var zgj = __ekipiAnetari === 'krejt' ? krejt : anetaret.filter(function (a) { return a.uid === __ekipiAnetari; })[0];
     if (!zgj) { __ekipiAnetari = 'krejt'; zgj = krejt; } // anëtari u largua: krejt grupi
-    $('ekipiTitulli').textContent = zgj.uid === 'krejt' ? 'Afatet' : zgj.emri + (zgj.uneJam ? ' (ti)' : '');
+    $('ekipiTitulli').textContent = zgj.uid === 'krejt' ? 'Afatet' : zgj.emri;
     var permb, inp, lista;
     if (rifreskim && $('ekipiRreshtat') && $('ekKerko') && $('ekPermb')) {
       permb = $('ekPermb'); inp = $('ekKerko'); lista = $('ekipiRreshtat');
@@ -6110,14 +6109,6 @@
     return EKL.Fotot.apliko(a, String(emri || ''));
   }
   function ekKurTekst(n) { return n === null ? '' : n < -1 ? 'para ' + AF.ditetTekst(-n) : n === -1 ? 'dje' : n === 0 ? 'sot' : n === 1 ? 'nesër' : 'për ' + AF.ditetTekst(n); }
-  function ekPllakaEl(p, tekst, aktiv) {
-    var b = ekEl('button', 'ek-pllaka' + (aktiv ? ' aktiv' : '')); b.type = 'button';
-    var ik = ekEl('span', 'ek-pl-ik'); ik.innerHTML = $('ekMenu').querySelector('button[data-n="' + p + '"] .ek-pl-ik').innerHTML;
-    b.appendChild(ik); b.appendChild(ekEl('span', null, tekst));
-    if (p === 'anetaret' && ekK.numriKerkesave()) b.appendChild(ekEl('span', 'ek-pike'));
-    b.addEventListener('click', function () { ekPllaka(p); });
-    return b;
-  }
   function ekKartaPultit(a) {
     var st = AF.statusi(a), n = AF.ditetDeri(a.data);
     var k = ekEl('div', 'ek-kart');
@@ -6180,7 +6171,7 @@
     var rr = ekEl('div', 'ek-online-rrip');
     anetaret.forEach(function (a) {
       var b = ekEl('button'); b.type = 'button';
-      b.title = a.emri + ' · ' + (a.uneJam ? 'ti' : EKL.tekstiPranise(a));
+      b.title = a.emri + ' · ' + (a.uneJam ? 'Online tani' : EKL.tekstiPranise(a));
       b.appendChild(ekAv(a.emri, 46, a.uneJam || EKL.eshteOnline(a)));
       b.appendChild(ekEl('span', null, a.emri));
       b.addEventListener('click', function () { ekHapAnetarin(a.uid); });
@@ -6389,40 +6380,7 @@
     c.appendChild(frag);
   }
 
-  // ---- Chat ----
-  function vizatoChatin(c, rifreskim) {
-    var trup = $('ekipiTrup');
-    var neFund = !rifreskim || (trup.scrollHeight - trup.scrollTop - trup.clientHeight < 80);
-    c.textContent = '';
-    var gj = ekK.gj;
-    if (!gj.chatGati) { c.appendChild(ekInfo('Duke ngarkuar…')); return; }
-    if (!gj.chat.length) { c.appendChild(ekBosh('Asnjë mesazh ende', 'Shkruaj të parin, e sheh krejt grupi.')); return; }
-    var uidIm = perdoruesiAktual() ? perdoruesiAktual().uid : null;
-    var kuti = ekEl('div', 'ek-chat');
-    var dita = '', iFundit = null;
-    gj.chat.forEach(function (m) {
-      var t = EKL.titulliDites(m.koha);
-      if (t !== dita) { dita = t; iFundit = null; kuti.appendChild(ekEl('div', 'ek-dita', t)); }
-      var imi = m.uid === uidIm;
-      var w = ekEl('div', 'ek-mesazh' + (imi ? ' imi' : ''));
-      if (!imi && iFundit !== m.uid) w.appendChild(ekEl('div', 'kush', m.emri || ''));
-      iFundit = m.uid;
-      var f = ekEl('div', 'flluska', m.tekst);
-      if (imi || ekK.eshteAdmin()) { // administratori mund të fshijë edhe mesazhet e të tjerëve
-        f.title = 'Prek për ta fshirë';
-        f.style.cursor = 'pointer';
-        f.addEventListener('click', async function () {
-          var po = await konfirmo('Të fshihet mesazhi?', '"' + String(m.tekst).slice(0, 80) + '"' + (imi ? '' : ' (i ' + (m.emri || 'kolegut') + ')') + ' fshihet për krejt grupin.', T('fshij'));
-          if (po) { var r = await ekK.fshijMesazhin(m.id); if (!r.ok) toast('Mesazhi s\'u fshi. Provo përsëri.'); }
-        });
-      }
-      w.appendChild(f);
-      w.appendChild(ekEl('div', 'ora', ekOra(m.koha)));
-      kuti.appendChild(w);
-    });
-    c.appendChild(kuti);
-    if (neFund) trup.scrollTop = trup.scrollHeight;
-  }
+  // ---- Chat (u hoq në v182; mbeten vetëm lidhjet e elementeve të fshehura) ----
   async function ekDergoMesazhin() {
     var inp = $('ekChatTekst');
     var t = inp.value.trim();

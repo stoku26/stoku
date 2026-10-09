@@ -18,6 +18,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 190, versioni: '1.14.3', data: '2026-10-09', titulli: 'Kontroll i plotë, rregullime të vogla', pikat: [
+      'Te Grupi s\'del më "ti" pas emrit (as te "Online tani" në kompjuter, as te afatet e kolegëve).',
+      'Butoni "Rikthe tani" te Llogaria s\'nis dy rikthime njëkohësisht kur preket dy herë.',
+      'Ora: kur s\'ka internet, Stoku në ekranin që del kur e rrëshqet orën tregon që lista është e një dite tjetër.'
+    ] },
     { v: 189, versioni: '1.14.2', data: '2026-10-08', titulli: 'Ikonat e roleve vetëm te Anëtarët', pikat: [
       'Kurora dhe mburoja shihen tash vetëm te Grupi → Anëtarët, jo më te "Online tani" apo te pulti.'
     ] },

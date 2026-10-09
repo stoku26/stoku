@@ -1402,7 +1402,7 @@
       permbledhjetGabim: false   // përmbledhjet s'lexohen → lexohen dyqanet (vetëm administratori mundet)
     };
     var d = {};
-    var chatNisurSe = 0, rifreskimKohez = {}, afateTeReja = { n: 0, ngaFoto: false, kohez: null };
+    var rifreskimKohez = {}, afateTeReja = { n: 0, ngaFoto: false, kohez: null };
     var publikimi = { kohez: null, nenshkrimi: null, bllokuarDeri: 0, afatet: null };
     var migrimiNeRruge = false;
 
