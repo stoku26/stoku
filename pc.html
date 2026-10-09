@@ -906,7 +906,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku-pc.css?v=20">
+<link rel="stylesheet" href="css/stoku-pc.css?v=21">
 </head>
 <body>
 <script src="porta.js?v=166"></script>
@@ -1882,7 +1882,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=163"></script>
 <script src="ekipa.js?v=190"></script>
-<script src="teRejat.js?v=192"></script>
+<script src="teRejat.js?v=193"></script>
 <script>
 (function () {
   'use strict';
@@ -5126,8 +5126,8 @@
     __ekFlluska.remove(); __ekFlluska = null;
   }
   // Flluska vendoset brenda vetë ikonës (position: absolute), që të dalë gjithmonë mbi të edhe me zmadhim / WebView.
-  // Kornizat që e presin (qelizat e tabelës me "…", .tabela-mbajtese me qoshe të rrumbullakëta: overflow hidden) e lënë
-  // të dalë jashtë sa kohë është e hapur; pjesët që rrëshqasin (overflow auto/scroll) mbeten kufi.
+  // Vetëm qeliza e tabelës (overflow: hidden për "…") e lë të dalë jashtë sa kohë është e hapur; kornizat e tjera
+  // (.tabela-mbajtese, pjesët që rrëshqasin) mbeten kufi: lart, përndryshe poshtë, përndryshe anash ikonës.
   function ekTregoFlluskeRoli(ikona, tekst) {
     var ishte = __ekFlluska && __ekFlluska.__per === ikona;
     ekMbyllFlluske();
@@ -5135,23 +5135,30 @@
     var f = document.createElement('span');
     f.className = 'ek-flluska lart'; f.setAttribute('role', 'tooltip'); f.textContent = tekst; f.__per = ikona;
     var koka = document.querySelector('.mbulese.hapur .opsione-krye, .sbp .faqe-krye');
-    var kufiri = koka ? koka.getBoundingClientRect().bottom : 0;
+    var lart = koka ? koka.getBoundingClientRect().bottom : 0, poshte = window.innerHeight;
+    var td = ikona.closest('td');
     f.__hapura = [];
+    if (td) { td.classList.add('me-flluske'); f.__hapura.push(td); }
     for (var a = ikona.parentElement; a && a !== document.body; a = a.parentElement) {
-      var cs = getComputedStyle(a), o = cs.overflowX + ' ' + cs.overflowY;
-      if (/auto|scroll/.test(o)) kufiri = Math.max(kufiri, a.getBoundingClientRect().top);
-      else if (/hidden|clip/.test(o)) { a.classList.add('me-flluske'); f.__hapura.push(a); }
+      if (a === td) continue;
+      var cs = getComputedStyle(a);
+      if (cs.overflowX !== 'visible' || cs.overflowY !== 'visible') {
+        var ra = a.getBoundingClientRect();
+        lart = Math.max(lart, ra.top); poshte = Math.min(poshte, ra.bottom);
+      }
     }
     // në tabelë: jo mbi kokën e saj (Anëtari, Statusi…)
     var tb = ikona.closest('tbody'), th = tb && tb.parentElement.querySelector('thead');
-    if (th) kufiri = Math.max(kufiri, th.getBoundingClientRect().bottom);
+    if (th) lart = Math.max(lart, th.getBoundingClientRect().bottom);
     ikona.appendChild(f);
     // mos dil jashtë ekranit: zhvendose anash, shigjeta mbetet te ikona
     var r = f.getBoundingClientRect(), vw = document.documentElement.clientWidth, dx = 0;
     if (r.left < 12) dx = 12 - r.left; else if (r.right > vw - 12) dx = vw - 12 - r.right;
     f.style.setProperty('--zhvendosja', dx + 'px');
-    // pa vend lart: poshtë ikonës
-    if (f.getBoundingClientRect().top < kufiri + 6) { f.classList.remove('lart'); f.classList.add('poshte'); }
+    if (f.getBoundingClientRect().top < lart + 4) {
+      f.classList.remove('lart'); f.classList.add('poshte');
+      if (f.getBoundingClientRect().bottom > poshte - 4) { f.classList.remove('poshte'); f.classList.add('anash'); f.style.setProperty('--zhvendosja', '0px'); }
+    }
     __ekFlluska = f;
     clearTimeout(ekTregoFlluskeRoli.k);
     ekTregoFlluskeRoli.k = setTimeout(ekMbyllFlluske, 5000);

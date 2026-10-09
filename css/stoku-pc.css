@@ -536,8 +536,17 @@ html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-nen { background: var(--sb-s
 .sbp .ek-flluska.lart::after { bottom: -5px; }
 .sbp .ek-flluska.poshte::after { top: -5px; }
 @keyframes ekFlluska { from { opacity: 0; } to { opacity: 1; } }
-/* v192: kornizat (qeliza, .tabela-mbajtese) s'e presin flluskën e rolit sa kohë është e hapur; qoshet e kokës së tabelës
-   rrumbullakohen vetë, që të mos dalin katrore kur korniza e lë përmbajtjen jashtë */
-.sbp .me-flluske { overflow: visible !important; }
+/* v192/v193: qeliza s'e pret flluskën e rolit sa kohë është e hapur (korniza e tabelës po: aty flluska del poshtë ose anash);
+   qoshet e sipërme të kokës së tabelës të rrumbullakuara */
+.sbp .tabela td.me-flluske { overflow: visible; }
 .sbp .tabela-mbajtese > .tabela thead tr:first-child th:first-child { border-top-left-radius: 16px; }
 .sbp .tabela-mbajtese > .tabela thead tr:first-child th:last-child { border-top-right-radius: 16px; }
+.sbp .ek-flluska.anash { left: calc(100% + 10px); top: 50%; bottom: auto; transform: translateY(-50%); }
+.sbp .ek-flluska.anash::after { left: -5px; top: calc(50% - 6px); }
+/* v193: kolona e veprimeve te Anëtarët i nxë tre butonat (Bëje admin · Hiq nga grupi · Fshij); +/- pa "…" */
+.sbp #ekTabAnetaret .k-av { width: 300px; }
+.sbp #ekTabAnetaret .k-leja { width: 60px; padding-left: 8px; padding-right: 8px; text-overflow: clip; }
+@media (max-width: 1366px) { .sbp #ekTabAnetaret .k-av { width: 262px; } .sbp #ekTabAnetaret .k-av .btn.vogel { padding: 0 8px; } }
+/* emri shkurtohet me "…", ikonat e roleve (dhe avatari) mbeten gjithmonë të dukshme */
+.sbp #ekTabAnetaret .ek-anetar-qeliza > * { flex: none; }
+.sbp #ekTabAnetaret .ek-anetar-qeliza > .ek-anetar-emri { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
