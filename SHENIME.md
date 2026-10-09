@@ -50,6 +50,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **GRUPI PA BUTON MBRAPA (v191 = 1.14.4, tel)**: `#ekipiPrapa` fshihet gjithmonë te `vizatoEkipen` (më parë dilte te
+   çdo pamje përveç Përmbledhjes). Navigimi bëhet me pllakat sipër; mbrapa i sistemit (popstate, klasa `ne-anetar`) kthen ende te
+   Përmbledhja.
 0000000. **KONTROLL I PLOTË I PROJEKTIT (v190 = 1.14.3)**: ESLint (no-undef, no-unused-vars etj.) mbi krejt JS-në + skriptet
    inline, zvarritësi (686 klikime tel+PC, e çelët/e errët: 0 gabime konsole), regresioni + testet e vjetra, leximi i Kotlin-it
    (tel/ora) dhe i Worker-it. Rregullime: " (ti)"/"ti" pas emrit u hoq (tel titulli i afateve të anëtarit, PC KPI "Online tani",

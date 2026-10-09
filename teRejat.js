@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 191, versioni: '1.14.4', data: '2026-10-09', titulli: 'Grupi pa butonin mbrapa', platforma: 'tel', pikat: [
+      'Te Grupi, kur je te Afatet, Aktiviteti, Kalendari ose Anëtarët, s\'ka më buton mbrapa lart. Kalon nga kategoritë sipër; mbrapa i telefonit të kthen te Përmbledhja.'
+    ] },
     { v: 190, versioni: '1.14.3', data: '2026-10-09', titulli: 'Kontroll i plotë, rregullime të vogla', pikat: [
       'Te Grupi s\'del më "ti" pas emrit (as te "Online tani" në kompjuter, as te afatet e kolegëve).',
       'Butoni "Rikthe tani" te Llogaria s\'nis dy rikthime njëkohësisht kur preket dy herë.',
