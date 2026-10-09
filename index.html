@@ -1833,7 +1833,7 @@
 <script src="afatet.js?v=163"></script>
 <script src="ekipa.js?v=190"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=190"></script>
+<script src="teRejat.js?v=191"></script>
 <script>
 (function () {
   'use strict';
@@ -5988,7 +5988,7 @@
     if (ekPamja === 'stoku') ekPamja = 'permbledhja';
     var shtepi = ekEshteShtepi();
     $('dlgEkipi').classList.toggle('ek-shtepi', shtepi);
-    $('ekipiPrapa').style.display = shtepi ? 'none' : '';
+    $('ekipiPrapa').style.display = 'none'; // v191: pa buton mbrapa te Grupi (kategoritë sipër; mbrapa i telefonit kthen te Përmbledhja)
     $('ekipiData').textContent = ekDataSot();
     $('ekipiTitulli').textContent = { afatet: 'Afatet', aktiviteti: 'Aktiviteti', kalendari: 'Kalendari', anetaret: 'Anëtarët', stoku: 'Stoku' }[ekPamja] || 'Grupi';
     var c = $('ekipiLista');
