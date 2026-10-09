@@ -50,6 +50,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **FLLUSKA E ROLIT NË TABELË (v192 = 1.14.5, pc)**: flluska (fëmijë i `.ek-roli`) mbetej e prerë nga `td { overflow: hidden }`
+   dhe `.tabela-mbajtese { overflow: hidden }`. Tash `ekTregoFlluskeRoli` u vë klasën `.me-flluske` (overflow: visible) paraardhësve
+   me overflow hidden/clip sa kohë është e hapur (hiqet te `ekMbyllFlluske`); paraardhësit me auto/scroll mbeten kufi. Në tabelë s'del
+   mbi `thead` (kalon poshtë ikonës). Qoshet e sipërme të `th` të rrumbullakuara (16px), që të mos dalin katrore.
 0000000. **GRUPI PA BUTON MBRAPA (v191 = 1.14.4, tel)**: `#ekipiPrapa` fshihet gjithmonë te `vizatoEkipen` (më parë dilte te
    çdo pamje përveç Përmbledhjes). Navigimi bëhet me pllakat sipër; mbrapa i sistemit (popstate, klasa `ne-anetar`) kthen ende te
    Përmbledhja.
