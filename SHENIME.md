@@ -50,6 +50,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PC: BUTONI I DALJES TE ANËSORJA (v204 = 1.18.3)**: `#sbpDil` te `.sbp-account` (kolona 2, mbi të dy rreshtat),
+   vetëm ikonë; teksti "Dil nga llogaria" del me `::after` (`data-tip`) kur mausi qëndron mbi të. Thërret `dil()` (pyet para
+   daljes). Fshihet pa llogari. Nën 1180px karta bëhet pak më kompakte që statusi i sinkronizimit të mos pritet.
+   stoku-pc.css v26. Testi: dil-pc.js.
 0000000. **"SHFAQ EDHE …" TE PRODUKTET (v203 = 1.18.2)**: listat e kujtesës (tel 100, PC 150 në fillim) kanë në fund butonin
    `butoniMeShume` që shton edhe aq (`kujSaShfaqen`, `pritjeSaShfaqen`; kthehen në fillim kur hapet faqja ose ndryshon
    kërkimi). `rifreskoKujtesen` ruan pozicionin e scroll-it (tel `.opsione-trup`, PC listat + `.ops-djathtas`) dhe thërret

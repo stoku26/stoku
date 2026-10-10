@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 204, versioni: '1.18.3', data: '2026-10-10', titulli: 'Dalja nga llogaria me një klik', pikat: [
+      'Në kompjuter, poshtë majtas te karta e llogarisë, ka një buton të vogël për të dalë nga llogaria. Kur e mban mausin mbi të, shkruan "Dil nga llogaria".'
+    ] },
     { v: 203, versioni: '1.18.2', data: '2026-10-10', titulli: 'Krejt produktet në listë', pikat: [
       'Cilësimet → Stoku → Produktet: kur ka shumë produkte, në fund të listës del butoni "Shfaq edhe …" që i shton të tjerat, pa pasur nevojë të kërkosh.'
     ] },
