@@ -818,6 +818,11 @@
   /* Kontrolli i fletës së lexuar */
   #dlgLexim { padding: 2vh 16px 16px; }
   #dlgLexim .dialog { max-width: 1720px; }
+  /* v208: zgjedhja e folderit e ngushtë, në një rresht me titullin */
+  .lexim-folderi { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; }
+  .lexim-folderi > span { font-size: 13px; font-weight: 600; color: var(--gri); white-space: nowrap; }
+  .lexim-folderi select.inp { width: 260px; flex: none; }
+  #dlgFolder { z-index: 52; } /* mbi "Kontrollo fletën e lexuar": hapet edhe nga aty, "+ Folder i ri" */
   .lexim-grid { display: grid; grid-template-columns: minmax(320px, 1fr) minmax(0, 1.9fr); gap: 18px; align-items: start; }
   .lexim-majtas { position: sticky; top: 0; }
   /* Fotoja: rrota e mausit zmadhon, tërheqja e lëviz (shih fotoPamja) */
@@ -1512,7 +1517,7 @@
         </div>
         <div>
           <div class="lexim-statusi" id="lxStatusi"></div>
-          <label class="fushe" id="lxFolderKuti" style="display:none"><span>Importo në folderin</span><select class="inp" id="lxFolderi"></select></label>
+          <label class="lexim-folderi" id="lxFolderKuti" style="display:none"><span>Importo në folderin</span><select class="inp" id="lxFolderi"></select></label>
           <div class="lexim-rreshtat">
             <table>
               <thead><tr id="lxThead"><th style="width:34px">#</th><th style="width:140px">Barkodi</th><th>Emri i produktit</th><th style="width:150px">Data e skadimit</th><th style="width:80px">Sasia</th><th style="width:160px">Furnizuesi</th><th style="width:36px"></th></tr></thead>
@@ -1926,7 +1931,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=207"></script>
 <script src="ekipa.js?v=198"></script>
-<script src="teRejat.js?v=207"></script>
+<script src="teRejat.js?v=208"></script>
 <script>
 (function () {
   'use strict';
@@ -3148,7 +3153,9 @@
   }
   function dialogISiperm() {
     if ($('dlgKonfirmo').classList.contains('hapur')) return $('dlgKonfirmo');
-    var te = document.querySelectorAll('.mbulese.hapur');
+    var te = Array.prototype.slice.call(document.querySelectorAll('.mbulese.hapur'));
+    var z = function (d) { return parseInt(getComputedStyle(d).zIndex, 10) || 0; };
+    te.sort(function (a, b) { return z(a) - z(b); }); // me z-index të njëjtë mbetet rendi i faqes
     return te.length ? te[te.length - 1] : null;
   }
   Array.prototype.forEach.call(document.querySelectorAll('.mbulese'), function (m) {
@@ -3444,11 +3451,13 @@
   }
 
   // ================= Folderat =================
-  var flRiemerto = null;
+  var flRiemerto = null, flPasKrijimit = null;
   var zgjedhesIkonave = window.StokuAfatet.zgjedhesIIkonave($('flIkonat'), function () { return $('flEmri').value; });
   $('flEmri').addEventListener('input', zgjedhesIkonave.sugjero);
-  function hapFolderIRi() {
+  // pasKrijimit (opsionale): thirret me id e folderit të ri në vend që të hapet folderi (p.sh. nga importi i fletës)
+  function hapFolderIRi(pasKrijimit) {
     flRiemerto = null;
+    flPasKrijimit = typeof pasKrijimit === 'function' ? pasKrijimit : null;
     zgjedhesIkonave.fillo(null);
     $('flTitulli').textContent = 'Folder i ri';
     $('flRuaj').textContent = 'Krijo';
@@ -3457,7 +3466,7 @@
     hapDialog('dlgFolder', 'flEmri');
   }
   function hapRiemertimin(f) {
-    flRiemerto = f.id;
+    flRiemerto = f.id; flPasKrijimit = null;
     $('flTitulli').textContent = 'Ndrysho folderin';
     zgjedhesIkonave.fillo(window.StokuAfatet.ikonaEFolderit(f).id);
     $('flRuaj').textContent = 'Ruaj';
@@ -3481,12 +3490,14 @@
     foldera.push({ id: id, emri: emri, ikona: zgjedhesIkonave.vlera() || undefined, ndryshuarSe: Date.now() });
     ruaj();
     mbyllDialog('dlgFolder');
+    var cb = flPasKrijimit; flPasKrijimit = null;
+    if (cb) { cb(id); return; }
     shkoTe(id);
     setTimeout(function () { $('barkodi').focus(); }, 30);
   }
   $('flRuaj').addEventListener('click', ruajFolderin);
   $('flEmri').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ruajFolderin(); } });
-  $('btnFolderIRi').addEventListener('click', hapFolderIRi);
+  $('btnFolderIRi').addEventListener('click', function () { hapFolderIRi(); });
 
   async function fshijFolderin(f) {
     var brenda = produktetEFolderit(f.id);
@@ -6767,15 +6778,29 @@
   var LX_THEAD_AFATET = '<th style="width:34px">#</th><th style="width:140px">Barkodi</th><th>Emri i produktit</th><th style="width:150px">Data e skadimit</th><th style="width:80px">Sasia</th><th style="width:160px">Furnizuesi</th><th style="width:36px"></th>';
   var LX_THEAD_STOK = '<th style="width:34px">#</th><th style="width:150px">Barkodi</th><th>Emri i produktit</th><th style="width:90px">Sasia</th><th style="width:170px">Furnizuesi</th><th style="width:36px"></th>';
   var KEY_FOLDER_IMPORTIT_PC = 'stoku:import-stok:folderi';
-  function mbushFolderatELeximit() {
-    var s = $('lxFolderi'); s.textContent = '';
-    foldera.forEach(function (f) { var o = el('option'); o.value = f.id; o.textContent = f.emri; s.appendChild(o); });
+  var LX_FOLDER_RI = '__ri__';
+  function folderiIImportit() {
     var i = null;
     try { i = localStorage.getItem(KEY_FOLDER_IMPORTIT_PC); } catch (e) { /* ok */ }
-    s.value = (i && folderSipasId(i)) ? i : (foldera[0] ? foldera[0].id : '');
+    return (i && folderSipasId(i)) ? i : (foldera[0] ? foldera[0].id : '');
+  }
+  function mbushFolderatELeximit(zgjidhId) {
+    var s = $('lxFolderi'); s.textContent = '';
+    if (!foldera.length) { var o0 = el('option'); o0.value = ''; o0.textContent = 'Zgjidh folderin'; s.appendChild(o0); }
+    foldera.forEach(function (f) { var o = el('option'); o.value = f.id; o.textContent = f.emri; s.appendChild(o); });
+    var oRi = el('option'); oRi.value = LX_FOLDER_RI; oRi.textContent = '+ Folder i ri…'; s.appendChild(oRi); // si në telefon
+    s.value = (zgjidhId && folderSipasId(zgjidhId)) ? zgjidhId : folderiIImportit();
   }
   $('lxFolderi').addEventListener('change', function () {
-    try { localStorage.setItem(KEY_FOLDER_IMPORTIT_PC, $('lxFolderi').value); } catch (e) { /* ok */ }
+    var s = $('lxFolderi');
+    if (s.value !== LX_FOLDER_RI) { try { localStorage.setItem(KEY_FOLDER_IMPORTIT_PC, s.value); } catch (e) { /* ok */ } return; }
+    s.value = folderiIImportit(); // derisa të krijohet; me "Anulo" mbetet ky
+    hapFolderIRi(function (idIRi) {
+      try { localStorage.setItem(KEY_FOLDER_IMPORTIT_PC, idIRi); } catch (e) { /* ok */ }
+      mbushFolderatELeximit(idIRi);
+      var f = folderSipasId(idIRi);
+      toast('Folderi "' + (f ? f.emri : '') + '" u krijua. Produktet do të importohen aty.');
+    });
   });
   // Përgatit dialogun "Kontrollo fletën e lexuar" për njërin nga dy llojet: 'afatet' (parazgjedhur,
   // me datë) ose 'stok' (barkodi/emri/sasia/furnizuesi, plus zgjedhja e folderit).
