@@ -1054,7 +1054,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=35">
+<link rel="stylesheet" href="css/stoku.css?v=36">
 </head>
 <body>
 <script src="porta.js?v=196"></script>
@@ -1868,7 +1868,7 @@
 <script src="afatet.js?v=201"></script>
 <script src="ekipa.js?v=198"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=202"></script>
+<script src="teRejat.js?v=203"></script>
 <script>
 (function () {
   'use strict';
@@ -2997,7 +2997,7 @@
     faqjaEOpsioneve = emriFaqes || null;
     if (emriFaqes === 'lista') rifreskoHyrjetEStokut();
     if (emriFaqes === 'furnizuesit') { furnNeEditim = null; $('furnKerko').value = ''; rifreskoFurnizuesit(); }
-    if (emriFaqes === 'pritje' || emriFaqes === 'produktet') { kujNeEditim = null; $('kujtesaKerko').value = ''; rifreskoKujtesen(); }
+    if (emriFaqes === 'pritje' || emriFaqes === 'produktet') { kujNeEditim = null; $('kujtesaKerko').value = ''; kujSaShfaqen = pritjeSaShfaqen = KUJ_MAKS; rifreskoKujtesen(); }
     $('kategoriMenu').style.display = neMenu ? '' : 'none';
     Array.prototype.forEach.call(document.querySelectorAll('.opsione-faqe'), function (f) {
       f.classList.toggle('aktiv', f.getAttribute('data-faqe') === emriFaqes);
@@ -3149,8 +3149,21 @@
   $('furnKerko').addEventListener('input', function () { furnNeEditim = null; rifreskoFurnizuesit(); });
 
   // ---------- Produktet (Cilësimet → Stoku): kujtesa e produkteve në këtë pajisje (barkodi → emri, furnizuesi) ----------
-  var kujNeEditim = null, KUJ_MAKS = 100;
+  // v203: shfaqen 100 në fillim; butoni "Shfaq edhe …" në fund i shton 100 të tjera
+  var kujNeEditim = null, KUJ_MAKS = 100, kujSaShfaqen = KUJ_MAKS, pritjeSaShfaqen = KUJ_MAKS;
   function rifreskoKujtesen() {
+    var tr = document.querySelector('.opsione-trup'), y = tr ? tr.scrollTop : 0;
+    vizatoKujtesen();
+    if (tr) tr.scrollTop = y; // lista vizatohet sërish: pozicioni mbetet aty ku ishte
+  }
+  function butoniMeShume(shfaqur, gjithsej, kurKlikohet) {
+    var mbeten = gjithsej - shfaqur, n = Math.min(KUJ_MAKS, mbeten);
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'ops-me-shume';
+    b.textContent = 'Shfaq edhe ' + sasiaETekst(n, 'produkt', 'produkte') + (n < mbeten ? ' (mbeten ' + mbeten + ')' : '');
+    b.addEventListener('click', kurKlikohet);
+    return b;
+  }
+  function vizatoKujtesen() {
     var cont = $('kujtesaLista'); if (!cont) return;
     var admin = eshteAdminiIStokut();
     if (!admin) kujNeEditim = null;
@@ -3171,8 +3184,8 @@
       cont.appendChild(bosh);
       return;
     }
-    fil.slice(0, KUJ_MAKS).forEach(function (x) { cont.appendChild(x.barkodi === kujNeEditim ? rreshtIEditimitTeKujteses(x) : rreshtIKujteses(x, admin)); });
-    if (fil.length > KUJ_MAKS) { var m = document.createElement('div'); m.className = 'ops-furn-bosh'; m.textContent = 'Shfaqen ' + KUJ_MAKS + ' nga ' + fil.length + '. Kërko për të tjerat.'; cont.appendChild(m); }
+    fil.slice(0, kujSaShfaqen).forEach(function (x) { cont.appendChild(x.barkodi === kujNeEditim ? rreshtIEditimitTeKujteses(x) : rreshtIKujteses(x, admin)); });
+    if (fil.length > kujSaShfaqen) cont.appendChild(butoniMeShume(kujSaShfaqen, fil.length, function () { kujSaShfaqen += KUJ_MAKS; rifreskoKujtesen(); }));
   }
   function rifreskoPritjen(pritje, admin) {
     $('kujPritjeIntro').textContent = admin ? 'Produktet që i kanë shkruar kolegët. Kontrolloji emrat dhe ruaji: pastaj kalojnë te Produktet.'
@@ -3180,8 +3193,8 @@
     var cont = $('kujPritjeLista'); cont.textContent = '';
     if (!pritje.length) { var bosh = document.createElement('div'); bosh.className = 'ops-furn-bosh'; bosh.textContent = 'Asnjë produkt i ri për kontroll.'; cont.appendChild(bosh); return; }
     pritje.sort(function (a, b) { return b.koha - a.koha; }); // më të rejat lart
-    pritje.slice(0, KUJ_MAKS).forEach(function (x) { cont.appendChild(x.barkodi === kujNeEditim ? rreshtIEditimitTeKujteses(x) : rreshtIKujteses(x, admin)); });
-    if (pritje.length > KUJ_MAKS) { var m = document.createElement('div'); m.className = 'ops-furn-bosh'; m.textContent = 'Shfaqen ' + KUJ_MAKS + ' nga ' + pritje.length + '.'; cont.appendChild(m); }
+    pritje.slice(0, pritjeSaShfaqen).forEach(function (x) { cont.appendChild(x.barkodi === kujNeEditim ? rreshtIEditimitTeKujteses(x) : rreshtIKujteses(x, admin)); });
+    if (pritje.length > pritjeSaShfaqen) cont.appendChild(butoniMeShume(pritjeSaShfaqen, pritje.length, function () { pritjeSaShfaqen += KUJ_MAKS; rifreskoKujtesen(); }));
   }
   // Te menyja e Cilësimeve: administratori sheh sa produkte presin kontrollin, të tjerët renditjen
   function rifreskoStatusinEStokut() {
@@ -3240,7 +3253,7 @@
     w.appendChild(lbl); w.appendChild(ie); w.appendChild(ifu); w.appendChild(rr);
     return w;
   }
-  $('kujtesaKerko').addEventListener('input', function () { kujNeEditim = null; rifreskoKujtesen(); });
+  $('kujtesaKerko').addEventListener('input', function () { kujNeEditim = null; kujSaShfaqen = KUJ_MAKS; rifreskoKujtesen(); });
 
   // Karta e profilit në krye të Cilësimeve + avatari te Llogaria
   function shkronjaEPare(emri) { return (String(emri || '').trim().charAt(0) || '?').toUpperCase(); }
