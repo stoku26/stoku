@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 211, versioni: '1.19.4', data: '2026-10-10', titulli: 'Sugjerimet e furnitorit për të gjithë', pikat: [
+      'Te "Furnitori" (afat i ri, ndrysho afatin) secili përdorues, edhe jashtë grupit, i sheh si sugjerim furnizuesit që i ka kontrolluar administratori. Shkruaj disa shkronja dhe zgjidhe nga lista.',
+      'Njoftimet: secili i fshin njoftimet e veta, një nga një me ✕ ose krejt me "Fshiji të gjitha".'
+    ] },
     { v: 210, versioni: '1.19.3', data: '2026-10-10', titulli: 'Fletët nga telefoni, me tekst më të saktë', pikat: [
       'Kompjuter: "Ke 1 fletë nga telefoni që pret kontrollin" / "Ke 2 fleta … që presin kontrollin", edhe "1 rresht pret kontrollin" te fleta.',
       'Kur e mbyll një fletë stoku pa e ruajtur, të tregon që e gjen te "Përmbledhja" (fletët e afateve: te "Afatet e produkteve").'

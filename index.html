@@ -820,6 +820,9 @@
   .ek-nj.e-re { background: var(--hover); }
   .ek-nj-trup { flex: 1; min-width: 0; font-size: 14.5px; line-height: 1.4; }
   .ek-nj.e-re .ek-nj-trup { font-weight: 600; }
+  .ek-nj-fshi { flex: none; width: 32px; height: 32px; margin: -4px -2px 0 0; border: 0; border-radius: 9px; background: transparent; color: var(--sb-muted, #8a8f98); font-size: 15px; cursor: pointer; }
+  .ek-nj-fshi:active { background: var(--sb-exp-tint, rgba(194,58,51,.1)); color: var(--sb-exp, #c23a33); }
+  .ek-nj-fshi-krejt { color: var(--sb-exp, #c23a33) !important; }
   .ek-nj-koha { font-size: 12px; color: var(--gri); font-weight: 400; margin-top: 2px; }
   /* Afatet dhe Cilësimet janë tabe: faqja e tyre mbaron mbi shirit, dhe s'kanë shigjetë "prapa" (tabi Stoku i mbyll) */
   body.me-tabe #dlgAfatet, body.me-tabe #dlgOpsione, body.me-tabe #dlgEkipi { bottom: calc(var(--tabet-lartesia) + var(--sab)); }
@@ -1620,6 +1623,7 @@
     <div class="ek-nj-lista" id="ekNjLista"></div>
     <div class="veprime">
       <button class="btn tekst" id="ekNjLejo" type="button" hidden>Lejo njoftimet në telefon</button>
+      <button class="btn tekst ek-nj-fshi-krejt" id="ekNjFshiKrejt" type="button" hidden>Fshiji të gjitha</button>
       <button class="btn tekst" id="ekNjMbyll" type="button">Mbyll</button>
     </div>
   </div>
@@ -1878,9 +1882,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=207"></script>
-<script src="ekipa.js?v=198"></script>
+<script src="ekipa.js?v=211"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=210"></script>
+<script src="teRejat.js?v=211"></script>
 <script>
 (function () {
   'use strict';
@@ -3109,7 +3113,20 @@
       // vetë nga afatet e kolegëve (furnizuesit e tyre të rinj presin kontrollin)
       var l = window.StokuAfatet.listaEFurnizuesve(afatet, produktet, k.lista().filter(function (x) { return x.ngaAdmini; }), []);
       k.regjistroFurnizuesit(l.map(function (f) { return f.emri; }));
+      publikoFurnizuesitMeVonese();
     } catch (e) { /* ok */ }
+  }
+  // v211: administratori: lista e furnizuesve të ruajtur shkon te sugjerimet e krejt përdoruesve (vetëm kur ndryshon)
+  var __publikoFurnKohez = null;
+  function publikoFurnizuesitMeVonese() {
+    clearTimeout(__publikoFurnKohez);
+    __publikoFurnKohez = setTimeout(function () {
+      try {
+        var k = KJ();
+        if (!k || !eshteAdminiIStokut() || typeof ekK === 'undefined' || !ekK || !ekK.publikoFurnizuesit) return;
+        ekK.publikoFurnizuesit(k.furnizuesit().filter(function (f) { return !f.fshire; }).map(function (f) { return f.emri; }));
+      } catch (e) { /* ok */ }
+    }, 3000);
   }
   async function fshijFurnizuesin(f) {
     if (!eshteAdminiIStokut() || !KJ()) return;
@@ -7176,9 +7193,20 @@
     ekK.gj.njoftimetPalexuara.forEach(function (n) { palexuara[n.id] = true; });
     var te = await ekK.merrNjoftimet();
     lista.textContent = '';
+    $('ekNjFshiKrejt').hidden = !te.length;
+    ekNjTeShfaqura = te.map(function (n) { return n.id; });
     if (!te.length) lista.appendChild(ekBosh('S\'ka njoftime', 'Këtu të del kur një koleg e heq nga rafti një produkt tëndin që ka skaduar.'));
     te.forEach(function (n) {
       var r = ekEl('div', 'ek-nj' + (palexuara[n.id] ? ' e-re' : ''));
+      var fshi = ekEl('button', 'ek-nj-fshi', '✕'); fshi.type = 'button'; fshi.setAttribute('aria-label', 'Fshije njoftimin'); fshi.title = 'Fshije njoftimin';
+      fshi.addEventListener('click', async function () {
+        fshi.disabled = true;
+        var res = await ekK.fshijNjoftimet([n.id]);
+        if (!res || !res.ok) { fshi.disabled = false; toast('S\'u fshi. Kontrollo internetin dhe provo sërish.'); return; }
+        r.remove();
+        ekNjTeShfaqura = ekNjTeShfaqura.filter(function (id) { return id !== n.id; });
+        if (!ekNjTeShfaqura.length) { $('ekNjFshiKrejt').hidden = true; lista.appendChild(ekBosh('S\'ka njoftime', 'Këtu të del kur një koleg e heq nga rafti një produkt tëndin që ka skaduar.')); }
+      });
       r.appendChild(ekAvatar({ emri: n.emri }, false));
       var b = ekEl('div', 'ek-nj-trup', EKL.tekstiNjoftimit(n));
       b.appendChild(ekEl('div', 'ek-nj-koha', EKL.kohaRelative(n.koha)));
@@ -7193,10 +7221,21 @@
       if (n.lloji === 'kerkese-heqje') b.appendChild(ekButoniKerkeses(n));
       if (n.lloji === 'hequr' && n.afatId) b.appendChild(ekButonatEHeqjes(n, b.firstChild));
       r.appendChild(b);
+      r.appendChild(fshi);
       lista.appendChild(r);
     });
     ekK.shenoNjoftimetTeLexuara();
   }
+  var ekNjTeShfaqura = [];
+  $('ekNjFshiKrejt').addEventListener('click', async function () {
+    if (!ekK || !ekNjTeShfaqura.length) return;
+    var n = ekNjTeShfaqura.length;
+    if (!(await konfirmo('Të fshihen krejt njoftimet?', (n === 1 ? 'Njoftimi fshihet' : 'Të ' + n + ' njoftimet fshihen') + ' vetëm për ty.', 'Fshiji'))) return;
+    var res = await ekK.fshijNjoftimet(ekNjTeShfaqura.slice());
+    if (!res || !res.ok) { toast('S\'u fshinë. Kontrollo internetin dhe provo sërish.'); return; }
+    toast(n === 1 ? 'Njoftimi u fshi.' : 'U fshinë ' + n + ' njoftime.');
+    ekHapNjoftimet(); // mbushet sërish (nëse kishte më shumë se sa u shfaqën)
+  });
   // Heqja nga një koleg: pronari e pranon (hiqet te afatet e tij) ose e refuzon (mbetet në raft)
   function ekButonatEHeqjes(n, tekstiEl) {
     var w = ekEl('div', 'ek-nj-veprim');
@@ -7358,9 +7397,21 @@
   function mbushFurnizuesit() {
     var dl = $('afFurnizuesit');
     dl.textContent = '';
-    var pa = {};
-    afatet.forEach(function (a) { if (a.furnizuesi) pa[a.furnizuesi] = true; });
-    Object.keys(pa).sort().forEach(function (f) { var o = document.createElement('option'); o.value = f; dl.appendChild(o); });
+    furnizuesitPerSugjerim().forEach(function (f) { var o = document.createElement('option'); o.value = f; dl.appendChild(o); });
+    try { if (typeof ekK !== 'undefined' && ekK && ekK.lexoFurnizuesitPublike) ekK.lexoFurnizuesitPublike(); } catch (e) { /* ok */ }
+  }
+  // v211: sugjerimet e furnitorit për këdo: afatet e mia + furnizuesit e miratuar të grupit + lista e administratorit
+  // (e lexon çdo përdorues i kyçur, edhe jashtë grupit). Shfletuesi i filtron sipas shkronjave që shtyp.
+  function furnizuesitPerSugjerim() {
+    var m = {};
+    function shto(f) { f = String(f || '').replace(/\s+/g, ' ').trim(); var c = f.toLocaleLowerCase('sq'); if (f && !m[c]) m[c] = f; }
+    afatet.forEach(function (a) { shto(a.furnizuesi); });
+    try {
+      var k = KJ();
+      if (k) window.StokuAfatet.listaEFurnizuesve([], produktet, k.lista(), k.furnizuesit()).forEach(function (f) { if (!f.nePritje) shto(f.emri); });
+    } catch (e) { /* ok */ }
+    try { var pub = JSON.parse(localStorage.getItem('stoku:furnizuesit:publike') || '[]'); if (Array.isArray(pub)) pub.forEach(shto); } catch (e) { /* ok */ }
+    return Object.keys(m).map(function (c) { return m[c]; }).sort(function (a, b) { return a.localeCompare(b, 'sq'); });
   }
   function hapAfatin(id) {
     var a = null;
