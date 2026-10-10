@@ -18,6 +18,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 213, versioni: '1.21.0', data: '2026-10-10', platforma: 'pc', titulli: 'Anësorja e re me tri pllaka', pikat: [
+      'Sipër anësores janë tri pllaka: Stoku, Afatet dhe Grupi, secila me numrat e vet (produktet, të skaduarat, kolegët online).',
+      'Poshtë pllakave del vetëm menyja e pllakës së zgjedhur, pa listat e tjera.',
+      'Kur kthehesh te një pllakë, të çon aty ku ishe (p.sh. te folderi i fundit). Klikimi i dytë të çon te faqja e saj kryesore.'
+    ] },
     { v: 212, versioni: '1.20.0', data: '2026-10-10', titulli: 'Furnitori te produktet e stokut', pikat: [
       'Kur shton ose ndryshon një produkt te Stoku, mund ta shënosh edhe furnitorin. Është opsional: nëse s\'e shkruan, mbetet bosh.',
       'Importi nga Excel/CSV e lexon edhe kolonën e furnitorit (nëse ka). Eksporti në Excel ka kolonën "Furnizuesi", bosh kur s\'ka.',

@@ -50,6 +50,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PC: ANËSORJA ME TRI PLLAKA (v213 = 1.21.0)**: akordioni (Stoku/Afatet/Grupi me shigjeta) u zëvendësua me
+   `.sbp-pllakat`: tri butona `role="tab"` me id-të e vjetra `btnAkordStoku/Afatet/Ekipi` (ikonë, emër, `#pllStokuNen` = numri i
+   produkteve, `#pllAfatetNen` = "N skaduar" (kuqe) / "N afër" (verdhë) / numri i afateve, `#pllEkipiNen` = teksti i
+   `#ekNavOnline` ose "Pa grup"; shenjat `#stokTabFleta`, `#afPllFleta` (kopje e `#afTabFleta`), `#ekAkordShenja` në qoshe, pa ikonë).
+   Poshtë: `.sbp-moduli` (`#akordStokuTrupi`, `#akordAfatetTrupi`, `#akordEkipiTrupi`), vetëm ai i pamjes aktuale pa `hidden`
+   (`vendosPllakat()` nga `renderAnesoren`; `rifreskoPllakat()` edhe nga `renderAfatetAnesore` dhe `ekShenjat`). Klikimi: te pllaka
+   tjetër të çon te faqja e fundit e saj (Stoku: `faqjaEFunditEStokut`, folder/të gjitha/përmbledhja; Afatet: filtri i fundit;
+   Grupi: nënfaqja e fundit); te pllaka aktive: te faqja kryesore (Përmbledhja / "Afatet e produkteve" / Përmbledhja e grupit).
+   Rreshtat e menysë kanë sërish ikona (`.sbp-moduli .nav-rresht > svg`), "FOLDERAT" si titull i vogël. CSS-ja e akordionit u
+   hoq (pc.html + stoku-pc.css). Telefoni s'ndryshon. Testi: pllakat-test.js (zëvendëson anesorja-v117.js dhe akord-mbyll.js).
 0000000. **FURNITORI TE PRODUKTET E STOKUT + RENDITJA E RE (v212 = 1.20.0)**: produkti i stokut ka fushën opsionale
    `furnizuesi` (mungon kur s'ka; s'ruhet asnjëherë si varg bosh). Dialogu i produktit: PC `#prFurnizuesi` (datalist
    `afdFurnizuesit`), telefoni `#dlgFurnizuesi` (datalist `afFurnizuesit`, fshihet me `paEmer`); produkt i ri: nga kujtesa/afatet,

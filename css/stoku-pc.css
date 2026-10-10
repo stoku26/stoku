@@ -42,13 +42,25 @@
 .sbp .krye-kerko .tast { color: var(--sb-ink-4); }
 .sbp .kerko-rezultate { top: 44px; right: auto; width: min(560px, calc(100vw - 40px)); z-index: 40; border: 0; box-shadow: 0 0 0 1px var(--sb-line), 0 24px 60px -20px rgba(0,0,0,.35); border-radius: 14px; }
 
-.sbp .akordion-krye { border-top: 0; margin-top: 14px; padding: 0 2px 4px 10px; gap: 4px; }
-.sbp .akordion-emri { padding: 4px 0; font-family: var(--sb-mono); font-size: 10.5px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--sb-muted); border-radius: 6px; }
-.sbp .akordion-emri:hover { background: transparent; color: var(--sb-ink-3); }
-.sbp .akordion-ikona { display: none; }
-.sbp .akordion-titulli { gap: 8px; }
-.sbp .akordion-shigjeta-btn { width: 24px; height: 24px; border: 0; border-radius: 6px; background: transparent; color: var(--sb-faint); }
-.sbp .akordion-shigjeta-btn:hover { background: var(--sb-surface); border-color: transparent; color: var(--sb-ink-3); }
+/* v213: tri pllaka (Stoku, Afatet, Grupi) në vend të akordionit; poshtë tyre vetëm menyja e pllakës aktive */
+.sbp .sbp-pllakat { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 6px 0 10px; }
+.sbp .sbp-pllake { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; padding: 10px 4px 9px; border: 0; border-radius: 12px; background: var(--sb-surface); box-shadow: var(--sb-ring); color: var(--sb-muted); font-family: inherit; cursor: pointer; transition: background .12s, box-shadow .12s, color .12s; }
+.sbp .sbp-pllake:hover { background: var(--sb-surface-2); color: var(--sb-ink-3); }
+.sbp .sbp-pllake:focus-visible { outline: 2px solid var(--sb-accent); outline-offset: 1px; }
+.sbp .sbp-pllake b { font-size: 12.5px; font-weight: 700; color: var(--sb-ink); }
+.sbp .sbp-pllake small { max-width: 100%; min-height: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--sb-mono); font-size: 10.5px; color: var(--sb-muted); }
+.sbp .sbp-pllake small.kuqe { color: var(--sb-exp); }
+.sbp .sbp-pllake small.verdhe { color: var(--sb-near); }
+.sbp .sbp-pllake.aktiv { background: var(--sb-accent-tint); box-shadow: 0 0 0 1px var(--sb-accent-line); color: var(--sb-accent-text); }
+.sbp .sbp-pllake .af-cip { position: absolute; top: 5px; right: 5px; height: 18px; min-width: 18px; padding: 0 5px; font-size: 10.5px; }
+.sbp .sbp-pllake .af-cip svg { display: none; } /* te pllaka vetëm numri */
+@media (max-width: 1180px) { .sbp .sbp-pllakat { gap: 4px; } .sbp .sbp-pllake { padding: 9px 2px 8px; } .sbp .sbp-pllake small { font-size: 9.5px; } }
+.sbp .sbp-moduli[hidden] { display: none !important; }
+.sbp .sbp-moduli .nav-rresht { padding-left: 10px; }
+.sbp .sbp-moduli .nav-rresht > svg { display: block; flex: none; width: 16px; height: 16px; color: var(--sb-faint); }
+.sbp .sbp-moduli .nav-rresht.aktiv > svg { color: var(--sb-accent-text); }
+.sbp .sbp-moduli .nav-rresht .af-cip.kuqe { color: var(--sb-exp); font-weight: 600; }
+.sbp .sbp-moduli .nav-rresht .af-cip.verdhe { color: var(--sb-near); font-weight: 600; }
 .sbp .nav { padding: 2px 0; }
 .sbp .nav-rresht, .sbp .folder-rresht { height: 34px; border-radius: 9px; padding: 0 10px 0 26px; gap: 8px; font-size: 14px; color: var(--sb-ink-nav); }
 .sbp .nav-rresht > svg { display: none; }
@@ -58,22 +70,15 @@
 .sbp .numer-cip, .sbp .aktiv .numer-cip { font-family: var(--sb-mono); font-size: 11px; font-weight: 400; color: var(--sb-muted); }
 .sbp .nav-rresht .af-cip.kuqe, .sbp .nav-rresht .af-cip.verdhe { background: transparent; color: var(--sb-muted); font-family: var(--sb-mono); font-size: 11px; font-weight: 400; min-width: 0; padding: 0; }
 .sbp .af-cip.fleta { background: var(--sb-accent); }
-/* Pikat me ngjyrë para disa rreshtave (si në dizajn) */
-.sbp #navAfSkaduara::before, .sbp #navAfAfer::before, .sbp #navEkChat::before {
-  content: ''; position: absolute; left: 11px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%;
-}
-.sbp #navAfSkaduara::before { background: var(--sb-exp); }
-.sbp #navAfAfer::before { background: var(--sb-near); }
-.sbp #navEkChat::before { background: var(--sb-accent); }
-.sbp .seksion-titull { height: 34px; padding: 0 4px 0 26px; margin: 0; gap: 8px; font-size: 14px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--sb-ink-nav); }
+.sbp .seksion-titull { height: 30px; padding: 8px 4px 0 10px; margin: 0; gap: 8px; font-family: var(--sb-mono); font-size: 10.5px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--sb-faint); }
 .sbp .seksion-titull span:first-child { flex: 1; }
 .sbp .seksion-titull button { width: 24px; height: 24px; border-radius: 6px; font-size: 17px; color: var(--sb-accent-text); }
 .sbp .seksion-titull button:hover { background: var(--sb-surface); }
 .sbp .folderat { padding: 0 0 6px; flex: none; overflow: visible; }
-.sbp .folderat .folder-rresht { padding-left: 38px; height: 32px; font-size: 13.5px; }
-.sbp .folder-rresht .kap { position: absolute; left: 12px; margin: 0; }
+.sbp .folderat .folder-rresht { padding-left: 10px; height: 34px; font-size: 13.5px; }
+.sbp .folder-rresht .kap { position: absolute; left: -12px; margin: 0; }
 .sbp .sbp-dot { width: 8px; height: 8px; border-radius: 2px; flex: none; }
-.sbp .folderat .bosh-mesazh { padding: 6px 10px 6px 38px !important; font-size: 12.5px; }
+.sbp .folderat .bosh-mesazh { padding: 6px 10px !important; font-size: 12.5px; }
 
 .sbp .anesore-fund { border-top: 1px solid var(--sb-sidebar-line); padding: 10px 0 0; gap: 2px; margin: 0; }
 .sbp .anesore-fund > button { padding: 7px 10px; font-size: 14px; color: var(--sb-ink-nav); border-radius: 9px; }
