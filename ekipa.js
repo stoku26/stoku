@@ -1012,6 +1012,31 @@
           await b.commit();
           return { ok: true };
         } catch (e) { return gabim(e); }
+      },
+      // v211: secili i fshin njoftimet e veta (rregullat e lejojnë fshirjen për pronarin e listës)
+      fshijNjoftimet: async function (ids) {
+        if (!uid() || !ids || !ids.length) return { ok: true };
+        try {
+          var b = fs.writeBatch(db);
+          ids.slice(0, 400).forEach(function (id) { b.delete(fs.doc(db, 'perdoruesit', uid(), 'njoftimet', id)); });
+          await b.commit();
+          return { ok: true };
+        } catch (e) { return gabim(e); }
+      },
+
+      // ---------- v211: furnizuesit e administratorit si sugjerim për krejt përdoruesit (edhe jashtë grupit) ----------
+      // publike/furnizuesit → { lista: [emrat], ndryshuarSe }; e lexon kushdo i kyçur, e shkruan vetëm administratori
+      lexoFurnizuesitPublike: async function () {
+        if (!uid()) return { ok: false, lista: [] };
+        try {
+          var s = await fs.getDoc(fs.doc(db, 'publike', 'furnizuesit'));
+          var l = s.exists() ? s.data().lista : [];
+          return { ok: true, lista: Array.isArray(l) ? l.filter(function (x) { return typeof x === 'string'; }) : [] };
+        } catch (e) { var g = gabim(e); g.lista = []; return g; }
+      },
+      ruajFurnizuesitPublike: async function (lista) {
+        if (!uid()) return { ok: false };
+        try { await fs.setDoc(fs.doc(db, 'publike', 'furnizuesit'), { lista: lista, ndryshuarSe: Date.now() }); return { ok: true }; } catch (e) { return gabim(e); }
       }
     };
   }
@@ -1735,6 +1760,7 @@
       ndalGjithmone(true);
       if (!e || !o.uidIm()) return;
       ngarkoAnetaresine();
+      lexoFurnizuesitPublike(true); // v211: sugjerimet e furnitorit (edhe pa grup)
       e.nisPranine();
       if (e.dergoRadhen) e.dergoRadhen(); // aktiviteti/chat-i/njoftimet që mbetën pa u dërguar herën e kaluar
       if (e.degjoGrupin) {
@@ -2094,6 +2120,40 @@
     }
     // Kërkesat për heqje që s'janë kryer ende mbeten "të palexuara" (shenja te zilja) derisa të shtypet "E hoqa"
     function ePritur(n) { return (n.lloji === 'kerkese-heqje' && !kryeresiIKerkeses(n)) || (n.lloji === 'hequr' && !n.vendim); }
+    // v211: fshirja e njoftimeve të mia
+    async function fshijNjoftimet(ids) {
+      var e = E();
+      if (!e || !e.fshijNjoftimet || !ids || !ids.length) return { ok: false };
+      var r = await e.fshijNjoftimet(ids);
+      if (r && r.ok) {
+        var h = {}; ids.forEach(function (id) { h[id] = true; });
+        gj.njoftimetPalexuara = gj.njoftimetPalexuara.filter(function (n) { return !h[n.id]; });
+        thirr('njoftimet');
+      }
+      return r;
+    }
+    // v211: furnizuesit e administratorit (sugjerime për këdo). Ruhen në pajisje; lexohen sërish më së shumti çdo 30 min.
+    var KEY_FURN_PUBLIKE = 'stoku:furnizuesit:publike', KEY_FURN_PUBLIKUAR = 'stoku:furnizuesit:publikuar', furnPublikeLexuarSe = 0;
+    async function lexoFurnizuesitPublike(detyro) {
+      var e = E();
+      if (!e || !e.lexoFurnizuesitPublike || !o.uidIm()) return;
+      if (!detyro && Date.now() - furnPublikeLexuarSe < 30 * 60000) return;
+      furnPublikeLexuarSe = Date.now();
+      var r = await e.lexoFurnizuesitPublike();
+      if (r && r.ok) { try { localStorage.setItem(KEY_FURN_PUBLIKE, JSON.stringify(r.lista.slice(0, 3000))); } catch (x) { /* ok */ } }
+    }
+    // Vetëm administratori: lista e furnizuesve të tij të ruajtur; shkruhet vetëm kur ndryshon
+    async function publikoFurnizuesit(lista) {
+      var e = E();
+      if (!e || !e.ruajFurnizuesitPublike || !o.uidIm() || !Array.isArray(lista)) return { ok: false };
+      var l = lista.slice(0, 3000).sort(function (a, b) { return a.localeCompare(b, 'sq'); }), nen = JSON.stringify(l);
+      var ishte = null;
+      try { ishte = localStorage.getItem(KEY_FURN_PUBLIKUAR); } catch (x) { /* ok */ }
+      if (ishte === nen) return { ok: true };
+      var r = await e.ruajFurnizuesitPublike(l);
+      if (r && r.ok) { try { localStorage.setItem(KEY_FURN_PUBLIKUAR, nen); localStorage.setItem(KEY_FURN_PUBLIKE, nen); } catch (x) { /* ok */ } }
+      return r;
+    }
     async function shenoNjoftimetTeLexuara() {
       var e = E();
       var ids = gj.njoftimetPalexuara.filter(function (n) { return !ePritur(n); }).map(function (n) { return n.id; });
@@ -2113,7 +2173,8 @@
       publikoAfatet: publikoAfatet,
       hapChatin: hapChatin, mbyllChatin: mbyllChatin, kaChatTePalexuar: kaChatTePalexuar, shenoChatinTeLexuar: shenoChatinTeLexuar,
       dergoMesazh: dergoMesazh, fshijMesazhin: fshijMesazhin,
-      merrNjoftimet: merrNjoftimet, shenoNjoftimetTeLexuara: shenoNjoftimetTeLexuara,
+      merrNjoftimet: merrNjoftimet, shenoNjoftimetTeLexuara: shenoNjoftimetTeLexuara, fshijNjoftimet: fshijNjoftimet,
+      lexoFurnizuesitPublike: lexoFurnizuesitPublike, publikoFurnizuesit: publikoFurnizuesit,
       numriNjoftimeve: function () { return gj.njoftimetPalexuara.filter(function (n) { return !(n.lloji === 'kerkese-heqje' && kryeresiIKerkeses(n)); }).length; },
       kaLidhje: function () { return !!E() && !!o.uidIm(); },
       // A janë marrë anëtarët dhe afatet e tyre (për "Krejt grupi")

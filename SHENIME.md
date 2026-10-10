@@ -50,6 +50,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **FURNIZUESIT SI SUGJERIM PËR KREJT + FSHIRJA E NJOFTIMEVE (v211 = 1.19.4)**: `furnizuesitPerSugjerim()` (tel + PC)
+   bashkon pa dublikata (pa dallim shkronjash) afatet e veta, furnizuesit e miratuar të kujtesës (grupi) dhe listën publike të
+   administratorit `publike/furnizuesit` (cache `stoku:furnizuesit:publike`, lexohet në hyrje dhe më së shumti çdo 30 min). Kjo
+   mbush datalist-at e "Furnitori"; shfletuesi i filtron sipas shkronjave. Administratori e publikon listën (`publikoFurnizuesit`,
+   3 s pas `ruajFurnizuesitEMiratuar`, vetëm kur ndryshon). KËRKON RREGULLAT E REJA (blloku `match /publike/furnizuesit` më
+   poshtë); pa to leximi dështon në heshtje dhe mbeten vetëm afatet e veta + grupi. Njoftimet: ✕ për rresht dhe "Fshiji të
+   gjitha" (`ekK.fshijNjoftimet(ids)`, batch delete te `perdoruesit/{uid}/njoftimet`; rregullat ekzistuese e lejojnë). Testi:
+   furn-sugjerim-test.js.
 0000000. **PC: TEKSTET E FLETËVE NGA TELEFONI (v210 = 1.19.3)**: njoftimi në hapje "Ke 1 fletë … që pret kontrollin" /
    "Ke N fleta … që presin kontrollin"; rreshti i fletës "1 rresht pret kontrollin" / "N rreshta presin kontrollin"; pas "Anulo"
    te një fletë stoku: "E gjen te "Përmbledhja"" (jo "Afatet e produkteve"). Testet: fleta-numri-test.js, fleta-pritje-test.js.
@@ -1258,6 +1266,13 @@ service cloud.firestore {
         && request.resource.data.get('grupiEmri', '') is string && request.resource.data.get('grupiEmri', '').size() <= 60;
       allow delete: if request.auth != null
         && (resource.data.perdoruesi == emriIm() || pronarIGrupit(resource.data.gid) || eshteAdmin());
+    }
+    // v211: furnizuesit e administratorit, si sugjerim për krejt përdoruesit (edhe jashtë grupit)
+    match /publike/furnizuesit {
+      allow read: if request.auth != null;
+      allow create, update: if eshteAdmin()
+        && request.resource.data.keys().hasOnly(['lista', 'ndryshuarSe'])
+        && request.resource.data.lista is list && request.resource.data.lista.size() <= 3000;
     }
   }
 }
