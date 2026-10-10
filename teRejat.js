@@ -18,6 +18,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 198, versioni: '1.17.1', data: '2026-10-09', titulli: 'Produktet i rregullon administratori', pikat: [
+      'Cilësimet → Stoku e sheh vetëm administratori. Produktet e reja që shkruajnë kolegët ruhen aty me emrin e tyre, që t\'i rregullojë.',
+      'Kur skanon një produkt, del emri dhe furnitori siç i ka ruajtur administratori. Mund t\'i ndryshosh për afatin tënd, por produkti mbetet siç e ka bërë ai.',
+      'Produktet e mësuara s\'fshihen kur del nga grupi: mbeten si kujtesë.'
+    ] },
     { v: 197, versioni: '1.17.0', data: '2026-10-09', titulli: 'Produktet e përbashkëta për krejt grupin', pikat: [
       'Produktet që Stoku i mban mend (emri dhe furnitori sipas barkodit) tash janë të përbashkëta për krejt kolegët e grupit: kur dikush e plotëson një produkt, e njohin të gjithë, në telefon, aplikacionin Android dhe kompjuter.',
       'Ndryshimet te Cilësimet → Stoku → Produktet (ndrysho ose harroje) vlejnë për krejt grupin. Pa grup, produktet mbeten vetëm në pajisjen tënde.'
