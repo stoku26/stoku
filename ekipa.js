@@ -1201,10 +1201,11 @@
     (foldera || []).forEach(function (f) { emriF[f.id] = f.emri; });
     var rreshtat = (produktet || []).slice().sort(function (a, b) {
       return String(emriF[a.kategoriaId] || '').localeCompare(String(emriF[b.kategoriaId] || ''), 'sq') || String(a.emri || '').localeCompare(String(b.emri || ''), 'sq');
-    }).map(function (p) { return [p.barkodi, p.emri || '', emriF[p.kategoriaId] || 'Pa folder', p.sasia | 0, p.prekurSe || '']; });
+    }).map(function (p) { return [p.barkodi, p.emri || '', emriF[p.kategoriaId] || 'Pa folder', p.sasia | 0, p.furnizuesi || '', p.prekurSe || '']; });
     return [{ name: String(emriAnetarit || 'Stoku').slice(0, 28), totalLabel: 'Gjithsej', totalColumns: [3], redZeroColumn: 3, rows: rreshtat, columns: [
       { title: 'Barkodi', width: 20, type: 'text' }, { title: 'Emri i produktit', width: 44, type: 'text' },
-      { title: 'Folderi', width: 20, type: 'text' }, { title: 'Sasia', width: 10, type: 'number' }, { title: 'Ndryshuar më', width: 18, type: 'date' }] }];
+      { title: 'Folderi', width: 20, type: 'text' }, { title: 'Sasia', width: 10, type: 'number' },
+      { title: 'Furnizuesi', width: 22, type: 'text' }, { title: 'Ndryshuar më', width: 18, type: 'date' }] }]; // v212: Furnizuesi
   }
 
   var RENDI_STATUSIT = { skaduar: 4, 'pa-date': 3, afer: 2, ok: 1, hequr: 0 };

@@ -1126,6 +1126,9 @@
     <div class="fushe" id="fushaEmri">
       <input id="dlgEmri" type="text" autocomplete="off" autocorrect="off" enterkeyhint="next" aria-label="Emri">
     </div>
+    <div class="fushe" id="fushaFurnizuesi">
+      <input id="dlgFurnizuesi" type="text" list="afFurnizuesit" autocomplete="off" autocorrect="off" enterkeyhint="next" maxlength="80" aria-label="Furnitori">
+    </div>
     <div class="fushe">
       <div class="sasia-hap">
         <button type="button" class="hap-btn" id="dlgSasiaMinus" aria-label="-1">−</button>
@@ -1878,13 +1881,13 @@
 
 <div id="toast"></div>
 
-<script src="xlsx.js?v=113"></script>
+<script src="xlsx.js?v=212"></script>
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=207"></script>
-<script src="ekipa.js?v=211"></script>
+<script src="afatet.js?v=212"></script>
+<script src="ekipa.js?v=212"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=211"></script>
+<script src="teRejat.js?v=212"></script>
 <script>
 (function () {
   'use strict';
@@ -1939,6 +1942,7 @@
       barkodiEtiketa: function (a) { return 'Barkodi: ' + a.barkodi; },
       emriEtiketa: function (a) { return 'Emri: ' + a.emri; },
       emriIProduktit: 'Emri',
+      furnitoriOpsional: 'Furnitori (opsionale)',
       sasia: 'Sasia',
       sasiaPerTuShtuar: 'Sasia',
       zhvendosNeFolder: 'Zhvendos në folder tjetër ›',
@@ -2086,6 +2090,7 @@
     { id: 'btnFshiTeGjitha', prop: 'text', kyc: 'fshijTeGjitha' },
 
     { id: 'dlgEmri', prop: 'placeholder', kyc: 'emriIProduktit' },
+    { id: 'dlgFurnizuesi', prop: 'placeholder', kyc: 'furnitoriOpsional' },
     { id: 'dlgFshij', prop: 'text', kyc: 'fshij' },
     { id: 'dlgAnulo', prop: 'text', kyc: 'anulo' },
     { id: 'dlgRuaj', prop: 'text', kyc: 'ruaj' },
@@ -2576,7 +2581,8 @@
 
     var te = Object.keys(produktet).map(function (celesi) { return produktet[celesi]; });
     var fil = te.filter(function (p) {
-      return (p.emri && p.emri.toLowerCase().indexOf(k) !== -1) || (p.barkodi && p.barkodi.toLowerCase().indexOf(k) !== -1);
+      return (p.emri && p.emri.toLowerCase().indexOf(k) !== -1) || (p.barkodi && p.barkodi.toLowerCase().indexOf(k) !== -1) ||
+        (p.furnizuesi && String(p.furnizuesi).toLowerCase().indexOf(k) !== -1);
     });
     fil.sort(krahaso);
 
@@ -2602,7 +2608,7 @@
       if (!p.emri) emri.className = 'emri bosh';
       var kodi = document.createElement('div');
       kodi.className = 'kodi';
-      kodi.textContent = p.barkodi;
+      kodi.textContent = p.barkodi + (p.furnizuesi ? ' · ' + p.furnizuesi : ''); // v212: furnitori (nëse është shënuar)
       majtas.appendChild(emri);
       majtas.appendChild(kodi);
       // Djathtas: etiketa e folderit ku ndodhet produkti + sasia
@@ -3083,8 +3089,9 @@
     if (admin) ruajFurnizuesitEMiratuar();
     var AFL = window.StokuAfatet, kj = KJ();
     var teGjithe = AFL.listaEFurnizuesve(afatet, produktet, kj ? kj.lista() : [], kj ? kj.furnizuesit() : []);
-    var pritje = teGjithe.filter(function (f) { return f.nePritje; });
-    var lista = teGjithe.filter(function (f) { return !f.nePritje; });
+    // v212: të ruajturit nga administratori në krye, më i riu i pari
+    var pritje = AFL.renditSipasRuajtjes(teGjithe.filter(function (f) { return f.nePritje; }));
+    var lista = AFL.renditSipasRuajtjes(teGjithe.filter(function (f) { return !f.nePritje; }));
     var cp = $('furnPritjeLista'); cp.textContent = '';
     if (!pritje.length) { var bp = document.createElement('div'); bp.className = 'ops-furn-bosh'; bp.textContent = 'Asnjë furnizues i ri për kontroll.'; cp.appendChild(bp); }
     pritje.forEach(function (f) { cp.appendChild(f.emri === furnNeEditim ? rreshtIEditimitTeFurnizuesit(f, teGjithe) : rreshtIFurnizuesit(f, admin)); });
@@ -3239,7 +3246,7 @@
       : 'Emri dhe furnitori që Stoku i mban mend për çdo barkod; plotësohen vetë kur skanon. Këto i ndryshon vetëm administratori.';
     var k = KJ(), teGjitha = k ? k.lista() : [];
     // v201: produktet e shkruara nga kolegët presin te "Produktet e reja" derisa t'i kontrollojë dhe ruajë administratori
-    var lista = teGjitha.filter(function (x) { return !x.nePritje; });
+    var lista = window.StokuAfatet.renditSipasRuajtjes(teGjitha.filter(function (x) { return !x.nePritje; })); // v212: të ruajturat e fundit në krye
     rifreskoPritjen(teGjitha.filter(function (x) { return x.nePritje; }), admin);
     rifreskoStatusinEStokut();
     var q = ($('kujtesaKerko').value || '').trim().toLocaleLowerCase('sq');
@@ -4248,7 +4255,8 @@
     var fil = te;
     if (k) {
       fil = te.filter(function (p) {
-        return String(p.emri || '').toLowerCase().indexOf(k) !== -1 || String(p.barkodi || '').toLowerCase().indexOf(k) !== -1;
+        return String(p.emri || '').toLowerCase().indexOf(k) !== -1 || String(p.barkodi || '').toLowerCase().indexOf(k) !== -1 ||
+          String(p.furnizuesi || '').toLowerCase().indexOf(k) !== -1;
       });
     }
 
@@ -4274,7 +4282,7 @@
       if (!p.emri) emri.className = 'emri bosh';
       var kodi = document.createElement('div');
       kodi.className = 'kodi';
-      kodi.textContent = p.barkodi;
+      kodi.textContent = p.barkodi + (p.furnizuesi ? ' · ' + p.furnizuesi : ''); // v212: furnitori (nëse është shënuar)
       majtas.appendChild(emri);
       majtas.appendChild(kodi);
       rreshti.appendChild(majtas);
@@ -4371,6 +4379,10 @@
     $('dlgKodi').textContent = T('barkodiEtiketa', { barkodi: barkodi }) + ((paEmer && e && e.emri) ? '\n' + T('emriEtiketa', { emri: e.emri }) : '');
     $('fushaEmri').style.display = paEmer ? 'none' : '';
     $('dlgEmri').value = e ? e.emri : emriNgaProduktet(barkodi); // produkt i ri: emri nga kujtesa (nëse njihet)
+    // v212: furnitori, opsional; produkt i ri: nga kujtesa ose afatet (nëse njihet), përndryshe bosh
+    $('fushaFurnizuesi').style.display = paEmer ? 'none' : '';
+    $('dlgFurnizuesi').value = e ? (e.furnizuesi || '') : furnizuesiNgaAfatet(barkodi);
+    if (!paEmer) mbushFurnizuesit();
     $('dlgSasia').value = '';
     $('dlgSasia').placeholder = e ? T('sasiaPerTuShtuar') : T('sasia');
     $('dlgFshij').style.display = e ? '' : 'none';
@@ -4403,9 +4415,12 @@
     if (opsione.paEmer && !emri && e) emri = e.emri || '';
     var total = Math.max(0, (e ? e.sasia : 0) + sasia); // stoku s'mund të jetë negativ
     // Object.assign: fushat e tjera të produktit (p.sh. furnizuesi nga importi) s'humbin kur ndryshon sasia
-    produktet[celesiProduktit(folderiAktual, dialogu.barkodi)] =
-      Object.assign({}, e || {}, { barkodi: dialogu.barkodi, emri: emri, sasia: total, kategoriaId: folderiAktual, prekurSe: Date.now() });
-    if (!opsione.paEmer) mesoNgaPerdoruesi(dialogu.barkodi, emri, '');
+    var ri = Object.assign({}, e || {}, { barkodi: dialogu.barkodi, emri: emri, sasia: total, kategoriaId: folderiAktual, prekurSe: Date.now() });
+    // v212: furnitori (opsional): i shkruar → ruhet; fusha e zbrazur te një produkt ekzistues → hiqet
+    var furn = opsione.paEmer ? null : $('dlgFurnizuesi').value.replace(/\s+/g, ' ').trim().slice(0, 80);
+    if (furn) ri.furnizuesi = furn; else if (furn === '') delete ri.furnizuesi;
+    produktet[celesiProduktit(folderiAktual, dialogu.barkodi)] = ri;
+    if (!opsione.paEmer) mesoNgaPerdoruesi(dialogu.barkodi, emri, furn || '');
     ruajBaze();
     mbyllDialogun();
     renderLista();
@@ -4477,6 +4492,8 @@
       barkodi: barkodi, emri: emriPerRuajtje, sasia: total,
       kategoriaId: destinacioni.id, prekurSe: Date.now()
     };
+    var furnPerRuajtje = (ekzistuesNeDestinacion && ekzistuesNeDestinacion.furnizuesi) || produkti.furnizuesi; // v212
+    if (furnPerRuajtje) produktet[celesiRi].furnizuesi = furnPerRuajtje;
     ruajBaze();
 
     mbyllZhvendosin();
@@ -4498,6 +4515,9 @@
   $('dlgAnulo').addEventListener('click', mbyllDialogun);
   $('dlgFshij').addEventListener('click', fshijProduktin);
   $('dlgEmri').addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') { ev.preventDefault(); $('dlgFurnizuesi').focus(); }
+  });
+  $('dlgFurnizuesi').addEventListener('keydown', function (ev) {
     if (ev.key === 'Enter') { ev.preventDefault(); $('dlgSasia').focus(); }
   });
   $('dlgSasia').addEventListener('keydown', function (ev) {
@@ -5537,6 +5557,16 @@
     return k;
   }
   function mesoNgaPerdoruesi(barkodi, emri, furnizuesi) { try { if (barkodi && KJ()) KJ().meso(barkodi, emri, furnizuesi); } catch (e) { /* ok */ } }
+  // v212: furnizuesi i ri që e shkruan administratori (edhe te një afat pa barkod) ruhet me kohën e tanishme, që të dalë
+  // në krye te Cilësimet → Stoku → Furnizuesit. Vetëm kur ndryshon te afati: një afat i vjetër s'e kthen një furnizues të fshirë.
+  function regjistroFurnizuesinEAdminit(f) {
+    try {
+      var k = KJ(); if (!k || !f || !k.regjistroFurnizuesit || !eshteAdminiIStokut()) return;
+      var v = f.toLocaleLowerCase('sq');
+      if (k.furnizuesit().some(function (x) { return !x.fshire && x.emri.toLocaleLowerCase('sq') === v; })) return;
+      k.regjistroFurnizuesit([f], true);
+    } catch (e) { /* ok */ }
+  }
   // Në sfond (pa mbishkruar): nga afatet (më të rejat të parat), stoku dhe afatet e kolegëve të grupit
   var __kujtesaKohez = null;
   function planifikoMesimin() {
@@ -7464,7 +7494,9 @@
     if (sasiaTx && sasia === '') { toast('Sasia duhet të jetë numër i plotë (p.sh. 12).'); $('afatSasia').focus(); return; }
     if (!b && !emri) { toast('Shkruaj barkodin ose emrin e produktit.'); $('afatBarkodi').focus(); return; }
     if (!data) { toast('Shkruaj datën e skadimit, p.sh. 31-12-26.'); $('afatData').focus(); return; }
+    var furnPara = afatNeDialog ? (afatNeDialog.furnizuesi || '') : '';
     mesoNgaPerdoruesi(b, emri, f); // herën tjetër ky barkod plotëson vetë emrin dhe furnizuesin
+    if (f && f !== furnPara) regjistroFurnizuesinEAdminit(f); // v212
     var tani = Date.now();
     if (afatNeDialog) {
       perditesoAfatin(afatNeDialog, { barkodi: b, emri: emri, data: data, sasia: sasia, furnizuesi: f });

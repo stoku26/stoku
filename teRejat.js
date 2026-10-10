@@ -18,6 +18,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 212, versioni: '1.20.0', data: '2026-10-10', titulli: 'Furnitori te produktet e stokut', pikat: [
+      'Kur shton ose ndryshon një produkt te Stoku, mund ta shënosh edhe furnitorin. Është opsional: nëse s\'e shkruan, mbetet bosh.',
+      'Importi nga Excel/CSV e lexon edhe kolonën e furnitorit (nëse ka). Eksporti në Excel ka kolonën "Furnizuesi", bosh kur s\'ka.',
+      'Furnitori shihet te lista e produkteve dhe mund ta kërkosh.',
+      'Cilësimet → Stoku: furnizuesit dhe produktet që i ruan administratori dalin në krye, më i riu i pari.'
+    ] },
     { v: 211, versioni: '1.19.4', data: '2026-10-10', titulli: 'Sugjerimet e furnitorit për të gjithë', pikat: [
       'Te "Furnitori" (afat i ri, ndrysho afatin) secili përdorues, edhe jashtë grupit, i sheh si sugjerim furnizuesit që i ka kontrolluar administratori. Shkruaj disa shkronja dhe zgjidhe nga lista.',
       'Njoftimet: secili i fshin njoftimet e veta, një nga një me ✕ ose krejt me "Fshiji të gjitha".'

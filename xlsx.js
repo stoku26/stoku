@@ -156,9 +156,10 @@
       '</Relationships>';
 
     var rows = [];
-    rows.push('<row>' + tekst('Barkodi') + tekst('Emri i produktit') + tekst('Sasia') + '</row>');
+    // v212: kolona "Furnizuesi" (bosh kur produkti s'ka furnitor të shënuar)
+    rows.push('<row>' + tekst('Barkodi') + tekst('Emri i produktit') + tekst('Sasia') + tekst('Furnizuesi') + '</row>');
     produktet.forEach(function (p) {
-      rows.push('<row>' + tekst(p.barkodi) + tekst(p.emri) + '<c><v>' + (p.sasia | 0) + '</v></c></row>');
+      rows.push('<row>' + tekst(p.barkodi) + tekst(p.emri) + '<c><v>' + (p.sasia | 0) + '</v></c>' + tekst(p.furnizuesi || '') + '</row>');
     });
 
     var sheet = xmlKok +
@@ -167,6 +168,7 @@
       '<col min="1" max="1" width="22" customWidth="1"/>' +
       '<col min="2" max="2" width="40" customWidth="1"/>' +
       '<col min="3" max="3" width="10" customWidth="1"/>' +
+      '<col min="4" max="4" width="22" customWidth="1"/>' +
       '</cols><sheetData>' + rows.join('') + '</sheetData></worksheet>';
 
     return zip([
