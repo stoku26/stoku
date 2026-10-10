@@ -4515,8 +4515,8 @@
     if (!admin) furnNeEditim = null;
     $('opsFurnHint').textContent = admin ? 'Furnizuesit e krejt grupit. Ndrysho emrin e një furnizuesi: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një.'
       : 'Furnizuesit e krejt grupit dhe të afateve të tua. Emrat i ndryshon vetëm administratori.';
-    $('opsFurnPritjeHint').textContent = admin ? 'Furnizuesit që i kanë shkruar kolegët te produktet e reja. Ruaje ashtu siç është ose ndrysho emrin (ndryshon te krejt produktet e tij), pastaj kalon te Furnizuesit.'
-      : 'Furnizuesit e rinj nga kolegët. I kontrollon administratori, pastaj kalojnë te Furnizuesit.';
+    $('opsFurnPritjeHint').textContent = admin ? 'Furnizuesit e rinj, të kolegëve dhe ata që i shton ti. Ruaje ashtu siç është ose ndrysho emrin (ndryshon te krejt produktet e tij), pastaj kalon te Furnizuesit. Fshirja e produkteve s\'e fshin furnizuesin.'
+      : 'Furnizuesit e rinj. I kontrollon administratori, pastaj kalojnë te Furnizuesit.';
     // v205: edhe furnizuesit e produkteve të grupit (kujtesa); ata që dalin vetëm te produktet e reja të kolegëve presin këtu
     if (admin) ruajFurnizuesitEMiratuar();
     var kj = KJ(), teGjithe = AF.listaEFurnizuesve(afatet, produktet, kj ? kj.lista() : [], kj ? kj.furnizuesit() : []);
@@ -4560,7 +4560,8 @@
     rr.appendChild(v);
     return rr;
   }
-  // v207: administratori: furnizuesit e miratuar ruhen më vete, që të mos fshihen kur fshihen produktet e tyre
+  // v207: administratori: furnizuesit ruhen më vete, që të mos fshihen kur fshihen produktet e tyre. v214: këtu (në sfond)
+  // ruhen vetëm emrat krejt të panjohur, dhe presin kontrollin; të kontrolluarit dhe të fshirët s'preken.
   function ruajFurnizuesitEMiratuar() {
     try {
       var k = KJ(); if (!k || !k.regjistroFurnizuesit || !eshteAdminiIStokut()) return;
@@ -4579,7 +4580,7 @@
       try {
         var k = KJ();
         if (!k || !eshteAdminiIStokut() || typeof ekK === 'undefined' || !ekK || !ekK.publikoFurnizuesit) return;
-        ekK.publikoFurnizuesit(k.furnizuesit().filter(function (f) { return !f.fshire; }).map(function (f) { return f.emri; }));
+        ekK.publikoFurnizuesit(k.furnizuesit().filter(function (f) { return !f.fshire && !f.nePritje; }).map(function (f) { return f.emri; }));
       } catch (e) { /* ok */ }
     }, 3000);
   }
@@ -4705,8 +4706,8 @@
   function rifreskoPritjen(pritje, admin) {
     $('opsKujPritjeSeksion').hidden = !pritje.length;
     $('opsKujPritjeNumri').textContent = pritje.length ? num(pritje.length) : '';
-    $('opsKujPritjeHint').textContent = admin ? 'Produktet që i kanë shkruar kolegët. Kontrolloji emrat dhe ruaji: pastaj kalojnë te Produktet.'
-      : 'Produktet që i kanë shkruar kolegët. I kontrollon administratori, pastaj kalojnë te Produktet.';
+    $('opsKujPritjeHint').textContent = admin ? 'Produktet e reja, të kolegëve dhe ato që i shton ti. Kontrolloji emrat dhe ruaji: pastaj kalojnë te Produktet.'
+      : 'Produktet e reja. I kontrollon administratori, pastaj kalojnë te Produktet.';
     var cont = $('opsKujPritjeLista'); cont.textContent = '';
     pritje.sort(function (a, b) { return b.koha - a.koha; }); // më të rejat lart
     pritje.slice(0, pritjeSaShfaqen).forEach(function (x) {
@@ -5002,15 +5003,11 @@
     return k;
   }
   function mesoNgaPerdoruesi(barkodi, emri, furnizuesi) { try { if (barkodi && KJ()) KJ().meso(barkodi, emri, furnizuesi); } catch (e) { /* ok */ } }
-  // v212: furnizuesi i ri që e shkruan administratori (edhe te një afat pa barkod) ruhet me kohën e tanishme, që të dalë
-  // në krye te Cilësimet → Stoku → Furnizuesit. Vetëm kur ndryshon te afati: një afat i vjetër s'e kthen një furnizues të fshirë.
-  function regjistroFurnizuesinEAdminit(f) {
-    try {
-      var k = KJ(); if (!k || !f || !k.regjistroFurnizuesit || !eshteAdminiIStokut()) return;
-      var v = f.toLocaleLowerCase('sq');
-      if (k.furnizuesit().some(function (x) { return !x.fshire && x.emri.toLocaleLowerCase('sq') === v; })) return;
-      k.regjistroFurnizuesit([f], true);
-    } catch (e) { /* ok */ }
+  // v214: furnizuesi i ri që e shkruan kushdo (edhe te një afat pa barkod) ruhet më vete dhe pret kontrollin te
+  // Cilësimet → Stoku → Furnizuesit e rinj; s'zhduket kur fshihen produktet e tij. Vetëm kur ndryshon te afati: një afat i
+  // vjetër s'e kthen një furnizues të fshirë.
+  function regjistroFurnizuesinERi(f) {
+    try { var k = KJ(); if (k && f && k.regjistroFurnizuesinERi) k.regjistroFurnizuesinERi(f); } catch (e) { /* ok */ }
   }
   // Në sfond (pa mbishkruar): nga afatet (më të rejat të parat), stoku dhe afatet e kolegëve të grupit
   var __kujtesaKohez = null;
@@ -6451,7 +6448,7 @@
     if (!data) { $('afdGabim').textContent = 'Shkruaj datën e skadimit, p.sh. 31-12-26.'; $('afdData').focus(); return; }
     var afPara = afdId ? afatet.filter(function (a) { return a.id === afdId; })[0] : null;
     mesoNgaPerdoruesi(b, emri, f); // herën tjetër ky barkod plotëson vetë emrin dhe furnizuesin
-    if (f && f !== ((afPara && afPara.furnizuesi) || '')) regjistroFurnizuesinEAdminit(f); // v212
+    if (f && f !== ((afPara && afPara.furnizuesi) || '')) regjistroFurnizuesinERi(f); // v212, v214: për këdo
     var tani = Date.now();
     var reg = ndryshoAfatet(function (api) {
       var a = (afdId && api.merr(afdId)) || { id: afdId || AF.idERe(), statusi: 'aktiv', krijuarSe: tani, krijuarNga: emriPerdoruesit() };

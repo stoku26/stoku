@@ -513,6 +513,8 @@
       if (!x || !x.emri) return;
       if (x.fshire) { fshire[String(x.emri).toLocaleLowerCase('sq')] = true; return; }
       var r = rec(x.emri); if (!r) return;
+      // v214: furnizuesi i ruajtur më vete që pret kontrollin (i ri, i kolegut ose i administratorit)
+      if (x.nePritje) { r.regPritje = true; if (x.nga) r.nga[x.nga] = 1; r.kohaP = Math.max(r.kohaP, Number(x.koha) || 0); return; }
       r.regjistruar = true; r.vetemPritje = false;
       if (x.koha > 1) r.kohaR = Math.max(r.kohaR, x.koha); // koha 1 = ruajtur vetë në sfond (s'ka kohë ruajtjeje)
     });
@@ -524,15 +526,17 @@
       r.b[x.barkodi] = 1;
       if (!x.nePritje) r.vetemPritje = false; else { if (x.nga) r.nga[x.nga] = 1; r.kohaP = Math.max(r.kohaP, Number(x.koha) || 0); }
     });
+    // v214: gjendja e hyrjes më vete vendos (e kontrolluar ose në pritje); pa të, si më parë sipas burimeve
+    Object.keys(m).forEach(function (k) { var r = m[k]; r.pritje = r.regjistruar ? false : r.regPritje ? true : r.vetemPritje; });
     return Object.keys(m).filter(function (k) {
       var r = m[k];
-      // i fshirë (me çdo shkrim): vetëm nëse ruhet sërish ose një koleg e shkruan sërish (pret kontrollin)
-      return !fshire[k.toLocaleLowerCase('sq')] || r.regjistruar || (r.vetemPritje && Object.keys(r.nga).length);
+      // i fshirë (me çdo shkrim): vetëm nëse ruhet sërish ose dikush e shkruan sërish (pret kontrollin)
+      return !fshire[k.toLocaleLowerCase('sq')] || r.regjistruar || r.regPritje || (r.vetemPritje && Object.keys(r.nga).length);
     }).map(function (k) {
       var r = m[k];
-      // koha (v212): kur e ruajti administratori (në pritje: kur e shkroi kolegu); 0 = e panjohur
-      return { emri: r.emri, afate: r.afate, produkte: Object.keys(r.b).length, nePritje: r.vetemPritje, nga: r.vetemPritje ? Object.keys(r.nga) : [], regjistruar: r.regjistruar,
-        koha: r.vetemPritje ? r.kohaP : r.kohaR };
+      // koha (v212): kur e ruajti administratori (në pritje: kur u shkrua); 0 = e panjohur
+      return { emri: r.emri, afate: r.afate, produkte: Object.keys(r.b).length, nePritje: r.pritje, nga: r.pritje ? Object.keys(r.nga) : [], regjistruar: r.regjistruar,
+        koha: r.pritje ? r.kohaP : r.kohaR };
     }).sort(function (a, b) { return a.emri.localeCompare(b.emri, 'sq', { sensitivity: 'base' }) || a.emri.localeCompare(b.emri); });
   }
   // v212: Cilësimet → Stoku (Furnizuesit, Produktet): ato që i ka ruajtur administratori dalin në krye, më i riu i pari;
@@ -659,9 +663,11 @@
   // v206: "Harroje" e administratorit (x + s) ka të njëjtën peshë si ruajtja e tij: fiton më e reja, ndryshe produkti
   // i harruar kthehej nga grupi (versioni i vjetër i administratorit mundte shënimin "i harruar")
   function klasaEHyrjes(x) { if (!x) return -1; if (x.x) return x.s ? 2 : 1; if (x.s) return 2; return x.a && !x.m ? 0 : 1; }
-  // A duhet që hyrja r (p.sh. nga grupi) ta zëvendësojë hyrjen l (këtu)?
-  function hyrjaFiton(r, l) {
+  // A duhet që hyrja r (p.sh. nga grupi) ta zëvendësojë hyrjen l (këtu)? b = çelësi (v214: për furnizuesit, kur njëra është
+  // e fshirë e tjetra në pritje, fiton më e reja: furnizuesi i fshirë del sërish për kontroll kur dikush e shkruan sërish)
+  function hyrjaFiton(r, l, b) {
     if (!l) return true;
+    if (eshteCelesFurnizuesi(b) && ((r.x && eshteNePritje(l)) || (l.x && eshteNePritje(r)))) return (Number(r.k) || 0) > (Number(l.k) || 0);
     var cr = klasaEHyrjes(r), cl = klasaEHyrjes(l);
     if (cr !== cl) return cr > cl;
     return (Number(r.k) || 0) > (Number(l.k) || 0);
@@ -676,12 +682,14 @@
     var r = { e: e, f: f, k: k };
     if (x.m) r.m = 1; else if (x.a) r.a = 1;
     if (x.s) r.s = 1;
+    if (x.s && x.r) r.r = 1;
     var n = pastroTekstin(typeof x.n === 'string' ? x.n : '', 40);
     if (n) r.n = n;
     return r;
   }
-  // Produkt i shkruar nga një koleg (ka autor, s'është i administratorit): pret kontrollin e administratorit (v201)
-  function eshteNePritje(x) { return !!(x && !x.x && !x.s && x.n); }
+  // Produkt (ose furnizues) që pret kontrollin e administratorit: i shkruar nga një koleg (ka autor, s'është i administratorit,
+  // v201), ose i shtuar nga vetë administratori gjatë punës (r = "rishiko", v214) derisa ta ruajë te Cilësimet → Stoku
+  function eshteNePritje(x) { return !!(x && !x.x && (x.s ? x.r : x.n)); }
   // v207: furnizuesit që administratori i ka kontrolluar ruhen më vete në kujtesë ("furnizuesi " + emri; me hapësirë, që
   // të mos përzihen me barkodet dhe versionet e vjetra t'i injorojnë). S'fshihen kur fshihen produktet e tyre; vetëm me dorë.
   var FURN_PARA = 'furnizuesi ';
@@ -710,14 +718,60 @@
     function celesatEFurnizuesit(h, v) {
       return Object.keys(h).filter(function (c) { return eshteCelesFurnizuesi(c) && !h[c].x && c.slice(FURN_PARA.length).toLocaleLowerCase('sq') === v; });
     }
+    // detyro: administratori e ruan me dorë (Ruaj, riemërtim): i kontrolluar, edhe mbi një të fshirë ose në pritje.
+    // Pa detyro (në sfond, koha 1): vetëm emrat krejt të panjohur (asnjë hyrje, as e fshirë); v214: presin kontrollin.
     function regjistro(h, emri, tani, detyro, ndr) {
       if (!autori.admin) return;
       emri = pastroTekstin(emri, 80);
       var c = celesIFurnizuesit(emri); if (!c) return;
-      var x = h[c];
-      if (x && (x.x ? !detyro : x.e === emri)) return;
-      h[c] = { e: emri, f: '', k: tani || Date.now(), s: 1 };
+      var x = h[c], ri;
+      if (detyro) {
+        if (x && !x.x && x.s && !x.r && x.e === emri) return; // i kontrolluar tashmë
+        ri = { e: emri, f: '', k: tani || Date.now(), s: 1 };
+      } else {
+        var v = emri.toLocaleLowerCase('sq');
+        if (Object.keys(h).some(function (k2) { return eshteCelesFurnizuesi(k2) && k2.slice(FURN_PARA.length).toLocaleLowerCase('sq') === v; })) return;
+        ri = { e: emri, f: '', k: tani || 1, s: 1, r: 1 };
+        if (autori.emri) ri.n = autori.emri;
+      }
+      h[c] = ri;
       if (ndr) ndr.push(c);
+    }
+    // v214: furnizuesi i ri që e shkruan dikush gjatë punës (produkt, afat): ruhet më vete që të mos zhduket kur fshihen
+    // produktet e tij, dhe pret kontrollin (i kolegut: me autorin; i administratorit: me r). Nëse njihet tashmë (i kontrolluar
+    // ose në pritje, pa dallim shkronjash) s'preket; një i fshirë del sërish në pritje (fiton sepse është më i ri).
+    function regjistroIRi(h, emri, tani, ndr) {
+      emri = pastroTekstin(emri, 80);
+      var c = celesIFurnizuesit(emri); if (!c) return;
+      if (celesatEFurnizuesit(h, emri.toLocaleLowerCase('sq')).length) return;
+      if (!autori.admin && !autori.emri) return; // pa autor s'mund të presë kontrollin
+      var ri = { e: emri, f: '', k: tani || Date.now() };
+      if (autori.admin) { ri.s = 1; ri.r = 1; }
+      if (autori.emri) ri.n = autori.emri;
+      h[c] = ri;
+      if (ndr) ndr.push(c);
+    }
+    // v214: produktet në pritje me një furnizues që s'ka hyrjen e vet (të dhëna nga versionet e vjetra, ose një pajisje që
+    // s'e ka ruajtur ende): krijohet hyrja e furnizuesit në pritje (me autorin e produktit), që të mos zhduket me produktin.
+    // S'krijohet kur furnizuesi është fshirë pas produktit.
+    function siguroFurnizuesitNePritje(h) {
+      var ndr = [], fshire = {};
+      Object.keys(h).forEach(function (c) {
+        if (!eshteCelesFurnizuesi(c) || !h[c].x) return;
+        var v = c.slice(FURN_PARA.length).toLocaleLowerCase('sq');
+        fshire[v] = Math.max(fshire[v] || 0, Number(h[c].k) || 0);
+      });
+      Object.keys(h).forEach(function (b) {
+        var x = h[b];
+        if (eshteCelesFurnizuesi(b) || !eshteNePritje(x) || !x.f) return;
+        var v = x.f.toLocaleLowerCase('sq'), c = celesIFurnizuesit(x.f);
+        if (!c || celesatEFurnizuesit(h, v).length) return;
+        if (fshire[v] && fshire[v] >= (Number(x.k) || 0)) return;
+        h[c] = x.s ? { e: x.f, f: '', k: Number(x.k) || 1, s: 1, r: 1, n: x.n || '' } : { e: x.f, f: '', k: Number(x.k) || 1, n: x.n };
+        if (!h[c].n) delete h[c].n;
+        ndr.push(c);
+      });
+      return ndr;
     }
     // menyra 'mbishkruaj' (ruajtje nga përdoruesi: fushat jo-bosh zëvendësojnë) | 'plotëso' (në sfond: vetëm hyrje të reja
     // ose plotësim i atyre automatike; hyrjet e përdoruesit, me dorë ose të harruara s'preken)
@@ -734,13 +788,13 @@
         if (x && x.s && !autori.admin) return false; // e administratorit (edhe e harruar prej tij): të tjerët s'e mbishkruajnë
         ri = { e: emri || (vjeter && vjeter.e) || '', f: furn || (vjeter && vjeter.f) || '', k: tani || Date.now() };
         if (vjeter && vjeter.m) ri.m = 1;
-        if (autori.admin) ri.s = 1;
+        if (autori.admin) { ri.s = 1; ri.r = 1; } // v214: edhe ajo që shton administratori pret kontrollin e tij
         if (vjeter && !vjeter.a && !!vjeter.s === !!ri.s && ri.e === vjeter.e && ri.f === vjeter.f) return false;
         // Autori ruhet vetëm kur dikush e shkruan produktin për herë të parë ose e ndryshon (v201: produktet e kolegëve
         // presin kontrollin e administratorit); i njëjti emër e furnizues s'e kalon një produkt të njohur në pritje
         if (autori.emri && (autori.admin || !vjeter || ri.e !== vjeter.e || ri.f !== vjeter.f)) ri.n = autori.emri;
         else if (vjeter && vjeter.n) ri.n = vjeter.n;
-        if (ri.f) regjistro(h, ri.f, ri.k, true, ndr); // furnizuesi që shkruan administratori ruhet më vete
+        if (ri.f) regjistroIRi(h, ri.f, ri.k, ndr); // v214: furnizuesi i ri ruhet më vete (në pritje), nga kushdo
       }
       h[b] = ri;
       return b;
@@ -772,7 +826,7 @@
         if (!ri.x && autori.emri) ri.n = autori.emri;
         h[b] = ri;
         var ndr = [b];
-        if (ri.f) regjistro(h, ri.f, ri.k, true, ndr);
+        if (ri.f) regjistroIRi(h, ri.f, ri.k, ndr); // v214: një furnizues i ri pret kontrollin edhe kur shkruhet këtu
         shkruaj(); njofto(ndr);
         return true;
       },
@@ -803,10 +857,19 @@
         if (ndr.length) { shkruaj(); njofto(ndr); }
         return nProdukte;
       },
-      // Furnizuesit e ruajtur më vete: [{ emri, fshire, koha }]
+      // Furnizuesit e ruajtur më vete: [{ emri, fshire, koha, nePritje, nga }]
       furnizuesit: function () {
         var h = lexo();
-        return Object.keys(h).filter(eshteCelesFurnizuesi).map(function (c) { return { emri: h[c].e || c.slice(FURN_PARA.length), fshire: !!h[c].x, koha: h[c].k || 0 }; });
+        return Object.keys(h).filter(eshteCelesFurnizuesi).map(function (c) {
+          return { emri: h[c].e || c.slice(FURN_PARA.length), fshire: !!h[c].x, koha: h[c].k || 0, nePritje: eshteNePritje(h[c]), nga: h[c].n || '' };
+        });
+      },
+      // v214: furnizues i ri i shkruar gjatë punës (p.sh. te një afat pa barkod): ruhet më vete dhe pret kontrollin
+      regjistroFurnizuesinERi: function (emri) {
+        var h = lexo(), ndr = [];
+        regjistroIRi(h, emri, 0, ndr);
+        if (ndr.length) { shkruaj(); njofto(ndr); }
+        return ndr.length;
       },
       // Administratori: ruaj këta furnizues (të kontrolluar). Pa detyro s'prek ata që janë fshirë me dorë.
       regjistroFurnizuesit: function (emrat, detyro) {
@@ -853,9 +916,11 @@
         Object.keys(remote).forEach(function (b) {
           if (!celesIVlefshem(b)) return;
           var r = hyrjaEPastruar(remote[b]);
-          if (r && hyrjaFiton(r, h[b])) { h[b] = r; n++; }
+          if (r && hyrjaFiton(r, h[b], b)) { h[b] = r; n++; }
         });
-        if (n) shkruaj();
+        var ndr = siguroFurnizuesitNePritje(h); // v214: këto shkojnë edhe te grupi
+        if (n || ndr.length) shkruaj();
+        if (ndr.length) njofto(ndr);
         return n;
       },
       // Barkodet ku kjo pajisje ka diçka më të mirë se grupi (p.sh. hera e parë në grup, ose ndryshime pa internet)
@@ -864,7 +929,7 @@
         return Object.keys(h).filter(function (b) {
           if (!celesIVlefshem(b)) return false;
           var r = hyrjaEPastruar(remote[b]);
-          return !r || hyrjaFiton(h[b], r);
+          return !r || hyrjaFiton(h[b], r, b);
         });
       },
       // Hyrjet e plota për grupin (me krejt fushat, që bashkimi i Firebase-it të mos lërë mbetje nga hyrja e vjetër)
@@ -873,7 +938,8 @@
         (barkodet || []).forEach(function (b) {
           var x = h[b];
           if (!x || !celesIVlefshem(b)) return;
-          o[b] = x.x ? { e: '', f: '', k: x.k || 0, a: 0, m: 0, s: x.s ? 1 : 0, n: '', x: 1 } : { e: x.e || '', f: x.f || '', k: x.k || 0, a: x.a ? 1 : 0, m: x.m ? 1 : 0, s: x.s ? 1 : 0, n: x.n || '', x: 0 };
+          o[b] = x.x ? { e: '', f: '', k: x.k || 0, a: 0, m: 0, s: x.s ? 1 : 0, n: '', x: 1, r: 0 }
+            : { e: x.e || '', f: x.f || '', k: x.k || 0, a: x.a ? 1 : 0, m: x.m ? 1 : 0, s: x.s ? 1 : 0, n: x.n || '', x: 0, r: x.s && x.r ? 1 : 0 };
         });
         return o;
       },
