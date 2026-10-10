@@ -906,7 +906,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku-pc.css?v=25">
+<link rel="stylesheet" href="css/stoku-pc.css?v=26">
 </head>
 <body>
 <script src="porta.js?v=196"></script>
@@ -1033,6 +1033,7 @@
         <button class="sink-status" id="sinkStatus" type="button" title="Sinkronizo tani">
           <span class="pike" id="sinkPika"></span><span class="sink-tekst" id="sinkTekst">Vetëm në këtë kompjuter</span>
         </button>
+        <button class="sbp-dil fsheh" id="sbpDil" type="button" aria-label="Dil nga llogaria" data-tip="Dil nga llogaria"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path></svg></button>
       </div>
     </div>
   </aside>
@@ -1912,7 +1913,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=201"></script>
 <script src="ekipa.js?v=198"></script>
-<script src="teRejat.js?v=203"></script>
+<script src="teRejat.js?v=204"></script>
 <script>
 (function () {
   'use strict';
@@ -4319,6 +4320,7 @@
     else if (cl && cl.authGati) $('sbpBrandNen').textContent = 'Stoku dhe afatet';
     $('sbpAvatar').textContent = u ? String(emri || '?').charAt(0).toUpperCase() : '';
     $('sbpAvatar').classList.toggle('bosh', !u);
+    $('sbpDil').classList.toggle('fsheh', !u);
     $('llTitulli').textContent = u ? 'Llogaria' : 'Hyr në llogari';
     $('llJashte').classList.toggle('fsheh', !!u);
     $('llFundJashte').classList.toggle('fsheh', !!u);
@@ -4401,6 +4403,7 @@
   }
   $('llDil').addEventListener('click', dil);
   $('opsDil').addEventListener('click', dil);
+  $('sbpDil').addEventListener('click', dil); // v204: butoni i daljes te karta e llogarisë në anësore
   $('opsRikthe').addEventListener('click', async function () {
     if (!perdoruesi()) return;
     var rez = await window.__stokuCloud.merr();
