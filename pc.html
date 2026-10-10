@@ -906,7 +906,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku-pc.css?v=26">
+<link rel="stylesheet" href="css/stoku-pc.css?v=27">
 </head>
 <body>
 <script src="porta.js?v=196"></script>
@@ -1802,6 +1802,19 @@
               <option value="barkodi:1">Barkodi</option>
             </select>
           </div>
+          <div class="ops-karta ops-furn-karta mbyllur" id="opsFurnPritjeSeksion" hidden>
+            <div class="ops-furn-krye">
+              <span class="ops-ik ops-ik--madh ngj-vjollce"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17h4V5H2v12h3"></path><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"></path><circle cx="7.5" cy="17.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg></span>
+              <div class="ops-rresht__tekst">
+                <div class="ops-titull">Furnizuesit e rinj<span class="ops-numri ops-numri--pritje" id="opsFurnPritjeNumri"></span></div>
+                <p class="ops-hint" id="opsFurnPritjeHint"></p>
+              </div>
+              <button class="ops-palos" type="button" aria-expanded="false" aria-controls="opsFurnPritjeTrup" data-emri="furnizuesve të rinj" aria-label="Hap listën e furnizuesve të rinj"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+            </div>
+            <div class="ops-furn-trup" id="opsFurnPritjeTrup">
+              <div class="ops-furn-lista" id="opsFurnPritjeLista"></div>
+            </div>
+          </div>
           <div class="ops-karta ops-furn-karta mbyllur" id="opsFurnSeksion">
             <div class="ops-furn-krye">
               <span class="ops-ik ops-ik--madh ngj-portokalli"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17h4V5H2v12h3"></path><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"></path><circle cx="7.5" cy="17.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg></span>
@@ -1911,9 +1924,9 @@
 <script src="xlsx.js?v=113"></script>
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=201"></script>
+<script src="afatet.js?v=205"></script>
 <script src="ekipa.js?v=198"></script>
-<script src="teRejat.js?v=204"></script>
+<script src="teRejat.js?v=205"></script>
 <script>
 (function () {
   'use strict';
@@ -4474,37 +4487,47 @@
   function eshteAdminiIStokut() { return !!perdoruesi() && emriPerdoruesit() === ADMIN_I_STOKUT; }
   function sasiaETekst(n, nje, shume) { return num(n) + ' ' + (n === 1 ? nje : shume); }
   function nenTekstiFurnizuesit(f) {
-    return [f.afate ? sasiaETekst(f.afate, 'afat', 'afate') : '', f.produkte ? sasiaETekst(f.produkte, 'produkt', 'produkte') : ''].filter(Boolean).join(' · ');
+    return [f.afate ? sasiaETekst(f.afate, 'afat', 'afate') : '', f.produkte ? sasiaETekst(f.produkte, 'produkt', 'produkte') : '',
+      f.nePritje && f.nga && f.nga.length ? 'nga ' + f.nga.join(', ') : ''].filter(Boolean).join(' · ');
   }
   function rifreskoFurnizuesit() {
     var admin = eshteAdminiIStokut();
     if (!admin) furnNeEditim = null;
-    $('opsFurnHint').textContent = admin ? 'Ndrysho emrin e një furnizuesi: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një.'
-      : 'Furnizuesit e afateve dhe produkteve të tua. Emrat i ndryshon vetëm administratori.';
-    var lista = AF.listaEFurnizuesve(afatet, produktet);
+    $('opsFurnHint').textContent = admin ? 'Furnizuesit e krejt grupit. Ndrysho emrin e një furnizuesi: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një.'
+      : 'Furnizuesit e krejt grupit dhe të afateve të tua. Emrat i ndryshon vetëm administratori.';
+    $('opsFurnPritjeHint').textContent = admin ? 'Furnizuesit që dalin vetëm te produktet e reja të kolegëve. Ndrysho emrin nëse është shkruar gabim (ndryshon te krejt produktet e tyre). Kalojnë te Furnizuesit kur i ruan produktet te Produktet e reja.'
+      : 'Furnizuesit e rinj nga kolegët. I kontrollon administratori, pastaj kalojnë te Furnizuesit.';
+    // v205: edhe furnizuesit e produkteve të grupit (kujtesa); ata që dalin vetëm te produktet e reja të kolegëve presin këtu
+    var kj = KJ(), teGjithe = AF.listaEFurnizuesve(afatet, produktet, kj ? kj.lista() : []);
+    var pritje = teGjithe.filter(function (f) { return f.nePritje; });
+    var lista = teGjithe.filter(function (f) { return !f.nePritje; });
+    $('opsFurnPritjeSeksion').hidden = !pritje.length;
+    $('opsFurnPritjeNumri').textContent = pritje.length ? num(pritje.length) : '';
+    var cp = $('opsFurnPritjeLista'); cp.textContent = '';
+    pritje.forEach(function (f) { cp.appendChild(f.emri === furnNeEditim ? rreshtIEditimitTeFurnizuesit(f, teGjithe) : rreshtIFurnizuesit(f, admin)); });
     $('opsFurnNumri').textContent = lista.length ? num(lista.length) : '';
     var k = ($('opsFurnKerko').value || '').trim().toLocaleLowerCase('sq');
     var cont = $('opsFurnLista');
     cont.textContent = '';
     var fil = lista.filter(function (f) { return !k || f.emri.toLocaleLowerCase('sq').indexOf(k) !== -1; });
     if (!fil.length) { cont.appendChild(el('div', 'ops-furn-bosh', lista.length ? 'Asnjë furnizues me këtë emër.' : 'Ende s\'ka furnizues. Shfaqen këtu kur shton afate me furnizues.')); return; }
-    fil.forEach(function (f) {
-      if (f.emri === furnNeEditim) { cont.appendChild(rreshtIEditimitTeFurnizuesit(f, lista)); return; }
-      var rr = el('div', 'ops-furn-rresht');
-      rr.appendChild(el('span', 'ops-furn-shkronja', (f.emri.charAt(0) || '?').toUpperCase()));
-      var t = el('div', 'ops-furn-tekst');
-      t.appendChild(el('div', 'ops-furn-emri', f.emri));
-      t.appendChild(el('div', 'ops-furn-nen', nenTekstiFurnizuesit(f)));
-      rr.appendChild(t);
-      cont.appendChild(rr);
-      if (!admin) return; // vetëm për t'u parë
-      var b = el('button', 'btn dyte vogel', 'Ndrysho emrin'); b.type = 'button';
-      b.addEventListener('click', function () {
-        furnNeEditim = f.emri; rifreskoFurnizuesit();
-        var inp = document.querySelector('#opsFurnLista .ops-furn-edit input'); if (inp) { inp.focus(); inp.select(); }
-      });
-      rr.appendChild(b);
+    fil.forEach(function (f) { cont.appendChild(f.emri === furnNeEditim ? rreshtIEditimitTeFurnizuesit(f, teGjithe) : rreshtIFurnizuesit(f, admin)); });
+  }
+  function rreshtIFurnizuesit(f, admin) {
+    var rr = el('div', 'ops-furn-rresht');
+    rr.appendChild(el('span', 'ops-furn-shkronja', (f.emri.charAt(0) || '?').toUpperCase()));
+    var t = el('div', 'ops-furn-tekst');
+    t.appendChild(el('div', 'ops-furn-emri', f.emri));
+    t.appendChild(el('div', 'ops-furn-nen', nenTekstiFurnizuesit(f)));
+    rr.appendChild(t);
+    if (!admin) return rr; // vetëm për t'u parë
+    var b = el('button', 'btn dyte vogel', 'Ndrysho emrin'); b.type = 'button';
+    b.addEventListener('click', function () {
+      furnNeEditim = f.emri; rifreskoFurnizuesit();
+      var inp = document.querySelector('#opsFurnPritjeLista .ops-furn-edit input, #opsFurnLista .ops-furn-edit input'); if (inp) { inp.focus(); inp.select(); }
     });
+    rr.appendChild(b);
+    return rr;
   }
   function rreshtIEditimitTeFurnizuesit(f, lista) {
     var w = el('div', 'ops-furn-rresht ops-furn-edit');
@@ -4547,11 +4570,14 @@
     }
     afatet = rez.afatet;
     produktet = rez.produktet;
-    try { if (KJ()) { KJ().riemertoFurnizuesin(f.emri, emriRi); if (ekz && ekz !== emriRi) KJ().riemertoFurnizuesin(ekz, emriRi); } } catch (e) { /* ok */ }
+    var nKuj = 0;
+    try { if (KJ()) { nKuj = KJ().riemertoFurnizuesin(f.emri, emriRi); if (ekz && ekz !== emriRi) nKuj += KJ().riemertoFurnizuesin(ekz, emriRi); } } catch (e) { /* ok */ }
     ruaj();
     furnNeEditim = null;
     rifreskoFurnizuesit();
-    toast('"' + f.emri + '" u bë "' + emriRi + '" (' + [rez.nAfate ? sasiaETekst(rez.nAfate, 'afat', 'afate') : '', rez.nProdukte ? sasiaETekst(rez.nProdukte, 'produkt', 'produkte') : ''].filter(Boolean).join(', ') + ').');
+    if (nKuj && kujNeEditim === null) rifreskoKujtesen(); // produktet tregojnë furnizuesin: s'mbeten me emrin e vjetër
+    var nP = Math.max(rez.nProdukte, nKuj), det = [rez.nAfate ? sasiaETekst(rez.nAfate, 'afat', 'afate') : '', nP ? sasiaETekst(nP, 'produkt', 'produkte') : ''].filter(Boolean).join(', ');
+    toast('"' + f.emri + '" u bë "' + emriRi + '"' + (det ? ' (' + det + ')' : '') + '.');
   }
   $('opsFurnKerko').addEventListener('input', function () { furnNeEditim = null; rifreskoFurnizuesit(); });
 
@@ -4633,7 +4659,8 @@
       var ok = el('button', 'btn vogel', 'Ruaj'); ok.type = 'button'; ok.title = 'Emri është në rregull: kaloje te Produktet';
       ok.addEventListener('click', function () {
         if (!eshteAdminiIStokut() || !KJ()) return;
-        KJ().vendos(x.barkodi, x.emri, x.furnizuesi);
+        var tani = KJ().merr(x.barkodi) || x; // gjendja e tanishme (p.sh. furnizuesi mund të jetë riemërtuar ndërkohë)
+        KJ().vendos(x.barkodi, tani.emri, tani.furnizuesi);
         rifreskoKujtesen(); toast('"' + (x.emri || x.barkodi) + '" kaloi te Produktet.');
       });
       var v = el('div', 'ops-furn-veprime'); v.appendChild(b); v.appendChild(ok);
@@ -5059,6 +5086,7 @@
   function ekKurNdryshon(cfare) {
     if (cfare === 'kujtesa') { // produktet e grupit u ndryshuan (nga një koleg): vetëm lista te Cilësimet → Stoku, nëse është hapur
       if (kujNeEditim === null && $('opsKujSeksion').offsetParent) rifreskoKujtesen(); else rifreskoNenStokut();
+      if (furnNeEditim === null && $('opsFurnSeksion').offsetParent) rifreskoFurnizuesit();
       return;
     }
     ekShenjat();

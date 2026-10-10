@@ -498,17 +498,27 @@
 
   // ---------- Furnizuesit (Cilësimet → Stoku, vetëm për administratorin) ----------
   // Lista e furnizuesve me sa afate (dhe produkte) i kanë: [{ emri, afate, produkte }], renditur sipas alfabetit.
-  function listaEFurnizuesve(afatet, produktet) {
+  // kujtesa (opsionale): K.lista() e grupit, që furnizuesit e kolegëve të dalin te të gjithë (v205). produkte = barkode të
+  // ndryshme (stoku + kujtesa). nePritje: furnizuesi del vetëm te produktet e reja të kolegëve (pret kontrollin), nga = kush.
+  function listaEFurnizuesve(afatet, produktet, kujtesa) {
     var m = {};
-    function shto(emri, fusha) {
+    function rec(emri) {
       emri = String(emri || '').trim();
-      if (!emri) return;
-      (m[emri] = m[emri] || { emri: emri, afate: 0, produkte: 0 })[fusha]++;
+      if (!emri) return null;
+      return (m[emri] = m[emri] || { emri: emri, afate: 0, b: {}, vetemPritje: true, nga: {} });
     }
-    (afatet || []).forEach(function (a) { if (a) shto(a.furnizuesi, 'afate'); });
+    (afatet || []).forEach(function (a) { var r = a && rec(a.furnizuesi); if (r) { r.afate++; r.vetemPritje = false; } });
     var p = produktet || {};
-    Object.keys(p).forEach(function (k) { if (p[k]) shto(p[k].furnizuesi, 'produkte'); });
-    return Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) { return a.emri.localeCompare(b.emri, 'sq', { sensitivity: 'base' }) || a.emri.localeCompare(b.emri); });
+    Object.keys(p).forEach(function (k) { var r = p[k] && rec(p[k].furnizuesi); if (r) { r.b[p[k].barkodi || k] = 1; r.vetemPritje = false; } });
+    (kujtesa || []).forEach(function (x) {
+      var r = x && rec(x.furnizuesi); if (!r) return;
+      r.b[x.barkodi] = 1;
+      if (!x.nePritje) r.vetemPritje = false; else if (x.nga) r.nga[x.nga] = 1;
+    });
+    return Object.keys(m).map(function (k) {
+      var r = m[k];
+      return { emri: r.emri, afate: r.afate, produkte: Object.keys(r.b).length, nePritje: r.vetemPritje, nga: r.vetemPritje ? Object.keys(r.nga) : [] };
+    }).sort(function (a, b) { return a.emri.localeCompare(b.emri, 'sq', { sensitivity: 'base' }) || a.emri.localeCompare(b.emri); });
   }
   // A ekziston tashmë një furnizues tjetër me këtë emër (pa dallim shkronjash të mëdha/vogla)? Kthen emrin e tij ose ''.
   function furnizuesiEkzistues(lista, emri, pervec) {
