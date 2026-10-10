@@ -50,6 +50,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **IMPORTET NË KONTROLL + "FSHIJE" (v209 = 1.19.2)**: dy rrugë importi s'e shënonin autorin te kujtesa (produktet
+   mësoheshin vetëm në sfond si "automatike", pra dilnin direkt te lista): importi i afateve nga Excel në telefon (`aiBtn`) dhe
+   importi i stokut nga Excel/CSV në PC (`imBtn`). Tash thërrasin `mesoShume(..., 'mbishkruaj')` si importet nga foto: te
+   kolegët presin kontrollin, te administratori ruhen si të kontrolluara. `ruajFurnizuesitEMiratuar` ruan vetëm furnizuesit e
+   afateve/stokut të administratorit dhe të produkteve me `s` (jo ata që Stoku i mësoi vetë nga afatet e kolegëve, që të
+   rinjtë të presin kontrollin). Butoni "Harroje" te Produktet (tel + PC) quhet "Fshije". Testi: import-pritje-test.js.
 0000000. **PC: FOLDER I RI TE IMPORTI I FLETËS (v208 = 1.19.1)**: `#lxFolderKuti` (`.lexim-folderi`): titulli dhe zgjedhja në një
    rresht, zgjedhja 260px. Opsioni "+ Folder i ri…" (`LX_FOLDER_RI`) hap `dlgFolder` (z-index 52, mbi `dlgLexim`) me
    `hapFolderIRi(pasKrijimit)`: folderi i ri zgjidhet te importi pa u hapur faqja e tij; me "Anulo" mbetet folderi i mëparshëm.

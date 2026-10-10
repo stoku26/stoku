@@ -1880,7 +1880,7 @@
 <script src="afatet.js?v=207"></script>
 <script src="ekipa.js?v=198"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=208"></script>
+<script src="teRejat.js?v=209"></script>
 <script>
 (function () {
   'use strict';
@@ -3105,8 +3105,10 @@
   function ruajFurnizuesitEMiratuar() {
     try {
       var k = KJ(); if (!k || !k.regjistroFurnizuesit || !eshteAdminiIStokut()) return;
-      var l = window.StokuAfatet.listaEFurnizuesve(afatet, produktet, k.lista(), k.furnizuesit());
-      k.regjistroFurnizuesit(l.filter(function (f) { return !f.nePritje && !f.regjistruar; }).map(function (f) { return f.emri; }));
+      // v209: vetëm nga afatet/stoku i administratorit dhe produktet e kontrolluara prej tij; jo nga ato që Stoku i mësoi
+      // vetë nga afatet e kolegëve (furnizuesit e tyre të rinj presin kontrollin)
+      var l = window.StokuAfatet.listaEFurnizuesve(afatet, produktet, k.lista().filter(function (x) { return x.ngaAdmini; }), []);
+      k.regjistroFurnizuesit(l.map(function (f) { return f.emri; }));
     } catch (e) { /* ok */ }
   }
   async function fshijFurnizuesin(f) {
@@ -3282,11 +3284,11 @@
     var ifu = document.createElement('input'); ifu.type = 'text'; ifu.value = x.furnizuesi; ifu.maxLength = 80; ifu.placeholder = 'Furnitori';
     ifu.setAttribute('autocomplete', 'off'); ifu.setAttribute('aria-label', 'Furnitori'); ifu.setAttribute('list', 'afFurnizuesit');
     var rr = document.createElement('div'); rr.className = 'ops-furn-veprime';
-    var harro = document.createElement('button'); harro.type = 'button'; harro.className = 'btn ops-btn-dyte ops-kuj-harro'; harro.textContent = 'Harroje';
+    var harro = document.createElement('button'); harro.type = 'button'; harro.className = 'btn ops-btn-dyte ops-kuj-harro'; harro.textContent = 'Fshije';
     var anulo = document.createElement('button'); anulo.type = 'button'; anulo.className = 'btn ops-btn-dyte'; anulo.textContent = 'Anulo';
     var ruaj = document.createElement('button'); ruaj.type = 'button'; ruaj.className = 'btn'; ruaj.textContent = 'Ruaj';
     anulo.addEventListener('click', function () { kujNeEditim = null; rifreskoKujtesen(); });
-    harro.addEventListener('click', function () { if (!eshteAdminiIStokut()) { anulo.click(); return; } if (KJ()) KJ().fshij(x.barkodi); kujNeEditim = null; rifreskoKujtesen(); toast('"' + (x.emri || x.barkodi) + '" u hoq nga kujtesa.'); });
+    harro.addEventListener('click', function () { if (!eshteAdminiIStokut()) { anulo.click(); return; } if (KJ()) KJ().fshij(x.barkodi); kujNeEditim = null; rifreskoKujtesen(); toast('"' + (x.emri || x.barkodi) + '" u fshi nga produktet.'); });
     ruaj.addEventListener('click', function () {
       if (!eshteAdminiIStokut()) { anulo.click(); return; }
       if (KJ()) KJ().vendos(x.barkodi, ie.value, ifu.value);
@@ -5972,6 +5974,7 @@
     var teReja = AF.afatetNgaPlani(aiPlani(), { krijuarNga: emriPerdoruesitAktual() });
     if (!teReja.length) return;
     afatet = afatet.concat(teReja);
+    try { if (KJ()) KJ().mesoShume(teReja, 'mbishkruaj'); } catch (e) { /* ok */ } // v209: si importet e tjera (kolegët: presin kontrollin)
     aiMbyll();
     afMuaji = ''; afFiltri = 'aktive';
     ruajAfatet();
