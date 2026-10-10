@@ -507,12 +507,14 @@
     function rec(emri) {
       emri = String(emri || '').replace(/\s+/g, ' ').trim();
       if (!emri) return null;
-      return (m[emri] = m[emri] || { emri: emri, afate: 0, b: {}, vetemPritje: true, nga: {}, regjistruar: false });
+      return (m[emri] = m[emri] || { emri: emri, afate: 0, b: {}, vetemPritje: true, nga: {}, regjistruar: false, kohaR: 0, kohaP: 0 });
     }
     (regjistri || []).forEach(function (x) {
       if (!x || !x.emri) return;
       if (x.fshire) { fshire[String(x.emri).toLocaleLowerCase('sq')] = true; return; }
-      var r = rec(x.emri); if (r) { r.regjistruar = true; r.vetemPritje = false; }
+      var r = rec(x.emri); if (!r) return;
+      r.regjistruar = true; r.vetemPritje = false;
+      if (x.koha > 1) r.kohaR = Math.max(r.kohaR, x.koha); // koha 1 = ruajtur vetë në sfond (s'ka kohë ruajtjeje)
     });
     (afatet || []).forEach(function (a) { var r = a && rec(a.furnizuesi); if (r) { r.afate++; r.vetemPritje = false; } });
     var p = produktet || {};
@@ -520,7 +522,7 @@
     (kujtesa || []).forEach(function (x) {
       var r = x && rec(x.furnizuesi); if (!r) return;
       r.b[x.barkodi] = 1;
-      if (!x.nePritje) r.vetemPritje = false; else if (x.nga) r.nga[x.nga] = 1;
+      if (!x.nePritje) r.vetemPritje = false; else { if (x.nga) r.nga[x.nga] = 1; r.kohaP = Math.max(r.kohaP, Number(x.koha) || 0); }
     });
     return Object.keys(m).filter(function (k) {
       var r = m[k];
@@ -528,8 +530,22 @@
       return !fshire[k.toLocaleLowerCase('sq')] || r.regjistruar || (r.vetemPritje && Object.keys(r.nga).length);
     }).map(function (k) {
       var r = m[k];
-      return { emri: r.emri, afate: r.afate, produkte: Object.keys(r.b).length, nePritje: r.vetemPritje, nga: r.vetemPritje ? Object.keys(r.nga) : [], regjistruar: r.regjistruar };
+      // koha (v212): kur e ruajti administratori (në pritje: kur e shkroi kolegu); 0 = e panjohur
+      return { emri: r.emri, afate: r.afate, produkte: Object.keys(r.b).length, nePritje: r.vetemPritje, nga: r.vetemPritje ? Object.keys(r.nga) : [], regjistruar: r.regjistruar,
+        koha: r.vetemPritje ? r.kohaP : r.kohaR };
     }).sort(function (a, b) { return a.emri.localeCompare(b.emri, 'sq', { sensitivity: 'base' }) || a.emri.localeCompare(b.emri); });
+  }
+  // v212: Cilësimet → Stoku (Furnizuesit, Produktet): ato që i ka ruajtur administratori dalin në krye, më i riu i pari;
+  // të tjerat (pa kohë ruajtjeje, p.sh. të mësuara vetë në sfond) mbeten pas tyre, në rendin që kishin (sipas alfabetit).
+  // Furnizuesit: f.koha nga listaEFurnizuesve. Produktet (K.lista()): koha e hyrjes së administratorit; në pritje: kur u shkrua.
+  function kohaERuajtjes(x) {
+    if (!x) return 0;
+    if ('ngaAdmini' in x && !x.nePritje && !(x.ngaAdmini && !x.automatik)) return 0;
+    return Number(x.koha) || 0;
+  }
+  function renditSipasRuajtjes(lista) {
+    return (lista || []).map(function (x, i) { return { x: x, k: kohaERuajtjes(x), i: i }; })
+      .sort(function (a, b) { return (b.k - a.k) || (a.i - b.i); }).map(function (o) { return o.x; });
   }
   // A ekziston tashmë një furnizues tjetër me këtë emër (pa dallim shkronjash të mëdha/vogla)? Kthen emrin e tij ose ''.
   function furnizuesiEkzistues(lista, emri, pervec) {
@@ -885,7 +901,7 @@
     normalizoRreshtin: normalizoRreshtin, EMRAT_MUAJVE: EMRAT_MUAJVE, muajiNgaEmri: muajiNgaEmri, celesiMuajit: celesiMuajit, emriMuajit: emriMuajit,
     muajtELista: muajtELista, furnizuesitELista: furnizuesitELista, celesiFurnizuesit: celesiFurnizuesit, ditetEMbetura: ditetEMbetura, dataNgaQeliza: dataNgaQeliza, hamendesoKolonatEAfateve: hamendesoKolonatEAfateve,
     planiImportitAfateve: planiImportitAfateve, afatetNgaPlani: afatetNgaPlani, tekstNgaQeliza: tekstNgaQeliza, ditetTekst: ditetTekst, lexoSasine: lexoSasine, sasiaSiShume: sasiaSiShume, sasiaTekst: sasiaTekst, shumaCopeve: shumaCopeve,
-    listaEFurnizuesve: listaEFurnizuesve, furnizuesiEkzistues: furnizuesiEkzistues, riemertoFurnizuesin: riemertoFurnizuesin,
+    listaEFurnizuesve: listaEFurnizuesve, renditSipasRuajtjes: renditSipasRuajtjes, furnizuesiEkzistues: furnizuesiEkzistues, riemertoFurnizuesin: riemertoFurnizuesin,
     IKONAT_FOLDERAVE: IKONAT_FOLDERAVE, ikonaEFolderit: ikonaEFolderit, svgEIkones: svgEIkones, zgjedhesIIkonave: zgjedhesIIkonave,
     kujtesa: kujtesa, krijoKujtesen: krijoKujtesen, KUJTESA_KEY: KUJTESA_KEY
   };

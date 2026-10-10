@@ -50,6 +50,17 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **FURNITORI TE PRODUKTET E STOKUT + RENDITJA E RE (v212 = 1.20.0)**: produkti i stokut ka fushën opsionale
+   `furnizuesi` (mungon kur s'ka; s'ruhet asnjëherë si varg bosh). Dialogu i produktit: PC `#prFurnizuesi` (datalist
+   `afdFurnizuesit`), telefoni `#dlgFurnizuesi` (datalist `afFurnizuesit`, fshihet me `paEmer`); produkt i ri: nga kujtesa/afatet,
+   përndryshe bosh; fusha e zbrazur te një produkt ekzistues e heq. Ruhet edhe kur zhvendoset në folder tjetër (tel + PC). Importi
+   Excel/CSV në PC: `#imKolFurnizuesi` (hamendësohet nga titulli); me "shto"/"kalo" mbetet ai i produktit, me "zëvendëso" fiton i
+   skedarit. Eksportet Excel (PC `fletaFolderi`/`fletaMeFolder`, telefoni `StokuXlsx.build`, `fletetEStokut` e ekipës): kolona
+   "Furnizuesi" pas "Sasia"; PDF-raporti e shton kolonën vetëm kur të paktën një produkt ka furnitor. Lista (tel) dhe tabela (PC,
+   `.k-furn`) e tregojnë; kërkimi e gjen. Renditja te Cilësimet → Stoku: `AF.renditSipasRuajtjes` (afatet.js), të ruajturat nga
+   administratori në krye sipas kohës (furnizuesit: `koha` e regjistrit, 1 = në sfond = e panjohur; produktet: hyrjet `s` jo
+   automatike), të tjerat pas tyre sipas alfabetit. `regjistroFurnizuesinEAdminit`: furnitori i ri te një afat pa barkod
+   regjistrohet me kohën e tanishme (vetëm kur ndryshon te afati). Testi: stok-furn-test.js.
 0000000. **FURNIZUESIT SI SUGJERIM PËR KREJT + FSHIRJA E NJOFTIMEVE (v211 = 1.19.4)**: `furnizuesitPerSugjerim()` (tel + PC)
    bashkon pa dublikata (pa dallim shkronjash) afatet e veta, furnizuesit e miratuar të kujtesës (grupi) dhe listën publike të
    administratorit `publike/furnizuesit` (cache `stoku:furnizuesit:publike`, lexohet në hyrje dhe më së shumti çdo 30 min). Kjo
