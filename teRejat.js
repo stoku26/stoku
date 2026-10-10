@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 199, versioni: '1.17.2', data: '2026-10-10', titulli: 'Cilësimet → Stoku për të gjithë', pikat: [
+      'Cilësimet → Stoku e sheh sërish kushdo: renditjen fillestare e zgjedh secili vetë, ndërsa furnizuesit dhe produktet mund t\'i shohë.',
+      'Emrat e furnizuesve dhe produktet i ndryshon vetëm administratori.'
+    ] },
     { v: 198, versioni: '1.17.1', data: '2026-10-09', titulli: 'Produktet i rregullon administratori', pikat: [
       'Cilësimet → Stoku e sheh vetëm administratori. Produktet e reja që shkruajnë kolegët ruhen aty me emrin e tyre, që t\'i rregullojë.',
       'Kur skanon një produkt, del emri dhe furnitori siç i ka ruajtur administratori. Mund t\'i ndryshosh për afatin tënd, por produkti mbetet siç e ka bërë ai.',

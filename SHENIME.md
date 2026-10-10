@@ -50,6 +50,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **CILËSIMET → STOKU PËR TË GJITHË (v199 = 1.17.2)**: kategoria Stoku (tel `#tabLista`, PC skeda `stoku`) del
+   sërish për këdo; u hoq `rifreskoQasjenEStokut`. Renditja fillestare e ndryshon secili. Furnizuesit dhe Produktet shfaqen
+   për këdo, por te jo-administratori rreshtat janë vetëm për t'u parë (tel `div` pa laps, PC pa butonin "Ndrysho"), teksti
+   shpjegues ndryshon sipas rolit (`furnIntro`/`kujtesaIntro`, PC `opsFurnHint`/`opsKujHint`), dhe ruajtja/harrimi kontrollojnë
+   sërish `eshteAdminiIStokut()`. Te `stoku-auth-ndryshoi` listat rifreskohen nëse faqja është hapur. css/stoku.css v33.
 0000000. **KUJTESA: VETËM ADMINISTRATORI E RREGULLON (v198 = 1.17.1)**: Cilësimet → Stoku (tel `#tabLista`, PC skeda `stoku`)
    vetëm për `eshteAdminiIStokut()` (mendurberisha): `rifreskoQasjenEStokut` + mbrojtje te `aktivizoTabin` / `zgjidhSkeden`.
    Kujtesa: fusha e re `s` (nga administratori) dhe `n` (kush e shtoi); `K.vendosAutorin(emri, admin)` thirret nga `KJ()` te
