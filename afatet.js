@@ -629,7 +629,9 @@
   var KUJTESA_KEY = 'stoku:kujtesa:v1', KUJTESA_MAKS = 20000, KUJTESA_BARKODI = /^[^\s]{1,40}$/;
   function pastroBarkodin(b) { return String(b == null ? '' : b).replace(/\s+/g, '').slice(0, 40); }
   function pastroTekstin(t, n) { return String(t == null ? '' : t).replace(/\s+/g, ' ').trim().slice(0, n); }
-  function klasaEHyrjes(x) { if (!x) return -1; if (x.x) return 1; if (x.s) return 2; return x.a && !x.m ? 0 : 1; }
+  // v206: "Harroje" e administratorit (x + s) ka të njëjtën peshë si ruajtja e tij: fiton më e reja, ndryshe produkti
+  // i harruar kthehej nga grupi (versioni i vjetër i administratorit mundte shënimin "i harruar")
+  function klasaEHyrjes(x) { if (!x) return -1; if (x.x) return x.s ? 2 : 1; if (x.s) return 2; return x.a && !x.m ? 0 : 1; }
   // A duhet që hyrja r (p.sh. nga grupi) ta zëvendësojë hyrjen l (këtu)?
   function hyrjaFiton(r, l) {
     if (!l) return true;
@@ -641,7 +643,7 @@
   function hyrjaEPastruar(x) {
     if (!x || typeof x !== 'object') return null;
     var k = Number(x.k) || 0;
-    if (x.x) return { x: 1, k: k };
+    if (x.x) return x.s ? { x: 1, k: k, s: 1 } : { x: 1, k: k };
     var e = pastroTekstin(typeof x.e === 'string' ? x.e : '', 120), f = pastroTekstin(typeof x.f === 'string' ? x.f : '', 80);
     if (!e && !f) return null;
     var r = { e: e, f: f, k: k };
@@ -682,7 +684,7 @@
         if (x && ri.e === x.e && ri.f === x.f) return false;
       } else {
         var vjeter = x && !x.x ? x : null;
-        if (vjeter && vjeter.s && !autori.admin) return false; // e administratorit: të tjerët s'e mbishkruajnë
+        if (x && x.s && !autori.admin) return false; // e administratorit (edhe e harruar prej tij): të tjerët s'e mbishkruajnë
         ri = { e: emri || (vjeter && vjeter.e) || '', f: furn || (vjeter && vjeter.f) || '', k: tani || Date.now() };
         if (vjeter && vjeter.m) ri.m = 1;
         if (autori.admin) ri.s = 1;
@@ -718,13 +720,18 @@
         if (!b) return false;
         var h = lexo();
         var ri = !emri && !furn ? { x: 1, k: Date.now() } : { e: emri, f: furn, k: Date.now(), m: 1 };
-        if (!ri.x && autori.admin) ri.s = 1;
+        if (autori.admin) ri.s = 1;
         if (!ri.x && autori.emri) ri.n = autori.emri;
         h[b] = ri;
         shkruaj(); njofto([b]);
         return true;
       },
-      fshij: function (b) { b = pastroBarkodin(b); var h = lexo(); if (!h[b] || h[b].x) return false; h[b] = { x: 1, k: Date.now() }; shkruaj(); njofto([b]); return true; },
+      fshij: function (b) {
+        b = pastroBarkodin(b); var h = lexo();
+        if (!h[b] || (h[b].x && (h[b].s || !autori.admin))) return false;
+        h[b] = autori.admin ? { x: 1, k: Date.now(), s: 1 } : { x: 1, k: Date.now() };
+        shkruaj(); njofto([b]); return true;
+      },
       // Furnizuesi u riemërtua (Cilësimet → Furnizuesit): edhe në kujtesë
       riemertoFurnizuesin: function (vjeter, iRi) {
         vjeter = pastroTekstin(vjeter, 80); iRi = pastroTekstin(iRi, 80);
@@ -778,7 +785,7 @@
         (barkodet || []).forEach(function (b) {
           var x = h[b];
           if (!x || !KUJTESA_BARKODI.test(b)) return;
-          o[b] = x.x ? { e: '', f: '', k: x.k || 0, a: 0, m: 0, s: 0, n: '', x: 1 } : { e: x.e || '', f: x.f || '', k: x.k || 0, a: x.a ? 1 : 0, m: x.m ? 1 : 0, s: x.s ? 1 : 0, n: x.n || '', x: 0 };
+          o[b] = x.x ? { e: '', f: '', k: x.k || 0, a: 0, m: 0, s: x.s ? 1 : 0, n: '', x: 1 } : { e: x.e || '', f: x.f || '', k: x.k || 0, a: x.a ? 1 : 0, m: x.m ? 1 : 0, s: x.s ? 1 : 0, n: x.n || '', x: 0 };
         });
         return o;
       },

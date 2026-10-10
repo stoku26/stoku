@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 206, versioni: '1.18.5', data: '2026-10-10', titulli: 'Produktet e harruara s\'kthehen më', pikat: [
+      'Rregullim: kur administratori e harron një produkt (Cilësimet → Stoku → Produktet → Harroje), tash hiqet menjëherë edhe në pajisjet e tjera dhe s\'kthehet më, as kur e hap Stoku-n sërish.',
+      'Ndryshimet e emrave të furnizuesve vlejnë njësoj në krejt pajisjet.'
+    ] },
     { v: 205, versioni: '1.18.4', data: '2026-10-10', titulli: 'Furnizuesit e përbashkët për grupin', pikat: [
       'Cilësimet → Stoku → Furnizuesit: tash del krejt lista e furnizuesve të grupit, edhe te kolegët që s\'kanë afate të tyre.',
       'Furnizuesit e rinj që i shkruajnë kolegët presin te "Furnizuesit e rinj" derisa administratori t\'i kontrollojë; emrat i ndryshon vetëm administratori.'
