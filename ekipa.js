@@ -1194,6 +1194,7 @@
     return g;
   }
   var FJALA_E_VEPRIMIT = { hiq: 'e hoqi nga rafti', kthe: 'e ktheu në raft', fshij: 'e fshiu' };
+  var FJALA_E_VEPRIMIT_TI = { hiq: 'e hoqe nga rafti', kthe: 'e ktheve në raft', fshij: 'e fshive' }; // v214: "Ti e fshive", jo "Ti e fshiu"
 
   // Fletët e Excel-it për stokun e një anëtari (xlsx.js buildWorkbook)
   function fletetEStokut(emriAnetarit, produktet, foldera) {
@@ -1296,10 +1297,10 @@
           detaje: [iKujt, iKujt ? 'pret miratimin' : '', dataTx ? 'skadoi më ' + dataTx : '', ng.sasia ? ng.sasia + ' copë' : ''].filter(Boolean).join(' · ') };
       case 'heqje-pranuar':
         return { lloji: 'hequr', kush: kush, cfare: (ng.uid === uidIm ? 'e pranove' : 'e pranoi') + ' heqjen nga rafti: ' + (ng.produkti || ng.barkodi || 'produkt'),
-          detaje: 'e hoqi ' + (ng.kerkuesUid === uidIm ? 'ti' : (ng.kerkuesEmri || 'një koleg')) };
+          detaje: ng.kerkuesUid === uidIm ? 'e hoqe ti' : 'e hoqi ' + (ng.kerkuesEmri || 'një koleg') };
       case 'heqje-refuzuar':
         return { lloji: 'rikthyer', kush: kush, cfare: (ng.uid === uidIm ? 'e refuzove' : 'e refuzoi') + ' heqjen nga rafti: ' + (ng.produkti || ng.barkodi || 'produkt'),
-          detaje: 'mbetet në raft · e kishte hequr ' + (ng.kerkuesUid === uidIm ? 'ti' : (ng.kerkuesEmri || 'një koleg')) };
+          detaje: 'mbetet në raft · ' + (ng.kerkuesUid === uidIm ? 'e kishe hequr ti' : 'e kishte hequr ' + (ng.kerkuesEmri || 'një koleg')) };
       case 'lajmeruar':
         return { lloji: 'lajmeruar', kush: kush, cfare: (ng.uid === uidIm ? 'e lajmërove' : 'e lajmëroi') + ' furnizuesin' + (ng.furnizuesi ? ' ' + ng.furnizuesi : ''),
           detaje: ng.n ? ng.n + (ng.n === 1 ? ' produkt afër skadimit' : ' produkte afër skadimit') : '' };
@@ -1323,9 +1324,9 @@
           detaje: (ng.perUid ? 'për ' + (ng.perUid === uidIm ? 'ty' : (ng.perEmri || 'një koleg')) : 'për krejt grupin') + (ng.shenim ? ' · ' + ng.shenim : '') };
       case 'kerkese-kryer':
         return { lloji: 'hequr', kush: kush, cfare: (ng.uid === uidIm ? 'e hoqe' : 'e hoqi') + ' nga rafti: ' + produktiIKerkeses(ng),
-          detaje: 'me kërkesë të ' + (ng.kerkuesUid === uidIm ? 'teje' : (ng.kerkuesEmri || 'një kolegu')) };
+          detaje: ng.kerkuesUid === uidIm ? 'me kërkesën tënde' : 'me kërkesë të ' + (ng.kerkuesEmri || 'një kolegu') };
       case 'admin-afat':
-        return { lloji: 'admin-afat', kush: kush, cfare: (FJALA_E_VEPRIMIT[ng.veprimi] || 'ndryshoi') + ': ' + (ng.produkti || ng.barkodi || 'produkt'),
+        return { lloji: 'admin-afat', kush: kush, cfare: (ng.uid === uidIm ? (FJALA_E_VEPRIMIT_TI[ng.veprimi] || 'ndryshove') : (FJALA_E_VEPRIMIT[ng.veprimi] || 'ndryshoi')) + ': ' + (ng.produkti || ng.barkodi || 'produkt'),
           detaje: ng.pronariUid === uidIm ? 'produkt i yti' : 'i përket: ' + (ng.pronariEmri || 'kolegut') };
       default:
         return { lloji: ng.lloji || '', kush: kush, cfare: ng.tekst || '', detaje: '' };
