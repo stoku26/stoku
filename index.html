@@ -1054,7 +1054,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=34">
+<link rel="stylesheet" href="css/stoku.css?v=35">
 </head>
 <body>
 <script src="porta.js?v=196"></script>
@@ -1401,19 +1401,43 @@
               <option value="sasiaLart" id="optSasiaLart"></option>
             </select>
           </div>
+          <div class="ops-grupi-titull">Furnizuesit dhe produktet</div>
+          <div class="ops-grupi" id="stokuHyrjet">
+            <button class="kategori-rresht" type="button" data-nenfaqe="furnizuesit" id="stFurnizuesit">
+              <span class="kat-ikona-badge ngj-portokalli"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17h4V5H2v12h3"></path><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"></path><circle cx="7.5" cy="17.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg></span>
+              <span class="kat-info"><span class="kat-tekst">Furnizuesit</span><span class="kat-status" id="stFurnizuesitStatus"></span></span>
+              <span class="shigjeta">›</span>
+            </button>
+            <button class="kategori-rresht" type="button" data-nenfaqe="pritje" id="stPritje">
+              <span class="kat-ikona-badge ngj-portokalli"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"></path><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg></span>
+              <span class="kat-info"><span class="kat-tekst">Produktet e reja</span><span class="kat-status" id="stPritjeStatus"></span></span>
+              <span class="shigjeta">›</span>
+            </button>
+            <button class="kategori-rresht" type="button" data-nenfaqe="produktet" id="stProduktet">
+              <span class="kat-ikona-badge ngj-blu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5v14"></path><path d="M8 5v14"></path><path d="M12 5v14"></path><path d="M17 5v14"></path><path d="M21 5v14"></path></svg></span>
+              <span class="kat-info"><span class="kat-tekst">Produktet</span><span class="kat-status" id="stProduktetStatus"></span></span>
+              <span class="shigjeta">›</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="opsione-faqe" data-faqe="furnizuesit">
           <div id="furnSeksion">
-            <div class="ops-grupi-titull">Furnizuesit</div>
             <div class="ops-intro" id="furnIntro">Ndrysho emrin e një furnizuesi: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një.</div>
             <div class="fushe ops-furn-kerko" id="furnKerkoKuti"><input id="furnKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko furnizuesin" aria-label="Kërko furnizuesin"></div>
             <div class="ops-grupi ops-furn" id="furnLista"></div>
           </div>
-          <div id="kujPritjeSeksion" hidden>
-            <div class="ops-grupi-titull">Produktet e reja<span class="ops-pritje-numri" id="kujPritjeNumri"></span></div>
+        </div>
+
+        <div class="opsione-faqe" data-faqe="pritje">
+          <div id="kujPritjeSeksion">
             <div class="ops-intro" id="kujPritjeIntro"></div>
             <div class="ops-grupi ops-furn" id="kujPritjeLista"></div>
           </div>
+        </div>
+
+        <div class="opsione-faqe" data-faqe="produktet">
           <div id="kujtesaSeksion">
-            <div class="ops-grupi-titull">Produktet</div>
             <div class="ops-intro" id="kujtesaIntro">Emri dhe furnitori që Stoku i mban mend për çdo barkod; kolegët i shohin kur skanojnë. Produktet që shkruajnë ata dalin këtu pasi t'i kontrollosh te Produktet e reja. Çka ndryshon ti s'e ndryshon askush tjetër. Prek një produkt për ta ndryshuar.</div>
             <div class="fushe ops-furn-kerko" id="kujtesaKerkoKuti"><input id="kujtesaKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko emrin, barkodin ose furnitorin" aria-label="Kërko produktin"></div>
             <div class="ops-grupi ops-furn" id="kujtesaLista"></div>
@@ -1844,7 +1868,7 @@
 <script src="afatet.js?v=201"></script>
 <script src="ekipa.js?v=198"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=201"></script>
+<script src="teRejat.js?v=202"></script>
 <script>
 (function () {
   'use strict';
@@ -2950,19 +2974,35 @@
   perkthoStatiket();
 
   // ---------- Tabet e Opsioneve ----------
-  // Cilësimet → Stoku: e shohin të gjithë; furnizuesit dhe produktet i ndryshon vetëm administratori (v199)
+  // Cilësimet → Stoku: e shohin të gjithë; furnizuesit dhe produktet i ndryshon vetëm administratori (v199).
+  // v202: Furnizuesit, Produktet e reja dhe Produktet janë nënfaqe të Stoku-t (hapen me prekje, "←" kthehet te Stoku)
+  var faqjaEOpsioneve = null;
+  var PRINDI_I_FAQES = { furnizuesit: 'lista', pritje: 'lista', produktet: 'lista' };
+  var TITULLI_I_NENFAQES = { furnizuesit: 'Furnizuesit', pritje: 'Produktet e reja', produktet: 'Produktet' };
+  function neFaqenEStokut() { return !!faqjaEOpsioneve && (faqjaEOpsioneve === 'lista' || !!PRINDI_I_FAQES[faqjaEOpsioneve]); }
+  // Ndryshoi diçka (llogaria, kujtesa nga grupi): rifresko vetëm atë që shihet tani te Cilësimet → Stoku
+  function rifreskoStokunNeCilesime() {
+    rifreskoStatusinEStokut();
+    if (!neFaqenEStokut() || !$('dlgOpsione').classList.contains('hapur')) return;
+    if (faqjaEOpsioneve === 'lista') rifreskoHyrjetEStokut();
+    else if (faqjaEOpsioneve === 'furnizuesit') { if (furnNeEditim === null) rifreskoFurnizuesit(); }
+    else if (kujNeEditim === null) rifreskoKujtesen();
+  }
   window.addEventListener('stoku-auth-ndryshoi', function () {
-    if (!document.querySelector('.opsione-faqe[data-faqe="lista"].aktiv')) return;
-    furnNeEditim = null; kujNeEditim = null; rifreskoFurnizuesit(); rifreskoKujtesen();
+    if (!neFaqenEStokut()) return;
+    furnNeEditim = null; kujNeEditim = null; rifreskoStokunNeCilesime();
   });
   function aktivizoTabin(emriFaqes) {
     var neMenu = !emriFaqes;
-    if (emriFaqes === 'lista') { furnNeEditim = null; $('furnKerko').value = ''; rifreskoFurnizuesit(); kujNeEditim = null; $('kujtesaKerko').value = ''; rifreskoKujtesen(); }
+    faqjaEOpsioneve = emriFaqes || null;
+    if (emriFaqes === 'lista') rifreskoHyrjetEStokut();
+    if (emriFaqes === 'furnizuesit') { furnNeEditim = null; $('furnKerko').value = ''; rifreskoFurnizuesit(); }
+    if (emriFaqes === 'pritje' || emriFaqes === 'produktet') { kujNeEditim = null; $('kujtesaKerko').value = ''; rifreskoKujtesen(); }
     $('kategoriMenu').style.display = neMenu ? '' : 'none';
     Array.prototype.forEach.call(document.querySelectorAll('.opsione-faqe'), function (f) {
       f.classList.toggle('aktiv', f.getAttribute('data-faqe') === emriFaqes);
     });
-    $('opsioneTitulli').textContent = neMenu ? T('opsioneTitulli') : T(TAB_TITULL_KYC[emriFaqes] || 'opsioneTitulli');
+    $('opsioneTitulli').textContent = neMenu ? T('opsioneTitulli') : (TITULLI_I_NENFAQES[emriFaqes] || T(TAB_TITULL_KYC[emriFaqes] || 'opsioneTitulli'));
     $('opsPrapa').style.display = neMenu ? 'none' : '';
     var trupi = document.querySelector('.opsione-trup');
     if (trupi) trupi.scrollTop = 0;
@@ -2975,6 +3015,20 @@
   Array.prototype.forEach.call(document.querySelectorAll('#kategoriMenu [data-faqe]'), function (b) {
     b.addEventListener('click', function () { aktivizoTabin(b.getAttribute('data-faqe')); });
   });
+  Array.prototype.forEach.call(document.querySelectorAll('#stokuHyrjet [data-nenfaqe]'), function (b) {
+    b.addEventListener('click', function () { aktivizoTabin(b.getAttribute('data-nenfaqe')); });
+  });
+  // Rreshtat te Cilësimet → Stoku: sa furnizues, sa produkte presin kontrollin, sa produkte
+  function rifreskoHyrjetEStokut() {
+    var k = KJ(), l = k ? k.lista() : [];
+    var nP = l.filter(function (x) { return x.nePritje; }).length, nK = l.length - nP;
+    var nF = window.StokuAfatet.listaEFurnizuesve(afatet, produktet).length;
+    $('stFurnizuesitStatus').textContent = nF ? sasiaETekst(nF, 'furnizues', 'furnizues') : 'Ende s\'ka';
+    $('stPritje').style.display = nP ? '' : 'none';
+    $('stPritjeStatus').textContent = nP === 1 ? '1 pret kontrollin' : nP + ' presin kontrollin';
+    $('stPritjeStatus').classList.add('kat-status--pritje');
+    $('stProduktetStatus').textContent = nK ? sasiaETekst(nK, 'produkt', 'produkte') : 'Ende s\'ka';
+  }
   // Renditja: rreshtat me rreth (radio) e ndryshojnë select-in e fshehur #opsRendi (që ruan logjikën e vjetër)
   function rifreskoRenditjen() {
     Array.prototype.forEach.call(document.querySelectorAll('#rendiLista button'), function (b) {
@@ -3121,11 +3175,10 @@
     if (fil.length > KUJ_MAKS) { var m = document.createElement('div'); m.className = 'ops-furn-bosh'; m.textContent = 'Shfaqen ' + KUJ_MAKS + ' nga ' + fil.length + '. Kërko për të tjerat.'; cont.appendChild(m); }
   }
   function rifreskoPritjen(pritje, admin) {
-    $('kujPritjeSeksion').hidden = !pritje.length;
-    $('kujPritjeNumri').textContent = pritje.length ? String(pritje.length) : '';
     $('kujPritjeIntro').textContent = admin ? 'Produktet që i kanë shkruar kolegët. Kontrolloji emrat dhe ruaji: pastaj kalojnë te Produktet.'
       : 'Produktet që i kanë shkruar kolegët. I kontrollon administratori, pastaj kalojnë te Produktet.';
     var cont = $('kujPritjeLista'); cont.textContent = '';
+    if (!pritje.length) { var bosh = document.createElement('div'); bosh.className = 'ops-furn-bosh'; bosh.textContent = 'Asnjë produkt i ri për kontroll.'; cont.appendChild(bosh); return; }
     pritje.sort(function (a, b) { return b.koha - a.koha; }); // më të rejat lart
     pritje.slice(0, KUJ_MAKS).forEach(function (x) { cont.appendChild(x.barkodi === kujNeEditim ? rreshtIEditimitTeKujteses(x) : rreshtIKujteses(x, admin)); });
     if (pritje.length > KUJ_MAKS) { var m = document.createElement('div'); m.className = 'ops-furn-bosh'; m.textContent = 'Shfaqen ' + KUJ_MAKS + ' nga ' + pritje.length + '.'; cont.appendChild(m); }
@@ -3243,7 +3296,8 @@
   // Në menunë kryesore të Opsioneve, "←" i mbyll Opsionet krejtësisht (kthehu te faqja kryesore);
   // brenda një kategorie, i njëjti buton kthehet vetëm te menuja e Opsioneve.
   $('opsPrapa').addEventListener('click', function () {
-    if ($('kategoriMenu').style.display === 'none') aktivizoTabin(null);
+    if (PRINDI_I_FAQES[faqjaEOpsioneve]) aktivizoTabin(PRINDI_I_FAQES[faqjaEOpsioneve]);
+    else if ($('kategoriMenu').style.display === 'none') aktivizoTabin(null);
     else mbyllOpsionet();
   });
 
@@ -5069,6 +5123,7 @@
     if (opsioneHapur) {
       n++;
       if ($('kategoriMenu').style.display === 'none') n++; // brenda një kategorie = 1 nivel shtesë mbi vetë Opsionet
+      if (PRINDI_I_FAQES[faqjaEOpsioneve]) n++; // nënfaqe (p.sh. Stoku → Produktet) = edhe 1 nivel
     }
     var dlgTjeter = document.querySelector('.mbulese.hapur:not(#dlgOpsione):not(#dlgAfatet):not(#dlgEkipi)');
     if (dlgTjeter) n++;
@@ -5095,6 +5150,7 @@
     if ($('dlgEkipi').classList.contains('ne-anetar')) { ekipiKthehuTeKartat(); return; }
     if ($('dlgEkipi').classList.contains('hapur')) { mbyllEkipiFaqe(); return; }
     if ($('dlgOpsione').classList.contains('hapur')) {
+      if (PRINDI_I_FAQES[faqjaEOpsioneve]) { aktivizoTabin(PRINDI_I_FAQES[faqjaEOpsioneve]); return; }
       if ($('kategoriMenu').style.display === 'none') { aktivizoTabin(null); return; }
       mbyllOpsionet();
       return;
@@ -6114,7 +6170,7 @@
   // Rivizatim kur ndryshon diçka (kolegët, aktiviteti, chat-i, afatet e mia…)
   function kurNdryshonEkipa(cfare) {
     if (cfare === 'kujtesa') { // produktet e grupit u ndryshuan (nga një koleg): vetëm lista te Cilësimet → Stoku, nëse është hapur
-      if (kujNeEditim === null && $('kujtesaLista').offsetParent) rifreskoKujtesen(); else rifreskoStatusinEStokut();
+      rifreskoStokunNeCilesime();
       return;
     }
     rifreskoShenjatEEkipes();

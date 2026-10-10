@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 202, versioni: '1.18.1', data: '2026-10-10', titulli: 'Stoku në telefon pa scroll të gjatë', pikat: [
+      'Cilësimet → Stoku: Furnizuesit, Produktet e reja dhe Produktet janë tash rreshta me numrin e tyre. Prek njërin për ta hapur listën në faqe më vete.',
+      'Butoni "←" (ose "mbrapa" i telefonit) të kthen te Stoku.'
+    ] },
     { v: 201, versioni: '1.18.0', data: '2026-10-10', titulli: 'Produktet e reja presin kontrollin', pikat: [
       'Produktet që i shkruajnë kolegët s\'shkojnë më direkt te lista e produkteve: presin te Cilësimet → Stoku → Produktet e reja.',
       'Administratori i kontrollon emrat, i ndryshon nëse duhet dhe i ruan: pastaj kalojnë te Produktet.',

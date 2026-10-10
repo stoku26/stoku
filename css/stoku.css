@@ -258,8 +258,6 @@
 .sb .ops-furn-rresht:active { background: var(--sb-surface-2); }
 .sb div.ops-furn-rresht { cursor: default; }
 .sb div.ops-furn-rresht:active { background: transparent; }
-.sb .ops-pritje-numri { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: var(--sb-ic-portokalli-bg); color: var(--sb-ic-portokalli); letter-spacing: 0; }
-.sb .ops-pritje-numri:empty { display: none; }
 .sb .kat-status--pritje { color: var(--sb-ic-portokalli); font-weight: 600; }
 .sb .ops-furn-ik { flex: none; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; }
 .sb .ops-furn-emri { font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
