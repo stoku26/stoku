@@ -50,6 +50,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **TEL: STOKU ME NËNFAQE (v202 = 1.18.1)**: te Cilësimet → Stoku (tel) mbetet vetëm Renditja + rreshtat
+   `#stokuHyrjet` (`data-nenfaqe`: furnizuesit, pritje, produktet; numrat te `rifreskoHyrjetEStokut`, "Produktet e reja"
+   fshihet kur s'ka). Secili hap `.opsione-faqe` më vete (`faqjaEOpsioneve`, `PRINDI_I_FAQES`, `TITULLI_I_NENFAQES`); "←" dhe
+   "mbrapa" i Android-it (`niveletEHapura` +1, `mbyllShtresenMeTeFundit`) kthehen te Stoku. Ndryshimet nga grupi / llogaria:
+   `rifreskoStokunNeCilesime` (vetëm faqja që shihet). PC s'ndryshon. css/stoku.css v35.
 0000000. **PRODUKTET E REJA NË PRITJE (v201 = 1.18.0)**: kujtesa: hyrja është "në pritje" kur ka autor (`n`) dhe s'është e
    administratorit (`!s`) (`eshteNePritje`, `lista()[].nePritje`, `numriNePritje()`). Autori ruhet vetëm kur dikush e shkruan
    produktin për herë të parë ose e ndryshon (i njëjti emër/furnizues s'e kalon në pritje); riemërtimi i furnizuesit nga
