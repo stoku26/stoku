@@ -18,6 +18,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 207, versioni: '1.19.0', data: '2026-10-10', titulli: 'Furnizuesit ruhen më vete', pikat: [
+      'Furnizuesit që i ka kontrolluar administratori s\'fshihen më kur fshihen produktet e tyre: mbeten te Cilësimet → Stoku → Furnizuesit edhe pa asnjë produkt.',
+      'Administratori mund ta fshijë një furnizues (Ndrysho emrin → Fshije). Produktet e tij mbeten te Produktet, pa furnizues.',
+      'Furnizuesit e rinj të kolegëve mund të ruhen me një klik ("Ruaj") ose me emër të ndryshuar.'
+    ] },
     { v: 206, versioni: '1.18.5', data: '2026-10-10', titulli: 'Produktet e harruara s\'kthehen më', pikat: [
       'Rregullim: kur administratori e harron një produkt (Cilësimet → Stoku → Produktet → Harroje), tash hiqet menjëherë edhe në pajisjet e tjera dhe s\'kthehet më, as kur e hap Stoku-n sërish.',
       'Ndryshimet e emrave të furnizuesve vlejnë njësoj në krejt pajisjet.'

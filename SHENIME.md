@@ -50,6 +50,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **FURNIZUESIT E RUAJTUR MË VETE (v207 = 1.19.0)**: kujtesa ka edhe hyrje furnizuesish me çelës `"furnizuesi " + emri`
+   (me hapësirë: s'përzihen me barkodet, versionet e vjetra i injorojnë; sinkronizohen te `grupet/{g}/kujtesa` si produktet).
+   Vetëm administratori i ruan: me çdo ruajtje të tij me furnizues, kur e miraton/riemërton një furnizues, dhe automatikisht
+   (`ruajFurnizuesitEMiratuar`, në sfond, me kohën 1 që s'mund ta mundë një fshirje) krejt furnizuesit e miratuar.
+   `listaEFurnizuesve(..., regjistri)`: të ruajturit dalin edhe pa produkte ("Pa produkte"); të fshirët (pa dallim shkronjash)
+   s'dalin më, përveç kur një koleg e shkruan sërish (pret kontrollin). `fshijFurnizuesin`: shënim i fshirë `{x,s}` + produktet
+   mbeten pa furnizues (afatet s'preken). Riemërtimi fshin të vjetrin dhe ruan të riun. UI: "Fshije" te forma e furnizuesit
+   (tel + PC), "Ruaj" për furnizuesit e rinj (PC me një klik; tel me formën pa ndryshim emri). Testi: furn-ruaj-test.js,
+   kujtesa-njesi +12. Pa ndryshime në Firebase.
 0000000. **"HARROJE" QË S'KTHEHET (v206 = 1.18.5)**: shkaku: shënimi "i harruar" (`{x:1}`) kishte klasën 1, ndërsa hyrja e
    administratorit (`s`) klasën 2, kështu që `hyrjaFiton` mbante versionin e vjetër të administratorit: pajisjet e tjera s'e
    pranonin harrimin dhe ia kthenin grupit produktin. Tash `fshij` / `vendos` bosh nga administratori ruajnë `{x:1, s:1}`

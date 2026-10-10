@@ -500,13 +500,20 @@
   // Lista e furnizuesve me sa afate (dhe produkte) i kanë: [{ emri, afate, produkte }], renditur sipas alfabetit.
   // kujtesa (opsionale): K.lista() e grupit, që furnizuesit e kolegëve të dalin te të gjithë (v205). produkte = barkode të
   // ndryshme (stoku + kujtesa). nePritje: furnizuesi del vetëm te produktet e reja të kolegëve (pret kontrollin), nga = kush.
-  function listaEFurnizuesve(afatet, produktet, kujtesa) {
-    var m = {};
+  // regjistri (opsional, v207): K.furnizuesit(). Të ruajturit dalin edhe pa asnjë produkt; të fshirët me dorë s'dalin më
+  // (përveç kur një koleg e shkruan sërish te një produkt i ri: atëherë pret kontrollin).
+  function listaEFurnizuesve(afatet, produktet, kujtesa, regjistri) {
+    var m = {}, fshire = {};
     function rec(emri) {
-      emri = String(emri || '').trim();
+      emri = String(emri || '').replace(/\s+/g, ' ').trim();
       if (!emri) return null;
-      return (m[emri] = m[emri] || { emri: emri, afate: 0, b: {}, vetemPritje: true, nga: {} });
+      return (m[emri] = m[emri] || { emri: emri, afate: 0, b: {}, vetemPritje: true, nga: {}, regjistruar: false });
     }
+    (regjistri || []).forEach(function (x) {
+      if (!x || !x.emri) return;
+      if (x.fshire) { fshire[String(x.emri).toLocaleLowerCase('sq')] = true; return; }
+      var r = rec(x.emri); if (r) { r.regjistruar = true; r.vetemPritje = false; }
+    });
     (afatet || []).forEach(function (a) { var r = a && rec(a.furnizuesi); if (r) { r.afate++; r.vetemPritje = false; } });
     var p = produktet || {};
     Object.keys(p).forEach(function (k) { var r = p[k] && rec(p[k].furnizuesi); if (r) { r.b[p[k].barkodi || k] = 1; r.vetemPritje = false; } });
@@ -515,9 +522,13 @@
       r.b[x.barkodi] = 1;
       if (!x.nePritje) r.vetemPritje = false; else if (x.nga) r.nga[x.nga] = 1;
     });
-    return Object.keys(m).map(function (k) {
+    return Object.keys(m).filter(function (k) {
       var r = m[k];
-      return { emri: r.emri, afate: r.afate, produkte: Object.keys(r.b).length, nePritje: r.vetemPritje, nga: r.vetemPritje ? Object.keys(r.nga) : [] };
+      // i fshirë (me çdo shkrim): vetëm nëse ruhet sërish ose një koleg e shkruan sërish (pret kontrollin)
+      return !fshire[k.toLocaleLowerCase('sq')] || r.regjistruar || (r.vetemPritje && Object.keys(r.nga).length);
+    }).map(function (k) {
+      var r = m[k];
+      return { emri: r.emri, afate: r.afate, produkte: Object.keys(r.b).length, nePritje: r.vetemPritje, nga: r.vetemPritje ? Object.keys(r.nga) : [], regjistruar: r.regjistruar };
     }).sort(function (a, b) { return a.emri.localeCompare(b.emri, 'sq', { sensitivity: 'base' }) || a.emri.localeCompare(b.emri); });
   }
   // A ekziston tashmë një furnizues tjetër me këtë emër (pa dallim shkronjash të mëdha/vogla)? Kthen emrin e tij ose ''.
@@ -655,6 +666,12 @@
   }
   // Produkt i shkruar nga një koleg (ka autor, s'është i administratorit): pret kontrollin e administratorit (v201)
   function eshteNePritje(x) { return !!(x && !x.x && !x.s && x.n); }
+  // v207: furnizuesit që administratori i ka kontrolluar ruhen më vete në kujtesë ("furnizuesi " + emri; me hapësirë, që
+  // të mos përzihen me barkodet dhe versionet e vjetra t'i injorojnë). S'fshihen kur fshihen produktet e tyre; vetëm me dorë.
+  var FURN_PARA = 'furnizuesi ';
+  function celesIFurnizuesit(emri) { emri = pastroTekstin(emri, 80); return emri ? FURN_PARA + emri : ''; }
+  function eshteCelesFurnizuesi(k) { return typeof k === 'string' && k.indexOf(FURN_PARA) === 0 && k.length > FURN_PARA.length && k.length <= FURN_PARA.length + 80; }
+  function celesIVlefshem(k) { return KUJTESA_BARKODI.test(k) || eshteCelesFurnizuesi(k); }
   function krijoKujtesen(ruajtja) {
     var harta = null, degjuesit = [], autori = { emri: '', admin: false };
     function lexo() {
@@ -672,9 +689,23 @@
     }
     // Ndryshimet e bëra këtu (jo ato që vijnë nga grupi): ekipa.js i dërgon te grupi
     function njofto(barkodet) { if (barkodet.length) degjuesit.forEach(function (fn) { try { fn(barkodet.slice()); } catch (e) { /* ok */ } }); }
+    // Furnizuesi i kontrolluar nga administratori. detyro: edhe mbi një furnizues të fshirë (veprim me dorë i administratorit)
+    // Çelësat e furnizuesve aktivë me këtë emër, pa dallim shkronjash të mëdha/vogla (v = emri me shkronja të vogla)
+    function celesatEFurnizuesit(h, v) {
+      return Object.keys(h).filter(function (c) { return eshteCelesFurnizuesi(c) && !h[c].x && c.slice(FURN_PARA.length).toLocaleLowerCase('sq') === v; });
+    }
+    function regjistro(h, emri, tani, detyro, ndr) {
+      if (!autori.admin) return;
+      emri = pastroTekstin(emri, 80);
+      var c = celesIFurnizuesit(emri); if (!c) return;
+      var x = h[c];
+      if (x && (x.x ? !detyro : x.e === emri)) return;
+      h[c] = { e: emri, f: '', k: tani || Date.now(), s: 1 };
+      if (ndr) ndr.push(c);
+    }
     // menyra 'mbishkruaj' (ruajtje nga përdoruesi: fushat jo-bosh zëvendësojnë) | 'plotëso' (në sfond: vetëm hyrje të reja
     // ose plotësim i atyre automatike; hyrjet e përdoruesit, me dorë ose të harruara s'preken)
-    function mesoNje(h, b, emri, furn, menyra, tani) {
+    function mesoNje(h, b, emri, furn, menyra, tani, ndr) {
       b = pastroBarkodin(b); emri = pastroTekstin(emri, 120); furn = pastroTekstin(furn, 80);
       if (!b || (!emri && !furn)) return false;
       var x = h[b], ri;
@@ -693,6 +724,7 @@
         // presin kontrollin e administratorit); i njëjti emër e furnizues s'e kalon një produkt të njohur në pritje
         if (autori.emri && (autori.admin || !vjeter || ri.e !== vjeter.e || ri.f !== vjeter.f)) ri.n = autori.emri;
         else if (vjeter && vjeter.n) ri.n = vjeter.n;
+        if (ri.f) regjistro(h, ri.f, ri.k, true, ndr); // furnizuesi që shkruan administratori ruhet më vete
       }
       h[b] = ri;
       return b;
@@ -706,11 +738,11 @@
         var x = b ? lexo()[b] : null;
         return x && !x.x ? { barkodi: b, emri: x.e || '', furnizuesi: x.f || '', koha: x.k || 0, meDore: !!x.m } : null;
       },
-      meso: function (b, emri, furn, menyra) { var h = lexo(), r = mesoNje(h, b, emri, furn, menyra); if (!r) return false; shkruaj(); njofto([r]); return true; },
+      meso: function (b, emri, furn, menyra) { var h = lexo(), ndr = [], r = mesoNje(h, b, emri, furn, menyra, 0, ndr); if (!r) return false; shkruaj(); njofto([r].concat(ndr)); return true; },
       // lista: [{ barkodi, emri, furnizuesi }]; një shkrim i vetëm në fund
       mesoShume: function (lista, menyra) {
         var h = lexo(), ndr = [], tani = Date.now();
-        (lista || []).forEach(function (x) { var r = x && mesoNje(h, x.barkodi, x.emri, x.furnizuesi, menyra, tani); if (r) ndr.push(r); });
+        (lista || []).forEach(function (x) { var r = x && mesoNje(h, x.barkodi, x.emri, x.furnizuesi, menyra, tani, ndr); if (r) ndr.push(r); });
         if (ndr.length) { shkruaj(); njofto(ndr); }
         return ndr.length;
       },
@@ -723,7 +755,9 @@
         if (autori.admin) ri.s = 1;
         if (!ri.x && autori.emri) ri.n = autori.emri;
         h[b] = ri;
-        shkruaj(); njofto([b]);
+        var ndr = [b];
+        if (ri.f) regjistro(h, ri.f, ri.k, true, ndr);
+        shkruaj(); njofto(ndr);
         return true;
       },
       fshij: function (b) {
@@ -738,22 +772,60 @@
         if (!vjeter || !iRi || vjeter === iRi) return 0;
         var h = lexo(), ndr = [], v = vjeter.toLocaleLowerCase('sq'), tani = Date.now();
         Object.keys(h).forEach(function (b) {
-          if (!h[b].x && h[b].f && h[b].f.toLocaleLowerCase('sq') === v) {
+          if (!eshteCelesFurnizuesi(b) && !h[b].x && h[b].f && h[b].f.toLocaleLowerCase('sq') === v) {
             h[b].f = iRi; h[b].k = tani; delete h[b].a;
             if (autori.admin && !eshteNePritje(h[b])) h[b].s = 1; // ato në pritje mbeten në pritje: emri ende s'është kontrolluar
             ndr.push(b);
           }
         });
+        var nProdukte = ndr.length;
+        if (autori.admin) { // furnizuesi me emrin e ri është i kontrolluar; i vjetri (me çdo shkrim) s'ekziston më
+          var cRi = celesIFurnizuesit(iRi);
+          celesatEFurnizuesit(h, v).forEach(function (c) { if (c !== cRi) { h[c] = { x: 1, k: tani, s: 1 }; ndr.push(c); } });
+          regjistro(h, iRi, tani, true, ndr);
+        }
+        if (ndr.length) { shkruaj(); njofto(ndr); }
+        return nProdukte;
+      },
+      // Furnizuesit e ruajtur më vete: [{ emri, fshire, koha }]
+      furnizuesit: function () {
+        var h = lexo();
+        return Object.keys(h).filter(eshteCelesFurnizuesi).map(function (c) { return { emri: h[c].e || c.slice(FURN_PARA.length), fshire: !!h[c].x, koha: h[c].k || 0 }; });
+      },
+      // Administratori: ruaj këta furnizues (të kontrolluar). Pa detyro s'prek ata që janë fshirë me dorë.
+      regjistroFurnizuesit: function (emrat, detyro) {
+        if (!autori.admin) return 0;
+        // pa detyro (ruajtja automatike në sfond) koha është 1: s'mund ta mundë një fshirje me dorë nga një pajisje tjetër
+        var h = lexo(), ndr = [], tani = detyro ? Date.now() : 1;
+        (emrat || []).forEach(function (e) { regjistro(h, e, tani, !!detyro, ndr); });
         if (ndr.length) { shkruaj(); njofto(ndr); }
         return ndr.length;
       },
+      // Administratori e fshin furnizuesin: hiqet nga lista; produktet e tij mbeten, pa furnizues. Kthen sa produkte.
+      fshijFurnizuesin: function (emri) {
+        if (!autori.admin) return -1;
+        emri = pastroTekstin(emri, 80);
+        var c = celesIFurnizuesit(emri); if (!c) return -1;
+        var h = lexo(), tani = Date.now(), v = emri.toLocaleLowerCase('sq'), ndr = [];
+        celesatEFurnizuesit(h, v).concat([c]).forEach(function (k) { if (ndr.indexOf(k) === -1) { h[k] = { x: 1, k: tani, s: 1 }; ndr.push(k); } });
+        var nFurn = ndr.length;
+        Object.keys(h).forEach(function (b) {
+          var x = h[b];
+          if (eshteCelesFurnizuesi(b) || x.x || !x.e || !x.f || x.f.toLocaleLowerCase('sq') !== v) return;
+          x.f = ''; x.k = tani; delete x.a;
+          if (!eshteNePritje(x)) x.s = 1;
+          ndr.push(b);
+        });
+        shkruaj(); njofto(ndr);
+        return ndr.length - nFurn;
+      },
       lista: function () {
         var h = lexo();
-        return Object.keys(h).filter(function (b) { return !h[b].x; }).map(function (b) { return { barkodi: b, emri: h[b].e || '', furnizuesi: h[b].f || '', koha: h[b].k || 0, meDore: !!h[b].m, ngaAdmini: !!h[b].s, nga: h[b].n || '', automatik: !!h[b].a, nePritje: eshteNePritje(h[b]) }; })
+        return Object.keys(h).filter(function (b) { return !h[b].x && !eshteCelesFurnizuesi(b); }).map(function (b) { return { barkodi: b, emri: h[b].e || '', furnizuesi: h[b].f || '', koha: h[b].k || 0, meDore: !!h[b].m, ngaAdmini: !!h[b].s, nga: h[b].n || '', automatik: !!h[b].a, nePritje: eshteNePritje(h[b]) }; })
           .sort(function (a, b) { return (a.emri || a.barkodi).localeCompare(b.emri || b.barkodi, 'sq'); });
       },
-      numri: function () { var h = lexo(); return Object.keys(h).filter(function (b) { return !h[b].x; }).length; },
-      numriNePritje: function () { var h = lexo(); return Object.keys(h).filter(function (b) { return eshteNePritje(h[b]); }).length; },
+      numri: function () { var h = lexo(); return Object.keys(h).filter(function (b) { return !h[b].x && !eshteCelesFurnizuesi(b); }).length; },
+      numriNePritje: function () { var h = lexo(); return Object.keys(h).filter(function (b) { return !eshteCelesFurnizuesi(b) && eshteNePritje(h[b]); }).length; },
       // Kush po shkruan (emri i llogarisë dhe a është administratori i Stoku-t): vendoset nga faqja
       vendosAutorin: function (emri, admin) { autori.emri = pastroTekstin(emri, 40); autori.admin = !!admin; },
       // ---- Sinkronizimi me grupin (ekipa.js) ----
@@ -763,7 +835,7 @@
         if (!remote || typeof remote !== 'object') return 0;
         var h = lexo(), n = 0;
         Object.keys(remote).forEach(function (b) {
-          if (!KUJTESA_BARKODI.test(b)) return;
+          if (!celesIVlefshem(b)) return;
           var r = hyrjaEPastruar(remote[b]);
           if (r && hyrjaFiton(r, h[b])) { h[b] = r; n++; }
         });
@@ -774,7 +846,7 @@
       perDergim: function (remote) {
         var h = lexo(); remote = remote || {};
         return Object.keys(h).filter(function (b) {
-          if (!KUJTESA_BARKODI.test(b)) return false;
+          if (!celesIVlefshem(b)) return false;
           var r = hyrjaEPastruar(remote[b]);
           return !r || hyrjaFiton(h[b], r);
         });
@@ -784,7 +856,7 @@
         var h = lexo(), o = {};
         (barkodet || []).forEach(function (b) {
           var x = h[b];
-          if (!x || !KUJTESA_BARKODI.test(b)) return;
+          if (!x || !celesIVlefshem(b)) return;
           o[b] = x.x ? { e: '', f: '', k: x.k || 0, a: 0, m: 0, s: x.s ? 1 : 0, n: '', x: 1 } : { e: x.e || '', f: x.f || '', k: x.k || 0, a: x.a ? 1 : 0, m: x.m ? 1 : 0, s: x.s ? 1 : 0, n: x.n || '', x: 0 };
         });
         return o;
