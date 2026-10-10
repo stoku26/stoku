@@ -18,6 +18,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 214, versioni: '1.22.0', data: '2026-10-11', titulli: 'Furnizuesit e rinj s\'humbin më', pikat: [
+      'Furnizuesi i ri që e shkruan dikush s\'fshihet më kur fshihen produktet e tij: mbetet te Cilësimet → Stoku → Furnizuesit e rinj derisa ta ruajë, ta riemërtojë ose ta fshijë administratori.',
+      'Edhe produktet dhe furnizuesit e rinj që i shton administratori dalin te "Produktet e reja" / "Furnizuesit e rinj", që t\'i kontrollojë dhe t\'i ruajë kur të dojë.',
+      'Fshirja e furnizuesit s\'i fshin produktet e tij.',
+      'Aktiviteti: "Ti e fshive", "e hoqe ti", "me kërkesën tënde" (u rregulluan disa gabime drejtshkrimore).'
+    ] },
     { v: 213, versioni: '1.21.0', data: '2026-10-10', platforma: 'pc', titulli: 'Anësorja e re me tri pllaka', pikat: [
       'Sipër anësores janë tri pllaka: Stoku, Afatet dhe Grupi, secila me numrat e vet (produktet, të skaduarat, kolegët online).',
       'Poshtë pllakave del vetëm menyja e pllakës së zgjedhur, pa listat e tjera.',

@@ -719,22 +719,20 @@
       return Object.keys(h).filter(function (c) { return eshteCelesFurnizuesi(c) && !h[c].x && c.slice(FURN_PARA.length).toLocaleLowerCase('sq') === v; });
     }
     // detyro: administratori e ruan me dorë (Ruaj, riemërtim): i kontrolluar, edhe mbi një të fshirë ose në pritje.
-    // Pa detyro (në sfond, koha 1): vetëm emrat krejt të panjohur (asnjë hyrje, as e fshirë); v214: presin kontrollin.
+    // Pa detyro (në sfond, koha 1): emrat e vjetër të administratorit pa asnjë hyrje (as në pritje, as të fshirë, pa dallim
+    // shkronjash) ruhen si të kontrolluar; të rinjtë e marrin hyrjen në pritje kur shkruhen (regjistroIRi, v214).
     function regjistro(h, emri, tani, detyro, ndr) {
       if (!autori.admin) return;
       emri = pastroTekstin(emri, 80);
       var c = celesIFurnizuesit(emri); if (!c) return;
-      var x = h[c], ri;
+      var x = h[c];
       if (detyro) {
         if (x && !x.x && x.s && !x.r && x.e === emri) return; // i kontrolluar tashmë
-        ri = { e: emri, f: '', k: tani || Date.now(), s: 1 };
       } else {
         var v = emri.toLocaleLowerCase('sq');
         if (Object.keys(h).some(function (k2) { return eshteCelesFurnizuesi(k2) && k2.slice(FURN_PARA.length).toLocaleLowerCase('sq') === v; })) return;
-        ri = { e: emri, f: '', k: tani || 1, s: 1, r: 1 };
-        if (autori.emri) ri.n = autori.emri;
       }
-      h[c] = ri;
+      h[c] = { e: emri, f: '', k: tani || (detyro ? Date.now() : 1), s: 1 };
       if (ndr) ndr.push(c);
     }
     // v214: furnizuesi i ri që e shkruan dikush gjatë punës (produkt, afat): ruhet më vete që të mos zhduket kur fshihen
@@ -788,7 +786,9 @@
         if (x && x.s && !autori.admin) return false; // e administratorit (edhe e harruar prej tij): të tjerët s'e mbishkruajnë
         ri = { e: emri || (vjeter && vjeter.e) || '', f: furn || (vjeter && vjeter.f) || '', k: tani || Date.now() };
         if (vjeter && vjeter.m) ri.m = 1;
-        if (autori.admin) { ri.s = 1; ri.r = 1; } // v214: edhe ajo që shton administratori pret kontrollin e tij
+        // v214: edhe produkti i ri (ose me emër/furnizues të ndryshuar) i administratorit pret kontrollin e tij; një i njohur
+        // me të njëjtin emër (p.sh. vetëm sasia ndryshoi te stoku) s'kalon në pritje, por as s'del nga pritja pa u ruajtur
+        if (autori.admin) { ri.s = 1; if (!vjeter || ri.e !== vjeter.e || ri.f !== vjeter.f || eshteNePritje(vjeter)) ri.r = 1; }
         if (vjeter && !vjeter.a && !!vjeter.s === !!ri.s && ri.e === vjeter.e && ri.f === vjeter.f) return false;
         // Autori ruhet vetëm kur dikush e shkruan produktin për herë të parë ose e ndryshon (v201: produktet e kolegëve
         // presin kontrollin e administratorit); i njëjti emër e furnizues s'e kalon një produkt të njohur në pritje

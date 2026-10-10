@@ -1884,10 +1884,10 @@
 <script src="xlsx.js?v=212"></script>
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=212"></script>
-<script src="ekipa.js?v=212"></script>
+<script src="afatet.js?v=214"></script>
+<script src="ekipa.js?v=214"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=213"></script>
+<script src="teRejat.js?v=214"></script>
 <script>
 (function () {
   'use strict';
@@ -3112,8 +3112,8 @@
     return [f.afate ? sasiaETekst(f.afate, 'afat', 'afate') : '', f.produkte ? sasiaETekst(f.produkte, 'produkt', 'produkte') : '',
       f.nePritje && f.nga && f.nga.length ? 'nga ' + f.nga.join(', ') : ''].filter(Boolean).join(' · ') || 'Pa produkte';
   }
-  // v207: administratori: furnizuesit ruhen më vete, që të mos fshihen kur fshihen produktet e tyre. v214: këtu (në sfond)
-  // ruhen vetëm emrat krejt të panjohur, dhe presin kontrollin; të kontrolluarit dhe të fshirët s'preken.
+  // v207: administratori: furnizuesit e miratuar ruhen më vete, që të mos fshihen kur fshihen produktet e tyre. v214: vetëm
+  // emrat pa asnjë hyrje (të vjetrit); të rinjtë presin kontrollin, të fshirët s'preken.
   function ruajFurnizuesitEMiratuar() {
     try {
       var k = KJ(); if (!k || !k.regjistroFurnizuesit || !eshteAdminiIStokut()) return;

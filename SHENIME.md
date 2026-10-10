@@ -50,6 +50,21 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **FURNIZUESIT E RINJ RUHEN MË VETE + KONTROLLI EDHE PËR ADMINISTRATORIN (v214 = 1.22.0)**: problemi: furnizuesi i
+   ri i një kolegu dilte te "Furnizuesit e rinj" vetëm nga produktet e tij në pritje; kur administratori i fshinte ato, zhdukej.
+   Tash (afatet.js, kujtesa): `regjistroIRi` (nga `mesoNje`, `vendos`, `regjistroFurnizuesinERi`) i jep çdo furnizuesi të ri
+   (të panjohur pa dallim shkronjash) hyrjen e vet "furnizuesi X" NË PRITJE: i kolegut `{e, k, n}`, i administratorit
+   `{e, k, s:1, r:1, n}`. `eshteNePritje(x)` = `!x && (s ? r : n)`; fusha e re `r` ("rishiko") ruhet në `hyrjaEPastruar` dhe
+   shkon te grupi (`hyrjePerGrup` me `r: 0/1`). Produkti i ri (ose me emër/furnizues të ndryshuar) i administratorit merr `r`
+   (pret kontrollin); një i njohur me të njëjtin emër (p.sh. vetëm sasia te stoku) s'kalon në pritje. "Ruaj" te Cilësimet
+   (`vendos`, `regjistroFurnizuesit(.., true)`, riemërtimi) e heq `r`. Sfondi (`regjistroFurnizuesit` pa detyro, koha 1) ruan si të
+   kontrolluar vetëm emrat pa asnjë hyrje (të vjetrit). Migrimi: `siguroFurnizuesitNePritje` (në `bashko`) krijon hyrjen në pritje
+   për produktet në pritje pa të (përveç kur furnizuesi u fshi pas produktit). Sinkronizimi: për çelësat e furnizuesve, "i fshirë"
+   kundër "në pritje" fiton më i riu (`hyrjaFiton(r, l, b)`), që një i fshirë del sërish në pritje kur dikush e shkruan sërish.
+   `listaEFurnizuesve`: hyrja më vete vendos gjendjen (e kontrolluar / në pritje). Lista publike (`publikoFurnizuesit`) pa ata në
+   pritje. Aktiviteti (ekipa.js `tekstiNgjarjes`): "Ti e fshive/e hoqe/e ktheve" (`FJALA_E_VEPRIMIT_TI`), "e hoqe ti",
+   "e kishe hequr ti", "me kërkesën tënde". Testet: furn-pritje-test.js (i ri); u përditësuan kujtesa-njesi, kujtesa-test,
+   furn-ruaj-test, stok-furn-test (sjellja e re: të rejat e administratorit presin kontrollin).
 0000000. **PC: ANËSORJA ME TRI PLLAKA (v213 = 1.21.0)**: akordioni (Stoku/Afatet/Grupi me shigjeta) u zëvendësua me
    `.sbp-pllakat`: tri butona `role="tab"` me id-të e vjetra `btnAkordStoku/Afatet/Ekipi` (ikonë, emër, `#pllStokuNen` = numri i
    produkteve, `#pllAfatetNen` = "N skaduar" (kuqe) / "N afër" (verdhë) / numri i afateve, `#pllEkipiNen` = teksti i
