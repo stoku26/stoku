@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 209, versioni: '1.19.2', data: '2026-10-10', titulli: 'Importet kalojnë në kontroll', pikat: [
+      'Kur një koleg importon afate ose produkte nga foto ose Excel, produktet dhe furnizuesit e rinj dalin te Cilësimet → Stoku → Produktet e reja / Furnizuesit e rinj, që t\'i kontrollojë administratori.',
+      'Te Produktet, butoni "Harroje" tash quhet "Fshije", si te Furnizuesit.'
+    ] },
     { v: 208, versioni: '1.19.1', data: '2026-10-10', titulli: 'Folder i ri gjatë importit në kompjuter', pikat: [
       'Kontrollo fletën e lexuar (kompjuter): zgjedhja e folderit është më e vogël dhe ka "+ Folder i ri…": e krijon dhe e emëron folderin pa e mbyllur fletën, si në telefon.'
     ] },

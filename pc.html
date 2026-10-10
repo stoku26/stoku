@@ -1931,7 +1931,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=207"></script>
 <script src="ekipa.js?v=198"></script>
-<script src="teRejat.js?v=208"></script>
+<script src="teRejat.js?v=209"></script>
 <script>
 (function () {
   'use strict';
@@ -4147,7 +4147,7 @@
     Object.keys(produktet).forEach(function (k) { para[k] = true; });
     var shkruar = {};          // produktet e prekura tashmë nga ky import (barkod i përsëritur në skedar → mblidhet)
     var idTeRinj = {};
-    var n = 0;
+    var n = 0, perKujtese = [];
     var reg = ndrysho(function (api) {
       plan.rreshta.forEach(function (r) {
         if (r.gabim) return;
@@ -4170,10 +4170,12 @@
           else { sasia = ek.sasia + r.s; emri = ek.emri || r.emri; }
         } else { sasia = r.s; emri = r.emri; }
         api.vendos(k, { barkodi: r.b, emri: emri || '', sasia: Math.max(0, sasia | 0), kategoriaId: fid, prekurSe: tani });
+        if (emri) perKujtese.push({ barkodi: r.b, emri: emri });
         shkruar[k] = true;
         n++;
       });
     });
+    try { if (KJ()) KJ().mesoShume(perKujtese, 'mbishkruaj'); } catch (e) { /* ok */ } // v209: si importet e tjera (kolegët: presin kontrollin)
     mbyllDialog('dlgImport');
     toast('U importuan ' + num(n) + ' rreshta' + (Object.keys(idTeRinj).length ? ' (' + Object.keys(idTeRinj).length + ' foldera të rinj)' : '') + '.', { veprimi: function () { zhbej(reg); }, ms: 12000 });
   });
@@ -4554,8 +4556,10 @@
   function ruajFurnizuesitEMiratuar() {
     try {
       var k = KJ(); if (!k || !k.regjistroFurnizuesit || !eshteAdminiIStokut()) return;
-      var l = AF.listaEFurnizuesve(afatet, produktet, k.lista(), k.furnizuesit());
-      k.regjistroFurnizuesit(l.filter(function (f) { return !f.nePritje && !f.regjistruar; }).map(function (f) { return f.emri; }));
+      // v209: vetëm nga afatet/stoku i administratorit dhe produktet e kontrolluara prej tij; jo nga ato që Stoku i mësoi
+      // vetë nga afatet e kolegëve (furnizuesit e tyre të rinj presin kontrollin)
+      var l = AF.listaEFurnizuesve(afatet, produktet, k.lista().filter(function (x) { return x.ngaAdmini; }), []);
+      k.regjistroFurnizuesit(l.map(function (f) { return f.emri; }));
     } catch (e) { /* ok */ }
   }
   async function fshijFurnizuesin(f) {
@@ -4729,11 +4733,11 @@
     var dl = $('afdFurnizuesit'); dl.textContent = ''; furnizuesit().forEach(function (f) { var o = el('option'); o.value = f; dl.appendChild(o); });
     t.appendChild(ie); t.appendChild(ifu); t.appendChild(el('div', 'ops-furn-nen', 'Barkodi: ' + x.barkodi + (x.nePritje && x.nga ? ' · e shkroi ' + x.nga : '')));
     w.appendChild(t);
-    var harro = el('button', 'btn tekst rrezik vogel', 'Harroje'); harro.type = 'button'; harro.title = 'Hiqe nga kujtesa: herën tjetër s\'plotësohet vetë';
+    var harro = el('button', 'btn tekst rrezik vogel', 'Fshije'); harro.type = 'button'; harro.title = 'Fshije nga produktet: herën tjetër s\'plotësohet vetë';
     var anulo = el('button', 'btn tekst vogel', 'Anulo'); anulo.type = 'button';
     var ruajB = el('button', 'btn vogel', 'Ruaj'); ruajB.type = 'button';
     anulo.addEventListener('click', function () { kujNeEditim = null; rifreskoKujtesen(); });
-    harro.addEventListener('click', function () { if (!eshteAdminiIStokut()) { anulo.click(); return; } if (KJ()) KJ().fshij(x.barkodi); kujNeEditim = null; rifreskoKujtesen(); toast('"' + (x.emri || x.barkodi) + '" u hoq nga kujtesa.'); });
+    harro.addEventListener('click', function () { if (!eshteAdminiIStokut()) { anulo.click(); return; } if (KJ()) KJ().fshij(x.barkodi); kujNeEditim = null; rifreskoKujtesen(); toast('"' + (x.emri || x.barkodi) + '" u fshi nga produktet.'); });
     ruajB.addEventListener('click', function () {
       if (!eshteAdminiIStokut()) { anulo.click(); return; }
       if (KJ()) KJ().vendos(x.barkodi, ie.value, ifu.value);
