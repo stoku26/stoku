@@ -447,6 +447,7 @@
 .sbp .ops-karta[hidden] { display: none; }
 .sbp .ops-nav-tekst small.ops-nen-pritje { color: var(--sb-ic-portokalli); font-weight: 600; }
 #opsKujPritjeLista .ops-furn-shkronja { background: var(--sb-ic-portokalli-bg); color: var(--sb-ic-portokalli); }
+#opsFurnPritjeLista .ops-furn-shkronja { background: var(--sb-ic-vjollce-bg); color: var(--sb-ic-vjollce); }
 .sbp .ops-furn-lista { border-top: 1px solid var(--sb-line-2); margin: 0 -20px -18px; max-height: 340px; overflow-y: auto; }
 .sbp .ops-furn-rresht { display: flex; align-items: center; gap: 12px; padding: 10px 20px; border-bottom: 1px solid var(--sb-line-2); }
 .sbp .ops-furn-rresht:last-child { border-bottom: 0; }

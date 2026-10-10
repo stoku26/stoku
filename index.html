@@ -1208,7 +1208,7 @@
             <span class="shigjeta">›</span>
           </button>
           <button class="kategori-rresht" type="button" data-faqe="njoftimet" id="tabNjoftimet">
-            <span class="kat-ikona-badge ngj-kuqe"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg></span>
+            <span class="kat-ikona-badge ngj-vjollce"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg></span>
             <span class="kat-info"><span class="kat-tekst">Njoftimet</span><span class="kat-status" id="tabNjoftimetStatus"></span></span>
             <span class="shigjeta">›</span>
           </button>
@@ -1403,6 +1403,11 @@
           </div>
           <div class="ops-grupi-titull">Furnizuesit dhe produktet</div>
           <div class="ops-grupi" id="stokuHyrjet">
+            <button class="kategori-rresht" type="button" data-nenfaqe="furnPritje" id="stFurnPritje">
+              <span class="kat-ikona-badge ngj-vjollce"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17h4V5H2v12h3"></path><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"></path><circle cx="7.5" cy="17.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg></span>
+              <span class="kat-info"><span class="kat-tekst">Furnizuesit e rinj</span><span class="kat-status kat-status--pritje" id="stFurnPritjeStatus"></span></span>
+              <span class="shigjeta">›</span>
+            </button>
             <button class="kategori-rresht" type="button" data-nenfaqe="furnizuesit" id="stFurnizuesit">
               <span class="kat-ikona-badge ngj-portokalli"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17h4V5H2v12h3"></path><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"></path><circle cx="7.5" cy="17.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg></span>
               <span class="kat-info"><span class="kat-tekst">Furnizuesit</span><span class="kat-status" id="stFurnizuesitStatus"></span></span>
@@ -1418,6 +1423,13 @@
               <span class="kat-info"><span class="kat-tekst">Produktet</span><span class="kat-status" id="stProduktetStatus"></span></span>
               <span class="shigjeta">›</span>
             </button>
+          </div>
+        </div>
+
+        <div class="opsione-faqe" data-faqe="furnPritje">
+          <div id="furnPritjeSeksion">
+            <div class="ops-intro" id="furnPritjeIntro"></div>
+            <div class="ops-grupi ops-furn" id="furnPritjeLista"></div>
           </div>
         </div>
 
@@ -1865,10 +1877,10 @@
 <script src="xlsx.js?v=113"></script>
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=201"></script>
+<script src="afatet.js?v=205"></script>
 <script src="ekipa.js?v=198"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=204"></script>
+<script src="teRejat.js?v=205"></script>
 <script>
 (function () {
   'use strict';
@@ -2977,15 +2989,15 @@
   // Cilësimet → Stoku: e shohin të gjithë; furnizuesit dhe produktet i ndryshon vetëm administratori (v199).
   // v202: Furnizuesit, Produktet e reja dhe Produktet janë nënfaqe të Stoku-t (hapen me prekje, "←" kthehet te Stoku)
   var faqjaEOpsioneve = null;
-  var PRINDI_I_FAQES = { furnizuesit: 'lista', pritje: 'lista', produktet: 'lista' };
-  var TITULLI_I_NENFAQES = { furnizuesit: 'Furnizuesit', pritje: 'Produktet e reja', produktet: 'Produktet' };
+  var PRINDI_I_FAQES = { furnPritje: 'lista', furnizuesit: 'lista', pritje: 'lista', produktet: 'lista' };
+  var TITULLI_I_NENFAQES = { furnPritje: 'Furnizuesit e rinj', furnizuesit: 'Furnizuesit', pritje: 'Produktet e reja', produktet: 'Produktet' };
   function neFaqenEStokut() { return !!faqjaEOpsioneve && (faqjaEOpsioneve === 'lista' || !!PRINDI_I_FAQES[faqjaEOpsioneve]); }
   // Ndryshoi diçka (llogaria, kujtesa nga grupi): rifresko vetëm atë që shihet tani te Cilësimet → Stoku
   function rifreskoStokunNeCilesime() {
     rifreskoStatusinEStokut();
     if (!neFaqenEStokut() || !$('dlgOpsione').classList.contains('hapur')) return;
     if (faqjaEOpsioneve === 'lista') rifreskoHyrjetEStokut();
-    else if (faqjaEOpsioneve === 'furnizuesit') { if (furnNeEditim === null) rifreskoFurnizuesit(); }
+    else if (faqjaEOpsioneve === 'furnizuesit' || faqjaEOpsioneve === 'furnPritje') { if (furnNeEditim === null) rifreskoFurnizuesit(); }
     else if (kujNeEditim === null) rifreskoKujtesen();
   }
   window.addEventListener('stoku-auth-ndryshoi', function () {
@@ -2996,7 +3008,7 @@
     var neMenu = !emriFaqes;
     faqjaEOpsioneve = emriFaqes || null;
     if (emriFaqes === 'lista') rifreskoHyrjetEStokut();
-    if (emriFaqes === 'furnizuesit') { furnNeEditim = null; $('furnKerko').value = ''; rifreskoFurnizuesit(); }
+    if (emriFaqes === 'furnizuesit' || emriFaqes === 'furnPritje') { furnNeEditim = null; $('furnKerko').value = ''; rifreskoFurnizuesit(); }
     if (emriFaqes === 'pritje' || emriFaqes === 'produktet') { kujNeEditim = null; $('kujtesaKerko').value = ''; kujSaShfaqen = pritjeSaShfaqen = KUJ_MAKS; rifreskoKujtesen(); }
     $('kategoriMenu').style.display = neMenu ? '' : 'none';
     Array.prototype.forEach.call(document.querySelectorAll('.opsione-faqe'), function (f) {
@@ -3022,8 +3034,11 @@
   function rifreskoHyrjetEStokut() {
     var k = KJ(), l = k ? k.lista() : [];
     var nP = l.filter(function (x) { return x.nePritje; }).length, nK = l.length - nP;
-    var nF = window.StokuAfatet.listaEFurnizuesve(afatet, produktet).length;
+    var lf = window.StokuAfatet.listaEFurnizuesve(afatet, produktet, l);
+    var nFP = lf.filter(function (f) { return f.nePritje; }).length, nF = lf.length - nFP;
     $('stFurnizuesitStatus').textContent = nF ? sasiaETekst(nF, 'furnizues', 'furnizues') : 'Ende s\'ka';
+    $('stFurnPritje').style.display = nFP ? '' : 'none';
+    $('stFurnPritjeStatus').textContent = nFP === 1 ? '1 pret kontrollin' : nFP + ' presin kontrollin';
     $('stPritje').style.display = nP ? '' : 'none';
     $('stPritjeStatus').textContent = nP === 1 ? '1 pret kontrollin' : nP + ' presin kontrollin';
     $('stPritjeStatus').classList.add('kat-status--pritje');
@@ -3046,6 +3061,8 @@
   });
   // ---------- Furnizuesit (Cilësimet → Stoku): i sheh kushdo, emrat i ndryshon vetëm administratori ----------
   // Lista e krejt furnizuesve të afateve/produkteve, me ndryshim emri (edhe bashkim i dy furnizuesve në një).
+  // v205: edhe furnizuesit e produkteve të grupit (kujtesa); ata që dalin vetëm te produktet e reja të kolegëve
+  // presin te "Furnizuesit e rinj" derisa administratori t'i kontrollojë produktet e tyre.
   var ADMIN_I_STOKUT = 'mendurberisha';
   var furnNeEditim = null; // emri i furnizuesit që po ndryshohet tani
   function eshteAdminiIStokut() { return !!perdoruesiAktual() && emriPerdoruesitAktual() === ADMIN_I_STOKUT; }
@@ -3055,10 +3072,17 @@
     if (!sek) return;
     var admin = eshteAdminiIStokut();
     if (!admin) furnNeEditim = null;
-    $('furnIntro').textContent = admin ? 'Ndrysho emrin e një furnizuesi: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një.'
-      : 'Furnizuesit e afateve dhe produkteve të tua. Emrat i ndryshon vetëm administratori.';
-    var AFL = window.StokuAfatet;
-    var lista = AFL.listaEFurnizuesve(afatet, produktet);
+    $('furnIntro').textContent = admin ? 'Furnizuesit e krejt grupit. Ndrysho emrin e një furnizuesi: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një.'
+      : 'Furnizuesit e krejt grupit dhe të afateve të tua. Emrat i ndryshon vetëm administratori.';
+    $('furnPritjeIntro').textContent = admin ? 'Furnizuesit që dalin vetëm te produktet e reja të kolegëve. Ndrysho emrin nëse është shkruar gabim (ndryshon te krejt produktet e tyre). Kalojnë te Furnizuesit kur i ruan produktet te Produktet e reja.'
+      : 'Furnizuesit e rinj nga kolegët. I kontrollon administratori, pastaj kalojnë te Furnizuesit.';
+    var AFL = window.StokuAfatet, kj = KJ();
+    var teGjithe = AFL.listaEFurnizuesve(afatet, produktet, kj ? kj.lista() : []);
+    var pritje = teGjithe.filter(function (f) { return f.nePritje; });
+    var lista = teGjithe.filter(function (f) { return !f.nePritje; });
+    var cp = $('furnPritjeLista'); cp.textContent = '';
+    if (!pritje.length) { var bp = document.createElement('div'); bp.className = 'ops-furn-bosh'; bp.textContent = 'Asnjë furnizues i ri për kontroll.'; cp.appendChild(bp); }
+    pritje.forEach(function (f) { cp.appendChild(f.emri === furnNeEditim ? rreshtIEditimitTeFurnizuesit(f, teGjithe) : rreshtIFurnizuesit(f, admin)); });
     var k = ($('furnKerko').value || '').trim().toLocaleLowerCase('sq');
     $('furnKerkoKuti').hidden = lista.length < 8 && !k;
     var cont = $('furnLista');
@@ -3070,14 +3094,15 @@
       cont.appendChild(bosh);
       return;
     }
-    fil.forEach(function (f) { cont.appendChild(f.emri === furnNeEditim ? rreshtIEditimitTeFurnizuesit(f, lista) : rreshtIFurnizuesit(f, admin)); });
+    fil.forEach(function (f) { cont.appendChild(f.emri === furnNeEditim ? rreshtIEditimitTeFurnizuesit(f, teGjithe) : rreshtIFurnizuesit(f, admin)); });
   }
   function nenTekstiFurnizuesit(f) {
-    return [f.afate ? sasiaETekst(f.afate, 'afat', 'afate') : '', f.produkte ? sasiaETekst(f.produkte, 'produkt', 'produkte') : ''].filter(Boolean).join(' · ');
+    return [f.afate ? sasiaETekst(f.afate, 'afat', 'afate') : '', f.produkte ? sasiaETekst(f.produkte, 'produkt', 'produkte') : '',
+      f.nePritje && f.nga && f.nga.length ? 'nga ' + f.nga.join(', ') : ''].filter(Boolean).join(' · ');
   }
   function rreshtIFurnizuesit(f, admin) {
     var b = document.createElement(admin ? 'button' : 'div'); b.className = 'ops-furn-rresht';
-    var ik = document.createElement('span'); ik.className = 'kat-ikona-badge ngj-portokalli ops-furn-ik'; ik.textContent = (f.emri.charAt(0) || '?').toUpperCase();
+    var ik = document.createElement('span'); ik.className = 'kat-ikona-badge ' + (f.nePritje ? 'ngj-vjollce' : 'ngj-portokalli') + ' ops-furn-ik'; ik.textContent = (f.emri.charAt(0) || '?').toUpperCase();
     var t = document.createElement('span'); t.className = 'ops-rresht__tekst';
     var e = document.createElement('span'); e.className = 'ops-furn-emri'; e.textContent = f.emri;
     var n = document.createElement('span'); n.className = 'hint'; n.textContent = nenTekstiFurnizuesit(f);
@@ -3090,7 +3115,7 @@
     b.addEventListener('click', function () {
       furnNeEditim = f.emri;
       rifreskoFurnizuesit();
-      var inp = document.querySelector('#furnLista .ops-furn-edit input');
+      var inp = document.querySelector('#furnPritjeLista .ops-furn-edit input, #furnLista .ops-furn-edit input');
       if (inp) { inp.focus(); inp.select(); }
     });
     return b;
@@ -3139,12 +3164,14 @@
       rez = { afatet: rez2.afatet, produktet: rez2.produktet, nAfate: rez.nAfate + rez2.nAfate, nProdukte: rez.nProdukte + rez2.nProdukte };
     }
     afatet = rez.afatet;
-    try { if (KJ()) { KJ().riemertoFurnizuesin(f.emri, emriRi); if (ekz && ekz !== emriRi) KJ().riemertoFurnizuesin(ekz, emriRi); } } catch (e) { /* ok */ }
+    var nKuj = 0;
+    try { if (KJ()) { nKuj = KJ().riemertoFurnizuesin(f.emri, emriRi); if (ekz && ekz !== emriRi) nKuj += KJ().riemertoFurnizuesin(ekz, emriRi); } } catch (e) { /* ok */ }
     if (rez.nProdukte) { produktet = rez.produktet; ruajBaze(); }
     ruajAfatet();
     furnNeEditim = null;
     rifreskoFurnizuesit();
-    toast('"' + f.emri + '" u bë "' + emriRi + '" (' + [rez.nAfate ? sasiaETekst(rez.nAfate, 'afat', 'afate') : '', rez.nProdukte ? sasiaETekst(rez.nProdukte, 'produkt', 'produkte') : ''].filter(Boolean).join(', ') + ').');
+    var nP = Math.max(rez.nProdukte, nKuj), det = [rez.nAfate ? sasiaETekst(rez.nAfate, 'afat', 'afate') : '', nP ? sasiaETekst(nP, 'produkt', 'produkte') : ''].filter(Boolean).join(', ');
+    toast('"' + f.emri + '" u bë "' + emriRi + '"' + (det ? ' (' + det + ')' : '') + '.');
   }
   $('furnKerko').addEventListener('input', function () { furnNeEditim = null; rifreskoFurnizuesit(); });
 

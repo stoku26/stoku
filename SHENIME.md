@@ -50,6 +50,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **FURNIZUESIT E GRUPIT + FURNIZUESIT E RINJ (v205 = 1.18.4)**: `listaEFurnizuesve(afatet, produktet, kujtesa)` merr
+   edhe `K.lista()`: furnizuesit e produkteve të grupit dalin te të gjithë (produkte = barkode të ndryshme stoku + kujtesa).
+   `nePritje` kur furnizuesi del vetëm te produktet në pritje të kolegëve (`nga` = autorët) → tel nënfaqja `furnPritje`
+   (rreshti `#stFurnPritje`), PC karta `#opsFurnPritjeSeksion`. Administratori mund ta riemërtojë (edhe bashkim); kalon te
+   Furnizuesit kur ruhen produktet e tij. Rregullim: "Ruaj" me një klik te Produktet e reja (PC) merr gjendjen e tanishme
+   (`KJ().merr`), dhe pas riemërtimit të furnizuesit rifreskohen edhe produktet. Pa ndryshime në Firebase.
 0000000. **PC: BUTONI I DALJES TE ANËSORJA (v204 = 1.18.3)**: `#sbpDil` te `.sbp-account` (kolona 2, mbi të dy rreshtat),
    vetëm ikonë; teksti "Dil nga llogaria" del me `::after` (`data-tip`) kur mausi qëndron mbi të. Thërret `dil()` (pyet para
    daljes). Fshihet pa llogari. Nën 1180px karta bëhet pak më kompakte që statusi i sinkronizimit të mos pritet.

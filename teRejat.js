@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 205, versioni: '1.18.4', data: '2026-10-10', titulli: 'Furnizuesit e përbashkët për grupin', pikat: [
+      'Cilësimet → Stoku → Furnizuesit: tash del krejt lista e furnizuesve të grupit, edhe te kolegët që s\'kanë afate të tyre.',
+      'Furnizuesit e rinj që i shkruajnë kolegët presin te "Furnizuesit e rinj" derisa administratori t\'i kontrollojë; emrat i ndryshon vetëm administratori.'
+    ] },
     { v: 204, versioni: '1.18.3', data: '2026-10-10', titulli: 'Dalja nga llogaria me një klik', pikat: [
       'Në kompjuter, poshtë majtas te karta e llogarisë, ka një buton të vogël për të dalë nga llogaria. Kur e mban mausin mbi të, shkruan "Dil nga llogaria".'
     ] },
