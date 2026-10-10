@@ -641,6 +641,8 @@
     if (n) r.n = n;
     return r;
   }
+  // Produkt i shkruar nga një koleg (ka autor, s'është i administratorit): pret kontrollin e administratorit (v201)
+  function eshteNePritje(x) { return !!(x && !x.x && !x.s && x.n); }
   function krijoKujtesen(ruajtja) {
     var harta = null, degjuesit = [], autori = { emri: '', admin: false };
     function lexo() {
@@ -675,7 +677,10 @@
         if (vjeter && vjeter.m) ri.m = 1;
         if (autori.admin) ri.s = 1;
         if (vjeter && !vjeter.a && !!vjeter.s === !!ri.s && ri.e === vjeter.e && ri.f === vjeter.f) return false;
-        if (autori.emri) ri.n = autori.emri; else if (vjeter && vjeter.n) ri.n = vjeter.n;
+        // Autori ruhet vetëm kur dikush e shkruan produktin për herë të parë ose e ndryshon (v201: produktet e kolegëve
+        // presin kontrollin e administratorit); i njëjti emër e furnizues s'e kalon një produkt të njohur në pritje
+        if (autori.emri && (autori.admin || !vjeter || ri.e !== vjeter.e || ri.f !== vjeter.f)) ri.n = autori.emri;
+        else if (vjeter && vjeter.n) ri.n = vjeter.n;
       }
       h[b] = ri;
       return b;
@@ -715,16 +720,23 @@
         vjeter = pastroTekstin(vjeter, 80); iRi = pastroTekstin(iRi, 80);
         if (!vjeter || !iRi || vjeter === iRi) return 0;
         var h = lexo(), ndr = [], v = vjeter.toLocaleLowerCase('sq'), tani = Date.now();
-        Object.keys(h).forEach(function (b) { if (!h[b].x && h[b].f && h[b].f.toLocaleLowerCase('sq') === v) { h[b].f = iRi; h[b].k = tani; delete h[b].a; if (autori.admin) h[b].s = 1; ndr.push(b); } });
+        Object.keys(h).forEach(function (b) {
+          if (!h[b].x && h[b].f && h[b].f.toLocaleLowerCase('sq') === v) {
+            h[b].f = iRi; h[b].k = tani; delete h[b].a;
+            if (autori.admin && !eshteNePritje(h[b])) h[b].s = 1; // ato në pritje mbeten në pritje: emri ende s'është kontrolluar
+            ndr.push(b);
+          }
+        });
         if (ndr.length) { shkruaj(); njofto(ndr); }
         return ndr.length;
       },
       lista: function () {
         var h = lexo();
-        return Object.keys(h).filter(function (b) { return !h[b].x; }).map(function (b) { return { barkodi: b, emri: h[b].e || '', furnizuesi: h[b].f || '', koha: h[b].k || 0, meDore: !!h[b].m, ngaAdmini: !!h[b].s, nga: h[b].n || '', automatik: !!h[b].a }; })
+        return Object.keys(h).filter(function (b) { return !h[b].x; }).map(function (b) { return { barkodi: b, emri: h[b].e || '', furnizuesi: h[b].f || '', koha: h[b].k || 0, meDore: !!h[b].m, ngaAdmini: !!h[b].s, nga: h[b].n || '', automatik: !!h[b].a, nePritje: eshteNePritje(h[b]) }; })
           .sort(function (a, b) { return (a.emri || a.barkodi).localeCompare(b.emri || b.barkodi, 'sq'); });
       },
       numri: function () { var h = lexo(); return Object.keys(h).filter(function (b) { return !h[b].x; }).length; },
+      numriNePritje: function () { var h = lexo(); return Object.keys(h).filter(function (b) { return eshteNePritje(h[b]); }).length; },
       // Kush po shkruan (emri i llogarisë dhe a është administratori i Stoku-t): vendoset nga faqja
       vendosAutorin: function (emri, admin) { autori.emri = pastroTekstin(emri, 40); autori.admin = !!admin; },
       // ---- Sinkronizimi me grupin (ekipa.js) ----

@@ -18,6 +18,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 201, versioni: '1.18.0', data: '2026-10-10', titulli: 'Produktet e reja presin kontrollin', pikat: [
+      'Produktet që i shkruajnë kolegët s\'shkojnë më direkt te lista e produkteve: presin te Cilësimet → Stoku → Produktet e reja.',
+      'Administratori i kontrollon emrat, i ndryshon nëse duhet dhe i ruan: pastaj kalojnë te Produktet.',
+      'Te menyja e Cilësimeve, administratori sheh sa produkte të reja presin kontrollin.'
+    ] },
     { v: 200, versioni: '1.17.3', data: '2026-10-10', titulli: 'Cilësimet më të rregullta në kompjuter', pikat: [
       'Cilësimet → Stoku: Furnizuesit dhe Produktet dalin të mbyllura, me numrin e tyre. Kliko te njëra për ta hapur listën.',
       'Butoni për mbylljen e Cilësimeve është tash jashtë dritares, lart djathtas, dhe s\'lëviz kur bën scroll.'
