@@ -1924,9 +1924,9 @@
 <script src="xlsx.js?v=113"></script>
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=206"></script>
+<script src="afatet.js?v=207"></script>
 <script src="ekipa.js?v=198"></script>
-<script src="teRejat.js?v=206"></script>
+<script src="teRejat.js?v=207"></script>
 <script>
 (function () {
   'use strict';
@@ -4488,17 +4488,18 @@
   function sasiaETekst(n, nje, shume) { return num(n) + ' ' + (n === 1 ? nje : shume); }
   function nenTekstiFurnizuesit(f) {
     return [f.afate ? sasiaETekst(f.afate, 'afat', 'afate') : '', f.produkte ? sasiaETekst(f.produkte, 'produkt', 'produkte') : '',
-      f.nePritje && f.nga && f.nga.length ? 'nga ' + f.nga.join(', ') : ''].filter(Boolean).join(' · ');
+      f.nePritje && f.nga && f.nga.length ? 'nga ' + f.nga.join(', ') : ''].filter(Boolean).join(' · ') || 'Pa produkte';
   }
   function rifreskoFurnizuesit() {
     var admin = eshteAdminiIStokut();
     if (!admin) furnNeEditim = null;
     $('opsFurnHint').textContent = admin ? 'Furnizuesit e krejt grupit. Ndrysho emrin e një furnizuesi: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një.'
       : 'Furnizuesit e krejt grupit dhe të afateve të tua. Emrat i ndryshon vetëm administratori.';
-    $('opsFurnPritjeHint').textContent = admin ? 'Furnizuesit që dalin vetëm te produktet e reja të kolegëve. Ndrysho emrin nëse është shkruar gabim (ndryshon te krejt produktet e tyre). Kalojnë te Furnizuesit kur i ruan produktet te Produktet e reja.'
+    $('opsFurnPritjeHint').textContent = admin ? 'Furnizuesit që i kanë shkruar kolegët te produktet e reja. Ruaje ashtu siç është ose ndrysho emrin (ndryshon te krejt produktet e tij), pastaj kalon te Furnizuesit.'
       : 'Furnizuesit e rinj nga kolegët. I kontrollon administratori, pastaj kalojnë te Furnizuesit.';
     // v205: edhe furnizuesit e produkteve të grupit (kujtesa); ata që dalin vetëm te produktet e reja të kolegëve presin këtu
-    var kj = KJ(), teGjithe = AF.listaEFurnizuesve(afatet, produktet, kj ? kj.lista() : []);
+    if (admin) ruajFurnizuesitEMiratuar();
+    var kj = KJ(), teGjithe = AF.listaEFurnizuesve(afatet, produktet, kj ? kj.lista() : [], kj ? kj.furnizuesit() : []);
     var pritje = teGjithe.filter(function (f) { return f.nePritje; });
     var lista = teGjithe.filter(function (f) { return !f.nePritje; });
     $('opsFurnPritjeSeksion').hidden = !pritje.length;
@@ -4526,8 +4527,34 @@
       furnNeEditim = f.emri; rifreskoFurnizuesit();
       var inp = document.querySelector('#opsFurnPritjeLista .ops-furn-edit input, #opsFurnLista .ops-furn-edit input'); if (inp) { inp.focus(); inp.select(); }
     });
-    rr.appendChild(b);
+    if (!f.nePritje) { rr.appendChild(b); return rr; }
+    // furnizues i ri: "Ruaj" me një klik (emri është në rregull) e kalon te Furnizuesit
+    var ok = el('button', 'btn vogel', 'Ruaj'); ok.type = 'button'; ok.title = 'Emri është në rregull: kaloje te Furnizuesit';
+    ok.addEventListener('click', function () {
+      if (!eshteAdminiIStokut() || !KJ()) return;
+      KJ().regjistroFurnizuesit([f.emri], true);
+      rifreskoFurnizuesit(); toast('"' + f.emri + '" kaloi te Furnizuesit.');
+    });
+    var v = el('div', 'ops-furn-veprime'); v.appendChild(b); v.appendChild(ok);
+    rr.appendChild(v);
     return rr;
+  }
+  // v207: administratori: furnizuesit e miratuar ruhen më vete, që të mos fshihen kur fshihen produktet e tyre
+  function ruajFurnizuesitEMiratuar() {
+    try {
+      var k = KJ(); if (!k || !k.regjistroFurnizuesit || !eshteAdminiIStokut()) return;
+      var l = AF.listaEFurnizuesve(afatet, produktet, k.lista(), k.furnizuesit());
+      k.regjistroFurnizuesit(l.filter(function (f) { return !f.nePritje && !f.regjistruar; }).map(function (f) { return f.emri; }));
+    } catch (e) { /* ok */ }
+  }
+  async function fshijFurnizuesin(f) {
+    if (!eshteAdminiIStokut() || !KJ()) return;
+    var po = await konfirmo('Ta fshijmë furnizuesin?', '"' + f.emri + '" hiqet nga lista e furnizuesve. Produktet e tij mbeten te Produktet, pa furnizues. Afatet e tua s\'ndryshojnë.', 'Fshije');
+    if (!po) return;
+    var n = KJ().fshijFurnizuesin(f.emri);
+    furnNeEditim = null; rifreskoFurnizuesit();
+    if (n > 0 && kujNeEditim === null) rifreskoKujtesen(); // produktet tregojnë furnizuesin
+    toast('"' + f.emri + '" u fshi' + (n > 0 ? '. ' + sasiaETekst(n, 'produkt mbeti', 'produkte mbetën') + ' pa furnizues.' : '.'));
   }
   function rreshtIEditimitTeFurnizuesit(f, lista) {
     var w = el('div', 'ops-furn-rresht ops-furn-edit');
@@ -4538,15 +4565,17 @@
     var gab = el('div', 'ops-furn-gabim');
     t.appendChild(inp); t.appendChild(el('div', 'ops-furn-nen', 'Tani: "' + f.emri + '" · ' + nenTekstiFurnizuesit(f))); t.appendChild(gab);
     w.appendChild(t);
+    var fshi = el('button', 'btn tekst rrezik vogel', 'Fshije'); fshi.type = 'button'; fshi.title = 'Hiqe nga lista e furnizuesve (produktet e tij mbeten)';
     var anulo = el('button', 'btn tekst vogel', 'Anulo'); anulo.type = 'button';
     var ruajB = el('button', 'btn vogel', 'Ruaj'); ruajB.type = 'button';
+    fshi.addEventListener('click', function () { fshijFurnizuesin(f); });
     anulo.addEventListener('click', function () { furnNeEditim = null; rifreskoFurnizuesit(); });
     ruajB.addEventListener('click', function () { ruajEmrinEFurnizuesit(f, lista, inp.value, gab); });
     inp.addEventListener('keydown', function (ev) {
       if (ev.key === 'Enter') { ev.preventDefault(); ruajB.click(); }
       else if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); anulo.click(); }
     });
-    var v = el('div', 'ops-furn-veprime'); v.appendChild(anulo); v.appendChild(ruajB);
+    var v = el('div', 'ops-furn-veprime'); v.appendChild(fshi); v.appendChild(anulo); v.appendChild(ruajB);
     w.appendChild(v);
     return w;
   }
@@ -4554,7 +4583,10 @@
     if (!eshteAdminiIStokut()) { furnNeEditim = null; rifreskoFurnizuesit(); return; }
     var emriRi = String(vlera || '').replace(/\s+/g, ' ').trim();
     if (!emriRi) { gab.textContent = 'Shkruaj emrin e furnizuesit.'; return; }
-    if (emriRi === f.emri) { furnNeEditim = null; rifreskoFurnizuesit(); return; }
+    if (emriRi === f.emri) { // pa ndryshim emri: furnizuesi i ri (në pritje) ruhet si i kontrolluar
+      if (f.nePritje && KJ()) { KJ().regjistroFurnizuesit([f.emri], true); toast('"' + f.emri + '" kaloi te Furnizuesit.'); }
+      furnNeEditim = null; rifreskoFurnizuesit(); return;
+    }
     var ekz = AF.furnizuesiEkzistues(lista, emriRi, f.emri);
     if (ekz) {
       var tjetri = lista.filter(function (x) { return x.emri === ekz; })[0];
@@ -4946,6 +4978,7 @@
           ekK.anetaretMeAfate().forEach(function (a) { if (!a.uneJam) l = l.concat(a.afatet || []); });
         }
         k.mesoShume(l, 'plotëso');
+        ruajFurnizuesitEMiratuar();
       } catch (e) { /* ok */ }
     }, 1500);
   }

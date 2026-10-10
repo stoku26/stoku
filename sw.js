@@ -10,10 +10,10 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v206';
+var CACHE = 'stoku-v207';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
-importScripts('./afatet.js?v=206', './njoftimet.js?v=149');
+importScripts('./afatet.js?v=207', './njoftimet.js?v=149');
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.2/dist/iife/ponyfill.js',
@@ -27,12 +27,12 @@ var SHELL = FAQET.concat([
   './xlsx.js?v=113',
   './bashkimi.js?v=144',
   './ruajtja.js?v=110',
-  './afatet.js?v=206',
+  './afatet.js?v=207',
   './ekipa.js?v=198',
   './android.js?v=167',
   './porta.js?v=196',
   './njoftimet.js?v=149',
-  './teRejat.js?v=206',
+  './teRejat.js?v=207',
   './manifest.webmanifest?v=85',
   './css/stoku-tokens.css?v=5',
   './css/stoku.css?v=36',
