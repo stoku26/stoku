@@ -906,7 +906,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku-pc.css?v=23">
+<link rel="stylesheet" href="css/stoku-pc.css?v=24">
 </head>
 <body>
 <script src="porta.js?v=196"></script>
@@ -1815,12 +1815,25 @@
               <div class="ops-furn-lista" id="opsFurnLista"></div>
             </div>
           </div>
+          <div class="ops-karta ops-furn-karta mbyllur" id="opsKujPritjeSeksion" hidden>
+            <div class="ops-furn-krye">
+              <span class="ops-ik ops-ik--madh ngj-portokalli"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"></path><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg></span>
+              <div class="ops-rresht__tekst">
+                <div class="ops-titull">Produktet e reja<span class="ops-numri ops-numri--pritje" id="opsKujPritjeNumri"></span></div>
+                <p class="ops-hint" id="opsKujPritjeHint"></p>
+              </div>
+              <button class="ops-palos" type="button" aria-expanded="false" aria-controls="opsKujPritjeTrup" data-emri="produkteve të reja" aria-label="Hap listën e produkteve të reja"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+            </div>
+            <div class="ops-furn-trup" id="opsKujPritjeTrup">
+              <div class="ops-furn-lista" id="opsKujPritjeLista"></div>
+            </div>
+          </div>
           <div class="ops-karta ops-furn-karta mbyllur" id="opsKujSeksion">
             <div class="ops-furn-krye">
               <span class="ops-ik ops-ik--madh ngj-blu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5v14"></path><path d="M8 5v14"></path><path d="M12 5v14"></path><path d="M17 5v14"></path><path d="M21 5v14"></path></svg></span>
               <div class="ops-rresht__tekst">
                 <div class="ops-titull">Produktet<span class="ops-numri" id="opsKujNumri"></span></div>
-                <p class="ops-hint" id="opsKujHint">Emri dhe furnitori që Stoku i mban mend për çdo barkod; kolegët i shohin kur skanojnë. Produktet e reja që shkruajnë ata ruhen këtu me emrin e tyre, që t'i rregullosh. Çka ndryshon ti s'e ndryshon askush tjetër.</p>
+                <p class="ops-hint" id="opsKujHint">Emri dhe furnitori që Stoku i mban mend për çdo barkod; kolegët i shohin kur skanojnë. Produktet që shkruajnë ata dalin këtu pasi t'i kontrollosh te Produktet e reja. Çka ndryshon ti s'e ndryshon askush tjetër.</p>
               </div>
               <button class="ops-palos" type="button" aria-expanded="false" aria-controls="opsKujTrup" data-emri="produkteve" aria-label="Hap listën e produkteve"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
             </div>
@@ -1897,9 +1910,9 @@
 <script src="xlsx.js?v=113"></script>
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=198"></script>
+<script src="afatet.js?v=201"></script>
 <script src="ekipa.js?v=198"></script>
-<script src="teRejat.js?v=200"></script>
+<script src="teRejat.js?v=201"></script>
 <script>
 (function () {
   'use strict';
@@ -4447,6 +4460,7 @@
   // ================= Opsionet =================
   function hapOpsionet(faqja) {
     zgjidhSkeden(faqja || 'pamja');
+    rifreskoNenStokut();
     rifreskoOpsionet();
     rifreskoLlogarine();
     hapDialog('dlgOpsione');
@@ -4544,9 +4558,13 @@
     var cont = $('opsKujLista'); if (!cont) return;
     var admin = eshteAdminiIStokut();
     if (!admin) kujNeEditim = null;
-    $('opsKujHint').textContent = admin ? 'Emri dhe furnitori që Stoku i mban mend për çdo barkod; kolegët i shohin kur skanojnë. Produktet e reja që shkruajnë ata ruhen këtu me emrin e tyre, që t\'i rregullosh. Çka ndryshon ti s\'e ndryshon askush tjetër.'
+    $('opsKujHint').textContent = admin ? 'Emri dhe furnitori që Stoku i mban mend për çdo barkod; kolegët i shohin kur skanojnë. Produktet që shkruajnë ata dalin këtu pasi t\'i kontrollosh te Produktet e reja. Çka ndryshon ti s\'e ndryshon askush tjetër.'
       : 'Emri dhe furnitori që Stoku i mban mend për çdo barkod; plotësohen vetë kur skanon. Këto i ndryshon vetëm administratori.';
-    var k = KJ(), lista = k ? k.lista() : [];
+    var k = KJ(), teGjitha = k ? k.lista() : [];
+    // v201: produktet e shkruara nga kolegët presin te "Produktet e reja" derisa t'i kontrollojë dhe ruajë administratori
+    var lista = teGjitha.filter(function (x) { return !x.nePritje; });
+    rifreskoPritjen(teGjitha.filter(function (x) { return x.nePritje; }), admin);
+    rifreskoNenStokut();
     $('opsKujNumri').textContent = lista.length ? num(lista.length) : '';
     var q = ($('opsKujKerko').value || '').trim().toLocaleLowerCase('sq');
     var fil = q ? lista.filter(function (x) { return (x.emri + ' ' + x.barkodi + ' ' + x.furnizuesi).toLocaleLowerCase('sq').indexOf(q) !== -1; }) : lista;
@@ -4571,6 +4589,46 @@
     });
     if (fil.length > KUJ_MAKS) cont.appendChild(el('div', 'ops-furn-bosh', 'Shfaqen ' + num(KUJ_MAKS) + ' nga ' + num(fil.length) + '. Kërko për të tjerat.'));
   }
+  function rifreskoPritjen(pritje, admin) {
+    $('opsKujPritjeSeksion').hidden = !pritje.length;
+    $('opsKujPritjeNumri').textContent = pritje.length ? num(pritje.length) : '';
+    $('opsKujPritjeHint').textContent = admin ? 'Produktet që i kanë shkruar kolegët. Kontrolloji emrat dhe ruaji: pastaj kalojnë te Produktet.'
+      : 'Produktet që i kanë shkruar kolegët. I kontrollon administratori, pastaj kalojnë te Produktet.';
+    var cont = $('opsKujPritjeLista'); cont.textContent = '';
+    pritje.sort(function (a, b) { return b.koha - a.koha; }); // më të rejat lart
+    pritje.slice(0, KUJ_MAKS).forEach(function (x) {
+      if (x.barkodi === kujNeEditim) { cont.appendChild(rreshtIEditimitTeKujteses(x)); return; }
+      var rr = el('div', 'ops-furn-rresht');
+      rr.appendChild(el('span', 'ops-furn-shkronja', ((x.emri || x.barkodi).charAt(0) || '?').toUpperCase()));
+      var t = el('div', 'ops-furn-tekst');
+      t.appendChild(el('div', 'ops-furn-emri', x.emri || 'Pa emër'));
+      t.appendChild(el('div', 'ops-furn-nen', [x.barkodi, x.furnizuesi, x.nga ? 'nga ' + x.nga : ''].filter(Boolean).join(' · ')));
+      rr.appendChild(t);
+      cont.appendChild(rr);
+      if (!admin) return; // vetëm për t'u parë
+      var b = el('button', 'btn dyte vogel', 'Ndrysho'); b.type = 'button';
+      b.addEventListener('click', function () {
+        kujNeEditim = x.barkodi; rifreskoKujtesen();
+        var inp = document.querySelector('#opsKujPritjeLista .ops-furn-edit input'); if (inp) { inp.focus(); inp.select(); }
+      });
+      var ok = el('button', 'btn vogel', 'Ruaj'); ok.type = 'button'; ok.title = 'Emri është në rregull: kaloje te Produktet';
+      ok.addEventListener('click', function () {
+        if (!eshteAdminiIStokut() || !KJ()) return;
+        KJ().vendos(x.barkodi, x.emri, x.furnizuesi);
+        rifreskoKujtesen(); toast('"' + (x.emri || x.barkodi) + '" kaloi te Produktet.');
+      });
+      var v = el('div', 'ops-furn-veprime'); v.appendChild(b); v.appendChild(ok);
+      rr.appendChild(v);
+    });
+    if (pritje.length > KUJ_MAKS) cont.appendChild(el('div', 'ops-furn-bosh', 'Shfaqen ' + num(KUJ_MAKS) + ' nga ' + num(pritje.length) + '.'));
+  }
+  // Te menyja e Cilësimeve: administratori sheh sa produkte presin kontrollin
+  function rifreskoNenStokut() {
+    var n = 0;
+    try { n = eshteAdminiIStokut() && KJ() ? KJ().numriNePritje() : 0; } catch (e) { n = 0; }
+    $('opsStokuNen').textContent = n ? (n === 1 ? '1 produkt i ri për kontroll' : num(n) + ' produkte të reja për kontroll') : 'Renditja, furnizuesit, produktet';
+    $('opsStokuNen').classList.toggle('ops-nen-pritje', !!n);
+  }
   function rreshtIEditimitTeKujteses(x) {
     var w = el('div', 'ops-furn-rresht ops-furn-edit');
     w.appendChild(el('span', 'ops-furn-shkronja ops-kuj-shkronja', ((x.emri || x.barkodi).charAt(0) || '?').toUpperCase()));
@@ -4580,7 +4638,7 @@
     var ifu = el('input', 'inp'); ifu.type = 'text'; ifu.value = x.furnizuesi; ifu.maxLength = 80; ifu.placeholder = 'Furnitori';
     ifu.setAttribute('autocomplete', 'off'); ifu.setAttribute('aria-label', 'Furnitori i produktit ' + x.barkodi); ifu.setAttribute('list', 'afdFurnizuesit');
     var dl = $('afdFurnizuesit'); dl.textContent = ''; furnizuesit().forEach(function (f) { var o = el('option'); o.value = f; dl.appendChild(o); });
-    t.appendChild(ie); t.appendChild(ifu); t.appendChild(el('div', 'ops-furn-nen', 'Barkodi: ' + x.barkodi));
+    t.appendChild(ie); t.appendChild(ifu); t.appendChild(el('div', 'ops-furn-nen', 'Barkodi: ' + x.barkodi + (x.nePritje && x.nga ? ' · e shkroi ' + x.nga : '')));
     w.appendChild(t);
     var harro = el('button', 'btn tekst rrezik vogel', 'Harroje'); harro.type = 'button'; harro.title = 'Hiqe nga kujtesa: herën tjetër s\'plotësohet vetë';
     var anulo = el('button', 'btn tekst vogel', 'Anulo'); anulo.type = 'button';
@@ -4590,7 +4648,7 @@
     ruajB.addEventListener('click', function () {
       if (!eshteAdminiIStokut()) { anulo.click(); return; }
       if (KJ()) KJ().vendos(x.barkodi, ie.value, ifu.value);
-      kujNeEditim = null; rifreskoKujtesen(); toast('U ruajt: ' + (ie.value.trim() || x.barkodi));
+      kujNeEditim = null; rifreskoKujtesen(); toast((x.nePritje ? 'U ruajt dhe kaloi te Produktet: ' : 'U ruajt: ') + (ie.value.trim() || x.barkodi));
     });
     [ie, ifu].forEach(function (inp) {
       inp.addEventListener('keydown', function (ev) {
@@ -4981,7 +5039,7 @@
   }
   function ekKurNdryshon(cfare) {
     if (cfare === 'kujtesa') { // produktet e grupit u ndryshuan (nga një koleg): vetëm lista te Cilësimet → Stoku, nëse është hapur
-      if (kujNeEditim === null && $('opsKujLista').offsetParent) rifreskoKujtesen();
+      if (kujNeEditim === null && $('opsKujSeksion').offsetParent) rifreskoKujtesen(); else rifreskoNenStokut();
       return;
     }
     ekShenjat();

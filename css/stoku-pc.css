@@ -427,6 +427,10 @@
 .sbp .ops-furn-karta:not(.mbyllur) .ops-palos svg { transform: rotate(180deg); }
 .sbp .ops-numri { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: var(--sb-surface-2); color: var(--sb-muted); font-size: 12px; font-weight: 600; vertical-align: 1px; }
 .sbp .ops-numri:empty { display: none; }
+.sbp .ops-numri--pritje { background: var(--sb-ic-portokalli-bg); color: var(--sb-ic-portokalli); }
+.sbp .ops-karta[hidden] { display: none; }
+.sbp .ops-nav-tekst small.ops-nen-pritje { color: var(--sb-ic-portokalli); font-weight: 600; }
+#opsKujPritjeLista .ops-furn-shkronja { background: var(--sb-ic-portokalli-bg); color: var(--sb-ic-portokalli); }
 .sbp .ops-furn-lista { border-top: 1px solid var(--sb-line-2); margin: 0 -20px -18px; max-height: 340px; overflow-y: auto; }
 .sbp .ops-furn-rresht { display: flex; align-items: center; gap: 12px; padding: 10px 20px; border-bottom: 1px solid var(--sb-line-2); }
 .sbp .ops-furn-rresht:last-child { border-bottom: 0; }

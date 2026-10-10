@@ -50,6 +50,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PRODUKTET E REJA NË PRITJE (v201 = 1.18.0)**: kujtesa: hyrja është "në pritje" kur ka autor (`n`) dhe s'është e
+   administratorit (`!s`) (`eshteNePritje`, `lista()[].nePritje`, `numriNePritje()`). Autori ruhet vetëm kur dikush e shkruan
+   produktin për herë të parë ose e ndryshon (i njëjti emër/furnizues s'e kalon në pritje); riemërtimi i furnizuesit nga
+   administratori s'e miraton hyrjen në pritje. Cilësimet → Stoku: seksioni i ri "Produktet e reja" (tel `#kujPritjeSeksion`,
+   PC karta `#opsKujPritjeSeksion`, e palosshme) para Produkteve; fshihet kur s'ka asgjë. Administratori: "Ndrysho" / "Ruaj"
+   (PC edhe me një klik) → `vendos` → s=1 → kalon te Produktet. Të tjerët e shohin vetëm për t'u parë. Menyja: tel
+   `tabListaStatus`, PC `opsStokuNen` tregojnë "N produkte të reja për kontroll" (vetëm administratori). Plotësimi gjatë
+   skanimit s'ndryshon (edhe ato në pritje plotësojnë). Rregullat e Firebase s'ndryshojnë. css stoku v34, stoku-pc v24.
 0000000. **PC: KARTAT E PALOSSHME + X JASHTË (v200 = 1.17.3)**: te Cilësimet → Stoku (PC) kartat Furnizuesit dhe Produktet
    kanë klasën `mbyllur` (lista + kërkimi te `.ops-furn-trup` fshihen), hapen me klikim te `.ops-furn-krye` / `.ops-palos`
    (`palosKarten`, aria-expanded) dhe mbyllen sërish sa herë hapet skeda (`zgjidhSkeden('stoku')`). Numri te `opsFurnNumri` /
