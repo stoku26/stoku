@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 200, versioni: '1.17.3', data: '2026-10-10', titulli: 'Cilësimet më të rregullta në kompjuter', pikat: [
+      'Cilësimet → Stoku: Furnizuesit dhe Produktet dalin të mbyllura, me numrin e tyre. Kliko te njëra për ta hapur listën.',
+      'Butoni për mbylljen e Cilësimeve është tash jashtë dritares, lart djathtas, dhe s\'lëviz kur bën scroll.'
+    ] },
     { v: 199, versioni: '1.17.2', data: '2026-10-10', titulli: 'Cilësimet → Stoku për të gjithë', pikat: [
       'Cilësimet → Stoku e sheh sërish kushdo: renditjen fillestare e zgjedh secili vetë, ndërsa furnizuesit dhe produktet mund t\'i shohë.',
       'Emrat e furnizuesve dhe produktet i ndryshon vetëm administratori.'

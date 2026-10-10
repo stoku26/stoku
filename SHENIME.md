@@ -50,6 +50,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PC: KARTAT E PALOSSHME + X JASHTË (v200 = 1.17.3)**: te Cilësimet → Stoku (PC) kartat Furnizuesit dhe Produktet
+   kanë klasën `mbyllur` (lista + kërkimi te `.ops-furn-trup` fshihen), hapen me klikim te `.ops-furn-krye` / `.ops-palos`
+   (`palosKarten`, aria-expanded) dhe mbyllen sërish sa herë hapet skeda (`zgjidhSkeden('stoku')`). Numri te `opsFurnNumri` /
+   `opsKujNumri`. X-i (`.ops-mbyll`) u zhvendos nga `.ops-djathtas` (që lëviz) te `.ops-dlg` (`overflow: visible`, rrumbullakimi
+   te `.opsione-trup`): djathtas jashtë dritares; nën 1100px mbi dritare; nën 1100px dhe 720px lartësi brenda, në cep.
+   stoku-pc.css v23. Testi: palos-pc.js (5 madhësi/tema, edhe "E madhe").
 0000000. **CILËSIMET → STOKU PËR TË GJITHË (v199 = 1.17.2)**: kategoria Stoku (tel `#tabLista`, PC skeda `stoku`) del
    sërish për këdo; u hoq `rifreskoQasjenEStokut`. Renditja fillestare e ndryshon secili. Furnizuesit dhe Produktet shfaqen
    për këdo, por te jo-administratori rreshtat janë vetëm për t'u parë (tel `div` pa laps, PC pa butonin "Ndrysho"), teksti

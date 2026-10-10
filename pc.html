@@ -906,7 +906,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku-pc.css?v=22">
+<link rel="stylesheet" href="css/stoku-pc.css?v=23">
 </head>
 <body>
 <script src="porta.js?v=196"></script>
@@ -1756,7 +1756,6 @@
         </div>
       </nav>
       <div class="ops-djathtas">
-        <button class="btn-ikone ops-mbyll" type="button" data-mbyll aria-label="Mbyll">✕</button>
 
         <div class="opsione-faqe aktiv" data-faqe="pamja">
           <div class="ops-faqe-krye"><h2>Pamja</h2><p>Si duket Stoku në këtë kompjuter. Ndryshimet zbatohen menjëherë.</p></div>
@@ -1802,27 +1801,33 @@
               <option value="barkodi:1">Barkodi</option>
             </select>
           </div>
-          <div class="ops-karta ops-furn-karta" id="opsFurnSeksion">
+          <div class="ops-karta ops-furn-karta mbyllur" id="opsFurnSeksion">
             <div class="ops-furn-krye">
               <span class="ops-ik ops-ik--madh ngj-portokalli"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17h4V5H2v12h3"></path><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"></path><circle cx="7.5" cy="17.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg></span>
               <div class="ops-rresht__tekst">
-                <div class="ops-titull">Furnizuesit</div>
+                <div class="ops-titull">Furnizuesit<span class="ops-numri" id="opsFurnNumri"></span></div>
                 <p class="ops-hint" id="opsFurnHint">Ndrysho emrin e një furnizuesi: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një.</p>
               </div>
-              <input class="inp" id="opsFurnKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko furnizuesin" aria-label="Kërko furnizuesin">
+              <button class="ops-palos" type="button" aria-expanded="false" aria-controls="opsFurnTrup" data-emri="furnizuesve" aria-label="Hap listën e furnizuesve"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
             </div>
-            <div class="ops-furn-lista" id="opsFurnLista"></div>
+            <div class="ops-furn-trup" id="opsFurnTrup">
+              <input class="inp ops-furn-kerko" id="opsFurnKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko furnizuesin" aria-label="Kërko furnizuesin">
+              <div class="ops-furn-lista" id="opsFurnLista"></div>
+            </div>
           </div>
-          <div class="ops-karta ops-furn-karta" id="opsKujSeksion">
+          <div class="ops-karta ops-furn-karta mbyllur" id="opsKujSeksion">
             <div class="ops-furn-krye">
               <span class="ops-ik ops-ik--madh ngj-blu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5v14"></path><path d="M8 5v14"></path><path d="M12 5v14"></path><path d="M17 5v14"></path><path d="M21 5v14"></path></svg></span>
               <div class="ops-rresht__tekst">
-                <div class="ops-titull">Produktet</div>
+                <div class="ops-titull">Produktet<span class="ops-numri" id="opsKujNumri"></span></div>
                 <p class="ops-hint" id="opsKujHint">Emri dhe furnitori që Stoku i mban mend për çdo barkod; kolegët i shohin kur skanojnë. Produktet e reja që shkruajnë ata ruhen këtu me emrin e tyre, që t'i rregullosh. Çka ndryshon ti s'e ndryshon askush tjetër.</p>
               </div>
-              <input class="inp" id="opsKujKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko emrin, barkodin ose furnitorin" aria-label="Kërko produktin">
+              <button class="ops-palos" type="button" aria-expanded="false" aria-controls="opsKujTrup" data-emri="produkteve" aria-label="Hap listën e produkteve"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
             </div>
-            <div class="ops-furn-lista" id="opsKujLista"></div>
+            <div class="ops-furn-trup" id="opsKujTrup">
+              <input class="inp ops-furn-kerko" id="opsKujKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko emrin, barkodin ose furnitorin" aria-label="Kërko produktin">
+              <div class="ops-furn-lista" id="opsKujLista"></div>
+            </div>
           </div>
         </div>
 
@@ -1882,6 +1887,7 @@
         </div>
       </div>
     </div>
+    <button class="btn-ikone ops-mbyll" type="button" data-mbyll aria-label="Mbyll Cilësimet" title="Mbyll (Esc)">✕</button>
   </div>
 </div>
 
@@ -1893,7 +1899,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=198"></script>
 <script src="ekipa.js?v=198"></script>
-<script src="teRejat.js?v=199"></script>
+<script src="teRejat.js?v=200"></script>
 <script>
 (function () {
   'use strict';
@@ -4459,6 +4465,7 @@
     $('opsFurnHint').textContent = admin ? 'Ndrysho emrin e një furnizuesi: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një.'
       : 'Furnizuesit e afateve dhe produkteve të tua. Emrat i ndryshon vetëm administratori.';
     var lista = AF.listaEFurnizuesve(afatet, produktet);
+    $('opsFurnNumri').textContent = lista.length ? num(lista.length) : '';
     var k = ($('opsFurnKerko').value || '').trim().toLocaleLowerCase('sq');
     var cont = $('opsFurnLista');
     cont.textContent = '';
@@ -4540,6 +4547,7 @@
     $('opsKujHint').textContent = admin ? 'Emri dhe furnitori që Stoku i mban mend për çdo barkod; kolegët i shohin kur skanojnë. Produktet e reja që shkruajnë ata ruhen këtu me emrin e tyre, që t\'i rregullosh. Çka ndryshon ti s\'e ndryshon askush tjetër.'
       : 'Emri dhe furnitori që Stoku i mban mend për çdo barkod; plotësohen vetë kur skanon. Këto i ndryshon vetëm administratori.';
     var k = KJ(), lista = k ? k.lista() : [];
+    $('opsKujNumri').textContent = lista.length ? num(lista.length) : '';
     var q = ($('opsKujKerko').value || '').trim().toLocaleLowerCase('sq');
     var fil = q ? lista.filter(function (x) { return (x.emri + ' ' + x.barkodi + ' ' + x.furnizuesi).toLocaleLowerCase('sq').indexOf(q) !== -1; }) : lista;
     cont.textContent = '';
@@ -4601,8 +4609,21 @@
     if (!document.querySelector('.opsione-faqe[data-faqe="stoku"].aktiv')) return;
     furnNeEditim = null; kujNeEditim = null; rifreskoFurnizuesit(); rifreskoKujtesen();
   });
+  // Furnizuesit dhe Produktet: të mbyllura kur hapet Stoku, hapen me klikim te koka e kartës (v200)
+  function palosKarten(karta, hap) {
+    karta.classList.toggle('mbyllur', !hap);
+    var b = karta.querySelector('.ops-palos');
+    b.setAttribute('aria-expanded', hap ? 'true' : 'false');
+    b.setAttribute('aria-label', (hap ? 'Mbyll' : 'Hap') + ' listën e ' + b.getAttribute('data-emri'));
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.ops-furn-karta'), function (karta) {
+    karta.querySelector('.ops-furn-krye').addEventListener('click', function () { palosKarten(karta, karta.classList.contains('mbyllur')); });
+  });
   function zgjidhSkeden(f) {
-    if (f === 'stoku') { furnNeEditim = null; $('opsFurnKerko').value = ''; rifreskoFurnizuesit(); kujNeEditim = null; $('opsKujKerko').value = ''; rifreskoKujtesen(); }
+    if (f === 'stoku') {
+      Array.prototype.forEach.call(document.querySelectorAll('.ops-furn-karta'), function (karta) { palosKarten(karta, false); });
+      furnNeEditim = null; $('opsFurnKerko').value = ''; rifreskoFurnizuesit(); kujNeEditim = null; $('opsKujKerko').value = ''; rifreskoKujtesen();
+    }
     Array.prototype.forEach.call(document.querySelectorAll('#opsSkeda button[data-faqe]'), function (b) { b.classList.toggle('aktiv', b.dataset.faqe === f); });
     Array.prototype.forEach.call(document.querySelectorAll('.opsione-faqe'), function (x) { x.classList.toggle('aktiv', x.dataset.faqe === f); });
   }

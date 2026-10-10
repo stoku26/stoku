@@ -10,7 +10,7 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v199';
+var CACHE = 'stoku-v200';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
 importScripts('./afatet.js?v=198', './njoftimet.js?v=149');
@@ -32,11 +32,11 @@ var SHELL = FAQET.concat([
   './android.js?v=167',
   './porta.js?v=196',
   './njoftimet.js?v=149',
-  './teRejat.js?v=199',
+  './teRejat.js?v=200',
   './manifest.webmanifest?v=85',
   './css/stoku-tokens.css?v=5',
   './css/stoku.css?v=33',
-  './css/stoku-pc.css?v=22',
+  './css/stoku-pc.css?v=23',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',
   './logo/stoku-icon.svg?v=3',
