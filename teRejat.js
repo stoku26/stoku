@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 210, versioni: '1.19.3', data: '2026-10-10', titulli: 'Fletët nga telefoni, me tekst më të saktë', pikat: [
+      'Kompjuter: "Ke 1 fletë nga telefoni që pret kontrollin" / "Ke 2 fleta … që presin kontrollin", edhe "1 rresht pret kontrollin" te fleta.',
+      'Kur e mbyll një fletë stoku pa e ruajtur, të tregon që e gjen te "Përmbledhja" (fletët e afateve: te "Afatet e produkteve").'
+    ] },
     { v: 209, versioni: '1.19.2', data: '2026-10-10', titulli: 'Importet kalojnë në kontroll', pikat: [
       'Kur një koleg importon afate ose produkte nga foto ose Excel, produktet dhe furnizuesit e rinj dalin te Cilësimet → Stoku → Produktet e reja / Furnizuesit e rinj, që t\'i kontrollojë administratori.',
       'Te Produktet, butoni "Harroje" tash quhet "Fshije", si te Furnizuesit.'
