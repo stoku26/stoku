@@ -446,6 +446,7 @@
 .sbp .ops-furn-gabim:empty { display: none; }
 .sbp .ops-furn-veprime { display: flex; gap: 6px; flex: none; padding-top: 2px; }
 .sbp .ops-furn-bosh { padding: 16px 20px; font-size: 13px; color: var(--sb-muted); }
+.sbp .ops-furn-me-shume { display: flex; justify-content: center; padding: 12px 20px; }
 
 /* Llogaria */
 .sbp .ops-profil { display: flex; align-items: center; gap: 16px; }

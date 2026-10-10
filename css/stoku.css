@@ -270,6 +270,8 @@
 .sb .ops-furn-veprime { display: flex; gap: 8px; }
 .sb .ops-furn-veprime .btn { flex: 1; min-height: 44px; }
 .sb .ops-furn-bosh { padding: 16px; font-size: 14px; color: var(--sb-muted); }
+.sb .ops-me-shume { display: block; width: 100%; min-height: 50px; padding: 14px 16px; border: 0; background: transparent; font: inherit; font-size: 15px; font-weight: 600; color: var(--sb-accent-text); cursor: pointer; }
+.sb .ops-me-shume:active { background: var(--sb-surface-2); }
 /* Njoftimet: hapat për orën */
 .sb .ops-ora-zgjedhja { margin: 0 0 14px; }
 .sb .ops-ora-zgjedhja button { min-height: 38px; font-size: 13.5px; }

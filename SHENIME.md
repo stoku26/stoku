@@ -50,6 +50,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **"SHFAQ EDHE …" TE PRODUKTET (v203 = 1.18.2)**: listat e kujtesës (tel 100, PC 150 në fillim) kanë në fund butonin
+   `butoniMeShume` që shton edhe aq (`kujSaShfaqen`, `pritjeSaShfaqen`; kthehen në fillim kur hapet faqja ose ndryshon
+   kërkimi). `rifreskoKujtesen` ruan pozicionin e scroll-it (tel `.opsione-trup`, PC listat + `.ops-djathtas`) dhe thërret
+   `vizatoKujtesen`. css stoku v36, stoku-pc v25. Testi: meshume-test.js.
 0000000. **TEL: STOKU ME NËNFAQE (v202 = 1.18.1)**: te Cilësimet → Stoku (tel) mbetet vetëm Renditja + rreshtat
    `#stokuHyrjet` (`data-nenfaqe`: furnizuesit, pritje, produktet; numrat te `rifreskoHyrjetEStokut`, "Produktet e reja"
    fshihet kur s'ka). Secili hap `.opsione-faqe` më vete (`faqjaEOpsioneve`, `PRINDI_I_FAQES`, `TITULLI_I_NENFAQES`); "←" dhe
