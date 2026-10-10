@@ -50,6 +50,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PC: FOLDER I RI TE IMPORTI I FLETËS (v208 = 1.19.1)**: `#lxFolderKuti` (`.lexim-folderi`): titulli dhe zgjedhja në një
+   rresht, zgjedhja 260px. Opsioni "+ Folder i ri…" (`LX_FOLDER_RI`) hap `dlgFolder` (z-index 52, mbi `dlgLexim`) me
+   `hapFolderIRi(pasKrijimit)`: folderi i ri zgjidhet te importi pa u hapur faqja e tij; me "Anulo" mbetet folderi i mëparshëm.
+   `dialogISiperm` merr parasysh z-index (Esc mbyll dritaren e sipërme). Pa folder: "Zgjidh folderin". Testi: lx-folder-test.js.
 0000000. **FURNIZUESIT E RUAJTUR MË VETE (v207 = 1.19.0)**: kujtesa ka edhe hyrje furnizuesish me çelës `"furnizuesi " + emri`
    (me hapësirë: s'përzihen me barkodet, versionet e vjetra i injorojnë; sinkronizohen te `grupet/{g}/kujtesa` si produktet).
    Vetëm administratori i ruan: me çdo ruajtje të tij me furnizues, kur e miraton/riemërton një furnizues, dhe automatikisht

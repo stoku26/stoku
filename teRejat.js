@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 208, versioni: '1.19.1', data: '2026-10-10', titulli: 'Folder i ri gjatë importit në kompjuter', pikat: [
+      'Kontrollo fletën e lexuar (kompjuter): zgjedhja e folderit është më e vogël dhe ka "+ Folder i ri…": e krijon dhe e emëron folderin pa e mbyllur fletën, si në telefon.'
+    ] },
     { v: 207, versioni: '1.19.0', data: '2026-10-10', titulli: 'Furnizuesit ruhen më vete', pikat: [
       'Furnizuesit që i ka kontrolluar administratori s\'fshihen më kur fshihen produktet e tyre: mbeten te Cilësimet → Stoku → Furnizuesit edhe pa asnjë produkt.',
       'Administratori mund ta fshijë një furnizues (Ndrysho emrin → Fshije). Produktet e tij mbeten te Produktet, pa furnizues.',
