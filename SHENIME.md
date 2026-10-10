@@ -50,6 +50,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **KUJTESA: VETËM ADMINISTRATORI E RREGULLON (v198 = 1.17.1)**: Cilësimet → Stoku (tel `#tabLista`, PC skeda `stoku`)
+   vetëm për `eshteAdminiIStokut()` (mendurberisha): `rifreskoQasjenEStokut` + mbrojtje te `aktivizoTabin` / `zgjidhSkeden`.
+   Kujtesa: fusha e re `s` (nga administratori) dhe `n` (kush e shtoi); `K.vendosAutorin(emri, admin)` thirret nga `KJ()` te
+   faqet. Klasat: s (2) > përdoruesi / e harruar (1) > automatike (0). Ruajtja e një kolegu s'e mbishkruan hyrjen e
+   administratorit (afati i kolegut ruhet me emrin e tij, kujtesa jo). Produktet e reja të kolegëve dalin te lista "nga {emri}".
+   Kujtesa s'fshihet më me grupin (`kol` pa 'kujtesa') dhe kopja e pajisjes s'pastrohet kur ndërrohet grupi. Rregullat e
+   Firebase s'ndryshojnë (s/n janë brenda map-it p). Testet: kujtesa-njesi.js (+10), kujtesa-grupi-test.js (16: agim tel +
+   mendurberisha PC), kujtesa-test.js (si administrator).
 0000000. **KUJTESA E GRUPIT (v197 = 1.17.0, rregullat v197)**: kujtesa e produkteve sinkronizohet me
    `grupet/{g}/kujtesa/{p0..p9,px}` (sipas shifrës së fundit të barkodit; `{ p: { barkodi: {e,f,k,a,m,x} }, ndryshuarSe }`).
    ekipa.js: `degjoKujtesen` (onSnapshot i koleksionit) → `K.bashko(remote)`; ndryshimet lokale (`K.degjo`) → `pritje` → pas 2 s

@@ -612,13 +612,14 @@
   // Kopja në pajisje (localStorage) mbahet gjithmonë: plotësimi është i menjëhershëm edhe pa internet. Brenda një grupi,
   // ekipa.js e sinkronizon me grupet/{g}/kujtesa (e përbashkët për krejt grupin). Mëson kur përdoruesi ruan një afat ose
   // produkt me barkod, dhe në sfond nga afatet/stoku ekzistues dhe nga afatet e kolegëve; ndryshohet te Cilësimet → Stoku →
-  // Produktet. Hyrja: { e: emri, f: furnizuesi, k: koha, a: 1 = mësuar automatikisht, m: 1 = ndryshuar me dorë,
-  // x: 1 = harruar me dorë ("Harroje") }. Kur dy hyrje përplasen: ajo e përdoruesit (pa `a`) fiton mbi atë automatike;
-  // ndërmjet të njëjtës klasë fiton më e reja.
+  // Produktet (vetëm administratori, v198). Hyrja: { e: emri, f: furnizuesi, k: koha, n: kush e shtoi, a: 1 = mësuar
+  // automatikisht, m: 1 = ndryshuar me dorë, s: 1 = nga administratori, x: 1 = harruar ("Harroje") }.
+  // Klasat kur dy hyrje përplasen: administratori (s) > përdoruesi / e harruar > automatike; brenda klasës fiton më e reja.
+  // Hyrja e administratorit s'mbishkruhet nga të tjerët: ata e shohin kur skanojnë (mund ta ndryshojnë vetëm te afati i tyre).
   var KUJTESA_KEY = 'stoku:kujtesa:v1', KUJTESA_MAKS = 20000, KUJTESA_BARKODI = /^[^\s]{1,40}$/;
   function pastroBarkodin(b) { return String(b == null ? '' : b).replace(/\s+/g, '').slice(0, 40); }
   function pastroTekstin(t, n) { return String(t == null ? '' : t).replace(/\s+/g, ' ').trim().slice(0, n); }
-  function klasaEHyrjes(x) { return x && x.a && !x.m && !x.x ? 0 : 1; }
+  function klasaEHyrjes(x) { if (!x) return -1; if (x.x) return 1; if (x.s) return 2; return x.a && !x.m ? 0 : 1; }
   // A duhet që hyrja r (p.sh. nga grupi) ta zëvendësojë hyrjen l (këtu)?
   function hyrjaFiton(r, l) {
     if (!l) return true;
@@ -635,10 +636,13 @@
     if (!e && !f) return null;
     var r = { e: e, f: f, k: k };
     if (x.m) r.m = 1; else if (x.a) r.a = 1;
+    if (x.s) r.s = 1;
+    var n = pastroTekstin(typeof x.n === 'string' ? x.n : '', 40);
+    if (n) r.n = n;
     return r;
   }
   function krijoKujtesen(ruajtja) {
-    var harta = null, degjuesit = [];
+    var harta = null, degjuesit = [], autori = { emri: '', admin: false };
     function lexo() {
       if (harta) return harta;
       try { harta = JSON.parse((ruajtja && ruajtja.getItem(KUJTESA_KEY)) || '{}'); } catch (e) { harta = null; }
@@ -666,9 +670,12 @@
         if (x && ri.e === x.e && ri.f === x.f) return false;
       } else {
         var vjeter = x && !x.x ? x : null;
+        if (vjeter && vjeter.s && !autori.admin) return false; // e administratorit: të tjerët s'e mbishkruajnë
         ri = { e: emri || (vjeter && vjeter.e) || '', f: furn || (vjeter && vjeter.f) || '', k: tani || Date.now() };
         if (vjeter && vjeter.m) ri.m = 1;
-        if (vjeter && !vjeter.a && ri.e === vjeter.e && ri.f === vjeter.f) return false;
+        if (autori.admin) ri.s = 1;
+        if (vjeter && !vjeter.a && !!vjeter.s === !!ri.s && ri.e === vjeter.e && ri.f === vjeter.f) return false;
+        if (autori.emri) ri.n = autori.emri; else if (vjeter && vjeter.n) ri.n = vjeter.n;
       }
       h[b] = ri;
       return b;
@@ -695,7 +702,10 @@
         b = pastroBarkodin(b); emri = pastroTekstin(emri, 120); furn = pastroTekstin(furn, 80);
         if (!b) return false;
         var h = lexo();
-        h[b] = !emri && !furn ? { x: 1, k: Date.now() } : { e: emri, f: furn, k: Date.now(), m: 1 };
+        var ri = !emri && !furn ? { x: 1, k: Date.now() } : { e: emri, f: furn, k: Date.now(), m: 1 };
+        if (!ri.x && autori.admin) ri.s = 1;
+        if (!ri.x && autori.emri) ri.n = autori.emri;
+        h[b] = ri;
         shkruaj(); njofto([b]);
         return true;
       },
@@ -705,16 +715,18 @@
         vjeter = pastroTekstin(vjeter, 80); iRi = pastroTekstin(iRi, 80);
         if (!vjeter || !iRi || vjeter === iRi) return 0;
         var h = lexo(), ndr = [], v = vjeter.toLocaleLowerCase('sq'), tani = Date.now();
-        Object.keys(h).forEach(function (b) { if (!h[b].x && h[b].f && h[b].f.toLocaleLowerCase('sq') === v) { h[b].f = iRi; h[b].k = tani; delete h[b].a; ndr.push(b); } });
+        Object.keys(h).forEach(function (b) { if (!h[b].x && h[b].f && h[b].f.toLocaleLowerCase('sq') === v) { h[b].f = iRi; h[b].k = tani; delete h[b].a; if (autori.admin) h[b].s = 1; ndr.push(b); } });
         if (ndr.length) { shkruaj(); njofto(ndr); }
         return ndr.length;
       },
       lista: function () {
         var h = lexo();
-        return Object.keys(h).filter(function (b) { return !h[b].x; }).map(function (b) { return { barkodi: b, emri: h[b].e || '', furnizuesi: h[b].f || '', koha: h[b].k || 0, meDore: !!h[b].m }; })
+        return Object.keys(h).filter(function (b) { return !h[b].x; }).map(function (b) { return { barkodi: b, emri: h[b].e || '', furnizuesi: h[b].f || '', koha: h[b].k || 0, meDore: !!h[b].m, ngaAdmini: !!h[b].s, nga: h[b].n || '', automatik: !!h[b].a }; })
           .sort(function (a, b) { return (a.emri || a.barkodi).localeCompare(b.emri || b.barkodi, 'sq'); });
       },
       numri: function () { var h = lexo(); return Object.keys(h).filter(function (b) { return !h[b].x; }).length; },
+      // Kush po shkruan (emri i llogarisë dhe a është administratori i Stoku-t): vendoset nga faqja
+      vendosAutorin: function (emri, admin) { autori.emri = pastroTekstin(emri, 40); autori.admin = !!admin; },
       // ---- Sinkronizimi me grupin (ekipa.js) ----
       degjo: function (fn) { degjuesit.push(fn); return function () { degjuesit = degjuesit.filter(function (x) { return x !== fn; }); }; },
       // Hyrjet që vijnë nga grupi: zëvendësojnë këtu vetëm kur fitojnë (pa njoftuar dëgjuesit: s'kthehen te grupi)
@@ -744,7 +756,7 @@
         (barkodet || []).forEach(function (b) {
           var x = h[b];
           if (!x || !KUJTESA_BARKODI.test(b)) return;
-          o[b] = x.x ? { e: '', f: '', k: x.k || 0, a: 0, m: 0, x: 1 } : { e: x.e || '', f: x.f || '', k: x.k || 0, a: x.a ? 1 : 0, m: x.m ? 1 : 0, x: 0 };
+          o[b] = x.x ? { e: '', f: '', k: x.k || 0, a: 0, m: 0, s: 0, n: '', x: 1 } : { e: x.e || '', f: x.f || '', k: x.k || 0, a: x.a ? 1 : 0, m: x.m ? 1 : 0, s: x.s ? 1 : 0, n: x.n || '', x: 0 };
         });
         return o;
       },

@@ -1818,7 +1818,7 @@
               <span class="ops-ik ops-ik--madh ngj-blu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5v14"></path><path d="M8 5v14"></path><path d="M12 5v14"></path><path d="M17 5v14"></path><path d="M21 5v14"></path></svg></span>
               <div class="ops-rresht__tekst">
                 <div class="ops-titull">Produktet</div>
-                <p class="ops-hint">Emri dhe furnitori që Stoku i mban mend për çdo barkod. Kur e skanon një barkod të njohur, plotësohen vetë. Brenda grupit janë të përbashkëta për krejt kolegët; pa grup ruhen vetëm në këtë kompjuter. Ndryshimi vlen për skanimet e ardhshme.</p>
+                <p class="ops-hint">Emri dhe furnitori që Stoku i mban mend për çdo barkod; kolegët i shohin kur skanojnë. Produktet e reja që shkruajnë ata ruhen këtu me emrin e tyre, që t'i rregullosh. Çka ndryshon ti s'e ndryshon askush tjetër.</p>
               </div>
               <input class="inp" id="opsKujKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko emrin, barkodin ose furnitorin" aria-label="Kërko produktin">
             </div>
@@ -1891,9 +1891,9 @@
 <script src="xlsx.js?v=113"></script>
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=197"></script>
-<script src="ekipa.js?v=197"></script>
-<script src="teRejat.js?v=197"></script>
+<script src="afatet.js?v=198"></script>
+<script src="ekipa.js?v=198"></script>
+<script src="teRejat.js?v=198"></script>
 <script>
 (function () {
   'use strict';
@@ -4545,7 +4545,7 @@
       rr.appendChild(el('span', 'ops-furn-shkronja ops-kuj-shkronja', ((x.emri || x.barkodi).charAt(0) || '?').toUpperCase()));
       var t = el('div', 'ops-furn-tekst');
       t.appendChild(el('div', 'ops-furn-emri', x.emri || 'Pa emër'));
-      t.appendChild(el('div', 'ops-furn-nen', [x.barkodi, x.furnizuesi].filter(Boolean).join(' · ')));
+      t.appendChild(el('div', 'ops-furn-nen', [x.barkodi, x.furnizuesi, !x.ngaAdmini && x.nga ? 'nga ' + x.nga : ''].filter(Boolean).join(' · ')));
       rr.appendChild(t);
       var b = el('button', 'btn dyte vogel', 'Ndrysho'); b.type = 'button';
       b.addEventListener('click', function () {
@@ -4589,7 +4589,11 @@
   }
   $('opsKujKerko').addEventListener('input', function () { kujNeEditim = null; rifreskoKujtesen(); });
 
+  // Cilësimet → Stoku (renditja, furnizuesit, produktet): vetëm administratori i Stoku-t (v198)
+  function rifreskoQasjenEStokut() { var b = document.querySelector('#opsSkeda button[data-faqe="stoku"]'); if (b) b.classList.toggle('fsheh', !eshteAdminiIStokut()); }
   function zgjidhSkeden(f) {
+    rifreskoQasjenEStokut();
+    if (f === 'stoku' && !eshteAdminiIStokut()) f = 'pamja';
     if (f === 'stoku') { furnNeEditim = null; $('opsFurnKerko').value = ''; rifreskoFurnizuesit(); kujNeEditim = null; $('opsKujKerko').value = ''; rifreskoKujtesen(); }
     Array.prototype.forEach.call(document.querySelectorAll('#opsSkeda button[data-faqe]'), function (b) { b.classList.toggle('aktiv', b.dataset.faqe === f); });
     Array.prototype.forEach.call(document.querySelectorAll('.opsione-faqe'), function (x) { x.classList.toggle('aktiv', x.dataset.faqe === f); });
@@ -4791,7 +4795,11 @@
   }
   function afatSipasId(id) { for (var i = 0; i < afatet.length; i++) if (afatet[i].id === id) return afatet[i]; return null; }
   // ---- Kujtesa e produkteve (afatet.js, vetëm në këtë pajisje): barkodi → emri, furnizuesi ----
-  function KJ() { var A = window.StokuAfatet; return A && A.kujtesa ? A.kujtesa() : null; }
+  function KJ() {
+    var A = window.StokuAfatet, k = A && A.kujtesa ? A.kujtesa() : null;
+    if (k && k.vendosAutorin) k.vendosAutorin(perdoruesi() ? emriPerdoruesit() : '', eshteAdminiIStokut()); // versioni i administratorit fiton
+    return k;
+  }
   function mesoNgaPerdoruesi(barkodi, emri, furnizuesi) { try { if (barkodi && KJ()) KJ().meso(barkodi, emri, furnizuesi); } catch (e) { /* ok */ } }
   // Në sfond (pa mbishkruar): nga afatet (më të rejat të parat), stoku dhe afatet e kolegëve të grupit
   var __kujtesaKohez = null;

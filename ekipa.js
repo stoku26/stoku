@@ -557,7 +557,7 @@
         await hiqPajisjenNgaGrupi();
         try { await fs.deleteDoc(fs.doc(db, 'grupet', g, 'afatet', uid())); } catch (e) { /* ok */ }
         if (fshiGrupin) {
-          var kol = ['chat', 'feed', 'afatet', 'push', 'kujtesa'];
+          var kol = ['chat', 'feed', 'afatet', 'push']; // kujtesa e produkteve mbetet (v198): s'fshihet me grupin
           for (var i = 0; i < kol.length; i++) { try { await pastroKol(['grupet', g, kol[i]]); } catch (e) { /* ok */ } }
           await fshijFtesatEGrupit(g);
           try { await fs.deleteDoc(fs.doc(db, 'grupet', g)); } catch (e) { /* ok */ }
@@ -1774,9 +1774,7 @@
         kujtesaGj.degjon = true;
         K.degjo(function (barkodet) { barkodet.forEach(function (b) { kujtesaGj.pritje[b] = true; }); planifikoDergiminEKujteses(); });
       }
-      // Kopja e një grupi tjetër (para ndërrimit të grupit) s'kalon te ky grup; afatet/stoku i tij mësohen sërish në sfond
-      var ishte = lexo(KEY_KUJTESA_GRUPI);
-      if (ishte && ishte !== gj.grupi) { K.pastro(); kujtesaGj.pritje = {}; }
+      // v198: kopja e pajisjes s'fshihet kurrë kur del nga grupi ose kalon në një tjetër (vlen si kujtesë)
       shkruaj(KEY_KUJTESA_GRUPI, gj.grupi);
       d.kujtesa = e.degjoKujtesen(function (remote) {
         K.bashko(remote);

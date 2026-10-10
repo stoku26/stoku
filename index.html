@@ -1409,7 +1409,7 @@
           </div>
           <div id="kujtesaSeksion">
             <div class="ops-grupi-titull">Produktet</div>
-            <div class="ops-intro">Emri dhe furnitori që Stoku i mban mend për çdo barkod. Kur e skanon një barkod të njohur, plotësohen vetë. Brenda grupit janë të përbashkëta për krejt kolegët; pa grup ruhen vetëm në këtë telefon. Prek një produkt për ta ndryshuar.</div>
+            <div class="ops-intro">Emri dhe furnitori që Stoku i mban mend për çdo barkod; kolegët i shohin kur skanojnë. Produktet e reja që shkruajnë ata ruhen këtu me emrin e tyre, që t'i rregullosh. Çka ndryshon ti s'e ndryshon askush tjetër. Prek një produkt për ta ndryshuar.</div>
             <div class="fushe ops-furn-kerko" id="kujtesaKerkoKuti"><input id="kujtesaKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko emrin, barkodin ose furnitorin" aria-label="Kërko produktin"></div>
             <div class="ops-grupi ops-furn" id="kujtesaLista"></div>
           </div>
@@ -1836,10 +1836,10 @@
 <script src="xlsx.js?v=113"></script>
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=197"></script>
-<script src="ekipa.js?v=197"></script>
+<script src="afatet.js?v=198"></script>
+<script src="ekipa.js?v=198"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=197"></script>
+<script src="teRejat.js?v=198"></script>
 <script>
 (function () {
   'use strict';
@@ -2945,7 +2945,12 @@
   perkthoStatiket();
 
   // ---------- Tabet e Opsioneve ----------
+  // Cilësimet → Stoku (renditja, furnizuesit, produktet): vetëm administratori i Stoku-t (v198)
+  function rifreskoQasjenEStokut() { var b = $('tabLista'); if (b) b.style.display = eshteAdminiIStokut() ? '' : 'none'; }
+  window.addEventListener('stoku-auth-ndryshoi', function () { rifreskoQasjenEStokut(); });
   function aktivizoTabin(emriFaqes) {
+    if (emriFaqes === 'lista' && !eshteAdminiIStokut()) emriFaqes = null;
+    rifreskoQasjenEStokut();
     var neMenu = !emriFaqes;
     if (emriFaqes === 'lista') { furnNeEditim = null; $('furnKerko').value = ''; rifreskoFurnizuesit(); kujNeEditim = null; $('kujtesaKerko').value = ''; rifreskoKujtesen(); }
     $('kategoriMenu').style.display = neMenu ? '' : 'none';
@@ -3099,7 +3104,7 @@
     var ik = document.createElement('span'); ik.className = 'kat-ikona-badge ngj-blu ops-furn-ik'; ik.textContent = ((x.emri || x.barkodi).charAt(0) || '?').toUpperCase();
     var t = document.createElement('span'); t.className = 'ops-rresht__tekst';
     var e = document.createElement('span'); e.className = 'ops-furn-emri'; e.textContent = x.emri || 'Pa emër';
-    var n = document.createElement('span'); n.className = 'hint'; n.textContent = [x.barkodi, x.furnizuesi].filter(Boolean).join(' · ');
+    var n = document.createElement('span'); n.className = 'hint'; n.textContent = [x.barkodi, x.furnizuesi, !x.ngaAdmini && x.nga ? 'nga ' + x.nga : ''].filter(Boolean).join(' · ');
     t.appendChild(e); t.appendChild(n);
     var laps = document.createElement('span'); laps.className = 'ops-furn-laps';
     laps.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>';
@@ -3469,6 +3474,7 @@
     }
   })();
   function hapOpsionet() {
+    rifreskoQasjenEStokut();
     $('opsTingull').checked = opsione.tingull;
     $('opsScanner').checked = opsione.scanner;
     $('opsPda').checked = opsione.pda;
@@ -5348,7 +5354,11 @@
   function shenoAfatinEFshire(id) { fshira.afatet = fshira.afatet || {}; fshira.afatet[id] = Date.now(); ruajFshiraet(); }
 
   // ---- Kujtesa e produkteve (afatet.js, vetëm në këtë pajisje): barkodi → emri, furnizuesi ----
-  function KJ() { var A = window.StokuAfatet; return A && A.kujtesa ? A.kujtesa() : null; }
+  function KJ() {
+    var A = window.StokuAfatet, k = A && A.kujtesa ? A.kujtesa() : null;
+    if (k && k.vendosAutorin) k.vendosAutorin(perdoruesiAktual() ? emriPerdoruesitAktual() : '', eshteAdminiIStokut()); // versioni i administratorit fiton
+    return k;
+  }
   function mesoNgaPerdoruesi(barkodi, emri, furnizuesi) { try { if (barkodi && KJ()) KJ().meso(barkodi, emri, furnizuesi); } catch (e) { /* ok */ } }
   // Në sfond (pa mbishkruar): nga afatet (më të rejat të parat), stoku dhe afatet e kolegëve të grupit
   var __kujtesaKohez = null;
