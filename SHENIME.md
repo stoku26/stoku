@@ -50,6 +50,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PC: TEKSTET E FLETËVE NGA TELEFONI (v210 = 1.19.3)**: njoftimi në hapje "Ke 1 fletë … që pret kontrollin" /
+   "Ke N fleta … që presin kontrollin"; rreshti i fletës "1 rresht pret kontrollin" / "N rreshta presin kontrollin"; pas "Anulo"
+   te një fletë stoku: "E gjen te "Përmbledhja"" (jo "Afatet e produkteve"). Testet: fleta-numri-test.js, fleta-pritje-test.js.
 0000000. **IMPORTET NË KONTROLL + "FSHIJE" (v209 = 1.19.2)**: dy rrugë importi s'e shënonin autorin te kujtesa (produktet
    mësoheshin vetëm në sfond si "automatike", pra dilnin direkt te lista): importi i afateve nga Excel në telefon (`aiBtn`) dhe
    importi i stokut nga Excel/CSV në PC (`imBtn`). Tash thërrasin `mesoShume(..., 'mbishkruaj')` si importet nga foto: te

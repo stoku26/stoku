@@ -1931,7 +1931,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=207"></script>
 <script src="ekipa.js?v=198"></script>
-<script src="teRejat.js?v=209"></script>
+<script src="teRejat.js?v=210"></script>
 <script>
 (function () {
   'use strict';
@@ -6655,7 +6655,7 @@
       teReja.forEach(function (f) { fletetTel.njoftuar[f.id] = true; });
       if (teReja.length) {
         var n = fletetTel.lista.length;
-        toast(ePara ? 'Ke ' + (n === 1 ? '1 fletë' : n + ' fletë') + ' nga telefoni që presin kontrollin.'
+        toast(ePara ? (n === 1 ? 'Ke 1 fletë nga telefoni që pret kontrollin.' : 'Ke ' + n + ' fleta nga telefoni që presin kontrollin.')
           : 'Mbërriti ' + (teReja[0].lloji === 'stok' ? 'një fletë stoku' : 'një fletë afatesh') + ' nga telefoni' + (teReja[0].nga ? ' (' + teReja[0].nga + ')' : '') + '.',
           { veprimi: function () { hapFletenETelefonit(teReja[0].id); }, butoni: 'Hape', ms: 12000 });
       }
@@ -6685,7 +6685,7 @@
         var ik = el('span', 'ikona'); ik.innerHTML = IKONA_FLETA; r.appendChild(ik);
         var tx = el('div', 'teksti');
         var nr = (f.rreshtat || []).length;
-        tx.appendChild(el('b', null, (f.lloji === 'stok' ? 'Fletë stoku' : 'Fletë afatesh') + ' nga telefoni: ' + nr + (nr === 1 ? ' rresht' : ' rreshta') + ' presin kontrollin'));
+        tx.appendChild(el('b', null, (f.lloji === 'stok' ? 'Fletë stoku' : 'Fletë afatesh') + ' nga telefoni: ' + (nr === 1 ? '1 rresht pret kontrollin' : nr + ' rreshta presin kontrollin')));
         tx.appendChild(el('span', null, [f.nga ? 'Dërguar nga ' + f.nga : 'Dërguar nga telefoni', f.krijuarSe ? dataOra(f.krijuarSe) : ''].filter(Boolean).join(' · ')));
         r.appendChild(tx);
         var h = el('button', 'btn', 'Hape'); h.type = 'button';
@@ -6883,7 +6883,8 @@
     var kaTeDhena = lx.rreshtat.some(function (r) { return r.barkodi || r.emri || r.data || r.furnizuesi; });
     if (fletetTel.hapur) {
       kaTeDhena = false; // fleta nga telefoni mbetet në pritje — mund të hapet sërish më vonë
-      toast('Fleta mbeti në pritje. E gjen te "Afatet e produkteve".');
+      // v210: fleta e stokut del te "Përmbledhja" (Stoku), ajo e afateve te "Afatet e produkteve"
+      toast(lx.lloji === 'stok' ? 'Fleta e stokut mbeti në pritje. E gjen te "Përmbledhja".' : 'Fleta mbeti në pritje. E gjen te "Afatet e produkteve".');
     }
     if (kaTeDhena) {
       var po = await konfirmo('Të anulohet leximi?', 'Rreshtat e lexuar nuk do të ruhen.', 'Anulo leximin');
