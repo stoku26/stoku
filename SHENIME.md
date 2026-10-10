@@ -50,6 +50,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **"HARROJE" QË S'KTHEHET (v206 = 1.18.5)**: shkaku: shënimi "i harruar" (`{x:1}`) kishte klasën 1, ndërsa hyrja e
+   administratorit (`s`) klasën 2, kështu që `hyrjaFiton` mbante versionin e vjetër të administratorit: pajisjet e tjera s'e
+   pranonin harrimin dhe ia kthenin grupit produktin. Tash `fshij` / `vendos` bosh nga administratori ruajnë `{x:1, s:1}`
+   (klasa 2, fiton më i riu); `hyrjaEPastruar` dhe `hyrjePerGrup` e ruajnë `s` te të harruarat; kolegët s'e rikthejnë një
+   produkt të harruar nga administratori (`meso` refuzon mbi `x+s`). Furnizuesit (riemërtimi) ishin në rregull: u provua
+   me dy pajisje. Testi: harro-sync-test.js (PC + telefon i administratorit + koleg), kujtesa-njesi +10.
 0000000. **FURNIZUESIT E GRUPIT + FURNIZUESIT E RINJ (v205 = 1.18.4)**: `listaEFurnizuesve(afatet, produktet, kujtesa)` merr
    edhe `K.lista()`: furnizuesit e produkteve të grupit dalin te të gjithë (produkte = barkode të ndryshme stoku + kujtesa).
    `nePritje` kur furnizuesi del vetëm te produktet në pritje të kolegëve (`nga` = autorët) → tel nënfaqja `furnPritje`
