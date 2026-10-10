@@ -256,6 +256,8 @@
 .sb .ops-furn > * + *::before { content: ''; position: absolute; left: 66px; right: 0; top: 0; border-top: 1px solid var(--sb-line-2); }
 .sb .ops-furn > * { position: relative; }
 .sb .ops-furn-rresht:active { background: var(--sb-surface-2); }
+.sb div.ops-furn-rresht { cursor: default; }
+.sb div.ops-furn-rresht:active { background: transparent; }
 .sb .ops-furn-ik { flex: none; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; }
 .sb .ops-furn-emri { font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sb .ops-furn-laps { flex: none; color: var(--sb-faint); display: flex; }
