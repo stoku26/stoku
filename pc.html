@@ -180,41 +180,6 @@
   .numer-cip { font-size: 12px; color: var(--gri); font-variant-numeric: tabular-nums; font-weight: 500; }
   .numer-cip.kuqe { color: var(--rrezik); font-weight: 700; }
   .aktiv .numer-cip { color: var(--btn-tekst); }
-  /* Tri kategoritë e anësores (Stoku / Afatet / Grupi): secila me ikonë me ngjyrë dhe vijë ndarëse sipër, që të
-     dallohet qartë ku fillon kategoria tjetër. Emri të çon te kategoria; shigjeta (buton më vete) vetëm e hap/mbyll. */
-  .akordion-krye {
-    display: flex; align-items: center; gap: 2px; padding: 8px 10px 6px; margin-top: 6px;
-    border-top: 1px solid var(--vije);
-    --ak-ngjyra: var(--btn-tekst); --ak-sfondi: var(--primar-bute);
-  }
-  .akordion-krye.ak-afatet { --ak-ngjyra: var(--paralajm); --ak-sfondi: var(--paralajm-bute); }
-  .akordion-krye.ak-ekipi { --ak-ngjyra: var(--mire); --ak-sfondi: rgba(46,125,50,.12); }
-  :root[data-tema="dark"] .akordion-krye.ak-ekipi { --ak-sfondi: rgba(129,201,149,.13); }
-  .anesore .akordion-krye:first-child { margin-top: 0; border-top: 0; }
-  .akordion-emri {
-    flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 7px 8px; border: 0; border-radius: 10px;
-    background: transparent; cursor: pointer; font-family: inherit; font-size: 15px; font-weight: 800; letter-spacing: .2px;
-    color: var(--tekst); text-align: left;
-  }
-  .akordion-emri:hover { background: var(--hover); }
-  .akordion-ikona {
-    flex: none; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
-    color: var(--ak-ngjyra); background: var(--ak-sfondi);
-  }
-  .akordion-titulli { display: flex; align-items: center; gap: 8px; min-width: 0; }
-  .akordion-shigjeta-btn {
-    flex: none; width: 32px; height: 32px; border: 1px solid var(--vije); border-radius: 9px; background: var(--karta);
-    color: var(--gri); cursor: pointer; display: flex; align-items: center; justify-content: center;
-  }
-  .akordion-shigjeta-btn:hover { background: var(--hover); border-color: var(--fushe-kufi); color: var(--tekst); }
-  .akordion-emri:focus-visible, .akordion-shigjeta-btn:focus-visible { outline: 2px solid var(--primar); outline-offset: 1px; }
-  .akordion-shigjeta { transition: transform .15s ease; flex-shrink: 0; }
-  .akordion-shigjeta-btn[aria-expanded="true"] .akordion-shigjeta { transform: rotate(180deg); }
-  /* Hapja/mbyllja si "slide" e vërtetë (jo max-height në një numër arbitrar): grid-template-rows nga
-     0fr në 1fr animohet butë deri te lartësia natyrale e përmbajtjes, sido qoftë madhësia e saj. */
-  .akordion-trup { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .22s ease; }
-  .akordion-trup.hapur { grid-template-rows: 1fr; }
-  .akordion-brendia { overflow: hidden; min-height: 0; }
   .seksion-titull {
     display: flex; align-items: center; justify-content: space-between; padding: 14px 20px 6px;
     font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--gri);
@@ -916,7 +881,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku-pc.css?v=27">
+<link rel="stylesheet" href="css/stoku-pc.css?v=28">
 </head>
 <body>
 <script src="porta.js?v=196"></script>
@@ -942,9 +907,14 @@
       </div>
     </div>
     <div class="sbp-menyja">
-    <div class="akordion-krye ak-stoku"><button class="akordion-emri" id="btnAkordStoku" type="button" aria-expanded="true" aria-controls="akordStokuTrupi"><span class="akordion-ikona"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5z"></path><path d="m3 8 9 5 9-5"></path><path d="M12 13v8"></path></svg></span><span class="akordion-titulli">Stoku<span class="af-cip fleta" id="stokTabFleta" title="Fletë stoku nga telefoni që presin kontrollin"></span></span></button><button class="akordion-shigjeta-btn" id="btnAkordStokuShigjeta" type="button" aria-expanded="true" aria-controls="akordStokuTrupi" aria-label="Mbyll Stoku" title="Mbyll Stoku"><svg class="akordion-shigjeta" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
-    <div class="akordion-trup" id="akordStokuTrupi">
-      <div class="akordion-brendia">
+    <!-- v213: tri pllaka (Stoku, Afatet, Grupi); poshtë shfaqet vetëm menyja e pllakës aktive -->
+    <div class="sbp-pllakat" role="tablist" aria-label="Pjesët e Stoku-t">
+      <button class="sbp-pllake" id="btnAkordStoku" type="button" role="tab" aria-selected="true" aria-controls="akordStokuTrupi" title="Stoku: produktet dhe folderat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5z"></path><path d="m3 8 9 5 9-5"></path><path d="M12 13v8"></path></svg><b>Stoku</b><small id="pllStokuNen"></small><span class="af-cip fleta" id="stokTabFleta" title="Fletë stoku nga telefoni që presin kontrollin"></span></button>
+      <button class="sbp-pllake" id="btnAkordAfatet" type="button" role="tab" aria-selected="false" aria-controls="akordAfatetTrupi" title="Afatet e produkteve (datat e skadimit)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg><b>Afatet</b><small id="pllAfatetNen"></small><span class="af-cip fleta" id="afPllFleta" title="Fletë afatesh nga telefoni që presin kontrollin"></span></button>
+      <button class="sbp-pllake" id="btnAkordEkipi" type="button" role="tab" aria-selected="false" aria-controls="akordEkipiTrupi" title="Grupi: kolegët, afatet e grupit, aktiviteti"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><b>Grupi</b><small id="pllEkipiNen"></small><span class="af-cip kuqe" id="ekAkordShenja" title="Njoftime të palexuara"></span></button>
+    </div>
+    <div class="sbp-moduli" id="akordStokuTrupi" role="tabpanel" aria-labelledby="btnAkordStoku">
+      <div class="sbp-moduli-brendia">
         <nav class="nav">
           <button class="nav-rresht" id="navPermbledhja" type="button">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>
@@ -960,9 +930,8 @@
         <div class="folderat" id="folderat"></div>
       </div>
     </div>
-    <div class="akordion-krye ak-afatet"><button class="akordion-emri" id="btnAkordAfatet" type="button" aria-expanded="false" aria-controls="akordAfatetTrupi"><span class="akordion-ikona"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg></span><span class="akordion-titulli">Afatet</span></button><button class="akordion-shigjeta-btn" id="btnAkordAfatetShigjeta" type="button" aria-expanded="false" aria-controls="akordAfatetTrupi" aria-label="Mbyll Afatet" title="Mbyll Afatet"><svg class="akordion-shigjeta" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
-    <div class="akordion-trup" id="akordAfatetTrupi">
-      <div class="akordion-brendia">
+    <div class="sbp-moduli" id="akordAfatetTrupi" role="tabpanel" aria-labelledby="btnAkordAfatet" hidden>
+      <div class="sbp-moduli-brendia">
         <nav class="nav">
           <button class="nav-rresht" id="navAfatet" type="button" title="Afatet e produkteve (datat e skadimit)">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg>
@@ -982,9 +951,8 @@
         </nav>
       </div>
     </div>
-    <div class="akordion-krye ak-ekipi"><button class="akordion-emri" id="btnAkordEkipi" type="button" aria-expanded="false" aria-controls="akordEkipiTrupi"><span class="akordion-ikona"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span><span class="akordion-titulli">Grupi<span class="af-cip kuqe" id="ekAkordShenja" title="Njoftime të palexuara"></span></span></button><button class="akordion-shigjeta-btn" id="btnAkordEkipiShigjeta" type="button" aria-expanded="false" aria-controls="akordEkipiTrupi" aria-label="Mbyll Grupin" title="Mbyll Grupin"><svg class="akordion-shigjeta" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
-    <div class="akordion-trup" id="akordEkipiTrupi">
-      <div class="akordion-brendia">
+    <div class="sbp-moduli" id="akordEkipiTrupi" role="tabpanel" aria-labelledby="btnAkordEkipi" hidden>
+      <div class="sbp-moduli-brendia">
         <nav class="nav">
           <button class="nav-rresht" id="navEkPulti" type="button" data-ek="pulti" title="Përmbledhja e grupit: çka duhet bërë sot">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>
@@ -1938,7 +1906,7 @@
 <script src="ruajtja.js?v=110"></script>
 <script src="afatet.js?v=212"></script>
 <script src="ekipa.js?v=212"></script>
-<script src="teRejat.js?v=212"></script>
+<script src="teRejat.js?v=213"></script>
 <script>
 (function () {
   'use strict';
@@ -2488,48 +2456,48 @@
 
   // ================= Shiriti anësor =================
   var zvarritjaFolderit = null;
-  // Të dyja seksionet mund të jenë të hapura njëkohësisht — gjendja e hapjes ndiqet veç e veç nga
-  // pamja aktuale (seksioni i pamjes aktuale hapet vetë, por klikimi mund ta hap/mbyllë edhe tjetrin).
-  var akordoniStokuHapur = true, akordoniAfatetHapur = false, akordoniEkipiHapur = false;
-  var __pamjaParaAkordionit = null; // vetëm kur PAMJA ndryshon vërtet hapet vetë seksioni i saj — jo në çdo rirendering
-  function vendosAkordionin() {
-    if (pamja !== __pamjaParaAkordionit) {
-      if (pamja === 'afatet') akordoniAfatetHapur = true; else if (pamja === 'ekipi') akordoniEkipiHapur = true; else akordoniStokuHapur = true;
-      __pamjaParaAkordionit = pamja;
-    }
-    $('akordStokuTrupi').classList.toggle('hapur', akordoniStokuHapur);
-    $('akordAfatetTrupi').classList.toggle('hapur', akordoniAfatetHapur);
-    $('akordEkipiTrupi').classList.toggle('hapur', akordoniEkipiHapur);
-    [['Stoku', akordoniStokuHapur, 'Stoku'], ['Afatet', akordoniAfatetHapur, 'Afatet'], ['Ekipi', akordoniEkipiHapur, 'Grupi']].forEach(function (x) {
-      $('btnAkord' + x[0]).setAttribute('aria-expanded', String(x[1]));
-      var sh = $('btnAkord' + x[0] + 'Shigjeta');
-      sh.setAttribute('aria-expanded', String(x[1]));
-      sh.title = (x[1] ? 'Mbyll ' : 'Hap ') + x[2];
-      sh.setAttribute('aria-label', sh.title);
+  // v213: tri pllaka sipër (Stoku, Afatet, Grupi); poshtë tyre shfaqet vetëm menyja e pllakës së pamjes aktuale.
+  // Pllaka mban mend faqen e fundit brenda saj; klikimi te pllaka aktive të kthen te faqja e saj kryesore.
+  var MODULET = [['stoku', 'Stoku'], ['afatet', 'Afatet'], ['ekipi', 'Ekipi']];
+  var faqjaEFunditEStokut = 'permbledhja';
+  function moduliIPamjes(p) { return p === 'afatet' ? 'afatet' : p === 'ekipi' ? 'ekipi' : 'stoku'; }
+  function vendosPllakat() {
+    var m = moduliIPamjes(pamja);
+    if (m === 'stoku') faqjaEFunditEStokut = pamja;
+    MODULET.forEach(function (x) {
+      var on = x[0] === m;
+      $('btnAkord' + x[1]).classList.toggle('aktiv', on);
+      $('btnAkord' + x[1]).setAttribute('aria-selected', String(on));
+      $('akord' + x[1] + 'Trupi').hidden = !on;
     });
+    rifreskoPllakat();
   }
-  // Shigjeta: vetëm hap/mbyll kategorinë, pa të çuar te ajo (s'ke nevojë të hysh në secilën për ta mbyllur)
-  $('btnAkordStokuShigjeta').addEventListener('click', function () { akordoniStokuHapur = !akordoniStokuHapur; vendosAkordionin(); });
-  $('btnAkordAfatetShigjeta').addEventListener('click', function () { akordoniAfatetHapur = !akordoniAfatetHapur; vendosAkordionin(); });
-  $('btnAkordEkipiShigjeta').addEventListener('click', function () { akordoniEkipiHapur = !akordoniEkipiHapur; vendosAkordionin(); });
+  // Numrat poshtë emrit të pllakës: produktet; të skaduarat (ose afër skadimit); kolegët online (ose ftesat)
+  function rifreskoPllakat() {
+    $('pllStokuNen').textContent = num(Object.keys(produktet).length);
+    var n = window.StokuAfatet.numero(afatet), kuqe = n.skaduar + n['pa-date'], na = $('pllAfatetNen');
+    na.textContent = kuqe ? num(kuqe) + ' skaduar' : n.afer ? num(n.afer) + ' afër' : num(afatet.filter(function (a) { return a.statusi !== 'hequr'; }).length);
+    na.className = kuqe ? 'kuqe' : n.afer ? 'verdhe' : '';
+    var ne = $('pllEkipiNen'), on = $('ekNavOnline').textContent;
+    ne.textContent = on || (ekK && ekK.kaLidhje() && /^pa-(grup|rregulla)$/.test(ekK.gjendjaEQasjes()) ? 'Pa grup' : '');
+    ne.className = $('ekNavOnline').classList.contains('kuqe') ? 'kuqe' : '';
+  }
   $('btnAkordStoku').addEventListener('click', function () {
-    if (pamja === 'afatet' || pamja === 'ekipi') { shkoTe('permbledhja'); return; }
-    akordoniStokuHapur = !akordoniStokuHapur;
-    vendosAkordionin();
+    if (moduliIPamjes(pamja) === 'stoku') { shkoTe('permbledhja'); return; }
+    var f = faqjaEFunditEStokut;
+    shkoTe(f === 'permbledhja' || f === 'te-gjitha' || folderSipasId(f) ? f : 'permbledhja');
   });
   $('btnAkordAfatet').addEventListener('click', function () {
-    if (pamja !== 'afatet') { shkoTe('afatet'); return; }
-    akordoniAfatetHapur = !akordoniAfatetHapur;
-    vendosAkordionin();
+    if (pamja === 'afatet') { $('navAfatet').click(); return; }
+    shkoTe('afatet');
   });
   $('btnAkordEkipi').addEventListener('click', function () {
-    if (pamja !== 'ekipi') { shkoTe('ekipi'); return; }
-    akordoniEkipiHapur = !akordoniEkipiHapur;
-    vendosAkordionin();
+    if (pamja === 'ekipi') { $('navEkPulti').click(); return; }
+    shkoTe('ekipi');
   });
 
   function renderAnesoren() {
-    vendosAkordionin();
+    vendosPllakat();
     $('navPermbledhja').classList.toggle('aktiv', pamja === 'permbledhja');
     $('navTeGjitha').classList.toggle('aktiv', pamja === 'te-gjitha');
     Array.prototype.forEach.call(document.querySelectorAll('[data-ek]'), function (b) { b.classList.toggle('aktiv', pamja === 'ekipi' && b.dataset.ek === ekNen); });
@@ -5103,6 +5071,7 @@
     $('afTabVerdhe').textContent = n.afer ? String(n.afer) : '';
     $('afTabKuqe').title = 'Të skaduara: duhet të hiqen nga rafti';
     $('afTabVerdhe').title = 'Skadojnë brenda 30 ditëve';
+    rifreskoPllakat();
     var neAfate = pamja === 'afatet';
     $('navAfatet').classList.toggle('aktiv', neAfate && af.filtri !== 'skaduar' && af.filtri !== 'afer');
     $('navAfSkaduara').classList.toggle('aktiv', neAfate && af.filtri === 'skaduar');
@@ -5238,6 +5207,7 @@
       $('ekNavOnline').textContent = ekOnline(a) + '/' + a.length;
     } else $('ekNavOnline').textContent = '';
     $('ekNavOnline').classList.toggle('kuqe', !!kr);
+    rifreskoPllakat();
   }
 
   function ekVizato(rifreskim) {
@@ -6780,6 +6750,7 @@
     if (stok.length) $('stokTabFleta').appendChild(document.createTextNode(String(stok.length)));
     $('afTabFleta').innerHTML = afatetLista.length ? IKONA_FLETA.replace(/22/g, '12') : '';
     if (afatetLista.length) $('afTabFleta').appendChild(document.createTextNode(String(afatetLista.length)));
+    $('afPllFleta').innerHTML = $('afTabFleta').innerHTML; // v213: edhe te pllaka "Afatet"
     function vizato(kontejneri, lista) {
       kontejneri.textContent = '';
       lista.forEach(function (f) {
