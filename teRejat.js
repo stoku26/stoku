@@ -29,14 +29,14 @@
       'Poshtë pllakave del vetëm menyja e pllakës së zgjedhur, pa listat e tjera.',
       'Kur kthehesh te një pllakë, të çon aty ku ishe (p.sh. te folderi i fundit). Klikimi i dytë të çon te faqja e saj kryesore.'
     ] },
-    { v: 212, versioni: '1.20.0', data: '2026-10-10', titulli: 'Furnitori te produktet e stokut', pikat: [
-      'Kur shton ose ndryshon një produkt te Stoku, mund ta shënosh edhe furnitorin. Është opsional: nëse s\'e shkruan, mbetet bosh.',
-      'Importi nga Excel/CSV e lexon edhe kolonën e furnitorit (nëse ka). Eksporti në Excel ka kolonën "Furnizuesi", bosh kur s\'ka.',
-      'Furnitori shihet te lista e produkteve dhe mund ta kërkosh.',
+    { v: 212, versioni: '1.20.0', data: '2026-10-10', titulli: 'Furnizuesi te produktet e stokut', pikat: [
+      'Kur shton ose ndryshon një produkt te Stoku, mund ta shënosh edhe furnizuesin. Është opsional: nëse s\'e shkruan, mbetet bosh.',
+      'Importi nga Excel/CSV e lexon edhe kolonën e furnizuesit (nëse ka). Eksporti në Excel ka kolonën "Furnizuesi", bosh kur s\'ka.',
+      'Furnizuesi shihet te lista e produkteve dhe mund ta kërkosh.',
       'Cilësimet → Stoku: furnizuesit dhe produktet që i ruan administratori dalin në krye, më i riu i pari.'
     ] },
-    { v: 211, versioni: '1.19.4', data: '2026-10-10', titulli: 'Sugjerimet e furnitorit për të gjithë', pikat: [
-      'Te "Furnitori" (afat i ri, ndrysho afatin) secili përdorues, edhe jashtë grupit, i sheh si sugjerim furnizuesit që i ka kontrolluar administratori. Shkruaj disa shkronja dhe zgjidhe nga lista.',
+    { v: 211, versioni: '1.19.4', data: '2026-10-10', titulli: 'Sugjerimet e furnizuesit për të gjithë', pikat: [
+      'Te "Furnizuesi" (afat i ri, ndrysho afatin) secili përdorues, edhe jashtë grupit, i sheh si sugjerim furnizuesit që i ka kontrolluar administratori. Shkruaj disa shkronja dhe zgjidhe nga lista.',
       'Njoftimet: secili i fshin njoftimet e veta, një nga një me ✕ ose krejt me "Fshiji të gjitha".'
     ] },
     { v: 210, versioni: '1.19.3', data: '2026-10-10', titulli: 'Fletët nga telefoni, me tekst më të saktë', pikat: [
@@ -88,28 +88,28 @@
     ] },
     { v: 198, versioni: '1.17.1', data: '2026-10-09', titulli: 'Produktet i rregullon administratori', pikat: [
       'Cilësimet → Stoku e sheh vetëm administratori. Produktet e reja që shkruajnë kolegët ruhen aty me emrin e tyre, që t\'i rregullojë.',
-      'Kur skanon një produkt, del emri dhe furnitori siç i ka ruajtur administratori. Mund t\'i ndryshosh për afatin tënd, por produkti mbetet siç e ka bërë ai.',
+      'Kur skanon një produkt, del emri dhe furnizuesi siç i ka ruajtur administratori. Mund t\'i ndryshosh për afatin tënd, por produkti mbetet siç e ka bërë ai.',
       'Produktet e mësuara s\'fshihen kur del nga grupi: mbeten si kujtesë.'
     ] },
     { v: 197, versioni: '1.17.0', data: '2026-10-09', titulli: 'Produktet e përbashkëta për krejt grupin', pikat: [
-      'Produktet që Stoku i mban mend (emri dhe furnitori sipas barkodit) tash janë të përbashkëta për krejt kolegët e grupit: kur dikush e plotëson një produkt, e njohin të gjithë, në telefon, aplikacionin Android dhe kompjuter.',
+      'Produktet që Stoku i mban mend (emri dhe furnizuesi sipas barkodit) tash janë të përbashkëta për krejt kolegët e grupit: kur dikush e plotëson një produkt, e njohin të gjithë, në telefon, aplikacionin Android dhe kompjuter.',
       'Ndryshimet te Cilësimet → Stoku → Produktet (ndrysho ose harroje) vlejnë për krejt grupin. Pa grup, produktet mbeten vetëm në pajisjen tënde.'
     ] },
     { v: 196, versioni: '1.16.0', data: '2026-10-09', titulli: 'Stoku i mban mend produktet', pikat: [
-      'Kur e skanon një barkod që e ke plotësuar një herë, emri (p.sh. "Coca Cola 1.25L") dhe furnitori plotësohen vetë: te afati i ri, te leximi i fletës me foto dhe te Stoku.',
+      'Kur e skanon një barkod që e ke plotësuar një herë, emri (p.sh. "Coca Cola 1.25L") dhe furnizuesi plotësohen vetë: te afati i ri, te leximi i fletës me foto dhe te Stoku.',
       'Stoku i mëson edhe nga afatet dhe produktet që i ke tashmë, si dhe nga afatet e kolegëve të grupit. Ruhen vetëm në këtë pajisje, nuk zënë vend në llogari.',
-      'Cilësimet → Stoku → Produktet: kërko, ndrysho emrin ose furnitorin e një produkti, ose harroje.',
-      'Rregullim: kur ndryshon sasinë e një produkti te Stoku, furnitori i tij s\'humb më.'
+      'Cilësimet → Stoku → Produktet: kërko, ndrysho emrin ose furnizuesin e një produkti, ose harroje.',
+      'Rregullim: kur ndryshon sasinë e një produkti te Stoku, furnizuesi i tij s\'humb më.'
     ] },
     { v: 195, versioni: '1.15.0', data: '2026-10-09', titulli: 'Njoftimet e Grupit edhe me Stoku të mbyllur', pikat: [
-      'Kur një koleg heq një produkt tëndin dhe pret miratimin, kur e pranon ose e refuzon heqjen, kur administratori të ndryshon një afat ose njofton krejt grupin: njoftimi vjen menjëherë, edhe kur Stoku është i mbyllur (telefon, aplikacioni Android, kompjuter).',
+      'Kur një koleg heq një nga produktet e tua dhe pret miratimin, kur e pranon ose e refuzon heqjen, kur administratori të ndryshon një afat ose njofton krejt grupin: njoftimi vjen menjëherë, edhe kur Stoku është i mbyllur (telefon, aplikacioni Android, kompjuter).',
       'Njoftimi s\'del dy herë: kur e hap Stoku-n, i njëjti njoftim vetëm përditësohet.'
     ] },
     { v: 194, versioni: '1.14.7', data: '2026-10-09', titulli: 'Anëtarët tash quhen Kolegët', pikat: [
       'Te Grupi, "Anëtarët" tash quhen "Kolegët" (telefon dhe kompjuter), një fjalë që vlen për të gjithë.'
     ] },
     { v: 193, versioni: '1.14.6', data: '2026-10-09', titulli: 'Tabela e anëtarëve rregulluar', platforma: 'pc', pikat: [
-      'Te Grupi → Anëtarët, butonat "Bëje admin", "Hiq nga grupi" dhe "Fshij" tash nxihen të plotë brenda tabelës (më parë "Fshij" s\'shihej).',
+      'Te Grupi → Anëtarët, butonat "Bëje admin", "Hiq nga grupi" dhe "Fshi" tash nxihen të plotë brenda tabelës (më parë "Fshi" s\'shihej).',
       'Flluska e kurorës / mburojës s\'i nxjerr më butonat jashtë tabelës; kur s\'ka vend lart, del poshtë ose anash ikonës.',
       'Në ekrane më të ngushta emri shkurtohet, ndërsa kurora dhe mburoja mbeten gjithmonë të dukshme.'
     ] },
@@ -167,7 +167,7 @@
       'Njoftimi kur një koleg e heq produktin tënd tash është i shkurtër; poshtë tij janë vetëm butonat "Prano" dhe "Refuzo".'
     ] },
     { v: 179, versioni: '1.12.0', data: '2026-10-08', titulli: 'Heqja nga kolegu me miratim', pikat: [
-      'Kur një koleg e heq nga rafti një produkt tëndin, ai s\'hiqet menjëherë: te zilja e Ekipës të del njoftimi me "Prano" dhe "Refuzo".',
+      'Kur një koleg heq nga rafti një nga produktet e tua, ai s\'hiqet menjëherë: te zilja e Ekipës të del njoftimi me "Prano" dhe "Refuzo".',
       'Produkti hiqet nga afatet e tua vetëm kur e pranon; nëse e refuzon, mbetet në raft dhe kolegu njoftohet.',
       'Deri atëherë te Ekipa produkti shfaqet "Në pritje" të miratimit.'
     ] },
@@ -217,7 +217,7 @@
       'Aplikacioni Android: njoftimi i prekur hap direkt chat-in ose afatet, pa e ringarkuar Stoku-n.'
     ] },
     { v: 167, versioni: '1.9.0', data: '2026-10-06', titulli: 'Stoku si aplikacion Android', pikat: [
-      'Aplikacioni i ri Stoku për Android: s\'del nga llogaria kur i fshin cookies dhe të dhënat e Chrome-it, dhe njoftimet vijnë menjëherë. Shkarkohet te Cilësimet, poshtë "Çka ka të re": "Shkarko aplikacionin Android".',
+      'Aplikacioni i ri Stoku për Android: s\'del nga llogaria kur i fshin cookies dhe të dhënat e Chrome-it dhe njoftimet vijnë menjëherë. Shkarkohet te Cilësimet, poshtë "Çka ka të re": "Shkarko aplikacionin Android".',
       'Çdo përmirësim i Stoku-t del njëkohësisht në telefon, kompjuter dhe aplikacion. Kur del version i ri i vetë aplikacionit (edhe në orë), të pyet vetë "Përditëso".'
     ] },
     { v: 166, versioni: '1.8.2', data: '2026-10-06', titulli: 'Cilësimet e llogarisë më të thjeshta', pikat: [
@@ -407,7 +407,7 @@
       'Te Afatet ka butonin "Importo" (Excel ose CSV): kolonat gjenden vetë, dhe para importit sheh çka shtohet, çka ekziston dhe çka ka gabim.',
       'Fletët me emër muaji në Excel (p.sh. "Nëntor", "Nëntor2") lexohen si ai muaj; numri pas emrit harrohet.',
       'Mbi listën e afateve ka butona për muajt (Tetor, Nëntor…): kliko njërin dhe shfaqen vetëm afatet që skadojnë atë muaj.',
-      'Eksporti në Excel të pyet cilin muaj don: vetëm Tetorin, vetëm Nëntorin, ose të gjithë muajt.'
+      'Eksporti në Excel të pyet cilin muaj do: vetëm Tetorin, vetëm Nëntorin, ose të gjithë muajt.'
     ] },
     { v: 119, data: '2026-09-30', titulli: '"Çka ka të re" s\'humbet më', pikat: [
       'Kjo dritare s\'zhduket më kur aplikacioni rifreskohet vetë për përditësim: del pasi të përfundojë përditësimi.',
@@ -426,7 +426,7 @@
     { v: 116, data: '2026-09-30', titulli: 'Administratori: heqja dhe fshirja e anëtarëve', pikat: [
       'Te Ekipa → Anëtarët administratori mund ta heqë kujtdo nga ekipa, ose ta fshijë llogarinë komplet (stoku, afatet dhe profili).',
       'Llogaria e fshirë del vetë nga Stoku dhe s\'mund të hyjë më; emri lirohet për një llogari të re.',
-      'Edhe kërkesat për t\'u bashkuar kanë butonin "Fshij", për llogaritë e panjohura.'
+      'Edhe kërkesat për t\'u bashkuar kanë butonin "Fshi", për llogaritë e panjohura.'
     ] },
     { v: 115, data: '2026-09-30', titulli: 'Hyrja më e qëndrueshme', pikat: [
       'Me internet të dobët, "Hyr" pret derisa të lidhet me serverin, në vend që të thotë menjëherë "s\'ka internet".',
@@ -461,11 +461,11 @@
     { v: 109, data: '2026-09-29', titulli: 'Ekipa: afatet, aktiviteti, chat-i dhe më shumë', pikat: [
       '"Ekipi" tani quhet "Ekipa" dhe tregon vetëm afatet e kolegëve (jo stokun).',
       'Kur një produkt i një kolegu ka skaduar, mund ta heqësh ti nga rafti me "Unë e hoqa", dhe kolegu njoftohet me emrin tënd.',
-      'Zilja lart djathtas: njoftimet, p.sh. kur dikush e heq nga rafti një produkt tëndin.',
+      'Zilja lart djathtas: njoftimet, p.sh. kur dikush heq nga rafti një nga produktet e tua.',
       'Aktiviteti (kush çka hoqi, shtoi ose lajmëroi), chat-i i ekipës, kalendari me ngjyra për çdo ditë, anëtarët (kush është online tani) dhe statistika.'
     ] },
     { v: 105, data: '2026-09-29', titulli: 'Ekipi: stoku i përbashkët i krejt llogarive', pikat: [
-      'U shtua "Ekipi": te telefoni si tab i tretë (mas Stoku dhe Afatet), te kompjuteri si seksion i tretë në anësore.',
+      'U shtua "Ekipi": te telefoni si tab i tretë (pas Stoku-t dhe Afateve), te kompjuteri si seksion i tretë në anësore.',
       'Aty shihen stoku dhe afatet e KREJT llogarive, të shënuara me emrin e secilit përdorues.',
       'Secili sheh gjithçka, por fshin/ndryshon vetëm produktet dhe afatet e veta. Të tjerëve u shikohen, s\'u ndryshohen.'
     ] },
