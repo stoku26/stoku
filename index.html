@@ -1884,10 +1884,10 @@
 <script src="xlsx.js?v=212"></script>
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=214"></script>
-<script src="ekipa.js?v=214"></script>
+<script src="afatet.js?v=215"></script>
+<script src="ekipa.js?v=215"></script>
 <script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=214"></script>
+<script src="teRejat.js?v=215"></script>
 <script>
 (function () {
   'use strict';
@@ -3463,6 +3463,7 @@
     if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(ora)) { toast('Shkruaj orën si 17:05.'); rifreskoOrarin(); return; }
     try { localStorage.setItem(KEY_NJ_ORA, ora); } catch (x) { /* ok */ }
     if (!e || !e.vendosOrarin || !perdoruesiAktual()) { toast('Hyr në llogari që ta përdorësh.'); rifreskoOrarin(); return; }
+    if (aktiv && gjendjaENjoftimeve() === 'pa') { toast('Ky shfletues s\'i mbështet njoftimet.'); rifreskoOrarin(); return; }
     if (aktiv && Notification.permission !== 'granted') { toast('Lejo njoftimet më lart, pastaj provo sërish.'); rifreskoOrarin(); return; }
     __orariDukePunuar = true;
     $('njDitor').disabled = $('njOra').disabled = true;
@@ -3753,6 +3754,7 @@
         btn.disabled = false;
         btn.textContent = butoni;
       }
+      if (konfRez) { var paraR = konfRez; konfRez = null; paraR(false); } // pyetja e mëparshme s'mbetet pa përgjigje
       konfRez = zgjidh;
       $('dlgKonfirmo').classList.add('hapur');
     });
@@ -3928,15 +3930,17 @@
     vendosStatusinCloud(T('cloudStatusiDukeSink'));
     var versioniPara = __versioniLokal;
     var rez;
-    if (window.__stokuCloud.bashkoDheRuaj) {
-      // Lexim + bashkim + shkrim në një transaksion: dy pajisje që sinkronizojnë njëkohësisht s'ia fshijnë ndryshimet njëra-tjetrës.
-      rez = await window.__stokuCloud.bashkoDheRuaj(function (cloud) { return bashkoPaFshirje(cloud, gjendjaPerCloud()); });
-    } else {
-      var meparshme = await window.__stokuCloud.merr();
-      var perDergim = bashkoPaFshirje(meparshme.ok ? meparshme.gjendja : null, gjendjaPerCloud());
-      rez = await window.__stokuCloud.ruaj(perDergim);
-      if (rez.ok) rez.gjendja = perDergim;
-    }
+    try {
+      if (window.__stokuCloud.bashkoDheRuaj) {
+        // Lexim + bashkim + shkrim në një transaksion: dy pajisje që sinkronizojnë njëkohësisht s'ia fshijnë ndryshimet njëra-tjetrës.
+        rez = await window.__stokuCloud.bashkoDheRuaj(function (cloud) { return bashkoPaFshirje(cloud, gjendjaPerCloud()); });
+      } else {
+        var meparshme = await window.__stokuCloud.merr();
+        var perDergim = bashkoPaFshirje(meparshme.ok ? meparshme.gjendja : null, gjendjaPerCloud());
+        rez = await window.__stokuCloud.ruaj(perDergim);
+        if (rez.ok) rez.gjendja = perDergim;
+      }
+    } catch (e) { rez = { ok: false, arsye: String((e && e.message) || e) }; } // sinkronizimi s'ngec kurrë "duke punuar"
     dukeSinkronizuar = false;
     if (rez.ok) {
       window.StokuBashkimi.pastroFshirjetEVjetra(fshira);
@@ -4178,6 +4182,7 @@
     if (!rez.ok) {
       if (rez.kodi === 'auth/requires-recent-login') {
         veprimiNePritje = function () { return window.__stokuCloud.ndryshoEmrin(emriRi); };
+        veprimiNePritje.mesazhi = 'cloudEmriURiNdryshuar';
         $('cloudRiautSeksion').style.display = '';
         $('cloudFjalekalimiAktual').focus();
         return;
@@ -4201,6 +4206,7 @@
     if (!rez.ok) {
       if (rez.kodi === 'auth/requires-recent-login') {
         veprimiNePritje = function () { return window.__stokuCloud.ndryshoFjalekalimin(fjalekalimiRi); };
+        veprimiNePritje.mesazhi = 'cloudFjalekalimiURiNdryshuar';
         $('cloudRiautSeksion').style.display = '';
         $('cloudFjalekalimiAktual').focus();
         return;
@@ -4226,7 +4232,7 @@
     $('cloudEmriRi').value = '';
     $('cloudFjalekalimiRi').value = '';
     rifreskoDukjenECloud();
-    toast(T('cloudFjalekalimiURiNdryshuar'));
+    toast(T(veprimi.mesazhi || 'cloudFjalekalimiURiNdryshuar')); // "Emri … u ndryshua" ose "Fjalëkalimi u ndryshua", sipas veprimit
   });
 
   $('cloudDilBtn').addEventListener('click', async function () {
@@ -7494,7 +7500,10 @@
     if (sasiaTx && sasia === '') { toast('Sasia duhet të jetë numër i plotë (p.sh. 12).'); $('afatSasia').focus(); return; }
     if (!b && !emri) { toast('Shkruaj barkodin ose emrin e produktit.'); $('afatBarkodi').focus(); return; }
     if (!data) { toast('Shkruaj datën e skadimit, p.sh. 31-12-26.'); $('afatData').focus(); return; }
-    var furnPara = afatNeDialog ? (afatNeDialog.furnizuesi || '') : '';
+    // afatNeDialog është id-ja; furnizuesi i mëparshëm merret nga vetë afati (përndryshe çdo ruajtje e një afati të vjetër
+    // e kthente si "të ri" një furnizues të fshirë)
+    var afPara = afatNeDialog ? afatet.filter(function (x) { return x.id === afatNeDialog; })[0] : null;
+    var furnPara = (afPara && afPara.furnizuesi) || '';
     mesoNgaPerdoruesi(b, emri, f); // herën tjetër ky barkod plotëson vetë emrin dhe furnizuesin
     if (f && f !== furnPara) regjistroFurnizuesinERi(f); // v212, v214: për këdo
     var tani = Date.now();
@@ -7552,7 +7561,11 @@
   function dataEShpejte(z) {
     var d = new Date(); d.setHours(12, 0, 0, 0);
     if (z[1]) d.setDate(d.getDate() + z[1]);
-    if (z[2]) d.setMonth(d.getMonth() + z[2]);
+    if (z[2]) { // "1 muaj" nga 31 janari = 28/29 shkurt (jo 3 mars)
+      var dita = d.getDate();
+      d.setDate(1); d.setMonth(d.getMonth() + z[2]);
+      d.setDate(Math.min(dita, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()));
+    }
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
   function vizatoDatatEShpejta() {
@@ -7854,7 +7867,7 @@
     var nk = te_reja.filter(function (a) { return AF.statusi(a) === 'skaduar'; }).length;
     var nv = te_reja.filter(function (a) { return AF.statusi(a) === 'afer'; }).length;
     toast((te_reja.length === 1 ? 'U ruajt 1 afat' : 'U ruajtën ' + te_reja.length + ' afate') + (perseritur ? ' (' + (perseritur === 1 ? '1 ekzistonte' : perseritur + ' ekzistonin') + ' tashmë)' : '') +
-      (nk ? ' · ' + nk + ' kanë skaduar!' : '') + (nv ? ' · ' + nv + ' skadojnë brenda 30 ditëve' : '') + '.', 5000);
+      (nk ? ' · ' + (nk === 1 ? '1 ka skaduar!' : nk + ' kanë skaduar!') : '') + (nv ? ' · ' + (nv === 1 ? '1 skadon' : nv + ' skadojnë') + ' brenda 30 ditëve' : '') + '.', 5000);
     afFiltri = nk ? 'skaduar' : (nv ? 'afer' : 'aktive');
     renderAfatet();
   });

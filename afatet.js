@@ -707,7 +707,9 @@
     function shkruaj() {
       var h = lexo(), ks = Object.keys(h);
       if (ks.length > KUJTESA_MAKS) {
-        ks.sort(function (a, b) { return (h[a].k || 0) - (h[b].k || 0); }).slice(0, ks.length - KUJTESA_MAKS).forEach(function (x) { delete h[x]; });
+        // Hiqen produktet më të vjetra; furnizuesit e ruajtur më vete (pak, shpesh me kohën 1) s'hiqen kurrë
+        ks.filter(function (x) { return !eshteCelesFurnizuesi(x); }).sort(function (a, b) { return (h[a].k || 0) - (h[b].k || 0); })
+          .slice(0, ks.length - KUJTESA_MAKS).forEach(function (x) { delete h[x]; });
       }
       try { if (ruajtja) ruajtja.setItem(KUJTESA_KEY, JSON.stringify(h)); } catch (e) { /* memoria e shfletuesit plot: mbetet vetëm për këtë seancë */ }
     }
@@ -812,7 +814,12 @@
       // lista: [{ barkodi, emri, furnizuesi }]; një shkrim i vetëm në fund
       mesoShume: function (lista, menyra) {
         var h = lexo(), ndr = [], tani = Date.now();
-        (lista || []).forEach(function (x) { var r = x && mesoNje(h, x.barkodi, x.emri, x.furnizuesi, menyra, tani, ndr); if (r) ndr.push(r); });
+        (lista || []).forEach(function (x) {
+          var r = x && mesoNje(h, x.barkodi, x.emri, x.furnizuesi, menyra, tani, ndr);
+          if (r) ndr.push(r);
+          // v215: rreshti pa barkod (p.sh. afat i importuar vetëm me emër): furnizuesi i ri ruhet prapë më vete, në pritje
+          else if (x && menyra !== 'plotëso' && x.furnizuesi && !pastroBarkodin(x.barkodi)) regjistroIRi(h, x.furnizuesi, tani, ndr);
+        });
         if (ndr.length) { shkruaj(); njofto(ndr); }
         return ndr.length;
       },

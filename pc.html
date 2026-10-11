@@ -1904,9 +1904,9 @@
 <script src="xlsx.js?v=212"></script>
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=214"></script>
-<script src="ekipa.js?v=214"></script>
-<script src="teRejat.js?v=214"></script>
+<script src="afatet.js?v=215"></script>
+<script src="ekipa.js?v=215"></script>
+<script src="teRejat.js?v=215"></script>
 <script>
 (function () {
   'use strict';
@@ -2281,9 +2281,12 @@
     if (sink.duke) { sink.serish = true; return; }
     sink.duke = true;
     vendosStatusin('pune');
-    var rez = await window.__stokuCloud.bashkoDheRuaj(function (cloud) {
-      return window.StokuBashkimi.bashko(cloud, gjendjaLokale());
-    });
+    var rez;
+    try {
+      rez = await window.__stokuCloud.bashkoDheRuaj(function (cloud) {
+        return window.StokuBashkimi.bashko(cloud, gjendjaLokale());
+      });
+    } catch (e) { rez = { ok: false, arsye: String((e && e.message) || e) }; } // sinkronizimi s'ngec kurrë "duke punuar"
     sink.duke = false;
     if (rez.ok) {
       window.StokuBashkimi.pastroFshirjetEVjetra(fshira);
@@ -2569,8 +2572,9 @@
         var id = ev.dataTransfer.getData('application/x-stoku-folder');
         if (!id || id === f.id) return;
         var levizur = folderSipasId(id);
+        if (!levizur || !folderSipasId(f.id)) return; // njëri u fshi ndërkohë (p.sh. nga sinkronizimi)
         var lista = foldera.filter(function (x) { return x.id !== id; });
-        var ku = lista.indexOf(f) + (lart ? 0 : 1);
+        var ku = lista.map(function (x) { return x.id; }).indexOf(f.id) + (lart ? 0 : 1);
         lista.splice(ku, 0, levizur);
         foldera = lista;
         rendiFolderaveKoha = Date.now();
@@ -3151,6 +3155,7 @@
       $('kfTekst').textContent = teksti;
       var b = $('kfPo');
       clearInterval(konf.kohez);
+      if (konf.zgjidh) { var paraZ = konf.zgjidh; konf.zgjidh = null; paraZ(false); } // pyetja e mëparshme s'mbetet pa përgjigje
       konf.zgjidh = zgjidh;
       if (vonesa > 0) {
         var s = vonesa;
@@ -3442,7 +3447,7 @@
       });
     });
     var m = (keys.length === 1 ? 'U zhvendos' : keys.length + ' produkte u zhvendosën') + ' te "' + cak.emri + '"' +
-      (bashkuar ? ' (' + bashkuar + ' u bashkuan me ekzistuesit)' : '') + '.';
+      (bashkuar ? ' (' + (bashkuar === 1 ? '1 u bashkua me një ekzistues' : bashkuar + ' u bashkuan me ekzistuesit') + ')' : '') + '.';
     toast(m, { veprimi: function () { zhbej(reg); } });
   }
 
@@ -3893,7 +3898,7 @@
     });
     var emriSk = 'etiketa_' + slug(folderi ? folderi.emri : (lista ? 'produktet' : 'krejt')) + '_' + vulaKohore(false) + '.pdf';
     shkarko(doc.output('arraybuffer'), emriSk, 'application/pdf');
-    toast('U shkarkua: ' + emriSk + ' (' + prod.length + ' etiketa)');
+    toast('U shkarkua: ' + emriSk + ' (' + nrEmer(prod.length, 'etiketë', 'etiketa') + ')');
   }
 
   // ================= Importi (Excel / CSV) =================
@@ -4446,11 +4451,12 @@
     var n = (rez.gjendja.produktet || []).length;
     var po = await konfirmo('Të rikthehen të dhënat nga cloud?', 'Të dhënat e këtij kompjuteri (' + produkteTekst(Object.keys(produktet).length) + ') zëvendësohen me ato të cloud-it (' + produkteTekst(n) + ').', 'Rikthe');
     if (!po) return;
-    foldera = Array.isArray(rez.gjendja.foldera) ? rez.gjendja.foldera : [];
+    var B = window.StokuBashkimi; // një rresht i dëmtuar në cloud s'e rrëzon faqen (si te telefoni)
+    foldera = B.pastroFolderat(rez.gjendja.foldera);
     var pm = {};
-    (rez.gjendja.produktet || []).forEach(function (p) { if (p && typeof p.barkodi === 'string' && typeof p.kategoriaId === 'string') pm[celesi(p.kategoriaId, p.barkodi)] = p; });
+    B.pastroProduktet(rez.gjendja.produktet).forEach(function (p) { pm[celesi(p.kategoriaId, p.barkodi)] = p; });
     produktet = pm;
-    afatet = Array.isArray(rez.gjendja.afatet) ? rez.gjendja.afatet : [];
+    afatet = B.pastroAfatet(rez.gjendja.afatet);
     fshira = { produktet: {}, foldera: {}, afatet: {} };
     rendiFolderaveKoha = Number(rez.gjendja.rendiKoha) || 0;
     shkruajLokalisht();
@@ -4903,6 +4909,8 @@
       if (m && foldera[+m[1] - 1]) { ev.preventDefault(); shkoTe(foldera[+m[1] - 1].id); return; }
     }
     if (poShkruan(ev.target) || ctrl && k !== 'a' && k !== 'A' || ev.altKey) return;
+    // Shkronjat e një barkodi të skaneri USB (vijnë shumë shpejt njëra pas tjetrës) s'janë shkurtore ("N", "M", "B"…)
+    if (k.length === 1 && skanBuf.length >= 2 && performance.now() - skanKoha < 60) return;
 
     var neTabele = pamja !== 'permbledhja' && pamja !== 'afatet' && pamja !== 'ekipi';
     if (k === '/') { ev.preventDefault(); $('kerkoGlobal').focus(); return; }
@@ -5246,7 +5254,7 @@
     var d = new Date();
     var DITET = ['E diel', 'E hënë', 'E martë', 'E mërkurë', 'E enjte', 'E premte', 'E shtunë'];
     var MUAJT = ['janar', 'shkurt', 'mars', 'prill', 'maj', 'qershor', 'korrik', 'gusht', 'shtator', 'tetor', 'nëntor', 'dhjetor'];
-    $('ekNen').textContent = DITET[d.getDay()] + ', ' + d.getDate() + ' ' + MUAJT[d.getMonth()] + ' · ' + anetaret.length + (anetaret.length === 1 ? ' koleg' : ' kolegë') + ' · ' + (gati ? n.aktive + ' afate në raft' : 'duke ngarkuar…');
+    $('ekNen').textContent = DITET[d.getDay()] + ', ' + d.getDate() + ' ' + MUAJT[d.getMonth()] + ' · ' + anetaret.length + (anetaret.length === 1 ? ' koleg' : ' kolegë') + ' · ' + (gati ? nrEmer(n.aktive, 'afat', 'afate') + ' në raft' : 'duke ngarkuar…');
     function afatet(filtri) { return function () { ekV.anetari = 'krejt'; ekV.filtri = filtri; ekShkoTe('afatet'); }; }
     // Ftesa për në një grup tjetër
     var ft = ekK.ftesatEMia();
@@ -7048,7 +7056,7 @@
     af.filtri = nk ? 'skaduar' : nv ? 'afer' : 'aktive';
     if (pamja !== 'afatet') shkoTe('afatet'); else renderAfatetPc();
     toast((shtuar.length === 1 ? 'U ruajt 1 afat' : 'U ruajtën ' + shtuar.length + ' afate') + (perseritur ? ' (' + (perseritur === 1 ? '1 ekzistonte' : perseritur + ' ekzistonin') + ' tashmë)' : '') +
-      (nk ? ' · ' + nk + ' kanë skaduar!' : '') + (nv ? ' · ' + nv + ' skadojnë brenda 30 ditëve' : '') + '.', { veprimi: function () { zhbejAfatet(reg); }, ms: 9000 });
+      (nk ? ' · ' + (nk === 1 ? '1 ka skaduar!' : nk + ' kanë skaduar!') : '') + (nv ? ' · ' + (nv === 1 ? '1 skadon' : nv + ' skadojnë') + ' brenda 30 ditëve' : '') + '.', { veprimi: function () { zhbejAfatet(reg); }, ms: 9000 });
   });
 
   // ---------- Filtri sipas muajit të skadimit ----------

@@ -18,6 +18,15 @@
   'use strict';
 
   var LISTA = [
+    { v: 215, versioni: '1.22.1', data: '2026-10-11', titulli: 'Kontroll i plotë: drejtshkrimi dhe disa rregullime', pikat: [
+      'Tekstet u kontrolluan në krejt Stoku-n (telefon, kompjuter, ora): "Fshi" në vend të "Fshij", "furnizues" kudo, dhe numrat sipas njëjësit ose shumësit ("1 afat", "2 afate", "1 ka skaduar").',
+      'Kur ndryshon një afat ekzistues (p.sh. vetëm sasinë), furnizuesi që e ka fshirë administratori s\'del më si "i ri".',
+      'Afatet pa barkod që importohen nga Excel e ruajnë furnizuesin e ri më vete, që të mos humbasë kur fshihen.',
+      'Datat e shpejta "1 muaj" dhe "3 muaj" nga fundi i muajit (p.sh. 31 janar) japin ditën e fundit të muajit (28 shkurt), jo fillimin e muajit tjetër.',
+      'Sinkronizimi s\'ngec më te "Duke sinkronizuar…" pas një gabimi të papritur: riprovohet vetë.',
+      'Kompjuter: barkodet me shkronja nga skaneri USB s\'hapin më shkurtoret e tastierës ("N", "M", "B") në mes të skanimit.',
+      'Ora: ekrani "Lidhe me telefonin" s\'e pyet më serverin kur ekrani i orës fiket (kursen baterinë).'
+    ] },
     { v: 214, versioni: '1.22.0', data: '2026-10-11', titulli: 'Furnizuesit e rinj s\'humbin më', pikat: [
       'Furnizuesi i ri që e shkruan dikush s\'fshihet më kur fshihen produktet e tij: mbetet te Cilësimet → Stoku → Furnizuesit e rinj derisa ta ruajë, ta riemërtojë ose ta fshijë administratori.',
       'Edhe produktet dhe furnizuesit e rinj që i shton administratori dalin te "Produktet e reja" / "Furnizuesit e rinj", që t\'i kontrollojë dhe t\'i ruajë kur të dojë.',

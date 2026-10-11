@@ -61,10 +61,13 @@ val AfatAfer = Color(0xFFF5B70A)
 // Rifreskimi automatik: vetëm kur hyn në aplikacion (hapje ose rikthim); përndryshe me butonin poshtë
 object Rikthimi {
     var n by mutableStateOf(0)
+    // A është aplikacioni përpara (ekrani ndezur)? Kur ekrani fiket, ekrani i lidhjes s'pyet më serverin.
+    @Volatile var perpara = false
 }
 
 class MainActivity : ComponentActivity() {
-    override fun onResume() { super.onResume(); Rikthimi.n++ }
+    override fun onResume() { super.onResume(); Rikthimi.perpara = true; Rikthimi.n++ }
+    override fun onPause() { Rikthimi.perpara = false; super.onPause() }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Tema.ngarko(this)
@@ -98,6 +101,9 @@ fun Lidhja(kurLidhet: () -> Unit) {
         var kohaKodit = System.currentTimeMillis()
         var kontrolli = 0L
         while (true) {
+            // Ekrani i fikur / aplikacioni prapa: pa kërkesa te serveri (bateria dhe kufiri ditor i shkrimeve).
+            // Kur kthehesh, del menjëherë kod i ri.
+            if (!Rikthimi.perpara) { delay(500); continue }
             val tani = System.currentTimeMillis()
             if (tani - kohaKodit >= KODI_SEKONDA * 1000L) {
                 kodi = Api.kodiIRi(ctx); kohaKodit = tani; kontrolli = 0L
