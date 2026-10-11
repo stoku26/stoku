@@ -50,6 +50,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **RREGULLI I FTESËS (rregullat v216, pa ndryshim në aplikacion)**: te `grupet/{g}/anetaret/{u}` (create, roli
+   'anetar' me ftesë) u shtua `&& !existsAfter(/databases/$(database)/documents/ftesat/$(g + '_' + emriIm()))`: ftesa duhet të
+   fshihet në të njëjtin batch me hyrjen, që një ftesë e vjetër të mos përdoret dy herë (p.sh. pasi pronari e heq kolegun) nga
+   një klient i modifikuar. Aplikacioni e bën këtë që nga v164 (`pranoFtesen`: `b.set(anetaret) + b.delete(ftesat)`), pra
+   krejt versionet punojnë njësoj; migrimi i grupit "ekipa" (dega `g == 'ekipa'`) s'preket. Mock-u `fs-server.js` e ndjek me
+   `!pas('ftesat/…')`. Testi: ftesa-test.js (6; pa rregullin dështojnë 3). **Vendosja: rregullat e reja te Firebase.**
 0000000. **KONTROLLI I PLOTË: DREJTSHKRIMI + BUGS (v215 = 1.22.1)**: (1) Drejtshkrimi/gramatika në krejt tekstet (web, tel/,
    ora/): "Fshi" (jo "Fshij") te butonat, "furnizues" (jo "furnitor"), njëjës/shumës me `nrEmer(n, nje, shume)` (index.html pas
    FJALORI-t; pc.html pas `produkteTekst`, me `num`), Kotlin-i i orës ("1 e skaduar", "1 koleg", "1 ka skaduar"), tekste të
@@ -65,8 +71,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    kalon nga `pastroFolderat/Produktet/Afatet`; zvarritja e folderit kontrollon që të dy ekzistojnë. Ora (Wear OS): `Rikthimi.perpara`
    (onResume/onPause): ekrani i lidhjes s'pyet serverin dhe s'krijon kode të reja kur ekrani është fikur (më parë: kod i ri çdo 15 s
    + kërkesë çdo 3 s pa fund, harxhonte baterinë dhe kufirin ditor të shkrimeve të KV-së). Testet: v215-njesi.js, v215-test.js (A-E).
-   Pa ndryshime në Firebase/Worker. Sugjerim (s'u bë): rregulli i `grupet/{g}/anetaret` (roli anetar) mund të kërkojë
-   `!existsAfter(ftesat/…)`, që një ftesë e vjetër të mos përdoret dy herë nga një klient i modifikuar (aplikacioni e fshin vetë).
+   Pa ndryshime në Firebase/Worker (rregulli i ftesës u shtua pas, te "rregullat v216").
 0000000. **FURNIZUESIT E RINJ RUHEN MË VETE + KONTROLLI EDHE PËR ADMINISTRATORIN (v214 = 1.22.0)**: problemi: furnizuesi i
    ri i një kolegu dilte te "Furnizuesit e rinj" vetëm nga produktet e tij në pritje; kur administratori i fshinte ato, zhdukej.
    Tash (afatet.js, kujtesa): `regjistroIRi` (nga `mesoNje`, `vendos`, `regjistroFurnizuesinERi`) i jep çdo furnizuesi të ri
@@ -1252,7 +1257,8 @@ service cloud.firestore {
       allow delete: if request.auth != null && (pronarIGrupit(g) || eshteAdmin());
       match /anetaret/{u} {
         allow read: if request.auth != null && (request.auth.uid == u || anetarIGrupit(g) || eshteAdmin());
-        // Hyrja vetë: pronari vetëm bashkë me krijimin e grupit (i njëjti batch); anëtari vetëm me ftesë;
+        // Hyrja vetë: pronari vetëm bashkë me krijimin e grupit (i njëjti batch); anëtari vetëm me ftesë, që fshihet
+        // në të njëjtin batch (v216: një ftesë s'përdoret dy herë);
         // anëtari i ekipës së vjetër te grupi "ekipa". Administratori shton kë të dojë (migrimi).
         allow create: if request.auth != null && (eshteAdmin() || (request.auth.uid == u && !uFshi(u)
           && request.resource.data.emri == emriIm()
@@ -1260,7 +1266,8 @@ service cloud.firestore {
           && ((request.resource.data.roli == 'pronar' && !exists(/databases/$(database)/documents/grupet/$(g))
                 && getAfter(/databases/$(database)/documents/grupet/$(g)).data.pronarUid == u)
               || (request.resource.data.roli == 'anetar' && exists(/databases/$(database)/documents/grupet/$(g))
-                && exists(/databases/$(database)/documents/ftesat/$(g + '_' + emriIm())))
+                && exists(/databases/$(database)/documents/ftesat/$(g + '_' + emriIm()))
+                && !existsAfter(/databases/$(database)/documents/ftesat/$(g + '_' + emriIm())))
               || (g == 'ekipa' && request.resource.data.roli == 'anetar'
                 && exists(/databases/$(database)/documents/ekipa_anetaret/$(u))))));
         // Vetë: prania. Pronari: roli dhe leja e +/- (sasiaShpejte).
