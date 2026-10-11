@@ -50,6 +50,23 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **KONTROLLI I PLOTË: DREJTSHKRIMI + BUGS (v215 = 1.22.1)**: (1) Drejtshkrimi/gramatika në krejt tekstet (web, tel/,
+   ora/): "Fshi" (jo "Fshij") te butonat, "furnizues" (jo "furnitor"), njëjës/shumës me `nrEmer(n, nje, shume)` (index.html pas
+   FJALORI-t; pc.html pas `produkteTekst`, me `num`), Kotlin-i i orës ("1 e skaduar", "1 koleg", "1 ka skaduar"), tekste të
+   vjetra të chat-it u hoqën nga Njoftimet. (2) Bugs: telefoni `ruajAfatin` krahasonte furnizuesin me `afatNeDialog.furnizuesi`
+   (`afatNeDialog` është id-ja) → çdo ruajtje e një afati të vjetër e kthente në pritje një furnizues të fshirë; tash merret nga
+   vetë afati (si te PC `afPara`). `kujtesa.mesoShume` (mbishkruaj): rreshti pa barkod me furnizues → `regjistroIRi` (importet e
+   afateve pa barkod); `plotëso` jo. `shkruaj()` i kujtesës: kur kalon 20 000, s'hiqen kurrë çelësat "furnizuesi …" (kanë kohën 1,
+   ishin të parët që hiqeshin). Datat e shpejta "1/3 muaj" (telefoni `dataEShpejte`): 31.01 → 28.02 (jo 03.03). Sinkronizimi (tel
+   `kryeSinkronizimin`, PC `sink.duke`): try/catch rreth `bashkoDheRuaj`, që një gabim i papritur s'e ngec "Duke sinkronizuar…".
+   `konfirmo()` (tel + PC): pyetja e mëparshme e pa përgjigjur merr `false`. Telefoni: pas ri-identifikimit toast-i sipas veprimit
+   (emri / fjalëkalimi); "Njoftimi ditor" pa `Notification` (Safari jo i instaluar) jep mesazh, jo ReferenceError. PC: shkronjat e
+   një skanimi USB (≥ 2 shenja brenda 60 ms) s'janë shkurtore ("N" hapte "Produkt i ri" në mes të barkodit); "Rikthe nga cloud"
+   kalon nga `pastroFolderat/Produktet/Afatet`; zvarritja e folderit kontrollon që të dy ekzistojnë. Ora (Wear OS): `Rikthimi.perpara`
+   (onResume/onPause): ekrani i lidhjes s'pyet serverin dhe s'krijon kode të reja kur ekrani është fikur (më parë: kod i ri çdo 15 s
+   + kërkesë çdo 3 s pa fund, harxhonte baterinë dhe kufirin ditor të shkrimeve të KV-së). Testet: v215-njesi.js, v215-test.js (A-E).
+   Pa ndryshime në Firebase/Worker. Sugjerim (s'u bë): rregulli i `grupet/{g}/anetaret` (roli anetar) mund të kërkojë
+   `!existsAfter(ftesat/…)`, që një ftesë e vjetër të mos përdoret dy herë nga një klient i modifikuar (aplikacioni e fshin vetë).
 0000000. **FURNIZUESIT E RINJ RUHEN MË VETE + KONTROLLI EDHE PËR ADMINISTRATORIN (v214 = 1.22.0)**: problemi: furnizuesi i
    ri i një kolegu dilte te "Furnizuesit e rinj" vetëm nga produktet e tij në pritje; kur administratori i fshinte ato, zhdukej.
    Tash (afatet.js, kujtesa): `regjistroIRi` (nga `mesoNje`, `vendos`, `regjistroFurnizuesinERi`) i jep çdo furnizuesi të ri

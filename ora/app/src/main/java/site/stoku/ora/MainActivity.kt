@@ -61,10 +61,13 @@ val AfatAfer = Color(0xFFF5B70A)
 // Rifreskimi automatik: vetëm kur hyn në aplikacion (hapje ose rikthim); përndryshe me butonin poshtë
 object Rikthimi {
     var n by mutableStateOf(0)
+    // A është aplikacioni përpara (ekrani ndezur)? Kur ekrani fiket, ekrani i lidhjes s'pyet më serverin.
+    @Volatile var perpara = false
 }
 
 class MainActivity : ComponentActivity() {
-    override fun onResume() { super.onResume(); Rikthimi.n++ }
+    override fun onResume() { super.onResume(); Rikthimi.perpara = true; Rikthimi.n++ }
+    override fun onPause() { Rikthimi.perpara = false; super.onPause() }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Tema.ngarko(this)
@@ -98,6 +101,9 @@ fun Lidhja(kurLidhet: () -> Unit) {
         var kohaKodit = System.currentTimeMillis()
         var kontrolli = 0L
         while (true) {
+            // Ekrani i fikur / aplikacioni prapa: pa kërkesa te serveri (bateria dhe kufiri ditor i shkrimeve).
+            // Kur kthehesh, del menjëherë kod i ri.
+            if (!Rikthimi.perpara) { delay(500); continue }
             val tani = System.currentTimeMillis()
             if (tani - kohaKodit >= KODI_SEKONDA * 1000L) {
                 kodi = Api.kodiIRi(ctx); kohaKodit = tani; kontrolli = 0L
@@ -207,7 +213,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
             kurPo = {
                 val ids = p.l.map { it.id }.toSet()
                 lista = lista?.let { l -> l.copy(skaduaraL = l.skaduaraL.filter { it.id !in ids }, skaduara = (l.skaduara - ids.size).coerceAtLeast(0)) }
-                pamja = Pamja.Derguar("U shënuan ${ids.size} produkte: hequr nga rafti")
+                pamja = Pamja.Derguar(if (ids.size == 1) "U shënua 1 produkt: hequr nga rafti" else "U shënuan ${ids.size} produkte: hequr nga rafti")
                 scope.launch {
                     var deshtoi = 0
                     for (id in ids) {
@@ -292,7 +298,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                                 modifier = Modifier.fillMaxWidth(),
                                 onClick = { pamja = Pamja.HiqKrejt(l.skaduaraL) },
                                 label = { Text("Hiqi krejt nga rafti", fontWeight = FontWeight.Bold) },
-                                secondaryLabel = { Text("${l.skaduaraL.size} të skaduara", color = Color.Black) },
+                                secondaryLabel = { Text(if (l.skaduaraL.size == 1) "1 e skaduar" else "${l.skaduaraL.size} të skaduara", color = Color.Black) },
                                 colors = ChipDefaults.chipColors(backgroundColor = Kuqe, contentColor = Color.Black),
                             )
                         }
@@ -420,7 +426,7 @@ fun ZgjedhKolegun(a: Afat, kurDergohet: (String) -> Unit, kurShkeputet: () -> Un
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { dergo(null) },
                         label = { Text("Krejt grupi", fontWeight = FontWeight.Bold) },
-                        secondaryLabel = { Text("${l.size} kolegë", color = Gri) },
+                        secondaryLabel = { Text(if (l.size == 1) "1 koleg" else "${l.size} kolegë", color = Gri) },
                         colors = ChipDefaults.primaryChipColors(),
                     )
                 }
@@ -482,7 +488,7 @@ fun HiqKrejt(n: Int, kurPo: () -> Unit, mbrapa: () -> Unit) {
     Scaffold(positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
         ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
             item { Text("Hiqi krejt?", fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, textAlign = TextAlign.Center) }
-            item { Text("$n produkte që kanë skaduar shënohen \"hequr nga rafti\".", fontSize = 12.sp, color = Gri, textAlign = TextAlign.Center) }
+            item { Text(if (n == 1) "1 produkt që ka skaduar shënohet \"hequr nga rafti\"." else "$n produkte që kanë skaduar shënohen \"hequr nga rafti\".", fontSize = 12.sp, color = Gri, textAlign = TextAlign.Center) }
             item {
                 Chip(
                     modifier = Modifier.fillMaxWidth(),

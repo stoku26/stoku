@@ -1762,7 +1762,7 @@
       ndalGjithmone(true);
       if (!e || !o.uidIm()) return;
       ngarkoAnetaresine();
-      lexoFurnizuesitPublike(true); // v211: sugjerimet e furnitorit (edhe pa grup)
+      lexoFurnizuesitPublike(true); // v211: sugjerimet e furnizuesit (edhe pa grup)
       e.nisPranine();
       if (e.dergoRadhen) e.dergoRadhen(); // aktiviteti/chat-i/njoftimet që mbetën pa u dërguar herën e kaluar
       if (e.degjoGrupin) {
