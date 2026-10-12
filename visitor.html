@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="sq">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Hyrje si vizitor (test)</title>
+  <style>
+    body{font-family:system-ui,Arial,Helvetica,sans-serif;margin:40px;background:#f7f7f7;color:#111}
+    .card{max-width:640px;margin:auto;background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+    .ok{background:#e6ffed;border-left:4px solid #2ecc71;padding:10px;margin-bottom:12px}
+    .btn{display:inline-block;padding:10px 14px;background:#2b6cb0;color:#fff;border-radius:6px;text-decoration:none}
+    code{background:#f1f1f1;padding:2px 6px;border-radius:4px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Hyrje si vizitor — Test</h1>
+    <p>Kjo faqe është vetëm për test: për të hyrë si vizitor, përdorni tokenin në URL.</p>
+    <div id="status" class="ok" style="display:none"></div>
+    <p>Shembull URL test: <code>/visitor.html?access=stoku-guest</code></p>
+    <p id="actions"><a id="enter" class="btn" href="#">Hyr si vizitor</a></p>
+    <p style="margin-top:12px;color:#666">Kur aktivizohet, vendoset <code>localStorage.visitorMode=true</code> dhe do të ridrejtoheni te <code>index.html</code>.</p>
+    <p style="color:#a00">Ky është vetëm një test në front-end — nuk e mbron faqen nga përdorues të tjerë që shohin repo-në.</p>
+  </div>
+  <script>
+  (function(){
+    const params = new URLSearchParams(location.search);
+    const token = params.get('access');
+    const status = document.getElementById('status');
+    const enter = document.getElementById('enter');
+    function enable(){
+      localStorage.setItem('visitorMode','true');
+      status.style.display='block';
+      status.textContent='Visitor mode aktiv. Po ridrejtojmë...';
+      setTimeout(()=>{ location.href='index.html?visitor=1'; },800);
+    }
+    if(token === 'stoku-guest'){
+      enable();
+    } else {
+      enter.addEventListener('click', function(e){
+        e.preventDefault();
+        const t = prompt('Shkruaj tokenin e testit:');
+        if(t === 'stoku-guest'){
+          enable();
+        } else {
+          alert('Token i pasaktë.');
+        }
+      });
+    }
+  })();
+  </script>
+</body>
+</html>
