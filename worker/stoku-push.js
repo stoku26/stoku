@@ -18,6 +18,12 @@
  *   POST /njoftim { id, per, grupi } → njoftimi personal perdoruesit/{per}/njoftimet/{id} te pajisjet e marrësit (v161):
  *     heqja e kolegut që pret miratimin, pranimi/refuzimi, ndryshimet e administratorit, njoftimi për krejt grupin.
  *
+ * Fjalëkalimi i harruar (v163), pa hyrje (llogaritë s'kanë email të vërtetë, prandaj Firebase s'dërgon dot link):
+ *   POST /fjalekalimi/kerko    { emri }                     → kodi 6-shifror për administratorin (zilja + push), 30 min
+ *   POST /fjalekalimi/verifiko { emri, kodi }               → a është kodi i saktë (5 prova për kod)
+ *   POST /fjalekalimi/ndrysho  { emri, kodi, fjalekalimi }  → fjalëkalimi i ri (Firebase Auth); kodi fshihet
+ *   Të drejtat vijnë nga FCM_SA (llogaria e shërbimit të Firebase-it); kodi ruhet vetëm si hash te rivendosjet/{emri}.
+ *
  * Njoftimi ditor për afatet (v149) — në orën që zgjedh secili përdorues, edhe me Stoku të mbyllur:
  *   POST /orari (Bearer token, i verifikuar) { aktiv, ora: "08:00", tz, platforma, pajisja: { endpoint, p256dh, auth } }
  *     → ruan/heq orarin e kësaj pajisjeje; { afatet: [{ e, b, d }] } → afatet e përdoruesit (kopja e fundit).
@@ -39,7 +45,7 @@ const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databa
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
 const PUSH_MAKS = 36;
-const VERSIONI_WORKER = 162; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 163; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 const W = {
@@ -65,6 +71,7 @@ const W = {
     if (rrugaF === '/foto' || rrugaF === '/fotot' || rrugaF.indexOf('/foto/') === 0) return meKap(trajtoFotot(req, env, rrugaF, cors, pergjigju));
     if (rrugaF === '/orari' && req.method === 'POST') return meKap(trajtoOrarin(req, env, pergjigju));
     if (rrugaF.indexOf('/ora/') === 0) return meKap(trajtoOren(req, env, rrugaF, pergjigju));
+    if (rrugaF.indexOf('/fjalekalimi/') === 0) return meKap(trajtoFjalekalimin(req, env, rrugaF, pergjigju));
     if (req.method !== 'POST') {
       // Kontrolli i shëndetit: a janë çelësat, KV-ja, versioni i kodit dhe kur punoi Cron-i së fundi (njoftimi ditor)
       const c = env.FOTO ? await lexoCronin(env) : {};
@@ -72,7 +79,7 @@ const W = {
       if (env.FOTO) { try { cronGabim = await env.FOTO.get('orari-cron-gabim', 'json'); } catch (e) { /* ok */ } }
       // "?kv=1": provë a pranon KV-ja shkrime (limiti falas: 1000 shkrime në ditë). Më së shumti një herë në 10 min.
       if (env.FOTO && new URL(req.url).searchParams.get('kv') === '1') kv = await provoShkrimin(env);
-      return pergjigju({ ok: true, sherbimi: 'stoku-push', versioni: VERSIONI_WORKER, celesat: !!(env.VAPID_PUBLIC && env.VAPID_PRIVATE), fcm: !!env.FCM_SA, fotot: !!env.FOTO, cron: c.koha || null, cronShprehja: c.shprehja || null, cronGabim, kv, tani: Date.now() });
+      return pergjigju({ ok: true, sherbimi: 'stoku-push', versioni: VERSIONI_WORKER, celesat: !!(env.VAPID_PUBLIC && env.VAPID_PRIVATE), fcm: !!env.FCM_SA, fjalekalimi: !!env.FCM_SA, fotot: !!env.FOTO, cron: c.koha || null, cronShprehja: c.shprehja || null, cronGabim, kv, tani: Date.now() });
     }
     if (!env.VAPID_PUBLIC || !env.VAPID_PRIVATE) return pergjigju({ ok: false, arsye: 'mungojne-celesat' }, 500);
 
@@ -727,6 +734,108 @@ async function fshiDoc(rruga, token) {
   try { await fetch(FS + '/' + rruga, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } }); } catch (e) { /* ok */ }
 }
 
+// ---------------- Fjalëkalimi i harruar (v163) ----------------
+// Llogaritë janë "emri@stoku-app.local" (pa email të vërtetë), prandaj Firebase s'mund të dërgojë link rikthimi. Personi
+// kërkon kodin te porta; kodi 6-shifror i vjen administratorit (zilja + push), i cili ia jep pasi ta ketë njohur personin.
+// Kodi ruhet vetëm si SHA-256 (me uid-në) te rivendosjet/{emri}, që aplikacioni s'e lexon dot (pa rregull = i mbyllur).
+const IDT = 'https://identitytoolkit.googleapis.com/v1/projects/' + PROJEKTI;
+const DOMENI_I_EMAILIT = '@stoku-app.local';
+const ADMINI = 'mendurberisha';
+const RIV_KOHA = 30 * 60000; // sa vlen kodi
+const RIV_PROVA = 5;         // prova të gabuara për një kod
+async function thirrAuth(at, veprimi, trupi) {
+  return fetch(IDT + '/accounts:' + veprimi, { method: 'POST', headers: { Authorization: 'Bearer ' + at, 'Content-Type': 'application/json' }, body: JSON.stringify(trupi) });
+}
+async function llogariaSipasEmrit(at, emri) {
+  const r = await thirrAuth(at, 'lookup', { email: [emri + DOMENI_I_EMAILIT] });
+  if (!r.ok) { const e = new Error('auth-' + r.status); e.status = r.status; throw e; }
+  const u = ((await r.json()).users || [])[0];
+  return u && u.localId ? { uid: u.localId, ndalur: !!u.disabled } : null;
+}
+// Shkruan krejt dokumentin (e krijon nëse s'ekziston)
+async function vendosDoc(rruga, obj, token) {
+  const fields = {}; for (const k in obj) fields[k] = vleraPer(obj[k]);
+  const r = await fetch(FS + '/' + rruga, { method: 'PATCH', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify({ fields }) });
+  if (!r.ok) { const e = new Error('firestore-' + r.status); e.status = r.status; throw e; }
+}
+// Njoftim te zilja e administratorit; me `push`, edhe te pajisjet e tij (Stoku i mbyllur)
+async function njoftoAdminin(env, at, teksti, push) {
+  const admini = await llogariaSipasEmrit(at, ADMINI);
+  if (!admini) return;
+  const id = 'fj' + idERe(), koha = Date.now();
+  let grupi = '';
+  try { const p = await lexoDoc('perdoruesit/' + admini.uid, at); grupi = p && /^[A-Za-z0-9_-]{2,64}$/.test(String(p.grupi || '')) ? String(p.grupi) : ''; } catch (e) { /* ok */ }
+  await vendosDoc('perdoruesit/' + admini.uid + '/njoftimet/' + id, { lloji: 'fjalekalimi', tekst: teksti, emri: 'Stoku', uid: '', grupi, koha, lexuar: false }, at);
+  if (!push || !grupi) return;
+  let pajisjet = [];
+  try { pajisjet = (await listoPajisjet(at, 'grupet/' + grupi + '/push')).filter(a => a.uid === admini.uid); } catch (e) { return; }
+  const pare = new Set();
+  pajisjet = pajisjet.filter(a => !pare.has(a.endpoint) && pare.add(a.endpoint)).slice(0, 10);
+  const meVapid = !!(env.VAPID_PUBLIC && env.VAPID_PRIVATE);
+  const vapid = meVapid ? await pergatitVapid(env) : { env };
+  const ng = { lloji: 'njoftim', titulli: 'Stoku · Fjalëkalimi', teksti, tag: 'ek-nj-' + id, koha, pamja: 'njoftimet' };
+  await Promise.all(pajisjet.map(async a => {
+    if (!a.fcm && !meVapid) return;
+    try {
+      const st = await dergoPush(a, Object.assign({}, ng, { url: a.platforma === 'pc' ? './pc.html#/ekipa/njoftimet' : './index.html#ekipa-njoftimet' }), vapid);
+      if (st === 404 || st === 410) await fshiDoc('grupet/' + grupi + '/push/' + a.id, at);
+    } catch (e) { /* një pajisje e prishur s'i ndal të tjerat */ }
+  }));
+}
+async function trajtoFjalekalimin(req, env, rruga, pergjigju) {
+  if (req.method !== 'POST') return pergjigju({ ok: false, arsye: 'metoda' }, 405);
+  if (!env.FCM_SA) return pergjigju({ ok: false, arsye: 'pa-sherbim' }, 503);
+  let t = {};
+  try { t = await req.json(); } catch (e) { /* bosh */ }
+  const emri = String(t.emri || '').trim().toLowerCase();
+  if (!/^[a-z0-9_.-]{3,40}$/.test(emri)) return pergjigju({ ok: false, arsye: 'emri' }, 400);
+  const at = await tokeniAdmin(env), doc = 'rivendosjet/' + emri, tani = Date.now();
+  if (rruga === '/fjalekalimi/kerko') {
+    const llog = await llogariaSipasEmrit(at, emri);
+    if (!llog || llog.ndalur || await lexoDoc('ekipa_fshire/' + llog.uid, at)) return pergjigju({ ok: false, arsye: 's-ekziston' }, 404);
+    // Një kërkesë aktive për llogari: s'dërgohet kod i ri (as njoftim i ri) derisa të skadojë ky. Edhe pas 5 provave të
+    // gabuara pritet skadimi, që kodi të mos gjendet duke kërkuar kode të reja pa fund.
+    const ekz = await lexoDoc(doc, at);
+    if (ekz && ekz.uid === llog.uid && Number(ekz.skadon) > tani) {
+      if (Number(ekz.provat || 0) >= RIV_PROVA) return pergjigju({ ok: false, arsye: 'shume-prova', skadon: Number(ekz.skadon) }, 429);
+      return pergjigju({ ok: true, ekziston: true, skadon: Number(ekz.skadon) });
+    }
+    const kodi = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1000000).padStart(6, '0');
+    const skadon = tani + RIV_KOHA;
+    await vendosDoc(doc, { uid: llog.uid, emri, hash: await sha256Hex(llog.uid + ':' + kodi), skadon, provat: 0, koha: tani }, at);
+    // Pa njoftimin s'e merr askush kodin: kodi hiqet, që prova e radhës të dërgojë kod të ri (jo "ekziston" për 30 min)
+    try { await njoftoAdminin(env, at, '"' + emri + '" e ka harruar fjalëkalimin. Kodi: ' + kodi + ' (vlen 30 minuta). Jepja vetëm pasi ta njohësh personin.', true); }
+    catch (e) { await fshiDoc(doc, at); throw e; }
+    return pergjigju({ ok: true, skadon });
+  }
+  if (rruga !== '/fjalekalimi/verifiko' && rruga !== '/fjalekalimi/ndrysho') return pergjigju({ ok: false, arsye: 'rruga' }, 404);
+  const kodi = String(t.kodi || '').trim();
+  if (!/^\d{6}$/.test(kodi)) return pergjigju({ ok: false, arsye: 'kodi' }, 400);
+  const r = await lexoDoc(doc, at);
+  if (!r || !r.uid || Number(r.skadon) <= tani) return pergjigju({ ok: false, arsye: 'skadoi' }, 410);
+  const provat = Number(r.provat || 0);
+  if (provat >= RIV_PROVA) return pergjigju({ ok: false, arsye: 'shume-prova' }, 429);
+  if (await sha256Hex(r.uid + ':' + kodi) !== r.hash) {
+    await vendosDoc(doc, Object.assign({}, r, { provat: provat + 1 }), at);
+    const mbetur = RIV_PROVA - provat - 1;
+    return pergjigju({ ok: false, arsye: mbetur > 0 ? 'kodi' : 'shume-prova', mbetur }, mbetur > 0 ? 400 : 429);
+  }
+  if (rruga === '/fjalekalimi/verifiko') return pergjigju({ ok: true });
+  const fj = typeof t.fjalekalimi === 'string' ? t.fjalekalimi : '';
+  if (fj.length < 6 || fj.length > 100) return pergjigju({ ok: false, arsye: 'i-dobet' }, 400);
+  const rr = await thirrAuth(at, 'update', { localId: r.uid, password: fj });
+  if (!rr.ok) {
+    let m = '';
+    try { m = await rr.text(); } catch (e) { /* ok */ }
+    if (/WEAK_PASSWORD/.test(m)) return pergjigju({ ok: false, arsye: 'i-dobet' }, 400);
+    if (/USER_NOT_FOUND/.test(m)) { await fshiDoc(doc, at); return pergjigju({ ok: false, arsye: 's-ekziston' }, 404); }
+    throw new Error('auth-update-' + rr.status + ' ' + m.slice(0, 120));
+  }
+  await fshiDoc(doc, at);
+  try { await njoftoAdminin(env, at, '"' + emri + '" e vendosi fjalëkalimin e ri me kodin.', false); } catch (e) { /* ok */ }
+  return pergjigju({ ok: true });
+}
+
 // ---------------- Web Push: VAPID (RFC 8292) + enkriptimi aes128gcm (RFC 8291) ----------------
 function b64uDekodo(s) {
   s = String(s).replace(/-/g, '+').replace(/_/g, '/');
@@ -770,20 +879,33 @@ function tokeniFcm(env) {
   if (!fcmNePritje) fcmNePritje = merrTokeninFcm(env).finally(() => { fcmNePritje = null; });
   return fcmNePritje;
 }
-async function merrTokeninFcm(env) {
+async function merrTokeninGoogle(env, scope) {
   const sa = JSON.parse(env.FCM_SA);
   const tani = Math.floor(Date.now() / 1000);
   const krye = b64uKodo(tekst(JSON.stringify({ alg: 'RS256', typ: 'JWT' })));
-  const trup = b64uKodo(tekst(JSON.stringify({ iss: sa.client_email, scope: 'https://www.googleapis.com/auth/firebase.messaging',
+  const trup = b64uKodo(tekst(JSON.stringify({ iss: sa.client_email, scope,
     aud: 'https://oauth2.googleapis.com/token', iat: tani, exp: tani + 3600 })));
   const celesi = await crypto.subtle.importKey('pkcs8', pemNeBajte(sa.private_key), { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
   const nen = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', celesi, tekst(krye + '.' + trup));
   const r = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: 'grant_type=' + encodeURIComponent('urn:ietf:params:oauth:grant-type:jwt-bearer') + '&assertion=' + krye + '.' + trup + '.' + b64uKodo(nen) });
-  if (!r.ok) throw new Error('fcm-oauth-' + r.status);
+  if (!r.ok) throw new Error('google-oauth-' + r.status);
   const j = await r.json();
-  fcmCache = { token: j.access_token, skadon: Date.now() + Math.max(60, (j.expires_in || 3600) - 300) * 1000, projekti: sa.project_id || PROJEKTI };
+  return { token: j.access_token, skadon: Date.now() + Math.max(60, (j.expires_in || 3600) - 300) * 1000, projekti: sa.project_id || PROJEKTI };
+}
+async function merrTokeninFcm(env) {
+  fcmCache = await merrTokeninGoogle(env, 'https://www.googleapis.com/auth/firebase.messaging');
   return fcmCache.token;
+}
+// Llogaria e shërbimit si administrator (Firebase Auth + Firestore pa rregullat e aplikacionit): vetëm për fjalëkalimin e harruar
+let adminCache = { token: null, skadon: 0 }, adminNePritje = null;
+function tokeniAdmin(env) {
+  if (adminCache.token && Date.now() < adminCache.skadon) return Promise.resolve(adminCache.token);
+  if (!adminNePritje) {
+    adminNePritje = merrTokeninGoogle(env, 'https://www.googleapis.com/auth/cloud-platform')
+      .then(c => { adminCache = c; return c.token; }).finally(() => { adminNePritje = null; });
+  }
+  return adminNePritje;
 }
 // Kthen statusin si Web Push: 2xx dërguar; 404/410 = pajisja s'ekziston më (fshihet)
 async function dergoFcm(env, tokeni, ng) {

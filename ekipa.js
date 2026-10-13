@@ -1020,7 +1020,7 @@
       aktivizoPush: aktivizoPush,
       caktivizoPush: caktivizoPush, pastroOrarinEJetim: pastroOrarinEJetim,
       pushAktiv: pushAktiv, pushPerNjoftimet: pushPerNjoftimet,
-      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 162,
+      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 163,
 
       // ---------- Chat ----------
       dergoMesazh: function (tekst) {
@@ -1934,7 +1934,7 @@
           // Kërkesat (dhe, me Worker-in 161+, krejt njoftimet e grupit) vijnë edhe si push: kur push-i punon, njoftimi lokal
           // në sfond do të ishte i dyfishtë
           var ngaPush = (/^kerkese-/.test(n.lloji) && e.pushAktiv && e.pushAktiv()) || !!(e.pushPerNjoftimet && e.pushPerNjoftimet());
-          o.njofto({ titulli: /^kerkese-/.test(n.lloji) ? 'Stoku · Hiqe nga rafti' : 'Stoku · Grupi', teksti: tekstiNjoftimit(n), tag: 'ek-nj-' + n.id, pamja: 'njoftimet', vetemNePerpara: ngaPush });
+          o.njofto({ titulli: /^kerkese-/.test(n.lloji) ? 'Stoku · Hiqe nga rafti' : n.lloji === 'fjalekalimi' ? 'Stoku · Fjalëkalimi' : 'Stoku · Grupi', teksti: tekstiNjoftimit(n), tag: 'ek-nj-' + n.id, pamja: 'njoftimet', vetemNePerpara: ngaPush });
         });
         thirr('njoftimet');
       }, function () { /* p.sh. rregullat ende pa u vendosur — thjesht s'ka njoftime */ });

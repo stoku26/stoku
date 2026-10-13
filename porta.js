@@ -28,6 +28,7 @@
   var CELESAT_E_TE_DHENAVE = ['stoku:foldera:v1', 'stoku:produktet:v2', 'stoku:produktet:v1', 'stoku:fshira:v1',
     'stoku:rendi-foldera-koha', 'stoku:afatet:v1', 'stoku:kujtesa:v1'];
   var PRITJA_MAKS_MS = 7000;
+  var SERVERI = 'https://stoku-push.mendurb.workers.dev'; // Worker-i (163+): fjalëkalimi i harruar
   var PRITJA_DERGIMIT_MS = 25000; // "Hyr" para se të ngarkohet Firebase (internet i ngadaltë): pritet deri kaq
 
   // Firebase (v12) kërkon shfletues të ri (ES2020: Chrome/WebView 80+, Safari 13.1+). Në një shfletues të vjetër
@@ -164,6 +165,13 @@
     '#porta .pk-viz-konf p { margin: 0 0 12px; }',
     '#porta .pk-viz-konf .pk-rresht { display: flex; gap: 8px; }',
     '#porta .pk-viz-konf .pk-btn { height: 44px; font-size: 14.5px; }',
+    '#porta .pk-lidhje { background: none; border: 0; padding: 4px 2px; font: inherit; font-size: 13.5px; font-weight: 600; color: var(--sb-accent-text, #1f5fc4); cursor: pointer; }',
+    '#porta .pk-harrova { display: flex; justify-content: flex-end; margin: -6px 0 6px; }',
+    '#porta .pk-titull { margin: 0 0 6px; font-size: 19px; font-weight: 800; text-align: center; color: var(--sb-ink, #14161b); }',
+    '#porta .pk-teksti { margin: 0 2px 16px; font-size: 14px; line-height: 1.5; text-align: center; color: var(--sb-muted, #7a7d85); text-wrap: balance; }',
+    '#porta .pk-llogaria { margin: -6px 2px 14px; font-size: 13.5px; text-align: center; color: var(--sb-ink-3, #5b5e66); }',
+    '#porta input.pk-kodi { font-size: 24px; letter-spacing: .35em; text-align: center; font-variant-numeric: tabular-nums; }',
+    '#porta .pk-mbrapa { display: block; margin: 12px auto 0; }',
     '.pk-fsheh { display: none !important; }'
   ].join('\n');
   document.head.appendChild(stili);
@@ -188,6 +196,7 @@
         '</div>' +
         '<label><span>Emri i përdoruesit</span><input id="pkEmri" name="username" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="40" enterkeyhint="next" placeholder="Emri i përdoruesit"></label>' +
         '<label><span>Fjalëkalimi</span><div class="pk-fusha"><input id="pkFjalekalimi" class="me-sy" name="password" type="password" autocomplete="current-password" maxlength="100" enterkeyhint="go" placeholder="Fjalëkalimi"><button type="button" class="pk-sy" id="pkSy" aria-label="Shfaq fjalëkalimin" title="Shfaq fjalëkalimin">' + SY + '</button></div></label>' +
+        '<div class="pk-harrova" id="pkHarrovaRresht"><button type="button" class="pk-lidhje" id="pkHarrova">Ke harruar fjalëkalimin?</button></div>' +
         '<label id="pkPerseritLbl" class="pk-fsheh"><span>Përsërit fjalëkalimin</span><input id="pkPerserit" class="me-sy" name="password2" type="password" autocomplete="new-password" maxlength="100" enterkeyhint="go" placeholder="Shkruaje edhe një herë"></label>' +
         '<label class="pk-mbaj" for="pkMbaj"><input type="checkbox" id="pkMbaj"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Më mbaj mend emrin e përdoruesit</div></label>' +
         '<div class="pk-gabim" id="pkGabim" role="alert"></div>' +
@@ -201,6 +210,21 @@
           '<div class="pk-rresht"><button type="button" class="pk-btn pk-dyte" id="pkVizJo">Anulo</button><button type="button" class="pk-btn" id="pkVizPo">Vazhdo si vizitor</button></div>' +
         '</div>' +
       '</form>' +
+      '<div id="pkRiv" class="pk-fsheh">' +
+        '<h2 class="pk-titull">Fjalëkalimi i harruar</h2>' +
+        '<p class="pk-teksti" id="pkRivTeksti"></p>' +
+        '<form id="pkRivForma" novalidate autocomplete="on">' +
+          '<label id="pkRivEmriLbl"><span>Emri i përdoruesit</span><input id="pkRivEmri" name="username" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="40" enterkeyhint="send" placeholder="Emri i përdoruesit"></label>' +
+          '<p class="pk-llogaria pk-fsheh" id="pkRivLlogaria"></p>' +
+          '<label id="pkRivKodiLbl" class="pk-fsheh"><span>Kodi 6-shifror</span><input id="pkRivKodi" class="pk-kodi" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" enterkeyhint="next" placeholder="••••••"></label>' +
+          '<label id="pkRivFj1Lbl" class="pk-fsheh"><span>Fjalëkalimi i ri</span><div class="pk-fusha"><input id="pkRivFj1" class="me-sy" name="new-password" type="password" autocomplete="new-password" maxlength="100" enterkeyhint="next" placeholder="Të paktën 6 shenja"><button type="button" class="pk-sy" id="pkRivSy" aria-label="Shfaq fjalëkalimin" title="Shfaq fjalëkalimin">' + SY + '</button></div></label>' +
+          '<label id="pkRivFj2Lbl" class="pk-fsheh"><span>Përsërite fjalëkalimin e ri</span><input id="pkRivFj2" class="me-sy" type="password" autocomplete="new-password" maxlength="100" enterkeyhint="go" placeholder="Shkruaje edhe një herë"></label>' +
+          '<div class="pk-gabim" id="pkRivGabim" role="alert"></div>' +
+          '<button type="submit" class="pk-btn" id="pkRivDergo">Dërgo kërkesën</button>' +
+        '</form>' +
+        '<button type="button" class="pk-lidhje pk-mbrapa pk-fsheh" id="pkRivSerish">Dërgo sërish kërkesën</button>' +
+        '<button type="button" class="pk-lidhje pk-mbrapa" id="pkRivMbrapa">Kthehu te hyrja</button>' +
+      '</div>' +
     '</div>';
   document.body.insertBefore(porta, document.body.firstChild);
 
@@ -212,7 +236,7 @@
     shkruaj(KEY_MBAJ_EMRIN, this.checked ? null : '0');
     if (!this.checked) shkruaj(KEY_EMRI_FUNDIT, null); // hiqet menjëherë emri i ruajtur
   });
-  var gjendja = { modaliteti: 'hyr', dukePunuar: false, gati: false, eHapur: true, kohezuesi: null };
+  var gjendja = { modaliteti: 'hyr', dukePunuar: false, gati: false, eHapur: true, kohezuesi: null, rivendosje: false };
 
   function shfaqPritjen(tekst) {
     $('pkPritjeTekst').textContent = tekst;
@@ -220,6 +244,7 @@
     $('pkForma').classList.add('pk-fsheh');
   }
   function shfaqFormen(mesazh) {
+    if (gjendja.rivendosje) { $('pkPritje').classList.add('pk-fsheh'); return; } // "Fjalëkalimi i harruar" mbetet hapur
     var ruajtur = lexo(KEY_MESAZHI); // p.sh. "Kjo llogari u fshi nga administratori." (vendoset para rifreskimit)
     if (ruajtur) { shkruaj(KEY_MESAZHI, null); mesazh = ruajtur; }
     $('pkPritje').classList.add('pk-fsheh');
@@ -236,6 +261,7 @@
     $('pkTabHyr').classList.toggle('aktiv', !krijo); $('pkTabHyr').setAttribute('aria-selected', String(!krijo));
     $('pkTabKrijo').classList.toggle('aktiv', krijo); $('pkTabKrijo').setAttribute('aria-selected', String(krijo));
     $('pkPerseritLbl').classList.toggle('pk-fsheh', !krijo);
+    $('pkHarrovaRresht').classList.toggle('pk-fsheh', krijo);
     $('pkFjalekalimi').setAttribute('autocomplete', krijo ? 'new-password' : 'current-password');
     $('pkDergo').textContent = krijo ? 'Krijo llogarinë' : 'Hyr';
     $('pkShenim').textContent = krijo
@@ -334,6 +360,152 @@
     shkruaj(KEY_VIZITOR, '1');
     location.reload();
   }
+
+  // ---------- Fjalëkalimi i harruar (Worker 163) ----------
+  // Llogaritë s'kanë email të vërtetë, prandaj kodi 6-shifror i vjen administratorit (zilja + push). Ai ia jep personit
+  // pasi ta njohë; personi e shkruan këtu, vendos fjalëkalimin e ri dy herë dhe hyn direkt.
+  var riv = { hapi: 'emri', emri: '', kodi: '' };
+  function oraNga(ms) { var d = new Date(ms); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
+  function vendosHapin(hapi, teksti, gabim) {
+    riv.hapi = hapi;
+    $('pkRivEmriLbl').classList.toggle('pk-fsheh', hapi !== 'emri');
+    $('pkRivLlogaria').classList.toggle('pk-fsheh', hapi === 'emri');
+    $('pkRivLlogaria').textContent = hapi === 'emri' ? '' : 'Llogaria: ' + riv.emri;
+    $('pkRivKodiLbl').classList.toggle('pk-fsheh', hapi !== 'kodi');
+    $('pkRivFj1Lbl').classList.toggle('pk-fsheh', hapi !== 'fjalekalimi');
+    $('pkRivFj2Lbl').classList.toggle('pk-fsheh', hapi !== 'fjalekalimi');
+    $('pkRivSerish').classList.toggle('pk-fsheh', hapi !== 'kodi');
+    $('pkRivDergo').textContent = { emri: 'Dërgo kërkesën', kodi: 'Vazhdo', fjalekalimi: 'Ndrysho fjalëkalimin dhe hyr' }[hapi];
+    $('pkRivTeksti').textContent = teksti;
+    $('pkRivGabim').textContent = gabim || '';
+    var f = { emri: 'pkRivEmri', kodi: 'pkRivKodi', fjalekalimi: 'pkRivFj1' }[hapi];
+    setTimeout(function () { $(f).focus(); }, 60);
+  }
+  function hapRivendosjen() {
+    if (gjendja.dukePunuar) return;
+    gjendja.rivendosje = true;
+    $('pkForma').classList.add('pk-fsheh');
+    $('pkRiv').classList.remove('pk-fsheh');
+    $('pkRivEmri').value = $('pkEmri').value.trim();
+    $('pkRivKodi').value = ''; $('pkRivFj1').value = ''; $('pkRivFj2').value = '';
+    vendosHapin('emri', 'Shkruaj emrin e përdoruesit. Administratorit i vjen një kod 6-shifror: kërkoja atij, pastaj e vendos vetë fjalëkalimin e ri.');
+  }
+  function mbyllRivendosjen(mesazh) {
+    gjendja.rivendosje = false;
+    $('pkRiv').classList.add('pk-fsheh');
+    shfaqFormen(mesazh);
+  }
+  function zene(po) {
+    gjendja.dukePunuar = po;
+    var b = $('pkRivDergo');
+    b.disabled = po;
+    if (po) { b.dataset.teksti = b.textContent; b.innerHTML = '<span class="pk-rrotull"></span>Një moment…'; }
+    else if (b.dataset.teksti) { b.textContent = b.dataset.teksti; delete b.dataset.teksti; }
+  }
+  async function thirrServerin(rruga, trupi) {
+    var r, j = null;
+    try { r = await fetch(SERVERI + '/fjalekalimi/' + rruga, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(trupi) }); }
+    catch (e) { return { ok: false, arsye: 'rrjeti' }; }
+    try { j = await r.json(); } catch (e) { /* bosh */ }
+    if (!j) return { ok: false, arsye: 'serveri' };
+    // Worker-i para 163 s'e njeh rrugën: kërkon hyrje (401) ose s'e gjen (404)
+    if (!r.ok && (j.arsye === 'pa-hyrje' || j.arsye === 'rruga')) j.arsye = 'pa-sherbim';
+    return j;
+  }
+  function tekstiRiv(j) {
+    switch (j.arsye) {
+      case 's-ekziston': return 'S\'ka llogari me këtë emër. Kontrollo emrin e përdoruesit.';
+      case 'emri': return 'Emri i përdoruesit: të paktën 3 shkronja ose numra (a–z, 0–9, _ . -), pa hapësira.';
+      case 'kodi': return 'Kodi s\'është i saktë.' + (j.mbetur ? ' Të ' + (j.mbetur === 1 ? 'ka mbetur 1 provë.' : 'kanë mbetur ' + j.mbetur + ' prova.') : '');
+      case 'shume-prova': return 'Kodi u bllokua pas 5 provave të gabuara. Kërko kod të ri ' + (j.skadon ? 'pas orës ' + oraNga(j.skadon) : 'pas 30 minutash') + '.';
+      case 'skadoi': return 'Kodi ka skaduar (vlen 30 minuta). Dërgo kërkesë të re te administratori.';
+      case 'i-dobet': return 'Fjalëkalimi duhet të ketë të paktën 6 shenja.';
+      case 'pa-sherbim': return 'Rikthimi i fjalëkalimit s\'është aktivizuar ende te serveri. Lajmëroje administratorin.';
+      case 'rrjeti': return 'S\'ka lidhje me serverin. Kontrollo internetin dhe provo përsëri.';
+      default: return 'Diçka shkoi keq te serveri. Provo përsëri pas pak.';
+    }
+  }
+  async function kerkoKodin() {
+    zene(true);
+    var j = await thirrServerin('kerko', { emri: riv.emri });
+    zene(false);
+    if (!j.ok) { $('pkRivGabim').textContent = tekstiRiv(j); return; }
+    vendosHapin('kodi', (j.ekziston ? 'Kodi është dërguar tashmë te administratori.' : 'Kërkesa u dërgua te administratori.') +
+      ' Kur ta marrësh kodin 6-shifror prej tij, shkruaje këtu' + (j.skadon ? ' (vlen deri në ' + oraNga(j.skadon) + ').' : '.'));
+  }
+  // Pas ndryshimit: hyrja direkt me fjalëkalimin e ri (pjesa tjetër te "stoku-auth-ndryshoi", si te hyrja e zakonshme)
+  async function hyrMeTeRiun(fj, uNdryshua) {
+    var cloud = window.__stokuCloud;
+    if ((!cloud || !cloud.hyr) && !window.__stokuCloudUNgarkua) cloud = await pritCloudin(PRITJA_DERGIMIT_MS);
+    var rez = null;
+    if (cloud && cloud.hyr) { try { rez = await cloud.hyr(riv.emri, fj); } catch (e) { rez = { ok: false }; } }
+    zene(false);
+    $('pkRivFj1').value = ''; $('pkRivFj2').value = '';
+    if (rez && rez.ok) {
+      ruajEmrin(riv.emri);
+      ruajKredencialet(riv.emri, fj);
+      gjendja.rivendosje = false;
+      $('pkRiv').classList.add('pk-fsheh');
+      $('pkEmri').value = riv.emri;
+      shfaqPritjen('Fjalëkalimi u ndryshua. Duke hapur…');
+      return;
+    }
+    $('pkEmri').value = riv.emri;
+    if (uNdryshua) { mbyllRivendosjen('Fjalëkalimi u ndryshua. Hyr me fjalëkalimin e ri.'); return; }
+    vendosHapin('emri', 'Shkruaj emrin e përdoruesit dhe dërgo kërkesë të re.', tekstiRiv({ arsye: 'skadoi' }));
+  }
+  $('pkHarrova').addEventListener('click', hapRivendosjen);
+  $('pkRivMbrapa').addEventListener('click', function () { if (!gjendja.dukePunuar) mbyllRivendosjen(); });
+  $('pkRivSerish').addEventListener('click', function () { if (!gjendja.dukePunuar) kerkoKodin(); });
+  $('pkRivKodi').addEventListener('input', function () { var v = this.value.replace(/\D/g, '').slice(0, 6); if (v !== this.value) this.value = v; });
+  $('pkRivSy').addEventListener('click', function () {
+    var shfaq = $('pkRivFj1').type === 'password';
+    $('pkRivFj1').type = shfaq ? 'text' : 'password';
+    $('pkRivFj2').type = shfaq ? 'text' : 'password';
+    this.innerHTML = shfaq ? SY_MBYLLUR : SY;
+    this.setAttribute('aria-label', shfaq ? 'Fshih fjalëkalimin' : 'Shfaq fjalëkalimin');
+    this.title = this.getAttribute('aria-label');
+  });
+  $('pkRivForma').addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    if (gjendja.dukePunuar) return;
+    var g = $('pkRivGabim');
+    g.textContent = '';
+    if (riv.hapi === 'emri') {
+      var emri = $('pkRivEmri').value.trim();
+      if (!/^[a-zA-Z0-9_.-]{3,40}$/.test(emri)) { g.textContent = emri ? tekstiRiv({ arsye: 'emri' }) : 'Shkruaj emrin e përdoruesit.'; $('pkRivEmri').focus(); return; }
+      riv.emri = emri.toLowerCase();
+      kerkoKodin();
+      return;
+    }
+    if (riv.hapi === 'kodi') {
+      var kodi = $('pkRivKodi').value.trim();
+      if (!/^\d{6}$/.test(kodi)) { g.textContent = 'Shkruaj kodin 6-shifror që ta dha administratori.'; $('pkRivKodi').focus(); return; }
+      zene(true);
+      var j = await thirrServerin('verifiko', { emri: riv.emri, kodi: kodi });
+      zene(false);
+      if (!j.ok) {
+        if (j.arsye === 'skadoi') { vendosHapin('emri', 'Shkruaj emrin e përdoruesit dhe dërgo kërkesë të re.', tekstiRiv(j)); return; }
+        g.textContent = tekstiRiv(j);
+        $('pkRivKodi').select();
+        return;
+      }
+      riv.kodi = kodi;
+      vendosHapin('fjalekalimi', 'Kodi është i saktë. Shkruaje fjalëkalimin e ri dy herë.');
+      return;
+    }
+    var fj = $('pkRivFj1').value;
+    if (fj.length < 6) { g.textContent = tekstiRiv({ arsye: 'i-dobet' }); $('pkRivFj1').focus(); return; }
+    if ($('pkRivFj2').value !== fj) { g.textContent = 'Fjalëkalimet nuk përputhen.'; $('pkRivFj2').focus(); return; }
+    zene(true);
+    var r = await thirrServerin('ndrysho', { emri: riv.emri, kodi: riv.kodi, fjalekalimi: fj });
+    if (r.ok) { await hyrMeTeRiun(fj, true); return; }
+    // "skadoi" pas një prove që ndoshta u krye (p.sh. interneti ra para përgjigjes): provohet hyrja me fjalëkalimin e ri
+    if (r.arsye === 'skadoi') { await hyrMeTeRiun(fj, false); return; }
+    zene(false);
+    if (r.arsye === 'kodi' || r.arsye === 'shume-prova') { vendosHapin('kodi', 'Shkruaje sërish kodin që ta dha administratori.', tekstiRiv(r)); return; }
+    g.textContent = tekstiRiv(r);
+  });
 
   $('pkEmri').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('pkFjalekalimi').focus(); } });
   $('pkForma').addEventListener('submit', async function (ev) {
@@ -447,6 +619,8 @@
   function mbyll() {
     if (!gjendja.eHapur) return;
     gjendja.eHapur = false;
+    gjendja.rivendosje = false;
+    $('pkRiv').classList.add('pk-fsheh');
     porta.classList.add('po-zhduket');
     html.classList.remove('porta-hapur');
     setTimeout(function () { if (!gjendja.eHapur) porta.style.display = 'none'; }, 260);
@@ -471,6 +645,7 @@
     if (!u && eVizitor()) { if (gjendja.eHapur && !gjendja.dukePunuar) mbyll(); return; } // prova pa llogari: porta s'del
     if (!u) {
       shkruaj(KEY_HYRJA, null); // pas "Dil" (ose kur hyrja ka skaduar) s'lejohet hyrja pa internet
+      if (gjendja.eHapur && gjendja.rivendosje) return; // "Fjalëkalimi i harruar" është hapur: mbetet ashtu
       // Mesazhi "po zgjat / s'ka internet" s'vlen më: Firebase sapo u përgjigj
       var m = gjendja.mesazhiLidhjes ? '' : $('pkGabim').textContent;
       gjendja.mesazhiLidhjes = false;
