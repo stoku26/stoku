@@ -18,7 +18,8 @@ android {
         versionName = "1.0.$numri"
     }
 
-    // Çelësi i nënshkrimit është në repo që çdo version i ri të instalohet sipër të vjetrit (pa i humbur të dhënat).
+    // Çelësi i VJETËR i nënshkrimit (publik në repo, prandaj s'mbron më). Gradle-i nënshkruan me të; GitHub Actions pastaj
+    // e rinënshkruan APK-në me .github/apk/nenshkruaj.sh: v3 me vulën e re të enkriptuar + zinxhirin e ndërrimit (README.md).
     signingConfigs {
         create("stoku") {
             storeFile = file("../stoku-tel.jks")

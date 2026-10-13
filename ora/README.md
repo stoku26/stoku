@@ -23,3 +23,8 @@ Në `main` del edhe si **Release** (`ora-vNN`).
    ```
 5. Hape **Stoku** në orë: del kodi 6-shifror → në telefon: Stoku → Cilësimet → **Ora e dorës** → **Lidh orën**.
 6. Tile: rrëshqit djathtas në orë → **+ Shto tile** → Stoku. Komplikacioni: mbaj gishtin te fytyra e orës → Customize → zgjidh **Stoku: skadojnë sot**.
+
+## Nënshkrimi
+Si te telefoni (`tel/README.md` → Nënshkrimi): `stoku-ora.jks` është çelësi i vjetër (publik); vula e re është
+`celesi-i-ri.p12.enc` (e enkriptuar me sekretin `APK_FJALEKALIMI`) me zinxhirin `celesi.lineage`. Ora (Wear OS 3+,
+Android 11+) e njeh zinxhirin, prandaj përditësohet pa u çinstaluar.
