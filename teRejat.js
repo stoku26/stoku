@@ -24,7 +24,7 @@
     ] },
     { v: 220, versioni: '1.24.0', data: '2026-10-13', titulli: 'Ke harruar fjalëkalimin? Tash ka zgjidhje', pikat: [
       'Te faqja e hyrjes ka "Ke harruar fjalëkalimin?": shkruan emrin e përdoruesit dhe administratorit i vjen një kod 6-shifror.',
-      'Administratori ta jep kodin pasi të të njohë; e shkruan, vendos fjalëkalimin e ri dy herë dhe hyn direkt. Të dhënat s\'humbin.',
+      'Administratori ta jep kodin; e shkruan, vendos fjalëkalimin e ri dy herë dhe hyn direkt. Të dhënat s\'humbin.',
       'Kodi vlen 30 minuta dhe bllokohet pas 5 provave të gabuara.'
     ] },
     { v: 219, versioni: '1.23.2', data: '2026-10-13', titulli: 'Serveri i njoftimeve u përditësua', pikat: [

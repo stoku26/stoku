@@ -362,8 +362,8 @@
   }
 
   // ---------- Fjalëkalimi i harruar (Worker 163) ----------
-  // Llogaritë s'kanë email të vërtetë, prandaj kodi 6-shifror i vjen administratorit (zilja + push). Ai ia jep personit
-  // pasi ta njohë; personi e shkruan këtu, vendos fjalëkalimin e ri dy herë dhe hyn direkt.
+  // Llogaritë s'kanë email të vërtetë, prandaj kodi 6-shifror i vjen administratorit (zilja + push). Ai ia jep personit,
+  // që e shkruan këtu, vendos fjalëkalimin e ri dy herë dhe hyn direkt.
   var riv = { hapi: 'emri', emri: '', kodi: '' };
   function oraNga(ms) { var d = new Date(ms); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
   function vendosHapin(hapi, teksti, gabim) {

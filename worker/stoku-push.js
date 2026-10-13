@@ -726,7 +726,7 @@ async function fshiDoc(rruga, token) {
 
 // ---------------- Fjalëkalimi i harruar (v163) ----------------
 // Llogaritë janë "emri@stoku-app.local" (pa email të vërtetë), prandaj Firebase s'mund të dërgojë link rikthimi. Personi
-// kërkon kodin te porta; kodi 6-shifror i vjen administratorit (zilja + push), i cili ia jep pasi ta ketë njohur personin.
+// kërkon kodin te porta; kodi 6-shifror i vjen administratorit (zilja + push), i cili ia jep personit.
 // Kodi ruhet vetëm si SHA-256 (me uid-në) te rivendosjet/{emri}, që aplikacioni s'e lexon dot (pa rregull = i mbyllur).
 const IDT = 'https://identitytoolkit.googleapis.com/v1/projects/' + PROJEKTI;
 const DOMENI_I_EMAILIT = '@stoku-app.local';
@@ -794,7 +794,7 @@ async function trajtoFjalekalimin(req, env, rruga, pergjigju) {
     const skadon = tani + RIV_KOHA;
     await vendosDoc(doc, { uid: llog.uid, emri, hash: await sha256Hex(llog.uid + ':' + kodi), skadon, provat: 0, koha: tani }, at);
     // Pa njoftimin s'e merr askush kodin: kodi hiqet, që prova e radhës të dërgojë kod të ri (jo "ekziston" për 30 min)
-    try { await njoftoAdminin(env, at, '"' + emri + '" e ka harruar fjalëkalimin. Kodi: ' + kodi + ' (vlen 30 minuta). Jepja vetëm pasi ta njohësh personin.', true); }
+    try { await njoftoAdminin(env, at, '"' + emri + '" e ka harruar fjalëkalimin. Kodi: ' + kodi + ' (vlen 30 minuta).', true); }
     catch (e) { await fshiDoc(doc, at); throw e; }
     return pergjigju({ ok: true, skadon });
   }

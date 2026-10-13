@@ -66,6 +66,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    vjetra, nëse ka, fshihen vetëm nga Console. Historiku (teRejat, SHENIME) mbetet siç ishte. Provat: push-test.js,
    grupet-test.js, orari-test.js (5a3), wp/prova.mjs, wp/grupi-prova.mjs, wp/fcm-prova.mjs, wp/v216-prova.mjs (tubacioni i
    njoftimeve tani provohet me `/kerkese`), wp/fjalekalimi-prova.mjs (versioni 163+).
+   **Fjalëkalimi (kërkesë e pronarit):** njoftimi i kodit (push + zilja, Worker 164) mbaron te "(vlen 30 minuta)." pa
+   fjalinë "Jepja vetëm pasi ta njohësh personin."; edhe "Çka ka të re" v220 pa "pasi të të njohë" (porta.js v221: vetëm
+   komenti). Njoftimet e vjetra te zilja e ruajnë tekstin e vjetër derisa të fshihen.
 0000000. **FJALËKALIMI I HARRUAR (v220 = 1.24.0, Worker 163)**: llogaritë janë `emri@stoku-app.local` (pa email të vërtetë),
    prandaj Firebase s'dërgon dot link rikthimi. **Porta** (`porta.js`): "Ke harruar fjalëkalimin?" (vetëm te "Hyr") hap
    `#pkRiv` me tre hapa: emri → `POST /fjalekalimi/kerko`; kodi 6-shifror → `/verifiko`; fjalëkalimi i ri dy herë →
@@ -1209,6 +1212,10 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 
 - Opsioni "Mos dil kur i fshin të dhënat" te Cilësimet → Llogaria dhe udhëzimi "shtyp Ruaj" te porta (v165, u hoq
   te v166): "hiq bash kurgjo ske bo, hiqe fshije".
+- Chat-i i Grupit (u fsheh te v182, u hoq krejt te v221: "zhduke 100% se e kemi hek chatin"): mos e rikthe as si emër,
+  as si buton, as në tekste, as në Worker/rregulla.
+- Fjalia "Jepja vetëm pasi ta njohësh personin" (dhe "pasi të të njohë") te kodi i fjalëkalimit të harruar (u hoq te
+  v221: "heke krejt se s'duhet"). Njoftimi i kodit mbaron te "(vlen 30 minuta)."
 
 - Marking/vijëzim automatik i rreshtave në fletë (u keqkuptua kërkesa origjinale; u zëvendësua me "laps"
   të kuq të vizatuar me dorë nga përdoruesi mbi foton, që mbetet gjatë zoom-it).
