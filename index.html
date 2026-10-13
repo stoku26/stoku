@@ -1057,7 +1057,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=36">
+<link rel="stylesheet" href="css/stoku.css?v=37">
 </head>
 <body>
 <script src="porta.js?v=196"></script>
@@ -1881,13 +1881,13 @@
 
 <div id="toast"></div>
 
-<script src="xlsx.js?v=212"></script>
+<script src="xlsx.js?v=216"></script>
 <script src="bashkimi.js?v=144"></script>
-<script src="ruajtja.js?v=110"></script>
-<script src="afatet.js?v=215"></script>
-<script src="ekipa.js?v=215"></script>
-<script src="njoftimet.js?v=149"></script>
-<script src="teRejat.js?v=215"></script>
+<script src="ruajtja.js?v=216"></script>
+<script src="afatet.js?v=216"></script>
+<script src="ekipa.js?v=216"></script>
+<script src="njoftimet.js?v=216"></script>
+<script src="teRejat.js?v=216"></script>
 <script>
 (function () {
   'use strict';
@@ -2262,17 +2262,20 @@
   var __versioniLokal = 0;
 
   function ruajBaze() {
+    var ok = true;
     try {
       localStorage.setItem(KEY_FOLDERA, JSON.stringify(foldera));
       localStorage.setItem(KEY_PRODUKTET, JSON.stringify(produktet));
     } catch (e) {
       toast(T('ruajtjaDeshtoi')); // vetëm ruajtja lokale raportohet si "memoria plot" — jo gabime të tjera
-      return false;
+      ok = false;
     }
+    // Edhe kur memoria e telefonit është plot, ndryshimi shkon në cloud (përndryshe humbte krejt, dhe një sinkronizim
+    // që ishte në rrugë e mbulonte me gjendjen e vjetër)
     __versioniLokal++;
     planifikoSinkronizimin();
     if (typeof planifikoMesimin === 'function') planifikoMesimin();
-    return true;
+    return ok;
   }
 
   ngarkoBazen();
@@ -2439,6 +2442,9 @@
 
   function renderFolderat() {
     if (__zvarritja) return; // mos e rindërto listën nën gishtin e përdoruesit; bëhet në fund të zvarritjes
+    // Brenda një folderi kryefaqja s'shihet: vizatohet kur kthehesh (rifreskoPamjen). Përndryshe numërimi me +/- (çdo 1.5 s)
+    // e çdo skanim e rindërtonin kot krejt kryefaqen mbi mijëra produkte.
+    if (folderiAktual !== null) return;
     var cont = $('folderaLista');
     cont.textContent = '';
     var frag = document.createDocumentFragment();
@@ -2749,7 +2755,8 @@
     foldera = foldera.filter(function (x) { return x.id !== f.id; });
     brenda.forEach(function (p) { delete produktet[celesiProduktit(f.id, p.barkodi)]; });
     shenoFolderinEFshire(f.id);
-    brenda.forEach(function (p) { shenoProduktinEFshire(celesiProduktit(f.id, p.barkodi)); });
+    brenda.forEach(function (p) { shenoProduktinEFshire(celesiProduktit(f.id, p.barkodi), true); });
+    ruajFshiraet();
     ruajBaze();
     renderFolderat();
   }
@@ -2823,7 +2830,7 @@
   function krahaso(a, b) {
     if (opsione.rendi === 'sasiaUlet') return (a.sasia - b.sasia) || emriKrahaso(a, b);
     if (opsione.rendi === 'sasiaLart') return (b.sasia - a.sasia) || emriKrahaso(a, b);
-    if (opsione.rendi === 'emriZA') return -emriKrahaso(a, b);
+    if (opsione.rendi === 'emriZA') return (!a.emri !== !b.emri) ? (a.emri ? -1 : 1) : -emriKrahaso(a, b); // pa emër gjithmonë në fund
     if (opsione.rendi === 'i_ri') return ((b.prekurSe || 0) - (a.prekurSe || 0)) || emriKrahaso(a, b);
     return emriKrahaso(a, b);
   }
@@ -3440,7 +3447,11 @@
   // ---- Njoftimi ditor për afatet: ora që zgjedh secili përdorues (Worker-i e dërgon me Cron) ----
   var KEY_NJ_ORA = 'stoku:orari:ora-zgjedhur';
   var __orariDukePunuar = false;
-  function oraEZgjedhur() { var e = ekipaCloud(), o = e && e.orariIm ? e.orariIm() : null; var v = (o && o.ora) || localStorage.getItem(KEY_NJ_ORA); return /^\d\d:\d\d$/.test(v || '') ? v : '08:00'; }
+  function oraEZgjedhur() {
+    var e = ekipaCloud(), o = e && e.orariIm ? e.orariIm() : null, v = o && o.ora;
+    if (!v) { try { v = localStorage.getItem(KEY_NJ_ORA); } catch (x) { v = null; } } // ruajtja e bllokuar s'e ndal nisjen e faqes
+    return /^\d\d:\d\d$/.test(v || '') ? v : '08:00';
+  }
   function rifreskoOrarin() {
     if (!$('njDitor') || __orariDukePunuar) return;
     var e = ekipaCloud(), o = e && e.orariIm ? e.orariIm() : null, g = gjendjaENjoftimeve();
@@ -3800,7 +3811,8 @@
   function ruajFshiraet() {
     try { localStorage.setItem(KEY_FSHIRE, JSON.stringify(fshira)); } catch (e) { /* ok */ }
   }
-  function shenoProduktinEFshire(celesi) { fshira.produktet[celesi] = Date.now(); ruajFshiraet(); }
+  // paRuajtje: fshirje me shumicë (folder, "Fshi të gjitha"): shënimet ruhen një herë në fund, jo për çdo produkt
+  function shenoProduktinEFshire(celesi, paRuajtje) { fshira.produktet[celesi] = Date.now(); if (!paRuajtje) ruajFshiraet(); }
   function shenoFolderinEFshire(id) { fshira.foldera[id] = Date.now(); ruajFshiraet(); }
   ngarkoFshiraet();
 
@@ -4038,10 +4050,23 @@
       if (tePaDerguara || dukeSinkronizuar) { __remoteNePritje = remote; return; } // ndryshim i yni ende në rrugë
       __remoteNePritje = null;
       // Edhe kur një ruajtje lokale pret (kohëmatësi): bashkimi s'humb asgjë lokale, kështu që zbatohet menjëherë
+      __degjuesiPritja = 0;
       zbatoNgaCloudBashkuar(remote);
-    }, function () { /* do të riprovohet në sinkronizimin tjetër */ });
+    }, function () {
+      // Dëgjuesi i Firestore-it mbaron pas një gabimi (p.sh. kuota ditore, rregulla të reja): rinis pas pak,
+      // përndryshe ndryshimet nga pajisjet e tjera s'vinin më deri në rihapjen e aplikacionit
+      ndalDegjuesinCloud();
+      __degjuesiPritja = Math.min(5 * 60000, (__degjuesiPritja || 15000) * 2);
+      clearTimeout(__degjuesiKohez);
+      __degjuesiKohez = setTimeout(function () { if (!degjuesiCloud && perdoruesiAktual()) nisDegjuesinCloud(); }, __degjuesiPritja);
+    });
   }
+  var __degjuesiPritja = 0, __degjuesiKohez = null;
+  window.addEventListener('online', function () {
+    if (!degjuesiCloud && __uidISinkronizuarDarePasHyrjes && perdoruesiAktual()) { clearTimeout(__degjuesiKohez); nisDegjuesinCloud(); }
+  });
   function ndalDegjuesinCloud() {
+    clearTimeout(__degjuesiKohez);
     if (degjuesiCloud) { try { degjuesiCloud(); } catch (e) { /* ok */ } }
     degjuesiCloud = null;
     __remoteNePritje = null;
@@ -4062,6 +4087,11 @@
   // Veçori vetëm për llogari të caktuara (butona +/- shpejtë te lista). Lidhet me LLOGARINË (uid), jo me emrin:
   // kur një llogari e ndryshon emrin, e mban lejen. Emrat më poshtë janë vetëm "farë" për herën e parë —
   // sapo llogaria hyn me njërin prej tyre, leja ruhet te perdoruesit/{uid}.sasiaShpejte dhe këtu (KEY_LEJA_SASIA).
+  // Sasia: deri në 6 shifra (afatet.js); më e gjatë zakonisht është një barkod i skanuar në fushën e sasisë
+  var SASIA_E_MADHE = window.StokuAfatet.SASIA_E_MADHE;
+  function sasiaEPranueshme(t) { return window.StokuAfatet.sasiaEPranueshme(t); }
+  // Pronari i grupit (ose administratori) e dha/hoqi lejen: butonat +/- dalin/zhduken menjëherë te lista e hapur
+  window.addEventListener('stoku-leja-ndryshoi', function () { if (folderiAktual !== null) renderLista(); });
   var SASIA_SHPEJTE_EMRAT = ['tonnyaliu']; // 'albidepo34' u hoq: emri u lirua pas ndërrimit, s'duhet t'i japë lejen një llogarie të re
   var KEY_LEJA_SASIA = 'stoku:leja:sasia-shpejte';
   function eLejuarSasiaShpejte() {
@@ -4145,17 +4175,23 @@
   $('cloudRiktheTani').addEventListener('click', async function () {
     if (!perdoruesiAktual() || !window.__stokuCloud || dukeRikthyerNgaCloud) return; // jo dy rikthime njëkohësisht
     dukeRikthyerNgaCloud = true;
+    var statusiPara = statusiCloudFundit;
     vendosStatusinCloud(T('cloudStatusiDukeRikthyer'));
     var rez = await window.__stokuCloud.merr();
     dukeRikthyerNgaCloud = false;
-    if (!rez.ok || !rez.gjendja) {
+    if (!rez.ok) { // gabim leximi (p.sh. pa internet): s'do të thotë që cloud-i është bosh
+      vendosStatusinCloud(statusiPara || T('cloudStatusiAsgje'));
+      toast('Të dhënat e cloud-it s\'u lexuan. Kontrollo internetin dhe provo përsëri.', 4500);
+      return;
+    }
+    if (!rez.gjendja) {
       vendosStatusinCloud(T('cloudStatusiAsgje'));
       toast(T('cloudNukKaAsgje'));
       return;
     }
     var aktual = Object.keys(produktet).length;
     var po = await konfirmo(T('cloudTeRiktheteCloud'), T('cloudRiktheTekst', { aktual: aktual }), T('rikthe'));
-    if (!po) { rifreskoDukjenECloud(); return; }
+    if (!po) { if (statusiPara) vendosStatusinCloud(statusiPara); else rifreskoDukjenECloud(); return; }
     fshira = { produktet: {}, foldera: {}, afatet: {} };
     ruajFshiraet();
     if (!Array.isArray(rez.gjendja.afatet)) rez.gjendja.afatet = [];
@@ -4281,6 +4317,7 @@
       frag.appendChild(i0);
     }
 
+    var lejaShpejt = eLejuarSasiaShpejte(); // një herë, jo për çdo rresht (lexim i localStorage)
     fil.slice(0, LIMIT_RENDER).forEach(function (p) {
       var rreshti = document.createElement('div');
       rreshti.className = 'artikull';
@@ -4297,7 +4334,7 @@
       majtas.appendChild(kodi);
       rreshti.appendChild(majtas);
 
-      if (eLejuarSasiaShpejte()) {
+      if (lejaShpejt) {
         var celesiRreshti = celesiProduktit(folderiAktual, p.barkodi);
         var mbeshtjellesi = document.createElement('div');
         mbeshtjellesi.className = 'sasia-hap';
@@ -4318,6 +4355,7 @@
         btnPlus.textContent = '+';
         btnPlus.setAttribute('aria-label', T('rritSasine'));
         var ndryshoSasineShpejt = function (delta) {
+          if (!eLejuarSasiaShpejte()) { renderLista(); return; } // leja u hoq ndërkohë
           var prod = produktet[celesiRreshti];
           if (!prod) return;
           var re = Math.max(0, prod.sasia + delta);
@@ -4329,9 +4367,11 @@
           renderFolderat();
         };
         var vendosSasineDrejtperdrejt = function () {
+          if (!eLejuarSasiaShpejte()) { renderLista(); return; }
           var prod = produktet[celesiRreshti];
           if (!prod) return;
           var v = parseInt(sasiaNumri.value, 10);
+          if (Number.isFinite(v) && !sasiaEPranueshme(sasiaNumri.value)) { toast(SASIA_E_MADHE, 4500); v = prod.sasia; }
           if (!Number.isFinite(v) || v < 0) v = prod.sasia;
           if (v === prod.sasia) { sasiaNumri.value = String(prod.sasia); return; }
           prod.sasia = v;
@@ -4414,10 +4454,18 @@
 
   function ruajProduktin() {
     if (!dialogu) return;
+    // Folderi u fshi ndërkohë nga një pajisje tjetër: produkti s'ka ku të ruhet (përndryshe humbte pa asnjë fjalë)
+    if (folderiAktual === null || !foldera.some(function (f) { return f.id === folderiAktual; })) {
+      mbyllDialogun(); rifreskoPamjen();
+      toast('Folderi u fshi nga një pajisje tjetër. Produkti s\'u ruajt.', 4500);
+      return;
+    }
     var emri = opsione.paEmer ? (dialogu.ekzistues ? dialogu.ekzistues.emri : '') : $('dlgEmri').value.trim();
     var tekstSasia = $('dlgSasia').value.trim();
     if (!opsione.paEmer && !emri) { toast(T('shkruajEmrin')); $('dlgEmri').focus(); return; }
     if (!/^-?\d+$/.test(tekstSasia)) { toast(T('shkruajSasine')); $('dlgSasia').focus(); return; }
+    // Një barkod i skanuar në fushën e sasisë (skaneri PDA) s'ruhet si sasi
+    if (!sasiaEPranueshme(tekstSasia)) { toast(SASIA_E_MADHE, 4500); $('dlgSasia').focus(); $('dlgSasia').select(); return; }
     var sasia = parseInt(tekstSasia, 10);
     // Gjendja AKTUALE e produktit (jo ajo e çastit kur u hap dialogu): nëse ndërkohë një pajisje
     // tjetër e ndryshoi sasinë, shtesa i mbivendoset asaj, jo vlerës së vjetër.
@@ -4560,8 +4608,9 @@
 
   function skanoBarkodin() {
     clearTimeout(pdaKohez);
-    // Nëse ndërkohë është hapur një dritare tjetër (Opsionet, Eksporti, Fshirja), mos hap dialogun e produktit mbi të
-    if (document.querySelector('.mbulese.hapur')) return;
+    // Nëse ndërkohë është hapur një dritare tjetër (Opsionet, Eksporti, Fshirja), mos hap dialogun e produktit mbi të.
+    // Fusha zbrazet gjithsesi: përndryshe skanimi tjetër i shtohej këtij (një "barkod" me 26 shifra)
+    if (document.querySelector('.mbulese.hapur')) { $('barkodi').value = ''; return; }
     var b = $('barkodi').value.trim();
     $('barkodi').value = '';
     if (!b) return;
@@ -4760,13 +4809,23 @@
     else requestAnimationFrame(ciklikuIDetektimitNativ);
   }
 
-  async function nisKamerenNativisht(kufizimet, detektori) {
+  // Seanca e kamerës: rritet në çdo hapje dhe mbyllje. Nisja (leja, ngarkimi i detektorit në iPhone, ndërrimi i kamerës)
+  // zgjat; nëse kamera mbyllet ndërkohë, rrjedha që vjen më vonë ndalet menjëherë (përndryshe kamera mbetej e ndezur
+  // e padukshme dhe skanonte vetë: tinguj, dritare produkti, +1 te sasia).
+  var seancaKamere = 0;
+  function ndalRrjedhen(r) { try { r.getTracks().forEach(function (t) { t.stop(); }); } catch (e) { /* ok */ } }
+  async function nisKamerenNativisht(kufizimet, detektori, seanca) {
     detektoriAktiv = detektori;
     var rrjedha = await navigator.mediaDevices.getUserMedia({ video: kufizimet });
+    if (seanca !== seancaKamere) { ndalRrjedhen(rrjedha); throw new Error('kamera-u-mbyll'); }
     nativRrjedha = rrjedha;
     var v = $('kameraVideo');
     v.srcObject = rrjedha;
     await v.play();
+    if (seanca !== seancaKamere) {
+      if (nativRrjedha === rrjedha) await ndalSkanerinNativ(); else ndalRrjedhen(rrjedha);
+      throw new Error('kamera-u-mbyll');
+    }
     $('kameraVideo').style.display = '';
     $('reader').style.display = 'none';
     nativDukeSkanuar = true;
@@ -4966,7 +5025,8 @@
       return;
     }
 
-    if (eLejuarSasiaShpejte()) {
+    // Numërimi i vazhdueshëm (+1) vetëm kur skanohet për stokun; kamera e hapur nga "Afat i ri" e dërgon barkodin te afati
+    if (!kameraPerAfat && eLejuarSasiaShpejte()) {
       var ekzistuesi = produktet[celesiProduktit(folderiAktual, barkodi)];
       if (ekzistuesi) {
         fillojOseVazhdoNumrimin(barkodi);
@@ -5036,12 +5096,15 @@
   }
 
   async function provoNisjenSkanerit(kufizimet) {
+    var seanca = seancaKamere;
     var detektori = detektoriNativ || await pergatitDetektorinWasm();
+    if (seanca !== seancaKamere) return false; // kamera u mbyll ndërkohë
     if (detektori) {
       try {
-        await nisKamerenNativisht(kufizimet, detektori);
+        await nisKamerenNativisht(kufizimet, detektori, seanca);
         return true;
       } catch (e) {
+        if (seanca !== seancaKamere) return false; // (s'preket rrjedha e një hapjeje më të re)
         await ndalSkanerinNativ(); // s'punoi nativisht (p.sh. leje/pajisje), provo motorin rezervë
       }
     }
@@ -5051,6 +5114,11 @@
     var i = krijoSkanerin();
     try {
       await i.start(kufizimet, { fps: 10, qrbox: QRBOX_FN, videoConstraints: kufizimet }, kuSuksesiSkanimi, kuGabimiSkanimi);
+      if (seanca !== seancaKamere) {
+        try { await i.stop(); } catch (e3) { /* ok */ }
+        try { i.clear(); } catch (e3) { /* ok */ }
+        return false;
+      }
       skaneri = i;
       return true;
     } catch (e) {
@@ -5062,7 +5130,9 @@
   // Pas nisjes fillestare (kur ende s'e dinim kamerën kryesore): rikontrollo etiketat, tani që kemi
   // leje, dhe nëse ekziston një kamerë jo-ultra-wide e ndryshme nga ajo aktuale, kalo tek ajo.
   async function kaloTekKameraKryesoreNese() {
+    var seanca = seancaKamere;
     var kamerat = await kamerateEPasme();
+    if (seanca !== seancaKamere) return;
     var idIri = idIKameresKryesore(kamerat);
     if (!idIri) return;
     var t = trackuIKameres();
@@ -5075,6 +5145,7 @@
   }
 
   async function nisKamere() {
+    var seanca = seancaKamere;
     var kufizimetAutomatike = kufizimetVideoUHD();
     var idRuajtur = idIRuajturIKameres();
     var uHap = false;
@@ -5082,20 +5153,24 @@
     if (idRuajtur) {
       uHap = await provoNisjenSkanerit(kufizimetMePajisje(kufizimetAutomatike, idRuajtur));
     }
+    if (seanca !== seancaKamere) return;
     if (!uHap) {
       var idGjetur = idIKameresKryesore(await kamerateEPasme());
+      if (seanca !== seancaKamere) return;
       if (idGjetur) {
         uHap = await provoNisjenSkanerit(kufizimetMePajisje(kufizimetAutomatike, idGjetur));
         if (uHap) ruajIdINeKameres(idGjetur);
       }
     }
-    if (!uHap) uHap = await provoNisjenSkanerit(kufizimetAutomatike);
-    if (!uHap) uHap = await provoNisjenSkanerit({ facingMode: { ideal: 'environment' } });
+    if (!uHap && seanca === seancaKamere) uHap = await provoNisjenSkanerit(kufizimetAutomatike);
+    if (!uHap && seanca === seancaKamere) uHap = await provoNisjenSkanerit({ facingMode: { ideal: 'environment' } });
+    if (seanca !== seancaKamere) return;
     if (!uHap) throw new Error('kamera-nuk-u-hap');
 
     if (!idRuajtur) {
       try { await kaloTekKameraKryesoreNese(); } catch (e) { /* mbetet te ajo çka tashmë punon */ }
     }
+    if (seanca !== seancaKamere) return;
     await pasNisjes();
   }
 
@@ -5107,10 +5182,12 @@
     }
     perpunuar = false;
     ndaloNumrimVazhdues();
+    var seanca = ++seancaKamere;
     $('kamera').classList.add('hapur');
     try {
       await nisKamere();
     } catch (err) {
+      if (seanca !== seancaKamere) return; // u mbyll ose u rihap ndërkohë: s'është gabim
       await ndalKamere();
       toast(T('kameraNukUHapLeje'));
     }
@@ -5129,6 +5206,7 @@
 
   var kameraPerAfat = null; // kur kamera hapet nga dialogu "Afat i ri": ku dërgohet barkodi i skanuar
   async function ndalKamere() {
+    seancaKamere++; // nisja që ende s'ka mbaruar e ndal vetë rrjedhën kur të vijë
     kameraPerAfat = null;
     fshihKontrolletEKameres();
     ndaloNumrimVazhdues();
@@ -5236,9 +5314,28 @@
       if ($('kategoriMenu').style.display === 'none') n++; // brenda një kategorie = 1 nivel shtesë mbi vetë Opsionet
       if (PRINDI_I_FAQES[faqjaEOpsioneve]) n++; // nënfaqe (p.sh. Stoku → Produktet) = edhe 1 nivel
     }
-    var dlgTjeter = document.querySelector('.mbulese.hapur:not(#dlgOpsione):not(#dlgAfatet):not(#dlgEkipi)');
-    if (dlgTjeter) n++;
+    // Çdo dialog i hapur (p.sh. "Zhvendos" mbi produktin) është një nivel: "mbrapa" i mbyll një nga një
+    n += document.querySelectorAll('.mbulese.hapur:not(#dlgOpsione):not(#dlgAfatet):not(#dlgEkipi)').length;
     return n;
+  }
+  // Radha e hapjes së dialogëve (i fundit = ai sipër). Me renditjen e faqes, "mbrapa" mbyllte dialogun poshtë
+  // (p.sh. produktin nën "Zhvendos") dhe linte sipër një dialog që s'punonte më.
+  var __rendiDialogeve = [];
+  function rifreskoRendinEDialogeve() {
+    Array.prototype.forEach.call(document.querySelectorAll('.mbulese'), function (el) {
+      if (!el.id) return;
+      var i = __rendiDialogeve.indexOf(el.id), hapur = el.classList.contains('hapur');
+      if (hapur && i === -1) __rendiDialogeve.push(el.id);
+      else if (!hapur && i !== -1) __rendiDialogeve.splice(i, 1);
+    });
+  }
+  function dialogiISiperm() {
+    rifreskoRendinEDialogeve();
+    for (var i = __rendiDialogeve.length - 1; i >= 0; i--) {
+      var id = __rendiDialogeve[i];
+      if (id !== 'dlgOpsione' && id !== 'dlgAfatet' && id !== 'dlgEkipi' && $(id) && $(id).classList.contains('hapur')) return $(id);
+    }
+    return document.querySelector('.mbulese.hapur:not(#dlgOpsione):not(#dlgAfatet):not(#dlgEkipi)');
   }
 
   // Mbyll vetëm shtresën e sipërme. Dialogët mbyllen përmes butonit të tyre "Anulo" (jo duke hequr
@@ -5250,7 +5347,7 @@
   function mbyllShtresenMeTeFundit() {
     // Kamera del mbi çdo dialog (p.sh. skanimi te "Afat i ri"), prandaj mbyllet e para
     if ($('kamera').classList.contains('hapur')) { ndalKamere(); return; }
-    var dlgTjeter = document.querySelector('.mbulese.hapur:not(#dlgOpsione):not(#dlgAfatet):not(#dlgEkipi)');
+    var dlgTjeter = dialogiISiperm();
     if (dlgTjeter) {
       var idAnulo = ANULO_SIPAS_DIALOGUT[dlgTjeter.id];
       if (idAnulo && $(idAnulo)) $(idAnulo).click(); else dlgTjeter.classList.remove('hapur');
@@ -5302,7 +5399,7 @@
   });
 
   if (window.MutationObserver) {
-    var __vezhguesiIDritareve = new MutationObserver(function () { rifreskoTabet(); sinkronizoHistorineEDritareve(); });
+    var __vezhguesiIDritareve = new MutationObserver(function () { rifreskoRendinEDialogeve(); rifreskoTabet(); sinkronizoHistorineEDritareve(); });
     Array.prototype.forEach.call(document.querySelectorAll('.mbulese, #kamera'), function (el) {
       __vezhguesiIDritareve.observe(el, { attributes: true, attributeFilter: ['class'] });
     });
@@ -5533,8 +5630,9 @@
     if (folderiAktual === null) return;
     produktetENjeFolderi(folderiAktual).forEach(function (p) {
       delete produktet[celesiProduktit(folderiAktual, p.barkodi)];
-      shenoProduktinEFshire(celesiProduktit(folderiAktual, p.barkodi));
+      shenoProduktinEFshire(celesiProduktit(folderiAktual, p.barkodi), true);
     });
+    ruajFshiraet();
     ruajBaze();
     mbyllFshirjen();
     renderLista();
@@ -5552,13 +5650,13 @@
   var afMuaji = ''; // '' = krejt muajt, 'VVVV-MM' ose 'pa-date' (sipas datës së skadimit)
 
   function ruajAfatet() {
-    try { localStorage.setItem(KEY_AFATET, JSON.stringify(afatet)); } catch (e) { toast(T('ruajtjaDeshtoi')); return; }
+    try { localStorage.setItem(KEY_AFATET, JSON.stringify(afatet)); } catch (e) { toast(T('ruajtjaDeshtoi')); } // (vazhdon: cloud-i + pamja)
     __versioniLokal++;
     planifikoSinkronizimin(300); // afatet dërgohen në cloud menjëherë pas çdo ndryshimi
     rifreskoAfatet();
     planifikoMesimin();
   }
-  function shenoAfatinEFshire(id) { fshira.afatet = fshira.afatet || {}; fshira.afatet[id] = Date.now(); ruajFshiraet(); }
+  function shenoAfatinEFshire(id, paRuajtje) { fshira.afatet = fshira.afatet || {}; fshira.afatet[id] = Date.now(); if (!paRuajtje) ruajFshiraet(); }
 
   // ---- Kujtesa e produkteve (afatet.js, vetëm në këtë pajisje): barkodi → emri, furnizuesi ----
   function KJ() {
@@ -5761,7 +5859,8 @@
       'Fshihen nga të gjitha pajisjet. Nëse produktet thjesht u hoqën nga rafti, përdor "U hoq nga rafti" (mbeten si histori).', T('fshij'));
     if (!po) return;
     var hiq = {};
-    ids.forEach(function (id) { hiq[id] = true; shenoAfatinEFshire(id); });
+    ids.forEach(function (id) { hiq[id] = true; shenoAfatinEFshire(id, true); });
+    ruajFshiraet();
     afatet = afatet.filter(function (x) { return !hiq[x.id]; });
     afZgjedhja = null;
     ruajAfatet();
@@ -6172,10 +6271,14 @@
   function llogariaUFshiNgaAdmini() {
     if (__llogariaUFshi) return;
     __llogariaUFshi = true;
-    try { Object.keys(localStorage).filter(function (k) { return k.indexOf('stoku:') === 0; }).forEach(function (k) { localStorage.removeItem(k); }); } catch (e) { /* ok */ }
-    try { localStorage.setItem('stoku:porta:mesazh', 'Kjo llogari u fshi nga administratori.'); } catch (e) { /* ok */ }
-    var c = window.__stokuCloud;
-    Promise.resolve(c && c.fshiVeten ? c.fshiVeten() : null).catch(function () { /* ok */ }).then(function () { location.reload(); });
+    var c = window.__stokuCloud, ek = c && c.ekipa;
+    // Së pari njoftimi ditor i kësaj llogarie hiqet nga serveri (përndryshe pajisja i merrte ende çdo ditë); ai lexon orarin
+    // e ruajtur këtu, prandaj shënimet lokale fshihen pas tij ("stoku:orari:pastro" mbetet, nëse serveri s'u arrit)
+    Promise.resolve(ek && ek.caktivizoPush ? ek.caktivizoPush() : null).catch(function () { /* ok */ }).then(function () {
+      try { Object.keys(localStorage).filter(function (k) { return k.indexOf('stoku:') === 0 && k !== 'stoku:orari:pastro'; }).forEach(function (k) { localStorage.removeItem(k); }); } catch (e) { /* ok */ }
+      try { localStorage.setItem('stoku:porta:mesazh', 'Kjo llogari u fshi nga administratori.'); } catch (e) { /* ok */ }
+      return c && c.fshiVeten ? c.fshiVeten() : null;
+    }).catch(function () { /* ok */ }).then(function () { location.reload(); });
   }
   var ekK = EKL ? EKL.krijoKontrollues({
     cloud: function () { return window.__stokuCloud; },
@@ -6297,8 +6400,40 @@
     if (!$('dlgEkipi').classList.contains('hapur')) return;
     if (cfare === 'njoftimet' || cfare === 'chat-fundit') return;
     if (cfare === 'chat' ? ekPamja !== 'chat' : (ekPamja === 'chat' && cfare !== 'te-gjitha')) return;
+    // Dikush po shkruan te një fushë e pamjes (fto, njoftimi për grupin, emri i grupit): rindërtimi pritet derisa ta lëshojë
+    // fushën, përndryshe teksti fshihej dhe tastiera mbyllej (prania e kolegëve e ndez këtë çdo ≤ 90 s)
+    if (ekFushaAktive() && document.activeElement.id !== 'ekKerko') { ekRivizatoNePritje = true; return; }
     vizatoEkipen(true);
   }
+  var ekRivizatoNePritje = false;
+  function ekFushaAktive() {
+    var a = document.activeElement, c = $('ekipiLista');
+    return !!(a && c && c.contains(a) && (a.tagName === 'TEXTAREA' || (a.tagName === 'INPUT' && /^(text|search|number|email|tel)?$/.test(a.type || ''))));
+  }
+  // Tekstet e shkruara me dorë (fushat me id) rikthehen pas rindërtimit
+  function ekTeShkruarat() {
+    var r = {};
+    Array.prototype.forEach.call($('ekipiLista').querySelectorAll('input[data-prekur][id], textarea[data-prekur][id]'), function (x) { r[x.id] = x.value; });
+    return r;
+  }
+  function ekRiktheTeShkruarat(r) {
+    Object.keys(r).forEach(function (id) { var x = $(id); if (x && x.value !== r[id]) { x.value = r[id]; x.setAttribute('data-prekur', '1'); } });
+  }
+  // Pas dërgimit: fusha zbrazet (edhe nëse pamja u rindërtua ndërkohë dhe fusha është tashmë një element i ri)
+  function ekZbrazFushen(el) {
+    [el, el && el.id ? $(el.id) : null].forEach(function (x) { if (x) { x.value = ''; x.removeAttribute('data-prekur'); } });
+  }
+  document.addEventListener('input', function (ev) {
+    var t = ev.target, c = $('ekipiLista');
+    if (t && t.id && c && c.contains(t) && t.setAttribute) t.setAttribute('data-prekur', '1');
+  }, true);
+  $('ekipiLista').addEventListener('focusout', function () {
+    if (!ekRivizatoNePritje) return;
+    setTimeout(function () { // pak më vonë: prekja e butonit "Dërgo"/"Fto" duhet të kryhet para rindërtimit
+      if (!ekRivizatoNePritje || ekFushaAktive() || !$('dlgEkipi').classList.contains('hapur')) return;
+      vizatoEkipen(true);
+    }, 400);
+  });
   function rifreskoShenjatEEkipes() {
     var n = ekK ? ekK.numriNjoftimeve() : 0;
     var kr = ekK ? ekK.numriKerkesave() : 0;
@@ -6309,6 +6444,12 @@
   }
 
   function vizatoEkipen(rifreskim) {
+    ekRivizatoNePritje = false;
+    var teShkruara = ekTeShkruarat();
+    vizatoEkipenBrenda(rifreskim);
+    ekRiktheTeShkruarat(teShkruara);
+  }
+  function vizatoEkipenBrenda(rifreskim) {
     Array.prototype.forEach.call(document.querySelectorAll('#ekMenu button'), function (b) {
       var po = b.getAttribute('data-n') === ekPamja;
       b.classList.toggle('aktiv', po);
@@ -6439,7 +6580,7 @@
     a.style.cssText = 'width:' + m + 'px;height:' + m + 'px;font-size:' + Math.round(m * 0.4) + 'px;background:' + ekNgjyra(emri);
     return EKL.Fotot.apliko(a, String(emri || ''));
   }
-  function ekKurTekst(n) { return n === null ? '' : n < -1 ? 'para ' + AF.ditetTekst(-n) : n === -1 ? 'dje' : n === 0 ? 'sot' : n === 1 ? 'nesër' : 'për ' + AF.ditetTekst(n); }
+  function ekKurTekst(n) { return n === null ? '' : n < -1 ? 'para ' + AF.ditetParaTekst(-n) : n === -1 ? 'dje' : n === 0 ? 'sot' : n === 1 ? 'nesër' : 'për ' + AF.ditetTekst(n); }
   function ekKartaPultit(a) {
     var st = AF.statusi(a), n = AF.ditetDeri(a.data);
     var k = ekEl('div', 'ek-kart');
@@ -6644,7 +6785,11 @@
     clearTimeout(ekTregoFlluskeRoli.k);
     ekTregoFlluskeRoli.k = setTimeout(ekMbyllFlluske, 5000);
   }
-  document.addEventListener('click', ekMbyllFlluske, true);
+  // Prekja e vetë ikonës s'e mbyll këtu: e mbyll ekTregoFlluskeRoli (prekja e dytë e fsheh flluskën, s'e rihap)
+  document.addEventListener('click', function (ev) {
+    if (__ekFlluska && __ekFlluska.__per && __ekFlluska.__per.contains(ev.target)) return;
+    ekMbyllFlluske();
+  }, true);
   window.addEventListener('scroll', ekMbyllFlluske, true);
   function ekTekstiNePritje(a) {
     var u = perdoruesiAktual(), uneE = u && a.nePritjeUid === u.uid;
@@ -6923,7 +7068,7 @@
         var r = await ekK.ftoNeGrup(em);
         bf.disabled = false;
         if (!r.ok) { toast(tekstiGabimitTeFtesa(r), 4500); return; }
-        ie.value = '';
+        ekZbrazFushen(ie);
         toast('Ftesa iu dërgua "' + em.toLowerCase() + '". E sheh te Grupi kur e hap Stoku-n.', 4500);
       };
       bf.addEventListener('click', fto);
@@ -6991,7 +7136,7 @@
       var r = await ekK.lajmeroEkipen(t);
       bd.disabled = false;
       if (!r.ok) { toast('Njoftimi s\'u dërgua. Kontrollo internetin dhe provo përsëri.', 4000); return; }
-      ta.value = '';
+      ekZbrazFushen(ta);
       toast('Njoftimi u dërgua te krejt grupi' + (r.neRadhe ? ' (sapo të ketë internet).' : '.'));
     });
     nj.appendChild(ta); nj.appendChild(bd);
@@ -7507,7 +7652,9 @@
     mesoNgaPerdoruesi(b, emri, f); // herën tjetër ky barkod plotëson vetë emrin dhe furnizuesin
     if (f && f !== furnPara) regjistroFurnizuesinERi(f); // v212, v214: për këdo
     var tani = Date.now();
-    if (afatNeDialog) {
+    // Afati që po ndryshohej u fshi ndërkohë nga një pajisje tjetër: ruhet si afat i ri (ndryshimi s'humbet pa fjalë)
+    var uFshiNderkohe = !!afatNeDialog && !afPara;
+    if (afatNeDialog && afPara) {
       perditesoAfatin(afatNeDialog, { barkodi: b, emri: emri, data: data, sasia: sasia, furnizuesi: f });
     } else {
       afatet = afatet.concat([{ id: AF.idERe(), barkodi: b, emri: emri, data: data, sasia: sasia, furnizuesi: f, statusi: 'aktiv',
@@ -7516,7 +7663,7 @@
       if (perdoruesiAktual() && ekK) ekK.afateTeReja(1, false);
     }
     mbyllAfatin();
-    toast('Afati u ruajt.');
+    toast(uFshiNderkohe ? 'Ky afat u fshi nga një pajisje tjetër ndërkohë. U ruajt si afat i ri.' : 'Afati u ruajt.', uFshiNderkohe ? 4500 : undefined);
   }
   async function fshijAfatin() {
     if (!afatNeDialog) return;
@@ -7594,7 +7741,7 @@
       b.setAttribute('aria-pressed', iso && b.getAttribute('data-iso') === iso ? 'true' : 'false');
     });
     var n = iso ? AF.ditetDeri(iso) : null;
-    $('afatDataHint').textContent = n === null ? '' : n < -1 ? 'Ka skaduar para ' + AF.ditetTekst(-n) + '.' :
+    $('afatDataHint').textContent = n === null ? '' : n < -1 ? 'Ka skaduar para ' + AF.ditetParaTekst(-n) + '.' :
       n === -1 ? 'Skadoi dje.' : n === 0 ? 'Skadon sot.' : n === 1 ? 'Skadon nesër.' : 'Skadon për ' + AF.ditetTekst(n) + '.';
   }
   $('afatData').addEventListener('input', rifreskoDatenEAfatit);
@@ -7700,7 +7847,11 @@
     'origjina': 'Kjo adresë nuk lejohet nga shërbimi i leximit. Shkruaji rreshtat me dorë.'
   };
 
+  // Çdo lexim ka numrin e vet: një lexim i anuluar që mbaron vonë s'i mbishkruan rreshtat e një leximi më të ri
+  var lxSeanca = 0, impSeanca = 0;
   async function lexoFleten(skedari) {
+    var seanca = ++lxSeanca;
+    function iVjeteruar() { return seanca !== lxSeanca || !$('dlgAfatLexim').classList.contains('hapur'); }
     lx.rreshtat = [];
     renderLeximin();
     $('lxFoto').classList.remove('e-madhe');
@@ -7708,14 +7859,15 @@
     statusiLeximit('Duke përgatitur foton…', false, true);
     var foto;
     try { foto = await AF.pergatitFoton(skedari); }
-    catch (e) { statusiLeximit('Fotoja s\'u hap. Provo një foto tjetër.', true); return; }
+    catch (e) { if (!iVjeteruar()) statusiLeximit('Fotoja s\'u hap. Provo një foto tjetër.', true); return; }
+    if (iVjeteruar()) return;
     $('lxFoto').src = foto.dataUrl;
     if (!perdoruesiAktual()) { statusiLeximit(MESAZHET_AI['pa-hyrje'], true); shtoRreshtLeximi(); return; }
     statusiLeximit('Duke e lexuar fletën me AI… (zakonisht 5–20 sekonda)' + (foto.gjeresia ? ' · foto ' + foto.gjeresia + '×' + foto.lartesia + ' (' + (foto.gjeresia * foto.lartesia / 1e6).toFixed(1) + ' MP)' : ''), false, true);
     var tokeni = null;
     try { tokeni = window.__stokuCloud && window.__stokuCloud.token ? await window.__stokuCloud.token() : null; } catch (e) { /* ok */ }
     var rez = await AF.lexoMeAI(foto, tokeni);
-    if (!$('dlgAfatLexim').classList.contains('hapur')) return; // u anulua ndërkohë
+    if (iVjeteruar()) return; // u anulua (ose filloi një lexim tjetër) ndërkohë
     if (!rez.ok) {
       statusiLeximit(MESAZHET_AI[rez.gabim] || 'Fleta s\'u lexua (' + rez.gabim + '). Provo një foto më të qartë, ose shkruaji rreshtat me dorë.', true);
       shtoRreshtLeximi();
@@ -7931,6 +8083,8 @@
   }
 
   async function lexoFletenStok(skedari) {
+    var seanca = ++impSeanca;
+    function iVjeteruar() { return seanca !== impSeanca || !$('dlgImportStok').classList.contains('hapur'); }
     imp.rreshtat = [];
     renderImportin();
     mbushFolderatImportit();
@@ -7939,7 +8093,8 @@
     statusiImportit('Duke përgatitur foton…', false, true);
     var foto;
     try { foto = await AF.pergatitFoton(skedari); }
-    catch (e) { statusiImportit('Fotoja s\'u hap. Provo një foto tjetër.', true); return; }
+    catch (e) { if (!iVjeteruar()) statusiImportit('Fotoja s\'u hap. Provo një foto tjetër.', true); return; }
+    if (iVjeteruar()) return;
     $('impFoto').src = foto.dataUrl;
     if (!perdoruesiAktual()) { statusiImportit(MESAZHET_AI['pa-hyrje'], true); shtoRreshtImportit(); return; }
     statusiImportit('Duke e lexuar fletën me AI… (zakonisht 5–20 sekonda)', false, true);
@@ -7948,7 +8103,7 @@
     // "synim: 'stok'" i jepet Worker-it si shenjë shtesë (për t'u përdorur më vonë, nëse i duhet një
     // prompt tjetër); tani për tani Worker-i i injoron fushat e panjohura dhe përgjigjet njësoj.
     var rez = await AF.lexoMeAI(foto, tokeni, { synim: 'stok' });
-    if (!$('dlgImportStok').classList.contains('hapur')) return; // u anulua ndërkohë
+    if (iVjeteruar()) return; // u anulua (ose filloi një lexim tjetër) ndërkohë
     if (!rez.ok) {
       statusiImportit(MESAZHET_AI[rez.gabim] || 'Fleta s\'u lexua (' + rez.gabim + '). Provo një foto më të qartë, ose shkruaji rreshtat me dorë.', true);
       shtoRreshtImportit();
@@ -8074,8 +8229,20 @@
   });
 
 
-  // Rifreskim i përditshëm i ngjyrave (p.sh. kur aplikacioni mbetet hapur pas mesnatës)
-  setInterval(rifreskoShenjen, 10 * 60 * 1000);
+  // Rifreskim i ngjyrave kur ndërrohet dita (aplikacioni mbetet hapur pas mesnatës, ose rikthehesh në të të nesërmen):
+  // jo vetëm shenja, por edhe lista e afateve, statistikat e kryefaqes dhe Grupi
+  var __ditaEShfaqur = AF.sot();
+  function rifreskoNeseNderroiDita() {
+    rifreskoShenjen();
+    var sot = AF.sot();
+    if (sot === __ditaEShfaqur) return;
+    __ditaEShfaqur = sot;
+    if ($('dlgAfatet').classList.contains('hapur')) renderAfatet();
+    if (folderiAktual === null) renderFolderat();
+    if ($('dlgEkipi').classList.contains('hapur') && typeof kurNdryshonEkipa === 'function') kurNdryshonEkipa('te-gjitha');
+  }
+  setInterval(rifreskoNeseNderroiDita, 10 * 60 * 1000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) rifreskoNeseNderroiDita(); });
   rifreskoShenjen();
 
   // ---------- Njoftimet për afatet (30 ditë para skadimit, dhe kur skadon) ----------
@@ -8084,9 +8251,12 @@
   var KEY_NJ_JO_TANI = 'stoku:njoftimet:jo-tani';
   var njKohezi = null, njZinxhiri = Promise.resolve();
   function njoftimetMbeshteten() { return 'Notification' in window && 'serviceWorker' in navigator && !!window.StokuNjoftimet; }
+  function paLlogari() { var cl = window.__stokuCloud; return !!(cl && cl.authGati && !perdoruesiAktual()); }
   function kontrolloNjoftimet() {
     if (!njoftimetMbeshteten()) return;
     clearTimeout(njKohezi);
+    if (paLlogari()) return; // pas "Dil": s'njoftohet më për afatet e llogarisë që doli
+
     njKohezi = setTimeout(function () {
       var kopje = afatet.slice();
       var e = ekipaCloud(), o = e && e.orariIm ? e.orariIm() : null;
@@ -8103,6 +8273,12 @@
       }).catch(function () { /* ok */ });
     }, 1500);
   }
+  // Pas daljes nga llogaria, kopja e afateve për service worker-in hiqet (përndryshe njoftimet vazhdonin edhe në sfond)
+  window.addEventListener('stoku-auth-ndryshoi', function () {
+    if (!paLlogari() || !njoftimetMbeshteten() || !window.StokuNjoftimet.pastro) return;
+    clearTimeout(njKohezi);
+    njZinxhiri = njZinxhiri.then(function () { return window.StokuNjoftimet.pastro(); }).catch(function () { /* ok */ });
+  });
   function regjistroKontrollinPeriodik() {
     if (!njoftimetMbeshteten()) return;
     navigator.serviceWorker.ready.then(function (reg) {

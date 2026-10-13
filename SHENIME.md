@@ -50,6 +50,59 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **KONTROLLI I PLOTË ME RISHIKIM TË KODIT (v216 = 1.22.2, Worker 162)**: rishikim skedar për skedar (web, Worker,
+   tel/, ora/, CSS, workflows) dhe rregullimet. **Përbashkëta**: `pergatitFoton` me `Math.floor` (iOS refuzonte kanavacën 1 piksel
+   mbi kufirin); `dataNgaQeliza`: zeroja që Excel-i e heq kthehet vetëm te x.1 → x.10 ("12.10" = 12 tetor, jo janar) dhe x.20y → x.20y0
+   (muaji.viti); "12.5", "15.3", "5.2026" lexohen si më parë; kolona
+   "Furnitori" njihet; `ditetParaTekst` ("para 5 ditësh", "para 1 dite"); `riemertoFurnizuesin` njëson hapësirat; kujtesa:
+   `indeksiIFurnizuesve` një herë për veprim (bashkimi me grupin/`mesoShume` ishin O(rreshta × hyrje), sekonda në PDA);
+   `fshijFurnizuesin` harron produktin pa emër; `afatetNgaPlani` me hartë (jo n²); `xlsx` emri i fletës pa apostrof në skaje pas
+   shkurtimit, `DecompressionStream('deflate-raw')` i pambështetur → 'pa-dekompresim'. `njoftimet.js`: një lidhje IndexedDB,
+   `tx.onabort` (memoria plot ngecte zinxhirin), `pastro()` pas daljes nga llogaria (index: `stoku-auth-ndryshoi`). `sw.js`:
+   navigimi vetëm për /, /index.html, /pc, /pc.html (android.html zinte vendin e index.html në cache); instalimi paralel;
+   `notificationclick` e njeh dritaren e PC-së edhe nga "#/". `ruajtja.js`: kryesori s'rishkruhet kur ndryshon vetëm `koha`
+   (`kryesoriKanonik`); mënyra e vjetër (pa pjesë) vetëm kur kryesori lexohet e p0 jo (`rregullaTeVjetra`). **ekipa.js**:
+   `fshijAnetaresine` (largimi/heqja nga grupi "ekipa" heq edhe `ekipa_anetaret` në një batch); nënshkrimi i publikimit përfshin
+   grupin (+ ripublikim pas ndryshimit të grupit); "U krye"/vendimi për heqjen kalojnë nga radha (`shtoNeRadhe` me
+   `{id, perditeso}` = `batch.update`, s'rikrijon njoftimin e fshirë), s'ngecin pa internet; `caktivizoPush`/`dil` me afat (8 s/5 s); dalja pa internet lë `stoku:orari:pastro` → `pastroOrarinEJetim`
+   në hyrjen tjetër (Worker: `pastroPajisjen`, me `edheTimin` kur kjo llogari s'ka orar këtu); `provoGrupinEVjeter` një herë njëkohësisht; `ndryshoRolin`/`vendosLejen` me
+   `update` (s'rikrijojnë anëtarin e hequr); `fshijLlogarine` fshin edhe ftesat e emrit; `shenoTeLexuara` toleron njoftimet e
+   fshira. **Worker 162** (duhet ngjitur te Cloudflare): gabimet e papritura → JSON me CORS (`kv-limit`); freskia sipas
+   `createTime` të Firestore-it (jo ora e pajisjes); më së shumti 36 pajisje për push (kufiri 50 kërkesa); Cron-i: dita shënohet
+   vetëm pas suksesit/asgjë/404-410, deri në 3 prova; `/orari` (pas kontrollit të të dhënave) heq oraret e llogarive të tjera për të njëjtën pajisje dhe
+   s'e rishkruan indeksin pa ndryshim; `/ora/hiq` pranon `ids`; `ora-ka:{uid}` = lista e orëve të lidhura (JSON), `/ora/shkeput`
+   heq vetëm orën e vet (`ora-hequr` mbetet për telefonin; vlera e vjetër "1" mbetet); formatuesit e zonave kohore ruhen (vetëm
+   të vlefshmit, ≤ 300). Aplikacioni pret ende 161 (s'del paralajmërim); veçoritë e reja punojnë pasi të ngjitet 162. **Telefoni**: seanca
+   e kamerës (`seancaKamere`): mbyllja gjatë nisjes e ndal rrjedhën që vjen më vonë; `ruajBaze`/`ruajAfatet` sinkronizojnë edhe
+   kur localStorage është plot; Kolegët: rindërtimi pritet gjatë shkrimit dhe tekstet rikthehen (`ekTeShkruarat`); sasia ≤ 6
+   shifra (dialogu + +/-); numërimi +/- s'ndodh kur kamera është për afatin; "Mbrapa" mbyll dialogun e sipërm (`__rendiDialogeve`);
+   `oraEZgjedhur` me try; produkti në folder të fshirë → mesazh, jo "null::"; afati i fshirë ndërkohë → ruhet si i ri; skanimi
+   me dritare të hapur e zbraz fushën; leximi me AI me numër seance; dëgjuesi i cloud-it rinis pas gabimit (15 s → 5 min);
+   ndërrimi i ditës rivizaton afatet/kryefaqen/Grupin; `stoku-leja-ndryshoi` → `renderLista`; "Rikthe nga cloud" dallon gabimin nga
+   cloud-i bosh; Z-A me produktet pa emër në fund; flluska e rolit mbyllet me prekjen e dytë; shënimet e fshirjeve me shumicë
+   ruhen një herë; kryefaqja s'vizatohet brenda folderit; fshirja e llogarisë nga administratori çaktivizon njoftimin ditor.
+   **Kompjuteri**: leximi me AI me numër seance (s'mbishkruan fletën e telefonit); "Zhbëj" prek vetëm folderat e vetë veprimit;
+   Enter te filtri zbaton filtrin e pritur; sasia ≤ 6 shifra; kutiza e rreshtit (pa `preventDefault`); Ctrl+E/I te Afatet =
+   eksporti/importi i afateve, te Grupi asgjë; ankora e Shift-it me çelës; `hashIDekoduar`/`pamjaNgaHash` (një "%" s'e ndal
+   faqen, "chat"/"stoku" → Pulti, adresa korrigjohet); shkurtoret me një shkronjë pas 45 ms (`veproPasPak`); importi njëson
+   emrat e folderave pa dallim shkronjash; kërkimi global rihapet vetëm me fokus; `normalizo` te Grupi/Cilësimet; pas
+   sinkronizimit s'rishkruhet krejt dyqani; dëgjuesi rinis pas gabimit; çdo minutë vetëm qelizat e kohës te tabela.
+   **Android (tel/)**: `restoreState` null → `loadUrl`; historia pastrohet pas ngarkimeve të aplikacionit (njoftimi, "Provo
+   sërish" me `#stoku-riprovo`); `onRenderProcessGone` → WebView e re (`recreate`); WebView `destroy` në `onDestroy`;
+   përditësimi: pas dështimit riprovohet pas 30 min (jo 6 orë, as në çdo rikthim), `isDestroyed`, APK-ja në pritje te prefs
+   bashkë me numrin e versionit (e vjetëruara fshihet), "Po kontrollohet…" kur një kontroll është në rrugë. **Ora**: `Api.hiq` hedh gabim kur serveri s'e
+   ruajti; `hiqShume` (një kërkesë, rezervë 1.1 s njëra pas tjetrës me Worker-in e vjetër); "Zhbëj" pret heqjen (`join`);
+   `CancellationException` s'kapet si gabim; `javaN` zbret; "Mbrapa" nga kolegët kthehet te produkti; çelësat e listës unikë;
+   tile/komplikacioni me afate të shkurtra dhe kopje të freskët (< 3 min);
+   lista e ndryshuar në orë ruhet si kopje (`ruajListen`); `allowBackup=false`; etiketa e komplikacionit.
+   **CSS**: rregulli ≤ 360px pas bazës; ikonat e folderave pa `opacity .85` në temën e errët; "Fshi" i shiritit të zgjedhjes
+   lexohet në temën e errët (PC). **Workflows**: `!tel/**/*.md`, `!ora/**/*.md`; ndërtimi me `contents: read`, Release-i në punë
+   më vete (vetëm main). **Mbetur (s'u ndryshuan, kërkojnë vendim)**: çelësat e nënshkrimit të APK-ve janë në repo publik
+   (`tel/stoku-tel.jks`, `ora/stoku-ora.jks` + fjalëkalimet te build.gradle.kts): duhen kaluar te GitHub Secrets dhe ndërruar
+   (instalim i ri një herë); action-at e GitHub me SHA; `fshira` brenda kryesorit (kufiri 1 MB pas shumë fshirjeve);
+   rritja e `n` rishpërndan pjesët; transaksioni lexon krejt pjesët; indeksi i KV-së (`orari-indeksi`) me shkrime njëkohësisht;
+   rrëshqitja djathtas te ora mbyll aplikacionin nga ekranet e brendshme (do `SwipeToDismissBox`, kërkon provë në orë).
+   Testet: v216-njesi.js (22), v216-test.js (19), wp/v216-prova.mjs (21). U kontrollua edhe vetë ndryshimi me rishikim kodi.
 0000000. **RREGULLI I FTESËS (rregullat v216, pa ndryshim në aplikacion)**: te `grupet/{g}/anetaret/{u}` (create, roli
    'anetar' me ftesë) u shtua `&& !existsAfter(/databases/$(database)/documents/ftesat/$(g + '_' + emriIm()))`: ftesa duhet të
    fshihet në të njëjtin batch me hyrjen, që një ftesë e vjetër të mos përdoret dy herë (p.sh. pasi pronari e heq kolegun) nga

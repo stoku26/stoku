@@ -10,10 +10,10 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v215';
+var CACHE = 'stoku-v216';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
-importScripts('./afatet.js?v=215', './njoftimet.js?v=149');
+importScripts('./afatet.js?v=216', './njoftimet.js?v=216');
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.2/dist/iife/ponyfill.js',
@@ -24,19 +24,19 @@ var CDN_BIBLIOTEKA = [
 // Faqet: merren gjithmonë nga interneti (duke anashkaluar cache-in HTTP të shfletuesit)
 var FAQET = ['./', './index.html', './pc.html'];
 var SHELL = FAQET.concat([
-  './xlsx.js?v=212',
+  './xlsx.js?v=216',
   './bashkimi.js?v=144',
-  './ruajtja.js?v=110',
-  './afatet.js?v=215',
-  './ekipa.js?v=215',
+  './ruajtja.js?v=216',
+  './afatet.js?v=216',
+  './ekipa.js?v=216',
   './android.js?v=167',
   './porta.js?v=196',
-  './njoftimet.js?v=149',
-  './teRejat.js?v=215',
+  './njoftimet.js?v=216',
+  './teRejat.js?v=216',
   './manifest.webmanifest?v=85',
   './css/stoku-tokens.css?v=5',
-  './css/stoku.css?v=36',
-  './css/stoku-pc.css?v=28',
+  './css/stoku.css?v=37',
+  './css/stoku-pc.css?v=29',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',
   './logo/stoku-icon.svg?v=3',
@@ -63,22 +63,20 @@ async function mbushCacheEri() {
     for (var j = 0; j < teVjetrat.length; j++) { var r = await teVjetrat[j].match(url); if (r) return r; }
     return null;
   }
-  // 1) Faqet: gjithmonë të freskëta
-  for (var f = 0; f < FAQET.length; f++) {
-    var pf = await fetch(FAQET[f], { cache: 'reload' });
-    if (!pf || !pf.ok) throw new Error('instalimi dështoi: ' + FAQET[f]);
-    await c.put(FAQET[f], pf);
-  }
+  // 1) Faqet: gjithmonë të freskëta (krejt njëherësh, jo njëra pas tjetrës: instalimi më i shpejtë në internet të ngadaltë)
+  await Promise.all(FAQET.map(async function (u) {
+    var pf = await fetch(u, { cache: 'reload' });
+    if (!pf || !pf.ok) throw new Error('instalimi dështoi: ' + u);
+    await c.put(u, pf);
+  }));
   // 2) Skedarët e aplikacionit: të pandryshuarit kopjohen nga cache-i i vjetër, të rinjtë shkarkohen
-  for (var k = 0; k < SHELL.length; k++) {
-    var url = SHELL[k];
-    if (FAQET.indexOf(url) !== -1) continue;
+  await Promise.all(SHELL.filter(function (u) { return FAQET.indexOf(u) === -1; }).map(async function (url) {
     var eVjeter = await ngaCacheEVjeter(url);
-    if (eVjeter) { await c.put(url, eVjeter); continue; }
+    if (eVjeter) { await c.put(url, eVjeter); return; }
     var p = await fetch(url);
     if (!p || !p.ok) throw new Error('instalimi dështoi: ' + url);
     await c.put(url, p);
-  }
+  }));
   // 3) Bibliotekat e jashtme (kamera, barkodi, PDF): nëse dështojnë, aplikacioni prapë instalohet
   await Promise.all(CDN_BIBLIOTEKA.map(async function (u) {
     try {
@@ -112,7 +110,11 @@ self.addEventListener('fetch', function (e) {
   // Faqet (telefon = index.html, kompjuter = pc.html): provo internetin së pari (për përditësime),
   // pastaj kopjen e ruajtur të PO ASAJ faqeje — secila ruhet veç, që njëra të mos e zëvendësojë tjetrën.
   if (kerkesa.mode === 'navigate') {
-    var faqja = /\/pc(\.html)?$/.test(new URL(kerkesa.url).pathname) ? './pc.html' : './index.html';
+    // Vetëm faqet e aplikacionit (/, /index.html, /pc, /pc.html). Faqet e tjera (p.sh. android.html) kalojnë drejt në
+    // internet: përndryshe ruheshin në vend të index.html dhe pa internet hapej ajo faqe në vend të Stoku-t.
+    var rruga = new URL(kerkesa.url).pathname.slice(new URL(self.registration.scope).pathname.length);
+    var faqja = rruga === 'pc' || rruga === 'pc.html' ? './pc.html' : rruga === '' || rruga === 'index.html' ? './index.html' : null;
+    if (!faqja) return;
     e.respondWith(new Promise(function (zgjidh) {
       var uKthye = false;
       function kthe(r) { if (!uKthye && r) { uKthye = true; zgjidh(r); } }
@@ -209,7 +211,9 @@ self.addEventListener('notificationclick', function (e) {
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (dritaret) {
     for (var i = 0; i < dritaret.length; i++) {
       var d = dritaret[i];
-      var eshtePc = /\/pc(\.html)?$/.test(new URL(d.url).pathname);
+      // pc.html e fsheh emrin e vet nga adresa (stoku.site/#/...): njihet edhe nga "#/" (telefoni s'e përdor kurrë)
+      var u = new URL(d.url);
+      var eshtePc = /\/pc(\.html)?$/.test(u.pathname) || u.hash.indexOf('#/') === 0;
       if (eshtePc === perPc) {
         d.postMessage(mesazhi);
         return d.focus();

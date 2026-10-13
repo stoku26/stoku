@@ -116,6 +116,20 @@
     function refPjesa(i) { return fs.doc(db, 'dyqane', uidFn(), 'pjeset', 'p' + i); }
     function sLejohet(e) { return e && (e.code === 'permission-denied' || /permission/i.test(String(e.message || ''))); }
     function gabim(e) { return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) }; }
+    // Rregullat e vjetra (pa "pjeset") njihen vetëm kur kryesori lexohet, por pjesa p0 jo. Çdo "permission-denied" tjetër
+    // (p.sh. llogari e fshirë, hyrje e skaduar për një çast) s'e kalon faqen në mënyrën e vjetër me një dokument të vetëm
+    // (ajo do t'i fuste krejt produktet në kryesorin 1 MB dhe s'do t'i shihte më ndryshimet e pjesëve).
+    async function rregullaTeVjetra() {
+      try { await fs.getDoc(refKryesor()); } catch (e) { return false; }
+      try { await fs.getDoc(refPjesa(0)); return false; } catch (e) { return sLejohet(e); }
+    }
+    // Kryesori pa "koha" (bashkimi e vendos të re çdo herë): po s'ndryshoi gjë tjetër, s'rishkruhet
+    function kryesoriKanonik(k) {
+      if (!k) return null;
+      var o = {};
+      Object.keys(k).forEach(function (x) { if (x !== 'koha') o[x] = k[x]; });
+      return kanonik(o);
+    }
 
     async function merrPjeset(kryesori, merrFn) {
       var n = (kryesori && Number(kryesori.pjeset)) || 0;
@@ -133,7 +147,7 @@
         var pjeset = [];
         if (modaPjeseve) {
           try { pjeset = await merrPjeset(k, fs.getDoc); }
-          catch (e) { if (!sLejohet(e)) throw e; modaPjeseve = false; }
+          catch (e) { if (!sLejohet(e) || !(await rregullaTeVjetra())) throw e; modaPjeseve = false; }
         }
         return { ok: true, gjendja: bashkoPjeset(k, pjeset) };
       } catch (e) { return gabim(e); }
@@ -154,7 +168,9 @@
             var pjesetPara = teVjetrat.map(function (x) { return x.exists() ? x.data() : null; });
             var eRe = fnBashko(bashkoPjeset(k, pjesetPara));
             var nd = ndajNePjese(eRe, nPara);
-            tx.set(refKryesor(), nd.kryesori);
+            // Kryesori rishkruhet vetëm kur ndryshon (jo vetëm "koha"): përndryshe çdo sinkronizim pa ndryshime e
+            // shkruante dhe krejt pajisjet e tjera e shkarkonin e e bashkonin sërish krejt dyqanin pa arsye
+            if (!k || kryesoriKanonik(k) !== kryesoriKanonik(nd.kryesori)) tx.set(refKryesor(), nd.kryesori);
             nd.pjeset.forEach(function (pj, i) {
               var para = pjesetPara[i];
               if (!para || pjesaKanonike(para) !== pjesaKanonike(pj)) tx.set(refPjesa(i), pj); // vetëm pjesët që ndryshuan
@@ -163,7 +179,7 @@
           });
           return { ok: true, gjendja: g, modaPjeseve: true };
         } catch (e) {
-          if (!sLejohet(e)) return gabim(e);
+          if (!sLejohet(e) || !(await rregullaTeVjetra())) return gabim(e);
           modaPjeseve = false; // rregullat e vjetra: vazhdo si më parë, pa humbur asgjë
         }
       }
@@ -209,8 +225,10 @@
           kaPjese = true; pritje.p = s.metadata.hasPendingWrites;
           njofto();
         }, function (e) {
-          if (sLejohet(e)) { modaPjeseve = false; kaPjese = true; njofto(); return; }
-          if (cbGabim) cbGabim(e);
+          if (!sLejohet(e)) { if (cbGabim) cbGabim(e); return; }
+          rregullaTeVjetra().then(function (po) {
+            if (po) { modaPjeseve = false; kaPjese = true; njofto(); } else if (cbGabim) cbGabim(e);
+          });
         });
       }
       return function () { try { ndal1(); } catch (e) { /* ok */ } try { ndal2(); } catch (e) { /* ok */ } };

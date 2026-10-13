@@ -18,6 +18,18 @@
   'use strict';
 
   var LISTA = [
+    { v: 216, versioni: '1.22.2', data: '2026-10-11', titulli: 'Kontroll i plotë: rregullime në krejt Stoku-n', pikat: [
+      'Kamera: kur e mbyll ndërsa ende po hapet, s\'mbetet më e ndezur në sfond dhe s\'skanon më vetë.',
+      'Sasia: një barkod i skanuar gabimisht te fusha e sasisë s\'ruhet më si sasi; del paralajmërimi.',
+      'Butoni "Mbrapa" mbyll dritaren e sipërme (p.sh. "Zhvendos"), jo atë poshtë saj.',
+      'Edhe kur memoria e telefonit është plot, ndryshimet ruhen në cloud.',
+      'Grupi → Kolegët: teksti që po shkruan (ftesa, njoftimi për grupin) s\'fshihet më kur kolegët hyjnë ose dalin.',
+      'Afatet nga Excel: data "12.10" (që Excel-i e ruan si 12.1) lexohet 12 tetor; kolona "Furnitori" njihet vetë.',
+      'Pas daljes nga llogaria, pajisja s\'njofton më për afatet e saj.',
+      'Kompjuter: kutiza e rreshtit, kërkimi me skaner, "Zhbëj" (s\'prek folderat e krijuar më pas), importi i folderave me shkronja të mëdha ose të vogla dhe kërkimi pa ë/ç te Grupi dhe Cilësimet.',
+      'Ora: "Hiqi krejt" ruhet me një kërkesë të vetme, "Zhbëj" s\'ngatërrohet me heqjen dhe numrat në listë janë të saktë.',
+      'Aplikacioni Android: "Mbrapa" s\'të kthen më te faqja "S\'ka lidhje me internetin", dhe Stoku rihapet vetë nëse faqja rrëzohet.'
+    ] },
     { v: 215, versioni: '1.22.1', data: '2026-10-11', titulli: 'Kontroll i plotë: drejtshkrimi dhe disa rregullime', pikat: [
       'Tekstet u kontrolluan në krejt Stoku-n (telefon, kompjuter, ora): "Fshi" në vend të "Fshij", "furnizues" kudo, dhe numrat sipas njëjësit ose shumësit ("1 afat", "2 afate", "1 ka skaduar").',
       'Kur ndryshon një afat ekzistues (p.sh. vetëm sasinë), furnizuesi që e ka fshirë administratori s\'del më si "i ri".',

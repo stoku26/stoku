@@ -187,8 +187,9 @@
 .sb .ops-tema, .sb .ops-madhesia { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .sb .ops-madhesia { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .sb .ops-zgjedhja__emri { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-@media (max-width: 360px) { .sb .ops-tema { gap: 7px; } .sb .ops-tema button { padding: 8px 4px 9px; font-size: 11.5px; letter-spacing: -.01em; } }
 .sb .ops-tema button, .sb .ops-madhesia button { display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 10px 8px 11px; border-radius: 16px; border: 0; background: var(--sb-surface-2); box-shadow: inset 0 0 0 1.5px transparent; color: var(--sb-ink-3); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: box-shadow .15s, background .15s; }
+/* (pas rregullit bazë: me të njëjtën specifikë fiton i fundit) */
+@media (max-width: 360px) { .sb .ops-tema { gap: 7px; } .sb .ops-tema button { padding: 8px 4px 9px; font-size: 11.5px; letter-spacing: -.01em; } }
 .sb .ops-tema button.aktiv, .sb .ops-madhesia button.aktiv { background: var(--sb-accent-tint); box-shadow: inset 0 0 0 2px var(--sb-accent); color: var(--sb-accent-text); }
 .sb .ops-mock { position: relative; width: 100%; max-width: 84px; height: 66px; border-radius: 11px; overflow: hidden; display: flex; flex-direction: column; gap: 5px; padding: 8px 8px 0; box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
 .sb .ops-mock b { display: block; width: 46%; height: 6px; border-radius: 3px; margin-bottom: 2px; }
@@ -198,8 +199,7 @@
 .sb .ops-mock--dark { background: #0f1115; box-shadow: 0 0 0 1px rgba(255,255,255,.1); }
 .sb .ops-mock--dark b { background: #eceef2; } .sb .ops-mock--dark i { background: #1f232a; }
 .sb .ops-mock--auto { background: linear-gradient(90deg, #f6f5f2 50%, #0f1115 50%); }
-.sb .ops-mock--auto b { background: linear-gradient(90deg, #14161b 0 50%, transparent 50%); width: 92%; }
-.sb .ops-mock--auto b { background: linear-gradient(90deg, #14161b 0 46%, transparent 46% 54%, #eceef2 54% 100%); }
+.sb .ops-mock--auto b { background: linear-gradient(90deg, #14161b 0 46%, transparent 46% 54%, #eceef2 54% 100%); width: 92%; }
 .sb .ops-mock--auto i { background: linear-gradient(90deg, #fff 50%, #1f232a 50%); }
 .sb .ops-mock i:nth-of-type(1) { position: relative; }
 .sb .ops-mock i:nth-of-type(1)::after { content: ''; position: absolute; left: 4px; top: 4px; width: 8px; height: 8px; border-radius: 3px; background: #f0b95a; }
@@ -453,6 +453,7 @@ html.sb body { -webkit-user-select: none; user-select: none; -webkit-touch-callo
 
 /* Ikonat e folderave te kryefaqja (në vend të katrorëve me ngjyrë) */
 .sb .sb-folder__swatch.folder-ikona { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; opacity: 1; }
+:root.sb[data-tema="dark"] .sb-folder__swatch.folder-ikona { opacity: 1; } /* ngjyrat .ngj-* janë tashmë për temën e errët */
 .sb #dlgFolder .fl-ikonat-titull { margin-top: 4px; }
 
 /* Ekipa: "Kërko heqje nga rafti" (pulti) + butoni "E hoqa nga rafti" te njoftimet */

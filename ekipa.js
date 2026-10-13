@@ -170,7 +170,12 @@
       var te = op.te;
       if (ngaRadha && op.kohaEDergimit) te = Object.assign({}, te, { koha: Date.now() }); // chat-i: kur u dërgua vërtet
       var p;
-      try { p = fs.setDoc(fs.doc.apply(null, [db].concat(op.rruga, [op.id])), te); }
+      try {
+        var ref = fs.doc.apply(null, [db].concat(op.rruga, [op.id]));
+        if (op.perditeso) { // vetëm përditësim (një dokument i fshirë ndërkohë s'rikrijohet: "not-found" e heq nga radha)
+          var bp = fs.writeBatch(db); bp.update(ref, te); p = bp.commit();
+        } else p = fs.setDoc(ref, te);
+      }
       catch (e) { hiqNgaRadha(op.id); return Promise.resolve(gabim(e)); } // p.sh. rrugë e pavlefshme — s'riprovohet
       p = p.then(function () {
         hiqNgaRadha(op.id);
@@ -190,8 +195,11 @@
       neRruge[op.id] = p;
       return p;
     }
-    function shtoNeRadhe(rruga, te, kohaEDergimit) {
-      var op = { id: idERe(), rruga: rruga, te: pastro(te), kohaEDergimit: !!kohaEDergimit };
+    // opt (opsionale): { id, perditeso } = përditësim i një dokumenti ekzistues (p.sh. njoftimi i vet "u krye"), jo krijim
+    function shtoNeRadhe(rruga, te, kohaEDergimit, opt) {
+      opt = opt || {};
+      var op = { id: opt.id || idERe(), rruga: rruga, te: pastro(te), kohaEDergimit: !!kohaEDergimit };
+      if (opt.perditeso) op.perditeso = true;
       var l = lexoRadhen(); l.push(op); ruajRadhen(l);
       return { id: op.id, premtimi: dergoOp(op, false) };
     }
@@ -462,12 +470,34 @@
       try { await thirrOrarin({ pastro: ids }, '/ora/hequrat'); } catch (e) { /* ok */ }
     }
 
-    // Në dalje nga llogaria: kjo pajisje s'merr më njoftimet e kësaj llogarie
+    // Pret deri në `ms`; pa përgjigje (pa internet Firestore-i pret pa fund) vazhdon me `vleraPas`
+    function meAfat(premtimi, ms, vleraPas) {
+      return Promise.race([premtimi, new Promise(function (r) { setTimeout(function () { r(vleraPas); }, ms); })]);
+    }
+    // Në dalje nga llogaria: kjo pajisje s'merr më njoftimet e kësaj llogarie. S'e ndal daljen pa internet.
+    var KEY_ORARI_PASTRO = 'stoku:orari:pastro';
     async function caktivizoPush() {
       var o = orariIm();
-      if (o && o.aktiv) { try { await vendosOrarin({ aktiv: false }); } catch (e) { /* ok */ } }
+      if (o && o.aktiv) {
+        var r = null;
+        try { r = await meAfat(vendosOrarin({ aktiv: false }), 8000, null); } catch (e) { r = null; }
+        // Serveri s'u arrit: njoftimi ditor i kësaj llogarie do të vinte ende këtu. Hiqet kur të hyjë dikush tjetër
+        // (ose e njëjta llogari) në këtë pajisje: serveri e lidh pajisjen vetëm me llogarinë që e kërkon (pastroOrarinEJetim).
+        if (!r || !r.ok) shkruajLS(KEY_ORARI_PASTRO, { koha: Date.now() });
+      }
       shkruajLS(KEY_ORARI, null); shkruajLS(KEY_ORARI_AFATET, null);
-      await hiqPajisjenNgaGrupi();
+      try { await meAfat(hiqPajisjenNgaGrupi(), 5000); } catch (e) { /* ok */ }
+    }
+    // Pas një daljeje pa internet: orari i llogarisë së mëparshme për këtë pajisje hiqet nga serveri
+    async function pastroOrarinEJetim() {
+      if (!lexoLS(KEY_ORARI_PASTRO) || !uid() || !pushMbeshtetet() || typeof fetch !== 'function') return;
+      try {
+        var j = await pajisjaPush(false);
+        if (!j) { shkruajLS(KEY_ORARI_PASTRO, null); return; } // pa regjistrim njoftimesh s'vjen asgjë këtu
+        var o = orariIm(); // pa orar këtu: edhe orari i vetë kësaj llogarie për këtë pajisje hiqet (fikja s'kishte arritur)
+        var r = await thirrOrarin({ pastroPajisjen: true, edheTimin: !(o && o.aktiv), pajisja: j });
+        if (r && r.ok && r.pastruar !== undefined) shkruajLS(KEY_ORARI_PASTRO, null); // (serveri i vjetër s'e njeh: provohet sërish)
+      } catch (e) { /* provohet herën tjetër */ }
     }
     // Kjo pajisje s'merr më chat-in/kërkesat e grupit (dalja nga llogaria ose largimi nga grupi)
     async function hiqPajisjenNgaGrupi() {
@@ -508,7 +538,17 @@
     var GRUPI_I_VJETER = 'ekipa';
     function anetaresiaERe(roli) { return { emri: emri(), roli: roli, hyriSe: Date.now(), aktivSe: Date.now(), online: true, platforma: platforma }; }
     function vendosTreguesin(g) { return fs.setDoc(fs.doc(db, 'perdoruesit', uid()), { grupi: g || '' }, { merge: true }); }
-    async function provoGrupinEVjeter() {
+    // Dy thirrje njëherësh (p.sh. dëgjuesi i perdoruesit/{uid} ndizet dy herë në hyrje) ndajnë të njëjtin premtim:
+    // përndryshe e dyta e shihte krijimin e të parës si "s'lejohet" dhe e kthente treguesin e grupit në ''.
+    var provaEVjeter = null;
+    function provoGrupinEVjeter() {
+      var u0 = uid();
+      if (provaEVjeter && provaEVjeter.uid === u0) return provaEVjeter.p;
+      var p = provoGrupinEVjeterNjeHere().then(function (r) { if (provaEVjeter && provaEVjeter.p === p) provaEVjeter = null; return r; });
+      provaEVjeter = { uid: u0, p: p };
+      return p;
+    }
+    async function provoGrupinEVjeterNjeHere() {
       var u0 = uid();
       if (!u0) return null;
       var g = '';
@@ -521,7 +561,11 @@
         try { ishte = (await fs.getDoc(fs.doc(db, 'ekipa_anetaret', u0))).exists(); } catch (e) { /* s'ka grup të vjetër */ }
         if (ishte) {
           try { await fs.setDoc(fs.doc(db, 'grupet', GRUPI_I_VJETER, 'anetaret', u0), anetaresiaERe('anetar')); g = GRUPI_I_VJETER; }
-          catch (e) { if (!eshteLeje(e)) return null; }
+          catch (e) {
+            if (!eshteLeje(e)) return null;
+            // "S'lejohet" sepse anëtarësia ekziston tashmë (e krijoi një pajisje tjetër ndërkohë)?
+            try { if ((await fs.getDoc(fs.doc(db, 'grupet', GRUPI_I_VJETER, 'anetaret', u0))).exists()) g = GRUPI_I_VJETER; } catch (e2) { return null; }
+          }
         }
       }
       try { await vendosTreguesin(g); } catch (e) { return null; }
@@ -562,13 +606,37 @@
           await fshijFtesatEGrupit(g);
           try { await fs.deleteDoc(fs.doc(db, 'grupet', g)); } catch (e) { /* ok */ }
         }
-        await fs.deleteDoc(fs.doc(db, 'grupet', g, 'anetaret', uid()));
-        // Grupi i vjetër: pa këtë, rihyrja te "ekipa" do të lejohej pa ftesë
-        if (g === GRUPI_I_VJETER) { try { await fs.deleteDoc(fs.doc(db, 'ekipa_anetaret', uid())); } catch (e) { /* ok */ } }
+        // Grupi i vjetër: edhe ekipa_anetaret, në të njëjtin batch (pa të, rihyrja te "ekipa" do të lejohej pa ftesë)
+        await fshijAnetaresine(g, uid());
         if (!paTregues) await vendosTreguesin('');
         grupi = null;
         return { ok: true };
       } catch (e) { return gabim(e); } finally { veprimeNeGrup--; }
+    }
+    // Heq anëtarësinë e u-së te grupi g. Te grupi i vjetër "ekipa" fshihet bashkë (një batch) edhe ekipa_anetaret/{u}:
+    // nëse kjo e dyta humbiste (p.sh. faqja u mbyll para dërgimit), kolegu i hequr rihynte vetë pa ftesë (v216).
+    // Ndryshim te anëtarësia e dikujt tjetër: me "update" (batch), që dështon kur anëtari s'është më në grup. setDoc me
+    // merge do ta rikrijonte anëtarësinë e një kolegu që sapo doli/u hoq (administratori ka leje krijimi).
+    async function perditesoAnetarin(u, te) {
+      try {
+        var b = fs.writeBatch(db);
+        b.update(fs.doc(db, 'grupet', grupi, 'anetaret', u), te);
+        await b.commit();
+        return { ok: true };
+      } catch (e) { return gabim(e); }
+    }
+    async function fshijAnetaresine(g, u) {
+      var ref = fs.doc(db, 'grupet', g, 'anetaret', u);
+      if (g !== GRUPI_I_VJETER) { await fs.deleteDoc(ref); return; }
+      try {
+        var b = fs.writeBatch(db);
+        b.delete(ref);
+        b.delete(fs.doc(db, 'ekipa_anetaret', u));
+        await b.commit();
+      } catch (e) {
+        if (!eshteLeje(e)) throw e;
+        await fs.deleteDoc(ref); // rregullat e vjetra s'e lejojnë ekipa_anetaret: të paktën anëtarësia hiqet
+      }
     }
     async function kopjoKoleksionin(kolVjeter, kolRi, n, rendit) {
       var q = rendit ? fs.query(fs.collection(db, kolVjeter), fs.orderBy('koha', 'desc'), fs.limit(n)) : fs.query(fs.collection(db, kolVjeter), fs.limit(n));
@@ -714,8 +782,7 @@
       hiqNgaGrupi: async function (u) {
         if (!grupi || !u || u === uid()) return { ok: false };
         try {
-          await fs.deleteDoc(fs.doc(db, 'grupet', grupi, 'anetaret', u));
-          if (grupi === GRUPI_I_VJETER) { try { await fs.deleteDoc(fs.doc(db, 'ekipa_anetaret', u)); } catch (e) { /* ok */ } }
+          await fshijAnetaresine(grupi, u);
           try { await fs.deleteDoc(fs.doc(db, 'grupet', grupi, 'afatet', u)); } catch (e) { /* ok */ }
           try {
             var s = await fs.getDocs(fs.query(fs.collection(db, 'grupet', grupi, 'push'), fs.where('uid', '==', u)));
@@ -728,12 +795,12 @@
       // Pronari: 'pronar' | 'anetar'
       ndryshoRolin: async function (u, roli) {
         if (!grupi) return { ok: false };
-        try { await fs.setDoc(fs.doc(db, 'grupet', grupi, 'anetaret', u), { roli: roli === 'pronar' ? 'pronar' : 'anetar' }, { merge: true }); return { ok: true }; } catch (e) { return gabim(e); }
+        return perditesoAnetarin(u, { roli: roli === 'pronar' ? 'pronar' : 'anetar' });
       },
       // Pronari: leja e butonave +/- (sasia e shpejtë) për një anëtar të grupit
       vendosLejen: async function (u, po) {
         if (!grupi) return { ok: false };
-        try { await fs.setDoc(fs.doc(db, 'grupet', grupi, 'anetaret', u), { sasiaShpejte: !!po }, { merge: true }); return { ok: true }; } catch (e) { return gabim(e); }
+        return perditesoAnetarin(u, { sasiaShpejte: !!po });
       },
 
       // Anëtarët e grupit me praninë, në kohë reale
@@ -804,6 +871,14 @@
         if (grupi && grupi !== gU) { try { await fs.deleteDoc(fs.doc(db, 'grupet', grupi, 'anetaret', u)); } catch (e) { /* ok */ } }
         try { await fs.deleteDoc(fs.doc(db, 'ekipa_anetaret', u)); } catch (e) { /* ok */ }
         try { await fs.deleteDoc(fs.doc(db, 'ekipa_afatet', u)); } catch (e) { /* ok */ }
+        // Ftesat në pritje për këtë emër: emri lirohet, dhe një llogari e re me të njëjtin emër s'duhet t'i gjejë
+        if (emriTjeter) {
+          try {
+            var sf = await fs.getDocs(fs.query(fs.collection(db, 'ftesat'), fs.where('perdoruesi', '==', emriTjeter)));
+            var ff = []; sf.forEach(function (d) { ff.push(d.id); });
+            for (var k = 0; k < ff.length; k++) await fshij(fs.doc(db, 'ftesat', ff[k]));
+          } catch (e) { /* ok */ }
+        }
         await fshijKoleksionin(['dyqane', u, 'pjeset']);
         await fshijKoleksionin(['dyqane', u, 'fletet']);
         await fshij(fs.doc(db, 'dyqane', u));
@@ -877,8 +952,10 @@
       kryejKerkesen: async function (nj) {
         if (!uid() || !nj || !nj.id) return { ok: false };
         var koha = Date.now();
-        try { await fs.setDoc(fs.doc(db, 'perdoruesit', uid(), 'njoftimet', nj.id), { kryer: true, kryerSe: koha, lexuar: true }, { merge: true }); }
-        catch (e) { if (!/unavailable|deadline/.test(String(e && e.code))) return gabim(e); }
+        // Pa internet Firestore-i s'kthen gabim, pret pa fund: shënimi kalon nga radha (pritet pak, pastaj vazhdohet;
+        // dërgohet edhe nëse aplikacioni mbyllet para se të kthehet interneti)
+        var r0 = await pritPak(shtoNeRadhe(['perdoruesit', uid(), 'njoftimet'], { kryer: true, kryerSe: koha, lexuar: true }, false, { id: nj.id, perditeso: true }));
+        if (!r0.ok && !/not-found/.test(String(r0.kodi))) return r0; // njoftimi u fshi ndërkohë: vazhdohet
         if (!grupi) return { ok: true };
         var te = { kerkeseId: nj.kerkeseId || '', produkti: nj.produkti || '', barkodi: nj.barkodi || '', produktet: listaEKerkeses(nj) };
         if (nj.uid && nj.uid !== uid()) shtoNeRadhe(['perdoruesit', nj.uid, 'njoftimet'], Object.assign({ lloji: 'kerkese-kryer', grupi: grupi, uid: uid(), emri: emri(), koha: koha, lexuar: false }, te));
@@ -889,8 +966,8 @@
       vendosPerHeqjen: async function (nj, pranoj) {
         if (!uid() || !nj || !nj.id) return { ok: false };
         var koha = Date.now(), lloji = pranoj ? 'heqje-pranuar' : 'heqje-refuzuar';
-        try { await fs.setDoc(fs.doc(db, 'perdoruesit', uid(), 'njoftimet', nj.id), { vendim: pranoj ? 'pranuar' : 'refuzuar', vendosurSe: koha, lexuar: true }, { merge: true }); }
-        catch (e) { if (!/unavailable|deadline/.test(String(e && e.code))) return gabim(e); }
+        var r0 = await pritPak(shtoNeRadhe(['perdoruesit', uid(), 'njoftimet'], { vendim: pranoj ? 'pranuar' : 'refuzuar', vendosurSe: koha, lexuar: true }, false, { id: nj.id, perditeso: true }));
+        if (!r0.ok && !/not-found/.test(String(r0.kodi))) return r0; // njoftimi u fshi ndërkohë: vazhdohet
         if (!grupi) return { ok: true };
         var te = { afatId: nj.afatId || '', produkti: nj.produkti || '', barkodi: nj.barkodi || '', data: nj.data || '' };
         if (nj.uid && nj.uid !== uid()) shtoNeRadhe(['perdoruesit', nj.uid, 'njoftimet'], Object.assign({ lloji: lloji, grupi: grupi, uid: uid(), emri: emri(), koha: koha, lexuar: false }, te));
@@ -941,7 +1018,7 @@
       // ---------- Njoftimet push ----------
       pushMbeshtetet: pushMbeshtetet,
       aktivizoPush: aktivizoPush,
-      caktivizoPush: caktivizoPush,
+      caktivizoPush: caktivizoPush, pastroOrarinEJetim: pastroOrarinEJetim,
       pushAktiv: pushAktiv, pushPerNjoftimet: pushPerNjoftimet,
       orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 161,
 
@@ -1011,7 +1088,17 @@
           ids.slice(0, 400).forEach(function (id) { b.update(fs.doc(db, 'perdoruesit', uid(), 'njoftimet', id), { lexuar: true }); });
           await b.commit();
           return { ok: true };
-        } catch (e) { return gabim(e); }
+        } catch (e) {
+          if (!/not-found/.test(String(e && e.code))) return gabim(e);
+          // Një njoftim u fshi ndërkohë (p.sh. nga pajisja tjetër): të tjerët shënohen një nga një
+          var gab = null;
+          await Promise.all(ids.slice(0, 400).map(function (id) {
+            var b1 = fs.writeBatch(db);
+            b1.update(fs.doc(db, 'perdoruesit', uid(), 'njoftimet', id), { lexuar: true });
+            return b1.commit().catch(function (e2) { if (!/not-found/.test(String(e2 && e2.code))) gab = e2; });
+          }));
+          return gab ? gabim(gab) : { ok: true };
+        }
       },
       // v211: secili i fshin njoftimet e veta (rregullat e lejojnë fshirjen për pronarin e listës)
       fshijNjoftimet: async function (ids) {
@@ -1519,6 +1606,9 @@
       if (gj.admin && gj.anetaresia === 'pa-grup') migroNeseDuhet();
       if (hapur) { hap(); if (chati) hapChatin(); }
       else thirr('te-gjitha');
+      // Grupi ndryshoi: përmbledhja ime e afateve i dërgohet edhe grupit të ri
+      publikimi.nenshkrimi = null;
+      if (gjendjaEQasjes() === 'ok' && gj.grupi && publikimi.afatet) { clearTimeout(publikimi.kohez); publikimi.kohez = setTimeout(publikoTani, 1500); }
     }
     // Grupi i ri vendoset menjëherë (pa pritur dëgjuesin e Firestore-it, që e konfirmon pak më vonë)
     function aplikoGrupin(g, roli, emriG) {
@@ -1765,6 +1855,7 @@
       lexoFurnizuesitPublike(true); // v211: sugjerimet e furnizuesit (edhe pa grup)
       e.nisPranine();
       if (e.dergoRadhen) e.dergoRadhen(); // aktiviteti/chat-i/njoftimet që mbetën pa u dërguar herën e kaluar
+      if (e.pastroOrarinEJetim) e.pastroOrarinEJetim();
       if (e.degjoGrupin) {
         d.anetaresia = e.degjoGrupin(function (r) {
           if (r.gjendja === 'gabim') return; // pa internet: mbetet gjendja e fundit e ditur
@@ -2004,7 +2095,8 @@
       var e = E();
       if (!e || !e.publikoAfatet || !o.uidIm() || !publikimi.afatet || Date.now() < publikimi.bllokuarDeri) return;
       var p = permbledhjaEAfateve(publikimi.afatet);
-      var n = o.uidIm() + '|' + (o.emriIm() || '') + '|' + nenshkrimi(p);
+      // Me grupin brenda: pas kalimit në një grup tjetër përmbledhja dërgohet sërish (përndryshe kolegët e rinj s'e shihnin)
+      var n = o.uidIm() + '|' + (gj.grupi || '') + '|' + (o.emriIm() || '') + '|' + nenshkrimi(p);
       if (n === publikimi.nenshkrimi || n === lexo(KEY_PUBLIKUAR)) { publikimi.nenshkrimi = n; return; }
       var r = await e.publikoAfatet(p);
       if (r && r.ok) { publikimi.nenshkrimi = n; shkruaj(KEY_PUBLIKUAR, n); }

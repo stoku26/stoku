@@ -192,12 +192,15 @@
   }
 
   function emriFletes(emri, zene) {
-    var baza = String(emri || 'Fleta').replace(/[\[\]:*?\/\\]/g, ' ').replace(/^'+|'+$/g, '').replace(/\s+/g, ' ').trim() || 'Fleta';
-    baza = baza.slice(0, 31);
+    // Excel-i s'e pranon apostrofin në fillim ose në fund të emrit: hiqet pas shkurtimit (përndryshe "…'Coca Cola'" i
+    // shkurtuar në 31 shkronja mbaronte me "'" dhe Excel-i e quante skedarin të dëmtuar)
+    function pastroSkajet(t) { return t.replace(/^[\s']+|[\s']+$/g, ''); }
+    var baza = pastroSkajet(String(emri || 'Fleta').replace(/[\[\]:*?\/\\]/g, ' ').replace(/\s+/g, ' ')) || 'Fleta';
+    baza = pastroSkajet(baza.slice(0, 31)) || 'Fleta';
     var e = baza, n = 2;
     while (zene[e.toLowerCase()]) {
       var prapashtese = ' (' + n + ')';
-      e = baza.slice(0, 31 - prapashtese.length) + prapashtese;
+      e = (pastroSkajet(baza.slice(0, 31 - prapashtese.length)) || 'Fleta') + prapashtese;
       n++;
     }
     zene[e.toLowerCase()] = true;
@@ -423,7 +426,9 @@
       if (h.metoda === 0) return dec.decode(te);
       if (h.metoda !== 8) throw new Error('kompresim-i-panjohur');
       if (typeof DecompressionStream === 'undefined') throw new Error('pa-dekompresim');
-      var rrjedha = new Blob([te]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      var dek;
+      try { dek = new DecompressionStream('deflate-raw'); } catch (e) { throw new Error('pa-dekompresim'); } // Chrome < 103, Safari < 16.4
+      var rrjedha = new Blob([te]).stream().pipeThrough(dek);
       return await new Response(rrjedha).text();
     }
     return { emrat: Object.keys(hyrjet), lexo: lexo };
