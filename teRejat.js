@@ -18,6 +18,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 219, versioni: '1.23.2', data: '2026-10-13', titulli: 'Serveri i njoftimeve u përditësua', pikat: [
+      'Njoftimi ditor i afateve provohet sërish (deri në 3 herë) kur dështon dërgimi, në vend që dita të humbasë.',
+      'Ora: kur shkëputet një orë, orët e tjera të lidhura me të njëjtën llogari mbeten të lidhura.',
+      'Kur e njëjta pajisje kalon në një llogari tjetër, njoftimi ditor i llogarisë së mëparshme s\'vjen më aty.'
+    ] },
     { v: 218, versioni: '1.23.1', data: '2026-10-13', titulli: 'Faqja e hyrjes: tekste më të qarta', pikat: [
       'Nën "Hyr" tash shkruan që rekomandohet hapja e një llogarie, që të dhënat të ruhen në cloud.',
       'Nën "Hyr si vizitor" shkruan qartë që vizitori e sheh si funksionon Stoku, por të dhënat e tij nuk ruhen në cloud.'

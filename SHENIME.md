@@ -50,6 +50,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **WORKER 162 NË CLOUDFLARE (v219 = 1.23.2)**: pronari e ngjiti Worker-in 162 (adresa e Worker-it tregon
+   `"versioni":162`), prandaj aplikacioni tash e pret 162 (`ekipa.js` `VERSIONI_WORKER: 162`): te Cilësimet → Njoftimet, statusi i
+   njoftimit ditor paralajmëron "Serveri (Cloudflare) ka kodin e vjetër" kur serveri është më i vjetër se 162 (për 161 pa arsye
+   shtesë në tekst). Veçoritë e 162 (Cron me deri në 3 prova, `/ora/hiq` me `ids`, `ora-ka` si listë, `/orari` heq oraret e
+   llogarive të tjera të së njëjtës pajisje) tash punojnë. `orari-test.js`: serveri "i ri" në provë = 162, plus 161 → paralajmërim.
 0000000. **PORTA: TEKSTET NËN "HYR" DHE "HYR SI VIZITOR" (v218 = 1.23.1)**: me kërkesën e pronarit, `#pkShenim` (tabi "Hyr")
    = "Rekomandohet hapja e një llogarie, që të dhënat të ruhen në cloud." (tabi "Krijo llogari" i mban rregullat e emrit dhe
    fjalëkalimit); `#pkVizitorShenim` = "Hyr si vizitor për të parë si funksionojnë shërbimet e Stoku-t (kujdes: të dhënat nuk
