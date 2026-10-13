@@ -50,6 +50,22 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **FJALËKALIMI I HARRUAR (v220 = 1.24.0, Worker 163)**: llogaritë janë `emri@stoku-app.local` (pa email të vërtetë),
+   prandaj Firebase s'dërgon dot link rikthimi. **Porta** (`porta.js`): "Ke harruar fjalëkalimin?" (vetëm te "Hyr") hap
+   `#pkRiv` me tre hapa: emri → `POST /fjalekalimi/kerko`; kodi 6-shifror → `/verifiko`; fjalëkalimi i ri dy herë →
+   `/ndrysho`, pastaj `cloud.hyr` me fjalëkalimin e ri (+ `ruajKredencialet`), pjesa tjetër si te hyrja e zakonshme. Me
+   `gjendja.rivendosje`, `kontrollo` (pa përdorues) dhe `shfaqFormen` s'e mbulojnë; `mbyll()` e mbyll. Worker-i i vjetër
+   (401 `pa-hyrje` / 404 `rruga`) → "s'është aktivizuar ende te serveri". **Worker 163** (`trajtoFjalekalimin`, para
+   kontrollit të tokenit): `tokeniAdmin` = llogaria e shërbimit `FCM_SA` me scope `cloud-platform` (Identity Toolkit
+   `accounts:lookup`/`accounts:update` + Firestore pa rregullat e aplikacionit). `kerko`: llogaria ekziston (jo e
+   çaktivizuar, jo `ekipa_fshire`); një kërkesë aktive për llogari (`rivendosjet/{emri}`: `uid`, `hash` = SHA-256(uid:kodi),
+   `skadon` 30 min, `provat`); kodi i ri vetëm pasi të skadojë i vjetri (edhe pas 5 provave); njoftimi
+   `perdoruesit/{admin}/njoftimet/fj…` (`lloji: 'fjalekalimi'`, me kodin) + push te pajisjet e administratorit
+   (`grupet/{grupi}/push`, FCM + Web Push). `verifiko`/`ndrysho`: 5 prova, `skadoi` 410, `shume-prova` 429; `ndrysho`
+   (6 deri 100 shenja, `WEAK_PASSWORD` → `i-dobet`) fshin kodin dhe i lë administratorit shënimin "e vendosi fjalëkalimin
+   e ri" (pa push). Koleksioni `rivendosjet` s'ka rregull: aplikacioni s'e lexon (rregullat s'ndryshojnë). `ekipa.js`:
+   titulli "Stoku · Fjalëkalimi", `VERSIONI_WORKER: 163`. Provat: `wp/fjalekalimi-prova.mjs` (Worker, 35),
+   `rivendos-test.js` (porta tel + PC, 24). Nëse e harron vetë administratori, kodi i vjen te pajisjet e tij ku është ende i kyçur.
 0000000. **VULA E RE E APK-VE (telefoni + ora, pa version të web-it)**: çelësat e vjetër (`tel/stoku-tel.jks`,
    `ora/stoku-ora.jks`, fjalëkalimet te `build.gradle.kts`) janë publikë, prandaj u shtua ndërrimi me APK Signature Scheme v3.
    **Një herë**: workflow-i "Çelësat e rinj të APK-ve (një herë)" (`apk-celesat.yml`, vetëm me dorë) thërret
