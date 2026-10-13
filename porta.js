@@ -142,7 +142,7 @@
     '  box-shadow: var(--sb-shadow-accent, none); }',
     '#porta .pk-btn:active { background: var(--sb-accent-press, #16479a); }',
     '#porta .pk-btn:disabled { opacity: .7; cursor: default; }',
-    '#porta .pk-shenim { margin: 16px 2px 0; font-size: 12.5px; color: var(--sb-muted, #7a7d85); line-height: 1.5; text-align: center; }',
+    '#porta .pk-shenim { margin: 16px 2px 0; font-size: 12.5px; color: var(--sb-muted, #7a7d85); line-height: 1.5; text-align: center; text-wrap: balance; }',
     '#porta .pk-pritje { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 18px 0 8px; font-size: 15px; text-align: center; }',
     '#porta .pk-rrotull { width: 28px; height: 28px; border: 3px solid var(--sb-accent-line, #d6e2f5);',
     '  border-top-color: var(--sb-accent, #1f5fc4); border-radius: 50%; animation: pkRrotull .8s linear infinite; }',
@@ -192,10 +192,10 @@
         '<label class="pk-mbaj" for="pkMbaj"><input type="checkbox" id="pkMbaj"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Më mbaj mend emrin e përdoruesit</div></label>' +
         '<div class="pk-gabim" id="pkGabim" role="alert"></div>' +
         '<button type="submit" class="pk-btn" id="pkDergo">Hyr</button>' +
-        '<p class="pk-shenim" id="pkShenim">Hyr me llogarinë e dyqanit. Të dhënat sinkronizohen vetë në telefon, PDA dhe kompjuter.</p>' +
+        '<p class="pk-shenim" id="pkShenim">Rekomandohet hapja e një llogarie, që të dhënat të ruhen në cloud.</p>' +
         '<div class="pk-ose">ose</div>' +
         '<button type="button" class="pk-btn pk-dyte" id="pkVizitor">Hyr si vizitor</button>' +
-        '<p class="pk-shenim" id="pkVizitorShenim">Provo Stoku-n pa llogari, me disa produkte shembull. Gjithçka mbetet vetëm në këtë pajisje.</p>' +
+        '<p class="pk-shenim" id="pkVizitorShenim">Hyr si vizitor për të parë si funksionojnë shërbimet e Stoku-t (kujdes: të dhënat nuk ruhen në cloud).</p>' +
         '<div class="pk-viz-konf pk-fsheh" id="pkVizKonf" role="alert">' +
           '<p id="pkVizKonfTekst"></p>' +
           '<div class="pk-rresht"><button type="button" class="pk-btn pk-dyte" id="pkVizJo">Anulo</button><button type="button" class="pk-btn" id="pkVizPo">Vazhdo si vizitor</button></div>' +
@@ -240,7 +240,7 @@
     $('pkDergo').textContent = krijo ? 'Krijo llogarinë' : 'Hyr';
     $('pkShenim').textContent = krijo
       ? 'Emri: të paktën 3 shkronja ose numra (a–z, 0–9, _ . -). Fjalëkalimi: të paktën 6 shenja. Mbaje mend, të duhet në çdo pajisje.'
-      : 'Hyr me llogarinë e dyqanit. Të dhënat sinkronizohen vetë në telefon, PDA dhe kompjuter.';
+      : 'Rekomandohet hapja e një llogarie, që të dhënat të ruhen në cloud.';
     $('pkGabim').textContent = '';
   }
   $('pkTabHyr').addEventListener('click', function () { vendosModalitetin('hyr'); $('pkEmri').focus(); });
@@ -281,8 +281,8 @@
   function rifreskoVizitorin() {
     var vazhdo = provaEkziston();
     $('pkVizitor').textContent = vazhdo ? 'Vazhdo provën si vizitor' : 'Hyr si vizitor';
-    $('pkVizitorShenim').textContent = vazhdo ? 'Prova jote pa llogari është ende në këtë pajisje.'
-      : 'Provo Stoku-n pa llogari, me disa produkte shembull. Gjithçka mbetet vetëm në këtë pajisje.';
+    $('pkVizitorShenim').textContent = vazhdo ? 'Prova jote si vizitor është ende në këtë pajisje (kujdes: të dhënat nuk ruhen në cloud).'
+      : 'Hyr si vizitor për të parë si funksionojnë shërbimet e Stoku-t (kujdes: të dhënat nuk ruhen në cloud).';
     $('pkVizKonf').classList.add('pk-fsheh');
     $('pkVizitor').classList.remove('pk-fsheh');
   }
