@@ -8,21 +8,21 @@
  *       grupet/{g}/anetaret/{uid}      → anëtarët + prania (roli 'pronar'|'anetar', aktivSe, online, platforma, sasiaShpejte)
  *       grupet/{g}/afatet/{uid}        → përmbledhja e afateve të secilit (vetëm afatet, jo stoku) — kolegët
  *                                        lexojnë këtë, jo dyqanin e plotë (dyqane/{uid} mbetet vetëm i pronarit)
- *       grupet/{g}/feed, grupet/{g}/chat, grupet/{g}/push → aktiviteti, chat-i, pajisjet për njoftimet push
+ *       grupet/{g}/feed, grupet/{g}/push → aktiviteti, pajisjet për njoftimet push
  *       ftesat/{g}_{emri}              → ftesa e pronarit të grupit për një emër përdoruesi; i ftuari e pranon (ose jo)
  *       perdoruesit/{uid}.grupi        → treguesi i grupit (qasjen e jep vetëm anëtarësia te grupet/{g}/anetaret)
  *       perdoruesit/{uid}/njoftimet    → njoftimet personale (me `grupi`: vetëm brenda të njëjtit grup)
- *     Grupi i vjetër (ekipa_anetaret, ekipa_feed, ekipa_chat…) kalon te grupi "ekipa": administratori e krijon dhe i
+ *     Grupi i vjetër (ekipa_anetaret, ekipa_feed…) kalon te grupi "ekipa": administratori e krijon dhe i
  *     kopjon historikun; anëtarët e pranuar më parë hyjnë vetë.
  *     Dyqani i secilit (dyqane/{uid}) mbetet i PRONARIT: askush tjetër s'shkruan aty. Kur një koleg e heq nga
  *     rafti një afat të skaduar të dikujt tjetër, i dërgon pronarit një njoftim; aplikacioni i pronarit e zbaton
  *     vetë (vetëm nëse afati ka skaduar vërtet dhe s'është ndryshuar pas heqjes).
- *     Aktiviteti, chat-i dhe njoftimet kalojnë nga një radhë lokale (localStorage): pa internet s'humbin, dërgohen
+ *     Aktiviteti dhe njoftimet kalojnë nga një radhë lokale (localStorage): pa internet s'humbin, dërgohen
  *     sapo të ketë lidhje — edhe nëse aplikacioni mbyllet ndërkohë.
  *     Anëtarësia: një llogari e re s'sheh askënd derisa të krijojë grupin e vet ose të pranojë një ftesë.
  *  2. Funksione të pastra (pa DOM, testohen me node): koha relative, prania, mbivendosja e heqjeve,
  *     kalendari, statistikat, teksti i aktivitetit.
- *  3. krijoKontrollues(o) — mban gjendjen e grupit (anëtarët, afatet e secilit, aktivitetin, chat-in,
+ *  3. krijoKontrollues(o) — mban gjendjen e grupit (anëtarët, afatet e secilit, aktivitetin,
  *     njoftimet) dhe dëgjuesit; faqja (telefon/PC) vetëm e vizaton kur thirret o.ndryshoi(…).
  */
 (function (root) {
@@ -34,7 +34,7 @@
   var PERMBLEDHJA_HEQUR_DITE = 40; // të hequrat e kaq ditëve të fundit hyjnë te përmbledhja (statistikat e muajit)
   var PERMBLEDHJA_MAKS = 700 * 1024; // larg kufirit 1 MB të një dokumenti
   var RADHA_MAKS = 200;
-  // Njoftimet push të chat-it (worker/stoku-push.js te Cloudflare). Çelësi publik VAPID: çifti i tij privat është
+  // Njoftimet push të Grupit (worker/stoku-push.js te Cloudflare). Çelësi publik VAPID: çifti i tij privat është
   // vetëm te Worker-i (VAPID_PRIVATE). Pa Worker-in (ose pa leje për njoftime) punohet si më parë.
   var PUSH_URL = 'https://stoku-push.mendurb.workers.dev';
   var PUSH_VAPID = 'BJ_OXYJsYC00MdMvM1z5WICalHw1CVDrDqNdIxi6zXLd7xIDXlxxCvi7qT9mA-o00zT5PRWGkI50UMMImh5DNyc';
@@ -154,7 +154,7 @@
     function vendosGrupin(g) { grupi = g || null; }
     function rrG(k) { return ['grupet', grupi, k]; }
 
-    // ---------- Radha e dërgimit (aktiviteti, chat-i, njoftimet) ----------
+    // ---------- Radha e dërgimit (aktiviteti, njoftimet) ----------
     // Çdo shkrim merr një id të caktuar dhe ruhet te localStorage derisa serveri ta pranojë. Pa internet, SDK-ja e
     // mban vetë sa kohë faqja është e hapur; nëse aplikacioni mbyllet para kësaj, dërgohet në hapjen tjetër.
     // Rregullat lejojnë vetëm krijimin, prandaj një dërgim i dytë i së njëjtës id refuzohet — s'ka dyfishime.
@@ -165,10 +165,9 @@
     }
     function ruajRadhen(l) { try { localStorage.setItem(celesiRadhes(), JSON.stringify(l.slice(-RADHA_MAKS))); } catch (e) { /* ok */ } }
     function hiqNgaRadha(id) { if (uid()) ruajRadhen(lexoRadhen().filter(function (x) { return x.id !== id; })); }
-    function dergoOp(op, ngaRadha) {
+    function dergoOp(op) {
       if (neRruge[op.id]) return neRruge[op.id];
       var te = op.te;
-      if (ngaRadha && op.kohaEDergimit) te = Object.assign({}, te, { koha: Date.now() }); // chat-i: kur u dërgua vërtet
       var p;
       try {
         var ref = fs.doc.apply(null, [db].concat(op.rruga, [op.id]));
@@ -181,7 +180,6 @@
         hiqNgaRadha(op.id);
         // kolegët e marrin njoftimin edhe me aplikacion të mbyllur
         var g0 = op.rruga[0] === 'grupet' ? op.rruga[1] : '', lloji0 = op.rruga[0] === 'grupet' ? op.rruga[2] : op.rruga[0];
-        if (lloji0 === 'chat' || lloji0 === 'ekipa_chat') njoftoPushChat(op.id, g0);
         if ((lloji0 === 'feed' || lloji0 === 'ekipa_feed') && /^kerkese-/.test(op.te.lloji)) njoftoPushKerkese(op.id, g0);
         // v195: njoftimi personal te një koleg (heqja që pret miratimin, pranimi/refuzimi, administratori, njoftimi për krejt grupin)
         if (op.rruga[0] === 'perdoruesit' && op.rruga[2] === 'njoftimet' && op.te.grupi && !/^kerkese-/.test(op.te.lloji || '')) njoftoPushNjoftim(op.id, op.rruga[1], op.te.grupi);
@@ -196,21 +194,21 @@
       return p;
     }
     // opt (opsionale): { id, perditeso } = përditësim i një dokumenti ekzistues (p.sh. njoftimi i vet "u krye"), jo krijim
-    function shtoNeRadhe(rruga, te, kohaEDergimit, opt) {
+    function shtoNeRadhe(rruga, te, opt) {
       opt = opt || {};
-      var op = { id: opt.id || idERe(), rruga: rruga, te: pastro(te), kohaEDergimit: !!kohaEDergimit };
+      var op = { id: opt.id || idERe(), rruga: rruga, te: pastro(te) };
       if (opt.perditeso) op.perditeso = true;
       var l = lexoRadhen(); l.push(op); ruajRadhen(l);
-      return { id: op.id, premtimi: dergoOp(op, false) };
+      return { id: op.id, premtimi: dergoOp(op) };
     }
-    function dergoRadhen() { if (uid()) lexoRadhen().forEach(function (op) { dergoOp(op, true); }); }
+    function dergoRadhen() { if (uid()) lexoRadhen().forEach(function (op) { dergoOp(op); }); }
     // Pret deri në `ms` përgjigjen e serverit; pa internet kthen { ok: true, neRadhe: true } (dërgohet më vonë)
     function pritPak(dergimi, ms) {
       return Promise.race([dergimi.premtimi, new Promise(function (r) { setTimeout(function () { r({ ok: true, id: dergimi.id, neRadhe: true }); }, ms || 4000); })]);
     }
     if (typeof window !== 'undefined') window.addEventListener('online', dergoRadhen);
 
-    // ---------- Njoftimet push (chat-i edhe kur aplikacioni është krejt i mbyllur) ----------
+    // ---------- Njoftimet push (edhe kur aplikacioni është krejt i mbyllur) ----------
     function lexoLS(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
     function shkruajLS(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ok */ } }
     // Aplikacioni Android (tel/): njoftimet vijnë me Firebase Cloud Messaging, jo me Web Push
@@ -307,8 +305,7 @@
 
     function njoftoPushKerkese(id, g) { thirrPush('/kerkese', g ? { id: id, grupi: g } : { id: id }).catch(function () { /* pa internet / pa Worker */ }); }
     function njoftoPushNjoftim(id, per, g) { thirrPush('/njoftim', { id: id, per: per, grupi: g }).catch(function () { /* pa internet / pa Worker */ }); }
-    function njoftoPushChat(id, g) { thirrPush('/chat', g ? { id: id, grupi: g } : { id: id }).catch(function () { /* pa internet / pa Worker — s'ka gjë */ }); }
-    // Worker-i u përgjigj mirë së fundi (7 ditë)? Vetëm atëherë i besohet push-it dhe hiqen njoftimet lokale të chat-it.
+    // Worker-i u përgjigj mirë së fundi (7 ditë)? Vetëm atëherë i besohet push-it dhe s'dalin njoftime lokale të dyfishta.
     async function kontrolloServerin() {
       try {
         var r = await fetch(PUSH_URL, { method: 'GET' });
@@ -335,7 +332,7 @@
         if (!j) return { ok: false, arsye: 'pa-token' }; // Android: tokeni ende s'ka ardhur (vjen me "stoku-android-token")
         var id = uid() + '_' + hashTekst(j.endpoint);
         var ruajtur = lexoLS(KEY_PUSH);
-        // Pajisja regjistrohet te grupi (grupet/{g}/push): Worker-i ua dërgon chat-in/kërkesat vetëm anëtarëve të grupit
+        // Pajisja regjistrohet te grupi (grupet/{g}/push): Worker-i ua dërgon kërkesat dhe njoftimet vetëm anëtarëve të grupit
         if (grupi && (detyro || !ruajtur || ruajtur.id !== id || ruajtur.endpoint !== j.endpoint || ruajtur.grupi !== grupi || (Date.now() - (ruajtur.koha || 0)) > 7 * 86400000)) {
           if (ruajtur && ruajtur.id && ruajtur.uid === uid() && ruajtur.grupi && (ruajtur.id !== id || ruajtur.grupi !== grupi)) {
             try { await fs.deleteDoc(fs.doc(db, 'grupet', ruajtur.grupi, 'push', ruajtur.id)); } catch (e) { /* ok — p.sh. s'je më në atë grup */ }
@@ -499,7 +496,7 @@
         if (r && r.ok && r.pastruar !== undefined) shkruajLS(KEY_ORARI_PASTRO, null); // (serveri i vjetër s'e njeh: provohet sërish)
       } catch (e) { /* provohet herën tjetër */ }
     }
-    // Kjo pajisje s'merr më chat-in/kërkesat e grupit (dalja nga llogaria ose largimi nga grupi)
+    // Kjo pajisje s'merr më kërkesat dhe njoftimet e grupit (dalja nga llogaria ose largimi nga grupi)
     async function hiqPajisjenNgaGrupi() {
       var ruajtur = lexoLS(KEY_PUSH);
       shkruajLS(KEY_PUSH, null);
@@ -601,7 +598,7 @@
         await hiqPajisjenNgaGrupi();
         try { await fs.deleteDoc(fs.doc(db, 'grupet', g, 'afatet', uid())); } catch (e) { /* ok */ }
         if (fshiGrupin) {
-          var kol = ['chat', 'feed', 'afatet', 'push']; // kujtesa e produkteve mbetet (v198): s'fshihet me grupin
+          var kol = ['feed', 'afatet', 'push']; // kujtesa e produkteve mbetet (v198): s'fshihet me grupin
           for (var i = 0; i < kol.length; i++) { try { await pastroKol(['grupet', g, kol[i]]); } catch (e) { /* ok */ } }
           await fshijFtesatEGrupit(g);
           try { await fs.deleteDoc(fs.doc(db, 'grupet', g)); } catch (e) { /* ok */ }
@@ -892,7 +889,7 @@
         return fs.onSnapshot(fs.doc(db, 'ekipa_fshire', uid()), function (s) { if (s.exists()) cb(s.data() || {}); },
           function () { /* rregullat e vjetra: ekipa_fshire s'lexohet — s'ka fshirje */ });
       },
-      // Administratori, një herë: grupi i vjetër → grupi "ekipa" (anëtarët e pranuar, chat-i, aktiviteti, përmbledhjet).
+      // Administratori, një herë: grupi i vjetër → grupi "ekipa" (anëtarët e pranuar, aktiviteti, përmbledhjet).
       // Shënohet te perdoruesit/{admin}.grupetMigruarSe, që të mos përsëritet (p.sh. pasi të jetë larguar qëllimisht).
       migroEkipenEVjeter: async function () {
         if (!uid()) return { ok: false };
@@ -910,13 +907,12 @@
             lista.slice(i, i + 400).forEach(function (a) { b.set(fs.doc(db, 'grupet', g, 'anetaret', a.uid), { emri: a.te.emri || a.uid, roli: 'anetar', hyriSe: a.te.pranuarSe || tani }, { merge: true }); });
             await b.commit();
           }
-          var nChat = 0, nFeed = 0, nAfate = 0;
-          try { nChat = await kopjoKoleksionin('ekipa_chat', 'chat', 150, true); } catch (e) { /* ok */ }
+          var nFeed = 0, nAfate = 0;
           try { nFeed = await kopjoKoleksionin('ekipa_feed', 'feed', 150, true); } catch (e) { /* ok */ }
           try { nAfate = await kopjoKoleksionin('ekipa_afatet', 'afatet', 400, false); } catch (e) { /* ok */ }
           await fs.setDoc(fs.doc(db, 'perdoruesit', uid()), { grupi: g, grupetMigruarSe: tani }, { merge: true });
           grupi = g;
-          return { ok: true, n: lista.length, chat: nChat, feed: nFeed, afate: nAfate };
+          return { ok: true, n: lista.length, feed: nFeed, afate: nAfate };
         } catch (e) { return gabim(e); }
       },
 
@@ -954,7 +950,7 @@
         var koha = Date.now();
         // Pa internet Firestore-i s'kthen gabim, pret pa fund: shënimi kalon nga radha (pritet pak, pastaj vazhdohet;
         // dërgohet edhe nëse aplikacioni mbyllet para se të kthehet interneti)
-        var r0 = await pritPak(shtoNeRadhe(['perdoruesit', uid(), 'njoftimet'], { kryer: true, kryerSe: koha, lexuar: true }, false, { id: nj.id, perditeso: true }));
+        var r0 = await pritPak(shtoNeRadhe(['perdoruesit', uid(), 'njoftimet'], { kryer: true, kryerSe: koha, lexuar: true }, { id: nj.id, perditeso: true }));
         if (!r0.ok && !/not-found/.test(String(r0.kodi))) return r0; // njoftimi u fshi ndërkohë: vazhdohet
         if (!grupi) return { ok: true };
         var te = { kerkeseId: nj.kerkeseId || '', produkti: nj.produkti || '', barkodi: nj.barkodi || '', produktet: listaEKerkeses(nj) };
@@ -966,7 +962,7 @@
       vendosPerHeqjen: async function (nj, pranoj) {
         if (!uid() || !nj || !nj.id) return { ok: false };
         var koha = Date.now(), lloji = pranoj ? 'heqje-pranuar' : 'heqje-refuzuar';
-        var r0 = await pritPak(shtoNeRadhe(['perdoruesit', uid(), 'njoftimet'], { vendim: pranoj ? 'pranuar' : 'refuzuar', vendosurSe: koha, lexuar: true }, false, { id: nj.id, perditeso: true }));
+        var r0 = await pritPak(shtoNeRadhe(['perdoruesit', uid(), 'njoftimet'], { vendim: pranoj ? 'pranuar' : 'refuzuar', vendosurSe: koha, lexuar: true }, { id: nj.id, perditeso: true }));
         if (!r0.ok && !/not-found/.test(String(r0.kodi))) return r0; // njoftimi u fshi ndërkohë: vazhdohet
         if (!grupi) return { ok: true };
         var te = { afatId: nj.afatId || '', produkti: nj.produkti || '', barkodi: nj.barkodi || '', data: nj.data || '' };
@@ -974,9 +970,9 @@
         return pritPak(shtoNeRadhe(rrG('feed'), Object.assign({ lloji: lloji, uid: uid(), emri: emri(), koha: koha, pronariUid: uid(),
           kerkuesUid: nj.uid || '', kerkuesEmri: nj.emri || '' }, te)));
       },
-      // Fshin krejt chat-in ose aktivitetin e grupit ('chat' | 'feed')
+      // Fshin krejt aktivitetin e grupit ('feed')
       pastroKoleksionin: async function (k) {
-        if (!grupi || (k !== 'chat' && k !== 'feed')) return { ok: false, n: 0 };
+        if (!grupi || k !== 'feed') return { ok: false, n: 0 };
         try { return { ok: true, n: await pastroKol(rrG(k)) }; } catch (e) { var g = gabim(e); g.n = 0; return g; }
       },
       // Përmbledhja e afateve të një kolegu, pasi administratori ia ndryshoi afatet
@@ -1020,26 +1016,7 @@
       aktivizoPush: aktivizoPush,
       caktivizoPush: caktivizoPush, pastroOrarinEJetim: pastroOrarinEJetim,
       pushAktiv: pushAktiv, pushPerNjoftimet: pushPerNjoftimet,
-      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 163,
-
-      // ---------- Chat ----------
-      dergoMesazh: function (tekst) {
-        tekst = String(tekst || '').trim().slice(0, 2000);
-        if (!tekst) return Promise.resolve({ ok: false, arsye: 'bosh' });
-        if (!uid()) return Promise.resolve({ ok: false, arsye: 'pa-hyrje' });
-        if (!grupi) return Promise.resolve({ ok: false, arsye: 'pa-grup' });
-        return pritPak(shtoNeRadhe(rrG('chat'), { uid: uid(), emri: emri(), tekst: tekst, koha: Date.now() }, true));
-      },
-      degjoChatin: function (cb, n, cbGabim) {
-        if (!grupi) return function () {};
-        var q = fs.query(fs.collection(db, 'grupet', grupi, 'chat'), fs.orderBy('koha', 'desc'), fs.limit(n || 150));
-        return fs.onSnapshot(q, function (s) { cb(listaNga(s)); }, function (e) { if (cbGabim) cbGabim(e); });
-      },
-      fshijMesazhin: async function (id) {
-        hiqNgaRadha(id); // nëse s'është dërguar ende, s'dërgohet më
-        if (!grupi) return { ok: false };
-        try { await fs.deleteDoc(fs.doc(db, 'grupet', grupi, 'chat', id)); return { ok: true }; } catch (e) { return gabim(e); }
-      },
+      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 164,
 
       // ---------- Kujtesa e produkteve e grupit (v197): grupet/{g}/kujtesa/{p0..p9, px} → { p: { barkodi: {e,f,k,a,m,x} } } ----------
       // E ndarë sipas shifrës së fundit të barkodit (çdo dokument ≤ 1 MB), që të nxërë dhjetëra mijëra produkte.
@@ -1150,7 +1127,7 @@
     return dy(dt.getDate()) + '.' + dy(dt.getMonth() + 1) + (dt.getFullYear() !== sot.getFullYear() ? '.' + dt.getFullYear() : '') + ' ' + ora;
   }
 
-  // Titulli i grupit të ditës në listat me kohë (aktiviteti, chat-i)
+  // Titulli i grupit të ditës në listat me kohë (aktiviteti)
   function titulliDites(ts, tani) {
     tani = tani || Date.now();
     var dt = new Date(ts), sot = new Date(tani);
@@ -1524,7 +1501,6 @@
   //   njofto({ titulli, teksti, tag, pamja }) → njoftim i sistemit (nëse lejohet)
   //   ndryshoi(cfare) → rivizato
   // }
-  var KEY_CHAT_LEXUAR = 'stoku:ekipa:chat-lexuar';
   var KEY_NJOFTUAR = 'stoku:ekipa:njoftuar';
   var KEY_ANETARESIA = 'stoku:ekipa:anetaresia';  // { uid, gjendja, admin } — e fundit e ditur (hapje e shpejtë / pa internet)
   var KEY_PUBLIKUAR = 'stoku:ekipa:publikuar';     // nënshkrimi i përmbledhjes së fundit të dërguar nga kjo pajisje
@@ -1532,8 +1508,8 @@
   function krijoKontrollues(o) {
     var gj = {
       anetaret: [], dyqanet: {}, ngarkuarSe: 0, dukeNgarkuar: false, gabimNgarkimi: '',
-      ngjarjet: [], ngjarjetGati: false, chat: [], chatGati: false, chatHapur: false,
-      njoftimetPalexuara: [], mesazhiFundit: null, hapur: false,
+      ngjarjet: [], ngjarjetGati: false,
+      njoftimetPalexuara: [], hapur: false,
       anetaresia: null,          // 'anetar' (i një grupi) | 'pa-grup' | 'pa-rregulla' (rregullat e grupeve mungojnë) | null (s'dihet ende)
       grupi: null,               // id e grupit (grupet/{grupi})
       grupiInfo: null,           // { id, emri, pronarUid, pronarEmri }
@@ -1592,19 +1568,19 @@
     function eshtePronar() { return gjendjaEQasjes() === 'ok' && gj.roli === 'pronar'; }
     function pastroTeDhenatEGrupit() {
       gj.anetaret = []; gj.permbledhjet = null; gj.permbledhjetGabim = false; gj.ngjarjet = []; gj.ngjarjetGati = false;
-      gj.chat = []; gj.chatGati = false; gj.dyqanet = {}; gj.ngarkuarSe = 0; gj.ftesatEGrupit = []; gj.mesazhiFundit = null;
+      gj.dyqanet = {}; gj.ngarkuarSe = 0; gj.ftesatEGrupit = [];
     }
     // Grupi ndryshoi (u krijua, u pranua një ftesë, u hoq, u largua): krejt dëgjuesit rinisen me rrugët e grupit të ri
     function kurNdryshonQasja() {
       var e = E();
       if (e && e.vendosGrupin) e.vendosGrupin(gjendjaEQasjes() === 'ok' ? gj.grupi : null);
-      var hapur = gj.hapur, chati = gj.chatHapur;
-      mbyllDegjuesitEFaqes(); mbyllChatin();
+      var hapur = gj.hapur;
+      mbyllDegjuesitEFaqes();
       pastroTeDhenatEGrupit();
       nisDegjuesitEGrupit();
       nisDegjuesitPersonale();
       if (gj.admin && gj.anetaresia === 'pa-grup') migroNeseDuhet();
-      if (hapur) { hap(); if (chati) hapChatin(); }
+      if (hapur) hap();
       else thirr('te-gjitha');
       // Grupi ndryshoi: përmbledhja ime e afateve i dërgohet edhe grupit të ri
       publikimi.nenshkrimi = null;
@@ -1807,7 +1783,7 @@
       if (!e || !eshtePronar() || !e.lajmeroEkipen) return { ok: false };
       return e.lajmeroEkipen(tekst, anetaretEDukshem().map(function (a) { return a.uid; }));
     }
-    // Pronari i grupit: 'chat' | 'feed'
+    // Pronari i grupit: 'feed' (aktiviteti)
     async function pastro(k) {
       var e = E();
       if (!e || !eshtePronar() || !e.pastroKoleksionin) return { ok: false };
@@ -1854,7 +1830,7 @@
       ngarkoAnetaresine();
       lexoFurnizuesitPublike(true); // v211: sugjerimet e furnizuesit (edhe pa grup)
       e.nisPranine();
-      if (e.dergoRadhen) e.dergoRadhen(); // aktiviteti/chat-i/njoftimet që mbetën pa u dërguar herën e kaluar
+      if (e.dergoRadhen) e.dergoRadhen(); // aktiviteti/njoftimet që mbetën pa u dërguar herën e kaluar
       if (e.pastroOrarinEJetim) e.pastroOrarinEJetim();
       if (e.degjoGrupin) {
         d.anetaresia = e.degjoGrupin(function (r) {
@@ -1878,7 +1854,6 @@
       if (e.degjoFshirjen && o.llogariaUFshi) d.fshirja = e.degjoFshirjen(function (x) { ndal('fshirja'); try { o.llogariaUFshi(x); } catch (er) { /* ok */ } });
       if (gj.hapur) hap(); // Grupi ishte i hapur kur u hyr në llogari → lidhu tani
     }
-    // Njoftimet personale, vetëm kur ke qasje në grup (chat-i u hoq në v182, ndaj s'dëgjohet më)
     // ---------- Kujtesa e produkteve e përbashkët për grupin (v197) ----------
     // Kopja në pajisje plotëson menjëherë (edhe pa internet); grupi është burimi i përbashkët. Ndryshimet e bëra këtu
     // dërgohen te grupi 2 s më vonë (bashkë), ato të kolegëve vijnë në kohë reale.
@@ -1916,12 +1891,13 @@
         if (!r || !r.ok) bs.forEach(function (b) { kujtesaGj.pritje[b] = true; }); // provohet sërish me ndryshimin e radhës
       }, 2000);
     }
+    // Njoftimet personale (zilja), vetëm kur ke qasje në grup
     function nisDegjuesitPersonale() {
       var e = E();
-      ndal('njoftimet'); ndal('chatFundit');
+      ndal('njoftimet');
       nisKujtesen();
       if (!e || !o.uidIm() || gjendjaEQasjes() !== 'ok') {
-        gj.njoftimetPalexuara = []; gj.mesazhiFundit = null;
+        gj.njoftimetPalexuara = [];
         thirr('njoftimet');
         return;
       }
@@ -1941,14 +1917,14 @@
       if (e.aktivizoPush) e.aktivizoPush().then(function () { thirr('push'); }, function () { /* ok */ });
     }
     function ndalGjithmone(vetemDegjuesit) {
-      ndal('njoftimet'); ndal('chatFundit'); ndal('anetaresia'); ndal('fshirja'); ndal('grupiDoc'); ndal('ftesatEMia'); ndal('kujtesa');
+      ndal('njoftimet'); ndal('anetaresia'); ndal('fshirja'); ndal('grupiDoc'); ndal('ftesatEMia'); ndal('kujtesa');
       kujtesaGj.gati = false; clearTimeout(kujtesaGj.kohez);
       if (!vetemDegjuesit) {
         var e = E(); if (e) e.ndalPranine();
         mbyll();
         clearTimeout(publikimi.kohez);
-        gj.njoftimetPalexuara = []; gj.mesazhiFundit = null; gj.dyqanet = {}; gj.ngarkuarSe = 0; gj.anetaret = [];
-        gj.ngjarjet = []; gj.ngjarjetGati = false; gj.chat = []; gj.chatGati = false;
+        gj.njoftimetPalexuara = []; gj.dyqanet = {}; gj.ngarkuarSe = 0; gj.anetaret = [];
+        gj.ngjarjet = []; gj.ngjarjetGati = false;
         gj.anetaresia = null; gj.admin = false; gj.permbledhjet = null; gj.permbledhjetGabim = false;
         gj.grupi = null; gj.grupiInfo = null; gj.roli = 'anetar'; gj.ftesatEMia = []; gj.ftesatEGrupit = []; gj.krejtLlogarite = null;
         if (e && e.vendosGrupin) e.vendosGrupin(null);
@@ -2013,7 +1989,6 @@
     function mbyll() {
       gj.hapur = false;
       mbyllDegjuesitEFaqes();
-      mbyllChatin();
     }
 
     // ---------- Afatet e kolegëve ----------
@@ -2165,39 +2140,6 @@
       document.addEventListener('visibilitychange', function () { if (document.hidden) { dergoAfateTeReja(); if (publikimi.kohez) publikoTani(); } });
     }
 
-    // ---------- Chat ----------
-    function hapChatin() {
-      var e = E();
-      gj.chatHapur = true;
-      if (!e || gjendjaEQasjes() !== 'ok') { thirr('chat'); return; }
-      if (!d.chat) {
-        d.chat = e.degjoChatin(function (lista) {
-          gj.chat = lista.slice().reverse(); // më i vjetri lart
-          gj.chatGati = true;
-          if (gj.chatHapur && !document.hidden) shenoChatinTeLexuar();
-          thirr('chat');
-        }, 150, function () { gj.chatGati = true; thirr('chat'); });
-      }
-      shenoChatinTeLexuar();
-      thirr('chat');
-    }
-    function mbyllChatin() { gj.chatHapur = false; ndal('chat'); }
-    function shenoChatinTeLexuar() {
-      var m = gj.mesazhiFundit || gj.chat[gj.chat.length - 1];
-      if (m && m.koha) { shkruaj(KEY_CHAT_LEXUAR, String(m.koha)); thirr('chat-fundit'); }
-    }
-    function kaChatTePalexuar() {
-      var m = gj.mesazhiFundit;
-      if (!m || m.uid === o.uidIm()) return false;
-      return (Number(lexo(KEY_CHAT_LEXUAR)) || 0) < (m.koha || 0);
-    }
-    async function dergoMesazh(tekst) {
-      var e = E();
-      if (!e) return { ok: false, arsye: 'pa-lidhje' };
-      return e.dergoMesazh(tekst);
-    }
-    async function fshijMesazhin(id) { var e = E(); return e ? e.fshijMesazhin(id) : { ok: false }; }
-
     // ---------- Zilja ----------
     async function merrNjoftimet() {
       var e = E();
@@ -2265,8 +2207,6 @@
       heqAfatinEKolegut: heqAfatinEKolegut, vendosPerHeqjen: vendosPerHeqjen,
       ngjarje: ngjarje, afateTeReja: afateTeRejaU,
       publikoAfatet: publikoAfatet,
-      hapChatin: hapChatin, mbyllChatin: mbyllChatin, kaChatTePalexuar: kaChatTePalexuar, shenoChatinTeLexuar: shenoChatinTeLexuar,
-      dergoMesazh: dergoMesazh, fshijMesazhin: fshijMesazhin,
       merrNjoftimet: merrNjoftimet, shenoNjoftimetTeLexuara: shenoNjoftimetTeLexuara, fshijNjoftimet: fshijNjoftimet,
       lexoFurnizuesitPublike: lexoFurnizuesitPublike, publikoFurnizuesit: publikoFurnizuesit,
       numriNjoftimeve: function () { return gj.njoftimetPalexuara.filter(function (n) { return !(n.lloji === 'kerkese-heqje' && kryeresiIKerkeses(n)); }).length; },
@@ -2288,7 +2228,7 @@
       hiqNgaEkipa: hiqNgaEkipa, fshijLlogarine: fshijLlogarine,
       vendosLejen: vendosLejen, lajmeroEkipen: lajmeroEkipen,
       koleget: koleget, kerkoHeqjen: kerkoHeqjen, kryejKerkesen: kryejKerkesen, kryeresiIKerkeses: kryeresiIKerkeses,
-      pastroChatin: function () { return pastro('chat'); }, pastroAktivitetin: function () { return pastro('feed'); },
+      pastroAktivitetin: function () { return pastro('feed'); },
       merrStokun: merrStokun, adminNdryshoAfatin: adminNdryshoAfatin
     };
   }

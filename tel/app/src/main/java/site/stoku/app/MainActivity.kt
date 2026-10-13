@@ -49,7 +49,6 @@ class MainActivity : Activity() {
         private const val L_NJOFTIMET = 22
         private const val L_KAMERA_SKEDAR = 23
 
-        @Volatile var nePerpara = false
         private var aktive: MainActivity? = null
         private val ui = Handler(Looper.getMainLooper())
 
@@ -150,7 +149,7 @@ class MainActivity : Activity() {
         super.onNewIntent(intent)
         val u = adresaNga(intent) ?: return
         val tani = web.url
-        // Stoku është tashmë i hapur: hapet vetëm pamja (chat-i, afatet…), pa e ringarkuar faqen
+        // Stoku është tashmë i hapur: hapet vetëm pamja (njoftimet, afatet…), pa e ringarkuar faqen
         if (tani != null && eStokut(Uri.parse(tani)) && u.contains("#")) {
             val hash = "#" + u.substringAfter("#")
             web.evaluateJavascript("(function(){try{return window.__stokuHapNgaNjoftimi?(window.__stokuHapNgaNjoftimi(" +
@@ -258,12 +257,12 @@ class MainActivity : Activity() {
         if (!webRa && web.canGoBack()) web.goBack() else super.onBackPressed()
     }
     override fun onResume() {
-        super.onResume(); nePerpara = true; if (!webRa) web.onResume()
+        super.onResume(); if (!webRa) web.onResume()
         Perditesimi.vazhdoNesePritej(this)
         Perditesimi.kontrollo(this, false) // më së shumti një herë në 6 orë (aplikacioni mund të rrijë i hapur me ditë)
     }
     override fun onPause() {
-        nePerpara = false; if (!webRa) web.onPause(); CookieManager.getInstance().flush(); super.onPause()
+        if (!webRa) web.onPause(); CookieManager.getInstance().flush(); super.onPause()
     }
     override fun onSaveInstanceState(out: Bundle) {
         super.onSaveInstanceState(out)
