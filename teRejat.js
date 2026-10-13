@@ -18,6 +18,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 217, versioni: '1.23.0', data: '2026-10-13', titulli: 'Hyr si vizitor: provo Stoku-n pa llogari', pikat: [
+      'Te faqja e hyrjes ka butonin e ri "Hyr si vizitor": Stoku hapet pa llogari, me disa produkte dhe afate shembull.',
+      'Si vizitor mund të shtosh, ndryshosh dhe fshish lirisht: gjithçka mbetet vetëm në atë pajisje, s\'dërgohet në cloud dhe s\'prek asnjë llogari.',
+      'Kur vizitori hyn ose krijon llogari, prova fshihet nga pajisja dhe hapen të dhënat e llogarisë.',
+      '"Fillo nga e para" i kthen të dhënat shembull: te Cilësimet → Llogaria në telefon, te Përmbledhja në kompjuter.'
+    ] },
     { v: 216, versioni: '1.22.2', data: '2026-10-11', titulli: 'Kontroll i plotë: rregullime në krejt Stoku-n', pikat: [
       'Kamera: kur e mbyll ndërsa ende po hapet, s\'mbetet më e ndezur në sfond dhe s\'skanon më vetë.',
       'Sasia: një barkod i skanuar gabimisht te fusha e sasisë s\'ruhet më si sasi; del paralajmërimi.',

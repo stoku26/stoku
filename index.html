@@ -1057,10 +1057,10 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=37">
+<link rel="stylesheet" href="css/stoku.css?v=38">
 </head>
 <body>
-<script src="porta.js?v=196"></script>
+<script src="porta.js?v=217"></script>
 
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" aria-label="Mbrapa" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
@@ -1081,6 +1081,10 @@
 
 <!-- Lista e folderave -->
 <div class="siper" id="siperFolderat">
+  <div class="viz-shirit" id="vizShirit" hidden>
+    <span><b>Vizitor</b> · provë pa llogari, me të dhëna shembull</span>
+    <button class="btn" id="vizShiritHyr" type="button">Hyr</button>
+  </div>
   <div class="kerko-kuti">
     <svg class="kerko-ikona" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>
     <input id="kerkoGlobal" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Kërko">
@@ -1466,19 +1470,26 @@
           <div class="seksion ops-karta" id="cloudHyrjeSeksion">
             <div class="ops-ll-krye">
               <span class="kat-ikona-badge ngj-gjelber ops-ik-madh"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg></span>
-              <div><div class="ops-ll-titull">Hyr në llogari</div><div class="kat-status">Që lista të mos humbet dhe të shihet në çdo pajisje.</div></div>
+              <div><div class="ops-ll-titull" id="cloudHyrjeTitull">Hyr në llogari</div><div class="kat-status" id="cloudHyrjeNen">Që lista të mos humbet dhe të shihet në çdo pajisje.</div></div>
             </div>
-            <div class="hint" id="cloudHint"></div>
-            <div class="fushe">
+            <div class="hint ll-forma" id="cloudHint"></div>
+            <div class="fushe ll-forma">
               <input id="cloudUsername" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" maxlength="40">
             </div>
-            <div class="fushe">
+            <div class="fushe ll-forma">
               <input id="cloudFjalekalimi" type="password" autocomplete="off" enterkeyhint="done" maxlength="100">
             </div>
-            <div class="hint" id="cloudGabimHint"></div>
-            <div class="rreshti">
+            <div class="hint ll-forma" id="cloudGabimHint"></div>
+            <div class="rreshti ll-forma">
               <button class="btn ops-btn-dyte" id="cloudKrijoLlogari" type="button"></button>
               <button class="btn" id="cloudHyrBtn" type="button"></button>
+            </div>
+            <!-- Prova si vizitor (porta.js): pa formë hyrjeje këtu; hyrja bëhet te porta, që prova të mos kalojë kurrë në cloud -->
+            <div class="ll-vizitor">
+              <div class="rreshti">
+                <button class="btn" id="cloudVizHyr" type="button">Hyr ose krijo llogari</button>
+                <button class="btn ops-btn-dyte" id="cloudVizRinis" type="button">Fillo nga e para</button>
+              </div>
             </div>
           </div>
           <div class="seksion ops-karta" id="cloudBrendaSeksion" style="display:none">
@@ -1887,7 +1898,7 @@
 <script src="afatet.js?v=216"></script>
 <script src="ekipa.js?v=216"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=216"></script>
+<script src="teRejat.js?v=217"></script>
 <script>
 (function () {
   'use strict';
@@ -2178,6 +2189,9 @@
   // Instalim i ri (asnjë e dhënë ende): "Çka ka të re" s'ka kuptim — shënohet si e parë pa u treguar
   var __pajisjeERe = false;
   try { __pajisjeERe = !localStorage.getItem(KEY_FOLDERA); } catch (e) { /* ok */ } // folderat shkruhen që në hapjen e parë të çdo versioni
+  // Prova si vizitor (porta.js, v217): të dhënat e kësaj faqeje janë shembull, të asnjë llogarie: s'sinkronizohen kurrë,
+  // s'shkojnë te Grupi dhe s'japin njoftime. Hyrja me llogari bëhet te porta (ajo i fshin dhe e rinis faqen).
+  function ngaVizitori() { return !!(window.StokuPorta && window.StokuPorta.ngaVizitori && window.StokuPorta.ngaVizitori()); }
   var LIMIT_RENDER = 300;
   var MIME_XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
   // Ikona e cloud-it në krye të faqes së afateve (ruajtur / duke u ruajtur / s'u ruajt) — para nisjes, se përdoret që në ngarkim
@@ -2576,6 +2590,7 @@
   function emriNeKrye() {
     var u = perdoruesiAktual(), cl = window.__stokuCloud;
     if (u) $('sbDyqani').textContent = emriPerdoruesitAktual() || 'Llogaria ime';
+    else if (ngaVizitori()) $('sbDyqani').textContent = 'Vizitor · provë';
     else if (cl && cl.authGati) $('sbDyqani').textContent = 'Vetëm në këtë telefon';
   }
 
@@ -3357,8 +3372,8 @@
       $('opsFotoNdrysho').textContent = kaFoto ? 'Ndrysho foton' : 'Shto foto';
       $('opsFotoHiq').style.display = kaFoto ? '' : 'none';
     }
-    $('opsProfilEmri').textContent = u ? emri : 'Pa llogari';
-    $('opsProfilSub').textContent = u ? (statusiCloudFundit || T('cloudStatusiAsgje')) : 'Hyr që lista të ruhet edhe në internet';
+    $('opsProfilEmri').textContent = u ? emri : ngaVizitori() ? 'Vizitor' : 'Pa llogari';
+    $('opsProfilSub').textContent = u ? (statusiCloudFundit || T('cloudStatusiAsgje')) : ngaVizitori() ? 'Provë pa llogari, vetëm në këtë telefon' : 'Hyr që lista të ruhet edhe në internet';
     var TR = window.StokuTeRejat;
     var v = TR && TR.versioni ? TR.versioni() : 0;
     $('opsVersioni').textContent = v ? ' ' + TR.emriVersionit(v) : '';
@@ -3934,7 +3949,7 @@
     if (!document.hidden && __sinkDeshtoi && perdoruesiAktual()) kryeSinkronizimin();
   });
   async function kryeSinkronizimin() {
-    if (!perdoruesiAktual() || !window.__stokuCloud) return;
+    if (ngaVizitori() || !perdoruesiAktual() || !window.__stokuCloud) return;
     clearTimeout(sinkronizoKohezi);
     sinkronizoKohezi = null;
     if (dukeSinkronizuar) { __sinkSerish = true; return; }
@@ -4003,7 +4018,7 @@
   var __uidISinkronizuarDarePasHyrjes = null;
   async function sinkronizoNeHyrje() {
     var u = perdoruesiAktual();
-    if (!u || !window.__stokuCloud) return;
+    if (ngaVizitori() || !u || !window.__stokuCloud) return;
     if (__uidISinkronizuarDarePasHyrjes === u.uid) return; // e ba tashmë për këtë hyrje
     __uidISinkronizuarDarePasHyrjes = u.uid;
     vendosStatusinCloud(T('cloudStatusiDukeSink'));
@@ -4104,8 +4119,13 @@
   }
 
   function rifreskoDukjenECloud() {
-    var u = perdoruesiAktual();
+    var u = perdoruesiAktual(), viz = !u && ngaVizitori();
     $('cloudHyrjeSeksion').style.display = u ? 'none' : '';
+    $('cloudHyrjeSeksion').classList.toggle('si-vizitor', viz);
+    $('vizShirit').hidden = !viz;
+    $('cloudHyrjeTitull').textContent = viz ? 'Je si vizitor' : 'Hyr në llogari';
+    $('cloudHyrjeNen').textContent = viz ? 'Këto janë të dhëna shembull dhe ruhen vetëm në këtë telefon: provo lirisht. Me llogari ruhen në cloud, i sheh në çdo pajisje dhe punon me Grupin. Kur hyn, prova fshihet.'
+      : 'Që lista të mos humbet dhe të shihet në çdo pajisje.';
     $('cloudBrendaSeksion').style.display = u ? '' : 'none';
     $('llogariaBrendaSeksion').style.display = u ? '' : 'none';
     rregulloVijatNdarese();
@@ -4142,6 +4162,7 @@
   }
 
   async function kryeRregjistrimHyrje(regjistrim, idUsername, idFjalekalimi, idGabim) {
+    if (ngaVizitori()) { window.StokuPorta.hapHyrjen(); return; } // prova: hyrja vetëm te porta
     if (dukeRregjistruarApoHyrje || !window.__stokuCloud) return;
     idUsername = idUsername || 'cloudUsername';
     idFjalekalimi = idFjalekalimi || 'cloudFjalekalimi';
@@ -4168,6 +4189,14 @@
   }
 
   $('cloudKrijoLlogari').addEventListener('click', function () { kryeRregjistrimHyrje(true, 'cloudUsername', 'cloudFjalekalimi', 'cloudGabimHint'); });
+  // Vizitori: hyrja ose llogaria e re bëhen te porta; "Fillo nga e para" i kthen të dhënat shembull
+  function hapHyrjenNgaProva() { if (window.StokuPorta && window.StokuPorta.hapHyrjen) window.StokuPorta.hapHyrjen(); }
+  $('cloudVizHyr').addEventListener('click', hapHyrjenNgaProva);
+  $('vizShiritHyr').addEventListener('click', hapHyrjenNgaProva);
+  $('cloudVizRinis').addEventListener('click', async function () {
+    var po = await konfirmo('Të fillojë prova nga e para?', 'Ndryshimet e tua në provë fshihen dhe kthehen të dhënat shembull.', 'Fillo nga e para');
+    if (po && window.StokuPorta && window.StokuPorta.rinisProven) window.StokuPorta.rinisProven();
+  });
   $('cloudHyrBtn').addEventListener('click', function () { kryeRregjistrimHyrje(false, 'cloudUsername', 'cloudFjalekalimi', 'cloudGabimHint'); });
 
   $('cloudSinkronizoTani').addEventListener('click', function () { kryeSinkronizimin(); });
@@ -6466,6 +6495,15 @@
     var c = $('ekipiLista');
     if (!ekK || !ekK.kaLidhje()) {
       c.textContent = '';
+      if (ngaVizitori()) { // prova si vizitor: Grupi kërkon llogari
+        var bv = ekBosh('Grupi punon me llogari', 'Me llogari punon bashkë me kolegët: afatet e përbashkëta, aktiviteti dhe chat-i. Si vizitor provon Stoku-n dhe Afatet.');
+        var hv = ekEl('button', 'btn ek-viz-hyr', 'Hyr ose krijo llogari');
+        hv.type = 'button';
+        hv.addEventListener('click', hapHyrjenNgaProva);
+        bv.appendChild(hv);
+        c.appendChild(bv);
+        return;
+      }
       c.appendChild(ekBosh('Grupi s\'është i lidhur', !window.__stokuCloud ? 'Grupi kërkon lidhje me internetin.' : 'Hyr me llogarinë tënde që ta shohësh grupin.'));
       return;
     }
@@ -7553,7 +7591,7 @@
   // Dëgjuesit e përhershëm (njoftimet, mesazhi i fundit, prania) nisin/ndalen me hyrjen
   function ekNisOseNdal() {
     if (!ekK) return;
-    if (perdoruesiAktual()) ekK.nisGjithmone(); else ekK.ndalGjithmone();
+    if (perdoruesiAktual() && !ngaVizitori()) ekK.nisGjithmone(); else ekK.ndalGjithmone();
     if ($('dlgEkipi').classList.contains('hapur')) { if (perdoruesiAktual()) ekK.hap(); vizatoEkipen(); }
     rifreskoShenjatEEkipes();
   }
@@ -8292,7 +8330,7 @@
     return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
   }
   function pyetPerNjoftimet() {
-    if (!njoftimetMbeshteten() || Notification.permission !== 'default' || !eshteInstaluar()) return;
+    if (!njoftimetMbeshteten() || Notification.permission !== 'default' || !eshteInstaluar() || ngaVizitori()) return; // prova: pa njoftime
     if (window.StokuPorta && window.StokuPorta.eHapur()) return;
     var jo = 0;
     try { jo = Number(localStorage.getItem(KEY_NJ_JO_TANI)) || 0; } catch (e) { /* ok */ }
@@ -8362,7 +8400,7 @@
   function tregoTeRejat() {
     var TR = window.StokuTeRejat;
     if (!TR || !TR.versioni()) return false;
-    if (__pajisjeERe && !versioniIPare()) { shenoTeRejatSiTePara(); return false; }
+    if ((__pajisjeERe || ngaVizitori()) && !versioniIPare()) { shenoTeRejatSiTePara(); return false; } // vizitori i ri: pa listë përditësimesh
     var hyrjet = TR.teRejatPas(versioniIPare(), 'tel'); // vetëm të rejat e telefonit
     if (!hyrjet.length) return false;
     if (window.StokuPorta && window.StokuPorta.eHapur()) return false;

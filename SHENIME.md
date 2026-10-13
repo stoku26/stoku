@@ -50,6 +50,24 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **HYR SI VIZITOR (v217 = 1.23.0, pa ndryshim në Worker ose Firebase)**: porta (`porta.js`) ka "Hyr si vizitor" në telefon
+   dhe kompjuter (edhe në aplikacionin Android, sepse ai e hap web-in). **Gjendja**: `stoku:vizitor` = '1' dhe `stoku:pronari-uid` =
+   'vizitor'; `eVizitor()` i kërkon të dyja. `ngaVizitori` caktohet një herë në ngarkimin e faqes dhe s'ndryshon deri në rifreskim:
+   të dhënat e asaj faqeje janë shembull, prandaj sinkronizimi (`kryeSinkronizimin`, `sinkronizoNeHyrje`), Grupi (`ekNisOseNdal` →
+   `ndalGjithmone`), pyetja për njoftimet dhe "Çka ka të re" s'nisen kurrë në të, edhe nëse dikush hyn me llogari në një skedë tjetër.
+   **Hyrja me llogari bëhet vetëm te porta**: `StokuPorta.hapHyrjen()` heq `stoku:vizitor` dhe e hap portën; format e hyrjes brenda
+   aplikacionit (tel: `#cloudHyrjeSeksion.si-vizitor` fsheh `.ll-forma` dhe tregon `.ll-vizitor`; tel `kryeRregjistrimHyrje`, PC
+   `hyrOseKrijo`/`hapLlogarine`) e hapin portën. `kontrollo` me përdorues: kur pronari ≠ uid ose `ngaVizitori`, fshin
+   `CELESAT_E_TE_DHENAVE` dhe bën `location.reload()` (me `stopImmediatePropagation`), kështu të dhënat shembull s'arrijnë kurrë në
+   cloud. "Vazhdo provën si vizitor" e kthen provën pa e fshirë. **Të dhënat shembull** (`mbushProven`): 4 folderat e paracaktuar,
+   12 produkte (barkode 2000100000014 deri 2000400000035, njëri me sasi 0, furnizuesit A, B, C, `prekurSe` të shpërndara në 5 ditët
+   e fundit) dhe 7 afate (`prova1` deri `prova7`: skaduar, sot, +2, +6, +21, +150 ditë dhe një i hequr). Kur pajisja ka të dhënat e
+   një llogarie (pronari = uid), porta pyet para se t'i heqë (në cloud mbeten); shfletuesi që s'ruan (Safari privat, memorie plot) →
+   gabim, prova s'hapet. **Pamja**: tel: shiriti `#vizShirit` ("Vizitor · provë pa llogari…" + "Hyr"), "Vizitor · provë" nën logo,
+   Cilësimet → Llogaria "Je si vizitor" ("Hyr ose krijo llogari", "Fillo nga e para"), Grupi "Grupi punon me llogari" + buton;
+   PC: karta `#kartaVizitori` te Përmbledhja (në vend të mirëseardhjes), anësorja "Vizitor · provë" dhe "Provë pa llogari",
+   Cilësimet → Llogaria "Je si vizitor" + "Fillo provën nga e para", Grupi me tekstin e vizitorit (edhe "poshtë majtas" në vend të
+   "lart djathtas" për butonin e hyrjes). Testi: `vizitor-test.js` (tel, PC, paralajmërimi, Grupi, asnjë shkrim në cloud).
 0000000. **KONTROLLI I PLOTË ME RISHIKIM TË KODIT (v216 = 1.22.2, Worker 162)**: rishikim skedar për skedar (web, Worker,
    tel/, ora/, CSS, workflows) dhe rregullimet. **Përbashkëta**: `pergatitFoton` me `Math.floor` (iOS refuzonte kanavacën 1 piksel
    mbi kufirin); `dataNgaQeliza`: zeroja që Excel-i e heq kthehet vetëm te x.1 → x.10 ("12.10" = 12 tetor, jo janar) dhe x.20y → x.20y0

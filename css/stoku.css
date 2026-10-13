@@ -234,6 +234,16 @@
 .sb #cloudHyrjeSeksion .fushe { margin: 10px 0 0; }
 .sb #cloudHyrjeSeksion .rreshti { margin-top: 14px; }
 .sb #cloudHyrjeSeksion > .hint#cloudHint { margin: 0 0 4px; }
+/* Prova si vizitor (v217): pa formë hyrjeje te Cilësimet (hyrja bëhet te porta), shiriti sipër folderave */
+.sb #cloudHyrjeSeksion .ll-vizitor { display: none; }
+.sb #cloudHyrjeSeksion.si-vizitor .ll-forma { display: none; }
+.sb #cloudHyrjeSeksion.si-vizitor .ll-vizitor { display: block; }
+.sb #dlgOpsione #cloudHyrjeSeksion .ll-vizitor .rreshti { grid-template-columns: 1fr; }
+.sb .viz-shirit { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 8px 8px 8px 14px; border-radius: 14px;
+  background: var(--sb-accent-tint); color: var(--sb-accent-text); font-size: 13.5px; line-height: 1.35; }
+.sb .viz-shirit[hidden] { display: none; }
+.sb .viz-shirit b { font-weight: 700; }
+.sb .viz-shirit .btn { flex: none; margin-left: auto; min-height: 36px; height: 36px; padding: 0 16px; border-radius: 11px; font-size: 14px; }
 .sb .btn.ops-btn-dyte { background: var(--sb-surface-2); color: var(--sb-accent-text); box-shadow: none; min-height: 44px; font-size: 14.5px; }
 .sb .btn.ops-btn-dyte:active { background: var(--sb-sunken); }
 .sb #llogariaBrendaSeksion > .ops-grupi-titull { margin-top: 18px; }
@@ -338,6 +348,7 @@
 .sb .af-grup-krye { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--sb-muted); }
 .sb .af-bosh { color: var(--sb-faint); font-size: 14px; padding: 48px 16px; }
 .sb .af-bosh b { color: var(--sb-ink); }
+.sb .af-bosh .ek-viz-hyr { display: block; width: fit-content; margin: 18px auto 0; padding: 0 22px; }
 .sb .af-shiriti-zgjedhjes { background: var(--sb-inv-bg); color: var(--sb-inv-fg); box-shadow: none; border-radius: 14px; }
 .sb .af-shiriti-zgjedhjes button { color: inherit; }
 

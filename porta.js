@@ -8,6 +8,9 @@
  *  - Të dhënat e një dyqani s'përzihen kurrë me një tjetër: nëse në këtë pajisje hyn një llogari
  *    tjetër, të dhënat lokale të llogarisë së mëparshme hiqen (ato janë në cloud-in e saj) dhe
  *    faqja rinis e pastër për llogarinë e re.
+ *  - "Hyr si vizitor" (v217): provë pa llogari, me disa produkte e afate shembull. Gjithçka mbetet vetëm në këtë
+ *    pajisje (pronari i të dhënave = "vizitor"): s'sinkronizohet, s'ka Grup, AI, njoftime apo orë. Kur hyn më pas
+ *    një llogari, të dhënat e provës hiqen si te çdo ndërrim llogarie (s'kalojnë kurrë në cloud).
  *
  * Duhet ngarkuar si skripti i parë brenda <body>, që ekrani të dalë para se të vizatohet faqja.
  */
@@ -20,6 +23,8 @@
   var KEY_MBAJ_EMRIN = 'stoku:porta:mbaj-emrin'; // '0' = mos e mbaj mend emrin (parazgjedhja: mbahet mend). Fjalëkalimi s'ruhet kurrë.
   var KEY_MESAZHI = 'stoku:porta:mesazh';   // mesazh një-herësh për ekranin e hyrjes pas rifreskimit
   var KEY_DIL = 'stoku:porta:dil';          // '1' pas "Dil" me dorë: llogaria e ruajtur s'ofrohet vetë sapo hapet porta
+  var KEY_VIZITOR = 'stoku:vizitor';        // '1' = pajisja është në provë si vizitor (porta s'del)
+  var VIZITOR = 'vizitor';                  // pronari i të dhënave lokale gjatë provës
   var CELESAT_E_TE_DHENAVE = ['stoku:foldera:v1', 'stoku:produktet:v2', 'stoku:produktet:v1', 'stoku:fshira:v1',
     'stoku:rendi-foldera-koha', 'stoku:afatet:v1', 'stoku:kujtesa:v1'];
   var PRITJA_MAKS_MS = 7000;
@@ -40,6 +45,61 @@
   function lexo(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function shkruaj(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { /* ok */ } }
   function hyrjaEFundit() { try { return JSON.parse(lexo(KEY_HYRJA) || 'null'); } catch (e) { return null; } }
+  function eVizitor() { return lexo(KEY_VIZITOR) === '1' && lexo(KEY_PRONARI) === VIZITOR; }
+  // Kjo faqe u hap si vizitor: të dhënat e saj në memorie janë të provës për krejt jetën e faqes. Faqja s'i sinkronizon
+  // kurrë (as pasi dikush hyn me llogari: porta i fshin dhe e rinis faqen).
+  var ngaVizitori = eVizitor();
+  // A ka produkte ose afate në këtë pajisje? (para provës: a do të hiqej diçka e një llogarie)
+  function kaTeDhena() {
+    try {
+      var p = JSON.parse(lexo('stoku:produktet:v2') || 'null'), a = JSON.parse(lexo('stoku:afatet:v1') || 'null');
+      return !!((p && typeof p === 'object' && Object.keys(p).length) || (Array.isArray(a) && a.length));
+    } catch (e) { return true; }
+  }
+  // Të dhënat shembull të provës: folderat e zakonshëm, disa produkte (njëri pa stok) dhe afate me ngjyrat e ndryshme
+  // (i skaduar, sot, së shpejti, në rregull, i hequr nga rafti). Datat llogariten nga dita kur fillon prova.
+  function mbushProven() {
+    var tani = Date.now(), DITA = 86400000;
+    function dy(n) { return (n < 10 ? '0' : '') + n; }
+    function data(n) { var d = new Date(tani + n * DITA); return d.getFullYear() + '-' + dy(d.getMonth() + 1) + '-' + dy(d.getDate()); }
+    var foldera = [{ id: 'ushqimore', emri: 'Ushqimore' }, { id: 'pije', emri: 'Pije' }, { id: 'higjiene', emri: 'Higjiene' }, { id: 'fresh', emri: 'Fresh' }];
+    var lista = [
+      ['ushqimore', '2000100000014', 'Bukë e bardhë 500g', 18, 'Furnizuesi A'],
+      ['ushqimore', '2000100000021', 'Oriz 1kg', 40, 'Furnizuesi B'],
+      ['ushqimore', '2000100000038', 'Makarona 500g', 25, 'Furnizuesi B'],
+      ['ushqimore', '2000100000045', 'Vaj luledielli 1L', 6, 'Furnizuesi B'],
+      ['pije', '2000200000013', 'Ujë natyral 1.5L', 48, 'Furnizuesi C'],
+      ['pije', '2000200000020', 'Lëng portokalli 1L', 0, 'Furnizuesi C'],
+      ['pije', '2000200000037', 'Pije e gazuar 0.5L', 30, 'Furnizuesi C'],
+      ['higjiene', '2000300000012', 'Sapun i lëngshëm 500ml', 12, 'Furnizuesi B'],
+      ['higjiene', '2000300000029', 'Pastë dhëmbësh 75ml', 9, 'Furnizuesi B'],
+      ['fresh', '2000400000011', 'Qumësht 1L', 20, 'Furnizuesi A'],
+      ['fresh', '2000400000028', 'Kos 500g', 15, 'Furnizuesi A'],
+      ['fresh', '2000400000035', 'Djathë i bardhë 400g', 7, 'Furnizuesi A']
+    ];
+    var ORA = 3600000, oretMePare = [0.2, 0.7, 2, 4, 7, 26, 29, 50, 53, 75, 98, 122]; // ndryshimet e fundit, si në një dyqan të vërtetë
+    var produktet = {};
+    lista.forEach(function (x, i) {
+      produktet[x[0] + '::' + x[1]] = { barkodi: x[1], emri: x[2], sasia: x[3], kategoriaId: x[0], furnizuesi: x[4], prekurSe: Math.round(tani - oretMePare[i] * ORA) };
+    });
+    var afatet = [
+      ['2000400000028', 'Kos 500g', -2, 4, 'Furnizuesi A'],
+      ['2000400000011', 'Qumësht 1L', 0, 6, 'Furnizuesi A'],
+      ['2000100000014', 'Bukë e bardhë 500g', 2, 10, 'Furnizuesi A'],
+      ['2000400000035', 'Djathë i bardhë 400g', 6, 3, 'Furnizuesi A'],
+      ['2000200000020', 'Lëng portokalli 1L', 21, 12, 'Furnizuesi C'],
+      ['2000100000021', 'Oriz 1kg', 150, 20, 'Furnizuesi B'],
+      ['2000400000042', 'Jogurt frutash 150g', -9, 5, 'Furnizuesi A']
+    ].map(function (x, i) {
+      var a = { id: 'prova' + (i + 1), barkodi: x[0], emri: x[1], data: data(x[2]), sasia: x[3], furnizuesi: x[4], statusi: 'aktiv',
+        krijuarSe: tani - 3 * DITA, ndryshuarSe: tani - 3 * DITA };
+      if (i === 6) { a.statusi = 'hequr'; a.hequrSe = tani - 8 * DITA; a.ndryshuarSe = a.hequrSe; }
+      return a;
+    });
+    shkruaj('stoku:foldera:v1', JSON.stringify(foldera));
+    shkruaj('stoku:produktet:v2', JSON.stringify(produktet));
+    shkruaj('stoku:afatet:v1', JSON.stringify(afatet));
+  }
 
   var html = document.documentElement;
   html.classList.add('porta-hapur');
@@ -96,6 +156,14 @@
     '  transition: background .15s, box-shadow .15s; }',
     '#porta .pk-mbaj input:checked + .pk-tick { background: var(--sb-accent, #1f5fc4); box-shadow: none; color: #fff; }',
     '#porta .pk-mbaj input:focus-visible + .pk-tick { outline: 2px solid var(--sb-accent, #1f5fc4); outline-offset: 2px; }',
+    '#porta .pk-ose { display: flex; align-items: center; gap: 12px; margin: 18px 2px 14px; font-size: 12.5px; color: var(--sb-faint, #8a8d94); }',
+    '#porta .pk-ose::before, #porta .pk-ose::after { content: ""; flex: 1; height: 1px; background: var(--sb-line, #e6e4df); }',
+    '#porta .pk-btn.pk-dyte { background: var(--sb-sunken, #ebe9e4); color: var(--sb-ink, #14161b); box-shadow: none; }',
+    '#porta .pk-btn.pk-dyte:active { background: var(--sb-line, #e6e4df); }',
+    '#porta .pk-viz-konf { margin-top: 12px; padding: 14px; border-radius: 14px; background: var(--sb-sunken, #ebe9e4); font-size: 13.5px; line-height: 1.45; }',
+    '#porta .pk-viz-konf p { margin: 0 0 12px; }',
+    '#porta .pk-viz-konf .pk-rresht { display: flex; gap: 8px; }',
+    '#porta .pk-viz-konf .pk-btn { height: 44px; font-size: 14.5px; }',
     '.pk-fsheh { display: none !important; }'
   ].join('\n');
   document.head.appendChild(stili);
@@ -125,6 +193,13 @@
         '<div class="pk-gabim" id="pkGabim" role="alert"></div>' +
         '<button type="submit" class="pk-btn" id="pkDergo">Hyr</button>' +
         '<p class="pk-shenim" id="pkShenim">Hyr me llogarinë e dyqanit. Të dhënat sinkronizohen vetë në telefon, PDA dhe kompjuter.</p>' +
+        '<div class="pk-ose">ose</div>' +
+        '<button type="button" class="pk-btn pk-dyte" id="pkVizitor">Hyr si vizitor</button>' +
+        '<p class="pk-shenim" id="pkVizitorShenim">Provo Stoku-n pa llogari, me disa produkte shembull. Gjithçka mbetet vetëm në këtë pajisje.</p>' +
+        '<div class="pk-viz-konf pk-fsheh" id="pkVizKonf" role="alert">' +
+          '<p id="pkVizKonfTekst"></p>' +
+          '<div class="pk-rresht"><button type="button" class="pk-btn pk-dyte" id="pkVizJo">Anulo</button><button type="button" class="pk-btn" id="pkVizPo">Vazhdo si vizitor</button></div>' +
+        '</div>' +
       '</form>' +
     '</div>';
   document.body.insertBefore(porta, document.body.firstChild);
@@ -151,6 +226,7 @@
     $('pkForma').classList.remove('pk-fsheh');
     $('pkGabim').textContent = mesazh || '';
     $('pkMbaj').checked = mbajEmrin();
+    rifreskoVizitorin();
     if (!$('pkEmri').value && mbajEmrin()) $('pkEmri').value = lexo(KEY_EMRI_FUNDIT) || '';
     setTimeout(function () { ($('pkEmri').value ? $('pkFjalekalimi') : $('pkEmri')).focus(); }, 60);
   }
@@ -198,6 +274,65 @@
         if (/^auth\/requests-from-referer|api-key-not-valid|blocked/.test(String(kodi))) return 'Kjo adresë s\'lejohet për hyrje. Hape Stoku-n nga stoku.site. (' + kodi + ')';
         return 'Diçka shkoi keq. Kontrollo internetin dhe provo përsëri.' + (kodi ? ' (' + kodi + ')' : '');
     }
+  }
+
+  // ---------- Vizitori: provë pa llogari ----------
+  function provaEkziston() { return lexo(KEY_PRONARI) === VIZITOR && kaTeDhena(); }
+  function rifreskoVizitorin() {
+    var vazhdo = provaEkziston();
+    $('pkVizitor').textContent = vazhdo ? 'Vazhdo provën si vizitor' : 'Hyr si vizitor';
+    $('pkVizitorShenim').textContent = vazhdo ? 'Prova jote pa llogari është ende në këtë pajisje.'
+      : 'Provo Stoku-n pa llogari, me disa produkte shembull. Gjithçka mbetet vetëm në këtë pajisje.';
+    $('pkVizKonf').classList.add('pk-fsheh');
+    $('pkVizitor').classList.remove('pk-fsheh');
+  }
+  $('pkVizitor').addEventListener('click', function () {
+    if (gjendja.dukePunuar) return;
+    var pronari = lexo(KEY_PRONARI);
+    // Në pajisje janë të dhënat e një llogarie (p.sh. pas "Dil"): pyetet para se të hiqen nga kjo pajisje
+    if (pronari && pronari !== VIZITOR && kaTeDhena()) {
+      var emri = lexo(KEY_EMRI_FUNDIT);
+      $('pkVizKonfTekst').textContent = 'Në këtë pajisje janë të dhënat e një llogarie' + (emri ? ' ("' + emri + '")' : '') +
+        '. Si vizitor ato hiqen nga kjo pajisje. Ato që janë ruajtur në cloud kthehen kur të hysh sërish me llogari.';
+      $('pkVizKonf').classList.remove('pk-fsheh');
+      $('pkVizitor').classList.add('pk-fsheh');
+      $('pkVizPo').focus();
+      return;
+    }
+    hyrSiVizitor();
+  });
+  $('pkVizJo').addEventListener('click', rifreskoVizitorin);
+  $('pkVizPo').addEventListener('click', hyrSiVizitor);
+  function hyrSiVizitor() {
+    var mbushur = !kaTeDhena() || lexo(KEY_PRONARI) !== VIZITOR; // prova fillon me të dhënat shembull
+    if (lexo(KEY_PRONARI) !== VIZITOR) {
+      CELESAT_E_TE_DHENAVE.forEach(function (k) { shkruaj(k, null); });
+      shkruaj(KEY_PRONARI, VIZITOR);
+    }
+    if (mbushur) mbushProven();
+    shkruaj(KEY_VIZITOR, '1');
+    shkruaj(KEY_HYRJA, null);
+    if (!eVizitor()) { // p.sh. dritare private e Safari-t ose memoria plot: s'ruhet asgjë
+      $('pkGabim').textContent = 'Ky shfletues s\'po ruan të dhëna (dritare private ose memorie plot), prandaj prova s\'mund të hapet.';
+      return;
+    }
+    if (ngaVizitori && !mbushur) { mbyll(); return; } // kjo faqe i ka tashmë të dhënat e provës në memorie
+    gjendja.dukePunuar = true;
+    shfaqPritjen('Duke hapur provën…');
+    location.reload();
+  }
+  // Nga aplikacioni (vizitori): porta për hyrje ose llogari të re. Prova mbetet derisa të hyjë një llogari.
+  function hapHyrjen() {
+    shkruaj(KEY_VIZITOR, null); // rifreskimi tani hap portën; "Vazhdo provën si vizitor" e rikthen
+    hap();
+  }
+  // Nga aplikacioni (vizitori): prova fillon nga e para, me të dhënat shembull
+  function rinisProven() {
+    if (lexo(KEY_PRONARI) !== VIZITOR) return;
+    CELESAT_E_TE_DHENAVE.forEach(function (k) { shkruaj(k, null); });
+    mbushProven();
+    shkruaj(KEY_VIZITOR, '1');
+    location.reload();
   }
 
   $('pkEmri').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('pkFjalekalimi').focus(); } });
@@ -333,6 +468,7 @@
     gjendja.gati = true;
     clearTimeout(gjendja.kohezuesi);
     var u = cloud.perdoruesiAktual && cloud.perdoruesiAktual();
+    if (!u && eVizitor()) { if (gjendja.eHapur && !gjendja.dukePunuar) mbyll(); return; } // prova pa llogari: porta s'del
     if (!u) {
       shkruaj(KEY_HYRJA, null); // pas "Dil" (ose kur hyrja ka skaduar) s'lejohet hyrja pa internet
       // Mesazhi "po zgjat / s'ka internet" s'vlen më: Firebase sapo u përgjigj
@@ -342,10 +478,11 @@
       provoHyrjenMeTeRuajturin();
       return;
     }
-    // Të dhënat lokale i përkasin një llogarie tjetër? Hiqen para se faqja t'i sinkronizojë në
-    // llogarinë e re, dhe faqja rinis e pastër (të dhënat e llogarisë tjetër janë në cloud-in e saj).
+    // Të dhënat lokale i përkasin një llogarie tjetër (ose provës si vizitor)? Hiqen para se faqja t'i sinkronizojë
+    // në llogarinë e re, dhe faqja rinis e pastër (të dhënat e llogarisë tjetër janë në cloud-in e saj).
+    shkruaj(KEY_VIZITOR, null); // me llogari s'ka më provë
     var pronari = lexo(KEY_PRONARI);
-    if (pronari && pronari !== u.uid) {
+    if ((pronari && pronari !== u.uid) || ngaVizitori) {
       if (ev && ev.stopImmediatePropagation) ev.stopImmediatePropagation();
       CELESAT_E_TE_DHENAVE.forEach(function (k) { shkruaj(k, null); });
       shkruaj(KEY_PRONARI, u.uid);
@@ -364,10 +501,18 @@
   }
   window.addEventListener('stoku-cloud-gati', kontrollo);
   window.addEventListener('stoku-auth-ndryshoi', kontrollo);
+  // Prova në një skedë dhe hyrje me llogari në një tjetër: Firebase e njofton hyrjen këtu me vonesë, prandaj kjo skedë
+  // rinis sapo ndryshon pronari i të dhënave, që të mos shkruajë më të dhënat e provës mbi ato të llogarisë.
+  window.addEventListener('storage', function (ev) {
+    if (!ngaVizitori || gjendja.dukePunuar || (ev.key !== null && ev.key !== KEY_PRONARI)) return;
+    if (lexo(KEY_PRONARI) === VIZITOR) return;
+    gjendja.dukePunuar = true;
+    location.reload();
+  });
 
   // Pritja fillestare
   var fundit = hyrjaEFundit();
-  if (fundit && fundit.uid && lexo(KEY_PRONARI) === fundit.uid && !SHFLETUES_I_VJETER) {
+  if (ngaVizitori || (fundit && fundit.uid && lexo(KEY_PRONARI) === fundit.uid && !SHFLETUES_I_VJETER)) {
     // Kjo pajisje është e kyçur me këtë llogari: dyqani hapet menjëherë, pa ekranin "Duke hyrë si…" (në Android
     // dilte pas ekranit të hapjes së sistemit, si dy ekrane njëri pas tjetrit). Firebase e konfirmon hyrjen në sfond:
     // pa përdorues → porta hapet (kontrollo → hap); llogari tjetër → të dhënat hiqen dhe faqja rinis (si më parë).
@@ -383,6 +528,7 @@
   var paInternet = typeof navigator !== 'undefined' && navigator.onLine === false;
   gjendja.kohezuesi = setTimeout(function () {
     if (gjendja.gati) return;
+    if (eVizitor()) { mbyll(); return; } // prova pa llogari s'pret serverin
     // Firebase s'u përgjigj (pa internet dhe pa kopje të ruajtur të tij)
     var f = hyrjaEFundit();
     if (f && f.uid && lexo(KEY_PRONARI) === f.uid) {
@@ -394,5 +540,6 @@
   }, SHFLETUES_I_VJETER ? 0 : paInternet && fundit && fundit.uid && lexo(KEY_PRONARI) === fundit.uid ? 400 : PRITJA_MAKS_MS);
   if (window.__stokuCloud) kontrollo();
 
-  window.StokuPorta = { eHapur: function () { return gjendja.eHapur; }, ruajKredencialet: ruajKredencialet, dilMeDore: dilMeDore };
+  window.StokuPorta = { eHapur: function () { return gjendja.eHapur; }, ruajKredencialet: ruajKredencialet, dilMeDore: dilMeDore,
+    ngaVizitori: function () { return ngaVizitori; }, hapHyrjen: hapHyrjen, rinisProven: rinisProven };
 })();
