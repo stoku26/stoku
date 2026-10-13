@@ -8,6 +8,7 @@ on:
       - 'tel/**'
       - '!tel/**/*.md' # vetëm dokumentimi: pa APK të re (përndryshe çdo aplikacion ofronte "version të ri" të njëjtë)
       - '.github/workflows/tel-apk.yml'
+      - '.github/apk/nenshkruaj.sh'
   workflow_dispatch:
 
 # Ndërtimi lexon vetëm; leja për të shkruar (Release) i jepet vetëm hapit të publikimit, në main, pa kodin e projektit
@@ -28,8 +29,11 @@ jobs:
           gradle-version: '8.9'
       - name: Ndërto APK
         run: gradle -p tel assembleRelease --stacktrace --no-daemon
-      - name: Emri i skedarit
-        run: cp tel/app/build/outputs/apk/release/app-release.apk stoku-tel-${{ github.run_number }}.apk
+      # Me vulën e re (pasi ta krijojë apk-celesat.yml një herë): v3 + zinxhiri i ndërrimit; pa të: si e nënshkroi Gradle-i
+      - name: Nënshkrimi
+        env:
+          P: ${{ secrets.APK_FJALEKALIMI }}
+        run: bash .github/apk/nenshkruaj.sh tel tel/app/build/outputs/apk/release/app-release.apk stoku-tel-${{ github.run_number }}.apk
       - uses: actions/upload-artifact@v4
         with:
           name: stoku-tel-apk

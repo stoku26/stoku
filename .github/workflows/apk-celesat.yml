@@ -1,0 +1,44 @@
+# NJË HERË, vetëm me dorë (Actions → "Çelësat e rinj të APK-ve (një herë)" → Run workflow):
+# krijon vulën e re të nënshkrimit për telefonin dhe orën brenda GitHub Actions, e ruan në main vetëm të enkriptuar me
+# sekretin APK_FJALEKALIMI, bashkë me zinxhirin e ndërrimit nga çelësi i vjetër (publik), dhe nis build-et e reja.
+# Nëse vula e re ekziston tashmë, ndalet pa ndryshuar asgjë. Shpjegimi: tel/README.md → Nënshkrimi.
+name: Çelësat e rinj të APK-ve (një herë)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write # shkruan vulën e enkriptuar dhe zinxhirin në main
+  actions: write  # nis tel-apk.yml dhe ora-apk.yml
+
+concurrency:
+  group: apk-celesat
+
+jobs:
+  krijo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Vula e re dhe zinxhiri
+        env:
+          P: ${{ secrets.APK_FJALEKALIMI }}
+        run: bash .github/apk/celesat.sh
+      - name: Ruaj në main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tel/celesi-i-ri.p12.enc tel/celesi.lineage ora/celesi-i-ri.p12.enc ora/celesi.lineage
+          git commit -m "APK: vula e re (e enkriptuar) dhe zinxhiri i ndërrimit për telefonin dhe orën"
+          git push origin HEAD:main
+      - name: Ndërto versionet e reja (telefoni + ora)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run tel-apk.yml --ref main
+          gh workflow run ora-apk.yml --ref main

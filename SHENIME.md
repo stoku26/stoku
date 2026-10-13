@@ -50,6 +50,21 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **VULA E RE E APK-VE (telefoni + ora, pa version të web-it)**: çelësat e vjetër (`tel/stoku-tel.jks`,
+   `ora/stoku-ora.jks`, fjalëkalimet te `build.gradle.kts`) janë publikë, prandaj u shtua ndërrimi me APK Signature Scheme v3.
+   **Një herë**: workflow-i "Çelësat e rinj të APK-ve (një herë)" (`apk-celesat.yml`, vetëm me dorë) thërret
+   `.github/apk/celesat.sh`: krijon vulën e re (RSA 4096, PKCS12) brenda GitHub Actions, zinxhirin `apksigner rotate` vjetër → i
+   ri me `--set-rollback false`, e enkripton (`openssl enc -aes-256-cbc -pbkdf2 -iter 600000`) me sekretin `APK_FJALEKALIMI`
+   (≥ 24 shenja, e di vetëm pronari; s'duhet humbur as ndërruar), shkruan në main `<app>/celesi-i-ri.p12.enc` +
+   `<app>/celesi.lineage` dhe nis `tel-apk.yml` + `ora-apk.yml`; s'krijon dy herë. **Çdo build**: `.github/apk/nenshkruaj.sh`
+   (pas Gradle-it): pa vulë të re APK-ja mbetet si më parë; me të: `apksigner sign` vjetër + `--next-signer` i ri + `--lineage`
+   + `--rotation-min-sdk-version 28` = v2 me çelësin e vjetër (Android 8), v3 me vulën e re (Android 9+), dhe kontroll që
+   Android 9+ sheh vulën e re. **Provuar** në GitHub Actions me vula të rreme (workflow i përkohshëm, i hequr): Android i emuluar
+   API 30: përditësimi me vulën e re pranohet, APK me vetëm çelësin e vjetër refuzohet (`INSTALL_FAILED_UPDATE_INCOMPATIBLE`);
+   API 27: përditësimi pranohet, çelësi i vjetër mbetet i pranuar (Android 8 s'e njeh zinxhirin: kufizim i ditur, tel minSdk 26).
+   `adb install --incremental` (v4, vetëm për zhvillim) dështon herën e parë dhe `adb` kalon vetë te instalimi i zakonshëm.
+   Gjurmët e vulës së re (SHA-1/SHA-256) i shtyp log-u i workflow-it; duhen vetëm nëse çelësi i API-së në Google Cloud
+   kufizohet me SHA-1. Udhëzimi: `tel/README.md` → Nënshkrimi.
 0000000. **WORKER 162 NË CLOUDFLARE (v219 = 1.23.2)**: pronari e ngjiti Worker-in 162 (adresa e Worker-it tregon
    `"versioni":162`), prandaj aplikacioni tash e pret 162 (`ekipa.js` `VERSIONI_WORKER: 162`): te Cilësimet → Njoftimet, statusi i
    njoftimit ditor paralajmëron "Serveri (Cloudflare) ka kodin e vjetër" kur serveri është më i vjetër se 162 (për 161 pa arsye
