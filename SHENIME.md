@@ -50,6 +50,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PORTA: TEKSTET NËN "HYR" DHE "HYR SI VIZITOR" (v218 = 1.23.1)**: me kërkesën e pronarit, `#pkShenim` (tabi "Hyr")
+   = "Rekomandohet hapja e një llogarie, që të dhënat të ruhen në cloud." (tabi "Krijo llogari" i mban rregullat e emrit dhe
+   fjalëkalimit); `#pkVizitorShenim` = "Hyr si vizitor për të parë si funksionojnë shërbimet e Stoku-t (kujdes: të dhënat nuk
+   ruhen në cloud)." dhe, kur prova ekziston, "Prova jote si vizitor është ende në këtë pajisje (kujdes: të dhënat nuk ruhen në
+   cloud)." `.pk-shenim` me `text-wrap: balance` (pa fjalë të vetme në rreshtin e fundit; shfletuesit e vjetër e injorojnë).
 0000000. **HYR SI VIZITOR (v217 = 1.23.0, pa ndryshim në Worker ose Firebase)**: porta (`porta.js`) ka "Hyr si vizitor" në telefon
    dhe kompjuter (edhe në aplikacionin Android, sepse ai e hap web-in). **Gjendja**: `stoku:vizitor` = '1' dhe `stoku:pronari-uid` =
    'vizitor'; `eVizitor()` i kërkon të dyja. `ngaVizitori` caktohet një herë në ngarkimin e faqes dhe s'ndryshon deri në rifreskim:

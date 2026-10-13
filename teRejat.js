@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 218, versioni: '1.23.1', data: '2026-10-13', titulli: 'Faqja e hyrjes: tekste më të qarta', pikat: [
+      'Nën "Hyr" tash shkruan që rekomandohet hapja e një llogarie, që të dhënat të ruhen në cloud.',
+      'Nën "Hyr si vizitor" shkruan qartë që vizitori e sheh si funksionon Stoku, por të dhënat e tij nuk ruhen në cloud.'
+    ] },
     { v: 217, versioni: '1.23.0', data: '2026-10-13', titulli: 'Hyr si vizitor: provo Stoku-n pa llogari', pikat: [
       'Te faqja e hyrjes ka butonin e ri "Hyr si vizitor": Stoku hapet pa llogari, me disa produkte dhe afate shembull.',
       'Si vizitor mund të shtosh, ndryshosh dhe fshish lirisht: gjithçka mbetet vetëm në atë pajisje, s\'dërgohet në cloud dhe s\'prek asnjë llogari.',
