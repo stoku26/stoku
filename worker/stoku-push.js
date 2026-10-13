@@ -1,5 +1,5 @@
 /*
- * stoku-push — Cloudflare Worker që dërgon njoftimet "push" të chat-it (edhe kur Stoku është i mbyllur).
+ * stoku-push — Cloudflare Worker që dërgon njoftimet "push" të Grupit (edhe kur Stoku është i mbyllur).
  *
  * Vendoset NJË HERË te Cloudflare (Workers → Create → emri "stoku-push"), me këto "Secrets" (Settings → Variables):
  *   VAPID_PUBLIC   = çelësi publik (i njëjti me PUSH_VAPID te ekipa.js)
@@ -7,14 +7,15 @@
  *   VAPID_SUBJECT  = mailto:adresa-jote@... (kërkohet nga Google/Apple/Mozilla, për kontakt)
  *
  * Si punon:
- *   POST /chat  { id, grupi }  + "Authorization: Bearer <tokeni i Firebase-it>"
- *     1. lexon mesazhin grupet/{grupi}/chat/{id} ME TOKENIN E DËRGUESIT (Firestore REST) — rregullat e Firestore-it
- *        vendosin vetë a lejohet (anëtar i grupit); emri dhe teksti merren nga mesazhi, jo nga kërkesa;
- *     2. mesazhi duhet të jetë i dërguesit dhe i freskët (< 3 min) — s'mund të ridërgohen mesazhe të vjetra;
+ *   POST /kerkese { id, grupi }  + "Authorization: Bearer <tokeni i Firebase-it>"
+ *     → kërkesa "Hiqe nga rafti" (ose "u krye") te kolegët e grupit (v147, v164):
+ *     1. lexon ngjarjen grupet/{grupi}/feed/{id} ME TOKENIN E DËRGUESIT (Firestore REST) — rregullat e Firestore-it
+ *        vendosin vetë a lejohet (anëtar i grupit); emri dhe teksti merren nga dokumenti, jo nga kërkesa;
+ *     2. ngjarja duhet të jetë e dërguesit dhe e freskët (< 3 min) — s'mund të ridërgohen kërkesa të vjetra;
  *     3. lexon grupet/{grupi}/push (pajisjet e anëtarëve të grupit) dhe i dërgon secilës (përveç dërguesit) një njoftim
- *        të enkriptuar (Web Push, RFC 8291 + VAPID RFC 8292). Pajisjet që s'ekzistojnë më (404/410) fshihen.
- *     Pa `grupi` (versioni i vjetër i aplikacionit, para v164): ekipa_chat / ekipa_feed / ekipa_push.
- *   POST /kerkese { id, grupi } → kërkesa "Hiqe nga rafti" (ose "u krye") te kolegët e grupit (v147, v164).
+ *        të enkriptuar (Web Push, RFC 8291 + VAPID RFC 8292; FCM për aplikacionin Android). Pajisjet që s'ekzistojnë
+ *        më (404/410) fshihen.
+ *     Pa `grupi` (versioni i vjetër i aplikacionit, para v164): ekipa_feed / ekipa_push.
  *   POST /njoftim { id, per, grupi } → njoftimi personal perdoruesit/{per}/njoftimet/{id} te pajisjet e marrësit (v161):
  *     heqja e kolegut që pret miratimin, pranimi/refuzimi, ndryshimet e administratorit, njoftimi për krejt grupin.
  *
@@ -45,7 +46,7 @@ const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databa
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
 const PUSH_MAKS = 36;
-const VERSIONI_WORKER = 163; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 164; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 const W = {
@@ -92,21 +93,11 @@ const W = {
 
     try {
       let ngarkesa, perKe;
-      // v164: mesazhet/kërkesat janë brenda grupit (grupet/{g}/chat, /feed); pajisjet te grupet/{g}/push.
+      // v164: kërkesat janë brenda grupit (grupet/{g}/feed); pajisjet te grupet/{g}/push.
       // Pa `grupi` (versioni i vjetër i aplikacionit): koleksionet e vjetra ekipa_*.
       const grupi = /^[A-Za-z0-9_-]{2,64}$/.test(String(trupi.grupi || '')) ? String(trupi.grupi) : '';
       const rrugaE = k => grupi ? 'grupet/' + grupi + '/' + k : 'ekipa_' + k;
-      if (rruga === '/chat') {
-        const id = String(trupi.id || '');
-        if (!/^[A-Za-z0-9_-]{6,80}$/.test(id)) return pergjigju({ ok: false, arsye: 'id' }, 400);
-        const m = await lexoDoc(rrugaE('chat') + '/' + id, token);
-        if (!m) return pergjigju({ ok: false, arsye: 's-u-gjet' }, 404);
-        if (m.uid !== uid) return pergjigju({ ok: false, arsye: 'jo-i-yti' }, 403);
-        if (!iFreskët(m)) return pergjigju({ ok: false, arsye: 'i-vjeter' }, 409);
-        const tekst = String(m.tekst || '');
-        ngarkesa = { lloji: 'chat', titulli: (m.emri || 'Ekipa') + ' · Chat', teksti: tekst.length > 180 ? tekst.slice(0, 177) + '…' : tekst, tag: 'ek-chat-' + id, url: './index.html#ekipa/chat', koha: Number(m.koha) || Date.now() };
-        perKe = a => a.uid !== uid;
-      } else if (rruga === '/kerkese') {
+      if (rruga === '/kerkese') {
         // Kërkesë për heqje nga rafti (ose "u krye"): ngjarja te ekipa_feed, e lexuar me tokenin e dërguesit
         const id = String(trupi.id || '');
         if (!/^[A-Za-z0-9_-]{6,80}$/.test(id)) return pergjigju({ ok: false, arsye: 'id' }, 400);
@@ -163,7 +154,7 @@ const W = {
         teGjitha = teGjitha.filter(a => anetaret.has(a.uid));
         await Promise.all(jashte.map(a => fshiDoc(rrugaE('push') + '/' + a.id, token)));
       }
-      // Një pajisje (endpoint) merr vetëm një njoftim; dhe kurrë njoftimin e mesazhit që e dërgoi vetë
+      // Një pajisje (endpoint) merr vetëm një njoftim; dhe kurrë njoftimin që e dërgoi vetë
       // (p.sh. një regjistrim i vjetër i një llogarie tjetër në të njëjtin telefon)
       const teMiat = new Set(teGjitha.filter(a => a.uid === uid).map(a => a.endpoint));
       const pare = new Set();
@@ -179,8 +170,7 @@ const W = {
       const dergoKrejt = () => Promise.all(pajisjet.map(async a => {
         try {
           // prekja e njoftimit hap të njëjtin lloj dritareje: kompjuteri → pc.html, telefoni → index.html
-          const nen = ngarkesa.pamja === 'njoftimet' ? 'njoftimet' : 'chat';
-          const ng = Object.assign({}, ngarkesa, { url: a.platforma === 'pc' ? './pc.html#/ekipa/' + nen : './index.html#ekipa-' + nen });
+          const ng = Object.assign({}, ngarkesa, { url: a.platforma === 'pc' ? './pc.html#/ekipa/njoftimet' : './index.html#ekipa-njoftimet' });
           const st = await dergoPush(a, ng, vapid);
           if (st >= 200 && st < 300) derguar++;
           else if (st === 404 || st === 410) { fshire++; await fshiDoc(rrugaE('push') + '/' + a.id, token); }
@@ -915,7 +905,7 @@ async function dergoFcm(env, tokeni, ng) {
   const data = {};
   for (const k of ['lloji', 'titulli', 'teksti', 'tag', 'url', 'pamja']) if (ng[k] !== undefined && ng[k] !== null) data[k] = String(ng[k]);
   // Android: adresa relative ndaj stoku.site (si te telefoni)
-  if (data.url && /pc\.html/.test(data.url)) data.url = data.pamja === 'njoftimet' ? './index.html#ekipa-njoftimet' : data.lloji === 'chat' ? './index.html#ekipa-chat' : './index.html';
+  if (data.url && /pc\.html/.test(data.url)) data.url = data.pamja === 'njoftimet' ? './index.html#ekipa-njoftimet' : './index.html';
   const r = await fetch('https://fcm.googleapis.com/v1/projects/' + (fcmCache.projekti || PROJEKTI) + '/messages:send', {
     method: 'POST', headers: { Authorization: 'Bearer ' + at, 'Content-Type': 'application/json' },
     body: JSON.stringify({ message: { token: tokeni, data, android: { priority: 'HIGH', ttl: '86400s' } } })

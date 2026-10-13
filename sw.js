@@ -10,7 +10,7 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v220';
+var CACHE = 'stoku-v221';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
 importScripts('./afatet.js?v=216', './njoftimet.js?v=216');
@@ -28,15 +28,15 @@ var SHELL = FAQET.concat([
   './bashkimi.js?v=144',
   './ruajtja.js?v=216',
   './afatet.js?v=216',
-  './ekipa.js?v=220',
+  './ekipa.js?v=221',
   './android.js?v=167',
   './porta.js?v=220',
   './njoftimet.js?v=216',
-  './teRejat.js?v=220',
+  './teRejat.js?v=221',
   './manifest.webmanifest?v=85',
   './css/stoku-tokens.css?v=5',
-  './css/stoku.css?v=38',
-  './css/stoku-pc.css?v=29',
+  './css/stoku.css?v=39',
+  './css/stoku-pc.css?v=30',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',
   './logo/stoku-icon.svg?v=3',
@@ -170,34 +170,24 @@ self.addEventListener('periodicsync', function (e) {
   if (e.tag === 'stoku-afatet') e.waitUntil(self.StokuNjoftimet.kontrollo(self.registration));
 });
 
-// ---------- Njoftimet push (worker/stoku-push.js): chat-i, kërkesat, njoftimi ditor për afatet ----------
-// Vijnë edhe kur Stoku është krejt i mbyllur. Nëse aplikacioni është përpara (i dukshëm dhe aktiv), s'del njoftim
-// sistemi: chat-i shihet në aplikacion. Njoftimet e sistemit kalojnë vetë edhe te ora (p.sh. Galaxy Watch), nëse
-// Stoku lejohet te aplikacioni i orës.
+// ---------- Njoftimet push (worker/stoku-push.js): kërkesat, njoftimet e Grupit, njoftimi ditor për afatet ----------
+// Vijnë edhe kur Stoku është krejt i mbyllur, dhe dalin gjithmonë si njoftim i sistemit (iPhone/Safari e kërkon këtë
+// për çdo push). Njoftimet e sistemit kalojnë vetë edhe te ora (p.sh. Galaxy Watch), nëse Stoku lejohet te
+// aplikacioni i orës.
 self.addEventListener('push', function (e) {
   var d = {};
   try { d = e.data ? e.data.json() : {}; } catch (x) { d = { teksti: e.data ? e.data.text() : '' }; }
-  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (dritaret) {
-    var perpara = dritaret.some(function (c) { return c.visibilityState === 'visible' && c.focused; });
-    // iPhone/iPad/Safari: çdo push DUHET të tregojë njoftim, përndryshe Apple e anulon regjistrimin pas disa herësh
-    var ua = (self.navigator && self.navigator.userAgent) || '';
-    var apple = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && !/Chrome|Chromium|Edg|Firefox/.test(ua));
-    if (perpara && d.lloji === 'chat' && !apple) {
-      dritaret.forEach(function (c) { c.postMessage({ lloji: 'push-chat' }); });
-      return;
-    }
-    return self.registration.showNotification(d.titulli || 'Stoku', {
-      body: d.teksti || '',
-      tag: d.tag || 'stoku-push',
-      renotify: true,
-      icon: './icon-192.png?v=3',
-      badge: './logo/badge-96.png?v=1',
-      vibrate: [180, 80, 180],
-      timestamp: d.koha || Date.now(),
-      lang: 'sq',
-      data: { url: d.url || './index.html#ekipa-njoftimet' },
-      actions: [{ action: 'hap', title: d.lloji === 'afatet' ? 'Hap afatet' : d.lloji === 'chat' ? 'Hap chat-in' : 'Hap njoftimet' }]
-    });
+  e.waitUntil(self.registration.showNotification(d.titulli || 'Stoku', {
+    body: d.teksti || '',
+    tag: d.tag || 'stoku-push',
+    renotify: true,
+    icon: './icon-192.png?v=3',
+    badge: './logo/badge-96.png?v=1',
+    vibrate: [180, 80, 180],
+    timestamp: d.koha || Date.now(),
+    lang: 'sq',
+    data: { url: d.url || './index.html#ekipa-njoftimet' },
+    actions: [{ action: 'hap', title: d.lloji === 'afatet' ? 'Hap afatet' : 'Hap njoftimet' }]
   }));
 });
 
@@ -207,7 +197,7 @@ self.addEventListener('notificationclick', function (e) {
   e.notification.close();
   var url = (e.notification.data && e.notification.data.url) || './index.html#afatet';
   var perPc = /pc\.html/.test(url);
-  var mesazhi = /#\/?ekipa/.test(url) ? { lloji: 'hap-ekipa', pamja: /chat/.test(url) ? 'chat' : /anetaret/.test(url) ? 'anetaret' : /njoftimet/.test(url) ? 'njoftimet' : 'afatet' } : { lloji: 'hap-afatet' };
+  var mesazhi = /#\/?ekipa/.test(url) ? { lloji: 'hap-ekipa', pamja: /anetaret/.test(url) ? 'anetaret' : /njoftimet/.test(url) ? 'njoftimet' : 'afatet' } : { lloji: 'hap-afatet' };
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (dritaret) {
     for (var i = 0; i < dritaret.length; i++) {
       var d = dritaret[i];

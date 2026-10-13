@@ -2,7 +2,7 @@
 
 Aplikacion që e hap **stoku.site** brenda vetes, me hapësirë të vetën:
 - **S'del nga llogaria** kur i fshin "Cookies, cache, and other site data" në Chrome (Chrome s'e prek këtë aplikacion).
-- **Njoftimet** (chat-i, kërkesat, njoftimi ditor i afateve) vijnë menjëherë me Firebase Cloud Messaging,
+- **Njoftimet** (kërkesat dhe njoftimet e Grupit, njoftimi ditor i afateve) vijnë menjëherë me Firebase Cloud Messaging,
   edhe kur aplikacioni është mbyllur.
 - **Përditësimet:** pamja dhe veçoritë vijnë gjithmonë nga stoku.site (si te web-i, njëkohësisht në telefon,
   kompjuter dhe aplikacion). Kur del APK e re (ndryshon kjo dosje), aplikacioni e ofron vetë ("Përditëso").

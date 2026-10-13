@@ -631,9 +631,6 @@
   .ek-menu-kuti .af-filtrat { margin-bottom: 10px; }
   .ek-pike { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #D93025; margin-left: 6px; vertical-align: 1px; }
   .af-filtrat button.aktiv .ek-pike { background: #fff; }
-  /* Chat-i: ikonë lart djathtas, pranë ziles */
-  #ekChatBtn .ek-pike { position: absolute; top: 6px; right: 6px; margin: 0; width: 10px; height: 10px; box-shadow: 0 0 0 2px var(--header); }
-  #ekChatBtn.aktiv { background: rgba(255,255,255,.22); }
   /* ---- Grupi: dizajni "Pulti" (v114) ---- */
   .ek-titulli-kuti { flex: 1; min-width: 0; }
   .ek-titulli-kuti h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; }
@@ -765,22 +762,6 @@
   .ek-ngjarje-trup { flex: 1; min-width: 0; font-size: 14.5px; line-height: 1.4; overflow-wrap: anywhere; }
   .ek-ngjarje-detaje { font-size: 12.5px; color: var(--gri); margin-top: 2px; }
   .ek-koha { flex: none; font-size: 12px; color: var(--gri); padding-top: 2px; }
-  /* Chat */
-  .ek-chat { display: flex; flex-direction: column; gap: 4px; padding: 4px 0 8px; }
-  .ek-mesazh { max-width: 84%; align-self: flex-start; }
-  .ek-mesazh.imi { align-self: flex-end; }
-  .ek-mesazh .kush { font-size: 12px; font-weight: 700; color: var(--gri); margin: 6px 0 2px 10px; }
-  .ek-mesazh .flluska {
-    background: var(--fushe-bg); border: 1px solid var(--vije); border-radius: 18px 18px 18px 6px; padding: 8px 13px;
-    font-size: 15px; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere;
-  }
-  .ek-mesazh.imi .flluska { background: var(--primar); border-color: var(--primar); color: #fff; border-radius: 18px 18px 6px 18px; cursor: pointer; }
-  .ek-mesazh .ora { font-size: 11px; color: var(--gri); margin: 2px 10px 0; }
-  .ek-mesazh.imi .ora { text-align: right; }
-  .ek-dita { align-self: center; font-size: 12px; font-weight: 700; color: var(--gri); background: var(--hover); border-radius: 10px; padding: 3px 10px; margin: 10px 0 4px; }
-  .ek-chat-fund[hidden] { display: none; }
-  .ek-chat-fund input { flex: 1; min-width: 0; }
-  .ek-chat-fund .btn { flex: none; padding: 0 18px; }
   /* Kalendari */
   .ek-kal-krye { display: flex; align-items: center; gap: 8px; margin: 2px 0 10px; }
   .ek-kal-krye b { flex: 1; text-align: center; font-size: 17px; }
@@ -1057,7 +1038,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=5">
-<link rel="stylesheet" href="css/stoku.css?v=38">
+<link rel="stylesheet" href="css/stoku.css?v=39">
 </head>
 <body>
 <script src="porta.js?v=220"></script>
@@ -1602,13 +1583,12 @@
   </div>
 </div>
 
-<!-- Grupi: afatet e krejt llogarive (vetëm afatet), aktiviteti, chat-i, kalendari, kolegët, statistikat -->
+<!-- Grupi: afatet e krejt llogarive (vetëm afatet), aktiviteti, kalendari, kolegët, statistikat -->
 <div class="mbulese faqe-e-plote" id="dlgEkipi">
   <div class="faqe-kuti" role="dialog" aria-modal="true" aria-labelledby="ekipiTitulli">
     <div class="opsione-krye">
       <button id="ekipiPrapa" class="btn-ikone" type="button" aria-label="Mbrapa" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
       <div class="ek-titulli-kuti"><div id="ekipiData"></div><h2 id="ekipiTitulli">Grupi</h2></div>
-      <button id="ekChatBtn" class="btn-ikone" type="button" hidden aria-label="Chat-i i grupit" title="Chat-i i grupit"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span class="ek-pike" id="ekChatPike" style="display:none"></span></button>
       <button id="ekZile" class="btn-ikone" type="button" aria-label="Njoftimet" title="Njoftimet"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg><span class="af-shenje" id="ekZileNr" style="display:none"></span></button>
     </div>
     <div class="ek-menu-kuti">
@@ -1623,10 +1603,6 @@
     </div>
     <div class="faqe-trup" id="ekipiTrup">
       <div id="ekipiLista"></div>
-    </div>
-    <div class="faqe-fund ek-chat-fund" id="ekChatFund" hidden>
-      <input id="ekChatTekst" type="text" autocomplete="off" maxlength="2000" placeholder="Shkruaj një mesazh për grupin…" aria-label="Mesazhi">
-      <button class="btn" id="ekChatDergo" type="button">Dërgo</button>
     </div>
   </div>
 </div>
@@ -1896,9 +1872,9 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=216"></script>
 <script src="afatet.js?v=216"></script>
-<script src="ekipa.js?v=220"></script>
+<script src="ekipa.js?v=221"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=220"></script>
+<script src="teRejat.js?v=221"></script>
 <script>
 (function () {
   'use strict';
@@ -3427,7 +3403,7 @@
     rifreskoNjoftimet();
   }
 
-  // ---------- Njoftimet (Cilësimet → Njoftimet): leja, push-i i chat-it, prova, ora ----------
+  // ---------- Njoftimet (Cilësimet → Njoftimet): leja, push-i i Grupit, prova, ora ----------
   function ekipaCloud() { var c = window.__stokuCloud; return (c && c.ekipa) || null; }
   function aktivizoPushin(detyro) {
     var e = ekipaCloud();
@@ -6283,13 +6259,13 @@
     rifreskoPamjen();
     fokusoBarkodin();
   }
-  // ---------- Grupi (telefon): afatet e grupit, aktiviteti, chat-i, kalendari, kolegët, statistikat ----------
+  // ---------- Grupi (telefon): afatet e grupit, aktiviteti, kalendari, kolegët, statistikat ----------
   // Logjika e përbashkët (Firestore, prania, kalendari, statistikat) është te ekipa.js; këtu vetëm vizatimi,
   // me pjesët e Stokut/Afateve (folder-karta, af-numer, af-karta, artikull). Vetëm afatet — jo stoku.
   // Secili ndryshon vetëm të vetat; "Unë e hoqa" te një afat i skaduar i kolegut i dërgon pronarit njoftim me
   // emrin tënd, dhe aplikacioni i tij e shënon vetë si të hequr (zbatoHeqjetEKolegeve).
   var EKL = window.StokuEkipa;
-  var ekPamja = 'permbledhja';     // permbledhja | afatet | aktiviteti | kalendari | anetaret | stoku (chat-i u hoq në v182)
+  var ekPamja = 'permbledhja';     // permbledhja | afatet | aktiviteti | kalendari | anetaret
   var __ekipiAnetari = null;       // te "afatet": null = kartat e grupit; 'krejt' ose uid = lista e atij
   var ekFiltri = null;             // null (në raft) | skaduar | afer | ok | hequr
   var ekKal = null;                // { viti, muaji, dita } — kalendari
@@ -6352,16 +6328,15 @@
   function ekTeGjithaAfatet(anetaret) { var l = []; anetaret.forEach(function (a) { l = l.concat(a.afatet); }); return l; }
 
   function hapEkipiFaqe(pamja) {
-    if (pamja === 'chat' || pamja === 'statistika') pamja = 'permbledhja';
+    if (pamja === 'statistika') pamja = 'permbledhja';
     if (pamja) {
-      if (ekPamja === 'chat' && pamja !== 'chat' && ekK) ekK.mbyllChatin();
       __ekipiAnetari = null; ekFiltri = null;
       ekPamja = pamja;
       ekVendosNivelin();
     }
     $('dlgEkipi').classList.add('hapur');
     $('ekipiTrup').scrollTop = 0;
-    if (ekK) { ekK.hap(); if (ekPamja === 'chat') ekK.hapChatin(); }
+    if (ekK) ekK.hap();
     vizatoEkipen();
   }
   function mbyllEkipiFaqe() {
@@ -6378,13 +6353,11 @@
   function ekVendosNivelin() { $('dlgEkipi').classList.toggle('ne-anetar', !ekEshteShtepi()); }
   function ekipiKthehuTeKartat(paVizatim) {
     if (ekEshteShtepi()) return;
-    if (ekPamja === 'chat' && ekK) ekK.mbyllChatin();
     __ekipiAnetari = null; ekFiltri = null; ekPamja = 'permbledhja';
     ekVendosNivelin();
     if (!paVizatim) { $('ekipiTrup').scrollTop = 0; vizatoEkipen(); }
   }
   function ekHapAnetarin(uid, filtri) {
-    if (ekPamja === 'chat' && ekK) ekK.mbyllChatin();
     ekPamja = 'afatet';
     __ekipiAnetari = uid; ekFiltri = filtri || null;
     ekVendosNivelin();
@@ -6397,28 +6370,17 @@
     ekZgjidhPamjen(p);
   }
   function ekZgjidhPamjen(p) {
-    if (ekPamja === 'chat' && p !== 'chat' && ekK) ekK.mbyllChatin();
-    var ishte = ekPamja;
     __ekipiAnetari = null; ekFiltri = null;
     ekPamja = p;
     ekVendosNivelin();
-    if (p === 'chat' && ekK) ekK.hapChatin();
-    if (ishte !== p || p !== 'chat') $('ekipiTrup').scrollTop = 0;
+    $('ekipiTrup').scrollTop = 0;
     vizatoEkipen();
-    if (p === 'chat') setTimeout(function () { var t = $('ekipiTrup'); t.scrollTop = t.scrollHeight; }, 30);
   }
   Array.prototype.forEach.call(document.querySelectorAll('#ekMenu button'), function (b) {
     b.addEventListener('click', function () { ekPllaka(b.getAttribute('data-n')); });
   });
-  // Chat-i hapet nga ikona lart djathtas (pranë ziles); prekja sërish kthen te Afatet
-  var __ekParaChatit = 'afatet';
-  $('ekChatBtn').addEventListener('click', function () {
-    if (ekPamja === 'chat') { ekZgjidhPamjen(__ekParaChatit); return; }
-    __ekParaChatit = ekPamja;
-    ekZgjidhPamjen('chat');
-  });
 
-  // Rivizatim kur ndryshon diçka (kolegët, aktiviteti, chat-i, afatet e mia…)
+  // Rivizatim kur ndryshon diçka (kolegët, aktiviteti, afatet e mia…)
   function kurNdryshonEkipa(cfare) {
     if (cfare === 'kujtesa') { // produktet e grupit u ndryshuan (nga një koleg): vetëm lista te Cilësimet → Stoku, nëse është hapur
       rifreskoStokunNeCilesime();
@@ -6427,8 +6389,7 @@
     rifreskoShenjatEEkipes();
     if (cfare === 'dyqanet' || cfare === 'te-gjitha') planifikoMesimin(); // kujtesa nga afatet e kolegëve
     if (!$('dlgEkipi').classList.contains('hapur')) return;
-    if (cfare === 'njoftimet' || cfare === 'chat-fundit') return;
-    if (cfare === 'chat' ? ekPamja !== 'chat' : (ekPamja === 'chat' && cfare !== 'te-gjitha')) return;
+    if (cfare === 'njoftimet') return;
     // Dikush po shkruan te një fushë e pamjes (fto, njoftimi për grupin, emri i grupit): rindërtimi pritet derisa ta lëshojë
     // fushën, përndryshe teksti fshihej dhe tastiera mbyllej (prania e kolegëve e ndez këtë çdo ≤ 90 s)
     if (ekFushaAktive() && document.activeElement.id !== 'ekKerko') { ekRivizatoNePritje = true; return; }
@@ -6468,7 +6429,6 @@
     var kr = ekK ? ekK.numriKerkesave() : 0;
     var z = $('ekZileNr'); z.textContent = n ? String(n) : ''; z.style.display = n ? '' : 'none';
     var t = $('ekTabShenja'); t.textContent = (n + kr) ? String(n + kr) : ''; t.style.display = (n || kr) ? '' : 'none';
-    $('ekChatPike').style.display = 'none';
     $('ekKerkesaPike').style.display = kr ? '' : 'none';
   }
 
@@ -6483,8 +6443,6 @@
       var po = b.getAttribute('data-n') === ekPamja;
       b.classList.toggle('aktiv', po);
     });
-    $('ekChatFund').hidden = true;
-    $('ekChatBtn').classList.toggle('aktiv', ekPamja === 'chat');
     $('ekChipStoku').hidden = true; // Stoku te Grupi u hoq (v183)
     if (ekPamja === 'stoku') ekPamja = 'permbledhja';
     var shtepi = ekEshteShtepi();
@@ -6496,7 +6454,7 @@
     if (!ekK || !ekK.kaLidhje()) {
       c.textContent = '';
       if (ngaVizitori()) { // prova si vizitor: Grupi kërkon llogari
-        var bv = ekBosh('Grupi punon me llogari', 'Me llogari punon bashkë me kolegët: afatet e përbashkëta, aktiviteti dhe chat-i. Si vizitor provon Stoku-n dhe Afatet.');
+        var bv = ekBosh('Grupi punon me llogari', 'Me llogari punon bashkë me kolegët: afatet e përbashkëta dhe aktiviteti. Si vizitor provon Stoku-n dhe Afatet.');
         var hv = ekEl('button', 'btn ek-viz-hyr', 'Hyr ose krijo llogari');
         hv.type = 'button';
         hv.addEventListener('click', hapHyrjenNgaProva);
@@ -6509,9 +6467,7 @@
     }
     var qasja = ekK.gjendjaEQasjes();
     $('ekMenu').hidden = qasja !== 'ok';
-    $('ekChatBtn').hidden = true;
     if (qasja !== 'ok') {
-      $('ekChatFund').hidden = true;
       $('ekipiTitulli').textContent = 'Grupi';
       if (qasja === 'pa-grup') { vizatoPaGrup(c); return; }
       c.textContent = '';
@@ -6893,19 +6849,6 @@
     });
     c.appendChild(frag);
   }
-
-  // ---- Chat (u hoq në v182; mbeten vetëm lidhjet e elementeve të fshehura) ----
-  async function ekDergoMesazhin() {
-    var inp = $('ekChatTekst');
-    var t = inp.value.trim();
-    if (!t || !ekK) return;
-    inp.value = '';
-    var r = await ekK.dergoMesazh(t);
-    if (!r.ok) { if (!inp.value) inp.value = t; toast(r.leje ? 'S\'u lejua: vetëm kolegët e pranuar të grupit shkruajnë në chat.' : 'Mesazhi s\'u dërgua. Kontrollo internetin dhe provo përsëri.', 4000); }
-    var trup = $('ekipiTrup'); trup.scrollTop = trup.scrollHeight;
-  }
-  $('ekChatDergo').addEventListener('click', function () { ekDergoMesazhin(); $('ekChatTekst').focus(); });
-  $('ekChatTekst').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ekDergoMesazhin(); } });
 
   // ---- Kalendari ----
   function vizatoKalendarin(c) {
@@ -7567,7 +7510,6 @@
   }
   // Njoftim i sistemit kur aplikacioni është në sfond; kur është përpara, mjafton shenja/toast-i
   function njoftoNgaEkipa(nj) {
-    if (nj.pamja === 'chat') return; // chat-i u hoq (v182)
     if (!document.hidden) {
       if (nj.pamja === 'anetaret') toast(nj.teksti, 5000);
       else if (/^Stoku · Hiqe/.test(nj.titulli)) toast(nj.teksti, 6000);
@@ -8585,7 +8527,7 @@
     // Dyqani ruhet i ndarë në disa dokumente (ruajtja.js) — pa kufirin 1 MB të një dokumenti
     var ruajtja = window.StokuRuajtja.krijo({ doc: doc, getDoc: getDoc, setDoc: setDoc, runTransaction: runTransaction, onSnapshot: onSnapshot, collection: collection },
       db, function () { return auth.currentUser ? auth.currentUser.uid : null; });
-    // Grupi (ekipa.js): prania, aktiviteti, chat-i, njoftimet personale
+    // Grupi (ekipa.js): prania, aktiviteti, njoftimet personale
     var ekipa = window.StokuEkipa ? window.StokuEkipa.krijoCloud({ doc: doc, getDoc: getDoc, getDocs: getDocs, setDoc: setDoc, addDoc: addDoc, deleteDoc: deleteDoc,
       collection: collection, onSnapshot: onSnapshot, query: query, where: where, orderBy: orderBy, limit: limit, writeBatch: writeBatch }, db, auth, 'tel') : null;
 

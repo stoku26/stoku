@@ -21,7 +21,7 @@ object Njoftimet {
 
     fun lejuar(ctx: Context): Boolean = NotificationManagerCompat.from(ctx).areNotificationsEnabled()
 
-    /** url: adresa që hapet kur preket njoftimi (relative ndaj stoku.site, p.sh. "./index.html#ekipa-chat"). */
+    /** url: adresa që hapet kur preket njoftimi (relative ndaj stoku.site, p.sh. "./index.html#ekipa-njoftimet"). */
     fun shfaq(ctx: Context, titulli: String, teksti: String, tag: String, url: String) {
         if (!lejuar(ctx)) return
         val hap = Intent(ctx, MainActivity::class.java).apply {

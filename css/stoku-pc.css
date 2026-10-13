@@ -326,11 +326,7 @@
 .sbp .ek-avatar { background: var(--sb-accent-tint); color: var(--sb-accent-text); }
 .sbp .ek-avatar.online::after { background: var(--sb-ok-dot); border-color: var(--sb-surface); }
 .sbp .ek-ti { background: var(--sb-accent-tint); color: var(--sb-accent-text); }
-.sbp .ek-mesazh .flluska { background: var(--sb-surface-2); border-radius: 14px; padding: 10px 13px; }
-.sbp .ek-mesazh.imi .flluska { background: var(--sb-accent); color: #fff; border-radius: 14px; }
-.sbp .ek-chat-fund { border-top: 1px solid var(--sb-line-2); }
-.sbp .ek-chat-fund .kuti-fushe { background: var(--sb-bg); box-shadow: none; }
-.sbp .ek-dita, .sbp .ek-kal-nr small { background: var(--sb-surface-2); color: var(--sb-muted); }
+.sbp .ek-kal-nr small { background: var(--sb-surface-2); color: var(--sb-muted); }
 .sbp .ek-ngjarje, .sbp .ek-dita-rresht, .sbp .ek-nj { border-bottom-color: var(--sb-line-2); }
 .sbp .ek-kal-dite { border: 0; box-shadow: var(--sb-ring); border-radius: 10px; background: var(--sb-surface); }
 .sbp .ek-kal-dite:hover { box-shadow: 0 0 0 1px var(--sb-accent); }
@@ -530,7 +526,7 @@
 }
 
 /* ---------- Zgjedhja e tekstit (v139 / 1.0.1): butonat, menyja, titujt dhe filtrat s'zgjidhen me dyklik/tërheqje.
-   Tabela, emrat, barkodet, chat-i dhe fushat mbeten për kopjim. */
+   Tabela, emrat, barkodet dhe fushat mbeten për kopjim. */
 .sbp aside.anesore, .sbp button, .sbp .kpi, .sbp .karta-krye, .sbp .faqe-krye, .sbp .segmente, .sbp th,
 .sbp .opsione-skeda, .sbp .ops-faqe-krye, .sbp .dialog-krye, .sbp .menu {
   -webkit-user-select: none; user-select: none;

@@ -50,6 +50,22 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **CHAT-I U HOQ KREJT (v221 = 1.24.1, Worker 164, rregullat pa chat)**: chat-i ishte fshehur nga UI në v182; tani
+   s'ka më asnjë gjurmë në kod. Web (tel + PC): pa `#ekChatBtn`/`#ekChatFund`/`#navEkChat`/`#ekVChat`/`#ekAdminPastroChat`,
+   pa CSS-në e mesazheve (`.ek-mesazh`, `.ek-dita`, `.ek-chat-*`, edhe te `css/stoku.css` v39 dhe `css/stoku-pc.css` v30);
+   pamja 'chat' s'ekziston më (PC: `EK_NENET` pa të; adresat e vjetra `#/ekipa/chat` dhe `#ekipa-chat` → Pulti/Grupi).
+   Teksti i vizitorit te Grupi: "afatet e përbashkëta dhe aktiviteti" (tel), "ndani afatet dhe aktivitetin" (PC). PC: butoni
+   i administratorit "Pastro krejt aktivitetin" me dëgjues të vetin. `ekipa.js`: pa `dergoMesazh`/`degjoChatin`/
+   `fshijMesazhin`/`hapChatin`/`mbyllChatin`/`kaChatTePalexuar`/`shenoChatinTeLexuar`/`pastroChatin`/`njoftoPushChat`, pa
+   `KEY_CHAT_LEXUAR`, `gj.chat*`, `mesazhiFundit`; radha pa `kohaEDergimit` (`shtoNeRadhe(rruga, te, opt)`, `dergoOp(op)`);
+   migrimi s'kopjon `ekipa_chat`; fshirja e grupit pastron vetëm `feed`/`afatet`/`push`; `pastroKoleksionin` vetëm 'feed';
+   `VERSIONI_WORKER: 164`. `sw.js`: çdo push del si njoftim (u hoq përjashtimi "Stoku përpara" që vlente vetëm për chat-in).
+   **Worker 164**: pa `/chat` (404 `rruga`); adresa e njoftimit gjithmonë `#ekipa-njoftimet` / `#/ekipa/njoftimet`.
+   **Android (tel/)**: `FcmSherbimi` s'e shikon më llojin, u hoq `MainActivity.nePerpara` (del APK e re e telefonit; ora
+   s'preket). **Rregullat** (seksioni më poshtë): pa `ekipa_chat` dhe `grupet/{g}/chat`, i vendos përdoruesi; mesazhet e
+   vjetra, nëse ka, fshihen vetëm nga Console. Historiku (teRejat, SHENIME) mbetet siç ishte. Provat: push-test.js,
+   grupet-test.js, orari-test.js (5a3), wp/prova.mjs, wp/grupi-prova.mjs, wp/fcm-prova.mjs, wp/v216-prova.mjs (tubacioni i
+   njoftimeve tani provohet me `/kerkese`), wp/fjalekalimi-prova.mjs (versioni 163+).
 0000000. **FJALËKALIMI I HARRUAR (v220 = 1.24.0, Worker 163)**: llogaritë janë `emri@stoku-app.local` (pa email të vërtetë),
    prandaj Firebase s'dërgon dot link rikthimi. **Porta** (`porta.js`): "Ke harruar fjalëkalimin?" (vetëm te "Hyr") hap
    `#pkRiv` me tre hapa: emri → `POST /fjalekalimi/kerko`; kodi 6-shifror → `/verifiko`; fjalëkalimi i ri dy herë →
@@ -1240,7 +1256,7 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
-## Rregullat e Firestore (v164 grupet; më parë v116 + v130 ekipa_push + v140 admini nga llogaria) — i vendos PËRDORUESI (unë s'kam qasje)
+## Rregullat e Firestore (v164 grupet, v221 pa chat; më parë v116 + v130 ekipa_push + v140 admini nga llogaria) — i vendos PËRDORUESI (unë s'kam qasje)
 
 Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Dyqani lexohet vetëm nga pronari/admin-i;
 `emri`/`perdoruesi` s'falsifikohen (= emri i llogarisë); aplikacioni s'mund ta shtojë/ndryshojë fushën `emri` te
@@ -1252,6 +1268,8 @@ tregon "Kjo llogari u fshi nga administratori." te porta. Testi: `fshirja-v116.j
 **v164 (grupet):** Ekipa = `grupet/{g}` me anëtarësinë, ftesat te `ftesat/{g}_{emri}`; lista e `perdoruesit` vetëm për
 admin-in; njoftimet vetëm brenda grupit (fusha `grupi`). Koleksionet e vjetra `ekipa_*` mbeten vetëm për aplikacionin
 e vjetër (para përditësimit). Mock-u në scratchpad (`fs-server.js`, `rregullat: 'reja'`) i ndjek këto rregulla.
+**v221 (pa chat):** u hoqën `ekipa_chat/{id}` dhe `grupet/{g}/chat/{id}`: askush s'lexon/shkruan më aty (as aplikacioni i
+vjetër: krijimi refuzohet, fshirja e grupit vazhdon pa to). Mesazhet e vjetra, nëse ka, fshihen vetëm nga Console.
 
 ```
 rules_version = '2';
@@ -1343,14 +1361,6 @@ service cloud.firestore {
         && request.resource.data.uid == request.auth.uid && request.resource.data.emri == emriIm();
       allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || eshteAdmin());
     }
-    match /ekipa_chat/{id} {
-      allow read: if request.auth != null && neEkipe();
-      allow create: if request.auth != null && neEkipe()
-        && request.resource.data.uid == request.auth.uid && request.resource.data.emri == emriIm()
-        && request.resource.data.tekst is string
-        && request.resource.data.tekst.size() > 0 && request.resource.data.tekst.size() <= 2000;
-      allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || eshteAdmin());
-    }
     match /ekipa_push/{id} {
       allow read: if request.auth != null && neEkipe();
       allow create, update: if request.auth != null && neEkipe() && request.resource.data.uid == request.auth.uid
@@ -1401,14 +1411,6 @@ service cloud.firestore {
           && request.resource.data.uid == request.auth.uid && request.resource.data.emri == emriIm()));
         allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || pronarIGrupit(g) || eshteAdmin());
       }
-      match /chat/{id} {
-        allow read: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());
-        allow create: if request.auth != null && (eshteAdmin() || (anetarIGrupit(g)
-          && request.resource.data.uid == request.auth.uid && request.resource.data.emri == emriIm()
-          && request.resource.data.tekst is string
-          && request.resource.data.tekst.size() > 0 && request.resource.data.tekst.size() <= 2000));
-        allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || pronarIGrupit(g) || eshteAdmin());
-      }
       // v197: kujtesa e produkteve e grupit (barkodi → emri, furnizuesi), e ndarë sipas shifrës së fundit: p0..p9, px
       match /kujtesa/{pjesa} {
         allow read: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());
@@ -1451,7 +1453,7 @@ service cloud.firestore {
 ```
 
 Pas vendosjes: admin-i duhet ta hapë aplikacionin një herë (telefon ose PC) me v164: ekipa e vjetër bëhet grupi "Ekipa"
-(anëtarët, chat-i, aktiviteti, afatet). Anëtarët e vjetër hyjnë vetë aty; të tjerët s'shohin askënd derisa të krijojnë
+(anëtarët, aktiviteti, afatet). Anëtarët e vjetër hyjnë vetë aty; të tjerët s'shohin askënd derisa të krijojnë
 grup ose të pranojnë ftesë. Pa këto rregulla, Ekipa tregon "Grupet s'janë gati ende" (stoku/afatet punojnë).
 
 ## Kontakte/aksese që s'i kam
