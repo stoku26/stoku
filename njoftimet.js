@@ -17,19 +17,31 @@
   var MAKS_VECMAS = 4;               // mbi këtë numër, njoftimet e reja bashkohen në një të vetëm
   var URL_AFATET = './index.html#afatet';
 
+  // Një lidhje e vetme për krejt faqen (ose service worker-in), jo një e re për çdo lexim/shkrim
+  var dbPremtimi = null;
   function hapDb() {
-    return new Promise(function (zgjidh, refuzo) {
+    if (dbPremtimi) return dbPremtimi;
+    dbPremtimi = new Promise(function (zgjidh, refuzo) {
       if (!root.indexedDB) { refuzo(new Error('pa-indexeddb')); return; }
       var k = root.indexedDB.open(DB_EMRI, 1);
       k.onupgradeneeded = function () { k.result.createObjectStore('kv'); };
-      k.onsuccess = function () { zgjidh(k.result); };
+      k.onsuccess = function () {
+        var db = k.result;
+        db.onclose = db.onversionchange = function () { try { db.close(); } catch (e) { /* ok */ } dbPremtimi = null; };
+        zgjidh(db);
+      };
       k.onerror = function () { refuzo(k.error); };
     });
+    dbPremtimi.catch(function () { dbPremtimi = null; }); // provohet sërish herën tjetër
+    return dbPremtimi;
+  }
+  function transaksion(db, menyra) {
+    try { return db.transaction('kv', menyra); } catch (e) { dbPremtimi = null; throw e; } // lidhja u mbyll ndërkohë
   }
   function merr(celesi) {
     return hapDb().then(function (db) {
       return new Promise(function (zgjidh) {
-        var r = db.transaction('kv', 'readonly').objectStore('kv').get(celesi);
+        var r = transaksion(db, 'readonly').objectStore('kv').get(celesi);
         r.onsuccess = function () { zgjidh(r.result); };
         r.onerror = function () { zgjidh(undefined); };
       });
@@ -38,10 +50,11 @@
   function vendos(celesi, vlera) {
     return hapDb().then(function (db) {
       return new Promise(function (zgjidh) {
-        var tx = db.transaction('kv', 'readwrite');
+        var tx = transaksion(db, 'readwrite');
         tx.objectStore('kv').put(vlera, celesi);
         tx.oncomplete = function () { zgjidh(true); };
         tx.onerror = function () { zgjidh(false); };
+        tx.onabort = function () { zgjidh(false); }; // p.sh. memoria plot (QuotaExceededError): pa këtë premtimi s'mbaron kurrë
       });
     });
   }
@@ -120,5 +133,9 @@
     }).catch(function () { return 0; });
   }
 
-  root.StokuNjoftimet = { ruajAfatet: ruajAfatet, kontrollo: kontrollo, teReja: teReja, vendosOrarin: vendosOrarin, URL_AFATET: URL_AFATET };
+  // Pas daljes nga llogaria: pa listë afatesh, që pajisja të mos njoftojë më për dyqanin e llogarisë që doli
+  // ('njoftuar' mbetet: kur rihyn e njëjta llogari, produktet e njoftuara s'njoftohen sërish)
+  function pastro() { return vendos('afatet', []).catch(function () { return false; }); }
+
+  root.StokuNjoftimet = { ruajAfatet: ruajAfatet, kontrollo: kontrollo, teReja: teReja, vendosOrarin: vendosOrarin, pastro: pastro, URL_AFATET: URL_AFATET };
 })(typeof self !== 'undefined' ? self : this);

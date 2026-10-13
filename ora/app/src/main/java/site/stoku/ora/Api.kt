@@ -72,12 +72,14 @@ object Api {
         rifreskoTileDheKomplikacionin(ctx)
     }
 
-    private fun thirr(metoda: String, rruga: String, trup: JSONObject?, sekret: String?): Pair<Int, JSONObject> {
+    // shpejt: për tile-in dhe komplikacionin. Kërkesa e bllokuar s'ndalet nga withTimeoutOrNull, prandaj kufijtë e
+    // lidhjes janë vetë të shkurtër (përndryshe tile-i rrinte bosh deri në 25 s para se të shfaqte listën e ruajtur)
+    private fun thirr(metoda: String, rruga: String, trup: JSONObject?, sekret: String?, shpejt: Boolean = false): Pair<Int, JSONObject> {
         val c = URL(SERVERI + rruga).openConnection() as HttpURLConnection
         try {
             c.requestMethod = metoda
-            c.connectTimeout = 10000
-            c.readTimeout = 15000
+            c.connectTimeout = if (shpejt) 4000 else 10000
+            c.readTimeout = if (shpejt) 5000 else 15000
             c.setRequestProperty("Accept", "application/json")
             if (sekret != null) c.setRequestProperty("X-Stoku-Ora", sekret)
             if (trup != null) {
@@ -109,16 +111,30 @@ object Api {
         ok
     }
 
-    suspend fun merrListen(ctx: Context): Lista = withContext(Dispatchers.IO) {
+    suspend fun merrListen(ctx: Context, shpejt: Boolean = false): Lista = withContext(Dispatchers.IO) {
         val tz = URLEncoder.encode(TimeZone.getDefault().id, "UTF-8")
-        val (st, j) = thirr("GET", "/ora/sot?tz=$tz", null, sekreti(ctx))
+        val (st, j) = thirr("GET", "/ora/sot?tz=$tz", null, sekreti(ctx), shpejt)
         if (st == 401) {
             prefs(ctx).edit().putBoolean("lidhur", false).remove("lista").apply()
             throw PaLidhje()
         }
         if (st != 200 || !j.optBoolean("ok")) throw Exception("serveri-$st")
         prefs(ctx).edit().putString("lista", j.toString()).putLong("listaKoha", System.currentTimeMillis()).apply()
+        listaNdryshoi = false
         lexo(j)
+    }
+
+    // Lista ndryshoi te ora (heqje, zhbërje): tile-i dhe komplikacioni e marrin sërish nga serveri, jo nga kopja e ruajtur
+    @Volatile var listaNdryshoi = false
+
+    // Lista e ndryshuar këtu (heqje nga rafti): ruhet si kopja e fundit, që tile-i dhe komplikacioni ta shohin edhe pa internet
+    fun ruajListen(ctx: Context, l: Lista) {
+        fun arr(a: List<Afat>) = JSONArray().also { j ->
+            a.forEach { x -> j.put(JSONObject().put("i", x.id).put("e", x.emri).put("b", x.barkodi).put("d", x.data).also { o -> x.sasia?.let { o.put("s", it) } }) }
+        }
+        val j = JSONObject().put("ok", true).put("dita", l.dita).put("sot", arr(l.sot)).put("java", arr(l.java)).put("javaN", l.javaN)
+            .put("skaduara", l.skaduara).put("skaduaraL", arr(l.skaduaraL)).put("ekipa", l.ekipa).put("emri", l.emri)
+        prefs(ctx).edit().putString("lista", j.toString()).apply()
     }
 
     // Lista e fundit e ruajtur (për tile-in dhe komplikacionin kur s'ka internet)
@@ -126,16 +142,38 @@ object Api {
         prefs(ctx).getString("lista", null)?.let { lexo(JSONObject(it)) }
     } catch (e: Exception) { null }
 
-    suspend fun merrMeCache(ctx: Context): Lista? = try {
-        if (lidhur(ctx)) merrListen(ctx) else null
-    } catch (e: Exception) {
-        if (lidhur(ctx)) listaERuajtur(ctx) else null
+    // Tile-i dhe komplikacioni: kopja e ruajtur kur është e freskët (< 3 min, e së njëjtës ditë), që hapja e aplikacionit
+    // të mos bëjë tre kërkesa njëra pas tjetrës (aplikacioni, tile-i, komplikacioni) përmes Bluetooth-it
+    suspend fun merrMeCache(ctx: Context): Lista? {
+        if (!lidhur(ctx)) return null
+        val ruajtur = listaERuajtur(ctx)
+        val mosha = System.currentTimeMillis() - prefs(ctx).getLong("listaKoha", 0L)
+        if (!listaNdryshoi && ruajtur != null && mosha in 0..180_000L && ruajtur.dita == java.time.LocalDate.now().toString()) return ruajtur
+        return try { merrListen(ctx, shpejt = true) } catch (e: Exception) { if (lidhur(ctx)) listaERuajtur(ctx) else null }
     }
 
+    // Kthen vetëm kur serveri e ruajti; përndryshe hedh gabim (që aplikacioni të mos thotë "u shënua" pa qenë e vërtetë)
     suspend fun hiq(ctx: Context, id: String, zhbej: Boolean = false): Boolean = withContext(Dispatchers.IO) {
-        val (st, _) = thirr("POST", "/ora/hiq", JSONObject().put("i", id).put("zhbej", zhbej), sekreti(ctx))
+        val (st, j) = thirr("POST", "/ora/hiq", JSONObject().put("i", id).put("zhbej", zhbej), sekreti(ctx))
         if (st == 401) throw PaLidhje()
-        st == 200
+        if (st != 200 || !j.optBoolean("ok", true)) throw Exception("serveri-$st")
+        true
+    }
+
+    // "Hiqi krejt": një kërkesë e vetme (serveri v162). Serveri i vjetër (400: pa "i") → një nga një, me pushim 1.1 s
+    // (KV-ja pranon ~1 shkrim në sekondë për të njëjtin çelës). Kthen sa s'u ruajtën.
+    suspend fun hiqShume(ctx: Context, ids: List<String>): Int = withContext(Dispatchers.IO) {
+        if (ids.isEmpty()) return@withContext 0
+        val (st, j) = thirr("POST", "/ora/hiq", JSONObject().put("ids", JSONArray(ids)).put("i", ""), sekreti(ctx))
+        if (st == 401) throw PaLidhje()
+        if (st == 200 && j.optBoolean("ok", true)) return@withContext 0
+        if (st != 400) throw Exception("serveri-$st")
+        var deshtoi = 0
+        ids.forEachIndexed { i, id ->
+            if (i > 0) kotlinx.coroutines.delay(1100)
+            try { hiq(ctx, id) } catch (e: PaLidhje) { throw e } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { deshtoi++ }
+        }
+        deshtoi
     }
 
     // Kolegët e ekipës (për kërkesat "hiqe nga rafti")
@@ -185,7 +223,8 @@ object Api {
         emri = j.optString("emri"),
     )
 
-    fun rifreskoTileDheKomplikacionin(ctx: Context) {
+    fun rifreskoTileDheKomplikacionin(ctx: Context, ndryshoi: Boolean = false) {
+        if (ndryshoi) listaNdryshoi = true
         try { TileService.getUpdater(ctx).requestUpdate(StokuTile::class.java) } catch (e: Exception) { }
         try {
             ComplicationDataSourceUpdateRequester.create(ctx, ComponentName(ctx, StokuKomplikacion::class.java)).requestUpdateAll()

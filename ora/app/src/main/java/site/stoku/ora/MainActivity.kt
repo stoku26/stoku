@@ -46,6 +46,8 @@ import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -155,7 +157,8 @@ sealed class Pamja {
     data class HiqKrejt(val l: List<Afat>) : Pamja()
     object Cilesimet : Pamja()
     object Ngjyrat : Pamja()
-    data class Kolegu(val a: Afat) : Pamja()
+    // nga: ekrani i produktit nga erdhi (mbrapa kthehet aty, me të njëjtën gjendje: "Skadon sot", "Skadoi më …")
+    data class Kolegu(val a: Afat, val nga: Detaji? = null) : Pamja()
     data class Hequr(val a: Afat) : Pamja()
     data class Derguar(val tekst: String) : Pamja()
 }
@@ -177,6 +180,8 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
             Api.rifreskoTileDheKomplikacionin(ctx)
         } catch (e: PaLidhje) {
             kurShkeputet(); return
+        } catch (e: CancellationException) {
+            throw e // një ngarkim më i ri e zëvendësoi: ky s'duhet të shkruajë gabim mbi rezultatin e tij
         } catch (e: Exception) {
             gabim = "S'ka lidhje me serverin. Lista mund të jetë e vjetër."
         }
@@ -187,7 +192,16 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
     var dukePerditesuar by remember { mutableStateOf(false) }
     LaunchedEffect(Rikthimi.n) { ngarko() }
     LaunchedEffect(Unit) { iRi = Perditesimi.kontrollo(ctx) }
-    BackHandler(enabled = pamja !is Pamja.Lista) { pamja = if (pamja is Pamja.Ngjyrat) Pamja.Cilesimet else Pamja.Lista }
+    // Heqjet në rrugë (sipas id-së): "Zhbëj" pret që heqja të mbarojë, që të dy kërkesat të mos garojnë te serveri
+    val heqjet = remember { mutableMapOf<String, Job>() }
+    BackHandler(enabled = pamja !is Pamja.Lista) {
+        val p0 = pamja
+        pamja = when (p0) {
+            is Pamja.Ngjyrat -> Pamja.Cilesimet
+            is Pamja.Kolegu -> p0.nga ?: Pamja.Lista
+            else -> Pamja.Lista
+        }
+    }
 
     when (val p = pamja) {
         is Pamja.Detaji -> Detaji(
@@ -199,13 +213,17 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                 val a = p.a
                 pamja = Pamja.Hequr(a)
                 lista = lista?.let { l -> l.copy(sot = l.sot.filter { it.id != a.id }, java = l.java.filter { it.id != a.id }, skaduaraL = l.skaduaraL.filter { it.id != a.id },
+                    javaN = if (l.java.any { it.id == a.id }) (l.javaN - 1).coerceAtLeast(0) else l.javaN,
                     skaduara = if (l.skaduaraL.any { it.id == a.id }) (l.skaduara - 1).coerceAtLeast(0) else l.skaduara) }
-                scope.launch {
-                    try { Api.hiq(ctx, a.id) } catch (e: PaLidhje) { kurShkeputet() } catch (e: Exception) { gabim = "Heqja s'u ruajt. Provo prapë." }
-                    Api.rifreskoTileDheKomplikacionin(ctx)
+                lista?.let { Api.ruajListen(ctx, it) }
+                val pune = scope.launch {
+                    try { Api.hiq(ctx, a.id) } catch (e: PaLidhje) { kurShkeputet() } catch (e: CancellationException) { throw e } catch (e: Exception) { gabim = "Heqja s'u ruajt. Provo prapë." }
+                    Api.rifreskoTileDheKomplikacionin(ctx, ndryshoi = true)
                 }
+                heqjet[a.id] = pune
+                pune.invokeOnCompletion { if (heqjet[a.id] === pune) heqjet.remove(a.id) }
             },
-            kurKerkon = { pamja = Pamja.Kolegu(p.a) },
+            kurKerkon = { pamja = Pamja.Kolegu(p.a, p) },
             mbrapa = { pamja = Pamja.Lista },
         )
         is Pamja.HiqKrejt -> HiqKrejt(
@@ -213,14 +231,13 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
             kurPo = {
                 val ids = p.l.map { it.id }.toSet()
                 lista = lista?.let { l -> l.copy(skaduaraL = l.skaduaraL.filter { it.id !in ids }, skaduara = (l.skaduara - ids.size).coerceAtLeast(0)) }
+                lista?.let { Api.ruajListen(ctx, it) }
                 pamja = Pamja.Derguar(if (ids.size == 1) "U shënua 1 produkt: hequr nga rafti" else "U shënuan ${ids.size} produkte: hequr nga rafti")
                 scope.launch {
-                    var deshtoi = 0
-                    for (id in ids) {
-                        try { Api.hiq(ctx, id) } catch (e: PaLidhje) { kurShkeputet(); return@launch } catch (e: Exception) { deshtoi++ }
-                    }
-                    if (deshtoi > 0) gabim = "$deshtoi heqje s'u ruajtën. Provo prapë."
-                    Api.rifreskoTileDheKomplikacionin(ctx)
+                    // Një kërkesë për krejt (jo 5 njëra pas tjetrës: serveri s'i ruante dot të gjitha)
+                    val deshtoi = try { Api.hiqShume(ctx, ids.toList()) } catch (e: PaLidhje) { kurShkeputet(); return@launch } catch (e: CancellationException) { throw e } catch (e: Exception) { ids.size }
+                    if (deshtoi > 0) { gabim = if (deshtoi == 1) "1 heqje s'u ruajt. Provo prapë." else "$deshtoi heqje s'u ruajtën. Provo prapë."; ngarko() }
+                    Api.rifreskoTileDheKomplikacionin(ctx, ndryshoi = true)
                 }
             },
             mbrapa = { pamja = Pamja.Lista },
@@ -238,7 +255,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
             a = p.a,
             kurDergohet = { tekst -> pamja = Pamja.Derguar(tekst) },
             kurShkeputet = kurShkeputet,
-            mbrapa = { pamja = Pamja.Detaji(p.a, false, lista?.skaduaraL?.any { it.id == p.a.id } == true) },
+            mbrapa = { pamja = p.nga ?: Pamja.Detaji(p.a, false, lista?.skaduaraL?.any { it.id == p.a.id } == true) },
         )
         is Pamja.Hequr -> {
             val a = p.a
@@ -250,7 +267,9 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                 kurButoni = {
                     pamja = Pamja.Lista
                     scope.launch {
-                        try { Api.hiq(ctx, a.id, zhbej = true) } catch (e: Exception) { }
+                        heqjet.remove(a.id)?.join() // heqja (nëse ende në rrugë) mbaron e para, pastaj zhbërja
+                        try { Api.hiq(ctx, a.id, zhbej = true) } catch (e: PaLidhje) { kurShkeputet(); return@launch } catch (e: CancellationException) { throw e } catch (e: Exception) { gabim = "Zhbërja s'u ruajt. Provo prapë." }
+                        Api.rifreskoTileDheKomplikacionin(ctx, ndryshoi = true)
                         ngarko()
                     }
                 },
@@ -290,7 +309,9 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                     // Të skaduarat të parat: duhen hequr nga rafti menjëherë
                     if (l != null && l.skaduaraL.isNotEmpty()) {
                         item { ListHeader { Text("KANË SKADUAR · ${l.skaduara}", color = Kuqe, fontWeight = FontWeight.Bold) } }
-                        items(l.skaduaraL, key = { "k" + it.id + it.data }) { a ->
+                        val ck = celesaUnike("k", l.skaduaraL)
+                        items(l.skaduaraL.size, key = { ck[it] }) { i ->
+                            val a = l.skaduaraL[i]
                             RreshtiAfatit(a, "Skadoi " + dataShkurt(a.data) + (a.sasia?.let { " · $it copë" } ?: ""), Kuqe) { pamja = Pamja.Detaji(a, false, true) }
                         }
                         if (l.skaduaraL.size > 1) item {
@@ -307,12 +328,18 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                     if (l != null && l.sot.isEmpty()) item {
                         Text("Asnjë produkt s'skadon sot ✓", textAlign = TextAlign.Center, color = Color.White, modifier = Modifier.padding(8.dp))
                     }
-                    if (l != null) items(l.sot, key = { "s" + it.id }) { a ->
-                        RreshtiAfatit(a, pershkrimi(a), AfatAfer) { pamja = Pamja.Detaji(a, true) }
+                    if (l != null) {
+                        val cs = celesaUnike("s", l.sot)
+                        items(l.sot.size, key = { cs[it] }) { i ->
+                            val a = l.sot[i]
+                            RreshtiAfatit(a, pershkrimi(a), AfatAfer) { pamja = Pamja.Detaji(a, true) }
+                        }
                     }
                     if (l != null && l.java.isNotEmpty()) {
                         item { ListHeader { Text("KËTË JAVË · ${l.javaN}", color = Gri, fontWeight = FontWeight.SemiBold) } }
-                        items(l.java, key = { "j" + it.id + it.data }) { a ->
+                        val cj = celesaUnike("j", l.java)
+                        items(l.java.size, key = { cj[it] }) { i ->
+                            val a = l.java[i]
                             RreshtiAfatit(a, dataShkurt(a.data) + (a.sasia?.let { " · $it copë" } ?: ""), AfatAfer) { pamja = Pamja.Detaji(a, false) }
                         }
                     }
@@ -466,6 +493,18 @@ fun Konfirmim(titulli: String, tekst: String, butoni: String, kurButoni: () -> U
         Text(tekst, fontSize = 12.sp, color = Gri, textAlign = TextAlign.Center)
         Spacer(Modifier.height(8.dp))
         Chip(onClick = kurButoni, label = { Text(butoni, fontWeight = FontWeight.Bold) }, colors = ChipDefaults.secondaryChipColors())
+    }
+}
+
+// Çelësat e rreshtave duhet të jenë unikë (përndryshe lista rrëzohet): dy afate pa id, ose një id i përsëritur,
+// marrin "#1", "#2"…
+fun celesaUnike(prefiks: String, l: List<Afat>): List<String> {
+    val pare = HashMap<String, Int>()
+    return l.map { a ->
+        val baza = prefiks + a.id + "|" + a.data
+        val n = pare[baza] ?: 0
+        pare[baza] = n + 1
+        if (n == 0) baza else "$baza#$n"
     }
 }
 

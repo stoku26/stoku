@@ -264,6 +264,7 @@
 :root.sbp[data-tema="dark"] .shirit-zgjedhjes .btn.dyte { box-shadow: 0 0 0 1px rgba(0,0,0,.2); }
 .sbp .shirit-zgjedhjes .btn.tekst { color: inherit; opacity: .85; }
 .sbp .shirit-zgjedhjes .btn.tekst.rrezik { background: var(--sb-exp); color: #fff; opacity: 1; }
+:root.sbp[data-tema="dark"] .shirit-zgjedhjes .btn.tekst.rrezik { color: #1b0d0c; } /* e bardha mbi koralin e çelët s'lexohej */
 
 /* ---------- Tabelat ---------- */
 .sbp .tabela-mbajtese { border: 0; border-radius: 16px; background: var(--sb-surface); box-shadow: var(--sb-ring); }

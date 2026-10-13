@@ -56,6 +56,8 @@
   }
 
   function ditetTekst(n) { return n === 1 ? '1 ditë' : n + ' ditë'; }
+  // Pas "para": "para 1 dite", "para 5 ditësh" (rasa rrjedhore)
+  function ditetParaTekst(n) { return n === 1 ? '1 dite' : n + ' ditësh'; }
 
   // Sasia: numër i plotë ≥ 0, ose '' kur s'është shkruar.
   // Pranon edhe shuma, siç i shkruajnë punëtorët në fletë kur u del mall tjetër: "60+30" → 90, "20 + 30 + 5" → 55.
@@ -70,6 +72,10 @@
     var t = String(v === null || v === undefined ? '' : v).replace(/\s+/g, '');
     return /\+/.test(t) && lexoSasine(t) !== '' ? t : '';
   }
+  // Sasia e stokut e shkruar me dorë: deri në 6 shifra (si te afatet). Më e gjatë zakonisht është një barkod i skanuar
+  // gabimisht në fushën e sasisë (skaneri PDA/USB), jo një sasi.
+  var SASIA_E_MADHE = 'Sasia duket si barkod (shumë shifra). Shkruaj sasinë, jo barkodin.';
+  function sasiaEPranueshme(t) { return /^-?\d{1,6}$/.test(String(t === undefined || t === null ? '' : t).trim()); }
   function sasiaTekst(a) { return (a && a.sasia !== '' && a.sasia !== undefined && a.sasia !== null) ? a.sasia + ' copë' : ''; }
   // Shuma e copëve për një listë afatesh (vetëm ato që e kanë sasinë)
   function shumaCopeve(lista) {
@@ -84,7 +90,7 @@
     var n = ditetDeri(a.data, tani);
     if (st === 'hequr') return 'U hoq nga rafti' + (a.hequrSe ? ' më ' + formato(isoNgaData(new Date(a.hequrSe))) : '') + '.';
     if (st === 'pa-date') return 'Mungon data e skadimit. Plotësoje.';
-    if (st === 'skaduar') return (n === -1 ? 'Skadoi dje' : 'Ka skaduar para ' + ditetTekst(-n)) + '. Ky produkt duhet të hiqet nga rafti/pozita.';
+    if (st === 'skaduar') return (n === -1 ? 'Skadoi dje' : 'Ka skaduar para ' + ditetParaTekst(-n)) + '. Ky produkt duhet të hiqet nga rafti/pozita.';
     if (st === 'afer') {
       var kur = n === 0 ? 'Skadon SOT' : n === 1 ? 'Skadon nesër' : 'Skadon për ' + ditetTekst(n);
       return kur + '.';
@@ -116,10 +122,7 @@
       // "12.10" (ditë.muaj) — viti më i afërt në të ardhmen; "10/27" (muaj/vit) nëse numri i dytë > 12
       var a = +m[1], b = +m[2];
       if (b > 12) return fundiMuajit(vitiPlote(b), a);
-      var tani = new Date(); var v = tani.getFullYear();
-      var iso = ndertoIso(v, b, a);
-      if (iso && ditetDeri(iso) < -180) iso = ndertoIso(v + 1, b, a);
-      return iso;
+      return ditaNeMuaj(a, b);
     }
     if ((m = /^(\d{1,2})\s*([a-zëç]{3,})\.?\s*(\d{2}|\d{4})$/.exec(s)) && MUAJT[m[2].slice(0, 3)]) return ndertoIso(vitiPlote(m[3]), MUAJT[m[2].slice(0, 3)], +m[1]);
     if ((m = /^([a-zëç]{3,})\.?\s*(\d{2}|\d{4})$/.exec(s)) && MUAJT[m[1].slice(0, 3)]) return fundiMuajit(vitiPlote(m[2]), MUAJT[m[1].slice(0, 3)]);
@@ -211,7 +214,8 @@
         function prova(i) {
           var kk = provat[i][0], cil = provat[i][1];
           var c = document.createElement('canvas');
-          c.width = Math.max(1, Math.round(w * kk)); c.height = Math.max(1, Math.round(h * kk));
+          // Math.floor: kanavaca s'e kalon kurrë FOTO_PIKSELA_MAKS (iOS Safari e refuzon edhe 1 piksel më shumë)
+          c.width = Math.max(1, Math.floor(w * kk)); c.height = Math.max(1, Math.floor(h * kk));
           var ctx = c.getContext('2d');
           ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
           ctx.imageSmoothingQuality = 'high';
@@ -222,7 +226,7 @@
           var base64 = dataUrl.slice(dataUrl.indexOf(',') + 1);
           if (base64.length > FOTO_BASE64_MAKS && i < provat.length - 1) { prova(i + 1); return; }
           URL.revokeObjectURL(url);
-          zgjidh({ dataUrl: dataUrl, base64: base64, mime: 'image/jpeg', gjeresia: Math.round(w * kk), lartesia: Math.round(h * kk) });
+          zgjidh({ dataUrl: dataUrl, base64: base64, mime: 'image/jpeg', gjeresia: Math.max(1, Math.floor(w * kk)), lartesia: Math.max(1, Math.floor(h * kk)) });
         }
         try { prova(0); } catch (e) { URL.revokeObjectURL(url); refuzo(e); }
       };
@@ -393,7 +397,12 @@
     if (typeof v === 'number' && isFinite(v)) {
       if (v > 20000 && v < 80000) { var d = new Date(Math.round((v - 25569) * DITA_MS)); return ndertoIso(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate()); }
       if (v >= 1 && v <= 31 && Number.isInteger(v) && muajiFletes) return ditaNeMuaj(v, muajiFletes);
+      // Excel-i e ruan "12.10" (dita.muaji) si numrin 12.1 dhe "10.2030" (muaji.viti) si 10.203: zeroja në fund humbet.
+      // Rikthehet vetëm ajo zero (x.1 → x.10, x.20y → x.20y0); "12.5", "5.2026" etj. mbeten siç janë.
       v = String(v);
+      var pjeset = /^(\d{1,2})\.(\d+)$/.exec(v);
+      if (pjeset && pjeset[2] === '1') v += '0';
+      else if (pjeset && /^20\d$/.test(pjeset[2])) v += '0';
     }
     var s = String(v === undefined || v === null ? '' : v).trim();
     if (!s) return null;
@@ -408,7 +417,7 @@
     var nKol = (rows || []).reduce(function (m, r) { return Math.max(m, (r || []).length); }, 0);
     var k = { barkodi: -1, emri: -1, data: -1, sasia: -1, furnizuesi: -1 };
     var fjalet = { barkodi: ['barkod', 'barcode', 'ean', 'kodi', 'sku', 'code'], data: ['skad', 'afat', 'data', 'expir', 'exp', 'valid', 'deri', 'date'],
-      sasia: ['sasi', 'cope', 'qty', 'quantity', 'pako', 'stok'], furnizuesi: ['furniz', 'supplier', 'kompani', 'firma', 'distribut', 'vendor'],
+      sasia: ['sasi', 'cope', 'qty', 'quantity', 'pako', 'stok'], furnizuesi: ['furniz', 'furnit', 'supplier', 'kompani', 'firma', 'distribut', 'vendor'],
       emri: ['emri', 'emer', 'produkt', 'artikull', 'pershkrim', 'name', 'description', 'malli'] };
     if (meKoke && rows && rows[0]) {
       var titujt = rows[0].map(normTitulli);
@@ -467,8 +476,8 @@
         if (/^(gjithsej|totali?|shuma|sum)$/i.test(b || emri)) return;
         var data = dataNgaQeliza(v('data'), muaji);
         var s = kol.sasia >= 0 ? lexoSasine(v('sasia')) : '';
-        var rr = { fleta: sh.name, nr: i + 1 + (opt.meKoke ? 1 : 0), barkodi: /^\d+$/.test(b) ? b : (b ? b : ''), emri: emri, data: data || '',
-          dataOrigjinale: tekstNgaQeliza(v('data')), sasia: s === null || s === undefined ? '' : s, furnizuesi: tekstNgaQeliza(v('furnizuesi')), gabim: '', veprimi: '' };
+        var rr = { fleta: sh.name, nr: i + 1 + (opt.meKoke ? 1 : 0), barkodi: b, emri: emri, data: data || '',
+          dataOrigjinale: tekstNgaQeliza(v('data')), sasia: s, furnizuesi: tekstNgaQeliza(v('furnizuesi')), gabim: '', veprimi: '' };
         if (!rr.barkodi && !rr.emri) rr.gabim = 'pa barkod dhe pa emër';
         else if (!data) rr.gabim = rr.dataOrigjinale ? 'data s\'u kuptua' : 'pa datë';
         if (rr.gabim) { plan.gabime++; plan.rreshta.push(rr); return; }
@@ -485,10 +494,14 @@
   function afatetNgaPlani(plan, meta) {
     meta = meta || {};
     var tani = Date.now(), out = [];
+    var teBashkuar = new Map(); // rreshti i parë → rreshtat që bashkohen me të (një kalim, jo n²)
+    plan.rreshta.forEach(function (x) {
+      if (x.bashkoMe && typeof x.sasia === 'number') { var l = teBashkuar.get(x.bashkoMe); if (l) l.push(x); else teBashkuar.set(x.bashkoMe, [x]); }
+    });
     plan.rreshta.forEach(function (r) {
       if (r.gabim || r.veprimi !== 'i ri') return;
       var sasia = r.sasia;
-      plan.rreshta.forEach(function (x) { if (x.bashkoMe === r && typeof x.sasia === 'number') sasia = (typeof sasia === 'number' ? sasia : 0) + x.sasia; });
+      (teBashkuar.get(r) || []).forEach(function (x) { sasia = (typeof sasia === 'number' ? sasia : 0) + x.sasia; });
       var a = { id: idERe(), barkodi: r.barkodi, emri: r.emri, data: r.data, sasia: sasia, furnizuesi: r.furnizuesi, statusi: 'aktiv', krijuarSe: tani, ndryshuarSe: tani, burimi: 'excel' };
       if (meta.krijuarNga) a.krijuarNga = meta.krijuarNga;
       out.push(a);
@@ -564,17 +577,19 @@
   // Afatet marrin ndryshuarSe = tani; produktet prekurSe + 1 ms (fitojnë sinkronizimin pa u ngjitur te "Ndryshuar së fundi").
   // Kthen { afatet, produktet, nAfate, nProdukte }.
   function riemertoFurnizuesin(afatet, produktet, vjeter, iRi, tani) {
-    vjeter = String(vjeter || '').trim(); iRi = String(iRi || '').trim(); tani = tani || Date.now();
+    // Hapësirat brenda emrit njësohen si te listaEFurnizuesve: "Meridian  Group" dhe "Meridian Group" janë një furnizues
+    function nrm(t) { return String(t || '').replace(/\s+/g, ' ').trim(); }
+    vjeter = nrm(vjeter); iRi = nrm(iRi); tani = tani || Date.now();
     var nA = 0, nP = 0, pRe = {};
     var aRe = (afatet || []).map(function (a) {
-      if (!a || String(a.furnizuesi || '').trim() !== vjeter || !vjeter || !iRi) return a;
+      if (!a || nrm(a.furnizuesi) !== vjeter || !vjeter || !iRi) return a;
       nA++;
       return Object.assign({}, a, { furnizuesi: iRi, ndryshuarSe: tani });
     });
     var p = produktet || {};
     Object.keys(p).forEach(function (k) {
       var x = p[k];
-      if (x && vjeter && iRi && String(x.furnizuesi || '').trim() === vjeter) {
+      if (x && vjeter && iRi && nrm(x.furnizuesi) === vjeter) {
         nP++;
         pRe[k] = Object.assign({}, x, { furnizuesi: iRi, prekurSe: (typeof x.prekurSe === 'number' ? x.prekurSe : 0) + 1 });
       } else pRe[k] = x;
@@ -717,8 +732,21 @@
     function njofto(barkodet) { if (barkodet.length) degjuesit.forEach(function (fn) { try { fn(barkodet.slice()); } catch (e) { /* ok */ } }); }
     // Furnizuesi i kontrolluar nga administratori. detyro: edhe mbi një furnizues të fshirë (veprim me dorë i administratorit)
     // Çelësat e furnizuesve aktivë me këtë emër, pa dallim shkronjash të mëdha/vogla (v = emri me shkronja të vogla)
-    function celesatEFurnizuesit(h, v) {
+    // idx (opsional): indeksiIFurnizuesve(h), i ndërtuar një herë për veprim (mësimi i shumë rreshtave, bashkimi me grupin):
+    // pa të, çdo rresht do ta kalonte krejt kujtesën (O(rreshta × hyrje), ngrin telefonin te kujtesat e mëdha)
+    function celesatEFurnizuesit(h, v, idx) {
+      if (idx) return (idx[v] || []).filter(function (c) { return h[c] && !h[c].x; });
       return Object.keys(h).filter(function (c) { return eshteCelesFurnizuesi(c) && !h[c].x && c.slice(FURN_PARA.length).toLocaleLowerCase('sq') === v; });
+    }
+    function indeksiIFurnizuesve(h) {
+      var idx = {};
+      Object.keys(h).forEach(function (c) { if (eshteCelesFurnizuesi(c) && !h[c].x) shtoNeIndeks(idx, c); });
+      return idx;
+    }
+    function shtoNeIndeks(idx, c) {
+      if (!idx) return;
+      var v = c.slice(FURN_PARA.length).toLocaleLowerCase('sq');
+      if (!idx[v]) idx[v] = [c]; else if (idx[v].indexOf(c) === -1) idx[v].push(c);
     }
     // detyro: administratori e ruan me dorë (Ruaj, riemërtim): i kontrolluar, edhe mbi një të fshirë ose në pritje.
     // Pa detyro (në sfond, koha 1): emrat e vjetër të administratorit pa asnjë hyrje (as në pritje, as të fshirë, pa dallim
@@ -740,22 +768,23 @@
     // v214: furnizuesi i ri që e shkruan dikush gjatë punës (produkt, afat): ruhet më vete që të mos zhduket kur fshihen
     // produktet e tij, dhe pret kontrollin (i kolegut: me autorin; i administratorit: me r). Nëse njihet tashmë (i kontrolluar
     // ose në pritje, pa dallim shkronjash) s'preket; një i fshirë del sërish në pritje (fiton sepse është më i ri).
-    function regjistroIRi(h, emri, tani, ndr) {
+    function regjistroIRi(h, emri, tani, ndr, idx) {
       emri = pastroTekstin(emri, 80);
       var c = celesIFurnizuesit(emri); if (!c) return;
-      if (celesatEFurnizuesit(h, emri.toLocaleLowerCase('sq')).length) return;
+      if (celesatEFurnizuesit(h, emri.toLocaleLowerCase('sq'), idx).length) return;
       if (!autori.admin && !autori.emri) return; // pa autor s'mund të presë kontrollin
       var ri = { e: emri, f: '', k: tani || Date.now() };
       if (autori.admin) { ri.s = 1; ri.r = 1; }
       if (autori.emri) ri.n = autori.emri;
       h[c] = ri;
+      shtoNeIndeks(idx, c);
       if (ndr) ndr.push(c);
     }
     // v214: produktet në pritje me një furnizues që s'ka hyrjen e vet (të dhëna nga versionet e vjetra, ose një pajisje që
     // s'e ka ruajtur ende): krijohet hyrja e furnizuesit në pritje (me autorin e produktit), që të mos zhduket me produktin.
     // S'krijohet kur furnizuesi është fshirë pas produktit.
     function siguroFurnizuesitNePritje(h) {
-      var ndr = [], fshire = {};
+      var ndr = [], fshire = {}, idx = indeksiIFurnizuesve(h);
       Object.keys(h).forEach(function (c) {
         if (!eshteCelesFurnizuesi(c) || !h[c].x) return;
         var v = c.slice(FURN_PARA.length).toLocaleLowerCase('sq');
@@ -765,17 +794,18 @@
         var x = h[b];
         if (eshteCelesFurnizuesi(b) || !eshteNePritje(x) || !x.f) return;
         var v = x.f.toLocaleLowerCase('sq'), c = celesIFurnizuesit(x.f);
-        if (!c || celesatEFurnizuesit(h, v).length) return;
+        if (!c || celesatEFurnizuesit(h, v, idx).length) return;
         if (fshire[v] && fshire[v] >= (Number(x.k) || 0)) return;
         h[c] = x.s ? { e: x.f, f: '', k: Number(x.k) || 1, s: 1, r: 1, n: x.n || '' } : { e: x.f, f: '', k: Number(x.k) || 1, n: x.n };
         if (!h[c].n) delete h[c].n;
+        shtoNeIndeks(idx, c);
         ndr.push(c);
       });
       return ndr;
     }
     // menyra 'mbishkruaj' (ruajtje nga përdoruesi: fushat jo-bosh zëvendësojnë) | 'plotëso' (në sfond: vetëm hyrje të reja
     // ose plotësim i atyre automatike; hyrjet e përdoruesit, me dorë ose të harruara s'preken)
-    function mesoNje(h, b, emri, furn, menyra, tani, ndr) {
+    function mesoNje(h, b, emri, furn, menyra, tani, ndr, idx) {
       b = pastroBarkodin(b); emri = pastroTekstin(emri, 120); furn = pastroTekstin(furn, 80);
       if (!b || (!emri && !furn)) return false;
       var x = h[b], ri;
@@ -796,7 +826,7 @@
         // presin kontrollin e administratorit); i njëjti emër e furnizues s'e kalon një produkt të njohur në pritje
         if (autori.emri && (autori.admin || !vjeter || ri.e !== vjeter.e || ri.f !== vjeter.f)) ri.n = autori.emri;
         else if (vjeter && vjeter.n) ri.n = vjeter.n;
-        if (ri.f) regjistroIRi(h, ri.f, ri.k, ndr); // v214: furnizuesi i ri ruhet më vete (në pritje), nga kushdo
+        if (ri.f) regjistroIRi(h, ri.f, ri.k, ndr, idx); // v214: furnizuesi i ri ruhet më vete (në pritje), nga kushdo
       }
       h[b] = ri;
       return b;
@@ -813,12 +843,12 @@
       meso: function (b, emri, furn, menyra) { var h = lexo(), ndr = [], r = mesoNje(h, b, emri, furn, menyra, 0, ndr); if (!r) return false; shkruaj(); njofto([r].concat(ndr)); return true; },
       // lista: [{ barkodi, emri, furnizuesi }]; një shkrim i vetëm në fund
       mesoShume: function (lista, menyra) {
-        var h = lexo(), ndr = [], tani = Date.now();
+        var h = lexo(), ndr = [], tani = Date.now(), idx = indeksiIFurnizuesve(h);
         (lista || []).forEach(function (x) {
-          var r = x && mesoNje(h, x.barkodi, x.emri, x.furnizuesi, menyra, tani, ndr);
+          var r = x && mesoNje(h, x.barkodi, x.emri, x.furnizuesi, menyra, tani, ndr, idx);
           if (r) ndr.push(r);
           // v215: rreshti pa barkod (p.sh. afat i importuar vetëm me emër): furnizuesi i ri ruhet prapë më vete, në pritje
-          else if (x && menyra !== 'plotëso' && x.furnizuesi && !pastroBarkodin(x.barkodi)) regjistroIRi(h, x.furnizuesi, tani, ndr);
+          else if (x && menyra !== 'plotëso' && x.furnizuesi && !pastroBarkodin(x.barkodi)) regjistroIRi(h, x.furnizuesi, tani, ndr, idx);
         });
         if (ndr.length) { shkruaj(); njofto(ndr); }
         return ndr.length;
@@ -897,7 +927,9 @@
         var nFurn = ndr.length;
         Object.keys(h).forEach(function (b) {
           var x = h[b];
-          if (eshteCelesFurnizuesi(b) || x.x || !x.e || !x.f || x.f.toLocaleLowerCase('sq') !== v) return;
+          if (eshteCelesFurnizuesi(b) || x.x || !x.f || x.f.toLocaleLowerCase('sq') !== v) return;
+          // Produkti që kishte vetëm furnizuesin (pa emër): pa furnizues s'mbetet asgjë, harrohet (si te "vendos" pa emër e furnizues)
+          if (!x.e) { h[b] = { x: 1, k: tani, s: 1 }; ndr.push(b); return; }
           x.f = ''; x.k = tani; delete x.a;
           if (!eshteNePritje(x)) x.s = 1;
           ndr.push(b);
@@ -973,7 +1005,7 @@
     pergatitFoton: pergatitFoton, fotoPerDergim: fotoPerDergim, lexoMeAI: lexoMeAI,
     normalizoRreshtin: normalizoRreshtin, EMRAT_MUAJVE: EMRAT_MUAJVE, muajiNgaEmri: muajiNgaEmri, celesiMuajit: celesiMuajit, emriMuajit: emriMuajit,
     muajtELista: muajtELista, furnizuesitELista: furnizuesitELista, celesiFurnizuesit: celesiFurnizuesit, ditetEMbetura: ditetEMbetura, dataNgaQeliza: dataNgaQeliza, hamendesoKolonatEAfateve: hamendesoKolonatEAfateve,
-    planiImportitAfateve: planiImportitAfateve, afatetNgaPlani: afatetNgaPlani, tekstNgaQeliza: tekstNgaQeliza, ditetTekst: ditetTekst, lexoSasine: lexoSasine, sasiaSiShume: sasiaSiShume, sasiaTekst: sasiaTekst, shumaCopeve: shumaCopeve,
+    planiImportitAfateve: planiImportitAfateve, afatetNgaPlani: afatetNgaPlani, tekstNgaQeliza: tekstNgaQeliza, ditetTekst: ditetTekst, ditetParaTekst: ditetParaTekst, lexoSasine: lexoSasine, sasiaEPranueshme: sasiaEPranueshme, SASIA_E_MADHE: SASIA_E_MADHE, sasiaSiShume: sasiaSiShume, sasiaTekst: sasiaTekst, shumaCopeve: shumaCopeve,
     listaEFurnizuesve: listaEFurnizuesve, renditSipasRuajtjes: renditSipasRuajtjes, furnizuesiEkzistues: furnizuesiEkzistues, riemertoFurnizuesin: riemertoFurnizuesin,
     IKONAT_FOLDERAVE: IKONAT_FOLDERAVE, ikonaEFolderit: ikonaEFolderit, svgEIkones: svgEIkones, zgjedhesIIkonave: zgjedhesIIkonave,
     kujtesa: kujtesa, krijoKujtesen: krijoKujtesen, KUJTESA_KEY: KUJTESA_KEY

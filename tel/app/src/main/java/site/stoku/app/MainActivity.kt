@@ -13,8 +13,10 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
 import android.view.View
+import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.PermissionRequest
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
@@ -32,9 +34,16 @@ class MainActivity : Activity() {
     private var fotoUri: Uri? = null
     private var kerkesaKamere: PermissionRequest? = null
     private var pritKamerenPerSkedar: WebChromeClient.FileChooserParams? = null
+    // Ngarkimet që i nis vetë aplikacioni (njoftimi, "Provo sërish" pas faqes pa internet): kur faqja hapet mirë, historia
+    // e vjetër fshihet, që "Mbrapa" te faqja kryesore ta mbyllë aplikacionin e jo të kthejë te faqja pa internet
+    private var pastroHistorine = false
+    private var gabimNeNgarkim = false
+    // Procesi i faqes ra: kjo WebView s'përdoret më (vetëm hiqet), aktiviteti rikrijohet me një të re
+    private var webRa = false
 
     companion object {
         const val EXTRA_URL = "url"
+        private const val RIPROVO = "stoku-riprovo"
         private const val K_SKEDARI = 11
         private const val L_KAMERA = 21
         private const val L_NJOFTIMET = 22
@@ -74,11 +83,27 @@ class MainActivity : Activity() {
         web.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, req: WebResourceRequest): Boolean {
                 val u = req.url
+                if (eStokut(u) && u.fragment == RIPROVO) { pastroHistorine = true; view.loadUrl(StokuApp.BAZA + "index.html"); return true }
                 if (eStokut(u)) return false
                 hapJashte(u); return true
             }
+            override fun onPageStarted(view: WebView, url: String?, favicon: android.graphics.Bitmap?) { gabimNeNgarkim = false }
             override fun onReceivedError(view: WebView, req: WebResourceRequest, err: WebResourceError) {
-                if (req.isForMainFrame) faqjaPaInternet()
+                if (req.isForMainFrame) { gabimNeNgarkim = true; faqjaPaInternet() }
+            }
+            override fun onPageFinished(view: WebView, url: String?) {
+                if (pastroHistorine && !gabimNeNgarkim) { pastroHistorine = false; view.clearHistory() }
+            }
+            // Procesi i WebView-it ra (p.sh. pa memorie gjatë skanimit ose një importi të madh): faqja rihapet,
+            // në vend që Android-i ta mbyllë krejt aplikacionin
+            override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
+                if (view === web && !webRa) {
+                    webRa = true
+                    (web.parent as? ViewGroup)?.removeView(web)
+                    web.destroy()
+                    recreate()
+                }
+                return true
             }
         }
         web.webChromeClient = object : WebChromeClient() {
@@ -102,8 +127,9 @@ class MainActivity : Activity() {
         }
         web.setDownloadListener { url, _, _, _, _ -> if (url.startsWith("http")) hapJashte(Uri.parse(url)) }
 
-        if (savedInstanceState != null) web.restoreState(savedInstanceState)
-        else web.loadUrl(adresaNga(intent) ?: (StokuApp.BAZA + "index.html"))
+        // restoreState kthen null kur s'u ruajt asgjë (p.sh. aplikacioni u mbyll para se faqja e parë të ngarkohej)
+        val rikthyer = savedInstanceState != null && (try { web.restoreState(savedInstanceState) } catch (e: Exception) { null }) != null
+        if (!rikthyer) web.loadUrl(adresaNga(intent) ?: (StokuApp.BAZA + "index.html"))
 
         StokuApp.rifreskoKonfigurimin(this)
     }
@@ -129,22 +155,24 @@ class MainActivity : Activity() {
             val hash = "#" + u.substringAfter("#")
             web.evaluateJavascript("(function(){try{return window.__stokuHapNgaNjoftimi?(window.__stokuHapNgaNjoftimi(" +
                 JSONObject.quote(hash) + ")!==false):false}catch(e){return false}})()") { r ->
-                if (r != "true") web.loadUrl(u)
+                if (r != "true") { pastroHistorine = true; web.loadUrl(u) }
             }
-        } else web.loadUrl(u)
+        } else { pastroHistorine = true; web.loadUrl(u) }
     }
 
-    fun thirrJs(js: String) { if (this::web.isInitialized) web.evaluateJavascript(js, null) }
+    fun thirrJs(js: String) { if (this::web.isInitialized && !webRa) web.evaluateJavascript(js, null) }
 
     private fun hapJashte(u: Uri) {
         try { startActivity(Intent(Intent.ACTION_VIEW, u).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } catch (e: ActivityNotFoundException) { /* s'ka aplikacion */ }
     }
 
     private fun faqjaPaInternet() {
+        // Ngarkimi dështoi: historia e mëparshme s'fshihet (pastrohet vetëm kur faqja e Stoku-t hapet mirë, p.sh. pas "Provo sërish")
+        pastroHistorine = false
         val html = "<html><head><meta name='viewport' content='width=device-width,initial-scale=1'></head>" +
             "<body style='font-family:sans-serif;background:#f6f5f2;color:#14161b;display:flex;align-items:center;justify-content:center;height:90vh;text-align:center'>" +
             "<div><h2>S'ka lidhje me internetin</h2><p>Hapja e parë e Stoku-t kërkon internet.</p>" +
-            "<p><a href='" + StokuApp.BAZA + "index.html' style='display:inline-block;padding:12px 22px;background:#1f5fd1;color:#fff;border-radius:12px;text-decoration:none'>Provo sërish</a></p></div></body></html>"
+            "<p><a href='" + StokuApp.BAZA + "index.html#" + RIPROVO + "' style='display:inline-block;padding:12px 22px;background:#1f5fd1;color:#fff;border-radius:12px;text-decoration:none'>Provo sërish</a></p></div></body></html>"
         web.loadDataWithBaseURL(StokuApp.BAZA, html, "text/html", "utf-8", null)
     }
 
@@ -227,20 +255,27 @@ class MainActivity : Activity() {
     // ---------- Cikli i jetës ----------
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        if (web.canGoBack()) web.goBack() else super.onBackPressed()
+        if (!webRa && web.canGoBack()) web.goBack() else super.onBackPressed()
     }
     override fun onResume() {
-        super.onResume(); nePerpara = true; web.onResume()
+        super.onResume(); nePerpara = true; if (!webRa) web.onResume()
         Perditesimi.vazhdoNesePritej(this)
         Perditesimi.kontrollo(this, false) // më së shumti një herë në 6 orë (aplikacioni mund të rrijë i hapur me ditë)
     }
     override fun onPause() {
-        nePerpara = false; web.onPause(); CookieManager.getInstance().flush(); super.onPause()
+        nePerpara = false; if (!webRa) web.onPause(); CookieManager.getInstance().flush(); super.onPause()
     }
-    override fun onSaveInstanceState(out: Bundle) { super.onSaveInstanceState(out); web.saveState(out) }
+    override fun onSaveInstanceState(out: Bundle) {
+        super.onSaveInstanceState(out)
+        if (!webRa) try { web.saveState(out) } catch (e: Exception) { /* hapet nga fillimi */ }
+    }
     override fun onDestroy() {
         if (aktive === this) aktive = null
-        web.visibility = View.GONE
+        if (!webRa) {
+            web.visibility = View.GONE
+            (web.parent as? ViewGroup)?.removeView(web)
+            web.destroy()
+        }
         super.onDestroy()
     }
 }
