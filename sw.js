@@ -10,7 +10,7 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v222';
+var CACHE = 'stoku-v223';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
 importScripts('./afatet.js?v=216', './njoftimet.js?v=216');
@@ -39,7 +39,6 @@ var SHELL = FAQET.concat([
   './css/stoku-pc.css?v=30',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',
-  './logo/stoku-icon.svg?v=3',
   './logo/stoku-logo.svg?v=3',
   './logo/stoku-logo-dark.svg?v=3',
   './logo/favicon.svg?v=3',
@@ -48,7 +47,6 @@ var SHELL = FAQET.concat([
   './icon-192.png?v=3',
   './icon-512.png?v=3',
   './apple-touch-icon.png?v=3',
-  './logo.png?v=3',
   './logo/badge-96.png?v=1',
 ]);
 
@@ -93,7 +91,7 @@ self.addEventListener('install', function (e) {
 self.addEventListener('activate', function (e) {
   e.waitUntil(
     caches.keys().then(function (emrat) {
-      // Fshihen krejt cache-t e tjera, edhe ato të Stoku Beta-s së hequr ("stoku-beta-…")
+      // Fshihen krejt cache-t e tjera (të versioneve të vjetra)
       return Promise.all(emrat.filter(function (k) { return k !== CACHE; })
         .map(function (k) { return caches.delete(k); }));
     }).then(function () { return self.clients.claim(); })
@@ -103,9 +101,6 @@ self.addEventListener('activate', function (e) {
 self.addEventListener('fetch', function (e) {
   var kerkesa = e.request;
   if (kerkesa.method !== 'GET') return;
-
-  // /beta/ (Stoku Beta u hoq; aty ka vetëm një faqe që të kthen te Stoku): s'ruhet, që të mos e zëvendësojë faqen e Stoku-t
-  if (new URL(kerkesa.url).pathname.indexOf('/beta/') !== -1) return;
 
   // Faqet (telefon = index.html, kompjuter = pc.html): provo internetin së pari (për përditësime),
   // pastaj kopjen e ruajtur të PO ASAJ faqeje — secila ruhet veç, që njëra të mos e zëvendësojë tjetrën.
