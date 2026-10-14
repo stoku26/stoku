@@ -18,6 +18,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 222, versioni: '1.24.2', data: '2026-10-14', titulli: 'Historiku i përditësimeve më i pastër', pikat: [
+      'Te "Çka ka të re" u hoqën shënimet për veçoritë që s\'ekzistojnë më.'
+    ] },
     { v: 221, versioni: '1.24.1', data: '2026-10-13', titulli: 'Grupi më i pastër', pikat: [
       'U hoqën krejt pjesët e vjetra të Grupit që s\'përdoreshin më: aplikacioni është pak më i lehtë.',
       'Për vizitorët, faqja e Grupit tregon saktë çka ofron Grupi me llogari: afatet e përbashkëta dhe aktivitetin.'
@@ -176,7 +179,7 @@
       'Kurora dhe mburoja shihen tash edhe te "Online tani" dhe te anëtarët në kompjuter.',
       'Te Grupi, koha e fundit online dhe statistikat me shkrim më të lexueshëm.',
       'Aplikacioni Android dhe ora e gjejnë gjithmonë versionin e ri, edhe kur ka shumë publikime.',
-      'Grupi harxhon më pak internet (u hoq dëgjimi i chat-it që s\'ekziston më).'
+      'Grupi harxhon më pak internet.'
     ] },
     { v: 187, versioni: '1.14.0', data: '2026-10-08', titulli: 'Ekipa tash quhet Grupi', pikat: [
       'Kudo në Stoku (telefon, kompjuter, ora dhe aplikacioni Android) "Ekipa" tash quhet "Grupi".',
@@ -198,8 +201,7 @@
       'Te Ekipa u hoq "Stoku".',
       'Kur një koleg është offline, tash del pajisja e tij (telefon ose kompjuter) me ngjyrë gri dhe pikë gri, pastaj kur u pa së fundi.'
     ] },
-    { v: 182, versioni: '1.13.0', data: '2026-10-08', titulli: 'Ekipa: Përmbledhja e re, pa chat', pikat: [
-      'Chat-i i ekipës u hoq.',
+    { v: 182, versioni: '1.13.0', data: '2026-10-08', titulli: 'Ekipa: Përmbledhja e re', pikat: [
       'Te Ekipa e para del Përmbledhja: numrat (në raft, të skaduara, ≤ 7 ditë, afër skadimit, hequr këtë muaj, online), kërkesa për heqje, kolegët, çka duhet hequr, aktiviteti i fundit dhe statistikat.',
       'Statistika u bashkua te Përmbledhja.',
       'Menyja e Ekipës rri gjithmonë në të njëjtin vend: kur kalon te Afatet, Aktiviteti e të tjerat, faqja s\'lëviz më lart e poshtë.'
@@ -259,7 +261,7 @@
     { v: 168, versioni: '1.9.1', data: '2026-10-07', titulli: 'Ora e dorës dhe rregullime', pikat: [
       'Kudo në Stoku (telefon, kompjuter, aplikacioni Android dhe ora) tash shkruan "ora" në vend të "sahat".',
       'Ora: produktet që kanë skaduar dalin të parat, me butonin "Hiqi krejt nga rafti".',
-      'Aplikacioni Android: njoftimi i prekur hap direkt chat-in ose afatet, pa e ringarkuar Stoku-n.'
+      'Aplikacioni Android: njoftimi i prekur hap direkt Grupin ose afatet, pa e ringarkuar Stoku-n.'
     ] },
     { v: 167, versioni: '1.9.0', data: '2026-10-06', titulli: 'Stoku si aplikacion Android', pikat: [
       'Aplikacioni i ri Stoku për Android: s\'del nga llogaria kur i fshin cookies dhe të dhënat e Chrome-it dhe njoftimet vijnë menjëherë. Shkarkohet te Cilësimet, poshtë "Çka ka të re": "Shkarko aplikacionin Android".',
@@ -269,7 +271,7 @@
       'U hoq opsioni "Mos dil kur i fshin të dhënat" te Cilësimet → Llogaria.'
     ] },
     { v: 164, versioni: '1.8.0', data: '2026-10-06', titulli: 'Ekipa me ftesa', pikat: [
-      'Ekipa tash është me ftesa: krijo ekipën tënde dhe fto shokët me emrin e tyre të përdoruesit. Vetëm anëtarët e një ekipe e shohin njëri-tjetrin, chat-in, aktivitetin dhe kërkesat.',
+      'Ekipa tash është me ftesa: krijo ekipën tënde dhe fto shokët me emrin e tyre të përdoruesit. Vetëm anëtarët e një ekipe e shohin njëri-tjetrin, aktivitetin dhe kërkesat.',
       'Kush sapo është regjistruar s\'sheh askënd derisa ta krijojë një ekipë ose ta pranojë një ftesë.',
       'Pronari i ekipës fton dhe heq anëtarë, ia ndërron emrin ekipës dhe mund ta bëjë edhe dikë tjetër pronar.',
       'Ekipa e deritanishme vazhdon si ekipa "Ekipa", me anëtarët dhe historikun e vet.'
@@ -356,13 +358,13 @@
       'Lart majtas Stoku ka logo të re si etiketë barkodi, me emrin tënd poshtë. Përshtatet vetë me temën e çelët dhe të errët.'
     ] },
     { v: 141, versioni: '1.1.0', data: '2026-10-01', titulli: 'Foto e profilit', pikat: [
-      'Te Cilësimet → Llogaria mund të vendosësh foton tënde të profilit (ose ta heqësh). Fotoja del te Ekipa, chat-i, aktiviteti dhe Cilësimet, dhe e sheh krejt ekipa.'
+      'Te Cilësimet → Llogaria mund të vendosësh foton tënde të profilit (ose ta heqësh). Fotoja del te Ekipa, aktiviteti dhe Cilësimet, dhe e sheh krejt ekipa.'
     ] },
     { v: 140, versioni: '1.0.2', data: '2026-10-01', titulli: 'Administratori njihet gjithmonë', pikat: [
       'Llogaria "mendurberisha" njihet si administrator direkt nga llogaria: pranimi i anëtarëve, fshirja e llogarive, lejet dhe veprimet te afatet e kolegëve punojnë pa ndonjë cilësim shtesë në Firebase.'
     ] },
     { v: 139, versioni: '1.0.1', data: '2026-10-01', titulli: 'Pa zgjedhje të krejt faqes', platforma: 'tel', pikat: [
-      'Shtypja e gjatë s\'e zgjedh më krejt faqen (titujt, butonat, menytë). Barkodet, emrat e produkteve, mesazhet e chat-it dhe fushat mund të zgjidhen dhe kopjohen si më parë.'
+      'Shtypja e gjatë s\'e zgjedh më krejt faqen (titujt, butonat, menytë). Barkodet, emrat e produkteve dhe fushat mund të zgjidhen dhe kopjohen si më parë.'
     ] },
     { v: 139, versioni: '1.0.1', data: '2026-10-01', titulli: 'Butonat pa zgjedhje teksti', platforma: 'pc', pikat: [
       'Dykliku te butonat, menyja anësore dhe titujt s\'e zgjedh më tekstin e tyre.'
@@ -394,16 +396,12 @@
       'Dritarja e Cilësimeve del e plotë edhe në ekrane të ulëta (laptopë).'
     ] },
     { v: 131, data: '2026-10-01', titulli: 'Njoftimet edhe në Apple Watch', platforma: 'tel', pikat: [
-      'Njoftimet e chat-it vijnë edhe në iPhone (Stoku i shtuar në ekranin bazë) dhe në Apple Watch.',
+      'Njoftimet vijnë edhe në iPhone (Stoku i shtuar në ekranin bazë) dhe në Apple Watch.',
       'Te Cilësimet → Njoftimet, te "Njoftimet në orë" zgjidh Galaxy Watch ose Apple Watch për udhëzimin hap pas hapi.'
     ] },
-    { v: 130, data: '2026-10-01', titulli: 'Njoftimet e chat-it edhe me Stoku të mbyllur', platforma: 'tel', pikat: [
-      'Kur dikush shkruan te chat-i i ekipës, të vjen njoftim edhe kur Stoku është krejt i mbyllur.',
+    { v: 130, data: '2026-10-01', titulli: 'Njoftimet edhe në orë', platforma: 'tel', pikat: [
       'Njoftimet dalin edhe në orë (p.sh. Galaxy Watch). Te Cilësimet → Njoftimet ke udhëzimin hap pas hapi dhe butonin "Dërgo njoftim provë".',
       'Ikona e vogël e njoftimeve tani është barkodi i Stoku-t.'
-    ] },
-    { v: 130, data: '2026-10-01', titulli: 'Njoftimet e chat-it edhe me Stoku të mbyllur', platforma: 'pc', pikat: [
-      'Kur dikush shkruan te chat-i i ekipës, të vjen njoftim edhe kur Stoku është i mbyllur (pasi t\'i lejosh njoftimet te Ekipa → zilja).'
     ] },
     { v: 129, data: '2026-10-01', titulli: 'Rregullime të vogla', platforma: 'tel', pikat: [
       'Butoni i sinkronizimit lart te Afatet (reja me pikën e gjelbër) tani shihet qartë.',
@@ -492,22 +490,19 @@
       'Administratori sheh te Ekipa → "Stoku" stokun e plotë të secilit anëtar dhe e shkarkon në Excel.',
       'Administratori mund ta heqë nga rafti, ta kthejë ose ta fshijë afatin e kujtdo, dhe pronari njoftohet.',
       'Administratori ua jep ose ua heq lejen e butonave +/- kujtdo (te Anëtarët), dhe dërgon një njoftim që i del krejt ekipës te zilja.',
-      'Administratori mund ta pastrojë krejt chat-in ose aktivitetin.'
-    ] },
-    { v: 111, data: '2026-09-30', titulli: 'Ekipa: chat-i lart djathtas', pikat: [
-      'Chat-i i ekipës tani hapet nga ikona lart djathtas, pranë njoftimeve. Pika e kuqe tregon mesazh të ri. Prekja sërish të kthen aty ku ishe.'
+      'Administratori mund ta pastrojë krejt aktivitetin.'
     ] },
     { v: 110, data: '2026-09-29', titulli: 'Ekipa më e sigurt, sinkronizim më i shpejtë', pikat: [
       'Një llogari e re e sheh Ekipën vetëm pasi ta pranojë administratori (te Ekipa → Anëtarët). Anëtarët e sotëm mbeten në ekipë.',
       'Kolegët shohin vetëm afatet e tua, ndërsa stoku yt mbetet vetëm i yti.',
-      'Mesazhet e chat-it dhe "Unë e hoqa" s\'humbin pa internet: dërgohen vetë sapo të kthehet interneti, edhe nëse e mbyll aplikacionin.',
+      '"Unë e hoqa" s\'humbet pa internet: dërgohet vetë sapo të kthehet interneti, edhe nëse e mbyll aplikacionin.',
       'Ndryshimet nga pajisjet e tjera s\'humbin më kur mbërrijnë gjatë një ruajtjeje, dhe ruajtja në cloud dërgon vetëm pjesët që ndryshuan (më shpejt, më pak internet).'
     ] },
-    { v: 109, data: '2026-09-29', titulli: 'Ekipa: afatet, aktiviteti, chat-i dhe më shumë', pikat: [
+    { v: 109, data: '2026-09-29', titulli: 'Ekipa: afatet, aktiviteti dhe më shumë', pikat: [
       '"Ekipi" tani quhet "Ekipa" dhe tregon vetëm afatet e kolegëve (jo stokun).',
       'Kur një produkt i një kolegu ka skaduar, mund ta heqësh ti nga rafti me "Unë e hoqa", dhe kolegu njoftohet me emrin tënd.',
       'Zilja lart djathtas: njoftimet, p.sh. kur dikush heq nga rafti një nga produktet e tua.',
-      'Aktiviteti (kush çka hoqi, shtoi ose lajmëroi), chat-i i ekipës, kalendari me ngjyra për çdo ditë, anëtarët (kush është online tani) dhe statistika.'
+      'Aktiviteti (kush çka hoqi, shtoi ose lajmëroi), kalendari me ngjyra për çdo ditë, anëtarët (kush është online tani) dhe statistika.'
     ] },
     { v: 105, data: '2026-09-29', titulli: 'Ekipi: stoku i përbashkët i krejt llogarive', pikat: [
       'U shtua "Ekipi": te telefoni si tab i tretë (pas Stoku-t dhe Afateve), te kompjuteri si seksion i tretë në anësore.',
