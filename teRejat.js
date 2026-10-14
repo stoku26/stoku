@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 225, versioni: '1.25.1', data: '2026-10-14', titulli: 'Shiriti poshtë sipas temës së telefonit', platforma: 'tel', pikat: [
+      'Te Stoku i instaluar nga Chrome, shiriti i telefonit poshtë s\'del më i bardhë kur telefoni është në temën e errët: tash ndjek temën e telefonit.',
+      'Ndryshimi vjen vetë kur Chrome e përditëson Stoku-n e instaluar, zakonisht brenda një ose dy ditëve.'
+    ] },
     { v: 224, versioni: '1.25.0', data: '2026-10-14', titulli: 'PDA: tastiera në ekran mund të fshihet', platforma: 'tel', pikat: [
       'Kur është ndezur "Ky është PDA", te folderi del butoni "Fshih tastierën": tastiera e Android-it s\'del më te Stoku dhe shkruan me tastierën e PDA-së dhe me skanerin.',
       'Me "Shfaq tastierën" kthehet si më parë. I njëjti çelës është edhe te Cilësimet → Skanimi.'
