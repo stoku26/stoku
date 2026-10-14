@@ -50,6 +50,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **HISTORIKU PA CHAT (v222 = 1.24.2)**: me kërkesë të pronarit ("po hiqi edhe ato te historiku"), te `teRejat.js` u
+   hoqën përmendjet e chat-it nga 13 shënime të vjetra (v109 deri v188): pikat dhe titujt u shkurtuan (p.sh. v182 "Ekipa:
+   Përmbledhja e re", v130 tel "Njoftimet edhe në orë", v109 "Ekipa: afatet, aktiviteti dhe më shumë", v110 "Unë e hoqa"
+   s'humbet pa internet); dy shënimet që ishin vetëm për chat-in (v111 "chat-i lart djathtas" dhe v130 PC) u hoqën krejt.
+   Ndryshuan vetëm `teRejat.js?v=222` dhe `CACHE` (pa kod tjetër). SHENIME (historiku teknik) mbetet siç është.
 0000000. **CHAT-I U HOQ KREJT (v221 = 1.24.1, Worker 164, rregullat pa chat)**: chat-i ishte fshehur nga UI në v182; tani
    s'ka më asnjë gjurmë në kod. Web (tel + PC): pa `#ekChatBtn`/`#ekChatFund`/`#navEkChat`/`#ekVChat`/`#ekAdminPastroChat`,
    pa CSS-në e mesazheve (`.ek-mesazh`, `.ek-dita`, `.ek-chat-*`, edhe te `css/stoku.css` v39 dhe `css/stoku-pc.css` v30);
@@ -1212,8 +1217,8 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 
 - Opsioni "Mos dil kur i fshin të dhënat" te Cilësimet → Llogaria dhe udhëzimi "shtyp Ruaj" te porta (v165, u hoq
   te v166): "hiq bash kurgjo ske bo, hiqe fshije".
-- Chat-i i Grupit (u fsheh te v182, u hoq krejt te v221: "zhduke 100% se e kemi hek chatin"): mos e rikthe as si emër,
-  as si buton, as në tekste, as në Worker/rregulla.
+- Chat-i i Grupit (u fsheh te v182, u hoq krejt te v221: "zhduke 100% se e kemi hek chatin"; te v222 edhe nga historiku
+  "Çka ka të re"): mos e rikthe as si emër, as si buton, as në tekste, as në Worker/rregulla.
 - Fjalia "Jepja vetëm pasi ta njohësh personin" (dhe "pasi të të njohë") te kodi i fjalëkalimit të harruar (u hoq te
   v221: "heke krejt se s'duhet"). Njoftimi i kodit mbaron te "(vlen 30 minuta)."
 
