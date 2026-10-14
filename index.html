@@ -1086,6 +1086,7 @@
   </div>
   <div class="rreshti">
     <button class="btn" id="btnKamera" type="button"></button>
+    <button class="btn" id="btnTastiera" type="button" aria-pressed="false" style="display:none"></button>
     <button class="btn" id="btnEksport" type="button"></button>
   </div>
   <button class="btn dyte" id="btnEksportPdf" type="button" style="width:100%;margin-bottom:10px"></button>
@@ -1272,6 +1273,13 @@
                 <span class="kat-ikona-badge ngj-blu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"></rect><path d="M10 6h4M12 18h.01"></path></svg></span>
                 <span class="ops-rresht__tekst"><span id="lblOpsPda"></span><span class="hint" id="pdaHint"></span></span>
                 <span class="ndez"><input type="checkbox" id="opsPda"><span class="pist"></span></span>
+              </label>
+            </div>
+            <div class="seksion" id="seksionTastiera" style="display:none">
+              <label class="opsion-rresht" for="opsTastiera">
+                <span class="kat-ikona-badge ngj-gri"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2.5"></rect><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 12.5h.01M10 12.5h.01M14 12.5h.01M18 12.5h.01M8 16h8"></path></svg></span>
+                <span class="ops-rresht__tekst"><span id="lblOpsTastiera"></span><span class="hint" id="tastieraHint"></span></span>
+                <span class="ndez"><input type="checkbox" id="opsTastiera"><span class="pist"></span></span>
               </label>
             </div>
             <div class="seksion">
@@ -1874,7 +1882,7 @@
 <script src="afatet.js?v=216"></script>
 <script src="ekipa.js?v=221"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=222"></script>
+<script src="teRejat.js?v=224"></script>
 <script>
 (function () {
   'use strict';
@@ -2024,6 +2032,12 @@
       madhesiaHintTeksti: 'Rrit pak madhësinë e gjithë tekstit dhe butonave, për lexueshmëri më të lehtë.',
 
       pdaLabel: 'Ky është PDA (skaner i brendshëm)',
+      fshihTastieren: 'Fshih tastierën',
+      shfaqTastieren: 'Shfaq tastierën',
+      tastieraLabel: 'Fshih tastierën në ekran',
+      tastieraHint: 'Tastiera e Android-it s\'del më te Stoku: shkruan me tastierën e PDA-së dhe me skanerin. Vlen vetëm kur është ndezur PDA.',
+      tastieraUFsheh: 'Tastiera në ekran s\'del më. Shkruaj me tastierën e PDA-së.',
+      tastieraDelPerseri: 'Tastiera në ekran del përsëri.',
       pdaStatusNdezur: 'PDA i ndezur',
       pdaStatusFikur: 'PDA i fikur',
       cloudStatusJoKycur: 'Jo i kyçur',
@@ -2113,6 +2127,8 @@
 
     { id: 'lblOpsPda', prop: 'text', kyc: 'pdaLabel' },
     { id: 'pdaHint', prop: 'text', kyc: 'pdaHint' },
+    { id: 'lblOpsTastiera', prop: 'text', kyc: 'tastieraLabel' },
+    { id: 'tastieraHint', prop: 'text', kyc: 'tastieraHint' },
     { id: 'lblOpsPaEmer', prop: 'text', kyc: 'paEmerLabel' },
     { id: 'paEmerHint', prop: 'text', kyc: 'paEmerHint' },
     { id: 'lblOpsTingull', prop: 'text', kyc: 'tingullLabel' },
@@ -2290,7 +2306,7 @@
 
   var opsione = {
     tingull: true, rendi: 'i_ri', scanner: true, pda: false,
-    paEmer: false, madhesia: 'normale'
+    paEmer: false, madhesia: 'normale', tastieraFshehur: false
   };
   try {
     var opsioneRuajtura = JSON.parse(localStorage.getItem(KEY_OPSIONE) || 'null');
@@ -2298,6 +2314,7 @@
       if (typeof opsioneRuajtura.tingull === 'boolean') opsione.tingull = opsioneRuajtura.tingull;
       if (typeof opsioneRuajtura.scanner === 'boolean') opsione.scanner = opsioneRuajtura.scanner;
       if (typeof opsioneRuajtura.pda === 'boolean') opsione.pda = opsioneRuajtura.pda;
+      if (typeof opsioneRuajtura.tastieraFshehur === 'boolean') opsione.tastieraFshehur = opsioneRuajtura.tastieraFshehur;
       if (typeof opsioneRuajtura.paEmer === 'boolean') opsione.paEmer = opsioneRuajtura.paEmer;
       if (['i_ri', 'emri', 'emriZA', 'sasiaUlet', 'sasiaLart'].indexOf(opsioneRuajtura.rendi) !== -1) opsione.rendi = opsioneRuajtura.rendi;
       if (opsioneRuajtura.madhesia === 'e_madhe' || opsioneRuajtura.madhesia === 'normale') opsione.madhesia = opsioneRuajtura.madhesia;
@@ -2847,9 +2864,69 @@
     $('btnEksportPdf').style.display = ''; // PDF mbetet e dukshme edhe në PDA
     $('seksionTingull').style.display = pda ? 'none' : '';
     $('seksionScanner').style.display = pda ? 'none' : '';
+    $('seksionTastiera').style.display = pda ? '' : 'none';
     rregulloVijatNdarese();
     $('barkodi').placeholder = pda ? T('barkodiPda') : T('barkodiNormal');
     zbatoRrotullimin();
+    zbatoTastieren();
+  }
+
+  // ================= Tastiera në ekran (vetëm PDA) =================
+  // "Fshih tastierën" (butoni te folderi ose Cilësimet → Skanimi, vetëm kur është ndezur PDA): asnjë fushë e Stoku-t s'e hap
+  // tastierën e Android-it; shkruhet me tastierën fizike të PDA-së dhe me skanerin. Tri shtresa, sepse disa Zebra e
+  // injorojnë njërën: inputmode="none", virtualkeyboardpolicy="manual" (+ navigator.virtualKeyboard.hide()) dhe "readonly"
+  // për një çast kur preket fusha (tastiera s'hapet për një fushë që s'shkruhet në çastin kur merr fokusin).
+  function tastieraEFshehur() { return !!(opsione.pda && opsione.tastieraFshehur); }
+  function eFusheShkrimi(el) {
+    if (!el || !el.tagName) return false;
+    if (el.tagName === 'TEXTAREA') return true;
+    return el.tagName === 'INPUT' && /^(text|search|tel|number|email|url|password)$/.test(el.type || 'text');
+  }
+  function fshihTastierenTe(el) {
+    if (!el.hasAttribute('data-im-orig')) el.setAttribute('data-im-orig', el.getAttribute('inputmode') || '');
+    if (el.getAttribute('inputmode') !== 'none') el.setAttribute('inputmode', 'none');
+    if (el.getAttribute('virtualkeyboardpolicy') !== 'manual') el.setAttribute('virtualkeyboardpolicy', 'manual');
+  }
+  function riktheTastierenTe(el) {
+    if (!el.hasAttribute('data-im-orig')) return;
+    var o = el.getAttribute('data-im-orig');
+    if (o) el.setAttribute('inputmode', o); else el.removeAttribute('inputmode');
+    el.removeAttribute('data-im-orig');
+    el.removeAttribute('virtualkeyboardpolicy');
+  }
+  function mbyllTastierenEEkranit() {
+    try { if (navigator.virtualKeyboard && navigator.virtualKeyboard.hide) navigator.virtualKeyboard.hide(); } catch (e) { /* ok */ }
+  }
+  function zbatoTastieren() {
+    var fsheh = tastieraEFshehur(), b = $('btnTastiera');
+    b.style.display = opsione.pda ? '' : 'none';
+    b.textContent = T(fsheh ? 'shfaqTastieren' : 'fshihTastieren');
+    b.setAttribute('aria-pressed', fsheh ? 'true' : 'false');
+    $('opsTastiera').checked = !!opsione.tastieraFshehur;
+    Array.prototype.forEach.call(document.querySelectorAll('input, textarea'), function (el) {
+      if (eFusheShkrimi(el)) { if (fsheh) fshihTastierenTe(el); else riktheTastierenTe(el); }
+    });
+    if (fsheh) mbyllTastierenEEkranit();
+  }
+  // Fushat që krijohen më vonë (dritaret, listat, porta): kur preken ose marrin fokus
+  document.addEventListener('pointerdown', function (ev) {
+    var el = ev.target;
+    if (!tastieraEFshehur() || !eFusheShkrimi(el)) return;
+    fshihTastierenTe(el);
+    if (document.activeElement !== el && !el.readOnly) {
+      el.readOnly = true;
+      setTimeout(function () { el.readOnly = false; }, 120);
+    }
+  }, true);
+  document.addEventListener('focusin', function (ev) {
+    if (!tastieraEFshehur() || !eFusheShkrimi(ev.target)) return;
+    fshihTastierenTe(ev.target);
+    mbyllTastierenEEkranit();
+  }, true);
+  function ndryshoTastieren(fsheh) {
+    opsione.tastieraFshehur = !!fsheh;
+    ruajOpsionet();
+    zbatoTastieren();
   }
 
   // ================= Kyçja e ekranit në portret (PDA) =================
@@ -3698,6 +3775,12 @@
   $('opsScanner').addEventListener('change', function () {
     opsione.scanner = $('opsScanner').checked;
     ruajOpsionet();
+  });
+  $('opsTastiera').addEventListener('change', function () { ndryshoTastieren($('opsTastiera').checked); });
+  $('btnTastiera').addEventListener('click', function () {
+    ndryshoTastieren(!opsione.tastieraFshehur);
+    toast(T(opsione.tastieraFshehur ? 'tastieraUFsheh' : 'tastieraDelPerseri'));
+    fokusoBarkodin(); // skanimi vazhdon: kursori mbetet te barkodi
   });
   $('opsPda').addEventListener('change', function () {
     opsione.pda = $('opsPda').checked;

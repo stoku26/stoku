@@ -18,6 +18,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 224, versioni: '1.25.0', data: '2026-10-14', titulli: 'PDA: tastiera në ekran mund të fshihet', platforma: 'tel', pikat: [
+      'Kur është ndezur "Ky është PDA", te folderi del butoni "Fshih tastierën": tastiera e Android-it s\'del më te Stoku dhe shkruan me tastierën e PDA-së dhe me skanerin.',
+      'Me "Shfaq tastierën" kthehet si më parë. I njëjti çelës është edhe te Cilësimet → Skanimi.'
+    ] },
     { v: 222, versioni: '1.24.2', data: '2026-10-14', titulli: 'Historiku i përditësimeve më i pastër', pikat: [
       'Te "Çka ka të re" u hoqën shënimet për veçoritë që s\'ekzistojnë më.'
     ] },

@@ -50,6 +50,17 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PDA: "FSHIH TASTIERËN" (v224 = 1.25.0, vetëm telefoni)**: kërkesë e pronarit (PDA Zebra me tastierë fizike):
+   kur është ndezur PDA, te folderi del `#btnTastiera` ("Fshih tastierën" / "Shfaq tastierën", në rreshtin e kamerës që
+   fshihet në PDA) dhe te Cilësimet → Skanimi `#opsTastiera` (`#seksionTastiera`, vetëm në PDA). `opsione.tastieraFshehur`
+   ruhet te `stoku:opsione:v1`; vlen vetëm me `opsione.pda` (`tastieraEFshehur()`), prandaj fikja e PDA-së e rikthen
+   tastierën. `zbatoTastieren()` (thirret nga `zbatoPda`): krejt fushat e shkrimit (input text/search/tel/number/email/
+   url/password, textarea) marrin `inputmode="none"` + `virtualkeyboardpolicy="manual"` (inputmode-i i vjetër ruhet te
+   `data-im-orig` dhe rikthehet); `focusin`/`pointerdown` (capture) e bëjnë njësoj për fushat e reja (dritaret, porta) dhe
+   `navigator.virtualKeyboard.hide()`; në prekje fusha është `readonly` për 120 ms (disa Zebra e injorojnë inputmode-in).
+   Ka pasur diçka të ngjashme deri më 24 shtator (butoni ⌨️ te barkodi), që u hoq me një ngarkim të ri të skedarit. Nëse
+   prapë del tastiera te ndonjë model: Settings → System → Languages & input → Physical keyboard → "Use on-screen
+   keyboard" OFF (vlen për krejt pajisjen). Testi: `pda-tastiera-test.js` (scratchpad).
 0000000. **FAQJA 404 (pa version të aplikacionit: s'preket asnjë skedar i tij)**: `404.html` në rrënjë; GitHub Pages e shfaq
    (me statusin 404) për çdo adresë që s'ekziston, p.sh. `visitor.html` ose `beta/` të fshira, në vend të faqes angleze
    të GitHub-it. Logo dhe ngjyrat e Stoku-t, tema si te aplikacioni (`stoku:tema`, përndryshe e sistemit), "Kjo faqe s'u
