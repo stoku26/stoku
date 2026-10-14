@@ -39,8 +39,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 | `manifest.webmanifest` | PWA manifest (emri "Stoku", ikonat). |
 | `css/` | Pamja (v126): `stoku-tokens.css` (fontet, ngjyrat e çelëta/errëta), `stoku.css` (telefoni), `stoku-pc.css` (kompjuteri). |
 | `fonts/` | Onest dhe JetBrains Mono (woff2, OFL), që pamja të punojë edhe pa internet. |
-| `logo/` | Logo e re (SVG, favicon, ikona "maskable"). |
-| `beta/` | Vetëm ridrejtim te Stoku (Beta u hoq te v126). |
+| `logo/` | Logo e re (SVG, favicon, ikona "maskable"; edhe disa variante të logos që aplikacioni s'i përdor, si arkiv). |
 
 ## Rregulla teknike THEMELORE (mos i harro)
 
@@ -50,6 +49,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PASTRIMI I SKEDARËVE (v223, pa hyrje te "Çka ka të re": s'shihet nga përdoruesit)**: me kërkesë të pronarit u
+   fshinë skedarët që s'i përdorte askush: `visitor.html` (faqja e provës së vizitorit, 12 tetor, ishte vetëm ridrejtim),
+   `beta/index.html` + `beta/sw.js` (pastruesi i Stoku Beta, që ishte gjallë vetëm 30 shtator deri 1 tetor), `logo.png`
+   (kopje e saktë e `logo/stoku-logo.png`) dhe `logo/stoku-icon.svg`: dy të fundit s'dilnin askund, vetëm shkarkoheshin
+   kot nga `sw.js`. `sw.js`: `CACHE = 'stoku-v223'`, pa këto dy te SHELL (përndryshe instalimi i ri dështonte), pa
+   përjashtimin e `/beta/` te `fetch`. Mbeten qëllimisht: `tel|ora/*.jks` + `celesi-i-ri.p12.enc` + `celesi.lineage`
+   (nënshkrimi i APK-ve), `android.json` (Firebase për Android-in), `fonts/OFL-*.txt` (licenca), `CNAME`, variantet e
+   logos te `logo/` (arkiv; pronari zgjodhi t'i mbajë) dhe gjeneruesi i çelësave `apk-celesat.yml` + `celesat.sh`.
 0000000. **HISTORIKU PA CHAT (v222 = 1.24.2)**: me kërkesë të pronarit ("po hiqi edhe ato te historiku"), te `teRejat.js` u
    hoqën përmendjet e chat-it nga 13 shënime të vjetra (v109 deri v188): pikat dhe titujt u shkurtuan (p.sh. v182 "Ekipa:
    Përmbledhja e re", v130 tel "Njoftimet edhe në orë", v109 "Ekipa: afatet, aktiviteti dhe më shumë", v110 "Unë e hoqa"
