@@ -36,6 +36,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 | `teRejat.js` | Lista "Çka ka të re" (shënimet e versioneve) — tregohet në hyrje. **Shto këtu një hyrje për çdo ndryshim domethënës të ri**, shih udhëzimin brenda skedarit. |
 | `xlsx.js` | Ndërton dhe lexon skedarë `.xlsx` pa librari të jashtme. |
 | `sw.js` | Service worker: cache për punë pa internet + **përditësim automatik** (shih poshtë). |
+| `404.html` | Faqja "Kjo faqe s'u gjet": GitHub Pages e shfaq për çdo adresë që s'ekziston (me adresa absolute, "/logo/…"). |
 | `manifest.webmanifest` | PWA manifest (emri "Stoku", ikonat). |
 | `css/` | Pamja (v126): `stoku-tokens.css` (fontet, ngjyrat e çelëta/errëta), `stoku.css` (telefoni), `stoku-pc.css` (kompjuteri). |
 | `fonts/` | Onest dhe JetBrains Mono (woff2, OFL), që pamja të punojë edhe pa internet. |
@@ -49,6 +50,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **FAQJA 404 (pa version të aplikacionit: s'preket asnjë skedar i tij)**: `404.html` në rrënjë; GitHub Pages e shfaq
+   (me statusin 404) për çdo adresë që s'ekziston, p.sh. `visitor.html` ose `beta/` të fshira, në vend të faqes angleze
+   të GitHub-it. Logo dhe ngjyrat e Stoku-t, tema si te aplikacioni (`stoku:tema`, përndryshe e sistemit), "Kjo faqe s'u
+   gjet" + butoni "Hap Stoku-n" (`/`, që e zgjedh vetë telefonin ose kompjuterin) dhe ridrejtim vetë pas 6 s. Çregjistron
+   service worker-at jashtë rrënjës (scope ≠ "/"): e merr përsipër pastrimin që e bënte `beta/` (Stoku ka vetëm SW-në te
+   "/"). Krejt adresat absolute (faqja shfaqet në çdo dosje). Testi: `faqja404-test.js` (scratchpad, server si GitHub
+   Pages), 15 kontrolle.
 0000000. **PASTRIMI I SKEDARËVE (v223, pa hyrje te "Çka ka të re": s'shihet nga përdoruesit)**: me kërkesë të pronarit u
    fshinë skedarët që s'i përdorte askush: `visitor.html` (faqja e provës së vizitorit, 12 tetor, ishte vetëm ridrejtim),
    `beta/index.html` + `beta/sw.js` (pastruesi i Stoku Beta, që ishte gjallë vetëm 30 shtator deri 1 tetor), `logo.png`
