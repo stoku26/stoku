@@ -69,7 +69,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    - **Rregullat e Firestore v227** (te "Rregullat e Firestore" më poshtë, `match /skedaret/{sk}` brenda `dyqane/{kodi}`):
      vetëm pronari lexon/fshin; krijimi me fushat e lejuara dhe kufijtë; update vetëm `shkarkuarSe`; copat vetëm Bytes
      ≤ 1.000.000 bajt. PA PUBLIKIMIN E TYRE dërgimi s'punon (telefoni thotë "rregullat duhet të përditësohen").
-   - Testet: `skedaret-njesi.js` (26), `emu/skedaret-prova.mjs` (40, emulatori i vërtetë + skedaret.js), `skedaret-e2e-test.js`
+   - Testet: `skedaret-njesi.js` (25), `emu/skedaret-prova.mjs` (38, emulatori i vërtetë + skedaret.js), `skedaret-e2e-test.js`
      (43, PDA → PC me Firestore të simuluar), `pda-fullscreen-test.js` (20). Pa testim në pajisje të vërtetë.
 0000000. **SHIRITI POSHTË I ERRËT (v226 = 1.25.2, Stoku i instaluar nga Chrome)**: v225 (pa `theme_color`) s'mjaftoi.
    Më 15 tetor, pasi Chrome e përditësoi WebAPK-në, vija e lëvizjes poshtë u bë e bardhë (Chrome s'i jep më ngjyrë
