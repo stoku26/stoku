@@ -31,6 +31,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 | `afatet.js` | Logjika e përbashkët për "Afatet" (data, statuse, lexim AI, formatim). Përdoret nga të dy faqet **dhe** nga `sw.js` (për njoftimet në sfond). |
 | `bashkimi.js` | Logjika e bashkimit të të dhënave mes pajisjeve (LWW me kohë, fshirjet si tombstones). E përbashkët. |
 | `ruajtja.js` | Ndarja e dyqanit në Firestore në disa dokumente (shih më poshtë "Firebase"). |
+| `skedaret.js` | v227: Excel dhe PDF nga telefoni/PDA-ja te PC-ja (Firestore `dyqane/{uid}/skedaret`, copa ≤ 900 KB). E përbashkët. |
 | `porta.js` | Ekrani i hyrjes/kyçjes (login gate) — hapet para faqes kryesore te të dyja versionet. |
 | `njoftimet.js` | Njoftimet push për afatet (30 ditë para skadimit, dhe kur skadon) — logjikë e përbashkët për faqen dhe `sw.js`. |
 | `teRejat.js` | Lista "Çka ka të re" (shënimet e versioneve) — tregohet në hyrje. **Shto këtu një hyrje për çdo ndryshim domethënës të ri**, shih udhëzimin brenda skedarit. |
@@ -50,6 +51,26 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **EXCEL DHE PDF NË PC + PDA PA FULLSCREEN (v227 = 1.26.0)**: kërkesë e pronarit ("te PDA mode hiqe full screen,
+   rotation mos e prek; Excel, PDF e çka do tjetër bëji me u dërgu në PC").
+   - **Fullscreen-i u hoq** (`index.html`, kyçja në portret): mbeten kyçja direkte `screen.orientation.lock` (punon kur Stoku
+     është i instaluar nga Chrome; edhe manifesti e ka portretin) dhe kundër-rrotullimi me CSS (`zbatoKunderRrotullimin`).
+     Kyçja provohet kur ndizet PDA-ja, pas rikthimit në app dhe në veprimin e parë (një herë, jo te çdo tast i skanerit).
+     Në Chrome pa instalim, pa fullscreen sistemi mund ta rrotullojë ekranin, por Stoku mbetet drejt; kyçja e plotë atje:
+     Stoku i instaluar ose "Rrotullimi automatik" i fikur te PDA-ja. Testi: `pda-fullscreen-test.js`.
+   - **Skedarët në PC** (`skedaret.js`, i ri, i përbashkët): `dyqane/{uid}/skedaret/{id}` = { emri, lloji, titulli, pajisja,
+     madhesia, pjeset, krijuarSe, skadon[, shkarkuarSe] } + copat `…/pjeset/000…` = { i, b: Bytes ≤ 900 KB }; maksimumi 15 MB
+     (18 copa). Copat shkruhen të parat, dokumenti i fundit (PC-ja e sheh vetëm të plotë); dështimi i fshin copat; çdo shkrim
+     ka afat 45 s. Telefoni: çelësi `#opsSkedaretPc` te Cilësimet → Skanimi (`opsione.skedaretNePc`: null = sipas PDA-së);
+     `ndajOseShkarko` (të katër eksportet: Excel i folderit, PDF me etiketa, Excel i afateve, Excel i stokut të kolegut)
+     kalon nga `dergoNePc`; butonat thonë "Dërgo Excel-in/PDF-në në PC". Pa llogari, pa internet ose kur rregullat
+     refuzojnë: pyetja "Shkarko këtu?". PC: kartat `#skedaretTel` te Përmbledhja (Shkarko/Fshi, "U shkarkua"), numri
+     `#stokTabSkedaret` te pllaka Stoku, njoftim me "Shkarko" kur mbërrin; të skaduarit (7 ditë) i fshin PC-ja.
+   - **Rregullat e Firestore v227** (te "Rregullat e Firestore" më poshtë, `match /skedaret/{sk}` brenda `dyqane/{kodi}`):
+     vetëm pronari lexon/fshin; krijimi me fushat e lejuara dhe kufijtë; update vetëm `shkarkuarSe`; copat vetëm Bytes
+     ≤ 1.000.000 bajt. PA PUBLIKIMIN E TYRE dërgimi s'punon (telefoni thotë "rregullat duhet të përditësohen").
+   - Testet: `skedaret-njesi.js` (26), `emu/skedaret-prova.mjs` (40, emulatori i vërtetë + skedaret.js), `skedaret-e2e-test.js`
+     (43, PDA → PC me Firestore të simuluar), `pda-fullscreen-test.js` (20). Pa testim në pajisje të vërtetë.
 0000000. **SHIRITI POSHTË I ERRËT (v226 = 1.25.2, Stoku i instaluar nga Chrome)**: v225 (pa `theme_color`) s'mjaftoi.
    Më 15 tetor, pasi Chrome e përditësoi WebAPK-në, vija e lëvizjes poshtë u bë e bardhë (Chrome s'i jep më ngjyrë
    shiritit), por shiriti mbeti #f6f5f2. Shkaku: Chrome i ri e lë shiritin të tejdukshëm dhe poshtë tij duket dritarja e
@@ -1312,7 +1333,7 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
-## Rregullat e Firestore (v164 grupet, v221 pa chat; më parë v116 + v130 ekipa_push + v140 admini nga llogaria) — i vendos PËRDORUESI (unë s'kam qasje)
+## Rregullat e Firestore (v164 grupet, v221 pa chat, v227 skedarët në PC; më parë v116 + v130 ekipa_push + v140 admini nga llogaria) — i vendos PËRDORUESI (unë s'kam qasje)
 
 Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Dyqani lexohet vetëm nga pronari/admin-i;
 `emri`/`perdoruesi` s'falsifikohen (= emri i llogarisë); aplikacioni s'mund ta shtojë/ndryshojë fushën `emri` te
@@ -1367,6 +1388,23 @@ service cloud.firestore {
       }
       match /fletet/{fleta} {
         allow read, write: if request.auth != null && ((request.auth.uid == kodi && !uFshi(kodi)) || eshteAdmin());
+      }
+      // v227: skedarët (Excel, PDF) që telefoni/PDA-ja ia dërgon PC-së së vet; copat te /pjeset (Bytes ≤ 900 KB)
+      match /skedaret/{sk} {
+        allow read, delete: if request.auth != null && request.auth.uid == kodi;
+        allow create: if request.auth != null && request.auth.uid == kodi && !uFshi(kodi)
+          && request.resource.data.keys().hasOnly(['emri', 'lloji', 'titulli', 'pajisja', 'madhesia', 'pjeset', 'krijuarSe', 'skadon'])
+          && request.resource.data.emri is string && request.resource.data.emri.size() > 0 && request.resource.data.emri.size() <= 150
+          && request.resource.data.madhesia is int && request.resource.data.madhesia > 0 && request.resource.data.madhesia <= 15728640
+          && request.resource.data.pjeset is int && request.resource.data.pjeset > 0 && request.resource.data.pjeset <= 20;
+        allow update: if request.auth != null && request.auth.uid == kodi && !uFshi(kodi)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['shkarkuarSe']);
+        match /pjeset/{p} {
+          allow read, delete: if request.auth != null && request.auth.uid == kodi;
+          allow create: if request.auth != null && request.auth.uid == kodi && !uFshi(kodi)
+            && request.resource.data.keys().hasOnly(['i', 'b']) && request.resource.data.b is bytes
+            && request.resource.data.b.size() <= 1000000;
+        }
       }
     }
     match /perdoruesit/{uid} {
