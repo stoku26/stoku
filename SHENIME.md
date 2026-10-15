@@ -50,6 +50,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **SHIRITI POSHTË I ERRËT (v226 = 1.25.2, Stoku i instaluar nga Chrome)**: v225 (pa `theme_color`) s'mjaftoi.
+   Më 15 tetor, pasi Chrome e përditësoi WebAPK-në, vija e lëvizjes poshtë u bë e bardhë (Chrome s'i jep më ngjyrë
+   shiritit), por shiriti mbeti #f6f5f2. Shkaku: Chrome i ri e lë shiritin të tejdukshëm dhe poshtë tij duket dritarja e
+   aplikacionit, që merr `background_color` të manifestit (po ajo ngjyrë edhe për ekranin e nisjes). Faqja s'mund të
+   vizatojë poshtë shiritit në aplikacionin e instaluar (`viewport-fit=cover` s'vlen aty), dhe manifesti s'ka variant të
+   errët që Chrome ta lexojë. Zgjidhja: `theme_color` dhe `background_color` = `#0f1115` (`manifest.webmanifest?v=87`):
+   shiriti poshtë del i errët me vijë të bardhë në çdo temë. Kostoja e pranuar: në temën e çelët shiriti poshtë dhe
+   ekrani i nisjes janë të errët. Shiriti sipër ndjek ende `metaTema` (i çelët / i errët). Aplikacioni Android (tel/)
+   s'preket. Chrome e merr manifestin e ri kur e përditëson WebAPK-në (zakonisht brenda një dite); te `chrome://webapks`
+   shihen ngjyrat që i ka ruajtur. MOS i kthe ngjyrat e manifestit në të çelëta. Pa testim në pajisje të vërtetë.
 0000000. **SHIRITI POSHTË NË TEMËN E ERRËT (v225 = 1.25.1, vetëm Stoku i instaluar nga Chrome)**: në telefonin me temë të
    errët, Stoku i instaluar nga Chrome (jo aplikacioni Android) kishte poshtë një shirit të bardhë (#f6f5f2) te vija e
    lëvizjes, ndërsa sipër ishte i errët. Shkaku: versionet e reja të Chrome-it e ngjyrosin shiritin e navigimit të
@@ -57,8 +67,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i zi. U hoq `theme_color` nga `manifest.webmanifest` (?v=86): pa të, Chrome e lë shiritin sipas temës së telefonit.
    Shiriti sipër s'preket: e ndjek `<meta name="theme-color" id="metaTema">` (rifreskoMetaTemen), si më parë. Aplikacioni
    Android (tel/) s'preket: aty të dy shiritat i ngjyros `StokuAndroid.ngjyrat()`. Chrome e merr manifestin e ri kur e
-   përditëson WebAPK-në (zakonisht brenda një dite ose dy, pa e riinstaluar). MOS e rikthe `theme_color` te manifesti.
-   Pa testim në pajisje të vërtetë.
+   përditëson WebAPK-në (zakonisht brenda një dite ose dy, pa e riinstaluar). Nuk mjaftoi: shih v226 më sipër.
 0000000. **PDA: "FSHIH TASTIERËN" (v224 = 1.25.0, vetëm telefoni)**: kërkesë e pronarit (PDA Zebra me tastierë fizike):
    kur është ndezur PDA, te folderi del `#btnTastiera` ("Fshih tastierën" / "Shfaq tastierën", në rreshtin e kamerës që
    fshihet në PDA) dhe te Cilësimet → Skanimi `#opsTastiera` (`#seksionTastiera`, vetëm në PDA). `opsione.tastieraFshehur`
