@@ -321,6 +321,16 @@
       return !!(p && p.uid === uid() && grupi && p.grupi === grupi && s && (Date.now() - s) < 7 * 86400000) &&
         typeof Notification !== 'undefined' && Notification.permission === 'granted';
     }
+    // v231 (lejet.js): pa lejen "Grupi" kjo pajisje s'regjistrohet te grupi për njoftime, që Worker-i të mos i dërgojë
+    // asnjë kërkesë a njoftim të grupit (edhe te aplikacioni Android). Njoftimi ditor i afateve s'preket (shkon me /orari).
+    var pushGrupiLejohet = true;
+    async function lejoPushinEGrupit(po) {
+      po = po !== false;
+      if (po === pushGrupiLejohet) return;
+      pushGrupiLejohet = po;
+      if (!po) { try { await meAfat(hiqPajisjenNgaGrupi(), 5000); } catch (e) { /* ok */ } }
+      else if (uid() && pushMbeshtetet() && Notification.permission === 'granted') { try { await aktivizoPush(true); } catch (e) { /* ok */ } }
+    }
     // Regjistron këtë pajisje për njoftime (vetëm me leje të dhënë). Shkruan te ekipa_push vetëm kur ndryshon diçka
     // ose çdo 7 ditë, që lista e Worker-it të mbetet e freskët.
     async function aktivizoPush(detyro) {
@@ -333,12 +343,13 @@
         var id = uid() + '_' + hashTekst(j.endpoint);
         var ruajtur = lexoLS(KEY_PUSH);
         // Pajisja regjistrohet te grupi (grupet/{g}/push): Worker-i ua dërgon kërkesat dhe njoftimet vetëm anëtarëve të grupit
-        if (grupi && (detyro || !ruajtur || ruajtur.id !== id || ruajtur.endpoint !== j.endpoint || ruajtur.grupi !== grupi || (Date.now() - (ruajtur.koha || 0)) > 7 * 86400000)) {
+        if (grupi && pushGrupiLejohet && (detyro || !ruajtur || ruajtur.id !== id || ruajtur.endpoint !== j.endpoint || ruajtur.grupi !== grupi || (Date.now() - (ruajtur.koha || 0)) > 7 * 86400000)) {
           if (ruajtur && ruajtur.id && ruajtur.uid === uid() && ruajtur.grupi && (ruajtur.id !== id || ruajtur.grupi !== grupi)) {
             try { await fs.deleteDoc(fs.doc(db, 'grupet', ruajtur.grupi, 'push', ruajtur.id)); } catch (e) { /* ok — p.sh. s'je më në atë grup */ }
           }
           await fs.setDoc(fs.doc(db, 'grupet', grupi, 'push', id), Object.assign({ uid: uid(), emri: emri(), platforma: platforma, koha: Date.now() }, j));
           shkruajLS(KEY_PUSH, { uid: uid(), id: id, endpoint: j.endpoint, grupi: grupi, koha: Date.now() });
+          if (!pushGrupiLejohet) await hiqPajisjenNgaGrupi(); // leja "Grupi" u hoq gjatë regjistrimit
         }
         // Orari ditor i kësaj pajisjeje ishte për një regjistrim tjetër (p.sh. çelës i ri): rinovohet me të riun
         var o = orariIm();
@@ -1017,7 +1028,7 @@
       // ---------- Njoftimet push ----------
       pushMbeshtetet: pushMbeshtetet,
       aktivizoPush: aktivizoPush,
-      caktivizoPush: caktivizoPush, pastroOrarinEJetim: pastroOrarinEJetim,
+      caktivizoPush: caktivizoPush, pastroOrarinEJetim: pastroOrarinEJetim, lejoPushinEGrupit: lejoPushinEGrupit,
       pushAktiv: pushAktiv, pushPerNjoftimet: pushPerNjoftimet,
       orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 164,
 
