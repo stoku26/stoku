@@ -31,6 +31,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 | `afatet.js` | Logjika e përbashkët për "Afatet" (data, statuse, lexim AI, formatim). Përdoret nga të dy faqet **dhe** nga `sw.js` (për njoftimet në sfond). |
 | `bashkimi.js` | Logjika e bashkimit të të dhënave mes pajisjeve (LWW me kohë, fshirjet si tombstones). E përbashkët. |
 | `ruajtja.js` | Ndarja e dyqanit në Firestore në disa dokumente (shih më poshtë "Firebase"). |
+| `skedaret.js` | v229: Excel dhe PDF nga telefoni/PDA-ja te PC-ja ("Dërgo në PC"; Firestore `dyqane/{uid}/skedaret`, copa ≤ 900 KB). E përbashkët. |
 | `porta.js` | Ekrani i hyrjes/kyçjes (login gate) — hapet para faqes kryesore te të dyja versionet. |
 | `njoftimet.js` | Njoftimet push për afatet (30 ditë para skadimit, dhe kur skadon) — logjikë e përbashkët për faqen dhe `sw.js`. |
 | `teRejat.js` | Lista "Çka ka të re" (shënimet e versioneve) — tregohet në hyrje. **Shto këtu një hyrje për çdo ndryshim domethënës të ri**, shih udhëzimin brenda skedarit. |
@@ -50,6 +51,23 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **EXCEL DHE PDF: "DËRGO NË PC" PËR TË GJITHË (v229 = 1.27.0)**: pas kthimit të v227 (v228), pronari e sqaroi: jo vetëm
+   për PDA dhe jo me çelës te Cilësimet, por për krejt, me zgjedhje sa herë klikohen "Eksporto në Excel"/"Eksporto në PDF";
+   në PC skedari del me "Shkarko". Fullscreen-i i PDA-së MBETET si në v226 (heqja e tij s'u kërkua sërish).
+   - **Telefoni** (`index.html`): `ndajOseShkarko(f, titulli)` hap dritaren `#dlgKuSkedari` ("Excel-i/PDF-ja është gati":
+     emri + madhësia, "Dërgo në PC" `#ksPc`, "Shkarko këtu" `#ksKetu`, "Anulo"), si `#dlgKuFleta`. Vlen për të katër
+     eksportet (Excel i folderit, PDF me etiketa, Excel i afateve, Excel i stokut të kolegut). "Shkarko këtu" =
+     `ndajOseShkarkoKetu` (ndarja/shkarkimi si më parë). "Dërgo në PC" = `skedaret.dergo`: gjendjet "Duke e dërguar…",
+     "U dërgua në PC" (mbyllet vetë pas 2,5 s), gabim (internet / rregullat / mbi 15 MB) me "Provo sërish në PC" dhe
+     "Shkarko këtu". Pa llogari (vizitor): "Dërgo në PC" i çaktivizuar, me shpjegim. Premtimi mbaron kur mbyllet dritarja.
+   - **PC** (`pc.html`, si në v227): kartat `#skedaretTel` te Përmbledhja (Shkarko/Fshi, "U shkarkua"), numri
+     `#stokTabSkedaret` te pllaka Stoku, njoftim me "Shkarko" kur mbërrin; të skaduarit (7 ditë) i fshin PC-ja.
+   - **`skedaret.js`** (i njëjti si në v227): `dyqane/{uid}/skedaret/{id}` + copat `…/pjeset/000…` (Bytes ≤ 900 KB,
+     maksimumi 15 MB); copat të parat, dokumenti i fundit; dështimi i pastron copat; afat 45 s për shkrim.
+   - **Rregullat e Firestore v229** (të njëjtat me v227, te "Rregullat e Firestore" më poshtë): PA PUBLIKIMIN E TYRE
+     "Dërgo në PC" s'punon (dritarja thotë "rregullat duhet të përditësohen").
+   - Testet: `skedaret-njesi.js` (25), `emu/skedaret-prova.mjs` (38, emulatori), `skedaret-e2e-v229.js` (tel → PC me
+     Firestore të simuluar), `tre-test.js` (eksporti i afateve kalon nga "Shkarko këtu"). Pa testim në pajisje të vërtetë.
 0000000. **KTHIMI I PLOTË I v227 (CACHE `stoku-v228`, pa hyrje te "Çka ka të re")**: me kërkesë të pronarit ("ktheje te mas
    komplet qeto se s'e ke bo mirë") v227 (PR #173) u kthye krejt me `git revert`: PDA-ja kalon sërish në fullscreen për ta
    kyçur portretin (si deri në v226), dhe "Excel dhe PDF në PC" (`skedaret.js`, çelësi te Cilësimet, kartat në PC,
@@ -1319,7 +1337,7 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
-## Rregullat e Firestore (v164 grupet, v221 pa chat; më parë v116 + v130 ekipa_push + v140 admini nga llogaria) — i vendos PËRDORUESI (unë s'kam qasje)
+## Rregullat e Firestore (v164 grupet, v221 pa chat, v229 skedarët në PC; më parë v116 + v130 ekipa_push + v140 admini nga llogaria) — i vendos PËRDORUESI (unë s'kam qasje)
 
 Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Dyqani lexohet vetëm nga pronari/admin-i;
 `emri`/`perdoruesi` s'falsifikohen (= emri i llogarisë); aplikacioni s'mund ta shtojë/ndryshojë fushën `emri` te
@@ -1374,6 +1392,23 @@ service cloud.firestore {
       }
       match /fletet/{fleta} {
         allow read, write: if request.auth != null && ((request.auth.uid == kodi && !uFshi(kodi)) || eshteAdmin());
+      }
+      // v229: skedarët (Excel, PDF) që telefoni/PDA-ja ia dërgon PC-së së vet; copat te /pjeset (Bytes ≤ 900 KB)
+      match /skedaret/{sk} {
+        allow read, delete: if request.auth != null && request.auth.uid == kodi;
+        allow create: if request.auth != null && request.auth.uid == kodi && !uFshi(kodi)
+          && request.resource.data.keys().hasOnly(['emri', 'lloji', 'titulli', 'pajisja', 'madhesia', 'pjeset', 'krijuarSe', 'skadon'])
+          && request.resource.data.emri is string && request.resource.data.emri.size() > 0 && request.resource.data.emri.size() <= 150
+          && request.resource.data.madhesia is int && request.resource.data.madhesia > 0 && request.resource.data.madhesia <= 15728640
+          && request.resource.data.pjeset is int && request.resource.data.pjeset > 0 && request.resource.data.pjeset <= 20;
+        allow update: if request.auth != null && request.auth.uid == kodi && !uFshi(kodi)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['shkarkuarSe']);
+        match /pjeset/{p} {
+          allow read, delete: if request.auth != null && request.auth.uid == kodi;
+          allow create: if request.auth != null && request.auth.uid == kodi && !uFshi(kodi)
+            && request.resource.data.keys().hasOnly(['i', 'b']) && request.resource.data.b is bytes
+            && request.resource.data.b.size() <= 1000000;
+        }
       }
     }
     match /perdoruesit/{uid} {

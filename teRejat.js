@@ -18,6 +18,14 @@
   'use strict';
 
   var LISTA = [
+    { v: 229, versioni: '1.27.0', data: '2026-10-15', titulli: 'Excel dhe PDF: dërgo në PC', platforma: 'tel', pikat: [
+      'Kur shtyp "Eksporto në Excel" ose "Eksporto në PDF", zgjedh: "Dërgo në PC" ose "Shkarko këtu".',
+      'Me "Dërgo në PC", skedari del te Stoku në kompjuter, te Përmbledhja, ku e shkarkon. Në PC duhet e njëjta llogari. Skedarët mbahen 7 ditë.'
+    ] },
+    { v: 229, versioni: '1.27.0', data: '2026-10-15', titulli: 'Skedarët nga telefoni dhe PDA-ja', platforma: 'pc', pikat: [
+      'Excel-i dhe PDF-ja që i dërgon telefoni ose PDA-ja dalin te Përmbledhja, me "Shkarko" dhe "Fshi". Kur mbërrin një skedar i ri, del njoftim me "Shkarko".',
+      'Numri te pllaka "Stoku" tregon sa skedarë s\'janë shkarkuar ende. Mbahen 7 ditë.'
+    ] },
     { v: 226, versioni: '1.25.2', data: '2026-10-15', titulli: 'Shiriti poshtë i errët', platforma: 'tel', pikat: [
       'Te Stoku i instaluar nga Chrome, shiriti i telefonit poshtë s\'del më i bardhë: tash është i errët, si te aplikacioni Android.',
       'Ndryshimi vjen vetë kur Chrome e përditëson Stoku-n e instaluar, zakonisht brenda një dite.'
