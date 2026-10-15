@@ -23,11 +23,13 @@
     { v: 231, versioni: '1.28.1', data: '2026-10-15', titulli: 'Lejet: pa asnjë mesazh', platforma: 'tel', vetemAdmini: true, pikat: [
       'Çka s\'i lejohet një llogarie zhduket krejt: s\'i del asnjë mesazh se diçka është ndaluar, as te Cilësimet → Llogaria.',
       'Pa "Stoku", llogaria s\'e sheh as tabin Stoku: hapet direkt te Afatet (ose te Grupi). Pa "Stoku në kompjuter", në kompjuter hapet versioni i telefonit.',
+      'Pa "Grupi" s\'i vijnë as njoftimet e Grupit; pa "Afatet" s\'i vjen as njoftimi ditor dhe ora e dorës s\'tregon produkte.',
       'Kjo hyrje dhe ajo e lejeve u dalin vetëm administratorit.'
     ] },
     { v: 231, versioni: '1.28.1', data: '2026-10-15', titulli: 'Lejet: pa asnjë mesazh', platforma: 'pc', vetemAdmini: true, pikat: [
       'Çka s\'i lejohet një llogarie zhduket krejt: s\'i del asnjë mesazh se diçka është ndaluar, as te Cilësimet → Llogaria.',
       'Pa "Stoku në kompjuter", llogaria hap në kompjuter versionin e telefonit, pa asnjë dritare që e thotë.',
+      'Pa "Grupi" s\'i vijnë as njoftimet e Grupit; pa "Afatet" s\'i vjen as njoftimi ditor dhe ora e dorës s\'tregon produkte.',
       'Kjo hyrje dhe ajo e lejeve u dalin vetëm administratorit.'
     ] },
     { v: 230, versioni: '1.28.0', data: '2026-10-15', titulli: 'Lejet e përdoruesve', platforma: 'tel', vetemAdmini: true, pikat: [

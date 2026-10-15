@@ -74,12 +74,21 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    - **Edhe**: pa `afatet` s'del "Të skaduara" (tel kryefaqja, PC Përmbledhja). Tel, Cilësimet: "Skanimi" fshihet pa Stok dhe
      pa Afate, "Produkte pa emër" pa Stok, "Njoftimet" pa Afate dhe pa Grup, "Njoftimi ditor për afatet" pa Afate. PC:
      shkurtoret e tastierës vetëm për çka lejohet (`LEJA_E_SHKURTORES`); pa asnjë pjesë, `#pamjaMbyllur` ka vetëm logon.
+   - **Jashtë faqes** (`zbatoLejetJashte()`, tel + PC, në çdo ndryshim lejesh dhe te `stoku-cloud-gati` /
+     `stoku-auth-ndryshoi`): pa `grupi` pajisja s'regjistrohet te `grupet/{g}/push` (ekipa.js `lejoPushinEGrupit(false)` →
+     `hiqPajisjenNgaGrupi()`; `aktivizoPush` s'e regjistron, as kur leja hiqet gjatë regjistrimit), pra Worker-i s'i
+     dërgon asnjë kërkesë a njoftim të grupit (edhe Android/FCM); `njoftoNgaEkipa` / `ekNjofto` s'nxjerrin asgjë; te
+     Njoftimet gjendja `aktive` pa tekst për Grupin. Pa `afatet`: `dergoAfatetPerOrarin([])` (tel `afatetPerServerin()`,
+     PC `lejaELlogarise('afatet')`), pra s'vjen njoftimi ditor dhe ora e dorës s'tregon produkte; kur leja kthehet,
+     dërgohet lista e vërtetë. Në PC për këto përdoret leja e llogarisë pa kushtin `pc` (`lejaELlogarise`).
    - **"Çka ka të re"**: fusha e re `vetemAdmini` te `teRejat.js` (`teRejatPas(v, platforma, admin)`); hyrjet v230 dhe v231
      i sheh vetëm administratori. Te faqja e administratorit (detajet e përdoruesit): "Çka s'i lejohet, i zhduket krejt, pa
-     asnjë mesazh." `lejet.js?v=2`: vetëm përshkrimet e `pc` dhe `dergoNePc`. Rregullat e Firestore s'ndryshuan (mbeten v230).
+     asnjë mesazh." `lejet.js?v=2`: vetëm përshkrimet e `pc` dhe `dergoNePc`; `ekipa.js?v=231`. Rregullat e Firestore dhe
+     Worker-i s'ndryshuan (mbeten v230 dhe 164).
    - Testet: `lejet-e2e-v231.js` (telefoni, 80 kontrolle: asnjë "lejohet/lejuar/administrator/ndaluar" në faqe e njoftime,
      faqja bazë, "mbrapa", skanimi, pa PC, "Çka ka të re") dhe `lejet-pc-e2e-v231.js` (PC, 63: PC → telefon → PC, faqja bosh,
-     shkurtoret, fusha e barkodit, kërkimi). Pa testim në pajisje të vërtetë.
+     shkurtoret, fusha e barkodit, kërkimi), `lejet-push-v231.js` (pa Grup: pajisja jashtë `grupet/{g}/push`, pa njoftim
+     të grupit; pa Afate: lista bosh te serveri; kthimi i lejeve). Pa testim në pajisje të vërtetë.
 
 0000000. **LEJET E PËRDORUESVE (v230 = 1.28.0)**: kërkesa e pronarit: te Cilësimet, te grupi "Aplikacioni", një opsion që
    e sheh VETËM administratori `mendurberisha`, me krejt përdoruesit; brenda secilit, krejt veçoritë e Stoku-t për t'i

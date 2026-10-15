@@ -1941,7 +1941,7 @@
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=2"></script>
 <script src="afatet.js?v=216"></script>
-<script src="ekipa.js?v=230"></script>
+<script src="ekipa.js?v=231"></script>
 <script src="njoftimet.js?v=216"></script>
 <script src="teRejat.js?v=231"></script>
 <script>
@@ -3802,11 +3802,13 @@
     if (!('Notification' in window)) return 'pa';
     if (Notification.permission === 'denied') return 'bllokuar';
     if (Notification.permission !== 'granted') return 'fikur';
+    if (!leja('grupi')) return 'aktive'; // v231: pa Grup, njoftimet janë vetëm ato të afateve
     var e = ekipaCloud();
     return (e && e.pushAktiv && e.pushAktiv()) ? 'push' : 'lokale';
   }
   var NJ_GJENDJET = {
     push: ['ngj-gjelber', 'Aktive', 'Vijnë edhe kur Stoku është i mbyllur, edhe në orë.', 'Aktive'],
+    aktive: ['ngj-gjelber', 'Aktive', 'Njoftimet për afatet vijnë në këtë telefon. Që të vijnë edhe kur Stoku është i mbyllur, ndiz më poshtë "Njoftimi ditor".', 'Aktive'],
     lokale: ['ngj-portokalli', 'Aktive kur Stoku është hapur', 'Njoftimet e Grupit vijnë kur Stoku është i hapur ose në sfond. Që të vijnë edhe kur mbyllet, duhet hyrë në llogari dhe shërbimi i njoftimeve duhet të jetë gati.', 'Kur Stoku është hapur'],
     fikur: ['ngj-gri', 'Të fikura', 'Shtyp "Aktivizo njoftimet" dhe lejoji kur të pyet telefoni.', 'Të fikura'],
     bllokuar: ['ngj-kuqe', 'Të bllokuara', 'I ke refuzuar njoftimet. Lejoji te: Cilësimet e telefonit → Aplikacionet → Stoku (ose Chrome) → Njoftimet → Lejo.', 'Të bllokuara'],
@@ -3863,7 +3865,7 @@
     $('njDitor').disabled = $('njOra').disabled = false;
     if (r && r.ok) {
       window.StokuNjoftimet.vendosOrarin(aktiv && e.orariPunon());
-      if (aktiv) { e.dergoAfatetPerOrarin(afatet); toast('Njoftimi ditor: çdo ditë në ' + ora + '.'); }
+      if (aktiv) { e.dergoAfatetPerOrarin(afatetPerServerin()); toast('Njoftimi ditor: çdo ditë në ' + ora + '.'); }
       else toast('Njoftimi ditor u fik.');
     } else toast(tekstiGabimitOrarit(r && r.arsye), 4500);
     rifreskoOrarin();
@@ -3916,7 +3918,7 @@
     var st = await e.statusiIOrarit(), sv = st.serveri, im = st.im, tani = Date.now();
     // Serveri s'e ka më orarin (p.sh. pas riinstalimit): regjistrohet vetë dhe kontrollohet sërish
     if (im && im.ok && !im.ekziston && e.rinovoOrarinNesesMungon && await e.rinovoOrarinNesesMungon(true, st)) {
-      await e.dergoAfatetPerOrarin(afatet);
+      await e.dergoAfatetPerOrarin(afatetPerServerin());
       st = await e.statusiIOrarit(); sv = st.serveri; im = st.im;
     }
     var keq = true, t, kvProva = null;
@@ -3957,7 +3959,7 @@
     if (r && r.ok) {
       $('oraKodi').value = '';
       h.textContent = '✓ Ora u lidh. Pas pak sekondash në orë del lista e produkteve që skadojnë sot.';
-      e.dergoAfatetPerOrarin(afatet).catch(function () { /* ok */ });
+      e.dergoAfatetPerOrarin(afatetPerServerin()).catch(function () { /* ok */ });
     } else h.textContent = r && r.arsye === 'rruga' ? 'Serveri (Cloudflare) ka kodin e vjetër: ngjite kodin e ri te stoku-push (versioni 157 ose më i ri) dhe provo prapë.'
       : r && r.arsye === 'kodi' ? 'Ky kod s\'u gjet ose ka skaduar. Shiko kodin e ri në orë.'
       : r && r.arsye === 'rrjeti' ? 'S\'ka internet. Provo prapë.' : 'S\'u lidh (' + ((r && r.arsye) || 'gabim') + '). Provo prapë.';
@@ -4514,8 +4516,19 @@
     if ($('dlgAfatet').classList.contains('hapur')) renderAfatet();
     if ($('dlgEkipi').classList.contains('hapur')) vizatoEkipen(true);
     rifreskoTabet();
-    if (!leja('afatet')) kontrolloNjoftimet(); // pa afatet: pa njoftime për skadimin
+    kontrolloNjoftimet(); // pa afatet: pa njoftime për skadimin (dhe serveri pa listë); me to: rikthehen
+    zbatoLejetJashte();
+    rifreskoNjoftimet();
     hapFaqenBaze();
+  }
+  // v231: lejet vlejnë edhe jashtë faqes. Pa "Grupi" kjo pajisje s'regjistrohet për njoftimet e grupit (as push, as
+  // aplikacioni Android); pa "Afatet" serveri merr listë bosh afatesh (s'vjen njoftimi ditor, ora s'tregon produkte).
+  function afatetPerServerin() { return leja('afatet') ? afatet.slice() : []; }
+  function zbatoLejetJashte() {
+    var e = ekipaCloud();
+    if (!e || !perdoruesiAktual()) return;
+    if (e.lejoPushinEGrupit) e.lejoPushinEGrupit(leja('grupi')).then(rifreskoNjoftimet, function () { /* ok */ });
+    if (!leja('afatet') && e.dergoAfatetPerOrarin) e.dergoAfatetPerOrarin([]).catch(function () { /* ok */ });
   }
   // v231: pa lejen "Stoku" s'ka kryefaqe me foldera (as tab "Stoku"): faqja bazë bëhet pjesa e parë e lejuar
   // (Afatet, Grupi, ose Cilësimet kur s'ka asnjërën), e hapur gjithmonë si kryefaqja. S'numërohet si nivel i historisë:
@@ -4535,8 +4548,8 @@
     if (!faqjaBaze()) return;
     Promise.resolve().then(hapFaqenBaze);
   }
-  window.addEventListener('stoku-auth-ndryshoi', function () { if (lejetG) lejetG.rinis(); });
-  window.addEventListener('stoku-cloud-gati', function () { if (lejetG) lejetG.rinis(); });
+  window.addEventListener('stoku-auth-ndryshoi', function () { if (lejetG) lejetG.rinis(); zbatoLejetJashte(); });
+  window.addEventListener('stoku-cloud-gati', function () { if (lejetG) lejetG.rinis(); zbatoLejetJashte(); });
 
   // Veçori vetëm për llogari të caktuara (butona +/- shpejtë te lista). Lidhet me LLOGARINË (uid), jo me emrin:
   // kur një llogari e ndryshon emrin, e mban lejen. Emrat më poshtë janë vetëm "farë" për herën e parë —
@@ -8087,6 +8100,7 @@
   }
   // Njoftim i sistemit kur aplikacioni është në sfond; kur është përpara, mjafton shenja/toast-i
   function njoftoNgaEkipa(nj) {
+    if (!leja('grupi')) return; // v231: pa lejen "Grupi" s'del asnjë njoftim i grupit
     if (!document.hidden) {
       if (nj.pamja === 'anetaret') toast(nj.teksti, 5000);
       else if (/^Stoku · Hiqe/.test(nj.titulli)) toast(nj.teksti, 6000);
@@ -8826,6 +8840,7 @@
     if (paLlogari()) return; // pas "Dil": s'njoftohet më për afatet e llogarisë që doli
     if (!leja('afatet')) { // v230: pa lejen e afateve, as njoftime për skadimin (kopja e service worker-it hiqet)
       if (window.StokuNjoftimet.pastro) njZinxhiri = njZinxhiri.then(function () { return window.StokuNjoftimet.pastro(); }).catch(function () { /* ok */ });
+      zbatoLejetJashte(); // v231: edhe serveri merr listë bosh (pa njoftim ditor, ora pa produkte)
       return;
     }
 

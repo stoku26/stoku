@@ -1956,7 +1956,7 @@
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=2"></script>
 <script src="afatet.js?v=216"></script>
-<script src="ekipa.js?v=230"></script>
+<script src="ekipa.js?v=231"></script>
 <script src="teRejat.js?v=231"></script>
 <script>
 (function () {
@@ -2086,7 +2086,8 @@
     clearTimeout(afatetDitorKohez);
     afatetDitorKohez = setTimeout(function () {
       var e = window.__stokuCloud && window.__stokuCloud.ekipa;
-      if (e && e.dergoAfatetPerOrarin && perdoruesi()) e.dergoAfatetPerOrarin(afatet.slice()).catch(function () { /* ok */ });
+      // v231: pa lejen "Afatet" serveri merr listë bosh (s'vjen njoftimi ditor, ora s'tregon produkte)
+      if (e && e.dergoAfatetPerOrarin && perdoruesi()) e.dergoAfatetPerOrarin(lejaELlogarise('afatet') ? afatet.slice() : []).catch(function () { /* ok */ });
     }, 4000);
   }
 
@@ -2274,6 +2275,15 @@
   }) : null;
   // Pa lejen "Stoku në kompjuter" s'lejohet asgjë këtu (faqja kalon te versioni i telefonit)
   function leja(k) { return !lejetG || (lejetG.lejohet(k) && (k === 'pc' || lejetG.lejohet('pc'))); }
+  // Leja e llogarisë pa kushtin e PC-së: për çka vlen edhe jashtë kësaj faqeje (serveri, njoftimet push)
+  function lejaELlogarise(k) { return !lejetG || lejetG.lejohet(k); }
+  // v231: pa "Grupi" kjo pajisje s'regjistrohet për njoftimet e grupit (as push); pa "Afatet" serveri merr listë bosh
+  function zbatoLejetJashte() {
+    var e = window.__stokuCloud && window.__stokuCloud.ekipa;
+    if (!e || !perdoruesi()) return;
+    if (e.lejoPushinEGrupit) e.lejoPushinEGrupit(lejaELlogarise('grupi')).catch(function () { /* ok */ });
+    dergoAfatetPerNjoftiminDitor();
+  }
   // Pjesa e një pamjeje: Afatet, Grupi ose Stoku (përmbledhja, të gjitha produktet, folderat)
   function lejaEPamjes(p) { return p === 'afatet' ? 'afatet' : p === 'ekipi' ? 'grupi' : 'stoku'; }
   function pamjaEPareELejuar() { return leja('stoku') ? 'permbledhja' : leja('afatet') ? 'afatet' : leja('grupi') ? 'ekipi' : null; }
@@ -2288,6 +2298,7 @@
     if (!leja('stoku') && document.querySelector('.opsione-faqe[data-faqe="stoku"].aktiv')) zgjidhSkeden('pamja'); // Cilësimet → Stoku
     renderFletetETelefonit();
     rivizato();
+    zbatoLejetJashte();
   }
   // v231: pa lejen "Stoku në kompjuter" hapet versioni i telefonit, pa mesazh. index.html e lexon të njëjtën leje nga
   // localStorage (lejet.js e ruan para se ta njoftojë faqen) dhe s'kthehet këtu. Pa localStorage (rrallë) mbetet kjo
@@ -2300,8 +2311,8 @@
     window.__stokuPaPc = true;
     location.replace('./');
   }
-  window.addEventListener('stoku-auth-ndryshoi', function () { if (lejetG) lejetG.rinis(); });
-  window.addEventListener('stoku-cloud-gati', function () { if (lejetG) lejetG.rinis(); });
+  window.addEventListener('stoku-auth-ndryshoi', function () { if (lejetG) lejetG.rinis(); zbatoLejetJashte(); });
+  window.addEventListener('stoku-cloud-gati', function () { if (lejetG) lejetG.rinis(); zbatoLejetJashte(); });
 
   // ================= Cloud: llogaria + sinkronizimi i drejtpërdrejtë =================
   function perdoruesi() {
@@ -6677,6 +6688,7 @@
   }
   // Njoftim i sistemit kur Stoku është në sfond; kur është përpara, mjafton shenja/toast-i
   function ekNjofto(nj) {
+    if (!leja('grupi')) return; // v231: pa lejen "Grupi" s'del asnjë njoftim i grupit
     if (!document.hidden) {
       if (nj.pamja === 'anetaret') toast(nj.teksti, { ms: 8000, veprimi: function () { ekShkoTe('anetaret'); }, butoni: 'Hape' });
       else if (/^Stoku · Hiqe/.test(nj.titulli)) toast(nj.teksti, { ms: 9000, veprimi: ekHapNjoftimet, butoni: 'Hape' });
