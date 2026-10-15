@@ -711,10 +711,6 @@
   .fleta-tel .teksti { flex: 1; min-width: 0; line-height: 1.4; }
   .fleta-tel .teksti b { display: block; font-size: 14.5px; }
   .fleta-tel .teksti span { font-size: 12.5px; color: var(--gri); }
-  /* v227: skedar nga telefoni që është shkarkuar tashmë: pa theksim */
-  .fleta-tel.shkarkuar, .sbp .fleta-tel.shkarkuar { background: var(--karta); border-color: var(--sb-line, rgba(0,0,0,.12)); box-shadow: 0 0 0 1px var(--sb-line, rgba(0,0,0,.12)); }
-  .fleta-tel.shkarkuar .ikona, .sbp .fleta-tel.shkarkuar .ikona { color: var(--gri); }
-  #skedaretTel .fleta-tel .teksti b { overflow-wrap: anywhere; } /* emrat e skedarëve s'kanë hapësira */
   .kpi.af-kpi { border-width: 2px; }
   .kpi.af-kpi.aktiv { border-color: currentColor; }
   .kpi.af-kpi.skaduar { color: var(--af-kuqe-tx); background: var(--af-kuqe-bg); }
@@ -897,7 +893,7 @@
     <div class="sbp-menyja">
     <!-- v213: tri pllaka (Stoku, Afatet, Grupi); poshtë shfaqet vetëm menyja e pllakës aktive -->
     <div class="sbp-pllakat" role="tablist" aria-label="Pjesët e Stoku-t">
-      <button class="sbp-pllake" id="btnAkordStoku" type="button" role="tab" aria-selected="true" aria-controls="akordStokuTrupi" title="Stoku: produktet dhe folderat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5z"></path><path d="m3 8 9 5 9-5"></path><path d="M12 13v8"></path></svg><b>Stoku</b><small id="pllStokuNen"></small><span class="af-cip fleta" id="stokTabFleta" title="Fletë stoku nga telefoni që presin kontrollin"></span><span class="af-cip fleta" id="stokTabSkedaret" title="Skedarë nga telefoni për t'i shkarkuar"></span></button>
+      <button class="sbp-pllake" id="btnAkordStoku" type="button" role="tab" aria-selected="true" aria-controls="akordStokuTrupi" title="Stoku: produktet dhe folderat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5z"></path><path d="m3 8 9 5 9-5"></path><path d="M12 13v8"></path></svg><b>Stoku</b><small id="pllStokuNen"></small><span class="af-cip fleta" id="stokTabFleta" title="Fletë stoku nga telefoni që presin kontrollin"></span></button>
       <button class="sbp-pllake" id="btnAkordAfatet" type="button" role="tab" aria-selected="false" aria-controls="akordAfatetTrupi" title="Afatet e produkteve (datat e skadimit)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg><b>Afatet</b><small id="pllAfatetNen"></small><span class="af-cip fleta" id="afPllFleta" title="Fletë afatesh nga telefoni që presin kontrollin"></span></button>
       <button class="sbp-pllake" id="btnAkordEkipi" type="button" role="tab" aria-selected="false" aria-controls="akordEkipiTrupi" title="Grupi: kolegët, afatet e grupit, aktiviteti"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><b>Grupi</b><small id="pllEkipiNen"></small><span class="af-cip kuqe" id="ekAkordShenja" title="Njoftime të palexuara"></span></button>
     </div>
@@ -1015,7 +1011,6 @@
         </div>
       </div>
       <div class="fletet-tel" id="stokFletetTel"></div>
-      <div class="fletet-tel" id="skedaretTel" aria-label="Skedarët nga telefoni"></div>
       <div class="karta mireseardhje fsheh" id="kartaVizitori">
         <div>
           <h2>Je si vizitor</h2>
@@ -1886,10 +1881,9 @@
 <script src="xlsx.js?v=216"></script>
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=216"></script>
-<script src="skedaret.js?v=1"></script>
 <script src="afatet.js?v=216"></script>
 <script src="ekipa.js?v=221"></script>
-<script src="teRejat.js?v=227"></script>
+<script src="teRejat.js?v=226"></script>
 <script>
 (function () {
   'use strict';
@@ -2375,12 +2369,11 @@
     await kryeSinkronizimin();
     nisDegjuesin();
     nisDegjuesinEFleteve();
-    nisDegjuesinESkedareve();
   }
 
   function kurNdryshonLlogaria() {
     var u = perdoruesi();
-    if (!u) { sink.cUid = null; ndalDegjuesin(); ndalDegjuesinEFleteve(); ndalDegjuesinESkedareve(); vendosStatusin('lokal'); }
+    if (!u) { sink.cUid = null; ndalDegjuesin(); ndalDegjuesinEFleteve(); vendosStatusin('lokal'); }
     ekNisOseNdal();
     rifreskoLlogarine();
     rivizato();
@@ -6847,99 +6840,6 @@
     if (uRuajt) hiqFletenETelefonit(id);
   }
 
-  // ---------- Skedarët e dërguar nga telefoni ose PDA-ja (v227) ----------
-  // Excel dhe PDF që telefoni i dërgon këtu ("Excel dhe PDF në PC"; skedaret.js: dyqane/{uid}/skedaret) dalin si karta te
-  // Përmbledhja, me "Shkarko" dhe "Fshi", dhe si njoftim kur mbërrijnë. Numri i atyre që s'janë shkarkuar ende del te
-  // pllaka "Stoku". Mbahen 7 ditë: të skaduarit i fshin vetë PC-ja.
-  var skedaretTel = { lista: [], degjuesi: null, njoftuar: {}, duke: {} };
-  var IKONA_SKEDARI = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M12 11v7M9 15l3 3 3-3"></path></svg>';
-  function nisDegjuesinESkedareve() {
-    ndalDegjuesinESkedareve();
-    var c = window.__stokuCloud, sk = c && c.skedaret;
-    if (!sk || !perdoruesi()) return;
-    var ePara = true;
-    skedaretTel.degjuesi = sk.degjo(function (lista) {
-      lista = sk.pastroTeSkaduarat(lista);
-      skedaretTel.lista = lista;
-      var teReja = lista.filter(function (x) { return !skedaretTel.njoftuar[x.id]; });
-      teReja.forEach(function (x) { skedaretTel.njoftuar[x.id] = true; });
-      if (ePara) {
-        var n = lista.filter(function (x) { return !x.shkarkuarSe; }).length;
-        if (n) toast(n === 1 ? 'Ke 1 skedar nga telefoni për ta shkarkuar.' : 'Ke ' + n + ' skedarë nga telefoni për t\'i shkarkuar.',
-          { veprimi: function () { shkoTe('permbledhja'); }, butoni: 'Shiko', ms: 9000 });
-      } else if (teReja.length) {
-        var x = teReja[0];
-        toast('Mbërriti nga ' + (x.pajisja || 'telefoni') + ': ' + x.emri, { veprimi: function () { shkarkoSkedarinETelefonit(x.id); }, butoni: 'Shkarko', ms: 15000 });
-      }
-      ePara = false;
-      renderSkedaretETelefonit();
-    }, function () { /* rregullat e Firebase-it s'e lejojnë ende: s'pengon asgjë tjetër */ });
-  }
-  function ndalDegjuesinESkedareve() {
-    if (skedaretTel.degjuesi) { try { skedaretTel.degjuesi(); } catch (e) { /* ok */ } }
-    skedaretTel.degjuesi = null;
-    skedaretTel.lista = [];
-    renderSkedaretETelefonit();
-  }
-  function renderSkedaretETelefonit() {
-    var S = window.StokuSkedaret;
-    var n = skedaretTel.lista.filter(function (x) { return !x.shkarkuarSe; }).length;
-    var cip = $('stokTabSkedaret');
-    cip.innerHTML = n ? IKONA_SKEDARI.replace(/22/g, '12') : '';
-    if (n) cip.appendChild(document.createTextNode(String(n)));
-    var k = $('skedaretTel');
-    k.textContent = '';
-    skedaretTel.lista.forEach(function (x) {
-      var r = el('div', 'fleta-tel' + (x.shkarkuarSe ? ' shkarkuar' : ''));
-      var ik = el('span', 'ikona'); ik.innerHTML = IKONA_SKEDARI; r.appendChild(ik);
-      var tx = el('div', 'teksti');
-      var lloji = x.lloji === 'pdf' ? 'PDF' : x.lloji === 'xlsx' ? 'Excel' : 'Skedar';
-      tx.appendChild(el('b', null, lloji + ' nga ' + (x.pajisja || 'telefoni') + ': ' + x.emri));
-      tx.appendChild(el('span', null, [S ? S.madhesiaTekst(x.madhesia) : '', x.krijuarSe ? dataOra(x.krijuarSe) : '',
-        x.shkarkuarSe ? 'U shkarkua' : 'Pa u shkarkuar ende'].filter(Boolean).join(' · ')));
-      r.appendChild(tx);
-      var h = el('button', 'btn', skedaretTel.duke[x.id] ? 'Duke shkarkuar…' : 'Shkarko'); h.type = 'button';
-      h.disabled = !!skedaretTel.duke[x.id];
-      h.addEventListener('click', function () { shkarkoSkedarinETelefonit(x.id); });
-      var fs = el('button', 'btn tekst', 'Fshi'); fs.type = 'button'; fs.title = 'Hiqe nga lista';
-      fs.addEventListener('click', async function () {
-        var po = await konfirmo('Të fshihet skedari?', '"' + x.emri + '" hiqet nga lista. Nga telefoni mund ta dërgosh sërish.', 'Fshi');
-        if (po) fshiSkedarinETelefonit(x.id);
-      });
-      r.appendChild(h); r.appendChild(fs);
-      k.appendChild(r);
-    });
-  }
-  function skedariITelefonit(id) {
-    var f = null;
-    skedaretTel.lista.forEach(function (x) { if (x.id === id) f = x; });
-    return f;
-  }
-  async function shkarkoSkedarinETelefonit(id) {
-    var x = skedariITelefonit(id), c = window.__stokuCloud, sk = c && c.skedaret;
-    if (!x || !sk || skedaretTel.duke[id]) return;
-    skedaretTel.duke[id] = true;
-    renderSkedaretETelefonit();
-    try {
-      var bajtet = await sk.merr(x);
-      shkarko(bajtet, x.emri, window.StokuSkedaret.mimeISkedarit(x));
-      if (!x.shkarkuarSe) sk.shenoShkarkuar(x);
-    } catch (e) {
-      toast(e && e.message === 'jo-i-plote' ? 'Skedari s\'është i plotë. Dërgoje sërish nga telefoni.' : 'Shkarkimi dështoi. Kontrollo internetin dhe provo sërish.');
-    } finally {
-      delete skedaretTel.duke[id];
-      renderSkedaretETelefonit();
-    }
-  }
-  async function fshiSkedarinETelefonit(id) {
-    var x = skedariITelefonit(id), c = window.__stokuCloud, sk = c && c.skedaret;
-    if (!x || !sk) return;
-    skedaretTel.lista = skedaretTel.lista.filter(function (y) { return y.id !== id; });
-    renderSkedaretETelefonit();
-    var r = await sk.fshij(x);
-    if (!r.ok) toast('Fshirja dështoi. Provo sërish.');
-  }
-
   // Çdo lexim ka numrin e vet: një lexim i anuluar që mbaron vonë s'i mbishkruan rreshtat e një leximi (ose flete) më të ri
   var lxSeanca = 0;
   async function lexoFletenPc(skedari) {
@@ -7428,7 +7328,7 @@
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
     updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser
   } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-  import { initializeFirestore, doc, getDoc, getDocs, setDoc, runTransaction, onSnapshot, collection, deleteDoc, addDoc, query, where, orderBy, limit, writeBatch, Bytes } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  import { initializeFirestore, doc, getDoc, getDocs, setDoc, runTransaction, onSnapshot, collection, deleteDoc, addDoc, query, where, orderBy, limit, writeBatch } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
   var firebaseConfig = {
     apiKey: "AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY",
@@ -7452,9 +7352,6 @@
     // Grupi (ekipa.js): prania, aktiviteti, njoftimet personale
     var ekipa = window.StokuEkipa ? window.StokuEkipa.krijoCloud({ doc: doc, getDoc: getDoc, getDocs: getDocs, setDoc: setDoc, addDoc: addDoc, deleteDoc: deleteDoc,
       collection: collection, onSnapshot: onSnapshot, query: query, where: where, orderBy: orderBy, limit: limit, writeBatch: writeBatch }, db, auth, 'pc') : null;
-    // v227: skedarët (Excel, PDF) nga telefoni/PDA-ja te PC-ja e së njëjtës llogari (skedaret.js)
-    var skedaret = window.StokuSkedaret ? window.StokuSkedaret.krijo({ doc: doc, collection: collection, setDoc: setDoc, getDocs: getDocs, deleteDoc: deleteDoc,
-      onSnapshot: onSnapshot, query: query, orderBy: orderBy, limit: limit, writeBatch: writeBatch, Bytes: Bytes }, db, function () { return auth.currentUser ? auth.currentUser.uid : null; }) : null;
     // Regjistrohet vetja te perdoruesit/{uid} — përdoret nga pamja e "Ekipit" për të gjetur llogaritë
     var EMRAT_FARE_SASIA = ['tonnyaliu'];
     // "X u bashkua me grupin" s'shkruhet më këtu: e shkruan administratori kur e pranon llogarinë në grup.
@@ -7570,7 +7467,6 @@
           return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) };
         }
       },
-      skedaret: skedaret,
       ekipa: ekipa
     };
     onAuthStateChanged(auth, function (perdoruesi) {
