@@ -884,6 +884,11 @@
   .af-skano:active { background: var(--hover); }
   #dlgKuFleta { z-index: 24; }
   #dlgKuFleta .dialog { max-width: 420px; }
+  #dlgKuSkedari { z-index: 24; }
+  #dlgKuSkedari .dialog { max-width: 420px; }
+  #dlgKuSkedari .kfh-statusi { overflow-wrap: anywhere; } /* emri i skedarit s'ka hapësira */
+  .ks-hint { margin: 10px 2px 2px; font-size: 13px; line-height: 1.45; color: var(--gri); }
+  #ksPc:disabled { opacity: .45; }
   #dlgNjoftimet { z-index: 25; }
   /* "Çka ka të re" */
   #dlgTeRejat { z-index: 25; }
@@ -1711,6 +1716,20 @@
   </div>
 </div>
 
+<!-- v229: Excel/PDF i gatshëm: dërgo në PC (shkarkohet te Stoku në kompjuter) ose shkarko këtu -->
+<div class="mbulese" id="dlgKuSkedari">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="ksTitulli">
+    <h2 id="ksTitulli">Excel-i është gati</h2>
+    <div class="kfh-statusi" id="ksStatusi"></div>
+    <div class="kfh-zgjedhjet">
+      <button class="btn me-ikone" id="ksPc" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg>Dërgo në PC</button>
+      <button class="btn dyte me-ikone" id="ksKetu" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5"></path><path d="M5 21h14"></path></svg>Shkarko këtu</button>
+    </div>
+    <p class="ks-hint" id="ksHint"></p>
+    <div class="veprime"><button class="btn tekst" id="ksAnulo" type="button">Anulo</button></div>
+  </div>
+</div>
+
 <!-- Afatet: zgjedhja e kolonave për Excel -->
 <div class="mbulese" id="dlgAfExcel">
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="axTitulli">
@@ -1879,10 +1898,11 @@
 <script src="xlsx.js?v=216"></script>
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=216"></script>
+<script src="skedaret.js?v=1"></script>
 <script src="afatet.js?v=216"></script>
 <script src="ekipa.js?v=221"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=226"></script>
+<script src="teRejat.js?v=229"></script>
 <script>
 (function () {
   'use strict';
@@ -5430,7 +5450,7 @@
   // thjesht klasën), që logjika e tyre (p.sh. konfirmo() që pret përgjigje) të përfundojë saktë.
   var ANULO_SIPAS_DIALOGUT = {
     dlgProdukt: 'dlgAnulo', dlgZhvendos: 'zhvendosAnulo', dlgFshirje: 'fshiAnulo',
-    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgNjoftimet: 'njJoTani', dlgAfExcel: 'axAnulo', dlgTeRejat: 'trMbyll', dlgImportStok: 'impAnulo', dlgEkNjoftimet: 'ekNjMbyll', dlgAfImport: 'aiAnulo', dlgKerkese: 'krkAnulo'
+    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgKuSkedari: 'ksAnulo', dlgNjoftimet: 'njJoTani', dlgAfExcel: 'axAnulo', dlgTeRejat: 'trMbyll', dlgImportStok: 'impAnulo', dlgEkNjoftimet: 'ekNjMbyll', dlgAfImport: 'aiAnulo', dlgKerkese: 'krkAnulo'
   };
   function mbyllShtresenMeTeFundit() {
     // Kamera del mbi çdo dialog (p.sh. skanimi te "Afat i ri"), prandaj mbyllet e para
@@ -5540,8 +5560,81 @@
     setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 4000);
   }
 
-  // Ndan (ose shkarkon) një skedar tashmë të gatshëm { skedari, emri }
-  async function ndajOseShkarko(f, titulliShpernd) {
+  // ---------- Excel/PDF: "Dërgo në PC" ose "Shkarko këtu" (v229) ----------
+  // Çdo eksport (Excel i folderit, PDF me etiketa, Excel i afateve, Excel i stokut të kolegut) pyet ku shkon skedari:
+  // "Dërgo në PC" e dërgon te PC-ja e së njëjtës llogari (skedaret.js: dyqane/{uid}/skedaret), ku del te Përmbledhja me
+  // "Shkarko"; "Shkarko këtu" e ndan ose e shkarkon këtu si më parë. Premtimi mbaron kur mbyllet dritarja.
+  var ks = { f: null, titulli: '', zgjidh: null, kohez: null };
+  function ndajOseShkarko(f, titulliShpernd) {
+    return new Promise(function (zgjidh) {
+      mbaroKs();
+      ks = { f: f, titulli: titulliShpernd || '', zgjidh: zgjidh, kohez: null };
+      gjendjaKs('zgjedhje');
+      $('dlgKuSkedari').classList.add('hapur');
+    });
+  }
+  function kaLlogariPerPc() {
+    var c = window.__stokuCloud;
+    return !ngaVizitori() && !!(c && c.skedaret && c.perdoruesiAktual && c.perdoruesiAktual());
+  }
+  function gjendjaKs(g, tekst) {
+    var f = ks.f || {}, S = window.StokuSkedaret;
+    var lloji = S ? S.llojiISkedarit(f.emri) : '';
+    var emriLlojit = lloji === 'pdf' ? 'PDF-ja' : lloji === 'xlsx' ? 'Excel-i' : 'Skedari';
+    $('ksTitulli').textContent = g === 'gati' ? 'U dërgua në PC' : g === 'pune' ? 'Duke e dërguar në PC…' : emriLlojit + ' është gati';
+    var s = $('ksStatusi');
+    s.className = 'kfh-statusi' + (g === 'gati' || g === 'gabim' ? ' ' + g : '');
+    s.textContent = '';
+    if (g === 'pune') s.appendChild(Object.assign(document.createElement('span'), { className: 'lx-spinner' }));
+    var madh = f.skedari && S ? ' (' + S.madhesiaTekst(f.skedari.size) + ')' : '';
+    s.appendChild(document.createTextNode(tekst || (f.emri || '') + madh));
+    var pc = kaLlogariPerPc();
+    $('ksPc').style.display = g === 'zgjedhje' || g === 'gabim' ? '' : 'none';
+    $('ksPc').disabled = !pc;
+    $('ksPc').lastChild.textContent = g === 'gabim' ? 'Provo sërish në PC' : 'Dërgo në PC';
+    $('ksKetu').style.display = g === 'zgjedhje' || g === 'gabim' ? '' : 'none';
+    $('ksHint').textContent = g !== 'zgjedhje' ? '' : pc ? 'Në PC del te Përmbledhja, me butonin "Shkarko". Duhet e njëjta llogari në kompjuter.'
+      : 'Për ta dërguar në PC duhet llogari (e njëjta edhe në kompjuter).';
+    $('ksHint').hidden = !$('ksHint').textContent;
+    $('ksAnulo').textContent = g === 'gati' || g === 'pune' ? 'Mbyll' : 'Anulo';
+  }
+  function mbaroKs() {
+    clearTimeout(ks.kohez);
+    $('dlgKuSkedari').classList.remove('hapur');
+    var z = ks.zgjidh;
+    ks = { f: null, titulli: '', zgjidh: null, kohez: null };
+    if (z) z();
+  }
+  $('ksAnulo').addEventListener('click', function () { mbaroKs(); fokusoBarkodin(); });
+  $('ksKetu').addEventListener('click', async function () {
+    var f = ks.f, t = ks.titulli, z = ks.zgjidh;
+    ks.zgjidh = null; // premtimi mbaron pasi të ndahet/shkarkohet këtu
+    mbaroKs();
+    if (f) await ndajOseShkarkoKetu(f, t);
+    if (z) z();
+  });
+  $('ksPc').addEventListener('click', async function () {
+    var ky = ks, c = window.__stokuCloud;
+    if (!ky.f || !kaLlogariPerPc()) return;
+    gjendjaKs('pune');
+    var r = navigator.onLine === false ? { ok: false, arsye: 'rrjeti' }
+      : await c.skedaret.dergo(ky.f.skedari, { emri: ky.f.emri, titulli: ky.titulli, pajisja: opsione.pda ? 'PDA' : 'Telefoni' });
+    if (ks !== ky) { // dritarja u mbyll ndërkohë: rezultati del si njoftim
+      toast(r.ok ? 'U dërgua në PC. E gjen te Stoku në kompjuter, te Përmbledhja.' : 'S\'u dërgua në PC. Provo sërish.', 4500);
+      return;
+    }
+    if (r.ok) {
+      gjendjaKs('gati', 'E gjen te Stoku në kompjuter, te Përmbledhja, me butonin "Shkarko".');
+      ky.kohez = setTimeout(function () { if (ks === ky) { mbaroKs(); fokusoBarkodin(); } }, 2500);
+      return;
+    }
+    gjendjaKs('gabim', r.arsye === 'i-madh' ? 'Skedari është mbi 15 MB, shumë i madh për PC-në. Mund ta shkarkosh këtu.'
+      : r.arsye === 'leje' ? 'Firebase s\'e lejon ende: rregullat duhet të përditësohen. Mund ta shkarkosh këtu.'
+      : 'S\'u dërgua. Kontrollo internetin dhe provo sërish, ose shkarkoje këtu.');
+  });
+
+  // Ndan (ose shkarkon) këtu një skedar tashmë të gatshëm { skedari, emri }
+  async function ndajOseShkarkoKetu(f, titulliShpernd) {
     if (kaShare(f.skedari)) {
       try {
         await navigator.share({ files: [f.skedari], title: titulliShpernd || f.emri });
@@ -8587,7 +8680,7 @@
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
     updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser
   } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-  import { initializeFirestore, doc, getDoc, getDocs, setDoc, runTransaction, collection, addDoc, onSnapshot, deleteDoc, query, where, orderBy, limit, writeBatch } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  import { initializeFirestore, doc, getDoc, getDocs, setDoc, runTransaction, collection, addDoc, onSnapshot, deleteDoc, query, where, orderBy, limit, writeBatch, Bytes } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
   var firebaseConfig = {
     apiKey: "AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY",
@@ -8613,6 +8706,9 @@
     // Grupi (ekipa.js): prania, aktiviteti, njoftimet personale
     var ekipa = window.StokuEkipa ? window.StokuEkipa.krijoCloud({ doc: doc, getDoc: getDoc, getDocs: getDocs, setDoc: setDoc, addDoc: addDoc, deleteDoc: deleteDoc,
       collection: collection, onSnapshot: onSnapshot, query: query, where: where, orderBy: orderBy, limit: limit, writeBatch: writeBatch }, db, auth, 'tel') : null;
+    // v229: skedarët (Excel, PDF) nga telefoni/PDA-ja te PC-ja e së njëjtës llogari (skedaret.js)
+    var skedaret = window.StokuSkedaret ? window.StokuSkedaret.krijo({ doc: doc, collection: collection, setDoc: setDoc, getDocs: getDocs, deleteDoc: deleteDoc,
+      onSnapshot: onSnapshot, query: query, orderBy: orderBy, limit: limit, writeBatch: writeBatch, Bytes: Bytes }, db, function () { return auth.currentUser ? auth.currentUser.uid : null; }) : null;
 
     // Regjistrohet vetja te perdoruesit/{uid} (emri i dukshëm + kur u kyç së fundi) — përdoret nga
     // pamja e "Ekipit" për të gjetur krejt llogaritë ekzistuese dhe emrat e tyre.
@@ -8773,6 +8869,7 @@
           return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) };
         }
       },
+      skedaret: skedaret,
       ekipa: ekipa
     };
 
