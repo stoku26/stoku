@@ -7761,7 +7761,7 @@
     var TR = window.StokuTeRejat;
     if (!TR || !TR.versioni()) return false;
     if ((__pajisjeERe || ngaVizitori()) && !versioniIPare()) { shenoTeRejatSiTePara(); return false; } // vizitori i ri: pa listë përditësimesh
-    var hyrjet = TR.teRejatPas(versioniIPare(), 'pc', eshteAdminiIStokut()); // vetëm të rejat e kompjuterit
+    var hyrjet = TR.teRejatPas(versioniIPare(), 'pc', eshteAdminiIStokut(), leja); // vetëm të rejat e kompjuterit
     if (!hyrjet.length) return false;
     if (window.StokuPorta && window.StokuPorta.eHapur()) return false;
     if (dialogISiperm()) return false;
@@ -7790,7 +7790,7 @@
   $('opsTeRejat').addEventListener('click', function () {
     var TR = window.StokuTeRejat;
     if (!TR || !TR.versioni()) return;
-    var hyrjet = TR.teRejatPas(0, 'pc', eshteAdminiIStokut()).slice(0, 6);
+    var hyrjet = TR.teRejatPas(0, 'pc', eshteAdminiIStokut(), leja).slice(0, 6);
     if (!hyrjet.length) return;
     mbushTeRejat(hyrjet, 'Përditësimet e fundit');
     mbyllDialog('dlgOpsione'); // dritarja e të rejave del mbi faqe, jo poshtë Cilësimeve

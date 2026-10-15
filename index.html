@@ -4488,6 +4488,8 @@
     }
   }) : null;
   function leja(k) { return !lejetG || lejetG.lejohet(k); }
+  // "Çka ka të re" (teRejat.js): pa shënimet për pjesët që s'lejohen ("Dërgo në PC" kërkon edhe "pc")
+  function lejaPerTeRejat(k) { return k === 'dergoNePc' ? lejaDergoNePc() : leja(k); }
   function zbatoLejet(paVizatim) {
     Array.prototype.forEach.call(document.querySelectorAll('[data-leja]'), function (el) {
       el.classList.toggle('leja-ndaluar', !leja(el.getAttribute('data-leja')));
@@ -8950,7 +8952,7 @@
     var TR = window.StokuTeRejat;
     if (!TR || !TR.versioni()) return false;
     if ((__pajisjeERe || ngaVizitori()) && !versioniIPare()) { shenoTeRejatSiTePara(); return false; } // vizitori i ri: pa listë përditësimesh
-    var hyrjet = TR.teRejatPas(versioniIPare(), 'tel', eshteAdminiIStokut()); // vetëm të rejat e telefonit
+    var hyrjet = TR.teRejatPas(versioniIPare(), 'tel', eshteAdminiIStokut(), lejaPerTeRejat); // vetëm të rejat e telefonit
     if (!hyrjet.length) return false;
     if (window.StokuPorta && window.StokuPorta.eHapur()) return false;
     if (document.querySelector('.mbulese.hapur') || $('kamera').classList.contains('hapur')) return false;
@@ -8980,7 +8982,7 @@
   $('opsTeRejat').addEventListener('click', function () {
     var TR = window.StokuTeRejat;
     if (!TR || !TR.versioni()) return;
-    var hyrjet = TR.teRejatPas(0, 'tel', eshteAdminiIStokut()).slice(0, 6);
+    var hyrjet = TR.teRejatPas(0, 'tel', eshteAdminiIStokut(), lejaPerTeRejat).slice(0, 6);
     if (!hyrjet.length) return;
     mbushTeRejat(hyrjet, 'Përditësimet e fundit');
     __teRejatNgaCilesimet = true;

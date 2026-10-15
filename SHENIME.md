@@ -81,12 +81,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      Njoftimet gjendja `aktive` pa tekst për Grupin. Pa `afatet`: `dergoAfatetPerOrarin([])` (tel `afatetPerServerin()`,
      PC `lejaELlogarise('afatet')`), pra s'vjen njoftimi ditor dhe ora e dorës s'tregon produkte; kur leja kthehet,
      dërgohet lista e vërtetë. Në PC për këto përdoret leja e llogarisë pa kushtin `pc` (`lejaELlogarise`).
-   - **"Çka ka të re"**: fusha e re `vetemAdmini` te `teRejat.js` (`teRejatPas(v, platforma, admin)`); hyrjet v230 dhe v231
-     i sheh vetëm administratori. Te faqja e administratorit (detajet e përdoruesit): "Çka s'i lejohet, i zhduket krejt, pa
+   - **"Çka ka të re"**: fusha e re `vetemAdmini` te `teRejat.js` (`teRejatPas(v, platforma, admin, lejohet)`); hyrjet v230
+     dhe v231 i sheh vetëm administratori. Me `lejohet(k)` (tel `lejaPerTeRejat`, PC `leja`) s'dalin as hyrjet që flasin
+     për një pjesë të ndaluar: `lejetEHyrjes(h)` i gjen pjesët nga teksti me `FJALET_E_LEJEVE` (fjalë kyçe; "Stoku" me
+     shkronjë të madhe është emri i aplikacionit). Hyrje e re që flet për një pjesë duhet ta përmendë me fjalët kyçe. Te faqja e administratorit (detajet e përdoruesit): "Çka s'i lejohet, i zhduket krejt, pa
      asnjë mesazh." `lejet.js?v=2`: vetëm përshkrimet e `pc` dhe `dergoNePc`; `ekipa.js?v=231`. Rregullat e Firestore dhe
      Worker-i s'ndryshuan (mbeten v230 dhe 164).
-   - Testet: `lejet-e2e-v231.js` (telefoni, 80 kontrolle: asnjë "lejohet/lejuar/administrator/ndaluar" në faqe e njoftime,
-     faqja bazë, "mbrapa", skanimi, pa PC, "Çka ka të re") dhe `lejet-pc-e2e-v231.js` (PC, 63: PC → telefon → PC, faqja bosh,
+   - Testet: `lejet-e2e-v231.js` (telefoni, 82 kontrolle: asnjë "lejohet/lejuar/administrator/ndaluar" në faqe e njoftime,
+     faqja bazë, "mbrapa", skanimi, pa PC, "Çka ka të re") dhe `lejet-pc-e2e-v231.js` (PC, 64: PC → telefon → PC, faqja bosh,
      shkurtoret, fusha e barkodit, kërkimi), `lejet-push-v231.js` (pa Grup: pajisja jashtë `grupet/{g}/push`, pa njoftim
      të grupit; pa Afate: lista bosh te serveri; kthimi i lejeve). Pa testim në pajisje të vërtetë.
 

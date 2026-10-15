@@ -24,13 +24,13 @@
       'Çka s\'i lejohet një llogarie zhduket krejt: s\'i del asnjë mesazh se diçka është ndaluar, as te Cilësimet → Llogaria.',
       'Pa "Stoku", llogaria s\'e sheh as tabin Stoku: hapet direkt te Afatet (ose te Grupi). Pa "Stoku në kompjuter", në kompjuter hapet versioni i telefonit.',
       'Pa "Grupi" s\'i vijnë as njoftimet e Grupit; pa "Afatet" s\'i vjen as njoftimi ditor dhe ora e dorës s\'tregon produkte.',
-      'Kjo hyrje dhe ajo e lejeve u dalin vetëm administratorit.'
+      'Te "Çka ka të re" s\'i dalin shënimet për pjesët që s\'i ka. Kjo hyrje dhe ajo e lejeve u dalin vetëm administratorit.'
     ] },
     { v: 231, versioni: '1.28.1', data: '2026-10-15', titulli: 'Lejet: pa asnjë mesazh', platforma: 'pc', vetemAdmini: true, pikat: [
       'Çka s\'i lejohet një llogarie zhduket krejt: s\'i del asnjë mesazh se diçka është ndaluar, as te Cilësimet → Llogaria.',
       'Pa "Stoku në kompjuter", llogaria hap në kompjuter versionin e telefonit, pa asnjë dritare që e thotë.',
       'Pa "Grupi" s\'i vijnë as njoftimet e Grupit; pa "Afatet" s\'i vjen as njoftimi ditor dhe ora e dorës s\'tregon produkte.',
-      'Kjo hyrje dhe ajo e lejeve u dalin vetëm administratorit.'
+      'Te "Çka ka të re" s\'i dalin shënimet për pjesët që s\'i ka. Kjo hyrje dhe ajo e lejeve u dalin vetëm administratorit.'
     ] },
     { v: 230, versioni: '1.28.0', data: '2026-10-15', titulli: 'Lejet e përdoruesve', platforma: 'tel', vetemAdmini: true, pikat: [
       'Administratori i sheh krejt përdoruesit te Cilësimet → Aplikacioni → Përdoruesit dhe cakton çka mund të përdorë secili: stokun, afatet, grupin, eksportet, kamerën, orën, kompjuterin dhe veprimet brenda tyre.',
@@ -595,11 +595,35 @@
   ];
 
   function versioni() { return LISTA.length ? LISTA[0].v : 0; }
+  // v231 (lejet.js): një llogari me leje të kufizuara s'i sheh hyrjet që flasin për një pjesë që s'e ka, që të mos e dijë
+  // as që ekziston. Pjesët gjenden nga teksti i hyrjes (titulli + pikat) me fjalët kyçe më poshtë: më mirë fshihet një
+  // hyrje më shumë se sa të dalë një pjesë e ndaluar. "Stoku" me shkronjë të madhe është emri i aplikacionit, jo pjesa.
+  var FJALET_E_LEJEVE = [
+    ['stoku', /[Ff]older|[Pp]rodukt|[Bb]arkod|[Ff]urnizues|\bstok(u|un|ut)\b/],
+    ['stokuImporto', /import/i],
+    ['afatet', /afat|skad|raft|njoftimi ditor/i],
+    ['afatetAI', /\bAI\b|[Ff]let[ëa]/],
+    ['afatetImporto', /import/i],
+    ['grupi', /grup|koleg|ekip|anëtar/i],
+    ['grupiKerkesat', /kërkes/i],
+    ['kamera', /kamer/i],
+    ['eksportExcel', /excel/i],
+    ['eksportPdf', /\bpdf/i],
+    ['dergoNePc', /dërgo në pc/i],
+    ['ora', /watch|\bora\b|\borës\b|\borën\b|\borë(?=[\s.,;:)]|$)/i],
+    ['pc', /kompjuter|\bpc\b/i]
+  ];
+  function lejetEHyrjes(h) {
+    var t = [h.titulli || ''].concat(h.pikat || []).join('\n');
+    return FJALET_E_LEJEVE.filter(function (x) { return x[1].test(t); }).map(function (x) { return x[0]; });
+  }
   // Hyrjet më të reja se versioni i fundit që përdoruesi e ka parë (nga më e reja te më e vjetra), vetëm për
   // këtë platformë ('tel' | 'pc'): hyrjet pa `platforma` vlejnë për të dyja. Hyrjet `vetemAdmini` vetëm kur admin = true.
-  function teRejatPas(vPare, platforma, admin) {
+  // lejohet(çelësi) (opsionale): pa të s'filtrohet asgjë sipas lejeve.
+  function teRejatPas(vPare, platforma, admin, lejohet) {
     return LISTA.filter(function (h) {
-      return h.v > (Number(vPare) || 0) && (!h.platforma || !platforma || h.platforma === platforma) && (!h.vetemAdmini || !!admin);
+      return h.v > (Number(vPare) || 0) && (!h.platforma || !platforma || h.platforma === platforma) && (!h.vetemAdmini || !!admin) &&
+        (typeof lejohet !== 'function' || lejetEHyrjes(h).every(function (k) { return lejohet(k); }));
     });
   }
   function formatoDaten(iso) {
@@ -627,7 +651,7 @@
     return (e ? 'Stoku ' + e + ' · ' : '') + dataEPlote(h.data);
   }
 
-  var api = { LISTA: LISTA, versioni: versioni, teRejatPas: teRejatPas, formatoDaten: formatoDaten, emriVersionit: emriVersionit, dataEPlote: dataEPlote, etiketa: etiketa };
+  var api = { LISTA: LISTA, versioni: versioni, teRejatPas: teRejatPas, lejetEHyrjes: lejetEHyrjes, formatoDaten: formatoDaten, emriVersionit: emriVersionit, dataEPlote: dataEPlote, etiketa: etiketa };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuTeRejat = api;
 })(typeof self !== 'undefined' ? self : this);
