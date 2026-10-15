@@ -1266,7 +1266,7 @@
         </div>
 
         <div class="opsione-faqe" data-faqe="skenimi">
-          <div class="ops-intro">Si punon skanimi me kamerë, me PDA ose me skaner të lidhur.</div>
+          <div class="ops-intro">Si punon skanimi me kamerë, me PDA ose me skaner të lidhur, dhe ku shkojnë Excel-i e PDF-ja.</div>
           <div class="ops-grupi">
             <div class="seksion">
               <label class="opsion-rresht" for="opsPda">
@@ -1280,6 +1280,13 @@
                 <span class="kat-ikona-badge ngj-gri"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2.5"></rect><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 12.5h.01M10 12.5h.01M14 12.5h.01M18 12.5h.01M8 16h8"></path></svg></span>
                 <span class="ops-rresht__tekst"><span id="lblOpsTastiera"></span><span class="hint" id="tastieraHint"></span></span>
                 <span class="ndez"><input type="checkbox" id="opsTastiera"><span class="pist"></span></span>
+              </label>
+            </div>
+            <div class="seksion" id="seksionSkedaretPc">
+              <label class="opsion-rresht" for="opsSkedaretPc">
+                <span class="kat-ikona-badge ngj-gjelber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4M9 10l3-3 3 3M12 7v6"></path></svg></span>
+                <span class="ops-rresht__tekst"><span id="lblOpsSkedaretPc"></span><span class="hint" id="skedaretPcHint"></span></span>
+                <span class="ndez"><input type="checkbox" id="opsSkedaretPc"><span class="pist"></span></span>
               </label>
             </div>
             <div class="seksion">
@@ -1879,10 +1886,11 @@
 <script src="xlsx.js?v=216"></script>
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=216"></script>
+<script src="skedaret.js?v=1"></script>
 <script src="afatet.js?v=216"></script>
 <script src="ekipa.js?v=221"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=226"></script>
+<script src="teRejat.js?v=227"></script>
 <script>
 (function () {
   'use strict';
@@ -1921,6 +1929,8 @@
       skanoKamer: 'Skano me kamerë',
       eksportoExcel: 'Eksporto në Excel',
       eksportoPdf: 'Eksporto në PDF',
+      eksportoExcelPc: 'Dërgo Excel-in në PC',
+      eksportoPdfPc: 'Dërgo PDF-në në PC',
       kerkoLabel: 'Kërko',
       kerkoGlobalLabel: 'Kërko produkt ose barkod',
       kerkoGlobalNukUGjet: 'Nuk u gjet asnjë produkt në asnjë folder.',
@@ -2038,10 +2048,21 @@
       tastieraHint: 'Tastiera e Android-it s\'del më te Stoku: shkruan me tastierën e PDA-së dhe me skanerin. Vlen vetëm kur është ndezur PDA.',
       tastieraUFsheh: 'Tastiera në ekran s\'del më. Shkruaj me tastierën e PDA-së.',
       tastieraDelPerseri: 'Tastiera në ekran del përsëri.',
+      skedaretPcLabel: 'Excel dhe PDF në PC',
+      skedaretPcHint: 'Skedarët që i eksporton (Excel, PDF) s\'shkarkohen këtu: shkojnë te Stoku në kompjuter, te Përmbledhja, ku i shkarkon. Në PC duhet e njëjta llogari. Mbahen 7 ditë.',
+      dukeDerguarNePc: 'Duke e dërguar në PC…',
+      uDerguaNePc: 'U dërgua në PC. E gjen te Stoku në kompjuter, te Përmbledhja.',
+      pcPaLlogariTitulli: 'Pa llogari s\'dërgohet në PC',
+      pcPaLlogariTekst: 'Që skedari të shkojë në PC, hyr me llogari (të njëjtën edhe në kompjuter). Do ta shkarkosh këtu?',
+      pcDeshtoiTitulli: 'S\'u dërgua në PC',
+      pcDeshtoiInternet: 'Kontrollo internetin dhe provo sërish. Do ta shkarkosh këtu?',
+      pcDeshtoiRregullat: 'Firebase s\'e lejon ende: rregullat duhet të përditësohen. Do ta shkarkosh këtu?',
+      pcDeshtoiMadh: 'Skedari është mbi 15 MB, shumë i madh për t\'u dërguar në PC. Do ta shkarkosh këtu?',
+      shkarkoKetu: 'Shkarko këtu',
       pdaStatusNdezur: 'PDA i ndezur',
       pdaStatusFikur: 'PDA i fikur',
       cloudStatusJoKycur: 'Jo i kyçur',
-      pdaHint: 'Kur është ndezur: ekrani kyçet në portret (pa u rrotulluar anash ose përmbys), fshihet butoni i kamerës dhe kursori qëndron te fusha e barkodit.',
+      pdaHint: 'Kur është ndezur: Stoku mbetet në portret (pa u rrotulluar anash ose përmbys), fshihet butoni i kamerës dhe kursori qëndron te fusha e barkodit.',
       paEmerLabel: 'Skano vetëm barkodin dhe sasinë (pa emër)',
       paEmerHint: 'Nuk rekomandohet. Produktet e reja regjistrohen pa emër dhe fusha e emrit fshihet.',
       paEmerKonfTitulli: 'Të regjistrohen produktet pa emër?',
@@ -2129,6 +2150,8 @@
     { id: 'pdaHint', prop: 'text', kyc: 'pdaHint' },
     { id: 'lblOpsTastiera', prop: 'text', kyc: 'tastieraLabel' },
     { id: 'tastieraHint', prop: 'text', kyc: 'tastieraHint' },
+    { id: 'lblOpsSkedaretPc', prop: 'text', kyc: 'skedaretPcLabel' },
+    { id: 'skedaretPcHint', prop: 'text', kyc: 'skedaretPcHint' },
     { id: 'lblOpsPaEmer', prop: 'text', kyc: 'paEmerLabel' },
     { id: 'paEmerHint', prop: 'text', kyc: 'paEmerHint' },
     { id: 'lblOpsTingull', prop: 'text', kyc: 'tingullLabel' },
@@ -2172,6 +2195,7 @@
       else if (s.prop === 'title') { el.title = T(s.kyc); el.setAttribute('aria-label', T(s.kyc)); }
       else el.textContent = T(s.kyc);
     });
+    zbatoSkedaretNePc(); // butonat e eksportit: "Dërgo … në PC" kur skedarët shkojnë në PC
   }
 
   // ================= Baza (localStorage): foldera + produkte =================
@@ -2306,7 +2330,8 @@
 
   var opsione = {
     tingull: true, rendi: 'i_ri', scanner: true, pda: false,
-    paEmer: false, madhesia: 'normale', tastieraFshehur: false
+    paEmer: false, madhesia: 'normale', tastieraFshehur: false,
+    skedaretNePc: null // v227: Excel dhe PDF në PC; null = sipas PDA-së (ndezur vetëm në PDA)
   };
   try {
     var opsioneRuajtura = JSON.parse(localStorage.getItem(KEY_OPSIONE) || 'null');
@@ -2315,6 +2340,7 @@
       if (typeof opsioneRuajtura.scanner === 'boolean') opsione.scanner = opsioneRuajtura.scanner;
       if (typeof opsioneRuajtura.pda === 'boolean') opsione.pda = opsioneRuajtura.pda;
       if (typeof opsioneRuajtura.tastieraFshehur === 'boolean') opsione.tastieraFshehur = opsioneRuajtura.tastieraFshehur;
+      if (typeof opsioneRuajtura.skedaretNePc === 'boolean') opsione.skedaretNePc = opsioneRuajtura.skedaretNePc;
       if (typeof opsioneRuajtura.paEmer === 'boolean') opsione.paEmer = opsioneRuajtura.paEmer;
       if (['i_ri', 'emri', 'emriZA', 'sasiaUlet', 'sasiaLart'].indexOf(opsioneRuajtura.rendi) !== -1) opsione.rendi = opsioneRuajtura.rendi;
       if (opsioneRuajtura.madhesia === 'e_madhe' || opsioneRuajtura.madhesia === 'normale') opsione.madhesia = opsioneRuajtura.madhesia;
@@ -2869,6 +2895,7 @@
     $('barkodi').placeholder = pda ? T('barkodiPda') : T('barkodiNormal');
     zbatoRrotullimin();
     zbatoTastieren();
+    zbatoSkedaretNePc();
   }
 
   // ================= Tastiera në ekran (vetëm PDA) =================
@@ -2930,44 +2957,29 @@
   }
 
   // ================= Kyçja e ekranit në portret (PDA) =================
-  // PSE S'KISHTE PUNUAR MË PARË: Chrome në Android e lejon screen.orientation.lock() VETËM kur faqja
-  // është në fullscreen (Fullscreen API) ose kur është e instaluar si app. Kodi i vjetër e thërriste
-  // pa asnjërën — pra refuzohej GJITHMONË, në heshtje. Për më tepër, fullscreen-i mund të kërkohet
-  // vetëm gjatë një veprimi të përdoruesit (prekje/tast), jo automatikisht.
-  //
-  // Tani, kur PDA është ndezur, përdoren tri shtresa:
-  //  1) Kyçje e drejtpërdrejtë (punon kur app-i është i instaluar).
-  //  2) Nëse refuzohet: fullscreen + kyçje, në veprimin e parë të përdoruesit (ndezja e PDA-së,
-  //     prekja e parë, ose shtypja e parë e skanerit pas hapjes së app-it).
-  //  3) Kundër-rrotullim: nëse sistemi prapë e rrotullon ekranin, i gjithë app-i rrotullohet vetë
-  //     në drejtimin e kundërt, që të mbetet drejt ndaj pajisjes dhe puna të vazhdojë pa ndërprerje.
+  // Chrome në Android e lejon screen.orientation.lock() VETËM kur faqja është në fullscreen ose kur Stoku është i
+  // instaluar si aplikacion. Deri në v226, kur kyçja direkte refuzohej, Stoku hynte në fullscreen (pa shiritat e
+  // telefonit) për ta kyçur ekranin; me kërkesë të pronarit, v227 e hoqi fullscreen-in krejt. Tani, kur PDA është ndezur:
+  //  1) Kyçje e drejtpërdrejtë (punon kur Stoku është i instaluar nga Chrome; edhe manifesti e kërkon portretin).
+  //  2) Kundër-rrotullim: nëse sistemi prapë e rrotullon ekranin, i gjithë app-i rrotullohet vetë në drejtimin e
+  //     kundërt, që të mbetet drejt ndaj pajisjes dhe puna të vazhdojë pa ndërprerje.
+  // Pa fullscreen, kyçjen e plotë në Chrome pa instalim e jep vetëm "Rrotullimi automatik" i fikur te pajisja.
   var __kycjaEKonfirmuar = false;
-  var __hymeNeFullscreenPerKycje = false;
+  var __kycjaUProvuaPasHapjes = false; // prekja/tasti i parë pas hapjes: një provë, jo te çdo tast i skanerit
 
   function kycjaDirekte() {
     if (!screen.orientation || !screen.orientation.lock) return Promise.reject(new Error('pa-api'));
     return screen.orientation.lock('portrait-primary');
   }
 
-  async function kycMeFullscreen() {
-    var el = document.documentElement;
-    var kerko = el.requestFullscreen || el.webkitRequestFullscreen;
-    if (!kerko) throw new Error('pa-fullscreen');
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-      await kerko.call(el, { navigationUI: 'hide' });
-      __hymeNeFullscreenPerKycje = true;
-    }
-    await kycjaDirekte();
-  }
-
-  // Thirret nga një veprim i përdoruesit (click/keydown) — vetëm aty lejohet fullscreen-i.
+  // Thirret kur ndizet PDA-ja dhe në veprimin e parë të përdoruesit pas hapjes (pa fullscreen)
   async function provoKycjenPda() {
     if (!opsione.pda) return;
     try {
       await kycjaDirekte();
       __kycjaEKonfirmuar = true;
     } catch (e) {
-      try { await kycMeFullscreen(); __kycjaEKonfirmuar = true; } catch (e2) { __kycjaEKonfirmuar = false; }
+      __kycjaEKonfirmuar = false;
     }
     zbatoKunderRrotullimin();
   }
@@ -2975,11 +2987,6 @@
   function liroKycjen() {
     __kycjaEKonfirmuar = false;
     try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) { /* ok */ }
-    if (__hymeNeFullscreenPerKycje && (document.fullscreenElement || document.webkitFullscreenElement)) {
-      var dil = document.exitFullscreen || document.webkitExitFullscreen;
-      try { if (dil) dil.call(document); } catch (e) { /* ok */ }
-    }
-    __hymeNeFullscreenPerKycje = false;
   }
 
   // Këndi aktual i ekranit ndaj pozicionit normal: 0, 90, 180, 270 (-90 → 270).
@@ -3032,10 +3039,12 @@
     zbatoKunderRrotullimin();
   }
 
-  // Veprimi i parë i përdoruesit (prekje ose tast/skaner) pas hapjes ose rikthimit në app: aty
-  // lejohet fullscreen-i, ndaj e provojmë kyçjen e plotë nëse s'është konfirmuar ende.
+  // Veprimi i parë i përdoruesit (prekje ose tast/skaner) pas hapjes ose rikthimit në app: edhe një provë e kyçjes
+  // direkte, nëse s'është konfirmuar ende (një herë, jo te çdo tast i skanerit)
   function neVeprimTePerdoruesit() {
-    if (opsione.pda && !__kycjaEKonfirmuar) provoKycjenPda();
+    if (!opsione.pda || __kycjaEKonfirmuar || __kycjaUProvuaPasHapjes) return;
+    __kycjaUProvuaPasHapjes = true;
+    provoKycjenPda();
   }
   document.addEventListener('pointerdown', neVeprimTePerdoruesit, true);
   document.addEventListener('keydown', neVeprimTePerdoruesit, true);
@@ -3053,11 +3062,7 @@
     screen.orientation.addEventListener('change', pasNdryshimitTeOrientimit);
   }
   document.addEventListener('visibilitychange', function () {
-    if (!document.hidden) { __kycjaEKonfirmuar = false; zbatoRrotullimin(); }
-  });
-  document.addEventListener('fullscreenchange', function () {
-    // Nëse përdoruesi del nga fullscreen-i (gjest "mbrapa"), kyçja humbet — provohet sërish në veprimin tjetër.
-    if (!document.fullscreenElement) { __hymeNeFullscreenPerKycje = false; __kycjaEKonfirmuar = false; }
+    if (!document.hidden) { __kycjaEKonfirmuar = false; __kycjaUProvuaPasHapjes = false; zbatoRrotullimin(); }
   });
   kontrolloNesePermbys();
 
@@ -3782,12 +3787,17 @@
     toast(T(opsione.tastieraFshehur ? 'tastieraUFsheh' : 'tastieraDelPerseri'));
     fokusoBarkodin(); // skanimi vazhdon: kursori mbetet te barkodi
   });
+  $('opsSkedaretPc').addEventListener('change', function () {
+    opsione.skedaretNePc = $('opsSkedaretPc').checked; // zgjedhje e qartë: s'ndjek më PDA-në
+    ruajOpsionet();
+    zbatoSkedaretNePc();
+  });
   $('opsPda').addEventListener('change', function () {
     opsione.pda = $('opsPda').checked;
     ruajOpsionet();
     zbatoPda();
     rifreskoStatusetOpsioneve();
-    // Ky është veprim i përdoruesit — i vetmi çast kur Chrome lejon fullscreen + kyçjen e plotë.
+    // Kyçja direkte (Stoku i instaluar) + kundër-rrotullimi; pa fullscreen (v227)
     if (opsione.pda) provoKycjenPda();
   });
   $('opsPaEmer').addEventListener('change', async function () {
@@ -5540,8 +5550,37 @@
     setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 4000);
   }
 
-  // Ndan (ose shkarkon) një skedar tashmë të gatshëm { skedari, emri }
+  // ---------- Excel dhe PDF në PC (v227) ----------
+  // Kur është ndezur "Excel dhe PDF në PC" (parazgjedhja: ndezur vetëm në PDA), skedari s'shkarkohet këtu: shkon te
+  // PC-ja e së njëjtës llogari (skedaret.js, dyqane/{uid}/skedaret), që e tregon te Përmbledhja për shkarkim.
+  function skedaretNePc() { return opsione.skedaretNePc === null ? !!opsione.pda : !!opsione.skedaretNePc; }
+  function zbatoSkedaretNePc() {
+    var pc = skedaretNePc();
+    $('opsSkedaretPc').checked = pc;
+    $('btnEksport').textContent = T(pc ? 'eksportoExcelPc' : 'eksportoExcel');
+    if (!$('btnEksportPdf').disabled) $('btnEksportPdf').textContent = T(pc ? 'eksportoPdfPc' : 'eksportoPdf'); // jo gjatë krijimit të PDF-së
+  }
+  // true: u dërgua në PC (ose përdoruesi hoqi dorë); false: të shkarkohet këtu
+  async function dergoNePc(f, titulli) {
+    var c = window.__stokuCloud, sk = c && c.skedaret;
+    if (ngaVizitori() || !sk || !c.perdoruesiAktual || !c.perdoruesiAktual()) {
+      return !(await konfirmo(T('pcPaLlogariTitulli'), T('pcPaLlogariTekst'), T('shkarkoKetu')));
+    }
+    var r;
+    if (navigator.onLine === false) r = { ok: false, arsye: 'rrjeti' };
+    else {
+      toast(T('dukeDerguarNePc'), 120000);
+      r = await sk.dergo(f.skedari, { emri: f.emri, titulli: titulli || '', pajisja: opsione.pda ? 'PDA' : 'Telefoni' });
+    }
+    if (r.ok) { toast(T('uDerguaNePc'), 4500); return true; }
+    $('toast').classList.remove('hapur');
+    var tekst = r.arsye === 'i-madh' ? T('pcDeshtoiMadh') : r.arsye === 'leje' ? T('pcDeshtoiRregullat') : T('pcDeshtoiInternet');
+    return !(await konfirmo(T('pcDeshtoiTitulli'), tekst, T('shkarkoKetu')));
+  }
+
+  // Ndan (ose shkarkon) një skedar tashmë të gatshëm { skedari, emri }; me "Excel dhe PDF në PC", e dërgon në PC
   async function ndajOseShkarko(f, titulliShpernd) {
+    if (skedaretNePc() && await dergoNePc(f, titulliShpernd)) return;
     if (kaShare(f.skedari)) {
       try {
         await navigator.share({ files: [f.skedari], title: titulliShpernd || f.emri });
@@ -8587,7 +8626,7 @@
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
     updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser
   } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-  import { initializeFirestore, doc, getDoc, getDocs, setDoc, runTransaction, collection, addDoc, onSnapshot, deleteDoc, query, where, orderBy, limit, writeBatch } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  import { initializeFirestore, doc, getDoc, getDocs, setDoc, runTransaction, collection, addDoc, onSnapshot, deleteDoc, query, where, orderBy, limit, writeBatch, Bytes } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
   var firebaseConfig = {
     apiKey: "AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY",
@@ -8613,6 +8652,9 @@
     // Grupi (ekipa.js): prania, aktiviteti, njoftimet personale
     var ekipa = window.StokuEkipa ? window.StokuEkipa.krijoCloud({ doc: doc, getDoc: getDoc, getDocs: getDocs, setDoc: setDoc, addDoc: addDoc, deleteDoc: deleteDoc,
       collection: collection, onSnapshot: onSnapshot, query: query, where: where, orderBy: orderBy, limit: limit, writeBatch: writeBatch }, db, auth, 'tel') : null;
+    // v227: skedarët (Excel, PDF) nga telefoni/PDA-ja te PC-ja e së njëjtës llogari (skedaret.js)
+    var skedaret = window.StokuSkedaret ? window.StokuSkedaret.krijo({ doc: doc, collection: collection, setDoc: setDoc, getDocs: getDocs, deleteDoc: deleteDoc,
+      onSnapshot: onSnapshot, query: query, orderBy: orderBy, limit: limit, writeBatch: writeBatch, Bytes: Bytes }, db, function () { return auth.currentUser ? auth.currentUser.uid : null; }) : null;
 
     // Regjistrohet vetja te perdoruesit/{uid} (emri i dukshëm + kur u kyç së fundi) — përdoret nga
     // pamja e "Ekipit" për të gjetur krejt llogaritë ekzistuese dhe emrat e tyre.
@@ -8773,6 +8815,7 @@
           return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) };
         }
       },
+      skedaret: skedaret,
       ekipa: ekipa
     };
 
