@@ -32,7 +32,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 | `bashkimi.js` | Logjika e bashkimit të të dhënave mes pajisjeve (LWW me kohë, fshirjet si tombstones). E përbashkët. |
 | `ruajtja.js` | Ndarja e dyqanit në Firestore në disa dokumente (shih më poshtë "Firebase"). |
 | `skedaret.js` | v229: Excel dhe PDF nga telefoni/PDA-ja te PC-ja ("Dërgo në PC"; Firestore `dyqane/{uid}/skedaret`, copa ≤ 900 KB). E përbashkët. |
-| `lejet.js` | v230: lejet e përdoruesve (katalogu i 21 lejeve, `lejet/{uid}`, gjendja e pajisjes me localStorage). E përbashkët; faqja "Përdoruesit" vetëm për administratorin. |
+| `lejet.js` | v230: lejet e përdoruesve (katalogu i 21 lejeve, `lejet/{uid}`, gjendja e pajisjes me localStorage). E përbashkët; faqja "Përdoruesit" vetëm për administratorin. v231: çka s'lejohet zhduket pa asnjë mesazh. |
 | `porta.js` | Ekrani i hyrjes/kyçjes (login gate) — hapet para faqes kryesore te të dyja versionet. |
 | `njoftimet.js` | Njoftimet push për afatet (30 ditë para skadimit, dhe kur skadon) — logjikë e përbashkët për faqen dhe `sw.js`. |
 | `teRejat.js` | Lista "Çka ka të re" (shënimet e versioneve) — tregohet në hyrje. **Shto këtu një hyrje për çdo ndryshim domethënës të ri**, shih udhëzimin brenda skedarit. |
@@ -52,6 +52,35 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **LEJET PA ASNJË MESAZH (v231 = 1.28.1)**: kërkesa e pronarit: kur ndalohet një opsion, i zhduket krejt përdoruesit,
+   që ai të mos e dijë as që ekziston; jo mesazhe si "e ke të ndaluar nga administratori".
+   - **U hoqën**: `lejaOse` (njoftimi "Kjo s'të lejohet… Pyete administratorin."; çdo kontroll tani është `leja(k)`, pa zë),
+     njoftimi "Administratori t'i ndryshoi lejet e llogarisë.", seksioni "Lejet e llogarisë" te Cilësimet → Llogaria (tel
+     `#llLejetSeksion`, PC `#opsLejet`), karta "Stoku s'është i lejuar" (tel), mbulesa `#lejaPcMbulese` (PC), shënimi
+     "Vetëm për t'u parë…" te afati (dritarja mbetet vetëm për lexim, pa shënim), "Pyete administratorin" te mungesa e folderave.
+   - **Telefoni pa `stoku`**: s'del as tabi "Stoku" (`#tabStoku` me `data-leja`). Faqja bazë (`faqjaBaze()`): Afatet, ose
+     Grupi, ose Cilësimet kur s'ka asnjërën; hapet si kryefaqe (`hapFaqenBaze()`, nga `zbatoLejet` dhe në hapje). S'numërohet
+     si nivel te `niveletEHapura()` ("mbrapa" aty del nga aplikacioni, si te kryefaqja); kur mbyllet një tab tjetër
+     (`mbyllAfatetFaqe` / `mbyllEkipiFaqe` / `mbyllOpsionet` → `pasMbylljesSeTabit()`, mikrodetyrë), rihapet faqja bazë
+     nëse s'u hap tjetër në vend të tij.
+   - **Pa `pc`**: në kompjuter hapet versioni i telefonit, pa dritare. Koka e `pc.html` lexon `stoku:lejet:v1` dhe bën
+     `location.replace('./')` para vizatimit; gjatë punës `zbatoLejet` → `kaloTeTelefoni()` (vetëm kur leja e ruajtur ka
+     `pc:false`, që të mos ketë qark). Koka e `index.html`: në kompjuter s'ridrejton te `pc.html` kur leja e ruajtur ka
+     `pc:false` (`window.__stokuPaPc`); kur leja kthehet (ose dilet nga llogaria), `ndryshoi` → `pc.html`. Në PC `leja(k)`
+     s'lejon asgjë pa `pc`. "Dërgo në PC" (tel) kërkon edhe `pc` (`lejaDergoNePc()`); fleta me AI vazhdon direkt në telefon.
+   - **Skanimi pa leje, neutral**: barkodi që ekziston pa `stokuNdrysho` filtrohet në listë/tabelë (pa dritare); barkodi i ri
+     pa `stokuShto`: "Ky barkod s'është në këtë folder."; rreshti i produktit pa `stokuNdrysho` s'hapet; PC: kërkimi global
+     dhe "Ndryshuar së fundi" të çojnë te folderi i filtruar (`shfaqOseHapProduktin`).
+   - **Edhe**: pa `afatet` s'del "Të skaduara" (tel kryefaqja, PC Përmbledhja). Tel, Cilësimet: "Skanimi" fshihet pa Stok dhe
+     pa Afate, "Produkte pa emër" pa Stok, "Njoftimet" pa Afate dhe pa Grup, "Njoftimi ditor për afatet" pa Afate. PC:
+     shkurtoret e tastierës vetëm për çka lejohet (`LEJA_E_SHKURTORES`); pa asnjë pjesë, `#pamjaMbyllur` ka vetëm logon.
+   - **"Çka ka të re"**: fusha e re `vetemAdmini` te `teRejat.js` (`teRejatPas(v, platforma, admin)`); hyrjet v230 dhe v231
+     i sheh vetëm administratori. Te faqja e administratorit (detajet e përdoruesit): "Çka s'i lejohet, i zhduket krejt, pa
+     asnjë mesazh." `lejet.js?v=2`: vetëm përshkrimet e `pc` dhe `dergoNePc`. Rregullat e Firestore s'ndryshuan (mbeten v230).
+   - Testet: `lejet-e2e-v231.js` (telefoni, 80 kontrolle: asnjë "lejohet/lejuar/administrator/ndaluar" në faqe e njoftime,
+     faqja bazë, "mbrapa", skanimi, pa PC, "Çka ka të re") dhe `lejet-pc-e2e-v231.js` (PC, 63: PC → telefon → PC, faqja bosh,
+     shkurtoret, fusha e barkodit, kërkimi). Pa testim në pajisje të vërtetë.
+
 0000000. **LEJET E PËRDORUESVE (v230 = 1.28.0)**: kërkesa e pronarit: te Cilësimet, te grupi "Aplikacioni", një opsion që
    e sheh VETËM administratori `mendurberisha`, me krejt përdoruesit; brenda secilit, krejt veçoritë e Stoku-t për t'i
    lejuar ose ndaluar. Llogaritë e reja i kanë KREJT lejet derisa administratori t'i kontrollojë, dhe dalin aty për kontroll.
@@ -64,7 +93,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      `krijoGjendjen`: dëgjon dokumentin e llogarisë, e ruan te `localStorage` `stoku:lejet:v1` ({uid, lejet}) që kufizimet
      të vlejnë që në hapje (edhe para se Firebase të dijë a je hyrë, edhe pa internet); me daljen fshihet. Administratori
      dhe vizitori: pa kufizime. Gabim leximi (p.sh. rregullat para v230) = mbeten lejet e ruajtura (ose krejt të lejuara).
-   - **Zbatimi** (vetëm në aplikacion, jo në rregullat e dyqanit): butonat me `data-leja="çelësi"` marrin `.leja-ndaluar`
+   - **Zbatimi** (v231 i hoqi krejt mesazhet e mëposhtme, shih hyrjen v231) (vetëm në aplikacion, jo në rregullat e
+     dyqanit): butonat me `data-leja="çelësi"` marrin `.leja-ndaluar`
      (`display:none !important`); çdo veprim kontrollohet edhe vetë me `leja(k)` / `lejaOse(k)` (njoftimi "Kjo s'të lejohet
      në këtë llogari. Pyete administratorin."), që shkurtoret, njoftimet dhe thirrjet e drejtpërdrejta të mos e anashkalojnë.
      Ndryshimi nga administratori vjen në kohë reale ("Administratori t'i ndryshoi lejet e llogarisë."): faqet e ndaluara

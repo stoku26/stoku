@@ -12,21 +12,31 @@
  *   pikat  = çka u shtua ose u përmirësua, me fjalë të thjeshta për punëtorët dhe menaxheren (jo teknike).
  *   platforma (opsionale) = 'tel' (vetëm telefoni) ose 'pc' (vetëm kompjuteri); pa të = të dyja.
  *            Telefoni s'i tregon hyrjet 'pc', kompjuteri s'i tregon hyrjet 'tel'.
+ *   vetemAdmini (opsionale) = true: e sheh vetëm administratori (p.sh. lejet e përdoruesve, që të tjerët s'duhet
+ *            ta dinë as që ekzistojnë).
  * Aplikacioni e mban mend versionin e fundit që përdoruesi e ka parë; në hyrje i tregon vetëm hyrjet më të reja.
  */
 (function (root) {
   'use strict';
 
   var LISTA = [
-    { v: 230, versioni: '1.28.0', data: '2026-10-15', titulli: 'Lejet e përdoruesve', platforma: 'tel', pikat: [
-      'Administratori i sheh krejt përdoruesit te Cilësimet → Aplikacioni → Përdoruesit dhe cakton çka mund të përdorë secili: stokun, afatet, grupin, eksportet, kamerën, orën, kompjuterin dhe veprimet brenda tyre.',
-      'Llogaritë e reja i kanë krejt lejet derisa administratori t\'i kontrollojë; dalin te "Pa u kontrolluar" dhe administratorit i vjen njoftim.',
-      'Çka s\'të lejohet s\'del në aplikacion. Te Cilësimet → Llogaria shkruan çka s\'ta ka lejuar administratori.'
+    { v: 231, versioni: '1.28.1', data: '2026-10-15', titulli: 'Lejet: pa asnjë mesazh', platforma: 'tel', vetemAdmini: true, pikat: [
+      'Çka s\'i lejohet një llogarie zhduket krejt: s\'i del asnjë mesazh se diçka është ndaluar, as te Cilësimet → Llogaria.',
+      'Pa "Stoku", llogaria s\'e sheh as tabin Stoku: hapet direkt te Afatet (ose te Grupi). Pa "Stoku në kompjuter", në kompjuter hapet versioni i telefonit.',
+      'Kjo hyrje dhe ajo e lejeve u dalin vetëm administratorit.'
     ] },
-    { v: 230, versioni: '1.28.0', data: '2026-10-15', titulli: 'Lejet e përdoruesve', platforma: 'pc', pikat: [
+    { v: 231, versioni: '1.28.1', data: '2026-10-15', titulli: 'Lejet: pa asnjë mesazh', platforma: 'pc', vetemAdmini: true, pikat: [
+      'Çka s\'i lejohet një llogarie zhduket krejt: s\'i del asnjë mesazh se diçka është ndaluar, as te Cilësimet → Llogaria.',
+      'Pa "Stoku në kompjuter", llogaria hap në kompjuter versionin e telefonit, pa asnjë dritare që e thotë.',
+      'Kjo hyrje dhe ajo e lejeve u dalin vetëm administratorit.'
+    ] },
+    { v: 230, versioni: '1.28.0', data: '2026-10-15', titulli: 'Lejet e përdoruesve', platforma: 'tel', vetemAdmini: true, pikat: [
+      'Administratori i sheh krejt përdoruesit te Cilësimet → Aplikacioni → Përdoruesit dhe cakton çka mund të përdorë secili: stokun, afatet, grupin, eksportet, kamerën, orën, kompjuterin dhe veprimet brenda tyre.',
+      'Llogaritë e reja i kanë krejt lejet derisa administratori t\'i kontrollojë; dalin te "Pa u kontrolluar" dhe administratorit i vjen njoftim.'
+    ] },
+    { v: 230, versioni: '1.28.0', data: '2026-10-15', titulli: 'Lejet e përdoruesve', platforma: 'pc', vetemAdmini: true, pikat: [
       'Administratori i sheh krejt përdoruesit te Cilësimet → Përdoruesit dhe cakton çka mund të përdorë secili: stokun, afatet, grupin, eksportet, importin, kompjuterin dhe veprimet brenda tyre.',
-      'Llogaritë e reja i kanë krejt lejet derisa administratori t\'i kontrollojë; dalin te "Pa u kontrolluar" dhe administratorit i vjen njoftim.',
-      'Çka s\'të lejohet s\'del në Stoku. Te Cilësimet → Llogaria shkruan çka s\'ta ka lejuar administratori.'
+      'Llogaritë e reja i kanë krejt lejet derisa administratori t\'i kontrollojë; dalin te "Pa u kontrolluar" dhe administratorit i vjen njoftim.'
     ] },
     { v: 229, versioni: '1.27.0', data: '2026-10-15', titulli: 'Excel dhe PDF: dërgo në PC', platforma: 'tel', pikat: [
       'Kur shtyp "Eksporto në Excel" ose "Eksporto në PDF", zgjedh: "Dërgo në PC" ose "Shkarko këtu".',
@@ -584,10 +594,10 @@
 
   function versioni() { return LISTA.length ? LISTA[0].v : 0; }
   // Hyrjet më të reja se versioni i fundit që përdoruesi e ka parë (nga më e reja te më e vjetra), vetëm për
-  // këtë platformë ('tel' | 'pc'): hyrjet pa `platforma` vlejnë për të dyja.
-  function teRejatPas(vPare, platforma) {
+  // këtë platformë ('tel' | 'pc'): hyrjet pa `platforma` vlejnë për të dyja. Hyrjet `vetemAdmini` vetëm kur admin = true.
+  function teRejatPas(vPare, platforma, admin) {
     return LISTA.filter(function (h) {
-      return h.v > (Number(vPare) || 0) && (!h.platforma || !platforma || h.platforma === platforma);
+      return h.v > (Number(vPare) || 0) && (!h.platforma || !platforma || h.platforma === platforma) && (!h.vetemAdmini || !!admin);
     });
   }
   function formatoDaten(iso) {

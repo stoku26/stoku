@@ -8,6 +8,9 @@
  * Rregullat (v230): dokumentin e shkruan vetëm administratori; secila llogari e lexon vetëm të vetin.
  * Administratori (mendurberisha) i ka gjithmonë krejt lejet; faqja "Përdoruesit" te Cilësimet është vetëm e tij.
  * Lejet i zbaton aplikacioni (fsheh pjesët dhe butonat që s'lejohen); përdoruesi s'mund t'i ndryshojë vetë.
+ * v231: çka s'lejohet zhduket krejt, pa asnjë mesazh (as "s'të lejohet", as listë te Llogaria): përdoruesi s'e di as
+ *   që ekziston. Pa "stoku" kryefaqja e telefonit është pjesa e parë e lejuar; pa "pc" kompjuteri hap versionin e
+ *   telefonit (index.html e lexon lejen e ruajtur këtu, KEY_LOKALE); "Dërgo në PC" kërkon edhe "pc".
  */
 (function (root) {
   'use strict';
@@ -39,11 +42,11 @@
       { k: 'kamera', emri: 'Skano me kamerë', pershkrim: 'Barkodi me kamerën e telefonit, te stoku dhe te afatet.' },
       { k: 'eksportExcel', emri: 'Eksporto në Excel', pershkrim: 'Stoku dhe afatet.' },
       { k: 'eksportPdf', emri: 'Eksporto në PDF', pershkrim: 'Etiketat me barkod (në kompjuter edhe raporti).' },
-      { k: 'dergoNePc', emri: 'Dërgo skedarët në PC', pershkrim: 'Excel-i dhe PDF-ja nga telefoni te Stoku në kompjuter.' }
+      { k: 'dergoNePc', emri: 'Dërgo skedarët në PC', pershkrim: 'Excel-i dhe PDF-ja nga telefoni te Stoku në kompjuter (kërkon edhe "Stoku në kompjuter").' }
     ] },
     { grupi: 'Pajisjet', lejet: [
       { k: 'ora', emri: 'Ora e dorës', pershkrim: 'Lidhja e Galaxy Watch ose Apple Watch.' },
-      { k: 'pc', emri: 'Stoku në kompjuter', pershkrim: 'Hyrja me këtë llogari te stoku.site/pc.' }
+      { k: 'pc', emri: 'Stoku në kompjuter', pershkrim: 'Versioni për kompjuter. Pa të, në kompjuter hapet versioni i telefonit.' }
     ] }
   ];
   var CELESAT = [], PRINDI = {}, LEJA = {};
