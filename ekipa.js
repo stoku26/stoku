@@ -827,6 +827,7 @@
         return fs.onSnapshot(fs.collection(db, 'perdoruesit'), function (s) {
           cb(listaNga(s).map(function (x) {
             return { uid: x.id, emri: x.perdoruesi || x.emri || x.id, kycurSe: x.kycurSe || 0, aktivSe: x.aktivSe || 0,
+              krijuarSe: typeof x.krijuarSe === 'number' ? x.krijuarSe : 0, // v230: kur u regjistrua (llogaritë e reja)
               grupi: typeof x.grupi === 'string' ? x.grupi : null, admin: x.emri === ADMIN_EMRI || x.perdoruesi === ADMIN_EMRI };
           }));
         }, function (e) { if (cbGabim) cbGabim(e); });
@@ -881,6 +882,8 @@
         await fshij(fs.doc(db, 'dyqane', u));
         await fshijKoleksionin(['perdoruesit', u, 'njoftimet']);
         await fshij(fs.doc(db, 'perdoruesit', u));
+        // v230: lejet e llogarisë (pa rregullat v230 s'fshihen, por s'pengojnë: llogaria s'ekziston më)
+        try { await fs.deleteDoc(fs.doc(db, 'lejet', u)); } catch (e) { /* ok */ }
         return { ok: true, mbetur: mbetur };
       },
       // Kjo llogari u fshi nga administratori? cb() thirret sapo shënimi ekziston (edhe kur je duke punuar)

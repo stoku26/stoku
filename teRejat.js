@@ -18,6 +18,16 @@
   'use strict';
 
   var LISTA = [
+    { v: 230, versioni: '1.28.0', data: '2026-10-15', titulli: 'Lejet e përdoruesve', platforma: 'tel', pikat: [
+      'Administratori i sheh krejt përdoruesit te Cilësimet → Aplikacioni → Përdoruesit dhe cakton çka mund të përdorë secili: stokun, afatet, grupin, eksportet, kamerën, orën, kompjuterin dhe veprimet brenda tyre.',
+      'Llogaritë e reja i kanë krejt lejet derisa administratori t\'i kontrollojë; dalin te "Pa u kontrolluar" dhe administratorit i vjen njoftim.',
+      'Çka s\'të lejohet s\'del në aplikacion. Te Cilësimet → Llogaria shkruan çka s\'ta ka lejuar administratori.'
+    ] },
+    { v: 230, versioni: '1.28.0', data: '2026-10-15', titulli: 'Lejet e përdoruesve', platforma: 'pc', pikat: [
+      'Administratori i sheh krejt përdoruesit te Cilësimet → Përdoruesit dhe cakton çka mund të përdorë secili: stokun, afatet, grupin, eksportet, importin, kompjuterin dhe veprimet brenda tyre.',
+      'Llogaritë e reja i kanë krejt lejet derisa administratori t\'i kontrollojë; dalin te "Pa u kontrolluar" dhe administratorit i vjen njoftim.',
+      'Çka s\'të lejohet s\'del në Stoku. Te Cilësimet → Llogaria shkruan çka s\'ta ka lejuar administratori.'
+    ] },
     { v: 229, versioni: '1.27.0', data: '2026-10-15', titulli: 'Excel dhe PDF: dërgo në PC', platforma: 'tel', pikat: [
       'Kur shtyp "Eksporto në Excel" ose "Eksporto në PDF", zgjedh: "Dërgo në PC" ose "Shkarko këtu".',
       'Me "Dërgo në PC", skedari del te Stoku në kompjuter, te Përmbledhja, ku e shkarkon. Në PC duhet e njëjta llogari. Skedarët mbahen 7 ditë.'

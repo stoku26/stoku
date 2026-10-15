@@ -773,6 +773,59 @@
   .af-info.hequr { background: var(--hover); color: var(--gri); }
   input[type="date"].inp { font-variant-numeric: tabular-nums; }
   .zona-foto-pc.siper { outline: 3px dashed var(--primar); outline-offset: -6px; }
+  /* v230: lejet e llogarisë (butonat që s'lejohen fshihen) */
+  .leja-ndaluar { display: none !important; }
+  .leja-mbyllur { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; max-width: 520px; margin: 9vh auto 0;
+    padding: 34px 30px; border-radius: 20px; background: var(--sb-surface, var(--karta)); box-shadow: var(--sb-ring, 0 0 0 1px var(--vija)); }
+  .leja-mbyllur .lm-ik { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: var(--sb-surface-2, var(--hover)); color: var(--sb-muted, var(--gri)); }
+  .leja-mbyllur h2 { margin: 4px 0 0; font-size: 20px; }
+  .leja-mbyllur p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--sb-ink-4, var(--gri)); }
+  #lejaPcMbulese { z-index: 54; } /* mbi dritaret e tjera, nën "A je i sigurt?" (55) që "Dil" të punojë */
+  #lejaPcMbulese .lm-ik { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: var(--sb-surface-2, var(--hover)); color: var(--sb-muted, var(--gri)); }
+  #lejaPcMbulese h2 { margin: 4px 0 0; font-size: 19px; }
+  #lejaPcMbulese .dialog { max-width: 460px; text-align: center; }
+  #lejaPcMbulese .dialog-trup { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 30px 28px 26px; }
+  #lejaPcMbulese .dialog-trup p { margin: 0; font-size: 14px; line-height: 1.5; }
+  #afdBarkodi[readonly], #afdEmri[readonly], #afdData[readonly], #afdSasia[readonly], #afdFurnizuesi[readonly] { background: var(--sb-surface-2, var(--hover)); }
+  /* Cilësimet → Përdoruesit (administratori) */
+  .pd-lista { border-top: 1px solid var(--sb-line-2, var(--vija)); margin: 12px -20px -18px; }
+  .pd-rresht { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 20px; border: 0; border-bottom: 1px solid var(--sb-line-2, var(--vija));
+    background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+  .pd-rresht:last-child { border-bottom: 0; }
+  .pd-rresht:hover { background: var(--sb-head, var(--hover)); }
+  .pd-shkronja { flex: none; width: 34px; height: 34px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
+  .pd-shkronja.ri { background: var(--sb-ic-portokalli-bg); color: var(--sb-ic-portokalli); }
+  .pd-shkronja.kufizuar { background: var(--sb-ic-kuqe-bg); color: var(--sb-ic-kuqe); }
+  .pd-shkronja.krejt { background: var(--sb-ic-gjelber-bg); color: var(--sb-ic-gjelber); }
+  .pd-tekst { flex: 1; min-width: 0; }
+  .pd-emri { font-size: 14px; font-weight: 600; color: var(--sb-ink, inherit); }
+  .pd-nen { font-size: 12px; color: var(--sb-muted, var(--gri)); margin-top: 2px; }
+  .pd-nen.ri { color: var(--sb-ic-portokalli); font-weight: 600; }
+  .pd-shigjete { flex: none; color: var(--sb-faint, var(--gri)); font-size: 18px; }
+  .pd-titull { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--sb-faint, var(--gri)); margin: 18px 2px 8px; }
+  .pd-titull:first-child { margin-top: 0; }
+  .pd-krye { display: flex; align-items: center; gap: 14px; }
+  .pd-krye .pd-veprime-krye { margin-left: auto; display: flex; gap: 8px; }
+  .pd-info-rresht { font-size: 12.5px; color: var(--sb-muted, var(--gri)); margin: 10px 0 0; line-height: 1.5; }
+  .pd-paralajmerim { box-shadow: inset 0 0 0 1.5px var(--sb-ic-portokalli) !important; }
+  .pd-lejet-rrjeti { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; align-items: start; }
+  .pd-grupi { margin-bottom: 14px; }
+  .pd-grupi .ops-karta { padding: 6px 0; margin-bottom: 0; }
+  .pd-leja { display: flex; align-items: center; gap: 12px; padding: 9px 18px; cursor: pointer; }
+  .pd-leja + .pd-leja { border-top: 1px solid var(--sb-line-2, var(--vija)); }
+  .pd-leja.femije { padding-left: 34px; }
+  .pd-leja.joaktiv { opacity: .45; cursor: default; }
+  .pd-leja-tekst { flex: 1; min-width: 0; }
+  .pd-leja-tekst b { display: block; font-size: 13.5px; font-weight: 600; color: var(--sb-ink, inherit); }
+  .pd-leja-tekst span { display: block; font-size: 12px; color: var(--sb-muted, var(--gri)); margin-top: 2px; line-height: 1.4; }
+  .lj-ndez { position: relative; flex: none; width: 44px; height: 26px; }
+  .lj-ndez input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; z-index: 1; }
+  .lj-ndez input:disabled { cursor: default; }
+  .lj-ndez .pist { position: absolute; inset: 0; border-radius: 13px; background: var(--sb-track, #c8c8c8); transition: background .15s; }
+  .lj-ndez .pist::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .15s; }
+  .lj-ndez input:checked + .pist { background: var(--sb-ok-dot, #2e9d5b); }
+  .lj-ndez input:checked + .pist::after { transform: translateX(18px); }
+  .lj-ndez input:focus-visible + .pist { outline: 2px solid var(--sb-accent, var(--primar)); outline-offset: 2px; }
   /* Kontrolli i fletës së lexuar */
   #dlgLexim { padding: 2vh 16px 16px; }
   #dlgLexim .dialog { max-width: 1720px; }
@@ -885,7 +938,7 @@
         </div>
         <script>try { var h0 = JSON.parse(localStorage.getItem('stoku:porta:hyrja') || 'null'); if (h0 && h0.emri) document.getElementById('sbpBrandNen').textContent = h0.emri; } catch (e) { /* ok */ }</script>
       </div>
-      <div class="krye-kerko">
+      <div class="krye-kerko" data-leja="stoku">
         <div class="fusha">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>
           <input id="kerkoGlobal" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko kudo" aria-label="Kërko kudo (emër ose barkod, në të gjithë folderat)">
@@ -897,9 +950,9 @@
     <div class="sbp-menyja">
     <!-- v213: tri pllaka (Stoku, Afatet, Grupi); poshtë shfaqet vetëm menyja e pllakës aktive -->
     <div class="sbp-pllakat" role="tablist" aria-label="Pjesët e Stoku-t">
-      <button class="sbp-pllake" id="btnAkordStoku" type="button" role="tab" aria-selected="true" aria-controls="akordStokuTrupi" title="Stoku: produktet dhe folderat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5z"></path><path d="m3 8 9 5 9-5"></path><path d="M12 13v8"></path></svg><b>Stoku</b><small id="pllStokuNen"></small><span class="af-cip fleta" id="stokTabFleta" title="Fletë stoku nga telefoni që presin kontrollin"></span><span class="af-cip fleta" id="stokTabSkedaret" title="Skedarë nga telefoni për t'i shkarkuar"></span></button>
-      <button class="sbp-pllake" id="btnAkordAfatet" type="button" role="tab" aria-selected="false" aria-controls="akordAfatetTrupi" title="Afatet e produkteve (datat e skadimit)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg><b>Afatet</b><small id="pllAfatetNen"></small><span class="af-cip fleta" id="afPllFleta" title="Fletë afatesh nga telefoni që presin kontrollin"></span></button>
-      <button class="sbp-pllake" id="btnAkordEkipi" type="button" role="tab" aria-selected="false" aria-controls="akordEkipiTrupi" title="Grupi: kolegët, afatet e grupit, aktiviteti"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><b>Grupi</b><small id="pllEkipiNen"></small><span class="af-cip kuqe" id="ekAkordShenja" title="Njoftime të palexuara"></span></button>
+      <button class="sbp-pllake" id="btnAkordStoku" data-leja="stoku" type="button" role="tab" aria-selected="true" aria-controls="akordStokuTrupi" title="Stoku: produktet dhe folderat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5z"></path><path d="m3 8 9 5 9-5"></path><path d="M12 13v8"></path></svg><b>Stoku</b><small id="pllStokuNen"></small><span class="af-cip fleta" id="stokTabFleta" title="Fletë stoku nga telefoni që presin kontrollin"></span><span class="af-cip fleta" id="stokTabSkedaret" title="Skedarë nga telefoni për t'i shkarkuar"></span></button>
+      <button class="sbp-pllake" id="btnAkordAfatet" data-leja="afatet" type="button" role="tab" aria-selected="false" aria-controls="akordAfatetTrupi" title="Afatet e produkteve (datat e skadimit)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg><b>Afatet</b><small id="pllAfatetNen"></small><span class="af-cip fleta" id="afPllFleta" title="Fletë afatesh nga telefoni që presin kontrollin"></span></button>
+      <button class="sbp-pllake" id="btnAkordEkipi" data-leja="grupi" type="button" role="tab" aria-selected="false" aria-controls="akordEkipiTrupi" title="Grupi: kolegët, afatet e grupit, aktiviteti"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><b>Grupi</b><small id="pllEkipiNen"></small><span class="af-cip kuqe" id="ekAkordShenja" title="Njoftime të palexuara"></span></button>
     </div>
     <div class="sbp-moduli" id="akordStokuTrupi" role="tabpanel" aria-labelledby="btnAkordStoku">
       <div class="sbp-moduli-brendia">
@@ -914,7 +967,7 @@
             <span class="numer-cip" id="numTeGjitha">0</span>
           </button>
         </nav>
-        <div class="seksion-titull"><span>Folderat</span><span class="numer-cip" id="numFolderat"></span><button type="button" id="btnFolderIRi" title="Folder i ri" aria-label="Folder i ri">+</button></div>
+        <div class="seksion-titull"><span>Folderat</span><span class="numer-cip" id="numFolderat"></span><button type="button" id="btnFolderIRi" data-leja="stokuFoldera" title="Folder i ri" aria-label="Folder i ri">+</button></div>
         <div class="folderat" id="folderat"></div>
       </div>
     </div>
@@ -1008,7 +1061,7 @@
           <div class="faqe-nen" id="permbNen"></div>
         </div>
         <div class="faqe-veprime">
-          <button class="btn dyte" type="button" data-eksport="excel">
+          <button class="btn dyte" type="button" data-eksport="excel" data-leja="eksportExcel">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="m8 13 4 5M12 13l-4 5"></path></svg>
             Eksporto krejt stokun
           </button>
@@ -1070,15 +1123,15 @@
           <div class="faqe-nen" id="tabNen"></div>
         </div>
         <div class="faqe-veprime">
-          <button class="btn" type="button" id="btnShto">
+          <button class="btn" type="button" id="btnShto" data-leja="stokuShto">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
             Shto produkt
           </button>
-          <button class="btn dyte" type="button" data-eksport="excel">
+          <button class="btn dyte" type="button" data-eksport="excel" data-leja="eksportExcel">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="m8 13 4 5M12 13l-4 5"></path></svg>
             Excel
           </button>
-          <button class="btn dyte" type="button" data-eksport="pdf">
+          <button class="btn dyte" type="button" data-eksport="pdf" data-leja="eksportPdf">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M8 17h8M8 13h8"></path></svg>
             PDF
           </button>
@@ -1109,9 +1162,9 @@
 
       <div class="shirit-zgjedhjes fsheh" id="shiritZgjedhjes">
         <strong id="zgjedhjaNumri"></strong>
-        <button class="btn dyte vogel" type="button" id="zgjZhvendos">Zhvendos në folder…</button>
+        <button class="btn dyte vogel" type="button" id="zgjZhvendos" data-leja="stokuNdrysho">Zhvendos në folder…</button>
         <button class="btn dyte vogel" type="button" id="zgjEksport">Eksporto…</button>
-        <button class="btn tekst rrezik vogel" type="button" id="zgjFshij">Fshi</button>
+        <button class="btn tekst rrezik vogel" type="button" id="zgjFshij" data-leja="stokuFshi">Fshi</button>
         <span class="hapesire"></span>
         <button class="btn tekst vogel" type="button" id="zgjAnulo">Hiq zgjedhjen</button>
       </div>
@@ -1155,19 +1208,19 @@
           <div class="faqe-nen" id="afNen"></div>
         </div>
         <div class="faqe-veprime">
-          <button class="btn" type="button" id="afBtnFoto" title="Ngarko foton e fletës ku punëtorët kanë shkruar afatet (ose tërhiqe foton këtu)">
+          <button class="btn" type="button" id="afBtnFoto" data-leja="afatetAI" title="Ngarko foton e fletës ku punëtorët kanë shkruar afatet (ose tërhiqe foton këtu)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
             Lexo fletën nga foto
           </button>
-          <button class="btn dyte" type="button" id="afBtnShto">
+          <button class="btn dyte" type="button" id="afBtnShto" data-leja="afatetShto">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
             Shto afat
           </button>
-          <button class="btn dyte" type="button" id="afBtnImport" title="Importo afate nga një skedar Excel (.xlsx) ose CSV">
+          <button class="btn dyte" type="button" id="afBtnImport" data-leja="afatetImporto" title="Importo afate nga një skedar Excel (.xlsx) ose CSV">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m17 8-5-5-5 5"></path><path d="M12 3v12"></path></svg>
             Importo
           </button>
-          <button class="btn dyte" type="button" id="afBtnExcel" title="Eksporto afatet në Excel (krejt ose një muaj)">
+          <button class="btn dyte" type="button" id="afBtnExcel" data-leja="eksportExcel" title="Eksporto afatet në Excel (krejt ose një muaj)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="m8 13 4 5M12 13l-4 5"></path></svg>
             Excel
           </button>
@@ -1212,7 +1265,7 @@
           <div class="faqe-nen" id="ekNen"></div>
         </div>
         <div class="faqe-veprime">
-          <button class="btn dyte ek-zile" type="button" id="ekKerkoHeqje" title="Kërkoji një kolegu (ose krejt grupit) ta heqë nga rafti një produkt">
+          <button class="btn dyte ek-zile" type="button" id="ekKerkoHeqje" data-leja="grupiKerkesat" title="Kërkoji një kolegu (ose krejt grupit) ta heqë nga rafti një produkt">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18"></path><path d="M5 7v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7"></path><path d="M9 7V4h6v3"></path><path d="m10 12 4 4M14 12l-4 4"></path></svg>
             Kërko heqje
           </button>
@@ -1360,6 +1413,14 @@
         </div>
       </div>
     </section>
+    <!-- v230: asnjë pjesë e lejuar (Stoku, Afatet, Grupi) -->
+    <section id="pamjaMbyllur" class="fsheh">
+      <div class="leja-mbyllur">
+        <span class="lm-ik"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span>
+        <h2>S'ka asgjë të lejuar ende</h2>
+        <p>Administratori s'ta ka lejuar as stokun, as afatet, as grupin në këtë llogari. Pyete atë nëse të duhet.</p>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -1389,7 +1450,7 @@
       <div class="gabim-tekst" id="prGabim"></div>
     </div>
     <div class="dialog-fund">
-      <button class="btn tekst rrezik" type="button" id="prFshij">Fshi</button>
+      <button class="btn tekst rrezik" type="button" id="prFshij" data-leja="stokuFshi">Fshi</button>
       <span class="hapesire" id="prKoha" style="color:var(--gri);font-size:12px"></span>
       <button class="btn tekst" type="button" data-mbyll>Anulo</button>
       <button class="btn" type="button" id="prRuaj">Ruaj</button>
@@ -1441,7 +1502,7 @@
       <div class="gabim-tekst" id="afdGabim"></div>
     </div>
     <div class="dialog-fund">
-      <button class="btn tekst rrezik" type="button" id="afdFshij">Fshi</button>
+      <button class="btn tekst rrezik" type="button" id="afdFshij" data-leja="afatetFshi">Fshi</button>
       <span class="hapesire"></span>
       <span id="afdStatusVeprime" style="display:flex;gap:8px"></span>
       <button class="btn tekst" type="button" data-mbyll>Anulo</button>
@@ -1545,13 +1606,13 @@
     <div class="dialog-trup">
       <div class="fushe"><span>Formati</span></div>
       <div class="formatet" id="ekFormatet">
-        <label class="zgjedhje" data-v="excel"><input type="radio" name="ekFormati" value="excel">
+        <label class="zgjedhje" data-v="excel" data-leja="eksportExcel"><input type="radio" name="ekFormati" value="excel">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="m8 13 4 5M12 13l-4 5"></path></svg>
           <b>Excel (.xlsx)</b><small>Tabelë me filtra, totale dhe fletë për çdo folder</small></label>
-        <label class="zgjedhje" data-v="pdf-lista"><input type="radio" name="ekFormati" value="pdf-lista">
+        <label class="zgjedhje" data-v="pdf-lista" data-leja="eksportPdf"><input type="radio" name="ekFormati" value="pdf-lista">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M8 17h8M8 13h8"></path></svg>
           <b>PDF • raport</b><small>Listë e stokut për printim, me totale</small></label>
-        <label class="zgjedhje" data-v="pdf-etiketa"><input type="radio" name="ekFormati" value="pdf-etiketa">
+        <label class="zgjedhje" data-v="pdf-etiketa" data-leja="eksportPdf"><input type="radio" name="ekFormati" value="pdf-etiketa">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 5v14M7 5v14M11 5v14M14 5v14M18 5v14M21 5v14"></path></svg>
           <b>PDF • etiketa</b><small>Barkodet për printim dhe riskenim (A4, 24 për faqe)</small></label>
       </div>
@@ -1709,9 +1770,10 @@
           <span class="ops-nav-profil__info"><span class="ops-nav-profil__emri" id="opsNavEmri"></span><span class="ops-nav-profil__sub" id="opsNavSub"></span></span>
         </div>
         <button type="button" data-faqe="pamja" class="aktiv"><span class="ops-ik ngj-vjollce"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg></span><span class="ops-nav-tekst">Pamja<small>Tema, dendësia, shkronjat</small></span></button>
-        <button type="button" data-faqe="stoku"><span class="ops-ik ngj-portokalli"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5M12 22V12"></path></svg></span><span class="ops-nav-tekst">Stoku<small id="opsStokuNen">Renditja, furnizuesit, produktet</small></span></button>
+        <button type="button" data-faqe="stoku" data-leja="stoku"><span class="ops-ik ngj-portokalli"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5M12 22V12"></path></svg></span><span class="ops-nav-tekst">Stoku<small id="opsStokuNen">Renditja, furnizuesit, produktet</small></span></button>
         <button type="button" data-faqe="llogaria"><span class="ops-ik ngj-gjelber"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg></span><span class="ops-nav-tekst">Llogaria<small>Sinkronizimi, fjalëkalimi</small></span></button>
         <button type="button" data-faqe="shkurtoret"><span class="ops-ik ngj-blu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"></rect><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M8 15h8"></path></svg></span><span class="ops-nav-tekst">Shkurtoret<small>Tastiera</small></span></button>
+        <button type="button" data-faqe="perdoruesit" id="opsSkedaPerdoruesit" hidden><span class="ops-ik ngj-kuqe"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="m16 11 2 2 4-4"></path></svg></span><span class="ops-nav-tekst">Përdoruesit<small id="opsPerdoruesitNen">Lejet e llogarive</small></span></button>
         <div class="ops-nav-fund">
           <button type="button" class="ops-nav-terejat" id="opsTeRejat"><span class="ops-ik ngj-roze"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path></svg></span><span class="ops-nav-tekst">Çka ka të re</span></button>
           <div class="ops-versioni"><span>Stoku <b id="opsVersioni"></b></span></div>
@@ -1828,6 +1890,10 @@
             <button class="btn" type="button" id="opsHapHyrjen">Hyr ose krijo llogari</button>
           </div>
           <div id="opsLlBrenda" class="fsheh">
+            <div class="ops-karta" id="opsLejet" hidden>
+              <div class="ops-titull">Lejet e llogarisë</div>
+              <p class="ops-hint" id="opsLejetTeksti"></p>
+            </div>
             <div class="ops-karta ops-profil">
               <span class="ops-av ops-av--madh" id="opsLlAv" aria-hidden="true">?</span>
               <div class="ops-rresht__tekst">
@@ -1870,6 +1936,12 @@
           </div>
         </div>
 
+        <!-- v230: vetëm administratori (mendurberisha): krejt llogaritë dhe lejet e secilës -->
+        <div class="opsione-faqe" data-faqe="perdoruesit">
+          <div class="ops-faqe-krye"><h2 id="pdTitulli">Përdoruesit</h2><p id="pdPershkrimi">Krejt llogaritë e Stoku-t. Kliko një përdorues për t'i caktuar çka mund të përdorë. Llogaritë e reja i kanë krejt lejet derisa t'i kontrollosh. Këtë faqe e sheh vetëm administratori.</p></div>
+          <div id="pdPamja"></div>
+        </div>
+
         <div class="opsione-faqe" data-faqe="shkurtoret">
           <div class="ops-faqe-krye"><h2>Shkurtoret e tastierës</h2><p>Puno më shpejt pa maus. Shtyp <span class="tast">?</span> kudo për këtë listë.</p></div>
           <div class="ops-karta ops-karta--tabele"><table class="shkurtoret" id="tabShkurtoret"></table></div>
@@ -1880,6 +1952,18 @@
   </div>
 </div>
 
+<!-- v230: llogaria s'e ka lejen "Stoku në kompjuter" -->
+<div class="mbulese" id="lejaPcMbulese">
+  <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="lejaPcTitulli">
+    <div class="dialog-trup">
+      <span class="lm-ik leja-mbyllur-ik"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span>
+      <h2 id="lejaPcTitulli">Stoku në kompjuter s'është i lejuar</h2>
+      <p>Administratori s'ta ka lejuar përdorimin e Stoku-t në kompjuter me këtë llogari. Përdore në telefon, ose pyete administratorin.</p>
+      <button class="btn dyte" type="button" id="lejaPcDil">Dil nga llogaria</button>
+    </div>
+  </div>
+</div>
+
 <div class="menu" id="menu" role="menu"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"><span class="toast-tekst" id="toastTekst"></span><button class="btn fsheh" type="button" id="toastBtn"></button></div>
 
@@ -1887,9 +1971,10 @@
 <script src="bashkimi.js?v=144"></script>
 <script src="ruajtja.js?v=216"></script>
 <script src="skedaret.js?v=1"></script>
+<script src="lejet.js?v=1"></script>
 <script src="afatet.js?v=216"></script>
-<script src="ekipa.js?v=221"></script>
-<script src="teRejat.js?v=229"></script>
+<script src="ekipa.js?v=230"></script>
+<script src="teRejat.js?v=230"></script>
 <script>
 (function () {
   'use strict';
@@ -2184,13 +2269,60 @@
   var SASIA_SHPEJTE_EMRAT = ['tonnyaliu']; // 'albidepo34' u hoq: emri u lirua pas ndërrimit, s'duhet t'i japë lejen një llogarie të re
   function eLejuarSasiaShpejte() {
     var u = perdoruesi();
-    if (!u) return false;
+    if (!u || !leja('stokuNdrysho')) return false;
     var ruajtur = null;
     try { ruajtur = localStorage.getItem('stoku:leja:sasia-shpejte'); } catch (e) { /* ok */ }
     if (ruajtur === '!' + u.uid) return false; // administratori ia hoqi lejen
     return ruajtur === u.uid || SASIA_SHPEJTE_EMRAT.indexOf(emriPerdoruesit().toLowerCase()) !== -1;
   }
   window.addEventListener('stoku-leja-ndryshoi', function () { rivizato(); });
+
+  // ================= Lejet e llogarisë (v230, lejet.js) =================
+  // Çka mund të përdorë kjo llogari; i cakton administratori te Cilësimet → Përdoruesit. Pa dokument (llogari e re, e
+  // pakontrolluar) → krejt të lejuara; administratori dhe vizitori s'kanë kufizime. Butonat me data-leja fshihen kur
+  // leja mungon, pamjet që s'lejohen kalojnë te pjesa e parë e lejuar; çdo veprim kontrollohet edhe vetë (leja / lejaOse).
+  var lejetG = window.StokuLejet ? window.StokuLejet.krijoGjendjen({
+    cloud: function () { var c = window.__stokuCloud; return (c && c.lejet) || null; },
+    gati: function () { var c = window.__stokuCloud; return !!(c && c.authGati); },
+    uid: function () { var u = perdoruesi(); return u ? u.uid : null; },
+    admin: function () { return eshteAdminiIStokut(); },
+    ndryshoi: function (l, para, gjatePunes) {
+      zbatoLejet();
+      if (gjatePunes) toast('Administratori t\'i ndryshoi lejet e llogarisë.');
+    }
+  }) : null;
+  function leja(k) { return !lejetG || lejetG.lejohet(k); }
+  function lejaOse(k) {
+    if (leja(k)) return true;
+    toast('Kjo s\'të lejohet në këtë llogari. Pyete administratorin.');
+    return false;
+  }
+  // Pjesa e një pamjeje: Afatet, Grupi ose Stoku (përmbledhja, të gjitha produktet, folderat)
+  function lejaEPamjes(p) { return p === 'afatet' ? 'afatet' : p === 'ekipi' ? 'grupi' : 'stoku'; }
+  function pamjaEPareELejuar() { return leja('stoku') ? 'permbledhja' : leja('afatet') ? 'afatet' : leja('grupi') ? 'ekipi' : null; }
+  function zbatoLejet(paVizatim) {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-leja]'), function (x) {
+      x.classList.toggle('leja-ndaluar', !leja(x.getAttribute('data-leja')));
+    });
+    $('zgjEksport').classList.toggle('leja-ndaluar', !leja('eksportExcel') && !leja('eksportPdf'));
+    var paPc = !leja('pc');
+    $('lejaPcMbulese').classList.toggle('hapur', paPc);
+    rifreskoLejetELlogarise();
+    if (paVizatim) return;
+    if (!leja('stoku') && document.querySelector('.opsione-faqe[data-faqe="stoku"].aktiv')) zgjidhSkeden('pamja'); // Cilësimet → Stoku
+    renderFletetETelefonit();
+    rivizato();
+  }
+  // Cilësimet → Llogaria: çka s'lejohet (pa një pjesë përmendet vetëm pjesa, jo veprimet brenda saj)
+  function rifreskoLejetELlogarise() {
+    var L = window.StokuLejet, l = lejetG ? lejetG.lejet() : null;
+    var ndaluar = l && L ? L.CELESAT.filter(function (k) { return !L.lejohet(l, k) && (!L.PRINDI[k] || L.lejohet(l, L.PRINDI[k])); }) : [];
+    $('opsLejet').hidden = !ndaluar.length;
+    $('opsLejetTeksti').textContent = ndaluar.length ? 'Administratori s\'t\'i ka lejuar këto: ' +
+      ndaluar.map(function (k) { return L.LEJA[k].emri; }).join(', ') + '.' : '';
+  }
+  window.addEventListener('stoku-auth-ndryshoi', function () { if (lejetG) lejetG.rinis(); });
+  window.addEventListener('stoku-cloud-gati', function () { if (lejetG) lejetG.rinis(); });
 
   // ================= Cloud: llogaria + sinkronizimi i drejtpërdrejtë =================
   function perdoruesi() {
@@ -2389,7 +2521,7 @@
   // Heqjet nga rafti të bëra në orë (Galaxy Watch) zbatohen këtu si çdo heqje tjetër
   async function zbatoHeqjetNgaOra(detyro) {
     var e = window.__stokuCloud && window.__stokuCloud.ekipa;
-    if (!e || !e.merrHeqjetNgaOra || !perdoruesi()) return;
+    if (!e || !e.merrHeqjetNgaOra || !perdoruesi() || !leja('ora')) return;
     var l = await e.merrHeqjetNgaOra(detyro), kryer = [], te = [];
     l.forEach(function (h) { var a = afatSipasId(h.i); if (!a) return; kryer.push(h.i); if (a.statusi !== 'hequr') te.push(h); });
     if (te.length) {
@@ -2427,6 +2559,7 @@
   function hashPer(p) { return p === 'permbledhja' ? '#/permbledhja' : p === 'te-gjitha' ? '#/te-gjitha' : p === 'afatet' ? '#/afatet' : p === 'ekipi' ? '#/ekipa' + (ekNen !== 'pulti' ? '/' + ekNen : '') : '#/f/' + encodeURIComponent(p); }
   function shkoTe(p, opsionet) {
     opsionet = opsionet || {};
+    if (!lejaOse(lejaEPamjes(p))) return; // v230
     var ePare = pamja !== p;
     if (ePare || opsionet.reset) {
       tab.kerkimi = opsionet.kerkimi || '';
@@ -2472,17 +2605,21 @@
       pamja = 'permbledhja';
       history.replaceState(null, '', hashPer(pamja));
     }
+    // v230: pamja që s'lejohet → pjesa e parë e lejuar; asnjë e lejuar → faqja "S'ka asgjë të lejuar"
+    var ePara = pamjaEPareELejuar(), paAsgje = !ePara;
+    if (ePara && !leja(lejaEPamjes(pamja))) { pamja = ePara; history.replaceState(null, '', hashPer(pamja)); }
     renderAnesoren();
     renderAfatetAnesore();
     var permb = pamja === 'permbledhja', neAfate = pamja === 'afatet', neEkipi = pamja === 'ekipi';
-    $('pamjaPermbledhja').classList.toggle('fsheh', !permb);
-    $('pamjaAfatet').classList.toggle('fsheh', !neAfate);
-    $('pamjaEkipi').classList.toggle('fsheh', !neEkipi);
-    $('pamjaTabela').classList.toggle('fsheh', permb || neAfate || neEkipi);
-    if (permb) renderPermbledhjen(); else if (neAfate) renderAfatetPc(); else if (neEkipi) renderEkipiPc(); else renderTabelen();
+    $('pamjaMbyllur').classList.toggle('fsheh', !paAsgje);
+    $('pamjaPermbledhja').classList.toggle('fsheh', !permb || paAsgje);
+    $('pamjaAfatet').classList.toggle('fsheh', !neAfate || paAsgje);
+    $('pamjaEkipi').classList.toggle('fsheh', !neEkipi || paAsgje);
+    $('pamjaTabela').classList.toggle('fsheh', permb || neAfate || neEkipi || paAsgje);
+    if (paAsgje) { /* asgjë për të vizatuar */ } else if (permb) renderPermbledhjen(); else if (neAfate) renderAfatetPc(); else if (neEkipi) renderEkipiPc(); else renderTabelen();
     // Rezultatet rifreskohen vetëm kur fusha ka fokusin (përndryshe dritarja e rezultateve rihapej vetë pas çdo ndryshimi)
     if ($('kerkoGlobal').value.trim() && document.activeElement === $('kerkoGlobal')) renderKerkimiGlobal();
-    if (!neEkipi && ekK && ekK.gj.hapur) ekK.mbyll(); // dëgjuesit e Grupit vetëm sa kohë është e hapur
+    if ((!neEkipi || paAsgje) && ekK && ekK.gj.hapur) ekK.mbyll(); // dëgjuesit e Grupit vetëm sa kohë është e hapur
     var titull = permb ? 'Përmbledhja' : neAfate ? 'Afatet' : neEkipi ? 'Grupi • ' + EK_TITUJT[ekNen] : pamja === 'te-gjitha' ? 'Të gjitha produktet' : emriFolderit(pamja);
     document.title = titull + ' • Stoku';
   }
@@ -2498,7 +2635,7 @@
     var m = moduliIPamjes(pamja);
     if (m === 'stoku') faqjaEFunditEStokut = pamja;
     MODULET.forEach(function (x) {
-      var on = x[0] === m;
+      var on = x[0] === m && leja(lejaEPamjes(x[0] === 'stoku' ? 'permbledhja' : x[0]));
       $('btnAkord' + x[1]).classList.toggle('aktiv', on);
       $('btnAkord' + x[1]).setAttribute('aria-selected', String(on));
       $('akord' + x[1] + 'Trupi').hidden = !on;
@@ -2549,7 +2686,7 @@
       var r = el('div', 'folder-rresht' + (pamja === f.id ? ' aktiv' : ''));
       r.setAttribute('role', 'button');
       r.tabIndex = 0;
-      r.draggable = true;
+      r.draggable = leja('stokuFoldera'); // renditja e folderave
       r.dataset.id = f.id;
       r.title = f.emri + (i < 9 ? '  (Alt+' + (i + 1) + ')' : '');
       var kap = el('span', 'kap'); kap.innerHTML = IKONA.kap;
@@ -2576,7 +2713,7 @@
       r.addEventListener('dragover', function (ev) {
         var tipet = Array.prototype.slice.call(ev.dataTransfer.types || []);
         if (tipet.indexOf('application/x-stoku-produkte') !== -1) {
-          if (f.id === pamja) return;
+          if (f.id === pamja || !leja('stokuNdrysho')) return;
           ev.preventDefault(); ev.dataTransfer.dropEffect = 'move';
           pastroCaqet(); r.classList.add('aktiv');
           return;
@@ -2598,7 +2735,7 @@
         pastroCaqet();
         if (prod) { zhvendosProduktet(JSON.parse(prod), f); return; }
         var id = ev.dataTransfer.getData('application/x-stoku-folder');
-        if (!id || id === f.id) return;
+        if (!id || id === f.id || !lejaOse('stokuFoldera')) return;
         var levizur = folderSipasId(id);
         if (!levizur || !folderSipasId(f.id)) return; // njëri u fshi ndërkohë (p.sh. nga sinkronizimi)
         var lista = foldera.filter(function (x) { return x.id !== id; });
@@ -2823,12 +2960,13 @@
     trup.textContent = '';
     var frag = document.createDocumentFragment();
     var shpejt = eLejuarSasiaShpejte();
+    var lejaNdrysho = leja('stokuNdrysho'), lejaFshi = leja('stokuFshi');
     faqe.forEach(function (p, i) {
       var k = celesi(p.kategoriaId, p.barkodi);
       var tr = el('tr', (tab.zgjedhura[k] ? 'zgjedhur' : '') + (i === tab.fokus ? ' fokus' : '') + (tab.flash === k ? ' flash' : ''));
       tr.dataset.k = k;
       tr.dataset.i = i;
-      tr.draggable = true;
+      tr.draggable = lejaNdrysho; // zvarritja mbi një folder = zhvendosje
 
       var td0 = el('td', 'k-zgjedh');
       var cb = el('input', 'kutize'); cb.type = 'checkbox'; cb.checked = !!tab.zgjedhura[k]; cb.setAttribute('aria-label', 'Zgjidh');
@@ -2879,7 +3017,9 @@
 
       var td6 = el('td', 'k-veprime');
       var vr = el('span', 'veprime-rreshti');
-      [['ndrysho', 'Ndrysho (Enter)', ''], ['zhvendos', 'Zhvendos në folder tjetër', ''], ['fshij', 'Fshi (Delete)', ' rrezik']].forEach(function (x) {
+      [['ndrysho', 'Ndrysho (Enter)', ''], ['zhvendos', 'Zhvendos në folder tjetër', ''], ['fshij', 'Fshi (Delete)', ' rrezik']].filter(function (x) {
+        return x[0] === 'fshij' ? lejaFshi : lejaNdrysho;
+      }).forEach(function (x) {
         var b = el('button', 'btn-ikone' + x[2]); b.type = 'button'; b.dataset.v = x[0]; b.title = x[1]; b.setAttribute('aria-label', x[1]);
         b.innerHTML = IKONA[x[0]];
         vr.appendChild(b);
@@ -3009,6 +3149,7 @@
     if (inp.dataset.v !== 'sasia') return;
     var k = inp.closest('tr').dataset.k;
     var p = produktet[k]; if (!p) return;
+    if (!lejaOse('stokuNdrysho')) { inp.value = String(p.sasia); return; }
     var v = parseInt(inp.value, 10);
     if (isFinite(v) && !AF.sasiaEPranueshme(inp.value)) { toast(AF.SASIA_E_MADHE); inp.value = String(p.sasia); return; }
     if (!isFinite(v) || v < 0) { inp.value = String(p.sasia); return; }
@@ -3024,6 +3165,7 @@
   });
   $('tabelaTrup').addEventListener('dragstart', function (ev) {
     var tr = ev.target.closest && ev.target.closest('tr'); if (!tr) return;
+    if (!leja('stokuNdrysho')) { ev.preventDefault(); return; }
     var k = tr.dataset.k;
     var keys = tab.zgjedhura[k] ? zgjedhuraLista() : [k];
     ev.dataTransfer.effectAllowed = 'move';
@@ -3032,7 +3174,7 @@
   });
 
   function ndryshoSasineShpejt(k, delta) {
-    var p = produktet[k]; if (!p) return;
+    var p = produktet[k]; if (!p || !lejaOse('stokuNdrysho')) return;
     var re = Math.max(0, p.sasia + delta);
     if (re === p.sasia) return;
     ndrysho(function (api) { api.vendos(k, Object.assign({}, p, { sasia: re, prekurSe: Date.now() })); });
@@ -3084,7 +3226,7 @@
   // ================= Kërkimi global (lart) =================
   var kgAktiv = -1, kgRezultatet = [];
   function renderKerkimiGlobal() {
-    var q = $('kerkoGlobal').value.trim();
+    var q = leja('stoku') ? $('kerkoGlobal').value.trim() : '';
     var box = $('kerkoRezultate');
     if (!q) { box.classList.remove('hapur'); kgRezultatet = []; return; }
     var fjalet = normalizo(q).split(/\s+/).filter(Boolean);
@@ -3166,6 +3308,7 @@
     if (fokusId) setTimeout(function () { var f = $(fokusId); if (f) { f.focus(); if (f.select && f.type !== 'number') f.select(); } }, 20);
   }
   function mbyllDialog(id) {
+    if (id === 'lejaPcMbulese' && !leja('pc')) return; // v230: pa lejen e PC-së mbetet e hapur (vetëm "Dil")
     if (id === 'dlgLexim' && !anuloLeximin.leje) { anuloLeximin(); return; }
     $(id).classList.remove('hapur');
     if (id === 'dlgLexim') mbyllFletenETelefonit(mbyllDialog.uRuajt === true);
@@ -3231,7 +3374,7 @@
   }
 
   function hapProduktin(k, ngaBarkodi) {
-    var p = produktet[k]; if (!p) return;
+    var p = produktet[k]; if (!p || !lejaOse('stokuNdrysho')) return;
     pr = { k: k, ngaBarkodi: !!ngaBarkodi };
     $('prTitulli').textContent = p.emri || 'Produkt pa emër';
     mbushFolderat($('prFolderi'), p.kategoriaId);
@@ -3250,7 +3393,8 @@
   }
 
   function hapProduktIRi(barkodi, folderId, ngaBarkodi) {
-    if (!foldera.length) { toast('Krijo fillimisht një folder.'); hapFolderIRi(); return; }
+    if (!lejaOse('stokuShto')) return;
+    if (!foldera.length) { if (leja('stokuFoldera')) { toast('Krijo fillimisht një folder.'); hapFolderIRi(); } else toast('S\'ka asnjë folder. Pyete administratorin.'); return; }
     pr = { k: null, ngaBarkodi: !!ngaBarkodi };
     $('prTitulli').textContent = 'Produkt i ri';
     mbushFolderat($('prFolderi'), folderId || (folderSipasId(pamja) ? pamja : foldera[0].id));
@@ -3361,6 +3505,8 @@
     if (!emri && !(ishte && !ishte.emri)) { $('prGabim').textContent = 'Shkruaj emrin e produktit.'; $('prEmri').focus(); return; }
     if (!ishte && !tekst) { $('prGabim').textContent = 'Shkruaj sasinë.'; $('prSasia').focus(); return; }
     var ekzistues = produktet[kRi] && kRi !== pr.k ? produktet[kRi] : null;
+    // v230: produkt i ri = "Shto produkte të reja"; ndryshimi i një ekzistuesi (ose bashkimi me të) = "Ndrysho produktet"
+    if (!lejaOse(ishte || ekzistues ? 'stokuNdrysho' : 'stokuShto')) return;
     if (ishte && ekzistues && b !== ishte.barkodi) {
       $('prGabim').textContent = 'Ky barkod ekziston tashmë te "' + emriFolderit(fid) + '".'; $('prBarkodi').focus(); return;
     }
@@ -3399,7 +3545,7 @@
   function renderTabelenNeseDuhet() { if (pamja !== 'permbledhja') renderTabelen(); }
   $('prRuaj').addEventListener('click', ruajProduktin);
   $('prFshij').addEventListener('click', function () {
-    if (!pr || !pr.k) return;
+    if (!pr || !pr.k || !lejaOse('stokuFshi')) return;
     var k = pr.k;
     mbyllDialog('dlgProdukt');
     pr = null;
@@ -3431,7 +3577,7 @@
   // ================= Fshirja dhe zhvendosja =================
   async function fshijProduktet(keys) {
     keys = keys.filter(function (k) { return produktet[k]; });
-    if (!keys.length) return;
+    if (!keys.length || !lejaOse('stokuFshi')) return;
     if (keys.length > 1) {
       var po = await konfirmo('Të fshihen ' + keys.length + ' produkte?', 'Do të fshihen ' + keys.length + ' produktet e zgjedhura nga të gjitha pajisjet.\n\nMund ta zhbësh menjëherë pas fshirjes.', 'Fshi');
       if (!po) return;
@@ -3444,7 +3590,7 @@
   var zhKeys = [];
   function hapZhvendosjen(keys) {
     zhKeys = keys.filter(function (k) { return produktet[k]; });
-    if (!zhKeys.length) return;
+    if (!zhKeys.length || !lejaOse('stokuNdrysho')) return;
     var burimet = {};
     zhKeys.forEach(function (k) { burimet[produktet[k].kategoriaId] = true; });
     var nj = zhKeys.length === 1 ? produktet[zhKeys[0]] : null;
@@ -3470,7 +3616,7 @@
 
   function zhvendosProduktet(keys, cak) {
     keys = keys.filter(function (k) { return produktet[k] && produktet[k].kategoriaId !== cak.id; });
-    if (!keys.length) return;
+    if (!keys.length || !lejaOse('stokuNdrysho')) return;
     var bashkuar = 0, tani = Date.now();
     var reg = ndrysho(function (api) {
       keys.forEach(function (k) {
@@ -3500,6 +3646,7 @@
   $('flEmri').addEventListener('input', zgjedhesIkonave.sugjero);
   // pasKrijimit (opsionale): thirret me id e folderit të ri në vend që të hapet folderi (p.sh. nga importi i fletës)
   function hapFolderIRi(pasKrijimit) {
+    if (!lejaOse('stokuFoldera')) return;
     flRiemerto = null;
     flPasKrijimit = typeof pasKrijimit === 'function' ? pasKrijimit : null;
     zgjedhesIkonave.fillo(null);
@@ -3510,6 +3657,7 @@
     hapDialog('dlgFolder', 'flEmri');
   }
   function hapRiemertimin(f) {
+    if (!lejaOse('stokuFoldera')) return;
     flRiemerto = f.id; flPasKrijimit = null;
     $('flTitulli').textContent = 'Ndrysho folderin';
     zgjedhesIkonave.fillo(window.StokuAfatet.ikonaEFolderit(f).id);
@@ -3519,6 +3667,7 @@
     hapDialog('dlgFolder', 'flEmri');
   }
   function ruajFolderin() {
+    if (!lejaOse('stokuFoldera')) { mbyllDialog('dlgFolder'); return; }
     var emri = $('flEmri').value.trim();
     if (!emri) { $('flGabim').textContent = 'Shkruaj emrin e folderit.'; return; }
     var njejte = foldera.some(function (f) { return f.id !== flRiemerto && f.emri.toLowerCase() === emri.toLowerCase(); });
@@ -3544,6 +3693,7 @@
   $('btnFolderIRi').addEventListener('click', function () { hapFolderIRi(); });
 
   async function fshijFolderin(f) {
+    if (!lejaOse('stokuFshi')) return;
     var brenda = produktetEFolderit(f.id);
     var po = await konfirmo('Të fshihet folderi "' + f.emri + '"?',
       brenda.length ? 'Do të fshihet folderi bashkë me ' + produkteTekst(brenda.length) + ' brenda tij, në të gjitha pajisjet.\n\nMund ta zhbësh menjëherë pas fshirjes.' : 'Folderi është bosh.',
@@ -3559,6 +3709,7 @@
   }
 
   async function fshijTeGjithaNeFolder(f) {
+    if (!lejaOse('stokuFshi')) return;
     var brenda = produktetEFolderit(f.id);
     if (!brenda.length) { toast('Folderi është bosh.'); return; }
     var po = await konfirmo('Të fshihen të gjitha produktet?', (brenda.length === 1 ? 'Do të fshihet 1 produkt' : 'Do të fshihen të gjitha ' + brenda.length + ' produktet') + ' nga folderi "' + f.emri + '". Folderi mbetet.\n\nKëshillë: eksporto fillimisht në Excel nëse do një kopje.', 'Fshi të gjitha', 5);
@@ -3596,18 +3747,23 @@
     if (ev.key === 'Escape') { ev.stopPropagation(); mbyllMenune(); }
   });
   function hapMenuFolderi(f, poz) {
-    hapMenu([
+    // v230: vetëm veprimet e lejuara (pa ndarës bosh)
+    var l = [
       { t: 'Hap folderin', fn: function () { shkoTe(f.id); } },
-      { t: 'Ndrysho emrin / ikonën…', fn: function () { hapRiemertimin(f); } },
+      { t: 'Ndrysho emrin / ikonën…', leja: 'stokuFoldera', fn: function () { hapRiemertimin(f); } },
       '-',
-      { t: 'Eksporto në Excel', fn: function () { eksportoDirekt('excel', produktetEFolderit(f.id), f); } },
-      { t: 'Eksporto PDF (raport)', fn: function () { eksportoDirekt('pdf-lista', produktetEFolderit(f.id), f); } },
-      { t: 'Eksporto PDF (etiketa)', fn: function () { eksportoDirekt('pdf-etiketa', produktetEFolderit(f.id), f); } },
-      { t: 'Importo në këtë folder…', fn: function () { hapImportin(f.id); } },
+      { t: 'Eksporto në Excel', leja: 'eksportExcel', fn: function () { eksportoDirekt('excel', produktetEFolderit(f.id), f); } },
+      { t: 'Eksporto PDF (raport)', leja: 'eksportPdf', fn: function () { eksportoDirekt('pdf-lista', produktetEFolderit(f.id), f); } },
+      { t: 'Eksporto PDF (etiketa)', leja: 'eksportPdf', fn: function () { eksportoDirekt('pdf-etiketa', produktetEFolderit(f.id), f); } },
+      { t: 'Importo në këtë folder…', leja: 'stokuImporto', fn: function () { hapImportin(f.id); } },
       '-',
-      { t: 'Fshi të gjitha produktet…', rrezik: true, fn: function () { fshijTeGjithaNeFolder(f); } },
-      { t: 'Fshi folderin…', rrezik: true, fn: function () { fshijFolderin(f); } }
-    ], poz);
+      { t: 'Fshi të gjitha produktet…', leja: 'stokuFshi', rrezik: true, fn: function () { fshijTeGjithaNeFolder(f); } },
+      { t: 'Fshi folderin…', leja: 'stokuFshi', rrezik: true, fn: function () { fshijFolderin(f); } }
+    ].filter(function (x) { return x === '-' || !x.leja || leja(x.leja); });
+    var pa = [];
+    l.forEach(function (x) { if (x !== '-' || (pa.length && pa[pa.length - 1] !== '-')) pa.push(x); });
+    if (pa[pa.length - 1] === '-') pa.pop();
+    hapMenu(pa, poz);
   }
   $('btnFolderMenu').addEventListener('click', function () { var f = folderSipasId(pamja); if (f) hapMenuFolderi(f, $('btnFolderMenu')); });
 
@@ -3643,6 +3799,11 @@
     return lista;
   }
   function hapEksportin(formati) {
+    // v230: vetëm formatet e lejuara (Excel / PDF)
+    var lx2 = leja('eksportExcel'), lp = leja('eksportPdf');
+    if (!lx2 && !lp) { lejaOse('eksportExcel'); return; }
+    if (formati === 'excel' && !lx2) formati = 'pdf';
+    if (formati === 'pdf' && !lp) formati = 'excel';
     ek.formati = formati === 'pdf' ? 'pdf-lista' : formati;
     var lista = opsionetEEksportit();
     ek.fusha = zgjedhuraLista().length ? 'zgjedhura' : (pamja !== 'permbledhja' ? 'pamja' : 'krejt');
@@ -3699,6 +3860,7 @@
 
   // lista = null → krejt stoku; folderi = kur të gjitha janë nga një folder
   function eksportoDirekt(formati, lista, folderi) {
+    if (!lejaOse(formati === 'excel' ? 'eksportExcel' : 'eksportPdf')) return;
     if (lista && !lista.length) { toast('S\'ka produkte për eksport.'); return; }
     if (!lista && !Object.keys(produktet).length) { toast('S\'ka produkte për eksport.'); return; }
     if (lista && !folderi) {
@@ -3948,6 +4110,7 @@
   var im = { fletet: [], fleta: 0, emriSkedarit: '' };
 
   function hapImportin(folderId) {
+    if (!lejaOse('stokuImporto')) return;
     im = { fletet: [], fleta: 0, emriSkedarit: '', folderParazgjedhur: folderId || (folderSipasId(pamja) ? pamja : null) };
     $('imHapi1').classList.remove('fsheh');
     $('imHapi2').classList.add('fsheh');
@@ -4243,6 +4406,7 @@
   // Afatet që ekzistojnë (i njëjti barkod/emër + e njëjta datë) kalohen; rreshtat e përsëritur bashkohen.
   var ai = { fletet: [], emriSkedarit: '' };
   function hapImportinEAfateve() {
+    if (!lejaOse('afatetImporto')) return;
     ai = { fletet: [], emriSkedarit: '' };
     $('aiHapi1').classList.remove('fsheh'); $('aiHapi2').classList.add('fsheh'); $('aiMbrapa').classList.add('fsheh');
     $('aiBtn').disabled = true; $('aiBtn').textContent = 'Importo'; $('aiGabim1').textContent = ''; $('aiSkedari').value = '';
@@ -4862,12 +5026,15 @@
     karta.querySelector('.ops-furn-krye').addEventListener('click', function () { palosKarten(karta, karta.classList.contains('mbyllur')); });
   });
   function zgjidhSkeden(f) {
+    if ((f === 'perdoruesit' && !eshteAdminiIStokut()) || (f === 'stoku' && !leja('stoku'))) f = 'pamja';
+    if (f === 'perdoruesit') { pd.uid = null; $('pdKerkoInp') && ($('pdKerkoInp').value = ''); pdShenoTeParet(); }
     if (f === 'stoku') {
       Array.prototype.forEach.call(document.querySelectorAll('.ops-furn-karta'), function (karta) { palosKarten(karta, false); });
       furnNeEditim = null; $('opsFurnKerko').value = ''; rifreskoFurnizuesit(); kujNeEditim = null; $('opsKujKerko').value = ''; kujSaShfaqen = pritjeSaShfaqen = KUJ_MAKS; rifreskoKujtesen();
     }
     Array.prototype.forEach.call(document.querySelectorAll('#opsSkeda button[data-faqe]'), function (b) { b.classList.toggle('aktiv', b.dataset.faqe === f); });
     Array.prototype.forEach.call(document.querySelectorAll('.opsione-faqe'), function (x) { x.classList.toggle('aktiv', x.dataset.faqe === f); });
+    if (f === 'perdoruesit') pdVizato();
   }
   Array.prototype.forEach.call(document.querySelectorAll('#opsSkeda button[data-faqe]'), function (b) {
     b.addEventListener('click', function () { zgjidhSkeden(b.dataset.faqe); });
@@ -4891,6 +5058,237 @@
   Array.prototype.forEach.call(document.querySelectorAll('#sbpTema button'), function (b) {
     b.addEventListener('click', function () { ops.tema = b.dataset.v; ruajOps(); zbatoPamjen(); rifreskoOpsionet(); });
   });
+
+  // ================= Cilësimet → Përdoruesit (v230, vetëm administratori) =================
+  // Llogaritë nga perdoruesit/{uid}, lejet nga lejet/{uid} (dy dëgjues, vetëm te administratori). Llogaria pa dokument
+  // lejesh = "Pa u kontrolluar" (i ka krejt lejet). Çdo ndryshim ruhet menjëherë, e shënon llogarinë si të kontrolluar
+  // dhe vlen menjëherë te telefoni dhe kompjuteri i asaj llogarie. Llogaritë e reja dalin edhe si njoftim.
+  var pd = { llogarite: null, lejet: null, gabimLlogari: false, gabimLejet: false, ndal: [], uid: null, teReja: 0 };
+  var KEY_PD_PARE = 'stoku:perdoruesit:pare'; // llogaritë e pakontrolluara që administratori i ka parë në këtë pajisje
+  var pdNjoftuar = {};
+  function pdNis() {
+    var c = window.__stokuCloud;
+    if (pd.ndal.length || !c || !c.ekipa || !c.ekipa.degjoKrejtLlogarite || !c.lejet || !eshteAdminiIStokut()) return;
+    pd.ndal.push(c.ekipa.degjoKrejtLlogarite(function (l) { pd.llogarite = l; pd.gabimLlogari = false; pdNdryshoi(); },
+      function () { pd.gabimLlogari = true; pdRifresko(); }));
+    pd.ndal.push(c.lejet.degjoKrejt(function (m) { pd.lejet = m; pd.gabimLejet = false; pdNdryshoi(); },
+      function () { pd.gabimLejet = true; pd.lejet = pd.lejet || {}; pdNdryshoi(); })); // rregullat para v230
+  }
+  function pdNdal() {
+    pd.ndal.forEach(function (f) { try { f(); } catch (e) { /* ok */ } });
+    pd = { llogarite: null, lejet: null, gabimLlogari: false, gabimLejet: false, ndal: [], uid: null, teReja: 0 };
+  }
+  window.addEventListener('stoku-auth-ndryshoi', function () {
+    if (!eshteAdminiIStokut()) { pdNdal(); pdRifresko(); return; }
+    setTimeout(function () { if (eshteAdminiIStokut()) { pdNis(); pdRifresko(); } }, 2500); // pas sinkronizimit të parë
+  });
+  function pdFaqjaHapur() { return $('dlgOpsione').classList.contains('hapur') && !!document.querySelector('.opsione-faqe[data-faqe="perdoruesit"].aktiv'); }
+  function pdLista() {
+    var L = window.StokuLejet, m = pd.lejet || {};
+    return (pd.llogarite || []).filter(function (a) { return !a.admin; }).map(function (a) {
+      var d = m[a.uid] || null;
+      return Object.assign({}, a, { dok: d, statusi: L.statusi(d) });
+    });
+  }
+  function pdLexoPare() { try { var x = JSON.parse(localStorage.getItem(KEY_PD_PARE) || 'null'); return Array.isArray(x) ? x : null; } catch (e) { return null; } }
+  function pdRuajPare(l) { try { localStorage.setItem(KEY_PD_PARE, JSON.stringify(l.slice(-1000))); } catch (e) { /* ok */ } }
+  function pdNdryshoi() {
+    if (pd.llogarite && pd.lejet) {
+      var rinj = pdLista().filter(function (a) { return a.statusi === 'ri'; });
+      var pare = pdLexoPare();
+      if (pare === null) { // hera e parë në këtë pajisje: llogaritë e vjetra (para v230, pa krijuarSe) s'njoftohen si të reja
+        pare = rinj.filter(function (a) { return !a.krijuarSe; }).map(function (a) { return a.uid; });
+        pdRuajPare(pare);
+      }
+      var teReja = rinj.filter(function (a) { return pare.indexOf(a.uid) === -1; });
+      pd.teReja = teReja.length;
+      var paNjoftuar = teReja.filter(function (a) { return !pdNjoftuar[a.uid]; });
+      paNjoftuar.forEach(function (a) { pdNjoftuar[a.uid] = true; });
+      if (paNjoftuar.length && !pdFaqjaHapur()) {
+        toast((paNjoftuar.length === 1 ? 'Llogari e re: ' + paNjoftuar[0].emri + '. Kontrolloja lejet.' : paNjoftuar.length + ' llogari të reja. Kontrolloji lejet.'),
+          { veprimi: function () { hapOpsionet('perdoruesit'); }, butoni: 'Shiko', ms: 9000 });
+      }
+      if (pdFaqjaHapur()) pdShenoTeParet();
+    }
+    pdRifresko();
+  }
+  function pdShenoTeParet() {
+    if (!pd.llogarite || !pd.lejet) return;
+    var pare = pdLexoPare() || [];
+    pdLista().forEach(function (a) { if (a.statusi === 'ri' && pare.indexOf(a.uid) === -1) pare.push(a.uid); });
+    pdRuajPare(pare);
+    pd.teReja = 0;
+    pdRifresko(true);
+  }
+  // Skeda te Cilësimet (vetëm administratori): "N pa u kontrolluar"
+  function pdRifresko(paListe) {
+    if (!pd || !$('opsSkedaPerdoruesit')) return;
+    var admin = eshteAdminiIStokut(), gati = admin && !!pd.llogarite && !!pd.lejet;
+    $('opsSkedaPerdoruesit').hidden = !admin;
+    var rinj = gati ? pdLista().filter(function (a) { return a.statusi === 'ri'; }).length : 0;
+    var nen = $('opsPerdoruesitNen');
+    nen.textContent = rinj ? (rinj === 1 ? '1 pa u kontrolluar' : rinj + ' pa u kontrolluar') : 'Lejet e llogarive';
+    nen.classList.toggle('ops-nen-pritje', !!rinj);
+    if (!paListe && pdFaqjaHapur()) pdVizato();
+  }
+  function pdVizato() {
+    if (!eshteAdminiIStokut()) return;
+    if (pd.uid) pdVizatoDetajet(); else pdVizatoListen();
+  }
+  function pdKarte(klasa) { return el('div', 'ops-karta' + (klasa ? ' ' + klasa : '')); }
+  function pdInfo(tekst, kujdes) { var k = pdKarte(kujdes ? 'pd-paralajmerim' : ''); k.appendChild(el('p', 'ops-hint', tekst)); k.lastChild.style.margin = '0'; return k; }
+  function pdNenTeksti(a) {
+    var n = window.StokuLejet.teNdaluara(a.dok && a.dok.lejet);
+    var p1 = a.statusi === 'ri' ? (a.krijuarSe ? 'Llogari e re, ' + EKL.kohaRelative(a.krijuarSe) : 'Pa u kontrolluar: krejt lejet')
+      : a.statusi === 'kufizuar' ? (n === 1 ? '1 leje e ndaluar' : n + ' leje të ndaluara') : 'Krejt lejet';
+    return [p1, a.kycurSe ? 'u kyç ' + EKL.kohaRelative(a.kycurSe) : ''].filter(Boolean).join(' · ');
+  }
+  function pdShkronja(a) { return el('span', 'pd-shkronja ' + a.statusi, (String(a.emri || '?').charAt(0) || '?').toUpperCase()); }
+  function pdVizatoListen() {
+    var c = $('pdPamja'); c.textContent = '';
+    $('pdTitulli').textContent = 'Përdoruesit';
+    $('pdPershkrimi').hidden = false;
+    if (!pd.llogarite || !pd.lejet) {
+      c.appendChild(pdInfo(pd.gabimLlogari ? 'Llogaritë s\'u lexuan. Kontrollo internetin dhe provo sërish.' : 'Duke i marrë llogaritë…'));
+      if (!pd.ndal.length) pdNis();
+      return;
+    }
+    if (pd.gabimLejet) c.appendChild(pdInfo('Firebase s\'i lejon ende lejet: rregullat e Firestore duhet të përditësohen (v230). Deri atëherë krejt llogaritë i kanë krejt lejet.', true));
+    var lista = pdLista();
+    var q = ($('pdKerkoInp') ? $('pdKerkoInp').value : '').trim().toLocaleLowerCase('sq');
+    if (lista.length >= 8 || q) {
+      var inp = el('input', 'inp ops-furn-kerko'); inp.type = 'search'; inp.id = 'pdKerkoInp'; inp.placeholder = 'Kërko përdoruesin'; inp.setAttribute('aria-label', 'Kërko përdoruesin');
+      inp.value = q; inp.style.marginBottom = '14px';
+      inp.addEventListener('input', function () { var pos = inp.selectionStart; pdVizatoListen(); var n = $('pdKerkoInp'); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) { /* ok */ } } });
+      c.appendChild(inp);
+    }
+    var fil = q ? lista.filter(function (a) { return String(a.emri).toLocaleLowerCase('sq').indexOf(q) !== -1; }) : lista;
+    if (!fil.length) { c.appendChild(pdInfo(q ? 'Asnjë përdorues me këtë emër.' : 'Ende s\'ka llogari të tjera.')); return; }
+    var rinj = fil.filter(function (a) { return a.statusi === 'ri'; })
+      .sort(function (x, y) { return (y.krijuarSe || y.kycurSe || 0) - (x.krijuarSe || x.kycurSe || 0); });
+    var tjeret = fil.filter(function (a) { return a.statusi !== 'ri'; })
+      .sort(function (x, y) { return String(x.emri).localeCompare(String(y.emri), 'sq'); });
+    [['Pa u kontrolluar', rinj], ['Të kontrolluar', tjeret]].forEach(function (x) {
+      if (!x[1].length) return;
+      var k = pdKarte();
+      var kr = el('div', 'pd-krye');
+      kr.appendChild(el('div', 'ops-titull', x[0]));
+      var nr = el('span', 'ops-numri' + (x[0] === 'Pa u kontrolluar' ? ' ops-numri--pritje' : ''), String(x[1].length)); kr.firstChild.appendChild(nr);
+      if (x[0] === 'Pa u kontrolluar' && x[1].length > 1 && !q) {
+        var bk = el('button', 'btn dyte vogel pd-veprime-krye', 'Shëno krejt si të kontrolluar'); bk.type = 'button';
+        bk.addEventListener('click', async function () {
+          var po = await konfirmo('T\'i shënosh të kontrolluar?', x[1].length + ' llogari mbeten me krejt lejet dhe s\'dalin më te "Pa u kontrolluar". Lejet mund t\'i ndryshosh kurdo.', 'Po, shënoji');
+          if (!po) return;
+          bk.disabled = true;
+          var r = await window.__stokuCloud.lejet.ruajShume(x[1].map(function (a) { return { uid: a.uid, lejet: window.StokuLejet.krejt(true), emri: a.emri }; }), { nga: emriPerdoruesit() });
+          bk.disabled = false;
+          toast(r.ok ? (r.n === 1 ? '1 llogari u shënua e kontrolluar.' : r.n + ' llogari u shënuan të kontrolluara.')
+            : r.arsye === 'leje' ? 'S\'u ruajt: rregullat e Firestore duhet të përditësohen (v230).' : 'S\'u ruajtën krejt. Kontrollo internetin dhe provo sërish.');
+        });
+        kr.appendChild(bk);
+      }
+      k.appendChild(kr);
+      var l = el('div', 'pd-lista');
+      x[1].forEach(function (a) {
+        var b = el('button', 'pd-rresht'); b.type = 'button';
+        b.appendChild(pdShkronja(a));
+        var t = el('div', 'pd-tekst');
+        t.appendChild(el('div', 'pd-emri', a.emri));
+        t.appendChild(el('div', 'pd-nen' + (a.statusi === 'ri' ? ' ri' : ''), pdNenTeksti(a)));
+        b.appendChild(t);
+        b.appendChild(el('span', 'pd-shigjete', '›'));
+        b.setAttribute('aria-label', 'Lejet e ' + a.emri);
+        b.addEventListener('click', function () { pd.uid = a.uid; pdVizato(); $('dlgOpsione').querySelector('.ops-djathtas').scrollTop = 0; });
+        l.appendChild(b);
+      });
+      k.appendChild(l);
+      c.appendChild(k);
+    });
+  }
+  function pdRuaj(a, lejet, mesazh) {
+    var c = window.__stokuCloud;
+    if (!c || !c.lejet || !eshteAdminiIStokut()) return Promise.resolve({ ok: false });
+    return c.lejet.ruaj(a.uid, lejet, { nga: emriPerdoruesit(), emri: a.emri }).then(function (r) {
+      if (!r.ok) {
+        toast(r.arsye === 'leje' ? 'S\'u ruajt: rregullat e Firestore duhet të përditësohen (v230).' : 'S\'u ruajt. Kontrollo internetin dhe provo sërish.');
+        if (pdFaqjaHapur()) pdVizato(); // çelësat kthehen si janë në të vërtetë
+      } else if (mesazh) toast(mesazh);
+      return r;
+    });
+  }
+  function pdVizatoDetajet() {
+    var c = $('pdPamja'); c.textContent = '';
+    var L = window.StokuLejet;
+    var a = pdLista().filter(function (x) { return x.uid === pd.uid; })[0];
+    var mbrapa = el('button', 'btn tekst vogel', '← Krejt përdoruesit'); mbrapa.type = 'button'; mbrapa.id = 'pdMbrapa';
+    mbrapa.addEventListener('click', function () { pd.uid = null; pdVizato(); });
+    $('pdPershkrimi').hidden = true;
+    if (!a) { $('pdTitulli').textContent = 'Përdoruesit'; c.appendChild(mbrapa); c.appendChild(pdInfo('Kjo llogari s\'ekziston më.')); return; }
+    $('pdTitulli').textContent = a.emri;
+    var lejet = (a.dok && a.dok.lejet) || null;
+    var k = pdKarte();
+    var kr = el('div', 'pd-krye');
+    kr.appendChild(el('span', 'ops-av ops-av--madh', (String(a.emri).charAt(0) || '?').toUpperCase()));
+    var ki = el('div');
+    var n = L.teNdaluara(lejet);
+    ki.appendChild(el('div', 'ops-titull', a.statusi === 'ri' ? 'Pa u kontrolluar: i ka krejt lejet' : a.statusi === 'kufizuar' ? (n === 1 ? '1 leje e ndaluar' : n + ' leje të ndaluara') : 'Krejt lejet'));
+    if (a.statusi === 'ri') ki.firstChild.style.color = 'var(--sb-ic-portokalli)';
+    var info = [a.krijuarSe ? 'U regjistrua ' + EKL.kohaRelative(a.krijuarSe) : '', a.kycurSe ? 'U kyç ' + EKL.kohaRelative(a.kycurSe) : '',
+      a.grupi ? 'Në një grup' : 'Pa grup', a.dok && a.dok.kontrolluarSe ? 'Kontrolluar ' + EKL.kohaRelative(a.dok.kontrolluarSe) + (a.dok.kontrolluarNga ? ' nga ' + a.dok.kontrolluarNga : '') : ''].filter(Boolean);
+    ki.appendChild(el('p', 'pd-info-rresht', info.join(' · ') + '.'));
+    kr.appendChild(ki);
+    var vk = el('div', 'pd-veprime-krye');
+    if (a.statusi === 'ri') {
+      var bk = el('button', 'btn', 'U kontrollua'); bk.type = 'button'; bk.id = 'pdKontrollua'; bk.title = 'I mban krejt lejet dhe s\'del më te "Pa u kontrolluar"';
+      bk.addEventListener('click', function () { bk.disabled = true; pdRuaj(a, L.krejt(true), a.emri + ' u shënua i kontrolluar.').then(function () { bk.disabled = false; }); });
+      vk.appendChild(bk);
+    }
+    var bl = el('button', 'btn dyte', 'Lejo krejt'); bl.type = 'button'; bl.id = 'pdLejoKrejt';
+    bl.addEventListener('click', function () { pdRuaj(a, L.krejt(true), a.emri + ' i ka tani krejt lejet.'); });
+    var bn = el('button', 'btn tekst rrezik', 'Ndalo krejt'); bn.type = 'button'; bn.id = 'pdNdaloKrejt';
+    bn.addEventListener('click', async function () {
+      var po = await konfirmo('T\'i ndalohen krejt lejet?', a.emri + ' do të mund vetëm të hyjë në llogari: s\'do ta shohë as stokun, as afatet, as grupin.', 'Ndalo krejt');
+      if (po) pdRuaj(a, L.krejt(false), a.emri + ' s\'ka më asnjë leje.');
+    });
+    vk.appendChild(bl); vk.appendChild(bn);
+    kr.appendChild(vk);
+    k.appendChild(kr);
+    if (a.statusi === 'ri') k.appendChild(el('p', 'pd-info-rresht', 'Ndalo çka s\'duhet të përdorë (ruhet vetë), ose kliko "U kontrollua" që t\'i mbajë krejt lejet.'));
+    c.appendChild(mbrapa);
+    c.appendChild(k);
+    var rrjeti = el('div', 'pd-lejet-rrjeti');
+    L.KATALOGU.forEach(function (g) {
+      var gr = el('div', 'pd-grupi');
+      gr.appendChild(el('div', 'pd-titull', g.grupi));
+      var kk = pdKarte();
+      g.lejet.forEach(function (l) {
+        var r = el('label', 'pd-leja' + (l.prindi ? ' femije' : ''));
+        var id = 'pdLeja_' + l.k; r.htmlFor = id;
+        var t = el('span', 'pd-leja-tekst');
+        t.appendChild(el('b', null, l.emri));
+        if (l.pershkrim) t.appendChild(el('span', null, l.pershkrim));
+        var nd = el('span', 'lj-ndez');
+        var inp = el('input'); inp.type = 'checkbox'; inp.id = id;
+        inp.checked = !(lejet && lejet[l.k] === false);
+        if (l.prindi && !L.lejohet(lejet, l.prindi)) { inp.disabled = true; r.classList.add('joaktiv'); }
+        inp.addEventListener('change', function () {
+          var tani = pd.lejet && pd.lejet[a.uid];
+          var l2 = L.pastro((tani && tani.lejet) || null);
+          l2[l.k] = inp.checked;
+          pdRuaj(a, l2);
+        });
+        nd.appendChild(inp); nd.appendChild(el('span', 'pist'));
+        r.appendChild(t); r.appendChild(nd);
+        kk.appendChild(r);
+      });
+      gr.appendChild(kk);
+      rrjeti.appendChild(gr);
+    });
+    c.appendChild(rrjeti);
+    var sh = el('p', 'ops-hint', 'Ndryshimet ruhen vetë dhe vlejnë menjëherë te telefoni dhe kompjuteri i ' + a.emri + '.');
+    sh.style.textAlign = 'center';
+    c.appendChild(sh);
+  }
 
   // ================= Shkurtoret e tastierës =================
   var SHKURTORET = [
@@ -4963,7 +5361,7 @@
       if (dlg.id === 'dlgProdukt' && ctrl && k === 'Enter') { ev.preventDefault(); ruajProduktin(); }
       return;
     }
-    if (ctrl && (k === 'k' || k === 'K')) { ev.preventDefault(); $('kerkoGlobal').focus(); $('kerkoGlobal').select(); return; }
+    if (ctrl && (k === 'k' || k === 'K')) { ev.preventDefault(); if (leja('stoku')) { $('kerkoGlobal').focus(); $('kerkoGlobal').select(); } return; }
     if (ctrl && (k === 'f' || k === 'F') && pamja === 'afatet') { ev.preventDefault(); $('afKerko').focus(); $('afKerko').select(); return; }
     if (ctrl && (k === 'f' || k === 'F') && pamja === 'ekipi') { ev.preventDefault(); if (ekNen !== 'afatet') ekShkoTe('afatet'); $('ekKerko').focus(); $('ekKerko').select(); return; }
     if (ctrl && (k === 'f' || k === 'F')) {
@@ -4996,7 +5394,7 @@
     if (k.length === 1 && skanBuf.length >= 2 && performance.now() - skanKoha < 60) return;
 
     var neTabele = pamja !== 'permbledhja' && pamja !== 'afatet' && pamja !== 'ekipi';
-    if (k === '/') { ev.preventDefault(); veproPasPak(function () { $('kerkoGlobal').focus(); }); return; }
+    if (k === '/') { ev.preventDefault(); if (leja('stoku')) veproPasPak(function () { $('kerkoGlobal').focus(); }); return; }
     if (k === '?') { ev.preventDefault(); veproPasPak(function () { hapOpsionet('shkurtoret'); }); return; }
     if (pamja === 'ekipi') return;
     if (k === 'n' || k === 'N') { ev.preventDefault(); veproPasPak(function () { if (pamja === 'afatet') hapAfatinPc(null); else hapProduktIRi('', null, false); }); return; }
@@ -5493,7 +5891,7 @@
     if (meEmer) tr.appendChild(el('td', 'k-pronari', x.pronariEmri || ''));
     var tv = el('td', 'k-av');
     if (st === 'skaduar' && x.nePritjeNga) { var sp = el('span', 'ek-pritje', 'Në pritje'); sp.title = ekTekstiNePritje(x); tv.appendChild(sp); }
-    else if (st === 'skaduar') {
+    else if (st === 'skaduar' && ekLejohetHeqja(x)) {
       var b = el('button', 'btn af-btn kuqe', '✓ Unë e hoqa'); b.type = 'button';
       b.title = 'Shëno që e hoqe ti nga rafti' + (x.pronariUid && perdoruesi() && x.pronariUid !== perdoruesi().uid ? ' (' + (x.pronariEmri || 'kolegu') + ' njoftohet)' : '');
       b.addEventListener('click', function (ev) { ev.stopPropagation(); ekHeq(x, b); });
@@ -5592,8 +5990,14 @@
     return (uneE ? 'E hoqe' : 'E hoqi ' + a.nePritjeNga) + (a.nePritjeSe ? ' ' + EKL.kohaRelative(a.nePritjeSe) : '') + ', pret miratimin e ' + (a.pronariEmri || 'kolegut');
   }
   // "Unë e hoqa": i imi → si te Afatet; i kolegut → kërkesë te pronari, që hiqet vetëm kur ai e pranon
+  // v230: "Unë e hoqa": i imi = "Ndrysho afatet"; i kolegut = "Hiq nga rafti produktet e kolegëve"
+  function ekLejohetHeqja(a) {
+    var u = perdoruesi();
+    return leja(u && a.pronariUid === u.uid ? 'afatetNdrysho' : 'grupiHeq');
+  }
   async function ekHeq(a, btn) {
     var u = perdoruesi();
+    if (!lejaOse(u && a.pronariUid === u.uid ? 'afatetNdrysho' : 'grupiHeq')) return;
     if (u && a.pronariUid === u.uid) { shenoHequr([a.id]); return; }
     var emri = a.emri || a.barkodi || 'produktin';
     var po = await konfirmo('E hoqe nga rafti?', '"' + emri + '" i përket ' + (a.pronariEmri || 'kolegut') + '. Atij i shkon njoftim, dhe produkti hiqet nga afatet e tij vetëm kur ai e pranon.', 'Po, e hoqa');
@@ -6155,9 +6559,11 @@
   function ekButonatEHeqjes(n, tekstiEl) {
     var w = el('div', 'ek-nj-veprim');
     if (n.vendim) { w.appendChild(el('span', 'ek-nj-kryer', n.vendim === 'pranuar' ? '✓ E pranove' : '✕ E refuzove')); return w; }
+    if (!leja('afatetNdrysho')) return w; // v230: vendimi e ndryshon afatin tënd ("Ndrysho afatet")
     var bp = el('button', 'btn vogel', 'Prano'); bp.type = 'button';
     var br = el('button', 'btn tekst vogel', 'Refuzo'); br.type = 'button';
     async function vendos(pranoj) {
+      if (!lejaOse('afatetNdrysho')) return;
       bp.disabled = br.disabled = true;
       var res = await ekK.vendosPerHeqjen(n, pranoj);
       if (!res || !res.ok) { bp.disabled = br.disabled = false; toast('S\'u ruajt. Kontrollo internetin dhe provo sërish.'); return; }
@@ -6176,7 +6582,9 @@
     var kr = ekK.kryeresiIKerkeses(n);
     if (kr) { w.appendChild(el('span', 'ek-nj-kryer', kr.uneJam ? '✓ E hoqe nga rafti' : '✓ E hoqi ' + kr.emri)); return w; }
     var bt = el('button', 'btn dyte vogel', 'E hoqa nga rafti'); bt.type = 'button';
+    if (!leja('grupiKerkesat')) return w;
     bt.addEventListener('click', async function () {
+      if (!lejaOse('grupiKerkesat')) return;
       bt.disabled = true; bt.textContent = 'Duke ruajtur…';
       var res = await ekK.kryejKerkesen(n);
       if (res && res.ok) { w.textContent = ''; w.appendChild(el('span', 'ek-nj-kryer', '✓ E hoqe nga rafti')); toast((n.emri || 'Kolegu') + ' u njoftua që e hoqe.'); }
@@ -6187,7 +6595,7 @@
   }
   // ---- Kërko heqje nga rafti ----
   function hapKerkesen(perUid) {
-    if (!ekK) return;
+    if (!ekK || !lejaOse('grupiKerkesat')) return;
     var kol = ekK.koleget();
     var sel = $('krkPer'); sel.textContent = '';
     var o0 = document.createElement('option'); o0.value = ''; o0.textContent = 'Krejt grupi (' + kol.length + ')'; sel.appendChild(o0);
@@ -6214,6 +6622,7 @@
   var krkZgjedhesi = null;
   function perditesoDergo(n) { $('krkDergo').textContent = n ? 'Dërgo (' + n + ')' : 'Dërgo'; if (n) $('krkGabim').textContent = ''; }
   async function dergoKerkesen() {
+    if (!lejaOse('grupiKerkesat')) { mbyllDialog('dlgKerkese'); return; }
     var zgj = krkZgjedhesi ? krkZgjedhesi.zgjedhur() : [];
     if (!zgj.length) { $('krkGabim').textContent = 'Shëno të paktën një produkt nga lista.'; return; }
     var k = { produktet: zgj };
@@ -6366,19 +6775,22 @@
       tv.appendChild(x); tv.appendChild(document.createTextNode(' '));
     }
     // "U hoq" vlen vetëm për produktet e skaduara — ato që ende s'kanë skaduar s'hiqen nga rafti
-    if (st === 'skaduar') b('Shëno të hequr', 'kuqe', function () { shenoHequr([a.id]); }, 'Shëno që produkti u hoq nga rafti/pozita');
-    else if (st === 'hequr') b('↺ Rikthe', 'dyte', function () { riktheAktiv(a.id); });
-    var ed = el('button', 'btn-ikone'); ed.type = 'button'; ed.innerHTML = IKONA.ndrysho; ed.title = 'Ndrysho';
+    var lejaNdr = leja('afatetNdrysho');
+    if (st === 'skaduar' && lejaNdr) b('Shëno të hequr', 'kuqe', function () { shenoHequr([a.id]); }, 'Shëno që produkti u hoq nga rafti/pozita');
+    else if (st === 'hequr' && lejaNdr) b('↺ Rikthe', 'dyte', function () { riktheAktiv(a.id); });
+    var ed = el('button', 'btn-ikone'); ed.type = 'button'; ed.innerHTML = lejaNdr ? IKONA.ndrysho : IKONA_SHIKO; ed.title = lejaNdr ? 'Ndrysho' : 'Shiko';
     ed.addEventListener('click', function (ev) { ev.stopPropagation(); hapAfatinPc(a.id); });
     var fs = el('button', 'btn-ikone rrezik'); fs.type = 'button'; fs.innerHTML = IKONA.fshij; fs.title = 'Fshi';
     fs.addEventListener('click', function (ev) { ev.stopPropagation(); fshijAfatet([a.id]); });
-    tv.appendChild(ed); tv.appendChild(fs);
+    tv.appendChild(ed); if (leja('afatetFshi')) tv.appendChild(fs);
     tr.appendChild(tv);
     tr.addEventListener('click', function () { hapAfatinPc(a.id); });
     return tr;
   }
 
+  var IKONA_SHIKO = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
   function shenoHequr(ids) {
+    if (!lejaOse('afatetNdrysho')) return;
     var tani = Date.now();
     var reg = ndryshoAfatet(function (api) {
       ids.forEach(function (id) { var a = api.merr(id); if (a) { a.statusi = 'hequr'; a.hequrSe = tani; a.hequrNga = emriPerdoruesit(); api.vendos(a); } });
@@ -6394,11 +6806,13 @@
       barkodi: a.barkodi || '', data: a.data || '', sasia: typeof a.sasia === 'number' ? a.sasia : undefined });
   }
   function riktheAktiv(id) {
+    if (!lejaOse('afatetNdrysho')) return;
     var reg = ndryshoAfatet(function (api) { var a = api.merr(id); if (a) { a.statusi = 'aktiv'; a.hequrSe = 0; api.vendos(a); } });
     toast('U rikthye si aktiv.', { veprimi: function () { zhbejAfatet(reg); } });
     ekNgjarjeAfati('rikthyer', afatSipasId(id));
   }
   function fshijAfatet(ids) {
+    if (!lejaOse('afatetFshi')) return;
     var reg = ndryshoAfatet(function (api) { ids.forEach(function (id) { api.fshij(id); }); });
     toast(ids.length === 1 ? 'Afati u fshi.' : ids.length + ' afate u fshinë.', { veprimi: function () { zhbejAfatet(reg); } });
   }
@@ -6419,6 +6833,11 @@
   var afdId = null;
   function hapAfatinPc(id, barkodi) {
     var a = id ? afatSipasId(id) : null;
+    if (!a && !lejaOse('afatetShto')) return;
+    // v230: pa "Ndrysho afatet" afati hapet vetëm për t'u parë (pa "Ruaj", pa veprimet)
+    var vetemLexim = !!a && !leja('afatetNdrysho');
+    ['afdBarkodi', 'afdEmri', 'afdData', 'afdSasia', 'afdFurnizuesi'].forEach(function (i) { $(i).readOnly = vetemLexim; });
+    $('afdRuaj').classList.toggle('fsheh', vetemLexim);
     afdId = a ? a.id : null;
     var dl = $('afdFurnizuesit'); dl.textContent = '';
     furnizuesitPerSugjerim().forEach(function (f) { var o = el('option'); o.value = f; dl.appendChild(o); });
@@ -6435,8 +6854,9 @@
     if (a) {
       var st = AF.statusi(a);
       info.className = 'af-info ' + st;
-      info.textContent = AF.pershkrimi(a) + (a.krijuarNga ? '\nShtuar nga: ' + a.krijuarNga + (a.krijuarSe ? ' më ' + dataOra(a.krijuarSe) : '') : '');
-      if (st !== 'hequr') {
+      info.textContent = AF.pershkrimi(a) + (a.krijuarNga ? '\nShtuar nga: ' + a.krijuarNga + (a.krijuarSe ? ' më ' + dataOra(a.krijuarSe) : '') : '') +
+        (vetemLexim ? '\nVetëm për t\'u parë: ndryshimi i afateve s\'të lejohet.' : '');
+      if (vetemLexim) { /* pa veprime */ } else if (st !== 'hequr') {
         if (st === 'skaduar') {
           var h = el('button', 'btn dyte', '✓ U hoq nga rafti'); h.type = 'button';
           h.addEventListener('click', function () { mbyllDialog('dlgAfat'); shenoHequr([a.id]); });
@@ -6472,6 +6892,7 @@
   AF.lidhFushenEDates($('afdData'));
   $('afdSasia').addEventListener('change', function () { vendosRezultatinESasise($('afdSasia')); });
   function ruajAfatinPc() {
+    if (!lejaOse(afdId ? 'afatetNdrysho' : 'afatetShto')) return;
     var b = $('afdBarkodi').value.trim().replace(/\s+/g, '');
     var emri = $('afdEmri').value.trim();
     var data = AF.lexoDatenEFushes($('afdData').value) || '';
@@ -6499,13 +6920,13 @@
 
   // ---------- Leximi i fletës nga foto ----------
   var lx = { rreshtat: [], lloji: 'afatet' }; // lloji: 'afatet' (parazgjedhur) ose 'stok' (fletë stoku nga telefoni)
-  $('afBtnFoto').addEventListener('click', function () { $('afFoto').value = ''; $('afFoto').click(); });
+  $('afBtnFoto').addEventListener('click', function () { if (!lejaOse('afatetAI')) return; $('afFoto').value = ''; $('afFoto').click(); });
   $('afFoto').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) lexoFletenPc(f); });
   // Tërhiq e lësho foton kudo te faqja e afateve
   (function () {
     var z = $('pamjaAfatet');
     z.addEventListener('dragover', function (ev) {
-      if (Array.prototype.indexOf.call(ev.dataTransfer.types || [], 'Files') === -1) return;
+      if (Array.prototype.indexOf.call(ev.dataTransfer.types || [], 'Files') === -1 || !leja('afatetAI')) return;
       ev.preventDefault(); z.classList.add('siper');
     });
     z.addEventListener('dragleave', function (ev) { if (ev.target === z) z.classList.remove('siper'); });
@@ -6776,8 +7197,9 @@
   function renderFletetETelefonit() {
     // Fletët e stokut shkojnë te faqja e Stokut (Përmbledhja); fletët e afateve te faqja e Afateve —
     // secila lloj duket vetëm aty ku i përket, jo të dyja gjithmonë te Afatet.
-    var stok = fletetTel.lista.filter(function (f) { return f.lloji === 'stok'; });
-    var afatetLista = fletetTel.lista.filter(function (f) { return f.lloji !== 'stok'; });
+    // v230: fletët e stokut = "Importo stokun", fletët e afateve = "Lexo fletën me AI"
+    var stok = leja('stokuImporto') ? fletetTel.lista.filter(function (f) { return f.lloji === 'stok'; }) : [];
+    var afatetLista = leja('afatetAI') ? fletetTel.lista.filter(function (f) { return f.lloji !== 'stok'; }) : [];
     $('stokTabFleta').innerHTML = stok.length ? IKONA_FLETA.replace(/22/g, '12') : '';
     if (stok.length) $('stokTabFleta').appendChild(document.createTextNode(String(stok.length)));
     $('afTabFleta').innerHTML = afatetLista.length ? IKONA_FLETA.replace(/22/g, '12') : '';
@@ -6818,7 +7240,7 @@
     if (fletetTel.hapur || $('dlgLexim').classList.contains('hapur')) return;
     var f = null;
     fletetTel.lista.forEach(function (x) { if (x.id === id) f = x; });
-    if (!f) return;
+    if (!f || !lejaOse(f.lloji === 'stok' ? 'stokuImporto' : 'afatetAI')) return;
     fletetTel.hapur = f.id;
     lxSeanca++; // një lexim me AI që ende s'ka mbaruar s'e mbishkruan më këtë fletë
     var stok = f.lloji === 'stok';
@@ -6943,6 +7365,7 @@
   // Çdo lexim ka numrin e vet: një lexim i anuluar që mbaron vonë s'i mbishkruan rreshtat e një leximi (ose flete) më të ri
   var lxSeanca = 0;
   async function lexoFletenPc(skedari) {
+    if (!lejaOse('afatetAI')) return;
     var seanca = ++lxSeanca;
     function iVjeteruar() { return seanca !== lxSeanca || !$('dlgLexim').classList.contains('hapur'); }
     lx.rreshtat = [];
@@ -6996,7 +7419,7 @@
     var s = $('lxFolderi'); s.textContent = '';
     if (!foldera.length) { var o0 = el('option'); o0.value = ''; o0.textContent = 'Zgjidh folderin'; s.appendChild(o0); }
     foldera.forEach(function (f) { var o = el('option'); o.value = f.id; o.textContent = f.emri; s.appendChild(o); });
-    var oRi = el('option'); oRi.value = LX_FOLDER_RI; oRi.textContent = '+ Folder i ri…'; s.appendChild(oRi); // si në telefon
+    var oRi = el('option'); oRi.value = LX_FOLDER_RI; oRi.textContent = '+ Folder i ri…'; if (leja('stokuFoldera')) s.appendChild(oRi); // si në telefon
     s.value = (zgjidhId && folderSipasId(zgjidhId)) ? zgjidhId : folderiIImportit();
   }
   $('lxFolderi').addEventListener('change', function () {
@@ -7146,6 +7569,7 @@
       (teVlefshem.length !== numri ? ' (disa rreshta u bashkuan te i njëjti barkod)' : ''), { veprimi: function () { zhbej(reg); }, ms: 9000 });
   }
   $('lxRuaj').addEventListener('click', function () {
+    if (!lejaOse(lx.lloji === 'stok' ? 'stokuImporto' : 'afatetAI')) return;
     if (lx.lloji === 'stok') { ruajLeximinStok(); return; }
     var teVlefshem = [], gabime = 0;
     lx.rreshtat.forEach(function (r) {
@@ -7202,6 +7626,7 @@
 
   // ---------- Excel i afateve ----------
   function hapEksportinEAfateve() {
+    if (!lejaOse('eksportExcel')) return;
     if (!afatet.length) { toast('S\'ka afate për eksport.'); return; }
     var s = $('aeMuaji');
     s.textContent = '';
@@ -7289,6 +7714,10 @@
     history.replaceState(null, '', hashPer(pamja));
   })();
   rifreskoLlogarine();
+  // v230: lejet e fundit të kësaj pajisjeje vlejnë që në hapje (pastaj i konfirmon Firebase)
+  if (lejetG) lejetG.rinis();
+  zbatoLejet(true);
+  $('lejaPcDil').addEventListener('click', function () { dil(); });
   rivizato();
   // Rifreskon kohët relative ("para 5 min") çdo minutë
   // Te tabela e produkteve rifreskohen vetëm qelizat e kohës (jo krejt 500 rreshtat); faqet e tjera rivizatohen
@@ -7455,6 +7884,9 @@
     // v227: skedarët (Excel, PDF) nga telefoni/PDA-ja te PC-ja e së njëjtës llogari (skedaret.js)
     var skedaret = window.StokuSkedaret ? window.StokuSkedaret.krijo({ doc: doc, collection: collection, setDoc: setDoc, getDocs: getDocs, deleteDoc: deleteDoc,
       onSnapshot: onSnapshot, query: query, orderBy: orderBy, limit: limit, writeBatch: writeBatch, Bytes: Bytes }, db, function () { return auth.currentUser ? auth.currentUser.uid : null; }) : null;
+    // v230: lejet e llogarive (lejet.js): çka mund të përdorë secila llogari; i ndryshon vetëm administratori
+    var lejet = window.StokuLejet ? window.StokuLejet.krijo({ doc: doc, collection: collection, setDoc: setDoc, onSnapshot: onSnapshot },
+      db, function () { return auth.currentUser ? auth.currentUser.uid : null; }) : null;
     // Regjistrohet vetja te perdoruesit/{uid} — përdoret nga pamja e "Ekipit" për të gjetur llogaritë
     var EMRAT_FARE_SASIA = ['tonnyaliu'];
     // "X u bashkua me grupin" s'shkruhet më këtu: e shkruan administratori kur e pranon llogarinë në grup.
@@ -7492,7 +7924,15 @@
     }
 
     window.__stokuCloud = {
-      async regjistrohu(u, p) { try { var k = await createUserWithEmailAndPassword(auth, emailIBrendshem(u), p); regjistroPerdoruesin(u, k.user.uid); return { ok: true, uid: k.user.uid }; } catch (e) { return gabim(e); } },
+      async regjistrohu(u, p) {
+        try {
+          var k = await createUserWithEmailAndPassword(auth, emailIBrendshem(u), p);
+          regjistroPerdoruesin(u, k.user.uid);
+          // v230: kur u krijua llogaria (administratori e sheh si "llogari e re" te Cilësimet → Përdoruesit)
+          setDoc(doc(db, 'perdoruesit', k.user.uid), { krijuarSe: Date.now() }, { merge: true }).catch(function () { /* ok */ });
+          return { ok: true, uid: k.user.uid };
+        } catch (e) { return gabim(e); }
+      },
       async hyr(u, p) { try { var k = await signInWithEmailAndPassword(auth, emailIBrendshem(u), p); regjistroPerdoruesin(u, k.user.uid); return { ok: true, uid: k.user.uid }; } catch (e) { return gabim(e); } },
       async dil() {
         if (ekipa) ekipa.ndalPranine();
@@ -7571,6 +8011,7 @@
         }
       },
       skedaret: skedaret,
+      lejet: lejet,
       ekipa: ekipa
     };
     onAuthStateChanged(auth, function (perdoruesi) {

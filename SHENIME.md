@@ -32,6 +32,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 | `bashkimi.js` | Logjika e bashkimit të të dhënave mes pajisjeve (LWW me kohë, fshirjet si tombstones). E përbashkët. |
 | `ruajtja.js` | Ndarja e dyqanit në Firestore në disa dokumente (shih më poshtë "Firebase"). |
 | `skedaret.js` | v229: Excel dhe PDF nga telefoni/PDA-ja te PC-ja ("Dërgo në PC"; Firestore `dyqane/{uid}/skedaret`, copa ≤ 900 KB). E përbashkët. |
+| `lejet.js` | v230: lejet e përdoruesve (katalogu i 21 lejeve, `lejet/{uid}`, gjendja e pajisjes me localStorage). E përbashkët; faqja "Përdoruesit" vetëm për administratorin. |
 | `porta.js` | Ekrani i hyrjes/kyçjes (login gate) — hapet para faqes kryesore te të dyja versionet. |
 | `njoftimet.js` | Njoftimet push për afatet (30 ditë para skadimit, dhe kur skadon) — logjikë e përbashkët për faqen dhe `sw.js`. |
 | `teRejat.js` | Lista "Çka ka të re" (shënimet e versioneve) — tregohet në hyrje. **Shto këtu një hyrje për çdo ndryshim domethënës të ri**, shih udhëzimin brenda skedarit. |
@@ -51,6 +52,48 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **LEJET E PËRDORUESVE (v230 = 1.28.0)**: kërkesa e pronarit: te Cilësimet, te grupi "Aplikacioni", një opsion që
+   e sheh VETËM administratori `mendurberisha`, me krejt përdoruesit; brenda secilit, krejt veçoritë e Stoku-t për t'i
+   lejuar ose ndaluar. Llogaritë e reja i kanë KREJT lejet derisa administratori t'i kontrollojë, dhe dalin aty për kontroll.
+   - **`lejet.js`** (i ri, i përbashkët): `KATALOGU` me 21 leje në 5 grupe (Stoku: `stoku`, `stokuShto`, `stokuNdrysho`,
+     `stokuFshi`, `stokuFoldera`, `stokuImporto`; Afatet: `afatet`, `afatetShto`, `afatetNdrysho`, `afatetFshi`, `afatetAI`,
+     `afatetImporto`; Grupi: `grupi`, `grupiHeq`, `grupiKerkesat`; Skanimi dhe skedarët: `kamera`, `eksportExcel`,
+     `eksportPdf`, `dergoNePc`; Pajisjet: `ora`, `pc`). `prindi`: pa pjesën (p.sh. `afatet`) s'ka as veprimet e saj.
+     Firestore `lejet/{uid}` = `{ lejet: {çelësi: bool}, kontrolluarSe, kontrolluarNga, emri }`; pa dokument = "Pa u
+     kontrolluar" = krejt të lejuara; çelësi që mungon = i lejuar (leje të reja në të ardhmen s'ndalojnë asgjë).
+     `krijoGjendjen`: dëgjon dokumentin e llogarisë, e ruan te `localStorage` `stoku:lejet:v1` ({uid, lejet}) që kufizimet
+     të vlejnë që në hapje (edhe para se Firebase të dijë a je hyrë, edhe pa internet); me daljen fshihet. Administratori
+     dhe vizitori: pa kufizime. Gabim leximi (p.sh. rregullat para v230) = mbeten lejet e ruajtura (ose krejt të lejuara).
+   - **Zbatimi** (vetëm në aplikacion, jo në rregullat e dyqanit): butonat me `data-leja="çelësi"` marrin `.leja-ndaluar`
+     (`display:none !important`); çdo veprim kontrollohet edhe vetë me `leja(k)` / `lejaOse(k)` (njoftimi "Kjo s'të lejohet
+     në këtë llogari. Pyete administratorin."), që shkurtoret, njoftimet dhe thirrjet e drejtpërdrejta të mos e anashkalojnë.
+     Ndryshimi nga administratori vjen në kohë reale ("Administratori t'i ndryshoi lejet e llogarisë."): faqet e ndaluara
+     mbyllen, listat rivizatohen. Te Cilësimet → Llogaria (tel `#llLejetSeksion`, PC `#opsLejet`) shkruan çka s'lejohet.
+     Pa `stoku` s'del as Cilësimet → Stoku; "Prano/Refuzo" për heqjen që e bëri një koleg kërkon `afatetNdrysho`.
+     - Telefoni: pa `stoku` kryefaqja tregon kartën "Stoku s'është i lejuar" (pa kërkim, import, foldera); pa `afatet` /
+       `grupi` tabi s'del (edhe njoftimi s'e hap); pa `afatetNdrysho` afati hapet vetëm për t'u parë (`#dlgAfat.vetem-lexim`);
+       butonat +/- dhe numërimi me kamerë kërkojnë edhe `stokuNdrysho`; pa `dergoNePc` eksporti shkarkohet/ndahet direkt
+       (pa `#dlgKuSkedari`); pa `ora` s'del "Ora e dorës" dhe heqjet nga ora s'zbatohen; pa `afatet` s'ka njoftime skadimi.
+     - PC: pamja që s'lejohet kalon te pjesa e parë e lejuar (Stoku → Afatet → Grupi), pa asnjë: `#pamjaMbyllur`; pa `pc`:
+       mbulesa `#lejaPcMbulese` (s'mbyllet me Esc/klik, vetëm "Dil nga llogaria"); menuja e folderit, dritarja e eksportit,
+       rreshtat e tabelave dhe fletët nga telefoni tregojnë vetëm çka lejohet.
+   - **Cilësimet → Përdoruesit** (vetëm administratori; tel: rreshti `#tabPerdoruesit` te "Aplikacioni", faqet `perdoruesit`
+     dhe nënfaqja `perdoruesi`; PC: skeda `#opsSkedaPerdoruesit`, faqja `#pdPamja` me listë → detaje). Dy dëgjues
+     (`ekipa.degjoKrejtLlogarite` + `lejet.degjoKrejt`) që nisin 2,5 s pas hyrjes së administratorit. Lista: "Pa u
+     kontrolluar" (më e reja e para) dhe "Të kontrolluar"; detajet: çelës për çdo leje (ruhet menjëherë dhe e shënon
+     llogarinë të kontrolluar), "U kontrollua", "Lejo krejt", "Ndalo krejt" (me pyetje), "Shëno krejt si të kontrolluar".
+     Llogari e re = pa dokument lejesh dhe e pa parë në këtë pajisje (`stoku:perdoruesit:pare`; herën e parë llogaritë
+     e vjetra pa `krijuarSe` s'njoftohen): njoftim "Llogari e re: X" (PC me "Shiko") + shenja te tabi Cilësimet (tel).
+     `perdoruesit/{uid}.krijuarSe` shkruhet në regjistrim (tel + PC); `degjoKrejtLlogarite` e kthen. Fshirja e llogarisë
+     nga administratori fshin edhe `lejet/{uid}` (ekipa.js).
+   - **Rregullat e Firestore v230** (te "Rregullat e Firestore" më poshtë, `match /lejet/{uid}`): lexon llogaria vetë ose
+     administratori; shkruan/fshin VETËM administratori, me fushat e lejuara dhe `lejet` map ≤ 60. PA PUBLIKIMIN E TYRE
+     lejet s'lexohen e s'ruhen (faqja e administratorit e thotë; krejt llogaritë mbeten me krejt lejet).
+   - Kufizim i ditur: lejet i zbaton aplikacioni (fsheh dhe bllokon veprimet); rregullat e dyqanit (`dyqane/{uid}`) s'i
+     njohin, sepse stoku dhe afatet janë në të njëjtat dokumente. Mjafton për punëtorët, jo për dikë që e ndryshon kodin.
+   - Testet: `emu/lejet-prova.mjs` (emulatori i vërtetë, rregullat v230 + `lejet.js`), `lejet-e2e-v230.js` (telefoni:
+     llogari e kufizuar, llogari e re, administratori, kohë reale, rregullat para v230), `lejet-pc-e2e-v230.js` (PC).
+     Pa testim në pajisje të vërtetë.
 0000000. **EXCEL DHE PDF: "DËRGO NË PC" PËR TË GJITHË (v229 = 1.27.0)**: pas kthimit të v227 (v228), pronari e sqaroi: jo vetëm
    për PDA dhe jo me çelës te Cilësimet, por për krejt, me zgjedhje sa herë klikohen "Eksporto në Excel"/"Eksporto në PDF";
    në PC skedari del me "Shkarko". Fullscreen-i i PDA-së MBETET si në v226 (heqja e tij s'u kërkua sërish).
@@ -1337,7 +1380,7 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
-## Rregullat e Firestore (v164 grupet, v221 pa chat, v229 skedarët në PC; më parë v116 + v130 ekipa_push + v140 admini nga llogaria) — i vendos PËRDORUESI (unë s'kam qasje)
+## Rregullat e Firestore (v164 grupet, v221 pa chat, v229 skedarët në PC, v230 lejet; më parë v116 + v130 ekipa_push + v140 admini nga llogaria) — i vendos PËRDORUESI (unë s'kam qasje)
 
 Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Dyqani lexohet vetëm nga pronari/admin-i;
 `emri`/`perdoruesi` s'falsifikohen (= emri i llogarisë); aplikacioni s'mund ta shtojë/ndryshojë fushën `emri` te
@@ -1351,6 +1394,8 @@ admin-in; njoftimet vetëm brenda grupit (fusha `grupi`). Koleksionet e vjetra `
 e vjetër (para përditësimit). Mock-u në scratchpad (`fs-server.js`, `rregullat: 'reja'`) i ndjek këto rregulla.
 **v221 (pa chat):** u hoqën `ekipa_chat/{id}` dhe `grupet/{g}/chat/{id}`: askush s'lexon/shkruan më aty (as aplikacioni i
 vjetër: krijimi refuzohet, fshirja e grupit vazhdon pa to). Mesazhet e vjetra, nëse ka, fshihen vetëm nga Console.
+**v230 (lejet):** `lejet/{uid}`: e lexon vetë llogaria (për t'i zbatuar) ose administratori (faqja "Përdoruesit"); e
+shkruan dhe e fshin VETËM administratori. Testi: `emu/lejet-prova.mjs` (scratchpad, emulatori i vërtetë).
 
 ```
 rules_version = '2';
@@ -1441,6 +1486,15 @@ service cloud.firestore {
     match /ekipa_fshire/{uid} {
       allow read: if request.auth != null && (request.auth.uid == uid || eshteAdmin());
       allow write: if request.auth != null && eshteAdmin();
+    }
+    // v230: lejet e secilës llogari (çka mund të përdorë në Stoku). I ndryshon vetëm administratori (Cilësimet →
+    // Përdoruesit); llogaria lexon vetëm të vetat. Pa dokument = llogari e pakontrolluar, me krejt lejet.
+    match /lejet/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || eshteAdmin());
+      allow create, update: if request.auth != null && eshteAdmin()
+        && request.resource.data.keys().hasOnly(['lejet', 'kontrolluarSe', 'kontrolluarNga', 'emri'])
+        && request.resource.data.lejet is map && request.resource.data.lejet.size() <= 60;
+      allow delete: if request.auth != null && eshteAdmin();
     }
     // Ekipa e vjetër (para grupeve): mbetet për versionet e vjetra të aplikacionit
     match /ekipa_anetaret/{uid} {
