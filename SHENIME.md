@@ -50,6 +50,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **KTHIMI I PLOTË I v227 (CACHE `stoku-v228`, pa hyrje te "Çka ka të re")**: me kërkesë të pronarit ("ktheje te mas
+   komplet qeto se s'e ke bo mirë") v227 (PR #173) u kthye krejt me `git revert`: PDA-ja kalon sërish në fullscreen për ta
+   kyçur portretin (si deri në v226), dhe "Excel dhe PDF në PC" (`skedaret.js`, çelësi te Cilësimet, kartat në PC,
+   rregullat `match /skedaret`) s'ekziston më. Kodi është identik me v226 (1da8106); ndryshon vetëm CACHE (v228), që pajisjet
+   me v227 të kthehen vetë. Pa hyrje te teRejat: versioni që shihet mbetet 1.25.2 dhe hyrjet e 1.26.0 u hoqën bashkë me
+   kodin. Përjashtim i vetëm nga rregulli "CACHE = v i hyrjes së fundit": versioni i ardhshëm është **v229**. Pronari s'tha
+   çka saktësisht s'ishte mirë: MOS i rikthe këto dy ndryshime pa kërkesë të re dhe të qartë.
 0000000. **SHIRITI POSHTË I ERRËT (v226 = 1.25.2, Stoku i instaluar nga Chrome)**: v225 (pa `theme_color`) s'mjaftoi.
    Më 15 tetor, pasi Chrome e përditësoi WebAPK-në, vija e lëvizjes poshtë u bë e bardhë (Chrome s'i jep më ngjyrë
    shiritit), por shiriti mbeti #f6f5f2. Shkaku: Chrome i ri e lë shiritin të tejdukshëm dhe poshtë tij duket dritarja e
