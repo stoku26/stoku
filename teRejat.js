@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 233, versioni: '1.29.1', data: '2026-10-16', titulli: 'Dyqani s\'mbetet pa foldera', pikat: [
+      'Te disa llogari folderat dilnin për një çast dhe pastaj zhdukeshin, edhe kur llogaria s\'kishte leje t\'i krijonte vetë. Tash dyqani s\'mbetet kurrë pa foldera: kur s\'ka asnjë, kthehen vetë Ushqimore, Pije, Higjiene dhe Fresh.',
+      'Kur i fshin vetë krejt folderat, ata s\'kthehen menjëherë: ke kohë t\'i krijosh folderat e tu. Nëse pas 10 minutash s\'ka ende asnjë folder, kthehen 4 të parazgjedhurit.'
+    ] },
     { v: 232, versioni: '1.29.0', data: '2026-10-16', titulli: 'Folderat s\'humbin më', pikat: [
       'Kur Stoku ishte i hapur dy herë në të njëjtën pajisje (p.sh. aplikacioni i instaluar dhe Chrome, ose dy skeda) dhe në njërën hyhej me llogari tjetër, folderat dhe produktet mund të përziheshin mes llogarive ose të fshiheshin. Tash dritarja tjetër rifreskohet vetë me të dhënat e llogarisë së re.',
       'Kur një pajisje tjetër fshin foldera ose produkte, kjo pajisje e ruan një kopje 30 ditë. Te Cilësimet → Llogaria del "Të fshira nga një pajisje tjetër", me "Rikthe" që i kthen në krejt pajisjet.'

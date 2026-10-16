@@ -52,6 +52,28 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **DYQANI S'MBETET PA FOLDERA (v233 = 1.29.1)**: pronari, pas v232: folderat e pda34 "po i heken", edhe pse s'ia
+   ka ndaluar t'i ketë (pda34 s'ka lejen "Krijo dhe ndrysho folderat", prandaj s'ka as "Folder i ri"). **Shkaku**: 4
+   folderat e parazgjedhur kanë të njëjtat id në krejt llogaritë (`ushqimore`, `pije`, `higjiene`, `fresh`) dhe s'kanë
+   `ndryshuarSe` (koha 0). Në cloud-in e pda34 kishte shënime fshirjeje për ta, të ardhura nga llogaria e administratorit
+   përmes gabimit të dy dritareve (v232; administratori i ka fshirë 4 të parazgjedhurit). Shënimet mbahen 120 ditë dhe çdo
+   shënim fiton ndaj kohës 0, prandaj sa herë që aplikacioni i krijonte (pajisje e re, ose `zbatoGjendjenNgaCloud` kur
+   cloud-i s'ka foldera), bashkimi i hiqte pas 200 ms (riprodhuar: `[4, 0]`, tel dhe PC). v232 e ndal rrjedhjen e re, por
+   shënimet e vjetra mbetën.
+   - **bashkimi.js?v=233**: `sigurojFolderat(g, tani)`. Kur gjendja e bashkuar s'ka asnjë folder, kthehen 4 të parazgjedhurit
+     me `ndryshuarSe: tani` (fitojnë ndaj shënimeve të vjetra) dhe hiqen shënimet e fshirjeve për id-të e tyre (edhe ato me
+     kohë në të ardhmen, nga një orë e gabuar). Përjashtim: një shënim fshirjeje folderi nga 10 minutat e fundit
+     (`FSHIRJE_E_FRESKET_MS`, me vlerë absolute): dikush sapo i fshiu qëllimisht, prandaj s'kthehen menjëherë; pas 10
+     minutash, në sinkronizimin e radhës, kthehen. Llogaria me foldera s'preket (p.sh. administratori, që i ka fshirë 4 të
+     parazgjedhurit dhe ka folderat e vet).
+   - Thirret pas çdo bashkimi me cloud-in: tel `bashkoPaFshirje` (transaksioni, hyrja, dëgjuesi, `zbatoRemoteNePritje`), PC
+     `bashkoMeCloud` (`kryeSinkronizimin`, `zbatoNgaCloud`, `zbatoRemoteNePritje`). Kthimi shkon në cloud në të njëjtin
+     transaksion, pa dridhje në ekran. Vlen për krejt llogaritë, pa varësi nga lejet.
+   - Testet: `folderat-v233-njesi.js` (9: pda34, pajisja tjetër me shënimet lokale, dyqan bosh, fshirja e freskët, pas 10
+     minutash, llogari me foldera, ora e gabuar) dhe `folderat-v233.js` (telefoni i pda34 me 0 foldera dhe pa lejen
+     `stokuFoldera`, pajisje e re, rifreskim, PC me 0 foldera, PC i ri, fshirja e qëllimshme e krejt folderave nga X: s'kthehet
+     as nga Y, pas 10 minutash kthehet). Me kodin e v232 dështojnë 11 kontrolle (`[4, 0]`). Pa testim në pajisje të vërtetë.
+
 0000000. **FOLDERAT S'HUMBIN MË (v232 = 1.29.0)**: pronari: "Gjej problemin pse i hup folderat" (llogaria pda34 te Chrome i
    telefonit: 0 foldera, 0 produkte). **Shkaku**: aplikacioni i instaluar nga Chrome dhe skeda e Chrome-it (ose dy skeda) e
    ndajnë `localStorage`-in dhe hyrjen e Firebase-it. Kur në njërën ndërrohej llogaria, porta aty i fshinte të dhënat e vjetra
