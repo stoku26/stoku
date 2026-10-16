@@ -26,7 +26,7 @@
   var KEY_VIZITOR = 'stoku:vizitor';        // '1' = pajisja është në provë si vizitor (porta s'del)
   var VIZITOR = 'vizitor';                  // pronari i të dhënave lokale gjatë provës
   var CELESAT_E_TE_DHENAVE = ['stoku:foldera:v1', 'stoku:produktet:v2', 'stoku:produktet:v1', 'stoku:fshira:v1',
-    'stoku:rendi-foldera-koha', 'stoku:afatet:v1', 'stoku:kujtesa:v1'];
+    'stoku:rendi-foldera-koha', 'stoku:afatet:v1', 'stoku:kujtesa:v1', 'stoku:kopja-fshirjeve:v1'];
   var PRITJA_MAKS_MS = 7000;
   var SERVERI = 'https://stoku-push.mendurb.workers.dev'; // Worker-i (163+): fjalëkalimi i harruar
   var PRITJA_DERGIMIT_MS = 25000; // "Hyr" para se të ngarkohet Firebase (internet i ngadaltë): pritet deri kaq
@@ -50,6 +50,11 @@
   // Kjo faqe u hap si vizitor: të dhënat e saj në memorie janë të provës për krejt jetën e faqes. Faqja s'i sinkronizon
   // kurrë (as pasi dikush hyn me llogari: porta i fshin dhe e rinis faqen).
   var ngaVizitori = eVizitor();
+  // v232: llogaria të cilës i përkasin të dhënat që kjo faqe i ka në memorie (të lexuara në hapje). Aplikacioni i
+  // instaluar dhe Chrome (ose dy skeda) e ndajnë localStorage dhe hyrjen e Firebase-it: kur në njërën hyhet me llogari
+  // tjetër, faqja tjetër s'duhet t'i shkruajë të dhënat e llogarisë së vjetër (bashkë me fshirjet e saj) te llogaria e re.
+  // null = pajisje pa pronar ende (hyrja e parë i merr të dhënat e saj).
+  var pronariIFaqes = lexo(KEY_PRONARI);
   // A ka produkte ose afate në këtë pajisje? (para provës: a do të hiqej diçka e një llogarie)
   function kaTeDhena() {
     try {
@@ -657,6 +662,15 @@
     // në llogarinë e re, dhe faqja rinis e pastër (të dhënat e llogarisë tjetër janë në cloud-in e saj).
     shkruaj(KEY_VIZITOR, null); // me llogari s'ka më provë
     var pronari = lexo(KEY_PRONARI);
+    // v232: një skedë tjetër (ose aplikacioni i instaluar) ka hyrë tashmë me këtë llogari dhe i ka hequr të dhënat e
+    // vjetra: kjo faqe vetëm rinis (në memorie ka ende të dhënat e llogarisë tjetër, që s'duhet të shkruhen këtu)
+    if (!ngaVizitori && pronariIFaqes && pronariIFaqes !== u.uid && pronari === u.uid) {
+      if (ev && ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+      gjendja.dukePunuar = true;
+      shfaqPritjen('Duke hapur dyqanin tënd…');
+      location.reload();
+      return;
+    }
     if ((pronari && pronari !== u.uid) || ngaVizitori) {
       if (ev && ev.stopImmediatePropagation) ev.stopImmediatePropagation();
       CELESAT_E_TE_DHENAVE.forEach(function (k) { shkruaj(k, null); });
@@ -664,11 +678,13 @@
       // Memoria e shfletuesit plot → shkrimi dështoi: pa këtë, faqja do të rifreskohej pafund (pronari s'ndryshon kurrë).
       // Të dhënat e llogarisë tjetër u hoqën tashmë; pronari i zbrazët = "hyrja e parë" pas rifreskimit.
       if (lexo(KEY_PRONARI) !== u.uid) shkruaj(KEY_PRONARI, null);
+      gjendja.dukePunuar = true;
       shfaqPritjen('Duke hapur dyqanin tënd…');
       location.reload();
       return;
     }
     if (!pronari) shkruaj(KEY_PRONARI, u.uid); // hyrja e parë: të dhënat e kësaj pajisjeje i kalojnë kësaj llogarie
+    pronariIFaqes = u.uid;
     var emri = String(u.email || '').replace(/@stoku-app\.local$/, '');
     shkruaj(KEY_HYRJA, JSON.stringify({ uid: u.uid, emri: emri }));
     ruajEmrin(emri);
@@ -676,11 +692,13 @@
   }
   window.addEventListener('stoku-cloud-gati', kontrollo);
   window.addEventListener('stoku-auth-ndryshoi', kontrollo);
-  // Prova në një skedë dhe hyrje me llogari në një tjetër: Firebase e njofton hyrjen këtu me vonesë, prandaj kjo skedë
-  // rinis sapo ndryshon pronari i të dhënave, që të mos shkruajë më të dhënat e provës mbi ato të llogarisë.
+  // Prova ose një llogari në këtë skedë dhe hyrje me llogari tjetër në një skedë tjetër (ose te aplikacioni i instaluar):
+  // Firebase e njofton hyrjen këtu me vonesë, prandaj kjo skedë rinis sapo ndryshon pronari i të dhënave, që të mos
+  // shkruajë të dhënat e saj (as fshirjet) mbi ato të llogarisë tjetër. v232: edhe për llogaritë, jo vetëm për provën.
   window.addEventListener('storage', function (ev) {
-    if (!ngaVizitori || gjendja.dukePunuar || (ev.key !== null && ev.key !== KEY_PRONARI)) return;
-    if (lexo(KEY_PRONARI) === VIZITOR) return;
+    if (gjendja.dukePunuar || (ev.key !== null && ev.key !== KEY_PRONARI)) return;
+    var tani = lexo(KEY_PRONARI);
+    if (ngaVizitori ? tani === VIZITOR : (!pronariIFaqes || tani === pronariIFaqes)) return;
     gjendja.dukePunuar = true;
     location.reload();
   });
@@ -716,5 +734,7 @@
   if (window.__stokuCloud) kontrollo();
 
   window.StokuPorta = { eHapur: function () { return gjendja.eHapur; }, ruajKredencialet: ruajKredencialet, dilMeDore: dilMeDore,
-    ngaVizitori: function () { return ngaVizitori; }, hapHyrjen: hapHyrjen, rinisProven: rinisProven };
+    ngaVizitori: function () { return ngaVizitori; }, hapHyrjen: hapHyrjen, rinisProven: rinisProven,
+    // v232: a i përkasin të dhënat e kësaj faqeje kësaj llogarie? (jo, kur në një skedë tjetër u hyr me llogari tjetër)
+    teDhenatELlogarise: function (uid) { return !!uid && (!pronariIFaqes || pronariIFaqes === uid); } };
 })();

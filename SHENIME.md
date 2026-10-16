@@ -52,6 +52,39 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **FOLDERAT S'HUMBIN MË (v232 = 1.29.0)**: pronari: "Gjej problemin pse i hup folderat" (llogaria pda34 te Chrome i
+   telefonit: 0 foldera, 0 produkte). **Shkaku**: aplikacioni i instaluar nga Chrome dhe skeda e Chrome-it (ose dy skeda) e
+   ndajnë `localStorage`-in dhe hyrjen e Firebase-it. Kur në njërën ndërrohej llogaria, porta aty i fshinte të dhënat e vjetra
+   dhe shkruante pronarin e ri (`stoku:pronari-uid`), por dritarja tjetër merrte vetëm ndryshimin e hyrjes: pronari ishte
+   tashmë i riu, s'rifreskohej dhe sinkronizonte në llogarinë e re të dhënat e llogarisë së vjetër që i kishte në memorie
+   (bashkë me shënimet e fshirjeve, `fshira`). Kështu folderat përziheshin mes llogarive ose fshiheshin (p.sh. fshirjet e 4
+   folderave të parazgjedhur të administratorit kalonin te pda34). Telefoni punon nga memoria (`gjendjaPerCloud`), prandaj
+   preket ai; PC-ja i lexon nga `localStorage` (provuar, s'u prek, por mbrohet njësoj).
+   - **porta.js?v=232**: `pronariIFaqes` = pronari i të dhënave në memorie (lexohet në hapje, bëhet uid-i në hyrjen e parë).
+     `kontrollo`: kur pronari i ruajtur është tashmë uid-i i ri, por faqja ka të dhënat e një llogarie tjetër, faqja vetëm
+     rifreskohet (me `stopImmediatePropagation`, para sinkronizimit). Dëgjuesi `storage`: çdo faqe me llogari (jo vetëm prova)
+     rifreskohet sapo `stoku:pronari-uid` ndryshon nga pronari i saj. `StokuPorta.teDhenatELlogarise(uid)`: tel
+     `perdoruesiAktual()` dhe PC `perdoruesi()` kthejnë `null` derisa faqja të rifreskohet (s'sinkronizon, s'dërgon afate).
+     `stoku:kopja-fshirjeve:v1` hyri te `CELESAT_E_TE_DHENAVE` (fshihet me ndërrimin e llogarisë).
+   - **Kopja e të fshirave** (tel + PC): kur sinkronizimi heq foldera ose produkte që ishin në këtë pajisje
+     (`ruajTeFshiratNeKopje`, para se të zbatohet gjendja e re: tel `zbatoBashkimin` / `zbatoGjendjenNgaCloud`, PC
+     `zbatoNgaCloud`), ato ruhen te `stoku:kopja-fshirjeve:v1` (`{uid, foldera, produktet, koha}`, 30 ditë, deri 20000
+     produkte). Produkti i zhvendosur (i njëjti barkod në folder tjetër) s'llogaritet i fshirë; folderi i parazgjedhur bosh e
+     i paprekur (pa `ndryshuarSe`) s'ruhet; pajisja e paprekur dhe "Rikthe nga cloud" (tel `zbatoGjendjenNgaCloud(te, true)`)
+     s'bëjnë kopje. Te Cilësimet → Llogaria (tel `#llKopjaSeksion`, PC `#opsKopja`) del "Të fshira nga një pajisje tjetër"
+     me çka mungon tani (`teMungueshmetNgaKopja`); "Rikthe" i kthen me kohë të re (`ndryshuarSe` / `prekurSe`, hiqen shënimet
+     e fshirjeve), pra fitojnë edhe në cloud dhe në pajisjet e tjera; "Hiq kopjen" e heq. Kur krejt çka ishte në kopje është
+     sërish këtu (p.sh. u rikthye nga një pajisje tjetër), kopja hiqet vetë (`rifreskoKopjen`, pas zbatimit të gjendjes).
+   - Pa ndryshim në rregullat e Firestore, Worker, `bashkimi.js`, `ruajtja.js`. Të dhënat e humbura para v232 s'kthehen
+     vetë: në cloud mbeten vetëm shënimet e fshirjeve (id-të dhe kohët), pa emra e sasi. Një pajisje që i ka ende në memorie
+     dhe e hap v232 para se të sinkronizojë, i ruan në kopje kur i heq, dhe kthehen me "Rikthe".
+   - Testet: `dy-skeda-llogari.js` (telefoni: dy faqe në një kontekst, ndërrimi i llogarisë: pda34 i mban 4 folderat, asnjë
+     folder i administratorit s'kalon, aplikacioni rifreskohet, fshirja e pda34 s'kalon te administratori; dështonte para
+     v232), `dy-skeda-llogari-pc.js` (njësoj për PC), `kopja-v232.js` (2 telefona + PC: kopja, teksti, "Rikthe" nga telefoni
+     dhe nga PC-ja, "Hiq kopjen", folderi i parazgjedhur bosh, ndërrimi i llogarisë). `fs-server.js` (scratchpad):
+     `__fsNdrroLlogarine(uid, email)` dhe `__fsLlogaria` (llogaria e ndërruar vlen edhe pas rifreskimit). Pa testim në
+     pajisje të vërtetë.
+
 0000000. **LEJET PA ASNJË MESAZH (v231 = 1.28.1)**: kërkesa e pronarit: kur ndalohet një opsion, i zhduket krejt përdoruesit,
    që ai të mos e dijë as që ekziston; jo mesazhe si "e ke të ndaluar nga administratori".
    - **U hoqën**: `lejaOse` (njoftimi "Kjo s'të lejohet… Pyete administratorin."; çdo kontroll tani është `leja(k)`, pa zë),
