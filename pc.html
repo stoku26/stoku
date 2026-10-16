@@ -1960,13 +1960,13 @@
 <div class="toast" id="toast" role="status" aria-live="polite"><span class="toast-tekst" id="toastTekst"></span><button class="btn fsheh" type="button" id="toastBtn"></button></div>
 
 <script src="xlsx.js?v=216"></script>
-<script src="bashkimi.js?v=144"></script>
+<script src="bashkimi.js?v=233"></script>
 <script src="ruajtja.js?v=216"></script>
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=2"></script>
 <script src="afatet.js?v=216"></script>
 <script src="ekipa.js?v=231"></script>
-<script src="teRejat.js?v=232"></script>
+<script src="teRejat.js?v=233"></script>
 <script>
 (function () {
   'use strict';
@@ -2374,7 +2374,7 @@
   // bGati (opsional): bashkimi i llogaritur tashmë nga thirrësi (që të mos llogaritet dy herë mbi krejt dyqanin)
   function zbatoNgaCloud(remote, bGati) {
     var lok = gjendjaLokale();
-    var b = bGati || window.StokuBashkimi.bashko(remote, lok);
+    var b = bGati || bashkoMeCloud(remote, lok);
     var ndryshoi = !window.StokuBashkimi.eNjejte(b, lok);
     if (ndryshoi) {
       var pm = {};
@@ -2454,6 +2454,12 @@
       dataOra(k.koha).replace(' ', ', ora ') + '. "Rikthe" ' + (nje ? 'e' : 'i') + ' kthen në krejt pajisjet.';
   }
 
+  // Bashkimi me cloud-in; v233: pa asnjë folder pas bashkimit kthehen 4 të parazgjedhurit (bashkimi.js, sigurojFolderat)
+  function bashkoMeCloud(remote, lok) {
+    var B = window.StokuBashkimi;
+    return B.sigurojFolderat ? B.sigurojFolderat(B.bashko(remote, lok)) : B.bashko(remote, lok);
+  }
+
   function duhetShkruar(b, remote) {
     if (!remote) return true;
     if (!window.StokuBashkimi.eNjejte(b, remote)) return true;
@@ -2481,7 +2487,7 @@
     var rez;
     try {
       rez = await window.__stokuCloud.bashkoDheRuaj(function (cloud) {
-        return window.StokuBashkimi.bashko(cloud, gjendjaLokale());
+        return bashkoMeCloud(cloud, gjendjaLokale());
       });
     } catch (e) { rez = { ok: false, arsye: String((e && e.message) || e) }; } // sinkronizimi s'ngec kurrë "duke punuar"
     sink.duke = false;
@@ -2518,7 +2524,7 @@
     if (!r || sink.duke) return;
     sink.remoteNePritje = null;
     var lok = gjendjaLokale();
-    var b0 = window.StokuBashkimi.bashko(r, lok);
+    var b0 = bashkoMeCloud(r, lok);
     if (window.StokuBashkimi.eNjejte(b0, lok)) return; // kopje e vjetër
     var b = zbatoNgaCloud(r, b0);
     if (duhetShkruar(b, r) && !sink.kohez) planifikoSinkronizimin(400);

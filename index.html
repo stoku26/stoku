@@ -1947,14 +1947,14 @@
 <div id="toast"></div>
 
 <script src="xlsx.js?v=216"></script>
-<script src="bashkimi.js?v=144"></script>
+<script src="bashkimi.js?v=233"></script>
 <script src="ruajtja.js?v=216"></script>
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=2"></script>
 <script src="afatet.js?v=216"></script>
 <script src="ekipa.js?v=231"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=232"></script>
+<script src="teRejat.js?v=233"></script>
 <script>
 (function () {
   'use strict';
@@ -4235,7 +4235,9 @@
   // (bashkimi.js): fiton ndryshimi më i ri, dhe fshirjet ruhen edhe në cloud që një pajisje tjetër
   // me kopje të vjetër të mos i ringjallë produktet e fshira.
   function bashkoPaFshirje(gjendjaCloud, gjendjaLokale) {
-    return window.StokuBashkimi.bashko(gjendjaCloud, gjendjaLokale);
+    var B = window.StokuBashkimi;
+    // v233: pa asnjë folder pas bashkimit kthehen 4 të parazgjedhurit (bashkimi.js, sigurojFolderat)
+    return B.sigurojFolderat ? B.sigurojFolderat(B.bashko(gjendjaCloud, gjendjaLokale)) : B.bashko(gjendjaCloud, gjendjaLokale);
   }
 
   // Zbaton lokalisht rezultatin e sinkronizimit (produktet e shtuara/ndryshuara/fshira nga pajisjet

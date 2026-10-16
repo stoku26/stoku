@@ -13,6 +13,7 @@
  *  - Renditja e folderave: fiton ana që e ka ndryshuar renditjen më së fundi (rendiKoha).
  *  - Shënimet e fshirjeve më të vjetra se 120 ditë hiqen, që dokumenti të mos rritet pafundësisht.
  *  - Afatet (datat e skadimit): njësoj — fiton ndryshimi më i ri (ndryshuarSe), fshirjet ruhen me id.
+ *  - v233: dyqani s'mbetet pa asnjë folder (sigurojFolderat): pa foldera kthehen 4 të parazgjedhurit.
  *  - Historiku i afateve ruhet i plotë: dyqani në Firebase ndahet në disa dokumente (ruajtja.js),
  *    kështu s'ka më kufirin 1 MB të një dokumenti.
  */
@@ -168,6 +169,31 @@
     };
   }
 
+  // v233: dyqani s'mbetet pa asnjë folder. 4 folderat e parazgjedhur kanë të njëjtat id në krejt llogaritë dhe s'kanë
+  // ndryshuarSe, prandaj një shënim fshirjeje për ta (edhe i vjetër, edhe i ardhur gabimisht nga një llogari tjetër para
+  // v232) i hiqte sa herë që aplikacioni i krijonte: llogaria mbetej pa foldera, edhe pa lejen për të krijuar foldera.
+  // Kur bashkimi s'lë asnjë folder, kthehen 4 folderat e parazgjedhur me kohë të re (fitojnë ndaj shënimeve të vjetra),
+  // përveç kur dikush sapo ka fshirë një folder (10 minutat e fundit): fshirja e qëllimshme s'kthehet menjëherë.
+  var FOLDERAT_PARAZGJEDHUR = [
+    { id: 'ushqimore', emri: 'Ushqimore' }, { id: 'pije', emri: 'Pije' },
+    { id: 'higjiene', emri: 'Higjiene' }, { id: 'fresh', emri: 'Fresh' }
+  ];
+  var FSHIRJE_E_FRESKET_MS = 10 * 60 * 1000;
+  function sigurojFolderat(g, tani) {
+    if (!g || lista(g.foldera).length) return g;
+    tani = tani || Date.now();
+    var fsh = (g.fshira && g.fshira.foldera) || {};
+    var fresket = Object.keys(fsh).some(function (id) { return Math.abs(tani - (Number(fsh[id]) || 0)) < FSHIRJE_E_FRESKET_MS; });
+    if (fresket) return g;
+    var mbeten = {}, parazgjedhur = {};
+    FOLDERAT_PARAZGJEDHUR.forEach(function (d) { parazgjedhur[d.id] = true; });
+    Object.keys(fsh).forEach(function (id) { if (!parazgjedhur[id]) mbeten[id] = fsh[id]; });
+    return Object.assign({}, g, {
+      foldera: FOLDERAT_PARAZGJEDHUR.map(function (d) { return { id: d.id, emri: d.emri, ndryshuarSe: tani }; }),
+      fshira: Object.assign({}, g.fshira, { foldera: mbeten })
+    });
+  }
+
   // Heq shënimet lokale të fshirjeve më të vjetra se afati (thirret pas sinkronizimit të suksesshëm).
   function pastroFshirjetEVjetra(fshira, tani) {
     var kufiri = (tani || Date.now()) - MBAJ_FSHIRJET_MS;
@@ -196,7 +222,7 @@
   }
 
   var api = {
-    bashko: bashko, celesi: celesi, pastroFshirjetEVjetra: pastroFshirjetEVjetra,
+    bashko: bashko, sigurojFolderat: sigurojFolderat, celesi: celesi, pastroFshirjetEVjetra: pastroFshirjetEVjetra,
     pastroFolderat: pastroFolderat, pastroProduktet: pastroProduktet, pastroAfatet: pastroAfatet,
     eNjejte: eNjejte, MBAJ_FSHIRJET_MS: MBAJ_FSHIRJET_MS
   };
