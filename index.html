@@ -1070,7 +1070,7 @@
 <link rel="stylesheet" href="css/stoku.css?v=39">
 </head>
 <body>
-<script src="porta.js?v=221"></script>
+<script src="porta.js?v=232"></script>
 
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" aria-label="Mbrapa" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
@@ -1542,6 +1542,17 @@
               <button class="btn ops-btn-dyte" id="cloudRiktheTani" type="button"></button>
             </div>
           </div>
+          <!-- v232: çka u fshi nga një pajisje tjetër (foldera, produkte) mbetet këtu si kopje, për t'u rikthyer -->
+          <div class="seksion" id="llKopjaSeksion" hidden>
+            <div class="ops-grupi-titull">Të fshira nga një pajisje tjetër</div>
+            <div class="ops-karta">
+              <div class="hint" id="llKopjaTeksti" style="margin:0 0 10px"></div>
+              <div class="rreshti">
+                <button class="btn" id="llKopjaRikthe" type="button">Rikthe</button>
+                <button class="btn ops-btn-dyte" id="llKopjaHiq" type="button">Hiq kopjen</button>
+              </div>
+            </div>
+          </div>
           <div class="seksion" id="llogariaBrendaSeksion" style="display:none">
             <div class="ops-grupi-titull">Të dhënat e hyrjes</div>
             <div class="ops-karta">
@@ -1943,7 +1954,7 @@
 <script src="afatet.js?v=216"></script>
 <script src="ekipa.js?v=231"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=231"></script>
+<script src="teRejat.js?v=232"></script>
 <script>
 (function () {
   'use strict';
@@ -4245,8 +4256,10 @@
     (Array.isArray(g.produktet) ? g.produktet : []).forEach(function (p) {
       if (p && typeof p.barkodi === 'string' && typeof p.kategoriaId === 'string') pm[celesiProduktit(p.kategoriaId, p.barkodi)] = p;
     });
+    ruajTeFshiratNeKopje(Array.isArray(g.foldera) ? g.foldera : foldera, pm);
     foldera = Array.isArray(g.foldera) ? g.foldera : foldera;
     produktet = pm;
+    rifreskoKopjen();
     if (Array.isArray(g.afatet)) {
       afatet = g.afatet;
       try { localStorage.setItem(KEY_AFATET, JSON.stringify(afatet)); } catch (e) { /* ok */ }
@@ -4290,7 +4303,12 @@
   }
 
   function perdoruesiAktual() {
-    return (window.__stokuCloud && window.__stokuCloud.perdoruesiAktual) ? window.__stokuCloud.perdoruesiAktual() : null;
+    var u = (window.__stokuCloud && window.__stokuCloud.perdoruesiAktual) ? window.__stokuCloud.perdoruesiAktual() : null;
+    // v232: në një skedë tjetër (ose te aplikacioni i instaluar) u hyr me llogari tjetër: të dhënat e kësaj faqeje janë të
+    // llogarisë së vjetër, prandaj faqja s'e sheh veten të kyçur (s'sinkronizon asgjë) derisa porta ta rinisë
+    var P = window.StokuPorta;
+    if (u && P && P.teDhenatELlogarise && !P.teDhenatELlogarise(u.uid)) return null;
+    return u;
   }
 
   function emriPerdoruesitAktual() {
@@ -4360,7 +4378,7 @@
     zbatoRemoteNePritje();
   }
 
-  function zbatoGjendjenNgaCloud(te) {
+  function zbatoGjendjenNgaCloud(te, paKopje) {
     var B = window.StokuBashkimi;
     te = Object.assign({}, te, { foldera: B.pastroFolderat(te.foldera), produktet: B.pastroProduktet(te.produktet), afatet: B.pastroAfatet(te.afatet) });
     var arrF = te.foldera.length > 0
@@ -4372,8 +4390,10 @@
         produktetENoja[celesiProduktit(p.kategoriaId, p.barkodi)] = p;
       }
     });
+    if (!paKopje) ruajTeFshiratNeKopje(arrF, produktetENoja); // "Rikthe nga cloud" (zgjedhje e përdoruesit): pa kopje
     foldera = arrF;
     produktet = produktetENoja;
+    rifreskoKopjen();
     if (Array.isArray(te.afatet)) {
       afatet = te.afatet;
       try { localStorage.setItem(KEY_AFATET, JSON.stringify(afatet)); } catch (e) { /* ok */ }
@@ -4385,6 +4405,103 @@
     ruajBaze();
     rifreskoPamjen();
   }
+
+  // ---------- v232: kopja e të fshirave nga një pajisje tjetër ----------
+  // Kur sinkronizimi heq foldera ose produkte që ishin këtu (i fshiu një pajisje tjetër, ose një gabim), ato ruhen në këtë
+  // pajisje (vetëm çka u hoq, jo krejt dyqani), që të rikthehen te Cilësimet → Llogaria. Mbahen 30 ditë; me ndërrimin e
+  // llogarisë fshihen bashkë me të dhënat e tjera (porta.js).
+  var KEY_KOPJA = 'stoku:kopja-fshirjeve:v1', KOPJA_MS = 30 * 864e5;
+  function lexoKopjen() {
+    var u = perdoruesiAktual();
+    if (!u) return null;
+    try {
+      var k = JSON.parse(localStorage.getItem(KEY_KOPJA) || 'null');
+      if (!k || k.uid !== u.uid || !Array.isArray(k.foldera) || !Array.isArray(k.produktet) || Date.now() - (k.koha || 0) > KOPJA_MS) return null;
+      return k;
+    } catch (e) { return null; }
+  }
+  // Para se të zbatohet gjendja e re: ruhet çka do të hiqej. Produkti i zhvendosur (i njëjti barkod në një folder tjetër)
+  // s'është i fshirë, përveç kur i hoqi bashkë folderi i vet.
+  function ruajTeFshiratNeKopje(folderaRe, produktetRe) {
+    var u = perdoruesiAktual();
+    if (!u || pajisjaEshteEPaprekur()) return;
+    var idRe = {}, barkodetRe = {}, fH = {}, meProdukte = {};
+    (folderaRe || []).forEach(function (f) { if (f && f.id) idRe[f.id] = true; });
+    Object.keys(produktetRe || {}).forEach(function (k) { var p = produktetRe[k]; if (p) barkodetRe[p.barkodi] = true; });
+    Object.keys(produktet).forEach(function (k) { var p = produktet[k]; if (p) meProdukte[p.kategoriaId] = true; });
+    // Një folder i parazgjedhur bosh dhe i paprekur (pa ndryshuarSe) s'ruhet: s'ka asgjë për t'u humbur
+    var folderatH = foldera.filter(function (f) { return f && f.id && !idRe[f.id] && (f.ndryshuarSe || meProdukte[f.id]); });
+    folderatH.forEach(function (f) { fH[f.id] = true; });
+    var produktetH = Object.keys(produktet).filter(function (k) {
+      var p = produktet[k];
+      return p && !(produktetRe || {})[k] && (fH[p.kategoriaId] || !barkodetRe[p.barkodi]);
+    }).map(function (k) { return produktet[k]; });
+    if (!folderatH.length && !produktetH.length) return;
+    var k = lexoKopjen() || { uid: u.uid, foldera: [], produktet: [] };
+    folderatH.forEach(function (f) { k.foldera = k.foldera.filter(function (x) { return x.id !== f.id; }).concat([f]); });
+    produktetH.forEach(function (p) {
+      var c = celesiProduktit(p.kategoriaId, p.barkodi);
+      k.produktet = k.produktet.filter(function (x) { return celesiProduktit(x.kategoriaId, x.barkodi) !== c; }).concat([p]);
+    });
+    if (k.produktet.length > 20000) k.produktet = k.produktet.slice(-20000);
+    k.koha = Date.now();
+    try { localStorage.setItem(KEY_KOPJA, JSON.stringify(k)); } catch (e) { /* memoria plot: pa kopje */ }
+  }
+  // Çka nga kopja mungon tani (folderat dhe produktet që do të riktheheshin)
+  function teMungueshmetNgaKopja(k) {
+    var fM = k.foldera.filter(function (f) { return !foldera.some(function (x) { return x.id === f.id; }); });
+    var ka = {}; foldera.concat(fM).forEach(function (f) { ka[f.id] = true; });
+    var pM = k.produktet.filter(function (p) { return ka[p.kategoriaId] && !produktet[celesiProduktit(p.kategoriaId, p.barkodi)]; });
+    return { foldera: fM, produktet: pM };
+  }
+  // "3 foldera dhe 45 produkte" / "1 folder ("Pije")"
+  function pershkrimiIKopjes(m) {
+    var pjeset = [];
+    if (m.foldera.length) pjeset.push(m.foldera.length === 1 ? '1 folder ("' + m.foldera[0].emri + '")' : m.foldera.length + ' foldera');
+    if (m.produktet.length) pjeset.push(T('njesiaProdukteve', { n: m.produktet.length }));
+    return pjeset.join(' dhe ');
+  }
+  function vetemNje(m) { return m.foldera.length + m.produktet.length === 1; } // folja në njëjës ("u fshi", "u rikthye")
+  function rifreskoKopjen() {
+    var s = $('llKopjaSeksion');
+    if (!s) return;
+    var k = lexoKopjen(), m = k ? teMungueshmetNgaKopja(k) : null;
+    s.hidden = !m || (!m.foldera.length && !m.produktet.length);
+    // Krejt çka ishte në kopje është sërish këtu (p.sh. u rikthye nga një pajisje tjetër): kopja s'duhet më
+    if (k && s.hidden) { try { localStorage.removeItem(KEY_KOPJA); } catch (e) { /* ok */ } }
+    if (s.hidden) return;
+    var d = new Date(k.koha), dy = function (n) { return (n < 10 ? '0' : '') + n; };
+    var nje = vetemNje(m);
+    $('llKopjaTeksti').textContent = pershkrimiIKopjes(m) + (nje ? ' u fshi' : ' u fshinë') + ' nga një pajisje tjetër. Kopja u ruajt në këtë telefon më ' +
+      dy(d.getDate()) + '.' + dy(d.getMonth() + 1) + '.' + d.getFullYear() + ', ora ' + dy(d.getHours()) + ':' + dy(d.getMinutes()) +
+      '. "Rikthe" ' + (nje ? 'e' : 'i') + ' kthen në krejt pajisjet.';
+  }
+  $('llKopjaRikthe').addEventListener('click', async function () {
+    var k = lexoKopjen();
+    if (!k) { rifreskoKopjen(); return; }
+    var m = teMungueshmetNgaKopja(k), tani = Date.now();
+    if (!m.foldera.length && !m.produktet.length) { rifreskoKopjen(); return; }
+    var po = await konfirmo('Të rikthehen të fshirat?', (vetemNje(m) ? 'Kthehet ' : 'Kthehen ') + pershkrimiIKopjes(m) + ' në krejt pajisjet e llogarisë.', 'Rikthe');
+    if (!po) return;
+    // Me kohë të re: fitojnë ndaj fshirjes edhe në cloud (bashkimi.js)
+    m.foldera.forEach(function (f) { foldera.push(Object.assign({}, f, { ndryshuarSe: tani })); delete fshira.foldera[f.id]; });
+    m.produktet.forEach(function (p) {
+      var c = celesiProduktit(p.kategoriaId, p.barkodi);
+      produktet[c] = Object.assign({}, p, { prekurSe: tani });
+      delete fshira.produktet[c];
+    });
+    ruajFshiraet();
+    ruajBaze();
+    try { localStorage.removeItem(KEY_KOPJA); } catch (e) { /* ok */ }
+    rifreskoPamjen();
+    rifreskoKopjen();
+    toast((vetemNje(m) ? 'U rikthye: ' : 'U rikthyen: ') + pershkrimiIKopjes(m) + '.', 4000);
+  });
+  $('llKopjaHiq').addEventListener('click', async function () {
+    if (!(await konfirmo('Të hiqet kopja?', 'Të fshirat s\'mund të rikthehen më nga ky telefon.', 'Hiqe'))) return;
+    try { localStorage.removeItem(KEY_KOPJA); } catch (e) { /* ok */ }
+    rifreskoKopjen();
+  });
 
   // Ekzekutohet një herë për çdo hyrje/sesion: bashkon të dhënat e cloud-it me ato lokale (pa fshi
   // asgjë lokalisht — shih bashkoPaFshirje), pastaj sinkronizon prapë për të pajtuar krejt anët.
@@ -4582,6 +4699,7 @@
       : 'Që lista të mos humbet dhe të shihet në çdo pajisje.';
     $('cloudBrendaSeksion').style.display = u ? '' : 'none';
     $('llogariaBrendaSeksion').style.display = u ? '' : 'none';
+    rifreskoKopjen();
     rregulloVijatNdarese();
     if (u) {
       $('cloudHyrePerTeksti').textContent = T('cloudHyrePerTeksti', { emri: emriPerdoruesitAktual() });
@@ -4678,7 +4796,7 @@
     fshira = { produktet: {}, foldera: {}, afatet: {} };
     ruajFshiraet();
     if (!Array.isArray(rez.gjendja.afatet)) rez.gjendja.afatet = [];
-    zbatoGjendjenNgaCloud(rez.gjendja);
+    zbatoGjendjenNgaCloud(rez.gjendja, true);
     toast(T('cloudURikthye'));
     vendosStatusinCloud(T('cloudStatusiUSink', { kur: oraTani() }));
   });

@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 232, versioni: '1.29.0', data: '2026-10-16', titulli: 'Folderat s\'humbin më', pikat: [
+      'Kur Stoku ishte i hapur dy herë në të njëjtën pajisje (p.sh. aplikacioni i instaluar dhe Chrome, ose dy skeda) dhe në njërën hyhej me llogari tjetër, folderat dhe produktet mund të përziheshin mes llogarive ose të fshiheshin. Tash dritarja tjetër rifreskohet vetë me të dhënat e llogarisë së re.',
+      'Kur një pajisje tjetër fshin foldera ose produkte, kjo pajisje e ruan një kopje 30 ditë. Te Cilësimet → Llogaria del "Të fshira nga një pajisje tjetër", me "Rikthe" që i kthen në krejt pajisjet.'
+    ] },
     { v: 231, versioni: '1.28.1', data: '2026-10-15', titulli: 'Lejet: pa asnjë mesazh', platforma: 'tel', vetemAdmini: true, pikat: [
       'Çka s\'i lejohet një llogarie zhduket krejt: s\'i del asnjë mesazh se diçka është ndaluar, as te Cilësimet → Llogaria.',
       'Pa "Stoku", llogaria s\'e sheh as tabin Stoku: hapet direkt te Afatet (ose te Grupi). Pa "Stoku në kompjuter", në kompjuter hapet versioni i telefonit.',
