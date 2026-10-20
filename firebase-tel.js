@@ -40,9 +40,6 @@
     // Regjistrohet vetja te perdoruesit/{uid} (emri i dukshëm + kur u kyç së fundi) — përdoret nga
     // pamja e "Ekipit" për të gjetur krejt llogaritë ekzistuese dhe emrat e tyre.
     // Fusha `emri` NUK preket: rregullat e Firestore e përdorin për admin-in. Hyrja s'e pret kurrë këtë shkrim.
-    // Leja e sasisë së shpejtë ndjek llogarinë (uid): lexohet nga perdoruesit/{uid}.sasiaShpejte; llogaritë e
-    // "farës" (emrat e njohur) e marrin sapo hyjnë, dhe e mbajnë edhe pas ndërrimit të emrit.
-    var EMRAT_FARE_SASIA = ['tonnyaliu'];
     // "X u bashkua me grupin" s'shkruhet më këtu: e shkruan administratori kur e pranon llogarinë në grup.
     var __regjistrimet = {}; // uid → { emri, p }: hyr()/regjistrohu() dhe onAuthStateChanged e thërrasin njëkohësisht
     function regjistroPerdoruesin(emriPerdoruesit, uid) {
@@ -57,23 +54,8 @@
     async function regjistroTani(emri, uid) {
       try {
         var ref = doc(db, 'perdoruesit', uid);
-        var te = { perdoruesi: emri, kycurSe: Date.now() };
-        var ka = false, hequr = false;
-        try {
-          var s0 = await getDoc(ref);
-          var d0 = s0.exists() ? s0.data() : {};
-          ka = d0.sasiaShpejte === true;
-          hequr = d0.sasiaShpejte === false; // administratori ia hoqi lejen — "fara" me emër s'e rikthen
-        } catch (e) { /* ok */ }
-        if (!ka && !hequr && EMRAT_FARE_SASIA.indexOf(emri) !== -1) { te.sasiaShpejte = true; ka = true; }
-        await setDoc(ref, te, { merge: true });
-        var vlera = ka ? uid : hequr ? '!' + uid : null;
-        var para = null;
-        try { para = localStorage.getItem('stoku:leja:sasia-shpejte'); } catch (e) { /* ok */ }
-        if (vlera !== null && vlera !== para) {
-          try { localStorage.setItem('stoku:leja:sasia-shpejte', vlera); } catch (e) { /* ok */ }
-          window.dispatchEvent(new Event('stoku-leja-ndryshoi'));
-        }
+        // v240: pa sasiaShpejte (leja +/- është te lejet/{uid}, "stokuPlusMinus")
+        await setDoc(ref, { perdoruesi: emri, kycurSe: Date.now() }, { merge: true });
       } catch (e) { /* p.sh. pa internet — provohet sërish herën tjetër që hyn */ }
     }
 

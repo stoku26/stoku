@@ -52,6 +52,28 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **SASIA E SHPEJTË (+/-) SI LEJE TE PËRDORUESIT + TESTET NË REPO + CLAUDE.md (v240 = 1.31.0)**: pronari (foto e
+   PC-së te Grupi → Anëtarët, kolona "+/-"): "hiqe prej qaty, qite te Cilësimet → Përdoruesit, me ja leju ose jo, bone
+   aktive për të gjithë dhe çdo user të ri".
+   - `lejet.js?v=3`: leja e re `stokuPlusMinus` "Sasia e shpejtë (+/-)" (butonat +/- te lista dhe numërimi me kamerë kur
+     skanohet një produkt që ekziston), `prindi: 'stokuNdrysho'`; `lejohet()` e ndjek krejt zinxhirin e prindërve
+     (+/- → Ndrysho produktet → Stoku). Çelësi që mungon = i lejuar, prandaj vlen për krejt llogaritë (edhe dokumentet e
+     lejeve të ruajtura para v240), llogaritë e reja dhe vizitorin. "Ndrysho produktet" s'i përmend më butonat +/-.
+     Rregullat e Firestore s'ndryshojnë (`lejet` ≤ 60 çelësa).
+   - `eLejuarSasiaShpejte()` (app-tel.js, app-pc.js) = `leja('stokuNdrysho') && leja('stokuPlusMinus')`. U hoqën: emrat
+     "farë" (`SASIA_SHPEJTE_EMRAT`, `EMRAT_FARE_SASIA`), `localStorage 'stoku:leja:sasia-shpejte'` (fshihet në hapje),
+     ngjarja `stoku-leja-ndryshoi`, leximi/shkrimi i `perdoruesit/{uid}.sasiaShpejte` (firebase-*.js), `vendosLejen` dhe
+     `sasiaShpejte` te `ekipa.js` (fusha e vjetër te `grupet/{g}/anetaret` injorohet; rregullat ende e lejojnë), kolona
+     `#ekKolLeja`/`.k-leja` te PC (pc.html, `stoku-pc.css?v=32`) dhe "Butonat +/- te lista" te Grupi i telefonit.
+   - teRejat 1.31.0: tel + PC (butonat për të gjithë; tel edhe numërimi me kamerë) dhe një hyrje `vetemAdmini` (ku është leja).
+   - Testi `teste/plusminus-v240.js`: zinxhiri i lejeve, Grupi pa "+/-" (PC 7 kolona, tel pa "Butonat +/-"), llogari e
+     vjetër dhe e re i kanë +/-, admini e ndal/kthen në kohë reale, pa "Ndrysho produktet" çelësi çaktivizohet.
+   - **Testet në repo** (`teste/`, shih "Konventat e testimit") dhe **`CLAUDE.md`** (Claude e lexon vetë në fillim të çdo
+     bisede: e dërgon te ky skedar, rregullat kryesore, rrjedha e punës). `_config.yml`: `exclude` teste/, CLAUDE.md,
+     SHENIME.md (s'publikohen më në stoku.site; repo-ja mbetet publike në GitHub).
+   - Siguria, gjendja përfundimtare (pronari, 21.10.2026): HSTS 12 muaj, DKIM `*._domainkey` `v=DKIM1; p=`, Protego A+
+     91/100 (mbeten vetëm HSTS includeSubDomains/preload, me qëllim), securityheaders.com A+.
+
 0000000. **SIGURIA: HEADER-AT E CLOUDFLARE + PORTA (v239 = 1.30.1)**: pronari solli raportet e skanerëve pas lidhjes së
    `stoku.site` me Cloudflare (securityheaders.com A+, pentest-tools Low, Protego D 57/100).
    - **Cloudflare (i vendos PRONARI, unë s'kam qasje)**: nameservers `amy`/`lamar.ns.cloudflare.com` (Hostinger), SSL Full, TLS 1.3
@@ -1521,7 +1543,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 
 Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori testohet me **Playwright**:
 
-- Server lokal: `python3 -m http.server 8765` (ose port tjetër) brenda `/home/user/stoku`.
+- **v240: krejt testet janë te `teste/`** (më parë në scratchpad-in e sesionit, që humbte në çdo bisedë të re):
+  `bash teste/regresioni.sh > teste/regresioni-vNNN.txt` (rreth 30 min). Herën e parë: `(cd teste/npm && npm ci)` dhe
+  `(cd teste/wp && npm ci)`. Serveri `teste/server-cloudflare.py` (8765) i shton header-at e Cloudflare (CSP nga
+  `CSP_CLOUDFLARE` më lart); `teste/keq/` (8766) është faqja "e huaj" për testin e iframe-it. Testet e reja shkojnë
+  te `teste/` dhe te lista e `regresioni.sh`; dalja (`*.png`, `r5-*.txt`) është te `.gitignore`. Shtigjet janë
+  relative (`STOKU_DIR`, `__dirname/..`), Playwright nga `teste/pw.js`. Testet e Worker-it krijojnë çelësa prove vetë.
+- Server lokal (për prova të shpejta): `python3 -m http.server 8765` (ose port tjetër) brenda rrënjës së repo-s.
 - Mock i cloud-it: `page.addInitScript(() => { window.__stokuCloud = { authGati: true,
   perdoruesiAktual: () => ({...}), merr: async () => ({ok:true, gjendja:...}), bashkoDheRuaj: async fn =>
   {...}, degjo: () => () => {} }; localStorage.setItem('stoku:pronari-uid', 'u1');

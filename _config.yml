@@ -1,2 +1,4 @@
 # GitHub Pages (Jekyll): dosjet me "." në fillim s'publikohen pa këtë (security.txt, v237)
 include: [".well-known"]
+# v240: testet dhe shënimet e projektit janë vetëm për zhvillimin, jo për faqen
+exclude: ["teste", "CLAUDE.md", "SHENIME.md"]

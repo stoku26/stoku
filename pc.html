@@ -270,8 +270,6 @@
   #ekTabAnetaret .k-sas { width: 116px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
   #ekTabAnetaret td.k-gri { color: var(--gri); }
   #ekTabAnetaret th:nth-child(2) { width: 175px; }
-  #ekTabAnetaret .k-leja { width: 50px; text-align: center; }
-  #ekTabAnetaret .k-leja input { width: 18px; height: 18px; accent-color: var(--primar); cursor: pointer; }
   #ekStokTabela .k-sas { width: 110px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
   #ekStokTabela tbody tr { cursor: default; }
   :is(#ekTabela, #ekPultTabela) .k-av .btn + .btn { margin-left: 4px; }
@@ -904,7 +902,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=6">
-<link rel="stylesheet" href="css/stoku-pc.css?v=31">
+<link rel="stylesheet" href="css/stoku-pc.css?v=32">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -1346,7 +1344,7 @@
         </div>
         <div class="tabela-mbajtese">
           <table class="tabela" id="ekTabAnetaret">
-            <thead><tr><th>Kolegu</th><th>Statusi</th><th class="k-sas">Në raft</th><th class="k-sas">Të skaduara</th><th class="k-sas">Afër skadimit</th><th class="k-sas">Hequr (30 ditë)</th><th class="k-leja" id="ekKolLeja" title="Butonat +/- te lista (sasia e shpejtë)"></th><th class="k-av" id="ekKolVeprime"></th></tr></thead>
+            <thead><tr><th>Kolegu</th><th>Statusi</th><th class="k-sas">Në raft</th><th class="k-sas">Të skaduara</th><th class="k-sas">Afër skadimit</th><th class="k-sas">Hequr (30 ditë)</th><th class="k-av" id="ekKolVeprime"></th></tr></thead>
             <tbody id="ekAnetaretTrup"></tbody>
           </table>
         </div>
@@ -1942,15 +1940,15 @@
 <script src="bashkimi.js?v=233"></script>
 <script src="ruajtja.js?v=216"></script>
 <script src="skedaret.js?v=1"></script>
-<script src="lejet.js?v=2"></script>
+<script src="lejet.js?v=3"></script>
 <script src="afatet.js?v=238"></script>
-<script src="ekipa.js?v=238"></script>
-<script src="teRejat.js?v=239"></script>
-<script src="app-pc.js?v=238"></script>
+<script src="ekipa.js?v=240"></script>
+<script src="teRejat.js?v=240"></script>
+<script src="app-pc.js?v=240"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
 
 <!-- Firebase: i njëjti projekt dhe i njëjti dokument si versioni i telefonit -->
-<script type="module" src="firebase-pc.js?v=238"></script>
+<script type="module" src="firebase-pc.js?v=240"></script>
 </body>
 </html>

@@ -1,0 +1,95 @@
+const { chromium } = require('./pw.js');
+const {MOCK}=require('./zv-lib.js');
+const ok=(c,m)=>console.log(c?'OK ':'GABIM',m);
+const d=n=>{const x=new Date();x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)};
+const AF=[['Kos','Laberion'],['Qumësht','Laberion'],['Lëng','laberion '],['Ujë','Rugove'],['Bukë','Extra Fruit'],['Djathë','']].map(([e,f],i)=>({id:'a'+i,emri:e,barkodi:'39000'+i,data:d(10+i),sasia:2,furnizuesi:f,statusi:'aktiv',krijuarSe:1,ndryshuarSe:1}));
+const PR={'f1::39000':{barkodi:'39000',emri:'Kos',sasia:3,kategoriaId:'f1',prekurSe:500,furnizuesi:'Laberion'}};
+async function faqe(b,emri,opt,url){const ctx=await b.newContext({...opt,serviceWorkers:'block'});
+ await ctx.route(u=>!u.href.startsWith('http://127.0.0.1'),r=>r.abort());
+ await ctx.addInitScript(MOCK);
+ await ctx.addInitScript(([emri,AF,PR])=>{const c=window.__stokuCloud;c.perdoruesiAktual=()=>({uid:'u1',email:emri+'@stoku-app.local'});
+   if(sessionStorage.getItem('s'))return;sessionStorage.setItem('s','1');localStorage.setItem('stoku:porta:hyrja',JSON.stringify({uid:'u1',emri}));
+   localStorage.setItem('stoku:foldera:v1',JSON.stringify([{id:'f1',emri:'Ushqimore'}]));localStorage.setItem('stoku:produktet:v2',JSON.stringify(PR));localStorage.setItem('stoku:afatet:v1',JSON.stringify(AF));
+   // v238: furnizuesit pa hyrje presin kontrollin; këtu janë të kontrolluar më parë nga administratori (koha 1 = pa kohë ruajtjeje)
+   const kj={};['Laberion','laberion','Rugove','Extra Fruit'].forEach(e=>{kj['furnizuesi '+e]={e,f:'',k:1,s:1};});localStorage.setItem('stoku:kujtesa:v1',JSON.stringify(kj));localStorage.setItem('stoku:kujtesa:kontrolli-v238','1');},[emri,AF,PR]);
+ const p=await ctx.newPage();p.on('pageerror',e=>console.log('pageerror',e.message));p.on('dialog',x=>x.accept());
+ await p.goto('http://127.0.0.1:8765'+url);await p.waitForTimeout(1300);return {p,ctx};}
+const furnLS=p=>p.evaluate(()=>JSON.parse(localStorage.getItem('stoku:afatet:v1')).map(a=>a.furnizuesi).join('|'));
+(async()=>{const b=await chromium.launch();
+ const TEL={userAgent:'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36',viewport:{width:390,height:844},isMobile:true,hasTouch:true};
+ // TELEFONI, admin
+ let {p,ctx}=await faqe(b,'mendurberisha',TEL,'/');
+ await p.click('#btnOpsione');await p.waitForTimeout(300);
+ ok((await p.textContent('#tabListaTxt'))==='Stoku','tel: kategoria quhet "Stoku"');
+ await p.click('#tabLista');await p.waitForTimeout(300);
+ ok(await p.isVisible('#stFurnizuesit') && await p.isVisible('#stProduktet') && !(await p.isVisible('#furnLista')) && !(await p.isVisible('#kujtesaLista')),'v202 tel: te Stoku dalin rreshtat Furnizuesit/Produktet, jo listat',await p.textContent('#stokuHyrjet'));
+ ok(/4 furnizues/.test(await p.textContent('#stFurnizuesitStatus')),'v202 tel: numri i furnizuesve te rreshti',await p.textContent('#stFurnizuesitStatus'));
+ await p.screenshot({path:__dirname+'/furn-tel-stoku.png'});
+ await p.click('#stFurnizuesit');await p.waitForTimeout(300);
+ ok(await p.isVisible('#furnSeksion') && (await p.textContent('#opsioneTitulli'))==='Furnizuesit' && !(await p.isVisible('#rendiLista')),'tel admin: faqja Furnizuesit hapet më vete');
+ let rr=await p.$$eval('#furnLista .ops-furn-rresht',x=>x.map(e=>e.innerText.replace(/\n/g,' / ')));console.log('  lista:',JSON.stringify(rr));
+ ok(rr.length===4,'4 furnizues (Extra Fruit, Laberion, laberion, Rugove)');
+ await p.evaluate(()=>{const t=document.querySelector('.opsione-trup');t.scrollTop=t.scrollHeight});await p.screenshot({path:__dirname+'/furn-tel.png'});
+ // ndrysho "Rugove" → "Rugove Sh.p.k"
+ await p.click('#furnLista .ops-furn-rresht:has-text("Rugove")');await p.waitForTimeout(200);
+ await p.screenshot({path:__dirname+'/furn-tel-edit.png'});
+ await p.fill('#furnLista .ops-furn-edit input','Rugove Sh.p.k');await p.click('#furnLista .ops-furn-edit .btn:not(.ops-btn-dyte)');await p.waitForTimeout(400);
+ ok(/Rugove Sh\.p\.k/.test(await furnLS(p)) && !/\|Rugove\|/.test('|'+await furnLS(p)+'|'),'riemërtimi u ruajt: '+await furnLS(p));
+ console.log('  toast:',await p.textContent('#toast'));
+ // bashko: "laberion" (1 afat) → "Laberion" (ekziston) — të dy bëhen "Laberion"
+ await p.click('#furnLista .ops-furn-rresht:has-text("1 afat"):has-text("laberion")');
+ await p.waitForTimeout(200);
+ const emriNeEdit=await p.evaluate(()=>document.querySelector('#furnLista .ops-furn-edit .hint').textContent);console.log('  editoj:',emriNeEdit);
+ await p.fill('#furnLista .ops-furn-edit input','Laberion');await p.click('#furnLista .ops-furn-edit .btn:not(.ops-btn-dyte)');await p.waitForTimeout(400);
+ ok(await p.evaluate(()=>document.getElementById('dlgKonfirmo').classList.contains('hapur')),'pyet për bashkim: '+(await p.textContent('#konfTekst')));
+ await p.click('#konfPo');await p.waitForTimeout(400);
+ const pas=await furnLS(p);ok(pas.split('|').filter(x=>x==='Laberion').length===3 && !/laberion /.test(pas),'u bashkuan te "Laberion": '+pas);
+ rr=await p.$$eval('#furnLista .ops-furn-rresht',x=>x.map(e=>e.innerText.replace(/\n/g,' / ')));console.log('  lista pas:',JSON.stringify(rr));
+ ok(await p.evaluate(()=>JSON.parse(localStorage.getItem('stoku:produktet:v2'))['f1::39000'].furnizuesi==='Laberion'),'produkti mbeti me "Laberion"');
+ // afatet tregojnë emrin e ri
+ await p.click('#opsPrapa');await p.waitForTimeout(150);
+ ok(await p.isVisible('#stFurnizuesit') && (await p.textContent('#opsioneTitulli'))==='Stoku' && /3 furnizues/.test(await p.textContent('#stFurnizuesitStatus')),'v202 tel: "←" kthehet te Stoku (me numrin e ri)',await p.textContent('#stFurnizuesitStatus'));
+ await p.click('#opsPrapa');await p.click('#opsPrapa').catch(()=>{});await p.click('#btnAfatet');await p.waitForTimeout(400);
+ ok(/Rugove Sh\.p\.k/.test(await p.textContent('#afLista')),'te Afatet del emri i ri');
+ await ctx.close();
+ // TELEFONI, jo admin
+ ({p,ctx}=await faqe(b,'agim',TEL,'/'));await p.click('#btnOpsione');await p.waitForTimeout(300);
+ ok(await p.isVisible('#tabLista'),'tel jo-admin: e sheh Cilësimet → Stoku (v199)');
+ await p.click('#tabLista');await p.waitForTimeout(300);
+ ok(await p.isVisible('#rendiLista') && await p.isVisible('#stFurnizuesit') && await p.isVisible('#stProduktet'),'tel jo-admin: Renditja, Furnizuesit, Produktet duken');
+ await p.click('#stFurnizuesit');await p.waitForTimeout(300);
+ rr=await p.$$eval('#furnLista .ops-furn-rresht',x=>x.map(e=>e.tagName+' '+e.innerText.replace(/\n/g,' / ')));console.log('  jo-admin lista:',JSON.stringify(rr));
+ ok(rr.length===4 && rr.every(x=>x.startsWith('DIV')) && !(await p.$('#furnLista .ops-furn-laps')),'tel jo-admin: furnizuesit pa laps, vetëm për t\'u parë');
+ await p.click('#furnLista .ops-furn-rresht:has-text("Rugove")');await p.waitForTimeout(200);
+ ok(!(await p.$('#furnLista .ops-furn-edit')),'tel jo-admin: klikimi s\'hap editimin');
+ await p.click('#opsPrapa');await p.click('#stProduktet');await p.waitForTimeout(300);
+ ok(/vetëm administratori/.test(await p.textContent('#furnIntro')) && /vetëm administratori/.test(await p.textContent('#kujtesaIntro')),'tel jo-admin: teksti thotë që i ndryshon administratori');
+ await p.click('#opsPrapa');await p.waitForTimeout(200);
+ await p.click('#rendiLista [data-v="emri"]');await p.waitForTimeout(200);
+ ok(await p.evaluate(()=>document.getElementById('opsRendi').value==='emri'),'tel jo-admin: renditjen e ndryshon vetë');
+ await p.evaluate(()=>{const t=document.querySelector('.opsione-trup');t.scrollTop=t.scrollHeight});await p.screenshot({path:__dirname+'/furn-tel-joadmin.png'});
+ await ctx.close();
+ // PC, admin
+ ({p,ctx}=await faqe(b,'mendurberisha',{viewport:{width:1366,height:768}},'/pc.html'));
+ await p.click('#btnOpsione');await p.waitForTimeout(300);await p.click('#opsSkeda [data-faqe="stoku"]');await p.waitForTimeout(300);await p.click('#opsFurnSeksion .ops-palos');await p.click('#opsKujSeksion .ops-palos');
+ ok(await p.isVisible('#opsFurnSeksion'),'pc admin: seksioni duket');
+ rr=await p.$$eval('#opsFurnLista .ops-furn-rresht',x=>x.map(e=>e.innerText.replace(/\n/g,' / ')));console.log('  pc lista:',JSON.stringify(rr));
+ await p.screenshot({path:__dirname+'/furn-pc.png'});
+ await p.click('#opsFurnLista .ops-furn-rresht:has-text("Extra Fruit") button');await p.waitForTimeout(200);
+ await p.fill('#opsFurnLista .ops-furn-edit input','Extra Fruits');await p.keyboard.press('Enter');await p.waitForTimeout(400);
+ ok(/Extra Fruits/.test(await furnLS(p)),'pc riemërtimi: '+await furnLS(p));
+ ok(await p.isVisible('#dlgOpsione .ops-dlg'),'Cilësimet mbeten hapur pas Enter');
+ await p.click('#opsFurnLista .ops-furn-rresht:has-text("Extra Fruits") button');await p.fill('#opsFurnLista .ops-furn-edit input','x');await p.keyboard.press('Escape');await p.waitForTimeout(200);
+ ok(await p.isVisible('#dlgOpsione .ops-dlg') && !(await p.$('#opsFurnLista .ops-furn-edit')),'Escape anulon vetëm editimin');
+ await p.screenshot({path:__dirname+'/furn-pc-2.png'});
+ await ctx.close();
+ ({p,ctx}=await faqe(b,'agim',{viewport:{width:1366,height:768}},'/pc.html'));await p.click('#btnOpsione');await p.waitForTimeout(300);
+ ok(await p.isVisible('#opsSkeda [data-faqe="stoku"]'),'pc jo-admin: e sheh skedën Stoku (v199)');
+ await p.click('#opsSkeda [data-faqe="stoku"]');await p.waitForTimeout(300);await p.click('#opsFurnSeksion .ops-palos');await p.click('#opsKujSeksion .ops-palos');
+ ok(await p.isVisible('#opsRendi') && await p.isEnabled('#opsRendi') && await p.isVisible('#opsFurnSeksion') && await p.isVisible('#opsKujSeksion'),'pc jo-admin: Renditja, Furnizuesit, Produktet duken');
+ rr=await p.$$eval('#opsFurnLista .ops-furn-rresht',x=>x.map(e=>e.innerText.replace(/\n/g,' / ')));
+ ok(rr.length===4 && !(await p.$('#opsFurnLista button')) && !(await p.$('#opsKujLista button')),'pc jo-admin: pa butona ndryshimi',rr);
+ ok(/vetëm administratori/.test(await p.textContent('#opsFurnHint')) && /vetëm administratori/.test(await p.textContent('#opsKujHint')),'pc jo-admin: teksti thotë që i ndryshon administratori');
+ await p.screenshot({path:__dirname+'/furn-pc-joadmin.png'});
+ await ctx.close();
+ await b.close();})();

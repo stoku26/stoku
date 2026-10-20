@@ -5,6 +5,7 @@
  *   - Pa dokument: llogari e re, ende pa u kontrolluar: i ka KREJT lejet, derisa administratori ta kontrollojë.
  *   - Çelës që mungon (p.sh. një leje e shtuar më vonë): e lejuar.
  *   - Leja e një pjese (p.sh. "stoku") vlen edhe për veprimet brenda saj ("stokuFshi"...): pa pjesën, s'ka as veprime.
+ *     Prindi mund të ketë prind (v240: "stokuPlusMinus" → "stokuNdrysho" → "stoku"): kontrollohet krejt zinxhiri.
  * Rregullat (v230): dokumentin e shkruan vetëm administratori; secila llogari e lexon vetëm të vetin.
  * Administratori (mendurberisha) i ka gjithmonë krejt lejet; faqja "Përdoruesit" te Cilësimet është vetëm e tij.
  * Lejet i zbaton aplikacioni (fsheh pjesët dhe butonat që s'lejohen); përdoruesi s'mund t'i ndryshojë vetë.
@@ -20,7 +21,9 @@
     { grupi: 'Stoku', lejet: [
       { k: 'stoku', emri: 'Stoku', pershkrim: 'Sheh folderat dhe produktet.' },
       { k: 'stokuShto', emri: 'Shto produkte të reja', pershkrim: 'Një barkod që s\'është ende në folder.', prindi: 'stoku' },
-      { k: 'stokuNdrysho', emri: 'Ndrysho produktet', pershkrim: 'Sasia, emri, furnizuesi, butonat +/- dhe zhvendosja në folder tjetër.', prindi: 'stoku' },
+      { k: 'stokuNdrysho', emri: 'Ndrysho produktet', pershkrim: 'Sasia, emri, furnizuesi dhe zhvendosja në folder tjetër.', prindi: 'stoku' },
+      // v240: më parë leje e grupit (pronari, kolona "+/-"); tash si lejet e tjera, e lejuar për krejt llogaritë
+      { k: 'stokuPlusMinus', emri: 'Sasia e shpejtë (+/-)', pershkrim: 'Butonat + dhe - te lista e produkteve dhe numërimi kur skanon me kamerë një produkt që e ke.', prindi: 'stokuNdrysho' },
       { k: 'stokuFshi', emri: 'Fshi produkte dhe foldera', pershkrim: 'Edhe "Fshi krejt" brenda një folderi.', prindi: 'stoku' },
       { k: 'stokuFoldera', emri: 'Krijo dhe ndrysho folderat', pershkrim: '"Folder i ri", emri, ikona dhe renditja e folderave.', prindi: 'stoku' },
       { k: 'stokuImporto', emri: 'Importo stokun', pershkrim: 'Nga fotoja e një flete (me AI) ose nga Excel në kompjuter.', prindi: 'stoku' }
@@ -59,7 +62,7 @@
     if (!lejet || typeof lejet !== 'object') return true;
     if (lejet[k] === false) return false;
     var p = PRINDI[k];
-    return p ? lejet[p] !== false : true;
+    return p ? lejohet(lejet, p) : true;
   }
   // Vetëm çelësat e katalogut, gjithmonë bool (që mungon = e lejuar)
   function pastro(lejet) {

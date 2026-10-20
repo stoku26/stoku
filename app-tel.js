@@ -2750,24 +2750,13 @@
   window.addEventListener('stoku-auth-ndryshoi', function () { if (lejetG) lejetG.rinis(); zbatoLejetJashte(); });
   window.addEventListener('stoku-cloud-gati', function () { if (lejetG) lejetG.rinis(); zbatoLejetJashte(); });
 
-  // Veçori vetëm për llogari të caktuara (butona +/- shpejtë te lista). Lidhet me LLOGARINË (uid), jo me emrin:
-  // kur një llogari e ndryshon emrin, e mban lejen. Emrat më poshtë janë vetëm "farë" për herën e parë —
-  // sapo llogaria hyn me njërin prej tyre, leja ruhet te perdoruesit/{uid}.sasiaShpejte dhe këtu (KEY_LEJA_SASIA).
+  // Sasia e shpejtë (butonat +/- te lista, numërimi me kamerë). v240: leje si të tjerat (Cilësimet → Përdoruesit,
+  // "stokuPlusMinus"), e lejuar për krejt llogaritë, vizitorin dhe llogaritë e reja; më parë e jepte pronari i grupit.
   // Sasia: deri në 6 shifra (afatet.js); më e gjatë zakonisht është një barkod i skanuar në fushën e sasisë
   var SASIA_E_MADHE = window.StokuAfatet.SASIA_E_MADHE;
   function sasiaEPranueshme(t) { return window.StokuAfatet.sasiaEPranueshme(t); }
-  // Pronari i grupit (ose administratori) e dha/hoqi lejen: butonat +/- dalin/zhduken menjëherë te lista e hapur
-  window.addEventListener('stoku-leja-ndryshoi', function () { if (folderiAktual !== null) renderLista(); });
-  var SASIA_SHPEJTE_EMRAT = ['tonnyaliu']; // 'albidepo34' u hoq: emri u lirua pas ndërrimit, s'duhet t'i japë lejen një llogarie të re
-  var KEY_LEJA_SASIA = 'stoku:leja:sasia-shpejte';
-  function eLejuarSasiaShpejte() {
-    var u = perdoruesiAktual();
-    if (!u || !leja('stokuNdrysho')) return false;
-    var ruajtur = null;
-    try { ruajtur = localStorage.getItem(KEY_LEJA_SASIA); } catch (e) { /* ok */ }
-    if (ruajtur === '!' + u.uid) return false; // administratori ia hoqi lejen
-    return ruajtur === u.uid || SASIA_SHPEJTE_EMRAT.indexOf(emriPerdoruesitAktual().toLowerCase()) !== -1;
-  }
+  function eLejuarSasiaShpejte() { return leja('stokuNdrysho') && leja('stokuPlusMinus'); }
+  try { localStorage.removeItem('stoku:leja:sasia-shpejte'); } catch (e) { /* ok */ } // leja e vjetër (para v240)
 
   function rifreskoDukjenECloud() {
     var u = perdoruesiAktual(), viz = !u && ngaVizitori();
@@ -3015,7 +3004,7 @@
       frag.appendChild(i0);
     }
 
-    var lejaShpejt = eLejuarSasiaShpejte(); // një herë, jo për çdo rresht (lexim i localStorage)
+    var lejaShpejt = eLejuarSasiaShpejte(); // një herë, jo për çdo rresht
     var lejaNdrysho = leja('stokuNdrysho'); // v231: pa të, rreshti s'hapet (vetëm shihet)
     fil.slice(0, LIMIT_RENDER).forEach(function (p) {
       var rreshti = document.createElement('div');
@@ -5925,27 +5914,9 @@
     nj.appendChild(ta); nj.appendChild(bd);
     c.appendChild(nj);
     var tjeret = anetaret.filter(function (a) { return !a.uneJam; });
-    var hl = ekEl('div', 'af-grup-krye'); hl.appendChild(ekEl('span', null, 'Butonat +/- te lista (sasia e shpejtë)')); c.appendChild(hl);
-    if (!tjeret.length) c.appendChild(ekInfo('S\'ka kolegë të tjerë ende. Fto shokët më lart.'));
-    tjeret.forEach(function (a) {
-      var l = ekEl('label', 'artikull');
-      var m = ekEl('div', 'majtas');
-      m.appendChild(ekEl('div', 'emri', a.emri));
-      m.appendChild(ekEl('div', 'kodi ek-stat-nen', a.sasiaShpejte ? 'Lejohet' : 'S\'lejohet'));
-      l.appendChild(m);
-      var cb = ekEl('input'); cb.type = 'checkbox'; cb.checked = !!a.sasiaShpejte;
-      cb.addEventListener('change', async function () {
-        cb.disabled = true;
-        var r = await ekK.vendosLejen(a, cb.checked);
-        cb.disabled = false;
-        if (!r.ok) { cb.checked = !cb.checked; toast('S\'u ndryshua leja. Kontrollo internetin.', 4000); return; }
-        toast(a.emri + (cb.checked ? ' tani i ka' : ' s\'i ka më') + ' butonat +/-.', 4000);
-      });
-      l.appendChild(cb);
-      c.appendChild(l);
-    });
+    // v240: "Butonat +/-" s'janë më këtu: leje te Cilësimet → Përdoruesit (stokuPlusMinus)
     var hm = ekEl('div', 'af-grup-krye'); hm.appendChild(ekEl('span', null, 'Menaxho kolegët')); c.appendChild(hm);
-    if (!tjeret.length) c.appendChild(ekInfo('S\'ka kolegë të tjerë.'));
+    if (!tjeret.length) c.appendChild(ekInfo('S\'ka kolegë të tjerë ende. Fto shokët më lart.'));
     tjeret.forEach(function (a) {
       var r = ekEl('div', 'artikull ek-menaxho'); r.style.cursor = 'default';
       r.appendChild(ekAvatar(a, false));

@@ -10,7 +10,7 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v239';
+var CACHE = 'stoku-v240';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
 importScripts('./afatet.js?v=238', './njoftimet.js?v=216');
@@ -28,26 +28,26 @@ var SHELL = FAQET.concat([
   './bashkimi.js?v=233',
   './ruajtja.js?v=216',
   './skedaret.js?v=1',
-  './lejet.js?v=2',
+  './lejet.js?v=3',
   './afatet.js?v=238',
-  './ekipa.js?v=238',
+  './ekipa.js?v=240',
   './android.js?v=167',
   './porta.js?v=239',
   './njoftimet.js?v=216',
-  './teRejat.js?v=239',
+  './teRejat.js?v=240',
   // v238: skriptat e faqeve (më parë brenda HTML-së; CSP pa 'unsafe-inline')
   './kornize.js?v=238',
   './es2020.js?v=238',
   './fillimi-tel.js?v=239',
   './fillimi-pc.js?v=239',
-  './app-tel.js?v=238',
-  './app-pc.js?v=238',
-  './firebase-tel.js?v=238',
-  './firebase-pc.js?v=238',
+  './app-tel.js?v=240',
+  './app-pc.js?v=240',
+  './firebase-tel.js?v=240',
+  './firebase-pc.js?v=240',
   './manifest.webmanifest?v=87',
   './css/stoku-tokens.css?v=6',
   './css/stoku.css?v=39',
-  './css/stoku-pc.css?v=31',
+  './css/stoku-pc.css?v=32',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',
   './logo/stoku-logo.svg?v=3',

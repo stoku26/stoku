@@ -20,6 +20,16 @@
   'use strict';
 
   var LISTA = [
+    { v: 240, versioni: '1.31.0', data: '2026-10-21', titulli: 'Sasia e shpejtë për të gjithë', platforma: 'tel', pikat: [
+      'Butonat + dhe - te lista e produkteve tani i ka çdo llogari: sasinë e ndryshon me një prekje.',
+      'Kur skanon me kamerë një produkt që e ke, sasia i shtohet vetë (numërimi), pa hapur dritare.'
+    ] },
+    { v: 240, versioni: '1.31.0', data: '2026-10-21', titulli: 'Sasia e shpejtë për të gjithë', platforma: 'pc', pikat: [
+      'Butonat + dhe - te tabela e produkteve tani i ka çdo llogari: sasinë e ndryshon me një klikim.'
+    ] },
+    { v: 240, versioni: '1.31.0', data: '2026-10-21', titulli: 'Leja e sasisë së shpejtë', vetemAdmini: true, pikat: [
+      'Butonat +/- s\'janë më te Grupi: leja "Sasia e shpejtë (+/-)" është te Cilësimet → Përdoruesit, te lejet e Stoku-t, dhe është e ndezur për krejt llogaritë, edhe për ato të reja.'
+    ] },
     { v: 239, versioni: '1.30.1', data: '2026-10-21', titulli: 'Më shumë siguri', pikat: [
       'stoku.site tash kalon përmes Cloudflare: lidhja është gjithmonë e enkriptuar dhe faqja mbrohet më mirë nga sulmet.',
       'Rregullime të vogla sigurie te ekrani i hyrjes.'

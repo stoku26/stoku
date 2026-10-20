@@ -1,0 +1,10 @@
+# Dalja e testeve (pamjet, skedarët e shkarkuar, rezultatet) dhe libraritë (npm ci)
+node_modules/
+wp/worker.mjs
+*.png
+!foto-prove.png
+*.pdf
+*.xlsx
+!afatet-test.xlsx
+*.csv
+*.txt
