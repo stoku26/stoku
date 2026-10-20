@@ -52,6 +52,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ORA: PA "PAMJA", "KËRKO" SI BUTON, PA "8 DERI 30 DITË" (vetëm aplikacioni i orës, pa version të web-it)**: pronari
+   (pas v238, me foto nga ora): (1) Cilësimet → "Pamja" (ngjyra kryesore) u hoq krejt: ngjyrat duhet të ndjekin datën e afatit;
+   `Tema.theks` = gjithmonë e verdha e Stoku-t, `Tema.ngarko` fshin zgjedhjen e vjetër (`stoku-pamja`); u hoqën `Pamja.Ngjyrat`,
+   `PamjaEkrani`, `RrethiNgjyres`, `NGJYRAT`. (2) "Kërko" s'është më chip: `ButoniKerko` (thjerrëza `IkonaKerko`) në rreshtin e
+   poshtëm, mes `ButoniRifresko` dhe `ButoniCilesimet`. (3) "8 deri 30 ditë" u hoq (dalin lart te lista kryesore); mbetet vetëm
+   "Mbi 30 ditë" (`Pamja.Grupi("gjelber")`). Pa ndryshim te Worker-i dhe web-i. Pa testim në orë të vërtetë.
+
 0000000. **KONTROLLI PËR ÇDO PRODUKT/FURNIZUES, CSP E PLOTË, LOGOJA, PDA, ORA (v238 = 1.30.0, Worker 166)**: kërkesat e pronarit:
    (1) "te Cilësimet > Stoku më janë shtuar furnizues e produkte pa dalë për kontroll... çdo import (foto e fletës, skedar, skanim,
    shkrim me dorë) të dalë për kontroll"; (2) raporti i tretë i sigurisë (UpGuard): "CSP implemented unsafely"; (3) logoja në PC:

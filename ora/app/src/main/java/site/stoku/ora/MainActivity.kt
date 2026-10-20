@@ -165,12 +165,11 @@ sealed class Pamja {
     data class Detaji(val a: Afat, val sot: Boolean, val skaduar: Boolean = false, val nga: Pamja? = null) : Pamja()
     data class HiqKrejt(val l: List<Afat>) : Pamja()
     object Cilesimet : Pamja()
-    object Ngjyrat : Pamja()
     // nga: ekrani i produktit nga erdhi (mbrapa kthehet aty, me të njëjtën gjendje: "Skadon sot", "Skadoi më …")
     data class Kolegu(val a: Afat, val nga: Detaji? = null) : Pamja()
     data class Hequr(val a: Afat) : Pamja()
     data class Derguar(val tekst: String) : Pamja()
-    // v238: "muaj" = 8 deri 30 ditë, "gjelber" = mbi 30 ditë
+    // v238: "gjelber" = mbi 30 ditë ("muaj", 8 deri 30 ditë, u hoq: dalin lart te lista kryesore)
     data class Grupi(val lloji: String) : Pamja()
     object Kerko : Pamja()
 }
@@ -227,7 +226,6 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
     BackHandler(enabled = pamja !is Pamja.Lista) {
         val p0 = pamja
         pamja = when (p0) {
-            is Pamja.Ngjyrat -> Pamja.Cilesimet
             is Pamja.Kolegu -> p0.nga ?: Pamja.Lista
             is Pamja.Detaji -> p0.nga ?: Pamja.Lista
             else -> Pamja.Lista
@@ -303,10 +301,8 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
             iRiFillim = iRi,
             kurGjendetIRi = { iRi = it },
             kurShkeputet = kurShkeputet,
-            kurPamja = { pamja = Pamja.Ngjyrat },
             mbrapa = { pamja = Pamja.Lista },
         )
-        Pamja.Ngjyrat -> PamjaEkrani(mbrapa = { pamja = Pamja.Cilesimet })
         is Pamja.Kolegu -> ZgjedhKolegun(
             a = p.a,
             kurDergohet = { tekst -> pamja = Pamja.Derguar(tekst) },
@@ -399,18 +395,18 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                             RreshtiAfatit(a, dataShkurt(a.data) + (a.sasia?.let { " · $it copë" } ?: ""), AfatAfer) { pamja = Pamja.Detaji(a, false) }
                         }
                     }
-                    // v238: produktet e tjera (jo në faqen kryesore) dhe kërkimi
+                    // v238: produktet me afat mbi 30 ditë (jo në faqen kryesore); kërkimi është butoni poshtë
                     if (l != null) {
-                        item { ChipGrupi("8 deri 30 ditë", "Skadojnë brenda muajit", AfatAfer) { pamja = Pamja.Grupi("muaj") } }
                         item { ChipGrupi("Mbi 30 ditë", "Afat i gjatë", Gjelber) { pamja = Pamja.Grupi("gjelber") } }
-                        item { ChipGrupi("Kërko", "Produkti, furnizuesi ose barkodi", Gri) { pamja = Pamja.Kerko } }
                     }
                     gabim?.let { g -> item { Text(g, fontSize = 11.sp, color = Kuqe, textAlign = TextAlign.Center, modifier = Modifier.padding(6.dp)) } }
-                    // Poshtë: rifresko (majtas) dhe Cilësimet (djathtas)
+                    // Poshtë: rifresko (majtas), kërko (mes) dhe Cilësimet (djathtas)
                     item {
                         Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
                             ButoniRifresko(duke = duke) { scope.launch { ngarko() } }
-                            Spacer(Modifier.size(12.dp))
+                            Spacer(Modifier.size(10.dp))
+                            ButoniKerko { pamja = Pamja.Kerko }
+                            Spacer(Modifier.size(10.dp))
                             ButoniCilesimet(kaTeRe = iRi != null) { pamja = Pamja.Cilesimet }
                         }
                     }
@@ -697,7 +693,7 @@ fun HiqKrejt(n: Int, kurPo: () -> Unit, mbrapa: () -> Unit) {
 
 // Cilësimet e orës: versioni, përditësimi direkt nga ora, llogaria e lidhur, shkëputja
 @Composable
-fun Cilesimet(emri: String, iRiFillim: Pair<Int, String>?, kurGjendetIRi: (Pair<Int, String>?) -> Unit, kurShkeputet: () -> Unit, kurPamja: () -> Unit, mbrapa: () -> Unit) {
+fun Cilesimet(emri: String, iRiFillim: Pair<Int, String>?, kurGjendetIRi: (Pair<Int, String>?) -> Unit, kurShkeputet: () -> Unit, mbrapa: () -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val versioni = remember { try { ctx.packageManager.getPackageInfo(ctx.packageName, 0).longVersionCode.toInt() } catch (e: Exception) { 0 } }
@@ -709,16 +705,6 @@ fun Cilesimet(emri: String, iRiFillim: Pair<Int, String>?, kurGjendetIRi: (Pair<
     Scaffold(positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
         ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
             item { Koka("Cilësimet") }
-            item {
-                Chip(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = kurPamja,
-                    label = { Text("Pamja", fontWeight = FontWeight.Bold) },
-                    secondaryLabel = { Text("Ngjyra: " + Tema.NGJYRAT[Tema.zgjedhur].emri, color = Gri, maxLines = 1) },
-                    icon = { RrethiNgjyres(Verdhe, false) },
-                    colors = ChipDefaults.secondaryChipColors(),
-                )
-            }
             item {
                 val v = iRi
                 Chip(
@@ -766,26 +752,3 @@ fun Koka(titulli: String) {
     Text(titulli, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = Color.White, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp))
 }
 
-// Cilësimet → Pamja: ngjyra kryesore e aplikacionit në orë
-@Composable
-fun PamjaEkrani(mbrapa: () -> Unit) {
-    val ctx = LocalContext.current
-    val gjendja = rememberScalingLazyListState()
-    Scaffold(positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
-        ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
-            item { Koka("Pamja") }
-            item { Text("Ngjyra kryesore", fontSize = 12.sp, color = Gri, textAlign = TextAlign.Center) }
-            items(Tema.NGJYRAT.size) { i ->
-                val n = Tema.NGJYRAT[i]
-                val po = Tema.zgjedhur == i
-                Chip(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = { Tema.ruaj(ctx, i) },
-                    label = { Text(if (po) n.emri + "  ✓" else n.emri, fontWeight = if (po) FontWeight.Bold else FontWeight.Normal) },
-                    icon = { RrethiNgjyres(n.c, po) },
-                    colors = ChipDefaults.secondaryChipColors(),
-                )
-            }
-        }
-    }
-}
