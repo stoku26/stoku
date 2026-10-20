@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: blob: https://*.googleapis.com https://*.mendurb.workers.dev https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://www.gstatic.com; frame-src https://stoku-appi.firebaseapp.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Privatësia • Stoku</title>
 <meta name="description" content="Çka ruan Stoku, ku ruhet, kush ka qasje dhe si fshihen të dhënat.">
@@ -12,15 +12,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
 <!-- v237: politika e privatësisë (GDPR / Ligji i Kosovës për mbrojtjen e të dhënave personale). Përditësoje kur Stoku
      fillon të ruajë diçka të re ose përdor një shërbim të ri. Adresat absolute, si te 404.html. -->
-<script>
-  // Tema si te aplikacioni: zgjedhja e përdoruesit (Cilësimet → Tema), përndryshe ajo e sistemit
-  (function () {
-    var t = null;
-    try { t = localStorage.getItem('stoku:tema'); } catch (e) { /* ok */ }
-    if (t !== 'dark' && t !== 'light') t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-tema', t);
-  })();
-</script>
+<script src="/tema.js?v=238"></script>
 <style>
   @font-face { font-family: 'Onest'; src: url('/fonts/onest.woff2') format('woff2'); font-weight: 400 800; font-style: normal; font-display: swap; }
   :root { --bg: #f6f5f2; --surface: #ffffff; --line: #e6e4df; --ink: #14161b; --muted: #6b6e76; --accent: #1f5fc4; color-scheme: light; }

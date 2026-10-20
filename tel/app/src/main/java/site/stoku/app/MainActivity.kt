@@ -38,6 +38,19 @@ class MainActivity : Activity() {
     // e vjetër fshihet, që "Mbrapa" te faqja kryesore ta mbyllë aplikacionin e jo të kthejë te faqja pa internet
     private var pastroHistorine = false
     private var gabimNeNgarkim = false
+
+    // v238 (PDA, "Fshih tastierën" te Stoku): dritarja s'e hap vetë tastierën në ekran, dhe faqja e mbyll sa herë që preket
+    // një fushë (inputmode="none" s'mjafton te disa WebView/Zebra). Tastiera fizike dhe skaneri punojnë si zakonisht.
+    fun vendosTastierenFshehur(po: Boolean) {
+        val adjust = window.attributes.softInputMode and android.view.WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST
+        window.setSoftInputMode(adjust or (if (po) android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN else android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED))
+        if (po) fshihTastieren()
+    }
+    fun fshihTastieren() {
+        if (!::web.isInitialized) return
+        try { androidx.core.view.WindowCompat.getInsetsController(window, web).hide(androidx.core.view.WindowInsetsCompat.Type.ime()) } catch (e: Exception) { /* ok */ }
+        try { (getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager).hideSoftInputFromWindow(web.windowToken, 0) } catch (e: Exception) { /* ok */ }
+    }
     // Procesi i faqes ra: kjo WebView s'përdoret më (vetëm hiqet), aktiviteti rikrijohet me një të re
     private var webRa = false
 

@@ -20,6 +20,13 @@
   'use strict';
 
   var LISTA = [
+    { v: 238, versioni: '1.30.0', data: '2026-10-20', titulli: 'Kontrolli, logoja, PDA dhe ora', pikat: [
+      'Çdo produkt dhe furnizues i ri (nga fotografimi i fletës, importi, skanimi, shkrimi me dorë ose afatet e kolegëve) pret kontrollin e administratorit te Cilësimet → Stoku, para se të kalojë te Produktet dhe Furnizuesit.',
+      'Prek logon e Stoku-t: sinkronizon me cloud-in dhe rifreskon faqen. Hapësira bosh anash logos s\'bën më asgjë.',
+      'PDA: kur "Fshih tastierën" është aktiv, tastiera në ekran s\'del askund. Shkruhet vetëm me tastierën e PDA-së dhe me skanerin.',
+      'Ora e dorës: në fund të listës ke "8 deri 30 ditë", "Mbi 30 ditë" dhe "Kërko" (sipas produktit, furnizuesit ose barkodit).',
+      'Mbrojtje më e fortë: faqja ekzekuton vetëm kodin e Stoku-t dhe të shërbimeve të lejuara.'
+    ] },
     { v: 237, versioni: '1.29.4', data: '2026-10-20', titulli: 'Privatësia', pikat: [
       'Faqja e re "Privatësia" tregon çka ruan Stoku, ku ruhet, kush e sheh dhe si i fshin të dhënat e tua. E gjen te Cilësimet dhe poshtë ekranit të hyrjes.',
       'Stoku s\'përdor cookies, reklama ose gjurmim.'

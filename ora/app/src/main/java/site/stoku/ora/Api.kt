@@ -14,7 +14,10 @@ import java.net.URLEncoder
 import java.security.SecureRandom
 import java.util.TimeZone
 
-data class Afat(val id: String, val emri: String, val barkodi: String, val data: String, val sasia: Int?)
+data class Afat(val id: String, val emri: String, val barkodi: String, val data: String, val sasia: Int?, val furnizuesi: String = "")
+
+// v238: krejt afatet aktive (GET /ora/krejt): d7/d30 = data e sotme + 7 / + 30 ditë (krahasime teksti, si te serveri)
+data class Krejt(val dita: String, val d7: String, val d30: String, val krejt: List<Afat>)
 
 data class Lista(
     val dita: String,
@@ -130,12 +133,29 @@ object Api {
     // Lista e ndryshuar këtu (heqje nga rafti): ruhet si kopja e fundit, që tile-i dhe komplikacioni ta shohin edhe pa internet
     fun ruajListen(ctx: Context, l: Lista) {
         fun arr(a: List<Afat>) = JSONArray().also { j ->
-            a.forEach { x -> j.put(JSONObject().put("i", x.id).put("e", x.emri).put("b", x.barkodi).put("d", x.data).also { o -> x.sasia?.let { o.put("s", it) } }) }
+            a.forEach { x -> j.put(JSONObject().put("i", x.id).put("e", x.emri).put("b", x.barkodi).put("d", x.data).also { o -> x.sasia?.let { o.put("s", it) }; if (x.furnizuesi.isNotBlank()) o.put("f", x.furnizuesi) }) }
         }
         val j = JSONObject().put("ok", true).put("dita", l.dita).put("sot", arr(l.sot)).put("java", arr(l.java)).put("javaN", l.javaN)
             .put("skaduara", l.skaduara).put("skaduaraL", arr(l.skaduaraL)).put("ekipa", l.ekipa).put("emri", l.emri)
         prefs(ctx).edit().putString("lista", j.toString()).apply()
     }
+
+    // v238: krejt produktet (butonat "8 deri 30 ditë", "Mbi 30 ditë" dhe kërkimi); kopja e fundit ruhet për pa internet
+    suspend fun merrKrejt(ctx: Context): Krejt = withContext(Dispatchers.IO) {
+        val tz = URLEncoder.encode(TimeZone.getDefault().id, "UTF-8")
+        val (st, j) = thirr("GET", "/ora/krejt?tz=$tz", null, sekreti(ctx))
+        if (st == 401) {
+            prefs(ctx).edit().putBoolean("lidhur", false).remove("lista").remove("krejt").apply()
+            throw PaLidhje()
+        }
+        if (st != 200 || !j.optBoolean("ok")) throw Exception("serveri-$st")
+        prefs(ctx).edit().putString("krejt", j.toString()).apply()
+        lexoKrejt(j)
+    }
+    fun krejtERuajtur(ctx: Context): Krejt? = try {
+        prefs(ctx).getString("krejt", null)?.let { lexoKrejt(JSONObject(it)) }
+    } catch (e: Exception) { null }
+    private fun lexoKrejt(j: JSONObject) = Krejt(dita = j.optString("dita"), d7 = j.optString("d7"), d30 = j.optString("d30"), krejt = afatet(j.optJSONArray("krejt")))
 
     // Lista e fundit e ruajtur (për tile-in dhe komplikacionin kur s'ka internet)
     fun listaERuajtur(ctx: Context): Lista? = try {
@@ -208,6 +228,7 @@ object Api {
                 barkodi = o.optString("b"),
                 data = o.optString("d"),
                 sasia = if (o.has("s")) o.optInt("s") else null,
+                furnizuesi = o.optString("f"),
             )
         }
     }

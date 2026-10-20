@@ -179,3 +179,8 @@
 .krk-tk span { font-size: 12px; color: var(--sb-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .krk-bosh { padding: 20px 14px; text-align: center; font-size: 13.5px; color: var(--sb-muted); }
 .ek-nj-produktet { margin: 6px 0 0; padding-left: 18px; font-size: 13px; font-weight: 400; line-height: 1.5; color: var(--sb-ink-2); }
+
+/* v238: logoja (vetëm ajo) rifreskon dhe sinkronizon */
+#logoButon { cursor: pointer; transition: opacity .2s; }
+#logoButon:focus-visible { outline: 2px solid var(--accent, #1f5fc4); outline-offset: 2px; }
+#logoButon.duke-rifreskuar { opacity: .55; pointer-events: none; }

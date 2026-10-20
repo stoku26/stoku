@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,9 +29,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -153,7 +161,8 @@ fun Logo() {
 // Ekranet brenda listës
 sealed class Pamja {
     object Lista : Pamja()
-    data class Detaji(val a: Afat, val sot: Boolean, val skaduar: Boolean = false) : Pamja()
+    // nga (v238): ekrani nga erdhi ("Mbi 30 ditë", kërkimi); mbrapa kthehet aty
+    data class Detaji(val a: Afat, val sot: Boolean, val skaduar: Boolean = false, val nga: Pamja? = null) : Pamja()
     data class HiqKrejt(val l: List<Afat>) : Pamja()
     object Cilesimet : Pamja()
     object Ngjyrat : Pamja()
@@ -161,6 +170,9 @@ sealed class Pamja {
     data class Kolegu(val a: Afat, val nga: Detaji? = null) : Pamja()
     data class Hequr(val a: Afat) : Pamja()
     data class Derguar(val tekst: String) : Pamja()
+    // v238: "muaj" = 8 deri 30 ditë, "gjelber" = mbi 30 ditë
+    data class Grupi(val lloji: String) : Pamja()
+    object Kerko : Pamja()
 }
 
 @Composable
@@ -190,6 +202,24 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
     }
     var iRi by remember { mutableStateOf<Pair<Int, String>?>(null) }
     var dukePerditesuar by remember { mutableStateOf(false) }
+    // v238: krejt produktet (8 deri 30 ditë, mbi 30 ditë, kërkimi); ngarkohen kur hapet njëri nga këto ekrane
+    var krejt by remember { mutableStateOf(Api.krejtERuajtur(ctx)) }
+    var dukeKrejt by remember { mutableStateOf(false) }
+    var gabimKrejt by remember { mutableStateOf<String?>(null) }
+    var kerkimi by remember { mutableStateOf("") }
+    suspend fun ngarkoKrejt() {
+        dukeKrejt = true
+        try {
+            krejt = Api.merrKrejt(ctx); gabimKrejt = null
+        } catch (e: PaLidhje) {
+            kurShkeputet(); return
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            gabimKrejt = if (e.message == "serveri-404") "Serveri ka kodin e vjetër: përditësoje te Cloudflare." else "S'ka lidhje me serverin. Lista mund të jetë e vjetër."
+        }
+        dukeKrejt = false
+    }
     LaunchedEffect(Rikthimi.n) { ngarko() }
     LaunchedEffect(Unit) { iRi = Perditesimi.kontrollo(ctx) }
     // Heqjet në rrugë (sipas id-së): "Zhbëj" pret që heqja të mbarojë, që të dy kërkesat të mos garojnë te serveri
@@ -199,6 +229,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
         pamja = when (p0) {
             is Pamja.Ngjyrat -> Pamja.Cilesimet
             is Pamja.Kolegu -> p0.nga ?: Pamja.Lista
+            is Pamja.Detaji -> p0.nga ?: Pamja.Lista
             else -> Pamja.Lista
         }
     }
@@ -216,6 +247,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                     javaN = if (l.java.any { it.id == a.id }) (l.javaN - 1).coerceAtLeast(0) else l.javaN,
                     skaduara = if (l.skaduaraL.any { it.id == a.id }) (l.skaduara - 1).coerceAtLeast(0) else l.skaduara) }
                 lista?.let { Api.ruajListen(ctx, it) }
+                krejt = krejt?.let { k -> k.copy(krejt = k.krejt.filter { it.id != a.id }) }
                 val pune = scope.launch {
                     try { Api.hiq(ctx, a.id) } catch (e: PaLidhje) { kurShkeputet() } catch (e: CancellationException) { throw e } catch (e: Exception) { gabim = "Heqja s'u ruajt. Provo prapë." }
                     Api.rifreskoTileDheKomplikacionin(ctx, ndryshoi = true)
@@ -224,8 +256,32 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                 pune.invokeOnCompletion { if (heqjet[a.id] === pune) heqjet.remove(a.id) }
             },
             kurKerkon = { pamja = Pamja.Kolegu(p.a, p) },
-            mbrapa = { pamja = Pamja.Lista },
+            mbrapa = { pamja = p.nga ?: Pamja.Lista },
         )
+        is Pamja.Grupi -> {
+            LaunchedEffect(p.lloji) { ngarkoKrejt() }
+            val gjelber = p.lloji == "gjelber"
+            val k = krejt
+            ListaEGrupit(
+                titulli = if (gjelber) "MBI 30 DITË" else "8 DERI 30 DITË",
+                ngjyra = if (gjelber) Gjelber else AfatAfer,
+                lista = k?.let { kk -> if (gjelber) kk.krejt.filter { it.data > kk.d30 } else kk.krejt.filter { it.data > kk.d7 && it.data <= kk.d30 } },
+                duke = dukeKrejt,
+                gabim = gabimKrejt,
+                kurPreket = { a -> pamja = Pamja.Detaji(a, false, false, p) },
+            )
+        }
+        Pamja.Kerko -> {
+            LaunchedEffect(Unit) { ngarkoKrejt() }
+            KerkoEkrani(
+                krejt = krejt,
+                duke = dukeKrejt,
+                gabim = gabimKrejt,
+                pyetja = kerkimi,
+                kurNdryshon = { kerkimi = it },
+                kurPreket = { a, sot, skaduar -> pamja = Pamja.Detaji(a, sot, skaduar, Pamja.Kerko) },
+            )
+        }
         is Pamja.HiqKrejt -> HiqKrejt(
             n = p.l.size,
             kurPo = {
@@ -343,6 +399,12 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                             RreshtiAfatit(a, dataShkurt(a.data) + (a.sasia?.let { " · $it copë" } ?: ""), AfatAfer) { pamja = Pamja.Detaji(a, false) }
                         }
                     }
+                    // v238: produktet e tjera (jo në faqen kryesore) dhe kërkimi
+                    if (l != null) {
+                        item { ChipGrupi("8 deri 30 ditë", "Skadojnë brenda muajit", AfatAfer) { pamja = Pamja.Grupi("muaj") } }
+                        item { ChipGrupi("Mbi 30 ditë", "Afat i gjatë", Gjelber) { pamja = Pamja.Grupi("gjelber") } }
+                        item { ChipGrupi("Kërko", "Produkti, furnizuesi ose barkodi", Gri) { pamja = Pamja.Kerko } }
+                    }
                     gabim?.let { g -> item { Text(g, fontSize = 11.sp, color = Kuqe, textAlign = TextAlign.Center, modifier = Modifier.padding(6.dp)) } }
                     // Poshtë: rifresko (majtas) dhe Cilësimet (djathtas)
                     item {
@@ -362,20 +424,112 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
 @Composable
 fun RreshtiAfatit(a: Afat, poshte: String, ngjyra: Color, kurPreket: () -> Unit) {
     val kuq = ngjyra == Kuqe
+    val gjelber = ngjyra == Gjelber // v238: produktet me afat mbi 30 ditë
+    val dyte = if (kuq) Color(0xFFFFA39B) else if (gjelber) Color(0xFF9BE7B9) else Color(0xFFFFD36B)
     Chip(
         modifier = Modifier.fillMaxWidth(),
         onClick = kurPreket,
         label = { Text(a.emri, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Bold, color = Color.White) },
-        secondaryLabel = { Text(poshte, maxLines = 1, color = if (kuq) Color(0xFFFFA39B) else Color(0xFFFFD36B)) },
+        secondaryLabel = { Text(poshte, maxLines = 1, color = dyte) },
         icon = { Box(Modifier.size(10.dp).background(ngjyra, CircleShape)) },
         colors = ChipDefaults.chipColors(
-            backgroundColor = if (kuq) Color(0xFF3A1513) else Color(0xFF33280A),
+            backgroundColor = if (kuq) Color(0xFF3A1513) else if (gjelber) Color(0xFF0E2A1A) else Color(0xFF33280A),
             contentColor = Color.White,
-            secondaryContentColor = if (kuq) Color(0xFFFFA39B) else Color(0xFFFFD36B),
+            secondaryContentColor = dyte,
             iconColor = ngjyra,
         ),
         border = ChipDefaults.chipBorder(borderStroke = BorderStroke(1.dp, ngjyra.copy(alpha = 0.45f))),
     )
+}
+
+// v238: butoni në fund të listës kryesore (8 deri 30 ditë, mbi 30 ditë, kërkimi)
+@Composable
+fun ChipGrupi(titulli: String, nen: String, ngjyra: Color, kurPreket: () -> Unit) {
+    Chip(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = kurPreket,
+        label = { Text(titulli, fontWeight = FontWeight.Bold, color = Color.White) },
+        secondaryLabel = { Text(nen, maxLines = 1, color = Gri) },
+        icon = { Box(Modifier.size(10.dp).background(ngjyra, CircleShape)) },
+        colors = ChipDefaults.chipColors(backgroundColor = Kartela, contentColor = Color.White, secondaryContentColor = Gri, iconColor = ngjyra),
+        border = ChipDefaults.chipBorder(borderStroke = BorderStroke(1.dp, ngjyra.copy(alpha = 0.45f))),
+    )
+}
+
+fun poshteMeFurnizues(a: Afat): String =
+    dataShkurt(a.data) + (a.sasia?.let { " · $it copë" } ?: "") + (if (a.furnizuesi.isNotBlank()) " · " + a.furnizuesi else "")
+
+// Kërkimi pa dallim shkronjash dhe pa shenja (ë = e, ç = c)
+fun normalizo(s: String): String =
+    java.text.Normalizer.normalize(s.lowercase(), java.text.Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "").trim()
+
+// v238: lista e një grupi (8 deri 30 ditë ose mbi 30 ditë)
+@Composable
+fun ListaEGrupit(titulli: String, ngjyra: Color, lista: List<Afat>?, duke: Boolean, gabim: String?, kurPreket: (Afat) -> Unit) {
+    val gjendja = rememberScalingLazyListState()
+    Scaffold(timeText = { TimeText() }, positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
+        ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
+            item { ListHeader { Text(titulli + (lista?.let { " · ${it.size}" } ?: ""), color = ngjyra, fontWeight = FontWeight.Bold) } }
+            if (lista == null && duke) item { CircularProgressIndicator(indicatorColor = ngjyra) }
+            if (lista != null && lista.isEmpty()) item {
+                Text("Asnjë produkt këtu.", textAlign = TextAlign.Center, color = Color.White, modifier = Modifier.padding(8.dp))
+            }
+            if (lista != null) {
+                val ck = celesaUnike("g", lista)
+                items(lista.size, key = { ck[it] }) { i ->
+                    val a = lista[i]
+                    RreshtiAfatit(a, poshteMeFurnizues(a), ngjyra) { kurPreket(a) }
+                }
+            }
+            gabim?.let { g -> item { Text(g, fontSize = 11.sp, color = Kuqe, textAlign = TextAlign.Center, modifier = Modifier.padding(6.dp)) } }
+        }
+    }
+}
+
+// v238: kërkimi sipas emrit të produktit, furnizuesit ose barkodit (në krejt produktet)
+@Composable
+fun KerkoEkrani(krejt: Krejt?, duke: Boolean, gabim: String?, pyetja: String, kurNdryshon: (String) -> Unit, kurPreket: (Afat, Boolean, Boolean) -> Unit) {
+    val gjendja = rememberScalingLazyListState()
+    val fokusi = remember { FocusRequester() }
+    LaunchedEffect(Unit) { if (pyetja.isEmpty()) { delay(300); try { fokusi.requestFocus() } catch (e: Exception) { } } }
+    val q = normalizo(pyetja)
+    val pa = pyetja.trim()
+    val rezultatet = if (krejt == null || q.isEmpty()) emptyList()
+        else krejt.krejt.filter { a -> normalizo(a.emri).contains(q) || normalizo(a.furnizuesi).contains(q) || (pa.isNotEmpty() && a.barkodi.contains(pa)) }
+    Scaffold(timeText = { TimeText() }, positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
+        ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
+            item { ListHeader { Text("KËRKO", color = Gri, fontWeight = FontWeight.SemiBold) } }
+            item {
+                Box(Modifier.fillMaxWidth().background(Kartela, RoundedCornerShape(20.dp)).padding(horizontal = 14.dp, vertical = 10.dp)) {
+                    if (pyetja.isEmpty()) Text("Produkti, furnizuesi ose barkodi", color = Gri, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    BasicTextField(
+                        value = pyetja,
+                        onValueChange = kurNdryshon,
+                        singleLine = true,
+                        textStyle = TextStyle(color = Color.White, fontSize = 15.sp),
+                        cursorBrush = SolidColor(Verdhe),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                        modifier = Modifier.fillMaxWidth().focusRequester(fokusi),
+                    )
+                }
+            }
+            if (krejt == null && duke) item { CircularProgressIndicator(indicatorColor = Verdhe) }
+            if (q.isNotEmpty() && krejt != null) item {
+                Text(if (rezultatet.isEmpty()) "Asnjë produkt me këtë kërkim." else if (rezultatet.size == 1) "1 produkt" else "${rezultatet.size} produkte",
+                    fontSize = 11.sp, color = Gri, textAlign = TextAlign.Center, modifier = Modifier.padding(4.dp))
+            }
+            val l = rezultatet.take(80)
+            val ck = celesaUnike("r", l)
+            items(l.size, key = { ck[it] }) { i ->
+                val a = l[i]
+                val skaduar = krejt != null && a.data < krejt.dita
+                val sot = krejt != null && a.data == krejt.dita
+                val ngjyra = if (skaduar) Kuqe else if (krejt != null && a.data > krejt.d30) Gjelber else AfatAfer
+                RreshtiAfatit(a, (if (skaduar) "Skadoi " else "") + poshteMeFurnizues(a), ngjyra) { kurPreket(a, sot, skaduar) }
+            }
+            gabim?.let { g -> item { Text(g, fontSize = 11.sp, color = Kuqe, textAlign = TextAlign.Center, modifier = Modifier.padding(6.dp)) } }
+        }
+    }
 }
 
 // Produkti i zgjedhur: "U hoq nga rafti" ose "Kërko heqje nga grupi"

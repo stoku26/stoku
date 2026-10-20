@@ -52,4 +52,8 @@ class Ura(private val a: MainActivity) {
     }
 
     @JavascriptInterface fun kontrolloPerditesimin() { a.runOnUiThread { Perditesimi.kontrollo(a, true) } }
+
+    // v238: PDA me tastierë fizike ("Fshih tastierën" te Stoku): tastiera në ekran s'hapet; shkruhet me tastierën fizike/skanerin
+    @JavascriptInterface fun tastieraFshehur(po: Boolean) { a.runOnUiThread { a.vendosTastierenFshehur(po) } }
+    @JavascriptInterface fun fshihTastieren() { a.runOnUiThread { a.fshihTastieren() } }
 }
