@@ -73,7 +73,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      kujtesa-grupi-test, harro-sync-test (furnizuesi i kontrolluar te `grupet/g1/kujtesa/px`), furn-ruaj-test, furn-sugjerim-test.
    - **(2) CSP pa 'unsafe-inline'**: krejt skriptat inline u nxorën në skedarë: `kornize.js` (kundër iframe), `fillimi-tel.js` /
      `fillimi-pc.js` (koka), **`app-tel.js` (KODI KRYESOR I TELEFONIT, ~7270 rreshta) / `app-pc.js` (i kompjuterit, ~6010)**,
-     `firebase-tel.js` / `firebase-pc.js` (moduli), `emri-dyqanit.js` (`data-id`), `es2020.js` (zëvendëson `new Function` te
+     `firebase-tel.js` / `firebase-pc.js` (moduli), emri i dyqanit poshtë logos te `fillimi-*.js` (MutationObserver, para
+     vizatimit të parë; një skript i jashtëm në body e vonte: ikonat-test "logoja e qëndrueshme"), `es2020.js` (zëvendëson `new Function` te
      porta.js: `window.__stokuES2020`), `tema.js` (404 + privatësia), `faqja-404.js`, `faqja-android.js`. CSP në meta te 5 faqet:
      `default-src 'self'; script-src 'self' cdn.jsdelivr.net www.gstatic.com apis.google.com 'wasm-unsafe-eval'` (ZXing),
      style 'unsafe-inline', img https:/data:/blob:, connect *.googleapis.com, *.mendurb.workers.dev, jsDelivr (+ api.github.com

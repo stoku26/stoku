@@ -38,9 +38,8 @@ var SHELL = FAQET.concat([
   // v238: skriptat e faqeve (më parë brenda HTML-së; CSP pa 'unsafe-inline')
   './kornize.js?v=238',
   './es2020.js?v=238',
-  './emri-dyqanit.js?v=238',
-  './fillimi-tel.js?v=238',
-  './fillimi-pc.js?v=238',
+  './fillimi-tel.js?v=239',
+  './fillimi-pc.js?v=239',
   './app-tel.js?v=238',
   './app-pc.js?v=238',
   './firebase-tel.js?v=238',

@@ -53,3 +53,15 @@
     var instaluar = navigator.standalone === true || !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
     if (iphone && !instaluar) document.documentElement.classList.add('ios-shfletues');
   })();
+
+// v238: emri i llogarisë së fundit poshtë logos, që në vizatimin e parë (si skripti i vjetër brenda HTML-së): elementi
+// s'ekziston ende kur lexohet ky skedar, prandaj e vendos një MutationObserver sapo parseri ta krijojë
+(function () {
+  var emri = '';
+  try { var h0 = JSON.parse(localStorage.getItem('stoku:porta:hyrja') || 'null'); emri = h0 && h0.emri ? String(h0.emri) : ''; } catch (e) { /* ok */ }
+  if (!emri || typeof MutationObserver === 'undefined') return;
+  function provo() { var el = document.getElementById('sbDyqani'); if (!el) return false; el.textContent = emri; return true; }
+  var v = new MutationObserver(function () { if (provo()) v.disconnect(); });
+  v.observe(document.documentElement, { childList: true, subtree: true });
+  document.addEventListener('DOMContentLoaded', function () { provo(); v.disconnect(); });
+})();
