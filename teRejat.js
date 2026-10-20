@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 235, versioni: '1.29.3', data: '2026-10-20', titulli: 'PDF dhe skaneri të përditësuar', pikat: [
+      'Pjesa që krijon PDF-të u përditësua në versionin më të ri, që i ndreq disa dobësi sigurie të njohura. PDF-të duken njësoj si më parë.',
+      'U përditësuan edhe skaneri i barkodeve dhe vizatimi i barkodeve te etiketat.'
+    ] },
     { v: 234, versioni: '1.29.2', data: '2026-10-20', titulli: 'Më shumë siguri', pikat: [
       'Skriptat që Stoku i merr nga interneti (skaneri, PDF, barkodet) kontrollohen para se të hapen: nëse dikush i ndryshon, s\'ekzekutohen.',
       'Stoku s\'hapet më brenda një faqeje tjetër, që askush të mos të mashtrojë me klikime të fshehura.',

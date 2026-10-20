@@ -52,6 +52,20 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **LIBRARITË E PËRDITËSUARA (v235 = 1.29.3)**: pronari dërgoi raporte nga skanerë online (Sucuri, ImmuniWeb, pentest-tools).
+   ImmuniWeb: "4 outdated dependencies". `npm audit` me versionet e Stoku-t: **jsPDF 3.0.3 kishte 10 këshilla sigurie** (1 critical:
+   path traversal vetëm në Node; në shfletues: injektim në AcroForm/addJS/FreeText, DoS me BMP/GIF, "HTML injection in New Window
+   paths"), të ndrequra te 4.2.1. Stoku përdor vetëm text/rect/line/addImage/addPage/output, por përditësimi është i lirë.
+   - jsPDF 3.0.3 → **4.2.1**, JsBarcode 3.11.5 → **3.12.3**, barcode-detector 3.2.2 → **3.2.3** me zxing-wasm 3.1.3 → **3.1.6** (ponyfill-i
+     3.2.3 e pret 3.1.6; `WASM_ZXING` te index.html duhet të përputhet). Me SRI të ri (hash-et nga `npm pack`), sw.js `CDN_BIBLIOTEKA`.
+   - **Firebase mbetet 12.19.0** (versioni i fundit 12.x). 13.0.0 (7 tetor 2026) është version i madh dhe shumë i ri; këshillat e
+     `npm audit` për firebase vijnë nga `@grpc/grpc-js` (vetëm Node), jo nga build-i i shfletuesit.
+   - Testi: `librarite-v235.js` (PC: PDF lista + etiketat shkarkohen, me figura; tel: ZXing 3.1.6 e lexon EAN-13 të vizatuar me
+     JsBarcode 3.12.3). Kopjet lokale te `scratchpad/npm` u përditësuan (kopja e vjetër: `npm-vjeter-v234`).
+   - Pjesa tjetër e raporteve: header-at (HSTS, X-Frame-Options, CSP si header, X-Content-Type-Options, Referrer-Policy,
+     Permissions-Policy) dhe "Website Firewall" kërkojnë Cloudflare para GitHub Pages (Transform Rules), e bën pronari. GDPR: s'ka
+     faqe privatësie (pritet përgjigjja e pronarit për të dhënat e kontaktit). PCI DSS: Stoku s'merr pagesa me kartelë.
+
 0000000. **SIGURIA (v234 = 1.29.2, Worker 165)**: pronari: "disa faqe online thonë që ky web app ka shumë vulnerabilities".
    Kontroll i plotë (klienti, rregullat e Firestore, Worker-i, sw.js, sekretet në repo). Të ndrequra:
    - **Worker 165, fjalëkalimi i harruar**: `/fjalekalimi/verifiko|ndrysho` e lexonte `provat` dhe e shkruante pas krahasimit,
