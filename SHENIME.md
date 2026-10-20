@@ -52,6 +52,33 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **SIGURIA: HEADER-AT E CLOUDFLARE + PORTA (v239 = 1.30.1)**: pronari solli raportet e skanerëve pas lidhjes së
+   `stoku.site` me Cloudflare (securityheaders.com A+, pentest-tools Low, Protego D 57/100).
+   - **Cloudflare (i vendos PRONARI, unë s'kam qasje)**: nameservers `amy`/`lamar.ns.cloudflare.com` (Hostinger), SSL Full, TLS 1.3
+     minimum, HSTS (No-Sniff), Managed Transforms "Add security headers" (X-Frame-Options SAMEORIGIN, X-XSS-Protection, Referrer-Policy
+     same-origin, Expect-CT), DNSSEC aktiv (DS te Hostinger: Key Tag 2371, Algorithm 13, Digest Type 2), CAA `letsencrypt.org` +
+     `pki.goog`, SPF `v=spf1 -all`, DMARC `_dmarc` `v=DMARC1; p=reject;` (domaini s'dërgon email), Domain lock + Privacy protection.
+     Transform Rule (Rules → response header, "Set static"): `Permissions-Policy: camera=(self), geolocation=(), microphone=(),
+     payment=(), usb=()` (kamera vetëm për vetë stoku.site, për skanerin; testuar me `getUserMedia`: kamera po, mikrofoni jo),
+     `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin` dhe CSP e plotë si header (bashkimi i
+     meta-ve të 5 faqeve + `frame-ancestors 'none'`; më parë vetëm `frame-ancestors 'none'`, skanerët ankoheshin "pa default-src,
+     script-src, base-uri, object-src" sepse meta s'e lexojnë). **RREGULL: shërbim i ri i jashtëm = shtoje te meta e 5 faqeve DHE
+     te rreshti `CSP_CLOUDFLARE` më poshtë DHE kërkoji pronarit ta ndryshojë te Cloudflare** (header-i dhe meta zbatohen të dyja: ajo
+     që mungon te njëra bllokohet). `siguria-v239.js` kontrollon që `CSP_CLOUDFLARE` = bashkimi i meta-ve + frame-ancestors.
+     CSP_CLOUDFLARE: `default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: blob: https://*.googleapis.com https://*.mendurb.workers.dev https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://www.gstatic.com https://api.github.com; frame-src https://stoku-appi.firebaseapp.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'`
+     Testuar me një server lokal që i shton këto header-a çdo përgjigjeje (`cf-csp/server.py`): regresioni i plotë + service
+     worker-i (instalimi, pa internet, kërkesat e lejuara pa shkelje, `example.com` bllokohet nga connect-src i SW-së).
+     `siguria-v234.js`: me frame-ancestors si header shfletuesi s'e ngarkon fare faqen në iframe të huaj (korniza = faqe gabimi);
+     testi e pranon edhe këtë ("bllokuar"), përveç fshehjes nga `kornize.js` (pa header, p.sh. GitHub Pages direkt).
+   - **Protego "Hardcoded Password" (high)**: s'ishte fjalëkalim. Porta.js e vendoste `autocomplete` me dy vargje të plota
+     ("new-..." / "current-..." me fjalën password, të ndara me ` : `), që modeli i skanerit e lexon si fjalëkalim = "...". Tash `(krijo ? 'new' : 'current') + '-password'`.
+     `siguria-v239.js` kontrollon krejt skedarët që shërbehen (pa tel/, ora/, worker/) për modelet `password|passwd|pwd` = "...".
+     Çelësi `apiKey` i Firebase në firebase-*.js/android.json është publik me qëllim (e mbrojnë rregullat), s'është sekret.
+   - Të tjerat nga raportet: "Server/technology disclosed" (Cloudflare, GitHub Pages, Fastly) s'fshihet; "API endpoint
+     manifest.webmanifest" = alarm i rremë; DKIM mungon sepse s'ka email (opsionale: `*._domainkey` TXT `v=DKIM1; p=`); HSTS 12 muaj
+     (pronari); HSTS preload NUK u bë (e vështirë të kthehet, kërkon includeSubDomains); COEP NUK vendoset (bllokon jsDelivr/Firebase);
+     CSP report-uri jo (vetëm info).
+
 0000000. **ORA: PA "PAMJA", "KËRKO" SI BUTON, PA "8 DERI 30 DITË" (vetëm aplikacioni i orës, pa version të web-it)**: pronari
    (pas v238, me foto nga ora): (1) Cilësimet → "Pamja" (ngjyra kryesore) u hoq krejt: ngjyrat duhet të ndjekin datën e afatit;
    `Tema.theks` = gjithmonë e verdha e Stoku-t, `Tema.ngarko` fshin zgjedhjen e vjetër (`stoku-pamja`); u hoqën `Pamja.Ngjyrat`,
