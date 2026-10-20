@@ -148,6 +148,8 @@
     '  box-shadow: var(--sb-shadow-accent, none); }',
     '#porta .pk-btn:active { background: var(--sb-accent-press, #16479a); }',
     '#porta .pk-btn:disabled { opacity: .7; cursor: default; }',
+    '#porta .pk-fund { margin: 20px 0 0; text-align: center; font-size: 12.5px; }',
+    '#porta .pk-fund a { color: var(--sb-muted, #7a7d85); text-decoration: underline; text-underline-offset: 2px; }',
     '#porta .pk-shenim { margin: 16px 2px 0; font-size: 12.5px; color: var(--sb-muted, #7a7d85); line-height: 1.5; text-align: center; text-wrap: balance; }',
     '#porta .pk-pritje { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 18px 0 8px; font-size: 15px; text-align: center; }',
     '#porta .pk-rrotull { width: 28px; height: 28px; border: 3px solid var(--sb-accent-line, #d6e2f5);',
@@ -230,6 +232,7 @@
         '<button type="button" class="pk-lidhje pk-mbrapa pk-fsheh" id="pkRivSerish">Dërgo sërish kërkesën</button>' +
         '<button type="button" class="pk-lidhje pk-mbrapa" id="pkRivMbrapa">Kthehu te hyrja</button>' +
       '</div>' +
+      '<p class="pk-fund"><a href="privatesia.html" target="_blank" rel="noopener">Privatësia</a></p>' +
     '</div>';
   document.body.insertBefore(porta, document.body.firstChild);
 

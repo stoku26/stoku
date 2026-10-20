@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Privatësia • Stoku</title>
+<meta name="description" content="Çka ruan Stoku, ku ruhet, kush ka qasje dhe si fshihen të dhënat.">
+<link rel="icon" href="/logo/favicon.svg?v=3" type="image/svg+xml">
+<link rel="icon" href="/logo/favicon-32.png?v=3" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<!-- v237: politika e privatësisë (GDPR / Ligji i Kosovës për mbrojtjen e të dhënave personale). Përditësoje kur Stoku
+     fillon të ruajë diçka të re ose përdor një shërbim të ri. Adresat absolute, si te 404.html. -->
+<script>
+  // Tema si te aplikacioni: zgjedhja e përdoruesit (Cilësimet → Tema), përndryshe ajo e sistemit
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('stoku:tema'); } catch (e) { /* ok */ }
+    if (t !== 'dark' && t !== 'light') t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-tema', t);
+  })();
+</script>
+<style>
+  @font-face { font-family: 'Onest'; src: url('/fonts/onest.woff2') format('woff2'); font-weight: 400 800; font-style: normal; font-display: swap; }
+  :root { --bg: #f6f5f2; --surface: #ffffff; --line: #e6e4df; --ink: #14161b; --muted: #6b6e76; --accent: #1f5fc4; color-scheme: light; }
+  :root[data-tema="dark"] { --bg: #0f1115; --surface: #171a20; --line: #2a2e36; --ink: #eceef2; --muted: #9ca1aa; --accent: #6f9ff0; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Onest', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; padding: 24px 16px 48px; }
+  main { max-width: 720px; margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 28px 22px 32px; }
+  .logo { display: block; height: 36px; width: auto; margin: 0 0 20px; }
+  .logo-e-erret { display: none; }
+  :root[data-tema="dark"] .logo-e-celet { display: none; }
+  :root[data-tema="dark"] .logo-e-erret { display: block; }
+  h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 6px; }
+  .data { color: var(--muted); font-size: 14px; margin: 0 0 22px; }
+  h2 { font-size: 18px; font-weight: 750; margin: 28px 0 8px; }
+  p, li { font-size: 15.5px; line-height: 1.6; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 22px; }
+  li { margin: 0 0 6px; }
+  a { color: var(--accent); }
+  .kthehu { display: inline-block; margin-top: 26px; font-weight: 700; }
+  @media (min-width: 640px) { main { padding: 36px 40px 40px; } }
+</style>
+</head>
+<body>
+<main>
+  <img class="logo logo-e-celet" src="/logo/stoku-logo.svg?v=3" alt="Stoku" width="132" height="36">
+  <img class="logo logo-e-erret" src="/logo/stoku-logo-dark.svg?v=3" alt="Stoku" width="132" height="36">
+  <h1>Privatësia</h1>
+  <p class="data">Përditësuar më 20 tetor 2026</p>
+
+  <p>Kjo faqe tregon çka ruan Stoku (stoku.site, aplikacioni Stoku për Android dhe për orën e dorës), ku ruhet, kush e sheh dhe si fshihet. Stoku është aplikacion për regjistrimin e mallit dhe të afateve të skadimit në dyqan.</p>
+
+  <h2>Kush është përgjegjës</h2>
+  <p>Stoku. Për çdo pyetje ose kërkesë për të dhënat e tua: <a href="mailto:mendurb@gmail.com">mendurb@gmail.com</a>.</p>
+
+  <h2>Çka ruhet</h2>
+  <ul>
+    <li><b>Llogaria:</b> emri i përdoruesit, koha kur u krijua dhe kur hyre për herë të fundit. Stoku s'kërkon email, numër telefoni as emrin tënd të vërtetë. Fjalëkalimin e ruan Firebase Authentication (Google) në formë të enkriptuar; Stoku s'e sheh kurrë.</li>
+    <li><b>Të dhënat e dyqanit:</b> folderat, produktet (barkodi, emri, sasia, furnizuesi), afatet e skadimit dhe fotot e fletëve që i dërgon nga telefoni te kompjuteri.</li>
+    <li><b>Skedarët Excel dhe PDF</b> që i dërgon nga telefoni në kompjuter: fshihen vetë pas 7 ditësh.</li>
+    <li><b>Grupi</b> (vetëm nëse bëhesh pjesë e një grupi): emri yt në grup, roli, a je aktiv dhe kur ishe aktiv për herë të fundit (telefon ose kompjuter), afatet që i ndan me grupin, aktiviteti (p.sh. "e hoqi nga rafti"), njoftimet dhe ftesat.</li>
+    <li><b>Fotoja e profilit</b>, nëse e vendos.</li>
+    <li><b>Njoftimet:</b> adresa teknike e pajisjes për njoftime (pa të dhëna personale), ora që e zgjedh për njoftimin ditor dhe një kopje e afateve për atë njoftim. Nëse e lidh orën e dorës, një kod lidhjeje për të.</li>
+    <li><b>Lejet</b> e llogarisë (çka mund të përdorë), nëse i cakton administratori.</li>
+    <li><b>Fjalëkalimi i harruar:</b> kodi 6-shifror ruhet vetëm i enkriptuar dhe vlen 30 minuta.</li>
+  </ul>
+
+  <h2>Leximi i fletëve me AI</h2>
+  <p>Kur e fotografon një fletë me afate ose me stok, fotoja dërgohet përmes serverit të Stoku-t te një shërbim AI (Google Gemini, Anthropic Claude ose Cloudflare Workers AI) vetëm që të lexohen barkodet, emrat dhe datat. Stoku s'e ruan foton te shërbimi i AI-së.</p>
+
+  <h2>Në pajisjen tënde</h2>
+  <p>Stoku ruan në shfletues (ose në aplikacion) një kopje të të dhënave të tua, që të punojë edhe pa internet, dhe cilësimet e tua. Kjo kopje fshihet kur në atë pajisje hyn një llogari tjetër, ose kur i fshin të dhënat e shfletuesit. Si vizitor, të dhënat mbeten vetëm në pajisje dhe s'dërgohen askund.</p>
+  <p>Stoku <b>s'përdor cookies</b>, s'ka reklama dhe s'përdor shërbime gjurmimi ose analitike.</p>
+
+  <h2>Kush i sheh të dhënat</h2>
+  <ul>
+    <li><b>Ti</b>, në krejt pajisjet ku hyn me llogarinë tënde.</li>
+    <li><b>Anëtarët e grupit tënd</b>, vetëm pjesët e grupit (emri, prania, afatet e ndara, aktiviteti).</li>
+    <li><b>Administratori i Stoku-t</b>, për mirëmbajtje dhe ndihmë: sheh listën e llogarive, cakton lejet, merr kodin e fjalëkalimit të harruar që ta japë, dhe mund ta fshijë një llogari. Teknikisht ka qasje edhe në të dhënat e dyqaneve.</li>
+  </ul>
+  <p>Stoku s'i shet dhe s'ua jep të dhënat askujt tjetër.</p>
+
+  <h2>Ku ruhen</h2>
+  <p>Te shërbimet që e mbajnë Stoku-n në punë, të cilat mund t'i kenë serverët jashtë Kosovës (në BE ose SHBA):</p>
+  <ul>
+    <li>Google Firebase (llogaritë dhe të dhënat e dyqanit),</li>
+    <li>Cloudflare (njoftimet, fotot e profilit, ora e dorës, serveri i AI-së),</li>
+    <li>GitHub Pages (vetë faqja stoku.site) dhe jsDelivr (disa librari të faqes): si çdo server, shohin adresën IP kur hapet faqja,</li>
+    <li>Google, Anthropic ose Cloudflare për leximin me AI, vetëm kur e përdor.</li>
+  </ul>
+
+  <h2>Sa kohë mbahen</h2>
+  <p>Derisa ekziston llogaria. Përjashtimet: skedarët Excel/PDF në kompjuter 7 ditë, kodet e fjalëkalimit 30 minuta, shënimet për produktet e fshira (që pajisjet e tjera t'i fshijnë edhe ato) 120 ditë, kopja e të fshirave në pajisje 30 ditë.</p>
+
+  <h2>Të drejtat e tua</h2>
+  <p>Mund të kërkosh të shohësh, të ndreqësh ose të fshish të dhënat e tua, ose ta fshish krejt llogarinë: shkruaj te <a href="mailto:mendurb@gmail.com">mendurb@gmail.com</a> nga emri i llogarisë. Produktet dhe afatet mund t'i ndryshosh ose t'i fshish vetë në çdo kohë brenda Stoku-t. Nëse mendon se të dhënat e tua s'trajtohen si duhet, ke të drejtë të ankohesh te Agjencia për Informim dhe Privatësi (AIP) e Kosovës.</p>
+
+  <h2>Siguria</h2>
+  <p>Lidhja me Stoku-n është gjithmonë e enkriptuar (HTTPS). Të dhënat e secilës llogari i mbrojnë rregullat e Firebase-it: një llogari s'mund t'i lexojë të dhënat e një tjetre. Problemet e sigurisë raportohen te <a href="mailto:mendurb@gmail.com">mendurb@gmail.com</a> (shih edhe <a href="/.well-known/security.txt">security.txt</a>).</p>
+
+  <h2>Ndryshimet</h2>
+  <p>Kur ndryshon kjo faqe, ndryshon edhe data lart. Ndryshimet e mëdha njoftohen te "Çka ka të re" në Stoku.</p>
+
+  <a class="kthehu" href="/">Hap Stoku-n</a>
+</main>
+</body>
+</html>

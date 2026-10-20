@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 237, versioni: '1.29.4', data: '2026-10-20', titulli: 'Privatësia', pikat: [
+      'Faqja e re "Privatësia" tregon çka ruan Stoku, ku ruhet, kush e sheh dhe si i fshin të dhënat e tua. E gjen te Cilësimet dhe poshtë ekranit të hyrjes.',
+      'Stoku s\'përdor cookies, reklama ose gjurmim.'
+    ] },
     { v: 235, versioni: '1.29.3', data: '2026-10-20', titulli: 'PDF dhe skaneri të përditësuar', pikat: [
       'Pjesa që krijon PDF-të u përditësua në versionin më të ri, që i ndreq disa dobësi sigurie të njohura. PDF-të duken njësoj si më parë.',
       'U përditësuan edhe skaneri i barkodeve dhe vizatimi i barkodeve te etiketat.'

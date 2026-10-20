@@ -1,0 +1,2 @@
+# GitHub Pages (Jekyll): dosjet me "." në fillim s'publikohen pa këtë (security.txt, v237)
+include: [".well-known"]
