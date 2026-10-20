@@ -58,7 +58,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      minimum, HSTS (No-Sniff), Managed Transforms "Add security headers" (X-Frame-Options SAMEORIGIN, X-XSS-Protection, Referrer-Policy
      same-origin, Expect-CT), DNSSEC aktiv (DS te Hostinger: Key Tag 2371, Algorithm 13, Digest Type 2), CAA `letsencrypt.org` +
      `pki.goog`, SPF `v=spf1 -all`, DMARC `_dmarc` `v=DMARC1; p=reject;` (domaini s'dërgon email), Domain lock + Privacy protection.
-     Transform Rule (Rules → response header, "Set static"): `Permissions-Policy: geolocation=(), microphone=(), payment=(), usb=()`,
+     Transform Rule (Rules → response header, "Set static"): `Permissions-Policy: camera=(self), geolocation=(), microphone=(),
+     payment=(), usb=()` (kamera vetëm për vetë stoku.site, për skanerin; testuar me `getUserMedia`: kamera po, mikrofoni jo),
      `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin` dhe CSP e plotë si header (bashkimi i
      meta-ve të 5 faqeve + `frame-ancestors 'none'`; më parë vetëm `frame-ancestors 'none'`, skanerët ankoheshin "pa default-src,
      script-src, base-uri, object-src" sepse meta s'e lexojnë). **RREGULL: shërbim i ri i jashtëm = shtoje te meta e 5 faqeve DHE
@@ -67,6 +68,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      CSP_CLOUDFLARE: `default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: blob: https://*.googleapis.com https://*.mendurb.workers.dev https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://www.gstatic.com https://api.github.com; frame-src https://stoku-appi.firebaseapp.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'`
      Testuar me një server lokal që i shton këto header-a çdo përgjigjeje (`cf-csp/server.py`): regresioni i plotë + service
      worker-i (instalimi, pa internet, kërkesat e lejuara pa shkelje, `example.com` bllokohet nga connect-src i SW-së).
+     `siguria-v234.js`: me frame-ancestors si header shfletuesi s'e ngarkon fare faqen në iframe të huaj (korniza = faqe gabimi);
+     testi e pranon edhe këtë ("bllokuar"), përveç fshehjes nga `kornize.js` (pa header, p.sh. GitHub Pages direkt).
    - **Protego "Hardcoded Password" (high)**: s'ishte fjalëkalim. Porta.js e vendoste `autocomplete` me dy vargje të plota
      ("new-..." / "current-..." me fjalën password, të ndara me ` : `), që modeli i skanerit e lexon si fjalëkalim = "...". Tash `(krijo ? 'new' : 'current') + '-password'`.
      `siguria-v239.js` kontrollon krejt skedarët që shërbehen (pa tel/, ora/, worker/) për modelet `password|passwd|pwd` = "...".
