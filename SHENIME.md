@@ -58,6 +58,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    `PamjaEkrani`, `RrethiNgjyres`, `NGJYRAT`. (2) "Kërko" s'është më chip: `ButoniKerko` (thjerrëza `IkonaKerko`) në rreshtin e
    poshtëm, mes `ButoniRifresko` dhe `ButoniCilesimet`. (3) "8 deri 30 ditë" u hoq (dalin lart te lista kryesore); mbetet vetëm
    "Mbi 30 ditë" (`Pamja.Grupi("gjelber")`). Pa ndryshim te Worker-i dhe web-i. Pa testim në orë të vërtetë.
+   (4) Kërkimi: me `BasicTextField` shkronjat e fshira mbeteshin (tastiera e orës në ekran të plotë s'ia kalonte fshirjet) dhe
+   rezultatet dilnin gjatë shkrimit. Tash `KerkoEkrani` përdor hyrjen e sistemit të orës (`android.app.RemoteInput` me intent-in
+   "android.support.wearable.input.action.REMOTE_INPUT", si te mesazhet; tastierë ose zë): rezultatet vetëm pas konfirmimit;
+   chip-i me pyetjen e rihap hyrjen, "✕ Pastro" e zbraz. Hapet vetë herën e parë. MOS përdor fusha teksti brenda aplikacionit të orës.
 
 0000000. **KONTROLLI PËR ÇDO PRODUKT/FURNIZUES, CSP E PLOTË, LOGOJA, PDA, ORA (v238 = 1.30.0, Worker 166)**: kërkesat e pronarit:
    (1) "te Cilësimet > Stoku më janë shtuar furnizues e produkte pa dalë për kontroll... çdo import (foto e fletës, skedar, skanim,
