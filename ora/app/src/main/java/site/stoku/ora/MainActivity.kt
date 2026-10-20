@@ -1,8 +1,13 @@
 package site.stoku.ora
 
+import android.app.RemoteInput
+import android.content.Intent
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -17,9 +22,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,14 +31,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -48,6 +45,7 @@ import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.Colors
+import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
@@ -482,12 +480,28 @@ fun ListaEGrupit(titulli: String, ngjyra: Color, lista: List<Afat>?, duke: Boole
     }
 }
 
-// v238: kërkimi sipas emrit të produktit, furnizuesit ose barkodit (në krejt produktet)
+// v238: kërkimi sipas emrit të produktit, furnizuesit ose barkodit (në krejt produktet). Teksti shkruhet me hyrjen e orës
+// (tastiera ose zëri, si te mesazhet): rezultatet dalin vetëm pasi konfirmohet ("Kërko"/✓). Fusha e tekstit brenda aplikacionit
+// s'punonte mirë në orë: tastiera në ekran të plotë s'ia kalonte fshirjet dhe rezultatet dilnin gjatë shkrimit.
+const val CELESI_KERKIMIT = "kerko"
+
 @Composable
 fun KerkoEkrani(krejt: Krejt?, duke: Boolean, gabim: String?, pyetja: String, kurNdryshon: (String) -> Unit, kurPreket: (Afat, Boolean, Boolean) -> Unit) {
     val gjendja = rememberScalingLazyListState()
-    val fokusi = remember { FocusRequester() }
-    LaunchedEffect(Unit) { if (pyetja.isEmpty()) { delay(300); try { fokusi.requestFocus() } catch (e: Exception) { } } }
+    var paHyrje by remember { mutableStateOf(false) }
+    val hyrja = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { r ->
+        val t = r.data?.let { RemoteInput.getResultsFromIntent(it)?.getCharSequence(CELESI_KERKIMIT) }?.toString()
+        if (t != null) kurNdryshon(t.trim())
+    }
+    fun hapHyrjen() {
+        val ri = RemoteInput.Builder(CELESI_KERKIMIT).setLabel("Produkti, furnizuesi ose barkodi").build()
+        val i = Intent("android.support.wearable.input.action.REMOTE_INPUT")
+            .putExtra("android.support.wearable.input.extra.REMOTE_INPUTS", arrayOf<Parcelable>(ri))
+            .putExtra("android.support.wearable.input.extra.TITLE", "Kërko")
+        try { hyrja.launch(i); paHyrje = false } catch (e: Exception) { paHyrje = true }
+    }
+    // Hapja e parë (pa kërkim): hyrja e tekstit hapet vetë
+    LaunchedEffect(Unit) { if (pyetja.isEmpty()) hapHyrjen() }
     val q = normalizo(pyetja)
     val pa = pyetja.trim()
     val rezultatet = if (krejt == null || q.isEmpty()) emptyList()
@@ -496,18 +510,20 @@ fun KerkoEkrani(krejt: Krejt?, duke: Boolean, gabim: String?, pyetja: String, ku
         ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
             item { ListHeader { Text("KËRKO", color = Gri, fontWeight = FontWeight.SemiBold) } }
             item {
-                Box(Modifier.fillMaxWidth().background(Kartela, RoundedCornerShape(20.dp)).padding(horizontal = 14.dp, vertical = 10.dp)) {
-                    if (pyetja.isEmpty()) Text("Produkti, furnizuesi ose barkodi", color = Gri, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    BasicTextField(
-                        value = pyetja,
-                        onValueChange = kurNdryshon,
-                        singleLine = true,
-                        textStyle = TextStyle(color = Color.White, fontSize = 15.sp),
-                        cursorBrush = SolidColor(Verdhe),
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                        modifier = Modifier.fillMaxWidth().focusRequester(fokusi),
-                    )
-                }
+                Chip(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { hapHyrjen() },
+                    label = { Text(if (pyetja.isEmpty()) "Prek për të kërkuar" else pyetja, fontWeight = FontWeight.Bold, color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                    secondaryLabel = { Text(if (pyetja.isEmpty()) "Produkti, furnizuesi ose barkodi" else "Prek për kërkim tjetër", color = Gri, maxLines = 1) },
+                    icon = { Icon(imageVector = IkonaKerko, contentDescription = null, modifier = Modifier.size(20.dp)) },
+                    colors = ChipDefaults.chipColors(backgroundColor = Kartela, contentColor = Color.White, secondaryContentColor = Gri, iconColor = Color.White),
+                )
+            }
+            if (pyetja.isNotEmpty()) item {
+                Chip(onClick = { kurNdryshon("") }, label = { Text("✕ Pastro") }, colors = ChipDefaults.childChipColors())
+            }
+            if (paHyrje) item {
+                Text("Kjo orë s'e hap dot hyrjen e tekstit.", fontSize = 11.sp, color = Kuqe, textAlign = TextAlign.Center, modifier = Modifier.padding(6.dp))
             }
             if (krejt == null && duke) item { CircularProgressIndicator(indicatorColor = Verdhe) }
             if (q.isNotEmpty() && krejt != null) item {
