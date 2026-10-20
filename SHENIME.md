@@ -52,6 +52,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PENTEST-TOOLS (v236, pa hyrje te "Çka ka të re")**: raporti "Light" i pentest-tools.com (20.10.2026): rreziku **Low**, 0
+   critical/high/medium. Gjetjet: CSP pa `script-src`/`default-src` (CSP-ja minimale e v234 në meta; e plotë s'vendoset, shih v234),
+   pa `X-Content-Type-Options` dhe `Strict-Transport-Security` (GitHub Pages; zgjidhja: Cloudflare Transform Rules + HSTS, pronari
+   po e lidh `stoku.site` me Cloudflare: nameservers `amy`/`lamar.ns.cloudflare.com` te Hostinger), "Suspicious Comment" (komenti
+   HTML `<!-- v230: vetëm administratori (mendurberisha)… -->` te faqja "Përdoruesit": **u hoq** nga index.html dhe pc.html;
+   **mos shkruaj emra llogarish ose fjalë si "admin" në komente HTML**, se shihen në burimin e faqes), teknologjitë (info),
+   `security.txt` mungon (pritet email-i i kontaktit nga pronari), "API endpoint" `manifest.webmanifest` (gabim i skanerit).
+   CACHE `stoku-v236`.
+
 0000000. **LIBRARITË E PËRDITËSUARA (v235 = 1.29.3)**: pronari dërgoi raporte nga skanerë online (Sucuri, ImmuniWeb, pentest-tools).
    ImmuniWeb: "4 outdated dependencies". `npm audit` me versionet e Stoku-t: **jsPDF 3.0.3 kishte 10 këshilla sigurie** (1 critical:
    path traversal vetëm në Node; në shfletues: injektim në AcroForm/addJS/FreeText, DoS me BMP/GIF, "HTML injection in New Window
