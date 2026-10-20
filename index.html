@@ -2,6 +2,16 @@
 <html lang="sq" class="sb">
 <head>
 <meta charset="utf-8">
+<!-- v234 (siguria): pa <object>/<embed>, pa <base> të huaj, format dërgohen vetëm te Stoku; adresa e plotë s'u shkon faqeve
+     të tjera. Faqja s'hapet brenda një faqeje tjetër (iframe, "clickjacking"): GitHub Pages s'e lejon header-in
+     X-Frame-Options, prandaj fshihet derisa të shihet që s'është në iframe. -->
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<style id="paKornize">html{display:none!important}</style>
+<script>
+  if (window.self === window.top) { var paKornize = document.getElementById('paKornize'); paKornize.parentNode.removeChild(paKornize); }
+  else { try { window.top.location = window.self.location.href; } catch (e) { /* mbetet e fshehur */ } }
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <title>Stoku</title>
 <link rel="manifest" href="manifest.webmanifest?v=87">
@@ -1952,9 +1962,9 @@
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=2"></script>
 <script src="afatet.js?v=216"></script>
-<script src="ekipa.js?v=231"></script>
+<script src="ekipa.js?v=234"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=233"></script>
+<script src="teRejat.js?v=234"></script>
 <script>
 (function () {
   'use strict';
@@ -9223,10 +9233,10 @@
   hapFaqenBaze(); // v231: pa lejen "Stoku", kryefaqja është pjesa e parë e lejuar
 })();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.2/dist/iife/ponyfill.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@3.0.3/dist/jspdf.umd.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.2/dist/iife/ponyfill.js" integrity="sha384-KJVUIUGb4pmfpWXfD8j3y9ARn6KoGC2vPC/wNUX1O1ZkYemh0BsuvsmdEU2+wS7O" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js" integrity="sha384-tOUygabpHGzWXpKv3qJM5f9tSgU6p5f4ooCayrNDwzm3/3/CDMzgHMLQZiMMGghV" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@3.0.3/dist/jspdf.umd.min.js" integrity="sha384-GwHhSt8QjC7J+v0zZ0Flfho/T76YHEcCL9w4rvjTIUHauh6gWJeBSIi3vWXxNhtA" crossorigin="anonymous"></script>
 
 <!-- Firebase (Cloud): modul i vetëm, ekspozon window.__stokuCloud për skriptin kryesor.
      Hyrje me emër përdoruesi + fjalëkalim (pa email): emri shndërrohet në një "email" të brendshëm

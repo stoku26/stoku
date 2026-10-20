@@ -2,6 +2,16 @@
 <html lang="sq" class="sbp">
 <head>
 <meta charset="utf-8">
+<!-- v234 (siguria): pa <object>/<embed>, pa <base> të huaj, format dërgohen vetëm te Stoku; adresa e plotë s'u shkon faqeve
+     të tjera. Faqja s'hapet brenda një faqeje tjetër (iframe, "clickjacking"): GitHub Pages s'e lejon header-in
+     X-Frame-Options, prandaj fshihet derisa të shihet që s'është në iframe. -->
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<style id="paKornize">html{display:none!important}</style>
+<script>
+  if (window.self === window.top) { var paKornize = document.getElementById('paKornize'); paKornize.parentNode.removeChild(paKornize); }
+  else { try { window.top.location = window.self.location.href; } catch (e) { /* mbetet e fshehur */ } }
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stoku • Kompjuter</title>
 <link rel="manifest" href="manifest.webmanifest?v=87">
@@ -1965,8 +1975,8 @@
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=2"></script>
 <script src="afatet.js?v=216"></script>
-<script src="ekipa.js?v=231"></script>
-<script src="teRejat.js?v=233"></script>
+<script src="ekipa.js?v=234"></script>
+<script src="teRejat.js?v=234"></script>
 <script>
 (function () {
   'use strict';
@@ -7976,8 +7986,8 @@
   window.__stokuPc = { gjendja: function () { return gjendjaLokale(); }, rivizato: rivizato };
 })();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@3.0.3/dist/jspdf.umd.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js" integrity="sha384-tOUygabpHGzWXpKv3qJM5f9tSgU6p5f4ooCayrNDwzm3/3/CDMzgHMLQZiMMGghV" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@3.0.3/dist/jspdf.umd.min.js" integrity="sha384-GwHhSt8QjC7J+v0zZ0Flfho/T76YHEcCL9w4rvjTIUHauh6gWJeBSIi3vWXxNhtA" crossorigin="anonymous"></script>
 
 <!-- Firebase: i njëjti projekt dhe i njëjti dokument si versioni i telefonit -->
 <script type="module">

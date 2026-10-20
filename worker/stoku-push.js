@@ -46,7 +46,7 @@ const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databa
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
 const PUSH_MAKS = 36;
-const VERSIONI_WORKER = 164; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 165; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 const W = {
@@ -680,6 +680,8 @@ async function lexoDoc(rruga, token) {
   const o = objektNga(j.fields || {});
   // Koha kur e krijoi serveri (jo ora e pajisjes, që mund të jetë gabim): për kontrollin e freskisë
   Object.defineProperty(o, '_krijuarSe', { value: Date.parse(j.createTime || '') || 0, enumerable: false });
+  // Versioni i dokumentit (koha e ndryshimit të fundit), për shkrime me kusht (vendosDoc me `kushti`)
+  Object.defineProperty(o, '_versioni', { value: j.updateTime || '', enumerable: false });
   return o;
 }
 // Mesazhi/njoftimi është i ri (< 3 min)? Sipas kohës së serverit kur u krijua; ora e pajisjes vetëm si rezervë.
@@ -742,11 +744,13 @@ async function llogariaSipasEmrit(at, emri) {
   const u = ((await r.json()).users || [])[0];
   return u && u.localId ? { uid: u.localId, ndalur: !!u.disabled } : null;
 }
-// Shkruan krejt dokumentin (e krijon nëse s'ekziston)
-async function vendosDoc(rruga, obj, token) {
+// Shkruan krejt dokumentin (e krijon nëse s'ekziston). Me `kushti` (updateTime nga lexoDoc): vetëm nëse askush s'e ka
+// ndryshuar ndërkohë; përndryshe Firestore e refuzon (gabim me status 400/409/412).
+async function vendosDoc(rruga, obj, token, kushti) {
   const fields = {}; for (const k in obj) fields[k] = vleraPer(obj[k]);
-  const r = await fetch(FS + '/' + rruga, { method: 'PATCH', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify({ fields }) });
+  const r = await fetch(FS + '/' + rruga + (kushti ? '?currentDocument.updateTime=' + encodeURIComponent(kushti) : ''), { method: 'PATCH', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify({ fields }) });
   if (!r.ok) { const e = new Error('firestore-' + r.status); e.status = r.status; throw e; }
+  try { return (await r.json()).updateTime || ''; } catch (e) { return ''; }
 }
 // Njoftim te zilja e administratorit; me `push`, edhe te pajisjet e tij (Stoku i mbyllur)
 async function njoftoAdminin(env, at, teksti, push) {
@@ -805,11 +809,18 @@ async function trajtoFjalekalimin(req, env, rruga, pergjigju) {
   if (!r || !r.uid || Number(r.skadon) <= tani) return pergjigju({ ok: false, arsye: 'skadoi' }, 410);
   const provat = Number(r.provat || 0);
   if (provat >= RIV_PROVA) return pergjigju({ ok: false, arsye: 'shume-prova' }, 429);
+  // v165: prova numërohet PARA krahasimit, me kusht që dokumenti të mos jetë ndryshuar ndërkohë. Para v165 shumë kërkesa
+  // njëkohësisht e lexonin të njëjtin numër provash dhe secila e krahasonte kodin: kufiri i 5 provave anashkalohej
+  // (kodi 6-shifror mund të gjendej me mijëra prova paralele). Tani vetëm njëra prej tyre e kalon shkrimin.
+  let versioni = '';
+  try { versioni = await vendosDoc(doc, Object.assign({}, r, { provat: provat + 1 }), at, r._versioni); }
+  catch (e) { if (e.status === 400 || e.status === 409 || e.status === 412) return pergjigju({ ok: false, arsye: 'zene' }, 429); throw e; }
   if (await sha256Hex(r.uid + ':' + kodi) !== r.hash) {
-    await vendosDoc(doc, Object.assign({}, r, { provat: provat + 1 }), at);
     const mbetur = RIV_PROVA - provat - 1;
     return pergjigju({ ok: false, arsye: mbetur > 0 ? 'kodi' : 'shume-prova', mbetur }, mbetur > 0 ? 400 : 429);
   }
+  // Kodi i saktë s'e harxhon provën (verifikimi, pastaj ndryshimi); me kusht, që të mos fshijë prova të tjera të gabuara
+  if (versioni) { try { await vendosDoc(doc, Object.assign({}, r, { provat }), at, versioni); } catch (e) { /* ok */ } }
   if (rruga === '/fjalekalimi/verifiko') return pergjigju({ ok: true });
   const fj = typeof t.fjalekalimi === 'string' ? t.fjalekalimi : '';
   if (fj.length < 6 || fj.length > 100) return pergjigju({ ok: false, arsye: 'i-dobet' }, 400);

@@ -20,6 +20,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 234, versioni: '1.29.2', data: '2026-10-20', titulli: 'Më shumë siguri', pikat: [
+      'Skriptat që Stoku i merr nga interneti (skaneri, PDF, barkodet) kontrollohen para se të hapen: nëse dikush i ndryshon, s\'ekzekutohen.',
+      'Stoku s\'hapet më brenda një faqeje tjetër, që askush të mos të mashtrojë me klikime të fshehura.',
+      'Prekja e njoftimit hap vetëm faqet e Stoku-t.',
+      'Kodi për fjalëkalimin e harruar s\'mund të gjendet më me shumë prova njëkohësisht (pas përditësimit të serverit).'
+    ] },
     { v: 233, versioni: '1.29.1', data: '2026-10-16', titulli: 'Dyqani s\'mbetet pa foldera', pikat: [
       'Te disa llogari folderat dilnin për një çast dhe pastaj zhdukeshin, edhe kur llogaria s\'kishte leje t\'i krijonte vetë. Tash dyqani s\'mbetet kurrë pa foldera: kur s\'ka asnjë, kthehen vetë Ushqimore, Pije, Higjiene dhe Fresh.',
       'Kur i fshin vetë krejt folderat, ata s\'kthehen menjëherë: ke kohë t\'i krijosh folderat e tu. Nëse pas 10 minutash s\'ka ende asnjë folder, kthehen 4 të parazgjedhurit.'
