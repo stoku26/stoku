@@ -52,6 +52,17 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PRIVATËSIA + SECURITY.TXT (v237 = 1.29.4)**: pronari: kontakti publik `mendurb@gmail.com`, emri i biznesit "Stoku".
+   - `privatesia.html` (adresa absolute si 404.html, tema e çelët/errët, CSP minimale): çka ruhet (llogaria, dyqani, skedarët 7 ditë,
+     grupi, foto e profilit, njoftimet/ora, lejet, kodi i fjalëkalimit), leximi me AI (Gemini/Claude/Workers AI, pa ruajtje), pajisja
+     (localStorage, pa cookies/reklama/gjurmim), kush e sheh (vetë, grupi, administratori), ku ruhet (Firebase, Cloudflare, GitHub
+     Pages, jsDelivr), afatet e mbajtjes, të drejtat + AIP e Kosovës. **Përditësoje kur Stoku fillon të ruajë diçka të re.**
+   - Lidhjet: `<link rel="privacy-policy">` te index/pc, porta (`.pk-fund`, poshtë kartës, `target=_blank`), tel Cilësimet → Rreth
+     Stoku `#opsPrivatesia`, PC poshtë majtas te Cilësimet `#opsPrivatesia` (`window.open(..., '_blank', 'noopener')`). porta.js?v=237.
+   - `/.well-known/security.txt` (Contact, **Expires 2027-10-01: rinovoje para kësaj date**, Canonical) + `_config.yml`
+     (`include: [".well-known"]`, pa të Jekyll i GitHub Pages i injoron dosjet me ".").
+   - Testi: `privatesia-v237.js`.
+
 0000000. **PENTEST-TOOLS (v236, pa hyrje te "Çka ka të re")**: raporti "Light" i pentest-tools.com (20.10.2026): rreziku **Low**, 0
    critical/high/medium. Gjetjet: CSP pa `script-src`/`default-src` (CSP-ja minimale e v234 në meta; e plotë s'vendoset, shih v234),
    pa `X-Content-Type-Options` dhe `Strict-Transport-Security` (GitHub Pages; zgjidhja: Cloudflare Transform Rules + HSTS, pronari
