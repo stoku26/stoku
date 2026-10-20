@@ -12,9 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.rotate
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,33 +25,14 @@ import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.Icon
 
-// Ngjyra kryesore e aplikacionit të orës (Cilësimet → Pamja). Ruhet në orë; e verdha është ajo e Stoku-t.
+// Ngjyra kryesore e aplikacionit të orës: e verdha e Stoku-t. v238: pa zgjedhje ngjyre (Cilësimet → Pamja u hoq):
+// ngjyrat e produkteve ndjekin datën e afatit (e kuqe, e verdhë, e gjelbër), jo një ngjyrë të zgjedhur
 object Tema {
-    data class Ngjyra(val emri: String, val c: Color)
+    val theks: Color = Color(0xFFF5B70A)
 
-    val NGJYRAT = listOf(
-        Ngjyra("E verdhë", Color(0xFFF5B70A)),
-        Ngjyra("Portokalli", Color(0xFFFF8A3D)),
-        Ngjyra("E kuqe", Color(0xFFFF6B6B)),
-        Ngjyra("Rozë", Color(0xFFFF7EB6)),
-        Ngjyra("Vjollcë", Color(0xFFB28CFF)),
-        Ngjyra("Blu", Color(0xFF5AA9FF)),
-        Ngjyra("Bruz", Color(0xFF2ED3C6)),
-        Ngjyra("E gjelbër", Color(0xFF5BD97A)),
-    )
-
-    var zgjedhur by mutableStateOf(0)
-        private set
-
-    val theks: Color get() = NGJYRAT[zgjedhur].c
-
+    // Zgjedhja e vjetër e ngjyrës (para v238) fshihet nga ora
     fun ngarko(ctx: Context) {
-        zgjedhur = ctx.getSharedPreferences("stoku-pamja", Context.MODE_PRIVATE).getInt("ngjyra", 0).coerceIn(0, NGJYRAT.size - 1)
-    }
-
-    fun ruaj(ctx: Context, i: Int) {
-        zgjedhur = i.coerceIn(0, NGJYRAT.size - 1)
-        ctx.getSharedPreferences("stoku-pamja", Context.MODE_PRIVATE).edit().putInt("ngjyra", zgjedhur).apply()
+        ctx.getSharedPreferences("stoku-pamja", Context.MODE_PRIVATE).edit().clear().apply()
     }
 }
 
@@ -106,6 +84,30 @@ fun ButoniRifresko(duke: Boolean, onClick: () -> Unit) {
     }
 }
 
+// v238: ikona e kërkimit (thjerrëza, vija 2, si ikonat e tjera)
+val IkonaKerko: ImageVector by lazy {
+    val b = ImageVector.Builder(name = "kerko", defaultWidth = 24.dp, defaultHeight = 24.dp, viewportWidth = 24f, viewportHeight = 24f)
+    for (d in listOf("M18 11a7 7 0 1 1-14 0a7 7 0 1 1 14 0z", "M21 21l-4.35-4.35")) {
+        b.addPath(
+            pathData = PathParser().parsePathString(d).toNodes(),
+            stroke = SolidColor(Color.White), strokeLineWidth = 2f, strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round,
+        )
+    }
+    b.build()
+}
+
+// v238: butoni i rrumbullakët i kërkimit (produkti, furnizuesi ose barkodi), mes rifreskimit dhe Cilësimeve
+@Composable
+fun ButoniKerko(onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.size(ButtonDefaults.DefaultButtonSize),
+        colors = ButtonDefaults.buttonColors(backgroundColor = Kartela, contentColor = Color.White),
+    ) {
+        Icon(imageVector = IkonaKerko, contentDescription = "Kërko", modifier = Modifier.size(22.dp))
+    }
+}
+
 // Butoni i rrumbullakët i Cilësimeve (ingranazhi), me pikë kur ka version të ri
 @Composable
 fun ButoniCilesimet(kaTeRe: Boolean, onClick: () -> Unit) {
@@ -118,13 +120,5 @@ fun ButoniCilesimet(kaTeRe: Boolean, onClick: () -> Unit) {
             Icon(imageVector = IkonaCilesimet, contentDescription = "Cilësimet", modifier = Modifier.size(24.dp))
         }
         if (kaTeRe) Box(Modifier.size(12.dp).background(Verdhe, CircleShape))
-    }
-}
-
-// Rrethi i ngjyrës te Pamja (me shenjë kur është i zgjedhur)
-@Composable
-fun RrethiNgjyres(c: Color, zgjedhur: Boolean) {
-    Box(Modifier.size(22.dp).background(c, CircleShape), contentAlignment = Alignment.Center) {
-        if (zgjedhur) Box(Modifier.size(8.dp).background(Color.Black, CircleShape))
     }
 }
