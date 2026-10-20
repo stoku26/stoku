@@ -52,6 +52,32 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **SIGURIA (v234 = 1.29.2, Worker 165)**: pronari: "disa faqe online thonë që ky web app ka shumë vulnerabilities".
+   Kontroll i plotë (klienti, rregullat e Firestore, Worker-i, sw.js, sekretet në repo). Të ndrequra:
+   - **Worker 165, fjalëkalimi i harruar**: `/fjalekalimi/verifiko|ndrysho` e lexonte `provat` dhe e shkruante pas krahasimit,
+     prandaj kërkesat njëkohësisht e anashkalonin kufirin e 5 provave (riprodhuar: 60 prova paralele, krejt 60 krahasoheshin,
+     edhe kodi i saktë pranohej). Tani prova shkruhet PARA krahasimit me `currentDocument.updateTime` (shkrim me kusht;
+     `lexoDoc` jep `_versioni`, `vendosDoc(rruga, obj, token, kushti)` kthen `updateTime`); kërkesat që humbin garën marrin
+     429 `zene` (porta: "Diçka shkoi keq te serveri. Provo përsëri pas pak."). Kodi i saktë e kthen provën mbrapsht (me kusht).
+     `ekipa.js?v=234` pret Worker 165 (administratori sheh "ngjite kodin e ri" derisa ta vendosë).
+   - **SRI** (`integrity="sha384-…"`) te 4 skriptat e jsDelivr (html5-qrcode, barcode-detector, JsBarcode, jsPDF), te index.html
+     dhe pc.html. Hash-et nga tarball-et e npm (të njëjtat bajte që jep jsDelivr). sw.js i ruan si përgjigje CORS (`cache.add`),
+     prandaj SRI kalon edhe pa internet. Kur ndërrohet versioni i një librarie, DUHET ndërruar edhe hash-i (përndryshe s'ngarkohet).
+   - **Kundër "clickjacking"**: GitHub Pages s'lejon header-a (X-Frame-Options / frame-ancestors s'punojnë në meta), prandaj
+     `<style id="paKornize">html{display:none}` hiqet vetëm kur `window.self === window.top`; në iframe provon `top.location`.
+   - **CSP minimale** në meta: `object-src 'none'; base-uri 'self'; form-action 'self'` + `referrer` strict-origin-when-cross-origin.
+     CSP e plotë (script-src) NUK u vendos: kodi ka shumë skripta inline, porta.js përdor `new Function` për ta njohur shfletuesin e
+     vjetër, ZXing kërkon `wasm-unsafe-eval`, Firebase Auth ngarkon iframe nga firebaseapp.com; gabim aty = Stoku s'hapet.
+   - **sw.js**: `notificationclick` hap vetëm adresa të së njëjtës origjinë.
+   - Testi: `siguria-v234.js` (SRI ngarkon/refuzon skriptin e ndryshuar, iframe nga origjinë tjetër në portin 8766 = e fshehur,
+     sw), `wp/fjalekalimi-prova.mjs` 8–8c (gara). Pa testim në pajisje të vërtetë.
+   - **Jo dobësi (raportet automatike i shënojnë gabimisht)**: çelësi `AIza…` i Firebase-it në HTML është publik sipas dizajnit
+     (mbrojtja = rregullat e Firestore). Mund të kufizohet te Google Cloud Console (API restrictions), jo me referrer (Worker-i dhe
+     aplikacioni Android e përdorin pa referrer).
+   - **Të mbetura (vendim i pronarit)**: lejet (lejet.js) zbatohen vetëm në aplikacion, jo te rregullat e `dyqane/{uid}`; një llogari
+     mund ta vendosë vetë `perdoruesit/{uid}.sasiaShpejte` (butonat +/-, vetëm te dyqani i vet); `/fjalekalimi/kerko` tregon a ekziston
+     një emër; fjalëkalimi minimum 6 shenja; `tel/stoku-tel.jks` dhe `ora/stoku-ora.jks` në repo (të mbrojtura me `APK_FJALEKALIMI`).
+
 0000000. **DYQANI S'MBETET PA FOLDERA (v233 = 1.29.1)**: pronari, pas v232: folderat e pda34 "po i heken", edhe pse s'ia
    ka ndaluar t'i ketë (pda34 s'ka lejen "Krijo dhe ndrysho folderat", prandaj s'ka as "Folder i ri"). **Shkaku**: 4
    folderat e parazgjedhur kanë të njëjtat id në krejt llogaritë (`ushqimore`, `pije`, `higjiene`, `fresh`) dhe s'kanë

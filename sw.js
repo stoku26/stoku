@@ -10,7 +10,7 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v233';
+var CACHE = 'stoku-v234';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
 importScripts('./afatet.js?v=216', './njoftimet.js?v=216');
@@ -30,11 +30,11 @@ var SHELL = FAQET.concat([
   './skedaret.js?v=1',
   './lejet.js?v=2',
   './afatet.js?v=216',
-  './ekipa.js?v=231',
+  './ekipa.js?v=234',
   './android.js?v=167',
   './porta.js?v=232',
   './njoftimet.js?v=216',
-  './teRejat.js?v=233',
+  './teRejat.js?v=234',
   './manifest.webmanifest?v=87',
   './css/stoku-tokens.css?v=5',
   './css/stoku.css?v=39',
@@ -193,6 +193,8 @@ self.addEventListener('push', function (e) {
 self.addEventListener('notificationclick', function (e) {
   e.notification.close();
   var url = (e.notification.data && e.notification.data.url) || './index.html#afatet';
+  // v234: hapen vetëm faqet e Stoku-t (adresë relative ose e të njëjtës origjinë), asnjëherë një faqe e huaj
+  try { if (new URL(url, self.location.href).origin !== self.location.origin) url = './index.html#afatet'; } catch (x) { url = './index.html#afatet'; }
   var perPc = /pc\.html/.test(url);
   var mesazhi = /#\/?ekipa/.test(url) ? { lloji: 'hap-ekipa', pamja: /anetaret/.test(url) ? 'anetaret' : /njoftimet/.test(url) ? 'njoftimet' : 'afatet' } : { lloji: 'hap-afatet' };
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (dritaret) {
