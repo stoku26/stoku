@@ -539,8 +539,9 @@
       r.b[x.barkodi] = 1;
       if (!x.nePritje) r.vetemPritje = false; else { if (x.nga) r.nga[x.nga] = 1; r.kohaP = Math.max(r.kohaP, Number(x.koha) || 0); }
     });
-    // v214: gjendja e hyrjes më vete vendos (e kontrolluar ose në pritje); pa të, si më parë sipas burimeve
-    Object.keys(m).forEach(function (k) { var r = m[k]; r.pritje = r.regjistruar ? false : r.regPritje ? true : r.vetemPritje; });
+    // v214: gjendja e hyrjes më vete vendos (e kontrolluar ose në pritje). v238: pa hyrje = në pritje (furnizuesi s'është
+    // kontrolluar kurrë; më parë dilte si i kontrolluar sapo kishte një afat ose produkt)
+    Object.keys(m).forEach(function (k) { var r = m[k]; r.pritje = !r.regjistruar; });
     return Object.keys(m).filter(function (k) {
       var r = m[k];
       // i fshirë (me çdo shkrim): vetëm nëse ruhet sërish ose dikush e shkruan sërish (pret kontrollin)
@@ -672,7 +673,7 @@
   // automatikisht, m: 1 = ndryshuar me dorë, s: 1 = nga administratori, x: 1 = harruar ("Harroje") }.
   // Klasat kur dy hyrje përplasen: administratori (s) > përdoruesi / e harruar > automatike; brenda klasës fiton më e reja.
   // Hyrja e administratorit s'mbishkruhet nga të tjerët: ata e shohin kur skanojnë (mund ta ndryshojnë vetëm te afati i tyre).
-  var KUJTESA_KEY = 'stoku:kujtesa:v1', KUJTESA_MAKS = 20000, KUJTESA_BARKODI = /^[^\s]{1,40}$/;
+  var KUJTESA_KEY = 'stoku:kujtesa:v1', KUJTESA_MIGRIMI = 'stoku:kujtesa:kontrolli-v238', KUJTESA_MAKS = 20000, KUJTESA_BARKODI = /^[^\s]{1,40}$/;
   function pastroBarkodin(b) { return String(b == null ? '' : b).replace(/\s+/g, '').slice(0, 40); }
   function pastroTekstin(t, n) { return String(t == null ? '' : t).replace(/\s+/g, ' ').trim().slice(0, n); }
   // v206: "Harroje" e administratorit (x + s) ka të njëjtën peshë si ruajtja e tij: fiton më e reja, ndryshe produkti
@@ -697,14 +698,15 @@
     var r = { e: e, f: f, k: k };
     if (x.m) r.m = 1; else if (x.a) r.a = 1;
     if (x.s) r.s = 1;
-    if (x.s && x.r) r.r = 1;
+    if (x.r) r.r = 1; // v238: edhe pa s (i mësuar vetë, në pritje)
     var n = pastroTekstin(typeof x.n === 'string' ? x.n : '', 40);
     if (n) r.n = n;
     return r;
   }
   // Produkt (ose furnizues) që pret kontrollin e administratorit: i shkruar nga një koleg (ka autor, s'është i administratorit,
-  // v201), ose i shtuar nga vetë administratori gjatë punës (r = "rishiko", v214) derisa ta ruajë te Cilësimet → Stoku
-  function eshteNePritje(x) { return !!(x && !x.x && (x.s ? x.r : x.n)); }
+  // v201), ose i shtuar nga vetë administratori gjatë punës (r = "rishiko", v214) derisa ta ruajë te Cilësimet → Stoku.
+  // v238: edhe pa autor me r: i mësuar vetë në sfond (nga afatet, stoku, afatet e kolegëve) ose i shkruar pa llogari të njohur
+  function eshteNePritje(x) { return !!(x && !x.x && (x.s ? x.r : (x.n || x.r))); }
   // v207: furnizuesit që administratori i ka kontrolluar ruhen më vete në kujtesë ("furnizuesi " + emri; me hapësirë, që
   // të mos përzihen me barkodet dhe versionet e vjetra t'i injorojnë). S'fshihen kur fshihen produktet e tyre; vetëm me dorë.
   var FURN_PARA = 'furnizuesi ';
@@ -717,7 +719,25 @@
       if (harta) return harta;
       try { harta = JSON.parse((ruajtja && ruajtja.getItem(KUJTESA_KEY)) || '{}'); } catch (e) { harta = null; }
       if (!harta || typeof harta !== 'object' || Array.isArray(harta)) harta = {};
+      migroKontrollin(harta);
       return harta;
+    }
+    // v238, një herë për pajisje: produktet që Stoku i mësoi vetë në 30 ditët e fundit (para v238 kalonin direkt te
+    // Produktet pa kontroll) kthehen te "Produktet e reja". Vetëm në këtë pajisje (koha s'ndryshon, s'i dërgohen grupit).
+    function migroKontrollin(h) {
+      var u = false;
+      try { u = !ruajtja || ruajtja.getItem(KUJTESA_MIGRIMI) === '1'; } catch (e) { u = true; }
+      if (u) return;
+      var kufiri = Date.now() - 30 * 86400000, n = 0;
+      Object.keys(h).forEach(function (b) {
+        var x = h[b];
+        if (!x || eshteCelesFurnizuesi(b) || x.x || !x.a || x.m || x.s || x.n || x.r || !((Number(x.k) || 0) >= kufiri)) return;
+        x.r = 1; n++;
+      });
+      try {
+        if (n) ruajtja.setItem(KUJTESA_KEY, JSON.stringify(h));
+        ruajtja.setItem(KUJTESA_MIGRIMI, '1');
+      } catch (e) { /* ok */ }
     }
     function shkruaj() {
       var h = lexo(), ks = Object.keys(h);
@@ -772,10 +792,10 @@
       emri = pastroTekstin(emri, 80);
       var c = celesIFurnizuesit(emri); if (!c) return;
       if (celesatEFurnizuesit(h, emri.toLocaleLowerCase('sq'), idx).length) return;
-      if (!autori.admin && !autori.emri) return; // pa autor s'mund të presë kontrollin
       var ri = { e: emri, f: '', k: tani || Date.now() };
       if (autori.admin) { ri.s = 1; ri.r = 1; }
       if (autori.emri) ri.n = autori.emri;
+      else if (!autori.admin) ri.r = 1; // v238: pa llogari të njohur (p.sh. ende pa u lidhur): prapë pret kontrollin
       h[c] = ri;
       shtoNeIndeks(idx, c);
       if (ndr) ndr.push(c);
@@ -797,7 +817,7 @@
         if (!c || celesatEFurnizuesit(h, v, idx).length) return;
         if (fshire[v] && fshire[v] >= (Number(x.k) || 0)) return;
         h[c] = x.s ? { e: x.f, f: '', k: Number(x.k) || 1, s: 1, r: 1, n: x.n || '' } : { e: x.f, f: '', k: Number(x.k) || 1, n: x.n };
-        if (!h[c].n) delete h[c].n;
+        if (!h[c].n) { delete h[c].n; if (!x.s) h[c].r = 1; } // v238: pa autor (i mësuar vetë): pret kontrollin me r
         shtoNeIndeks(idx, c);
         ndr.push(c);
       });
@@ -813,6 +833,9 @@
         if (x && klasaEHyrjes(x) !== 0) return false;
         ri = { e: (x && x.e) || emri, f: (x && x.f) || furn, k: tani || Date.now(), a: 1 };
         if (x && ri.e === x.e && ri.f === x.f) return false;
+        // v238: produkti që Stoku e mëson vetë (nga afatet, stoku, afatet e kolegëve) s'del më direkt te Produktet:
+        // pret kontrollin e administratorit si çdo produkt i ri. Të vjetrit e kontrolluar mbeten siç janë.
+        if (!x || eshteNePritje(x)) ri.r = 1;
       } else {
         var vjeter = x && !x.x ? x : null;
         if (x && x.s && !autori.admin) return false; // e administratorit (edhe e harruar prej tij): të tjerët s'e mbishkruajnë
@@ -826,6 +849,9 @@
         // presin kontrollin e administratorit); i njëjti emër e furnizues s'e kalon një produkt të njohur në pritje
         if (autori.emri && (autori.admin || !vjeter || ri.e !== vjeter.e || ri.f !== vjeter.f)) ri.n = autori.emri;
         else if (vjeter && vjeter.n) ri.n = vjeter.n;
+        // v238: pa autor (llogaria ende e panjohur) ose mbi një produkt që pret kontrollin: mbetet në pritje (r), që asnjë
+        // produkt i ri ose i ndryshuar të mos kalojë te Produktet pa e parë administratori
+        if (!autori.admin && !ri.n && (!vjeter || ri.e !== vjeter.e || ri.f !== vjeter.f || eshteNePritje(vjeter))) ri.r = 1;
         if (ri.f) regjistroIRi(h, ri.f, ri.k, ndr, idx); // v214: furnizuesi i ri ruhet më vete (në pritje), nga kushdo
       }
       h[b] = ri;
@@ -861,6 +887,7 @@
         var ri = !emri && !furn ? { x: 1, k: Date.now() } : { e: emri, f: furn, k: Date.now(), m: 1 };
         if (autori.admin) ri.s = 1;
         if (!ri.x && autori.emri) ri.n = autori.emri;
+        if (!ri.x && !autori.admin && !ri.n) ri.r = 1; // v238: pa autor: prapë pret kontrollin
         h[b] = ri;
         var ndr = [b];
         if (ri.f) regjistroIRi(h, ri.f, ri.k, ndr); // v214: një furnizues i ri pret kontrollin edhe kur shkruhet këtu
@@ -905,6 +932,25 @@
       regjistroFurnizuesinERi: function (emri) {
         var h = lexo(), ndr = [];
         regjistroIRi(h, emri, 0, ndr);
+        if (ndr.length) { shkruaj(); njofto(ndr); }
+        return ndr.length;
+      },
+      // v238: sfondi i administratorit: furnizuesit e afateve/stokut pa asnjë hyrje (as të kontrolluar, as në pritje, as të
+      // fshirë, pa dallim shkronjash) ruhen NË PRITJE, me kohën 1 (çdo hyrje e vërtetë nga një pajisje tjetër e mund).
+      // Para v238 ruheshin si të kontrolluar: furnizuesit e rinj kalonin te Furnizuesit pa kontroll.
+      regjistroFurnizuesitNePritje: function (emrat) {
+        if (!autori.admin) return 0;
+        var h = lexo(), ndr = [];
+        var njohur = {};
+        Object.keys(h).forEach(function (c) { if (eshteCelesFurnizuesi(c)) njohur[c.slice(FURN_PARA.length).toLocaleLowerCase('sq')] = 1; });
+        (emrat || []).forEach(function (e) {
+          e = pastroTekstin(e, 80);
+          var c = celesIFurnizuesit(e), v = e.toLocaleLowerCase('sq');
+          if (!c || njohur[v]) return;
+          h[c] = { e: e, f: '', k: 1, s: 1, r: 1 };
+          if (autori.emri) h[c].n = autori.emri;
+          njohur[v] = 1; ndr.push(c);
+        });
         if (ndr.length) { shkruaj(); njofto(ndr); }
         return ndr.length;
       },
@@ -978,7 +1024,7 @@
           var x = h[b];
           if (!x || !celesIVlefshem(b)) return;
           o[b] = x.x ? { e: '', f: '', k: x.k || 0, a: 0, m: 0, s: x.s ? 1 : 0, n: '', x: 1, r: 0 }
-            : { e: x.e || '', f: x.f || '', k: x.k || 0, a: x.a ? 1 : 0, m: x.m ? 1 : 0, s: x.s ? 1 : 0, n: x.n || '', x: 0, r: x.s && x.r ? 1 : 0 };
+            : { e: x.e || '', f: x.f || '', k: x.k || 0, a: x.a ? 1 : 0, m: x.m ? 1 : 0, s: x.s ? 1 : 0, n: x.n || '', x: 0, r: x.r ? 1 : 0 };
         });
         return o;
       },

@@ -31,6 +31,8 @@
  *   Cron Trigger (Settings → Trigger Events → Cron: "* * * * *" = çdo minutë) → scheduled(): kur te pajisja është ora e zgjedhur,
  *     dërgon një njoftim me afatet e skaduara (dhe ato që skadojnë këtë javë). Ruhet te i njëjti KV ("FOTO").
  *
+ * Ora (v166): GET /ora/krejt (X-Stoku-Ora) → { dita, d7, d30, krejt: [{ i, e, b, d, s, f }] } krejt afatet aktive, sipas datës.
+ *
  * Fotot e profilit (v141) — ruhen te Cloudflare KV (binding "FOTO"), JO te Firebase:
  *   PUT    /foto        (Bearer token)  → ruan foton e vetë përdoruesit (JPEG/PNG/WebP, ≤ 150 KB)
  *   DELETE /foto        (Bearer token)  → heq foton e vet
@@ -46,7 +48,7 @@ const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databa
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
 const PUSH_MAKS = 36;
-const VERSIONI_WORKER = 165; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 166; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 const W = {
@@ -306,6 +308,14 @@ async function trajtoOren(req, env, rruga, pergjigju) {
     const skaduaraL = af.filter(a => a.d < sot).sort((x, y) => x.d < y.d ? 1 : x.d > y.d ? -1 : 0);
     return pergjigju({ ok: true, dita: sot, emri: tok.emri || '', ekipa: !!tok.rt, sot: lista, java: java.slice(0, 60), javaN: java.length, skaduara: skaduaraL.length, skaduaraL: skaduaraL.slice(0, 60) });
   }
+  // v166: krejt afatet aktive (ora: "8–30 ditë", "Mbi 30 ditë" dhe kërkimi sipas produktit, furnizuesit ose barkodit).
+  // d7/d30: kufijtë (data e sotme + 7 / + 30 ditë), që ora t'i ndajë pa e llogaritur vetë datën.
+  if (rruga === '/ora/krejt' && req.method === 'GET') {
+    const u = new URL(req.url), tz = u.searchParams.get('tz') || 'Europe/Belgrade';
+    const sot = kohaLokale(Date.now(), tzIVlefshem(tz) ? tz : 'Europe/Belgrade').dita;
+    const af = (await afatetPaTeHequrat(env, uid)).slice().sort((x, y) => x.d < y.d ? -1 : x.d > y.d ? 1 : (x.e || '').localeCompare(y.e || ''));
+    return pergjigju({ ok: true, dita: sot, d7: shtoDite(sot, 7), d30: shtoDite(sot, 30), krejt: af });
+  }
   if (rruga === '/ora/hiq' && req.method === 'POST') {
     // "ids" (v162): "Hiqi krejt" në një kërkesë të vetme. Disa kërkesa njëra pas tjetrës në të njëjtin çelës KV dështonin.
     const ids = (Array.isArray(t.ids) ? t.ids : [t.i]).map(x => String(x || '').slice(0, 60)).filter(Boolean).slice(0, 200);
@@ -439,6 +449,7 @@ async function trajtoOrarin(req, env, pergjigju) {
       const x = { e: String(a.e || '').slice(0, 120), b: String(a.b || '').slice(0, 40), d: a.d };
       if (a.i) x.i = String(a.i).slice(0, 60);
       if (typeof a.s === 'number' && isFinite(a.s)) x.s = a.s;
+      if (a.f) x.f = String(a.f).slice(0, 80); // v166: furnizuesi (kërkimi në orë)
       return x;
     });
     await env.FOTO.put('orari-afatet:' + uid, JSON.stringify(af));

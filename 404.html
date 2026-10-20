@@ -2,6 +2,8 @@
 <html lang="sq">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: blob: https://*.googleapis.com https://*.mendurb.workers.dev https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://www.gstatic.com; frame-src https://stoku-appi.firebaseapp.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Faqja s'u gjet • Stoku</title>
@@ -10,15 +12,7 @@
 <link rel="icon" href="/logo/favicon.svg?v=3" type="image/svg+xml">
 <link rel="icon" href="/logo/favicon-32.png?v=3" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
-<script>
-  // Tema si te aplikacioni: zgjedhja e përdoruesit (Cilësimet → Tema), përndryshe ajo e sistemit
-  (function () {
-    var t = null;
-    try { t = localStorage.getItem('stoku:tema'); } catch (e) { /* ok */ }
-    if (t !== 'dark' && t !== 'light') t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-tema', t);
-  })();
-</script>
+<script src="/tema.js?v=238"></script>
 <style>
   @font-face { font-family: 'Onest'; src: url('/fonts/onest.woff2') format('woff2'); font-weight: 400 800; font-style: normal; font-display: swap; }
   :root { --bg: #f6f5f2; --surface: #ffffff; --line: #e6e4df; --ink: #14161b; --muted: #6b6e76; --accent: #1f5fc4; --accent-press: #16479a; color-scheme: light; }
@@ -55,19 +49,6 @@
   <a class="btn" id="hapStokun" href="/">Hap Stoku-n</a>
   <p class="vete">Pas pak sekondash të çon vetë te Stoku.</p>
 </main>
-<script>
-  (function () {
-    // Service worker-at e vjetër jashtë rrënjës (p.sh. Stoku Beta te /beta/, që u hoq) çregjistrohen: Stoku ka vetëm atë te "/"
-    try {
-      if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
-        navigator.serviceWorker.getRegistrations().then(function (rr) {
-          rr.forEach(function (r) { try { if (new URL(r.scope).pathname !== '/') r.unregister(); } catch (e) { /* ok */ } });
-        }).catch(function () { /* ok */ });
-      }
-    } catch (e) { /* ok */ }
-    // Faqja kryesore e zgjedh vetë versionin: telefoni (index.html) ose kompjuteri (pc.html)
-    setTimeout(function () { location.replace('/'); }, 6000);
-  })();
-</script>
+<script src="/faqja-404.js?v=238"></script>
 </body>
 </html>

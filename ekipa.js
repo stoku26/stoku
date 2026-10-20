@@ -444,7 +444,7 @@
       if (!uid()) return { ok: false, arsye: 'pa-hyrje' };
       var vetemMeOrar = !(o && o.aktiv);
       var l = (afatet || []).filter(function (a) { return a && a.statusi !== 'hequr' && /^\d{4}-\d{2}-\d{2}$/.test(a.data || ''); })
-        .map(function (a) { var x = { i: String(a.id || '').slice(0, 60), e: String(a.emri || '').slice(0, 120), b: String(a.barkodi || '').slice(0, 40), d: a.data }; if (typeof a.sasia === 'number') x.s = a.sasia; return x; });
+        .map(function (a) { var x = { i: String(a.id || '').slice(0, 60), e: String(a.emri || '').slice(0, 120), b: String(a.barkodi || '').slice(0, 40), d: a.data }; if (typeof a.sasia === 'number') x.s = a.sasia; if (a.furnizuesi) x.f = String(a.furnizuesi).slice(0, 80); return x; }); // v238: f = furnizuesi (kërkimi në orë)
       var h = hashTekst(JSON.stringify(l)), ruajtur = lexoLS(KEY_ORARI_AFATET);
       // Serveri tha para pak që s'ka as orar as orë: s'pyetet sërish për 10 min
       if (vetemMeOrar && ruajtur && ruajtur.uid === uid() && ruajtur.paOrar && Date.now() - ruajtur.koha < 600000) return { ok: true, paOrar: true };
@@ -1030,7 +1030,7 @@
       aktivizoPush: aktivizoPush,
       caktivizoPush: caktivizoPush, pastroOrarinEJetim: pastroOrarinEJetim, lejoPushinEGrupit: lejoPushinEGrupit,
       pushAktiv: pushAktiv, pushPerNjoftimet: pushPerNjoftimet,
-      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 165,
+      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 166,
 
       // ---------- Kujtesa e produkteve e grupit (v197): grupet/{g}/kujtesa/{p0..p9, px} → { p: { barkodi: {e,f,k,a,m,x} } } ----------
       // E ndarë sipas shifrës së fundit të barkodit (çdo dokument ≤ 1 MB), që të nxërë dhjetëra mijëra produkte.

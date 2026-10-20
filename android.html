@@ -2,6 +2,8 @@
 <html lang="sq">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: blob: https://*.googleapis.com https://*.mendurb.workers.dev https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://www.gstatic.com https://api.github.com; frame-src https://stoku-appi.firebaseapp.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stoku për Android</title>
 <style>
@@ -28,16 +30,6 @@
   </ol>
   <p class="g">Versionet e reja i ofron vetë aplikacioni.</p>
 </div>
-<script>
-  fetch('https://api.github.com/repos/stoku26/stoku/releases?per_page=100').then(function (r) { return r.json(); }).then(function (l) {
-    var m = null;
-    (l || []).forEach(function (r) {
-      var n = /^tel-v(\d+)$/.exec(r.tag_name || ''); if (!n || r.draft) return;
-      (r.assets || []).forEach(function (a) { if (/\.apk$/.test(a.name) && (!m || +n[1] > m.n)) m = { n: +n[1], url: a.browser_download_url }; });
-    });
-    if (m) { document.getElementById('shkarko').href = m.url; document.getElementById('info').textContent = 'Versioni 1.0.' + m.n; }
-    else document.getElementById('info').textContent = 'Versioni i parë po përgatitet. Provo pas pak minutash.';
-  }).catch(function () { document.getElementById('info').textContent = ''; });
-</script>
+<script src="faqja-android.js?v=238"></script>
 </body>
 </html>

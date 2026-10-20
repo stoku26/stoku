@@ -33,9 +33,8 @@
 
   // Firebase (v12) kërkon shfletues të ri (ES2020: Chrome/WebView 80+, Safari 13.1+). Në një shfletues të vjetër
   // moduli i Firebase-it s'ngarkohet fare — kjo s'është mungesë interneti dhe përdoruesit i thuhet saktë.
-  var SHFLETUES_I_VJETER = (function () {
-    try { new Function('var a = null; return a?.b ?? 1;'); return false; } catch (e) { return true; }
-  })();
+  // v238: e vendos es2020.js (para porta.js); `new Function` s'përdoret më, se CSP-ja (pa 'unsafe-eval') e ndalon
+  var SHFLETUES_I_VJETER = window.__stokuES2020 !== true;
   var MESAZHI_VJETER = 'Ky shfletues është shumë i vjetër për hyrjen në Stoku. Përditëso Chrome (dhe "Android System WebView" nga Play Store) ose Safari, pastaj hape sërish.';
   function mesazhiPaLidhje() {
     if (SHFLETUES_I_VJETER) return MESAZHI_VJETER;

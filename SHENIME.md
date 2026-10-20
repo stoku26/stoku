@@ -26,8 +26,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 
 | Skedar | Çka është |
 |---|---|
-| `index.html` | Versioni për **telefon/PDA** (~5000+ rreshta: HTML+CSS+JS gjithçka në një skedar). |
-| `pc.html` | Versioni për **kompjuter** (~4600+ rreshta, e njëjta bazë e të dhënave, UI ndryshe: tabelë, shirit anësor, shkurtore tastiere). |
+| `index.html` | Versioni për **telefon/PDA**: vetëm HTML (v238: kodi te `app-tel.js`, `fillimi-tel.js`, `firebase-tel.js`; CSP pa skripta inline). |
+| `pc.html` | Versioni për **kompjuter**: vetëm HTML (v238: kodi te `app-pc.js`, `fillimi-pc.js`, `firebase-pc.js`); e njëjta bazë e të dhënave, UI ndryshe. |
 | `afatet.js` | Logjika e përbashkët për "Afatet" (data, statuse, lexim AI, formatim). Përdoret nga të dy faqet **dhe** nga `sw.js` (për njoftimet në sfond). |
 | `bashkimi.js` | Logjika e bashkimit të të dhënave mes pajisjeve (LWW me kohë, fshirjet si tombstones). E përbashkët. |
 | `ruajtja.js` | Ndarja e dyqanit në Firestore në disa dokumente (shih më poshtë "Firebase"). |
@@ -51,6 +51,49 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    Në fjali: presje, pikë, dy pika ose kllapa. Si ndarës: "·" (p.sh. "Sinkronizuar · 12:21") ose "•" (titulli
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
+
+0000000. **KONTROLLI PËR ÇDO PRODUKT/FURNIZUES, CSP E PLOTË, LOGOJA, PDA, ORA (v238 = 1.30.0, Worker 166)**: kërkesat e pronarit:
+   (1) "te Cilësimet > Stoku më janë shtuar furnizues e produkte pa dalë për kontroll... çdo import (foto e fletës, skedar, skanim,
+   shkrim me dorë) të dalë për kontroll"; (2) raporti i tretë i sigurisë (UpGuard): "CSP implemented unsafely"; (3) logoja në PC:
+   hapësira djathtas saj njihej si logo ("Përmbledhja"); klikimi i logos = rifreskim + risinkronizim (PC, web, Android); (4) PDA:
+   "Fshih tastierën" aktiv = asnjë tastierë në ekran askund; (5) ora: krejt produktet, të gjelbrat (>30 ditë) te një buton në fund,
+   kërkimi sipas produktit/furnizuesit/barkodit.
+   - **(1) Shkaku**: (a) mësimi në sfond (`planifikoMesimin` → `mesoShume(..., 'plotëso')` nga afatet, stoku dhe afatet e kolegëve)
+     krijonte hyrje automatike (`a:1`) pa autor = të kontrolluara, direkt te Produktet; (b) `ruajFurnizuesitEMiratuar` (sfondi i
+     administratorit) i ruante si të KONTROLLUAR furnizuesit e afateve/stokut pa hyrje; (c) `listaEFurnizuesve`: furnizuesi pa hyrje
+     dilte i kontrolluar sapo kishte një afat/produkt; (d) shkrimi pa autor (llogaria ende e panjohur) s'priste kontrollin.
+     **afatet.js?v=238**: `eshteNePritje(x) = !x.x && (x.s ? x.r : (x.n || x.r))` (r edhe pa s); 'plotëso' i ri ose mbi një në
+     pritje → `r:1`; 'mbishkruaj' pa autor ose mbi një në pritje → `r:1`; `vendos`/`regjistroIRi` pa autor → `r:1`;
+     `siguroFurnizuesitNePritje` (produkt pa autor) → furnizuesi me `r:1`; `hyrjaEPastruar`/`hyrjePerGrup` e ruajnë `r` edhe pa `s`;
+     metodë e re `regjistroFurnizuesitNePritje(emrat)` (vetëm administratori, kohë 1, vetëm emrat pa asnjë hyrje, as të fshirë), që
+     e zëvendëson `regjistroFurnizuesit` te `ruajFurnizuesitEMiratuar` (tel + PC); `listaEFurnizuesve`: pa hyrje = në pritje
+     (`r.pritje = !r.regjistruar`). Migrimi një herë për pajisje (`stoku:kujtesa:kontrolli-v238`): të mësuarat vetë (`a`, pa m/s/n/r)
+     e 30 ditëve të fundit → `r:1` (vetëm lokalisht, koha s'ndryshon). Lista publike e sugjerimeve (`publikoFurnizuesit`) ka vetëm të
+     kontrolluarit. Testi `kontrolli-v238-njesi.js` (24; me kodin e vjetër 9 gabime); u përditësuan kujtesa-njesi, kujtesa-test,
+     kujtesa-grupi-test, harro-sync-test (furnizuesi i kontrolluar te `grupet/g1/kujtesa/px`), furn-ruaj-test, furn-sugjerim-test.
+   - **(2) CSP pa 'unsafe-inline'**: krejt skriptat inline u nxorën në skedarë: `kornize.js` (kundër iframe), `fillimi-tel.js` /
+     `fillimi-pc.js` (koka), **`app-tel.js` (KODI KRYESOR I TELEFONIT, ~7270 rreshta) / `app-pc.js` (i kompjuterit, ~6010)**,
+     `firebase-tel.js` / `firebase-pc.js` (moduli), `emri-dyqanit.js` (`data-id`), `es2020.js` (zëvendëson `new Function` te
+     porta.js: `window.__stokuES2020`), `tema.js` (404 + privatësia), `faqja-404.js`, `faqja-android.js`. CSP në meta te 5 faqet:
+     `default-src 'self'; script-src 'self' cdn.jsdelivr.net www.gstatic.com apis.google.com 'wasm-unsafe-eval'` (ZXing),
+     style 'unsafe-inline', img https:/data:/blob:, connect *.googleapis.com, *.mendurb.workers.dev, jsDelivr (+ api.github.com
+     te android.html), frame-src stoku-appi.firebaseapp.com, object-src 'none', base-uri/form-action 'self'. **RREGULL I RI: s'ka më
+     skripta inline as `onclick=` në HTML; kodi i ri shkon te app-tel.js/app-pc.js (rrit ?v= te faqja dhe sw.js). Shërbim i ri i
+     jashtëm = shtoje te CSP-ja e 5 faqeve.** Testi `csp-v238.js` (asnjë shkelje: porta, Cilësimet, PDF, ZXing, html5-qrcode,
+     404/android/privatësia; skripti/onerror i injektuar s'ekzekutohet).
+   - **(3) Logoja**: `#logoButon` = vetë `.stk-etiketa` (tel te `#logoSlika`, PC te `#logo`), `title="Rifresko dhe sinkronizo"`;
+     `rifreskoMeLogo()` (app-tel/app-pc): `kryeSinkronizimin()` (≤ 5 s) + `reg.update()` (≤ 1,5 s) + `location.reload()`. PC
+     `#logo` s'ka më kursor/rol/"Përmbledhja". CSS te stoku-tokens.css?v=6. Testi `logo-v238.js`.
+   - **(4) PDA**: `MutationObserver` (`vezhgoFushatERe`) u jep `inputmode="none"` fushave të reja para fokusit; `pointerdown`
+     readonly 120 ms edhe kur fusha është e fokusuar; `mbyllTastierenMeVonese` (0/60/250 ms) te pointerdown/focusin/click;
+     aplikacioni Android (APK e re): `StokuAndroid.tastieraFshehur(po)` (SOFT_INPUT_STATE_ALWAYS_HIDDEN) dhe
+     `StokuAndroid.fshihTastieren()` (WindowInsets ime + InputMethodManager). Testi `pda-tastiera-v238.js`.
+   - **(5) Ora**: Worker 166 `GET /ora/krejt` → `{ dita, d7, d30, krejt }` (krejt afatet aktive, sipas datës) + fusha `f`
+     (furnizuesi ≤ 80) te `/orari` (ekipa.js e dërgon). Ora: `Afat.furnizuesi`, `Krejt`, `Api.merrKrejt/krejtERuajtur`
+     (kopje "krejt"); në fund të listës `ChipGrupi`: "8 deri 30 ditë", "Mbi 30 ditë" (e gjelbër), "Kërko"; `ListaEGrupit`,
+     `KerkoEkrani` (BasicTextField, pa dallim shkronjash/shenjash); `Pamja.Detaji(nga)` kthehet te ekrani nga erdhi. Testi
+     `wp/ora-krejt-prova.mjs`. Duhet: Worker 166 te Cloudflare + APK e re e orës (GitHub Actions).
+   - Pa testim në pajisje të vërtetë (as ora, as PDA, as aplikacioni Android).
 
 0000000. **PRIVATËSIA + SECURITY.TXT (v237 = 1.29.4)**: pronari: kontakti publik `mendurb@gmail.com`, emri i biznesit "Stoku".
    - `privatesia.html` (adresa absolute si 404.html, tema e çelët/errët, CSP minimale): çka ruhet (llogaria, dyqani, skedarët 7 ditë,
