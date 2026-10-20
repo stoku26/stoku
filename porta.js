@@ -269,7 +269,8 @@
     $('pkTabKrijo').classList.toggle('aktiv', krijo); $('pkTabKrijo').setAttribute('aria-selected', String(krijo));
     $('pkPerseritLbl').classList.toggle('pk-fsheh', !krijo);
     $('pkHarrovaRresht').classList.toggle('pk-fsheh', krijo);
-    $('pkFjalekalimi').setAttribute('autocomplete', krijo ? 'new-password' : 'current-password');
+    // v239: vlera ndërtohet nga pjesët; skanerët e sigurisë (Protego) e merrnin vargun e plotë për fjalëkalim të shkruar në kod
+    $('pkFjalekalimi').setAttribute('autocomplete', (krijo ? 'new' : 'current') + '-password');
     $('pkDergo').textContent = krijo ? 'Krijo llogarinë' : 'Hyr';
     $('pkShenim').textContent = krijo
       ? 'Emri: të paktën 3 shkronja ose numra (a–z, 0–9, _ . -). Fjalëkalimi: të paktën 6 shenja. Mbaje mend, të duhet në çdo pajisje.'

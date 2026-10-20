@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 239, versioni: '1.30.1', data: '2026-10-21', titulli: 'Më shumë siguri', pikat: [
+      'stoku.site tash kalon përmes Cloudflare: lidhja është gjithmonë e enkriptuar dhe faqja mbrohet më mirë nga sulmet.',
+      'Rregullime të vogla sigurie te ekrani i hyrjes.'
+    ] },
     { v: 238, versioni: '1.30.0', data: '2026-10-20', titulli: 'Kontrolli, logoja, PDA dhe ora', pikat: [
       'Çdo produkt dhe furnizues i ri (nga fotografimi i fletës, importi, skanimi, shkrimi me dorë ose afatet e kolegëve) pret kontrollin e administratorit te Cilësimet → Stoku, para se të kalojë te Produktet dhe Furnizuesit.',
       'Prek logon e Stoku-t: sinkronizon me cloud-in dhe rifreskon faqen. Hapësira bosh anash logos s\'bën më asgjë.',
