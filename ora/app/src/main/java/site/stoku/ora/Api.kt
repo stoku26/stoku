@@ -14,7 +14,8 @@ import java.net.URLEncoder
 import java.security.SecureRandom
 import java.util.TimeZone
 
-data class Afat(val id: String, val emri: String, val barkodi: String, val data: String, val sasia: Int?, val furnizuesi: String = "")
+// v241: marketi = emri i marketit (`mk`), kur përdoruesi punon në disa markete (merchandiserët)
+data class Afat(val id: String, val emri: String, val barkodi: String, val data: String, val sasia: Int?, val furnizuesi: String = "", val marketi: String = "")
 
 // v238: krejt afatet aktive (GET /ora/krejt): d7/d30 = data e sotme + 7 / + 30 ditë (krahasime teksti, si te serveri)
 data class Krejt(val dita: String, val d7: String, val d30: String, val krejt: List<Afat>)
@@ -133,7 +134,7 @@ object Api {
     // Lista e ndryshuar këtu (heqje nga rafti): ruhet si kopja e fundit, që tile-i dhe komplikacioni ta shohin edhe pa internet
     fun ruajListen(ctx: Context, l: Lista) {
         fun arr(a: List<Afat>) = JSONArray().also { j ->
-            a.forEach { x -> j.put(JSONObject().put("i", x.id).put("e", x.emri).put("b", x.barkodi).put("d", x.data).also { o -> x.sasia?.let { o.put("s", it) }; if (x.furnizuesi.isNotBlank()) o.put("f", x.furnizuesi) }) }
+            a.forEach { x -> j.put(JSONObject().put("i", x.id).put("e", x.emri).put("b", x.barkodi).put("d", x.data).also { o -> x.sasia?.let { o.put("s", it) }; if (x.furnizuesi.isNotBlank()) o.put("f", x.furnizuesi); if (x.marketi.isNotBlank()) o.put("mk", x.marketi) }) }
         }
         val j = JSONObject().put("ok", true).put("dita", l.dita).put("sot", arr(l.sot)).put("java", arr(l.java)).put("javaN", l.javaN)
             .put("skaduara", l.skaduara).put("skaduaraL", arr(l.skaduaraL)).put("ekipa", l.ekipa).put("emri", l.emri)
@@ -229,6 +230,7 @@ object Api {
                 data = o.optString("d"),
                 sasia = if (o.has("s")) o.optInt("s") else null,
                 furnizuesi = o.optString("f"),
+                marketi = o.optString("mk"),
             )
         }
     }

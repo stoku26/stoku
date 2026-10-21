@@ -402,7 +402,15 @@ function krijoFirestore(opt = {}) {
           ekipa
         };
         // si regjistroPerdoruesin: perdoruesit/{uid}
-        if (auth.currentUser) fs.setDoc(fs.doc(db, 'perdoruesit', uid), { perdoruesi: emri, kycurSe: Date.now() }, { merge: true }).catch(() => {});
+        // v241: pastaj lexohet "merchandiser" (si lexoMerchandiserin te firebase-tel.js / firebase-pc.js)
+        if (auth.currentUser) fs.setDoc(fs.doc(db, 'perdoruesit', uid), { perdoruesi: emri, kycurSe: Date.now() }, { merge: true })
+          .then(() => fs.getDoc(fs.doc(db, 'perdoruesit', uid))).then(d => {
+            const v = !!(d.exists() && d.data().merchandiser === true);
+            const para = JSON.parse(localStorage.getItem('stoku:merchandiser') || 'null');
+            if (para && para.uid === uid && para.v === v) return;
+            localStorage.setItem('stoku:merchandiser', JSON.stringify({ uid, v }));
+            if (!!(para && para.uid === uid && para.v === true) !== v) window.dispatchEvent(new Event('stoku-merchandiser'));
+          }).catch(() => {});
         window.dispatchEvent(new Event('stoku-cloud-gati'));
         window.dispatchEvent(new Event('stoku-auth-ndryshoi'));
       }, { once: true });

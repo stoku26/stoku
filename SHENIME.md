@@ -52,6 +52,68 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **MARKETET PËR MERCHANDISERËT (v241 = 1.32.0, Worker 167)**: pronari: "projekti deri tash ishte për 1 grup në 1 market; tash
+   edhe merchandiserët (kolegë jashtë nesh) që punojnë në shumë markete brenda ditës: afatet sipas marketeve me emra që i
+   shkruajnë vetë, te marketi 1 afatet e marketit 1…, njoftimet sipas marketeve". Vendimet e pronarit (pyetje me opsione):
+   marketi njihet **automatikisht me GPS**; **admini i sheh afatet e tyre**, ata hapin **grupin e vet** (grupet ekzistuese) dhe
+   kolegët e grupit ia shohin afatet njëri-tjetrit; **një njoftim ditor i ndarë sipas marketeve**; **Stoku (folderat, sasitë) s'ndahet**.
+   - **`marketet.js`** (i ri, tel + PC + teste): `pastro`, `largesia` (haversine), `gjej` (rrezja 250 m + pasaktësia e GPS-it
+     deri 150 m, më i afërti), `filtro`, `meEmra` (kopje me `mk` = emri), `vendosPaMarket`, `grupo`, marketi aktiv i pajisjes
+     `stoku:marketi:aktiv` {id|null, menyra 'gps'|'dore', koha, kontrolluarSe}, `pasGps` (zgjedhja me dorë fiton 3 orë; jashtë
+     krejt marketeve → null = "Krejt marketet"), `pozita` (getCurrentPosition, **maximumAge 0**: një pikë e vjetër e ngatërronte
+     marketin, testi e kapi), GPS-i kontrollohet në hapje/visibilitychange jo më shpesh se 2 min dhe **vetëm kur një market ka
+     vendndodhje** (pa markete s'pyetet kurrë).
+   - **Të dhënat**: `marketet: [{id, emri, lat, lng, ndryshuarSe}]` te dyqani (kryesori, `ruajtja.js` i ruan fushat e panjohura),
+     `bashkimi.js?v=241` i bashkon si folderat + `fshira.marketet`, `eNjejte` i sheh marketet dhe `afat.m`. Afati: fusha `m` (id).
+     Lokalisht `stoku:marketet:v1`; `porta.js` i fshin të dy çelësat kur ndërrohet llogaria. Kolegët (`FUSHAT_E_PERMBLEDHJES` +
+     'mk') dhe serveri (`/orari` `mk` ≤ 60, ekipa.js, edhe kopja e `kontrolloNjoftimet`) marrin emrin e marketit.
+   - **Telefoni**: Cilësimet → **Marketet** (data-leja afatet): shto (emri ≤ 60, pa dyfishe), prek → riemërto / **"Ruaj
+     vendndodhjen këtu"** / fshi (afatet mbeten pa market). Marketi i parë merr krejt afatet pa market. Çipi **"Je te: X ▾"**
+     (`#afMarketi`, edhe te kryefaqja; "Po sheh: Krejt marketet") → dritarja `#dlgMarketi` (marketet me numrat, Krejt, "Gjej me
+     GPS", "Marketet e mia"). Afatet, numrat, shenja e tabit dhe eksporti = marketi aktiv (`afatetEMarketit()`); te "Krejt"
+     karta e tregon marketin. "Afat i ri": `#afatMarketi` (i detyrueshëm kur ka markete); importi nga Excel dhe fleta nga foto
+     → marketi aktiv, ose pyet `zgjidhMarketin('te-reja')`; përsëritja e fletës krahasohet brenda të njëjtit market.
+   - **Admini**: Përdoruesit → përdoruesi → **"Afatet e X"** (tel: nënfaqja `perdoruesiAfatet`; PC: `#pdAfatetBtn` → `#dlgPdAfatet`):
+     `merrDyqaninEPerdoruesit` (rregullat e lejojnë për adminin), grupuar me `MK.grupo`, vetëm lexim, "Shfaq edhe të hequrat".
+   - **PC**: marketet menaxhohen te telefoni; PC ka `#afMarketiPc` (zgjedhje me dorë, pa GPS), filtrimin, `#afdMarketi`, emrin
+     e marketit te rreshti (Krejt). Importi/fleta me "Krejt marketet" → toast "Zgjidh marketin" (s'ruhet).
+   - **Privatësia** (21.10.2026): marketet + vendndodhja e marketeve; vendndodhja e personit krahasohet vetëm në telefon.
+   - **Worker 167** (e ngjit pronari te Cloudflare; aplikacioni pret 167): `/orari` ruan `mk` (≤ 60); `njoftimiDitor` me
+     markete: "3 produkte skadojnë sot. Albi Mall: Kos, Bukë · Viva Fresh: Jogurt." (deri 4 për market, "+N", ≤ 220 shenja; pa
+     markete si më parë); `/ora/sot` dhe `/ora/krejt` e kthejnë `mk` (ora). Testi `teste/wp/marketet-prova.mjs`.
+   - **VETËM PËR MERCHANDISERËT** (pronari: "mos e lësho për përdoruesit aktualë, vetëm për ata që hapin llogari nga ky moment
+     me opsionin 'Punoj si merchandiser'; si admin te Përdoruesit me mujt me ja lejt ose nal, nëse e ka zgjedh gabim"):
+     - Porta (`porta.js`): te "Krijo llogari" kutia **"Punoj si merchandiser (në disa markete)"** (`#pkMerch`, e pazgjedhur;
+       kalimi te "Hyr" e heq) → `cloud.regjistrohu(emri, fj, { merchandiser })`. Pronari: "Më mbaj mend emrin e përdoruesit"
+       s'duhet te "Krijo llogari" → `#pkMbajLbl` vetëm te "Hyr" (zgjedhja e ruajtur vlen njësoj edhe pas krijimit).
+     - `firebase-tel.js` / `firebase-pc.js?v=241`: `regjistrohu` shkruan `perdoruesit/{uid}.merchandiser = true` (vetëm kur
+       zgjidhet) dhe `localStorage 'stoku:merchandiser' = {uid, v}`; `regjistroTani` pas çdo hyrjeje e lexon
+       (`lexoMerchandiserin`, getDoc) dhe njofton `stoku-merchandiser` vetëm kur ndryshon. Çelësi s'është te
+       `CELESAT_E_TE_DHENAVE` (lidhet me uid-in). `ekipa.js` `degjoKrejtLlogarite` jep `merchandiser`.
+     - `lejet.js?v=4`: leja e re **"Merchandiser (disa markete)"** `marketet` (`prindi: 'afatet'`, **`zgjedhje: true`**): ndryshe
+       nga të tjerat, **mungon = e fikur** (`lejohet`), `pastro` e ruan vetëm kur caktohet, `krejt()` s'e prek, `meZgjedhjet()`
+       e ruan vlerën e mëparshme te "Lejo krejt" / "Ndalo krejt" / "U kontrollua", `teNdaluara` s'e numëron, `zgjedhja()`
+       kthen true/false/null. Rregullat e Firestore s'ndryshojnë (admini e shkruan te `lejet/{uid}` si leje tjetër).
+     - Aplikacioni (`app-tel.js`, `app-pc.js`): `eshteMerchandiser()` = i kyçur + Afatet + (zgjedhja e adminit te lejet, ose
+       flamuri i regjistrimit); `leja('marketet')` e përdor atë; `kaMarkete()` = merchandiser + të paktën një market.
+       Cilësimet → Marketet `data-leja="marketet"`. Ndryshimi (event-i, hyrja, admini) → `rifreskoMerchandiserin()` /
+       `zbatoLejet()` në kohë reale. Jo-merchandiserët: asnjë çip, asnjë pyetje për GPS, krejt afatet (edhe nëse dyqani ka
+       markete), "Çka ka të re" pa hyrjet për marketet (`FJALET_E_LEJEVE` + `['marketet', /market/i]`; admini i sheh).
+     - Admini (tel + PC): te lejet e përdoruesit "Merchandiser" (i ndezur sipas regjistrimit derisa ta ndryshojë),
+       "merchandiser" te rreshti i listës dhe "Merchandiser" te të dhënat e llogarisë.
+   - **Android (`tel/`)**: ACCESS_FINE/COARSE_LOCATION, WebView `setGeolocationEnabled(true)`, `onGeolocationPermissionsShowPrompt`
+     vetëm për stoku.site (kërkon lejen e Android-it, `L_VENDI = 24`). **Ora (`ora/`)**: `Afat.marketi` (`mk` nga serveri)
+     para datës te lista dhe në kërkim. APK-të i ndërton GitHub Actions.
+   - **Pronari duhet**: Worker 167 te Cloudflare; **Cloudflare `Permissions-Policy` → `camera=(self), geolocation=(self),
+     microphone=(), payment=(), usb=()`** (tash `geolocation=()` e bllokon GPS-in në stoku.site; `teste/server-cloudflare.py` e
+     ka tashmë `geolocation=(self)`); APK-të e reja (telefoni, ora).
+   - Testi `teste/marketet-v241.js` (95 OK): njësitë (+ lejet me zgjedhje, "Çka ka të re"), telefoni (GPS i simuluar me
+     Playwright: dy markete, ndërrimi, zgjedhja me dorë, "Gjej me GPS", jashtë marketeve, sinkronizimi, /orari me `mk`,
+     fshirja), llogari e vjetër me markete në dyqan (asnjë ndryshim, asnjë pyetje GPS), admini (afatet; "Merchandiser" ndez/fik
+     në kohë reale, "Lejo krejt" s'e prek), PC, porta (kutia → `{ merchandiser }`, marketet po/jo pas hyrjes).
+     `lejet-e2e-v231.js` / `lejet-pc-e2e-v231.js`: numërimet pa lejet me zgjedhje. `fs-server.js` e lexon `merchandiser` si
+     firebase-tel.js.
+
 0000000. **SASIA E SHPEJTË (+/-) SI LEJE TE PËRDORUESIT + TESTET NË REPO + CLAUDE.md (v240 = 1.31.0)**: pronari (foto e
    PC-së te Grupi → Anëtarët, kolona "+/-"): "hiqe prej qaty, qite te Cilësimet → Përdoruesit, me ja leju ose jo, bone
    aktive për të gjithë dhe çdo user të ri".
@@ -81,7 +143,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      same-origin, Expect-CT), DNSSEC aktiv (DS te Hostinger: Key Tag 2371, Algorithm 13, Digest Type 2), CAA `letsencrypt.org` +
      `pki.goog`, SPF `v=spf1 -all`, DMARC `_dmarc` `v=DMARC1; p=reject;` (domaini s'dërgon email), Domain lock + Privacy protection.
      Transform Rule (Rules → response header, "Set static"): `Permissions-Policy: camera=(self), geolocation=(), microphone=(),
-     payment=(), usb=()` (kamera vetëm për vetë stoku.site, për skanerin; testuar me `getUserMedia`: kamera po, mikrofoni jo),
+     payment=(), usb=()` (v241: duhet `geolocation=(self)` për marketet me GPS) (kamera vetëm për vetë stoku.site, për skanerin; testuar me `getUserMedia`: kamera po, mikrofoni jo),
      `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin` dhe CSP e plotë si header (bashkimi i
      meta-ve të 5 faqeve + `frame-ancestors 'none'`; më parë vetëm `frame-ancestors 'none'`, skanerët ankoheshin "pa default-src,
      script-src, base-uri, object-src" sepse meta s'e lexojnë). **RREGULL: shërbim i ri i jashtëm = shtoje te meta e 5 faqeve DHE

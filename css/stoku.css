@@ -545,3 +545,30 @@ html.sb:not([data-tema="dark"]) .sb-stat__value--exp { color: var(--sb-exp, #d04
 .sb .artikull .kodi.ek-stat-nen { font-family: inherit; font-size: 12px; letter-spacing: 0; }
 /* v196: Cilësimet → Stoku → Produktet (kujtesa e produkteve) */
 .sb .btn.ops-kuj-harro { color: var(--sb-exp); }
+/* v241: marketet (çipi "Je te", zgjedhja, Cilësimet → Marketet) */
+.sb .mk-chip { display: flex; align-items: center; gap: 10px; width: 100%; margin: 0 0 12px; padding: 10px 14px; border: 1px solid var(--sb-line); border-radius: 16px; background: var(--sb-surface); color: var(--sb-ink); font: inherit; text-align: left; cursor: pointer; }
+.sb .mk-chip[hidden] { display: none; }
+.sb .mk-chip > svg:first-child { flex: none; color: var(--sb-ic-gjelber); }
+.sb .mk-chip__tekst { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
+.sb .mk-chip__lbl { font-size: 11.5px; font-weight: 600; color: var(--sb-muted); }
+.sb .mk-chip__emri { font-size: 15px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb .mk-chip__shigj { flex: none; color: var(--sb-muted); }
+.sb .sb-home-krye .mk-chip { margin: 0 0 12px; }
+.sb .mk-fusha { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.sb .mk-fusha[hidden] { display: none; }
+.sb .mk-fusha select { height: 46px; border-radius: 12px; border: 1px solid var(--sb-line); background: var(--sb-surface); color: var(--sb-ink); font: inherit; font-size: 15px; padding: 0 12px; }
+.sb .mk-dlg-nen { margin: 0 0 10px; color: var(--sb-muted); font-size: 13.5px; }
+.sb .mk-dlg-nen:empty { display: none; }
+.sb .mk-dlg-lista { display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; margin-bottom: 6px; }
+.sb .mk-dlg-lista button { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 10px 14px; border: 1px solid var(--sb-line); border-radius: 14px; background: var(--sb-surface); color: var(--sb-ink); font: inherit; font-size: 15px; font-weight: 600; text-align: left; cursor: pointer; }
+.sb .mk-dlg-lista button.aktiv { border-color: var(--sb-accent); box-shadow: inset 0 0 0 1px var(--sb-accent); }
+.sb .mk-dlg-lista button span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb .mk-dlg-lista button small { flex: none; font-size: 12px; font-weight: 600; color: var(--sb-muted); }
+.sb #dlgMarketi .veprime { flex-wrap: wrap; }
+.sb .mk-aktiv { display: flex; flex-direction: column; gap: 10px; }
+.sb .mk-aktiv[hidden] { display: none; }
+.sb .mk-shto { display: flex; gap: 8px; margin-top: 12px; }
+.sb .mk-shto input { flex: 1; min-width: 0; height: 46px; }
+.sb .mk-gabim { color: var(--sb-exp) !important; font-weight: 600; margin-top: 6px; }
+.sb .mk-gabim:empty { display: none; }
+.sb .mk-pd-btn { margin: 0 0 14px; }

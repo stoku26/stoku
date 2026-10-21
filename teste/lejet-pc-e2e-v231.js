@@ -5,6 +5,8 @@ const { chromium } = require('./pw.js');
 const fs = require('fs');
 const { krijoFirestore } = require('./fs-server.js');
 const L = require('../lejet.js');
+// v241: lejet "me zgjedhje" (p.sh. "marketet" = merchandiser) s'janë ndalime dhe s'ruhen me "Ndalo krejt"
+const NR_LEJEVE = L.CELESAT.filter(k => !L.ZGJEDHJE[k]).length;
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
 const B = 'http://127.0.0.1:8765';
 const NM = __dirname + '/npm/node_modules';
@@ -229,7 +231,7 @@ const VP = { width: 1440, height: 900 };
   await m.click('#pdMbrapa'); await m.waitForTimeout(200);
   await m.evaluate(() => [...document.querySelectorAll('#pdPamja .pd-rresht')].find(x => /vjosa/.test(x.textContent)).click()); await m.waitForTimeout(300);
   await m.click('#pdNdaloKrejt'); await m.waitForTimeout(300); await m.click('#kfPo'); await m.waitForTimeout(500);
-  ok(L.teNdaluara(F.S.docs.get('lejet/u7').lejet) === L.CELESAT.length, '4. "Ndalo krejt": vjosa pa asnjë leje');
+  ok(L.teNdaluara(F.S.docs.get('lejet/u7').lejet) === NR_LEJEVE, '4. "Ndalo krejt": vjosa pa asnjë leje');
   ok(await prit(async () => await siTelefon(v), 10000), '4. vjosa pa asnjë leje: kalon te versioni i telefonit');
   await v.waitForTimeout(1500);
   ok(await siTelefon(v) && await v.evaluate(() => document.getElementById('dlgOpsione').classList.contains('hapur')) && !ZBULON.test(await tekstiIDukshem(v)), '4. vjosa: versioni i telefonit me Cilësimet si faqe bazë, pa fjalë për lejet');

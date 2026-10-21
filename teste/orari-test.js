@@ -76,7 +76,7 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
   health = Object.assign({}, health, { versioni: 163 });
   tk = await kutia();
   ok(/kodin e vjetër: ngjite kodin e ri te stoku-push\.$/.test(tk), '5a3. serveri 163 (aplikacioni pret 164, pa chat) → paralajmërim', tk);
-  health = Object.assign({}, health, { versioni: 166, cron: Date.now() - 600000, cronShprehja: '0,15,30,45 * * * *' });
+  health = Object.assign({}, health, { versioni: 167, cron: Date.now() - 600000, cronShprehja: '0,15,30,45 * * * *' });
   tk = await kutia();
   ok(/punon çdo 15 minuta, jo çdo minutë/.test(tk) && /"Every minute"/.test(tk) && !tk.includes('*'), '5c0. Cron çdo 15 min + ora 18:47 → paralajmërim me fjalë (pa yje)', tk);
   ok(kvThirrje === 0, '5c0. Cron-i punon → pa provë të KV-së');

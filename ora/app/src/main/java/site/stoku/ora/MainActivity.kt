@@ -450,8 +450,9 @@ fun ChipGrupi(titulli: String, nen: String, ngjyra: Color, kurPreket: () -> Unit
     )
 }
 
+// v241: emri i marketit para datës (merchandiserët: në cilin market është produkti)
 fun poshteMeFurnizues(a: Afat): String =
-    dataShkurt(a.data) + (a.sasia?.let { " · $it copë" } ?: "") + (if (a.furnizuesi.isNotBlank()) " · " + a.furnizuesi else "")
+    (if (a.marketi.isNotBlank()) a.marketi + " · " else "") + dataShkurt(a.data) + (a.sasia?.let { " · $it copë" } ?: "") + (if (a.furnizuesi.isNotBlank()) " · " + a.furnizuesi else "")
 
 // Kërkimi pa dallim shkronjash dhe pa shenja (ë = e, ç = c)
 fun normalizo(s: String): String =
@@ -505,7 +506,7 @@ fun KerkoEkrani(krejt: Krejt?, duke: Boolean, gabim: String?, pyetja: String, ku
     val q = normalizo(pyetja)
     val pa = pyetja.trim()
     val rezultatet = if (krejt == null || q.isEmpty()) emptyList()
-        else krejt.krejt.filter { a -> normalizo(a.emri).contains(q) || normalizo(a.furnizuesi).contains(q) || (pa.isNotEmpty() && a.barkodi.contains(pa)) }
+        else krejt.krejt.filter { a -> normalizo(a.emri).contains(q) || normalizo(a.furnizuesi).contains(q) || normalizo(a.marketi).contains(q) || (pa.isNotEmpty() && a.barkodi.contains(pa)) }
     Scaffold(timeText = { TimeText() }, positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
         ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
             item { ListHeader { Text("KËRKO", color = Gri, fontWeight = FontWeight.SemiBold) } }

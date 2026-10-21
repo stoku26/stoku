@@ -26,7 +26,7 @@
   var KEY_VIZITOR = 'stoku:vizitor';        // '1' = pajisja është në provë si vizitor (porta s'del)
   var VIZITOR = 'vizitor';                  // pronari i të dhënave lokale gjatë provës
   var CELESAT_E_TE_DHENAVE = ['stoku:foldera:v1', 'stoku:produktet:v2', 'stoku:produktet:v1', 'stoku:fshira:v1',
-    'stoku:rendi-foldera-koha', 'stoku:afatet:v1', 'stoku:kujtesa:v1', 'stoku:kopja-fshirjeve:v1'];
+    'stoku:rendi-foldera-koha', 'stoku:afatet:v1', 'stoku:kujtesa:v1', 'stoku:kopja-fshirjeve:v1', 'stoku:marketet:v1', 'stoku:marketi:aktiv'];
   var PRITJA_MAKS_MS = 7000;
   var SERVERI = 'https://stoku-push.mendurb.workers.dev'; // Worker-i (163+): fjalëkalimi i harruar
   var PRITJA_DERGIMIT_MS = 25000; // "Hyr" para se të ngarkohet Firebase (internet i ngadaltë): pritet deri kaq
@@ -204,7 +204,8 @@
         '<label><span>Fjalëkalimi</span><div class="pk-fusha"><input id="pkFjalekalimi" class="me-sy" name="password" type="password" autocomplete="current-password" maxlength="100" enterkeyhint="go" placeholder="Fjalëkalimi"><button type="button" class="pk-sy" id="pkSy" aria-label="Shfaq fjalëkalimin" title="Shfaq fjalëkalimin">' + SY + '</button></div></label>' +
         '<div class="pk-harrova" id="pkHarrovaRresht"><button type="button" class="pk-lidhje" id="pkHarrova">Ke harruar fjalëkalimin?</button></div>' +
         '<label id="pkPerseritLbl" class="pk-fsheh"><span>Përsërit fjalëkalimin</span><input id="pkPerserit" class="me-sy" name="password2" type="password" autocomplete="new-password" maxlength="100" enterkeyhint="go" placeholder="Shkruaje edhe një herë"></label>' +
-        '<label class="pk-mbaj" for="pkMbaj"><input type="checkbox" id="pkMbaj"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Më mbaj mend emrin e përdoruesit</div></label>' +
+        '<label class="pk-mbaj pk-fsheh" id="pkMerchLbl" for="pkMerch"><input type="checkbox" id="pkMerch"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Punoj si merchandiser (në disa markete)</div></label>' +
+        '<label class="pk-mbaj" id="pkMbajLbl" for="pkMbaj"><input type="checkbox" id="pkMbaj"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Më mbaj mend emrin e përdoruesit</div></label>' +
         '<div class="pk-gabim" id="pkGabim" role="alert"></div>' +
         '<button type="submit" class="pk-btn" id="pkDergo">Hyr</button>' +
         '<p class="pk-shenim" id="pkShenim">Rekomandohet hapja e një llogarie, që të dhënat të ruhen në cloud.</p>' +
@@ -268,6 +269,11 @@
     $('pkTabHyr').classList.toggle('aktiv', !krijo); $('pkTabHyr').setAttribute('aria-selected', String(!krijo));
     $('pkTabKrijo').classList.toggle('aktiv', krijo); $('pkTabKrijo').setAttribute('aria-selected', String(krijo));
     $('pkPerseritLbl').classList.toggle('pk-fsheh', !krijo);
+    // v241: afatet sipas marketeve (me GPS) vetëm për llogaritë e reja që e zgjedhin këtu; administratori e ndryshon më vonë
+    $('pkMerchLbl').classList.toggle('pk-fsheh', !krijo);
+    if (!krijo) $('pkMerch').checked = false;
+    // v241: "Më mbaj mend emrin e përdoruesit" vetëm te "Hyr" (te "Krijo llogari" s'duhet); zgjedhja e ruajtur vlen njësoj
+    $('pkMbajLbl').classList.toggle('pk-fsheh', krijo);
     $('pkHarrovaRresht').classList.toggle('pk-fsheh', krijo);
     // v239: vlera ndërtohet nga pjesët; skanerët e sigurisë (Protego) e merrnin vargun e plotë për fjalëkalim të shkruar në kod
     $('pkFjalekalimi').setAttribute('autocomplete', (krijo ? 'new' : 'current') + '-password');
@@ -546,7 +552,7 @@
       }
     }
     var rez;
-    try { rez = krijo ? await cloud.regjistrohu(emri, fjalekalimi) : await cloud.hyr(emri, fjalekalimi); }
+    try { rez = krijo ? await cloud.regjistrohu(emri, fjalekalimi, { merchandiser: $('pkMerch').checked }) : await cloud.hyr(emri, fjalekalimi); }
     catch (e) { rez = { ok: false }; }
     gjendja.dukePunuar = false;
     btn.disabled = false;

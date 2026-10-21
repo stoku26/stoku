@@ -57,15 +57,36 @@
         // v240: pa sasiaShpejte (leja +/- është te lejet/{uid}, "stokuPlusMinus")
         await setDoc(ref, { perdoruesi: emri, kycurSe: Date.now() }, { merge: true });
       } catch (e) { /* p.sh. pa internet — provohet sërish herën tjetër që hyn */ }
+      lexoMerchandiserin(uid);
+    }
+    // v241: "Punoj si merchandiser" (zgjedhur kur u hap llogaria) → localStorage, që aplikacioni ta dijë edhe pa internet.
+    // Administratori e ndryshon te lejet/{uid} ("marketet"), që fiton mbi këtë.
+    var KEY_MERCH = 'stoku:merchandiser';
+    function ruajMerchandiserin(uid, v) {
+      var para = null;
+      try { para = JSON.parse(localStorage.getItem(KEY_MERCH) || 'null'); } catch (e) { /* ok */ }
+      if (para && para.uid === uid && para.v === v) return;
+      try { localStorage.setItem(KEY_MERCH, JSON.stringify({ uid: uid, v: v })); } catch (e) { /* ok */ }
+      if (!!(para && para.uid === uid && para.v === true) !== v) window.dispatchEvent(new Event('stoku-merchandiser')); // vetëm kur ndryshon
+    }
+    async function lexoMerchandiserin(uid) {
+      try {
+        var d = await getDoc(doc(db, 'perdoruesit', uid));
+        if (auth.currentUser && auth.currentUser.uid === uid) ruajMerchandiserin(uid, !!(d.exists() && d.data().merchandiser === true));
+      } catch (e) { /* pa internet: mbetet vlera e ruajtur */ }
     }
 
     window.__stokuCloud = {
-      async regjistrohu(emriPerdoruesit, fjalekalimi) {
+      async regjistrohu(emriPerdoruesit, fjalekalimi, opsionet) {
         try {
           var kred = await createUserWithEmailAndPassword(auth, emailIBrendshem(emriPerdoruesit), fjalekalimi);
+          var merch = !!(opsionet && opsionet.merchandiser);
+          ruajMerchandiserin(kred.user.uid, merch);
+          // v230: kur u krijua llogaria (administratori e sheh si "llogari e re" te Cilësimet → Përdoruesit); v241: + merchandiser
+          var fillimi = { krijuarSe: Date.now() };
+          if (merch) fillimi.merchandiser = true;
+          setDoc(doc(db, 'perdoruesit', kred.user.uid), fillimi, { merge: true }).catch(function () { /* ok */ });
           regjistroPerdoruesin(emriPerdoruesit, kred.user.uid);
-          // v230: kur u krijua llogaria (administratori e sheh si "llogari e re" te Cilësimet → Përdoruesit)
-          setDoc(doc(db, 'perdoruesit', kred.user.uid), { krijuarSe: Date.now() }, { merge: true }).catch(function () { /* ok */ });
           return { ok: true, uid: kred.user.uid };
         } catch (e) {
           return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) };
