@@ -103,7 +103,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      anëtarësia ekziston → `vendosTreguesin(g)`, `{ ok, rikthyer }`, toast "U ktheve në grupin X (ishe ende anëtar)", pa kërkesë.
    - **Kërkimi:** `normalizoEmrin` heq shenjat (çdo jo-shkronjë/numër = hapësirë), `perputhet` (nënvarg, pa hapësira, krejt fjalët
      në çfarëdo renditje), lista ruhet 15 s dhe lexohet sërish kur s'gjendet asgjë (>2 s), që grupi i sapokrijuar të dalë.
-   - **Rregulla e re (pronari e vendos):** te `match /grupet/{g}` shtohet `allow list: if request.auth != null &&
+   - **Rregulla e re (pronari e vendosi më 21.10.2026):** te `match /grupet/{g}` shtohet `allow list: if request.auth != null &&
      resource.data.pronarUid == request.auth.uid;` (si `allow` më vete: brenda `allow read` me `||` query-ja ndalohej, sepse
      `anetarIGrupit(g)` s'llogaritet për lista). Pa të, pronari i grupit të vjetër (pa listë publike, pa pajisje) s'rikthehet vetë.
    - **Testet:** `teste/grupi-tregues-v243.js` (fs i rremë me metadata, si SDK-ja: kopja e pjesshme te `setDoc`; me ekipa.js e
@@ -1816,6 +1816,8 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
 ## Rregullat e Firestore (v243 rikthimi i grupit (pronarUid), v242 regjistri + kërkesat për grup, v164 grupet, v221 pa chat, v229 skedarët në PC, v230 lejet; më parë v116 + v130 ekipa_push + v140 admini nga llogaria): i vendos PËRDORUESI (unë s'kam qasje)
+
+**Gjendja:** rregullat v243 (me `allow list` te `grupet/{g}`) i vendosi pronari në Firebase më 21.10.2026 (krejt teksti më poshtë).
 
 Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Dyqani lexohet vetëm nga pronari/admin-i;
 `emri`/`perdoruesi` s'falsifikohen (= emri i llogarisë); aplikacioni s'mund ta shtojë/ndryshojë fushën `emri` te
