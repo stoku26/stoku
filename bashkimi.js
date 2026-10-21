@@ -16,6 +16,7 @@
  *  - v233: dyqani s'mbetet pa asnjë folder (sigurojFolderat): pa foldera kthehen 4 të parazgjedhurit.
  *  - Historiku i afateve ruhet i plotë: dyqani në Firebase ndahet në disa dokumente (ruajtja.js),
  *    kështu s'ka më kufirin 1 MB të një dokumenti.
+ *  - v241: marketet (marketet.js) si folderat: fiton ndryshuarSe më i ri, fshirjet ruhen te fshira.marketet.
  */
 (function (root) {
   'use strict';
@@ -33,8 +34,8 @@
 
   function bashkoFshirjet(a, b, tani) {
     var kufiri = tani - MBAJ_FSHIRJET_MS;
-    var rez = { produktet: {}, foldera: {}, afatet: {} };
-    ['produktet', 'foldera', 'afatet'].forEach(function (lloji) {
+    var rez = { produktet: {}, foldera: {}, afatet: {}, marketet: {} };
+    ['produktet', 'foldera', 'afatet', 'marketet'].forEach(function (lloji) {
       [a, b].forEach(function (burimi) {
         var m = burimi && burimi[lloji];
         if (!m || typeof m !== 'object') return;
@@ -148,6 +149,22 @@
     var afatet = Object.keys(am).map(function (id) { return am[id]; })
       .sort(function (a, b) { return String(a.data || '').localeCompare(String(b.data || '')) || String(a.id).localeCompare(String(b.id)); });
 
+    // ---- Marketet (v241) ----
+    var mm = {}, rendiM = [];
+    [cloud.marketet, lokal.marketet].forEach(function (l, i) {
+      lista(l).forEach(function (m) {
+        if (!m || typeof m.id !== 'string' || !m.id) return;
+        if (!mm[m.id]) rendiM.push(m.id);
+        if (!mm[m.id] || (i === 1 ? kohaFold(m) >= kohaFold(mm[m.id]) : kohaFold(m) > kohaFold(mm[m.id]))) mm[m.id] = m;
+      });
+    });
+    Object.keys(mm).forEach(function (id) {
+      var t = fshira.marketet[id];
+      if (t === undefined) return;
+      if (t >= kohaFold(mm[id])) delete mm[id];
+      else delete fshira.marketet[id];
+    });
+
     // ---- Renditja ----
     var kohaCloud = Number(cloud.rendiKoha) || 0, kohaLokale = Number(lokal.rendiKoha) || 0;
     var burimi = kohaCloud > kohaLokale ? cloud.foldera : lokal.foldera;
@@ -165,6 +182,7 @@
       foldera: renditur,
       produktet: Object.keys(pm).map(function (k) { return pm[k]; }),
       afatet: afatet,
+      marketet: rendiM.filter(function (id) { return mm[id]; }).map(function (id) { return mm[id]; }),
       fshira: fshira
     };
   }
@@ -197,7 +215,7 @@
   // Heq shënimet lokale të fshirjeve më të vjetra se afati (thirret pas sinkronizimit të suksesshëm).
   function pastroFshirjetEVjetra(fshira, tani) {
     var kufiri = (tani || Date.now()) - MBAJ_FSHIRJET_MS;
-    ['produktet', 'foldera', 'afatet'].forEach(function (l) {
+    ['produktet', 'foldera', 'afatet', 'marketet'].forEach(function (l) {
       var m = fshira && fshira[l];
       if (!m) return;
       Object.keys(m).forEach(function (k) { if ((Number(m[k]) || 0) < kufiri) delete m[k]; });
@@ -214,9 +232,12 @@
         return celesi(x.kategoriaId, x.barkodi) + '\u0001' + (x.emri || '') + '\u0001' + x.sasia + '\u0001' + kohaProd(x);
       }).sort().join('\u0002');
       var a = lista(g.afatet).filter(Boolean).map(function (x) {
-        return x.id + '\u0001' + kohaFold(x) + '\u0001' + (x.statusi || '') + '\u0001' + (x.data || '') + '\u0001' + (x.sasia === undefined ? '' : x.sasia);
+        return x.id + '\u0001' + kohaFold(x) + '\u0001' + (x.statusi || '') + '\u0001' + (x.data || '') + '\u0001' + (x.sasia === undefined ? '' : x.sasia) + '\u0001' + (x.m || '');
       }).sort().join('\u0002');
-      return f + '\u0003' + p + '\u0003' + a;
+      var m = lista(g.marketet).filter(Boolean).map(function (x) {
+        return x.id + '\u0001' + (x.emri || '') + '\u0001' + kohaFold(x) + '\u0001' + (x.lat || '') + '\u0001' + (x.lng || '');
+      }).sort().join('\u0002');
+      return f + '\u0003' + p + '\u0003' + a + '\u0003' + m;
     }
     return nenshkrim(a) === nenshkrim(b);
   }

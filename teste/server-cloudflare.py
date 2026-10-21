@@ -11,7 +11,7 @@ class H(http.server.SimpleHTTPRequestHandler):
         self.send_header('Referrer-Policy', 'same-origin')
         self.send_header('Cross-Origin-Opener-Policy', 'same-origin')
         self.send_header('Cross-Origin-Resource-Policy', 'same-origin')
-        self.send_header('Permissions-Policy', 'camera=(self), geolocation=(), microphone=(), payment=(), usb=()')
+        self.send_header('Permissions-Policy', 'camera=(self), geolocation=(self), microphone=(), payment=(), usb=()')
         super().end_headers()
     def send_error(self, code, message=None, explain=None):
         f404 = os.path.join(self.directory, '404.html')

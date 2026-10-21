@@ -902,11 +902,11 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=6">
-<link rel="stylesheet" href="css/stoku-pc.css?v=32">
+<link rel="stylesheet" href="css/stoku-pc.css?v=33">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
-<script src="porta.js?v=239"></script>
+<script src="porta.js?v=241"></script>
 
 <div class="trupi">
   <aside class="anesore">
@@ -1186,6 +1186,7 @@
         <div>
           <h1>Afatet e produkteve</h1>
           <div class="faqe-nen" id="afNen"></div>
+          <label class="mk-pc" id="afMarketiPcKuti" hidden><span>Marketi</span><select class="inp" id="afMarketiPc" aria-label="Marketi"></select></label>
         </div>
         <div class="faqe-veprime">
           <button class="btn" type="button" id="afBtnFoto" data-leja="afatetAI" title="Ngarko foton e fletës ku punëtorët kanë shkruar afatet (ose tërhiqe foton këtu)">
@@ -1462,6 +1463,18 @@
 
 
 <!-- Afati: shto / ndrysho -->
+<!-- v241: afatet e një përdoruesi (administratori), sipas marketeve; vetëm për t'u parë -->
+<div class="mbulese" id="dlgPdAfatet">
+  <div class="dialog e-gjere" role="dialog" aria-modal="true" aria-labelledby="pdafTitulli">
+    <div class="dialog-krye"><h2 id="pdafTitulli">Afatet</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
+    <div class="dialog-trup">
+      <p class="pd-info-rresht" id="pdafInfo"></p>
+      <label class="pdaf-hequrat"><input type="checkbox" id="pdafHequrat"> Shfaq edhe të hequrat</label>
+      <div id="pdafLista"></div>
+    </div>
+  </div>
+</div>
+
 <div class="mbulese" id="dlgAfat">
   <div class="dialog mesme" role="dialog" aria-modal="true">
     <div class="dialog-krye"><h2 id="afdTitulli">Afat i ri</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
@@ -1475,6 +1488,7 @@
       <label class="fushe"><span>Emri i produktit</span><input class="inp" id="afdEmri" placeholder="Shkruaj emrin e produktit" type="text" autocomplete="off" maxlength="120"></label>
       <label class="fushe"><span>Furnizuesi</span><input class="inp" id="afdFurnizuesi" placeholder="Zgjidh ose shkruaj furnizuesin" type="text" list="afdFurnizuesit" autocomplete="off" maxlength="80"></label>
       <datalist id="afdFurnizuesit"></datalist>
+      <label class="fushe" id="afdMarketiKuti" hidden><span>Marketi</span><select class="inp" id="afdMarketi"></select></label>
       <div class="gabim-tekst" id="afdGabim"></div>
     </div>
     <div class="dialog-fund">
@@ -1937,14 +1951,15 @@
 <div class="toast" id="toast" role="status" aria-live="polite"><span class="toast-tekst" id="toastTekst"></span><button class="btn fsheh" type="button" id="toastBtn"></button></div>
 
 <script src="xlsx.js?v=216"></script>
-<script src="bashkimi.js?v=233"></script>
+<script src="bashkimi.js?v=241"></script>
 <script src="ruajtja.js?v=216"></script>
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=3"></script>
 <script src="afatet.js?v=238"></script>
-<script src="ekipa.js?v=240"></script>
-<script src="teRejat.js?v=240"></script>
-<script src="app-pc.js?v=240"></script>
+<script src="marketet.js?v=241"></script>
+<script src="ekipa.js?v=241"></script>
+<script src="teRejat.js?v=241"></script>
+<script src="app-pc.js?v=241"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
 

@@ -590,3 +590,12 @@ html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-nen { background: var(--sb-s
 .sbp .ops-kuj-shkronja { background: var(--sb-accent-tint); color: var(--sb-accent-text); }
 .sbp .ops-kuj-fushat { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 8px; }
 .sbp .ops-kuj-fushat .ops-furn-nen { grid-column: 1 / -1; }
+/* v241: marketet */
+.sbp .mk-pc { display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--sb-muted); }
+.sbp .mk-pc[hidden] { display: none; }
+.sbp .mk-pc select { height: 34px; min-width: 180px; font-weight: 600; color: var(--sb-ink); }
+.sbp .af-prod-mk { font-weight: 700; color: var(--sb-ink-2); }
+.sbp #dlgPdAfatet .dialog { max-width: 900px; }
+.sbp .pdaf-hequrat { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 13px; color: var(--sb-muted); cursor: pointer; }
+.sbp .pdaf-hequrat[hidden] { display: none; }
+.sbp .pdaf-grupi { margin: 16px 0 6px; font-size: 13px; font-weight: 700; color: var(--sb-muted); }

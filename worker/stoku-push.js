@@ -31,7 +31,9 @@
  *   Cron Trigger (Settings → Trigger Events → Cron: "* * * * *" = çdo minutë) → scheduled(): kur te pajisja është ora e zgjedhur,
  *     dërgon një njoftim me afatet e skaduara (dhe ato që skadojnë këtë javë). Ruhet te i njëjti KV ("FOTO").
  *
- * Ora (v166): GET /ora/krejt (X-Stoku-Ora) → { dita, d7, d30, krejt: [{ i, e, b, d, s, f }] } krejt afatet aktive, sipas datës.
+ * Ora (v166): GET /ora/krejt (X-Stoku-Ora) → { dita, d7, d30, krejt: [{ i, e, b, d, s, f, mk }] } krejt afatet aktive, sipas datës.
+ * Marketet (v167): afati mund ta ketë `mk` (emri i marketit, kur përdoruesi punon në disa markete): njoftimi ditor i ndan
+ *   produktet sipas marketit, ora e merr fushën te /ora/sot dhe /ora/krejt.
  *
  * Fotot e profilit (v141) — ruhen te Cloudflare KV (binding "FOTO"), JO te Firebase:
  *   PUT    /foto        (Bearer token)  → ruan foton e vetë përdoruesit (JPEG/PNG/WebP, ≤ 150 KB)
@@ -48,7 +50,7 @@ const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databa
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
 const PUSH_MAKS = 36;
-const VERSIONI_WORKER = 166; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 167; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 const W = {
@@ -235,8 +237,17 @@ function njoftimiDitor(afatet, sot) {
   const sotL = (afatet || []).filter(a => a && DATA_RE.test(a.d || '') && a.d === sot);
   if (!sotL.length) return null;
   const emri = a => a.e || a.b || 'produkt';
-  const teksti = sotL.length === 1 ? emri(sotL[0]) + ' skadon sot. Hiqe nga rafti.'
-    : sotL.length + ' produkte skadojnë sot: ' + sotL.slice(0, 5).map(emri).join(', ') + (sotL.length > 5 ? '…' : '') + '.';
+  let teksti;
+  if (sotL.some(a => a.mk)) {
+    // v167: disa markete (merchandiserët): "3 produkte skadojnë sot. Albi Mall: Kos, Bukë · Viva: Jogurt."
+    const gr = new Map();
+    sotL.forEach(a => { const k = a.mk || 'Pa market'; if (!gr.has(k)) gr.set(k, []); gr.get(k).push(a); });
+    const pjeset = [...gr.entries()].map(([m, l]) => m + ': ' + l.slice(0, 4).map(emri).join(', ') + (l.length > 4 ? ' +' + (l.length - 4) : ''));
+    teksti = (sotL.length === 1 ? 'Skadon sot. ' : sotL.length + ' produkte skadojnë sot. ') + pjeset.join(' · ') + '.';
+  } else {
+    teksti = sotL.length === 1 ? emri(sotL[0]) + ' skadon sot. Hiqe nga rafti.'
+      : sotL.length + ' produkte skadojnë sot: ' + sotL.slice(0, 5).map(emri).join(', ') + (sotL.length > 5 ? '…' : '') + '.';
+  }
   return { titulli: 'Stoku · Skadon sot', teksti: teksti.length > 220 ? teksti.slice(0, 217) + '…' : teksti, sot: sotL.length };
 }
 // ---------- Ora (Galaxy Watch / Wear OS) ----------
@@ -450,6 +461,7 @@ async function trajtoOrarin(req, env, pergjigju) {
       if (a.i) x.i = String(a.i).slice(0, 60);
       if (typeof a.s === 'number' && isFinite(a.s)) x.s = a.s;
       if (a.f) x.f = String(a.f).slice(0, 80); // v166: furnizuesi (kërkimi në orë)
+      if (a.mk) x.mk = String(a.mk).slice(0, 60); // v167: emri i marketit (njoftimi ditor sipas marketeve, ora)
       return x;
     });
     await env.FOTO.put('orari-afatet:' + uid, JSON.stringify(af));

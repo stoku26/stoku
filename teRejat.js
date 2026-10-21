@@ -20,6 +20,19 @@
   'use strict';
 
   var LISTA = [
+    { v: 241, versioni: '1.32.0', data: '2026-10-21', titulli: 'Marketet', platforma: 'tel', pikat: [
+      'Për ata që punojnë në disa markete: te Cilësimet → Marketet i shton marketet e tua, me emrat që do ti.',
+      'Kur je brenda marketit, ruaje vendndodhjen e tij: herët e tjera Stoku e njeh vetë ku je (GPS) dhe tregon vetëm afatet e atij marketi. Lart te Afatet e ndërron marketin edhe me dorë, ose zgjedh "Krejt marketet".',
+      'Afatet e reja (me dorë, nga fotoja e fletës ose nga Excel) ruhen te marketi ku je. Kolegët e grupit e shohin marketin te çdo afat.',
+      'Vendndodhja jote s\'ruhet askund: krahasohet vetëm në telefon me vendndodhjen e marketeve.'
+    ] },
+    { v: 241, versioni: '1.32.0', data: '2026-10-21', titulli: 'Marketet', platforma: 'pc', pikat: [
+      'Kush punon në disa markete i shton marketet te telefoni (Cilësimet → Marketet). Këtu, te Afatet, zgjedh marketin lart dhe sheh vetëm afatet e tij, ose "Krejt marketet".',
+      'Afatet e reja ruhen te marketi i zgjedhur.'
+    ] },
+    { v: 241, versioni: '1.32.0', data: '2026-10-21', titulli: 'Afatet e përdoruesve', vetemAdmini: true, pikat: [
+      'Te Cilësimet → Përdoruesit → një përdorues → "Afatet e …": i sheh afatet e tij, të ndara sipas marketeve (vetëm për t\'u parë).'
+    ] },
     { v: 240, versioni: '1.31.0', data: '2026-10-21', titulli: 'Sasia e shpejtë për të gjithë', platforma: 'tel', pikat: [
       'Butonat + dhe - te lista e produkteve tani i ka çdo llogari: sasinë e ndryshon me një prekje.',
       'Kur skanon me kamerë një produkt që e ke, sasia i shtohet vetë (numërimi), pa hapur dritare.'
