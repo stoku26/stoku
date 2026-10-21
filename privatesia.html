@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: blob: https://*.googleapis.com https://*.mendurb.workers.dev https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://www.gstatic.com; frame-src https://stoku-appi.firebaseapp.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: blob: https://*.googleapis.com https://*.mendurb.workers.dev https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://www.gstatic.com https://tiles.openfreemap.org; frame-src https://stoku-appi.firebaseapp.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Privatësia • Stoku</title>
 <meta name="description" content="Çka ruan Stoku, ku ruhet, kush ka qasje dhe si fshihen të dhënat.">
@@ -53,7 +53,7 @@
   <ul>
     <li><b>Llogaria:</b> emri i përdoruesit, koha kur u krijua dhe kur hyre për herë të fundit. Stoku s'kërkon email, numër telefoni as emrin tënd të vërtetë. Fjalëkalimin e ruan Firebase Authentication (Google) në formë të enkriptuar; Stoku s'e sheh kurrë.</li>
     <li><b>Të dhënat e dyqanit:</b> folderat, produktet (barkodi, emri, sasia, furnizuesi), afatet e skadimit dhe fotot e fletëve që i dërgon nga telefoni te kompjuteri.</li>
-    <li><b>Marketet</b> (vetëm për merchandiserët, kur e zgjedh "Punoj si merchandiser" në hapjen e llogarisë): kjo zgjedhje, emri i secilit market dhe, nëse e ruan, vendndodhja e marketit (jo e jotja).</li>
+    <li><b>Marketet</b> (vetëm për merchandiserët, kur e zgjedh "Punoj si merchandiser" në hapjen e llogarisë): kjo zgjedhje, emri i secilit market dhe, nëse e ruan, vendndodhja e marketit (jo e jotja). Administratori i Stoku-t i sheh marketet me vendndodhje në hartë dhe mund ta ndryshojë emrin e një marketi.</li>
     <li><b>Skedarët Excel dhe PDF</b> që i dërgon nga telefoni në kompjuter: fshihen vetë pas 7 ditësh.</li>
     <li><b>Grupi</b> (vetëm nëse bëhesh pjesë e një grupi): emri yt në grup, roli, a je aktiv dhe kur ishe aktiv për herë të fundit (telefon ose kompjuter), afatet që i ndan me grupin, aktiviteti (p.sh. "e hoqi nga rafti"), njoftimet, ftesat dhe kërkesat për t'u futur. Emri i grupit dhe emri i përdoruesit të adminit të tij shihen nga kushdo me llogari që kërkon një grup ("Hyr në një grup").</li>
     <li><b>Regjistri i produkteve:</b> barkodi, emri dhe furnizuesi i produkteve që i kontrollon administratori; i shohin krejt llogaritë e Stoku-t kur skanojnë. Produktet e reja që i shton ti (barkodi, emri, furnizuesi dhe emri yt i përdoruesit) i sheh vetëm administratori, derisa t'i kontrollojë.</li>
@@ -85,6 +85,7 @@
     <li>Google Firebase (llogaritë dhe të dhënat e dyqanit),</li>
     <li>Cloudflare (njoftimet, fotot e profilit, ora e dorës, serveri i AI-së),</li>
     <li>GitHub Pages (vetë faqja stoku.site) dhe jsDelivr (disa librari të faqes): si çdo server, shohin adresën IP kur hapet faqja,</li>
+    <li>OpenFreeMap (pjesët e hartës, vetëm kur e hap Cilësimet → Harta): sheh adresën IP dhe zonën e hartës që shikon; Stoku s'i dërgon asnjë të dhënë tjetër,</li>
     <li>Google, Anthropic ose Cloudflare për leximin me AI, vetëm kur e përdor.</li>
   </ul>
 
