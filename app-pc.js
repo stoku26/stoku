@@ -3983,9 +3983,10 @@
     ['navEkipi', 'navEkAktiviteti', 'navEkKalendari', 'navEkAnetaret', 'navEkStatistika', 'ekKerkoHeqje'].forEach(function (id) { $(id).hidden = paGrup; });
     var n = ekK ? ekK.numriNjoftimeve() : 0;
     $('ekZileNr').textContent = n ? String(n) : '';
-    var kr = ekK ? ekK.numriKerkesave() : 0; // ftesat për në një grup
+    var kr = ekK ? ekK.numriKerkesave() : 0; // ftesat për në një grup + v242: kërkesat për grupin tim (admini i grupit)
+    var nFt = ekK ? ekK.ftesatEMia().length : 0;
     $('ekAkordShenja').textContent = (n + kr) ? String(n + kr) : '';
-    if (kr) $('ekNavOnline').textContent = kr === 1 ? '1 ftesë' : kr + ' ftesa';
+    if (kr) $('ekNavOnline').textContent = nFt ? (nFt === 1 ? '1 ftesë' : nFt + ' ftesa') : (kr === 1 ? '1 kërkesë' : kr + ' kërkesa');
     else if (ekK && ekK.gj.anetaret.length && ekK.gjendjaEQasjes() === 'ok') {
       var a = ekK.anetaretMeAfate();
       $('ekNavOnline').textContent = ekOnline(a) + '/' + a.length;
@@ -4033,14 +4034,21 @@
     $('ekNen').textContent = DITET[d.getDay()] + ', ' + d.getDate() + ' ' + MUAJT[d.getMonth()] + ' · ' + anetaret.length + (anetaret.length === 1 ? ' koleg' : ' kolegë') + ' · ' + (gati ? nrEmer(n.aktive, 'afat', 'afate') + ' në raft' : 'duke ngarkuar…');
     function afatet(filtri) { return function () { ekV.anetari = 'krejt'; ekV.filtri = filtri; ekShkoTe('afatet'); }; }
     // Ftesa për në një grup tjetër
-    var ft = ekK.ftesatEMia();
-    $('ekPultKerkesat').classList.toggle('fsheh', !ft.length);
+    var ft = ekK.ftesatEMia(), kgP = ekK.kerkesatEGrupit();
+    $('ekPultKerkesat').classList.toggle('fsheh', !ft.length && !kgP.length);
     if (ft.length) {
       $('ekPultKerkTitulli').textContent = 'Ftesë: grupi "' + (ft[0].grupiEmri || '') + '"' + (ft.length > 1 ? ' (+' + (ft.length - 1) + ' të tjera)' : '');
       $('ekPultKerkEmrat').textContent = (ft[0].ngaEmri || 'Dikush') + ' të fton në këtë grup.';
       $('ekPultKerkPrano').textContent = '✓ Prano';
       $('ekPultKerkPrano').disabled = false;
       $('ekPultKerkPrano').onclick = function () { ekPranoFtesen(ft[0], $('ekPultKerkPrano')); };
+      $('ekPultKerkShiko').onclick = function () { ekShkoTe('anetaret'); };
+    } else if (kgP.length) { // v242: kërkesat për t'u futur në grupin tim
+      $('ekPultKerkTitulli').textContent = kgP.length === 1 ? (kgP[0].emri || 'Dikush') + ' kërkon të hyjë në grup' : kgP.length + ' kërkesa për t\'u futur në grup';
+      $('ekPultKerkEmrat').textContent = kgP.length === 1 ? 'Prano ose refuzo te Kolegët.' : kgP.map(function (k) { return k.emri; }).join(', ') + '.';
+      $('ekPultKerkPrano').textContent = '✓ Prano';
+      $('ekPultKerkPrano').disabled = false;
+      $('ekPultKerkPrano').onclick = function () { ekPranoKerkesen(kgP[0], $('ekPultKerkPrano')); };
       $('ekPultKerkShiko').onclick = function () { ekShkoTe('anetaret'); };
     }
     var r = $('ekPultKpi');
@@ -4444,6 +4452,100 @@
     c.textContent = '';
     ekK.ftesatEMia().forEach(function (f) { c.appendChild(ekFtesaKarta(f)); });
     $('ekEmriIm').textContent = emriPerdoruesit() || '';
+    // v242: kërkesat e mia + rezultatet e kërkimit
+    var km = $('ekKerkesatEMia');
+    km.textContent = '';
+    ekK.kerkesatEMia().forEach(function (k) { km.appendChild(ekKerkesaEMiaKarta(k)); });
+    ekVizatoRezultatet();
+  }
+  // ---- v242: hyr në një grup ekzistues (kërko me emër, dërgo kërkesë; admini i grupit e pranon) ----
+  var ekKerkimi = { q: '', rez: null, gabim: '', kohez: null };
+  function ekKerkesaEMiaKarta(k) {
+    var kt = el('div', 'karta ek-pult-kerkesat ek-kerkesa-ime');
+    var tk = el('div', 'tk');
+    tk.appendChild(el('b', null, 'Kërkesë: grupi "' + (k.grupiEmri || '') + '"'));
+    tk.appendChild(el('span', null, 'U dërgua' + (k.koha ? ' ' + EKL.kohaRelative(k.koha) : '') + '. Pret pranimin nga admini i grupit.'));
+    kt.appendChild(tk);
+    var ba = el('button', 'btn tekst vogel', 'Anulo kërkesën'); ba.type = 'button';
+    ba.addEventListener('click', async function () {
+      ba.disabled = true;
+      var r = await ekK.anuloKerkesen(k);
+      if (!r.ok) { ba.disabled = false; toast('S\'u anulua. Kontrollo internetin dhe provo përsëri.'); }
+    });
+    kt.appendChild(ba);
+    return kt;
+  }
+  function ekVizatoRezultatet() {
+    var rez = $('ekGrupiRezultatet');
+    rez.textContent = '';
+    if (ekKerkimi.q.trim().length < 2) return;
+    function info(t) { var p = el('p', 'ek-grupi-hint', t); p.style.margin = '6px 2px'; rez.appendChild(p); }
+    if (ekKerkimi.gabim) { info(ekKerkimi.gabim); return; }
+    if (!ekKerkimi.rez) { info('Duke kërkuar…'); return; }
+    if (!ekKerkimi.rez.length) { info('S\'u gjet asnjë grup me këtë emër.'); return; }
+    var kerkuar = {};
+    ekK.kerkesatEMia().forEach(function (k) { kerkuar[k.gid] = true; });
+    ekKerkimi.rez.forEach(function (gr) {
+      var kt = el('div', 'karta ek-pult-kerkesat ek-grupi-rez');
+      var tk = el('div', 'tk');
+      tk.appendChild(el('b', null, gr.emri));
+      tk.appendChild(el('span', null, gr.pronarEmri ? 'Admini: ' + gr.pronarEmri : 'Grup'));
+      kt.appendChild(tk);
+      var b = el('button', 'btn vogel', kerkuar[gr.id] ? 'U dërgua' : 'Kërko të hysh'); b.type = 'button'; b.disabled = !!kerkuar[gr.id];
+      b.addEventListener('click', async function () {
+        b.disabled = true;
+        var r = await ekK.dergoKerkesen(gr);
+        if (!r.ok) {
+          b.disabled = false;
+          toast(r.leje ? 'Kërkesa s\'u dërgua: ky grup s\'ekziston më, ose rregullat e Firebase-it s\'janë vendosur ende.' : 'Kërkesa s\'u dërgua. Kontrollo internetin dhe provo përsëri.');
+          return;
+        }
+        if (r.ngaFtesa) { toast('U bashkove me grupin "' + gr.emri + '" (të kishin ftuar).'); ekShkoTe('anetaret'); return; }
+        b.textContent = 'U dërgua';
+        toast('Kërkesa u dërgua. Kur ta pranojë admini i grupit, hyn vetë në grup.');
+      });
+      kt.appendChild(b);
+      rez.appendChild(kt);
+    });
+  }
+  $('ekGrupiKerko').addEventListener('input', function () {
+    var inp = $('ekGrupiKerko');
+    ekKerkimi.q = inp.value; ekKerkimi.gabim = ''; ekKerkimi.rez = null;
+    clearTimeout(ekKerkimi.kohez);
+    ekVizatoRezultatet();
+    if (inp.value.trim().length < 2) return;
+    ekKerkimi.kohez = setTimeout(async function () {
+      var q = inp.value;
+      var r = await ekK.kerkoGrupet(q);
+      if (q !== ekKerkimi.q) return;
+      ekKerkimi.rez = r.ok ? r.lista : [];
+      ekKerkimi.gabim = r.ok ? '' : r.leje ? 'Kërkimi i grupeve s\'është gati ende (rregullat e Firebase-it).' : 'S\'u kërkua. Kontrollo internetin dhe provo përsëri.';
+      ekVizatoRezultatet();
+    }, 300);
+  });
+  // Admini i grupit: kërkesat për t'u futur
+  function ekKerkesaEGrupitKarta(k) {
+    var kt = el('div', 'karta ek-pult-kerkesat ek-kerkesa-grupi');
+    var tk = el('div', 'tk');
+    tk.appendChild(el('b', null, (k.emri || 'Dikush') + ' kërkon të hyjë në grup'));
+    tk.appendChild(el('span', null, k.koha ? 'Kërkesa: ' + EKL.kohaRelative(k.koha) + '.' : 'Kërkesë për t\'u futur.'));
+    kt.appendChild(tk);
+    var br = el('button', 'btn tekst vogel', 'Refuzo'); br.type = 'button';
+    var bp = el('button', 'btn vogel', '✓ Prano'); bp.type = 'button';
+    br.addEventListener('click', async function () {
+      bp.disabled = br.disabled = true;
+      var r = await ekK.refuzoKerkesen(k);
+      if (!r.ok) { bp.disabled = br.disabled = false; toast('S\'u refuzua. Kontrollo internetin dhe provo përsëri.'); }
+    });
+    bp.addEventListener('click', function () { ekPranoKerkesen(k, bp, br); });
+    kt.appendChild(br); kt.appendChild(bp);
+    return kt;
+  }
+  async function ekPranoKerkesen(k, bp, br) {
+    if (bp) bp.disabled = true; if (br) br.disabled = true;
+    var r = await ekK.pranoKerkesen(k);
+    if (!r.ok) { if (bp) bp.disabled = false; if (br) br.disabled = false; toast('S\'u pranua. Kontrollo internetin dhe provo përsëri.'); return; }
+    toast((k.emri || 'Kolegu') + ' u pranua. Hyn në grup sapo ta hapë Stoku-n.');
   }
   async function ekKrijoGrupin() {
     var inp = $('ekGrupiEmri'), em = inp.value.trim();
@@ -4532,6 +4634,9 @@
     var fm = $('ekFtesatEMia');
     fm.textContent = '';
     ekK.ftesatEMia().forEach(function (f) { fm.appendChild(ekFtesaKarta(f)); });
+    var kgm = $('ekKerkesatEGrupit'); // v242
+    kgm.textContent = '';
+    ekK.kerkesatEGrupit().forEach(function (k) { kgm.appendChild(ekKerkesaEGrupitKarta(k)); });
     // Karta e grupit
     $('ekGrupiTitulli').textContent = g.emri || 'Grupi';
     $('ekGrupiNen').textContent = (pronar ? 'Ti je admin i grupit' : 'Koleg i grupit') + ' · ' + anetaret.length + (anetaret.length === 1 ? ' koleg' : ' kolegë');

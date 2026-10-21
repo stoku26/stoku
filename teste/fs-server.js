@@ -46,6 +46,15 @@ function krijoFirestore(opt = {}) {
       const w = (c || []).filter(x => x.lloji === 'where' && x.op === '==');
       return w.some(x => x.f === 'perdoruesi' && x.v === emriA) || w.some(x => x.f === 'gid' && anetar(a.uid, x.v));
     }
+    // v242: lista publike e grupeve (kushdo i kyçur) dhe kërkesat për t'u futur (kërkuesi, anëtarët e grupit, admini)
+    if (reja && p[0] === 'grupet_publike' && p.length === 2) return !S.paKerkesa;
+    if (reja && p[0] === 'kerkesat_grupi' && p.length === 2) {
+      if (S.paKerkesa) return false;
+      if (eshteAdmin(a.uid)) return true;
+      if (!eListe) { const d = S.docs.get(path); return !d || d.uid === a.uid || anetar(a.uid, d.gid); }
+      const w = (c || []).filter(x => x.lloji === 'where' && x.op === '==');
+      return w.some(x => x.f === 'uid' && x.v === a.uid) || w.some(x => x.f === 'gid' && anetar(a.uid, x.v));
+    }
     if (reja && p[0] === 'perdoruesit' && p.length === 2 && eListe) return eshteAdmin(a.uid); // v164: lista vetëm admini
     if (reja && p[0] === 'dyqane' && p[2] === 'skedaret') return !S.paSkedare && a.uid === p[1]; // v227 (S.paSkedare: rregullat e vjetra, pa skedarët)
     if (p[0] === 'dyqane') return reja ? ((a.uid === p[1] && !fshire(p[1])) || eshteAdmin(a.uid)) : (p[2] === 'fletet' ? (a.uid === p[1] || eshteAdmin(a.uid)) : true);
@@ -120,6 +129,21 @@ function krijoFirestore(opt = {}) {
       return pronar(a.uid, iRi.gid) && p[1] === iRi.gid + '_' + iRi.perdoruesi && /^[a-z0-9_.-]{3,40}$/.test(iRi.perdoruesi || '')
         && iRi.ngaUid === a.uid && iRi.ngaEmri === emriIm
         && vetemKeto(Object.keys(iRi), ['gid', 'grupiEmri', 'perdoruesi', 'ngaUid', 'ngaEmri', 'koha'])
+        && (iRi.grupiEmri === undefined || (typeof iRi.grupiEmri === 'string' && iRi.grupiEmri.length <= 60));
+    }
+    if (reja && p[0] === 'grupet_publike' && p.length === 2) { // v242
+      if (S.paKerkesa) return false;
+      const g = p[1];
+      if (lloji === 'delete') return pronar(a.uid, g) || eshteAdmin(a.uid) || !S.docs.has('grupet/' + g);
+      return pronar(a.uid, g) && !fshire(a.uid) && vetemKeto(Object.keys(iRi), ['emri', 'pronarEmri', 'ndryshuarSe'])
+        && typeof iRi.emri === 'string' && iRi.emri.length >= 2 && iRi.emri.length <= 60 && iRi.pronarEmri === emriIm;
+    }
+    if (reja && p[0] === 'kerkesat_grupi' && p.length === 2) { // v242
+      if (S.paKerkesa) return false;
+      if (lloji === 'delete') return !!iVjeter && (iVjeter.uid === a.uid || pronar(a.uid, iVjeter.gid) || eshteAdmin(a.uid));
+      return !fshire(a.uid) && iRi.uid === a.uid && iRi.emri === emriIm && p[1] === iRi.gid + '_' + a.uid
+        && vetemKeto(Object.keys(iRi), ['gid', 'grupiEmri', 'uid', 'emri', 'koha']) && typeof iRi.gid === 'string'
+        && S.docs.has('grupet/' + iRi.gid) && !anetar(a.uid, iRi.gid)
         && (iRi.grupiEmri === undefined || (typeof iRi.grupiEmri === 'string' && iRi.grupiEmri.length <= 60));
     }
     if (reja && p[0] === 'dyqane' && p[2] === 'skedaret') { // v227: skedarët nga telefoni te PC-ja
