@@ -516,6 +516,7 @@
   #dlgImportStok { z-index: 22; }
   #dlgFolder { z-index: 23; } /* mbi #dlgImportStok — hapet edhe nga aty, "+ Folder i ri" */
   #dlgAfat { z-index: 23; }
+  #dlgMarketi, #dlgMarketiRi { z-index: 24; } /* v242: mbi faqen e Afateve (21) dhe "Afat i ri" (23) */
   .faqe-kuti { width: 100%; height: 100%; background: var(--sfond); display: flex; flex-direction: column; }
   .faqe-trup {
     flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
@@ -673,6 +674,9 @@
   .ek-rresht-forma .btn { flex: none; height: 46px; padding: 0 16px; }
   .ek-ftesa { flex-wrap: wrap; }
   .ek-ftesa .btn.tekst { height: 38px; padding: 0 10px; }
+  .ek-kerko-grupin { margin: 0 0 4px; }
+  .ek-kerko-rez .ek-pult-kerkesat { margin-top: 8px; }
+  .ek-kerko-rez .info { margin: 8px 2px; }
   .ek-grupi-hint { font-size: 13px; color: var(--sb-muted, var(--gri)); line-height: 1.45; margin: 2px 2px 12px; }
   .ek-grupi-hint b { color: var(--sb-ink, var(--tekst)); font-family: var(--sb-mono, monospace); }
   .ek-admin-njoftim textarea {
@@ -1021,7 +1025,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=6">
-<link rel="stylesheet" href="css/stoku.css?v=40">
+<link rel="stylesheet" href="css/stoku.css?v=41">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -1898,9 +1902,28 @@
     <p class="mk-dlg-nen" id="mkdNen"></p>
     <div class="mk-dlg-lista" id="mkdLista"></div>
     <div class="veprime">
+      <button class="btn tekst" id="mkdIRi" type="button">+ Market i ri</button>
       <button class="btn tekst" id="mkdMenaxho" type="button">Marketet e mia</button>
       <button class="btn tekst" id="mkdGps" type="button">Gjej me GPS</button>
       <button class="btn tekst" id="mkdAnulo" type="button">Mbyll</button>
+    </div>
+  </div>
+</div>
+
+<!-- v242: marketi i ri (merchandiseri): emri + vendndodhja, nga Afatet ose "Ku je?" -->
+<div class="mbulese" id="dlgMarketiRi">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="mkrTitulli">
+    <h2 id="mkrTitulli">Në cilin market je?</h2>
+    <p class="mk-dlg-nen" id="mkrNen">Shkruaj emrin e marketit. Stoku e mban mend vendndodhjen e tij dhe herët e tjera e njeh vetë kur hyn aty.</p>
+    <input type="text" id="mkrEmri" maxlength="60" autocomplete="off" placeholder="p.sh. Albi Mall" enterkeyhint="done" aria-label="Emri i marketit">
+    <label class="opsion-rresht mk-vendi" for="mkrVendi">
+      <span class="ops-rresht__tekst"><span>Jam brenda këtij marketi tani</span><span class="hint">Ruaj vendndodhjen e marketit (telefoni pyet për leje)</span></span>
+      <span class="ndez"><input type="checkbox" id="mkrVendi" checked><span class="pist"></span></span>
+    </label>
+    <div class="mk-gabim" id="mkrGabim" role="alert"></div>
+    <div class="veprime">
+      <button class="btn tekst" id="mkrAnulo" type="button">Më vonë</button>
+      <button class="btn" id="mkrRuaj" type="button">Ruaj marketin</button>
     </div>
   </div>
 </div>
@@ -1951,10 +1974,10 @@
 <script src="lejet.js?v=4"></script>
 <script src="afatet.js?v=238"></script>
 <script src="marketet.js?v=241"></script>
-<script src="ekipa.js?v=241"></script>
+<script src="ekipa.js?v=242"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=241"></script>
-<script src="app-tel.js?v=241"></script>
+<script src="teRejat.js?v=242"></script>
+<script src="app-tel.js?v=242"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>

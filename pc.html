@@ -254,6 +254,9 @@
   .ek-grupi-hint b { font-family: var(--sb-mono, monospace); color: inherit; }
   #ekPaGrup { max-width: 640px; }
   #ekPaGrup .ek-pult-kerkesat { margin-bottom: 10px; }
+  #ekGrupiRezultatet { margin-top: 10px; }
+  #ekGrupiRezultatet .karta.ek-pult-kerkesat, #ekKerkesatEMia .karta.ek-pult-kerkesat { background: var(--sb-sunken, var(--karta)); border-color: transparent; box-shadow: none; margin-bottom: 8px; }
+  #ekKerkesatEGrupit .karta.ek-pult-kerkesat { margin-bottom: 10px; }
   .ek-pult-kerkesat .tk { flex: 1; min-width: 0; font-size: 13.5px; line-height: 1.4; }
   .ek-pult-kerkesat .tk b { display: block; font-size: 15px; font-weight: 800; }
   .ek-pult-rrjeti { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; margin-top: 16px; align-items: start; }
@@ -1269,8 +1272,17 @@
       <div class="karta fsheh" id="ekPaLidhje"><div class="bosh-mesazh" id="ekPaLidhjeTekst" style="padding:24px"></div></div>
       <div class="fsheh" id="ekPaGrup">
         <div id="ekPaGrupFtesat"></div>
+        <div class="karta" id="ekHyrKarta">
+          <div class="karta-krye"><h2>Hyr në një grup</h2></div>
+          <div class="karta-trup">
+            <p class="ek-grupi-hint" style="margin:0 0 12px">Kërko grupin me emrin e tij dhe dërgo kërkesë. Kur ta pranojë admini i grupit, hyn vetë.</p>
+            <div id="ekKerkesatEMia"></div>
+            <div class="ek-rresht-forma"><input class="inp" type="search" id="ekGrupiKerko" maxlength="60" autocomplete="off" placeholder="Shkruaj emrin e grupit" aria-label="Kërko grupin me emër"></div>
+            <div class="ek-kerko-rez" id="ekGrupiRezultatet"></div>
+          </div>
+        </div>
         <div class="karta">
-          <div class="karta-krye"><h2>Krijo grupin tënd</h2></div>
+          <div class="karta-krye"><h2>Ose krijo grupin tënd</h2></div>
           <div class="karta-trup">
             <p class="ek-grupi-hint" style="margin:0 0 12px">Secili grup sheh vetëm kolegët e vet (afatet dhe aktivitetin). Krijo grupin e dyqanit tënd dhe fto shokët, ose prano një ftesë.</p>
             <div class="ek-rresht-forma"><input class="inp" type="text" id="ekGrupiEmri" maxlength="60" autocomplete="off" placeholder="Emri i grupit, p.sh. Market Agimi" aria-label="Emri i grupit të ri"><button class="btn" type="button" id="ekGrupiKrijo">Krijo grupin</button></div>
@@ -1329,6 +1341,7 @@
 
       <div id="ekVAnetaret" class="fsheh">
         <div id="ekFtesatEMia"></div>
+        <div id="ekKerkesatEGrupit"></div>
         <div class="karta ek-grupi-krye" id="ekGrupiKarta">
           <div class="tk"><b id="ekGrupiTitulli"></b><span id="ekGrupiNen"></span></div>
           <div class="ek-rresht-forma fsheh" id="ekRiemertoForma" style="flex:1"><input class="inp" type="text" id="ekGrupiEmriRi" maxlength="60" aria-label="Emri i ri i grupit"><button class="btn vogel" type="button" id="ekRiemertoRuaj">Ruaj</button><button class="btn tekst vogel" type="button" id="ekRiemertoAnulo">Anulo</button></div>
@@ -1957,9 +1970,9 @@
 <script src="lejet.js?v=4"></script>
 <script src="afatet.js?v=238"></script>
 <script src="marketet.js?v=241"></script>
-<script src="ekipa.js?v=241"></script>
-<script src="teRejat.js?v=241"></script>
-<script src="app-pc.js?v=241"></script>
+<script src="ekipa.js?v=242"></script>
+<script src="teRejat.js?v=242"></script>
+<script src="app-pc.js?v=242"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
 

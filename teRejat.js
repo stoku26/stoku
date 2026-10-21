@@ -20,6 +20,22 @@
   'use strict';
 
   var LISTA = [
+    { v: 242, versioni: '1.33.0', data: '2026-10-21', titulli: 'Hyr në një grup me kërkesë', pikat: [
+      'Pa grup: te Grupi kërko grupin me emrin e tij dhe prek "Kërko të hysh". Kur ta pranojë admini i grupit, hyn vetë në grup.',
+      'Admini i grupit e sheh kërkesën te Grupi (edhe me njoftim) dhe e pranon ose e refuzon.'
+    ] },
+    { v: 242, versioni: '1.33.0', data: '2026-10-21', titulli: 'Produktet dhe furnizuesit për krejt', pikat: [
+      'Krejt llogaritë e Stoku-t e kanë të njëjtin regjistër produktesh dhe furnizuesish: kur skanon, emri del vetë, edhe pa grup.',
+      'Produktet e reja i kontrollon administratori para se t\'u dalin të tjerëve.'
+    ] },
+    { v: 242, versioni: '1.33.0', data: '2026-10-21', titulli: 'Marketi i parë më lehtë', platforma: 'tel', pikat: [
+      'Merchandiserët: te Afatet del "Shto marketin ku punon". Herën e parë Stoku të pyet vetë "Në cilin market je?" dhe e ruan edhe vendndodhjen e marketit.',
+      'Te "Ku je?" ka "+ Market i ri", kur arrin në një market që s\'e ke shtuar ende.',
+      'Dritarja "Ku je?" tash del mbi faqen e Afateve.'
+    ] },
+    { v: 242, versioni: '1.33.0', data: '2026-10-21', titulli: 'Produktet e reja nga krejt llogaritë', vetemAdmini: true, pikat: [
+      'Te Cilësimet → Stoku → Produktet e reja dalin produktet e reja të kujtdo (edhe jashtë grupit tënd), me emrin e kujt i shtoi. Pasi t\'i ruash, i sheh krejt Stoku.'
+    ] },
     { v: 241, versioni: '1.32.0', data: '2026-10-21', titulli: 'Marketet', platforma: 'tel', pikat: [
       'Për merchandiserët (ata që punojnë në disa markete): kur e hap llogarinë zgjedh "Punoj si merchandiser". Pastaj te Cilësimet → Marketet i shton marketet e tua, me emrat që do ti.',
       'Kur je brenda marketit, ruaje vendndodhjen e tij: herët e tjera Stoku e njeh vetë ku je (GPS) dhe tregon vetëm afatet e atij marketi. Lart te Afatet e ndërron marketin edhe me dorë, ose zgjedh "Krejt marketet".',

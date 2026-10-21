@@ -106,7 +106,8 @@ const NUMERO_GPS = () => {
   const { p: dr, ctx: ctxD } = await faqe('u1', 'drini', false, SHTEPIA, { afatet: AF0 });
   // pa markete: asgjë e re, s'pyetet për vendndodhjen
   await dr.waitForTimeout(800);
-  ok(!(await duket(dr, '#afMarketi')) && !(await dr.$('.sb-home-krye .mk-chip')) && await dr.evaluate(() => window.__gpsThirrje) === 0, '1. pa markete: pa "Je te", pa pyetje për vendndodhjen');
+  // v242: merchandiseri pa markete sheh "Shto marketin ku punon" (jo "Je te"), pa pyetje për vendndodhjen
+  ok(/Shto marketin/.test(await dr.textContent('#afMarketiEmri')) && /Shto marketin/.test(await dr.textContent('.sb-home-krye .mk-chip')) && await dr.evaluate(() => window.__gpsThirrje) === 0, '1. pa markete: "Shto marketin ku punon", pa pyetje për vendndodhjen');
   await hapMarketetNeCilesime(dr);
   ok(await dr.evaluate(() => document.getElementById('opsioneTitulli').textContent) === 'Marketet' && /S'ke ende asnjë market/.test(await dr.textContent('#mkLista')), '1. Cilësimet → Marketet: bosh');
   await dr.fill('#mkEmriRi', 'Albi Mall'); await dr.click('#mkShto'); await dr.waitForTimeout(400);

@@ -633,10 +633,10 @@
 
     var krye = el('div', 'sb-home-krye');
     // v241: "Je te: …" (vetëm kur ka markete)
-    if (kaMarkete()) {
+    if (kaMarkete() || merchPaMarkete()) { // v242: edhe "Shto marketin ku punon" kur s'ka asnjë
       var mc = $('afMarketi').cloneNode(true); mc.removeAttribute('id'); mc.hidden = false;
       var mcE = mc.querySelector('.mk-chip__emri'); if (mcE) mcE.removeAttribute('id');
-      mc.addEventListener('click', hapZgjedhjenEMarketit);
+      mc.addEventListener('click', prekCipin);
       krye.appendChild(mc);
     }
     var karta = el('div', 'sb-summary');
@@ -1337,8 +1337,8 @@
     if (!sek) return;
     var admin = eshteAdminiIStokut();
     if (!admin) furnNeEditim = null;
-    $('furnIntro').textContent = admin ? 'Furnizuesit e krejt grupit. Ndrysho emrin e një furnizuesi: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një.'
-      : 'Furnizuesit e krejt grupit dhe të afateve të tua. Emrat i ndryshon vetëm administratori.';
+    $('furnIntro').textContent = admin ? 'Furnizuesit e regjistrit të Stoku-t (krejt llogaritë). Ndrysho emrin e një furnizuesi: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një.'
+      : 'Furnizuesit e regjistrit të Stoku-t (të njëjtët për krejt llogaritë) dhe të afateve të tua. Emrat i ndryshon vetëm administratori.';
     $('furnPritjeIntro').textContent = admin ? 'Furnizuesit e rinj, të kolegëve dhe ata që i shton ti. Prek njërin: ruaje ashtu siç është ose ndrysho emrin (ndryshon te krejt produktet e tij), pastaj kalon te Furnizuesit. Fshirja e produkteve s\'e fshin furnizuesin.'
       : 'Furnizuesit e rinj. I kontrollon administratori, pastaj kalojnë te Furnizuesit.';
     if (admin) ruajFurnizuesitEMiratuar();
@@ -1498,8 +1498,8 @@
     var cont = $('kujtesaLista'); if (!cont) return;
     var admin = eshteAdminiIStokut();
     if (!admin) kujNeEditim = null;
-    $('kujtesaIntro').textContent = admin ? 'Emri dhe furnizuesi që Stoku i mban mend për çdo barkod; kolegët i shohin kur skanojnë. Produktet e reja (edhe ato që i shton ti) dalin këtu pasi t\'i kontrollosh te Produktet e reja. Atë që e ndryshon ti s\'e ndryshon askush tjetër. Prek një produkt për ta ndryshuar.'
-      : 'Emri dhe furnizuesi që Stoku i mban mend për çdo barkod; plotësohen vetë kur skanon. Këto i ndryshon vetëm administratori.';
+    $('kujtesaIntro').textContent = admin ? 'Emri dhe furnizuesi që Stoku i mban mend për çdo barkod; krejt llogaritë e Stoku-t i shohin kur skanojnë. Produktet e reja (të kujtdo, edhe ato që i shton ti) dalin këtu pasi t\'i kontrollosh te Produktet e reja. Atë që e ndryshon ti s\'e ndryshon askush tjetër. Prek një produkt për ta ndryshuar.'
+      : 'Regjistri i Stoku-t: emri dhe furnizuesi për çdo barkod, i njëjtë për krejt llogaritë; plotësohen vetë kur skanon. Produktet e reja i kontrollon dhe i ndryshon vetëm administratori.';
     var k = KJ(), teGjitha = k ? k.lista() : [];
     // v201: produktet e shkruara nga kolegët presin te "Produktet e reja" derisa t'i kontrollojë dhe ruajë administratori
     var lista = window.StokuAfatet.renditSipasRuajtjes(teGjitha.filter(function (x) { return !x.nePritje; })); // v212: të ruajturat e fundit në krye
@@ -4148,7 +4148,7 @@
   // thjesht klasën), që logjika e tyre (p.sh. konfirmo() që pret përgjigje) të përfundojë saktë.
   var ANULO_SIPAS_DIALOGUT = {
     dlgProdukt: 'dlgAnulo', dlgZhvendos: 'zhvendosAnulo', dlgFshirje: 'fshiAnulo',
-    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgMarketi: 'mkdAnulo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgKuSkedari: 'ksAnulo', dlgNjoftimet: 'njJoTani', dlgAfExcel: 'axAnulo', dlgTeRejat: 'trMbyll', dlgImportStok: 'impAnulo', dlgEkNjoftimet: 'ekNjMbyll', dlgAfImport: 'aiAnulo', dlgKerkese: 'krkAnulo'
+    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgMarketi: 'mkdAnulo', dlgMarketiRi: 'mkrAnulo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgKuSkedari: 'ksAnulo', dlgNjoftimet: 'njJoTani', dlgAfExcel: 'axAnulo', dlgTeRejat: 'trMbyll', dlgImportStok: 'impAnulo', dlgEkNjoftimet: 'ekNjMbyll', dlgAfImport: 'aiAnulo', dlgKerkese: 'krkAnulo'
   };
   function mbyllShtresenMeTeFundit() {
     // Kamera del mbi çdo dialog (p.sh. skanimi te "Afat i ri"), prandaj mbyllet e para
@@ -4618,12 +4618,17 @@
     marketiAktiv = MK.ruajAktivin({ id: id || null, menyra: menyra || 'dore', koha: Date.now(), kontrolluarSe: marketiAktiv.kontrolluarSe || 0 });
     rifreskoMarketet();
   }
-  function rifreskoMarketet() {
-    var ka = kaMarkete(), id = idMarketitAktiv();
-    $('afMarketi').hidden = !ka;
-    $('afMarketiEmri').textContent = id ? emriMarketit(id) : 'Krejt marketet';
-    $('afMarketi').querySelector('.mk-chip__lbl').textContent = id ? 'Je te' : 'Po sheh';
+  // v242: merchandiseri pa asnjë market: çipi "Shto marketin" (pa të s'kishte nga ta dinte se ku shtohen)
+  function merchPaMarkete() { return !marketet.length && eshteMerchandiser(); }
+  function vizatoCipin() {
+    var ka = kaMarkete(), id = idMarketitAktiv(), pa = merchPaMarkete();
+    $('afMarketi').hidden = !ka && !pa;
+    $('afMarketiEmri').textContent = pa ? 'Shto marketin ku punon' : id ? emriMarketit(id) : 'Krejt marketet';
+    $('afMarketi').querySelector('.mk-chip__lbl').textContent = pa ? 'Marketi' : id ? 'Je te' : 'Po sheh';
     $('tabMarketetStatus').textContent = !marketet.length ? 'Për disa markete' : (id ? 'Je te: ' + emriMarketit(id) : sasiaETekst(marketet.length, 'market', 'markete'));
+  }
+  function rifreskoMarketet() {
+    vizatoCipin();
     if ($('dlgAfatet').classList.contains('hapur')) renderAfatet();
     rifreskoShenjen();
     if (folderiAktual === null && !$('dlgAfatet').classList.contains('hapur')) renderFolderat();
@@ -4697,14 +4702,76 @@
     if (id === undefined) return;
     vendosMarketinAktiv(id, 'dore');
   }
-  $('afMarketi').addEventListener('click', hapZgjedhjenEMarketit);
-  (function () { // gjendja e çipit dhe e rreshtit te Cilësimet që në hapje
-    var id = idMarketitAktiv();
-    $('afMarketi').hidden = !kaMarkete();
-    $('afMarketiEmri').textContent = id ? emriMarketit(id) : 'Krejt marketet';
-    $('afMarketi').querySelector('.mk-chip__lbl').textContent = id ? 'Je te' : 'Po sheh';
-    $('tabMarketetStatus').textContent = !marketet.length ? 'Për disa markete' : (id ? 'Je te: ' + emriMarketit(id) : sasiaETekst(marketet.length, 'market', 'markete'));
-  })();
+  function prekCipin() { if (merchPaMarkete()) hapMarketinERi(); else hapZgjedhjenEMarketit(); }
+  $('afMarketi').addEventListener('click', prekCipin);
+  vizatoCipin(); // gjendja e çipit dhe e rreshtit te Cilësimet që në hapje
+
+  // ---- v242: marketi i ri (emri + vendndodhja), nga çipi, "Ku je?" → "+ Market i ri", ose vetë herën e parë ----
+  // Kthen { marketi, n (afatet e vendosura te ky market) } ose tekstin e gabimit
+  function shtoMarketERi(emri) {
+    var e = String(emri || '').trim().replace(/\s+/g, ' ');
+    if (!e) return 'Shkruaj emrin e marketit.';
+    if (MK.ekzistonEmri(marketet, e)) return 'Ke tashmë një market me këtë emër.';
+    var tani = Date.now(), iPari = !marketet.length;
+    var m = { id: MK.idERe(), emri: e.slice(0, MK.EMRI_MAKS), ndryshuarSe: tani };
+    marketet = marketet.concat([m]);
+    var nZhvendosur = 0;
+    // Marketi i parë: afatet e deritashme (pa market) shkojnë te ai, që asgjë të mos mbetet jashtë
+    if (iPari) { var r = MK.vendosPaMarket(afatet, marketet, m.id, tani); afatet = r.afatet; nZhvendosur = r.n; }
+    marketiAktiv = MK.ruajAktivin({ id: m.id, menyra: 'dore', koha: tani, kontrolluarSe: marketiAktiv.kontrolluarSe || 0 });
+    ruajMarketet(nZhvendosur > 0);
+    return { marketi: m, n: nZhvendosur };
+  }
+  // Vendndodhja e tanishme → pika e marketit (id); cb(gabimi | null, saktësia)
+  function ruajVendinEMarketit(id, cb) {
+    MK.pozita(function (e, poz) {
+      if (e) { cb(e); return; }
+      var tani = Date.now();
+      marketet = marketet.map(function (x) { return x.id === id ? Object.assign({}, x, { lat: Math.round(poz.lat * 1e6) / 1e6, lng: Math.round(poz.lng * 1e6) / 1e6, ndryshuarSe: tani }) : x; });
+      marketiAktiv = MK.ruajAktivin({ id: id, menyra: 'gps', koha: tani, kontrolluarSe: tani });
+      ruajMarketet(false);
+      cb(null, Math.round(poz.sakt || 0));
+    });
+  }
+  function hapMarketinERi() {
+    if (!eshteMerchandiser()) return;
+    $('mkrTitulli').textContent = marketet.length ? 'Market i ri' : 'Në cilin market je?';
+    $('mkrEmri').value = ''; $('mkrGabim').textContent = ''; $('mkrVendi').checked = true;
+    $('mkrRuaj').disabled = false; $('mkrRuaj').textContent = 'Ruaj marketin';
+    $('dlgMarketiRi').classList.add('hapur');
+    setTimeout(function () { $('mkrEmri').focus(); }, 80);
+    try { localStorage.setItem('stoku:marketet:pyetur', (perdoruesiAktual() || {}).uid || '1'); } catch (e) { /* ok */ }
+  }
+  function mbyllMarketinERi() { $('dlgMarketiRi').classList.remove('hapur'); }
+  function ruajMarketinERi() {
+    var r = shtoMarketERi($('mkrEmri').value);
+    if (typeof r === 'string') { $('mkrGabim').textContent = r; $('mkrEmri').focus(); return; }
+    var m = r.marketi, tekstiAfateve = r.n ? ' Afatet e deritashme (' + r.n + ') u vendosën te ky market.' : '';
+    if (!$('mkrVendi').checked) {
+      mbyllMarketinERi();
+      toast('"' + m.emri + '" u shtua.' + tekstiAfateve + ' Kur je brenda tij, ruaje vendndodhjen te Cilësimet → Marketet.', 6000);
+      return;
+    }
+    $('mkrRuaj').disabled = true; $('mkrRuaj').textContent = 'Duke e gjetur vendndodhjen…';
+    ruajVendinEMarketit(m.id, function (e, sakt) {
+      mbyllMarketinERi();
+      if (e) { toast('"' + m.emri + '" u shtua, por pa vendndodhje. ' + MK.tekstiGabimit(e), 8000); return; }
+      toast('"' + m.emri + '" u shtua me vendndodhjen.' + tekstiAfateve + (sakt > 100 ? ' GPS-i ishte i dobët (rreth ' + sakt + ' m): provoje sërish te Cilësimet → Marketet.' : ' Herët e tjera Stoku e njeh vetë kur je këtu.'), 7000);
+    });
+  }
+  $('mkrRuaj').addEventListener('click', ruajMarketinERi);
+  $('mkrEmri').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ruajMarketinERi(); } });
+  $('mkrAnulo').addEventListener('click', mbyllMarketinERi);
+  $('dlgMarketiRi').addEventListener('click', function (ev) { if (ev.target === $('dlgMarketiRi')) mbyllMarketinERi(); });
+  $('mkdIRi').addEventListener('click', function () { if (__mkPritja) __mkPritja(undefined); hapMarketinERi(); });
+  // Herën e parë që merchandiseri (pa asnjë market) hap Afatet: pyetet vetë një herë
+  function pyetMarketinEPare() {
+    if (!merchPaMarkete()) return;
+    var u = (perdoruesiAktual() || {}).uid || '1', pyetur = null;
+    try { pyetur = localStorage.getItem('stoku:marketet:pyetur'); } catch (e) { /* ok */ }
+    if (pyetur === u) return;
+    setTimeout(function () { if (merchPaMarkete() && $('dlgAfatet').classList.contains('hapur') && !document.querySelector('.mbulese.hapur:not(.faqe-e-plote)')) hapMarketinERi(); }, 600);
+  }
   // Llogaria e hapur si merchandiser (ose u lexua nga Firebase pas hyrjes, ose u ndërrua llogaria): marketet dalin/zhduken
   var __merchPara = eshteMerchandiser();
   function rifreskoMerchandiserin() {
@@ -4788,15 +4855,12 @@
     inp.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ruajEmrin(); } });
     vend.addEventListener('click', function () {
       vend.disabled = true; vend.textContent = 'Duke e gjetur vendndodhjen…';
-      MK.pozita(function (e, poz) {
+      mkNeEditim = m.id;
+      ruajVendinEMarketit(m.id, function (e, s) {
         vend.disabled = false;
         if (e) { vend.textContent = 'Ruaj vendndodhjen këtu'; gab.textContent = MK.tekstiGabimit(e); return; }
-        var tani = Date.now();
-        marketet = marketet.map(function (x) { return x.id === m.id ? Object.assign({}, x, { lat: Math.round(poz.lat * 1e6) / 1e6, lng: Math.round(poz.lng * 1e6) / 1e6, ndryshuarSe: tani }) : x; });
-        marketiAktiv = MK.ruajAktivin({ id: m.id, menyra: 'gps', koha: tani, kontrolluarSe: tani });
         mkNeEditim = null;
-        ruajMarketet(false);
-        var s = Math.round(poz.sakt || 0);
+        vizatoMarketetNeCilesime();
         toast('U ruajt vendndodhja e ' + m.emri + (s > 100 ? '. GPS-i ishte i dobët (rreth ' + s + ' m): provoje sërish pranë hyrjes, për më saktësi.' : '.'), s > 100 ? 6000 : 3000);
       });
     });
@@ -4815,18 +4879,10 @@
     return w;
   }
   function shtoMarketin() {
-    var e = $('mkEmriRi').value.trim().replace(/\s+/g, ' ');
-    if (!e) { $('mkGabim').textContent = 'Shkruaj emrin e marketit.'; $('mkEmriRi').focus(); return; }
-    if (MK.ekzistonEmri(marketet, e)) { $('mkGabim').textContent = 'Ke tashmë një market me këtë emër.'; $('mkEmriRi').focus(); return; }
-    var tani = Date.now(), iPari = !marketet.length;
-    var m = { id: MK.idERe(), emri: e.slice(0, MK.EMRI_MAKS), ndryshuarSe: tani };
-    marketet = marketet.concat([m]);
-    var nZhvendosur = 0;
-    // Marketi i parë: afatet e deritashme (pa market) shkojnë te ai, që asgjë të mos mbetet jashtë
-    if (iPari) { var r = MK.vendosPaMarket(afatet, marketet, m.id, tani); afatet = r.afatet; nZhvendosur = r.n; }
-    marketiAktiv = MK.ruajAktivin({ id: m.id, menyra: 'dore', koha: tani, kontrolluarSe: marketiAktiv.kontrolluarSe || 0 });
+    var r = shtoMarketERi($('mkEmriRi').value);
+    if (typeof r === 'string') { $('mkGabim').textContent = r; $('mkEmriRi').focus(); return; }
     $('mkEmriRi').value = '';
-    ruajMarketet(nZhvendosur > 0);
+    var m = r.marketi, nZhvendosur = r.n;
     toast('"' + m.emri + '" u shtua' + (nZhvendosur ? '. Afatet e deritashme (' + nZhvendosur + ') u vendosën te ky market.' : '. Kur je brenda tij, prek atë dhe "Ruaj vendndodhjen këtu".'), 5000);
   }
   $('mkShto').addEventListener('click', shtoMarketin);
@@ -5371,6 +5427,7 @@
     renderAfatet();
     $('afTrup').scrollTop = 0;
     $('dlgAfatet').classList.add('hapur');
+    pyetMarketinEPare(); // v242
   }
   function mbyllAfatetFaqe() {
     afZgjedhja = null;
@@ -5748,8 +5805,9 @@
       p.appendChild(b);
     });
     c.appendChild(p);
-    // Ftesat për një grup tjetër (shfaqen edhe te Kolegët)
+    // Ftesat për një grup tjetër (shfaqen edhe te Kolegët); v242: kërkesat për t'u futur në grupin tim (admini i grupit)
     ekK.ftesatEMia().forEach(function (f) { c.appendChild(ekFtesaEl(f)); });
+    ekK.kerkesatEGrupit().forEach(function (k) { c.appendChild(ekKerkesaEGrupitEl(k)); });
     var bKrk = ekEl('button', 'ek-kerko-heqje'); bKrk.type = 'button'; bKrk.id = 'ekKerkoHeqje';
     bKrk.innerHTML = '<span class="ek-kerko-heqje__ik"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18"></path><path d="M5 7v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7"></path><path d="M9 7V4h6v3"></path><path d="m10 12 4 4M14 12l-4 4"></path></svg></span><span class="ek-kerko-heqje__tk"><b>Kërko heqje nga rafti</b><span>Dërgoji një kolegu një produkt për ta hequr</span></span><span class="shigjeta">›</span>';
     bKrk.addEventListener('click', function () { hapKerkesen(); });
@@ -6027,6 +6085,79 @@
   }
 
   // ---- Kolegët ----
+  // ---- v242: hyr në një grup ekzistues (kërko me emër, dërgo kërkesë; admini i grupit e pranon) ----
+  var ekKerkimi = { q: '', rez: null, duke: false, gabim: '', kohez: null };
+  function ekKerkesaEMiaEl(k) {
+    var bk = ekEl('div', 'ek-pult-kerkesat ek-ftesa ek-kerkesa-ime');
+    var tk = ekEl('div', 'tk');
+    tk.appendChild(ekEl('b', null, k.grupiEmri || 'Grup'));
+    tk.appendChild(document.createTextNode('Kërkesa u dërgua' + (k.koha ? ' ' + EKL.kohaRelative(k.koha) : '') + '. Pret pranimin nga admini i grupit.'));
+    bk.appendChild(tk);
+    var ba = ekEl('button', 'btn tekst', 'Anulo'); ba.type = 'button';
+    ba.addEventListener('click', async function () {
+      ba.disabled = true;
+      var r = await ekK.anuloKerkesen(k);
+      if (!r.ok) { ba.disabled = false; toast('S\'u anulua. Kontrollo internetin dhe provo përsëri.', 4000); }
+    });
+    bk.appendChild(ba);
+    return bk;
+  }
+  function ekKerkimiIGrupitEl() {
+    var w = ekEl('div', 'ek-kerko-grupin');
+    var f = ekEl('div', 'ek-rresht-forma');
+    var inp = ekEl('input'); inp.type = 'search'; inp.id = 'ekGrupiKerko'; inp.maxLength = 60; inp.autocomplete = 'off'; inp.value = ekKerkimi.q;
+    inp.placeholder = 'Shkruaj emrin e grupit'; inp.setAttribute('aria-label', 'Kërko grupin me emër'); inp.setAttribute('enterkeyhint', 'search');
+    f.appendChild(inp); w.appendChild(f);
+    var rez = ekEl('div', 'ek-kerko-rez'); rez.id = 'ekGrupiRezultatet'; w.appendChild(rez);
+    function vizatoRez() {
+      rez.textContent = '';
+      if (ekKerkimi.q.trim().length < 2) return;
+      if (ekKerkimi.gabim) { rez.appendChild(ekInfo(ekKerkimi.gabim)); return; }
+      if (!ekKerkimi.rez) { rez.appendChild(ekInfo('Duke kërkuar…')); return; }
+      if (!ekKerkimi.rez.length) { rez.appendChild(ekInfo('S\'u gjet asnjë grup me këtë emër.')); return; }
+      var kerkuar = {};
+      ekK.kerkesatEMia().forEach(function (k) { kerkuar[k.gid] = true; });
+      ekKerkimi.rez.forEach(function (gr) {
+        var bk = ekEl('div', 'ek-pult-kerkesat ek-ftesa');
+        var tk = ekEl('div', 'tk');
+        tk.appendChild(ekEl('b', null, gr.emri));
+        tk.appendChild(document.createTextNode(gr.pronarEmri ? 'Admini: ' + gr.pronarEmri : 'Grup'));
+        bk.appendChild(tk);
+        var b = ekEl('button', 'btn', kerkuar[gr.id] ? 'U dërgua' : 'Kërko të hysh'); b.type = 'button'; b.disabled = !!kerkuar[gr.id];
+        b.addEventListener('click', async function () {
+          b.disabled = true;
+          inp.blur(); // tastiera mbyllet; pamja rifreskohet (kërkesa ime del lart)
+          var r = await ekK.dergoKerkesen(gr);
+          if (!r.ok) {
+            b.disabled = false;
+            toast(r.leje ? 'Kërkesa s\'u dërgua: ky grup s\'ekziston më, ose rregullat e Firebase-it s\'janë vendosur ende.' : 'Kërkesa s\'u dërgua. Kontrollo internetin dhe provo përsëri.', 5000);
+            return;
+          }
+          if (r.ngaFtesa) { toast('U bashkove me grupin "' + gr.emri + '" (të kishin ftuar).'); __ekipiAnetari = null; ekZgjidhPamjen('anetaret'); return; }
+          b.textContent = 'U dërgua';
+          toast('Kërkesa u dërgua. Kur ta pranojë admini i grupit, hyn vetë në grup.', 5000);
+        });
+        bk.appendChild(b);
+        rez.appendChild(bk);
+      });
+    }
+    inp.addEventListener('input', function () {
+      ekKerkimi.q = inp.value; ekKerkimi.gabim = ''; ekKerkimi.rez = null;
+      clearTimeout(ekKerkimi.kohez);
+      vizatoRez();
+      if (inp.value.trim().length < 2) return;
+      ekKerkimi.kohez = setTimeout(async function () {
+        var q = inp.value;
+        var r = await ekK.kerkoGrupet(q);
+        if (q !== ekKerkimi.q) return;
+        ekKerkimi.rez = r.ok ? r.lista : [];
+        ekKerkimi.gabim = r.ok ? '' : r.leje ? 'Kërkimi i grupeve s\'është gati ende (rregullat e Firebase-it).' : 'S\'u kërkua. Kontrollo internetin dhe provo përsëri.';
+        vizatoRez();
+      }, 300);
+    });
+    vizatoRez();
+    return w;
+  }
   // ---- Ekipat: pa grup (krijo grupin ose prano një ftesë) ----
   function vizatoPaGrup(c) {
     c.textContent = '';
@@ -6035,7 +6166,11 @@
       var hf = ekEl('div', 'af-grup-krye'); hf.appendChild(ekEl('span', null, ft.length === 1 ? 'Ke një ftesë' : 'Ke ' + ft.length + ' ftesa')); c.appendChild(hf);
       ft.forEach(function (f) { c.appendChild(ekFtesaEl(f)); });
     }
-    c.appendChild(ekBosh(ft.length ? 'Ose krijo grupin tënd' : 'Krijo grupin tënd',
+    // v242: hyr në një grup ekzistues
+    c.appendChild(ekBosh('Hyr në një grup', 'Kërko grupin me emrin e tij dhe dërgo kërkesë. Kur ta pranojë admini i grupit, hyn vetë.'));
+    ekK.kerkesatEMia().forEach(function (k) { c.appendChild(ekKerkesaEMiaEl(k)); });
+    c.appendChild(ekKerkimiIGrupitEl());
+    c.appendChild(ekBosh('Ose krijo grupin tënd',
       'Secili grup sheh vetëm kolegët e vet (afatet dhe aktivitetin). Krijo grupin e dyqanit tënd dhe fto shokët, ose prano një ftesë.'));
     var f = ekEl('div', 'ek-rresht-forma');
     var inp = ekEl('input'); inp.type = 'text'; inp.id = 'ekGrupiEmri'; inp.maxLength = 60; inp.autocomplete = 'off';
@@ -6075,6 +6210,28 @@
       br.disabled = true;
       var r = await ekK.refuzoFtesen(f);
       if (!r.ok) { br.disabled = false; toast('S\'u refuzua. Kontrollo internetin.', 4000); }
+    });
+    bk.appendChild(bp); bk.appendChild(br);
+    return bk;
+  }
+  function ekKerkesaEGrupitEl(k) {
+    var bk = ekEl('div', 'ek-pult-kerkesat ek-ftesa ek-kerkesa-grupi');
+    var tk = ekEl('div', 'tk');
+    tk.appendChild(ekEl('b', null, k.emri || 'Dikush'));
+    tk.appendChild(document.createTextNode('kërkon të hyjë në grup' + (k.koha ? ' · ' + EKL.kohaRelative(k.koha) : '') + '.'));
+    bk.appendChild(tk);
+    var bp = ekEl('button', 'btn', 'Prano'); bp.type = 'button';
+    var br = ekEl('button', 'btn tekst', 'Refuzo'); br.type = 'button';
+    bp.addEventListener('click', async function () {
+      bp.disabled = br.disabled = true;
+      var r = await ekK.pranoKerkesen(k);
+      if (!r.ok) { bp.disabled = br.disabled = false; toast('S\'u pranua. Kontrollo internetin dhe provo përsëri.', 4000); return; }
+      toast((k.emri || 'Kolegu') + ' u pranua. Hyn në grup sapo ta hapë Stoku-n.', 5000);
+    });
+    br.addEventListener('click', async function () {
+      bp.disabled = br.disabled = true;
+      var r = await ekK.refuzoKerkesen(k);
+      if (!r.ok) { bp.disabled = br.disabled = false; toast('S\'u refuzua. Kontrollo internetin dhe provo përsëri.', 4000); }
     });
     bk.appendChild(bp); bk.appendChild(br);
     return bk;
@@ -6129,6 +6286,12 @@
     if (ft.length) {
       var hf = ekEl('div', 'af-grup-krye'); hf.appendChild(ekEl('span', null, 'Ftesë për një grup tjetër')); c.appendChild(hf);
       ft.forEach(function (f) { c.appendChild(ekFtesaEl(f)); });
+    }
+    // v242: kërkesat për t'u futur në grupin tim (vetëm admini i grupit)
+    var kg = ekK.kerkesatEGrupit();
+    if (kg.length) {
+      var hkr = ekEl('div', 'af-grup-krye'); hkr.appendChild(ekEl('span', null, kg.length === 1 ? 'Një kërkesë për t\'u futur' : kg.length + ' kërkesa për t\'u futur')); c.appendChild(hkr);
+      kg.forEach(function (k) { c.appendChild(ekKerkesaEGrupitEl(k)); });
     }
     // Karta e grupit (pronari e riemërton)
     var hk = ekEl('div', 'af-grup-krye'); hk.appendChild(ekEl('span', null, 'Grupi yt')); c.appendChild(hk);

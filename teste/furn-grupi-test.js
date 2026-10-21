@@ -23,7 +23,7 @@ const err=[];
  let tx=await p.textContent('#opsFurnLista');
  ok(/Laberion/.test(tx)&&/Rugove/.test(tx)&&(await p.textContent('#opsFurnNumri'))==='2'&&!(await p.$('#opsFurnLista button')),'1. PC koleg pa afate: i sheh furnizuesit e grupit (2), pa butona',tx.replace(/\s+/g,' '));
  ok(await p.isVisible('#opsFurnPritjeSeksion')&&/Devoli/.test(await p.textContent('#opsFurnPritjeLista'))&&!(await p.$('#opsFurnPritjeLista button')),'1. PC koleg: "Furnizuesit e rinj" vetëm për t\'u parë');
- ok(/krejt grupit/.test(await p.textContent('#opsFurnHint')),'1. PC koleg: teksti flet për furnizuesit e grupit');
+ ok(/regjistrit të Stoku-t/.test(await p.textContent('#opsFurnHint')),'1. PC koleg: teksti flet për furnizuesit e regjistrit (v242: krejt llogaritë)');
  await p.screenshot({path:__dirname+'/furn-grupi-pc-koleg.png'});
  await ctx.close();
  // 2. PC, administratori: Devoli te "Furnizuesit e rinj" (nga agim); riemërtimi në Devolli e kalon te Furnizuesit? jo: mbetet derisa të ruhet produkti
