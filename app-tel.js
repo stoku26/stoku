@@ -6134,6 +6134,7 @@
             return;
           }
           if (r.ngaFtesa) { toast('U bashkove me grupin "' + gr.emri + '" (të kishin ftuar).'); __ekipiAnetari = null; ekZgjidhPamjen('anetaret'); return; }
+          if (r.rikthyer) { toast('U ktheve në grupin "' + gr.emri + '" (ishe ende anëtar).'); __ekipiAnetari = null; ekZgjidhPamjen('anetaret'); return; }
           b.textContent = 'U dërgua';
           toast('Kërkesa u dërgua. Kur ta pranojë admini i grupit, hyn vetë në grup.', 5000);
         });

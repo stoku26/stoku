@@ -52,6 +52,37 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **GRUPI QË "FSHIHEJ" PAS RIFRESKIMIT + KËRKIMI QË S'E GJENTE (v243 = 1.33.1, NJË RREGULL E RE)**: pronari (foto:
+   testmorina kërkon "Albi Market 34" → "S'u gjet asnjë grup me këtë emër"): "grupi me qat emër ekziston po s'u gjet; kur dikush
+   krijon grup, grupi fshihet masi ta bon refresh; gjeje menjëherë edhe rregulloje 100%".
+   - **Shkaku (ekzistonte që nga v164, s'e kapte Firestore-i i rremë):** në hapje `regjistroTani` shkruan `setDoc(perdoruesit/{uid},
+     {perdoruesi, kycurSe}, {merge:true})`. Firestore-i i vërtetë (kujtesa në memorie) ia jep dëgjuesit të `perdoruesit/{uid}`
+     MENJËHERË kopjen lokale të pjesshme (`fromCache: true`, `hasPendingWrites: true`) PA fushën `grupi`. `degjoGrupin` e merrte si
+     "llogari pa tregues" → `provoGrupinEVjeter` (s'gjente anëtarësi te "ekipa") → shkruante `grupi: ''`. Kështu çdo grup i krijuar
+     me `krijoGrupin` (ose i pranuar me ftesë/kërkesë) e humbte treguesin në rifreskim; grupi "ekipa" s'preku sepse rigjendej.
+     Pronari i grupit, pa tregues, s'e publikonte më grupin (`siguroGrupinPublik` vetëm për pronarin brenda grupit) dhe grupet e
+     krijuara para v242 s'ishin fare te `grupet_publike` → "S'u gjet". U vërtetua me emulatorët e vërtetë dhe SDK 12.19.0
+     (edhe v241 e kishte gabimin).
+   - **Rregullimi (`ekipa.js?v=243`):** dëgjuesi me `{ includeMetadataChanges: true }`; snapshot `fromCache` pa fushën `grupi`
+     injorohet (pritet serveri; pa `includeMetadataChanges` llogaria e re ngecte, sepse konfirmimi i serverit pa ndryshim të
+     dhënash është vetëm metadata). Para se të shkruhet `''`, `provoGrupinEVjeterNjeHere` e pyet serverin (`getDoc`).
+   - **Rikthimi i treguesve të humbur:** kur treguesi është `''` (një herë për dëgjues), `gjejGrupinTim` provon (≤10): grupi i
+     fundit i pajisjes (`stoku:grupi:ifundit` {uid, g}, ruhet kur je anëtar, fshihet kur largohesh/të heqin), grupet me
+     `pronarUid == uid` (RREGULLA E RE `allow list` te `grupet/{g}`) dhe `grupet_publike` me `pronarEmri == emri`; vlen vetëm ai ku
+     `grupet/{g}/anetaret/{uid}` ekziston. Anëtari (jo pronar) pa tregues: "Kërko të hysh" te ai grup → `dergoKerkesen` sheh që
+     anëtarësia ekziston → `vendosTreguesin(g)`, `{ ok, rikthyer }`, toast "U ktheve në grupin X (ishe ende anëtar)", pa kërkesë.
+   - **Kërkimi:** `normalizoEmrin` heq shenjat (çdo jo-shkronjë/numër = hapësirë), `perputhet` (nënvarg, pa hapësira, krejt fjalët
+     në çfarëdo renditje), lista ruhet 15 s dhe lexohet sërish kur s'gjendet asgjë (>2 s), që grupi i sapokrijuar të dalë.
+   - **Rregulla e re (pronari e vendos):** te `match /grupet/{g}` shtohet `allow list: if request.auth != null &&
+     resource.data.pronarUid == request.auth.uid;` (si `allow` më vete: brenda `allow read` me `||` query-ja ndalohej, sepse
+     `anetarIGrupit(g)` s'llogaritet për lista). Pa të, pronari i grupit të vjetër (pa listë publike, pa pajisje) s'rikthehet vetë.
+   - **Testet:** `teste/grupi-tregues-v243.js` (fs i rremë me metadata, si SDK-ja: kopja e pjesshme te `setDoc`; me ekipa.js e
+     vjetër jep 5 GABIM); **`teste/emu/` (i ri, jashtë regresionit):** emulatorët e vërtetë (Auth 9099 + Firestore 8089 nga
+     `firebase-tools`), SDK 12.19.0 e ndërtuar me esbuild, rregullat nxirren nga ky skedar (`rregullat.js`): `bash teste/emu/nis.sh`,
+     `node teste/emu/grupi-v243.mjs` (rregulla + rikthimi), `node teste/emu/grupi-e2e-v243.js` (faqet e vërteta tel + PC:
+     rifreskimet, rikthimi nga lista publike dhe nga pronarUid, merchandiseri, kërkesa/pranimi, "Kërko të hysh" = rikthim, PC).
+     Përdore sa herë ndryshon diçka që varet nga sjellja e Firestore-it të vërtetë (kopjet e pajisjes, metadata, rregullat).
+
 0000000. **HYR NË GRUP ME KËRKESË + REGJISTRI I PËRBASHKËT + MARKETI I PARË (v242 = 1.33.0, RREGULLA TË REJA)**: tri kërkesa të
    pronarit: (1) "useri i ri vetëm krijon grup; bone edhe me hy në një grup: me lyp me emër, me çu kërkesë, admini i grupit e
    aprovon"; (2) "useri i ri s'ka furnizues as produkte te lista; kushdo që ka llogari duhet t'i shohë, kur skanon me dalë emri
@@ -1668,6 +1699,11 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
     userAgent Android Chrome.
   - viewport PC: `{ width: 1280-1600, height: 700-800 }`, pa userAgent special (ridrejtohet vetë te
     pc.html sipas rregullit "kompjuter = ka maus / s'është touch-only").
+- **Emulatorët e vërtetë në repo (v243): `teste/emu/`** (Auth + Firestore nga `firebase-tools`, SDK-ja e njëjtë si stoku.site,
+  rregullat nga ky skedar). `bash teste/emu/nis.sh` (herën e parë `npm ci` + shkarkimi i JAR-it), pastaj testet `teste/emu/*`.
+  Faqet e vërteta lidhen me emulatorët vetëm në test (`e2e.js`: route i gstatic → SDK-ja e ndërtuar, pa CSP, `connect*Emulator`).
+  S'janë në regresion (kërkojnë Java dhe ~1 min nisje). Firestore-i i rremë (`fs-server.js`) s'i imiton kopjet lokale të
+  pjesshme të SDK-së: gabimi i v243 u gjet vetëm këtu.
 - **Rregullat e Firestore me emulatorin e vërtetë** (v164): Java është në mjedis; JAR-i shkarkohet nga
   `https://storage.googleapis.com/firebase-preview-drop/emulator/cloud-firestore-emulator-v1.19.9.jar` (~64 MB),
   `npm i @firebase/rules-unit-testing@4 firebase@11` në një dosje të scratchpad-it (`emu/`), nisja
@@ -1749,7 +1785,7 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
-## Rregullat e Firestore (v242 regjistri + kërkesat për grup, v164 grupet, v221 pa chat, v229 skedarët në PC, v230 lejet; më parë v116 + v130 ekipa_push + v140 admini nga llogaria): i vendos PËRDORUESI (unë s'kam qasje)
+## Rregullat e Firestore (v243 rikthimi i grupit (pronarUid), v242 regjistri + kërkesat për grup, v164 grupet, v221 pa chat, v229 skedarët në PC, v230 lejet; më parë v116 + v130 ekipa_push + v140 admini nga llogaria): i vendos PËRDORUESI (unë s'kam qasje)
 
 Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Dyqani lexohet vetëm nga pronari/admin-i;
 `emri`/`perdoruesi` s'falsifikohen (= emri i llogarisë); aplikacioni s'mund ta shtojë/ndryshojë fushën `emri` te
@@ -1896,6 +1932,7 @@ service cloud.firestore {
     // v164: grupet. Anëtarët te grupet/{g}/anetaret/{uid} (roli 'pronar' | 'anetar'); treguesi te perdoruesit/{uid}.grupi
     match /grupet/{g} {
       allow read: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());
+      allow list: if request.auth != null && resource.data.pronarUid == request.auth.uid; // v243: pronari e gjen grupin e vet (rikthimi)
       allow create: if request.auth != null && (eshteAdmin() || (!uFshi(request.auth.uid)
         && request.resource.data.pronarUid == request.auth.uid && request.resource.data.pronarEmri == emriIm()
         && request.resource.data.keys().hasOnly(['emri', 'pronarUid', 'pronarEmri', 'krijuarSe'])

@@ -20,6 +20,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 243, versioni: '1.33.1', data: '2026-10-21', titulli: 'Grupi s\'humbet më', pikat: [
+      'U rregullua gabimi që e nxirrte nga grupi atë që e krijoi grupin (ose që u fut rishtas) pas rifreskimit të faqes.',
+      'Kush e humbi grupin më herët kthehet vetë në të kur e hap Stoku-n. Nëse s\'kthehesh vetë: kërko grupin dhe prek "Kërko të hysh"; nëse je ende anëtar, hyn menjëherë, pa pritur admin.',
+      'Kërkimi i grupit e gjen më lehtë: s\'ka rëndësi shkronja e madhe a e vogël, ë/ç, hapësirat ose renditja e fjalëve.'
+    ] },
     { v: 242, versioni: '1.33.0', data: '2026-10-21', titulli: 'Hyr në një grup me kërkesë', pikat: [
       'Pa grup: te Grupi kërko grupin me emrin e tij dhe prek "Kërko të hysh". Kur ta pranojë admini i grupit, hyn vetë në grup.',
       'Admini i grupit e sheh kërkesën te Grupi (edhe me njoftim) dhe e pranon ose e refuzon.'

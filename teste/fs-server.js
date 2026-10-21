@@ -34,7 +34,8 @@ function krijoFirestore(opt = {}) {
     const emriA = emriNgaEmail(a.email);
     if (reja && p[0] === 'grupet') {
       const g = p[1];
-      if (p.length === 2) return anetar(a.uid, g) || eshteAdmin(a.uid);
+      // v243: "allow list" për pronarin (where pronarUid == uid), për rikthimin e treguesit të humbur
+      if (p.length === 2) return (eListe && (c || []).some(x => x.lloji === 'where' && x.op === '==' && x.f === 'pronarUid' && x.v === a.uid)) || anetar(a.uid, g) || eshteAdmin(a.uid);
       if (p[2] === 'anetaret') return (!eListe && a.uid === p[3]) || anetar(a.uid, g) || eshteAdmin(a.uid);
       if (p[2] === 'push') return anetar(a.uid, g) || eshteAdmin(a.uid);
       if (!['afatet', 'feed', 'kujtesa'].includes(p[2])) return false; // v221: pa chat (vetëm nënkoleksionet e rregullave)
@@ -388,7 +389,8 @@ function krijoFirestore(opt = {}) {
           if (!r.ok) throw gabim(r.code);
           return rez;
         },
-        onSnapshot: (ref, cb, cbE) => {
+        onSnapshot: (ref, cb, cbE, cbE2) => {
+          if (cb && typeof cb === 'object' && typeof cbE === 'function') { cb = cbE; cbE = cbE2; } // (ref, { includeMetadataChanges }, cb, cbE)
           const id = 's' + nrFaqe + '_' + (++nrSub); // unike edhe pas rifreskimit (dëgjuesit e faqes së vjetër s'përzihen)
           const lloji = ref.koleksion ? 'query' : 'doc';
           window.__fsCb[id] = r => {

@@ -4501,6 +4501,7 @@
           return;
         }
         if (r.ngaFtesa) { toast('U bashkove me grupin "' + gr.emri + '" (të kishin ftuar).'); ekShkoTe('anetaret'); return; }
+        if (r.rikthyer) { toast('U ktheve në grupin "' + gr.emri + '" (ishe ende anëtar).'); ekShkoTe('anetaret'); return; }
         b.textContent = 'U dërgua';
         toast('Kërkesa u dërgua. Kur ta pranojë admini i grupit, hyn vetë në grup.');
       });

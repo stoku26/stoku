@@ -1,0 +1,11 @@
+{
+  "name": "stoku-teste-emu",
+  "private": true,
+  "description": "Testet kundër emulatorëve të vërtetë të Firebase (Auth + Firestore) me SDK-në e njëjtë si stoku.site",
+  "dependencies": {
+    "@firebase/rules-unit-testing": "5.0.2",
+    "esbuild": "0.24.2",
+    "firebase": "12.19.0",
+    "firebase-tools": "13.35.1"
+  }
+}
