@@ -28,7 +28,8 @@ const MAPLIBRE = fs.readFileSync(NM + '/maplibre-gl/dist/maplibre-gl.js');
   const omt = st.layers.filter(l => l.source === 'omt');
   ok(omt.every(l => ['water', 'waterway', 'transportation', 'boundary', 'place'].includes(l['source-layer'])), '0. nga pllakat: vetëm ujë, lumë, rrugë, kufi, vendbanime', omt.map(l => l['source-layer']));
   ok(st.layers.filter(l => l.type === 'symbol').map(l => l.id).join() === 'vendbanimet,pikat-emri', '0. emra vetëm për vendbanimet dhe pikat');
-  ok(JSON.stringify(st.layers.find(l => l.id === 'vendbanimet').filter) === JSON.stringify(['in', ['get', 'class'], ['literal', ['city', 'town', 'village', 'hamlet', 'suburb', 'quarter', 'neighbourhood']]]), '0. vendbanimet: qytet, qytezë, fshat, lagje (pa shtet, rajon)');
+  ok(JSON.stringify(st.layers.find(l => l.id === 'vendbanimet').filter) === JSON.stringify(['in', ['get', 'class'], ['literal', ['city', 'town', 'village', 'hamlet', 'borough', 'suburb', 'quarter', 'neighbourhood']]]), '0. vendbanimet: qytet, qytezë, fshat, lagje (pa shtet, rajon)');
+  ok(JSON.stringify(st.layers.find(l => l.id === 'vendbanimet').layout['text-transform']) === JSON.stringify(['match', ['get', 'class'], ['borough', 'suburb', 'quarter', 'neighbourhood'], 'uppercase', 'none']) && SH.ZOOM_LAGJET === 14, '0. v245: lagjet me shkronja të mëdha; zmadhimi i lagjeve 14');
   ok(st.sources.omt.url === 'https://tiles.openfreemap.org/planet' && st.glyphs.startsWith('https://tiles.openfreemap.org/fonts/'), '0. OpenFreeMap (pllakat dhe shkronjat)');
   ok(SH.stili({ tema: 'dark' }).layers[0].paint['background-color'] !== st.layers[0].paint['background-color'], '0. tema e errët ka ngjyrat e veta');
   const gj = SH.pikatGeoJson([{ id: 'a', uid: 'u1', emri: 'A', lat: 42.66, lng: 21.16 }, { id: 'b', uid: 'u1', emri: 'B' }]);
@@ -116,6 +117,16 @@ const MAPLIBRE = fs.readFileSync(NM + '/maplibre-gl/dist/maplibre-gl.js');
   const teNdaluara = emrat.filter(x => !/^(vendbanimet:.*\((city|town|village|hamlet|suburb|quarter|neighbourhood)\)|pikat-emri:.*)$/.test(x));
   ok(!teNdaluara.length && !emrat.some(x => /POI|EMËR RRUGE|EMËR UJI|Kosova|Rajoni/.test(x)), '1. asgjë tjetër: pa dyqane, emra rrugësh/uji, shtet, rajon', teNdaluara);
   ok(P.kerkuar.some(x => /^\/planet\/.+\.pbf$/.test(x)) && P.kerkuar.some(x => /^\/fonts\//.test(x)), '1. pllakat dhe shkronjat nga OpenFreeMap');
+  // v245: nën zmadhimin 14 (pllakat s'i kanë lagjet) del "Zmadho për emrat e lagjeve"; prekja të çon te 14
+  const zoomi = () => ad.evaluate(() => window.StokuHarta.eFundit.map.getZoom());
+  ok(await zoomi() < 14 && await duket(ad, '#htHarta .ht-udhezim') && /Zmadho për emrat e lagjeve/.test(await ad.textContent('#htHarta .ht-udhezim')), '1. v245: butoni "Zmadho për emrat e lagjeve" (zmadhimi ' + (await zoomi()).toFixed(1) + ')');
+  await ad.click('#htHarta .ht-udhezim');
+  ok(await prit(async () => await zoomi() >= 13.95 && !(await duket(ad, '#htHarta .ht-udhezim'))), '1. v245: pas prekjes zmadhimi 14, butoni fshihet', await zoomi());
+  await ad.evaluate(() => window.StokuHarta.eFundit.map.jumpTo({ center: [21.155, 42.658] }));
+  ok(await prit(async () => (await emratNeHarte(ad)).some(x => /^vendbanimet:.*\((neighbourhood|borough)\)$/.test(x))), '1. v245: emrat e lagjeve në hartë', await emratNeHarte(ad));
+  await ad.screenshot({ path: __dirname + '/v245-tel-lagjet.png' });
+  await ad.evaluate(() => { const i = window.StokuHarta.eFundit; i.pershtat(); });
+  await ad.waitForTimeout(800);
   ok(await ad.evaluate(() => /Burimet e hartës|OpenStreetMap/.test(document.getElementById('htHarta').textContent)), '1. atribuimi (OpenStreetMap) në hartë');
   await ad.screenshot({ path: __dirname + '/v244-tel-admin.png' });
   // Prek pikën në hartë → hapet ndryshimi i emrit

@@ -52,6 +52,18 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **HARTA: EMRAT E LAGJEVE (v245 = 1.34.1)**: pronari (pas Cloudflare-it): "hartën po e shoh, po emrat e lagjeve s'janë".
+   - **Shkaku (jo gabim i kodit):** pllakat e OpenFreeMap (Planetiler, profili OpenMapTiles, `Place.java`) e kanë `minzoom`:
+     qytet/qytezë 7 (ose sipas rank-ut), fshat 8, `hamlet`/`suburb` 11, **`quarter`/`neighbourhood`/`isolated_dwelling` 14**;
+     deri në z12 edhe një kufi etiketash për rrjetë (`LABEL_GRID_LIMITS`). Vetëm nyjet `place=*` (`osm_city_point`; klasat
+     city, town, village, hamlet, borough, suburb, quarter, neighbourhood, isolated_dwelling); lagjet e vizatuara vetëm si
+     sipërfaqe pa nyje s'dalin fare. Harta hapej te pamja e pikave (shpesh z12-13) → pa lagje.
+   - **Ndryshimi (`harta.js?v=245`):** `borough` te VENDBANIMET; `LAGJET` (borough, suburb, quarter, neighbourhood) me shkronja
+     të mëdha, `text-letter-spacing` 0.08, ngjyrë më e butë (`tekstiLagje`); nën `ZOOM_LAGJET` = 14 butoni `.ht-udhezim`
+     "Zmadho për emrat e lagjeve" (sipër majtas në hartë, `easeTo` z14), fshihet në z14+. CSS te stoku.css v43 / stoku-pc.css v35.
+   - **Testi** `harta-v244.js`: butoni nën z14, prekja → z14, emri i lagjes në hartë; pllakat e rreme kanë edhe `borough` "Qendra".
+     S'u pa me pllaka të vërteta (kontejneri s'arrin OpenFreeMap): nëse në z14+ ende s'ka lagje në një vend, ato s'janë në OSM si nyje.
+
 0000000. **HARTA E MARKETEVE TE CILËSIMET (v244 = 1.34.0, SHËRBIM I RI I JASHTËM: CSP + CLOUDFLARE)**: pronari: "shto te cilësimet
    opsion për maps; kur një pikë emërohet nga dikush, unë me mujt me ia ndërru emrin pikës në sistemin e Stoku-t; maps me i përdor
    emrat vetëm të qyteteve, qytezave, fshatrave edhe lagjeve, kurgjë tjetër mos me qenë në maps përveç pikave ose marketeve".

@@ -465,6 +465,8 @@
 .sbp .ht-harta { position: relative; height: 460px; margin: 4px 0 10px; border-radius: 14px; overflow: hidden; background: var(--sb-surface-2); border: 1px solid var(--sb-line); }
 .sbp .ht-gabim { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; color: var(--sb-ink-3); }
 .sbp .ht-gabim[hidden] { display: none; }
+.sbp .ht-udhezim { position: absolute; top: 10px; left: 10px; z-index: 2; padding: 7px 12px; border: 0; border-radius: 999px; background: var(--sb-surface); color: var(--sb-ink); font: inherit; font-size: 13px; font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,.18); cursor: pointer; }
+.sbp .ht-udhezim[hidden] { display: none; }
 .sbp .ht-info { margin: 0 0 10px; color: var(--sb-ink-3); font-size: 13px; }
 .sbp .ht-karta .ops-furn-rresht { cursor: pointer; }
 .sbp .ht-pa-vend { padding: 12px 20px 4px; }

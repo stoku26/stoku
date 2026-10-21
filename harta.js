@@ -22,15 +22,21 @@
   var MAPLIBRE_CSS = 'css/maplibre-gl.css?v=5.24.0';
   var PLLAKAT = 'https://tiles.openfreemap.org/planet';
   var SHKRONJAT = 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf';
-  var VENDBANIMET = ['city', 'town', 'village', 'hamlet', 'suburb', 'quarter', 'neighbourhood'];
+  var VENDBANIMET = ['city', 'town', 'village', 'hamlet', 'borough', 'suburb', 'quarter', 'neighbourhood'];
+  // v245: lagjet. Pllakat e OpenFreeMap-it (Planetiler, skema OpenMapTiles) i kanë `suburb` dhe `hamlet` nga zmadhimi 11,
+  // kurse `quarter` dhe `neighbourhood` (shumica e lagjeve) VETËM nga zmadhimi 14; nën të s'ka të dhëna për to. Prandaj
+  // nën ZOOM_LAGJET del butoni "Zmadho për emrat e lagjeve". Vetëm pikat (nyjet) `place=*` të OSM-së; lagjet e vizatuara
+  // vetëm si sipërfaqe pa pikë s'dalin te pllakat.
+  var LAGJET = ['borough', 'suburb', 'quarter', 'neighbourhood'];
+  var ZOOM_LAGJET = 14;
   var KOSOVA = { qendra: [20.9, 42.58], zoom: 7.2 };
   var EMRI_MAKS = 60;
 
   var NGJYRAT = {
     light: { sfondi: '#f4f2ee', uji: '#c4dcef', rruga: '#ffffff', rrugaKufi: '#d9d4ca', rrugaVogel: '#ffffff', kufiri: '#9a8fb0',
-      teksti: '#2f3337', halo: '#ffffff', pika: '#1f6feb', pikaZgjedhur: '#e8590c', pikaKufi: '#ffffff' },
+      teksti: '#2f3337', tekstiLagje: '#5b6470', halo: '#ffffff', pika: '#1f6feb', pikaZgjedhur: '#e8590c', pikaKufi: '#ffffff' },
     dark: { sfondi: '#1b1e22', uji: '#22394d', rruga: '#3b4048', rrugaKufi: '#2a2e34', rrugaVogel: '#30343a', kufiri: '#7d7396',
-      teksti: '#e7e9ec', halo: '#1b1e22', pika: '#4c9bff', pikaZgjedhur: '#ff8a3d', pikaKufi: '#1b1e22' }
+      teksti: '#e7e9ec', tekstiLagje: '#aab2bd', halo: '#1b1e22', pika: '#4c9bff', pikaZgjedhur: '#ff8a3d', pikaKufi: '#1b1e22' }
   };
 
   // Tekstet e kontrolleve të MapLibre-s (përndryshe dalin anglisht)
@@ -79,9 +85,12 @@
         { id: 'vendbanimet', type: 'symbol', source: 'omt', 'source-layer': 'place',
           filter: ['in', ['get', 'class'], ['literal', VENDBANIMET]],
           layout: { 'text-field': ['coalesce', ['get', 'name:sq'], ['get', 'name']], 'text-font': ['Noto Sans Regular'], 'text-max-width': 8,
-            'text-size': ['match', ['get', 'class'], 'city', 16, 'town', 14, 'village', 12.5, 11.5],
+            'text-size': ['match', ['get', 'class'], 'city', 16, 'town', 14, 'village', 12.5, LAGJET, 11, 11.5],
+            // lagjet me shkronja të mëdha e të ndara (si në hartat e zakonshme), që të dallohen nga fshatrat
+            'text-transform': ['match', ['get', 'class'], LAGJET, 'uppercase', 'none'],
+            'text-letter-spacing': ['match', ['get', 'class'], LAGJET, 0.08, 0],
             'symbol-sort-key': ['coalesce', ['get', 'rank'], 99] },
-          paint: { 'text-color': n.teksti, 'text-halo-color': n.halo, 'text-halo-width': 1.5 } },
+          paint: { 'text-color': ['match', ['get', 'class'], LAGJET, n.tekstiLagje, n.teksti], 'text-halo-color': n.halo, 'text-halo-width': 1.5 } },
         { id: 'pikat', type: 'circle', source: 'pikat',
           paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, ['case', zgjedhur, 7, 5], 14, ['case', zgjedhur, 12, 9]],
             'circle-color': ['case', zgjedhur, n.pikaZgjedhur, n.pika], 'circle-stroke-color': n.pikaKufi, 'circle-stroke-width': 2.5 } },
@@ -189,6 +198,13 @@
         if (njoftuar || !o.kurSkaPllaka || (ev && ev.sourceId && ev.sourceId !== 'omt') || !/fetch|load|network|NetworkError|Failed|AJAXError/i.test(m)) return;
         njoftuar = true; o.kurSkaPllaka();
       });
+      // Nën zmadhimin 14 pllakat s'i kanë lagjet: butoni të çon aty (në qendër të asaj që po shikon)
+      var udh = document.createElement('button');
+      udh.type = 'button'; udh.className = 'ht-udhezim'; udh.textContent = 'Zmadho për emrat e lagjeve';
+      udh.addEventListener('click', function () { map.easeTo({ zoom: ZOOM_LAGJET, duration: 500 }); });
+      el.appendChild(udh);
+      function rifreskoUdhezimin() { udh.hidden = map.getZoom() >= ZOOM_LAGJET - 0.05; }
+      map.on('zoomend', rifreskoUdhezimin);
       map.on('mouseenter', 'pikat', function () { map.getCanvas().style.cursor = 'pointer'; });
       map.on('mouseleave', 'pikat', function () { map.getCanvas().style.cursor = ''; });
       function pershtat(l) {
@@ -225,6 +241,7 @@
         hiq: function () { try { map.remove(); } catch (e) { /* ok */ } }
       };
       pershtat(pikat);
+      rifreskoUdhezimin();
       api.eFundit = inst; // për testet dhe kontrollin nga konsola
       return inst;
     });
@@ -232,7 +249,7 @@
 
   var api = {
     MAPLIBRE_JS: MAPLIBRE_JS, MAPLIBRE_SRI: MAPLIBRE_SRI, MAPLIBRE_CSS: MAPLIBRE_CSS, PLLAKAT: PLLAKAT, SHKRONJAT: SHKRONJAT,
-    VENDBANIMET: VENDBANIMET, KOSOVA: KOSOVA,
+    VENDBANIMET: VENDBANIMET, LAGJET: LAGJET, ZOOM_LAGJET: ZOOM_LAGJET, KOSOVA: KOSOVA,
     kaVend: kaVend, celesi: celesi, stili: stili, pikatGeoJson: pikatGeoJson, mblidhPikat: mblidhPikat, riemerto: riemerto,
     emriIPastruar: emriIPastruar, ngarko: ngarko, krijo: krijo
   };
