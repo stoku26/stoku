@@ -1,0 +1,17 @@
+{
+  "name": "stoku-teste-worker",
+  "version": "1.0.0",
+  "description": "Testet e Worker-it (worker/stoku-push.js)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "http_ece": "^1.2.1",
+    "web-push": "^3.6.7"
+  },
+  "private": true
+}

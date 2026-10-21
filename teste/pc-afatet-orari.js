@@ -1,0 +1,31 @@
+const { chromium } = require('./pw.js');
+const { krijoFirestore } = require('./fs-server.js');
+const PUSH = 'https://stoku-push.mendurb.workers.dev';
+let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
+(async () => {
+  const F = krijoFirestore({ rregullat: 'reja' }); const tani = Date.now();
+  F.S.docs.set('perdoruesit/u1', { perdoruesi: 'agim', kycurSe: tani });
+  F.S.docs.set('ekipa_anetaret/u1', { emri: 'agim' });
+  const b = await chromium.launch();
+  const ctx = await b.newContext({ viewport: { width: 1400, height: 900 }, serviceWorkers: 'block' });
+  await ctx.route(u => !u.href.startsWith('http://127.0.0.1'), r => r.abort());
+  await F.lidh(ctx, 'u1', 'agim@stoku-app.local', 'pc');
+  const orari = [];
+  await ctx.route(u => u.href.startsWith(PUSH), async r => {
+    const q = r.request(), h = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*' };
+    if (q.method() === 'OPTIONS') return r.fulfill({ status: 204, headers: h });
+    if (q.url().endsWith('/orari')) orari.push(JSON.parse(q.postData()));
+    return r.fulfill({ status: 200, contentType: 'application/json', headers: h, body: q.method() === 'GET' ? '{"ok":true,"fotot":{}}' : '{"ok":true}' });
+  });
+  const p = await ctx.newPage();
+  p.on('pageerror', e => { g++; console.log('pageerror', e.message); });
+  await p.goto('http://127.0.0.1:8765/pc.html#/afatet'); await p.waitForTimeout(2500);
+  orari.length = 0;
+  await p.evaluate(() => document.getElementById('dlgAfat').classList.add('hapur'));
+  await p.fill('#afdEmri', 'Jogurt'); await p.fill('#afdData', '31-12-26'); await p.click('#afdRuaj');
+  await p.waitForTimeout(5500);
+  const a = orari.find(x => x.afatet);
+  ok(a && a.vetemMeOrar === true && a.afatet.some(x => x.e === 'Jogurt' && x.d === '2026-12-31'), 'PC: afati i ri i dërgohet serverit (vetemMeOrar)', orari);
+  ok(orari.filter(x => x.afatet).length === 1, 'PC: vetëm një dërgim (pritje 4 s)', orari.length);
+  console.log(g ? g + ' GABIME' : 'KREJT OK'); await b.close();
+})();

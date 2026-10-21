@@ -5,7 +5,8 @@
  *  1. krijoCloud(fs, db, auth, platforma) — leximet/shkrimet në Firestore për grupin (v164: GRUPET):
  *       grupet/{g}                     → { emri, pronarUid, pronarEmri, krijuarSe } — secili grup është një grup më vete;
  *                                        anëtarët e një grupi s'shohin asgjë nga grupet e tjera
- *       grupet/{g}/anetaret/{uid}      → anëtarët + prania (roli 'pronar'|'anetar', aktivSe, online, platforma, sasiaShpejte)
+ *       grupet/{g}/anetaret/{uid}      → anëtarët + prania (roli 'pronar'|'anetar', aktivSe, online, platforma; sasiaShpejte
+ *                                        s'përdoret më që nga v240: leja +/- është te lejet.js, "stokuPlusMinus")
  *       grupet/{g}/afatet/{uid}        → përmbledhja e afateve të secilit (vetëm afatet, jo stoku) — kolegët
  *                                        lexojnë këtë, jo dyqanin e plotë (dyqane/{uid} mbetet vetëm i pronarit)
  *       grupet/{g}/feed, grupet/{g}/push → aktiviteti, pajisjet për njoftimet push
@@ -668,7 +669,7 @@
       vendosGrupin: vendosGrupin,
       grupiAktual: function () { return grupi; },
       GRUPI_I_VJETER: GRUPI_I_VJETER,
-      // cb({ gjendja, grupi, roli, sasiaShpejte }):
+      // cb({ gjendja, grupi, roli }):
       //   'anetar'      → anëtar i grupit `grupi` (roli 'pronar' | 'anetar')
       //   'pa-grup'     → s'është në asnjë grup (krijon një, ose pranon një ftesë); uHoq = grupi nga u hoq
       //   'pa-rregulla' → rregullat e grupeve të Firestore-it ende s'janë vendosur
@@ -691,7 +692,7 @@
               return;
             }
             var x = s.data() || {};
-            cb({ gjendja: 'anetar', grupi: g, roli: x.roli === 'pronar' ? 'pronar' : 'anetar', sasiaShpejte: x.sasiaShpejte });
+            cb({ gjendja: 'anetar', grupi: g, roli: x.roli === 'pronar' ? 'pronar' : 'anetar' });
           }, function (e) { if (!mbyllur) cb({ gjendja: eshteLeje(e) ? 'pa-rregulla' : 'gabim' }); });
         }
         var ndalP = fs.onSnapshot(fs.doc(db, 'perdoruesit', u0), function (s) {
@@ -805,11 +806,6 @@
         if (!grupi) return { ok: false };
         return perditesoAnetarin(u, { roli: roli === 'pronar' ? 'pronar' : 'anetar' });
       },
-      // Pronari: leja e butonave +/- (sasia e shpejtë) për një anëtar të grupit
-      vendosLejen: async function (u, po) {
-        if (!grupi) return { ok: false };
-        return perditesoAnetarin(u, { sasiaShpejte: !!po });
-      },
 
       // Anëtarët e grupit me praninë, në kohë reale
       degjoAnetaret: function (cb, cbGabim) {
@@ -818,7 +814,7 @@
           var lista = listaNga(s).map(function (x) {
             return { uid: x.id, emri: x.emri || x.id, aktivSe: x.aktivSe || x.hyriSe || 0, online: x.online === true, platforma: x.platforma || '',
               kycurSe: x.hyriSe || 0, roli: x.roli === 'pronar' ? 'pronar' : 'anetar', pronar: x.roli === 'pronar',
-              admin: x.emri === ADMIN_EMRI, sasiaShpejte: x.sasiaShpejte === true };
+              admin: x.emri === ADMIN_EMRI };
           });
           Fotot.vendosEmrat(lista);
           cb(lista);
@@ -1609,15 +1605,6 @@
       ruajAnetaresine();
       if (ndryshoi) kurNdryshonQasja(); else thirr('te-gjitha');
     }
-    // Leja e butonave +/- nga pronari i grupit (anëtarësia ime): vlen si leja e administratorit
-    function vendosLejenLokale(po) {
-      var u = o.uidIm();
-      if (!u) return;
-      var v = po ? u : '!' + u;
-      if (lexo('stoku:leja:sasia-shpejte') === v) return;
-      shkruaj('stoku:leja:sasia-shpejte', v);
-      try { window.dispatchEvent(new Event('stoku-leja-ndryshoi')); } catch (e) { /* node */ }
-    }
     function nisDegjuesitEGrupit() {
       var e = E();
       ndal('grupiDoc');
@@ -1767,12 +1754,6 @@
       }
       return r;
     }
-    // Pronari: leja e butonave +/- (sasia e shpejtë) për një anëtar
-    async function vendosLejen(a, po) {
-      var e = E();
-      if (!e || !eshtePronar() || !e.vendosLejen) return { ok: false };
-      return e.vendosLejen(a.uid, po);
-    }
     // Kërkesë për heqje nga rafti (çdo anëtar): te një koleg (perUid) ose te krejt grupi
     function koleget() { var im = o.uidIm(); return anetaretEDukshem().filter(function (a) { return a.uid !== im; }); }
     async function kerkoHeqjen(k) {
@@ -1851,7 +1832,6 @@
           if (r.gjendja === 'gabim') return; // pa internet: mbetet gjendja e fundit e ditur
           var gRi = r.gjendja === 'anetar' ? r.grupi : null;
           var roliRi = r.gjendja === 'anetar' && r.roli === 'pronar' ? 'pronar' : 'anetar';
-          if (r.gjendja === 'anetar' && typeof r.sasiaShpejte === 'boolean') vendosLejenLokale(r.sasiaShpejte);
           var ndryshoiGrupi = r.gjendja !== gj.anetaresia || gRi !== gj.grupi;
           if (!ndryshoiGrupi && roliRi === gj.roli) return;
           gj.anetaresia = r.gjendja; gj.grupi = gRi; gj.roli = roliRi;
@@ -2240,7 +2220,7 @@
       mundTeLargohet: mundTeLargohet, ftoNeGrup: ftoNeGrup, anuloFtesen: anuloFtesen, ndryshoRolin: ndryshoRolin, riemertoGrupin: riemertoGrupin,
       llogariteJashte: llogariteJashte,
       hiqNgaEkipa: hiqNgaEkipa, fshijLlogarine: fshijLlogarine,
-      vendosLejen: vendosLejen, lajmeroEkipen: lajmeroEkipen,
+      lajmeroEkipen: lajmeroEkipen,
       koleget: koleget, kerkoHeqjen: kerkoHeqjen, kryejKerkesen: kryejKerkesen, kryeresiIKerkeses: kryeresiIKerkeses,
       pastroAktivitetin: function () { return pastro('feed'); },
       merrStokun: merrStokun, adminNdryshoAfatin: adminNdryshoAfatin

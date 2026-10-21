@@ -582,7 +582,6 @@ html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-nen { background: var(--sb-s
 .sbp .ek-flluska.anash::after { left: -5px; top: calc(50% - 6px); }
 /* v193: kolona e veprimeve te Anëtarët i nxë tre butonat (Bëje admin · Hiq nga grupi · Fshij); +/- pa "…" */
 .sbp #ekTabAnetaret .k-av { width: 300px; }
-.sbp #ekTabAnetaret .k-leja { width: 60px; padding-left: 8px; padding-right: 8px; text-overflow: clip; }
 @media (max-width: 1366px) { .sbp #ekTabAnetaret .k-av { width: 262px; } .sbp #ekTabAnetaret .k-av .btn.vogel { padding: 0 8px; } }
 /* emri shkurtohet me "…", ikonat e roleve (dhe avatari) mbeten gjithmonë të dukshme */
 .sbp #ekTabAnetaret .ek-anetar-qeliza > * { flex: none; }

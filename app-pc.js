@@ -288,18 +288,12 @@
     teGjithaProduktet().forEach(function (p) { (h[p.barkodi] = h[p.barkodi] || []).push(p); });
     return h;
   }
-  // Lidhet me LLOGARINË (uid), jo me emrin: ndërrimi i emrit s'e humb lejen. Emrat janë vetëm "farë" për herën e parë;
-  // sapo llogaria hyn me njërin, leja ruhet te perdoruesit/{uid}.sasiaShpejte dhe këtu (stoku:leja:sasia-shpejte).
-  var SASIA_SHPEJTE_EMRAT = ['tonnyaliu']; // 'albidepo34' u hoq: emri u lirua pas ndërrimit, s'duhet t'i japë lejen një llogarie të re
+  // Sasia e shpejtë (+/-). v240: leje si të tjerat (Cilësimet → Përdoruesit, "stokuPlusMinus"), e lejuar për krejt
+  // llogaritë, vizitorin dhe llogaritë e reja; më parë e jepte pronari i grupit (kolona "+/-" te Grupi)
   function eLejuarSasiaShpejte() {
-    var u = perdoruesi();
-    if (!u || !leja('stokuNdrysho')) return false;
-    var ruajtur = null;
-    try { ruajtur = localStorage.getItem('stoku:leja:sasia-shpejte'); } catch (e) { /* ok */ }
-    if (ruajtur === '!' + u.uid) return false; // administratori ia hoqi lejen
-    return ruajtur === u.uid || SASIA_SHPEJTE_EMRAT.indexOf(emriPerdoruesit().toLowerCase()) !== -1;
+    return leja('stokuNdrysho') && leja('stokuPlusMinus');
   }
-  window.addEventListener('stoku-leja-ndryshoi', function () { rivizato(); });
+  try { localStorage.removeItem('stoku:leja:sasia-shpejte'); } catch (e) { /* ok */ } // leja e vjetër (para v240)
 
   // ================= Lejet e llogarisë (v230, lejet.js) =================
   // Çka mund të përdorë kjo llogari; i cakton administratori te Cilësimet → Përdoruesit. Pa dokument (llogari e re, e
@@ -4433,7 +4427,6 @@
       tf.appendChild(tr);
     });
     $('ekKolVeprime').textContent = '';
-    $('ekKolLeja').textContent = pronar ? '+/-' : '';
     $('ekAdminPanel').classList.toggle('fsheh', !pronar);
     var t = $('ekAnetaretTrup');
     t.textContent = '';
@@ -4452,21 +4445,6 @@
       tr.appendChild(el('td', 'k-sas' + (n.skaduar ? ' ek-kuqe' : ''), num(n.skaduar)));
       tr.appendChild(el('td', 'k-sas', num(n.afer)));
       tr.appendChild(el('td', 'k-sas', num(h30)));
-      var tl = el('td', 'k-leja');
-      if (pronar && !a.uneJam) {
-        var cb = el('input'); cb.type = 'checkbox'; cb.checked = !!a.sasiaShpejte;
-        cb.title = 'Butonat +/- te lista (sasia e shpejtë) për ' + a.emri;
-        cb.addEventListener('click', function (ev) { ev.stopPropagation(); });
-        cb.addEventListener('change', async function () {
-          cb.disabled = true;
-          var r = await ekK.vendosLejen(a, cb.checked);
-          cb.disabled = false;
-          if (!r.ok) { cb.checked = !cb.checked; toast('S\'u ndryshua leja. Kontrollo internetin.'); return; }
-          toast(a.emri + (cb.checked ? ' tani i ka' : ' s\'i ka më') + ' butonat +/-.');
-        });
-        tl.appendChild(cb);
-      }
-      tr.appendChild(tl);
       var tv = el('td', 'k-av');
       if (pronar && !a.uneJam) {
         var bp = el('button', 'btn tekst vogel', a.pronar ? 'Hiqe si admin' : 'Bëje admin'); bp.type = 'button';

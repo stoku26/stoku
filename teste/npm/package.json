@@ -1,0 +1,20 @@
+{
+  "name": "stoku-teste-librarite",
+  "version": "1.0.0",
+  "description": "Libraritë që faqet i marrin nga jsDelivr (testet i shërbejnë nga këtu)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "barcode-detector": "3.2.3",
+    "html5-qrcode": "2.3.8",
+    "jsbarcode": "3.12.3",
+    "jspdf": "4.2.1",
+    "zxing-wasm": "3.1.6"
+  },
+  "private": true
+}
