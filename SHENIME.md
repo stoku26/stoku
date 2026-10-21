@@ -52,6 +52,36 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **HARTA E MARKETEVE TE CILËSIMET (v244 = 1.34.0, SHËRBIM I RI I JASHTËM: CSP + CLOUDFLARE)**: pronari: "shto te cilësimet
+   opsion për maps; kur një pikë emërohet nga dikush, unë me mujt me ia ndërru emrin pikës në sistemin e Stoku-t; maps me i përdor
+   emrat vetëm të qyteteve, qytezave, fshatrave edhe lagjeve, kurgjë tjetër mos me qenë në maps përveç pikave ose marketeve".
+   - **`harta.js` (i ri, tel + PC, `StokuHarta`)**: MapLibre GL JS **5.24.0** (UMD, jo 6.x që është vetëm ESM pa SRI) nga jsDelivr
+     me SRI, ngarkohet vetëm kur hapet harta; `css/maplibre-gl.css` = kopje e paketës (BSD-3) me një koment në krye. Pllakat:
+     **OpenFreeMap** (`https://tiles.openfreemap.org/planet`, skema OpenMapTiles, falas, pa çelës, lejon përdorim komercial;
+     shkronjat `.../fonts/Noto Sans Regular|Bold/...`). **Stili është YNI** (`stili()`): sfondi, `water`, `waterway`,
+     `transportation` (vetëm vija, pa emra), `boundary` (admin_level ≤ 2) dhe nga `place` VETËM klasat `city, town, village,
+     hamlet, suburb, quarter, neighbourhood` (emri `name:sq` ose `name`); asnjë shtresë tjetër me emra (poi, transportation_name,
+     water_name, housenumber, mountain_peak, aerodrome_label, shtete, rajone). Pikat: burim GeoJSON `pikat` (rreth + emri),
+     e zgjedhura portokalli. Kontrollet e MapLibre-s me tekste shqip (`locale`), pa rrotullim/pjerrësi; atribuimi (OpenFreeMap,
+     OpenMapTiles, OpenStreetMap) del vetë (i detyrueshëm). `api.eFundit` = harta e fundit (testet).
+   - **Kush e sheh**: Cilësimet → **Harta** (tel `#tabHarta`, PC `#opsSkedaHarta`) vetëm administratori dhe merchandiserët.
+     Administratori: pikat e krejt merchandiserëve (`pdLista().filter(pdMerchandiser)` → `merrDyqaninEPerdoruesit`, 4 njëherësh,
+     `mblidhPikat`, kujtesa 60 s), lista "Nga X" + "Pa vendndodhje"; prekja e pikës (ose e rreshtit) e zgjedh, harta shkon aty dhe
+     hapet ndryshimi i emrit. **Riemërtimi** (`riemerto`): `ndryshoDyqaninEPerdoruesit(uid, fn)` (transaksion; `fn` mund të
+     thirret sërish, flamujt rivendosen) → `marketet[i].emri` + `ndryshuarSe`; bashkimi.js (fiton `ndryshuarSe` më i ri) e çon te
+     pajisjet e merchandiserit. S'pranohet emri që ai e ka te një market tjetër ("X e ka edhe një market me këtë emër"); pika e
+     fshirë hiqet nga lista. Merchandiseri: vetëm marketet e veta (telefoni i riemërton si te Marketet; PC vetëm i sheh).
+     Pa WebGL / pa internet: mesazh + "Provo sërish"; lista mbetet.
+   - **CSP**: `connect-src` + `https://tiles.openfreemap.org` te 5 faqet dhe te `CSP_CLOUDFLARE` (PRONARI duhet ta ndryshojë te
+     Cloudflare, përndryshe harta s'i merr pllakat). Worker-i i MapLibre-s është `blob:` (i lejuar). SW s'i ruan pllakat (kalojnë
+     drejt), e ruan MapLibre-n nga jsDelivr si libraritë e tjera. Privatësia: OpenFreeMap te "Ku ruhen"; admini i sheh marketet në hartë.
+   - **Testi `harta-v244.js`**: MapLibre nga `teste/npm` (shtuar: maplibre-gl 5.24.0, geojson-vt, vt-pbf, smp-noto-glyphs),
+     `teste/harta-pllakat.js` = pllaka të rreme të Prishtinës (edhe "Kosova" si shtet, rajon, POI, emra rrugësh e uji, që s'duhet
+     të dalin) + shkronjat; Chromium me `--enable-unsafe-swiftshader --use-angle=swiftshader` (WebGL pa GPU). Kontrollon
+     `queryRenderedFeatures`: vetëm `vendbanimet` (klasat e lejuara) dhe `pikat-emri`; riemërtimi (tel + PC) te dyqani dhe te
+     telefoni i merchandiserit; pa shkelje CSP (header-i si Cloudflare). Kontejneri s'arrin `tiles.openfreemap.org` (proxy 403):
+     **harta me pllaka të vërteta s'është parë kurrë këtu**.
+
 0000000. **GRUPI QË "FSHIHEJ" PAS RIFRESKIMIT + KËRKIMI QË S'E GJENTE (v243 = 1.33.1, NJË RREGULL E RE)**: pronari (foto:
    testmorina kërkon "Albi Market 34" → "S'u gjet asnjë grup me këtë emër"): "grupi me qat emër ekziston po s'u gjet; kur dikush
    krijon grup, grupi fshihet masi ta bon refresh; gjeje menjëherë edhe rregulloje 100%".
@@ -221,7 +251,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      script-src, base-uri, object-src" sepse meta s'e lexojnë). **RREGULL: shërbim i ri i jashtëm = shtoje te meta e 5 faqeve DHE
      te rreshti `CSP_CLOUDFLARE` më poshtë DHE kërkoji pronarit ta ndryshojë te Cloudflare** (header-i dhe meta zbatohen të dyja: ajo
      që mungon te njëra bllokohet). `siguria-v239.js` kontrollon që `CSP_CLOUDFLARE` = bashkimi i meta-ve + frame-ancestors.
-     CSP_CLOUDFLARE: `default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: blob: https://*.googleapis.com https://*.mendurb.workers.dev https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://www.gstatic.com https://api.github.com; frame-src https://stoku-appi.firebaseapp.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'`
+     CSP_CLOUDFLARE: `default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: blob: https://*.googleapis.com https://*.mendurb.workers.dev https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://www.gstatic.com https://tiles.openfreemap.org https://api.github.com; frame-src https://stoku-appi.firebaseapp.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'`
      Testuar me një server lokal që i shton këto header-a çdo përgjigjeje (`cf-csp/server.py`): regresioni i plotë + service
      worker-i (instalimi, pa internet, kërkesat e lejuara pa shkelje, `example.com` bllokohet nga connect-src i SW-së).
      `siguria-v234.js`: me frame-ancestors si header shfletuesi s'e ngarkon fare faqen në iframe të huaj (korniza = faqe gabimi);

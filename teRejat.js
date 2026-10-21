@@ -20,6 +20,13 @@
   'use strict';
 
   var LISTA = [
+    { v: 244, versioni: '1.34.0', data: '2026-10-21', titulli: 'Harta e marketeve', vetemAdmini: true, pikat: [
+      'Te Cilësimet → Harta i sheh në hartë krejt marketet që i kanë ruajtur merchandiserët. Harta tregon vetëm emrat e qyteteve, fshatrave dhe lagjeve, asgjë tjetër.',
+      'Prek një pikë (ose emrin te lista) dhe ndrysho emrin e saj: emri ndryshon për krejt Stoku-n, edhe te merchandiseri që e ruajti.'
+    ] },
+    { v: 244, versioni: '1.34.0', data: '2026-10-21', titulli: 'Marketet në hartë', pikat: [
+      'Te Cilësimet → Harta i sheh marketet e tua në hartë (ato që kanë vendndodhje). Harta tregon vetëm emrat e qyteteve, fshatrave dhe lagjeve.'
+    ] },
     { v: 243, versioni: '1.33.1', data: '2026-10-21', titulli: 'Grupi s\'humbet më', pikat: [
       'U rregullua gabimi që e nxirrte nga grupi atë që e krijoi grupin (ose që u fut rishtas) pas rifreskimit të faqes.',
       'Kush e humbi grupin më herët kthehet vetë në të kur e hap Stoku-n. Nëse s\'kthehesh vetë: kërko grupin dhe prek "Kërko të hysh"; nëse je ende anëtar, hyn menjëherë, pa pritur admin.',

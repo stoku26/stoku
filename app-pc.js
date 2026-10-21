@@ -337,6 +337,7 @@
     if (v === __merchPara) return;
     __merchPara = v;
     zbatoLejet();
+    rifreskoTabinHarta();
   }
   window.addEventListener('stoku-merchandiser', rifreskoMerchandiserin);
   window.addEventListener('stoku-auth-ndryshoi', rifreskoMerchandiserin);
@@ -3217,7 +3218,7 @@
     karta.querySelector('.ops-furn-krye').addEventListener('click', function () { palosKarten(karta, karta.classList.contains('mbyllur')); });
   });
   function zgjidhSkeden(f) {
-    if ((f === 'perdoruesit' && !eshteAdminiIStokut()) || (f === 'stoku' && !leja('stoku'))) f = 'pamja';
+    if ((f === 'perdoruesit' && !eshteAdminiIStokut()) || (f === 'stoku' && !leja('stoku')) || (f === 'harta' && !lejaHarta())) f = 'pamja';
     if (f === 'perdoruesit') { pd.uid = null; $('pdKerkoInp') && ($('pdKerkoInp').value = ''); pdShenoTeParet(); }
     if (f === 'stoku') {
       Array.prototype.forEach.call(document.querySelectorAll('.ops-furn-karta'), function (karta) { palosKarten(karta, false); });
@@ -3226,6 +3227,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('#opsSkeda button[data-faqe]'), function (b) { b.classList.toggle('aktiv', b.dataset.faqe === f); });
     Array.prototype.forEach.call(document.querySelectorAll('.opsione-faqe'), function (x) { x.classList.toggle('aktiv', x.dataset.faqe === f); });
     if (f === 'perdoruesit') pdVizato();
+    if (f === 'harta') htHapFaqen(false);
   }
   Array.prototype.forEach.call(document.querySelectorAll('#opsSkeda button[data-faqe]'), function (b) {
     b.addEventListener('click', function () { zgjidhSkeden(b.dataset.faqe); });
@@ -3249,6 +3251,153 @@
   Array.prototype.forEach.call(document.querySelectorAll('#sbpTema button'), function (b) {
     b.addEventListener('click', function () { ops.tema = b.dataset.v; ruajOps(); zbatoPamjen(); rifreskoOpsionet(); });
   });
+
+  // ================= Cilësimet → Harta (v244, harta.js) =================
+  // Pikat e marketeve mbi një hartë që tregon vetëm emrat e vendbanimeve. Administratori i sheh pikat e krejt
+  // merchandiserëve (lexon dyqanin e secilit) dhe ua ndryshon emrin te dyqani i tyre; merchandiseri i sheh vetëm të vetat
+  // (emrat e tyre i ndryshon te telefoni, Cilësimet → Marketet, si listën).
+  var SH = window.StokuHarta;
+  var HT = { inst: null, dukeHapur: false, pershtatur: false, pikat: null, ngarkuarSe: 0, dukeNgarkuar: false, gabime: 0, zgjedhur: '', neEditim: '' };
+  function lejaHarta() { return !!SH && (eshteAdminiIStokut() || eshteMerchandiser()); }
+  function htHapur() { return $('dlgOpsione').classList.contains('hapur') && !!document.querySelector('.opsione-faqe[data-faqe="harta"].aktiv'); }
+  function rifreskoTabinHarta() {
+    var t = $('opsSkedaHarta'); if (!t) return;
+    t.hidden = !lejaHarta();
+    $('opsHartaNen').textContent = eshteAdminiIStokut() ? 'Pikat e merchandiserëve' : 'Marketet e tua';
+    if (t.hidden && document.querySelector('.opsione-faqe[data-faqe="harta"].aktiv')) zgjidhSkeden('pamja');
+  }
+  window.addEventListener('stoku-auth-ndryshoi', function () {
+    if (!HT) return;
+    HT.pikat = null; HT.ngarkuarSe = 0; HT.neEditim = ''; HT.zgjedhur = ''; HT.pershtatur = false;
+    rifreskoTabinHarta();
+  });
+  function htTema() { return document.documentElement.getAttribute('data-tema') === 'dark' ? 'dark' : 'light'; }
+  function htPikatEMia() {
+    var u = perdoruesi();
+    return marketet.map(function (m) { return Object.assign({ uid: u ? u.uid : '', perdoruesi: emriPerdoruesit(), imi: true }, m); });
+  }
+  async function htMerrPikat(detyro) {
+    if (!eshteAdminiIStokut()) { HT.pikat = htPikatEMia(); HT.gabime = 0; return; }
+    if (HT.dukeNgarkuar || (!detyro && HT.pikat && Date.now() - HT.ngarkuarSe < 60000)) return;
+    pdNis();
+    var cl = window.__stokuCloud;
+    if (!pd.llogarite || !cl || !cl.merrDyqaninEPerdoruesit) return; // llogaritë vijnë më vonë: pdRifresko e rihap
+    HT.dukeNgarkuar = true;
+    var merch = pdLista().filter(pdMerchandiser).map(function (a) { return { uid: a.uid, emri: a.emri }; });
+    var r = await SH.mblidhPikat(merch, function (u) { return cl.merrDyqaninEPerdoruesit(u); }, htPikatEMia());
+    HT.dukeNgarkuar = false;
+    HT.pikat = r.pikat; HT.gabime = r.gabime; HT.ngarkuarSe = Date.now();
+  }
+  async function htHapFaqen(detyro) {
+    HT.neEditim = '';
+    htVizato();
+    htHarta();
+    await htMerrPikat(detyro);
+    htVizato();
+  }
+  function htVizato() {
+    if (!htHapur()) return;
+    var admin = eshteAdminiIStokut();
+    $('htIntro').textContent = admin
+      ? 'Pikat e marketeve që i kanë ruajtur merchandiserët. Në hartë dalin vetëm emrat e qyteteve, fshatrave dhe lagjeve. Kliko një pikë ose një rresht për ta gjetur; me "Ndrysho emrin" e ndërron emrin e pikës për krejt Stoku-n.'
+      : 'Marketet e tua që kanë vendndodhje. Në hartë dalin vetëm emrat e qyteteve, fshatrave dhe lagjeve. Emrat i ndryshon te telefoni (Cilësimet → Marketet).';
+    var c = $('htLista'); c.textContent = '';
+    if (HT.inst) HT.inst.vendos(HT.pikat || []);
+    if (!HT.pikat) { $('htInfo').textContent = 'Duke i marrë pikat…'; return; }
+    if (HT.inst && !HT.pershtatur) { HT.pershtatur = true; HT.inst.pershtat(HT.pikat); }
+    var meVend = HT.pikat.filter(SH.kaVend), paVend = HT.pikat.filter(function (p) { return !SH.kaVend(p); });
+    $('htInfo').textContent = (meVend.length === 1 ? '1 pikë në hartë' : meVend.length + ' pika në hartë') +
+      (paVend.length ? ' · ' + paVend.length + ' pa vendndodhje' : '') + (HT.gabime ? ' · ' + HT.gabime + ' llogari s\'u lexuan' : '') + '.';
+    if (!HT.pikat.length) { c.appendChild(el('div', 'ops-furn-bosh', admin ? 'Asnjë merchandiser s\'ka ruajtur ende market.' : 'S\'ke ende asnjë market. Shtoji te telefoni: Cilësimet → Marketet.')); return; }
+    function sipasEmrit(a, b) { return String(a.emri).localeCompare(String(b.emri), 'sq'); }
+    meVend.sort(sipasEmrit).forEach(function (p) { c.appendChild(htRreshti(p)); });
+    if (paVend.length) {
+      c.appendChild(el('div', 'ops-furn-nen ht-pa-vend', 'Pa vendndodhje (s\'dalin në hartë)'));
+      paVend.sort(sipasEmrit).forEach(function (p) { c.appendChild(htRreshti(p)); });
+    }
+  }
+  function htRreshti(p) {
+    var k = SH.celesi(p), admin = eshteAdminiIStokut();
+    if (HT.neEditim === k) return htRreshtiIEditimit(p);
+    var rr = el('div', 'ops-furn-rresht' + (HT.zgjedhur === k ? ' ht-zgjedhur' : ''));
+    rr.setAttribute('data-k', k);
+    rr.appendChild(el('span', 'ops-furn-shkronja', (String(p.emri).charAt(0) || '?').toUpperCase()));
+    var t = el('div', 'ops-furn-tekst');
+    t.appendChild(el('div', 'ops-furn-emri', p.emri));
+    t.appendChild(el('div', 'ops-furn-nen', admin ? (p.imi ? 'Marketi yt' : 'Nga ' + p.perdoruesi) + (SH.kaVend(p) ? '' : ' · pa vendndodhje') : (SH.kaVend(p) ? 'Në hartë' : 'Pa vendndodhje')));
+    rr.appendChild(t);
+    rr.addEventListener('click', function () { htZgjidh(k, true, false); });
+    if (admin && !p.imi) {
+      var b = el('button', 'btn dyte vogel', 'Ndrysho emrin'); b.type = 'button';
+      b.addEventListener('click', function (ev) { ev.stopPropagation(); htZgjidh(k, true, true); });
+      rr.appendChild(b);
+    }
+    return rr;
+  }
+  function htZgjidh(k, ngaLista, edito) {
+    HT.zgjedhur = k;
+    if (edito) HT.neEditim = k;
+    if (HT.inst) HT.inst.zgjidh(k, ngaLista);
+    htVizato();
+    var r = $('htLista').querySelector(edito ? '.ops-furn-edit' : '.ht-zgjedhur');
+    if (r && !ngaLista) r.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    var inp = edito && r && r.querySelector('input'); if (inp) { inp.focus(); inp.select(); }
+  }
+  function htRreshtiIEditimit(p) {
+    var w = el('div', 'ops-furn-rresht ops-furn-edit');
+    w.appendChild(el('span', 'ops-furn-shkronja', (String(p.emri).charAt(0) || '?').toUpperCase()));
+    var t = el('div', 'ops-furn-tekst');
+    var inp = el('input', 'inp'); inp.type = 'text'; inp.value = p.emri; inp.maxLength = MK.EMRI_MAKS;
+    inp.setAttribute('autocomplete', 'off'); inp.setAttribute('spellcheck', 'false'); inp.setAttribute('aria-label', 'Emri i ri për ' + p.emri);
+    var gab = el('div', 'ops-furn-gabim');
+    t.appendChild(inp); t.appendChild(el('div', 'ops-furn-nen', 'Tani: "' + p.emri + '" · e ruajti ' + p.perdoruesi)); t.appendChild(gab);
+    w.appendChild(t);
+    var anulo = el('button', 'btn tekst vogel', 'Anulo'); anulo.type = 'button';
+    var ruajB = el('button', 'btn vogel', 'Ruaj'); ruajB.type = 'button';
+    anulo.addEventListener('click', function () { HT.neEditim = ''; htVizato(); });
+    ruajB.addEventListener('click', async function () {
+      var e = SH.emriIPastruar(inp.value);
+      if (!e) { gab.textContent = 'Shkruaj emrin e pikës.'; inp.focus(); return; }
+      if (e === p.emri) { HT.neEditim = ''; htVizato(); return; }
+      var cl = window.__stokuCloud;
+      if (!cl || !cl.ndryshoDyqaninEPerdoruesit) { gab.textContent = 'Emri s\'u ndryshua. Kontrollo internetin dhe provo sërish.'; return; }
+      ruajB.disabled = anulo.disabled = true; gab.textContent = '';
+      var r = await SH.riemerto(function (u, fn) { return cl.ndryshoDyqaninEPerdoruesit(u, fn); }, p, e);
+      ruajB.disabled = anulo.disabled = false;
+      if (!r.ok) {
+        if (r.arsye === 'nuk-u-gjet') { HT.pikat = HT.pikat.filter(function (x) { return x !== p; }); HT.neEditim = ''; htVizato(); toast('Kjo pikë s\'ekziston më: ' + p.perdoruesi + ' e fshiu.'); return; }
+        gab.textContent = r.arsye === 'ekziston' ? p.perdoruesi + ' e ka edhe një market me këtë emër.' : 'Emri s\'u ndryshua. Kontrollo internetin dhe provo sërish.';
+        return;
+      }
+      p.emri = r.emri; HT.neEditim = '';
+      htVizato(); toast('Emri u ndryshua. ' + p.perdoruesi + ' e sheh emrin e ri.');
+    });
+    inp.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter') { ev.preventDefault(); ruajB.click(); }
+      else if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); anulo.click(); }
+    });
+    var v = el('div', 'ops-furn-veprime'); v.appendChild(anulo); v.appendChild(ruajB);
+    w.appendChild(v);
+    return w;
+  }
+  function htHarta() {
+    var hEl = $('htHarta');
+    if (HT.inst) { HT.inst.tema(htTema()); setTimeout(function () { if (HT.inst) HT.inst.madhesia(); }, 60); return; }
+    if (HT.dukeHapur || !SH) return;
+    HT.dukeHapur = true;
+    $('htGabim').hidden = true; hEl.hidden = false;
+    SH.krijo(hEl, { tema: htTema(), pikat: HT.pikat || [], kurSkaPllaka: function () { $('htGabim').hidden = false; $('htProvo').hidden = true; $('htGabimTekst').textContent = 'Pjesët e hartës s\'u morën (rrugët dhe emrat e vendeve). Kontrollo internetin; pikat dalin edhe ashtu.'; }, kurKlikon: function (k) { htZgjidh(k, false, false); } }).then(function (inst) {
+      HT.dukeHapur = false; HT.inst = inst;
+      if (HT.pikat) { HT.pershtatur = true; inst.vendos(HT.pikat); inst.pershtat(HT.pikat); }
+    }, function (e) {
+      HT.dukeHapur = false;
+      hEl.hidden = true; $('htGabim').hidden = false;
+      $('htGabimTekst').textContent = e && e.message === 'webgl' ? 'Ky kompjuter s\'e shfaq dot hartën (WebGL). Lista e pikave është më poshtë.'
+        : 'Harta s\'u hap. Kontrollo internetin dhe provo sërish.';
+      $('htProvo').hidden = !!(e && e.message === 'webgl');
+    });
+  }
+  $('htProvo').addEventListener('click', function () { htHarta(); });
 
   // ================= Cilësimet → Përdoruesit (v230, vetëm administratori) =================
   // Llogaritë nga perdoruesit/{uid}, lejet nga lejet/{uid} (dy dëgjues, vetëm te administratori). Llogaria pa dokument
@@ -3316,6 +3465,8 @@
     if (!pd || !$('opsSkedaPerdoruesit')) return;
     var admin = eshteAdminiIStokut(), gati = admin && !!pd.llogarite && !!pd.lejet;
     $('opsSkedaPerdoruesit').hidden = !admin;
+    rifreskoTabinHarta();
+    if (HT && admin && htHapur() && !HT.pikat && !HT.dukeNgarkuar && pd.llogarite) htHapFaqen(false); // llogaritë sapo erdhën
     var rinj = gati ? pdLista().filter(function (a) { return a.statusi === 'ri'; }).length : 0;
     var nen = $('opsPerdoruesitNen');
     nen.textContent = rinj ? (rinj === 1 ? '1 pa u kontrolluar' : rinj + ' pa u kontrolluar') : 'Lejet e llogarive';

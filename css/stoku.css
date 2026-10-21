@@ -569,6 +569,13 @@ html.sb:not([data-tema="dark"]) .sb-stat__value--exp { color: var(--sb-exp, #d04
 .sb .mk-aktiv[hidden] { display: none; }
 .sb .mk-shto { display: flex; gap: 8px; margin-top: 12px; }
 .sb .mk-shto input { flex: 1; min-width: 0; height: 46px; }
+/* v244: Cilësimet → Harta (harta.js, MapLibre) */
+.sb .ht-harta { position: relative; height: min(52vh, 460px); margin: 2px 0 10px; border-radius: 16px; overflow: hidden; background: var(--sb-surface-2); border: 1px solid var(--sb-line); }
+.sb .ht-harta .maplibregl-ctrl-attrib { font-size: 10.5px; }
+.sb .ht-gabim { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin: 0 2px 12px; font-size: 14px; color: var(--sb-ink-3); }
+.sb .ht-gabim[hidden] { display: none; }
+.sb .ht-info { margin: 0 2px 10px; }
+.sb .ht-zgjedhur { background: var(--sb-accent-tint); }
 .sb .mk-gabim { color: var(--sb-exp) !important; font-weight: 600; margin-top: 6px; }
 .sb #dlgMarketiRi #mkrEmri { width: 100%; height: 48px; margin: 4px 0 6px; font-size: 16px; }
 .sb #dlgMarketiRi .mk-vendi { padding: 10px 0; border: 0; background: none; }
