@@ -8,3 +8,10 @@ wp/worker.mjs
 !afatet-test.xlsx
 *.csv
 *.txt
+# teste/emu: SDK-ja e ndërtuar, ditari dhe gjendja e emulatorëve
+emu/fb-krejt.bundle.js
+emu/emu.log
+emu/.emu.pid
+emu/firebase-debug.log
+emu/firestore-debug.log
+emu/ui-debug.log
