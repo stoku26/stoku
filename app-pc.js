@@ -312,10 +312,34 @@
     gati: function () { var c = window.__stokuCloud; return !!(c && c.authGati); },
     uid: function () { var u = perdoruesi(); return u ? u.uid : null; },
     admin: function () { return eshteAdminiIStokut(); },
-    ndryshoi: function () { zbatoLejet(); }
+    ndryshoi: function () { zbatoLejet(); __merchPara = eshteMerchandiser(); }
   }) : null;
   // Pa lejen "Stoku në kompjuter" s'lejohet asgjë këtu (faqja kalon te versioni i telefonit)
-  function leja(k) { return !lejetG || (lejetG.lejohet(k) && (k === 'pc' || lejetG.lejohet('pc'))); }
+  function leja(k) {
+    if (k === 'marketet') return eshteMerchandiser();
+    return !lejetG || (lejetG.lejohet(k) && (k === 'pc' || lejetG.lejohet('pc')));
+  }
+  // v241: marketet vetëm për merchandiserët. Fiton zgjedhja e administratorit (lejet/{uid}.marketet); pa të, vlen
+  // "Punoj si merchandiser" kur u hap llogaria (firebase-pc.js e ruan te 'stoku:merchandiser'). Llogaritë e vjetra s'e kanë.
+  function eshteMerchandiser() {
+    var u = perdoruesi();
+    if (!u || !leja('afatet')) return false;
+    var z = lejetG ? window.StokuLejet.zgjedhja(lejetG.lejet(), 'marketet') : null;
+    if (z !== null) return z;
+    try { var x = JSON.parse(localStorage.getItem('stoku:merchandiser') || 'null'); return !!(x && x.uid === u.uid && x.v === true); } catch (e) { return false; }
+  }
+  // "Çka ka të re": administratori i sheh edhe hyrjet për marketet (i ndez ai te Përdoruesit)
+  function lejaPerTeRejat(k) { return k === 'marketet' ? leja(k) || eshteAdminiIStokut() : leja(k); }
+  // Llogaria e hapur si merchandiser (ose u lexua nga Firebase pas hyrjes, ose u ndërrua llogaria): marketet dalin/zhduken
+  var __merchPara = false;
+  function rifreskoMerchandiserin() {
+    var v = eshteMerchandiser();
+    if (v === __merchPara) return;
+    __merchPara = v;
+    zbatoLejet();
+  }
+  window.addEventListener('stoku-merchandiser', rifreskoMerchandiserin);
+  window.addEventListener('stoku-auth-ndryshoi', rifreskoMerchandiserin);
   // Leja e llogarisë pa kushtin e PC-së: për çka vlen edhe jashtë kësaj faqeje (serveri, njoftimet push)
   function lejaELlogarise(k) { return !lejetG || lejetG.lejohet(k); }
   // v231: pa "Grupi" kjo pajisje s'regjistrohet për njoftimet e grupit (as push); pa "Afatet" serveri merr listë bosh
@@ -3308,7 +3332,7 @@
     var n = window.StokuLejet.teNdaluara(a.dok && a.dok.lejet);
     var p1 = a.statusi === 'ri' ? (a.krijuarSe ? 'Llogari e re, ' + EKL.kohaRelative(a.krijuarSe) : 'Pa u kontrolluar: krejt lejet')
       : a.statusi === 'kufizuar' ? (n === 1 ? '1 leje e ndaluar' : n + ' leje të ndaluara') : 'Krejt lejet';
-    return [p1, a.kycurSe ? 'u kyç ' + EKL.kohaRelative(a.kycurSe) : ''].filter(Boolean).join(' · ');
+    return [p1, pdMerchandiser(a) ? 'merchandiser' : '', a.kycurSe ? 'u kyç ' + EKL.kohaRelative(a.kycurSe) : ''].filter(Boolean).join(' · ');
   }
   function pdShkronja(a) { return el('span', 'pd-shkronja ' + a.statusi, (String(a.emri || '?').charAt(0) || '?').toUpperCase()); }
   function pdVizatoListen() {
@@ -3383,6 +3407,16 @@
       return r;
     });
   }
+  // v241: a punon si merchandiser (zgjedhja e administratorit fiton mbi atë të regjistrimit)
+  function pdMerchandiser(a) {
+    var z = window.StokuLejet.zgjedhja(a.dok && a.dok.lejet, 'marketet');
+    return z !== null ? z : !!a.merchandiser;
+  }
+  // "Lejo krejt" / "Ndalo krejt" / "U kontrollua" s'e ndërrojnë "Merchandiser"
+  function pdKrejt(a, vlera) {
+    var L = window.StokuLejet, tani = pd.lejet && pd.lejet[a.uid];
+    return L.meZgjedhjet(L.krejt(vlera), (tani && tani.lejet) || null);
+  }
   function pdVizatoDetajet() {
     var c = $('pdPamja'); c.textContent = '';
     var L = window.StokuLejet;
@@ -3401,21 +3435,21 @@
     ki.appendChild(el('div', 'ops-titull', a.statusi === 'ri' ? 'Pa u kontrolluar: i ka krejt lejet' : a.statusi === 'kufizuar' ? (n === 1 ? '1 leje e ndaluar' : n + ' leje të ndaluara') : 'Krejt lejet'));
     if (a.statusi === 'ri') ki.firstChild.style.color = 'var(--sb-ic-portokalli)';
     var info = [a.krijuarSe ? 'U regjistrua ' + EKL.kohaRelative(a.krijuarSe) : '', a.kycurSe ? 'U kyç ' + EKL.kohaRelative(a.kycurSe) : '',
-      a.grupi ? 'Në një grup' : 'Pa grup', a.dok && a.dok.kontrolluarSe ? 'Kontrolluar ' + EKL.kohaRelative(a.dok.kontrolluarSe) + (a.dok.kontrolluarNga ? ' nga ' + a.dok.kontrolluarNga : '') : ''].filter(Boolean);
+      a.grupi ? 'Në një grup' : 'Pa grup', pdMerchandiser(a) ? 'Merchandiser' : '', a.dok && a.dok.kontrolluarSe ? 'Kontrolluar ' + EKL.kohaRelative(a.dok.kontrolluarSe) + (a.dok.kontrolluarNga ? ' nga ' + a.dok.kontrolluarNga : '') : ''].filter(Boolean);
     ki.appendChild(el('p', 'pd-info-rresht', info.join(' · ') + '.'));
     kr.appendChild(ki);
     var vk = el('div', 'pd-veprime-krye');
     if (a.statusi === 'ri') {
       var bk = el('button', 'btn', 'U kontrollua'); bk.type = 'button'; bk.id = 'pdKontrollua'; bk.title = 'I mban krejt lejet dhe s\'del më te "Pa u kontrolluar"';
-      bk.addEventListener('click', function () { bk.disabled = true; pdRuaj(a, L.krejt(true), a.emri + ' u shënua i kontrolluar.').then(function () { bk.disabled = false; }); });
+      bk.addEventListener('click', function () { bk.disabled = true; pdRuaj(a, pdKrejt(a, true), a.emri + ' u shënua i kontrolluar.').then(function () { bk.disabled = false; }); });
       vk.appendChild(bk);
     }
     var bl = el('button', 'btn dyte', 'Lejo krejt'); bl.type = 'button'; bl.id = 'pdLejoKrejt';
-    bl.addEventListener('click', function () { pdRuaj(a, L.krejt(true), a.emri + ' i ka tani krejt lejet.'); });
+    bl.addEventListener('click', function () { pdRuaj(a, pdKrejt(a, true), a.emri + ' i ka tani krejt lejet.'); });
     var bn = el('button', 'btn tekst rrezik', 'Ndalo krejt'); bn.type = 'button'; bn.id = 'pdNdaloKrejt';
     bn.addEventListener('click', async function () {
       var po = await konfirmo('T\'i ndalohen krejt lejet?', a.emri + ' do të mund vetëm të hyjë në llogari: s\'do ta shohë as stokun, as afatet, as grupin.', 'Ndalo krejt');
-      if (po) pdRuaj(a, L.krejt(false), a.emri + ' s\'ka më asnjë leje.');
+      if (po) pdRuaj(a, pdKrejt(a, false), a.emri + ' s\'ka më asnjë leje.');
     });
     vk.appendChild(bl); vk.appendChild(bn);
     var baf = el('button', 'btn dyte', 'Afatet e ' + a.emri); baf.type = 'button'; baf.id = 'pdAfatetBtn'; // v241
@@ -3439,7 +3473,8 @@
         if (l.pershkrim) t.appendChild(el('span', null, l.pershkrim));
         var nd = el('span', 'lj-ndez');
         var inp = el('input'); inp.type = 'checkbox'; inp.id = id;
-        inp.checked = !(lejet && lejet[l.k] === false);
+        // v241: "Merchandiser" (me zgjedhje): vlera e administratorit, ose ajo e zgjedhur kur u hap llogaria
+        inp.checked = l.zgjedhje ? pdMerchandiser(a) : !(lejet && lejet[l.k] === false);
         if (l.prindi && !L.lejohet(lejet, l.prindi)) { inp.disabled = true; r.classList.add('joaktiv'); }
         inp.addEventListener('change', function () {
           var tani = pd.lejet && pd.lejet[a.uid];
@@ -3757,7 +3792,7 @@
   // ================= Marketet (v241, marketet.js) =================
   // Lista menaxhohet te telefoni (Cilësimet → Marketet); këtu: zgjedhja e marketit te Afatet, marketi i afatit dhe
   // filtrimi. Pa asnjë market s'shihet asgjë e re. Kompjuteri s'e përdor GPS-in: marketi zgjidhet me dorë.
-  function kaMarkete() { return marketet.length > 0 && leja('afatet'); }
+  function kaMarkete() { return marketet.length > 0 && eshteMerchandiser(); }
   function idMarketitAktiv() { var id = marketiAktiv.id; return kaMarkete() && id && MK.sipasId(marketet, id) ? id : null; }
   function afatetEMarketit() { return MK.filtro(afatet, idMarketitAktiv()); }
   function emriMarketit(id) { return MK.emri(marketet, id); }
@@ -6007,7 +6042,7 @@
     var TR = window.StokuTeRejat;
     if (!TR || !TR.versioni()) return false;
     if ((__pajisjeERe || ngaVizitori()) && !versioniIPare()) { shenoTeRejatSiTePara(); return false; } // vizitori i ri: pa listë përditësimesh
-    var hyrjet = TR.teRejatPas(versioniIPare(), 'pc', eshteAdminiIStokut(), leja); // vetëm të rejat e kompjuterit
+    var hyrjet = TR.teRejatPas(versioniIPare(), 'pc', eshteAdminiIStokut(), lejaPerTeRejat); // vetëm të rejat e kompjuterit
     if (!hyrjet.length) return false;
     if (window.StokuPorta && window.StokuPorta.eHapur()) return false;
     if (dialogISiperm()) return false;
@@ -6038,7 +6073,7 @@
   $('opsTeRejat').addEventListener('click', function () {
     var TR = window.StokuTeRejat;
     if (!TR || !TR.versioni()) return;
-    var hyrjet = TR.teRejatPas(0, 'pc', eshteAdminiIStokut(), leja).slice(0, 6);
+    var hyrjet = TR.teRejatPas(0, 'pc', eshteAdminiIStokut(), lejaPerTeRejat).slice(0, 6);
     if (!hyrjet.length) return;
     mbushTeRejat(hyrjet, 'Përditësimet e fundit');
     mbyllDialog('dlgOpsione'); // dritarja e të rejave del mbi faqe, jo poshtë Cilësimeve

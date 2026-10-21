@@ -1,10 +1,12 @@
 // v241: marketet (për merchandiserët): lista e marketeve, vendndodhja me GPS, afatet sipas marketit, zgjedhja me dorë,
-// sinkronizimi (marketet + fusha `m` e afatit), emri i marketit te serveri, pamja e administratorit (tel + PC), PC
+// sinkronizimi (marketet + fusha `m` e afatit), emri i marketit te serveri, pamja e administratorit (tel + PC), PC.
+// Vetëm për merchandiserët: "Punoj si merchandiser" kur hapet llogaria (porta), ose administratori e ndez/fik te lejet.
 const { chromium } = require('./pw.js');
 const { krijoFirestore } = require('./fs-server.js');
 const RR = process.env.STOKU_DIR || require('path').resolve(__dirname, '..');
 const MK = require(RR + '/marketet.js');
 const B = require(RR + '/bashkimi.js');
+const LJ = require(RR + '/lejet.js');
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
 const BAZA = process.env.STOKU_B || 'http://127.0.0.1:8765';
 const PUSH = 'https://stoku-push.mendurb.workers.dev';
@@ -49,10 +51,19 @@ const NUMERO_GPS = () => {
   const b2 = B.bashko(b1, { foldera: l.foldera, afatet: [], marketet: [], fshira: { marketet: { mV: t } } }, t);
   ok(b2.marketet.length === 1 && b2.fshira.marketet.mV === t && !B.eNjejte(b1, b2) && B.eNjejte(b1, b1), '0. bashkimi: marketi i fshirë hiqet; eNjejte i sheh marketet');
   ok(Array.isArray(B.bashko({ foldera: [{ id: 'x', emri: 'X' }] }, { foldera: [{ id: 'x', emri: 'X' }] }, t).marketet), '0. dyqan i vjetër pa marketet: listë bosh');
+  // Leja "marketet" (merchandiser): me zgjedhje, e fikur kur mungon (llogaritë e vjetra s'e marrin)
+  ok(LJ.ZGJEDHJE.marketet && LJ.PRINDI.marketet === 'afatet' && !LJ.lejohet(null, 'marketet') && !LJ.lejohet({}, 'marketet') && LJ.lejohet({ marketet: true }, 'marketet') && !LJ.lejohet({ marketet: true, afatet: false }, 'marketet'), '0. lejet: "marketet" e fikur kur mungon; e ndezur vetëm kur caktohet (dhe me Afatet)');
+  ok(!('marketet' in LJ.pastro({ afatet: true })) && LJ.pastro({ marketet: false }).marketet === false && LJ.pastro(null).stoku === true, '0. pastro: "marketet" ruhet vetëm kur caktohet');
+  ok(!('marketet' in LJ.krejt(true)) && !('marketet' in LJ.krejt(false)) && LJ.meZgjedhjet(LJ.krejt(true), { marketet: false }).marketet === false && LJ.meZgjedhjet(LJ.krejt(false), { marketet: true }).marketet === true, '0. "Lejo/Ndalo krejt" s\'e ndërrojnë "Merchandiser"');
+  const TR = require(RR + '/teRejat.js');
+  const tekstiTR = l => l.map(h => h.titulli + ' ' + h.pikat.join(' ')).join(' ');
+  ok(!/market/i.test(tekstiTR(TR.teRejatPas(240, 'tel', false, k => k !== 'marketet'))) && /merchandiser/i.test(tekstiTR(TR.teRejatPas(240, 'tel', false, () => true))) &&
+    /Merchandiser/.test(tekstiTR(TR.teRejatPas(240, 'pc', true, () => true))), '0. "Çka ka të re": marketet vetëm për merchandiserët (dhe administratorin)');
+  ok(LJ.teNdaluara({ marketet: false }) === 0 && LJ.zgjedhja(null, 'marketet') === null && LJ.zgjedhja({ marketet: true }, 'marketet') === true, '0. "Merchandiser" i fikur s\'është leje e ndaluar');
 
   // ================= 1. Telefoni: merchandiseri =================
   const F = krijoFirestore();
-  F.S.docs.set('perdoruesit/u1', { perdoruesi: 'drini', kycurSe: t });
+  F.S.docs.set('perdoruesit/u1', { perdoruesi: 'drini', kycurSe: t, krijuarSe: t, merchandiser: true }); // u regjistrua si merchandiser
   F.S.docs.set('perdoruesit/u2', { perdoruesi: 'agim', kycurSe: t });
   F.S.docs.set('perdoruesit/uA', { perdoruesi: 'mendurberisha', kycurSe: t });
   const sot = n => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
@@ -183,12 +194,17 @@ const NUMERO_GPS = () => {
   ok((await lsMarketet(dr)).length === 1 && (await lsAfatet(dr)).find(a => a.emri === 'Jogurt') && await dr.evaluate(() => !!JSON.parse(localStorage.getItem('stoku:fshira:v1')).marketet), '1. Viva u fshi, afati mbetet; shënimi i fshirjes ruhet');
   ok(!dr.__gab.length, '1. drini: pa gabime JS', dr.__gab);
 
-  // ================= 2. Llogari pa markete: asgjë s'ndryshon =================
-  const { p: ag } = await faqe('u2', 'agim', false, ALBI, { afatet: AF0 });
+  // ================= 2. Llogari e vjetër (pa "Punoj si merchandiser"): asgjë s'ndryshon, edhe me markete =================
+  const { p: ag } = await faqe('u2', 'agim', false, ALBI, { afatet: AF0.map(a => Object.assign({}, a, { m: 'mZ' })) });
+  await ag.evaluate(() => { localStorage.setItem('stoku:marketet:v1', JSON.stringify([{ id: 'mZ', emri: 'Zeta', lat: 42.6476, lng: 21.1491 }])); });
+  await ag.reload(); await ag.waitForTimeout(2500);
+  ok(await ag.evaluate(() => { const x = JSON.parse(localStorage.getItem('stoku:merchandiser') || 'null'); return !!x && x.uid === 'u2' && x.v === false; }), '2. agim: s\'është merchandiser (perdoruesit/u2 pa "merchandiser")');
+  ok(await ag.evaluate(() => document.getElementById('tabMarketet').classList.contains('leja-ndaluar')), '2. agim: s\'ka "Marketet" te Cilësimet');
   await ag.evaluate(() => document.getElementById('btnAfatet').click()); await ag.waitForTimeout(500);
-  ok(!(await duket(ag, '#afMarketi')) && (await kartat(ag)).length === 2 && await ag.evaluate(() => window.__gpsThirrje) === 0, '2. agim (pa markete): krejt afatet, pa "Je te", pa GPS');
+  ok(!(await duket(ag, '#afMarketi')) && (await kartat(ag)).length === 2 && await ag.evaluate(() => window.__gpsThirrje) === 0, '2. agim: krejt afatet, pa "Je te", pa GPS (edhe pse dyqani ka një market)');
   await ag.click('#afShto'); await ag.waitForTimeout(200);
   ok(await ag.evaluate(() => document.getElementById('afatMarketiRresht').hidden), '2. "Afat i ri" pa fushën e marketit');
+  await ag.click('#afatAnulo').catch(() => {}); await ag.evaluate(() => { const d = document.getElementById('dlgAfat'); if (d.classList.contains('hapur')) d.classList.remove('hapur'); }); await ag.waitForTimeout(200);
   ok(!ag.__gab.length, '2. agim: pa gabime JS', ag.__gab);
 
   // ================= 3. Administratori: afatet e drinit sipas marketeve (tel) =================
@@ -201,7 +217,32 @@ const NUMERO_GPS = () => {
   const tx = await ad.textContent('#pdAfatet');
   ok(/Pa market · 1/.test(tx) && /Jogurt/.test(tx) && (await ad.textContent('#opsioneTitulli')) === 'Afatet e drini', '3. admini: "Pa market · 1" (Viva u fshi), titulli');
   await ad.screenshot({ path: __dirname + '/v241-tel-admin.png' });
-  ok(!ad.__gab.length, '3. admini: pa gabime JS', ad.__gab);
+  // "Merchandiser" te lejet: drini (nga regjistrimi) i ndezur, agim i fikur; admini e ndez/fik në kohë reale
+  await ad.click('#opsPrapa'); await ad.waitForTimeout(300);
+  ok(await ad.evaluate(() => document.getElementById('pdLeja_marketet').checked), '3. drini: "Merchandiser" i ndezur (e zgjodhi kur hapi llogarinë)');
+  ok(/Merchandiser/.test(await ad.textContent('#pdDetaje')), '3. drini: "Merchandiser" te të dhënat e llogarisë');
+  await ad.click('#opsPrapa'); await ad.waitForTimeout(300);
+  const rrDrini = await ad.evaluate(() => [...document.querySelectorAll('#pdLista .ops-furn-rresht')].map(x => x.textContent).find(x => /drini/.test(x)));
+  ok(/merchandiser/.test(rrDrini) && !/merchandiser/.test(await ad.evaluate(() => [...document.querySelectorAll('#pdLista .ops-furn-rresht')].map(x => x.textContent).find(x => /agim/.test(x)))), '3. lista: "merchandiser" vetëm te drini', rrDrini);
+  await ad.evaluate(() => [...document.querySelectorAll('#pdLista .ops-furn-rresht')].find(x => /agim/.test(x.textContent)).click()); await ad.waitForTimeout(400);
+  ok(await ad.evaluate(() => !document.getElementById('pdLeja_marketet').checked), '3. agim: "Merchandiser" i fikur (llogari e vjetër)');
+  await ad.click('label[for=pdLeja_marketet]'); await ad.waitForTimeout(500);
+  ok(F.S.docs.get('lejet/u2') && F.S.docs.get('lejet/u2').lejet.marketet === true, '3. lejet/u2.marketet = true');
+  ok(await prit(async () => await duket(ag, '#afMarketi') && !(await ag.evaluate(() => document.getElementById('tabMarketet').classList.contains('leja-ndaluar')))), '3. agim: marketet dalin në kohë reale (çipi + Cilësimet → Marketet)');
+  await ad.evaluate(() => [...document.querySelectorAll('#pdDetaje .pd-veprime button')].find(x => /Lejo krejt/.test(x.textContent)).click()); await ad.waitForTimeout(400);
+  ok(F.S.docs.get('lejet/u2').lejet.marketet === true, '3. "Lejo krejt" s\'e ndërron "Merchandiser"');
+  await ad.click('label[for=pdLeja_marketet]'); await ad.waitForTimeout(500);
+  ok(F.S.docs.get('lejet/u2').lejet.marketet === false, '3. lejet/u2.marketet = false');
+  ok(await prit(async () => !(await duket(ag, '#afMarketi')) && (await kartat(ag)).length === 2), '3. agim: marketet zhduken në kohë reale, krejt afatet');
+  // drini: admini ia fik (p.sh. e zgjodhi gabim) → zhduket; ia ndez sërish
+  await ad.click('#opsPrapa'); await ad.waitForTimeout(300);
+  await ad.evaluate(() => [...document.querySelectorAll('#pdLista .ops-furn-rresht')].find(x => /drini/.test(x.textContent)).click()); await ad.waitForTimeout(400);
+  await ad.click('label[for=pdLeja_marketet]'); await ad.waitForTimeout(500);
+  ok(F.S.docs.get('lejet/u1').lejet.marketet === false, '3. lejet/u1.marketet = false (fiton mbi regjistrimin)');
+  ok(await prit(async () => await dr.evaluate(() => document.getElementById('tabMarketet').classList.contains('leja-ndaluar')) && !(await duket(dr, '.sb-home-krye .mk-chip'))), '3. drini: marketet zhduken në kohë reale');
+  await ad.click('label[for=pdLeja_marketet]'); await ad.waitForTimeout(500);
+  ok(F.S.docs.get('lejet/u1').lejet.marketet === true && await prit(async () => !(await dr.evaluate(() => document.getElementById('tabMarketet').classList.contains('leja-ndaluar')))), '3. drini: ia ndez sërish → rikthehen');
+  ok(!ad.__gab.length && !ag.__gab.length && !dr.__gab.length, '3. admini, agim, drini: pa gabime JS', [ad.__gab, ag.__gab, dr.__gab]);
 
   // ================= 4. PC: drini dhe administratori =================
   const { p: pc } = await faqe('u1', 'drini', true, ALBI);
@@ -234,6 +275,52 @@ const NUMERO_GPS = () => {
     await apc.screenshot({ path: __dirname + '/v241-pc-admin.png' });
   }
   ok(!apc.__gab.length, '4. PC admini: pa gabime JS', apc.__gab);
+
+  // ================= 5. Porta: "Punoj si merchandiser" kur hapet llogaria =================
+  const MOCK = () => {
+    function u() { const x = sessionStorage.getItem('mockUser'); return x ? { uid: x, email: x + '@stoku-app.local' } : null; }
+    window.__stokuCloud = { authGati: true, perdoruesiAktual: u, token: async () => 't',
+      merr: async () => ({ ok: true, gjendja: null }), bashkoDheRuaj: async fn => ({ ok: true, gjendja: fn(null) }),
+      degjo: () => () => {}, degjoFletet: () => () => {}, dil: async () => {},
+      hyr: async () => ({ ok: false, kodi: 'auth/invalid-credential' }),
+      // si firebase-tel.js: opsionet.merchandiser → perdoruesit/{uid}.merchandiser + 'stoku:merchandiser'
+      regjistrohu: async (emri, fj, opsionet) => {
+        sessionStorage.setItem('argsRegjistrimit', JSON.stringify(opsionet === undefined ? 'mungon' : opsionet));
+        sessionStorage.setItem('mockUser', 'u_' + emri);
+        localStorage.setItem('stoku:merchandiser', JSON.stringify({ uid: 'u_' + emri, v: !!(opsionet && opsionet.merchandiser) }));
+        setTimeout(() => window.dispatchEvent(new Event('stoku-auth-ndryshoi')), 30);
+        return { ok: true };
+      } };
+  };
+  async function porta(merch) {
+    const ctx = await b.newContext({ userAgent: UA, viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+    await ctx.route(u => !u.href.startsWith(BAZA), r => r.abort());
+    await ctx.addInitScript(MOCK);
+    const p = await ctx.newPage(); p.__gab = []; p.on('pageerror', e => p.__gab.push(e.message));
+    await p.goto(BAZA + '/index.html'); await p.waitForTimeout(1500);
+    ok(!(await duket(p, '#pkMerchLbl')), '5. "Hyr": pa "Punoj si merchandiser"');
+    await p.click('#pkTabKrijo'); await p.waitForTimeout(150);
+    ok(await duket(p, '#pkMerchLbl') && /Punoj si merchandiser/.test(await p.textContent('#pkMerchLbl')) && !(await p.isChecked('#pkMerch')), '5. "Krijo llogari": "Punoj si merchandiser", e pazgjedhur');
+    if (merch) {
+      await p.click('#pkMerchLbl'); await p.click('#pkTabHyr'); await p.click('#pkTabKrijo');
+      ok(!(await p.isChecked('#pkMerch')), '5. kalimi te "Hyr" e heq zgjedhjen');
+      await p.click('#pkMerchLbl');
+    }
+    const emri = merch ? 'meri' : 'besnik';
+    await p.fill('#pkEmri', emri); await p.fill('#pkFjalekalimi', 'sakte123'); await p.fill('#pkPerserit', 'sakte123');
+    await p.click('#pkDergo');
+    await prit(async () => !!(await p.evaluate(() => sessionStorage.getItem('argsRegjistrimit'))));
+    const args = JSON.parse(await p.evaluate(() => sessionStorage.getItem('argsRegjistrimit')));
+    ok(args && args.merchandiser === merch, '5. regjistrohu(…, { merchandiser: ' + merch + ' })', args);
+    await p.waitForTimeout(2500);
+    ok(await prit(async () => !(await duket(p, '#porta'))), '5. ' + emri + ': hyri');
+    const ndaluar = await p.evaluate(() => document.getElementById('tabMarketet').classList.contains('leja-ndaluar'));
+    ok(ndaluar === !merch, '5. ' + emri + ': "Marketet" te Cilësimet ' + (merch ? 'po' : 'jo'));
+    ok(!p.__gab.length, '5. porta: pa gabime JS', p.__gab);
+    await ctx.close();
+  }
+  await porta(true);
+  await porta(false);
 
   await b.close();
   console.log(g ? 'GABIME: ' + g : 'Krejt në rregull');

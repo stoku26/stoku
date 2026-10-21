@@ -6,6 +6,8 @@ const { chromium } = require('./pw.js');
 const fs = require('fs');
 const { krijoFirestore } = require('./fs-server.js');
 const L = require('../lejet.js');
+// v241: lejet "me zgjedhje" (p.sh. "marketet" = merchandiser) s'janë ndalime dhe s'ruhen me "Lejo krejt"/"Ndalo krejt"
+const NR_LEJEVE = L.CELESAT.filter(k => !L.ZGJEDHJE[k]).length;
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
 const B = 'http://127.0.0.1:8765';
 const NM = __dirname + '/npm/node_modules';
@@ -152,11 +154,11 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   await m.waitForTimeout(400);
   ok((await m.textContent('#opsioneTitulli')) === 'besa' && /Pa u kontrolluar/.test(await m.textContent('#pdDetaje .kat-status')), '3. nënfaqja e besës: titulli "besa", "Pa u kontrolluar"');
   const nrLejeve = await m.evaluate(() => document.querySelectorAll('#pdDetaje .pd-lejet input[type=checkbox]').length);
-  ok(nrLejeve === L.CELESAT.length && await m.evaluate(() => [...document.querySelectorAll('#pdDetaje .pd-lejet input')].every(x => x.checked)), '3. ' + L.CELESAT.length + ' leje, krejt të ndezura', nrLejeve);
+  ok(nrLejeve === L.CELESAT.length && await m.evaluate(() => [...document.querySelectorAll('#pdDetaje .pd-lejet input')].every(x => x.checked || x.id === 'pdLeja_marketet') && !document.getElementById('pdLeja_marketet').checked), '3. ' + L.CELESAT.length + ' leje, krejt të ndezura (përveç "Merchandiser")', nrLejeve);
   await m.screenshot({ path: __dirname + '/v231-tel-besa.png', fullPage: false });
   await m.click('label[for=pdLeja_afatet]'); await m.waitForTimeout(500);
   const dB = F.S.docs.get('lejet/u2');
-  ok(dB && dB.lejet.afatet === false && dB.lejet.stoku === true && dB.kontrolluarNga === 'mendurberisha' && dB.emri === 'besa' && Object.keys(dB.lejet).length === L.CELESAT.length, '3. lejet/u2: afatet=false, kontrolluarNga, emri', dB && { afatet: dB.lejet.afatet, nga: dB.kontrolluarNga });
+  ok(dB && dB.lejet.afatet === false && dB.lejet.stoku === true && dB.kontrolluarNga === 'mendurberisha' && dB.emri === 'besa' && Object.keys(dB.lejet).length === NR_LEJEVE && !('marketet' in dB.lejet), '3. lejet/u2: afatet=false, kontrolluarNga, emri', dB && { afatet: dB.lejet.afatet, nga: dB.kontrolluarNga });
   ok(await m.evaluate(() => document.getElementById('pdLeja_afatetShto').disabled && document.getElementById('pdLeja_afatetShto').closest('.seksion').classList.contains('pd-joaktiv')), '3. veprimet e Afateve çaktivizohen (pa pjesën)');
   ok(await prit(async () => !(await duket(bs, '#btnAfatet'))), '3. besa: tabi Afatet zhduket në kohë reale');
   ok(!ZBULON.test(await toast(bs)), '3. besa: asnjë njoftim për ndryshimin e lejeve', await toast(bs));
@@ -187,7 +189,7 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   // "Ndalo krejt" (me konfirmim)
   await m.evaluate(() => [...document.querySelectorAll('#pdDetaje .pd-veprime button')].find(x => /Ndalo krejt/.test(x.textContent)).click());
   await m.waitForTimeout(300); await m.click('#konfPo'); await m.waitForTimeout(400);
-  ok(L.teNdaluara(F.S.docs.get('lejet/u2').lejet) === L.CELESAT.length, '3. "Ndalo krejt": krejt të ndaluara');
+  ok(L.teNdaluara(F.S.docs.get('lejet/u2').lejet) === NR_LEJEVE, '3. "Ndalo krejt": krejt të ndaluara');
   ok(await prit(async () => !(await duket(bs, '#btnAfatet')) && !(await duket(bs, '#btnEkipi')) && !(await duket(bs, '#tabStoku')) && await hapur(bs, 'dlgOpsione')), '3. besa pa asgjë: faqja bazë = Cilësimet, tabi i vetëm');
   ok(!ZBULON.test(await tekstiIDukshem(bs)) && !ZBULON.test(await toast(bs)), '3. pa asnjë fjalë për lejet (as njoftim)', await toast(bs));
   await bs.click('#opsTeRejat'); await bs.waitForTimeout(300);

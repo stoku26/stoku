@@ -81,13 +81,37 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    - **Worker 167** (e ngjit pronari te Cloudflare; aplikacioni pret 167): `/orari` ruan `mk` (≤ 60); `njoftimiDitor` me
      markete: "3 produkte skadojnë sot. Albi Mall: Kos, Bukë · Viva Fresh: Jogurt." (deri 4 për market, "+N", ≤ 220 shenja; pa
      markete si më parë); `/ora/sot` dhe `/ora/krejt` e kthejnë `mk` (ora). Testi `teste/wp/marketet-prova.mjs`.
-   - **Mbetet (faza 2)**: aplikacioni Android (`tel/`: leja
-     ACCESS_FINE_LOCATION + `onGeolocationPermissionsShowPrompt`, deri atëherë në aplikacion GPS-i s'punon, zgjedhja me dorë po),
-     ora (emri i marketit), **Cloudflare: `Permissions-Policy` duhet `geolocation=(self)`** (tash `geolocation=()` e bllokon GPS-in
-     në stoku.site; `teste/server-cloudflare.py` e ka tashmë `geolocation=(self)`).
-   - Testi `teste/marketet-v241.js` (60 OK): njësitë, telefoni (GPS i simuluar me Playwright: dy markete, ndërrimi, zgjedhja me
-     dorë, "Gjej me GPS", jashtë marketeve, sinkronizimi, /orari me `mk`, fshirja), llogari pa markete (asnjë ndryshim, asnjë
-     pyetje GPS), admini (tel + PC), PC.
+   - **VETËM PËR MERCHANDISERËT** (pronari: "mos e lësho për përdoruesit aktualë, vetëm për ata që hapin llogari nga ky moment
+     me opsionin 'Punoj si merchandiser'; si admin te Përdoruesit me mujt me ja lejt ose nal, nëse e ka zgjedh gabim"):
+     - Porta (`porta.js`): te "Krijo llogari" kutia **"Punoj si merchandiser (në disa markete)"** (`#pkMerch`, e pazgjedhur;
+       kalimi te "Hyr" e heq) → `cloud.regjistrohu(emri, fj, { merchandiser })`.
+     - `firebase-tel.js` / `firebase-pc.js?v=241`: `regjistrohu` shkruan `perdoruesit/{uid}.merchandiser = true` (vetëm kur
+       zgjidhet) dhe `localStorage 'stoku:merchandiser' = {uid, v}`; `regjistroTani` pas çdo hyrjeje e lexon
+       (`lexoMerchandiserin`, getDoc) dhe njofton `stoku-merchandiser` vetëm kur ndryshon. Çelësi s'është te
+       `CELESAT_E_TE_DHENAVE` (lidhet me uid-in). `ekipa.js` `degjoKrejtLlogarite` jep `merchandiser`.
+     - `lejet.js?v=4`: leja e re **"Merchandiser (disa markete)"** `marketet` (`prindi: 'afatet'`, **`zgjedhje: true`**): ndryshe
+       nga të tjerat, **mungon = e fikur** (`lejohet`), `pastro` e ruan vetëm kur caktohet, `krejt()` s'e prek, `meZgjedhjet()`
+       e ruan vlerën e mëparshme te "Lejo krejt" / "Ndalo krejt" / "U kontrollua", `teNdaluara` s'e numëron, `zgjedhja()`
+       kthen true/false/null. Rregullat e Firestore s'ndryshojnë (admini e shkruan te `lejet/{uid}` si leje tjetër).
+     - Aplikacioni (`app-tel.js`, `app-pc.js`): `eshteMerchandiser()` = i kyçur + Afatet + (zgjedhja e adminit te lejet, ose
+       flamuri i regjistrimit); `leja('marketet')` e përdor atë; `kaMarkete()` = merchandiser + të paktën një market.
+       Cilësimet → Marketet `data-leja="marketet"`. Ndryshimi (event-i, hyrja, admini) → `rifreskoMerchandiserin()` /
+       `zbatoLejet()` në kohë reale. Jo-merchandiserët: asnjë çip, asnjë pyetje për GPS, krejt afatet (edhe nëse dyqani ka
+       markete), "Çka ka të re" pa hyrjet për marketet (`FJALET_E_LEJEVE` + `['marketet', /market/i]`; admini i sheh).
+     - Admini (tel + PC): te lejet e përdoruesit "Merchandiser" (i ndezur sipas regjistrimit derisa ta ndryshojë),
+       "merchandiser" te rreshti i listës dhe "Merchandiser" te të dhënat e llogarisë.
+   - **Android (`tel/`)**: ACCESS_FINE/COARSE_LOCATION, WebView `setGeolocationEnabled(true)`, `onGeolocationPermissionsShowPrompt`
+     vetëm për stoku.site (kërkon lejen e Android-it, `L_VENDI = 24`). **Ora (`ora/`)**: `Afat.marketi` (`mk` nga serveri)
+     para datës te lista dhe në kërkim. APK-të i ndërton GitHub Actions.
+   - **Pronari duhet**: Worker 167 te Cloudflare; **Cloudflare `Permissions-Policy` → `camera=(self), geolocation=(self),
+     microphone=(), payment=(), usb=()`** (tash `geolocation=()` e bllokon GPS-in në stoku.site; `teste/server-cloudflare.py` e
+     ka tashmë `geolocation=(self)`); APK-të e reja (telefoni, ora).
+   - Testi `teste/marketet-v241.js` (92 OK): njësitë (+ lejet me zgjedhje, "Çka ka të re"), telefoni (GPS i simuluar me
+     Playwright: dy markete, ndërrimi, zgjedhja me dorë, "Gjej me GPS", jashtë marketeve, sinkronizimi, /orari me `mk`,
+     fshirja), llogari e vjetër me markete në dyqan (asnjë ndryshim, asnjë pyetje GPS), admini (afatet; "Merchandiser" ndez/fik
+     në kohë reale, "Lejo krejt" s'e prek), PC, porta (kutia → `{ merchandiser }`, marketet po/jo pas hyrjes).
+     `lejet-e2e-v231.js` / `lejet-pc-e2e-v231.js`: numërimet pa lejet me zgjedhje. `fs-server.js` e lexon `merchandiser` si
+     firebase-tel.js.
 
 0000000. **SASIA E SHPEJTË (+/-) SI LEJE TE PËRDORUESIT + TESTET NË REPO + CLAUDE.md (v240 = 1.31.0)**: pronari (foto e
    PC-së te Grupi → Anëtarët, kolona "+/-"): "hiqe prej qaty, qite te Cilësimet → Përdoruesit, me ja leju ose jo, bone

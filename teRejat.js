@@ -21,7 +21,7 @@
 
   var LISTA = [
     { v: 241, versioni: '1.32.0', data: '2026-10-21', titulli: 'Marketet', platforma: 'tel', pikat: [
-      'Për ata që punojnë në disa markete: te Cilësimet → Marketet i shton marketet e tua, me emrat që do ti.',
+      'Për merchandiserët (ata që punojnë në disa markete): kur e hap llogarinë zgjedh "Punoj si merchandiser". Pastaj te Cilësimet → Marketet i shton marketet e tua, me emrat që do ti.',
       'Kur je brenda marketit, ruaje vendndodhjen e tij: herët e tjera Stoku e njeh vetë ku je (GPS) dhe tregon vetëm afatet e atij marketi. Lart te Afatet e ndërron marketin edhe me dorë, ose zgjedh "Krejt marketet".',
       'Afatet e reja (me dorë, nga fotoja e fletës ose nga Excel) ruhen te marketi ku je. Kolegët e grupit e shohin marketin te çdo afat.',
       'Vendndodhja jote s\'ruhet askund: krahasohet vetëm në telefon me vendndodhjen e marketeve.'
@@ -31,7 +31,8 @@
       'Afatet e reja ruhen te marketi i zgjedhur.'
     ] },
     { v: 241, versioni: '1.32.0', data: '2026-10-21', titulli: 'Afatet e përdoruesve', vetemAdmini: true, pikat: [
-      'Te Cilësimet → Përdoruesit → një përdorues → "Afatet e …": i sheh afatet e tij, të ndara sipas marketeve (vetëm për t\'u parë).'
+      'Te Cilësimet → Përdoruesit → një përdorues → "Afatet e …": i sheh afatet e tij, të ndara sipas marketeve (vetëm për t\'u parë).',
+      'Marketet i ka vetëm kush e zgjedh "Punoj si merchandiser" kur e hap llogarinë (llogaritë e vjetra s\'i kanë). Te lejet e përdoruesit, "Merchandiser" ia ndez ose ia fik.'
     ] },
     { v: 240, versioni: '1.31.0', data: '2026-10-21', titulli: 'Sasia e shpejtë për të gjithë', platforma: 'tel', pikat: [
       'Butonat + dhe - te lista e produkteve tani i ka çdo llogari: sasinë e ndryshon me një prekje.',
@@ -667,7 +668,8 @@
     ['eksportPdf', /\bpdf/i],
     ['dergoNePc', /dërgo në pc/i],
     ['ora', /watch|\bora\b|\borës\b|\borën\b|\borë(?=[\s.,;:)]|$)/i],
-    ['pc', /kompjuter|\bpc\b/i]
+    ['pc', /kompjuter|\bpc\b/i],
+    ['marketet', /market/i] // v241: vetëm merchandiserët (dhe administratori)
   ];
   function lejetEHyrjes(h) {
     var t = [h.titulli || ''].concat(h.pikat || []).join('\n');

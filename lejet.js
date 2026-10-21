@@ -9,6 +9,9 @@
  * Rregullat (v230): dokumentin e shkruan vetëm administratori; secila llogari e lexon vetëm të vetin.
  * Administratori (mendurberisha) i ka gjithmonë krejt lejet; faqja "Përdoruesit" te Cilësimet është vetëm e tij.
  * Lejet i zbaton aplikacioni (fsheh pjesët dhe butonat që s'lejohen); përdoruesi s'mund t'i ndryshojë vetë.
+ * v241: lejet "me zgjedhje" (zgjedhje: true, p.sh. "marketet" = merchandiser) janë të FIKURA kur mungojnë: s'i marrin
+ *   llogaritë ekzistuese. Vlera e tyre vjen nga regjistrimi (perdoruesit/{uid}.merchandiser) derisa administratori ta
+ *   ndezë/fikë vetë (atëherë ruhet këtu si true/false dhe fiton). "Lejo krejt"/"Ndalo krejt" s'i prekin (meZgjedhjet).
  * v231: çka s'lejohet zhduket krejt, pa asnjë mesazh (as "s'të lejohet", as listë te Llogaria): përdoruesi s'e di as
  *   që ekziston. Pa "stoku" kryefaqja e telefonit është pjesa e parë e lejuar; pa "pc" kompjuteri hap versionin e
  *   telefonit (index.html e lexon lejen e ruajtur këtu, KEY_LOKALE); "Dërgo në PC" kërkon edhe "pc".
@@ -34,7 +37,8 @@
       { k: 'afatetNdrysho', emri: 'Ndrysho afatet', pershkrim: 'Data, sasia, "U hoq nga rafti" dhe "Rikthe si aktiv".', prindi: 'afatet' },
       { k: 'afatetFshi', emri: 'Fshi afate', prindi: 'afatet' },
       { k: 'afatetAI', emri: 'Lexo fletën me AI', pershkrim: 'Fotoja e fletës me afate (edhe fletët që vijnë nga telefoni te kompjuteri).', prindi: 'afatet' },
-      { k: 'afatetImporto', emri: 'Importo afate nga Excel', prindi: 'afatet' }
+      { k: 'afatetImporto', emri: 'Importo afate nga Excel', prindi: 'afatet' },
+      { k: 'marketet', emri: 'Merchandiser (disa markete)', pershkrim: 'Afatet sipas marketeve, me GPS. E zgjedh vetë kur hap llogarinë ("Punoj si merchandiser"); këtu ia ndez ose ia fik.', prindi: 'afatet', zgjedhje: true }
     ] },
     { grupi: 'Grupi', lejet: [
       { k: 'grupi', emri: 'Grupi', pershkrim: 'Kolegët, afatet e grupit, aktiviteti dhe kalendari.' },
@@ -52,33 +56,45 @@
       { k: 'pc', emri: 'Stoku në kompjuter', pershkrim: 'Versioni për kompjuter. Pa të, në kompjuter hapet versioni i telefonit.' }
     ] }
   ];
-  var CELESAT = [], PRINDI = {}, LEJA = {};
+  var CELESAT = [], PRINDI = {}, LEJA = {}, ZGJEDHJE = {};
   KATALOGU.forEach(function (g) {
-    g.lejet.forEach(function (l) { CELESAT.push(l.k); LEJA[l.k] = l; if (l.prindi) PRINDI[l.k] = l.prindi; });
+    g.lejet.forEach(function (l) { CELESAT.push(l.k); LEJA[l.k] = l; if (l.prindi) PRINDI[l.k] = l.prindi; if (l.zgjedhje) ZGJEDHJE[l.k] = true; });
   });
 
   // lejet: null (pa dokument / llogari e pakontrolluar) ose { çelësi: bool }
   function lejohet(lejet, k) {
+    if (ZGJEDHJE[k]) return zgjedhja(lejet, k) === true && (!PRINDI[k] || lejohet(lejet, PRINDI[k]));
     if (!lejet || typeof lejet !== 'object') return true;
     if (lejet[k] === false) return false;
     var p = PRINDI[k];
     return p ? lejohet(lejet, p) : true;
   }
-  // Vetëm çelësat e katalogut, gjithmonë bool (që mungon = e lejuar)
+  // Leja me zgjedhje: true / false kur e ka caktuar administratori, null kur s'është caktuar (vlen regjistrimi)
+  function zgjedhja(lejet, k) { return lejet && typeof lejet === 'object' && typeof lejet[k] === 'boolean' ? lejet[k] : null; }
+  // Vetëm çelësat e katalogut, gjithmonë bool (që mungon = e lejuar); ato me zgjedhje vetëm kur janë caktuar
   function pastro(lejet) {
     var o = {};
-    CELESAT.forEach(function (k) { o[k] = !(lejet && lejet[k] === false); });
+    CELESAT.forEach(function (k) {
+      if (ZGJEDHJE[k]) { if (zgjedhja(lejet, k) !== null) o[k] = lejet[k]; return; }
+      o[k] = !(lejet && lejet[k] === false);
+    });
     return o;
   }
   function krejt(vlera) {
     var o = {};
-    CELESAT.forEach(function (k) { o[k] = !!vlera; });
+    CELESAT.forEach(function (k) { if (!ZGJEDHJE[k]) o[k] = !!vlera; });
     return o;
   }
-  // Sa leje (nga katalogu) janë ndaluar
+  // "Lejo krejt" / "Ndalo krejt" s'e ndërrojnë zgjedhjen e caktuar më parë (p.sh. merchandiser)
+  function meZgjedhjet(lejetERe, teVjetrat) {
+    var o = Object.assign({}, lejetERe);
+    Object.keys(ZGJEDHJE).forEach(function (k) { if (zgjedhja(o, k) === null && zgjedhja(teVjetrat, k) !== null) o[k] = teVjetrat[k]; });
+    return o;
+  }
+  // Sa leje (nga katalogu) janë ndaluar (ato me zgjedhje s'janë ndalime)
   function teNdaluara(lejet) {
     if (!lejet) return 0;
-    return CELESAT.filter(function (k) { return lejet[k] === false; }).length;
+    return CELESAT.filter(function (k) { return !ZGJEDHJE[k] && lejet[k] === false; }).length;
   }
   // Statusi i një llogarie për listën e administratorit: 'ri' (pa u kontrolluar) | 'krejt' | 'kufizuar'
   function statusi(dok) {
@@ -183,8 +199,8 @@
     };
   }
 
-  var api = { KATALOGU: KATALOGU, CELESAT: CELESAT, LEJA: LEJA, PRINDI: PRINDI, lejohet: lejohet, pastro: pastro, krejt: krejt,
-    teNdaluara: teNdaluara, statusi: statusi, krijo: krijo, krijoGjendjen: krijoGjendjen, KEY_LOKALE: KEY_LOKALE };
+  var api = { KATALOGU: KATALOGU, CELESAT: CELESAT, LEJA: LEJA, PRINDI: PRINDI, ZGJEDHJE: ZGJEDHJE, lejohet: lejohet, pastro: pastro, krejt: krejt,
+    zgjedhja: zgjedhja, meZgjedhjet: meZgjedhjet, teNdaluara: teNdaluara, statusi: statusi, krijo: krijo, krijoGjendjen: krijoGjendjen, KEY_LOKALE: KEY_LOKALE };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuLejet = api;
 })(typeof self !== 'undefined' ? self : this);
