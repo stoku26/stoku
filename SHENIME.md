@@ -252,6 +252,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      te rreshti `CSP_CLOUDFLARE` më poshtë DHE kërkoji pronarit ta ndryshojë te Cloudflare** (header-i dhe meta zbatohen të dyja: ajo
      që mungon te njëra bllokohet). `siguria-v239.js` kontrollon që `CSP_CLOUDFLARE` = bashkimi i meta-ve + frame-ancestors.
      CSP_CLOUDFLARE: `default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: blob: https://*.googleapis.com https://*.mendurb.workers.dev https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://www.gstatic.com https://tiles.openfreemap.org https://api.github.com; frame-src https://stoku-appi.firebaseapp.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'`
+     (v244: + `https://tiles.openfreemap.org` te connect-src për hartën; pronari e ndryshoi te Cloudflare më 21.10.2026.)
      Testuar me një server lokal që i shton këto header-a çdo përgjigjeje (`cf-csp/server.py`): regresioni i plotë + service
      worker-i (instalimi, pa internet, kërkesat e lejuara pa shkelje, `example.com` bllokohet nga connect-src i SW-së).
      `siguria-v234.js`: me frame-ancestors si header shfletuesi s'e ngarkon fare faqen në iframe të huaj (korniza = faqe gabimi);
