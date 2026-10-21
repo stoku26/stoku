@@ -52,6 +52,47 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **HYR NË GRUP ME KËRKESË + REGJISTRI I PËRBASHKËT + MARKETI I PARË (v242 = 1.33.0, RREGULLA TË REJA)**: tri kërkesa të
+   pronarit: (1) "useri i ri vetëm krijon grup; bone edhe me hy në një grup: me lyp me emër, me çu kërkesë, admini i grupit e
+   aprovon"; (2) "useri i ri s'ka furnizues as produkte te lista; kushdo që ka llogari duhet t'i shohë, kur skanon me dalë emri
+   nëse është në regjistër, dhe produktet e reja të kujtdo me dalë për kontroll te admini (Cilësimet → Stoku)"; (3) "merchandiseri
+   te useri i ri s'po funksionon: s'e qet asnjë lokacion, s'të pyet për emër të marketit".
+   - **(1) Kërkesat për grup** (`ekipa.js?v=242`): lista publike `grupet_publike/{g}` {emri, pronarEmri, ndryshuarSe}: e shkruan
+     pronari (`publikoGrupin` pas krijimit/riemërtimit; grupet e vjetra: `siguroGrupinPublik` një herë për emër/pajisje,
+     `stoku:grupi:publikuar`), fshihet me grupin (pas grupit: rregulli e lejon kur grupi s'ekziston; edhe kërkuesi e heq kur
+     kërkesa refuzohet sepse grupi s'ekziston). Kërkimi: `kerkoGrupet` (lista ≤ 2000 lexohet një herë në 60 s, kërkimi pa
+     dallim shkronjash/ë/ç, ≥ 2 shkronja, ≤ 30 rezultate). Kërkesa `kerkesat_grupi/{g}_{uid}` {gid, grupiEmri, uid, emri,
+     koha}; pronari: `pranoKerkesen` = ftesë (`ftesat/{g}_{emri}`, rregulli ekzistues) + fshirja e kërkesës në një batch;
+     `refuzoKerkesen` = fshirja. Kërkuesi: grupet e kërkuara te `stoku:grupi:kerkuar` {uid, g}; `provoPranimetAuto` e pranon
+     vetë ftesën e grupit të kërkuar kur je pa grup (edhe kur hapet më vonë); kërkesa që zhduket pa ftesë (pas 3 s, kur të
+     dy dëgjuesit janë gati) = refuzim → njoftim "Admini i grupit "X" s'e pranoi kërkesën tënde."; anulimi s'del si refuzim.
+     Krijimi i grupit / pranimi i një ftese fshin kërkesat e mia (`fshijKerkesatEMia`). Pronari: dëgjuesi `kerkesatEGrupit`
+     (kur je në grup), njoftim një herë, shenja (`numriKerkesave` + kërkesat), tel: pulti + Kolegët (`.ek-kerkesa-grupi`),
+     PC: Pulti (`#ekPultKerkesat`), Kolegët (`#ekKerkesatEGrupit`), anësorja "1 kërkesë". UI pa grup: tel "Hyr në një grup"
+     (`#ekGrupiKerko`, `#ekGrupiRezultatet`, kërkesat e mia me "Anulo"; dërgimi e lëshon fushën që pamja të rifreskohet), PC
+     karta `#ekHyrKarta` + "Ose krijo grupin tënd". Llogaria e fshirë nga admini: fshihen edhe kërkesat dhe pritja e saj.
+   - **(2) Regjistri i përbashkët**: `kujtesa/{p0..p9,px}` (si kujtesa e grupit) e lexon kushdo me llogari (`degjoRegjistrin`
+     → `K.bashko`), e shkruan VETËM administratori dhe vetëm çka ka kontrolluar (hyrjet me `s` dhe pa `r`, edhe fshirjet e tij);
+     herën e parë (pasi dihet që është admin, `regjistriPasAdminit`) dërgon `K.perDergim(regjistri)` të filtruar. Të tjerët:
+     `kujtesa_pritje/{uid}` {p, emri, ndryshuarSe} = çka di pajisja dhe s'është (ose s'fiton) te regjistri, pa fshirjet, ≤ 3000
+     më të rejat, zëvendësohet krejt (pa merge) vetëm kur ndryshon (`stoku:kujtesa:pritja` = hash), 2,5 s pas ndryshimit.
+     Administratori dëgjon krejt pritjet (`degjoPritjet`): çdo hyrje pa `s` (një `s` i falsifikuar s'e kalon kontrollin), me
+     `n` = autori → del te "Produktet e reja" "nga X"; pasi e ruan, kalon te regjistri dhe del vetë nga pritja e autorit.
+     Kujtesa e grupit mbetet si ishte (kolegët shohin edhe çka pret kontrollin brenda grupit). Tekstet te Cilësimet → Stoku:
+     "Regjistri i Stoku-t…", "Furnizuesit e regjistrit të Stoku-t…". Pa rregullat e reja: kujtesa e pajisjes + grupi si më parë.
+   - **(3) Merchandiseri**: GABIMI: `#dlgMarketi` ("Ku je?") s'kishte z-index → dilte PRAPA faqes së Afateve (`.faqe-e-plote`
+     21 > `.mbulese` 20): në telefon çipi dukej sikur s'bën asgjë. Tash `#dlgMarketi, #dlgMarketiRi { z-index: 24 }`. E reja:
+     pa asnjë market merchandiseri sheh çipin "Marketi / Shto marketin ku punon" (Afatet + kryefaqja); herën e parë që hap Afatet
+     (`stoku:marketet:pyetur` = uid) del vetë `#dlgMarketiRi` "Në cilin market je?" (emri + "Jam brenda këtij marketi tani" =
+     ruaj vendndodhjen me GPS, kërkon lejen); te "Ku je?" butoni "+ Market i ri" (`#mkdIRi`). `shtoMarketERi` /
+     `ruajVendinEMarketit` të përbashkëta me Cilësimet → Marketet.
+   - **Rregullat e reja** (blloku më poshtë: `kujtesa`, `kujtesa_pritje`, `grupet_publike`, `kerkesat_grupi`) **i vendos
+     pronari te Firebase**. Pa to: kërkimi tregon "s'është gati ende", regjistri s'punon (asgjë s'prishet).
+   - Testet: `grupi-kerkesa-v242.js` (52: kërkimi, kërkesa, pranimi vetë, refuzimi, anulimi, tel + PC, siguria, lista publike),
+     `regjistri-v242.js` (24: llogari e re pa grup sheh produktet/furnizuesit dhe emrin kur skanon, pritja, kontrolli i adminit,
+     siguria), `marketi-ri-v242.js` (20: çipi, pyetja e parë, GPS, "+ Market i ri", dritaret mbi Afatet, jo-merchandiseri).
+     `marketet-v241.js`: merchandiseri pa markete sheh "Shto marketin ku punon"; `kujtesa-grupi-test.js`: shkrimet numërohen
+     vetëm te grupi. `fs-server.js`: rregullat e katër koleksioneve.
 0000000. **MARKETET PËR MERCHANDISERËT (v241 = 1.32.0, Worker 167)**: pronari: "projekti deri tash ishte për 1 grup në 1 market; tash
    edhe merchandiserët (kolegë jashtë nesh) që punojnë në shumë markete brenda ditës: afatet sipas marketeve me emra që i
    shkruajnë vetë, te marketi 1 afatet e marketit 1…, njoftimet sipas marketeve". Vendimet e pronarit (pyetje me opsione):
@@ -1708,7 +1749,7 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
-## Rregullat e Firestore (v164 grupet, v221 pa chat, v229 skedarët në PC, v230 lejet; më parë v116 + v130 ekipa_push + v140 admini nga llogaria) — i vendos PËRDORUESI (unë s'kam qasje)
+## Rregullat e Firestore (v242 regjistri + kërkesat për grup, v164 grupet, v221 pa chat, v229 skedarët në PC, v230 lejet; më parë v116 + v130 ekipa_push + v140 admini nga llogaria): i vendos PËRDORUESI (unë s'kam qasje)
 
 Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Dyqani lexohet vetëm nga pronari/admin-i;
 `emri`/`perdoruesi` s'falsifikohen (= emri i llogarisë); aplikacioni s'mund ta shtojë/ndryshojë fushën `emri` te
@@ -1724,6 +1765,11 @@ e vjetër (para përditësimit). Mock-u në scratchpad (`fs-server.js`, `rregull
 vjetër: krijimi refuzohet, fshirja e grupit vazhdon pa to). Mesazhet e vjetra, nëse ka, fshihen vetëm nga Console.
 **v230 (lejet):** `lejet/{uid}`: e lexon vetë llogaria (për t'i zbatuar) ose administratori (faqja "Përdoruesit"); e
 shkruan dhe e fshin VETËM administratori. Testi: `emu/lejet-prova.mjs` (scratchpad, emulatori i vërtetë).
+**v242:** `kujtesa/{p0..p9,px}` = regjistri i përbashkët (lexon kushdo me llogari, shkruan VETËM administratori);
+`kujtesa_pritje/{uid}` = çka mëson/shkruan secili, për kontroll (vetja + administratori); `grupet_publike/{g}` = emri i grupit
+dhe admini për kërkimin (lexon kushdo; shkruan pronari i grupit; fshin pronari/admini ose kushdo kur grupi s'ekziston më);
+`kerkesat_grupi/{g}_{uid}` = kërkesa për t'u futur (e krijon vetë kërkuesi, jo anëtar, grupi duhet të ekzistojë; e lexojnë
+kërkuesi dhe anëtarët e grupit; e fshin kërkuesi ose pronari). Pranimi = ftesë (rregulli ekzistues i `ftesat`).
 
 ```
 rules_version = '2';
@@ -1920,6 +1966,46 @@ service cloud.firestore {
         && request.resource.data.get('grupiEmri', '') is string && request.resource.data.get('grupiEmri', '').size() <= 60;
       allow delete: if request.auth != null
         && (resource.data.perdoruesi == emriIm() || pronarIGrupit(resource.data.gid) || eshteAdmin());
+    }
+    // v242: regjistri i përbashkët i produkteve dhe furnizuesve (barkodi → emri, furnizuesi): e lexon kushdo me llogari,
+    // e shkruan vetëm administratori (çka ka kontrolluar). I ndarë si kujtesa e grupit: p0..p9, px.
+    match /kujtesa/{pjesa} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null && eshteAdmin() && pjesa.matches('p[0-9x]')
+        && request.resource.data.keys().hasOnly(['p', 'ndryshuarSe']) && request.resource.data.p is map;
+      allow delete: if request.auth != null && eshteAdmin();
+    }
+    // v242: produktet dhe furnizuesit që secili i mëson/shkruan, për kontrollin e administratorit
+    match /kujtesa_pritje/{u} {
+      allow read: if request.auth != null && (request.auth.uid == u || eshteAdmin());
+      allow create, update: if request.auth != null && request.auth.uid == u && !uFshi(u)
+        && request.resource.data.keys().hasOnly(['p', 'emri', 'ndryshuarSe']) && request.resource.data.p is map
+        && request.resource.data.p.size() <= 4000 && request.resource.data.emri == emriIm();
+      allow delete: if request.auth != null && (request.auth.uid == u || eshteAdmin());
+    }
+    // v242: grupet për kërkimin "Hyr në një grup" (emri i grupit dhe admini); i shkruan pronari i grupit
+    match /grupet_publike/{g} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null && pronarIGrupit(g) && !uFshi(request.auth.uid)
+        && request.resource.data.keys().hasOnly(['emri', 'pronarEmri', 'ndryshuarSe'])
+        && emriIGrupitOk(request.resource.data) && request.resource.data.pronarEmri == emriIm();
+      allow delete: if request.auth != null && (pronarIGrupit(g) || eshteAdmin()
+        || !exists(/databases/$(database)/documents/grupet/$(g)));
+    }
+    // v242: kërkesat për t'u futur në një grup. Id = {grupi}_{uid}. Pronari e pranon me një ftesë (ftesat).
+    match /kerkesat_grupi/{id} {
+      allow read: if request.auth != null
+        && (resource.data.uid == request.auth.uid || anetarIGrupit(resource.data.gid) || eshteAdmin());
+      allow create, update: if request.auth != null && !uFshi(request.auth.uid)
+        && request.resource.data.uid == request.auth.uid && request.resource.data.emri == emriIm()
+        && id == request.resource.data.gid + '_' + request.auth.uid
+        && request.resource.data.keys().hasOnly(['gid', 'grupiEmri', 'uid', 'emri', 'koha'])
+        && request.resource.data.gid is string
+        && exists(/databases/$(database)/documents/grupet/$(request.resource.data.gid))
+        && !anetarIGrupit(request.resource.data.gid)
+        && request.resource.data.get('grupiEmri', '') is string && request.resource.data.get('grupiEmri', '').size() <= 60;
+      allow delete: if request.auth != null
+        && (resource.data.uid == request.auth.uid || pronarIGrupit(resource.data.gid) || eshteAdmin());
     }
     // v211: furnizuesit e administratorit, si sugjerim për krejt përdoruesit (edhe jashtë grupit)
     match /publike/furnizuesit {

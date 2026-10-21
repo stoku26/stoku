@@ -46,6 +46,9 @@ function krijoFirestore(opt = {}) {
       const w = (c || []).filter(x => x.lloji === 'where' && x.op === '==');
       return w.some(x => x.f === 'perdoruesi' && x.v === emriA) || w.some(x => x.f === 'gid' && anetar(a.uid, x.v));
     }
+    // v242: regjistri i përbashkët (kushdo i kyçur) dhe pritja e secilit (ai vetë dhe administratori)
+    if (reja && p[0] === 'kujtesa' && p.length === 2) return !S.paRegjister;
+    if (reja && p[0] === 'kujtesa_pritje' && p.length === 2) return !S.paRegjister && (eListe ? eshteAdmin(a.uid) : (a.uid === p[1] || eshteAdmin(a.uid)));
     // v242: lista publike e grupeve (kushdo i kyçur) dhe kërkesat për t'u futur (kërkuesi, anëtarët e grupit, admini)
     if (reja && p[0] === 'grupet_publike' && p.length === 2) return !S.paKerkesa;
     if (reja && p[0] === 'kerkesat_grupi' && p.length === 2) {
@@ -130,6 +133,17 @@ function krijoFirestore(opt = {}) {
         && iRi.ngaUid === a.uid && iRi.ngaEmri === emriIm
         && vetemKeto(Object.keys(iRi), ['gid', 'grupiEmri', 'perdoruesi', 'ngaUid', 'ngaEmri', 'koha'])
         && (iRi.grupiEmri === undefined || (typeof iRi.grupiEmri === 'string' && iRi.grupiEmri.length <= 60));
+    }
+    if (reja && p[0] === 'kujtesa' && p.length === 2) { // v242: vetëm administratori
+      if (S.paRegjister || !eshteAdmin(a.uid)) return false;
+      if (lloji === 'delete') return true;
+      return /^p[0-9x]$/.test(p[1]) && vetemKeto(Object.keys(iRi), ['p', 'ndryshuarSe']) && !!iRi.p && typeof iRi.p === 'object';
+    }
+    if (reja && p[0] === 'kujtesa_pritje' && p.length === 2) { // v242: vetëm vetja (administratori fshin)
+      if (S.paRegjister) return false;
+      if (lloji === 'delete') return a.uid === p[1] || eshteAdmin(a.uid);
+      return a.uid === p[1] && !fshire(a.uid) && vetemKeto(Object.keys(iRi), ['p', 'emri', 'ndryshuarSe']) && !!iRi.p && typeof iRi.p === 'object'
+        && Object.keys(iRi.p).length <= 4000 && iRi.emri === emriIm;
     }
     if (reja && p[0] === 'grupet_publike' && p.length === 2) { // v242
       if (S.paKerkesa) return false;

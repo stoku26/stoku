@@ -971,6 +971,12 @@
         await fshij(fs.doc(db, 'perdoruesit', u));
         // v230: lejet e llogarisë (pa rregullat v230 s'fshihen, por s'pengojnë: llogaria s'ekziston më)
         try { await fs.deleteDoc(fs.doc(db, 'lejet', u)); } catch (e) { /* ok */ }
+        try { await fs.deleteDoc(fs.doc(db, 'kujtesa_pritje', u)); } catch (e) { /* ok: v242 */ }
+        try { // v242: kërkesat e saj për grupe
+          var sk = await fs.getDocs(fs.query(fs.collection(db, 'kerkesat_grupi'), fs.where('uid', '==', u)));
+          var kk = []; sk.forEach(function (d) { kk.push(d.id); });
+          for (var q = 0; q < kk.length; q++) await fshij(fs.doc(db, 'kerkesat_grupi', kk[q]));
+        } catch (e) { /* ok */ }
         return { ok: true, mbetur: mbetur };
       },
       // Kjo llogari u fshi nga administratori? cb() thirret sapo shënimi ekziston (edhe kur je duke punuar)
@@ -1128,6 +1134,37 @@
           await Promise.all(Object.keys(pjeset).map(function (k) { return fs.setDoc(fs.doc(db, 'grupet', g, 'kujtesa', k), { p: pjeset[k], ndryshuarSe: Date.now() }, { merge: true }); }));
           return { ok: true };
         } catch (e) { return gabim(e); }
+      },
+
+      // ---------- v242: regjistri i përbashkët i Stoku-t (krejt llogaritë, edhe pa grup) ----------
+      // kujtesa/{p0..p9, px}: produktet dhe furnizuesit e kontrolluar nga administratori; e lexon kushdo, e shkruan vetëm ai.
+      // kujtesa_pritje/{uid}: çka mëson/shkruan secili (pa kontroll ende); e lexon vetëm ai dhe administratori.
+      degjoRegjistrin: function (cb, cbGabim) {
+        if (!uid()) return function () {};
+        return fs.onSnapshot(fs.collection(db, 'kujtesa'), function (s) {
+          var h = {};
+          listaNga(s).forEach(function (d) { var p = d.p; if (p && typeof p === 'object') Object.keys(p).forEach(function (b) { h[b] = p[b]; }); });
+          cb(h);
+        }, function (e) { if (cbGabim) cbGabim(e); });
+      },
+      ruajRegjistrin: async function (hyrjet) {
+        if (!uid()) return { ok: false };
+        var pjeset = {};
+        Object.keys(hyrjet || {}).forEach(function (b) { var k = pjesaEKujteses(b); (pjeset[k] = pjeset[k] || {})[b] = hyrjet[b]; });
+        try {
+          await Promise.all(Object.keys(pjeset).map(function (k) { return fs.setDoc(fs.doc(db, 'kujtesa', k), { p: pjeset[k], ndryshuarSe: Date.now() }, { merge: true }); }));
+          return { ok: true };
+        } catch (e) { return gabim(e); }
+      },
+      // Pritja ime zëvendësohet krejt (pa merge): çka u kontrollua ose u fshi nga administratori del vetë prej saj
+      ruajPritjen: async function (hyrjet) {
+        if (!uid()) return { ok: false };
+        try { await fs.setDoc(fs.doc(db, 'kujtesa_pritje', uid()), { p: hyrjet || {}, emri: emri(), ndryshuarSe: Date.now() }); return { ok: true }; } catch (e) { return gabim(e); }
+      },
+      // Administratori: pritja e krejt llogarive, në kohë reale: cb([{ id (uid), emri, p }])
+      degjoPritjet: function (cb, cbGabim) {
+        if (!uid()) return function () {};
+        return fs.onSnapshot(fs.collection(db, 'kujtesa_pritje'), function (s) { cb(listaNga(s)); }, function (e) { if (cbGabim) cbGabim(e); });
       },
 
       // ---------- Njoftimet personale (vetëm brenda grupit: rregullat e kontrollojnë me fushën `grupi`) ----------
@@ -1879,6 +1916,7 @@
       if (a === null || !o.uidIm()) return; // pa internet: mbetet e fundit e ditur
       if (a !== gj.admin) { gj.admin = a; ruajAnetaresine(); thirr('te-gjitha'); }
       if (a && gj.anetaresia === 'pa-grup') migroNeseDuhet();
+      regjistriPasAdminit(); // v242: tash dihet kush shkruan te regjistri (administratori) e kush dërgon për kontroll
     }
     // Administratori, një herë: grupi i vjetër (para grupeve) bëhet grupi "ekipa", me historikun
     async function migroNeseDuhet() {
@@ -2084,6 +2122,7 @@
       nisFtesatEMia();
       nisKerkesatEMia();
       nisDegjuesitPersonale();
+      nisRegjistrin(); // v242: regjistri i përbashkët (edhe pa grup)
       // Administratori e fshiu këtë llogari → aplikacioni e mbyll dhe e fshin (o.llogariaUFshi)
       if (e.degjoFshirjen && o.llogariaUFshi) d.fshirja = e.degjoFshirjen(function (x) { ndal('fshirja'); try { o.llogariaUFshi(x); } catch (er) { /* ok */ } });
       if (gj.hapur) hap(); // Grupi ishte i hapur kur u hyr në llogari → lidhu tani
@@ -2125,6 +2164,93 @@
         if (!r || !r.ok) bs.forEach(function (b) { kujtesaGj.pritje[b] = true; }); // provohet sërish me ndryshimin e radhës
       }, 2000);
     }
+    // ---------- v242: regjistri i përbashkët i Stoku-t (produktet dhe furnizuesit, për krejt llogaritë) ----------
+    // Kushdo me llogari e merr regjistrin (kujtesa/*: vetëm çka ka kontrolluar administratori) dhe e shton te kujtesa e
+    // pajisjes: emri del kur skanon, listat te Cilësimet → Stoku. Çka mëson/shkruan dikush dhe s'është te regjistri shkon
+    // te pritja e tij (kujtesa_pritje/{uid}); administratori i merr krejt pritjet si "në pritje" (pa `s`, me emrin e
+    // autorit) dhe i kontrollon te Cilësimet → Stoku. Vetëm çka ruan/fshin administratori kalon te regjistri.
+    var KEY_PRITJA = 'stoku:kujtesa:pritja', PRITJA_MAKS = 3000;
+    var regj = { gati: false, remote: {}, degjon: false, ndryshuar: {}, kohez: null, adminiDihet: false };
+    function nisRegjistrin() {
+      var e = E(), K = kujtesaPajisjes();
+      ndal('regjistri'); ndal('pritjet');
+      regj.gati = false; regj.remote = {}; regj.ndryshuar = {}; regj.adminiDihet = false;
+      if (!e || !K || !e.degjoRegjistrin || !o.uidIm()) return;
+      if (!regj.degjon) {
+        regj.degjon = true;
+        K.degjo(function (barkodet) { barkodet.forEach(function (b) { regj.ndryshuar[b] = true; }); planifikoRegjistrin(); });
+      }
+      d.regjistri = e.degjoRegjistrin(function (remote) {
+        regj.remote = remote || {};
+        var n = K.bashko(regj.remote);
+        var iPari = !regj.gati;
+        regj.gati = true;
+        if (iPari && gj.admin && regj.adminiDihet) K.perDergim(regj.remote).forEach(function (b) { regj.ndryshuar[b] = true; });
+        planifikoRegjistrin();
+        if (n || iPari) thirr('kujtesa');
+      }, function () { /* rregullat para v242: mbetet kujtesa e pajisjes dhe e grupit */ });
+    }
+    // Pasi dihet a jam administrator: ai dërgon çka di (të kontrolluarat) dhe dëgjon pritjet; të tjerët dërgojnë pritjen
+    function regjistriPasAdminit() {
+      var e = E(), K = kujtesaPajisjes();
+      if (!e || !K || !o.uidIm() || regj.adminiDihet) return;
+      regj.adminiDihet = true;
+      if (gj.admin) {
+        if (regj.gati) K.perDergim(regj.remote).forEach(function (b) { regj.ndryshuar[b] = true; });
+        if (e.degjoPritjet && !d.pritjet) {
+          d.pritjet = e.degjoPritjet(function (lista) {
+            var uIm = o.uidIm(), h = {};
+            lista.forEach(function (doc) {
+              if (!doc || doc.id === uIm || !doc.p || typeof doc.p !== 'object') return;
+              Object.keys(doc.p).forEach(function (b) {
+                var x = doc.p[b];
+                if (!x || typeof x !== 'object' || x.x) return; // fshirjet e të tjerëve s'vlejnë këtu
+                // Çdo gjë nga pritja pret kontrollin: pa `s` (s'mund ta kalojë kontrollin vetë), me emrin e autorit
+                var y = Object.assign({}, x); delete y.s;
+                if (!y.n) y.n = String(doc.emri || '').slice(0, 40);
+                if (!y.n) y.r = 1;
+                if (!h[b] || (Number(y.k) || 0) > (Number(h[b].k) || 0)) h[b] = y;
+              });
+            });
+            if (K.bashko(h)) thirr('kujtesa');
+          }, function () { ndal('pritjet'); });
+        }
+      }
+      planifikoRegjistrin();
+    }
+    function hashiI(t) { var h = 5381; for (var i = 0; i < t.length; i++) h = ((h * 33) ^ t.charCodeAt(i)) >>> 0; return h.toString(36) + ':' + t.length; }
+    function planifikoRegjistrin() {
+      if (!regj.gati || !regj.adminiDihet) return;
+      clearTimeout(regj.kohez);
+      regj.kohez = setTimeout(async function () {
+        var e = E(), K = kujtesaPajisjes();
+        if (!e || !K || !o.uidIm() || !regj.gati) return;
+        if (gj.admin) {
+          // Administratori: te regjistri vetëm çka ka kontrolluar (ruajtur ose fshirë prej tij), jo ato në pritje
+          var bs = Object.keys(regj.ndryshuar);
+          regj.ndryshuar = {};
+          if (!bs.length) return;
+          var hy = K.hyrjePerGrup(bs), te = {};
+          Object.keys(hy).forEach(function (b) { var x = hy[b]; if (x.s === 1 && (x.x === 1 || x.r !== 1)) te[b] = x; });
+          if (!Object.keys(te).length) return;
+          var r = await e.ruajRegjistrin(te);
+          if (!r || !r.ok) bs.forEach(function (b) { regj.ndryshuar[b] = true; }); // provohet me ndryshimin e radhës
+          return;
+        }
+        regj.ndryshuar = {};
+        if (!e.ruajPritjen) return;
+        // Të tjerët: çka di pajisja dhe s'është (ose është ndryshe) te regjistri → pritja ime, më të rejat të parat
+        var hyr = K.hyrjePerGrup(K.perDergim(regj.remote)), lista = [];
+        Object.keys(hyr).forEach(function (b) { if (hyr[b].x !== 1) lista.push(b); });
+        lista.sort(function (a, b) { return (Number(hyr[b].k) || 0) - (Number(hyr[a].k) || 0); });
+        var p = {};
+        lista.slice(0, PRITJA_MAKS).forEach(function (b) { p[b] = hyr[b]; });
+        var celes = o.uidIm() + '|' + hashiI(JSON.stringify(p, Object.keys(p).sort().concat(['e', 'f', 'k', 'a', 'm', 's', 'n', 'x', 'r'])));
+        if (lexo(KEY_PRITJA) === celes) return; // asgjë e re për administratorin
+        var r2 = await e.ruajPritjen(p);
+        if (r2 && r2.ok) shkruaj(KEY_PRITJA, celes);
+      }, 2500);
+    }
     // Njoftimet personale (zilja), vetëm kur ke qasje në grup
     function nisDegjuesitPersonale() {
       var e = E();
@@ -2153,6 +2279,7 @@
     function ndalGjithmone(vetemDegjuesit) {
       ndal('njoftimet'); ndal('anetaresia'); ndal('fshirja'); ndal('grupiDoc'); ndal('ftesatEMia'); ndal('kujtesa');
       ndal('kerkesatEMia'); ndal('kerkesatEGrupit'); clearTimeout(kohezKerkesave); // v242
+      ndal('regjistri'); ndal('pritjet'); clearTimeout(regj.kohez); regj.gati = false; regj.adminiDihet = false;
       kujtesaGj.gati = false; clearTimeout(kujtesaGj.kohez);
       if (!vetemDegjuesit) {
         var e = E(); if (e) e.ndalPranine();

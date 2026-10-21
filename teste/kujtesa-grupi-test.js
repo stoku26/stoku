@@ -129,8 +129,11 @@ const SC = __dirname + '/';
   ok(G['5550006'] && G['5550006'].e === 'Çokollatë Milka' && G['5550006'].s === 1 && !/Çokollatë Milka/.test(await besa.textContent('#opsKujPritjeLista')) && /Çokollatë Milka/.test(await besa.textContent('#opsKujLista')), '7. "Ruaj" me një klik: kalon te Produktet (v238: të mësuarat vetë mbeten në pritje)', G['5550006']);
 
   // 8. shkrimet te grupi: pak (të bashkuara), jo një për çdo produkt
-  const nShkrime = F.S.shkrime.filter(x => /kujtesa/.test(x.path)).length;
-  ok(nShkrime > 0 && nShkrime <= 20, '5. shkrime te kujtesa e grupit: ' + nShkrime, F.S.shkrime.filter(x => /kujtesa/.test(x.path)).map(x => x.uid + ' ' + x.path));
+  // v242: vetëm te grupi (regjistri i përbashkët kujtesa/* dhe kujtesa_pritje/* numërohen më vete)
+  const nShkrime = F.S.shkrime.filter(x => /^grupet\/g1\/kujtesa\//.test(x.path)).length;
+  ok(nShkrime > 0 && nShkrime <= 20, '5. shkrime te kujtesa e grupit: ' + nShkrime, F.S.shkrime.filter(x => /^grupet\/g1\/kujtesa\//.test(x.path)).map(x => x.uid + ' ' + x.path));
+  const nRegj = F.S.shkrime.filter(x => /^kujtesa(_pritje)?\//.test(x.path)).length;
+  ok(nRegj <= 16, '5. v242: shkrime te regjistri dhe pritja: ' + nRegj);
   ok(!F.S.refuzime.filter(x => /kujtesa/.test(x.path)).length, '5. asnjë refuzim nga rregullat', F.S.refuzime.filter(x => /kujtesa/.test(x.path)));
   console.log('gabime', g); await b.close(); process.exit(g ? 1 : 0);
 })();
