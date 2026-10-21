@@ -298,12 +298,16 @@ const NUMERO_GPS = () => {
     await ctx.addInitScript(MOCK);
     const p = await ctx.newPage(); p.__gab = []; p.on('pageerror', e => p.__gab.push(e.message));
     await p.goto(BAZA + '/index.html'); await p.waitForTimeout(1500);
-    ok(!(await duket(p, '#pkMerchLbl')), '5. "Hyr": pa "Punoj si merchandiser"');
+    ok(!(await duket(p, '#pkMerchLbl')) && await duket(p, '#pkMbajLbl'), '5. "Hyr": pa "Punoj si merchandiser", me "Më mbaj mend emrin"');
     await p.click('#pkTabKrijo'); await p.waitForTimeout(150);
     ok(await duket(p, '#pkMerchLbl') && /Punoj si merchandiser/.test(await p.textContent('#pkMerchLbl')) && !(await p.isChecked('#pkMerch')), '5. "Krijo llogari": "Punoj si merchandiser", e pazgjedhur');
+    ok(!(await duket(p, '#pkMbajLbl')), '5. "Krijo llogari": pa "Më mbaj mend emrin e përdoruesit"');
     if (merch) {
       await p.click('#pkMerchLbl'); await p.click('#pkTabHyr'); await p.click('#pkTabKrijo');
       ok(!(await p.isChecked('#pkMerch')), '5. kalimi te "Hyr" e heq zgjedhjen');
+      await p.click('#pkTabHyr'); await p.waitForTimeout(100);
+      ok(await duket(p, '#pkMbajLbl') && !(await duket(p, '#pkMerchLbl')), '5. kthimi te "Hyr": "Më mbaj mend emrin" rikthehet');
+      await p.click('#pkTabKrijo');
       await p.click('#pkMerchLbl');
     }
     const emri = merch ? 'meri' : 'besnik';

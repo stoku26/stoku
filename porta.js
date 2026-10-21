@@ -205,7 +205,7 @@
         '<div class="pk-harrova" id="pkHarrovaRresht"><button type="button" class="pk-lidhje" id="pkHarrova">Ke harruar fjalëkalimin?</button></div>' +
         '<label id="pkPerseritLbl" class="pk-fsheh"><span>Përsërit fjalëkalimin</span><input id="pkPerserit" class="me-sy" name="password2" type="password" autocomplete="new-password" maxlength="100" enterkeyhint="go" placeholder="Shkruaje edhe një herë"></label>' +
         '<label class="pk-mbaj pk-fsheh" id="pkMerchLbl" for="pkMerch"><input type="checkbox" id="pkMerch"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Punoj si merchandiser (në disa markete)</div></label>' +
-        '<label class="pk-mbaj" for="pkMbaj"><input type="checkbox" id="pkMbaj"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Më mbaj mend emrin e përdoruesit</div></label>' +
+        '<label class="pk-mbaj" id="pkMbajLbl" for="pkMbaj"><input type="checkbox" id="pkMbaj"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Më mbaj mend emrin e përdoruesit</div></label>' +
         '<div class="pk-gabim" id="pkGabim" role="alert"></div>' +
         '<button type="submit" class="pk-btn" id="pkDergo">Hyr</button>' +
         '<p class="pk-shenim" id="pkShenim">Rekomandohet hapja e një llogarie, që të dhënat të ruhen në cloud.</p>' +
@@ -272,6 +272,8 @@
     // v241: afatet sipas marketeve (me GPS) vetëm për llogaritë e reja që e zgjedhin këtu; administratori e ndryshon më vonë
     $('pkMerchLbl').classList.toggle('pk-fsheh', !krijo);
     if (!krijo) $('pkMerch').checked = false;
+    // v241: "Më mbaj mend emrin e përdoruesit" vetëm te "Hyr" (te "Krijo llogari" s'duhet); zgjedhja e ruajtur vlen njësoj
+    $('pkMbajLbl').classList.toggle('pk-fsheh', krijo);
     $('pkHarrovaRresht').classList.toggle('pk-fsheh', krijo);
     // v239: vlera ndërtohet nga pjesët; skanerët e sigurisë (Protego) e merrnin vargun e plotë për fjalëkalim të shkruar në kod
     $('pkFjalekalimi').setAttribute('autocomplete', (krijo ? 'new' : 'current') + '-password');

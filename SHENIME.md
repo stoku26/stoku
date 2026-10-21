@@ -84,7 +84,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    - **VETËM PËR MERCHANDISERËT** (pronari: "mos e lësho për përdoruesit aktualë, vetëm për ata që hapin llogari nga ky moment
      me opsionin 'Punoj si merchandiser'; si admin te Përdoruesit me mujt me ja lejt ose nal, nëse e ka zgjedh gabim"):
      - Porta (`porta.js`): te "Krijo llogari" kutia **"Punoj si merchandiser (në disa markete)"** (`#pkMerch`, e pazgjedhur;
-       kalimi te "Hyr" e heq) → `cloud.regjistrohu(emri, fj, { merchandiser })`.
+       kalimi te "Hyr" e heq) → `cloud.regjistrohu(emri, fj, { merchandiser })`. Pronari: "Më mbaj mend emrin e përdoruesit"
+       s'duhet te "Krijo llogari" → `#pkMbajLbl` vetëm te "Hyr" (zgjedhja e ruajtur vlen njësoj edhe pas krijimit).
      - `firebase-tel.js` / `firebase-pc.js?v=241`: `regjistrohu` shkruan `perdoruesit/{uid}.merchandiser = true` (vetëm kur
        zgjidhet) dhe `localStorage 'stoku:merchandiser' = {uid, v}`; `regjistroTani` pas çdo hyrjeje e lexon
        (`lexoMerchandiserin`, getDoc) dhe njofton `stoku-merchandiser` vetëm kur ndryshon. Çelësi s'është te
@@ -106,7 +107,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    - **Pronari duhet**: Worker 167 te Cloudflare; **Cloudflare `Permissions-Policy` → `camera=(self), geolocation=(self),
      microphone=(), payment=(), usb=()`** (tash `geolocation=()` e bllokon GPS-in në stoku.site; `teste/server-cloudflare.py` e
      ka tashmë `geolocation=(self)`); APK-të e reja (telefoni, ora).
-   - Testi `teste/marketet-v241.js` (92 OK): njësitë (+ lejet me zgjedhje, "Çka ka të re"), telefoni (GPS i simuluar me
+   - Testi `teste/marketet-v241.js` (95 OK): njësitë (+ lejet me zgjedhje, "Çka ka të re"), telefoni (GPS i simuluar me
      Playwright: dy markete, ndërrimi, zgjedhja me dorë, "Gjej me GPS", jashtë marketeve, sinkronizimi, /orari me `mk`,
      fshirja), llogari e vjetër me markete në dyqan (asnjë ndryshim, asnjë pyetje GPS), admini (afatet; "Merchandiser" ndez/fik
      në kohë reale, "Lejo krejt" s'e prek), PC, porta (kutia → `{ merchandiser }`, marketet po/jo pas hyrjes).
