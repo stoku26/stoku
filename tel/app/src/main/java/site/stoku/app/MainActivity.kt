@@ -15,6 +15,7 @@ import android.provider.MediaStore
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
+import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.ValueCallback
@@ -34,6 +35,8 @@ class MainActivity : Activity() {
     private var fotoUri: Uri? = null
     private var kerkesaKamere: PermissionRequest? = null
     private var pritKamerenPerSkedar: WebChromeClient.FileChooserParams? = null
+    // v241: faqja kërkon vendndodhjen (marketet): pret lejen e Android-it
+    private var kerkesaVendi: Pair<String, GeolocationPermissions.Callback>? = null
     // Ngarkimet që i nis vetë aplikacioni (njoftimi, "Provo sërish" pas faqes pa internet): kur faqja hapet mirë, historia
     // e vjetër fshihet, që "Mbrapa" te faqja kryesore ta mbyllë aplikacionin e jo të kthejë te faqja pa internet
     private var pastroHistorine = false
@@ -61,6 +64,7 @@ class MainActivity : Activity() {
         private const val L_KAMERA = 21
         private const val L_NJOFTIMET = 22
         private const val L_KAMERA_SKEDAR = 23
+        private const val L_VENDI = 24
 
         private var aktive: MainActivity? = null
         private val ui = Handler(Looper.getMainLooper())
@@ -88,6 +92,7 @@ class MainActivity : Activity() {
         s.allowContentAccess = true
         s.cacheMode = WebSettings.LOAD_DEFAULT
         s.setSupportMultipleWindows(false)
+        s.setGeolocationEnabled(true) // v241: marketet (GPS)
         s.userAgentString = s.userAgentString + " StokuAndroid/" + BuildConfig.VERSION_CODE
         CookieManager.getInstance().setAcceptCookie(true)
         web.addJavascriptInterface(Ura(this), "StokuAndroid")
@@ -126,6 +131,16 @@ class MainActivity : Activity() {
                     else { kerkesaKamere = r; requestPermissions(arrayOf(Manifest.permission.CAMERA), L_KAMERA) }
                 }
             }
+            // v241: vetëm stoku.site e merr vendndodhjen (marketet); leja e Android-it kërkohet herën e parë
+            override fun onGeolocationPermissionsShowPrompt(origin: String?, cb: GeolocationPermissions.Callback?) {
+                if (origin == null || cb == null) return
+                if (!eStokut(Uri.parse(origin))) { cb.invoke(origin, false, false); return }
+                if (kaLeje(Manifest.permission.ACCESS_FINE_LOCATION) || kaLeje(Manifest.permission.ACCESS_COARSE_LOCATION)) { cb.invoke(origin, true, false); return }
+                kerkesaVendi?.let { it.second.invoke(it.first, false, false) }
+                kerkesaVendi = Pair(origin, cb)
+                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), L_VENDI)
+            }
+            override fun onGeolocationPermissionsHidePrompt() { kerkesaVendi = null }
             override fun onShowFileChooser(v: WebView, cb: ValueCallback<Array<Uri>>, p: FileChooserParams): Boolean {
                 skedarCb?.onReceiveValue(null)
                 skedarCb = cb
@@ -221,6 +236,11 @@ class MainActivity : Activity() {
                 if (ok) hapKameren() else if (p != null) hapZgjedhesin(p) else { skedarCb?.onReceiveValue(null); skedarCb = null }
             }
             L_NJOFTIMET -> lajmeroLejen()
+            L_VENDI -> {
+                val k = kerkesaVendi; kerkesaVendi = null
+                val ndonje = rez.any { it == PackageManager.PERMISSION_GRANTED } // edhe "afërsisht" mjafton për marketin
+                k?.second?.invoke(k.first, ndonje, false)
+            }
         }
     }
 
