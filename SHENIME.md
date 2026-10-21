@@ -104,9 +104,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    - **Android (`tel/`)**: ACCESS_FINE/COARSE_LOCATION, WebView `setGeolocationEnabled(true)`, `onGeolocationPermissionsShowPrompt`
      vetëm për stoku.site (kërkon lejen e Android-it, `L_VENDI = 24`). **Ora (`ora/`)**: `Afat.marketi` (`mk` nga serveri)
      para datës te lista dhe në kërkim. APK-të i ndërton GitHub Actions.
-   - **Pronari duhet**: Worker 167 te Cloudflare; **Cloudflare `Permissions-Policy` → `camera=(self), geolocation=(self),
-     microphone=(), payment=(), usb=()`** (tash `geolocation=()` e bllokon GPS-in në stoku.site; `teste/server-cloudflare.py` e
-     ka tashmë `geolocation=(self)`); APK-të e reja (telefoni, ora).
+   - **U krye nga pronari (21.10.2026)**: Worker 167 te Cloudflare; Cloudflare, rregulla "siguria", `Permissions-Policy` =
+     `camera=(self), geolocation=(self), microphone=(), payment=(), usb=()` (njësoj si `teste/server-cloudflare.py`); APK-të
+     e reja (telefoni v21, ora v49).
    - Testi `teste/marketet-v241.js` (95 OK): njësitë (+ lejet me zgjedhje, "Çka ka të re"), telefoni (GPS i simuluar me
      Playwright: dy markete, ndërrimi, zgjedhja me dorë, "Gjej me GPS", jashtë marketeve, sinkronizimi, /orari me `mk`,
      fshirja), llogari e vjetër me markete në dyqan (asnjë ndryshim, asnjë pyetje GPS), admini (afatet; "Merchandiser" ndez/fik
@@ -142,8 +142,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      minimum, HSTS (No-Sniff), Managed Transforms "Add security headers" (X-Frame-Options SAMEORIGIN, X-XSS-Protection, Referrer-Policy
      same-origin, Expect-CT), DNSSEC aktiv (DS te Hostinger: Key Tag 2371, Algorithm 13, Digest Type 2), CAA `letsencrypt.org` +
      `pki.goog`, SPF `v=spf1 -all`, DMARC `_dmarc` `v=DMARC1; p=reject;` (domaini s'dërgon email), Domain lock + Privacy protection.
-     Transform Rule (Rules → response header, "Set static"): `Permissions-Policy: camera=(self), geolocation=(), microphone=(),
-     payment=(), usb=()` (v241: duhet `geolocation=(self)` për marketet me GPS) (kamera vetëm për vetë stoku.site, për skanerin; testuar me `getUserMedia`: kamera po, mikrofoni jo),
+     Transform Rule "siguria" (Rules → response header, "Set static"): `Permissions-Policy: camera=(self), geolocation=(self), microphone=(),
+     payment=(), usb=()` (v241: `geolocation=(self)` për marketet me GPS, e ndryshoi pronari më 21.10.2026) (kamera vetëm për vetë stoku.site, për skanerin; testuar me `getUserMedia`: kamera po, mikrofoni jo),
      `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin` dhe CSP e plotë si header (bashkimi i
      meta-ve të 5 faqeve + `frame-ancestors 'none'`; më parë vetëm `frame-ancestors 'none'`, skanerët ankoheshin "pa default-src,
      script-src, base-uri, object-src" sepse meta s'e lexojnë). **RREGULL: shërbim i ri i jashtëm = shtoje te meta e 5 faqeve DHE
