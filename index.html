@@ -6,7 +6,7 @@
      CDN-ve të lejuara (jsDelivr, Firebase). MOS shto skripta të brendshme (kod JS direkt te HTML-ja) ose atribute si onclick: s'ekzekutohen.
      Shërbim i ri (fetch, foto, iframe) = shtoje këtu te të 5 faqet (index, pc, 404, android, privatesia). Faqja s'shfaqet
      brenda një faqeje tjetër (iframe): GitHub Pages s'e lejon header-in X-Frame-Options, prandaj fshihet (kornize.js). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: blob: https://*.googleapis.com https://*.mendurb.workers.dev https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://www.gstatic.com https://tiles.openfreemap.org; frame-src https://stoku-appi.firebaseapp.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: blob: https://*.googleapis.com https://*.mendurb.workers.dev https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://www.gstatic.com https://tiles.openfreemap.org https://ibasemaps-api.arcgis.com; frame-src https://stoku-appi.firebaseapp.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <style id="paKornize">html{display:none!important}</style>
 <script src="kornize.js?v=238"></script>
@@ -1025,7 +1025,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=6">
-<link rel="stylesheet" href="css/stoku.css?v=44">
+<link rel="stylesheet" href="css/stoku.css?v=45">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -1987,11 +1987,11 @@
 <script src="lejet.js?v=4"></script>
 <script src="afatet.js?v=238"></script>
 <script src="marketet.js?v=246"></script>
-<script src="harta.js?v=246"></script>
+<script src="harta.js?v=247"></script>
 <script src="ekipa.js?v=246"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=246"></script>
-<script src="app-tel.js?v=246"></script>
+<script src="teRejat.js?v=247"></script>
+<script src="app-tel.js?v=247"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>

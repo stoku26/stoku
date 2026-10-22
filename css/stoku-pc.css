@@ -467,6 +467,11 @@
 .sbp .ht-gabim[hidden] { display: none; }
 .sbp .ht-udhezim { position: absolute; top: 10px; left: 10px; z-index: 2; padding: 7px 12px; border: 0; border-radius: 999px; background: var(--sb-surface); color: var(--sb-ink); font: inherit; font-size: 13px; font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,.18); cursor: pointer; }
 .sbp .ht-udhezim[hidden] { display: none; }
+/* v247: butoni Satelit / Hartë (grup kontrolli i MapLibre-s) dhe "Powered by Esri" mbi satelit */
+.sbp .ht-pamja .ht-pamja-btn { width: auto; min-width: 29px; padding: 0 11px; font: inherit; font-size: 12.5px; font-weight: 700; color: #1f2329; white-space: nowrap; }
+.sbp .ht-esri { position: absolute; left: 8px; bottom: 6px; z-index: 2; padding: 1px 6px; border-radius: 4px; background: rgba(0,0,0,.55); color: #fff; font-size: 10.5px; font-weight: 600; pointer-events: none; }
+.sbp .ht-esri[hidden] { display: none; }
+.sbp .ht-harta:has(.maplibregl-compact-show) .ht-esri { display: none; } /* burimet e hapura e kanë vetë "Powered by Esri" */
 .sbp .ht-info { margin: 0 0 10px; color: var(--sb-ink-3); font-size: 13px; }
 .sbp .ht-karta .ops-furn-rresht { cursor: pointer; }
 .sbp .ht-pa-vend { padding: 12px 20px 4px; }
