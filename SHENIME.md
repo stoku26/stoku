@@ -52,6 +52,26 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ÇIPI I MARKETIT ("JE TE") S'ZHDUKET + MERCHANDISERI NGA ADMINISTRATORI MERR MARKETET (v251 = 1.38.1)**: përdoruesi:
+   "pse ne android app so tu e qit hiq, amo po ka raste edhe ne web app po heket kjo qe e zgjedh marketin ku je" (me llogari
+   merchandiser, jo me administratorin). Tri shkaqe:
+   - **Flamuri "merchandiser" nga leximi i memories**: `lexoMerchandiserin` (firebase-tel/pc.js) bënte një `getDoc` të vetëm
+     pas hyrjes; kur vinte nga memoria e pajisjes (internet i dobët, WebView sapo hapur; në emulator ndodhi 1 herë në 4) dokumenti
+     s'e kishte `merchandiser` → `stoku:merchandiser` = false → pa çip (Android: kurrë; web: çipi dilte nga vlera e ruajtur dhe
+     zhdukej pas leximit). Tash: `onSnapshot(perdoruesit/{uid}, includeMetadataChanges)` që nga `onAuthStateChanged`, vetëm
+     fotografitë nga serveri (`!metadata.fromCache`); "po" e pajisjes s'kthehet kurrë në "jo" nga dokumenti (dokumenti s'e heq
+     zgjedhjen; administratori e fik te `lejet/{uid}.marketet`); kur dokumenti s'e ka por pajisja po → shkruhet `merchandiser:
+     true` (vetëm kur dokumenti ekziston).
+   - **Merchandiseri i ndezur nga administratori (lejet)**: `lejetG.ndryshoi` vendoste `__merchPara` vetë, ndaj
+     `rifreskoMerchandiserin` s'thirrej: pa `nisPikat` (marketet e Stoku-t s'vinin kurrë), pa GPS, pa "Harta" (tel + PC).
+     Tash `ndryshoi` thërret `rifreskoMerchandiserin`, që nis edhe `nisPikat`.
+   - **Gjendja e cloud-it në pajisje të re** (`zbatoGjendjenNgaCloud` te telefoni, `sinkronizoNeHyrje`/"Rikthe nga cloud" te PC)
+     e mbishkruante listën me marketet e dyqanit (p.sh. []) pas sinkronizimit me pikat: tash `pasPikave` thirret sërish.
+   - Administratori (mendurberisha) mbetet pa çip (s'është merchandiser; s'del te Përdoruesit).
+   - Teste: `teste/v251.js` (Firestore i rremë; në main: 6 gabime, tash 0) dhe `teste/emu/merch-e2e-v251.js` (SDK-ja e vërtetë +
+     emulatorët: regjistrimi në web, hyrja në pajisje të pastër si Android, dokumenti pa flamur, ndezja nga administratori;
+     3 herë rresht pa gabime).
+
 0000000. **MARKETET E STOKU-T TË NJËJTAT PËR KREJT MERCHANDISERËT + SHTIMI VETËM BRENDA MARKETIT + ADMINI SHTON NË HARTË
    (v250 = 1.38.0, RREGULLA TË REJA: `pikat` update vetëm administratori)**: kërkesa: "mos i lejo merchandiser me i fshi marketet
    ose me ja u ndryshu emrat … lejoja vetem … me shtu ndonje market te ri, nese ne ate lokacion veq eshte vendosur nje market mos

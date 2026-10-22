@@ -312,7 +312,7 @@
     gati: function () { var c = window.__stokuCloud; return !!(c && c.authGati); },
     uid: function () { var u = perdoruesi(); return u ? u.uid : null; },
     admin: function () { return eshteAdminiIStokut(); },
-    ndryshoi: function () { zbatoLejet(); __merchPara = eshteMerchandiser(); }
+    ndryshoi: function () { zbatoLejet(); rifreskoMerchandiserin(); } // v251: edhe pikat dhe Harta kur administratori e ndez/fik
   }) : null;
   // Pa lejen "Stoku në kompjuter" s'lejohet asgjë këtu (faqja kalon te versioni i telefonit)
   function leja(k) {
@@ -338,6 +338,7 @@
     __merchPara = v;
     zbatoLejet();
     rifreskoTabinHarta();
+    setTimeout(nisPikat, 0); // v251: marketet e Stoku-t edhe për merchandiserin e ndezur nga administratori
   }
   window.addEventListener('stoku-merchandiser', rifreskoMerchandiserin);
   window.addEventListener('stoku-auth-ndryshoi', rifreskoMerchandiserin);
@@ -649,6 +650,7 @@
         rendiFolderaveKoha = Number(rez.gjendja.rendiKoha) || 0;
         shkruajLokalisht();
         rivizato();
+        if (typeof PK !== 'undefined' && PK && PK.ok) setTimeout(pasPikave, 0); // v251: marketet sipas pikave
       }
     }
     await kryeSinkronizimin();
@@ -2870,6 +2872,7 @@
     rendiFolderaveKoha = Number(rez.gjendja.rendiKoha) || 0;
     shkruajLokalisht();
     rivizato();
+    if (typeof PK !== 'undefined' && PK && PK.ok) setTimeout(pasPikave, 0); // v251: marketet sipas pikave
     toast('U rikthye nga cloud.');
   });
 

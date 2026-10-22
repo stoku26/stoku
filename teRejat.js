@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 251, versioni: '1.38.1', data: '2026-10-22', titulli: 'Marketi ku je s\'zhduket më', pikat: [
+      'Te telefoni (edhe te aplikacioni Android) dhe te kompjuteri, "Je te" (marketi ku je) s\'zhduket më pas pak sekondash dhe del edhe kur hyn me llogarinë tënde në një telefon të ri.',
+      'Kur administratori ta ndez "Merchandiser", marketet e Stoku-t dhe vendndodhja vijnë menjëherë, pa e rifreskuar faqen.'
+    ] },
     { v: 250, versioni: '1.38.0', data: '2026-10-22', titulli: 'Të njëjtat markete për krejt', pikat: [
       'Krejt merchandiserët i shohin të njëjtat markete: kur dikush shton një market, ai del vetë edhe te ti.',
       'Marketin e shton vetëm kur je brenda tij, me vendndodhjen e saktë të telefonit (jo "të përafërt"). Aty ku ka tashmë një market, s\'shtohet tjetër: zgjidhet ai.',

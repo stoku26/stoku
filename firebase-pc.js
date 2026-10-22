@@ -64,11 +64,27 @@
       try { localStorage.setItem(KEY_MERCH, JSON.stringify({ uid: uid, v: v })); } catch (e) { /* ok */ }
       if (!!(para && para.uid === uid && para.v === true) !== v) window.dispatchEvent(new Event('stoku-merchandiser')); // vetëm kur ndryshon
     }
-    async function lexoMerchandiserin(uid) {
-      try {
-        var d = await getDoc(doc(db, 'perdoruesit', uid));
-        if (auth.currentUser && auth.currentUser.uid === uid) ruajMerchandiserin(uid, !!(d.exists() && d.data().merchandiser === true));
-      } catch (e) { /* pa internet: mbetet vlera e ruajtur */ }
+    // v251: vlera dëgjohet nga serveri (jo një lexim i vetëm): leximi nga memoria e pajisjes (internet i dobët, sapo u hap
+    // aplikacioni) s'e ka ende "merchandiser" dhe e fshihte çipin e marketit (aplikacioni Android, pajisje e re). Vetëm
+    // dokumenti nga serveri vendos; "po" e kësaj pajisjeje s'kthehet kurrë në "jo" (administratori e fik te lejet/{uid}).
+    var __merch = { uid: null, ndal: null };
+    function lexoMerchandiserin(uid) {
+      if (__merch.uid === uid && __merch.ndal) return;
+      if (__merch.ndal) { try { __merch.ndal(); } catch (e) { /* ok */ } __merch.ndal = null; }
+      __merch.uid = uid || null;
+      if (!uid) return;
+      __merch.ndal = onSnapshot(doc(db, 'perdoruesit', uid), { includeMetadataChanges: true }, function (d) {
+        if (d.metadata.fromCache || !auth.currentUser || auth.currentUser.uid !== uid) return;
+        var neDok = !!(d.exists() && d.data().merchandiser === true), lok = null;
+        try { lok = JSON.parse(localStorage.getItem(KEY_MERCH) || 'null'); } catch (e) { /* ok */ }
+        if (!neDok && lok && lok.uid === uid && lok.v === true) {
+          // "Punoj si merchandiser" u zgjodh këtu kur u hap llogaria, por s'arriti te Firebase: shkruhet tani, që ta dinë
+          // edhe pajisjet e tjera (aplikacioni Android, kompjuteri)
+          if (d.exists()) setDoc(doc(db, 'perdoruesit', uid), { merchandiser: true }, { merge: true }).catch(function () { /* ok */ });
+          return;
+        }
+        ruajMerchandiserin(uid, neDok);
+      }, function () { /* pa leje a pa internet: mbetet vlera e ruajtur */ });
     }
 
     window.__stokuCloud = {
@@ -169,6 +185,7 @@
     onAuthStateChanged(auth, function (perdoruesi) {
       window.__stokuCloud.authGati = true; // porta e hyrjes pret këtë: tani dihet a është hyrë
       if (perdoruesi && perdoruesi.email) regjistroPerdoruesin(perdoruesi.email.replace(/@stoku-app\.local$/, ''), perdoruesi.uid);
+      lexoMerchandiserin(perdoruesi ? perdoruesi.uid : null); // v251: menjëherë, pa pritur shkrimin e perdoruesit/{uid}
       window.dispatchEvent(new Event('stoku-auth-ndryshoi'));
     });
   } catch (e) {

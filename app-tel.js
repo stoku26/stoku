@@ -2568,7 +2568,7 @@
     foldera = arrF;
     produktet = produktetENoja;
     rifreskoKopjen();
-    if (Array.isArray(te.marketet)) { marketet = MK.pastro(te.marketet); ruajMarketetLokalisht(); }
+    if (Array.isArray(te.marketet)) { marketet = MK.pastro(te.marketet); ruajMarketetLokalisht(); if (typeof PK !== 'undefined' && PK && PK.ok) setTimeout(pasPikave, 0); } // v251: sipas pikave
     if (Array.isArray(te.afatet)) {
       afatet = te.afatet;
       try { localStorage.setItem(KEY_AFATET, JSON.stringify(afatet)); } catch (e) { /* ok */ }
@@ -2777,7 +2777,7 @@
     ndryshoi: function () {
       zbatoLejet();
       rifreskoMarketet(); // v241: administratori e ndezi/fiku "Merchandiser"
-      __merchPara = eshteMerchandiser();
+      rifreskoMerchandiserin(); // v251: edhe pikat (marketet e Stoku-t), GPS-i dhe Harta, si me "Punoj si merchandiser"
       // Pa PC (index.html mbeti në kompjuter vetëm për shkak të lejes): leja u kthye → versioni për kompjuter
       if (window.__stokuPaPc && leja('pc')) { window.__stokuPaPc = false; location.replace('pc.html'); }
     }
@@ -4931,6 +4931,7 @@
     if (v === __merchPara) return;
     __merchPara = v;
     zbatoLejet(); rifreskoMarketet(); rifreskoTabinHarta();
+    setTimeout(nisPikat, 0); // v251: pa këtë, merchandiseri i ndezur nga administratori s'i merrte kurrë marketet e Stoku-t
     if (v) setTimeout(function () { kontrolloGps(false); }, 300);
   }
   window.addEventListener('stoku-merchandiser', rifreskoMerchandiserin);
