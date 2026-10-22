@@ -129,7 +129,8 @@ const PLLAKA_ESRI = png(256, 256, [46, 92, 52]);
   await a1.click('#htHarta .ht-pamja-btn');
   ok(await prit(async () => await shtresa(a1, 'satelit') === 'visible' && await butoni(a1) === 'Hartë|true'), '2. "Satelit": shtresa del, butoni bëhet "Hartë"', await butoni(a1));
   ok(await prit(async () => c1.__esri.length > 0) && c1.__esri.every(u => /\/World_Imagery\/MapServer\/tile\/\d+\/\d+\/\d+\?token=celes-prove$/.test(u)), '2. pllakat nga Esri me çelësin', c1.__esri.slice(0, 2));
-  ok(await duket(a1, '#htHarta .ht-esri') && (await a1.textContent('#htHarta .ht-esri')) === 'Powered by Esri', '2. "Powered by Esri" në hartë');
+  // sa janë hapur burimet (5 s pas hapjes) "Powered by Esri" është brenda tyre; pastaj del si etiketë që s'palohet
+  ok(await prit(async () => await duket(a1, '#htHarta .ht-esri') && (await a1.textContent('#htHarta .ht-esri')) === 'Powered by Esri' && await a1.evaluate(() => !document.querySelector('#htHarta .maplibregl-compact-show')), 12000), '2. "Powered by Esri" në hartë (pas palosjes së burimeve)');
   ok(await shtresa(a1, 'rruget') === 'none' && await shtresa(a1, 'uji') === 'none', '2. mbi satelit pa rrugë e ujë të vizatuara');
   ok(await prit(async () => await hartaGati(a1), 20000) && await prit(async () => (await emratNeHarte(a1)).some(x => /^vendbanimet:Prishtinë$/.test(x)) && (await emratNeHarte(a1)).includes('pikat-emri:Albi 34')), '2. emrat e vendbanimeve dhe pikat mbeten mbi satelit', await emratNeHarte(a1));
   ok(await a1.evaluate(() => /Esri/.test(document.querySelector('#htHarta .maplibregl-ctrl-attrib').textContent)), '2. atribuimi i Esri-t te burimet e hartës');

@@ -66,6 +66,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      Earthstar Geographics, and the GIS User Community`) + etiketa `.ht-esri` "Powered by Esri" që s'palohet (fshihet vetëm kur
      burimet janë të hapura). Pllakat refuzohen (401/403) ose ≥4 gabime: kthehet te "Hartë" pa e fshirë zgjedhjen +
      `kurSkaSatelit` ("Pamja satelitore s'u hap…"). Free tier i Esri-t: 2 milionë pllaka në muaj (sipas faqes së çmimeve).
+     Çelësat e rinj të ArcGIS-it kanë datë skadimi (deri 1 vit): kur skadon, sateliti kthehet vetë te harta me mesazhin; pronari
+     krijon një të ri dhe e ndërrojmë te `ESRI_CELESI` (version i ri i web-it).
    - **CSP**: `connect-src` + `https://ibasemaps-api.arcgis.com` te 5 faqet dhe te `CSP_CLOUDFLARE`. **PRONARI duhet: (1) të krijojë
      çelësin te location.arcgis.com dhe të ma japë; (2) ta ndryshojë rregullën "siguria" te Cloudflare.** Deri atëherë butoni s'del.
      Privatësia: Esri te "Ku ruhen" (vetëm kur zgjedh "Satelit"). SW s'i ruan pllakat (kalojnë drejt).
