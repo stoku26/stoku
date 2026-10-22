@@ -10,7 +10,7 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v251';
+var CACHE = 'stoku-v252';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
 importScripts('./afatet.js?v=248', './njoftimet.js?v=216');
@@ -19,7 +19,12 @@ var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js',
   'https://cdn.jsdelivr.net/npm/zxing-wasm@3.1.6/dist/reader/zxing_reader.wasm',
   'https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js',
-  'https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js'
+  'https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js',
+  // v252: Firebase (hyrja dhe sinkronizimi): edhe kur Stoku hapet pa internet menjëherë pas një përditësimi, Firebase-i
+  // ngarkohet nga telefoni dhe çdo ndryshim sinkronizohet vetë sa kthehet interneti
+  'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js',
+  'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js',
+  'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js'
 ];
 // Faqet: merren gjithmonë nga interneti (duke anashkaluar cache-in HTTP të shfletuesit)
 var FAQET = ['./', './index.html', './pc.html'];
@@ -32,24 +37,24 @@ var SHELL = FAQET.concat([
   './afatet.js?v=248',
   './marketet.js?v=250',
   './harta.js?v=250',
-  './ekipa.js?v=250',
+  './ekipa.js?v=252',
   './android.js?v=167',
-  './porta.js?v=248',
+  './porta.js?v=252',
   './njoftimet.js?v=216',
-  './teRejat.js?v=251',
+  './teRejat.js?v=252',
   // v238: skriptat e faqeve (më parë brenda HTML-së; CSP pa 'unsafe-inline')
   './kornize.js?v=238',
   './es2020.js?v=238',
   './fillimi-tel.js?v=239',
   './fillimi-pc.js?v=239',
-  './app-tel.js?v=251',
-  './app-pc.js?v=251',
-  './firebase-tel.js?v=251',
-  './firebase-pc.js?v=251',
+  './app-tel.js?v=252',
+  './app-pc.js?v=252',
+  './firebase-tel.js?v=252',
+  './firebase-pc.js?v=252',
   './manifest.webmanifest?v=87',
   './css/stoku-tokens.css?v=6',
-  './css/stoku.css?v=47',
-  './css/stoku-pc.css?v=38',
+  './css/stoku.css?v=48',
+  './css/stoku-pc.css?v=39',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',
   './logo/stoku-logo.svg?v=3',

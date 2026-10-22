@@ -73,7 +73,27 @@ object Rikthimi {
     @Volatile var perpara = false
 }
 
+// v252: tekstet kur heqja s'arrin te serveri pa internet (ruhet në orë dhe dërgohet vetë më vonë, Api.kt: radha)
+const val PA_INTERNET_HEQJA = "Pa internet: heqja u ruajt në orë dhe dërgohet vetë kur të ketë lidhje."
+
 class MainActivity : ComponentActivity() {
+    // v252: kur kthehet interneti, heqjet e ruajtura në orë dërgohen menjëherë (rifreskimi i listës i dërgon së pari)
+    private var rrjeti: android.net.ConnectivityManager.NetworkCallback? = null
+    override fun onStart() {
+        super.onStart()
+        val cm = getSystemService(CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+        val cb = object : android.net.ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(n: android.net.Network) {
+                if (Api.neRadhe(this@MainActivity) > 0) runOnUiThread { Rikthimi.n++ }
+            }
+        }
+        rrjeti = try { cm.registerDefaultNetworkCallback(cb); cb } catch (e: Exception) { null }
+    }
+    override fun onStop() {
+        rrjeti?.let { cb -> try { (getSystemService(CONNECTIVITY_SERVICE) as android.net.ConnectivityManager).unregisterNetworkCallback(cb) } catch (e: Exception) { } }
+        rrjeti = null
+        super.onStop()
+    }
     override fun onResume() { super.onResume(); Rikthimi.perpara = true; Rikthimi.n++ }
     override fun onPause() { Rikthimi.perpara = false; super.onPause() }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -180,6 +200,8 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
     var duke by remember { mutableStateOf(true) }
     var gabim by remember { mutableStateOf<String?>(null) }
     var pamja by remember { mutableStateOf<Pamja>(Pamja.Lista) }
+    // v252: lista para heqjes së fundit: "Zhbëj" pa internet e rikthen produktin menjëherë
+    var listaParaHeqjes by remember { mutableStateOf<Lista?>(null) }
 
     suspend fun ngarko() {
         duke = true
@@ -192,7 +214,8 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
         } catch (e: CancellationException) {
             throw e // një ngarkim më i ri e zëvendësoi: ky s'duhet të shkruajë gabim mbi rezultatin e tij
         } catch (e: Exception) {
-            gabim = "S'ka lidhje me serverin. Lista mund të jetë e vjetër."
+            val nR = Api.neRadhe(ctx) // v252
+            gabim = if (nR > 0) "Pa internet: $nR heqje janë ruajtur në orë dhe dërgohen vetë kur të ketë lidhje." else "S'ka lidhje me serverin. Lista mund të jetë e vjetër."
         }
         delay((700L - (System.currentTimeMillis() - fillimi)).coerceAtLeast(0L))
         duke = false
@@ -239,13 +262,14 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
             kurHiqet = {
                 val a = p.a
                 pamja = Pamja.Hequr(a)
+                listaParaHeqjes = lista
                 lista = lista?.let { l -> l.copy(sot = l.sot.filter { it.id != a.id }, java = l.java.filter { it.id != a.id }, skaduaraL = l.skaduaraL.filter { it.id != a.id },
                     javaN = if (l.java.any { it.id == a.id }) (l.javaN - 1).coerceAtLeast(0) else l.javaN,
                     skaduara = if (l.skaduaraL.any { it.id == a.id }) (l.skaduara - 1).coerceAtLeast(0) else l.skaduara) }
                 lista?.let { Api.ruajListen(ctx, it) }
                 krejt = krejt?.let { k -> k.copy(krejt = k.krejt.filter { it.id != a.id }) }
                 val pune = scope.launch {
-                    try { Api.hiq(ctx, a.id) } catch (e: PaLidhje) { kurShkeputet() } catch (e: CancellationException) { throw e } catch (e: Exception) { gabim = "Heqja s'u ruajt. Provo prapë." }
+                    try { if (!Api.hiq(ctx, a.id)) gabim = PA_INTERNET_HEQJA } catch (e: PaLidhje) { kurShkeputet() } catch (e: CancellationException) { throw e } catch (e: Exception) { gabim = "Heqja s'u ruajt. Provo prapë." }
                     Api.rifreskoTileDheKomplikacionin(ctx, ndryshoi = true)
                 }
                 heqjet[a.id] = pune
@@ -288,6 +312,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                 scope.launch {
                     // Një kërkesë për krejt (jo 5 njëra pas tjetrës: serveri s'i ruante dot të gjitha)
                     val deshtoi = try { Api.hiqShume(ctx, ids.toList()) } catch (e: PaLidhje) { kurShkeputet(); return@launch } catch (e: CancellationException) { throw e } catch (e: Exception) { ids.size }
+                    if (deshtoi < 0) gabim = PA_INTERNET_HEQJA
                     if (deshtoi > 0) { gabim = if (deshtoi == 1) "1 heqje s'u ruajt. Provo prapë." else "$deshtoi heqje s'u ruajtën. Provo prapë."; ngarko() }
                     Api.rifreskoTileDheKomplikacionin(ctx, ndryshoi = true)
                 }
@@ -318,9 +343,13 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                     pamja = Pamja.Lista
                     scope.launch {
                         heqjet.remove(a.id)?.join() // heqja (nëse ende në rrugë) mbaron e para, pastaj zhbërja
-                        try { Api.hiq(ctx, a.id, zhbej = true) } catch (e: PaLidhje) { kurShkeputet(); return@launch } catch (e: CancellationException) { throw e } catch (e: Exception) { gabim = "Zhbërja s'u ruajt. Provo prapë." }
+                        val derguar = try { Api.hiq(ctx, a.id, zhbej = true) } catch (e: PaLidhje) { kurShkeputet(); return@launch } catch (e: CancellationException) { throw e } catch (e: Exception) { gabim = "Zhbërja s'u ruajt. Provo prapë."; true }
+                        if (!derguar) { // pa internet: produkti kthehet menjëherë te lista (zhbërja ruhet në orë)
+                            listaParaHeqjes?.let { l -> lista = l; Api.ruajListen(ctx, l) }
+                            gabim = "Pa internet: zhbërja u ruajt në orë dhe dërgohet vetë kur të ketë lidhje."
+                        }
                         Api.rifreskoTileDheKomplikacionin(ctx, ndryshoi = true)
-                        ngarko()
+                        if (derguar) ngarko()
                     }
                 },
             )

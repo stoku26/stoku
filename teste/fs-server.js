@@ -245,7 +245,7 @@ function krijoFirestore(opt = {}) {
   }
   function ekzekutoPyetjen(path, c) {
     let l = dokEKoleksionit(path).map(k => ({ id: k.split('/').pop(), data: klon(S.docs.get(k)) }));
-    (c || []).forEach(x => { if (x.lloji === 'where') l = l.filter(d => x.op === '==' ? d.data[x.f] === x.v : true); });
+    (c || []).forEach(x => { if (x.lloji === 'where') l = l.filter(d => x.op === '==' ? d.data[x.f] === x.v : x.op === '>' ? typeof d.data[x.f] === 'number' && d.data[x.f] > x.v : true); });
     const ob = (c || []).find(x => x.lloji === 'orderBy');
     if (ob) l.sort((a, b) => ((a.data[ob.f] || 0) - (b.data[ob.f] || 0)) * (ob.dir === 'desc' ? -1 : 1));
     const lm = (c || []).find(x => x.lloji === 'limit');
@@ -376,6 +376,7 @@ function krijoFirestore(opt = {}) {
         limit: n => ({ lloji: 'limit', n }),
         getDoc: async ref => { await prit(); const r = await window.__fs('get', ref.path); if (!r.ok) throw gabim(r.code); return dok(ref.path.split('/').pop(), r); },
         getDocs: async q => { await prit(); const r = await window.__fs('query', q.path, q.c || []); if (!r.ok) throw gabim(r.code); return pyetje(r); },
+        getCountFromServer: async q => { await prit(); const r = await window.__fs('query', q.path, q.c || []); if (!r.ok) throw gabim(r.code); return { data: () => ({ count: r.docs.length }) }; }, // v252
         setDoc: async (ref, te, o) => { await prit(); const r = await window.__fs('batch', [['set', ref.path, JSON.parse(JSON.stringify(te)), !!(o && o.merge)]]); if (!r.ok) throw gabim(r.code); },
         addDoc: async (col, te) => { const ref = fs.doc(null, col); await fs.setDoc(ref, te); return { id: ref.path.split('/').pop() }; },
         deleteDoc: async ref => { await prit(); const r = await window.__fs('batch', [['delete', ref.path]]); if (!r.ok) throw gabim(r.code); },

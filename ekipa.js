@@ -148,6 +148,60 @@
     function eshteLeje(e) { return !!e && (e.code === 'permission-denied' || /permission/i.test(String(e.message || ''))); }
     function pastro(o) { var r = {}; Object.keys(o).forEach(function (k) { if (o[k] !== undefined) r[k] = o[k]; }); return r; }
     function listaNga(s) { var l = []; s.forEach(function (d) { l.push(Object.assign({}, d.data(), { id: d.id })); }); return l; }
+    // ---------- v252: koleksion i përbashkët me kopje në pajisje (pikat, regjistri) ----------
+    // Firebase numëron çdo dokument të lexuar: me kopjen, sa hapet Stoku lexohen vetëm dokumentet e ndryshuara pas
+    // sinkronizimit të fundit të kësaj pajisjeje (`ndryshuarSe`, me 1 orë rezervë për orët e pasakta të telefonave), jo krejt
+    // koleksioni. Lista del menjëherë nga kopja (edhe pa internet). Fshirjet: numri i dokumenteve te serveri
+    // (getCountFromServer, 1 lexim për 1000) ndryshe nga kopja → lexim i plotë; krejt koleksioni lexohet edhe një herë në
+    // 24 orë (edhe për ndryshimet nga një telefon me orë shumë të gabuar). cb(lista, { serveri }): serveri = lista e plotë.
+    var KOPJA_PLOTE_MS = 24 * 3600 * 1000, KOPJA_MARGJINA_MS = 3600 * 1000;
+    // `pronari` (opsional): kopja vlen vetëm për të (p.sh. grupi); kopja e një tjetri s'përdoret
+    function lexoKopjen(k, pronari) {
+      try {
+        var x = JSON.parse(localStorage.getItem(k) || 'null');
+        return x && x.v === 1 && x.docs && typeof x.docs === 'object' && (!pronari || x.pronari === pronari) ? x : null;
+      } catch (e) { return null; }
+    }
+    function degjoMeKopje(ref, plotaQ, celesi, cb, cbGabim, pronari) {
+      var kopja = lexoKopjen(celesi, pronari), ndal = null, mbyllur = false;
+      function lista() { return Object.keys(kopja.docs).map(function (id) { return Object.assign({}, kopja.docs[id], { id: id }); }); }
+      function ruaj() { try { localStorage.setItem(celesi, JSON.stringify(kopja)); } catch (e) { try { localStorage.removeItem(celesi); } catch (e2) { /* ok */ } } }
+      function gabimi(e) { if (cbGabim) cbGabim(e); }
+      function ndalTani() { if (ndal) { try { ndal(); } catch (e) { /* ok */ } } ndal = null; }
+      function plote() {
+        ndal = fs.onSnapshot(plotaQ, { includeMetadataChanges: true }, function (s) {
+          var serveri = !(s.metadata && s.metadata.fromCache);
+          if (!serveri && kopja) return; // memoria e Firebase-it (bosh në hapje): mbetet kopja e pajisjes
+          if (serveri) { var docs = {}; s.forEach(function (d) { docs[d.id] = d.data(); }); kopja = { v: 1, docs: docs, plotaSe: Date.now(), sinkSe: Date.now(), pronari: pronari || null }; ruaj(); }
+          cb(listaNga(s), { serveri: serveri });
+        }, gabimi);
+      }
+      function sipasNdryshimeve() {
+        var nga = (Number(kopja.sinkSe) || 0) - KOPJA_MARGJINA_MS, numri = null, pare = null, krahasuar = false;
+        function vazhdo() {
+          if (mbyllur || pare === null || numri === null) return;
+          if (!krahasuar) {
+            krahasuar = true;
+            if (numri >= 0 && numri !== Object.keys(kopja.docs).length) { ndalTani(); plote(); return; } // u fshi diçka
+          }
+          cb(lista(), { serveri: numri >= 0 });
+        }
+        fs.getCountFromServer(ref).then(function (r) { numri = Number(r.data().count); vazhdo(); }, function () { numri = -1; vazhdo(); });
+        ndal = fs.onSnapshot(fs.query(ref, fs.where('ndryshuarSe', '>', nga)), { includeMetadataChanges: true }, function (s) {
+          if (s.metadata && s.metadata.fromCache) return;
+          var tani = {};
+          s.forEach(function (d) { tani[d.id] = true; kopja.docs[d.id] = d.data(); });
+          if (pare) Object.keys(pare).forEach(function (id) { if (!tani[id]) delete kopja.docs[id]; }); // u fshi gjatë punës
+          pare = tani;
+          kopja.sinkSe = Date.now();
+          ruaj();
+          vazhdo();
+        }, gabimi);
+      }
+      if (kopja) setTimeout(function () { if (!mbyllur) cb(lista(), { serveri: false, ngaKopja: true }); }, 0); // menjëherë, edhe pa internet
+      if (kopja && fs.getCountFromServer && Date.now() - (Number(kopja.plotaSe) || 0) < KOPJA_PLOTE_MS) sipasNdryshimeve(); else plote();
+      return function () { mbyllur = true; ndalTani(); };
+    }
     function idERe() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6); }
 
     // ---------- Grupi aktual: krejt Grupi lexohet/shkruhet brenda grupet/{grupi} ----------
@@ -823,11 +877,11 @@
       // ose krijuesi derisa s'e ka ndryshuar administratori; i fshin administratori.
       // cb(lista, { serveri }): v250 serveri = true kur lista vjen nga serveri (jo nga kopja e pajisjes): vetëm atëherë
       // një pikë që mungon është vërtet e fshirë
+      // v252: me kopje në pajisje (degjoMeKopje): vetëm pikat e ndryshuara lexohen sa hapet Stoku
       degjoPikat: function (cb, cbGabim) {
         if (!uid()) return function () {};
-        return fs.onSnapshot(fs.query(fs.collection(db, 'pikat'), fs.limit(3000)), { includeMetadataChanges: true }, function (s) {
-          cb(listaNga(s), { serveri: !(s.metadata && s.metadata.fromCache) });
-        }, function (e) { if (cbGabim) cbGabim(e); });
+        var ref = fs.collection(db, 'pikat');
+        return degjoMeKopje(ref, fs.query(ref, fs.limit(3000)), 'stoku:kopja:pikat', cb, cbGabim);
       },
       shtoPiken: async function (m) {
         if (!uid() || !m || typeof m.lat !== 'number' || typeof m.lng !== 'number') return { ok: false };
@@ -1204,13 +1258,15 @@
 
       // ---------- Kujtesa e produkteve e grupit (v197): grupet/{g}/kujtesa/{p0..p9, px} → { p: { barkodi: {e,f,k,a,m,x} } } ----------
       // E ndarë sipas shifrës së fundit të barkodit (çdo dokument ≤ 1 MB), që të nxërë dhjetëra mijëra produkte.
+      // v252: me kopje në pajisje (degjoMeKopje, vetëm për këtë grup): vetëm pjesët e ndryshuara lexohen sa hapet Stoku
       degjoKujtesen: function (cb, cbGabim) {
         if (!grupi) return function () {};
-        return fs.onSnapshot(fs.collection(db, 'grupet', grupi, 'kujtesa'), function (s) {
+        var ref = fs.collection(db, 'grupet', grupi, 'kujtesa');
+        return degjoMeKopje(ref, ref, 'stoku:kopja:grupi', function (l, info) {
           var h = {};
-          listaNga(s).forEach(function (d) { var p = d.p; if (p && typeof p === 'object') Object.keys(p).forEach(function (b) { h[b] = p[b]; }); });
-          cb(h);
-        }, function (e) { if (cbGabim) cbGabim(e); });
+          l.forEach(function (d) { var p = d.p; if (p && typeof p === 'object') Object.keys(p).forEach(function (b) { h[b] = p[b]; }); });
+          cb(h, info);
+        }, cbGabim, grupi);
       },
       // setDoc me merge: krejt fushat e hyrjes shkruhen (a/m/x 0 ose 1), që bashkimi të mos lërë mbetje të hyrjes së vjetër
       ruajKujtesen: async function (hyrjet) {
@@ -1227,13 +1283,15 @@
       // ---------- v242: regjistri i përbashkët i Stoku-t (krejt llogaritë, edhe pa grup) ----------
       // kujtesa/{p0..p9, px}: produktet dhe furnizuesit e kontrolluar nga administratori; e lexon kushdo, e shkruan vetëm ai.
       // kujtesa_pritje/{uid}: çka mëson/shkruan secili (pa kontroll ende); e lexon vetëm ai dhe administratori.
+      // v252: me kopje në pajisje (degjoMeKopje): vetëm pjesët e ndryshuara lexohen sa hapet Stoku
       degjoRegjistrin: function (cb, cbGabim) {
         if (!uid()) return function () {};
-        return fs.onSnapshot(fs.collection(db, 'kujtesa'), function (s) {
+        var ref = fs.collection(db, 'kujtesa');
+        return degjoMeKopje(ref, ref, 'stoku:kopja:regjistri', function (l, info) {
           var h = {};
-          listaNga(s).forEach(function (d) { var p = d.p; if (p && typeof p === 'object') Object.keys(p).forEach(function (b) { h[b] = p[b]; }); });
-          cb(h);
-        }, function (e) { if (cbGabim) cbGabim(e); });
+          l.forEach(function (d) { var p = d.p; if (p && typeof p === 'object') Object.keys(p).forEach(function (b) { h[b] = p[b]; }); });
+          cb(h, info);
+        }, cbGabim);
       },
       ruajRegjistrin: async function (hyrjet) {
         if (!uid()) return { ok: false };
@@ -2270,7 +2328,8 @@
       }
       // v198: kopja e pajisjes s'fshihet kurrë kur del nga grupi ose kalon në një tjetër (vlen si kujtesë)
       shkruaj(KEY_KUJTESA_GRUPI, gj.grupi);
-      d.kujtesa = e.degjoKujtesen(function (remote) {
+      d.kujtesa = e.degjoKujtesen(function (remote, info) {
+        if (info && info.ngaKopja) { if (K.bashko(remote)) thirr('kujtesa'); return; } // v252: dërgimi pret serverin
         K.bashko(remote);
         if (!kujtesaGj.gati) { // hera e parë: ajo që kjo pajisje di më mirë (p.sh. e mësuar para grupit) shkon te grupi
           kujtesaGj.gati = true;
@@ -2311,7 +2370,9 @@
         regj.degjon = true;
         K.degjo(function (barkodet) { barkodet.forEach(function (b) { regj.ndryshuar[b] = true; }); planifikoRegjistrin(); });
       }
-      d.regjistri = e.degjoRegjistrin(function (remote) {
+      d.regjistri = e.degjoRegjistrin(function (remote, info) {
+        // v252: kopja e pajisjes (para serverit) vetëm plotëson emrat; dërgimi pret listën nga serveri
+        if (info && info.ngaKopja) { if (K.bashko(remote || {})) thirr('kujtesa'); return; }
         regj.remote = remote || {};
         var n = K.bashko(regj.remote);
         var iPari = !regj.gati;

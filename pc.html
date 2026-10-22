@@ -905,11 +905,11 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=6">
-<link rel="stylesheet" href="css/stoku-pc.css?v=38">
+<link rel="stylesheet" href="css/stoku-pc.css?v=39">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
-<script src="porta.js?v=248"></script>
+<script src="porta.js?v=252"></script>
 
 <div class="trupi">
   <aside class="anesore">
@@ -1223,7 +1223,7 @@
           <button type="button" data-f="ok">Në rregull <span class="n" data-afn="ok"></span></button>
           <button type="button" data-f="hequr">Të hequra <span class="n" data-afn="hequr"></span></button>
         </div>
-        <label style="display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:13px;color:var(--gri);cursor:pointer">
+        <label class="furn-vetem" style="display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:13px;color:var(--gri);cursor:pointer">
           <input type="checkbox" class="kutize" id="afGrupo"> Grupo sipas furnizuesit
         </label>
       </div>
@@ -1231,7 +1231,7 @@
       <div class="tabela-mbajtese">
         <table class="tabela" id="afTabela">
           <thead><tr>
-            <th class="k-st">Statusi</th><th>Produkti · Furnizuesi</th><th class="k-sas">Sasia</th><th class="k-data">Skadon më</th>
+            <th class="k-st">Statusi</th><th id="afKolProdukti">Produkti · Furnizuesi</th><th class="k-sas">Sasia</th><th class="k-data">Skadon më</th>
             <th class="k-msg">Ditët e mbetura</th><th class="k-av"></th>
           </tr></thead>
           <tbody id="afTrup"></tbody>
@@ -1427,7 +1427,7 @@
       </div>
       <div class="info-rresht fsheh" id="prGjetur"></div>
       <label class="fushe"><span>Emri i produktit</span><input class="inp" id="prEmri" placeholder="Shkruaj emrin e produktit" type="text" autocomplete="off" maxlength="120"></label>
-      <label class="fushe"><span>Furnizuesi <small class="fushe-opsionale">(opsional)</small></span><input class="inp" id="prFurnizuesi" placeholder="Zgjidh ose shkruaj furnizuesin" type="text" list="afdFurnizuesit" autocomplete="off" maxlength="80"></label>
+      <label class="fushe furn-vetem"><span>Furnizuesi <small class="fushe-opsionale">(opsional)</small></span><input class="inp" id="prFurnizuesi" placeholder="Zgjidh ose shkruaj furnizuesin" type="text" list="afdFurnizuesit" autocomplete="off" maxlength="80"></label>
       <div class="fushe">
         <span id="prSasiaEtik">Sasia</span>
         <div class="sasia-kuti">
@@ -1499,7 +1499,7 @@
       </div>
       <label class="fushe" style="max-width:220px"><span>Sasia (copë)</span><input class="inp" id="afdSasia" placeholder="Numri i copëve" type="text" inputmode="numeric" autocomplete="off"></label>
       <label class="fushe"><span>Emri i produktit</span><input class="inp" id="afdEmri" placeholder="Shkruaj emrin e produktit" type="text" autocomplete="off" maxlength="120"></label>
-      <label class="fushe"><span>Furnizuesi</span><input class="inp" id="afdFurnizuesi" placeholder="Zgjidh ose shkruaj furnizuesin" type="text" list="afdFurnizuesit" autocomplete="off" maxlength="80"></label>
+      <label class="fushe furn-vetem"><span>Furnizuesi</span><input class="inp" id="afdFurnizuesi" placeholder="Zgjidh ose shkruaj furnizuesin" type="text" list="afdFurnizuesit" autocomplete="off" maxlength="80"></label>
       <datalist id="afdFurnizuesit"></datalist>
       <label class="fushe" id="afdMarketiKuti" hidden><span>Marketi</span><select class="inp" id="afdMarketi"></select></label>
       <div class="gabim-tekst" id="afdGabim"></div>
@@ -1539,7 +1539,7 @@
           <label class="lexim-folderi" id="lxFolderKuti" style="display:none"><span>Importo në folderin</span><select class="inp" id="lxFolderi"></select></label>
           <div class="lexim-rreshtat">
             <table>
-              <thead><tr id="lxThead"><th style="width:34px">#</th><th style="width:140px">Barkodi</th><th>Emri i produktit</th><th style="width:150px">Data e skadimit</th><th style="width:80px">Sasia</th><th style="width:160px">Furnizuesi</th><th style="width:36px"></th></tr></thead>
+              <thead><tr id="lxThead"><th style="width:34px">#</th><th style="width:140px">Barkodi</th><th>Emri i produktit</th><th style="width:150px">Data e skadimit</th><th style="width:80px">Sasia</th><th class="furn-vetem" style="width:160px">Furnizuesi</th><th style="width:36px"></th></tr></thead>
               <tbody id="lxTrup"></tbody>
             </table>
           </div>
@@ -1651,7 +1651,7 @@
           <label class="fushe"><span>Kolona e barkodit *</span><select class="inp" id="imKolBarkodi"></select></label>
           <label class="fushe"><span>Kolona e emrit</span><select class="inp" id="imKolEmri"></select></label>
           <label class="fushe"><span>Kolona e sasisë</span><select class="inp" id="imKolSasia"></select></label>
-          <label class="fushe"><span>Kolona e furnizuesit</span><select class="inp" id="imKolFurnizuesi"></select></label>
+          <label class="fushe furn-vetem"><span>Kolona e furnizuesit</span><select class="inp" id="imKolFurnizuesi"></select></label>
           <label class="fushe"><span>Kolona e folderit</span><select class="inp" id="imKolFolderi"></select></label>
         </div>
         <div class="dy-kolona">
@@ -1702,7 +1702,7 @@
           <label class="fushe"><span>Emri</span><select class="inp" id="aiKolEmri"></select></label>
           <label class="fushe"><span>Data e skadimit *</span><select class="inp" id="aiKolData"></select></label>
           <label class="fushe"><span>Sasia</span><select class="inp" id="aiKolSasia"></select></label>
-          <label class="fushe"><span>Furnizuesi</span><select class="inp" id="aiKolFurnizuesi"></select></label>
+          <label class="fushe furn-vetem"><span>Furnizuesi</span><select class="inp" id="aiKolFurnizuesi"></select></label>
         </div>
         <div class="permbledhje-importi" id="aiPermbledhje"></div>
         <div class="parapamje" id="aiParapamje"></div>
@@ -1723,7 +1723,7 @@
     <div class="dialog-krye"><h2 id="aeTitulli">Eksporto afatet në Excel</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
     <div class="dialog-trup">
       <label class="fushe"><span>Cili muaj?</span><select class="inp" id="aeMuaji"></select></label>
-      <label class="fushe" id="aeFurnRresht"><span>Cili furnizues?</span><select class="inp" id="aeFurn"></select></label>
+      <label class="fushe furn-vetem" id="aeFurnRresht"><span>Cili furnizues?</span><select class="inp" id="aeFurn"></select></label>
       <div class="parapamje-sasie" id="aeInfo"></div>
     </div>
     <div class="dialog-fund">
@@ -1988,13 +1988,13 @@
 <script src="afatet.js?v=248"></script>
 <script src="marketet.js?v=250"></script>
 <script src="harta.js?v=250"></script>
-<script src="ekipa.js?v=250"></script>
-<script src="teRejat.js?v=251"></script>
-<script src="app-pc.js?v=251"></script>
+<script src="ekipa.js?v=252"></script>
+<script src="teRejat.js?v=252"></script>
+<script src="app-pc.js?v=252"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
 
 <!-- Firebase: i njëjti projekt dhe i njëjti dokument si versioni i telefonit -->
-<script type="module" src="firebase-pc.js?v=251"></script>
+<script type="module" src="firebase-pc.js?v=252"></script>
 </body>
 </html>

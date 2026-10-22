@@ -52,6 +52,37 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **KOPJA E MARKETEVE/REGJISTRIT NË PAJISJE + MERCHANDISERI PA FURNIZUES + SUGJERIMET E FURNIZUESIT + PUNA PA INTERNET
+   (v252 = 1.39.0; Android tel + ora: APK e re)**: kërkesat: (a) "ok bone" (telefoni i mban marketet dhe listën e produkteve në
+   memorie, merr vetëm ndryshimet: leximet e Firebase-it); (b) merchandiseri pa furnizues "kur shton ni afat ose qka do tjeter";
+   (c) të tjerët: furnizuesi "me mujt me shkru nese so ne list, edhe me mujt me mbyll qat faqe"; (d) "android app, ora, web app
+   i instaluar: offline mode, qdo ndryshim … me u rujt sync meniher si te lidhet".
+   - **(a) `degjoMeKopje` (ekipa.js)** për `pikat` (`stoku:kopja:pikat`), regjistrin `kujtesa/*` (`stoku:kopja:regjistri`) dhe
+     kujtesën e grupit (`stoku:kopja:grupi`, me `pronari` = grupi; e fshin porta kur ndërrohet llogaria): kopja del menjëherë
+     (`info.ngaKopja`, edhe pa internet); pastaj vetëm `where('ndryshuarSe', '>', sinkSe - 1 orë)` (dëgjues) +
+     `getCountFromServer` (1 lexim për 1000; numër ndryshe = fshirje → lexim i plotë); kopja > 24 orë → lexim i plotë. `serveri`
+     = true vetëm kur numri përputhet (heqja e marketeve të pikave të fshira). Regjistri/kujtesa e grupit: thirrja nga kopja vetëm
+     plotëson emrat, dërgimi pret serverin. `getCountFromServer` u shtua te firebase-tel/pc.js dhe te Firestore-i i rremë (bashkë me
+     `where '>'`). Matja (Firestore i rremë, 50 markete, grup me 10): hapja e parë 119 lexime, hapja tjetër rreth 40 (më parë 125).
+   - **(b) `paFurnizues()` = `eshteMerchandiser()` (tel + PC)**: `body.pa-furnizues` fsheh `.furn-vetem` (forma e afatit, produkti,
+     importi AI/stok, kolona e Excel-it dhe "Cili furnizues?", fletët e fotografuara, "Grupo sipas furnizuesit", lista e produkteve);
+     ruajtja e mban furnizuesin që kishte afati/produkti (afati i ri: pa furnizues, edhe kur kujtesa e njeh); kartat pa furnizuesin;
+     "Afër skadimit" pa grupim sipas furnizuesit; PC: kolona "Produkti", eksporti pa kolonën dhe pa fletën "Për furnizuesit".
+   - **(c) Telefoni pa `<datalist>`** (`#afatFurnizuesi`, `#dlgFurnizuesi`): `sugjerimetEFurnizuesit(input, lista)` = lista mbi
+     fushë (`.sugj-lista`, poshtë është tastiera), filtrim sipas shkronjave, "+ Furnizues i ri: "X"", "Mbyll"; mbyllet edhe me
+     Enter/Escape/dalje nga fusha. Te Android-i datalist-a hapej si listë ku s'shkruhej dhe s'mbyllej. Fusha `#afatFurnizuesi`
+     kishte lartësi të vogël (pa stil): tash 48 px. PC mbetet me datalist (shfletuesit e kompjuterit e mbyllin me Esc).
+   - **(d) Pa internet**: `sw.js` e ruan Firebase-in (gstatic 12.19.0: app, auth, firestore) te `CDN_BIBLIOTEKA` (më parë humbte në
+     çdo përditësim: hapja pa internet → pa Firebase → s'sinkronizonte as kur kthehej interneti); faqja pa Firebase rihapet vetë
+     te ngjarja "online" (pas 10 s nga hapja, pa dritare të hapur a fushë aktive, më së shumti 1 herë në 5 min). Android (tel/):
+     `ACCESS_NETWORK_STATE` (WebView-i i jep faqes "online"/"offline"), pa internet `LOAD_CACHE_ELSE_NETWORK`, `NetworkCallback`:
+     faqja "pa internet" rihapet vetë kur kthehet rrjeti. Ora (ora/): heqjet/zhbërjet pa internet ruhen te `radha` (prefs, me
+     renditje) dhe dërgohen vetë (para çdo `merrListen`/`merrKrejt`, tile/komplikacioni, `NetworkCallback` → `Rikthimi.n++`);
+     zhbërja e një heqjeje ende në radhë e anulon; lista e serverit shfaqet pa produktet në radhë; "Pa internet: heqja u ruajt në
+     orë…". `hiqShume` kthen -1 kur u ruajt në radhë. Kotlin s'kompilohet këtu: e kontrollon GitHub Actions.
+   - Teste: `teste/v252.js` (kopja: pyetja e ndryshimeve, emri i ri, fshirja, 24 orë; merchandiseri pa furnizues tel + PC;
+     sugjerimet; Firebase te SW; rihapja pa Firebase).
+
 0000000. **RREGULLAT E FIRESTORE v250 TË VENDOSURA (22.10.2026)**: pronari e ngjiti krejt tekstin e rregullave (seksioni "Rregullat
    e Firestore", i njëjti për v250 dhe v251) te Firebase dhe tha "i vendosa rregullat". Tash funksionojnë në prodhim: pikat e
    përbashkëta (`pikat/{id}`, v246), marketet e njëjta për krejt merchandiserët (v250) dhe vetëm administratori i ndryshon/fshin.

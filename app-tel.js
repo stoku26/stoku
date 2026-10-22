@@ -1563,7 +1563,7 @@
     var ie = document.createElement('input'); ie.type = 'text'; ie.value = x.emri; ie.maxLength = 120; ie.placeholder = 'Emri i produktit';
     ie.setAttribute('autocomplete', 'off'); ie.setAttribute('aria-label', 'Emri i produktit');
     mbushFurnizuesit();
-    var ifu = document.createElement('input'); ifu.type = 'text'; ifu.value = x.furnizuesi; ifu.maxLength = 80; ifu.placeholder = 'Furnizuesi';
+    var ifu = document.createElement('input'); ifu.type = 'text'; ifu.value = x.furnizuesi; ifu.maxLength = 80; ifu.placeholder = 'Furnizuesi'; ifu.classList.add('furn-vetem'); // v252
     ifu.setAttribute('autocomplete', 'off'); ifu.setAttribute('aria-label', 'Furnizuesi'); ifu.setAttribute('list', 'afFurnizuesit');
     var rr = document.createElement('div'); rr.className = 'ops-furn-veprime';
     var harro = document.createElement('button'); harro.type = 'button'; harro.className = 'btn ops-btn-dyte ops-kuj-harro'; harro.textContent = 'Fshije';
@@ -2510,6 +2510,24 @@
   var __sinkSerish = false;
   var __sinkDeshtoi = false; // sinkronizimi i fundit dështoi (pa internet) — riprovohet sapo të ketë lidhje
   window.addEventListener('online', function () { if (perdoruesiAktual()) kryeSinkronizimin(); });
+  // v252: Stoku u hap pa internet dhe pa Firebase-in (SDK-ja s'u ngarkua): kur kthehet interneti faqja rihapet vetë, sapo
+  // s'ka dritare të hapur a fushë ku shkruhet, që sinkronizimi të nisë (të dhënat janë ruajtur tashmë në pajisje).
+  // Më së shumti një herë në 5 minuta (p.sh. shfletues i vjetër, ku Firebase s'ngarkohet kurrë).
+  window.addEventListener('online', function () {
+    if (window.__stokuCloud || ngaVizitori()) return;
+    var t0 = 0;
+    try { t0 = Number(sessionStorage.getItem('stoku:rilidhja')) || 0; } catch (e) { /* ok */ }
+    if (Date.now() - t0 < 5 * 60000) return;
+    (function prit() {
+      if (window.__stokuCloud || !navigator.onLine) return;
+      if (performance.now() < 10000) { setTimeout(prit, 10000 - performance.now()); return; } // Firebase mund të jetë ende duke u ngarkuar
+      var ae = document.activeElement;
+      if (document.querySelector('.hapur[id^="dlg"], .mbulese.hapur') || (ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))) { setTimeout(prit, 3000); return; }
+      try { sessionStorage.setItem('stoku:rilidhja', String(Date.now())); } catch (e) { /* ok */ }
+      location.reload();
+    })();
+  });
+
   document.addEventListener('visibilitychange', function () {
     if (!document.hidden && __sinkDeshtoi && perdoruesiAktual()) kryeSinkronizimin();
   });
@@ -2792,6 +2810,9 @@
     if (z !== null) return z;
     try { var x = JSON.parse(localStorage.getItem('stoku:merchandiser') || 'null'); return !!(x && x.uid === u.uid && x.v === true); } catch (e) { return false; }
   }
+  // v252: merchandiserët s'e kanë furnizuesin (as te afatet, as te stoku, as te eksporti a importi): fushat .furn-vetem
+  // fshihen (body.pa-furnizues) dhe ruajtja e mban furnizuesin që kishte afati/produkti
+  function paFurnizues() { return eshteMerchandiser(); }
   // "Çka ka të re" (teRejat.js): pa shënimet për pjesët që s'lejohen ("Dërgo në PC" kërkon edhe "pc")
   function lejaPerTeRejat(k) { return k === 'dergoNePc' ? lejaDergoNePc() : k === 'marketet' ? leja(k) || eshteAdminiIStokut() : leja(k); }
   function zbatoLejet(paVizatim) {
@@ -2802,6 +2823,7 @@
     var xl = $('afExcel') && $('afExcel').parentNode;
     if (xl) xl.classList.toggle('leja-ndaluar', !leja('afatetImporto') && !leja('eksportExcel'));
     document.body.classList.toggle('leja-pa-stok', !leja('stoku'));
+    document.body.classList.toggle('pa-furnizues', paFurnizues()); // v252
     // v231: Cilësimet pa pjesët që s'kanë kuptim: skanimi pa Stok dhe pa Afate, njoftimet pa Afate dhe pa Grup
     var meStok = leja('stoku'), meAfate = leja('afatet'), meGrup = leja('grupi');
     $('tabSkenimi').classList.toggle('leja-ndaluar', !meStok && !meAfate);
@@ -3281,7 +3303,7 @@
     // Object.assign: fushat e tjera të produktit (p.sh. furnizuesi nga importi) s'humbin kur ndryshon sasia
     var ri = Object.assign({}, e || {}, { barkodi: dialogu.barkodi, emri: emri, sasia: total, kategoriaId: folderiAktual, prekurSe: Date.now() });
     // v212: furnizuesi (opsional): i shkruar → ruhet; fusha e zbrazur te një produkt ekzistues → hiqet
-    var furn = opsione.paEmer ? null : $('dlgFurnizuesi').value.replace(/\s+/g, ' ').trim().slice(0, 80);
+    var furn = opsione.paEmer || paFurnizues() ? null : $('dlgFurnizuesi').value.replace(/\s+/g, ' ').trim().slice(0, 80); // v252: merchandiseri: mbetet
     if (furn) ri.furnizuesi = furn; else if (furn === '') delete ri.furnizuesi;
     produktet[celesiProduktit(folderiAktual, dialogu.barkodi)] = ri;
     if (!opsione.paEmer) mesoNgaPerdoruesi(dialogu.barkodi, emri, furn || '');
@@ -5293,10 +5315,10 @@
         s.textContent = (gr.id ? gr.emri : 'Pa market') + ' · ' + gr.afatet.length;
         h.appendChild(s);
         frag.appendChild(h);
-        if (afFiltri === 'afer') sipasFurnizuesit(gr.afatet, true);
+        if (afFiltri === 'afer' && !paFurnizues()) sipasFurnizuesit(gr.afatet, true); // v252: merchandiseri pa furnizues
         else gr.afatet.forEach(function (a) { frag.appendChild(kartaEAfatit(a)); });
       });
-    } else if (afFiltri === 'afer') {
+    } else if (afFiltri === 'afer' && !paFurnizues()) {
       sipasFurnizuesit(lista, false);
     } else {
       lista.forEach(function (a) { frag.appendChild(kartaEAfatit(a)); });
@@ -5387,7 +5409,7 @@
     axRifresko();
   }
   function axTeZgjedhurat() {
-    return Array.prototype.filter.call(document.querySelectorAll('#axLista input'), function (i) { return i.checked; })
+    return Array.prototype.filter.call(document.querySelectorAll('#axLista input'), function (i) { return i.checked && !(paFurnizues() && i.value === 'furnizuesi'); })
       .map(function (i) { return i.value; });
   }
   function axRifresko() {
@@ -5398,7 +5420,7 @@
   (function ndertoListenAx() {
     var lista = $('axLista');
     AX_KOLONAT.forEach(function (c) {
-      var l = document.createElement('label'); l.className = 'ax-rresht';
+      var l = document.createElement('label'); l.className = 'ax-rresht' + (c.k === 'furnizuesi' ? ' furn-vetem' : '');
       var i = document.createElement('input'); i.type = 'checkbox'; i.value = c.k;
       i.addEventListener('change', axRifresko);
       var t = document.createElement('span'); t.textContent = c.emri;
@@ -5444,7 +5466,7 @@
     $('axFurnRresht').hidden = lista.length < 2;
   }
   function axAfatetEKrejt() {
-    var f = $('axFurn').value;
+    var f = paFurnizues() ? '' : $('axFurn').value;
     return afatetEFiltruara($('axMuaji').value).filter(function (a) { return !f || AF.celesiFurnizuesit(a) === f; });
   }
   function axEmriFurnizuesit() {
@@ -5578,6 +5600,7 @@
   function aiPlani() {
     var kol = {};
     AI_FUSHAT.forEach(function (x) { kol[x[0]] = parseInt($(x[1]).value, 10); });
+    if (paFurnizues()) kol.furnizuesi = -1; // v252
     return AF.planiImportitAfateve(aiFletet(), { meKoke: $('aiKoka').value === '1', kol: kol, ekzistuese: afatet });
   }
   function aiRifresko() {
@@ -5659,7 +5682,7 @@
   }
   // "Furnizuesi · 12 copë · 04.10.2026" (+ emri i kolegut te Grupi)
   function rreshtiIAfatit(a, kolegu) {
-    return [a.mk || '', a.furnizuesi, AF.sasiaTekst(a), a.data ? AF.formato(a.data) : '', kolegu || ''].filter(Boolean).join(' · ');
+    return [a.mk || '', paFurnizues() ? '' : a.furnizuesi, AF.sasiaTekst(a), a.data ? AF.formato(a.data) : '', kolegu || ''].filter(Boolean).join(' · ');
   }
   function kartaEAfatit(a) {
     var st = AF.statusi(a);
@@ -7170,6 +7193,35 @@
   }
   // v211: sugjerimet e furnizuesit për këdo: afatet e mia + furnizuesit e miratuar të grupit + lista e administratorit
   // (e lexon çdo përdorues i kyçur, edhe jashtë grupit). Shfletuesi i filtron sipas shkronjave që shtyp.
+  // v252: sugjerimet e furnizuesit nën fushë (në vend të <datalist>: te Android-i ajo hapej si listë ku s'shkruhej një
+  // furnizues i ri dhe s'mbyllej). Shkruan çka të duash; lista vetëm ndihmon dhe mbyllet me "Mbyll", Enter, ose kur del
+  // nga fusha.
+  function sugjerimetEFurnizuesit(inp, lista) {
+    function mbyll() { lista.hidden = true; lista.textContent = ''; }
+    function butoni(tekst, kl, kurPreket) {
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = tekst; b.setAttribute('role', 'option');
+      if (kl) b.className = kl;
+      b.addEventListener('mousedown', function (ev) { ev.preventDefault(); }); // fusha s'e humb fokusin (tastiera mbetet)
+      b.addEventListener('click', kurPreket);
+      lista.appendChild(b);
+    }
+    function vizato() {
+      if (inp.readOnly || paFurnizues()) { mbyll(); return; }
+      var q = inp.value.replace(/\s+/g, ' ').trim(), ql = q.toLocaleLowerCase('sq');
+      var te = furnizuesitPerSugjerim().filter(function (f) { return !ql || f.toLocaleLowerCase('sq').indexOf(ql) !== -1; });
+      var sakte = te.some(function (f) { return f.toLocaleLowerCase('sq') === ql; });
+      lista.textContent = '';
+      if (!te.length && !q) { mbyll(); return; }
+      te.slice(0, 8).forEach(function (f) { butoni(f, '', function () { inp.value = f; mbyll(); inp.dispatchEvent(new Event('change')); }); });
+      if (q && !sakte) butoni('+ Furnizues i ri: "' + q + '"', 'sugj-ri', function () { inp.value = q; mbyll(); inp.dispatchEvent(new Event('change')); });
+      butoni('Mbyll', 'sugj-mbyll', mbyll);
+      lista.hidden = false;
+    }
+    inp.addEventListener('focus', vizato);
+    inp.addEventListener('input', vizato);
+    inp.addEventListener('blur', function () { setTimeout(mbyll, 150); });
+    inp.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' || ev.key === 'Enter') mbyll(); });
+  }
   function furnizuesitPerSugjerim() {
     var m = {};
     function shto(f) { f = String(f || '').replace(/\s+/g, ' ').trim(); var c = f.toLocaleLowerCase('sq'); if (f && !m[c]) m[c] = f; }
@@ -7243,7 +7295,7 @@
     var b = $('afatBarkodi').value.trim().replace(/\s+/g, '');
     var emri = $('afatEmri').value.trim();
     var data = AF.lexoDatenEFushes($('afatData').value) || '';
-    var f = $('afatFurnizuesi').value.trim();
+    var f = paFurnizues() ? null : $('afatFurnizuesi').value.trim(); // v252: merchandiseri: mbetet furnizuesi i afatit
     var sasiaTx = $('afatSasia').value.trim();
     var sasia = AF.lexoSasine(sasiaTx);
     if (sasiaTx && sasia === '') { toast('Sasia duhet të jetë numër i plotë (p.sh. 12).'); $('afatSasia').focus(); return; }
@@ -7255,6 +7307,7 @@
     // e kthente si "të ri" një furnizues të fshirë)
     var afPara = afatNeDialog ? afatet.filter(function (x) { return x.id === afatNeDialog; })[0] : null;
     var furnPara = (afPara && afPara.furnizuesi) || '';
+    if (f === null) f = furnPara;
     mesoNgaPerdoruesi(b, emri, f); // herën tjetër ky barkod plotëson vetë emrin dhe furnizuesin
     if (f && f !== furnPara) regjistroFurnizuesinERi(f); // v212, v214: për këdo
     var tani = Date.now();
@@ -7365,6 +7418,8 @@
   $('afatSasiaPlus').addEventListener('click', function () { ndryshoSasineEAfatit(1); });
   $('afatSasia').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('afatFurnizuesi').focus(); } });
   $('afatFurnizuesi').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ruajAfatin(); } });
+  sugjerimetEFurnizuesit($('afatFurnizuesi'), $('afatFurnSugj')); // v252
+  sugjerimetEFurnizuesit($('dlgFurnizuesi'), $('dlgFurnSugj'));
 
   // ---------- Fotografimi i fletës → leximi me AI → kontrolli ----------
   var lx = { rreshtat: [] };
@@ -7487,7 +7542,7 @@
     }
     lx.rreshtat = rez.rreshtat.map(function (r) {
       return { barkodi: r.barkodi, emri: r.emri || emriNgaProduktet(r.barkodi), data: r.data, dataOrigjinale: r.dataOrigjinale,
-        sasia: r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaAfatet(r.barkodi), dyshim: r.dyshim, x: r.x, y: r.y };
+        sasia: r.sasia, furnizuesi: paFurnizues() ? '' : r.furnizuesi || furnizuesiNgaAfatet(r.barkodi), dyshim: r.dyshim, x: r.x, y: r.y };
     });
     var nDyshim = lx.rreshtat.filter(function (r) { return r.dyshim; }).length;
     statusiLeximit(lx.rreshtat.length
@@ -7572,6 +7627,7 @@
       fs.inp.inputMode = 'tel';
       fs.inp.addEventListener('change', function () { vendosRezultatinESasise(fs.inp); });
       var ff = fushe('Furnizuesi', r.furnizuesi, 'text', function (v) { r.furnizuesi = v; });
+      if (ff) (ff.w || ff).classList.add('furn-vetem'); // v252
       ff.inp.setAttribute('list', 'afFurnizuesit');
       dy.appendChild(fd.w); dy.appendChild(fs.w);
       d.appendChild(fb.w); d.appendChild(fe.w); d.appendChild(dy); d.appendChild(ff.w);
@@ -7622,7 +7678,7 @@
       var celes = (mkId || '') + '|' + (r.barkodi || r.emri.trim()) + '|' + r.data;
       if (ekzistuese[celes]) { perseritur++; return; }
       ekzistuese[celes] = true;
-      te_reja.push({ id: AF.idERe(), barkodi: r.barkodi, emri: r.emri.trim(), data: r.data, sasia: r.sasia === undefined ? '' : r.sasia, furnizuesi: r.furnizuesi.trim(), statusi: 'aktiv',
+      te_reja.push({ id: AF.idERe(), barkodi: r.barkodi, emri: r.emri.trim(), data: r.data, sasia: r.sasia === undefined ? '' : r.sasia, furnizuesi: paFurnizues() ? '' : r.furnizuesi.trim(), statusi: 'aktiv',
         krijuarSe: tani + i, ndryshuarSe: tani, krijuarNga: emriPerdoruesitAktual(), ngaFoto: true });
     });
     te_reja = meMarket(te_reja, mkId);
@@ -7727,7 +7783,7 @@
       return;
     }
     imp.rreshtat = rez.rreshtat.map(function (r) {
-      return { barkodi: r.barkodi || '', emri: r.emri || emriNgaProduktet(r.barkodi), sasia: r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaAfatet(r.barkodi), x: r.x, y: r.y };
+      return { barkodi: r.barkodi || '', emri: r.emri || emriNgaProduktet(r.barkodi), sasia: r.sasia, furnizuesi: paFurnizues() ? '' : r.furnizuesi || furnizuesiNgaAfatet(r.barkodi), x: r.x, y: r.y };
     });
     statusiImportit(imp.rreshtat.length
       ? (imp.rreshtat.length === 1 ? 'U lexua 1 rresht. Krahasoje' : 'U lexuan ' + imp.rreshtat.length + ' rreshta. Krahasoji') + ' me foton dhe korrigjo ku duhet.'
@@ -7782,6 +7838,7 @@
         fsas.inp.dispatchEvent(new Event('input'));
       });
       var ffur = fushe('Furnizuesi', r.furnizuesi, function (v) { r.furnizuesi = v; });
+      if (ffur) (ffur.w || ffur).classList.add('furn-vetem'); // v252
       ffur.inp.setAttribute('list', 'afFurnizuesit');
       d.appendChild(fb.w); d.appendChild(fe.w); d.appendChild(fsas.w); d.appendChild(ffur.w);
       c.appendChild(d);
@@ -7827,7 +7884,7 @@
       var k = celesiProduktit(fid, b);
       var baza = ndryshimet[k] || produktet[k] || null;
       var emriRi = (baza && baza.emri) || (r.emri || '').trim();
-      var furnizuesiRi = (baza && baza.furnizuesi) || (r.furnizuesi || '').trim();
+      var furnizuesiRi = (baza && baza.furnizuesi) || (paFurnizues() ? '' : (r.furnizuesi || '').trim());
       var sasiaRe = Math.max(0, (baza ? baza.sasia : 0) + r.sasia);
       var ri = { barkodi: b, emri: emriRi, sasia: sasiaRe, kategoriaId: fid, prekurSe: tani };
       if (furnizuesiRi) ri.furnizuesi = furnizuesiRi;
