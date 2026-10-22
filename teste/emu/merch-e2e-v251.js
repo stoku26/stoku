@@ -50,8 +50,13 @@ async function shkruaj(path, fields) {
   await a.waitForTimeout(6000);
   ok(!(await uZhduk(a)) && !!(await cipi(a)), 'B. çipi s\'zhduket', await a.evaluate(() => window.__cipi));
   ok(await prit(async () => (await a.evaluate(() => JSON.parse(localStorage.getItem('stoku:marketet:v1') || '[]'))).some(m => m.p === 'pA')), 'B. marketet e Stoku-t (pikat) te lista');
+  const k0 = await a.evaluate(() => JSON.parse(localStorage.getItem('stoku:kopja:pikat') || 'null'));
   await a.reload(); await a.waitForTimeout(1500); await ndiq(a); await a.waitForTimeout(6000);
   ok(!(await uZhduk(a)) && !!(await cipi(a)), 'B. pas rifreskimit: çipi mbetet', await a.evaluate(() => window.__cipi));
+  // v252: kopja e pikave: hapja e dytë me pyetjen e ndryshimeve dhe numërimin (rregullat e vërteta i lejojnë)
+  const k1 = await a.evaluate(() => JSON.parse(localStorage.getItem('stoku:kopja:pikat') || 'null'));
+  ok(!!k0 && !!k1 && k1.sinkSe > k0.sinkSe && k1.plotaSe === k0.plotaSe && Object.keys(k1.docs).length === 1, 'B. v252: kopja e pikave: hapja e dytë vetëm me ndryshimet (pa lexim të plotë)', [k0 && k0.sinkSe, k1 && k1.sinkSe, k1 && k1.plotaSe === (k0 && k0.plotaSe)]);
+  ok(!a.__log.some(x => /permission|PERMISSION/i.test(x)), 'B. v252: pa refuzime nga rregullat', a.__log.slice(0, 5));
 
   // C. Dokumenti pa "merchandiser" (zgjedhja s'arriti te Firebase)
   await shkruaj('perdoruesit/' + uD, { merchandiser: { booleanValue: false } });

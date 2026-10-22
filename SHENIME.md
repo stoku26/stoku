@@ -82,6 +82,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      orë…". `hiqShume` kthen -1 kur u ruajt në radhë. Kotlin s'kompilohet këtu: e kontrollon GitHub Actions.
    - Teste: `teste/v252.js` (kopja: pyetja e ndryshimeve, emri i ri, fshirja, 24 orë; merchandiseri pa furnizues tel + PC;
      sugjerimet; Firebase te SW; rihapja pa Firebase).
+   - Regresioni v252: 75/75 me exit=0, asnjë `GABIM`. Emulatori (SDK-ja e vërtetë + rregullat): `teste/emu/merch-e2e-v251.js` tash
+     kontrollon edhe kopjen e pikave (hapja e dytë vetëm me ndryshimet, numërimi lejohet nga rregullat). APK-të tel + ora u
+     ndërtuan pa gabime te GitHub Actions (dega).
 
 0000000. **RREGULLAT E FIRESTORE v250 TË VENDOSURA (22.10.2026)**: pronari e ngjiti krejt tekstin e rregullave (seksioni "Rregullat
    e Firestore", i njëjti për v250 dhe v251) te Firebase dhe tha "i vendosa rregullat". Tash funksionojnë në prodhim: pikat e
