@@ -52,6 +52,39 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **HARTA: SATELITI (ESRI) + KREJT MARKETET PËR MERCHANDISERIN + "KU JE?" ME PIKAT AFËR (v247 = 1.36.0, SHËRBIM I RI I
+   JASHTËM: CSP + CLOUDFLARE + ÇELËS)**: pronari: "bone me Esri" (sateliti; Google u refuzua: kartë bankare, s'lejon përzierjen me
+   OpenStreetMap); "te Harta shkruaje marketet, e shohin vetëm administratori dhe merchandiserët; Marketet në hartë, jo Marketet e
+   tua në hartë"; "opsionet e pikës mos u hiqen kurrë: edhe kur GPS-i e di ku je, te Stoku dhe te Afatet me mujt me ndryshu me dorë".
+   - **Sateliti (`harta.js`)**: `ESRI_CELESI` (çelës API i ArcGIS Location Platform, privilegji Basemaps, i kufizuar te
+     `https://stoku.site/*` si referrer; publik si ai i Firebase-it, s'është sekret). Pa çelës (`''`) butoni s'del dhe s'ka
+     burim satelitor. Me çelës: burimi raster `satelit` = `https://ibasemaps-api.arcgis.com/arcgis/rest/services/World_Imagery/
+     MapServer/tile/{z}/{y}/{x}?token=…` (256 px, maxzoom 19), shtresa `satelit` pas `sfondi`, `visibility: none` derisa zgjidhet
+     (shtresa e fshehur s'kërkon pllaka). Butoni `.ht-pamja-btn` ("Satelit" / "Hartë", grup kontrolli i MapLibre-s poshtë
+     zmadhimit), zgjedhja te `stoku:harta:pamja` (kjo pajisje). Mbi satelit: uji, lumenjtë dhe rrugët fshihen; emrat e
+     vendbanimeve të bardhë me kufi të errët (`NGJYRAT.satelit`). Atribuimi i Esri-t te burimi (`Powered by Esri | Esri, Vantor,
+     Earthstar Geographics, and the GIS User Community`) + etiketa `.ht-esri` "Powered by Esri" që s'palohet (fshihet vetëm kur
+     burimet janë të hapura). Pllakat refuzohen (401/403) ose ≥4 gabime: kthehet te "Hartë" pa e fshirë zgjedhjen +
+     `kurSkaSatelit` ("Pamja satelitore s'u hap…"). Free tier i Esri-t: 2 milionë pllaka në muaj (sipas faqes së çmimeve).
+     Çelësat e rinj të ArcGIS-it kanë datë skadimi (deri 1 vit): kur skadon, sateliti kthehet vetë te harta me mesazhin; pronari
+     krijon një të ri dhe e ndërrojmë te `ESRI_CELESI` (version i ri i web-it).
+   - **CSP**: `connect-src` + `https://ibasemaps-api.arcgis.com` te 5 faqet dhe te `CSP_CLOUDFLARE`. **PRONARI duhet: (1) të krijojë
+     çelësin te location.arcgis.com dhe të ma japë; (2) ta ndryshojë rregullën "siguria" te Cloudflare.** Deri atëherë butoni s'del.
+     Privatësia: Esri te "Ku ruhen" (vetëm kur zgjedh "Satelit"). SW s'i ruan pllakat (kalojnë drejt).
+   - **Merchandiseri (tel + PC)**: harta i ka të vetat (si më parë, i riemërton te telefoni) + pikat e të tjerëve (`tjeter: true`,
+     ngjyrë gri `pikaTjeter`, "E shtoi X" / "E shtove ti", pa ndryshim emri; prekja vetëm e zgjedh në hartë), me titujt "Marketet e
+     mia" / "Marketet e tjera të Stoku-t". PC tash e dëgjon `pikat` edhe për merchandiserin. Nëntitulli i rreshtit te Cilësimet:
+     "Marketet në hartë" (tel `#tabHartaStatus`, PC `#opsHartaNen`, edhe për administratorin). Harta dhe Marketet: vetëm
+     administratori dhe merchandiserët (si më parë; testi e kontrollon).
+   - **"Ku je?" (telefoni)**: `PK.poz` = vendndodhja e fundit, VETËM në memorie (15 min, `pozEFundit`). Çipi (Stoku dhe Afatet)
+     hap `zgjidhMarketin('zgjidh', pozEFundit())`: "Afër teje" me pikat deri 2 km edhe kur GPS-i e ka gjetur marketin; nëntitulli
+     "…Nëse GPS-i s'e ka gjetur mirë, zgjidhe vetë." Teksti "S'je te asnjë market i njohur…" vetëm kur pyet vetë (`panjohur`).
+     Çipi s'fshihet kurrë për merchandiserin (as më parë).
+   - **Teste**: `teste/harta-v247.js` (njësitë e stilit me/pa çelës përmes `vm`, CSP 5 faqe + Cloudflare; shfletuesi me harta.js
+     me çelës prove përmes `ctx.route`: pa kërkesa te Esri para "Satelit", token, "Powered by Esri", emrat mbi satelit, zgjedhja pas
+     rifreskimit, 401 → kthim; PC; agim pa Harta/Marketet; "Ku je?" nga çipi me "Afër teje"); `harta-v244.js` pret krejt marketet te
+     merchandiseri. S'u testua me pllaka të vërteta të Esri-t (kontejneri s'arrin internetin) as në telefon të vërtetë.
+
 0000000. **DALJA NGA GRUPI + MARKETI KU JE + PIKAT E PËRBASHKËTA + ATRIBUIMI I HARTËS (v246 = 1.35.0, RREGULLA TË REJA: `pikat`)**:
    pronari: (1) "kur përdoruesi kërkon me dalë prej grupit, s'mundet, prap e kthen në grup; nëse je i fundit fshije komplet grupin";
    (2) "aplikacioni s'shfaq opsion në cilën pikë je, as s'të kërkon leje për lokacionin" (vetëm llogaritë "Punoj si merchandiser",
@@ -303,7 +336,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      script-src, base-uri, object-src" sepse meta s'e lexojnë). **RREGULL: shërbim i ri i jashtëm = shtoje te meta e 5 faqeve DHE
      te rreshti `CSP_CLOUDFLARE` më poshtë DHE kërkoji pronarit ta ndryshojë te Cloudflare** (header-i dhe meta zbatohen të dyja: ajo
      që mungon te njëra bllokohet). `siguria-v239.js` kontrollon që `CSP_CLOUDFLARE` = bashkimi i meta-ve + frame-ancestors.
-     CSP_CLOUDFLARE: `default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: blob: https://*.googleapis.com https://*.mendurb.workers.dev https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://www.gstatic.com https://tiles.openfreemap.org https://api.github.com; frame-src https://stoku-appi.firebaseapp.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'`
+     CSP_CLOUDFLARE: `default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: blob: https://*.googleapis.com https://*.mendurb.workers.dev https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://www.gstatic.com https://tiles.openfreemap.org https://ibasemaps-api.arcgis.com https://api.github.com; frame-src https://stoku-appi.firebaseapp.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'`
      (v244: + `https://tiles.openfreemap.org` te connect-src për hartën; pronari e ndryshoi te Cloudflare më 21.10.2026.)
      Testuar me një server lokal që i shton këto header-a çdo përgjigjeje (`cf-csp/server.py`): regresioni i plotë + service
      worker-i (instalimi, pa internet, kërkesat e lejuara pa shkelje, `example.com` bllokohet nga connect-src i SW-së).

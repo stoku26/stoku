@@ -5,8 +5,9 @@
 // v246: administratori sheh pikat e përbashkëta të Stoku-t (pikat/{id}), jo dyqanet e merchandiserëve
 // 1. telefoni, administratori: pikat e Stoku-t; në hartë vetëm vendbanimet + pikat; ndryshimi i emrit shkon te pikat/{id} dhe
 //    te pajisja e merchandiserit (marketi i lidhur); pa shkelje të CSP-së
-// 2. telefoni, merchandiseri: vetëm pikat e veta, riemërtimi i vet; kush s'është merchandiser s'e sheh "Harta"
-// 3. PC, administratori: harta, lista, "Ndrysho emrin"; merchandiseri në PC: vetëm të vetat, pa ndryshim
+// 2. telefoni, merchandiseri (v247): krejt marketet e Stoku-t (të tjerat pa ndryshim emri), riemërtimi i vetave; kush
+//    s'është merchandiser s'e sheh "Harta"
+// 3. PC, administratori: harta, lista, "Ndrysho emrin"; merchandiseri në PC (v247): krejt marketet, pa ndryshim
 // 4. pllakat s'merren (pa internet, ose Cloudflare ende pa tiles.openfreemap.org): mesazh, lista dhe pikat mbeten
 const { chromium } = require('./pw.js');
 const fs = require('fs');
@@ -136,9 +137,12 @@ const MAPLIBRE = fs.readFileSync(NM + '/maplibre-gl/dist/maplibre-gl.js');
 
   // ================= 2. Telefoni: merchandiseri dhe kush s'është =================
   await hapHarten(dr);
-  ok(await prit(async () => (await rreshtat(dr)).length === 2), '2. drini: vetëm marketet e veta', await rreshtat(dr));
-  ok(/Në hartë/.test((await rreshtat(dr))[0]) && /Pa vendndodhje/.test((await rreshtat(dr))[1]), '2. drini: "Në hartë" / "Pa vendndodhje"', await rreshtat(dr));
-  ok(await prit(async () => await hartaGati(dr), 30000) && (await emratNeHarte(dr)).includes('pikat-emri:Albi Mall Prishtinë') && !(await emratNeHarte(dr)).some(x => /Meridian/.test(x)), '2. drini: harta vetëm me pikën e vet', await emratNeHarte(dr));
+  ok(await prit(async () => (await rreshtat(dr)).length === 3), '2. v247: drini: marketet e veta + marketi i besës', await rreshtat(dr));
+  ok((await rreshtat(dr)).join(' / ') === 'Albi Mall Prishtinë | Marketi yt / Meridian | E shtoi besa / Viva | Pa vendndodhje', '2. v247: "Marketi yt", "E shtoi besa", "Pa vendndodhje"', await rreshtat(dr));
+  ok(/Marketet e mia.*Marketet e tjera të Stoku-t/s.test(await dr.textContent('#htLista')) && (await dr.textContent('#tabHartaStatus')) === 'Marketet në hartë', '2. v247: titujt e listës; "Marketet në hartë"');
+  ok(await prit(async () => await hartaGati(dr), 30000) && await prit(async () => { const e = await emratNeHarte(dr); return e.includes('pikat-emri:Albi Mall Prishtinë') && e.includes('pikat-emri:Meridian'); }), '2. v247: drini: në hartë edhe marketi i besës', await emratNeHarte(dr));
+  await dr.evaluate(() => [...document.querySelectorAll('#htLista .ops-furn-rresht')].find(x => /Meridian/.test(x.textContent)).click()); await dr.waitForTimeout(300);
+  ok(await dr.evaluate(() => !document.querySelector('#htLista .ops-furn-edit') && !!document.querySelector('#htLista .ht-zgjedhur')), '2. v247: marketi i besës zgjidhet në hartë, pa ndryshim emri');
   await dr.evaluate(() => [...document.querySelectorAll('#htLista .ops-furn-rresht')].find(x => /Viva/.test(x.textContent)).click()); await dr.waitForTimeout(300);
   await dr.fill('#htLista .ops-furn-edit input', 'Viva Fresh Ulpiana');
   await dr.evaluate(() => [...document.querySelectorAll('#htLista .ops-furn-edit button')].find(x => x.textContent === 'Ruaj').click());
@@ -177,7 +181,7 @@ const MAPLIBRE = fs.readFileSync(NM + '/maplibre-gl/dist/maplibre-gl.js');
   await pb.click('#btnOpsione'); await pb.waitForTimeout(400);
   ok(await prit(async () => await duket(pb, '#opsSkedaHarta')), '3. PC besa: "Harta"');
   await pb.click('#opsSkedaHarta'); await pb.waitForTimeout(400);
-  ok(await prit(async () => (await rreshtat(pb)).length === 1 && /Meridian Fushë Kosovë/.test((await rreshtat(pb))[0])), '3. PC besa: vetëm marketi i saj, me emrin nga administratori', await rreshtat(pb));
+  ok(await prit(async () => (await rreshtat(pb)).join(' / ') === 'Meridian Fushë Kosovë | Marketi yt / Albi Mall Prishtinë | E shtoi drini'), '3. v247: PC besa: marketi i saj (emri nga administratori) + ai i drinit', await rreshtat(pb));
   ok(await pb.evaluate(() => !document.querySelector('#htLista button')), '3. PC besa: pa "Ndrysho emrin" (emrat i ndryshon te telefoni)');
   ok(await prit(async () => await hartaGati(pb), 30000) && await pb.evaluate(() => window.StokuHarta.eFundit.map.getPaintProperty('sfondi', 'background-color') === '#1b1e22'), '3. PC besa: harta me temën e errët');
   await pb.screenshot({ path: __dirname + '/v244-pc-merch-dark.png' });

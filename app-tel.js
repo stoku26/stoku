@@ -4637,13 +4637,17 @@
     rifreskoShenjen();
     if (folderiAktual === null && !$('dlgAfatet').classList.contains('hapur')) renderFolderat();
     if (faqjaEOpsioneve === 'marketet') vizatoMarketetNeCilesime();
-    if (HT && faqjaEOpsioneve === 'harta' && !eshteAdminiIStokut()) { HT.pikat = htPikatEMia(); htVizato(); }
+    if (HT && faqjaEOpsioneve === 'harta' && !eshteAdminiIStokut()) { htMerrPikat(); htVizato(); }
   }
   // ---- v246: pikat e përbashkëta (pikat/{id}) dhe vendndodhja kur hapet aplikacioni ----
   // Merchandiseri: sa hapet Stoku (jo më shpesh se 2 min) kërkohet vendndodhja (këtu del leja e telefonit herën e parë).
   // Je te një market yt → "Je te: X". Je te një pikë që e ka shtuar dikush tjetër → shtohet te marketet e tua dhe "Je te: X".
   // S'je te asnjë → "Ku je?" me pikat afër dhe "+ Market i ri" (jo më shpesh se një herë në 3 orë, pa e kërkuar vetë).
-  var PK = { lista: [], gati: false, ndal: null, uid: null, lidhjeNeRruge: {} };
+  var PK = { lista: [], gati: false, ndal: null, uid: null, lidhjeNeRruge: {}, poz: null };
+  // v247: vendndodhja e fundit (VETËM në memorie, s'ruhet askund): "Ku je?" nga çipi (Stoku, Afatet) i tregon pikat afër
+  // edhe kur GPS-i e ka gjetur marketin, që merchandiseri ta ndërrojë me dorë kur GPS-i s'e ka kapur mirë
+  var POZ_MS = 15 * 60 * 1000;
+  function pozEFundit() { return PK.poz && Date.now() - PK.poz.koha < POZ_MS ? PK.poz : null; }
   var KEY_KUJE = 'stoku:marketet:kuje'; // { uid, koha }: kur u pyet vetë herën e fundit "Ku je?"
   function pikaEMarketit(m) { return (m && m.p && PK.lista.filter(function (q) { return q.id === m.p; })[0]) || null; }
   function tekstiPikesSeHuaj(px) {
@@ -4718,6 +4722,7 @@
         if (meDore || !__gabimiGpsTreguar) { __gabimiGpsTreguar = true; toast(MK.tekstiGabimit(e), 7000); }
         return;
       }
+      PK.poz = { lat: poz.lat, lng: poz.lng, sakt: poz.sakt, koha: Date.now() };
       pritPikat(function () {
         __gpsDukePunuar = false;
         var para = idMarketitAktiv();
@@ -4744,7 +4749,7 @@
         }
         try { localStorage.setItem(KEY_KUJE, JSON.stringify({ uid: uidIm(), koha: Date.now() })); } catch (er) { /* ok */ }
         if (!marketet.length && !MK.pikatAfer(PK.lista, poz, 2000, 1).length) { hapMarketinERi(); return; }
-        hapZgjedhjenEMarketit(poz);
+        hapZgjedhjenEMarketit(poz, true);
       });
     });
   }
@@ -4754,13 +4759,15 @@
   // Dritarja "Ku je?": qellimi 'zgjidh' (çipi) ose 'te-reja' (importi pa market aktiv) → Promise(id | null | undefined = anulo)
   var __mkPritja = null;
   // poz (v246): vendndodhja e tanishme → edhe pikat e Stoku-t afër (deri 2 km), që s'janë ende te marketet e tua ("p:" + id)
-  function zgjidhMarketin(qellimi, poz) {
+  // panjohur (v247): GPS-i s'e gjeti asnjë market (pyetja vetë); përndryshe çipi, me pikat afër nga vendndodhja e fundit
+  function zgjidhMarketin(qellimi, poz, panjohur) {
     if (__mkPritja) __mkPritja(undefined);
     var perTeReja = qellimi === 'te-reja';
     var afer = !perTeReja && poz ? MK.pikatAfer(PK.lista, poz, 2000, 6).filter(function (x) { return !MK.sipasPikes(marketet, x.pika.id); }) : [];
     $('mkdTitulli').textContent = perTeReja ? 'Në cilin market?' : 'Ku je?';
     $('mkdNen').textContent = perTeReja ? 'Zgjidh marketin ku i ke këto afate.'
-      : poz ? 'S\'je te asnjë market i njohur. Zgjidh ku je, ose shto këtë vend si market të ri.' : 'Afatet dhe numrat tregohen për marketin që zgjedh.';
+      : poz && panjohur ? 'S\'je te asnjë market i njohur. Zgjidh ku je, ose shto këtë vend si market të ri.'
+      : 'Afatet dhe numrat tregohen për marketin që zgjedh. Nëse GPS-i s\'e ka gjetur mirë, zgjidhe vetë.';
     $('mkdGps').hidden = perTeReja || (!MK.kaPika(marketet) && !PK.lista.length);
     $('mkdMenaxho').hidden = perTeReja;
     var c = $('mkdLista'); c.textContent = '';
@@ -4800,8 +4807,8 @@
     if ($('dlgAfatet').classList.contains('hapur')) mbyllAfatetFaqe();
     hapOpsionet(); aktivizoTabin('marketet');
   });
-  async function hapZgjedhjenEMarketit(poz) {
-    var id = await zgjidhMarketin('zgjidh', poz);
+  async function hapZgjedhjenEMarketit(poz, panjohur) {
+    var id = await zgjidhMarketin('zgjidh', poz, panjohur);
     if (id === undefined) return;
     if (typeof id === 'string' && id.indexOf('p:') === 0) {
       var pika = PK.lista.filter(function (x) { return x.id === id.slice(2); })[0];
@@ -4813,7 +4820,7 @@
     }
     vendosMarketinAktiv(id, 'dore');
   }
-  function prekCipin() { if (merchPaMarkete()) hapMarketinERi(); else hapZgjedhjenEMarketit(); }
+  function prekCipin() { if (merchPaMarkete()) hapMarketinERi(); else hapZgjedhjenEMarketit(pozEFundit()); }
   $('afMarketi').addEventListener('click', prekCipin);
   vizatoCipin(); // gjendja e çipit dhe e rreshtit te Cilësimet që në hapje
 
@@ -4897,15 +4904,15 @@
   window.addEventListener('stoku-auth-ndryshoi', rifreskoMerchandiserin);
 
   // ---- v244: Cilësimet → Harta (harta.js): pikat e marketeve mbi një hartë që tregon vetëm emrat e vendbanimeve.
-  // Administratori i sheh pikat e krejt merchandiserëve (lexon dyqanin e secilit, si "Afatet e X") dhe ua ndryshon emrin
-  // te dyqani i tyre (pajisjet e tyre e marrin me sinkronizim); merchandiseri sheh dhe riemërton vetëm marketet e veta.
+  // Vetëm administratori dhe merchandiserët. Administratori i sheh pikat e Stoku-t (v246: pikat/{id}), ua ndryshon emrin
+  // për krejt Stoku-n dhe i fshin; merchandiseri (v247) i sheh krejt marketet e Stoku-t dhe riemërton vetëm të vetat.
   var SH = window.StokuHarta;
   var HT = { inst: null, dukeHapur: false, pershtatur: false, pikat: null, ngarkuarSe: 0, dukeNgarkuar: false, gabime: 0, zgjedhur: '', neEditim: '' };
   function lejaHarta() { return !!SH && (eshteAdminiIStokut() || eshteMerchandiser()); }
   function rifreskoTabinHarta() {
     var t = $('tabHarta'); if (!t) return;
     t.hidden = !lejaHarta();
-    $('tabHartaStatus').textContent = eshteAdminiIStokut() ? 'Pikat e marketeve të merchandiserëve' : 'Marketet e tua në hartë';
+    $('tabHartaStatus').textContent = 'Marketet në hartë';
     if (t.hidden && faqjaEOpsioneve === 'harta') aktivizoTabin(null);
   }
   window.addEventListener('stoku-auth-ndryshoi', function () {
@@ -4917,14 +4924,24 @@
     var u = perdoruesiAktual();
     return marketet.map(function (m) { return Object.assign({ uid: u ? u.uid : '', perdoruesi: emriPerdoruesitAktual(), imi: true }, m); });
   }
-  // v246: administratori sheh pikat e përbashkëta të Stoku-t (pikat/{id}); merchandiseri marketet e veta
+  // v246: administratori sheh pikat e përbashkëta të Stoku-t (pikat/{id})
   function htPikatESistemit() {
     return PK.lista.map(function (x) { return { id: x.id, uid: 'pika', pika: true, emri: x.emri, lat: x.lat, lng: x.lng, perdoruesi: x.krijuarNgaEmri, emriNgaAdmini: x.emriNgaAdmini }; });
   }
+  // v247: merchandiseri i sheh krejt marketet e Stoku-t: të vetat (i riemërton si më parë) dhe pikat e të tjerëve
+  // (`tjeter`: më të zbehta, vetëm për t'i parë)
+  function htPikatEMerchandiserit() {
+    var mia = htPikatEMia(), teMia = {};
+    mia.forEach(function (m) { if (m.p) teMia[m.p] = true; });
+    return mia.concat(PK.lista.filter(function (x) { return !teMia[x.id]; }).map(function (x) {
+      return { id: x.id, uid: 'pika', pika: true, tjeter: true, emri: x.emri, lat: x.lat, lng: x.lng, perdoruesi: x.krijuarNgaEmri, eMia: x.krijuarNga === uidIm() };
+    }));
+  }
   async function htMerrPikat() {
-    if (!eshteAdminiIStokut()) { HT.pikat = htPikatEMia(); HT.gabime = 0; return; }
+    HT.gabime = 0;
     nisPikat();
-    HT.pikat = PK.gati ? htPikatESistemit() : null; HT.gabime = 0;
+    if (!eshteAdminiIStokut()) { HT.pikat = htPikatEMerchandiserit(); return; }
+    HT.pikat = PK.gati ? htPikatESistemit() : null;
   }
   async function htHapFaqen(detyro) {
     HT.neEditim = '';
@@ -4938,7 +4955,7 @@
     var admin = eshteAdminiIStokut();
     $('htIntro').textContent = admin
       ? 'Pikat e marketeve që i kanë ruajtur merchandiserët. Në hartë dalin vetëm emrat e qyteteve, fshatrave dhe lagjeve. Prek një pikë ose një emër te lista për ta ndryshuar emrin e pikës për krejt Stoku-n.'
-      : 'Marketet e tua që kanë vendndodhje. Në hartë dalin vetëm emrat e qyteteve, fshatrave dhe lagjeve. Prek një pikë për ta ndryshuar emrin.';
+      : 'Marketet e Stoku-t: të tuat me blu, të tjerat me gri. Në hartë dalin vetëm emrat e qyteteve, fshatrave dhe lagjeve. Prek marketin tënd për ta ndryshuar emrin.';
     var c = $('htLista'); c.textContent = '';
     if (HT.inst) HT.inst.vendos(HT.pikat || []);
     if (!HT.pikat) { $('htInfo').textContent = 'Duke i marrë pikat…'; return; }
@@ -4948,11 +4965,21 @@
       (paVend.length ? ' · ' + paVend.length + ' pa vendndodhje' : '') + (HT.gabime ? ' · ' + sasiaETekst(HT.gabime, 'llogari', 'llogari') + ' s\'u lexuan' : '') + '.';
     if (!HT.pikat.length) {
       var bo = document.createElement('div'); bo.className = 'ops-furn-bosh';
-      bo.textContent = admin ? 'Asnjë merchandiser s\'ka ruajtur ende market.' : 'S\'ke ende asnjë market. Shtoji te Cilësimet → Marketet.';
+      bo.textContent = admin ? 'Asnjë merchandiser s\'ka ruajtur ende market.' : 'S\'ka ende asnjë market në hartë. Shtoji te Cilësimet → Marketet.';
       c.appendChild(bo); return;
     }
     function sipasEmrit(a, b) { return String(a.emri).localeCompare(String(b.emri), 'sq'); }
+    function titull(tx) { var t = document.createElement('div'); t.className = 'ops-grupi-titull'; t.textContent = tx; c.appendChild(t); }
+    var tjera = meVend.filter(function (p) { return p.tjeter; });
+    if (tjera.length) { // merchandiseri: të vetat së pari, pastaj marketet e të tjerëve
+      meVend = meVend.filter(function (p) { return !p.tjeter; });
+      if (meVend.length) titull('Marketet e mia');
+    }
     meVend.sort(sipasEmrit).forEach(function (p) { c.appendChild(htRreshti(p)); });
+    if (tjera.length) {
+      titull('Marketet e tjera të Stoku-t');
+      tjera.sort(sipasEmrit).forEach(function (p) { c.appendChild(htRreshti(p)); });
+    }
     if (paVend.length) {
       var t = document.createElement('div'); t.className = 'ops-grupi-titull'; t.textContent = 'Pa vendndodhje (s\'dalin në hartë)';
       c.appendChild(t);
@@ -4969,16 +4996,19 @@
     var t = document.createElement('span'); t.className = 'ops-rresht__tekst';
     var e = document.createElement('span'); e.className = 'ops-furn-emri'; e.textContent = p.emri;
     var n = document.createElement('span'); n.className = 'hint';
-    n.textContent = eshteAdminiIStokut() ? (p.imi ? 'Marketi yt' : (p.perdoruesi ? 'E shtoi ' + p.perdoruesi : 'Pikë e Stoku-t') + (p.emriNgaAdmini ? ' · emri nga ti' : '')) : (SH.kaVend(p) ? 'Në hartë' : 'Pa vendndodhje');
+    n.textContent = eshteAdminiIStokut() ? (p.imi ? 'Marketi yt' : (p.perdoruesi ? 'E shtoi ' + p.perdoruesi : 'Pikë e Stoku-t') + (p.emriNgaAdmini ? ' · emri nga ti' : ''))
+      : p.tjeter ? (p.eMia ? 'E shtove ti' : p.perdoruesi ? 'E shtoi ' + p.perdoruesi : 'Market i Stoku-t') : (SH.kaVend(p) ? 'Marketi yt' : 'Pa vendndodhje');
     t.appendChild(e); t.appendChild(n);
-    b.appendChild(ik); b.appendChild(t); b.appendChild(lapsi());
-    b.setAttribute('aria-label', 'Ndrysho emrin e pikës ' + p.emri);
+    b.appendChild(ik); b.appendChild(t);
+    if (p.tjeter) { ik.className = 'kat-ikona-badge ngj-gri ops-furn-ik'; b.setAttribute('aria-label', 'Shfaqe në hartë ' + p.emri); }
+    else { b.appendChild(lapsi()); b.setAttribute('aria-label', 'Ndrysho emrin e pikës ' + p.emri); }
     b.addEventListener('click', function () { htZgjidh(k, true); });
     return b;
   }
   // Pika e zgjedhur (nga harta ose lista): theksohet, harta shkon te ajo dhe hapet ndryshimi i emrit
   function htZgjidh(k, ngaLista) {
-    HT.zgjedhur = k; HT.neEditim = k;
+    var p = (HT.pikat || []).filter(function (x) { return SH.celesi(x) === k; })[0];
+    HT.zgjedhur = k; HT.neEditim = p && p.tjeter ? '' : k; // marketin e dikujt tjetër merchandiseri vetëm e sheh
     if (HT.inst) HT.inst.zgjidh(k, ngaLista);
     htVizato();
     var r = $('htLista').querySelector('.ops-furn-edit');
@@ -5042,7 +5072,9 @@
     if (HT.dukeHapur || !SH) return;
     HT.dukeHapur = true;
     $('htGabim').hidden = true; el.hidden = false;
-    SH.krijo(el, { tema: htTema(), pikat: HT.pikat || [], kurSkaPllaka: function () { $('htGabim').hidden = false; $('htProvo').hidden = true; $('htGabimTekst').textContent = 'Pjesët e hartës s\'u morën (rrugët dhe emrat e vendeve). Kontrollo internetin; pikat dalin edhe ashtu.'; }, kurKlikon: function (k) { htZgjidh(k, false); } }).then(function (inst) {
+    SH.krijo(el, { tema: htTema(), pikat: HT.pikat || [], kurSkaPllaka: function () { $('htGabim').hidden = false; $('htProvo').hidden = true; $('htGabimTekst').textContent = 'Pjesët e hartës s\'u morën (rrugët dhe emrat e vendeve). Kontrollo internetin; pikat dalin edhe ashtu.'; },
+      kurSkaSatelit: function () { toast('Pamja satelitore s\'u hap. Kontrollo internetin dhe provo sërish.', 5000); },
+      kurKlikon: function (k) { htZgjidh(k, false); } }).then(function (inst) {
       HT.dukeHapur = false; HT.inst = inst;
       if (HT.pikat) { HT.pershtatur = true; inst.vendos(HT.pikat); inst.pershtat(HT.pikat); }
     }, function (e) {

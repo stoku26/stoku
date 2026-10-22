@@ -20,6 +20,13 @@
   'use strict';
 
   var LISTA = [
+    { v: 247, versioni: '1.36.0', data: '2026-10-22', titulli: 'Ndërro marketin kur të duash', platforma: 'tel', pikat: [
+      'Lart te Stoku dhe te Afatet, prek "Je te" dhe zgjidh marketin vetë, edhe kur GPS-i e ka gjetur. Kështu e ndreq kur GPS-i s\'e ka kapur mirë.',
+      'Aty dalin edhe marketet e Stoku-t afër teje ("Afër teje"), që i shton me një prekje.'
+    ] },
+    { v: 247, versioni: '1.36.0', data: '2026-10-22', titulli: 'Krejt marketet në hartë', pikat: [
+      'Te Cilësimet → Harta ("Marketet në hartë") i sheh krejt marketet e Stoku-t: të tuat me blu, të tjerat me gri. Emrin e ndryshon vetëm te marketet e tua.'
+    ] },
     { v: 246, versioni: '1.35.0', data: '2026-10-22', titulli: 'Dalja nga grupi', pikat: [
       'Edhe admini i vetëm i grupit tash mund të dalë nga grupi: adminin e merr vetë kolegu që ka hyrë më herët në grup, dhe atij i vjen njoftim.',
       'Kur del i fundit nga grupi, grupi fshihet komplet, bashkë me aktivitetin.'

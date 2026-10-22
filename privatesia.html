@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: blob: https://*.googleapis.com https://*.mendurb.workers.dev https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://www.gstatic.com https://tiles.openfreemap.org; frame-src https://stoku-appi.firebaseapp.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: blob: https://*.googleapis.com https://*.mendurb.workers.dev https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://www.gstatic.com https://tiles.openfreemap.org https://ibasemaps-api.arcgis.com; frame-src https://stoku-appi.firebaseapp.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Privatësia • Stoku</title>
 <meta name="description" content="Çka ruan Stoku, ku ruhet, kush ka qasje dhe si fshihen të dhënat.">
@@ -86,6 +86,7 @@
     <li>Cloudflare (njoftimet, fotot e profilit, ora e dorës, serveri i AI-së),</li>
     <li>GitHub Pages (vetë faqja stoku.site) dhe jsDelivr (disa librari të faqes): si çdo server, shohin adresën IP kur hapet faqja,</li>
     <li>OpenFreeMap (pjesët e hartës, vetëm kur e hap Cilësimet → Harta): sheh adresën IP dhe zonën e hartës që shikon; Stoku s'i dërgon asnjë të dhënë tjetër,</li>
+    <li>Esri (pamja satelitore, vetëm kur te harta zgjedh "Satelit"): sheh adresën IP dhe zonën e hartës që shikon; Stoku s'i dërgon asnjë të dhënë tjetër,</li>
     <li>Google, Anthropic ose Cloudflare për leximin me AI, vetëm kur e përdor.</li>
   </ul>
 

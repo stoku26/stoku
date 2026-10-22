@@ -10,8 +10,15 @@
  * - STILI ËSHTË YNI, jo i OpenFreeMap-it: sfondi, uji, rrugët PA EMRA, kufiri i shtetit dhe nga shtresa `place` vetëm
  *   klasat e VENDBANIMEVE. Asnjë shtresë tjetër me emra (dyqane, rrugë, ujëra, male, shtete) s'shtohet: kështu në hartë
  *   s'del asgjë tjetër përveç vendbanimeve dhe pikave tona.
- * - Pikat: { id, emri, lat, lng, uid, perdoruesi }. Administratori i sheh pikat e përbashkëta të Stoku-t (v246: pikat/{id},
- *   marketet.js) dhe ua ndryshon emrin për krejt Stoku-n; merchandiseri sheh vetëm marketet e veta.
+ * - Pikat: { id, emri, lat, lng, uid, perdoruesi, tjeter }. Administratori i sheh pikat e përbashkëta të Stoku-t (v246:
+ *   pikat/{id}, marketet.js) dhe ua ndryshon emrin për krejt Stoku-n; merchandiseri (v247) i sheh të gjitha, të vetat me
+ *   ngjyrën kryesore dhe të tjerat (`tjeter`) më të zbehta.
+ * - v247: SATELITI (butoni "Satelit" / "Hartë" në hartë): Esri World Imagery përmes ArcGIS Location Platform
+ *   (ibasemaps-api.arcgis.com, me çelës API). Çelësi (ESRI_CELESI) është publik, si ai i Firebase-it: e sheh kushdo në
+ *   faqe, prandaj te llogaria ArcGIS e pronarit kufizohet vetëm për stoku.site (referrer). Pa çelës butoni s'del. Pllakat
+ *   satelitore merren VETËM kur zgjidhet "Satelit" (shtresa e fshehur s'kërkon pllaka). Mbi satelitin mbeten vetëm emrat
+ *   e vendbanimeve (të bardhë) dhe pikat; "Powered by Esri" del gjithmonë në qoshe kur sheh satelitin (e kërkon Esri).
+ *   CSP: connect-src https://ibasemaps-api.arcgis.com (te 5 faqet dhe te Cloudflare). Zgjedhja mbahet në pajisje.
  */
 (function (root) {
   'use strict';
@@ -30,12 +37,20 @@
   var ZOOM_LAGJET = 14;
   var KOSOVA = { qendra: [20.9, 42.58], zoom: 7.2 };
   var EMRI_MAKS = 60;
+  // v247: sateliti (Esri). Çelësi i API-së i ArcGIS Location Platform (privilegji "Basemaps"), i kufizuar te stoku.site.
+  var ESRI_CELESI = '';
+  var SATELITI = 'https://ibasemaps-api.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+  var SATELITI_BURIMI = 'Powered by <a href="https://www.esri.com/" target="_blank" rel="noopener">Esri</a> | Esri, Vantor, Earthstar Geographics, and the GIS User Community';
+  var KEY_PAMJA = 'stoku:harta:pamja'; // 'satelit' | 'harta' (kjo pajisje)
 
   var NGJYRAT = {
     light: { sfondi: '#f4f2ee', uji: '#c4dcef', rruga: '#ffffff', rrugaKufi: '#d9d4ca', rrugaVogel: '#ffffff', kufiri: '#9a8fb0',
-      teksti: '#2f3337', tekstiLagje: '#5b6470', halo: '#ffffff', pika: '#1f6feb', pikaZgjedhur: '#e8590c', pikaKufi: '#ffffff' },
+      teksti: '#2f3337', tekstiLagje: '#5b6470', halo: '#ffffff', pika: '#1f6feb', pikaZgjedhur: '#e8590c', pikaKufi: '#ffffff', pikaTjeter: '#7a8699' },
     dark: { sfondi: '#1b1e22', uji: '#22394d', rruga: '#3b4048', rrugaKufi: '#2a2e34', rrugaVogel: '#30343a', kufiri: '#7d7396',
-      teksti: '#e7e9ec', tekstiLagje: '#aab2bd', halo: '#1b1e22', pika: '#4c9bff', pikaZgjedhur: '#ff8a3d', pikaKufi: '#1b1e22' }
+      teksti: '#e7e9ec', tekstiLagje: '#aab2bd', halo: '#1b1e22', pika: '#4c9bff', pikaZgjedhur: '#ff8a3d', pikaKufi: '#1b1e22', pikaTjeter: '#8d99ab' },
+    // mbi satelit (njëjtë në të dy temat): emrat e bardhë me kufi të errët, pikat me kufi të bardhë
+    satelit: { teksti: '#ffffff', tekstiLagje: '#e6e9ee', halo: 'rgba(0,0,0,0.85)', kufiri: '#ffffff', pika: '#4c9bff', pikaZgjedhur: '#ff8a3d',
+      pikaKufi: '#ffffff', pikaTjeter: '#c3ccd8', tekstiPika: '#ffffff' }
   };
 
   // Tekstet e kontrolleve të MapLibre-s (përndryshe dalin anglisht)
@@ -51,35 +66,41 @@
   function numer(x) { return typeof x === 'number' && isFinite(x); }
   function kaVend(p) { return !!p && numer(p.lat) && numer(p.lng) && Math.abs(p.lat) <= 90 && Math.abs(p.lng) <= 180; }
   function celesi(p) { return String(p.uid || '') + '|' + String(p.id || ''); }
+  function kaSatelit() { return !!ESRI_CELESI; }
+  function lexoPamjen() { try { return localStorage.getItem(KEY_PAMJA) === 'satelit'; } catch (e) { return false; } }
+  function ruajPamjen(sat) { try { localStorage.setItem(KEY_PAMJA, sat ? 'satelit' : 'harta'); } catch (e) { /* ok */ } }
 
+  // o: { tema, pikat, zgjedhur, satelit } (satelit vlen vetëm me çelës)
   function stili(o) {
     o = o || {};
-    var n = NGJYRAT[o.tema === 'dark' ? 'dark' : 'light'];
+    var sat = !!o.satelit && kaSatelit();
+    var n = NGJYRAT[o.tema === 'dark' ? 'dark' : 'light'], ns = sat ? NGJYRAT.satelit : n;
     var rruget = ['in', ['get', 'class'], ['literal', ['motorway', 'trunk', 'primary', 'secondary', 'tertiary']]];
     var zgjedhur = ['==', ['get', 'k'], o.zgjedhur || ''];
+    var hartaVetem = { visibility: sat ? 'none' : 'visible' }; // mbi satelit s'vizatohen uji dhe rrugët
+    var burimet = { omt: { type: 'vector', url: PLLAKAT }, pikat: { type: 'geojson', data: pikatGeoJson(o.pikat) } };
+    if (kaSatelit()) burimet.satelit = { type: 'raster', tiles: [SATELITI + '?token=' + encodeURIComponent(ESRI_CELESI)], tileSize: 256, maxzoom: 19, attribution: SATELITI_BURIMI };
+    var shtresat = [{ id: 'sfondi', type: 'background', paint: { 'background-color': n.sfondi } }];
+    if (kaSatelit()) shtresat.push({ id: 'satelit', type: 'raster', source: 'satelit', layout: { visibility: sat ? 'visible' : 'none' } });
     return {
       version: 8,
       glyphs: SHKRONJAT,
-      sources: {
-        omt: { type: 'vector', url: PLLAKAT },
-        pikat: { type: 'geojson', data: pikatGeoJson(o.pikat) }
-      },
-      layers: [
-        { id: 'sfondi', type: 'background', paint: { 'background-color': n.sfondi } },
-        { id: 'uji', type: 'fill', source: 'omt', 'source-layer': 'water', paint: { 'fill-color': n.uji } },
-        { id: 'lumenjte', type: 'line', source: 'omt', 'source-layer': 'waterway', minzoom: 9, paint: { 'line-color': n.uji, 'line-width': 1.2 } },
-        { id: 'rruget-vogla', type: 'line', source: 'omt', 'source-layer': 'transportation', minzoom: 13,
+      sources: burimet,
+      layers: shtresat.concat([
+        { id: 'uji', type: 'fill', source: 'omt', 'source-layer': 'water', layout: hartaVetem, paint: { 'fill-color': n.uji } },
+        { id: 'lumenjte', type: 'line', source: 'omt', 'source-layer': 'waterway', minzoom: 9, layout: hartaVetem, paint: { 'line-color': n.uji, 'line-width': 1.2 } },
+        { id: 'rruget-vogla', type: 'line', source: 'omt', 'source-layer': 'transportation', minzoom: 13, layout: hartaVetem,
           filter: ['in', ['get', 'class'], ['literal', ['minor', 'service']]],
           paint: { 'line-color': n.rrugaVogel, 'line-width': ['interpolate', ['linear'], ['zoom'], 13, 1, 17, 6] } },
         { id: 'rruget-kufi', type: 'line', source: 'omt', 'source-layer': 'transportation', minzoom: 6, filter: rruget,
-          layout: { 'line-cap': 'round', 'line-join': 'round' },
+          layout: { 'line-cap': 'round', 'line-join': 'round', visibility: hartaVetem.visibility },
           paint: { 'line-color': n.rrugaKufi, 'line-width': ['interpolate', ['linear'], ['zoom'], 6, 1.5, 12, 4, 17, 14] } },
         { id: 'rruget', type: 'line', source: 'omt', 'source-layer': 'transportation', minzoom: 6, filter: rruget,
-          layout: { 'line-cap': 'round', 'line-join': 'round' },
+          layout: { 'line-cap': 'round', 'line-join': 'round', visibility: hartaVetem.visibility },
           paint: { 'line-color': n.rruga, 'line-width': ['interpolate', ['linear'], ['zoom'], 6, 0.6, 12, 2.5, 17, 11] } },
         { id: 'kufiri', type: 'line', source: 'omt', 'source-layer': 'boundary',
           filter: ['all', ['<=', ['get', 'admin_level'], 2], ['!=', ['get', 'maritime'], 1]],
-          paint: { 'line-color': n.kufiri, 'line-width': 1.2, 'line-dasharray': [3, 2] } },
+          paint: { 'line-color': ns.kufiri, 'line-width': 1.2, 'line-dasharray': [3, 2] } },
         // Emrat: VETËM vendbanimet (qytet, qytezë, fshat, lagje); asnjë shtresë tjetër me emra
         { id: 'vendbanimet', type: 'symbol', source: 'omt', 'source-layer': 'place',
           filter: ['in', ['get', 'class'], ['literal', VENDBANIMET]],
@@ -89,22 +110,24 @@
             'text-transform': ['match', ['get', 'class'], LAGJET, 'uppercase', 'none'],
             'text-letter-spacing': ['match', ['get', 'class'], LAGJET, 0.08, 0],
             'symbol-sort-key': ['coalesce', ['get', 'rank'], 99] },
-          paint: { 'text-color': ['match', ['get', 'class'], LAGJET, n.tekstiLagje, n.teksti], 'text-halo-color': n.halo, 'text-halo-width': 1.5 } },
+          paint: { 'text-color': ['match', ['get', 'class'], LAGJET, ns.tekstiLagje, ns.teksti], 'text-halo-color': ns.halo, 'text-halo-width': sat ? 1.8 : 1.5 } },
         { id: 'pikat', type: 'circle', source: 'pikat',
           paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, ['case', zgjedhur, 7, 5], 14, ['case', zgjedhur, 12, 9]],
-            'circle-color': ['case', zgjedhur, n.pikaZgjedhur, n.pika], 'circle-stroke-color': n.pikaKufi, 'circle-stroke-width': 2.5 } },
+            'circle-color': ngjyraEPikes(ns, zgjedhur), 'circle-stroke-color': ns.pikaKufi, 'circle-stroke-width': 2.5 } },
         { id: 'pikat-emri', type: 'symbol', source: 'pikat',
           layout: { 'text-field': ['get', 'emri'], 'text-font': ['Noto Sans Bold'], 'text-size': 13, 'text-anchor': 'top',
-            'text-offset': [0, 0.9], 'text-max-width': 10, 'symbol-sort-key': ['case', zgjedhur, 0, 1] },
-          paint: { 'text-color': ['case', zgjedhur, n.pikaZgjedhur, n.pika], 'text-halo-color': n.halo, 'text-halo-width': 1.8 } }
-      ]
+            'text-offset': [0, 0.9], 'text-max-width': 10, 'symbol-sort-key': ['case', zgjedhur, 0, ['==', ['get', 'tjeter'], true], 2, 1] },
+          paint: { 'text-color': sat ? ns.tekstiPika : ngjyraEPikes(ns, zgjedhur), 'text-halo-color': ns.halo, 'text-halo-width': 1.8 } }
+      ])
     };
   }
+  // E zgjedhura portokalli; pikat e të tjerëve (merchandiseri) më të zbehta
+  function ngjyraEPikes(n, zgjedhur) { return ['case', zgjedhur, n.pikaZgjedhur, ['==', ['get', 'tjeter'], true], n.pikaTjeter, n.pika]; }
 
   function pikatGeoJson(pikat) {
     return { type: 'FeatureCollection', features: (pikat || []).filter(kaVend).map(function (p) {
       return { type: 'Feature', geometry: { type: 'Point', coordinates: [p.lng, p.lat] },
-        properties: { k: celesi(p), emri: String(p.emri || 'Market'), perdoruesi: String(p.perdoruesi || '') } };
+        properties: { k: celesi(p), emri: String(p.emri || 'Market'), perdoruesi: String(p.perdoruesi || ''), tjeter: !!p.tjeter } };
     }) };
   }
 
@@ -128,15 +151,17 @@
     return ngarkimi;
   }
 
-  // Harta brenda `el`. o: { tema, pikat, kurKlikon(celesi), kurSkaPllaka() }. Kthen premtim me { map, vendos, zgjidh, pershtat, tema, hiq }
+  // Harta brenda `el`. o: { tema, pikat, kurKlikon(celesi), kurSkaPllaka(), kurSkaSatelit() }. Kthen premtim me
+  // { map, vendos, zgjidh, pershtat, tema, satelit, eshteSatelit, madhesia, hiq }
   // kurSkaPllaka: pllakat/shkronjat e OpenFreeMap-it s'u morën (pa internet, ose CSP pa tiles.openfreemap.org), një herë
+  // kurSkaSatelit: pllakat e Esri-t s'u morën (pa internet, çelës i pavlefshëm, CSP); harta kthehet vetë te "Hartë"
   function krijo(el, o) {
     o = o || {};
     return ngarko().then(function (ml) {
-      var pikat = o.pikat || [], tema = o.tema, zgjedhur = '';
+      var pikat = o.pikat || [], tema = o.tema, zgjedhur = '', sat = kaSatelit() && lexoPamjen();
       var map;
       try {
-        map = new ml.Map({ container: el, style: stili({ tema: tema, pikat: pikat }), center: KOSOVA.qendra, zoom: KOSOVA.zoom,
+        map = new ml.Map({ container: el, style: stili({ tema: tema, pikat: pikat, satelit: sat }), center: KOSOVA.qendra, zoom: KOSOVA.zoom,
           maxZoom: 18, attributionControl: { compact: true }, dragRotate: false, pitchWithRotate: false, touchPitch: false, locale: TEKSTET });
       } catch (e) { throw new Error('webgl'); }
       map.touchZoomRotate.disableRotation();
@@ -156,12 +181,44 @@
       });
       // Pikat që erdhën para se stili të ngarkohej (burimi s'ekzistonte ende) vendosen kur ngarkohet
       map.on('load', function () { var s = map.getSource('pikat'); if (s) s.setData(pikatGeoJson(pikat)); });
-      var njoftuar = false;
+      var njoftuar = false, gabimeSatelit = 0;
       map.on('error', function (ev) {
         var m = String((ev && ev.error && ev.error.message) || '');
+        if (ev && ev.sourceId === 'satelit') {
+          // disa pllaka mund të mungojnë (p.sh. det); kur dështojnë shumë, ose çelësi refuzohet, kthehet te harta
+          gabimeSatelit++;
+          if (sat && (gabimeSatelit >= 4 || /40[13]|Unauthorized|Forbidden/i.test(m))) { vendosSatelitin(false, true); if (o.kurSkaSatelit) o.kurSkaSatelit(); }
+          return;
+        }
         if (njoftuar || !o.kurSkaPllaka || (ev && ev.sourceId && ev.sourceId !== 'omt') || !/fetch|load|network|NetworkError|Failed|AJAXError/i.test(m)) return;
         njoftuar = true; o.kurSkaPllaka();
       });
+      // v247: butoni "Satelit" / "Hartë" (nën zmadhimin) + "Powered by Esri" që s'palohet kur sheh satelitin
+      var btnSat = null, esri = null;
+      if (kaSatelit()) {
+        var grupi = document.createElement('div'); grupi.className = 'maplibregl-ctrl maplibregl-ctrl-group ht-pamja';
+        btnSat = document.createElement('button'); btnSat.type = 'button'; btnSat.className = 'ht-pamja-btn';
+        btnSat.addEventListener('click', function () { vendosSatelitin(!sat); });
+        grupi.appendChild(btnSat);
+        map.addControl({ onAdd: function () { return grupi; }, onRemove: function () { if (grupi.parentNode) grupi.parentNode.removeChild(grupi); } }, 'top-right');
+        esri = document.createElement('div'); esri.className = 'ht-esri'; esri.textContent = 'Powered by Esri';
+        el.appendChild(esri);
+      }
+      function rifreskoButonin() {
+        if (!btnSat) return;
+        btnSat.textContent = sat ? 'Hartë' : 'Satelit';
+        btnSat.title = sat ? 'Shfaq hartën' : 'Shfaq pamjen satelitore';
+        btnSat.setAttribute('aria-pressed', sat ? 'true' : 'false');
+        esri.hidden = !sat;
+        el.classList.toggle('ht-satelit', sat);
+      }
+      function vendosSatelitin(v, paRuajtur) {
+        v = !!v && kaSatelit();
+        if (v === sat) return;
+        sat = v; gabimeSatelit = 0;
+        if (!paRuajtur) ruajPamjen(sat);
+        rivizato(); rifreskoButonin();
+      }
       // Nën zmadhimin 14 pllakat s'i kanë lagjet: butoni të çon aty (në qendër të asaj që po shikon)
       var udh = document.createElement('button');
       udh.type = 'button'; udh.className = 'ht-udhezim'; udh.textContent = 'Zmadho për emrat e lagjeve';
@@ -179,7 +236,7 @@
         v.forEach(function (p) { b.extend([p.lng, p.lat]); });
         map.fitBounds(b, { padding: 48, maxZoom: 15, duration: 0 });
       }
-      function rivizato() { map.setStyle(stili({ tema: tema, pikat: pikat, zgjedhur: zgjedhur })); }
+      function rivizato() { map.setStyle(stili({ tema: tema, pikat: pikat, zgjedhur: zgjedhur, satelit: sat })); }
       var inst = {
         map: map,
         vendos: function (l) {
@@ -190,22 +247,25 @@
         zgjidh: function (k, fluturo) {
           zgjedhur = k || '';
           if (map.getLayer('pikat')) {
-            var z = ['==', ['get', 'k'], zgjedhur], n = NGJYRAT[tema === 'dark' ? 'dark' : 'light'];
-            map.setPaintProperty('pikat', 'circle-color', ['case', z, n.pikaZgjedhur, n.pika]);
+            var z = ['==', ['get', 'k'], zgjedhur], n = sat ? NGJYRAT.satelit : NGJYRAT[tema === 'dark' ? 'dark' : 'light'];
+            map.setPaintProperty('pikat', 'circle-color', ngjyraEPikes(n, z));
             map.setPaintProperty('pikat', 'circle-radius', ['interpolate', ['linear'], ['zoom'], 6, ['case', z, 7, 5], 14, ['case', z, 12, 9]]);
-            map.setPaintProperty('pikat-emri', 'text-color', ['case', z, n.pikaZgjedhur, n.pika]);
-            map.setLayoutProperty('pikat-emri', 'symbol-sort-key', ['case', z, 0, 1]);
+            if (!sat) map.setPaintProperty('pikat-emri', 'text-color', ngjyraEPikes(n, z));
+            map.setLayoutProperty('pikat-emri', 'symbol-sort-key', ['case', z, 0, ['==', ['get', 'tjeter'], true], 2, 1]);
           }
           var p = pikat.filter(function (x) { return celesi(x) === zgjedhur; })[0];
           if (fluturo && kaVend(p)) map.flyTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), 15), duration: 600 });
         },
         pershtat: pershtat,
         tema: function (t) { if (t !== tema) { tema = t; rivizato(); } },
+        satelit: function (v) { vendosSatelitin(v); },
+        eshteSatelit: function () { return sat; },
         madhesia: function () { map.resize(); },
         hiq: function () { try { map.remove(); } catch (e) { /* ok */ } }
       };
       pershtat(pikat);
       rifreskoUdhezimin();
+      rifreskoButonin();
       api.eFundit = inst; // për testet dhe kontrollin nga konsola
       return inst;
     });
@@ -213,8 +273,8 @@
 
   var api = {
     MAPLIBRE_JS: MAPLIBRE_JS, MAPLIBRE_SRI: MAPLIBRE_SRI, MAPLIBRE_CSS: MAPLIBRE_CSS, PLLAKAT: PLLAKAT, SHKRONJAT: SHKRONJAT,
-    VENDBANIMET: VENDBANIMET, LAGJET: LAGJET, ZOOM_LAGJET: ZOOM_LAGJET, KOSOVA: KOSOVA,
-    kaVend: kaVend, celesi: celesi, stili: stili, pikatGeoJson: pikatGeoJson, emriIPastruar: emriIPastruar, ngarko: ngarko, krijo: krijo
+    VENDBANIMET: VENDBANIMET, LAGJET: LAGJET, ZOOM_LAGJET: ZOOM_LAGJET, KOSOVA: KOSOVA, SATELITI: SATELITI, KEY_PAMJA: KEY_PAMJA,
+    kaSatelit: kaSatelit, kaVend: kaVend, celesi: celesi, stili: stili, pikatGeoJson: pikatGeoJson, emriIPastruar: emriIPastruar, ngarko: ngarko, krijo: krijo
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuHarta = api;
