@@ -25,7 +25,7 @@ const SC = __dirname + '/';
     const p = await ctx.newPage();
     p.on('pageerror', e => { g++; console.log('[' + emri + '] pageerror:', e.message); });
     p.on('console', m => { if (m.type() === 'error' && !/Failed to load resource|net::ERR/.test(m.text())) { g++; console.log('[' + emri + '] console:', m.text()); } });
-    await p.goto('http://127.0.0.1:8765/' + (pc ? 'pc.html#/ekipa' : 'index.html'));
+    await p.goto((process.env.STOKU_B || 'http://127.0.0.1:8765') + '/' + (pc ? 'pc.html#/ekipa' : 'index.html'));
     await p.waitForTimeout(2500);
     await p.evaluate(() => document.querySelectorAll('.mbulese.hapur').forEach(d => { if (d.id !== 'dlgEkipi') d.classList.remove('hapur'); }));
     return p;

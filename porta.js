@@ -745,5 +745,7 @@
   window.StokuPorta = { eHapur: function () { return gjendja.eHapur; }, ruajKredencialet: ruajKredencialet, dilMeDore: dilMeDore,
     ngaVizitori: function () { return ngaVizitori; }, hapHyrjen: hapHyrjen, rinisProven: rinisProven,
     // v232: a i përkasin të dhënat e kësaj faqeje kësaj llogarie? (jo, kur në një skedë tjetër u hyr me llogari tjetër)
-    teDhenatELlogarise: function (uid) { return !!uid && (!pronariIFaqes || pronariIFaqes === uid); } };
+    teDhenatELlogarise: function (uid) { return !!uid && (!pronariIFaqes || pronariIFaqes === uid); },
+    // v248: { uid, emri } e hyrjes së fundit në këtë pajisje (hiqet me "Dil"): faqja s'del "pa llogari" derisa Firebase ta dijë
+    hyrjaEFundit: function () { var f = hyrjaEFundit(); return f && f.uid && lexo(KEY_PRONARI) === f.uid ? { uid: f.uid, emri: String(f.emri || '') } : null; } };
 })();

@@ -52,6 +52,36 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PC PA "MIRË SE ERDHE" PAS RIFRESKIMIT + AFATET SIPAS MARKETEVE + PRODUKTET E KONTROLLUARA S'KTHEHEN (v248 = 1.36.1)**:
+   pronari: (1) PC, i kyçur: pas rifreskimit për rreth 1 s del faqja "pa llogari" (karta "Mirë se erdhe" me hyrjen, "Hyr ·
+   Vetëm në këtë kompjuter"), pastaj faqja e vërtetë; (2) merchandiserëve (vetëm atyre) afatet s'duhet t'u përzihen: të ndara
+   sipas marketeve/pikave, dhe te kartat me ngjyra të shihet në cilin market është afati; (3) te telefoni i administratorit
+   "Produktet e reja" i nxori sërish për kontroll produkte të kontrolluara më herët ("nga tonnyaliu").
+   - **(1) Shkaku:** Firebase e kthen hyrjen (IndexedDB) pas ~1 s; `renderPermbledhjen` e shfaqte `#kartaMireseardhje` kur
+     `__stokuCloud` ekzistonte pa përdorues, edhe para `authGati`. **Rregullimi (`app-pc.js`, `porta.js`):** `hyrjaNePritje()` =
+     `StokuPorta.hyrjaEFundit()` (KEY_HYRJA `stoku:porta:hyrja`, vetëm kur `stoku:pronari-uid` është i njëjti; hiqet me "Dil")
+     derisa `authGati`, jo vizitor, jo më shumë se 10 s (`HYRJA_PRITJA_MS`; pastaj rivizatohet). Gjatë saj: pa kartën, emri te
+     `#perdoruesiCip`/`#sbpBrandNen`/avatari, `#sinkTekst` "Duke u lidhur…" (pika "pune"), "Llogaria: X" te përmbledhja.
+   - **(2) Afatet (tel + PC, vetëm `kaMarkete()`):** çdo kartë (tel `.af-market`, çip i gjelbër me ikonën e pikës) / rresht (PC
+     `.af-prod-mk`) e ka marketin, edhe kur je te një market; afati pa market: "Pa market". Te "Krejt marketet" lista ndahet
+     me `MK.grupo` (renditja e marketeve, "Pa market" në fund): tel `.af-grup-krye.af-grup-market` "Albi · 2", PC
+     `tr.af-grup-market` "Albi · 2 produkte"; brenda tyre grupimi sipas furnizuesit ("Afër skadimit" te tel, "Grupo" te PC) si
+     nëngrupe (`af-grup-krye--nen`, `tr.af-grup-nen`).
+   - **(3) Shkaku (më i mundshëm, s'u pa në Firebase të vërtetë):** kujtesa e pajisjes ka kufi 20 000 hyrje
+     (`KUJTESA_MAKS`) dhe kur mbushej hiqte më të VJETRAT, pra shpesh produktet e kontrolluara para shumë kohësh. Pastaj pritja e
+     kolegut (`kujtesa_pritje/{uid}`, p.sh. tonnyaliu me produktet e skanuara dikur) i shtonte si të reja (pa `s`, "nga X"),
+     derisa regjistri të ndryshonte sërish. Edhe pajisja e kolegut i dërgonte për kontroll kur kishte një kopje të
+     administratorit më të re se regjistri (p.sh. nga kujtesa e grupit). **Rregullimi:** `afatet.js` `shkruaj`: kur kujtesa
+     kalon kufirin hiqen së pari hyrjet e mësuara vetë, pastaj të kolegëve, të fundit të administratorit (`klasaEHyrjes`, pastaj
+     koha). `ekipa.js`: `vendosurNgaAdmini(b)` (regjistri e ka me `s`): administratori s'e merr nga pritjet (`zbatoPritjet`;
+     pritjet që vijnë para regjistrit ruhen te `regj.pritjet` dhe zbatohen pas tij, ose pas gabimit të regjistrit), dhe
+     kolegët s'e dërgojnë te pritja e tyre. Te telefoni i administratorit, ato që tash dalin gabimisht kthehen vetë te Produktet
+     me ndryshimin e radhës të regjistrit.
+   - **Testi `teste/v248.js`**: kujtesa plot në node (i kontrolluari mbetet); regjistri + pritja e vjetër e tonnyaliu-t:
+     administratori (telefon i ri dhe PC me kujtesë plot) sheh vetëm produktin vërtet të ri; pritja e re e tonnyaliu-t pa to;
+     afatet sipas marketit (tel + PC); PC me `__stokuCloud` pa `authGati` (me/pa hyrje të fundit, 10 s). Kodi i vjetër (v247)
+     dështon në 8 kontrolle. S'u testua në telefon/PC të vërtetë as me Firebase të vërtetë.
+
 0000000. **HARTA: SATELITI (ESRI) + KREJT MARKETET PËR MERCHANDISERIN + "KU JE?" ME PIKAT AFËR (v247 = 1.36.0, SHËRBIM I RI I
    JASHTËM: CSP + CLOUDFLARE + ÇELËS)**: pronari: "bone me Esri" (sateliti; Google u refuzua: kartë bankare, s'lejon përzierjen me
    OpenStreetMap); "te Harta shkruaje marketet, e shohin vetëm administratori dhe merchandiserët; Marketet në hartë, jo Marketet e

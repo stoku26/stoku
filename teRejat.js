@@ -20,6 +20,15 @@
   'use strict';
 
   var LISTA = [
+    { v: 248, versioni: '1.36.1', data: '2026-10-22', titulli: 'Afatet sipas marketeve', pikat: [
+      'Merchandiserët: te çdo afat shihet marketi ku ndodhet. Te "Krejt marketet" afatet ndahen sipas marketit, që të mos përzihen.'
+    ] },
+    { v: 248, versioni: '1.36.1', data: '2026-10-22', titulli: 'Kompjuteri pas rifreskimit', platforma: 'pc', pikat: [
+      'Kur e rifreskon faqen, s\'del më për një çast faqja e hyrjes ("Mirë se erdhe…"): deri sa të lidhet, poshtë majtas shihet llogaria jote dhe "Duke u lidhur…".'
+    ] },
+    { v: 248, versioni: '1.36.1', data: '2026-10-22', titulli: 'Produktet e kontrolluara', vetemAdmini: true, pikat: [
+      'Produktet që i ke kontrolluar një herë s\'dalin më sërish te "Produktet e reja" kur një koleg i skanon a i dërgon prapë.'
+    ] },
     { v: 247, versioni: '1.36.0', data: '2026-10-22', titulli: 'Ndërro marketin kur të duash', platforma: 'tel', pikat: [
       'Lart te Stoku dhe te Afatet, prek "Je te" dhe zgjidh marketin vetë, edhe kur GPS-i e ka gjetur. Kështu e ndreq kur GPS-i s\'e ka kapur mirë.',
       'Aty dalin edhe marketet e Stoku-t afër teje ("Afër teje"), që i shton me një prekje.'
