@@ -52,6 +52,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **SATELITI AKTIV: ÇELËSI I ESRI-T (v249 = 1.37.0)**: pronari krijoi te location.arcgis.com (portali `stoku`) kredencialet
+   "stoku": API key, **Public application**, pa item access, privilegjet vetëm **Basemaps** (Basemap styles service + Static
+   basemap tiles), referrer `https://stoku.site`, skadon rreth **21.10.2027**. "API key 1" është te `harta.js` (`ESRI_CELESI`,
+   publik si ai i Firebase-it); "API key 2" mbetet rezervë: para skadimit pronari e gjeneron, e vendosim te `ESRI_CELESI`, pastaj
+   ai e fshin të parin. Butoni "Satelit" tash del te krejt hartat (administratori dhe merchandiserët). **Pronari duhet ta ketë
+   ndryshuar CSP-në te Cloudflare** (`https://ibasemaps-api.arcgis.com`, rreshti `CSP_CLOUDFLARE`), përndryshe sateliti
+   kthehet vetë te "Hartë" me mesazhin "Pamja satelitore s'u hap…". Kontejneri s'e arrin `ibasemaps-api.arcgis.com` (proxy 403):
+   çelësi s'u provua dot këtu; `harta-v247.js` kontrollon që është vendosur.
+
 0000000. **PC PA "MIRË SE ERDHE" PAS RIFRESKIMIT + AFATET SIPAS MARKETEVE + PRODUKTET E KONTROLLUARA S'KTHEHEN (v248 = 1.36.1)**:
    pronari: (1) PC, i kyçur: pas rifreskimit për rreth 1 s del faqja "pa llogari" (karta "Mirë se erdhe" me hyrjen, "Hyr ·
    Vetëm në këtë kompjuter"), pastaj faqja e vërtetë; (2) merchandiserëve (vetëm atyre) afatet s'duhet t'u përzihen: të ndara
