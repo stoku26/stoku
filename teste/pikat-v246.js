@@ -1,10 +1,10 @@
 // v246: merchandiseri dhe pikat e përbashkëta të Stoku-t (pikat/{id}). Kontrollon:
 // 1. merchandiseri pa markete hap Stoku-n te një pikë që e ka shtuar dikush tjetër: kërkohet vendndodhja, "Je te: Albi Mall",
 //    marketi shtohet vetë (i lidhur me pikën)
-// 2. merchandiseri pa markete larg çdo pike: del vetë "Në cilin market je?"; marketi i ri bëhet pikë e Stoku-t
-// 3. merchandiseri me një market pa vendndodhje, 500 m nga një pikë: del "Ku je?" me "Afër teje"; zgjedhja e shton marketin
+// 2. merchandiseri larg çdo pike (v250: marketet e Stoku-t i ka te lista): del vetë "Ku je?"; "+ Market i ri" → pikë e Stoku-t
+// 3. merchandiseri me një market pa vendndodhje, 500 m nga një pikë: del "Ku je?" me "Afër teje"; zgjedhja e bën aktiv
 // 4. marketi i vjetër me vendndodhje (pa pikë) bëhet pikë vetë
-// 5. administratori e riemërton pikën (Harta): emri i ri te merchandiseri; merchandiseri s'e ndërron më emrin e adminit
+// 5. administratori e riemërton pikën (Harta): emri i ri te merchandiserët; v250: merchandiseri s'e ndërron emrin as të vetës
 // 6. pa leje për vendndodhjen: mesazh; llogaria jo-merchandiser: pa GPS
 const { chromium } = require('./pw.js');
 const { krijoFirestore } = require('./fs-server.js');
@@ -56,9 +56,12 @@ const LARG = { latitude: 42.3800, longitude: 20.4300, accuracy: 20 }; // Pejë
   ok(!(await hapur(d, 'dlgMarketi')) && !(await hapur(d, 'dlgMarketiRi')), '1. pa dritare pyetjeje (vendi u njoh)');
   ok(await prit(async () => ((F.S.docs.get('dyqane/u1') || {}).marketet || []).some(m => m.p === 'pA')), '1. marketi shkon te dyqani (sinkronizimi)');
 
-  // 2. Larg çdo pike, pa markete: "Në cilin market je?" → pikë e re
+  // 2. Larg çdo pike: "Ku je?" (v250: "Albi Mall" i Stoku-t është tashmë te lista) → "+ Market i ri" → pikë e re
   const { p: v } = await faqe('u3', 'vesa', LARG);
-  ok(await prit(async () => await hapur(v, 'dlgMarketiRi')), '2. vesa: del vetë "Në cilin market je?"', await v.textContent('#mkrTitulli'));
+  ok(await prit(async () => (await lsM(v)).some(m => m.p === 'pA')), '2. vesa: "Albi Mall" i Stoku-t te lista e saj (pa e vizituar)', await lsM(v));
+  ok(await prit(async () => await hapur(v, 'dlgMarketi')), '2. vesa: del vetë "Ku je?"', await v.textContent('#mkdNen'));
+  await v.click('#mkdIRi');
+  ok(await prit(async () => await hapur(v, 'dlgMarketiRi')), '2. "+ Market i ri" → "Në cilin market je?"');
   await v.fill('#mkrEmri', 'Viva Fresh Pejë'); await v.click('#mkrRuaj');
   ok(await prit(async () => (await lsM(v)).some(m => m.emri === 'Viva Fresh Pejë' && typeof m.lat === 'number' && m.p)), '2. marketi me vendndodhje, i lidhur me një pikë', await lsM(v));
   const pV = (await lsM(v)).find(m => m.emri === 'Viva Fresh Pejë');
@@ -69,10 +72,10 @@ const LARG = { latitude: 42.3800, longitude: 20.4300, accuracy: 20 }; // Pejë
   const { p: te } = await faqe('u4', 'teuta', AFER, [{ id: 'mk1', emri: 'Kos', ndryshuarSe: t - 9000 }]);
   ok(await prit(async () => await hapur(te, 'dlgMarketi')), '3. teuta: del vetë "Ku je?"');
   const lista = await te.evaluate(() => [...document.querySelectorAll('#mkdLista > *')].map(x => x.textContent.replace(/\s+/g, ' ').trim()));
-  ok(lista[0] === 'Afër teje' && /^Albi Mall\s*\d+ m$/.test(lista[1]) && lista.includes('Marketet e mia') && lista.some(x => /^Kos/.test(x)), '3. "Afër teje: Albi Mall (… m)" dhe marketet e saj', lista);
+  ok(lista[0] === 'Afër teje' && /^Albi Mall\s*\d+ m/.test(lista[1]) && lista.includes('Marketet e tjera') && lista.some(x => /^Kos/.test(x)), '3. "Afër teje: Albi Mall (… m)" dhe marketet e tjera', lista);
   ok(/S'je te asnjë market i njohur/.test(await te.textContent('#mkdNen')), '3. teksti "S\'je te asnjë market i njohur…"');
   await te.evaluate(() => document.querySelector('#mkdLista .mk-afer').click());
-  ok(await prit(async () => (await lsM(te)).some(m => m.p === 'pA' && m.emri === 'Albi Mall') && /Albi Mall/.test(await cipi(te))), '3. zgjedhja e shton "Albi Mall" dhe e bën aktiv', [await lsM(te), await cipi(te)]);
+  ok(await prit(async () => (await lsM(te)).some(m => m.p === 'pA' && m.emri === 'Albi Mall') && /Albi Mall/.test(await cipi(te))), '3. zgjedhja e bën "Albi Mall" aktiv', [await lsM(te), await cipi(te)]);
 
   // 4. Marketi i vjetër me vendndodhje (pa pikë) bëhet pikë
   const { p: ar } = await faqe('u5', 'arta', LARG, [{ id: 'ma1', emri: 'Super Viva', lat: 42.6629, lng: 21.1655, ndryshuarSe: t - 9000 }]);
@@ -97,23 +100,17 @@ const LARG = { latitude: 42.3800, longitude: 20.4300, accuracy: 20 }; // Pejë
   ok(await prit(async () => /Albi Mall Prishtinë/.test(await cipi(d))), '5. çipi i drinit: "Albi Mall Prishtinë"', await cipi(d));
   await d.click('#btnOpsione'); await d.waitForTimeout(300);
   await d.click('#tabMarketet'); await d.waitForTimeout(400);
-  await d.evaluate(() => [...document.querySelectorAll('#mkLista .ops-furn-rresht')].find(x => /Albi Mall/.test(x.textContent)).click()); await d.waitForTimeout(200);
-  await d.fill('#mkLista .ops-furn-edit input', 'Emri im');
-  await d.evaluate(() => [...document.querySelectorAll('#mkLista .ops-furn-edit button')].find(x => x.textContent === 'Ruaj').click()); await d.waitForTimeout(300);
-  ok(/administratori i Stoku-t/.test(await d.textContent('#mkLista .ops-furn-edit')) && (F.S.docs.get('pikat/pA') || {}).emri === 'Albi Mall Prishtinë' && (await lsM(d)).some(m => m.p === 'pA' && m.emri === 'Albi Mall Prishtinë'), '5. drini s\'e ndërron emrin e caktuar nga administratori');
-  // Pika e huaj (e vesës): teuta s'e riemërton; vesa po (derisa s'e ka ndryshuar admini)
-  await v.click('#btnOpsione'); await v.waitForTimeout(300);
-  await v.click('#tabMarketet'); await v.waitForTimeout(400);
-  await v.evaluate(() => [...document.querySelectorAll('#mkLista .ops-furn-rresht')].find(x => /Viva Fresh Pejë/.test(x.textContent)).click()); await v.waitForTimeout(200);
-  await v.fill('#mkLista .ops-furn-edit input', 'Viva Pejë Qendër');
-  await v.evaluate(() => [...document.querySelectorAll('#mkLista .ops-furn-edit button')].find(x => x.textContent === 'Ruaj').click());
-  ok(await prit(async () => (F.S.docs.get('pikat/' + pV.p) || {}).emri === 'Viva Pejë Qendër'), '5. vesa e riemërton pikën e vet');
+  await d.evaluate(() => { const x = [...document.querySelectorAll('#mkLista .ops-furn-rresht')].find(x => /Albi Mall/.test(x.textContent)); if (x) x.click(); }); await d.waitForTimeout(200);
+  ok(await d.evaluate(() => !document.querySelector('#mkLista input, #mkLista .ops-furn-edit')), '5. v250: drini s\'ka ku ta ndërrojë emrin (Cilësimet → Marketet vetëm për t\'u parë)');
+  // v250: as krijuesi s'e ndërron më pikën e vet (rregullat): vesa provon direkt
+  const rV = await v.evaluate(id => window.__stokuCloud.ekipa.ndryshoPiken(id, { emri: 'Viva Pejë Qendër' }, false), pV.p);
+  ok(!(rV && rV.ok) && (F.S.docs.get('pikat/' + pV.p) || {}).emri === 'Viva Fresh Pejë', '5. v250: vesa s\'e riemërton as pikën e vet', rV);
   // Administratori fshin pikën e Pejës
-  await ad.evaluate(() => [...document.querySelectorAll('#htLista .ops-furn-rresht')].find(x => /Viva Pejë Qendër/.test(x.textContent)).click()); await ad.waitForTimeout(300);
+  await ad.evaluate(() => [...document.querySelectorAll('#htLista .ops-furn-rresht')].find(x => /Viva Fresh Pejë/.test(x.textContent)).click()); await ad.waitForTimeout(300);
   await ad.evaluate(() => [...document.querySelectorAll('#htLista .ops-furn-edit button')].find(x => x.textContent === 'Fshije pikën').click()); await ad.waitForTimeout(300);
   await ad.click('#konfPo');
-  ok(await prit(async () => !F.S.docs.has('pikat/' + pV.p) && !(await rr()).some(x => /Viva Pejë Qendër/.test(x))), '5. administratori e fshin pikën');
-  ok((await lsM(v)).some(m => m.emri === 'Viva Pejë Qendër'), '5. marketi i vesës mbetet (vetëm pika u hoq)');
+  ok(await prit(async () => !F.S.docs.has('pikat/' + pV.p) && !(await rr()).some(x => /Viva Fresh Pejë/.test(x))), '5. administratori e fshin pikën');
+  ok((await lsM(v)).some(m => m.emri === 'Viva Fresh Pejë'), '5. marketi i vesës mbetet (i krijuar para pak minutash: s\'hiqet menjëherë)');
 
   // 6. Pa leje për vendndodhjen; llogari jo-merchandiser
   const { p: pl } = await faqe('u2', 'besa', null, null, true);

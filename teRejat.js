@@ -20,6 +20,14 @@
   'use strict';
 
   var LISTA = [
+    { v: 250, versioni: '1.38.0', data: '2026-10-22', titulli: 'Të njëjtat markete për krejt', pikat: [
+      'Krejt merchandiserët i shohin të njëjtat markete: kur dikush shton një market, ai del vetë edhe te ti.',
+      'Marketin e shton vetëm kur je brenda tij, me vendndodhjen e saktë të telefonit (jo "të përafërt"). Aty ku ka tashmë një market, s\'shtohet tjetër: zgjidhet ai.',
+      'Emrat e marketeve dhe fshirjen i bën vetëm administratori.'
+    ] },
+    { v: 250, versioni: '1.38.0', data: '2026-10-22', titulli: 'Shto market në hartë', vetemAdmini: true, pikat: [
+      'Te Cilësimet → Harta prek "+ Shto market në hartë": lëviz hartën derisa shenja të jetë mbi market, shkruaj emrin dhe prek "Ruaj këtu". Merchandiserët e shohin menjëherë.'
+    ] },
     { v: 249, versioni: '1.37.0', data: '2026-10-22', titulli: 'Harta me satelit', pikat: [
       'Te Cilësimet → Harta ("Marketet në hartë") prek "Satelit" për ta parë hartën me imazhe satelitore; "Hartë" e kthen pamjen e zakonshme. Stoku e mban mend zgjedhjen.'
     ] },

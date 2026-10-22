@@ -154,7 +154,7 @@
   }
 
   // Harta brenda `el`. o: { tema, pikat, kurKlikon(celesi), kurSkaPllaka(), kurSkaSatelit() }. Kthen premtim me
-  // { map, vendos, zgjidh, pershtat, tema, satelit, eshteSatelit, madhesia, hiq }
+  // { map, vendos, zgjidh, pershtat, tema, satelit, eshteSatelit, shenjestra, qendra, madhesia, hiq }
   // kurSkaPllaka: pllakat/shkronjat e OpenFreeMap-it s'u morën (pa internet, ose CSP pa tiles.openfreemap.org), një herë
   // kurSkaSatelit: pllakat e Esri-t s'u morën (pa internet, çelës i pavlefshëm, CSP); harta kthehet vetë te "Hartë"
   function krijo(el, o) {
@@ -227,6 +227,10 @@
       udh.addEventListener('click', function () { map.easeTo({ zoom: ZOOM_LAGJET, duration: 500 }); });
       el.appendChild(udh);
       function rifreskoUdhezimin() { udh.hidden = map.getZoom() >= ZOOM_LAGJET - 0.05; }
+      // v250: shenja në mes të hartës, kur administratori vendos një market të ri (pika = qendra e hartës)
+      var shenja = document.createElement('div'); shenja.className = 'ht-shenjestra'; shenja.hidden = true;
+      shenja.innerHTML = '<svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor" stroke="#ffffff" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s-8-6-8-12a8 8 0 0 1 16 0c0 6-8 12-8 12z"></path><circle cx="12" cy="10" r="3" fill="#ffffff" stroke="none"></circle></svg>';
+      el.appendChild(shenja);
       map.on('zoomend', rifreskoUdhezimin);
       map.on('mouseenter', 'pikat', function () { map.getCanvas().style.cursor = 'pointer'; });
       map.on('mouseleave', 'pikat', function () { map.getCanvas().style.cursor = ''; });
@@ -261,6 +265,8 @@
         pershtat: pershtat,
         tema: function (t) { if (t !== tema) { tema = t; rivizato(); } },
         satelit: function (v) { vendosSatelitin(v); },
+        shenjestra: function (v) { shenja.hidden = !v; },
+        qendra: function () { var c = map.getCenter(); return { lat: c.lat, lng: c.lng, zoom: map.getZoom() }; },
         eshteSatelit: function () { return sat; },
         madhesia: function () { map.resize(); },
         hiq: function () { try { map.remove(); } catch (e) { /* ok */ } }

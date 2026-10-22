@@ -1,5 +1,7 @@
 // v242: merchandiseri i ri: "Shto marketin ku punon" (çipi te Afatet dhe kryefaqja), pyetja "Në cilin market je?" herën e
-// parë që hap Afatet (emri + vendndodhja me GPS), "+ Market i ri" te "Ku je?", pa vendndodhje, llogaria jo-merchandiser
+// parë që hap Afatet (emri + vendndodhja me GPS), "+ Market i ri" te "Ku je?", llogaria jo-merchandiser.
+// v250: vetëm me vendndodhje të saktë (jo e përafërt), jo mbi një market që është aty (zgjidhet ai), pa market "pa vendndodhje"
+const VIVA = { latitude: 42.6600, longitude: 21.1700, accuracy: 20 };
 const { chromium } = require('./pw.js');
 const { krijoFirestore } = require('./fs-server.js');
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
@@ -35,12 +37,12 @@ const ALBI = { latitude: 42.6476, longitude: 21.1491, accuracy: 20 };
   const lsAfatet = p => p.evaluate(() => JSON.parse(localStorage.getItem('stoku:afatet:v1') || '[]'));
 
   // 1. Merchandiseri i ri, pa markete
-  const { p: m } = await faqe('u1', 'meri');
+  const { p: m, ctx: cM } = await faqe('u1', 'meri');
   ok(await prit(async () => await duket(m, '.sb-home-krye .mk-chip')), '1. kryefaqja: çipi i marketit');
   ok(/Shto marketin ku punon/.test(await m.textContent('.sb-home-krye .mk-chip')) && await m.evaluate(() => window.__gpsThirrje) >= 1, '1. "Shto marketin ku punon"; v246: vendndodhja kërkohet vetë', await m.textContent('.sb-home-krye .mk-chip'));
   await m.evaluate(() => document.getElementById('btnAfatet').click());
   ok(await prit(() => hapur(m, 'dlgMarketiRi'), 4000), '1. hapja e parë e Afateve: "Në cilin market je?" del vetë');
-  ok((await m.textContent('#mkrTitulli')) === 'Në cilin market je?' && await m.isChecked('#mkrVendi'), '1. titulli + "Jam brenda këtij marketi tani" i zgjedhur');
+  ok((await m.textContent('#mkrTitulli')) === 'Në cilin market je?' && !(await m.$('#mkrVendi')), '1. titulli; v250: pa zgjedhjen "Jam brenda" (gjithmonë me vendndodhje)');
   const siper = id => m.evaluate(x => { const q = document.getElementById(x).getBoundingClientRect(); const e = document.elementFromPoint(q.x + q.width / 2, q.y + q.height / 2); return !!e && (e.id === x || document.getElementById(x).contains(e)) ? true : (e ? (e.id || e.className) + ' @' + Math.round(q.x) + ',' + Math.round(q.y) : 'asgjë'); }, id);
   await m.waitForTimeout(400);
   ok((await siper('mkrRuaj')) === true, '1. dritarja është mbi faqen e Afateve (preket)', await siper('mkrRuaj'));
@@ -57,7 +59,7 @@ const ALBI = { latitude: 42.6476, longitude: 21.1491, accuracy: 20 };
   await m.evaluate(() => document.getElementById('afPrapa').click()); await m.waitForTimeout(400);
   await m.evaluate(() => document.getElementById('btnAfatet').click()); await m.waitForTimeout(1200);
   ok(!(await hapur(m, 'dlgMarketiRi')), '1. s\'pyet sërish');
-  // "Ku je?" → "+ Market i ri", pa vendndodhje
+  // "Ku je?" → "+ Market i ri"
   await m.click('#afMarketi'); await m.waitForTimeout(300);
   await m.evaluate(() => { document.getElementById('toast').style.visibility = 'hidden'; }); // njoftimi i fundit mbulon mesin
   ok(await duket(m, '#mkdIRi') && (await siper('mkdAnulo')) === true && (await siper('mkdLista')) === true, '2. "Ku je?" mbi Afatet, me "+ Market i ri"', [await siper('mkdAnulo'), await siper('mkdLista')]);
@@ -66,11 +68,21 @@ const ALBI = { latitude: 42.6476, longitude: 21.1491, accuracy: 20 };
   ok(await hapur(m, 'dlgMarketiRi') && !(await hapur(m, 'dlgMarketi')) && (await m.textContent('#mkrTitulli')) === 'Market i ri', '2. dritarja "Market i ri"');
   await m.fill('#mkrEmri', 'albi mall'); await m.click('#mkrRuaj'); await m.waitForTimeout(200);
   ok(/me këtë emër/.test(await m.textContent('#mkrGabim')), '2. emri i përsëritur refuzohet');
-  const gps0 = await m.evaluate(() => window.__gpsThirrje);
-  await m.fill('#mkrEmri', 'Viva Fresh'); await m.click('label[for=mkrVendi]'); await m.click('#mkrRuaj');
+  // v250: je ende te Albi: s'shtohet market tjetër mbi të, zgjidhet Albi
+  await m.fill('#mkrEmri', 'Viva Fresh'); await m.click('#mkrRuaj');
+  ok(await prit(async () => !(await hapur(m, 'dlgMarketiRi')) && /Këtu është tashmë marketi "Albi Mall"/.test(await toast(m))), '2. v250: te Albi s\'shtohet market tjetër ("Këtu është tashmë marketi…")', await toast(m));
+  ok((await lsMarketet(m)).length === 1 && (await m.textContent('#afMarketiEmri')) === 'Albi Mall', '2. v250: mbetet 1 market, aktiv Albi Mall');
+  // v250: vendndodhja e përafërt (±1.5 km) refuzohet
+  await cM.setGeolocation(Object.assign({}, VIVA, { accuracy: 1500 }));
+  await m.click('#afMarketi'); await m.waitForTimeout(300); await m.click('#mkdIRi'); await m.waitForTimeout(300);
+  await m.fill('#mkrEmri', 'Viva Fresh'); await m.click('#mkrRuaj');
+  ok(await prit(async () => /s'është e saktë/.test(await m.textContent('#mkrGabim'))) && await hapur(m, 'dlgMarketiRi') && (await lsMarketet(m)).length === 1, '2. v250: vendndodhja e përafërt refuzohet', await m.textContent('#mkrGabim'));
+  // te Viva, me vendndodhje të saktë: shtohet
+  await cM.setGeolocation(VIVA);
+  await m.click('#mkrRuaj');
   ok(await prit(async () => (await lsMarketet(m)).length === 2), '2. "Viva Fresh" u shtua');
   const viva = (await lsMarketet(m)).find(x => x.emri === 'Viva Fresh');
-  ok(viva && !('lat' in viva) && await m.evaluate(() => window.__gpsThirrje) === gps0 && /ruaje vendndodhjen te Cilësimet/.test(await toast(m)), '2. pa vendndodhje (s\'pyet GPS-in)', await toast(m));
+  ok(viva && Math.abs(viva.lat - VIVA.latitude) < 1e-6 && /u shtua me vendndodhjen/.test(await toast(m)), '2. me vendndodhjen e Vivës', await toast(m));
   ok((await m.textContent('#afMarketiEmri')) === 'Viva Fresh', '2. aktiv: Viva Fresh');
   ok(!m.__gab.length, '2. pa gabime JS', m.__gab);
 

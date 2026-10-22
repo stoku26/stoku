@@ -52,6 +52,40 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **MARKETET E STOKU-T TË NJËJTAT PËR KREJT MERCHANDISERËT + SHTIMI VETËM BRENDA MARKETIT + ADMINI SHTON NË HARTË
+   (v250 = 1.38.0, RREGULLA TË REJA: `pikat` update vetëm administratori)**: kërkesa: "mos i lejo merchandiser me i fshi marketet
+   ose me ja u ndryshu emrat … lejoja vetem … me shtu ndonje market te ri, nese ne ate lokacion veq eshte vendosur nje market mos
+   lejo shtim tjeter … administratorit lejoja shtimin manual ne maps … merchandisereve lejoja vetem kur jan ne market … marketet
+   duhet te shihen nga te gjithe merchandiseret … sync … mos lejo shtim marketi me approximate location po vetem kur osht precise".
+   - **Lista e merchandiserit = pikat e Stoku-t** (`MK.sinkronizoMePikat(l, pikat, afatet, serveri)`, tel + PC, `pasPikave()`
+     në çdo ndryshim të `pikat` dhe pas bashkimit me cloud-in): çdo pikë → market me id **`'k' + pika.id`** (i njëjti në krejt
+     pajisjet, pa dyfishe); emri/vendndodhja vijnë nga pika; marketi i vjetër me vendndodhje pa pikë lidhet me pikën në të njëjtin
+     vend (≤ `LIDHJA_M` = 60 m); dy markete për një pikë → mbetet ai me afate. Marketi i një pike të fshirë hiqet (me shënim te
+     `fshira.marketet`) VETËM kur lista vjen nga serveri (`degjoPikat` me `includeMetadataChanges`, `info.serveri`), lista ka
+     < 3000 pika, marketi s'ka afate dhe s'është krijuar/ndryshuar në 10 minutat e fundit (`FRESKET_MS`); përndryshe mbetet.
+     Telefoni lidh marketet e vjetra me vendndodhje me pikë (`lidhMePike`); PC jo (s'ka GPS, që të mos krijohen pika të dyfishta).
+   - **Shtimi (vetëm telefoni)**: Cilësimet → Marketet ("Shto"), "Në cilin market je?", "Ku je?" → "+ Market i ri": gjithmonë
+     me vendndodhjen ku je (`shtoMarketKetu`); hiqet zgjedhja "Jam brenda" (`mkrVendi`) dhe marketi pa vendndodhje.
+     `MK.kontrolloShtimin(poz, marketet, pikat)`: saktësia > `SAKTESIA_MAKS_M` = 100 m → "Vendndodhja s'është e saktë (rreth N m).
+     Lejo "vendndodhjen e saktë"…" (Android: "e përafërt" jep ±1-3 km); një market ose pikë ≤ 60 m → s'krijohet, zgjidhet ai
+     ("Këtu është tashmë marketi …"). Emri unik në krejt Stoku-n (`marketet` + `pikat`); emri i një marketi të vjetër pa
+     vendndodhje e merr vendndodhjen (s'krijohet i dyti).
+   - **Merchandiseri s'riemërton, s'fshin, s'zhvendos**: Cilësimet → Marketet vetëm për t'u parë ("Me vendndodhje" / "Pa
+     vendndodhje: shtoje sërish me këtë emër kur je brenda tij"); Harta (tel + PC) një listë e vetme, pa laps. "Ku je?": "Afër
+     teje" me marketet e listës deri 2 km (largësia + afatet), pastaj "Marketet e tjera"; butoni `mkdMenaxho` = "Marketet".
+   - **Administratori shton market me dorë** (tel + PC, Cilësimet → Harta, `#htShtoKuti` vetëm për të): "+ Shto market në hartë" →
+     shenja portokalli në mes të hartës (`inst.shenjestra(true)`, `inst.qendra()` te `harta.js`), emri, "Ruaj këtu" (Enter; PC
+     Escape mbyll): zmadhimi ≥ 15, emri unik, asnjë pikë ≤ 60 m → `ekipa.shtoPiken` (krijuarNga = administratori). Riemërtimi i
+     adminit kontrollon edhe emrin unik. Fshirja: "Të fshihet marketi?" (hiqet nga lista e merchandiserëve pa afate aty).
+   - **Rregullat** (SHENIME + `fs-server.js` + `teste/emu/pikat-v246.mjs`, provuar në emulator): `allow update` te `pikat/{id}`
+     vetëm `eshteAdmin()` (krijuesi s'e ndryshon më). **PRONARI duhet t'i vendosë** (edhe ato të v246 nëse s'i ka vendosur).
+   - CSP te Cloudflare: pronari e ngjiti vlerën më 22.10.2026, identike me `CSP_CLOUDFLARE` (Esri i lejuar).
+   - Teste: `teste/v250.js` i ri (njësitë, besa shton te Albi, drini e merr vetë, e përafërt 800 m, 30 m nga Albi, emri, pikat e
+     fshira, admini shton në hartë tel + PC); përshtatur: `pikat-v246.js`, `marketet-v241.js`, `marketi-ri-v242.js`,
+     `harta-v244.js`, `harta-v247.js`.
+   - Regresioni v250: 73/73 me exit=0, asnjë `GABIM` (si v249 + `v250.js`). Pas tij: `typeof PK` mbrojtje te thirrja e
+     `pasPikave` pas bashkimit me cloud-in (tel + PC); `v250.js`, `pikat-v246.js`, `marketet-v241.js` u provuan sërish.
+
 0000000. **SATELITI AKTIV: ÇELËSI I ESRI-T (v249 = 1.37.0)**: pronari krijoi te location.arcgis.com (portali `stoku`) kredencialet
    "stoku": API key, **Public application**, pa item access, privilegjet vetëm **Basemaps** (Basemap styles service + Static
    basemap tiles), referrer `https://stoku.site`, skadon rreth **21.10.2027**. "API key 1" është te `harta.js` (`ESRI_CELESI`,
@@ -1940,9 +1974,9 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
-## Rregullat e Firestore (v246 pikat e marketeve, v243 rikthimi i grupit (pronarUid), v242 regjistri + kërkesat për grup, v164 grupet, v221 pa chat, v229 skedarët në PC, v230 lejet; më parë v116 + v130 ekipa_push + v140 admini nga llogaria): i vendos PËRDORUESI (unë s'kam qasje)
+## Rregullat e Firestore (v250 pikat vetëm administratori i ndryshon, v246 pikat e marketeve, v243 rikthimi i grupit (pronarUid), v242 regjistri + kërkesat për grup, v164 grupet, v221 pa chat, v229 skedarët në PC, v230 lejet; më parë v116 + v130 ekipa_push + v140 admini nga llogaria): i vendos PËRDORUESI (unë s'kam qasje)
 
-**Gjendja:** rregullat v243 (me `allow list` te `grupet/{g}`) i vendosi pronari në Firebase më 21.10.2026. **v246 (`pikaOk` + `pikat/{id}`) ende JO**: pronari duhet ta ngjisë krejt tekstin më poshtë.
+**Gjendja:** rregullat v243 (me `allow list` te `grupet/{g}`) i vendosi pronari në Firebase më 21.10.2026. **v246 (`pikaOk` + `pikat/{id}`) dhe v250 (`allow update` te `pikat` vetëm për administratorin) ende JO**: pronari duhet ta ngjisë krejt tekstin më poshtë.
 
 Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Dyqani lexohet vetëm nga pronari/admin-i;
 `emri`/`perdoruesi` s'falsifikohen (= emri i llogarisë); aplikacioni s'mund ta shtojë/ndryshojë fushën `emri` te
@@ -2192,18 +2226,15 @@ service cloud.firestore {
       allow delete: if request.auth != null && (pronarIGrupit(g) || eshteAdmin()
         || !exists(/databases/$(database)/documents/grupet/$(g)));
     }
-    // v246: pikat e përbashkëta të marketeve. I lexon kushdo me llogari (merchandiseri e njeh vetë marketin ku arrin); i krijon
-    // merchandiseri në emër të vet; emrin/vendndodhjen i ndryshon administratori (emriNgaAdmini = true) ose krijuesi, derisa
-    // s'i ka ndryshuar administratori; i fshin vetëm administratori.
+    // v246: pikat e përbashkëta të marketeve (v250: marketet e Stoku-t, të njëjtat për krejt merchandiserët). I lexon kushdo me
+    // llogari; i krijon merchandiseri në emër të vet (kur është brenda marketit) ose administratori (me dorë në hartë);
+    // v250: emrin/vendndodhjen i ndryshon dhe i fshin VETËM administratori.
     match /pikat/{id} {
       allow read: if request.auth != null;
       allow create: if request.auth != null && !uFshi(request.auth.uid) && pikaOk(request.resource.data)
         && request.resource.data.krijuarNga == request.auth.uid && request.resource.data.krijuarNgaEmri == emriIm()
         && !('emriNgaAdmini' in request.resource.data);
-      allow update: if request.auth != null && pikaOk(request.resource.data) && (eshteAdmin()
-        || (resource.data.krijuarNga == request.auth.uid && !uFshi(request.auth.uid)
-            && resource.data.get('emriNgaAdmini', false) != true
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['emri', 'lat', 'lng', 'ndryshuarSe'])));
+      allow update: if request.auth != null && eshteAdmin() && pikaOk(request.resource.data);
       allow delete: if request.auth != null && eshteAdmin();
     }
     // v242: kërkesat për t'u futur në një grup. Id = {grupi}_{uid}. Pronari e pranon me një ftesë (ftesat).
