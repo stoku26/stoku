@@ -20,6 +20,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 249, versioni: '1.37.0', data: '2026-10-22', titulli: 'Harta me satelit', pikat: [
+      'Te Cilësimet → Harta ("Marketet në hartë") prek "Satelit" për ta parë hartën me imazhe satelitore; "Hartë" e kthen pamjen e zakonshme. Stoku e mban mend zgjedhjen.'
+    ] },
     { v: 248, versioni: '1.36.1', data: '2026-10-22', titulli: 'Afatet sipas marketeve', pikat: [
       'Merchandiserët: te çdo afat shihet marketi ku ndodhet. Te "Krejt marketet" afatet ndahen sipas marketit, që të mos përzihen.'
     ] },

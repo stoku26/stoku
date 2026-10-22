@@ -40,6 +40,7 @@ const PLLAKA_ESRI = png(256, 256, [46, 92, 52]);
 (async () => {
   // ================= 0. Njësitë =================
   ok(CELESI.test(KODI), '0. harta.js ka ESRI_CELESI');
+  ok(require('../harta.js').kaSatelit() && /^AAPT/.test(KODI.match(CELESI)[0].split("'")[1]), '0. v249: çelësi i Esri-t është vendosur (API key i ArcGIS)');
   const S0 = ngarkoModulin(''), S1 = ngarkoModulin('celes-prove');
   const st0 = S0.stili({ tema: 'light', pikat: [], satelit: true });
   ok(!S0.kaSatelit() && !st0.sources.satelit && !st0.layers.some(l => l.id === 'satelit') && st0.layers.find(l => l.id === 'rruget').layout.visibility === 'visible', '0. pa çelës: pa satelit (edhe kur kërkohet)');

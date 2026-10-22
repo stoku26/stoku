@@ -38,7 +38,9 @@
   var KOSOVA = { qendra: [20.9, 42.58], zoom: 7.2 };
   var EMRI_MAKS = 60;
   // v247: sateliti (Esri). Çelësi i API-së i ArcGIS Location Platform (privilegji "Basemaps"), i kufizuar te stoku.site.
-  var ESRI_CELESI = '';
+  // v249: "API key 1" i kredencialeve "stoku" (llogaria e pronarit, 22.10.2026), skadon rreth 21.10.2027; "API key 2" është
+  // rezervë për ndërrimin. Është publik si ai i Firebase-it (shihet në faqe): vetëm hartat bazë, asnjë shërbim tjetër.
+  var ESRI_CELESI = 'AAPTaOZD6Mj8BN-EAoFrTPLuKQw..HTvVLV3FuQ53XA1Sz6SsxAjRfNAffV3zMJLLqbgP09PHF_OFV134L0YweamGSqSnKitfob0WLVumW2BnAXkDl0d8G0i6Cxvq6EyznpdaOhtSEL1e9IrlvuIJ9bIamV3jrxDFnRwAPF9Cdf4_kapVR1dZf7nACO1oDBgjjQrsyWqF9I9CJqjq8O775kLDHVt7gLDVMvydUYILykbQy9tuGs4MvaFJeHb0-RAJ_cHkOpPjIgI0uk9cdTdVZXUsig..AT1_ScUbQzdT';
   var SATELITI = 'https://ibasemaps-api.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
   var SATELITI_BURIMI = 'Powered by <a href="https://www.esri.com/" target="_blank" rel="noopener">Esri</a> | Esri, Vantor, Earthstar Geographics, and the GIS User Community';
   var KEY_PAMJA = 'stoku:harta:pamja'; // 'satelit' | 'harta' (kjo pajisje)
