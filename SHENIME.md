@@ -71,6 +71,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    - Teste: `teste/v251.js` (Firestore i rremë; në main: 6 gabime, tash 0) dhe `teste/emu/merch-e2e-v251.js` (SDK-ja e vërtetë +
      emulatorët: regjistrimi në web, hyrja në pajisje të pastër si Android, dokumenti pa flamur, ndezja nga administratori;
      3 herë rresht pa gabime).
+   - Regresioni v251: 74/74 me exit=0, asnjë `GABIM` (si v250 + `v251.js`).
 
 0000000. **MARKETET E STOKU-T TË NJËJTAT PËR KREJT MERCHANDISERËT + SHTIMI VETËM BRENDA MARKETIT + ADMINI SHTON NË HARTË
    (v250 = 1.38.0, RREGULLA TË REJA: `pikat` update vetëm administratori)**: kërkesa: "mos i lejo merchandiser me i fshi marketet
