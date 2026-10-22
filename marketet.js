@@ -13,6 +13,9 @@
  *   - Zgjedhja me dorë vlen DORE_MS para GPS-it (brenda qendrave tregtare GPS-i gabon). Jashtë krejt marketeve, pas një
  *     zgjedhjeje nga GPS-i, aktiv bëhet "Krejt marketet" (null).
  *   - Vendndodhja e personit s'ruhet dhe s'dërgohet askund: krahasohet vetëm në pajisje me pikat e marketeve.
+ * v250: marketet janë TË PËRBASHKËTA për krejt merchandiserët: lista e secilit = pikat e Stoku-t (sinkronizoMePikat).
+ *   Merchandiseri s'i fshin e s'ua ndërron emrin; shton market vetëm kur është brenda tij, me vendndodhje të saktë
+ *   (≤ SAKTESIA_MAKS_M) dhe kur s'ka asnjë market tjetër brenda LIDHJA_M. Emrin e ndryshon dhe pikën e fshin vetëm administratori.
  */
 (function (root) {
   'use strict';
@@ -24,6 +27,7 @@
   var KEY_LISTA = 'stoku:marketet:v1';
   var KEY_AKTIV = 'stoku:marketi:aktiv';
   var EMRI_MAKS = 60;
+  var SAKTESIA_MAKS_M = 100; // v250: market i ri vetëm me vendndodhje të saktë (jo "e përafërt" e telefonit, ±1-3 km)
 
   function numer(x) { return typeof x === 'number' && isFinite(x); }
   function kaVend(m) { return !!m && numer(m.lat) && numer(m.lng) && Math.abs(m.lat) <= 90 && Math.abs(m.lng) <= 180; }
@@ -76,7 +80,8 @@
   // ---------- v246: pikat e përbashkëta të Stoku-t (pikat/{id}) ----------
   // Pika: { id, emri, lat, lng, krijuarNga, krijuarNgaEmri, emriNgaAdmini }. Çdo market me vendndodhje bëhet pikë; një
   // merchandiser tjetër që arrin aty e gjen vetë ("Je te: X") pa e shtuar sërish. Emri i pikës (i administratorit) fiton.
-  var LIDHJA_M = 60; // marketi i vjetër (pa pikë) lidhet me një pikë me të njëjtin emër brenda kësaj largësie
+  // Brenda kësaj largësie është "i njëjti vend": marketi i vjetër (pa pikë) lidhet me pikën aty; v250: aty s'shtohet market tjetër
+  var LIDHJA_M = 60;
   function pastroPikat(l) {
     return (Array.isArray(l) ? l : []).filter(function (x) { return x && typeof x.id === 'string' && x.id && kaVend(x); }).map(function (x) {
       return { id: x.id, emri: String(x.emri == null ? '' : x.emri).trim().slice(0, EMRI_MAKS) || 'Market', lat: x.lat, lng: x.lng,
@@ -92,9 +97,10 @@
   }
   // Marketi im i lidhur me pikën (ose null)
   function sipasPikes(l, pikaId) { for (var i = 0; i < (l || []).length; i++) if (l[i].p === pikaId) return l[i]; return null; }
-  // Market i ri nga një pikë e përbashkët
+  // Market i ri nga një pikë e përbashkët. v250: id e qëndrueshme ('k' + pika): dy pajisje të të njëjtit merchandiser e
+  // shtojnë të njëjtin market (sinkronizimi i dyqanit s'e dyfishon)
   function ngaPika(pika, tani) {
-    return { id: idERe(), emri: pika.emri, lat: pika.lat, lng: pika.lng, p: pika.id, ndryshuarSe: tani || Date.now() };
+    return { id: 'k' + pika.id, emri: pika.emri, lat: pika.lat, lng: pika.lng, p: pika.id, ndryshuarSe: tani || Date.now() };
   }
   // Emrat nga pikat: marketi i lidhur merr emrin e pikës (kur e ndryshon administratori ose krijuesi). → { marketet, n }
   function emratNgaPikat(l, pikat, tani) {
@@ -108,18 +114,67 @@
     });
     return { marketet: r, n: n };
   }
-  // Marketi i vjetër me vendndodhje por pa pikë: pika ekzistuese me të njëjtin emër, afër (ose null = krijo të re)
+  // Pika në të njëjtin vend (brenda LIDHJA_M, më e afërta), ose null. v250: pa dallim emri (aty s'ka dy markete)
   function pikaPerMarketin(pikat, m) {
     if (!kaVend(m)) return null;
-    var n = emriINormalizuar(m.emri), mi = null, dMin = Infinity;
-    pastroPikat(pikat).forEach(function (x) {
-      var d = largesia(x, m);
-      if (d <= LIDHJA_M && emriINormalizuar(x.emri) === n && d < dMin) { dMin = d; mi = x; }
-    });
-    return mi;
+    var a = pikatAfer(pikat, m, LIDHJA_M, 1)[0];
+    return a ? a.pika : null;
   }
-  // A mund ta ndryshojë uid-i emrin e kësaj pike (krijuesi, derisa s'e ka caktuar administratori)
-  function mundTaRiemertoje(pika, uid) { return !!pika && !pika.emriNgaAdmini && pika.krijuarNga === uid; }
+  // v250: marketi (nga lista) në të njëjtin vend, ose null: { marketi, largesia }
+  function marketiNeVend(l, poz) {
+    if (!poz || !numer(poz.lat) || !numer(poz.lng)) return null;
+    var mi = null, dMin = Infinity;
+    (l || []).forEach(function (m) { if (!kaVend(m)) return; var d = largesia(m, poz); if (d <= LIDHJA_M && d < dMin) { dMin = d; mi = m; } });
+    return mi ? { marketi: mi, largesia: Math.round(dMin) } : null;
+  }
+  // v250: a mund të shtohet një market këtu? → null (po) ose { arsye: 'pasakte', sakt } | { arsye: 'ekziston', emri, marketi?, pika? }
+  function kontrolloShtimin(poz, l, pikat) {
+    if (!poz || !numer(poz.lat) || !numer(poz.lng)) return { arsye: 'pasakte', sakt: 0 };
+    if (!numer(poz.sakt) || poz.sakt > SAKTESIA_MAKS_M) return { arsye: 'pasakte', sakt: Math.round(numer(poz.sakt) ? poz.sakt : 0) };
+    var mv = marketiNeVend(l, poz);
+    if (mv) return { arsye: 'ekziston', emri: mv.marketi.emri, marketi: mv.marketi };
+    var pk = pikaPerMarketin(pikat, poz);
+    if (pk) return { arsye: 'ekziston', emri: pk.emri, pika: pk };
+    return null;
+  }
+  // v250: lista e merchandiserit = pikat e Stoku-t. Çdo pikë → market (ngaPika); emri dhe vendndodhja nga pika; marketi i
+  // vjetër pa pikë lidhet me pikën në të njëjtin vend; dy markete me të njëjtën pikë → mbetet një (i dyti vetëm nëse ka afate).
+  // serveri = lista vjen nga serveri: vetëm atëherë marketi i një pike që mungon (e fshiu administratori) hiqet, kur s'ka afate
+  // dhe s'është krijuar a ndryshuar në 10 minutat e fundit (pika e re e një pajisjeje tjetër mund të mos ketë ardhur ende).
+  // → { marketet, ndryshuar, hequr: [id] }
+  var FRESKET_MS = 10 * 60 * 1000;
+  function sinkronizoMePikat(l, pikat, afatet, serveri, tani) {
+    tani = tani || Date.now();
+    var pk = pastroPikat(pikat), h = {}, perdorur = {}, ndr = false, hequr = [], meAfate = {}, r = [];
+    pk.forEach(function (x) { h[x.id] = x; });
+    (afatet || []).forEach(function (a) { if (a && a.m) meAfate[a.m] = true; });
+    var plota = serveri && pk.length < 3000, lidhja = {};
+    // një pikë = një market: fiton ai me afate (p.sh. marketi i vjetër pa pikë, në të njëjtin vend, ndaj atij nga pika)
+    (l || []).forEach(function (m) {
+      var pid = m.p ? (h[m.p] ? m.p : null) : (kaVend(m) ? ((pikaPerMarketin(pk, m) || {}).id || null) : null);
+      if (!pid) return;
+      lidhja[m.id] = pid;
+      if (!perdorur[pid] || (meAfate[m.id] && !meAfate[perdorur[pid]])) perdorur[pid] = m.id;
+    });
+    (l || []).forEach(function (m) {
+      if (m.p && !h[m.p]) { // pika s'është më (e fshiu administratori)
+        if (plota && !meAfate[m.id] && tani - (m.ndryshuarSe || 0) > FRESKET_MS) { hequr.push(m.id); ndr = true; return; }
+        r.push(m); return;
+      }
+      var pid = lidhja[m.id], x = pid ? h[pid] : null;
+      if (x && perdorur[pid] !== m.id) { // e njëjta pikë edhe te një market tjetër
+        if (!meAfate[m.id]) { hequr.push(m.id); ndr = true; return; }
+        if (!m.p) { r.push(m); return; } // i vjetër me afate: mbetet si është
+      }
+      if (x && !m.p) { m = Object.assign({}, m, { p: pid, ndryshuarSe: tani }); ndr = true; } // i vjetër: lidhet me pikën në të njëjtin vend
+      if (x && (m.emri !== x.emri || m.lat !== x.lat || m.lng !== x.lng)) {
+        m = Object.assign({}, m, { emri: x.emri, lat: x.lat, lng: x.lng, ndryshuarSe: tani }); ndr = true;
+      }
+      r.push(m);
+    });
+    pk.forEach(function (x) { if (!perdorur[x.id]) { r.push(ngaPika(x, tani)); ndr = true; } });
+    return { marketet: r, ndryshuar: ndr, hequr: hequr };
+  }
 
   // Afatet e një marketi (id null = krejt)
   function filtro(afatet, id) { return id ? (afatet || []).filter(function (a) { return a && a.m === id; }) : (afatet || []); }
@@ -201,7 +256,8 @@
     lexoAktivin: lexoAktivin, ruajAktivin: ruajAktivin, pasGps: pasGps, kaPika: kaPika, duhetKontrolli: duhetKontrolli,
     pozita: pozita, tekstiGabimit: tekstiGabimit,
     LIDHJA_M: LIDHJA_M, pastroPikat: pastroPikat, pikatAfer: pikatAfer, sipasPikes: sipasPikes, ngaPika: ngaPika,
-    emratNgaPikat: emratNgaPikat, pikaPerMarketin: pikaPerMarketin, mundTaRiemertoje: mundTaRiemertoje
+    emratNgaPikat: emratNgaPikat, pikaPerMarketin: pikaPerMarketin,
+    SAKTESIA_MAKS_M: SAKTESIA_MAKS_M, marketiNeVend: marketiNeVend, kontrolloShtimin: kontrolloShtimin, sinkronizoMePikat: sinkronizoMePikat
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuMarketet = api;

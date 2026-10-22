@@ -821,9 +821,13 @@
       // { emri, lat, lng, krijuarNga, krijuarNgaEmri, krijuarSe, ndryshuarSe, emriNgaAdmini }. I lexon kushdo me llogari
       // (merchandiseri e njeh vetë marketin ku arrin); i krijon merchandiseri; emrin e ndryshon administratori (emriNgaAdmini)
       // ose krijuesi derisa s'e ka ndryshuar administratori; i fshin administratori.
+      // cb(lista, { serveri }): v250 serveri = true kur lista vjen nga serveri (jo nga kopja e pajisjes): vetëm atëherë
+      // një pikë që mungon është vërtet e fshirë
       degjoPikat: function (cb, cbGabim) {
         if (!uid()) return function () {};
-        return fs.onSnapshot(fs.query(fs.collection(db, 'pikat'), fs.limit(3000)), function (s) { cb(listaNga(s)); }, function (e) { if (cbGabim) cbGabim(e); });
+        return fs.onSnapshot(fs.query(fs.collection(db, 'pikat'), fs.limit(3000)), { includeMetadataChanges: true }, function (s) {
+          cb(listaNga(s), { serveri: !(s.metadata && s.metadata.fromCache) });
+        }, function (e) { if (cbGabim) cbGabim(e); });
       },
       shtoPiken: async function (m) {
         if (!uid() || !m || typeof m.lat !== 'number' || typeof m.lng !== 'number') return { ok: false };

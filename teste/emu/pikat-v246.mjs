@@ -1,4 +1,4 @@
-// v246: rregullat e pikave të përbashkëta (pikat/{id}) kundër emulatorit të vërtetë (bash teste/emu/nis.sh), me rregullat nga SHENIME.md
+// v246 + v250: rregullat e pikave të përbashkëta (pikat/{id}) kundër emulatorit të vërtetë (bash teste/emu/nis.sh), me rregullat nga SHENIME.md
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
 import { doc, getDoc, getDocs, setDoc, deleteDoc, collection } from 'firebase/firestore';
 import { createRequire } from 'node:module';
@@ -18,7 +18,10 @@ ok(!(await leje(setDoc(doc(D, 'pikat/p4'), pika('u1', 'drini', { lat: 123 })))),
 ok(!(await leje(setDoc(doc(D, 'pikat/p5'), pika('u1', 'drini', { tjeter: 1 })))), 'fusha të panjohura ndalohen');
 ok(await leje(getDocs(collection(B, 'pikat'))) && await leje(getDoc(doc(B, 'pikat/p1'))), 'kushdo me llogari i lexon pikat');
 ok(!(await leje(getDocs(collection(X, 'pikat')))), 'pa llogari: s\'lexohen');
-ok(await leje(setDoc(doc(D, 'pikat/p1'), { emri: 'Albi Mall 34', ndryshuarSe: t + 1 }, { merge: true })), 'krijuesi e riemërton (pa admin)');
+ok(!(await leje(setDoc(doc(D, 'pikat/p1'), { emri: 'Albi Mall 34', ndryshuarSe: t + 1 }, { merge: true }))), 'v250: krijuesi s\'e riemërton');
+ok(!(await leje(setDoc(doc(D, 'pikat/p1'), { lat: 42.65, ndryshuarSe: t + 1 }, { merge: true }))), 'v250: krijuesi s\'e zhvendos');
+ok(await leje(setDoc(doc(A, 'pikat/pA'), pika('uA', 'mendurberisha', { emri: 'Viva Fresh Qendër' }))), 'v250: administratori shton market me dorë');
+ok(!(await leje(setDoc(doc(A, 'pikat/pB'), pika('u1', 'drini', { emri: 'Tjetër' })))), 'administratori s\'krijon në emër të tjetrit');
 ok(!(await leje(setDoc(doc(B, 'pikat/p1'), { emri: 'Tjetër', ndryshuarSe: t + 2 }, { merge: true }))), 'tjetri s\'e riemërton');
 ok(!(await leje(setDoc(doc(D, 'pikat/p1'), { krijuarNga: 'u2' }, { merge: true }))), 'krijuesi s\'e ndërron krijuesin');
 ok(await leje(setDoc(doc(A, 'pikat/p1'), { emri: 'Albi Mall Prishtinë', emriNgaAdmini: true, ndryshuarSe: t + 3 }, { merge: true })), 'administratori e riemërton');

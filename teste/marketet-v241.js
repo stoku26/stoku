@@ -114,26 +114,25 @@ const NUMERO_GPS = () => {
   await dr.click('#mkrAnulo'); await dr.waitForTimeout(300);
   await hapMarketetNeCilesime(dr);
   ok(await dr.evaluate(() => document.getElementById('opsioneTitulli').textContent) === 'Marketet' && /S'ke ende asnjë market/.test(await dr.textContent('#mkLista')), '1. Cilësimet → Marketet: bosh');
-  await dr.fill('#mkEmriRi', 'Albi Mall'); await dr.click('#mkShto'); await dr.waitForTimeout(400);
+  // v250: marketi shtohet vetëm kur je brenda tij (vendndodhja e saktë): merr vendndodhjen ku je
+  await ctxD.setGeolocation(ALBI);
+  await dr.fill('#mkEmriRi', 'Albi Mall'); await dr.click('#mkShto');
+  await prit(async () => (await lsMarketet(dr)).length === 1);
   const t1 = await toast(dr);
   const afA = await lsAfatet(dr), mk1 = await lsMarketet(dr);
   ok(mk1.length === 1 && mk1[0].emri === 'Albi Mall' && afA.every(a => a.m === mk1[0].id) && /2\)/.test(t1), '1. marketi i parë: afatet e deritashme (2) shkojnë te ai', t1);
   const mA = mk1[0].id;
   await dr.fill('#mkEmriRi', 'albi  mall'); await dr.click('#mkShto'); await dr.waitForTimeout(200);
   ok(/me këtë emër/.test(await dr.textContent('#mkGabim')) && (await lsMarketet(dr)).length === 1, '1. emri i përsëritur (pa dallim shkronjash) refuzohet');
-  // vendndodhja e Albi (je brenda)
-  await ctxD.setGeolocation(ALBI);
-  await editoMarketin(dr, 'Albi Mall');
-  await dr.evaluate(() => [...document.querySelectorAll('#mkLista .ops-furn-edit button')].find(x => /vendndodhjen/.test(x.textContent)).click());
-  ok(await prit(async () => (await lsMarketet(dr))[0].lat), '1. "Ruaj vendndodhjen këtu" ruan pikën e marketit');
   const mkA = (await lsMarketet(dr))[0];
-  ok(Math.abs(mkA.lat - ALBI.latitude) < 1e-6 && Math.abs(mkA.lng - ALBI.longitude) < 1e-6 && /U ruajt vendndodhja e Albi Mall/.test(await toast(dr)), '1. koordinatat e sakta', [mkA.lat, mkA.lng]);
-  // marketi i dytë, me vendndodhje te Viva
-  await dr.fill('#mkEmriRi', 'Viva Fresh'); await dr.click('#mkShto'); await dr.waitForTimeout(300);
+  ok(Math.abs(mkA.lat - ALBI.latitude) < 1e-6 && Math.abs(mkA.lng - ALBI.longitude) < 1e-6, '1. v250: marketi merr vendndodhjen ku je (koordinatat e sakta)', [mkA.lat, mkA.lng]);
+  ok(await prit(async () => { const m = (await lsMarketet(dr))[0]; const pk = m && m.p && F.S.docs.get('pikat/' + m.p); return !!pk && pk.krijuarNga === 'u1' && pk.emri === 'Albi Mall'; }), '1. v250: marketi bëhet pikë e Stoku-t (e shohin krejt merchandiserët)');
+  await editoMarketin(dr, 'Albi Mall');
+  ok(await dr.evaluate(() => !document.querySelector('#mkLista input, #mkLista .ops-furn-edit') && ![...document.querySelectorAll('#mkLista button')].some(x => /Fshije|vendndodhjen|Ruaj/.test(x.textContent))), '1. v250: pa riemërtim, pa fshirje, pa zhvendosje te Cilësimet → Marketet');
+  // marketi i dytë, kur je te Viva
   await ctxD.setGeolocation(VIVA);
-  await editoMarketin(dr, 'Viva Fresh');
-  await dr.evaluate(() => [...document.querySelectorAll('#mkLista .ops-furn-edit button')].find(x => /vendndodhjen/.test(x.textContent)).click());
-  await prit(async () => (await lsMarketet(dr)).every(m => m.lat));
+  await dr.fill('#mkEmriRi', 'Viva Fresh'); await dr.click('#mkShto');
+  await prit(async () => (await lsMarketet(dr)).length === 2 && (await lsMarketet(dr)).every(m => m.lat));
   const mV = (await lsMarketet(dr)).find(m => m.emri === 'Viva Fresh').id;
   ok((await lsAfatet(dr)).every(a => a.m === mA), '1. marketi i dytë s\'i merr afatet e të parit');
   ok(/Je te: Viva Fresh/.test(await dr.textContent('#mkAktivTitull')), '1. pas ruajtjes së vendit: je te Viva Fresh', await dr.textContent('#mkAktivTitull'));
@@ -160,7 +159,7 @@ const NUMERO_GPS = () => {
   // Zgjedhja me dorë: Krejt marketet
   await dr.click('#afMarketi'); await dr.waitForTimeout(300);
   const opsionet = await dr.evaluate(() => [...document.querySelectorAll('#mkdLista button')].map(x => x.textContent));
-  ok(opsionet.join('|') === 'Albi Mall2 afate|Viva Fresh1 afat|Krejt marketet3 afate' && await duket(dr, '#mkdGps'), '1. "Ku je?": marketet me numrat + Krejt + GPS', opsionet);
+  ok(opsionet.join('|') === 'Albi Mall0 m · 2 afate|Viva Fresh1 afat|Krejt marketet3 afate' && await duket(dr, '#mkdGps'), '1. "Ku je?": marketet me numrat (v250: Albi afër teje, me largësinë) + Krejt + GPS', opsionet);
   await dr.evaluate(() => [...document.querySelectorAll('#mkdLista button')].find(x => /Krejt/.test(x.textContent)).click()); await dr.waitForTimeout(300);
   const kk = await kartat(dr);
   ok(kk.length === 3 && kk.some(x => /Jogurt \| Viva Fresh/.test(x)) && kk.some(x => /Kos Abi \| Albi Mall/.test(x)), '1. Krejt marketet: 3 afate, me emrin e marketit', kk);
@@ -190,13 +189,10 @@ const NUMERO_GPS = () => {
   const afCloud = [].concat(...pjeset.map(x => x.afatet || []), (F.S.docs.get('dyqane/u1') || {}).afatet || []);
   ok(afCloud.find(a => a.emri === 'Jogurt' && a.m === mV), '1. cloud: afati e mban marketin (m)');
   ok(await prit(async () => orari.some(x => /^u1 /.test(x) && /"mk":"Viva Fresh"/.test(x) && /"mk":"Albi Mall"/.test(x)), 9000), '1. serveri (/orari) e merr emrin e marketit për njoftimin', orari.map(x => x.slice(0, 300)));
-  // Fshirja e marketit: afatet mbeten pa market
+  // v250: merchandiseri s'e fshin marketin (e bën vetëm administratori te Harta)
   await hapMarketetNeCilesime(dr);
   await editoMarketin(dr, 'Viva Fresh');
-  await dr.evaluate(() => [...document.querySelectorAll('#mkLista .ops-furn-edit button')].find(x => x.textContent === 'Fshije').click()); await dr.waitForTimeout(300);
-  ok(/Afatet e tij \(1\)/.test(await dr.textContent('#konfTekst')), '1. fshirja: paralajmëron për afatet');
-  await dr.click('#konfPo'); await dr.waitForTimeout(300);
-  ok((await lsMarketet(dr)).length === 1 && (await lsAfatet(dr)).find(a => a.emri === 'Jogurt') && await dr.evaluate(() => !!JSON.parse(localStorage.getItem('stoku:fshira:v1')).marketet), '1. Viva u fshi, afati mbetet; shënimi i fshirjes ruhet');
+  ok(await dr.evaluate(() => !document.querySelector('#mkLista .ops-furn-edit')) && (await lsMarketet(dr)).length === 2, '1. v250: Viva s\'fshihet nga merchandiseri');
   ok(!dr.__gab.length, '1. drini: pa gabime JS', dr.__gab);
 
   // ================= 2. Llogari e vjetër (pa "Punoj si merchandiser"): asgjë s'ndryshon, edhe me markete =================
@@ -220,7 +216,7 @@ const NUMERO_GPS = () => {
   await ad.evaluate(() => [...document.querySelectorAll('#pdDetaje button')].find(x => /Afatet e drini/.test(x.textContent)).click());
   ok(await prit(async () => /Albi Mall · 3/.test(await ad.textContent('#pdAfatet'))), '3. admini: "Albi Mall · 3"', (await ad.textContent('#pdAfatet')).slice(0, 200));
   const tx = await ad.textContent('#pdAfatet');
-  ok(/Pa market · 1/.test(tx) && /Jogurt/.test(tx) && (await ad.textContent('#opsioneTitulli')) === 'Afatet e drini', '3. admini: "Pa market · 1" (Viva u fshi), titulli');
+  ok(/Viva Fresh · 1/.test(tx) && /Jogurt/.test(tx) && (await ad.textContent('#opsioneTitulli')) === 'Afatet e drini', '3. admini: "Viva Fresh · 1", titulli');
   await ad.screenshot({ path: __dirname + '/v241-tel-admin.png' });
   // "Merchandiser" te lejet: drini (nga regjistrimi) i ndezur, agim i fikur; admini e ndez/fik në kohë reale
   await ad.click('#opsPrapa'); await ad.waitForTimeout(300);
@@ -254,7 +250,7 @@ const NUMERO_GPS = () => {
   await pc.goto(BAZA + '/pc.html#/afatet'); await pc.waitForTimeout(2500);
   ok(await prit(async () => duket(pc, '#afMarketiPcKuti')), '4. PC: "Marketi" te Afatet');
   const opsPc = await pc.evaluate(() => [...document.getElementById('afMarketiPc').options].map(o => o.textContent));
-  ok(opsPc.join('|') === 'Krejt marketet|Albi Mall', '4. PC: opsionet', opsPc);
+  ok(opsPc.join('|') === 'Krejt marketet|Albi Mall|Viva Fresh', '4. PC: opsionet', opsPc);
   const rr = () => pc.evaluate(() => [...document.querySelectorAll('#afTrup tr')].filter(x => !x.classList.contains('af-grup')).map(x => x.querySelector('.af-prod').textContent));
   const krejtPc = await rr();
   ok(krejtPc.length === 4 && krejtPc.some(x => /Kos Abi.*Albi Mall/.test(x)), '4. PC Krejt: 4 afate, me emrin e marketit', krejtPc);
@@ -276,7 +272,7 @@ const NUMERO_GPS = () => {
   ok(hapPd && kl && !!kaBtn, '4. PC admini: Përdoruesit → drini → "Afatet e drini"');
   if (kaBtn) {
     await apc.click('#pdAfatetBtn');
-    ok(await prit(async () => /Albi Mall · 4/.test(await apc.textContent('#pdafLista')) && /Pa market · 1/.test(await apc.textContent('#pdafLista'))), '4. PC admini: afatet sipas marketeve (Albi 4 me Djathin e shtuar në PC, Pa market 1)', (await apc.textContent('#pdafLista')).slice(0, 160));
+    ok(await prit(async () => /Albi Mall · 4/.test(await apc.textContent('#pdafLista')) && /Viva Fresh · 1/.test(await apc.textContent('#pdafLista'))), '4. PC admini: afatet sipas marketeve (Albi 4 me Djathin e shtuar në PC, Viva 1)', (await apc.textContent('#pdafLista')).slice(0, 160));
     await apc.screenshot({ path: __dirname + '/v241-pc-admin.png' });
   }
   ok(!apc.__gab.length, '4. PC admini: pa gabime JS', apc.__gab);

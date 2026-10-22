@@ -1025,7 +1025,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=6">
-<link rel="stylesheet" href="css/stoku.css?v=46">
+<link rel="stylesheet" href="css/stoku.css?v=47">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -1469,15 +1469,15 @@
         </div>
 
         <div class="opsione-faqe" data-faqe="marketet">
-          <div class="ops-intro">Për ata që punojnë në disa markete. Afatet ndahen sipas marketit: te çdo market i sheh vetëm afatet e tij. Kur je brenda marketit, prek atë dhe "Ruaj vendndodhjen këtu": herët e tjera Stoku e njeh vetë ku je (GPS). Vendndodhja jote s'ruhet askund, vetëm ajo e marketeve.</div>
+          <div class="ops-intro">Marketet e Stoku-t, të njëjtat për krejt merchandiserët. Afatet ndahen sipas marketit: te çdo market i sheh vetëm afatet e tij. Kur je brenda një marketi që s'është ende këtu, shtoje më poshtë: Stoku ruan vendndodhjen e tij (duhet vendndodhja e saktë e telefonit) dhe herët e tjera e njeh vetë ku je. Emrat i ndryshon vetëm administratori. Vendndodhja jote s'ruhet askund, vetëm ajo e marketeve.</div>
           <div class="seksion ops-karta mk-aktiv" id="mkAktivKarta" hidden>
             <div class="kat-info"><span class="kat-tekst" id="mkAktivTitull"></span><span class="kat-status" id="mkAktivNen"></span></div>
             <div class="ops-furn-veprime"><button class="btn ops-btn-dyte" id="mkZgjidh" type="button">Ndrysho</button><button class="btn ops-btn-dyte" id="mkGjejGps" type="button">Gjej me GPS</button></div>
           </div>
-          <div class="ops-grupi-titull" id="mkListaTitull">Marketet e mia</div>
+          <div class="ops-grupi-titull" id="mkListaTitull">Marketet e Stoku-t</div>
           <div class="ops-grupi ops-furn" id="mkLista"></div>
           <div class="mk-shto">
-            <input id="mkEmriRi" type="text" maxlength="60" autocomplete="off" spellcheck="false" placeholder="Emri i marketit, p.sh. Albi Mall" aria-label="Emri i marketit të ri" enterkeyhint="done">
+            <input id="mkEmriRi" type="text" maxlength="60" autocomplete="off" spellcheck="false" placeholder="Emri i marketit ku je tani" aria-label="Emri i marketit të ri" enterkeyhint="done">
             <button class="btn" id="mkShto" type="button">Shto</button>
           </div>
           <div class="hint mk-gabim" id="mkGabim"></div>
@@ -1487,6 +1487,15 @@
           <div class="ops-intro" id="htIntro"></div>
           <div class="ht-harta" id="htHarta" role="region" aria-label="Harta e marketeve"></div>
           <div class="ht-gabim" id="htGabim" hidden><span id="htGabimTekst"></span><button class="btn ops-btn-dyte" id="htProvo" type="button">Provo sërish</button></div>
+          <div class="ht-shto" id="htShtoKuti" hidden>
+            <button class="btn ops-btn-dyte" id="htShto" type="button">+ Shto market në hartë</button>
+            <div class="ht-shto-forma" id="htShtoForma" hidden>
+              <div class="hint">Lëviz hartën derisa shenja në mes të jetë mbi market (zmadho sa të shihen rrugët), shkruaj emrin dhe ruaje.</div>
+              <input id="htShtoEmri" type="text" maxlength="60" autocomplete="off" spellcheck="false" placeholder="Emri i marketit" aria-label="Emri i marketit të ri" enterkeyhint="done">
+              <div class="hint ops-furn-gabim" id="htShtoGabim" role="alert"></div>
+              <div class="ops-furn-veprime"><button class="btn ops-btn-dyte" id="htShtoAnulo" type="button">Anulo</button><button class="btn" id="htShtoRuaj" type="button">Ruaj këtu</button></div>
+            </div>
+          </div>
           <div class="hint ht-info" id="htInfo"></div>
           <div class="ops-grupi ops-furn" id="htLista"></div>
         </div>
@@ -1916,7 +1925,7 @@
     <div class="mk-dlg-lista" id="mkdLista"></div>
     <div class="veprime">
       <button class="btn tekst" id="mkdIRi" type="button">+ Market i ri</button>
-      <button class="btn tekst" id="mkdMenaxho" type="button">Marketet e mia</button>
+      <button class="btn tekst" id="mkdMenaxho" type="button">Marketet</button>
       <button class="btn tekst" id="mkdGps" type="button">Gjej me GPS</button>
       <button class="btn tekst" id="mkdAnulo" type="button">Mbyll</button>
     </div>
@@ -1927,12 +1936,8 @@
 <div class="mbulese" id="dlgMarketiRi">
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="mkrTitulli">
     <h2 id="mkrTitulli">Në cilin market je?</h2>
-    <p class="mk-dlg-nen" id="mkrNen">Shkruaj emrin e marketit. Stoku e mban mend vendndodhjen e tij dhe herët e tjera e njeh vetë kur hyn aty.</p>
+    <p class="mk-dlg-nen" id="mkrNen">Shkruaj emrin e marketit ku je tani. Stoku e ruan vendndodhjen e tij (duhet vendndodhja e saktë e telefonit) dhe e shohin krejt merchandiserët.</p>
     <input type="text" id="mkrEmri" maxlength="60" autocomplete="off" placeholder="p.sh. Albi Mall" enterkeyhint="done" aria-label="Emri i marketit">
-    <label class="opsion-rresht mk-vendi" for="mkrVendi">
-      <span class="ops-rresht__tekst"><span>Jam brenda këtij marketi tani</span><span class="hint">Ruaj vendndodhjen e marketit (telefoni pyet për leje)</span></span>
-      <span class="ndez"><input type="checkbox" id="mkrVendi" checked><span class="pist"></span></span>
-    </label>
     <div class="mk-gabim" id="mkrGabim" role="alert"></div>
     <div class="veprime">
       <button class="btn tekst" id="mkrAnulo" type="button">Më vonë</button>
@@ -1986,12 +1991,12 @@
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=4"></script>
 <script src="afatet.js?v=248"></script>
-<script src="marketet.js?v=246"></script>
-<script src="harta.js?v=249"></script>
-<script src="ekipa.js?v=248"></script>
+<script src="marketet.js?v=250"></script>
+<script src="harta.js?v=250"></script>
+<script src="ekipa.js?v=250"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=249"></script>
-<script src="app-tel.js?v=248"></script>
+<script src="teRejat.js?v=250"></script>
+<script src="app-tel.js?v=250"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>

@@ -183,7 +183,7 @@ const PLLAKA_ESRI = png(256, 256, [46, 92, 52]);
   ok(dd.hapur && dd.lista.some(x => /mk-dlg-titull:Afër teje/.test(x)) && dd.lista.some(x => /^mk-afer:Meridian Ulpiana/.test(x)), '5. çipi: "Ku je?" me "Afër teje" (Meridian Ulpiana)', dd.lista);
   ok(dd.lista.some(x => /Albi 34/.test(x)) && dd.lista.some(x => /Krejt marketet/.test(x)) && /Nëse GPS-i s'e ka gjetur mirë, zgjidhe vetë/.test(dd.nen), '5. edhe marketet e mia + "zgjidhe vetë"', dd);
   await d.evaluate(() => [...document.querySelectorAll('#mkdLista .mk-afer')].find(x => /Meridian Ulpiana/.test(x.textContent)).click());
-  ok(await prit(async () => /Meridian Ulpiana/.test(await cipi()) && /u shtua te marketet e tua/.test(await toast(d))), '5. zgjedhja me dorë: "Je te Meridian Ulpiana" (u shtua)', [await cipi(), await toast(d)]);
+  ok(await prit(async () => /Meridian Ulpiana/.test(await cipi())), '5. zgjedhja me dorë: "Je te Meridian Ulpiana" (v250: ishte tashmë te lista, nga pikat)', [await cipi(), await toast(d)]);
   const ls = await d.evaluate(() => JSON.parse(localStorage.getItem('stoku:marketet:v1') || '[]'));
   ok(ls.length === 2 && ls.some(m => m.p === 'p5') && await d.evaluate(() => JSON.parse(localStorage.getItem('stoku:marketi:aktiv') || '{}').menyra) === 'dore', '5. marketi i ri i lidhur me pikën; zgjedhja "me dorë"', ls);
   // Afatet: çipi mbetet, me krejt opsionet

@@ -155,8 +155,7 @@ function krijoFirestore(opt = {}) {
         && typeof iRi.lat === 'number' && Math.abs(iRi.lat) <= 90 && typeof iRi.lng === 'number' && Math.abs(iRi.lng) <= 180;
       if (!mire) return false;
       if (!iVjeter) return !fshire(a.uid) && iRi.krijuarNga === a.uid && iRi.krijuarNgaEmri === emriIm && !('emriNgaAdmini' in iRi);
-      return eshteAdmin(a.uid) || (iVjeter.krijuarNga === a.uid && !fshire(a.uid) && iVjeter.emriNgaAdmini !== true
-        && vetemKeto(ndryshuarKeys(iRi, iVjeter), ['emri', 'lat', 'lng', 'ndryshuarSe']));
+      return eshteAdmin(a.uid); // v250: emrin/vendndodhjen e ndryshon vetëm administratori
     }
     if (reja && p[0] === 'grupet_publike' && p.length === 2) { // v242
       if (S.paKerkesa) return false;

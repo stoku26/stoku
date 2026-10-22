@@ -456,7 +456,7 @@
       rifreskoKopjen();
     }
     if ((b.rendiKoha || 0) > rendiFolderaveKoha) rendiFolderaveKoha = b.rendiKoha;
-    if (ndryshoi) { shkruajLokalisht(); rivizato(); }
+    if (ndryshoi) { shkruajLokalisht(); rivizato(); if (PK.ok) setTimeout(pasPikave, 0); } // v250: edhe marketet nga cloud-i sipas pikave
     return b;
   }
 
@@ -3270,8 +3270,8 @@
 
   // ================= Cilësimet → Harta (v244, harta.js) =================
   // Pikat e marketeve mbi një hartë që tregon vetëm emrat e vendbanimeve; vetëm administratori dhe merchandiserët.
-  // Administratori i sheh pikat e Stoku-t (v246: pikat/{id}), ua ndryshon emrin për krejt Stoku-n dhe i fshin;
-  // merchandiseri (v247) i sheh krejt marketet e Stoku-t (emrat e vetave i ndryshon te telefoni, Cilësimet → Marketet).
+  // Administratori i sheh pikat e Stoku-t (v246: pikat/{id}), ua ndryshon emrin për krejt Stoku-n, i fshin dhe (v250) i
+  // shton me dorë në hartë; merchandiseri i sheh krejt marketet e Stoku-t, pa i ndryshuar (v250).
   var SH = window.StokuHarta;
   var HT = { inst: null, dukeHapur: false, pershtatur: false, pikat: null, ngarkuarSe: 0, dukeNgarkuar: false, gabime: 0, zgjedhur: '', neEditim: '' };
   function lejaHarta() { return !!SH && (eshteAdminiIStokut() || eshteMerchandiser()); }
@@ -3293,32 +3293,49 @@
     return marketet.map(function (m) { return Object.assign({ uid: u ? u.uid : '', perdoruesi: emriPerdoruesit(), imi: true }, m); });
   }
   // v246: administratori sheh pikat e përbashkëta të Stoku-t (pikat/{id}, në kohë reale); v247: edhe merchandiseri
-  var PK = { lista: [], gati: false, ndal: null, uid: null };
+  var PK = { lista: [], gati: false, ok: false, serveri: false, ndal: null, uid: null };
   function nisPikat() {
     var c = window.__stokuCloud, e = c && c.ekipa, u = perdoruesi(), duhen = !!u && (eshteAdminiIStokut() || eshteMerchandiser());
-    if (PK.ndal && (!duhen || PK.uid !== u.uid)) { try { PK.ndal(); } catch (er) { /* ok */ } PK.ndal = null; PK.lista = []; PK.gati = false; }
+    if (PK.ndal && (!duhen || PK.uid !== u.uid)) { try { PK.ndal(); } catch (er) { /* ok */ } PK.ndal = null; PK.lista = []; PK.gati = false; PK.ok = false; }
     if (!duhen || PK.ndal || !e || !e.degjoPikat) return;
     PK.uid = u.uid;
-    PK.ndal = e.degjoPikat(function (l) { PK.lista = MK.pastroPikat(l); PK.gati = true; if (htHapur()) { htMerrPikat(); htVizato(); } },
-      function () { PK.gati = true; if (htHapur()) { htMerrPikat(); htVizato(); } });
+    PK.ndal = e.degjoPikat(function (l, info) { PK.lista = MK.pastroPikat(l); PK.gati = true; PK.ok = true; PK.serveri = !!(info && info.serveri); pasPikave(); },
+      function () { PK.gati = true; PK.ok = false; if (htHapur()) { htMerrPikat(); htVizato(); } });
+  }
+  // v250: lista e merchandiserit = marketet e Stoku-t (si te telefoni): pikat e reja shtohen, emrat dhe vendndodhjet vijnë
+  // nga pikat, marketi i një pike të fshirë hiqet (kur s'ka afate). Marketet e vjetra i lidh me pikat telefoni (GPS-i).
+  function pasPikave() {
+    if (eshteMerchandiser() && PK.ok && !ngaVizitori()) {
+      var r = MK.sinkronizoMePikat(marketet, PK.lista, afatet, PK.serveri);
+      if (r.ndryshuar) {
+        marketet = r.marketet;
+        r.hequr.forEach(function (id) { fshira.marketet[id] = Date.now(); });
+        if (marketiAktiv.id && r.hequr.indexOf(marketiAktiv.id) !== -1) marketiAktiv = MK.ruajAktivin({ id: null, menyra: 'dore', koha: Date.now(), kontrolluarSe: marketiAktiv.kontrolluarSe || 0 });
+        ruaj();
+      }
+    }
+    if (htHapur()) { htMerrPikat(); htVizato(); }
   }
   ['stoku-auth-ndryshoi', 'stoku-cloud-gati', 'stoku-merchandiser'].forEach(function (ev) { window.addEventListener(ev, function () { setTimeout(nisPikat, 0); }); });
   setTimeout(nisPikat, 0);
   async function htMerrPikat() {
     nisPikat();
-    if (!eshteAdminiIStokut()) { // v247: të vetat + marketet e të tjerëve (`tjeter`, vetëm për t'i parë)
-      var mia = htPikatEMia(), teMia = {};
-      mia.forEach(function (m) { if (m.p) teMia[m.p] = true; });
-      HT.pikat = mia.concat(PK.lista.filter(function (x) { return !teMia[x.id]; }).map(function (x) {
-        return { id: x.id, uid: 'pika', pika: true, tjeter: true, emri: x.emri, lat: x.lat, lng: x.lng, perdoruesi: x.krijuarNgaEmri, eMia: !!perdoruesi() && x.krijuarNga === perdoruesi().uid };
-      }));
-      HT.gabime = 0; return;
-    }
-    HT.pikat = PK.gati ? PK.lista.map(function (x) { return { id: x.id, uid: 'pika', pika: true, emri: x.emri, lat: x.lat, lng: x.lng, perdoruesi: x.krijuarNgaEmri, emriNgaAdmini: x.emriNgaAdmini }; }) : null;
     HT.gabime = 0;
+    if (!eshteAdminiIStokut()) { // v250: marketet e Stoku-t (pikat) + të vetat që s'janë pika (të vjetra, pa vendndodhje)
+      var kaPike = {}, u = perdoruesi();
+      PK.lista.forEach(function (x) { kaPike[x.id] = true; });
+      HT.pikat = htPikatESistemit().map(function (x) { return Object.assign(x, { eMia: !!u && x.krijuarNga === u.uid }); })
+        .concat(htPikatEMia().filter(function (m) { return !m.p || !kaPike[m.p]; }));
+      return;
+    }
+    HT.pikat = PK.gati ? htPikatESistemit() : null;
+  }
+  function htPikatESistemit() {
+    return PK.lista.map(function (x) { return { id: x.id, uid: 'pika', pika: true, emri: x.emri, lat: x.lat, lng: x.lng, perdoruesi: x.krijuarNgaEmri, krijuarNga: x.krijuarNga, emriNgaAdmini: x.emriNgaAdmini }; });
   }
   async function htHapFaqen(detyro) {
     HT.neEditim = '';
+    htShtoHap(false);
     htVizato();
     htHarta();
     await htMerrPikat(detyro);
@@ -3329,7 +3346,8 @@
     var admin = eshteAdminiIStokut();
     $('htIntro').textContent = admin
       ? 'Pikat e marketeve që i kanë ruajtur merchandiserët. Në hartë dalin vetëm emrat e qyteteve, fshatrave dhe lagjeve. Kliko një pikë ose një rresht për ta gjetur; me "Ndrysho emrin" e ndërron emrin e pikës për krejt Stoku-n.'
-      : 'Marketet e Stoku-t: të tuat me blu, të tjerat me gri. Në hartë dalin vetëm emrat e qyteteve, fshatrave dhe lagjeve. Emrat e marketeve të tua i ndryshon te telefoni (Cilësimet → Marketet).';
+      : 'Marketet e Stoku-t, të njëjtat për krejt merchandiserët. Në hartë dalin vetëm emrat e qyteteve, fshatrave dhe lagjeve. Emrat i ndryshon vetëm administratori.';
+    $('htShtoKuti').hidden = !admin; // v250: administratori shton market me dorë në hartë
     var c = $('htLista'); c.textContent = '';
     if (HT.inst) HT.inst.vendos(HT.pikat || []);
     if (!HT.pikat) { $('htInfo').textContent = 'Duke i marrë pikat…'; return; }
@@ -3337,18 +3355,9 @@
     var meVend = HT.pikat.filter(SH.kaVend), paVend = HT.pikat.filter(function (p) { return !SH.kaVend(p); });
     $('htInfo').textContent = (meVend.length === 1 ? '1 pikë në hartë' : meVend.length + ' pika në hartë') +
       (paVend.length ? ' · ' + paVend.length + ' pa vendndodhje' : '') + (HT.gabime ? ' · ' + HT.gabime + ' llogari s\'u lexuan' : '') + '.';
-    if (!HT.pikat.length) { c.appendChild(el('div', 'ops-furn-bosh', admin ? 'Asnjë merchandiser s\'ka ruajtur ende market.' : 'S\'ka ende asnjë market në hartë. Shtoji te telefoni: Cilësimet → Marketet.')); return; }
+    if (!HT.pikat.length) { c.appendChild(el('div', 'ops-furn-bosh', admin ? 'Asnjë merchandiser s\'ka ruajtur ende market.' : 'S\'ka ende asnjë market në hartë. Shtohet te telefoni, kur je brenda marketit: Cilësimet → Marketet.')); return; }
     function sipasEmrit(a, b) { return String(a.emri).localeCompare(String(b.emri), 'sq'); }
-    var tjera = meVend.filter(function (p) { return p.tjeter; });
-    if (tjera.length) { // merchandiseri: të vetat së pari, pastaj marketet e të tjerëve
-      meVend = meVend.filter(function (p) { return !p.tjeter; });
-      if (meVend.length) c.appendChild(el('div', 'ops-furn-nen ht-pa-vend', 'Marketet e mia'));
-    }
     meVend.sort(sipasEmrit).forEach(function (p) { c.appendChild(htRreshti(p)); });
-    if (tjera.length) {
-      c.appendChild(el('div', 'ops-furn-nen ht-pa-vend', 'Marketet e tjera të Stoku-t'));
-      tjera.sort(sipasEmrit).forEach(function (p) { c.appendChild(htRreshti(p)); });
-    }
     if (paVend.length) {
       c.appendChild(el('div', 'ops-furn-nen ht-pa-vend', 'Pa vendndodhje (s\'dalin në hartë)'));
       paVend.sort(sipasEmrit).forEach(function (p) { c.appendChild(htRreshti(p)); });
@@ -3363,10 +3372,10 @@
     var t = el('div', 'ops-furn-tekst');
     t.appendChild(el('div', 'ops-furn-emri', p.emri));
     t.appendChild(el('div', 'ops-furn-nen', admin ? (p.imi ? 'Marketi yt' : (p.perdoruesi ? 'E shtoi ' + p.perdoruesi : 'Pikë e Stoku-t') + (p.emriNgaAdmini ? ' · emri nga ti' : '')) + (SH.kaVend(p) ? '' : ' · pa vendndodhje')
-      : p.tjeter ? (p.eMia ? 'E shtove ti' : p.perdoruesi ? 'E shtoi ' + p.perdoruesi : 'Market i Stoku-t') : (SH.kaVend(p) ? 'Marketi yt' : 'Pa vendndodhje')));
+      : p.pika ? (p.eMia ? 'E shtove ti' : p.perdoruesi ? 'E shtoi ' + p.perdoruesi : 'Market i Stoku-t') : (SH.kaVend(p) ? 'Marketi yt' : 'Pa vendndodhje')));
     rr.appendChild(t);
     rr.addEventListener('click', function () { htZgjidh(k, true, false); });
-    if (admin && !p.imi) {
+    if (admin && p.pika) {
       var b = el('button', 'btn dyte vogel', 'Ndrysho emrin'); b.type = 'button';
       b.addEventListener('click', function (ev) { ev.stopPropagation(); htZgjidh(k, true, true); });
       rr.appendChild(b);
@@ -3393,7 +3402,7 @@
     w.appendChild(t);
     var fshi = el('button', 'btn tekst rrezik vogel', 'Fshije pikën'); fshi.type = 'button'; fshi.title = 'Hiqe nga harta (marketet e merchandiserëve mbeten)';
     fshi.addEventListener('click', async function () {
-      var po = await konfirmo('Të fshihet pika?', '"' + p.emri + '" hiqet nga harta e Stoku-t. Marketet e merchandiserëve dhe afatet e tyre s\'preken.', 'Fshije');
+      var po = await konfirmo('Të fshihet marketi?', '"' + p.emri + '" hiqet nga harta dhe nga lista e merchandiserëve (te ata që kanë afate aty, mbetet me afatet). Afatet s\'fshihen.', 'Fshije');
       if (!po) return;
       var r = await window.__stokuCloud.ekipa.fshiPiken(p.id);
       if (!r || !r.ok) { gab.textContent = 'S\'u fshi. Kontrollo internetin dhe provo sërish.'; return; }
@@ -3406,6 +3415,7 @@
       var e = SH.emriIPastruar(inp.value);
       if (!e) { gab.textContent = 'Shkruaj emrin e pikës.'; inp.focus(); return; }
       if (e === p.emri) { HT.neEditim = ''; htVizato(); return; }
+      if (MK.ekzistonEmri(PK.lista, e, p.id)) { gab.textContent = 'Në Stoku ka tashmë një market me këtë emër.'; inp.focus(); return; }
       var cl = window.__stokuCloud;
       if (!cl || !cl.ekipa || !cl.ekipa.ndryshoPiken) { gab.textContent = 'Emri s\'u ndryshua. Kontrollo internetin dhe provo sërish.'; return; }
       ruajB.disabled = anulo.disabled = true; gab.textContent = '';
@@ -3433,6 +3443,7 @@
       kurSkaSatelit: function () { toast('Pamja satelitore s\'u hap. Kontrollo internetin dhe provo sërish.'); },
       kurKlikon: function (k) { htZgjidh(k, false, false); } }).then(function (inst) {
       HT.dukeHapur = false; HT.inst = inst;
+      if (!$('htShtoForma').hidden) inst.shenjestra(true);
       if (HT.pikat) { HT.pershtatur = true; inst.vendos(HT.pikat); inst.pershtat(HT.pikat); }
     }, function (e) {
       HT.dukeHapur = false;
@@ -3443,6 +3454,39 @@
     });
   }
   $('htProvo').addEventListener('click', function () { htHarta(); });
+  // ---- v250: administratori shton një market me dorë në hartë: pika = qendra e hartës (nën shenjën), jo afër një tjetri ----
+  function htShtoHap(v) {
+    $('htShtoForma').hidden = !v; $('htShto').hidden = v;
+    $('htShtoGabim').textContent = '';
+    if (HT.inst) HT.inst.shenjestra(v);
+    if (v) { $('htShtoEmri').value = ''; setTimeout(function () { $('htShtoEmri').focus(); }, 50); }
+  }
+  $('htShto').addEventListener('click', function () { htShtoHap(true); });
+  $('htShtoAnulo').addEventListener('click', function () { htShtoHap(false); });
+  async function htShtoRuaj() {
+    var gab = $('htShtoGabim'), e = SH.emriIPastruar($('htShtoEmri').value);
+    if (!eshteAdminiIStokut() || $('htShtoRuaj').disabled) return;
+    if (!e) { gab.textContent = 'Shkruaj emrin e marketit.'; $('htShtoEmri').focus(); return; }
+    if (!HT.inst) { gab.textContent = 'Harta s\'është hapur ende.'; return; }
+    var q = HT.inst.qendra();
+    if (q.zoom < 15) { gab.textContent = 'Zmadho hartën (sa të shihen rrugët) që marketi të vendoset saktë.'; return; }
+    if (MK.ekzistonEmri(PK.lista, e)) { gab.textContent = 'Në Stoku ka tashmë një market me këtë emër. Shto edhe vendin, p.sh. "' + e + ' Qendër".'; return; }
+    var af = MK.pikaPerMarketin(PK.lista, q);
+    if (af) { gab.textContent = 'Këtu është tashmë marketi "' + af.emri + '".'; return; }
+    var cl = window.__stokuCloud;
+    if (!cl || !cl.ekipa || !cl.ekipa.shtoPiken) { gab.textContent = 'S\'u ruajt. Kontrollo internetin dhe provo sërish.'; return; }
+    $('htShtoRuaj').disabled = true; gab.textContent = '';
+    var r = await cl.ekipa.shtoPiken({ emri: e, lat: Math.round(q.lat * 1e6) / 1e6, lng: Math.round(q.lng * 1e6) / 1e6 });
+    $('htShtoRuaj').disabled = false;
+    if (!r || !r.ok) { gab.textContent = 'S\'u ruajt. Kontrollo internetin dhe provo sërish.'; return; }
+    htShtoHap(false);
+    toast('"' + e + '" u shtua në hartë. Merchandiserët e shohin menjëherë.', { ms: 4000 });
+  }
+  $('htShtoRuaj').addEventListener('click', htShtoRuaj);
+  $('htShtoEmri').addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') { ev.preventDefault(); htShtoRuaj(); }
+    else if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); htShtoHap(false); }
+  });
 
   // ================= Cilësimet → Përdoruesit (v230, vetëm administratori) =================
   // Llogaritë nga perdoruesit/{uid}, lejet nga lejet/{uid} (dy dëgjues, vetëm te administratori). Llogaria pa dokument
@@ -3986,7 +4030,7 @@
 
 
   // ================= Marketet (v241, marketet.js) =================
-  // Lista menaxhohet te telefoni (Cilësimet → Marketet); këtu: zgjedhja e marketit te Afatet, marketi i afatit dhe
+  // Lista = marketet e Stoku-t (v250, nga pikat; shtohen te telefoni); këtu: zgjedhja e marketit te Afatet, marketi i afatit dhe
   // filtrimi. Pa asnjë market s'shihet asgjë e re. Kompjuteri s'e përdor GPS-in: marketi zgjidhet me dorë.
   function kaMarkete() { return marketet.length > 0 && eshteMerchandiser(); }
   function idMarketitAktiv() { var id = marketiAktiv.id; return kaMarkete() && id && MK.sipasId(marketet, id) ? id : null; }
