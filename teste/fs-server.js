@@ -52,6 +52,7 @@ function krijoFirestore(opt = {}) {
     if (reja && p[0] === 'kujtesa_pritje' && p.length === 2) return !S.paRegjister && (eListe ? eshteAdmin(a.uid) : (a.uid === p[1] || eshteAdmin(a.uid)));
     // v242: lista publike e grupeve (kushdo i kyçur) dhe kërkesat për t'u futur (kërkuesi, anëtarët e grupit, admini)
     if (reja && p[0] === 'grupet_publike' && p.length === 2) return !S.paKerkesa;
+    if (reja && p[0] === 'pikat' && p.length === 2) return !S.paPikat; // v246: pikat e marketeve (kushdo i kyçur)
     if (reja && p[0] === 'kerkesat_grupi' && p.length === 2) {
       if (S.paKerkesa) return false;
       if (eshteAdmin(a.uid)) return true;
@@ -145,6 +146,17 @@ function krijoFirestore(opt = {}) {
       if (lloji === 'delete') return a.uid === p[1] || eshteAdmin(a.uid);
       return a.uid === p[1] && !fshire(a.uid) && vetemKeto(Object.keys(iRi), ['p', 'emri', 'ndryshuarSe']) && !!iRi.p && typeof iRi.p === 'object'
         && Object.keys(iRi.p).length <= 4000 && iRi.emri === emriIm;
+    }
+    if (reja && p[0] === 'pikat' && p.length === 2) { // v246: pikat e përbashkëta të marketeve
+      if (S.paPikat) return false;
+      if (lloji === 'delete') return eshteAdmin(a.uid);
+      const mire = vetemKeto(Object.keys(iRi), ['emri', 'lat', 'lng', 'krijuarNga', 'krijuarNgaEmri', 'krijuarSe', 'ndryshuarSe', 'emriNgaAdmini'])
+        && typeof iRi.emri === 'string' && iRi.emri.length >= 1 && iRi.emri.length <= 60
+        && typeof iRi.lat === 'number' && Math.abs(iRi.lat) <= 90 && typeof iRi.lng === 'number' && Math.abs(iRi.lng) <= 180;
+      if (!mire) return false;
+      if (!iVjeter) return !fshire(a.uid) && iRi.krijuarNga === a.uid && iRi.krijuarNgaEmri === emriIm && !('emriNgaAdmini' in iRi);
+      return eshteAdmin(a.uid) || (iVjeter.krijuarNga === a.uid && !fshire(a.uid) && iVjeter.emriNgaAdmini !== true
+        && vetemKeto(ndryshuarKeys(iRi, iVjeter), ['emri', 'lat', 'lng', 'ndryshuarSe']));
     }
     if (reja && p[0] === 'grupet_publike' && p.length === 2) { // v242
       if (S.paKerkesa) return false;

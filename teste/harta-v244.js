@@ -1,9 +1,10 @@
 // v244: Cilësimet → Harta (harta.js). MapLibre vjen nga teste/npm (si jsDelivr, me SRI), pllakat e rreme të Prishtinës nga
 // harta-pllakat.js (skema OpenMapTiles si OpenFreeMap: vendbanime, por edhe shtet, rajon, dyqane, emra rrugësh e uji, që S'DUHET
 // të dalin), faqet nga serveri si Cloudflare (CSP e plotë si header). Kontrollon:
-// 0. njësitë: stili (vetëm vendbanimet si emra), pikat, mblidhPikat, riemerto, SRI, CSP
-// 1. telefoni, administratori: pikat e krejt merchandiserëve; në hartë vetëm vendbanimet + pikat; ndryshimi i emrit shkon te
-//    dyqani i merchandiserit dhe te pajisja e tij; emri që e ka tashmë s'pranohet; pa shkelje të CSP-së
+// 0. njësitë: stili (vetëm vendbanimet si emra), pikat, SRI, CSP
+// v246: administratori sheh pikat e përbashkëta të Stoku-t (pikat/{id}), jo dyqanet e merchandiserëve
+// 1. telefoni, administratori: pikat e Stoku-t; në hartë vetëm vendbanimet + pikat; ndryshimi i emrit shkon te pikat/{id} dhe
+//    te pajisja e merchandiserit (marketi i lidhur); pa shkelje të CSP-së
 // 2. telefoni, merchandiseri: vetëm pikat e veta, riemërtimi i vet; kush s'është merchandiser s'e sheh "Harta"
 // 3. PC, administratori: harta, lista, "Ndrysho emrin"; merchandiseri në PC: vetëm të vetat, pa ndryshim
 // 4. pllakat s'merren (pa internet, ose Cloudflare ende pa tiles.openfreemap.org): mesazh, lista dhe pikat mbeten
@@ -34,18 +35,6 @@ const MAPLIBRE = fs.readFileSync(NM + '/maplibre-gl/dist/maplibre-gl.js');
   ok(SH.stili({ tema: 'dark' }).layers[0].paint['background-color'] !== st.layers[0].paint['background-color'], '0. tema e errët ka ngjyrat e veta');
   const gj = SH.pikatGeoJson([{ id: 'a', uid: 'u1', emri: 'A', lat: 42.66, lng: 21.16 }, { id: 'b', uid: 'u1', emri: 'B' }]);
   ok(gj.features.length === 1 && gj.features[0].properties.k === 'u1|a' && gj.features[0].geometry.coordinates[0] === 21.16, '0. pikat pa vendndodhje s\'dalin në hartë', gj);
-  const mb = await SH.mblidhPikat([{ uid: 'u1', emri: 'drini' }, { uid: 'u2', emri: 'besa' }, { uid: 'u9', emri: 'gabim' }],
-    async u => u === 'u9' ? { ok: false } : { ok: true, gjendja: { marketet: u === 'u1' ? [{ id: 'm1', emri: ' Albi ', lat: 1, lng: 2 }, { id: 'm2', emri: 'Viva' }, null] : [] } }, [{ id: 'x', uid: 'uA', emri: 'Imi', imi: true }]);
-  ok(mb.gabime === 1 && mb.pikat.map(p => p.uid + ':' + p.emri + (SH.kaVend(p) ? '@' : '')).join() === 'uA:Imi,u1:Albi@,u1:Viva', '0. mblidhPikat: të miat + të merchandiserëve, gabimet numërohen', mb);
-  let dyqani = { marketet: [{ id: 'm1', emri: 'Albi', lat: 1, lng: 2, ndryshuarSe: 1 }, { id: 'm2', emri: 'Viva' }], afatet: [{ id: 'a1' }] };
-  const ndrysho = async (u, fn) => { dyqani = fn(dyqani); return { ok: true, gjendja: dyqani }; };
-  let r = await SH.riemerto(ndrysho, { id: 'm1', uid: 'u1' }, '  Albi   Mall ');
-  ok(r.ok && dyqani.marketet[0].emri === 'Albi Mall' && dyqani.marketet[0].ndryshuarSe > 1 && dyqani.marketet[0].lat === 1 && dyqani.afatet.length === 1, '0. riemerto: emri i ri + ndryshuarSe, pjesa tjetër e dyqanit e paprekur', dyqani);
-  r = await SH.riemerto(ndrysho, { id: 'm1', uid: 'u1' }, 'viva');
-  ok(!r.ok && r.arsye === 'ekziston' && dyqani.marketet[0].emri === 'Albi Mall', '0. riemerto: emri që e ka një market tjetër i tij s\'pranohet', r);
-  r = await SH.riemerto(ndrysho, { id: 'mX', uid: 'u1' }, 'X');
-  ok(!r.ok && r.arsye === 'nuk-u-gjet', '0. riemerto: pika e fshirë', r);
-  ok((await SH.riemerto(ndrysho, { id: 'm1', uid: 'u1' }, '   ')).arsye === 'emri' && (await SH.riemerto(async () => ({ ok: false }), { id: 'm1', uid: 'u1' }, 'Y')).arsye === 'rrjeti', '0. riemerto: emri bosh, pa internet');
   const sri = 'sha384-' + crypto.createHash('sha384').update(MAPLIBRE).digest('base64');
   const ver = JSON.parse(fs.readFileSync(NM + '/maplibre-gl/package.json', 'utf8')).version;
   ok(sri === SH.MAPLIBRE_SRI && SH.MAPLIBRE_JS === 'https://cdn.jsdelivr.net/npm/maplibre-gl@' + ver + '/dist/maplibre-gl.js', '0. MapLibre ' + ver + ': SRI e skedarit të paketës', sri);
@@ -61,8 +50,10 @@ const MAPLIBRE = fs.readFileSync(NM + '/maplibre-gl/dist/maplibre-gl.js');
   F.S.docs.set('perdoruesit/u1', { perdoruesi: 'drini', kycurSe: t, merchandiser: true });
   F.S.docs.set('perdoruesit/u2', { perdoruesi: 'besa', kycurSe: t, merchandiser: true });
   F.S.docs.set('perdoruesit/u3', { perdoruesi: 'agim', kycurSe: t });
-  const MK1 = [{ id: 'm1', emri: 'Albi 34', lat: 42.6610, lng: 21.1600, ndryshuarSe: t - 9000 }, { id: 'm2', emri: 'Viva', ndryshuarSe: t - 9000 }];
-  const MK2 = [{ id: 'm9', emri: 'Meridian', lat: 42.6400, lng: 21.1000, ndryshuarSe: t - 9000 }];
+  const MK1 = [{ id: 'm1', emri: 'Albi 34', lat: 42.6610, lng: 21.1600, p: 'p1', ndryshuarSe: t - 9000 }, { id: 'm2', emri: 'Viva', ndryshuarSe: t - 9000 }];
+  const MK2 = [{ id: 'm9', emri: 'Meridian', lat: 42.6400, lng: 21.1000, p: 'p9', ndryshuarSe: t - 9000 }];
+  F.S.docs.set('pikat/p1', { emri: 'Albi 34', lat: 42.6610, lng: 21.1600, krijuarNga: 'u1', krijuarNgaEmri: 'drini', krijuarSe: t, ndryshuarSe: t });
+  F.S.docs.set('pikat/p9', { emri: 'Meridian', lat: 42.6400, lng: 21.1000, krijuarNga: 'u2', krijuarNgaEmri: 'besa', krijuarSe: t, ndryshuarSe: t });
   const b = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--ignore-gpu-blocklist'] });
   async function faqe(uid, emri, pc, marketet, paPllaka) {
     const ctx = await b.newContext(pc ? { viewport: { width: 1440, height: 900 }, serviceWorkers: 'block' }
@@ -105,11 +96,13 @@ const MAPLIBRE = fs.readFileSync(NM + '/maplibre-gl/dist/maplibre-gl.js');
   await ad.click('#btnOpsione'); await ad.waitForTimeout(500);
   ok(await prit(async () => await duket(ad, '#tabHarta')), '1. admini: "Harta" te Cilësimet', await ad.textContent('#tabHartaStatus'));
   await hapHarten(ad);
-  ok(await prit(async () => (await rreshtat(ad)).length === 3), '1. lista: 3 pika (2 në hartë, 1 pa vendndodhje)', await rreshtat(ad));
+  ok(await prit(async () => (await rreshtat(ad)).length === 2), '1. lista: 2 pikat e Stoku-t', await rreshtat(ad));
   const rr1 = await rreshtat(ad);
-  ok(/^Albi 34 \| Nga drini/.test(rr1[0]) && /^Meridian \| Nga besa/.test(rr1[1]) && /^Viva \| Nga drini/.test(rr1[2]) && /Pa vendndodhje/.test(await ad.textContent('#htLista')), '1. renditja dhe kush e ruajti', rr1);
-  ok(/2 pika në hartë · 1 pa vendndodhje/.test(await ad.textContent('#htInfo')) && (await ad.textContent('#opsioneTitulli')) === 'Harta', '1. "2 pika në hartë · 1 pa vendndodhje", titulli "Harta"', await ad.textContent('#htInfo'));
+  ok(/^Albi 34 \| E shtoi drini/.test(rr1[0]) && /^Meridian \| E shtoi besa/.test(rr1[1]), '1. renditja dhe kush e shtoi', rr1);
+  ok(/^2 pika në hartë\.$/.test(await ad.textContent('#htInfo')) && (await ad.textContent('#opsioneTitulli')) === 'Harta', '1. "2 pika në hartë", titulli "Harta"', await ad.textContent('#htInfo'));
   ok(await prit(async () => await hartaGati(ad), 30000), '1. harta u hap (MapLibre + pllakat)');
+  ok(await ad.evaluate(() => !!document.querySelector('#htHarta .maplibregl-ctrl-attrib.maplibregl-compact-show')), '1. v246: burimet e hartës dalin kur hapet harta');
+  ok(await prit(async () => await ad.evaluate(() => !document.querySelector('#htHarta .maplibregl-ctrl-attrib.maplibregl-compact-show') && !!document.querySelector('#htHarta .maplibregl-ctrl-attrib-button')), 9000), '1. v246: pas 5 s palohen te butoni (i)');
   await ad.waitForTimeout(1500);
   let emrat = await emratNeHarte(ad);
   ok(emrat.some(x => x === 'pikat-emri:Albi 34') && emrat.some(x => x === 'pikat-emri:Meridian'), '1. pikat me emra në hartë', emrat);
@@ -133,16 +126,12 @@ const MAPLIBRE = fs.readFileSync(NM + '/maplibre-gl/dist/maplibre-gl.js');
   const pik = await ad.evaluate(() => { const m = window.StokuHarta.eFundit.map; const q = m.project([21.1600, 42.6610]); const r = m.getCanvas().getBoundingClientRect(); return { x: r.left + q.x, y: r.top + q.y }; });
   await ad.mouse.click(pik.x, pik.y); await ad.waitForTimeout(500);
   ok(await prit(async () => await ad.evaluate(() => { const i = document.querySelector('#htLista .ops-furn-edit input'); return i && i.value === 'Albi 34'; })), '1. prekja e pikës hap ndryshimin e emrit të saj');
-  // Emri që drini e ka tashmë
-  await ad.fill('#htLista .ops-furn-edit input', 'viva');
-  await ad.evaluate(() => [...document.querySelectorAll('#htLista .ops-furn-edit button')].find(x => x.textContent === 'Ruaj').click());
-  ok(await prit(async () => /drini e ka edhe një market me këtë emër/.test(await ad.textContent('#htLista .ops-furn-edit'))), '1. "drini e ka edhe një market me këtë emër"');
   await ad.fill('#htLista .ops-furn-edit input', 'Albi Mall Prishtinë');
   await ad.press('#htLista .ops-furn-edit input', 'Enter');
-  ok(await prit(async () => ((F.S.docs.get('dyqane/u1') || {}).marketet || []).some(m => m.id === 'm1' && m.emri === 'Albi Mall Prishtinë' && m.ndryshuarSe > t && m.lat === 42.661)), '1. emri i ri te dyqani i drinit (vendndodhja mbetet)', (F.S.docs.get('dyqane/u1') || {}).marketet);
-  ok(await prit(async () => (await rreshtat(ad))[0].startsWith('Albi Mall Prishtinë') && /drini e sheh emrin e ri/.test(await ad.textContent('#toast'))), '1. lista dhe njoftimi', await rreshtat(ad));
+  ok(await prit(async () => (F.S.docs.get('pikat/p1') || {}).emri === 'Albi Mall Prishtinë' && F.S.docs.get('pikat/p1').emriNgaAdmini === true && F.S.docs.get('pikat/p1').lat === 42.661), '1. pikat/p1: emri i ri nga administratori (vendndodhja mbetet)', F.S.docs.get('pikat/p1'));
+  ok(await prit(async () => (await rreshtat(ad))[0].startsWith('Albi Mall Prishtinë') && /Merchandiserët e shohin emrin e ri/.test(await ad.textContent('#toast'))), '1. lista dhe njoftimi', await rreshtat(ad));
   ok(await prit(async () => (await emratNeHarte(ad)).includes('pikat-emri:Albi Mall Prishtinë')), '1. emri i ri në hartë');
-  ok(await prit(async () => (await dr.evaluate(() => JSON.parse(localStorage.getItem('stoku:marketet:v1') || '[]'))).some(m => m.id === 'm1' && m.emri === 'Albi Mall Prishtinë'), 20000), '1. drini e merr emrin e ri në telefonin e tij (sinkronizimi)');
+  ok(await prit(async () => (await dr.evaluate(() => JSON.parse(localStorage.getItem('stoku:marketet:v1') || '[]'))).some(m => m.id === 'm1' && m.emri === 'Albi Mall Prishtinë'), 20000), '1. drini e merr emrin e ri në telefonin e tij (marketi i lidhur me pikën)');
   ok(!(await ad.evaluate(() => window.__csp)).length && !ad.__gab.length, '1. pa shkelje të CSP-së, pa gabime JS', [await ad.evaluate(() => window.__csp), ad.__gab]);
 
   // ================= 2. Telefoni: merchandiseri dhe kush s'është =================
@@ -169,14 +158,15 @@ const MAPLIBRE = fs.readFileSync(NM + '/maplibre-gl/dist/maplibre-gl.js');
   await pa.click('#btnOpsione'); await pa.waitForTimeout(500);
   ok(await prit(async () => await duket(pa, '#opsSkedaHarta')), '3. PC admini: "Harta" te Cilësimet');
   await pa.click('#opsSkedaHarta'); await pa.waitForTimeout(400);
-  ok(await prit(async () => (await rreshtat(pa)).length === 3), '3. PC: 3 pika', await rreshtat(pa));
+  ok(await prit(async () => (await rreshtat(pa)).length === 2), '3. PC: 2 pikat e Stoku-t', await rreshtat(pa));
   ok(await prit(async () => await hartaGati(pa), 30000), '3. PC: harta u hap');
   await pa.waitForTimeout(1200);
   ok((await emratNeHarte(pa)).filter(x => /^pikat-emri:/.test(x)).length === 2, '3. PC: 2 pika në hartë', await emratNeHarte(pa));
   await pa.evaluate(() => [...document.querySelectorAll('#htLista .ops-furn-rresht')].find(x => /Meridian/.test(x.textContent)).querySelector('button').click()); await pa.waitForTimeout(300);
   await pa.fill('#htLista .ops-furn-edit input', 'Meridian Fushë Kosovë');
   await pa.evaluate(() => [...document.querySelectorAll('#htLista .ops-furn-edit button')].find(x => x.textContent === 'Ruaj').click());
-  ok(await prit(async () => ((F.S.docs.get('dyqane/u2') || {}).marketet || []).some(m => m.id === 'm9' && m.emri === 'Meridian Fushë Kosovë')), '3. PC: emri i ri te dyqani i besës');
+  ok(await prit(async () => (F.S.docs.get('pikat/p9') || {}).emri === 'Meridian Fushë Kosovë' && F.S.docs.get('pikat/p9').emriNgaAdmini === true), '3. PC: pikat/p9 me emrin e ri');
+  ok(await prit(async () => ((F.S.docs.get('dyqane/u2') || {}).marketet || []).some(m => m.id === 'm9' && m.emri === 'Meridian Fushë Kosovë'), 20000), '3. telefoni i besës e merr emrin dhe e çon te dyqani i saj');
   ok(await prit(async () => (await emratNeHarte(pa)).includes('pikat-emri:Meridian Fushë Kosovë')), '3. PC: emri i ri në hartë');
   await pa.screenshot({ path: __dirname + '/v244-pc-admin.png' });
   ok(!(await pa.evaluate(() => window.__csp)).length && !pa.__gab.length, '3. PC: pa shkelje të CSP-së, pa gabime JS', [await pa.evaluate(() => window.__csp), pa.__gab]);
@@ -198,7 +188,7 @@ const MAPLIBRE = fs.readFileSync(NM + '/maplibre-gl/dist/maplibre-gl.js');
   const { p: pp } = await faqe('uA', 'mendurberisha', false, null, true);
   await hapHarten(pp);
   ok(await prit(async () => await duket(pp, '#htGabim') && /Pjesët e hartës s'u morën/.test(await pp.textContent('#htGabim'))), '4. mesazhi "Pjesët e hartës s\'u morën…"', await pp.textContent('#htGabim'));
-  ok(await prit(async () => (await rreshtat(pp)).length === 3) && await duket(pp, '#htHarta'), '4. lista dhe pikat mbeten', await rreshtat(pp));
+  ok(await prit(async () => (await rreshtat(pp)).length === 2) && await duket(pp, '#htHarta'), '4. lista dhe pikat mbeten', await rreshtat(pp));
   ok(!pp.__gab.length, '4. pa gabime JS', pp.__gab);
 
   await b.close();

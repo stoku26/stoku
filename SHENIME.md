@@ -52,6 +52,46 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **DALJA NGA GRUPI + MARKETI KU JE + PIKAT E PËRBASHKËTA + ATRIBUIMI I HARTËS (v246 = 1.35.0, RREGULLA TË REJA: `pikat`)**:
+   pronari: (1) "kur përdoruesi kërkon me dalë prej grupit, s'mundet, prap e kthen në grup; nëse je i fundit fshije komplet grupin";
+   (2) "aplikacioni s'shfaq opsion në cilën pikë je, as s'të kërkon leje për lokacionin" (vetëm llogaritë "Punoj si merchandiser",
+   p.sh. testmorina); (3) atribuimi i hartës ("OpenFreeMap © OpenMapTiles Data from OpenStreetMap") "me ia zhduk"; (4) sateliti.
+   - **Grupi (`ekipa.js`)**: shkaku: `mundTeLargohet` e ndalte adminin e vetëm me kolegë ("Je admini i vetëm… bëje dikë tjetër
+     admin"); pronari e lexonte si "s'po më lë me dalë". Tash kthen `{ ok, trashegimtari, trashegimtariEmri }`: admin bëhet kolegu me
+     `kycurSe` (= `hyriSe` i anëtarësisë) më të vjetër. `largohu(fshiGrupin, paTregues, trashegimtari)`: SË PARI `perditesoAnetarin`
+     (batch `update`, roli 'pronar'), pa sukses s'largohet (`arsye: 'trashegimtari'`); pastaj njoftimi `admin-i-ri` te
+     `perdoruesit/{trashegimtari}/njoftimet` ("X u largua nga grupi dhe tash ti je admini i grupit."), pastaj largimi si më parë.
+     Edhe `pranoFtesen` (kalimi te një grup tjetër) e merr trashëgimtarin. I fundit: si më parë, grupi fshihet krejt (feed, afatet,
+     push, ftesat, kërkesat, grupi, `grupet_publike`; kujtesa mbetet, v198). Admini i ri e publikon vetë grupin me emrin e vet te
+     `grupet_publike`. `grupet/{g}.pronarUid` mbetet i themeluesit: `gjejGrupinTim` e kontrollon anëtarësinë, s'e rikthen.
+     Tekstet e pyetjes (tel + PC): "Je admini i grupit: kur largohesh, admin bëhet X." / "Je i fundit në grup: grupi fshihet komplet".
+   - **Pikat e përbashkëta `pikat/{id}`** (`ekipa.js`: `degjoPikat` (limit 3000), `shtoPiken`, `ndryshoPiken(id, te, ngaAdmini)`,
+     `fshiPiken`): `{ emri, lat, lng, krijuarNga, krijuarNgaEmri, krijuarSe, ndryshuarSe, emriNgaAdmini? }`. Marketi i
+     merchandiserit me vendndodhje lidhet me një pikë (`m.p`, `marketet.js`): pika ekzistuese me të njëjtin emër (normalizuar)
+     brenda `LIDHJA_M` = 60 m, ose krijohet e re; pika e krijuesit ndjek vendndodhjen e marketit. Emri i pikës fiton
+     (`emratNgaPikat`): kur e ndryshon administratori (`emriNgaAdmini: true`, pastaj krijuesi s'e ndryshon më) ose krijuesi.
+     Vetëm administratori i fshin. Te Cilësimet → Marketet, marketi i lidhur me pikën e dikujt tjetër s'riemërtohet (tekst
+     "Këtë market e shtoi X…" / "…e ka caktuar administratori").
+   - **Merchandiseri (telefoni, `app-tel.js`, `kontrolloGps`)**: vetëm `eshteMerchandiser()`. Sa hapet aplikacioni (1,2 s) dhe kur
+     kthehet në pamje (jo më shpesh se `KONTROLLI_MS` = 2 min) kërkohet vendndodhja (leja e telefonit del këtu herën e parë; te
+     aplikacioni Android duhet APK v241+). Marketi im brenda `RREZJA_M` → "Je te: X"; përndryshe pika e Stoku-t afër → shtohet te
+     marketet e mia (`shtoNgaPika`) + "Je te: X (u shtua te marketet e tua)"; përndryshe (jo nëse e zgjodhi me dorë ose u pyet
+     brenda `DORE_MS` = 3 orë, `stoku:marketet:kuje`, dhe jo mbi një dritare tjetër) "Ku je?" me seksionin "Afër teje" (pikat deri
+     2 km që s'i kam, `.mk-afer`, zgjedhja "p:" + id) dhe "Marketet e mia"; pa markete dhe pa pika afër: "Në cilin market je?".
+     Llogaritë jo-merchandiser: asgjë (as GPS). Rregullat para v246 (pa `pikat`): `degjoPikat` dështon, marketet punojnë si më parë.
+   - **Harta (administratori, tel + PC)**: pikat vijnë nga `pikat` (jo më nga dyqanet e merchandiserëve: `mblidhPikat`/`riemerto` u
+     hoqën), riemërtimi = `ndryshoPiken(id, { emri }, true)` → te merchandiserët përmes `emratNgaPikat`; "Fshije pikën". Atribuimi:
+     s'hiqet (licenca ODbL e OpenStreetMap + OpenMapTiles e kërkojnë); `compact` dhe palohet vetë te (i) pas 5 s ose në lëvizjen e
+     parë të hartës (`palosBurimet`), si te udhëzimet e OSMF-së. **Sateliti: s'u bë** (pret vendimin e pronarit; opsioni më i
+     mirë: Esri World Imagery me çelës falas ArcGIS Location Platform, 2 milionë pllaka/muaj, lejon përdorim komercial; do
+     të duhej CSP + Cloudflare).
+   - **Rregullat**: `pikaOk` + `match /pikat/{id}` (më poshtë). **PRONARI duhet t'i vendosë** (pa to merchandiserët s'i shohin
+     pikat e të tjerëve dhe harta e administratorit mbetet bosh). Teste: `teste/pikat-v246.js` (Firestore i rremë: shtimi vetë te
+     pika e njohur, "Afër teje", migrimi, riemërtimi/fshirja nga admini, leja e ndaluar, jo-merchandiser), `teste/grupi-dalja-v246.js`
+     (admini largohet → admin kolegu më i vjetër + njoftimi, rifreskimi s'e kthen, i fundit → grupi fshihet), emulatori:
+     `teste/emu/pikat-v246.mjs` (rregullat) dhe `teste/emu/grupi-dalja-v246.js`; `grupet-test.js` hapi 11 tash pret
+     "admin bëhet agim" (dhe lexon `STOKU_B`). S'u testua në telefon/Firebase të vërtetë.
+
 0000000. **HARTA: EMRAT E LAGJEVE (v245 = 1.34.1)**: pronari (pas Cloudflare-it): "hartën po e shoh, po emrat e lagjeve s'janë".
    - **Shkaku (jo gabim i kodit):** pllakat e OpenFreeMap (Planetiler, profili OpenMapTiles, `Place.java`) e kanë `minzoom`:
      qytet/qytezë 7 (ose sipas rank-ut), fshat 8, `hamlet`/`suburb` 11, **`quarter`/`neighbourhood`/`isolated_dwelling` 14**;
@@ -1828,9 +1868,9 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   Nëse ndonjëherë duket sikur duhet ndryshuar përsëri kjo zonë, PYET së pari çka saktësisht don ndryshe,
   në vend që të provosh dizajne të reja vetë — kjo zonë ka ndryshuar 4 herë tashmë.
 
-## Rregullat e Firestore (v243 rikthimi i grupit (pronarUid), v242 regjistri + kërkesat për grup, v164 grupet, v221 pa chat, v229 skedarët në PC, v230 lejet; më parë v116 + v130 ekipa_push + v140 admini nga llogaria): i vendos PËRDORUESI (unë s'kam qasje)
+## Rregullat e Firestore (v246 pikat e marketeve, v243 rikthimi i grupit (pronarUid), v242 regjistri + kërkesat për grup, v164 grupet, v221 pa chat, v229 skedarët në PC, v230 lejet; më parë v116 + v130 ekipa_push + v140 admini nga llogaria): i vendos PËRDORUESI (unë s'kam qasje)
 
-**Gjendja:** rregullat v243 (me `allow list` te `grupet/{g}`) i vendosi pronari në Firebase më 21.10.2026 (krejt teksti më poshtë).
+**Gjendja:** rregullat v243 (me `allow list` te `grupet/{g}`) i vendosi pronari në Firebase më 21.10.2026. **v246 (`pikaOk` + `pikat/{id}`) ende JO**: pronari duhet ta ngjisë krejt tekstin më poshtë.
 
 Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Dyqani lexohet vetëm nga pronari/admin-i;
 `emri`/`perdoruesi` s'falsifikohen (= emri i llogarisë); aplikacioni s'mund ta shtojë/ndryshojë fushën `emri` te
@@ -1884,6 +1924,12 @@ service cloud.firestore {
     }
     function emriIGrupitOk(d) {
       return d.emri is string && d.emri.size() >= 2 && d.emri.size() <= 60;
+    }
+    // v246: pika e përbashkët e një marketi (emri + vendndodhja)
+    function pikaOk(d) {
+      return d.keys().hasOnly(['emri', 'lat', 'lng', 'krijuarNga', 'krijuarNgaEmri', 'krijuarSe', 'ndryshuarSe', 'emriNgaAdmini'])
+        && d.emri is string && d.emri.size() >= 1 && d.emri.size() <= 60
+        && d.lat is number && d.lat >= -90 && d.lat <= 90 && d.lng is number && d.lng >= -180 && d.lng <= 180;
     }
     match /dyqane/{kodi} {
       allow read, write: if request.auth != null && ((request.auth.uid == kodi && !uFshi(kodi)) || eshteAdmin());
@@ -2073,6 +2119,20 @@ service cloud.firestore {
         && emriIGrupitOk(request.resource.data) && request.resource.data.pronarEmri == emriIm();
       allow delete: if request.auth != null && (pronarIGrupit(g) || eshteAdmin()
         || !exists(/databases/$(database)/documents/grupet/$(g)));
+    }
+    // v246: pikat e përbashkëta të marketeve. I lexon kushdo me llogari (merchandiseri e njeh vetë marketin ku arrin); i krijon
+    // merchandiseri në emër të vet; emrin/vendndodhjen i ndryshon administratori (emriNgaAdmini = true) ose krijuesi, derisa
+    // s'i ka ndryshuar administratori; i fshin vetëm administratori.
+    match /pikat/{id} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && !uFshi(request.auth.uid) && pikaOk(request.resource.data)
+        && request.resource.data.krijuarNga == request.auth.uid && request.resource.data.krijuarNgaEmri == emriIm()
+        && !('emriNgaAdmini' in request.resource.data);
+      allow update: if request.auth != null && pikaOk(request.resource.data) && (eshteAdmin()
+        || (resource.data.krijuarNga == request.auth.uid && !uFshi(request.auth.uid)
+            && resource.data.get('emriNgaAdmini', false) != true
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['emri', 'lat', 'lng', 'ndryshuarSe'])));
+      allow delete: if request.auth != null && eshteAdmin();
     }
     // v242: kërkesat për t'u futur në një grup. Id = {grupi}_{uid}. Pronari e pranon me një ftesë (ftesat).
     match /kerkesat_grupi/{id} {

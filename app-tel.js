@@ -1727,7 +1727,7 @@
     var admin = eshteAdminiIStokut(), gati = admin && !!pd.llogarite && !!pd.lejet;
     $('tabPerdoruesit').hidden = !admin;
     rifreskoTabinHarta();
-    if (HT && admin && faqjaEOpsioneve === 'harta' && !HT.pikat && !HT.dukeNgarkuar && pd.llogarite) htHapFaqen(false); // llogaritë sapo erdhën
+    if (PK) nisPikat(); // v246: administratori i dëgjon pikat e Stoku-t (harta)
     var rinj = gati ? pdLista().filter(function (a) { return a.statusi === 'ri'; }).length : 0;
     var st = $('tabPerdoruesitStatus');
     st.textContent = !gati ? 'Lejet e secilës llogari' : rinj ? (rinj === 1 ? '1 pa u kontrolluar' : rinj + ' pa u kontrolluar') : sasiaETekst(pdLista().length, 'llogari', 'llogari');
@@ -4639,30 +4639,113 @@
     if (faqjaEOpsioneve === 'marketet') vizatoMarketetNeCilesime();
     if (HT && faqjaEOpsioneve === 'harta' && !eshteAdminiIStokut()) { HT.pikat = htPikatEMia(); htVizato(); }
   }
-  // GPS: kur hapet aplikacioni (jo më shpesh se 2 min) dhe vetëm kur një market ka vendndodhje; meDore = "Gjej me GPS"
-  var __gpsDukePunuar = false;
+  // ---- v246: pikat e përbashkëta (pikat/{id}) dhe vendndodhja kur hapet aplikacioni ----
+  // Merchandiseri: sa hapet Stoku (jo më shpesh se 2 min) kërkohet vendndodhja (këtu del leja e telefonit herën e parë).
+  // Je te një market yt → "Je te: X". Je te një pikë që e ka shtuar dikush tjetër → shtohet te marketet e tua dhe "Je te: X".
+  // S'je te asnjë → "Ku je?" me pikat afër dhe "+ Market i ri" (jo më shpesh se një herë në 3 orë, pa e kërkuar vetë).
+  var PK = { lista: [], gati: false, ndal: null, uid: null, lidhjeNeRruge: {} };
+  var KEY_KUJE = 'stoku:marketet:kuje'; // { uid, koha }: kur u pyet vetë herën e fundit "Ku je?"
+  function pikaEMarketit(m) { return (m && m.p && PK.lista.filter(function (q) { return q.id === m.p; })[0]) || null; }
+  function tekstiPikesSeHuaj(px) {
+    return px.emriNgaAdmini ? 'Emrin e këtij marketi e ka caktuar administratori i Stoku-t.'
+      : 'Këtë market e shtoi ' + (px.krijuarNgaEmri || 'dikush tjetër') + ' në Stoku: emrin e ndryshon ai ose administratori.';
+  }
+  function nisPikat() {
+    var c = window.__stokuCloud, e = c && c.ekipa, u = perdoruesiAktual();
+    var duhen = !!u && (eshteMerchandiser() || eshteAdminiIStokut());
+    if (PK.ndal && (!duhen || PK.uid !== u.uid)) { try { PK.ndal(); } catch (er) { /* ok */ } PK.ndal = null; PK.lista = []; PK.gati = false; }
+    if (!duhen || PK.ndal || !e || !e.degjoPikat) return;
+    PK.uid = u.uid;
+    PK.ndal = e.degjoPikat(function (l) { PK.lista = MK.pastroPikat(l); PK.gati = true; pasPikave(); },
+      function () { PK.gati = true; }); // rregullat para v246: pa pika të përbashkëta, marketet punojnë si më parë
+  }
+  ['stoku-auth-ndryshoi', 'stoku-merchandiser', 'stoku-cloud-gati'].forEach(function (ev) { window.addEventListener(ev, function () { setTimeout(nisPikat, 0); }); });
+  setTimeout(nisPikat, 0);
+  function uidIm() { var u = perdoruesiAktual(); return u ? u.uid : ''; }
+  // Pikat erdhën/ndryshuan: emrat e marketeve të lidhura (p.sh. i ndryshoi administratori), marketet e vjetra bëhen pika
+  function pasPikave() {
+    if (eshteMerchandiser()) {
+      var r = MK.emratNgaPikat(marketet, PK.lista);
+      if (r.n) { marketet = r.marketet; ruajMarketet(false); }
+      marketet.forEach(function (m) { if (MK.kaVend(m) && !m.p) lidhMePike(m.id); });
+    }
+    if (typeof HT !== 'undefined' && HT && faqjaEOpsioneve === 'harta') { htMerrPikat(); htVizato(); }
+  }
+  // Marketi im me vendndodhje → pika e përbashkët (ekzistuese me të njëjtin emër afër, ose e re); pika ime ndjek vendndodhjen
+  async function lidhMePike(id) {
+    var c = window.__stokuCloud, e = c && c.ekipa, m = MK.sipasId(marketet, id);
+    if (!m || !MK.kaVend(m) || !PK.gati || !e || !e.shtoPiken || PK.lidhjeNeRruge[id]) return;
+    if (m.p) {
+      var x = PK.lista.filter(function (q) { return q.id === m.p; })[0];
+      if (x && MK.mundTaRiemertoje(x, uidIm()) && MK.largesia(x, m) > 5) e.ndryshoPiken(m.p, { lat: m.lat, lng: m.lng });
+      return;
+    }
+    PK.lidhjeNeRruge[id] = true;
+    var ekz = MK.pikaPerMarketin(PK.lista, m), pid = ekz && ekz.id;
+    if (!pid) { var r = await e.shtoPiken(m); pid = r && r.ok ? r.id : null; }
+    PK.lidhjeNeRruge[id] = false;
+    if (!pid) return;
+    marketet = marketet.map(function (x) { return x.id === id ? Object.assign({}, x, { p: pid, ndryshuarSe: Date.now() }) : x; });
+    ruajMarketet(false);
+  }
+  // Market i ri (te lista ime) nga një pikë e përbashkët; marketi i parë merr edhe afatet pa market
+  function shtoNgaPika(pika) {
+    var m = MK.sipasPikes(marketet, pika.id);
+    if (m) return m;
+    var tani = Date.now(), iPari = !marketet.length, nZh = 0;
+    m = MK.ngaPika(pika, tani);
+    marketet = marketet.concat([m]);
+    if (iPari) { var r = MK.vendosPaMarket(afatet, marketet, m.id, tani); afatet = r.afatet; nZh = r.n; }
+    ruajMarketet(nZh > 0);
+    return m;
+  }
+  function pritPikat(cb) {
+    var t0 = Date.now();
+    (function prit() { if (PK.gati || !PK.ndal || Date.now() - t0 > 4000) cb(); else setTimeout(prit, 150); })();
+  }
+  var __gpsDukePunuar = false, __gabimiGpsTreguar = false;
   function kontrolloGps(meDore) {
-    if (!kaMarkete() || __gpsDukePunuar) return;
+    if (!eshteMerchandiser() || __gpsDukePunuar) return;
+    if (!meDore && document.hidden) return;
     marketiAktiv = MK.lexoAktivin(); // një skedë tjetër (ose aplikacioni) mund ta ketë ndërruar ndërkohë
-    if (!meDore && !MK.duhetKontrolli(marketet, marketiAktiv)) return;
-    if (meDore && !MK.kaPika(marketet)) { toast('Asnjë market s\'ka ende vendndodhje. Kur je brenda marketit, hape te Marketet e mia dhe prek "Ruaj vendndodhjen këtu".', 5500); return; }
+    if (!meDore && Date.now() - (marketiAktiv.kontrolluarSe || 0) < MK.KONTROLLI_MS) return;
     __gpsDukePunuar = true;
     if (meDore) toast('Duke e gjetur vendndodhjen…', 15000);
     MK.pozita(function (e, poz) {
-      __gpsDukePunuar = false;
       if (e) {
+        __gpsDukePunuar = false;
         marketiAktiv = MK.ruajAktivin(Object.assign({}, marketiAktiv, { kontrolluarSe: Date.now() }));
-        if (meDore) toast(MK.tekstiGabimit(e), 6000);
+        if (meDore || !__gabimiGpsTreguar) { __gabimiGpsTreguar = true; toast(MK.tekstiGabimit(e), 7000); }
         return;
       }
-      var para = idMarketitAktiv();
-      var baza = meDore ? Object.assign({}, marketiAktiv, { menyra: 'gps', koha: 0 }) : marketiAktiv; // "Gjej me GPS" fiton ndaj zgjedhjes me dorë
-      marketiAktiv = MK.ruajAktivin(MK.pasGps(baza, MK.gjej(marketet, poz)));
-      var pas = idMarketitAktiv();
-      if (pas !== para || meDore) {
-        toast(pas ? 'Je te: ' + emriMarketit(pas) : 'S\'je te asnjë prej marketeve të tua. Shihen afatet e krejt marketeve.', 4000);
+      pritPikat(function () {
+        __gpsDukePunuar = false;
+        var para = idMarketitAktiv();
+        var gj = MK.gjej(marketet, poz), uShtua = false;
+        if (!gj) {
+          var gp = MK.gjej(PK.lista, poz); // një pikë e njohur e Stoku-t (e shtuar nga dikush tjetër)
+          if (gp) { var n0 = marketet.length; var m = shtoNgaPika(gp.marketi); uShtua = marketet.length > n0; gj = { marketi: m, largesia: gp.largesia }; }
+        }
+        var baza = meDore ? Object.assign({}, marketiAktiv, { menyra: 'gps', koha: 0 }) : marketiAktiv; // "Gjej me GPS" fiton ndaj zgjedhjes me dorë
+        marketiAktiv = MK.ruajAktivin(MK.pasGps(baza, gj));
+        var pas = idMarketitAktiv();
         rifreskoMarketet();
-      }
+        if (pas) {
+          if (pas !== para || meDore || uShtua) toast('Je te: ' + emriMarketit(pas) + (uShtua ? ' (u shtua te marketet e tua)' : ''), 4000);
+          return;
+        }
+        // S'je te asnjë market i njohur
+        if (!meDore) {
+          if (marketiAktiv.menyra === 'dore' && Date.now() - marketiAktiv.koha < MK.DORE_MS) return; // e zgjodhi vetë së fundi
+          var kuje = null;
+          try { kuje = JSON.parse(localStorage.getItem(KEY_KUJE) || 'null'); } catch (er) { kuje = null; }
+          if (kuje && kuje.uid === uidIm() && Date.now() - (Number(kuje.koha) || 0) < MK.DORE_MS) return;
+          if (document.querySelector('.mbulese.hapur:not(.faqe-e-plote)')) return; // s'e ndërpret një dritare tjetër
+        }
+        try { localStorage.setItem(KEY_KUJE, JSON.stringify({ uid: uidIm(), koha: Date.now() })); } catch (er) { /* ok */ }
+        if (!marketet.length && !MK.pikatAfer(PK.lista, poz, 2000, 1).length) { hapMarketinERi(); return; }
+        hapZgjedhjenEMarketit(poz);
+      });
     });
   }
   document.addEventListener('visibilitychange', function () { if (!document.hidden) kontrolloGps(false); });
@@ -4670,12 +4753,15 @@
 
   // Dritarja "Ku je?": qellimi 'zgjidh' (çipi) ose 'te-reja' (importi pa market aktiv) → Promise(id | null | undefined = anulo)
   var __mkPritja = null;
-  function zgjidhMarketin(qellimi) {
+  // poz (v246): vendndodhja e tanishme → edhe pikat e Stoku-t afër (deri 2 km), që s'janë ende te marketet e tua ("p:" + id)
+  function zgjidhMarketin(qellimi, poz) {
     if (__mkPritja) __mkPritja(undefined);
     var perTeReja = qellimi === 'te-reja';
+    var afer = !perTeReja && poz ? MK.pikatAfer(PK.lista, poz, 2000, 6).filter(function (x) { return !MK.sipasPikes(marketet, x.pika.id); }) : [];
     $('mkdTitulli').textContent = perTeReja ? 'Në cilin market?' : 'Ku je?';
-    $('mkdNen').textContent = perTeReja ? 'Zgjidh marketin ku i ke këto afate.' : 'Afatet dhe numrat tregohen për marketin që zgjedh.';
-    $('mkdGps').hidden = perTeReja || !MK.kaPika(marketet);
+    $('mkdNen').textContent = perTeReja ? 'Zgjidh marketin ku i ke këto afate.'
+      : poz ? 'S\'je te asnjë market i njohur. Zgjidh ku je, ose shto këtë vend si market të ri.' : 'Afatet dhe numrat tregohen për marketin që zgjedh.';
+    $('mkdGps').hidden = perTeReja || (!MK.kaPika(marketet) && !PK.lista.length);
     $('mkdMenaxho').hidden = perTeReja;
     var c = $('mkdLista'); c.textContent = '';
     var aktiv = idMarketitAktiv();
@@ -4691,6 +4777,18 @@
         b.addEventListener('click', function () { if (__mkPritja) __mkPritja(o.id); });
         c.appendChild(b);
       });
+      if (afer.length) {
+        var h = document.createElement('div'); h.className = 'mk-dlg-titull'; h.textContent = 'Afër teje';
+        c.insertBefore(h, c.firstChild);
+        afer.slice().reverse().forEach(function (x) {
+          var b = document.createElement('button'); b.type = 'button'; b.className = 'mk-afer';
+          var t = document.createElement('span'); t.textContent = x.pika.emri; b.appendChild(t);
+          var n = document.createElement('small'); n.textContent = x.largesia < 1000 ? x.largesia + ' m' : (x.largesia / 1000).toFixed(1).replace('.', ',') + ' km'; b.appendChild(n);
+          b.addEventListener('click', function () { if (__mkPritja) __mkPritja('p:' + x.pika.id); });
+          c.insertBefore(b, h.nextSibling);
+        });
+        if (opsionet.length) { var h2 = document.createElement('div'); h2.className = 'mk-dlg-titull'; h2.textContent = 'Marketet e mia'; c.insertBefore(h2, c.querySelector('button:not(.mk-afer)')); }
+      }
       $('dlgMarketi').classList.add('hapur');
     });
   }
@@ -4702,9 +4800,17 @@
     if ($('dlgAfatet').classList.contains('hapur')) mbyllAfatetFaqe();
     hapOpsionet(); aktivizoTabin('marketet');
   });
-  async function hapZgjedhjenEMarketit() {
-    var id = await zgjidhMarketin('zgjidh');
+  async function hapZgjedhjenEMarketit(poz) {
+    var id = await zgjidhMarketin('zgjidh', poz);
     if (id === undefined) return;
+    if (typeof id === 'string' && id.indexOf('p:') === 0) {
+      var pika = PK.lista.filter(function (x) { return x.id === id.slice(2); })[0];
+      if (!pika) return;
+      var m = shtoNgaPika(pika);
+      vendosMarketinAktiv(m.id, 'dore');
+      toast('Je te: ' + m.emri + ' (u shtua te marketet e tua)', 4000);
+      return;
+    }
     vendosMarketinAktiv(id, 'dore');
   }
   function prekCipin() { if (merchPaMarkete()) hapMarketinERi(); else hapZgjedhjenEMarketit(); }
@@ -4735,6 +4841,7 @@
       marketet = marketet.map(function (x) { return x.id === id ? Object.assign({}, x, { lat: Math.round(poz.lat * 1e6) / 1e6, lng: Math.round(poz.lng * 1e6) / 1e6, ndryshuarSe: tani }) : x; });
       marketiAktiv = MK.ruajAktivin({ id: id, menyra: 'gps', koha: tani, kontrolluarSe: tani });
       ruajMarketet(false);
+      lidhMePike(id); // v246: bëhet pikë e Stoku-t (ose lidhet me atë që ekziston aty)
       cb(null, Math.round(poz.sakt || 0));
     });
   }
@@ -4810,17 +4917,14 @@
     var u = perdoruesiAktual();
     return marketet.map(function (m) { return Object.assign({ uid: u ? u.uid : '', perdoruesi: emriPerdoruesitAktual(), imi: true }, m); });
   }
-  async function htMerrPikat(detyro) {
+  // v246: administratori sheh pikat e përbashkëta të Stoku-t (pikat/{id}); merchandiseri marketet e veta
+  function htPikatESistemit() {
+    return PK.lista.map(function (x) { return { id: x.id, uid: 'pika', pika: true, emri: x.emri, lat: x.lat, lng: x.lng, perdoruesi: x.krijuarNgaEmri, emriNgaAdmini: x.emriNgaAdmini }; });
+  }
+  async function htMerrPikat() {
     if (!eshteAdminiIStokut()) { HT.pikat = htPikatEMia(); HT.gabime = 0; return; }
-    if (HT.dukeNgarkuar || (!detyro && HT.pikat && Date.now() - HT.ngarkuarSe < 60000)) return;
-    pdNis();
-    var cl = window.__stokuCloud;
-    if (!pd.llogarite || !cl || !cl.merrDyqaninEPerdoruesit) return; // llogaritë vijnë më vonë: pdRifresko e rihap
-    HT.dukeNgarkuar = true;
-    var merch = pdLista().filter(pdMerchandiser).map(function (a) { return { uid: a.uid, emri: a.emri }; });
-    var r = await SH.mblidhPikat(merch, function (u) { return cl.merrDyqaninEPerdoruesit(u); }, htPikatEMia());
-    HT.dukeNgarkuar = false;
-    HT.pikat = r.pikat; HT.gabime = r.gabime; HT.ngarkuarSe = Date.now();
+    nisPikat();
+    HT.pikat = PK.gati ? htPikatESistemit() : null; HT.gabime = 0;
   }
   async function htHapFaqen(detyro) {
     HT.neEditim = '';
@@ -4865,7 +4969,7 @@
     var t = document.createElement('span'); t.className = 'ops-rresht__tekst';
     var e = document.createElement('span'); e.className = 'ops-furn-emri'; e.textContent = p.emri;
     var n = document.createElement('span'); n.className = 'hint';
-    n.textContent = eshteAdminiIStokut() ? (p.imi ? 'Marketi yt' : 'Nga ' + p.perdoruesi) : (SH.kaVend(p) ? 'Në hartë' : 'Pa vendndodhje');
+    n.textContent = eshteAdminiIStokut() ? (p.imi ? 'Marketi yt' : (p.perdoruesi ? 'E shtoi ' + p.perdoruesi : 'Pikë e Stoku-t') + (p.emriNgaAdmini ? ' · emri nga ti' : '')) : (SH.kaVend(p) ? 'Në hartë' : 'Pa vendndodhje');
     t.appendChild(e); t.appendChild(n);
     b.appendChild(ik); b.appendChild(t); b.appendChild(lapsi());
     b.setAttribute('aria-label', 'Ndrysho emrin e pikës ' + p.emri);
@@ -4883,13 +4987,24 @@
   function htRreshtiIEditimit(p) {
     var w = document.createElement('div'); w.className = 'ops-furn-edit';
     var lbl = document.createElement('div'); lbl.className = 'hint';
-    lbl.textContent = 'Emri i pikës' + (eshteAdminiIStokut() && !p.imi ? ' (e ruajti ' + p.perdoruesi + ')' : '');
+    lbl.textContent = 'Emri i pikës' + (eshteAdminiIStokut() && !p.imi && p.perdoruesi ? ' (e shtoi ' + p.perdoruesi + ')' : '');
     var inp = document.createElement('input'); inp.type = 'text'; inp.value = p.emri; inp.maxLength = MK.EMRI_MAKS;
     inp.setAttribute('autocomplete', 'off'); inp.setAttribute('spellcheck', 'false'); inp.setAttribute('aria-label', 'Emri i pikës');
     var gab = document.createElement('div'); gab.className = 'hint ops-furn-gabim';
     var rr = document.createElement('div'); rr.className = 'ops-furn-veprime';
     var anulo = document.createElement('button'); anulo.type = 'button'; anulo.className = 'btn ops-btn-dyte'; anulo.textContent = 'Anulo';
     var ruaj = document.createElement('button'); ruaj.type = 'button'; ruaj.className = 'btn'; ruaj.textContent = 'Ruaj';
+    if (p.pika) { // administratori: pika e dyfishtë ose e gabuar fshihet (marketet e merchandiserëve mbeten)
+      var fshi = document.createElement('button'); fshi.type = 'button'; fshi.className = 'btn ops-btn-dyte ops-kuj-harro'; fshi.textContent = 'Fshije pikën';
+      fshi.addEventListener('click', async function () {
+        var po = await konfirmo('Të fshihet pika?', '"' + p.emri + '" hiqet nga harta e Stoku-t. Marketet e merchandiserëve dhe afatet e tyre s\'preken.', 'Fshije');
+        if (!po) return;
+        var r = await window.__stokuCloud.ekipa.fshiPiken(p.id);
+        if (!r || !r.ok) { gab.textContent = 'S\'u fshi. Kontrollo internetin dhe provo sërish.'; return; }
+        HT.neEditim = ''; toast('Pika u fshi.');
+      });
+      rr.appendChild(fshi);
+    }
     rr.appendChild(anulo); rr.appendChild(ruaj);
     w.appendChild(lbl); w.appendChild(inp); w.appendChild(gab); w.appendChild(rr);
     anulo.addEventListener('click', function () { HT.neEditim = ''; htVizato(); });
@@ -4899,24 +5014,23 @@
       if (e === p.emri) { HT.neEditim = ''; htVizato(); return; }
       if (p.imi) {
         if (MK.ekzistonEmri(marketet, e, p.id)) { gab.textContent = 'Ke tashmë një market me këtë emër.'; inp.focus(); return; }
+        var mi = MK.sipasId(marketet, p.id), px = pikaEMarketit(mi);
+        if (px && !MK.mundTaRiemertoje(px, uidIm())) { gab.textContent = tekstiPikesSeHuaj(px); return; }
         marketet = marketet.map(function (x) { return x.id === p.id ? Object.assign({}, x, { emri: e, ndryshuarSe: Date.now() }) : x; });
         p.emri = e; HT.neEditim = '';
         ruajMarketet(false);
+        if (px) window.__stokuCloud.ekipa.ndryshoPiken(px.id, { emri: e });
         htVizato(); toast('Emri u ndryshua.');
         return;
       }
       var cl = window.__stokuCloud;
-      if (!cl || !cl.ndryshoDyqaninEPerdoruesit) { gab.textContent = 'Emri s\'u ndryshua. Kontrollo internetin dhe provo sërish.'; return; }
+      if (!cl || !cl.ekipa || !cl.ekipa.ndryshoPiken) { gab.textContent = 'Emri s\'u ndryshua. Kontrollo internetin dhe provo sërish.'; return; }
       ruaj.disabled = anulo.disabled = true; gab.textContent = '';
-      var r = await SH.riemerto(function (u, fn) { return cl.ndryshoDyqaninEPerdoruesit(u, fn); }, p, e);
+      var r = await cl.ekipa.ndryshoPiken(p.id, { emri: e }, true);
       ruaj.disabled = anulo.disabled = false;
-      if (!r.ok) {
-        if (r.arsye === 'nuk-u-gjet') { HT.pikat = HT.pikat.filter(function (x) { return x !== p; }); HT.neEditim = ''; htVizato(); toast('Kjo pikë s\'ekziston më: ' + p.perdoruesi + ' e fshiu.', 4000); return; }
-        gab.textContent = r.arsye === 'ekziston' ? p.perdoruesi + ' e ka edhe një market me këtë emër.' : 'Emri s\'u ndryshua. Kontrollo internetin dhe provo sërish.';
-        return;
-      }
-      p.emri = r.emri; HT.neEditim = '';
-      htVizato(); toast('Emri u ndryshua. ' + p.perdoruesi + ' e sheh emrin e ri.', 3500);
+      if (!r || !r.ok) { gab.textContent = 'Emri s\'u ndryshua. Kontrollo internetin dhe provo sërish.'; return; }
+      p.emri = e; HT.neEditim = '';
+      htVizato(); toast('Emri u ndryshua. Merchandiserët e shohin emrin e ri.', 3500);
     }
     ruaj.addEventListener('click', ruajEmrin);
     inp.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ruajEmrin(); } });
@@ -5003,8 +5117,11 @@
       if (!e) { gab.textContent = 'Shkruaj emrin e marketit.'; inp.focus(); return; }
       if (MK.ekzistonEmri(marketet, e, m.id)) { gab.textContent = 'Ke tashmë një market me këtë emër.'; inp.focus(); return; }
       if (e !== m.emri) {
+        var px = pikaEMarketit(m);
+        if (px && !MK.mundTaRiemertoje(px, uidIm())) { gab.textContent = tekstiPikesSeHuaj(px); return; }
         marketet = marketet.map(function (x) { return x.id === m.id ? Object.assign({}, x, { emri: e.slice(0, MK.EMRI_MAKS), ndryshuarSe: Date.now() }) : x; });
         ruajMarketet(false);
+        if (px) window.__stokuCloud.ekipa.ndryshoPiken(px.id, { emri: e });
       }
       mkNeEditim = null; vizatoMarketetNeCilesime();
     }
@@ -6395,7 +6512,8 @@
     return bk;
   }
   function ekTekstiLargimit(m) {
-    return m.arsye === 'pronari-i-vetem' ? 'Je admini i vetëm i grupit. Bëje dikë tjetër admin (te Kolegët) para se të largohesh.'
+    return m.arsye === 'trashegimtari' ? 'S\'u largove: kolegu s\'u bë dot admin. Kontrollo internetin dhe provo përsëri.'
+      : m.arsye === 'pronari-i-vetem' ? 'Je admini i vetëm i grupit. Bëje dikë tjetër admin (te Kolegët) para se të largohesh.'
       : m.arsye === 'duke-ngarkuar' ? 'Prit pak, po ngarkohen kolegët e grupit…' : 'S\'mund të largohesh tani.';
   }
   async function ekPranoFtesen(f, btn) {
@@ -6403,7 +6521,7 @@
       var g = ekK.grupiInfo() || {}, m = ekK.mundTeLargohet();
       if (!m.ok) { toast(ekTekstiLargimit(m), 5000); return; }
       var po = await konfirmo('Të kalosh te grupi "' + (f.grupiEmri || '') + '"?',
-        'Largohesh nga grupi "' + (g.emri || '') + '"' + (m.iFundit ? ' (je i fundit në grup: grupi fshihet bashkë me aktivitetin)' : '') + '. Stoku dhe afatet e tua s\'preken.', 'Kalo');
+        'Largohesh nga grupi "' + (g.emri || '') + '"' + (m.iFundit ? ' (je i fundit në grup: grupi fshihet bashkë me aktivitetin)' : m.trashegimtari ? ' (admin bëhet ' + (m.trashegimtariEmri || 'kolegu') + ')' : '') + '. Stoku dhe afatet e tua s\'preken.', 'Kalo');
       if (!po) return;
     }
     if (btn) btn.disabled = true;
@@ -6422,7 +6540,8 @@
     if (!m.ok) { toast(ekTekstiLargimit(m), 5000); return; }
     var po = await konfirmo('Të largohesh nga grupi "' + (g.emri || '') + '"?',
       m.iFundit ? 'Je i fundit në grup: grupi fshihet komplet, bashkë me aktivitetin. Stoku dhe afatet e tua s\'preken.'
-        : 'S\'do t\'i shohësh më kolegët dhe aktivitetin e këtij grupi. Stoku dhe afatet e tua s\'preken.', 'Largohu');
+        : (m.trashegimtari ? 'Je admini i grupit: kur largohesh, admin bëhet ' + (m.trashegimtariEmri || 'kolegu') + '. ' : '') +
+          'S\'do t\'i shohësh më kolegët dhe aktivitetin e këtij grupi. Stoku dhe afatet e tua s\'preken.', 'Largohu');
     if (!po) return;
     var r = await ekK.largohuNgaGrupi();
     if (!r.ok) { toast(r.arsye ? ekTekstiLargimit(r) : 'S\'u largove. Kontrollo internetin dhe provo përsëri.', 5000); return; }

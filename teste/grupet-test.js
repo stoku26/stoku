@@ -28,7 +28,7 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
     const p = await ctx.newPage();
     p.on('pageerror', e => { g++; console.log('[' + emri + '] pageerror:', e.message); });
     p.on('console', m => { if (m.type() === 'error' && !/Failed to load resource|net::ERR/.test(m.text())) { g++; console.log('[' + emri + '] console:', m.text()); } });
-    await p.goto('http://127.0.0.1:8765/' + (pc ? 'pc.html#/ekipa' : 'index.html'));
+    await p.goto((process.env.STOKU_B || 'http://127.0.0.1:8765') + '/' + (pc ? 'pc.html#/ekipa' : 'index.html'));
     await p.waitForTimeout(2500);
     return p;
   }
@@ -188,8 +188,12 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
   await admin.click('#ekMenu [data-n="anetaret"]').catch(() => {}); await admin.waitForTimeout(1200);
   const tjera = await admin.textContent('#ekLlogariteTrup');
   ok(/besa/.test(tjera) && /drini/.test(tjera) && /agim/.test(tjera), '11. admini: llogaritë e tjera (jashtë grupit)', tjera.slice(0, 160));
+  // v246: admini i vetëm mund të largohet (adminin e merr kolegu); këtu besa e anulon
   await besa.click('#ekLargohu'); await besa.waitForTimeout(500);
-  ok(/admini i vetëm/.test(await besa.evaluate(() => document.body.innerText)) && doc('grupet/' + gB + '/anetaret/u2'), '11. besa (pronare e vetme me agimin) s\'largohet pa caktuar pronar');
+  const pyetjaB = await besa.textContent('#kfTekst');
+  ok(/admin bëhet agim/.test(pyetjaB), '11. besa (admine e vetme me agimin): "admin bëhet agim"', pyetjaB);
+  await besa.click('#kfJo'); await besa.waitForTimeout(300);
+  ok(doc('grupet/' + gB + '/anetaret/u2') && doc('grupet/' + gB + '/anetaret/u2').roli === 'pronar' && doc('grupet/' + gB + '/anetaret/u1').roli !== 'pronar', '11. e anuloi: asgjë s\'ndryshon');
 
   // 12. Agimi largohet; pastaj besa (e fundit) → grupi fshihet
   await agim.click('#ekLargohu'); await agim.waitForTimeout(300); await agim.click('#konfPo'); await agim.waitForTimeout(1500);

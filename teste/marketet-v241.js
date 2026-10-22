@@ -107,7 +107,10 @@ const NUMERO_GPS = () => {
   // pa markete: asgjë e re, s'pyetet për vendndodhjen
   await dr.waitForTimeout(800);
   // v242: merchandiseri pa markete sheh "Shto marketin ku punon" (jo "Je te"), pa pyetje për vendndodhjen
-  ok(/Shto marketin/.test(await dr.textContent('#afMarketiEmri')) && /Shto marketin/.test(await dr.textContent('.sb-home-krye .mk-chip')) && await dr.evaluate(() => window.__gpsThirrje) === 0, '1. pa markete: "Shto marketin ku punon", pa pyetje për vendndodhjen');
+  ok(/Shto marketin/.test(await dr.textContent('#afMarketiEmri')) && /Shto marketin/.test(await dr.textContent('.sb-home-krye .mk-chip')) && await dr.evaluate(() => window.__gpsThirrje) >= 1, '1. pa markete: "Shto marketin ku punon"; v246: vendndodhja kërkohet vetë kur hapet Stoku');
+  // v246: larg çdo pike dhe pa markete del vetë "Në cilin market je?"; këtu mbyllet (marketet shtohen te Cilësimet)
+  ok(await prit(async () => await dr.evaluate(() => document.getElementById('dlgMarketiRi').classList.contains('hapur'))), '1. v246: "Në cilin market je?" del vetë');
+  await dr.click('#mkrAnulo'); await dr.waitForTimeout(300);
   await hapMarketetNeCilesime(dr);
   ok(await dr.evaluate(() => document.getElementById('opsioneTitulli').textContent) === 'Marketet' && /S'ke ende asnjë market/.test(await dr.textContent('#mkLista')), '1. Cilësimet → Marketet: bosh');
   await dr.fill('#mkEmriRi', 'Albi Mall'); await dr.click('#mkShto'); await dr.waitForTimeout(400);

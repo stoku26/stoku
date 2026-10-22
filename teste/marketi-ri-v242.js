@@ -37,7 +37,7 @@ const ALBI = { latitude: 42.6476, longitude: 21.1491, accuracy: 20 };
   // 1. Merchandiseri i ri, pa markete
   const { p: m } = await faqe('u1', 'meri');
   ok(await prit(async () => await duket(m, '.sb-home-krye .mk-chip')), '1. kryefaqja: çipi i marketit');
-  ok(/Shto marketin ku punon/.test(await m.textContent('.sb-home-krye .mk-chip')) && await m.evaluate(() => window.__gpsThirrje) === 0, '1. "Shto marketin ku punon", pa pyetje për GPS', await m.textContent('.sb-home-krye .mk-chip'));
+  ok(/Shto marketin ku punon/.test(await m.textContent('.sb-home-krye .mk-chip')) && await m.evaluate(() => window.__gpsThirrje) >= 1, '1. "Shto marketin ku punon"; v246: vendndodhja kërkohet vetë', await m.textContent('.sb-home-krye .mk-chip'));
   await m.evaluate(() => document.getElementById('btnAfatet').click());
   ok(await prit(() => hapur(m, 'dlgMarketiRi'), 4000), '1. hapja e parë e Afateve: "Në cilin market je?" del vetë');
   ok((await m.textContent('#mkrTitulli')) === 'Në cilin market je?' && await m.isChecked('#mkrVendi'), '1. titulli + "Jam brenda këtij marketi tani" i zgjedhur');
