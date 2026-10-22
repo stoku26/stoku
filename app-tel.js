@@ -2432,7 +2432,7 @@
     foldera = Array.isArray(g.foldera) ? g.foldera : foldera;
     produktet = pm;
     rifreskoKopjen();
-    if (Array.isArray(g.marketet)) { marketet = MK.pastro(g.marketet); ruajMarketetLokalisht(); if (PK.ok) setTimeout(pasPikave, 0); } // v250: edhe marketet nga cloud-i sipas pikave
+    if (Array.isArray(g.marketet)) { marketet = MK.pastro(g.marketet); ruajMarketetLokalisht(); if (typeof PK !== 'undefined' && PK && PK.ok) setTimeout(pasPikave, 0); } // v250: edhe marketet nga cloud-i sipas pikave
     if (Array.isArray(g.afatet)) {
       afatet = g.afatet;
       try { localStorage.setItem(KEY_AFATET, JSON.stringify(afatet)); } catch (e) { /* ok */ }

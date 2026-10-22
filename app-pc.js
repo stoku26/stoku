@@ -456,7 +456,7 @@
       rifreskoKopjen();
     }
     if ((b.rendiKoha || 0) > rendiFolderaveKoha) rendiFolderaveKoha = b.rendiKoha;
-    if (ndryshoi) { shkruajLokalisht(); rivizato(); if (PK.ok) setTimeout(pasPikave, 0); } // v250: edhe marketet nga cloud-i sipas pikave
+    if (ndryshoi) { shkruajLokalisht(); rivizato(); if (typeof PK !== 'undefined' && PK && PK.ok) setTimeout(pasPikave, 0); } // v250: edhe marketet nga cloud-i sipas pikave
     return b;
   }
 

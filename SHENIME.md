@@ -83,6 +83,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    - Teste: `teste/v250.js` i ri (njësitë, besa shton te Albi, drini e merr vetë, e përafërt 800 m, 30 m nga Albi, emri, pikat e
      fshira, admini shton në hartë tel + PC); përshtatur: `pikat-v246.js`, `marketet-v241.js`, `marketi-ri-v242.js`,
      `harta-v244.js`, `harta-v247.js`.
+   - Regresioni v250: 73/73 me exit=0, asnjë `GABIM` (si v249 + `v250.js`). Pas tij: `typeof PK` mbrojtje te thirrja e
+     `pasPikave` pas bashkimit me cloud-in (tel + PC); `v250.js`, `pikat-v246.js`, `marketet-v241.js` u provuan sërish.
 
 0000000. **SATELITI AKTIV: ÇELËSI I ESRI-T (v249 = 1.37.0)**: pronari krijoi te location.arcgis.com (portali `stoku`) kredencialet
    "stoku": API key, **Public application**, pa item access, privilegjet vetëm **Basemaps** (Basemap styles service + Static
