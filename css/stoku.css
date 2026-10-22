@@ -572,6 +572,8 @@ html.sb:not([data-tema="dark"]) .sb-stat__value--exp { color: var(--sb-exp, #d04
 /* v244: Cilësimet → Harta (harta.js, MapLibre) */
 .sb .ht-harta { position: relative; height: min(52vh, 460px); margin: 2px 0 10px; border-radius: 16px; overflow: hidden; background: var(--sb-surface-2); border: 1px solid var(--sb-line); }
 .sb .ht-harta .maplibregl-ctrl-attrib { font-size: 10.5px; }
+.sb .ht-udhezim { position: absolute; top: 10px; left: 10px; z-index: 2; padding: 7px 12px; border: 0; border-radius: 999px; background: var(--sb-surface); color: var(--sb-ink); font: inherit; font-size: 13px; font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,.18); cursor: pointer; }
+.sb .ht-udhezim[hidden] { display: none; }
 .sb .ht-gabim { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin: 0 2px 12px; font-size: 14px; color: var(--sb-ink-3); }
 .sb .ht-gabim[hidden] { display: none; }
 .sb .ht-info { margin: 0 2px 10px; }

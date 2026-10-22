@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 245, versioni: '1.34.1', data: '2026-10-22', titulli: 'Harta e marketeve: lagjet', pikat: [
+      'Emrat e lagjeve dalin kur e zmadhon hartën afër rrugëve. Kur je më larg, prek "Zmadho për emrat e lagjeve" sipër në hartë.',
+      'Lagjet shkruhen me shkronja të mëdha, që të dallohen nga qytetet dhe fshatrat.'
+    ] },
     { v: 244, versioni: '1.34.0', data: '2026-10-21', titulli: 'Harta e marketeve', vetemAdmini: true, pikat: [
       'Te Cilësimet → Harta i sheh në hartë krejt marketet që i kanë ruajtur merchandiserët. Harta tregon vetëm emrat e qyteteve, fshatrave dhe lagjeve, asgjë tjetër.',
       'Prek një pikë (ose emrin te lista) dhe ndrysho emrin e saj: emri ndryshon për krejt Stoku-n, edhe te merchandiseri që e ruajti.'

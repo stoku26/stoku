@@ -19,6 +19,7 @@ const SHTRESAT = {
     pike(21.1925, 42.6070, { class: 'village', name: 'Hajvali', rank: 8 }),
     pike(21.1580, 42.6720, { class: 'suburb', name: 'Ulpiana', rank: 10 }),
     pike(21.1500, 42.6560, { class: 'neighbourhood', name: 'Dardania', rank: 12 }),
+    pike(21.1610, 42.6600, { class: 'borough', name: 'Qendra', rank: 11 }),
     pike(21.1300, 42.6900, { class: 'hamlet', name: 'Lagja e Re', rank: 14 }),
     pike(20.9000, 42.6000, { class: 'country', name: 'Kosova', rank: 1 }),
     pike(21.3000, 42.7500, { class: 'state', name: 'Rajoni i Prishtinës', rank: 2 })
