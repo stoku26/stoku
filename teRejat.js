@@ -20,6 +20,16 @@
   'use strict';
 
   var LISTA = [
+    { v: 252, versioni: '1.39.0', data: '2026-10-23', titulli: 'Furnizuesi më i lehtë', pikat: [
+      'Te "Afat i ri" dhe te produkti, furnizuesi zgjidhet nga lista që del mbi fushë, ose shkruhet një i ri ("+ Furnizues i ri"). Lista mbyllet me "Mbyll".'
+    ] },
+    { v: 252, versioni: '1.39.0', data: '2026-10-23', titulli: 'Merchandiserët pa furnizues', pikat: [
+      'Merchandiserët s\'e shohin më furnizuesin: as kur shtojnë afate në market, as te stoku, as te Excel-i.'
+    ] },
+    { v: 252, versioni: '1.39.0', data: '2026-10-23', titulli: 'Punë pa internet', pikat: [
+      'Stoku punon edhe pa internet (në telefon, aplikacionin Android dhe kompjuter): çdo ndryshim ruhet në pajisje dhe sinkronizohet vetë sa kthehet interneti.',
+      'Listat e përbashkëta të Stoku-t ruhen në pajisje: hapja është më e shpejtë dhe merren vetëm ndryshimet.'
+    ] },
     { v: 251, versioni: '1.38.1', data: '2026-10-22', titulli: 'Marketi ku je s\'zhduket më', pikat: [
       'Te telefoni (edhe te aplikacioni Android) dhe te kompjuteri, "Je te" (marketi ku je) s\'zhduket më pas pak sekondash dhe del edhe kur hyn me llogarinë tënde në një telefon të ri.',
       'Kur administratori ta ndez "Merchandiser", marketet e Stoku-t dhe vendndodhja vijnë menjëherë, pa e rifreskuar faqen.'

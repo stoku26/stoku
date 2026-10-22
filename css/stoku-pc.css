@@ -626,3 +626,6 @@ html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-nen { background: var(--sb-s
 .sbp .pdaf-hequrat { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 13px; color: var(--sb-muted); cursor: pointer; }
 .sbp .pdaf-hequrat[hidden] { display: none; }
 .sbp .pdaf-grupi { margin: 16px 0 6px; font-size: 13px; font-weight: 700; color: var(--sb-muted); }
+
+/* v252: merchandiserët s'e kanë furnizuesin (fushat, grupimi, eksporti, importi) */
+.pa-furnizues .furn-vetem { display: none !important; }

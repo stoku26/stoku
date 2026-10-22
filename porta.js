@@ -26,7 +26,8 @@
   var KEY_VIZITOR = 'stoku:vizitor';        // '1' = pajisja është në provë si vizitor (porta s'del)
   var VIZITOR = 'vizitor';                  // pronari i të dhënave lokale gjatë provës
   var CELESAT_E_TE_DHENAVE = ['stoku:foldera:v1', 'stoku:produktet:v2', 'stoku:produktet:v1', 'stoku:fshira:v1',
-    'stoku:rendi-foldera-koha', 'stoku:afatet:v1', 'stoku:kujtesa:v1', 'stoku:kopja-fshirjeve:v1', 'stoku:marketet:v1', 'stoku:marketi:aktiv'];
+    'stoku:rendi-foldera-koha', 'stoku:afatet:v1', 'stoku:kujtesa:v1', 'stoku:kopja-fshirjeve:v1', 'stoku:marketet:v1', 'stoku:marketi:aktiv',
+    'stoku:kopja:grupi']; // v252: kopja e produkteve të grupit (ekipa.js)
   var PRITJA_MAKS_MS = 7000;
   var SERVERI = 'https://stoku-push.mendurb.workers.dev'; // Worker-i (163+): fjalëkalimi i harruar
   var PRITJA_DERGIMIT_MS = 25000; // "Hyr" para se të ngarkohet Firebase (internet i ngadaltë): pritet deri kaq

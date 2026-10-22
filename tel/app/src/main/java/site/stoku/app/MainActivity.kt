@@ -7,6 +7,9 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -56,6 +59,8 @@ class MainActivity : Activity() {
     }
     // Procesi i faqes ra: kjo WebView s'përdoret më (vetëm hiqet), aktiviteti rikrijohet me një të re
     private var webRa = false
+    // v252: kthimi i internetit (faqja "pa internet" rihapet vetë; faqja e Stoku-t sinkronizon vetë me ngjarjen "online")
+    private var rrjeti: ConnectivityManager.NetworkCallback? = null
 
     companion object {
         const val EXTRA_URL = "url"
@@ -154,6 +159,20 @@ class MainActivity : Activity() {
         }
         web.setDownloadListener { url, _, _, _, _ -> if (url.startsWith("http")) hapJashte(Uri.parse(url)) }
 
+        // v252: pa internet: faqja dhe skedarët merren nga kopja e telefonit (service worker-i, ose kopja HTTP kur ai mungon)
+        if (!kaInternet()) s.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+        val cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val cb = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(n: Network) {
+                ui.post {
+                    if (webRa || aktive !== this@MainActivity) return@post
+                    web.settings.cacheMode = WebSettings.LOAD_DEFAULT
+                    if (gabimNeNgarkim) { pastroHistorine = true; web.loadUrl(StokuApp.BAZA + "index.html") }
+                }
+            }
+        }
+        rrjeti = try { cm.registerDefaultNetworkCallback(cb); cb } catch (e: Exception) { null }
+
         // restoreState kthen null kur s'u ruajt asgjë (p.sh. aplikacioni u mbyll para se faqja e parë të ngarkohej)
         val rikthyer = savedInstanceState != null && (try { web.restoreState(savedInstanceState) } catch (e: Exception) { null }) != null
         if (!rikthyer) web.loadUrl(adresaNga(intent) ?: (StokuApp.BAZA + "index.html"))
@@ -162,6 +181,11 @@ class MainActivity : Activity() {
     }
 
     private fun eStokut(u: Uri?): Boolean = u != null && u.scheme == "https" && (u.host == "stoku.site" || u.host == "www.stoku.site")
+
+    private fun kaInternet(): Boolean = try {
+        val cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        cm.getNetworkCapabilities(cm.activeNetwork)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+    } catch (e: Exception) { true }
 
     private fun adresaNga(i: Intent?): String? {
         val e = i?.getStringExtra(EXTRA_URL)
@@ -198,7 +222,7 @@ class MainActivity : Activity() {
         pastroHistorine = false
         val html = "<html><head><meta name='viewport' content='width=device-width,initial-scale=1'></head>" +
             "<body style='font-family:sans-serif;background:#f6f5f2;color:#14161b;display:flex;align-items:center;justify-content:center;height:90vh;text-align:center'>" +
-            "<div><h2>S'ka lidhje me internetin</h2><p>Hapja e parë e Stoku-t kërkon internet.</p>" +
+            "<div><h2>S'ka lidhje me internetin</h2><p>Hapja e parë e Stoku-t kërkon internet. Stoku hapet vetë sa të lidhet interneti.</p>" +
             "<p><a href='" + StokuApp.BAZA + "index.html#" + RIPROVO + "' style='display:inline-block;padding:12px 22px;background:#1f5fd1;color:#fff;border-radius:12px;text-decoration:none'>Provo sërish</a></p></div></body></html>"
         web.loadDataWithBaseURL(StokuApp.BAZA, html, "text/html", "utf-8", null)
     }
@@ -302,6 +326,8 @@ class MainActivity : Activity() {
         if (!webRa) try { web.saveState(out) } catch (e: Exception) { /* hapet nga fillimi */ }
     }
     override fun onDestroy() {
+        rrjeti?.let { cb -> try { (getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager).unregisterNetworkCallback(cb) } catch (e: Exception) { /* ok */ } }
+        rrjeti = null
         if (aktive === this) aktive = null
         if (!webRa) {
             web.visibility = View.GONE

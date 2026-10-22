@@ -328,6 +328,8 @@
     if (z !== null) return z;
     try { var x = JSON.parse(localStorage.getItem('stoku:merchandiser') || 'null'); return !!(x && x.uid === u.uid && x.v === true); } catch (e) { return false; }
   }
+  // v252: merchandiserët s'e kanë furnizuesin: fushat .furn-vetem fshihen (body.pa-furnizues), ruajtja e mban atë që kishte
+  function paFurnizues() { return eshteMerchandiser(); }
   // "Çka ka të re": administratori i sheh edhe hyrjet për marketet (i ndez ai te Përdoruesit)
   function lejaPerTeRejat(k) { return k === 'marketet' ? leja(k) || eshteAdminiIStokut() : leja(k); }
   // Llogaria e hapur si merchandiser (ose u lexua nga Firebase pas hyrjes, ose u ndërrua llogaria): marketet dalin/zhduken
@@ -359,6 +361,8 @@
       x.classList.toggle('leja-ndaluar', !leja(x.getAttribute('data-leja')));
     });
     $('zgjEksport').classList.toggle('leja-ndaluar', !leja('eksportExcel') && !leja('eksportPdf'));
+    document.body.classList.toggle('pa-furnizues', paFurnizues()); // v252
+    if ($('afKolProdukti')) $('afKolProdukti').textContent = paFurnizues() ? 'Produkti' : 'Produkti · Furnizuesi';
     if (!leja('pc')) kaloTeTelefoni();
     vizatoShkurtoret();
     if (paVizatim) return;
@@ -689,6 +693,24 @@
   // v248: Firebase s'u përgjigj për 10 s (p.sh. pa internet): pamja e zakonshme pa llogari (porta e trajton hyrjen pa internet)
   setTimeout(function () { if (!perdoruesi()) { rifreskoLlogarine(); vendosStatusin(sink.statusi, true); rivizato(); } }, HYRJA_PRITJA_MS + 100);
   window.addEventListener('online', function () { if (perdoruesi()) kryeSinkronizimin(); });
+  // v252: Stoku u hap pa internet dhe pa Firebase-in (SDK-ja s'u ngarkua): kur kthehet interneti faqja rihapet vetë, sapo
+  // s'ka dritare të hapur a fushë ku shkruhet, që sinkronizimi të nisë (të dhënat janë ruajtur tashmë në pajisje).
+  // Më së shumti një herë në 5 minuta (p.sh. shfletues i vjetër, ku Firebase s'ngarkohet kurrë).
+  window.addEventListener('online', function () {
+    if (window.__stokuCloud || ngaVizitori()) return;
+    var t0 = 0;
+    try { t0 = Number(sessionStorage.getItem('stoku:rilidhja')) || 0; } catch (e) { /* ok */ }
+    if (Date.now() - t0 < 5 * 60000) return;
+    (function prit() {
+      if (window.__stokuCloud || !navigator.onLine) return;
+      if (performance.now() < 10000) { setTimeout(prit, 10000 - performance.now()); return; } // Firebase mund të jetë ende duke u ngarkuar
+      var ae = document.activeElement;
+      if (document.querySelector('.hapur[id^="dlg"], .mbulese.hapur') || (ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))) { setTimeout(prit, 3000); return; }
+      try { sessionStorage.setItem('stoku:rilidhja', String(Date.now())); } catch (e) { /* ok */ }
+      location.reload();
+    })();
+  });
+
   // Mbyllja e skedës/dritares me një ruajtje në pritje: dërgohet menjëherë
   function sinkronizoMenjehereNesePret() {
     if (sink.kohez && perdoruesi() && !sink.duke) { clearTimeout(sink.kohez); sink.kohez = null; kryeSinkronizimin(); }
@@ -1662,7 +1684,7 @@
     var b = $('prBarkodi').value.trim();
     var fid = $('prFolderi').value;
     var emri = $('prEmri').value.trim();
-    var furn = $('prFurnizuesi').value.replace(/\s+/g, ' ').trim().slice(0, 80); // v212: opsional
+    var furn = paFurnizues() ? ((pr.k && produktet[pr.k] && produktet[pr.k].furnizuesi) || '') : $('prFurnizuesi').value.replace(/\s+/g, ' ').trim().slice(0, 80); // v212: opsional; v252: merchandiseri: mbetet
     var tekst = $('prSasia').value.trim();
     var gab = barkodIVlefshem(b);
     if (gab) { $('prGabim').textContent = gab; $('prBarkodi').focus(); return; }
@@ -2460,7 +2482,7 @@
     var ka = $('imKoka').value === '1';
     var kb = parseInt($('imKolBarkodi').value, 10), ke = parseInt($('imKolEmri').value, 10);
     var ks = parseInt($('imKolSasia').value, 10), kf = parseInt($('imKolFolderi').value, 10);
-    var kfu = parseInt($('imKolFurnizuesi').value, 10);
+    var kfu = paFurnizues() ? -1 : parseInt($('imKolFurnizuesi').value, 10); // v252
     var caku = $('imCaku').value, menyra = $('imMenyra').value;
     var rreshtat = ka ? sh.rows.slice(1) : sh.rows;
     var emratFolder = {};
@@ -2652,6 +2674,7 @@
   function aiPlani() {
     var kol = {};
     AI_FUSHAT.forEach(function (x) { kol[x[0]] = parseInt($(x[1]).value, 10); });
+    if (paFurnizues()) kol.furnizuesi = -1; // v252
     return AF.planiImportitAfateve(aiFletet(), { meKoke: $('aiKoka').value === '1', kol: kol, ekzistuese: afatet });
   }
   function aiRifresko() {
@@ -3194,7 +3217,7 @@
     var t = el('div', 'ops-furn-tekst ops-kuj-fushat');
     var ie = el('input', 'inp'); ie.type = 'text'; ie.value = x.emri; ie.maxLength = 120; ie.placeholder = 'Emri i produktit';
     ie.setAttribute('autocomplete', 'off'); ie.setAttribute('aria-label', 'Emri i produktit ' + x.barkodi);
-    var ifu = el('input', 'inp'); ifu.type = 'text'; ifu.value = x.furnizuesi; ifu.maxLength = 80; ifu.placeholder = 'Furnizuesi';
+    var ifu = el('input', 'inp furn-vetem'); ifu.type = 'text'; ifu.value = x.furnizuesi; ifu.maxLength = 80; ifu.placeholder = 'Furnizuesi';
     ifu.setAttribute('autocomplete', 'off'); ifu.setAttribute('aria-label', 'Furnizuesi i produktit ' + x.barkodi); ifu.setAttribute('list', 'afdFurnizuesit');
     var dl = $('afdFurnizuesit'); dl.textContent = ''; furnizuesitPerSugjerim().forEach(function (f) { var o = el('option'); o.value = f; dl.appendChild(o); });
     t.appendChild(ie); t.appendChild(ifu); t.appendChild(el('div', 'ops-furn-nen', 'Barkodi: ' + x.barkodi + (x.nePritje && x.nga ? ' · e shkroi ' + x.nga : '')));
@@ -5391,10 +5414,10 @@
         td.appendChild(document.createTextNode((gr.id ? gr.emri : 'Pa market') + ' · ' + produkteTekst(gr.afatet.length)));
         tr.appendChild(td);
         frag.appendChild(tr);
-        if (af.grupo) sipasFurnizuesit(gr.afatet, true);
+        if (af.grupo && !paFurnizues()) sipasFurnizuesit(gr.afatet, true); // v252
         else gr.afatet.forEach(function (a) { frag.appendChild(rreshtIAfatit(a)); });
       });
-    } else if (af.grupo) {
+    } else if (af.grupo && !paFurnizues()) {
       sipasFurnizuesit(lista, false);
     } else {
       lista.forEach(function (a) { frag.appendChild(rreshtIAfatit(a)); });
@@ -5417,7 +5440,7 @@
       mk.appendChild(document.createTextNode(a.m && MK.sipasId(marketet, a.m) ? emriMarketit(a.m) : 'Pa market'));
       nenP.appendChild(mk); nenP.appendChild(document.createTextNode(' · '));
     }
-    if (a.furnizuesi) { nenP.appendChild(el('span', null, a.furnizuesi)); nenP.appendChild(document.createTextNode(' · ')); }
+    if (a.furnizuesi && !paFurnizues()) { nenP.appendChild(el('span', null, a.furnizuesi)); nenP.appendChild(document.createTextNode(' · ')); }
     nenP.appendChild(el('span', 'mono', a.barkodi || '–'));
     t1.appendChild(nenP);
     t1.title = (a.emri || '') + (a.krijuarNga ? '\nShtuar nga: ' + a.krijuarNga : '') + (a.krijuarSe ? ' · ' + dataOra(a.krijuarSe) : '');
@@ -5562,6 +5585,7 @@
     var emri = $('afdEmri').value.trim();
     var data = AF.lexoDatenEFushes($('afdData').value) || '';
     var f = $('afdFurnizuesi').value.trim();
+    if (paFurnizues()) { var aP = afdId ? afatet.filter(function (a) { return a.id === afdId; })[0] : null; f = (aP && aP.furnizuesi) || ''; } // v252
     var sasiaTx = $('afdSasia').value.trim();
     var sasia = AF.lexoSasine(sasiaTx);
     if (sasiaTx && sasia === '') { $('afdGabim').textContent = 'Sasia duhet të jetë numër i plotë (p.sh. 12).'; $('afdSasia').focus(); return; }
@@ -5826,7 +5850,7 @@
   function rreshtatNgaAI(rreshtat) {
     return (rreshtat || []).map(function (r) {
       return { barkodi: r.barkodi || '', emri: r.emri || emriNgaBarkodi(r.barkodi), data: r.data || '', dataOrigjinale: r.dataOrigjinale || '',
-        sasia: r.sasia === undefined ? '' : r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaBarkodi(r.barkodi), dyshim: !!r.dyshim,
+        sasia: r.sasia === undefined ? '' : r.sasia, furnizuesi: paFurnizues() ? '' : r.furnizuesi || furnizuesiNgaBarkodi(r.barkodi), dyshim: !!r.dyshim,
         x: typeof r.x === 'number' ? r.x : null, y: typeof r.y === 'number' ? r.y : null };
     });
   }
@@ -6074,8 +6098,8 @@
     if (rr.length) rr[rr.length - 1].querySelector('input').focus();
   });
 
-  var LX_THEAD_AFATET = '<th style="width:34px">#</th><th style="width:140px">Barkodi</th><th>Emri i produktit</th><th style="width:150px">Data e skadimit</th><th style="width:80px">Sasia</th><th style="width:160px">Furnizuesi</th><th style="width:36px"></th>';
-  var LX_THEAD_STOK = '<th style="width:34px">#</th><th style="width:150px">Barkodi</th><th>Emri i produktit</th><th style="width:90px">Sasia</th><th style="width:170px">Furnizuesi</th><th style="width:36px"></th>';
+  var LX_THEAD_AFATET = '<th style="width:34px">#</th><th style="width:140px">Barkodi</th><th>Emri i produktit</th><th style="width:150px">Data e skadimit</th><th style="width:80px">Sasia</th><th class="furn-vetem" style="width:160px">Furnizuesi</th><th style="width:36px"></th>';
+  var LX_THEAD_STOK = '<th style="width:34px">#</th><th style="width:150px">Barkodi</th><th>Emri i produktit</th><th style="width:90px">Sasia</th><th class="furn-vetem" style="width:170px">Furnizuesi</th><th style="width:36px"></th>';
   var KEY_FOLDER_IMPORTIT_PC = 'stoku:import-stok:folderi';
   var LX_FOLDER_RI = '__ri__';
   function folderiIImportit() {
@@ -6112,7 +6136,7 @@
   }
   function rreshtatStokNgaAI(rreshtat) {
     return (rreshtat || []).map(function (r) {
-      return { barkodi: r.barkodi || '', emri: r.emri || emriNgaBarkodi(r.barkodi), sasia: r.sasia === undefined ? '' : r.sasia, furnizuesi: r.furnizuesi || furnizuesiNgaBarkodi(r.barkodi),
+      return { barkodi: r.barkodi || '', emri: r.emri || emriNgaBarkodi(r.barkodi), sasia: r.sasia === undefined ? '' : r.sasia, furnizuesi: paFurnizues() ? '' : r.furnizuesi || furnizuesiNgaBarkodi(r.barkodi),
         x: typeof r.x === 'number' ? r.x : null, y: typeof r.y === 'number' ? r.y : null };
     });
   }
@@ -6161,6 +6185,7 @@
       var shs = el('small', 'paralajm');
       qs.td.appendChild(shs);
       var qf = qeliza('text', r.furnizuesi, 'Furnizuesi', function (v) { r.furnizuesi = v; });
+      qf.td.classList.add('furn-vetem'); // v252: merchandiseri pa furnizues
       qf.inp.setAttribute('list', 'afdFurnizuesit');
       var tdx = el('td');
       var x = el('button', 'btn-ikone rrezik', '✕'); x.type = 'button'; x.title = 'Hiq rreshtin';
@@ -6258,7 +6283,7 @@
         var c = (mkId || '') + '|' + (r.barkodi || r.emri.trim()) + '|' + r.data;
         if (ekz[c]) { perseritur++; return; }
         ekz[c] = true;
-        var a = { id: AF.idERe(), barkodi: r.barkodi, emri: r.emri.trim(), data: r.data, sasia: r.sasia === undefined ? '' : r.sasia, furnizuesi: r.furnizuesi.trim(), statusi: 'aktiv',
+        var a = { id: AF.idERe(), barkodi: r.barkodi, emri: r.emri.trim(), data: r.data, sasia: r.sasia === undefined ? '' : r.sasia, furnizuesi: paFurnizues() ? '' : r.furnizuesi.trim(), statusi: 'aktiv',
           krijuarSe: tani + i, krijuarNga: emriPerdoruesit(), ngaFoto: true };
         if (mkId) a.m = mkId;
         api.vendos(a);
@@ -6325,6 +6350,7 @@
     return s.value && o ? o.textContent.replace(/\s*\(\d+\)$/, '') : '';
   }
   function afatetPerEksport(muaji, furn) {
+    if (paFurnizues()) furn = ''; // v252
     return filtroAfatet(true, muaji).filter(function (a) { return !furn || AF.celesiFurnizuesit(a) === furn; });
   }
   function rifreskoInfonEEksportit() {
@@ -6354,10 +6380,12 @@
       { title: 'Çfarë duhet bërë', width: 60 },
       { title: 'Hequr nga rafti', width: 18, type: 'date' }, { title: 'Shtuar nga', width: 14 }
     ];
-    var fletet = [{ name: 'Afatet', columns: kol, rows: lista.map(rresht), totalLabel: 'Gjithsej', totalColumns: [3] }];
+    var paF = paFurnizues(); // v252: merchandiseri: pa kolonën e furnizuesit dhe pa fletën "Për furnizuesit"
+    if (paF) kol.splice(4, 1);
+    var fletet = [{ name: 'Afatet', columns: kol, rows: lista.map(function (a) { var r = rresht(a); if (paF) r.splice(4, 1); return r; }), totalLabel: 'Gjithsej', totalColumns: [3] }];
     var perFurnizues = afatetEMarketit().filter(function (a) { var s = AF.statusi(a); return (s === 'afer' || s === 'skaduar') && (!muaji || AF.celesiMuajit(a) === muaji) && (!furn || AF.celesiFurnizuesit(a) === furn); })
       .sort(function (a, b) { return (a.furnizuesi || '~').localeCompare(b.furnizuesi || '~', 'sq') || String(a.data).localeCompare(String(b.data)); });
-    if (perFurnizues.length) {
+    if (perFurnizues.length && !paF) {
       fletet.push({ name: 'Për furnizuesit', columns: [
         { title: 'Furnizuesi', width: 22 }, { title: 'Emri i produktit', width: 36 }, { title: 'Barkodi', width: 18 },
         { title: 'Sasia (copë)', width: 12, type: 'number' }, { title: 'Skadon më', width: 13, type: 'day' }, { title: 'Ditë të mbetura', width: 14, type: 'number' }
