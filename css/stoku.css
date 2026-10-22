@@ -564,6 +564,9 @@ html.sb:not([data-tema="dark"]) .sb-stat__value--exp { color: var(--sb-exp, #d04
 .sb .mk-dlg-lista button.aktiv { border-color: var(--sb-accent); box-shadow: inset 0 0 0 1px var(--sb-accent); }
 .sb .mk-dlg-lista button span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sb .mk-dlg-lista button small { flex: none; font-size: 12px; font-weight: 600; color: var(--sb-muted); }
+/* v246: "Ku je?" me pikat e Stoku-t afër */
+.sb .mk-dlg-titull { margin: 6px 2px 0; font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--sb-muted); }
+.sb .mk-dlg-lista button.mk-afer { border-style: dashed; }
 .sb #dlgMarketi .veprime { flex-wrap: wrap; }
 .sb .mk-aktiv { display: flex; flex-direction: column; gap: 10px; }
 .sb .mk-aktiv[hidden] { display: none; }

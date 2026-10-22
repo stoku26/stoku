@@ -3276,17 +3276,23 @@
     var u = perdoruesi();
     return marketet.map(function (m) { return Object.assign({ uid: u ? u.uid : '', perdoruesi: emriPerdoruesit(), imi: true }, m); });
   }
-  async function htMerrPikat(detyro) {
+  // v246: administratori sheh pikat e përbashkëta të Stoku-t (pikat/{id}, në kohë reale); merchandiseri marketet e veta
+  var PK = { lista: [], gati: false, ndal: null, uid: null };
+  function nisPikat() {
+    var c = window.__stokuCloud, e = c && c.ekipa, u = perdoruesi(), duhen = !!u && eshteAdminiIStokut();
+    if (PK.ndal && (!duhen || PK.uid !== u.uid)) { try { PK.ndal(); } catch (er) { /* ok */ } PK.ndal = null; PK.lista = []; PK.gati = false; }
+    if (!duhen || PK.ndal || !e || !e.degjoPikat) return;
+    PK.uid = u.uid;
+    PK.ndal = e.degjoPikat(function (l) { PK.lista = MK.pastroPikat(l); PK.gati = true; if (htHapur()) { htMerrPikat(); htVizato(); } },
+      function () { PK.gati = true; if (htHapur()) { htMerrPikat(); htVizato(); } });
+  }
+  ['stoku-auth-ndryshoi', 'stoku-cloud-gati'].forEach(function (ev) { window.addEventListener(ev, function () { setTimeout(nisPikat, 0); }); });
+  setTimeout(nisPikat, 0);
+  async function htMerrPikat() {
     if (!eshteAdminiIStokut()) { HT.pikat = htPikatEMia(); HT.gabime = 0; return; }
-    if (HT.dukeNgarkuar || (!detyro && HT.pikat && Date.now() - HT.ngarkuarSe < 60000)) return;
-    pdNis();
-    var cl = window.__stokuCloud;
-    if (!pd.llogarite || !cl || !cl.merrDyqaninEPerdoruesit) return; // llogaritë vijnë më vonë: pdRifresko e rihap
-    HT.dukeNgarkuar = true;
-    var merch = pdLista().filter(pdMerchandiser).map(function (a) { return { uid: a.uid, emri: a.emri }; });
-    var r = await SH.mblidhPikat(merch, function (u) { return cl.merrDyqaninEPerdoruesit(u); }, htPikatEMia());
-    HT.dukeNgarkuar = false;
-    HT.pikat = r.pikat; HT.gabime = r.gabime; HT.ngarkuarSe = Date.now();
+    nisPikat();
+    HT.pikat = PK.gati ? PK.lista.map(function (x) { return { id: x.id, uid: 'pika', pika: true, emri: x.emri, lat: x.lat, lng: x.lng, perdoruesi: x.krijuarNgaEmri, emriNgaAdmini: x.emriNgaAdmini }; }) : null;
+    HT.gabime = 0;
   }
   async function htHapFaqen(detyro) {
     HT.neEditim = '';
@@ -3324,7 +3330,7 @@
     rr.appendChild(el('span', 'ops-furn-shkronja', (String(p.emri).charAt(0) || '?').toUpperCase()));
     var t = el('div', 'ops-furn-tekst');
     t.appendChild(el('div', 'ops-furn-emri', p.emri));
-    t.appendChild(el('div', 'ops-furn-nen', admin ? (p.imi ? 'Marketi yt' : 'Nga ' + p.perdoruesi) + (SH.kaVend(p) ? '' : ' · pa vendndodhje') : (SH.kaVend(p) ? 'Në hartë' : 'Pa vendndodhje')));
+    t.appendChild(el('div', 'ops-furn-nen', admin ? (p.imi ? 'Marketi yt' : (p.perdoruesi ? 'E shtoi ' + p.perdoruesi : 'Pikë e Stoku-t') + (p.emriNgaAdmini ? ' · emri nga ti' : '')) + (SH.kaVend(p) ? '' : ' · pa vendndodhje') : (SH.kaVend(p) ? 'Në hartë' : 'Pa vendndodhje')));
     rr.appendChild(t);
     rr.addEventListener('click', function () { htZgjidh(k, true, false); });
     if (admin && !p.imi) {
@@ -3350,8 +3356,16 @@
     var inp = el('input', 'inp'); inp.type = 'text'; inp.value = p.emri; inp.maxLength = MK.EMRI_MAKS;
     inp.setAttribute('autocomplete', 'off'); inp.setAttribute('spellcheck', 'false'); inp.setAttribute('aria-label', 'Emri i ri për ' + p.emri);
     var gab = el('div', 'ops-furn-gabim');
-    t.appendChild(inp); t.appendChild(el('div', 'ops-furn-nen', 'Tani: "' + p.emri + '" · e ruajti ' + p.perdoruesi)); t.appendChild(gab);
+    t.appendChild(inp); t.appendChild(el('div', 'ops-furn-nen', 'Tani: "' + p.emri + '"' + (p.perdoruesi ? ' · e shtoi ' + p.perdoruesi : ''))); t.appendChild(gab);
     w.appendChild(t);
+    var fshi = el('button', 'btn tekst rrezik vogel', 'Fshije pikën'); fshi.type = 'button'; fshi.title = 'Hiqe nga harta (marketet e merchandiserëve mbeten)';
+    fshi.addEventListener('click', async function () {
+      var po = await konfirmo('Të fshihet pika?', '"' + p.emri + '" hiqet nga harta e Stoku-t. Marketet e merchandiserëve dhe afatet e tyre s\'preken.', 'Fshije');
+      if (!po) return;
+      var r = await window.__stokuCloud.ekipa.fshiPiken(p.id);
+      if (!r || !r.ok) { gab.textContent = 'S\'u fshi. Kontrollo internetin dhe provo sërish.'; return; }
+      HT.neEditim = ''; toast('Pika u fshi.');
+    });
     var anulo = el('button', 'btn tekst vogel', 'Anulo'); anulo.type = 'button';
     var ruajB = el('button', 'btn vogel', 'Ruaj'); ruajB.type = 'button';
     anulo.addEventListener('click', function () { HT.neEditim = ''; htVizato(); });
@@ -3360,23 +3374,19 @@
       if (!e) { gab.textContent = 'Shkruaj emrin e pikës.'; inp.focus(); return; }
       if (e === p.emri) { HT.neEditim = ''; htVizato(); return; }
       var cl = window.__stokuCloud;
-      if (!cl || !cl.ndryshoDyqaninEPerdoruesit) { gab.textContent = 'Emri s\'u ndryshua. Kontrollo internetin dhe provo sërish.'; return; }
+      if (!cl || !cl.ekipa || !cl.ekipa.ndryshoPiken) { gab.textContent = 'Emri s\'u ndryshua. Kontrollo internetin dhe provo sërish.'; return; }
       ruajB.disabled = anulo.disabled = true; gab.textContent = '';
-      var r = await SH.riemerto(function (u, fn) { return cl.ndryshoDyqaninEPerdoruesit(u, fn); }, p, e);
+      var r = await cl.ekipa.ndryshoPiken(p.id, { emri: e }, true);
       ruajB.disabled = anulo.disabled = false;
-      if (!r.ok) {
-        if (r.arsye === 'nuk-u-gjet') { HT.pikat = HT.pikat.filter(function (x) { return x !== p; }); HT.neEditim = ''; htVizato(); toast('Kjo pikë s\'ekziston më: ' + p.perdoruesi + ' e fshiu.'); return; }
-        gab.textContent = r.arsye === 'ekziston' ? p.perdoruesi + ' e ka edhe një market me këtë emër.' : 'Emri s\'u ndryshua. Kontrollo internetin dhe provo sërish.';
-        return;
-      }
-      p.emri = r.emri; HT.neEditim = '';
-      htVizato(); toast('Emri u ndryshua. ' + p.perdoruesi + ' e sheh emrin e ri.');
+      if (!r || !r.ok) { gab.textContent = 'Emri s\'u ndryshua. Kontrollo internetin dhe provo sërish.'; return; }
+      p.emri = e; HT.neEditim = '';
+      htVizato(); toast('Emri u ndryshua. Merchandiserët e shohin emrin e ri.');
     });
     inp.addEventListener('keydown', function (ev) {
       if (ev.key === 'Enter') { ev.preventDefault(); ruajB.click(); }
       else if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); anulo.click(); }
     });
-    var v = el('div', 'ops-furn-veprime'); v.appendChild(anulo); v.appendChild(ruajB);
+    var v = el('div', 'ops-furn-veprime'); v.appendChild(fshi); v.appendChild(anulo); v.appendChild(ruajB);
     w.appendChild(v);
     return w;
   }
@@ -3466,7 +3476,7 @@
     var admin = eshteAdminiIStokut(), gati = admin && !!pd.llogarite && !!pd.lejet;
     $('opsSkedaPerdoruesit').hidden = !admin;
     rifreskoTabinHarta();
-    if (HT && admin && htHapur() && !HT.pikat && !HT.dukeNgarkuar && pd.llogarite) htHapFaqen(false); // llogaritë sapo erdhën
+    if (PK) nisPikat(); // v246: administratori i dëgjon pikat e Stoku-t (harta)
     var rinj = gati ? pdLista().filter(function (a) { return a.statusi === 'ri'; }).length : 0;
     var nen = $('opsPerdoruesitNen');
     nen.textContent = rinj ? (rinj === 1 ? '1 pa u kontrolluar' : rinj + ' pa u kontrolluar') : 'Lejet e llogarive';
@@ -4714,7 +4724,8 @@
   $('ekGrupiKrijo').addEventListener('click', ekKrijoGrupin);
   $('ekGrupiEmri').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ekKrijoGrupin(); } });
   function ekTekstiLargimit(m) {
-    return m.arsye === 'pronari-i-vetem' ? 'Je admini i vetëm i grupit. Bëje dikë tjetër admin (te Kolegët) para se të largohesh.'
+    return m.arsye === 'trashegimtari' ? 'S\'u largove: kolegu s\'u bë dot admin. Kontrollo internetin dhe provo përsëri.'
+      : m.arsye === 'pronari-i-vetem' ? 'Je admini i vetëm i grupit. Bëje dikë tjetër admin (te Kolegët) para se të largohesh.'
       : m.arsye === 'duke-ngarkuar' ? 'Prit pak, po ngarkohen kolegët e grupit…' : 'S\'mund të largohesh tani.';
   }
   async function ekPranoFtesen(f, btn) {
@@ -4722,7 +4733,7 @@
       var g = ekK.grupiInfo() || {}, m = ekK.mundTeLargohet();
       if (!m.ok) { toast(ekTekstiLargimit(m)); return; }
       var po = await konfirmo('Të kalosh te grupi "' + (f.grupiEmri || '') + '"?',
-        'Largohesh nga grupi "' + (g.emri || '') + '"' + (m.iFundit ? ' (je i fundit në grup: grupi fshihet bashkë me aktivitetin)' : '') + '. Stoku dhe afatet e tua s\'preken.', 'Kalo');
+        'Largohesh nga grupi "' + (g.emri || '') + '"' + (m.iFundit ? ' (je i fundit në grup: grupi fshihet bashkë me aktivitetin)' : m.trashegimtari ? ' (admin bëhet ' + (m.trashegimtariEmri || 'kolegu') + ')' : '') + '. Stoku dhe afatet e tua s\'preken.', 'Kalo');
       if (!po) return;
     }
     if (btn) btn.disabled = true;
@@ -4737,7 +4748,8 @@
     if (!m.ok) { toast(ekTekstiLargimit(m)); return; }
     var po = await konfirmo('Të largohesh nga grupi "' + (g.emri || '') + '"?',
       m.iFundit ? 'Je i fundit në grup: grupi fshihet komplet, bashkë me aktivitetin. Stoku dhe afatet e tua s\'preken.'
-        : 'S\'do t\'i shohësh më kolegët dhe aktivitetin e këtij grupi. Stoku dhe afatet e tua s\'preken.', 'Largohu');
+        : (m.trashegimtari ? 'Je admini i grupit: kur largohesh, admin bëhet ' + (m.trashegimtariEmri || 'kolegu') + '. ' : '') +
+          'S\'do t\'i shohësh më kolegët dhe aktivitetin e këtij grupi. Stoku dhe afatet e tua s\'preken.', 'Largohu');
     if (!po) return;
     var r = await ekK.largohuNgaGrupi();
     if (!r.ok) { toast(r.arsye ? ekTekstiLargimit(r) : 'S\'u largove. Kontrollo internetin dhe provo përsëri.'); return; }

@@ -649,12 +649,19 @@
     }
     // Largimi nga grupi aktual. fshiGrupin: ishte anëtari i fundit → fshihet krejt grupi me historikun.
     // paTregues: kalim te një grup tjetër (treguesin e shkruan pranimi i ftesës).
+    // trashegimtari (v246): uid i kolegut që bëhet admin, kur largohet admini i vetëm (para çdo gjëje tjetër: pa të s'largohet)
     var veprimeNeGrup = 0; // krijimi/pranimi/largimi në vazhdim: treguesin e grupit e shkruajnë ato vetë
-    async function largohu(fshiGrupin, paTregues) {
+    async function largohu(fshiGrupin, paTregues, trashegimtari) {
       if (!uid() || !grupi) return { ok: true };
       var g = grupi;
       veprimeNeGrup++;
       try {
+        if (trashegimtari && !fshiGrupin) {
+          var rt = await perditesoAnetarin(trashegimtari, { roli: 'pronar' });
+          if (!rt.ok) return rt.arsye ? rt : { ok: false, arsye: 'trashegimtari' };
+          // Njoftim te admini i ri (para largimit: rregullat e lejojnë vetëm brenda grupit)
+          try { await pritPak(shtoNeRadhe(['perdoruesit', trashegimtari, 'njoftimet'], { lloji: 'admin-i-ri', grupi: g, uid: uid(), emri: emri(), koha: Date.now(), lexuar: false })); } catch (e) { /* ok */ }
+        }
         await hiqPajisjenNgaGrupi();
         try { await fs.deleteDoc(fs.doc(db, 'grupet', g, 'afatet', uid())); } catch (e) { /* ok */ }
         if (fshiGrupin) {
@@ -810,6 +817,35 @@
         if (em.length < 2) return { ok: false, arsye: 'emri' };
         try { await fs.setDoc(fs.doc(db, 'grupet', grupi), { emri: em }, { merge: true }); publikoGrupin(grupi, em); return { ok: true }; } catch (e) { return gabim(e); }
       },
+      // ---------- v246: pikat e përbashkëta të marketeve (pikat/{id}) ----------
+      // { emri, lat, lng, krijuarNga, krijuarNgaEmri, krijuarSe, ndryshuarSe, emriNgaAdmini }. I lexon kushdo me llogari
+      // (merchandiseri e njeh vetë marketin ku arrin); i krijon merchandiseri; emrin e ndryshon administratori (emriNgaAdmini)
+      // ose krijuesi derisa s'e ka ndryshuar administratori; i fshin administratori.
+      degjoPikat: function (cb, cbGabim) {
+        if (!uid()) return function () {};
+        return fs.onSnapshot(fs.query(fs.collection(db, 'pikat'), fs.limit(3000)), function (s) { cb(listaNga(s)); }, function (e) { if (cbGabim) cbGabim(e); });
+      },
+      shtoPiken: async function (m) {
+        if (!uid() || !m || typeof m.lat !== 'number' || typeof m.lng !== 'number') return { ok: false };
+        var id = 'p' + idERe().slice(0, 20), tani = Date.now();
+        try {
+          await fs.setDoc(fs.doc(db, 'pikat', id), { emri: String(m.emri || '').trim().slice(0, 60) || 'Market', lat: m.lat, lng: m.lng,
+            krijuarNga: uid(), krijuarNgaEmri: emri(), krijuarSe: tani, ndryshuarSe: tani });
+          return { ok: true, id: id };
+        } catch (e) { return gabim(e); }
+      },
+      ndryshoPiken: async function (id, te, ngaAdmini) {
+        if (!uid() || !id || !te) return { ok: false };
+        var d = { ndryshuarSe: Date.now() };
+        if (typeof te.emri === 'string') d.emri = te.emri.trim().slice(0, 60) || 'Market';
+        if (typeof te.lat === 'number' && typeof te.lng === 'number') { d.lat = te.lat; d.lng = te.lng; }
+        if (ngaAdmini) d.emriNgaAdmini = true;
+        try { await fs.setDoc(fs.doc(db, 'pikat', id), d, { merge: true }); return { ok: true }; } catch (e) { return gabim(e); }
+      },
+      fshiPiken: async function (id) {
+        if (!uid() || !id) return { ok: false };
+        try { await fs.deleteDoc(fs.doc(db, 'pikat', id)); return { ok: true }; } catch (e) { return gabim(e); }
+      },
       // ---------- v242: kërkimi i grupeve dhe kërkesat për t'u futur ----------
       // Lista publike (grupet_publike/{g}: emri i grupit dhe admini) e mban pronari i grupit; e lexon kushdo me llogari.
       publikoGrupin: function (g, emriG) { return publikoGrupin(g, emriG); },
@@ -888,7 +924,7 @@
       },
       // Pranimi i ftesës. Së pari hyrja te grupi i ri (ftesa fshihet bashkë me të): nëse ftesa s'vlen më,
       // mbetesh ku ishe. Vetëm pastaj largohesh nga grupi i mëparshëm (fshiGrupinEVjeter: ishe i fundit aty).
-      pranoFtesen: async function (f, fshiGrupinEVjeter) {
+      pranoFtesen: async function (f, fshiGrupinEVjeter, trashegimtari) {
         if (!uid() || !f || !f.gid) return { ok: false };
         veprimeNeGrup++;
         try {
@@ -902,7 +938,7 @@
             try { await fs.deleteDoc(fs.doc(db, 'ftesat', f.id)); } catch (e2) { /* ok */ }
             return { ok: false, arsye: 'ftesa-skadoi' };
           }
-          if (grupi && grupi !== f.gid) await largohu(!!fshiGrupinEVjeter, true);
+          if (grupi && grupi !== f.gid) await largohu(!!fshiGrupinEVjeter, true, trashegimtari);
           await vendosTreguesin(f.gid);
           grupi = f.gid;
           fshijKerkesatEMia(); // v242
@@ -913,7 +949,7 @@
       refuzoFtesen: async function (f) {
         try { await fs.deleteDoc(fs.doc(db, 'ftesat', f.id)); return { ok: true }; } catch (e) { return gabim(e); }
       },
-      largohuNgaGrupi: function (fshiGrupin) { return largohu(!!fshiGrupin); },
+      largohuNgaGrupi: function (fshiGrupin, trashegimtari) { return largohu(!!fshiGrupin, false, trashegimtari); },
       // Pronari: heq një anëtar (anëtarësia, përmbledhja e afateve dhe pajisjet e tij në grup)
       hiqNgaGrupi: async function (u) {
         if (!grupi || !u || u === uid()) return { ok: false };
@@ -1661,6 +1697,7 @@
     if (nj.lloji === 'heqje-pranuar') return (nj.emri || 'Kolegu') + ' e pranoi heqjen nga rafti: ' + (nj.produkti || nj.barkodi || 'produkt');
     if (nj.lloji === 'heqje-refuzuar') return (nj.emri || 'Kolegu') + ' e refuzoi heqjen nga rafti: ' + (nj.produkti || nj.barkodi || 'produkt') + ' (mbetet në raft)';
     if (nj.lloji === 'lajmerim') return (nj.emri || 'Administratori') + ': ' + (nj.tekst || '');
+    if (nj.lloji === 'admin-i-ri') return (nj.emri || 'Admini') + ' u largua nga grupi dhe tash ti je admini i grupit.';
     if (nj.lloji === 'admin-afat') return (nj.emri || 'Administratori') + ' ' + (FJALA_E_VEPRIMIT[nj.veprimi] || 'ndryshoi') + ': ' + (nj.produkti || nj.barkodi || 'produkt');
     return nj.tekst || '';
   }
@@ -2023,7 +2060,11 @@
       if (!gj.anetaret.length) return { ok: false, arsye: 'duke-ngarkuar' };
       var uIm = o.uidIm();
       var tjeret = gj.anetaret.filter(function (a) { return a.uid !== uIm; });
-      if (gj.roli === 'pronar' && tjeret.length && !tjeret.some(function (a) { return a.pronar; })) return { ok: false, arsye: 'pronari-i-vetem' };
+      // v246: admini i vetëm mund të largohet: adminin e merr kolegu që ka hyrë më herët në grup
+      if (gj.roli === 'pronar' && tjeret.length && !tjeret.some(function (a) { return a.pronar; })) {
+        var tr = tjeret.slice().sort(function (a, b) { return (a.kycurSe || 0) - (b.kycurSe || 0) || String(a.emri).localeCompare(String(b.emri)); })[0];
+        return { ok: true, iFundit: false, trashegimtari: tr.uid, trashegimtariEmri: tr.emri };
+      }
       return { ok: true, iFundit: !tjeret.length };
     }
     async function pranoFtesen(f) {
@@ -2031,7 +2072,7 @@
       if (!e || !e.pranoFtesen || !f) return { ok: false };
       var neGrup = gjendjaEQasjes() === 'ok', m = mundTeLargohet();
       if (neGrup && !m.ok) return m;
-      var r = await e.pranoFtesen(f, neGrup && m.iFundit);
+      var r = await e.pranoFtesen(f, neGrup && m.iFundit, neGrup ? m.trashegimtari : null);
       if (r.ok || r.arsye === 'ftesa-skadoi') gj.ftesatEMia = gj.ftesatEMia.filter(function (x) { return x.id !== f.id; });
       if (r.ok) aplikoGrupin(f.gid, 'anetar', f.grupiEmri || '');
       else if (r.arsye === 'ftesa-skadoi') thirr('ftesat');
@@ -2049,7 +2090,7 @@
       if (!e || !e.largohuNgaGrupi || gjendjaEQasjes() !== 'ok') return { ok: false };
       var m = mundTeLargohet();
       if (!m.ok) return m;
-      var r = await e.largohuNgaGrupi(m.iFundit);
+      var r = await e.largohuNgaGrupi(m.iFundit, m.trashegimtari);
       if (r.ok) { harroGrupinEFundit(); aplikoGrupin(null); }
       return r;
     }

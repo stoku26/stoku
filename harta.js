@@ -10,9 +10,8 @@
  * - STILI ËSHTË YNI, jo i OpenFreeMap-it: sfondi, uji, rrugët PA EMRA, kufiri i shtetit dhe nga shtresa `place` vetëm
  *   klasat e VENDBANIMEVE. Asnjë shtresë tjetër me emra (dyqane, rrugë, ujëra, male, shtete) s'shtohet: kështu në hartë
  *   s'del asgjë tjetër përveç vendbanimeve dhe pikave tona.
- * - Pikat: { id, emri, lat, lng, uid, perdoruesi }. Administratori i sheh pikat e krejt merchandiserëve (lexon dyqanin e
- *   secilit, si "Afatet e X") dhe ua ndryshon emrin (ndryshoDyqaninEPerdoruesit: emri + ndryshuarSe, bashkimi.js e çon te
- *   pajisjet e merchandiserit); merchandiseri sheh vetëm marketet e veta.
+ * - Pikat: { id, emri, lat, lng, uid, perdoruesi }. Administratori i sheh pikat e përbashkëta të Stoku-t (v246: pikat/{id},
+ *   marketet.js) dhe ua ndryshon emrin për krejt Stoku-n; merchandiseri sheh vetëm marketet e veta.
  */
 (function (root) {
   'use strict';
@@ -109,51 +108,7 @@
     }) };
   }
 
-  // Pikat e administratorit: marketet e mia + të krejt merchandiserëve (dyqani i secilit, 4 njëherësh)
-  // llogarite: [{ uid, emri }]; merr(uid) → { ok, gjendja }; kthen { pikat, gabime }
-  async function mblidhPikat(llogarite, merr, teMiat) {
-    var pikat = (teMiat || []).slice(), gabime = 0, l = llogarite || [];
-    for (var i = 0; i < l.length; i += 4) {
-      var pjesa = l.slice(i, i + 4);
-      var rr = await Promise.all(pjesa.map(function (a) {
-        return Promise.resolve().then(function () { return merr(a.uid); }).then(function (r) { return { a: a, r: r }; }, function () { return { a: a, r: null }; });
-      }));
-      rr.forEach(function (x) {
-        if (!x.r || !x.r.ok) { gabime++; return; }
-        var ml = x.r.gjendja && Array.isArray(x.r.gjendja.marketet) ? x.r.gjendja.marketet : [];
-        ml.forEach(function (m) {
-          if (!m || typeof m.id !== 'string' || !m.id) return;
-          var p = { id: m.id, emri: String(m.emri == null ? '' : m.emri).trim().slice(0, EMRI_MAKS) || 'Market', uid: x.a.uid, perdoruesi: x.a.emri || '' };
-          if (kaVend(m)) { p.lat = m.lat; p.lng = m.lng; }
-          pikat.push(p);
-        });
-      });
-    }
-    return { pikat: pikat, gabime: gabime };
-  }
-
   function emriIPastruar(e) { return String(e || '').trim().replace(/\s+/g, ' ').slice(0, EMRI_MAKS); }
-  function iNjejti(a, b) { return emriIPastruar(a).toLowerCase() === emriIPastruar(b).toLowerCase(); }
-
-  // Administratori: emri i ri i një pike te dyqani i merchandiserit. ndrysho(uid, fn) = ndryshoDyqaninEPerdoruesit.
-  // Kthen { ok } ose { ok: false, arsye: 'emri' | 'nuk-u-gjet' | 'ekziston' | 'rrjeti' }
-  async function riemerto(ndrysho, p, emriRi) {
-    var e = emriIPastruar(emriRi);
-    if (!e) return { ok: false, arsye: 'emri' };
-    var uGjet = true, ekziston = false;
-    var r = await ndrysho(p.uid, function (g) {
-      uGjet = true; ekziston = false; // transaksioni mund ta thërrasë sërish (përsëritje)
-      var l = g && Array.isArray(g.marketet) ? g.marketet : [];
-      if (!l.some(function (m) { return m && m.id === p.id; })) { uGjet = false; return g; }
-      if (l.some(function (m) { return m && m.id !== p.id && iNjejti(m.emri, e); })) { ekziston = true; return g; }
-      var tani = Date.now();
-      return Object.assign({}, g, { marketet: l.map(function (m) { return m && m.id === p.id ? Object.assign({}, m, { emri: e, ndryshuarSe: tani }) : m; }) });
-    });
-    if (!r || !r.ok) return { ok: false, arsye: 'rrjeti' };
-    if (!uGjet) return { ok: false, arsye: 'nuk-u-gjet' };
-    if (ekziston) return { ok: false, arsye: 'ekziston' };
-    return { ok: true, emri: e };
-  }
 
   var ngarkimi = null;
   function ngarko() {
@@ -185,6 +140,15 @@
           maxZoom: 18, attributionControl: { compact: true }, dragRotate: false, pitchWithRotate: false, touchPitch: false, locale: TEKSTET });
       } catch (e) { throw new Error('webgl'); }
       map.touchZoomRotate.disableRotation();
+      // v246: atribuimi (OpenFreeMap, OpenMapTiles, OpenStreetMap) është i detyrueshëm nga licenca dhe s'hiqet; sipas
+      // udhëzimeve të OSMF-së del kur hapet harta dhe palohet në butonin (i) pas 5 sekondash ose kur prek hartën
+      function palosBurimet() {
+        var c = el.querySelector('.maplibregl-ctrl-attrib.maplibregl-compact-show');
+        if (c) c.classList.remove('maplibregl-compact-show');
+      }
+      map.once('load', function () { setTimeout(palosBurimet, 5000); });
+      map.on('movestart', function (ev) { if (ev && ev.originalEvent) palosBurimet(); });
+      map.on('click', palosBurimet);
       map.addControl(new ml.NavigationControl({ showCompass: false }), 'top-right');
       map.on('click', 'pikat', function (ev) {
         var f = ev.features && ev.features[0];
@@ -250,8 +214,7 @@
   var api = {
     MAPLIBRE_JS: MAPLIBRE_JS, MAPLIBRE_SRI: MAPLIBRE_SRI, MAPLIBRE_CSS: MAPLIBRE_CSS, PLLAKAT: PLLAKAT, SHKRONJAT: SHKRONJAT,
     VENDBANIMET: VENDBANIMET, LAGJET: LAGJET, ZOOM_LAGJET: ZOOM_LAGJET, KOSOVA: KOSOVA,
-    kaVend: kaVend, celesi: celesi, stili: stili, pikatGeoJson: pikatGeoJson, mblidhPikat: mblidhPikat, riemerto: riemerto,
-    emriIPastruar: emriIPastruar, ngarko: ngarko, krijo: krijo
+    kaVend: kaVend, celesi: celesi, stili: stili, pikatGeoJson: pikatGeoJson, emriIPastruar: emriIPastruar, ngarko: ngarko, krijo: krijo
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuHarta = api;

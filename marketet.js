@@ -2,7 +2,8 @@
  * Marketet (v241): për ata që punojnë në disa markete brenda ditës (p.sh. merchandiserët). E përbashkët për telefonin
  * dhe PC-në. Pa asnjë market (si deri tash) s'ndryshon asgjë: afatet shihen krejt bashkë.
  *
- * Marketi: { id, emri, lat, lng, ndryshuarSe }   (lat/lng = vendndodhja e ruajtur me "Ruaj vendndodhjen këtu"; opsionale)
+ * Marketi: { id, emri, lat, lng, ndryshuarSe, p }   (lat/lng = vendndodhja e ruajtur me "Ruaj vendndodhjen këtu"; opsionale;
+ *   p (v246) = id e pikës së përbashkët pikat/{p}, nga e cila merr emrin kur e ndryshon administratori)
  *   - Lista ruhet te dyqani i llogarisë (sinkronizohet si folderat, bashkimi.js), lokalisht te KEY_LISTA.
  *   - Afati e mban marketin te fusha `m` (id-ja). Te kopjet për kolegët dhe serverin shtohet `mk` (emri i marketit).
  * Marketi aktiv ("Je te: …") është i kësaj pajisjeje (KEY_AKTIV): { id | null, menyra: 'gps' | 'dore', koha }.
@@ -38,6 +39,7 @@
       var x = { id: m.id, emri: String(m.emri == null ? '' : m.emri).trim().slice(0, EMRI_MAKS) || 'Market' };
       if (kaVend(m)) { x.lat = m.lat; x.lng = m.lng; }
       if (numer(m.ndryshuarSe)) x.ndryshuarSe = m.ndryshuarSe;
+      if (typeof m.p === 'string' && m.p && m.p.length <= 40) x.p = m.p;
       return x;
     });
   }
@@ -70,6 +72,54 @@
     });
     return mi ? { marketi: mi, largesia: Math.round(dMin) } : null;
   }
+
+  // ---------- v246: pikat e përbashkëta të Stoku-t (pikat/{id}) ----------
+  // Pika: { id, emri, lat, lng, krijuarNga, krijuarNgaEmri, emriNgaAdmini }. Çdo market me vendndodhje bëhet pikë; një
+  // merchandiser tjetër që arrin aty e gjen vetë ("Je te: X") pa e shtuar sërish. Emri i pikës (i administratorit) fiton.
+  var LIDHJA_M = 60; // marketi i vjetër (pa pikë) lidhet me një pikë me të njëjtin emër brenda kësaj largësie
+  function pastroPikat(l) {
+    return (Array.isArray(l) ? l : []).filter(function (x) { return x && typeof x.id === 'string' && x.id && kaVend(x); }).map(function (x) {
+      return { id: x.id, emri: String(x.emri == null ? '' : x.emri).trim().slice(0, EMRI_MAKS) || 'Market', lat: x.lat, lng: x.lng,
+        krijuarNga: x.krijuarNga || '', krijuarNgaEmri: x.krijuarNgaEmri || '', emriNgaAdmini: x.emriNgaAdmini === true };
+    });
+  }
+  // Pikat afër (deri në maksM metra), më e afërta e para: [{ pika, largesia }]
+  function pikatAfer(pikat, poz, maksM, n) {
+    if (!poz || !numer(poz.lat) || !numer(poz.lng)) return [];
+    return pastroPikat(pikat).map(function (x) { return { pika: x, largesia: Math.round(largesia(x, poz)) }; })
+      .filter(function (x) { return x.largesia <= maksM; })
+      .sort(function (a, b) { return a.largesia - b.largesia; }).slice(0, n || 8);
+  }
+  // Marketi im i lidhur me pikën (ose null)
+  function sipasPikes(l, pikaId) { for (var i = 0; i < (l || []).length; i++) if (l[i].p === pikaId) return l[i]; return null; }
+  // Market i ri nga një pikë e përbashkët
+  function ngaPika(pika, tani) {
+    return { id: idERe(), emri: pika.emri, lat: pika.lat, lng: pika.lng, p: pika.id, ndryshuarSe: tani || Date.now() };
+  }
+  // Emrat nga pikat: marketi i lidhur merr emrin e pikës (kur e ndryshon administratori ose krijuesi). → { marketet, n }
+  function emratNgaPikat(l, pikat, tani) {
+    var h = {}, n = 0;
+    pastroPikat(pikat).forEach(function (x) { h[x.id] = x; });
+    var r = (l || []).map(function (m) {
+      var x = m.p && h[m.p];
+      if (!x || x.emri === m.emri) return m;
+      n++;
+      return Object.assign({}, m, { emri: x.emri, ndryshuarSe: tani || Date.now() });
+    });
+    return { marketet: r, n: n };
+  }
+  // Marketi i vjetër me vendndodhje por pa pikë: pika ekzistuese me të njëjtin emër, afër (ose null = krijo të re)
+  function pikaPerMarketin(pikat, m) {
+    if (!kaVend(m)) return null;
+    var n = emriINormalizuar(m.emri), mi = null, dMin = Infinity;
+    pastroPikat(pikat).forEach(function (x) {
+      var d = largesia(x, m);
+      if (d <= LIDHJA_M && emriINormalizuar(x.emri) === n && d < dMin) { dMin = d; mi = x; }
+    });
+    return mi;
+  }
+  // A mund ta ndryshojë uid-i emrin e kësaj pike (krijuesi, derisa s'e ka caktuar administratori)
+  function mundTaRiemertoje(pika, uid) { return !!pika && !pika.emriNgaAdmini && pika.krijuarNga === uid; }
 
   // Afatet e një marketi (id null = krejt)
   function filtro(afatet, id) { return id ? (afatet || []).filter(function (a) { return a && a.m === id; }) : (afatet || []); }
@@ -149,7 +199,9 @@
     pastro: pastro, idERe: idERe, rendit: rendit, sipasId: sipasId, emri: emri, ekzistonEmri: ekzistonEmri, kaVend: kaVend,
     largesia: largesia, gjej: gjej, filtro: filtro, meEmra: meEmra, vendosPaMarket: vendosPaMarket, grupo: grupo,
     lexoAktivin: lexoAktivin, ruajAktivin: ruajAktivin, pasGps: pasGps, kaPika: kaPika, duhetKontrolli: duhetKontrolli,
-    pozita: pozita, tekstiGabimit: tekstiGabimit
+    pozita: pozita, tekstiGabimit: tekstiGabimit,
+    LIDHJA_M: LIDHJA_M, pastroPikat: pastroPikat, pikatAfer: pikatAfer, sipasPikes: sipasPikes, ngaPika: ngaPika,
+    emratNgaPikat: emratNgaPikat, pikaPerMarketin: pikaPerMarketin, mundTaRiemertoje: mundTaRiemertoje
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuMarketet = api;

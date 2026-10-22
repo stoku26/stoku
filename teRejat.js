@@ -20,6 +20,21 @@
   'use strict';
 
   var LISTA = [
+    { v: 246, versioni: '1.35.0', data: '2026-10-22', titulli: 'Dalja nga grupi', pikat: [
+      'Edhe admini i vetëm i grupit tash mund të dalë nga grupi: adminin e merr vetë kolegu që ka hyrë më herët në grup, dhe atij i vjen njoftim.',
+      'Kur del i fundit nga grupi, grupi fshihet komplet, bashkë me aktivitetin.'
+    ] },
+    { v: 246, versioni: '1.35.0', data: '2026-10-22', titulli: 'Stoku e gjen vetë marketin ku je', platforma: 'tel', pikat: [
+      'Merchandiserët: kur e hap Stoku-n, të kërkon lejen për vendndodhjen dhe e gjen vetë marketin ku je ("Je te: …").',
+      'Kur je te një market që e ka ruajtur më herët një merchandiser tjetër, Stoku e njeh dhe e shton vetë te marketet e tua.',
+      'Te "Ku je?" dalin në krye marketet afër teje ("Afër teje"), që i zgjedh me një prekje.',
+      'Vendndodhja jote s\'ruhet askund: ruhet vetëm vendndodhja e marketit.'
+    ] },
+    { v: 246, versioni: '1.35.0', data: '2026-10-22', titulli: 'Pikat e marketeve', vetemAdmini: true, pikat: [
+      'Te Cilësimet → Harta dalin pikat e marketeve të krejt Stoku-t: një pikë për çdo market, edhe kur e kanë ruajtur disa merchandiserë. Emri që ia jep ti vlen për krejt merchandiserët.',
+      'Pikën e gabuar e heq me "Fshije pikën".',
+      'Burimet e hartës (OpenStreetMap) palosen vetë te butoni (i) pas pak sekondash.'
+    ] },
     { v: 245, versioni: '1.34.1', data: '2026-10-22', titulli: 'Harta e marketeve: lagjet', pikat: [
       'Emrat e lagjeve dalin kur e zmadhon hartën afër rrugëve. Kur je më larg, prek "Zmadho për emrat e lagjeve" sipër në hartë.',
       'Lagjet shkruhen me shkronja të mëdha, që të dallohen nga qytetet dhe fshatrat.'
