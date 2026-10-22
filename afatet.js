@@ -742,8 +742,12 @@
     function shkruaj() {
       var h = lexo(), ks = Object.keys(h);
       if (ks.length > KUJTESA_MAKS) {
-        // Hiqen produktet më të vjetra; furnizuesit e ruajtur më vete (pak, shpesh me kohën 1) s'hiqen kurrë
-        ks.filter(function (x) { return !eshteCelesFurnizuesi(x); }).sort(function (a, b) { return (h[a].k || 0) - (h[b].k || 0); })
+        // Hiqen produktet më të vjetra; furnizuesit e ruajtur më vete (pak, shpesh me kohën 1) s'hiqen kurrë.
+        // v248: së pari ato që Stoku i mësoi vetë dhe ato të kolegëve, të fundit ato të administratorit (të kontrolluarat):
+        // më parë hiqeshin edhe këto (më të vjetrat), dhe kur një koleg e dërgonte sërish të njëjtin barkod, produkti i
+        // kontrolluar dilte prapë te "Produktet e reja"
+        ks.filter(function (x) { return !eshteCelesFurnizuesi(x); })
+          .sort(function (a, b) { return (klasaEHyrjes(h[a]) - klasaEHyrjes(h[b])) || ((h[a].k || 0) - (h[b].k || 0)); })
           .slice(0, ks.length - KUJTESA_MAKS).forEach(function (x) { delete h[x]; });
       }
       try { if (ruajtja) ruajtja.setItem(KUJTESA_KEY, JSON.stringify(h)); } catch (e) { /* memoria e shfletuesit plot: mbetet vetëm për këtë seancë */ }

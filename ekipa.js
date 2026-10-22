@@ -2293,11 +2293,15 @@
     // te pritja e tij (kujtesa_pritje/{uid}); administratori i merr krejt pritjet si "në pritje" (pa `s`, me emrin e
     // autorit) dhe i kontrollon te Cilësimet → Stoku. Vetëm çka ruan/fshin administratori kalon te regjistri.
     var KEY_PRITJA = 'stoku:kujtesa:pritja', PRITJA_MAKS = 3000;
-    var regj = { gati: false, remote: {}, degjon: false, ndryshuar: {}, kohez: null, adminiDihet: false };
+    var regj = { gati: false, remote: {}, degjon: false, ndryshuar: {}, kohez: null, adminiDihet: false, pritjet: null };
+    // v248: barkodi që administratori e ka vendosur te regjistri (i kontrolluar ose i fshirë prej tij): pritja e kolegëve
+    // s'vlen më për të. Pa këtë, kur pajisja e administratorit s'e kishte më në kujtesë (p.sh. kujtesa plot, të dhënat e
+    // pastruara), një koleg që e kishte skanuar dikur e kthente produktin e kontrolluar te "Produktet e reja".
+    function vendosurNgaAdmini(b) { var r = regj.remote[b]; return !!(r && typeof r === 'object' && r.s); }
     function nisRegjistrin() {
       var e = E(), K = kujtesaPajisjes();
       ndal('regjistri'); ndal('pritjet');
-      regj.gati = false; regj.remote = {}; regj.ndryshuar = {}; regj.adminiDihet = false;
+      regj.gati = false; regj.remote = {}; regj.ndryshuar = {}; regj.adminiDihet = false; regj.pritjet = null; regj.gabim = false;
       if (!e || !K || !e.degjoRegjistrin || !o.uidIm()) return;
       if (!regj.degjon) {
         regj.degjon = true;
@@ -2308,10 +2312,14 @@
         var n = K.bashko(regj.remote);
         var iPari = !regj.gati;
         regj.gati = true;
+        if (iPari && regj.pritjet) { var pr = regj.pritjet; regj.pritjet = null; zbatoPritjet(pr); } // erdhën para regjistrit
         if (iPari && gj.admin && regj.adminiDihet) K.perDergim(regj.remote).forEach(function (b) { regj.ndryshuar[b] = true; });
         planifikoRegjistrin();
         if (n || iPari) thirr('kujtesa');
-      }, function () { /* rregullat para v242: mbetet kujtesa e pajisjes dhe e grupit */ });
+      }, function () { // rregullat para v242: mbetet kujtesa e pajisjes dhe e grupit
+        regj.gabim = true;
+        if (regj.pritjet) { var pr = regj.pritjet; regj.pritjet = null; zbatoPritjet(pr); }
+      });
     }
     // Pasi dihet a jam administrator: ai dërgon çka di (të kontrolluarat) dhe dëgjon pritjet; të tjerët dërgojnë pritjen
     function regjistriPasAdminit() {
@@ -2322,24 +2330,31 @@
         if (regj.gati) K.perDergim(regj.remote).forEach(function (b) { regj.ndryshuar[b] = true; });
         if (e.degjoPritjet && !d.pritjet) {
           d.pritjet = e.degjoPritjet(function (lista) {
-            var uIm = o.uidIm(), h = {};
-            lista.forEach(function (doc) {
-              if (!doc || doc.id === uIm || !doc.p || typeof doc.p !== 'object') return;
-              Object.keys(doc.p).forEach(function (b) {
-                var x = doc.p[b];
-                if (!x || typeof x !== 'object' || x.x) return; // fshirjet e të tjerëve s'vlejnë këtu
-                // Çdo gjë nga pritja pret kontrollin: pa `s` (s'mund ta kalojë kontrollin vetë), me emrin e autorit
-                var y = Object.assign({}, x); delete y.s;
-                if (!y.n) y.n = String(doc.emri || '').slice(0, 40);
-                if (!y.n) y.r = 1;
-                if (!h[b] || (Number(y.k) || 0) > (Number(h[b].k) || 0)) h[b] = y;
-              });
-            });
-            if (K.bashko(h)) thirr('kujtesa');
+            if (!regj.gati && !regj.gabim) { regj.pritjet = lista; return; } // v248: pritet regjistri (çka është kontrolluar tashmë)
+            zbatoPritjet(lista);
           }, function () { ndal('pritjet'); });
         }
       }
       planifikoRegjistrin();
+    }
+    // Administratori: pritja e krejt llogarive → "Produktet e reja" (pa `s`, me emrin e autorit)
+    function zbatoPritjet(lista) {
+      var K = kujtesaPajisjes(), uIm = o.uidIm(), h = {};
+      if (!K) return;
+      lista.forEach(function (doc) {
+        if (!doc || doc.id === uIm || !doc.p || typeof doc.p !== 'object') return;
+        Object.keys(doc.p).forEach(function (b) {
+          var x = doc.p[b];
+          if (!x || typeof x !== 'object' || x.x) return; // fshirjet e të tjerëve s'vlejnë këtu
+          if (vendosurNgaAdmini(b)) return; // v248: e kontrolluar (ose e fshirë) nga administratori: s'del sërish për kontroll
+          // Çdo gjë nga pritja pret kontrollin: pa `s` (s'mund ta kalojë kontrollin vetë), me emrin e autorit
+          var y = Object.assign({}, x); delete y.s;
+          if (!y.n) y.n = String(doc.emri || '').slice(0, 40);
+          if (!y.n) y.r = 1;
+          if (!h[b] || (Number(y.k) || 0) > (Number(h[b].k) || 0)) h[b] = y;
+        });
+      });
+      if (K.bashko(h)) thirr('kujtesa');
     }
     function hashiI(t) { var h = 5381; for (var i = 0; i < t.length; i++) h = ((h * 33) ^ t.charCodeAt(i)) >>> 0; return h.toString(36) + ':' + t.length; }
     function planifikoRegjistrin() {
@@ -2364,7 +2379,8 @@
         if (!e.ruajPritjen) return;
         // Të tjerët: çka di pajisja dhe s'është (ose është ndryshe) te regjistri → pritja ime, më të rejat të parat
         var hyr = K.hyrjePerGrup(K.perDergim(regj.remote)), lista = [];
-        Object.keys(hyr).forEach(function (b) { if (hyr[b].x !== 1) lista.push(b); });
+        // v248: s'dërgohet për kontroll çka administratori e ka vendosur tashmë te regjistri
+        Object.keys(hyr).forEach(function (b) { if (hyr[b].x !== 1 && !vendosurNgaAdmini(b)) lista.push(b); });
         lista.sort(function (a, b) { return (Number(hyr[b].k) || 0) - (Number(hyr[a].k) || 0); });
         var p = {};
         lista.slice(0, PRITJA_MAKS).forEach(function (b) { p[b] = hyr[b]; });

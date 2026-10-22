@@ -346,6 +346,13 @@
 .sb .af-karta.hequr .af-mesazh { color: var(--sb-rem); }
 .sb .af-pill { border-radius: 10px; border-width: 0; box-shadow: 0 0 0 1.5px currentColor; padding: 6px 11px; }
 .sb .af-grup-krye { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--sb-muted); }
+/* v248: merchandiseri: marketi te çdo afat dhe grupet sipas marketit ("Krejt marketet") */
+.sb .af-karta .af-market { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; margin-top: 4px; padding: 2px 8px 2px 6px; border-radius: 999px; background: var(--sb-ic-gjelber-bg); color: var(--sb-ic-gjelber); font-size: 12px; font-weight: 700; }
+.sb .af-karta .af-market span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb .af-karta .af-market svg { flex: none; }
+.sb .af-grup-krye.af-grup-market { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 13px; font-weight: 800; letter-spacing: .04em; color: var(--sb-ic-gjelber); }
+.sb .af-grup-krye.af-grup-market svg { flex: none; }
+.sb .af-grup-krye--nen { font-size: 11px; padding-left: 4px; }
 .sb .af-bosh { color: var(--sb-faint); font-size: 14px; padding: 48px 16px; }
 .sb .af-bosh b { color: var(--sb-ink); }
 .sb .af-bosh .ek-viz-hyr { display: block; width: fit-content; margin: 18px auto 0; padding: 0 22px; }

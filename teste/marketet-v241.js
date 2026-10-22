@@ -89,7 +89,8 @@ const NUMERO_GPS = () => {
   const duket = (p, s) => p.evaluate(x => { const e = document.querySelector(x); if (!e) return false; const r = e.getBoundingClientRect(); return !e.hidden && getComputedStyle(e).display !== 'none' && r.width > 0 && r.height > 0; }, s);
   const lsAfatet = p => p.evaluate(() => JSON.parse(localStorage.getItem('stoku:afatet:v1') || '[]'));
   const lsMarketet = p => p.evaluate(() => JSON.parse(localStorage.getItem('stoku:marketet:v1') || '[]'));
-  const kartat = p => p.evaluate(() => [...document.querySelectorAll('#afLista .af-karta')].map(k => k.querySelector('.af-emri').textContent + ' | ' + ((k.querySelector('.af-nen') || {}).textContent || '')));
+  // v248: marketi del te çipi .af-market (para tij brenda .af-nen)
+  const kartat = p => p.evaluate(() => [...document.querySelectorAll('#afLista .af-karta')].map(k => k.querySelector('.af-emri').textContent + ' | ' + [(k.querySelector('.af-market') || {}).textContent, (k.querySelector('.af-nen') || {}).textContent].filter(Boolean).join(' · ')));
   async function hapMarketetNeCilesime(p) {
     if (!(await p.evaluate(() => document.getElementById('dlgOpsione').classList.contains('hapur')))) { await p.click('#btnOpsione'); await p.waitForTimeout(300); }
     if (await p.evaluate(() => document.getElementById('kategoriMenu').style.display === 'none')) { await p.click('#opsPrapa'); await p.waitForTimeout(200); }

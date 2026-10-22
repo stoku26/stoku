@@ -609,7 +609,12 @@ html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-nen { background: var(--sb-s
 .sbp .mk-pc { display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--sb-muted); }
 .sbp .mk-pc[hidden] { display: none; }
 .sbp .mk-pc select { height: 34px; min-width: 180px; font-weight: 600; color: var(--sb-ink); }
-.sbp .af-prod-mk { font-weight: 700; color: var(--sb-ink-2); }
+.sbp .af-prod-mk { display: inline-flex; align-items: center; gap: 3px; font-weight: 700; color: var(--sb-ic-gjelber, var(--sb-ink-2)); }
+.sbp .af-prod-mk svg { flex: none; }
+/* v248: merchandiseri, "Krejt marketet": grupet sipas marketit; furnizuesit brenda tyre */
+.sbp #afTabela tr.af-grup-market td { color: var(--sb-ic-gjelber, var(--sb-ink)); font-size: 12.5px; font-weight: 800; }
+.sbp #afTabela tr.af-grup-market td svg { vertical-align: -1px; margin-right: 6px; }
+.sbp #afTabela tr.af-grup-nen td { height: 32px; font-size: 11px; padding-left: 28px; }
 .sbp #dlgPdAfatet .dialog { max-width: 900px; }
 .sbp .pdaf-hequrat { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 13px; color: var(--sb-muted); cursor: pointer; }
 .sbp .pdaf-hequrat[hidden] { display: none; }

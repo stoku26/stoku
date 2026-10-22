@@ -5274,18 +5274,34 @@
     }
     var frag = document.createDocumentFragment();
     // Te "Afër skadimit": grupim sipas furnizuesit
-    if (afFiltri === 'afer') {
+    function sipasFurnizuesit(l, nen) {
       var grupet = {};
-      lista.forEach(function (a) { var f = a.furnizuesi || ''; (grupet[f] = grupet[f] || []).push(a); });
+      l.forEach(function (a) { var f = a.furnizuesi || ''; (grupet[f] = grupet[f] || []).push(a); });
       Object.keys(grupet).sort(function (a, b) { return !a ? 1 : !b ? -1 : a.localeCompare(b, 'sq'); }).forEach(function (f) {
         var h = document.createElement('div');
-        h.className = 'af-grup-krye';
+        h.className = 'af-grup-krye' + (nen ? ' af-grup-krye--nen' : '');
         var s = document.createElement('span');
         s.textContent = (f || 'Pa furnizues') + ' · ' + grupet[f].length;
         h.appendChild(s);
         frag.appendChild(h);
         grupet[f].forEach(function (a) { frag.appendChild(kartaEAfatit(a)); });
       });
+    }
+    if (kaMarkete() && !idMarketitAktiv()) {
+      // v248: merchandiseri te "Krejt marketet": afatet s'përzihen, secili market me afatet e veta
+      MK.grupo(lista, marketet).forEach(function (gr) {
+        var h = document.createElement('div');
+        h.className = 'af-grup-krye af-grup-market';
+        h.innerHTML = IKONA_MARKETI;
+        var s = document.createElement('span');
+        s.textContent = (gr.id ? gr.emri : 'Pa market') + ' · ' + gr.afatet.length;
+        h.appendChild(s);
+        frag.appendChild(h);
+        if (afFiltri === 'afer') sipasFurnizuesit(gr.afatet, true);
+        else gr.afatet.forEach(function (a) { frag.appendChild(kartaEAfatit(a)); });
+      });
+    } else if (afFiltri === 'afer') {
+      sipasFurnizuesit(lista, false);
     } else {
       lista.forEach(function (a) { frag.appendChild(kartaEAfatit(a)); });
     }
@@ -5298,6 +5314,7 @@
     rifreskoZgjedhjen();
   }
 
+  var IKONA_MARKETI = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
   var IKONAT_AF = (function () {
     function s(d, w) { return '<svg width="' + (w || 15) + '" height="' + (w || 15) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>'; }
     return {
@@ -5660,7 +5677,13 @@
     var m = document.createElement('div'); m.className = 'af-majtas';
     var e = document.createElement('div'); e.className = 'af-emri'; e.textContent = a.emri || a.barkodi || '(pa emër)';
     m.appendChild(e);
-    var nen = [kaMarkete() && !idMarketitAktiv() ? emriMarketit(a.m) : '', rreshtiIAfatit(a)].filter(Boolean).join(' · ');
+    // v248: merchandiseri: te çdo afat shihet marketi (pika) ku ndodhet
+    if (kaMarkete()) {
+      var mk = document.createElement('div'); mk.className = 'af-market'; mk.innerHTML = IKONA_MARKETI;
+      var mkE = document.createElement('span'); mkE.textContent = a.m && MK.sipasId(marketet, a.m) ? emriMarketit(a.m) : 'Pa market';
+      mk.appendChild(mkE); m.appendChild(mk);
+    }
+    var nen = rreshtiIAfatit(a);
     if (nen) { var ne = document.createElement('div'); ne.className = 'af-nen'; ne.textContent = nen; m.appendChild(ne); }
     if (a.emri && a.barkodi) { var kd = document.createElement('div'); kd.className = 'af-kodi'; kd.textContent = a.barkodi; m.appendChild(kd); }
     var ms = document.createElement('div'); ms.className = 'af-mesazh'; ms.textContent = AF.pershkrimi(a);
