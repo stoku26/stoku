@@ -52,6 +52,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **RREGULLAT E FIRESTORE v250 TË VENDOSURA (22.10.2026)**: pronari e ngjiti krejt tekstin e rregullave (seksioni "Rregullat
+   e Firestore", i njëjti për v250 dhe v251) te Firebase dhe tha "i vendosa rregullat". Tash funksionojnë në prodhim: pikat e
+   përbashkëta (`pikat/{id}`, v246), marketet e njëjta për krejt merchandiserët (v250) dhe vetëm administratori i ndryshon/fshin.
+   Pa ndryshim kodi (vetëm SHENIME).
+
 0000000. **ÇIPI I MARKETIT ("JE TE") S'ZHDUKET + MERCHANDISERI NGA ADMINISTRATORI MERR MARKETET (v251 = 1.38.1)**: përdoruesi:
    "pse ne android app so tu e qit hiq, amo po ka raste edhe ne web app po heket kjo qe e zgjedh marketin ku je" (me llogari
    merchandiser, jo me administratorin). Tri shkaqe:
@@ -99,7 +104,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      Escape mbyll): zmadhimi ≥ 15, emri unik, asnjë pikë ≤ 60 m → `ekipa.shtoPiken` (krijuarNga = administratori). Riemërtimi i
      adminit kontrollon edhe emrin unik. Fshirja: "Të fshihet marketi?" (hiqet nga lista e merchandiserëve pa afate aty).
    - **Rregullat** (SHENIME + `fs-server.js` + `teste/emu/pikat-v246.mjs`, provuar në emulator): `allow update` te `pikat/{id}`
-     vetëm `eshteAdmin()` (krijuesi s'e ndryshon më). **PRONARI duhet t'i vendosë** (edhe ato të v246 nëse s'i ka vendosur).
+     vetëm `eshteAdmin()` (krijuesi s'e ndryshon më). Pronari i vendosi më 22.10.2026 (bashkë me ato të v246).
    - CSP te Cloudflare: pronari e ngjiti vlerën më 22.10.2026, identike me `CSP_CLOUDFLARE` (Esri i lejuar).
    - Teste: `teste/v250.js` i ri (njësitë, besa shton te Albi, drini e merr vetë, e përafërt 800 m, 30 m nga Albi, emri, pikat e
      fshira, admini shton në hartë tel + PC); përshtatur: `pikat-v246.js`, `marketet-v241.js`, `marketi-ri-v242.js`,
@@ -212,7 +217,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      parë të hartës (`palosBurimet`), si te udhëzimet e OSMF-së. **Sateliti: s'u bë** (pret vendimin e pronarit; opsioni më i
      mirë: Esri World Imagery me çelës falas ArcGIS Location Platform, 2 milionë pllaka/muaj, lejon përdorim komercial; do
      të duhej CSP + Cloudflare).
-   - **Rregullat**: `pikaOk` + `match /pikat/{id}` (më poshtë). **PRONARI duhet t'i vendosë** (pa to merchandiserët s'i shohin
+   - **Rregullat**: `pikaOk` + `match /pikat/{id}` (më poshtë; pronari i vendosi më 22.10.2026, me v250). Pa to merchandiserët s'i shohin
      pikat e të tjerëve dhe harta e administratorit mbetet bosh). Teste: `teste/pikat-v246.js` (Firestore i rremë: shtimi vetë te
      pika e njohur, "Afër teje", migrimi, riemërtimi/fshirja nga admini, leja e ndaluar, jo-merchandiser), `teste/grupi-dalja-v246.js`
      (admini largohet → admin kolegu më i vjetër + njoftimi, rifreskimi s'e kthen, i fundit → grupi fshihet), emulatori:
@@ -1997,7 +2002,7 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 
 ## Rregullat e Firestore (v250 pikat vetëm administratori i ndryshon, v246 pikat e marketeve, v243 rikthimi i grupit (pronarUid), v242 regjistri + kërkesat për grup, v164 grupet, v221 pa chat, v229 skedarët në PC, v230 lejet; më parë v116 + v130 ekipa_push + v140 admini nga llogaria): i vendos PËRDORUESI (unë s'kam qasje)
 
-**Gjendja:** rregullat v243 (me `allow list` te `grupet/{g}`) i vendosi pronari në Firebase më 21.10.2026. **v246 (`pikaOk` + `pikat/{id}`) dhe v250 (`allow update` te `pikat` vetëm për administratorin) ende JO**: pronari duhet ta ngjisë krejt tekstin më poshtë.
+**Gjendja:** rregullat **v250** (krejt teksti më poshtë: v246 `pikaOk` + `pikat/{id}` dhe v250 `allow update` te `pikat` vetëm për administratorin) i vendosi pronari në Firebase më **22.10.2026** (i konfirmoi vetë pas v251). Më parë: v243 më 21.10.2026.
 
 Teksti i plotë që iu dha përdoruesit (zëvendëson krejt skedarin e rregullave). Dyqani lexohet vetëm nga pronari/admin-i;
 `emri`/`perdoruesi` s'falsifikohen (= emri i llogarisë); aplikacioni s'mund ta shtojë/ndryshojë fushën `emri` te
