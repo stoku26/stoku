@@ -19,6 +19,7 @@ class StokuApp : Application() {
         nisFirebase(this)
         Dyqani.nis(this)
         Sinkronizimi.nis(this)
+        Merchandiseri.nis(this)
     }
 
     companion object {

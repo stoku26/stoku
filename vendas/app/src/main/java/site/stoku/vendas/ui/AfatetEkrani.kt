@@ -45,11 +45,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import site.stoku.logjika.Afatet
+import site.stoku.logjika.Marketet
 import site.stoku.logjika.Obj
 import site.stoku.logjika.jsString
 import site.stoku.logjika.obj
 import site.stoku.vendas.Dyqani
 import site.stoku.vendas.Llogaria
+import site.stoku.vendas.Merchandiseri
 import site.stoku.vendas.Sinkronizimi
 import java.time.LocalDate
 
@@ -71,9 +73,15 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
     var fshiZgjedhjen by remember { mutableStateOf(false) }
     var fleta by remember { mutableStateOf<android.net.Uri?>(null) } // fotoja e fletës për leximin me AI
     val (fotografo, ngaGaleria) = rememberFotoEFletes { fleta = it }
+    LaunchedEffect(Unit) { Merchandiseri.pyetMarketinEPare() } // merchandiseri pa asnjë market: pyetet një herë
     if (!Llogaria.leja("afatet")) return
 
-    val te = g.afatet
+    val aktiviM by Merchandiseri.aktivi.collectAsState()
+    val lejet by Llogaria.lejet.collectAsState()
+    remember(aktiviM, lejet) { 0 }
+    val kaM = Merchandiseri.kaMarkete()
+    val idM = Merchandiseri.idAktiv()
+    val te = Merchandiseri.afatetEMarketit(g.afatet) // v241: afatet e marketit ku je ("Krejt marketet" = të gjitha)
     val nr = Afatet.numero(te)
     val numrat = mapOf("aktive" to nr.aktive, "skaduar" to nr.skaduar + nr.paDate, "afer" to nr.afer, "ok" to nr.ok, "hequr" to nr.hequr)
     fun eFiltruara(mu: String): List<Obj> {
@@ -114,6 +122,7 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                     }
                 }
                 Hapesire(16.dp)
+                CipiIMarketit(Modifier.padding(bottom = 12.dp))
                 val ai = Llogaria.leja("afatetAI")
                 val shto = Llogaria.leja("afatetShto")
                 if (ai || shto) {
@@ -159,7 +168,8 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                 Hapesire(14.dp)
                 if (lista.isEmpty()) {
                     val (titulli, teksti) = when {
-                        te.isEmpty() -> "S'ka ende asnjë afat" to "Shtoji me \"+ Shto\" ose skano barkodin."
+                        te.isEmpty() && idM != null -> "S'ka ende afate te ky market" to "Fotografo fletën ose shtoji me \"+ Shto\": ruhen te " + Merchandiseri.emri(idM) + "."
+                        te.isEmpty() -> "S'ka ende asnjë afat" to "Fotografo fletën ku janë shkruar afatet, ose shtoji me \"+ Shto\"."
                         kerkimi.isNotBlank() -> "Asgjë s'u gjet" to "Provo një kërkim tjetër."
                         filtri == "skaduar" -> "Asnjë produkt i skaduar" to "Shumë mirë!"
                         filtri == "afer" -> "Asnjë produkt afër skadimit" to "Asgjë nuk skadon brenda 30 ditëve."
@@ -173,7 +183,13 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                     }
                 }
             }
-            if (filtri == "afer" && !paFurnizues) {
+            if (kaM && idM == null) {
+                // v248: merchandiseri te "Krejt marketet": secili market me afatet e veta
+                Marketet.grupo(lista, Merchandiseri.marketet()).forEach { gr ->
+                    item(key = "m:" + gr.id) { TitulliIMarketit((gr.id.ifEmpty { null }?.let { gr.emri } ?: "Pa market") + " · " + gr.afatet.size) }
+                    items(gr.afatet, key = { "a:" + it["id"] }) { a -> KartaEAfatit(a, zgjedhja, paFurnizues, { hapur = a["id"] as String }, { zgjedhja = ndryshoZgjedhjen(zgjedhja, a["id"] as String) }) }
+                }
+            } else if (filtri == "afer" && !paFurnizues) {
                 lista.groupBy { (it["furnizuesi"] as? String).orEmpty() }.toSortedMap { a, b -> if (a.isEmpty()) 1 else if (b.isEmpty()) -1 else Afatet.KOLATORI.compare(a, b) }
                     .forEach { (f, l) ->
                         item(key = "g:$f") { Text(f.ifEmpty { "Pa furnizues" } + " · " + l.size, style = tx(13, 700, n.ink3), modifier = Modifier.padding(top = 6.dp, bottom = 8.dp)) }
@@ -279,6 +295,11 @@ private fun KartaEAfatit(a: Obj, zgjedhja: Set<String>?, paFurnizues: Boolean, h
         KutiaEDiteve(st, d)
         Column(Modifier.weight(1f)) {
             Text((a["emri"] as? String)?.ifEmpty { null } ?: (a["barkodi"] as? String)?.ifEmpty { null } ?: "(pa emër)", style = tx(15, 600, n.ink))
+            // v248: merchandiseri: te çdo afat shihet marketi ku ndodhet
+            if (Merchandiseri.kaMarkete()) {
+                val mk = a["m"] as? String
+                ShenjaEMarketit(if (mk != null && Marketet.sipasId(Merchandiseri.marketet(), mk) != null) Merchandiseri.emri(mk) else "Pa market", Modifier.padding(top = 4.dp))
+            }
             val nen = listOf(if (paFurnizues) "" else (a["furnizuesi"] as? String).orEmpty(), Afatet.sasiaTekst(a), if ((a["data"] as? String).orEmpty().isNotEmpty()) Afatet.formato(a["data"]) else "")
                 .filter { it.isNotEmpty() }.joinToString(" · ")
             if (nen.isNotEmpty()) Text(nen, style = tx(12, 400, n.muted), modifier = Modifier.padding(top = 3.dp))
@@ -333,6 +354,9 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
     var furn by remember { mutableStateOf((a?.get("furnizuesi") as? String) ?: if (a == null) Dyqani.furnizuesiNgaBarkodi(barkodiISkanuar) else "") }
     var fshi by remember { mutableStateOf(false) }
     var sugjerimet by remember { mutableStateOf(false) }
+    // v241: marketi (vetëm kur ka markete); afati i ri merr marketin ku je
+    val kaM = Merchandiseri.kaMarkete()
+    var mk by remember { mutableStateOf(if (a != null) (a["m"] as? String)?.takeIf { Marketet.sipasId(Merchandiseri.marketet(), it) != null } else Merchandiseri.idAktiv()) }
     val fEmri = remember { FocusRequester() }
     val fData = remember { FocusRequester() }
     val fBarkodi = remember { FocusRequester() }
@@ -354,16 +378,17 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
         if (st.isNotEmpty() && s == "") { Toast.trego("Sasia duhet të jetë numër i plotë (p.sh. 12)."); return }
         if (b.isEmpty() && em.isEmpty()) { Toast.trego("Shkruaj barkodin ose emrin e produktit."); fBarkodi.requestFocus(); return }
         if (iso.isEmpty()) { Toast.trego("Shkruaj datën e skadimit, p.sh. 31-12-26."); fData.requestFocus(); return }
+        if (kaM && a == null && mk == null) { Toast.trego("Zgjidh marketin ku është ky produkt."); return }
         val afPara = id?.let { Dyqani.afati(it) }
         val furnPara = (afPara?.get("furnizuesi") as? String).orEmpty()
         val f = if (paFurnizues) furnPara else furn.trim()
         val tani = System.currentTimeMillis()
         if (id != null && afPara != null) {
-            Dyqani.perditesoAfatin(id, mapOf("barkodi" to b, "emri" to em, "data" to iso, "sasia" to s, "furnizuesi" to f))
+            Dyqani.perditesoAfatin(id, mapOf("barkodi" to b, "emri" to em, "data" to iso, "sasia" to s, "furnizuesi" to f) + (if (kaM) mapOf("m" to (mk ?: "")) else emptyMap()))
             Toast.trego("Afati u ruajt.")
         } else {
             Dyqani.shtoAfatin(obj("id" to Afatet.idERe(), "barkodi" to b, "emri" to em, "data" to iso, "sasia" to s, "furnizuesi" to f,
-                "statusi" to "aktiv", "krijuarSe" to tani, "ndryshuarSe" to tani, "krijuarNga" to (Llogaria.perdoruesi.value?.emri ?: "")))
+                "statusi" to "aktiv", "krijuarSe" to tani, "ndryshuarSe" to tani, "krijuarNga" to (Llogaria.perdoruesi.value?.emri ?: "")).also { o -> if (kaM && mk != null) o["m"] = mk })
             Toast.trego(if (id != null) "Ky afat u fshi nga një pajisje tjetër ndërkohë. U ruajt si afat i ri." else "Afati u ruajt.", if (id != null) 4500 else 2600)
         }
         mbyll()
@@ -439,6 +464,7 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
                 val v = (Afatet.lexoSasine(sasia) as? Long) ?: 0L; sasia = (v + 1).toString()
             }, contentAlignment = Alignment.Center) { Text("+", style = tx(22, 600, Color.White)) }
         }
+        if (kaM) ZgjedhjaEMarketit(mk, a == null, vetemLexim) { mk = it }
         if (!paFurnizues) {
             Fusha(furn, { furn = it; sugjerimet = true }, Modifier.fillMaxWidth(), "Furnizuesi (zgjidh ose shkruaj)", vetemLexim = vetemLexim,
                 kurVeprim = { sugjerimet = false; ruaj() })

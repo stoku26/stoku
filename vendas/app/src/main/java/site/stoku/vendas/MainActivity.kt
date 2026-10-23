@@ -41,6 +41,7 @@ import site.stoku.vendas.ui.CilesimetEkrani
 import site.stoku.vendas.ui.DukeULidhur
 import site.stoku.vendas.ui.Ik
 import site.stoku.vendas.ui.N
+import site.stoku.vendas.ui.DritaretEMarketeve
 import site.stoku.vendas.ui.Porta
 import site.stoku.vendas.ui.Shenja
 import site.stoku.vendas.ui.Skaneri
@@ -72,6 +73,7 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         Perditesimi.vazhdoNesePritej(this)
         Sinkronizimi.neRikthim()
+        Merchandiseri.kontrolloGps(false) // si web-i: vendndodhja kur hapet Stoku (jo më shpesh se 2 min)
     }
 
     override fun onStop() {
@@ -124,7 +126,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
             // Shiriti me tabe poshtë
             if (meTabe) Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
             if (meTabe) Row(Modifier.fillMaxWidth().background(n.surface).navigationBarsPadding().height(64.dp)) {
-                val nAf = Afatet.numero(g.afatet)
+                val nAf = Afatet.numero(Merchandiseri.afatetEMarketit(g.afatet))
                 tabet.forEach { (k, t, ik) ->
                     val shenja = if (k == "afatet") (nAf.skaduar + nAf.afer + nAf.paDate).takeIf { it > 0 }?.let { if (it > 99) "99+" else it.toString() } else null
                     Tabi(t, ik, tabi == k, shenja, Modifier.weight(1f)) {
@@ -135,6 +137,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
             }
         }
         ToastPamja(Modifier.align(Alignment.BottomCenter), poshte = if (meTabe) 90.dp else 40.dp)
+        DritaretEMarketeve(hapMarketet = { tabi = "cilesimet"; Merchandiseri.hapFaqen.value = true })
         skanimi?.let { cb ->
             Skaneri(mbyll = { skanimi = null }) { b -> skanimi = null; cb(b) }
         }

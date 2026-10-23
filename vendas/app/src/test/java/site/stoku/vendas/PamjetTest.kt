@@ -69,6 +69,8 @@ class PamjetTest {
     private fun foto(emri: String) { r.waitForIdle(); r.onRoot().captureRoboImage("build/pamjet/$emri.png") }
     private fun fotoEkrani(emri: String) { r.waitForIdle(); captureScreenRoboImage("build/pamjet/$emri.png") }
     private fun kliko(t: String) { r.onAllNodesWithText(t)[0].performClick(); r.waitForIdle() }
+    /** I fundit me këtë tekst (p.sh. brenda një dritareje mbi faqe) */
+    private fun klikoFundit(t: String) { val l = r.onAllNodesWithText(t); l[l.fetchSemanticsNodes().size - 1].performClick(); r.waitForIdle() }
 
     private fun krejt(tema: String) {
         mbush()
@@ -139,6 +141,45 @@ class PamjetTest {
     @Test fun fletaECelet() = fleta("light")
     @Test fun fletaEErret() = fleta("dark")
     @Test fun listaEStokut() = fleta("light", stok = true)
+
+    /** Merchandiseri me dy markete: "Krejt marketet" (afatet sipas marketit), "Ku je?" me marketet afër, Cilësimet → Marketet */
+    @Test fun merchandiseri() {
+        mbush()
+        val t = System.currentTimeMillis()
+        val sot = LocalDate.now()
+        fun data(n: Long) = Afatet.isoNgaData(sot.plusDays(n))
+        val g0 = Dyqani.g
+        Dyqani.vendosPerProve(g0.copy(
+            marketet = listOf(
+                obj("id" to "kp1", "emri" to "Viva Fly", "lat" to 42.66290, "lng" to 21.16550, "p" to "p1", "ndryshuarSe" to t),
+                obj("id" to "kp2", "emri" to "Albi Mall", "lat" to 42.64920, "lng" to 21.14600, "p" to "p2", "ndryshuarSe" to t)
+            ),
+            afatet = listOf(
+                obj("id" to "a1", "barkodi" to "389001000", "emri" to "Kos Vita 500g", "data" to data(-2), "sasia" to 3L, "statusi" to "aktiv", "ndryshuarSe" to t, "m" to "kp1"),
+                obj("id" to "a2", "barkodi" to "389001001", "emri" to "Qumësht Vita 1L", "data" to data(0), "sasia" to 6L, "statusi" to "aktiv", "ndryshuarSe" to t, "m" to "kp1"),
+                obj("id" to "a3", "barkodi" to "389001002", "emri" to "Djathë i bardhë", "data" to data(4), "sasia" to 2L, "statusi" to "aktiv", "ndryshuarSe" to t, "m" to "kp2"),
+                obj("id" to "a4", "barkodi" to "389001003", "emri" to "Jogurt 200g", "data" to data(12), "sasia" to 10L, "statusi" to "aktiv", "ndryshuarSe" to t, "m" to "kp2")
+            )
+        ))
+        Llogaria.vendosPerProve(Perdoruesi("u1", "besa"), merchandiser = true)
+        Merchandiseri.vendosPerProve(listOf(
+            obj("id" to "p1", "emri" to "Viva Fly", "lat" to 42.66290, "lng" to 21.16550),
+            obj("id" to "p2", "emri" to "Albi Mall", "lat" to 42.64920, "lng" to 21.14600),
+            obj("id" to "p3", "emri" to "Meridian", "lat" to 42.66320, "lng" to 21.16610)
+        ), null)
+        r.setContent { StokuTema("light") { Rrenja("light") {} } }
+        foto("light-09-merch-stoku")
+        kliko("Afatet")
+        foto("light-10-merch-afatet")
+        Merchandiseri.dritarja.value = Merchandiseri.Dritarja.KuJe("zgjidh", site.stoku.logjika.Marketet.Pozita(42.66300, 21.16520, 12.0), true)
+        fotoEkrani("light-11-kuje")
+        klikoFundit("Viva Fly")
+        foto("light-12-je-te")
+        kliko("Cilësimet")
+        kliko("Marketet")
+        fotoEkrani("light-13-marketet")
+        Llogaria.vendosPerProve(Perdoruesi("u1", "besa"))
+    }
 
     @Test fun porta() {
         Llogaria.vendosPerProve(null)

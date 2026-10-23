@@ -69,6 +69,7 @@ import site.stoku.logjika.obj
 import site.stoku.vendas.Dyqani
 import site.stoku.vendas.LeximiAI
 import site.stoku.vendas.Llogaria
+import site.stoku.vendas.Merchandiseri
 import site.stoku.vendas.StokuApp
 import java.io.File
 
@@ -208,6 +209,32 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, stok: Boolean = false, kurRuhet: (S
         mbyll()
     }
 
+    fun ruajTeMarketi(teVlefshem: List<Rreshti>, mkId: String?) {
+        val tani = System.currentTimeMillis()
+        // E njëjta datë e të njëjtit produkt s'shtohet dy herë (në një market tjetër s'është përsëritje)
+        val ekzistuese = HashSet<String>()
+        Dyqani.g.afatet.forEach { a -> if (a["statusi"] != "hequr") ekzistuese.add(((a["m"] as? String) ?: "") + "|" + ((a["barkodi"] as? String)?.ifEmpty { null } ?: (a["emri"] as? String).orEmpty()) + "|" + a["data"]) }
+        var perseritur = 0
+        val teReja = ArrayList<Map<String, Any?>>()
+        teVlefshem.forEachIndexed { i, r ->
+            val b = r.barkodi.trim().replace(Regex("\\s+"), "")
+            val celes = (mkId ?: "") + "|" + (b.ifEmpty { r.emri.trim() }) + "|" + r.iso
+            if (!ekzistuese.add(celes)) { perseritur++; return@forEachIndexed }
+            teReja.add(obj("id" to Afatet.idERe(), "barkodi" to b, "emri" to r.emri.trim(), "data" to r.iso, "sasia" to Afatet.lexoSasine(r.sasia),
+                "furnizuesi" to if (paFurnizues) "" else r.furnizuesi.trim(), "statusi" to "aktiv", "krijuarSe" to tani + i, "ndryshuarSe" to tani,
+                "krijuarNga" to (Llogaria.perdoruesi.value?.emri ?: ""), "ngaFoto" to true).also { o -> if (mkId != null) o["m"] = mkId })
+        }
+        teReja.forEach { Dyqani.shtoAfatin(it) }
+        val nk = teReja.count { Afatet.statusi(it) == "skaduar" }
+        val nv = teReja.count { Afatet.statusi(it) == "afer" }
+        Toast.trego((if (teReja.size == 1) "U ruajt 1 afat" else "U ruajtën ${teReja.size} afate") +
+            (if (perseritur > 0) " (" + (if (perseritur == 1) "1 ekzistonte" else "$perseritur ekzistonin") + " tashmë)" else "") +
+            (if (nk > 0) " · " + (if (nk == 1) "1 ka skaduar!" else "$nk kanë skaduar!") else "") +
+            (if (nv > 0) " · " + (if (nv == 1) "1 skadon" else "$nv skadojnë") + " brenda 30 ditëve" else "") + ".", 5000)
+        kurRuhet(if (nk > 0) "skaduar" else if (nv > 0) "afer" else "aktive")
+        mbyll()
+    }
+
     fun ruaj() {
         if (stok) { importo(); return }
         if (!Llogaria.leja("afatetShto") && !Llogaria.leja("afatetAI")) return
@@ -223,29 +250,8 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, stok: Boolean = false, kurRuhet: (S
             return
         }
         if (teVlefshem.isEmpty()) { mbyll(); return }
-        val tani = System.currentTimeMillis()
-        // E njëjta datë e të njëjtit produkt s'shtohet dy herë
-        val ekzistuese = HashSet<String>()
-        Dyqani.g.afatet.forEach { a -> if (a["statusi"] != "hequr") ekzistuese.add(((a["m"] as? String) ?: "") + "|" + ((a["barkodi"] as? String)?.ifEmpty { null } ?: (a["emri"] as? String).orEmpty()) + "|" + a["data"]) }
-        var perseritur = 0
-        val teReja = ArrayList<Map<String, Any?>>()
-        teVlefshem.forEachIndexed { i, r ->
-            val b = r.barkodi.trim().replace(Regex("\\s+"), "")
-            val celes = "|" + (b.ifEmpty { r.emri.trim() }) + "|" + r.iso
-            if (!ekzistuese.add(celes)) { perseritur++; return@forEachIndexed }
-            teReja.add(obj("id" to Afatet.idERe(), "barkodi" to b, "emri" to r.emri.trim(), "data" to r.iso, "sasia" to Afatet.lexoSasine(r.sasia),
-                "furnizuesi" to if (paFurnizues) "" else r.furnizuesi.trim(), "statusi" to "aktiv", "krijuarSe" to tani + i, "ndryshuarSe" to tani,
-                "krijuarNga" to (Llogaria.perdoruesi.value?.emri ?: ""), "ngaFoto" to true))
-        }
-        teReja.forEach { Dyqani.shtoAfatin(it) }
-        val nk = teReja.count { Afatet.statusi(it) == "skaduar" }
-        val nv = teReja.count { Afatet.statusi(it) == "afer" }
-        Toast.trego((if (teReja.size == 1) "U ruajt 1 afat" else "U ruajtën ${teReja.size} afate") +
-            (if (perseritur > 0) " (" + (if (perseritur == 1) "1 ekzistonte" else "$perseritur ekzistonin") + " tashmë)" else "") +
-            (if (nk > 0) " · " + (if (nk == 1) "1 ka skaduar!" else "$nk kanë skaduar!") else "") +
-            (if (nv > 0) " · " + (if (nv == 1) "1 skadon" else "$nv skadojnë") + " brenda 30 ditëve" else "") + ".", 5000)
-        kurRuhet(if (nk > 0) "skaduar" else if (nv > 0) "afer" else "aktive")
-        mbyll()
+        // v241: marketi ku ruhen (aktivi, ose pyetet te "Krejt marketet")
+        Merchandiseri.marketiPerTeReja { mkId -> ruajTeMarketi(teVlefshem, mkId) }
     }
 
     fun anuloLeximin() {
