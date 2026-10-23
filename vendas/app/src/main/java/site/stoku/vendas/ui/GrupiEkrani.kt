@@ -666,6 +666,10 @@ private fun AfatetEGrupit(uid: String, filtri: String?, ndryshoFiltrin: (String?
             Hapesire(14.dp)
         }
         when {
+            !ngarkuar && zgj != null && ctx.ngarkuar -> item { // kolegu s'ka përmbledhje ende (s'e ka hapur versionin e ri)
+                val em = jsString(zgj["emri"] ?: "")
+                Bosh("Pa të dhëna ende", "Afatet e $em shfaqen këtu sapo ta hapë Stoku-n (versionin e ri) në telefon ose kompjuter.")
+            }
             !ngarkuar -> item { Info("Duke ngarkuar afatet…") }
             te.isEmpty() -> item {
                 when {
@@ -1008,7 +1012,7 @@ private fun RreshtiKolegut(a: Obj, ctx: Konteksti) {
             Prania(a, une, online, ctx.tani)
         }
         Column(horizontalAlignment = Alignment.End) {
-            Text(if (a["ngarkuar"] != true) "…" else nr.aktive.toString(), style = tx(20, 600, n.ink))
+            Text(if (a["ngarkuar"] == true) nr.aktive.toString() else if (ctx.ngarkuar) "–" else "…", style = tx(20, 600, n.ink))
             Text("në raft", style = tx(12, 400, n.muted))
             val sk = nr.skaduar + nr.paDate
             if (sk > 0) Text(if (sk == 1) "1 i skaduar" else "$sk të skaduara", style = txF(12.5f, 700, n.expInk), modifier = Modifier.padding(top = 2.dp))
