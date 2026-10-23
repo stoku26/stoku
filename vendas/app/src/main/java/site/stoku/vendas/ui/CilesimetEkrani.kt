@@ -93,6 +93,9 @@ fun CilesimetEkrani(tema: String, ndryshoTemen: (String) -> Unit) {
         Seksioni("Aplikacioni") {
             Rreshti(Ik.Hena, "vjollce", "Pamja", TEMAT.first { it.first == tema }.second + (if (madhesia == "e_madhe") " · E madhe" else "")) { flete = "tema" }
             Rreshti(Ik.Skano, "blu", "Skanimi", if (pda) "PDA i ndezur" else "Kamera dhe skaneri", vije = true) { flete = "skanimi" }
+            val njVersioni by site.stoku.vendas.Push.versioni.collectAsState()
+            Rreshti(Ik.Zile, "portokalli", "Njoftimet", remember(flete, njVersioni) { statusiINjoftimeve(ctx) }, vije = true) { flete = "njoftimet" }
+            if (Llogaria.leja("ora")) Rreshti(Ik.Ora, "blu", "Ora e dorës", "Galaxy Watch: lidhja me kod", vije = true) { flete = "ora" }
             if (Llogaria.leja("stoku")) Rreshti(Ik.Rendi, "portokalli", "Stoku", RENDET.first { it.first == rendi }.second, vije = true) { flete = "rendi" }
             if (Llogaria.leja("marketet")) Rreshti(Ik.Vendi, "gjelber", "Marketet", statusiIMarketeve(), vije = true) { flete = "marketet" }
         }
@@ -123,6 +126,8 @@ fun CilesimetEkrani(tema: String, ndryshoTemen: (String) -> Unit) {
             Text("Rrit pak madhësinë e gjithë tekstit dhe butonave, për lexueshmëri më të lehtë.", style = tx(13, 400, n.muted))
         }
         "skanimi" -> SkanimiFlete { flete = "" }
+        "njoftimet" -> NjoftimetFlete { flete = "" }
+        "ora" -> OraFlete { flete = "" }
         "terejat" -> TeRejatFlete(TeRejat.LISTA) { flete = "" }
         "rendi" -> Flete({ flete = "" }) {
             Text("Renditja e produkteve", style = tx(22, 700, n.ink, -0.02))
@@ -153,7 +158,12 @@ fun CilesimetEkrani(tema: String, ndryshoTemen: (String) -> Unit) {
         }
     }
     if (dil) Konfirmo("Të dilet nga llogaria?", "Të dhënat mbeten të ruajtura në llogari (cloud). Pas daljes, aplikacioni kërkon përsëri emrin e përdoruesit dhe fjalëkalimin.",
-        "Dil", mbyll = { dil = false }) { flete = ""; Sinkronizimi.dergoNesePret(); Llogaria.dil() }
+        "Dil", mbyll = { dil = false }) {
+            flete = ""; Sinkronizimi.dergoNesePret()
+            // Kjo pajisje s'merr më njoftimet e kësaj llogarie (orari ditor dhe Grupi); pa internet s'e ndal daljen
+            Toast.trego("Duke dalë…")
+            scope.launch { try { kotlinx.coroutines.withTimeoutOrNull(9000) { site.stoku.vendas.Push.caktivizo() } } catch (e: Exception) { }; Llogaria.dil() }
+        }
 }
 
 @Composable

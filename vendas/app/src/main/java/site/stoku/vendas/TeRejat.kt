@@ -8,6 +8,11 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(7, "2026-10-23", "Njoftimet dhe ora e dorës", listOf(
+            "Njoftimet e Grupit (kërkesat, heqjet nga rafti) vijnë edhe kur Stoku është i mbyllur.",
+            "Njoftimi ditor për afatet në orën që zgjedh (Cilësimet → Njoftimet), me kontrollin e serverit.",
+            "Ora e dorës (Galaxy Watch): lidhja me kodin 6-shifror; heqjet nga rafti të bëra në orë zbatohen këtu."
+        )),
         Hyrja(6, "2026-10-23", "Excel, PDF dhe Dërgo në PC", listOf(
             "Stoku: \"Eksporto në Excel\" dhe \"Eksporto në PDF\" (etiketa me barkod për printim) te çdo folder.",
             "Afatet: \"Eksporto Excel\" me kolonat, muajin dhe furnizuesin që zgjedh, edhe vetëm për afatet e zgjedhura.",

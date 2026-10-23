@@ -52,6 +52,21 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **STOKU PËR ANDROID: NJOFTIMET PUSH, NJOFTIMI DITOR DHE ORA E DORËS (23.10.2026)**: vazhdim i "Shtoji te gjitha
+   opsionet qe mungojn". `firebase-messaging` + `FcmSherbimi` (mesazhet "data" të Worker-it: titulli, teksti, tag, url →
+   njoftimi; prekja hap tabin Grupi/Afatet), kanali "stoku", leja POST_NOTIFICATIONS (Android 13+). `Push.kt` = pjesa push e
+   ekipa.js: pajisja te `grupet/{g}/push/{uid}_{hashTekst(endpoint)}` = { uid, emri, platforma: "tel", koha, endpoint: "fcm:…",
+   fcm } (pa lejen "Grupi" hiqet), POST /orari (aktiv, ora, tz, pajisja), kopja e afateve { afatet: [{ i, e, b, d, s, f, mk }] }
+   (hash + një herë në ditë, `vetemMeOrar` pa orar), statusi i serverit, rinovimi kur serveri e ka fshirë orarin, pastrimi në
+   dalje (edhe pas daljes pa internet: pref "orari_pastro"), /ora/lidh me kod dhe /ora/hequrat në rikthim (çdo 2 min).
+   Cilësimet → Njoftimet (gjendja, "Aktivizo njoftimet"/"Hap cilësimet e njoftimeve", njoftimi ditor me orë 24-orëshe nga
+   TimePicker, kontrolli i serverit) dhe → Ora e dorës. **`rt` për orën**: Firebase-i i Android-it s'e jep refresh token-in,
+   prandaj në hyrje (dhe pas ndryshimit të fjalëkalimit) merret një me REST `accounts:signInWithPassword` dhe ruhet te pref
+   "ora_rt" (hiqet në dalje); llogaritë e hyra para këtij versioni e kanë bosh deri në hyrjen e radhës (ora punon, por pa
+   kërkesat te Grupi). **FCM me paketën `site.stoku.vendas`**: APP_ID është i aplikacionit `site.stoku.app` në Firebase;
+   nëse tokeni s'vjen (Cilësimet → Njoftimet: "Telefoni s'është lidhur ende me shërbimin e njoftimeve"), pronari duhet ta
+   shtojë aplikacionin Android `site.stoku.vendas` te Firebase (Project settings → Add app) dhe APP_ID te StokuApp.kt ndërrohet.
+
 0000000. **STOKU PËR ANDROID: EXCEL, PDF, IMPORTI DHE "DËRGO NË PC" (23.10.2026)**: vazhdim i "Shtoji te gjitha opsionet qe
    mungojn". Logjika e re në `vendas/logjika`: `Xlsx.kt` (= xlsx.js: build, buildWorkbook, read me deflate/sharedStrings, CSV si
    `lexoCsvTel`), `ImportiAfateve.kt` (= pjesa e importit te afatet.js: muajiNgaEmri, dataNgaQeliza, hamendesoKolonat, plani,
