@@ -29,7 +29,7 @@ class ProvaApp : Application() {
 
 /**
  * Pamjet e ekraneve (si teste/… për web-in): të njëjtat të dhëna shembull si pamjet e web-it, e çelët dhe e errët.
- * Dalja: app/build/pamjet/*.png (GitHub Actions i jep si blob-e, për krahasim me web-in).
+ * Dalja: skedarët PNG te app/build/pamjet (GitHub Actions i jep si blob-e, për krahasim me web-in).
  */
 @OptIn(ExperimentalRoborazziApi::class)
 @RunWith(RobolectricTestRunner::class)
