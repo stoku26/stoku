@@ -52,6 +52,19 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **STOKU PËR ANDROID: EXCEL, PDF, IMPORTI DHE "DËRGO NË PC" (23.10.2026)**: vazhdim i "Shtoji te gjitha opsionet qe
+   mungojn". Logjika e re në `vendas/logjika`: `Xlsx.kt` (= xlsx.js: build, buildWorkbook, read me deflate/sharedStrings, CSV si
+   `lexoCsvTel`), `ImportiAfateve.kt` (= pjesa e importit te afatet.js: muajiNgaEmri, dataNgaQeliza, hamendesoKolonat, plani,
+   afatetNgaPlani; me `tani` opsional për testet), `Barkodi.kt` (= JsBarcode: EAN13/UPC/EAN8 me shifrën e kontrollit, përndryshe
+   CODE128 auto A/B/C). `ExcelTest` i krahason me kodin e web-it: `teste/vendas-fikstura.js` tash ekzekuton edhe xlsx.js `read()` në
+   Chromium (Playwright, `teste/pw.js`, sepse kërkon DOMParser) dhe JsBarcode nga `teste/npm` (kërkon `npm ci` atje). Në JSON s'ruhet
+   -0 (bëhet 0): mos e përdor në fikstura. Aplikacioni: `Eksportet.kt` (Excel-i i folderit, etiketat PDF me `PdfDocument`: A4 3×8,
+   vijat e barkodit si vektor, Excel-i i afateve me AX_KOLONAT, kolonat e ruajtura te pref "afatet_excel_kolonat"), `Skedaret.kt`
+   (protokolli i skedaret.js me `Blob`, copa 900 KB, 45 s për shkrim; "Ruaje në telefon" = MediaStore Downloads në Android 10+,
+   "Ruaj si…" në 8/9; "Ndaje" me FileProvider `cache/eksportet/`), `ui/EksportetUI.kt` (SkedariFlete, AfatetExcelFlete,
+   ImportiAfateveFlete). Butonat: folderi "Eksporto në Excel/PDF", Afatet "Importo Excel"/"Eksporto Excel", shiriti i zgjedhjes
+   "Excel" dhe "Zgjidh të gjitha". Mbeten: "Dërgo në PC" për fotot e fletëve (dlgKuFleta), stoku i kolegut te Grupi.
+
 0000000. **STOKU PËR ANDROID: CILËSIMET E PLOTA (23.10.2026)**: kërkesa: "Shtoji te gjitha opsionet qe mungojn" (krahasuar me
    web-in). Faza 1: `Opsionet.kt` (madhësia "normale"/"e_madhe" = dendësia ×1.12; PDA: ekrani portret, pa butonin e kamerës,
    kursori gjithmonë te barkodi; "Fshih tastierën" vetëm me PDA, te `Fusha` tastiera fshihet në fokus dhe në prekje; "Pa emër"

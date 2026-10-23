@@ -251,6 +251,24 @@ class PamjetTest {
     @Test fun cilesimetLlogaria() = cilesimi("Llogaria", "16-llogaria")
     @Test fun cilesimetTeRejat() = cilesimi("Çka ka të re", "17-terejat")
 
+    /** Excel/PDF: skedari gati ("Dërgo në PC", "Ruaje në telefon", "Ndaje"), Excel-i i afateve, importi */
+    @Test fun eksportet() {
+        mbush()
+        r.setContent { StokuTema("light") { Rrenja("light") {} } }
+        kliko("Pije")
+        foto("light-18-folderi-excel")
+        kliko("Eksporto Excel")
+        fotoEkrani("light-19-skedari")
+        kliko("Anulo")
+        r.onNodeWithContentDescription("Foldera").performClick(); r.waitForIdle()
+        kliko("Afatet")
+        kliko("Eksporto Excel")
+        fotoEkrani("light-20-afatet-excel")
+        klikoFundit("Anulo")
+        kliko("Importo Excel")
+        fotoEkrani("light-21-importi")
+    }
+
     @Test fun porta() {
         Llogaria.vendosPerProve(null)
         r.setContent { StokuTema("light") { Porta() } }

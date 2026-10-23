@@ -8,6 +8,12 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(6, "2026-10-23", "Excel, PDF dhe Dërgo në PC", listOf(
+            "Stoku: \"Eksporto në Excel\" dhe \"Eksporto në PDF\" (etiketa me barkod për printim) te çdo folder.",
+            "Afatet: \"Eksporto Excel\" me kolonat, muajin dhe furnizuesin që zgjedh, edhe vetëm për afatet e zgjedhura.",
+            "Afatet: \"Importo Excel\" nga skedarë .xlsx ose .csv, me parapamje para importit.",
+            "Çdo skedar mund ta dërgosh në PC (te Përmbledhja, me \"Shkarko\"), ta ruash në telefon ose ta ndash."
+        )),
         Hyrja(5, "2026-10-23", "Cilësimet e plota", listOf(
             "Pamja: madhësia e shkronjave (Normale ose E madhe).",
             "Skanimi: PDA me skaner të brendshëm (ekrani në portret, pa butonin e kamerës, kursori te barkodi), fshih tastierën në ekran, tingulli i skanimit, kursori te fusha e barkodit për skanerët me USB ose Bluetooth, dhe regjistrimi pa emër.",

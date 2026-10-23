@@ -37,6 +37,11 @@ statistikat), Afatet e krejt grupit ose të një kolegu, Aktiviteti, Kalendari, 
 emri i grupit, admini, njoftimi për krejt grupin, largimi), zilja me njoftimet (prano/refuzo heqjen e kolegut), "Kërko heqje
 nga rafti", pa grup: ftesat, "Hyr në një grup" dhe "Krijo grupin tënd". Të dhënat janë të njëjtat që shkruan web-i.
 
+**Excel, PDF dhe "Dërgo në PC"** (`Eksportet.kt`, `Skedaret.kt`, `ui/EksportetUI.kt`): Excel-i dhe etiketat PDF të folderit,
+Excel-i i afateve (kolonat, muaji, furnizuesi, të zgjedhurat), importi i afateve nga .xlsx/.csv. Çdo skedar: "Dërgo në PC"
+(protokolli i `skedaret.js`), "Ruaje në telefon" (Shkarkimet) ose "Ndaje". Logjika (`logjika/Xlsx.kt`, `ImportiAfateve.kt`,
+`Barkodi.kt`) krahasohet me xlsx.js, afatet.js dhe JsBarcode në `ExcelTest`.
+
 **Leximi me AI**: aplikacioni dërgon foton te `https://stoku-afatet.mendurb.workers.dev` me tokenin e llogarisë dhe me
 `Origin: https://stoku.site` (si web-i). Nëse Worker-i kthen "origjina", i duhet lejuar kjo kërkesë (pronari, te Cloudflare).
 
@@ -45,5 +50,5 @@ nga rafti", pa grup: ftesat, "Hyr në një grup" dhe "Krijo grupin tënd". Të d
 GitHub Actions (job-i `pamjet`, vetëm jashtë `main`) i ruan PNG-të si blob-e të git-it dhe i shënon te "annotations".
 
 ## Çka mungon ende (fazat e ardhshme)
-Harta e marketeve, importet nga Excel, Excel/PDF, "Dërgo në PC", njoftimet push, ora e dorës, faqja e administratorit
-(Përdoruesit, Furnizuesit, Produktet) dhe veprimet e administratorit te Grupi.
+Harta e marketeve, njoftimet push, ora e dorës, faqja e administratorit (Përdoruesit, Furnizuesit, Produktet), veprimet e
+administratorit te Grupi, stoku i kolegut te Grupi dhe "Dërgo në PC" për fotot e fletëve.

@@ -73,6 +73,9 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
     var zgjedhja by remember { mutableStateOf<Set<String>?>(null) }
     var fshiZgjedhjen by remember { mutableStateOf(false) }
     var fleta by remember { mutableStateOf<android.net.Uri?>(null) } // fotoja e fletës për leximin me AI
+    var excel by remember { mutableStateOf<String?>(null) } // "krejt" = krejt lista (me muajin), "zgjedhura" = vetëm të zgjedhurat
+    var importi by remember { mutableStateOf(false) }
+    var skedari by remember { mutableStateOf<site.stoku.vendas.Skedari?>(null) }
     val (fotografo, ngaGaleria) = rememberFotoEFletes { fleta = it }
     LaunchedEffect(Unit) { Merchandiseri.pyetMarketinEPare() } // merchandiseri pa asnjë market: pyetet një herë
     if (!Llogaria.leja("afatet")) return
@@ -152,6 +155,17 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                     }
                     Hapesire(12.dp)
                 }
+                val lejaImp = Llogaria.leja("afatetImporto")
+                val lejaEks = Llogaria.leja("eksportExcel")
+                if (lejaImp || lejaEks) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        if (lejaImp) Buton("Importo Excel", { importi = true }, Modifier.weight(1f), lloji = "dyte", ikona = Ik.Ngarko, lartesia = 44.dp)
+                        if (lejaEks) Buton("Eksporto Excel", {
+                            if (te.isEmpty()) Toast.trego("S'ka afate për eksport.") else excel = "krejt"
+                        }, Modifier.weight(1f), lloji = "dyte", ikona = Ik.Excel, lartesia = 44.dp)
+                    }
+                    Hapesire(12.dp)
+                }
                 Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), "Kërko emër, barkod ose furnizues", ikona = Ik.Kerko)
                 Hapesire(12.dp)
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -206,6 +220,15 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                 .background(n.invBg).padding(horizontal = 14.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Ik.X, "Anulo", Modifier.size(32.dp).clip(CircleShape).clickable { zgjedhja = null }.padding(6.dp), tint = n.invFg)
                 Text(if (z.size == 1) "1 e zgjedhur" else "${z.size} të zgjedhura", style = tx(14, 600, n.invFg), modifier = Modifier.weight(1f).padding(start = 6.dp))
+                // "Zgjidh të gjitha" (sërish = asnjë), si afZgjTeGjitha te web-i
+                val idsLista = lista.mapNotNull { it["id"] as? String }
+                Icon(Ik.Kontroll, "Zgjidh të gjitha", Modifier.size(36.dp).clip(CircleShape).clickable {
+                    zgjedhja = if (idsLista.isNotEmpty() && idsLista.all { z.contains(it) }) emptySet() else idsLista.toSet()
+                }.padding(8.dp), tint = n.invFg)
+                if (Llogaria.leja("eksportExcel")) Row(Modifier.clip(RoundedCornerShape(10.dp)).clickable { if (z.isNotEmpty()) excel = "zgjedhura" }.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Ik.Excel, null, Modifier.size(18.dp), tint = n.invFg); Spacer(Modifier.width(6.dp)); Text("Excel", style = tx(14, 600, n.invFg))
+                }
                 if (Llogaria.leja("afatetFshi")) Row(Modifier.clip(RoundedCornerShape(10.dp)).clickable { fshiZgjedhjen = true }.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(Ik.Kosh, null, Modifier.size(18.dp), tint = n.exp); Spacer(Modifier.width(6.dp)); Text("Fshi", style = tx(14, 600, n.exp))
                 }
@@ -215,6 +238,12 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
 
     hapur?.let { id -> AfatiFlete(id.ifEmpty { null }, skanuar.also { skanuar = "" }, skano) { hapur = null } }
     fleta?.let { u -> FletaEkrani(u, mbyll = { fleta = null }) { f -> filtri = f; muaji = ""; zgjedhja = null } }
+    excel?.let { lloji ->
+        val zgj = if (lloji == "zgjedhura") zgjedhja.orEmpty().let { z -> te.filter { a -> (a["id"] as? String)?.let { z.contains(it) } == true } } else null
+        AfatetExcelFlete(zgj, { mu -> eFiltruara(mu) }, muaji, filtri, mbyll = { excel = null }) { sk -> skedari = sk }
+    }
+    if (importi) ImportiAfateveFlete(mbyll = { importi = false }) { filtri = "aktive"; muaji = ""; zgjedhja = null }
+    skedari?.let { sk -> SkedariFlete(sk) { skedari = null } }
     if (fshiZgjedhjen) {
         val ids = zgjedhja.orEmpty()
         Konfirmo(if (ids.size == 1) "Të fshihet 1 afat?" else "Të fshihen ${ids.size} afate?",

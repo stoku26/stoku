@@ -299,3 +299,9 @@ fun <V> renditjaJs(m: Map<String, V>): List<String> {
 
 /** Math.round i JavaScript-it (gjysma lart; numrat shumë të mëdhenj mbeten) */
 fun jsRound(n: Double): Double = if (!n.isFinite() || Math.abs(n) >= 4.503599627370496E15) n else Math.floor(n + 0.5)
+
+// Hapësirat e `\s` të JavaScript-it (edhe ato Unicode), për klasa regex-i: "[$JS_HAPESIRAT]" (punon edhe në Android)
+const val JS_HAPESIRAT = "\\s\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF"
+private val JS_SKAJET = Regex("^[$JS_HAPESIRAT]+|[$JS_HAPESIRAT]+$")
+/** String.prototype.trim() i JavaScript-it */
+fun jsTrim(s: String): String = s.replace(JS_SKAJET, "")
