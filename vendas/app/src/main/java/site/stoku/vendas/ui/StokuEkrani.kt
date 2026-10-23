@@ -48,6 +48,7 @@ import site.stoku.logjika.Obj
 import site.stoku.logjika.jsString
 import site.stoku.vendas.Dyqani
 import site.stoku.vendas.Llogaria
+import site.stoku.vendas.Opsionet
 import site.stoku.vendas.StokuApp
 import site.stoku.vendas.Sinkronizimi
 import java.util.Calendar
@@ -290,6 +291,15 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
             (it["furnizuesi"] as? String).orEmpty().lowercase().contains(k)
     }
     val lejaShpejt = Llogaria.leja("stokuPlusMinus")
+    val pda by Opsionet.pda.collectAsState()
+    val kursori by Opsionet.kursori.collectAsState()
+    // PDA: kursori te barkodi që në hapje; pas produktit kthehet te barkodi (PDA, ose skaneri i jashtëm kur barkodi erdhi nga fusha)
+    var hapurNjeHere by remember { mutableStateOf(false) }
+    androidx.compose.runtime.LaunchedEffect(hapur) {
+        if (hapur != null) { hapurNjeHere = true; return@LaunchedEffect }
+        val kthe = pda || (hapurNjeHere && burimi == "fushe" && kursori)
+        if (kthe) { kotlinx.coroutines.delay(200); try { fBarkodi.requestFocus() } catch (e: Exception) { } }
+    }
 
     fun hapBarkodin(b0: String, nga: String) {
         val b = b0.trim()
@@ -317,7 +327,7 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
                 Fusha(barkodi, { barkodi = it }, Modifier.fillMaxWidth(), "Barkodi", ikona = Ik.Barkod, fokusi = fBarkodi,
                     veprimi = ImeAction.Go, kurVeprim = { val b = barkodi; barkodi = ""; hapBarkodin(b, "fushe") })
                 Hapesire(10.dp)
-                if (Llogaria.leja("kamera")) {
+                if (Llogaria.leja("kamera") && !pda) {
                     Buton("Skano me kamerë", { skano { b -> hapBarkodin(b, "kamera") } }, Modifier.fillMaxWidth(), ikona = Ik.Skano)
                     Hapesire(10.dp)
                 }
@@ -422,13 +432,15 @@ fun ProduktiFlete(folderId: String, barkodi: String, burimi: String, mbyll: () -
     var fshi by remember { mutableStateOf(false) }
     val paFurnizues = Llogaria.eshteMerchandiser()
     val fSasia = remember { FocusRequester() }
+    // "Pa emër": produktet e reja regjistrohen pa emër dhe fusha e emrit fshihet (atyre që kanë emër s'u fshihet)
+    val paEmer = Opsionet.paEmer.collectAsState().value && e == null
 
     fun ruaj() {
         if (Dyqani.g.foldera.none { it["id"] == folderId }) { mbyll(); Toast.trego("Folderi u fshi nga një pajisje tjetër. Produkti s'u ruajt.", 4500); return }
         val ekz = Dyqani.produkti(folderId, barkodi)
         if (!Llogaria.leja(if (ekz != null) "stokuNdrysho" else "stokuShto")) { mbyll(); return }
-        val em = emri.trim()
-        if (em.isEmpty()) { Toast.trego("Shkruaj emrin e produktit."); return }
+        val em = if (paEmer) "" else emri.trim()
+        if (em.isEmpty() && !paEmer) { Toast.trego("Shkruaj emrin e produktit."); return }
         val ts = sasia.trim()
         if (!Regex("^-?\\d+$").matches(ts)) { Toast.trego("Shkruaj sasinë (numër i plotë)."); fSasia.requestFocus(); return }
         if (!Afatet.sasiaEPranueshme(ts)) { Toast.trego(Afatet.SASIA_E_MADHE, 4500); return }
@@ -440,7 +452,7 @@ fun ProduktiFlete(folderId: String, barkodi: String, burimi: String, mbyll: () -
     Flete(mbyll) {
         Text(if (e != null) "Produkti ekziston (tani: ${sasiaE(e)})" else "Produkt i ri", style = tx(22, 700, n.ink, -0.02))
         Text("Barkodi: $barkodi", style = tx(15, 400, n.ink2))
-        Fusha(emri, { emri = it }, Modifier.fillMaxWidth(), "Emri", veprimi = ImeAction.Next)
+        if (!paEmer) Fusha(emri, { emri = it }, Modifier.fillMaxWidth(), "Emri", veprimi = ImeAction.Next)
         if (!paFurnizues) Fusha(furn, { furn = it }, Modifier.fillMaxWidth(), "Furnizuesi (opsional)", veprimi = ImeAction.Next)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             KatrorSasie("−") { val v = sasia.trim().toLongOrNull() ?: 0L; sasia = (v - 1).toString() }
@@ -457,7 +469,7 @@ fun ProduktiFlete(folderId: String, barkodi: String, burimi: String, mbyll: () -
     }
     androidx.compose.runtime.LaunchedEffect(Unit) {
         kotlinx.coroutines.delay(250)
-        try { if (e != null || emri.isNotEmpty()) fSasia.requestFocus() } catch (x: Exception) { }
+        try { if (e != null || paEmer || emri.isNotEmpty()) fSasia.requestFocus() } catch (x: Exception) { }
     }
     if (zhvendos) ZhvendosFlete(folderId, barkodi, { zhvendos = false }) { mbyll() }
     if (fshi) Konfirmo("Të fshihet produkti?", "\"" + (emri.ifEmpty { barkodi }) + "\" fshihet nga ky folder.", "Fshi", mbyll = { fshi = false }) {

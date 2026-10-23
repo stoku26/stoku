@@ -25,7 +25,7 @@ import java.time.LocalDate
 
 /** Aplikacioni pa Firebase për testet e pamjeve */
 class ProvaApp : Application() {
-    override fun onCreate() { super.onCreate(); StokuApp.vendosPerProve(this) }
+    override fun onCreate() { super.onCreate(); StokuApp.vendosPerProve(this); StokuApp.prefs(this).edit().putInt("te_rejat_pare", 999).apply() }
 }
 
 /**
@@ -237,6 +237,19 @@ class PamjetTest {
 
     @Test fun grupiECelet() = grupi("light")
     @Test fun grupiEErret() = grupi("dark")
+
+    /** Cilësimet: një dritare (Skanimi, Pamja, Llogaria, Çka ka të re) */
+    private fun cilesimi(rreshti: String, emri: String) {
+        mbush()
+        r.setContent { StokuTema("light") { Rrenja("light") {} } }
+        kliko("Cilësimet")
+        kliko(rreshti)
+        fotoEkrani("light-$emri")
+    }
+    @Test fun cilesimetSkanimi() = cilesimi("Skanimi", "14-skanimi")
+    @Test fun cilesimetPamja() = cilesimi("Pamja", "15-pamja")
+    @Test fun cilesimetLlogaria() = cilesimi("Llogaria", "16-llogaria")
+    @Test fun cilesimetTeRejat() = cilesimi("Çka ka të re", "17-terejat")
 
     @Test fun porta() {
         Llogaria.vendosPerProve(null)

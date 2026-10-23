@@ -151,6 +151,62 @@ object Llogaria {
 
     fun dil() { ndalDegjuesit(); auth.signOut() }
 
+    // ---------------- Ndryshimi i emrit dhe i fjalëkalimit (si firebase-tel.js) ----------------
+    /**
+     * Emri i ri i përdoruesit (emri@stoku-app.local). Firebase-i i Android-it s'e ka më `updateEmail`, prandaj bëhet me
+     * API-në e Firebase Auth (si `updateEmail` i web-it). → null (u ndryshua) ose arsyeja: "emri", "zene", "rihyrje",
+     * "konfigurim" (Email enumeration protection), "rrjeti".
+     */
+    suspend fun ndryshoEmrin(emriRi0: String): String? {
+        val emriRi = emriRi0.trim().lowercase()
+        if (!Regex("^[a-z0-9_.-]{3,40}$").matches(emriRi)) return "emri"
+        val u = auth.currentUser ?: return "pa-hyrje"
+        return try {
+            val token = u.getIdToken(true).await().token ?: return "rrjeti"
+            val gabim = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                val c = java.net.URL("https://identitytoolkit.googleapis.com/v1/accounts:update?key=" + StokuApp.CELESI_PUBLIK).openConnection() as java.net.HttpURLConnection
+                c.requestMethod = "POST"; c.doOutput = true; c.connectTimeout = 15000; c.readTimeout = 20000
+                c.setRequestProperty("Content-Type", "application/json")
+                c.outputStream.use { it.write(Json.shkruaj(mapOf("idToken" to token, "email" to emailIBrendshem(emriRi), "returnSecureToken" to false)).toByteArray()) }
+                if (c.responseCode in 200..299) null
+                else (c.errorStream?.bufferedReader()?.readText() ?: "").let { t ->
+                    when {
+                        t.contains("EMAIL_EXISTS") -> "zene"
+                        t.contains("CREDENTIAL_TOO_OLD") || t.contains("TOKEN_EXPIRED") -> "rihyrje"
+                        t.contains("OPERATION_NOT_ALLOWED") -> "konfigurim"
+                        t.contains("INVALID_EMAIL") -> "emri"
+                        else -> "rrjeti"
+                    }
+                }
+            }
+            if (gabim != null) return gabim
+            try { u.reload().await() } catch (e: Exception) { }
+            _perdoruesi.value = Perdoruesi(u.uid, emriRi)
+            regjistroPerdoruesin(Perdoruesi(u.uid, emriRi)) // lista e kolegëve e merr emrin e ri menjëherë
+            StokuApp.prefs(ctx).edit().putString("emri_i_fundit", emriRi).apply()
+            null
+        } catch (e: Exception) { "rrjeti" }
+    }
+
+    /** → null, "rihyrje" (duhet fjalëkalimi aktual), "i-dobet" ose "rrjeti" */
+    suspend fun ndryshoFjalekalimin(fjalekalimiRi: String): String? {
+        val u = auth.currentUser ?: return "pa-hyrje"
+        return try { u.updatePassword(fjalekalimiRi).await(); null } catch (e: Exception) {
+            when (e) {
+                is com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException -> "rihyrje"
+                is FirebaseAuthWeakPasswordException -> "i-dobet"
+                else -> "rrjeti"
+            }
+        }
+    }
+
+    /** Konfirmimi me fjalëkalimin aktual (Firebase e kërkon për ndryshimet e llogarisë pas një kohe) → true kur u pranua */
+    suspend fun riautentifikohu(fjalekalimiAktual: String): Boolean {
+        val u = auth.currentUser ?: return false
+        val email = u.email ?: return false
+        return try { u.reauthenticate(com.google.firebase.auth.EmailAuthProvider.getCredential(email, fjalekalimiAktual)).await(); true } catch (e: Exception) { false }
+    }
+
     fun emriIFundit(): String = StokuApp.prefs(StokuApp.app).getString("emri_i_fundit", "") ?: ""
 
     private fun tekstiGabimit(e: Exception): String = when (e) {

@@ -128,6 +128,12 @@ object Dyqani {
     }
 
     /** Pas sinkronizimit të suksesshëm: shënimet më të vjetra se 120 ditë hiqen */
+    /** "Rikthe nga cloud": fshirjet e kësaj pajisjeje harrohen (përndryshe bashkimi i fshinte sërish) */
+    fun harroFshirjet() {
+        synchronized(fshira) { fshira.values.forEach { @Suppress("UNCHECKED_CAST") (it as? MutableMap<String, Any?>)?.clear() } }
+        ruajSkedarin()
+    }
+
     fun pastroFshirjet() {
         synchronized(fshira) {
             @Suppress("UNCHECKED_CAST")

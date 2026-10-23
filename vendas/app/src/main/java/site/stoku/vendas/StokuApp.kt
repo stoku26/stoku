@@ -63,10 +63,13 @@ class StokuApp : Application() {
         fun prefsOse(k: String, ose: String): String = prefs(app).getString(k, ose) ?: ose
         fun prefsOseB(k: String, ose: Boolean): Boolean = prefs(app).getBoolean(k, ose)
         fun vendosPref(k: String, v: String) { prefs(app).edit().putString(k, v).apply() }
+        fun vendosPrefB(k: String, v: Boolean) { prefs(app).edit().putBoolean(k, v).apply() }
 
         // I njëjti projekt si web-i dhe aplikacioni tel/ (çelësi është publik; mbrojtja = rregullat e Firestore-it)
         private const val PROJEKTI = "stoku-appi"
         private const val CELESI = "AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY"
+        /** Çelësi publik i Firebase-it (si te web-i; mbrojtja = rregullat), për thirrjet direkte të API-së */
+        const val CELESI_PUBLIK = CELESI
         private const val APP_ID = "1:107114545225:android:c661e53203861d1877bf98"
         private const val DERGUESI = "107114545225"
 

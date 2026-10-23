@@ -61,6 +61,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(0, 0), navigationBarStyle = SystemBarStyle.auto(0, 0))
         setContent {
             var tema by remember { mutableStateOf(StokuApp.prefsOse("tema", "auto")) }
+            val madhesia by Opsionet.madhesia.collectAsState()
+            val pda by Opsionet.pda.collectAsState()
+            // PDA: ekrani kyçet në portret (si te web-i)
+            LaunchedEffect(pda) {
+                requestedOrientation = if (pda) android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT else android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
+            // "E madhe": krejt teksti dhe butonat pak më të mëdhenj (si zoom-i i web-it)
+            val d0 = androidx.compose.ui.platform.LocalDensity.current
+            val dendesia = if (madhesia == "e_madhe") androidx.compose.ui.unit.Density(d0.density * 1.12f, d0.fontScale) else d0
+            androidx.compose.runtime.CompositionLocalProvider(androidx.compose.ui.platform.LocalDensity provides dendesia) {
             StokuTema(tema) {
                 val erret = N.erret
                 LaunchedEffect(erret) {
@@ -72,6 +82,7 @@ class MainActivity : ComponentActivity() {
                 if (rrezimi.isNotEmpty() || !StokuApp.moduletNisur) EkraniIRrezimit(rrezimi) {
                     StokuApp.vendosPref("rrezimi_i_fundit", ""); rrezimi = ""; StokuApp.nisModulet()
                 } else Rrenja(tema) { tema = it; StokuApp.vendosPref("tema", it) }
+            }
             }
         }
         Perditesimi.kontrollo(this, false)
@@ -164,6 +175,9 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
         }
         ToastPamja(Modifier.align(Alignment.BottomCenter), poshte = if (meTabe) 90.dp else 40.dp)
         DritaretEMarketeve(hapMarketet = { tabi = "cilesimet"; Merchandiseri.hapFaqen.value = true })
+        // "Çka ka të re": një herë pas përditësimit
+        var teRejat by remember { mutableStateOf(TeRejat.teReja()) }
+        if (teRejat.isNotEmpty()) site.stoku.vendas.ui.TeRejatFlete(teRejat) { teRejat = emptyList() }
         skanimi?.let { cb ->
             Skaneri(mbyll = { skanimi = null }) { b -> skanimi = null; cb(b) }
         }
