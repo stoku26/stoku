@@ -15,15 +15,26 @@ regjistri i produkteve (`kujtesa/*`).
 
 ## Moduli `logjika/`
 Logjika pa Android, e përkthyer nga web-i: `bashkimi.js` → `Bashkimi.kt`, `ruajtja.js` (pjesët, hash-i) → `Ruajtja.kt`,
-`afatet.js` (statuset, datat, tekstet) → `Afatet.kt`, `lejet.js` → `Lejet.kt`. Testet (`logjika/src/test`) e krahasojnë me
+`afatet.js` (statuset, datat, tekstet, rreshtat e AI-së) → `Afatet.kt`, `lejet.js` → `Lejet.kt`, `marketet.js` (pikat, kufiri
+20 m, shtimi, sinkronizimi me pikat) → `Marketet.kt`. Testet (`logjika/src/test`) e krahasojnë me
 kodin e vërtetë të web-it në qindra raste (`src/test/resources/fikstura.json`, krijuar nga `node teste/vendas-fikstura.js`):
 kur ndryshon logjika e web-it, rikrijo fiksturat dhe përshtate Kotlinin derisa testet të kalojnë.
 
 ## Çka ka (faza 1)
-Hyrja / krijimi i llogarisë (me "Punoj si merchandiser"), Stoku (folderat, produktet, kërkimi, +/-, skanimi, zhvendosja,
-fshirja, folder i ri), Afatet (lista me ngjyra, filtrat, muajt, afat i ri / ndryshimi, "U hoq nga rafti", zgjedhja e
-shumëfishtë), Cilësimet (pamja, renditja, llogaria, versioni), sinkronizimi me Firebase dhe lejet e llogarisë.
+Hyrja / krijimi i llogarisë (me "Punoj si merchandiser") dhe "Ke harruar fjalëkalimin?", Stoku (folderat, produktet,
+kërkimi, +/-, skanimi, zhvendosja, fshirja, folder i ri), Afatet (lista me ngjyra, filtrat, muajt, afat i ri / ndryshimi,
+"U hoq nga rafti", zgjedhja e shumëfishtë, **"Fotografo fletën"**: fotoja (kamera ose galeria) lexohet me AI nga Worker-i
+`stoku-afatet`, rreshtat kontrollohen dhe ruhen si te web-i), Cilësimet (pamja, renditja, llogaria, versioni), sinkronizimi
+me Firebase dhe lejet e llogarisë.
+
+**Leximi me AI**: aplikacioni dërgon foton te `https://stoku-afatet.mendurb.workers.dev` me tokenin e llogarisë dhe me
+`Origin: https://stoku.site` (si web-i). Nëse Worker-i kthen "origjina", i duhet lejuar kjo kërkesë (pronari, te Cloudflare).
+
+## Pamjet (pa telefon)
+`app/src/test/.../PamjetTest.kt` (Robolectric + Roborazzi) i vizaton ekranet me të dhënat shembull të pamjeve të web-it.
+GitHub Actions (job-i `pamjet`, vetëm jashtë `main`) i ruan PNG-të si blob-e të git-it dhe i shënon te "annotations".
 
 ## Çka mungon ende (fazat e ardhshme)
-Grupi (kolegët), marketet e merchandiserëve (GPS, harta), fotografimi i fletës me AI, importet, Excel/PDF, njoftimet push,
-ora e dorës, faqja e administratorit (Përdoruesit, Furnizuesit, Produktet), "Ke harruar fjalëkalimin?".
+Grupi (kolegët), marketet e merchandiserëve në ekran (GPS, "Je te", harta; logjika është gati te `Marketet.kt`), importi i
+stokut nga foto, importet nga Excel, Excel/PDF, "Dërgo në PC", njoftimet push, ora e dorës, faqja e administratorit
+(Përdoruesit, Furnizuesit, Produktet).

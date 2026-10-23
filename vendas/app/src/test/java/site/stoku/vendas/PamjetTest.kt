@@ -2,7 +2,11 @@ package site.stoku.vendas
 
 import android.app.Application
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.isRoot
+import androidx.compose.ui.test.onAllNodes
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
@@ -78,6 +82,7 @@ class PamjetTest {
         kliko("Ujë Rugove 1.5L")
         fotoEkrani("$tema-03-produkti")
         kliko("Anulo")
+        r.onNodeWithContentDescription("Foldera").performClick(); r.waitForIdle() // brenda folderit s'ka tabe (si te web-i)
         kliko("Afatet")
         foto("$tema-04-afatet")
         kliko("Shto")
@@ -91,7 +96,7 @@ class PamjetTest {
     @Test fun eErret() = krejt("dark")
 
     /** "Kontrollo fletën": foto provë (fletë e bardhë me rreshta) dhe përgjigje e AI-së pa rrjet */
-    private fun fleta(tema: String) {
+    private fun fleta(tema: String, stok: Boolean = false) {
         mbush()
         val ctx = org.robolectric.RuntimeEnvironment.getApplication()
         val bm = android.graphics.Bitmap.createBitmap(1200, 1600, android.graphics.Bitmap.Config.ARGB_8888)
@@ -104,21 +109,36 @@ class PamjetTest {
         val f = java.io.File(ctx.cacheDir, "fleta-prove.jpg")
         f.outputStream().use { bm.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, it) }
         val sot = LocalDate.now()
-        LeximiAI.lexoPerProve = {
+        LeximiAI.lexoPerProve = if (stok) { _ ->
+            LeximiAI.Rez.Ok(listOf(
+                obj("barkodi" to "389001000", "emri" to "Ujë Rugove 1.5L", "sasia" to "60+30", "furnizuesi" to "Rugove"),
+                obj("barkodi" to "389009999", "emri" to "Lëng Molle 1L", "sasia" to 12L),
+                obj("barkodi" to "", "emri" to "Çaj i zi", "sasia" to "")
+            ).map { Afatet.normalizoRreshtin(it) })
+        } else { _ ->
             LeximiAI.Rez.Ok(listOf(
                 obj("barkodi" to "389001000", "emri" to "Kos Vita 500g", "data" to Afatet.isoNgaData(sot.plusDays(3)), "data_origjinale" to "26.10.26", "sasia" to 6L, "furnizuesi" to "Vita"),
                 obj("barkodi" to "389001002", "data" to "", "data_origjinale" to "3?.1?.26", "sasia" to "2", "dyshim" to true),
                 obj("emri" to "Jogurt 200g", "data" to Afatet.isoNgaData(sot.minusDays(1)), "sasia" to "12")
             ).map { Afatet.normalizoRreshtin(it) })
         }
-        r.setContent { StokuTema(tema) { site.stoku.vendas.ui.FletaEkrani(android.net.Uri.fromFile(f), {}, {}) } }
-        r.waitUntil(15000) { r.onAllNodesWithText("Ruaj 3 afate").fetchSemanticsNodes().isNotEmpty() }
-        fotoEkrani("$tema-07-fleta")
+        r.setContent { StokuTema(tema) { site.stoku.vendas.ui.FletaEkrani(android.net.Uri.fromFile(f), {}, stok) } }
+        // Fotoja përgatitet në një fill tjetër: prit duke e lënë fillin kryesor të punojë
+        val pritur = if (stok) "Importo 3 produkte" else "Ruaj 3 afate"
+        var gati = false
+        for (i in 0 until 400) {
+            r.waitForIdle()
+            if (r.onAllNodesWithText(pritur).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()) { gati = true; break }
+            Thread.sleep(50)
+        }
+        fotoEkrani(if (stok) "$tema-08-lista" else "$tema-07-fleta")
+        if (!gati) throw AssertionError("S'u gjet \"$pritur\". Ekrani: " + r.onAllNodes(isRoot()).printToString().take(1400))
         LeximiAI.lexoPerProve = null
     }
 
     @Test fun fletaECelet() = fleta("light")
     @Test fun fletaEErret() = fleta("dark")
+    @Test fun listaEStokut() = fleta("light", stok = true)
 
     @Test fun porta() {
         Llogaria.vendosPerProve(null)

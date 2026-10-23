@@ -99,8 +99,8 @@ object LeximiAI {
     /** Vetëm për testet e pamjeve: përgjigjja e AI-së pa rrjet */
     var lexoPerProve: (suspend (Foto) -> Rez)? = null
 
-    /** POST te Worker-i: { image, mime, sot } me tokenin e llogarisë → rreshtat (normalizoRreshtin) */
-    suspend fun lexo(foto: Foto): Rez = withContext(Dispatchers.IO) {
+    /** POST te Worker-i: { image, mime, sot } me tokenin e llogarisë → rreshtat (normalizoRreshtin). synim "stok" = importi i stokut */
+    suspend fun lexo(foto: Foto, synim: String? = null): Rez = withContext(Dispatchers.IO) {
         lexoPerProve?.let { return@withContext it(foto) }
         val u = (try { FirebaseAuth.getInstance().currentUser } catch (e: Exception) { null }) ?: return@withContext Rez.Gabim("pa-hyrje")
         val tokeni = try { u.getIdToken(false).await().token } catch (e: Exception) { null }
@@ -115,7 +115,7 @@ object LeximiAI {
             // Worker-i pranon kërkesat e Stoku-t (si aplikacioni web dhe aplikacioni tel/ me WebView)
             c.setRequestProperty("Origin", "https://stoku.site")
             val koka = "{\"image\":\"".toByteArray()
-            val bishti = ("\",\"mime\":\"image/jpeg\",\"sot\":\"" + Afatet.sot() + "\"}").toByteArray()
+            val bishti = ("\",\"mime\":\"image/jpeg\",\"sot\":\"" + Afatet.sot() + "\"" + (if (synim != null) ",\"synim\":\"$synim\"" else "") + "}").toByteArray()
             val trupi = foto.base64.toByteArray(Charsets.US_ASCII)
             c.setFixedLengthStreamingMode(koka.size + trupi.size + bishti.size)
             c.outputStream.use { it.write(koka); it.write(trupi); it.write(bishti) }

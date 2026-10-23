@@ -75,6 +75,13 @@ private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, Str
     var kerkimi by remember { mutableStateOf("") }
     var folderIRi by remember { mutableStateOf(false) }
     var perFshirje by remember { mutableStateOf<Obj?>(null) }
+    var fletaStok by remember { mutableStateOf<android.net.Uri?>(null) } // importi i stokut nga një fletë (foto)
+    val (fotoStok, galeriaStok) = rememberFotoEFletes("stokuImporto") { fletaStok = it }
+    fun kaFolder(): Boolean {
+        if (g.foldera.isNotEmpty()) return true
+        if (Llogaria.leja("stokuFoldera")) { Toast.trego("Krijo fillimisht një folder."); folderIRi = true } else Toast.trego("S'ka asnjë folder ku të importohet.", 4000)
+        return false
+    }
 
     val te = g.produktet.values.toList()
     val sot = Calendar.getInstance().apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }.timeInMillis
@@ -89,6 +96,11 @@ private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, Str
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 EtiketaStoku(p?.emri ?: "", { Sinkronizimi.rifresko(); Toast.trego("Duke sinkronizuar…", 1500) })
                 Spacer(Modifier.weight(1f))
+                if (Llogaria.leja("stoku") && Llogaria.leja("stokuImporto")) {
+                    ButonIkone(Ik.Foto, "Importo stokun nga galeria", { if (kaFolder()) galeriaStok() })
+                    Spacer(Modifier.width(10.dp))
+                    ButonIkone(Ik.Kamera, "Importo stokun nga një fletë (foto)", { if (kaFolder()) fotoStok() })
+                }
             }
             Hapesire(14.dp)
             if (Llogaria.leja("stoku")) Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), "Kërko produkt ose barkod", ikona = Ik.Kerko)
@@ -175,6 +187,7 @@ private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, Str
     }
 
     if (folderIRi) FolderIRiFlete { folderIRi = false }
+    fletaStok?.let { u -> FletaEkrani(u, mbyll = { fletaStok = null }, stok = true) }
     perFshirje?.let { f ->
         val brenda = Dyqani.produktetEFolderit(f["id"] as String).size
         val emri = jsString(f["emri"])

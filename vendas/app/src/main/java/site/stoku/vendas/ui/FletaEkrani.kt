@@ -15,6 +15,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -67,29 +69,30 @@ import site.stoku.logjika.obj
 import site.stoku.vendas.Dyqani
 import site.stoku.vendas.LeximiAI
 import site.stoku.vendas.Llogaria
+import site.stoku.vendas.StokuApp
 import java.io.File
 
-/** Butonat që hapin kamerën ose galerinë për fletën: → (kamera, galeria) */
+/** Butonat që hapin kamerën ose galerinë për fletën: → (kamera, galeria). leja: "afatetAI" ose "stokuImporto" */
 @Composable
-fun rememberFotoEFletes(kurFoto: (Uri) -> Unit): Pair<() -> Unit, () -> Unit> {
+fun rememberFotoEFletes(leja: String = "afatetAI", kurFoto: (Uri) -> Unit): Pair<() -> Unit, () -> Unit> {
     val ctx = LocalContext.current
     val uri = remember {
         val f = File(File(ctx.cacheDir, "fleta").apply { mkdirs() }, "fleta.jpg")
         FileProvider.getUriForFile(ctx, ctx.packageName + ".skedaret", f)
     }
     val kamera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok -> if (ok) kurFoto(uri) }
-    val leja = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { po ->
+    val lejaKamera = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { po ->
         if (po) kamera.launch(uri) else Toast.trego("Stoku s'ka leje për kamerën. Lejoje te cilësimet e telefonit, ose zgjidh foton nga galeria.", 4500)
     }
     val galeria = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { u -> if (u != null) kurFoto(u) }
     return Pair({
-        if (!Llogaria.leja("afatetAI")) return@Pair
+        if (!Llogaria.leja(leja)) return@Pair
         try {
             if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) kamera.launch(uri)
-            else leja.launch(Manifest.permission.CAMERA)
+            else lejaKamera.launch(Manifest.permission.CAMERA)
         } catch (e: Exception) { Toast.trego("Kamera s'u hap. Zgjidh foton nga galeria.") }
     }, {
-        if (!Llogaria.leja("afatetAI")) return@Pair
+        if (!Llogaria.leja(leja)) return@Pair
         try { galeria.launch("image/*") } catch (e: Exception) { Toast.trego("Galeria s'u hap.") }
     })
 }
@@ -111,10 +114,12 @@ private class Rreshti(
 /**
  * "Kontrollo fletën" (si dlgAfatLexim te web-i): fotoja lart (prek për ta zmadhuar), statusi i leximit me AI, rreshtat
  * e lexuar (barkodi, emri, data, sasia, furnizuesi) për t'u krahasuar me foton e korrigjuar, "Ruaj N afate".
- * kurRuhet(filtri): pas ruajtjes, filtri që duhet hapur te Afatet ("skaduar", "afer" ose "aktive").
+ * stok = true: "Kontrollo listën" (si dlgImportStok): barkodi, emri, sasia, furnizuesi → "Importo" në një folder; sasia i
+ * shtohet produktit ekzistues me të njëjtin barkod.
+ * kurRuhet(filtri): pas ruajtjes së afateve, filtri që duhet hapur te Afatet ("skaduar", "afer" ose "aktive").
  */
 @Composable
-fun FletaEkrani(uri: Uri, mbyll: () -> Unit, kurRuhet: (String) -> Unit) {
+fun FletaEkrani(uri: Uri, mbyll: () -> Unit, stok: Boolean = false, kurRuhet: (String) -> Unit = {}) {
     val n = N
     val ctx = LocalContext.current
     val paFurnizues = Llogaria.eshteMerchandiser()
@@ -125,6 +130,10 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, kurRuhet: (String) -> Unit) {
     var punon by remember { mutableStateOf(true) }
     val rreshtat = remember { mutableStateListOf<Rreshti>() }
     var anulo by remember { mutableStateOf(false) }
+    val gj by Dyqani.gjendja.collectAsState()
+    var folderi by remember { mutableStateOf(StokuApp.prefsOse("import_folderi", "")) }
+    if (stok && gj.foldera.none { it["id"] == folderi }) folderi = (gj.foldera.firstOrNull()?.get("id") as? String) ?: ""
+    var folderIRi by remember { mutableStateOf(false) }
 
     fun shtoRresht() {
         rreshtat.add(Rreshti("", "", "", "", rreshtat.lastOrNull()?.furnizuesi ?: "", "", false, true))
@@ -136,9 +145,9 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, kurRuhet: (String) -> Unit) {
             statusi = "Fotoja s'u hap. Provo një foto tjetër."; gabim = true; punon = false; return@LaunchedEffect
         }
         foto = f.pamja.asImageBitmap()
-        statusi = "Duke e lexuar fletën me AI… (zakonisht 5–20 sekonda) · foto ${f.gjeresia}×${f.lartesia} (" +
+        statusi = "Duke e lexuar fletën me AI… (zakonisht 5–20 sekonda)" + if (stok) "" else " · foto ${f.gjeresia}×${f.lartesia} (" +
             String.format(java.util.Locale.US, "%.1f", f.gjeresia * f.lartesia / 1e6) + " MP)"
-        when (val rez = LeximiAI.lexo(f)) {
+        when (val rez = LeximiAI.lexo(f, if (stok) "stok" else null)) {
             is LeximiAI.Rez.Gabim -> { statusi = LeximiAI.mesazhi(rez.kodi); gabim = true; shtoRresht() }
             is LeximiAI.Rez.Ok -> {
                 rez.rreshtat.forEach { r ->
@@ -147,12 +156,13 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, kurRuhet: (String) -> Unit) {
                     rreshtat.add(Rreshti(b, (r["emri"] as String).ifEmpty { Dyqani.emriNgaBarkodi(b) }, if (iso.isNotEmpty()) Afatet.formatoPerFushe(iso) else "",
                         r["sasia"].let { if (it == "") "" else it.toString() },
                         if (paFurnizues) "" else (r["furnizuesi"] as String).ifEmpty { Dyqani.furnizuesiNgaBarkodi(b) },
-                        r["dataOrigjinale"] as String, r["dyshim"] == true, false))
+                        if (stok) "" else r["dataOrigjinale"] as String, !stok && r["dyshim"] == true, false))
                 }
                 val nr = rreshtat.size
                 val nDyshim = rreshtat.count { it.dyshim }
                 gabim = nr == 0
-                statusi = if (nr == 0) "Në foto s'u gjet asnjë rresht me afat. Provo një foto më të qartë ose shkruaji me dorë."
+                statusi = if (nr == 0 && stok) "Në foto s'u gjet asnjë rresht. Provo një foto më të qartë ose shkruaji me dorë."
+                else if (nr == 0) "Në foto s'u gjet asnjë rresht me afat. Provo një foto më të qartë ose shkruaji me dorë."
                 else (if (nr == 1) "U lexua 1 rresht. Krahasoje" else "U lexuan $nr rreshta. Krahasoji") + " me foton dhe korrigjo ku duhet" +
                     (if (nDyshim == 0) "." else ". " + if (nDyshim == 1) "1 është shënuar me të verdhë si i paqartë." else "$nDyshim janë shënuar me të verdhë si të paqarta.")
                 if (nr == 0) shtoRresht()
@@ -161,7 +171,41 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, kurRuhet: (String) -> Unit) {
         punon = false
     }
 
+    fun importo() {
+        if (!Llogaria.leja("stokuImporto")) return
+        val fid = folderi
+        if (fid.isEmpty() || Dyqani.g.foldera.none { it["id"] == fid }) { Toast.trego("Zgjidh folderin ku do të importohen produktet."); return }
+        var pa = 0
+        val teVlefshem = rreshtat.filter { r ->
+            if (r.barkodi.isBlank() && r.emri.isBlank() && r.furnizuesi.isBlank() && r.sasia.isBlank()) return@filter false
+            if (r.barkodi.isBlank() || Afatet.lexoSasine(r.sasia) == "") { pa++; return@filter false }
+            true
+        }
+        if (pa > 0) {
+            Toast.trego(if (pa == 1) "1 rresht s'ka barkod ose sasi (numër i plotë). Plotësoje ose hiqe me ✕."
+            else "$pa rreshta s'kanë barkod ose sasi (numër i plotë). Plotësoji ose hiqi me ✕.", 4000)
+            return
+        }
+        if (teVlefshem.isEmpty()) { mbyll(); return }
+        val celesat = HashSet<String>()
+        teVlefshem.forEach { r ->
+            val b = r.barkodi.trim()
+            val e = Dyqani.produkti(fid, b)
+            val emri = (e?.get("emri") as? String)?.ifEmpty { null } ?: r.emri.trim()
+            // Emri dhe furnizuesi ekzistues mbeten (si te web-i); sasia i shtohet
+            val furn = if ((e?.get("furnizuesi") as? String).isNullOrEmpty()) (if (paFurnizues) "" else r.furnizuesi.trim()).ifEmpty { null } else null
+            Dyqani.ruajProduktin(fid, b, emri, Afatet.lexoSasine(r.sasia) as Long, furn)
+            celesat.add(b)
+        }
+        StokuApp.vendosPref("import_folderi", fid)
+        val nr = celesat.size
+        Toast.trego((if (nr == 1) "U importua 1 produkt" else "U importuan $nr produkte") + " në folderin \"" + Dyqani.emriFolderit(fid) + "\"." +
+            (if (teVlefshem.size != nr) " (disa rreshta u bashkuan te i njëjti barkod)" else ""), 4000)
+        mbyll()
+    }
+
     fun ruaj() {
+        if (stok) { importo(); return }
         if (!Llogaria.leja("afatetShto") && !Llogaria.leja("afatetAI")) return
         var pa = 0
         val teVlefshem = rreshtat.filter { r ->
@@ -201,7 +245,7 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, kurRuhet: (String) -> Unit) {
     }
 
     fun anuloLeximin() {
-        if (rreshtat.any { it.barkodi.isNotBlank() || it.emri.isNotBlank() || it.data.isNotBlank() }) anulo = true else mbyll()
+        if (rreshtat.any { it.barkodi.isNotBlank() || it.emri.isNotBlank() || (if (stok) it.furnizuesi else it.data).isNotBlank() }) anulo = true else mbyll()
     }
 
     Dialog(onDismissRequest = { anuloLeximin() }, properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
@@ -209,7 +253,7 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, kurRuhet: (String) -> Unit) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                 ButonIkone(Ik.Mbrapa, "Anulo", { anuloLeximin() }, madhesia = 40.dp)
                 Spacer(Modifier.width(12.dp))
-                Text("Kontrollo fletën", style = tx(26, 700, n.ink, -0.025), modifier = Modifier.weight(1f))
+                Text(if (stok) "Kontrollo listën" else "Kontrollo fletën", style = tx(26, 700, n.ink, -0.025), modifier = Modifier.weight(1f))
             }
             Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp)) {
                 foto?.let { b ->
@@ -224,18 +268,35 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, kurRuhet: (String) -> Unit) {
                     Text(statusi, style = tx(14, 400, if (gabim) n.expInk else n.ink2))
                 }
                 Spacer(Modifier.size(12.dp))
-                rreshtat.forEachIndexed { i, r -> KartaERreshtit(i, r, paFurnizues) { rreshtat.remove(r) } }
+                if (stok) {
+                    Text("Importo në folderin", style = tx(13, 600, n.ink3), modifier = Modifier.padding(start = 2.dp, bottom = 6.dp))
+                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        gj.foldera.forEach { f -> val id = f["id"] as String; Cip(Dyqani.emriFolderit(id), null, folderi == id) { folderi = id } }
+                        if (Llogaria.leja("stokuFoldera")) Cip("+ Folder i ri…", null, false) { folderIRi = true }
+                    }
+                }
+                rreshtat.forEachIndexed { i, r -> KartaERreshtit(i, r, paFurnizues, stok) { rreshtat.remove(r) } }
                 if (!punon) Buton("+ Shto rresht me dorë", { shtoRresht() }, Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 16.dp), lloji = "dyte")
             }
             Row(Modifier.fillMaxWidth().background(n.surface).padding(horizontal = 20.dp, vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Buton("Anulo", { anuloLeximin() }, Modifier.weight(1f), lloji = "tekst")
                 val nr = rreshtat.size
-                Buton(if (nr == 0) "Ruaj" else if (nr == 1) "Ruaj 1 afat" else "Ruaj $nr afate", { ruaj() }, Modifier.weight(1.4f), aktiv = nr > 0 && !punon)
+                val teksti = if (stok) (if (nr == 0) "Importo" else if (nr == 1) "Importo 1 produkt" else "Importo $nr produkte")
+                else (if (nr == 0) "Ruaj" else if (nr == 1) "Ruaj 1 afat" else "Ruaj $nr afate")
+                Buton(teksti, { ruaj() }, Modifier.weight(1.4f), aktiv = nr > 0 && !punon)
             }
         }
         ToastPamjaNeDialog()
     }
-    if (anulo) Konfirmo("Të anulohet?", "Rreshtat e lexuar nuk do të ruhen.", "Anulo leximin", mbyll = { anulo = false }) { anulo = false; mbyll() }
+    if (anulo) Konfirmo("Të anulohet?", if (stok) "Rreshtat e lexuar nuk do të importohen." else "Rreshtat e lexuar nuk do të ruhen.",
+        if (stok) "Anulo importin" else "Anulo leximin", mbyll = { anulo = false }) { anulo = false; mbyll() }
+    if (folderIRi) {
+        val para = remember { gj.foldera.map { it["id"] } }
+        FolderIRiFlete {
+            folderIRi = false
+            Dyqani.g.foldera.firstOrNull { it["id"] !in para }?.let { folderi = it["id"] as String }
+        }
+    }
 }
 
 /** Toast-i duket edhe mbi dritaren e plotë të fletës */
@@ -254,7 +315,7 @@ private fun Rrotullues() {
 }
 
 @Composable
-private fun KartaERreshtit(i: Int, r: Rreshti, paFurnizues: Boolean, hiq: () -> Unit) {
+private fun KartaERreshtit(i: Int, r: Rreshti, paFurnizues: Boolean, stok: Boolean, hiq: () -> Unit) {
     val n = N
     val iso = r.iso
     val st = if (iso.isNotEmpty()) Afatet.statusi(mapOf("data" to iso)) else ""
@@ -274,7 +335,9 @@ private fun KartaERreshtit(i: Int, r: Rreshti, paFurnizues: Boolean, hiq: () -> 
             Fusha(r.barkodi, { r.barkodi = it.trim() }, Modifier.fillMaxWidth(), "Barkodi", tastiera = KeyboardType.Ascii, lartesia = 44.dp,
                 veprimi = ImeAction.Next, kurVeprim = { if (r.emri.isBlank()) r.emri = Dyqani.emriNgaBarkodi(r.barkodi) })
             Fusha(r.emri, { r.emri = it }, Modifier.fillMaxWidth(), "Emri i produktit", lartesia = 44.dp, veprimi = ImeAction.Next)
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            if (stok) Fusha(r.sasia, { r.sasia = it.take(30) }, Modifier.fillMaxWidth(), "Sasia", tastiera = KeyboardType.Phone, lartesia = 44.dp,
+                veprimi = ImeAction.Next, kurVeprim = { if (Afatet.sasiaSiShume(r.sasia).isNotEmpty()) r.sasia = Afatet.lexoSasine(r.sasia).toString() })
+            else Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Fusha(r.data, { v -> r.data = if (v.length < r.data.length) v else Afatet.formatoDatenGjateShkrimit(v); r.dyshim = false },
                     Modifier.weight(1f), "Data (DD-MM-VV)", tastiera = KeyboardType.Number, lartesia = 44.dp, veprimi = ImeAction.Next)
                 Fusha(r.sasia, { r.sasia = it.take(30) }, Modifier.weight(1f), "Sasia", tastiera = KeyboardType.Phone, lartesia = 44.dp, veprimi = ImeAction.Next,

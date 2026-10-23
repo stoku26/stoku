@@ -81,8 +81,20 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      llogaria, versioni). Merchandiseri pa furnizues (si v252). Regjistri i përbashkët `kujtesa/*` për emrin/furnizuesin nga barkodi.
    - **Kamera**: CameraX + ML Kit Barcode Scanning (i njëjti motor si Google Lens, pa internet): EAN/UPC me shifrën e kontrollit
      të saktë pranohet menjëherë, të tjerat pas 2 leximeve; bip + dridhje; drita.
-   - **Mungon ende** (vendas/README.md): Grupi, marketet e merchandiserëve, fotografimi i fletës me AI, importet, Excel/PDF, push,
-     ora, faqet e administratorit.
+   - **"Fotografo fletën"** (`LeximiAI.kt` + `ui/FletaEkrani.kt`, si lexoFleten te app-tel.js): kamera e sistemit (TakePicture,
+     skedari te `cache/fleta/` përmes FileProvider; leja CAMERA kërkohet para, sepse manifesti e ka për skanerin) ose galeria →
+     JPEG si `pergatitFoton` (≤ 16.7 MP, ana ≤ 8192, cilësia 95→85, pastaj zvogëlim, kthimi sipas EXIF) → POST
+     `stoku-afatet.mendurb.workers.dev` `{image, mime, sot}` me `Authorization: Bearer <ID token>` dhe **`Origin: https://stoku.site`**
+     (Worker-i mund ta kontrollojë origjinën; nëse kthen "origjina", pronari duhet ta lejojë) → `Afatet.normalizoRreshtin` (= web-i,
+     me fikstura) → "Kontrollo fletën" (fotoja, statusi, rreshtat me shiritin e ngjyrës, "⚠ kontrolloje", "Në fletë: …", "+ Shto
+     rresht me dorë", "Ruaj N afate" me kontrollin e përsëritjeve dhe `ngaFoto: true`). Pa "Dërgo në PC" dhe pa marketin (ende).
+   - **Marketet**: `Marketet.kt` = marketet.js (v253 përfshirë; 120 raste me fikstura); ekrani i merchandiserit vjen më vonë.
+   - **Pamjet pa telefon**: `PamjetTest.kt` (Robolectric + Roborazzi, 390×844 dp) → job-i `pamjet` i workflow-t i ruan PNG-të si
+     blob-e (`::notice title=pamjet::emri=sha`); lexohen me `gh api repos/stoku26/stoku/check-runs/<job>/annotations` dhe
+     `gh api repos/stoku26/stoku/git/blobs/<sha> --jq .content | base64 -d`. Krahasuar me pamjet e web-it: pothuajse identike
+     (titujt 26 px si `.sb .opsione-krye h2`, brenda folderit pa tabe). Kujdes: `/*` brenda një komenti Kotlin hap koment të ri.
+   - **Mungon ende** (vendas/README.md): Grupi, ekrani i marketeve, importi i stokut nga foto, importet nga Excel, Excel/PDF,
+     "Dërgo në PC", push, ora, faqet e administratorit.
 
 0000000. **MARKETE AFËR NJËRI-TJETRIT (v253 = 1.39.1)**: pronari (administratori, Cilësimet → Harta, "+ Shto market në hartë",
    me foto): "dy markete … nuk po len aq afer me u kon … spo muj me shtu marketin ne te djatht" (Viva Fly dhe marketi matanë
