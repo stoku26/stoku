@@ -52,11 +52,19 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
-0000000. **STOKU NATIVE: APLIKACIONI ANDROID PA WEBVIEW (`vendas/`, faza 1; APK `vendas-vNN`)**: kërkesa: "krijoma 100% native
+0000000. **APLIKACIONI NATIVE QUHET "STOKU" (23.10.2026)**: përdoruesi: "nderroja appit native komplet emrin kudo qe e ke shkru
+   stoku native ... ja len veq Stoku ... per arsyje qe appi webview android aj ka me u fshi". Emri i aplikacionit `vendas/`
+   (`app_name`), Cilësimet ("Aplikacioni Stoku", teksti poshtë), mesazhi i lejes së kamerës, README, workflow-i ("Stoku APK",
+   Release "Stoku për Android NN", skedari `stoku-NN.apk`, artifact `stoku-apk`) dhe skedari i përditësimit (`stoku.apk`).
+   Paketa mbetet `site.stoku.vendas` dhe tag-u `vendas-vNN` (përndryshe telefonat s'e marrin përditësimin vetë).
+   **Aplikacioni WebView `tel/` (`site.stoku.app`) do të fshihet** (vendim i pronarit): mos e propozo më si aplikacioni kryesor.
+   Deri sa të fshihet, në telefon dalin dy ikona "Stoku". Pa ndryshim në web.
+
+0000000. **STOKU (NATIVE): APLIKACIONI ANDROID PA WEBVIEW (`vendas/`, faza 1; APK `vendas-vNN`)**: kërkesa: "krijoma 100% native
    android aplikacion jo webview, mundohu sa ma identik me bo, te kamera ta perdorin google lens". Pa ndryshim në web.
    - **Projekti** `vendas/` (Gradle: `:app` Android + Compose, `:logjika` Kotlin pa Android). Paketa **`site.stoku.vendas`**,
-     emri "Stoku Native" (i ndarë nga `site.stoku.app` i `tel/`, që të provohen të dy njëkohësisht; kur të jetë i plotë mund ta
-     zëvendësojë). Nënshkrimi si `tel/` (`nenshkruaj.sh tel`). Workflow `vendas-apk.yml`: `:logjika:test` + APK; main → Release
+     emri "Stoku" (deri më 23.10.2026 "Stoku Native"; i ndarë nga `site.stoku.app` i `tel/`, i cili do të fshihet).
+     Nënshkrimi si `tel/` (`nenshkruaj.sh tel`). Workflow `vendas-apk.yml`: `:logjika:test` + APK; main → Release
      `vendas-vNN`; `Perditesimi.kt` e kërkon vetë (`vendas-v`).
    - **Firebase**: i njëjti projekt (`stoku-appi`), opsionet në kod (`StokuApp.kt`, appId i Android-it nga `android.json`, çelësi
      publik). Hyrja `emri@stoku-app.local`; `perdoruesit/{uid}` (perdoruesi, kycurSe; regjistrimi: krijuarSe + merchandiser);

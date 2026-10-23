@@ -9,7 +9,7 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.PersistentCacheSettings
 
 /**
- * Stoku Native: aplikacioni i telefonit pa WebView. Të njëjtat të dhëna si stoku.site (Firebase "stoku-appi"):
+ * Stoku: aplikacioni i telefonit (Android, pa WebView). Të njëjtat të dhëna si stoku.site (Firebase "stoku-appi"):
  * llogaria, dyqani (dyqane/{uid} + pjeset), lejet. Logjika e bashkimit është e njëjtë me web-in (moduli :logjika).
  */
 class StokuApp : Application() {
