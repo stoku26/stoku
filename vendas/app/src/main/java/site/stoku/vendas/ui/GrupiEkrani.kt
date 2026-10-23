@@ -8,6 +8,8 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -202,7 +204,7 @@ private class Konteksti(
 @Composable
 private fun Menyja(pamja: String, pike: Boolean, zgjidh: (String) -> Unit) {
     val n = N
-    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+    Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp).padding(bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
         listOf(Triple("permbledhja", "Përmbledhja", Ik.Pulti), Triple("afatet", "Afatet", Ik.Kohe), Triple("aktiviteti", "Aktiviteti", Ik.Aktiviteti),
             Triple("kalendari", "Kalendari", Ik.Kalendari), Triple("anetaret", "Kolegët", Ik.Koleget)).forEach { (k, t, ik) ->
             val aktiv = pamja == k
@@ -216,7 +218,7 @@ private fun Menyja(pamja: String, pike: Boolean, zgjidh: (String) -> Unit) {
                     }
                     if (k == "anetaret" && pike) Box(Modifier.align(Alignment.TopEnd).offset(x = 3.dp, y = (-2).dp).size(12.dp).clip(CircleShape).background(n.bg).padding(2.dp).clip(CircleShape).background(n.badge))
                 }
-                Text(t, style = tx(12, if (aktiv) 600 else 500, if (aktiv) n.accentText else n.ink3), maxLines = 1)
+                Text(t, style = txF(11f, if (aktiv) 600 else 500, if (aktiv) n.accentText else n.ink3), maxLines = 1, softWrap = false)
             }
         }
     }
@@ -275,7 +277,8 @@ private fun AvatariLehte(emri: String?, lloji: String? = null, madhesia: Dp = 34
         else -> n.surface2 to n.accentText
     }
     Box(Modifier.size(madhesia)) {
-        Box(Modifier.size(madhesia).clip(CircleShape).background(sf), contentAlignment = Alignment.Center) {
+        val vija = if (lloji == null || sf == n.surface2) Modifier.border(1.dp, n.line, CircleShape) else Modifier
+        Box(Modifier.size(madhesia).clip(CircleShape).background(sf).then(vija), contentAlignment = Alignment.Center) {
             Text(shkronja(emri), style = tx(if (madhesia < 34.dp) 13 else 14, 700, ng))
         }
         if (online) Box(Modifier.align(Alignment.BottomEnd).offset(2.dp, 2.dp).size(14.dp).clip(CircleShape).background(n.bg).padding(2.dp).clip(CircleShape).background(n.okDot))
@@ -720,6 +723,7 @@ private fun Aktiviteti(ngjarjet: List<Obj>, gati: Boolean, ctx: Konteksti) {
 }
 
 // ---------------- Kalendari ----------------
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun Kalendari(ctx: Konteksti) {
     val n = N
@@ -757,7 +761,7 @@ private fun Kalendari(ctx: Konteksti) {
                 }
             }
             // Legjenda
-            Row(Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            FlowRow(Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 listOf("skaduar" to "Ka skaduar", "afer" to "Skadon brenda 30 ditëve", "ok" to "Në rregull", "hequr" to "Të hequra").forEach { (s, t) ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         val (sf, vj) = ngjyratEDites(s)
