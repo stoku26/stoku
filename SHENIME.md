@@ -52,7 +52,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
-0000000. **HYRJA TE APLIKACIONI ANDROID "S'PO BËHET" (23.10.2026, në hetim)**: përdoruesi: "spo bohet as login". Firebase-i u
+0000000. **SHKAKU I MBYLLJES PAS HYRJES: `(?U)` TE REGEX-I (23.10.2026, v25)**: fotoja e ekranit të mbylljes (v24):
+   `ExceptionInInitializerError` te `StokuEkrani.Kryefaqja` ← `Afatet.<clinit>` (Afatet.kt:74) ← `PatternSyntaxException`
+   te `(?U)[\s-]` (`HAPESIRA_VIZA`, shtuar me `normalizoRreshtin` për fletën me AI). Në JVM (testet, Robolectric) `(?U)` punon,
+   në Android (ICU) jo: objekti `Afatet` s'krijohej dhe çdo ekran pas hyrjes mbyllte aplikacionin. U zëvendësua me klasën e
+   hapësirave të JavaScript-it (`[\s\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF-]`, punon kudo).
+   **Rregull**: në Kotlin-in e `vendas/` pa `(?U)`/`UNICODE_CHARACTER_CLASS` (ICU s'i njeh); testi `AndroidTest` (logjika)
+   e kontrollon kodin. Kujdes: Robolectric përdor regex-in e JVM-it, prandaj pamjet s'e kapin këtë lloj gabimi.
+
+0000000. **HYRJA TE APLIKACIONI ANDROID "S'PO BËHET" (23.10.2026)**: përdoruesi: "spo bohet as login". Firebase-i u
    kontrollua nga serveri (curl te identitytoolkit me çelësin, si web dhe si Android `site.stoku.vendas`/`site.stoku.app`):
    çelësi s'është i kufizuar, reCAPTCHA s'kërkohet (`ENFORCEMENT_STATE_UNSPECIFIED`), hyrja me llogari të panjohur jep
    `EMAIL_NOT_FOUND` (pra kërkesa pranohet). **Te Firebase s'duhet ndryshuar asgjë për aplikacionin e ri.** (Kujdes: 6 prova
