@@ -71,7 +71,8 @@ object Afatet {
     }
     // ---------- Rreshtat e lexuar nga AI-ja (Worker-i stoku-afatet), si normalizoRreshtin te afatet.js ----------
     private val BARKODI_O = Regex("^[0-9oO]+$")
-    private val HAPESIRA_VIZA = Regex("(?U)[\\s-]")
+    // Hapësirat si `\s` i JavaScript-it (edhe ato Unicode) + viza. Pa "(?U)": Android-i (ICU) s'e njeh dhe aplikacioni mbyllej.
+    private val HAPESIRA_VIZA = Regex("[\\s\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF-]")
 
     /** Pozicioni i rreshtit në foto (0..1), ose null */
     private fun pozicioni(v: Any?): Any? {
