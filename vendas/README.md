@@ -25,8 +25,9 @@ kur ndryshon logjika e web-it, rikrijo fiksturat dhe përshtate Kotlinin derisa 
 Hyrja / krijimi i llogarisë (me "Punoj si merchandiser") dhe "Ke harruar fjalëkalimin?", Stoku (folderat, produktet,
 kërkimi, +/-, skanimi, zhvendosja, fshirja, folder i ri, **importi i stokut nga foto** me AI), Afatet (lista me ngjyra, filtrat, muajt, afat i ri / ndryshimi,
 "U hoq nga rafti", zgjedhja e shumëfishtë, **"Fotografo fletën"**: fotoja (kamera ose galeria) lexohet me AI nga Worker-i
-`stoku-afatet`, rreshtat kontrollohen dhe ruhen si te web-i), Cilësimet (pamja, renditja, llogaria, versioni), sinkronizimi
-me Firebase dhe lejet e llogarisë.
+`stoku-afatet`, rreshtat kontrollohen dhe ruhen si te web-i), Cilësimet (pamja dhe madhësia e shkronjave, renditja,
+skanimi: PDA, fshih tastierën, pa emër, tingulli, kursori; llogaria: ndrysho emrin ose fjalëkalimin, rikthe nga cloud;
+"Çka ka të re", versioni), sinkronizimi me Firebase dhe lejet e llogarisë.
 
 **Marketet e merchandiserit**: GPS kur hapet aplikacioni, "Ku je?" me marketet afër, "Je te: …", "Market i ri", afatet sipas
 marketit, Cilësimet → Marketet (`Merchandiseri.kt`, `ui/MarketetUI.kt`).
