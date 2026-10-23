@@ -121,7 +121,10 @@ class PamjetTest {
                 obj("emri" to "Jogurt 200g", "data" to Afatet.isoNgaData(sot.minusDays(1)), "sasia" to "12")
             ).map { Afatet.normalizoRreshtin(it) })
         }
-        r.setContent { StokuTema(tema) { site.stoku.vendas.ui.FletaEkrani(android.net.Uri.fromFile(f), {}, stok) } }
+        val uri = android.net.Uri.fromFile(f)
+        // Robolectric i lexon skedarët e ContentResolver-it vetëm kur regjistrohen
+        org.robolectric.Shadows.shadowOf(ctx.contentResolver).registerInputStreamSupplier(uri) { java.io.FileInputStream(f) }
+        r.setContent { StokuTema(tema) { site.stoku.vendas.ui.FletaEkrani(uri, {}, stok) } }
         // Fotoja përgatitet në një fill tjetër: prit duke e lënë fillin kryesor të punojë
         val pritur = if (stok) "Importo 3 produkte" else "Ruaj 3 afate"
         var gati = false

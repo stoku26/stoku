@@ -77,16 +77,19 @@ import java.io.File
 fun rememberFotoEFletes(leja: String = "afatetAI", kurFoto: (Uri) -> Unit): Pair<() -> Unit, () -> Unit> {
     val ctx = LocalContext.current
     val uri = remember {
-        val f = File(File(ctx.cacheDir, "fleta").apply { mkdirs() }, "fleta.jpg")
-        FileProvider.getUriForFile(ctx, ctx.packageName + ".skedaret", f)
+        try {
+            val f = File(File(ctx.cacheDir, "fleta").apply { mkdirs() }, "fleta.jpg")
+            FileProvider.getUriForFile(ctx, ctx.packageName + ".skedaret", f)
+        } catch (e: Exception) { null }
     }
-    val kamera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok -> if (ok) kurFoto(uri) }
+    val kamera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok -> if (ok && uri != null) kurFoto(uri) }
     val lejaKamera = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { po ->
-        if (po) kamera.launch(uri) else Toast.trego("Stoku s'ka leje për kamerën. Lejoje te cilësimet e telefonit, ose zgjidh foton nga galeria.", 4500)
+        if (po && uri != null) kamera.launch(uri) else if (!po) Toast.trego("Stoku s'ka leje për kamerën. Lejoje te cilësimet e telefonit, ose zgjidh foton nga galeria.", 4500)
     }
     val galeria = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { u -> if (u != null) kurFoto(u) }
     return Pair({
         if (!Llogaria.leja(leja)) return@Pair
+        if (uri == null) { Toast.trego("Kamera s'u hap. Zgjidh foton nga galeria."); return@Pair }
         try {
             if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) kamera.launch(uri)
             else lejaKamera.launch(Manifest.permission.CAMERA)
