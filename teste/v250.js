@@ -20,6 +20,7 @@ const prit = (fn, ms = 12000) => new Promise(async z => { const t0 = Date.now();
 const MAPLIBRE = fs.readFileSync(path.join(__dirname, 'npm', 'node_modules', 'maplibre-gl', 'dist', 'maplibre-gl.js'));
 const ALBI = { latitude: 42.6476, longitude: 21.1491, accuracy: 20 };
 const ALBI30 = { latitude: 42.6478, longitude: 21.1493, accuracy: 20 }; // ~27 m nga Albi
+const ALBI10 = { latitude: 42.6477, longitude: 21.1492, accuracy: 20 }; // ~14 m nga Albi
 const SHTEPIA = { latitude: 42.6300, longitude: 21.1000, accuracy: 20 };
 
 (async () => {
@@ -28,10 +29,13 @@ const SHTEPIA = { latitude: 42.6300, longitude: 21.1000, accuracy: 20 };
   const pA = { id: 'pA', emri: 'Albi Mall', lat: 42.6476, lng: 21.1491, krijuarNga: 'u2' };
   ok(MK.kontrolloShtimin({ lat: 42.63, lng: 21.1, sakt: 500 }, [], []).arsye === 'pasakte' && MK.kontrolloShtimin({ lat: 42.63, lng: 21.1 }, [], []).arsye === 'pasakte', '0. vendndodhja e përafërt (500 m) ose pa saktësi: s\'shtohet');
   ok(MK.kontrolloShtimin({ lat: 42.63, lng: 21.1, sakt: MK.SAKTESIA_MAKS_M }, [], [pA]) === null, '0. e saktë (≤ ' + MK.SAKTESIA_MAKS_M + ' m) dhe larg çdo marketi: shtohet');
-  const k1 = MK.kontrolloShtimin({ lat: 42.6478, lng: 21.1493, sakt: 15 }, [], [pA]);
-  ok(k1 && k1.arsye === 'ekziston' && k1.pika.id === 'pA', '0. 30 m nga një pikë e Stoku-t: "ekziston" (zgjidhet ajo)', k1);
-  const k2 = MK.kontrolloShtimin({ lat: 42.6478, lng: 21.1493, sakt: 15 }, [{ id: 'm1', emri: 'Imi', lat: 42.6476, lng: 21.1491 }], []);
-  ok(k2 && k2.arsye === 'ekziston' && k2.marketi.id === 'm1', '0. 30 m nga një market i listës: "ekziston"');
+  // v253: "i njëjti vend" = brenda 20 m; 27 m me pasaktësi 15 m = "afer" (s'dihet a je te ai)
+  const k1 = MK.kontrolloShtimin({ lat: 42.6477, lng: 21.1492, sakt: 15 }, [], [pA]);
+  ok(k1 && k1.arsye === 'ekziston' && k1.pika.id === 'pA', '0. 14 m nga një pikë e Stoku-t: "ekziston" (zgjidhet ajo)', k1);
+  const k2 = MK.kontrolloShtimin({ lat: 42.6477, lng: 21.1492, sakt: 15 }, [{ id: 'm1', emri: 'Imi', lat: 42.6476, lng: 21.1491 }], []);
+  ok(k2 && k2.arsye === 'ekziston' && k2.marketi.id === 'm1', '0. 14 m nga një market i listës: "ekziston"');
+  const k3 = MK.kontrolloShtimin({ lat: 42.6478, lng: 21.1493, sakt: 15 }, [], [pA]);
+  ok(k3 && k3.arsye === 'afer' && k3.emri === 'Albi Mall' && k3.largesia === 28, '0. v253: 28 m me pasaktësi 15 m: "afer"', k3);
   ok(!MK.kontrolloShtimin({ lat: 42.6476 + 0.0009, lng: 21.1491, sakt: 15 }, [], [pA]), '0. 100 m larg: lejohet (market tjetër)');
   // sinkronizoMePikat
   const s1 = MK.sinkronizoMePikat([], [pA], [], true, t);
@@ -107,7 +111,11 @@ const SHTEPIA = { latitude: 42.6300, longitude: 21.1000, accuracy: 20 };
   const n0 = pikat().length;
   await cD.setGeolocation(ALBI30);
   await dr.fill('#mkEmriRi', 'Albi 2'); await dr.click('#mkShto');
-  ok(await prit(async () => /Këtu është tashmë marketi "Albi Mall"/.test(await toast(dr))), '2. 30 m nga Albi: s\'shtohet market tjetër, zgjidhet "Albi Mall"', await toast(dr));
+  ok(await prit(async () => /Afër \(28 m\) është marketi "Albi Mall"/.test(await dr.textContent('#mkGabim'))), '2. v253: 28 m nga Albi (pasaktësia 20 m): s\'shtohet, "Afër (28 m) është marketi…"', await dr.textContent('#mkGabim'));
+  ok(pikat().length === n0 && !(await lsM(dr)).some(m => m.emri === 'Albi 2'), '2. v253: asnjë pikë e re');
+  await cD.setGeolocation(ALBI10);
+  await dr.fill('#mkEmriRi', 'Albi 2'); await dr.click('#mkShto');
+  ok(await prit(async () => /Këtu është tashmë marketi "Albi Mall"/.test(await toast(dr))), '2. 14 m nga Albi: s\'shtohet market tjetër, zgjidhet "Albi Mall"', await toast(dr));
   ok(pikat().length === n0 && !(await lsM(dr)).some(m => m.emri === 'Albi 2') && /Je te: Albi Mall/.test(await dr.textContent('#mkAktivTitull')), '2. asnjë pikë e re; "Je te: Albi Mall"', await dr.textContent('#mkAktivTitull'));
   await dr.fill('#mkEmriRi', 'albi  MALL'); await dr.click('#mkShto');
   ok(await prit(async () => /me këtë emër/.test(await dr.textContent('#mkGabim'))), '2. emri i një marketi të Stoku-t (pa dallim shkronjash): refuzohet');

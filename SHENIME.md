@@ -52,6 +52,22 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **MARKETE AFËR NJËRI-TJETRIT (v253 = 1.39.1)**: pronari (administratori, Cilësimet → Harta, "+ Shto market në hartë",
+   me foto): "dy markete … nuk po len aq afer me u kon … spo muj me shtu marketin ne te djatht" (Viva Fly dhe marketi matanë
+   rrugës, rreth 55 m: v250 s'lejonte asnjë market brenda `LIDHJA_M` = 60 m).
+   - **`MK.AFER_M` = 20 m** = "i njëjti vend". Administratori (tel + PC, `htShtoRuaj`): s'shton vetëm kur një pikë është brenda 20 m
+     (`MK.pikaShumeAfer` → "Këtu është tashmë marketi "X" (N m). Vendose shenjën mbi marketin e ri.").
+   - **Merchandiseri (`kontrolloShtimin`)**: ≤ 20 m → `ekziston` (zgjidhet ai, si më parë); deri në 20 m + pasaktësia e GPS-it
+     (më së shumti 60 m) → arsye e re **`afer`** {emri, largesia, sakt}: "Afër (N m) është marketi "X" dhe vendndodhja ka pasaktësi
+     rreth S m. Nëse je te ai, zgjidhe te "Ku je?". Përndryshe prit pak brenda marketit dhe provo sërish." (s'zgjidhet vetë: s'dihet
+     a je te ai apo te fqinji); më larg → shtohet.
+   - **`pikaPerMarketin`** (marketi i vjetër pa pikë, edhe te `sinkronizoMePikat`): brenda 20 m çfarëdo emri, ose brenda 60 m vetëm
+     me të njëjtin emër (që marketi i vjetër i një fqinji të mos lidhet me pikën e gabuar).
+   - Teste: `teste/v253.js` (njësitë; administratori tel + PC: 10 m jo, 55 m/35 m po; merchandiseri: "afer", zgjedhja e më të
+     afërtit, shtimi 60 m larg; "Çka ka të re" vetëm për merchandiserët/administratorin). `v250.js` u përshtat (27 m me pasaktësi
+     20 m = "afer"; 14 m = "ekziston").
+   - Regresioni v253: 76/76 me exit=0, asnjë `GABIM` (si v252 + `v253.js`).
+
 0000000. **KOPJA E MARKETEVE/REGJISTRIT NË PAJISJE + MERCHANDISERI PA FURNIZUES + SUGJERIMET E FURNIZUESIT + PUNA PA INTERNET
    (v252 = 1.39.0; Android tel + ora: APK e re)**: kërkesat: (a) "ok bone" (telefoni i mban marketet dhe listën e produkteve në
    memorie, merr vetëm ndryshimet: leximet e Firebase-it); (b) merchandiseri pa furnizues "kur shton ni afat ose qka do tjeter";

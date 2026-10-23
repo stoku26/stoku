@@ -20,6 +20,13 @@
   'use strict';
 
   var LISTA = [
+    { v: 253, versioni: '1.39.1', data: '2026-10-23', titulli: 'Markete afër njëri-tjetrit', pikat: [
+      'Dy markete tash mund të jenë afër njëri-tjetrit (p.sh. në dy anët e rrugës). Marketi i ri s\'shtohet vetëm kur je më pak se 20 m nga një market tjetër.',
+      'Kur afër ka një market tjetër dhe vendndodhja s\'është mjaft e saktë, Stoku të tregon cili market është dhe sa larg: zgjidhe atë te "Ku je?", ose prit pak brenda marketit dhe provo sërish.'
+    ] },
+    { v: 253, versioni: '1.39.1', data: '2026-10-23', titulli: 'Market afër një tjetri në hartë', vetemAdmini: true, pikat: [
+      'Te Cilësimet → Harta mund ta shtosh një market edhe afër një tjetri (p.sh. matanë rrugës). S\'lejohet vetëm mbi të njëjtin vend (më pak se 20 m).'
+    ] },
     { v: 252, versioni: '1.39.0', data: '2026-10-23', titulli: 'Furnizuesi më i lehtë', pikat: [
       'Te "Afat i ri" dhe te produkti, furnizuesi zgjidhet nga lista që del mbi fushë, ose shkruhet një i ri ("+ Furnizues i ri"). Lista mbyllet me "Mbyll".'
     ] },

@@ -16,6 +16,9 @@
  * v250: marketet janë TË PËRBASHKËTA për krejt merchandiserët: lista e secilit = pikat e Stoku-t (sinkronizoMePikat).
  *   Merchandiseri s'i fshin e s'ua ndërron emrin; shton market vetëm kur është brenda tij, me vendndodhje të saktë
  *   (≤ SAKTESIA_MAKS_M) dhe kur s'ka asnjë market tjetër brenda LIDHJA_M. Emrin e ndryshon dhe pikën e fshin vetëm administratori.
+ * v253: dy markete mund të jenë afër njëri-tjetrit (p.sh. dy anët e rrugës, rreth 50 m): "i njëjti vend" = brenda AFER_M
+ *   (20 m). Merchandiseri: deri në AFER_M + pasaktësia e GPS-it (≤ LIDHJA_M) s'shtohet ("afer": prit sa të saktësohet ose
+ *   zgjidhe atë); administratori (shenja në hartë) vetëm brenda AFER_M.
  */
 (function (root) {
   'use strict';
@@ -81,7 +84,10 @@
   // Pika: { id, emri, lat, lng, krijuarNga, krijuarNgaEmri, emriNgaAdmini }. Çdo market me vendndodhje bëhet pikë; një
   // merchandiser tjetër që arrin aty e gjen vetë ("Je te: X") pa e shtuar sërish. Emri i pikës (i administratorit) fiton.
   // Brenda kësaj largësie është "i njëjti vend": marketi i vjetër (pa pikë) lidhet me pikën aty; v250: aty s'shtohet market tjetër
+  // v253: vetëm me të njëjtin emër (ose brenda AFER_M); kufiri i sipërm i pasaktësisë kur shton merchandiseri
   var LIDHJA_M = 60;
+  // v253: dy markete s'janë më afër se kaq (kufiri i administratorit; merchandiseri: plus pasaktësia e GPS-it)
+  var AFER_M = 20;
   function pastroPikat(l) {
     return (Array.isArray(l) ? l : []).filter(function (x) { return x && typeof x.id === 'string' && x.id && kaVend(x); }).map(function (x) {
       return { id: x.id, emri: String(x.emri == null ? '' : x.emri).trim().slice(0, EMRI_MAKS) || 'Market', lat: x.lat, lng: x.lng,
@@ -114,27 +120,43 @@
     });
     return { marketet: r, n: n };
   }
-  // Pika në të njëjtin vend (brenda LIDHJA_M, më e afërta), ose null. v250: pa dallim emri (aty s'ka dy markete)
+  // Pika në të njëjtin vend, ose null. v253: brenda AFER_M (çfarëdo emri) ose brenda LIDHJA_M me të njëjtin emër (marketi i
+  // vjetër pa pikë): një market tjetër mund të jetë 50 m larg
   function pikaPerMarketin(pikat, m) {
     if (!kaVend(m)) return null;
-    var a = pikatAfer(pikat, m, LIDHJA_M, 1)[0];
+    var n = m.emri ? emriINormalizuar(m.emri) : '';
+    var a = pikatAfer(pikat, m, LIDHJA_M, 50).filter(function (x) { return x.largesia <= AFER_M || (n && emriINormalizuar(x.pika.emri) === n); })[0];
     return a ? a.pika : null;
   }
-  // v250: marketi (nga lista) në të njëjtin vend, ose null: { marketi, largesia }
-  function marketiNeVend(l, poz) {
-    if (!poz || !numer(poz.lat) || !numer(poz.lng)) return null;
+  // Më i afërti (nga lista) brenda maksM metrave, ose null: { marketi, largesia }
+  function mAfer(l, poz, maksM) {
     var mi = null, dMin = Infinity;
-    (l || []).forEach(function (m) { if (!kaVend(m)) return; var d = largesia(m, poz); if (d <= LIDHJA_M && d < dMin) { dMin = d; mi = m; } });
+    (l || []).forEach(function (m) { if (!kaVend(m)) return; var d = largesia(m, poz); if (d <= maksM && d < dMin) { dMin = d; mi = m; } });
     return mi ? { marketi: mi, largesia: Math.round(dMin) } : null;
   }
+  // v250: marketi (nga lista) në të njëjtin vend (v253: brenda AFER_M), ose null: { marketi, largesia }
+  function marketiNeVend(l, poz) {
+    if (!poz || !numer(poz.lat) || !numer(poz.lng)) return null;
+    return mAfer(l, poz, AFER_M);
+  }
+  // v253: shenja e administratorit në hartë: pika e Stoku-t brenda AFER_M, ose null: { pika, largesia }
+  function pikaShumeAfer(pikat, poz) {
+    if (!poz || !numer(poz.lat) || !numer(poz.lng)) return null;
+    return pikatAfer(pikat, poz, AFER_M, 1)[0] || null;
+  }
   // v250: a mund të shtohet një market këtu? → null (po) ose { arsye: 'pasakte', sakt } | { arsye: 'ekziston', emri, marketi?, pika? }
+  // v253: | { arsye: 'afer', emri, largesia, sakt } (një market brenda AFER_M + pasaktësia: s'dihet a je te ai apo te fqinji)
   function kontrolloShtimin(poz, l, pikat) {
     if (!poz || !numer(poz.lat) || !numer(poz.lng)) return { arsye: 'pasakte', sakt: 0 };
     if (!numer(poz.sakt) || poz.sakt > SAKTESIA_MAKS_M) return { arsye: 'pasakte', sakt: Math.round(numer(poz.sakt) ? poz.sakt : 0) };
     var mv = marketiNeVend(l, poz);
     if (mv) return { arsye: 'ekziston', emri: mv.marketi.emri, marketi: mv.marketi };
-    var pk = pikaPerMarketin(pikat, poz);
-    if (pk) return { arsye: 'ekziston', emri: pk.emri, pika: pk };
+    var pk = pikatAfer(pikat, poz, AFER_M, 1)[0];
+    if (pk) return { arsye: 'ekziston', emri: pk.pika.emri, pika: pk.pika };
+    var kufiri = Math.min(LIDHJA_M, AFER_M + Math.max(0, poz.sakt));
+    var a = mAfer(l, poz, kufiri), b = pikatAfer(pikat, poz, kufiri, 1)[0];
+    var x = a && (!b || a.largesia <= b.largesia) ? { emri: a.marketi.emri, largesia: a.largesia } : b ? { emri: b.pika.emri, largesia: b.largesia } : null;
+    if (x) return { arsye: 'afer', emri: x.emri, largesia: x.largesia, sakt: Math.round(poz.sakt) };
     return null;
   }
   // v250: lista e merchandiserit = pikat e Stoku-t. Çdo pikë → market (ngaPika); emri dhe vendndodhja nga pika; marketi i
@@ -255,7 +277,7 @@
     largesia: largesia, gjej: gjej, filtro: filtro, meEmra: meEmra, vendosPaMarket: vendosPaMarket, grupo: grupo,
     lexoAktivin: lexoAktivin, ruajAktivin: ruajAktivin, pasGps: pasGps, kaPika: kaPika, duhetKontrolli: duhetKontrolli,
     pozita: pozita, tekstiGabimit: tekstiGabimit,
-    LIDHJA_M: LIDHJA_M, pastroPikat: pastroPikat, pikatAfer: pikatAfer, sipasPikes: sipasPikes, ngaPika: ngaPika,
+    LIDHJA_M: LIDHJA_M, AFER_M: AFER_M, pikaShumeAfer: pikaShumeAfer, pastroPikat: pastroPikat, pikatAfer: pikatAfer, sipasPikes: sipasPikes, ngaPika: ngaPika,
     emratNgaPikat: emratNgaPikat, pikaPerMarketin: pikaPerMarketin,
     SAKTESIA_MAKS_M: SAKTESIA_MAKS_M, marketiNeVend: marketiNeVend, kontrolloShtimin: kontrolloShtimin, sinkronizoMePikat: sinkronizoMePikat
   };
