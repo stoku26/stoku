@@ -101,6 +101,11 @@ fun CilesimetEkrani(tema: String, ndryshoTemen: (String) -> Unit) {
         }
         Seksioni("Llogaria") {
             Rreshti(Ik.Re, "gjelber", "Llogaria", p?.emri ?: "") { flete = "llogaria" }
+            if (site.stoku.vendas.Admini.eshteAdmin()) {
+                val ll by site.stoku.vendas.Admini.llogarite.collectAsState()
+                val lj by site.stoku.vendas.Admini.lejet.collectAsState()
+                Rreshti(Ik.Perdoruesit, "portokalli", "Përdoruesit", remember(ll, lj) { statusiIPerdoruesve() }, vije = true) { flete = "perdoruesit" }
+            }
         }
         Seksioni("Rreth Stoku") {
             Rreshti(Ik.TeRejat, "roze", "Çka ka të re", TeRejat.LISTA.first().titulli) { flete = "terejat" }
@@ -127,6 +132,7 @@ fun CilesimetEkrani(tema: String, ndryshoTemen: (String) -> Unit) {
         }
         "skanimi" -> SkanimiFlete { flete = "" }
         "njoftimet" -> NjoftimetFlete { flete = "" }
+        "perdoruesit" -> PerdoruesitFlete { flete = "" }
         "ora" -> OraFlete { flete = "" }
         "terejat" -> TeRejatFlete(TeRejat.LISTA) { flete = "" }
         "rendi" -> Flete({ flete = "" }) {

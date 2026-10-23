@@ -271,6 +271,29 @@ class PamjetTest {
         fotoEkrani("light-21-importi")
     }
 
+    /** Administratori: Cilësimet → Përdoruesit (lista dhe lejet e një llogarie) */
+    @Test fun perdoruesit() {
+        mbush()
+        Llogaria.vendosPerProve(Perdoruesi("u0", "mendurberisha"))
+        val t = System.currentTimeMillis()
+        Admini.llogarite.value = listOf(
+            Admini.Llogaria("u0", "mendurberisha", t, 0, null, true, false),
+            Admini.Llogaria("u1", "besa", t - 3600000, t - 86400000L * 30, "g1", false, false),
+            Admini.Llogaria("u2", "agim", t - 60000, t - 7200000, null, false, true),
+            Admini.Llogaria("u3", "dren", 0, 0, "g1", false, false)
+        )
+        Admini.lejet.value = mapOf(
+            "u1" to mapOf("lejet" to mapOf("stokuFshi" to false, "pc" to false), "kontrolluarSe" to t - 86400000L, "kontrolluarNga" to "mendurberisha"),
+            "u3" to mapOf("lejet" to site.stoku.logjika.Lejet.krejt(true), "kontrolluarSe" to t - 86400000L)
+        )
+        r.setContent { StokuTema("light") { Rrenja("light") {} } }
+        kliko("Cilësimet")
+        kliko("Përdoruesit")
+        fotoEkrani("light-24-perdoruesit")
+        klikoFundit("besa")
+        fotoEkrani("light-25-lejet")
+    }
+
     @Test fun porta() {
         Llogaria.vendosPerProve(null)
         r.setContent { StokuTema("light") { Porta() } }
