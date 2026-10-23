@@ -12,7 +12,10 @@ Përditësoje në të njëjtin PR me çdo ndryshim domethënës.
 
 ## Projekti
 - "Krejt projekti" = web (`index.html` telefoni/PDA, `pc.html` kompjuteri; kodi te `app-tel.js` / `app-pc.js`) +
-  aplikacioni Android `tel/` + aplikacioni i orës `ora/` + Worker-i `worker/stoku-push.js`.
+  aplikacioni Android `tel/` (WebView) + aplikacioni native `vendas/` (Kotlin/Compose, pa WebView) + aplikacioni i orës
+  `ora/` + Worker-i `worker/stoku-push.js`.
+- `vendas/logjika` = bashkimi.js/ruajtja.js/afatet.js/lejet.js në Kotlin: kur ndryshon ndonjëri, `node teste/vendas-fikstura.js`
+  dhe përshtat Kotlinin (testet e krahasojnë me web-in).
 - stoku.site = GitHub Pages pas Cloudflare. Worker-in, rregullat e Firebase-it dhe Cloudflare-in i vendos **pronari**
   (unë s'kam qasje): jepja kodin ose hapat.
 

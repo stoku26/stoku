@@ -52,6 +52,9 @@ object Dyqani {
     private val shkruesi = Executors.newSingleThreadExecutor()
     private var pritjeShkrimi = false
 
+    /** Vetëm për testet e pamjeve */
+    fun vendosPerProve(g: Gjendja) { _gjendja.value = g }
+
     fun nis(ctx: Context) {
         skedari = File(ctx.filesDir, "dyqani.json")
         val x = try { if (skedari.exists()) Json.lexo(skedari.readText()).siObj() else null } catch (e: Exception) { null }

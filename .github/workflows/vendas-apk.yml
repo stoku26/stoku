@@ -40,6 +40,48 @@ jobs:
           name: stoku-native-apk
           path: stoku-native-${{ github.run_number }}.apk
 
+  # Pamjet e ekraneve (Robolectric, pa telefon) vetëm në degët e punës: çdo PNG ruhet si blob i git-it (pa prekur asnjë degë)
+  # dhe "sha"-të dalin si shënim (annotation), që të lexohen me API-në e GitHub-it dhe të krahasohen me pamjet e web-it.
+  pamjet:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Pamjet (Robolectric)
+        continue-on-error: true
+        run: gradle -p vendas :app:testDebugUnitTest --stacktrace --no-daemon
+      - name: Blob-et e pamjeve
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import base64, glob, json, os, re, urllib.request
+          tok = os.environ['GH_TOKEN']; repo = os.environ['GITHUB_REPOSITORY']
+          dalja = []
+          for f in sorted(glob.glob('vendas/app/build/pamjet/*.png')):
+              trupi = json.dumps({'content': base64.b64encode(open(f, 'rb').read()).decode(), 'encoding': 'base64'}).encode()
+              k = urllib.request.Request('https://api.github.com/repos/%s/git/blobs' % repo, data=trupi,
+                  headers={'Authorization': 'Bearer ' + tok, 'Accept': 'application/vnd.github+json'})
+              dalja.append(os.path.basename(f) + '=' + json.load(urllib.request.urlopen(k))['sha'])
+          print('::notice title=pamjet::' + ' '.join(dalja or ['asnje']))
+          gab = []
+          for x in glob.glob('vendas/app/build/test-results/testDebugUnitTest/*.xml'):
+              for m in re.finditer(r'<testcase name="([^"]+)"[^>]*>\s*<failure message="([^"]{0,1500})', open(x).read()):
+                  gab.append(m.group(1) + ': ' + m.group(2).replace('\n', ' '))
+          for g in gab[:8]:
+              print('::warning title=test::' + g[:1500])
+          PY
+
   release:
     needs: build
     if: github.ref == 'refs/heads/main'

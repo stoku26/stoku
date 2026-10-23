@@ -81,7 +81,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
+internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
     val n = N
     val gati by Llogaria.gati.collectAsState()
     val p by Llogaria.perdoruesi.collectAsState()

@@ -49,6 +49,9 @@ object Llogaria {
     private var dLejet: ListenerRegistration? = null
     private var dMerch: ListenerRegistration? = null
 
+    /** Vetëm për testet e pamjeve */
+    fun vendosPerProve(p: Perdoruesi?, merchandiser: Boolean = false) { _perdoruesi.value = p; _gati.value = true; _merchandiser.value = merchandiser }
+
     fun emailIBrendshem(emri: String) = emri.trim().lowercase() + "@stoku-app.local"
 
     fun nis(c: Context) {
@@ -148,7 +151,7 @@ object Llogaria {
 
     fun dil() { ndalDegjuesit(); auth.signOut() }
 
-    fun emriIFundit(): String = StokuApp.prefs(ctx).getString("emri_i_fundit", "") ?: ""
+    fun emriIFundit(): String = StokuApp.prefs(StokuApp.app).getString("emri_i_fundit", "") ?: ""
 
     private fun tekstiGabimit(e: Exception): String = when (e) {
         is FirebaseAuthUserCollisionException -> "Ky emër përdoruesi është i zënë. Zgjidh një tjetër, ose hyr nëse është llogaria jote."

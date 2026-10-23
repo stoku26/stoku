@@ -25,6 +25,8 @@ class StokuApp : Application() {
         private const val PREFS = "stoku"
         lateinit var app: Context
             private set
+        /** Vetëm për testet (Robolectric): konteksti pa Firebase */
+        fun vendosPerProve(c: Context) { app = c }
         fun prefs(ctx: Context) = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         fun prefsOse(k: String, ose: String): String = prefs(app).getString(k, ose) ?: ose
         fun prefsOseB(k: String, ose: Boolean): Boolean = prefs(app).getBoolean(k, ose)
