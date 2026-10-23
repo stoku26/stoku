@@ -163,8 +163,14 @@ object Llogaria {
             if (e.errorCode == "ERROR_INVALID_EMAIL") "Emri i përdoruesit ka shenja të palejuara. Përdor vetëm a–z, 0–9, _ . -"
             else "Emri i përdoruesit ose fjalëkalimi është gabim."
         is FirebaseTooManyRequestsException -> "Shumë prova të gabuara. Prit pak minuta dhe provo përsëri."
-        is FirebaseNetworkException -> "S'ka lidhje me internetin. Kontrollo internetin dhe provo përsëri."
-        is FirebaseAuthException -> "S'u hy (" + e.errorCode + "). Provo përsëri pas pak."
-        else -> "S'u lidh me serverin. Kontrollo internetin dhe provo përsëri."
+        is FirebaseNetworkException -> "S'ka lidhje me internetin. Kontrollo internetin dhe provo përsëri." + detaji(e)
+        is FirebaseAuthException -> "S'u hy (" + e.errorCode + "). Provo përsëri pas pak." + detaji(e)
+        else -> "S'u lidh me serverin. Kontrollo internetin dhe provo përsëri." + detaji(e)
+    }
+
+    /** Arsyeja teknike (e shkurtër) poshtë mesazhit, që gabimi i rrallë të gjendet pa telefon në dorë */
+    private fun detaji(e: Exception): String {
+        val m = (e.message ?: "").replace(Regex("\\s+"), " ").trim().take(160)
+        return "\n(" + e.javaClass.simpleName + (if (m.isNotEmpty()) ": $m" else "") + ")"
     }
 }

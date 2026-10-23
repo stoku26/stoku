@@ -7,6 +7,10 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -65,6 +69,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 Rrenja(tema) { tema = it; StokuApp.vendosPref("tema", it) }
+                RrezimiIFundit()
             }
         }
         Perditesimi.kontrollo(this, false)
@@ -172,5 +177,23 @@ private fun Tabi(t: String, ik: ImageVector, aktiv: Boolean, shenja: String?, mo
             if (shenja != null) Shenja(shenja, Modifier.align(Alignment.TopEnd).offset(x = 12.dp, y = (-6).dp))
         }
         Text(t, style = tx(11, if (aktiv) 600 else 500, ngjyra), modifier = Modifier.padding(top = 4.dp))
+    }
+}
+
+/** Herën e kaluar aplikacioni u mbyll nga një gabim: arsyeja tregohet një herë (që përdoruesi ta dërgojë) */
+@Composable
+private fun RrezimiIFundit() {
+    var teksti by remember { mutableStateOf(StokuApp.prefsOse("rrezimi_i_fundit", "")) }
+    if (teksti.isEmpty()) return
+    val n = N
+    androidx.compose.ui.window.Dialog(onDismissRequest = { teksti = ""; StokuApp.vendosPref("rrezimi_i_fundit", "") }) {
+        Column(Modifier.clip(androidx.compose.foundation.shape.RoundedCornerShape(24.dp)).background(n.surface).padding(22.dp)) {
+            Text("Aplikacioni u mbyll papritur herën e kaluar", style = tx(19, 700, n.ink))
+            Text("Bëje një foto të ekranit dhe dërgoja zhvilluesit, që ta rregullojë.", style = tx(14, 400, n.ink2), modifier = Modifier.padding(top = 8.dp))
+            Text(teksti, style = site.stoku.vendas.ui.txMono(11f, n.ink3), modifier = Modifier.padding(top = 12.dp).heightIn(max = 320.dp)
+                .verticalScroll(rememberScrollState()))
+            Text("Mbyll", style = tx(15, 600, n.accentText), modifier = Modifier.align(Alignment.End).padding(top = 14.dp)
+                .clickable { teksti = ""; StokuApp.vendosPref("rrezimi_i_fundit", "") }.padding(8.dp))
+        }
     }
 }
