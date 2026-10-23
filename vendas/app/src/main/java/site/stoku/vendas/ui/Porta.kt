@@ -53,6 +53,8 @@ fun Porta() {
     var merch by remember { mutableStateOf(false) }
     var gabim by remember { mutableStateOf("") }
     var duke by remember { mutableStateOf(false) }
+    var rivendosja by remember { mutableStateOf(false) }
+    var njoftimi by remember { mutableStateOf("") }
     val fFj = remember { FocusRequester() }
     val fFj2 = remember { FocusRequester() }
 
@@ -87,6 +89,11 @@ fun Porta() {
             LogoEPlote(Modifier.padding(top = 4.dp, bottom = 14.dp).height(48.dp))
             Text("Regjistrimi i mallit dhe i afateve të skadimit.", style = tx(14, 400, n.muted), textAlign = TextAlign.Center)
             Spacer(Modifier.height(20.dp))
+            if (rivendosja) {
+                Rivendosja(emri) { msg -> rivendosja = false; if (msg != null) { njoftimi = msg; gabim = "" } }
+                return@Column
+            }
+            if (njoftimi.isNotEmpty()) { Text(njoftimi, style = tx(13, 600, n.ok), textAlign = TextAlign.Center); Spacer(Modifier.height(12.dp)) }
             // Tabet Hyr / Krijo llogari
             Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(n.sunken).padding(4.dp)) {
                 listOf(false to "Hyr", true to "Krijo llogari").forEach { (v, t) ->
@@ -108,6 +115,7 @@ fun Porta() {
                         Icon(if (shfaq) Ik.SyriMbyllur else Ik.Syri, if (shfaq) "Fshih fjalëkalimin" else "Shfaq fjalëkalimin",
                             Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).clickable { shfaq = !shfaq }.padding(8.dp), tint = n.faint)
                     })
+                if (!krijo) Lidhje("Ke harruar fjalëkalimin?", { rivendosja = true; gabim = "" }, Modifier.align(Alignment.End))
                 if (krijo) {
                     Etiketa("Përsërit fjalëkalimin")
                     Fusha(fj2, { fj2 = it }, Modifier.fillMaxWidth(), "Shkruaje edhe një herë", fjalekalim = !shfaq, fokusi = fFj2,
