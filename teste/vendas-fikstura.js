@@ -204,3 +204,83 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
   fs.writeFileSync(sk, JSON.stringify(dalja));
   console.log('marketet: ' + rastet.length + ' raste, ' + rastet.filter(r => r.kontrolli && r.kontrolli.arsye === 'afer').length + ' "afer", ' + rastet.filter(r => r.kontrolli && r.kontrolli.arsye === 'ekziston').length + ' "ekziston", ' + rastet.filter(r => r.kontrolli === null).length + ' lejohet');
 }
+
+// ---------- Grupi (ekipa.js, funksionet e pastra): prania, koha, statistikat, tekstet, kalendari, përmbledhja ----------
+{
+  process.env.TZ = 'UTC';
+  const EK = require(RR + '/ekipa.js');
+  const A = require(RR + '/afatet.js');
+  const TANI_G = Date.UTC(2026, 9, 23, 10, 15, 0); // 23.10.2026 10:15 UTC
+  const DataE = Date;
+  global.Date = class extends DataE { constructor(...x) { if (x.length) super(...x); else super(TANI_G); } static now() { return TANI_G; } };
+  const iso = n => { const d = new DataE(TANI_G + n * 864e5); return d.toISOString().slice(0, 10); };
+  const prania = [{ online: true, aktivSe: TANI_G - 60e3 }, { online: true, aktivSe: TANI_G - 5 * 60e3 }, { online: false, aktivSe: TANI_G - 60e3 },
+    { online: true, aktivSe: TANI_G - 3 * 3600e3 }, { online: false, aktivSe: TANI_G - 30 * 3600e3 }, { online: false }, null]
+    .map(a => ({ a, on: EK.eshteOnline(a, TANI_G), tx: EK.tekstiPranise(a, TANI_G) }));
+  const kohet = [30e3, 5 * 60e3, 59 * 60e3, 2 * 3600e3, 11 * 3600e3, 26 * 3600e3, 3 * 864e5, 300 * 864e5, 0].map(d => {
+    const ts = d ? TANI_G - d : 0; return { ts, rel: EK.kohaRelative(ts, TANI_G), dita: ts ? EK.titulliDites(ts, TANI_G) : '' };
+  });
+  const afatetG = [
+    { id: 'a1', barkodi: '1', emri: 'Kos', data: iso(-2), sasia: 3, statusi: 'aktiv', ndryshuarSe: TANI_G - 5 * 864e5, furnizuesi: 'Vita', krijuarSe: 1, m: 'x' },
+    { id: 'a2', barkodi: '2', emri: 'Qumësht', data: iso(0), sasia: '', statusi: 'aktiv', ndryshuarSe: TANI_G, furnizuesi: 'Vita' },
+    { id: 'a3', emri: 'Djathë', data: iso(4), sasia: 2, statusi: 'aktiv', furnizuesi: 'Bylmeti', mk: 'Viva' },
+    { id: 'a4', emri: 'Jogurt', data: iso(12), statusi: 'aktiv' },
+    { id: 'a5', emri: 'Bukë', data: iso(45), statusi: 'aktiv' },
+    { id: 'a6', emri: 'Lëng', data: iso(-9), statusi: 'hequr', hequrSe: TANI_G - 2 * 3600e3, hequrNga: 'agim' },
+    { id: 'a7', emri: 'Çaj', data: iso(-60), statusi: 'hequr', hequrSe: TANI_G - 50 * 864e5 },
+    { id: 'a8', emri: 'Oriz', data: iso(-20), statusi: 'hequr', hequrSe: TANI_G - 15 * 864e5 },
+    { id: 'a9', emri: 'Pa datë', data: '', statusi: 'aktiv' },
+    { id: '', emri: 'pa id', data: iso(3) },
+    { id: 'b1', emri: 'Ujë', data: iso(-1), statusi: 'aktiv', ndryshuarSe: TANI_G - 864e5 }
+  ];
+  const permb = EK.permbledhjaEAfateve(afatetG, TANI_G);
+  const anetaret = [{ uid: 'u1', emri: 'besa', afatet: afatetG.slice(0, 6) }, { uid: 'u2', emri: 'agim', afatet: afatetG.slice(5) }, { uid: 'u3', emri: 'drini', afatet: [] }];
+  const st = EK.statistikat(anetaret, TANI_G);
+  const ngjarjet = [
+    { lloji: 'hequr', uid: 'u2', emri: 'agim', koha: TANI_G - 3600e3, pronariUid: 'u1', pronariEmri: 'besa', afatId: 'a1', produkti: 'Kos', data: iso(-2), sasia: 3 },
+    { lloji: 'hequr', uid: 'u1', emri: 'besa', koha: TANI_G - 7200e3, pronariUid: 'u1', afatId: 'a2', produkti: 'Qumësht' },
+    { lloji: 'hequr', uid: 'u2', emri: 'agim', koha: TANI_G - 4000e3, pronariUid: 'u1', pronariEmri: 'besa', afatId: 'b1', barkodi: '9' },
+    { lloji: 'heqje-refuzuar', uid: 'u1', emri: 'besa', koha: TANI_G - 3000e3, pronariUid: 'u1', afatId: 'b1', produkti: 'Ujë', kerkuesUid: 'u2', kerkuesEmri: 'agim' },
+    { lloji: 'heqje-pranuar', uid: 'u1', emri: 'besa', koha: TANI_G - 100e3, afatId: 'zz', produkti: 'X', kerkuesUid: 'u3' },
+    { lloji: 'afate-te-reja', uid: 'u2', emri: 'agim', koha: TANI_G - 1e3, n: 3, ngaFoto: true },
+    { lloji: 'afate-te-reja', uid: 'u1', emri: 'besa', koha: TANI_G - 1e3 },
+    { lloji: 'rikthyer', uid: 'u1', emri: 'besa', koha: TANI_G, barkodi: '5' },
+    { lloji: 'anetar-i-ri', uid: 'u1', emri: 'besa', koha: TANI_G, anetariUid: 'u3', anetariEmri: 'drini' },
+    { lloji: 'anetar-i-ri', uid: 'u3', emri: 'drini', koha: TANI_G },
+    { lloji: 'lajmerim', uid: 'u1', emri: 'besa', koha: TANI_G, tekst: 'Mbledhje nesër' },
+    { lloji: 'lajmeruar', uid: 'u2', emri: 'agim', koha: TANI_G, furnizuesi: 'Vita', n: 1 },
+    { lloji: 'kerkese-heqje', uid: 'u2', emri: 'agim', koha: TANI_G, produktet: [{ produkti: 'A', barkodi: '1' }, { produkti: 'B' }, { barkodi: '3' }, { produkti: 'D', data: iso(-1) }], perUid: 'u1', shenim: 'shpejt' },
+    { lloji: 'kerkese-heqje', uid: 'u1', emri: 'besa', koha: TANI_G, produkti: 'Kos', barkodi: '1' },
+    { lloji: 'kerkese-kryer', uid: 'u3', emri: 'drini', koha: TANI_G, produkti: 'Kos', kerkuesUid: 'u1' },
+    { lloji: 'admin-afat', uid: 'uA', emri: 'mendurberisha', koha: TANI_G, veprimi: 'fshij', produkti: 'Kos', pronariUid: 'u1' },
+    { lloji: 'admin-afat', uid: 'u1', emri: 'besa', koha: TANI_G, veprimi: 'kthe', produkti: 'Kos', pronariUid: 'u2', pronariEmri: 'agim' },
+    { lloji: 'tjeter', uid: 'u2', koha: TANI_G, tekst: 'diçka' }
+  ];
+  const tekstet = [];
+  ngjarjet.forEach(ng => ['u1', 'u2', null].forEach(u => tekstet.push({ ng, u, t: EK.tekstiNgjarjes(ng, u) })));
+  const njoftimet = [
+    { lloji: 'kerkese-heqje', emri: 'agim', produkti: 'Kos', barkodi: '1', perKrejt: true, shenim: 'sot' },
+    { lloji: 'kerkese-heqje', produktet: [{ produkti: 'A' }, { produkti: 'B' }] },
+    { lloji: 'kerkese-kryer', emri: 'drini', produkti: 'Kos' },
+    { lloji: 'hequr', emri: 'agim', produkti: 'Kos', data: iso(-2) },
+    { lloji: 'hequr', barkodi: '77' },
+    { lloji: 'heqje-pranuar', emri: 'besa', produkti: 'Kos' },
+    { lloji: 'heqje-refuzuar', produkti: 'Kos' },
+    { lloji: 'lajmerim', emri: 'besa', tekst: 'Përshëndetje' },
+    { lloji: 'admin-i-ri', emri: 'besa' },
+    { lloji: 'admin-afat', emri: 'mendurberisha', veprimi: 'hiq', produkti: 'Kos' },
+    { lloji: 'x', tekst: 'tjetër' }
+  ].map(nj => ({ nj, t: EK.tekstiNjoftimit(nj) }));
+  const harta = EK.hartaEHeqjeve(ngjarjet);
+  const hartaTx = Object.keys(harta).sort().map(k => [k, harta[k].heqja ? harta[k].heqja.koha : null, harta[k].vendimi ? harta[k].vendimi.koha : null]);
+  const mbiv = ['a1', 'a2', 'b1', 'a3'].map(id => { const a = afatetG.find(x => x.id === id); return { a, r: EK.mbivendosHeqjen(a, 'u1', harta) }; });
+  const zbatimi = [[afatetG[0], { koha: TANI_G }], [afatetG[0], { koha: TANI_G - 6 * 864e5 }], [afatetG[1], { koha: TANI_G }], [afatetG[5], { koha: TANI_G }], [afatetG[10], { koha: TANI_G }]]
+    .map(([a, nj]) => ({ a, nj, po: EK.duhetZbatuarHeqja(a, nj) }));
+  const kal = [[2026, 9], [2026, 1], [2027, 0]].map(([v, m]) => { const k = EK.kalendari(afatetG, v, m, TANI_G); return { v, m, titulli: k.titulli, ditetMeStatus: k.ditetMeStatus, q: k.qelizat.map(q => q ? [q.iso, q.dita, q.sot, q.afatet.length, q.neRaft, q.statusi] : null) }; });
+  const kerkesat = [ngjarjet[12], ngjarjet[13], { produktet: [] }, { produkti: '', barkodi: '' }].map(k => ({ k, l: EK.listaEKerkeses(k) }));
+  const rreshtat = [{ produkti: 'Kos', barkodi: '1', data: iso(-2) }, { barkodi: '2' }, {}].map(x => ({ x, t: EK.rreshtiIProduktit(x) }));
+  global.Date = DataE;
+  dalja.grupi = JSON.parse(JSON.stringify({ TANI_G, prania, kohet, afatetG, permb, anetaret, st, tekstet, njoftimet, hartaTx, mbiv, zbatimi, kal, kerkesat, rreshtat }));
+  fs.writeFileSync(sk, JSON.stringify(dalja));
+  console.log('grupi: ' + tekstet.length + ' tekste, ' + permb.length + ' në përmbledhje');
+}

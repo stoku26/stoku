@@ -25,6 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +60,10 @@ fun CilesimetEkrani(tema: String, ndryshoTemen: (String) -> Unit) {
     var flete by remember { mutableStateOf("") }
     var rendi by remember { mutableStateOf(rendi()) }
     var dil by remember { mutableStateOf(false) }
+    val hapMarketet by site.stoku.vendas.Merchandiseri.hapFaqen.collectAsState()
+    LaunchedEffect(hapMarketet) { if (hapMarketet) { flete = "marketet"; site.stoku.vendas.Merchandiseri.hapFaqen.value = false } }
+    site.stoku.vendas.Dyqani.gjendja.collectAsState().value
+    site.stoku.vendas.Merchandiseri.aktivi.collectAsState().value
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(top = 12.dp, bottom = 24.dp)) {
         Text("Cilësimet", style = tx(26, 700, n.ink, -0.025))
@@ -80,6 +85,7 @@ fun CilesimetEkrani(tema: String, ndryshoTemen: (String) -> Unit) {
         Seksioni("Aplikacioni") {
             Rreshti(Ik.Hena, "vjollce", "Pamja", TEMAT.first { it.first == tema }.second) { flete = "tema" }
             if (Llogaria.leja("stoku")) Rreshti(Ik.Rendi, "portokalli", "Stoku", RENDET.first { it.first == rendi }.second, vije = true) { flete = "rendi" }
+            if (Llogaria.leja("marketet")) Rreshti(Ik.Vendi, "gjelber", "Marketet", statusiIMarketeve(), vije = true) { flete = "marketet" }
         }
         Seksioni("Llogaria") {
             Rreshti(Ik.Re, "gjelber", "Llogaria", p?.emri ?: "") { flete = "llogaria" }
@@ -96,6 +102,7 @@ fun CilesimetEkrani(tema: String, ndryshoTemen: (String) -> Unit) {
     }
 
     when (flete) {
+        "marketet" -> MarketetFlete { flete = "" }
         "tema" -> Flete({ flete = "" }) {
             Text("Pamja", style = tx(22, 700, n.ink, -0.02))
             Zgjedhjet(TEMAT, tema) { ndryshoTemen(it); flete = "" }

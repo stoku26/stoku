@@ -88,7 +88,20 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      (Worker-i mund ta kontrollojë origjinën; nëse kthen "origjina", pronari duhet ta lejojë) → `Afatet.normalizoRreshtin` (= web-i,
      me fikstura) → "Kontrollo fletën" (fotoja, statusi, rreshtat me shiritin e ngjyrës, "⚠ kontrolloje", "Në fletë: …", "+ Shto
      rresht me dorë", "Ruaj N afate" me kontrollin e përsëritjeve dhe `ngaFoto: true`). Pa "Dërgo në PC" dhe pa marketin (ende).
-   - **Marketet**: `Marketet.kt` = marketet.js (v253 përfshirë; 120 raste me fikstura); ekrani i merchandiserit vjen më vonë.
+   - **Marketet**: `Marketet.kt` = marketet.js (v253 përfshirë; 120 raste me fikstura). Ekrani i merchandiserit (`Merchandiseri.kt`
+     + `ui/MarketetUI.kt`): pikat `pikat/{id}` me kopje në pajisje (`KoleksioniMeKopje.kt`, vetëm ndryshimet nga `ndryshuarSe`),
+     sinkronizimi me pikat, marketi aktiv (prefs `marketi_aktiv`), GPS me `LocationManagerCompat.getCurrentLocation` (më e mira
+     brenda 15 s; kur hapet aplikacioni, jo më shpesh se 2 min), "Ku je?" me "Afër teje", "Je te: …", "Market i ri" (vetëm me
+     vendndodhje të saktë, jo mbi një market ekzistues), afatet sipas marketit (grupimi + shenja te karta + zgjedhja te afati),
+     Cilësimet → Marketet.
+   - **Grupi** (si tabi "Grupi" i web-it, ekipa.js): `GrupiLogjika.kt` (funksionet e pastra: prania, koha relative, përmbledhja e
+     afateve, heqjet e kolegëve në pritje, kalendari, statistikat, tekstet e aktivitetit/njoftimeve, kërkesat; `GrupiTest` me
+     fikstura nga ekipa.js, ora UTC) + `Grupi.kt` (Firestore: treguesi `perdoruesit/{uid}.grupi` me rikthimin e v243, anëtarët,
+     `grupet/{g}/afatet/{uid}` me përmbledhjen e afateve të mia pas 1.5 s, aktiviteti `feed` (afatet e reja mblidhen 20 s),
+     prania çdo 90 s, ftesat, kërkesat për t'u futur, njoftimet personale, heqja e afatit të kolegut me miratimin e pronarit,
+     "Kërko heqje nga rafti", krijo/riemërto/largohu/hiq/bëje admin, pastrimi i aktivitetit) + `ui/GrupiEkrani.kt` (Përmbledhja,
+     Afatet, Aktiviteti, Kalendari, Kolegët, zilja, pa grup). Pa njoftimet e sistemit (push) dhe pa veprimet e administratorit
+     `mendurberisha` (fshirja e llogarive, ndryshimi i afateve të të tjerëve): ato mbeten te web-i.
    - **Pamjet pa telefon**: `PamjetTest.kt` (Robolectric + Roborazzi, 390×844 dp) → job-i `pamjet` i workflow-t i ruan PNG-të si
      blob-e (`::notice title=pamjet::emri=sha`); lexohen me `gh api repos/stoku26/stoku/check-runs/<job>/annotations` dhe
      `gh api repos/stoku26/stoku/git/blobs/<sha> --jq .content | base64 -d`. Krahasuar me pamjet e web-it: pothuajse identike
@@ -99,8 +112,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    - **Importi i stokut nga foto** (dy butonat lart te Stoku, si `btnImportGaleria`/`btnImportStok`): i njëjti ekran me
      `stok = true` ("Kontrollo listën", `synim: 'stok'` te Worker-i, zgjedhja e folderit + "+ Folder i ri…", "Importo N
      produkte"; sasia i shtohet produktit me të njëjtin barkod, emri/furnizuesi ekzistues mbeten, si te web-i).
-   - **Mungon ende** (vendas/README.md): Grupi, ekrani i marketeve, importet nga Excel, Excel/PDF,
-     "Dërgo në PC", push, ora, faqet e administratorit.
+   - **Mungon ende** (vendas/README.md): importet nga Excel, Excel/PDF, "Dërgo në PC", push (njoftimet e sistemit), ora,
+     harta e marketeve, faqet e administratorit.
 
 0000000. **MARKETE AFËR NJËRI-TJETRIT (v253 = 1.39.1)**: pronari (administratori, Cilësimet → Harta, "+ Shto market në hartë",
    me foto): "dy markete … nuk po len aq afer me u kon … spo muj me shtu marketin ne te djatht" (Viva Fly dhe marketi matanë

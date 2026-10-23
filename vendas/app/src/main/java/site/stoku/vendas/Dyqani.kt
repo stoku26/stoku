@@ -287,6 +287,13 @@ object Dyqani {
         return (ek != null) to total
     }
 
+    // ---------------- Marketet (merchandiseri) ----------------
+    /** Lista e re e marketeve (dhe ndoshta e afateve, kur marketi i parë merr afatet pa market); hequr = shënohen si fshirje */
+    fun vendosMarketet(marketet: List<Obj>, afatet: List<Obj>? = null, hequr: List<String> = emptyList()) {
+        hequr.forEach { shenoFshirjen("marketet", it) }
+        ndrysho(if (afatet != null) 300 else 1500) { g -> g.copy(marketet = marketet, afatet = afatet ?: g.afatet) }
+    }
+
     // ---------------- Afatet ----------------
     fun afati(id: String): Obj? = _gjendja.value.afatet.firstOrNull { it["id"] == id }
 

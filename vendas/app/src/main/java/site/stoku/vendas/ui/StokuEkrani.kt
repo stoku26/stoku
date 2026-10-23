@@ -87,7 +87,8 @@ private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, Str
     val sot = Calendar.getInstance().apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }.timeInMillis
     val zero = te.count { sasiaE(it) <= 0 }
     val sotN = te.count { ((it["prekurSe"] as? Number)?.toLong() ?: 0L) >= sot }
-    val nAf = Afatet.numero(g.afatet)
+    val aktiviM by site.stoku.vendas.Merchandiseri.aktivi.collectAsState()
+    val nAf = remember(g, aktiviM, lejet) { Afatet.numero(site.stoku.vendas.Merchandiseri.afatetEMarketit(g.afatet)) }
     val skaduara = nAf.skaduar + nAf.paDate
 
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp),
@@ -105,6 +106,8 @@ private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, Str
             Hapesire(14.dp)
             if (Llogaria.leja("stoku")) Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), "Kërko produkt ose barkod", ikona = Ik.Kerko)
             Hapesire(18.dp)
+            // "Je te: …" (vetëm merchandiseri me markete, ose pa asnjë: "Shto marketin ku punon")
+            CipiIMarketit(Modifier.padding(bottom = 12.dp))
         }
         if (!Llogaria.leja("stoku")) return@LazyColumn
         val k = kerkimi.trim().lowercase()

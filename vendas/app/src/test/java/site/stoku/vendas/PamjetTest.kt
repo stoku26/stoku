@@ -69,6 +69,8 @@ class PamjetTest {
     private fun foto(emri: String) { r.waitForIdle(); r.onRoot().captureRoboImage("build/pamjet/$emri.png") }
     private fun fotoEkrani(emri: String) { r.waitForIdle(); captureScreenRoboImage("build/pamjet/$emri.png") }
     private fun kliko(t: String) { r.onAllNodesWithText(t)[0].performClick(); r.waitForIdle() }
+    /** I fundit me këtë tekst (p.sh. brenda një dritareje mbi faqe) */
+    private fun klikoFundit(t: String) { val l = r.onAllNodesWithText(t); l[l.fetchSemanticsNodes().size - 1].performClick(); r.waitForIdle() }
 
     private fun krejt(tema: String) {
         mbush()
@@ -139,6 +141,102 @@ class PamjetTest {
     @Test fun fletaECelet() = fleta("light")
     @Test fun fletaEErret() = fleta("dark")
     @Test fun listaEStokut() = fleta("light", stok = true)
+
+    /** Merchandiseri me dy markete: "Krejt marketet" (afatet sipas marketit), "Ku je?" me marketet afër, Cilësimet → Marketet */
+    @Test fun merchandiseri() {
+        mbush()
+        val t = System.currentTimeMillis()
+        val sot = LocalDate.now()
+        fun data(n: Long) = Afatet.isoNgaData(sot.plusDays(n))
+        val g0 = Dyqani.g
+        Dyqani.vendosPerProve(g0.copy(
+            marketet = listOf(
+                obj("id" to "kp1", "emri" to "Viva Fly", "lat" to 42.66290, "lng" to 21.16550, "p" to "p1", "ndryshuarSe" to t),
+                obj("id" to "kp2", "emri" to "Albi Mall", "lat" to 42.64920, "lng" to 21.14600, "p" to "p2", "ndryshuarSe" to t)
+            ),
+            afatet = listOf(
+                obj("id" to "a1", "barkodi" to "389001000", "emri" to "Kos Vita 500g", "data" to data(-2), "sasia" to 3L, "statusi" to "aktiv", "ndryshuarSe" to t, "m" to "kp1"),
+                obj("id" to "a2", "barkodi" to "389001001", "emri" to "Qumësht Vita 1L", "data" to data(0), "sasia" to 6L, "statusi" to "aktiv", "ndryshuarSe" to t, "m" to "kp1"),
+                obj("id" to "a3", "barkodi" to "389001002", "emri" to "Djathë i bardhë", "data" to data(4), "sasia" to 2L, "statusi" to "aktiv", "ndryshuarSe" to t, "m" to "kp2"),
+                obj("id" to "a4", "barkodi" to "389001003", "emri" to "Jogurt 200g", "data" to data(12), "sasia" to 10L, "statusi" to "aktiv", "ndryshuarSe" to t, "m" to "kp2")
+            )
+        ))
+        Llogaria.vendosPerProve(Perdoruesi("u1", "besa"), merchandiser = true)
+        Merchandiseri.vendosPerProve(listOf(
+            obj("id" to "p1", "emri" to "Viva Fly", "lat" to 42.66290, "lng" to 21.16550),
+            obj("id" to "p2", "emri" to "Albi Mall", "lat" to 42.64920, "lng" to 21.14600),
+            obj("id" to "p3", "emri" to "Meridian", "lat" to 42.66320, "lng" to 21.16610)
+        ), null)
+        r.setContent { StokuTema("light") { Rrenja("light") {} } }
+        foto("light-09-merch-stoku")
+        kliko("Afatet")
+        foto("light-10-merch-afatet")
+        Merchandiseri.dritarja.value = Merchandiseri.Dritarja.KuJe("zgjidh", site.stoku.logjika.Marketet.Pozita(42.66300, 21.16520, 12.0), true)
+        fotoEkrani("light-11-kuje")
+        klikoFundit("Viva Fly")
+        foto("light-12-je-te")
+        kliko("Cilësimet")
+        kliko("Marketet")
+        fotoEkrani("light-13-marketet")
+        Llogaria.vendosPerProve(Perdoruesi("u1", "besa"))
+    }
+
+    /** Grupi: të njëjtat të dhëna si pamjet e web-it (scratchpad foto-grupi.js): besa (admin), agim, drini */
+    private fun mbushGrupin(): Long {
+        val t = System.currentTimeMillis()
+        val sot = LocalDate.now()
+        fun data(n: Long) = Afatet.isoNgaData(sot.plusDays(n))
+        val afA = listOf(
+            obj("id" to "b1", "barkodi" to "389002000", "emri" to "Lëng Molle 1L", "data" to data(-5), "sasia" to 4L, "statusi" to "aktiv", "ndryshuarSe" to t, "furnizuesi" to "Frutomania"),
+            obj("id" to "b2", "barkodi" to "389002001", "emri" to "Biskota 200g", "data" to data(7), "sasia" to 12L, "statusi" to "aktiv", "ndryshuarSe" to t, "furnizuesi" to "Plazma"),
+            obj("id" to "b3", "barkodi" to "389002002", "emri" to "Çokollatë 100g", "data" to data(-1), "sasia" to 2L, "statusi" to "hequr", "hequrSe" to t - 3600_000L, "hequrNga" to "agim", "ndryshuarSe" to t)
+        )
+        val afD = listOf(obj("id" to "c1", "barkodi" to "389003000", "emri" to "Ujë Dea 0.5L", "data" to data(20), "sasia" to 24L, "statusi" to "aktiv", "ndryshuarSe" to t, "furnizuesi" to "Dea"))
+        val an = listOf(
+            obj("uid" to "u1", "emri" to "besa", "roli" to "pronar", "pronar" to true, "aktivSe" to t, "online" to true, "platforma" to "tel", "kycurSe" to t - 30 * 86_400_000L),
+            obj("uid" to "u2", "emri" to "agim", "roli" to "anetar", "pronar" to false, "aktivSe" to t - 60_000L, "online" to true, "platforma" to "tel", "kycurSe" to t - 20 * 86_400_000L),
+            obj("uid" to "u3", "emri" to "drini", "roli" to "anetar", "pronar" to false, "aktivSe" to t - 5 * 3600_000L, "online" to false, "platforma" to "pc", "kycurSe" to t - 10 * 86_400_000L)
+        )
+        val perm = mapOf<String, Obj>("u2" to obj("emri" to "agim", "afatet" to afA), "u3" to obj("emri" to "drini", "afatet" to afD))
+        val ngj = listOf<Obj>(
+            obj("id" to "e2", "lloji" to "hequr", "pronariUid" to "u2", "pronariEmri" to "agim", "afatId" to "b3", "produkti" to "Çokollatë 100g", "barkodi" to "389002002",
+                "data" to data(-1), "uid" to "u2", "emri" to "agim", "koha" to t - 3600_000L),
+            obj("id" to "e1", "lloji" to "afate-te-reja", "n" to 3L, "uid" to "u2", "emri" to "agim", "koha" to t - 2 * 3600_000L)
+        )
+        Grupi.vendosPerProve(Grupi.Gjendja("anetar", "g1", "pronar"), obj("id" to "g1", "emri" to "Market Besa", "pronarUid" to "u1", "pronarEmri" to "besa"),
+            an, perm, ngj, "u1", "besa",
+            kerkesatEGrupit = listOf(obj("id" to "g1_u4", "gid" to "g1", "grupiEmri" to "Market Besa", "uid" to "u4", "emri" to "era", "koha" to t - 600_000L)),
+            nj = listOf(obj("id" to "nj1", "lloji" to "hequr", "afatId" to "a1", "produkti" to "Kos Vita 500g", "barkodi" to "389001000", "data" to data(-2),
+                "grupi" to "g1", "uid" to "u2", "emri" to "agim", "koha" to t - 300_000L, "lexuar" to false)))
+        return t
+    }
+
+    private fun grupi(tema: String) {
+        mbush()
+        val t = mbushGrupin()
+        r.setContent { StokuTema(tema) { Rrenja(tema) {} } }
+        kliko("Grupi")
+        foto("$tema-g1-pulti")
+        kliko("Afatet") // pllaka e menysë (para tabit poshtë)
+        foto("$tema-g2-afatet")
+        kliko("Aktiviteti")
+        foto("$tema-g3-aktiviteti")
+        kliko("Kalendari")
+        foto("$tema-g4-kalendari")
+        kliko("Kolegët")
+        foto("$tema-g5-koleget")
+        r.onNodeWithContentDescription("Njoftimet").performClick(); r.waitForIdle()
+        fotoEkrani("$tema-g6-zilja")
+        klikoFundit("Mbyll")
+        kliko("Përmbledhja")
+        // Pa grup, me një ftesë (si "era" te web-i)
+        Grupi.vendosPerProve(Grupi.Gjendja("pa-grup"), null, emptyList(), null, emptyList(), "u4", "era",
+            ftesat = listOf(obj("id" to "g9_era", "gid" to "g9", "grupiEmri" to "Viva Fly Ekipi", "ngaUid" to "u9", "ngaEmri" to "arta", "perdoruesi" to "era", "koha" to t - 600_000L)))
+        foto("$tema-g7-pa-grup")
+    }
+
+    @Test fun grupiECelet() = grupi("light")
+    @Test fun grupiEErret() = grupi("dark")
 
     @Test fun porta() {
         Llogaria.vendosPerProve(null)
