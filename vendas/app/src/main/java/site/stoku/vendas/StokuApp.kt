@@ -18,10 +18,9 @@ class StokuApp : Application() {
         app = this
         ruajRrezimet()
         nisFirebase(this)
-        Dyqani.nis(this)
-        Sinkronizimi.nis(this)
-        Merchandiseri.nis(this)
-        Grupi.nis()
+        // Pas një mbylljeje të papritur: pjesët e tjera nisen vetëm pasi përdoruesi ta ketë parë arsyen (MainActivity),
+        // që aplikacioni të mos mbyllet prapë para se të lexohet
+        if (prefsOse("rrezimi_i_fundit", "").isEmpty()) nisModulet()
     }
 
     /** Kur aplikacioni mbyllet nga një gabim, arsyeja ruhet dhe tregohet herën tjetër (s'kemi telefon për ta parë ndryshe) */
@@ -30,8 +29,12 @@ class StokuApp : Application() {
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             try {
                 val sw = java.io.StringWriter(); e.printStackTrace(java.io.PrintWriter(sw))
-                val rreshtat = sw.toString().lines().filter { it.isNotBlank() }
-                val tekst = (rreshtat.take(1) + rreshtat.filter { it.contains("site.stoku") }.take(6)).joinToString("\n").take(1500)
+                val rreshtat = sw.toString().lines().filter { it.isNotBlank() }.map { it.trim() }
+                val zgjedhur = LinkedHashSet<String>()
+                rreshtat.take(4).forEach { zgjedhur.add(it) }
+                rreshtat.forEachIndexed { i, r -> if (r.startsWith("Caused by")) rreshtat.drop(i).take(3).forEach { zgjedhur.add(it) } }
+                rreshtat.filter { it.contains("site.stoku") }.take(8).forEach { zgjedhur.add(it) }
+                val tekst = (listOf("thread " + t.name) + zgjedhur).joinToString("\n").take(2500)
                 prefs(this).edit().putString("rrezimi_i_fundit", "versioni " + BuildConfig.VERSION_NAME + "\n" + tekst).commit()
             } catch (x: Throwable) { }
             iMeparshmi?.uncaughtException(t, e)
@@ -39,6 +42,18 @@ class StokuApp : Application() {
     }
 
     companion object {
+        var moduletNisur = false
+            private set
+        /** Dyqani, sinkronizimi (me llogarinë), marketet dhe grupi */
+        fun nisModulet() {
+            if (moduletNisur) return
+            moduletNisur = true
+            Dyqani.nis(app)
+            Sinkronizimi.nis(app)
+            Merchandiseri.nis(app)
+            Grupi.nis()
+        }
+
         private const val PREFS = "stoku"
         lateinit var app: Context
             private set

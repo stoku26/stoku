@@ -68,8 +68,10 @@ class MainActivity : ComponentActivity() {
                         isAppearanceLightStatusBars = !erret; isAppearanceLightNavigationBars = !erret
                     }
                 }
-                Rrenja(tema) { tema = it; StokuApp.vendosPref("tema", it) }
-                RrezimiIFundit()
+                var rrezimi by remember { mutableStateOf(StokuApp.prefsOse("rrezimi_i_fundit", "")) }
+                if (rrezimi.isNotEmpty() || !StokuApp.moduletNisur) EkraniIRrezimit(rrezimi) {
+                    StokuApp.vendosPref("rrezimi_i_fundit", ""); rrezimi = ""; StokuApp.nisModulet()
+                } else Rrenja(tema) { tema = it; StokuApp.vendosPref("tema", it) }
             }
         }
         Perditesimi.kontrollo(this, false)
@@ -78,17 +80,19 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         Perditesimi.vazhdoNesePritej(this)
+        if (!StokuApp.moduletNisur) return
         Sinkronizimi.neRikthim()
         Merchandiseri.kontrolloGps(false) // si web-i: vendndodhja kur hapet Stoku (jo më shpesh se 2 min)
     }
 
     override fun onStart() {
         super.onStart()
-        Grupi.vendosPerpara(true) // prania te kolegët e grupit ("Online tani")
+        if (StokuApp.moduletNisur) Grupi.vendosPerpara(true) // prania te kolegët e grupit ("Online tani")
     }
 
     override fun onStop() {
         super.onStop()
+        if (!StokuApp.moduletNisur) return
         Sinkronizimi.dergoNesePret() // ndryshimi i fundit shkon në cloud edhe kur aplikacioni kalon në sfond
         Grupi.vendosPerpara(false)
     }
@@ -180,20 +184,19 @@ private fun Tabi(t: String, ik: ImageVector, aktiv: Boolean, shenja: String?, mo
     }
 }
 
-/** Herën e kaluar aplikacioni u mbyll nga një gabim: arsyeja tregohet një herë (që përdoruesi ta dërgojë) */
+/** Herën e kaluar aplikacioni u mbyll nga një gabim: arsyeja (që përdoruesi ta fotografojë) para se të niset gjithçka tjetër */
 @Composable
-private fun RrezimiIFundit() {
-    var teksti by remember { mutableStateOf(StokuApp.prefsOse("rrezimi_i_fundit", "")) }
-    if (teksti.isEmpty()) return
+private fun EkraniIRrezimit(teksti: String, vazhdo: () -> Unit) {
     val n = N
-    androidx.compose.ui.window.Dialog(onDismissRequest = { teksti = ""; StokuApp.vendosPref("rrezimi_i_fundit", "") }) {
-        Column(Modifier.clip(androidx.compose.foundation.shape.RoundedCornerShape(24.dp)).background(n.surface).padding(22.dp)) {
+    Box(Modifier.fillMaxSize().background(n.bg).statusBarsPadding().navigationBarsPadding(), contentAlignment = Alignment.Center) {
+        Column(Modifier.padding(16.dp).clip(androidx.compose.foundation.shape.RoundedCornerShape(24.dp)).background(n.surface).padding(22.dp)) {
             Text("Aplikacioni u mbyll papritur herën e kaluar", style = tx(19, 700, n.ink))
-            Text("Bëje një foto të ekranit dhe dërgoja zhvilluesit, që ta rregullojë.", style = tx(14, 400, n.ink2), modifier = Modifier.padding(top = 8.dp))
-            Text(teksti, style = site.stoku.vendas.ui.txMono(11f, n.ink3), modifier = Modifier.padding(top = 12.dp).heightIn(max = 320.dp)
+            Text("Bëje një foto të këtij ekrani dhe dërgoja zhvilluesit, që ta rregullojë. Pastaj shtyp \"Vazhdo\".",
+                style = tx(14, 400, n.ink2), modifier = Modifier.padding(top = 8.dp))
+            Text(teksti, style = site.stoku.vendas.ui.txMono(10.5f, n.ink3), modifier = Modifier.padding(top = 12.dp).heightIn(max = 420.dp)
                 .verticalScroll(rememberScrollState()))
-            Text("Mbyll", style = tx(15, 600, n.accentText), modifier = Modifier.align(Alignment.End).padding(top = 14.dp)
-                .clickable { teksti = ""; StokuApp.vendosPref("rrezimi_i_fundit", "") }.padding(8.dp))
+            Text("Vazhdo", style = tx(16, 600, n.accentText), modifier = Modifier.align(Alignment.End).padding(top = 14.dp)
+                .clickable(onClick = vazhdo).padding(10.dp))
         }
     }
 }
