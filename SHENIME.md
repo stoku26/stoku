@@ -93,7 +93,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      blob-e (`::notice title=pamjet::emri=sha`); lexohen me `gh api repos/stoku26/stoku/check-runs/<job>/annotations` dhe
      `gh api repos/stoku26/stoku/git/blobs/<sha> --jq .content | base64 -d`. Krahasuar me pamjet e web-it: pothuajse identike
      (titujt 26 px si `.sb .opsione-krye h2`, brenda folderit pa tabe). Kujdes: `/*` brenda një komenti Kotlin hap koment të ri.
-   - **Mungon ende** (vendas/README.md): Grupi, ekrani i marketeve, importi i stokut nga foto, importet nga Excel, Excel/PDF,
+     Testi i fletës (foto provë + `LeximiAI.lexoPerProve`) gjeti një gabim të vërtetë: `BitmapFactory.decodeStream` me
+     `inJustDecodeBounds` kthen gjithmonë null (vlejnë vetëm outWidth/outHeight). Në Robolectric skedari i fotos duhet
+     regjistruar (`registerInputStreamSupplier`); FileProvider mban dosjen e testit të parë (prandaj `uri` mund të jetë null).
+   - **Importi i stokut nga foto** (dy butonat lart te Stoku, si `btnImportGaleria`/`btnImportStok`): i njëjti ekran me
+     `stok = true` ("Kontrollo listën", `synim: 'stok'` te Worker-i, zgjedhja e folderit + "+ Folder i ri…", "Importo N
+     produkte"; sasia i shtohet produktit me të njëjtin barkod, emri/furnizuesi ekzistues mbeten, si te web-i).
+   - **Mungon ende** (vendas/README.md): Grupi, ekrani i marketeve, importet nga Excel, Excel/PDF,
      "Dërgo në PC", push, ora, faqet e administratorit.
 
 0000000. **MARKETE AFËR NJËRI-TJETRIT (v253 = 1.39.1)**: pronari (administratori, Cilësimet → Harta, "+ Shto market në hartë",

@@ -22,7 +22,7 @@ kur ndryshon logjika e web-it, rikrijo fiksturat dhe përshtate Kotlinin derisa 
 
 ## Çka ka (faza 1)
 Hyrja / krijimi i llogarisë (me "Punoj si merchandiser") dhe "Ke harruar fjalëkalimin?", Stoku (folderat, produktet,
-kërkimi, +/-, skanimi, zhvendosja, fshirja, folder i ri), Afatet (lista me ngjyra, filtrat, muajt, afat i ri / ndryshimi,
+kërkimi, +/-, skanimi, zhvendosja, fshirja, folder i ri, **importi i stokut nga foto** me AI), Afatet (lista me ngjyra, filtrat, muajt, afat i ri / ndryshimi,
 "U hoq nga rafti", zgjedhja e shumëfishtë, **"Fotografo fletën"**: fotoja (kamera ose galeria) lexohet me AI nga Worker-i
 `stoku-afatet`, rreshtat kontrollohen dhe ruhen si te web-i), Cilësimet (pamja, renditja, llogaria, versioni), sinkronizimi
 me Firebase dhe lejet e llogarisë.
@@ -35,6 +35,6 @@ me Firebase dhe lejet e llogarisë.
 GitHub Actions (job-i `pamjet`, vetëm jashtë `main`) i ruan PNG-të si blob-e të git-it dhe i shënon te "annotations".
 
 ## Çka mungon ende (fazat e ardhshme)
-Grupi (kolegët), marketet e merchandiserëve në ekran (GPS, "Je te", harta; logjika është gati te `Marketet.kt`), importi i
-stokut nga foto, importet nga Excel, Excel/PDF, "Dërgo në PC", njoftimet push, ora e dorës, faqja e administratorit
+Grupi (kolegët), marketet e merchandiserëve në ekran (GPS, "Je te", harta; logjika është gati te `Marketet.kt`), importet
+nga Excel, Excel/PDF, "Dërgo në PC", njoftimet push, ora e dorës, faqja e administratorit
 (Përdoruesit, Furnizuesit, Produktet).
