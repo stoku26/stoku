@@ -4881,6 +4881,10 @@
           cb('Vendndodhja s\'është e saktë (rreth ' + (k.sakt || '?') + ' m). Lejo "vendndodhjen e saktë" për Stoku-n te leja e vendndodhjes së telefonit (jo "të përafërt") dhe provo sërish brenda marketit.');
           return;
         }
+        if (k && k.arsye === 'afer') { // v253: një market afër, por GPS-i s'e dallon a je te ai apo te fqinji
+          cb('Afër (' + k.largesia + ' m) është marketi "' + k.emri + '" dhe vendndodhja ka pasaktësi rreth ' + k.sakt + ' m. Nëse je te ai, zgjidhe te "Ku je?". Përndryshe prit pak brenda marketit dhe provo sërish.');
+          return;
+        }
         if (k && k.arsye === 'ekziston') {
           var mE = k.marketi || shtoNgaPika(k.pika);
           vendosMarketinAktiv(mE.id, 'gps');
@@ -5142,8 +5146,8 @@
     var q = HT.inst.qendra();
     if (q.zoom < 15) { gab.textContent = 'Zmadho hartën (sa të shihen rrugët) që marketi të vendoset saktë.'; return; }
     if (MK.ekzistonEmri(PK.lista, e)) { gab.textContent = 'Në Stoku ka tashmë një market me këtë emër. Shto edhe vendin, p.sh. "' + e + ' Qendër".'; return; }
-    var af = MK.pikaPerMarketin(PK.lista, q);
-    if (af) { gab.textContent = 'Këtu është tashmë marketi "' + af.emri + '".'; return; }
+    var af = MK.pikaShumeAfer(PK.lista, q); // v253: vetëm brenda 20 m (një market tjetër mund të jetë matanë rrugës)
+    if (af) { gab.textContent = 'Këtu është tashmë marketi "' + af.pika.emri + '" (' + af.largesia + ' m). Vendose shenjën mbi marketin e ri.'; return; }
     var cl = window.__stokuCloud;
     if (!cl || !cl.ekipa || !cl.ekipa.shtoPiken) { gab.textContent = 'S\'u ruajt. Kontrollo internetin dhe provo sërish.'; return; }
     $('htShtoRuaj').disabled = true; gab.textContent = '';
