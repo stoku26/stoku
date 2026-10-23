@@ -57,7 +57,9 @@ object LeximiAI {
     suspend fun pergatitFoton(ctx: Context, uri: Uri): Foto = withContext(Dispatchers.IO) {
         val cr = ctx.contentResolver
         val kufijte = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-        cr.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, kufijte) } ?: throw IOException("foto-e-palexueshme")
+        // Me inJustDecodeBounds dekodimi kthen gjithmonë null: vlejnë vetëm outWidth/outHeight
+        val hyrja = cr.openInputStream(uri) ?: throw IOException("foto-e-palexueshme")
+        hyrja.use { BitmapFactory.decodeStream(it, null, kufijte) }
         val w = kufijte.outWidth; val h = kufijte.outHeight
         if (w <= 0 || h <= 0) throw IOException("foto-e-palexueshme")
         val k = min(1.0, min(ANA_MAKS / max(w, h), sqrt(PIKSELA_MAKS / (w.toDouble() * h))))
