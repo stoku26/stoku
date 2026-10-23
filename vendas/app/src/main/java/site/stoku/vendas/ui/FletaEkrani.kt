@@ -145,6 +145,7 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, stok: Boolean = false, kurRuhet: (S
     LaunchedEffect(uri) {
         val f = try { LeximiAI.pergatitFoton(ctx, uri) } catch (e: Throwable) {
             if (e is kotlinx.coroutines.CancellationException) throw e
+            LeximiAI.gabimiIFundit = e.toString() + " @ " + e.stackTrace.take(4).joinToString(" < ")
             statusi = "Fotoja s'u hap. Provo një foto tjetër."; gabim = true; punon = false; return@LaunchedEffect
         }
         foto = f.pamja.asImageBitmap()

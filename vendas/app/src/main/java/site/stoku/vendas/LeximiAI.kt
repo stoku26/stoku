@@ -96,6 +96,9 @@ object LeximiAI {
         return if (s < 1.0) Bitmap.createScaledBitmap(b, max(1, (b.width * s).toInt()), max(1, (b.height * s).toInt()), true) else b
     }
 
+    /** Gabimi i fundit gjatë përgatitjes së fotos (për diagnozë) */
+    @Volatile var gabimiIFundit: String? = null
+
     /** Vetëm për testet e pamjeve: përgjigjja e AI-së pa rrjet */
     var lexoPerProve: (suspend (Foto) -> Rez)? = null
 
