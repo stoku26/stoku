@@ -88,7 +88,7 @@ object Marketet {
     }
 
     /** JS: `x || ''` */
-    private fun oseBosh(x: Any?): Any = if (x == null || x == false || x == "" || (x is Number && (x.toDouble() == 0.0 || x.toDouble().isNaN()))) "" else x
+    private fun oseBosh(x: Any?): Any = if (eVertete(x)) x!! else ""
 
     class PikaAfer(val pika: Obj, val largesia: Long)
 

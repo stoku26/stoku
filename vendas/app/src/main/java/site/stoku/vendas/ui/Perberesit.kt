@@ -162,7 +162,7 @@ fun Fusha(
             Row(Modifier.padding(horizontal = 14.dp).heightIn(min = lartesia), verticalAlignment = Alignment.CenterVertically) {
                 if (ikona != null) { Icon(ikona, null, Modifier.size(20.dp), tint = n.faint); Spacer(Modifier.width(10.dp)) }
                 Box(Modifier.weight(1f)) {
-                    if (vlera.isEmpty()) Text(placeholder, style = st.copy(color = n.faint), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    if (vlera.isEmpty()) Text(placeholder, style = st.copy(color = n.faint), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth())
                     brenda()
                 }
                 if (djathtas != null) { Spacer(Modifier.width(8.dp)); djathtas() }

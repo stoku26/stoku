@@ -43,6 +43,10 @@ class AfatetTest {
         }
     }
 
+    @Test fun rreshtatEAI() {
+        f["ai"].siListe().forEach { x -> val r = x.siObj()!!; assertEquals("ai " + Json.shkruaj(r["r"]), kanonik(r["n"]), kanonik(Afatet.normalizoRreshtin(r["r"]))) }
+    }
+
     @Test fun ikonatDheLejet() {
         f["ikonat"].siListe().forEach { x -> val r = x.siObj()!!; assertEquals(r["id"], Afatet.ikonaEFolderit(r["f"].siObj()).id) }
         f["lejet"].siListe().forEach { x -> val r = x.siObj()!!; assertEquals("leja " + r["k"] + " " + Json.shkruaj(r["l"]), r["po"], Lejet.lejohet(r["l"].siObj(), r["k"] as String)) }

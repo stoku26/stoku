@@ -69,6 +69,31 @@ object Afatet {
         val t = (if (v == null) "" else jsString(v)).replace(Regex("\\s+"), "")
         return if (t.contains('+') && lexoSasine(t) != "") t else ""
     }
+    // ---------- Rreshtat e lexuar nga AI-ja (Worker-i stoku-afatet), si normalizoRreshtin te afatet.js ----------
+    private val BARKODI_O = Regex("^[0-9oO]+$")
+    private val HAPESIRA_VIZA = Regex("(?U)[\\s-]")
+
+    /** Pozicioni i rreshtit në foto (0..1), ose null */
+    private fun pozicioni(v: Any?): Any? {
+        if (v == null || v == "") return null
+        val n = jsNumber(v)
+        return if (n.isFinite()) numerPerRuajtje(maxOf(0.0, minOf(1.0, n))) else null
+    }
+
+    /** → { barkodi, emri, sasia, sasiaOrigjinale, data, dataOrigjinale, furnizuesi, dyshim, x, y } */
+    fun normalizoRreshtin(r0: Any?): MObj {
+        val r = r0.siObj() ?: emptyMap()
+        fun tekst(x: Any?) = if (eVertete(x)) jsString(x) else ""
+        var b = tekst(r["barkodi"]).replace(HAPESIRA_VIZA, "")
+        if (BARKODI_O.matches(b)) b = b.replace('o', '0').replace('O', '0') // "O" e lexuar në vend të zeros
+        val dataOrig = tekst(listOf(r["data_origjinale"], r["dataOrigjinale"], r["data"]).firstOrNull { eVertete(it) }).trim()
+        val dataS = tekst(r["data"])
+        val iso = if (ISO_RE.matches(dataS) && dataNgaIso(r["data"]) != null) dataS else lexoDaten(if (eVertete(r["data"])) r["data"] else dataOrig)
+        return obj("barkodi" to b, "emri" to tekst(r["emri"]).trim(), "sasia" to lexoSasine(r["sasia"]), "sasiaOrigjinale" to sasiaSiShume(r["sasia"]),
+            "data" to (iso ?: ""), "dataOrigjinale" to dataOrig, "furnizuesi" to tekst(r["furnizuesi"]).trim(),
+            "dyshim" to (eVertete(r["dyshim"]) || iso.isNullOrEmpty()), "x" to pozicioni(r["x"]), "y" to pozicioni(r["y"]))
+    }
+
     const val SASIA_E_MADHE = "Sasia duket si barkod (shumë shifra). Shkruaj sasinë, jo barkodin."
     fun sasiaEPranueshme(t: Any?): Boolean = Regex("^-?\\d{1,6}$").matches((if (t == null) "" else jsString(t)).trim())
     fun sasiaTekst(a: Obj?): String {

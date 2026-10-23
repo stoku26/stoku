@@ -110,8 +110,10 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
     }
 
     Box(Modifier.fillMaxSize().background(n.bg)) {
+        // Brenda një folderi shiriti me tabe fshihet (si te web-i: faqja e folderit zë krejt ekranin)
+        val meTabe = !(tabi == "stoku" && folderi != null)
         Column(Modifier.fillMaxSize()) {
-            Box(Modifier.weight(1f).statusBarsPadding()) {
+            Box(Modifier.weight(1f).statusBarsPadding().then(if (meTabe) Modifier else Modifier.navigationBarsPadding())) {
                 val skano: ((String) -> Unit) -> Unit = { cb -> skanimi = cb }
                 when (tabi) {
                     "stoku" -> StokuEkrani(folderi, { folderi = it }, skano)
@@ -120,8 +122,8 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
                 }
             }
             // Shiriti me tabe poshtë
-            Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
-            Row(Modifier.fillMaxWidth().background(n.surface).navigationBarsPadding().height(64.dp)) {
+            if (meTabe) Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
+            if (meTabe) Row(Modifier.fillMaxWidth().background(n.surface).navigationBarsPadding().height(64.dp)) {
                 val nAf = Afatet.numero(g.afatet)
                 tabet.forEach { (k, t, ik) ->
                     val shenja = if (k == "afatet") (nAf.skaduar + nAf.afer + nAf.paDate).takeIf { it > 0 }?.let { if (it > 99) "99+" else it.toString() } else null
@@ -132,7 +134,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
                 }
             }
         }
-        ToastPamja(Modifier.align(Alignment.BottomCenter), poshte = 90.dp)
+        ToastPamja(Modifier.align(Alignment.BottomCenter), poshte = if (meTabe) 90.dp else 40.dp)
         skanimi?.let { cb ->
             Skaneri(mbyll = { skanimi = null }) { b -> skanimi = null; cb(b) }
         }

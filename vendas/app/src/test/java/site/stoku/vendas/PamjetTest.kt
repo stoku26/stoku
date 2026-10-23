@@ -90,6 +90,36 @@ class PamjetTest {
     @Test fun eCelet() = krejt("light")
     @Test fun eErret() = krejt("dark")
 
+    /** "Kontrollo fletën": foto provë (fletë e bardhë me rreshta) dhe përgjigje e AI-së pa rrjet */
+    private fun fleta(tema: String) {
+        mbush()
+        val ctx = org.robolectric.RuntimeEnvironment.getApplication()
+        val bm = android.graphics.Bitmap.createBitmap(1200, 1600, android.graphics.Bitmap.Config.ARGB_8888)
+        val c = android.graphics.Canvas(bm)
+        c.drawColor(android.graphics.Color.WHITE)
+        val p = android.graphics.Paint().apply { color = android.graphics.Color.BLACK; textSize = 44f; isAntiAlias = true }
+        listOf("389001000   Kos Vita 500g   26.10.26   6", "389001002   Djathe        3?.1?.26   2", "             Jogurt 200g   22.10.26   12").forEachIndexed { i, t ->
+            c.drawText(t, 60f, 200f + i * 120f, p)
+        }
+        val f = java.io.File(ctx.cacheDir, "fleta-prove.jpg")
+        f.outputStream().use { bm.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, it) }
+        val sot = LocalDate.now()
+        LeximiAI.lexoPerProve = {
+            LeximiAI.Rez.Ok(listOf(
+                obj("barkodi" to "389001000", "emri" to "Kos Vita 500g", "data" to Afatet.isoNgaData(sot.plusDays(3)), "data_origjinale" to "26.10.26", "sasia" to 6L, "furnizuesi" to "Vita"),
+                obj("barkodi" to "389001002", "data" to "", "data_origjinale" to "3?.1?.26", "sasia" to "2", "dyshim" to true),
+                obj("emri" to "Jogurt 200g", "data" to Afatet.isoNgaData(sot.minusDays(1)), "sasia" to "12")
+            ).map { Afatet.normalizoRreshtin(it) })
+        }
+        r.setContent { StokuTema(tema) { site.stoku.vendas.ui.FletaEkrani(android.net.Uri.fromFile(f), {}, {}) } }
+        r.waitUntil(15000) { r.onAllNodesWithText("Ruaj 3 afate").fetchSemanticsNodes().isNotEmpty() }
+        fotoEkrani("$tema-07-fleta")
+        LeximiAI.lexoPerProve = null
+    }
+
+    @Test fun fletaECelet() = fleta("light")
+    @Test fun fletaEErret() = fleta("dark")
+
     @Test fun porta() {
         Llogaria.vendosPerProve(null)
         r.setContent { StokuTema("light") { Porta() } }

@@ -69,6 +69,8 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
     var hapur by remember { mutableStateOf<String?>(null) } // id, ose "" = afat i ri
     var zgjedhja by remember { mutableStateOf<Set<String>?>(null) }
     var fshiZgjedhjen by remember { mutableStateOf(false) }
+    var fleta by remember { mutableStateOf<android.net.Uri?>(null) } // fotoja e fletës për leximin me AI
+    val (fotografo, ngaGaleria) = rememberFotoEFletes { fleta = it }
     if (!Llogaria.leja("afatet")) return
 
     val te = g.afatet
@@ -100,7 +102,7 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
         LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp)) {
             item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Afatet", style = tx(32, 700, n.ink, -0.03), modifier = Modifier.weight(1f))
+                    Text("Afatet", style = tx(26, 700, n.ink, -0.025), modifier = Modifier.weight(1f))
                     val sot = LocalDate.now()
                     Text(MUAJT_PLOTE[sot.monthValue - 1] + " " + sot.year, style = tx(14, 400, n.muted))
                     Spacer(Modifier.width(10.dp))
@@ -112,23 +114,30 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                     }
                 }
                 Hapesire(16.dp)
-                if (Llogaria.leja("afatetShto")) {
-                    // Karta kryesore (si "Fotografo fletën" te web-i): shto afat me barkod
+                val ai = Llogaria.leja("afatetAI")
+                val shto = Llogaria.leja("afatetShto")
+                if (ai || shto) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        // Karta kryesore: "Fotografo fletën" (afatet lexohen me AI) + galeria; pa këtë leje: "Afat i ri"
                         Column(Modifier.weight(1.25f).heightIn(min = 140.dp).shadow(14.dp, RoundedCornerShape(22.dp), spotColor = n.accent, ambientColor = n.accent)
-                            .clip(RoundedCornerShape(22.dp)).background(n.accent).clickable { hapur = "" }.padding(16.dp)) {
-                            Box(Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).border(1.5.dp, Color(0x80FFFFFF), RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
-                                Icon(Ik.Plus, null, Modifier.size(22.dp), tint = Color.White)
+                            .clip(RoundedCornerShape(22.dp)).background(n.accent).clickable { if (ai) fotografo() else hapur = "" }.padding(16.dp)) {
+                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                                Box(Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).border(1.5.dp, Color(0x80FFFFFF), RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
+                                    Icon(if (ai) Ik.Kamera else Ik.Plus, null, Modifier.size(22.dp), tint = Color.White)
+                                }
+                                Spacer(Modifier.weight(1f))
+                                if (ai) Box(Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(Color(0x29FFFFFF)).clickable { ngaGaleria() },
+                                    contentAlignment = Alignment.Center) { Icon(Ik.Foto, "Zgjidh foto nga galeria", Modifier.size(20.dp), tint = Color.White) }
                             }
                             Spacer(Modifier.weight(1f))
-                            Text("Afat i ri", style = tx(17, 700, Color.White))
-                            Text("Skano barkodin ose shkruaje, pastaj zgjidh datën", style = tx(12, 400, Color(0xD9FFFFFF)))
+                            Text(if (ai) "Fotografo fletën" else "Afat i ri", style = tx(17, 700, Color.White))
+                            Text(if (ai) "Afatet lexohen nga foto automatikisht" else "Skano barkodin ose shkruaje, pastaj zgjidh datën", style = tx(12, 400, Color(0xD9FFFFFF)))
                         }
-                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                            KartaVeprimi(Ik.Skano, "Skano") {
+                        if (shto) Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            KartaVeprimi(Ik.Plus, "Shto") { hapur = "" }
+                            if (Llogaria.leja("kamera")) KartaVeprimi(Ik.Skano, "Skano") {
                                 skano { b -> Dyqani.g.afatet.firstOrNull { it["barkodi"] == b && Afatet.statusi(it) != "hequr" }?.let { hapur = it["id"] as String } ?: run { skanuar = b; hapur = "" } }
                             }
-                            KartaVeprimi(Ik.Plus, "Shto") { hapur = "" }
                         }
                     }
                     Hapesire(12.dp)
@@ -188,6 +197,7 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
     }
 
     hapur?.let { id -> AfatiFlete(id.ifEmpty { null }, skanuar.also { skanuar = "" }, skano) { hapur = null } }
+    fleta?.let { u -> FletaEkrani(u, mbyll = { fleta = null }) { f -> filtri = f; muaji = ""; zgjedhja = null } }
     if (fshiZgjedhjen) {
         val ids = zgjedhja.orEmpty()
         Konfirmo(if (ids.size == 1) "Të fshihet 1 afat?" else "Të fshihen ${ids.size} afate?",

@@ -78,6 +78,7 @@ dependencies {
     implementation("androidx.camera:camera-view:1.3.4")
     implementation("com.google.mlkit:barcode-scanning:17.3.0")
     implementation("com.google.guava:guava:33.3.1-android") // ListenableFuture e CameraX-it
+    implementation("androidx.exifinterface:exifinterface:1.3.7") // fotoja e fletës drejt (rrotullimi i kamerës)
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.13")

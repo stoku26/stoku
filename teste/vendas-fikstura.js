@@ -136,7 +136,17 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
     L.CELESAT.concat(['panjohur']).forEach(k => lejet.push({ l, k, po: L.lejohet(l, k) }));
   });
   const n = A.numero(afatet, TANI_A);
-  dalja.afatet = { TANI_A, rastet, renditur, datat, shkrimi, sasite, furn, ikonat, lejet, numero: n };
+  // Rreshtat që i kthen AI-ja (Worker-i stoku-afatet) → normalizoRreshtin
+  const ai = [
+    { barkodi: '389 001-000', emri: ' Kos ', data: '2026-11-03', sasia: '60+30', furnizuesi: ' Vita ', x: 0.2, y: '0.5' },
+    { barkodi: '38O0O1', data: '12.10.26', dyshim: true, x: 1.7, y: -2 },
+    { barkodi: 3890010, emri: 7, data_origjinale: '31/12/2026', sasia: 5, x: '', y: null },
+    { barkodi: 'ABCo', data: '2026-02-30', dataOrigjinale: '30 shkurt', sasia: 'abc' },
+    { emri: 'Pa datë', data: '', sasia: '12 copë', x: 'abc', y: true },
+    { data: 'nov 2027', sasia: null, furnizuesi: null, dyshim: 0 },
+    {}, null, { barkodi: 0, emri: '', data: 0, x: 0, y: 1 }
+  ].map(r => ({ r, n: A.normalizoRreshtin(r) }));
+  dalja.afatet = { TANI_A, rastet, renditur, datat, shkrimi, sasite, furn, ikonat, lejet, numero: n, ai: JSON.parse(JSON.stringify(ai)) };
   fs.writeFileSync(sk, JSON.stringify(dalja));
   console.log('afatet: ' + rastet.length + ' raste');
 }

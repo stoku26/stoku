@@ -50,6 +50,13 @@ fun jsNumber(x: Any?): Double = when (x) {
     else -> Double.NaN
 }
 
+/** E vërtetë si te JavaScript (`if (x)`): jo null, false, 0, NaN ose "" */
+fun eVertete(x: Any?): Boolean = when (x) {
+    null, false, "" -> false
+    is Number -> { val d = x.toDouble(); d != 0.0 && !d.isNaN() }
+    else -> true
+}
+
 /** Number(x) || 0 */
 fun numerOse0(x: Any?): Double { val n = jsNumber(x); return if (n.isNaN() || n == 0.0) 0.0 else n }
 

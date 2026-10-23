@@ -61,7 +61,7 @@ fun CilesimetEkrani(tema: String, ndryshoTemen: (String) -> Unit) {
     var dil by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(top = 12.dp, bottom = 24.dp)) {
-        Text("Cilësimet", style = tx(32, 700, n.ink, -0.03))
+        Text("Cilësimet", style = tx(26, 700, n.ink, -0.025))
         Hapesire(18.dp)
         // Llogaria
         Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(22.dp))
