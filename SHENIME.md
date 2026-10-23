@@ -52,6 +52,56 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **STOKU NATIVE: APLIKACIONI ANDROID PA WEBVIEW (`vendas/`, faza 1; APK `vendas-vNN`)**: kërkesa: "krijoma 100% native
+   android aplikacion jo webview, mundohu sa ma identik me bo, te kamera ta perdorin google lens". Pa ndryshim në web.
+   - **Projekti** `vendas/` (Gradle: `:app` Android + Compose, `:logjika` Kotlin pa Android). Paketa **`site.stoku.vendas`**,
+     emri "Stoku Native" (i ndarë nga `site.stoku.app` i `tel/`, që të provohen të dy njëkohësisht; kur të jetë i plotë mund ta
+     zëvendësojë). Nënshkrimi si `tel/` (`nenshkruaj.sh tel`). Workflow `vendas-apk.yml`: `:logjika:test` + APK; main → Release
+     `vendas-vNN`; `Perditesimi.kt` e kërkon vetë (`vendas-v`).
+   - **Firebase**: i njëjti projekt (`stoku-appi`), opsionet në kod (`StokuApp.kt`, appId i Android-it nga `android.json`, çelësi
+     publik). Hyrja `emri@stoku-app.local`; `perdoruesit/{uid}` (perdoruesi, kycurSe; regjistrimi: krijuarSe + merchandiser);
+     flamuri merchandiser si v251 (vetëm nga serveri; "po" s'kthehet në "jo"); `lejet/{uid}` (si lejet.js, ruhen edhe në telefon).
+   - **Logjika = web-i**: `Bashkimi.kt` (bashkimi.js), `Ruajtja.kt` (bashkoPjeset, ndajNePjese, hash FNV-1a si `Math.imul`,
+     pjesaKanonike), `Afatet.kt`, `Lejet.kt`, `Js.kt` (objektet si te JS: Map me renditje, numrat Long/Double, JSON, kanonik,
+     renditja e çelësave-indeks si `Object.keys`, localeCompare e përafërt). Testet në `vendas/logjika/src/test` e krahasojnë me
+     kodin e vërtetë të web-it (`fikstura.json` nga `node teste/vendas-fikstura.js`: 150 bashkime të rastësishme, ndarja në pjesë,
+     dyqan me 6000 produkte, hash-i, afatet, datat, lejet). **Kur ndryshon bashkimi.js/ruajtja.js/afatet.js/lejet.js, rikrijo
+     fiksturat dhe përshtat Kotlinin.** Lokalisht: Gradle + Kotlin JVM (Maven Central) te një projekt në scratchpad me
+     `srcDir` te `vendas/logjika`; Android-i (AGP/AndroidX nga Google Maven) kompilohet vetëm te GitHub Actions.
+   - **Sinkronizimi** (`Sinkronizimi.kt`, si app-tel.js): hyrja (telefon i paprekur → gjendja e cloud-it; përndryshe bashkim),
+     transaksion lexim+bashkim+shkrim pas 1.5 s (afatet 0.3 s), vetëm pjesët e ndryshuara, dëgjuesi i kryesorit + `pjeset` (me
+     `remoteNePritje`), riprovim 15 s, `NetworkCallback`, dërgim kur aplikacioni del në sfond. Dyqani në telefon: `dyqani.json`
+     (pronari = uid; hyrja me llogari tjetër i fshin të dhënat e vjetra, si porta.js).
+   - **Pamja** (si web-i i telefonit): ngjyrat e `stoku-tokens.css` (e çelët/e errët/automatike), Onest + JetBrains Mono (ttf nga
+     woff2), ikonat e `index.html` (`Ikonat.kt`), logoja; tabet Stoku · Afatet · Cilësimet; porta (Hyr/Krijo llogari, merchandiser,
+     "Ke harruar fjalëkalimin?" me Worker-in `/fjalekalimi/*`); Stoku (karta e numrave, folderat 3 në rresht me ikona, "Ndryshuar
+     së fundi", kërkimi global, folderi me +/-/sasi, dritarja e produktit, zhvendosja, fshirja, folder i ri me ikonë); Afatet
+     (kartat me ngjyra, kutia e ditëve, filtrat dhe muajt, grupimi sipas furnizuesit te "Afër skadimit", afat i ri/ndryshim me
+     datat e shpejta, "U hoq nga rafti"/"Rikthe si aktiv", zgjedhja me shtypje të gjatë + fshirja); Cilësimet (pamja, renditja,
+     llogaria, versioni). Merchandiseri pa furnizues (si v252). Regjistri i përbashkët `kujtesa/*` për emrin/furnizuesin nga barkodi.
+   - **Kamera**: CameraX + ML Kit Barcode Scanning (i njëjti motor si Google Lens, pa internet): EAN/UPC me shifrën e kontrollit
+     të saktë pranohet menjëherë, të tjerat pas 2 leximeve; bip + dridhje; drita.
+   - **"Fotografo fletën"** (`LeximiAI.kt` + `ui/FletaEkrani.kt`, si lexoFleten te app-tel.js): kamera e sistemit (TakePicture,
+     skedari te `cache/fleta/` përmes FileProvider; leja CAMERA kërkohet para, sepse manifesti e ka për skanerin) ose galeria →
+     JPEG si `pergatitFoton` (≤ 16.7 MP, ana ≤ 8192, cilësia 95→85, pastaj zvogëlim, kthimi sipas EXIF) → POST
+     `stoku-afatet.mendurb.workers.dev` `{image, mime, sot}` me `Authorization: Bearer <ID token>` dhe **`Origin: https://stoku.site`**
+     (Worker-i mund ta kontrollojë origjinën; nëse kthen "origjina", pronari duhet ta lejojë) → `Afatet.normalizoRreshtin` (= web-i,
+     me fikstura) → "Kontrollo fletën" (fotoja, statusi, rreshtat me shiritin e ngjyrës, "⚠ kontrolloje", "Në fletë: …", "+ Shto
+     rresht me dorë", "Ruaj N afate" me kontrollin e përsëritjeve dhe `ngaFoto: true`). Pa "Dërgo në PC" dhe pa marketin (ende).
+   - **Marketet**: `Marketet.kt` = marketet.js (v253 përfshirë; 120 raste me fikstura); ekrani i merchandiserit vjen më vonë.
+   - **Pamjet pa telefon**: `PamjetTest.kt` (Robolectric + Roborazzi, 390×844 dp) → job-i `pamjet` i workflow-t i ruan PNG-të si
+     blob-e (`::notice title=pamjet::emri=sha`); lexohen me `gh api repos/stoku26/stoku/check-runs/<job>/annotations` dhe
+     `gh api repos/stoku26/stoku/git/blobs/<sha> --jq .content | base64 -d`. Krahasuar me pamjet e web-it: pothuajse identike
+     (titujt 26 px si `.sb .opsione-krye h2`, brenda folderit pa tabe). Kujdes: `/*` brenda një komenti Kotlin hap koment të ri.
+     Testi i fletës (foto provë + `LeximiAI.lexoPerProve`) gjeti një gabim të vërtetë: `BitmapFactory.decodeStream` me
+     `inJustDecodeBounds` kthen gjithmonë null (vlejnë vetëm outWidth/outHeight). Në Robolectric skedari i fotos duhet
+     regjistruar (`registerInputStreamSupplier`); FileProvider mban dosjen e testit të parë (prandaj `uri` mund të jetë null).
+   - **Importi i stokut nga foto** (dy butonat lart te Stoku, si `btnImportGaleria`/`btnImportStok`): i njëjti ekran me
+     `stok = true` ("Kontrollo listën", `synim: 'stok'` te Worker-i, zgjedhja e folderit + "+ Folder i ri…", "Importo N
+     produkte"; sasia i shtohet produktit me të njëjtin barkod, emri/furnizuesi ekzistues mbeten, si te web-i).
+   - **Mungon ende** (vendas/README.md): Grupi, ekrani i marketeve, importet nga Excel, Excel/PDF,
+     "Dërgo në PC", push, ora, faqet e administratorit.
+
 0000000. **MARKETE AFËR NJËRI-TJETRIT (v253 = 1.39.1)**: pronari (administratori, Cilësimet → Harta, "+ Shto market në hartë",
    me foto): "dy markete … nuk po len aq afer me u kon … spo muj me shtu marketin ne te djatht" (Viva Fly dhe marketi matanë
    rrugës, rreth 55 m: v250 s'lejonte asnjë market brenda `LIDHJA_M` = 60 m).

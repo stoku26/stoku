@@ -1,0 +1,101 @@
+# Ndërton aplikacionin Stoku Native (vendas/, pa WebView): provon logjikën (vendas/logjika, e njëjtë me web-in) dhe e vendos
+# APK-në si "artifact"; në main edhe si Release "vendas-vNN" (aplikacioni e gjen vetë versionin e ri).
+name: Stoku Native APK
+
+on:
+  push:
+    paths:
+      - 'vendas/**'
+      - '!vendas/**/*.md'
+      - '.github/workflows/vendas-apk.yml'
+      - '.github/apk/nenshkruaj.sh'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Provo logjikën (bashkimi, ruajtja, afatet, lejet = web-i)
+        run: gradle -p vendas :logjika:test --stacktrace --no-daemon
+      - name: Ndërto APK
+        run: gradle -p vendas :app:assembleRelease --stacktrace --no-daemon
+      # Me vulën e re të tel/ (v3 + zinxhiri i ndërrimit), si aplikacioni tel/
+      - name: Nënshkrimi
+        env:
+          P: ${{ secrets.APK_FJALEKALIMI }}
+        run: bash .github/apk/nenshkruaj.sh tel vendas/app/build/outputs/apk/release/app-release.apk stoku-native-${{ github.run_number }}.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stoku-native-apk
+          path: stoku-native-${{ github.run_number }}.apk
+
+  # Pamjet e ekraneve (Robolectric, pa telefon) vetëm në degët e punës: çdo PNG ruhet si blob i git-it (pa prekur asnjë degë)
+  # dhe "sha"-të dalin si shënim (annotation), që të lexohen me API-në e GitHub-it dhe të krahasohen me pamjet e web-it.
+  pamjet:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Pamjet (Robolectric)
+        continue-on-error: true
+        run: gradle -p vendas :app:testDebugUnitTest --stacktrace --no-daemon
+      - name: Blob-et e pamjeve
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import base64, glob, json, os, re, urllib.request
+          tok = os.environ['GH_TOKEN']; repo = os.environ['GITHUB_REPOSITORY']
+          dalja = []
+          for f in sorted(glob.glob('vendas/app/build/pamjet/*.png')):
+              trupi = json.dumps({'content': base64.b64encode(open(f, 'rb').read()).decode(), 'encoding': 'base64'}).encode()
+              k = urllib.request.Request('https://api.github.com/repos/%s/git/blobs' % repo, data=trupi,
+                  headers={'Authorization': 'Bearer ' + tok, 'Accept': 'application/vnd.github+json'})
+              dalja.append(os.path.basename(f) + '=' + json.load(urllib.request.urlopen(k))['sha'])
+          print('::notice title=pamjet::' + ' '.join(dalja or ['asnje']))
+          gab = []
+          for x in glob.glob('vendas/app/build/test-results/testDebugUnitTest/*.xml'):
+              for m in re.finditer(r'<testcase name="([^"]+)"[^>]*>\s*<failure message="([^"]{0,1500})', open(x).read()):
+                  gab.append(m.group(1) + ': ' + m.group(2).replace('\n', ' '))
+          for g in gab[:8]:
+              print('::warning title=test::' + g[:1500])
+          PY
+
+  release:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: stoku-native-apk
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: vendas-v${{ github.run_number }}
+          name: Stoku Native (Android, pa WebView) ${{ github.run_number }}
+          body: Aplikacioni Stoku Native për telefon Android (pa WebView). Instalohet një herë; versionet e reja i ofron vetë aplikacioni. Udhëzimi te vendas/README.md.
+          files: stoku-native-${{ github.run_number }}.apk
