@@ -59,8 +59,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    radhazi me llogari të rreme dhanë `TOO_MANY_ATTEMPTS_TRY_LATER` për IP-në e kontejnerit; mos provo më shumë se 2-3 herë.)
    Që shkaku të shihet pa telefon: gabimi i hyrjes tash shton poshtë arsyen teknike (`Klasa: mesazhi`), dhe kur aplikacioni
    mbyllet nga një gabim, `StokuApp` e ruan (prefs `rrezimi_i_fundit`, rreshti i parë + rreshtat `site.stoku`) dhe herën
-   tjetër del dritarja "Aplikacioni u mbyll papritur herën e kaluar" (`RrezimiIFundit` te MainActivity). Pritet përgjigjja
-   e përdoruesit (çka shkruan saktë).
+   tjetër del dritarja "Aplikacioni u mbyll papritur herën e kaluar". Pritet përgjigjja e përdoruesit (çka shkruan saktë).
+   Përgjigjja e parë: "Kur i shkrujt user pass hi hyr mshelet krejt appi" (mbyllet menjëherë pas "Hyr"). Prandaj (v23):
+   pas një mbylljeje, `StokuApp` s'i nis modulet (Dyqani, Sinkronizimi me Llogarinë, Merchandiseri, Grupi) derisa përdoruesi
+   ta shohë ekranin e plotë `EkraniIRrezimit` (thread-i, 4 rreshtat e parë, "Caused by" + 2 rreshta, rreshtat `site.stoku`)
+   dhe të shtypë "Vazhdo" (`StokuApp.nisModulet()`); përndryshe me llogarinë e ruajtur aplikacioni mbyllej prapë para se
+   të lexohej arsyeja. Dyshimet: puna e rëndë e bashkimit në thread-in kryesor (Sinkronizimi: `njofto`, `zbatoBashkimin`,
+   `Bashkimi.eNjejte` për dyqane të mëdha), ose të dhëna reale që s'janë në fikstura.
 
 0000000. **APLIKACIONI ANDROID `vendas/` QUHET "STOKU" (23.10.2026)**: përdoruesi: "nderroja appit native komplet emrin kudo qe e ke shkru
    stoku native ... ja len veq Stoku ... per arsyje qe appi webview android aj ka me u fshi". Emri i aplikacionit `vendas/`
