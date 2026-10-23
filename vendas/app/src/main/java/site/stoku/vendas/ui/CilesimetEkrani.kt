@@ -91,13 +91,13 @@ fun CilesimetEkrani(tema: String, ndryshoTemen: (String) -> Unit) {
             Rreshti(Ik.Re, "gjelber", "Llogaria", p?.emri ?: "") { flete = "llogaria" }
         }
         Seksioni("Rreth Stoku") {
-            Rreshti(Ik.Telefon, "blu", "Aplikacioni Stoku Native", "Versioni " + BuildConfig.VERSION_NAME) { (ctx as? Activity)?.let { Perditesimi.kontrollo(it, true) } }
+            Rreshti(Ik.Telefon, "blu", "Aplikacioni Stoku", "Versioni " + BuildConfig.VERSION_NAME) { (ctx as? Activity)?.let { Perditesimi.kontrollo(it, true) } }
             Rreshti(Ik.Mburoja, "blu", "Privatësia", "Si i ruan Stoku të dhënat", vije = true) {
                 try { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://stoku.site/privatesia.html"))) } catch (e: Exception) { }
             }
         }
         Hapesire(16.dp)
-        Text("Stoku Native është versioni i ri i aplikacionit për Android (pa shfletues). Të dhënat janë të njëjtat si te stoku.site.",
+        Text("Stoku për Android. Të dhënat janë të njëjtat si te stoku.site dhe në kompjuter.",
             style = tx(12, 400, n.muted), modifier = Modifier.padding(horizontal = 4.dp))
     }
 

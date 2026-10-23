@@ -80,7 +80,7 @@ object Perditesimi {
         Thread {
             try {
                 val dir = File(a.cacheDir, "perditesim").apply { mkdirs(); listFiles()?.forEach { it.delete() } }
-                val f = File(dir, "stoku-native.apk")
+                val f = File(dir, "stoku.apk")
                 var adresa = url
                 var c: HttpURLConnection
                 var hapa = 0

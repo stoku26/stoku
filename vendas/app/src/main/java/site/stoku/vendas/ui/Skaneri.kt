@@ -85,7 +85,7 @@ fun Skaneri(mbyll: () -> Unit, uLexua: (String) -> Unit) {
     Box(Modifier.fillMaxSize().background(Color.Black)) {
         if (leje) KameraPamja(uLexua)
         else if (refuzuar) Column(Modifier.align(Alignment.Center).padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            Text("Stoku s'ka leje për kamerën. Lejoje te cilësimet e telefonit (Aplikacionet → Stoku Native → Lejet → Kamera).",
+            Text("Stoku s'ka leje për kamerën. Lejoje te cilësimet e telefonit (Aplikacionet → Stoku → Lejet → Kamera).",
                 style = tx(15, 500, Color.White), textAlign = TextAlign.Center)
             Buton("Provo sërish", { kerko.launch(Manifest.permission.CAMERA) })
         }

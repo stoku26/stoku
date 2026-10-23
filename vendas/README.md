@@ -1,7 +1,7 @@
-# Stoku Native (Android, pa WebView)
+# Stoku për Android (pa WebView)
 
-Aplikacioni i Stoku-t për telefon Android, i shkruar krejt në Kotlin (Jetpack Compose), pa WebView. Të njëjtat të dhëna si
-stoku.site dhe aplikacioni `tel/`: hyrja me të njëjtën llogari, dyqani (`dyqane/{uid}` + `pjeset`), lejet (`lejet/{uid}`),
+Aplikacioni Stoku për telefon Android, i shkruar krejt në Kotlin (Jetpack Compose), pa WebView. Zëvendëson aplikacionin e
+vjetër `tel/` (WebView), që do të fshihet. Të njëjtat të dhëna si stoku.site: hyrja me të njëjtën llogari, dyqani (`dyqane/{uid}` + `pjeset`), lejet (`lejet/{uid}`),
 regjistri i produkteve (`kujtesa/*`).
 
 - **Pamja**: e njëjtë me web-in e telefonit (ngjyrat e `css/stoku-tokens.css`, shkronjat Onest dhe JetBrains Mono, ikonat e
@@ -10,7 +10,7 @@ regjistri i produkteve (`kujtesa/*`).
 - **Pa internet**: dyqani ruhet në telefon (`dyqani.json`); ndryshimet dërgohen vetë sa kthehet lidhja.
 - **Përditësimet**: GitHub Actions (`.github/workflows/vendas-apk.yml`) e ndërton në çdo ndryshim te `vendas/`; në `main` del si
   Release `vendas-vNN`. Aplikacioni e kontrollon vetë (1 herë në 6 orë) dhe e ofron ("Version i ri i Stoku-t").
-- **Paketa** `site.stoku.vendas` (e ndarë nga `site.stoku.app`, që të dy aplikacionet të mund të provohen njëkohësisht).
+- **Paketa** `site.stoku.vendas` (mbetet e njëjtë, që telefonat ta marrin përditësimin vetë; e ndarë nga `site.stoku.app` i `tel/`).
   Nënshkrimi: si `tel/` (`.github/apk/nenshkruaj.sh tel`).
 
 ## Moduli `logjika/`
