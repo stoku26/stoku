@@ -1,5 +1,7 @@
 package site.stoku.vendas
 
+import kotlinx.coroutines.launch
+import androidx.lifecycle.lifecycleScope
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -56,8 +58,23 @@ import site.stoku.vendas.ui.ToastPamja
 import site.stoku.vendas.ui.tx
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        /** Tabi që kërkohet nga jashtë (njoftimi i prekur): "afatet", "grupi" */
+        val tabiKerkuar = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+    }
+
+    private fun lexoTabin(i: android.content.Intent?) {
+        i?.getStringExtra(Njoftimet.EXTRA_TABI)?.takeIf { it.isNotEmpty() }?.let { tabiKerkuar.value = it }
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        lexoTabin(intent)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lexoTabin(intent)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(0, 0), navigationBarStyle = SystemBarStyle.auto(0, 0))
         setContent {
             var tema by remember { mutableStateOf(StokuApp.prefsOse("tema", "auto")) }
@@ -94,6 +111,11 @@ class MainActivity : ComponentActivity() {
         if (!StokuApp.moduletNisur) return
         Sinkronizimi.neRikthim()
         Merchandiseri.kontrolloGps(false) // si web-i: vendndodhja kur hapet Stoku (jo më shpesh se 2 min)
+        // Heqjet nga rafti të bëra në orën e dorës zbatohen këtu (jo më shpesh se 2 min)
+        lifecycleScope.launch {
+            val n = try { Push.zbatoHeqjetNgaOra(false) } catch (e: Exception) { 0 }
+            if (n > 0) site.stoku.vendas.ui.Toast.trego(if (n == 1) "1 produkt u shënua i hequr nga rafti (nga ora)." else "$n produkte u shënuan të hequra nga rafti (nga ora).", 4000)
+        }
     }
 
     override fun onStart() {
@@ -140,6 +162,13 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
         Triple("cilesimet", "Cilësimet", Ik.Cilesimet)
     )
     if (tabet.none { it.first == tabi }) tabi = tabet.first().first
+    // Njoftimi i prekur hap tabin e vet (Grupi, Afatet)
+    val kerkuar by MainActivity.tabiKerkuar.collectAsState()
+    LaunchedEffect(kerkuar) {
+        val k = kerkuar ?: return@LaunchedEffect
+        if (tabet.any { it.first == k }) { tabi = k; folderi = null }
+        MainActivity.tabiKerkuar.value = null
+    }
 
     BackHandler(enabled = skanimi == null && (folderi != null || tabi != tabet.first().first)) {
         if (tabi == "stoku" && folderi != null) folderi = null else tabi = tabet.first().first

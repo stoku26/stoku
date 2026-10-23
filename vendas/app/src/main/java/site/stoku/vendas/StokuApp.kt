@@ -18,6 +18,7 @@ class StokuApp : Application() {
         app = this
         ruajRrezimet()
         nisFirebase(this)
+        Njoftimet.krijoKanalin(this)
         // Pas një mbylljeje të papritur: pjesët e tjera nisen vetëm pasi përdoruesi ta ketë parë arsyen (MainActivity),
         // që aplikacioni të mos mbyllet prapë para se të lexohet
         if (prefsOse("rrezimi_i_fundit", "").isEmpty()) nisModulet()
@@ -52,6 +53,7 @@ class StokuApp : Application() {
             Sinkronizimi.nis(app)
             Merchandiseri.nis(app)
             Grupi.nis()
+            try { Push.nis() } catch (e: Exception) { } // njoftimet push (pa Firebase Messaging aplikacioni punon njësoj)
         }
 
         private const val PREFS = "stoku"

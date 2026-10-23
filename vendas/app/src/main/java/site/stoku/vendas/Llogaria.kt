@@ -16,6 +16,7 @@ import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.launch
 import site.stoku.logjika.Json
 import site.stoku.logjika.Lejet
 import site.stoku.logjika.MObj
@@ -132,8 +133,28 @@ object Llogaria {
     suspend fun hyr(emri: String, fjalekalimi: String): String? = try {
         auth.signInWithEmailAndPassword(emailIBrendshem(emri), fjalekalimi).await()
         StokuApp.prefs(ctx).edit().putString("emri_i_fundit", emri.trim().lowercase()).apply()
+        tokeniPerOren(emailIBrendshem(emri), fjalekalimi)
         null
     } catch (e: Exception) { tekstiGabimit(e) }
+
+    /**
+     * Ora e dorës vepron në emrin e llogarisë (kërkesat te Grupi) me një "refresh token", si web-i (`rt` te /ora/lidh).
+     * Firebase-i i Android-it s'e jep tokenin e vet, prandaj merret një i veçantë me API-në e Firebase Auth në hyrje
+     * (dhe pas ndryshimit të fjalëkalimit). Ruhet vetëm në këtë telefon; hiqet në dalje.
+     */
+    private fun tokeniPerOren(email: String, fjalekalimi: String) {
+        kotlinx.coroutines.MainScope().launch(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                val c = java.net.URL("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + StokuApp.CELESI_PUBLIK).openConnection() as java.net.HttpURLConnection
+                c.requestMethod = "POST"; c.doOutput = true; c.connectTimeout = 15000; c.readTimeout = 15000
+                c.setRequestProperty("Content-Type", "application/json")
+                c.outputStream.use { it.write(Json.shkruaj(mapOf("email" to email, "password" to fjalekalimi, "returnSecureToken" to true)).toByteArray()) }
+                if (c.responseCode !in 200..299) return@launch
+                val j = Json.lexo(c.inputStream.use { it.readBytes().toString(Charsets.UTF_8) }).siObj()
+                (j?.get("refreshToken") as? String)?.let { StokuApp.prefs(ctx).edit().putString("ora_rt", it).apply() }
+            } catch (e: Exception) { }
+        }
+    }
 
     suspend fun regjistrohu(emri: String, fjalekalimi: String, merchandiser: Boolean): String? = try {
         val kred = auth.createUserWithEmailAndPassword(emailIBrendshem(emri), fjalekalimi).await()
@@ -149,7 +170,7 @@ object Llogaria {
         null
     } catch (e: Exception) { tekstiGabimit(e) }
 
-    fun dil() { ndalDegjuesit(); auth.signOut() }
+    fun dil() { ndalDegjuesit(); StokuApp.prefs(ctx).edit().remove("ora_rt").apply(); auth.signOut() }
 
     // ---------------- Ndryshimi i emrit dhe i fjalëkalimit (si firebase-tel.js) ----------------
     /**
@@ -191,7 +212,7 @@ object Llogaria {
     /** → null, "rihyrje" (duhet fjalëkalimi aktual), "i-dobet" ose "rrjeti" */
     suspend fun ndryshoFjalekalimin(fjalekalimiRi: String): String? {
         val u = auth.currentUser ?: return "pa-hyrje"
-        return try { u.updatePassword(fjalekalimiRi).await(); null } catch (e: Exception) {
+        return try { u.updatePassword(fjalekalimiRi).await(); u.email?.let { tokeniPerOren(it, fjalekalimiRi) }; null } catch (e: Exception) {
             when (e) {
                 is com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException -> "rihyrje"
                 is FirebaseAuthWeakPasswordException -> "i-dobet"

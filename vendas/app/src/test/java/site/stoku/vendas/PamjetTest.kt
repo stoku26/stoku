@@ -250,6 +250,8 @@ class PamjetTest {
     @Test fun cilesimetPamja() = cilesimi("Pamja", "15-pamja")
     @Test fun cilesimetLlogaria() = cilesimi("Llogaria", "16-llogaria")
     @Test fun cilesimetTeRejat() = cilesimi("Çka ka të re", "17-terejat")
+    @Test fun cilesimetNjoftimet() = cilesimi("Njoftimet", "22-njoftimet")
+    @Test fun cilesimetOra() = cilesimi("Ora e dorës", "23-ora")
 
     /** Excel/PDF: skedari gati ("Dërgo në PC", "Ruaje në telefon", "Ndaje"), Excel-i i afateve, importi */
     @Test fun eksportet() {

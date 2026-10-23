@@ -42,6 +42,9 @@ Excel-i i afateve (kolonat, muaji, furnizuesi, të zgjedhurat), importi i afatev
 (protokolli i `skedaret.js`), "Ruaje në telefon" (Shkarkimet) ose "Ndaje". Logjika (`logjika/Xlsx.kt`, `ImportiAfateve.kt`,
 `Barkodi.kt`) krahasohet me xlsx.js, afatet.js dhe JsBarcode në `ExcelTest`.
 
+**Njoftimet** (`Njoftimet.kt`, `Push.kt`, `ui/NjoftimetUI.kt`): push me Firebase Cloud Messaging nga Worker-i `stoku-push`
+(Grupi dhe njoftimi ditor për afatet në orën e zgjedhur), Cilësimet → Njoftimet dhe → Ora e dorës (lidhja me kod, heqjet nga ora).
+
 **Leximi me AI**: aplikacioni dërgon foton te `https://stoku-afatet.mendurb.workers.dev` me tokenin e llogarisë dhe me
 `Origin: https://stoku.site` (si web-i). Nëse Worker-i kthen "origjina", i duhet lejuar kjo kërkesë (pronari, te Cloudflare).
 
@@ -50,5 +53,5 @@ Excel-i i afateve (kolonat, muaji, furnizuesi, të zgjedhurat), importi i afatev
 GitHub Actions (job-i `pamjet`, vetëm jashtë `main`) i ruan PNG-të si blob-e të git-it dhe i shënon te "annotations".
 
 ## Çka mungon ende (fazat e ardhshme)
-Harta e marketeve, njoftimet push, ora e dorës, faqja e administratorit (Përdoruesit, Furnizuesit, Produktet), veprimet e
+Harta e marketeve, faqja e administratorit (Përdoruesit, Furnizuesit, Produktet), veprimet e
 administratorit te Grupi, stoku i kolegut te Grupi dhe "Dërgo në PC" për fotot e fletëve.
