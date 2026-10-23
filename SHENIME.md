@@ -52,6 +52,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **HYRJA TE APLIKACIONI ANDROID "S'PO BËHET" (23.10.2026, në hetim)**: përdoruesi: "spo bohet as login". Firebase-i u
+   kontrollua nga serveri (curl te identitytoolkit me çelësin, si web dhe si Android `site.stoku.vendas`/`site.stoku.app`):
+   çelësi s'është i kufizuar, reCAPTCHA s'kërkohet (`ENFORCEMENT_STATE_UNSPECIFIED`), hyrja me llogari të panjohur jep
+   `EMAIL_NOT_FOUND` (pra kërkesa pranohet). **Te Firebase s'duhet ndryshuar asgjë për aplikacionin e ri.** (Kujdes: 6 prova
+   radhazi me llogari të rreme dhanë `TOO_MANY_ATTEMPTS_TRY_LATER` për IP-në e kontejnerit; mos provo më shumë se 2-3 herë.)
+   Që shkaku të shihet pa telefon: gabimi i hyrjes tash shton poshtë arsyen teknike (`Klasa: mesazhi`), dhe kur aplikacioni
+   mbyllet nga një gabim, `StokuApp` e ruan (prefs `rrezimi_i_fundit`, rreshti i parë + rreshtat `site.stoku`) dhe herën
+   tjetër del dritarja "Aplikacioni u mbyll papritur herën e kaluar" (`RrezimiIFundit` te MainActivity). Pritet përgjigjja
+   e përdoruesit (çka shkruan saktë).
+
 0000000. **APLIKACIONI ANDROID `vendas/` QUHET "STOKU" (23.10.2026)**: përdoruesi: "nderroja appit native komplet emrin kudo qe e ke shkru
    stoku native ... ja len veq Stoku ... per arsyje qe appi webview android aj ka me u fshi". Emri i aplikacionit `vendas/`
    (`app_name`), Cilësimet ("Aplikacioni Stoku", teksti poshtë), mesazhi i lejes së kamerës, README, workflow-i ("Stoku APK",

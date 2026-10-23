@@ -16,11 +16,26 @@ class StokuApp : Application() {
     override fun onCreate() {
         super.onCreate()
         app = this
+        ruajRrezimet()
         nisFirebase(this)
         Dyqani.nis(this)
         Sinkronizimi.nis(this)
         Merchandiseri.nis(this)
         Grupi.nis()
+    }
+
+    /** Kur aplikacioni mbyllet nga një gabim, arsyeja ruhet dhe tregohet herën tjetër (s'kemi telefon për ta parë ndryshe) */
+    private fun ruajRrezimet() {
+        val iMeparshmi = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { t, e ->
+            try {
+                val sw = java.io.StringWriter(); e.printStackTrace(java.io.PrintWriter(sw))
+                val rreshtat = sw.toString().lines().filter { it.isNotBlank() }
+                val tekst = (rreshtat.take(1) + rreshtat.filter { it.contains("site.stoku") }.take(6)).joinToString("\n").take(1500)
+                prefs(this).edit().putString("rrezimi_i_fundit", "versioni " + BuildConfig.VERSION_NAME + "\n" + tekst).commit()
+            } catch (x: Throwable) { }
+            iMeparshmi?.uncaughtException(t, e)
+        }
     }
 
     companion object {
