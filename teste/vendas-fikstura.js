@@ -285,6 +285,24 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
   console.log('grupi: ' + tekstet.length + ' tekste, ' + permb.length + ' në përmbledhje');
 }
 
+// ---------- Lejet: funksionet e administratorit (Cilësimet → Përdoruesit) ----------
+{
+  const L = require(RR + '/lejet.js');
+  const dok = [null, {}, { lejet: { stoku: false } }, { kontrolluarSe: 5 }, { kontrolluarSe: 5, lejet: { stoku: false, marketet: true } },
+    { kontrolluarSe: 0, lejet: {} }, { kontrolluarSe: 7, lejet: { marketet: false, kamera: false, afatet: false } }];
+  dalja.lejet = {
+    statusi: dok.map(d => [d, L.statusi(d)]),
+    teNdaluara: dok.map(d => [(d && d.lejet) || null, L.teNdaluara(d && d.lejet)]),
+    krejt: [L.krejt(true), L.krejt(false)],
+    meZgjedhjet: [[L.krejt(true), { marketet: true }], [L.krejt(false), null], [Object.assign(L.krejt(true), { marketet: false }), { marketet: true }]]
+      .map(([a, b]) => [a, b, L.meZgjedhjet(a, b)]),
+    pastro: [null, {}, { stoku: false, x: 1, marketet: true }, { marketet: 'po' }].map(l => [l, L.pastro(l)]),
+    katalogu: [].concat.apply([], L.KATALOGU.map(g => g.lejet.map(l => [g.grupi, l.k, l.emri, l.pershkrim || '', l.prindi || '', !!l.zgjedhje])))
+  };
+  fs.writeFileSync(sk, JSON.stringify(dalja));
+  console.log('lejet: ' + dalja.lejet.katalogu.length + ' leje');
+}
+
 // ---------- Excel (xlsx.js), barkodet e etiketave (JsBarcode), CSV dhe importi i afateve (afatet.js) ----------
 // Leximi i .xlsx kërkon DOMParser: xlsx.js read() ekzekutohet në Chromium (Playwright, teste/pw.js).
 (async () => {

@@ -112,6 +112,9 @@ object Sinkronizimi {
         return Ruajtja.bashkoPjeset(kryesori, pjeset)
     }
 
+    /** Dyqani i një llogarie tjetër (administratori: afatet e saj, vetëm për t'u parë) */
+    suspend fun merrDyqanin(u: String): Obj? = merr(u)
+
     /** Lexim + bashkim + shkrim në një transaksion; kthen gjendjen e bashkuar */
     private suspend fun bashkoDheRuaj(u: String, fnBashko: (Obj?) -> Obj): Obj = db.runTransaction { tx ->
         val s = tx.get(refKryesor(u))

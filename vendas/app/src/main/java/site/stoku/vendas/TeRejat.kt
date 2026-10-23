@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(8, "2026-10-23", "Përdoruesit (administratori)", listOf(
+            "Cilësimet → Përdoruesit: krejt llogaritë, lejet e secilës (ruhen vetë), \"U kontrollua\", \"Lejo krejt\" dhe \"Ndalo krejt\".",
+            "Afatet e një llogarie (p.sh. merchandiser), sipas marketeve, vetëm për t'u parë."
+        )),
         Hyrja(7, "2026-10-23", "Njoftimet dhe ora e dorës", listOf(
             "Njoftimet e Grupit (kërkesat, heqjet nga rafti) vijnë edhe kur Stoku është i mbyllur.",
             "Njoftimi ditor për afatet në orën që zgjedh (Cilësimet → Njoftimet), me kontrollin e serverit.",

@@ -52,6 +52,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **STOKU PËR ANDROID: CILËSIMET → PËRDORUESIT (23.10.2026)**: vazhdim i "Shtoji te gjitha opsionet qe mungojn".
+   `Admini.kt` (vetëm kur hyn mendurberisha: dëgjuesit e `perdoruesit` dhe `lejet`, ruajtja si `lejet.js ruaj`: { lejet: pastro(),
+   kontrolluarSe, kontrolluarNga, emri }, llogaritë e reja si toast + "të parat" te pref "perdoruesit_pare"), `ui/AdminiUI.kt`
+   (lista "Pa u kontrolluar"/"Të kontrolluar", lejet sipas grupeve me çelës, "U kontrollua", "Lejo krejt", "Ndalo krejt",
+   "Shëno krejt…", afatet e llogarisë sipas marketeve me `Sinkronizimi.merrDyqanin`). Administratori s'del në listë dhe
+   `Admini.ruaj` s'e prek kurrë. `Lejet.kt` mori grupin/përshkrimin e çdo leje dhe krejt/meZgjedhjet/teNdaluara/statusi
+   (`LejetTest` me fikstura nga lejet.js). Fshirja e llogarisë nga administratori (ekipa.js fshijLlogarine) s'është shtuar.
+
 0000000. **STOKU PËR ANDROID: NJOFTIMET PUSH, NJOFTIMI DITOR DHE ORA E DORËS (23.10.2026)**: vazhdim i "Shtoji te gjitha
    opsionet qe mungojn". `firebase-messaging` + `FcmSherbimi` (mesazhet "data" të Worker-it: titulli, teksti, tag, url →
    njoftimi; prekja hap tabin Grupi/Afatet), kanali "stoku", leja POST_NOTIFICATIONS (Android 13+). `Push.kt` = pjesa push e

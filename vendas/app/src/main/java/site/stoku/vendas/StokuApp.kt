@@ -54,6 +54,7 @@ class StokuApp : Application() {
             Merchandiseri.nis(app)
             Grupi.nis()
             try { Push.nis() } catch (e: Exception) { } // njoftimet push (pa Firebase Messaging aplikacioni punon njësoj)
+            Admini.nis() // vetëm për administratorin: krejt llogaritë dhe lejet
         }
 
         private const val PREFS = "stoku"
