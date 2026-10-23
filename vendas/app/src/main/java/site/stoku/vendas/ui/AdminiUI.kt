@@ -204,7 +204,8 @@ private fun Detajet(r: Admini.Rreshti, ruaj: (Obj, String?) -> Unit, hapAfatet: 
             l.forEachIndexed { i, leja ->
                 if (i > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(n.line2))
                 val ndezur = if (leja.zgjedhje) Admini.merchandiser(r) else lejet?.get(leja.k) != false
-                val aktiv = leja.prindi == null || Lejet.lejohet(lejet, leja.prindi)
+                val prindi = leja.prindi
+                val aktiv = prindi == null || Lejet.lejohet(lejet, prindi)
                 Row(Modifier.fillMaxWidth().clickable(enabled = aktiv) { ndrysho(r, leja.k, !ndezur, ruaj) }
                     .padding(start = if (leja.prindi != null) 28.dp else 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
                     verticalAlignment = Alignment.CenterVertically) {
