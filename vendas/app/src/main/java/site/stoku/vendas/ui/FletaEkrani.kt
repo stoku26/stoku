@@ -67,6 +67,7 @@ import androidx.core.content.FileProvider
 import site.stoku.logjika.Afatet
 import site.stoku.logjika.obj
 import site.stoku.vendas.Dyqani
+import site.stoku.vendas.Grupi
 import site.stoku.vendas.LeximiAI
 import site.stoku.vendas.Llogaria
 import site.stoku.vendas.Merchandiseri
@@ -225,6 +226,7 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, stok: Boolean = false, kurRuhet: (S
                 "krijuarNga" to (Llogaria.perdoruesi.value?.emri ?: ""), "ngaFoto" to true).also { o -> if (mkId != null) o["m"] = mkId })
         }
         teReja.forEach { Dyqani.shtoAfatin(it) }
+        Grupi.afateTeReja(teReja.size, true)
         val nk = teReja.count { Afatet.statusi(it) == "skaduar" }
         val nv = teReja.count { Afatet.statusi(it) == "afer" }
         Toast.trego((if (teReja.size == 1) "U ruajt 1 afat" else "U ruajtën ${teReja.size} afate") +

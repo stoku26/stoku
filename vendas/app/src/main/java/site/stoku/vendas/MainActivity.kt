@@ -42,6 +42,7 @@ import site.stoku.vendas.ui.DukeULidhur
 import site.stoku.vendas.ui.Ik
 import site.stoku.vendas.ui.N
 import site.stoku.vendas.ui.DritaretEMarketeve
+import site.stoku.vendas.ui.GrupiEkrani
 import site.stoku.vendas.ui.Porta
 import site.stoku.vendas.ui.Shenja
 import site.stoku.vendas.ui.Skaneri
@@ -76,9 +77,15 @@ class MainActivity : ComponentActivity() {
         Merchandiseri.kontrolloGps(false) // si web-i: vendndodhja kur hapet Stoku (jo më shpesh se 2 min)
     }
 
+    override fun onStart() {
+        super.onStart()
+        Grupi.vendosPerpara(true) // prania te kolegët e grupit ("Online tani")
+    }
+
     override fun onStop() {
         super.onStop()
         Sinkronizimi.dergoNesePret() // ndryshimi i fundit shkon në cloud edhe kur aplikacioni kalon në sfond
+        Grupi.vendosPerpara(false)
     }
 }
 
@@ -98,11 +105,18 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
     var folderi by rememberSaveable { mutableStateOf<String?>(null) }
     var skanimi by remember { mutableStateOf<((String) -> Unit)?>(null) }
     val g by Dyqani.gjendja.collectAsState()
+    val aktiviM by Merchandiseri.aktivi.collectAsState() // numri te tabi Afatet sipas marketit ku je
+    val njGr by Grupi.njoftimet.collectAsState()
+    val ftGr by Grupi.ftesatEMia.collectAsState()
+    val krGr by Grupi.kerkesatEGrupit.collectAsState()
+    val ngjGr by Grupi.ngjarjet.collectAsState()
+    val gjGr by Grupi.gjendja.collectAsState()
 
     // Pjesa e parë e lejuar (pa "Stoku" hapet "Afatet")
     val tabet = listOfNotNull(
         if (Llogaria.leja("stoku")) Triple("stoku", "Stoku", Ik.Stoku) else null,
         if (Llogaria.leja("afatet")) Triple("afatet", "Afatet", Ik.Afatet) else null,
+        if (Llogaria.leja("grupi")) Triple("grupi", "Grupi", Ik.Grupi) else null,
         Triple("cilesimet", "Cilësimet", Ik.Cilesimet)
     )
     if (tabet.none { it.first == tabi }) tabi = tabet.first().first
@@ -120,15 +134,18 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
                 when (tabi) {
                     "stoku" -> StokuEkrani(folderi, { folderi = it }, skano)
                     "afatet" -> AfatetEkrani(skano)
+                    "grupi" -> GrupiEkrani()
                     else -> CilesimetEkrani(tema, ndryshoTemen)
                 }
             }
             // Shiriti me tabe poshtë
             if (meTabe) Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
             if (meTabe) Row(Modifier.fillMaxWidth().background(n.surface).navigationBarsPadding().height(64.dp)) {
-                val nAf = Afatet.numero(Merchandiseri.afatetEMarketit(g.afatet))
+                val nAf = remember(g, aktiviM, lejet, merch) { Afatet.numero(Merchandiseri.afatetEMarketit(g.afatet)) }
+                val nGr = remember(njGr, ftGr, krGr, ngjGr, gjGr) { Grupi.numriNjoftimeve() + Grupi.numriKerkesave() } // si te web-i: zilja + ftesat/kërkesat
                 tabet.forEach { (k, t, ik) ->
-                    val shenja = if (k == "afatet") (nAf.skaduar + nAf.afer + nAf.paDate).takeIf { it > 0 }?.let { if (it > 99) "99+" else it.toString() } else null
+                    val nr = when (k) { "afatet" -> nAf.skaduar + nAf.afer + nAf.paDate; "grupi" -> nGr; else -> 0 }
+                    val shenja = nr.takeIf { it > 0 }?.let { if (it > 99) "99+" else it.toString() }
                     Tabi(t, ik, tabi == k, shenja, Modifier.weight(1f)) {
                         if (k == "stoku" && tabi == "stoku") folderi = null
                         tabi = k

@@ -50,6 +50,7 @@ import site.stoku.logjika.Obj
 import site.stoku.logjika.jsString
 import site.stoku.logjika.obj
 import site.stoku.vendas.Dyqani
+import site.stoku.vendas.Grupi
 import site.stoku.vendas.Llogaria
 import site.stoku.vendas.Merchandiseri
 import site.stoku.vendas.Sinkronizimi
@@ -257,7 +258,7 @@ fun Cip(teksti: String, numri: String?, aktiv: Boolean, onClick: () -> Unit) {
 
 /** Kutia e ditëve (sb-days): numri i madh + teksti i vogël */
 @Composable
-private fun KutiaEDiteve(st: String, d: Int?) {
+internal fun KutiaEDiteve(st: String, d: Int?) {
     val n = N
     val (madh, vogel, lloji) = when {
         st == "hequr" -> Triple("✓", "hequr", "rem")
@@ -324,11 +325,13 @@ fun shenoHequr(a: Obj) {
     if (!Llogaria.leja("afatetNdrysho")) return
     Dyqani.perditesoAfatin(a["id"] as String, mapOf("statusi" to "hequr", "hequrSe" to System.currentTimeMillis(), "hequrNga" to (Llogaria.perdoruesi.value?.emri ?: "")))
     Toast.trego("\"" + ((a["emri"] as? String)?.ifEmpty { null } ?: jsString(a["barkodi"])) + "\" u shënua si i hequr nga rafti.")
+    Grupi.ngjarjeAfati("hequr", a) // aktiviteti i grupit: kush çka hoqi
 }
 
 fun riktheAktiv(a: Obj) {
     if (!Llogaria.leja("afatetNdrysho")) return
     Dyqani.perditesoAfatin(a["id"] as String, mapOf("statusi" to "aktiv", "hequrSe" to 0L))
+    Grupi.ngjarjeAfati("rikthyer", a)
 }
 
 // ---------------- Dritarja: shto / ndrysho një afat ----------------
@@ -390,6 +393,7 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
             Dyqani.shtoAfatin(obj("id" to Afatet.idERe(), "barkodi" to b, "emri" to em, "data" to iso, "sasia" to s, "furnizuesi" to f,
                 "statusi" to "aktiv", "krijuarSe" to tani, "ndryshuarSe" to tani, "krijuarNga" to (Llogaria.perdoruesi.value?.emri ?: "")).also { o -> if (kaM && mk != null) o["m"] = mk })
             Toast.trego(if (id != null) "Ky afat u fshi nga një pajisje tjetër ndërkohë. U ruajt si afat i ri." else "Afati u ruajt.", if (id != null) 4500 else 2600)
+            Grupi.afateTeReja(1, false)
         }
         mbyll()
     }

@@ -20,6 +20,7 @@ class StokuApp : Application() {
         Dyqani.nis(this)
         Sinkronizimi.nis(this)
         Merchandiseri.nis(this)
+        Grupi.nis()
     }
 
     companion object {
