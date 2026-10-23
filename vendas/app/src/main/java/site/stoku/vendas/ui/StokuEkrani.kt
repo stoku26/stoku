@@ -1,5 +1,9 @@
 package site.stoku.vendas.ui
 
+import site.stoku.vendas.Eksportet
+import site.stoku.vendas.Skedari
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -281,6 +285,9 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
     var burimi by remember { mutableStateOf("fushe") }
     androidx.compose.runtime.LaunchedEffect(Unit) { uHap() }
     var fshiKrejt by remember { mutableStateOf(false) }
+    var skedari by remember { mutableStateOf<Skedari?>(null) } // Excel/PDF i gatshëm: "Dërgo në PC", "Ruaje në telefon", "Ndaje"
+    var pdfPune by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     val fBarkodi = remember { FocusRequester() }
     if (g.foldera.none { it["id"] == id }) { androidx.compose.runtime.LaunchedEffect(id) { mbrapa() }; return }
 
@@ -331,6 +338,27 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
                     Buton("Skano me kamerë", { skano { b -> hapBarkodin(b, "kamera") } }, Modifier.fillMaxWidth(), ikona = Ik.Skano)
                     Hapesire(10.dp)
                 }
+                val lejaXls = Llogaria.leja("eksportExcel")
+                val lejaPdf = Llogaria.leja("eksportPdf")
+                if (lejaXls || lejaPdf) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        if (lejaXls) Buton("Eksporto në Excel", {
+                            val sk = Eksportet.excelIFolderit(id)
+                            if (sk == null) Toast.trego("Nuk ka produkte për eksport në këtë folder.") else skedari = sk
+                        }, Modifier.weight(1f), lloji = "dyte", ikona = Ik.Excel)
+                        if (lejaPdf) Buton(if (pdfPune) "Duke krijuar…" else "Eksporto në PDF", {
+                            if (pdfPune) return@Buton
+                            if (Dyqani.produktetEFolderit(id).isEmpty()) { Toast.trego("Nuk ka produkte për eksport në këtë folder."); return@Buton }
+                            pdfPune = true
+                            scope.launch {
+                                val sk = try { kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { Eksportet.pdfEtiketa(id) } } catch (e: Exception) { null }
+                                pdfPune = false
+                                if (sk == null) Toast.trego("PDF-ja nuk u krijua. Provo përsëri.") else skedari = sk
+                            }
+                        }, Modifier.weight(1f), lloji = "dyte", aktiv = !pdfPune)
+                    }
+                    Hapesire(10.dp)
+                }
                 Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), "Kërko", ikona = Ik.Kerko)
                 Hapesire(10.dp)
                 if (fil.isEmpty() && k.isNotEmpty()) Text("Nuk u gjet asnjë produkt.", style = tx(14, 400, n.muted), modifier = Modifier.padding(vertical = 12.dp))
@@ -351,6 +379,7 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
     }
 
     hapur?.let { b -> ProduktiFlete(id, b, burimi) { hapur = null } }
+    skedari?.let { sk -> SkedariFlete(sk) { skedari = null } }
     if (fshiKrejt) {
         val emri = Dyqani.emriFolderit(id)
         Konfirmo("Të fshihen të gjitha?",

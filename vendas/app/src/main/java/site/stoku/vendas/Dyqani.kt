@@ -304,6 +304,7 @@ object Dyqani {
     fun afati(id: String): Obj? = _gjendja.value.afatet.firstOrNull { it["id"] == id }
 
     fun shtoAfatin(a: Obj) = ndrysho(300) { it.copy(afatet = it.afatet + a) }
+    fun shtoAfatet(l: List<Obj>) { if (l.isNotEmpty()) ndrysho(300) { it.copy(afatet = it.afatet + l) } }
 
     fun perditesoAfatin(id: String, ndryshimet: Map<String, Any?>) {
         ndrysho(300) { g ->

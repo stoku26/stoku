@@ -318,7 +318,7 @@ private fun ToastPamjaNeDialog() {
 }
 
 @Composable
-private fun Rrotullues() {
+internal fun Rrotullues() {
     val n = N
     val k by rememberInfiniteTransition(label = "rrotullimi").animateFloat(0f, 360f, infiniteRepeatable(tween(800, easing = LinearEasing), RepeatMode.Restart), label = "k")
     Box(Modifier.size(20.dp).rotate(k).drawBehind {

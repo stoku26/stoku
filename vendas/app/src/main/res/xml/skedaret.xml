@@ -2,4 +2,5 @@
 <paths>
     <cache-path name="perditesim" path="perditesim/" />
     <cache-path name="fleta" path="fleta/" />
+    <cache-path name="eksportet" path="eksportet/" />
 </paths>

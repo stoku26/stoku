@@ -136,10 +136,10 @@ object Afatet {
     private fun vitiPlote(v: String): Int { val n = v.toInt(); return if (n < 100) 2000 + n else n }
     fun ndertoIso(v: Int, m: Int, d: Int): String? = try { isoNgaData(LocalDate.of(v, m, d)) } catch (e: Exception) { null }
     private fun fundiMuajit(v: Int, m: Int): String? = if (m in 1..12) isoNgaData(LocalDate.of(v, m, 1).plusMonths(1).minusDays(1)) else null
-    fun ditaNeMuaj(dita: Int, muaji: Int): String? {
-        val v = dataSot().year
+    fun ditaNeMuaj(dita: Int, muaji: Int, tani: Long? = null): String? {
+        val v = dataETani(tani).year
         var iso = ndertoIso(v, muaji, dita)
-        if (iso != null && (ditetDeri(iso) ?: 0) < -180) iso = ndertoIso(v + 1, muaji, dita)
+        if (iso != null && (ditetDeri(iso, tani) ?: 0) < -180) iso = ndertoIso(v + 1, muaji, dita)
         return iso
     }
 
@@ -152,7 +152,7 @@ object Afatet {
     private val R7 = Regex("^(\\d{2})(\\d{2})(\\d{2}|\\d{4})$")
 
     /** Data në formate të zakonshme → 'VVVV-MM-DD' ose null */
-    fun lexoDaten(t: Any?): String? {
+    fun lexoDaten(t: Any?, tani: Long? = null): String? {
         if (t == null) return null
         val s = jsString(t).trim().lowercase().replace(Regex("\\s+"), " ")
         if (s.isEmpty()) return null
@@ -162,7 +162,7 @@ object Afatet {
         R4.matchEntire(s)?.let {
             val a = it.groupValues[1].toInt(); val b = it.groupValues[2].toInt()
             if (b > 12) return fundiMuajit(vitiPlote(it.groupValues[2]), a)
-            return ditaNeMuaj(a, b)
+            return ditaNeMuaj(a, b, tani)
         }
         R5.matchEntire(s)?.let { m -> MUAJT[m.groupValues[2].take(3)]?.let { return ndertoIso(vitiPlote(m.groupValues[3]), it, m.groupValues[1].toInt()) } }
         R6.matchEntire(s)?.let { m -> MUAJT[m.groupValues[1].take(3)]?.let { return fundiMuajit(vitiPlote(m.groupValues[2]), it) } }

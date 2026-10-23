@@ -284,3 +284,156 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
   fs.writeFileSync(sk, JSON.stringify(dalja));
   console.log('grupi: ' + tekstet.length + ' tekste, ' + permb.length + ' në përmbledhje');
 }
+
+// ---------- Excel (xlsx.js), barkodet e etiketave (JsBarcode), CSV dhe importi i afateve (afatet.js) ----------
+// Leximi i .xlsx kërkon DOMParser: xlsx.js read() ekzekutohet në Chromium (Playwright, teste/pw.js).
+(async () => {
+  process.env.TZ = 'UTC'; // kolonat "date" të Excel-it varen nga zona; Kotlini i provon me UTC
+  const X = require(RR + '/xlsx.js');
+  const A = require(RR + '/afatet.js');
+  const zlib = require('zlib');
+  const JsBarcode = require(path.join(__dirname, 'npm/node_modules/jsbarcode'));
+  // ZIP pa kompresim (si i krijon xlsx.js) → [[emri, teksti]]
+  function hyrjet(u8) {
+    const b = Buffer.from(u8), out = [];
+    let o = 0;
+    while (o + 30 <= b.length && b.readUInt32LE(o) === 0x04034b50) {
+      const n = b.readUInt32LE(o + 18), gjE = b.readUInt16LE(o + 26), gjX = b.readUInt16LE(o + 28), f = o + 30 + gjE + gjX;
+      out.push([b.slice(o + 30, o + 30 + gjE).toString('utf8'), b.slice(f, f + n).toString('utf8')]);
+      o = f + n;
+    }
+    return out;
+  }
+  // ZIP me deflate (si Excel-i i vërtetë): [[emri, teksti]]
+  function zipDeflate(sk) {
+    const pjeset = [], qendra = [];
+    let off = 0;
+    sk.forEach(([emri, t]) => {
+      const e = Buffer.from(emri), te = Buffer.from(t), k = zlib.deflateRawSync(te), crc = zlib.crc32(te);
+      const l = Buffer.alloc(30); l.writeUInt32LE(0x04034b50, 0); l.writeUInt16LE(20, 4); l.writeUInt16LE(8, 8); l.writeUInt32LE(crc, 14);
+      l.writeUInt32LE(k.length, 18); l.writeUInt32LE(te.length, 22); l.writeUInt16LE(e.length, 26);
+      const q = Buffer.alloc(46); q.writeUInt32LE(0x02014b50, 0); q.writeUInt16LE(20, 4); q.writeUInt16LE(20, 6); q.writeUInt16LE(8, 10); q.writeUInt32LE(crc, 16);
+      q.writeUInt32LE(k.length, 20); q.writeUInt32LE(te.length, 24); q.writeUInt16LE(e.length, 28); q.writeUInt32LE(off, 42);
+      pjeset.push(l, e, k); qendra.push(q, e); off += 30 + e.length + k.length;
+    });
+    const qq = Buffer.concat(qendra), fund = Buffer.alloc(22);
+    fund.writeUInt32LE(0x06054b50, 0); fund.writeUInt16LE(sk.length, 8); fund.writeUInt16LE(sk.length, 10); fund.writeUInt32LE(qq.length, 12); fund.writeUInt32LE(off, 16);
+    return Buffer.concat(pjeset.concat([qq, fund]));
+  }
+  const prodX = [
+    [],
+    [{ barkodi: '0038900', emri: 'Ujë & "Kos" <1>', sasia: 3, furnizuesi: 'Vita' }, { barkodi: '1', emri: 'Pa furnizues', sasia: '4' },
+      { barkodi: '2', emri: 'x\u0001y\tz\n', sasia: 2.7, furnizuesi: '' }, { barkodi: '3', emri: '', sasia: -2.5 }, { barkodi: '4', emri: 'ë😀', sasia: 1e21 },
+      { barkodi: '5', emri: null, sasia: null }, { barkodi: '6', sasia: 'abc' }, { barkodi: 7, emri: 8, sasia: true, furnizuesi: 0 }]
+  ];
+  const build = prodX.map(p => ({ p, h: hyrjet(X.build(p)) }));
+  const fletetX = [
+    [],
+    [{ name: 'Afatet', columns: [{ title: 'Barkodi', width: 18 }, { title: 'Emri i produktit', width: 36 }, { title: 'Sasia (copë)', width: 12, type: 'number' },
+      { title: 'Skadon më', width: 13, type: 'day' }, { title: 'Ditë', type: 'number' }, { title: 'Koha', type: 'date', width: 0 }],
+      rows: [['001', 'Kos', 3, '2026-10-20', -2, 1792712593135], ['', null, '', '2026-02-30', 0, 0], [7, 'Ë & <', 'x', 'abc', 1.5, -5],
+        ['b', 'ë', 2.25, '0099-01-01', null, '17927'], ['c', 'd', '7', '2026-13-00', '0', 1e12]],
+      totalLabel: 'Gjithsej', totalColumns: [2, 4], redZeroColumn: 4 }],
+    [{ name: "'Coca Cola' e gjatë shumë shumë shumë shumë", columns: [{ title: 'A' }], rows: [['x']] },
+      { name: "'Coca Cola' e gjatë shumë shumë shumë shumë", columns: [{ title: 'A' }], rows: [] }, { name: 'a[b]:c*?/\\d', columns: [], rows: [] },
+      { name: '', columns: [{ title: 'B', type: 'number' }], rows: [[1], [2]], totalLabel: 'Gjithsej', totalColumns: [0] },
+      { name: 'FLETA', columns: [{ title: 'Z' }], rows: [['1']] }, { name: 'fleta', columns: [{ title: "O'Neil" }], rows: [["it's"]] },
+      { name: '   ', columns: [{ title: 'K', width: 9.5 }], rows: [[null]], totalLabel: '', totalColumns: [0] }]
+  ];
+  const workbook = fletetX.map(s => ({ s, h: hyrjet(X.buildWorkbook(s)) }));
+  // Leximi: Excel me deflate, sharedStrings, tekst me formatim, rPh, b/str/e, rreshta pa "r", qeliza pa "r", rreshta bosh
+  const NS = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"';
+  const xlsxDore = zipDeflate([
+    ['[Content_Types].xml', '<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"/>'],
+    ['xl/workbook.xml', '﻿<?xml version="1.0" encoding="UTF-8"?><workbook ' + NS + '><sheets><sheet name="Nëntor2" sheetId="1" r:id="rId7"/><sheet name="Pa rels" sheetId="2" r:id="rId9"/><sheet sheetId="3" r:id="rId8"/></sheets></workbook>'],
+    ['xl/_rels/workbook.xml.rels', '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId7" Target="worksheets/fleta.xml"/><Relationship Id="rId8" Target="/xl/worksheets/tjeter.xml"/></Relationships>'],
+    ['xl/sharedStrings.xml', '<?xml version="1.0"?><sst ' + NS + '><si><t>Barkodi</t></si><si><r><t>Emri </t></r><r><rPr><b/></rPr><t xml:space="preserve">i produktit</t></r><rPh><t>X</t></rPh></si><si><t>Kos &amp; "ujë"</t></si><si><t/></si></sst>'],
+    ['xl/worksheets/fleta.xml', '<?xml version="1.0"?><worksheet ' + NS + '><sheetData>' +
+      '<row r="1"><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c><c r="D1" t="inlineStr"><is><t>Data</t></is></c></row>' +
+      '<row r="3"><c r="A3"><v>3890010001</v></c><c r="B3" t="s"><v>2</v></c><c r="C3" t="b"><v>1</v></c><c r="D3"><v>46300</v></c><c r="E3" t="str"><v>formula</v></c><c r="F3" t="e"><v>#N/A</v></c><c r="G3" t="b"><v>0</v></c></row>' +
+      '<row r="4"><c r="A4" s="1"/><c r="B4" t="s"><v>3</v></c></row>' +
+      '<row><c><v>1.5</v></c><c t="s"><v>99</v></c><c><v>-0.25</v></c></row>' +
+      '<row r="0"><c r="A0"><v>5</v></c></row>' +
+      '<row r="1048576"><c r="A1048576" s="3"/></row>' +
+      '<row r="6"><c r="C6"><v>1E-7</v></c><c r="AA6" t="inlineStr"><is><r><t>a</t></r><r><t>b</t></r></is></c></row>' +
+      '</sheetData></worksheet>'],
+    ['xl/worksheets/sheet2.xml', '<?xml version="1.0"?><worksheet ' + NS + '><sheetData><row r="2"><c r="B2" t="inlineStr"><is><t>vetëm B2</t></is></c></row></sheetData></worksheet>'],
+    ['xl/worksheets/tjeter.xml', '<?xml version="1.0"?><x:worksheet xmlns:x="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><x:sheetData><x:row x:r="1"><x:c r="A1" t="inlineStr"><x:is><x:t>me prefiks</x:t></x:is></x:c></x:row></x:sheetData></x:worksheet>']
+  ]);
+  const leximi = [
+    { emri: 'dore', b64: xlsxDore.toString('base64') },
+    { emri: 'build', b64: Buffer.from(X.build(prodX[1])).toString('base64') },
+    { emri: 'workbook1', b64: Buffer.from(X.buildWorkbook(fletetX[1])).toString('base64') },
+    { emri: 'workbook2', b64: Buffer.from(X.buildWorkbook(fletetX[2])).toString('base64') },
+    { emri: 'afatet-test.xlsx', b64: fs.readFileSync(path.join(__dirname, 'afatet-test.xlsx')).toString('base64') }
+  ];
+  // Barkodet: si vizatoBarkodin() te app-tel.js (formati sipas gjatësisë, pastaj CODE128)
+  const formatiB = b => /^[0-9]{13}$/.test(b) ? 'EAN13' : /^[0-9]{12}$/.test(b) ? 'UPC' : /^[0-9]{8}$/.test(b) ? 'EAN8' : 'CODE128';
+  const barkodet = ['5901234123457', '5901234123458', '036000291452', '036000291453', '96385074', '12345670', '12345678', '389001000', 'ABC-123', 'abc', 'Kos12345678x',
+    '1', '12', '123', '1234', 'a1b2c3d4', '\u0001AB', 'AB\u0001cd', 'ab\u0001cd', 'A\u0001b\u0002C', 'x y', '😀7', 'ë', '00000000000000', '0', 'aB\tC', '12ab34cd5678',
+    'AB12345678CD', '12345a', 'a12345', 'abc1234def', '~!@#$%^&*()_+{}|:"<>?', '\u007f\u0000', '1234567890123456789'].map(b => {
+    const f = formatiB(b), formatet = f === 'CODE128' ? [f] : [f, 'CODE128'];
+    for (const x of formatet) { try { const o = {}; JsBarcode(o, b, { format: x }); return { b, formati: x, modulet: o.encodings.map(e => e.data).join('') }; } catch (e) { /* tjetri */ } }
+    return { b, formati: null, modulet: null };
+  });
+  // CSV: lexoCsvTel nga app-tel.js (funksioni i brendshëm merret nga kodi)
+  const src = fs.readFileSync(RR + '/app-tel.js', 'utf8');
+  const i0 = src.indexOf('function lexoCsvTel(');
+  let i1 = src.indexOf('{', i0), th = 0;
+  for (; i1 < src.length; i1++) { if (src[i1] === '{') th++; else if (src[i1] === '}' && --th === 0) break; }
+  const lexoCsvTel = new Function(src.slice(i0, i1 + 1) + '; return lexoCsvTel;')();
+  const csv = ['a;b;c\n1;2;3\n', '"x,y",z\r\n"q""q",w\r\n\r\n', 'Barkodi\tEmri\n1\tKos', '﻿a,b\n,\n  , \n3,4', 'nje rresht', '"shume\nrreshta",2\n', 'a,b;c;d\n1,2;3', '', '\r\r\n\n', ';;\n x ; ']
+    .map(t => ({ t, r: lexoCsvTel(t) }));
+  const dekodimi = [[0xEF, 0xBB, 0xBF, 0x61, 0xC3, 0xAB], [0x61, 0xEB, 0x80, 0x62], [0x61, 0x62]].map(b => {
+    let t; try { t = new TextDecoder('utf-8', { fatal: true }).decode(Uint8Array.from(b)); } catch (e) { t = new TextDecoder('windows-1252').decode(Uint8Array.from(b)); }
+    return { b, t };
+  });
+  // Importi i afateve: ora ndalet te TANI_I (datat me vetëm ditën varen nga viti i tanishëm)
+  const TANI_I = new Date(2026, 9, 22, 15, 30).getTime();
+  const DataE = Date;
+  global.Date = class extends DataE { constructor(...x) { if (x.length) super(...x); else super(TANI_I); } static now() { return TANI_I; } };
+  const fletetI = [
+    { name: 'Nëntor2', rows: [['Barkodi', 'Emri i produktit', 'Skadon', 'Sasia', 'Furnizuesi'], ['3890010001', 'Kos', 15, '12', 'Vita'], [3890010002, 'Djathë', 46300, 5, ' Bylmeti '],
+      ['', '', '', '', ''], ['389 001-0003', 'Ujë', '12.10.2026', '3 copë', ''], ['', 'Pa datë', '', 2, ''], ['', '', '31.02.2026', 1, ''], ['3890010001', 'Kos', 15, 3, 'Vita'],
+      ['Gjithsej', '', '', 20, ''], ['111111', 'Qumësht', 12.1, '', 'Vita'], ['222222', 'Jogurt', 10.203, 'x', ''], [true, 'Bool', '5', 1, ''], ['333333', 'Ditë', '20.', '60+30', 'Vita'],
+      ['444444', 'Sot', 46317, -1, ''], [], ['555555']] },
+    { name: 'Dhjetor', rows: [['Barkodi', 'Emri', 'Skadon', 'Sasia'], ['3890010001', 'Kos', 15, 4], ['3890010009', 'Ëmbël', '1.', 1], ['3890010010', 'Total', 32, 1]] },
+    { name: 'Fleta3', rows: [['Kodi', 'Artikulli', 'Data'], ['555555', 'Sapun', '2026-12-01'], ['666666', 'shuma', '01.01.27']] }
+  ];
+  const paKoke = [['3890010001', 'Kos i freskët', '12.11.2026', 4], ['3890010002', 'Djathë', 46300, 12], ['3890010003', 'Ujë', '1/12/26', 'x']];
+  const ekzistuese = [{ id: 'e1', barkodi: '3890010002', emri: 'Djathë', data: '2026-10-05', statusi: 'aktiv' }, { id: 'e2', barkodi: '', emri: 'Ujë!', data: '2026-10-12' },
+    { id: 'e3', barkodi: '555555', data: '2026-12-01', statusi: 'hequr' }, { id: 'e4', barkodi: 7, data: '' }];
+  const hamendesimi = fletetI.map(sh => [true, false].map(k => A.hamendesoKolonatEAfateve(sh.rows, k))).concat([[A.hamendesoKolonatEAfateve(paKoke, false), A.hamendesoKolonatEAfateve(paKoke, true)]]);
+  const planet = [
+    { fletet: fletetI, meKoke: true, kol: A.hamendesoKolonatEAfateve(fletetI[0].rows, true) },
+    { fletet: fletetI.slice(1), meKoke: true, kol: { barkodi: 0, emri: 1, data: 2, sasia: 3, furnizuesi: -1 } },
+    { fletet: [{ name: 'CSV', rows: paKoke }], meKoke: false, kol: A.hamendesoKolonatEAfateve(paKoke, false) },
+    { fletet: [{ name: 'Fleta', rows: paKoke }], meKoke: true, kol: { barkodi: 0, emri: -1, data: 2, sasia: -1, furnizuesi: 7 } }
+  ].map(p => {
+    const plan = A.planiImportitAfateve(p.fletet, { meKoke: p.meKoke, kol: p.kol, ekzistuese });
+    const teReja = A.afatetNgaPlani(plan, { krijuarNga: 'besa' }).map(a => { const x = Object.assign({}, a); delete x.id; return x; });
+    return Object.assign(p, { rreshta: plan.rreshta.map(r => [r.fleta, r.nr, r.barkodi, r.emri, r.data, r.dataOrigjinale, r.sasia, r.furnizuesi, r.gabim, r.veprimi]),
+      numrat: [plan.teRinj, plan.ekzistojne, plan.gabime, plan.bashkuar], teReja });
+  });
+  const muajt = ['Nëntor', 'nentor2', 'NENTOR 2', 'Nëntor (2)', 'nov', 'no', 'Fleta1', 'shk', 'Sept', 'dhe', 'Dhjetor 2026', 'tetor', 'okt', 'janarr', '', null, 7]
+    .map(t => [t, A.muajiNgaEmri(t)]);
+  const qelizat = [[3890010001, null], [12.5, null], [-7, null], [1e21, null], ['  x ', null], [true, null], [null, null], [46300, null], [46300.6, null], [15, 11], [15, null],
+    [32, 11], [12.1, null], [10.203, null], [12.1, 11], ['15', 11], ['15.', 11], ['15', null], ['31.02.2026', null], ['12 nëntor 26', null], ['', 11], [0, 2], [20000, null]]
+    .map(([v, m]) => ({ v, m, tekst: A.tekstNgaQeliza(v), data: A.dataNgaQeliza(v, m) }));
+  global.Date = DataE;
+
+  const { chromium } = require(path.join(__dirname, 'pw.js'));
+  const br = await chromium.launch();
+  const pg = await br.newPage();
+  await pg.addScriptTag({ content: fs.readFileSync(RR + '/xlsx.js', 'utf8') });
+  for (const r of leximi) {
+    r.rez = await pg.evaluate(async b64 => {
+      const b = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+      return (await StokuXlsx.read(b)).map(sh => ({ name: sh.name, rows: sh.rows.map(r => r.map(v => typeof v === 'number' && !isFinite(v) ? 'NaN' : v)) }));
+    }, r.b64);
+  }
+  await br.close();
+  dalja.excel = JSON.parse(JSON.stringify({ build, workbook, leximi, barkodet, csv, dekodimi, TANI_I, hamendesimi, planet, muajt, qelizat }));
+  fs.writeFileSync(sk, JSON.stringify(dalja));
+  console.log('excel: ' + build.length + ' build, ' + workbook.length + ' workbook, ' + leximi.length + ' lexime, ' + barkodet.length + ' barkode, ' + planet.length + ' plane');
+})().catch(e => { console.error(e); process.exit(1); });
