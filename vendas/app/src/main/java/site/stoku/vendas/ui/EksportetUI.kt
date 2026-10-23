@@ -111,11 +111,9 @@ fun SkedariFlete(sk: Skedari, mbyll: () -> Unit) {
         }
         if (gjendja == "zgjedhje" || gjendja == "gabim") {
             if (lejaPc) Buton(if (gjendja == "gabim") "Provo sërish në PC" else "Dërgo në PC", { dergo() }, Modifier.fillMaxWidth(), aktiv = kaLlogari, ikona = Ik.Kompjuter)
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Buton("Ruaje në telefon", { ruaj() }, Modifier.weight(1f), lloji = if (lejaPc) "dyte" else "kryesor", ikona = Ik.Shkarko)
-                Buton("Ndaje", { try { Skedaret.ndaj(ctx, sk); mbyll() } catch (e: Exception) { Toast.trego("S'u hap menyja e ndarjes.") } },
-                    Modifier.weight(1f), lloji = "dyte", ikona = Ik.Ndaj)
-            }
+            Buton("Ruaje në telefon", { ruaj() }, Modifier.fillMaxWidth(), lloji = if (lejaPc) "dyte" else "kryesor", ikona = Ik.Shkarko)
+            Buton("Ndaje (WhatsApp, email…)", { try { Skedaret.ndaj(ctx, sk); mbyll() } catch (e: Exception) { Toast.trego("S'u hap menyja e ndarjes.") } },
+                Modifier.fillMaxWidth(), lloji = "dyte", ikona = Ik.Ndaj)
             if (gjendja == "zgjedhje" && lejaPc) Text(if (kaLlogari) "Në PC del te Përmbledhja, me butonin \"Shkarko\". Duhet e njëjta llogari në kompjuter."
                 else "Për ta dërguar në PC duhet llogari (e njëjta edhe në kompjuter).", style = tx(13, 400, n.muted))
         }

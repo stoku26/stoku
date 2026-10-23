@@ -342,11 +342,11 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
                 val lejaPdf = Llogaria.leja("eksportPdf")
                 if (lejaXls || lejaPdf) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        if (lejaXls) Buton("Eksporto në Excel", {
+                        if (lejaXls) Buton("Eksporto Excel", {
                             val sk = Eksportet.excelIFolderit(id)
                             if (sk == null) Toast.trego("Nuk ka produkte për eksport në këtë folder.") else skedari = sk
                         }, Modifier.weight(1f), lloji = "dyte", ikona = Ik.Excel)
-                        if (lejaPdf) Buton(if (pdfPune) "Duke krijuar…" else "Eksporto në PDF", {
+                        if (lejaPdf) Buton(if (pdfPune) "Duke krijuar…" else "Eksporto PDF", {
                             if (pdfPune) return@Buton
                             if (Dyqani.produktetEFolderit(id).isEmpty()) { Toast.trego("Nuk ka produkte për eksport në këtë folder."); return@Buton }
                             pdfPune = true
