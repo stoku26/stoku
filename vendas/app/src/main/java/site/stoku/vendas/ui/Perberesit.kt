@@ -9,6 +9,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import site.stoku.vendas.Opsionet
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -147,6 +150,15 @@ fun Fusha(
     val n = N
     val ia = remember { MutableInteractionSource() }
     val ne by ia.collectIsFocusedAsState()
+    // PDA me "Fshih tastierën": fusha merr fokusin (për skanerin dhe tastierën e PDA-së), por tastiera në ekran s'del
+    val kontrolliTastieres = LocalSoftwareKeyboardController.current
+    val pda by Opsionet.pda.collectAsState()
+    val paTastiere by Opsionet.paTastiere.collectAsState()
+    val fshihTastieren = pda && paTastiere
+    LaunchedEffect(ne, fshihTastieren) { if (ne && fshihTastieren) { delay(40); kontrolliTastieres?.hide() } }
+    LaunchedEffect(ia, fshihTastieren) {
+        if (fshihTastieren) ia.interactions.collect { if (it is PressInteraction.Release) { delay(40); kontrolliTastieres?.hide() } }
+    }
     val forma = RoundedCornerShape(rrezja)
     val vija = if (paVije) Color.Transparent else if (ne) n.accent else n.line
     val st = (stili ?: tx(16, 400)).copy(color = ngjyraTekstit ?: n.ink)

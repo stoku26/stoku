@@ -243,6 +243,24 @@ object Sinkronizimi {
         remoteNePritje = null
     }
 
+    /**
+     * "Rikthe nga cloud": të dhënat e telefonit zëvendësohen me ato të ruajtura në cloud (si cloudRiktheTani te web-i)
+     * → numri i produkteve të rikthyera, -1 kur cloud-i s'ka asgjë, null kur s'u lexua (internet)
+     */
+    suspend fun riktheNgaCloud(): Int? {
+        val u = uid ?: return null
+        val g = try { merr(u) } catch (e: Exception) { return null } ?: return -1
+        if (uid != u) return null
+        ndalDegjuesin()
+        Dyqani.harroFshirjet()
+        Dyqani.zbatoGjendjenNgaCloud(g)
+        uidISinkronizuar = u
+        nisDegjuesin()
+        _statusi.value = "U rikthye nga cloud " + ora() + "."
+        _gabim.value = false
+        return Dyqani.g.produktet.size
+    }
+
     /** "Sinkronizo tani" (prekja e logos): edhe rilexim nga cloud-i */
     fun rifresko() {
         if (uid == null) return

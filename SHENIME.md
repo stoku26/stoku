@@ -52,6 +52,17 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **STOKU PËR ANDROID: CILËSIMET E PLOTA (23.10.2026)**: kërkesa: "Shtoji te gjitha opsionet qe mungojn" (krahasuar me
+   web-in). Faza 1: `Opsionet.kt` (madhësia "normale"/"e_madhe" = dendësia ×1.12; PDA: ekrani portret, pa butonin e kamerës,
+   kursori gjithmonë te barkodi; "Fshih tastierën" vetëm me PDA, te `Fusha` tastiera fshihet në fokus dhe në prekje; "Pa emër"
+   me numërimin 5 s si te web-i, vetëm me lejen e stokut; tingulli; kursori te barkodi pas ruajtjes; parazgjedhjet si te web-i),
+   Llogaria: ndrysho emrin (REST `accounts:update` me idToken, se SDK-ja s'ka `updateEmail` pa verifikim), ndrysho fjalëkalimin
+   (me rihyrje me fjalëkalimin aktual kur Firebase e kërkon), "Rikthe nga cloud" (`Sinkronizimi.riktheNgaCloud`, harron
+   fshirjet në pritje), "Çka ka të re" (`TeRejat.kt`: lista e aplikacionit, del vetë një herë për hyrjet e reja; instalimet e
+   vjetra nisin nga nr 4). **Kujdes**: te `Fusha` parametri `tastiera` është `KeyboardType`; kontrolluesi i tastierës quhet
+   `kontrolliTastieres` (emri i njëjtë e prishi ndërtimin). Fazat e ardhshme: Excel/PDF/importi/Dërgo në PC, njoftimet + ora,
+   faqet e administratorit.
+
 0000000. **SHKAKU I MBYLLJES PAS HYRJES: `(?U)` TE REGEX-I (23.10.2026, v25)**: fotoja e ekranit të mbylljes (v24):
    `ExceptionInInitializerError` te `StokuEkrani.Kryefaqja` ← `Afatet.<clinit>` (Afatet.kt:74) ← `PatternSyntaxException`
    te `(?U)[\s-]` (`HAPESIRA_VIZA`, shtuar me `normalizoRreshtin` për fletën me AI). Në JVM (testet, Robolectric) `(?U)` punon,
