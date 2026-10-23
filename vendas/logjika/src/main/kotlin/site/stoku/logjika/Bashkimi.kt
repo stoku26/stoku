@@ -1,8 +1,8 @@
 package site.stoku.logjika
 
 /*
- * Bashkimi i të dhënave mes pajisjeve: përkthim besnik i bashkimi.js (web-i). Të njëjtat rregulla, që telefoni native,
- * web-i dhe kompjuteri ta bashkojnë dyqanin njësoj:
+ * Bashkimi i të dhënave mes pajisjeve: përkthim besnik i bashkimi.js (web-i). Të njëjtat rregulla, që aplikacioni Stoku
+ * për Android, web-i dhe kompjuteri ta bashkojnë dyqanin njësoj:
  *  - produkti në të dyja anët: fiton prekurSe më i ri (barazim → ana lokale);
  *  - fshirjet ruhen si shënime me kohë (fshira), që një pajisje me kopje të vjetër të mos i ringjallë;
  *  - folderat, afatet dhe marketet: ndryshuarSe më i ri; renditja e folderave sipas rendiKoha;

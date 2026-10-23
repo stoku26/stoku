@@ -52,7 +52,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
-0000000. **APLIKACIONI NATIVE QUHET "STOKU" (23.10.2026)**: përdoruesi: "nderroja appit native komplet emrin kudo qe e ke shkru
+0000000. **APLIKACIONI ANDROID `vendas/` QUHET "STOKU" (23.10.2026)**: përdoruesi: "nderroja appit native komplet emrin kudo qe e ke shkru
    stoku native ... ja len veq Stoku ... per arsyje qe appi webview android aj ka me u fshi". Emri i aplikacionit `vendas/`
    (`app_name`), Cilësimet ("Aplikacioni Stoku", teksti poshtë), mesazhi i lejes së kamerës, README, workflow-i ("Stoku APK",
    Release "Stoku për Android NN", skedari `stoku-NN.apk`, artifact `stoku-apk`) dhe skedari i përditësimit (`stoku.apk`).
@@ -60,7 +60,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    **Aplikacioni WebView `tel/` (`site.stoku.app`) do të fshihet** (vendim i pronarit): mos e propozo më si aplikacioni kryesor.
    Deri sa të fshihet, në telefon dalin dy ikona "Stoku". Pa ndryshim në web.
 
-0000000. **STOKU (NATIVE): APLIKACIONI ANDROID PA WEBVIEW (`vendas/`, faza 1; APK `vendas-vNN`)**: kërkesa: "krijoma 100% native
+0000000. **STOKU PËR ANDROID: APLIKACIONI PA WEBVIEW (`vendas/`, faza 1; APK `vendas-vNN`)**: kërkesa: "krijoma 100% native
    android aplikacion jo webview, mundohu sa ma identik me bo, te kamera ta perdorin google lens". Pa ndryshim në web.
    - **Projekti** `vendas/` (Gradle: `:app` Android + Compose, `:logjika` Kotlin pa Android). Paketa **`site.stoku.vendas`**,
      emri "Stoku" (deri më 23.10.2026 "Stoku Native"; i ndarë nga `site.stoku.app` i `tel/`, i cili do të fshihet).
@@ -1299,7 +1299,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    vetëm orën; kontrolli i përditësimit të aplikacionit si buton i hollë mes "Çka ka të re" dhe versionit; "←" me rreth.
    - Kategoria `#tabOra` → "Ora e dorës" (status "Galaxy Watch, Apple Watch"), faqja vetëm me orën (karta Android u hoq).
    - `#njAndroidBtn.ops-app-btn` (css/stoku.css, pill i hollë me kufi) para `.ops-fundi`: brenda aplikacionit "Kontrollo
-     për përditësim" → `StokuAndroid.kontrolloPerditesimin()` (Toast-i native jep përgjigjen); Chrome Android "Shkarko
+     për përditësim" → `StokuAndroid.kontrolloPerditesimin()` (Toast-i i Android-it jep përgjigjen); Chrome Android "Shkarko
      aplikacionin Android" → android.html; tjetërkund i fshehur. Listener-i vendoset NJË herë (jashtë `hapOpsionet`).
    - css/stoku.css: `#opsPrapa/#afPrapa/#ekipiPrapa/#btnMbrapa` s'janë më transparente: rreth si `.btn-ikone` (40px).
    - Ora: tekstet e rrugës → "Cilësimet → Ora e dorës".

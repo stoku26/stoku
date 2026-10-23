@@ -14,7 +14,7 @@ import java.net.URL
 
 /**
  * Përditësimi i aplikacionit: GitHub Actions e nxjerr çdo version si Release "vendas-vNN" (NN = versionCode).
- * Aplikacioni native s'merr pamjen nga stoku.site: çdo ndryshim vjen me një APK të re.
+ * Aplikacioni (pa WebView) s'merr pamjen nga stoku.site: çdo ndryshim vjen me një APK të re.
  * Kontrollohet më së shumti një herë në 6 orë; Android-i e kërkon konfirmimin e instalimit.
  */
 object Perditesimi {
