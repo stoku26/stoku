@@ -1,4 +1,4 @@
-// Aplikacioni native (vendas/): rastet e provës për logjikën në Kotlin, të llogaritura me kodin e VËRTETË të web-it
+// Aplikacioni Stoku për Android (vendas/): rastet e provës për logjikën në Kotlin, të llogaritura me kodin e VËRTETË të web-it
 // (bashkimi.js, ruajtja.js). Kotlini duhet të japë saktësisht të njëjtin rezultat (vendas/logjika/src/test).
 //   node teste/vendas-fikstura.js   → vendas/logjika/src/test/resources/fikstura.json
 const path = require('path');

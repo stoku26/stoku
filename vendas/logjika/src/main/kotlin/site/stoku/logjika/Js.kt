@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter
 
 /*
  * Të dhënat e Stoku-t si "objekte JavaScript": Map<String, Any?> (renditja e fushave ruhet), List<Any?>, String, Number
- * (Long ose Double), Boolean, null. Kështu aplikacioni native e lexon dhe e shkruan dyqanin (Firestore, kopja në telefon)
+ * (Long ose Double), Boolean, null. Kështu aplikacioni Android e lexon dhe e shkruan dyqanin (Firestore, kopja në telefon)
  * njësoj si web-i, pa humbur asnjë fushë që s'e njeh (një version më i ri i web-it mund të ketë fusha të reja).
  */
 

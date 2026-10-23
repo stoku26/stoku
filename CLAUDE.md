@@ -12,7 +12,7 @@ Përditësoje në të njëjtin PR me çdo ndryshim domethënës.
 
 ## Projekti
 - "Krejt projekti" = web (`index.html` telefoni/PDA, `pc.html` kompjuteri; kodi te `app-tel.js` / `app-pc.js`) +
-  aplikacioni Android `tel/` (WebView) + aplikacioni native `vendas/` (Kotlin/Compose, pa WebView) + aplikacioni i orës
+  aplikacioni Android "Stoku" `vendas/` (Kotlin/Compose, pa WebView) + aplikacioni i vjetër `tel/` (WebView, do të fshihet) + aplikacioni i orës
   `ora/` + Worker-i `worker/stoku-push.js`.
 - `vendas/logjika` = bashkimi.js/ruajtja.js/afatet.js/lejet.js/marketet.js + pjesa e pastër e ekipa.js (GrupiLogjika) në Kotlin: kur ndryshon ndonjëri, `node teste/vendas-fikstura.js`
   dhe përshtat Kotlinin (testet e krahasojnë me web-in).
