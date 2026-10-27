@@ -119,7 +119,9 @@ const SHTEPIA = { latitude: 42.6300, longitude: 21.1000, accuracy: 20 };
   ok(pikat().length === n0 && !(await lsM(dr)).some(m => m.emri === 'Albi 2') && /Je te: Albi Mall/.test(await dr.textContent('#mkAktivTitull')), '2. asnjë pikë e re; "Je te: Albi Mall"', await dr.textContent('#mkAktivTitull'));
   await dr.fill('#mkEmriRi', 'albi  MALL'); await dr.click('#mkShto');
   ok(await prit(async () => /me këtë emër/.test(await dr.textContent('#mkGabim'))), '2. emri i një marketi të Stoku-t (pa dallim shkronjash): refuzohet');
-  ok(await dr.evaluate(() => !document.querySelector('#mkLista input, #mkLista .ops-furn-edit') && !document.querySelector('#mkLista button')), '2. Cilësimet → Marketet: vetëm për t\'u parë (pa riemërtim, pa fshirje)');
+  // v256: rreshtat janë butona (e tregojnë marketin në hartë), por pa laps dhe pa ndryshim emri / fshirje
+  await dr.evaluate(() => { const r = document.querySelector('#htLista .ops-furn-rresht'); if (r) r.click(); }); await dr.waitForTimeout(200);
+  ok(await dr.evaluate(() => !document.querySelector('#htLista input, #htLista .ops-furn-edit, #htLista .ops-furn-laps, #htLista .ops-kuj-harro')), '2. Cilësimet → Marketet: vetëm për t\'u parë (pa riemërtim, pa fshirje)');
 
   // ================= 3. Pikat e fshira: marketi pa afate hiqet, ai me afate mbetet =================
   const ls3 = await lsM(dr);
@@ -129,7 +131,7 @@ const SHTEPIA = { latitude: 42.6300, longitude: 21.1000, accuracy: 20 };
 
   // ================= 4. Administratori shton market me dorë në hartë (telefoni) =================
   const { p: ad } = await faqe('uA', 'mendurberisha', false, null);
-  await hapCilesimet(ad, '#tabHarta');
+  await hapCilesimet(ad, '#tabMarketet');
   ok(await prit(async () => await duket(ad, '#htShto')), '4. admini: "+ Shto market në hartë"');
   ok(await prit(async () => await ad.evaluate(() => { const i = window.StokuHarta && window.StokuHarta.eFundit; return !!(i && i.map.loaded()); }), 30000), '4. harta u hap');
   await ad.click('#htShto'); await ad.waitForTimeout(300);
@@ -153,7 +155,7 @@ const SHTEPIA = { latitude: 42.6300, longitude: 21.1000, accuracy: 20 };
   ok(await prit(async () => (await lsM(dr)).some(m => m.p === pV.id && m.emri === 'Viva Fresh Dardani') && (await lsM(be)).some(m => m.p === pV.id)), '4. drini dhe besa e marrin vetë');
   ok(!(await ad.evaluate(() => window.__csp)).length && !ad.__gab.length, '4. admini: pa shkelje të CSP-së, pa gabime JS', [await ad.evaluate(() => window.__csp), ad.__gab]);
   // Merchandiseri: harta pa "+ Shto market"
-  await hapCilesimet(dr, '#tabHarta');
+  await hapCilesimet(dr, '#tabMarketet');
   ok(await prit(async () => (await dr.evaluate(() => [...document.querySelectorAll('#htLista .ops-furn-emri')].map(x => x.textContent))).includes('Viva Fresh Dardani')) && !(await duket(dr, '#htShto')), '4. drini: harta me marketin e ri, pa "+ Shto market"');
 
   // ================= 5. PC =================

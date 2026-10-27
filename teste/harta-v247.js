@@ -108,13 +108,13 @@ const PLLAKA_ESRI = png(256, 256, [46, 92, 52]);
   async function hapHarten(p) {
     if (!(await p.evaluate(() => document.getElementById('dlgOpsione').classList.contains('hapur')))) { await p.click('#btnOpsione'); await p.waitForTimeout(300); }
     if (await p.evaluate(() => document.getElementById('kategoriMenu').style.display === 'none')) { await p.click('#opsPrapa'); await p.waitForTimeout(200); }
-    await p.click('#tabHarta'); await p.waitForTimeout(400);
+    await p.click('#tabMarketet'); await p.waitForTimeout(400);
   }
 
   // ================= 1. Pa çelës =================
   const { p: a0 } = await faqe('uA', 'mendurberisha');
   await a0.click('#btnOpsione'); await a0.waitForTimeout(500);
-  ok(await prit(async () => await duket(a0, '#tabHarta') && (await a0.textContent('#tabHartaStatus')) === 'Marketet në hartë'), '1. admini: "Harta · Marketet në hartë"', await a0.textContent('#tabHartaStatus'));
+  ok(await prit(async () => await duket(a0, '#tabMarketet') && (await a0.textContent('#tabMarketetStatus')) === 'Marketet në hartë'), '1. admini: "Harta · Marketet në hartë"', await a0.textContent('#tabMarketetStatus'));
   await hapHarten(a0);
   ok(await prit(async () => await hartaGati(a0), 30000), '1. harta u hap');
   ok(!(await a0.$('#htHarta .ht-pamja-btn')) && await shtresa(a0, 'satelit') === 'mungon', '1. pa çelës: pa butonin "Satelit"');
@@ -168,7 +168,7 @@ const PLLAKA_ESRI = png(256, 256, [46, 92, 52]);
   await cpb.close();
   const { p: ag } = await faqe('u3', 'agim', { celesi: 'celes-prove' });
   await ag.click('#btnOpsione'); await ag.waitForTimeout(800);
-  ok(!(await duket(ag, '#tabHarta')) && !(await duket(ag, '#tabMarketet')), '4. agim (s\'është merchandiser): pa "Harta", pa "Marketet"');
+  ok(!(await duket(ag, '#tabMarketet')) && !(await duket(ag, '#tabMarketet')), '4. agim (s\'është merchandiser): pa "Harta", pa "Marketet"');
   const { p: pg } = await faqe('u3', 'agim', { pc: true, celesi: 'celes-prove' });
   await pg.click('#btnOpsione'); await pg.waitForTimeout(800);
   ok(!(await duket(pg, '#opsSkedaHarta')), '4. PC agim: pa "Harta"');

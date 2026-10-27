@@ -86,7 +86,7 @@ const lindje = d => ({ lat: VF.lat, lng: Math.round((VF.lng + d) * 1e6) / 1e6 })
 
   // ================= 1. Telefoni: administratori =================
   const { p: ad } = await faqe('uA', 'mendurberisha', false, null);
-  await hapCilesimet(ad, '#tabHarta');
+  await hapCilesimet(ad, '#tabMarketet');
   ok(await prit(async () => await ad.evaluate(() => { const i = window.StokuHarta && window.StokuHarta.eFundit; return !!(i && i.map.loaded()); }), 30000), '1. harta u hap');
   await ad.click('#htShto'); await ad.waitForTimeout(300);
   await qendra(ad, lindje(0.000122), 18);

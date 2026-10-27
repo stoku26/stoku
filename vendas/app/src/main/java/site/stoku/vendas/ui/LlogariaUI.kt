@@ -43,14 +43,21 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-/** Avatari i llogarisë (ops-av): fotoja e profilit ose rrethi blu me shkronjën e parë */
+/** Fotoja e profilit të një llogarie (null derisa të ngarkohet, ose kur s'ka foto); rifreskohet kur ndryshon indeksi */
 @Composable
-internal fun AvatariMadh(emri: String, madhesia: Int = 56, uid: String? = null, onClick: (() -> Unit)? = null) {
+internal fun fotoEProfilit(uid: String?): ImageBitmap? {
     val ctx = LocalContext.current
     val ind by Fotot.indeksi.collectAsState()
     val v = uid?.let { ind[it] }
     var foto by remember(uid, v) { mutableStateOf<ImageBitmap?>(null) }
     LaunchedEffect(uid, v) { foto = if (uid != null && v != null) Fotot.foto(ctx, uid)?.asImageBitmap() else null }
+    return foto
+}
+
+/** Avatari i llogarisë (ops-av): fotoja e profilit ose rrethi blu me shkronjën e parë */
+@Composable
+internal fun AvatariMadh(emri: String, madhesia: Int = 56, uid: String? = null, onClick: (() -> Unit)? = null) {
+    val foto = fotoEProfilit(uid)
     var m = Modifier.size(madhesia.dp).shadow(10.dp, CircleShape, spotColor = Color(0xB31F5FC4)).clip(CircleShape)
         .background(Brush.linearGradient(listOf(Color(0xFF3B7BE0), Color(0xFF1F5FC4))))
     if (onClick != null) m = m.clickable(onClick = onClick)

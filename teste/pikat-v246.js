@@ -88,7 +88,7 @@ const LARG = { latitude: 42.3800, longitude: 20.4300, accuracy: 20 }; // Pejë
   const { p: ad } = await faqe('uA', 'mendurberisha', ALBI);
   ok(await ad.evaluate(() => window.__gpsThirrje) === 0, '5. administratori (jo merchandiser): pa GPS');
   await ad.click('#btnOpsione'); await ad.waitForTimeout(400);
-  await ad.click('#tabHarta'); await ad.waitForTimeout(800);
+  await ad.click('#tabMarketet'); await ad.waitForTimeout(800);
   const rr = async () => ad.evaluate(() => [...document.querySelectorAll('#htLista .ops-furn-rresht:not(.ops-furn-edit)')].map(x => x.querySelector('.ops-furn-emri').textContent + ' | ' + x.querySelector('.hint').textContent));
   ok(await prit(async () => (await rr()).length >= 3), '5. Harta e adminit: pikat e Stoku-t', await rr());
   ok((await rr()).some(x => /^Albi Mall \| E shtoi besa/.test(x)) && (await rr()).some(x => /^Viva Fresh Pejë \| E shtoi vesa/.test(x)), '5. kush e shtoi secilën pikë', await rr());
@@ -100,8 +100,8 @@ const LARG = { latitude: 42.3800, longitude: 20.4300, accuracy: 20 }; // Pejë
   ok(await prit(async () => /Albi Mall Prishtinë/.test(await cipi(d))), '5. çipi i drinit: "Albi Mall Prishtinë"', await cipi(d));
   await d.click('#btnOpsione'); await d.waitForTimeout(300);
   await d.click('#tabMarketet'); await d.waitForTimeout(400);
-  await d.evaluate(() => { const x = [...document.querySelectorAll('#mkLista .ops-furn-rresht')].find(x => /Albi Mall/.test(x.textContent)); if (x) x.click(); }); await d.waitForTimeout(200);
-  ok(await d.evaluate(() => !document.querySelector('#mkLista input, #mkLista .ops-furn-edit')), '5. v250: drini s\'ka ku ta ndërrojë emrin (Cilësimet → Marketet vetëm për t\'u parë)');
+  await d.evaluate(() => { const x = [...document.querySelectorAll('#htLista .ops-furn-rresht')].find(x => /Albi Mall/.test(x.textContent)); if (x) x.click(); }); await d.waitForTimeout(200);
+  ok(await d.evaluate(() => !document.querySelector('#htLista input, #htLista .ops-furn-edit')), '5. v250: drini s\'ka ku ta ndërrojë emrin (Cilësimet → Marketet vetëm për t\'u parë)');
   // v250: as krijuesi s'e ndërron më pikën e vet (rregullat): vesa provon direkt
   const rV = await v.evaluate(id => window.__stokuCloud.ekipa.ndryshoPiken(id, { emri: 'Viva Pejë Qendër' }, false), pV.p);
   ok(!(rV && rV.ok) && (F.S.docs.get('pikat/' + pV.p) || {}).emri === 'Viva Fresh Pejë', '5. v250: vesa s\'e riemërton as pikën e vet', rV);

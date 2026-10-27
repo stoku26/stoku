@@ -2,6 +2,8 @@ package site.stoku.vendas.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -131,6 +133,7 @@ fun GrupiEkrani() {
     val dq by Dyqani.gjendja.collectAsState()
     var tani by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) { if (!Grupi.neProve) while (true) { delay(30_000); tani = System.currentTimeMillis() } } // prania "online" skadon me kohë
+    LaunchedEffect(Unit) { if (!Grupi.neProve) try { site.stoku.vendas.Fotot.rifresko() } catch (e: Exception) { } } // v256: fotot e kolegëve
 
     var pamja by rememberSaveable { mutableStateOf("permbledhja") }
     var anetariZ by rememberSaveable { mutableStateOf("krejt") }
@@ -256,11 +259,14 @@ private fun Seksion(t: String, djathtas: String? = null, nen: String? = null, ku
 }
 
 @Composable
-private fun Avatari(emri: String?, madhesia: Dp, online: Boolean = false) {
+private fun Avatari(emri: String?, madhesia: Dp, online: Boolean = false, uid: String? = null) {
     val n = N
+    // v256: fotoja e profilit (si Fotot.apliko te web-i), përndryshe shkronja mbi ngjyrën e emrit
+    val foto = fotoEProfilit(uid ?: site.stoku.vendas.Fotot.uidPerEmrin(emri))
     Box(Modifier.size(madhesia)) {
         Box(Modifier.size(madhesia).clip(CircleShape).background(ngjyraEEmrit(emri)), contentAlignment = Alignment.Center) {
-            Text(shkronja(emri), style = tx(maxOf(8, (madhesia.value * 0.4f).roundToInt()), 700, Color.White))
+            if (foto != null) Image(foto, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+            else Text(shkronja(emri), style = tx(maxOf(8, (madhesia.value * 0.4f).roundToInt()), 700, Color.White))
         }
         if (online) Box(Modifier.align(Alignment.BottomEnd).offset(1.dp, 1.dp).size(madhesia * 0.3f + 4.dp).clip(CircleShape).background(n.bg).padding(2.dp).clip(CircleShape).background(n.okDot))
     }
@@ -268,8 +274,9 @@ private fun Avatari(emri: String?, madhesia: Dp, online: Boolean = false) {
 
 /** Avatari i lehtë (ek-avatar): te aktiviteti me ngjyrën e ngjarjes, te kolegët me pikën online */
 @Composable
-private fun AvatariLehte(emri: String?, lloji: String? = null, madhesia: Dp = 34.dp, online: Boolean = false) {
+private fun AvatariLehte(emri: String?, lloji: String? = null, madhesia: Dp = 34.dp, online: Boolean = false, uid: String? = null) {
     val n = N
+    val foto = fotoEProfilit(uid ?: site.stoku.vendas.Fotot.uidPerEmrin(emri)) // v256: si Fotot.apliko te web-i
     val (sf, ng) = when (lloji) {
         "hequr" -> n.expTint to n.exp
         "lajmeruar" -> n.nearTint to n.near
@@ -279,7 +286,8 @@ private fun AvatariLehte(emri: String?, lloji: String? = null, madhesia: Dp = 34
     Box(Modifier.size(madhesia)) {
         val vija = if (lloji == null || sf == n.surface2) Modifier.border(1.dp, n.line, CircleShape) else Modifier
         Box(Modifier.size(madhesia).clip(CircleShape).background(sf).then(vija), contentAlignment = Alignment.Center) {
-            Text(shkronja(emri), style = tx(if (madhesia < 34.dp) 13 else 14, 700, ng))
+            if (foto != null) Image(foto, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+            else Text(shkronja(emri), style = tx(if (madhesia < 34.dp) 13 else 14, 700, ng))
         }
         if (online) Box(Modifier.align(Alignment.BottomEnd).offset(2.dp, 2.dp).size(14.dp).clip(CircleShape).background(n.bg).padding(2.dp).clip(CircleShape).background(n.okDot))
     }
@@ -572,7 +580,7 @@ private fun Permbledhja(ftesat: List<Obj>, kerkesatG: List<Obj>, ngjarjet: List<
                 an.forEach { a ->
                     Column(Modifier.width(64.dp).clip(RoundedCornerShape(10.dp)).clickable { ctx.hapAnetarin(a["uid"] as String, null) },
                         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                        Avatari(a["emri"] as? String, 46.dp, ctx.online(a))
+                        Avatari(a["emri"] as? String, 46.dp, ctx.online(a), a["uid"] as? String)
                         Text(jsString(a["emri"] ?: ""), style = txF(11.5f, 600, n.muted), maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
@@ -1002,7 +1010,7 @@ private fun RreshtiKolegut(a: Obj, ctx: Konteksti) {
     val online = ctx.online(a)
     Row(Modifier.fillMaxWidth().clickable { ctx.hapAnetarin(a["uid"] as String, null) }.padding(vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-        AvatariLehte(a["emri"] as? String, online = online)
+        AvatariLehte(a["emri"] as? String, online = online, uid = a["uid"] as? String)
         Column(Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(jsString(a["emri"] ?: ""), style = tx(16, 500, n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))

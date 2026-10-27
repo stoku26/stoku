@@ -3294,7 +3294,7 @@
     b.addEventListener('click', function () { ops.tema = b.dataset.v; ruajOps(); zbatoPamjen(); rifreskoOpsionet(); });
   });
 
-  // ================= Cilësimet → Harta (v244, harta.js) =================
+  // ================= Cilësimet → Marketet: harta (v244, harta.js; v256 skeda quhet "Marketet") =================
   // Pikat e marketeve mbi një hartë që tregon vetëm emrat e vendbanimeve; vetëm administratori dhe merchandiserët.
   // Administratori i sheh pikat e Stoku-t (v246: pikat/{id}), ua ndryshon emrin për krejt Stoku-n, i fshin dhe (v250) i
   // shton me dorë në hartë; merchandiseri i sheh krejt marketet e Stoku-t, pa i ndryshuar (v250).

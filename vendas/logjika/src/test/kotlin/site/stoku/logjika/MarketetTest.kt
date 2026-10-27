@@ -27,6 +27,7 @@ class MarketetTest {
             eq("pastroPikat $i", r["pikat"], Marketet.pastroPikat(r["pikatRaw"]))
             eq("pastro $i", r["lista"], Marketet.pastro(r["lista"]))
             eq("gjej $i", r["gjej"], gjetur(Marketet.gjej(l, p)))
+            eq("largNgaMarketi $i", r["larg"], l.map { Marketet.largNgaMarketi(l, it["id"], p) })
             eq("pikatAfer $i", r["afer"], Marketet.pikatAfer(pikat, p, Marketet.LIDHJA_M, 3).map { obj("pika" to it.pika, "largesia" to it.largesia) })
             eq("neVend $i", r["neVend"], gjetur(Marketet.marketiNeVend(l, p)))
             eq("shumeAfer $i", r["shumeAfer"], Marketet.pikaShumeAfer(pikat, p)?.let { obj("pika" to it.pika, "largesia" to it.largesia) })
@@ -58,7 +59,7 @@ class MarketetTest {
         f["aktivet"].siListe().forEach { x ->
             val r = x.siObj()!!; val a = r["a"].siObj()!!
             val g = r["g"].siObj()?.let { Marketet.Gjetur(it["marketi"].siObj()!!, (it["largesia"] as Number).toLong()) }
-            val rez = Marketet.pasGps(Marketet.Aktivi(a["id"] as String?, a["menyra"] as String, (a["koha"] as Number).toLong(), 0), g, tani)
+            val rez = Marketet.pasGps(Marketet.Aktivi(a["id"] as String?, a["menyra"] as String, (a["koha"] as Number).toLong(), 0), g, tani, r["larg"] == true)
             eq("pasGps " + Json.shkruaj(r), r["rez"], obj("id" to rez.id, "menyra" to rez.menyra, "koha" to rez.koha, "kontrolluarSe" to rez.kontrolluarSe))
         }
         f["kontrolli"].siListe().forEach { x ->

@@ -52,6 +52,11 @@ Pamja, Skenimi, Njoftimet, Ora e dorës, Marketet, Stoku, Përdoruesit (administ
 Produktet (`ui/RegjistriUI.kt`) nga kujtesa e produkteve (`logjika/Kujtesa.kt`, `logjika/Furnizuesit.kt`, krahasuar me
 afatet.js te `KujtesaTest`) dhe regjistri i përbashkët i Stoku-t (`Regjistri.kt`, si ekipa.js).
 
+**Marketet me hartë** (`ui/MarketetUI.kt`, `ui/HartaUI.kt`, v256): Cilësimet → Marketet = "Je te", harta (MapLibre Native,
+i njëjti stil si `harta.js`: pllakat e OpenFreeMap, vetëm emrat e vendbanimeve, sateliti i Esri-t me Referer stoku.site),
+lista e marketeve dhe shtimi; administratori vendos, riemërton dhe fshin pikat (`pikat/{id}`). APK-ja përfshin vetëm ARM
+(`abiFilters`). Grupi tregon fotot e profilit të kolegëve (`Fotot.uidPerEmrin`).
+
 **Leximi me AI**: aplikacioni dërgon foton te `https://stoku-afatet.mendurb.workers.dev` me tokenin e llogarisë dhe me
 `Origin: https://stoku.site` (si web-i). Nëse Worker-i kthen "origjina", i duhet lejuar kjo kërkesë (pronari, te Cloudflare).
 
@@ -60,4 +65,4 @@ afatet.js te `KujtesaTest`) dhe regjistri i përbashkët i Stoku-t (`Regjistri.k
 GitHub Actions (job-i `pamjet`, vetëm jashtë `main`) i ruan PNG-të si blob-e të git-it dhe i shënon te "annotations".
 
 ## Çka mungon ende (fazat e ardhshme)
-Harta e marketeve, fshirja e llogarisë nga administratori, veprimet e administratorit te Grupi, stoku i kolegut te Grupi dhe "Dërgo në PC" për fotot e fletëve.
+Fshirja e llogarisë nga administratori, veprimet e administratorit te Grupi, stoku i kolegut te Grupi dhe "Dërgo në PC" për fotot e fletëve.

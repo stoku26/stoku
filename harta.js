@@ -1,6 +1,6 @@
 /*
  * Harta e marketeve (v244): pikat e marketeve (emri + vendndodhja) mbi një hartë që tregon vetëm emrat e vendbanimeve
- * (qytete, qyteza, fshatra, lagje). E përbashkët për telefonin dhe PC-në (Cilësimet → Harta).
+ * (qytete, qyteza, fshatra, lagje). E përbashkët për telefonin dhe PC-në (v256: brenda Cilësimet → Marketet).
  *
  * - MapLibre GL JS 5.24.0 nga jsDelivr me SRI (si libraritë e tjera); ngarkohet vetëm kur hapet harta. Stili i kontrolleve
  *   te css/maplibre-gl.css (kopje e paketës, licenca BSD-3, MapLibre contributors).

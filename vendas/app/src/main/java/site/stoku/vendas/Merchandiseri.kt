@@ -12,6 +12,7 @@ import androidx.core.location.LocationManagerCompat
 import androidx.core.os.CancellationSignal
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -84,8 +85,8 @@ object Merchandiseri {
         nisur = true
         _aktivi.value = lexoAktivin()
         scope.launch {
-            combine(Llogaria.perdoruesi, Llogaria.lejet, Llogaria.merchandiserIRegjistrimit) { p, _, _ -> p?.uid to Llogaria.eshteMerchandiser() }
-                .distinctUntilChanged().collect { (_, merch) ->
+            combine(Llogaria.perdoruesi, Llogaria.lejet, Llogaria.merchandiserIRegjistrimit) { p, _, _ -> Triple(p?.uid, Llogaria.eshteMerchandiser(), Llogaria.eshteAdmin()) }
+                .distinctUntilChanged().collect { (_, merch, _) ->
                     nisPikat()
                     if (merch) { delay(300); kontrolloGps(false) }
                 }
@@ -127,7 +128,7 @@ object Merchandiseri {
     // ---------------- Pikat (pikat/{id}) ----------------
     private fun nisPikat() {
         val u = Llogaria.perdoruesi.value
-        val duhen = u != null && Llogaria.eshteMerchandiser()
+        val duhen = u != null && (Llogaria.eshteMerchandiser() || Llogaria.eshteAdmin()) // v256: edhe administratori (harta te Marketet)
         if (ndalPikat != null && (!duhen || pikatUid != u?.uid)) {
             ndalPikat?.invoke(); ndalPikat = null; _pikat.value = emptyList(); pikatGati = false; pikatOk = false
         }
@@ -175,6 +176,27 @@ object Merchandiseri {
             )).await()
             id
         } catch (e: Exception) { null }
+    }
+
+    // ---------------- v256: administratori te Marketet (harta): pikat e Stoku-t (si ekipa.js shtoPiken/ndryshoPiken/fshiPiken) ----------------
+    /** Administratori vendos një market të ri në hartë; kthen id-në ose null */
+    suspend fun shtoPikenNgaAdmini(emri: String, lat: Double, lng: Double): String? {
+        if (!Llogaria.eshteAdmin()) return null
+        return shtoPiken(mapOf("emri" to emri, "lat" to Math.round(lat * 1e6) / 1e6, "lng" to Math.round(lng * 1e6) / 1e6))
+    }
+    /** Emri i pikës për krejt Stoku-n (emriNgaAdmini: merchandiseri s'e ndërron më) */
+    suspend fun ndryshoEmrinEPikes(id: String, emri: String): Boolean {
+        if (FirebaseAuth.getInstance().currentUser == null || !Llogaria.eshteAdmin()) return false
+        return try {
+            FirebaseFirestore.getInstance().collection("pikat").document(id).set(mapOf("emri" to (emri.trim().take(60).ifEmpty { "Market" }),
+                "ndryshuarSe" to System.currentTimeMillis(), "emriNgaAdmini" to true), SetOptions.merge()).await()
+            true
+        } catch (e: Exception) { false }
+    }
+    /** Pika e dyfishtë ose e gabuar fshihet (marketet e merchandiserëve me afate mbeten te ata) */
+    suspend fun fshiPiken(id: String): Boolean {
+        if (FirebaseAuth.getInstance().currentUser == null || !Llogaria.eshteAdmin()) return false
+        return try { FirebaseFirestore.getInstance().collection("pikat").document(id).delete().await(); true } catch (e: Exception) { false }
     }
 
     private fun idERe(): String {
@@ -283,7 +305,7 @@ object Merchandiseri {
                 }
             }
             val baza = if (meDore) _aktivi.value.copy(menyra = "gps", koha = 0) else _aktivi.value // "Gjej me GPS" fiton ndaj zgjedhjes me dorë
-            ruajAktivin(Marketet.pasGps(baza, gj))
+            ruajAktivin(Marketet.pasGps(baza, gj, System.currentTimeMillis(), Marketet.largNgaMarketi(marketet(), baza.id, p))) // v256: larg marketit të zgjedhur: bie
             val pas = idAktiv()
             if (pas != null) {
                 if (pas != para || meDore || uShtua) Toast.trego("Je te: " + emri(pas) + if (uShtua) " (u shtua te marketet e tua)" else "", 4000)

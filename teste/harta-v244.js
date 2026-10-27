@@ -84,7 +84,7 @@ const MAPLIBRE = fs.readFileSync(NM + '/maplibre-gl/dist/maplibre-gl.js');
   async function hapHarten(p) {
     if (!(await p.evaluate(() => document.getElementById('dlgOpsione').classList.contains('hapur')))) { await p.click('#btnOpsione'); await p.waitForTimeout(300); }
     if (await p.evaluate(() => document.getElementById('kategoriMenu').style.display === 'none')) { await p.click('#opsPrapa'); await p.waitForTimeout(200); }
-    await p.click('#tabHarta'); await p.waitForTimeout(400);
+    await p.click('#tabMarketet'); await p.waitForTimeout(400);
   }
 
   // Merchandiserët i ruajnë marketet (pajisja e tyre i çon te dyqani)
@@ -96,12 +96,12 @@ const MAPLIBRE = fs.readFileSync(NM + '/maplibre-gl/dist/maplibre-gl.js');
   // ================= 1. Telefoni: administratori =================
   const { p: ad } = await faqe('uA', 'mendurberisha', false);
   await ad.click('#btnOpsione'); await ad.waitForTimeout(500);
-  ok(await prit(async () => await duket(ad, '#tabHarta')), '1. admini: "Harta" te Cilësimet', await ad.textContent('#tabHartaStatus'));
+  ok(await prit(async () => await duket(ad, '#tabMarketet')), '1. admini: "Harta" te Cilësimet', await ad.textContent('#tabMarketetStatus'));
   await hapHarten(ad);
   ok(await prit(async () => (await rreshtat(ad)).length === 2), '1. lista: 2 pikat e Stoku-t', await rreshtat(ad));
   const rr1 = await rreshtat(ad);
   ok(/^Albi 34 \| E shtoi drini/.test(rr1[0]) && /^Meridian \| E shtoi besa/.test(rr1[1]), '1. renditja dhe kush e shtoi', rr1);
-  ok(/^2 pika në hartë\.$/.test(await ad.textContent('#htInfo')) && (await ad.textContent('#opsioneTitulli')) === 'Harta', '1. "2 pika në hartë", titulli "Harta"', await ad.textContent('#htInfo'));
+  ok(/^2 pika në hartë\.$/.test(await ad.textContent('#htInfo')) && (await ad.textContent('#opsioneTitulli')) === 'Marketet', '1. "2 pika në hartë", titulli "Marketet" (v256: harta brenda Marketeve)', await ad.textContent('#htInfo'));
   ok(await prit(async () => await hartaGati(ad), 30000), '1. harta u hap (MapLibre + pllakat)');
   ok(await ad.evaluate(() => !!document.querySelector('#htHarta .maplibregl-ctrl-attrib.maplibregl-compact-show')), '1. v246: burimet e hartës dalin kur hapet harta');
   ok(await prit(async () => await ad.evaluate(() => !document.querySelector('#htHarta .maplibregl-ctrl-attrib.maplibregl-compact-show') && !!document.querySelector('#htHarta .maplibregl-ctrl-attrib-button')), 9000), '1. v246: pas 5 s palohen te butoni (i)');
@@ -139,8 +139,10 @@ const MAPLIBRE = fs.readFileSync(NM + '/maplibre-gl/dist/maplibre-gl.js');
   // ================= 2. Telefoni: merchandiseri dhe kush s'është =================
   await hapHarten(dr);
   ok(await prit(async () => (await rreshtat(dr)).length === 3), '2. v247: drini: marketet e veta + marketi i besës', await rreshtat(dr));
-  ok((await rreshtat(dr)).join(' / ') === 'Albi Mall Prishtinë | E shtove ti / Meridian | E shtoi besa / Viva | Pa vendndodhje', '2. v250: "E shtove ti", "E shtoi besa", "Pa vendndodhje"', await rreshtat(dr));
-  ok(!/Marketet e mia/.test(await dr.textContent('#htLista')) && (await dr.textContent('#tabHartaStatus')) === 'Marketet në hartë' && !(await duket(dr, '#htShto')), '2. v250: një listë e vetme; "Marketet në hartë"; pa "+ Shto market në hartë"');
+  ok((await rreshtat(dr)).join(' / ') === 'Albi Mall Prishtinë | E shtove ti · 0 afate / Meridian | E shtoi besa · 0 afate / Viva | Pa vendndodhje: shtoje sërish me këtë emër kur je brenda tij · 0 afate',
+    '2. v250: "E shtove ti", "E shtoi besa", "Pa vendndodhje" (v256: edhe afatet e secilit)', await rreshtat(dr));
+  ok(!/Marketet e mia/.test(await dr.textContent('#htLista')) && (await dr.textContent('#tabMarketetStatus')) !== 'Marketet në hartë' && !(await duket(dr, '#htShto')) && await duket(dr, '#mkShto'),
+    '2. v250: një listë e vetme; pa "+ Shto market në hartë" (v256: "Shto" i marketit ku je, në të njëjtën faqe)', await dr.textContent('#tabMarketetStatus'));
   ok(await prit(async () => await hartaGati(dr), 30000) && await prit(async () => { const e = await emratNeHarte(dr); return e.includes('pikat-emri:Albi Mall Prishtinë') && e.includes('pikat-emri:Meridian'); }), '2. v247: drini: në hartë edhe marketi i besës', await emratNeHarte(dr));
   await dr.evaluate(() => [...document.querySelectorAll('#htLista .ops-furn-rresht')].find(x => /Meridian/.test(x.textContent)).click()); await dr.waitForTimeout(300);
   ok(await dr.evaluate(() => !document.querySelector('#htLista .ops-furn-edit') && !!document.querySelector('#htLista .ht-zgjedhur')), '2. v247: marketi i besës zgjidhet në hartë, pa ndryshim emri');
@@ -152,9 +154,9 @@ const MAPLIBRE = fs.readFileSync(NM + '/maplibre-gl/dist/maplibre-gl.js');
   ok(!(await dr.evaluate(() => window.__csp)).length && !dr.__gab.length, '2. drini: pa shkelje të CSP-së, pa gabime JS', [await dr.evaluate(() => window.__csp), dr.__gab]);
   const { p: ag } = await faqe('u3', 'agim', false);
   await ag.click('#btnOpsione'); await ag.waitForTimeout(800);
-  ok(!(await duket(ag, '#tabHarta')) && !(await ag.evaluate(() => !!document.querySelector('link[data-maplibre]') || !!window.maplibregl)), '2. agim (s\'është merchandiser): pa "Harta", MapLibre s\'ngarkohet');
-  await ag.evaluate(() => document.getElementById('tabHarta').click()); await ag.waitForTimeout(300);
-  ok(await ag.evaluate(() => !document.querySelector('.opsione-faqe[data-faqe="harta"]').classList.contains('aktiv')), '2. agim: faqja e hartës s\'hapet as me klikim të fshehur');
+  ok(!(await duket(ag, '#tabMarketet')) && !(await ag.evaluate(() => !!document.querySelector('link[data-maplibre]') || !!window.maplibregl)), '2. agim (s\'është merchandiser): pa "Harta", MapLibre s\'ngarkohet');
+  await ag.evaluate(() => document.getElementById('tabMarketet').click()); await ag.waitForTimeout(300);
+  ok(await ag.evaluate(() => !document.querySelector('.opsione-faqe[data-faqe="marketet"]').classList.contains('aktiv')), '2. agim: faqja e hartës s\'hapet as me klikim të fshehur');
   ok(!ag.__gab.length && !be.__gab.length, '2. pa gabime JS (agim, besa)', [ag.__gab, be.__gab]);
 
   // ================= 3. PC =================

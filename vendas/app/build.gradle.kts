@@ -17,6 +17,8 @@ android {
         targetSdk = 34
         versionCode = numri
         versionName = "0.1.$numri"
+        // v256: harta (MapLibre) ka biblioteka native të mëdha: vetëm për telefonat dhe PDA-të ARM (krejt pajisjet e vërteta)
+        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
 
     // Çelësi i vjetër (publik) te tel/ (aty kanë mbetur vetëm çelësat); GitHub Actions e rinënshkruan me
@@ -81,6 +83,9 @@ dependencies {
     implementation("com.google.mlkit:barcode-scanning:17.3.0")
     implementation("com.google.guava:guava:33.3.1-android") // ListenableFuture e CameraX-it
     implementation("androidx.exifinterface:exifinterface:1.3.7") // fotoja e fletës drejt (rrotullimi i kamerës)
+    // v256: harta e marketeve (si harta.js te web-i): MapLibre Native me pllakat e OpenFreeMap dhe satelitin e Esri-t
+    implementation("org.maplibre.gl:android-sdk:11.8.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0") // Referer-i stoku.site për satelitin (çelësi i Esri-t është i kufizuar te faqja)
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.13")

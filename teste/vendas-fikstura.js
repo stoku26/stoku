@@ -159,7 +159,7 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
   // pikë në largësi (metra) nga qendra, në drejtim të rastit
   const pike = (d) => { const k = rast() * 2 * Math.PI; return { lat: Q.lat + d * Math.cos(k) / 111320, lng: Q.lng + d * Math.sin(k) / (111320 * Math.cos(Q.lat * Math.PI / 180)) }; };
   const EMRAT = ['Viva Fly', 'Albi', 'viva  fly', 'Meridian', '', null, 7, '  Ëmbëlsira  '];
-  const larg = () => nje([0, 3, 12, 19, 22, 35, 50, 55, 58, 65, 90, 200, 260, 400, 2000]) + rast() * 2;
+  const larg = () => nje([0, 3, 12, 19, 22, 35, 50, 55, 58, 65, 90, 95, 105, 200, 260, 330, 400, 600, 2000]) + rast() * 2; // v256: edhe afër kufijve të rinj (100 m, 300 m)
   function marketM(i) {
     const m = { id: nje(['m' + i, 'm' + i, 'k' + i, '', 5, null]), emri: nje(EMRAT) };
     if (rast() < 0.85) Object.assign(m, pike(larg()));
@@ -179,12 +179,12 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
     const lista = M.pastro(Array.from({ length: Math.floor(rast() * 5) }, (_, j) => marketM(j)));
     const pikatRaw = Array.from({ length: Math.floor(rast() * 5) }, (_, j) => pikaM(j + 1));
     const pikat = M.pastroPikat(pikatRaw);
-    const poz = rast() < 0.1 ? null : Object.assign(pike(larg()), { sakt: nje([5, 15, 40, 99, 100, 101, 400, -3, undefined]) });
+    const poz = rast() < 0.1 ? null : Object.assign(pike(larg()), { sakt: nje([5, 15, 40, 99, 100, 101, 150, 151, 400, -3, undefined]) });
     const afatet = Array.from({ length: Math.floor(rast() * 4) }, (_, j) => ({ id: 'a' + j, m: nje(lista.map(m => m.id).concat(['', 'zz', undefined])) }));
     const sinkr = M.sinkronizoMePikat(lista, pikat, afatet, rast() < 0.6, TANI_M);
     rastet.push({
       lista, pikatRaw, pikat, poz: pastro(poz), afatet: pastro(afatet),
-      gjej: pastro(M.gjej(lista, poz)), afer: pastro(M.pikatAfer(pikat, poz, M.LIDHJA_M, 3)),
+      gjej: pastro(M.gjej(lista, poz)), larg: lista.map(m => M.largNgaMarketi(lista, m.id, poz)), afer: pastro(M.pikatAfer(pikat, poz, M.LIDHJA_M, 3)),
       neVend: pastro(M.marketiNeVend(lista, poz)), shumeAfer: pastro(M.pikaShumeAfer(pikat, poz)),
       kontrolli: pastro(M.kontrolloShtimin(poz, lista, pikat)),
       perMarketin: lista.map(m => (M.pikaPerMarketin(pikat, m) || {}).id || null),
@@ -197,7 +197,7 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
   rastet.forEach(r => { r.sinkrS = pastro(M.sinkronizoMePikat(r.lista, r.pikat, r.afatet, true, TANI_M)); r.sinkrJ = pastro(M.sinkronizoMePikat(r.lista, r.pikat, r.afatet, false, TANI_M)); delete r.sinkr; delete r.serveri; });
   const aktivet = [];
   [{ id: 'm1', menyra: 'dore', koha: TANI_M - 1e6 }, { id: 'm1', menyra: 'dore', koha: TANI_M - 2e7 }, { id: null, menyra: 'gps', koha: 0 }].forEach(a => {
-    [null, { marketi: { id: 'm2' }, largesia: 5 }].forEach(g => aktivet.push({ a, g, rez: M.pasGps(Object.assign({ kontrolluarSe: 0 }, a), g, TANI_M) }));
+    [null, { marketi: { id: 'm2' }, largesia: 5 }].forEach(g => [false, true].forEach(larg => aktivet.push({ a, g, larg, rez: M.pasGps(Object.assign({ kontrolluarSe: 0 }, a), g, TANI_M, larg) })));
   });
   const kontrolli = [[], [{ id: 'm', emri: 'x' }], [{ id: 'm', emri: 'x', lat: 1, lng: 2 }]].flatMap(l => [0, TANI_M - 1e5, TANI_M - 2e5].map(k => ({ l, k, po: M.duhetKontrolli(l, { kontrolluarSe: k }, TANI_M) })));
   dalja.marketet = { TANI_M, rastet, aktivet, kontrolli, emrat: ['  Viva   Fly ', 'viva fly', 'ËMBËL', 'ëmbël', 'Albi', '7'].map(e => [e, M.ekzistonEmri([{ id: 'a', emri: 'Viva Fly' }, { id: 'b', emri: 'Ëmbël' }, { id: 'c', emri: 7 }], e), M.ekzistonEmri([{ id: 'a', emri: 'Viva Fly' }], e, 'a')]) };

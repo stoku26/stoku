@@ -20,6 +20,13 @@
   'use strict';
 
   var LISTA = [
+    { v: 256, versioni: '1.41.0', data: '2026-10-27', titulli: 'Marketet dhe harta në një vend', platforma: 'tel', pikat: [
+      'Te Cilësimet, "Harta" dhe "Marketet" tash janë një faqe e vetme: "Marketet". Aty janë marketi ku je, harta, lista e marketeve të Stoku-t dhe shtimi i marketit ku je.',
+      '"Je te: …" del vetëm kur je vërtet brenda marketit (deri rreth 100 m larg tij). Në shtëpi ose larg marketeve s\'del më, edhe kur e ke zgjedhur vetë më herët.'
+    ] },
+    { v: 256, versioni: '1.41.0', data: '2026-10-27', titulli: 'Harta quhet "Marketet"', platforma: 'pc', pikat: [
+      'Te Cilësimet, skeda "Harta" tash quhet "Marketet", me ikonën e marketeve, si te telefoni.'
+    ] },
     { v: 255, versioni: '1.40.0', data: '2026-10-27', titulli: 'Aplikacioni i ri Stoku për Android', platforma: 'tel', pikat: [
       '"Shkarko aplikacionin Android" (te Cilësimet, poshtë "Çka ka të re") tash jep aplikacionin e ri Stoku: i shpejtë dhe punon edhe pa internet.',
       'Aplikacioni i vjetër (ai që e hapte faqen stoku.site) s\'mbahet më. Nëse e ke në telefon, instaloje të riun dhe çinstaloje të vjetrin.'
