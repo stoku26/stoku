@@ -4744,7 +4744,7 @@
           if (gp) { var n0 = marketet.length; var m = shtoNgaPika(gp.marketi); uShtua = marketet.length > n0; gj = { marketi: m, largesia: gp.largesia }; }
         }
         var baza = meDore ? Object.assign({}, marketiAktiv, { menyra: 'gps', koha: 0 }) : marketiAktiv; // "Gjej me GPS" fiton ndaj zgjedhjes me dorë
-        marketiAktiv = MK.ruajAktivin(MK.pasGps(baza, gj));
+        marketiAktiv = MK.ruajAktivin(MK.pasGps(baza, gj, Date.now(), MK.largNgaMarketi(marketet, baza.id, poz))); // v256: larg marketit të zgjedhur: bie
         var pas = idMarketitAktiv();
         rifreskoMarketet();
         if (pas) {

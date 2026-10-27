@@ -283,7 +283,7 @@ object Merchandiseri {
                 }
             }
             val baza = if (meDore) _aktivi.value.copy(menyra = "gps", koha = 0) else _aktivi.value // "Gjej me GPS" fiton ndaj zgjedhjes me dorë
-            ruajAktivin(Marketet.pasGps(baza, gj))
+            ruajAktivin(Marketet.pasGps(baza, gj, System.currentTimeMillis(), Marketet.largNgaMarketi(marketet(), baza.id, p))) // v256: larg marketit të zgjedhur: bie
             val pas = idAktiv()
             if (pas != null) {
                 if (pas != para || meDore || uShtua) Toast.trego("Je te: " + emri(pas) + if (uShtua) " (u shtua te marketet e tua)" else "", 4000)

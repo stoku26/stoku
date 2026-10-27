@@ -12,8 +12,10 @@ import kotlin.math.sqrt
  * Marketi: { id, emri, lat, lng, ndryshuarSe, p }. Pika: { id, emri, lat, lng, krijuarNga, krijuarNgaEmri, emriNgaAdmini }.
  */
 object Marketet {
-    const val RREZJA_M = 250.0
-    const val PASAKTESIA_MAKS_M = 150.0
+    const val RREZJA_M = 60.0 // v256: ishte 250
+    const val PASAKTESIA_MAKS_M = 40.0 // v256: ishte 150
+    const val PASAKTESIA_E_PRANUESHME_M = 150.0 // v256: me pasaktësi më të madhe s'dihet a je brenda marketit
+    const val LARG_M = 300.0 // v256: zgjedhja me dorë bie kur GPS-i të tregon më larg se kaq (+ pasaktësia) nga ai market
     const val DORE_MS = 3 * 3600 * 1000L
     const val KONTROLLI_MS = 2 * 60 * 1000L
     const val EMRI_MAKS = 60
@@ -72,9 +74,10 @@ object Marketet {
 
     class Gjetur(val marketi: Obj, val largesia: Long)
 
-    /** Marketi ku je (më i afërti brenda rrezes + pasaktësia, deri 150 m), ose null */
+    /** Marketi ku je (v256: më i afërti brenda 60 m + pasaktësia deri 40 m; me pasaktësi mbi 150 m asnjë), ose null */
     fun gjej(l: List<Obj>, poz: Pozita?): Gjetur? {
         if (poz == null) return null
+        if (poz.sakt != null && poz.sakt > PASAKTESIA_E_PRANUESHME_M) return null
         val kufiri = RREZJA_M + min(maxOf(0.0, poz.sakt ?: 0.0), PASAKTESIA_MAKS_M)
         var mi: Obj? = null; var dMin = Double.POSITIVE_INFINITY
         l.forEach { m -> if (!kaVend(m)) return@forEach; val d = larg(m, poz); if (d <= kufiri && d < dMin) { dMin = d; mi = m } }
@@ -219,10 +222,19 @@ object Marketet {
     // ---------- Marketi aktiv i kësaj pajisjeje ----------
     data class Aktivi(val id: String?, val menyra: String = "gps", val koha: Long = 0, val kontrolluarSe: Long = 0)
 
-    /** Përgjigjja e GPS-it → aktivi i ri (zgjedhja me dorë fiton për 3 orë) */
-    fun pasGps(aktivi: Aktivi, gjetur: Gjetur?, tani: Long = System.currentTimeMillis()): Aktivi {
+    /** v256: a të tregon GPS-i qartë larg marketit id (më larg se LARG_M + pasaktësia)? Pa vendndodhje ose me pozitë të përafërt: jo */
+    fun largNgaMarketi(l: List<Obj>, id: Any?, poz: Pozita?): Boolean {
+        val m = sipasId(l, id) ?: return false
+        if (!kaVend(m) || poz == null) return false
+        val s = maxOf(0.0, poz.sakt ?: 0.0)
+        if (s > PASAKTESIA_E_PRANUESHME_M) return false
+        return larg(m, poz) > LARG_M + s
+    }
+
+    /** Përgjigjja e GPS-it → aktivi i ri (zgjedhja me dorë fiton për 3 orë, v256: përveç kur GPS-i të tregon larg saj) */
+    fun pasGps(aktivi: Aktivi, gjetur: Gjetur?, tani: Long = System.currentTimeMillis(), larg: Boolean = false): Aktivi {
         val a = aktivi.copy(kontrolluarSe = tani)
-        if (a.menyra == "dore" && tani - a.koha < DORE_MS) return a
+        if (a.menyra == "dore" && tani - a.koha < DORE_MS && !larg) return a
         return if (gjetur != null) Aktivi(gjetur.marketi["id"] as String, "gps", tani, tani) else Aktivi(null, "gps", tani, tani)
     }
 

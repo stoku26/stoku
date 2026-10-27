@@ -9,9 +9,12 @@
  * Marketi aktiv ("Je te: …") është i kësaj pajisjeje (KEY_AKTIV): { id | null, menyra: 'gps' | 'dore', koha }.
  *   - GPS-i kontrollohet kur hapet aplikacioni (jo më shpesh se KONTROLLI_MS) dhe vetëm kur të paktën një market ka
  *     vendndodhje: kush s'i përdor marketet s'pyetet kurrë për vendndodhjen.
- *   - Brenda RREZJA_M nga pika e ruajtur (plus pasaktësia e GPS-it, deri në 150 m) = je te ai market; më i afërti fiton.
- *   - Zgjedhja me dorë vlen DORE_MS para GPS-it (brenda qendrave tregtare GPS-i gabon). Jashtë krejt marketeve, pas një
- *     zgjedhjeje nga GPS-i, aktiv bëhet "Krejt marketet" (null).
+ *   - v256: brenda RREZJA_M (60 m) nga pika e ruajtur, plus pasaktësia e GPS-it deri në PASAKTESIA_MAKS_M (40 m), pra më së
+ *     shumti 100 m = je te ai market; më i afërti fiton. Me pasaktësi mbi PASAKTESIA_E_PRANUESHME_M (150 m) GPS-i s'thotë dot
+ *     a je brenda: s'je te asnjë. (Deri te v255: 250 m + deri 150 m, ndaj në shtëpi afër një marketi dilte "Je te: …".)
+ *   - Zgjedhja me dorë vlen DORE_MS para GPS-it (brenda qendrave tregtare GPS-i gabon), përveç kur GPS-i (i saktë) të tregon
+ *     qartë larg atij marketi (mbi LARG_M + pasaktësia, v256). Jashtë krejt marketeve, pas një zgjedhjeje nga GPS-i, aktiv bëhet
+ *     "Krejt marketet" (null).
  *   - Vendndodhja e personit s'ruhet dhe s'dërgohet askund: krahasohet vetëm në pajisje me pikat e marketeve.
  * v250: marketet janë TË PËRBASHKËTA për krejt merchandiserët: lista e secilit = pikat e Stoku-t (sinkronizoMePikat).
  *   Merchandiseri s'i fshin e s'ua ndërron emrin; shton market vetëm kur është brenda tij, me vendndodhje të saktë
@@ -23,8 +26,10 @@
 (function (root) {
   'use strict';
 
-  var RREZJA_M = 250;
-  var PASAKTESIA_MAKS_M = 150;
+  var RREZJA_M = 60; // v256: ishte 250
+  var PASAKTESIA_MAKS_M = 40; // v256: ishte 150
+  var PASAKTESIA_E_PRANUESHME_M = 150; // v256: me pasaktësi më të madhe s'dihet a je brenda marketit
+  var LARG_M = 300; // v256: zgjedhja me dorë bie kur GPS-i të tregon më larg se kaq (+ pasaktësia) nga ai market
   var DORE_MS = 3 * 3600 * 1000;
   var KONTROLLI_MS = 2 * 60 * 1000;
   var KEY_LISTA = 'stoku:marketet:v1';
@@ -70,6 +75,7 @@
   // Marketi ku je (më i afërti brenda rrezes), ose null. poz: { lat, lng, sakt (metra) }
   function gjej(l, poz) {
     if (!poz || !numer(poz.lat) || !numer(poz.lng)) return null;
+    if (numer(poz.sakt) && poz.sakt > PASAKTESIA_E_PRANUESHME_M) return null; // v256: vendndodhja shumë e përafërt
     var kufiri = RREZJA_M + Math.min(numer(poz.sakt) ? Math.max(0, poz.sakt) : 0, PASAKTESIA_MAKS_M);
     var mi = null, dMin = Infinity;
     (l || []).forEach(function (m) {
@@ -238,11 +244,20 @@
     return { id: null, menyra: 'gps', koha: 0, kontrolluarSe: 0 };
   }
   function ruajAktivin(a) { try { localStorage.setItem(KEY_AKTIV, JSON.stringify(a)); } catch (e) { /* ok */ } return a; }
-  // Përgjigjja e GPS-it → aktivi i ri. gjetur: rezultati i gjej() ose null (jashtë krejt marketeve)
-  function pasGps(aktivi, gjetur, tani) {
+  // v256: a të tregon GPS-i qartë larg marketit id (më larg se LARG_M + pasaktësia)? Pa vendndodhje ose me pozitë të përafërt: jo
+  function largNgaMarketi(l, id, poz) {
+    var m = sipasId(l, id);
+    if (!m || !kaVend(m) || !poz || !numer(poz.lat) || !numer(poz.lng)) return false;
+    var s = numer(poz.sakt) ? Math.max(0, poz.sakt) : 0;
+    if (s > PASAKTESIA_E_PRANUESHME_M) return false;
+    return largesia(m, poz) > LARG_M + s;
+  }
+  // Përgjigjja e GPS-it → aktivi i ri. gjetur: rezultati i gjej() ose null (jashtë krejt marketeve).
+  // larg (v256): largNgaMarketi() për marketin e zgjedhur me dorë
+  function pasGps(aktivi, gjetur, tani, larg) {
     tani = tani || Date.now();
     var a = Object.assign({}, aktivi, { kontrolluarSe: tani });
-    if (a.menyra === 'dore' && tani - a.koha < DORE_MS) return a; // zgjedhja me dorë fiton për disa orë
+    if (a.menyra === 'dore' && tani - a.koha < DORE_MS && !larg) return a; // zgjedhja me dorë fiton për disa orë
     if (gjetur) return { id: gjetur.marketi.id, menyra: 'gps', koha: tani, kontrolluarSe: tani };
     return { id: null, menyra: 'gps', koha: tani, kontrolluarSe: tani };
   }
@@ -272,7 +287,8 @@
   }
 
   var api = {
-    RREZJA_M: RREZJA_M, DORE_MS: DORE_MS, KONTROLLI_MS: KONTROLLI_MS, KEY_LISTA: KEY_LISTA, KEY_AKTIV: KEY_AKTIV, EMRI_MAKS: EMRI_MAKS,
+    RREZJA_M: RREZJA_M, PASAKTESIA_MAKS_M: PASAKTESIA_MAKS_M, PASAKTESIA_E_PRANUESHME_M: PASAKTESIA_E_PRANUESHME_M, LARG_M: LARG_M,
+    largNgaMarketi: largNgaMarketi, DORE_MS: DORE_MS, KONTROLLI_MS: KONTROLLI_MS, KEY_LISTA: KEY_LISTA, KEY_AKTIV: KEY_AKTIV, EMRI_MAKS: EMRI_MAKS,
     pastro: pastro, idERe: idERe, rendit: rendit, sipasId: sipasId, emri: emri, ekzistonEmri: ekzistonEmri, kaVend: kaVend,
     largesia: largesia, gjej: gjej, filtro: filtro, meEmra: meEmra, vendosPaMarket: vendosPaMarket, grupo: grupo,
     lexoAktivin: lexoAktivin, ruajAktivin: ruajAktivin, pasGps: pasGps, kaPika: kaPika, duhetKontrolli: duhetKontrolli,
