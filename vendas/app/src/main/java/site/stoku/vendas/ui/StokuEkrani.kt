@@ -228,6 +228,8 @@ private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, Str
                 rreshtat[i].forEach { f ->
                     val fid = f["id"] as String
                     val zv = zvarritet == fid
+                    // Karta që del nga ekrani (skrollim) s'është më objektiv i zvarritjes
+                    androidx.compose.runtime.DisposableEffect(fid) { onDispose { vendet.remove(fid) } }
                     KartaEFolderit(f, g.produktet.values.count { it["kategoriaId"] == f["id"] },
                         Modifier.weight(1f).onGloballyPositioned { vendet[fid] = it.boundsInRoot() }.then(zvarritja(fid))
                             .zIndex(if (zv) 1f else 0f)
