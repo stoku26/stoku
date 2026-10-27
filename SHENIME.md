@@ -52,6 +52,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ANDROID: DRITARET NGA POSHTË S'SHKOJNË NËN KAMERË (27.10.2026, vetëm `vendas/`)**: përdoruesi (foto e "Çka ka të re"):
+   "po shkon shum nalt permi kamer permirsoje". `Flete` (ModalBottomSheet) merr `Modifier.statusBarsPadding().padding(top = 16.dp)`:
+   kur përmbajtja është e gjatë, dritara ndalet nën shiritin e orës (vlen për krejt `Flete`). Çka ka të re 17. S'është testuar në telefon.
+
 0000000. **WEB: ADMINISTRATORI I FSHIN VETË PRODUKTET E PROVËS NGA "PRODUKTET E REJA" (v258 = 1.41.2, 27.10.2026)**: përdoruesi: "Te foto
    2 a mos e ke lon pa e rregullu edhe ne web a?". Web-i s'e kishte gabimin (porta.js e fshin 'stoku:kujtesa:v1' dhe e rinis faqen
    kur hyn pas provës; ekipa s'niset në faqen e vizitorit), por pastrimi i asaj që kishte hyrë ishte vetëm te Android-i (vendas-v72).

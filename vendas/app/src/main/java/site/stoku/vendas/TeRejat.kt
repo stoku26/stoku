@@ -8,6 +8,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(17, "2026-10-27", "Dritaret pa u fshehur nën kamerë", listOf(
+            "Dritaret që dalin nga poshtë (p.sh. \"Çka ka të re\") s'shkojnë më deri lart nën kamerë dhe orë: mbeten pak më poshtë, me qoshet e rrumbullakëta të dukshme."
+        )),
         Hyrja(16, "2026-10-27", "Afatet më të thjeshta, roli te kolegët", listOf(
             "Afatet: butoni \"Skano\" u hoq (skanimi me kamerë është brenda \"Shto\"). \"Importo Excel\" dhe \"Eksporto Excel\" janë tash në një buton \"Excel\", si te web-i.",
             "Grupi → Kolegët: kur e prek kurorën (ose mburojën), emri i rolit del mbi ikonë, si te web-i.",
