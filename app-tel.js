@@ -1029,9 +1029,6 @@
   }
   function mbyllTastierenEEkranit() {
     try { if (navigator.virtualKeyboard && navigator.virtualKeyboard.hide) navigator.virtualKeyboard.hide(); } catch (e) { /* ok */ }
-    // v238: aplikacioni Android (APK e re): e mbyll vetë Android-i (InputMethodManager + WindowInsets), edhe kur WebView-i
-    // e injoron inputmode="none"
-    try { if (window.StokuAndroid && window.StokuAndroid.fshihTastieren) window.StokuAndroid.fshihTastieren(); } catch (e) { /* ok */ }
   }
   // v238: tastiera e Android-it shpesh hapet pak pas fokusit/prekjes: mbyllet edhe disa herë menjëherë pas tyre
   function mbyllTastierenMeVonese() {
@@ -1049,7 +1046,6 @@
       if (eFusheShkrimi(el)) { if (fsheh) fshihTastierenTe(el); else riktheTastierenTe(el); }
     });
     if (fsheh) mbyllTastierenEEkranit();
-    try { if (window.StokuAndroid && window.StokuAndroid.tastieraFshehur) window.StokuAndroid.tastieraFshehur(fsheh); } catch (e) { /* ok */ }
     vezhgoFushatERe(fsheh);
   }
   // v238: fushat e reja (dritaret, listat, porta, kërkimi) e marrin inputmode="none" sapo shtohen, para fokusit: kodi që
@@ -2209,22 +2205,15 @@
       rifreskoNjoftimet();
     }).catch(function () { /* ok */ });
   });
-  // ---- Aplikacioni Android: butoni i hollë poshtë "Çka ka të re" (brenda aplikacionit: kontrolli i versionit; Chrome Android: shkarkimi) ----
-  // (një herë, jo sa herë hapen Cilësimet: përndryshe butoni merr disa klikime)
+  // ---- Aplikacioni Stoku për Android (vendas/): në Chrome Android, butoni i hollë poshtë "Çka ka të re" hap faqen e shkarkimit ----
+  // (një herë, jo sa herë hapen Cilësimet: përndryshe butoni merr disa klikime). v255: aplikacioni i vjetër (WebView) u fshi.
   (function () {
-    var A = window.StokuAndroid, android = /Android/i.test(navigator.userAgent || '');
-    if (!A && !android) return;
+    if (!/Android/i.test(navigator.userAgent || '')) return;
     var b = $('njAndroidBtn');
     b.hidden = false;
-    if (A) {
-      $('njAndroidTekst').textContent = 'Kontrollo për përditësim';
-      b.title = 'Aplikacioni Stoku për Android: kontrollo a ka version të ri';
-      b.addEventListener('click', function () { try { A.kontrolloPerditesimin(); } catch (e) { /* ok */ } });
-    } else {
-      $('njAndroidTekst').textContent = 'Shkarko aplikacionin Android';
-      b.title = 'Stoku si aplikacion: s\'del nga llogaria kur i fshin të dhënat e Chrome-it dhe njoftimet vijnë menjëherë';
-      b.addEventListener('click', function () { window.open('android.html', '_blank', 'noopener'); });
-    }
+    $('njAndroidTekst').textContent = 'Shkarko aplikacionin Android';
+    b.title = 'Stoku si aplikacion: s\'del nga llogaria kur i fshin të dhënat e Chrome-it dhe njoftimet vijnë menjëherë';
+    b.addEventListener('click', function () { window.open('android.html', '_blank', 'noopener'); });
   })();
   function hapOpsionet() {
     $('opsTingull').checked = opsione.tingull;

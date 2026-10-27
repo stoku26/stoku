@@ -25,6 +25,6 @@ Në `main` del edhe si **Release** (`ora-vNN`).
 6. Tile: rrëshqit djathtas në orë → **+ Shto tile** → Stoku. Komplikacioni: mbaj gishtin te fytyra e orës → Customize → zgjidh **Stoku: skadojnë sot**.
 
 ## Nënshkrimi
-Si te telefoni (`tel/README.md` → Nënshkrimi): `stoku-ora.jks` është çelësi i vjetër (publik); vula e re është
+Si te aplikacioni i telefonit (`tel/README.md` → Nënshkrimi; te `tel/` kanë mbetur vetëm çelësat): `stoku-ora.jks` është çelësi i vjetër (publik); vula e re është
 `celesi-i-ri.p12.enc` (e enkriptuar me sekretin `APK_FJALEKALIMI`) me zinxhirin `celesi.lineage`. Ora (Wear OS 3+,
 Android 11+) e njeh zinxhirin, prandaj përditësohet pa u çinstaluar.

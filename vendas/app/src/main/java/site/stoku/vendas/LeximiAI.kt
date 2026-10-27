@@ -117,7 +117,7 @@ object LeximiAI {
             c.readTimeout = 120000
             c.setRequestProperty("Content-Type", "application/json")
             c.setRequestProperty("Authorization", if (tokeni != null) "Bearer $tokeni" else "")
-            // Worker-i pranon kërkesat e Stoku-t (si aplikacioni web dhe aplikacioni tel/ me WebView)
+            // Worker-i pranon kërkesat e Stoku-t (si aplikacioni web)
             c.setRequestProperty("Origin", "https://stoku.site")
             val koka = "{\"image\":\"".toByteArray()
             val bishti = ("\",\"mime\":\"image/jpeg\",\"sot\":\"" + Afatet.sot() + "\"" + (if (synim != null) ",\"synim\":\"$synim\"" else "") + "}").toByteArray()

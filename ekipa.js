@@ -266,21 +266,13 @@
     // ---------- Njoftimet push (edhe kur aplikacioni është krejt i mbyllur) ----------
     function lexoLS(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
     function shkruajLS(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ok */ } }
-    // Aplikacioni Android (tel/): njoftimet vijnë me Firebase Cloud Messaging, jo me Web Push
-    function androidApp() { return typeof window !== 'undefined' && !!window.StokuAndroid && typeof window.StokuAndroid.tokenFcm === 'function'; }
     function pushMbeshtetet() {
-      if (androidApp()) return true;
       return typeof navigator !== 'undefined' && 'serviceWorker' in navigator && typeof window !== 'undefined' &&
         'PushManager' in window && typeof Notification !== 'undefined';
     }
-    // Adresa e njoftimeve të kësaj pajisjeje: { endpoint, p256dh, auth } (Web Push) ose { endpoint: 'fcm:…', fcm } (Android).
-    // krijo: abonohet nëse s'ka (vetëm Web Push; në Android tokeni vjen nga aplikacioni).
+    // Adresa e njoftimeve të kësaj pajisjeje (Web Push): { endpoint, p256dh, auth }. krijo: abonohet nëse s'ka.
+    // (Aplikacioni Stoku për Android regjistrohet vetë me FCM, { endpoint: 'fcm:…', fcm }; s'kalon nga ky kod.)
     async function pajisjaPush(krijo) {
-      if (androidApp()) {
-        var t = '';
-        try { t = String(window.StokuAndroid.tokenFcm() || ''); } catch (e) { /* ok */ }
-        return t ? { endpoint: 'fcm:' + t, fcm: t } : null;
-      }
       var reg = await navigator.serviceWorker.ready;
       var sub = await reg.pushManager.getSubscription();
       if (krijo && sub && sub.options && sub.options.applicationServerKey && b64uNgaBytes(sub.options.applicationServerKey) !== PUSH_VAPID) {
@@ -394,7 +386,7 @@
       if (Notification.permission !== 'granted') return { ok: false, arsye: 'pa-leje' };
       try {
         var j = await pajisjaPush(true);
-        if (!j) return { ok: false, arsye: 'pa-token' }; // Android: tokeni ende s'ka ardhur (vjen me "stoku-android-token")
+        if (!j) return { ok: false, arsye: 'pa-token' };
         var id = uid() + '_' + hashTekst(j.endpoint);
         var ruajtur = lexoLS(KEY_PUSH);
         // Pajisja regjistrohet te grupi (grupet/{g}/push): Worker-i ua dërgon kërkesat dhe njoftimet vetëm anëtarëve të grupit

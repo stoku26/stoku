@@ -12,8 +12,9 @@ Përditësoje në të njëjtin PR me çdo ndryshim domethënës.
 
 ## Projekti
 - "Krejt projekti" = web (`index.html` telefoni/PDA, `pc.html` kompjuteri; kodi te `app-tel.js` / `app-pc.js`) +
-  aplikacioni Android "Stoku" `vendas/` (Kotlin/Compose, pa WebView) + aplikacioni i vjetër `tel/` (WebView, do të fshihet) + aplikacioni i orës
-  `ora/` + Worker-i `worker/stoku-push.js`.
+  aplikacioni Android "Stoku" `vendas/` (Kotlin/Compose, pa WebView; i vetmi aplikacion i telefonit) + aplikacioni i orës
+  `ora/` + Worker-i `worker/stoku-push.js`. Aplikacioni i vjetër `tel/` (WebView) u fshi (v255): te `tel/` kanë mbetur vetëm
+  çelësat e nënshkrimit të `vendas/`; mos e rikthe as kodin, as urën `window.StokuAndroid`, as Release-t `tel-vNN`.
 - `vendas/logjika` = bashkimi.js/ruajtja.js/afatet.js (edhe importi nga Excel)/lejet.js/marketet.js/xlsx.js + pjesa e pastër e ekipa.js (GrupiLogjika)
   + barkodet e JsBarcode-it (etiketat PDF) në Kotlin: kur ndryshon ndonjëri, `node teste/vendas-fikstura.js` (përdor Playwright)
   dhe përshtat Kotlinin (testet e krahasojnë me web-in).
@@ -45,7 +46,7 @@ Përditësoje në të njëjtin PR me çdo ndryshim domethënës.
    të fundit. Mos i ndrysho skedarët ndërsa punon.
 8. Commit, push, PR (përshkrim shqip), merge me SHA-në e plotë, sinkronizo degën me main, prit deploy-in e Pages.
 
-Ndryshimet vetëm në `tel/` ose `ora/` (Kotlin): pa version të web-it, vetëm shënim te SHENIME; APK-të i ndërton
+Ndryshimet vetëm në `vendas/` ose `ora/` (Kotlin): pa version të web-it, vetëm shënim te SHENIME; APK-të i ndërton
 GitHub Actions (në push të degës për kontroll, në main për publikim).
 
 ## Testet (`teste/`)
