@@ -235,17 +235,65 @@ private fun MarketIRi() {
 }
 
 /** Cilësimet → Marketet (si faqja "marketet" te web-i): marketi ku je, marketet e Stoku-t, marketi i ri */
+/** Një rresht i listës së marketeve (pika e Stoku-t ose marketi im pa pikë) */
+private class RreshtiIMarketit(val pika: PikaEHartes, val pikaId: String?, val origjina: String, val market: site.stoku.logjika.Obj?)
+
+/**
+ * Cilësimet → Marketet (v256: Marketet + Harta në një faqe, si te web-i): lart "Je te" (merchandiseri), harta, lista e marketeve
+ * të Stoku-t (merchandiseri: "je këtu" dhe afatet; administratori: ndryshimi i emrit dhe fshirja e pikës), poshtë shtimi:
+ * merchandiseri shton marketin ku është, administratori vendos një market në hartë.
+ */
 @Composable
 fun MarketetFaqja(mbyll: () -> Unit) {
     val n = N
     val g by Dyqani.gjendja.collectAsState()
     val aktivi by Merchandiseri.aktivi.collectAsState()
+    val pikatL by Merchandiseri.pikat.collectAsState()
+    val p by Llogaria.perdoruesi.collectAsState()
+    Llogaria.lejet.collectAsState().value
+    Llogaria.merchandiserIRegjistrimit.collectAsState().value
+    val admin = Llogaria.eshteAdmin()
+    val merch = Llogaria.leja("marketet")
+    val uid = p?.uid.orEmpty()
     var emri by remember { mutableStateOf("") }
     var gabim by remember { mutableStateOf("") }
     var punon by remember { mutableStateOf(false) }
+    var zgjedhur by remember { mutableStateOf("") }
+    var neEditim by remember { mutableStateOf("") }
+    var shtoHapur by remember { mutableStateOf(false) }
+    var fshirja by remember { mutableStateOf<RreshtiIMarketit?>(null) }
+    val kontrolli = remember { HartaKontrolli() }
     val scope = rememberCoroutineScope()
     val marketet = Marketet.pastro(g.marketet)
     val id = Merchandiseri.idAktiv()
+    // Pikat e hartës dhe rreshtat (si htPikatESistemit / htPikatEMerchandiserit te web-i)
+    val rreshtat = remember(pikatL, marketet, admin, merch, uid) {
+        val l = ArrayList<RreshtiIMarketit>()
+        pikatL.forEach { x ->
+            val pid = x["id"] as String
+            val nga = (x["krijuarNgaEmri"] as? String).orEmpty()
+            val origj = if (admin) (if (nga.isNotEmpty()) "E shtoi $nga" else "Pikë e Stoku-t") + (if (x["emriNgaAdmini"] == true) " · emri nga ti" else "")
+                else if (x["krijuarNga"] == uid && uid.isNotEmpty()) "E shtove ti" else if (nga.isNotEmpty()) "E shtoi $nga" else "Market i Stoku-t"
+            l.add(RreshtiIMarketit(PikaEHartes("pika|$pid", (x["emri"] as? String).orEmpty(), (x["lat"] as? Number)?.toDouble(), (x["lng"] as? Number)?.toDouble()), pid, origj,
+                if (merch) Marketet.sipasPikes(marketet, pid) else null))
+        }
+        if (merch) {
+            val kaPike = pikatL.map { it["id"] }.toSet()
+            marketet.filter { it["p"] == null || it["p"] !in kaPike }.forEach { m ->
+                val kaVend = Marketet.kaVend(m)
+                l.add(RreshtiIMarketit(PikaEHartes(uid + "|" + m["id"], (m["emri"] as? String).orEmpty(), (m["lat"] as? Number)?.toDouble(), (m["lng"] as? Number)?.toDouble()), null,
+                    if (kaVend) "Marketi yt" else "Pa vendndodhje: shtoje sërish me këtë emër kur je brenda tij", m))
+            }
+        }
+        l.sortedWith { a, b -> site.stoku.logjika.Afatet.KOLATORI.compare(a.pika.emri, b.pika.emri) }
+    }
+    val pikatEHartes = remember(rreshtat) { rreshtat.map { it.pika } }
+    fun zgjidh(k: String, ngaLista: Boolean) {
+        zgjedhur = k
+        val r = rreshtat.firstOrNull { it.pika.k == k }
+        neEditim = if (admin && r?.pikaId != null) k else ""
+        if (ngaLista) kontrolli.fluturo(r?.pika)
+    }
     fun shto() {
         if (punon) return
         Merchandiseri.gabimiIEmrit(Merchandiseri.emriIMarketitTeRi(emri))?.let { gabim = it; return }
@@ -262,45 +310,153 @@ fun MarketetFaqja(mbyll: () -> Unit) {
         if (r.values.any { it }) shto() else gabim = Marketet.tekstiGabimit("leje")
     }
     FaqjaECilesimeve("Marketet", mbyll) {
-        IntroOps("Marketet e Stoku-t, të njëjtat për krejt merchandiserët. Afatet ndahen sipas marketit: te çdo market i sheh vetëm afatet e tij. Kur je brenda një marketi që s'është ende këtu, shtoje më poshtë: Stoku ruan vendndodhjen e tij (duhet vendndodhja e saktë e telefonit) dhe herët e tjera e njeh vetë ku je. Emrat i ndryshon vetëm administratori. Vendndodhja jote s'ruhet askund, vetëm ajo e marketeve.")
-        if (marketet.isNotEmpty()) {
+        IntroOps(if (admin && !merch) "Marketet e Stoku-t, të njëjtat për krejt merchandiserët. Në hartë dalin vetëm emrat e qyteteve, fshatrave dhe lagjeve. Prek një market në hartë ose te lista për t'ia ndryshuar emrin për krejt Stoku-n. Me \"+ Shto market në hartë\" e vendos një market të ri."
+            else "Marketet e Stoku-t, të njëjtat për krejt merchandiserët. Afatet ndahen sipas marketit: te çdo market i sheh vetëm afatet e tij. Stoku e njeh vetë marketin ku je (GPS), vetëm kur je brenda tij. Kur je brenda një marketi që s'është ende këtu, shtoje më poshtë. Emrat i ndryshon vetëm administratori. Vendndodhja jote s'ruhet askund, vetëm ajo e marketeve.")
+        if (merch && marketet.isNotEmpty()) {
             KartaOps {
                 Text(if (id != null) "Je te: " + Merchandiseri.emri(id) else "Krejt marketet", style = txF(15.5f, 600, n.ink))
                 Text(if (!Marketet.kaPika(marketet)) "Asnjë market s'ka ende vendndodhje: shtoje kur je brenda marketit."
-                    else if (aktivi.menyra == "dore" && id != null) "E zgjodhe me dorë. GPS-i e ndërron vetë pas disa orësh." else "Me GPS, sa herë hap Stoku-n.",
+                    else if (aktivi.menyra == "dore" && id != null) "E zgjodhe me dorë. GPS-i e ndërron vetë pas disa orësh, ose kur largohesh nga ai market." else "Me GPS, kur je brenda marketit.",
                     style = txR(12.5f, 400, n.muted), modifier = Modifier.padding(top = 2.dp, bottom = 10.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     ButonOps("Ndrysho", { Merchandiseri.dritarja.value = Merchandiseri.Dritarja.KuJe("zgjidh", Merchandiseri.pozEFundit(), false) }, Modifier.weight(1f))
                     if (Marketet.kaPika(marketet)) ButonOps("Gjej me GPS", { Merchandiseri.kontrolloGps(true) }, Modifier.weight(1f))
                 }
             }
-            TitulliGrupit("Marketet e Stoku-t")
         }
+        // Harta
+        HartaEMarketeve(pikatEHartes, zgjedhur, shtoHapur, kontrolli, { k -> zgjidh(k, false) }, Modifier.padding(top = 2.dp, bottom = 10.dp))
+        if (admin) ShtoNeHarte(shtoHapur, { shtoHapur = it }, kontrolli, pikatL)
+        TitulliGrupit("Marketet e Stoku-t")
+        val meVend = rreshtat.filter { it.pika.kaVend }; val paVend = rreshtat.filter { !it.pika.kaVend }
+        Text((if (meVend.size == 1) "1 pikë në hartë" else "${meVend.size} pika në hartë") + (if (paVend.isNotEmpty()) " · ${paVend.size} pa vendndodhje" else "") + ".",
+            style = txR(12.5f, 400, n.muted), modifier = Modifier.padding(start = 4.dp, bottom = 8.dp))
         GrupiOps {
-            if (marketet.isEmpty()) BoshOps("S'ke ende asnjë market. Shto të parin më poshtë.")
-            Marketet.rendit(marketet).forEachIndexed { i, m ->
-                val kaVend = Marketet.kaVend(m)
-                val nA = Merchandiseri.afateAktive(m["id"] as String)
-                RreshtListe(((m["emri"] as String).firstOrNull() ?: '?').uppercase(), if (kaVend) "gjelber" else "gri",
-                    (m["emri"] as String) + if (m["id"] == id) " · je këtu" else "",
-                    (if (kaVend) "Me vendndodhje" else "Pa vendndodhje: shtoje sërish me këtë emër kur je brenda tij") + " · " + (if (nA == 1) "1 afat" else "$nA afate"),
-                    vije = i > 0)
+            if (rreshtat.isEmpty()) BoshOps(if (admin && !merch) "Asnjë merchandiser s'ka ruajtur ende market." else "S'ke ende asnjë market. Kur je brenda një marketi, shtoje më poshtë.")
+            var i = 0
+            meVend.forEach { r -> RreshtiIListes(r, i++ > 0, admin, id, zgjedhur, neEditim, { zgjidh(r.pika.k, true) }, { neEditim = "" }, { fshirja = r }) }
+        }
+        if (paVend.isNotEmpty()) {
+            TitulliGrupit("Pa vendndodhje (s'dalin në hartë)")
+            GrupiOps { paVend.forEachIndexed { j, r -> RreshtiIListes(r, j > 0, admin, id, zgjedhur, neEditim, { zgjidh(r.pika.k, true) }, { neEditim = "" }, { fshirja = r }) } }
+        }
+        if (merch) {
+            TitulliGrupit("Market i ri")
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Fusha(emri, { emri = it.take(60); gabim = "" }, Modifier.weight(1f), "Emri i marketit ku je tani", kurVeprim = { shto() }, lartesia = 46.dp)
+                Buton(if (punon) "Duke e gjetur vendndodhjen…" else "Shto", {
+                    if (!Merchandiseri.kaLeje()) {
+                        try { leja.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)) } catch (e: Exception) { shto() }
+                    } else shto()
+                }, aktiv = !punon, lartesia = 46.dp)
+            }
+            if (gabim.isNotEmpty()) Text(gabim, style = txR(12.5f, 600, n.exp), modifier = Modifier.padding(top = 6.dp))
+        }
+    }
+    fshirja?.let { r ->
+        Konfirmo("Të fshihet marketi?", "\"${r.pika.emri}\" hiqet nga harta dhe nga lista e merchandiserëve (te ata që kanë afate aty, mbetet me afatet). Afatet s'fshihen.",
+            "Fshije", mbyll = { fshirja = null }) {
+            val pid = r.pikaId ?: return@Konfirmo
+            scope.launch {
+                if (Merchandiseri.fshiPiken(pid)) { neEditim = ""; Toast.trego("Pika u fshi.") }
+                else Toast.trego("S'u fshi. Kontrollo internetin dhe provo sërish.", 4000)
             }
         }
-        Row(Modifier.padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Fusha(emri, { emri = it.take(60); gabim = "" }, Modifier.weight(1f), "Emri i marketit ku je tani", kurVeprim = { shto() }, lartesia = 46.dp)
-            Buton(if (punon) "Duke e gjetur vendndodhjen…" else "Shto", {
-                if (!Merchandiseri.kaLeje()) {
-                    try { leja.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)) } catch (e: Exception) { shto() }
-                } else shto()
-            }, aktiv = !punon, lartesia = 46.dp)
+    }
+}
+
+/** Rreshti i marketit (si htRreshti te web-i); administratori: prekja hap ndryshimin e emrit */
+@Composable
+private fun RreshtiIListes(r: RreshtiIMarketit, vije: Boolean, admin: Boolean, idAktiv: String?, zgjedhur: String, neEditim: String,
+                           prek: () -> Unit, anulo: () -> Unit, fshij: () -> Unit) {
+    val n = N
+    if (admin && neEditim == r.pika.k && r.pikaId != null) {
+        if (vije) VijaGrupit()
+        var emri by remember(r.pika.k) { mutableStateOf(r.pika.emri) }
+        var gabim by remember(r.pika.k) { mutableStateOf("") }
+        var punon by remember { mutableStateOf(false) }
+        val scope = rememberCoroutineScope()
+        fun ruaj() {
+            val e = emri.trim().replace(Regex("\\s+"), " ").take(Marketet.EMRI_MAKS)
+            if (e.isEmpty()) { gabim = "Shkruaj emrin e pikës."; return }
+            if (e == r.pika.emri) { anulo(); return }
+            if (Marketet.ekzistonEmri(Merchandiseri.pikat.value.filter { it["id"] != r.pikaId }, e)) { gabim = "Në Stoku ka tashmë një market me këtë emër."; return }
+            punon = true; gabim = ""
+            scope.launch {
+                val ok = Merchandiseri.ndryshoEmrinEPikes(r.pikaId, e)
+                punon = false
+                if (!ok) { gabim = "Emri s'u ndryshua. Kontrollo internetin dhe provo sërish."; return@launch }
+                anulo(); Toast.trego("Emri u ndryshua. Merchandiserët e shohin emrin e ri.", 3500)
+            }
         }
-        if (gabim.isNotEmpty()) Text(gabim, style = txR(12.5f, 600, n.exp), modifier = Modifier.padding(top = 6.dp))
+        Column(Modifier.fillMaxWidth().background(n.accentTint).padding(horizontal = 16.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Emri i pikës" + (if (r.origjina.startsWith("E shtoi ")) " (" + r.origjina.substringBefore(" · ").lowercase() + ")" else ""), style = txR(12.5f, 400, n.ink4))
+            Fusha(emri, { emri = it.take(Marketet.EMRI_MAKS); gabim = "" }, Modifier.fillMaxWidth(), lartesia = 46.dp, kurVeprim = { ruaj() })
+            if (gabim.isNotEmpty()) Text(gabim, style = txR(12.5f, 600, n.exp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ButonOps("Fshije pikën", fshij, Modifier.weight(1.2f), kuqe = true)
+                ButonOps("Anulo", anulo, Modifier.weight(1f), aktiv = !punon)
+                Buton("Ruaj", { ruaj() }, Modifier.weight(1f), aktiv = !punon, lartesia = 44.dp)
+            }
+        }
+        return
+    }
+    val mm = r.market
+    val nA = mm?.let { Merchandiseri.afateAktive(it["id"] as String) } ?: 0
+    val zgj = zgjedhur == r.pika.k
+    Column(if (zgj) Modifier.background(n.accentTint) else Modifier) {
+        RreshtListe(((r.pika.emri.trim().firstOrNull() ?: '?').uppercase()), if (r.pika.kaVend) "blu" else "gri",
+            r.pika.emri + if (mm != null && mm["id"] == idAktiv) " · je këtu" else "",
+            r.origjina + if (mm != null) " · " + (if (nA == 1) "1 afat" else "$nA afate") else "",
+            vije = vije, djathtas = if (admin && r.pikaId != null) "laps" else null, onClick = prek)
+    }
+}
+
+/** Administratori: "+ Shto market në hartë" (si htShtoRuaj te web-i): pika = qendra e hartës, nën shenjën */
+@Composable
+private fun ShtoNeHarte(hapur: Boolean, vendos: (Boolean) -> Unit, kontrolli: HartaKontrolli, pikat: List<site.stoku.logjika.Obj>) {
+    val n = N
+    var emri by remember { mutableStateOf("") }
+    var gabim by remember { mutableStateOf("") }
+    var punon by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    if (!hapur) {
+        ButonOps("+ Shto market në hartë", { emri = ""; gabim = ""; vendos(true) }, Modifier.padding(bottom = 4.dp))
+        return
+    }
+    fun ruaj() {
+        val e = emri.trim().replace(Regex("\\s+"), " ").take(Marketet.EMRI_MAKS)
+        if (!Llogaria.eshteAdmin() || punon) return
+        if (e.isEmpty()) { gabim = "Shkruaj emrin e marketit."; return }
+        val q = kontrolli.qendra() ?: run { gabim = "Harta s'është hapur ende."; return }
+        if (q.third < 15) { gabim = "Zmadho hartën (sa të shihen rrugët) që marketi të vendoset saktë."; return }
+        if (Marketet.ekzistonEmri(pikat, e)) { gabim = "Në Stoku ka tashmë një market me këtë emër. Shto edhe vendin, p.sh. \"$e Qendër\"."; return }
+        Marketet.pikaShumeAfer(pikat, Marketet.Pozita(q.first, q.second, null))?.let { af ->
+            gabim = "Këtu është tashmë marketi \"" + af.pika["emri"] + "\" (" + af.largesia + " m). Vendose shenjën mbi marketin e ri."; return
+        }
+        punon = true; gabim = ""
+        scope.launch {
+            val idRe = Merchandiseri.shtoPikenNgaAdmini(e, q.first, q.second)
+            punon = false
+            if (idRe == null) { gabim = "S'u ruajt. Kontrollo internetin dhe provo sërish."; return@launch }
+            vendos(false)
+            Toast.trego("\"$e\" u shtua në hartë. Merchandiserët e shohin menjëherë.", 4000)
+        }
+    }
+    Column(Modifier.padding(bottom = 4.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("Lëviz hartën derisa shenja në mes të jetë mbi market (zmadho sa të shihen rrugët), shkruaj emrin dhe ruaje.", style = txR(12.5f, 400, n.ink4))
+        Fusha(emri, { emri = it.take(Marketet.EMRI_MAKS); gabim = "" }, Modifier.fillMaxWidth(), "Emri i marketit", lartesia = 46.dp, kurVeprim = { ruaj() })
+        if (gabim.isNotEmpty()) Text(gabim, style = txR(12.5f, 600, n.exp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ButonOps("Anulo", { vendos(false) }, Modifier.weight(1f), aktiv = !punon)
+            Buton("Ruaj këtu", { ruaj() }, Modifier.weight(1f), aktiv = !punon, lartesia = 44.dp)
+        }
     }
 }
 
 /** Teksti i rreshtit "Marketet" te Cilësimet */
 fun statusiIMarketeve(): String {
+    if (!Llogaria.leja("marketet")) return "Marketet në hartë" // v256: administratori (harta është brenda Marketeve)
     val te = Merchandiseri.marketet()
     val id = Merchandiseri.idAktiv()
     return if (te.isEmpty()) "Për disa markete" else if (id != null) "Je te: " + Merchandiseri.emri(id) else if (te.size == 1) "1 market" else "${te.size} markete"

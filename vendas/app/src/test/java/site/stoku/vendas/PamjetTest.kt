@@ -351,6 +351,24 @@ class PamjetTest {
         Regjistri.vendosPerProve("", false, emptyMap())
     }
 
+    /** v256: administratori: Cilësimet → Marketet (harta brenda, lista e pikave, ndryshimi i emrit) */
+    @Test fun marketetAdmini() {
+        mbush()
+        Llogaria.vendosPerProve(Perdoruesi("u0", "mendurberisha"))
+        Merchandiseri.vendosPerProve(listOf(
+            obj("id" to "p1", "emri" to "Viva Fly", "lat" to 42.66290, "lng" to 21.16550, "krijuarNga" to "u1", "krijuarNgaEmri" to "besa"),
+            obj("id" to "p2", "emri" to "Albi Mall", "lat" to 42.64920, "lng" to 21.14600, "krijuarNga" to "u2", "krijuarNgaEmri" to "agim", "emriNgaAdmini" to true)
+        ), null)
+        r.setContent { StokuTema("light") { Rrenja("light") {} } }
+        kliko("Cilësimet")
+        kliko("Marketet")
+        fotoEkrani("light-32-marketet-admin")
+        kliko("Viva Fly")
+        fotoEkrani("light-33-marketet-ndrysho")
+        Llogaria.vendosPerProve(Perdoruesi("u1", "besa"))
+        Merchandiseri.vendosPerProve(emptyList(), null)
+    }
+
     @Test fun porta() {
         Llogaria.vendosPerProve(null)
         r.setContent { StokuTema("light") { Porta() } }

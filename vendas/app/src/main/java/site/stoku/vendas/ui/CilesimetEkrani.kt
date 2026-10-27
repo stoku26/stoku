@@ -100,7 +100,7 @@ fun CilesimetEkrani(tema: String, ndryshoTemen: (String) -> Unit) {
     // Leja u hoq ndërsa faqja ishte e hapur: kthehu te menyja (si aktivizoTabin te web-i)
     val lejuar = when (faqja) {
         "ora" -> Llogaria.leja("ora")
-        "marketet" -> Llogaria.leja("marketet")
+        "marketet" -> Llogaria.leja("marketet") || Llogaria.eshteAdmin() // v256: edhe administratori (harta)
         "lista", "furnPritje", "furnizuesit", "pritje", "produktet" -> Llogaria.leja("stoku")
         "perdoruesit", "perdoruesi", "perdoruesiAfatet" -> site.stoku.vendas.Admini.eshteAdmin()
         "llogaria" -> p != null
@@ -151,7 +151,7 @@ private fun Menyja(tema: String, hap: (String) -> Unit, hapTeRejat: () -> Unit) 
         RreshtiMenyse(Ik.Skano, "blu", "Skenimi", if (pda) "PDA i ndezur" else "PDA i fikur", false) { hap("skenimi") },
         RreshtiMenyse(Ik.Zile, "vjollce", "Njoftimet", stNj, false) { hap("njoftimet") },
         if (Llogaria.leja("ora")) RreshtiMenyse(Ik.Ora, "blu", "Ora e dorës", "Galaxy Watch, Apple Watch", false) { hap("ora") } else null,
-        if (Llogaria.leja("marketet")) RreshtiMenyse(Ik.Vendi, "gjelber", "Marketet", statusiIMarketeve(), false) { hap("marketet") } else null,
+        if (Llogaria.leja("marketet") || Llogaria.eshteAdmin()) RreshtiMenyse(Ik.Vendi, "gjelber", "Marketet", statusiIMarketeve(), false) { hap("marketet") } else null,
         if (Llogaria.leja("stoku")) RreshtiMenyse(Ik.Rendi, "portokalli", "Stoku", if (nP > 0) (if (nP == 1) "1 produkt i ri për kontroll" else "$nP produkte të reja për kontroll")
             else RENDET.first { it.k == rendi() }.titulli, nP > 0) { hap("lista") } else null,
         if (site.stoku.vendas.Admini.eshteAdmin()) RreshtiMenyse(Ik.Perdoruesit, "kuqe", "Përdoruesit", stPd, stPd.contains("pa u kontrolluar")) { hap("perdoruesit") } else null
