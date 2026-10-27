@@ -23,7 +23,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -76,7 +75,7 @@ private fun ngjyraEStatusit(st: String) = when (st) { "ri" -> "portokalli"; "kuf
 /** Cilësimet → Përdoruesit (vetëm administratori): krejt llogaritë, të ndara "Pa u kontrolluar" / "Të kontrolluar" */
 @Composable
 fun PerdoruesitFaqja(mbrapa: () -> Unit, hap: (String) -> Unit) {
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     val ll by Admini.llogarite.collectAsState()
     val lj by Admini.lejet.collectAsState()
     val gabimL by Admini.gabimLlogari.collectAsState()
@@ -127,7 +126,7 @@ fun PerdoruesitFaqja(mbrapa: () -> Unit, hap: (String) -> Unit) {
 @Composable
 fun PerdoruesiFaqja(uid: String?, mbrapa: () -> Unit, hapAfatet: () -> Unit) {
     val n = N
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     val ll by Admini.llogarite.collectAsState()
     val lj by Admini.lejet.collectAsState()
     var ndaloKrejt by remember { mutableStateOf(false) }

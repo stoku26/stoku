@@ -22,7 +22,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,7 +72,7 @@ internal fun AvatariMadh(emri: String, madhesia: Int = 56, uid: String? = null, 
 fun FotoJaProfilit() {
     val n = N
     val ctx = LocalContext.current
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     val p by Llogaria.perdoruesi.collectAsState()
     val ind by Fotot.indeksi.collectAsState()
     val kaFoto = p?.uid?.let { ind[it] } != null

@@ -8,6 +8,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -36,7 +37,7 @@ import site.stoku.logjika.siObj
  */
 object Grupi {
     private val db: FirebaseFirestore get() = FirebaseFirestore.getInstance()
-    private val scope = MainScope()
+    private val scope = MainScope() + StokuApp.trajtuesi(false)
 
     data class Gjendja(val qasja: String = "duke", val grupi: String? = null, val roli: String = "anetar", val uHoq: String? = null)
 

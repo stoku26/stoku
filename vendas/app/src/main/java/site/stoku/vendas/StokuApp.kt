@@ -7,6 +7,7 @@ import com.google.firebase.FirebaseOptions
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.PersistentCacheSettings
+import kotlinx.coroutines.CoroutineExceptionHandler
 
 /**
  * Stoku: aplikacioni i telefonit (Android, pa WebView). Të njëjtat të dhëna si stoku.site (Firebase "stoku-appi"):
@@ -56,6 +57,21 @@ class StokuApp : Application() {
             Regjistri.nis(app) // kujtesa e produkteve: regjistri i përbashkët, pritja, grupi
             try { Push.nis() } catch (e: Exception) { } // njoftimet push (pa Firebase Messaging aplikacioni punon njësoj)
             Admini.nis() // vetëm për administratorin: krejt llogaritë dhe lejet
+        }
+
+        /**
+         * Rrjeta e sigurisë për korutinat: një gabim i papritur (p.sh. nga Firebase ose interneti) s'e mbyll më krejt
+         * aplikacionin. Arsyeja ruhet te "gabimi_i_fundit" (Cilësimet, poshtë versionit); kur vjen nga një veprim i
+         * përdoruesit (meToast) i del "Diçka s'shkoi mirë".
+         */
+        fun trajtuesi(meToast: Boolean): CoroutineExceptionHandler = CoroutineExceptionHandler { _, e ->
+            if (neProve) throw e // testet: gabimi duhet të duket
+            android.util.Log.e("Stoku", "gabim i papritur", e)
+            try {
+                val rreshtat = listOf(e.toString()) + e.stackTrace.filter { it.className.startsWith("site.stoku") }.take(6).map { "at $it" }
+                vendosPref("gabimi_i_fundit", "versioni " + BuildConfig.VERSION_NAME + "\n" + rreshtat.joinToString("\n").take(2000))
+            } catch (x: Throwable) { }
+            if (meToast) site.stoku.vendas.ui.Toast.trego("Diçka s'shkoi mirë. Provo përsëri.", 3500)
         }
 
         private const val PREFS = "stoku"

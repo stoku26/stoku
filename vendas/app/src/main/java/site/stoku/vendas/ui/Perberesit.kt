@@ -45,7 +45,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,6 +67,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -191,6 +196,8 @@ fun Fusha(
 @Composable
 fun Flete(mbyll: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
     val n = N
+    // Dita e re (pas mesnatës) pret derisa të mbyllet dritarja, që të mos humbet çka po shkruhet (edhe gjatë skanimit)
+    DisposableEffect(Unit) { site.stoku.vendas.Dita.hapura++; onDispose { site.stoku.vendas.Dita.hapura-- } }
     // Gjatë skanimit me kamerë dritarja s'shfaqet (përndryshe mbetet mbi kamerën); gjendja e saj ruhet te thirrësi
     if (SkaneriIHapur.hapur) return
     val gjendja = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -225,6 +232,16 @@ fun Konfirmo(titulli: String, teksti: String, veprimi: String, rrezik: Boolean =
     }
 }
 
+/**
+ * Si rememberCoroutineScope(), por një gabim i papritur në një veprim (p.sh. Firebase pa internet) del si
+ * "Diçka s'shkoi mirë" në vend që ta mbyllë aplikacionin. Mbyllet bashkë me ekranin, si ai i Compose-it.
+ */
+@Composable
+fun rememberFusha(): CoroutineScope {
+    val baza = rememberCoroutineScope()
+    return remember(baza) { CoroutineScope(baza.coroutineContext + SupervisorJob(baza.coroutineContext[Job]) + site.stoku.vendas.StokuApp.trajtuesi(true)) }
+}
+
 // ---------------- Njoftimi i shkurtër (toast) ----------------
 
 object Toast {
@@ -232,6 +249,8 @@ object Toast {
     val teksti: StateFlow<Pair<String, Long>?> get() = _teksti
     fun trego(t: String, ms: Long = 2600) { _teksti.value = t to ms }
     fun pastro() { _teksti.value = null }
+    /** E heq vetëm nëse është ende ky tekst (p.sh. "Duke e gjetur…" kur s'del asnjë tekst tjetër pas tij). */
+    fun pastro(t: String) { if (_teksti.value?.first == t) _teksti.value = null }
 }
 
 @Composable

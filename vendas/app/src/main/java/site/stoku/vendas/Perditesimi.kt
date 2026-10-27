@@ -5,12 +5,16 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import org.json.JSONArray
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Përditësimi i aplikacionit: GitHub Actions e nxjerr çdo version si Release "vendas-vNN" (NN = versionCode).
@@ -75,12 +79,33 @@ object Perditesimi {
             .show()
     }
 
+    private fun mb(n: Long): String = String.format(java.util.Locale.ROOT, "%.1f", n / (1024.0 * 1024.0)).replace('.', ',') + " MB"
+
+    /** Shkarkimi me shirit (sa MB, përqindja) dhe "Anulo": më parë s'dukej asgjë për gjysmë minute në internet të ngadaltë. */
     private fun shkarko(a: Activity, n: Int, url: String) {
-        toast(a, "Duke e shkarkuar versionin e ri…")
+        if (a.isFinishing || a.isDestroyed) return
+        val anulo = AtomicBoolean(false)
+        val dp = a.resources.displayMetrics.density
+        val shiriti = ProgressBar(a, null, android.R.attr.progressBarStyleHorizontal).apply { isIndeterminate = true; max = 100 }
+        val teksti = TextView(a).apply { text = "Duke u lidhur…"; setPadding(0, (8 * dp).toInt(), 0, 0) }
+        val kutia = LinearLayout(a).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding((24 * dp).toInt(), (12 * dp).toInt(), (24 * dp).toInt(), 0)
+            addView(shiriti); addView(teksti)
+        }
+        val d = AlertDialog.Builder(a)
+            .setTitle("Duke e shkarkuar versionin 0.1.$n")
+            .setView(kutia)
+            .setCancelable(false)
+            .setNegativeButton("Anulo") { _, _ -> anulo.set(true) }
+            .show()
+        fun mbyll() = a.runOnUiThread { try { if (d.isShowing) d.dismiss() } catch (e: Exception) { /* aktiviteti u mbyll */ } }
         Thread {
+            var f: File? = null
             try {
                 val dir = File(a.cacheDir, "perditesim").apply { mkdirs(); listFiles()?.forEach { it.delete() } }
-                val f = File(dir, "stoku.apk")
+                val apk = File(dir, "stoku.apk")
+                f = apk
                 var adresa = url
                 var c: HttpURLConnection
                 var hapa = 0
@@ -93,10 +118,42 @@ object Perditesimi {
                     if (k != 200) throw Exception("http $k")
                     break
                 }
-                c.inputStream.use { i -> f.outputStream().use { o -> i.copyTo(o) } }
+                val gjithsej = c.contentLengthLong
+                var lexuar = 0L
+                var iFundit = 0L
+                c.inputStream.use { i -> apk.outputStream().use { o ->
+                    val buf = ByteArray(64 * 1024)
+                    while (!anulo.get()) {
+                        val k = i.read(buf)
+                        if (k < 0) break
+                        o.write(buf, 0, k)
+                        lexuar += k
+                        val tani = System.currentTimeMillis()
+                        if (tani - iFundit >= 250) {
+                            iFundit = tani
+                            val l = lexuar
+                            a.runOnUiThread {
+                                if (gjithsej > 0) {
+                                    val pq = (l * 100 / gjithsej).toInt().coerceIn(0, 100)
+                                    shiriti.isIndeterminate = false; shiriti.progress = pq
+                                    teksti.text = mb(l) + " nga " + mb(gjithsej) + " (" + pq + "%)"
+                                } else teksti.text = mb(l)
+                            }
+                        }
+                    }
+                } }
                 c.disconnect()
-                a.runOnUiThread { instalo(a, f, n) }
-            } catch (e: Exception) { toast(a, "Shkarkimi dështoi. Provo sërish më vonë.") }
+                if (anulo.get()) { apk.delete(); return@Thread }
+                if (gjithsej > 0 && lexuar != gjithsej) throw Exception("i paplotë $lexuar/$gjithsej")
+                a.runOnUiThread {
+                    try { if (d.isShowing) d.dismiss() } catch (e: Exception) { /* ok */ }
+                    instalo(a, apk, n)
+                }
+            } catch (e: Exception) {
+                f?.delete()
+                mbyll()
+                if (!anulo.get()) toast(a, "Shkarkimi dështoi. Provo sërish më vonë.")
+            }
         }.start()
     }
 

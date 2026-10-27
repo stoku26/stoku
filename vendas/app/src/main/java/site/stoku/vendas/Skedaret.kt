@@ -56,7 +56,7 @@ object Skedaret {
     class Rezultati(val ok: Boolean, val arsye: String = "")
 
     /** Dërgimi vazhdon edhe kur mbyllet dritarja (rezultati del si njoftim) */
-    val fusha = kotlinx.coroutines.MainScope()
+    val fusha = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Main + StokuApp.trajtuesi(true))
 
     fun kaInternet(ctx: Context): Boolean = try {
         val cm = ctx.getSystemService(android.net.ConnectivityManager::class.java)

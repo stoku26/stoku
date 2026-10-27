@@ -34,7 +34,7 @@ import java.util.Locale
  */
 object Sinkronizimi {
     private val db: FirebaseFirestore get() = FirebaseFirestore.getInstance()
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main + StokuApp.trajtuesi(false))
     private val dora = Handler(Looper.getMainLooper())
 
     private val _statusi = MutableStateFlow("")

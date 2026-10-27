@@ -8,6 +8,13 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(18, "2026-10-27", "Më i qëndrueshëm", listOf(
+            "Pas mesnatës afatet rifreskohen vetë (\"Sot\", \"Nesër\", ngjyrat dhe numrat), edhe kur aplikacioni ka mbetur i hapur. Nëse po shkruan diçka, pret derisa ta mbyllësh dritaren.",
+            "Përditësimi tregon shiritin e shkarkimit (sa MB dhe përqindjen), me butonin \"Anulo\". Kontrollohet edhe kur kthehesh në aplikacion, jo vetëm kur e hap.",
+            "Importi nga Excel s'e ngrin më ekranin te skedarët e mëdhenj.",
+            "\"Duke e gjetur vendndodhjen…\" zhduket sapo GPS-i e gjen vendin.",
+            "Një gabim i papritur s'e mbyll më aplikacionin: del \"Diçka s'shkoi mirë. Provo përsëri.\" dhe arsyeja ruhet te Cilësimet, poshtë versionit."
+        )),
         Hyrja(17, "2026-10-27", "Dritaret pa u fshehur nën kamerë", listOf(
             "Dritaret që dalin nga poshtë (p.sh. \"Çka ka të re\") s'shkojnë më deri lart nën kamerë dhe orë: mbeten pak më poshtë, me qoshet e rrumbullakëta të dukshme."
         )),

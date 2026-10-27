@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,7 +43,7 @@ import kotlin.math.roundToLong
  * Vendndodhja s'ruhet dhe s'dërgohet askund: krahasohet vetëm në telefon me pikat e marketeve.
  */
 object Merchandiseri {
-    private val scope = MainScope()
+    private val scope = MainScope() + StokuApp.trajtuesi(false)
 
     // ---------------- Pikat e Stoku-t ----------------
     private val _pikat = MutableStateFlow<List<Obj>>(emptyList())
@@ -268,6 +269,8 @@ object Merchandiseri {
         }
     }
 
+    private const val DUKE_GJETUR = "Duke e gjetur vendndodhjen…"
+
     /**
      * GPS-i (si kontrolloGps): kur hapet aplikacioni (jo më shpesh se 2 min) ose me dorë ("Gjej me GPS"). Je te një market →
      * "Je te: X"; te një pikë e dikujt tjetër → shtohet te marketet e tua; te asnjë → "Ku je?" (jo më shpesh se 3 orë vetë).
@@ -281,7 +284,7 @@ object Merchandiseri {
             return
         }
         gpsDukePunuar = true
-        if (meDore) Toast.trego("Duke e gjetur vendndodhjen…", 15000)
+        if (meDore) Toast.trego(DUKE_GJETUR, 15000)
         scope.launch {
             val (gab, p) = pozita()
             if (gab != null || p == null) {
@@ -293,6 +296,7 @@ object Merchandiseri {
             poz = p; pozKoha = System.currentTimeMillis()
             pritPikat()
             gpsDukePunuar = false
+            Toast.pastro(DUKE_GJETUR) // s'mbetet 15 s kur del "Ku je?" ose s'del asnjë tekst tjetër
             val para = idAktiv()
             // v257: markete fqinje që GPS-i s'i dallon: mbetet aktivi (nëse është njëri prej tyre), përndryshe pyetet "Ku je?"
             val r = Marketet.gjejMarketin(marketet(), p, _aktivi.value.id)

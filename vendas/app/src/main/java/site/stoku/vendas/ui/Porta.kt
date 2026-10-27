@@ -27,7 +27,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,7 +44,7 @@ import site.stoku.vendas.Llogaria
 @Composable
 fun Porta() {
     val n = N
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     var krijo by remember { mutableStateOf(false) }
     var emri by remember { mutableStateOf(Llogaria.emriIFundit()) }
     var fj by remember { mutableStateOf("") }

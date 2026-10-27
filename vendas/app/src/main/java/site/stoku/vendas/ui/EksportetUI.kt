@@ -1,5 +1,6 @@
 package site.stoku.vendas.ui
 
+import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -35,8 +36,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import site.stoku.logjika.Afatet
 import site.stoku.logjika.ImportiAfateve
 import site.stoku.logjika.Obj
@@ -209,6 +212,36 @@ fun AfatetExcelFlete(zgjedhura: List<Obj>?, eFiltruara: (String) -> List<Obj>, m
 
 private class FletaImporti(val emri: String, val rreshtat: List<List<Any?>>)
 
+private class LeximiImportit(val emri: String, val fletet: List<FletaImporti>?, val gabim: String = "")
+
+private const val IMPORTI_MAKS = 40 * 1024 * 1024
+
+/** Leximi i skedarit të importit (në Dispatchers.IO). Edhe mungesa e memories (OutOfMemoryError) del si gabim, jo si rrëzim. */
+private fun lexoSkedarinEImportit(ctx: Context, uri: Uri): LeximiImportit {
+    val emri = try { ctx.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c -> if (c.moveToFirst()) c.getString(0) else null } } catch (e: Exception) { null } ?: "skedar"
+    return try {
+        val b = ctx.contentResolver.openInputStream(uri)?.use { s ->
+            val o = java.io.ByteArrayOutputStream()
+            val buf = ByteArray(64 * 1024)
+            while (true) {
+                val k = s.read(buf)
+                if (k < 0) break
+                o.write(buf, 0, k)
+                if (o.size() > IMPORTI_MAKS) return LeximiImportit(emri, null, "Skedari është shumë i madh.")
+            }
+            o.toByteArray()
+        } ?: throw IllegalStateException()
+        val lexuar = if (b.size > 1 && b[0] == 0x50.toByte() && b[1] == 0x4b.toByte()) {
+            Xlsx.read(b).map { sh -> FletaImporti(sh.name, sh.rows.filter { r -> r.any { jsTrim(jsString(it ?: "")).isNotEmpty() } }) }
+        } else if (Regex("\\.xls$", RegexOption.IGNORE_CASE).containsMatchIn(emri)) {
+            return LeximiImportit(emri, null, "Formati i vjetër .xls s'mbështetet. Ruaje si .xlsx ose .csv.")
+        } else listOf(FletaImporti(emri.replace(Regex("\\.[^.]+$"), ""), Xlsx.lexoCsv(Xlsx.tekstiISkedarit(b))))
+        val me = lexuar.filter { it.rreshtat.isNotEmpty() }
+        if (me.isEmpty()) LeximiImportit(emri, null, "Skedari është bosh.") else LeximiImportit(emri, me)
+    } catch (e: OutOfMemoryError) { LeximiImportit(emri, null, "Skedari është shumë i madh për këtë telefon.") }
+    catch (e: Exception) { LeximiImportit(emri, null, "Skedari s'u lexua. Sigurohu që është .xlsx ose .csv.") }
+}
+
 /** "Importo afate nga Excel" (si dlgAfImport): skedari .xlsx/.csv → kolonat → parapamja → importi. pasImportit: filtrat te "Të gjitha". */
 @Composable
 fun ImportiAfateveFlete(mbyll: () -> Unit, pasImportit: () -> Unit) {
@@ -225,26 +258,22 @@ fun ImportiAfateveFlete(mbyll: () -> Unit, pasImportit: () -> Unit) {
     fun teZgjedhurat(): List<FletaImporti> { val f = fletet ?: return emptyList(); return if (fleta == "krejt") f else listOfNotNull(f.getOrNull(fleta.toIntOrNull() ?: 0)) }
     fun pergatit() { teZgjedhurat().firstOrNull()?.let { kol = ImportiAfateve.hamendesoKolonat(it.rreshtat, meKoke) } }
 
+    val fusha = rememberFusha()
+    var dukeLexuar by remember { mutableStateOf(false) }
     fun lexo(uri: Uri) {
-        gabim = ""
-        val emri = try { ctx.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c -> if (c.moveToFirst()) c.getString(0) else null } } catch (e: Exception) { null } ?: "skedar"
-        val lexuar: List<FletaImporti>
-        try {
-            val b = ctx.contentResolver.openInputStream(uri)?.use { s -> s.readBytes() } ?: throw IllegalStateException()
-            if (b.size > 40 * 1024 * 1024) { gabim = "Skedari është shumë i madh."; return }
-            lexuar = if (b.size > 1 && b[0] == 0x50.toByte() && b[1] == 0x4b.toByte()) {
-                Xlsx.read(b).map { sh -> FletaImporti(sh.name, sh.rows.filter { r -> r.any { jsTrim(jsString(it ?: "")).isNotEmpty() } }) }
-            } else if (Regex("\\.xls$", RegexOption.IGNORE_CASE).containsMatchIn(emri)) {
-                gabim = "Formati i vjetër .xls s'mbështetet. Ruaje si .xlsx ose .csv."; return
-            } else listOf(FletaImporti(emri.replace(Regex("\\.[^.]+$"), ""), Xlsx.lexoCsv(Xlsx.tekstiISkedarit(b))))
-        } catch (e: Exception) { gabim = "Skedari s'u lexua. Sigurohu që është .xlsx ose .csv."; return }
-        val me = lexuar.filter { it.rreshtat.isNotEmpty() }
-        if (me.isEmpty()) { gabim = "Skedari është bosh."; return }
-        emriSk = emri
-        fletet = me
-        fleta = if (me.size > 1) "krejt" else "0"
-        meKoke = !(me[0].rreshtat.firstOrNull().orEmpty().any { ImportiAfateve.dataNgaQeliza(it, null) != null })
-        pergatit()
+        gabim = ""; dukeLexuar = true
+        fusha.launch {
+            // Leximi dhe zbërthimi i një Excel-i të madh zgjasin: jashtë fijes kryesore (më parë ekrani ngrinte)
+            val r = withContext(Dispatchers.IO) { lexoSkedarinEImportit(ctx, uri) }
+            dukeLexuar = false
+            val me = r.fletet
+            if (me == null) { gabim = r.gabim; return@launch }
+            emriSk = r.emri
+            fletet = me
+            fleta = if (me.size > 1) "krejt" else "0"
+            meKoke = !(me[0].rreshtat.firstOrNull().orEmpty().any { ImportiAfateve.dataNgaQeliza(it, null) != null })
+            pergatit()
+        }
     }
     val zgjidh = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) lexo(uri) }
 
@@ -254,7 +283,8 @@ fun ImportiAfateveFlete(mbyll: () -> Unit, pasImportit: () -> Unit) {
         if (f == null) {
             Text("Zgjidh një skedar .xlsx ose .csv me barkodin ose emrin dhe datën e skadimit. Fletët me emër muaji (Nëntor, Nëntor2…) lexohen si ai muaj.",
                 style = tx(14, 400, n.muted))
-            Buton("Zgjidh skedarin", {
+            Buton(if (dukeLexuar) "Duke e lexuar…" else "Zgjidh skedarin", {
+                if (dukeLexuar) return@Buton
                 try { zgjidh.launch(arrayOf(Xlsx.MIME, "text/*", "application/csv", "application/vnd.ms-excel", "application/octet-stream")) }
                 catch (e: Exception) { gabim = "S'u hap zgjedhja e skedarit." }
             }, Modifier.fillMaxWidth(), ikona = Ik.Excel)
@@ -290,7 +320,8 @@ fun ImportiAfateveFlete(mbyll: () -> Unit, pasImportit: () -> Unit) {
             }
         }
         val k2 = if (paFurnizues) kol + ("furnizuesi" to -1) else kol
-        val plan = ImportiAfateve.plani(teZgjedhurat().map { it.emri to it.rreshtat }, meKoke, k2, Dyqani.g.afatet)
+        val afatet = Dyqani.g.afatet
+        val plan = remember(f, fleta, meKoke, k2, afatet) { ImportiAfateve.plani(teZgjedhurat().map { it.emri to it.rreshtat }, meKoke, k2, afatet) }
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             listOf("Të reja" to plan.teRinj, "Ekzistojnë" to plan.ekzistojne, "Bashkohen" to plan.bashkuar, "Me gabim" to plan.gabime).forEach { (t, v) ->
                 if (v == 0 && t != "Të reja") return@forEach

@@ -57,6 +57,17 @@ import site.stoku.vendas.ui.StokuTema
 import site.stoku.vendas.ui.ToastPamja
 import site.stoku.vendas.ui.tx
 
+/**
+ * Dita e sotme si gjendje e Compose-it: ndryshon pas mesnatës (ose kur kthehesh në aplikacion një ditë tjetër).
+ * Me një dritare (Flete) të hapur pret derisa të mbyllet, që ekrani të mos vizatohet nga e para ndërsa shkruan.
+ */
+object Dita {
+    var sot by mutableStateOf(java.time.LocalDate.now())
+        private set
+    var hapura by mutableStateOf(0)
+    fun rifresko() { val d = java.time.LocalDate.now(); if (d != sot && hapura <= 0) sot = d }
+}
+
 class MainActivity : ComponentActivity() {
     companion object {
         /** Tabi që kërkohet nga jashtë (njoftimi i prekur): "afatet", "grupi" */
@@ -102,12 +113,13 @@ class MainActivity : ComponentActivity() {
             }
             }
         }
-        Perditesimi.kontrollo(this, false)
     }
 
     override fun onResume() {
         super.onResume()
+        Dita.rifresko() // u kthye në aplikacion një ditë tjetër
         Perditesimi.vazhdoNesePritej(this)
+        Perditesimi.kontrollo(this, false) // jo vetëm në hapje: aplikacioni mund të rrijë në memorie me ditë (kontrolli më së shumti çdo 6 orë)
         if (!StokuApp.moduletNisur) return
         Sinkronizimi.neRikthim()
         Merchandiseri.kontrolloGps(false) // si web-i: vendndodhja kur hapet Stoku (jo më shpesh se 2 min)
@@ -155,6 +167,17 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
     val krGr by Grupi.kerkesatEGrupit.collectAsState()
     val ngjGr by Grupi.ngjarjet.collectAsState()
     val gjGr by Grupi.gjendja.collectAsState()
+    // Dita e sotme (si rifreskoNeseNderroiDita te web-i): pas mesnatës afatet rillogariten ("Sot", "Nesër", ngjyrat, numrat)
+    val sot = Dita.sot
+    LaunchedEffect(Unit) { androidx.compose.runtime.snapshotFlow { Dita.hapura }.collect { if (it <= 0) Dita.rifresko() } }
+    LaunchedEffect(Unit) {
+        if (StokuApp.neProve) return@LaunchedEffect
+        while (true) {
+            val tani = java.time.LocalDateTime.now()
+            kotlinx.coroutines.delay(java.time.Duration.between(tani, tani.toLocalDate().plusDays(1).atStartOfDay()).toMillis() + 2000)
+            Dita.rifresko()
+        }
+    }
 
     // Pjesa e parë e lejuar (pa "Stoku" hapet "Afatet")
     val tabet = listOfNotNull(
@@ -183,17 +206,20 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
             Box(Modifier.weight(1f).statusBarsPadding().then(if (meTabe) Modifier else Modifier.navigationBarsPadding())) {
                 val skano: ((String) -> Unit) -> Unit = { cb -> numerimi = null; skanimi = cb }
                 val skanoMeNumerim: ((String) -> Unit, (String) -> Boolean) -> Unit = { cb, nr -> numerimi = nr; skanimi = cb }
-                when (tabi) {
-                    "stoku" -> StokuEkrani(folderi, { folderi = it }, skanoMeNumerim)
-                    "afatet" -> AfatetEkrani(skano)
-                    "grupi" -> GrupiEkrani()
-                    else -> CilesimetEkrani(tema, ndryshoTemen)
+                // Kur ndërrohet dita, ekranet vizatohen nga e para (statuset e afateve varen nga data e sotme)
+                androidx.compose.runtime.key(sot) {
+                    when (tabi) {
+                        "stoku" -> StokuEkrani(folderi, { folderi = it }, skanoMeNumerim)
+                        "afatet" -> AfatetEkrani(skano)
+                        "grupi" -> GrupiEkrani()
+                        else -> CilesimetEkrani(tema, ndryshoTemen)
+                    }
                 }
             }
             // Shiriti me tabe poshtë
             if (meTabe) Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
             if (meTabe) Row(Modifier.fillMaxWidth().background(n.surface).navigationBarsPadding().height(64.dp)) {
-                val nAf = remember(g, aktiviM, lejet, merch) { Afatet.numero(Merchandiseri.afatetEMarketit(g.afatet)) }
+                val nAf = remember(g, aktiviM, lejet, merch, sot) { Afatet.numero(Merchandiseri.afatetEMarketit(g.afatet)) }
                 val nGr = remember(njGr, ftGr, krGr, ngjGr, gjGr, vizitor) { if (vizitor && p == null) 0 else Grupi.numriNjoftimeve() + Grupi.numriKerkesave() } // si te web-i: zilja + ftesat/kërkesat (vizitori: asnjë)
                 tabet.forEach { (k, t, ik) ->
                     val nr = when (k) { "afatet" -> nAf.skaduar + nAf.afer + nAf.paDate; "grupi" -> nGr; else -> 0 }
