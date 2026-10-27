@@ -334,3 +334,57 @@ fun OraFaqja(mbrapa: () -> Unit) {
         }
     }
 }
+
+/**
+ * Pyetja për njoftimet kur hapet Stoku (si dlgNjoftimet te web-i): vetëm Android 13+, kur leja s'është dhënë ende dhe
+ * telefoni s'ka pyetur; "Jo tani" e shtyn 3 ditë.
+ */
+@Composable
+fun PyetjaENjoftimeve() {
+    val n = N
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val p by Llogaria.perdoruesi.collectAsState()
+    var hapur by remember { mutableStateOf(false) }
+    LaunchedEffect(p?.uid) {
+        hapur = false
+        if (p == null || StokuApp.neProve) return@LaunchedEffect
+        kotlinx.coroutines.delay(2000)
+        if (Njoftimet.gjendja(ctx) != "fikur") return@LaunchedEffect
+        val joTani = StokuApp.prefsOse("njoftimet_jo_tani", "0").toLongOrNull() ?: 0L
+        if (System.currentTimeMillis() - joTani < 3 * 86400000L) return@LaunchedEffect
+        hapur = true
+    }
+    val kerko = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { po ->
+        StokuApp.vendosPrefB("njoftimet_pyetur", true)
+        if (po) { Toast.trego("Njoftimet u aktivizuan."); scope.launch { try { Push.aktivizo(false) } catch (e: Exception) { } } }
+        else Toast.trego("Njoftimet u refuzuan. Mund t'i lejosh te cilësimet e telefonit → Aplikacionet → Stoku → Njoftimet.", 5000)
+    }
+    if (!hapur) return
+    fun joTani() { StokuApp.vendosPref("njoftimet_jo_tani", System.currentTimeMillis().toString()); hapur = false }
+    Flete(::joTani) {
+        Box(Modifier.size(56.dp).clip(CircleShape).background(n.accentTint), contentAlignment = Alignment.Center) {
+            androidx.compose.material3.Icon(Ik.Zile, null, Modifier.size(30.dp), tint = n.accentText)
+        }
+        Text("Njoftimet për afatet", style = tx(22, 700, n.ink, -0.02))
+        Text("Të lajmërojmë me njoftim në telefon:", style = tx(15, 400, n.ink2))
+        listOf(
+            Triple(n.near, "kur një produkti i kanë mbetur ", "30 ditë" to " deri në skadim"),
+            Triple(n.exp, "kur një produkt ", "skadon" to ", që ta heqësh nga rafti/pozita")
+        ).forEach { (ng, para, pas) ->
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Box(Modifier.size(10.dp).clip(CircleShape).background(ng))
+                Text(buildAnnotatedString {
+                    append(para); withStyle(SpanStyle(fontWeight = FontWeight(700))) { append(pas.first) }; append(pas.second)
+                }, style = tx(15, 400, n.ink))
+            }
+        }
+        Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Buton("Jo tani", ::joTani, Modifier.weight(1f), lloji = "tekst")
+            Buton("Aktivizo njoftimet", {
+                hapur = false
+                try { kerko.launch(Manifest.permission.POST_NOTIFICATIONS) } catch (e: Exception) { }
+            }, Modifier.weight(1.4f))
+        }
+    }
+}

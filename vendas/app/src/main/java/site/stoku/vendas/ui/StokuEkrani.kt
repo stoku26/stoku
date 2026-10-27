@@ -38,6 +38,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.withStyle
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -59,7 +70,7 @@ import java.util.Calendar
 
 /** Stoku: kryefaqja me folderat, ose lista e produkteve të një folderi */
 @Composable
-fun StokuEkrani(folderi: String?, hapFolderin: (String?) -> Unit, skano: ((String) -> Unit) -> Unit) {
+fun StokuEkrani(folderi: String?, hapFolderin: (String?) -> Unit, skano: ((String) -> Unit, (String) -> Boolean) -> Unit) {
     // Produkti i zgjedhur te kërkimi i kryefaqes: hapet folderi dhe dritarja e produktit
     var produktiPerTuHapur by remember { mutableStateOf<String?>(null) }
     if (folderi == null) Kryefaqja(hapFolderin) { fid, b -> produktiPerTuHapur = b; hapFolderin(fid) }
@@ -81,7 +92,46 @@ private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, Str
     var folderIRi by remember { mutableStateOf(false) }
     var perFshirje by remember { mutableStateOf<Obj?>(null) }
     var fletaStok by remember { mutableStateOf<android.net.Uri?>(null) } // importi i stokut nga një fletë (foto)
-    val (fotoStok, galeriaStok) = rememberFotoEFletes("stokuImporto") { fletaStok = it }
+    var kuFletaStok by remember { mutableStateOf<android.net.Uri?>(null) } // "Ku do ta kontrollosh fletën?" (PC ose këtu)
+    val (fotoStok, galeriaStok) = rememberFotoEFletes("stokuImporto") { if (mundDergoFletenNePc()) kuFletaStok = it else fletaStok = it }
+    // Renditja e folderave me zvarritje (si te web-i: mbaje gishtin, pastaj lëvize; leja "Krijo dhe ndrysho folderat")
+    val vendet = remember { mutableMapOf<String, Rect>() } // vendi i secilës kartë në ekran (pa zhvendosjen e zvarritjes)
+    var zvarritet by remember { mutableStateOf<String?>(null) }
+    var zhvendosja by remember { mutableStateOf(Offset.Zero) }
+    var gishti by remember { mutableStateOf<Offset?>(null) }
+    var mbaroiNe by remember { mutableStateOf(0L) }
+    val dridhja = LocalHapticFeedback.current
+    fun objektivi(): String? {
+        val z = zvarritet ?: return null; val p = gishti ?: return null
+        return vendet.entries.firstOrNull { it.key != z && it.value.contains(p) && g.foldera.any { f -> f["id"] == it.key } }?.key
+    }
+    fun perfundoZvarritjen(ruaj: Boolean) {
+        val z = zvarritet; val t = objektivi()
+        if (ruaj && z != null && t != null && Llogaria.leja("stokuFoldera")) {
+            val ids = Dyqani.g.foldera.map { it["id"] as String }.toMutableList()
+            val iZ = ids.indexOf(z); val iT = ids.indexOf(t)
+            if (iZ >= 0 && iT >= 0) {
+                ids.removeAt(iZ)
+                val iT2 = ids.indexOf(t)
+                ids.add(if (iT > iZ) iT2 + 1 else iT2, z) // si te web-i: më poshtë → pas objektivit, më lart → para tij
+                Dyqani.renditFolderat(ids)
+            }
+        }
+        zvarritet = null; gishti = null; zhvendosja = Offset.Zero
+        mbaroiNe = System.currentTimeMillis()
+    }
+    fun zvarritja(id: String): Modifier = if (!Llogaria.leja("stokuFoldera")) Modifier else Modifier.pointerInput(id) {
+        detectDragGesturesAfterLongPress(
+            onDragStart = { o ->
+                zvarritet = id; zhvendosja = Offset.Zero
+                gishti = (vendet[id]?.topLeft ?: Offset.Zero) + o
+                dridhja.performHapticFeedback(HapticFeedbackType.LongPress)
+            },
+            onDrag = { ndryshimi, d -> ndryshimi.consume(); zhvendosja += d; gishti = gishti?.plus(d) },
+            onDragEnd = { perfundoZvarritjen(true) },
+            onDragCancel = { perfundoZvarritjen(false) }
+        )
+    }
     fun kaFolder(): Boolean {
         if (g.foldera.isNotEmpty()) return true
         if (Llogaria.leja("stokuFoldera")) { Toast.trego("Krijo fillimisht një folder."); folderIRi = true } else Toast.trego("S'ka asnjë folder ku të importohet.", 4000)
@@ -100,7 +150,7 @@ private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, Str
         verticalArrangement = Arrangement.spacedBy(0.dp)) {
         item {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                EtiketaStoku(p?.emri ?: "", { Sinkronizimi.rifresko(); Toast.trego("Duke sinkronizuar…", 1500) })
+                EtiketaStoku(p?.emri ?: if (Llogaria.eshteVizitor()) "Vizitor · provë" else "", { Sinkronizimi.rifresko(); Toast.trego("Duke sinkronizuar…", 1500) })
                 Spacer(Modifier.weight(1f))
                 if (Llogaria.leja("stoku") && Llogaria.leja("stokuImporto")) {
                     ButonIkone(Ik.Foto, "Importo stokun nga galeria", { if (kaFolder()) galeriaStok() })
@@ -109,6 +159,17 @@ private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, Str
                 }
             }
             Hapesire(14.dp)
+            // Prova si vizitor (si .viz-shirit te web-i)
+            if (Llogaria.eshteVizitor()) {
+                Row(Modifier.fillMaxWidth().padding(bottom = 12.dp).clip(RoundedCornerShape(14.dp)).background(n.accentTint).padding(start = 14.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(androidx.compose.ui.text.buildAnnotatedString {
+                        withStyle(androidx.compose.ui.text.SpanStyle(fontWeight = androidx.compose.ui.text.font.FontWeight(700))) { append("Vizitor") }
+                        append(" · provë pa llogari, me të dhëna shembull")
+                    }, style = txF(13.5f, 400, n.accentText), modifier = Modifier.weight(1f))
+                    Buton("Hyr", { Llogaria.hapHyrjenNgaProva() }, lartesia = 36.dp)
+                }
+            }
             if (Llogaria.leja("stoku")) Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), "Kërko produkt ose barkod", ikona = Ik.Kerko)
             Hapesire(18.dp)
             // "Je te: …" (vetëm merchandiseri me markete, ose pa asnjë: "Shto marketin ku punon")
@@ -160,11 +221,23 @@ private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, Str
         }
         // Rrjeta e folderave (3 në rresht)
         val rreshtat = g.foldera.chunked(3)
+        val objektiviTani = objektivi()
         items(rreshtat.size) { i ->
-            Row(Modifier.fillMaxWidth().padding(bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            val meZvarritjen = rreshtat[i].any { it["id"] == zvarritet }
+            Row(Modifier.fillMaxWidth().zIndex(if (meZvarritjen) 1f else 0f).padding(bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 rreshtat[i].forEach { f ->
-                    KartaEFolderit(f, g.produktet.values.count { it["kategoriaId"] == f["id"] }, Modifier.weight(1f),
-                        { hapFolderin(f["id"] as String) }, if (Llogaria.leja("stokuFshi")) ({ perFshirje = f }) else null)
+                    val fid = f["id"] as String
+                    val zv = zvarritet == fid
+                    // Karta që del nga ekrani (skrollim) s'është më objektiv i zvarritjes
+                    androidx.compose.runtime.DisposableEffect(fid) { onDispose { vendet.remove(fid) } }
+                    KartaEFolderit(f, g.produktet.values.count { it["kategoriaId"] == f["id"] },
+                        Modifier.weight(1f).onGloballyPositioned { vendet[fid] = it.boundsInRoot() }.then(zvarritja(fid))
+                            .zIndex(if (zv) 1f else 0f)
+                            .graphicsLayer {
+                                if (zv) { translationX = zhvendosja.x; translationY = zhvendosja.y; scaleX = 1.04f; scaleY = 1.04f; shadowElevation = 12.dp.toPx(); shape = RoundedCornerShape(16.dp) }
+                            },
+                        { if (zvarritet == null && System.currentTimeMillis() - mbaroiNe > 350) hapFolderin(fid) },
+                        if (Llogaria.leja("stokuFshi")) ({ perFshirje = f }) else null, objektiv = objektiviTani == fid)
                 }
                 repeat(3 - rreshtat[i].size) { Spacer(Modifier.weight(1f)) }
             }
@@ -195,6 +268,7 @@ private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, Str
     }
 
     if (folderIRi) FolderIRiFlete { folderIRi = false }
+    kuFletaStok?.let { u -> KuFletaDritarja(u, stok = true, mbyll = { kuFletaStok = null }) { fletaStok = u } }
     fletaStok?.let { u -> FletaEkrani(u, mbyll = { fletaStok = null }, stok = true) }
     perFshirje?.let { f ->
         val brenda = Dyqani.produktetEFolderit(f["id"] as String).size
@@ -207,11 +281,13 @@ private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, Str
 }
 
 @Composable
-private fun KartaEFolderit(f: Obj, nr: Int, modifier: Modifier, hap: () -> Unit, fshi: (() -> Unit)?) {
+private fun KartaEFolderit(f: Obj, nr: Int, modifier: Modifier, hap: () -> Unit, fshi: (() -> Unit)?, objektiv: Boolean = false) {
     val n = N
     val ik = Afatet.ikonaEFolderit(f)
     val ikonaV = remember(ik.id) { ikona(ik.d, trashesia = 2f) }
-    Box(modifier.heightIn(min = 108.dp).clip(RoundedCornerShape(16.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(16.dp)).clickable(onClick = hap)) {
+    // objektiv: folderi mbi të cilin është gishti gjatë zvarritjes (këtu do të vendoset)
+    Box(modifier.heightIn(min = 108.dp).clip(RoundedCornerShape(16.dp)).background(if (objektiv) n.accentTint else n.surface)
+        .border(if (objektiv) 2.dp else 1.dp, if (objektiv) n.accent else n.line, RoundedCornerShape(16.dp)).clickable(onClick = hap)) {
         Column(Modifier.padding(12.dp)) {
             IkonaMeNgjyre(ikonaV, ik.ngj)
             Spacer(Modifier.height(12.dp))
@@ -276,7 +352,7 @@ fun krahasuesi(): Comparator<Obj> {
 
 // ---------------- Folderi ----------------
 @Composable
-private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Unit) -> Unit, produktiFillimisht: String?, uHap: () -> Unit) {
+private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Unit, (String) -> Boolean) -> Unit, produktiFillimisht: String?, uHap: () -> Unit) {
     val n = N
     val g by Dyqani.gjendja.collectAsState()
     var barkodi by remember { mutableStateOf("") }
@@ -299,6 +375,7 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
     }
     val lejaShpejt = Llogaria.leja("stokuPlusMinus")
     val pda by Opsionet.pda.collectAsState()
+    val paTastiere by Opsionet.paTastiere.collectAsState()
     val kursori by Opsionet.kursori.collectAsState()
     // PDA: kursori te barkodi që në hapje; pas produktit kthehet te barkodi (PDA, ose skaneri i jashtëm kur barkodi erdhi nga fusha)
     var hapurNjeHere by remember { mutableStateOf(false) }
@@ -308,10 +385,19 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
         if (kthe) { kotlinx.coroutines.delay(200); try { fBarkodi.requestFocus() } catch (e: Exception) { } }
     }
 
+    // Kamera: produkti që ekziston në këtë folder merr +1 sa herë shihet, pa u mbyllur kamera (si te web-i, me lejet
+    // "Ndrysho stokun" dhe "Butonat +/-"); barkodi i ri hap dritaren e produktit
+    fun shtoNjeCope(b: String): Boolean {
+        if (!Llogaria.leja("stokuNdrysho") || !Llogaria.leja("stokuPlusMinus")) return false
+        val p = Dyqani.produkti(id, b) ?: return false
+        Dyqani.vendosSasine(Bashkimi.celesi(id, b), sasiaE(p) + 1)
+        return true
+    }
+
     fun hapBarkodin(b0: String, nga: String) {
         val b = b0.trim()
         if (b.isEmpty()) return
-        if (duketSiDiçkaTjeter(b)) { Toast.trego("Kjo duket si kod QR ose tekst, jo si barkod produkti."); return }
+        if (duketSiDiçkaTjeter(b)) { Toast.trego("Kjo nuk duket si barkod produkti (ngjan me kod QR ose tekst). Provo përsëri."); return }
         val e = Dyqani.produkti(id, b)
         if (!Llogaria.leja(if (e != null) "stokuNdrysho" else "stokuShto")) {
             if (e != null) kerkimi = b else Toast.trego("Ky barkod s'është në këtë folder.", 3000)
@@ -335,7 +421,16 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
                     veprimi = ImeAction.Go, kurVeprim = { val b = barkodi; barkodi = ""; hapBarkodin(b, "fushe") })
                 Hapesire(10.dp)
                 if (Llogaria.leja("kamera") && !pda) {
-                    Buton("Skano me kamerë", { skano { b -> hapBarkodin(b, "kamera") } }, Modifier.fillMaxWidth(), ikona = Ik.Skano)
+                    Buton("Skano me kamerë", { skano({ b -> hapBarkodin(b, "kamera") }) { b -> shtoNjeCope(b) } }, Modifier.fillMaxWidth(), ikona = Ik.Skano)
+                    Hapesire(10.dp)
+                }
+                // PDA: tastiera në ekran fshihet/shfaqet me një prekje (si #btnTastiera te web-i); kursori mbetet te barkodi
+                if (pda) {
+                    Buton(if (paTastiere) "Shfaq tastierën" else "Fshih tastierën", {
+                        Opsionet.vendosPaTastiere(!paTastiere)
+                        Toast.trego(if (!paTastiere) "Tastiera në ekran s'del më. Shkruaj me tastierën e PDA-së." else "Tastiera në ekran del përsëri.")
+                        try { fBarkodi.requestFocus() } catch (e: Exception) { }
+                    }, Modifier.fillMaxWidth(), lloji = "dyte", ikona = Ik.Tastiera)
                     Hapesire(10.dp)
                 }
                 val lejaXls = Llogaria.leja("eksportExcel")

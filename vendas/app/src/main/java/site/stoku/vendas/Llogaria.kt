@@ -49,9 +49,42 @@ object Llogaria {
     private lateinit var ctx: Context
     private var dLejet: ListenerRegistration? = null
     private var dMerch: ListenerRegistration? = null
+    private var dFshirja: ListenerRegistration? = null
+    private var poFshihet = false
+
+    /** Mesazhi një-herësh për hyrjen (si "stoku:porta:mesazh" te web-i), p.sh. kur administratori e fshiu llogarinë */
+    val mesazhiIHyrjes = MutableStateFlow("")
+
+    /**
+     * Prova si vizitor (si "Hyr si vizitor" te porta.js): pa llogari, me të dhëna shembull vetëm në këtë telefon (s'sinkronizohen,
+     * pa Grup, AI, njoftime apo orë). Kur hyn një llogari, të dhënat e provës hiqen (si te çdo ndërrim llogarie).
+     */
+    private val _vizitor = MutableStateFlow(false)
+    val vizitor: StateFlow<Boolean> get() = _vizitor
+    fun eshteVizitor(): Boolean = _vizitor.value && _perdoruesi.value == null
+    /** Prova është ende në këtë telefon ("Vazhdo provën si vizitor") */
+    fun provaEkziston(): Boolean = Dyqani.g.pronari == Dyqani.VIZITOR && Dyqani.kaTeDhena()
+    /** Në telefon janë të dhënat e një llogarie (p.sh. pas "Dil"): pyetet para se të hiqen për provën */
+    fun kaTeDhenaTeLlogarise(): Boolean = Dyqani.g.pronari.let { it != null && it != Dyqani.VIZITOR } && Dyqani.kaTeDhena()
+
+    fun hyrSiVizitor() {
+        val mbush = !Dyqani.kaTeDhena() || Dyqani.g.pronari != Dyqani.VIZITOR
+        if (mbush) Dyqani.mbushProven()
+        StokuApp.prefs(ctx).edit().putBoolean("vizitor", true).apply()
+        _vizitor.value = true
+    }
+    /** "Hyr" nga prova: hapet hyrja; prova mbetet derisa të hyjë një llogari */
+    fun hapHyrjenNgaProva() {
+        StokuApp.prefs(ctx).edit().putBoolean("vizitor", false).apply()
+        _vizitor.value = false
+    }
+    /** "Fillo nga e para": të dhënat shembull rikthehen */
+    fun rinisProven() { if (Dyqani.g.pronari == Dyqani.VIZITOR) Dyqani.mbushProven() }
 
     /** Vetëm për testet e pamjeve */
-    fun vendosPerProve(p: Perdoruesi?, merchandiser: Boolean = false) { _perdoruesi.value = p; _gati.value = true; _merchandiser.value = merchandiser }
+    fun vendosPerProve(p: Perdoruesi?, merchandiser: Boolean = false, vizitor: Boolean = false) {
+        _perdoruesi.value = p; _gati.value = true; _merchandiser.value = merchandiser; _vizitor.value = vizitor
+    }
 
     fun emailIBrendshem(emri: String) = emri.trim().lowercase() + "@stoku-app.local"
 
@@ -61,6 +94,7 @@ object Llogaria {
         val pr = StokuApp.prefs(ctx)
         Json.lexoOse(pr.getString("lejet", null)).siObj()?.let { x -> _lejet.value = x["lejet"].siObj() }
         _merchandiser.value = pr.getBoolean("merchandiser", false)
+        _vizitor.value = pr.getBoolean("vizitor", false)
         auth.addAuthStateListener { a ->
             val u = a.currentUser
             val p = u?.let { Perdoruesi(it.uid, (it.email ?: "").removeSuffix("@stoku-app.local")) }
@@ -68,18 +102,44 @@ object Llogaria {
                 _perdoruesi.value = p
                 ndalDegjuesit()
                 if (p != null) {
+                    if (_vizitor.value) { _vizitor.value = false; pr.edit().putBoolean("vizitor", false).apply() } // me llogari s'ka më provë
                     if (pr.getString("lejet_uid", null) != p.uid) { _lejet.value = null; _merchandiser.value = false; pr.edit().remove("lejet").putBoolean("merchandiser", false).apply() }
                     pr.edit().putString("lejet_uid", p.uid).apply()
                     regjistroPerdoruesin(p)
                     degjoLejet(p)
                     degjoMerchandiserin(p)
+                    degjoFshirjen(p)
                 } else { _lejet.value = null; _merchandiser.value = false }
             }
             _gati.value = true
         }
     }
 
-    private fun ndalDegjuesit() { dLejet?.remove(); dLejet = null; dMerch?.remove(); dMerch = null }
+    private fun ndalDegjuesit() { dLejet?.remove(); dLejet = null; dMerch?.remove(); dMerch = null; dFshirja?.remove(); dFshirja = null }
+
+    // Administratori e fshiu këtë llogari (ekipa_fshire/{uid}, si degjoFshirjen te ekipa.js): njoftimi ditor hiqet nga serveri,
+    // llogaria e hyrjes fshihet (ose të paktën dilet), të dhënat e saj hiqen nga telefoni dhe hyrja e tregon arsyen
+    private fun degjoFshirjen(p: Perdoruesi) {
+        dFshirja = db.collection("ekipa_fshire").document(p.uid).addSnapshotListener { s, e ->
+            if (e != null || s == null || !s.exists() || _perdoruesi.value?.uid != p.uid) return@addSnapshotListener
+            llogariaUFshi()
+        }
+    }
+
+    private fun llogariaUFshi() {
+        if (poFshihet) return
+        poFshihet = true
+        kotlinx.coroutines.MainScope().launch {
+            try { kotlinx.coroutines.withTimeoutOrNull(9000) { Push.caktivizo() } } catch (e: Exception) { }
+            ndalDegjuesit()
+            StokuApp.prefs(ctx).edit().remove("ora_rt").apply()
+            mesazhiIHyrjes.value = "Kjo llogari u fshi nga administratori."
+            try { kotlinx.coroutines.withTimeoutOrNull(9000) { auth.currentUser?.delete()?.await() } } catch (e: Exception) { }
+            try { if (auth.currentUser != null) auth.signOut() } catch (e: Exception) { }
+            Dyqani.vendosPronarin("llogari-e-fshire") // të dhënat e llogarisë së fshirë s'mbeten në telefon
+            poFshihet = false
+        }
+    }
 
     /** Administratori (mendurberisha) i ka krejt lejet */
     fun eshteAdmin(): Boolean = Lejet.eshteAdmin(_perdoruesi.value?.emri)
@@ -132,7 +192,8 @@ object Llogaria {
     /** → null (u hy) ose teksti i gabimit */
     suspend fun hyr(emri: String, fjalekalimi: String): String? = try {
         auth.signInWithEmailAndPassword(emailIBrendshem(emri), fjalekalimi).await()
-        StokuApp.prefs(ctx).edit().putString("emri_i_fundit", emri.trim().lowercase()).apply()
+        mesazhiIHyrjes.value = ""
+        ruajEmrinEFundit(emri.trim().lowercase())
         tokeniPerOren(emailIBrendshem(emri), fjalekalimi)
         null
     } catch (e: Exception) { tekstiGabimit(e) }
@@ -158,6 +219,7 @@ object Llogaria {
 
     suspend fun regjistrohu(emri: String, fjalekalimi: String, merchandiser: Boolean): String? = try {
         val kred = auth.createUserWithEmailAndPassword(emailIBrendshem(emri), fjalekalimi).await()
+        mesazhiIHyrjes.value = ""
         val uid = kred.user?.uid
         if (uid != null) {
             _merchandiser.value = merchandiser
@@ -166,7 +228,7 @@ object Llogaria {
             if (merchandiser) fillimi["merchandiser"] = true
             db.collection("perdoruesit").document(uid).set(fillimi, SetOptions.merge())
         }
-        StokuApp.prefs(ctx).edit().putString("emri_i_fundit", emri.trim().lowercase()).apply()
+        ruajEmrinEFundit(emri.trim().lowercase())
         null
     } catch (e: Exception) { tekstiGabimit(e) }
 
@@ -204,7 +266,7 @@ object Llogaria {
             try { u.reload().await() } catch (e: Exception) { }
             _perdoruesi.value = Perdoruesi(u.uid, emriRi)
             regjistroPerdoruesin(Perdoruesi(u.uid, emriRi)) // lista e kolegëve e merr emrin e ri menjëherë
-            StokuApp.prefs(ctx).edit().putString("emri_i_fundit", emriRi).apply()
+            ruajEmrinEFundit(emriRi)
             null
         } catch (e: Exception) { "rrjeti" }
     }
@@ -229,6 +291,14 @@ object Llogaria {
     }
 
     fun emriIFundit(): String = StokuApp.prefs(StokuApp.app).getString("emri_i_fundit", "") ?: ""
+    /** "Më mbaj mend emrin e përdoruesit" (si porta.js): parazgjedhja po; fjalëkalimi s'ruhet kurrë */
+    fun mbajEmrin(): Boolean = StokuApp.prefsOseB("mbaj_emrin", true)
+    fun vendosMbajEmrin(po: Boolean) {
+        val e = StokuApp.prefs(StokuApp.app).edit().putBoolean("mbaj_emrin", po)
+        if (!po) e.remove("emri_i_fundit") // hiqet menjëherë emri i ruajtur
+        e.apply()
+    }
+    private fun ruajEmrinEFundit(emri: String) { if (mbajEmrin() && emri.isNotEmpty()) StokuApp.vendosPref("emri_i_fundit", emri) }
 
     private fun tekstiGabimit(e: Exception): String = when (e) {
         is FirebaseAuthUserCollisionException -> "Ky emër përdoruesi është i zënë. Zgjidh një tjetër, ose hyr nëse është llogaria jote."

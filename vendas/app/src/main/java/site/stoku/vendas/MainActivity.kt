@@ -136,9 +136,10 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
     val n = N
     val gati by Llogaria.gati.collectAsState()
     val p by Llogaria.perdoruesi.collectAsState()
+    val vizitor by Llogaria.vizitor.collectAsState() // prova pa llogari (si "Hyr si vizitor" te web-i)
     when {
         !gati -> { DukeULidhur(); return }
-        p == null -> { Porta(); Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) { ToastPamja(poshte = 40.dp) }; return }
+        p == null && !vizitor -> { Porta(); Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) { ToastPamja(poshte = 40.dp) }; return }
     }
     val lejet by Llogaria.lejet.collectAsState()
     val merch by Llogaria.merchandiserIRegjistrimit.collectAsState()
@@ -146,6 +147,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
     var tabi by rememberSaveable { mutableStateOf("stoku") }
     var folderi by rememberSaveable { mutableStateOf<String?>(null) }
     var skanimi by remember { mutableStateOf<((String) -> Unit)?>(null) }
+    var numerimi by remember { mutableStateOf<((String) -> Boolean)?>(null) } // +1 pa e mbyllur kamerën (folderi)
     val g by Dyqani.gjendja.collectAsState()
     val aktiviM by Merchandiseri.aktivi.collectAsState() // numri te tabi Afatet sipas marketit ku je
     val njGr by Grupi.njoftimet.collectAsState()
@@ -179,9 +181,10 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
         val meTabe = !(tabi == "stoku" && folderi != null)
         Column(Modifier.fillMaxSize()) {
             Box(Modifier.weight(1f).statusBarsPadding().then(if (meTabe) Modifier else Modifier.navigationBarsPadding())) {
-                val skano: ((String) -> Unit) -> Unit = { cb -> skanimi = cb }
+                val skano: ((String) -> Unit) -> Unit = { cb -> numerimi = null; skanimi = cb }
+                val skanoMeNumerim: ((String) -> Unit, (String) -> Boolean) -> Unit = { cb, nr -> numerimi = nr; skanimi = cb }
                 when (tabi) {
-                    "stoku" -> StokuEkrani(folderi, { folderi = it }, skano)
+                    "stoku" -> StokuEkrani(folderi, { folderi = it }, skanoMeNumerim)
                     "afatet" -> AfatetEkrani(skano)
                     "grupi" -> GrupiEkrani()
                     else -> CilesimetEkrani(tema, ndryshoTemen)
@@ -191,7 +194,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
             if (meTabe) Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
             if (meTabe) Row(Modifier.fillMaxWidth().background(n.surface).navigationBarsPadding().height(64.dp)) {
                 val nAf = remember(g, aktiviM, lejet, merch) { Afatet.numero(Merchandiseri.afatetEMarketit(g.afatet)) }
-                val nGr = remember(njGr, ftGr, krGr, ngjGr, gjGr) { Grupi.numriNjoftimeve() + Grupi.numriKerkesave() } // si te web-i: zilja + ftesat/kërkesat
+                val nGr = remember(njGr, ftGr, krGr, ngjGr, gjGr, vizitor) { if (vizitor && p == null) 0 else Grupi.numriNjoftimeve() + Grupi.numriKerkesave() } // si te web-i: zilja + ftesat/kërkesat (vizitori: asnjë)
                 tabet.forEach { (k, t, ik) ->
                     val nr = when (k) { "afatet" -> nAf.skaduar + nAf.afer + nAf.paDate; "grupi" -> nGr; else -> 0 }
                     val shenja = nr.takeIf { it > 0 }?.let { if (it > 99) "99+" else it.toString() }
@@ -207,8 +210,9 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
         // "Çka ka të re": një herë pas përditësimit
         var teRejat by remember { mutableStateOf(TeRejat.teReja()) }
         if (teRejat.isNotEmpty()) site.stoku.vendas.ui.TeRejatFlete(teRejat) { teRejat = emptyList() }
+        else site.stoku.vendas.ui.PyetjaENjoftimeve() // si dlgNjoftimet te web-i: pas "Çka ka të re", jo njëkohësisht
         skanimi?.let { cb ->
-            Skaneri(mbyll = { skanimi = null }) { b -> skanimi = null; cb(b) }
+            Skaneri(mbyll = { skanimi = null }, shtoNjeCope = numerimi) { b -> skanimi = null; cb(b) }
         }
     }
 }

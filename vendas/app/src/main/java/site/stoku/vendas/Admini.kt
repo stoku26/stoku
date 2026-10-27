@@ -88,6 +88,63 @@ object Admini {
     /** "Lejo krejt" / "Ndalo krejt" s'e ndërrojnë "Merchandiser" */
     fun krejtPer(r: Rreshti, vlera: Boolean): MObj = Lejet.meZgjedhjet(Lejet.krejt(vlera), lejet.value?.get(r.a.uid)?.get("lejet").siObj())
 
+    class Fshirja(val ok: Boolean, val leje: Boolean = false, val mbetur: Int = 0)
+
+    /**
+     * Fshin llogarinë komplet (si fshijLlogarine te ekipa.js): së pari ekipa_fshire/{uid} (rregullat ia mbyllin qasjen
+     * menjëherë dhe aplikacioni i saj e fshin llogarinë e hyrjes sapo hapet), pastaj dyqani (me pjesët dhe fletët),
+     * anëtarësia në grup, afatet e grupit, pajisjet push, ftesat, njoftimet, profili, lejet, kujtesa në pritje, kërkesat.
+     * Jo veten dhe asnjëherë administratorin.
+     */
+    suspend fun fshijLlogarine(u: String, emriTjeter: String): Fshirja {
+        val im = site.stoku.vendas.Llogaria.perdoruesi.value
+        if (!eshteAdmin() || im == null || u == im.uid) return Fshirja(false)
+        val a = llogarite.value?.firstOrNull { it.uid == u }
+        if (a?.admin == true || Lejet.eshteAdmin(emriTjeter)) return Fshirja(false)
+        val gU = try { db.collection("perdoruesit").document(u).get().await().getString("grupi") } catch (e: Exception) { null }
+        try {
+            db.collection("ekipa_fshire").document(u).set(mapOf("emri" to emriTjeter, "fshireSe" to System.currentTimeMillis(), "fshireNga" to im.emri)).await()
+        } catch (e: Exception) {
+            return Fshirja(false, leje = e is FirebaseFirestoreException && e.code == FirebaseFirestoreException.Code.PERMISSION_DENIED)
+        }
+        var mbetur = 0
+        suspend fun fshij(ref: com.google.firebase.firestore.DocumentReference) { try { ref.delete().await() } catch (e: Exception) { mbetur++ } }
+        suspend fun fshijTeGjitha(q: com.google.firebase.firestore.Query, numero: Boolean = true) {
+            try { q.get().await().documents.forEach { fshij(it.reference) } } catch (e: Exception) { if (numero) mbetur++ }
+        }
+        if (!gU.isNullOrEmpty()) {
+            val g = db.collection("grupet").document(gU)
+            fshij(g.collection("anetaret").document(u)); fshij(g.collection("afatet").document(u))
+            fshijTeGjitha(g.collection("push").whereEqualTo("uid", u), numero = false)
+            // Ishte admini i vetëm: admin bëhet anëtari më i vjetër (përndryshe askush s'mund të ftojë a të heqë)
+            try {
+                val mbet = g.collection("anetaret").get().await().documents
+                if (mbet.isNotEmpty() && mbet.none { it.getString("roli") == "pronar" }) {
+                    val i = mbet.minByOrNull { (it.get("hyriSe") as? Number)?.toLong() ?: 0L }!!
+                    g.collection("anetaret").document(i.id).set(mapOf("roli" to "pronar"), com.google.firebase.firestore.SetOptions.merge()).await()
+                }
+            } catch (e: Exception) { }
+        }
+        val gIm = Grupi.grupi()
+        if (gIm != null && gIm != gU) try { db.collection("grupet").document(gIm).collection("anetaret").document(u).delete().await() } catch (e: Exception) { }
+        try { db.collection("ekipa_anetaret").document(u).delete().await() } catch (e: Exception) { }
+        try { db.collection("ekipa_afatet").document(u).delete().await() } catch (e: Exception) { }
+        // Ftesat në pritje për këtë emër: emri lirohet dhe një llogari e re me të njëjtin emër s'duhet t'i gjejë
+        if (emriTjeter.isNotEmpty()) fshijTeGjitha(db.collection("ftesat").whereEqualTo("perdoruesi", emriTjeter), numero = false)
+        val dq = db.collection("dyqane").document(u)
+        fshijTeGjitha(dq.collection("pjeset"))
+        fshijTeGjitha(dq.collection("fletet"))
+        fshij(dq)
+        val pr = db.collection("perdoruesit").document(u)
+        fshijTeGjitha(pr.collection("njoftimet"))
+        fshij(pr)
+        try { db.collection("lejet").document(u).delete().await() } catch (e: Exception) { }
+        try { db.collection("kujtesa_pritje").document(u).delete().await() } catch (e: Exception) { }
+        fshijTeGjitha(db.collection("kerkesat_grupi").whereEqualTo("uid", u), numero = false)
+        llogarite.value = llogarite.value?.filter { it.uid != u }
+        return Fshirja(true, mbetur = mbetur)
+    }
+
     /** Ruan lejet (dhe e shënon llogarinë si të kontrolluar) → null ose "leje" / "rrjeti" */
     suspend fun ruaj(uid: String, l: Obj, emri: String): String? {
         if (!eshteAdmin()) return "leje"

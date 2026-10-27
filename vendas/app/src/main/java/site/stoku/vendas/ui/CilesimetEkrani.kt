@@ -103,7 +103,7 @@ fun CilesimetEkrani(tema: String, ndryshoTemen: (String) -> Unit) {
         "marketet" -> Llogaria.leja("marketet") || Llogaria.eshteAdmin() // v256: edhe administratori (harta)
         "lista", "furnPritje", "furnizuesit", "pritje", "produktet" -> Llogaria.leja("stoku")
         "perdoruesit", "perdoruesi", "perdoruesiAfatet" -> site.stoku.vendas.Admini.eshteAdmin()
-        "llogaria" -> p != null
+        "llogaria" -> p != null || Llogaria.eshteVizitor()
         else -> true
     }
     LaunchedEffect(lejuar, faqja) { if (!lejuar) faqja = "" }
@@ -167,15 +167,16 @@ private fun Menyja(tema: String, hap: (String) -> Unit, hapTeRejat: () -> Unit) 
                 AvatariMadh(p?.emri ?: "?", madhesia = 52, uid = p?.uid)
                 Spacer(Modifier.width(14.dp))
                 Column(Modifier.weight(1f)) {
-                    Text(p?.emri ?: "Pa llogari", style = tx(18, 700, n.ink, -0.01), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(statusi.ifEmpty { "Ende s'është sinkronizuar." }, style = txF(12.5f, 400, n.muted), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    val viz = p == null && Llogaria.eshteVizitor()
+                    Text(p?.emri ?: if (viz) "Vizitor" else "Pa llogari", style = tx(18, 700, n.ink, -0.01), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(if (viz) "Provë pa llogari, vetëm në këtë telefon" else statusi.ifEmpty { "Ende s'është sinkronizuar." }, style = txF(12.5f, 400, n.muted), maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 Text("›", style = tx(20, 400, n.faint2))
             }
             TitulliGrupit("Aplikacioni")
             GrupiOps { rreshtat.forEachIndexed { i, r -> RreshtKategorie(r.ik, r.ngj, r.titulli, r.statusi, r.pritje, i > 0, r.hap) } }
             TitulliGrupit("Llogaria")
-            GrupiOps { RreshtKategorie(Ik.Re, "gjelber", "Llogaria", p?.emri ?: "Jo i kyçur") { hap("llogaria") } }
+            GrupiOps { RreshtKategorie(Ik.Re, "gjelber", "Llogaria", p?.emri ?: if (Llogaria.eshteVizitor()) "Vizitor · provë" else "Jo i kyçur") { hap("llogaria") } }
             TitulliGrupit("Rreth Stoku")
             GrupiOps {
                 RreshtKategorie(Ik.TeRejat, "roze", "Çka ka të re", "Ndryshimet e fundit në Stoku", onClick = hapTeRejat)
@@ -362,6 +363,24 @@ private fun LlogariaFaqja(mbrapa: () -> Unit) {
     val gabimS by Sinkronizimi.gabim.collectAsState()
     var dil by remember { mutableStateOf(false) }
     var rikthe by remember { mutableStateOf(false) }
+    var rinis by remember { mutableStateOf(false) }
+    // Prova si vizitor (si #cloudHyrjeSeksion.si-vizitor te web-i): hyrja/llogaria e re, ose prova nga e para
+    if (p == null) {
+        FaqjaECilesimeve("Llogaria", mbrapa) {
+            KartaOps {
+                Text("Je si vizitor", style = tx(18, 700, n.ink, -0.01))
+                Text("Këto janë të dhëna shembull dhe ruhen vetëm në këtë telefon: provo lirisht. Me llogari ruhen në cloud, i sheh në çdo pajisje dhe punon me Grupin. Kur hyn, prova fshihet.",
+                    style = tx(14, 400, n.ink2), modifier = Modifier.padding(top = 6.dp, bottom = 14.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Buton("Hyr ose krijo llogari", { Llogaria.hapHyrjenNgaProva() }, Modifier.fillMaxWidth())
+                    ButonOps("Fillo nga e para", { rinis = true }, Modifier.fillMaxWidth())
+                }
+            }
+        }
+        if (rinis) Konfirmo("Të fillojë prova nga e para?", "Ndryshimet e tua në provë fshihen dhe kthehen të dhënat shembull.", "Fillo nga e para",
+            mbyll = { rinis = false }) { Llogaria.rinisProven(); Toast.trego("Prova filloi nga e para.") }
+        return
+    }
     FaqjaECilesimeve("Llogaria", mbrapa) {
         KartaOps {
             Row(Modifier.fillMaxWidth().padding(bottom = 14.dp), verticalAlignment = Alignment.CenterVertically) {
