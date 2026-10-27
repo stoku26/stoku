@@ -528,8 +528,11 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
   const lexoCsvTel = new Function(src.slice(i0, i1 + 1) + '; return lexoCsvTel;')();
   const csv = ['a;b;c\n1;2;3\n', '"x,y",z\r\n"q""q",w\r\n\r\n', 'Barkodi\tEmri\n1\tKos', '﻿a,b\n,\n  , \n3,4', 'nje rresht', '"shume\nrreshta",2\n', 'a,b;c;d\n1,2;3', '', '\r\r\n\n', ';;\n x ; ']
     .map(t => ({ t, r: lexoCsvTel(t) }));
+  // Node (p.sh. v22) e dekodon 'windows-1252' si latin1: 0x80-0x9F mbeten kontrolle; shfletuesi (si te web-i) jep €, ‚, ƒ…
+  const C1 = '€\u0081‚ƒ„…†‡ˆ‰Š‹Œ\u008DŽ\u008F\u0090‘’“”•–\u2014˜™š›œ\u009Džž';
+  const cp1252 = t => t.replace(/[\u0080-\u009F]/g, c => C1[c.charCodeAt(0) - 0x80]);
   const dekodimi = [[0xEF, 0xBB, 0xBF, 0x61, 0xC3, 0xAB], [0x61, 0xEB, 0x80, 0x62], [0x61, 0x62]].map(b => {
-    let t; try { t = new TextDecoder('utf-8', { fatal: true }).decode(Uint8Array.from(b)); } catch (e) { t = new TextDecoder('windows-1252').decode(Uint8Array.from(b)); }
+    let t; try { t = new TextDecoder('utf-8', { fatal: true }).decode(Uint8Array.from(b)); } catch (e) { t = cp1252(new TextDecoder('windows-1252').decode(Uint8Array.from(b))); }
     return { b, t };
   });
   // Importi i afateve: ora ndalet te TANI_I (datat me vetëm ditën varen nga viti i tanishëm)

@@ -52,6 +52,22 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **STOKU PËR ANDROID: CILËSIMET SI TE WEB-I (27.10.2026)**: kërkesa: "Kshyri edhe niher komplet cilesimet edhe i bon
+   sa ma identik te mujshme". Cilësimet janë navigator me faqe të plota (`CilesimetEkrani.kt`: `faqja` + PRINDI si
+   PRINDI_I_FAQES, BackHandler), menyja me profilin (foto), "Aplikacioni" (Pamja, Skenimi, Njoftimet, Ora e dorës, Marketet,
+   Stoku, Përdoruesit; secili sipas lejes), "Llogaria", "Rreth Stoku", "Kontrollo për përditësim" dhe versioni. Pjesët e CSS-it
+   (.ops-grupi, .kategori-rresht, .ops-radio, .ops-furn-rresht, .ops-furn-edit…) janë te `ui/CilesimetPerberes.kt`.
+   Kujtesa e produkteve = `logjika/Kujtesa.kt` (krijoKujtesen e afatet.js, me `KujtesaTest` hap pas hapi nga fikstura.json,
+   blloku "kujtesa" te `teste/vendas-fikstura.js`) + `logjika/Furnizuesit.kt` (listaEFurnizuesve, renditSipasRuajtjes,
+   furnizuesiEkzistues, riemertoFurnizuesin; Collator-i i Java-s s'i llogarit hapësirat, prandaj `krahasoBaze` krahason fjalë
+   pas fjale si ICU). `Regjistri.kt` = sinkronizimi i ekipa.js: `kujtesa/{p0..p9,px}` (administratori shkruan me merge vetëm
+   çka ka kontrolluar), `kujtesa_pritje/{uid}` (të tjerët; administratori i dëgjon krejt), `grupet/{g}/kujtesa`,
+   `publike/furnizuesit`; mëson nga afatet, stoku, importet (Excel, fotoja e fletës) dhe në sfond ("plotëso"). Skedari
+   `kujtesa.json` te filesDir. Faqet Furnizuesit / Furnizuesit e rinj / Produktet e reja / Produktet = `ui/RegjistriUI.kt`.
+   Foto e profilit = `Fotot.kt` (Worker-i: GET /fotot, PUT/DELETE /foto, JPEG 256×256). Kopja e të fshirave (v232) te
+   `Dyqani.kt` (`kopja-fshirjeve.json`, 30 ditë, Rikthe / Hiq kopjen). **S'është bërë ende**: Harta (web-i: Cilësimet →
+   Harta) dhe fshirja e llogarisë nga administratori. S'është testuar në telefon të vërtetë.
+
 0000000. **STOKU PËR ANDROID: CILËSIMET → PËRDORUESIT (23.10.2026)**: vazhdim i "Shtoji te gjitha opsionet qe mungojn".
    `Admini.kt` (vetëm kur hyn mendurberisha: dëgjuesit e `perdoruesit` dhe `lejet`, ruajtja si `lejet.js ruaj`: { lejet: pastro(),
    kontrolluarSe, kontrolluarNga, emri }, llogaritë e reja si toast + "të parat" te pref "perdoruesit_pare"), `ui/AdminiUI.kt`
