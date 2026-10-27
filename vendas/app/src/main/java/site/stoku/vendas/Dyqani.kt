@@ -57,6 +57,12 @@ object Dyqani {
 
     fun nis(ctx: Context) {
         skedari = File(ctx.filesDir, "dyqani.json")
+        skedariKopjes = File(ctx.filesDir, "kopja-fshirjeve.json")
+        _kopja.value = try {
+            Json.lexo(skedariKopjes.readText()).siObj()?.let { k ->
+                Kopja(k["uid"] as? String ?: "", numerOse0(k["koha"]).toLong(), k["foldera"].siListe().mapNotNull { it.siObj() }, k["produktet"].siListe().mapNotNull { it.siObj() })
+            }
+        } catch (e: Exception) { null }
         val x = try { if (skedari.exists()) Json.lexo(skedari.readText()).siObj() else null } catch (e: Exception) { null }
         if (x != null) {
             val f = Bashkimi.pastroFolderat(x["foldera"])
@@ -145,15 +151,18 @@ object Dyqani {
     /** Zbaton rezultatin e bashkimit (nga cloud-i): folderat, produktet, afatet, marketet, renditja */
     fun zbatoBashkimin(b: Obj) {
         if (Bashkimi.eNjejte(b, gjendjaPerCloud())) return
+        val pm = LinkedHashMap<String, Obj>()
+        b["produktet"].siListe().forEach { x ->
+            val p = x.siObj() ?: return@forEach
+            if (p["barkodi"] is String && p["kategoriaId"] is String) pm[Bashkimi.celesi(p["kategoriaId"], p["barkodi"])] = p
+        }
+        val g0 = _gjendja.value
+        val folderaRe = if (b["foldera"] is List<*>) b["foldera"].siListe().mapNotNull { it.siObj() } else g0.foldera
+        ruajTeFshiratNeKopje(folderaRe, pm) // v232: çka fshiu një pajisje tjetër mbetet këtu si kopje
+        val rk = numerOse0(b["rendiKoha"]).toLong()
         vendosNgaCloud { g ->
-            val pm = LinkedHashMap<String, Obj>()
-            b["produktet"].siListe().forEach { x ->
-                val p = x.siObj() ?: return@forEach
-                if (p["barkodi"] is String && p["kategoriaId"] is String) pm[Bashkimi.celesi(p["kategoriaId"], p["barkodi"])] = p
-            }
-            val rk = numerOse0(b["rendiKoha"]).toLong()
             g.copy(
-                foldera = if (b["foldera"] is List<*>) b["foldera"].siListe().mapNotNull { it.siObj() } else g.foldera,
+                foldera = folderaRe,
                 produktet = pm,
                 afatet = if (b["afatet"] is List<*>) b["afatet"].siListe().mapNotNull { it.siObj() } else g.afatet,
                 marketet = if (b["marketet"] is List<*>) b["marketet"].siListe().mapNotNull { it.siObj() } else g.marketet,
@@ -161,6 +170,81 @@ object Dyqani {
             )
         }
     }
+
+    // ---------------- v232: kopja e të fshirave nga një pajisje tjetër (si KEY_KOPJA te app-tel.js) ----------------
+    class Kopja(val uid: String, val koha: Long, val foldera: List<Obj>, val produktet: List<Obj>)
+    private const val KOPJA_MS = 30L * 86400000
+    private lateinit var skedariKopjes: File
+    private val _kopja = MutableStateFlow<Kopja?>(null)
+    val kopja: StateFlow<Kopja?> get() = _kopja
+
+    private fun uidIm(): String? = Llogaria.perdoruesi.value?.uid ?: _gjendja.value.pronari
+    fun lexoKopjen(): Kopja? {
+        val k = _kopja.value ?: return null
+        if (k.uid != uidIm() || System.currentTimeMillis() - k.koha > KOPJA_MS) return null
+        return k
+    }
+    private fun ruajKopjen(k: Kopja?) {
+        _kopja.value = k
+        if (!::skedariKopjes.isInitialized) return
+        val dok = k?.let { obj("uid" to it.uid, "koha" to it.koha, "foldera" to it.foldera, "produktet" to it.produktet) }
+        shkruesi.execute { try { if (dok == null) skedariKopjes.delete() else skedariKopjes.writeText(Json.shkruaj(dok)) } catch (e: Exception) { /* memoria plot: pa kopje */ } }
+    }
+    /** Para se të zbatohet gjendja e re: ruhet çka do të hiqej. Produkti i zhvendosur (i njëjti barkod në një folder tjetër)
+     *  s'është i fshirë, përveç kur i hoqi bashkë folderi i vet. */
+    private fun ruajTeFshiratNeKopje(folderaRe: List<Obj>, produktetRe: Map<String, Obj>) {
+        val u = uidIm() ?: return
+        if (eshteIPaprekur()) return
+        val g = _gjendja.value
+        val idRe = folderaRe.mapNotNull { it["id"] as? String }.toSet()
+        val barkodetRe = produktetRe.values.mapNotNull { it["barkodi"] as? String }.toSet()
+        val meProdukte = g.produktet.values.mapNotNull { it["kategoriaId"] as? String }.toSet()
+        // Një folder i parazgjedhur bosh dhe i paprekur (pa ndryshuarSe) s'ruhet: s'ka asgjë për t'u humbur
+        val folderatH = g.foldera.filter { f -> val id = f["id"] as? String; id != null && id !in idRe && (f["ndryshuarSe"] != null || id in meProdukte) }
+        val fH = folderatH.mapNotNull { it["id"] as? String }.toSet()
+        val produktetH = g.produktet.filter { (k, p) -> produktetRe[k] == null && (p["kategoriaId"] in fH || p["barkodi"] !in barkodetRe) }.values
+        if (folderatH.isEmpty() && produktetH.isEmpty()) return
+        val k0 = lexoKopjen()
+        var fl = k0?.foldera ?: emptyList(); var pl = k0?.produktet ?: emptyList()
+        folderatH.forEach { f -> fl = fl.filter { it["id"] != f["id"] } + f }
+        produktetH.forEach { p -> val c = Bashkimi.celesi(p["kategoriaId"], p["barkodi"]); pl = pl.filter { Bashkimi.celesi(it["kategoriaId"], it["barkodi"]) != c } + p }
+        if (pl.size > 20000) pl = pl.takeLast(20000)
+        ruajKopjen(Kopja(u, System.currentTimeMillis(), fl, pl))
+    }
+    /** Çka nga kopja mungon tani (folderat dhe produktet që do të riktheheshin) */
+    fun teMungueshmetNgaKopja(k: Kopja): Pair<List<Obj>, List<Obj>> {
+        val g = _gjendja.value
+        val fM = k.foldera.filter { f -> g.foldera.none { it["id"] == f["id"] } }
+        val ka = (g.foldera + fM).mapNotNull { it["id"] as? String }.toSet()
+        val pM = k.produktet.filter { p -> p["kategoriaId"] in ka && g.produktet[Bashkimi.celesi(p["kategoriaId"], p["barkodi"])] == null }
+        return fM to pM
+    }
+    /** "3 foldera dhe 45 produkte" / "1 folder ("Pije")" */
+    fun pershkrimiIKopjes(m: Pair<List<Obj>, List<Obj>>): String = listOfNotNull(
+        if (m.first.isEmpty()) null else if (m.first.size == 1) "1 folder (\"" + (m.first[0]["emri"] as? String).orEmpty() + "\")" else "${m.first.size} foldera",
+        if (m.second.isEmpty()) null else if (m.second.size == 1) "1 produkt" else "${m.second.size} produkte"
+    ).joinToString(" dhe ")
+    /** Rikthen të fshirat (me kohë të re: fitojnë ndaj fshirjes edhe në cloud) */
+    fun riktheNgaKopja(): Pair<List<Obj>, List<Obj>>? {
+        val k = lexoKopjen() ?: return null
+        val m = teMungueshmetNgaKopja(k)
+        if (m.first.isEmpty() && m.second.isEmpty()) { ruajKopjen(null); return null }
+        val tani = System.currentTimeMillis()
+        synchronized(fshira) {
+            @Suppress("UNCHECKED_CAST") val ff = fshira["foldera"] as? MutableMap<String, Any?>
+            @Suppress("UNCHECKED_CAST") val fp = fshira["produktet"] as? MutableMap<String, Any?>
+            m.first.forEach { f -> ff?.remove(f["id"] as? String ?: "") }
+            m.second.forEach { p -> fp?.remove(Bashkimi.celesi(p["kategoriaId"], p["barkodi"])) }
+        }
+        ndrysho { g ->
+            val pm = LinkedHashMap(g.produktet)
+            m.second.forEach { p -> pm[Bashkimi.celesi(p["kategoriaId"], p["barkodi"])] = p.me("prekurSe" to tani) }
+            g.copy(foldera = g.foldera + m.first.map { it.me("ndryshuarSe" to tani) }, produktet = pm)
+        }
+        ruajKopjen(null)
+        return m
+    }
+    fun hiqKopjen() = ruajKopjen(null)
 
     /** Gjendja e cloud-it në hyrje (zbatoGjendjenNgaCloud): pa foldera → 4 të parazgjedhurit; pastaj sinkronizim */
     fun zbatoGjendjenNgaCloud(te0: Obj) {
@@ -319,6 +403,14 @@ object Dyqani {
 
     private fun Obj.kopje2(n: Map<String, Any?>): MObj { val m = LinkedHashMap(this); m.putAll(n); return m }
 
+    /** Cilësimet → Furnizuesit: emri i ri te krejt afatet dhe produktet (afati, produkte) */
+    fun riemertoFurnizuesin(vjeter: String, iRi: String): Pair<Int, Int> {
+        val g = _gjendja.value
+        val r = site.stoku.logjika.Furnizuesit.riemerto(g.afatet, g.produktet, vjeter, iRi, System.currentTimeMillis())
+        if (r.nAfate > 0 || r.nProdukte > 0) ndrysho { it.copy(afatet = r.afatet, produktet = if (r.nProdukte > 0) r.produktet else it.produktet) }
+        return r.nAfate to r.nProdukte
+    }
+
     // ---------------- Plotësimi nga barkodi ----------------
     /** Emri i produktit nga stoku ose afatet (herën tjetër ky barkod plotëson vetë emrin) */
     fun emriNgaBarkodi(barkodi: String): String {
@@ -337,13 +429,14 @@ object Dyqani {
             .firstOrNull { it["barkodi"] == barkodi && (it["furnizuesi"] as? String).orEmpty().isNotEmpty() }?.get("furnizuesi") as? String ?: ""
     }
 
-    /** Furnizuesit për sugjerim: afatet + produktet + regjistri i përbashkët */
+    /** Furnizuesit për sugjerim (si furnizuesitPerSugjerim te web-i): afatet e mia + të kontrolluarit (kujtesa, stoku) + lista e administratorit */
     fun furnizuesitPerSugjerim(): List<String> {
         val m = LinkedHashMap<String, String>()
         fun shto(f: Any?) { val s = jsString(f ?: "").replace(Regex("\\s+"), " ").trim(); val c = s.lowercase(); if (s.isNotEmpty() && s != "null" && !m.containsKey(c)) m[c] = s }
+        Regjistri.lexoFurnizuesitPublike()
         _gjendja.value.afatet.forEach { shto(it["furnizuesi"]) }
-        _gjendja.value.produktet.values.forEach { shto(it["furnizuesi"]) }
         Regjistri.furnizuesit().forEach { shto(it) }
+        Regjistri.furnizuesitPublike().forEach { shto(it) } // v211: lista e administratorit
         return m.values.sortedWith(Afatet.KOLATORI)
     }
 }
