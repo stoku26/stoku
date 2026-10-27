@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -77,7 +76,7 @@ private fun tekstiRiv(j: Obj): String = when (j["arsye"]) {
 @Composable
 fun Rivendosja(emriFillimi: String, mbrapa: (String?) -> Unit) {
     val n = N
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     var hapi by remember { mutableStateOf("emri") }
     var teksti by remember { mutableStateOf("Shkruaj emrin e përdoruesit. Kërkesa shkon te administratori, që të jep një kod 6-shifror.") }
     var emri by remember { mutableStateOf(emriFillimi) }

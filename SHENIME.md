@@ -52,6 +52,22 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ANDROID: KONTROLLI I PLOTË I APLIKACIONIT, MË I QËNDRUESHËM (27.10.2026, vetëm `vendas/`)**: përdoruesi: "Kontrolloje
+   komplet appin android per bugs edhe permirsoj". Rishikimi s'gjeti rrëzime të sigurta (funksionet suspend kanë try/catch, cast-et
+   janë të mbrojtura); u rregulluan këto: (1) `object Dita` (MainActivity.kt): dita e sotme si gjendje; ora e mesnatës (+2 s) dhe
+   `onResume` e rifreskojnë, tabi vizatohet nga e para me `key(sot)` dhe `nAf` e ka `sot` te çelësat. Me një `Flete` të hapur
+   (`Dita.hapura`, numërohet te `Flete` para kontrollit të skanerit) pret derisa të mbyllet, që të mos humbet çka po shkruhet.
+   (2) `Merchandiseri.kontrolloGps`: `Toast.pastro(DUKE_GJETUR)` pas `pritPikat()` ("Duke e gjetur vendndodhjen…" s'mbetet 15 s kur
+   del "Ku je?"); `Toast.pastro(t)` e heq vetëm atë tekst. (3) `Perditesimi`: kontrolli te `onResume` (jo më te `onCreate`, ku
+   përsëritej), shkarkimi me AlertDialog + ProgressBar (MB, %), "Anulo" (AtomicBoolean), skedari i paplotë fshihet.
+   (4) `ImportiAfateveFlete`: `lexoSkedarinEImportit` në `Dispatchers.IO` (leximi me kufi 40 MB gjatë leximit, `OutOfMemoryError` →
+   "Skedari është shumë i madh për këtë telefon."), butoni "Duke e lexuar…", `plani` me `remember`. (5) Rrjeta e sigurisë:
+   `StokuApp.trajtuesi(meToast)` (CoroutineExceptionHandler; ruan "gabimi_i_fundit", te testet e hedh gabimin) te scope-et e
+   moduleve (Grupi, Merchandiseri, Push, Regjistri, Admini, Sinkronizimi, Llogaria: pa toast; Skedaret.fusha: me toast) dhe
+   `rememberFusha()` (Perberesit.kt) në vend të `rememberCoroutineScope()` te krejt ekranet: "Diçka s'shkoi mirë. Provo përsëri.".
+   Cilësimet: poshtë versionit "Një gabim u ndal pa e mbyllur aplikacionin · Shiko" (teksti + "Fshije"). Rrëzimet e vërteta mbeten
+   te `rrezimi_i_fundit` / `EkraniIRrezimit`. Çka ka të re 18. S'është testuar në telefon.
+
 0000000. **ANDROID: DRITARET NGA POSHTË S'SHKOJNË NËN KAMERË (27.10.2026, vetëm `vendas/`)**: përdoruesi (foto e "Çka ka të re"):
    "po shkon shum nalt permi kamer permirsoje". `Flete` (ModalBottomSheet) merr `Modifier.statusBarsPadding().padding(top = 16.dp)`:
    kur përmbajtja është e gjatë, dritara ndalet nën shiritin e orës (vlen për krejt `Flete`). Çka ka të re 17. S'është testuar në telefon.

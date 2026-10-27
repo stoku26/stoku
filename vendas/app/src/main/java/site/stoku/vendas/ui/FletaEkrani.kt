@@ -2,7 +2,6 @@ package site.stoku.vendas.ui
 
 import site.stoku.vendas.Skedaret
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.rememberCoroutineScope
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -120,7 +119,7 @@ fun mundDergoFletenNePc(): Boolean = Skedaret.kaLlogari() && Llogaria.leja("pc")
 fun KuFletaDritarja(uri: Uri, stok: Boolean, mbyll: () -> Unit, vazhdoKetu: () -> Unit) {
     val n = N
     val ctx = LocalContext.current
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     var gjendja by remember { mutableStateOf("zgjedhje") } // zgjedhje | pune | gati | gabim
     var teksti by remember { mutableStateOf("Në kompjuter ekrani është më i madh: rreshtat kontrollohen dhe korrigjohen më lehtë.") }
     fun gabim(t: String) { gjendja = "gabim"; teksti = t }

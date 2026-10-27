@@ -6,6 +6,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,7 +38,7 @@ import java.util.TimeZone
 object Push {
     const val URL_PUSH = "https://stoku-push.mendurb.workers.dev"
     const val VERSIONI_WORKER = 163
-    private val scope = MainScope()
+    private val scope = MainScope() + StokuApp.trajtuesi(false)
     private val _tokeni = MutableStateFlow(StokuApp.prefsOse("fcm", ""))
     val tokeni: StateFlow<String> get() = _tokeni
     /** Ndryshon kur ndryshon gjendja e regjistrimit/orarit (që Cilësimet të rifreskohen) */

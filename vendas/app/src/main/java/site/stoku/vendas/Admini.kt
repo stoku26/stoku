@@ -4,6 +4,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -34,7 +35,7 @@ object Admini {
     private val db: FirebaseFirestore get() = FirebaseFirestore.getInstance()
     private var dL: ListenerRegistration? = null
     private var dLe: ListenerRegistration? = null
-    private val scope = MainScope()
+    private val scope = MainScope() + StokuApp.trajtuesi(false)
     private var nisur = false
 
     fun eshteAdmin(): Boolean = Lejet.eshteAdmin(site.stoku.vendas.Llogaria.perdoruesi.value?.emri)

@@ -129,7 +129,7 @@ object Llogaria {
     private fun llogariaUFshi() {
         if (poFshihet) return
         poFshihet = true
-        kotlinx.coroutines.MainScope().launch {
+        kotlinx.coroutines.MainScope().launch(StokuApp.trajtuesi(false)) {
             try { kotlinx.coroutines.withTimeoutOrNull(9000) { Push.caktivizo() } } catch (e: Exception) { }
             ndalDegjuesit()
             StokuApp.prefs(ctx).edit().remove("ora_rt").apply()
@@ -204,7 +204,7 @@ object Llogaria {
      * (dhe pas ndryshimit të fjalëkalimit). Ruhet vetëm në këtë telefon; hiqet në dalje.
      */
     private fun tokeniPerOren(email: String, fjalekalimi: String) {
-        kotlinx.coroutines.MainScope().launch(kotlinx.coroutines.Dispatchers.IO) {
+        kotlinx.coroutines.MainScope().launch(kotlinx.coroutines.Dispatchers.IO + StokuApp.trajtuesi(false)) {
             try {
                 val c = java.net.URL("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + StokuApp.CELESI_PUBLIK).openConnection() as java.net.HttpURLConnection
                 c.requestMethod = "POST"; c.doOutput = true; c.connectTimeout = 15000; c.readTimeout = 15000

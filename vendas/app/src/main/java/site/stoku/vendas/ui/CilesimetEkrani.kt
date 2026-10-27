@@ -34,7 +34,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -142,8 +141,10 @@ private fun Menyja(tema: String, hap: (String) -> Unit, hapTeRejat: () -> Unit) 
     val ll by site.stoku.vendas.Admini.llogarite.collectAsState()
     val lj by site.stoku.vendas.Admini.lejet.collectAsState()
     LaunchedEffect(p?.uid) { site.stoku.vendas.Fotot.rifresko() }
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     var dil by remember { mutableStateOf(false) }
+    var gabimi by remember { mutableStateOf(StokuApp.prefsOse("gabimi_i_fundit", "")) }
+    var shihGabimin by remember { mutableStateOf(false) }
     val nP = remember(kujtesa) { KujtesaUI.numriPerKontroll() }
     val stPd = remember(ll, lj) { statusiIPerdoruesve() }
     val stNj = remember(njVersioni) { statusiINjoftimeve(ctx) }
@@ -208,8 +209,13 @@ private fun Menyja(tema: String, hap: (String) -> Unit, hapTeRejat: () -> Unit) 
                 withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = n.ink2)) { append("Stoku") }
                 append(" " + BuildConfig.VERSION_NAME)
             }, style = tx(13, 400, n.muted), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 6.dp))
+            // Një gabim i papritur që u ndal pa e mbyllur aplikacionin (StokuApp.trajtuesi): për ta dërguar te zhvilluesi
+            if (gabimi.isNotEmpty()) Text("Një gabim u ndal pa e mbyllur aplikacionin · Shiko", style = tx(12, 600, n.muted), textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().clickable { shihGabimin = true }.padding(vertical = 6.dp))
         }
     }
+    if (shihGabimin) Konfirmo("Gabimi i fundit", "Bëje një foto të këtij teksti dhe dërgoja zhvilluesit.\n\n" + gabimi.take(1200), "Fshije", rrezik = false,
+        mbyll = { shihGabimin = false }) { StokuApp.vendosPref("gabimi_i_fundit", ""); gabimi = "" }
     if (dil) Konfirmo("Të dilet nga llogaria?", "Të dhënat mbeten të ruajtura në llogari (cloud). Pas daljes, aplikacioni kërkon përsëri emrin e përdoruesit dhe fjalëkalimin.",
         "Dil", mbyll = { dil = false }) {
             Sinkronizimi.dergoNesePret()
@@ -375,7 +381,7 @@ private fun StokuCilesimet(hap: (String) -> Unit) {
 @Composable
 private fun LlogariaFaqja(mbrapa: () -> Unit) {
     val n = N
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     val p by Llogaria.perdoruesi.collectAsState()
     val statusi by Sinkronizimi.statusi.collectAsState()
     val gabimS by Sinkronizimi.gabim.collectAsState()
@@ -453,7 +459,7 @@ private fun TitulliIFushes(ik: ImageVector, ngj: String, t: String) {
 @Composable
 private fun NdryshimiILlogarise() {
     val n = N
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     var emriRi by remember { mutableStateOf("") }
     var fjRi by remember { mutableStateOf("") }
     var gabim by remember { mutableStateOf("") }

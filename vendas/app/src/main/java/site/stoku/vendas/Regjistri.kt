@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -43,7 +44,7 @@ import java.io.File
  */
 object Regjistri {
     private lateinit var skedari: File
-    private val scope = MainScope()
+    private val scope = MainScope() + StokuApp.trajtuesi(false)
     private val db: FirebaseFirestore get() = FirebaseFirestore.getInstance()
     private val _versioni = MutableStateFlow(0)
     /** Rritet me çdo ndryshim të kujtesës (këtu ose nga Firebase): ekranet rifreskohen */

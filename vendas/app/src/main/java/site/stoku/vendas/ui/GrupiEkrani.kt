@@ -42,7 +42,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -377,7 +376,7 @@ private fun heqNgaRafti(a: Obj, ctx: Konteksti, scope: kotlinx.coroutines.Corout
 @Composable
 private fun KartaPultit(a: Obj, ctx: Konteksti) {
     val n = N
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     val st = Afatet.statusi(a)
     val d = Afatet.ditetDeri(a["data"])
     val dt = (a["data"] as? String)?.split("-")?.takeIf { it.size == 3 }
@@ -418,7 +417,7 @@ private fun KartaPultit(a: Obj, ctx: Konteksti) {
 @Composable
 private fun KartaEAfatitTeGrupit(a: Obj, meEmer: Boolean, ctx: Konteksti) {
     val n = N
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     val st = Afatet.statusi(a)
     val d = Afatet.ditetDeri(a["data"])
     val (sfondi, vija, mesazhi) = when (st) {
@@ -512,7 +511,7 @@ private fun Ngjarja(x: Obj, koha: String) {
 @Composable
 private fun FtesaKarta(f: Obj, ctx: Konteksti) {
     val n = N
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     var duke by remember { mutableStateOf(false) }
     fun prano() {
         duke = true
@@ -552,7 +551,7 @@ private fun FtesaKarta(f: Obj, ctx: Konteksti) {
 @Composable
 private fun KerkesaEGrupitKarta(k: Obj, ctx: Konteksti) {
     val n = N
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     var duke by remember { mutableStateOf(false) }
     KartaEKaltert {
         Column(Modifier.weight(1f)) {
@@ -682,7 +681,7 @@ private fun RreshtiStatistikes(emri: String, nen: String, nr: Int) {
 @Composable
 private fun AfatetEGrupit(uid: String, filtri: String?, ndryshoFiltrin: (String?) -> Unit, ctx: Konteksti) {
     val n = N
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     var kerkimi by rememberSaveable { mutableStateOf("") }
     val an = ctx.anetaret
     val zgj = if (uid == "krejt") null else an.firstOrNull { it["uid"] == uid }
@@ -871,7 +870,7 @@ private fun QelizaEDites(q: GrupiLogjika.Qeliza, zgjedhur: Boolean, modifier: Mo
 @Composable
 private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG: List<Obj>, ctx: Konteksti) {
     val n = N
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     val an = ctx.anetaret
     val pronar = Grupi.eshtePronar()
     var riemertim by remember { mutableStateOf(false) }
@@ -1201,7 +1200,7 @@ private fun FushaShumeRreshta(vlera: String, ndrysho: (String) -> Unit, placehol
 @Composable
 private fun PaGrup(ftesat: List<Obj>, kerkesatM: List<Obj>, ctx: Konteksti) {
     val n = N
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     var q by rememberSaveable { mutableStateOf("") }
     var rez by remember { mutableStateOf<List<Obj>?>(null) }
     var gabim by remember { mutableStateOf("") }
@@ -1297,7 +1296,7 @@ private fun PaGrup(ftesat: List<Obj>, kerkesatM: List<Obj>, ctx: Konteksti) {
 @Composable
 private fun ZiljaFlete(ctx: Konteksti, mbyll: () -> Unit) {
     val n = N
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     var lista by remember { mutableStateOf<List<Obj>?>(null) }
     var gabim by remember { mutableStateOf(false) }
     var rifresko by remember { mutableStateOf(0) }

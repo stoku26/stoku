@@ -30,7 +30,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -201,7 +200,7 @@ private fun MarketIRi() {
     var emri by remember { mutableStateOf("") }
     var gabim by remember { mutableStateOf("") }
     var punon by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     fun mbyll() { Merchandiseri.dritarja.value = null }
     fun ruaj() {
         if (punon) return
@@ -267,7 +266,7 @@ fun MarketetFaqja(mbyll: () -> Unit) {
     var shtoHapur by remember { mutableStateOf(false) }
     var fshirja by remember { mutableStateOf<RreshtiIMarketit?>(null) }
     val kontrolli = remember { HartaKontrolli() }
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     val marketet = Marketet.pastro(g.marketet)
     val id = Merchandiseri.idAktiv()
     // Pikat e hartës dhe rreshtat (si htPikatESistemit / htPikatEMerchandiserit te web-i)
@@ -379,7 +378,7 @@ private fun RreshtiIListes(r: RreshtiIMarketit, vije: Boolean, admin: Boolean, i
         var emri by remember(r.pika.k) { mutableStateOf(r.pika.emri) }
         var gabim by remember(r.pika.k) { mutableStateOf("") }
         var punon by remember { mutableStateOf(false) }
-        val scope = rememberCoroutineScope()
+        val scope = rememberFusha()
         fun ruaj() {
             val e = emri.trim().replace(Regex("\\s+"), " ").take(Marketet.EMRI_MAKS)
             if (e.isEmpty()) { gabim = "Shkruaj emrin e pikës."; return }
@@ -423,7 +422,7 @@ private fun ShtoNeHarte(hapur: Boolean, vendos: (Boolean) -> Unit, kontrolli: Ha
     var emri by remember { mutableStateOf("") }
     var gabim by remember { mutableStateOf("") }
     var punon by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     if (!hapur) {
         ButonOps("+ Shto market në hartë", { emri = ""; gabim = ""; vendos(true) }, Modifier.padding(bottom = 4.dp))
         return

@@ -2,7 +2,6 @@ package site.stoku.vendas.ui
 
 import site.stoku.vendas.Eksportet
 import site.stoku.vendas.Skedari
-import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -363,7 +362,7 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
     var fshiKrejt by remember { mutableStateOf(false) }
     var skedari by remember { mutableStateOf<Skedari?>(null) } // Excel/PDF i gatshëm: "Dërgo në PC", "Ruaje në telefon", "Ndaje"
     var pdfPune by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
+    val scope = rememberFusha()
     val fBarkodi = remember { FocusRequester() }
     if (g.foldera.none { it["id"] == id }) { androidx.compose.runtime.LaunchedEffect(id) { mbrapa() }; return }
 
