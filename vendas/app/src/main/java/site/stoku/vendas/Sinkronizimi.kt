@@ -65,9 +65,8 @@ object Sinkronizimi {
                 uidISinkronizuar = null
                 if (p != null) {
                     Dyqani.vendosPronarin(p.uid)
-                    Regjistri.nis()
                     sinkronizoNeHyrje()
-                } else { Regjistri.ndal(); _statusi.value = "" }
+                } else _statusi.value = ""
             }
         }
         // Kthehet interneti: dërgohet menjëherë çka pret dhe rinis dëgjuesi

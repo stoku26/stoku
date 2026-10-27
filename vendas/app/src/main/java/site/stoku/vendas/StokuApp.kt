@@ -53,6 +53,7 @@ class StokuApp : Application() {
             Sinkronizimi.nis(app)
             Merchandiseri.nis(app)
             Grupi.nis()
+            Regjistri.nis(app) // kujtesa e produkteve: regjistri i përbashkët, pritja, grupi
             try { Push.nis() } catch (e: Exception) { } // njoftimet push (pa Firebase Messaging aplikacioni punon njësoj)
             Admini.nis() // vetëm për administratorin: krejt llogaritë dhe lejet
         }

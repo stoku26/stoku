@@ -475,6 +475,7 @@ fun ProduktiFlete(folderId: String, barkodi: String, burimi: String, mbyll: () -
         if (!Afatet.sasiaEPranueshme(ts)) { Toast.trego(Afatet.SASIA_E_MADHE, 4500); return }
         val f = if (paFurnizues) null else furn.replace(Regex("\\s+"), " ").trim().take(80)
         Dyqani.ruajProduktin(folderId, barkodi, em, ts.toLong(), f)
+        if (!paEmer) site.stoku.vendas.Regjistri.mesoNgaPerdoruesi(barkodi, em, f ?: "") // si te web-i
         mbyll()
     }
 

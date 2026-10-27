@@ -203,6 +203,8 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, stok: Boolean = false, kurRuhet: (S
             Dyqani.ruajProduktin(fid, b, emri, Afatet.lexoSasine(r.sasia) as Long, furn)
             celesat.add(b)
         }
+        // Të kontrolluara nga përdoruesi: kujtesa i merr si të sakta
+        site.stoku.vendas.Regjistri.mesoNgaImporti(teVlefshem.map { r -> obj("barkodi" to r.barkodi.trim(), "emri" to r.emri, "furnizuesi" to r.furnizuesi) })
         StokuApp.vendosPref("import_folderi", fid)
         val nr = celesat.size
         Toast.trego((if (nr == 1) "U importua 1 produkt" else "U importuan $nr produkte") + " në folderin \"" + Dyqani.emriFolderit(fid) + "\"." +
@@ -226,6 +228,7 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, stok: Boolean = false, kurRuhet: (S
                 "krijuarNga" to (Llogaria.perdoruesi.value?.emri ?: ""), "ngaFoto" to true).also { o -> if (mkId != null) o["m"] = mkId })
         }
         teReja.forEach { Dyqani.shtoAfatin(it) }
+        site.stoku.vendas.Regjistri.mesoNgaImporti(teReja) // v209: si importet e tjera (kolegët: presin kontrollin)
         Grupi.afateTeReja(teReja.size, true)
         val nk = teReja.count { Afatet.statusi(it) == "skaduar" }
         val nv = teReja.count { Afatet.statusi(it) == "afer" }
