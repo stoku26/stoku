@@ -27,12 +27,16 @@ const NUMERO_GPS = () => {
   const d = MK.largesia({ lat: ALBI.latitude, lng: ALBI.longitude }, { lat: VIVA.latitude, lng: VIVA.longitude });
   ok(d > 2000 && d < 3000, '0. largësia Albi ↔ Viva ~2.6 km', Math.round(d));
   const L = [{ id: 'mA', emri: 'Albi Mall', lat: ALBI.latitude, lng: ALBI.longitude }, { id: 'mV', emri: 'Viva Fresh', lat: VIVA.latitude, lng: VIVA.longitude }, { id: 'mP', emri: 'Pa vend' }];
-  const gA = MK.gjej(L, { lat: ALBI.latitude + 0.001, lng: ALBI.longitude, sakt: 30 }); // ~110 m larg
+  const gA = MK.gjej(L, { lat: ALBI.latitude + 0.0005, lng: ALBI.longitude, sakt: 30 }); // ~56 m larg (v256: rrezja 60 m + pasaktësia deri 40 m)
   ok(gA && gA.marketi.id === 'mA' && !MK.gjej(L, { lat: SHTEPIA.latitude, lng: SHTEPIA.longitude, sakt: 30 }), '0. gjej: brenda rrezes → Albi; larg → asnjë', gA && gA.largesia);
-  ok(!MK.gjej(L, { lat: ALBI.latitude + 0.0045, lng: ALBI.longitude, sakt: 20 }) && !!MK.gjej(L, { lat: ALBI.latitude + 0.0030, lng: ALBI.longitude, sakt: 120 }), '0. rrezja 250 m + pasaktësia e GPS-it (deri 150 m)');
+  ok(!MK.gjej(L, { lat: ALBI.latitude + 0.001, lng: ALBI.longitude, sakt: 20 }) && !!MK.gjej(L, { lat: ALBI.latitude + 0.0008, lng: ALBI.longitude, sakt: 120 }) &&
+    !MK.gjej(L, { lat: ALBI.latitude + 0.0002, lng: ALBI.longitude, sakt: 200 }), '0. v256: rrezja 60 m + pasaktësia e GPS-it (deri 40 m); me pasaktësi mbi 150 m asnjë');
   const t = Date.now();
   const dore = { id: 'mV', menyra: 'dore', koha: t - 60e3, kontrolluarSe: 0 };
   ok(MK.pasGps(dore, gA, t).id === 'mV' && MK.pasGps(Object.assign({}, dore, { koha: t - MK.DORE_MS - 1 }), gA, t).id === 'mA', '0. zgjedhja me dorë fiton 3 orë, pastaj GPS-i');
+  ok(MK.largNgaMarketi(L, 'mV', { lat: ALBI.latitude, lng: ALBI.longitude, sakt: 20 }) && !MK.largNgaMarketi(L, 'mV', { lat: VIVA.latitude + 0.002, lng: VIVA.longitude, sakt: 20 }) &&
+    !MK.largNgaMarketi(L, 'mV', { lat: ALBI.latitude, lng: ALBI.longitude, sakt: 500 }) && MK.pasGps(dore, gA, t, true).id === 'mA',
+    '0. v256: zgjedhja me dorë bie kur GPS-i (i saktë) të tregon mbi 300 m larg saj');
   ok(MK.pasGps({ id: 'mA', menyra: 'gps', koha: t - 1, kontrolluarSe: 0 }, null, t).id === null, '0. jashtë marketeve (pas GPS-it) → Krejt marketet');
   ok(MK.duhetKontrolli(L, { kontrolluarSe: 0 }, t) && !MK.duhetKontrolli(L, { kontrolluarSe: t - 1000 }, t) && !MK.duhetKontrolli([{ id: 'x', emri: 'X' }], { kontrolluarSe: 0 }, t), '0. GPS-i: vetëm me markete me vendndodhje, jo më shpesh se 2 min');
   const af = [{ id: 'a1', m: 'mA' }, { id: 'a2', m: 'mV' }, { id: 'a3' }, { id: 'a4', m: 'mX' }];
@@ -97,7 +101,7 @@ const NUMERO_GPS = () => {
     await p.click('#tabMarketet'); await p.waitForTimeout(300);
   }
   async function editoMarketin(p, emri) {
-    await p.evaluate(e => [...document.querySelectorAll('#mkLista .ops-furn-rresht')].find(x => x.querySelector('.ops-furn-emri').textContent.startsWith(e)).click(), emri);
+    await p.evaluate(e => [...document.querySelectorAll('#htLista .ops-furn-rresht')].find(x => x.querySelector('.ops-furn-emri').textContent.startsWith(e)).click(), emri);
     await p.waitForTimeout(200);
   }
   async function riktheGps(p) { // si hapja e aplikacionit pas 2 minutash
@@ -113,7 +117,7 @@ const NUMERO_GPS = () => {
   ok(await prit(async () => await dr.evaluate(() => document.getElementById('dlgMarketiRi').classList.contains('hapur'))), '1. v246: "Në cilin market je?" del vetë');
   await dr.click('#mkrAnulo'); await dr.waitForTimeout(300);
   await hapMarketetNeCilesime(dr);
-  ok(await dr.evaluate(() => document.getElementById('opsioneTitulli').textContent) === 'Marketet' && /S'ke ende asnjë market/.test(await dr.textContent('#mkLista')), '1. Cilësimet → Marketet: bosh');
+  ok(await dr.evaluate(() => document.getElementById('opsioneTitulli').textContent) === 'Marketet' && /S'ke ende asnjë market/.test(await dr.textContent('#htLista')), '1. Cilësimet → Marketet: bosh');
   // v250: marketi shtohet vetëm kur je brenda tij (vendndodhja e saktë): merr vendndodhjen ku je
   await ctxD.setGeolocation(ALBI);
   await dr.fill('#mkEmriRi', 'Albi Mall'); await dr.click('#mkShto');
@@ -128,7 +132,7 @@ const NUMERO_GPS = () => {
   ok(Math.abs(mkA.lat - ALBI.latitude) < 1e-6 && Math.abs(mkA.lng - ALBI.longitude) < 1e-6, '1. v250: marketi merr vendndodhjen ku je (koordinatat e sakta)', [mkA.lat, mkA.lng]);
   ok(await prit(async () => { const m = (await lsMarketet(dr))[0]; const pk = m && m.p && F.S.docs.get('pikat/' + m.p); return !!pk && pk.krijuarNga === 'u1' && pk.emri === 'Albi Mall'; }), '1. v250: marketi bëhet pikë e Stoku-t (e shohin krejt merchandiserët)');
   await editoMarketin(dr, 'Albi Mall');
-  ok(await dr.evaluate(() => !document.querySelector('#mkLista input, #mkLista .ops-furn-edit') && ![...document.querySelectorAll('#mkLista button')].some(x => /Fshije|vendndodhjen|Ruaj/.test(x.textContent))), '1. v250: pa riemërtim, pa fshirje, pa zhvendosje te Cilësimet → Marketet');
+  ok(await dr.evaluate(() => !document.querySelector('#htLista input, #htLista .ops-furn-edit') && ![...document.querySelectorAll('#htLista button')].some(x => /Fshije|vendndodhjen|Ruaj/.test(x.textContent))), '1. v250: pa riemërtim, pa fshirje, pa zhvendosje te Cilësimet → Marketet');
   // marketi i dytë, kur je te Viva
   await ctxD.setGeolocation(VIVA);
   await dr.fill('#mkEmriRi', 'Viva Fresh'); await dr.click('#mkShto');
@@ -174,9 +178,11 @@ const NUMERO_GPS = () => {
   await dr.click('#afMarketi'); await dr.waitForTimeout(200);
   await dr.evaluate(() => [...document.querySelectorAll('#mkdLista button')].find(x => /Viva/.test(x.textContent)).click()); await dr.waitForTimeout(200);
   await riktheGps(dr); await dr.waitForTimeout(1200);
-  ok((await dr.textContent('#afMarketiEmri')) === 'Viva Fresh', '1. zgjedhja me dorë (Viva) s\'ndërrohet nga GPS-i (je në Albi)');
+  // v256: GPS-i (i saktë) të tregon 2 km larg Vivës → zgjedhja me dorë bie, je te Albi (më parë mbetej Viva 3 orë)
+  ok((await dr.textContent('#afMarketiEmri')) === 'Albi Mall', '1. v256: zgjedhja me dorë (Viva) bie kur GPS-i të tregon qartë larg saj (je në Albi)', await dr.textContent('#afMarketiEmri'));
   await dr.click('#afMarketi'); await dr.waitForTimeout(200); await dr.click('#mkdGps');
   ok(await prit(async () => (await dr.textContent('#afMarketiEmri')) === 'Albi Mall'), '1. "Gjej me GPS" → Albi Mall');
+  await dr.waitForTimeout(1500); // v256: çipi është tashmë "Albi Mall": prit sa të mbarojë kërkimi i GPS-it para se të ndërrohet vendi
   // Jashtë marketeve
   await ctxD.setGeolocation(SHTEPIA); await riktheGps(dr);
   ok(await prit(async () => (await dr.textContent('#afMarketiEmri')) === 'Krejt marketet'), '1. jashtë marketeve → Krejt marketet');
@@ -192,7 +198,7 @@ const NUMERO_GPS = () => {
   // v250: merchandiseri s'e fshin marketin (e bën vetëm administratori te Harta)
   await hapMarketetNeCilesime(dr);
   await editoMarketin(dr, 'Viva Fresh');
-  ok(await dr.evaluate(() => !document.querySelector('#mkLista .ops-furn-edit')) && (await lsMarketet(dr)).length === 2, '1. v250: Viva s\'fshihet nga merchandiseri');
+  ok(await dr.evaluate(() => !document.querySelector('#htLista .ops-furn-edit')) && (await lsMarketet(dr)).length === 2, '1. v250: Viva s\'fshihet nga merchandiseri');
   ok(!dr.__gab.length, '1. drini: pa gabime JS', dr.__gab);
 
   // ================= 2. Llogari e vjetër (pa "Punoj si merchandiser"): asgjë s'ndryshon, edhe me markete =================

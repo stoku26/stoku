@@ -47,9 +47,10 @@ async function faqe(b, ua, ura, url) {
     ok(!/StokuAndroid|android\.js|android\.json|tokenFcm/.test(t), 'A: ' + f + ' pa urën e aplikacionit të vjetër');
   }
   const sw = fs.readFileSync(path.join(RR, 'sw.js'), 'utf8');
-  ok(/var CACHE = 'stoku-v255'/.test(sw), 'A: sw.js CACHE v255');
+  ok(+((/var CACHE = 'stoku-v(\d+)'/.exec(sw) || [])[1] || 0) >= 255, 'A: sw.js CACHE v255 ose më i ri');
   const TR = require(path.join(RR, 'teRejat.js'));
-  const tel = TR.teRejatPas(254, 'tel', false, () => true).map(h => h.titulli), pc = TR.teRejatPas(254, 'pc', false, () => true).map(h => h.titulli);
+  const v255 = h => h.v === 255; // vetëm hyrjet e v255 (më vonë vijnë të tjera)
+  const tel = TR.teRejatPas(254, 'tel', false, () => true).filter(v255).map(h => h.titulli), pc = TR.teRejatPas(254, 'pc', false, () => true).filter(v255).map(h => h.titulli);
   ok(tel.includes('Aplikacioni i ri Stoku për Android') && !pc.length, 'A: "Çka ka të re": vetëm telefoni', { tel, pc });
 
   const b = await chromium.launch();

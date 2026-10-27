@@ -64,7 +64,7 @@ const ALBI = { latitude: 42.6476, longitude: 21.1491, accuracy: 20 };
   ok(await prit(async () => (await lsM(v)).some(m => m.p === 'pA')), '1. v251: marketet e Stoku-t (pikat) vijnë pa rifreskim', await lsM(v));
   ok(await prit(async () => await v.evaluate(() => window.__gpsThirrje) >= 1), '1. v251: GPS-i niset (je te Albi)');
   ok(await prit(async () => /Albi Mall/.test(await cipi(v))), '1. çipi: "Je te Albi Mall"', await cipi(v));
-  ok(await v.evaluate(() => !document.getElementById('tabHarta').classList.contains('leja-ndaluar') && getComputedStyle(document.getElementById('tabHarta')).display !== 'none'), '1. v251: "Harta" te Cilësimet');
+  ok(await v.evaluate(() => !document.getElementById('tabMarketet').classList.contains('leja-ndaluar') && getComputedStyle(document.getElementById('tabMarketet')).display !== 'none'), '1. v251: "Harta" te Cilësimet');
 
   // ================= 2. Kompjuteri =================
   const { p: pb } = await faqe('u2', 'besa', true);
