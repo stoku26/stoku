@@ -87,6 +87,37 @@ object GrupiLogjika {
         return rez
     }
 
+    // ---------- Administratori ndryshon afatin e një kolegu (si ndryshoAfatinNeGjendje te ekipa.js) ----------
+    /**
+     * Gjendja e dyqanit të kolegut me afatin e ndryshuar: "hiq" (i hequr nga administratori), "kthe" (sërish në raft) ose
+     * "fshij" (hiqet dhe shënohet te fshira.afatet që bashkimi të mos e rikthejë). null = afati s'ekziston.
+     */
+    fun ndryshoAfatinNeGjendje(gjendja: Obj?, afatId: String, veprimi: String, emriAdminit: String?, tani: Long = System.currentTimeMillis()): MObj? {
+        val g = MObj(); if (gjendja != null) g.putAll(gjendja)
+        val afatet: List<Any?> = (g["afatet"] as? List<*>) ?: emptyList<Any?>()
+        if (afatet.none { it.siObj()?.get("id") == afatId }) return null
+        if (veprimi == "fshij") {
+            g["afatet"] = afatet.filter { it.siObj()?.get("id") != afatId }
+            val f = MObj(); f["produktet"] = MObj(); f["foldera"] = MObj(); f["afatet"] = MObj()
+            g["fshira"].siObj()?.let { f.putAll(it) }
+            val fa = MObj(); f["afatet"].siObj()?.let { fa.putAll(it) }
+            fa[afatId] = tani
+            f["afatet"] = fa
+            g["fshira"] = f
+        } else {
+            g["afatet"] = afatet.map { x ->
+                val a = x.siObj()
+                if (a == null || a["id"] != afatId) x
+                else MObj().also { r ->
+                    r.putAll(a)
+                    if (veprimi == "kthe") { r["statusi"] = "aktiv"; r["hequrSe"] = 0L; r["hequrNga"] = ""; r["ndryshuarSe"] = tani }
+                    else { r["statusi"] = "hequr"; r["hequrSe"] = tani; r["hequrNga"] = emriAdminit ?: ""; r["ndryshuarSe"] = tani }
+                }
+            }
+        }
+        return g
+    }
+
     // ---------- Heqjet e kolegëve (v179: presin miratimin e pronarit) ----------
     class Heqja(var heqja: Obj? = null, var vendimi: Obj? = null)
 

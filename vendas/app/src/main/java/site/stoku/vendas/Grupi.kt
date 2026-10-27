@@ -25,6 +25,8 @@ import site.stoku.logjika.numerOse0
 import site.stoku.logjika.obj
 import site.stoku.logjika.eVertete
 import site.stoku.logjika.krahasoTekst
+import site.stoku.logjika.siListe
+import site.stoku.logjika.siObj
 
 /**
  * Grupi (si ekipa.js, krijoCloud + krijoKontrollues): grupi im (perdoruesit/{uid}.grupi + grupet/{g}/anetaret/{uid}),
@@ -322,6 +324,41 @@ object Grupi {
             kotlinx.coroutines.withTimeoutOrNull(4000) { t.await() }
             null
         } catch (e: Exception) { gabimi(e) }
+    }
+
+    // ---------------- Administratori: afati i një kolegu (si adminNdryshoAfatin te ekipa.js) ----------------
+    private class AfatiSUGjet : Exception()
+
+    /**
+     * Administratori heq ("hiq"), kthen në raft ("kthe") ose fshin ("fshij") direkt afatin e një kolegu në dyqanin e tij;
+     * përmbledhja e tij te grupi rifreskohet, ai njoftohet dhe shtohet aktiviteti. → null ose "nuk-u-gjet" / "leje" / "rrjeti"
+     */
+    suspend fun adminNdryshoAfatin(a: Obj, veprimi: String): String? {
+        val u0 = uid ?: return "pa-hyrje"
+        val pr = a["pronariUid"] as? String ?: return "gabim"
+        val id = a["id"] as? String ?: return "gabim"
+        if (!Llogaria.eshteAdmin() || pr == u0) return "leje"
+        val gj = try {
+            Sinkronizimi.ndryshoDyqaninE(pr) { g -> GrupiLogjika.ndryshoAfatinNeGjendje(g, id, veprimi, emri) ?: throw AfatiSUGjet() }
+        } catch (e: Exception) {
+            if (e is AfatiSUGjet || e.cause is AfatiSUGjet) return "nuk-u-gjet"
+            return gabimi(e)
+        }
+        val afatet = gj["afatet"].siListe().mapNotNull { it.siObj() }
+        val p = GrupiLogjika.permbledhjaEAfateve(afatet)
+        val prEmri = (a["pronariEmri"] as? String).orEmpty()
+        val tani = System.currentTimeMillis()
+        permbledhjet.value = (permbledhjet.value ?: emptyMap()) + (pr to mapOf("emri" to prEmri, "afatet" to p, "ndryshuarSe" to tani))
+        val g = grupi()
+        if (g != null) {
+            db.collection("grupet").document(g).collection("afatet").document(pr).set(mapOf("uid" to pr, "emri" to prEmri, "afatet" to p, "ndryshuarSe" to tani))
+            val te = mapOf("lloji" to "admin-afat", "veprimi" to veprimi, "afatId" to id,
+                "produkti" to ((a["emri"] as? String)?.ifEmpty { null } ?: (a["barkodi"] as? String) ?: ""), "barkodi" to (a["barkodi"] ?: ""), "data" to (a["data"] ?: ""))
+            db.collection("perdoruesit").document(pr).collection("njoftimet").document(idERe())
+                .set(te + mapOf("grupi" to g, "uid" to u0, "emri" to emri, "koha" to tani, "lexuar" to false))
+            shtoNgjarje(mapOf("pronariUid" to pr, "pronariEmri" to prEmri) + te)
+        }
+        return null
     }
 
     /** Pronari pranon ose refuzon heqjen e një kolegu; kur e pranon, afati im shënohet i hequr */

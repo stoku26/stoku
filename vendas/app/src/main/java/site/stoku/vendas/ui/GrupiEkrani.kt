@@ -68,6 +68,9 @@ import site.stoku.logjika.Afatet
 import site.stoku.logjika.GrupiLogjika
 import site.stoku.logjika.Obj
 import site.stoku.logjika.eVertete
+import site.stoku.logjika.Lejet
+import site.stoku.vendas.Admini
+import kotlinx.coroutines.CoroutineScope
 import site.stoku.logjika.jsString
 import site.stoku.logjika.numerOse0
 import site.stoku.logjika.siListe
@@ -444,8 +447,36 @@ private fun KartaEAfatitTeGrupit(a: Obj, meEmer: Boolean, ctx: Konteksti) {
                     Text("Unë e hoqa", style = tx(13, 700, n.exp))
                 }
             }
+            // Administratori: ndryshon direkt afatin e kolegut (si ekPillAdmin te web-i); kolegu njoftohet
+            val uIm = Grupi.uidIm()
+            if (Llogaria.eshteAdmin() && eVertete(a["pronariUid"]) && uIm != null && a["pronariUid"] != uIm) {
+                Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    if (st == "hequr") Pill("Ktheje në raft") { adminAfat(a, "kthe", ctx, scope) }
+                    else if (st != "skaduar") Pill("Shëno të hequr") { adminAfat(a, "hiq", ctx, scope) }
+                    Pill("Fshije", rrezik = true) { adminAfat(a, "fshij", ctx, scope) }
+                }
+            }
         }
     }
+}
+
+/** Administratori: heq / kthen / fshin afatin e një kolegu direkt në dyqanin e tij (pronari i afatit njoftohet) */
+private fun adminAfat(a: Obj, veprimi: String, ctx: Konteksti, scope: CoroutineScope) {
+    val emri = (a["emri"] as? String)?.ifEmpty { null } ?: (a["barkodi"] as? String)?.ifEmpty { null } ?: "produkti"
+    val pr = (a["pronariEmri"] as? String)?.ifEmpty { null }
+    val (titulli, cfare, butoni) = when (veprimi) {
+        "hiq" -> Triple("Të shënohet si i hequr?", "shënohet si i hequr nga rafti", "Po, hiqe")
+        "kthe" -> Triple("Të kthehet në raft?", "kthehet si aktiv në raft", "Po, ktheje")
+        else -> Triple("Të fshihet afati?", "fshihet krejt", "Fshije")
+    }
+    ctx.pyet(Pyetja(titulli, "\"$emri\" (i përket: ${pr ?: "kolegut"}) $cfare. ${pr ?: "Kolegu"} njoftohet.", butoni, true) {
+        scope.launch {
+            val r = Grupi.adminNdryshoAfatin(a, veprimi)
+            if (r != null) Toast.trego(if (r == "nuk-u-gjet") "Ky afat s'ekziston më." else "S'u ndryshua. Kontrollo internetin dhe provo përsëri.", 4000)
+            else Toast.trego("\"$emri\" u " + (if (veprimi == "fshij") "fshi" else if (veprimi == "kthe") "kthye në raft" else "shënua si i hequr") +
+                ". ${pr ?: "Kolegu"} u njoftua.", 3500)
+        }
+    })
 }
 
 /** Një ngjarje e aktivitetit (ek-ngjarje) */
@@ -837,6 +868,8 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
     var emriRi by remember { mutableStateOf("") }
     var fto by rememberSaveable { mutableStateOf("") }
     var njoftimi by rememberSaveable { mutableStateOf("") }
+    val llogarite by Admini.llogarite.collectAsState() // administratori: "Llogaritë e tjera"
+    var krejtLlogarite by rememberSaveable { mutableStateOf(false) }
     val emriG = (doc?.get("emri") as? String)?.ifEmpty { null } ?: "Grupi"
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 24.dp)) {
         if (ftesat.isNotEmpty()) {
@@ -881,13 +914,7 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
                         scope.launch {
                             val r = Grupi.ftoNeGrup(em)
                             if (r == null) { fto = ""; Toast.trego("Ftesa iu dërgua \"" + em.lowercase() + "\". E sheh te Grupi kur e hap Stoku-n.", 4500) }
-                            else Toast.trego(when (r) {
-                                "emri" -> "Emri i përdoruesit: 3 deri 40 shkronja/numra (a-z, 0-9, _ . -)."
-                                "vetja" -> "Ky është emri yt."
-                                "anetar" -> "Ky përdorues është tashmë në grup."
-                                "e-ftuar" -> "Ky përdorues është ftuar tashmë."
-                                else -> "Ftesa s'u dërgua. Kontrollo internetin dhe provo përsëri."
-                            }, 4500)
+                            else Toast.trego(tekstiGabimitTeFtesa(r), 4500)
                         }
                     }
                     Fusha(fto, { fto = it.take(40) }, Modifier.weight(1f), placeholder = "Emri i përdoruesit të tij", kurVeprim = { dergo() }, lartesia = 46.dp)
@@ -943,6 +970,7 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
                             scope.launch { val r = Grupi.hiqNgaGrupi(a["uid"] as String); Toast.trego(if (r == null) "$em u hoq nga grupi." else "S'u hoq. Kontrollo internetin dhe provo përsëri.", 4000) }
                         })
                     }
+                    if (Admini.eshteAdmin() && a["admin"] != true && !Lejet.eshteAdmin(em)) Pill("Fshi", rrezik = true) { fshijLlogarine(a["uid"] as String, em, ctx, scope) }
                 }
             }
             item {
@@ -955,6 +983,30 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
                         }
                     })
                 }, Modifier.fillMaxWidth(), lloji = "rrezik")
+            }
+        }
+        if (Admini.eshteAdmin()) {
+            val brenda = an.mapNotNull { it["uid"] as? String }.toSet()
+            val uIm = Grupi.uidIm()
+            val jashte = (llogarite ?: emptyList()).filter { it.uid !in brenda && it.uid != uIm }.sortedByDescending { it.kycurSe }
+            item {
+                Krye("Llogaritë e tjera (vetëm administratori) · " + jashte.size)
+                if (jashte.isEmpty()) Text("S'ka llogari të tjera.", style = tx(14, 400, n.muted))
+            }
+            items(if (krejtLlogarite) jashte else jashte.take(15), key = { "l" + it.uid }) { x ->
+                RreshtiMenaxhimit(x.emri, (if (x.grupi != null) "Në një grup tjetër" else "Pa grup") +
+                    (if (x.kycurSe > 0) " · u kyç " + GrupiLogjika.kohaRelative(x.kycurSe, ctx.tani) else "")) {
+                    if (pronar) Pill("Fto") {
+                        scope.launch {
+                            val r = Grupi.ftoNeGrup(x.emri)
+                            Toast.trego(if (r == null) "Ftesa iu dërgua ${x.emri}." else tekstiGabimitTeFtesa(r), 4000)
+                        }
+                    }
+                    if (!x.admin && !Lejet.eshteAdmin(x.emri)) Pill("Fshi", rrezik = true) { fshijLlogarine(x.uid, x.emri, ctx, scope) }
+                }
+            }
+            if (!krejtLlogarite && jashte.size > 15) item {
+                Buton("Shfaq krejt (" + jashte.size + ")", { krejtLlogarite = true }, Modifier.fillMaxWidth(), lloji = "tekst")
             }
         }
         item {
@@ -980,11 +1032,33 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
     }
 }
 
+private fun tekstiGabimitTeFtesa(r: String): String = when (r) {
+    "emri" -> "Emri i përdoruesit: 3 deri 40 shkronja/numra (a-z, 0-9, _ . -)."
+    "vetja" -> "Ky është emri yt."
+    "anetar" -> "Ky përdorues është tashmë në grup."
+    "e-ftuar" -> "Ky përdorues është ftuar tashmë."
+    else -> "Ftesa s'u dërgua. Kontrollo internetin dhe provo përsëri."
+}
+
+/** Administratori: fshirja e plotë e një llogarie (si ekFshijLlogarine te web-i) */
+private fun fshijLlogarine(u: String, emri: String, ctx: Konteksti, scope: CoroutineScope) {
+    ctx.pyet(Pyetja("Të fshihet llogaria e $emri?",
+        "Fshihen komplet stoku, afatet, fletët dhe profili i $emri. Nuk mund të hyjë më me këtë llogari (emri lirohet dhe mund të krijohet sërish si llogari e re, bosh). Kjo S'KTHEHET MË.",
+        "Fshije komplet", true) {
+        scope.launch {
+            val r = Admini.fshijLlogarine(u, emri)
+            if (!r.ok) { Toast.trego(if (r.leje) "S'u fshi: rregullat e Firebase-it s'e lejojnë ende (duhen rregullat v116)." else "S'u fshi. Kontrollo internetin dhe provo përsëri.", 5000); return@launch }
+            Toast.trego("Llogaria e $emri u fshi" + (if (r.mbetur > 0) " (disa të dhëna s'u fshinë, provo përsëri më vonë)." else "."), 4000)
+        }
+    })
+}
+
 /** Butoni i vogël me vijë (af-pill) */
 @Composable
-private fun Pill(t: String, onClick: () -> Unit) {
+private fun Pill(t: String, rrezik: Boolean = false, onClick: () -> Unit) {
     val n = N
-    Text(t, style = tx(13, 700, n.ink), maxLines = 1, modifier = Modifier.clip(RoundedCornerShape(12.dp)).border(1.5.dp, n.ink, RoundedCornerShape(12.dp))
+    val ng = if (rrezik) n.exp else n.ink
+    Text(t, style = tx(13, 700, ng), maxLines = 1, modifier = Modifier.clip(RoundedCornerShape(12.dp)).border(1.5.dp, ng, RoundedCornerShape(12.dp))
         .clickable(onClick = onClick).padding(horizontal = 12.dp, vertical = 7.dp))
 }
 
@@ -1173,6 +1247,14 @@ private fun ZiljaFlete(ctx: Konteksti, mbyll: () -> Unit) {
     var fshiKrejt by remember { mutableStateOf(false) }
     val tePalexuara = remember { Grupi.njoftimet.value.mapNotNull { it["id"] as? String }.toSet() }
     val vendime = remember { mutableStateOf(mapOf<String, String>()) } // id → teksti pas vendimit
+    // "Lejo njoftimet në telefon" (si #ekNjLejo te web-i): kur telefoni s'e ka pyetur ende për lejen
+    val kontekstiAndroid = androidx.compose.ui.platform.LocalContext.current
+    val lejoNjoftimet = remember { site.stoku.vendas.Njoftimet.gjendja(kontekstiAndroid) == "fikur" }
+    val kerkoLejen = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestPermission()) { po ->
+        site.stoku.vendas.StokuApp.vendosPrefB("njoftimet_pyetur", true)
+        if (po) { Toast.trego("Njoftimet u aktivizuan."); scope.launch { try { site.stoku.vendas.Push.aktivizo(false) } catch (e: Exception) { } } }
+        else Toast.trego("Njoftimet u refuzuan. Mund t'i lejosh te cilësimet e telefonit → Aplikacionet → Stoku → Njoftimet.", 5000)
+    }
     LaunchedEffect(rifresko) {
         if (Grupi.neProve) { lista = Grupi.njoftimet.value; return@LaunchedEffect }
         val l = Grupi.merrNjoftimet()
@@ -1244,6 +1326,9 @@ private fun ZiljaFlete(ctx: Konteksti, mbyll: () -> Unit) {
                 }
             }
         }
+        if (lejoNjoftimet) Buton("Lejo njoftimet në telefon", {
+            try { kerkoLejen.launch(android.Manifest.permission.POST_NOTIFICATIONS) } catch (e: Exception) { }
+        }, Modifier.fillMaxWidth(), lloji = "tekst")
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
             if (!l.isNullOrEmpty()) Buton("Fshiji të gjitha", { fshiKrejt = true }, lloji = "rrezik")
             Buton("Mbyll", mbyll, lloji = "tekst")

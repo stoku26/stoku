@@ -49,6 +49,11 @@ object Llogaria {
     private lateinit var ctx: Context
     private var dLejet: ListenerRegistration? = null
     private var dMerch: ListenerRegistration? = null
+    private var dFshirja: ListenerRegistration? = null
+    private var poFshihet = false
+
+    /** Mesazhi një-herësh për hyrjen (si "stoku:porta:mesazh" te web-i), p.sh. kur administratori e fshiu llogarinë */
+    val mesazhiIHyrjes = MutableStateFlow("")
 
     /** Vetëm për testet e pamjeve */
     fun vendosPerProve(p: Perdoruesi?, merchandiser: Boolean = false) { _perdoruesi.value = p; _gati.value = true; _merchandiser.value = merchandiser }
@@ -73,13 +78,38 @@ object Llogaria {
                     regjistroPerdoruesin(p)
                     degjoLejet(p)
                     degjoMerchandiserin(p)
+                    degjoFshirjen(p)
                 } else { _lejet.value = null; _merchandiser.value = false }
             }
             _gati.value = true
         }
     }
 
-    private fun ndalDegjuesit() { dLejet?.remove(); dLejet = null; dMerch?.remove(); dMerch = null }
+    private fun ndalDegjuesit() { dLejet?.remove(); dLejet = null; dMerch?.remove(); dMerch = null; dFshirja?.remove(); dFshirja = null }
+
+    // Administratori e fshiu këtë llogari (ekipa_fshire/{uid}, si degjoFshirjen te ekipa.js): njoftimi ditor hiqet nga serveri,
+    // llogaria e hyrjes fshihet (ose të paktën dilet), të dhënat e saj hiqen nga telefoni dhe hyrja e tregon arsyen
+    private fun degjoFshirjen(p: Perdoruesi) {
+        dFshirja = db.collection("ekipa_fshire").document(p.uid).addSnapshotListener { s, e ->
+            if (e != null || s == null || !s.exists() || _perdoruesi.value?.uid != p.uid) return@addSnapshotListener
+            llogariaUFshi()
+        }
+    }
+
+    private fun llogariaUFshi() {
+        if (poFshihet) return
+        poFshihet = true
+        kotlinx.coroutines.MainScope().launch {
+            try { kotlinx.coroutines.withTimeoutOrNull(9000) { Push.caktivizo() } } catch (e: Exception) { }
+            ndalDegjuesit()
+            StokuApp.prefs(ctx).edit().remove("ora_rt").apply()
+            mesazhiIHyrjes.value = "Kjo llogari u fshi nga administratori."
+            try { kotlinx.coroutines.withTimeoutOrNull(9000) { auth.currentUser?.delete()?.await() } } catch (e: Exception) { }
+            try { if (auth.currentUser != null) auth.signOut() } catch (e: Exception) { }
+            Dyqani.vendosPronarin("llogari-e-fshire") // të dhënat e llogarisë së fshirë s'mbeten në telefon
+            poFshihet = false
+        }
+    }
 
     /** Administratori (mendurberisha) i ka krejt lejet */
     fun eshteAdmin(): Boolean = Lejet.eshteAdmin(_perdoruesi.value?.emri)
@@ -132,6 +162,7 @@ object Llogaria {
     /** → null (u hy) ose teksti i gabimit */
     suspend fun hyr(emri: String, fjalekalimi: String): String? = try {
         auth.signInWithEmailAndPassword(emailIBrendshem(emri), fjalekalimi).await()
+        mesazhiIHyrjes.value = ""
         StokuApp.prefs(ctx).edit().putString("emri_i_fundit", emri.trim().lowercase()).apply()
         tokeniPerOren(emailIBrendshem(emri), fjalekalimi)
         null
@@ -158,6 +189,7 @@ object Llogaria {
 
     suspend fun regjistrohu(emri: String, fjalekalimi: String, merchandiser: Boolean): String? = try {
         val kred = auth.createUserWithEmailAndPassword(emailIBrendshem(emri), fjalekalimi).await()
+        mesazhiIHyrjes.value = ""
         val uid = kred.user?.uid
         if (uid != null) {
             _merchandiser.value = merchandiser

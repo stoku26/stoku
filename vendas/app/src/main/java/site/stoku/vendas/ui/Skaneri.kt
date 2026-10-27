@@ -209,7 +209,7 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, uLexua: (String) ->
                     val tash = SystemClock.elapsedRealtime()
                     // Kodi QR s'është barkod produkti: njoftohet (jo më shpesh se çdo 2 s) dhe kamera vazhdon
                     if (b.format == Barcode.FORMAT_QR_CODE) {
-                        if (tash - qrFundit > 2000) { qrFundit = tash; Toast.trego("Kjo duket si kod QR ose tekst, jo si barkod produkti.") }
+                        if (tash - qrFundit > 2000) { qrFundit = tash; Toast.trego("Ke skenuar një kod QR. Skano barkodin e produktit.") }
                         return@addOnSuccessListener
                     }
                     hera = if (v == iFundit) hera + 1 else 1
@@ -277,6 +277,14 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, uLexua: (String) ->
             drawRect(Color(0x99000000))
             drawRoundRect(Color.Transparent, tl, Size(w, h), CornerRadius(24.dp.toPx()), blendMode = BlendMode.Clear)
             drawRoundRect(Color.White, tl, Size(w, h), CornerRadius(24.dp.toPx()), style = Stroke(3.dp.toPx()))
+        }
+        // Nën kornizë (si #skanHint te web-i)
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            val w = maxWidth * 0.78f; val h = w * 0.55f
+            val poshte = (maxHeight - h) / 2.3f + h
+            Text("Vendos vetëm një barkod brenda kutisë", style = tx(13, 400, Color.White), textAlign = TextAlign.Center,
+                modifier = Modifier.align(Alignment.TopCenter).padding(top = poshte + 22.dp).clip(RoundedCornerShape(16.dp))
+                    .background(Color(0x80000000)).padding(horizontal = 16.dp, vertical = 7.dp))
         }
         // "+N" mbi kornizë (si .skan-numrim te web-i)
         if (numeruar > 0) BoxWithConstraints(Modifier.fillMaxSize()) {

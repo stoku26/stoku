@@ -38,6 +38,14 @@ class GrupiTest {
         eq("heqesit", s["heqesit"], st.heqesit.map { obj("emri" to it.first, "n" to it.second.toLong()) })
     }
 
+    @Test fun adminAfat() {
+        f["adminAfat"].siListe().forEach { x ->
+            val r = x.siObj()!!
+            eq("adminAfat " + r["id"] + " " + r["v"] + " " + Json.shkruaj(r["gj"]), r["r"],
+                GrupiLogjika.ndryshoAfatinNeGjendje(r["gj"].siObj(), r["id"] as String, r["v"] as String, r["emri"] as String, tani))
+        }
+    }
+
     @Test fun tekstet() {
         f["tekstet"].siListe().forEach { x ->
             val r = x.siObj()!!; val t = GrupiLogjika.tekstiNgjarjes(r["ng"].siObj()!!, r["u"] as String?)

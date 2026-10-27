@@ -114,6 +114,9 @@ object Sinkronizimi {
     /** Dyqani i një llogarie tjetër (administratori: afatet e saj, vetëm për t'u parë) */
     suspend fun merrDyqanin(u: String): Obj? = merr(u)
 
+    /** Administratori: ndryshon dyqanin e një llogarie tjetër në një transaksion (si ndryshoDyqaninEPerdoruesit); kthen gjendjen e re */
+    suspend fun ndryshoDyqaninE(u: String, fn: (Obj?) -> Obj): Obj = bashkoDheRuaj(u, fn)
+
     /** Lexim + bashkim + shkrim në një transaksion; kthen gjendjen e bashkuar */
     private suspend fun bashkoDheRuaj(u: String, fnBashko: (Obj?) -> Obj): Obj = db.runTransaction { tx ->
         val s = tx.get(refKryesor(u))

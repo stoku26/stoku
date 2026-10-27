@@ -373,6 +373,7 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
     if (a == null && !Llogaria.leja("afatetShto")) { LaunchedEffect(Unit) { mbyll() }; return }
     val vetemLexim = a != null && !Llogaria.leja("afatetNdrysho")
     val paFurnizues = Llogaria.eshteMerchandiser()
+    val pda by site.stoku.vendas.Opsionet.pda.collectAsState()
     var barkodi by remember { mutableStateOf((a?.get("barkodi") as? String) ?: barkodiISkanuar) }
     var emri by remember { mutableStateOf((a?.get("emri") as? String) ?: Dyqani.emriNgaBarkodi(barkodiISkanuar)) }
     var data by remember { mutableStateOf(Afatet.formatoPerFushe(a?.get("data"))) }
@@ -439,13 +440,18 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
                 { mbyll(); if (st == "skaduar") shenoHequr(a) else riktheAktiv(a) }, Modifier.fillMaxWidth(), lloji = "dyte",
                 ikona = if (st == "skaduar") Ik.Kontroll else Ik.Rikthe)
         }
-        // Barkodi + emri (karta e errët si te web-i)
+        // Barkodi + emri (karta e errët si te web-i); PDA: pa kamerë, barkodi vjen nga skaneri i PDA-së
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(n.hero).padding(start = 18.dp, end = 12.dp, top = 12.dp, bottom = 14.dp)) {
+            if (pda && a == null) Row(Modifier.padding(bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(8.dp).clip(androidx.compose.foundation.shape.CircleShape).background(n.okDot))
+                Spacer(Modifier.width(8.dp))
+                Text("Skano barkodin me skanerin e PDA-së.", style = tx(12, 400, n.heroMuted))
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Fusha(barkodi, { barkodi = it }, Modifier.weight(1f), "Barkodi", tastiera = KeyboardType.Ascii, fokusi = fBarkodi, vetemLexim = vetemLexim,
                     stili = txMono(18f, pesha = 500), sfondi = Color.Transparent, ngjyraTekstit = Color.White, paVije = true,
                     veprimi = ImeAction.Next, kurVeprim = { plotesoNgaBarkodi(); fEmri.requestFocus() })
-                if (!vetemLexim && Llogaria.leja("kamera")) Box(Modifier.size(48.dp).clip(RoundedCornerShape(12.dp)).background(Color(0x1FFFFFFF))
+                if (!vetemLexim && !pda && Llogaria.leja("kamera")) Box(Modifier.size(48.dp).clip(RoundedCornerShape(12.dp)).background(Color(0x1FFFFFFF))
                     .clickable { skano { b -> barkodi = b; plotesoNgaBarkodi() } }, contentAlignment = Alignment.Center) {
                     Icon(Ik.Skano, "Skano barkodin", Modifier.size(24.dp), tint = Color.White)
                 }

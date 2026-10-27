@@ -382,7 +382,7 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
     fun hapBarkodin(b0: String, nga: String) {
         val b = b0.trim()
         if (b.isEmpty()) return
-        if (duketSiDiçkaTjeter(b)) { Toast.trego("Kjo duket si kod QR ose tekst, jo si barkod produkti."); return }
+        if (duketSiDiçkaTjeter(b)) { Toast.trego("Kjo nuk duket si barkod produkti (ngjan me kod QR ose tekst). Provo përsëri."); return }
         val e = Dyqani.produkti(id, b)
         if (!Llogaria.leja(if (e != null) "stokuNdrysho" else "stokuShto")) {
             if (e != null) kerkimi = b else Toast.trego("Ky barkod s'është në këtë folder.", 3000)

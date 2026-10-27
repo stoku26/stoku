@@ -209,6 +209,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
         // "Çka ka të re": një herë pas përditësimit
         var teRejat by remember { mutableStateOf(TeRejat.teReja()) }
         if (teRejat.isNotEmpty()) site.stoku.vendas.ui.TeRejatFlete(teRejat) { teRejat = emptyList() }
+        else site.stoku.vendas.ui.PyetjaENjoftimeve() // si dlgNjoftimet te web-i: pas "Çka ka të re", jo njëkohësisht
         skanimi?.let { cb ->
             Skaneri(mbyll = { skanimi = null }, shtoNjeCope = numerimi) { b -> skanimi = null; cb(b) }
         }

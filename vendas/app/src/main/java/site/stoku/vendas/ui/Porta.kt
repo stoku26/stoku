@@ -23,6 +23,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +56,7 @@ fun Porta() {
     var duke by remember { mutableStateOf(false) }
     var rivendosja by remember { mutableStateOf(false) }
     var njoftimi by remember { mutableStateOf("") }
+    val mesazhi by Llogaria.mesazhiIHyrjes.collectAsState() // p.sh. "Kjo llogari u fshi nga administratori."
     val fFj = remember { FocusRequester() }
     val fFj2 = remember { FocusRequester() }
 
@@ -94,6 +96,7 @@ fun Porta() {
                 return@Column
             }
             if (njoftimi.isNotEmpty()) { Text(njoftimi, style = tx(13, 600, n.ok), textAlign = TextAlign.Center); Spacer(Modifier.height(12.dp)) }
+            if (mesazhi.isNotEmpty()) { Text(mesazhi, style = tx(13, 600, n.exp), textAlign = TextAlign.Center); Spacer(Modifier.height(12.dp)) }
             // Tabet Hyr / Krijo llogari
             Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(n.sunken).padding(4.dp)) {
                 listOf(false to "Hyr", true to "Krijo llogari").forEach { (v, t) ->

@@ -292,8 +292,12 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
   const kal = [[2026, 9], [2026, 1], [2027, 0]].map(([v, m]) => { const k = EK.kalendari(afatetG, v, m, TANI_G); return { v, m, titulli: k.titulli, ditetMeStatus: k.ditetMeStatus, q: k.qelizat.map(q => q ? [q.iso, q.dita, q.sot, q.afatet.length, q.neRaft, q.statusi] : null) }; });
   const kerkesat = [ngjarjet[12], ngjarjet[13], { produktet: [] }, { produkti: '', barkodi: '' }].map(k => ({ k, l: EK.listaEKerkeses(k) }));
   const rreshtat = [{ produkti: 'Kos', barkodi: '1', data: iso(-2) }, { barkodi: '2' }, {}].map(x => ({ x, t: EK.rreshtiIProduktit(x) }));
+  // Administratori ndryshon afatin e një kolegu në dyqanin e tij (hiq / kthe / fshij; id e panjohur → null)
+  const gjA = { afatet: afatetG.slice(0, 6), fshira: { produktet: { 'f::1': 7 }, afatet: { zz: 5 } }, foldera: [{ id: 'f', emri: 'F' }] };
+  const adminAfat = [[gjA, 'a1', 'hiq'], [gjA, 'a6', 'kthe'], [gjA, 'a2', 'fshij'], [gjA, 'nuk', 'hiq'], [{ afatet: afatetG.slice(0, 2) }, 'a1', 'fshij'], [{}, 'a1', 'kthe'], [null, 'a1', 'hiq']]
+    .map(([gj, id, v]) => ({ gj, id, v, emri: 'mendurberisha', r: EK.ndryshoAfatinNeGjendje(gj, id, v, 'mendurberisha', TANI_G) }));
   global.Date = DataE;
-  dalja.grupi = JSON.parse(JSON.stringify({ TANI_G, prania, kohet, afatetG, permb, anetaret, st, tekstet, njoftimet, hartaTx, mbiv, zbatimi, kal, kerkesat, rreshtat }));
+  dalja.grupi = JSON.parse(JSON.stringify({ TANI_G, prania, kohet, afatetG, permb, anetaret, st, tekstet, njoftimet, hartaTx, mbiv, zbatimi, kal, kerkesat, rreshtat, adminAfat }));
   fs.writeFileSync(sk, JSON.stringify(dalja));
   console.log('grupi: ' + tekstet.length + ' tekste, ' + permb.length + ' në përmbledhje');
 }

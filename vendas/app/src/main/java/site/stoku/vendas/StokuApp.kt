@@ -62,7 +62,9 @@ class StokuApp : Application() {
         lateinit var app: Context
             private set
         /** Vetëm për testet (Robolectric): konteksti pa Firebase */
-        fun vendosPerProve(c: Context) { app = c }
+        fun vendosPerProve(c: Context) { app = c; neProve = true }
+        /** Testet e pamjeve (Robolectric): pa dritaret që dalin vetë (p.sh. pyetja për njoftimet) */
+        var neProve = false
         fun prefs(ctx: Context) = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         fun prefsOse(k: String, ose: String): String = prefs(app).getString(k, ose) ?: ose
         fun prefsOseB(k: String, ose: Boolean): Boolean = prefs(app).getBoolean(k, ose)
