@@ -122,6 +122,15 @@ private class Pyetja(val titulli: String, val teksti: String, val veprimi: Strin
 fun GrupiEkrani() {
     val n = N
     if (!Llogaria.leja("grupi")) return
+    // Prova si vizitor: Grupi kërkon llogari (si te web-i)
+    if (Llogaria.eshteVizitor()) {
+        Column(Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
+            Text("Grupi", style = tx(28, 800, n.ink, -0.02), modifier = Modifier.padding(top = 12.dp, bottom = 14.dp))
+            Bosh("Grupi punon me llogari", "Me llogari punon bashkë me kolegët: afatet e përbashkëta dhe aktiviteti. Si vizitor provon Stoku-n dhe Afatet.")
+            Buton("Hyr ose krijo llogari", { Llogaria.hapHyrjenNgaProva() }, Modifier.align(Alignment.CenterHorizontally))
+        }
+        return
+    }
     val gj by Grupi.gjendja.collectAsState()
     val doc by Grupi.grupiDoc.collectAsState()
     val anF by Grupi.anetaret.collectAsState()

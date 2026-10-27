@@ -401,4 +401,18 @@ class PamjetTest {
         r.setContent { StokuTema("light") { Porta() } }
         foto("light-00-porta")
     }
+
+    /** "Hyr si vizitor": të dhënat shembull, shiriti i provës, Cilësimet → Llogaria dhe Grupi pa llogari */
+    @Test fun vizitori() {
+        Dyqani.mbushProven()
+        Llogaria.vendosPerProve(null, vizitor = true)
+        r.setContent { StokuTema("light") { Rrenja("light") {} } }
+        foto("light-38-vizitor")
+        kliko("Grupi")
+        foto("light-39-vizitor-grupi")
+        kliko("Cilësimet")
+        kliko("Vizitor") // karta e profilit lart
+        foto("light-40-vizitor-llogaria")
+        Llogaria.vendosPerProve(Perdoruesi("u1", "besa"))
+    }
 }

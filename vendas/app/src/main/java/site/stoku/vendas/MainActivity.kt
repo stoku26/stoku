@@ -136,9 +136,10 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
     val n = N
     val gati by Llogaria.gati.collectAsState()
     val p by Llogaria.perdoruesi.collectAsState()
+    val vizitor by Llogaria.vizitor.collectAsState() // prova pa llogari (si "Hyr si vizitor" te web-i)
     when {
         !gati -> { DukeULidhur(); return }
-        p == null -> { Porta(); Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) { ToastPamja(poshte = 40.dp) }; return }
+        p == null && !vizitor -> { Porta(); Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) { ToastPamja(poshte = 40.dp) }; return }
     }
     val lejet by Llogaria.lejet.collectAsState()
     val merch by Llogaria.merchandiserIRegjistrimit.collectAsState()

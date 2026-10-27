@@ -57,6 +57,8 @@ fun Porta() {
     var rivendosja by remember { mutableStateOf(false) }
     var njoftimi by remember { mutableStateOf("") }
     val mesazhi by Llogaria.mesazhiIHyrjes.collectAsState() // p.sh. "Kjo llogari u fshi nga administratori."
+    var pyetVizitorin by remember { mutableStateOf(false) }
+    var mbajEmrin by remember { mutableStateOf(Llogaria.mbajEmrin()) } // të dhënat e një llogarie hiqen për provën: pyetet më parë
     val fFj = remember { FocusRequester() }
     val fFj2 = remember { FocusRequester() }
 
@@ -119,6 +121,7 @@ fun Porta() {
                             Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).clickable { shfaq = !shfaq }.padding(8.dp), tint = n.faint)
                     })
                 if (!krijo) Lidhje("Ke harruar fjalëkalimin?", { rivendosja = true; gabim = "" }, Modifier.align(Alignment.End))
+                if (!krijo) Kutia(mbajEmrin, { mbajEmrin = it; Llogaria.vendosMbajEmrin(it) }, "Më mbaj mend emrin e përdoruesit")
                 if (krijo) {
                     Etiketa("Përsërit fjalëkalimin")
                     Fusha(fj2, { fj2 = it }, Modifier.fillMaxWidth(), "Shkruaje edhe një herë", fjalekalim = !shfaq, fokusi = fFj2,
@@ -136,6 +139,32 @@ fun Porta() {
                 }
                 Text("Rekomandohet hapja e një llogarie, që të dhënat të ruhen në cloud.", style = tx(12, 400, n.muted),
                     textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                // "Hyr si vizitor" (si porta.js): provë pa llogari, me të dhëna shembull vetëm në këtë telefon
+                Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.weight(1f).height(1.dp).background(n.line))
+                    Text("ose", style = tx(12, 500, n.faint), modifier = Modifier.padding(horizontal = 10.dp))
+                    Box(Modifier.weight(1f).height(1.dp).background(n.line))
+                }
+                if (pyetVizitorin) {
+                    val em = Llogaria.emriIFundit()
+                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(n.nearTint).padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("Në këtë pajisje janë të dhënat e një llogarie" + (if (em.isNotEmpty()) " (\"$em\")" else "") +
+                            ". Si vizitor ato hiqen nga kjo pajisje. Ato që janë ruajtur në cloud kthehen kur të hysh sërish me llogari.", style = tx(13, 500, n.nearInk))
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Buton("Anulo", { pyetVizitorin = false }, Modifier.weight(1f), lloji = "dyte", lartesia = 44.dp)
+                            Buton("Vazhdo si vizitor", { pyetVizitorin = false; Llogaria.hyrSiVizitor() }, Modifier.weight(1.3f), lartesia = 44.dp)
+                        }
+                    }
+                } else {
+                    val vazhdo = Llogaria.provaEkziston()
+                    Buton(if (vazhdo) "Vazhdo provën si vizitor" else "Hyr si vizitor", {
+                        if (duke) return@Buton
+                        if (Llogaria.kaTeDhenaTeLlogarise()) pyetVizitorin = true else Llogaria.hyrSiVizitor()
+                    }, Modifier.fillMaxWidth(), lloji = "dyte", lartesia = 50.dp)
+                    Text(if (vazhdo) "Prova jote si vizitor është ende në këtë pajisje (kujdes: të dhënat nuk ruhen në cloud)."
+                        else "Hyr si vizitor për të parë si funksionojnë shërbimet e Stoku-t (kujdes: të dhënat nuk ruhen në cloud).",
+                        style = tx(12, 400, n.muted), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                }
             }
         }
     }

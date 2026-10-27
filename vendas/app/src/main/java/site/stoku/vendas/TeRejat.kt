@@ -8,6 +8,15 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(14, "2026-10-27", "Krejt opsionet e web-it", listOf(
+            "Kamera: zmadhimi 1×, 2×, 3× dhe fokusi me prekje. Kur e mban kamerën te një produkt që e ke në folder, sasia rritet +1 vetë, pa u mbyllur kamera.",
+            "Folderat: mbaje gishtin te një folder, pastaj lëvize për t'i renditur.",
+            "Fotografo fletën: \"Ku do ta kontrollosh fletën?\" (Dërgo në PC ose vazhdo këtu). Fotoja e zmadhuar tregon numrat e rreshtave.",
+            "Hyr si vizitor: provë pa llogari me të dhëna shembull. Te hyrja: \"Më mbaj mend emrin e përdoruesit\".",
+            "Njoftimet: pyetja kur hapet Stoku dhe \"Lejo njoftimet në telefon\" te zilja e Grupit.",
+            "PDA: te \"Afat i ri\" barkodi vjen nga skaneri i PDA-së (pa kamerë) dhe te folderi butoni \"Fshih tastierën\".",
+            "Administratori: te Grupi i heq, i kthen ose i fshin afatet e kolegëve, fshin llogari dhe i sheh \"Llogaritë e tjera\". Llogaria e fshirë del vetë nga aplikacioni."
+        )),
         Hyrja(13, "2026-10-27", "Marketi me shkrim, kamera pa dritare sipër", listOf(
             "Te \"Afat i ri\" marketi s'zgjidhet më nga një rresht me butona anash: shkruan disa shkronja të emrit dhe poshtë dalin marketet që përputhen. Kur e shkruan emrin saktë, zgjidhet vetë.",
             "Kur skanon barkodin me kamerë nga \"Afat i ri\", dritarja fshihet derisa të mbyllet kamera, pastaj del sërish me barkodin e plotësuar."

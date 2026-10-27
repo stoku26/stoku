@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.withStyle
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -149,7 +150,7 @@ private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, Str
         verticalArrangement = Arrangement.spacedBy(0.dp)) {
         item {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                EtiketaStoku(p?.emri ?: "", { Sinkronizimi.rifresko(); Toast.trego("Duke sinkronizuar…", 1500) })
+                EtiketaStoku(p?.emri ?: if (Llogaria.eshteVizitor()) "Vizitor · provë" else "", { Sinkronizimi.rifresko(); Toast.trego("Duke sinkronizuar…", 1500) })
                 Spacer(Modifier.weight(1f))
                 if (Llogaria.leja("stoku") && Llogaria.leja("stokuImporto")) {
                     ButonIkone(Ik.Foto, "Importo stokun nga galeria", { if (kaFolder()) galeriaStok() })
@@ -158,6 +159,17 @@ private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, Str
                 }
             }
             Hapesire(14.dp)
+            // Prova si vizitor (si .viz-shirit te web-i)
+            if (Llogaria.eshteVizitor()) {
+                Row(Modifier.fillMaxWidth().padding(bottom = 12.dp).clip(RoundedCornerShape(14.dp)).background(n.accentTint).padding(start = 14.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(androidx.compose.ui.text.buildAnnotatedString {
+                        withStyle(androidx.compose.ui.text.SpanStyle(fontWeight = androidx.compose.ui.text.font.FontWeight(700))) { append("Vizitor") }
+                        append(" · provë pa llogari, me të dhëna shembull")
+                    }, style = txF(13.5f, 400, n.accentText), modifier = Modifier.weight(1f))
+                    Buton("Hyr", { Llogaria.hapHyrjenNgaProva() }, lartesia = 36.dp)
+                }
+            }
             if (Llogaria.leja("stoku")) Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), "Kërko produkt ose barkod", ikona = Ik.Kerko)
             Hapesire(18.dp)
             // "Je te: …" (vetëm merchandiseri me markete, ose pa asnjë: "Shto marketin ku punon")
@@ -361,6 +373,7 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
     }
     val lejaShpejt = Llogaria.leja("stokuPlusMinus")
     val pda by Opsionet.pda.collectAsState()
+    val paTastiere by Opsionet.paTastiere.collectAsState()
     val kursori by Opsionet.kursori.collectAsState()
     // PDA: kursori te barkodi që në hapje; pas produktit kthehet te barkodi (PDA, ose skaneri i jashtëm kur barkodi erdhi nga fusha)
     var hapurNjeHere by remember { mutableStateOf(false) }
@@ -407,6 +420,15 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
                 Hapesire(10.dp)
                 if (Llogaria.leja("kamera") && !pda) {
                     Buton("Skano me kamerë", { skano({ b -> hapBarkodin(b, "kamera") }) { b -> shtoNjeCope(b) } }, Modifier.fillMaxWidth(), ikona = Ik.Skano)
+                    Hapesire(10.dp)
+                }
+                // PDA: tastiera në ekran fshihet/shfaqet me një prekje (si #btnTastiera te web-i); kursori mbetet te barkodi
+                if (pda) {
+                    Buton(if (paTastiere) "Shfaq tastierën" else "Fshih tastierën", {
+                        Opsionet.vendosPaTastiere(!paTastiere)
+                        Toast.trego(if (!paTastiere) "Tastiera në ekran s'del më. Shkruaj me tastierën e PDA-së." else "Tastiera në ekran del përsëri.")
+                        try { fBarkodi.requestFocus() } catch (e: Exception) { }
+                    }, Modifier.fillMaxWidth(), lloji = "dyte", ikona = Ik.Tastiera)
                     Hapesire(10.dp)
                 }
                 val lejaXls = Llogaria.leja("eksportExcel")

@@ -52,6 +52,36 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ANDROID: KREJT OPSIONET E WEB-IT TË TELEFONIT (27.10.2026, vetëm `vendas/` + fikstura e ekipa.js)**: përdoruesi: "Shtoj krejta
+   opsionet qka i ka web appi mobile e qe sjan ne android app". Krahasimi u bë me funksionet e `app-tel.js`/`index.html` dhe me
+   një skript që i kërkon tekstet e web-it te Kotlin-i. U shtuan (Çka ka të re 14):
+   - **Kamera** (`ui/Skaneri.kt`): zmadhimi 1×/2×/3× (`DritaKamere.nivelet` nga `zoomState`, baza ≥ 1×, si `kontrolletKam`), drita vetëm
+     kur ka blic, fokusi me prekje (`FocusMeteringAction`, 1.5 s), kodi QR = toast "Ke skenuar një kod QR…" (çdo 2 s) dhe kamera vazhdon,
+     hint-i "Vendos vetëm një barkod brenda kutisë", **numërimi i vazhdueshëm** (`Skaneri(shtoNjeCope)`: produkti që ekziston në
+     folder merr +1 jo më shpesh se 1.5 s sa kohë shihet, mbaron pas 3 s, "+N" mbi kornizë; lejet stokuNdrysho + stokuPlusMinus si
+     `eLejuarSasiaShpejte`). `MainActivity`: `skanoMeNumerim` vetëm për folderin.
+   - **Zvarritja e folderave** (`Kryefaqja`): `detectDragGesturesAfterLongPress`, karta ndjek gishtin (graphicsLayer), objektivi me
+     vijë blu; në lëshim `Dyqani.renditFolderat` (para/pas si te web-i). Leja stokuFoldera.
+   - **Fleta**: numrat e rreshtave mbi foton e zmadhuar (`NumratMbiFoton`, r.x/r.y si `vizatoNumratMbiFoton`); **"Ku do ta kontrollosh
+     fletën?"** (`KuFletaDritarja`, me llogari + leja pc): AI këtu → `LeximiAI.fotoPerDergim` (JPEG < 800 000 shenja) →
+     `LeximiAI.dergoFleten` = `dyqane/{uid}/fletet` { krijuarSe, nga, foto, rreshtat, lloji:"stok"? }, edhe për importin e stokut.
+   - **Hyr si vizitor** (`Llogaria.vizitor`, pref "vizitor"; `Dyqani.mbushProven` = mbushProven i porta.js, pronari `Dyqani.VIZITOR`):
+     porta ("ose", "Hyr si vizitor"/"Vazhdo provën si vizitor", pyetja kur ka të dhëna të një llogarie), shiriti "Vizitor · provë pa
+     llogari…" + "Hyr", etiketa "Vizitor · provë", Cilësimet → Llogaria ("Je si vizitor", "Hyr ose krijo llogari", "Fillo nga e para"),
+     Grupi "Grupi punon me llogari". Hyrja me llogari e mbyll provën (Sinkronizimi → `vendosPronarin` i fshin të dhënat e provës).
+     Porta: "Më mbaj mend emrin e përdoruesit" (pref "mbaj_emrin", parazgjedhja po).
+   - **Njoftimet**: `PyetjaENjoftimeve` (si dlgNjoftimet: Android 13+, pa leje dhe pa u pyetur, "Jo tani" = 3 ditë; pas "Çka ka të re";
+     jo në testet e pamjeve: `StokuApp.neProve`) dhe "Lejo njoftimet në telefon" te zilja e Grupit.
+   - **PDA**: "Afat i ri" pa butonin e kamerës, me "Skano barkodin me skanerin e PDA-së."; te folderi butoni "Fshih tastierën"/"Shfaq tastierën".
+   - **Administratori te Grupi**: te afatet e kolegëve "Ktheje në raft"/"Shëno të hequr"/"Fshije" (`Grupi.adminNdryshoAfatin` me
+     `Sinkronizimi.ndryshoDyqaninE` + `GrupiLogjika.ndryshoAfatinNeGjendje`, fikstura e re `grupi.adminAfat` te `vendas-fikstura.js`,
+     `GrupiTest.adminAfat`; përmbledhja e kolegut, njoftimi "admin-afat" dhe aktiviteti), "Fshi" te Menaxho kolegët dhe "Llogaritë e
+     tjera (vetëm administratori)" (Fto/Fshi, 15 + "Shfaq krejt"), `Admini.fshijLlogarine` = fshijLlogarine i ekipa.js.
+   - **Llogaria e fshirë nga administratori** (`Llogaria.degjoFshirjen`, `ekipa_fshire/{uid}`): Push.caktivizo, fshirja e llogarisë
+     së hyrjes (ose dalja), të dhënat hiqen (`vendosPronarin("llogari-e-fshire")`), porta: "Kjo llogari u fshi nga administratori."
+   Mbeten jashtë qëllimisht: "Stoku" te Grupi (u hoq te web-i që te v183), instalimi i PWA-së, kyçja/rrotullimi i PDA-së i web-it.
+   Pamjet e reja: light-37 (numrat), light-38/39/40 (vizitori). S'është testuar në telefon të vërtetë.
+
 0000000. **ANDROID: MARKETI ME SHKRIM TE "AFAT I RI", KAMERA PA DRITAREN SIPËR (27.10.2026, vetëm `vendas/`)**: përdoruesi (2 foto
    të "Afat i ri" në Android): "Bone me shkru met dal marketi e jo si ne foto" (rreshti me çipa "Zgjidh marketin | Albi Market
    34 | …") dhe "Nuk u heka qekjo faqe kur klikoj me shtu afat permes kameres" (kamera hapej poshtë dritares).
