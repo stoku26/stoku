@@ -69,7 +69,8 @@ class StokuApp : Application() {
         fun vendosPref(k: String, v: String) { prefs(app).edit().putString(k, v).apply() }
         fun vendosPrefB(k: String, v: Boolean) { prefs(app).edit().putBoolean(k, v).apply() }
 
-        // I njëjti projekt si web-i dhe aplikacioni tel/ (çelësi është publik; mbrojtja = rregullat e Firestore-it)
+        // I njëjti projekt si web-i (çelësi është publik; mbrojtja = rregullat e Firestore-it). APP_ID është aplikacioni Android
+        // i regjistruar te Firebase (fillimisht për aplikacionin e vjetër site.stoku.app): mos e fshi te Firebase Console.
         private const val PROJEKTI = "stoku-appi"
         private const val CELESI = "AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY"
         /** Çelësi publik i Firebase-it (si te web-i; mbrojtja = rregullat), për thirrjet direkte të API-së */

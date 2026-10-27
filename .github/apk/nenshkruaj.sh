@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Nënshkrimi përfundimtar i APK-së (thirret nga tel-apk.yml dhe ora-apk.yml pas Gradle-it).
+# Nënshkrimi përfundimtar i APK-së (thirret nga vendas-apk.yml me çelësat e tel/ dhe nga ora-apk.yml, pas Gradle-it).
 # - Pa çelës të ri në repo: APK-ja mbetet ashtu siç e nënshkroi Gradle-i (çelësi i vjetër).
 # - Me çelës të ri (krijuar një herë nga apk-celesat.yml): v2 me çelësin e vjetër (Android 8), v3 me çelësin e ri
 #   + zinxhirin e ndërrimit (Android 9+). Kështu aplikacioni përditësohet pa u çinstaluar.

@@ -19,7 +19,8 @@ android {
         versionName = "0.1.$numri"
     }
 
-    // Çelësi i vjetër (publik) si te tel/; GitHub Actions e rinënshkruan me .github/apk/nenshkruaj.sh (vula e re e tel/)
+    // Çelësi i vjetër (publik) te tel/ (aty kanë mbetur vetëm çelësat); GitHub Actions e rinënshkruan me
+    // .github/apk/nenshkruaj.sh (vula e re e tel/)
     signingConfigs {
         create("stoku") {
             storeFile = file("../../tel/stoku-tel.jks")

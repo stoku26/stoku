@@ -9,7 +9,7 @@ on:
 
 permissions:
   contents: write # shkruan vulën e enkriptuar dhe zinxhirin në main
-  actions: write  # nis tel-apk.yml dhe ora-apk.yml
+  actions: write  # nis vendas-apk.yml dhe ora-apk.yml
 
 concurrency:
   group: apk-celesat
@@ -40,5 +40,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh workflow run tel-apk.yml --ref main
+          gh workflow run vendas-apk.yml --ref main
           gh workflow run ora-apk.yml --ref main
