@@ -52,6 +52,18 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **MARKETET FQINJE: GPS-I S'I DALLON → MBETET AKTIVI OSE "KU JE?" (v257 = 1.41.1, 27.10.2026)**: përdoruesi (me hartën
+   satelitore, Viva Fly dhe Viva Fresh 110 matanë rrugës): "Me se shumti brenda 100m? Qka nese jem te njoni prej ktyne
+   marketeve?", pastaj "Provoje a e kap … edhe testoje a bon mir a jo". Simulimi (marketet 55–65 m larg, 4000 matje GPS me
+   gabim ±15…±60 m, në 5 vende brenda dy marketeve) tregoi se "më i afërti" zgjidhte fqinjin deri në 35% të rasteve me GPS
+   të dobët brenda ndërtesës. Tash `gjejMarketin(l, poz, aktivId)` (marketet.js + `Marketet.kt`, fikstura "fqinjet" + `gjejM`):
+   kur disa markete brenda rrezes ndryshojnë në largësi më pak se max(`PAQARTESIA_MIN_M` 10 m, `PAQARTESIA_K` 0.8 ×
+   pasaktësia), mbetet aktivi (nëse është njëri prej tyre), përndryshe `{ paqarte, kandidatet }` → "Ku je?" me tekstin "Je afër
+   disa marketeve dhe GPS-i s'i dallon dot. Zgjidh ku je: zgjedhja jote mbetet." (rregullat e vjetra: një herë në 3 orë pa
+   e kërkuar). Rezultati: gabimet ≤ 10%, me marketin e duhur aktiv mbetet aty ≥ 88%. `gjej()` mbetet si ishte (fikstura).
+   Testi `teste/v257.js` (njësitë, simulimi, telefoni). Android: `Merchandiseri.kontrolloGps`, `Dritarja.KuJe(paqarte)`,
+   Çka ka të re 12. S'është testuar në telefon të vërtetë: koordinatat e vërteta të dy marketeve s'i kam (janë te Firebase).
+
 0000000. **MARKETET + HARTA NË NJË FAQE, "JE TE" NË METRA, FOTOT E KOLEGËVE NË ANDROID (v256 = 1.41.0, 27.10.2026)**:
    përdoruesi (4 foto): (1) "fotografit e profilit qaty ku jan te rrethekum kolegt … nuk osht ka i qet ne app" (Grupi →
    Online tani në Android); (2) "i bon bashk harta dhe marketet, opsionin te cilesimet e len me emrin Marketet edhe me ikonen

@@ -20,6 +20,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 257, versioni: '1.41.1', data: '2026-10-27', titulli: 'Marketet fqinje', platforma: 'tel', pikat: [
+      'Kur dy markete janë afër njëri-tjetrit (p.sh. matanë rrugës) dhe GPS-i brenda ndërtesës s\'i dallon dot, Stoku s\'zgjedh më vetë fqinjin e gabuar: mbetet marketi ku je, ose të pyet "Ku je?" me të dy marketet në krye. Zgjedhja jote mbetet.'
+    ] },
     { v: 256, versioni: '1.41.0', data: '2026-10-27', titulli: 'Marketet dhe harta në një vend', platforma: 'tel', pikat: [
       'Te Cilësimet, "Harta" dhe "Marketet" tash janë një faqe e vetme: "Marketet". Aty janë marketi ku je, harta, lista e marketeve të Stoku-t dhe shtimi i marketit ku je.',
       '"Je te: …" del vetëm kur je vërtet brenda marketit (deri rreth 100 m larg tij). Në shtëpi ose larg marketeve s\'del më, edhe kur e ke zgjedhur vetë më herët.'
