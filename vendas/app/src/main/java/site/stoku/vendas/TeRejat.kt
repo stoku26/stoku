@@ -8,6 +8,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(15, "2026-10-27", "Dalja nga llogaria", listOf(
+            "Butoni \"Dil\" është tash te Cilësimet, në kartën me emrin tënd (djathtas). Brenda faqes Llogaria s'është më."
+        )),
         Hyrja(14, "2026-10-27", "Krejt opsionet e web-it", listOf(
             "Kamera: zmadhimi 1×, 2×, 3× dhe fokusi me prekje. Kur e mban kamerën te një produkt që e ke në folder, sasia rritet +1 vetë, pa u mbyllur kamera.",
             "Folderat: mbaje gishtin te një folder, pastaj lëvize për t'i renditur.",

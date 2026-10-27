@@ -52,6 +52,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ANDROID: "DIL" TE KARTA E PROFILIT (27.10.2026, vetëm `vendas/`)**: përdoruesi (me foton e Cilësimeve, rrethi i kuq djathtas
+   te karta e profilit): "qite ni buton per me dal prej llogaris, hiqe ato mrena qe osht te llogaria". `Menyja` (`CilesimetEkrani.kt`):
+   butoni "Dil" (ikona Dil, sfondi expTint) para "›" te karta e profilit, vetëm me llogari; konfirmimi "Të dilet nga llogaria?" me
+   Push.caktivizo + Llogaria.dil u zhvendos këtu. Te `LlogariaFaqja` "Dil nga llogaria" u hoq. Web-i mbetet si ishte (`#cloudDilBtn`).
+   Çka ka të re 15. S'është testuar në telefon të vërtetë.
+
 0000000. **ANDROID: KREJT OPSIONET E WEB-IT TË TELEFONIT (27.10.2026, vetëm `vendas/` + fikstura e ekipa.js)**: përdoruesi: "Shtoj krejta
    opsionet qka i ka web appi mobile e qe sjan ne android app". Krahasimi u bë me funksionet e `app-tel.js`/`index.html` dhe me
    një skript që i kërkon tekstet e web-it te Kotlin-i. U shtuan (Çka ka të re 14):
