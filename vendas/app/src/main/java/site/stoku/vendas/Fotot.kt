@@ -52,6 +52,15 @@ object Fotot {
 
     fun kaFoto(uid: String?): Boolean = uid != null && _indeksi.value[uid] != null
 
+    /** Llogaria sipas emrit (si `Fotot.apliko(el, emri)` te ekipa.js): anëtarët e grupit, unë, llogaritë e administratorit */
+    fun uidPerEmrin(emri: String?): String? {
+        val e = emri?.trim()?.lowercase() ?: return null
+        if (e.isEmpty()) return null
+        Grupi.anetaret.value.firstOrNull { (it["emri"] as? String)?.trim()?.lowercase() == e }?.let { a -> (a["uid"] as? String)?.ifEmpty { null }?.let { return it } }
+        Llogaria.perdoruesi.value?.let { if (it.emri.trim().lowercase() == e) return it.uid }
+        return Admini.llogarite.value?.firstOrNull { it.emri.trim().lowercase() == e }?.uid
+    }
+
     private fun url(uid: String, v: Long) = Push.URL_PUSH + "/foto/" + URLEncoder.encode(uid, "UTF-8") + "?v=" + v
 
     /** Fotoja e një llogarie (nga kujtesa, cache-i ose serveri); null kur s'ka foto */
