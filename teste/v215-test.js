@@ -1,7 +1,7 @@
 // v215 (kontrolli i plotë i projektit):
 //  A) telefoni: ruajtja e një afati ekzistues (p.sh. vetëm sasia) s'e kthen "të ri" furnizuesin që administratori e fshiu
 //     (më parë krahasohej me id-në e afatit, jo me afatin); një furnizues i ri te afati pret ende kontrollin;
-//  B) telefoni: datat e shpejta "1 muaj"/"3 muaj" nga 31 janari → fundi i shkurtit/prillit (jo 3 mars / 1 maj);
+//  B) (v254: datat e shpejta u hoqën nga "Afat i ri"; testi i tyre u hoq, shih v254.js)
 //  C) kompjuteri: barkodi me shkronja nga skaneri USB ("…N…M…") s'hap shkurtoret, por produktin me barkodin e plotë;
 //  D) kompjuteri + telefoni: një gabim i papritur gjatë sinkronizimit s'e ngec statusin te "Duke sinkronizuar…";
 //  E) telefoni + kompjuteri: dy pyetje konfirmimi njëra pas tjetrës: e para s'mbetet pa përgjigje.
@@ -69,29 +69,6 @@ const kujtesaE = p => p.evaluate(() => JSON.parse(localStorage.getItem('stoku:ku
     await p.click('#afatRuaj'); await p.waitForTimeout(500);
     K = await kujtesaE(p);
     ok(K['furnizuesi Frutex'] && !K['furnizuesi Frutex'].x, 'A: afat i ri me "Frutex" e kthen në pritje (dikush e shkroi sërish)', K['furnizuesi Frutex']);
-    await ctx.close();
-  }
-
-  // ---------- B) telefoni: datat e shpejta nga 31 janari ----------
-  {
-    const { p, ctx } = await faqe(b, false, 'agim', [], null, { koha: new Date(2027, 0, 31, 10, 0, 0) });
-    await p.click('#btnAfatet'); await p.waitForTimeout(300);
-    await p.click('#afShto'); await p.waitForTimeout(300);
-    const datat = await p.$$eval('#afatDatat .sb-date', x => x.map(e => [e.querySelector('.sb-date__sa').textContent, e.getAttribute('data-iso')]));
-    const m = Object.fromEntries(datat);
-    ok(m['1 javë'] === '2027-02-07' && m['2 javë'] === '2027-02-14', 'B: 1 javë / 2 javë', m);
-    ok(m['1 muaj'] === '2027-02-28', 'B: "1 muaj" nga 31.01 = 28.02 (jo 03.03)', m['1 muaj']);
-    ok(m['3 muaj'] === '2027-04-30', 'B: "3 muaj" nga 31.01 = 30.04 (jo 01.05)', m['3 muaj']);
-    await p.click('#afatDatat .sb-date:has-text("1 muaj")'); await p.waitForTimeout(100);
-    ok(await p.inputValue('#afatData') === '28-02-27', 'B: fusha merr 28-02-27', await p.inputValue('#afatData'));
-    await ctx.close();
-  }
-  {
-    const { p, ctx } = await faqe(b, false, 'agim', [], null, { koha: new Date(2027, 4, 15, 10, 0, 0) });
-    await p.click('#btnAfatet'); await p.waitForTimeout(300);
-    await p.click('#afShto'); await p.waitForTimeout(300);
-    const m = Object.fromEntries(await p.$$eval('#afatDatat .sb-date', x => x.map(e => [e.querySelector('.sb-date__sa').textContent, e.getAttribute('data-iso')])));
-    ok(m['1 muaj'] === '2027-06-15' && m['3 muaj'] === '2027-08-15', 'B: nga 15.05: 15.06 dhe 15.08 (si më parë)', m);
     await ctx.close();
   }
 

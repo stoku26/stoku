@@ -20,6 +20,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 254, versioni: '1.39.2', data: '2026-10-27', titulli: 'Afat i ri më i thjeshtë', platforma: 'tel', pikat: [
+      'Te "Afat i ri" u hoqën datat e shpejta (1 javë, 2 javë, 1 muaj, 3 muaj). Data shkruhet te fusha, si më parë, dhe poshtë saj del sa ditë ka deri në skadim.'
+    ] },
     { v: 253, versioni: '1.39.1', data: '2026-10-23', titulli: 'Markete afër njëri-tjetrit', pikat: [
       'Dy markete tash mund të jenë afër njëri-tjetrit (p.sh. në dy anët e rrugës). Marketi i ri s\'shtohet vetëm kur je më pak se 20 m nga një market tjetër.',
       'Kur afër ka një market tjetër dhe vendndodhja s\'është mjaft e saktë, Stoku të tregon cili market është dhe sa larg: zgjidhe atë te "Ku je?", ose prit pak brenda marketit dhe provo sërish.'
