@@ -71,8 +71,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      marketeve), titulli i faqes "Marketet" (data-faqe mbetet `harta`). Testet e përshtatura: marketet-v241 (njësitë, zgjedhja
      me dorë 2 km larg tash bie, pritja pas "Gjej me GPS"), harta-v244/v247, v250, v251, v253, pikat-v246, v255; i ri `v256.js`.
    - **Android**: `ui/HartaUI.kt` (MapLibre Native `org.maplibre.gl:android-sdk:11.8.0`, stili i njëjtë si `harta.js`, sateliti
-     me OkHttp që i shton Referer `https://stoku.site/` kërkesave të arcgis.com, `abiFilters` arm64-v8a + armeabi-v7a: APK 23 MB
-     në vend të 32), `MarketetFaqja` e bashkuar, administratori sheh "Marketet" (pikat i dëgjon edhe ai,
+     me OkHttp që i shton Referer `https://stoku.site/` kërkesave të arcgis.com, `abiFilters` arm64-v8a + armeabi-v7a: APK-ja vendas-v56 është
+     40 MB, më parë 32 MB; pa filtrin do të ishte shumë më e madhe), `MarketetFaqja` e bashkuar, administratori sheh "Marketet" (pikat i dëgjon edhe ai,
      `shtoPikenNgaAdmini`/`ndryshoEmrinEPikes`/`fshiPiken`). Në testet e pamjeve (Robolectric, pa OpenGL) harta del si kuti.
      Grupi: `Avatari`/`AvatariLehte` me `fotoEProfilit(uid ?: Fotot.uidPerEmrin(emri))`; `Fotot.rifresko()` kur hapet Grupi.
    - Regresioni v256: 77 me exit=0 (`skedaret-e2e-v229.js` dështon herë pas here te `page.goto` gjatë regresionit, edhe para
