@@ -58,7 +58,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    `tel-apk.yml`, `android.js` (ura `window.StokuAndroid`: njoftimet, ndarja, tastiera e PDA-së, tokeni FCM), `android.json`
    (Firebase për APK-në e vjetër), `teste/android-test.js`, dhe te web-i: `ekipa.js` (FCM i WebView-it te `pajisjaPush`),
    `app-tel.js` (thirrjet `fshihTastieren`/`tastieraFshehur`, butoni "Kontrollo për përditësim" brenda WebView-it), SHELL i
-   `sw.js`. Release-t `tel-vNN` u fshinë nga GitHub. **Mbeten qëllimisht te `tel/`**: `stoku-tel.jks`, `celesi-i-ri.p12.enc`,
+   `sw.js`. Release-t `tel-vNN` (10 copë, tel-v3 deri tel-v23) dhe tag-et e tyre **i fshin pronari me dorë** te GitHub →
+   Releases (sesioni s'kishte leje për fshirje); `android.html` s'i përdor më. **Mbeten qëllimisht te `tel/`**: `stoku-tel.jks`, `celesi-i-ri.p12.enc`,
    `celesi.lineage` (me to nënshkruhet aplikacioni `vendas/`: pa to telefonat s'e pranojnë përditësimin) + `tel/README.md`.
    **APP_ID-ja e Android-it te Firebase** (`1:107114545225:android:c661…`, e regjistruar për `site.stoku.app`) përdoret nga
    `vendas/` (`StokuApp.kt`): pronari s'duhet ta fshijë atë aplikacion te Firebase Console. `android.html` +
