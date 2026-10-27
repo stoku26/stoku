@@ -52,6 +52,32 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **MARKETET + HARTA NË NJË FAQE, "JE TE" NË METRA, FOTOT E KOLEGËVE NË ANDROID (v256 = 1.41.0, 27.10.2026)**:
+   përdoruesi (4 foto): (1) "fotografit e profilit qaty ku jan te rrethekum kolegt … nuk osht ka i qet ne app" (Grupi →
+   Online tani në Android); (2) "i bon bashk harta dhe marketet, opsionin te cilesimet e len me emrin Marketet edhe me ikonen
+   … brenda dyjave qka ka mrrena i ri-organizon"; (3) "nshpi jam ma qet marketin mat afert … kishe jom te viva fresh 2 …
+   bone me metra nese sje nqat hapsir mos me ta qit".
+   - **"Je te" (marketet.js + `logjika/Marketet.kt`, fikstura)**: `RREZJA_M` 250 → **60 m**, `PASAKTESIA_MAKS_M` 150 → **40 m**
+     (më së shumti 100 m); me pasaktësi mbi `PASAKTESIA_E_PRANUESHME_M` (150 m) `gjej` = null. Zgjedhja me dorë (3 orë) bie kur
+     GPS-i i saktë të tregon mbi `LARG_M` (300 m) + pasaktësia larg saj: `largNgaMarketi(l, id, poz)` → `pasGps(…, larg)`
+     (app-tel.js `kontrolloGps`, `Merchandiseri.kontrolloGps`). Në shtëpi tash del "Krejt marketet" (dhe "Ku je?" sipas
+     rregullit të vjetër, një herë në 3 orë).
+   - **Web (telefoni)**: faqja `marketet` përmban gjithçka: `#mkIntro` (teksti sipas rolit), `#mkAktivKarta` (merchandiseri),
+     harta (`#htHarta`, `htHapFaqen` kur hapet), `#htShtoKuti` (administratori), një listë e vetme `#htLista` (merchandiseri:
+     "· je këtu" + afatet; administratori: ndryshimi i emrit / fshirja), `#mkShtoKuti` (merchandiseri, "Market i ri").
+     `#tabHarta` dhe faqja `harta` u hoqën (`aktivizoTabin('harta')` → `marketet`); `#mkLista` s'ekziston më. Rreshti
+     `#tabMarketet` (pa `data-leja`; klasa `leja-ndaluar` nga `lejaMarketet()` = administratori ose merchandiseri me Afatet),
+     statusi i administratorit "Marketet në hartë". **PC**: skeda `opsSkedaHarta` quhet "Marketet" (ikona e gjelbër e
+     marketeve), titulli i faqes "Marketet" (data-faqe mbetet `harta`). Testet e përshtatura: marketet-v241 (njësitë, zgjedhja
+     me dorë 2 km larg tash bie, pritja pas "Gjej me GPS"), harta-v244/v247, v250, v251, v253, pikat-v246, v255; i ri `v256.js`.
+   - **Android**: `ui/HartaUI.kt` (MapLibre Native `org.maplibre.gl:android-sdk:11.8.0`, stili i njëjtë si `harta.js`, sateliti
+     me OkHttp që i shton Referer `https://stoku.site/` kërkesave të arcgis.com, `abiFilters` arm64-v8a + armeabi-v7a: APK 23 MB
+     në vend të 32), `MarketetFaqja` e bashkuar, administratori sheh "Marketet" (pikat i dëgjon edhe ai,
+     `shtoPikenNgaAdmini`/`ndryshoEmrinEPikes`/`fshiPiken`). Në testet e pamjeve (Robolectric, pa OpenGL) harta del si kuti.
+     Grupi: `Avatari`/`AvatariLehte` me `fotoEProfilit(uid ?: Fotot.uidPerEmrin(emri))`; `Fotot.rifresko()` kur hapet Grupi.
+   - Regresioni v256: 77 me exit=0 (`skedaret-e2e-v229.js` dështon herë pas here te `page.goto` gjatë regresionit, edhe para
+     këtyre ndryshimeve; vetëm kalon). S'është testuar në telefon të vërtetë (as harta në Android).
+
 0000000. **APLIKACIONI I VJETËR I TELEFONIT (WEBVIEW) U FSHI (v255 = 1.40.0, 27.10.2026)**: përdoruesi: "A munesh me fshi
    gjithqka rreth appit tjeter qe sosht native aj webview qe osht, zhduke komplet, kto native app qe osht kto kem me perdor
    prej tash". U fshinë: kodi i `tel/` (`site.stoku.app`, MainActivity/Ura/FcmSherbimi/Perditesimi, Gradle), workflow-i
