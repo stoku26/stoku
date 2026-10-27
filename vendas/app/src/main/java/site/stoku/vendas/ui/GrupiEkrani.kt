@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
@@ -1114,8 +1115,55 @@ private fun RreshtiKolegut(a: Obj, ctx: Konteksti) {
 
 @Composable
 private fun IkonaERolit(ik: ImageVector, sf: Color, ng: Color, emri: String) {
-    Box(Modifier.padding(start = 6.dp).size(22.dp).clip(CircleShape).background(sf).clickable { Toast.trego(emri, 3500) }, contentAlignment = Alignment.Center) {
+    // Prekja tregon flluskën me emrin e rolit mbi ikonë (si ekTregoFlluskeRoli te web-i); mbyllet me prekje tjetër ose pas 5 s
+    var hapur by remember { mutableStateOf(false) }
+    var mbyllurNe by remember { mutableLongStateOf(0L) }
+    LaunchedEffect(hapur) { if (hapur && !site.stoku.vendas.StokuApp.neProve) { delay(5000); hapur = false } }
+    Box(Modifier.padding(start = 6.dp).size(22.dp).clip(CircleShape).background(sf)
+        .clickable { if (System.currentTimeMillis() - mbyllurNe > 250) hapur = !hapur }, contentAlignment = Alignment.Center) {
         Icon(ik, emri, Modifier.size(13.dp), tint = ng)
+        if (hapur) FlluskaERolit(emri) { hapur = false; mbyllurNe = System.currentTimeMillis() }
+    }
+}
+
+/** Flluska (ek-flluska): sipër ikonës me shigjetë drejt saj; poshtë kur s'ka vend lart; brenda ekranit (12 dp nga skajet) */
+@Composable
+private fun FlluskaERolit(tekst: String, mbyll: () -> Unit) {
+    val n = N
+    val d = androidx.compose.ui.platform.LocalDensity.current
+    var lart by remember { mutableStateOf(true) }
+    var zhvendosja by remember { mutableStateOf(0) } // sa u shty flluska anash që të mos dalë jashtë ekranit (px)
+    val pozicioni = remember {
+        object : androidx.compose.ui.window.PopupPositionProvider {
+            override fun calculatePosition(anchorBounds: androidx.compose.ui.unit.IntRect, windowSize: androidx.compose.ui.unit.IntSize,
+                layoutDirection: androidx.compose.ui.unit.LayoutDirection, popupContentSize: androidx.compose.ui.unit.IntSize): androidx.compose.ui.unit.IntOffset {
+                val skaji = with(d) { 12.dp.roundToPx() }; val hapesira = with(d) { 4.dp.roundToPx() }; val koka = with(d) { 72.dp.roundToPx() }
+                val x0 = anchorBounds.left + anchorBounds.width / 2 - popupContentSize.width / 2
+                val x = x0.coerceIn(skaji, maxOf(skaji, windowSize.width - skaji - popupContentSize.width))
+                val l = anchorBounds.top - hapesira - popupContentSize.height >= koka
+                if (l != lart) lart = l
+                if (x - x0 != zhvendosja) zhvendosja = x - x0
+                return androidx.compose.ui.unit.IntOffset(x, if (l) anchorBounds.top - hapesira - popupContentSize.height else anchorBounds.bottom + hapesira)
+            }
+        }
+    }
+    androidx.compose.ui.window.Popup(popupPositionProvider = pozicioni, onDismissRequest = mbyll) {
+        Column(Modifier.width(androidx.compose.foundation.layout.IntrinsicSize.Max)) {
+            @Composable fun Shigjeta(poshte: Boolean) = androidx.compose.foundation.Canvas(Modifier.fillMaxWidth().height(6.dp)) {
+                val ax = size.width / 2 - zhvendosja
+                val gj = 6.dp.toPx()
+                val rruga = androidx.compose.ui.graphics.Path().apply {
+                    if (poshte) { moveTo(ax - gj, 0f); lineTo(ax + gj, 0f); lineTo(ax, size.height) }
+                    else { moveTo(ax - gj, size.height); lineTo(ax + gj, size.height); lineTo(ax, 0f) }
+                    close()
+                }
+                drawPath(rruga, n.invBg)
+            }
+            if (!lart) Shigjeta(false)
+            Text(tekst, style = tx(13, 500, n.invFg), modifier = Modifier.widthIn(max = 260.dp).clip(RoundedCornerShape(12.dp)).background(n.invBg)
+                .padding(horizontal = 12.dp, vertical = 9.dp))
+            if (lart) Shigjeta(true)
+        }
     }
 }
 

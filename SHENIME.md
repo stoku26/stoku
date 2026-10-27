@@ -52,6 +52,22 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ANDROID: AFATET PA "SKANO" + "EXCEL" NË NJË BUTON, FLLUSKA E ROLIT, PROVA S'HYN TE REGJISTRI (27.10.2026, vetëm `vendas/`)**:
+   përdoruesi (3 foto): (1) roli te Kolegët dilte si toast poshtë: "ndreqe me dal si ne web app afer emrit"; (2) te web-i (Cilësimet →
+   Stoku) "Furnizuesit e rinj 3" dhe "Produktet e reja 13" ishin të dhënat shembull të provës si vizitor: "mos i shti … vlen veq kur
+   dikush do me provu"; (3) "hiqe wat butonin skano … importo excel dhe eksporto excel boni ne nje buton si ne web app".
+   - **Afatet** (`AfatetEkrani.kt`): si `.sb-actions` (majtas "Fotografo fletën" 1.4, djathtas "Shto" + `MenyjaExcel`: "XLS Excel" me
+     DropdownMenu "Importo Excel" / "Eksporto Excel", sipas lejeve afatetImporto/eksportExcel). Karta "Skano" u hoq.
+   - **Roli** (`IkonaERolit` → `FlluskaERolit`): Popup me `PopupPositionProvider` (sipër ikonës, poshtë kur s'ka 72 dp lart, 12 dp nga
+     skajet, shigjeta drejt ikonës si `--zhvendosja`), mbyllet me prekje tjetër ose pas 5 s (jo në testet: `StokuApp.neProve`).
+   - **Shkaku i (2)**: te Android, gjatë provës `Regjistri.planifikoMesimin` ("plotëso") i mësonte produktet shembull në `kujtesa.json`;
+     pas hyrjes me llogari `dergoRegjistrin` i dërgonte te `kujtesa_pritje/{uid}` dhe administratori i merrte "në pritje". Tash:
+     `Dyqani.ProvaEVizitorit` (të dhënat shembull, edhe për `mbushProven`), `Regjistri.neProve()` (pronari VIZITOR ose vizitor) ndal
+     krejt mësimin, `eShembull` i heq nga pritja, `pastroProven()`: administratori i fshin (si me dorë: tombstone s:1 → regjistri, zhduken
+     edhe te web-i), të tjerët vetëm në telefon; një herë pas hyrjes dhe te çdo `zbatoPritjet`. Web-i s'ndryshoi (porta.js e fshin
+     'stoku:kujtesa:v1' në hyrje dhe e rinis faqen, prandaj s'kishte këtë gabim).
+   - Çka ka të re 16; pamja light-g8-roli, light-04-afatet. S'është testuar në telefon të vërtetë.
+
 0000000. **ANDROID: "DIL" TE KARTA E PROFILIT (27.10.2026, vetëm `vendas/`)**: përdoruesi (me foton e Cilësimeve, rrethi i kuq djathtas
    te karta e profilit): "qite ni buton per me dal prej llogaris, hiqe ato mrena qe osht te llogaria". `Menyja` (`CilesimetEkrani.kt`):
    butoni "Dil" (ikona Dil, sfondi expTint) para "›" te karta e profilit, vetëm me llogari; konfirmimi "Të dilet nga llogaria?" me

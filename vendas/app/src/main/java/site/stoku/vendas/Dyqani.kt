@@ -272,6 +272,40 @@ object Dyqani {
     }
 
     // ---------------- Prova si vizitor (si porta.js v217) ----------------
+    /** Të dhënat shembull të provës (si mbushProven te porta.js). I njeh edhe Regjistri: s'kalojnë kurrë te regjistri i Stoku-t */
+    object ProvaEVizitorit {
+        /** folderi, barkodi, emri, sasia, furnizuesi */
+        val PRODUKTET: List<List<Any>> = listOf(
+            listOf("ushqimore", "2000100000014", "Bukë e bardhë 500g", 18, "Furnizuesi A"),
+            listOf("ushqimore", "2000100000021", "Oriz 1kg", 40, "Furnizuesi B"),
+            listOf("ushqimore", "2000100000038", "Makarona 500g", 25, "Furnizuesi B"),
+            listOf("ushqimore", "2000100000045", "Vaj luledielli 1L", 6, "Furnizuesi B"),
+            listOf("pije", "2000200000013", "Ujë natyral 1.5L", 48, "Furnizuesi C"),
+            listOf("pije", "2000200000020", "Lëng portokalli 1L", 0, "Furnizuesi C"),
+            listOf("pije", "2000200000037", "Pije e gazuar 0.5L", 30, "Furnizuesi C"),
+            listOf("higjiene", "2000300000012", "Sapun i lëngshëm 500ml", 12, "Furnizuesi B"),
+            listOf("higjiene", "2000300000029", "Pastë dhëmbësh 75ml", 9, "Furnizuesi B"),
+            listOf("fresh", "2000400000011", "Qumësht 1L", 20, "Furnizuesi A"),
+            listOf("fresh", "2000400000028", "Kos 500g", 15, "Furnizuesi A"),
+            listOf("fresh", "2000400000035", "Djathë i bardhë 400g", 7, "Furnizuesi A")
+        )
+        /** barkodi, emri, ditët deri në skadim, sasia, furnizuesi (i fundit: i hequr nga rafti) */
+        val AFATET: List<List<Any>> = listOf(
+            listOf("2000400000028", "Kos 500g", -2, 4, "Furnizuesi A"),
+            listOf("2000400000011", "Qumësht 1L", 0, 6, "Furnizuesi A"),
+            listOf("2000100000014", "Bukë e bardhë 500g", 2, 10, "Furnizuesi A"),
+            listOf("2000400000035", "Djathë i bardhë 400g", 6, 3, "Furnizuesi A"),
+            listOf("2000200000020", "Lëng portokalli 1L", 21, 12, "Furnizuesi C"),
+            listOf("2000100000021", "Oriz 1kg", 150, 20, "Furnizuesi B"),
+            listOf("2000400000042", "Jogurt frutash 150g", -9, 5, "Furnizuesi A")
+        )
+        private val FURNIZUESIT = setOf("Furnizuesi A", "Furnizuesi B", "Furnizuesi C")
+        private val EMRAT: Map<String, String> by lazy { (PRODUKTET.map { it[1] as String to it[2] as String } + AFATET.map { it[0] as String to it[1] as String }).toMap() }
+        /** Produkt i provës: barkodi dhe emri saktësisht si te të dhënat shembull */
+        fun eshteProdukt(barkodi: String, emri: String?): Boolean = EMRAT[barkodi] == emri
+        fun eshteFurnizues(emri: String?): Boolean = emri in FURNIZUESIT
+    }
+
     /** Pronari i të dhënave gjatë provës pa llogari: s'sinkronizohen kurrë dhe hiqen kur hyn një llogari */
     const val VIZITOR = "vizitor"
 
@@ -286,36 +320,14 @@ object Dyqani {
         val sot = java.time.LocalDate.now()
         fun data(n: Long) = Afatet.isoNgaData(sot.plusDays(n))
         val foldera = listOf("ushqimore" to "Ushqimore", "pije" to "Pije", "higjiene" to "Higjiene", "fresh" to "Fresh").map { obj("id" to it.first, "emri" to it.second) }
-        val lista = listOf(
-            listOf("ushqimore", "2000100000014", "Bukë e bardhë 500g", 18, "Furnizuesi A"),
-            listOf("ushqimore", "2000100000021", "Oriz 1kg", 40, "Furnizuesi B"),
-            listOf("ushqimore", "2000100000038", "Makarona 500g", 25, "Furnizuesi B"),
-            listOf("ushqimore", "2000100000045", "Vaj luledielli 1L", 6, "Furnizuesi B"),
-            listOf("pije", "2000200000013", "Ujë natyral 1.5L", 48, "Furnizuesi C"),
-            listOf("pije", "2000200000020", "Lëng portokalli 1L", 0, "Furnizuesi C"),
-            listOf("pije", "2000200000037", "Pije e gazuar 0.5L", 30, "Furnizuesi C"),
-            listOf("higjiene", "2000300000012", "Sapun i lëngshëm 500ml", 12, "Furnizuesi B"),
-            listOf("higjiene", "2000300000029", "Pastë dhëmbësh 75ml", 9, "Furnizuesi B"),
-            listOf("fresh", "2000400000011", "Qumësht 1L", 20, "Furnizuesi A"),
-            listOf("fresh", "2000400000028", "Kos 500g", 15, "Furnizuesi A"),
-            listOf("fresh", "2000400000035", "Djathë i bardhë 400g", 7, "Furnizuesi A")
-        )
         // Ndryshimet e fundit, si në një dyqan të vërtetë (orë më parë)
         val oret = listOf(0.2, 0.7, 2.0, 4.0, 7.0, 26.0, 29.0, 50.0, 53.0, 75.0, 98.0, 122.0)
         val produktet = LinkedHashMap<String, Obj>()
-        lista.forEachIndexed { i, x ->
+        ProvaEVizitorit.PRODUKTET.forEachIndexed { i, x ->
             produktet[Bashkimi.celesi(x[0], x[1])] = obj("barkodi" to x[1], "emri" to x[2], "sasia" to (x[3] as Int).toLong(), "kategoriaId" to x[0],
                 "furnizuesi" to x[4], "prekurSe" to Math.round(tani - oret[i] * 3600000.0))
         }
-        val afatet = listOf(
-            listOf("2000400000028", "Kos 500g", -2, 4, "Furnizuesi A"),
-            listOf("2000400000011", "Qumësht 1L", 0, 6, "Furnizuesi A"),
-            listOf("2000100000014", "Bukë e bardhë 500g", 2, 10, "Furnizuesi A"),
-            listOf("2000400000035", "Djathë i bardhë 400g", 6, 3, "Furnizuesi A"),
-            listOf("2000200000020", "Lëng portokalli 1L", 21, 12, "Furnizuesi C"),
-            listOf("2000100000021", "Oriz 1kg", 150, 20, "Furnizuesi B"),
-            listOf("2000400000042", "Jogurt frutash 150g", -9, 5, "Furnizuesi A")
-        ).mapIndexed { i, x ->
+        val afatet = ProvaEVizitorit.AFATET.mapIndexed { i, x ->
             val a = obj("id" to "prova${i + 1}", "barkodi" to x[0], "emri" to x[1], "data" to data((x[2] as Int).toLong()), "sasia" to (x[3] as Int).toLong(),
                 "furnizuesi" to x[4], "statusi" to "aktiv", "krijuarSe" to tani - 3 * dita, "ndryshuarSe" to tani - 3 * dita)
             if (i == 6) { a["statusi"] = "hequr"; a["hequrSe"] = tani - 8 * dita; a["ndryshuarSe"] = tani - 8 * dita }
