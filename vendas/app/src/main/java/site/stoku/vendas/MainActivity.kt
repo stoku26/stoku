@@ -194,7 +194,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
             if (meTabe) Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
             if (meTabe) Row(Modifier.fillMaxWidth().background(n.surface).navigationBarsPadding().height(64.dp)) {
                 val nAf = remember(g, aktiviM, lejet, merch) { Afatet.numero(Merchandiseri.afatetEMarketit(g.afatet)) }
-                val nGr = remember(njGr, ftGr, krGr, ngjGr, gjGr) { Grupi.numriNjoftimeve() + Grupi.numriKerkesave() } // si te web-i: zilja + ftesat/kërkesat
+                val nGr = remember(njGr, ftGr, krGr, ngjGr, gjGr, vizitor) { if (vizitor && p == null) 0 else Grupi.numriNjoftimeve() + Grupi.numriKerkesave() } // si te web-i: zilja + ftesat/kërkesat (vizitori: asnjë)
                 tabet.forEach { (k, t, ik) ->
                     val nr = when (k) { "afatet" -> nAf.skaduar + nAf.afer + nAf.paDate; "grupi" -> nGr; else -> 0 }
                     val shenja = nr.takeIf { it > 0 }?.let { if (it > 99) "99+" else it.toString() }
