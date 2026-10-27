@@ -52,6 +52,21 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **APLIKACIONI I VJETËR I TELEFONIT (WEBVIEW) U FSHI (v255 = 1.40.0, 27.10.2026)**: përdoruesi: "A munesh me fshi
+   gjithqka rreth appit tjeter qe sosht native aj webview qe osht, zhduke komplet, kto native app qe osht kto kem me perdor
+   prej tash". U fshinë: kodi i `tel/` (`site.stoku.app`, MainActivity/Ura/FcmSherbimi/Perditesimi, Gradle), workflow-i
+   `tel-apk.yml`, `android.js` (ura `window.StokuAndroid`: njoftimet, ndarja, tastiera e PDA-së, tokeni FCM), `android.json`
+   (Firebase për APK-në e vjetër), `teste/android-test.js`, dhe te web-i: `ekipa.js` (FCM i WebView-it te `pajisjaPush`),
+   `app-tel.js` (thirrjet `fshihTastieren`/`tastieraFshehur`, butoni "Kontrollo për përditësim" brenda WebView-it), SHELL i
+   `sw.js`. Release-t `tel-vNN` u fshinë nga GitHub. **Mbeten qëllimisht te `tel/`**: `stoku-tel.jks`, `celesi-i-ri.p12.enc`,
+   `celesi.lineage` (me to nënshkruhet aplikacioni `vendas/`: pa to telefonat s'e pranojnë përditësimin) + `tel/README.md`.
+   **APP_ID-ja e Android-it te Firebase** (`1:107114545225:android:c661…`, e regjistruar për `site.stoku.app`) përdoret nga
+   `vendas/` (`StokuApp.kt`): pronari s'duhet ta fshijë atë aplikacion te Firebase Console. `android.html` +
+   `faqja-android.js` tash shkarkojnë APK-në më të re `vendas-vNN` ("Versioni 0.1.NN") dhe këshillojnë çinstalimin e të
+   vjetrit; butoni i Chrome Android "Shkarko aplikacionin Android" mbetet. Worker-i s'ndryshoi (FCM i shërben `vendas/`).
+   `apk-celesat.yml` nis tash `vendas-apk.yml`. Testi `teste/v255.js`; `pda-tastiera-v238.js` kontrollon që ura s'thirret.
+   Shënimet e mëhershme për `tel/`, `android.js`, `android.json` më poshtë janë vetëm histori. S'është testuar në telefon.
+
 0000000. **PA DATAT E SHPEJTA TE "AFAT I RI" (v254 = 1.39.2, 27.10.2026)**: përdoruesi (me foton e "Afat i ri" në Android):
    "Hekja qeto ne krejt projektin", pastaj zgjodhi "Datat e shpejta". U hoqën kutitë 1 javë / 2 javë / 1 muaj / 3 muaj:
    web-i i telefonit (`#afatDatat` te index.html, `AF_DATAT_SHPEJTA`/`dataEShpejte`/`vizatoDatatEShpejta` te app-tel.js,
@@ -150,8 +165,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    (`app_name`), Cilësimet ("Aplikacioni Stoku", teksti poshtë), mesazhi i lejes së kamerës, README, workflow-i ("Stoku APK",
    Release "Stoku për Android NN", skedari `stoku-NN.apk`, artifact `stoku-apk`) dhe skedari i përditësimit (`stoku.apk`).
    Paketa mbetet `site.stoku.vendas` dhe tag-u `vendas-vNN` (përndryshe telefonat s'e marrin përditësimin vetë).
-   **Aplikacioni WebView `tel/` (`site.stoku.app`) do të fshihet** (vendim i pronarit): mos e propozo më si aplikacioni kryesor.
-   Deri sa të fshihet, në telefon dalin dy ikona "Stoku". Pa ndryshim në web.
+   **Aplikacioni WebView `tel/` (`site.stoku.app`) u fshi te v255** (vendim i pronarit): mos e propozo dhe mos e rikthe.
 
 0000000. **STOKU PËR ANDROID: APLIKACIONI PA WEBVIEW (`vendas/`, faza 1; APK `vendas-vNN`)**: kërkesa: "krijoma 100% native
    android aplikacion jo webview, mundohu sa ma identik me bo, te kamera ta perdorin google lens". Pa ndryshim në web.
@@ -2175,6 +2189,8 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Pamje/dizajne të mia (dy raunde u refuzuan); pamja e sotme (v126) është dizajni i vetë përdoruesit nga Claude Design.
 - Çdo gjë për furnizuesin si mesazh/lajmërim (v121 + v122): "Lajmëro furnizuesin", "Lajmërova", "Dërgo listën",
   "Kopjo mesazhin për furnizuesin". Grupimi sipas furnizuesit mbetet (vetëm si listë).
+- Aplikacioni i vjetër i telefonit me WebView (`tel/`, `site.stoku.app`, `android.js`/`window.StokuAndroid`, Release-t
+  `tel-vNN`): u fshi krejt te v255 ("zhduke komplet"). Mbetet vetëm aplikacioni `vendas/`. Mos e rikthe.
 - Datat e shpejta te "Afat i ri" (1 javë, 2 javë, 1 muaj, 3 muaj): u hoqën te v254 nga web-i dhe aplikacioni Android
   ("Hekja qeto ne krejt projektin"). Mos i rikthe.
 - Placeholder-a tip "p.sh." në fusha — përdoruesi i pëlqen hint-e përshkruese, jo shembuj konkretë.

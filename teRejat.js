@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 255, versioni: '1.40.0', data: '2026-10-27', titulli: 'Aplikacioni i ri Stoku për Android', platforma: 'tel', pikat: [
+      '"Shkarko aplikacionin Android" (te Cilësimet, poshtë "Çka ka të re") tash jep aplikacionin e ri Stoku: i shpejtë dhe punon edhe pa internet.',
+      'Aplikacioni i vjetër (ai që e hapte faqen stoku.site) s\'mbahet më. Nëse e ke në telefon, instaloje të riun dhe çinstaloje të vjetrin.'
+    ] },
     { v: 254, versioni: '1.39.2', data: '2026-10-27', titulli: 'Afat i ri më i thjeshtë', platforma: 'tel', pikat: [
       'Te "Afat i ri" u hoqën datat e shpejta (1 javë, 2 javë, 1 muaj, 3 muaj). Data shkruhet te fusha, si më parë, dhe poshtë saj del sa ditë ka deri në skadim.'
     ] },
