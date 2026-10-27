@@ -52,6 +52,18 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ANDROID: MARKETI ME SHKRIM TE "AFAT I RI", KAMERA PA DRITAREN SIPËR (27.10.2026, vetëm `vendas/`)**: përdoruesi (2 foto
+   të "Afat i ri" në Android): "Bone me shkru met dal marketi e jo si ne foto" (rreshti me çipa "Zgjidh marketin | Albi Market
+   34 | …") dhe "Nuk u heka qekjo faqe kur klikoj me shtu afat permes kameres" (kamera hapej poshtë dritares).
+   - `ZgjedhjaEMarketit` (`ui/MarketetUI.kt`): fushë me ikonën e vendit ("Shkruaj emrin e marketit"); në fokus/gjatë shkrimit
+     del lista (`SUGJERIMET_MAKS` 6, "Edhe N të tjerë: shkruaj më shumë shkronja.", "Mbyll"), kërkimi pa shkronja të mëdha dhe pa
+     ë/ç (`emriPerKerkim`, Normalizer NFD). Kur teksti përputhet saktë me një market, zgjidhet vetë; kur ndryshon nga emri i
+     zgjedhur, marketi hiqet (ruajtja pyet sërish "Zgjidh marketin…"). "✕" e pastron. Web-i mbetet me `select#afatMarketi`.
+   - Kamera: `Flete` (ModalBottomSheet = dritare më vete, prandaj dilte mbi `Skaneri`) s'vizatohet sa kohë
+     `SkaneriIHapur.hapur` (vendoset nga `Skaneri`, që e fsheh edhe tastierën); gjendja e "Afat i ri" ruhet te `AfatiFlete`,
+     pas skanimit dritarja del sërish me barkodin. Vlen për çdo `Flete`.
+   - Çka ka të re 13; pamjet `afatiMeMarket` (light-34/35/36). S'është testuar në telefon të vërtetë.
+
 0000000. **MARKETET FQINJE: GPS-I S'I DALLON → MBETET AKTIVI OSE "KU JE?" (v257 = 1.41.1, 27.10.2026)**: përdoruesi (me hartën
    satelitore, Viva Fly dhe Viva Fresh 110 matanë rrugës): "Me se shumti brenda 100m? Qka nese jem te njoni prej ktyne
    marketeve?", pastaj "Provoje a e kap … edhe testoje a bon mir a jo". Simulimi (marketet 55–65 m larg, 4000 matje GPS me

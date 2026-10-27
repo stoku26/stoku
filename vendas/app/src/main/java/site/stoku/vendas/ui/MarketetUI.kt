@@ -35,6 +35,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.draw.drawBehind
@@ -463,17 +466,75 @@ fun statusiIMarketeve(): String {
     return if (te.isEmpty()) "Për disa markete" else if (id != null) "Je te: " + Merchandiseri.emri(id) else if (te.size == 1) "1 market" else "${te.size} markete"
 }
 
-/** Opsionet e marketit te afati (si select#afatMarketi) */
+/** Sa markete dalin njëherësh nën fushë; për të tjerët shkruhen më shumë shkronja */
+private const val SUGJERIMET_MAKS = 6
+
+/** Emri pa shkronja të mëdha, pa ë/ç dhe me një hapësirë: "Viva Fresh" = "viva  fresh" = "VIVA FRESH" */
+internal fun emriPerKerkim(e: String): String =
+    java.text.Normalizer.normalize(e, java.text.Normalizer.Form.NFD).replace(Regex("[\\u0300-\\u036f]"), "")
+        .lowercase().replace(Regex("\\s+"), " ").trim()
+
+/**
+ * Marketi te afati (si select#afatMarketi te web-i). Fusha ku shkruhet emri; poshtë dalin marketet që e përmbajnë
+ * (pa marrë parasysh shkronjat e mëdha, ë/ç). Kur teksti përputhet saktë me një market, ai zgjidhet vetë.
+ */
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun ZgjedhjaEMarketit(m: String?, iRi: Boolean, vetemLexim: Boolean, ndrysho: (String?) -> Unit) {
     val n = N
     val g by Dyqani.gjendja.collectAsState()
     val marketet = Marketet.rendit(Marketet.pastro(g.marketet))
+    val emriZgj = m?.let { Marketet.emri(marketet, it) }.orEmpty()
+    var teksti by remember { mutableStateOf(emriZgj) }
+    var hapur by remember { mutableStateOf(false) }
+    val fokusi = LocalFocusManager.current
+    val lista = remember { androidx.compose.foundation.relocation.BringIntoViewRequester() }
+    LaunchedEffect(m, emriZgj) { if (m != null) teksti = emriZgj }
+    // Lista del poshtë fushës: e sjell në pamje mbi tastierë
+    LaunchedEffect(hapur) { if (hapur) { kotlinx.coroutines.delay(350); try { lista.bringIntoView() } catch (e: Exception) { } } }
+    fun zgjidh(x: site.stoku.logjika.Obj?) {
+        ndrysho(x?.get("id") as? String)
+        teksti = x?.let { site.stoku.logjika.jsString(it["emri"]) }.orEmpty()
+        hapur = false
+        fokusi.clearFocus()
+    }
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text("Marketi", style = tx(13, 600, n.ink3))
-        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Cip(if (iRi) "Zgjidh marketin" else "Pa market", null, m == null) { if (!vetemLexim) ndrysho(null) }
-            marketet.forEach { x -> val id = x["id"] as String; Cip(x["emri"] as String, null, m == id) { if (!vetemLexim) ndrysho(id) } }
+        Fusha(teksti, { v ->
+            teksti = v; hapur = true
+            val q = emriPerKerkim(v)
+            val sakte = marketet.filter { emriPerKerkim(site.stoku.logjika.jsString(it["emri"])) == q }
+            if (q.isNotEmpty() && sakte.size == 1) { if (sakte[0]["id"] != m) ndrysho(sakte[0]["id"] as String) }
+            else if (m != null) ndrysho(null)
+        }, Modifier.fillMaxWidth().onFocusChanged { if (it.isFocused && !vetemLexim) hapur = true },
+            if (vetemLexim || !iRi) "Pa market" else "Shkruaj emrin e marketit", ikona = Ik.Vendi, vetemLexim = vetemLexim,
+            kurVeprim = { hapur = false; fokusi.clearFocus() },
+            djathtas = if (!vetemLexim && teksti.isNotEmpty()) ({
+                Icon(Ik.X, "Pastro marketin", Modifier.size(28.dp).clip(RoundedCornerShape(8.dp)).clickable { zgjidh(null) }.padding(4.dp), tint = n.faint)
+            }) else null)
+        if (hapur && !vetemLexim) {
+            val q = emriPerKerkim(teksti)
+            // Kur fusha ka marketin e zgjedhur, dalin krejt (për ta ndërruar); përndryshe vetëm ata që e përmbajnë tekstin
+            val te = if (m != null && q == emriPerKerkim(emriZgj)) marketet
+                else marketet.filter { q.isEmpty() || emriPerKerkim(site.stoku.logjika.jsString(it["emri"])).contains(q) }
+            Column(Modifier.fillMaxWidth().bringIntoViewRequester(lista).clip(RoundedCornerShape(14.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(14.dp)).padding(6.dp)) {
+                if (te.isEmpty()) Text("Asnjë market me këtë emër.", style = tx(14, 400, n.muted), modifier = Modifier.padding(12.dp))
+                te.take(SUGJERIMET_MAKS).forEach { x ->
+                    val zgj = x["id"] == m
+                    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(if (zgj) n.accentTint else androidx.compose.ui.graphics.Color.Transparent)
+                        .clickable { zgjidh(x) }.padding(horizontal = 12.dp, vertical = 11.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Ik.Vendi, null, Modifier.size(16.dp), tint = if (zgj) n.accentText else n.faint)
+                        Spacer(Modifier.width(10.dp))
+                        Text(site.stoku.logjika.jsString(x["emri"]), style = tx(15, if (zgj) 700 else 500, if (zgj) n.accentText else n.ink),
+                            modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        if (zgj) Icon(Ik.Kontroll, null, Modifier.size(18.dp), tint = n.accentText)
+                    }
+                }
+                if (te.size > SUGJERIMET_MAKS) Text("Edhe " + (te.size - SUGJERIMET_MAKS) + " të tjerë: shkruaj më shumë shkronja.",
+                    style = tx(13, 400, n.muted), modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                Text("Mbyll", style = tx(14, 500, n.muted), modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
+                    .clickable { hapur = false; fokusi.clearFocus() }.padding(12.dp))
+            }
         }
     }
 }
