@@ -1,5 +1,8 @@
 package site.stoku.vendas.ui
 
+import site.stoku.vendas.Skedaret
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -18,6 +21,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -102,10 +108,68 @@ fun rememberFotoEFletes(leja: String = "afatetAI", kurFoto: (Uri) -> Unit): Pair
     })
 }
 
+/** "Ku do ta kontrollosh fletën?" ka kuptim vetëm me llogari dhe me lejen "Stoku në kompjuter" (si zgjidhKuFleta te web-i) */
+fun mundDergoFletenNePc(): Boolean = Skedaret.kaLlogari() && Llogaria.leja("pc")
+
+/**
+ * Pas fotos së fletës (si dlgKuFleta te web-i): "Dërgo në PC" e lexon fletën me AI këtu, pastaj ia dërgon rreshtat dhe një
+ * foto më të vogël PC-së së së njëjtës llogari (aty hapet vetë kontrolli i fletës); "Vazhdo këtu në telefon" hap kontrollin këtu.
+ * stok = true: fleta e stokut (importi), përndryshe fleta e afateve.
+ */
+@Composable
+fun KuFletaDritarja(uri: Uri, stok: Boolean, mbyll: () -> Unit, vazhdoKetu: () -> Unit) {
+    val n = N
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var gjendja by remember { mutableStateOf("zgjedhje") } // zgjedhje | pune | gati | gabim
+    var teksti by remember { mutableStateOf("Në kompjuter ekrani është më i madh: rreshtat kontrollohen dhe korrigjohen më lehtë.") }
+    fun gabim(t: String) { gjendja = "gabim"; teksti = t }
+    fun dergo() {
+        if (gjendja == "pune") return
+        gjendja = "pune"; teksti = "Duke përgatitur foton…"
+        scope.launch {
+            try {
+                val f = LeximiAI.pergatitFoton(ctx, uri)
+                teksti = "Duke e lexuar fletën me AI… (zakonisht 5–20 sekonda)"
+                val rez = LeximiAI.lexo(f, if (stok) "stok" else null)
+                if (rez is LeximiAI.Rez.Gabim) { gabim((LeximiAI.MESAZHET[rez.kodi] ?: "Fleta s'u lexua.") + " Mund ta vazhdosh këtu në telefon."); return@launch }
+                val rreshtat = (rez as LeximiAI.Rez.Ok).rreshtat
+                teksti = "Duke e dërguar në PC…"
+                val r = LeximiAI.dergoFleten(LeximiAI.fotoPerDergim(f), rreshtat, stok)
+                if (r != null) {
+                    gabim(if (r == "permission-denied") "Dërgimi në PC s'lejohet ende nga rregullat e Firebase-it (duhen përditësuar një herë). Vazhdoje këtu në telefon."
+                        else "Fleta s'u dërgua. Kontrollo internetin dhe provo sërish, ose vazhdoje këtu në telefon.")
+                    return@launch
+                }
+                val nr = rreshtat.size
+                gjendja = "gati"
+                teksti = "U lexuan " + nr + (if (nr == 1) " rresht" else " rreshta") + ". Në kompjuter (me të njëjtën llogari) do të dalë njoftimi për fletën. Mund ta kontrollosh kur të kesh kohë."
+            } catch (e: Throwable) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                gabim("Diçka s'shkoi mirë. Vazhdoje këtu në telefon.")
+            }
+        }
+    }
+    Flete(mbyll) {
+        Text(when (gjendja) { "gati" -> "U dërgua në PC"; "pune" -> "Duke e dërguar në PC…"; else -> "Ku do ta kontrollosh fletën?" }, style = tx(22, 700, n.ink, -0.02))
+        val (sfondi, ngjyra) = when (gjendja) { "gati" -> n.okTint to n.okInk; "gabim" -> n.expTint to n.expInk; else -> n.surface2 to n.ink2 }
+        Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(sfondi).padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (gjendja == "pune") { Rrotullues(); Spacer(Modifier.width(10.dp)) }
+            Text(teksti, style = tx(14, 400, ngjyra))
+        }
+        if (gjendja == "zgjedhje") Buton("Dërgo në PC", { dergo() }, Modifier.fillMaxWidth(), ikona = Ik.Kompjuter)
+        if (gjendja == "zgjedhje" || gjendja == "gabim") Buton("Vazhdo këtu në telefon", { mbyll(); vazhdoKetu() }, Modifier.fillMaxWidth(),
+            lloji = if (gjendja == "gabim") "kryesor" else "dyte", ikona = Ik.Telefon)
+        Buton(if (gjendja == "gati") "Mbyll" else "Anulo", mbyll, Modifier.fillMaxWidth(), lloji = "tekst")
+    }
+}
+
 /** Një rresht i fletës gjatë kontrollit (si lx.rreshtat te web-i) */
 private class Rreshti(
     barkodi: String, emri: String, data: String, sasia: String, furnizuesi: String,
-    val dataOrigjinale: String, dyshim: Boolean, val iRi: Boolean
+    val dataOrigjinale: String, dyshim: Boolean, val iRi: Boolean,
+    /** Vendi i rreshtit në foto (0..1, nga AI-ja), për numrin mbi foton e zmadhuar */
+    val x: Double? = null, val y: Double? = null
 ) {
     var barkodi by mutableStateOf(barkodi)
     var emri by mutableStateOf(emri)
@@ -162,7 +226,8 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, stok: Boolean = false, kurRuhet: (S
                     rreshtat.add(Rreshti(b, (r["emri"] as String).ifEmpty { Dyqani.emriNgaBarkodi(b) }, if (iso.isNotEmpty()) Afatet.formatoPerFushe(iso) else "",
                         r["sasia"].let { if (it == "") "" else it.toString() },
                         if (paFurnizues) "" else (r["furnizuesi"] as String).ifEmpty { Dyqani.furnizuesiNgaBarkodi(b) },
-                        if (stok) "" else r["dataOrigjinale"] as String, !stok && r["dyshim"] == true, false))
+                        if (stok) "" else (r["dataOrigjinale"] as? String).orEmpty(), !stok && r["dyshim"] == true, false,
+                        (r["x"] as? Number)?.toDouble(), (r["y"] as? Number)?.toDouble()))
                 }
                 val nr = rreshtat.size
                 val nDyshim = rreshtat.count { it.dyshim }
@@ -272,9 +337,13 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, stok: Boolean = false, kurRuhet: (S
             }
             Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp)) {
                 foto?.let { b ->
-                    Image(b, "Fleta e fotografuar", contentScale = ContentScale.Fit,
-                        modifier = Modifier.fillMaxWidth().then(if (eMadhe) Modifier else Modifier.heightIn(max = 180.dp))
-                            .clip(RoundedCornerShape(12.dp)).background(Color.Black).clickable { eMadhe = !eMadhe })
+                    Box(Modifier.fillMaxWidth()) {
+                        Image(b, "Fleta e fotografuar", contentScale = ContentScale.Fit,
+                            modifier = Modifier.fillMaxWidth().then(if (eMadhe) Modifier else Modifier.heightIn(max = 180.dp))
+                                .clip(RoundedCornerShape(12.dp)).background(Color.Black).clickable { eMadhe = !eMadhe })
+                        // Numrat e rreshtave mbi foto (si vizatoNumratMbiFoton te web-i): vetëm kur fotoja është e zmadhuar
+                        if (eMadhe) NumratMbiFoton(b, rreshtat.map { it.x to it.y })
+                    }
                     Spacer(Modifier.size(10.dp))
                 }
                 Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(if (gabim) n.expTint else n.surface2).padding(12.dp),
@@ -310,6 +379,24 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, stok: Boolean = false, kurRuhet: (S
         FolderIRiFlete {
             folderIRi = false
             Dyqani.g.foldera.firstOrNull { it["id"] !in para }?.let { folderi = it["id"] as String }
+        }
+    }
+}
+
+/** Numri i çdo rreshti (1, 2, …) mbi foto, në vendin ku AI-ja e gjeti; zhvendosur pak majtas, jo mbi tekst */
+@Composable
+private fun BoxScope.NumratMbiFoton(foto: ImageBitmap, vendet: List<Pair<Double?, Double?>>) {
+    BoxWithConstraints(Modifier.matchParentSize()) {
+        val kw = maxWidth; val kh = maxHeight
+        val shk = minOf(kw / foto.width.toFloat(), kh / foto.height.toFloat())
+        val rw = shk * foto.width.toFloat(); val rh = shk * foto.height.toFloat()
+        val ox = (kw - rw) / 2; val oy = (kh - rh) / 2
+        vendet.forEachIndexed { i, (x, y) ->
+            if (x == null || y == null) return@forEachIndexed
+            Box(Modifier.offset(ox + rw * x.toFloat() - 13.dp - 10.dp, oy + rh * y.toFloat() - 10.dp).size(20.dp)
+                .clip(CircleShape).background(Color.White).border(2.dp, Color(0xFFE53935), CircleShape), contentAlignment = Alignment.Center) {
+                Text((i + 1).toString(), style = tx(11, 800, Color(0xFFE53935)))
+            }
         }
     }
 }

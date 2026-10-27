@@ -76,7 +76,8 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
     var excel by remember { mutableStateOf<String?>(null) } // "krejt" = krejt lista (me muajin), "zgjedhura" = vetëm të zgjedhurat
     var importi by remember { mutableStateOf(false) }
     var skedari by remember { mutableStateOf<site.stoku.vendas.Skedari?>(null) }
-    val (fotografo, ngaGaleria) = rememberFotoEFletes { fleta = it }
+    var kuFleta by remember { mutableStateOf<android.net.Uri?>(null) } // "Ku do ta kontrollosh fletën?" (PC ose këtu)
+    val (fotografo, ngaGaleria) = rememberFotoEFletes { if (mundDergoFletenNePc()) kuFleta = it else fleta = it }
     LaunchedEffect(Unit) { Merchandiseri.pyetMarketinEPare() } // merchandiseri pa asnjë market: pyetet një herë
     if (!Llogaria.leja("afatet")) return
 
@@ -237,6 +238,7 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
     }
 
     hapur?.let { id -> AfatiFlete(id.ifEmpty { null }, skanuar.also { skanuar = "" }, skano) { hapur = null } }
+    kuFleta?.let { u -> KuFletaDritarja(u, stok = false, mbyll = { kuFleta = null }) { fleta = u } }
     fleta?.let { u -> FletaEkrani(u, mbyll = { fleta = null }) { f -> filtri = f; muaji = ""; zgjedhja = null } }
     excel?.let { lloji ->
         val zgj = if (lloji == "zgjedhura") zgjedhja.orEmpty().let { z -> te.filter { a -> (a["id"] as? String)?.let { z.contains(it) } == true } } else null

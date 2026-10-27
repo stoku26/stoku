@@ -146,6 +146,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
     var tabi by rememberSaveable { mutableStateOf("stoku") }
     var folderi by rememberSaveable { mutableStateOf<String?>(null) }
     var skanimi by remember { mutableStateOf<((String) -> Unit)?>(null) }
+    var numerimi by remember { mutableStateOf<((String) -> Boolean)?>(null) } // +1 pa e mbyllur kamerën (folderi)
     val g by Dyqani.gjendja.collectAsState()
     val aktiviM by Merchandiseri.aktivi.collectAsState() // numri te tabi Afatet sipas marketit ku je
     val njGr by Grupi.njoftimet.collectAsState()
@@ -179,9 +180,10 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
         val meTabe = !(tabi == "stoku" && folderi != null)
         Column(Modifier.fillMaxSize()) {
             Box(Modifier.weight(1f).statusBarsPadding().then(if (meTabe) Modifier else Modifier.navigationBarsPadding())) {
-                val skano: ((String) -> Unit) -> Unit = { cb -> skanimi = cb }
+                val skano: ((String) -> Unit) -> Unit = { cb -> numerimi = null; skanimi = cb }
+                val skanoMeNumerim: ((String) -> Unit, (String) -> Boolean) -> Unit = { cb, nr -> numerimi = nr; skanimi = cb }
                 when (tabi) {
-                    "stoku" -> StokuEkrani(folderi, { folderi = it }, skano)
+                    "stoku" -> StokuEkrani(folderi, { folderi = it }, skanoMeNumerim)
                     "afatet" -> AfatetEkrani(skano)
                     "grupi" -> GrupiEkrani()
                     else -> CilesimetEkrani(tema, ndryshoTemen)
@@ -208,7 +210,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
         var teRejat by remember { mutableStateOf(TeRejat.teReja()) }
         if (teRejat.isNotEmpty()) site.stoku.vendas.ui.TeRejatFlete(teRejat) { teRejat = emptyList() }
         skanimi?.let { cb ->
-            Skaneri(mbyll = { skanimi = null }) { b -> skanimi = null; cb(b) }
+            Skaneri(mbyll = { skanimi = null }, shtoNjeCope = numerimi) { b -> skanimi = null; cb(b) }
         }
     }
 }

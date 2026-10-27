@@ -9,6 +9,12 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.os.SystemClock
+import android.view.MotionEvent
+import androidx.camera.core.FocusMeteringAction
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.ui.draw.shadow
+import java.util.concurrent.TimeUnit
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -75,7 +81,7 @@ import java.util.concurrent.Executors
  * (EAN/UPC me shifrën e kontrollit të saktë: menjëherë), pastaj bip + dridhje dhe dritarja mbyllet.
  */
 @Composable
-fun Skaneri(mbyll: () -> Unit, uLexua: (String) -> Unit) {
+fun Skaneri(mbyll: () -> Unit, shtoNjeCope: ((String) -> Boolean)? = null, uLexua: (String) -> Unit) {
     val ctx = LocalContext.current
     var leje by remember { mutableStateOf(ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) }
     var refuzuar by remember { mutableStateOf(false) }
@@ -91,7 +97,7 @@ fun Skaneri(mbyll: () -> Unit, uLexua: (String) -> Unit) {
     }
 
     Box(Modifier.fillMaxSize().background(Color.Black)) {
-        if (leje) KameraPamja(uLexua)
+        if (leje) KameraPamja(shtoNjeCope, uLexua)
         else if (refuzuar) Column(Modifier.align(Alignment.Center).padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Text("Stoku s'ka leje për kamerën. Lejoje te cilësimet e telefonit (Aplikacionet → Stoku → Lejet → Kamera).",
                 style = tx(15, 500, Color.White), textAlign = TextAlign.Center)
@@ -101,9 +107,19 @@ fun Skaneri(mbyll: () -> Unit, uLexua: (String) -> Unit) {
             Box(Modifier.size(46.dp).clip(CircleShape).background(Color(0x66000000)).clickable(onClick = mbyll), contentAlignment = Alignment.Center) {
                 Icon(Ik.X, "Mbyll", Modifier.size(24.dp), tint = Color.White)
             }
-            Box(Modifier.size(46.dp).clip(CircleShape).background(if (DritaKamere.ndezur) Color.White else Color(0x66000000))
-                .clickable { DritaKamere.nderro() }, contentAlignment = Alignment.Center) {
-                Icon(Ik.Drita, "Drita", Modifier.size(22.dp), tint = if (DritaKamere.ndezur) Color.Black else Color.White)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                // Zmadhimi 1× / 2× / 3× (si #kameraZoom te web-i): vetëm kur kamera e lejon
+                if (DritaKamere.nivelet.size > 1) {
+                    val aktiv = DritaKamere.zoomI > 0
+                    Box(Modifier.size(46.dp).clip(CircleShape).background(if (aktiv) Color.White else Color(0x66000000))
+                        .clickable { DritaKamere.nderroZoomin() }, contentAlignment = Alignment.Center) {
+                        Text(DritaKamere.tekstiIZoomit(), style = tx(14, 700, if (aktiv) Color.Black else Color.White))
+                    }
+                }
+                if (DritaKamere.kaDrite) Box(Modifier.size(46.dp).clip(CircleShape).background(if (DritaKamere.ndezur) Color.White else Color(0x66000000))
+                    .clickable { DritaKamere.nderro() }, contentAlignment = Alignment.Center) {
+                    Icon(Ik.Drita, "Drita", Modifier.size(22.dp), tint = if (DritaKamere.ndezur) Color.Black else Color.White)
+                }
             }
         }
         Text("Drejtoje kamerën te barkodi", style = tx(15, 600, Color.White), textAlign = TextAlign.Center,
@@ -117,19 +133,42 @@ object SkaneriIHapur {
     var hapur by mutableStateOf(false)
 }
 
-/** Drita (blici) e kamerës */
+/** Drita (blici) dhe zmadhimi i kamerës */
 object DritaKamere {
     var kamera: Camera? = null
     var ndezur by mutableStateOf(false)
+    var kaDrite by mutableStateOf(false)
+    /** Nivelet e zmadhimit (si te web-i: 1×, pastaj 2× dhe 3× sa i lejon kamera; përndryshe maksimumi) */
+    var nivelet by mutableStateOf(listOf(1f))
+    var zoomI by mutableStateOf(0)
     fun nderro() {
         val k = kamera ?: return
         if (k.cameraInfo.hasFlashUnit()) { ndezur = !ndezur; k.cameraControl.enableTorch(ndezur) }
     }
+    fun pergatitZoomin(min: Float, max: Float) {
+        val baza = maxOf(1f, min) // jo kamera ultra e gjerë (min < 1): barkodi lexohet më mirë me kamerën kryesore
+        if (max < 1.5f) { nivelet = listOf(1f); zoomI = 0; return }
+        val l = mutableListOf(baza)
+        listOf(2f, 3f).filter { it > baza && it <= max }.forEach { l.add(it) }
+        if (l.size == 1) l.add(max)
+        nivelet = l; zoomI = 0
+    }
+    fun nderroZoomin() {
+        val k = kamera ?: return
+        if (nivelet.size < 2) return
+        val i = (zoomI + 1) % nivelet.size
+        try { k.cameraControl.setZoomRatio(nivelet[i]); zoomI = i } catch (e: Exception) { }
+    }
+    fun tekstiIZoomit(): String {
+        val v = Math.round(nivelet.getOrElse(zoomI) { 1f } * 10) / 10f
+        return (if (v == Math.floor(v.toDouble()).toFloat()) v.toInt().toString() else v.toString()) + "×"
+    }
+    fun pastro() { kamera = null; ndezur = false; kaDrite = false; nivelet = listOf(1f); zoomI = 0 }
 }
 
 @androidx.annotation.OptIn(markerClass = [androidx.camera.core.ExperimentalGetImage::class])
 @Composable
-private fun KameraPamja(uLexua: (String) -> Unit) {
+private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, uLexua: (String) -> Unit) {
     val ctx = LocalContext.current
     val pronari = LocalLifecycleOwner.current
     val ekzekutuesi = remember { Executors.newSingleThreadExecutor() }
@@ -140,12 +179,20 @@ private fun KameraPamja(uLexua: (String) -> Unit) {
         ).build())
     }
     var perfunduar by remember { mutableStateOf(false) }
+    // Numërimi i vazhdueshëm (si te web-i): sa copë u shtuan pa e mbyllur kamerën
+    var numeruar by remember { mutableStateOf(0) }
     val pamja = remember { PreviewView(ctx).apply { scaleType = PreviewView.ScaleType.FILL_CENTER } }
 
     DisposableEffect(Unit) {
         val fut = ProcessCameraProvider.getInstance(ctx)
         var ofruesi: ProcessCameraProvider? = null
         var iFundit = ""; var hera = 0
+        var qrFundit = 0L
+        var kameraELidhur: Camera? = null
+        // Barkodi që po numërohet: +1 sa herë shihet, jo më shpesh se NUMRIM_INTERVALI_MS; ndalet kur s'shihet NUMRIM_PUSHIMI_MS
+        var nrBarkodi: String? = null; var nrFundit = 0L
+        val ndalNumerimin = Runnable { nrBarkodi = null; nrFundit = 0L; numeruar = 0 }
+        fun vazhdoNumerimin() { pamja.removeCallbacks(ndalNumerimin); pamja.postDelayed(ndalNumerimin, NUMRIM_PUSHIMI_MS) }
         fut.addListener({
             val o = fut.get(); ofruesi = o
             val rez = ResolutionSelector.Builder().setResolutionStrategy(
@@ -159,10 +206,32 @@ private fun KameraPamja(uLexua: (String) -> Unit) {
                 skaneri.process(hyrja).addOnSuccessListener { l ->
                     val b = l.firstOrNull { !it.rawValue.isNullOrBlank() } ?: return@addOnSuccessListener
                     val v = b.rawValue!!.trim()
+                    val tash = SystemClock.elapsedRealtime()
+                    // Kodi QR s'është barkod produkti: njoftohet (jo më shpesh se çdo 2 s) dhe kamera vazhdon
+                    if (b.format == Barcode.FORMAT_QR_CODE) {
+                        if (tash - qrFundit > 2000) { qrFundit = tash; Toast.trego("Kjo duket si kod QR ose tekst, jo si barkod produkti.") }
+                        return@addOnSuccessListener
+                    }
                     hera = if (v == iFundit) hera + 1 else 1
                     iFundit = v
                     val iSigurt = (b.format == Barcode.FORMAT_EAN_13 || b.format == Barcode.FORMAT_EAN_8 || b.format == Barcode.FORMAT_UPC_A) && kontrolliEAN(v)
-                    if ((iSigurt || hera >= 2) && !perfunduar) {
+                    if (perfunduar) return@addOnSuccessListener
+                    // Produkti që ekziston në folder: +1 pa e mbyllur kamerën, sa kohë barkodi shihet
+                    if (shtoNjeCope != null) {
+                        if (nrBarkodi == v) {
+                            if (tash - nrFundit >= NUMRIM_INTERVALI_MS) {
+                                nrFundit = tash
+                                if (shtoNjeCope(v)) { numeruar += 1; bip(ctx) } else { ndalNumerimin.run(); return@addOnSuccessListener }
+                            }
+                            vazhdoNumerimin()
+                            return@addOnSuccessListener
+                        }
+                        if (iSigurt || hera >= 2) {
+                            ndalNumerimin.run()
+                            if (shtoNjeCope(v)) { nrBarkodi = v; nrFundit = tash; numeruar = 1; bip(ctx); vazhdoNumerimin(); return@addOnSuccessListener }
+                        }
+                    }
+                    if (iSigurt || hera >= 2) {
                         perfunduar = true
                         bip(ctx)
                         pamja.post { uLexua(v) }
@@ -171,13 +240,31 @@ private fun KameraPamja(uLexua: (String) -> Unit) {
             }
             try {
                 o.unbindAll()
-                DritaKamere.kamera = o.bindToLifecycle(pronari, CameraSelector.DEFAULT_BACK_CAMERA, preview, analiza)
-                DritaKamere.ndezur = false
+                val k = o.bindToLifecycle(pronari, CameraSelector.DEFAULT_BACK_CAMERA, preview, analiza)
+                DritaKamere.pastro()
+                DritaKamere.kamera = k
+                kameraELidhur = k
+                DritaKamere.kaDrite = k.cameraInfo.hasFlashUnit()
+                k.cameraInfo.zoomState.observe(pronari) { z -> if (DritaKamere.kamera === k && DritaKamere.nivelet.size < 2) DritaKamere.pergatitZoomin(z.minZoomRatio, z.maxZoomRatio) }
             } catch (e: Exception) { Toast.trego("Kamera s'u hap. Provo sërish.") }
         }, ContextCompat.getMainExecutor(ctx))
+        // Prek figurën: fokusohet aty, pas 1.5 s kthehet te autofokusi i vazhdueshëm (si te web-i)
+        pamja.setOnTouchListener { v, e ->
+            if (e.action == MotionEvent.ACTION_UP) {
+                val k = DritaKamere.kamera
+                if (k != null) try {
+                    val pika = pamja.meteringPointFactory.createPoint(e.x, e.y)
+                    k.cameraControl.startFocusAndMetering(FocusMeteringAction.Builder(pika).setAutoCancelDuration(1500, TimeUnit.MILLISECONDS).build())
+                } catch (x: Exception) { }
+                v.performClick()
+            }
+            true
+        }
         onDispose {
+            pamja.removeCallbacks(ndalNumerimin)
+            try { kameraELidhur?.cameraInfo?.zoomState?.removeObservers(pronari) } catch (e: Exception) { }
             try { ofruesi?.unbindAll() } catch (e: Exception) { }
-            DritaKamere.kamera = null; DritaKamere.ndezur = false
+            DritaKamere.pastro()
             skaneri.close(); ekzekutuesi.shutdown()
         }
     }
@@ -191,8 +278,19 @@ private fun KameraPamja(uLexua: (String) -> Unit) {
             drawRoundRect(Color.Transparent, tl, Size(w, h), CornerRadius(24.dp.toPx()), blendMode = BlendMode.Clear)
             drawRoundRect(Color.White, tl, Size(w, h), CornerRadius(24.dp.toPx()), style = Stroke(3.dp.toPx()))
         }
+        // "+N" mbi kornizë (si .skan-numrim te web-i)
+        if (numeruar > 0) BoxWithConstraints(Modifier.fillMaxSize()) {
+            val w = maxWidth * 0.78f; val h = w * 0.55f
+            val siper = (maxHeight - h) / 2.3f
+            Text("+$numeruar", style = tx(17, 700, Color.White), modifier = Modifier.align(Alignment.TopCenter).padding(top = maxOf(0.dp, siper - 46.dp))
+                .shadow(8.dp, RoundedCornerShape(16.dp)).clip(RoundedCornerShape(16.dp)).background(Color(0xFFFF5252)).padding(horizontal = 16.dp, vertical = 6.dp))
+        }
     }
 }
+
+/** Numërimi i vazhdueshëm (si te web-i): +1 jo më shpesh se 1.5 s; mbaron kur barkodi s'shihet 3 s */
+private const val NUMRIM_INTERVALI_MS = 1500L
+private const val NUMRIM_PUSHIMI_MS = 3000L
 
 /** Shifra e kontrollit e EAN-13/EAN-8/UPC-A */
 fun kontrolliEAN(v: String): Boolean {

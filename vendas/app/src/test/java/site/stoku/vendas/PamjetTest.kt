@@ -119,9 +119,9 @@ class PamjetTest {
             ).map { Afatet.normalizoRreshtin(it) })
         } else { _ ->
             LeximiAI.Rez.Ok(listOf(
-                obj("barkodi" to "389001000", "emri" to "Kos Vita 500g", "data" to Afatet.isoNgaData(sot.plusDays(3)), "data_origjinale" to "26.10.26", "sasia" to 6L, "furnizuesi" to "Vita"),
-                obj("barkodi" to "389001002", "data" to "", "data_origjinale" to "3?.1?.26", "sasia" to "2", "dyshim" to true),
-                obj("emri" to "Jogurt 200g", "data" to Afatet.isoNgaData(sot.minusDays(1)), "sasia" to "12")
+                obj("barkodi" to "389001000", "emri" to "Kos Vita 500g", "data" to Afatet.isoNgaData(sot.plusDays(3)), "data_origjinale" to "26.10.26", "sasia" to 6L, "furnizuesi" to "Vita", "x" to 0.06, "y" to 0.115),
+                obj("barkodi" to "389001002", "data" to "", "data_origjinale" to "3?.1?.26", "sasia" to "2", "dyshim" to true, "x" to 0.06, "y" to 0.19),
+                obj("emri" to "Jogurt 200g", "data" to Afatet.isoNgaData(sot.minusDays(1)), "sasia" to "12", "x" to 0.06, "y" to 0.265)
             ).map { Afatet.normalizoRreshtin(it) })
         }
         val uri = android.net.Uri.fromFile(f)
@@ -138,6 +138,11 @@ class PamjetTest {
         }
         fotoEkrani(if (stok) "$tema-08-lista" else "$tema-07-fleta")
         if (!gati) throw AssertionError("S'u gjet \"$pritur\". Gabimi: " + LeximiAI.gabimiIFundit)
+        // Fotoja e zmadhuar: numrat e rreshtave mbi foto (si te web-i)
+        if (!stok && tema == "light") {
+            r.onNodeWithContentDescription("Fleta e fotografuar").performClick(); r.waitForIdle()
+            fotoEkrani("light-37-fleta-numrat")
+        }
         LeximiAI.lexoPerProve = null
     }
 

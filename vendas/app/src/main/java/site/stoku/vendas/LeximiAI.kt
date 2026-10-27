@@ -8,9 +8,12 @@ import android.net.Uri
 import android.util.Base64
 import androidx.exifinterface.media.ExifInterface
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import site.stoku.logjika.Afatet
 import site.stoku.logjika.Json
 import site.stoku.logjika.MObj
@@ -96,6 +99,43 @@ object LeximiAI {
     private fun pamja(b: Bitmap): Bitmap {
         val s = min(1.0, 1600.0 / max(b.width, b.height))
         return if (s < 1.0) Bitmap.createScaledBitmap(b, max(1, (b.width * s).toInt()), max(1, (b.height * s).toInt()), true) else b
+    }
+
+    /** Foto më e vogël për ta dërguar në PC (si fotoPerDergim te afatet.js): data URL JPEG nën 800 000 shenja */
+    suspend fun fotoPerDergim(f: Foto): String = withContext(Dispatchers.Default) {
+        val bajtet = Base64.decode(f.base64, Base64.NO_WRAP)
+        var hapi = 1
+        while (max(f.gjeresia, f.lartesia) / (hapi * 2) >= 2000) hapi *= 2
+        val bm = try { BitmapFactory.decodeByteArray(bajtet, 0, bajtet.size, BitmapFactory.Options().apply { inSampleSize = hapi }) } catch (e: OutOfMemoryError) { null }
+            ?: f.pamja
+        val provat = listOf(2000 to 75, 1700 to 72, 1400 to 70, 1100 to 65)
+        var u = ""
+        for ((i, p) in provat.withIndex()) {
+            val k = min(1.0, p.first.toDouble() / max(bm.width, bm.height))
+            val b = if (k < 1.0) Bitmap.createScaledBitmap(bm, max(1, Math.round(bm.width * k).toInt()), max(1, Math.round(bm.height * k).toInt()), true) else bm
+            val dalja = ByteArrayOutputStream()
+            b.compress(Bitmap.CompressFormat.JPEG, p.second, dalja)
+            u = "data:image/jpeg;base64," + Base64.encodeToString(dalja.toByteArray(), Base64.NO_WRAP)
+            if (u.length < 800000 || i == provat.size - 1) break
+        }
+        u
+    }
+
+    /**
+     * "Dërgo në PC" (si dergoFleten te firebase-tel.js): dyqane/{uid}/fletet ← { krijuarSe, nga, foto, rreshtat, lloji: "stok"? }.
+     * PC-ja me të njëjtën llogari e hap vetë kontrollin e fletës. Kthen null kur u dërgua, përndryshe arsyen.
+     */
+    suspend fun dergoFleten(foto: String, rreshtat: List<MObj>, stok: Boolean): String? = withContext(Dispatchers.IO) {
+        val uid = (try { FirebaseAuth.getInstance().currentUser?.uid } catch (e: Exception) { null }) ?: return@withContext "pa-hyrje"
+        val fleta = hashMapOf<String, Any?>("krijuarSe" to System.currentTimeMillis(), "nga" to (Llogaria.perdoruesi.value?.emri ?: ""),
+            "foto" to foto, "rreshtat" to rreshtat.map { HashMap(it) })
+        if (stok) fleta["lloji"] = "stok"
+        try {
+            withTimeout(45000) { FirebaseFirestore.getInstance().collection("dyqane").document(uid).collection("fletet").add(fleta).await() }
+            null
+        } catch (e: Exception) {
+            if (e is FirebaseFirestoreException && e.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) "permission-denied" else "rrjeti"
+        }
     }
 
     /** Gabimi i fundit gjatë përgatitjes së fotos (për diagnozë) */
