@@ -287,7 +287,7 @@ object Regjistri {
     }
 
     /** Administratori: furnizuesit e afateve/stokut të tij pa asnjë hyrje ruhen NË PRITJE (v238); publikohen si sugjerime */
-    private fun ruajFurnizuesitEMiratuar() {
+    fun ruajFurnizuesitEMiratuar() {
         if (!admin) return
         val g = Dyqani.g
         val l = Furnizuesit.lista(g.afatet, g.produktet, kujtesa.lista().filter { it.ngaAdmini }, emptyList())

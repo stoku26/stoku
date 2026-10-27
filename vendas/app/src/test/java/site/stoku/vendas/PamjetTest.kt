@@ -238,7 +238,7 @@ class PamjetTest {
     @Test fun grupiECelet() = grupi("light")
     @Test fun grupiEErret() = grupi("dark")
 
-    /** Cilësimet: një dritare (Skanimi, Pamja, Llogaria, Çka ka të re) */
+    /** Cilësimet: një faqe (Skenimi, Pamja, Llogaria, Çka ka të re) */
     private fun cilesimi(rreshti: String, emri: String) {
         mbush()
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
@@ -246,7 +246,7 @@ class PamjetTest {
         kliko(rreshti)
         fotoEkrani("light-$emri")
     }
-    @Test fun cilesimetSkanimi() = cilesimi("Skanimi", "14-skanimi")
+    @Test fun cilesimetSkanimi() = cilesimi("Skenimi", "14-skanimi")
     @Test fun cilesimetPamja() = cilesimi("Pamja", "15-pamja")
     @Test fun cilesimetLlogaria() = cilesimi("Llogaria", "16-llogaria")
     @Test fun cilesimetTeRejat() = cilesimi("Çka ka të re", "17-terejat")
@@ -292,6 +292,59 @@ class PamjetTest {
         fotoEkrani("light-24-perdoruesit")
         klikoFundit("besa")
         fotoEkrani("light-25-lejet")
+    }
+
+    /** Rreshti më lart me këtë tekst (p.sh. "Stoku" te Cilësimet, jo tabi poshtë) */
+    private fun klikoSiper(t: String) {
+        val l = r.onAllNodesWithText(t)
+        val i = l.fetchSemanticsNodes().withIndex().minByOrNull { it.value.boundsInRoot.top }!!.index
+        l[i].performClick(); r.waitForIdle()
+    }
+
+    /** Cilësimet → Stoku: renditja dhe furnizuesit/produktet (përdoruesi i zakonshëm, vetëm për t'i parë) */
+    @Test fun cilesimetStoku() {
+        mbush()
+        val t = System.currentTimeMillis()
+        Regjistri.vendosPerProve("besa", false, mapOf(
+            "3890010001" to obj("e" to "Kos Vita 500g", "f" to "Vita", "k" to t - 1000, "s" to 1L),
+            "3890010002" to obj("e" to "Qumësht Vita 1L", "f" to "Vita", "k" to t - 2000, "s" to 1L),
+            "3890010003" to obj("e" to "Djathë i bardhë", "f" to "Bylmeti", "k" to t - 3000, "s" to 1L)
+        ))
+        r.setContent { StokuTema("light") { Rrenja("light") {} } }
+        kliko("Cilësimet")
+        klikoSiper("Stoku")
+        fotoEkrani("light-26-stoku")
+        kliko("Produktet")
+        fotoEkrani("light-27-produktet")
+        Regjistri.vendosPerProve("", false, emptyMap())
+    }
+
+    /** Administratori: Produktet e reja (ndryshimi i një produkti) dhe Furnizuesit */
+    @Test fun cilesimetStokuAdmini() {
+        mbush()
+        Llogaria.vendosPerProve(Perdoruesi("u0", "mendurberisha"))
+        val t = System.currentTimeMillis()
+        Regjistri.vendosPerProve("mendurberisha", true, mapOf(
+            "3890010001" to obj("e" to "Kos Vita 500g", "f" to "Vita", "k" to t - 100000, "s" to 1L),
+            "3890010002" to obj("e" to "Qumësht Vita 1L", "f" to "Vita", "k" to t - 200000, "s" to 1L),
+            "3890020001" to obj("e" to "Ajvar Podravka 350g", "f" to "Podravka", "k" to t - 1000, "n" to "agim"),
+            "3890020002" to obj("e" to "Çokollatë Milka 100g", "f" to "Mondelez", "k" to t - 5000, "n" to "besa"),
+            "3890020003" to obj("e" to "Lëng Bibita 1L", "f" to "", "k" to t - 9000, "n" to "drini")
+        ))
+        r.setContent { StokuTema("light") { Rrenja("light") {} } }
+        kliko("Cilësimet")
+        klikoSiper("Stoku")
+        fotoEkrani("light-28-stoku-admin")
+        kliko("Produktet e reja")
+        fotoEkrani("light-29-produktet-reja")
+        kliko("Ajvar Podravka 350g")
+        fotoEkrani("light-30-produkti-ndrysho")
+        kliko("Anulo")
+        r.onNodeWithContentDescription("Mbrapa").performClick(); r.waitForIdle()
+        kliko("Furnizuesit")
+        fotoEkrani("light-31-furnizuesit")
+        Llogaria.vendosPerProve(Perdoruesi("u1", "besa"))
+        Regjistri.vendosPerProve("", false, emptyMap())
     }
 
     @Test fun porta() {
