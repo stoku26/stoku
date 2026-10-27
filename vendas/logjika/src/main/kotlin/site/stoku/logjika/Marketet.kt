@@ -16,6 +16,8 @@ object Marketet {
     const val PASAKTESIA_MAKS_M = 40.0 // v256: ishte 150
     const val PASAKTESIA_E_PRANUESHME_M = 150.0 // v256: me pasaktësi më të madhe s'dihet a je brenda marketit
     const val LARG_M = 300.0 // v256: zgjedhja me dorë bie kur GPS-i të tregon më larg se kaq (+ pasaktësia) nga ai market
+    const val PAQARTESIA_MIN_M = 10.0 // v257: markete fqinje që GPS-i s'i dallon (gjejMarketin)
+    const val PAQARTESIA_K = 0.8
     const val DORE_MS = 3 * 3600 * 1000L
     const val KONTROLLI_MS = 2 * 60 * 1000L
     const val EMRI_MAKS = 60
@@ -82,6 +84,32 @@ object Marketet {
         var mi: Obj? = null; var dMin = Double.POSITIVE_INFINITY
         l.forEach { m -> if (!kaVend(m)) return@forEach; val d = larg(m, poz); if (d <= kufiri && d < dMin) { dMin = d; mi = m } }
         return mi?.let { Gjetur(it, Math.round(dMin)) }
+    }
+
+    /** v257: rezultati i gjejMarketin: marketi (gjetur) ose kandidatët kur GPS-i s'i dallon (paqarte) */
+    class Rezultati(val gjetur: Gjetur?, val kandidatet: List<Gjetur>) { val paqarte: Boolean get() = gjetur == null && kandidatet.isNotEmpty() }
+
+    /**
+     * v257 (si gjejMarketin te marketet.js): si gjej(), por kur disa markete brenda rrezes janë aq afër sa GPS-i s'i dallon
+     * (largësitë ndryshojnë më pak se max(10 m, 0.8 × pasaktësia)) mbetet aktivId (nëse është njëri prej tyre), përndryshe
+     * kandidatët (më i afërti i pari). Pa asnjë: null.
+     */
+    fun gjejMarketin(l: List<Obj>, poz: Pozita?, aktivId: Any?): Rezultati? {
+        if (poz == null) return null
+        if (poz.sakt != null && poz.sakt > PASAKTESIA_E_PRANUESHME_M) return null
+        val s = maxOf(0.0, poz.sakt ?: 0.0)
+        val kufiri = RREZJA_M + min(s, PASAKTESIA_MAKS_M)
+        val c = l.withIndex().filter { kaVend(it.value) }.map { Triple(it.value, larg(it.value, poz), it.index) }.filter { it.second <= kufiri }
+            .sortedWith(compareBy<Triple<Obj, Double, Int>> { it.second }.thenBy { it.third })
+        if (c.isEmpty()) return null
+        val pragu = maxOf(PAQARTESIA_MIN_M, PAQARTESIA_K * s)
+        val afer = c.filter { it.second - c[0].second < pragu }
+        if (afer.size > 1) {
+            val a = if (aktivId != null) afer.firstOrNull { it.first["id"] == aktivId } else null
+            if (a != null) return Rezultati(Gjetur(a.first, Math.round(a.second)), emptyList())
+            return Rezultati(null, afer.map { Gjetur(it.first, Math.round(it.second)) })
+        }
+        return Rezultati(Gjetur(c[0].first, Math.round(c[0].second)), emptyList())
     }
 
     // ---------- Pikat e përbashkëta (v246) ----------

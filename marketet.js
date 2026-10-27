@@ -12,6 +12,9 @@
  *   - v256: brenda RREZJA_M (60 m) nga pika e ruajtur, plus pasaktësia e GPS-it deri në PASAKTESIA_MAKS_M (40 m), pra më së
  *     shumti 100 m = je te ai market; më i afërti fiton. Me pasaktësi mbi PASAKTESIA_E_PRANUESHME_M (150 m) GPS-i s'thotë dot
  *     a je brenda: s'je te asnjë. (Deri te v255: 250 m + deri 150 m, ndaj në shtëpi afër një marketi dilte "Je te: …".)
+ *   - v257: dy markete fqinje (p.sh. matanë rrugës): kur ndryshimi i largësive deri te to është më i vogël se
+ *     max(PAQARTESIA_MIN_M, PAQARTESIA_K × pasaktësia), GPS-i s'i dallon: mbetet marketi aktiv (nëse është njëri prej tyre),
+ *     përndryshe s'zgjidhet vetë asnjë ("Ku je?" me to në krye). gjejMarketin(); gjej() mbetet si më parë.
  *   - Zgjedhja me dorë vlen DORE_MS para GPS-it (brenda qendrave tregtare GPS-i gabon), përveç kur GPS-i (i saktë) të tregon
  *     qartë larg atij marketi (mbi LARG_M + pasaktësia, v256). Jashtë krejt marketeve, pas një zgjedhjeje nga GPS-i, aktiv bëhet
  *     "Krejt marketet" (null).
@@ -30,6 +33,7 @@
   var PASAKTESIA_MAKS_M = 40; // v256: ishte 150
   var PASAKTESIA_E_PRANUESHME_M = 150; // v256: me pasaktësi më të madhe s'dihet a je brenda marketit
   var LARG_M = 300; // v256: zgjedhja me dorë bie kur GPS-i të tregon më larg se kaq (+ pasaktësia) nga ai market
+  var PAQARTESIA_MIN_M = 10, PAQARTESIA_K = 0.8; // v257: markete fqinje që GPS-i s'i dallon (shih gjejMarketin)
   var DORE_MS = 3 * 3600 * 1000;
   var KONTROLLI_MS = 2 * 60 * 1000;
   var KEY_LISTA = 'stoku:marketet:v1';
@@ -84,6 +88,27 @@
       if (d <= kufiri && d < dMin) { dMin = d; mi = m; }
     });
     return mi ? { marketi: mi, largesia: Math.round(dMin) } : null;
+  }
+
+  // v257: si gjej(), por me marketet fqinje: kur disa markete brenda rrezes janë aq afër sa GPS-i s'i dallon (largësitë
+  // ndryshojnë më pak se max(PAQARTESIA_MIN_M, PAQARTESIA_K × pasaktësia)), mbetet aktivId (nëse është njëri prej tyre),
+  // përndryshe { paqarte: true, kandidatet: [{ marketi, largesia }…] } (më i afërti i pari). Pa asnjë: null.
+  function gjejMarketin(l, poz, aktivId) {
+    if (!poz || !numer(poz.lat) || !numer(poz.lng)) return null;
+    if (numer(poz.sakt) && poz.sakt > PASAKTESIA_E_PRANUESHME_M) return null;
+    var s = numer(poz.sakt) ? Math.max(0, poz.sakt) : 0;
+    var kufiri = RREZJA_M + Math.min(s, PASAKTESIA_MAKS_M), c = [];
+    (l || []).forEach(function (m, i) { if (!kaVend(m)) return; var d = largesia(m, poz); if (d <= kufiri) c.push({ marketi: m, d: d, i: i }); });
+    if (!c.length) return null;
+    c.sort(function (a, b) { return a.d - b.d || a.i - b.i; });
+    var pragu = Math.max(PAQARTESIA_MIN_M, PAQARTESIA_K * s);
+    var afer = c.filter(function (x) { return x.d - c[0].d < pragu; });
+    if (afer.length > 1) {
+      var a = aktivId ? afer.filter(function (x) { return x.marketi.id === aktivId; })[0] : null;
+      if (a) return { marketi: a.marketi, largesia: Math.round(a.d) };
+      return { paqarte: true, kandidatet: afer.map(function (x) { return { marketi: x.marketi, largesia: Math.round(x.d) }; }) };
+    }
+    return { marketi: c[0].marketi, largesia: Math.round(c[0].d) };
   }
 
   // ---------- v246: pikat e përbashkëta të Stoku-t (pikat/{id}) ----------
@@ -288,7 +313,7 @@
 
   var api = {
     RREZJA_M: RREZJA_M, PASAKTESIA_MAKS_M: PASAKTESIA_MAKS_M, PASAKTESIA_E_PRANUESHME_M: PASAKTESIA_E_PRANUESHME_M, LARG_M: LARG_M,
-    largNgaMarketi: largNgaMarketi, DORE_MS: DORE_MS, KONTROLLI_MS: KONTROLLI_MS, KEY_LISTA: KEY_LISTA, KEY_AKTIV: KEY_AKTIV, EMRI_MAKS: EMRI_MAKS,
+    largNgaMarketi: largNgaMarketi, DORE_MS: DORE_MS, gjejMarketin: gjejMarketin, PAQARTESIA_MIN_M: PAQARTESIA_MIN_M, PAQARTESIA_K: PAQARTESIA_K, KONTROLLI_MS: KONTROLLI_MS, KEY_LISTA: KEY_LISTA, KEY_AKTIV: KEY_AKTIV, EMRI_MAKS: EMRI_MAKS,
     pastro: pastro, idERe: idERe, rendit: rendit, sipasId: sipasId, emri: emri, ekzistonEmri: ekzistonEmri, kaVend: kaVend,
     largesia: largesia, gjej: gjej, filtro: filtro, meEmra: meEmra, vendosPaMarket: vendosPaMarket, grupo: grupo,
     lexoAktivin: lexoAktivin, ruajAktivin: ruajAktivin, pasGps: pasGps, kaPika: kaPika, duhetKontrolli: duhetKontrolli,

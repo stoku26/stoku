@@ -8,6 +8,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(12, "2026-10-27", "Marketet fqinje", listOf(
+            "Kur dy markete janë afër njëri-tjetrit (p.sh. matanë rrugës) dhe GPS-i brenda ndërtesës s'i dallon dot, Stoku s'zgjedh më vetë fqinjin e gabuar: mbetet marketi ku je, ose të pyet \"Ku je?\" me të dy marketet në krye. Zgjedhja jote mbetet."
+        )),
         Hyrja(11, "2026-10-27", "Marketet me hartë, fotot e kolegëve", listOf(
             "Cilësimet → Marketet tash ka edhe hartën e marketeve (si te web-i): marketi ku je, harta, lista e marketeve dhe shtimi, krejt në një faqe.",
             "Administratori i sheh marketet në hartë, shton një market të ri në hartë, ua ndryshon emrin ose e fshin një market të gabuar.",

@@ -65,7 +65,7 @@ object Merchandiseri {
 
     /** Dritaret që i hap logjika: "Ku je?" (qellimi "zgjidh" ose "te-reja") ose "Market i ri" */
     sealed class Dritarja {
-        class KuJe(val qellimi: String, val poz: Marketet.Pozita?, val panjohur: Boolean, val kurZgjedh: ((String?) -> Unit)? = null) : Dritarja()
+        class KuJe(val qellimi: String, val poz: Marketet.Pozita?, val panjohur: Boolean, val paqarte: Boolean = false, val kurZgjedh: ((String?) -> Unit)? = null) : Dritarja()
         object MarketIRi : Dritarja()
     }
     val dritarja = MutableStateFlow<Dritarja?>(null)
@@ -294,10 +294,15 @@ object Merchandiseri {
             pritPikat()
             gpsDukePunuar = false
             val para = idAktiv()
-            var gj = Marketet.gjej(marketet(), p)
+            // v257: markete fqinje që GPS-i s'i dallon: mbetet aktivi (nëse është njëri prej tyre), përndryshe pyetet "Ku je?"
+            val r = Marketet.gjejMarketin(marketet(), p, _aktivi.value.id)
+            var paqarte = r?.paqarte == true
+            var gj = r?.gjetur
             var uShtua = false
-            if (gj == null) {
-                Marketet.gjej(_pikat.value, p)?.let { gp -> // një pikë e njohur e Stoku-t (e shtuar nga dikush tjetër)
+            if (gj == null && !paqarte) {
+                val rp = Marketet.gjejMarketin(_pikat.value, p, Marketet.sipasId(marketet(), _aktivi.value.id)?.get("p"))
+                if (rp?.paqarte == true) paqarte = true
+                else rp?.gjetur?.let { gp -> // një pikë e njohur e Stoku-t (e shtuar nga dikush tjetër)
                     val n0 = marketet().size
                     val m = shtoNgaPika(gp.marketi)
                     uShtua = marketet().size > n0
@@ -312,7 +317,7 @@ object Merchandiseri {
                 else if (meDore) Toast.trego("Je te: " + emri(pas), 4000)
                 return@launch
             }
-            if (meDore) Toast.trego("S'je te asnjë market i njohur.", 2500)
+            if (meDore && !paqarte) Toast.trego("S'je te asnjë market i njohur.", 2500)
             // S'je te asnjë market i njohur
             if (!meDore) {
                 val a = _aktivi.value
@@ -322,8 +327,8 @@ object Merchandiseri {
                 if (dritarja.value != null) return@launch // s'e ndërpret një dritare tjetër
             }
             StokuApp.vendosPref("marketet_kuje", Json.shkruaj(mapOf("uid" to Llogaria.perdoruesi.value?.uid, "koha" to System.currentTimeMillis())))
-            if (marketet().isEmpty() && Marketet.pikatAfer(_pikat.value, p, 2000.0, 1).isEmpty()) { dritarja.value = Dritarja.MarketIRi; return@launch }
-            dritarja.value = Dritarja.KuJe("zgjidh", p, true)
+            if (!paqarte && marketet().isEmpty() && Marketet.pikatAfer(_pikat.value, p, 2000.0, 1).isEmpty()) { dritarja.value = Dritarja.MarketIRi; return@launch }
+            dritarja.value = Dritarja.KuJe("zgjidh", p, true, paqarte = paqarte)
         }
     }
 

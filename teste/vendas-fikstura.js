@@ -184,7 +184,7 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
     const sinkr = M.sinkronizoMePikat(lista, pikat, afatet, rast() < 0.6, TANI_M);
     rastet.push({
       lista, pikatRaw, pikat, poz: pastro(poz), afatet: pastro(afatet),
-      gjej: pastro(M.gjej(lista, poz)), larg: lista.map(m => M.largNgaMarketi(lista, m.id, poz)), afer: pastro(M.pikatAfer(pikat, poz, M.LIDHJA_M, 3)),
+      gjej: pastro(M.gjej(lista, poz)), larg: lista.map(m => M.largNgaMarketi(lista, m.id, poz)), gjejM: lista.concat([null]).map(m => pastro(M.gjejMarketin(lista, poz, m && m.id))), afer: pastro(M.pikatAfer(pikat, poz, M.LIDHJA_M, 3)),
       neVend: pastro(M.marketiNeVend(lista, poz)), shumeAfer: pastro(M.pikaShumeAfer(pikat, poz)),
       kontrolli: pastro(M.kontrolloShtimin(poz, lista, pikat)),
       perMarketin: lista.map(m => (M.pikaPerMarketin(pikat, m) || {}).id || null),
@@ -200,8 +200,21 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
     [null, { marketi: { id: 'm2' }, largesia: 5 }].forEach(g => [false, true].forEach(larg => aktivet.push({ a, g, larg, rez: M.pasGps(Object.assign({ kontrolluarSe: 0 }, a), g, TANI_M, larg) })));
   });
   const kontrolli = [[], [{ id: 'm', emri: 'x' }], [{ id: 'm', emri: 'x', lat: 1, lng: 2 }]].flatMap(l => [0, TANI_M - 1e5, TANI_M - 2e5].map(k => ({ l, k, po: M.duhetKontrolli(l, { kontrolluarSe: k }, TANI_M) })));
-  dalja.marketet = { TANI_M, rastet, aktivet, kontrolli, emrat: ['  Viva   Fly ', 'viva fly', 'ËMBËL', 'ëmbël', 'Albi', '7'].map(e => [e, M.ekzistonEmri([{ id: 'a', emri: 'Viva Fly' }, { id: 'b', emri: 'Ëmbël' }, { id: 'c', emri: 7 }], e), M.ekzistonEmri([{ id: 'a', emri: 'Viva Fly' }], e, 'a')]) };
+  // v257: markete fqinje (matanë rrugës): gjejMarketin me pozita përgjatë vijës mes tyre, pasaktësi dhe aktive të ndryshme
+  const fqinjet = [];
+  for (let i = 0; i < 60; i++) {
+    const D = nje([20, 35, 55, 65, 90]), k = rast() * 2 * Math.PI;
+    const a = { id: 'mA', emri: 'Viva Fly', lat: Q.lat, lng: Q.lng };
+    const b = { id: 'mB', emri: 'Viva Fresh 110', lat: Q.lat + D * Math.cos(k) / 111320, lng: Q.lng + D * Math.sin(k) / (111320 * Math.cos(Q.lat * Math.PI / 180)) };
+    const t = nje([-0.3, 0, 0.2, 0.4, 0.5, 0.6, 0.8, 1, 1.3]);
+    const lista = nje([[a, b], [b, a], [a, b, { id: 'mC', emri: 'Larg', lat: Q.lat + 0.01, lng: Q.lng }]]);
+    const poz = { lat: a.lat + (b.lat - a.lat) * t, lng: a.lng + (b.lng - a.lng) * t, sakt: nje([5, 12, 25, 40, 60, 151, undefined]) };
+    const aktiv = nje([null, 'mA', 'mB', 'mC', 'zz']);
+    fqinjet.push({ lista, poz: pastro(poz), aktiv, rez: pastro(M.gjejMarketin(lista, poz, aktiv)) });
+  }
+  dalja.marketet = { TANI_M, rastet, aktivet, kontrolli, fqinjet, emrat: ['  Viva   Fly ', 'viva fly', 'ËMBËL', 'ëmbël', 'Albi', '7'].map(e => [e, M.ekzistonEmri([{ id: 'a', emri: 'Viva Fly' }, { id: 'b', emri: 'Ëmbël' }, { id: 'c', emri: 7 }], e), M.ekzistonEmri([{ id: 'a', emri: 'Viva Fly' }], e, 'a')]) };
   fs.writeFileSync(sk, JSON.stringify(dalja));
+  console.log('marketet (v257 fqinjet): ' + fqinjet.filter(f => f.rez && f.rez.paqarte).length + ' të paqarta, ' + fqinjet.filter(f => f.rez && !f.rez.paqarte).length + ' të gjetura');
   console.log('marketet: ' + rastet.length + ' raste, ' + rastet.filter(r => r.kontrolli && r.kontrolli.arsye === 'afer').length + ' "afer", ' + rastet.filter(r => r.kontrolli && r.kontrolli.arsye === 'ekziston').length + ' "ekziston", ' + rastet.filter(r => r.kontrolli === null).length + ' lejohet');
 }
 

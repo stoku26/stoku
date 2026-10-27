@@ -4742,10 +4742,13 @@
       pritPikat(function () {
         __gpsDukePunuar = false;
         var para = idMarketitAktiv();
-        var gj = MK.gjej(marketet, poz), uShtua = false;
-        if (!gj) {
-          var gp = MK.gjej(PK.lista, poz); // një pikë e njohur e Stoku-t (e shtuar nga dikush tjetër)
-          if (gp) { var n0 = marketet.length; var m = shtoNgaPika(gp.marketi); uShtua = marketet.length > n0; gj = { marketi: m, largesia: gp.largesia }; }
+        // v257: markete fqinje që GPS-i s'i dallon: mbetet aktivi (nëse është njëri prej tyre), përndryshe pyetet "Ku je?"
+        var gj = MK.gjejMarketin(marketet, poz, marketiAktiv.id), uShtua = false, paqarte = false;
+        if (gj && gj.paqarte) { paqarte = true; gj = null; }
+        if (!gj && !paqarte) {
+          var gp = MK.gjejMarketin(PK.lista, poz, (MK.sipasId(marketet, marketiAktiv.id) || {}).p); // një pikë e njohur e Stoku-t (e shtuar nga dikush tjetër)
+          if (gp && gp.paqarte) paqarte = true;
+          else if (gp) { var n0 = marketet.length; var m = shtoNgaPika(gp.marketi); uShtua = marketet.length > n0; gj = { marketi: m, largesia: gp.largesia }; }
         }
         var baza = meDore ? Object.assign({}, marketiAktiv, { menyra: 'gps', koha: 0 }) : marketiAktiv; // "Gjej me GPS" fiton ndaj zgjedhjes me dorë
         marketiAktiv = MK.ruajAktivin(MK.pasGps(baza, gj, Date.now(), MK.largNgaMarketi(marketet, baza.id, poz))); // v256: larg marketit të zgjedhur: bie
@@ -4764,8 +4767,8 @@
           if (document.querySelector('.mbulese.hapur:not(.faqe-e-plote)')) return; // s'e ndërpret një dritare tjetër
         }
         try { localStorage.setItem(KEY_KUJE, JSON.stringify({ uid: uidIm(), koha: Date.now() })); } catch (er) { /* ok */ }
-        if (!marketet.length && !MK.pikatAfer(PK.lista, poz, 2000, 1).length) { hapMarketinERi(); return; }
-        hapZgjedhjenEMarketit(poz, true);
+        if (!paqarte && !marketet.length && !MK.pikatAfer(PK.lista, poz, 2000, 1).length) { hapMarketinERi(); return; }
+        hapZgjedhjenEMarketit(poz, paqarte ? 'paqarte' : true);
       });
     });
   }
@@ -4782,6 +4785,7 @@
     var perTeReja = qellimi === 'te-reja';
     $('mkdTitulli').textContent = perTeReja ? 'Në cilin market?' : 'Ku je?';
     $('mkdNen').textContent = perTeReja ? 'Zgjidh marketin ku i ke këto afate.'
+      : poz && panjohur === 'paqarte' ? 'Je afër disa marketeve dhe GPS-i s\'i dallon dot. Zgjidh ku je: zgjedhja jote mbetet.' // v257
       : poz && panjohur ? 'S\'je te asnjë market i njohur. Zgjidh ku je, ose shto këtë vend si market të ri.'
       : 'Afatet dhe numrat tregohen për marketin që zgjedh. Nëse GPS-i s\'e ka gjetur mirë, zgjidhe vetë.';
     $('mkdGps').hidden = perTeReja || (!MK.kaPika(marketet) && !PK.lista.length);
