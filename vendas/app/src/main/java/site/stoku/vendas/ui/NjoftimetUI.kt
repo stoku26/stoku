@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
@@ -34,7 +36,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import site.stoku.vendas.Llogaria
@@ -45,12 +54,33 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-/** Teksti i shkurtër i gjendjes së njoftimeve (rreshti te Cilësimet) */
-fun statusiINjoftimeve(ctx: android.content.Context): String {
+/** Gjendja e njoftimeve si te web-i (NJ_GJENDJET): "push" | "aktive" | "lokale" | "fikur" | "bllokuar" */
+fun gjendjaENjoftimeve(ctx: android.content.Context): String {
     val g = try { Njoftimet.gjendja(ctx) } catch (e: Exception) { "fikur" }
-    val baza = when (g) { "lejuar" -> "Aktive"; "bllokuar" -> "Të bllokuara"; else -> "Të fikura" }
+    return when {
+        g == "bllokuar" -> "bllokuar"
+        g != "lejuar" -> "fikur"
+        !Llogaria.leja("grupi") -> "aktive"
+        Push.pushAktiv() -> "push"
+        else -> "lokale"
+    }
+}
+
+/** [ngjyra, titulli, teksti, statusi te menyja] si NJ_GJENDJET te app-tel.js */
+private val NJ_GJENDJET = mapOf(
+    "push" to listOf("gjelber", "Aktive", "Vijnë edhe kur Stoku është i mbyllur, edhe në orë.", "Aktive"),
+    "aktive" to listOf("gjelber", "Aktive", "Njoftimet për afatet vijnë në këtë telefon. Që të vijnë edhe kur Stoku është i mbyllur, ndiz më poshtë \"Njoftimi ditor\".", "Aktive"),
+    "lokale" to listOf("portokalli", "Aktive kur Stoku është hapur", "Njoftimet e Grupit vijnë kur Stoku është i hapur ose në sfond. Që të vijnë edhe kur mbyllet, duhet hyrë në llogari dhe shërbimi i njoftimeve duhet të jetë gati.", "Kur Stoku është hapur"),
+    "fikur" to listOf("gri", "Të fikura", "Shtyp \"Aktivizo njoftimet\" dhe lejoji kur të pyet telefoni.", "Të fikura"),
+    "bllokuar" to listOf("kuqe", "Të bllokuara", "I ke refuzuar njoftimet. Lejoji te: Cilësimet e telefonit → Aplikacionet → Stoku → Njoftimet → Lejo.", "Të bllokuara")
+)
+
+/** Teksti i shkurtër i gjendjes së njoftimeve (rreshti te Cilësimet), si rifreskoOrarin te web-i */
+fun statusiINjoftimeve(ctx: android.content.Context): String {
+    val g = gjendjaENjoftimeve(ctx)
+    val baza = NJ_GJENDJET[g]!![3]
     val o = try { Push.orariIm() } catch (e: Exception) { null }
-    return if (g == "lejuar" && o?.get("aktiv") == true) baza + " · ditore " + o["ora"] else baza
+    return if (o?.get("aktiv") == true && g != "fikur" && g != "bllokuar") baza + " · ditore " + o["ora"] else baza
 }
 
 private fun oraNga(ms: Long): String = Instant.ofEpochMilli(ms).atZone(ZoneId.systemDefault()).toLocalTime().let { String.format(java.util.Locale.ROOT, "%02d:%02d", it.hour, it.minute) }
@@ -93,7 +123,7 @@ private fun tekstiGabimitOrarit(a: String): String = when (a) {
 
 /** Cilësimet → Njoftimet (si te web-i): leja, push-i i Grupit, njoftimi ditor në orën e zgjedhur, kontrolli i serverit */
 @Composable
-fun NjoftimetFlete(mbyll: () -> Unit) {
+fun NjoftimetFaqja(mbrapa: () -> Unit) {
     val n = N
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -165,80 +195,80 @@ fun NjoftimetFlete(mbyll: () -> Unit) {
 
     LaunchedEffect(aktiv, versioni) { if (aktiv) kontrollo() }
 
-    Flete(mbyll) {
-        Text("Njoftimet", style = tx(22, 700, n.ink, -0.02))
-        Text("Njoftimet e Grupit dhe të afateve. Vijnë edhe kur Stoku është i mbyllur.", style = tx(14, 400, n.muted))
-        val (titulli, teksti, ngj) = when {
-            gjendja == "bllokuar" -> Triple("Të bllokuara", "I ke refuzuar njoftimet. Lejoji te: Cilësimet e telefonit → Aplikacionet → Stoku → Njoftimet → Lejo.", "kuqe")
-            gjendja != "lejuar" -> Triple("Të fikura", "Shtyp \"Aktivizo njoftimet\" dhe lejoji kur të pyet telefoni.", "gri")
-            !Llogaria.leja("grupi") -> Triple("Aktive", "Njoftimet për afatet vijnë në këtë telefon. Që të vijnë edhe kur Stoku është i mbyllur, ndiz më poshtë \"Njoftimi ditor\".", "gjelber")
-            pushAktiv -> Triple("Aktive", "Vijnë edhe kur Stoku është i mbyllur, edhe në orë.", "gjelber")
-            else -> Triple("Pa lidhje me serverin", "Njoftimet e Grupit s'janë lidhur ende me serverin e njoftimeve. Shtyp \"Provo sërish lidhjen\".", "portokalli")
-        }
-        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).border(1.dp, n.line, RoundedCornerShape(18.dp)).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IkonaMeNgjyre(Ik.Zile, ngj, madhesia = 40.dp)
-                Spacer(Modifier.width(12.dp))
-                Column(Modifier.weight(1f)) {
-                    Text(titulli, style = tx(16, 700, n.ink))
-                    Text(teksti, style = tx(13, 400, n.muted))
-                }
-            }
-            val btn = when {
-                gjendja == "bllokuar" -> "Hap cilësimet e njoftimeve"
-                gjendja != "lejuar" -> "Aktivizo njoftimet"
-                Llogaria.leja("grupi") && !pushAktiv -> "Provo sërish lidhjen"
-                else -> null
-            }
-            if (btn != null) Buton(btn, { aktivizo() }, Modifier.fillMaxWidth())
-            if (hint.isNotEmpty()) Text(hint, style = tx(13, 400, n.ink2))
+    val g = remember(versioni, rifresko) { gjendjaENjoftimeve(ctx) }
+    val x = NJ_GJENDJET[g]!!
+    FaqjaECilesimeve("Njoftimet", mbrapa) {
+        IntroOps("Njoftimet e Grupit dhe të afateve. Vijnë edhe kur Stoku është i mbyllur.")
+        KartaOps(Modifier.clickable(enabled = g == "bllokuar") { aktivizo() }) {
+            KokaEKartes(Ik.Zile, x[0], x[1], x[2])
+            if (g == "fikur" || g == "lokale") Buton(if (g == "lokale") "Provo sërish lidhjen" else "Aktivizo njoftimet", { aktivizo() }, Modifier.fillMaxWidth())
+            if (hint.isNotEmpty()) Text(hint, style = txR(12.5f, 400, n.muted), modifier = Modifier.padding(top = 12.dp))
         }
         if (Llogaria.leja("afatet")) {
-            Text("NJOFTIMI DITOR PËR AFATET", style = tx(13, 700, n.muted, 0.06), modifier = Modifier.padding(top = 6.dp))
-            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).border(1.dp, n.line, RoundedCornerShape(16.dp))) {
-                Row(Modifier.fillMaxWidth().clickable(enabled = !duke) { ruajOrarin(!aktiv, ora) }.padding(horizontal = 16.dp, vertical = 14.dp),
-                    verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text("Njoftimi ditor", style = tx(15, 600, n.ink))
-                        Text("Në orën që zgjedh të vjen një njoftim për produktet që skadojnë atë ditë, edhe kur Stoku është i mbyllur. Nëse s'skadon asnjë, s'vjen njoftim.",
-                            style = tx(13, 400, n.muted), modifier = Modifier.padding(top = 3.dp))
-                    }
-                    Spacer(Modifier.width(12.dp))
-                    androidx.compose.material3.Switch(aktiv, { if (!duke) ruajOrarin(it, ora) }, enabled = !duke, colors = androidx.compose.material3.SwitchDefaults.colors(
-                        checkedTrackColor = n.accent, checkedThumbColor = Color.White, uncheckedTrackColor = n.track, uncheckedThumbColor = Color.White, uncheckedBorderColor = n.track))
-                }
-                Box(Modifier.fillMaxWidth().height(1.dp).background(n.line2))
+            TitulliGrupit("Njoftimi ditor për afatet")
+            GrupiOps {
+                RreshtNdezes(Ik.KalendarOk, "portokalli", "Njoftimi ditor",
+                    "Në orën që zgjedh të vjen një njoftim për produktet që skadojnë atë ditë, edhe kur Stoku është i mbyllur. Nëse s'skadon asnjë, s'vjen njoftim.",
+                    aktiv, aktiv = !duke) { ruajOrarin(it, ora) }
+                VijaGrupit()
                 Row(Modifier.fillMaxWidth().clickable(enabled = !duke) { zgjidhOren() }.padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.align(Alignment.Top)) { IkonaEKategorise(Ik.Alarm, "blu") }
+                    Spacer(Modifier.width(14.dp))
                     Column(Modifier.weight(1f)) {
-                        Text("Ora e njoftimit", style = tx(15, 600, n.ink))
+                        Text("Ora e njoftimit", style = txR(15f, 600, n.ink, 1.3f))
                         Text(when {
                             duke -> "Duke ruajtur…"
                             Llogaria.perdoruesi.value == null -> "Hyr në llogari që ta përdorësh."
-                            gjendja == "bllokuar" -> "Njoftimet janë të bllokuara te cilësimet e telefonit."
-                            gjendja != "lejuar" -> "Shtyp më lart \"Aktivizo njoftimet\"."
+                            g == "bllokuar" -> "Njoftimet janë të bllokuara te cilësimet e telefonit."
+                            g == "fikur" -> "Shtyp më lart \"Aktivizo njoftimet\"."
                             aktiv -> "Çdo ditë në $ora."
                             else -> "Zgjidh orën dhe ndiz \"Njoftimi ditor\"."
-                        }, style = tx(13, 400, n.muted), modifier = Modifier.padding(top = 3.dp))
+                        }, style = txR(12.5f, 400, n.muted, 1.4f), modifier = Modifier.padding(top = 3.dp))
                     }
-                    Text(ora, style = tx(17, 700, n.accentText))
+                    Spacer(Modifier.width(12.dp))
+                    Box(Modifier.size(96.dp, 44.dp).clip(RoundedCornerShape(12.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(12.dp)),
+                        contentAlignment = Alignment.Center) { Text(ora, style = tx(17, 700, n.ink)) }
                 }
             }
             serveri?.let { (t, keq) ->
-                Text(t, style = tx(13, 500, if (keq) n.expInk else n.okInk), modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                    .background(if (keq) n.expTint else n.okTint).padding(12.dp))
+                val (sf, ng) = n.ikonat[if (keq) "portokalli" else "gjelber"]!!
+                Text(t, style = txR(13f, 400, ng), modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 10.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                    .background(sf).padding(horizontal = 12.dp, vertical = 10.dp))
             }
         }
     }
 }
 
-/** Cilësimet → Ora e dorës: lidhja me kodin 6-shifror që del në orë (Galaxy Watch) */
+/** Teksti me pjesë të trasha: **kështu** (si <b> te hapat e web-it) */
+private fun meTeTrasha(t: String, ngjyra: Color) = buildAnnotatedString {
+    t.split("**").forEachIndexed { i, pj -> if (i % 2 == 1) withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = ngjyra)) { append(pj) } else append(pj) }
+}
+
+/** .ops-hapat: hapat me numër në rreth blu */
 @Composable
-fun OraFlete(mbyll: () -> Unit) {
+private fun Hapat(hapat: List<String>) {
+    val n = N
+    Column(Modifier.padding(top = 2.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        hapat.forEachIndexed { i, t ->
+            Row {
+                val (sf, ng) = n.ikonat["blu"]!!
+                Box(Modifier.size(24.dp).clip(CircleShape).background(sf), contentAlignment = Alignment.Center) { Text("${i + 1}", style = txF(12.5f, 700, ng)) }
+                Spacer(Modifier.width(12.dp))
+                Text(meTeTrasha(t, n.ink), style = txR(14f, 400, n.ink2), modifier = Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+/** Cilësimet → Ora e dorës: lidhja me kodin 6-shifror (Galaxy Watch) dhe hapat për njoftimet (Galaxy Watch, Apple Watch) */
+@Composable
+fun OraFaqja(mbrapa: () -> Unit) {
     val n = N
     val scope = rememberCoroutineScope()
     var kodi by remember { mutableStateOf("") }
     var hint by remember { mutableStateOf("") }
     var duke by remember { mutableStateOf(false) }
+    var ora by remember { mutableStateOf("galaxy") }
     fun lidh() {
         val k = kodi.filter { it.isDigit() }
         if (Llogaria.perdoruesi.value == null) { hint = "Hyr në llogari që ta lidhësh orën."; return }
@@ -256,30 +286,51 @@ fun OraFlete(mbyll: () -> Unit) {
             }
         }
     }
-    Flete(mbyll) {
-        Text("Ora e dorës", style = tx(22, 700, n.ink, -0.02))
-        Text("Lidhe orën e dorës (Galaxy Watch) me Stoku-n: produktet që skadojnë, heqja nga rafti dhe njoftimet e telefonit, direkt në dorë.",
-            style = tx(14, 400, n.muted))
-        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).border(1.dp, n.line, RoundedCornerShape(18.dp)).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("Aplikacioni Stoku në orë", style = tx(16, 700, n.ink))
-            Text("Hape Stoku në orë: del një kod me 6 shifra (ndërrohet çdo 15 sekonda). Shkruaje këtu që ora të lidhet me llogarinë tënde.", style = tx(13, 400, n.muted))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                Fusha(kodi, { kodi = it.filter { c -> c.isDigit() }.take(6) }, Modifier.weight(1f), "Kodi nga ora", tastiera = KeyboardType.NumberPassword,
-                    kurVeprim = { lidh() })
-                Buton("Lidh orën", { lidh() }, aktiv = !duke)
+    FaqjaECilesimeve("Ora e dorës", mbrapa) {
+        IntroOps("Lidhe orën e dorës (Galaxy Watch ose Apple Watch) me Stoku-n.")
+        TitulliGrupit("Ora e dorës", pare = true)
+        KartaOps {
+            KokaEKartes(Ik.OraDore, "blu", "Stoku në orë", "Produktet që skadojnë, heqja nga rafti dhe njoftimet e telefonit, direkt në dorë.")
+            // .segment: Galaxy Watch / Apple Watch
+            Row(Modifier.fillMaxWidth().padding(bottom = 14.dp).clip(RoundedCornerShape(12.dp)).background(n.sunken).padding(4.dp)) {
+                listOf("galaxy" to "Galaxy Watch", "apple" to "Apple Watch").forEach { (k, t) ->
+                    val a = ora == k
+                    Box(Modifier.weight(1f).height(38.dp).then(if (a) Modifier.shadow(2.dp, RoundedCornerShape(9.dp)) else Modifier).clip(RoundedCornerShape(9.dp))
+                        .background(if (a) n.surface else Color.Transparent).clickable { ora = k }, contentAlignment = Alignment.Center) {
+                        Text(t, style = txF(13.5f, 600, if (a) n.ink else n.ink3))
+                    }
+                }
             }
-            if (hint.isNotEmpty()) Text(hint, style = tx(13, 500, n.ink2))
-        }
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf(
-                "Te Cilësimet → Njoftimet shtyp \"Aktivizo njoftimet\" dhe lejoji.",
-                "Hap aplikacionin Galaxy Wearable → Cilësimet e orës → Njoftimet → Njoftimet e aplikacioneve → ndize Stoku (nëse s'del, shtyp \"Të gjitha\" dhe kërko \"Stoku\").",
-                "Fike ekranin e telefonit: njoftimet e Stoku-t (afatet, kërkesat, Grupi) dalin edhe në orë."
-            ).forEachIndexed { i, t ->
-                Row { Text("${i + 1}.", style = tx(14, 700, n.accentText), modifier = Modifier.width(22.dp)); Text(t, style = tx(14, 400, n.ink2)) }
+            if (ora == "galaxy") {
+                Column(Modifier.padding(bottom = 12.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(n.surface2).border(1.dp, n.line, RoundedCornerShape(14.dp))
+                    .padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Aplikacioni Stoku në orë", style = tx(18, 700, n.ink, -0.01))
+                    Text("Hape Stoku në orë: del një kod me 6 shifra (ndërrohet çdo 15 sekonda). Shkruaje këtu që ora të lidhet me llogarinë tënde.", style = txR(12.5f, 400, n.muted))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Fusha(kodi, { kodi = it.filter { c -> c.isDigit() }.take(6) }, Modifier.weight(1f), "Kodi nga ora", tastiera = KeyboardType.NumberPassword,
+                            kurVeprim = { lidh() }, lartesia = 44.dp, rrezja = 12.dp, stili = tx(17, 700).copy(letterSpacing = 3.sp, textAlign = TextAlign.Center))
+                        Buton("Lidh orën", { lidh() }, Modifier.weight(1f), aktiv = !duke, lartesia = 44.dp)
+                    }
+                    if (hint.isNotEmpty()) Text(hint, style = txR(12.5f, 500, n.ink2))
+                }
+                Hapat(listOf(
+                    "Ke aplikacionin **Stoku për Android** (këtë që po e përdor): njoftimet e tij dalin në orë.",
+                    "Te Cilësimet → **Njoftimet** shtyp **Aktivizo njoftimet** dhe lejoji.",
+                    "Hap aplikacionin **Galaxy Wearable** → **Cilësimet e orës** → **Njoftimet** → **Njoftimet e aplikacioneve** → ndize **Stoku** (nëse s'del, shtyp \"Të gjitha\" dhe kërko \"Stoku\").",
+                    "Fike ekranin e telefonit: njoftimet e Stoku-t (afatet, kërkesat, Grupi) dalin edhe në orë."
+                ))
+                Text("Ora i merr njoftimet kur telefoni është me ekran të fikur ose s'po e përdor. Kur ekrani i telefonit është i ndezur, Samsung i lë vetëm te telefoni (mund ta ndryshosh te Galaxy Wearable → Njoftimet, te opsioni për njoftimet gjatë përdorimit të telefonit).",
+                    style = txR(12.5f, 400, n.muted), modifier = Modifier.padding(top = 12.dp))
+            } else {
+                Hapat(listOf(
+                    "Në iPhone hap **stoku.site** me **Safari** → butoni **Shpërndaj** (katrori me shigjetë) → **Shto në ekranin bazë** (Add to Home Screen). Duhet iOS 16.4 ose më i ri.",
+                    "Hape Stoku **nga ikona** në ekranin bazë (jo nga Safari), hyr në llogari dhe te Cilësimet → **Njoftimet** shtyp **Aktivizo njoftimet** → **Lejo**.",
+                    "Në iPhone hap aplikacionin **Watch** → **Njoftimet** (Notifications) → poshtë te **Pasqyro sinjalizimet e iPhone nga** (Mirror iPhone Alerts From) → ndize **Stoku**.",
+                    "Kyçe iPhone-in: njoftimet e Stoku-t (afatet, kërkesat, Grupi) dalin edhe në orë."
+                ))
+                Text("Apple Watch i merr njoftimet vetëm kur iPhone-i është i kyçur (ekrani i fikur) dhe ora është në dorë dhe e shkyçur. Nëse s'e sheh Stoku-n te lista e aplikacionit Watch, hape Stoku një herë nga ikona dhe lejo njoftimet, pastaj kontrollo prapë.",
+                    style = txR(12.5f, 400, n.muted), modifier = Modifier.padding(top = 12.dp))
             }
         }
-        Text("Ora i merr njoftimet kur telefoni është me ekran të fikur ose s'po e përdor. Kur ekrani i telefonit është i ndezur, Samsung i lë vetëm te telefoni (mund ta ndryshosh te Galaxy Wearable → Njoftimet).",
-            style = tx(13, 400, n.muted))
     }
 }

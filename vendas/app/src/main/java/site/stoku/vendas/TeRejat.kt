@@ -8,6 +8,13 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(9, "2026-10-27", "Cilësimet si te web-i", listOf(
+            "Cilësimet hapen si faqe të plota (me \"←\" kthehesh mbrapa), me të njëjtat rreshta, ikona dhe tekste si te web-i.",
+            "Cilësimet → Stoku: renditja e produkteve, Furnizuesit dhe Produktet e regjistrit të Stoku-t (emri dhe furnizuesi për çdo barkod, të njëjtë për krejt llogaritë).",
+            "Administratori kontrollon \"Produktet e reja\" dhe \"Furnizuesit e rinj\", ndryshon emrat ose i bashkon dy furnizues në një.",
+            "Llogaria: foto e profilit (shto, ndrysho, hiq), dhe kopja e të dhënave që u fshinë nga një pajisje tjetër (mund t'i rikthesh brenda 30 ditëve).",
+            "Stoku i mban mend barkodet: kur ruan një afat, një produkt ose importon, herën tjetër emri dhe furnizuesi plotësohen vetë."
+        )),
         Hyrja(8, "2026-10-23", "Përdoruesit (administratori)", listOf(
             "Cilësimet → Përdoruesit: krejt llogaritë, lejet e secilës (ruhen vetë), \"U kontrollua\", \"Lejo krejt\" dhe \"Ndalo krejt\".",
             "Afatet e një llogarie (p.sh. merchandiser), sipas marketeve, vetëm për t'u parë."

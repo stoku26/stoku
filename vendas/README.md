@@ -45,6 +45,12 @@ Excel-i i afateve (kolonat, muaji, furnizuesi, të zgjedhurat), importi i afatev
 **Njoftimet** (`Njoftimet.kt`, `Push.kt`, `ui/NjoftimetUI.kt`): push me Firebase Cloud Messaging nga Worker-i `stoku-push`
 (Grupi dhe njoftimi ditor për afatet në orën e zgjedhur), Cilësimet → Njoftimet dhe → Ora e dorës (lidhja me kod, heqjet nga ora).
 
+**Cilësimet si te web-i** (`ui/CilesimetEkrani.kt`, `ui/CilesimetPerberes.kt`): faqe të plota me "←", menyja me profilin,
+Pamja, Skenimi, Njoftimet, Ora e dorës, Marketet, Stoku, Përdoruesit (administratori), Llogaria (foto e profilit me
+`Fotot.kt`, kopja e të fshirave nga një pajisje tjetër), "Çka ka të re". Cilësimet → Stoku: renditja, Furnizuesit dhe
+Produktet (`ui/RegjistriUI.kt`) nga kujtesa e produkteve (`logjika/Kujtesa.kt`, `logjika/Furnizuesit.kt`, krahasuar me
+afatet.js te `KujtesaTest`) dhe regjistri i përbashkët i Stoku-t (`Regjistri.kt`, si ekipa.js).
+
 **Leximi me AI**: aplikacioni dërgon foton te `https://stoku-afatet.mendurb.workers.dev` me tokenin e llogarisë dhe me
 `Origin: https://stoku.site` (si web-i). Nëse Worker-i kthen "origjina", i duhet lejuar kjo kërkesë (pronari, te Cloudflare).
 
@@ -53,5 +59,4 @@ Excel-i i afateve (kolonat, muaji, furnizuesi, të zgjedhurat), importi i afatev
 GitHub Actions (job-i `pamjet`, vetëm jashtë `main`) i ruan PNG-të si blob-e të git-it dhe i shënon te "annotations".
 
 ## Çka mungon ende (fazat e ardhshme)
-Harta e marketeve, faqja e administratorit (Përdoruesit, Furnizuesit, Produktet), veprimet e
-administratorit te Grupi, stoku i kolegut te Grupi dhe "Dërgo në PC" për fotot e fletëve.
+Harta e marketeve, fshirja e llogarisë nga administratori, veprimet e administratorit te Grupi, stoku i kolegut te Grupi dhe "Dërgo në PC" për fotot e fletëve.

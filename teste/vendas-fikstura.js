@@ -303,6 +303,132 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
   console.log('lejet: ' + dalja.lejet.katalogu.length + ' leje');
 }
 
+// ---------- Kujtesa e produkteve (afatet.js: krijoKujtesen) dhe furnizuesit (listaEFurnizuesve, riemertoFurnizuesin) ----------
+// Një seri veprimesh me orë të ngulët; pas çdo hapi: rezultati, hyrjet e ruajtura (me radhën e çelësave), lista dhe furnizuesit.
+{
+  const A = require(RR + '/afatet.js');
+  const T0 = 1760000000000;
+  let ora = T0;
+  const nowVjeter = Date.now;
+  Date.now = () => ora;
+  const ls = { m: { 'stoku:kujtesa:kontrolli-v238': '1' }, getItem(k) { return k in this.m ? this.m[k] : null; }, setItem(k, v) { this.m[k] = String(v); }, removeItem(k) { delete this.m[k]; } };
+  const K = A.krijoKujtesen(ls);
+  const gjate = 'P'.repeat(130);
+  const R1 = {
+    '3800020': { e: 'Nga grupi', f: 'Rugove', k: T0 + 500, a: 1, m: 0, s: 0, n: 'drini', x: 0, r: 0 },
+    '3800021': { e: 'Produkt  i   kolegut ', f: ' Furnitor  Grupi ', k: T0 + 600, n: 'drini' },
+    '3800001': { e: 'Version i vjetër', f: 'Rugove', k: T0 - 5, s: 1 },
+    '3800004': { e: 'Kos Vita', f: 'Vita Group', k: T0 + 9999, s: 1 },
+    'furnizuesi Meridian': { e: 'Meridian', f: '', k: T0 + 9999, n: 'agim' },
+    'jo e vlefshme': { e: 'X', f: '', k: 1 },
+    '777': { e: 'Numerik', f: '', k: 5, a: 1 },
+    '12': { x: 1, k: 7 },
+    '3800030': { e: '', f: '', k: 3 },
+    '3800031': 'jo objekt',
+    '3800032': { e: gjate, f: 'F'.repeat(90), k: 'abc', n: 'N'.repeat(50), m: 1, a: 1 },
+    '3800033': { x: true, s: 1, k: T0 + 1 }
+  };
+  const R2 = {
+    '3800040': { e: 'Pritje me furnizues të fshirë', f: 'Meridian', k: T0 - 100, n: 'agim' },
+    '3800041': { e: 'Pritje e re', f: 'Furnitor Fshirë', k: T0 + 50000, n: 'agim' },
+    'furnizuesi Furnitor Fshirë': { x: 1, s: 1, k: T0 + 40000 },
+    '3800042': { e: 'Admin në pritje', f: 'Furnitor Admini', k: T0 + 60000, s: 1, r: 1, n: 'mendurberisha' },
+    '5': { e: 'Pesë', f: 'Rugove', k: 9, s: 1 }
+  };
+  const hapat = [
+    ['autori', 'agim', false],
+    ['meso', '3800001', 'Ujë Rugove 0.5L', 'Rugove', 'mbishkruaj'],
+    ['meso', '3800002', 'Coca Cola', '', 'mbishkruaj'],
+    ['meso', '3800002', 'Coca Cola', '', 'mbishkruaj'],
+    ['meso', '', 'Pa barkod', 'X', 'mbishkruaj'],
+    ['ora', T0 + 1000],
+    ['mesoShume', [['3800003', 'Fanta 1L', 'Coca-Cola HBC'], ['', 'Pa barkod', 'Furnitori i ri'], ['3800001', 'Ujë Rugove', 'Rugove'], ['3800050', ' Lëng   molle ', '']], 'plotëso'],
+    ['mesoShume', [['3800004', 'Kos', 'Vita'], ['', 'Pa barkod', 'Furnitori i ri'], ['3800003', 'Fanta 1L', 'Coca-Cola HBC']], 'mbishkruaj'],
+    ['mesoShume', [['3800050', 'Lëng molle 1L', 'Vita']], 'plotëso'],
+    ['autori', '', false],
+    ['meso', '3800005', 'Pa autor', 'Vita', null],
+    ['autori', 'mendurberisha', true],
+    ['ora', T0 + 2000],
+    ['vendos', '3800001', 'Ujë Rugove 0.5L PET', 'Rugove'],
+    ['vendos', '3800009', '', ''],
+    ['vendos', '3800003', 'Fanta 1L', 'Furnitor  Admini'],
+    ['regjistroFurnizuesitNePritje', ['Vita', 'Bylmeti', 'vita', '']],
+    ['regjistroFurnizuesit', ['Bylmeti', 'Meridian', 'bylmeti'], false],
+    ['regjistroFurnizuesit', ['Rugove', 'Coca-Cola HBC'], true],
+    ['ora', T0 + 3000],
+    ['riemerto', 'Vita', 'Vita Group'],
+    ['riemerto', 'Vita Group', 'Vita Group'],
+    ['fshijFurnizuesin', 'Meridian'],
+    ['fshij', '3800002'],
+    ['fshij', '3800002'],
+    ['meso', '3800006', '', 'Furnitor Vetëm', 'mbishkruaj'],
+    ['fshijFurnizuesin', 'Furnitor Vetëm'],
+    ['ora', T0 + 4000],
+    ['bashko', R1],
+    ['perDergim', R1],
+    ['hyrjePerGrup', ['3800001', '3800002', '12', 'furnizuesi Rugove', 'mungon', 'jo e vlefshme']],
+    ['merr', '3800001'], ['merr', ' 380 0001 '], ['merr', '3800002'], ['merr', ''],
+    ['regjistroFurnizuesinERi', 'Furnitor  me   hapësira'],
+    ['regjistroFurnizuesinERi', 'furnitor me hapësira'],
+    ['autori', 'besa', false],
+    ['meso', '3800001', 'Tjetër', 'X', 'mbishkruaj'],
+    ['meso', '3800010', 'Lëng', 'Bylmeti', 'mbishkruaj'],
+    ['fshij', '3800010'],
+    ['fshij', '3800010'],
+    ['regjistroFurnizuesit', ['Jo admin'], true],
+    ['fshijFurnizuesin', 'Rugove'],
+    ['ora', T0 + 5000],
+    ['bashko', R2],
+    ['perDergim', R2],
+    ['autori', 'mendurberisha', true],
+    ['riemerto', 'rugove', 'Rugove Sh.p.k.'],
+    ['meso', '3800020', 'Nga grupi', 'Rugove Sh.p.k.', 'mbishkruaj'],
+    ['vendos', '3800021', 'Produkt i kolegut', 'Furnitor Grupi']
+  ];
+  const rasti = [];
+  hapat.forEach(h => {
+    let rez = null;
+    const [op, a, b, c, d] = h;
+    if (op === 'ora') ora = a;
+    else if (op === 'autori') K.vendosAutorin(a, b);
+    else if (op === 'meso') rez = K.meso(a, b, c, d === null ? undefined : d);
+    else if (op === 'mesoShume') rez = K.mesoShume(a.map(x => ({ barkodi: x[0], emri: x[1], furnizuesi: x[2] })), b);
+    else if (op === 'vendos') rez = K.vendos(a, b, c);
+    else if (op === 'fshij') rez = K.fshij(a);
+    else if (op === 'riemerto') rez = K.riemertoFurnizuesin(a, b);
+    else if (op === 'regjistroFurnizuesitNePritje') rez = K.regjistroFurnizuesitNePritje(a);
+    else if (op === 'regjistroFurnizuesit') rez = K.regjistroFurnizuesit(a, b);
+    else if (op === 'regjistroFurnizuesinERi') rez = K.regjistroFurnizuesinERi(a);
+    else if (op === 'fshijFurnizuesin') rez = K.fshijFurnizuesin(a);
+    else if (op === 'bashko') rez = K.bashko(a);
+    else if (op === 'perDergim') rez = K.perDergim(a);
+    else if (op === 'hyrjePerGrup') rez = K.hyrjePerGrup(a);
+    else if (op === 'merr') rez = K.merr(a);
+    const harta = JSON.parse(ls.m['stoku:kujtesa:v1'] || '{}');
+    const lista = {}; K.lista().forEach(x => { lista[x.barkodi] = x; });
+    rasti.push({ hapi: h, rez, harta, celesat: Object.keys(harta), lista, furnizuesit: K.furnizuesit(), numri: K.numri(), numriNePritje: K.numriNePritje() });
+  });
+  // Furnizuesit: lista (me afatet dhe produktet e stokut), renditja sipas ruajtjes, emri ekzistues, riemërtimi
+  const afatetF = [{ id: 'a1', furnizuesi: 'Vita Group' }, { id: 'a2', furnizuesi: ' Coca-Cola  HBC ' }, { id: 'a3', furnizuesi: 'Furnitor  Afati' }, { id: 'a4' }, { id: 'a5', furnizuesi: 7 }];
+  const produktetF = { 'pije|111': { barkodi: '111', furnizuesi: 'Rugove Sh.p.k.', prekurSe: 5 }, 'pije|3800001': { barkodi: '3800001', furnizuesi: 'Rugove Sh.p.k.' },
+    'ush|222': { barkodi: '', furnizuesi: 'Meridian' }, 'ush|333': { barkodi: '333', furnizuesi: 'Vita  Group', prekurSe: 'x' } };
+  const lf = A.listaEFurnizuesve(afatetF, produktetF, K.lista(), K.furnizuesit());
+  const furnizuesitL = {
+    lista: lf,
+    renditurF: A.renditSipasRuajtjes(lf).map(f => f.emri),
+    renditurP: A.renditSipasRuajtjes(K.lista()).map(x => x.barkodi),
+    ekzistues: [['vita group', ''], ['VITA GROUP', 'Vita Group'], ['  meridian ', ''], ['Askush', '']].map(([e, p]) => [e, p, A.furnizuesiEkzistues(lf, e, p)]),
+    riemerto: [['Vita  Group', 'Vita'], ['Rugove Sh.p.k.', ' Rugove '], ['', 'X'], ['Askush', 'Y']].map(([v, i]) => {
+      const r = A.riemertoFurnizuesin(afatetF, produktetF, v, i, T0 + 777);
+      return { vjeter: v, iRi: i, afatet: r.afatet, produktet: r.produktet, nAfate: r.nAfate, nProdukte: r.nProdukte };
+    })
+  };
+  Date.now = nowVjeter;
+  dalja.kujtesa = JSON.parse(JSON.stringify({ T0, rasti, furnizuesit: furnizuesitL, afatetF, produktetF, kujtesaFundit: ls.m['stoku:kujtesa:v1'] }));
+  fs.writeFileSync(sk, JSON.stringify(dalja));
+  console.log('kujtesa: ' + rasti.length + ' hapa, ' + lf.length + ' furnizues');
+}
+
 // ---------- Excel (xlsx.js), barkodet e etiketave (JsBarcode), CSV dhe importi i afateve (afatet.js) ----------
 // Leximi i .xlsx kërkon DOMParser: xlsx.js read() ekzekutohet në Chromium (Playwright, teste/pw.js).
 (async () => {
@@ -402,8 +528,11 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
   const lexoCsvTel = new Function(src.slice(i0, i1 + 1) + '; return lexoCsvTel;')();
   const csv = ['a;b;c\n1;2;3\n', '"x,y",z\r\n"q""q",w\r\n\r\n', 'Barkodi\tEmri\n1\tKos', '﻿a,b\n,\n  , \n3,4', 'nje rresht', '"shume\nrreshta",2\n', 'a,b;c;d\n1,2;3', '', '\r\r\n\n', ';;\n x ; ']
     .map(t => ({ t, r: lexoCsvTel(t) }));
+  // Node (p.sh. v22) e dekodon 'windows-1252' si latin1: 0x80-0x9F mbeten kontrolle; shfletuesi (si te web-i) jep €, ‚, ƒ…
+  const C1 = '€\u0081‚ƒ„…†‡ˆ‰Š‹Œ\u008DŽ\u008F\u0090‘’“”•–\u2014˜™š›œ\u009Džž';
+  const cp1252 = t => t.replace(/[\u0080-\u009F]/g, c => C1[c.charCodeAt(0) - 0x80]);
   const dekodimi = [[0xEF, 0xBB, 0xBF, 0x61, 0xC3, 0xAB], [0x61, 0xEB, 0x80, 0x62], [0x61, 0x62]].map(b => {
-    let t; try { t = new TextDecoder('utf-8', { fatal: true }).decode(Uint8Array.from(b)); } catch (e) { t = new TextDecoder('windows-1252').decode(Uint8Array.from(b)); }
+    let t; try { t = new TextDecoder('utf-8', { fatal: true }).decode(Uint8Array.from(b)); } catch (e) { t = cp1252(new TextDecoder('windows-1252').decode(Uint8Array.from(b))); }
     return { b, t };
   });
   // Importi i afateve: ora ndalet te TANI_I (datat me vetëm ditën varen nga viti i tanishëm)

@@ -414,6 +414,9 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
         val afPara = id?.let { Dyqani.afati(it) }
         val furnPara = (afPara?.get("furnizuesi") as? String).orEmpty()
         val f = if (paFurnizues) furnPara else furn.trim()
+        // Herën tjetër ky barkod plotëson vetë emrin dhe furnizuesin; furnizuesi i ri pret kontrollin (v212, v214)
+        site.stoku.vendas.Regjistri.mesoNgaPerdoruesi(b, em, f)
+        if (f.isNotEmpty() && f != furnPara) site.stoku.vendas.Regjistri.regjistroFurnizuesinERi(f)
         val tani = System.currentTimeMillis()
         if (id != null && afPara != null) {
             Dyqani.perditesoAfatin(id, mapOf("barkodi" to b, "emri" to em, "data" to iso, "sasia" to s, "furnizuesi" to f) + (if (kaM) mapOf("m" to (mk ?: "")) else emptyMap()))

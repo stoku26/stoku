@@ -236,7 +236,7 @@ private fun MarketIRi() {
 
 /** Cilësimet → Marketet (si faqja "marketet" te web-i): marketi ku je, marketet e Stoku-t, marketi i ri */
 @Composable
-fun MarketetFlete(mbyll: () -> Unit) {
+fun MarketetFaqja(mbyll: () -> Unit) {
     val n = N
     val g by Dyqani.gjendja.collectAsState()
     val aktivi by Merchandiseri.aktivi.collectAsState()
@@ -261,52 +261,41 @@ fun MarketetFlete(mbyll: () -> Unit) {
     val leja = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { r ->
         if (r.values.any { it }) shto() else gabim = Marketet.tekstiGabimit("leje")
     }
-    Flete(mbyll) {
-        Text("Marketet", style = tx(22, 700, n.ink, -0.02))
+    FaqjaECilesimeve("Marketet", mbyll) {
+        IntroOps("Marketet e Stoku-t, të njëjtat për krejt merchandiserët. Afatet ndahen sipas marketit: te çdo market i sheh vetëm afatet e tij. Kur je brenda një marketi që s'është ende këtu, shtoje më poshtë: Stoku ruan vendndodhjen e tij (duhet vendndodhja e saktë e telefonit) dhe herët e tjera e njeh vetë ku je. Emrat i ndryshon vetëm administratori. Vendndodhja jote s'ruhet askund, vetëm ajo e marketeve.")
         if (marketet.isNotEmpty()) {
-            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(n.surface2).padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(if (id != null) "Je te: " + Merchandiseri.emri(id) else "Krejt marketet", style = tx(16, 700, n.ink))
+            KartaOps {
+                Text(if (id != null) "Je te: " + Merchandiseri.emri(id) else "Krejt marketet", style = txF(15.5f, 600, n.ink))
                 Text(if (!Marketet.kaPika(marketet)) "Asnjë market s'ka ende vendndodhje: shtoje kur je brenda marketit."
                     else if (aktivi.menyra == "dore" && id != null) "E zgjodhe me dorë. GPS-i e ndërron vetë pas disa orësh." else "Me GPS, sa herë hap Stoku-n.",
-                    style = tx(13, 400, n.muted))
-                Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Buton("Ndrysho", { mbyll(); Merchandiseri.dritarja.value = Merchandiseri.Dritarja.KuJe("zgjidh", Merchandiseri.pozEFundit(), false) }, lloji = "dyte", lartesia = 40.dp)
-                    if (Marketet.kaPika(marketet)) Buton("Gjej me GPS", { Merchandiseri.kontrolloGps(true) }, lloji = "dyte", lartesia = 40.dp)
+                    style = txR(12.5f, 400, n.muted), modifier = Modifier.padding(top = 2.dp, bottom = 10.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ButonOps("Ndrysho", { Merchandiseri.dritarja.value = Merchandiseri.Dritarja.KuJe("zgjidh", Merchandiseri.pozEFundit(), false) }, Modifier.weight(1f))
+                    if (Marketet.kaPika(marketet)) ButonOps("Gjej me GPS", { Merchandiseri.kontrolloGps(true) }, Modifier.weight(1f))
                 }
             }
-            Text("MARKETET E STOKU-T", style = tx(12, 700, n.muted, 0.06), modifier = Modifier.padding(start = 4.dp, top = 4.dp))
+            TitulliGrupit("Marketet e Stoku-t")
         }
-        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).border(1.dp, n.line, RoundedCornerShape(18.dp))) {
-            if (marketet.isEmpty()) Text("S'ke ende asnjë market. Shto të parin më poshtë.", style = tx(14, 400, n.muted), modifier = Modifier.padding(16.dp))
+        GrupiOps {
+            if (marketet.isEmpty()) BoshOps("S'ke ende asnjë market. Shto të parin më poshtë.")
             Marketet.rendit(marketet).forEachIndexed { i, m ->
-                if (i > 0) Box(Modifier.fillMaxWidth().padding(start = 64.dp).heightIn(min = 1.dp).background(n.line2))
                 val kaVend = Marketet.kaVend(m)
-                val (sf, ng) = n.ikonat[if (kaVend) "gjelber" else "gri"]!!
                 val nA = Merchandiseri.afateAktive(m["id"] as String)
-                Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(sf), contentAlignment = Alignment.Center) {
-                        Text(((m["emri"] as String).firstOrNull() ?: '?').uppercase(), style = tx(15, 700, ng))
-                    }
-                    Spacer(Modifier.width(12.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text((m["emri"] as String) + if (m["id"] == id) " · je këtu" else "", style = tx(15, 600, n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text((if (kaVend) "Me vendndodhje" else "Pa vendndodhje: shtoje sërish me këtë emër kur je brenda tij") + " · " + (if (nA == 1) "1 afat" else "$nA afate"),
-                            style = tx(12, 400, n.muted))
-                    }
-                }
+                RreshtListe(((m["emri"] as String).firstOrNull() ?: '?').uppercase(), if (kaVend) "gjelber" else "gri",
+                    (m["emri"] as String) + if (m["id"] == id) " · je këtu" else "",
+                    (if (kaVend) "Me vendndodhje" else "Pa vendndodhje: shtoje sërish me këtë emër kur je brenda tij") + " · " + (if (nA == 1) "1 afat" else "$nA afate"),
+                    vije = i > 0)
             }
         }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Fusha(emri, { emri = it.take(60); gabim = "" }, Modifier.weight(1f), "Emri i marketit ku je tani", kurVeprim = { shto() })
-            Buton(if (punon) "…" else "Shto", {
+        Row(Modifier.padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Fusha(emri, { emri = it.take(60); gabim = "" }, Modifier.weight(1f), "Emri i marketit ku je tani", kurVeprim = { shto() }, lartesia = 46.dp)
+            Buton(if (punon) "Duke e gjetur vendndodhjen…" else "Shto", {
                 if (!Merchandiseri.kaLeje()) {
                     try { leja.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)) } catch (e: Exception) { shto() }
                 } else shto()
-            }, aktiv = !punon, lartesia = 50.dp)
+            }, aktiv = !punon, lartesia = 46.dp)
         }
-        if (gabim.isNotEmpty()) Text(gabim, style = tx(13, 600, n.exp))
-        Text("Marketet janë të përbashkëta për krejt merchandiserët e Stoku-t. Emrin e ndryshon dhe marketin e fshin vetëm administratori.",
-            style = tx(12, 400, n.muted))
+        if (gabim.isNotEmpty()) Text(gabim, style = txR(12.5f, 600, n.exp), modifier = Modifier.padding(top = 6.dp))
     }
 }
 

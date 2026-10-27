@@ -325,6 +325,7 @@ fun ImportiAfateveFlete(mbyll: () -> Unit, pasImportit: () -> Unit) {
                 Merchandiseri.marketiPerTeReja { mkId ->
                     val teReja = if (mkId != null) teReja0.map { a -> a.also { it["m"] = mkId } } else teReja0
                     Dyqani.shtoAfatet(teReja)
+                    site.stoku.vendas.Regjistri.mesoNgaImporti(teReja) // të kontrolluara nga përdoruesi
                     val nk = teReja.count { Afatet.statusi(it) == "skaduar" }
                     val nv = teReja.count { Afatet.statusi(it) == "afer" }
                     Toast.trego((if (teReja.size == 1) "U importua 1 afat" else "U importuan ${teReja.size} afate") +
