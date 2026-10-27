@@ -426,12 +426,6 @@ body.pa-animim .mbulese > .dialog { animation: none; }
 .sb .sb-scan #afatEmri { font-size: 16px; font-weight: 600; }
 .sb .sb-scan .af-skano { flex: none; width: 44px; height: 44px; border-radius: 12px; border: 0; background: rgba(255,255,255,.12); color: #fff; }
 .sb .sb-afat-seksion { display: flex; flex-direction: column; gap: 8px; }
-.sb .sb-dates { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-.sb .sb-date { border-radius: 14px; padding: 8px 0; min-height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; cursor: pointer; background: var(--sb-bg); color: var(--sb-ink); box-shadow: var(--sb-ring); border: 0; font: inherit; }
-.sb .sb-date[aria-pressed="true"] { background: var(--sb-accent); color: #fff; box-shadow: none; }
-.sb .sb-date__day { font-size: 18px; font-weight: 700; line-height: 1.1; }
-.sb .sb-date__mon { font-size: 11px; font-weight: 500; opacity: .8; }
-.sb .sb-date__sa { font-size: 10px; font-weight: 600; opacity: .7; }
 .sb #afatData { height: 48px; }
 .sb .sb-stepper { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-radius: 16px; box-shadow: var(--sb-ring); padding: 10px 10px 10px 16px; }
 .sb .sb-stepper label { display: flex; flex-direction: column; gap: 1px; margin: 0; }

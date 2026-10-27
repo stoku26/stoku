@@ -52,6 +52,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PA DATAT E SHPEJTA TE "AFAT I RI" (v254 = 1.39.2, 27.10.2026)**: përdoruesi (me foton e "Afat i ri" në Android):
+   "Hekja qeto ne krejt projektin", pastaj zgjodhi "Datat e shpejta". U hoqën kutitë 1 javë / 2 javë / 1 muaj / 3 muaj:
+   web-i i telefonit (`#afatDatat` te index.html, `AF_DATAT_SHPEJTA`/`dataEShpejte`/`vizatoDatatEShpejta` te app-tel.js,
+   `.sb-date*` te css/stoku.css; `hapAfatin` thërret tani `rifreskoDatenEAfatit()` për "Skadon për N ditë") dhe aplikacioni
+   Android (`AfatetEkrani.kt`, Çka ka të re 10). Kompjuteri s'i kishte. Fusha DD-MM-VV dhe teksti i ditëve mbeten.
+   Testi `teste/v254.js`; seksioni B i `v215-test.js` (datat nga 31 janari) u hoq. S'është testuar në telefon të vërtetë.
+
 0000000. **STOKU PËR ANDROID: CILËSIMET SI TE WEB-I (27.10.2026)**: kërkesa: "Kshyri edhe niher komplet cilesimet edhe i bon
    sa ma identik te mujshme". Cilësimet janë navigator me faqe të plota (`CilesimetEkrani.kt`: `faqja` + PRINDI si
    PRINDI_I_FAQES, BackHandler), menyja me profilin (foto), "Aplikacioni" (Pamja, Skenimi, Njoftimet, Ora e dorës, Marketet,
@@ -2168,6 +2175,8 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Pamje/dizajne të mia (dy raunde u refuzuan); pamja e sotme (v126) është dizajni i vetë përdoruesit nga Claude Design.
 - Çdo gjë për furnizuesin si mesazh/lajmërim (v121 + v122): "Lajmëro furnizuesin", "Lajmërova", "Dërgo listën",
   "Kopjo mesazhin për furnizuesin". Grupimi sipas furnizuesit mbetet (vetëm si listë).
+- Datat e shpejta te "Afat i ri" (1 javë, 2 javë, 1 muaj, 3 muaj): u hoqën te v254 nga web-i dhe aplikacioni Android
+  ("Hekja qeto ne krejt projektin"). Mos i rikthe.
 - Placeholder-a tip "p.sh." në fusha — përdoruesi i pëlqen hint-e përshkruese, jo shembuj konkretë.
 - Teksti "ose komercialistin" te mesazhet e afateve — u hoq, mbetet vetëm "furnizuesin".
 - Zoom me pinch-to-zoom në telefon — u ç'aktivizua (maximum-scale=1, user-scalable=no, touch-action).

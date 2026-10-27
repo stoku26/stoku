@@ -7288,7 +7288,7 @@
     } else {
       info.style.display = 'none';
     }
-    vizatoDatatEShpejta();
+    rifreskoDatenEAfatit(); // v254: pa datat e shpejta (1 javë…3 muaj), vetëm fusha e datës
     $('dlgAfat').classList.add('hapur');
     if (!a) $('afatBarkodi').focus();
   }
@@ -7369,44 +7369,8 @@
   $('afatEmri').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('afatData').focus(); } });
   AF.lidhFushenEDates($('afatData'));
   $('afatSasia').addEventListener('change', function () { vendosRezultatinESasise($('afatSasia')); });
-  // Datat e shpejta (1 javë, 2 javë, 1 muaj, 3 muaj): vetëm e plotësojnë fushën e datës
-  var AF_DATAT_SHPEJTA = [['1 javë', 7, 0], ['2 javë', 14, 0], ['1 muaj', 0, 1], ['3 muaj', 0, 3]];
-  var AF_MUAJT_SHKURT = ['Jan', 'Shk', 'Mar', 'Pri', 'Maj', 'Qer', 'Kor', 'Gus', 'Sht', 'Tet', 'Nën', 'Dhj'];
-  function dataEShpejte(z) {
-    var d = new Date(); d.setHours(12, 0, 0, 0);
-    if (z[1]) d.setDate(d.getDate() + z[1]);
-    if (z[2]) { // "1 muaj" nga 31 janari = 28/29 shkurt (jo 3 mars)
-      var dita = d.getDate();
-      d.setDate(1); d.setMonth(d.getMonth() + z[2]);
-      d.setDate(Math.min(dita, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()));
-    }
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  }
-  function vizatoDatatEShpejta() {
-    var c = $('afatDatat');
-    c.textContent = '';
-    AF_DATAT_SHPEJTA.forEach(function (z) {
-      var iso = dataEShpejte(z);
-      var b = document.createElement('button');
-      b.type = 'button'; b.className = 'sb-date'; b.setAttribute('data-iso', iso);
-      var p = iso.split('-');
-      b.innerHTML = '<span class="sb-date__day"></span><span class="sb-date__mon"></span><span class="sb-date__sa"></span>';
-      b.children[0].textContent = p[2];
-      b.children[1].textContent = AF_MUAJT_SHKURT[parseInt(p[1], 10) - 1];
-      b.children[2].textContent = z[0];
-      b.addEventListener('click', function () {
-        $('afatData').value = AF.formatoPerFushe(iso);
-        rifreskoDatenEAfatit();
-      });
-      c.appendChild(b);
-    });
-    rifreskoDatenEAfatit();
-  }
   function rifreskoDatenEAfatit() {
     var iso = AF.lexoDatenEFushes($('afatData').value);
-    Array.prototype.forEach.call(document.querySelectorAll('#afatDatat .sb-date'), function (b) {
-      b.setAttribute('aria-pressed', iso && b.getAttribute('data-iso') === iso ? 'true' : 'false');
-    });
     var n = iso ? AF.ditetDeri(iso) : null;
     $('afatDataHint').textContent = n === null ? '' : n < -1 ? 'Ka skaduar para ' + AF.ditetParaTekst(-n) + '.' :
       n === -1 ? 'Skadoi dje.' : n === 0 ? 'Skadon sot.' : n === 1 ? 'Skadon nesër.' : 'Skadon për ' + AF.ditetTekst(n) + '.';

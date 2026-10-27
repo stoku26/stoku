@@ -8,6 +8,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(10, "2026-10-27", "Afat i ri më i thjeshtë", listOf(
+            "Te \"Afat i ri\" u hoqën datat e shpejta (1 javë, 2 javë, 1 muaj, 3 muaj). Data shkruhet te fusha dhe poshtë saj del sa ditë ka deri në skadim."
+        )),
         Hyrja(9, "2026-10-27", "Cilësimet si te web-i", listOf(
             "Cilësimet hapen si faqe të plota (me \"←\" kthehesh mbrapa), me të njëjtat rreshta, ikona dhe tekste si te web-i.",
             "Cilësimet → Stoku: renditja e produkteve, Furnizuesit dhe Produktet e regjistrit të Stoku-t (emri dhe furnizuesi për çdo barkod, të njëjtë për krejt llogaritë).",

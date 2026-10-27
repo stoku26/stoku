@@ -364,14 +364,6 @@ fun riktheAktiv(a: Obj) {
 }
 
 // ---------------- Dritarja: shto / ndrysho një afat ----------------
-private val DATAT_SHPEJTA = listOf(Triple("1 javë", 7, 0), Triple("2 javë", 14, 0), Triple("1 muaj", 0, 1), Triple("3 muaj", 0, 3))
-
-private fun dataEShpejte(dite: Int, muaj: Int): String {
-    var d = LocalDate.now().plusDays(dite.toLong())
-    if (muaj > 0) d = d.plusMonths(muaj.toLong()) // 31 janar + 1 muaj = 28/29 shkurt
-    return Afatet.isoNgaData(d)
-}
-
 @Composable
 fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -> Unit, mbyll: () -> Unit) {
     val n = N
@@ -462,21 +454,7 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
                 kurVeprim = { fData.requestFocus() })
         }
         Text("Data e skadimit", style = tx(13, 600, n.ink3))
-        if (!vetemLexim) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            val isoTani = Afatet.lexoDatenEFushes(data)
-            DATAT_SHPEJTA.forEach { (t, dite, muaj) ->
-                val iso = dataEShpejte(dite, muaj)
-                val p = iso.split("-")
-                val zg = isoTani == iso
-                Column(Modifier.weight(1f).clip(RoundedCornerShape(14.dp)).background(if (zg) n.accentTint else n.surface2)
-                    .border(if (zg) 2.dp else 1.dp, if (zg) n.accent else n.line, RoundedCornerShape(14.dp)).clickable { data = Afatet.formatoPerFushe(iso) }
-                    .padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(p[2], style = tx(18, 700, n.ink))
-                    Text(Afatet.MUAJT_SHKURT[p[1].toInt() - 1], style = tx(12, 500, n.ink2))
-                    Text(t, style = tx(11, 500, n.ink3))
-                }
-            }
-        }
+        // v254: pa datat e shpejta (1 javë, 2 javë, 1 muaj, 3 muaj), vetëm fusha e datës (si te web-i)
         Fusha(data, { v -> data = if (v.length < data.length) v else Afatet.formatoDatenGjateShkrimit(v) }, Modifier.fillMaxWidth(), "DD-MM-VV",
             tastiera = KeyboardType.Number, fokusi = fData, vetemLexim = vetemLexim, veprimi = ImeAction.Next)
         Afatet.lexoDatenEFushes(data)?.let { iso ->
