@@ -65,7 +65,7 @@ object Merchandiseri {
 
     /** Dritaret që i hap logjika: "Ku je?" (qellimi "zgjidh" ose "te-reja") ose "Market i ri" */
     sealed class Dritarja {
-        class KuJe(val qellimi: String, val poz: Marketet.Pozita?, val panjohur: Boolean, val kurZgjedh: ((String?) -> Unit)? = null, val paqarte: Boolean = false) : Dritarja()
+        class KuJe(val qellimi: String, val poz: Marketet.Pozita?, val panjohur: Boolean, val paqarte: Boolean = false, val kurZgjedh: ((String?) -> Unit)? = null) : Dritarja()
         object MarketIRi : Dritarja()
     }
     val dritarja = MutableStateFlow<Dritarja?>(null)
