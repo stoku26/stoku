@@ -142,6 +142,8 @@ private fun Menyja(tema: String, hap: (String) -> Unit, hapTeRejat: () -> Unit) 
     val ll by site.stoku.vendas.Admini.llogarite.collectAsState()
     val lj by site.stoku.vendas.Admini.lejet.collectAsState()
     LaunchedEffect(p?.uid) { site.stoku.vendas.Fotot.rifresko() }
+    val scope = rememberCoroutineScope()
+    var dil by remember { mutableStateOf(false) }
     val nP = remember(kujtesa) { KujtesaUI.numriPerKontroll() }
     val stPd = remember(ll, lj) { statusiIPerdoruesve() }
     val stNj = remember(njVersioni) { statusiINjoftimeve(ctx) }
@@ -171,6 +173,15 @@ private fun Menyja(tema: String, hap: (String) -> Unit, hapTeRejat: () -> Unit) 
                     Text(p?.emri ?: if (viz) "Vizitor" else "Pa llogari", style = tx(18, 700, n.ink, -0.01), maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Text(if (viz) "Provë pa llogari, vetëm në këtë telefon" else statusi.ifEmpty { "Ende s'është sinkronizuar." }, style = txF(12.5f, 400, n.muted), maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
+                // Dalja nga llogaria (kërkesa e përdoruesit: këtu, jo brenda faqes Llogaria)
+                if (p != null) {
+                    Row(Modifier.padding(start = 8.dp, end = 10.dp).clip(RoundedCornerShape(12.dp)).background(n.expTint).clickable { dil = true }
+                        .padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Ik.Dil, null, Modifier.size(16.dp), tint = n.exp)
+                        Spacer(Modifier.width(6.dp))
+                        Text("Dil", style = tx(14, 700, n.exp))
+                    }
+                }
                 Text("›", style = tx(20, 400, n.faint2))
             }
             TitulliGrupit("Aplikacioni")
@@ -199,6 +210,13 @@ private fun Menyja(tema: String, hap: (String) -> Unit, hapTeRejat: () -> Unit) 
             }, style = tx(13, 400, n.muted), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 6.dp))
         }
     }
+    if (dil) Konfirmo("Të dilet nga llogaria?", "Të dhënat mbeten të ruajtura në llogari (cloud). Pas daljes, aplikacioni kërkon përsëri emrin e përdoruesit dhe fjalëkalimin.",
+        "Dil", mbyll = { dil = false }) {
+            Sinkronizimi.dergoNesePret()
+            // Kjo pajisje s'merr më njoftimet e kësaj llogarie (orari ditor dhe Grupi); pa internet s'e ndal daljen
+            Toast.trego("Duke dalë…")
+            scope.launch { try { kotlinx.coroutines.withTimeoutOrNull(9000) { site.stoku.vendas.Push.caktivizo() } } catch (e: Exception) { }; Llogaria.dil() }
+        }
 }
 
 // ---------------- Pamja ----------------
@@ -361,7 +379,6 @@ private fun LlogariaFaqja(mbrapa: () -> Unit) {
     val p by Llogaria.perdoruesi.collectAsState()
     val statusi by Sinkronizimi.statusi.collectAsState()
     val gabimS by Sinkronizimi.gabim.collectAsState()
-    var dil by remember { mutableStateOf(false) }
     var rikthe by remember { mutableStateOf(false) }
     var rinis by remember { mutableStateOf(false) }
     // Prova si vizitor (si #cloudHyrjeSeksion.si-vizitor te web-i): hyrja/llogaria e re, ose prova nga e para
@@ -407,11 +424,7 @@ private fun LlogariaFaqja(mbrapa: () -> Unit) {
         KopjaEFshirave()
         TitulliGrupit("Të dhënat e hyrjes")
         NdryshimiILlogarise()
-        // .ops-dil
-        Box(Modifier.padding(top = 4.dp).fillMaxWidth().heightIn(min = 50.dp).clip(RoundedCornerShape(18.dp)).background(n.surface)
-            .border(1.dp, n.line, RoundedCornerShape(18.dp)).clickable { dil = true }, contentAlignment = Alignment.Center) {
-            Text("Dil nga llogaria", style = tx(15, 700, n.exp))
-        }
+        // "Dil nga llogaria" u zhvendos te karta e profilit (menyja e Cilësimeve)
     }
     if (rikthe) {
         val nr = site.stoku.vendas.Dyqani.g.produktet.size
@@ -425,13 +438,6 @@ private fun LlogariaFaqja(mbrapa: () -> Unit) {
             }
         }
     }
-    if (dil) Konfirmo("Të dilet nga llogaria?", "Të dhënat mbeten të ruajtura në llogari (cloud). Pas daljes, aplikacioni kërkon përsëri emrin e përdoruesit dhe fjalëkalimin.",
-        "Dil", mbyll = { dil = false }) {
-            Sinkronizimi.dergoNesePret()
-            // Kjo pajisje s'merr më njoftimet e kësaj llogarie (orari ditor dhe Grupi); pa internet s'e ndal daljen
-            Toast.trego("Duke dalë…")
-            scope.launch { try { kotlinx.coroutines.withTimeoutOrNull(9000) { site.stoku.vendas.Push.caktivizo() } } catch (e: Exception) { }; Llogaria.dil() }
-        }
 }
 
 @Composable
