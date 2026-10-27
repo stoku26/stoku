@@ -190,6 +190,8 @@ fun Fusha(
 @Composable
 fun Flete(mbyll: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
     val n = N
+    // Gjatë skanimit me kamerë dritarja s'shfaqet (përndryshe mbetet mbi kamerën); gjendja e saj ruhet te thirrësi
+    if (SkaneriIHapur.hapur) return
     val gjendja = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
         onDismissRequest = mbyll, sheetState = gjendja,

@@ -1,7 +1,10 @@
 package site.stoku.vendas
 
 import android.app.Application
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onLast
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onRoot
@@ -144,6 +147,37 @@ class PamjetTest {
 
     /** Merchandiseri me dy markete: "Krejt marketet" (afatet sipas marketit), "Ku je?" me marketet afër, Cilësimet → Marketet */
     @Test fun merchandiseri() {
+        mbushMerchandiserin()
+        r.setContent { StokuTema("light") { Rrenja("light") {} } }
+        foto("light-09-merch-stoku")
+        kliko("Afatet")
+        foto("light-10-merch-afatet")
+        Merchandiseri.dritarja.value = Merchandiseri.Dritarja.KuJe("zgjidh", site.stoku.logjika.Marketet.Pozita(42.66300, 21.16520, 12.0), true)
+        fotoEkrani("light-11-kuje")
+        klikoFundit("Viva Fly")
+        foto("light-12-je-te")
+        kliko("Cilësimet")
+        kliko("Marketet")
+        fotoEkrani("light-13-marketet")
+        Llogaria.vendosPerProve(Perdoruesi("u1", "besa"))
+    }
+
+    /** "Afat i ri" i merchandiserit: marketi shkruhet dhe poshtë dalin marketet që përputhen (v258) */
+    @Test fun afatiMeMarket() {
+        mbushMerchandiserin()
+        r.setContent { StokuTema("light") { Rrenja("light") {} } }
+        kliko("Afatet")
+        kliko("Shto")
+        fotoEkrani("light-34-afati-marketi")
+        val fusha = r.onAllNodes(hasSetTextAction()).onLast()
+        fusha.performClick(); fusha.performTextReplacement("a"); r.waitForIdle()
+        fotoEkrani("light-35-afati-marketi-a")
+        fusha.performTextReplacement("albi mall"); r.waitForIdle()
+        fotoEkrani("light-36-afati-marketi-zgjedhur")
+        Llogaria.vendosPerProve(Perdoruesi("u1", "besa"))
+    }
+
+    private fun mbushMerchandiserin() {
         mbush()
         val t = System.currentTimeMillis()
         val sot = LocalDate.now()
@@ -167,18 +201,6 @@ class PamjetTest {
             obj("id" to "p2", "emri" to "Albi Mall", "lat" to 42.64920, "lng" to 21.14600),
             obj("id" to "p3", "emri" to "Meridian", "lat" to 42.66320, "lng" to 21.16610)
         ), null)
-        r.setContent { StokuTema("light") { Rrenja("light") {} } }
-        foto("light-09-merch-stoku")
-        kliko("Afatet")
-        foto("light-10-merch-afatet")
-        Merchandiseri.dritarja.value = Merchandiseri.Dritarja.KuJe("zgjidh", site.stoku.logjika.Marketet.Pozita(42.66300, 21.16520, 12.0), true)
-        fotoEkrani("light-11-kuje")
-        klikoFundit("Viva Fly")
-        foto("light-12-je-te")
-        kliko("Cilësimet")
-        kliko("Marketet")
-        fotoEkrani("light-13-marketet")
-        Llogaria.vendosPerProve(Perdoruesi("u1", "besa"))
     }
 
     /** Grupi: të njëjtat të dhëna si pamjet e web-it (scratchpad foto-grupi.js): besa (admin), agim, drini */

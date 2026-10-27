@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -81,6 +82,13 @@ fun Skaneri(mbyll: () -> Unit, uLexua: (String) -> Unit) {
     val kerko = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { po -> leje = po; refuzuar = !po }
     LaunchedEffect(Unit) { if (!leje) kerko.launch(Manifest.permission.CAMERA) }
     BackHandler(onBack = mbyll)
+    // Dritarja nga e cila u hap kamera (p.sh. "Afat i ri") fshihet derisa kamera të mbyllet, pastaj del sërish
+    val tastiera = LocalSoftwareKeyboardController.current
+    DisposableEffect(Unit) {
+        tastiera?.hide()
+        SkaneriIHapur.hapur = true
+        onDispose { SkaneriIHapur.hapur = false }
+    }
 
     Box(Modifier.fillMaxSize().background(Color.Black)) {
         if (leje) KameraPamja(uLexua)
@@ -102,6 +110,11 @@ fun Skaneri(mbyll: () -> Unit, uLexua: (String) -> Unit) {
             modifier = Modifier.align(Alignment.BottomCenter).systemBarsPadding().padding(bottom = 48.dp)
                 .clip(RoundedCornerShape(14.dp)).background(Color(0x80000000)).padding(horizontal = 16.dp, vertical = 10.dp))
     }
+}
+
+/** A është kamera e skanimit e hapur (Flete fshihet ndërkohë, sepse dritaret dalin mbi kamerën) */
+object SkaneriIHapur {
+    var hapur by mutableStateOf(false)
 }
 
 /** Drita (blici) e kamerës */

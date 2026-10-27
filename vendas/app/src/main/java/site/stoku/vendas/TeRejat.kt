@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(13, "2026-10-27", "Marketi me shkrim, kamera pa dritare sipër", listOf(
+            "Te \"Afat i ri\" marketi s'zgjidhet më nga një rresht me butona anash: shkruan disa shkronja të emrit dhe poshtë dalin marketet që përputhen. Kur e shkruan emrin saktë, zgjidhet vetë.",
+            "Kur skanon barkodin me kamerë nga \"Afat i ri\", dritarja fshihet derisa të mbyllet kamera, pastaj del sërish me barkodin e plotësuar."
+        )),
         Hyrja(12, "2026-10-27", "Marketet fqinje", listOf(
             "Kur dy markete janë afër njëri-tjetrit (p.sh. matanë rrugës) dhe GPS-i brenda ndërtesës s'i dallon dot, Stoku s'zgjedh më vetë fqinjin e gabuar: mbetet marketi ku je, ose të pyet \"Ku je?\" me të dy marketet në krye. Zgjedhja jote mbetet."
         )),
