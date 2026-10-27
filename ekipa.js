@@ -2394,6 +2394,27 @@
       }
       planifikoRegjistrin();
     }
+    // v258: të dhënat shembull të provës si vizitor (mbushProven te porta.js) s'janë produkte të vërteta. Aplikacioni Android
+    // (para vendas-v72) i dërgonte te pritja pas provës: administratori i fshin vetë (si me dorë, fshirja shkon te regjistri),
+    // të tjerët s'i dërgojnë kurrë. Vetëm kur barkodi dhe emri (ose emri i furnizuesit) janë saktësisht si te prova.
+    var PROVA_PRODUKTET = {
+      '2000100000014': 'Bukë e bardhë 500g', '2000100000021': 'Oriz 1kg', '2000100000038': 'Makarona 500g', '2000100000045': 'Vaj luledielli 1L',
+      '2000200000013': 'Ujë natyral 1.5L', '2000200000020': 'Lëng portokalli 1L', '2000200000037': 'Pije e gazuar 0.5L',
+      '2000300000012': 'Sapun i lëngshëm 500ml', '2000300000029': 'Pastë dhëmbësh 75ml',
+      '2000400000011': 'Qumësht 1L', '2000400000028': 'Kos 500g', '2000400000035': 'Djathë i bardhë 400g', '2000400000042': 'Jogurt frutash 150g'
+    };
+    var PROVA_FURNIZUESIT = ['Furnizuesi A', 'Furnizuesi B', 'Furnizuesi C'];
+    var FURN_PARA_K = 'furnizuesi ';
+    function eShembullIProves(k, x) {
+      if (k.indexOf(FURN_PARA_K) === 0) return PROVA_FURNIZUESIT.indexOf((x && x.e) || k.slice(FURN_PARA_K.length)) !== -1;
+      return Object.prototype.hasOwnProperty.call(PROVA_PRODUKTET, k) && PROVA_PRODUKTET[k] === (x && x.e);
+    }
+    function pastroProven() {
+      var K = kujtesaPajisjes();
+      if (!K || !gj.admin || !K.lista || !K.fshij) return;
+      K.lista().forEach(function (p) { if (p.nePritje && eShembullIProves(p.barkodi, { e: p.emri })) K.fshij(p.barkodi); });
+      if (K.furnizuesit && K.fshijFurnizuesin) K.furnizuesit().forEach(function (f) { if (f.nePritje && !f.fshire && PROVA_FURNIZUESIT.indexOf(f.emri) !== -1) K.fshijFurnizuesin(f.emri); });
+    }
     // Administratori: pritja e krejt llogarive → "Produktet e reja" (pa `s`, me emrin e autorit)
     function zbatoPritjet(lista) {
       var K = kujtesaPajisjes(), uIm = o.uidIm(), h = {};
@@ -2412,6 +2433,7 @@
         });
       });
       if (K.bashko(h)) thirr('kujtesa');
+      pastroProven();
     }
     function hashiI(t) { var h = 5381; for (var i = 0; i < t.length; i++) h = ((h * 33) ^ t.charCodeAt(i)) >>> 0; return h.toString(36) + ':' + t.length; }
     function planifikoRegjistrin() {
@@ -2437,7 +2459,7 @@
         // Të tjerët: çka di pajisja dhe s'është (ose është ndryshe) te regjistri → pritja ime, më të rejat të parat
         var hyr = K.hyrjePerGrup(K.perDergim(regj.remote)), lista = [];
         // v248: s'dërgohet për kontroll çka administratori e ka vendosur tashmë te regjistri
-        Object.keys(hyr).forEach(function (b) { if (hyr[b].x !== 1 && !vendosurNgaAdmini(b)) lista.push(b); });
+        Object.keys(hyr).forEach(function (b) { if (hyr[b].x !== 1 && !vendosurNgaAdmini(b) && !eShembullIProves(b, hyr[b])) lista.push(b); });
         lista.sort(function (a, b) { return (Number(hyr[b].k) || 0) - (Number(hyr[a].k) || 0); });
         var p = {};
         lista.slice(0, PRITJA_MAKS).forEach(function (b) { p[b] = hyr[b]; });

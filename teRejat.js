@@ -20,6 +20,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 258, versioni: '1.41.2', data: '2026-10-27', titulli: 'Pa produktet e provës te regjistri', vetemAdmini: true, pikat: [
+      'Produktet dhe furnizuesit shembull të provës si vizitor ("Furnizuesi A/B/C") s\'dalin më te "Produktet e reja" dhe "Furnizuesit e rinj". Ato që kishin hyrë fshihen vetë.'
+    ] },
     { v: 257, versioni: '1.41.1', data: '2026-10-27', titulli: 'Marketet fqinje', platforma: 'tel', pikat: [
       'Kur dy markete janë afër njëri-tjetrit (p.sh. matanë rrugës) dhe GPS-i brenda ndërtesës s\'i dallon dot, Stoku s\'zgjedh më vetë fqinjin e gabuar: mbetet marketi ku je, ose të pyet "Ku je?" me të dy marketet në krye. Zgjedhja jote mbetet.'
     ] },
