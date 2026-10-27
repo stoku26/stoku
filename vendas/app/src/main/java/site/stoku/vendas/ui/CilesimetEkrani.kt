@@ -39,6 +39,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
@@ -476,7 +477,11 @@ private fun NdryshimiILlogarise() {
             ButonOps("Ndrysho", { emri() }, aktiv = !duke, lartesia = 46.dp)
         }
         // .ops-ndares: vija nga skaji në skaj i kartës
-        Box(Modifier.padding(top = 16.dp, bottom = 14.dp).fillMaxWidth().height(1.dp).background(n.line2))
+        Box(Modifier.padding(top = 16.dp, bottom = 14.dp).layout { m, c -> // margin: 16px -16px 14px
+            val pd = 16.dp.roundToPx(); val w = c.maxWidth + 2 * pd
+            val pl = m.measure(c.copy(minWidth = w, maxWidth = w))
+            layout(c.maxWidth, pl.height) { pl.place(-pd, 0) }
+        }.height(1.dp).background(n.line2))
         TitulliIFushes(Ik.Celesi, "portokalli", "Fjalëkalimi")
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Fusha(fjRi, { fjRi = it }, Modifier.weight(1f), "Fjalëkalimi i ri", fjalekalim = true, kurVeprim = { fjalekalimi() }, lartesia = 46.dp)

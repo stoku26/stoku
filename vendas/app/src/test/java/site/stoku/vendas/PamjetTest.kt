@@ -308,7 +308,9 @@ class PamjetTest {
         Regjistri.vendosPerProve("besa", false, mapOf(
             "3890010001" to obj("e" to "Kos Vita 500g", "f" to "Vita", "k" to t - 1000, "s" to 1L),
             "3890010002" to obj("e" to "Qumësht Vita 1L", "f" to "Vita", "k" to t - 2000, "s" to 1L),
-            "3890010003" to obj("e" to "Djathë i bardhë", "f" to "Bylmeti", "k" to t - 3000, "s" to 1L)
+            "3890010003" to obj("e" to "Djathë i bardhë", "f" to "Bylmeti", "k" to t - 3000, "s" to 1L),
+            "furnizuesi Vita" to obj("e" to "Vita", "f" to "", "k" to t - 300000, "s" to 1L),
+            "furnizuesi Bylmeti" to obj("e" to "Bylmeti", "f" to "", "k" to t - 400000, "s" to 1L)
         ))
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
         kliko("Cilësimet")
@@ -327,6 +329,8 @@ class PamjetTest {
         Regjistri.vendosPerProve("mendurberisha", true, mapOf(
             "3890010001" to obj("e" to "Kos Vita 500g", "f" to "Vita", "k" to t - 100000, "s" to 1L),
             "3890010002" to obj("e" to "Qumësht Vita 1L", "f" to "Vita", "k" to t - 200000, "s" to 1L),
+            "furnizuesi Vita" to obj("e" to "Vita", "f" to "", "k" to t - 300000, "s" to 1L),
+            "furnizuesi Bylmeti" to obj("e" to "Bylmeti", "f" to "", "k" to t - 400000, "s" to 1L),
             "3890020001" to obj("e" to "Ajvar Podravka 350g", "f" to "Podravka", "k" to t - 1000, "n" to "agim"),
             "3890020002" to obj("e" to "Çokollatë Milka 100g", "f" to "Mondelez", "k" to t - 5000, "n" to "besa"),
             "3890020003" to obj("e" to "Lëng Bibita 1L", "f" to "", "k" to t - 9000, "n" to "drini")
