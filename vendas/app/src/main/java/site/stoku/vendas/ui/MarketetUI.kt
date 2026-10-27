@@ -153,6 +153,7 @@ private fun KuJe(d: Merchandiseri.Dritarja.KuJe, hapMarketet: () -> Unit) {
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(n.surface).padding(20.dp)) {
             Text(if (perTeReja) "Në cilin market?" else "Ku je?", style = tx(20, 700, n.ink, -0.02))
             val nen = if (perTeReja) "Zgjidh marketin ku i ke këto afate."
+            else if (poz != null && d.paqarte) "Je afër disa marketeve dhe GPS-i s'i dallon dot. Zgjidh ku je: zgjedhja jote mbetet." // v257
             else if (poz != null && d.panjohur) "S'je te asnjë market i njohur. Zgjidh ku je, ose shto këtë vend si market të ri."
             else "Afatet dhe numrat tregohen për marketin që zgjedh. Nëse GPS-i s'e ka gjetur mirë, zgjidhe vetë."
             Text(nen, style = txF(13.5f, 400, n.muted), modifier = Modifier.padding(top = 6.dp, bottom = 10.dp))

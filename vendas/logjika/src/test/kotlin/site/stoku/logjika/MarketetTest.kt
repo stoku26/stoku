@@ -11,6 +11,11 @@ class MarketetTest {
     private fun lista(x: Any?): List<Obj> = x.siListe().map { it.siObj()!! }
     private fun poz(x: Any?): Marketet.Pozita? = x.siObj()?.let { Marketet.Pozita((it["lat"] as Number).toDouble(), (it["lng"] as Number).toDouble(), (it["sakt"] as? Number)?.toDouble()) }
     private fun gjetur(g: Marketet.Gjetur?): Any? = g?.let { obj("marketi" to it.marketi, "largesia" to it.largesia) }
+    private fun rezultati(r: Marketet.Rezultati?): Any? = when {
+        r == null -> null
+        r.paqarte -> obj("paqarte" to true, "kandidatet" to r.kandidatet.map { gjetur(it) })
+        else -> gjetur(r.gjetur)
+    }
     private fun kontrolli(k: Marketet.Kontrolli?): Any? = when (k) {
         null -> null
         is Marketet.Kontrolli.Pasakte -> obj("arsye" to "pasakte", "sakt" to k.sakt)
@@ -28,10 +33,19 @@ class MarketetTest {
             eq("pastro $i", r["lista"], Marketet.pastro(r["lista"]))
             eq("gjej $i", r["gjej"], gjetur(Marketet.gjej(l, p)))
             eq("largNgaMarketi $i", r["larg"], l.map { Marketet.largNgaMarketi(l, it["id"], p) })
+            eq("gjejMarketin $i", r["gjejM"], (l + listOf<Obj?>(null)).map { m -> rezultati(Marketet.gjejMarketin(l, p, m?.get("id"))) })
             eq("pikatAfer $i", r["afer"], Marketet.pikatAfer(pikat, p, Marketet.LIDHJA_M, 3).map { obj("pika" to it.pika, "largesia" to it.largesia) })
             eq("neVend $i", r["neVend"], gjetur(Marketet.marketiNeVend(l, p)))
             eq("shumeAfer $i", r["shumeAfer"], Marketet.pikaShumeAfer(pikat, p)?.let { obj("pika" to it.pika, "largesia" to it.largesia) })
             eq("perMarketin $i", r["perMarketin"], l.map { Marketet.pikaPerMarketin(pikat, it)?.get("id") })
+        }
+    }
+
+    /** v257: markete fqinje (matanë rrugës): kur GPS-i s'i dallon, mbetet aktivi ose s'zgjidhet asnjë */
+    @Test fun fqinjet() {
+        f["fqinjet"].siListe().forEachIndexed { i, x ->
+            val r = x.siObj()!!
+            eq("fqinjet $i " + Json.shkruaj(r["poz"]), r["rez"], rezultati(Marketet.gjejMarketin(lista(r["lista"]), poz(r["poz"]), r["aktiv"])))
         }
     }
 
