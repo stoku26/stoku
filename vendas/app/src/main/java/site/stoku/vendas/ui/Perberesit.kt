@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -195,6 +196,8 @@ fun Flete(mbyll: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
     val gjendja = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
         onDismissRequest = mbyll, sheetState = gjendja,
+        // Edhe kur përmbajtja është e gjatë (p.sh. "Çka ka të re"), dritarja s'shkon nën shiritin e orës dhe kamerën
+        modifier = Modifier.statusBarsPadding().padding(top = 16.dp),
         shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
         containerColor = n.surface, contentColor = n.ink, scrimColor = n.overlay,
         dragHandle = { Box(Modifier.padding(top = 10.dp, bottom = 14.dp).size(40.dp, 5.dp).clip(RoundedCornerShape(3.dp)).background(n.track)) }

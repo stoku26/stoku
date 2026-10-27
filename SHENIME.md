@@ -52,6 +52,19 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ANDROID: DRITARET NGA POSHTË S'SHKOJNË NËN KAMERË (27.10.2026, vetëm `vendas/`)**: përdoruesi (foto e "Çka ka të re"):
+   "po shkon shum nalt permi kamer permirsoje". `Flete` (ModalBottomSheet) merr `Modifier.statusBarsPadding().padding(top = 16.dp)`:
+   kur përmbajtja është e gjatë, dritara ndalet nën shiritin e orës (vlen për krejt `Flete`). Çka ka të re 17. S'është testuar në telefon.
+
+0000000. **WEB: ADMINISTRATORI I FSHIN VETË PRODUKTET E PROVËS NGA "PRODUKTET E REJA" (v258 = 1.41.2, 27.10.2026)**: përdoruesi: "Te foto
+   2 a mos e ke lon pa e rregullu edhe ne web a?". Web-i s'e kishte gabimin (porta.js e fshin 'stoku:kujtesa:v1' dhe e rinis faqen
+   kur hyn pas provës; ekipa s'niset në faqen e vizitorit), por pastrimi i asaj që kishte hyrë ishte vetëm te Android-i (vendas-v72).
+   Tash edhe `ekipa.js` (tel + PC): `PROVA_PRODUKTET` (13 barkodet me emrat e `mbushProven`) + `PROVA_FURNIZUESIT` (A/B/C),
+   `eShembullIProves(k, x)`; `pastroProven()` në fund të `zbatoPritjet` (administratori: `K.fshij` / `K.fshijFurnizuesin`, fshirja
+   s:1 shkon te regjistri) dhe `planifikoRegjistrin` i të tjerëve s'i dërgon te pritja. Vetëm kur barkodi dhe emri janë saktësisht
+   si te prova. "Çka ka të re" v258 (vetemAdmini). Testi `teste/v258.js` (pa ndryshimin: 7 GABIM, si te fotoja; me të: krejt OK).
+   S'është testuar me Firebase-in e vërtetë.
+
 0000000. **ANDROID: AFATET PA "SKANO" + "EXCEL" NË NJË BUTON, FLLUSKA E ROLIT, PROVA S'HYN TE REGJISTRI (27.10.2026, vetëm `vendas/`)**:
    përdoruesi (3 foto): (1) roli te Kolegët dilte si toast poshtë: "ndreqe me dal si ne web app afer emrit"; (2) te web-i (Cilësimet →
    Stoku) "Furnizuesit e rinj 3" dhe "Produktet e reja 13" ishin të dhënat shembull të provës si vizitor: "mos i shti … vlen veq kur
