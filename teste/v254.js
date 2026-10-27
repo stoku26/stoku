@@ -62,6 +62,9 @@ async function faqe(b, pc, af) {
     await ctx.close();
   }
   {
+    const TR = require(__dirname + '/../teRejat.js');
+    const tel = TR.teRejatPas(253, 'tel', false, () => true).map(h => h.titulli), pc = TR.teRejatPas(253, 'pc', false, () => true).map(h => h.titulli);
+    ok(tel.includes('Afat i ri më i thjeshtë') && !pc.includes('Afat i ri më i thjeshtë'), 'D: "Çka ka të re": telefoni e sheh, kompjuteri jo', { tel, pc });
     const css = fs.readFileSync(__dirname + '/../css/stoku.css', 'utf8');
     ok(!/\.sb-dates?\b/.test(css), 'D: css/stoku.css s\'ka më .sb-date / .sb-dates');
     const { p, ctx } = await faqe(b, true, []);

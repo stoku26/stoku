@@ -50,7 +50,7 @@ const lindje = d => ({ lat: VF.lat, lng: Math.round((VF.lng + d) * 1e6) / 1e6 })
   ok(mVj && mVj.p === 'p110' && sk.marketet.some(m => m.id === 'kpVF') && !sk.hequr.length, '0. sinkronizimi: marketi i vjetër shkon te pika me emrin e vet (jo te Viva Fly më afër)', sk.marketet);
 
   const TR = require(RR + '/teRejat.js');
-  const tr = (a, l) => TR.teRejatPas(252, 'tel', a, l).map(h => h.titulli);
+  const tr = (a, l) => TR.teRejatPas(252, 'tel', a, l).filter(h => h.v === 253).map(h => h.titulli); // vetëm hyrjet e v253 (më vonë vijnë të tjera)
   ok(tr(false, () => true).join() === 'Markete afër njëri-tjetrit' && tr(true).length === 2 && !tr(false, k => k !== 'marketet').length,
     '0. "Çka ka të re": merchandiseri 1, administratori 2, të tjerët asnjë', [tr(false, () => true), tr(true)]);
 
