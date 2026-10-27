@@ -176,6 +176,7 @@ object Regjistri {
             }
         }
         if (kujtesa.bashko(h) > 0) _versioni.value++
+        pastroProven()
     }
 
     private fun pjesa(b: String): String { val c = b.last(); return if (c in '0'..'9') "p$c" else "px" }
@@ -213,7 +214,7 @@ object Regjistri {
         regjNdryshuar.clear()
         // Të tjerët: çka di pajisja dhe s'është (ose është ndryshe) te regjistri → pritja ime, më të rejat të parat
         val hyr = kujtesa.hyrjePerGrup(kujtesa.perDergim(regjRemote))
-        val lista = hyr.keys.filter { hyr[it]!!["x"] != 1L && !vendosurNgaAdmini(it) }.sortedByDescending { (hyr[it]!!["k"] as? Long) ?: 0L }
+        val lista = hyr.keys.filter { hyr[it]!!["x"] != 1L && !vendosurNgaAdmini(it) && !eShembull(it, hyr[it]) }.sortedByDescending { (hyr[it]!!["k"] as? Long) ?: 0L }
         val p = LinkedHashMap<String, Any?>(); lista.take(3000).forEach { p[it] = hyr[it] }
         val celes = u + "|" + kanonik(p).let { it.hashCode().toString(36) + ":" + it.length }
         if (StokuApp.prefsOse("kujtesa_pritja", "") == celes) return // asgjë e re për administratorin
@@ -257,20 +258,47 @@ object Regjistri {
     // ---------------- Mësimi ----------------
     /** Kur përdoruesi ruan një afat ose produkt me barkod (herën tjetër ky barkod plotëson vetë emrin dhe furnizuesin) */
     fun mesoNgaPerdoruesi(barkodi: String?, emri: String?, furnizuesi: String?) {
-        if (barkodi.isNullOrEmpty()) return
+        if (barkodi.isNullOrEmpty() || neProve()) return
         try { kujtesa.meso(barkodi, emri, furnizuesi) } catch (e: Exception) { }
     }
     /** v214: furnizuesi i ri që e shkruan kushdo (edhe te një afat pa barkod) pret kontrollin */
-    fun regjistroFurnizuesinERi(f: String?) { if (!f.isNullOrEmpty()) try { kujtesa.regjistroFurnizuesinERi(f) } catch (e: Exception) { } }
+    fun regjistroFurnizuesinERi(f: String?) { if (!f.isNullOrEmpty() && !neProve()) try { kujtesa.regjistroFurnizuesinERi(f) } catch (e: Exception) { } }
     /** Importet (Excel, fotoja e fletës): si nga përdoruesi */
     fun mesoNgaImporti(lista: List<Obj>) {
+        if (neProve()) return
         try { kujtesa.mesoShume(lista.map { Kujtesa.Rreshti(it["barkodi"], it["emri"], it["furnizuesi"]) }, "mbishkruaj") } catch (e: Exception) { }
     }
+
+    /** Prova si vizitor (ose të dhënat e saj, para se t'i heqë hyrja me llogari): kujtesa s'mëson asgjë */
+    private fun neProve(): Boolean = Dyqani.g.pronari == Dyqani.VIZITOR || Llogaria.eshteVizitor()
+
+    /** Hyrje e të dhënave shembull të provës (produkt ose furnizues), që s'duhet të dalë kurrë te regjistri */
+    private fun eShembull(k: String, x: Map<String, Any?>?): Boolean =
+        if (Kujtesa.eshteCelesFurnizuesi(k)) Dyqani.ProvaEVizitorit.eshteFurnizues((x?.get("e") as? String)?.ifEmpty { null } ?: k.substring(Kujtesa.FURN_PARA.length))
+        else Dyqani.ProvaEVizitorit.eshteProdukt(k, x?.get("e") as? String)
+
+    /**
+     * Administratori: të dhënat shembull që hynë në pritje nga një telefon me provën si vizitor (para këtij rregullimi) fshihen,
+     * si të ishin fshirë me dorë: fshirja shkon te regjistri dhe zhduket edhe te web-i dhe te pajisjet e tjera.
+     */
+    private fun pastroProven() {
+        try {
+            if (admin) {
+                kujtesa.lista().filter { it.nePritje && Dyqani.ProvaEVizitorit.eshteProdukt(it.barkodi, it.emri) }.forEach { kujtesa.fshij(it.barkodi) }
+                kujtesa.furnizuesit().filter { it.nePritje && !it.fshire && Dyqani.ProvaEVizitorit.eshteFurnizues(it.emri) }.forEach { kujtesa.fshijFurnizuesin(it.emri) }
+            } else {
+                // Të tjerët: hiqen vetëm nga ky telefon (fshirja e tyre s'dërgohet), që të mos dalin te listat
+                kujtesa.lista().filter { !it.ngaAdmini && Dyqani.ProvaEVizitorit.eshteProdukt(it.barkodi, it.emri) }.forEach { kujtesa.fshij(it.barkodi) }
+            }
+        } catch (e: Exception) { }
+    }
+    private var provaPastruarPer: String? = null
 
     private fun planifikoMesimin() {
         kohezMesimi?.cancel()
         kohezMesimi = scope.launch {
             delay(300)
+            if (uid == null || neProve()) return@launch // prova si vizitor: të dhënat shembull s'mësohen
             try {
                 val g = Dyqani.g
                 val l = ArrayList<Kujtesa.Rreshti>()
@@ -282,6 +310,7 @@ object Regjistri {
                 }
                 kujtesa.mesoShume(l, "plotëso")
                 ruajFurnizuesitEMiratuar()
+                if (provaPastruarPer != uid) { provaPastruarPer = uid; pastroProven() } // një herë pas hyrjes
             } catch (e: Exception) { }
         }
     }

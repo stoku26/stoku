@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -130,10 +132,14 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                 CipiIMarketit(Modifier.padding(bottom = 12.dp))
                 val ai = Llogaria.leja("afatetAI")
                 val shto = Llogaria.leja("afatetShto")
-                if (ai || shto) {
+                val lejaImp = Llogaria.leja("afatetImporto")
+                val lejaEks = Llogaria.leja("eksportExcel")
+                val kaExcel = lejaImp || lejaEks // menyja "Excel" s'ka kuptim pa importin dhe pa eksportin
+                // Si .sb-actions te web-i: majtas "Fotografo fletën", djathtas "Shto" dhe "Excel" (Importo / Eksporto)
+                if (ai || shto || kaExcel) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         // Karta kryesore: "Fotografo fletën" (afatet lexohen me AI) + galeria; pa këtë leje: "Afat i ri"
-                        Column(Modifier.weight(1.25f).heightIn(min = 140.dp).shadow(14.dp, RoundedCornerShape(22.dp), spotColor = n.accent, ambientColor = n.accent)
+                        if (ai || shto) Column(Modifier.weight(1.4f).heightIn(min = 140.dp).shadow(14.dp, RoundedCornerShape(22.dp), spotColor = n.accent, ambientColor = n.accent)
                             .clip(RoundedCornerShape(22.dp)).background(n.accent).clickable { if (ai) fotografo() else hapur = "" }.padding(16.dp)) {
                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
                                 Box(Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).border(1.5.dp, Color(0x80FFFFFF), RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
@@ -147,23 +153,12 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                             Text(if (ai) "Fotografo fletën" else "Afat i ri", style = tx(17, 700, Color.White))
                             Text(if (ai) "Afatet lexohen nga foto automatikisht" else "Skano barkodin ose shkruaje, pastaj zgjidh datën", style = tx(12, 400, Color(0xD9FFFFFF)))
                         }
-                        if (shto) Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                            KartaVeprimi(Ik.Plus, "Shto") { hapur = "" }
-                            if (Llogaria.leja("kamera")) KartaVeprimi(Ik.Skano, "Skano") {
-                                skano { b -> Dyqani.g.afatet.firstOrNull { it["barkodi"] == b && Afatet.statusi(it) != "hequr" }?.let { hapur = it["id"] as String } ?: run { skanuar = b; hapur = "" } }
+                        if (shto || kaExcel) Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            if (shto) KartaVeprimi(Ik.Plus, "Shto") { hapur = "" }
+                            if (kaExcel) MenyjaExcel(lejaImp, lejaEks, { importi = true }) {
+                                if (te.isEmpty()) Toast.trego("S'ka afate për eksport.") else excel = "krejt"
                             }
                         }
-                    }
-                    Hapesire(12.dp)
-                }
-                val lejaImp = Llogaria.leja("afatetImporto")
-                val lejaEks = Llogaria.leja("eksportExcel")
-                if (lejaImp || lejaEks) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        if (lejaImp) Buton("Importo Excel", { importi = true }, Modifier.weight(1f), lloji = "dyte", ikona = Ik.Ngarko, lartesia = 44.dp)
-                        if (lejaEks) Buton("Eksporto Excel", {
-                            if (te.isEmpty()) Toast.trego("S'ka afate për eksport.") else excel = "krejt"
-                        }, Modifier.weight(1f), lloji = "dyte", ikona = Ik.Excel, lartesia = 44.dp)
                     }
                     Hapesire(12.dp)
                 }
@@ -273,6 +268,32 @@ private fun KartaVeprimi(ikona: androidx.compose.ui.graphics.vector.ImageVector,
         Icon(ikona, null, Modifier.size(20.dp), tint = n.accent)
         Spacer(Modifier.width(10.dp))
         Text(teksti, style = tx(16, 600, n.ink))
+    }
+}
+
+/** Butoni "Excel" (si #afExcel te web-i): "XLS" + "Excel", me menynë Importo Excel / Eksporto Excel */
+@Composable
+private fun MenyjaExcel(lejaImp: Boolean, lejaEks: Boolean, importo: () -> Unit, eksporto: () -> Unit) {
+    val n = N
+    var hapur by remember { mutableStateOf(false) }
+    Box {
+        Row(Modifier.fillMaxWidth().height(65.dp).clip(RoundedCornerShape(18.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(18.dp))
+            .clickable { hapur = !hapur }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("XLS", style = txMono(10f, n.ok, 500))
+            Spacer(Modifier.width(8.dp))
+            Text("Excel", style = tx(16, 600, n.ink))
+        }
+        androidx.compose.material3.DropdownMenu(hapur, { hapur = false }, offset = androidx.compose.ui.unit.DpOffset(0.dp, 6.dp),
+            shape = RoundedCornerShape(14.dp), containerColor = n.surface, shadowElevation = 12.dp,
+            modifier = Modifier.widthIn(min = 210.dp).padding(horizontal = 6.dp)) {
+            listOfNotNull(
+                if (lejaImp) "Importo Excel" to importo else null,
+                if (lejaEks) "Eksporto Excel" to eksporto else null
+            ).forEach { (t, f) ->
+                Text(t, style = tx(14, 600, n.ink), modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(10.dp))
+                    .clickable { hapur = false; f() }.padding(horizontal = 12.dp).wrapContentHeight(Alignment.CenterVertically))
+            }
+        }
     }
 }
 

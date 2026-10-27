@@ -6,6 +6,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
@@ -252,6 +253,12 @@ class PamjetTest {
         foto("$tema-g4-kalendari")
         kliko("Kolegët")
         foto("$tema-g5-koleget")
+        // Flluska e rolit (kurora): mbi ikonë, si te web-i
+        if (tema == "light") {
+            r.onAllNodesWithContentDescription("Admin i Grupit")[0].performClick(); r.waitForIdle()
+            fotoEkrani("light-g8-roli")
+            r.onAllNodesWithContentDescription("Admin i Grupit")[0].performClick(); r.waitForIdle()
+        }
         r.onNodeWithContentDescription("Njoftimet").performClick(); r.waitForIdle()
         fotoEkrani("$tema-g6-zilja")
         klikoFundit("Mbyll")
