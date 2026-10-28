@@ -1,104 +1,61 @@
-// v260: votimi i leximeve të kamerës (app-tel.js krijoVotimin; Android: VotimiIBarkodit te vendas/logjika, VotimiTest.kt me
-// të njëjtat raste). v261: brenda 1 s deri në 10 lexime; fiton ai që doli më shpesh: 5 vota menjëherë, pas 10 leximeve ai në krye
-// (me barazim pritet), në mbarim ai në krye (barazim: i sigurti, pastaj i pari); 1 votë vetëm kur është EAN/UPC i sigurt.
-// Pjesa 2: kamera e rreme (Chromium) + BarcodeDetector i rremë me lexime të përgatitura: leximi i gabuar s'kalon, kamera e
-// mbyllur s'hap më dritaren, një lexim i vetëm pa shifër kontrolli s'pranohet.
+// Votimi i leximeve të kamerës (app-tel.js krijoVotimin; Android: VotimiIBarkodit te vendas/logjika, VotimiTest.kt me të njëjtat
+// raste). v260 e nisi; v262 (rregulli i tanishëm): nga leximi i parë, te 10 tentimet e radhës (çdo kuadër, edhe pa barkod) barkodi
+// duhet të dalë 7 herë njësoj; përndryshe "Skano përsëri", pa zë. Pjesa 2: kamera e rreme (teste/kamera-e-rreme.js).
 const { chromium } = require('./pw.js');
-const { krijoFirestore } = require('./fs-server.js');
+const { hapFaqen, skano, mbyll } = require('./kamera-e-rreme.js');
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
-const BAZA = process.env.STOKU_B || 'http://127.0.0.1:8765';
-const A = '3800001000019', B = '3800001000026', C = '3800001000033'; // EAN-13 me shifër kontrolli të saktë
+const A = '3800001000019', B = '3800001000026'; // EAN-13 me shifër kontrolli të saktë
+const N = n => Array(n).fill(null);
 
 (async () => {
-  const b = await chromium.launch({ args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'] });
-  const F = krijoFirestore({ rregullat: 'reja' });
-  F.S.docs.set('perdoruesit/uA', { perdoruesi: 'mendurberisha', emri: 'mendurberisha', kycurSe: Date.now() });
-  const gabimet = [];
-  const ctx = await b.newContext({ userAgent: 'Mozilla/5.0 (Linux; Android 14) Chrome/140 Mobile', viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
-  await ctx.grantPermissions(['camera'], { origin: BAZA });
-  await ctx.route(u => !u.href.startsWith(BAZA), r => r.abort());
-  await F.lidh(ctx, 'uA', 'mendurberisha@stoku-app.local', 'tel');
-  await ctx.addInitScript(() => {
-    try { localStorage.setItem('stoku:njoftimet:pyetur', '1'); localStorage.setItem('stoku:porta:hyrja', JSON.stringify({ uid: 'uA', emri: 'mendurberisha' })); localStorage.setItem('stoku:pronari-uid', 'uA'); } catch (e) {}
-    // BarcodeDetector i rremë: çdo thirrje e detect() merr leximin e radhës nga window.__leximet ([kodi, formati] ose null)
-    window.__leximet = []; window.__thirrje = 0;
-    window.BarcodeDetector = class { constructor() {} static async getSupportedFormats() { return ['ean_13', 'code_128']; }
-      async detect() { window.__thirrje++; const x = window.__leximet.length ? window.__leximet.shift() : null; return x ? [{ rawValue: x[0], format: x[1], boundingBox: { x: 0, y: 0, width: 10, height: 10 } }] : []; } };
-  });
-  const p = await ctx.newPage(); p.on('pageerror', e => gabimet.push(e.message));
-  await p.goto(BAZA + '/index.html'); await p.waitForTimeout(2500);
-  await p.evaluate(() => document.querySelectorAll('.mbulese.hapur').forEach(d => { if (!d.classList.contains('faqe-e-plote')) d.classList.remove('hapur'); }));
+  const { b, p } = await hapFaqen(chromium);
 
   // 1. Rregulli (si VotimiTest.kt)
-  const r = await p.evaluate(([A, B, C]) => {
+  const r = await p.evaluate(([A, B]) => {
+    const tento = (v, l) => l.map(k => { const x = v.tentim(k, 'EAN_13'); return x ? (x.deshtoi ? 'DESHTOI' : x.kodi) : null; });
     const o = {}; let v;
-    const lexo = (v, l) => l.map((k, i) => v.shto(k, 'EAN_13', true, i * 40));
-    v = StokuVotimi(); o.tre = lexo(v, [A, A, A, A, A]).concat([v.aktiv()]);
-    v = StokuVotimi(); o.gabimi = lexo(v, [B, A, A, A, A, A]);
-    v = StokuVotimi(); o.pese = lexo(v, [A, B, A, C, A, B, A, C, B, '4000000000006']);
-    v = StokuVotimi(); o.barazim = lexo(v, [A, B, A, B, A, B, A, B, C, C]).concat([v.shto(B, 'EAN_13', true, 400)]);
-    v = StokuVotimi(); [A, B, A, B].forEach((k, i) => v.shto(k, 'EAN_13', true, i * 40)); o.mbarimi = [v.skado(999), v.skado(1000)];
-    v = StokuVotimi(); o.nje = [v.shto(A, 'EAN_13', true, 0), v.mbetur(0), v.mbetur(700), v.skado(999), v.skado(1000), v.aktiv()];
-    v = StokuVotimi(); o.code128 = [v.shto('ABC-123', 'CODE_128', false, 0), v.skado(1000), v.aktiv(), v.shto('ABC-123', 'CODE_128', false, 1100), v.shto('ABC-123', 'CODE_128', false, 1150), v.skado(2100)];
-    v = StokuVotimi(); o.iSigurti = [v.shto('ABC-123', 'CODE_128', false, 0), v.shto(A, 'EAN_13', true, 40), v.skado(1000)];
-    v = StokuVotimi(); o.skadoi = [v.shto(A, 'EAN_13', true, 0), v.shto(B, 'EAN_13', true, 1200), v.aktiv(), v.skado(2200)];
-    v = StokuVotimi(); v.shto(A, 'EAN_13', true, 0); v.shto(A, 'EAN_13', true, 40); v.rinis(); o.rinis = [v.aktiv(), v.shto(A, 'EAN_13', true, 80)];
-    return JSON.parse(JSON.stringify(o, (k, x) => x && x.kodi ? x.kodi : x));
-  }, [A, B, C]);
-  const N = n => Array(n).fill(null);
-  ok(JSON.stringify(r.tre) === JSON.stringify(N(4).concat([A, false])), '1. 5 lexime të njëjta: fiton menjëherë', r.tre);
-  ok(JSON.stringify(r.gabimi) === JSON.stringify(N(5).concat([A])), '1. leximi i gabuar (B) humbet ndaj A-së', r.gabimi);
-  ok(JSON.stringify(r.pese) === JSON.stringify(N(9).concat([A])), '1. pas 10 leximeve fiton ai në krye (A=4)', r.pese);
-  ok(JSON.stringify(r.barazim) === JSON.stringify(N(10).concat([B])), '1. me barazim pritet; B me 5 vota fiton', r.barazim);
-  ok(JSON.stringify(r.mbarimi) === JSON.stringify([null, A]), '1. barazim në mbarim: fiton i pari', r.mbarimi);
-  ok(JSON.stringify(r.nje) === JSON.stringify([null, 1000, 300, null, A, false]), '1. 1 lexim EAN i sigurt: pranohet kur mbaron sekonda', r.nje);
-  ok(JSON.stringify(r.code128) === JSON.stringify([null, null, false, null, null, 'ABC-123']), '1. 1 lexim pa shifër kontrolli: s\'pranohet; 2 të njëjta: po', r.code128);
-  ok(JSON.stringify(r.iSigurti) === JSON.stringify([null, null, A]), '1. barazim: fiton i sigurti', r.iSigurti);
-  ok(JSON.stringify(r.skadoi) === JSON.stringify([null, A, true, B]), '1. votimi që skadoi vendoset te leximi i radhës', r.skadoi);
-  ok(JSON.stringify(r.rinis) === JSON.stringify([false, null]), '1. rinisja', r.rinis);
+    v = StokuVotimi(); o.shtate = tento(v, Array(7).fill(A)).concat([v.aktiv()]);
+    v = StokuVotimi(); o.paLexim = tento(v, [null, null, null, null, null]).concat([v.aktiv()]);
+    v = StokuVotimi(); o.gjashte = tento(v, Array(6).fill(A).concat([null, null, null, null])).concat([v.aktiv()]);
+    v = StokuVotimi(); o.gabimet = tento(v, [B, A, A, B, A, A, A, A, A]);
+    v = StokuVotimi(); o.here = tento(v, [A, null, null, null, null]).concat(tento(v, [A]), [v.aktiv()]);
+    v = StokuVotimi(); o.ndare = tento(v, [A, B, A, B, A, B, A, B]);
+    v = StokuVotimi(); tento(v, Array(6).fill(A)); v.rinis(); o.rinis = [v.aktiv()].concat(tento(v, [A]), [v.aktiv()]);
+    return o;
+  }, [A, B]);
+  ok(JSON.stringify(r.shtate) === JSON.stringify(N(6).concat([A, false])), '1. 7 herë njësoj: pranohet', r.shtate);
+  ok(JSON.stringify(r.paLexim) === JSON.stringify(N(5).concat([false])), '1. para leximit të parë s\'ka votim', r.paLexim);
+  ok(JSON.stringify(r.gjashte) === JSON.stringify(N(9).concat(['DESHTOI', false])), '1. 6 herë njësoj nga 10: Skano përsëri', r.gjashte);
+  ok(JSON.stringify(r.gabimet) === JSON.stringify(N(8).concat([A])), '1. leximet e gabuara s\'e pengojnë A-në që arrin 7', r.gabimet);
+  ok(JSON.stringify(r.here) === JSON.stringify(N(4).concat(['DESHTOI', null, true])), '1. dështon herët kur 7 s\'arrihet dot; leximi i radhës nis votim të ri', r.here);
+  ok(JSON.stringify(r.ndare) === JSON.stringify(N(7).concat(['DESHTOI'])), '1. dy kode të ndara (4 + 4): Skano përsëri', r.ndare);
+  ok(JSON.stringify(r.rinis) === JSON.stringify([false, null, true]), '1. rinisja', r.rinis);
 
-  // 2. Kamera me lexime të përgatitura
+  // 2. Kamera e rreme
   await p.click('.folder-karta >> text=Pije'); await p.waitForTimeout(600);
-  async function skano(leximet, pritje) {
-    await p.evaluate(l => { window.__leximet = l.slice(); window.__thirrje = 0; }, leximet);
-    await p.click('#btnKamera');
-    await p.waitForTimeout(pritje);
-    return p.evaluate(() => ({ dialogu: document.getElementById('dlgProdukt').classList.contains('hapur'), kodi: document.getElementById('dlgKodi').textContent,
-      kamera: document.getElementById('kamera').classList.contains('hapur'), thirrje: window.__thirrje, mbetur: window.__leximet.length }));
-  }
-  async function mbyllDialogun() { await p.evaluate(() => document.getElementById('dlgProdukt').classList.remove('hapur')); await p.waitForTimeout(200); }
-
-  let s = await skano([[B, 'ean_13']].concat(Array(5).fill([A, 'ean_13'])), 1800);
-  ok(s.thirrje >= 6, '2a. kamera e rreme punon (detect() u thirr)', s.thirrje);
-  ok(s.dialogu && s.kodi.includes(A) && !s.kodi.includes(B) && !s.kamera, '2a. B (i gabuar) pastaj 5 herë A: hapet A', s);
-  await mbyllDialogun();
-
-  s = await skano([[A, 'ean_13']], 1800);
-  ok(s.dialogu && s.kodi.includes(A), '2b. një lexim EAN i sigurt: hapet pas sekondës', s);
-  await mbyllDialogun();
-
-  s = await skano([['ABC-123', 'code_128']], 1800);
-  ok(!s.dialogu && s.kamera, '2c. një lexim Code 128 i vetëm: s\'pranohet, kamera mbetet', s);
-  await p.click('#mbyllKamere'); await p.waitForTimeout(300);
-
-  s = await skano([['ABC-123', 'code_128'], ['ABC-123', 'code_128']], 1800);
-  ok(s.dialogu && s.kodi.includes('ABC-123'), '2d. Code 128 dy herë: pranohet', s);
-  await mbyllDialogun();
-
-  // 2e. Kamera mbyllet para se të vendoset votimi: dritarja s'hapet më vonë
-  await p.evaluate(l => { window.__leximet = l.slice(); }, [[C, 'ean_13']]);
-  await p.click('#btnKamera'); await p.waitForTimeout(400);
-  await p.click('#mbyllKamere'); await p.waitForTimeout(1500);
+  let s = await skano(p, Array(7).fill([A, 'ean_13']), 300);
+  ok(s.dialogu && s.kodi.includes(A) && !s.kamera && s.bip >= 1, '2a. 7 herë A: hapet A, me tingull', s);
+  await mbyll(p);
+  s = await skano(p, Array(6).fill([A, 'ean_13']), 100);
+  ok(!s.dialogu && s.kamera && s.perseri >= 1 && s.bip === 0, '2b. 6 herë A: s\'pranohet; "Skano përsëri", pa tingull', s);
+  ok(/Skano përsëri/.test(s.hint), '2b. ... teksti nën kuti: "Skano përsëri"', s.hint);
+  await p.waitForTimeout(1700);
+  ok(await p.evaluate(() => document.getElementById('skanHint').textContent === 'Vendos vetëm një barkod brenda kutisë'), '2b. ... pas 1.5 s kthehet udhëzimi');
+  await mbyll(p);
+  s = await skano(p, [[A, 'ean_13']], 300);
+  ok(!s.dialogu && s.kamera && s.bip === 0, '2c. një lexim i vetëm (edhe EAN i saktë): s\'pranohet më', s);
+  await mbyll(p);
+  s = await skano(p, Array(7).fill(['ABC-123', 'code_128']), 300);
+  ok(s.dialogu && s.kodi.includes('ABC-123'), '2d. Code 128 7 herë: pranohet', s);
+  await mbyll(p);
+  // 2e. Kamera mbyllet para vendimit: dritarja s'hapet më vonë
+  await p.evaluate(l => { window.__leximet = l.slice(); }, Array(3).fill([B, 'ean_13']));
+  await p.click('#btnKamera'); await p.waitForTimeout(60);
+  await p.click('#mbyllKamere'); await p.waitForTimeout(1200);
   const e = await p.evaluate(() => ({ dialogu: document.getElementById('dlgProdukt').classList.contains('hapur'), kamera: document.getElementById('kamera').classList.contains('hapur') }));
   ok(!e.dialogu && !e.kamera, '2e. kamera e mbyllur para vendimit: pa dritare', e);
 
-  // 3. Versionet
-  const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
-  ok(Number((sw.match(/stoku-v(\d+)/) || [])[1]) >= 260 && Number((sw.match(/app-tel\.js\?v=(\d+)/) || [])[1]) >= 260, '3. CACHE ≥ 260, app-tel.js ≥ 260');
-  const tr = await p.evaluate(() => fetch('teRejat.js').then(x => x.text()));
-  ok(/\{ v: 260,[^\n]*platforma: 'tel'/.test(tr), '3. teRejat v260 (telefon)');
-
-  ok(!gabimet.length, '4. pa gabime JS', gabimet);
+  ok(!p.__gab.length, '3. pa gabime JS', p.__gab);
   await b.close();
   console.log(g ? 'GABIME: ' + g : 'Krejt në rregull');
   process.exit(g ? 1 : 0);

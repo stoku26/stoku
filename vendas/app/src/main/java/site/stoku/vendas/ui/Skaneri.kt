@@ -22,6 +22,7 @@ import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -54,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
@@ -78,9 +80,9 @@ import java.util.concurrent.Executors
 
 /*
  * Skaneri me kamerë: CameraX + ML Kit (njohja e barkodeve e Google-it, i njëjti motor si Google Lens; punon pa internet).
- * Kamera e pasme kryesore, rezolucion i lartë dhe autofokus i vazhdueshëm. v260: barkodi pranohet me votim (VotimiIBarkodit):
- * brenda 1 s deri në 10 lexime, fiton ai që doli më shpesh (v261: 5 të njëjta: menjëherë; 1 i vetëm vetëm me shifër kontrolli të
- * saktë), pastaj bip + dridhje dhe dritarja mbyllet.
+ * Kamera e pasme kryesore, rezolucion i lartë dhe autofokus i vazhdueshëm. v262: lexohet vetëm barkodi që është i tëri brenda
+ * kutisë së bardhë; pranohet me votim (VotimiIBarkodit): 7 herë njësoj nga 10 tentime (përndryshe "Skano përsëri", pa zë),
+ * pastaj bip + dridhje dhe dritarja mbyllet.
  */
 @Composable
 fun Skaneri(mbyll: () -> Unit, shtoNjeCope: ((String) -> Boolean)? = null, uLexua: (String) -> Unit) {
@@ -183,13 +185,16 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, uLexua: (String) ->
     var perfunduar by remember { mutableStateOf(false) }
     // Numërimi i vazhdueshëm (si te web-i): sa copë u shtuan pa e mbyllur kamerën
     var numeruar by remember { mutableStateOf(0) }
+    // v262: "Skano përsëri" nën kuti (deri kur, ms e SystemClock), kur votimi s'arrin 7 të njëjta
+    var perseriDeri by remember { mutableStateOf(0L) }
+    LaunchedEffect(perseriDeri) { if (perseriDeri > 0L) { kotlinx.coroutines.delay(1500); perseriDeri = 0L } }
     val pamja = remember { PreviewView(ctx).apply { scaleType = PreviewView.ScaleType.FILL_CENTER } }
 
     DisposableEffect(Unit) {
         val fut = ProcessCameraProvider.getInstance(ctx)
         var ofruesi: ProcessCameraProvider? = null
         var qrFundit = 0L
-        // v260: votimi i leximeve (si te web-i): brenda 1 s deri në 10 lexime, fiton ai që doli më shpesh (v261: 5 vota: menjëherë)
+        // v262: votimi me tentime (si te web-i): 7 të njëjta nga 10 tentime
         val votimi = VotimiIBarkodit()
         var kameraELidhur: Camera? = null
         // Barkodi që po numërohet: +1 sa herë shihet, jo më shpesh se NUMRIM_INTERVALI_MS; ndalet kur s'shihet NUMRIM_PUSHIMI_MS
@@ -216,40 +221,41 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, uLexua: (String) ->
             bip(ctx)
             pamja.post { uLexua(v) }
         }
-        // Kur barkodi s'shihet më para se të vendoset votimi: vendoset kur mbaron sekonda
-        lateinit var skadimi: Runnable
-        fun planifikoSkadimin() {
-            pamja.removeCallbacks(skadimi)
-            if (votimi.aktiv) pamja.postDelayed(skadimi, votimi.mbetur(SystemClock.elapsedRealtime()) + 5)
-        }
-        skadimi = Runnable {
-            val tash = SystemClock.elapsedRealtime()
-            votimi.skado(tash)?.let { pranoje(it, tash) }
-            planifikoSkadimin()
-        }
+        // Votimi s'arriti 7 të njëjta: "Skano përsëri" (pa zë), jo më shpesh se sa zgjat (1.5 s)
+        fun skanoPerseri(tash: Long) { if (perseriDeri == 0L) perseriDeri = tash + 1500 }
         fut.addListener({
             val o = fut.get(); ofruesi = o
-            val rez = ResolutionSelector.Builder().setResolutionStrategy(
+            // Pamja dhe analiza me të njëjtin raport (16:9), që kutia në ekran të përputhet me pjesën e figurës që lexohet
+            val rez = ResolutionSelector.Builder().setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY).setResolutionStrategy(
                 ResolutionStrategy(android.util.Size(1920, 1080), ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER)).build()
             val preview = Preview.Builder().setResolutionSelector(rez).build().also { it.setSurfaceProvider(pamja.surfaceProvider) }
             val analiza = ImageAnalysis.Builder().setResolutionSelector(rez).setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build()
             analiza.setAnalyzer(ekzekutuesi) { img ->
                 val media = img.image
                 if (media == null || perfunduar) { img.close(); return@setAnalyzer }
-                val hyrja = InputImage.fromMediaImage(media, img.imageInfo.rotationDegrees)
+                val rrot = img.imageInfo.rotationDegrees
+                val hyrja = InputImage.fromMediaImage(media, rrot)
+                // Madhësia e figurës së drejtë (ML Kit i jep kutitë e barkodeve në këto koordinata)
+                val iw = if (rrot % 180 == 0) img.width else img.height
+                val ih = if (rrot % 180 == 0) img.height else img.width
                 skaneri.process(hyrja).addOnSuccessListener { l ->
-                    val b = l.firstOrNull { !it.rawValue.isNullOrBlank() } ?: return@addOnSuccessListener
-                    val v = b.rawValue!!.trim()
-                    val tash = SystemClock.elapsedRealtime()
-                    // Kodi QR s'është barkod produkti: njoftohet (jo më shpesh se çdo 2 s) dhe kamera vazhdon
-                    if (b.format == Barcode.FORMAT_QR_CODE) {
-                        if (tash - qrFundit > 2000) { qrFundit = tash; Toast.trego("Ke skenuar një kod QR. Skano barkodin e produktit.") }
-                        return@addOnSuccessListener
-                    }
                     if (perfunduar) return@addOnSuccessListener
-                    val iSigurt = (b.format == Barcode.FORMAT_EAN_13 || b.format == Barcode.FORMAT_EAN_8 || b.format == Barcode.FORMAT_UPC_A) && kontrolliEAN(v)
-                    votimi.shto(v, iSigurt, tash)?.let { pranoje(it, tash) }
-                    planifikoSkadimin()
+                    val tash = SystemClock.elapsedRealtime()
+                    // v262: vetëm barkodi i tëri brenda kutisë; kur ka disa, ai më afër mesit. Çdo kuadër është një tentim.
+                    val vw = pamja.width.toFloat(); val vh = pamja.height.toFloat()
+                    val b = l.filter { !it.rawValue.isNullOrBlank() && brendaKutise(it.boundingBox, iw, ih, vw, vh) }
+                        .minByOrNull { largesiaNgaMesi(it.boundingBox!!, iw, ih, vw, vh) }
+                    var kodi = b?.rawValue?.trim()
+                    // Kodi QR s'është barkod produkti: njoftohet (jo më shpesh se çdo 2 s); për barkodin s'vlen
+                    if (b != null && b.format == Barcode.FORMAT_QR_CODE) {
+                        if (tash - qrFundit > 2000) { qrFundit = tash; Toast.trego("Ke skenuar një kod QR. Skano barkodin e produktit.") }
+                        kodi = null
+                    }
+                    when (val vendimi = votimi.tentim(kodi)) {
+                        is VotimiIBarkodit.Vendimi.Pranuar -> pranoje(vendimi.kodi, tash)
+                        VotimiIBarkodit.Vendimi.Deshtoi -> skanoPerseri(tash)
+                        null -> {}
+                    }
                 }.addOnCompleteListener { img.close() }
             }
             try {
@@ -276,7 +282,6 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, uLexua: (String) ->
         }
         onDispose {
             pamja.removeCallbacks(ndalNumerimin)
-            pamja.removeCallbacks(skadimi)
             votimi.rinis()
             try { kameraELidhur?.cameraInfo?.zoomState?.removeObservers(pronari) } catch (e: Exception) { }
             try { ofruesi?.unbindAll() } catch (e: Exception) { }
@@ -288,19 +293,19 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, uLexua: (String) ->
         AndroidView({ pamja }, Modifier.fillMaxSize())
         // Korniza në mes (zona ku lexohet barkodi)
         Canvas(Modifier.fillMaxSize().graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)) {
-            val w = size.width * 0.78f; val h = w * 0.55f
-            val tl = Offset((size.width - w) / 2, (size.height - h) / 2.3f)
+            val k = kutiaESkanimit(size.width, size.height)
             drawRect(Color(0x99000000))
-            drawRoundRect(Color.Transparent, tl, Size(w, h), CornerRadius(24.dp.toPx()), blendMode = BlendMode.Clear)
-            drawRoundRect(Color.White, tl, Size(w, h), CornerRadius(24.dp.toPx()), style = Stroke(3.dp.toPx()))
+            drawRoundRect(Color.Transparent, k.topLeft, k.size, CornerRadius(24.dp.toPx()), blendMode = BlendMode.Clear)
+            drawRoundRect(Color.White, k.topLeft, k.size, CornerRadius(24.dp.toPx()), style = Stroke(3.dp.toPx()))
         }
         // Nën kornizë (si #skanHint te web-i)
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val w = maxWidth * 0.78f; val h = w * 0.55f
             val poshte = (maxHeight - h) / 2.3f + h
-            Text("Vendos vetëm një barkod brenda kutisë", style = tx(13, 400, Color.White), textAlign = TextAlign.Center,
+            val perseri = perseriDeri > 0L
+            Text(if (perseri) "Skano përsëri" else "Vendos vetëm një barkod brenda kutisë", style = tx(13, if (perseri) 700 else 400, Color.White), textAlign = TextAlign.Center,
                 modifier = Modifier.align(Alignment.TopCenter).padding(top = poshte + 22.dp).clip(RoundedCornerShape(16.dp))
-                    .background(Color(0x80000000)).padding(horizontal = 16.dp, vertical = 7.dp))
+                    .background(if (perseri) Color(0xFFFF5252) else Color(0x80000000)).padding(horizontal = 16.dp, vertical = 7.dp))
         }
         // "+N" mbi kornizë (si .skan-numrim te web-i)
         if (numeruar > 0) BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -310,6 +315,34 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, uLexua: (String) ->
                 .shadow(8.dp, RoundedCornerShape(16.dp)).clip(RoundedCornerShape(16.dp)).background(Color(0xFFFF5252)).padding(horizontal = 16.dp, vertical = 6.dp))
         }
     }
+}
+
+/** Kutia e bardhë në pikselat e pamjes (e njëjta me vizatimin): 78% e gjerësisë, lartësia 0.55 e saj, pak mbi mes */
+private fun kutiaESkanimit(vw: Float, vh: Float): Rect {
+    val w = vw * 0.78f; val h = w * 0.55f
+    val l = (vw - w) / 2; val t = (vh - h) / 2.3f
+    return Rect(l, t, l + w, t + h)
+}
+
+/** Kutia e barkodit (figura e drejtë iw x ih) në pikselat e pamjes: PreviewView FILL_CENTER = shkallë "cover" dhe në mes */
+private fun neEkran(b: android.graphics.Rect, iw: Int, ih: Int, vw: Float, vh: Float): Rect {
+    val s = maxOf(vw / iw, vh / ih)
+    val ox = (vw - iw * s) / 2; val oy = (vh - ih * s) / 2
+    return Rect(b.left * s + ox, b.top * s + oy, b.right * s + ox, b.bottom * s + oy)
+}
+
+/** v262: barkodi është i tëri brenda kutisë së bardhë (me 4% lejim për skajet); ai që del jashtë, edhe pjesërisht, s'merret */
+private fun brendaKutise(b: android.graphics.Rect?, iw: Int, ih: Int, vw: Float, vh: Float): Boolean {
+    if (b == null || iw <= 0 || ih <= 0 || vw <= 0f || vh <= 0f) return false
+    val r = neEkran(b, iw, ih, vw, vh); val k = kutiaESkanimit(vw, vh)
+    val tx = k.width * 0.04f; val ty = k.height * 0.04f
+    return r.left >= k.left - tx && r.right <= k.right + tx && r.top >= k.top - ty && r.bottom <= k.bottom + ty
+}
+
+private fun largesiaNgaMesi(b: android.graphics.Rect, iw: Int, ih: Int, vw: Float, vh: Float): Float {
+    val r = neEkran(b, iw, ih, vw, vh); val k = kutiaESkanimit(vw, vh)
+    val dx = r.center.x - k.center.x; val dy = r.center.y - k.center.y
+    return dx * dx + dy * dy
 }
 
 /** Numërimi i vazhdueshëm (si te web-i): +1 jo më shpesh se 1.5 s; mbaron kur barkodi s'shihet 3 s */
