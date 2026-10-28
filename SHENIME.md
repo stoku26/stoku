@@ -52,6 +52,20 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **SKANIMI ME VOTIM: BARKODI LEXOHET DISA HERË DHE FITON MË I SHPESHTI (v260 = 1.42.0, 28.10.2026, web + Android)**:
+   përdoruesi: "kape barkodin 4-5 her ... brenda 1 sekondi edhe boni bashk qato numra ... vendose qato qe e ka kap mas shumti ...
+   ne krejt projektin". Rregulli (i njëjtë në të dy): nga leximi i parë, brenda 1 s mblidhen lexime; kodi me **3 vota fiton
+   menjëherë** (nga 5 lexime s'e kalon dot më asnjë tjetër); pas **5 leximeve** fiton ai në krye nëse është vetëm (me barazim
+   pritet); kur mbaron **sekonda** fiton ai në krye (barazim: i sigurti, pastaj i pari). Kodi me 1 votë pranohet vetëm kur është
+   "i sigurt" (EAN-13/EAN-8/UPC-A me shifrën e kontrollit të saktë); Code 128/39 etj. duan 2 lexime të njëjta (si më parë).
+   QR s'kalon nga votimi (njoftohet menjëherë). **Web** (`app-tel.js`, i vetmi vend me kamerë në web; PC s'ka skanim me kamerë):
+   `krijoVotimin()` (edhe `window.StokuVotimi` për testet), `votoLeximin()` për motorin nativ, ZXing-WASM të iPhone-it dhe
+   html5-qrcode (`leximiNgaHtml5`); kohëmatësi i skadimit fshihet te `hapKamere`/`ndalKamere` (`rinisVotimin`), që kamera e
+   mbyllur të mos hapë dritaren më vonë. U hoq `leximiIKonfirmuar` (2 lexime rresht / EAN menjëherë). Numërimi i vazhdueshëm
+   (+1) merr çdo vendim të votimit si "u pa". **Android** (`vendas/logjika/VotimiIBarkodit.kt`, `VotimiTest.kt` me të njëjtat
+   raste si `teste/v260.js`): `Skaneri.kt` → `pranoje()` + `skadimi` (postDelayed), u hoq `hera/iFundit`. Ora s'ka kamerë.
+   Testet me barkode EAN të vërteta (3800001000019/26/33). Çka ka të re: web v260 (tel), Android Hyrja 19. S'është testuar në pajisje.
+
 0000000. **ANDROID: PROVA E PAMJEVE "EKSPORTET" PUNON PRAPË (28.10.2026, vetëm `vendas/`, vetëm prova)**: `PamjetTest.eksportet`
    dështonte që nga vendas-v74 (Excel-i te Afatet u bë meny "Excel" → Importo/Eksporto): kërkonte butonin e vjetër "Eksporto Excel"
    (shënimi te CI: "Failed to inject touch input"; puna s'ndalej). Tash klikon "Excel" para "Eksporto Excel" / "Importo Excel".

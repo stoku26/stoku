@@ -20,6 +20,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 260, versioni: '1.42.0', data: '2026-10-28', titulli: 'Skanimi më i saktë', platforma: 'tel', pikat: [
+      'Kur skanon me kamerë, Stoku s\'e merr barkodin nga një shikim i vetëm: brenda një sekonde e lexon disa herë dhe zgjedh numrin që ka dalë më shpesh. Kështu një lexim i gabuar (p.sh. kur dridhet dora) s\'kalon, dhe barkodi s\'humbet edhe kur shihet vetëm për një çast.'
+    ] },
     { v: 258, versioni: '1.41.2', data: '2026-10-27', titulli: 'Pa produktet e provës te regjistri', vetemAdmini: true, pikat: [
       'Produktet dhe furnizuesit shembull të provës si vizitor ("Furnizuesi A/B/C") s\'dalin më te "Produktet e reja" dhe "Furnizuesit e rinj". Ato që kishin hyrë fshihen vetë.'
     ] },
