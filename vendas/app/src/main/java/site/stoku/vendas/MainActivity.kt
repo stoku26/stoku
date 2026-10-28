@@ -160,6 +160,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
     var folderi by rememberSaveable { mutableStateOf<String?>(null) }
     var skanimi by remember { mutableStateOf<((String) -> Unit)?>(null) }
     var numerimi by remember { mutableStateOf<((String) -> Boolean)?>(null) } // +1 pa e mbyllur kamerën (folderi)
+    var skanimiShpejt by remember { mutableStateOf<String?>(null) } // v263: folderi i Skanimit të shpejtë
     val g by Dyqani.gjendja.collectAsState()
     val aktiviM by Merchandiseri.aktivi.collectAsState() // numri te tabi Afatet sipas marketit ku je
     val njGr by Grupi.njoftimet.collectAsState()
@@ -191,11 +192,11 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
     val kerkuar by MainActivity.tabiKerkuar.collectAsState()
     LaunchedEffect(kerkuar) {
         val k = kerkuar ?: return@LaunchedEffect
-        if (tabet.any { it.first == k }) { tabi = k; folderi = null }
+        if (tabet.any { it.first == k }) { tabi = k; folderi = null; skanimiShpejt = null }
         MainActivity.tabiKerkuar.value = null
     }
 
-    BackHandler(enabled = skanimi == null && (folderi != null || tabi != tabet.first().first)) {
+    BackHandler(enabled = skanimi == null && skanimiShpejt == null && (folderi != null || tabi != tabet.first().first)) {
         if (tabi == "stoku" && folderi != null) folderi = null else tabi = tabet.first().first
     }
 
@@ -209,7 +210,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
                 // Kur ndërrohet dita, ekranet vizatohen nga e para (statuset e afateve varen nga data e sotme)
                 androidx.compose.runtime.key(sot) {
                     when (tabi) {
-                        "stoku" -> StokuEkrani(folderi, { folderi = it }, skanoMeNumerim)
+                        "stoku" -> StokuEkrani(folderi, { folderi = it }, skanoMeNumerim) { skanimiShpejt = it }
                         "afatet" -> AfatetEkrani(skano)
                         "grupi" -> GrupiEkrani()
                         else -> CilesimetEkrani(tema, ndryshoTemen)
@@ -240,6 +241,8 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
         skanimi?.let { cb ->
             Skaneri(mbyll = { skanimi = null }, shtoNjeCope = numerimi) { b -> skanimi = null; cb(b) }
         }
+        // v263: Skanimi i shpejtë i folderit (kamera lart, lista poshtë)
+        skanimiShpejt?.let { f -> site.stoku.vendas.ui.SkanimiShpejt(f) { skanimiShpejt = null } }
     }
 }
 

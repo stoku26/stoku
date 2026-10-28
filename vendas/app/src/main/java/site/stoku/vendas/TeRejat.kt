@@ -8,6 +8,15 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(22, "2026-10-28", "Skanim i shpejtë", listOf(
+            "Brenda një folderi te Stoku ka butonin e ri \"Skanim i shpejtë\": kamera hapet lart dhe s'mbyllet, kështu skanon produktet njërin pas tjetrit.",
+            "Çdo barkod shtohet menjëherë në folder (+1), edhe pa emër. I njëjti produkt s'del dy herë në listë: i rritet sasia (sa kohë e mban para kamerës, +1 çdo 1.5 sekonda).",
+            "Poshtë kamerës del lista me sasitë dhe gjithsej. Për më shumë copë shkruaj numrin te produkti (p.sh. 5), pa asnjë dritare tjetër."
+        )),
+        Hyrja(21, "2026-10-28", "Skanimi: 7 herë njësoj, vetëm brenda kutisë", listOf(
+            "Kur skanon me kamerë, barkodi pranohet vetëm kur lexohet 7 herë njësoj nga 10 tentime (rreth gjysmë sekonde). Përndryshe poshtë kutisë del \"Skano përsëri\", pa zë, dhe mund ta provosh sërish menjëherë.",
+            "Lexohet vetëm barkodi që është i tëri brenda kutisë së bardhë. Barkodi i produktit ngjitur, ose ai që del jashtë kutisë, s'merret më."
+        )),
         Hyrja(20, "2026-10-28", "Skanimi edhe më i saktë", listOf(
             "Skanimi me kamerë tash e pranon barkodin kur lexohet 5 herë njësoj (nga deri në 10 lexime brenda një sekonde), në vend të 3 herëve. Mund të zgjasë pak më shumë, por gabimet janë edhe më të rralla."
         )),

@@ -69,11 +69,11 @@ import java.util.Calendar
 
 /** Stoku: kryefaqja me folderat, ose lista e produkteve të një folderi */
 @Composable
-fun StokuEkrani(folderi: String?, hapFolderin: (String?) -> Unit, skano: ((String) -> Unit, (String) -> Boolean) -> Unit) {
+fun StokuEkrani(folderi: String?, hapFolderin: (String?) -> Unit, skano: ((String) -> Unit, (String) -> Boolean) -> Unit, skanoShpejt: (String) -> Unit) {
     // Produkti i zgjedhur te kërkimi i kryefaqes: hapet folderi dhe dritarja e produktit
     var produktiPerTuHapur by remember { mutableStateOf<String?>(null) }
     if (folderi == null) Kryefaqja(hapFolderin) { fid, b -> produktiPerTuHapur = b; hapFolderin(fid) }
-    else FolderiEkrani(folderi, { hapFolderin(null) }, skano, produktiPerTuHapur) { produktiPerTuHapur = null }
+    else FolderiEkrani(folderi, { hapFolderin(null) }, skano, skanoShpejt, produktiPerTuHapur) { produktiPerTuHapur = null }
 }
 
 fun numerMeHapesire(n: Long): String = n.toString().reversed().chunked(3).joinToString(" ").reversed()
@@ -351,7 +351,8 @@ fun krahasuesi(): Comparator<Obj> {
 
 // ---------------- Folderi ----------------
 @Composable
-private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Unit, (String) -> Boolean) -> Unit, produktiFillimisht: String?, uHap: () -> Unit) {
+private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Unit, (String) -> Boolean) -> Unit, skanoShpejt: (String) -> Unit,
+                          produktiFillimisht: String?, uHap: () -> Unit) {
     val n = N
     val g by Dyqani.gjendja.collectAsState()
     var barkodi by remember { mutableStateOf("") }
@@ -422,6 +423,11 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
                 if (Llogaria.leja("kamera") && !pda) {
                     Buton("Skano me kamerë", { skano({ b -> hapBarkodin(b, "kamera") }) { b -> shtoNjeCope(b) } }, Modifier.fillMaxWidth(), ikona = Ik.Skano)
                     Hapesire(10.dp)
+                    // v263: Skanimi i shpejtë (kamera s'mbyllet, lista me sasitë poshtë; si #btnSkanimShpejt te web-i)
+                    if (Llogaria.leja("stokuShto") || Llogaria.leja("stokuNdrysho")) {
+                        Buton("Skanim i shpejtë", { skanoShpejt(id) }, Modifier.fillMaxWidth(), lloji = "dyte", ikona = Ik.Rrufe)
+                        Hapesire(10.dp)
+                    }
                 }
                 // PDA: tastiera në ekran fshihet/shfaqet me një prekje (si #btnTastiera te web-i); kursori mbetet te barkodi
                 if (pda) {

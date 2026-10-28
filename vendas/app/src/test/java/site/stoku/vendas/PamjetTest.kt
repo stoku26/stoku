@@ -8,6 +8,7 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
@@ -286,6 +287,19 @@ class PamjetTest {
     @Test fun cilesimetTeRejat() = cilesimi("Çka ka të re", "17-terejat")
     @Test fun cilesimetNjoftimet() = cilesimi("Njoftimet", "22-njoftimet")
     @Test fun cilesimetOra() = cilesimi("Ora e dorës", "23-ora")
+
+    /** v263: paneli i Skanimit të shpejtë (lista e seancës, gjithsej, fusha "+ copë"); butoni duket te 02-folderi */
+    @Test fun skanimiShpejt() {
+        mbush()
+        r.setContent {
+            StokuTema("light") {
+                site.stoku.vendas.ui.PaneliShpejt("pije", listOf("389001001", "389001000", "3800001000019"),
+                    mapOf("389001001" to 3L, "389001000" to 1L, "3800001000019" to 2L), Dyqani.g.produktet, "389001000", 1, { _, _ -> true }, {})
+            }
+        }
+        r.onNodeWithText("Gjithsej: 6 copë").assertExists()
+        foto("light-24-skanimi-shpejte")
+    }
 
     /** Excel/PDF: skedari gati ("Dërgo në PC", "Ruaje në telefon", "Ndaje"), Excel-i i afateve, importi */
     @Test fun eksportet() {

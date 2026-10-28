@@ -52,6 +52,41 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ANDROID: SKANIM I SHPEJTË BRENDA FOLDERIT (Hyrja 22, 28.10.2026, `vendas/`; web-i vjen me v263)**: përdoruesi (foto e
+   folderit): "e shton ni buton Skanim i shpejt ... e qel kameren me engine e krejta te njejtat ... kutia ... me kon nalt edhe mos
+   mu mshel kamera asniher ... posht ... produktet qka i ke skanu edhe sasin ... i njejti veq me ju shtu sasia ... pa pop up ...
+   sa copa tjera ki me i shtu ... total ... pa emer ... veq te stoku" (jo te Afatet). Zgjedhjet e tij: ruhet **menjëherë**;
+   përsëritja **si numërimi +/-** (+1 jo më shpesh se 1.5 s sa kohë shihet). `SkanimiShpejt.kt`: `Skaneri(shpejt, paneli)` (kamera
+   ~44% lart, 30% me tastierën e hapur; paneli poshtë me `imePadding`), `KameraPamja` me `shpejt` s'vendos `perfunduar` (i njëjti
+   votim 7 nga 10, vetëm brenda kutisë, `nrBarkodi`/NUMRIM_INTERVALI_MS si numërimi). `shto(barkodi, sasia)`: produkti i ri me
+   `emriNgaBarkodi`/`furnizuesiNgaBarkodi` (përndryshe pa emër; s'mësohet te regjistri), ai që ekziston `vendosSasine` (+N, s'bëhet
+   negativ); lejet `stokuShto`/`stokuNdrysho` si te dritarja. Lista: i riu lart, ai që ekziston mbetet në vend dhe shënohet
+   (`accentTint`), lista shkon te ai (jo kur tastiera është hapur); fusha "+ copë" (edhe negativ, për korrigjim), "Shto" del vetëm
+   me tekst; lart "Gjithsej: N copë", folderi · produktet, "Mbaro". Butoni te `FolderiEkrani` (nën "Skano me kamerë", jo në PDA,
+   me lejen `kamera` + `stokuShto`/`stokuNdrysho`), gjendja `skanimiShpejt` te `Rrenja` (mbyllet kur njoftimi hap tab tjetër).
+   Edhe: `ToastPamja` tash brenda `Skaneri` (njoftimet, p.sh. kodi QR, s'mbeteshin më nën kamerë). Prova: `PamjetTest.skanimiShpejt`
+   (light-24-skanimi-shpejte). S'është testuar në pajisje.
+
+0000000. **SKANIMI: 7 TË NJËJTA NGA 10 TENTIME, "SKANO PËRSËRI", VETËM BRENDA KUTISË; ORA: VETËM TË SKADUARAT (v262 = 1.42.2,
+   28.10.2026, web + Android + ora)**: përdoruesi (2 foto: kutia e Android-it; web-i që kap barkodin poshtë kutisë): "prej 10
+   tentimeve minimum ... 7 her barkodin e njejt ... perndryshe ... skano perseri edhe mos e le me bo sound", "mos e le jashta
+   boxit me u marr kurgjo". **Votimi** (`krijoVotimin` te app-tel.js = `VotimiIBarkodit` te vendas/logjika, API e re `tentim(kodi|null)`):
+   votimi nis me leximin e parë brenda kutisë; çdo kuadër i shqyrtuar pas tij është një **tentim** (edhe pa barkod: motori nativ/
+   ZXing çdo `detect()`, html5-qrcode edhe `kuGabimiSkanimi`, ML Kit çdo `process()`); **7 të njëjta → pranohet** (bip); kur 7 s'arrihet
+   dot më (maksimumi + tentimet e mbetura < 7) → **"Skano përsëri"** te `#skanHint` (klasa `perseri`, e kuqe, 1.5 s; Android: teksti
+   nën kuti), **pa zë**, dhe votimi nis sërish me leximin e radhës. S'ka më pranim me 1 lexim (as EAN i saktë) dhe s'ka kohëmatës:
+   "0.5 s" = 10 tentime në një telefon të zakonshëm; në telefona të ngadaltë (p.sh. html5-qrcode me 10 kuadra/s) 10 tentimet zgjasin
+   më shumë, që skanimi të mos bllokohet (kufi i fortë 0.5 s do ta bënte të pamundur atje). **Vetëm brenda kutisë**: web
+   `figuraNenKuti` llogarit edhe `kutiaNeFigure` (figura ka 10%/35% hapësirë rreth kutisë që i ndihmon detektorit), `barkodiBrendaKutise`
+   pranon vetëm barkodin që është i tëri brenda (4% lejim), ai më afër mesit; Android: ML Kit lexon krejt kuadrin, prandaj kutia e
+   barkodit (koordinatat e figurës së drejtë) kthehet në pikselat e `PreviewView` (FILL_CENTER: shkallë "cover" në mes; pamja dhe
+   analiza me `AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY`) dhe krahasohet me `kutiaESkanimit()` (e njëjta me vizatimin).
+   QR njoftohet vetëm brenda kutisë. Testet: `teste/kamera-e-rreme.js` (i përbashkët), `v260.js`/`v261.js` me rregullin e ri, `v262.js`
+   (brenda/jashtë/gjysmë/dy barkode/QR/stili/versionet), `VotimiTest.kt`. **Ora**: lista kryesore "PËR T'U HEQUR · N" numëron vetëm
+   të skaduarat (më parë + "skadojnë sot"); u hoq krejt seksioni gri "KËTË JAVË"; komplikacioni ("Për t'u hequr nga rafti") vetëm të
+   skaduarat. Tile-i ("skadojnë sot", "+N këtë javë") mbeti si ishte. Çka ka të re: web v262 (tel), Android Hyrja 21. S'është testuar
+   në pajisje (sidomos përputhja e kutisë në Android dhe shpejtësia e 7 leximeve në telefona të ngadaltë).
+
 0000000. **VOTIM MË I RREPTË: 5 VOTA NGA DERI NË 10 LEXIME (v261 = 1.42.1, 28.10.2026, web + Android)**: përdoruesi pyeti për
    10 lexime; i shpjegova se saktësia pothuajse s'rritet (leximet brenda 1 s s'janë të pavarura) dhe e ngadalëson skanimin, dhe
    i propozova më të dobishmet: Android vetëm brenda kutisë (tash ML Kit lexon krejt pamjen: mund të kapë barkodin e produktit

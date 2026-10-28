@@ -365,7 +365,8 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                     val l = lista
                     item {
                         ListHeader {
-                            Text(if (l == null) "STOKU" else "PËR T'U HEQUR · ${l.sot.size + l.skaduara}", color = Gri, fontWeight = FontWeight.SemiBold)
+                            // v262: për t'u hequr nga rafti janë vetëm të skaduarat (të kuqet); ato që skadojnë sot (të verdhat) jo ende
+                            Text(if (l == null) "STOKU" else "PËR T'U HEQUR · ${l.skaduara}", color = Gri, fontWeight = FontWeight.SemiBold)
                         }
                     }
                     iRi?.let { v ->
@@ -414,14 +415,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                             RreshtiAfatit(a, pershkrimi(a), AfatAfer) { pamja = Pamja.Detaji(a, true) }
                         }
                     }
-                    if (l != null && l.java.isNotEmpty()) {
-                        item { ListHeader { Text("KËTË JAVË · ${l.javaN}", color = Gri, fontWeight = FontWeight.SemiBold) } }
-                        val cj = celesaUnike("j", l.java)
-                        items(l.java.size, key = { cj[it] }) { i ->
-                            val a = l.java[i]
-                            RreshtiAfatit(a, dataShkurt(a.data) + (a.sasia?.let { " · $it copë" } ?: ""), AfatAfer) { pamja = Pamja.Detaji(a, false) }
-                        }
-                    }
+                    // v262: pa "KËTË JAVË" (gri): s'janë për t'u hequr (kërkesa e përdoruesit)
                     // v238: produktet me afat mbi 30 ditë (jo në faqen kryesore); kërkimi është butoni poshtë
                     if (l != null) {
                         item { ChipGrupi("Mbi 30 ditë", "Afat i gjatë", Gjelber) { pamja = Pamja.Grupi("gjelber") } }

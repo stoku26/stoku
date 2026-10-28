@@ -10,13 +10,13 @@ import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import androidx.wear.watchface.complications.datasource.SuspendingComplicationDataSourceService
 import kotlinx.coroutines.withTimeoutOrNull
 
-// Komplikacioni: sa produkte duhen hequr nga rafti (skadojnë sot + kanë skaduar), në fytyrën e orës
+// Komplikacioni: sa produkte duhen hequr nga rafti, në fytyrën e orës (v262: vetëm të skaduarat; ato që skadojnë sot jo ende)
 class StokuKomplikacion : SuspendingComplicationDataSourceService() {
 
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
         if (request.complicationType != ComplicationType.SHORT_TEXT) return null
         val l = withTimeoutOrNull(12000) { Api.merrMeCache(this@StokuKomplikacion) } ?: Api.listaERuajtur(this)
-        return krijo(l?.let { it.sot.size + it.skaduara })
+        return krijo(l?.skaduara)
     }
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? =

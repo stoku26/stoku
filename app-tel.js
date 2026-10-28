@@ -175,6 +175,7 @@
       kameraNukEshteGati: 'Kamera nuk është gati. Lidhu me internet dhe hape prapë aplikacionin.',
       kameraDrejtoje: 'Drejtoje kamerën te barkodi',
       kameraHint: 'Vendos vetëm një barkod brenda kutisë',
+      skanoPerseri: 'Skano përsëri',
 
       renditSipas: 'Rendit sipas',
       emriAZ: 'Emri (A–Z)',
@@ -3553,12 +3554,13 @@
   // Pjesa e figurës së kamerës që shihet nën kutinë e skanimit (me pak hapësirë rreth saj), në
   // pikselat e vërtetë të kamerës. Video shfaqet me object-fit: cover, prandaj llogaritet shkalla.
   var kanavacaESkanimit = null;
+  var kutiaNeFigure = null; // v262: kutia e bardhë në pikselat e figurës (barkodi pranohet vetëm kur është i tëri brenda saj)
   function figuraNenKuti(v) {
     var vw = v.videoWidth, vh = v.videoHeight;
     var rv = v.getBoundingClientRect();
     var k = document.querySelector('.skan-korniza');
     var rk = k ? k.getBoundingClientRect() : null;
-    var x = 0, y = 0, w = vw, h = vh;
+    var x = 0, y = 0, w = vw, h = vh, kx = 0, ky = 0, kw = vw, kh = vh;
     if (rk && rv.width && rv.height && rk.width) {
       var s = Math.max(rv.width / vw, rv.height / vh);
       var ox = (rv.width - vw * s) / 2, oy = (rv.height - vh * s) / 2;
@@ -3567,10 +3569,13 @@
       y = Math.max(0, (rk.top - rv.top - oy - my) / s);
       w = Math.min(vw - x, (rk.width + 2 * mx) / s);
       h = Math.min(vh - y, (rk.height + 2 * my) / s);
+      // Kutia vetë (pa hapësirën rreth saj, që i ndihmon vetëm detektorit ta shohë barkodin të plotë)
+      kx = (rk.left - rv.left - ox) / s - x; ky = (rk.top - rv.top - oy) / s - y; kw = rk.width / s; kh = rk.height / s;
     }
     var shk = Math.min(1, 2400 / w); // mjaftueshëm për barkod të largët, pa e rënduar telefonin
     var c = kanavacaESkanimit || (kanavacaESkanimit = document.createElement('canvas'));
     c.width = Math.round(w * shk); c.height = Math.round(h * shk);
+    kutiaNeFigure = { x: kx * shk, y: ky * shk, w: kw * shk, h: kh * shk };
     var g = c.getContext('2d', { willReadFrequently: true });
     g.drawImage(v, x, y, w, h, 0, 0, c.width, c.height);
     return c;
@@ -3583,85 +3588,68 @@
     for (var i = kodi.length - 2, peshe = 3; i >= 0; i--, peshe = 4 - peshe) s += (+kodi.charAt(i)) * peshe;
     return (10 - s % 10) % 10 === +kodi.charAt(kodi.length - 1);
   }
-  // v260: votimi i leximeve. Një barkod s'pranohet më nga një kuadër i vetëm: nga leximi i parë, brenda 1 s mblidhen
-  // lexime dhe fiton ai që doli më shpesh. v261 (votim më i rreptë): kodi që arrin 5 vota fiton menjëherë (nga 10 lexime
-  // s'e kalon dot më asnjë tjetër); pas 10 leximeve fiton ai në krye, nëse është vetëm; kur mbaron sekonda, fiton ai në krye (barazim: i sigurti,
-  // pastaj i pari). Kodi me 1 votë pranohet vetëm kur është "i sigurt" (EAN/UPC me shifrën e kontrollit të saktë): barkodi
-  // s'humbet kur shihet vetëm për një çast, por një lexim i gabuar s'kalon. I njëjti rregull si VotimiIBarkodit (Android).
-  var VOTIMI_MS = 1000, VOTIMI_MAKS = 10, VOTIMI_FITON = 5;
+  // v262: votimi me tentime (kërkesa e përdoruesit). Nga leximi i parë, te 10 tentimet e radhës të kamerës (çdo kuadër i
+  // shqyrtuar është një tentim, edhe kur brenda kutisë s'gjen asgjë; në një telefon të zakonshëm rreth gjysmë sekonde) barkodi
+  // duhet të dalë të paktën 7 herë njësoj. Kur s'arrihet (ose s'mund të arrihet më): "Skano përsëri", pa zë, dhe tentohet
+  // sërish. S'ka më pranim me 1 lexim. I njëjti rregull si VotimiIBarkodit (Android, vendas/logjika).
+  var VOTIMI_TENTIME = 10, VOTIMI_FITON = 7;
   function krijoVotimin() {
-    var votat = [], fillimi = -1, gjithsej = 0;
-    function rinis() { votat = []; fillimi = -1; gjithsej = 0; }
-    // perfundimtar: koha mbaroi (barazimi zgjidhet); përndryshe me barazim pritet (kthen undefined)
-    function fituesi(perfundimtar) {
-      var m = null, barazim = false;
-      votat.forEach(function (v) {
-        if (!m || v.n > m.n) { m = v; barazim = false; }
-        else if (v.n === m.n) { if (v.iSigurt && !m.iSigurt) { m = v; barazim = false; } else if (v.iSigurt === m.iSigurt) barazim = true; }
-      });
-      if (!perfundimtar && barazim) return undefined;
-      var f = m && (m.n >= 2 || m.iSigurt) ? { kodi: m.kodi, formati: m.formati } : null;
-      rinis();
-      return f;
-    }
+    var votat = Object.create(null), formatet = Object.create(null), tentime = 0, aktiv = false;
+    function rinis() { votat = Object.create(null); formatet = Object.create(null); tentime = 0; aktiv = false; }
     return {
-      aktiv: function () { return fillimi >= 0; },
-      mbetur: function (tani) { return fillimi < 0 ? 0 : Math.max(0, fillimi + VOTIMI_MS - tani); },
-      // Shton një lexim; kthen { kodi, formati } kur vendoset, përndryshe null
-      shto: function (kodi, formati, iSigurt, tani) {
-        var vendim = fillimi >= 0 && tani - fillimi >= VOTIMI_MS ? fituesi(true) : null;
-        if (fillimi < 0) fillimi = tani;
-        var v = null;
-        votat.forEach(function (x) { if (x.kodi === kodi) v = x; });
-        if (!v) { v = { kodi: kodi, formati: formati, iSigurt: !!iSigurt, n: 0 }; votat.push(v); }
-        v.n++; gjithsej++;
-        if (vendim) return vendim;
-        if (v.n >= VOTIMI_FITON) { rinis(); return { kodi: kodi, formati: formati }; }
-        if (gjithsej >= VOTIMI_MAKS) return fituesi(false) || null;
+      aktiv: function () { return aktiv; },
+      // Një tentim: kodi i lexuar brenda kutisë ose null. Kthen { kodi, formati } (pranohet), { deshtoi: true } ose null (vazhdon)
+      tentim: function (kodi, formati) {
+        if (!aktiv) { if (kodi == null) return null; aktiv = true; } // para leximit të parë: ende po drejtohet kamera
+        tentime++;
+        if (kodi != null) { votat[kodi] = (votat[kodi] || 0) + 1; if (!formatet[kodi]) formatet[kodi] = formati || ''; }
+        if (kodi != null && votat[kodi] >= VOTIMI_FITON) { var f = { kodi: kodi, formati: formatet[kodi] }; rinis(); return f; }
+        var max = 0;
+        Object.keys(votat).forEach(function (k) { if (votat[k] > max) max = votat[k]; });
+        if (max + (VOTIMI_TENTIME - tentime) < VOTIMI_FITON) { rinis(); return { deshtoi: true }; } // s'arrin dot më 7
         return null;
       },
-      // Kur mbaron koha (kohëmatësi): fituesi ose null
-      skado: function (tani) { return fillimi >= 0 && tani - fillimi >= VOTIMI_MS ? fituesi(true) : null; },
       rinis: rinis
     };
   }
-  window.StokuVotimi = krijoVotimin; // testet (teste/v260.js)
+  window.StokuVotimi = krijoVotimin; // testet (teste/v262.js)
   var votimi = krijoVotimin();
-  var votimiKohez = null;
+  var perseriKohez = null, perseriFundit = 0;
   function rinisVotimin() {
-    if (votimiKohez) { clearTimeout(votimiKohez); votimiKohez = null; }
     votimi.rinis();
+    if (perseriKohez) { clearTimeout(perseriKohez); perseriKohez = null; }
+    var h = $('skanHint');
+    if (h) { h.classList.remove('perseri'); h.textContent = T('kameraHint'); }
   }
-  function planifikoSkadimin() {
-    if (votimiKohez || !votimi.aktiv()) return;
-    votimiKohez = setTimeout(function () {
-      votimiKohez = null;
-      var f = votimi.skado(Date.now());
-      if (f) kuSuksesiSkanimi(f.kodi, { format: f.formati });
-      planifikoSkadimin();
-    }, votimi.mbetur(Date.now()) + 5);
+  // "Skano përsëri" në vend të udhëzimit poshtë kutisë (pa zë), jo më shpesh se 1.5 s
+  function tregoSkanoPerseri() {
+    var tash = Date.now(), h = $('skanHint');
+    if (!h || tash - perseriFundit < 1500) return;
+    perseriFundit = tash;
+    h.textContent = T('skanoPerseri'); h.classList.add('perseri');
+    if (perseriKohez) clearTimeout(perseriKohez);
+    perseriKohez = setTimeout(function () { perseriKohez = null; h.classList.remove('perseri'); h.textContent = T('kameraHint'); }, 1500);
   }
-  // Çdo lexim i kamerës (motori nativ, ZXing-u i iPhone-it ose html5-qrcode) kalon nga votimi
-  function votoLeximin(tekstiILexuar, formati) {
+  // Çdo tentim i kamerës (motori nativ, ZXing-u i iPhone-it ose html5-qrcode): kodi brenda kutisë ose bosh
+  function tentimiIKameres(tekstiILexuar, formati) {
     var kodi = String(tekstiILexuar == null ? '' : tekstiILexuar).trim();
-    if (!kodi) return;
-    if (formati === 'QR_CODE') { kuSuksesiSkanimi(kodi, { format: formati }); return; } // s'është barkod produkti: njoftohet
-    var iSigurt = /^(EAN_13|EAN_8|UPC_A)$/.test(formati) && shifraKontrollitOk(kodi);
-    var f = votimi.shto(kodi, formati, iSigurt, Date.now());
-    if (f) {
-      if (votimiKohez) { clearTimeout(votimiKohez); votimiKohez = null; }
-      kuSuksesiSkanimi(f.kodi, { format: f.formati });
-    }
-    planifikoSkadimin();
+    if (kodi && formati === 'QR_CODE') { kuSuksesiSkanimi(kodi, { format: formati }); kodi = ''; } // QR: njoftohet; për barkodin s'vlen
+    var v = votimi.tentim(kodi || null, formati);
+    if (!v) return;
+    if (v.deshtoi) { tregoSkanoPerseri(); return; }
+    kuSuksesiSkanimi(v.kodi, { format: v.formati });
   }
-  function leximiNgaHtml5(teksti, rezultati) { votoLeximin(teksti, formatiIRezultatit(rezultati)); }
-  // Kur në kuti ka disa barkode, merret ai më afër qendrës
-  function meIAferQendres(rezultatet, w, h) {
-    var mi = rezultatet[0], dMin = Infinity;
+  function leximiNgaHtml5(teksti, rezultati) { tentimiIKameres(teksti, formatiIRezultatit(rezultati)); }
+  // v262: merret vetëm barkodi që është i tëri brenda kutisë (me 4% lejim për skajet); kur ka disa, ai më afër mesit.
+  // Ai që del jashtë kutisë (edhe pjesërisht) s'merret fare.
+  function barkodiBrendaKutise(rezultatet, k) {
+    var mi = null, dMin = Infinity;
     rezultatet.forEach(function (r) {
       var b = r.boundingBox;
-      if (!b) return;
-      var d = Math.pow(b.x + b.width / 2 - w / 2, 2) + Math.pow(b.y + b.height / 2 - h / 2, 2);
+      if (!b || !k) return;
+      var tx = k.w * 0.04, ty = k.h * 0.04;
+      if (b.x < k.x - tx || b.y < k.y - ty || b.x + b.width > k.x + k.w + tx || b.y + b.height > k.y + k.h + ty) return;
+      var d = Math.pow(b.x + b.width / 2 - (k.x + k.w / 2), 2) + Math.pow(b.y + b.height / 2 - (k.y + k.h / 2), 2);
       if (d < dMin) { dMin = d; mi = r; }
     });
     return mi;
@@ -3675,11 +3663,12 @@
         // Lexohet vetëm pjesa nën kuti, me rezolucion të plotë: më shpejt (më shumë prova në sekondë)
         // dhe pa kapur barkodin e produktit ngjitur jashtë kutisë.
         var figura = figuraNenKuti(v);
+        var kutia = kutiaNeFigure;
         var rezultatet = await detektoriAktiv.detect(figura);
-        if (nativDukeSkanuar && rezultatet && rezultatet.length > 0) {
-          var r = meIAferQendres(rezultatet, figura.width, figura.height);
-          var formati = String(r.format || '').toUpperCase();
-          votoLeximin(r.rawValue, formati);
+        if (nativDukeSkanuar) {
+          // Çdo kuadër është një tentim: me barkodin brenda kutisë ose bosh
+          var r = rezultatet && rezultatet.length ? barkodiBrendaKutise(rezultatet, kutia) : null;
+          tentimiIKameres(r ? r.rawValue : null, r ? String(r.format || '').toUpperCase() : '');
         }
       } catch (e) { /* frame i dështuar, provo tjetrin */ }
     }
@@ -3926,7 +3915,7 @@
       hapDialogun(barkodi);
     });
   }
-  function kuGabimiSkanimi() { /* gabimet e vazhdueshme të leximit shpërfillen */ }
+  function kuGabimiSkanimi() { tentimiIKameres(null, ''); } // html5-qrcode: kuadër pa barkod = tentim bosh
 
   // Kamera kryesore e pasme, me rezolucion sa më afër UHD (3840×2160). "ideal" (jo "exact") që
   // shfletuesi të mos dështojë nëse kamera s'e mbështet saktë atë rezolucion — thjesht i afrohet.

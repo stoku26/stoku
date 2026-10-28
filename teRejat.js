@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 262, versioni: '1.42.2', data: '2026-10-28', titulli: 'Skanimi: 7 herë njësoj, vetëm brenda kutisë', platforma: 'tel', pikat: [
+      'Kur skanon me kamerë, barkodi pranohet vetëm kur lexohet 7 herë njësoj nga 10 tentime (rreth gjysmë sekonde). Përndryshe poshtë kutisë del "Skano përsëri", pa zë, dhe mund ta provosh sërish menjëherë.',
+      'Lexohet vetëm barkodi që është i tëri brenda kutisë. Barkodi i produktit ngjitur, ose ai që del jashtë kutisë, s\'merret më.'
+    ] },
     { v: 261, versioni: '1.42.1', data: '2026-10-28', titulli: 'Skanimi edhe më i saktë', platforma: 'tel', pikat: [
       'Skanimi me kamerë tash e pranon barkodin kur lexohet 5 herë njësoj (nga deri në 10 lexime brenda një sekonde), në vend të 3 herëve. Mund të zgjasë pak më shumë, por gabimet janë edhe më të rralla.'
     ] },
