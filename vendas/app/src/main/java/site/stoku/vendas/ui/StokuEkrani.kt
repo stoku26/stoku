@@ -423,8 +423,8 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
                 if (Llogaria.leja("kamera") && !pda) {
                     Buton("Skano me kamerë", { skano({ b -> hapBarkodin(b, "kamera") }) { b -> shtoNjeCope(b) } }, Modifier.fillMaxWidth(), ikona = Ik.Skano)
                     Hapesire(10.dp)
-                    // v263: Skanimi i shpejtë (kamera s'mbyllet, lista me sasitë poshtë; si #btnSkanimShpejt te web-i)
-                    if (Llogaria.leja("stokuShto") || Llogaria.leja("stokuNdrysho")) {
+                    // v263: Skanimi i shpejtë (kamera s'mbyllet, lista me sasitë poshtë; si #btnSkanimShpejt te web-i); leja "Skanim i shpejtë"
+                    if (Llogaria.leja("skanimShpejt") && (Llogaria.leja("stokuShto") || Llogaria.leja("stokuNdrysho"))) {
                         Buton("Skanim i shpejtë", { skanoShpejt(id) }, Modifier.fillMaxWidth(), lloji = "dyte", ikona = Ik.Rrufe)
                         Hapesire(10.dp)
                     }

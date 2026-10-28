@@ -8,8 +8,8 @@
 const { krijoFirestore } = require('./fs-server.js');
 const BAZA = process.env.STOKU_B || 'http://127.0.0.1:8765';
 
-const SKRIPTI = () => {
-  try { localStorage.setItem('stoku:njoftimet:pyetur', '1'); localStorage.setItem('stoku:porta:hyrja', JSON.stringify({ uid: 'uA', emri: 'mendurberisha' })); localStorage.setItem('stoku:pronari-uid', 'uA'); } catch (e) {}
+const SKRIPTI = (u) => {
+  try { localStorage.setItem('stoku:njoftimet:pyetur', '1'); localStorage.setItem('stoku:porta:hyrja', JSON.stringify({ uid: u.uid, emri: u.emri })); localStorage.setItem('stoku:pronari-uid', u.uid); } catch (e) {}
   window.__leximet = []; window.__thirrje = 0; window.__bip = 0; window.__tPare = 0; window.__tDritare = 0; window.__perseri = 0;
   const kuti = (c, poz) => {
     const W = c.width, H = c.height, kx = W * 0.1 / 1.2, kw = W / 1.2, ky = H * 0.35 / 1.7, kh = H / 1.7;
@@ -36,15 +36,18 @@ const SKRIPTI = () => {
   });
 };
 
-async function hapFaqen(chromium) {
+// o (opsionale, v263): { uid, emri, lejet } për një llogari që s'është administratori (lejet/{uid} me këto leje)
+async function hapFaqen(chromium, o) {
+  const u = Object.assign({ uid: 'uA', emri: 'mendurberisha' }, o || {});
   const b = await chromium.launch({ args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'] });
   const F = krijoFirestore({ rregullat: 'reja' });
-  F.S.docs.set('perdoruesit/uA', { perdoruesi: 'mendurberisha', emri: 'mendurberisha', kycurSe: Date.now() });
+  F.S.docs.set('perdoruesit/' + u.uid, { perdoruesi: u.emri, emri: u.emri, kycurSe: Date.now() });
+  if (u.lejet) F.S.docs.set('lejet/' + u.uid, { lejet: u.lejet, kontrolluarSe: Date.now(), kontrolluarNga: 'mendurberisha', emri: u.emri });
   const ctx = await b.newContext({ userAgent: 'Mozilla/5.0 (Linux; Android 14) Chrome/140 Mobile', viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
   await ctx.grantPermissions(['camera'], { origin: BAZA });
   await ctx.route(u => !u.href.startsWith(BAZA), r => r.abort());
-  await F.lidh(ctx, 'uA', 'mendurberisha@stoku-app.local', 'tel');
-  await ctx.addInitScript(SKRIPTI);
+  await F.lidh(ctx, u.uid, u.emri + '@stoku-app.local', 'tel');
+  await ctx.addInitScript(SKRIPTI, { uid: u.uid, emri: u.emri });
   const p = await ctx.newPage(); p.__gab = [];
   p.on('pageerror', e => p.__gab.push(e.message));
   await p.goto(BAZA + '/index.html'); await p.waitForTimeout(2500);

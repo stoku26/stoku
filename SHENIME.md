@@ -52,6 +52,37 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ORA: U ANULUA NDRYSHIMI I v262 (28.10.2026, vetëm `ora/`)**: përdoruesi: "te aplikacioni ores kthej te mas qato
+   ndryshimet e fundit ... qajo me ngjyre gri edhe te verdh se e ke keqkuptu". `MainActivity.kt` dhe `StokuKomplikacion.kt` u kthyen
+   si para v262 (commit-i `7fb670f^`): "PËR T'U HEQUR · N" = skadojnë sot + kanë skaduar, seksioni gri "KËTË JAVË" u rikthye,
+   komplikacioni sërish sot + të skaduarat. Pjesa e orës te hyrja v262 më poshtë s'vlen më.
+
+0000000. **SKANIM I SHPEJTË NË WEB (v263 = 1.43.0, 28.10.2026, telefoni)**: si Android-i (Hyrja 22, shiko më poshtë), e njëjta
+   kërkesë dhe zgjedhjet (ruhet menjëherë; +1 jo më shpesh se 1.5 s sa kohë shihet). `#btnSkanimShpejt` (nën rreshtin "Skano me
+   kamerë"; fshihet në PDA te `zbatoPda` dhe pa `lejaSkanimShpejt()` = `kamera` + `stokuShto`/`stokuNdrysho` te `zbatoLejet`, që e
+   mbyll edhe kur leja hiqet). `#kamera.shpejt`: kamera 42dvh lart (min 220px), `#skanShpejt` poshtë: `#ssGjithsej`, `#ssNen` (folderi ·
+   produktet), `#ssMbaro`, `#ssBosh`, `#ssLista`. `kuSuksesiSkanimi` (pas votimit 7 nga 10, kutisë dhe QR-së) → `pranoShpejt` (i njëjti
+   `nrBarkodi`/NUMRIM_INTERVALI_MS/NUMRIM_PUSHIMI_MS si numërimi) → `shtoShpejt(barkodi, sasia)`: i ri me `emriNgaProduktet`/
+   `furnizuesiNgaAfatet` (pa `mesoNgaPerdoruesi`), ai që ekziston +N (s'bëhet negativ), lejet si te `ruajProduktin`, kontrolli
+   `duketSiDiçkaTjeterVeçBarkod`. Rreshtat krijohen një herë (`krijoRreshtinShpejt`, `data-barkodi`, vetëm `textContent`): i riu lart,
+   ai që ekziston mbetet në vend (`ss-fundit`), që fusha ku po shkruhet të mos e humbë fokusin; `scrollIntoView` vetëm kur s'po
+   shkruhet. Fusha "+ copë": numër (edhe negativ), Enter ose "Shto" (klasa `me-tekst`). Selektori `.ss-rresht input.ss-shto`, sepse
+   `input[type="text"]` e përgjithshëm ka `width: 100%`. `ndalKamere` → `mbyllSkanimShpejt` (X, "Mbaro", mbrapa); `renderLista`
+   rivizaton panelin (edhe pas sinkronizimit). Testi `teste/v263.js` (kamera e rreme: i ri pa emër, 1.5 s, ekzistuesi, s'del dy
+   herë, +5/-1, −/+, vetëm numra, jashtë kutisë, QR, Mbaro/X, kamera e zakonshme pa panel, PDA, lejet, versionet).
+   **Pas provës së përdoruesit në Android** (foto, rrethi te numri): "anash numrit ja shton ato butonat plus minus" (web + Android) dhe
+   "e shtin nlist aty te perdoruesit ... me ja nal e me ja lshu dikujt". Butonat **− / +** te çdo rresht (`sasia-hap-btn ss-pm` /
+   `ButonPM`): ±1 te seanca dhe te stoku; "−" joaktiv kur sasia e seancës është 0. Leja e re **`skanimShpejt`** "Skanim i shpejtë"
+   te `lejet.js` (v=5) dhe `Lejet.kt` (fikstura e re), grupi "Skanimi dhe skedarët", `prindi: 'kamera'`; si çdo leje e re, e
+   lejuar kur mungon (krejt llogaritë e kanë). `lejaSkanimShpejt()` = `skanimShpejt` + (`stokuShto` ose `stokuNdrysho`); Android
+   njësoj te `FolderiEkrani`, dhe `SkanimiShpejt.shto` e mbyll kur leja hiqet ndërkohë. Android: Hyrja 23. `kamera-e-rreme.js`:
+   `hapFaqen(chromium, { uid, emri, lejet })` për llogari që s'janë administratori. **Shiriti i sipërm** (foto e dytë: ora/bateria
+   mbi kamerë pa hije): Android, te Skanimi i shpejtë kamera tash zë edhe vendin nën shiritin e sipërm (`statusBars` + lartësia) dhe
+   hijezohet si pjesa jashtë kutisë; kontrollet me `statusBarsPadding`. Arsyeja: kuadri i `PreviewView` (SurfaceView, FILL_CENTER)
+   del jashtë kufijve të vet dhe dukej aty pa hije. Web: `rifreskoMetaTemen` e bën `theme-color` #000000 sa kohë `#kamera` është
+   e hapur (thirret te `hapKamere`/`ndalKamere`), që shiriti i telefonit të mos dalë i çelët mbi kamerën e zezë. S'është testuar
+   në pajisje.
+
 0000000. **ANDROID: SKANIM I SHPEJTË BRENDA FOLDERIT (Hyrja 22, 28.10.2026, `vendas/`; web-i vjen me v263)**: përdoruesi (foto e
    folderit): "e shton ni buton Skanim i shpejt ... e qel kameren me engine e krejta te njejtat ... kutia ... me kon nalt edhe mos
    mu mshel kamera asniher ... posht ... produktet qka i ke skanu edhe sasin ... i njejti veq me ju shtu sasia ... pa pop up ...
@@ -2371,6 +2402,8 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 
 ## Gjëra që përdoruesi i ka refuzuar/anuluar shprehimisht (mos i propozo/rikthe pa pyetur)
 
+- Ora (v262, u anulua 28.10.2026): "Për t'u hequr" vetëm me të skaduarat (pa të verdhat "skadojnë sot") dhe hiqja e seksionit
+  gri "KËTË JAVË" ("e ke keqkuptu"). Lista e orës mbetet si para v262; mos e ndrysho pa pyetur çka do saktësisht.
 - Logoja e re (28.10.2026): 20 idetë e Claude Design ("asnjona s'po m'pëlqen", faqja u fshi) dhe paketa `Stoku_brand_assets.zip`
   (dy gjashtëkëndësha blu #2563FF / cian #00D4FF si "S", "Stoku" në Arial Bold): u vendos në web, Android dhe orë, pastaj u anulua
   para merge-it ("ktheje te mas komplet qysh u kon logo"). Logoja mbetet ajo me barkod + shufrën e verdhë.

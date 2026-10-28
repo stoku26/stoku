@@ -39,6 +39,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -152,8 +154,11 @@ fun Skaneri(mbyll: () -> Unit, shtoNjeCope: ((String) -> Boolean)? = null, shpej
     else BoxWithConstraints(Modifier.fillMaxSize().background(N.bg)) {
         val tastieraHapur = WindowInsets.ime.getBottom(LocalDensity.current) > 0
         val lartesia = (maxHeight * (if (tastieraHapur) 0.3f else 0.44f)).coerceIn(200.dp, 400.dp)
+        // Kamera nën shiritin e sipërm (ora, bateria) dhe e hijezuar si pjesa jashtë kutisë (si kamera e zakonshme); më parë pamja
+        // e kamerës dilte aty pa hije, sepse kuadri i PreviewView-it del jashtë kufijve të vet
+        val siper = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
         Column(Modifier.fillMaxSize()) {
-            kamera(Modifier.fillMaxWidth().background(Color.Black).statusBarsPadding().height(lartesia), Modifier)
+            kamera(Modifier.fillMaxWidth().background(Color.Black).height(lartesia + siper), Modifier.statusBarsPadding())
             Box(Modifier.fillMaxWidth().weight(1f).navigationBarsPadding().imePadding()) { paneli() }
         }
         ToastPamja(Modifier.align(Alignment.BottomCenter), poshte = 40.dp)

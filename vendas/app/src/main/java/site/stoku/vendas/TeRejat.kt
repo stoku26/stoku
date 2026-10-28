@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(23, "2026-10-28", "Skanim i shpejtë: butonat − dhe +", listOf(
+            "Te lista e Skanimit të shpejtë, anash numrit janë butonat − dhe + për ta ulur ose rritur sasinë me një prekje.",
+            "Administratori mund ta ndalojë Skanimin e shpejtë për dikë te Cilësimet → Përdoruesit (leja \"Skanim i shpejtë\", nën \"Skano me kamerë\")."
+        )),
         Hyrja(22, "2026-10-28", "Skanim i shpejtë", listOf(
             "Brenda një folderi te Stoku ka butonin e ri \"Skanim i shpejtë\": kamera hapet lart dhe s'mbyllet, kështu skanon produktet njërin pas tjetrit.",
             "Çdo barkod shtohet menjëherë në folder (+1), edhe pa emër. I njëjti produkt s'del dy herë në listë: i rritet sasia (sa kohë e mban para kamerës, +1 çdo 1.5 sekonda).",

@@ -47,6 +47,8 @@
     ] },
     { grupi: 'Skanimi dhe skedarët', lejet: [
       { k: 'kamera', emri: 'Skano me kamerë', pershkrim: 'Barkodi me kamerën e telefonit, te stoku dhe te afatet.' },
+      // v263: e lejuar për krejt llogaritë (si çdo leje e re); pa "Skano me kamerë" s'ka as këtë
+      { k: 'skanimShpejt', emri: 'Skanim i shpejtë', pershkrim: 'Brenda folderit te Stoku: kamera s\'mbyllet dhe çdo barkod shtohet menjëherë te lista me sasitë.', prindi: 'kamera' },
       { k: 'eksportExcel', emri: 'Eksporto në Excel', pershkrim: 'Stoku dhe afatet.' },
       { k: 'eksportPdf', emri: 'Eksporto në PDF', pershkrim: 'Etiketat me barkod (në kompjuter edhe raporti).' },
       { k: 'dergoNePc', emri: 'Dërgo skedarët në PC', pershkrim: 'Excel-i dhe PDF-ja nga telefoni te Stoku në kompjuter (kërkon edhe "Stoku në kompjuter").' }

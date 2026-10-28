@@ -30,6 +30,7 @@ object Lejet {
         Leja("grupiHeq", "Hiq nga rafti produktet e kolegëve", "grupi", grupi = "Grupi", pershkrim = "\"Unë e hoqa\" te afatet e skaduara të kolegëve (kolegu e miraton)."),
         Leja("grupiKerkesat", "Kërkesat për heqje", "grupi", grupi = "Grupi", pershkrim = "Kërkoji një kolegu ose krejt grupit ta heqë një produkt nga rafti."),
         Leja("kamera", "Skano me kamerë", grupi = "Skanimi dhe skedarët", pershkrim = "Barkodi me kamerën e telefonit, te stoku dhe te afatet."),
+        Leja("skanimShpejt", "Skanim i shpejtë", "kamera", grupi = "Skanimi dhe skedarët", pershkrim = "Brenda folderit te Stoku: kamera s'mbyllet dhe çdo barkod shtohet menjëherë te lista me sasitë."),
         Leja("eksportExcel", "Eksporto në Excel", grupi = "Skanimi dhe skedarët", pershkrim = "Stoku dhe afatet."),
         Leja("eksportPdf", "Eksporto në PDF", grupi = "Skanimi dhe skedarët", pershkrim = "Etiketat me barkod (në kompjuter edhe raporti)."),
         Leja("dergoNePc", "Dërgo skedarët në PC", grupi = "Skanimi dhe skedarët", pershkrim = "Excel-i dhe PDF-ja nga telefoni te Stoku në kompjuter (kërkon edhe \"Stoku në kompjuter\")."),
