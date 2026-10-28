@@ -52,6 +52,21 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ANDROID: SKANIM I SHPEJTË BRENDA FOLDERIT (Hyrja 22, 28.10.2026, `vendas/`; web-i vjen me v263)**: përdoruesi (foto e
+   folderit): "e shton ni buton Skanim i shpejt ... e qel kameren me engine e krejta te njejtat ... kutia ... me kon nalt edhe mos
+   mu mshel kamera asniher ... posht ... produktet qka i ke skanu edhe sasin ... i njejti veq me ju shtu sasia ... pa pop up ...
+   sa copa tjera ki me i shtu ... total ... pa emer ... veq te stoku" (jo te Afatet). Zgjedhjet e tij: ruhet **menjëherë**;
+   përsëritja **si numërimi +/-** (+1 jo më shpesh se 1.5 s sa kohë shihet). `SkanimiShpejt.kt`: `Skaneri(shpejt, paneli)` (kamera
+   ~44% lart, 30% me tastierën e hapur; paneli poshtë me `imePadding`), `KameraPamja` me `shpejt` s'vendos `perfunduar` (i njëjti
+   votim 7 nga 10, vetëm brenda kutisë, `nrBarkodi`/NUMRIM_INTERVALI_MS si numërimi). `shto(barkodi, sasia)`: produkti i ri me
+   `emriNgaBarkodi`/`furnizuesiNgaBarkodi` (përndryshe pa emër; s'mësohet te regjistri), ai që ekziston `vendosSasine` (+N, s'bëhet
+   negativ); lejet `stokuShto`/`stokuNdrysho` si te dritarja. Lista: i riu lart, ai që ekziston mbetet në vend dhe shënohet
+   (`accentTint`), lista shkon te ai (jo kur tastiera është hapur); fusha "+ copë" (edhe negativ, për korrigjim), "Shto" del vetëm
+   me tekst; lart "Gjithsej: N copë", folderi · produktet, "Mbaro". Butoni te `FolderiEkrani` (nën "Skano me kamerë", jo në PDA,
+   me lejen `kamera` + `stokuShto`/`stokuNdrysho`), gjendja `skanimiShpejt` te `Rrenja` (mbyllet kur njoftimi hap tab tjetër).
+   Edhe: `ToastPamja` tash brenda `Skaneri` (njoftimet, p.sh. kodi QR, s'mbeteshin më nën kamerë). Prova: `PamjetTest.skanimiShpejt`
+   (light-24-skanimi-shpejte). S'është testuar në pajisje.
+
 0000000. **SKANIMI: 7 TË NJËJTA NGA 10 TENTIME, "SKANO PËRSËRI", VETËM BRENDA KUTISË; ORA: VETËM TË SKADUARAT (v262 = 1.42.2,
    28.10.2026, web + Android + ora)**: përdoruesi (2 foto: kutia e Android-it; web-i që kap barkodin poshtë kutisë): "prej 10
    tentimeve minimum ... 7 her barkodin e njejt ... perndryshe ... skano perseri edhe mos e le me bo sound", "mos e le jashta
