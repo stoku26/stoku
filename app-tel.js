@@ -4110,7 +4110,8 @@
   // jo më shpesh se NUMRIM_INTERVALI_MS sa kohë shihet (si numërimi i vazhdueshëm). Poshtë: gjithsej, lista e kësaj seance
   // (i riu lart) dhe te çdo produkt fusha "+ copë" (pa dritare). Android: SkanimiShpejt.kt.
   var skanimShpejt = null;
-  function lejaSkanimShpejt() { return leja('kamera') && (leja('stokuShto') || leja('stokuNdrysho')); }
+  // Leja "Skanim i shpejtë" (lejet.js, nën "Skano me kamerë") dhe shtimi ose ndryshimi i stokut
+  function lejaSkanimShpejt() { return leja('skanimShpejt') && (leja('stokuShto') || leja('stokuNdrysho')); }
   function hapSkanimShpejt() {
     if (folderiAktual === null || opsione.pda || !lejaSkanimShpejt()) return;
     skanimShpejt = { radha: [], sasite: Object.create(null), rreshtat: Object.create(null), fundit: null, nrBarkodi: null, nrFundit: 0, kohez: null };
@@ -4188,6 +4189,7 @@
       r.emri.classList.toggle('pa-emer', !(p && p.emri));
       r.kodi.textContent = b + (p ? ' · në stok ' + p.sasia : '');
       r.nr.textContent = String(s.sasite[b] || 0);
+      r.minus.disabled = !(s.sasite[b] > 0); // − vetëm sa u shtuan në këtë seancë
       r.el.classList.toggle('ss-fundit', b === s.fundit);
     });
   }
@@ -4195,11 +4197,17 @@
     function el(tag, klasa) { var x = document.createElement(tag); if (klasa) x.className = klasa; return x; }
     var r = el('div', 'ss-rresht'), info = el('div', 'ss-info'), emri = el('div', 'ss-emri'), kodi = el('div', 'ss-kodi');
     var nrK = el('div', 'ss-nr'), nr = el('b'), cope = el('span'), inp = el('input', 'ss-shto'), btn = el('button', 'btn ss-btn');
+    var minus = el('button', 'sasia-hap-btn ss-pm'), plus = el('button', 'sasia-hap-btn ss-pm');
     r.setAttribute('data-barkodi', b);
     cope.textContent = 'copë';
     inp.type = 'text'; inp.inputMode = 'numeric'; inp.autocomplete = 'off'; inp.placeholder = '+ copë';
     inp.setAttribute('enterkeyhint', 'done'); inp.setAttribute('aria-label', 'Copë shtesë: ' + b);
     btn.type = 'button'; btn.textContent = 'Shto';
+    // v263: − / + anash numrit (si te lista e folderit), pa e prekur fushën "+ copë"
+    minus.type = 'button'; minus.textContent = '−'; minus.setAttribute('aria-label', T('zvogeloSasine'));
+    plus.type = 'button'; plus.textContent = '+'; plus.setAttribute('aria-label', T('rritSasine'));
+    minus.addEventListener('click', function () { shtoShpejt(b, -1); });
+    plus.addEventListener('click', function () { shtoShpejt(b, 1); });
     function shtoNgaFusha() {
       var t = inp.value.trim();
       if (!t) { inp.blur(); return; }
@@ -4216,8 +4224,8 @@
     inp.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); shtoNgaFusha(); } });
     btn.addEventListener('click', shtoNgaFusha);
     info.appendChild(emri); info.appendChild(kodi); nrK.appendChild(nr); nrK.appendChild(cope);
-    r.appendChild(info); r.appendChild(nrK); r.appendChild(inp); r.appendChild(btn);
-    return { el: r, emri: emri, kodi: kodi, nr: nr };
+    r.appendChild(info); r.appendChild(minus); r.appendChild(nrK); r.appendChild(plus); r.appendChild(inp); r.appendChild(btn);
+    return { el: r, emri: emri, kodi: kodi, nr: nr, minus: minus };
   }
   $('btnSkanimShpejt').addEventListener('click', hapSkanimShpejt);
   $('ssMbaro').addEventListener('click', ndalKamere);

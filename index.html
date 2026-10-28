@@ -499,17 +499,19 @@
   .ss-krye .btn { flex: none; min-height: 40px; padding: 0 18px; }
   .ss-bosh { padding: 24px; text-align: center; color: var(--gri); font-size: 14px; }
   .ss-lista { flex: 1; min-height: 0; overflow-y: auto; padding: 0 16px; overscroll-behavior: contain; }
-  .ss-rresht { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--vije); }
+  .ss-rresht { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--vije); }
   .ss-rresht.ss-fundit { background: var(--hover); margin: 0 -16px; padding: 10px 16px; }
   .ss-info { flex: 1; min-width: 0; }
   .ss-emri { font-size: 15px; font-weight: 600; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .ss-emri.pa-emer { color: var(--gri); }
   .ss-kodi { font-size: 11.5px; color: var(--gri); font-family: ui-monospace, monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .ss-nr { display: flex; flex-direction: column; align-items: center; min-width: 36px; }
+  .ss-nr { display: flex; flex-direction: column; align-items: center; min-width: 30px; }
+  .ss-rresht .ss-pm { width: 32px; height: 32px; border-radius: 16px; font-size: 18px; }
+  .ss-rresht .ss-pm:disabled { opacity: .35; cursor: default; }
   .ss-nr b { font-size: 20px; color: var(--btn-tekst); }
   .ss-nr span { font-size: 11px; color: var(--gri); }
   .ss-rresht input.ss-shto { /* mbi rregullin e përgjithshëm input[type="text"] (width: 100%) */
-    width: 80px; height: 42px; flex: none; padding: 0 6px; border: 1px solid var(--fushe-kufi); border-radius: 12px;
+    width: 72px; height: 42px; flex: none; padding: 0 6px; border: 1px solid var(--fushe-kufi); border-radius: 12px;
     background: var(--fushe-bg); color: var(--tekst); font: inherit; font-size: 16px; font-weight: 600; text-align: center;
   }
   .ss-rresht input.ss-shto:focus { outline: none; border-color: var(--btn-tekst); box-shadow: 0 0 0 1px var(--btn-tekst); }
@@ -2027,7 +2029,7 @@
 <script src="bashkimi.js?v=241"></script>
 <script src="ruajtja.js?v=216"></script>
 <script src="skedaret.js?v=1"></script>
-<script src="lejet.js?v=4"></script>
+<script src="lejet.js?v=5"></script>
 <script src="afatet.js?v=248"></script>
 <script src="marketet.js?v=257"></script>
 <script src="harta.js?v=256"></script>

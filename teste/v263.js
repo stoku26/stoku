@@ -1,6 +1,6 @@
 // v263: "Skanim i shpejtë" brenda folderit (telefoni). Kamera lart s'mbyllet; çdo barkod i pranuar (votimi 7 nga 10, vetëm
 // brenda kutisë) ruhet menjëherë në folder (+1, edhe pa emër); i njëjti barkod s'del dy herë në listë, i rritet sasia jo më
-// shpesh se çdo 1.5 s; fusha "+ copë" te çdo produkt (pa dritare); gjithsej. Me kamerën e rreme (teste/kamera-e-rreme.js).
+// shpesh se çdo 1.5 s; − / + dhe fusha "+ copë" te çdo produkt (pa dritare); gjithsej; leja "Skanim i shpejtë". Me kamerën e rreme (teste/kamera-e-rreme.js).
 const { chromium } = require('./pw.js');
 const { hapFaqen, skano, mbyll } = require('./kamera-e-rreme.js');
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
@@ -88,6 +88,16 @@ const n = (k, x, poz) => Array(x).fill([k, 'ean_13', poz || 'brenda']);
   x = await gjendja();
   ok(x.rreshtat[1].nr === '7' && x.stoku[A] === 7 && x.gjithsej === 'Gjithsej: 8 copë', '11. "-1" (korrigjim) me butonin Shto: 7 copë', x);
 
+  // − / + anash numrit
+  const pm = (k, i) => p.click(`#ssLista .ss-rresht[data-barkodi="${k}"] .ss-pm >> nth=${i}`).then(() => p.waitForTimeout(200));
+  await pm(B, 0);
+  x = await gjendja();
+  const minusB = await p.evaluate(k => document.querySelectorAll(`#ssLista .ss-rresht[data-barkodi="${k}"] .ss-pm`)[0].disabled, B);
+  ok(x.rreshtat[0].nr === '0' && x.stoku[B] === 10 && minusB && x.gjithsej === 'Gjithsej: 7 copë', '11b. "−" te B: 0 copë, stoku 10; "−" s\'shkon nën 0', { x, minusB });
+  await pm(B, 1);
+  x = await gjendja();
+  ok(x.rreshtat[0].nr === '1' && x.stoku[B] === 11 && x.gjithsej === 'Gjithsej: 8 copë' && x.kamera && !x.dialogu, '11b. "+" te B: 1 copë, stoku 11, pa dritare', x);
+
   await p.type(fusha(A), 'ab'); const v2 = await p.inputValue(fusha(A));
   ok(v2 === '', '12. fusha pranon vetëm numra', v2);
 
@@ -133,6 +143,20 @@ const n = (k, x, poz) => Array(x).fill([k, 'ean_13', poz || 'brenda']);
 
   ok(!p.__gab.length, '20. pa gabime JS', p.__gab);
   await b.close();
+
+  // Leja "Skanim i shpejtë" (Cilësimet → Përdoruesit), nën "Skano me kamerë"
+  const L = require('../lejet.js');
+  const kat = [].concat.apply([], L.KATALOGU.map(g => g.lejet)).find(l => l.k === 'skanimShpejt');
+  ok(kat && kat.emri === 'Skanim i shpejtë' && kat.prindi === 'kamera' && L.lejohet({}, 'skanimShpejt') && !L.lejohet({ kamera: false }, 'skanimShpejt') && L.lejohet(null, 'skanimShpejt'),
+    '21. leja te katalogu: "Skanim i shpejtë" nën "Skano me kamerë", e lejuar kur mungon', kat);
+  for (const [lejet, pritet, m] of [[{ skanimShpejt: false }, false, 'e ndaluar'], [{ kamera: false }, false, 'pa "Skano me kamerë"'],
+    [{ stokuShto: false, stokuNdrysho: false }, false, 'pa shtim dhe pa ndryshim të stokut'], [{}, true, 'krejt të lejuara']]) {
+    const f = await hapFaqen(chromium, { uid: 'uB', emri: 'besa', lejet: Object.assign(L.krejt(true), lejet) });
+    await f.p.click('.folder-karta >> text=Pije'); await f.p.waitForTimeout(600);
+    const d = await f.p.evaluate(() => ({ shpejt: !!document.getElementById('btnSkanimShpejt').offsetParent, kamera: !!document.getElementById('btnKamera').offsetParent }));
+    ok(d.shpejt === pritet, '22. llogaria me lejen ' + m + ': "Skanim i shpejtë" ' + (pritet ? 'duket' : 's\'duket'), d);
+    await f.b.close();
+  }
   console.log(g ? 'GABIME: ' + g : 'Krejt në rregull');
   process.exit(g ? 1 : 0);
 })();

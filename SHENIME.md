@@ -64,7 +64,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    shkruhet. Fusha "+ copë": numër (edhe negativ), Enter ose "Shto" (klasa `me-tekst`). Selektori `.ss-rresht input.ss-shto`, sepse
    `input[type="text"]` e përgjithshëm ka `width: 100%`. `ndalKamere` → `mbyllSkanimShpejt` (X, "Mbaro", mbrapa); `renderLista`
    rivizaton panelin (edhe pas sinkronizimit). Testi `teste/v263.js` (kamera e rreme: i ri pa emër, 1.5 s, ekzistuesi, s'del dy
-   herë, +5/-1, vetëm numra, jashtë kutisë, QR, Mbaro/X, kamera e zakonshme pa panel, PDA, versionet). S'është testuar në pajisje.
+   herë, +5/-1, −/+, vetëm numra, jashtë kutisë, QR, Mbaro/X, kamera e zakonshme pa panel, PDA, lejet, versionet).
+   **Pas provës së përdoruesit në Android** (foto, rrethi te numri): "anash numrit ja shton ato butonat plus minus" (web + Android) dhe
+   "e shtin nlist aty te perdoruesit ... me ja nal e me ja lshu dikujt". Butonat **− / +** te çdo rresht (`sasia-hap-btn ss-pm` /
+   `ButonPM`): ±1 te seanca dhe te stoku; "−" joaktiv kur sasia e seancës është 0. Leja e re **`skanimShpejt`** "Skanim i shpejtë"
+   te `lejet.js` (v=5) dhe `Lejet.kt` (fikstura e re), grupi "Skanimi dhe skedarët", `prindi: 'kamera'`; si çdo leje e re, e
+   lejuar kur mungon (krejt llogaritë e kanë). `lejaSkanimShpejt()` = `skanimShpejt` + (`stokuShto` ose `stokuNdrysho`); Android
+   njësoj te `FolderiEkrani`, dhe `SkanimiShpejt.shto` e mbyll kur leja hiqet ndërkohë. Android: Hyrja 23. `kamera-e-rreme.js`:
+   `hapFaqen(chromium, { uid, emri, lejet })` për llogari që s'janë administratori. S'është testuar në pajisje.
 
 0000000. **ANDROID: SKANIM I SHPEJTË BRENDA FOLDERIT (Hyrja 22, 28.10.2026, `vendas/`; web-i vjen me v263)**: përdoruesi (foto e
    folderit): "e shton ni buton Skanim i shpejt ... e qel kameren me engine e krejta te njejtat ... kutia ... me kon nalt edhe mos
