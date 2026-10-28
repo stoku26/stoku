@@ -35,6 +35,7 @@ object Ik {
     val Barkod = ikona("M3 5v14", "M7 5v14", "M11 5v14", "M14 5v14", "M18 5v14", "M21 5v14")
     val Hena = ikona("M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z")
     val Skano = ikona("M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2", "M8 7v10M12 7v10M16 7v10")
+    val Rrufe = ikona("M13 2 3 14h9l-1 8 10-12h-9l1-8z") // Skanimi i shpejtë
     val Zile = ikona("M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9", "M10.3 21a1.94 1.94 0 0 0 3.4 0")
     val Ora = ikona("M9 6h6a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-6a3 3 0 0 1 -3 -3v-6a3 3 0 0 1 3 -3Z", "M9 6l.6-3h4.8L15 6M9 18l.6 3h4.8l.6-3", "M12 10v2.2l1.4 1")
     val Vendi = ikona("M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z", "M9 10a3 3 0 1 0 6 0a3 3 0 1 0 -6 0Z")

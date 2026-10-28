@@ -39,6 +39,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -82,10 +90,12 @@ import java.util.concurrent.Executors
  * Skaneri me kamerë: CameraX + ML Kit (njohja e barkodeve e Google-it, i njëjti motor si Google Lens; punon pa internet).
  * Kamera e pasme kryesore, rezolucion i lartë dhe autofokus i vazhdueshëm. v262: lexohet vetëm barkodi që është i tëri brenda
  * kutisë së bardhë; pranohet me votim (VotimiIBarkodit): 7 herë njësoj nga 10 tentime (përndryshe "Skano përsëri", pa zë),
- * pastaj bip + dridhje dhe dritarja mbyllet.
+ * pastaj bip + dridhje dhe dritarja mbyllet. v263: me `shpejt` + `paneli` (Skanimi i shpejtë) kamera zë pjesën e sipërme,
+ * s'mbyllet dhe çdo barkod i pranuar i jepet `shpejt`; paneli (lista) poshtë.
  */
 @Composable
-fun Skaneri(mbyll: () -> Unit, shtoNjeCope: ((String) -> Boolean)? = null, uLexua: (String) -> Unit) {
+fun Skaneri(mbyll: () -> Unit, shtoNjeCope: ((String) -> Boolean)? = null, shpejt: ((String) -> Boolean)? = null,
+            paneli: (@Composable () -> Unit)? = null, uLexua: (String) -> Unit = {}) {
     val ctx = LocalContext.current
     var leje by remember { mutableStateOf(ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) }
     var refuzuar by remember { mutableStateOf(false) }
@@ -100,35 +110,53 @@ fun Skaneri(mbyll: () -> Unit, shtoNjeCope: ((String) -> Boolean)? = null, uLexu
         onDispose { SkaneriIHapur.hapur = false }
     }
 
-    Box(Modifier.fillMaxSize().background(Color.Black)) {
-        if (leje) KameraPamja(shtoNjeCope, uLexua)
-        else if (refuzuar) Column(Modifier.align(Alignment.Center).padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            Text("Stoku s'ka leje për kamerën. Lejoje te cilësimet e telefonit (Aplikacionet → Stoku → Lejet → Kamera).",
-                style = tx(15, 500, Color.White), textAlign = TextAlign.Center)
-            Buton("Provo sërish", { kerko.launch(Manifest.permission.CAMERA) })
-        }
-        Row(Modifier.systemBarsPadding().fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            Box(Modifier.size(46.dp).clip(CircleShape).background(Color(0x66000000)).clickable(onClick = mbyll), contentAlignment = Alignment.Center) {
-                Icon(Ik.X, "Mbyll", Modifier.size(24.dp), tint = Color.White)
+    // Kamera me kontrollet lart (X, zmadhimi, drita)
+    val kamera: @Composable (Modifier, Modifier) -> Unit = { m, mKontrollet ->
+        Box(m.background(Color.Black)) {
+            if (leje) KameraPamja(shtoNjeCope, shpejt, uLexua)
+            else if (refuzuar) Column(Modifier.align(Alignment.Center).padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                Text("Stoku s'ka leje për kamerën. Lejoje te cilësimet e telefonit (Aplikacionet → Stoku → Lejet → Kamera).",
+                    style = tx(15, 500, Color.White), textAlign = TextAlign.Center)
+                Buton("Provo sërish", { kerko.launch(Manifest.permission.CAMERA) })
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                // Zmadhimi 1× / 2× / 3× (si #kameraZoom te web-i): vetëm kur kamera e lejon
-                if (DritaKamere.nivelet.size > 1) {
-                    val aktiv = DritaKamere.zoomI > 0
-                    Box(Modifier.size(46.dp).clip(CircleShape).background(if (aktiv) Color.White else Color(0x66000000))
-                        .clickable { DritaKamere.nderroZoomin() }, contentAlignment = Alignment.Center) {
-                        Text(DritaKamere.tekstiIZoomit(), style = tx(14, 700, if (aktiv) Color.Black else Color.White))
+            Row(mKontrollet.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                Box(Modifier.size(46.dp).clip(CircleShape).background(Color(0x66000000)).clickable(onClick = mbyll), contentAlignment = Alignment.Center) {
+                    Icon(Ik.X, "Mbyll", Modifier.size(24.dp), tint = Color.White)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    // Zmadhimi 1× / 2× / 3× (si #kameraZoom te web-i): vetëm kur kamera e lejon
+                    if (DritaKamere.nivelet.size > 1) {
+                        val aktiv = DritaKamere.zoomI > 0
+                        Box(Modifier.size(46.dp).clip(CircleShape).background(if (aktiv) Color.White else Color(0x66000000))
+                            .clickable { DritaKamere.nderroZoomin() }, contentAlignment = Alignment.Center) {
+                            Text(DritaKamere.tekstiIZoomit(), style = tx(14, 700, if (aktiv) Color.Black else Color.White))
+                        }
+                    }
+                    if (DritaKamere.kaDrite) Box(Modifier.size(46.dp).clip(CircleShape).background(if (DritaKamere.ndezur) Color.White else Color(0x66000000))
+                        .clickable { DritaKamere.nderro() }, contentAlignment = Alignment.Center) {
+                        Icon(Ik.Drita, "Drita", Modifier.size(22.dp), tint = if (DritaKamere.ndezur) Color.Black else Color.White)
                     }
                 }
-                if (DritaKamere.kaDrite) Box(Modifier.size(46.dp).clip(CircleShape).background(if (DritaKamere.ndezur) Color.White else Color(0x66000000))
-                    .clickable { DritaKamere.nderro() }, contentAlignment = Alignment.Center) {
-                    Icon(Ik.Drita, "Drita", Modifier.size(22.dp), tint = if (DritaKamere.ndezur) Color.Black else Color.White)
-                }
             }
         }
+    }
+
+    if (paneli == null) Box(Modifier.fillMaxSize().background(Color.Black)) {
+        kamera(Modifier.fillMaxSize(), Modifier.systemBarsPadding())
         Text("Drejtoje kamerën te barkodi", style = tx(15, 600, Color.White), textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.BottomCenter).systemBarsPadding().padding(bottom = 48.dp)
                 .clip(RoundedCornerShape(14.dp)).background(Color(0x80000000)).padding(horizontal = 16.dp, vertical = 10.dp))
+        ToastPamja(Modifier.align(Alignment.BottomCenter), poshte = 110.dp)
+    }
+    // Skanimi i shpejtë: kamera lart (s'mbyllet), paneli poshtë; me tastierën e hapur kamera ngushtohet që paneli të duket
+    else BoxWithConstraints(Modifier.fillMaxSize().background(N.bg)) {
+        val tastieraHapur = WindowInsets.ime.getBottom(LocalDensity.current) > 0
+        val lartesia = (maxHeight * (if (tastieraHapur) 0.3f else 0.44f)).coerceIn(200.dp, 400.dp)
+        Column(Modifier.fillMaxSize()) {
+            kamera(Modifier.fillMaxWidth().background(Color.Black).statusBarsPadding().height(lartesia), Modifier)
+            Box(Modifier.fillMaxWidth().weight(1f).navigationBarsPadding().imePadding()) { paneli() }
+        }
+        ToastPamja(Modifier.align(Alignment.BottomCenter), poshte = 40.dp)
     }
 }
 
@@ -172,8 +200,9 @@ object DritaKamere {
 
 @androidx.annotation.OptIn(markerClass = [androidx.camera.core.ExperimentalGetImage::class])
 @Composable
-private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, uLexua: (String) -> Unit) {
+private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, shpejt: ((String) -> Boolean)?, uLexua: (String) -> Unit) {
     val ctx = LocalContext.current
+    val shpejtAktual by rememberUpdatedState(shpejt)
     val pronari = LocalLifecycleOwner.current
     val ekzekutuesi = remember { Executors.newSingleThreadExecutor() }
     val skaneri: BarcodeScanner = remember {
@@ -204,6 +233,20 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, uLexua: (String) ->
         // Barkodi që fitoi votimin
         fun pranoje(v: String, tash: Long) {
             if (perfunduar) return
+            // v263 Skanimi i shpejtë: çdo barkod shtohet te lista dhe kamera s'mbyllet; i njëjti barkod sa kohë shihet merr
+            // +1 jo më shpesh se NUMRIM_INTERVALI_MS (si numërimi i vazhdueshëm)
+            val sh = shpejtAktual
+            if (sh != null) {
+                if (nrBarkodi == v) {
+                    if (tash - nrFundit >= NUMRIM_INTERVALI_MS) { nrFundit = tash; if (sh(v)) bip(ctx) }
+                } else {
+                    ndalNumerimin.run()
+                    nrBarkodi = v; nrFundit = tash
+                    if (sh(v)) bip(ctx)
+                }
+                vazhdoNumerimin()
+                return
+            }
             // Produkti që ekziston në folder: +1 pa e mbyllur kamerën, sa kohë barkodi shihet
             if (shtoNjeCope != null) {
                 if (nrBarkodi == v) {
@@ -300,7 +343,7 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, uLexua: (String) ->
         }
         // Nën kornizë (si #skanHint te web-i)
         BoxWithConstraints(Modifier.fillMaxSize()) {
-            val w = maxWidth * 0.78f; val h = w * 0.55f
+            val w = maxWidth * 0.78f; val h = minOf(w * 0.55f, maxHeight * 0.5f)
             val poshte = (maxHeight - h) / 2.3f + h
             val perseri = perseriDeri > 0L
             Text(if (perseri) "Skano përsëri" else "Vendos vetëm një barkod brenda kutisë", style = tx(13, if (perseri) 700 else 400, Color.White), textAlign = TextAlign.Center,
@@ -309,7 +352,7 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, uLexua: (String) ->
         }
         // "+N" mbi kornizë (si .skan-numrim te web-i)
         if (numeruar > 0) BoxWithConstraints(Modifier.fillMaxSize()) {
-            val w = maxWidth * 0.78f; val h = w * 0.55f
+            val w = maxWidth * 0.78f; val h = minOf(w * 0.55f, maxHeight * 0.5f)
             val siper = (maxHeight - h) / 2.3f
             Text("+$numeruar", style = tx(17, 700, Color.White), modifier = Modifier.align(Alignment.TopCenter).padding(top = maxOf(0.dp, siper - 46.dp))
                 .shadow(8.dp, RoundedCornerShape(16.dp)).clip(RoundedCornerShape(16.dp)).background(Color(0xFFFF5252)).padding(horizontal = 16.dp, vertical = 6.dp))
@@ -317,9 +360,10 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, uLexua: (String) ->
     }
 }
 
-/** Kutia e bardhë në pikselat e pamjes (e njëjta me vizatimin): 78% e gjerësisë, lartësia 0.55 e saj, pak mbi mes */
+/** Kutia e bardhë në pikselat e pamjes (e njëjta me vizatimin): 78% e gjerësisë, lartësia 0.55 e saj (jo më shumë se gjysma
+ *  e pamjes, te Skanimi i shpejtë), pak mbi mes */
 private fun kutiaESkanimit(vw: Float, vh: Float): Rect {
-    val w = vw * 0.78f; val h = w * 0.55f
+    val w = vw * 0.78f; val h = minOf(w * 0.55f, vh * 0.5f)
     val l = (vw - w) / 2; val t = (vh - h) / 2.3f
     return Rect(l, t, l + w, t + h)
 }
