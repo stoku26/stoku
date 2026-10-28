@@ -52,6 +52,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ANDROID: PROVA E PAMJEVE "EKSPORTET" PUNON PRAPË (28.10.2026, vetëm `vendas/`, vetëm prova)**: `PamjetTest.eksportet`
+   dështonte që nga vendas-v74 (Excel-i te Afatet u bë meny "Excel" → Importo/Eksporto): kërkonte butonin e vjetër "Eksporto Excel"
+   (shënimi te CI: "Failed to inject touch input"; puna s'ndalej). Tash klikon "Excel" para "Eksporto Excel" / "Importo Excel".
+   Aplikacioni s'ndryshon (merge-i në main nxjerr vetëm një numër të ri versioni). Logoja e re (paketa Stoku_brand_assets) u bë dhe
+   u anulua në të njëjtën ditë me kërkesë të përdoruesit ("e ka bo mut"): mos e rikthe pa kërkesë.
+
 0000000. **ANDROID: KONTROLLI I PLOTË I APLIKACIONIT, MË I QËNDRUESHËM (27.10.2026, vetëm `vendas/`)**: përdoruesi: "Kontrolloje
    komplet appin android per bugs edhe permirsoj". Rishikimi s'gjeti rrëzime të sigurta (funksionet suspend kanë try/catch, cast-et
    janë të mbrojtura); u rregulluan këto: (1) `object Dita` (MainActivity.kt): dita e sotme si gjendje; ora e mesnatës (+2 s) dhe
@@ -2307,6 +2313,9 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 
 ## Gjëra që përdoruesi i ka refuzuar/anuluar shprehimisht (mos i propozo/rikthe pa pyetur)
 
+- Logoja e re (28.10.2026): 20 idetë e Claude Design ("asnjona s'po m'pëlqen", faqja u fshi) dhe paketa `Stoku_brand_assets.zip`
+  (dy gjashtëkëndësha blu #2563FF / cian #00D4FF si "S", "Stoku" në Arial Bold): u vendos në web, Android dhe orë, pastaj u anulua
+  para merge-it ("ktheje te mas komplet qysh u kon logo"). Logoja mbetet ajo me barkod + shufrën e verdhë.
 - Opsioni "Mos dil kur i fshin të dhënat" te Cilësimet → Llogaria dhe udhëzimi "shtyp Ruaj" te porta (v165, u hoq
   te v166): "hiq bash kurgjo ske bo, hiqe fshije".
 - Chat-i i Grupit (u fsheh te v182, u hoq krejt te v221: "zhduke 100% se e kemi hek chatin"; te v222 edhe nga historiku
