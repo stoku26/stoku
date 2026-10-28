@@ -5334,7 +5334,7 @@
     if (nj.vetemNePerpara) return; // vjen si push nga Worker-i
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
     var url = './pc.html#/ekipa' + (nj.pamja === 'anetaret' || nj.pamja === 'njoftimet' ? '/' + nj.pamja : '');
-    var opsionet = { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=4', badge: './logo/badge-96.png?v=2', data: { url: url } };
+    var opsionet = { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=3', badge: './logo/badge-96.png?v=1', data: { url: url } };
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then(function (reg) { return reg.showNotification(nj.titulli, opsionet); })
         .catch(function () { try { new Notification(nj.titulli, opsionet); } catch (e) { /* ok */ } });

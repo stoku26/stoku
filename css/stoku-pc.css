@@ -29,6 +29,7 @@
 .sbp .sbp-menyja { flex: 1 1 auto; min-height: 0; overflow-y: auto; margin: 0 -14px; padding: 0 14px 6px; scrollbar-width: thin; }
 .sbp .sbp-krye { display: flex; flex-direction: column; gap: 18px; margin-bottom: 8px; flex: none; }
 .sbp .sbp-brand { display: flex; align-items: center; gap: 10px; padding: 0 4px; border-radius: 10px; } /* v238: pa kursor: klikohet vetëm logoja (#logoButon) */
+.sbp .sbp-brand img { width: 34px; height: 34px; display: block; flex: none; }
 .sbp .sbp-brand__tekst { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
 .sbp .sbp-brand__emri { font-size: 17px; font-weight: 700; letter-spacing: -.01em; color: var(--sb-ink); }
 .sbp .sbp-brand__nen { font-size: 12px; color: var(--sb-muted); }

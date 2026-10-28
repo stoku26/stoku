@@ -298,12 +298,9 @@ class PamjetTest {
         kliko("Anulo")
         r.onNodeWithContentDescription("Foldera").performClick(); r.waitForIdle()
         kliko("Afatet")
-        // v74: te Afatet "Importo Excel" / "Eksporto Excel" janë brenda menysë së butonit "Excel"
-        kliko("Excel")
         kliko("Eksporto Excel")
         fotoEkrani("light-20-afatet-excel")
         klikoFundit("Anulo")
-        kliko("Excel")
         kliko("Importo Excel")
         fotoEkrani("light-21-importi")
     }

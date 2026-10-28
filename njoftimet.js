@@ -91,7 +91,7 @@
 
   function opsionet(teksti, tag) {
     return {
-      body: teksti, tag: tag, icon: 'icon-192.png?v=4', badge: 'logo/badge-96.png?v=2', vibrate: [180, 80, 180], lang: 'sq',
+      body: teksti, tag: tag, icon: 'icon-192.png?v=3', badge: 'logo/badge-96.png?v=1', vibrate: [180, 80, 180], lang: 'sq',
       data: { url: URL_AFATET }, renotify: false
     };
   }
