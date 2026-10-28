@@ -10,10 +10,10 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v258';
+var CACHE = 'stoku-v259';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
-importScripts('./afatet.js?v=248', './njoftimet.js?v=216');
+importScripts('./afatet.js?v=248', './njoftimet.js?v=259');
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js',
@@ -38,33 +38,35 @@ var SHELL = FAQET.concat([
   './marketet.js?v=257',
   './harta.js?v=256',
   './ekipa.js?v=258',
-  './porta.js?v=252',
-  './njoftimet.js?v=216',
-  './teRejat.js?v=258',
+  './porta.js?v=259',
+  './njoftimet.js?v=259',
+  './teRejat.js?v=259',
   // v238: skriptat e faqeve (më parë brenda HTML-së; CSP pa 'unsafe-inline')
   './kornize.js?v=238',
   './es2020.js?v=238',
   './fillimi-tel.js?v=239',
   './fillimi-pc.js?v=239',
-  './app-tel.js?v=257',
-  './app-pc.js?v=256',
+  './app-tel.js?v=259',
+  './app-pc.js?v=259',
   './firebase-tel.js?v=252',
   './firebase-pc.js?v=252',
-  './manifest.webmanifest?v=87',
-  './css/stoku-tokens.css?v=6',
+  './manifest.webmanifest?v=88',
+  './css/stoku-tokens.css?v=7',
   './css/stoku.css?v=49',
-  './css/stoku-pc.css?v=39',
+  './css/stoku-pc.css?v=40',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',
-  './logo/stoku-logo.svg?v=3',
-  './logo/stoku-logo-dark.svg?v=3',
-  './logo/favicon.svg?v=3',
-  './logo/favicon-32.png?v=3',
-  './logo/icon-maskable-512.png?v=3',
-  './icon-192.png?v=3',
-  './icon-512.png?v=3',
-  './apple-touch-icon.png?v=3',
-  './logo/badge-96.png?v=1',
+  './logo/stoku-logo.svg?v=4',
+  './logo/stoku-logo-dark.svg?v=4',
+  './logo/favicon.svg?v=4',
+  './logo/favicon-32.png?v=4',
+  './logo/icon-maskable-512.png?v=4',
+  './icon-192.png?v=4',
+  './icon-512.png?v=4',
+  './apple-touch-icon.png?v=4',
+  './logo/badge-96.png?v=2',
+  './logo/stoku-logo-small.svg?v=4',
+  './logo/stoku-logo-small-dark.svg?v=4',
 ]);
 
 async function mbushCacheEri() {
@@ -193,8 +195,8 @@ self.addEventListener('push', function (e) {
     body: d.teksti || '',
     tag: d.tag || 'stoku-push',
     renotify: true,
-    icon: './icon-192.png?v=3',
-    badge: './logo/badge-96.png?v=1',
+    icon: './icon-192.png?v=4',
+    badge: './logo/badge-96.png?v=2',
     vibrate: [180, 80, 180],
     timestamp: d.koha || Date.now(),
     lang: 'sq',

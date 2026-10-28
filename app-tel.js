@@ -7144,7 +7144,7 @@
     if (nj.vetemNePerpara) return; // vjen si push nga Worker-i
     if (!njoftimetMbeshteten() || Notification.permission !== 'granted') return;
     navigator.serviceWorker.ready.then(function (reg) {
-      return reg.showNotification(nj.titulli, { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=3', badge: './logo/badge-96.png?v=1', vibrate: [180, 80, 180],
+      return reg.showNotification(nj.titulli, { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=4', badge: './logo/badge-96.png?v=2', vibrate: [180, 80, 180],
         data: { url: './index.html#ekipa-' + (nj.pamja === 'anetaret' || nj.pamja === 'njoftimet' ? nj.pamja : 'afatet') } });
     }).catch(function () { /* ok */ });
   }

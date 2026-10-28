@@ -52,6 +52,24 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **LOGOJA E RE E STOKU-T: WEB, ANDROID, ORA (v259 = 1.42.0, 28.10.2026)**: përdoruesi i refuzoi 20 idetë e Claude Design
+   (faqja u fshi), kërkoi masat dhe i bëri vetë logot diku tjetër (paketa `Stoku_brand_assets.zip`; paleta: blu #2563FF, cian #00D4FF,
+   e errët #14161B, e bardhë). Shenja: dy gjashtëkëndësha blu/cian si "S"; emri "Stoku" (Arial Bold te SVG-të, në Android Chrome del
+   me shkronjën e sistemit). **Web**: `logo/favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` (180), `icon-192/512.png`,
+   `logo/icon-maskable-512.png`, `logo/badge-96.png`, `logo/stoku-logo(-dark).svg/.png`, të reja `logo/stoku-logo-small(-dark).svg`
+   dhe `logo/google-play-512.png` (vetëm për rezervë). Të katër SVG-të e logos kishin ~40 njësi bosh djathtas: `viewBox="11 0 142 52"`
+   (142 x 52, e vogla 120 x 44) dhe PNG-të u prenë në 568 x 208, që logoja të dalë në mes. Ikonat njëngjyrëshe (badge, njoftimi,
+   komplikacioni, monochrome) kishin vija të errëta mbi të bardhë; Android-i e lexon vetëm alfën, prandaj alfa = ndriçimi (vijat
+   bëhen të prera, jo siluetë e plotë). Etiketa lart (`.stk-etiketa`, tel dhe PC): `<img class="stk-etiketa__logo--cel/--err">` 36 px
+   në vend të "STOKU" + barkodit (CSS te `stoku-tokens.css` v7; u hoq `.sbp .sbp-brand img {34px}` te `stoku-pc.css` v40 që e
+   shtrembëronte). Versionet: ikonat/logot `?v=4`, badge `?v=2`, manifesti `?v=88`; 404 dhe privatësia me përmasat e reja.
+   U fshinë `logo/stoku-mark.svg` dhe `logo/stoku-icon-square.svg` (barkodi i vjetër, s'përdoreshin). Test: `teste/v259.js`.
+   **Android (`vendas/`)**: `drawable-nodpi/ic_launcher_foreground.png` (432), sfondi mbetet `@color/ikona_sfondi` #14161B (i njëjtë
+   me PNG-në), `ic_launcher_monochrome.png`, `drawable-xxxhdpi/ic_njoftim.png` (96), `stoku_logo(_dark).png`; `Logo.kt`:
+   `LogoEPlote` = PNG-ja (hyrja 48 dp), `EtiketaStoku` = logoja 36 dp + emri (u hoq `logoStoku()` me barkodin). Çka ka të re 19.
+   **Ora (`ora/`)**: `ic_launcher_foreground.png`, `ikona_sfondi.png` (#14161B nga paketa; më parë gradient gri "opsioni 5": nëse s'dallohet
+   mbi ekranin e zi, ktheje gri), `drawable-xxxhdpi/ic_stoku.png` (komplikacioni), `tile_preview.png`. S'është testuar në pajisje.
+
 0000000. **ANDROID: KONTROLLI I PLOTË I APLIKACIONIT, MË I QËNDRUESHËM (27.10.2026, vetëm `vendas/`)**: përdoruesi: "Kontrolloje
    komplet appin android per bugs edhe permirsoj". Rishikimi s'gjeti rrëzime të sigurta (funksionet suspend kanë try/catch, cast-et
    janë të mbrojtura); u rregulluan këto: (1) `object Dita` (MainActivity.kt): dita e sotme si gjendje; ora e mesnatës (+2 s) dhe

@@ -1,1 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="190" height="52" viewBox="0 0 190 52"><g transform="translate(0 4) scale(.6875)"><rect width="64" height="64" rx="15" fill="#14161b"/><rect x=".75" y=".75" width="62.5" height="62.5" rx="14.25" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="1.5"/><rect x="14" y="16" width="3" height="32" rx="1" fill="#fff"/><rect x="19" y="16" width="2" height="32" rx="1" fill="#fff"/><rect x="23" y="16" width="4" height="32" rx="1" fill="#fff"/><rect x="29" y="16" width="2" height="32" rx="1" fill="#fff"/><rect x="33" y="16" width="3" height="32" rx="1" fill="#f5b942"/><rect x="38" y="16" width="2" height="32" rx="1" fill="#fff"/><rect x="42" y="16" width="4" height="32" rx="1" fill="#fff"/><rect x="48" y="16" width="2" height="32" rx="1" fill="#fff"/></g><g fill="none" stroke="#14161b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M76 20H65a5 5 0 0 0 0 10h6a5 5 0 0 1 0 10H60"/><path d="M91 12v23a5 5 0 0 0 5 5h3M86 20h11"/><circle cx="119.5" cy="30" r="10"/><path d="M140.5 12v28M152.5 20l-12 11M145 26.9l8.5 13.1"/><path d="M164.5 20v10a10 10 0 0 0 20 0M184.5 20v20"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="142" height="52" viewBox="11 0 142 52">
+<defs>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#2563FF"/><stop offset=".55" stop-color="#00D4FF"/><stop offset="1" stop-color="#2563FF"/></linearGradient>
+<linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#00D4FF"/><stop offset="1" stop-color="#2563FF"/></linearGradient>
+</defs>
+<g transform="translate(2 1) scale(.57 .57)">
+<path d="M50 5 L77 20 L77 34 L58 45 L72 53 L72 67 L50 82 L23 67 L23 53 L42 42 L28 34 L28 20 Z"
+      fill="url(#g)" fill-rule="evenodd"/>
+<path d="M50 18 L66 27 L66 31 L48 42 L34 34 L34 27 Z" fill="#14161B" opacity=".98"/>
+<path d="M50 69 L34 60 L34 56 L52 45 L66 53 L66 60 Z" fill="#14161B" opacity=".98"/>
+<path d="M34 27 L50 18 L66 27 L66 31 L50 40 L34 31 Z" fill="url(#g2)"/>
+<path d="M34 56 L50 47 L66 56 L66 60 L50 69 L34 60 Z" fill="url(#g2)"/>
+</g>
+<text x="60" y="37" font-family="Arial, Helvetica, sans-serif" font-size="35" font-weight="700" letter-spacing="-1.1" fill="#14161B">Stoku</text>
+</svg>

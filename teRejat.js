@@ -20,6 +20,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 259, versioni: '1.42.0', data: '2026-10-28', titulli: 'Logoja e re e Stoku-t', pikat: [
+      'Stoku ka logo të re: në hyrje, lart në aplikacion, te ikona në ekranin e telefonit dhe te skeda e shfletuesit. Në mënyrën e errët del versioni i saj i errët.'
+    ] },
     { v: 258, versioni: '1.41.2', data: '2026-10-27', titulli: 'Pa produktet e provës te regjistri', vetemAdmini: true, pikat: [
       'Produktet dhe furnizuesit shembull të provës si vizitor ("Furnizuesi A/B/C") s\'dalin më te "Produktet e reja" dhe "Furnizuesit e rinj". Ato që kishin hyrë fshihen vetë.'
     ] },
