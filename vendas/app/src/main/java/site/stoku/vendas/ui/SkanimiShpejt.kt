@@ -158,8 +158,8 @@ private fun RreshtiShpejt(b: String, nr: Long, p: Obj?, iFundit: Boolean, shto: 
             Text("copë", style = tx(11, 500, n.muted))
         }
         ButonPM("+", true) { shto(1) }
-        Fusha(t, { t = it.filter { c -> c.isDigit() || c == '-' }.take(7) }, Modifier.width(76.dp), "+ copë", tastiera = KeyboardType.Number,
-            veprimi = ImeAction.Done, kurVeprim = { shtoTekstin() }, lartesia = 44.dp, stili = tx(16, 600).copy(textAlign = TextAlign.Center))
+        Fusha(t, { t = it.filter { c -> c.isDigit() || c == '-' }.take(7) }, Modifier.width(84.dp), "+ copë", tastiera = KeyboardType.Number,
+            veprimi = ImeAction.Done, kurVeprim = { shtoTekstin() }, lartesia = 44.dp, stili = tx(15, 600).copy(textAlign = TextAlign.Center))
         if (t.isNotBlank()) Buton("Shto", { shtoTekstin() }, lartesia = 44.dp)
     }
     Box(Modifier.fillMaxWidth().padding(horizontal = 6.dp).height(1.dp).background(n.line2))
