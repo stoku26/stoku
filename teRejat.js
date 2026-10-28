@@ -20,6 +20,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 263, versioni: '1.43.0', data: '2026-10-28', titulli: 'Skanim i shpejtë', platforma: 'tel', pikat: [
+      'Brenda një folderi te Stoku ka butonin e ri "Skanim i shpejtë": kamera hapet lart dhe s\'mbyllet, kështu skanon produktet njërin pas tjetrit.',
+      'Çdo barkod shtohet menjëherë në folder (+1), edhe pa emër. I njëjti produkt s\'del dy herë në listë: i rritet sasia (sa kohë e mban para kamerës, +1 çdo 1.5 sekonda).',
+      'Poshtë kamerës del lista me sasitë dhe gjithsej. Për më shumë copë shkruaj numrin te produkti (p.sh. 5), pa asnjë dritare tjetër.'
+    ] },
     { v: 262, versioni: '1.42.2', data: '2026-10-28', titulli: 'Skanimi: 7 herë njësoj, vetëm brenda kutisë', platforma: 'tel', pikat: [
       'Kur skanon me kamerë, barkodi pranohet vetëm kur lexohet 7 herë njësoj nga 10 tentime (rreth gjysmë sekonde). Përndryshe poshtë kutisë del "Skano përsëri", pa zë, dhe mund ta provosh sërish menjëherë.',
       'Lexohet vetëm barkodi që është i tëri brenda kutisë. Barkodi i produktit ngjitur, ose ai që del jashtë kutisë, s\'merret më.'

@@ -126,8 +126,9 @@ const n = (k, x, poz) => Array(x).fill([k, 'ean_13', poz || 'brenda']);
   await p.evaluate(() => { const c = document.getElementById('opsPda'); c.checked = false; c.dispatchEvent(new Event('change')); });
 
   const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
-  ok(Number((sw.match(/stoku-v(\d+)/) || [])[1]) >= 263 && /app-tel\.js\?v=263/.test(sw) && /teRejat\.js\?v=263/.test(sw), '19. CACHE ≥ 263, app-tel.js?v=263, teRejat.js?v=263');
-  const tr = await p.evaluate(() => fetch('teRejat.js?v=263').then(x => x.text()));
+  const nr = rx => Number((sw.match(rx) || [])[1]);
+  ok(nr(/stoku-v(\d+)/) >= 263 && nr(/app-tel\.js\?v=(\d+)/) >= 263 && nr(/teRejat\.js\?v=(\d+)/) >= 263, '19. CACHE, app-tel.js dhe teRejat.js ≥ 263');
+  const tr = await p.evaluate(() => fetch('teRejat.js?v=' + Date.now()).then(x => x.text()));
   ok(/\{ v: 263,[^\n]*platforma: 'tel'/.test(tr), '19. teRejat v263 (telefon)');
 
   ok(!p.__gab.length, '20. pa gabime JS', p.__gab);

@@ -52,6 +52,20 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **SKANIM I SHPEJTË NË WEB (v263 = 1.43.0, 28.10.2026, telefoni)**: si Android-i (Hyrja 22, shiko më poshtë), e njëjta
+   kërkesë dhe zgjedhjet (ruhet menjëherë; +1 jo më shpesh se 1.5 s sa kohë shihet). `#btnSkanimShpejt` (nën rreshtin "Skano me
+   kamerë"; fshihet në PDA te `zbatoPda` dhe pa `lejaSkanimShpejt()` = `kamera` + `stokuShto`/`stokuNdrysho` te `zbatoLejet`, që e
+   mbyll edhe kur leja hiqet). `#kamera.shpejt`: kamera 42dvh lart (min 220px), `#skanShpejt` poshtë: `#ssGjithsej`, `#ssNen` (folderi ·
+   produktet), `#ssMbaro`, `#ssBosh`, `#ssLista`. `kuSuksesiSkanimi` (pas votimit 7 nga 10, kutisë dhe QR-së) → `pranoShpejt` (i njëjti
+   `nrBarkodi`/NUMRIM_INTERVALI_MS/NUMRIM_PUSHIMI_MS si numërimi) → `shtoShpejt(barkodi, sasia)`: i ri me `emriNgaProduktet`/
+   `furnizuesiNgaAfatet` (pa `mesoNgaPerdoruesi`), ai që ekziston +N (s'bëhet negativ), lejet si te `ruajProduktin`, kontrolli
+   `duketSiDiçkaTjeterVeçBarkod`. Rreshtat krijohen një herë (`krijoRreshtinShpejt`, `data-barkodi`, vetëm `textContent`): i riu lart,
+   ai që ekziston mbetet në vend (`ss-fundit`), që fusha ku po shkruhet të mos e humbë fokusin; `scrollIntoView` vetëm kur s'po
+   shkruhet. Fusha "+ copë": numër (edhe negativ), Enter ose "Shto" (klasa `me-tekst`). Selektori `.ss-rresht input.ss-shto`, sepse
+   `input[type="text"]` e përgjithshëm ka `width: 100%`. `ndalKamere` → `mbyllSkanimShpejt` (X, "Mbaro", mbrapa); `renderLista`
+   rivizaton panelin (edhe pas sinkronizimit). Testi `teste/v263.js` (kamera e rreme: i ri pa emër, 1.5 s, ekzistuesi, s'del dy
+   herë, +5/-1, vetëm numra, jashtë kutisë, QR, Mbaro/X, kamera e zakonshme pa panel, PDA, versionet). S'është testuar në pajisje.
+
 0000000. **ANDROID: SKANIM I SHPEJTË BRENDA FOLDERIT (Hyrja 22, 28.10.2026, `vendas/`; web-i vjen me v263)**: përdoruesi (foto e
    folderit): "e shton ni buton Skanim i shpejt ... e qel kameren me engine e krejta te njejtat ... kutia ... me kon nalt edhe mos
    mu mshel kamera asniher ... posht ... produktet qka i ke skanu edhe sasin ... i njejti veq me ju shtu sasia ... pa pop up ...

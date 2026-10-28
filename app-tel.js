@@ -176,6 +176,10 @@
       kameraDrejtoje: 'Drejtoje kamerën te barkodi',
       kameraHint: 'Vendos vetëm një barkod brenda kutisë',
       skanoPerseri: 'Skano përsëri',
+      skanimShpejt: 'Skanim i shpejtë',
+      ssMbaro: 'Mbaro',
+      ssBosh: 'Skano barkodet njërin pas tjetrit: secili shtohet menjëherë në këtë folder. I njëjti barkod s\'del dy herë, i rritet sasia.',
+      ssGjithsej: function (a) { return 'Gjithsej: ' + a.n + ' copë'; },
 
       renditSipas: 'Rendit sipas',
       emriAZ: 'Emri (A–Z)',
@@ -204,6 +208,9 @@
   var STATIKE = [
     { id: 'btnKrijoFolder', prop: 'text', kyc: 'krijoFolder' },
     { id: 'btnKamera', prop: 'text', kyc: 'skanoKamer' },
+    { id: 'btnSkanimShpejt', prop: 'text', kyc: 'skanimShpejt' },
+    { id: 'ssMbaro', prop: 'text', kyc: 'ssMbaro' },
+    { id: 'ssBosh', prop: 'text', kyc: 'ssBosh' },
     { id: 'btnEksport', prop: 'text', kyc: 'eksportoExcel' },
     { id: 'btnEksportPdf', prop: 'text', kyc: 'eksportoPdf' },
     { id: 'kerko', prop: 'placeholder', kyc: 'kerkoLabel' },
@@ -995,6 +1002,7 @@
   function zbatoPda() {
     var pda = opsione.pda;
     $('btnKamera').style.display = pda ? 'none' : '';
+    $('btnSkanimShpejt').style.display = pda ? 'none' : ''; // v263
     $('btnEksportPdf').style.display = ''; // PDF mbetet e dukshme edhe në PDA
     $('seksionTingull').style.display = pda ? 'none' : '';
     $('seksionScanner').style.display = pda ? 'none' : '';
@@ -2822,7 +2830,9 @@
     $('tabMarketet').classList.toggle('leja-ndaluar', !lejaMarketet()); // v256: Marketet (me hartën): administratori ose merchandiseri
     $('njIntro').textContent = (meAfate && meGrup ? 'Njoftimet e Grupit dhe të afateve.' : meGrup ? 'Njoftimet e Grupit.' : 'Njoftimet e afateve.') +
       ' Vijnë edhe kur Stoku është i mbyllur.';
+    $('btnSkanimShpejt').classList.toggle('leja-ndaluar', !lejaSkanimShpejt()); // v263: kamera + shtimi ose ndryshimi i stokut
     if (paVizatim) return;
+    if (skanimShpejt && !lejaSkanimShpejt()) ndalKamere();
     // Pjesët që s'lejohen më mbyllen; listat rivizatohen pa butonat e ndaluar
     if (!leja('afatet') && $('dlgAfatet').classList.contains('hapur')) mbyllAfatetFaqe();
     if (!leja('grupi') && $('dlgEkipi').classList.contains('hapur')) mbyllEkipiFaqe();
@@ -3097,6 +3107,7 @@
 
   // ---------- Lista + kërkimi ----------
   function renderLista() {
+    if (skanimShpejt) vizatoSkanimShpejt(); // v263: sasitë te paneli (edhe kur ndryshojnë nga një pajisje tjetër)
     if (folderiAktual === null) return;
     var k = $('kerko').value.trim().toLowerCase();
     var te = produktetENjeFolderi(folderiAktual);
@@ -3894,6 +3905,9 @@
       return;
     }
 
+    // v263: Skanimi i shpejtë: barkodi shtohet te lista (dhe në folder), kamera s'mbyllet
+    if (skanimShpejt && !kameraPerAfat) { pranoShpejt(barkodi); return; }
+
     // Numërimi i vazhdueshëm (+1) vetëm kur skanohet për stokun; kamera e hapur nga "Afat i ri" e dërgon barkodin te afati
     if (!kameraPerAfat && eLejuarSasiaShpejte()) {
       var ekzistuesi = produktet[celesiProduktit(folderiAktual, barkodi)];
@@ -4079,6 +4093,7 @@
   async function ndalKamere() {
     seancaKamere++; // nisja që ende s'ka mbaruar e ndal vetë rrjedhën kur të vijë
     kameraPerAfat = null;
+    mbyllSkanimShpejt();
     fshihKontrolletEKameres();
     ndaloNumrimVazhdues();
     rinisVotimin(); // leximet e mbetura s'hapin më dritaren pasi mbyllet kamera
@@ -4088,6 +4103,124 @@
 
   $('btnKamera').addEventListener('click', hapKamere);
   $('mbyllKamere').addEventListener('click', ndalKamere);
+
+  // ---------- v263: Skanimi i shpejtë (brenda folderit) ----------
+  // Kamera lart (i njëjti skaner: votimi 7 nga 10, vetëm brenda kutisë) s'mbyllet; çdo barkod i pranuar ruhet menjëherë në
+  // folder (+1; produkti i ri edhe pa emër, me emrin/furnizuesin kur njihen). I njëjti barkod s'del dy herë: i rritet sasia,
+  // jo më shpesh se NUMRIM_INTERVALI_MS sa kohë shihet (si numërimi i vazhdueshëm). Poshtë: gjithsej, lista e kësaj seance
+  // (i riu lart) dhe te çdo produkt fusha "+ copë" (pa dritare). Android: SkanimiShpejt.kt.
+  var skanimShpejt = null;
+  function lejaSkanimShpejt() { return leja('kamera') && (leja('stokuShto') || leja('stokuNdrysho')); }
+  function hapSkanimShpejt() {
+    if (folderiAktual === null || opsione.pda || !lejaSkanimShpejt()) return;
+    skanimShpejt = { radha: [], sasite: Object.create(null), rreshtat: Object.create(null), fundit: null, nrBarkodi: null, nrFundit: 0, kohez: null };
+    $('ssLista').textContent = '';
+    $('kamera').classList.add('shpejt');
+    $('kameraDrejtoje').textContent = T('skanimShpejt');
+    vizatoSkanimShpejt();
+    hapKamere();
+    if (!$('kamera').classList.contains('hapur')) mbyllSkanimShpejt(); // kamera s'u hap (leje / s'është gati)
+  }
+  function mbyllSkanimShpejt() {
+    if (!skanimShpejt) return;
+    clearTimeout(skanimShpejt.kohez);
+    skanimShpejt = null;
+    var a = document.activeElement;
+    if (a && a.classList && a.classList.contains('ss-shto')) a.blur();
+    $('kamera').classList.remove('shpejt');
+    $('kameraDrejtoje').textContent = T('kameraDrejtoje');
+    $('ssLista').textContent = '';
+  }
+  // Thirret sa herë që votimi e pranon barkodin (shumë herë në sekondë sa kohë mbahet para kamerës)
+  function pranoShpejt(barkodi) {
+    var s = skanimShpejt, tash = Date.now();
+    if (s.nrBarkodi !== barkodi) { s.nrBarkodi = barkodi; s.nrFundit = tash; if (shtoShpejt(barkodi, 1)) bip(); }
+    else if (tash - s.nrFundit >= NUMRIM_INTERVALI_MS) { s.nrFundit = tash; if (shtoShpejt(barkodi, 1)) bip(); }
+    clearTimeout(s.kohez);
+    s.kohez = setTimeout(function () { if (skanimShpejt === s) { s.nrBarkodi = null; s.nrFundit = 0; } }, NUMRIM_PUSHIMI_MS);
+  }
+  // sasia: +1 nga kamera ose numri i shkruar (edhe negativ, për korrigjim; stoku s'bëhet negativ)
+  function shtoShpejt(barkodi, sasia) {
+    var s = skanimShpejt;
+    if (!s || !barkodi || !sasia) return false;
+    if (folderiAktual === null || !foldera.some(function (f) { return f.id === folderiAktual; })) {
+      toast('Folderi u fshi nga një pajisje tjetër.', 4000); ndalKamere(); return false;
+    }
+    if (duketSiDiçkaTjeterVeçBarkod(barkodi)) { toast(T('qrDyshim')); return false; }
+    var k = celesiProduktit(folderiAktual, barkodi), e = produktet[k] || null;
+    if (!leja(e ? 'stokuNdrysho' : 'stokuShto')) {
+      toast(e ? 'S\'ke leje ta ndryshosh sasinë e këtij produkti.' : 'Ky barkod s\'është në këtë folder.', 3000);
+      return false;
+    }
+    if (!e && sasia < 0) return false;
+    var ri;
+    if (e) ri = Object.assign({}, e, { sasia: Math.max(0, (e.sasia || 0) + sasia), prekurSe: Date.now() });
+    else {
+      ri = { barkodi: barkodi, emri: emriNgaProduktet(barkodi), sasia: sasia, kategoriaId: folderiAktual, prekurSe: Date.now() };
+      var furn = paFurnizues() ? '' : furnizuesiNgaAfatet(barkodi);
+      if (furn) ri.furnizuesi = furn;
+    }
+    produktet[k] = ri;
+    s.sasite[barkodi] = Math.max(0, (s.sasite[barkodi] || 0) + sasia);
+    if (s.radha.indexOf(barkodi) < 0) s.radha.unshift(barkodi);
+    s.fundit = barkodi;
+    ruajBaze();
+    renderLista(); // vizaton edhe panelin
+    renderFolderat();
+    var r = s.rreshtat[barkodi], a = document.activeElement;
+    if (r && !(a && a.classList && a.classList.contains('ss-shto'))) r.el.scrollIntoView({ block: 'nearest' });
+    return true;
+  }
+  function vizatoSkanimShpejt() {
+    var s = skanimShpejt;
+    if (!s) return;
+    var gj = 0;
+    s.radha.forEach(function (b) { gj += s.sasite[b] || 0; });
+    $('ssGjithsej').textContent = T('ssGjithsej', { n: gj });
+    $('ssNen').textContent = (folderiAktual !== null ? emriFolderit(folderiAktual) + ' · ' : '') + nrEmer(s.radha.length, 'produkt', 'produkte');
+    $('ssBosh').style.display = s.radha.length ? 'none' : '';
+    var lista = $('ssLista');
+    s.radha.forEach(function (b) {
+      var r = s.rreshtat[b];
+      if (!r) { r = krijoRreshtinShpejt(b); s.rreshtat[b] = r; lista.insertBefore(r.el, lista.firstChild); }
+      var p = folderiAktual !== null ? produktet[celesiProduktit(folderiAktual, b)] : null;
+      r.emri.textContent = p && p.emri ? p.emri : '(pa emër)';
+      r.emri.classList.toggle('pa-emer', !(p && p.emri));
+      r.kodi.textContent = b + (p ? ' · në stok ' + p.sasia : '');
+      r.nr.textContent = String(s.sasite[b] || 0);
+      r.el.classList.toggle('ss-fundit', b === s.fundit);
+    });
+  }
+  function krijoRreshtinShpejt(b) {
+    function el(tag, klasa) { var x = document.createElement(tag); if (klasa) x.className = klasa; return x; }
+    var r = el('div', 'ss-rresht'), info = el('div', 'ss-info'), emri = el('div', 'ss-emri'), kodi = el('div', 'ss-kodi');
+    var nrK = el('div', 'ss-nr'), nr = el('b'), cope = el('span'), inp = el('input', 'ss-shto'), btn = el('button', 'btn ss-btn');
+    r.setAttribute('data-barkodi', b);
+    cope.textContent = 'copë';
+    inp.type = 'text'; inp.inputMode = 'numeric'; inp.autocomplete = 'off'; inp.placeholder = '+ copë';
+    inp.setAttribute('enterkeyhint', 'done'); inp.setAttribute('aria-label', 'Copë shtesë: ' + b);
+    btn.type = 'button'; btn.textContent = 'Shto';
+    function shtoNgaFusha() {
+      var t = inp.value.trim();
+      if (!t) { inp.blur(); return; }
+      if (!/^-?\d+$/.test(t)) { toast(T('shkruajSasine')); return; }
+      if (!sasiaEPranueshme(t)) { toast(SASIA_E_MADHE, 4500); return; }
+      var v = parseInt(t, 10);
+      if (v === 0 || shtoShpejt(b, v)) { inp.value = ''; r.classList.remove('me-tekst'); inp.blur(); }
+    }
+    inp.addEventListener('input', function () {
+      var v = inp.value.replace(/[^\d-]/g, '').replace(/(?!^)-/g, '').slice(0, 7);
+      if (v !== inp.value) inp.value = v;
+      r.classList.toggle('me-tekst', !!v.trim());
+    });
+    inp.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); shtoNgaFusha(); } });
+    btn.addEventListener('click', shtoNgaFusha);
+    info.appendChild(emri); info.appendChild(kodi); nrK.appendChild(nr); nrK.appendChild(cope);
+    r.appendChild(info); r.appendChild(nrK); r.appendChild(inp); r.appendChild(btn);
+    return { el: r, emri: emri, kodi: kodi, nr: nr };
+  }
+  $('btnSkanimShpejt').addEventListener('click', hapSkanimShpejt);
+  $('ssMbaro').addEventListener('click', ndalKamere);
 
   // ---------- Shiriti me tabe poshtë: Stoku · Afatet · Cilësimet ----------
   // Afatet dhe Cilësimet mbeten "dritare" të plota (dlgAfatet, dlgOpsione) — kështu butoni "mbrapa" i Android-it
