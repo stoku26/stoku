@@ -8,6 +8,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(20, "2026-10-28", "Skanimi edhe më i saktë", listOf(
+            "Skanimi me kamerë tash e pranon barkodin kur lexohet 5 herë njësoj (nga deri në 10 lexime brenda një sekonde), në vend të 3 herëve. Mund të zgjasë pak më shumë, por gabimet janë edhe më të rralla."
+        )),
         Hyrja(19, "2026-10-28", "Skanimi më i saktë", listOf(
             "Kur skanon me kamerë, Stoku s'e merr barkodin nga një shikim i vetëm: brenda një sekonde e lexon disa herë dhe zgjedh numrin që ka dalë më shpesh. Kështu një lexim i gabuar (p.sh. kur dridhet dora) s'kalon, dhe barkodi s'humbet edhe kur shihet vetëm për një çast."
         )),

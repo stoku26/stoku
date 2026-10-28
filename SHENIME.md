@@ -52,6 +52,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **VOTIM MË I RREPTË: 5 VOTA NGA DERI NË 10 LEXIME (v261 = 1.42.1, 28.10.2026, web + Android)**: përdoruesi pyeti për
+   10 lexime; i shpjegova se saktësia pothuajse s'rritet (leximet brenda 1 s s'janë të pavarura) dhe e ngadalëson skanimin, dhe
+   i propozova më të dobishmet: Android vetëm brenda kutisë (tash ML Kit lexon krejt pamjen: mund të kapë barkodin e produktit
+   ngjitur), vetëm formatet e produkteve (EAN/UPC + QR), zmadhimi automatik. Ai zgjodhi **vetëm "Votim më i rreptë"** (të
+   tjerat jo tani: mos i bëj pa pyetur). `VOTIMI_MAKS = 10, VOTIMI_FITON = 5` (app-tel.js) dhe `VotimiIBarkodit(maks = 10,
+   fiton = 5)`; rregullat e tjera si v260 (1 s, barazimi, 1 votë vetëm EAN/UPC i sigurt). Me kamerën e rreme: 5 lexime → dritarja
+   pas ~0.25 s; 4 → pas sekondës. Testet: `teste/v261.js` (i ri), `teste/v260.js` dhe `VotimiTest.kt` me numrat e rinj.
+   Çka ka të re: web v261 (tel), Android Hyrja 20. S'është testuar në pajisje.
+
 0000000. **SKANIMI ME VOTIM: BARKODI LEXOHET DISA HERË DHE FITON MË I SHPESHTI (v260 = 1.42.0, 28.10.2026, web + Android)**:
    përdoruesi: "kape barkodin 4-5 her ... brenda 1 sekondi edhe boni bashk qato numra ... vendose qato qe e ka kap mas shumti ...
    ne krejt projektin". Rregulli (i njëjtë në të dy): nga leximi i parë, brenda 1 s mblidhen lexime; kodi me **3 vota fiton

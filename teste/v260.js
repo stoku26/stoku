@@ -1,5 +1,5 @@
 // v260: votimi i leximeve të kamerës (app-tel.js krijoVotimin; Android: VotimiIBarkodit te vendas/logjika, VotimiTest.kt me
-// të njëjtat raste). Brenda 1 s deri në 5 lexime; fiton ai që doli më shpesh: 3 vota menjëherë, pas 5 leximeve ai në krye
+// të njëjtat raste). v261: brenda 1 s deri në 10 lexime; fiton ai që doli më shpesh: 5 vota menjëherë, pas 10 leximeve ai në krye
 // (me barazim pritet), në mbarim ai në krye (barazim: i sigurti, pastaj i pari); 1 votë vetëm kur është EAN/UPC i sigurt.
 // Pjesa 2: kamera e rreme (Chromium) + BarcodeDetector i rremë me lexime të përgatitura: leximi i gabuar s'kalon, kamera e
 // mbyllur s'hap më dritaren, një lexim i vetëm pa shifër kontrolli s'pranohet.
@@ -32,10 +32,11 @@ const A = '3800001000019', B = '3800001000026', C = '3800001000033'; // EAN-13 m
   // 1. Rregulli (si VotimiTest.kt)
   const r = await p.evaluate(([A, B, C]) => {
     const o = {}; let v;
-    v = StokuVotimi(); o.tre = [v.shto(A, 'EAN_13', true, 0), v.shto(A, 'EAN_13', true, 40), v.shto(A, 'EAN_13', true, 80), v.aktiv()];
-    v = StokuVotimi(); o.gabimi = [v.shto(B, 'EAN_13', true, 0), v.shto(A, 'EAN_13', true, 40), v.shto(A, 'EAN_13', true, 80), v.shto(A, 'EAN_13', true, 120)];
-    v = StokuVotimi(); o.pese = [A, B, A, C].map((k, i) => v.shto(k, 'EAN_13', true, i * 40)).concat([v.shto('4000000000000', 'EAN_13', false, 160)]);
-    v = StokuVotimi(); o.barazim = [A, B, A, B, C].map((k, i) => v.shto(k, 'EAN_13', true, i * 40)).concat([v.shto(C, 'EAN_13', true, 200), v.shto(B, 'EAN_13', true, 240)]);
+    const lexo = (v, l) => l.map((k, i) => v.shto(k, 'EAN_13', true, i * 40));
+    v = StokuVotimi(); o.tre = lexo(v, [A, A, A, A, A]).concat([v.aktiv()]);
+    v = StokuVotimi(); o.gabimi = lexo(v, [B, A, A, A, A, A]);
+    v = StokuVotimi(); o.pese = lexo(v, [A, B, A, C, A, B, A, C, B, '4000000000006']);
+    v = StokuVotimi(); o.barazim = lexo(v, [A, B, A, B, A, B, A, B, C, C]).concat([v.shto(B, 'EAN_13', true, 400)]);
     v = StokuVotimi(); [A, B, A, B].forEach((k, i) => v.shto(k, 'EAN_13', true, i * 40)); o.mbarimi = [v.skado(999), v.skado(1000)];
     v = StokuVotimi(); o.nje = [v.shto(A, 'EAN_13', true, 0), v.mbetur(0), v.mbetur(700), v.skado(999), v.skado(1000), v.aktiv()];
     v = StokuVotimi(); o.code128 = [v.shto('ABC-123', 'CODE_128', false, 0), v.skado(1000), v.aktiv(), v.shto('ABC-123', 'CODE_128', false, 1100), v.shto('ABC-123', 'CODE_128', false, 1150), v.skado(2100)];
@@ -44,10 +45,11 @@ const A = '3800001000019', B = '3800001000026', C = '3800001000033'; // EAN-13 m
     v = StokuVotimi(); v.shto(A, 'EAN_13', true, 0); v.shto(A, 'EAN_13', true, 40); v.rinis(); o.rinis = [v.aktiv(), v.shto(A, 'EAN_13', true, 80)];
     return JSON.parse(JSON.stringify(o, (k, x) => x && x.kodi ? x.kodi : x));
   }, [A, B, C]);
-  ok(JSON.stringify(r.tre) === JSON.stringify([null, null, A, false]), '1. 3 lexime të njëjta: fiton menjëherë', r.tre);
-  ok(JSON.stringify(r.gabimi) === JSON.stringify([null, null, null, A]), '1. leximi i gabuar (B) humbet ndaj A-së', r.gabimi);
-  ok(JSON.stringify(r.pese) === JSON.stringify([null, null, null, null, A]), '1. pas 5 leximeve fiton ai në krye (A=2)', r.pese);
-  ok(JSON.stringify(r.barazim) === JSON.stringify([null, null, null, null, null, null, B]), '1. me barazim pritet; B me 3 vota fiton', r.barazim);
+  const N = n => Array(n).fill(null);
+  ok(JSON.stringify(r.tre) === JSON.stringify(N(4).concat([A, false])), '1. 5 lexime të njëjta: fiton menjëherë', r.tre);
+  ok(JSON.stringify(r.gabimi) === JSON.stringify(N(5).concat([A])), '1. leximi i gabuar (B) humbet ndaj A-së', r.gabimi);
+  ok(JSON.stringify(r.pese) === JSON.stringify(N(9).concat([A])), '1. pas 10 leximeve fiton ai në krye (A=4)', r.pese);
+  ok(JSON.stringify(r.barazim) === JSON.stringify(N(10).concat([B])), '1. me barazim pritet; B me 5 vota fiton', r.barazim);
   ok(JSON.stringify(r.mbarimi) === JSON.stringify([null, A]), '1. barazim në mbarim: fiton i pari', r.mbarimi);
   ok(JSON.stringify(r.nje) === JSON.stringify([null, 1000, 300, null, A, false]), '1. 1 lexim EAN i sigurt: pranohet kur mbaron sekonda', r.nje);
   ok(JSON.stringify(r.code128) === JSON.stringify([null, null, false, null, null, 'ABC-123']), '1. 1 lexim pa shifër kontrolli: s\'pranohet; 2 të njëjta: po', r.code128);
@@ -66,9 +68,9 @@ const A = '3800001000019', B = '3800001000026', C = '3800001000033'; // EAN-13 m
   }
   async function mbyllDialogun() { await p.evaluate(() => document.getElementById('dlgProdukt').classList.remove('hapur')); await p.waitForTimeout(200); }
 
-  let s = await skano([[B, 'ean_13'], [A, 'ean_13'], [A, 'ean_13'], [A, 'ean_13']], 1800);
-  ok(s.thirrje >= 4, '2a. kamera e rreme punon (detect() u thirr)', s.thirrje);
-  ok(s.dialogu && s.kodi.includes(A) && !s.kodi.includes(B) && !s.kamera, '2a. B (i gabuar) pastaj 3 herë A: hapet A', s);
+  let s = await skano([[B, 'ean_13']].concat(Array(5).fill([A, 'ean_13'])), 1800);
+  ok(s.thirrje >= 6, '2a. kamera e rreme punon (detect() u thirr)', s.thirrje);
+  ok(s.dialogu && s.kodi.includes(A) && !s.kodi.includes(B) && !s.kamera, '2a. B (i gabuar) pastaj 5 herë A: hapet A', s);
   await mbyllDialogun();
 
   s = await skano([[A, 'ean_13']], 1800);
@@ -92,8 +94,8 @@ const A = '3800001000019', B = '3800001000026', C = '3800001000033'; // EAN-13 m
 
   // 3. Versionet
   const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
-  ok(Number((sw.match(/stoku-v(\d+)/) || [])[1]) >= 260 && /app-tel\.js\?v=260/.test(sw), '3. CACHE ≥ 260, app-tel.js?v=260');
-  const tr = await p.evaluate(() => fetch('teRejat.js?v=260').then(x => x.text()));
+  ok(Number((sw.match(/stoku-v(\d+)/) || [])[1]) >= 260 && Number((sw.match(/app-tel\.js\?v=(\d+)/) || [])[1]) >= 260, '3. CACHE ≥ 260, app-tel.js ≥ 260');
+  const tr = await p.evaluate(() => fetch('teRejat.js').then(x => x.text()));
   ok(/\{ v: 260,[^\n]*platforma: 'tel'/.test(tr), '3. teRejat v260 (telefon)');
 
   ok(!gabimet.length, '4. pa gabime JS', gabimet);

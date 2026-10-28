@@ -6,40 +6,46 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** Votimi i leximeve të kamerës: të njëjtat raste si te teste/v260.js (krijoVotimin te app-tel.js) */
+/** Votimi i leximeve të kamerës (v261: 5 vota nga deri në 10 lexime): të njëjtat raste si te teste/v260.js dhe teste/v261.js */
 class VotimiTest {
-    private val A = "3800001000019"; private val B = "3800001000026"; private val C = "3800001000033"
+    private val A = "3800001000019"; private val B = "3800001000026"; private val C = "3800001000033"; private val D = "4000000000006"
 
-    @Test fun treVotaFitojneMenjehere() {
+    /** Shton leximet me 40 ms ndërmjet (nga koha [t0]); kthen përgjigjet e shto() */
+    private fun VotimiIBarkodit.lexo(kodet: List<String>, t0: Long = 0, iSigurt: Boolean = true) = kodet.mapIndexed { i, k -> shto(k, iSigurt, t0 + i * 40L) }
+
+    @Test fun peseVotaFitojneMenjehere() {
         val v = VotimiIBarkodit()
-        assertNull(v.shto(A, true, 0)); assertNull(v.shto(A, true, 40))
-        assertEquals(A, v.shto(A, true, 80))
+        assertEquals(listOf(null, null, null, null, A), v.lexo(List(5) { A }))
         assertFalse(v.aktiv)
+    }
+
+    @Test fun katerVotaSMjaftojne() {
+        val v = VotimiIBarkodit()
+        assertEquals(List(4) { null }, v.lexo(List(4) { A }))
+        assertTrue(v.aktiv)
+        assertEquals(A, v.skado(1000)) // pa lexim të 5-të: kur mbaron sekonda fiton ai në krye
     }
 
     @Test fun leximiIGabuarHumbet() {
         val v = VotimiIBarkodit()
-        assertNull(v.shto(B, true, 0)) // kuadër i turbullt: B (edhe me shifër kontrolli të saktë)
-        assertNull(v.shto(A, true, 40)); assertNull(v.shto(A, true, 80))
-        assertEquals(A, v.shto(A, true, 120))
+        assertEquals(listOf<String?>(null, null, null, null, null, A), v.lexo(listOf(B) + List(5) { A }))
     }
 
-    @Test fun pasPeseLeximeveFitonIPari() {
+    @Test fun pasDhjeteLeximeveFitonAiNeKrye() {
         val v = VotimiIBarkodit()
-        listOf(A, B, A, C).forEachIndexed { i, k -> assertNull(v.shto(k, true, i * 40L)) }
-        assertEquals(A, v.shto("4000000000000", false, 160)) // 5 lexime: A=2 në krye, vetëm
+        val r = v.lexo(listOf(A, B, A, C, A, B, A, C, B, D)) // A=4, B=3, C=2, D=1
+        assertEquals(List<String?>(9) { null } + A, r)
     }
 
-    @Test fun barazimiPretDeriNeMbarim() {
+    @Test fun barazimiPretDeriQeDikushArrinPese() {
         val v = VotimiIBarkodit()
-        listOf(A, B, A, B, C).forEachIndexed { i, k -> assertNull(v.shto(k, true, i * 40L)) } // A=2, B=2: pritet
-        assertNull(v.shto(C, true, 200)) // A=2, B=2, C=2: ende barazim
-        assertEquals(B, v.shto(B, true, 240)) // B arrin 3 vota → fiton
+        assertEquals(List<String?>(10) { null }, v.lexo(listOf(A, B, A, B, A, B, A, B, C, C))) // A=4, B=4: pritet
+        assertEquals(B, v.shto(B, true, 400)) // B arrin 5 vota
     }
 
     @Test fun barazimiNeMbarimFitonIPari() {
         val v = VotimiIBarkodit()
-        listOf(A, B, A, B).forEachIndexed { i, k -> assertNull(v.shto(k, true, i * 40L)) }
+        v.lexo(listOf(A, B, A, B))
         assertNull(v.skado(999))
         assertEquals(A, v.skado(1000))
     }
@@ -78,9 +84,9 @@ class VotimiTest {
 
     @Test fun rinisja() {
         val v = VotimiIBarkodit()
-        v.shto(A, true, 0); v.shto(A, true, 40)
+        v.lexo(List(4) { A })
         v.rinis()
         assertFalse(v.aktiv)
-        assertNull(v.shto(A, true, 80))
+        assertNull(v.shto(A, true, 200))
     }
 }

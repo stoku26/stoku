@@ -79,7 +79,7 @@ import java.util.concurrent.Executors
 /*
  * Skaneri me kamerë: CameraX + ML Kit (njohja e barkodeve e Google-it, i njëjti motor si Google Lens; punon pa internet).
  * Kamera e pasme kryesore, rezolucion i lartë dhe autofokus i vazhdueshëm. v260: barkodi pranohet me votim (VotimiIBarkodit):
- * brenda 1 s deri në 5 lexime, fiton ai që doli më shpesh (3 të njëjta: menjëherë; 1 i vetëm vetëm me shifër kontrolli të
+ * brenda 1 s deri në 10 lexime, fiton ai që doli më shpesh (v261: 5 të njëjta: menjëherë; 1 i vetëm vetëm me shifër kontrolli të
  * saktë), pastaj bip + dridhje dhe dritarja mbyllet.
  */
 @Composable
@@ -189,7 +189,7 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, uLexua: (String) ->
         val fut = ProcessCameraProvider.getInstance(ctx)
         var ofruesi: ProcessCameraProvider? = null
         var qrFundit = 0L
-        // v260: votimi i leximeve (si te web-i): brenda 1 s deri në 5 lexime, fiton ai që doli më shpesh (3 vota: menjëherë)
+        // v260: votimi i leximeve (si te web-i): brenda 1 s deri në 10 lexime, fiton ai që doli më shpesh (v261: 5 vota: menjëherë)
         val votimi = VotimiIBarkodit()
         var kameraELidhur: Camera? = null
         // Barkodi që po numërohet: +1 sa herë shihet, jo më shpesh se NUMRIM_INTERVALI_MS; ndalet kur s'shihet NUMRIM_PUSHIMI_MS

@@ -3584,11 +3584,11 @@
     return (10 - s % 10) % 10 === +kodi.charAt(kodi.length - 1);
   }
   // v260: votimi i leximeve. Një barkod s'pranohet më nga një kuadër i vetëm: nga leximi i parë, brenda 1 s mblidhen
-  // lexime dhe fiton ai që doli më shpesh. Kodi që arrin 3 vota fiton menjëherë (nga 5 lexime s'e kalon dot më asnjë
-  // tjetër); pas 5 leximeve fiton ai në krye, nëse është vetëm; kur mbaron sekonda, fiton ai në krye (barazim: i sigurti,
+  // lexime dhe fiton ai që doli më shpesh. v261 (votim më i rreptë): kodi që arrin 5 vota fiton menjëherë (nga 10 lexime
+  // s'e kalon dot më asnjë tjetër); pas 10 leximeve fiton ai në krye, nëse është vetëm; kur mbaron sekonda, fiton ai në krye (barazim: i sigurti,
   // pastaj i pari). Kodi me 1 votë pranohet vetëm kur është "i sigurt" (EAN/UPC me shifrën e kontrollit të saktë): barkodi
   // s'humbet kur shihet vetëm për një çast, por një lexim i gabuar s'kalon. I njëjti rregull si VotimiIBarkodit (Android).
-  var VOTIMI_MS = 1000, VOTIMI_MAKS = 5, VOTIMI_FITON = 3;
+  var VOTIMI_MS = 1000, VOTIMI_MAKS = 10, VOTIMI_FITON = 5;
   function krijoVotimin() {
     var votat = [], fillimi = -1, gjithsej = 0;
     function rinis() { votat = []; fillimi = -1; gjithsej = 0; }
