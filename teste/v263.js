@@ -47,6 +47,8 @@ const n = (k, x, poz) => Array(x).fill([k, 'ean_13', poz || 'brenda']);
   await hapShpejt();
   let x = await gjendja();
   ok(x.kamera && x.shpejt && x.paneli && x.bosh && x.rreshtat.length === 0 && x.gjithsej === 'Gjithsej: 0 copë', '3. hapet: kamera lart, paneli poshtë, lista bosh', x);
+  const meta = () => p.evaluate(() => document.getElementById('metaTema').getAttribute('content'));
+  ok(await meta() === '#000000', '3. shiriti i sipërm i telefonit i zi sa kohë kamera është e hapur', await meta());
   const kutia = await p.evaluate(() => { const v = document.querySelector('#kamera .kamera-video-shtrat').getBoundingClientRect(), k = document.getElementById('skanShpejt').getBoundingClientRect(); return { v: Math.round(v.bottom), k: Math.round(k.top), h: Math.round(v.height) }; });
   ok(kutia.h > 150 && kutia.h < 844 * 0.6 && Math.abs(kutia.v - kutia.k) <= 1, '3. kamera zë pjesën e sipërme, lista menjëherë poshtë', kutia);
 
@@ -112,6 +114,7 @@ const n = (k, x, poz) => Array(x).fill([k, 'ean_13', poz || 'brenda']);
   await p.click('#ssMbaro'); await p.waitForTimeout(400);
   x = await gjendja();
   ok(!x.kamera && !x.shpejt && x.stoku[A] === 7 && x.stoku[B] === 11, '15. "Mbaro" e mbyll; sasitë mbeten të ruajtura', x);
+  ok(await meta() !== '#000000', '15. ... dhe shiriti i sipërm merr sërish ngjyrën e temës', await meta());
   const lista = await p.evaluate(() => document.getElementById('lista').textContent);
   ok(lista.includes('Ujë Rugove') && lista.includes(A), '15. ... dhe duken te lista e folderit', lista.slice(0, 200));
 

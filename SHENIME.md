@@ -71,7 +71,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    te `lejet.js` (v=5) dhe `Lejet.kt` (fikstura e re), grupi "Skanimi dhe skedarët", `prindi: 'kamera'`; si çdo leje e re, e
    lejuar kur mungon (krejt llogaritë e kanë). `lejaSkanimShpejt()` = `skanimShpejt` + (`stokuShto` ose `stokuNdrysho`); Android
    njësoj te `FolderiEkrani`, dhe `SkanimiShpejt.shto` e mbyll kur leja hiqet ndërkohë. Android: Hyrja 23. `kamera-e-rreme.js`:
-   `hapFaqen(chromium, { uid, emri, lejet })` për llogari që s'janë administratori. S'është testuar në pajisje.
+   `hapFaqen(chromium, { uid, emri, lejet })` për llogari që s'janë administratori. **Shiriti i sipërm** (foto e dytë: ora/bateria
+   mbi kamerë pa hije): Android, te Skanimi i shpejtë kamera tash zë edhe vendin nën shiritin e sipërm (`statusBars` + lartësia) dhe
+   hijezohet si pjesa jashtë kutisë; kontrollet me `statusBarsPadding`. Arsyeja: kuadri i `PreviewView` (SurfaceView, FILL_CENTER)
+   del jashtë kufijve të vet dhe dukej aty pa hije. Web: `rifreskoMetaTemen` e bën `theme-color` #000000 sa kohë `#kamera` është
+   e hapur (thirret te `hapKamere`/`ndalKamere`), që shiriti i telefonit të mos dalë i çelët mbi kamerën e zezë. S'është testuar
+   në pajisje.
 
 0000000. **ANDROID: SKANIM I SHPEJTË BRENDA FOLDERIT (Hyrja 22, 28.10.2026, `vendas/`; web-i vjen me v263)**: përdoruesi (foto e
    folderit): "e shton ni buton Skanim i shpejt ... e qel kameren me engine e krejta te njejtat ... kutia ... me kon nalt edhe mos

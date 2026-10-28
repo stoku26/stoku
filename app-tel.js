@@ -912,8 +912,10 @@
 
   // Tema: 'auto' (ndjek telefonin), 'light' ose 'dark'
   // Shiriti i shfletuesit/telefonit merr ngjyrën e sfondit (header-i është i çelët/i errët, jo me ngjyrë)
+  // v263: kur kamera është e hapur, shiriti i sipërm (ora, bateria) del i zi si kamera, jo i çelët mbi të
   function rifreskoMetaTemen() {
-    $('metaTema').setAttribute('content', temaEfektive() === 'dark' ? '#0f1115' : '#f6f5f2');
+    var kamera = $('kamera') && $('kamera').classList.contains('hapur');
+    $('metaTema').setAttribute('content', kamera ? '#000000' : temaEfektive() === 'dark' ? '#0f1115' : '#f6f5f2');
   }
   function zgjedhjaETemes() {
     var t = null;
@@ -4069,6 +4071,7 @@
     rinisVotimin();
     var seanca = ++seancaKamere;
     $('kamera').classList.add('hapur');
+    rifreskoMetaTemen();
     try {
       await nisKamere();
     } catch (err) {
@@ -4099,6 +4102,7 @@
     rinisVotimin(); // leximet e mbetura s'hapin më dritaren pasi mbyllet kamera
     await ndalSkanerin();
     $('kamera').classList.remove('hapur');
+    rifreskoMetaTemen();
   }
 
   $('btnKamera').addEventListener('click', hapKamere);
