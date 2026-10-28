@@ -52,6 +52,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ORA: U ANULUA NDRYSHIMI I v262 (28.10.2026, vetëm `ora/`)**: përdoruesi: "te aplikacioni ores kthej te mas qato
+   ndryshimet e fundit ... qajo me ngjyre gri edhe te verdh se e ke keqkuptu". `MainActivity.kt` dhe `StokuKomplikacion.kt` u kthyen
+   si para v262 (commit-i `7fb670f^`): "PËR T'U HEQUR · N" = skadojnë sot + kanë skaduar, seksioni gri "KËTË JAVË" u rikthye,
+   komplikacioni sërish sot + të skaduarat. Pjesa e orës te hyrja v262 më poshtë s'vlen më.
+
 0000000. **SKANIM I SHPEJTË NË WEB (v263 = 1.43.0, 28.10.2026, telefoni)**: si Android-i (Hyrja 22, shiko më poshtë), e njëjta
    kërkesë dhe zgjedhjet (ruhet menjëherë; +1 jo më shpesh se 1.5 s sa kohë shihet). `#btnSkanimShpejt` (nën rreshtin "Skano me
    kamerë"; fshihet në PDA te `zbatoPda` dhe pa `lejaSkanimShpejt()` = `kamera` + `stokuShto`/`stokuNdrysho` te `zbatoLejet`, që e
@@ -2397,6 +2402,8 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 
 ## Gjëra që përdoruesi i ka refuzuar/anuluar shprehimisht (mos i propozo/rikthe pa pyetur)
 
+- Ora (v262, u anulua 28.10.2026): "Për t'u hequr" vetëm me të skaduarat (pa të verdhat "skadojnë sot") dhe hiqja e seksionit
+  gri "KËTË JAVË" ("e ke keqkuptu"). Lista e orës mbetet si para v262; mos e ndrysho pa pyetur çka do saktësisht.
 - Logoja e re (28.10.2026): 20 idetë e Claude Design ("asnjona s'po m'pëlqen", faqja u fshi) dhe paketa `Stoku_brand_assets.zip`
   (dy gjashtëkëndësha blu #2563FF / cian #00D4FF si "S", "Stoku" në Arial Bold): u vendos në web, Android dhe orë, pastaj u anulua
   para merge-it ("ktheje te mas komplet qysh u kon logo"). Logoja mbetet ajo me barkod + shufrën e verdhë.
