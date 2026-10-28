@@ -8,6 +8,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(19, "2026-10-28", "Skanimi më i saktë", listOf(
+            "Kur skanon me kamerë, Stoku s'e merr barkodin nga një shikim i vetëm: brenda një sekonde e lexon disa herë dhe zgjedh numrin që ka dalë më shpesh. Kështu një lexim i gabuar (p.sh. kur dridhet dora) s'kalon, dhe barkodi s'humbet edhe kur shihet vetëm për një çast."
+        )),
         Hyrja(18, "2026-10-27", "Më i qëndrueshëm", listOf(
             "Pas mesnatës afatet rifreskohen vetë (\"Sot\", \"Nesër\", ngjyrat dhe numrat), edhe kur aplikacioni ka mbetur i hapur. Nëse po shkruan diçka, pret derisa ta mbyllësh dritaren.",
             "Përditësimi tregon shiritin e shkarkimit (sa MB dhe përqindjen), me butonin \"Anulo\". Kontrollohet edhe kur kthehesh në aplikacion, jo vetëm kur e hap.",

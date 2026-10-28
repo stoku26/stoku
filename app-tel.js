@@ -3583,16 +3583,78 @@
     for (var i = kodi.length - 2, peshe = 3; i >= 0; i--, peshe = 4 - peshe) s += (+kodi.charAt(i)) * peshe;
     return (10 - s % 10) % 10 === +kodi.charAt(kodi.length - 1);
   }
-  // Kodet pa shifër kontrolli (Code 39, Codabar, ITF…) pranohen vetëm kur lexohen njësoj 2 herë
-  // rresht brenda 0.8 s — kështu një lexim i gabuar nga një kuadër i turbullt s'kalon kurrë.
-  var leximiParaprak = { v: '', t: 0 };
-  function leximiIKonfirmuar(v, formati) {
-    if (/^(EAN_13|EAN_8|UPC_A|QR_CODE)$/.test(formati) && (formati === 'QR_CODE' || shifraKontrollitOk(v))) return true;
-    var tash = Date.now();
-    var ok = leximiParaprak.v === v && tash - leximiParaprak.t < 800;
-    leximiParaprak = { v: v, t: tash };
-    return ok;
+  // v260: votimi i leximeve. Një barkod s'pranohet më nga një kuadër i vetëm: nga leximi i parë, brenda 1 s mblidhen
+  // lexime dhe fiton ai që doli më shpesh. Kodi që arrin 3 vota fiton menjëherë (nga 5 lexime s'e kalon dot më asnjë
+  // tjetër); pas 5 leximeve fiton ai në krye, nëse është vetëm; kur mbaron sekonda, fiton ai në krye (barazim: i sigurti,
+  // pastaj i pari). Kodi me 1 votë pranohet vetëm kur është "i sigurt" (EAN/UPC me shifrën e kontrollit të saktë): barkodi
+  // s'humbet kur shihet vetëm për një çast, por një lexim i gabuar s'kalon. I njëjti rregull si VotimiIBarkodit (Android).
+  var VOTIMI_MS = 1000, VOTIMI_MAKS = 5, VOTIMI_FITON = 3;
+  function krijoVotimin() {
+    var votat = [], fillimi = -1, gjithsej = 0;
+    function rinis() { votat = []; fillimi = -1; gjithsej = 0; }
+    // perfundimtar: koha mbaroi (barazimi zgjidhet); përndryshe me barazim pritet (kthen undefined)
+    function fituesi(perfundimtar) {
+      var m = null, barazim = false;
+      votat.forEach(function (v) {
+        if (!m || v.n > m.n) { m = v; barazim = false; }
+        else if (v.n === m.n) { if (v.iSigurt && !m.iSigurt) { m = v; barazim = false; } else if (v.iSigurt === m.iSigurt) barazim = true; }
+      });
+      if (!perfundimtar && barazim) return undefined;
+      var f = m && (m.n >= 2 || m.iSigurt) ? { kodi: m.kodi, formati: m.formati } : null;
+      rinis();
+      return f;
+    }
+    return {
+      aktiv: function () { return fillimi >= 0; },
+      mbetur: function (tani) { return fillimi < 0 ? 0 : Math.max(0, fillimi + VOTIMI_MS - tani); },
+      // Shton një lexim; kthen { kodi, formati } kur vendoset, përndryshe null
+      shto: function (kodi, formati, iSigurt, tani) {
+        var vendim = fillimi >= 0 && tani - fillimi >= VOTIMI_MS ? fituesi(true) : null;
+        if (fillimi < 0) fillimi = tani;
+        var v = null;
+        votat.forEach(function (x) { if (x.kodi === kodi) v = x; });
+        if (!v) { v = { kodi: kodi, formati: formati, iSigurt: !!iSigurt, n: 0 }; votat.push(v); }
+        v.n++; gjithsej++;
+        if (vendim) return vendim;
+        if (v.n >= VOTIMI_FITON) { rinis(); return { kodi: kodi, formati: formati }; }
+        if (gjithsej >= VOTIMI_MAKS) return fituesi(false) || null;
+        return null;
+      },
+      // Kur mbaron koha (kohëmatësi): fituesi ose null
+      skado: function (tani) { return fillimi >= 0 && tani - fillimi >= VOTIMI_MS ? fituesi(true) : null; },
+      rinis: rinis
+    };
   }
+  window.StokuVotimi = krijoVotimin; // testet (teste/v260.js)
+  var votimi = krijoVotimin();
+  var votimiKohez = null;
+  function rinisVotimin() {
+    if (votimiKohez) { clearTimeout(votimiKohez); votimiKohez = null; }
+    votimi.rinis();
+  }
+  function planifikoSkadimin() {
+    if (votimiKohez || !votimi.aktiv()) return;
+    votimiKohez = setTimeout(function () {
+      votimiKohez = null;
+      var f = votimi.skado(Date.now());
+      if (f) kuSuksesiSkanimi(f.kodi, { format: f.formati });
+      planifikoSkadimin();
+    }, votimi.mbetur(Date.now()) + 5);
+  }
+  // Çdo lexim i kamerës (motori nativ, ZXing-u i iPhone-it ose html5-qrcode) kalon nga votimi
+  function votoLeximin(tekstiILexuar, formati) {
+    var kodi = String(tekstiILexuar == null ? '' : tekstiILexuar).trim();
+    if (!kodi) return;
+    if (formati === 'QR_CODE') { kuSuksesiSkanimi(kodi, { format: formati }); return; } // s'është barkod produkti: njoftohet
+    var iSigurt = /^(EAN_13|EAN_8|UPC_A)$/.test(formati) && shifraKontrollitOk(kodi);
+    var f = votimi.shto(kodi, formati, iSigurt, Date.now());
+    if (f) {
+      if (votimiKohez) { clearTimeout(votimiKohez); votimiKohez = null; }
+      kuSuksesiSkanimi(f.kodi, { format: f.formati });
+    }
+    planifikoSkadimin();
+  }
+  function leximiNgaHtml5(teksti, rezultati) { votoLeximin(teksti, formatiIRezultatit(rezultati)); }
   // Kur në kuti ka disa barkode, merret ai më afër qendrës
   function meIAferQendres(rezultatet, w, h) {
     var mi = rezultatet[0], dMin = Infinity;
@@ -3617,7 +3679,7 @@
         if (nativDukeSkanuar && rezultatet && rezultatet.length > 0) {
           var r = meIAferQendres(rezultatet, figura.width, figura.height);
           var formati = String(r.format || '').toUpperCase();
-          if (leximiIKonfirmuar(r.rawValue, formati)) kuSuksesiSkanimi(r.rawValue, { format: formati });
+          votoLeximin(r.rawValue, formati);
         }
       } catch (e) { /* frame i dështuar, provo tjetrin */ }
     }
@@ -3931,7 +3993,7 @@
     $('reader').style.display = '';
     var i = krijoSkanerin();
     try {
-      await i.start(kufizimet, { fps: 10, qrbox: QRBOX_FN, videoConstraints: kufizimet }, kuSuksesiSkanimi, kuGabimiSkanimi);
+      await i.start(kufizimet, { fps: 10, qrbox: QRBOX_FN, videoConstraints: kufizimet }, leximiNgaHtml5, kuGabimiSkanimi);
       if (seanca !== seancaKamere) {
         try { await i.stop(); } catch (e3) { /* ok */ }
         try { i.clear(); } catch (e3) { /* ok */ }
@@ -4001,6 +4063,7 @@
     }
     perpunuar = false;
     ndaloNumrimVazhdues();
+    rinisVotimin();
     var seanca = ++seancaKamere;
     $('kamera').classList.add('hapur');
     try {
@@ -4029,6 +4092,7 @@
     kameraPerAfat = null;
     fshihKontrolletEKameres();
     ndaloNumrimVazhdues();
+    rinisVotimin(); // leximet e mbetura s'hapin më dritaren pasi mbyllet kamera
     await ndalSkanerin();
     $('kamera').classList.remove('hapur');
   }

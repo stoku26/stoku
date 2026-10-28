@@ -72,13 +72,15 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import site.stoku.logjika.VotimiIBarkodit
 import site.stoku.vendas.StokuApp
 import java.util.concurrent.Executors
 
 /*
  * Skaneri me kamerë: CameraX + ML Kit (njohja e barkodeve e Google-it, i njëjti motor si Google Lens; punon pa internet).
- * Kamera e pasme kryesore, rezolucion i lartë dhe autofokus i vazhdueshëm. Barkodi pranohet kur lexohet 2 herë rresht
- * (EAN/UPC me shifrën e kontrollit të saktë: menjëherë), pastaj bip + dridhje dhe dritarja mbyllet.
+ * Kamera e pasme kryesore, rezolucion i lartë dhe autofokus i vazhdueshëm. v260: barkodi pranohet me votim (VotimiIBarkodit):
+ * brenda 1 s deri në 5 lexime, fiton ai që doli më shpesh (3 të njëjta: menjëherë; 1 i vetëm vetëm me shifër kontrolli të
+ * saktë), pastaj bip + dridhje dhe dritarja mbyllet.
  */
 @Composable
 fun Skaneri(mbyll: () -> Unit, shtoNjeCope: ((String) -> Boolean)? = null, uLexua: (String) -> Unit) {
@@ -186,13 +188,45 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, uLexua: (String) ->
     DisposableEffect(Unit) {
         val fut = ProcessCameraProvider.getInstance(ctx)
         var ofruesi: ProcessCameraProvider? = null
-        var iFundit = ""; var hera = 0
         var qrFundit = 0L
+        // v260: votimi i leximeve (si te web-i): brenda 1 s deri në 5 lexime, fiton ai që doli më shpesh (3 vota: menjëherë)
+        val votimi = VotimiIBarkodit()
         var kameraELidhur: Camera? = null
         // Barkodi që po numërohet: +1 sa herë shihet, jo më shpesh se NUMRIM_INTERVALI_MS; ndalet kur s'shihet NUMRIM_PUSHIMI_MS
         var nrBarkodi: String? = null; var nrFundit = 0L
         val ndalNumerimin = Runnable { nrBarkodi = null; nrFundit = 0L; numeruar = 0 }
         fun vazhdoNumerimin() { pamja.removeCallbacks(ndalNumerimin); pamja.postDelayed(ndalNumerimin, NUMRIM_PUSHIMI_MS) }
+        // Barkodi që fitoi votimin
+        fun pranoje(v: String, tash: Long) {
+            if (perfunduar) return
+            // Produkti që ekziston në folder: +1 pa e mbyllur kamerën, sa kohë barkodi shihet
+            if (shtoNjeCope != null) {
+                if (nrBarkodi == v) {
+                    if (tash - nrFundit >= NUMRIM_INTERVALI_MS) {
+                        nrFundit = tash
+                        if (shtoNjeCope(v)) { numeruar += 1; bip(ctx) } else { ndalNumerimin.run(); return }
+                    }
+                    vazhdoNumerimin()
+                    return
+                }
+                ndalNumerimin.run()
+                if (shtoNjeCope(v)) { nrBarkodi = v; nrFundit = tash; numeruar = 1; bip(ctx); vazhdoNumerimin(); return }
+            }
+            perfunduar = true
+            bip(ctx)
+            pamja.post { uLexua(v) }
+        }
+        // Kur barkodi s'shihet më para se të vendoset votimi: vendoset kur mbaron sekonda
+        lateinit var skadimi: Runnable
+        fun planifikoSkadimin() {
+            pamja.removeCallbacks(skadimi)
+            if (votimi.aktiv) pamja.postDelayed(skadimi, votimi.mbetur(SystemClock.elapsedRealtime()) + 5)
+        }
+        skadimi = Runnable {
+            val tash = SystemClock.elapsedRealtime()
+            votimi.skado(tash)?.let { pranoje(it, tash) }
+            planifikoSkadimin()
+        }
         fut.addListener({
             val o = fut.get(); ofruesi = o
             val rez = ResolutionSelector.Builder().setResolutionStrategy(
@@ -212,30 +246,10 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, uLexua: (String) ->
                         if (tash - qrFundit > 2000) { qrFundit = tash; Toast.trego("Ke skenuar një kod QR. Skano barkodin e produktit.") }
                         return@addOnSuccessListener
                     }
-                    hera = if (v == iFundit) hera + 1 else 1
-                    iFundit = v
-                    val iSigurt = (b.format == Barcode.FORMAT_EAN_13 || b.format == Barcode.FORMAT_EAN_8 || b.format == Barcode.FORMAT_UPC_A) && kontrolliEAN(v)
                     if (perfunduar) return@addOnSuccessListener
-                    // Produkti që ekziston në folder: +1 pa e mbyllur kamerën, sa kohë barkodi shihet
-                    if (shtoNjeCope != null) {
-                        if (nrBarkodi == v) {
-                            if (tash - nrFundit >= NUMRIM_INTERVALI_MS) {
-                                nrFundit = tash
-                                if (shtoNjeCope(v)) { numeruar += 1; bip(ctx) } else { ndalNumerimin.run(); return@addOnSuccessListener }
-                            }
-                            vazhdoNumerimin()
-                            return@addOnSuccessListener
-                        }
-                        if (iSigurt || hera >= 2) {
-                            ndalNumerimin.run()
-                            if (shtoNjeCope(v)) { nrBarkodi = v; nrFundit = tash; numeruar = 1; bip(ctx); vazhdoNumerimin(); return@addOnSuccessListener }
-                        }
-                    }
-                    if (iSigurt || hera >= 2) {
-                        perfunduar = true
-                        bip(ctx)
-                        pamja.post { uLexua(v) }
-                    }
+                    val iSigurt = (b.format == Barcode.FORMAT_EAN_13 || b.format == Barcode.FORMAT_EAN_8 || b.format == Barcode.FORMAT_UPC_A) && kontrolliEAN(v)
+                    votimi.shto(v, iSigurt, tash)?.let { pranoje(it, tash) }
+                    planifikoSkadimin()
                 }.addOnCompleteListener { img.close() }
             }
             try {
@@ -262,6 +276,8 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, uLexua: (String) ->
         }
         onDispose {
             pamja.removeCallbacks(ndalNumerimin)
+            pamja.removeCallbacks(skadimi)
+            votimi.rinis()
             try { kameraELidhur?.cameraInfo?.zoomState?.removeObservers(pronari) } catch (e: Exception) { }
             try { ofruesi?.unbindAll() } catch (e: Exception) { }
             DritaKamere.pastro()
