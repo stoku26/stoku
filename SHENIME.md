@@ -69,6 +69,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    `LogoEPlote` = PNG-ja (hyrja 48 dp), `EtiketaStoku` = logoja 36 dp + emri (u hoq `logoStoku()` me barkodin). Çka ka të re 19.
    **Ora (`ora/`)**: `ic_launcher_foreground.png`, `ikona_sfondi.png` (#14161B nga paketa; më parë gradient gri "opsioni 5": nëse s'dallohet
    mbi ekranin e zi, ktheje gri), `drawable-xxxhdpi/ic_stoku.png` (komplikacioni), `tile_preview.png`. S'është testuar në pajisje.
+   `PamjetTest.eksportet` (dështonte që nga v74, kur Excel-i te Afatet u bë meny): tash klikon "Excel" para "Eksporto/Importo Excel".
 
 0000000. **ANDROID: KONTROLLI I PLOTË I APLIKACIONIT, MË I QËNDRUESHËM (27.10.2026, vetëm `vendas/`)**: përdoruesi: "Kontrolloje
    komplet appin android per bugs edhe permirsoj". Rishikimi s'gjeti rrëzime të sigurta (funksionet suspend kanë try/catch, cast-et
