@@ -2,14 +2,15 @@ package site.stoku.logjika
 
 /**
  * Votimi i leximeve të kamerës (v260, i njëjti rregull si `krijoVotimin` te app-tel.js): një barkod s'pranohet nga një kuadër
- * i vetëm. Nga leximi i parë, brenda [kohaMs] mblidhen lexime dhe fiton ai që doli më shpesh:
+ * i vetëm. Nga leximi i parë, brenda [kohaMs] mblidhen lexime dhe fiton ai që doli më shpesh (v261, votim më i rreptë: 5 vota
+ * nga deri në 10 lexime, në vend të 3 nga 5):
  *  - kodi që arrin [fiton] vota fiton menjëherë (nga [maks] lexime s'e kalon dot më asnjë tjetër);
  *  - pas [maks] leximeve fiton ai në krye, nëse është vetëm (me barazim pritet);
  *  - kur mbaron koha fiton ai në krye (barazim: i sigurti, pastaj i pari).
  * Kodi me 1 votë pranohet vetëm kur është "i sigurt" (EAN/UPC me shifrën e kontrollit të saktë): barkodi s'humbet kur shihet
  * vetëm për një çast, por një lexim i gabuar nga një kuadër i turbullt s'kalon. Koha jepet nga jashtë (testet).
  */
-class VotimiIBarkodit(private val kohaMs: Long = 1000, private val maks: Int = 5, private val fiton: Int = 3) {
+class VotimiIBarkodit(private val kohaMs: Long = 1000, private val maks: Int = 10, private val fiton: Int = 5) {
     private class Vota(val kodi: String, val iSigurt: Boolean) { var n = 0 }
     private val votat = ArrayList<Vota>()
     private var fillimi = -1L

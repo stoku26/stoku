@@ -20,6 +20,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 261, versioni: '1.42.1', data: '2026-10-28', titulli: 'Skanimi edhe më i saktë', platforma: 'tel', pikat: [
+      'Skanimi me kamerë tash e pranon barkodin kur lexohet 5 herë njësoj (nga deri në 10 lexime brenda një sekonde), në vend të 3 herëve. Mund të zgjasë pak më shumë, por gabimet janë edhe më të rralla.'
+    ] },
     { v: 260, versioni: '1.42.0', data: '2026-10-28', titulli: 'Skanimi më i saktë', platforma: 'tel', pikat: [
       'Kur skanon me kamerë, Stoku s\'e merr barkodin nga një shikim i vetëm: brenda një sekonde e lexon disa herë dhe zgjedh numrin që ka dalë më shpesh. Kështu një lexim i gabuar (p.sh. kur dridhet dora) s\'kalon, dhe barkodi s\'humbet edhe kur shihet vetëm për një çast.'
     ] },
