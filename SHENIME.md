@@ -52,6 +52,17 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **KAMERA NË KREJT EKRANIN (v270 = 1.45.2, 29.10.2026, vetëm web telefoni)**: përdoruesi (2 foto, Skanim i shpejtë dhe
+   kamera e zakonshme në web): "a pe sheh zi nalt ... mundohu mi eliminu let doket kamera komplet nqat hapsiren e zez".
+   - Kamera e zakonshme: `#kamera .kamera-krye` tash `position: absolute` mbi kamerë (si Skanimi i shpejtë që te v264), pa shirit të zi
+     më vete; kamera nga lart deri poshtë, kutia në mes (`index.html`).
+   - Shiriti i orës (i zi, `theme-color` #000): faqja s'mund të vizatojë nën të në PWA të Android-it, prandaj `kameraNeEkranTePlote()`
+     (Fullscreen API, `navigationUI: 'hide'`) thirret te `hapKamere()` nga prekja e përdoruesit, vetëm kur `(pointer: coarse)`; te
+     `ndalKamere()` `kameraDilNgaEkraniIPlote()` del vetëm nëse ekranin e plotë e hapi kamera (kyçja e PDA-së s'preket). iPhone s'ka API:
+     aty mbetet `black-translucent` + `viewport-fit=cover`. Android-i (vendas) e kishte tashmë kamerën nën shiritin e orës.
+   - Testi `teste/v270.js`; `v264.js` pret edhe kamerën e zakonshme nga lart; `kamera-e-rreme.js` pranon `{ prekje: true }`.
+     S'është testuar në pajisje të vërteta.
+
 0000000. **FOLDERI: PYETJA E FSHIRJES SI TE ANDROID-I, TITULLI PA NUMËR, "KËRKO" ME 🔍 (v269 = 1.45.1, 29.10.2026, web telefoni
    + Android Hyrja 29)**: përdoruesi (3 foto): "Bone identik si ne android app qysh osht e thjesht qashtu" (pyetja "Të fshihen të
    gjitha?" te web-i dilte si dritare nga poshtë me butona teksti), "mos ta cekin sa produkte jan po veq emrin e folderit", pastaj për

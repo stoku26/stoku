@@ -33,10 +33,10 @@ const A = '3800001000019';
   ok(nr === 1, '5. barkodi brenda kutisë shtohet te lista', nr);
   await p.click('#ssMbaro'); await p.waitForTimeout(400);
 
-  // Kamera e zakonshme: si më parë (shiriti me kontrollet sipër, kamera poshtë tij, kutia në mes)
+  // Kamera e zakonshme: v270 (përdoruesi: "mos me dok zi nalt"): edhe ajo deri lart, kontrollet mbi kamerë, kutia në mes
   await p.click('#btnKamera'); await p.waitForTimeout(800);
   m = await masat();
-  ok(m.pozita !== 'absolute' && m.video.t >= m.krye.b && m.video.h > 500, '6. "Skano me kamerë" mbetet si ishte', m);
+  ok(m.pozita === 'absolute' && m.video.t === 0 && m.krye.t === 0 && m.video.h === 844 && m.kutia.t >= m.krye.b, '6. "Skano me kamerë": krejt ekrani kamerë, kontrollet mbi të', m);
   await mbyll(p);
 
   const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));

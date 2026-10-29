@@ -20,6 +20,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 270, versioni: '1.45.2', data: '2026-10-29', titulli: 'Kamera në krejt ekranin', platforma: 'tel', pikat: [
+      'Kamera zë tash krejt ekranin, si në aplikacionin Android: pa shiritin e zi lart, me butonat mbi kamerë. Kur e mbyll, ekrani kthehet si ishte.'
+    ] },
     { v: 269, versioni: '1.45.1', data: '2026-10-29', titulli: 'Folderi më i pastër', platforma: 'tel', pikat: [
       'Pyetja "Të fshihen të gjitha?" del tash në mes të ekranit, njësoj si në aplikacionin Android: "Anulo" dhe "Fshi të gjitha" e kuqe.',
       'Lart te folderi shkruan vetëm emri i folderit, pa numrin e produkteve.',
