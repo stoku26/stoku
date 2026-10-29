@@ -8,6 +8,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(27, "2026-10-29", "Emrat e qartë te butonat", listOf(
+            "Pllakat brenda folderit kanë tash emrat e plotë: \"Skano me kamerë\", \"Skanim i shpejtë\", \"Eksporto Excel\" dhe \"Eksporto PDF\", me një tekst të vetëm."
+        )),
         Hyrja(26, "2026-10-29", "Kamera njeh krejt barkodet", listOf(
             "Kamera tash njeh krejt llojet e barkodeve, edhe kodet katrore Data Matrix (p.sh. te ilaçet), PDF417 dhe Aztec. Vetëm kodi QR s'merret si barkod produkti.",
             "Te Afatet butonat \"Shto\" dhe \"Excel\" janë si më parë; pllakat me ngjyra mbeten vetëm brenda folderit te Stoku."

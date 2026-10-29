@@ -308,9 +308,8 @@
 .sb .sb-pllaka__ik--gjelber { background: #1e7f45; }
 .sb .sb-pllaka__ik--kuqe { background: #c23030; }
 .sb .sb-pllaka__ik--gri { background: var(--sb-surface-2); color: var(--sb-ink-2); }
-.sb .sb-pllaka__tekst { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.sb .sb-pllaka__t { font-size: 15px; font-weight: 700; line-height: 1.25; }
-.sb .sb-pllaka__n { font-size: 12px; line-height: 1.3; color: var(--sb-ink-4); }
+.sb .sb-pllaka__tekst { min-width: 0; }
+.sb .sb-pllaka__t { font-size: 15px; font-weight: 600; line-height: 1.3; } /* v267: vetëm një tekst, një madhësi */
 .sb #dlgAfatet.zgjedhje .sb-actions { display: none; }
 .sb .sb-action-primary-kuti { grid-row: span 2; position: relative; display: flex; }
 .sb .sb-action-primary { flex: 1; min-height: 132px; border-radius: 20px; background: var(--sb-accent); color: #fff; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 12px; border: 0; text-align: left; font: inherit; cursor: pointer; box-shadow: var(--sb-shadow-accent); }

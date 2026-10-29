@@ -6,7 +6,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
 
 const pllakat = (p, sel) => p.evaluate(sel => Array.from(document.querySelectorAll(sel)).filter(b => b.offsetParent).map(b => {
   const r = b.getBoundingClientRect(), ik = b.querySelector('.sb-pllaka__ik');
-  return { id: b.id, t: b.querySelector('.sb-pllaka__t').textContent, n: b.querySelector('.sb-pllaka__n').textContent,
+  return { id: b.id, t: b.querySelector('.sb-pllaka__t').textContent, n: b.querySelectorAll('.sb-pllaka__tekst > *').length,
     x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height),
     ik: ik ? getComputedStyle(ik).backgroundColor : '', sf: getComputedStyle(b).backgroundColor };
 }), sel);
@@ -21,8 +21,9 @@ const pllakat = (p, sel) => p.evaluate(sel => Array.from(document.querySelectorA
 
     // Folderi
     let l = await pllakat(p, '#folderPllakat .sb-pllaka');
-    const tekste = l.map(x => x.t + ' / ' + x.n).join(' | ');
-    ok(tekste === 'Skano / Me kamerë | I shpejtë / Kamera s\'mbyllet | Excel / Tabela e stokut | PDF / Etiketat me barkod', tema + ' 1. folderi: 4 pllaka me titull dhe shpjegim', tekste);
+    // v267: përdoruesi: emrat e qartë dhe vetëm një tekst (jo titull i madh + shpjegim i vogël)
+    const tekste = l.map(x => x.t).join(' | ');
+    ok(tekste === 'Skano me kamerë | Skanim i shpejtë | Eksporto Excel | Eksporto PDF' && l.every(x => x.n === 1), tema + ' 1. folderi: 4 pllaka, secila me një emër', { tekste, n: l.map(x => x.n) });
     ok(l.length === 4 && l[0].y === l[1].y && l[2].y === l[3].y && l[2].y > l[0].y && l[0].x < l[1].x && Math.abs(l[0].w - l[1].w) <= 1 && l.every(x => x.h >= 70),
       tema + ' 1. dy nga dy, njësoj të gjera, të paktën 70px të larta', l.map(x => [x.x, x.y, x.w, x.h]));
     const ngjyrat = l.map(x => x.ik);
@@ -46,7 +47,7 @@ const pllakat = (p, sel) => p.evaluate(sel => Array.from(document.querySelectorA
       await p.evaluate(() => { const c = document.getElementById('opsPda'); c.checked = true; c.dispatchEvent(new Event('change')); });
       await p.waitForTimeout(300);
       l = await pllakat(p, '#folderPllakat .sb-pllaka');
-      ok(l.map(x => x.t).join('|') === 'Fshih tastierën|Excel|PDF', '3. PDA: Tastiera, Excel, PDF (pa kamerë)', l.map(x => x.t));
+      ok(l.map(x => x.t).join('|') === 'Fshih tastierën|Eksporto Excel|Eksporto PDF', '3. PDA: Tastiera, Excel, PDF (pa kamerë)', l.map(x => x.t));
       await p.evaluate(() => { const c = document.getElementById('opsPda'); c.checked = false; c.dispatchEvent(new Event('change')); });
       await p.waitForTimeout(300);
     }

@@ -52,6 +52,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **EMRAT E QARTË TE PLLAKAT, NJË TEKST (v267 = 1.44.2, 29.10.2026, web telefoni + Android Hyrja 27)**: përdoruesi (foto e folderit):
+   "Rregulloja emrat butonave, se sdi palidhje jan te emrume, edhe leje veq 1 font jo 2 tmadhe edhe tvogel". Pllakat e folderit kanë
+   tash vetëm emrin, 15px/600: "Skano me kamerë", "Skanim i shpejtë", "Eksporto Excel", "Eksporto PDF" (PDA: "Fshih/Shfaq tastierën");
+   u hoqën shpjegimet e vogla (`.sb-pllaka__n`; Android `PllakaVeprimi(ikona, ngjyra, emri, …)` pa `nentitulli`, emri deri 2 rreshta).
+   Web: STATIKE `skanoKamer`, `skanimShpejt`, `pllExcel`, `pllPdf`; `css/stoku.css` v=52. Testi `teste/v267.js`; `v265.js`, `v263.js`,
+   `skedaret-e2e-v229.js` me emrat e rinj; `PamjetTest.eksportet` klikon sërish "Eksporto Excel". S'është testuar në pajisje.
+
 0000000. **KAMERA NJEH KREJT BARKODET PËRVEÇ QR; AFATET PA PLLAKA (v266 = 1.44.1, 29.10.2026, web telefoni + Android Hyrja 26)**:
    përdoruesi: "Veq te afatet mos e bo bine veq te stoku" dhe "mi njoft krejta barkodet qe egzistojn perveq qr code". (1) Afatet:
    `#afShto`/`#afExcel` (web) dhe `AfatetEkrani.kt` (Android, `KartaVeprimi`) u kthyen si para v265; `.sb-actions` sërish 1.4fr/1fr;

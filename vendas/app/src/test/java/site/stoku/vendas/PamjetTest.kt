@@ -307,7 +307,7 @@ class PamjetTest {
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
         kliko("Pije")
         foto("light-18-folderi-excel")
-        kliko("Tabela e stokut") // v265: pllaka "Excel" e folderit (shpjegimi i saj)
+        kliko("Eksporto Excel") // pllaka e folderit (v267: emri i plotë)
         fotoEkrani("light-19-skedari")
         kliko("Anulo")
         r.onNodeWithContentDescription("Foldera").performClick(); r.waitForIdle()
