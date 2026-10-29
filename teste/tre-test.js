@@ -82,7 +82,8 @@ const URL0 = 'http://127.0.0.1:8765/';
       const p = await ctx.newPage();
       await p.goto(URL0 + 'index.html'); await p.waitForTimeout(1500);
       const r = await p.evaluate(() => ({ kl: document.documentElement.classList.contains('ios-shfletues'), sab: getComputedStyle(document.documentElement).getPropertyValue('--sab').trim(), h: document.getElementById('tabet').getBoundingClientRect().height, bottom: innerHeight - document.getElementById('tabet').getBoundingClientRect().bottom }));
-      ok(standalone ? !r.kl : (r.kl && r.sab === '0px' && Math.round(r.h) === 66 && r.bottom === 0), '3. iPhone ' + emri + ': ' + (standalone ? 'mbetet env()' : '--sab 0, tabet 66px në fund'), r);
+      // v268: shiriti 64 + vija (si te Android-i), jo më 66
+      ok(standalone ? !r.kl : (r.kl && r.sab === '0px' && Math.round(r.h) === 65 && r.bottom === 0), '3. iPhone ' + emri + ': ' + (standalone ? 'mbetet env()' : '--sab 0, tabet 65px në fund'), r);
       await ctx.close();
     }
   }

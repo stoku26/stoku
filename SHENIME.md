@@ -76,7 +76,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      rreshti i produktit 12 + 50 + 12, − / + 30, dritarja e produktit − / + 44×50, Afatet (koka 12 + 44, kartat 140/65, 16 px),
      "Afat i ri" (titulli 26, hapësira 14 si `Flete`, sasia 70, barkodi mono 18), titujt Cilësimet 26 / Grupi 28/800, "Fshi të
      gjitha produktet" 16 + 15 px + 16. Blloku në fund të `css/stoku.css` (v=54).
-   - Testi `teste/v268.js`; `v263.js`, `v266.js`, `skedaret-e2e-v229.js` lexojnë `aria-label`; `kamera-e-rreme.js` pranon `{ dpr: 2 }`.
+   - Testi `teste/v268.js`; `v263.js`, `v266.js`, `skedaret-e2e-v229.js` lexojnë `aria-label`; `tre-test.js` pret shiritin 65 (ishte 66);
+     `kamera-e-rreme.js` pranon `{ dpr: 2 }`. Regresioni `teste/regresioni-v268.txt` njësoj si v267 (përveç testeve të reja/fshira).
      S'është testuar në pajisje të vërteta.
 
 0000000. **EMRAT E QARTË TE PLLAKAT, NJË TEKST (v267 = 1.44.2, 29.10.2026, web telefoni + Android Hyrja 27)**: përdoruesi (foto e folderit):
