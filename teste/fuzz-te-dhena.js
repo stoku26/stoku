@@ -31,7 +31,7 @@ const MOCK = (c) => {
       for (const h of ['#/te-gjitha', '#/afatet', '#/f/f1', '#/f/f2', '#/ekipa', '#/permbledhja']) { await p.evaluate(x => { location.hash = x; }, h); await p.waitForTimeout(400); }
       try { await p.fill('#kerkoGlobal', 'a', { timeout: 1500 }); } catch (e) { gabime.push(em + ' kerkoGlobal'); } await p.waitForTimeout(300);
     } else {
-      await klik('.folder-karta'); try { await p.fill('#kerko', 'n', { timeout: 1500 }); } catch (e) { gabime.push(em + ' #kerko s\'u duk (folderi s\'u hap?)'); } await p.waitForTimeout(200); await p.goBack(); await p.waitForTimeout(400); console.log('TEL pas mbrapa:', p.url());
+      await klik('.folder-karta'); try { await p.click('#btnKerko', { timeout: 1500 }); await p.fill('#kerko', 'n', { timeout: 1500 }); } catch (e) { gabime.push(em + ' #kerko s\'u duk (folderi s\'u hap?)'); } await p.waitForTimeout(200); await p.goBack(); await p.waitForTimeout(400); console.log('TEL pas mbrapa:', p.url());
       await klik('#btnAfatet'); for (const f of ['skaduar', 'afer', 'hequr', 'aktive']) { try { await p.click('#afFiltrat button[data-f="' + f + '"]', { timeout: 800 }); await p.waitForTimeout(150); } catch (e) {} }
       try { await p.fill('#afKerko', 'a', { timeout: 1500 }); } catch (e) { gabime.push(em + ' #afKerko s\'u duk'); } await p.waitForTimeout(200);
       await p.evaluate(() => document.activeElement && document.activeElement.blur()); await p.waitForTimeout(300);

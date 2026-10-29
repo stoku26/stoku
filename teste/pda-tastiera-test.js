@@ -53,6 +53,7 @@ const attr = (p, sel) => p.evaluate(s => { const e = document.querySelector(s); 
   await p.evaluate(() => { document.querySelectorAll('.mbulese.hapur').forEach(d => d.classList.remove('hapur')); });
 
   // 4. Prekja e fushës: readonly për një çast, pastaj sërish e shkrueshme
+  await p.tap('#btnKerko').catch(() => {}); // v269: fusha "Kërko" hapet me 🔍
   await p.evaluate(() => document.activeElement && document.activeElement.blur());
   await p.tap('#kerko').catch(() => {});
   const ro1 = await p.evaluate(() => document.getElementById('kerko').readOnly);

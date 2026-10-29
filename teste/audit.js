@@ -47,7 +47,8 @@ const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR
   await t.fill('#barkodi', '5304000146399'); await t.press('#barkodi', 'Enter'); await t.waitForTimeout(250);
   await t.fill('#dlgSasia', '2'); await k(t, '#dlgRuaj', 'tel');
   console.log('tel produktet:', await t.evaluate(() => Object.values(JSON.parse(localStorage.getItem('stoku:produktet:v2'))).map(p => p.emri + '=' + p.sasia).join(', ')));
-  await t.fill('#kerko', 'kraco'); await t.waitForTimeout(200); console.log('tel kërkimi:', await t.$$eval('#lista > *', a => a.length)); await t.fill('#kerko', '');
+  await t.click('#btnKerko'); await t.fill('#kerko', 'kraco'); // v269: "Kërko" hapet me 🔍
+  await t.waitForTimeout(200); console.log('tel kërkimi:', await t.$$eval('#lista > *', a => a.length)); await t.fill('#kerko', '');
   let [dl] = await Promise.all([t.waitForEvent('download', { timeout: 5000 }).catch(() => null), k(t, '#btnEksport', 'tel')]);
   console.log('tel excel:', dl ? dl.suggestedFilename() : 'JO');
   [dl] = await Promise.all([t.waitForEvent('download', { timeout: 8000 }).catch(() => null), k(t, '#btnEksportPdf', 'tel')]);

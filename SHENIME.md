@@ -52,6 +52,22 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **FOLDERI: PYETJA E FSHIRJES SI TE ANDROID-I, TITULLI PA NUMËR, "KËRKO" ME 🔍 (v269 = 1.45.1, 29.10.2026, web telefoni
+   + Android Hyrja 29)**: përdoruesi (3 foto): "Bone identik si ne android app qysh osht e thjesht qashtu" (pyetja "Të fshihen të
+   gjitha?" te web-i dilte si dritare nga poshtë me butona teksti), "mos ta cekin sa produkte jan po veq emrin e folderit", pastaj për
+   fushat Barkodi/Kërko zgjodhi nga 3 foto "opsionin 3".
+   - Web `#dlgFshirje`: dritare në mes si `Konfirmo` (46 nga anët, rrezja 24, 22 brenda, titulli 20, teksti 15), "Anulo" `btn dyte`
+     (0.7) + `#fshiKonfirmo` `btn kuqe` (1.3, e kuqe me shkronja të bardha, gri gjatë numërimit "Fshi të gjitha (5)"), 10 brenda që
+     numri të mos pritet. Teksti `fshirjaTekst` pa shënimin "Nëse do një kopje… Excel" (si te Android-i). Android `Konfirmo` me
+     `vonesa`: 0.7 / 1.3 dhe `Buton(brenda = 10.dp)` (parametër i ri, 16 si më parë).
+   - Titulli i folderit vetëm emri (web `renderLista`, Android `FolderiEkrani`).
+   - Fushat (opsioni 3): rreshti `.barkodi-rresht` = Barkodi + `#btnKerko` 50 × 50 (rrezja 14, 🔍 21; i kaltër `aktiv` kur hapet);
+     `#kerkoFushe` `hidden` derisa prek 🔍 ose `#kerko` ka tekst (p.sh. skanimi pa leje "stokuNdrysho" e mbush). Prekja e dytë / Escape
+     e mbyll dhe e pastron. Web `rifreskoKerkimin()` / `ndryshoKerkimin()` (thirret edhe nga `renderLista` dhe `hapFolderin`);
+     Android `kerkoHapur` + `kerkoDuket = kerkoHapur || kerkimi.isNotEmpty()`, kursori te "Kërko" kur hapet.
+   - Testi `teste/v269.js`; `v268.js` (pozicionet: lista 60 më lart), `fuzz-te-dhena.js`, `pda-tastiera-test.js`, `audit.js` prekin 🔍 para
+     "Kërko". S'është testuar në pajisje të vërteta.
+
 0000000. **BUTONI LUNDRUES I NDARË TE FOLDERI + TELEFONI SI ANDROID-I NË MADHËSI (v268 = 1.45.0, 29.10.2026, web telefoni + Android
    Hyrja 28)**: përdoruesi s'i deshi pllakat ("spom pelqen"), zgjodhi nga 10 idetë e reja të Claude Design idenë 5 ("butonat lundrues")
    si një buton i vetëm: "5 butonat lundrues bone ne nje buton gjys t'kalter gjys te verdh ... hiq veq me ikona", pastaj "perfekt osht

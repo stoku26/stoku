@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(29, "2026-10-29", "Folderi më i pastër", listOf(
+            "Lart te folderi shkruan vetëm emri i folderit, pa numrin e produkteve.",
+            "Brenda folderit ka vetëm fushën \"Barkodi\" dhe pranë saj butonin 🔍. Fusha \"Kërko\" del kur e prek dhe mbyllet kur e prek prapë."
+        )),
         Hyrja(28, "2026-10-29", "Butoni i ri i skanimit", listOf(
             "Brenda folderit, poshtë djathtas, ka një buton të vetëm: gjysma blu hap kamerën, gjysma e verdhë hap Skanimin e shpejtë.",
             "\"Eksporto Excel\" dhe \"Eksporto PDF\" janë tash dy ikona lart, pranë emrit të folderit.",

@@ -1063,7 +1063,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=6">
-<link rel="stylesheet" href="css/stoku.css?v=54">
+<link rel="stylesheet" href="css/stoku.css?v=55">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -1107,16 +1107,18 @@
 
 <!-- Brenda një folderi -->
 <div class="siper" id="siperFolderi" style="display:none">
-  <div class="fushe">
+  <!-- v269 (opsioni 3 i përdoruesit): barkodi + butoni 🔍; fusha "Kërko" del vetëm kur e prek (ose kur ka tekst) -->
+  <div class="fushe barkodi-rresht">
     <div class="barkodi-mbeshtjellje kerko-kuti" id="barkodiMbeshtjellje">
       <svg class="kerko-ikona" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5v14"></path><path d="M7 5v14"></path><path d="M11 5v14"></path><path d="M14 5v14"></path><path d="M18 5v14"></path><path d="M21 5v14"></path></svg>
       <input id="barkodi" type="text" inputmode="text" enterkeyhint="done" aria-label="Barkodi"
              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
+    <button class="btn-kerko" id="btnKerko" type="button" aria-label="Kërko" title="Kërko" aria-expanded="false" aria-controls="kerkoFushe"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></button>
   </div>
   <!-- v268: PDA: tastiera në ekran (Skanimi me kamerë s'ka kuptim në PDA) -->
   <button class="btn dyte" id="btnTastiera" type="button" aria-pressed="false" style="display:none"><span id="btnTastieraT"></span></button>
-  <div class="fushe">
+  <div class="fushe" id="kerkoFushe" hidden>
     <div class="kerko-kuti">
       <svg class="kerko-ikona" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>
       <input id="kerko" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Kërko">
@@ -1183,8 +1185,8 @@
     <h2 id="fshiTitulli"></h2>
     <p id="fshiTekst"></p>
     <div class="veprime">
-      <button class="btn tekst" id="fshiAnulo" type="button"></button>
-      <button class="btn tekst rrezik" id="fshiKonfirmo" type="button" disabled></button>
+      <button class="btn dyte" id="fshiAnulo" type="button"></button>
+      <button class="btn kuqe" id="fshiKonfirmo" type="button" disabled></button>
     </div>
   </div>
 </div>
@@ -2046,8 +2048,8 @@
 <script src="harta.js?v=256"></script>
 <script src="ekipa.js?v=258"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=268"></script>
-<script src="app-tel.js?v=268"></script>
+<script src="teRejat.js?v=269"></script>
+<script src="app-tel.js?v=269"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>

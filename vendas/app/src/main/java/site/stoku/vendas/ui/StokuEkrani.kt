@@ -360,6 +360,7 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
     val g by Dyqani.gjendja.collectAsState()
     var barkodi by remember { mutableStateOf("") }
     var kerkimi by remember { mutableStateOf("") }
+    var kerkoHapur by remember { mutableStateOf(false) } // v269: fusha "Kërko" del kur prek 🔍 (ose kur ka tekst)
     var hapur by remember { mutableStateOf(produktiFillimisht) }
     var burimi by remember { mutableStateOf("fushe") }
     androidx.compose.runtime.LaunchedEffect(Unit) { uHap() }
@@ -368,6 +369,7 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
     var pdfPune by remember { mutableStateOf(false) }
     val scope = rememberFusha()
     val fBarkodi = remember { FocusRequester() }
+    val fKerko = remember { FocusRequester() }
     if (g.foldera.none { it["id"] == id }) { androidx.compose.runtime.LaunchedEffect(id) { mbrapa() }; return }
 
     val te = g.produktet.values.filter { it["kategoriaId"] == id }.sortedWith(krahasuesi())
@@ -433,7 +435,8 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ButonIkone(Ik.Mbrapa, "Foldera", mbrapa, madhesia = 42.dp)
                     Spacer(Modifier.width(14.dp))
-                    Text(Dyqani.emriFolderit(id) + " (" + te.size + " " + (if (te.size == 1) "produkt" else "produkte") + ")", style = tx(22, 700, n.ink, -0.02),
+                    // v269: vetëm emri i folderit (përdoruesi: "mos ta cekin sa produkte jan po veq emrin e folderit")
+                    Text(Dyqani.emriFolderit(id), style = tx(22, 700, n.ink, -0.02),
                         maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
                     if (Llogaria.leja("eksportExcel")) {
                         Spacer(Modifier.width(8.dp))
@@ -449,8 +452,20 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
                     }
                 }
                 Hapesire(14.dp)
-                Fusha(barkodi, { barkodi = it }, Modifier.fillMaxWidth(), "Barkodi", ikona = Ik.Barkod, fokusi = fBarkodi,
-                    veprimi = ImeAction.Go, kurVeprim = { val b = barkodi; barkodi = ""; hapBarkodin(b, "fushe") })
+                // v269 (opsioni 3 i përdoruesit): barkodi + butoni 🔍 50 × 50; "Kërko" del vetëm kur e prek (ose kur ka tekst)
+                val kerkoDuket = kerkoHapur || kerkimi.isNotEmpty()
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Fusha(barkodi, { barkodi = it }, Modifier.weight(1f), "Barkodi", ikona = Ik.Barkod, fokusi = fBarkodi,
+                        veprimi = ImeAction.Go, kurVeprim = { val b = barkodi; barkodi = ""; hapBarkodin(b, "fushe") })
+                    Spacer(Modifier.width(10.dp))
+                    Box(Modifier.size(50.dp).clip(RoundedCornerShape(14.dp)).background(if (kerkoDuket) n.accentTint else n.surface)
+                        .border(1.dp, if (kerkoDuket) n.accentLine else n.line, RoundedCornerShape(14.dp))
+                        .clickable {
+                            if (kerkoDuket) { kerkoHapur = false; kerkimi = ""; try { fBarkodi.requestFocus() } catch (e: Exception) { } } else kerkoHapur = true
+                        }, contentAlignment = Alignment.Center) {
+                        Icon(Ik.Kerko, "Kërko", Modifier.size(21.dp), tint = if (kerkoDuket) n.accentText else n.ink)
+                    }
+                }
                 Hapesire(10.dp)
                 // PDA: tastiera në ekran fshihet/shfaqet me një prekje (si #btnTastiera te web-i); kursori mbetet te barkodi
                 if (pda) {
@@ -461,8 +476,11 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
                     }, Modifier.fillMaxWidth(), lloji = "dyte", ikona = Ik.Tastiera)
                     Hapesire(10.dp)
                 }
-                Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), "Kërko", ikona = Ik.Kerko)
-                Hapesire(10.dp)
+                if (kerkoDuket) {
+                    Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), "Kërko", ikona = Ik.Kerko, fokusi = fKerko)
+                    androidx.compose.runtime.LaunchedEffect(kerkoHapur) { if (kerkoHapur) try { fKerko.requestFocus() } catch (e: Exception) { } }
+                    Hapesire(10.dp)
+                }
                 // v268 (opsioni 1 i përdoruesit): "Produktet" + "Fshi të gjitha" e kuqe mbi listë (si "+ Folder i ri"); shiriti poshtë u hoq
                 TitulliISeksionit("Produktet") {
                     if (Llogaria.leja("stokuFshi")) {

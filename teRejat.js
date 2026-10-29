@@ -20,6 +20,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 269, versioni: '1.45.1', data: '2026-10-29', titulli: 'Folderi më i pastër', platforma: 'tel', pikat: [
+      'Pyetja "Të fshihen të gjitha?" del tash në mes të ekranit, njësoj si në aplikacionin Android: "Anulo" dhe "Fshi të gjitha" e kuqe.',
+      'Lart te folderi shkruan vetëm emri i folderit, pa numrin e produkteve.',
+      'Brenda folderit ka vetëm fushën "Barkodi" dhe pranë saj butonin 🔍. Fusha "Kërko" del kur e prek dhe mbyllet kur e prek prapë.'
+    ] },
     { v: 268, versioni: '1.45.0', data: '2026-10-29', titulli: 'Butoni i ri i skanimit', platforma: 'tel', pikat: [
       'Brenda folderit, poshtë djathtas, ka një buton të vetëm: gjysma blu hap kamerën, gjysma e verdhë hap Skanimin e shpejtë.',
       '"Eksporto Excel" dhe "Eksporto PDF" janë tash dy ikona lart, pranë emrit të folderit.',

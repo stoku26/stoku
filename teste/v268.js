@@ -45,7 +45,7 @@ const fab = p => p.evaluate(() => {
     const fk = await p.evaluate(() => { const b = document.getElementById('btnFshiTeGjitha'), k = document.getElementById('listaKrye'), r = b.getBoundingClientRect();
       return { titulli: document.getElementById('listaKryeT').textContent, t: b.textContent.trim(), a: b.getAttribute('aria-label'), svg: !!b.querySelector('svg'), c: getComputedStyle(b).color,
         exp: getComputedStyle(document.documentElement).getPropertyValue('--sb-exp').trim(), r: Math.round(r.right), y: Math.round(k.getBoundingClientRect().top), disabled: b.disabled }; });
-    ok(fk.titulli === 'Produktet' && fk.t === 'Fshi të gjitha' && fk.a === 'Fshi të gjitha produktet' && fk.svg && fk.r === 370 && fk.y === 188,
+    ok(fk.titulli === 'Produktet' && fk.t === 'Fshi të gjitha' && fk.a === 'Fshi të gjitha produktet' && fk.svg && fk.r === 370 && fk.y === 128, // v269: "Kërko" e mbyllur (68 + 50 + 10)
       tema + ' 2b. mbi listë: "Produktet" majtas, "Fshi të gjitha" me kosh djathtas (si "+ Folder i ri")', fk);
     ok(fk.disabled, tema + ' 2b. folder bosh: "Fshi të gjitha" s\'prek (gri)', fk);
 
@@ -109,7 +109,9 @@ const fab = p => p.evaluate(() => {
   const kuti = await p.evaluate(() => { const k = document.getElementById('kerkoGlobal').closest('.kerko-kuti').getBoundingClientRect(); const s = document.querySelector('.sb-summary').getBoundingClientRect(); return { h: Math.round(k.height), top: Math.round(k.top), poshte: Math.round(k.bottom), kartela: Math.round(s.top) }; });
   ok(imp.w === 46 && kuti.h === 50 && kuti.top >= 94 && kuti.top <= 95 && kuti.kartela - kuti.poshte === 18, '8. Stoku: butonat lart 46, kërkimi 50 (12 + logoja + 14 nga lart), 18 deri te kartela', { imp, kuti });
   await p.click('.folder-karta >> text=Pije'); await p.waitForTimeout(600);
+  await p.click('#btnKerko'); await p.waitForTimeout(200); // v269: "Kërko" hapet me 🔍
   const fush = await p.evaluate(() => Array.from(document.querySelectorAll('#siperFolderi .kerko-kuti')).map(e => { const r = e.getBoundingClientRect(); return [Math.round(r.top), Math.round(r.height)]; }));
+  await p.click('#btnKerko'); await p.waitForTimeout(200);
   const ft = await rr(p, '#btnFshiTeGjitha'), foot = await rr(p, '#footerFolderi');
   ok(fush.length === 2 && fush[0][0] === 68 && fush[0][1] === 50 && fush[1][0] === 128 && fush[1][1] === 50, '9. folderi: barkodi dhe kërko 50, 10 ndërmjet (si te Android-i)', fush);
   ok(ft.fs === '13px' && ft.fw === '600' && ft.h === 29 && foot === null, '9. "Fshi të gjitha" 13 px si lidhje (29 e lartë), pa shiriti poshtë', { ft, foot });
@@ -123,7 +125,7 @@ const fab = p => p.evaluate(() => {
   await p.evaluate(() => document.querySelectorAll('.mbulese.hapur').forEach(d => { if (!d.classList.contains('faqe-e-plote')) d.classList.remove('hapur'); }));
   await p.click('.folder-karta >> text=Pije'); await p.waitForTimeout(600);
   const art = await rr(p, '#lista .artikull'), hap = await rr(p, '#lista .sasia-hap-btn'), sas = await rr(p, '#lista .sasia-input');
-  ok(art && art.y === 221 && art.h === 75 && hap.w === 30 && sas.w === 68 && sas.h === 50, '9. rreshti i produktit 12 + 50 + 12 + vija, − / + 30, sasia 68 × 50', { art, hap, sas });
+  ok(art && art.y === 161 && art.h === 75 && hap.w === 30 && sas.w === 68 && sas.h === 50, '9. rreshti i produktit 12 + 50 + 12 + vija, − / + 30, sasia 68 × 50', { art, hap, sas });
   // "Fshi të gjitha": butoni i pyetjes aktivizohet pas 5 sekondash (përdoruesi: "leja veq 5 sekonda me tu aktivizu butoni")
   await p.click('#btnFshiTeGjitha'); await p.waitForTimeout(300);
   const k0 = await p.evaluate(() => ({ hapur: document.getElementById('dlgFshirje').classList.contains('hapur'), d: document.getElementById('fshiKonfirmo').disabled, t: document.getElementById('fshiKonfirmo').textContent }));
