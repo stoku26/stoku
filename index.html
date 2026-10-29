@@ -486,7 +486,12 @@
   .skan-hint.perseri { background: #ff5252; font-weight: 700; }
   /* v263: Skanimi i shpejtë: kamera lart, lista poshtë */
   #btnSkanimShpejt { width: 100%; margin: 0 0 10px; }
-  #kamera.shpejt .kamera-video-shtrat { flex: none; height: 42vh; height: 42dvh; min-height: 220px; }
+  /* v264: kamera deri lart (kontrollet mbi të, si në Android) dhe vetëm sa duhet: kontrollet, kutia, teksti nën të */
+  #kamera.shpejt { --ss-siper: calc(max(12px, env(safe-area-inset-top)) + 68px); --ss-kuti: min(46vw, 185px); }
+  #kamera.shpejt .kamera-krye { position: absolute; top: 0; left: 0; right: 0; z-index: 2; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+  #kamera.shpejt .kamera-video-shtrat { flex: none; height: calc(var(--ss-siper) + var(--ss-kuti) + 68px); }
+  #kamera.shpejt .skan-mbulese { justify-content: flex-start; padding-top: var(--ss-siper); }
+  #kamera.shpejt .skan-korniza { height: var(--ss-kuti); }
   .skan-shpejt { display: none; }
   #kamera.shpejt .skan-shpejt {
     display: flex; flex: 1; min-height: 0; flex-direction: column;
@@ -2035,7 +2040,7 @@
 <script src="harta.js?v=256"></script>
 <script src="ekipa.js?v=258"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=263"></script>
+<script src="teRejat.js?v=264"></script>
 <script src="app-tel.js?v=263"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>

@@ -20,6 +20,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 264, versioni: '1.43.1', data: '2026-10-29', titulli: 'Skanim i shpejtë: kamera më e vogël, lista më e madhe', platforma: 'tel', pikat: [
+      'Kamera e Skanimit të shpejtë nis që lart, me butonat mbi të, dhe zë vetëm sa duhet për kutinë. Lista e produkteve poshtë ka më shumë vend.'
+    ] },
     { v: 263, versioni: '1.43.0', data: '2026-10-28', titulli: 'Skanim i shpejtë', platforma: 'tel', pikat: [
       'Brenda një folderi te Stoku ka butonin e ri "Skanim i shpejtë": kamera hapet lart dhe s\'mbyllet, kështu skanon produktet njërin pas tjetrit.',
       'Çdo barkod shtohet menjëherë në folder (+1), edhe pa emër. I njëjti produkt s\'del dy herë në listë: i rritet sasia (sa kohë e mban para kamerës, +1 çdo 1.5 sekonda).',

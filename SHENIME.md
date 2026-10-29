@@ -52,6 +52,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **SKANIM I SHPEJTË: KAMERA MË E VOGËL, DERI LART (v264 = 1.43.1, 29.10.2026, web telefoni + Android Hyrja 24)**: përdoruesi
+   (2 foto): Android "ngushtoje edhe pak heke hapsiren e kameres ... [poshtë tekstit] se nuk vyn ... kjo posht let zmadhohet" (edhe web);
+   web "qajo pjesa zez [shiriti me 'Skanim i shpejtë', 1×, Mbyll] ... mu dok krejt kamer si ne android app". Android: lartësia e
+   kamerës = shiriti i sipërm + `KONTROLLET_LART` (76 dp) + kutia (78% e gjerësisë × 0.55) + `NEN_KUTI` (68 dp); kutia fillon te
+   `kutiaSiper` (parametri i ri i `KameraPamja` / `kutiaESkanimit` / `brendaKutise`; kamera e plotë: null, si më parë). U hoq
+   ngushtimi me tastierën e hapur (kamera tash është gjithsesi e vogël). Web: `#kamera.shpejt` me `--ss-siper` (shiriti + 68px) dhe
+   `--ss-kuti` (min(46vw, 185px)): `.kamera-krye` `position: absolute` mbi kamerë, `.kamera-video-shtrat` = siper + kuti + 68px,
+   `.skan-mbulese` me kutinë lart. Kamera e zakonshme e web-it s'u prek (shiriti i zi mbetet aty). Testi `teste/v264.js`.
+   S'është testuar në pajisje.
+
 0000000. **ORA: U ANULUA NDRYSHIMI I v262 (28.10.2026, vetëm `ora/`)**: përdoruesi: "te aplikacioni ores kthej te mas qato
    ndryshimet e fundit ... qajo me ngjyre gri edhe te verdh se e ke keqkuptu". `MainActivity.kt` dhe `StokuKomplikacion.kt` u kthyen
    si para v262 (commit-i `7fb670f^`): "PËR T'U HEQUR · N" = skadojnë sot + kanë skaduar, seksioni gri "KËTË JAVË" u rikthye,
