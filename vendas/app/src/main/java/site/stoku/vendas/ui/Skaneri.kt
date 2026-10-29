@@ -46,7 +46,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.shape.CircleShape
@@ -76,6 +75,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -113,9 +113,10 @@ fun Skaneri(mbyll: () -> Unit, shtoNjeCope: ((String) -> Boolean)? = null, shpej
     }
 
     // Kamera me kontrollet lart (X, zmadhimi, drita)
-    val kamera: @Composable (Modifier, Modifier) -> Unit = { m, mKontrollet ->
+    // kutiaSiper: Skanimi i shpejtë, kutia menjëherë nën kontrollet (null = kamera e plotë, kutia pak mbi mes)
+    val kamera: @Composable (Modifier, Modifier, Dp?) -> Unit = { m, mKontrollet, kutiaSiper ->
         Box(m.background(Color.Black)) {
-            if (leje) KameraPamja(shtoNjeCope, shpejt, uLexua)
+            if (leje) KameraPamja(shtoNjeCope, shpejt, uLexua, kutiaSiper)
             else if (refuzuar) Column(Modifier.align(Alignment.Center).padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Text("Stoku s'ka leje për kamerën. Lejoje te cilësimet e telefonit (Aplikacionet → Stoku → Lejet → Kamera).",
                     style = tx(15, 500, Color.White), textAlign = TextAlign.Center)
@@ -144,21 +145,22 @@ fun Skaneri(mbyll: () -> Unit, shtoNjeCope: ((String) -> Boolean)? = null, shpej
     }
 
     if (paneli == null) Box(Modifier.fillMaxSize().background(Color.Black)) {
-        kamera(Modifier.fillMaxSize(), Modifier.systemBarsPadding())
+        kamera(Modifier.fillMaxSize(), Modifier.systemBarsPadding(), null)
         Text("Drejtoje kamerën te barkodi", style = tx(15, 600, Color.White), textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.BottomCenter).systemBarsPadding().padding(bottom = 48.dp)
                 .clip(RoundedCornerShape(14.dp)).background(Color(0x80000000)).padding(horizontal = 16.dp, vertical = 10.dp))
         ToastPamja(Modifier.align(Alignment.BottomCenter), poshte = 110.dp)
     }
-    // Skanimi i shpejtë: kamera lart (s'mbyllet), paneli poshtë; me tastierën e hapur kamera ngushtohet që paneli të duket
+    // Skanimi i shpejtë: kamera lart (s'mbyllet), paneli poshtë
     else BoxWithConstraints(Modifier.fillMaxSize().background(N.bg)) {
-        val tastieraHapur = WindowInsets.ime.getBottom(LocalDensity.current) > 0
-        val lartesia = (maxHeight * (if (tastieraHapur) 0.3f else 0.44f)).coerceIn(200.dp, 400.dp)
         // Kamera nën shiritin e sipërm (ora, bateria) dhe e hijezuar si pjesa jashtë kutisë (si kamera e zakonshme); më parë pamja
         // e kamerës dilte aty pa hije, sepse kuadri i PreviewView-it del jashtë kufijve të vet
         val siper = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+        // Vetëm sa duhet: kontrollet (X, zmadhimi, drita), kutia dhe teksti nën të, pa hapësirë bosh poshtë (lista merr më shumë vend)
+        val kutiaSiper = siper + KONTROLLET_LART
+        val lartesia = kutiaSiper + maxWidth * KUTIA_GJERESIA * KUTIA_RAPORTI + NEN_KUTI
         Column(Modifier.fillMaxSize()) {
-            kamera(Modifier.fillMaxWidth().background(Color.Black).height(lartesia + siper), Modifier.statusBarsPadding())
+            kamera(Modifier.fillMaxWidth().background(Color.Black).height(lartesia), Modifier.statusBarsPadding(), kutiaSiper)
             Box(Modifier.fillMaxWidth().weight(1f).navigationBarsPadding().imePadding()) { paneli() }
         }
         ToastPamja(Modifier.align(Alignment.BottomCenter), poshte = 40.dp)
@@ -205,8 +207,10 @@ object DritaKamere {
 
 @androidx.annotation.OptIn(markerClass = [androidx.camera.core.ExperimentalGetImage::class])
 @Composable
-private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, shpejt: ((String) -> Boolean)?, uLexua: (String) -> Unit) {
+private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, shpejt: ((String) -> Boolean)?, uLexua: (String) -> Unit, kutiaSiper: Dp?) {
     val ctx = LocalContext.current
+    val siperPx = kutiaSiper?.let { with(LocalDensity.current) { it.toPx() } }
+    val siperAktual by rememberUpdatedState(siperPx)
     val shpejtAktual by rememberUpdatedState(shpejt)
     val pronari = LocalLifecycleOwner.current
     val ekzekutuesi = remember { Executors.newSingleThreadExecutor() }
@@ -291,8 +295,8 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, shpejt: ((String) -
                     val tash = SystemClock.elapsedRealtime()
                     // v262: vetëm barkodi i tëri brenda kutisë; kur ka disa, ai më afër mesit. Çdo kuadër është një tentim.
                     val vw = pamja.width.toFloat(); val vh = pamja.height.toFloat()
-                    val b = l.filter { !it.rawValue.isNullOrBlank() && brendaKutise(it.boundingBox, iw, ih, vw, vh) }
-                        .minByOrNull { largesiaNgaMesi(it.boundingBox!!, iw, ih, vw, vh) }
+                    val b = l.filter { !it.rawValue.isNullOrBlank() && brendaKutise(it.boundingBox, iw, ih, vw, vh, siperAktual) }
+                        .minByOrNull { largesiaNgaMesi(it.boundingBox!!, iw, ih, vw, vh, siperAktual) }
                     var kodi = b?.rawValue?.trim()
                     // Kodi QR s'është barkod produkti: njoftohet (jo më shpesh se çdo 2 s); për barkodin s'vlen
                     if (b != null && b.format == Barcode.FORMAT_QR_CODE) {
@@ -341,15 +345,15 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, shpejt: ((String) -
         AndroidView({ pamja }, Modifier.fillMaxSize())
         // Korniza në mes (zona ku lexohet barkodi)
         Canvas(Modifier.fillMaxSize().graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)) {
-            val k = kutiaESkanimit(size.width, size.height)
+            val k = kutiaESkanimit(size.width, size.height, siperPx)
             drawRect(Color(0x99000000))
             drawRoundRect(Color.Transparent, k.topLeft, k.size, CornerRadius(24.dp.toPx()), blendMode = BlendMode.Clear)
             drawRoundRect(Color.White, k.topLeft, k.size, CornerRadius(24.dp.toPx()), style = Stroke(3.dp.toPx()))
         }
         // Nën kornizë (si #skanHint te web-i)
         BoxWithConstraints(Modifier.fillMaxSize()) {
-            val w = maxWidth * 0.78f; val h = minOf(w * 0.55f, maxHeight * 0.5f)
-            val poshte = (maxHeight - h) / 2.3f + h
+            val w = maxWidth * KUTIA_GJERESIA; val h = if (kutiaSiper != null) w * KUTIA_RAPORTI else minOf(w * KUTIA_RAPORTI, maxHeight * 0.5f)
+            val poshte = (kutiaSiper ?: ((maxHeight - h) / 2.3f)) + h
             val perseri = perseriDeri > 0L
             Text(if (perseri) "Skano përsëri" else "Vendos vetëm një barkod brenda kutisë", style = tx(13, if (perseri) 700 else 400, Color.White), textAlign = TextAlign.Center,
                 modifier = Modifier.align(Alignment.TopCenter).padding(top = poshte + 22.dp).clip(RoundedCornerShape(16.dp))
@@ -357,21 +361,26 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, shpejt: ((String) -
         }
         // "+N" mbi kornizë (si .skan-numrim te web-i)
         if (numeruar > 0) BoxWithConstraints(Modifier.fillMaxSize()) {
-            val w = maxWidth * 0.78f; val h = minOf(w * 0.55f, maxHeight * 0.5f)
-            val siper = (maxHeight - h) / 2.3f
+            val w = maxWidth * KUTIA_GJERESIA; val h = if (kutiaSiper != null) w * KUTIA_RAPORTI else minOf(w * KUTIA_RAPORTI, maxHeight * 0.5f)
+            val siper = kutiaSiper ?: ((maxHeight - h) / 2.3f)
             Text("+$numeruar", style = tx(17, 700, Color.White), modifier = Modifier.align(Alignment.TopCenter).padding(top = maxOf(0.dp, siper - 46.dp))
                 .shadow(8.dp, RoundedCornerShape(16.dp)).clip(RoundedCornerShape(16.dp)).background(Color(0xFFFF5252)).padding(horizontal = 16.dp, vertical = 6.dp))
         }
     }
 }
 
-/** Kutia e bardhë në pikselat e pamjes (e njëjta me vizatimin): 78% e gjerësisë, lartësia 0.55 e saj (jo më shumë se gjysma
- *  e pamjes, te Skanimi i shpejtë), pak mbi mes */
-private fun kutiaESkanimit(vw: Float, vh: Float): Rect {
-    val w = vw * 0.78f; val h = minOf(w * 0.55f, vh * 0.5f)
-    val l = (vw - w) / 2; val t = (vh - h) / 2.3f
+/** Kutia e bardhë në pikselat e pamjes (e njëjta me vizatimin): 78% e gjerësisë, lartësia 0.55 e saj, pak mbi mes (jo më e
+ *  lartë se gjysma e pamjes). siper (px): Skanimi i shpejtë, kutia fillon aty (nën kontrollet) */
+private fun kutiaESkanimit(vw: Float, vh: Float, siper: Float? = null): Rect {
+    val w = vw * KUTIA_GJERESIA; val h = if (siper != null) w * KUTIA_RAPORTI else minOf(w * KUTIA_RAPORTI, vh * 0.5f)
+    val l = (vw - w) / 2; val t = siper ?: ((vh - h) / 2.3f)
     return Rect(l, t, l + w, t + h)
 }
+private const val KUTIA_GJERESIA = 0.78f
+private const val KUTIA_RAPORTI = 0.55f
+/** Skanimi i shpejtë: nga shiriti i sipërm deri te kutia (kontrollet 16 + 46 dp dhe pak hapësirë) dhe nën kuti (teksti + pak) */
+private val KONTROLLET_LART = 76.dp
+private val NEN_KUTI = 68.dp
 
 /** Kutia e barkodit (figura e drejtë iw x ih) në pikselat e pamjes: PreviewView FILL_CENTER = shkallë "cover" dhe në mes */
 private fun neEkran(b: android.graphics.Rect, iw: Int, ih: Int, vw: Float, vh: Float): Rect {
@@ -381,15 +390,15 @@ private fun neEkran(b: android.graphics.Rect, iw: Int, ih: Int, vw: Float, vh: F
 }
 
 /** v262: barkodi është i tëri brenda kutisë së bardhë (me 4% lejim për skajet); ai që del jashtë, edhe pjesërisht, s'merret */
-private fun brendaKutise(b: android.graphics.Rect?, iw: Int, ih: Int, vw: Float, vh: Float): Boolean {
+private fun brendaKutise(b: android.graphics.Rect?, iw: Int, ih: Int, vw: Float, vh: Float, siper: Float?): Boolean {
     if (b == null || iw <= 0 || ih <= 0 || vw <= 0f || vh <= 0f) return false
-    val r = neEkran(b, iw, ih, vw, vh); val k = kutiaESkanimit(vw, vh)
+    val r = neEkran(b, iw, ih, vw, vh); val k = kutiaESkanimit(vw, vh, siper)
     val tx = k.width * 0.04f; val ty = k.height * 0.04f
     return r.left >= k.left - tx && r.right <= k.right + tx && r.top >= k.top - ty && r.bottom <= k.bottom + ty
 }
 
-private fun largesiaNgaMesi(b: android.graphics.Rect, iw: Int, ih: Int, vw: Float, vh: Float): Float {
-    val r = neEkran(b, iw, ih, vw, vh); val k = kutiaESkanimit(vw, vh)
+private fun largesiaNgaMesi(b: android.graphics.Rect, iw: Int, ih: Int, vw: Float, vh: Float, siper: Float?): Float {
+    val r = neEkran(b, iw, ih, vw, vh); val k = kutiaESkanimit(vw, vh, siper)
     val dx = r.center.x - k.center.x; val dy = r.center.y - k.center.y
     return dx * dx + dy * dy
 }
