@@ -52,6 +52,34 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **BUTONI LUNDRUES I NDARË TE FOLDERI + TELEFONI SI ANDROID-I NË MADHËSI (v268 = 1.45.0, 29.10.2026, web telefoni + Android
+   Hyrja 28)**: përdoruesi s'i deshi pllakat ("spom pelqen"), zgjodhi nga 10 idetë e reja të Claude Design idenë 5 ("butonat lundrues")
+   si një buton i vetëm: "5 butonat lundrues bone ne nje buton gjys t'kalter gjys te verdh ... hiq veq me ikona", pastaj "perfekt osht
+   tasht, bone nr 5" + "web appi ne telefon me madhesi te njejt si android appi ... per shkronjat edhe ui".
+   - Folderi: poshtë djathtas `#skanFab` (web) / `ButoniLundrues` (Android, `StokuEkrani.kt`): 68 i lartë, rrezja 34, gjysma blu
+     `#btnKamera` 76 (ikona 30) + vija 2 me ngjyrën e sfondit + gjysma e verdhë `#btnSkanimShpejt` #E8A92E (njësoj në temë të errët)
+     76; vetëm ikona, emrat te `aria-label`. 20 nga djathtas dhe nga fundi. Pa leje
+     "skanimShpejt" vetëm rrethi blu 68; pa "kamera" dhe në PDA s'del fare (PDA: "Fshih/Shfaq tastierën" `#btnTastiera` poshtë barkodit).
+     `rifreskoFabin()` te `app-tel.js` (thirret nga `rifreskoPamjen`, `zbatoPda`, `zbatoLejet`); `html.me-fab` → `#lista` 100px poshtë.
+   - "Eksporto Excel" / "Eksporto PDF": ikona 42 (gjelbër / kuqe) pranë titullit (`#kryeButonatFolderi`); mbrapa 42.
+   - "Fshi të gjitha produktet": përdoruesi zgjodhi nga 3 foto opsionin 1 ("opsionin 1 bone, edhe leja veq 5 sekonda me tu aktivizu
+     butoni kur te pyt a je i sigurt"): shiriti poshtë (`#footerFolderi`) u hoq; mbi listë koka `#listaKrye` "Produktet" (17/700)
+     + lidhja e kuqe `#btnFshiTeGjitha` (kosh 16 + "Fshi të gjitha" 13/600, emri i plotë te title/aria-label, gri kur folderi është
+     bosh), si "+ Folder i ri". Android: `TitulliISeksionit("Produktet") { … Ik.Kosh … }` + Hapesire(4). Butoni lundrues tash 20
+     nga fundi (lista 104 poshtë). Pyetja: web `hapFshirjen()` 5 sekonda (ishte 10), "Fshi të gjitha (5)" … (1); Android
+     `Konfirmo(…, vonesa = 5)` (parametër i ri, butonat 0.8 / 1.2 që teksti me numër të mos pritet).
+   - Pllakat e v265/v267 u hoqën krejt (`#folderPllakat`, `.sb-pllaka*`, Android `PllakaVeprimi`, `PllakatDyNeRresht`); testet
+     `v265.js`/`v267.js` u fshinë (dhe nga `regresioni.sh`).
+   - Madhësitë si në Android (krahasuar pamje për pamje me `PamjetTest` në 2x): `.sb body { line-height: 1.275 }` (Onest
+     0.97 + 0.305; "normal" i Chrome-it rrumbullakohej lart, p.sh. 12 px → 16 në vend të 15.3; barkodet mono 1.32), shiriti poshtë
+     64 + vija (ikona 26, shenja 18), butonat lart 46 (Stoku, Grupi) / 42 (folderi) / 44 (cloud te Afatet), fushat 50 (ikona 20),
+     rreshti i produktit 12 + 50 + 12, − / + 30, dritarja e produktit − / + 44×50, Afatet (koka 12 + 44, kartat 140/65, 16 px),
+     "Afat i ri" (titulli 26, hapësira 14 si `Flete`, sasia 70, barkodi mono 18), titujt Cilësimet 26 / Grupi 28/800, "Fshi të
+     gjitha produktet" 16 + 15 px + 16. Blloku në fund të `css/stoku.css` (v=54).
+   - Testi `teste/v268.js`; `v263.js`, `v266.js`, `skedaret-e2e-v229.js` lexojnë `aria-label`; `tre-test.js` pret shiritin 65 (ishte 66);
+     `kamera-e-rreme.js` pranon `{ dpr: 2 }`. Regresioni `teste/regresioni-v268.txt` njësoj si v267 (përveç testeve të reja/fshira).
+     S'është testuar në pajisje të vërteta.
+
 0000000. **EMRAT E QARTË TE PLLAKAT, NJË TEKST (v267 = 1.44.2, 29.10.2026, web telefoni + Android Hyrja 27)**: përdoruesi (foto e folderit):
    "Rregulloja emrat butonave, se sdi palidhje jan te emrume, edhe leje veq 1 font jo 2 tmadhe edhe tvogel". Pllakat e folderit kanë
    tash vetëm emrin, 15px/600: "Skano me kamerë", "Skanim i shpejtë", "Eksporto Excel", "Eksporto PDF" (PDA: "Fshih/Shfaq tastierën");
@@ -2445,6 +2473,7 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 
 ## Gjëra që përdoruesi i ka refuzuar/anuluar shprehimisht (mos i propozo/rikthe pa pyetur)
 
+- Pllakat me ngjyra (ideja 4, v265/v267) edhe brenda folderit: "spom pelqen" → u zëvendësuan me butonin lundrues të ndarë (v268).
 - Pllakat me ngjyra (ideja 4) te Afatet ("Shto", "Excel"), v265 → u hoqën te v266: "veq te stoku". Pllakat vetëm brenda folderit.
 - Ora (v262, u anulua 28.10.2026): "Për t'u hequr" vetëm me të skaduarat (pa të verdhat "skadojnë sot") dhe hiqja e seksionit
   gri "KËTË JAVË" ("e ke keqkuptu"). Lista e orës mbetet si para v262; mos e ndrysho pa pyetur çka do saktësisht.

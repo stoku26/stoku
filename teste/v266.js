@@ -48,13 +48,13 @@ const AZ = 'AZTEC-98765';
   ok(rr.length === 1 && rr[0] === DM, '6. Skanimi i shpejtë: Data Matrix shtohet te lista', rr);
   await p.click('#ssMbaro'); await p.waitForTimeout(300);
 
-  // 7. Afatet: "Shto" dhe "Excel" si para v265; folderi mban pllakat
-  const fp = await p.evaluate(() => document.querySelectorAll('#folderPllakat .sb-pllaka').length);
+  // 7. Afatet: "Shto" dhe "Excel" si para v265; v268: folderi ka butonin lundrues (kamera + i shpejtë) dhe Excel/PDF lart
+  const fp = await p.evaluate(() => Array.from(document.querySelectorAll('#skanFab button, #kryeButonatFolderi .btn-ikone')).filter(x => x.offsetParent).length);
   await p.click('#btnMbrapa'); await p.waitForTimeout(400);
   await p.click('#btnAfatet'); await p.waitForTimeout(800);
   const af = await p.evaluate(() => ({ pllaka: document.querySelectorAll('#afVeprime .sb-pllaka').length, shto: document.getElementById('afShto').className,
     excel: document.getElementById('afExcel').className, kolonat: getComputedStyle(document.getElementById('afVeprime')).gridTemplateColumns }));
-  ok(fp === 5 && af.pllaka === 0 && af.shto === 'sb-action' && af.excel === 'sb-action', '7. pllakat vetëm te Stoku; Afatet si më parë', { fp, af });
+  ok(fp === 4 && af.pllaka === 0 && af.shto === 'sb-action' && af.excel === 'sb-action', '7. butonat e rinj vetëm te Stoku; Afatet si më parë', { fp, af });
 
   const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
   const nr = rx => Number((sw.match(rx) || [])[1]);

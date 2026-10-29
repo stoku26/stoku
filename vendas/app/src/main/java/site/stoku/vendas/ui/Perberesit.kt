@@ -218,15 +218,19 @@ fun Flete(mbyll: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
 
 /** Konfirmimi (si konfirmo() te web-i): titulli, teksti, "Anulo" + veprimi */
 @Composable
-fun Konfirmo(titulli: String, teksti: String, veprimi: String, rrezik: Boolean = true, mbyll: () -> Unit, po: () -> Unit) {
+fun Konfirmo(titulli: String, teksti: String, veprimi: String, rrezik: Boolean = true, vonesa: Int = 0, mbyll: () -> Unit, po: () -> Unit) {
     val n = N
+    // v268: vonesa = sekonda para se butoni i veprimit aktivizohet (si te web-i: "Fshi të gjitha (5)")
+    var mbetur by remember { mutableStateOf(vonesa) }
+    LaunchedEffect(Unit) { while (mbetur > 0) { delay(1000); mbetur-- } }
     Dialog(onDismissRequest = mbyll) {
         Column(Modifier.clip(RoundedCornerShape(24.dp)).background(n.surface).padding(22.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(titulli, style = tx(20, 700, n.ink, -0.02))
             Text(teksti, style = tx(15, 400, n.ink2))
             Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Buton("Anulo", mbyll, Modifier.weight(1f), lloji = "dyte")
-                Buton(veprimi, { mbyll(); po() }, Modifier.weight(1f), lloji = if (rrezik) "kuqe" else "kryesor")
+                Buton("Anulo", mbyll, Modifier.weight(if (vonesa > 0) 0.8f else 1f), lloji = "dyte")
+                Buton(if (mbetur > 0) "$veprimi ($mbetur)" else veprimi, { if (mbetur <= 0) { mbyll(); po() } }, Modifier.weight(if (vonesa > 0) 1.2f else 1f),
+                    aktiv = mbetur <= 0, lloji = if (rrezik) "kuqe" else "kryesor")
             }
         }
     }
@@ -296,41 +300,3 @@ val PaddingFaqe = PaddingValues(horizontal = 20.dp)
 
 @Composable
 fun Hapesire(h: Dp) = Spacer(Modifier.height(h))
-
-/**
- * v265: pllaka e veprimit (ideja 4 e përdoruesit, si .sb-pllaka te web-i): katror me ngjyrë me ikonën dhe emri (v267: vetëm një
- * tekst, një madhësi). Te folderi i Stoku-t. ngjyra: "blu" | "verdhe" | "gjelber" | "kuqe" | "gri"
- */
-@Composable
-fun PllakaVeprimi(ikona: ImageVector, ngjyra: String, emri: String, modifier: Modifier = Modifier, aktiv: Boolean = true, onClick: () -> Unit) {
-    val n = N
-    val (sfondi, ngjyraIkones) = when (ngjyra) {
-        "verdhe" -> NgjyraEQelibarit to Color(0xFF2B2100)
-        "gjelber" -> Color(0xFF1E7F45) to Color.White
-        "kuqe" -> Color(0xFFC23030) to Color.White
-        "gri" -> n.surface2 to n.ink2
-        else -> n.accent to Color.White
-    }
-    val forma = RoundedCornerShape(20.dp)
-    Row(modifier.heightIn(min = 76.dp).clip(forma).background(n.surface).border(1.dp, n.line, forma).clickable(enabled = aktiv, onClick = onClick).padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Box(Modifier.size(44.dp).clip(RoundedCornerShape(14.dp)).background(if (aktiv) sfondi else n.surface2), contentAlignment = Alignment.Center) {
-            Icon(ikona, null, Modifier.size(23.dp), tint = if (aktiv) ngjyraIkones else n.disabled)
-        }
-        Text(emri, style = tx(15, 600, if (aktiv) n.ink else n.disabled), maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-    }
-}
-/** E verdha e logos (si --stk-qelibar te web-i) */
-private val NgjyraEQelibarit = Color(0xFFE8A92E)
-
-/** Pllakat dy nga dy në rresht (si .sb-pllakat te web-i); kur janë tek, e fundit mbetet sa gjysma */
-@Composable
-fun PllakatDyNeRresht(pllakat: List<@Composable (Modifier) -> Unit>) {
-    pllakat.chunked(2).forEachIndexed { i, rr ->
-        if (i > 0) Hapesire(10.dp)
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            rr.forEach { it(Modifier.weight(1f)) }
-            if (rr.size == 1) Spacer(Modifier.weight(1f))
-        }
-    }
-}

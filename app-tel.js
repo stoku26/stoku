@@ -40,6 +40,7 @@
       kerkoGlobalLabel: 'Kërko produkt ose barkod',
       kerkoGlobalNukUGjet: 'Nuk u gjet asnjë produkt në asnjë folder.',
       fshijTeGjitha: 'Fshi të gjitha produktet',
+      produktetTitulli: 'Produktet',
       nukUGjetAsnjeProdukt: 'Nuk u gjet asnjë produkt.',
       shfaqenNga: function (a) {
         return 'Shfaqen ' + a.limit + ' nga ' + a.gjithsej + ' produkte. Përdor kërkimin për të gjetur të tjerët.';
@@ -177,7 +178,6 @@
       kameraHint: 'Vendos vetëm një barkod brenda kutisë',
       skanoPerseri: 'Skano përsëri',
       skanimShpejt: 'Skanim i shpejtë',
-      pllExcel: 'Eksporto Excel', pllPdf: 'Eksporto PDF', // v267: emrat e pllakave te folderi (një tekst, pa shpjegim)
       ssMbaro: 'Mbaro',
       ssBosh: 'Skano barkodet njërin pas tjetrit: secili shtohet menjëherë në këtë folder. I njëjti barkod s\'del dy herë, i rritet sasia.',
       ssGjithsej: function (a) { return 'Gjithsej: ' + a.n + ' copë'; },
@@ -208,15 +208,14 @@
   // Elementet me tekst statik: { id, prop: 'text' | 'placeholder' | 'title' | 'titleAria', kyc }
   var STATIKE = [
     { id: 'btnKrijoFolder', prop: 'text', kyc: 'krijoFolder' },
-    { id: 'btnKameraT', prop: 'text', kyc: 'skanoKamer' },
-    { id: 'btnSkanimShpejtT', prop: 'text', kyc: 'skanimShpejt' },
     { id: 'ssMbaro', prop: 'text', kyc: 'ssMbaro' },
     { id: 'ssBosh', prop: 'text', kyc: 'ssBosh' },
-    { id: 'btnEksportT', prop: 'text', kyc: 'pllExcel' },
-    { id: 'btnEksportPdfT', prop: 'text', kyc: 'pllPdf' },
     { id: 'kerko', prop: 'placeholder', kyc: 'kerkoLabel' },
     { id: 'kerkoGlobal', prop: 'placeholder', kyc: 'kerkoGlobalLabel' },
-    { id: 'btnFshiTeGjitha', prop: 'text', kyc: 'fshijTeGjitha' },
+    // v268: "Fshi të gjitha" si lidhje mbi listë (emri i plotë te title/aria-label)
+    { id: 'listaKryeT', prop: 'text', kyc: 'produktetTitulli' },
+    { id: 'btnFshiTeGjithaT', prop: 'text', kyc: 'fshiKrejt' },
+    { id: 'btnFshiTeGjitha', prop: 'title', kyc: 'fshijTeGjitha' },
 
     { id: 'dlgEmri', prop: 'placeholder', kyc: 'emriIProduktit' },
     { id: 'dlgFurnizuesi', prop: 'placeholder', kyc: 'furnizuesiOpsional' },
@@ -802,6 +801,19 @@
   }
   $('kerkoGlobal').addEventListener('input', renderKerkimiGlobal);
 
+  // v268 (ideja 5 e përdoruesit): butoni lundrues i folderit: gjysma blu "Skano me kamerë", gjysma e verdhë "Skanim i shpejtë";
+  // pa njërën (leja), tjetra mbetet e rrumbullakët; s'del jashtë folderit dhe në PDA
+  function rifreskoFabin() {
+    var fab = $('skanFab');
+    if (!fab) return;
+    var k = !opsione.pda && leja('kamera'), sh = !opsione.pda && lejaSkanimShpejt();
+    var duket = folderiAktual !== null && (k || sh);
+    $('btnKamera').style.display = k ? '' : 'none';
+    $('btnSkanimShpejt').style.display = sh ? '' : 'none';
+    fab.classList.toggle('dy', k && sh);
+    fab.style.display = duket ? '' : 'none';
+    document.documentElement.classList.toggle('me-fab', duket);
+  }
   function rifreskoPamjen() {
     if (folderiAktual !== null && !foldera.some(function (f) { return f.id === folderiAktual; })) {
       folderiAktual = null; // folderi u fshi ndërkohë (p.sh. nga sinkronizimi) — kthehu te lista
@@ -814,8 +826,9 @@
     $('kerkoGlobalLista').style.display = 'none';
     $('siperFolderi').style.display = brenda ? '' : 'none';
     $('lista').style.display = brenda ? '' : 'none';
-    $('footerFolderi').style.display = brenda ? '' : 'none';
     $('btnMbrapa').style.display = brenda ? '' : 'none';
+    $('kryeButonatFolderi').style.display = brenda ? '' : 'none';
+    rifreskoFabin();
     if (brenda) {
       $('titulli').style.display = '';
       $('logoSlika').style.display = 'none';
@@ -1004,8 +1017,7 @@
 
   function zbatoPda() {
     var pda = opsione.pda;
-    $('btnKamera').style.display = pda ? 'none' : '';
-    $('btnSkanimShpejt').style.display = pda ? 'none' : ''; // v263
+    rifreskoFabin(); // v268: butoni lundrues s'del në PDA
     $('btnEksportPdf').style.display = ''; // PDF mbetet e dukshme edhe në PDA
     $('seksionTingull').style.display = pda ? 'none' : '';
     $('seksionScanner').style.display = pda ? 'none' : '';
@@ -2833,7 +2845,7 @@
     $('tabMarketet').classList.toggle('leja-ndaluar', !lejaMarketet()); // v256: Marketet (me hartën): administratori ose merchandiseri
     $('njIntro').textContent = (meAfate && meGrup ? 'Njoftimet e Grupit dhe të afateve.' : meGrup ? 'Njoftimet e Grupit.' : 'Njoftimet e afateve.') +
       ' Vijnë edhe kur Stoku është i mbyllur.';
-    $('btnSkanimShpejt').classList.toggle('leja-ndaluar', !lejaSkanimShpejt()); // v263: kamera + shtimi ose ndryshimi i stokut
+    rifreskoFabin(); // v263/v268: "Skanim i shpejtë" = kamera + shtimi ose ndryshimi i stokut
     if (paVizatim) return;
     if (skanimShpejt && !lejaSkanimShpejt()) ndalKamere();
     // Pjesët që s'lejohen më mbyllen; listat rivizatohen pa butonat e ndaluar
@@ -4622,10 +4634,10 @@
     if (te.length === 0) { toast(T('nukKaProdukteEksport')); return; }
     te.sort(emriKrahaso);
 
-    var btn = $('btnEksportPdf'), btnT = $('btnEksportPdfT');
-    var tekstiVjeter = btnT.textContent;
+    var btn = $('btnEksportPdf');
     btn.disabled = true;
-    btnT.textContent = T('pdfDukeKrijuar');
+    btn.setAttribute('aria-busy', 'true');
+    btn.title = T('pdfDukeKrijuar');
 
     try {
       var JsPdfKlasa = window.jspdf.jsPDF;
@@ -4688,7 +4700,8 @@
       toast(T('pdfDeshtoi'));
     } finally {
       btn.disabled = false;
-      btnT.textContent = tekstiVjeter;
+      btn.removeAttribute('aria-busy');
+      btn.title = 'Eksporto PDF';
     }
   }
 
@@ -4703,7 +4716,7 @@
     if (!n) return;
     $('fshiTitulli').textContent = T('teFshihenTeGjitha');
     $('fshiTekst').textContent = T('fshirjaTekst', { n: n, folder: emriFolderit(folderiAktual) });
-    var s = 10;
+    var s = 5; // v268: butoni aktivizohet pas 5 sekondash (ishte 10)
     var btn = $('fshiKonfirmo');
     btn.disabled = true;
     btn.textContent = T('fshiKrejt') + ' (' + s + ')';

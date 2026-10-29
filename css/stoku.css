@@ -296,20 +296,23 @@
 
 /* ---------- Afatet ---------- */
 .sb .sb-actions { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; margin: 4px 0 14px; }
-/* v265: pllakat me ngjyra (ideja 4 e përdoruesit): vetëm te folderi i Stoku-t (Skano, I shpejtë, Excel, PDF); v266: jo te Afatet */
-.sb .sb-pllakat { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 10px 0 12px; }
-.sb .sb-pllaka { width: 100%; min-height: 76px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 12px; border: 0;
-  border-radius: 20px; background: var(--sb-surface); box-shadow: var(--sb-ring); color: var(--sb-ink); font: inherit; text-align: left; cursor: pointer; }
-.sb .sb-pllaka:active { background: var(--sb-surface-2); }
-.sb .sb-pllaka:disabled { cursor: default; opacity: .6; }
-.sb .sb-pllaka__ik { width: 44px; height: 44px; flex: none; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #fff; }
-.sb .sb-pllaka__ik--blu { background: var(--sb-accent); }
-.sb .sb-pllaka__ik--verdhe { background: var(--stk-qelibar); color: #2b2100; }
-.sb .sb-pllaka__ik--gjelber { background: #1e7f45; }
-.sb .sb-pllaka__ik--kuqe { background: #c23030; }
-.sb .sb-pllaka__ik--gri { background: var(--sb-surface-2); color: var(--sb-ink-2); }
-.sb .sb-pllaka__tekst { min-width: 0; }
-.sb .sb-pllaka__t { font-size: 15px; font-weight: 600; line-height: 1.3; } /* v267: vetëm një tekst, një madhësi */
+/* v268 (ideja 5 e përdoruesit): butoni lundrues i folderit, gjysmë blu / gjysmë i verdhë, vetëm ikona; eksporti te koka */
+.sb .skan-fab { position: fixed; z-index: 20; right: max(20px, env(safe-area-inset-right)); bottom: calc(20px + var(--sab, 0px)); display: flex;
+  height: 68px; border-radius: 34px; overflow: hidden; box-shadow: 0 10px 24px rgba(20,22,30,.22); }
+.sb[data-tema="dark"] .skan-fab { box-shadow: 0 10px 26px rgba(0,0,0,.6); }
+.sb .skan-fab button { width: 76px; height: 68px; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.sb .skan-fab #btnKamera { background: var(--sb-accent); color: #fff; padding-left: 6px; }
+.sb .skan-fab #btnSkanimShpejt { background: #e8a92e; color: #2b2100; padding-right: 6px; }
+.sb .skan-fab.dy #btnSkanimShpejt { border-left: 2px solid var(--sb-bg); }
+.sb .skan-fab:not(.dy) button { width: 68px; padding: 0; }
+.sb .skan-fab button:active { filter: brightness(.92); }
+.sb.me-fab #lista { padding-bottom: 104px; }
+.sb .krye-excel { color: #1e7f45; }
+.sb .krye-pdf { color: #c23030; }
+.sb[data-tema="dark"] .krye-excel { color: #4cc783; }
+.sb[data-tema="dark"] .krye-pdf { color: #ff7a7a; }
+.sb .btn-ikone:disabled { opacity: .5; }
+.sb #btnTastiera { width: 100%; margin: 0 0 10px; }
 .sb #dlgAfatet.zgjedhje .sb-actions { display: none; }
 .sb .sb-action-primary-kuti { grid-row: span 2; position: relative; display: flex; }
 .sb .sb-action-primary { flex: 1; min-height: 132px; border-radius: 20px; background: var(--sb-accent); color: #fff; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 12px; border: 0; text-align: left; font: inherit; cursor: pointer; box-shadow: var(--sb-shadow-accent); }
@@ -627,3 +630,95 @@ html.sb:not([data-tema="dark"]) .sb-stat__value--exp { color: var(--sb-exp, #d04
 .sb .sugj-lista .sugj-ri { color: var(--sb-accent); font-weight: 600; }
 .sb .sugj-lista .sugj-mbyll { color: var(--sb-muted); font-size: 13px; text-align: center; min-height: 36px; }
 .pa-furnizues .furn-vetem { display: none !important; }
+
+/* v268: madhësitë e telefonit si në aplikacionin Android (vendas): butonat, fushat, shiriti poshtë, titujt */
+/* Rreshti i tekstit sa shkronja (Onest 0.97 + 0.305 = 1.275, si te Android-i); "normal" në Chrome rrumbullakohet lart (12 px → 16 në vend të 15.3) */
+.sb body { line-height: 1.275; }
+.sb .sb-row__code, .sb .artikull .kodi, .sb .af-kodi, .sb .ek-kodi { line-height: 1.32; }
+.sb { --tabet-lartesia: 65px; }
+.sb #kryeButonatImport .btn-ikone, .sb #ekZile { width: 46px; height: 46px; }
+.sb #kryeButonatFolderi { gap: 8px; }
+.sb #kryeButonatFolderi .btn-ikone, .sb #btnMbrapa { width: 42px; height: 42px; }
+.sb #btnMbrapa { margin-right: 2px; }
+.sb .af-sink { width: 44px; height: 44px; }
+.sb .stk-etiketa__emri { line-height: 1.275; }
+.sb .stk-etiketa__nen { line-height: 13px; }
+.sb .kerko-kuti { height: 50px; }
+.sb .sb-summary__value { line-height: 1.275; }
+/* Shiriti poshtë: ikona 26, teksti 11 (4 nën ikonë), shenja e kuqe 18 lart djathtas te ikona */
+.sb #tabet .tab { padding: 0; gap: 4px; }
+.sb #tabet .tab-ikona { height: 26px; border-radius: 13px; }
+.sb #tabet svg { width: 26px; height: 26px; }
+.sb #tabet .af-shenje { top: -6px; right: -3px; min-width: 8px; height: 18px; line-height: 18px; padding: 0 5px; border: 0; border-radius: 9px; font-size: 11px; box-sizing: content-box; }
+/* Folderi: − / + 30, sasia 68×50 */
+.sb .sasia-hap { gap: 8px; }
+.sb .sasia-hap-btn { width: 30px; height: 30px; border-radius: 15px; font-size: 16px; font-weight: 500; }
+/* Produkti: − / + 44×50, sasia në mes pa shigjeta */
+.sb #dlgSasiaMinus, .sb #dlgSasiaPlus { width: 44px; height: 50px; border-radius: 12px; font-size: 22px; font-weight: 600; }
+.sb #dlgSasia { font-size: 18px; font-weight: 500; -moz-appearance: textfield; appearance: textfield; }
+.sb #dlgSasia::-webkit-outer-spin-button, .sb #dlgSasia::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+/* Afatet */
+.sb .sb-muaji { font-size: 14px; }
+.sb .sb-action-primary__title { font-size: 17px; }
+.sb .sb-action { min-height: 65px; border-radius: 18px; padding: 0 16px; gap: 10px; font-size: 16px; }
+.sb .sb-action > svg:first-child { width: 20px; height: 20px; }
+/* Titujt e faqeve */
+.sb .dialog .opsione-krye h2 { font-size: 26px; font-weight: 700; letter-spacing: -.025em; }
+.sb .ek-titulli-kuti h2 { font-size: 28px; font-weight: 800; letter-spacing: -.02em; }
+/* Afat i ri */
+.sb #afatTitulli { font-size: 26px; }
+.sb #dlgAfat .sb-sheet-krye .btn.tekst { font-size: 15px; }
+.sb .sb-scan { padding: 12px 12px 14px 18px; gap: 0; border-radius: 22px; }
+.sb .sb-scan input[type="text"] { height: 50px; }
+.sb .sb-scan #afatBarkodi { font-size: 18px; font-weight: 500; letter-spacing: 0; }
+.sb .sb-scan #afatEmri { font-size: 18px; }
+.sb .sb-scan .af-skano { width: 48px; height: 48px; }
+.sb #afatData, .sb #afatFurnizuesi { height: 50px; font-size: 16px; }
+.sb .sb-stepper { padding: 10px 10px 10px 18px; border-radius: 18px; }
+.sb .sb-stepper label .sb-field-label { font-size: 15px; color: var(--sb-ink); }
+.sb .sb-stepper label .sb-hint { font-size: 12px; }
+.sb .sb-stepper__controls { gap: 0; }
+.sb .sb-stepper .sb-stepper__value { width: 80px; }
+/* Faqja Stoku: hapësirat si te Android-i (kërkimi → 18 → kartela → 22 → Folderat → 10 → folderat → 24 → Ndryshuar së fundi) */
+.sb #siperFolderat .kerko-kuti { margin-bottom: 6px; }
+.sb .sb-home-krye { margin-bottom: 0; }
+.sb .sb-home-krye > .sb-section__head { margin-top: 4px; }
+.sb .sb-home-krye .mk-chip { margin: 0 0 -6px; }
+.sb .sb-home-fund { margin-top: 14px; }
+html.sb:not([data-tema="dark"]) .sb-summary { box-shadow: 0 0 0 1px var(--sb-line); }
+.sb #tabet svg { stroke-width: 2; }
+/* Afatet: koka 12 + 44, pastaj 16 → kartat, 12 → kërkimi, 12 → filtrat, 10 → muajt, 14 → lista */
+.sb #dlgAfatet .opsione-krye { min-height: 0; padding-top: calc(12px + env(safe-area-inset-top)); padding-bottom: 0; }
+.sb #dlgAfatet .sb-actions { margin: 4px 0 12px; }
+.sb #dlgAfatet .kerko-kuti { margin-bottom: 10px; }
+.sb #afFiltrat { margin-bottom: 6px; }
+.sb #afFiltrat:has(+ #afMuajt[hidden]), .sb #afMuajt { margin-bottom: 12px; }
+/* Kartat e afateve: rreshtat si te Android-i (lartësia natyrale e shkronjës), numri i muajit 11 */
+.sb .af-karta .af-mesazh { line-height: 1.275; }
+.sb .sb-days { line-height: 1.275; }
+.sb .sb-days__big { line-height: 1.05; }
+.sb .sb-days__small { line-height: 1.275; }
+.sb .af-muajt button .n { margin-left: 0; font-size: 11px; }
+.sb .af-karta .af-pill { gap: 6px; font-size: 13px; padding: 4px 11px; margin-top: 9.5px; }
+/* Afat i ri: si Flete te Android-i (shiriti 10 + 5 + 14, pastaj çdo pjesë me 14 ndërmjet) */
+.sb #dlgAfat.mbulese:not(.faqe-e-plote) > .dialog::before { margin-bottom: 0; }
+.sb #dlgAfat .sb-sheet-krye .btn.tekst { min-height: 0; padding: 6px; }
+.sb #dlgAfat .sb-afat-seksion { display: flex; flex-direction: column; gap: 14px; }
+.sb #dlgAfat .sb-afat-seksion label { margin: 0; }
+.sb #afatDataHint:empty { display: none; }
+.sb .sb-stepper .sb-stepper__value { height: 50px; }
+.sb #afatStatusVeprime:empty { display: none; }
+.sb #dlgAfat .veprime { padding-top: 0; }
+/* Folderi: barkodi → 10 → kërko → 10 → "Produktet" + "Fshi të gjitha" (29) → 4 → lista; rreshti 12 + 50 + 12 */
+.sb .kerko-kuti { gap: 10px; }
+.sb .kerko-kuti > .kerko-ikona { width: 20px; height: 20px; }
+.sb #siperFolderi .fushe { margin-bottom: 10px; }
+.sb #siperFolderi .kerko-kuti { margin-bottom: 0; }
+.sb .artikull { padding-top: 12px; padding-bottom: 12px; }
+.sb .artikull .kodi { margin-top: 0; }
+.sb #listaKrye { align-items: center; }
+.sb #btnFshiTeGjitha { display: inline-flex; align-items: center; gap: 6px; padding: 6px 2px; color: var(--sb-exp); }
+.sb #btnFshiTeGjitha:disabled { color: var(--sb-disabled); cursor: default; }
+.sb .sb-action-primary { min-height: 140px; border-radius: 22px; }
+.sb .sb-action-primary__sub { line-height: 1.275; margin-top: 0; }
+.sb .sb-action-galeria { top: 16px; right: 16px; }

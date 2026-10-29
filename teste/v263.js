@@ -36,8 +36,9 @@ const n = (k, x, poz) => Array(x).fill([k, 'ean_13', poz || 'brenda']);
   const fusha = (kodi) => `#ssLista .ss-rresht[data-barkodi="${kodi}"] .ss-shto`;
 
   await p.click('.folder-karta >> text=Pije'); await p.waitForTimeout(600);
-  const btn = await p.evaluate(() => { const x = document.getElementById('btnSkanimShpejt'); return { t: document.getElementById('btnSkanimShpejtT').textContent, duket: !!x.offsetParent }; });
-  ok(btn.t === 'Skanim i shpejtë' && btn.duket, '1. butoni "Skanim i shpejtë" brenda folderit (pllaka)', btn);
+  // v268: gjysma e verdhë e butonit lundrues (vetëm ikona; emri te aria-label)
+  const btn = await p.evaluate(() => { const x = document.getElementById('btnSkanimShpejt'); return { t: x.getAttribute('aria-label'), duket: !!x.offsetParent }; });
+  ok(btn.t === 'Skanim i shpejtë' && btn.duket, '1. butoni "Skanim i shpejtë" brenda folderit (butoni lundrues)', btn);
 
   // Produkti B me emër dhe 10 copë (me kamerën e zakonshme dhe dritaren)
   let s = await skano(p, n(B, 7), 300);
