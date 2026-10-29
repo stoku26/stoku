@@ -297,7 +297,7 @@
 /* ---------- Afatet ---------- */
 .sb .sb-actions { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; margin: 4px 0 14px; }
 /* v268 (ideja 5 e përdoruesit): butoni lundrues i folderit, gjysmë blu / gjysmë i verdhë, vetëm ikona; eksporti te koka */
-.sb .skan-fab { position: fixed; z-index: 20; right: max(20px, env(safe-area-inset-right)); bottom: calc(72px + var(--sab, 0px)); display: flex;
+.sb .skan-fab { position: fixed; z-index: 20; right: max(20px, env(safe-area-inset-right)); bottom: calc(20px + var(--sab, 0px)); display: flex;
   height: 68px; border-radius: 34px; overflow: hidden; box-shadow: 0 10px 24px rgba(20,22,30,.22); }
 .sb[data-tema="dark"] .skan-fab { box-shadow: 0 10px 26px rgba(0,0,0,.6); }
 .sb .skan-fab button { width: 76px; height: 68px; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -306,7 +306,7 @@
 .sb .skan-fab.dy #btnSkanimShpejt { border-left: 2px solid var(--sb-bg); }
 .sb .skan-fab:not(.dy) button { width: 68px; padding: 0; }
 .sb .skan-fab button:active { filter: brightness(.92); }
-.sb.me-fab #lista { padding-bottom: 100px; }
+.sb.me-fab #lista { padding-bottom: 104px; }
 .sb .krye-excel { color: #1e7f45; }
 .sb .krye-pdf { color: #c23030; }
 .sb[data-tema="dark"] .krye-excel { color: #4cc783; }
@@ -709,16 +709,16 @@ html.sb:not([data-tema="dark"]) .sb-summary { box-shadow: 0 0 0 1px var(--sb-lin
 .sb .sb-stepper .sb-stepper__value { height: 50px; }
 .sb #afatStatusVeprime:empty { display: none; }
 .sb #dlgAfat .veprime { padding-top: 0; }
-/* Folderi: barkodi → 10 → kërko → 10 → lista; rreshti 12 + 50 + 12; poshtë "Fshi të gjitha produktet" 16 + 15 px + 16 */
+/* Folderi: barkodi → 10 → kërko → 10 → "Produktet" + "Fshi të gjitha" (29) → 4 → lista; rreshti 12 + 50 + 12 */
 .sb .kerko-kuti { gap: 10px; }
 .sb .kerko-kuti > .kerko-ikona { width: 20px; height: 20px; }
 .sb #siperFolderi .fushe { margin-bottom: 10px; }
-.sb #siperFolderi .fushe:last-child { margin-bottom: 6px; }
 .sb #siperFolderi .kerko-kuti { margin-bottom: 0; }
 .sb .artikull { padding-top: 12px; padding-bottom: 12px; }
 .sb .artikull .kodi { margin-top: 0; }
-.sb #footerFolderi { padding: 0 0 var(--sab, 0px); }
-.sb #btnFshiTeGjitha { flex: 1; min-height: 0; padding: 16px; font-size: 15px; font-weight: 600; }
+.sb #listaKrye { align-items: center; }
+.sb #btnFshiTeGjitha { display: inline-flex; align-items: center; gap: 6px; padding: 6px 2px; color: var(--sb-exp); }
+.sb #btnFshiTeGjitha:disabled { color: var(--sb-disabled); cursor: default; }
 .sb .sb-action-primary { min-height: 140px; border-radius: 22px; }
 .sb .sb-action-primary__sub { line-height: 1.275; margin-top: 0; }
 .sb .sb-action-galeria { top: 16px; right: 16px; }

@@ -218,15 +218,19 @@ fun Flete(mbyll: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
 
 /** Konfirmimi (si konfirmo() te web-i): titulli, teksti, "Anulo" + veprimi */
 @Composable
-fun Konfirmo(titulli: String, teksti: String, veprimi: String, rrezik: Boolean = true, mbyll: () -> Unit, po: () -> Unit) {
+fun Konfirmo(titulli: String, teksti: String, veprimi: String, rrezik: Boolean = true, vonesa: Int = 0, mbyll: () -> Unit, po: () -> Unit) {
     val n = N
+    // v268: vonesa = sekonda para se butoni i veprimit aktivizohet (si te web-i: "Fshi të gjitha (5)")
+    var mbetur by remember { mutableStateOf(vonesa) }
+    LaunchedEffect(Unit) { while (mbetur > 0) { delay(1000); mbetur-- } }
     Dialog(onDismissRequest = mbyll) {
         Column(Modifier.clip(RoundedCornerShape(24.dp)).background(n.surface).padding(22.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(titulli, style = tx(20, 700, n.ink, -0.02))
             Text(teksti, style = tx(15, 400, n.ink2))
             Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Buton("Anulo", mbyll, Modifier.weight(1f), lloji = "dyte")
-                Buton(veprimi, { mbyll(); po() }, Modifier.weight(1f), lloji = if (rrezik) "kuqe" else "kryesor")
+                Buton("Anulo", mbyll, Modifier.weight(if (vonesa > 0) 0.8f else 1f), lloji = "dyte")
+                Buton(if (mbetur > 0) "$veprimi ($mbetur)" else veprimi, { if (mbetur <= 0) { mbyll(); po() } }, Modifier.weight(if (vonesa > 0) 1.2f else 1f),
+                    aktiv = mbetur <= 0, lloji = if (rrezik) "kuqe" else "kryesor")
             }
         }
     }

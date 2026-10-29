@@ -40,6 +40,7 @@
       kerkoGlobalLabel: 'Kërko produkt ose barkod',
       kerkoGlobalNukUGjet: 'Nuk u gjet asnjë produkt në asnjë folder.',
       fshijTeGjitha: 'Fshi të gjitha produktet',
+      produktetTitulli: 'Produktet',
       nukUGjetAsnjeProdukt: 'Nuk u gjet asnjë produkt.',
       shfaqenNga: function (a) {
         return 'Shfaqen ' + a.limit + ' nga ' + a.gjithsej + ' produkte. Përdor kërkimin për të gjetur të tjerët.';
@@ -211,7 +212,10 @@
     { id: 'ssBosh', prop: 'text', kyc: 'ssBosh' },
     { id: 'kerko', prop: 'placeholder', kyc: 'kerkoLabel' },
     { id: 'kerkoGlobal', prop: 'placeholder', kyc: 'kerkoGlobalLabel' },
-    { id: 'btnFshiTeGjitha', prop: 'text', kyc: 'fshijTeGjitha' },
+    // v268: "Fshi të gjitha" si lidhje mbi listë (emri i plotë te title/aria-label)
+    { id: 'listaKryeT', prop: 'text', kyc: 'produktetTitulli' },
+    { id: 'btnFshiTeGjithaT', prop: 'text', kyc: 'fshiKrejt' },
+    { id: 'btnFshiTeGjitha', prop: 'title', kyc: 'fshijTeGjitha' },
 
     { id: 'dlgEmri', prop: 'placeholder', kyc: 'emriIProduktit' },
     { id: 'dlgFurnizuesi', prop: 'placeholder', kyc: 'furnizuesiOpsional' },
@@ -822,7 +826,6 @@
     $('kerkoGlobalLista').style.display = 'none';
     $('siperFolderi').style.display = brenda ? '' : 'none';
     $('lista').style.display = brenda ? '' : 'none';
-    $('footerFolderi').style.display = brenda ? '' : 'none';
     $('btnMbrapa').style.display = brenda ? '' : 'none';
     $('kryeButonatFolderi').style.display = brenda ? '' : 'none';
     rifreskoFabin();
@@ -4713,7 +4716,7 @@
     if (!n) return;
     $('fshiTitulli').textContent = T('teFshihenTeGjitha');
     $('fshiTekst').textContent = T('fshirjaTekst', { n: n, folder: emriFolderit(folderiAktual) });
-    var s = 10;
+    var s = 5; // v268: butoni aktivizohet pas 5 sekondash (ishte 10)
     var btn = $('fshiKonfirmo');
     btn.disabled = true;
     btn.textContent = T('fshiKrejt') + ' (' + s + ')';

@@ -1,5 +1,6 @@
 // v268: brenda folderit butoni lundrues i ndarë (ideja 5 e përdoruesit nga Claude Design): poshtë djathtas, gjysma blu "Skano me kamerë",
 // gjysma e verdhë "Skanim i shpejtë", vetëm ikona; "Eksporto Excel" / "Eksporto PDF" si ikona pranë titullit (pllakat e v265/v267 u hoqën).
+// "Fshi të gjitha" (opsioni 1 i përdoruesit): lidhje e kuqe mbi listë ("Produktet"), shiriti poshtë u hoq; butoni i pyetjes aktivizohet pas 5 sekondash.
 // Edhe: madhësitë e telefonit si në aplikacionin Android (shkronjat, butonat, fushat, shiriti poshtë, hapësirat). E çelët dhe e errët.
 const { chromium } = require('./pw.js');
 const { hapFaqen } = require('./kamera-e-rreme.js');
@@ -34,13 +35,19 @@ const fab = p => p.evaluate(() => {
     f = await fab(p);
     const theksi = await p.evaluate(() => { const d = document.createElement('div'); d.style.color = getComputedStyle(document.documentElement).getPropertyValue('--sb-accent'); document.body.appendChild(d); const c = getComputedStyle(d).color; d.remove(); return c; });
     ok(f.duket && f.dy && f.meFab && f.butonat.length === 2, tema + ' 2. folderi: butoni lundrues me dy gjysma', f);
-    ok(f.r === 370 && f.b === 844 - 72 && f.h === 68 && f.butonat.every(x => x.w === 76) && f.w >= 152 && f.w <= 154, tema + ' 2. poshtë djathtas (20 nga ana, 72 nga fundi), 68 i lartë, gjysmat 76', f);
+    ok(f.r === 370 && f.b === 844 - 20 && f.h === 68 && f.butonat.every(x => x.w === 76) && f.w >= 152 && f.w <= 154, tema + ' 2. poshtë djathtas (20 nga ana dhe nga fundi), 68 i lartë, gjysmat 76', f);
     ok(f.butonat[0].id === 'btnKamera' && f.butonat[0].a === 'Skano me kamerë' && f.butonat[1].id === 'btnSkanimShpejt' && f.butonat[1].a === 'Skanim i shpejtë' &&
       f.butonat.every(x => x.t === '' && x.svg === 30), tema + ' 2. vetëm ikona (30 px), emrat te aria-label', f.butonat);
     ok(f.butonat[0].bg === theksi && f.butonat[1].bg === 'rgb(232, 169, 46)', tema + ' 2. majtas blu (theksi), djathtas e verdhë (#E8A92E si te Android-i)', [f.butonat[0].bg, theksi, f.butonat[1].bg]);
     const lista = await p.evaluate(() => getComputedStyle(document.getElementById('lista')).paddingBottom);
-    ok(lista === '100px', tema + ' 2. lista lë vend poshtë që butoni të mos mbulojë produktin e fundit', lista);
-    ok(!(await p.$('#folderPllakat')) && !(await p.$('.sb-pllaka')), tema + ' 2. pllakat e v265/v267 s\'janë më');
+    ok(lista === '104px', tema + ' 2. lista lë vend poshtë që butoni të mos mbulojë produktin e fundit', lista);
+    ok(!(await p.$('#folderPllakat')) && !(await p.$('.sb-pllaka')) && !(await p.$('#footerFolderi')), tema + ' 2. pllakat e v265/v267 dhe shiriti poshtë s\'janë më');
+    const fk = await p.evaluate(() => { const b = document.getElementById('btnFshiTeGjitha'), k = document.getElementById('listaKrye'), r = b.getBoundingClientRect();
+      return { titulli: document.getElementById('listaKryeT').textContent, t: b.textContent.trim(), a: b.getAttribute('aria-label'), svg: !!b.querySelector('svg'), c: getComputedStyle(b).color,
+        exp: getComputedStyle(document.documentElement).getPropertyValue('--sb-exp').trim(), r: Math.round(r.right), y: Math.round(k.getBoundingClientRect().top), disabled: b.disabled }; });
+    ok(fk.titulli === 'Produktet' && fk.t === 'Fshi të gjitha' && fk.a === 'Fshi të gjitha produktet' && fk.svg && fk.r === 370 && fk.y === 188,
+      tema + ' 2b. mbi listë: "Produktet" majtas, "Fshi të gjitha" me kosh djathtas (si "+ Folder i ri")', fk);
+    ok(fk.disabled, tema + ' 2b. folder bosh: "Fshi të gjitha" s\'prek (gri)', fk);
 
     // Excel / PDF lart djathtas
     const ex = await rr(p, '#btnEksport'), pdf = await rr(p, '#btnEksportPdf'), tit = await rr(p, '#titulli'), mb = await rr(p, '#btnMbrapa');
@@ -105,7 +112,7 @@ const fab = p => p.evaluate(() => {
   const fush = await p.evaluate(() => Array.from(document.querySelectorAll('#siperFolderi .kerko-kuti')).map(e => { const r = e.getBoundingClientRect(); return [Math.round(r.top), Math.round(r.height)]; }));
   const ft = await rr(p, '#btnFshiTeGjitha'), foot = await rr(p, '#footerFolderi');
   ok(fush.length === 2 && fush[0][0] === 68 && fush[0][1] === 50 && fush[1][0] === 128 && fush[1][1] === 50, '9. folderi: barkodi dhe kërko 50, 10 ndërmjet (si te Android-i)', fush);
-  ok(ft.fs === '15px' && ft.fw === '600' && ft.h === 52 && foot.h === 53, '9. "Fshi të gjitha produktet" 15 px, rreshti poshtë vija + 52', { ft, foot });
+  ok(ft.fs === '13px' && ft.fw === '600' && ft.h === 29 && foot === null, '9. "Fshi të gjitha" 13 px si lidhje (29 e lartë), pa shiriti poshtë', { ft, foot });
   await p.evaluate(() => {
     const t = Date.now();
     const pm = JSON.parse(localStorage.getItem('stoku:produktet:v2') || '{}');
@@ -116,7 +123,17 @@ const fab = p => p.evaluate(() => {
   await p.evaluate(() => document.querySelectorAll('.mbulese.hapur').forEach(d => { if (!d.classList.contains('faqe-e-plote')) d.classList.remove('hapur'); }));
   await p.click('.folder-karta >> text=Pije'); await p.waitForTimeout(600);
   const art = await rr(p, '#lista .artikull'), hap = await rr(p, '#lista .sasia-hap-btn'), sas = await rr(p, '#lista .sasia-input');
-  ok(art && art.h === 75 && hap.w === 30 && sas.w === 68 && sas.h === 50, '9. rreshti i produktit 12 + 50 + 12 + vija, − / + 30, sasia 68 × 50', { art, hap, sas });
+  ok(art && art.y === 221 && art.h === 75 && hap.w === 30 && sas.w === 68 && sas.h === 50, '9. rreshti i produktit 12 + 50 + 12 + vija, − / + 30, sasia 68 × 50', { art, hap, sas });
+  // "Fshi të gjitha": butoni i pyetjes aktivizohet pas 5 sekondash (përdoruesi: "leja veq 5 sekonda me tu aktivizu butoni")
+  await p.click('#btnFshiTeGjitha'); await p.waitForTimeout(300);
+  const k0 = await p.evaluate(() => ({ hapur: document.getElementById('dlgFshirje').classList.contains('hapur'), d: document.getElementById('fshiKonfirmo').disabled, t: document.getElementById('fshiKonfirmo').textContent }));
+  await p.waitForTimeout(4000);
+  const k4 = await p.evaluate(() => ({ d: document.getElementById('fshiKonfirmo').disabled, t: document.getElementById('fshiKonfirmo').textContent }));
+  await p.waitForTimeout(1300);
+  const k5 = await p.evaluate(() => ({ d: document.getElementById('fshiKonfirmo').disabled, t: document.getElementById('fshiKonfirmo').textContent }));
+  ok(k0.hapur && k0.d && k0.t === 'Fshi të gjitha (5)' && k4.d && k4.t === 'Fshi të gjitha (1)' && !k5.d && k5.t === 'Fshi të gjitha', '10. "Fshi të gjitha (5)" … (1), pastaj aktiv pas 5 sekondash', { k0, k4, k5 });
+  await p.click('#fshiAnulo'); await p.waitForTimeout(300);
+  ok(await p.evaluate(() => !document.getElementById('dlgFshirje').classList.contains('hapur') && document.querySelectorAll('#lista .artikull').length === 1), '10. "Anulo" s\'fshin asgjë');
   await p.click('#lista .artikull'); await p.waitForTimeout(600);
   const mn = await rr(p, '#dlgSasiaMinus'), sf = await rr(p, '#dlgSasia');
   ok(mn.w === 44 && mn.h === 50 && sf.fs === '18px', '10. produkti: − / + 44 × 50, sasia 18 px', { mn, sf });

@@ -58,10 +58,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    tasht, bone nr 5" + "web appi ne telefon me madhesi te njejt si android appi ... per shkronjat edhe ui".
    - Folderi: poshtë djathtas `#skanFab` (web) / `ButoniLundrues` (Android, `StokuEkrani.kt`): 68 i lartë, rrezja 34, gjysma blu
      `#btnKamera` 76 (ikona 30) + vija 2 me ngjyrën e sfondit + gjysma e verdhë `#btnSkanimShpejt` #E8A92E (njësoj në temë të errët)
-     76; vetëm ikona, emrat te `aria-label`. 20 nga djathtas, 72 nga fundi (Android 20 kur s'ka "Fshi të gjitha"). Pa leje
+     76; vetëm ikona, emrat te `aria-label`. 20 nga djathtas dhe nga fundi. Pa leje
      "skanimShpejt" vetëm rrethi blu 68; pa "kamera" dhe në PDA s'del fare (PDA: "Fshih/Shfaq tastierën" `#btnTastiera` poshtë barkodit).
      `rifreskoFabin()` te `app-tel.js` (thirret nga `rifreskoPamjen`, `zbatoPda`, `zbatoLejet`); `html.me-fab` → `#lista` 100px poshtë.
    - "Eksporto Excel" / "Eksporto PDF": ikona 42 (gjelbër / kuqe) pranë titullit (`#kryeButonatFolderi`); mbrapa 42.
+   - "Fshi të gjitha produktet": përdoruesi zgjodhi nga 3 foto opsionin 1 ("opsionin 1 bone, edhe leja veq 5 sekonda me tu aktivizu
+     butoni kur te pyt a je i sigurt"): shiriti poshtë (`#footerFolderi`) u hoq; mbi listë koka `#listaKrye` "Produktet" (17/700)
+     + lidhja e kuqe `#btnFshiTeGjitha` (kosh 16 + "Fshi të gjitha" 13/600, emri i plotë te title/aria-label, gri kur folderi është
+     bosh), si "+ Folder i ri". Android: `TitulliISeksionit("Produktet") { … Ik.Kosh … }` + Hapesire(4). Butoni lundrues tash 20
+     nga fundi (lista 104 poshtë). Pyetja: web `hapFshirjen()` 5 sekonda (ishte 10), "Fshi të gjitha (5)" … (1); Android
+     `Konfirmo(…, vonesa = 5)` (parametër i ri, butonat 0.8 / 1.2 që teksti me numër të mos pritet).
    - Pllakat e v265/v267 u hoqën krejt (`#folderPllakat`, `.sb-pllaka*`, Android `PllakaVeprimi`, `PllakatDyNeRresht`); testet
      `v265.js`/`v267.js` u fshinë (dhe nga `regresioni.sh`).
    - Madhësitë si në Android (krahasuar pamje për pamje me `PamjetTest` në 2x): `.sb body { line-height: 1.275 }` (Onest

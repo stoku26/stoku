@@ -463,6 +463,19 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
                 }
                 Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), "Kërko", ikona = Ik.Kerko)
                 Hapesire(10.dp)
+                // v268 (opsioni 1 i përdoruesit): "Produktet" + "Fshi të gjitha" e kuqe mbi listë (si "+ Folder i ri"); shiriti poshtë u hoq
+                TitulliISeksionit("Produktet") {
+                    if (Llogaria.leja("stokuFshi")) {
+                        val ng = if (te.isEmpty()) n.disabled else n.exp
+                        Row(Modifier.clip(RoundedCornerShape(6.dp)).clickable(enabled = te.isNotEmpty()) { fshiKrejt = true }.padding(vertical = 6.dp, horizontal = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Ik.Kosh, "Fshi të gjitha produktet", Modifier.size(16.dp), tint = ng)
+                            Spacer(Modifier.width(6.dp))
+                            Text("Fshi të gjitha", style = tx(13, 600, ng))
+                        }
+                    }
+                }
+                Hapesire(4.dp)
                 if (fil.isEmpty() && k.isNotEmpty()) Text("Nuk u gjet asnjë produkt.", style = tx(14, 400, n.muted), modifier = Modifier.padding(vertical = 12.dp))
             }
             items(fil.take(300), key = { "p:" + it["barkodi"] }) { p ->
@@ -472,14 +485,8 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
                 Text("Shfaqen 300 nga ${fil.size} produkte. Përdor kërkimin për të gjetur të tjerët.", style = tx(13, 400, n.muted), modifier = Modifier.padding(vertical = 12.dp))
             }
         }
-        if (Llogaria.leja("stokuFshi")) {
-            Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
-            Box(Modifier.fillMaxWidth().clickable(enabled = te.isNotEmpty()) { fshiKrejt = true }.padding(vertical = 16.dp), contentAlignment = Alignment.Center) {
-                Text("Fshi të gjitha produktet", style = tx(15, 600, if (te.isEmpty()) n.disabled else n.exp))
-            }
-        }
     }
-    if (lejaKamera) ButoniLundrues(Modifier.align(Alignment.BottomEnd).padding(end = 20.dp, bottom = if (Llogaria.leja("stokuFshi")) 72.dp else 20.dp),
+    if (lejaKamera) ButoniLundrues(Modifier.align(Alignment.BottomEnd).padding(end = 20.dp, bottom = 20.dp),
         skano = { skano({ b -> hapBarkodin(b, "kamera") }) { b -> shtoNjeCope(b) } }, shpejt = if (lejaShpejtSkanim) ({ skanoShpejt(id) }) else null)
     }
 
@@ -490,7 +497,7 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
         Konfirmo("Të fshihen të gjitha?",
             if (te.size == 1) "Do të fshihet 1 produkt nga folderi \"$emri\". Ky veprim NUK mund të kthehet."
             else "Do të fshihen të gjitha ${te.size} produktet nga folderi \"$emri\". Ky veprim NUK mund të kthehet.",
-            "Fshi të gjitha", mbyll = { fshiKrejt = false }) {
+            "Fshi të gjitha", vonesa = 5, mbyll = { fshiKrejt = false }) {
             if (Llogaria.leja("stokuFshi")) { Dyqani.fshiTeGjithaNeFolder(id); Toast.trego("U fshinë të gjitha produktet nga folderi.") }
         }
     }
