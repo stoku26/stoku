@@ -68,13 +68,10 @@
       shkruajSasine: 'Shkruaj sasinë (numër i plotë).',
 
       teFshihenTeGjitha: 'Të fshihen të gjitha?',
+      // v269: i njëjti tekst si te Android-i (Konfirmo), pa shënimin për Excel
       fshirjaTekst: function (a) {
-        if (a.n === 1) {
-          return 'Do të fshihet 1 produkt nga folderi "' + a.folder + '". Ky veprim NUK mund të kthehet.\n\n' +
-            'Nëse do një kopje, shtyp Anulo dhe eksporto fillimisht në Excel.';
-        }
-        return 'Do të fshihen të gjitha ' + a.n + ' produktet nga folderi "' + a.folder + '". Ky veprim NUK mund të kthehet.\n\n' +
-          'Nëse do një kopje, shtyp Anulo dhe eksporto fillimisht në Excel.';
+        if (a.n === 1) return 'Do të fshihet 1 produkt nga folderi "' + a.folder + '". Ky veprim NUK mund të kthehet.';
+        return 'Do të fshihen të gjitha ' + a.n + ' produktet nga folderi "' + a.folder + '". Ky veprim NUK mund të kthehet.';
       },
       fshiKrejt: 'Fshi të gjitha',
       uFshinePrejFolderit: 'U fshinë të gjitha produktet nga folderi.',
@@ -850,6 +847,7 @@
     if (!leja('stoku')) return;
     folderiAktual = id;
     $('kerko').value = '';
+    kerkoHapur = false; rifreskoKerkimin();
     rifreskoPamjen();
     sinkronizoHistorineEDritareve();
   }
@@ -3124,11 +3122,12 @@
   function renderLista() {
     if (skanimShpejt) vizatoSkanimShpejt(); // v263: sasitë te paneli (edhe kur ndryshojnë nga një pajisje tjetër)
     if (folderiAktual === null) return;
+    rifreskoKerkimin();
     var k = $('kerko').value.trim().toLowerCase();
     var te = produktetENjeFolderi(folderiAktual);
     te.sort(krahaso);
 
-    $('titulli').textContent = emriFolderit(folderiAktual) + ' (' + T('njesiaProdukteve', { n: te.length }) + ')';
+    $('titulli').textContent = emriFolderit(folderiAktual); // v269: vetëm emri (pa numrin e produkteve), si te Android-i
     $('btnFshiTeGjitha').disabled = te.length === 0;
 
     var fil = te;
@@ -3261,7 +3260,7 @@
     // v231: pa lejen s'hapet dritarja dhe s'thuhet pse: produkti që ekziston gjendet në listë (kërkimi),
     // barkodi i ri thjesht s'është në këtë folder.
     if (!leja(e ? 'stokuNdrysho' : 'stokuShto')) {
-      if (e) { $('kerko').value = barkodi; renderLista(); }
+      if (e) { $('kerko').value = barkodi; renderLista(); } // renderLista e hap edhe fushën "Kërko" (ka tekst)
       else toast('Ky barkod s\'është në këtë folder.', 3000);
       fokusoBarkodin();
       return;
@@ -3484,6 +3483,23 @@
   });
 
   $('kerko').addEventListener('input', renderLista);
+  // v269 (opsioni 3 i përdoruesit): fusha "Kërko" del vetëm kur prek 🔍 (ose kur ka tekst); prekja tjetër e mbyll dhe e pastron
+  var kerkoHapur = false;
+  function rifreskoKerkimin() {
+    var duket = kerkoHapur || !!$('kerko').value;
+    $('kerkoFushe').hidden = !duket;
+    $('btnKerko').classList.toggle('aktiv', duket);
+    $('btnKerko').setAttribute('aria-expanded', duket ? 'true' : 'false');
+  }
+  function ndryshoKerkimin() {
+    var duket = !$('kerkoFushe').hidden;
+    kerkoHapur = !duket;
+    if (duket && $('kerko').value) { $('kerko').value = ''; renderLista(); }
+    rifreskoKerkimin();
+    if (kerkoHapur) $('kerko').focus(); else { $('kerko').blur(); fokusoBarkodin(); }
+  }
+  $('btnKerko').addEventListener('click', ndryshoKerkimin);
+  $('kerko').addEventListener('keydown', function (ev) { if (ev.key === 'Escape') ndryshoKerkimin(); });
 
   // ---------- Tingulli (vetëm kur skanon me kamerë) ----------
   var audioCtx = null;

@@ -722,3 +722,25 @@ html.sb:not([data-tema="dark"]) .sb-summary { box-shadow: 0 0 0 1px var(--sb-lin
 .sb .sb-action-primary { min-height: 140px; border-radius: 22px; }
 .sb .sb-action-primary__sub { line-height: 1.275; margin-top: 0; }
 .sb .sb-action-galeria { top: 16px; right: 16px; }
+
+/* v269: "Të fshihen të gjitha?" si Konfirmo te Android-i: dritare në mes (rrezja 24, 22 brenda), titulli 20, teksti 15,
+   "Anulo" (0.7) me vijë + "Fshi të gjitha (5)" (1.3) e kuqe, 48 të larta, 10 ndërmjet, 10 brenda që numri të mos pritet */
+.sb #dlgFshirje.mbulese:not(.faqe-e-plote) { align-items: center; justify-content: center; padding: 0 46px; }
+.sb #dlgFshirje.mbulese:not(.faqe-e-plote) > .dialog { width: 100%; max-width: 360px; border-radius: 24px; padding: 22px; display: flex; flex-direction: column; gap: 10px; animation: sbKonf .18s ease-out; }
+.sb #dlgFshirje.mbulese:not(.faqe-e-plote) > .dialog::before { content: none; display: none; }
+.sb #dlgFshirje h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+.sb #dlgFshirje p { margin: 0; font-size: 15px; font-weight: 400; color: var(--sb-ink-2); }
+.sb #dlgFshirje .veprime { display: flex; gap: 10px; margin: 0; padding: 8px 0 0; justify-content: stretch; }
+.sb #dlgFshirje .veprime .btn { min-width: 0; min-height: 48px; margin: 0; padding: 0 10px; border-radius: 14px; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb #fshiAnulo { flex: 0.7 1 0; }
+.sb #fshiKonfirmo { flex: 1.3 1 0; background: var(--sb-exp); color: #fff; }
+.sb #fshiKonfirmo:active { background: var(--sb-exp-ink, var(--sb-exp)); }
+.sb #fshiKonfirmo:disabled { background: var(--sb-surface-2); color: var(--sb-disabled); }
+@keyframes sbKonf { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .sb #dlgFshirje.mbulese:not(.faqe-e-plote) > .dialog { animation: none; } }
+/* v269 (opsioni 3 i përdoruesit): barkodi + butoni 🔍 50 × 50 në një rresht; "Kërko" poshtë vetëm kur hapet (ose ka tekst) */
+.sb .barkodi-rresht { display: flex; gap: 10px; align-items: stretch; }
+.sb .barkodi-rresht > .kerko-kuti { flex: 1; min-width: 0; }
+.sb .btn-kerko { flex: none; width: 50px; height: 50px; border: 0; border-radius: 14px; padding: 0; background: var(--sb-surface); box-shadow: var(--sb-ring); color: var(--sb-ink); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.sb .btn-kerko:active { background: var(--sb-surface-2); }
+.sb .btn-kerko.aktiv { background: var(--sb-accent-tint); color: var(--sb-accent-text); box-shadow: 0 0 0 1px var(--sb-accent-line); }

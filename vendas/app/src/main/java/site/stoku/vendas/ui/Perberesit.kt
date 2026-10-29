@@ -114,7 +114,7 @@ fun Shenja(teksti: String, modifier: Modifier = Modifier, ngjyra: Color? = null)
 /** Butoni kryesor (btn): blu, 48 px, rrezja 14 */
 @Composable
 fun Buton(teksti: String, onClick: () -> Unit, modifier: Modifier = Modifier, aktiv: Boolean = true, lloji: String = "kryesor",
-          ikona: ImageVector? = null, lartesia: Dp = 48.dp) {
+          ikona: ImageVector? = null, lartesia: Dp = 48.dp, brenda: Dp = 16.dp) {
     val n = N
     val ia = remember { MutableInteractionSource() }
     val shtypur by ia.collectIsPressedAsState()
@@ -129,7 +129,7 @@ fun Buton(teksti: String, onClick: () -> Unit, modifier: Modifier = Modifier, ak
     }
     var m = modifier.heightIn(min = lartesia).clip(forma).background(sfondi, forma)
     if (vija != null) m = m.border(1.dp, vija, forma)
-    Row(m.clickable(enabled = aktiv, interactionSource = ia, indication = null, onClick = onClick).padding(horizontal = 16.dp),
+    Row(m.clickable(enabled = aktiv, interactionSource = ia, indication = null, onClick = onClick).padding(horizontal = brenda),
         horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
         if (ikona != null) { Icon(ikona, null, Modifier.size(18.dp), tint = ngjyra); Spacer(Modifier.width(8.dp)) }
         Text(teksti, style = tx(15, 600, ngjyra), maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -228,9 +228,11 @@ fun Konfirmo(titulli: String, teksti: String, veprimi: String, rrezik: Boolean =
             Text(titulli, style = tx(20, 700, n.ink, -0.02))
             Text(teksti, style = tx(15, 400, n.ink2))
             Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Buton("Anulo", mbyll, Modifier.weight(if (vonesa > 0) 0.8f else 1f), lloji = "dyte")
-                Buton(if (mbetur > 0) "$veprimi ($mbetur)" else veprimi, { if (mbetur <= 0) { mbyll(); po() } }, Modifier.weight(if (vonesa > 0) 1.2f else 1f),
-                    aktiv = mbetur <= 0, lloji = if (rrezik) "kuqe" else "kryesor")
+                // v269: me numërim 0.7 / 1.3 dhe 10 brenda, që "Fshi të gjitha (5)" të mos pritet edhe në telefona të ngushtë (si te web-i)
+                val b = if (vonesa > 0) 10.dp else 16.dp
+                Buton("Anulo", mbyll, Modifier.weight(if (vonesa > 0) 0.7f else 1f), lloji = "dyte", brenda = b)
+                Buton(if (mbetur > 0) "$veprimi ($mbetur)" else veprimi, { if (mbetur <= 0) { mbyll(); po() } }, Modifier.weight(if (vonesa > 0) 1.3f else 1f),
+                    aktiv = mbetur <= 0, lloji = if (rrezik) "kuqe" else "kryesor", brenda = b)
             }
         }
     }
