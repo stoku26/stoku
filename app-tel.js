@@ -4095,6 +4095,29 @@
     await pasNisjes();
   }
 
+  // v270: kamera në krejt ekranin (si te Android-i): sa është e hapur, fshihet edhe shiriti i sipërm i telefonit (Fullscreen API,
+  // vetëm në telefon dhe vetëm nga prekja e përdoruesit). Në iPhone s'ka API për këtë: aty kamera shkon vetë nën orë
+  // (black-translucent + viewport-fit=cover). Nëse ekrani i plotë është ndezur nga PDA-ja (kyçja), s'preket.
+  var __fsKamera = false;
+  function kameraNeEkranTePlote() {
+    var el = document.documentElement, kerko = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (!kerko || document.fullscreenElement || document.webkitFullscreenElement) return;
+    if (!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches)) return;
+    try {
+      __fsKamera = true;
+      var r = kerko.call(el, { navigationUI: 'hide' });
+      if (r && r.catch) r.catch(function () { __fsKamera = false; });
+    } catch (e) { __fsKamera = false; }
+  }
+  function kameraDilNgaEkraniIPlote() {
+    if (!__fsKamera) return;
+    __fsKamera = false;
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) return;
+    var dil = document.exitFullscreen || document.webkitExitFullscreen;
+    try { var r = dil && dil.call(document); if (r && r.catch) r.catch(function () { /* ok */ }); } catch (e) { /* ok */ }
+  }
+  document.addEventListener('fullscreenchange', function () { if (!document.fullscreenElement) __fsKamera = false; });
+
   async function hapKamere() {
     if (!leja('kamera')) return;
     pergatitAudion(); // duhet thirrur nga prekja e përdoruesit që tingulli të lejohet në iPhone
@@ -4107,6 +4130,7 @@
     rinisVotimin();
     var seanca = ++seancaKamere;
     $('kamera').classList.add('hapur');
+    kameraNeEkranTePlote();
     rifreskoMetaTemen();
     try {
       await nisKamere();
@@ -4138,6 +4162,7 @@
     rinisVotimin(); // leximet e mbetura s'hapin më dritaren pasi mbyllet kamera
     await ndalSkanerin();
     $('kamera').classList.remove('hapur');
+    kameraDilNgaEkraniIPlote();
     rifreskoMetaTemen();
   }
 
