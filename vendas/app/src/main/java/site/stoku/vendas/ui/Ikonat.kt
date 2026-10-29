@@ -80,6 +80,7 @@ object Ik {
     val Administratori = ikona("M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z", "m9 12 2 2 4-4", trashesia = 2.3f)
     val KoshX = ikona("M3 7h18", "M5 7v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7", "M9 7V4h6v3", "m10 12 4 4M14 12l-4 4")
     val Ndaj = ikona("M18 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z M6 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z M18 16a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z", "M8.6 13.5l6.8 4M15.4 6.5l-6.8 4")
+    val Pdf = ikona("M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z", "M14 2v6h6M8 13h8M8 17h5")
     val Excel = ikona("M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z", "M14 2v6h6M8 13l4 5M12 13l-4 5")
     val Ngarko = ikona("M12 21V9M7 14l5-5 5 5", "M5 3h14")
     val Kompjuter = ikona("M4 3h16a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-16a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2Z", "M8 21h8M12 17v4")

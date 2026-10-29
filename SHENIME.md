@@ -52,6 +52,19 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PLLAKAT ME NGJYRA TE BUTONAT (v265 = 1.44.0, 29.10.2026, web telefoni + Android Hyrja 25)**: përdoruesi (foto e folderit, "shum
+   tbajatshem") kërkoi 5 ide me Claude Design (faqja "Butonat e folderit: 5 ide", e çelët/e errët), pastaj: "Opsionin 4 bone jo veq te
+   folderat po kudo qe jan kta butona". Ideja 4 = pllakë (sfond i bardhë/i errët, 1px vijë, 20px qoshe, min 76px) me katror 44px me
+   ngjyrë (blu = theksi, e verdhë = `--stk-qelibar` me ikonë #2b2100, e gjelbër #1e7f45, e kuqe #c23030, gri), titull 15/700 dhe
+   shpjegim 12px, dy nga dy. Web: `.sb-pllakat`/`.sb-pllaka` te `css/stoku.css` (v=50); folderi `#folderPllakat`: `#btnKamera` "Skano /
+   Me kamerë", `#btnSkanimShpejt` "I shpejtë / Kamera s'mbyllet", `#btnTastiera` (vetëm PDA) "Fshih tastierën / Tastiera në ekran",
+   `#btnEksport` "Excel / Tabela e stokut", `#btnEksportPdf` "PDF / Etiketat me barkod"; titujt te `#...T` (STATIKE `pllSkano`…,
+   `zbatoTastieren`, "Duke krijuar…" i PDF-së). Afatet: `#afShto` "Shto / Afat i ri", `#afExcel` "Excel / Importo, eksporto" (menyja si
+   më parë); `.sb-actions` 1.25fr/1fr. "Fotografo fletën" mbeti kartë e madhe blu. Android: `PllakaVeprimi` + `PllakatDyNeRresht`
+   (Perberesit.kt), `Ik.Pdf`; `FolderiEkrani` dhe `AfatetEkrani` (`KartaVeprimi` u hoq; rreshti me `IntrinsicSize.Min`, karta blu
+   `fillMaxHeight`). PC-ja s'u prek. Testet: `teste/v265.js` i ri; `pda-tastiera-test.js`, `skedaret-e2e-v229.js`, `v263.js` lexojnë
+   titullin e pllakës; `PamjetTest.eksportet` klikon "Tabela e stokut". S'është testuar në pajisje.
+
 0000000. **SKANIM I SHPEJTË: KAMERA MË E VOGËL, DERI LART (v264 = 1.43.1, 29.10.2026, web telefoni + Android Hyrja 24)**: përdoruesi
    (2 foto): Android "ngushtoje edhe pak heke hapsiren e kameres ... [poshtë tekstit] se nuk vyn ... kjo posht let zmadhohet" (edhe web);
    web "qajo pjesa zez [shiriti me 'Skanim i shpejtë', 1×, Mbyll] ... mu dok krejt kamer si ne android app". Android: lartësia e

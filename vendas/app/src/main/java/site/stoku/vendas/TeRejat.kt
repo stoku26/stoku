@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(25, "2026-10-29", "Butonat e rinj me ngjyra", listOf(
+            "Brenda folderit butonat janë tash pllaka me ngjyra: Skano (blu), I shpejtë (e verdhë), Excel (e gjelbër) dhe PDF (e kuqe), secila me një shpjegim të shkurtër.",
+            "Edhe te Afatet, \"Shto\" dhe \"Excel\" janë pllaka të njëjta."
+        )),
         Hyrja(24, "2026-10-29", "Skanim i shpejtë: kamera më e vogël, lista më e madhe", listOf(
             "Kamera e Skanimit të shpejtë zë vetëm sa duhet për kutinë (pa hapësirën bosh poshtë saj). Lista e produkteve ka më shumë vend."
         )),

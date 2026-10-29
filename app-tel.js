@@ -177,6 +177,7 @@
       kameraHint: 'Vendos vetëm një barkod brenda kutisë',
       skanoPerseri: 'Skano përsëri',
       skanimShpejt: 'Skanim i shpejtë',
+      pllSkano: 'Skano', pllShpejt: 'I shpejtë', pllExcel: 'Excel', pllPdf: 'PDF', // v265: titujt e pllakave te folderi
       ssMbaro: 'Mbaro',
       ssBosh: 'Skano barkodet njërin pas tjetrit: secili shtohet menjëherë në këtë folder. I njëjti barkod s\'del dy herë, i rritet sasia.',
       ssGjithsej: function (a) { return 'Gjithsej: ' + a.n + ' copë'; },
@@ -207,12 +208,12 @@
   // Elementet me tekst statik: { id, prop: 'text' | 'placeholder' | 'title' | 'titleAria', kyc }
   var STATIKE = [
     { id: 'btnKrijoFolder', prop: 'text', kyc: 'krijoFolder' },
-    { id: 'btnKamera', prop: 'text', kyc: 'skanoKamer' },
-    { id: 'btnSkanimShpejt', prop: 'text', kyc: 'skanimShpejt' },
+    { id: 'btnKameraT', prop: 'text', kyc: 'pllSkano' },
+    { id: 'btnSkanimShpejtT', prop: 'text', kyc: 'pllShpejt' },
     { id: 'ssMbaro', prop: 'text', kyc: 'ssMbaro' },
     { id: 'ssBosh', prop: 'text', kyc: 'ssBosh' },
-    { id: 'btnEksport', prop: 'text', kyc: 'eksportoExcel' },
-    { id: 'btnEksportPdf', prop: 'text', kyc: 'eksportoPdf' },
+    { id: 'btnEksportT', prop: 'text', kyc: 'pllExcel' },
+    { id: 'btnEksportPdfT', prop: 'text', kyc: 'pllPdf' },
     { id: 'kerko', prop: 'placeholder', kyc: 'kerkoLabel' },
     { id: 'kerkoGlobal', prop: 'placeholder', kyc: 'kerkoGlobalLabel' },
     { id: 'btnFshiTeGjitha', prop: 'text', kyc: 'fshijTeGjitha' },
@@ -1050,7 +1051,7 @@
   function zbatoTastieren() {
     var fsheh = tastieraEFshehur(), b = $('btnTastiera');
     b.style.display = opsione.pda ? '' : 'none';
-    b.textContent = T(fsheh ? 'shfaqTastieren' : 'fshihTastieren');
+    $('btnTastieraT').textContent = T(fsheh ? 'shfaqTastieren' : 'fshihTastieren');
     b.setAttribute('aria-pressed', fsheh ? 'true' : 'false');
     $('opsTastiera').checked = !!opsione.tastieraFshehur;
     Array.prototype.forEach.call(document.querySelectorAll('input, textarea'), function (el) {
@@ -4612,10 +4613,10 @@
     if (te.length === 0) { toast(T('nukKaProdukteEksport')); return; }
     te.sort(emriKrahaso);
 
-    var btn = $('btnEksportPdf');
-    var tekstiVjeter = btn.textContent;
+    var btn = $('btnEksportPdf'), btnT = $('btnEksportPdfT');
+    var tekstiVjeter = btnT.textContent;
     btn.disabled = true;
-    btn.textContent = T('pdfDukeKrijuar');
+    btnT.textContent = T('pdfDukeKrijuar');
 
     try {
       var JsPdfKlasa = window.jspdf.jsPDF;
@@ -4678,7 +4679,7 @@
       toast(T('pdfDeshtoi'));
     } finally {
       btn.disabled = false;
-      btn.textContent = tekstiVjeter;
+      btnT.textContent = tekstiVjeter;
     }
   }
 

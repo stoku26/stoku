@@ -420,44 +420,43 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
                 Fusha(barkodi, { barkodi = it }, Modifier.fillMaxWidth(), "Barkodi", ikona = Ik.Barkod, fokusi = fBarkodi,
                     veprimi = ImeAction.Go, kurVeprim = { val b = barkodi; barkodi = ""; hapBarkodin(b, "fushe") })
                 Hapesire(10.dp)
+                // v265: pllakat me ngjyra (ideja 4 e përdoruesit, si #folderPllakat te web-i), dy nga dy
+                val pllakat = mutableListOf<@Composable (Modifier) -> Unit>()
                 if (Llogaria.leja("kamera") && !pda) {
-                    Buton("Skano me kamerë", { skano({ b -> hapBarkodin(b, "kamera") }) { b -> shtoNjeCope(b) } }, Modifier.fillMaxWidth(), ikona = Ik.Skano)
-                    Hapesire(10.dp)
-                    // v263: Skanimi i shpejtë (kamera s'mbyllet, lista me sasitë poshtë; si #btnSkanimShpejt te web-i); leja "Skanim i shpejtë"
-                    if (Llogaria.leja("skanimShpejt") && (Llogaria.leja("stokuShto") || Llogaria.leja("stokuNdrysho"))) {
-                        Buton("Skanim i shpejtë", { skanoShpejt(id) }, Modifier.fillMaxWidth(), lloji = "dyte", ikona = Ik.Rrufe)
-                        Hapesire(10.dp)
-                    }
+                    pllakat.add { m -> PllakaVeprimi(Ik.Skano, "blu", "Skano", "Me kamerë", m) { skano({ b -> hapBarkodin(b, "kamera") }) { b -> shtoNjeCope(b) } } }
+                    // v263: Skanimi i shpejtë (kamera s'mbyllet, lista me sasitë poshtë); leja "Skanim i shpejtë"
+                    if (Llogaria.leja("skanimShpejt") && (Llogaria.leja("stokuShto") || Llogaria.leja("stokuNdrysho")))
+                        pllakat.add { m -> PllakaVeprimi(Ik.Rrufe, "verdhe", "I shpejtë", "Kamera s'mbyllet", m) { skanoShpejt(id) } }
                 }
                 // PDA: tastiera në ekran fshihet/shfaqet me një prekje (si #btnTastiera te web-i); kursori mbetet te barkodi
-                if (pda) {
-                    Buton(if (paTastiere) "Shfaq tastierën" else "Fshih tastierën", {
+                if (pda) pllakat.add { m ->
+                    PllakaVeprimi(Ik.Tastiera, "gri", if (paTastiere) "Shfaq tastierën" else "Fshih tastierën", "Tastiera në ekran", m) {
                         Opsionet.vendosPaTastiere(!paTastiere)
                         Toast.trego(if (!paTastiere) "Tastiera në ekran s'del më. Shkruaj me tastierën e PDA-së." else "Tastiera në ekran del përsëri.")
                         try { fBarkodi.requestFocus() } catch (e: Exception) { }
-                    }, Modifier.fillMaxWidth(), lloji = "dyte", ikona = Ik.Tastiera)
-                    Hapesire(10.dp)
-                }
-                val lejaXls = Llogaria.leja("eksportExcel")
-                val lejaPdf = Llogaria.leja("eksportPdf")
-                if (lejaXls || lejaPdf) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        if (lejaXls) Buton("Eksporto Excel", {
-                            val sk = Eksportet.excelIFolderit(id)
-                            if (sk == null) Toast.trego("Nuk ka produkte për eksport në këtë folder.") else skedari = sk
-                        }, Modifier.weight(1f), lloji = "dyte", ikona = Ik.Excel)
-                        if (lejaPdf) Buton(if (pdfPune) "Duke krijuar…" else "Eksporto PDF", {
-                            if (pdfPune) return@Buton
-                            if (Dyqani.produktetEFolderit(id).isEmpty()) { Toast.trego("Nuk ka produkte për eksport në këtë folder."); return@Buton }
-                            pdfPune = true
-                            scope.launch {
-                                val sk = try { kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { Eksportet.pdfEtiketa(id) } } catch (e: Exception) { null }
-                                pdfPune = false
-                                if (sk == null) Toast.trego("PDF-ja nuk u krijua. Provo përsëri.") else skedari = sk
-                            }
-                        }, Modifier.weight(1f), lloji = "dyte", aktiv = !pdfPune)
                     }
-                    Hapesire(10.dp)
+                }
+                if (Llogaria.leja("eksportExcel")) pllakat.add { m ->
+                    PllakaVeprimi(Ik.Excel, "gjelber", "Excel", "Tabela e stokut", m) {
+                        val sk = Eksportet.excelIFolderit(id)
+                        if (sk == null) Toast.trego("Nuk ka produkte për eksport në këtë folder.") else skedari = sk
+                    }
+                }
+                if (Llogaria.leja("eksportPdf")) pllakat.add { m ->
+                    PllakaVeprimi(Ik.Pdf, "kuqe", if (pdfPune) "Duke krijuar…" else "PDF", "Etiketat me barkod", m, aktiv = !pdfPune) {
+                        if (pdfPune) return@PllakaVeprimi
+                        if (Dyqani.produktetEFolderit(id).isEmpty()) { Toast.trego("Nuk ka produkte për eksport në këtë folder."); return@PllakaVeprimi }
+                        pdfPune = true
+                        scope.launch {
+                            val sk = try { kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { Eksportet.pdfEtiketa(id) } } catch (e: Exception) { null }
+                            pdfPune = false
+                            if (sk == null) Toast.trego("PDF-ja nuk u krijua. Provo përsëri.") else skedari = sk
+                        }
+                    }
+                }
+                if (pllakat.isNotEmpty()) {
+                    PllakatDyNeRresht(pllakat)
+                    Hapesire(12.dp)
                 }
                 Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), "Kërko", ikona = Ik.Kerko)
                 Hapesire(10.dp)
