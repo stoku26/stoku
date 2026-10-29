@@ -177,7 +177,7 @@
       kameraHint: 'Vendos vetëm një barkod brenda kutisë',
       skanoPerseri: 'Skano përsëri',
       skanimShpejt: 'Skanim i shpejtë',
-      pllSkano: 'Skano', pllShpejt: 'I shpejtë', pllExcel: 'Excel', pllPdf: 'PDF', // v265: titujt e pllakave te folderi
+      pllExcel: 'Eksporto Excel', pllPdf: 'Eksporto PDF', // v267: emrat e pllakave te folderi (një tekst, pa shpjegim)
       ssMbaro: 'Mbaro',
       ssBosh: 'Skano barkodet njërin pas tjetrit: secili shtohet menjëherë në këtë folder. I njëjti barkod s\'del dy herë, i rritet sasia.',
       ssGjithsej: function (a) { return 'Gjithsej: ' + a.n + ' copë'; },
@@ -208,8 +208,8 @@
   // Elementet me tekst statik: { id, prop: 'text' | 'placeholder' | 'title' | 'titleAria', kyc }
   var STATIKE = [
     { id: 'btnKrijoFolder', prop: 'text', kyc: 'krijoFolder' },
-    { id: 'btnKameraT', prop: 'text', kyc: 'pllSkano' },
-    { id: 'btnSkanimShpejtT', prop: 'text', kyc: 'pllShpejt' },
+    { id: 'btnKameraT', prop: 'text', kyc: 'skanoKamer' },
+    { id: 'btnSkanimShpejtT', prop: 'text', kyc: 'skanimShpejt' },
     { id: 'ssMbaro', prop: 'text', kyc: 'ssMbaro' },
     { id: 'ssBosh', prop: 'text', kyc: 'ssBosh' },
     { id: 'btnEksportT', prop: 'text', kyc: 'pllExcel' },

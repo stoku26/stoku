@@ -298,12 +298,11 @@ val PaddingFaqe = PaddingValues(horizontal = 20.dp)
 fun Hapesire(h: Dp) = Spacer(Modifier.height(h))
 
 /**
- * v265: pllaka e veprimit (ideja 4 e përdoruesit, si .sb-pllaka te web-i): katror me ngjyrë me ikonën, titulli dhe një shpjegim i
- * shkurtër. Te folderi (Skano, I shpejtë, Excel, PDF) dhe te Afatet (Shto, Excel). ngjyra: "blu" | "verdhe" | "gjelber" | "kuqe" | "gri"
+ * v265: pllaka e veprimit (ideja 4 e përdoruesit, si .sb-pllaka te web-i): katror me ngjyrë me ikonën dhe emri (v267: vetëm një
+ * tekst, një madhësi). Te folderi i Stoku-t. ngjyra: "blu" | "verdhe" | "gjelber" | "kuqe" | "gri"
  */
 @Composable
-fun PllakaVeprimi(ikona: ImageVector, ngjyra: String, titulli: String, nentitulli: String, modifier: Modifier = Modifier, aktiv: Boolean = true,
-                  onClick: () -> Unit) {
+fun PllakaVeprimi(ikona: ImageVector, ngjyra: String, emri: String, modifier: Modifier = Modifier, aktiv: Boolean = true, onClick: () -> Unit) {
     val n = N
     val (sfondi, ngjyraIkones) = when (ngjyra) {
         "verdhe" -> NgjyraEQelibarit to Color(0xFF2B2100)
@@ -318,10 +317,7 @@ fun PllakaVeprimi(ikona: ImageVector, ngjyra: String, titulli: String, nentitull
         Box(Modifier.size(44.dp).clip(RoundedCornerShape(14.dp)).background(if (aktiv) sfondi else n.surface2), contentAlignment = Alignment.Center) {
             Icon(ikona, null, Modifier.size(23.dp), tint = if (aktiv) ngjyraIkones else n.disabled)
         }
-        Column(Modifier.weight(1f)) {
-            Text(titulli, style = tx(15, 700, if (aktiv) n.ink else n.disabled), maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(nentitulli, style = tx(12, 400, n.ink4), maxLines = 2, overflow = TextOverflow.Ellipsis)
-        }
+        Text(emri, style = tx(15, 600, if (aktiv) n.ink else n.disabled), maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
     }
 }
 /** E verdha e logos (si --stk-qelibar te web-i) */

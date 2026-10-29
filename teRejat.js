@@ -20,6 +20,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 267, versioni: '1.44.2', data: '2026-10-29', titulli: 'Emrat e qartë te butonat', platforma: 'tel', pikat: [
+      'Pllakat brenda folderit kanë tash emrat e plotë: "Skano me kamerë", "Skanim i shpejtë", "Eksporto Excel" dhe "Eksporto PDF", me një tekst të vetëm.'
+    ] },
     { v: 266, versioni: '1.44.1', data: '2026-10-29', titulli: 'Kamera njeh krejt barkodet', platforma: 'tel', pikat: [
       'Kamera tash njeh krejt llojet e barkodeve, edhe kodet katrore Data Matrix (p.sh. te ilaçet), PDF417 dhe Aztec. Vetëm kodi QR s\'merret si barkod produkti.',
       'Te Afatet butonat "Shto" dhe "Excel" janë si më parë; pllakat me ngjyra mbeten vetëm brenda folderit te Stoku.'

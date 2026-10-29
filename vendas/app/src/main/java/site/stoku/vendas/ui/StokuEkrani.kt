@@ -424,27 +424,27 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
                 // v265: pllakat me ngjyra (ideja 4 e përdoruesit, si #folderPllakat te web-i), dy nga dy
                 val pllakat = mutableListOf<@Composable (Modifier) -> Unit>()
                 if (Llogaria.leja("kamera") && !pda) {
-                    pllakat.add { m -> PllakaVeprimi(Ik.Skano, "blu", "Skano", "Me kamerë", m) { skano({ b -> hapBarkodin(b, "kamera") }) { b -> shtoNjeCope(b) } } }
+                    pllakat.add { m -> PllakaVeprimi(Ik.Skano, "blu", "Skano me kamerë", m) { skano({ b -> hapBarkodin(b, "kamera") }) { b -> shtoNjeCope(b) } } }
                     // v263: Skanimi i shpejtë (kamera s'mbyllet, lista me sasitë poshtë); leja "Skanim i shpejtë"
                     if (Llogaria.leja("skanimShpejt") && (Llogaria.leja("stokuShto") || Llogaria.leja("stokuNdrysho")))
-                        pllakat.add { m -> PllakaVeprimi(Ik.Rrufe, "verdhe", "I shpejtë", "Kamera s'mbyllet", m) { skanoShpejt(id) } }
+                        pllakat.add { m -> PllakaVeprimi(Ik.Rrufe, "verdhe", "Skanim i shpejtë", m) { skanoShpejt(id) } }
                 }
                 // PDA: tastiera në ekran fshihet/shfaqet me një prekje (si #btnTastiera te web-i); kursori mbetet te barkodi
                 if (pda) pllakat.add { m ->
-                    PllakaVeprimi(Ik.Tastiera, "gri", if (paTastiere) "Shfaq tastierën" else "Fshih tastierën", "Tastiera në ekran", m) {
+                    PllakaVeprimi(Ik.Tastiera, "gri", if (paTastiere) "Shfaq tastierën" else "Fshih tastierën", m) {
                         Opsionet.vendosPaTastiere(!paTastiere)
                         Toast.trego(if (!paTastiere) "Tastiera në ekran s'del më. Shkruaj me tastierën e PDA-së." else "Tastiera në ekran del përsëri.")
                         try { fBarkodi.requestFocus() } catch (e: Exception) { }
                     }
                 }
                 if (Llogaria.leja("eksportExcel")) pllakat.add { m ->
-                    PllakaVeprimi(Ik.Excel, "gjelber", "Excel", "Tabela e stokut", m) {
+                    PllakaVeprimi(Ik.Excel, "gjelber", "Eksporto Excel", m) {
                         val sk = Eksportet.excelIFolderit(id)
                         if (sk == null) Toast.trego("Nuk ka produkte për eksport në këtë folder.") else skedari = sk
                     }
                 }
                 if (Llogaria.leja("eksportPdf")) pllakat.add { m ->
-                    PllakaVeprimi(Ik.Pdf, "kuqe", if (pdfPune) "Duke krijuar…" else "PDF", "Etiketat me barkod", m, aktiv = !pdfPune) {
+                    PllakaVeprimi(Ik.Pdf, "kuqe", if (pdfPune) "Duke krijuar…" else "Eksporto PDF", m, aktiv = !pdfPune) {
                         if (pdfPune) return@PllakaVeprimi
                         if (Dyqani.produktetEFolderit(id).isEmpty()) { Toast.trego("Nuk ka produkte për eksport në këtë folder."); return@PllakaVeprimi }
                         pdfPune = true
