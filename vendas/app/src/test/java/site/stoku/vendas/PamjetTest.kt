@@ -307,7 +307,7 @@ class PamjetTest {
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
         kliko("Pije")
         foto("light-18-folderi-excel")
-        kliko("Eksporto Excel") // pllaka e folderit (v267: emri i plotë)
+        r.onNodeWithContentDescription("Eksporto Excel").performClick(); r.waitForIdle() // v268: ikona pranë titullit të folderit
         fotoEkrani("light-19-skedari")
         kliko("Anulo")
         r.onNodeWithContentDescription("Foldera").performClick(); r.waitForIdle()

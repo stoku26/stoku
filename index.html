@@ -1063,7 +1063,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=6">
-<link rel="stylesheet" href="css/stoku.css?v=52">
+<link rel="stylesheet" href="css/stoku.css?v=53">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -1072,6 +1072,11 @@
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" aria-label="Mbrapa" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
   <h1 id="titulli" class="logo" style="display:none">STOKU</h1>
+  <!-- v268 (ideja 5 e përdoruesit): eksporti si ikona pranë titullit të folderit -->
+  <div class="krye-butona" id="kryeButonatFolderi" style="display:none">
+    <button id="btnEksport" class="btn-ikone krye-excel" type="button" data-leja="eksportExcel" aria-label="Eksporto Excel" title="Eksporto Excel"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M9 12l6 6M15 12l-6 6"></path></svg></button>
+    <button id="btnEksportPdf" class="btn-ikone krye-pdf" type="button" data-leja="eksportPdf" aria-label="Eksporto PDF" title="Eksporto PDF"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M8 13h8M8 17h5"></path></svg></button>
+  </div>
   <div class="sb-brand" id="logoSlika">
     <div class="stk-etiketa" id="logoButon" role="button" tabindex="0" title="Rifresko dhe sinkronizo" aria-label="Stoku: rifresko dhe sinkronizo">
       <span class="stk-etiketa__emri">STOKU</span>
@@ -1109,14 +1114,8 @@
              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
   </div>
-  <!-- v265: pllakat me ngjyra (ideja 4 e përdoruesit): katror me ngjyrë + emri; v267: vetëm një tekst, emrat e plotë. Si në Android -->
-  <div class="sb-pllakat" id="folderPllakat">
-    <button class="sb-pllaka" id="btnKamera" type="button" data-leja="kamera"><span class="sb-pllaka__ik sb-pllaka__ik--blu"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><path d="M8 7v10M12 7v10M16 7v10"></path></svg></span><span class="sb-pllaka__tekst"><span class="sb-pllaka__t" id="btnKameraT"></span></span></button>
-    <button class="sb-pllaka" id="btnSkanimShpejt" type="button"><span class="sb-pllaka__ik sb-pllaka__ik--verdhe"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path></svg></span><span class="sb-pllaka__tekst"><span class="sb-pllaka__t" id="btnSkanimShpejtT"></span></span></button>
-    <button class="sb-pllaka" id="btnTastiera" type="button" aria-pressed="false" style="display:none"><span class="sb-pllaka__ik sb-pllaka__ik--gri"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2.5"></rect><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 12.5h.01M10 12.5h.01M14 12.5h.01M18 12.5h.01M8 16h8"></path></svg></span><span class="sb-pllaka__tekst"><span class="sb-pllaka__t" id="btnTastieraT"></span></span></button>
-    <button class="sb-pllaka" id="btnEksport" type="button" data-leja="eksportExcel"><span class="sb-pllaka__ik sb-pllaka__ik--gjelber"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M9 12l6 6M15 12l-6 6"></path></svg></span><span class="sb-pllaka__tekst"><span class="sb-pllaka__t" id="btnEksportT"></span></span></button>
-    <button class="sb-pllaka" id="btnEksportPdf" type="button" data-leja="eksportPdf"><span class="sb-pllaka__ik sb-pllaka__ik--kuqe"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M8 13h8M8 17h5"></path></svg></span><span class="sb-pllaka__tekst"><span class="sb-pllaka__t" id="btnEksportPdfT"></span></span></button>
-  </div>
+  <!-- v268: PDA: tastiera në ekran (Skanimi me kamerë s'ka kuptim në PDA) -->
+  <button class="btn dyte" id="btnTastiera" type="button" aria-pressed="false" style="display:none"><span id="btnTastieraT"></span></button>
   <div class="fushe">
     <div class="kerko-kuti">
       <svg class="kerko-ikona" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>
@@ -1127,6 +1126,11 @@
 
 <div id="lista"></div>
 
+<!-- v268 (ideja 5 e përdoruesit): butoni lundrues poshtë djathtas, gjysmë blu (Skano me kamerë), gjysmë i verdhë (Skanim i shpejtë) -->
+<div class="skan-fab" id="skanFab" style="display:none">
+  <button id="btnKamera" type="button" data-leja="kamera" aria-label="Skano me kamerë" title="Skano me kamerë"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><path d="M8 7v10M12 7v10M16 7v10"></path></svg></button>
+  <button id="btnSkanimShpejt" type="button" aria-label="Skanim i shpejtë" title="Skanim i shpejtë"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path></svg></button>
+</div>
 <footer id="footerFolderi" style="display:none">
   <button class="btn tekst rrezik" id="btnFshiTeGjitha" type="button" data-leja="stokuFshi"></button>
 </footer>

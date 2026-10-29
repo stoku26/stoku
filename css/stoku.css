@@ -296,20 +296,23 @@
 
 /* ---------- Afatet ---------- */
 .sb .sb-actions { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; margin: 4px 0 14px; }
-/* v265: pllakat me ngjyra (ideja 4 e përdoruesit): vetëm te folderi i Stoku-t (Skano, I shpejtë, Excel, PDF); v266: jo te Afatet */
-.sb .sb-pllakat { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 10px 0 12px; }
-.sb .sb-pllaka { width: 100%; min-height: 76px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 12px; border: 0;
-  border-radius: 20px; background: var(--sb-surface); box-shadow: var(--sb-ring); color: var(--sb-ink); font: inherit; text-align: left; cursor: pointer; }
-.sb .sb-pllaka:active { background: var(--sb-surface-2); }
-.sb .sb-pllaka:disabled { cursor: default; opacity: .6; }
-.sb .sb-pllaka__ik { width: 44px; height: 44px; flex: none; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #fff; }
-.sb .sb-pllaka__ik--blu { background: var(--sb-accent); }
-.sb .sb-pllaka__ik--verdhe { background: var(--stk-qelibar); color: #2b2100; }
-.sb .sb-pllaka__ik--gjelber { background: #1e7f45; }
-.sb .sb-pllaka__ik--kuqe { background: #c23030; }
-.sb .sb-pllaka__ik--gri { background: var(--sb-surface-2); color: var(--sb-ink-2); }
-.sb .sb-pllaka__tekst { min-width: 0; }
-.sb .sb-pllaka__t { font-size: 15px; font-weight: 600; line-height: 1.3; } /* v267: vetëm një tekst, një madhësi */
+/* v268 (ideja 5 e përdoruesit): butoni lundrues i folderit, gjysmë blu / gjysmë i verdhë, vetëm ikona; eksporti te koka */
+.sb .skan-fab { position: fixed; z-index: 20; right: max(20px, env(safe-area-inset-right)); bottom: calc(72px + var(--sab, 0px)); display: flex;
+  height: 68px; border-radius: 34px; overflow: hidden; box-shadow: 0 10px 24px rgba(20,22,30,.22); }
+.sb[data-tema="dark"] .skan-fab { box-shadow: 0 10px 26px rgba(0,0,0,.6); }
+.sb .skan-fab button { width: 76px; height: 68px; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.sb .skan-fab #btnKamera { background: var(--sb-accent); color: #fff; padding-left: 6px; }
+.sb .skan-fab #btnSkanimShpejt { background: var(--stk-qelibar); color: #2b2100; padding-right: 6px; }
+.sb .skan-fab.dy #btnSkanimShpejt { border-left: 2px solid var(--sb-bg); }
+.sb .skan-fab:not(.dy) button { width: 68px; padding: 0; }
+.sb .skan-fab button:active { filter: brightness(.92); }
+.sb.me-fab #lista { padding-bottom: 100px; }
+.sb .krye-excel { color: #1e7f45; }
+.sb .krye-pdf { color: #c23030; }
+.sb[data-tema="dark"] .krye-excel { color: #4cc783; }
+.sb[data-tema="dark"] .krye-pdf { color: #ff7a7a; }
+.sb .btn-ikone:disabled { opacity: .5; }
+.sb #btnTastiera { width: 100%; margin: 0 0 10px; }
 .sb #dlgAfatet.zgjedhje .sb-actions { display: none; }
 .sb .sb-action-primary-kuti { grid-row: span 2; position: relative; display: flex; }
 .sb .sb-action-primary { flex: 1; min-height: 132px; border-radius: 20px; background: var(--sb-accent); color: #fff; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 12px; border: 0; text-align: left; font: inherit; cursor: pointer; box-shadow: var(--sb-shadow-accent); }

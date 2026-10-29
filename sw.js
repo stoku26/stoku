@@ -52,7 +52,7 @@ var SHELL = FAQET.concat([
   './firebase-pc.js?v=252',
   './manifest.webmanifest?v=87',
   './css/stoku-tokens.css?v=6',
-  './css/stoku.css?v=52',
+  './css/stoku.css?v=53',
   './css/stoku-pc.css?v=39',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',

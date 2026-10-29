@@ -4,6 +4,9 @@ import site.stoku.vendas.Eksportet
 import site.stoku.vendas.Skedari
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.draw.shadow
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -408,56 +411,55 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
         hapur = b
     }
 
+    // v268 (ideja 5 e përdoruesit, si #skanFab te web-i): butoni lundrues poshtë djathtas, gjysmë blu / gjysmë i verdhë, vetëm ikona;
+    // eksporti si ikona pranë titullit
+    val lejaKamera = Llogaria.leja("kamera") && !pda
+    val lejaShpejtSkanim = lejaKamera && Llogaria.leja("skanimShpejt") && (Llogaria.leja("stokuShto") || Llogaria.leja("stokuNdrysho"))
+    fun eksportoPdf() {
+        if (pdfPune) { Toast.trego("PDF-ja po krijohet…"); return }
+        if (Dyqani.produktetEFolderit(id).isEmpty()) { Toast.trego("Nuk ka produkte për eksport në këtë folder."); return }
+        pdfPune = true
+        scope.launch {
+            val sk = try { kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { Eksportet.pdfEtiketa(id) } } catch (e: Exception) { null }
+            pdfPune = false
+            if (sk == null) Toast.trego("PDF-ja nuk u krijua. Provo përsëri.") else skedari = sk
+        }
+    }
+
+    Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize()) {
-        LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 16.dp)) {
+        LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = if (lejaKamera) 104.dp else 16.dp)) {
             item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ButonIkone(Ik.Mbrapa, "Foldera", mbrapa, madhesia = 42.dp)
                     Spacer(Modifier.width(14.dp))
                     Text(Dyqani.emriFolderit(id) + " (" + te.size + " " + (if (te.size == 1) "produkt" else "produkte") + ")", style = tx(22, 700, n.ink, -0.02),
-                        maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                    if (Llogaria.leja("eksportExcel")) {
+                        Spacer(Modifier.width(8.dp))
+                        ButonIkone(Ik.Excel, "Eksporto Excel", {
+                            val sk = Eksportet.excelIFolderit(id)
+                            if (sk == null) Toast.trego("Nuk ka produkte për eksport në këtë folder.") else skedari = sk
+                        }, madhesia = 42.dp, ngjyra = if (n.bg.luminance() < 0.5f) Color(0xFF4CC783) else Color(0xFF1E7F45))
+                    }
+                    if (Llogaria.leja("eksportPdf")) {
+                        Spacer(Modifier.width(8.dp))
+                        ButonIkone(Ik.Pdf, if (pdfPune) "Duke krijuar PDF-në" else "Eksporto PDF", { eksportoPdf() }, madhesia = 42.dp,
+                            ngjyra = if (pdfPune) n.disabled else if (n.bg.luminance() < 0.5f) Color(0xFFFF7A7A) else Color(0xFFC23030))
+                    }
                 }
                 Hapesire(14.dp)
                 Fusha(barkodi, { barkodi = it }, Modifier.fillMaxWidth(), "Barkodi", ikona = Ik.Barkod, fokusi = fBarkodi,
                     veprimi = ImeAction.Go, kurVeprim = { val b = barkodi; barkodi = ""; hapBarkodin(b, "fushe") })
                 Hapesire(10.dp)
-                // v265: pllakat me ngjyra (ideja 4 e përdoruesit, si #folderPllakat te web-i), dy nga dy
-                val pllakat = mutableListOf<@Composable (Modifier) -> Unit>()
-                if (Llogaria.leja("kamera") && !pda) {
-                    pllakat.add { m -> PllakaVeprimi(Ik.Skano, "blu", "Skano me kamerë", m) { skano({ b -> hapBarkodin(b, "kamera") }) { b -> shtoNjeCope(b) } } }
-                    // v263: Skanimi i shpejtë (kamera s'mbyllet, lista me sasitë poshtë); leja "Skanim i shpejtë"
-                    if (Llogaria.leja("skanimShpejt") && (Llogaria.leja("stokuShto") || Llogaria.leja("stokuNdrysho")))
-                        pllakat.add { m -> PllakaVeprimi(Ik.Rrufe, "verdhe", "Skanim i shpejtë", m) { skanoShpejt(id) } }
-                }
                 // PDA: tastiera në ekran fshihet/shfaqet me një prekje (si #btnTastiera te web-i); kursori mbetet te barkodi
-                if (pda) pllakat.add { m ->
-                    PllakaVeprimi(Ik.Tastiera, "gri", if (paTastiere) "Shfaq tastierën" else "Fshih tastierën", m) {
+                if (pda) {
+                    Buton(if (paTastiere) "Shfaq tastierën" else "Fshih tastierën", {
                         Opsionet.vendosPaTastiere(!paTastiere)
                         Toast.trego(if (!paTastiere) "Tastiera në ekran s'del më. Shkruaj me tastierën e PDA-së." else "Tastiera në ekran del përsëri.")
                         try { fBarkodi.requestFocus() } catch (e: Exception) { }
-                    }
-                }
-                if (Llogaria.leja("eksportExcel")) pllakat.add { m ->
-                    PllakaVeprimi(Ik.Excel, "gjelber", "Eksporto Excel", m) {
-                        val sk = Eksportet.excelIFolderit(id)
-                        if (sk == null) Toast.trego("Nuk ka produkte për eksport në këtë folder.") else skedari = sk
-                    }
-                }
-                if (Llogaria.leja("eksportPdf")) pllakat.add { m ->
-                    PllakaVeprimi(Ik.Pdf, "kuqe", if (pdfPune) "Duke krijuar…" else "Eksporto PDF", m, aktiv = !pdfPune) {
-                        if (pdfPune) return@PllakaVeprimi
-                        if (Dyqani.produktetEFolderit(id).isEmpty()) { Toast.trego("Nuk ka produkte për eksport në këtë folder."); return@PllakaVeprimi }
-                        pdfPune = true
-                        scope.launch {
-                            val sk = try { kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { Eksportet.pdfEtiketa(id) } } catch (e: Exception) { null }
-                            pdfPune = false
-                            if (sk == null) Toast.trego("PDF-ja nuk u krijua. Provo përsëri.") else skedari = sk
-                        }
-                    }
-                }
-                if (pllakat.isNotEmpty()) {
-                    PllakatDyNeRresht(pllakat)
-                    Hapesire(12.dp)
+                    }, Modifier.fillMaxWidth(), lloji = "dyte", ikona = Ik.Tastiera)
+                    Hapesire(10.dp)
                 }
                 Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), "Kërko", ikona = Ik.Kerko)
                 Hapesire(10.dp)
@@ -476,6 +478,9 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
                 Text("Fshi të gjitha produktet", style = tx(15, 600, if (te.isEmpty()) n.disabled else n.exp))
             }
         }
+    }
+    if (lejaKamera) ButoniLundrues(Modifier.align(Alignment.BottomEnd).padding(end = 20.dp, bottom = if (Llogaria.leja("stokuFshi")) 72.dp else 20.dp),
+        skano = { skano({ b -> hapBarkodin(b, "kamera") }) { b -> shtoNjeCope(b) } }, shpejt = if (lejaShpejtSkanim) ({ skanoShpejt(id) }) else null)
     }
 
     hapur?.let { b -> ProduktiFlete(id, b, burimi) { hapur = null } }
@@ -680,6 +685,25 @@ fun FolderIRiFlete(mbyll: () -> Unit) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Buton("Anulo", mbyll, Modifier.weight(1f), lloji = "dyte")
             Buton("Krijo", { krijo() }, Modifier.weight(1f))
+        }
+    }
+}
+
+/** v268 (ideja 5 e përdoruesit, si #skanFab te web-i): gjysma blu "Skano me kamerë", gjysma e verdhë "Skanim i shpejtë", vetëm ikona */
+@Composable
+private fun ButoniLundrues(modifier: Modifier, skano: () -> Unit, shpejt: (() -> Unit)?) {
+    val n = N
+    val forma = RoundedCornerShape(34.dp)
+    Row(modifier.height(68.dp).shadow(12.dp, forma).clip(forma)) {
+        Box(Modifier.width(if (shpejt != null) 76.dp else 68.dp).fillMaxHeight().background(n.accent).clickable(onClick = skano)
+            .padding(start = if (shpejt != null) 6.dp else 0.dp), contentAlignment = Alignment.Center) {
+            Icon(Ik.Skano, "Skano me kamerë", Modifier.size(30.dp), tint = Color.White)
+        }
+        if (shpejt != null) {
+            Box(Modifier.width(2.dp).fillMaxHeight().background(n.bg))
+            Box(Modifier.width(76.dp).fillMaxHeight().background(Color(0xFFE8A92E)).clickable(onClick = shpejt).padding(end = 6.dp), contentAlignment = Alignment.Center) {
+                Icon(Ik.Rrufe, "Skanim i shpejtë", Modifier.size(30.dp), tint = Color(0xFF2B2100))
+            }
         }
     }
 }
