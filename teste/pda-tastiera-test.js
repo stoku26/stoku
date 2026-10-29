@@ -28,14 +28,14 @@ const attr = (p, sel) => p.evaluate(s => { const e = document.querySelector(s); 
   // 2. Ndizet PDA (Cilësimet → Skanimi): butoni del, çelësi del te Cilësimet
   await p.evaluate(() => { const c = document.getElementById('opsPda'); c.checked = true; c.dispatchEvent(new Event('change')); });
   await p.waitForTimeout(300);
-  ok(await dukshem(p, '#btnTastiera') && (await p.textContent('#btnTastiera')) === 'Fshih tastierën', '2. PDA: butoni "Fshih tastierën" te folderi', await p.textContent('#btnTastiera'));
+  ok(await dukshem(p, '#btnTastiera') && (await p.textContent('#btnTastieraT')) === 'Fshih tastierën', '2. PDA: butoni "Fshih tastierën" te folderi', await p.textContent('#btnTastieraT'));
   ok(!(await dukshem(p, '#btnKamera')), '2. PDA: kamera fshihet si më parë');
   ok(await p.evaluate(() => document.getElementById('seksionTastiera').style.display !== 'none'), '2. PDA: çelësi te Cilësimet → Skanimi');
   ok((await attr(p, '#barkodi')).im === 'text', '2. PDA pa e shtypur butonin: tastiera ende normale');
 
   // 3. "Fshih tastierën": krejt fushat pa tastierë në ekran, shkrimi me tastierë fizike punon
   await p.tap('#btnTastiera'); await p.waitForTimeout(400);
-  ok((await p.textContent('#btnTastiera')) === 'Shfaq tastierën' && (await p.getAttribute('#btnTastiera', 'aria-pressed')) === 'true', '3. butoni bëhet "Shfaq tastierën"');
+  ok((await p.textContent('#btnTastieraT')) === 'Shfaq tastierën' && (await p.getAttribute('#btnTastiera', 'aria-pressed')) === 'true', '3. butoni bëhet "Shfaq tastierën"');
   ok((await p.textContent('#toast')) === "Tastiera në ekran s'del më. Shkruaj me tastierën e PDA-së.", '3. njoftimi "Tastiera në ekran s\'del më"', await p.textContent('#toast'));
   const bk = await attr(p, '#barkodi');
   ok(bk.im === 'none' && bk.vk === 'manual' && bk.orig === 'text', '3. barkodi: inputmode none + virtualkeyboardpolicy manual (origjinali ruhet)', bk);
@@ -66,7 +66,7 @@ const attr = (p, sel) => p.evaluate(s => { const e = document.querySelector(s); 
   await p.reload(); await p.waitForTimeout(1500);
   if (await dukshem(p, '#pkVizitor')) { await p.click('#pkVizitor'); await p.waitForTimeout(1500); }
   await p.click('.folder-karta >> nth=0').catch(() => {}); await p.waitForTimeout(500);
-  ok((await p.textContent('#btnTastiera')) === 'Shfaq tastierën' && (await attr(p, '#barkodi')).im === 'none', '5. pas rifreskimit: ende e fshehur', await attr(p, '#barkodi'));
+  ok((await p.textContent('#btnTastieraT')) === 'Shfaq tastierën' && (await attr(p, '#barkodi')).im === 'none', '5. pas rifreskimit: ende e fshehur', await attr(p, '#barkodi'));
   ok(await p.evaluate(() => document.getElementById('opsTastiera').checked), '5. çelësi te Cilësimet i ndezur');
 
   // 6. Fiket PDA: tastiera rikthehet krejt, butoni dhe çelësi zhduken (zgjedhja ruhet për herën tjetër)
@@ -83,7 +83,7 @@ const attr = (p, sel) => p.evaluate(s => { const e = document.querySelector(s); 
   ok((await attr(p, '#barkodi')).im === 'none', '7. PDA sërish: tastiera e fshehur (zgjedhja u ruajt)');
   await p.evaluate(() => { const c = document.getElementById('opsTastiera'); c.checked = false; c.dispatchEvent(new Event('change')); });
   await p.waitForTimeout(300);
-  ok((await attr(p, '#barkodi')).im === 'text' && (await p.textContent('#btnTastiera')) === 'Fshih tastierën', '7. çelësi te Cilësimet e rikthen tastierën', await attr(p, '#barkodi'));
+  ok((await attr(p, '#barkodi')).im === 'text' && (await p.textContent('#btnTastieraT')) === 'Fshih tastierën', '7. çelësi te Cilësimet e rikthen tastierën', await attr(p, '#barkodi'));
   await p.screenshot({ path: __dirname + '/pda-tastiera.png' });
 
   ok(!gab.length, 'pa gabime në faqe', gab);

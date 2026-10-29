@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 265, versioni: '1.44.0', data: '2026-10-29', titulli: 'Butonat e rinj me ngjyra', platforma: 'tel', pikat: [
+      'Brenda folderit butonat janë tash pllaka me ngjyra: Skano (blu), I shpejtë (e verdhë), Excel (e gjelbër) dhe PDF (e kuqe), secila me një shpjegim të shkurtër.',
+      'Edhe te Afatet, "Shto" dhe "Excel" janë pllaka të njëjta.'
+    ] },
     { v: 264, versioni: '1.43.1', data: '2026-10-29', titulli: 'Skanim i shpejtë: kamera më e vogël, lista më e madhe', platforma: 'tel', pikat: [
       'Kamera e Skanimit të shpejtë nis që lart, me butonat mbi të, dhe zë vetëm sa duhet për kutinë. Lista e produkteve poshtë ka më shumë vend.'
     ] },

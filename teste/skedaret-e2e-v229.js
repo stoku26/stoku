@@ -46,7 +46,8 @@ const dritarja = p => p.evaluate(() => { const d = document.getElementById('dlgK
   ok(!(await t.$('#opsSkedaretPc')), 'tel: s\'ka çelës te Cilësimet (zgjedhja bëhet te butoni)');
   await t.evaluate(() => { const k = [...document.querySelectorAll('.folder-karta')].find(x => /Pije/.test(x.textContent)); k.click(); });
   await t.waitForTimeout(500);
-  ok((await t.textContent('#btnEksport')) === 'Eksporto në Excel' && (await t.textContent('#btnEksportPdf')) === 'Eksporto në PDF', 'tel: butonat si më parë ("Eksporto në Excel/PDF")');
+  // v265: butonat janë pllaka me ngjyra (titulli "Excel" / "PDF")
+  ok((await t.textContent('#btnEksportT')) === 'Excel' && (await t.textContent('#btnEksportPdfT')) === 'PDF', 'tel: pllakat "Excel" dhe "PDF"');
 
   // 1. Excel → dritarja me dy zgjedhjet
   await t.click('#btnEksport'); await t.waitForTimeout(300);
