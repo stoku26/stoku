@@ -1,5 +1,5 @@
 // v265: pllakat me ngjyra (ideja 4 e përdoruesit nga Claude Design) kudo ku janë këta butona: brenda folderit (Skano, I shpejtë,
-// Excel, PDF; në PDA Tastiera) dhe te Afatet (Shto, Excel). Katror me ngjyrë + titulli + shpjegimi, dy nga dy; e çelët dhe e errët.
+// Excel, PDF; në PDA Tastiera); v266: te Afatet jo (si më parë). Katror me ngjyrë + titulli + shpjegimi, dy nga dy; e çelët dhe e errët.
 const { chromium } = require('./pw.js');
 const { hapFaqen } = require('./kamera-e-rreme.js');
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
@@ -51,18 +51,14 @@ const pllakat = (p, sel) => p.evaluate(sel => Array.from(document.querySelectorA
       await p.waitForTimeout(300);
     }
 
-    // Afatet: "Shto" dhe "Excel" si pllaka, pranë "Fotografo fletën"
+    // Afatet: v266, përdoruesi: "veq te afatet mos e bo" → "Shto" dhe "Excel" si para v265 (pa pllaka)
     await p.click('#btnMbrapa'); await p.waitForTimeout(400);
     await p.click('#btnAfatet'); await p.waitForTimeout(800);
-    l = await pllakat(p, '#afVeprime .sb-pllaka');
-    const foto = await p.evaluate(() => { const r = document.getElementById('afFotografo').getBoundingClientRect(); return { y: Math.round(r.top), b: Math.round(r.bottom), r: Math.round(r.right) }; });
-    ok(l.map(x => x.t + ' / ' + x.n).join(' | ') === 'Shto / Afat i ri | Excel / Importo, eksporto' && l[0].x > foto.r && l[1].y > l[0].y && Math.abs(l[0].y - foto.y) <= 1 && Math.abs(l[1].y + l[1].h - foto.b) <= 1,
-      tema + ' 4. Afatet: "Shto" dhe "Excel" pllaka, njëra mbi tjetrën, sa "Fotografo fletën"', { l, foto });
+    const af = await p.evaluate(() => ({ pllaka: document.querySelectorAll('#afVeprime .sb-pllaka').length,
+      shto: document.getElementById('afShto').className, excel: document.getElementById('afExcel').className, tShto: document.getElementById('afShto').textContent.trim() }));
+    ok(af.pllaka === 0 && af.shto === 'sb-action' && af.excel === 'sb-action' && af.tShto === 'Shto', tema + ' 4. Afatet: "Shto" dhe "Excel" si më parë (pa pllaka)', af);
     await p.click('#afExcel'); await p.waitForTimeout(300);
     ok(await p.evaluate(() => !document.getElementById('afExcelMenu').hidden), tema + ' 4. "Excel" hap menynë Importo / Eksporto');
-    await p.click('#afExcel'); await p.waitForTimeout(200);
-    await p.click('#afShto'); await p.waitForTimeout(400);
-    ok(await p.evaluate(() => !!document.querySelector('.mbulese.hapur')), tema + ' 4. "Shto" hap afatin e ri');
 
     if (tema === 'light') {
       const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));

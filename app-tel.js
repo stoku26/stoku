@@ -3523,7 +3523,12 @@
   // vjetër i bazuar në JS të pastër (ZXing), sepse përdor vetë sistemin/harduerin e telefonit për
   // ta njohur barkodin. Provohet gjithmonë e para; nëse shfletuesi s'e mbështet (kryesisht Safari
   // në iPhone), kalohet automatikisht te motori rezervë (html5-qrcode), pa e ndjerë fare përdoruesi.
-  var FORMATET_E_BARKODIT = ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'code_93', 'itf', 'codabar', 'qr_code'];
+  // v266: krejt llojet e barkodeve (edhe Data Matrix, PDF417, Aztec), përveç QR-së: ajo lexohet vetëm që të njoftohet
+  // ("Ke skenuar një kod QR"), s'pranohet si barkod produkti. Këto janë krejt formatet e standardit të BarcodeDetector-it.
+  var FORMATET_E_BARKODIT = ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'code_93', 'itf', 'codabar',
+    'data_matrix', 'pdf417', 'aztec', 'qr_code'];
+  // ZXing (iPhone) njeh edhe GS1 DataBar (fruta/perime, mish) dhe MaxiCode; Micro QR / rMQR janë QR, s'merren
+  var FORMATET_E_BARKODIT_WASM = FORMATET_E_BARKODIT.concat(['databar', 'databar_expanded', 'databar_limited', 'maxi_code']);
   var detektoriNativ = null;
   try {
     if ('BarcodeDetector' in window) detektoriNativ = new BarcodeDetector({ formats: FORMATET_E_BARKODIT });
@@ -3554,7 +3559,8 @@
         fireImmediately: true
       });
     }).then(function () {
-      detektoriWasm = new api.BarcodeDetector({ formats: FORMATET_E_BARKODIT });
+      try { detektoriWasm = new api.BarcodeDetector({ formats: FORMATET_E_BARKODIT_WASM }); }
+      catch (e) { detektoriWasm = new api.BarcodeDetector({ formats: FORMATET_E_BARKODIT }); } // version që s'i njeh formatet shtesë
       return detektoriWasm;
     }).catch(function () {
       detektoriWasmGati = null; // provo sërish herën tjetër (p.sh. kur të ketë internet)
@@ -3811,7 +3817,8 @@
   function krijoSkanerin() {
     var F = Html5QrcodeSupportedFormats;
     return new Html5Qrcode('reader', {
-      formatsToSupport: [F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E, F.CODE_128, F.CODE_39, F.CODE_93, F.ITF, F.CODABAR, F.QR_CODE],
+      formatsToSupport: [F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E, F.CODE_128, F.CODE_39, F.CODE_93, F.ITF, F.CODABAR,
+        F.DATA_MATRIX, F.PDF_417, F.AZTEC, F.RSS_14, F.RSS_EXPANDED, F.MAXICODE, F.QR_CODE].filter(function (x) { return x !== undefined; }),
       experimentalFeatures: { useBarCodeDetectorIfSupported: true }, // API-ja native e shfletuesit kur ekziston — më e shpejtë dhe më e saktë
       verbose: false
     });
@@ -4152,7 +4159,9 @@
     if (folderiAktual === null || !foldera.some(function (f) { return f.id === folderiAktual; })) {
       toast('Folderi u fshi nga një pajisje tjetër.', 4000); ndalKamere(); return false;
     }
-    if (duketSiDiçkaTjeterVeçBarkod(barkodi)) { toast(T('qrDyshim')); return false; }
+    // v266: nga kamera vjen edhe Data Matrix / PDF417 (tekst i gjatë, me hapësira): s'kontrollohet si te fusha; vetëm "::"
+    // (ndarësi i çelësit të produktit) s'lejohet
+    if (barkodi.indexOf('::') !== -1) { toast(T('qrDyshim')); return false; }
     var k = celesiProduktit(folderiAktual, barkodi), e = produktet[k] || null;
     if (!leja(e ? 'stokuNdrysho' : 'stokuShto')) {
       toast(e ? 'S\'ke leje ta ndryshosh sasinë e këtij produkti.' : 'Ky barkod s\'është në këtë folder.', 3000);

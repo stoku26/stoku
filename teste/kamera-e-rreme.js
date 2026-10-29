@@ -17,7 +17,7 @@ const SKRIPTI = (u) => {
     if (poz === 'gjysme') return { x: kx + kw * 0.2, y: ky + kh * 0.7, width: kw * 0.6, height: kh * 0.5 };
     return { x: kx + kw * 0.2, y: ky + kh * 0.25, width: kw * 0.6, height: kh * 0.5 };
   };
-  window.BarcodeDetector = class { constructor() {} static async getSupportedFormats() { return ['ean_13', 'code_128', 'qr_code']; }
+  window.BarcodeDetector = class { constructor(o) { window.__formatet = (o && o.formats) || []; } static async getSupportedFormats() { return ['ean_13', 'code_128', 'qr_code']; }
     async detect(c) {
       window.__thirrje++;
       const x = window.__leximet.length ? window.__leximet.shift() : null;
