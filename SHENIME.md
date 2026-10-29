@@ -52,6 +52,19 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **KAMERA NJEH KREJT BARKODET PËRVEÇ QR; AFATET PA PLLAKA (v266 = 1.44.1, 29.10.2026, web telefoni + Android Hyrja 26)**:
+   përdoruesi: "Veq te afatet mos e bo bine veq te stoku" dhe "mi njoft krejta barkodet qe egzistojn perveq qr code". (1) Afatet:
+   `#afShto`/`#afExcel` (web) dhe `AfatetEkrani.kt` (Android, `KartaVeprimi`) u kthyen si para v265; `.sb-actions` sërish 1.4fr/1fr;
+   pllakat mbeten vetëm te folderi. (2) Formatet: web `FORMATET_E_BARKODIT` = krejt formatet e standardit BarcodeDetector (shtuar
+   `data_matrix`, `pdf417`, `aztec`); ZXing (iPhone) `FORMATET_E_BARKODIT_WASM` edhe `databar`, `databar_expanded`, `databar_limited`,
+   `maxi_code` (me rikthim te lista standarde kur versioni s'i njeh; Micro QR / rMQR jo, janë QR); html5-qrcode edhe DATA_MATRIX,
+   PDF_417, AZTEC, RSS_14, RSS_EXPANDED, MAXICODE; Android ML Kit edhe FORMAT_DATA_MATRIX, FORMAT_PDF417, FORMAT_AZTEC (ML Kit s'ka
+   DataBar). QR-ja lexohet ende vetëm për njoftimin "Ke skenuar një kod QR". Kodet 2D kanë shpesh tekst të gjatë/me hapësira: nga
+   kamera s'kontrollohen më me `duketSiDiçkaTjeter` (Android `hapBarkodin(.., "kamera")`, Skanimi i shpejtë web + Android), vetëm
+   "::" (ndarësi i çelësit `folder::barkodi`) refuzohet; fusha e barkodit (skaneri i jashtëm/PDA) e mban kontrollin. Kamera e rreme
+   ruan `window.__formatet`. Testi `teste/v266.js`; `v265.js` (Afatet pa pllaka). S'është testuar në pajisje (sidomos Data Matrix
+   i vogël në kutinë e gjerë).
+
 0000000. **PLLAKAT ME NGJYRA TE BUTONAT (v265 = 1.44.0, 29.10.2026, web telefoni + Android Hyrja 25)**: përdoruesi (foto e folderit, "shum
    tbajatshem") kërkoi 5 ide me Claude Design (faqja "Butonat e folderit: 5 ide", e çelët/e errët), pastaj: "Opsionin 4 bone jo veq te
    folderat po kudo qe jan kta butona". Ideja 4 = pllakë (sfond i bardhë/i errët, 1px vijë, 20px qoshe, min 76px) me katror 44px me
@@ -2425,6 +2438,7 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 
 ## Gjëra që përdoruesi i ka refuzuar/anuluar shprehimisht (mos i propozo/rikthe pa pyetur)
 
+- Pllakat me ngjyra (ideja 4) te Afatet ("Shto", "Excel"), v265 → u hoqën te v266: "veq te stoku". Pllakat vetëm brenda folderit.
 - Ora (v262, u anulua 28.10.2026): "Për t'u hequr" vetëm me të skaduarat (pa të verdhat "skadojnë sot") dhe hiqja e seksionit
   gri "KËTË JAVË" ("e ke keqkuptu"). Lista e orës mbetet si para v262; mos e ndrysho pa pyetur çka do saktësisht.
 - Logoja e re (28.10.2026): 20 idetë e Claude Design ("asnjona s'po m'pëlqen", faqja u fshi) dhe paketa `Stoku_brand_assets.zip`

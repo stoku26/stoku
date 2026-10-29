@@ -20,9 +20,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 266, versioni: '1.44.1', data: '2026-10-29', titulli: 'Kamera njeh krejt barkodet', platforma: 'tel', pikat: [
+      'Kamera tash njeh krejt llojet e barkodeve, edhe kodet katrore Data Matrix (p.sh. te ilaçet), PDF417 dhe Aztec. Vetëm kodi QR s\'merret si barkod produkti.',
+      'Te Afatet butonat "Shto" dhe "Excel" janë si më parë; pllakat me ngjyra mbeten vetëm brenda folderit te Stoku.'
+    ] },
     { v: 265, versioni: '1.44.0', data: '2026-10-29', titulli: 'Butonat e rinj me ngjyra', platforma: 'tel', pikat: [
-      'Brenda folderit butonat janë tash pllaka me ngjyra: Skano (blu), I shpejtë (e verdhë), Excel (e gjelbër) dhe PDF (e kuqe), secila me një shpjegim të shkurtër.',
-      'Edhe te Afatet, "Shto" dhe "Excel" janë pllaka të njëjta.'
+      'Brenda folderit butonat janë tash pllaka me ngjyra: Skano (blu), I shpejtë (e verdhë), Excel (e gjelbër) dhe PDF (e kuqe), secila me një shpjegim të shkurtër.'
     ] },
     { v: 264, versioni: '1.43.1', data: '2026-10-29', titulli: 'Skanim i shpejtë: kamera më e vogël, lista më e madhe', platforma: 'tel', pikat: [
       'Kamera e Skanimit të shpejtë nis që lart, me butonat mbi të, dhe zë vetëm sa duhet për kutinë. Lista e produkteve poshtë ka më shumë vend.'

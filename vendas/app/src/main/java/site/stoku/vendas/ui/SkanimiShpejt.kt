@@ -73,7 +73,8 @@ fun SkanimiShpejt(folderId: String, mbyll: () -> Unit) {
         if (b.isEmpty() || sasia == 0L) return false
         if (Dyqani.g.foldera.none { it["id"] == folderId }) return false
         if (!Llogaria.leja("skanimShpejt")) { mbyll(); return false } // administratori e ndaloi ndërkohë
-        if (duketSiDiçkaTjeter(b)) { Toast.trego("Kjo nuk duket si barkod produkti (ngjan me kod QR ose tekst). Provo përsëri."); return false }
+        // v266: edhe Data Matrix / PDF417 (tekst i gjatë) nga kamera; vetëm "::" (ndarësi i çelësit të produktit) s'lejohet
+        if (b.contains("::")) { Toast.trego("Kjo nuk duket si barkod produkti (ngjan me kod QR ose tekst). Provo përsëri."); return false }
         val e = Dyqani.produkti(folderId, b)
         if (!Llogaria.leja(if (e != null) "stokuNdrysho" else "stokuShto")) {
             Toast.trego(if (e != null) "S'ke leje ta ndryshosh sasinë e këtij produkti." else "Ky barkod s'është në këtë folder.", 3000)

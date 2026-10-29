@@ -295,8 +295,8 @@
 .sb .ops-hapat b { font-weight: 700; color: var(--sb-ink); }
 
 /* ---------- Afatet ---------- */
-.sb .sb-actions { display: grid; grid-template-columns: 1.25fr 1fr; gap: 10px; margin: 4px 0 14px; }
-/* v265: pllakat me ngjyra (ideja 4 e përdoruesit): te folderi (Skano, I shpejtë, Excel, PDF) dhe te Afatet (Shto, Excel) */
+.sb .sb-actions { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; margin: 4px 0 14px; }
+/* v265: pllakat me ngjyra (ideja 4 e përdoruesit): vetëm te folderi i Stoku-t (Skano, I shpejtë, Excel, PDF); v266: jo te Afatet */
 .sb .sb-pllakat { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 10px 0 12px; }
 .sb .sb-pllaka { width: 100%; min-height: 76px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 12px; border: 0;
   border-radius: 20px; background: var(--sb-surface); box-shadow: var(--sb-ring); color: var(--sb-ink); font: inherit; text-align: left; cursor: pointer; }
@@ -311,7 +311,6 @@
 .sb .sb-pllaka__tekst { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .sb .sb-pllaka__t { font-size: 15px; font-weight: 700; line-height: 1.25; }
 .sb .sb-pllaka__n { font-size: 12px; line-height: 1.3; color: var(--sb-ink-4); }
-.sb .sb-excel .sb-pllaka { height: 100%; }
 .sb #dlgAfatet.zgjedhje .sb-actions { display: none; }
 .sb .sb-action-primary-kuti { grid-row: span 2; position: relative; display: flex; }
 .sb .sb-action-primary { flex: 1; min-height: 132px; border-radius: 20px; background: var(--sb-accent); color: #fff; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 12px; border: 0; text-align: left; font: inherit; cursor: pointer; box-shadow: var(--sb-shadow-accent); }
