@@ -36,14 +36,15 @@ const SKRIPTI = (u) => {
   });
 };
 
-// o (opsionale, v263): { uid, emri, lejet } për një llogari që s'është administratori (lejet/{uid} me këto leje)
+// o (opsionale, v263): { uid, emri, lejet } për një llogari që s'është administratori (lejet/{uid} me këto leje);
+// v268: { dpr: 2 } për pamje si në telefon (2 pika për çdo px)
 async function hapFaqen(chromium, o) {
   const u = Object.assign({ uid: 'uA', emri: 'mendurberisha' }, o || {});
   const b = await chromium.launch({ args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'] });
   const F = krijoFirestore({ rregullat: 'reja' });
   F.S.docs.set('perdoruesit/' + u.uid, { perdoruesi: u.emri, emri: u.emri, kycurSe: Date.now() });
   if (u.lejet) F.S.docs.set('lejet/' + u.uid, { lejet: u.lejet, kontrolluarSe: Date.now(), kontrolluarNga: 'mendurberisha', emri: u.emri });
-  const ctx = await b.newContext({ userAgent: 'Mozilla/5.0 (Linux; Android 14) Chrome/140 Mobile', viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  const ctx = await b.newContext({ userAgent: 'Mozilla/5.0 (Linux; Android 14) Chrome/140 Mobile', viewport: { width: 390, height: 844 }, deviceScaleFactor: u.dpr || 1, serviceWorkers: 'block' });
   await ctx.grantPermissions(['camera'], { origin: BAZA });
   await ctx.route(u => !u.href.startsWith(BAZA), r => r.abort());
   await F.lidh(ctx, u.uid, u.emri + '@stoku-app.local', 'tel');

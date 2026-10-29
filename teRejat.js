@@ -20,6 +20,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 268, versioni: '1.45.0', data: '2026-10-29', titulli: 'Butoni i ri i skanimit', platforma: 'tel', pikat: [
+      'Brenda folderit, poshtë djathtas, ka një buton të vetëm: gjysma blu hap kamerën, gjysma e verdhë hap Skanimin e shpejtë.',
+      '"Eksporto Excel" dhe "Eksporto PDF" janë tash dy ikona lart, pranë emrit të folderit.',
+      'Shkronjat, butonat dhe fushat në telefon kanë tash të njëjtën madhësi si në aplikacionin Android.'
+    ] },
     { v: 267, versioni: '1.44.2', data: '2026-10-29', titulli: 'Emrat e qartë te butonat', platforma: 'tel', pikat: [
       'Pllakat brenda folderit kanë tash emrat e plotë: "Skano me kamerë", "Skanim i shpejtë", "Eksporto Excel" dhe "Eksporto PDF", me një tekst të vetëm.'
     ] },
