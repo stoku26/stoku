@@ -233,6 +233,8 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, shpejt: ((String) -
     DisposableEffect(Unit) {
         val fut = ProcessCameraProvider.getInstance(ctx)
         var ofruesi: ProcessCameraProvider? = null
+        // v270: kamera u mbyll para se të gatitej (hapje + mbyllje e shpejtë): s'lidhet më (përndryshe mbetej e ndezur në sfond)
+        var mbyllur = false
         var qrFundit = 0L
         // v262: votimi me tentime (si te web-i): 7 të njëjta nga 10 tentime
         val votimi = VotimiIBarkodit()
@@ -243,7 +245,7 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, shpejt: ((String) -
         fun vazhdoNumerimin() { pamja.removeCallbacks(ndalNumerimin); pamja.postDelayed(ndalNumerimin, NUMRIM_PUSHIMI_MS) }
         // Barkodi që fitoi votimin
         fun pranoje(v: String, tash: Long) {
-            if (perfunduar) return
+            if (perfunduar || mbyllur) return
             // v263 Skanimi i shpejtë: çdo barkod shtohet te lista dhe kamera s'mbyllet; i njëjti barkod sa kohë shihet merr
             // +1 jo më shpesh se NUMRIM_INTERVALI_MS (si numërimi i vazhdueshëm)
             val sh = shpejtAktual
@@ -278,7 +280,9 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, shpejt: ((String) -
         // Votimi s'arriti 7 të njëjta: "Skano përsëri" (pa zë), jo më shpesh se sa zgjat (1.5 s)
         fun skanoPerseri(tash: Long) { if (perseriDeri == 0L) perseriDeri = tash + 1500 }
         fut.addListener({
-            val o = fut.get(); ofruesi = o
+            if (mbyllur) return@addListener
+            val o = try { fut.get() } catch (e: Exception) { Toast.trego("Kamera s'u hap. Provo sërish."); return@addListener }
+            ofruesi = o
             // Pamja dhe analiza me të njëjtin raport (16:9), që kutia në ekran të përputhet me pjesën e figurës që lexohet
             val rez = ResolutionSelector.Builder().setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY).setResolutionStrategy(
                 ResolutionStrategy(android.util.Size(1920, 1080), ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER)).build()
@@ -286,14 +290,14 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, shpejt: ((String) -
             val analiza = ImageAnalysis.Builder().setResolutionSelector(rez).setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build()
             analiza.setAnalyzer(ekzekutuesi) { img ->
                 val media = img.image
-                if (media == null || perfunduar) { img.close(); return@setAnalyzer }
+                if (media == null || perfunduar || mbyllur) { img.close(); return@setAnalyzer }
                 val rrot = img.imageInfo.rotationDegrees
                 val hyrja = InputImage.fromMediaImage(media, rrot)
                 // Madhësia e figurës së drejtë (ML Kit i jep kutitë e barkodeve në këto koordinata)
                 val iw = if (rrot % 180 == 0) img.width else img.height
                 val ih = if (rrot % 180 == 0) img.height else img.width
                 skaneri.process(hyrja).addOnSuccessListener { l ->
-                    if (perfunduar) return@addOnSuccessListener
+                    if (perfunduar || mbyllur) return@addOnSuccessListener
                     val tash = SystemClock.elapsedRealtime()
                     // v262: vetëm barkodi i tëri brenda kutisë; kur ka disa, ai më afër mesit. Çdo kuadër është një tentim.
                     val vw = pamja.width.toFloat(); val vh = pamja.height.toFloat()
@@ -335,6 +339,7 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, shpejt: ((String) -
             true
         }
         onDispose {
+            mbyllur = true
             pamja.removeCallbacks(ndalNumerimin)
             votimi.rinis()
             try { kameraELidhur?.cameraInfo?.zoomState?.removeObservers(pronari) } catch (e: Exception) { }

@@ -221,7 +221,11 @@ private fun Menyja(tema: String, hap: (String) -> Unit, hapTeRejat: () -> Unit) 
             Sinkronizimi.dergoNesePret()
             // Kjo pajisje s'merr më njoftimet e kësaj llogarie (orari ditor dhe Grupi); pa internet s'e ndal daljen
             Toast.trego("Duke dalë…")
-            scope.launch { try { kotlinx.coroutines.withTimeoutOrNull(9000) { site.stoku.vendas.Push.caktivizo() } } catch (e: Exception) { }; Llogaria.dil() }
+            // v270: jo me scope-in e ekranit: nëse kalon në një faqe tjetër ndërsa pritet (pa internet deri 9 s), dalja s'anulohet
+            kotlinx.coroutines.MainScope().launch(site.stoku.vendas.StokuApp.trajtuesi(false)) {
+                try { kotlinx.coroutines.withTimeoutOrNull(9000) { site.stoku.vendas.Push.caktivizo() } } catch (e: Exception) { }
+                Llogaria.dil()
+            }
         }
 }
 

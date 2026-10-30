@@ -52,6 +52,10 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.zIndex
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.ImeAction
@@ -140,7 +144,8 @@ private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, Str
         return false
     }
 
-    val te = g.produktet.values.toList()
+    val te = remember(g.produktet) { g.produktet.values.toList() }
+    val nrNeFolder = remember(g.produktet) { g.produktet.values.groupingBy { it["kategoriaId"] }.eachCount() }
     val sot = Calendar.getInstance().apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }.timeInMillis
     val zero = te.count { sasiaE(it) <= 0 }
     val sotN = te.count { ((it["prekurSe"] as? Number)?.toLong() ?: 0L) >= sot }
@@ -232,7 +237,7 @@ private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, Str
                     val zv = zvarritet == fid
                     // Karta që del nga ekrani (skrollim) s'është më objektiv i zvarritjes
                     androidx.compose.runtime.DisposableEffect(fid) { onDispose { vendet.remove(fid) } }
-                    KartaEFolderit(f, g.produktet.values.count { it["kategoriaId"] == f["id"] },
+                    KartaEFolderit(f, nrNeFolder[fid] ?: 0,
                         Modifier.weight(1f).onGloballyPositioned { vendet[fid] = it.boundsInRoot() }.then(zvarritja(fid))
                             .zIndex(if (zv) 1f else 0f)
                             .graphicsLayer {
@@ -372,11 +377,14 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
     val fKerko = remember { FocusRequester() }
     if (g.foldera.none { it["id"] == id }) { androidx.compose.runtime.LaunchedEffect(id) { mbrapa() }; return }
 
-    val te = g.produktet.values.filter { it["kategoriaId"] == id }.sortedWith(krahasuesi())
+    // Renditja (me Collator) vetëm kur ndryshojnë produktet, jo me çdo shkronjë të shkruar te barkodi
+    val te = remember(g.produktet, id) { g.produktet.values.filter { it["kategoriaId"] == id }.sortedWith(krahasuesi()) }
     val k = kerkimi.trim().lowercase()
-    val fil = if (k.isEmpty()) te else te.filter {
-        (it["emri"] as? String).orEmpty().lowercase().contains(k) || jsString(it["barkodi"]).lowercase().contains(k) ||
-            (it["furnizuesi"] as? String).orEmpty().lowercase().contains(k)
+    val fil = remember(te, k) {
+        if (k.isEmpty()) te else te.filter {
+            (it["emri"] as? String).orEmpty().lowercase().contains(k) || jsString(it["barkodi"]).lowercase().contains(k) ||
+                (it["furnizuesi"] as? String).orEmpty().lowercase().contains(k)
+        }
     }
     val lejaShpejt = Llogaria.leja("stokuPlusMinus")
     val pda by Opsionet.pda.collectAsState()
@@ -564,18 +572,29 @@ private fun ButonSasie(t: String, onClick: () -> Unit) {
 @Composable
 private fun SasiaEDrejtperdrejte(s: Long, vendos: (Long) -> Unit) {
     val n = N
-    var t by remember(s) { mutableStateOf(s.toString()) }
+    val fokusi = LocalFocusManager.current
+    val scope = rememberFusha()
+    var t by remember(s) { mutableStateOf(TextFieldValue(s.toString())) }
+    var neFokus by remember { mutableStateOf(false) }
+    // v270 (si "change" te web-i): numri ruhet edhe kur prek diku tjetër, jo vetëm me "Done" (më parë humbte pa u ruajtur)
+    fun ruajNumrin() {
+        val tx = t.text; val v = tx.toLongOrNull()
+        if (v != null && !Afatet.sasiaEPranueshme(tx)) { Toast.trego(Afatet.SASIA_E_MADHE, 4500); t = TextFieldValue(s.toString()) }
+        else if (v != null && v != s) vendos(v) else t = TextFieldValue(s.toString())
+    }
     BasicTextField(
-        value = t, onValueChange = { t = it.filter { c -> c.isDigit() }.take(7) }, singleLine = true,
+        value = t, onValueChange = { v -> t = v.copy(text = v.text.filter { c -> c.isDigit() }.take(7)) }, singleLine = true,
         textStyle = tx(20, 700, if (s <= 0) n.exp else n.ink).copy(textAlign = TextAlign.Center),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-        keyboardActions = KeyboardActions(onDone = {
-            val v = t.toLongOrNull()
-            if (v != null && !Afatet.sasiaEPranueshme(t)) { Toast.trego(Afatet.SASIA_E_MADHE, 4500); t = s.toString() }
-            else if (v != null && v != s) vendos(v) else t = s.toString()
-        }),
+        keyboardActions = KeyboardActions(onDone = { fokusi.clearFocus() }),
         cursorBrush = SolidColor(n.accent),
-        modifier = Modifier.size(68.dp, 50.dp).clip(RoundedCornerShape(14.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(14.dp)).padding(top = 12.dp)
+        modifier = Modifier.size(68.dp, 50.dp).clip(RoundedCornerShape(14.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(14.dp))
+            .onFocusChanged { f ->
+                // Në prekje zgjidhet krejt numri (si te web-i), që shkrimi i ri ta zëvendësojë
+                if (f.isFocused && !neFokus) scope.launch { kotlinx.coroutines.delay(40); t = t.copy(selection = TextRange(0, t.text.length)) }
+                if (!f.isFocused && neFokus) ruajNumrin()
+                neFokus = f.isFocused
+            }.padding(top = 12.dp)
     )
 }
 
