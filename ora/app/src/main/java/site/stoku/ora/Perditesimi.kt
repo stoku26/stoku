@@ -17,7 +17,7 @@ import java.net.URL
  * Ora e kontrollon vetë (më së shumti një herë në 6 orë) dhe e tregon te lista; instalimi kërkon konfirmim.
  */
 object Perditesimi {
-    private const val RELEASES = "https://api.github.com/repos/stoku26/stoku/releases?per_page=100"
+    private const val RELEASES = "https://api.github.com/repos/stoku26/stoku/releases?per_page=100&page="
     /** Kontrolli i fundit dështoi (pa internet / GitHub s'u përgjigj). */
     @Volatile var deshtoi = false
 
@@ -30,22 +30,29 @@ object Perditesimi {
             return@withContext if (ruajtur > versioni) ruajtur to (pr.getString("url", "") ?: "") else null
         deshtoi = false
         try {
-            val c = URL(RELEASES).openConnection() as HttpURLConnection
-            c.setRequestProperty("Accept", "application/vnd.github+json")
-            c.connectTimeout = 10000; c.readTimeout = 15000
-            if (c.responseCode != 200) { deshtoi = true; return@withContext null }
-            val l = JSONArray(c.inputStream.bufferedReader().readText())
+            // Publikimet e telefonit (vendas-v*) dalin më shpesh: kur pas versionit të fundit të orës ka mbi 100 të tilla, ai s'është
+            // më në faqen e parë (më parë ora s'e gjente më përditësimin). Kërkohet deri në 5 faqe, derisa të gjendet një version i orës.
             var m: Pair<Int, String>? = null
-            for (i in 0 until l.length()) {
-                val r = l.getJSONObject(i)
-                val tag = r.optString("tag_name")
-                if (!tag.startsWith("ora-v") || r.optBoolean("draft")) continue
-                val n = tag.removePrefix("ora-v").toIntOrNull() ?: continue
-                val a = r.optJSONArray("assets") ?: continue
-                for (j in 0 until a.length()) {
-                    val s = a.getJSONObject(j)
-                    if (s.optString("name").endsWith(".apk") && (m == null || n > m.first)) m = n to s.optString("browser_download_url")
+            for (faqja in 1..5) {
+                val c = URL(RELEASES + faqja).openConnection() as HttpURLConnection
+                val l = try {
+                    c.setRequestProperty("Accept", "application/vnd.github+json")
+                    c.connectTimeout = 10000; c.readTimeout = 15000
+                    if (c.responseCode != 200) { deshtoi = true; return@withContext null }
+                    JSONArray(c.inputStream.bufferedReader().use { it.readText() })
+                } finally { c.disconnect() }
+                for (i in 0 until l.length()) {
+                    val r = l.getJSONObject(i)
+                    val tag = r.optString("tag_name")
+                    if (!tag.startsWith("ora-v") || r.optBoolean("draft")) continue
+                    val n = tag.removePrefix("ora-v").toIntOrNull() ?: continue
+                    val a = r.optJSONArray("assets") ?: continue
+                    for (j in 0 until a.length()) {
+                        val s = a.getJSONObject(j)
+                        if (s.optString("name").endsWith(".apk") && (m == null || n > m.first)) m = n to s.optString("browser_download_url")
+                    }
                 }
+                if (m != null || l.length() < 100) break
             }
             pr.edit().putLong("koha", System.currentTimeMillis()).putInt("numri", m?.first ?: 0).putString("url", m?.second ?: "").apply()
             if (m != null && m.first > versioni) m else null
@@ -71,7 +78,7 @@ object Perditesimi {
                 c.connectTimeout = 15000; c.readTimeout = 60000
                 val k = c.responseCode
                 if (k in 300..399 && hapa++ < 5) { adresa = c.getHeaderField("Location"); c.disconnect(); continue }
-                if (k != 200) return@withContext "Shkarkimi dështoi. Provo prapë."
+                if (k != 200) { c.disconnect(); return@withContext "Shkarkimi dështoi. Provo prapë." }
                 break
             }
             c.inputStream.use { i -> f.outputStream().use { o -> i.copyTo(o) } }
