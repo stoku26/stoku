@@ -4,8 +4,11 @@ import android.content.ComponentName
 import android.content.Context
 import androidx.wear.tiles.TileService
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -47,8 +50,11 @@ object Api {
     private val rastesi = SecureRandom()
 
     private fun prefs(ctx: Context) = ctx.getSharedPreferences("stoku", Context.MODE_PRIVATE)
+    // Punët që s'duhet të ndalen kur mbyllet ekrani (p.sh. njoftimi i serverit për shkëputjen)
+    private val sfondi = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    fun sekreti(ctx: Context): String {
+    // @Synchronized: aplikacioni, tile-i dhe komplikacioni mund ta kërkojnë njëkohësisht (pa të dilnin dy sekrete/kode)
+    @Synchronized fun sekreti(ctx: Context): String {
         val p = prefs(ctx)
         p.getString("sekret", null)?.let { return it }
         val b = ByteArray(32).also { rastesi.nextBytes(it) }
@@ -57,13 +63,13 @@ object Api {
         return s
     }
 
-    fun kodi(ctx: Context): String {
+    @Synchronized fun kodi(ctx: Context): String {
         val p = prefs(ctx)
         p.getString("kodi", null)?.let { return it }
         return kodiIRi(ctx)
     }
 
-    fun kodiIRi(ctx: Context): String {
+    @Synchronized fun kodiIRi(ctx: Context): String {
         val k = (100000 + rastesi.nextInt(900000)).toString()
         prefs(ctx).edit().putString("kodi", k).apply()
         return k
@@ -71,13 +77,28 @@ object Api {
 
     fun lidhur(ctx: Context) = prefs(ctx).getBoolean("lidhur", false)
 
-    // Shkëputja: serveri e fshin lidhjen dhe këtu krijohet sekret i ri, që ora të mos e lexojë më llogarinë e vjetër
-    suspend fun shkeput(ctx: Context) {
+    // Shkëputja (Cilësimet → Shkëput orën): këtu fshihet menjëherë krejt (sekreti, lista, radha) dhe krijohet sekret i ri, që ora
+    // të mos e lexojë më llogarinë e vjetër; serveri njoftohet në sfond me sekretin e vjetër dhe e fshin lidhjen. Më parë ora priste
+    // serverin (deri në 25 s pa internet) para se të dilte ekrani i kodit.
+    fun shkeput(ctx: Context) {
         val sekret = prefs(ctx).getString("sekret", null)
-        if (sekret != null) withContext(Dispatchers.IO) { try { thirr("POST", "/ora/shkeput", JSONObject(), sekret) } catch (e: Exception) { } }
-        prefs(ctx).edit().clear().apply()
+        prefs(ctx).edit().clear().apply() // apply: leximet e mëpasshme e shohin menjëherë
+        listaNdryshoi = false
+        rifreskoTileDheKomplikacionin(ctx)
+        if (sekret != null) sfondi.launch { try { thirr("POST", "/ora/shkeput", JSONObject(), sekret) } catch (e: Exception) { } }
+    }
+
+    // Serveri s'e njeh lidhjen (401): vetëm ekrani i kodit, PA e fshirë lidhjen te serveri dhe pa sekret të ri. Kur 401 ishte vetëm
+    // i çastit (KV-ja e Cloudflare-it s'e kishte ende lidhjen në atë vend), ekrani i kodit e gjen lidhjen me të njëjtin sekret dhe
+    // kthehet vetë te lista; përndryshe ora lidhet sërish me kod nga telefoni. Më parë ora e fshinte vetë lidhjen te serveri.
+    fun humbiLidhja(ctx: Context) {
+        prefs(ctx).edit().putBoolean("lidhur", false).remove("lista").remove("krejt").apply()
         rifreskoTileDheKomplikacionin(ctx)
     }
+
+    // Serveri s'e ruajti dot tash (KV-ja pranon ~1 shkrim në sekondë për të njëjtin çelës, kufiri i Cloudflare-it, gabim i çastit):
+    // kërkesa provohet sërish më vonë (jo "u ruajt", as "s'ruhet dot kurrë")
+    private fun provoMeVone(st: Int) = st >= 500 || st == 429 || st == 408
 
     // shpejt: për tile-in dhe komplikacionin. Kërkesa e bllokuar s'ndalet nga withTimeoutOrNull, prandaj kufijtë e
     // lidhjes janë vetë të shkurtër (përndryshe tile-i rrinte bosh deri në 25 s para se të shfaqte listën e ruajtur)
@@ -119,7 +140,7 @@ object Api {
     }
 
     suspend fun merrListen(ctx: Context, shpejt: Boolean = false): Lista = withContext(Dispatchers.IO) {
-        dergoRadhenPaGabim(ctx) // v252: heqjet e bëra pa internet shkojnë te serveri para listës së re
+        dergoRadhenPaGabim(ctx, shpejt) // v252: heqjet e bëra pa internet shkojnë te serveri para listës së re
         val tz = URLEncoder.encode(TimeZone.getDefault().id, "UTF-8")
         val (st, j) = thirr("GET", "/ora/sot?tz=$tz", null, sekreti(ctx), shpejt)
         if (st == 401) {
@@ -161,13 +182,14 @@ object Api {
         if (h.isEmpty()) k else k.copy(krejt = k.krejt.filter { it.id !in h })
     }
     fun krejtERuajtur(ctx: Context): Krejt? = try {
-        prefs(ctx).getString("krejt", null)?.let { lexoKrejt(JSONObject(it)) }
+        prefs(ctx).getString("krejt", null)?.let { j -> val k = lexoKrejt(JSONObject(j)); val h = teHequratNeRadhe(ctx); if (h.isEmpty()) k else k.copy(krejt = k.krejt.filter { it.id !in h }) }
     } catch (e: Exception) { null }
     private fun lexoKrejt(j: JSONObject) = Krejt(dita = j.optString("dita"), d7 = j.optString("d7"), d30 = j.optString("d30"), krejt = afatet(j.optJSONArray("krejt")))
 
-    // Lista e fundit e ruajtur (për tile-in dhe komplikacionin kur s'ka internet)
+    // Lista e fundit e ruajtur (për tile-in dhe komplikacionin kur s'ka internet), pa produktet që presin heqjen në radhë
+    // (më parë tile-i dhe komplikacioni i numëronin ende pas heqjes pa internet)
     fun listaERuajtur(ctx: Context): Lista? = try {
-        prefs(ctx).getString("lista", null)?.let { lexo(JSONObject(it)) }
+        prefs(ctx).getString("lista", null)?.let { paHequrat(ctx, lexo(JSONObject(it))) }
     } catch (e: Exception) { null }
 
     // Tile-i dhe komplikacioni: kopja e ruajtur kur është e freskët (< 3 min, e së njëjtës ditë), që hapja e aplikacionit
@@ -226,7 +248,7 @@ object Api {
         ruajRadhen(ctx, r)
     }
     // Dërgon radhën me renditje; kthen true kur u zbraz. Pa internet ndalet (provohet herën tjetër).
-    private suspend fun dergoRadhenPaKyc(ctx: Context): Boolean {
+    private suspend fun dergoRadhenPaKyc(ctx: Context, shpejt: Boolean = false): Boolean {
         val sekret = prefs(ctx).getString("sekret", null) ?: return true
         var njeNgaNje = false
         while (true) {
@@ -238,31 +260,41 @@ object Api {
             if (!z && !njeNgaNje) while (n < r.length() && !r.getJSONObject(n).optBoolean("z")) n++
             val trup = if (n > 1) JSONObject().put("ids", JSONArray((0 until n).map { r.getJSONObject(it).optString("i") })).put("i", "")
                 else JSONObject().put("i", o.optString("i")).put("zhbej", z)
-            val st = try { thirr("POST", "/ora/hiq", trup, sekret).first } catch (e: java.io.IOException) { return false }
+            val st = try { thirr("POST", "/ora/hiq", trup, sekret, shpejt).first } catch (e: java.io.IOException) { return false }
             if (st == 401) throw PaLidhje()
             if (st == 400 && n > 1) { njeNgaNje = true; continue } // serveri i vjetër (pa "ids"): një nga një
-            if (st >= 500) return false // provohet më vonë
+            if (provoMeVone(st)) return false // provohet më vonë (më parë 429 e hiqte heqjen nga radha pa u ruajtur)
             // u ruajt (ose s'ruhet dot kurrë, p.sh. afati s'ekziston më): hiqet nga radha
             val e = JSONArray()
             for (i in n until r.length()) e.put(r.getJSONObject(i))
             ruajRadhen(ctx, e)
-            if (n == 1 && e.length() > 0) delay(1100) // KV-ja pranon ~1 shkrim në sekondë për të njëjtin çelës
+            if (e.length() > 0) delay(1100) // KV-ja pranon ~1 shkrim në sekondë për të njëjtin çelës (edhe pas një grupi)
         }
     }
-    suspend fun dergoRadhen(ctx: Context): Boolean = withContext(Dispatchers.IO) { radhaM.withLock { dergoRadhenPaKyc(ctx) } }
-    private suspend fun dergoRadhenPaGabim(ctx: Context) {
+    // shpejt: tile-i dhe komplikacioni (kufij të shkurtër lidhjeje, si te thirr)
+    private suspend fun dergoRadhenPaGabim(ctx: Context, shpejt: Boolean = false) {
         if (neRadhe(ctx) == 0) return
-        try { dergoRadhen(ctx) } catch (e: PaLidhje) { throw e } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { }
+        try { radhaM.withLock { dergoRadhenPaKyc(ctx, shpejt) } } catch (e: PaLidhje) { throw e } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { }
     }
 
-    // Kthen true kur serveri e ruajti, false kur s'ka internet (heqja u ruajt në orë dhe dërgohet vetë më vonë);
-    // gabimet e serverit hidhen (që aplikacioni të mos thotë "u shënua" pa qenë e vërtetë)
+    // Një kërkesë /ora/hiq; kur serveri s'e ruan dot tash (p.sh. "Zhbëj" menjëherë pas heqjes: KV-ja pranon ~1 shkrim në sekondë
+    // për të njëjtin çelës), provohet edhe një herë pas 1.2 s
+    private suspend fun postoHeqjen(ctx: Context, trup: JSONObject): Pair<Int, JSONObject> {
+        val r = thirr("POST", "/ora/hiq", trup, sekreti(ctx))
+        if (!provoMeVone(r.first)) return r
+        delay(1200)
+        return thirr("POST", "/ora/hiq", trup, sekreti(ctx))
+    }
+
+    // Kthen true kur serveri e ruajti, false kur s'u arrit serveri (pa internet ose gabim i çastit: heqja u ruajt në orë dhe
+    // dërgohet vetë më vonë); gabimet e tjera të serverit hidhen (që aplikacioni të mos thotë "u shënua" pa qenë e vërtetë)
     suspend fun hiq(ctx: Context, id: String, zhbej: Boolean = false): Boolean = withContext(Dispatchers.IO) {
         radhaM.withLock {
             if (!dergoRadhenPaKyc(ctx)) { shtoNeRadhe(ctx, listOf(id), zhbej); return@withLock false } // renditja: radha e para
-            val (st, j) = try { thirr("POST", "/ora/hiq", JSONObject().put("i", id).put("zhbej", zhbej), sekreti(ctx)) }
+            val (st, j) = try { postoHeqjen(ctx, JSONObject().put("i", id).put("zhbej", zhbej)) }
                 catch (e: java.io.IOException) { shtoNeRadhe(ctx, listOf(id), zhbej); return@withLock false }
             if (st == 401) throw PaLidhje()
+            if (provoMeVone(st)) { shtoNeRadhe(ctx, listOf(id), zhbej); return@withLock false }
             if (st != 200 || !j.optBoolean("ok", true)) throw Exception("serveri-$st")
             true
         }
@@ -275,10 +307,11 @@ object Api {
         if (ids.isEmpty()) return@withContext 0
         radhaM.withLock {
             if (!dergoRadhenPaKyc(ctx)) { shtoNeRadhe(ctx, ids, false); return@withLock -1 }
-            val (st, j) = try { thirr("POST", "/ora/hiq", JSONObject().put("ids", JSONArray(ids)).put("i", ""), sekreti(ctx)) }
+            val (st, j) = try { postoHeqjen(ctx, JSONObject().put("ids", JSONArray(ids)).put("i", "")) }
                 catch (e: java.io.IOException) { shtoNeRadhe(ctx, ids, false); return@withLock -1 }
             if (st == 401) throw PaLidhje()
             if (st == 200 && j.optBoolean("ok", true)) return@withLock 0
+            if (provoMeVone(st)) { shtoNeRadhe(ctx, ids, false); return@withLock -1 }
             if (st != 400) throw Exception("serveri-$st")
             var deshtoi = 0
             ids.forEachIndexed { i, id ->
@@ -286,6 +319,7 @@ object Api {
                 val r = try { thirr("POST", "/ora/hiq", JSONObject().put("i", id).put("zhbej", false), sekreti(ctx)).first }
                     catch (e: java.io.IOException) { shtoNeRadhe(ctx, ids.drop(i), false); return@withLock -1 }
                 if (r == 401) throw PaLidhje()
+                if (provoMeVone(r)) { shtoNeRadhe(ctx, ids.drop(i), false); return@withLock -1 }
                 if (r != 200) deshtoi++
             }
             deshtoi

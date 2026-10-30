@@ -73,8 +73,9 @@ object Rikthimi {
     @Volatile var perpara = false
 }
 
-// v252: tekstet kur heqja s'arrin te serveri pa internet (ruhet në orë dhe dërgohet vetë më vonë, Api.kt: radha)
-const val PA_INTERNET_HEQJA = "Pa internet: heqja u ruajt në orë dhe dërgohet vetë kur të ketë lidhje."
+// v252: tekstet kur heqja s'arrin te serveri (pa internet ose gabim i çastit i serverit): ruhet në orë dhe dërgohet vetë më vonë
+// (Api.kt: radha)
+const val PA_INTERNET_HEQJA = "Pa lidhje me serverin: heqja u ruajt në orë dhe dërgohet vetë më vonë."
 
 class MainActivity : ComponentActivity() {
     // v252: kur kthehet interneti, heqjet e ruajtura në orë dërgohen menjëherë (rifreskimi i listës i dërgon së pari)
@@ -111,9 +112,13 @@ class MainActivity : ComponentActivity() {
 fun Aplikacioni() {
     val ctx = LocalContext.current
     var lidhur by remember { mutableStateOf(Api.lidhur(ctx)) }
-    val scope = rememberCoroutineScope()
     if (!lidhur) Lidhja(kurLidhet = { lidhur = true })
-    else ListaEkrani(kurShkeputet = { scope.launch { Api.shkeput(ctx); lidhur = false } })
+    else ListaEkrani(
+        // Cilësimet → Shkëput orën: menjëherë te ekrani i kodit (serveri njoftohet në sfond)
+        kurShkeputet = { Api.shkeput(ctx); lidhur = false },
+        // Serveri s'e njeh lidhjen (401): ekrani i kodit me të njëjtin sekret; kur lidhja ekziston ende (gabim i çastit), kthehet vetë
+        kurHumbetLidhja = { if (lidhur) { Api.humbiLidhja(ctx); lidhur = false } },
+    )
 }
 
 // Ekrani i parë: kodi që shkruhet te telefoni. Kodi ndërrohet çdo 15 sekonda; lidhja kontrollohet çdo 3 sekonda.
@@ -185,7 +190,8 @@ sealed class Pamja {
     object Cilesimet : Pamja()
     // nga: ekrani i produktit nga erdhi (mbrapa kthehet aty, me të njëjtën gjendje: "Skadon sot", "Skadoi më …")
     data class Kolegu(val a: Afat, val nga: Detaji? = null) : Pamja()
-    data class Hequr(val a: Afat) : Pamja()
+    // nga: ekrani ku kthehet pas konfirmimit ("Mbi 30 ditë", kërkimi; përndryshe lista kryesore)
+    data class Hequr(val a: Afat, val nga: Pamja? = null) : Pamja()
     data class Derguar(val tekst: String) : Pamja()
     // v238: "gjelber" = mbi 30 ditë ("muaj", 8 deri 30 ditë, u hoq: dalin lart te lista kryesore)
     data class Grupi(val lloji: String) : Pamja()
@@ -193,7 +199,7 @@ sealed class Pamja {
 }
 
 @Composable
-fun ListaEkrani(kurShkeputet: () -> Unit) {
+fun ListaEkrani(kurShkeputet: () -> Unit, kurHumbetLidhja: () -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     var lista by remember { mutableStateOf(Api.listaERuajtur(ctx)) }
@@ -210,7 +216,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
             lista = Api.merrListen(ctx); gabim = null
             Api.rifreskoTileDheKomplikacionin(ctx)
         } catch (e: PaLidhje) {
-            kurShkeputet(); return
+            kurHumbetLidhja(); return
         } catch (e: CancellationException) {
             throw e // një ngarkim më i ri e zëvendësoi: ky s'duhet të shkruajë gabim mbi rezultatin e tij
         } catch (e: Exception) {
@@ -232,7 +238,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
         try {
             krejt = Api.merrKrejt(ctx); gabimKrejt = null
         } catch (e: PaLidhje) {
-            kurShkeputet(); return
+            kurHumbetLidhja(); return
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -240,6 +246,13 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
         }
         dukeKrejt = false
     }
+    // Produkti kthehet te "Mbi 30 ditë" dhe kërkimi (heqja u zhbë ose s'u ruajt)
+    fun riktheTeKrejt(a: Afat) {
+        krejt = krejt?.let { k -> if (k.krejt.any { it.id == a.id }) k else k.copy(krejt = (k.krejt + a).sortedWith(compareBy({ it.data }, { it.emri }))) }
+    }
+    // "Mbi 30 ditë" dhe kërkimi: krejt produktet ngarkohen kur hapen nga lista kryesore (jo sa herë kthehesh nga një produkt: atëherë
+    // serveri mund ta kthente sërish produktin e sapohequr, sepse heqja ishte ende në rrugë)
+    fun hapMeKrejt(p: Pamja) { pamja = p; scope.launch { ngarkoKrejt() } }
     LaunchedEffect(Rikthimi.n) { ngarko() }
     LaunchedEffect(Unit) { iRi = Perditesimi.kontrollo(ctx) }
     // Heqjet në rrugë (sipas id-së): "Zhbëj" pret që heqja të mbarojë, që të dy kërkesat të mos garojnë te serveri
@@ -249,6 +262,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
         pamja = when (p0) {
             is Pamja.Kolegu -> p0.nga ?: Pamja.Lista
             is Pamja.Detaji -> p0.nga ?: Pamja.Lista
+            is Pamja.Hequr -> p0.nga ?: Pamja.Lista
             else -> Pamja.Lista
         }
     }
@@ -261,7 +275,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
             ekipa = lista?.ekipa == true,
             kurHiqet = {
                 val a = p.a
-                pamja = Pamja.Hequr(a)
+                pamja = Pamja.Hequr(a, p.nga)
                 listaParaHeqjes = lista
                 lista = lista?.let { l -> l.copy(sot = l.sot.filter { it.id != a.id }, java = l.java.filter { it.id != a.id }, skaduaraL = l.skaduaraL.filter { it.id != a.id },
                     javaN = if (l.java.any { it.id == a.id }) (l.javaN - 1).coerceAtLeast(0) else l.javaN,
@@ -269,7 +283,11 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                 lista?.let { Api.ruajListen(ctx, it) }
                 krejt = krejt?.let { k -> k.copy(krejt = k.krejt.filter { it.id != a.id }) }
                 val pune = scope.launch {
-                    try { if (!Api.hiq(ctx, a.id)) gabim = PA_INTERNET_HEQJA } catch (e: PaLidhje) { kurShkeputet() } catch (e: CancellationException) { throw e } catch (e: Exception) { gabim = "Heqja s'u ruajt. Provo prapë." }
+                    try { if (!Api.hiq(ctx, a.id)) gabim = PA_INTERNET_HEQJA } catch (e: PaLidhje) { kurHumbetLidhja() } catch (e: CancellationException) { throw e } catch (e: Exception) {
+                        // produkti kthehet te lista (më parë mbetej i fshehur dhe s'kishte si të provohej prapë); gabimi pas ngarkimit, që të mos fshihet
+                        ngarko(); riktheTeKrejt(a)
+                        gabim = "Heqja s'u ruajt. Provo prapë."
+                    }
                     Api.rifreskoTileDheKomplikacionin(ctx, ndryshoi = true)
                 }
                 heqjet[a.id] = pune
@@ -279,7 +297,6 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
             mbrapa = { pamja = p.nga ?: Pamja.Lista },
         )
         is Pamja.Grupi -> {
-            LaunchedEffect(p.lloji) { ngarkoKrejt() }
             val gjelber = p.lloji == "gjelber"
             val k = krejt
             ListaEGrupit(
@@ -292,7 +309,6 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
             )
         }
         Pamja.Kerko -> {
-            LaunchedEffect(Unit) { ngarkoKrejt() }
             KerkoEkrani(
                 krejt = krejt,
                 duke = dukeKrejt,
@@ -308,12 +324,14 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                 val ids = p.l.map { it.id }.toSet()
                 lista = lista?.let { l -> l.copy(skaduaraL = l.skaduaraL.filter { it.id !in ids }, skaduara = (l.skaduara - ids.size).coerceAtLeast(0)) }
                 lista?.let { Api.ruajListen(ctx, it) }
+                krejt = krejt?.let { k -> k.copy(krejt = k.krejt.filter { it.id !in ids }) } // edhe te kërkimi
                 pamja = Pamja.Derguar(if (ids.size == 1) "U shënua 1 produkt: hequr nga rafti" else "U shënuan ${ids.size} produkte: hequr nga rafti")
                 scope.launch {
                     // Një kërkesë për krejt (jo 5 njëra pas tjetrës: serveri s'i ruante dot të gjitha)
-                    val deshtoi = try { Api.hiqShume(ctx, ids.toList()) } catch (e: PaLidhje) { kurShkeputet(); return@launch } catch (e: CancellationException) { throw e } catch (e: Exception) { ids.size }
+                    val deshtoi = try { Api.hiqShume(ctx, ids.toList()) } catch (e: PaLidhje) { kurHumbetLidhja(); return@launch } catch (e: CancellationException) { throw e } catch (e: Exception) { ids.size }
                     if (deshtoi < 0) gabim = PA_INTERNET_HEQJA
-                    if (deshtoi > 0) { gabim = if (deshtoi == 1) "1 heqje s'u ruajt. Provo prapë." else "$deshtoi heqje s'u ruajtën. Provo prapë."; ngarko() }
+                    // ngarkimi i pari: përndryshe ai e fshinte menjëherë gabimin
+                    if (deshtoi > 0) { ngarko(); gabim = if (deshtoi == 1) "1 heqje s'u ruajt. Provo prapë." else "$deshtoi heqje s'u ruajtën. Provo prapë." }
                     Api.rifreskoTileDheKomplikacionin(ctx, ndryshoi = true)
                 }
             },
@@ -329,27 +347,32 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
         is Pamja.Kolegu -> ZgjedhKolegun(
             a = p.a,
             kurDergohet = { tekst -> pamja = Pamja.Derguar(tekst) },
-            kurShkeputet = kurShkeputet,
+            kurHumbetLidhja = kurHumbetLidhja,
             mbrapa = { pamja = p.nga ?: Pamja.Detaji(p.a, false, lista?.skaduaraL?.any { it.id == p.a.id } == true) },
         )
         is Pamja.Hequr -> {
             val a = p.a
-            LaunchedEffect(a.id) { delay(5000); if ((pamja as? Pamja.Hequr)?.a?.id == a.id) pamja = Pamja.Lista }
+            // pas konfirmimit: aty ku ishe ("Mbi 30 ditë", kërkimi), jo gjithmonë te lista kryesore
+            LaunchedEffect(a.id) { delay(5000); if ((pamja as? Pamja.Hequr)?.a?.id == a.id) pamja = p.nga ?: Pamja.Lista }
             Konfirmim(
                 titulli = a.emri,
                 tekst = "U shënua: hequr nga rafti",
                 butoni = "Zhbëj",
                 kurButoni = {
-                    pamja = Pamja.Lista
+                    pamja = p.nga ?: Pamja.Lista
                     scope.launch {
                         heqjet.remove(a.id)?.join() // heqja (nëse ende në rrugë) mbaron e para, pastaj zhbërja
-                        val derguar = try { Api.hiq(ctx, a.id, zhbej = true) } catch (e: PaLidhje) { kurShkeputet(); return@launch } catch (e: CancellationException) { throw e } catch (e: Exception) { gabim = "Zhbërja s'u ruajt. Provo prapë."; true }
-                        if (!derguar) { // pa internet: produkti kthehet menjëherë te lista (zhbërja ruhet në orë)
+                        var gabimZ: String? = null
+                        val derguar = try { Api.hiq(ctx, a.id, zhbej = true) } catch (e: PaLidhje) { kurHumbetLidhja(); return@launch } catch (e: CancellationException) { throw e } catch (e: Exception) { gabimZ = "Zhbërja s'u ruajt. Provo prapë."; true }
+                        if (!derguar) { // pa lidhje: produkti kthehet menjëherë te lista (zhbërja ruhet në orë)
                             listaParaHeqjes?.let { l -> lista = l; Api.ruajListen(ctx, l) }
-                            gabim = "Pa internet: zhbërja u ruajt në orë dhe dërgohet vetë kur të ketë lidhje."
+                            gabimZ = "Pa lidhje me serverin: zhbërja u ruajt në orë dhe dërgohet vetë më vonë."
                         }
+                        // produkti kthehet edhe te "Mbi 30 ditë" dhe kërkimi (më parë mungonte deri në ngarkimin e radhës)
+                        if (!derguar || gabimZ == null) riktheTeKrejt(a)
                         Api.rifreskoTileDheKomplikacionin(ctx, ndryshoi = true)
                         if (derguar) ngarko()
+                        gabimZ?.let { gabim = it } // pas ngarkimit, që të mos fshihet menjëherë
                     }
                 },
             )
@@ -424,7 +447,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                     }
                     // v238: produktet me afat mbi 30 ditë (jo në faqen kryesore); kërkimi është butoni poshtë
                     if (l != null) {
-                        item { ChipGrupi("Mbi 30 ditë", "Afat i gjatë", Gjelber) { pamja = Pamja.Grupi("gjelber") } }
+                        item { ChipGrupi("Mbi 30 ditë", "Afat i gjatë", Gjelber) { hapMeKrejt(Pamja.Grupi("gjelber")) } }
                     }
                     gabim?.let { g -> item { Text(g, fontSize = 11.sp, color = Kuqe, textAlign = TextAlign.Center, modifier = Modifier.padding(6.dp)) } }
                     // Poshtë: rifresko (majtas), kërko (mes) dhe Cilësimet (djathtas)
@@ -432,7 +455,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit) {
                         Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
                             ButoniRifresko(duke = duke) { scope.launch { ngarko() } }
                             Spacer(Modifier.size(10.dp))
-                            ButoniKerko { pamja = Pamja.Kerko }
+                            ButoniKerko { hapMeKrejt(Pamja.Kerko) }
                             Spacer(Modifier.size(10.dp))
                             ButoniCilesimet(kaTeRe = iRi != null) { pamja = Pamja.Cilesimet }
                         }
@@ -610,7 +633,7 @@ fun Detaji(a: Afat, sot: Boolean, skaduar: Boolean = false, ekipa: Boolean, kurH
 
 // Kujt t'i dërgohet kërkesa: krejt ekipa ose një koleg
 @Composable
-fun ZgjedhKolegun(a: Afat, kurDergohet: (String) -> Unit, kurShkeputet: () -> Unit, mbrapa: () -> Unit) {
+fun ZgjedhKolegun(a: Afat, kurDergohet: (String) -> Unit, kurHumbetLidhja: () -> Unit, mbrapa: () -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     var koleget by remember { mutableStateOf<List<Koleg>?>(null) }
@@ -618,7 +641,7 @@ fun ZgjedhKolegun(a: Afat, kurDergohet: (String) -> Unit, kurShkeputet: () -> Un
     var duke by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         try { koleget = Api.koleget(ctx) }
-        catch (e: PaLidhje) { kurShkeputet() }
+        catch (e: PaLidhje) { kurHumbetLidhja() }
         catch (e: DuhetRilidhur) { gabim = "Lidhe sërish orën nga telefoni (Cilësimet → Ora e dorës)." }
         catch (e: Exception) { gabim = "S'ka lidhje me serverin." }
     }
@@ -629,7 +652,7 @@ fun ZgjedhKolegun(a: Afat, kurDergohet: (String) -> Unit, kurShkeputet: () -> Un
             try {
                 val n = Api.kerkoHeqjen(ctx, a, k)
                 kurDergohet(if (k != null) "Kërkesa iu dërgua: ${k.emri}" else "Kërkesa iu dërgua grupit ($n)")
-            } catch (e: PaLidhje) { kurShkeputet() }
+            } catch (e: PaLidhje) { kurHumbetLidhja() }
             catch (e: DuhetRilidhur) { gabim = "Lidhe sërish orën nga telefoni." }
             catch (e: Exception) { gabim = "S'u dërgua. Provo prapë." }
             duke = false

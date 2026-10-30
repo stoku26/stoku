@@ -33,8 +33,11 @@ class StokuTile : TileService() {
     override fun onTileRequest(requestParams: RequestBuilders.TileRequest): ListenableFuture<TileBuilders.Tile> =
         CallbackToFutureAdapter.getFuture { c ->
             scope.launch {
-                val lista = withTimeoutOrNull(12000) { Api.merrMeCache(this@StokuTile) } ?: Api.listaERuajtur(this@StokuTile)
-                c.set(tile(lista))
+                // gabimi i papritur kthehet te sistemi (më parë e rrëzonte aplikacionin dhe tile-i mbetej pa përgjigje)
+                try {
+                    val lista = withTimeoutOrNull(12000) { Api.merrMeCache(this@StokuTile) } ?: Api.listaERuajtur(this@StokuTile)
+                    c.set(tile(lista))
+                } catch (e: kotlinx.coroutines.CancellationException) { c.setCancelled() } catch (e: Exception) { c.setException(e) }
             }
             "stoku-tile"
         }

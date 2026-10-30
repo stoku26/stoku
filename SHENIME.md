@@ -52,6 +52,28 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ORA: KONTROLLI PËR GABIME (30.10.2026, vetëm `ora/` + CI, pa version të web-it)**: përdoruesi: "Tash kontrolloje appin e
+   ores per bugs edhe rregulloji". Rishikim i kodit + **lint** (job i ri `lint` te `ora-apk.yml`, si te `vendas-apk.yml`: vetëm në degët
+   e punës, s'e ndal CI-në, rezultatet në log si `LINT …`). U rregulluan:
+   (1) **401 s'e fshin më lidhjen**: më parë çdo 401 (edhe i çastit, kur KV-ja e Cloudflare-it s'e kishte ende `ora-tok` në atë vend)
+   thërriste `Api.shkeput` = POST `/ora/shkeput` (e fshinte lidhjen e vërtetë te serveri) + sekret i ri, pra duhej lidhur sërish me kod.
+   Tash `Api.humbiLidhja` (PaLidhje te `ListaEkrani`/`ZgjedhKolegun`, parametri `kurHumbetLidhja`): vetëm `lidhur=false`, pa thirrje te
+   serveri, me të njëjtin sekret; ekrani i kodit (`/ora/kodi` e kthen `lidhur: true` kur `ora-tok` ekziston) kthehet vetë te lista.
+   `Api.shkeput` (vetëm Cilësimet → Shkëput orën) s'është më `suspend`: i fshin menjëherë prefs-at dhe e njofton serverin në sfond
+   (`Api.sfondi`); më parë ekrani priste deri në 25 s pa internet. (2) **Heqja që dështonte te serveri**: produkti mbetej i fshehur me
+   "Provo prapë" pa pasur si; tash `ngarko()` + `riktheTeKrejt(a)`. `postoHeqjen`: 5xx/429/408 (`provoMeVone`, p.sh. KV-ja ~1 shkrim/s
+   për `ora-hequr:{uid}` kur "Zhbëj" shtypet menjëherë pas heqjes) provohen sërish pas 1.2 s, pastaj ruhen te radha si pa internet
+   (`PA_INTERNET_HEQJA` tash "Pa lidhje me serverin: … dërgohet vetë më vonë."). Radha: 429/408 s'e hedhin më heqjen (më parë vetëm
+   ≥ 500 mbetej), pushimi 1.1 s edhe pas një grupi. (3) **Gabimet që fshiheshin menjëherë**: "N heqje s'u ruajtën" dhe "Zhbërja s'u
+   ruajt" vendoseshin para `ngarko()`, që i fshinte me `gabim = null`; tash pas tij. (4) **Tile-i/komplikacioni** numëronin edhe
+   produktet që presin heqjen në radhë (`listaERuajtur`/`krejtERuajtur` tash me `paHequrat`); radha nga tile-i me kufijtë `shpejt`;
+   gabimi i papritur te `onTileRequest` kthehet te sistemi (`setException`) në vend që ta rrëzojë aplikacionin. (5) **"Mbi 30 ditë" dhe
+   kërkimi**: pas heqjes kthehesh aty ku ishe (`Pamja.Hequr.nga`, edhe "Zhbëj" dhe mbrapa); `krejt` ngarkohet vetëm kur hapen nga lista
+   kryesore (`hapMeKrejt`), jo pas çdo produkti (serveri mund ta kthente produktin e sapohequr); "Hiqi krejt" i heq edhe nga `krejt`;
+   "Zhbëj" e rikthen produktin edhe aty. (6) **Përditësimi**: `Perditesimi.kontrollo` kërkon deri në 5 faqe Releases (më parë vetëm 100 të
+   parat: me shumë publikime `vendas-v*` pas versionit të fundit të orës, ora s'e gjente më); lidhjet mbyllen. (7) `sekreti`/`kodi`
+   `@Synchronized`. Pa testim në orë të vërtetë (s'kemi orë).
+
 0000000. **ANDROID: KONTROLLI I DYTË PËR GABIME (30.10.2026, vetëm `vendas/` + CI, Hyrja 30)**: përdoruesi: "Kontrolloje android appin per
    bugs edhe probleme, edhe rregulloji te gjitha". Rishikim i kodit + **lint** i Android-it (job i ri `lint` te `vendas-apk.yml`, vetëm
    në degët e punës, s'e ndal CI-në; rezultatet dalin në log si `LINT …`). U rregulluan:

@@ -39,6 +39,39 @@ jobs:
           name: stoku-ora-apk
           path: stoku-ora-${{ github.run_number }}.apk
 
+  # Kontrolli automatik i Android-it (lint) vetëm në degët e punës: gabimet dhe paralajmërimet dalin në log (nuk e ndalin CI-në)
+  lint:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Lint
+        continue-on-error: true
+        run: gradle -p ora :app:lintDebug --continue --no-daemon
+      - name: Rezultatet e lint-it
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import glob, xml.etree.ElementTree as ET, collections
+          for f in glob.glob('ora/app/build/reports/lint-results*.xml'):
+              r = ET.parse(f).getroot(); n = collections.Counter()
+              for i in r.findall('issue'):
+                  n[(i.get('severity'), i.get('id'))] += 1
+              print('== ' + f); [print('LINT-NR', k[0], k[1], v) for k, v in sorted(n.items())]
+              for i in r.findall('issue'):
+                  if i.get('id') in ('Typos', 'UnusedResources', 'IconMissingDensityFolder', 'GradleDependency', 'NewerVersionAvailable', 'AndroidGradlePluginVersion'): continue
+                  l = i.find('location')
+                  loc = (l.get('file', '').split('/ora/')[-1] + ':' + l.get('line', '')) if l is not None else ''
+                  print('LINT', i.get('severity'), i.get('id'), loc, '|', (i.get('message') or '')[:300])
+          PY
+
   release:
     needs: build
     if: github.ref == 'refs/heads/main'
