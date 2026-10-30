@@ -129,7 +129,15 @@ object Fotot {
                 if (m > 1024) d.setTargetSampleSize(m / 1024)
                 d.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
             }
-        } else ctx.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it) }
+        } else {
+            // v270: Android 8 (pa ImageDecoder): leximi me hapa (inSampleSize), që fotoja e madhe e kamerës të mos e mbushë
+            // memorien (OutOfMemoryError e rrëzonte aplikacionin)
+            val kufijte = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            ctx.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, kufijte) }
+            var hapi = 1
+            while (minOf(kufijte.outWidth, kufijte.outHeight) / (hapi * 2) >= 1024) hapi *= 2
+            ctx.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = hapi }) }
+        }
         burimi?.let { b ->
             val m = minOf(b.width, b.height)
             val dalja = Bitmap.createBitmap(MASA, MASA, Bitmap.Config.ARGB_8888)
@@ -138,7 +146,7 @@ object Fotot {
             c.drawBitmap(b, Rect((b.width - m) / 2, (b.height - m) / 2, (b.width - m) / 2 + m, (b.height - m) / 2 + m), Rect(0, 0, MASA, MASA), Paint(Paint.FILTER_BITMAP_FLAG))
             ByteArrayOutputStream().use { o -> dalja.compress(Bitmap.CompressFormat.JPEG, CILESIA, o); o.toByteArray() }
         }
-    } catch (e: Exception) { null }
+    } catch (e: Exception) { null } catch (e: OutOfMemoryError) { null }
 
     /** → null (u ruajt) ose arsyeja: "jo-foto" | "madhesia" | "pa-hyrje" | "mungon-kv" | "rrjeti" | … */
     suspend fun ngarko(ctx: Context, uri: Uri): String? {

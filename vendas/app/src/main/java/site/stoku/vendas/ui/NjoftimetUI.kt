@@ -127,6 +127,7 @@ fun NjoftimetFaqja(mbrapa: () -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberFusha()
     val versioni by Push.versioni.collectAsState()
+    val perdoruesi by Llogaria.perdoruesi.collectAsState() // lint: jo .value në vizatim (s'rifreskohej pas hyrjes/daljes)
     var rifresko by remember { mutableStateOf(0) }
     val gjendja = remember(versioni, rifresko) { Njoftimet.gjendja(ctx) }
     val pushAktiv = remember(versioni, rifresko) { Push.pushAktiv() }
@@ -217,7 +218,7 @@ fun NjoftimetFaqja(mbrapa: () -> Unit) {
                         Text("Ora e njoftimit", style = txR(15f, 600, n.ink, 1.3f))
                         Text(when {
                             duke -> "Duke ruajtur…"
-                            Llogaria.perdoruesi.value == null -> "Hyr në llogari që ta përdorësh."
+                            perdoruesi == null -> "Hyr në llogari që ta përdorësh."
                             g == "bllokuar" -> "Njoftimet janë të bllokuara te cilësimet e telefonit."
                             g == "fikur" -> "Shtyp më lart \"Aktivizo njoftimet\"."
                             aktiv -> "Çdo ditë në $ora."

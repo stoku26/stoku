@@ -52,6 +52,20 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ANDROID: KONTROLLI I DYTË PËR GABIME (30.10.2026, vetëm `vendas/` + CI, Hyrja 30)**: përdoruesi: "Kontrolloje android appin per
+   bugs edhe probleme, edhe rregulloji te gjitha". Rishikim i kodit + **lint** i Android-it (job i ri `lint` te `vendas-apk.yml`, vetëm
+   në degët e punës, s'e ndal CI-në; rezultatet dalin në log si `LINT …`). U rregulluan:
+   (1) `SasiaEDrejtperdrejte` (StokuEkrani): numri ruhej vetëm me "Done", tash edhe kur fusha humb fokusin (si `change` te web-i) dhe në
+   prekje zgjidhet krejt numri (TextFieldValue). (2) `Skaneri.KameraPamja`: `mbyllur` te DisposableEffect: kamera e hapur dhe e mbyllur
+   para se `ProcessCameraProvider` të gatitej s'lidhet më (mbetej e lidhur me aktivitetin, e ndezur në sfond); leximet e vonuara të ML Kit
+   s'pranohen pas mbylljes; `fut.get()` me try. (3) Shpejtësia: `nrNeFolder` (Kryefaqja, më parë folder × produkte në çdo vizatim, edhe
+   gjatë zvarritjes) dhe renditja/filtri i folderit me `remember` (s'renditet me Collator në çdo shkronjë të barkodit). (4) "Dil"
+   (CilesimetEkrani): `MainScope` në vend të scope-it të ekranit (kalimi në një tab tjetër gjatë pritjes 9 s e anulonte daljen).
+   (5) `Fotot.pergatit` në Android 8 (pa ImageDecoder): leximi me `inSampleSize` + `catch OutOfMemoryError` (rrëzim me foto të mëdha).
+   (6) lint `StateFlowValueCalledInComposition` (NjoftimetUI): `perdoruesi` me `collectAsState`. Paralajmërimet e tjera të lint-it
+   (POST_NOTIFICATIONS < 33 vetëm kur gjendja është "fikur", `commit()` te trajtuesi i rrëzimit, `StaticFieldLeak` me applicationContext,
+   AutoboxingStateCreation) s'janë gabime. S'është testuar në telefon.
+
 0000000. **KAMERA NË KREJT EKRANIN (v270 = 1.45.2, 29.10.2026, vetëm web telefoni)**: përdoruesi (2 foto, Skanim i shpejtë dhe
    kamera e zakonshme në web): "a pe sheh zi nalt ... mundohu mi eliminu let doket kamera komplet nqat hapsiren e zez".
    - Kamera e zakonshme: `#kamera .kamera-krye` tash `position: absolute` mbi kamerë (si Skanimi i shpejtë që te v264), pa shirit të zi

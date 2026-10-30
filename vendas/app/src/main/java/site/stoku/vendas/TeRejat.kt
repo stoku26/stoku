@@ -8,6 +8,13 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(30, "2026-10-30", "Rregullime", listOf(
+            "Sasia që e shkruan direkt te lista e folderit ruhet edhe kur prek diku tjetër, jo vetëm me \"Done\".",
+            "Kamera s'mbetet më e ndezur në sfond kur e hap dhe e mbyll shumë shpejt.",
+            "Folderat dhe listat me shumë produkte punojnë më shpejt.",
+            "Në telefonat me Android 8, fotoja e profilit nga një foto e madhe s'e mbyll më aplikacionin.",
+            "\"Dil\" kryhet edhe kur kalon në një faqe tjetër ndërsa pritet interneti."
+        )),
         Hyrja(29, "2026-10-29", "Folderi më i pastër", listOf(
             "Lart te folderi shkruan vetëm emri i folderit, pa numrin e produkteve.",
             "Brenda folderit ka vetëm fushën \"Barkodi\" dhe pranë saj butonin 🔍. Fusha \"Kërko\" del kur e prek dhe mbyllet kur e prek prapë."
