@@ -20,6 +20,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 272, versioni: '1.46.0', data: '2026-10-31', titulli: 'Shkronja të vogla', platforma: 'tel', pikat: [
+      'Te Cilësimet → Pamja → Madhësia e shkronjave ka tash edhe "E vogël": krejt teksti dhe butonat dalin pak më të vegjël, që të nxë më shumë në ekran.'
+    ] },
     { v: 271, versioni: '1.45.3', data: '2026-10-31', titulli: 'Afatet pa butonin e cloud-it', platforma: 'tel', pikat: [
       'Lart te Afatet s\'ka më muajin dhe butonin e cloud-it. Ndryshimet ruhen dhe sinkronizohen vetë pas çdo ndryshimi; gjendjen e sheh te Cilësimet → Llogaria.'
     ] },

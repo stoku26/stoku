@@ -141,9 +141,10 @@
       tabPerdoruesit: 'Përdoruesit',
       automatikeHint: '"Automatike" ndjek cilësimin e telefonit.',
       titMadhesiaTeksti: 'Madhësia e shkronjave',
+      madhesiaEVogelBtn: 'E vogël',
       madhesiaNormaleBtn: 'Normale',
       madhesiaEMadheBtn: 'E madhe',
-      madhesiaHintTeksti: 'Rrit pak madhësinë e gjithë tekstit dhe butonave, për lexueshmëri më të lehtë.',
+      madhesiaHintTeksti: 'Ndryshon madhësinë e gjithë tekstit dhe butonave: "E vogël" nxë më shumë në ekran, "E madhe" lexohet më lehtë.',
 
       pdaLabel: 'Ky është PDA (skaner i brendshëm)',
       fshihTastieren: 'Fshih tastierën',
@@ -242,6 +243,7 @@
     { id: 'temaDark', prop: 'text', kyc: 'eErret' },
     { id: 'temaHint', prop: 'text', kyc: 'automatikeHint' },
     { id: 'titMadhesia', prop: 'text', kyc: 'titMadhesiaTeksti' },
+    { id: 'madhesiaEVogel', prop: 'text', kyc: 'madhesiaEVogelBtn' },
     { id: 'madhesiaNormale', prop: 'text', kyc: 'madhesiaNormaleBtn' },
     { id: 'madhesiaEMadhe', prop: 'text', kyc: 'madhesiaEMadheBtn' },
     { id: 'madhesiaHint', prop: 'text', kyc: 'madhesiaHintTeksti' },
@@ -432,7 +434,7 @@
       if (typeof opsioneRuajtura.tastieraFshehur === 'boolean') opsione.tastieraFshehur = opsioneRuajtura.tastieraFshehur;
       if (typeof opsioneRuajtura.paEmer === 'boolean') opsione.paEmer = opsioneRuajtura.paEmer;
       if (['i_ri', 'emri', 'emriZA', 'sasiaUlet', 'sasiaLart'].indexOf(opsioneRuajtura.rendi) !== -1) opsione.rendi = opsioneRuajtura.rendi;
-      if (opsioneRuajtura.madhesia === 'e_madhe' || opsioneRuajtura.madhesia === 'normale') opsione.madhesia = opsioneRuajtura.madhesia;
+      if (['e_vogel', 'normale', 'e_madhe'].indexOf(opsioneRuajtura.madhesia) !== -1) opsione.madhesia = opsioneRuajtura.madhesia;
     }
   } catch (e) { /* përdor vlerat fillestare */ }
 
@@ -960,7 +962,7 @@
   // ---------- Madhësia e shkronjave ----------
   // ("Ngjyra kryesore" dhe "Motivi i sfondit" u hoqën në v128: Stoku ka vetëm ngjyrat e dizajnit)
   function zbatoMadhesine() {
-    document.body.setAttribute('data-madhesi', opsione.madhesia === 'e_madhe' ? 'e_madhe' : '');
+    document.body.setAttribute('data-madhesi', opsione.madhesia === 'e_madhe' || opsione.madhesia === 'e_vogel' ? opsione.madhesia : ''); // v272: edhe "e_vogel"
     Array.prototype.forEach.call(document.querySelectorAll('#segMadhesia button'), function (b) {
       b.classList.toggle('aktiv', b.getAttribute('data-v') === opsione.madhesia);
     });

@@ -10,7 +10,7 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v271';
+var CACHE = 'stoku-v272';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
 importScripts('./afatet.js?v=248', './njoftimet.js?v=216');
@@ -40,19 +40,19 @@ var SHELL = FAQET.concat([
   './ekipa.js?v=258',
   './porta.js?v=252',
   './njoftimet.js?v=216',
-  './teRejat.js?v=271',
+  './teRejat.js?v=272',
   // v238: skriptat e faqeve (më parë brenda HTML-së; CSP pa 'unsafe-inline')
   './kornize.js?v=238',
   './es2020.js?v=238',
   './fillimi-tel.js?v=239',
   './fillimi-pc.js?v=239',
-  './app-tel.js?v=271',
+  './app-tel.js?v=272',
   './app-pc.js?v=257',
   './firebase-tel.js?v=252',
   './firebase-pc.js?v=252',
   './manifest.webmanifest?v=87',
   './css/stoku-tokens.css?v=6',
-  './css/stoku.css?v=56',
+  './css/stoku.css?v=57',
   './css/stoku-pc.css?v=40',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',

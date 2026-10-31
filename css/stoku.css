@@ -180,7 +180,6 @@
 
 /* Zgjedhjet me pamje (tema, madhësia) */
 .sb .ops-tema, .sb .ops-madhesia { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.sb .ops-madhesia { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .sb .ops-zgjedhja__emri { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sb .ops-tema button, .sb .ops-madhesia button { display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 10px 8px 11px; border-radius: 16px; border: 0; background: var(--sb-surface-2); box-shadow: inset 0 0 0 1.5px transparent; color: var(--sb-ink-3); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: box-shadow .15s, background .15s; }
 /* (pas rregullit bazë: me të njëjtën specifikë fiton i fundit) */
@@ -200,6 +199,7 @@
 .sb .ops-mock i:nth-of-type(1)::after { content: ''; position: absolute; left: 4px; top: 4px; width: 8px; height: 8px; border-radius: 3px; background: #f0b95a; }
 .sb .ops-aa { height: 52px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: var(--sb-ink); letter-spacing: -.02em; }
 .sb .ops-aa--madh { font-size: 30px; }
+.sb .ops-aa--vogel { font-size: 15px; }
 
 /* Rreshtat me ikonë (Skenimi, Renditja) */
 .sb .ops-grupi > .seksion { padding: 14px 16px; position: relative; }

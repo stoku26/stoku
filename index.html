@@ -68,6 +68,7 @@
 
   /* Madhësia e shkronjave: shkallëzon krejt faqen (edhe elementet me px) */
   body[data-madhesi="e_madhe"] { zoom: 1.12; }
+  body[data-madhesi="e_vogel"] { zoom: .9; } /* v272: "E vogël" (pronari: opsion për shkronja të vogla) */
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; overflow: hidden; }
   body {
@@ -1047,7 +1048,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=6">
-<link rel="stylesheet" href="css/stoku.css?v=56">
+<link rel="stylesheet" href="css/stoku.css?v=57">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -1293,6 +1294,7 @@
           <div class="seksion ops-karta">
             <div class="opsion-titull" id="titMadhesia"></div>
             <div class="ops-madhesia" id="segMadhesia">
+              <button type="button" data-v="e_vogel"><span class="ops-aa ops-aa--vogel">Aa</span><span class="ops-zgjedhja__emri" id="madhesiaEVogel"></span></button>
               <button type="button" data-v="normale"><span class="ops-aa">Aa</span><span class="ops-zgjedhja__emri" id="madhesiaNormale"></span></button>
               <button type="button" data-v="e_madhe"><span class="ops-aa ops-aa--madh">Aa</span><span class="ops-zgjedhja__emri" id="madhesiaEMadhe"></span></button>
             </div>
@@ -2030,8 +2032,8 @@
 <script src="harta.js?v=256"></script>
 <script src="ekipa.js?v=258"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=271"></script>
-<script src="app-tel.js?v=271"></script>
+<script src="teRejat.js?v=272"></script>
+<script src="app-tel.js?v=272"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
