@@ -52,6 +52,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **SHKRONJA TË VOGLA NË TELEFON (v272 = 1.46.0, 31.10.2026, vetëm web-i i telefonit)**: pronari: "Ne web app veq ne telefon te
+   qato madhesi qe jan shtoje edhe ni opsion per shkronja te vogla". Cilësimet → Pamja → Madhësia e shkronjave: "E vogël" (`data-v="e_vogel"`,
+   `#madhesiaEVogel`, "Aa" 15 px) para "Normale" dhe "E madhe"; `body[data-madhesi="e_vogel"] { zoom: .9 }` (si `e_madhe` 1.12, krejt
+   faqja). `.ops-madhesia` tash 3 kolona (si `.ops-tema`); `opsione.madhesia` pranon `e_vogel`. Shiriti poshtë, butoni lundrues,
+   dritaret dhe kamera e plotë u kontrolluan me .9 (mbeten në skajet e ekranit). PC-ja (`#opsMadhesia`) dhe Android-i s'u prekën.
+   Testi `teste/v272.js`. S'është testuar në telefon të vërtetë.
+
 0000000. **PA BUTONIN E SINKRONIZIMIT DHE PA MUAJIN (v271 = 1.45.3, 31.10.2026, telefoni + PC + Android Hyrja 31) + NJOFTIMET NË
    ANDROID**: pronari (foto e Afateve në Android): "Heqja qat buton nalt anen e djatht qe o per sinkronizim edhe daten, leje
    sinkronizimin me u bo pas qdo ndryshimi automatik. Ne web app edhe android app nese o naj kun edhe npc heke."
