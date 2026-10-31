@@ -982,24 +982,6 @@
   .kfh-statusi.gabim { color: var(--af-kuqe-tx); font-weight: 600; }
   .kfh-zgjedhjet { display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px; }
   .kfh-zgjedhjet .btn { width: 100%; flex: none; min-height: 52px; font-size: 15.5px; }
-  /* Ikona e cloud-it në krye të faqes së afateve (ruajtur / duke u ruajtur / s'u ruajt) */
-  .af-sink {
-    flex: none; position: relative; width: 42px; height: 42px; border-radius: 50%; border: 0; padding: 0;
-    display: flex; align-items: center; justify-content: center; cursor: pointer;
-    background: rgba(255,255,255,.14); color: #fff; -webkit-tap-highlight-color: transparent;
-    transition: background .2s;
-  }
-  .af-sink[hidden] { display: none; }
-  .af-sink:active { background: rgba(255,255,255,.28); }
-  .af-sink svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .af-sink.pune svg { animation: afSinkPulso 1.1s ease-in-out infinite; }
-  .af-sink.gabim { background: #e5483e; }
-  .af-sink.ok::after {
-    content: ''; position: absolute; right: 5px; top: 5px; width: 9px; height: 9px; border-radius: 50%;
-    background: #4ade80; box-shadow: 0 0 0 2px var(--header);
-  }
-  @keyframes afSinkPulso { 50% { opacity: .4; transform: translateY(-1px); } }
-  @media (prefers-reduced-motion: reduce) { .af-sink.pune svg { animation: none; } }
   .af-pda-hint { margin: -6px 2px 12px; font-size: 12.5px; color: var(--gri); }
   .af-majtas { flex: 1; min-width: 0; }
   .af-emri { font-size: 15.5px; font-weight: 600; overflow-wrap: anywhere; }
@@ -1065,7 +1047,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=6">
-<link rel="stylesheet" href="css/stoku.css?v=55">
+<link rel="stylesheet" href="css/stoku.css?v=56">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -1658,8 +1640,6 @@
     <div class="opsione-krye">
       <button id="afPrapa" class="btn-ikone" type="button" aria-label="Mbrapa"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
       <h2 id="afTitulli">Afatet</h2>
-      <span class="sb-muaji" id="afMuaji"></span>
-      <button class="af-sink" id="afSinkStatus" type="button" hidden></button>
     </div>
     <div class="faqe-trup" id="afTrup">
       <button class="mk-chip" id="afMarketi" type="button" hidden aria-haspopup="dialog"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path><circle cx="12" cy="10" r="3"></circle></svg><span class="mk-chip__tekst"><span class="mk-chip__lbl">Je te</span><span class="mk-chip__emri" id="afMarketiEmri"></span></span><svg class="mk-chip__shigj" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
@@ -2050,8 +2030,8 @@
 <script src="harta.js?v=256"></script>
 <script src="ekipa.js?v=258"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=270"></script>
-<script src="app-tel.js?v=270"></script>
+<script src="teRejat.js?v=271"></script>
+<script src="app-tel.js?v=271"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>

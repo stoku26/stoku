@@ -96,17 +96,18 @@ const kujtesaE = p => p.evaluate(() => JSON.parse(localStorage.getItem('stoku:ku
     const { p, ctx } = await faqe(b, pc, 'agim', [{ id: 'a1', emri: 'Kos', data: d(20), statusi: 'aktiv', ndryshuarSe: t }], null, { hedh: true, injoroGabimin: true });
     await p.waitForTimeout(800);
     ok(!p.__gabimi, emer + ': gabimi s\'del si gabim i pakapur i faqes', p.__gabimi);
+    // v271: statusi lexohet te Cilësimet (statusi poshtë në anësoren e PC-së dhe ikona e cloud-it te Afatet u hoqën)
     if (pc) {
-      ok(/Pa lidhje/.test(await p.textContent('#sinkTekst')), emer + ': statusi tregon gabimin (jo "Duke sinkronizuar…")', await p.textContent('#sinkTekst'));
-      await p.click('#sinkStatus'); await p.waitForTimeout(600);
-      ok(/Sinkronizuar/.test(await p.textContent('#sinkTekst')), emer + ': sinkronizimi i radhës punon', await p.textContent('#sinkTekst'));
+      ok(/Pa lidhje/.test(await p.textContent('#opsNavSub')), emer + ': statusi tregon gabimin (jo "Duke sinkronizuar…")', await p.textContent('#opsNavSub'));
+      await p.evaluate(() => document.dispatchEvent(new Event('visibilitychange'))); await p.waitForTimeout(600); // rikthimi te faqja e riprovon vetë
+      ok(/Sinkronizuar/.test(await p.textContent('#opsNavSub')), emer + ': sinkronizimi i radhës punon', await p.textContent('#opsNavSub'));
     } else {
-      const s = await p.evaluate(() => document.getElementById('afSinkStatus').className);
-      ok(/gabim/.test(s), emer + ': ikona e cloud-it tregon gabimin', s);
+      const s = await p.textContent('#cloudStatusi');
+      ok(/dështoi/.test(s), emer + ': statusi te Cilësimet tregon gabimin', s);
       const n0 = await p.evaluate(() => window.__nrSink);
       await p.evaluate(() => window.dispatchEvent(new Event('online'))); await p.waitForTimeout(600);
-      const s2 = await p.evaluate(() => document.getElementById('afSinkStatus').className);
-      ok(/\bok\b/.test(s2) && await p.evaluate(() => window.__nrSink) > n0, emer + ': sinkronizimi i radhës punon (s\'ngec)', s2);
+      const s2 = await p.textContent('#cloudStatusi');
+      ok(/U sinkronizua/.test(s2) && await p.evaluate(() => window.__nrSink) > n0, emer + ': sinkronizimi i radhës punon (s\'ngec)', s2);
     }
     await ctx.close();
   }

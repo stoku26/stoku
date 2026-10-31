@@ -307,12 +307,6 @@
   function ngaVizitori() { return !!(window.StokuPorta && window.StokuPorta.ngaVizitori && window.StokuPorta.ngaVizitori()); }
   var LIMIT_RENDER = 300;
   var MIME_XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-  // Ikona e cloud-it në krye të faqes së afateve (ruajtur / duke u ruajtur / s'u ruajt) — para nisjes, se përdoret që në ngarkim
-  var IKONAT_SINK = {
-    ok: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16.5 14.5-4.8 4.8-2.2-2.2"></path><path d="M5 17.74A7 7 0 1 1 15.71 10h1.79a4.5 4.5 0 0 1 1.5 8.74"></path></svg>',
-    pune: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 13v8"></path><path d="M4 14.9A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.24"></path><path d="m8 17 4-4 4 4"></path></svg>',
-    gabim: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2 2 20 20"></path><path d="M5.78 5.78A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.31-.19"></path><path d="M21.53 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7 7 0 0 0 10 5.07"></path></svg>'
-  };
 
   var FOLDERAT_PARAZGJEDHUR = [
     { id: 'ushqimore', emri: 'Ushqimore' },
@@ -2460,19 +2454,7 @@
     else { renderFolderat(); renderKerkimiGlobal(); }
   }
 
-  // Ikona e cloud-it te "Afatet e produkteve": a janë ruajtur afatet në cloud
-  function vendosStatusinEAfateve(g) {
-    var e = $('afSinkStatus');
-    if (!e) return;
-    if (!perdoruesiAktual()) { e.hidden = true; return; }
-    var teksti = g === 'ok' ? 'Ruajtur në cloud · ' + oraTani() : g === 'gabim' ? 'S\'u ruajt në cloud (pa internet?) · riprovohet vetë' : 'Duke u ruajtur në cloud…';
-    e.hidden = false;
-    e.className = 'af-sink ' + g;
-    e.innerHTML = IKONAT_SINK[g] || IKONAT_SINK.pune;
-    e.title = teksti;
-    e.setAttribute('aria-label', teksti);
-  }
-  $('afSinkStatus').addEventListener('click', function () { toast($('afSinkStatus').title); });
+  // v271: ikona e cloud-it në krye të Afateve u hoq (pronari): sinkronizimi bëhet vetë pas çdo ndryshimi, statusi mbetet te Cilësimet
 
   var statusiCloudFundit = ''; // teksti i fundit i statusit (mbetet edhe kur rihapen Opsionet)
   function vendosStatusinCloud(teksti) {
@@ -2508,7 +2490,6 @@
     if (!perdoruesiAktual()) return;
     clearTimeout(sinkronizoKohezi);
     sinkronizoKohezi = setTimeout(kryeSinkronizimin, ms === undefined ? SINKRONIZIM_VONESA_MS : ms);
-    vendosStatusinEAfateve('pune');
   }
   // Kur app-i mbyllet/kalon në sfond me një ruajtje në pritje: dërgohet menjëherë (përndryshe
   // telefoni e "ngrin" kohëmatësin dhe ndryshimi i fundit s'arrin në cloud deri në hapjen tjetër).
@@ -2574,7 +2555,6 @@
     if (!rez.ok && /maximum|exceeds|too large/i.test(String(rez.arsye || ''))) {
       toast('Të dhënat e dyqanit kanë arritur kufirin e Firebase-it (1 MB) dhe s\'po ruhen në cloud. Fshi afatet/produktet e vjetra ose kontakto administratorin.');
     }
-    vendosStatusinEAfateve(rez.ok ? 'ok' : 'gabim');
     __sinkDeshtoi = !rez.ok;
     if (!rez.ok) { clearTimeout(sinkronizoKohezi); sinkronizoKohezi = setTimeout(kryeSinkronizimin, 15000); } // riprovo vetë
     if (__sinkSerish) { __sinkSerish = false; planifikoSinkronizimin(); }
@@ -2929,7 +2909,7 @@
     sinkronizoNeHyrje();
   });
   window.addEventListener('stoku-auth-ndryshoi', function () {
-    if (!perdoruesiAktual()) { __uidISinkronizuarDarePasHyrjes = null; ndalDegjuesinCloud(); vendosStatusinEAfateve(''); statusiCloudFundit = ''; }
+    if (!perdoruesiAktual()) { __uidISinkronizuarDarePasHyrjes = null; ndalDegjuesinCloud(); statusiCloudFundit = ''; }
     rifreskoDukjenECloud();
     sinkronizoNeHyrje();
     emriNeKrye();
@@ -5515,7 +5495,6 @@
     });
   }
 
-  var MUAJT_PLOTE = ['Janar', 'Shkurt', 'Mars', 'Prill', 'Maj', 'Qershor', 'Korrik', 'Gusht', 'Shtator', 'Tetor', 'Nëntor', 'Dhjetor'];
   function renderAfatet() {
     var n = AF.numero(afatetEMarketit());
     var numrat = { aktive: n.aktive, skaduar: n.skaduar + n['pa-date'], afer: n.afer, ok: n.ok, hequr: n.hequr };
@@ -5525,9 +5504,6 @@
       var c = b.querySelector('.sb-chip__count');
       if (c) c.textContent = numrat[f] ? String(numrat[f]) : '';
     });
-    var dSot = new Date();
-    $('afMuaji').textContent = MUAJT_PLOTE[dSot.getMonth()] + ' ' + dSot.getFullYear();
-
     var k = $('afKerko').value.trim().toLowerCase();
     vizatoMuajtEAfateve();
     var lista = afatetEFiltruara();

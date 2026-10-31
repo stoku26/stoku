@@ -52,6 +52,26 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PA BUTONIN E SINKRONIZIMIT DHE PA MUAJIN (v271 = 1.45.3, 31.10.2026, telefoni + PC + Android Hyrja 31) + NJOFTIMET NË
+   ANDROID**: pronari (foto e Afateve në Android): "Heqja qat buton nalt anen e djatht qe o per sinkronizim edhe daten, leje
+   sinkronizimin me u bo pas qdo ndryshimi automatik. Ne web app edhe android app nese o naj kun edhe npc heke."
+   - **Telefoni (web)**: `#afMuaji` ("Tetor 2026") dhe `#afSinkStatus` (ikona e cloud-it) u hoqën nga koka e Afateve, bashkë me
+     `vendosStatusinEAfateve`, `IKONAT_SINK`, `MUAJT_PLOTE` dhe CSS-në `.af-sink`/`.sb-muaji`. Koka mbetet 44 e lartë
+     (`#dlgAfatet .opsione-krye { height: 44px; box-sizing: content-box }`), kartat 72 nga lart si më parë.
+   - **PC**: `#sinkStatus` ("Sinkronizuar · ora" nën emrin në anësore, prekja = sinkronizo tani) u hoq; `vendosStatusin` e shkruan
+     statusin vetëm te Cilësimet (`#opsNavSub`, `#opsLlStatusi`, `#llStatusi`); "Dil" tash `grid-row: 1`.
+   - **Android**: `AfatetEkrani`: pa muajin dhe pa `ButonIkone` e cloud-it (`Row(heightIn(min = 44.dp))`); ikonat `Ik.ReOk/RePune/ReGabim` u hoqën.
+   - Sinkronizimi ishte tashmë automatik kudo: web `planifikoSinkronizimin` (1.5 s; afatet 300 ms), PC `sink.kohez` + riprovim pas
+     15 s, Android `Dyqani.kurNdryshon → Sinkronizimi.planifiko(1500)`. "Sinkronizo tani" te Cilësimet → Llogaria mbetet (s'u kërkua).
+   - **Njoftimet (Android, foto e dytë: "S'u lidh me serverin e njoftimeve" edhe pse "✓ Serveri punon")**: `gjendjaENjoftimeve`
+     jepte "lokale" ("Aktive kur Stoku është hapur" + "Provo sërish lidhjen") edhe kur përdoruesi s'është në asnjë grup (ose grupi
+     ende s'ishte ngarkuar): `Push.aktivizo` s'kishte çka të regjistronte, kthente "ok", `pushAktiv()` false → mesazhi i internetit.
+     Tash: pa grup → "aktive"; `aktivizo` kthen "pa-grup" / "rregullat" (PERMISSION_DENIED i Firestore-it) / "rrjeti" dhe, si
+     `aktivizoPush` te web-i, e pyet serverin (`serveri()`, që `push_server` të jetë i freskët); gjendja rillogaritet pas kontrollit të
+     serverit dhe kur ndryshon `Grupi.gjendja`; mesazhet sipas arsyes. Web-i (`gjendjaENjoftimeve` te app-tel.js) s'u prek.
+   - Testet: `teste/v271.js`; përshtatur v215-test (D: statusi te Cilësimet), v248, vizitor-test, v268 (pa `#afSinkStatus`).
+     S'është testuar në pajisje të vërteta.
+
 0000000. **ORA: KONTROLLI PËR GABIME (30.10.2026, vetëm `ora/` + CI, pa version të web-it)**: përdoruesi: "Tash kontrolloje appin e
    ores per bugs edhe rregulloji". Rishikim i kodit + **lint** (job i ri `lint` te `ora-apk.yml`, si te `vendas-apk.yml`: vetëm në degët
    e punës, s'e ndal CI-në, rezultatet në log si `LINT …`). U rregulluan:

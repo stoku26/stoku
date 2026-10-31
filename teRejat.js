@@ -20,6 +20,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 271, versioni: '1.45.3', data: '2026-10-31', titulli: 'Afatet pa butonin e cloud-it', platforma: 'tel', pikat: [
+      'Lart te Afatet s\'ka më muajin dhe butonin e cloud-it. Ndryshimet ruhen dhe sinkronizohen vetë pas çdo ndryshimi; gjendjen e sheh te Cilësimet → Llogaria.'
+    ] },
+    { v: 271, versioni: '1.45.3', data: '2026-10-31', titulli: 'Pa statusin e sinkronizimit poshtë', platforma: 'pc', pikat: [
+      'Poshtë në anën e majtë, nën emrin, s\'ka më "Sinkronizuar · ora". Ndryshimet sinkronizohen vetë pas çdo ndryshimi; gjendjen e sheh te Cilësimet → Llogaria.'
+    ] },
     { v: 270, versioni: '1.45.2', data: '2026-10-29', titulli: 'Kamera në krejt ekranin', platforma: 'tel', pikat: [
       'Kamera zë tash krejt ekranin, si në aplikacionin Android: pa shiritin e zi lart, me butonat mbi kamerë. Kur e mbyll, ekrani kthehet si ishte.'
     ] },

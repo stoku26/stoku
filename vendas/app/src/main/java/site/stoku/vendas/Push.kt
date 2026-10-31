@@ -2,6 +2,7 @@ package site.stoku.vendas
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -120,7 +121,8 @@ object Push {
     private fun lexoPref(k: String): Obj? = try { Json.lexo(StokuApp.prefsOse(k, "")).siObj() } catch (e: Exception) { null }
     private fun shkruajPref(k: String, v: Obj?) = StokuApp.vendosPref(k, if (v == null) "" else Json.shkruaj(v))
 
-    /** Regjistron këtë pajisje te grupi (shkruan vetëm kur ndryshon diçka ose çdo 7 ditë). → "ok" ose arsyeja */
+    /** Regjistron këtë pajisje te grupi (shkruan vetëm kur ndryshon diçka ose çdo 7 ditë).
+     *  → "ok", "pa-grup" (s'je në asnjë grup: s'ka çka të regjistrohet) ose arsyeja ("rrjeti", "rregullat", "pa-token"…) */
     suspend fun aktivizo(detyro: Boolean): String {
         val u = uid() ?: return "pa-hyrje"
         if (!Njoftimet.lejuar(StokuApp.app)) return "pa-leje"
@@ -139,11 +141,17 @@ object Push {
                     db.collection("grupet").document(g).collection("push").document(id)
                         .set(mapOf("uid" to u, "emri" to emri(), "platforma" to "tel", "koha" to System.currentTimeMillis()) + j).await()
                 } ?: return "rrjeti"
+            } catch (e: FirebaseFirestoreException) {
+                // rregullat e Firestore-it s'e lejuan (p.sh. s'je më anëtar i këtij grupi): jo "kontrollo internetin"
+                return if (e.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) "rregullat" else "rrjeti"
             } catch (e: Exception) { return "rrjeti" }
             shkruajPref("push_regjistrim", mapOf("uid" to u, "id" to id, "endpoint" to j["endpoint"], "grupi" to g, "koha" to System.currentTimeMillis()))
         }
+        // Si te web-i (aktivizoPush → kontrolloServerin): serveri i njoftimeve pyetet, që gjendja të mos mbetet "Aktive kur Stoku
+        // është hapur" vetëm pse serveri s'është pyetur në 7 ditët e fundit (pushAktiv e kërkon)
+        if (detyro && g != null && Llogaria.leja("grupi")) serveri()
         versioni.value++
-        return "ok"
+        return if (g == null) "pa-grup" else "ok"
     }
 
     /** Pa lejen "Grupi" ose pas daljes: pajisja s'merr më kërkesat dhe njoftimet e grupit */

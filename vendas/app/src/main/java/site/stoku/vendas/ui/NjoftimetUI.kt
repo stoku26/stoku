@@ -60,6 +60,9 @@ fun gjendjaENjoftimeve(ctx: android.content.Context): String {
         g == "bllokuar" -> "bllokuar"
         g != "lejuar" -> "fikur"
         !Llogaria.leja("grupi") -> "aktive"
+        // Pa grup s'ka njoftime të grupit, pra as çka të lidhet: më parë dilte "Aktive kur Stoku është hapur" dhe, pas "Provo sërish
+        // lidhjen", "S'u lidh me serverin e njoftimeve" edhe pse serveri punonte
+        site.stoku.vendas.Grupi.grupi() == null -> "aktive"
         Push.pushAktiv() -> "push"
         else -> "lokale"
     }
@@ -128,9 +131,10 @@ fun NjoftimetFaqja(mbrapa: () -> Unit) {
     val scope = rememberFusha()
     val versioni by Push.versioni.collectAsState()
     val perdoruesi by Llogaria.perdoruesi.collectAsState() // lint: jo .value në vizatim (s'rifreskohej pas hyrjes/daljes)
+    val grupiGj by site.stoku.vendas.Grupi.gjendja.collectAsState() // gjendja ndryshon kur ngarkohet grupi
     var rifresko by remember { mutableStateOf(0) }
     val gjendja = remember(versioni, rifresko) { Njoftimet.gjendja(ctx) }
-    val pushAktiv = remember(versioni, rifresko) { Push.pushAktiv() }
+    val pushAktiv = remember(versioni, rifresko, grupiGj) { Push.pushAktiv() }
     var hint by remember { mutableStateOf("") }
     var duke by remember { mutableStateOf(false) }
     var serveri by remember { mutableStateOf<Pair<String, Boolean>?>(null) }
@@ -147,8 +151,12 @@ fun NjoftimetFaqja(mbrapa: () -> Unit) {
             rifresko++
             hint = when {
                 Push.pushAktiv() || !Llogaria.leja("grupi") -> "Gati. Njoftimet vijnë edhe kur Stoku është i mbyllur."
+                r == "pa-grup" -> "Gati. S'je në asnjë grup, prandaj s'ka njoftime të grupit."
                 r == "pa-token" -> "Telefoni s'është lidhur ende me shërbimin e njoftimeve të Google-it. Provo pas pak."
-                else -> "S'u lidh me serverin e njoftimeve. Kontrollo internetin dhe provo sërish."
+                r == "rregullat" -> "Firebase s'e lejoi lidhjen e këtij telefoni me grupin. Hape Grupin një herë dhe provo sërish."
+                r == "pa-hyrje" -> "Hyr në llogari që të vijnë njoftimet e Grupit edhe kur Stoku është i mbyllur."
+                r == "ok" || r == "rrjeti" -> "S'u lidh me serverin e njoftimeve. Kontrollo internetin dhe provo sërish."
+                else -> "S'u lidh me serverin e njoftimeve ($r). Provo sërish."
             }
         }
     }
@@ -172,6 +180,7 @@ fun NjoftimetFaqja(mbrapa: () -> Unit) {
             var st = Push.statusi()
             if (Push.rinovoNesesMungon(st)) st = Push.statusi()
             serveri = tekstiIServerit(st, Push.oraEZgjedhur())
+            rifresko++ // serveri sapo u përgjigj: gjendja e push-it llogaritet sërish (më parë mbetej "Aktive kur Stoku është hapur")
         }
     }
     fun ruajOrarin(aktivRi: Boolean, oraRe: String) {
@@ -195,7 +204,7 @@ fun NjoftimetFaqja(mbrapa: () -> Unit) {
 
     LaunchedEffect(aktiv, versioni) { if (aktiv) kontrollo() }
 
-    val g = remember(versioni, rifresko) { gjendjaENjoftimeve(ctx) }
+    val g = remember(versioni, rifresko, grupiGj) { gjendjaENjoftimeve(ctx) }
     val x = NJ_GJENDJET[g]!!
     FaqjaECilesimeve("Njoftimet", mbrapa) {
         IntroOps("Njoftimet e Grupit dhe të afateve. Vijnë edhe kur Stoku është i mbyllur.")

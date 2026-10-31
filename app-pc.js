@@ -417,25 +417,21 @@
 
   var sink = { kohez: null, duke: false, serish: false, statusi: 'lokal', koha: 0, cUid: null, degjuesi: null, riprovo: null, remoteNePritje: null };
 
-  // vetemRivizato: teksti rifreskohet pa e ndryshuar orën e sinkronizimit të fundit
+  // vetemRivizato: teksti rifreskohet pa e ndryshuar orën e sinkronizimit të fundit.
+  // v271: statusi poshtë në anësore ("Sinkronizuar · 17:06", prekja = sinkronizo tani) u hoq (pronari): sinkronizimi bëhet vetë
+  // pas çdo ndryshimi dhe riprovohet vetë pas 15 s kur dështon; statusi mbetet te Cilësimet → Llogaria
   function vendosStatusin(s, vetemRivizato) {
     sink.statusi = s;
     if (s === 'ok' && !vetemRivizato) sink.koha = Date.now();
-    var pika = $('sinkPika'), t = $('sinkTekst');
-    pika.className = 'pike' + (s === 'ok' ? ' ok' : s === 'pune' ? ' pune' : s === 'gabim' ? ' gabim' : '');
     var dk = new Date(sink.koha || Date.now());
     var viz = s === 'lokal' && !perdoruesi() && ngaVizitori();
     var lidhet = s === 'lokal' && !!hyrjaNePritje();
-    if (lidhet) pika.className = 'pike pune';
     var tekst = viz ? 'Provë pa llogari' : lidhet ? 'Duke u lidhur…' : {
       lokal: 'Vetëm në këtë kompjuter',
       pune: 'Duke sinkronizuar…',
       ok: 'Sinkronizuar · ' + dy(dk.getHours()) + ':' + dy(dk.getMinutes()),
       gabim: 'Pa lidhje · provohet sërish'
     }[s];
-    t.textContent = tekst;
-    $('sinkStatus').title = viz ? 'Prova si vizitor s\'sinkronizohet. Hyr në llogari që të dhënat të shihen edhe në telefon.' :
-      s === 'lokal' ? 'Hyr në llogari që të dhënat të sinkronizohen me telefonat' : 'Kliko për të sinkronizuar tani';
     var tx = s === 'ok' ? 'Sinkronizuar në ' + dataOra(sink.koha) + '. Ndryshimet nga telefonat shfaqen këtu automatikisht.' :
       s === 'pune' ? 'Duke sinkronizuar…' : s === 'gabim' ? 'Sinkronizimi dështoi. Kontrollo internetin. Provohet sërish vetë.' : '';
     if ($('llStatusi')) $('llStatusi').textContent = tx;
@@ -719,9 +715,6 @@
   window.addEventListener('pagehide', sinkronizoMenjehereNesePret);
   document.addEventListener('visibilitychange', function () {
     if (!document.hidden && perdoruesi() && sink.statusi === 'gabim') kryeSinkronizimin();
-  });
-  $('sinkStatus').addEventListener('click', function () {
-    if (perdoruesi()) kryeSinkronizimin(); else hapLlogarine();
   });
 
   // ================= Navigimi (me #hash, që "Mbrapa"/"Para" e shfletuesit të punojnë) =================
