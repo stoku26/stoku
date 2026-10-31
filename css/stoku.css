@@ -125,17 +125,12 @@
 .sb #tabet .af-shenje.verdhe { background: #f0b95a; color: #3b2a00; }
 
 /* ---------- Faqet e plota (Afatet, Ekipa, Cilësimet, leximi i fletës, importi) ---------- */
-.sb .af-sink { background: var(--sb-surface); color: var(--sb-ink-3); box-shadow: var(--sb-ring); }
-.sb .af-sink:active { background: var(--sb-surface-2); }
-.sb .af-sink.gabim { background: var(--sb-exp-tint); color: var(--sb-exp); box-shadow: 0 0 0 1px var(--sb-card-exp-line); }
-.sb .af-sink.ok::after { background: var(--sb-ok-dot); box-shadow: 0 0 0 2px var(--sb-surface); }
 .sb .faqe-kuti { background: var(--sb-bg); }
 .sb .opsione-krye { background: var(--sb-bg); color: var(--sb-ink); padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); min-height: calc(58px + env(safe-area-inset-top)); }
 .sb .opsione-krye h2 { font-size: 26px; font-weight: 700; letter-spacing: -.025em; line-height: 1.1; }
 .sb .faqe-trup { padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); }
 .sb .opsione-trup { padding-left: 20px; padding-right: 20px; }
 .sb .faqe-fund { background: var(--sb-bg); border-top: 1px solid var(--sb-line); }
-.sb .sb-muaji { font-size: 13px; color: var(--sb-muted); flex: none; }
 .sb .segment { border-radius: 14px; background: var(--sb-sunken); padding: 4px; border: 0; }
 .sb .segment button { border-radius: 10px; border: 0; background: transparent; color: var(--sb-ink-4); font-weight: 600; }
 .sb .segment button.aktiv { background: var(--sb-seg-on); color: var(--sb-ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
@@ -640,7 +635,6 @@ html.sb:not([data-tema="dark"]) .sb-stat__value--exp { color: var(--sb-exp, #d04
 .sb #kryeButonatFolderi { gap: 8px; }
 .sb #kryeButonatFolderi .btn-ikone, .sb #btnMbrapa { width: 42px; height: 42px; }
 .sb #btnMbrapa { margin-right: 2px; }
-.sb .af-sink { width: 44px; height: 44px; }
 .sb .stk-etiketa__emri { line-height: 1.275; }
 .sb .stk-etiketa__nen { line-height: 13px; }
 .sb .kerko-kuti { height: 50px; }
@@ -658,7 +652,6 @@ html.sb:not([data-tema="dark"]) .sb-stat__value--exp { color: var(--sb-exp, #d04
 .sb #dlgSasia { font-size: 18px; font-weight: 500; -moz-appearance: textfield; appearance: textfield; }
 .sb #dlgSasia::-webkit-outer-spin-button, .sb #dlgSasia::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 /* Afatet */
-.sb .sb-muaji { font-size: 14px; }
 .sb .sb-action-primary__title { font-size: 17px; }
 .sb .sb-action { min-height: 65px; border-radius: 18px; padding: 0 16px; gap: 10px; font-size: 16px; }
 .sb .sb-action > svg:first-child { width: 20px; height: 20px; }
@@ -687,8 +680,9 @@ html.sb:not([data-tema="dark"]) .sb-stat__value--exp { color: var(--sb-exp, #d04
 .sb .sb-home-fund { margin-top: 14px; }
 html.sb:not([data-tema="dark"]) .sb-summary { box-shadow: 0 0 0 1px var(--sb-line); }
 .sb #tabet svg { stroke-width: 2; }
-/* Afatet: koka 12 + 44, pastaj 16 → kartat, 12 → kërkimi, 12 → filtrat, 10 → muajt, 14 → lista */
-.sb #dlgAfatet .opsione-krye { min-height: 0; padding-top: calc(12px + env(safe-area-inset-top)); padding-bottom: 0; }
+/* Afatet: koka 12 + 44, pastaj 16 → kartat, 12 → kërkimi, 12 → filtrat, 10 → muajt, 14 → lista.
+   v271: pa muajin dhe pa ikonën e cloud-it; koka mbetet 44 e lartë (si te Android-i), që kartat të mos lëvizin */
+.sb #dlgAfatet .opsione-krye { min-height: 0; padding-top: calc(12px + env(safe-area-inset-top)); padding-bottom: 0; box-sizing: content-box; height: 44px; }
 .sb #dlgAfatet .sb-actions { margin: 4px 0 12px; }
 .sb #dlgAfatet .kerko-kuti { margin-bottom: 10px; }
 .sb #afFiltrat { margin-bottom: 6px; }

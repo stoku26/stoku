@@ -114,7 +114,7 @@ const dukshem = (p, sel) => p.evaluate(s => { const e = document.querySelector(s
     await p.click('#pkVizitor'); await p.waitForTimeout(2500);
     ok(!(await dukshem(p, '#porta')) && await dukshem(p, '#kartaVizitori') && !(await dukshem(p, '#kartaMireseardhje')), '3b. karta "Je si vizitor" te Përmbledhja');
     ok((await p.textContent('#sbpBrandNen')) === 'Vizitor · provë', '3c. anësorja: "Vizitor · provë"', await p.textContent('#sbpBrandNen'));
-    ok((await p.textContent('#sinkTekst')) === 'Provë pa llogari', '3c2. statusi poshtë: "Provë pa llogari"', await p.textContent('#sinkTekst'));
+    ok((await p.textContent('#opsNavSub')) === 'Provë pa llogari', '3c2. statusi te Cilësimet: "Provë pa llogari"', await p.textContent('#opsNavSub'));
     const nr = await p.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('stoku:produktet:v2'))).length);
     ok(nr === 12, '3d. 12 produkte shembull edhe në kompjuter', nr);
     await p.evaluate(() => { location.hash = '#/ekipa'; }); await p.waitForTimeout(500);

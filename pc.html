@@ -140,15 +140,6 @@
   .kr-rresht .kr-emri div:first-child { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .kr-rresht .kr-sasia { font-weight: 700; font-variant-numeric: tabular-nums; min-width: 40px; text-align: right; }
   .kr-fund { padding: 8px 10px 4px; font-size: 12px; color: var(--gri); border-top: 1px solid var(--vije); margin-top: 4px; }
-  .sink-status {
-    display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 6px 10px; border-radius: 8px;
-    background: rgba(255,255,255,.10); white-space: nowrap; cursor: pointer; border: 0; color: #fff;
-  }
-  .sink-status:hover { background: rgba(255,255,255,.2); }
-  .pike { width: 8px; height: 8px; border-radius: 50%; background: #9e9e9e; flex: none; }
-  .pike.ok { background: #7ee08a; }
-  .pike.pune { background: #ffd54f; animation: pulso 1s ease-in-out infinite; }
-  .pike.gabim { background: #ff8a80; }
   @keyframes pulso { 50% { opacity: .35; } }
   .perdoruesi-cip { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -899,13 +890,12 @@
     .trupi { grid-template-columns: 220px minmax(0, 1fr); }
     main.kryesore { padding: 18px; }
     .tabela .k-koha { display: none; }
-    .sink-status .sink-tekst { display: none; }
   }
 </style>
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=6">
-<link rel="stylesheet" href="css/stoku-pc.css?v=39">
+<link rel="stylesheet" href="css/stoku-pc.css?v=40">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -1026,9 +1016,6 @@
         <button class="sbp-account__user" id="btnLlogaria" type="button" title="Llogaria">
           <span class="sbp-avatar" id="sbpAvatar" aria-hidden="true"></span>
           <span class="perdoruesi-cip" id="perdoruesiCip">Hyr</span>
-        </button>
-        <button class="sink-status" id="sinkStatus" type="button" title="Sinkronizo tani">
-          <span class="pike" id="sinkPika"></span><span class="sink-tekst" id="sinkTekst">Vetëm në këtë kompjuter</span>
         </button>
         <button class="sbp-dil fsheh" id="sbpDil" type="button" aria-label="Dil nga llogaria" data-tip="Dil nga llogaria"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path></svg></button>
       </div>
@@ -1989,8 +1976,8 @@
 <script src="marketet.js?v=257"></script>
 <script src="harta.js?v=256"></script>
 <script src="ekipa.js?v=258"></script>
-<script src="teRejat.js?v=270"></script>
-<script src="app-pc.js?v=256"></script>
+<script src="teRejat.js?v=271"></script>
+<script src="app-pc.js?v=257"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
 

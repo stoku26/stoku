@@ -55,10 +55,7 @@ import site.stoku.vendas.Dyqani
 import site.stoku.vendas.Grupi
 import site.stoku.vendas.Llogaria
 import site.stoku.vendas.Merchandiseri
-import site.stoku.vendas.Sinkronizimi
-import java.time.LocalDate
 
-private val MUAJT_PLOTE = listOf("Janar", "Shkurt", "Mars", "Prill", "Maj", "Qershor", "Korrik", "Gusht", "Shtator", "Tetor", "Nëntor", "Dhjetor")
 
 /** Afatet: lista me ngjyra sipas statusit, filtrat, kërkimi, "+ Shto" */
 @OptIn(ExperimentalFoundationApi::class)
@@ -66,8 +63,6 @@ private val MUAJT_PLOTE = listOf("Janar", "Shkurt", "Mars", "Prill", "Maj", "Qer
 fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
     val n = N
     val g by Dyqani.gjendja.collectAsState()
-    val statusi by Sinkronizimi.statusi.collectAsState()
-    val gabimSink by Sinkronizimi.gabim.collectAsState()
     var filtri by remember { mutableStateOf("aktive") }
     var muaji by remember { mutableStateOf("") }
     var kerkimi by remember { mutableStateOf("") }
@@ -116,17 +111,10 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
     Box(Modifier.fillMaxSize()) {
         LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp)) {
             item {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                // Hyrja 31: pa muajin dhe pa ikonën e cloud-it (pronari): sinkronizimi bëhet vetë pas çdo ndryshimi (Dyqani.kurNdryshon →
+                // Sinkronizimi.planifiko), statusi mbetet te Cilësimet → Llogaria. Rreshti mbetet 44 i lartë, që kartat të mos lëvizin.
+                Row(Modifier.heightIn(min = 44.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text("Afatet", style = tx(26, 700, n.ink, -0.025), modifier = Modifier.weight(1f))
-                    val sot = LocalDate.now()
-                    Text(MUAJT_PLOTE[sot.monthValue - 1] + " " + sot.year, style = tx(14, 400, n.muted))
-                    Spacer(Modifier.width(10.dp))
-                    val ik = when { statusi.startsWith("Duke") -> Ik.RePune; gabimSink -> Ik.ReGabim; else -> Ik.ReOk }
-                    Box {
-                        ButonIkone(ik, statusi.ifEmpty { "Cloud" }, { Toast.trego(statusi.ifEmpty { "Ruajtur në cloud" }) }, madhesia = 44.dp,
-                            ngjyra = if (gabimSink) n.exp else n.ink)
-                        if (!gabimSink && statusi.startsWith("U ")) Box(Modifier.align(Alignment.TopEnd).padding(top = 2.dp, end = 2.dp).size(10.dp).clip(CircleShape).background(n.okDot))
-                    }
                 }
                 Hapesire(16.dp)
                 CipiIMarketit(Modifier.padding(bottom = 12.dp))

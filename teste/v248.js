@@ -124,7 +124,7 @@ const prit = (fn, ms = 10000) => new Promise(async z => { const t0 = Date.now();
   // ================= 3. PC pas rifreskimit =================
   const HYRJA = { 'stoku:porta:hyrja': JSON.stringify({ uid: 'u9', emri: 'testmorina' }), 'stoku:pronari-uid': 'u9' };
   const sinkronizimi = () => { window.__stokuCloud = { authGati: false, perdoruesiAktual: () => null }; }; // Firebase ende pa u përgjigjur
-  const gjendja = p => p.evaluate(() => ({ karta: !document.getElementById('kartaMireseardhje').classList.contains('fsheh'), cip: document.getElementById('perdoruesiCip').textContent, sink: document.getElementById('sinkTekst').textContent }));
+  const gjendja = p => p.evaluate(() => ({ karta: !document.getElementById('kartaMireseardhje').classList.contains('fsheh'), cip: document.getElementById('perdoruesiCip').textContent, sink: document.getElementById('opsNavSub').textContent })); // v271: statusi vetëm te Cilësimet
   const { p: q1 } = await faqe(null, null, { pc: true, ls: HYRJA, init: sinkronizimi, prit: 1200 });
   let gj = await gjendja(q1);
   ok(!gj.karta && gj.cip === 'testmorina' && gj.sink === 'Duke u lidhur…', '3. ishte i kyçur: pa "Mirë se erdhe", "testmorina · Duke u lidhur…"', gj);
