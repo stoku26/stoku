@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(33, "2026-11-04", "Përditësimi me faqe të re", listOf(
+            "Kur del version i ri, Stoku të tregon një faqe të plotë me versionin e ri dhe çka ka të re në të, sa herë hyn në aplikacion.",
+            "Shkarkimi shihet në të njëjtën faqe, me shiritin dhe sa MB janë shkarkuar."
+        )),
         Hyrja(32, "2026-11-04", "Butonat e rinj të skanimit", listOf(
             "Butonat e skanimit brenda folderit janë tash dy katrorë të ndarë me ikona më të mëdha: blu për kamerën, i verdhë për Skanimin e shpejtë. Dalin në mes, poshtë.",
             "Te Cilësimet → Skenimi → \"Butonat e skanimit\" zgjedh vetë ku të dalin: majtas, në mes ose djathtas. Aty i sheh edhe në një foto të vogël."

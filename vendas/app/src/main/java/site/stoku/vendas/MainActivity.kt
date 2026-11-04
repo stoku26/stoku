@@ -107,9 +107,13 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 var rrezimi by remember { mutableStateOf(StokuApp.prefsOse("rrezimi_i_fundit", "")) }
-                if (rrezimi.isNotEmpty() || !StokuApp.moduletNisur) EkraniIRrezimit(rrezimi) {
-                    StokuApp.vendosPref("rrezimi_i_fundit", ""); rrezimi = ""; StokuApp.nisModulet()
-                } else Rrenja(tema) { tema = it; StokuApp.vendosPref("tema", it) }
+                Box(Modifier.fillMaxSize()) {
+                    if (rrezimi.isNotEmpty() || !StokuApp.moduletNisur) EkraniIRrezimit(rrezimi) {
+                        StokuApp.vendosPref("rrezimi_i_fundit", ""); rrezimi = ""; StokuApp.nisModulet()
+                    } else Rrenja(tema) { tema = it; StokuApp.vendosPref("tema", it) }
+                    // Hyrja 33: versioni i ri si faqe e plotë, mbi gjithçka (edhe mbi hyrjen në llogari)
+                    site.stoku.vendas.ui.PerditesimiFaqja()
+                }
             }
             }
         }
@@ -119,7 +123,7 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         Dita.rifresko() // u kthye në aplikacion një ditë tjetër
         Perditesimi.vazhdoNesePritej(this)
-        Perditesimi.kontrollo(this, false) // jo vetëm në hapje: aplikacioni mund të rrijë në memorie me ditë (kontrolli më së shumti çdo 6 orë)
+        Perditesimi.kontrollo(this, false) // Hyrja 33: sa herë hyn në aplikacion (jo më shpesh se 2 min; me ETag, pa e harxhuar kufirin e GitHub-it)
         if (!StokuApp.moduletNisur) return
         Sinkronizimi.neRikthim()
         Merchandiseri.kontrolloGps(false) // si web-i: vendndodhja kur hapet Stoku (jo më shpesh se 2 min)
