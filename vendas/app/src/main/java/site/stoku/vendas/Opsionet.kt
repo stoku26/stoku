@@ -24,6 +24,8 @@ object Opsionet {
     val paEmer: StateFlow<Boolean> get() = _paEmer
     private val _tingulli = b("tingull", true)
     val tingulli: StateFlow<Boolean> get() = _tingulli
+    // para _vendiFab: fushat e object-it inicializohen me radhë (përndryshe "Variable 'VENDET_FAB' must be initialized")
+    val VENDET_FAB = listOf("majtas", "mes", "djathtas")
     private val _vendiFab = MutableStateFlow(StokuApp.prefsOse("vendi_fab", "mes").takeIf { it in VENDET_FAB } ?: "mes")
     /** Hyrja 32 (pronari): butoni blu/i verdhë i skanimit brenda folderit: "majtas", "mes" (parazgjedhja për krejt) ose "djathtas" */
     val vendiFab: StateFlow<String> get() = _vendiFab
@@ -40,5 +42,4 @@ object Opsionet {
     fun vendosTingullin(v: Boolean) { _tingulli.value = v; StokuApp.vendosPrefB("tingull", v) }
     fun vendosKursorin(v: Boolean) { _kursori.value = v; StokuApp.vendosPrefB("kursori", v) }
     fun vendosVendinEFabit(v: String) { if (v !in VENDET_FAB) return; _vendiFab.value = v; StokuApp.vendosPref("vendi_fab", v) }
-    val VENDET_FAB = listOf("majtas", "mes", "djathtas")
 }

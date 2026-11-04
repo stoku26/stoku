@@ -467,18 +467,7 @@
   .skan-qoshe-tr { top: -3px; right: -3px; border-left: 0; border-bottom: 0; border-radius: 0 14px 0 0; }
   .skan-qoshe-bl { bottom: -3px; left: -3px; border-right: 0; border-top: 0; border-radius: 0 0 0 14px; }
   .skan-qoshe-br { bottom: -3px; right: -3px; border-left: 0; border-top: 0; border-radius: 0 0 14px 0; }
-  .skan-vije {
-    position: absolute; left: 6%; right: 6%; top: 0; height: 2.5px;
-    background: linear-gradient(90deg, transparent, #ff5252 15%, #ff5252 85%, transparent);
-    box-shadow: 0 0 8px 1px rgba(255,82,82,.8);
-    animation: skanRrjedh 1.8s ease-in-out infinite;
-  }
-  @keyframes skanRrjedh {
-    0%   { top: 6%; opacity: 0; }
-    10%  { opacity: 1; }
-    90%  { opacity: 1; }
-    100% { top: 94%; opacity: 0; }
-  }
+  /* v273 (pronari): vija e kuqe që lëvizte brenda kutisë u hoq ("keq po doket") */
   .skan-hint {
     margin-top: 22px; color: #fff; background: rgba(0,0,0,.5);
     padding: 7px 16px; border-radius: 16px; font-size: 13px; text-align: center; max-width: 80%;
@@ -2009,7 +1998,6 @@
         <span class="skan-qoshe skan-qoshe-tr"></span>
         <span class="skan-qoshe skan-qoshe-bl"></span>
         <span class="skan-qoshe skan-qoshe-br"></span>
-        <div class="skan-vije"></div>
         <div class="skan-numrim" id="skanNumrimi" style="display:none"></div>
       </div>
       <div class="skan-hint" id="skanHint"></div>
