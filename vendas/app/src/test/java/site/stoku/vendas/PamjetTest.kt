@@ -288,6 +288,32 @@ class PamjetTest {
     @Test fun cilesimetNjoftimet() = cilesimi("Njoftimet", "22-njoftimet")
     @Test fun cilesimetOra() = cilesimi("Ora e dorës", "23-ora")
 
+    /** Hyrja 33: faqja e përditësimit ("ideja 5" e pronarit): pyetja me "Çka ka të re" (vetëm hyrjet e reja) dhe shkarkimi */
+    private fun perditesimi(tema: String) {
+        val reja = Perditesimi.teReja("Aplikacioni Stoku…\n\nÇka ka të re:\n[999] Provë\n• Butonat e skanimit: dy katrorë me ikona më të mëdha\n" +
+            "• Zgjedh vetë ku dalin: majtas, në mes ose djathtas\n[1] E vjetër\n• S'duhet të dalë")
+        check(reja.size == 1 && reja[0].nr == 999 && reja[0].pikat.size == 2) { "teReja: $reja" }
+        Perditesimi.gjendja.value = Perditesimi.Gjendja(BuildConfig.VERSION_CODE + 4, "https://shembull.invalid/stoku.apk", reja)
+        r.setContent { StokuTema(tema) { site.stoku.vendas.ui.PerditesimiFaqja() } }
+        r.onNodeWithText("Përditëso Stoku-n").assertExists()
+        r.onNodeWithText("Përditëso tani").assertExists()
+        r.onNodeWithText("S'duhet të dalë").assertDoesNotExist()
+        foto("$tema-41-perditesimi")
+        Perditesimi.gjendja.value = Perditesimi.gjendja.value!!.copy(faza = "shkarkim", lexuar = 3_400_000L, gjithsej = 9_800_000L)
+        r.waitForIdle()
+        r.onNodeWithText("Duke e shkarkuar…").assertExists()
+        r.onNodeWithText("Anulo").assertExists()
+        foto("$tema-42-perditesimi-shkarkim")
+        Perditesimi.gjendja.value = Perditesimi.gjendja.value!!.copy(faza = "gabim", mesazhi = "Shkarkimi dështoi. Kontrollo internetin dhe provo prapë.")
+        r.waitForIdle()
+        r.onNodeWithText("Provo prapë").assertExists()
+        Perditesimi.mbyll()
+        r.waitForIdle()
+        r.onNodeWithText("Përditëso Stoku-n").assertDoesNotExist() // "Më vonë" e mbyll faqen
+    }
+    @Test fun perditesimiECelet() = perditesimi("light")
+    @Test fun perditesimiEErret() = perditesimi("dark")
+
     /** v263: paneli i Skanimit të shpejtë (lista e seancës, gjithsej, fusha "+ copë"); butoni duket te 02-folderi */
     @Test fun skanimiShpejt() {
         mbush()

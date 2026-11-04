@@ -52,6 +52,24 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ANDROID: PËRDITËSIMI SI FAQE E PLOTË + KONTROLLI SA HERË HYN (04.11.2026, vetëm `vendas/` + workflow, Hyrja 33)**: pronari
+   (foto e dritares gri "Version i ri i Stoku-t" të Android-it): "Qomi njo 5 ide per ket kutin e update-it ... qysh e ka me ju
+   pershtat android appit"; pas 5 ideve në foto: "Bone opsionin 5, met dal si te hish ne app meniher mu bo check for update qdo her.
+   Amo qekjo mu kon veq ne android app". Web-i s'u prek.
+   - `Perditesimi.kt`: pa `AlertDialog`; `gjendja: MutableStateFlow<Gjendja?>` (faza "pyet" | "shkarkim" | "gabim", lexuar/gjithsej,
+     `teReja`), `shkarko(a)`, `anulo()`, `mbyll()` ("Më vonë": del sërish në hyrjen e radhës). `kontrollo` sa herë `onResume`, me
+     `PUSHIMI_MS` = 2 min (kalimet e shpejta s'e përsërisin), pas dështimit 5 min; `If-None-Match` + `perditesimi_etag` /
+     `perditesimi_rez` (304 s'numërohet te kufiri 60/orë/IP i GitHub-it: shumë telefona në të njëjtin Wi-Fi); `per_page=20`.
+   - `ui/PerditesimiUI.kt` `PerditesimiFaqja()` (mbi gjithçka te `MainActivity`, në `Box` me `Rrenja`/`EkraniIRrezimit`): ikona e shkarkimit
+     në katror blu 96, "Përditëso Stoku-n", cipat "0.1.<i tanishmi> → 0.1.<i riu>", karta "ÇKA KA TË RE" (deri 6 pika), "Të dhënat dhe
+     hyrja mbeten siç janë.", "Përditëso tani" (56) + "Më vonë"; shkarkimi: "Duke e shkarkuar…", shiriti, "3,2 MB nga 9,4 MB (34%)",
+     "Anulo"; gabimi: "Provo prapë". BackHandler = "Më vonë" / "Anulo".
+   - **"Çka ka të re" e versionit të ri**: `vendas-apk.yml` (hapi "Shënimet e versionit") e shkruan trupin e Release-it nga `TeRejat.kt`
+     (5 hyrjet e fundit: "[nr] titulli" + "• pika"), `body_path: shenimet.md` (artifact-i bashkë me APK-në). `Perditesimi.teReja(body)` merr
+     vetëm hyrjet me `nr` > më i madhi te `TeRejat.LISTA` i telefonit. Release-t e vjetra (pa këto rreshta): faqja pa kartën.
+   - Telefonat me versionin ≤ 116 e shohin edhe një herë dritaren e vjetër (kodi i ri vjen me APK-në e re).
+   - `PamjetTest`: `light/dark-41-perditesimi`, `-42-perditesimi-shkarkim` (+ `teReja` dhe "Më vonë"). S'është testuar në telefon të vërtetë.
+
 0000000. **VENDI I BUTONIT TË SKANIMIT: MAJTAS / NË MES / DJATHTAS (v273 = 1.47.0, 04.11.2026, telefoni + Android Hyrja 32)**: pronari
    (foto e butonit blu/i verdhë brenda folderit): "Shto opsion te cilesimet > skenimi ... me mujt me i qit anen e majt, te djatht ose ne
    mes ... A standard me qen nmes per krejt. Ne android app edhe web app boni. Edhe shtonja ni foto tvogel te cilesimet skenimi"; pastaj
