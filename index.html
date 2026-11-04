@@ -467,18 +467,7 @@
   .skan-qoshe-tr { top: -3px; right: -3px; border-left: 0; border-bottom: 0; border-radius: 0 14px 0 0; }
   .skan-qoshe-bl { bottom: -3px; left: -3px; border-right: 0; border-top: 0; border-radius: 0 0 0 14px; }
   .skan-qoshe-br { bottom: -3px; right: -3px; border-left: 0; border-top: 0; border-radius: 0 0 14px 0; }
-  .skan-vije {
-    position: absolute; left: 6%; right: 6%; top: 0; height: 2.5px;
-    background: linear-gradient(90deg, transparent, #ff5252 15%, #ff5252 85%, transparent);
-    box-shadow: 0 0 8px 1px rgba(255,82,82,.8);
-    animation: skanRrjedh 1.8s ease-in-out infinite;
-  }
-  @keyframes skanRrjedh {
-    0%   { top: 6%; opacity: 0; }
-    10%  { opacity: 1; }
-    90%  { opacity: 1; }
-    100% { top: 94%; opacity: 0; }
-  }
+  /* v273 (pronari): vija e kuqe që lëvizte brenda kutisë u hoq ("keq po doket") */
   .skan-hint {
     margin-top: 22px; color: #fff; background: rgba(0,0,0,.5);
     padding: 7px 16px; border-radius: 16px; font-size: 13px; text-align: center; max-width: 80%;
@@ -1048,7 +1037,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=6">
-<link rel="stylesheet" href="css/stoku.css?v=57">
+<link rel="stylesheet" href="css/stoku.css?v=58">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -1118,7 +1107,7 @@
 
 <div id="lista"></div>
 
-<!-- v268 (ideja 5 e përdoruesit): butoni lundrues poshtë djathtas, gjysmë blu (Skano me kamerë), gjysmë i verdhë (Skanim i shpejtë) -->
+<!-- v268: butoni lundrues i folderit; v273: dy katrorë të ndarë (blu = Skano me kamerë, i verdhë = Skanim i shpejtë), vendi sipas Cilësimet → Skenimi -->
 <div class="skan-fab" id="skanFab" style="display:none">
   <button id="btnKamera" type="button" data-leja="kamera" aria-label="Skano me kamerë" title="Skano me kamerë"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><path d="M8 7v10M12 7v10M16 7v10"></path></svg></button>
   <button id="btnSkanimShpejt" type="button" aria-label="Skanim i shpejtë" title="Skanim i shpejtë"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path></svg></button>
@@ -1339,6 +1328,19 @@
                 <span class="ops-rresht__tekst"><span id="lblOpsScanner"></span><span class="hint">Për skanerët me USB ose Bluetooth që shkruajnë barkodin vetë.</span></span>
                 <span class="ndez"><input type="checkbox" id="opsScanner"><span class="pist"></span></span>
               </label>
+            </div>
+          </div>
+          <!-- v273 (pronari): ku del butoni blu/i verdhë i skanimit brenda folderit; parazgjedhja "Në mes" -->
+          <div class="ops-grupi-titull" id="titVendiFab">Butonat e skanimit</div>
+          <div class="seksion ops-karta" id="seksionVendiFab">
+            <div class="ops-fab-foto">
+              <span class="ops-fab-pill" aria-hidden="true"><span class="ops-fab-pill__k"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><path d="M8 7v10M12 7v10M16 7v10"></path></svg></span><span class="ops-fab-pill__sh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path></svg></span></span>
+              <span class="hint">Butonat poshtë brenda folderit: blu = Skano me kamerë, i verdhë = Skanim i shpejtë. Zgjidh ku të dalin.</span>
+            </div>
+            <div class="ops-tema ops-vendi" id="segVendiFab" role="group" aria-label="Vendi i butonave të skanimit">
+              <button type="button" data-v="majtas" aria-pressed="false"><span class="ops-zgjedhja__emri">Majtas</span></button>
+              <button type="button" data-v="mes" aria-pressed="false"><span class="ops-zgjedhja__emri">Në mes</span></button>
+              <button type="button" data-v="djathtas" aria-pressed="false"><span class="ops-zgjedhja__emri">Djathtas</span></button>
             </div>
           </div>
         </div>
@@ -1996,7 +1998,6 @@
         <span class="skan-qoshe skan-qoshe-tr"></span>
         <span class="skan-qoshe skan-qoshe-bl"></span>
         <span class="skan-qoshe skan-qoshe-br"></span>
-        <div class="skan-vije"></div>
         <div class="skan-numrim" id="skanNumrimi" style="display:none"></div>
       </div>
       <div class="skan-hint" id="skanHint"></div>
@@ -2032,8 +2033,8 @@
 <script src="harta.js?v=256"></script>
 <script src="ekipa.js?v=258"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=272"></script>
-<script src="app-tel.js?v=272"></script>
+<script src="teRejat.js?v=273"></script>
+<script src="app-tel.js?v=273"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>

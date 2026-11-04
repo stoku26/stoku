@@ -52,6 +52,27 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **VENDI I BUTONIT TË SKANIMIT: MAJTAS / NË MES / DJATHTAS (v273 = 1.47.0, 04.11.2026, telefoni + Android Hyrja 32)**: pronari
+   (foto e butonit blu/i verdhë brenda folderit): "Shto opsion te cilesimet > skenimi ... me mujt me i qit anen e majt, te djatht ose ne
+   mes ... A standard me qen nmes per krejt. Ne android app edhe web app boni. Edhe shtonja ni foto tvogel te cilesimet skenimi"; pastaj
+   (pas fotos së parë): "Nalt ku osht mir po doket me foto, po qaty posht ren ku jan 3 aty mos e qit foto ska nevoj".
+   - **Web (telefoni)**: `opsione.vendiFab` ('majtas' | 'mes' | 'djathtas', parazgjedhja 'mes' për krejt, edhe për ata që s'kanë zgjedhur);
+     `zbatoVendinEFabit()` vendos `#skanFab[data-vendi]` (CSS: mes = `left: 50%; translateX(-50%)`, majtas = 20 nga ana, djathtas si më
+     parë). Cilësimet → Skenimi: `#titVendiFab` "Butoni i skanimit" + `#seksionVendiFab` (karta: `.ops-fab-pill` = fotoja e vogël e
+     butonit me të dy ikonat + shpjegimi; `#segVendiFab` tri butona vetëm me emër, 48 të lartë, stili i `.ops-tema`). Fshihet në PDA
+     dhe pa lejet (kamera / Skanim i shpejtë) te `rifreskoFabin`. Toast-i brenda folderit (`html.me-fab #toast`) del 102 nga fundi, mbi butonin.
+   - **Android**: `Opsionet.vendiFab` (pref "vendi_fab", `VENDET_FAB`), `ButoniLundrues` me `Alignment.BottomStart/Center/End`;
+     `Skenimi()`: `TitulliGrupit("Butoni i skanimit")` + `KartaOps` me `FotoEButonit()` dhe tri `ZgjedhjaEPamjes` pa shembull (heightIn 48;
+     `ZgjedhjaEPamjes` tash e qendron përmbajtjen vertikalisht). Toast-i brenda folderit: 108 dp + navigationBarsPadding (MainActivity).
+   - **Pamja e re (pronari, pas 3 ideve në foto: "Bone 2shin amo pa tekst hiq beq ikonat e brendshme rriti sa katroret")**: kapsula u
+     zëvendësua me dy katrorë të ndarë 72 × 72 (kënde 20, 12 ndërmjet, secili me hijen e vet), ikonat 40 (web `.skan-fab button svg`,
+     Android `ButoniLundrues` `Modifier.size(72.dp)` + `Icon(…, 40.dp)`); pa lejen "Skanim i shpejtë" mbetet vetëm katrori blu. Fotoja
+     e vogël te Skenimi (`.ops-fab-pill` / `FotoEButonit`): të njëjtët katrorë 40 × 40 me ikona 22; titulli "Butonat e skanimit".
+   - **Kamera e web-it pa vijën e kuqe** (pronari: "vija kuqe ... heke krejt ... keq po doket"): `.skan-vije` + `@keyframes skanRrjedh`
+     u hoqën (vetëm zbukurim, s'e përdorte asnjë JS/test); kutia me qoshet mbetet. Android-i s'kishte vijë të tillë.
+   - Testet: `teste/v273.js`; v268 dhe v272 presin tash dy katrorët në mes. S'është testuar në pajisje të vërteta.
+   - Refuzuar: kapsula blu/e verdhë e v268 ("si kapsull po doket") dhe ekranet e vogla me butonin te tri zgjedhjet e vendit.
+
 0000000. **SHKRONJA TË VOGLA NË TELEFON (v272 = 1.46.0, 31.10.2026, vetëm web-i i telefonit)**: pronari: "Ne web app veq ne telefon te
    qato madhesi qe jan shtoje edhe ni opsion per shkronja te vogla". Cilësimet → Pamja → Madhësia e shkronjave: "E vogël" (`data-v="e_vogel"`,
    `#madhesiaEVogel`, "Aa" 15 px) para "Normale" dhe "E madhe"; `body[data-madhesi="e_vogel"] { zoom: .9 }` (si `e_madhe` 1.12, krejt

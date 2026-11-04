@@ -38,7 +38,7 @@ const gjendja = p => p.evaluate(() => ({ attr: document.body.getAttribute('data-
   ok(tb.b === 844 && tb.x === 0 && tb.r === 390, '2. shiriti poshtë mbetet në fund të ekranit', tb);
   await p.click('.folder-karta >> text=Pije'); await p.waitForTimeout(600);
   const fab = await rr(p, '#skanFab');
-  ok(fab.b >= 824 && fab.b <= 828 && fab.r >= 370 && fab.r <= 374, '2. butoni lundrues poshtë djathtas (20 × .9 nga skajet)', fab);
+  ok(fab.b >= 824 && fab.b <= 828 && Math.abs((fab.x + fab.r) / 2 - 195) <= 1, '2. butoni lundrues poshtë në mes (v273: parazgjedhja), 20 × .9 nga fundi', fab);
   await p.click('#btnKamera'); await p.waitForTimeout(1500);
   const km = await rr(p, '#kamera'), vd = await rr(p, '#kamera video');
   ok(km.y === 0 && km.b === 844 && vd.y === 0 && vd.b === 844 && vd.r === 390, '2. kamera mbush krejt ekranin', { km, vd });

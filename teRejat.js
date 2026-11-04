@@ -20,6 +20,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 273, versioni: '1.47.0', data: '2026-11-04', titulli: 'Butonat e rinj të skanimit', platforma: 'tel', pikat: [
+      'Butonat e skanimit brenda folderit janë tash dy katrorë të ndarë me ikona më të mëdha: blu për kamerën, i verdhë për Skanimin e shpejtë. Dalin në mes, poshtë.',
+      'Te Cilësimet → Skenimi → "Butonat e skanimit" zgjedh vetë ku të dalin: majtas, në mes ose djathtas. Aty i sheh edhe në një foto të vogël.',
+      'Te kamera s\'ka më vijën e kuqe që lëvizte brenda kutisë.'
+    ] },
     { v: 272, versioni: '1.46.0', data: '2026-10-31', titulli: 'Shkronja të vogla', platforma: 'tel', pikat: [
       'Te Cilësimet → Pamja → Madhësia e shkronjave ka tash edhe "E vogël": krejt teksti dhe butonat dalin pak më të vegjël, që të nxë më shumë në ekran.'
     ] },

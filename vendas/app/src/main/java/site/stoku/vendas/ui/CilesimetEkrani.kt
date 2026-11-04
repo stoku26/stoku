@@ -274,7 +274,7 @@ private fun ZgjedhjaEPamjes(emri: String, aktiv: Boolean, modifier: Modifier, zg
     val f = RoundedCornerShape(16.dp)
     Column(modifier.clip(f).background(if (aktiv) n.accentTint else n.surface2).then(if (aktiv) Modifier.border(2.dp, n.accent, f) else Modifier)
         .clickable(onClick = zgjidh).padding(start = 8.dp, end = 8.dp, top = 10.dp, bottom = 11.dp),
-        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(9.dp)) {
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(9.dp, Alignment.CenterVertically)) {
         shembulli()
         Text(emri, style = txF(13.5f, 600, if (aktiv) n.accentText else n.ink3), maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
@@ -336,7 +336,41 @@ private fun Skenimi() {
         if (!pda) RreshtNdezes(Ik.Kursori, "gjelber", "Kursori te fusha e barkodit", "Për skanerët me USB ose Bluetooth që shkruajnë barkodin vetë.",
             kursori, vije = true) { Opsionet.vendosKursorin(it) }
     }
+    // Hyrja 32 (pronari): ku del butoni blu/i verdhë brenda folderit, me foton e vogël të butonit (si #seksionVendiFab te web-i)
+    if (!pda && Llogaria.leja("kamera")) {
+        val vendi by Opsionet.vendiFab.collectAsState()
+        val n = N
+        TitulliGrupit("Butonat e skanimit")
+        KartaOps {
+            Row(Modifier.fillMaxWidth().padding(bottom = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                FotoEButonit()
+                Text("Butonat poshtë brenda folderit: blu = Skano me kamerë, i verdhë = Skanim i shpejtë. Zgjidh ku të dalin.",
+                    style = txR(12.5f, 400, n.muted), modifier = Modifier.weight(1f))
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                listOf("majtas" to "Majtas", "mes" to "Në mes", "djathtas" to "Djathtas").forEach { (k, t) ->
+                    // pronari: vetëm emri (fotoja e butonit mjafton lart)
+                    ZgjedhjaEPamjes(t, vendi == k, Modifier.weight(1f).heightIn(min = 48.dp), { Opsionet.vendosVendinEFabit(k) }) { }
+                }
+            }
+        }
+    }
     if (pyetPaEmer) PaEmerKonfirmo({ pyetPaEmer = false }) { Opsionet.vendosPaEmer(true) }
+}
+
+/** Fotoja e vogël e butonave të skanimit (.ops-fab-pill te web-i): të njëjtët dy katrorë, 40 × 40 me ikona 22 */
+@Composable
+private fun FotoEButonit() {
+    val n = N
+    val f = RoundedCornerShape(12.dp)
+    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Box(Modifier.size(40.dp).shadow(5.dp, f).clip(f).background(n.accent), contentAlignment = Alignment.Center) {
+            Icon(Ik.Skano, null, Modifier.size(22.dp), tint = Color.White)
+        }
+        Box(Modifier.size(40.dp).shadow(5.dp, f).clip(f).background(Color(0xFFE8A92E)), contentAlignment = Alignment.Center) {
+            Icon(Ik.Rrufe, null, Modifier.size(22.dp), tint = Color(0xFF2B2100))
+        }
+    }
 }
 
 /** "Pa emër" ndizet vetëm pas paralajmërimit dhe 5 sekondave (si te web-i) */

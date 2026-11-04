@@ -6,7 +6,6 @@ import kotlinx.coroutines.launch
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.draw.shadow
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -512,7 +511,10 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
             }
         }
     }
-    if (lejaKamera) ButoniLundrues(Modifier.align(Alignment.BottomEnd).padding(end = 20.dp, bottom = 20.dp),
+    // Hyrja 32: vendi sipas Cilësimet → Skenimi (parazgjedhja në mes)
+    val vendiFab by site.stoku.vendas.Opsionet.vendiFab.collectAsState()
+    if (lejaKamera) ButoniLundrues(Modifier.align(when (vendiFab) { "majtas" -> Alignment.BottomStart; "djathtas" -> Alignment.BottomEnd; else -> Alignment.BottomCenter })
+        .padding(start = if (vendiFab == "majtas") 20.dp else 0.dp, end = if (vendiFab == "djathtas") 20.dp else 0.dp, bottom = 20.dp),
         skano = { skano({ b -> hapBarkodin(b, "kamera") }) { b -> shtoNjeCope(b) } }, shpejt = if (lejaShpejtSkanim) ({ skanoShpejt(id) }) else null)
     }
 
@@ -733,20 +735,19 @@ fun FolderIRiFlete(mbyll: () -> Unit) {
     }
 }
 
-/** v268 (ideja 5 e përdoruesit, si #skanFab te web-i): gjysma blu "Skano me kamerë", gjysma e verdhë "Skanim i shpejtë", vetëm ikona */
+/** v268 (si #skanFab te web-i), Hyrja 32 (pronari, "ideja 2" pa tekst): dy katrorë të ndarë 72 × 72, blu "Skano me kamerë" dhe i verdhë
+ *  "Skanim i shpejtë", vetëm ikona 40 */
 @Composable
 private fun ButoniLundrues(modifier: Modifier, skano: () -> Unit, shpejt: (() -> Unit)?) {
     val n = N
-    val forma = RoundedCornerShape(34.dp)
-    Row(modifier.height(68.dp).shadow(12.dp, forma).clip(forma)) {
-        Box(Modifier.width(if (shpejt != null) 76.dp else 68.dp).fillMaxHeight().background(n.accent).clickable(onClick = skano)
-            .padding(start = if (shpejt != null) 6.dp else 0.dp), contentAlignment = Alignment.Center) {
-            Icon(Ik.Skano, "Skano me kamerë", Modifier.size(30.dp), tint = Color.White)
+    val forma = RoundedCornerShape(20.dp)
+    Row(modifier, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Box(Modifier.size(72.dp).shadow(12.dp, forma).clip(forma).background(n.accent).clickable(onClick = skano), contentAlignment = Alignment.Center) {
+            Icon(Ik.Skano, "Skano me kamerë", Modifier.size(40.dp), tint = Color.White)
         }
         if (shpejt != null) {
-            Box(Modifier.width(2.dp).fillMaxHeight().background(n.bg))
-            Box(Modifier.width(76.dp).fillMaxHeight().background(Color(0xFFE8A92E)).clickable(onClick = shpejt).padding(end = 6.dp), contentAlignment = Alignment.Center) {
-                Icon(Ik.Rrufe, "Skanim i shpejtë", Modifier.size(30.dp), tint = Color(0xFF2B2100))
+            Box(Modifier.size(72.dp).shadow(12.dp, forma).clip(forma).background(Color(0xFFE8A92E)).clickable(onClick = shpejt), contentAlignment = Alignment.Center) {
+                Icon(Ik.Rrufe, "Skanim i shpejtë", Modifier.size(40.dp), tint = Color(0xFF2B2100))
             }
         }
     }
