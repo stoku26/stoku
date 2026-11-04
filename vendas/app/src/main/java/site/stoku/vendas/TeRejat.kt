@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(32, "2026-11-04", "Butoni i skanimit në mes", listOf(
+            "Butoni blu dhe i verdhë i skanimit brenda folderit del tash në mes, poshtë.",
+            "Te Cilësimet → Skenimi → \"Butoni i skanimit\" zgjedh vetë ku të dalë: majtas, në mes ose djathtas. Aty e sheh edhe një foto të vogël të butonit."
+        )),
         Hyrja(31, "2026-10-31", "Afatet pa butonin e cloud-it", listOf(
             "Lart te Afatet s'ka më muajin dhe butonin e cloud-it. Ndryshimet ruhen dhe sinkronizohen vetë pas çdo ndryshimi; gjendjen e sheh te Cilësimet → Llogaria.",
             "Cilësimet → Njoftimet: kur s'je në asnjë grup s'del më \"S'u lidh me serverin e njoftimeve\". Gabimet e tjera tregohen me arsyen e vërtetë, jo gjithmonë \"kontrollo internetin\"."

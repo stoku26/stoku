@@ -301,6 +301,19 @@
 .sb .skan-fab.dy #btnSkanimShpejt { border-left: 2px solid var(--sb-bg); }
 .sb .skan-fab:not(.dy) button { width: 68px; padding: 0; }
 .sb .skan-fab button:active { filter: brightness(.92); }
+/* v273: vendi i butonit (Cilësimet → Skenimi); pa atributin mbetet djathtas */
+.sb .skan-fab[data-vendi="mes"] { right: auto; left: 50%; transform: translateX(-50%); }
+.sb .skan-fab[data-vendi="majtas"] { right: auto; left: max(20px, env(safe-area-inset-left)); }
+/* toast-i (në mes, 80 px nga fundi) s'bie mbi butonin kur ky është në mes: del mbi të */
+html.me-fab #toast { bottom: calc(102px + var(--sab, 0px)); }
+.sb .ops-fab-foto { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.sb .ops-fab-foto .hint { margin: 0; }
+.sb .ops-fab-pill { flex: none; display: flex; height: 36px; border-radius: 18px; overflow: hidden; box-shadow: 0 4px 10px rgba(20,22,30,.18); }
+.sb .ops-fab-pill > span { width: 40px; display: flex; align-items: center; justify-content: center; }
+.sb .ops-fab-pill__k { background: var(--sb-accent); color: #fff; padding-left: 3px; }
+.sb .ops-fab-pill__sh { background: #e8a92e; color: #2b2100; padding-right: 3px; border-left: 1.5px solid var(--sb-bg); }
+/* pronari: te tri zgjedhjet vetëm emri (fotoja e butonit mjafton lart) */
+.sb .ops-vendi button { justify-content: center; min-height: 48px; padding: 0 8px; }
 .sb.me-fab #lista { padding-bottom: 104px; }
 .sb .krye-excel { color: #1e7f45; }
 .sb .krye-pdf { color: #c23030; }

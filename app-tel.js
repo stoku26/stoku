@@ -423,7 +423,8 @@
 
   var opsione = {
     tingull: true, rendi: 'i_ri', scanner: true, pda: false,
-    paEmer: false, madhesia: 'normale', tastieraFshehur: false
+    paEmer: false, madhesia: 'normale', tastieraFshehur: false,
+    vendiFab: 'mes' // v273: butoni i skanimit brenda folderit: 'majtas' | 'mes' | 'djathtas' (parazgjedhja për krejt: në mes)
   };
   try {
     var opsioneRuajtura = JSON.parse(localStorage.getItem(KEY_OPSIONE) || 'null');
@@ -435,6 +436,7 @@
       if (typeof opsioneRuajtura.paEmer === 'boolean') opsione.paEmer = opsioneRuajtura.paEmer;
       if (['i_ri', 'emri', 'emriZA', 'sasiaUlet', 'sasiaLart'].indexOf(opsioneRuajtura.rendi) !== -1) opsione.rendi = opsioneRuajtura.rendi;
       if (['e_vogel', 'normale', 'e_madhe'].indexOf(opsioneRuajtura.madhesia) !== -1) opsione.madhesia = opsioneRuajtura.madhesia;
+      if (['majtas', 'mes', 'djathtas'].indexOf(opsioneRuajtura.vendiFab) !== -1) opsione.vendiFab = opsioneRuajtura.vendiFab;
     }
   } catch (e) { /* përdor vlerat fillestare */ }
 
@@ -806,7 +808,24 @@
     fab.classList.toggle('dy', k && sh);
     fab.style.display = duket ? '' : 'none';
     document.documentElement.classList.toggle('me-fab', duket);
+    // v273: zgjedhja e vendit te Cilësimet → Skenimi vetëm kur butoni mund të dalë (jo në PDA, jo pa lejet)
+    var mundet = !opsione.pda && (leja('kamera') || lejaSkanimShpejt());
+    $('titVendiFab').style.display = $('seksionVendiFab').style.display = mundet ? '' : 'none';
   }
+  // v273 (pronari): secili e zgjedh ku del butoni: majtas, në mes (parazgjedhja) ose djathtas
+  function zbatoVendinEFabit() {
+    var v = ['majtas', 'mes', 'djathtas'].indexOf(opsione.vendiFab) !== -1 ? opsione.vendiFab : 'mes';
+    $('skanFab').setAttribute('data-vendi', v);
+    Array.prototype.forEach.call(document.querySelectorAll('#segVendiFab button'), function (b) {
+      var po = b.getAttribute('data-v') === v;
+      b.classList.toggle('aktiv', po);
+      b.setAttribute('aria-pressed', po ? 'true' : 'false');
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#segVendiFab button'), function (b) {
+    b.addEventListener('click', function () { opsione.vendiFab = b.getAttribute('data-v'); ruajOpsionet(); zbatoVendinEFabit(); });
+  });
+  zbatoVendinEFabit();
   function rifreskoPamjen() {
     if (folderiAktual !== null && !foldera.some(function (f) { return f.id === folderiAktual; })) {
       folderiAktual = null; // folderi u fshi ndërkohë (p.sh. nga sinkronizimi) — kthehu te lista

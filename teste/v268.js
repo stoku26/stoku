@@ -35,7 +35,7 @@ const fab = p => p.evaluate(() => {
     f = await fab(p);
     const theksi = await p.evaluate(() => { const d = document.createElement('div'); d.style.color = getComputedStyle(document.documentElement).getPropertyValue('--sb-accent'); document.body.appendChild(d); const c = getComputedStyle(d).color; d.remove(); return c; });
     ok(f.duket && f.dy && f.meFab && f.butonat.length === 2, tema + ' 2. folderi: butoni lundrues me dy gjysma', f);
-    ok(f.r === 370 && f.b === 844 - 20 && f.h === 68 && f.butonat.every(x => x.w === 76) && f.w >= 152 && f.w <= 154, tema + ' 2. poshtë djathtas (20 nga ana dhe nga fundi), 68 i lartë, gjysmat 76', f);
+    ok(Math.abs((f.x + f.r) / 2 - 195) <= 1 && f.b === 844 - 20 && f.h === 68 && f.butonat.every(x => x.w === 76) && f.w >= 152 && f.w <= 154, tema + ' 2. poshtë në mes (v273: parazgjedhja; 20 nga fundi), 68 i lartë, gjysmat 76', f);
     ok(f.butonat[0].id === 'btnKamera' && f.butonat[0].a === 'Skano me kamerë' && f.butonat[1].id === 'btnSkanimShpejt' && f.butonat[1].a === 'Skanim i shpejtë' &&
       f.butonat.every(x => x.t === '' && x.svg === 30), tema + ' 2. vetëm ikona (30 px), emrat te aria-label', f.butonat);
     ok(f.butonat[0].bg === theksi && f.butonat[1].bg === 'rgb(232, 169, 46)', tema + ' 2. majtas blu (theksi), djathtas e verdhë (#E8A92E si te Android-i)', [f.butonat[0].bg, theksi, f.butonat[1].bg]);

@@ -232,7 +232,8 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
                 }
             }
         }
-        ToastPamja(Modifier.align(Alignment.BottomCenter), poshte = if (meTabe) 90.dp else 40.dp)
+        // Hyrja 32: brenda folderit toast-i del mbi butonin e skanimit (tash në mes si parazgjedhje), jo mbi të
+        ToastPamja(Modifier.align(Alignment.BottomCenter).then(if (meTabe) Modifier else Modifier.navigationBarsPadding()), poshte = if (meTabe) 90.dp else 108.dp)
         DritaretEMarketeve(hapMarketet = { tabi = "cilesimet"; Merchandiseri.hapFaqen.value = true })
         // "Çka ka të re": një herë pas përditësimit
         var teRejat by remember { mutableStateOf(TeRejat.teReja()) }

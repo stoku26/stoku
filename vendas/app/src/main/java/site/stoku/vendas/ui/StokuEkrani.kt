@@ -512,7 +512,10 @@ private fun FolderiEkrani(id: String, mbrapa: () -> Unit, skano: ((String) -> Un
             }
         }
     }
-    if (lejaKamera) ButoniLundrues(Modifier.align(Alignment.BottomEnd).padding(end = 20.dp, bottom = 20.dp),
+    // Hyrja 32: vendi sipas Cilësimet → Skenimi (parazgjedhja në mes)
+    val vendiFab by site.stoku.vendas.Opsionet.vendiFab.collectAsState()
+    if (lejaKamera) ButoniLundrues(Modifier.align(when (vendiFab) { "majtas" -> Alignment.BottomStart; "djathtas" -> Alignment.BottomEnd; else -> Alignment.BottomCenter })
+        .padding(start = if (vendiFab == "majtas") 20.dp else 0.dp, end = if (vendiFab == "djathtas") 20.dp else 0.dp, bottom = 20.dp),
         skano = { skano({ b -> hapBarkodin(b, "kamera") }) { b -> shtoNjeCope(b) } }, shpejt = if (lejaShpejtSkanim) ({ skanoShpejt(id) }) else null)
     }
 

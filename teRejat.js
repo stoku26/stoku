@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 273, versioni: '1.47.0', data: '2026-11-04', titulli: 'Butoni i skanimit në mes', platforma: 'tel', pikat: [
+      'Butoni blu dhe i verdhë i skanimit brenda folderit del tash në mes, poshtë.',
+      'Te Cilësimet → Skenimi → "Butoni i skanimit" zgjedh vetë ku të dalë: majtas, në mes ose djathtas. Aty e sheh edhe një foto të vogël të butonit.'
+    ] },
     { v: 272, versioni: '1.46.0', data: '2026-10-31', titulli: 'Shkronja të vogla', platforma: 'tel', pikat: [
       'Te Cilësimet → Pamja → Madhësia e shkronjave ka tash edhe "E vogël": krejt teksti dhe butonat dalin pak më të vegjël, që të nxë më shumë në ekran.'
     ] },
