@@ -2,7 +2,7 @@
 // Qe secili perdorus me mujt me i qit anen e majt, te djatht ose ne mes. A standard me qen nmes per krejt. Ne android app edhe web app
 // boni. Edhe shtonja ni foto tvogel te cilesimet skenimi me dit per cilat butona o fjala."
 //  1) parazgjedhja: butoni në mes, poshtë (20 nga fundi), për krejt (edhe pa zgjedhje të ruajtur);
-//  2) Cilësimet → Skenimi: "Butoni i skanimit" me foton e vogël të butonit lart dhe tri zgjedhjet (Majtas / Në mes / Djathtas) vetëm me emër
+//  2) Cilësimet → Skenimi: "Butonat e skanimit" me foton e vogël të butonave lart dhe tri zgjedhjet (Majtas / Në mes / Djathtas) vetëm me emër
 //     (pronari: "Nalt ku osht mir po doket me foto, po qaty posht ren ku jan 3 aty mos e qit foto ska nevoj");
 //  3) "Majtas" / "Djathtas" e lëvizin butonin dhe ruhen pas rihapjes; vlerë e panjohur → në mes;
 //  4) toast-i brenda folderit del mbi butonin;
@@ -26,7 +26,10 @@ const ruajtur = p => p.evaluate(() => (JSON.parse(localStorage.getItem('stoku:op
 
     // 1. Parazgjedhja: në mes
     let f = await folderi(p);
-    ok(f.duket && Math.abs((f.x + f.r) / 2 - 195) <= 1 && f.b === 824 && f.h === 68, tema + ' 1. butoni në mes, 20 nga fundi (parazgjedhja)', f);
+    ok(f.duket && Math.abs((f.x + f.r) / 2 - 195) <= 1 && f.b === 824 && f.h === 72 && f.w === 156, tema + ' 1. butonat në mes, 20 nga fundi (parazgjedhja), dy katrorë 72', f);
+    const kat = await p.evaluate(() => Array.from(document.querySelectorAll('#skanFab button')).map(b => { const s = getComputedStyle(b), r = b.getBoundingClientRect();
+      return { w: Math.round(r.width), h: Math.round(r.height), rr: s.borderRadius, svg: Math.round(b.querySelector('svg').getBoundingClientRect().width), t: b.textContent.trim(), hije: s.boxShadow !== 'none' }; }));
+    ok(kat.length === 2 && kat.every(x => x.w === 72 && x.h === 72 && x.rr === '20px' && x.svg === 40 && x.t === '' && x.hije), tema + ' 1. "ideja 2" pa tekst: katrorë 72, kënde 20, ikona 40, secili me hije', kat);
     ok(await p.evaluate(() => document.getElementById('skanFab').getAttribute('data-vendi')) === 'mes', tema + ' 1. data-vendi="mes"');
 
     // 4. Toast-i mbi butonin
@@ -45,8 +48,8 @@ const ruajtur = p => p.evaluate(() => (JSON.parse(localStorage.getItem('stoku:op
         pressed: b.getAttribute('aria-pressed'), y: Math.round(b.getBoundingClientRect().top), h: Math.round(b.getBoundingClientRect().height), foto: b.querySelectorAll('.ops-mock, svg, img, u').length }));
       return { titulli: t.textContent, duketT: t.offsetParent !== null, duket: s.offsetParent !== null, gj, btn, hint: s.querySelector('.hint').textContent };
     });
-    ok(sk.duket && sk.duketT && sk.titulli === 'Butoni i skanimit', tema + ' 2. Skenimi: "Butoni i skanimit"', sk.titulli);
-    ok(sk.gj.length === 2 && sk.gj.every(x => x.svg && x.w >= 40) && sk.gj[1].bg === 'rgb(232, 169, 46)', tema + ' 2. fotoja e vogël: gjysma blu me ikonë + gjysma e verdhë me ikonë', sk.gj);
+    ok(sk.duket && sk.duketT && sk.titulli === 'Butonat e skanimit', tema + ' 2. Skenimi: "Butonat e skanimit"', sk.titulli);
+    ok(sk.gj.length === 2 && sk.gj.every(x => x.svg && x.w === 40) && sk.gj[1].bg === 'rgb(232, 169, 46)', tema + ' 2. fotoja e vogël: dy katrorë (blu + i verdhë) me ikona', sk.gj);
     ok(/blu = Skano me kamerë, i verdhë = Skanim i shpejtë/.test(sk.hint), tema + ' 2. shpjegimi: cili buton është', sk.hint);
     ok(sk.btn.map(x => x.t).join() === 'Majtas,Në mes,Djathtas' && sk.btn.every(x => x.y === sk.btn[0].y), tema + ' 2. tri zgjedhje në një rresht', sk.btn.map(x => x.t));
     ok(sk.btn[1].aktiv && sk.btn[1].pressed === 'true' && !sk.btn[0].aktiv && !sk.btn[2].aktiv, tema + ' 2. "Në mes" e zgjedhur');

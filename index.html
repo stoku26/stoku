@@ -1107,7 +1107,7 @@
 
 <div id="lista"></div>
 
-<!-- v268 (ideja 5 e përdoruesit): butoni lundrues poshtë djathtas, gjysmë blu (Skano me kamerë), gjysmë i verdhë (Skanim i shpejtë) -->
+<!-- v268: butoni lundrues i folderit; v273: dy katrorë të ndarë (blu = Skano me kamerë, i verdhë = Skanim i shpejtë), vendi sipas Cilësimet → Skenimi -->
 <div class="skan-fab" id="skanFab" style="display:none">
   <button id="btnKamera" type="button" data-leja="kamera" aria-label="Skano me kamerë" title="Skano me kamerë"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><path d="M8 7v10M12 7v10M16 7v10"></path></svg></button>
   <button id="btnSkanimShpejt" type="button" aria-label="Skanim i shpejtë" title="Skanim i shpejtë"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path></svg></button>
@@ -1331,13 +1331,13 @@
             </div>
           </div>
           <!-- v273 (pronari): ku del butoni blu/i verdhë i skanimit brenda folderit; parazgjedhja "Në mes" -->
-          <div class="ops-grupi-titull" id="titVendiFab">Butoni i skanimit</div>
+          <div class="ops-grupi-titull" id="titVendiFab">Butonat e skanimit</div>
           <div class="seksion ops-karta" id="seksionVendiFab">
             <div class="ops-fab-foto">
               <span class="ops-fab-pill" aria-hidden="true"><span class="ops-fab-pill__k"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><path d="M8 7v10M12 7v10M16 7v10"></path></svg></span><span class="ops-fab-pill__sh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path></svg></span></span>
-              <span class="hint">Butoni poshtë brenda folderit: blu = Skano me kamerë, i verdhë = Skanim i shpejtë. Zgjidh ku të dalë.</span>
+              <span class="hint">Butonat poshtë brenda folderit: blu = Skano me kamerë, i verdhë = Skanim i shpejtë. Zgjidh ku të dalin.</span>
             </div>
-            <div class="ops-tema ops-vendi" id="segVendiFab" role="group" aria-label="Vendi i butonit të skanimit">
+            <div class="ops-tema ops-vendi" id="segVendiFab" role="group" aria-label="Vendi i butonave të skanimit">
               <button type="button" data-v="majtas" aria-pressed="false"><span class="ops-zgjedhja__emri">Majtas</span></button>
               <button type="button" data-v="mes" aria-pressed="false"><span class="ops-zgjedhja__emri">Në mes</span></button>
               <button type="button" data-v="djathtas" aria-pressed="false"><span class="ops-zgjedhja__emri">Djathtas</span></button>

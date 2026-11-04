@@ -34,10 +34,11 @@ const fab = p => p.evaluate(() => {
     await p.click('.folder-karta >> text=Pije'); await p.waitForTimeout(600);
     f = await fab(p);
     const theksi = await p.evaluate(() => { const d = document.createElement('div'); d.style.color = getComputedStyle(document.documentElement).getPropertyValue('--sb-accent'); document.body.appendChild(d); const c = getComputedStyle(d).color; d.remove(); return c; });
-    ok(f.duket && f.dy && f.meFab && f.butonat.length === 2, tema + ' 2. folderi: butoni lundrues me dy gjysma', f);
-    ok(Math.abs((f.x + f.r) / 2 - 195) <= 1 && f.b === 844 - 20 && f.h === 68 && f.butonat.every(x => x.w === 76) && f.w >= 152 && f.w <= 154, tema + ' 2. poshtë në mes (v273: parazgjedhja; 20 nga fundi), 68 i lartë, gjysmat 76', f);
+    ok(f.duket && f.dy && f.meFab && f.butonat.length === 2, tema + ' 2. folderi: dy butonat e skanimit', f);
+    // v273: dy katrorë të ndarë 72 × 72 me 12 ndërmjet (pronari zgjodhi "ideja 2" pa tekst), në mes si parazgjedhje
+    ok(Math.abs((f.x + f.r) / 2 - 195) <= 1 && f.b === 844 - 20 && f.h === 72 && f.butonat.every(x => x.w === 72) && f.w === 156, tema + ' 2. poshtë në mes (20 nga fundi), dy katrorë 72 me 12 ndërmjet', f);
     ok(f.butonat[0].id === 'btnKamera' && f.butonat[0].a === 'Skano me kamerë' && f.butonat[1].id === 'btnSkanimShpejt' && f.butonat[1].a === 'Skanim i shpejtë' &&
-      f.butonat.every(x => x.t === '' && x.svg === 30), tema + ' 2. vetëm ikona (30 px), emrat te aria-label', f.butonat);
+      f.butonat.every(x => x.t === '' && x.svg === 40), tema + ' 2. vetëm ikona (40 px), emrat te aria-label', f.butonat);
     ok(f.butonat[0].bg === theksi && f.butonat[1].bg === 'rgb(232, 169, 46)', tema + ' 2. majtas blu (theksi), djathtas e verdhë (#E8A92E si te Android-i)', [f.butonat[0].bg, theksi, f.butonat[1].bg]);
     const lista = await p.evaluate(() => getComputedStyle(document.getElementById('lista')).paddingBottom);
     ok(lista === '104px', tema + ' 2. lista lë vend poshtë që butoni të mos mbulojë produktin e fundit', lista);
@@ -95,7 +96,7 @@ const fab = p => p.evaluate(() => {
     await x.p.click('.folder-karta >> text=Pije'); await x.p.waitForTimeout(600);
     const f = await fab(x.p);
     const sa = !f.duket ? 'asnje' : f.dy ? 'dy' : 'blu';
-    ok(sa === pritet && (pritet !== 'blu' || (f.w === 68 && f.h === 68 && f.butonat.length === 1 && f.butonat[0].id === 'btnKamera')), '7. llogaria ' + m + ': ' + pritet, f);
+    ok(sa === pritet && (pritet !== 'blu' || (f.w === 72 && f.h === 72 && f.butonat.length === 1 && f.butonat[0].id === 'btnKamera')), '7. llogaria ' + m + ': ' + pritet, f);
     await x.b.close();
   }
 

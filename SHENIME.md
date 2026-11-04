@@ -64,7 +64,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    - **Android**: `Opsionet.vendiFab` (pref "vendi_fab", `VENDET_FAB`), `ButoniLundrues` me `Alignment.BottomStart/Center/End`;
      `Skenimi()`: `TitulliGrupit("Butoni i skanimit")` + `KartaOps` me `FotoEButonit()` dhe tri `ZgjedhjaEPamjes` pa shembull (heightIn 48;
      `ZgjedhjaEPamjes` tash e qendron përmbajtjen vertikalisht). Toast-i brenda folderit: 108 dp + navigationBarsPadding (MainActivity).
-   - Testet: `teste/v273.js`; v268 dhe v272 presin tash butonin në mes. S'është testuar në pajisje të vërteta.
+   - **Pamja e re (pronari, pas 3 ideve në foto: "Bone 2shin amo pa tekst hiq beq ikonat e brendshme rriti sa katroret")**: kapsula u
+     zëvendësua me dy katrorë të ndarë 72 × 72 (kënde 20, 12 ndërmjet, secili me hijen e vet), ikonat 40 (web `.skan-fab button svg`,
+     Android `ButoniLundrues` `Modifier.size(72.dp)` + `Icon(…, 40.dp)`); pa lejen "Skanim i shpejtë" mbetet vetëm katrori blu. Fotoja
+     e vogël te Skenimi (`.ops-fab-pill` / `FotoEButonit`): të njëjtët katrorë 40 × 40 me ikona 22; titulli "Butonat e skanimit".
+   - **Kamera e web-it pa vijën e kuqe** (pronari: "vija kuqe ... heke krejt ... keq po doket"): `.skan-vije` + `@keyframes skanRrjedh`
+     u hoqën (vetëm zbukurim, s'e përdorte asnjë JS/test); kutia me qoshet mbetet. Android-i s'kishte vijë të tillë.
+   - Testet: `teste/v273.js`; v268 dhe v272 presin tash dy katrorët në mes. S'është testuar në pajisje të vërteta.
+   - Refuzuar: kapsula blu/e verdhë e v268 ("si kapsull po doket") dhe ekranet e vogla me butonin te tri zgjedhjet e vendit.
 
 0000000. **SHKRONJA TË VOGLA NË TELEFON (v272 = 1.46.0, 31.10.2026, vetëm web-i i telefonit)**: pronari: "Ne web app veq ne telefon te
    qato madhesi qe jan shtoje edhe ni opsion per shkronja te vogla". Cilësimet → Pamja → Madhësia e shkronjave: "E vogël" (`data-v="e_vogel"`,

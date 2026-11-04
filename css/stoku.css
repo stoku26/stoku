@@ -291,15 +291,15 @@
 
 /* ---------- Afatet ---------- */
 .sb .sb-actions { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; margin: 4px 0 14px; }
-/* v268 (ideja 5 e përdoruesit): butoni lundrues i folderit, gjysmë blu / gjysmë i verdhë, vetëm ikona; eksporti te koka */
-.sb .skan-fab { position: fixed; z-index: 20; right: max(20px, env(safe-area-inset-right)); bottom: calc(20px + var(--sab, 0px)); display: flex;
-  height: 68px; border-radius: 34px; overflow: hidden; box-shadow: 0 10px 24px rgba(20,22,30,.22); }
-.sb[data-tema="dark"] .skan-fab { box-shadow: 0 10px 26px rgba(0,0,0,.6); }
-.sb .skan-fab button { width: 76px; height: 68px; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-.sb .skan-fab #btnKamera { background: var(--sb-accent); color: #fff; padding-left: 6px; }
-.sb .skan-fab #btnSkanimShpejt { background: #e8a92e; color: #2b2100; padding-right: 6px; }
-.sb .skan-fab.dy #btnSkanimShpejt { border-left: 2px solid var(--sb-bg); }
-.sb .skan-fab:not(.dy) button { width: 68px; padding: 0; }
+/* v268 (ideja 5 e përdoruesit): butoni lundrues i folderit, vetëm ikona; eksporti te koka.
+   v273 (pronari zgjodhi "ideja 2" pa tekst): dy katrorë të ndarë 72 × 72 (blu = kamera, i verdhë = Skanim i shpejtë), ikonat 40 px */
+.sb .skan-fab { position: fixed; z-index: 20; right: max(20px, env(safe-area-inset-right)); bottom: calc(20px + var(--sab, 0px)); display: flex; gap: 12px; }
+.sb .skan-fab button { width: 72px; height: 72px; border: 0; padding: 0; border-radius: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+  box-shadow: 0 10px 24px rgba(20,22,30,.22); }
+.sb[data-tema="dark"] .skan-fab button { box-shadow: 0 10px 26px rgba(0,0,0,.6); }
+.sb .skan-fab button svg { width: 40px; height: 40px; }
+.sb .skan-fab #btnKamera { background: var(--sb-accent); color: #fff; }
+.sb .skan-fab #btnSkanimShpejt { background: #e8a92e; color: #2b2100; }
 .sb .skan-fab button:active { filter: brightness(.92); }
 /* v273: vendi i butonit (Cilësimet → Skenimi); pa atributin mbetet djathtas */
 .sb .skan-fab[data-vendi="mes"] { right: auto; left: 50%; transform: translateX(-50%); }
@@ -308,10 +308,12 @@
 html.me-fab #toast { bottom: calc(102px + var(--sab, 0px)); }
 .sb .ops-fab-foto { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
 .sb .ops-fab-foto .hint { margin: 0; }
-.sb .ops-fab-pill { flex: none; display: flex; height: 36px; border-radius: 18px; overflow: hidden; box-shadow: 0 4px 10px rgba(20,22,30,.18); }
-.sb .ops-fab-pill > span { width: 40px; display: flex; align-items: center; justify-content: center; }
-.sb .ops-fab-pill__k { background: var(--sb-accent); color: #fff; padding-left: 3px; }
-.sb .ops-fab-pill__sh { background: #e8a92e; color: #2b2100; padding-right: 3px; border-left: 1.5px solid var(--sb-bg); }
+/* fotoja e vogël: të njëjtët dy katrorë, më të vegjël */
+.sb .ops-fab-pill { flex: none; display: flex; gap: 6px; }
+.sb .ops-fab-pill > span { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(20,22,30,.18); }
+.sb .ops-fab-pill svg { width: 22px; height: 22px; }
+.sb .ops-fab-pill__k { background: var(--sb-accent); color: #fff; }
+.sb .ops-fab-pill__sh { background: #e8a92e; color: #2b2100; }
 /* pronari: te tri zgjedhjet vetëm emri (fotoja e butonit mjafton lart) */
 .sb .ops-vendi button { justify-content: center; min-height: 48px; padding: 0 8px; }
 .sb.me-fab #lista { padding-bottom: 104px; }

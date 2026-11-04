@@ -796,8 +796,8 @@
   }
   $('kerkoGlobal').addEventListener('input', renderKerkimiGlobal);
 
-  // v268 (ideja 5 e përdoruesit): butoni lundrues i folderit: gjysma blu "Skano me kamerë", gjysma e verdhë "Skanim i shpejtë";
-  // pa njërën (leja), tjetra mbetet e rrumbullakët; s'del jashtë folderit dhe në PDA
+  // v268: butoni lundrues i folderit; v273: dy katrorë të ndarë, blu "Skano me kamerë" dhe i verdhë "Skanim i shpejtë";
+  // pa njërën (leja), tjetri mbetet vetëm; s'del jashtë folderit dhe në PDA
   function rifreskoFabin() {
     var fab = $('skanFab');
     if (!fab) return;
