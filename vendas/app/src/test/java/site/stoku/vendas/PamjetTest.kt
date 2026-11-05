@@ -5,6 +5,7 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -287,6 +288,26 @@ class PamjetTest {
     @Test fun cilesimetTeRejat() = cilesimi("Çka ka të re", "17-terejat")
     @Test fun cilesimetNjoftimet() = cilesimi("Njoftimet", "22-njoftimet")
     @Test fun cilesimetOra() = cilesimi("Ora e dorës", "23-ora")
+
+    /** Hyrja 34 (pronari: "kur je tu e shkru daten vijen po ta qitke mas cursorit"): data shkruhet shifër pas shifre me kursorin
+     *  aty ku e lë tastiera; viza e shtuar vetë s'e lë kursorin para saj (më parë "230126" jepte shifrat në rend të gabuar) */
+    @Test fun dataShkruhetMeRadhe() {
+        val data = androidx.compose.runtime.mutableStateOf("")
+        r.setContent {
+            StokuTema("light") {
+                site.stoku.vendas.ui.Fusha(data.value, { data.value = it }, placeholder = "DD-MM-VV", tastiera = androidx.compose.ui.text.input.KeyboardType.Number,
+                    formato = { v, para -> if (v.length < para.length) v else Afatet.formatoDatenGjateShkrimit(v) })
+            }
+        }
+        r.onNode(hasSetTextAction()).performClick()
+        "230126".forEach { c -> r.onNode(hasSetTextAction()).performTextInput(c.toString()); r.waitForIdle() }
+        check(data.value == "23-01-26") { "data pas shkrimit: " + data.value }
+        // fshirja e vizës dhe shkrimi sërish
+        r.onNode(hasSetTextAction()).performTextReplacement("23")
+        r.waitForIdle()
+        r.onNode(hasSetTextAction()).performTextInput("0"); r.waitForIdle()
+        check(data.value == "23-0") { "pas fshirjes: " + data.value }
+    }
 
     /** Hyrja 33: faqja e përditësimit ("ideja 5" e pronarit): pyetja me "Çka ka të re" (vetëm hyrjet e reja) dhe shkarkimi */
     private fun perditesimi(tema: String) {

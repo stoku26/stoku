@@ -472,8 +472,10 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
         }
         Text("Data e skadimit", style = tx(13, 600, n.ink3))
         // v254: pa datat e shpejta (1 javë, 2 javë, 1 muaj, 3 muaj), vetëm fusha e datës (si te web-i)
-        Fusha(data, { v -> data = if (v.length < data.length) v else Afatet.formatoDatenGjateShkrimit(v) }, Modifier.fillMaxWidth(), "DD-MM-VV",
-            tastiera = KeyboardType.Number, fokusi = fData, vetemLexim = vetemLexim, veprimi = ImeAction.Next)
+        // Hyrja 34: formatimi brenda Fusha-s, që kursori të kalojë pas vizës së shtuar (shiko kursoriPasFormatimit)
+        Fusha(data, { data = it }, Modifier.fillMaxWidth(), "DD-MM-VV",
+            tastiera = KeyboardType.Number, fokusi = fData, vetemLexim = vetemLexim, veprimi = ImeAction.Next,
+            formato = { v, para -> if (v.length < para.length) v else Afatet.formatoDatenGjateShkrimit(v) })
         Afatet.lexoDatenEFushes(data)?.let { iso ->
             val d = Afatet.ditetDeri(iso)!!
             Text(when { d < -1 -> "Ka skaduar para " + Afatet.ditetParaTekst(-d) + "."; d == -1 -> "Skadoi dje."; d == 0 -> "Skadon sot."; d == 1 -> "Skadon nesër."; else -> "Skadon për " + Afatet.ditetTekst(d) + "." },
