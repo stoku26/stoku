@@ -8,6 +8,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(34, "2026-11-05", "Data shkruhet si duhet", listOf(
+            "Kur shkruan datën e skadimit, viza \"-\" shtohet vetë dhe kursori kalon pas saj, kështu që shifrat dalin në rendin që i shkruan (p.sh. 23-01-26)."
+        )),
         Hyrja(33, "2026-11-04", "Përditësimi me faqe të re", listOf(
             "Kur del version i ri, Stoku të tregon një faqe të plotë me versionin e ri dhe çka ka të re në të, sa herë hyn në aplikacion.",
             "Shkarkimi shihet në të njëjtën faqe, me shiritin dhe sa MB janë shkarkuar."

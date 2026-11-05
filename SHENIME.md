@@ -52,6 +52,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ANDROID: KURSORI TE DATA (05.11.2026, vetëm `vendas/`, Hyrja 34)**: pronari (foto e "Afat i ri", "23-01-"): "kur je tu e shkru
+   daten vijen po ta qitke mas cursorit". Shkaku: `Fusha` (BasicTextField me String) e merrte tekstin e formatuar nga thirrësi
+   (`formatoDatenGjateShkrimit`: "23" → "23-"), por kursori mbetej te pozicioni i tastierës (para vizës), kështu që shifra e radhës hynte
+   para vizës ("0", "1" → "23-10"). Tash `Fusha(..., formato = { riu, para -> ... })`: fusha mban vetë `TextFieldValue` dhe e vendos
+   kursorin me `kursoriPasFormatimit` (pas po aq shifrave sa ishin para tij + pas vizave të shtuara menjëherë pas tyre); ndryshimi nga
+   jashtë e vë kursorin në fund. Përdoret te "Afat i ri" (AfatetEkrani) dhe te rreshtat e fletës (FletaEkrani). Testi
+   `PamjetTest.dataShkruhetMeRadhe` ("230126" → "23-01-26"; fshirja + "0" → "23-0"). Web-i s'u prek. S'është testuar në telefon të vërtetë.
+
 0000000. **ANDROID: PËRDITËSIMI SI FAQE E PLOTË + KONTROLLI SA HERË HYN (04.11.2026, vetëm `vendas/` + workflow, Hyrja 33)**: pronari
    (foto e dritares gri "Version i ri i Stoku-t" të Android-it): "Qomi njo 5 ide per ket kutin e update-it ... qysh e ka me ju
    pershtat android appit"; pas 5 ideve në foto: "Bone opsionin 5, met dal si te hish ne app meniher mu bo check for update qdo her.

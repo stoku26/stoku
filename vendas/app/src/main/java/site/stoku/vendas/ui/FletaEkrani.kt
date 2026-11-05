@@ -439,8 +439,9 @@ private fun KartaERreshtit(i: Int, r: Rreshti, paFurnizues: Boolean, stok: Boole
             if (stok) Fusha(r.sasia, { r.sasia = it.take(30) }, Modifier.fillMaxWidth(), "Sasia", tastiera = KeyboardType.Phone, lartesia = 44.dp,
                 veprimi = ImeAction.Next, kurVeprim = { if (Afatet.sasiaSiShume(r.sasia).isNotEmpty()) r.sasia = Afatet.lexoSasine(r.sasia).toString() })
             else Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Fusha(r.data, { v -> r.data = if (v.length < r.data.length) v else Afatet.formatoDatenGjateShkrimit(v); r.dyshim = false },
-                    Modifier.weight(1f), "Data (DD-MM-VV)", tastiera = KeyboardType.Number, lartesia = 44.dp, veprimi = ImeAction.Next)
+                Fusha(r.data, { r.data = it; r.dyshim = false },
+                    Modifier.weight(1f), "Data (DD-MM-VV)", tastiera = KeyboardType.Number, lartesia = 44.dp, veprimi = ImeAction.Next,
+                    formato = { v, para -> if (v.length < para.length) v else Afatet.formatoDatenGjateShkrimit(v) })
                 Fusha(r.sasia, { r.sasia = it.take(30) }, Modifier.weight(1f), "Sasia", tastiera = KeyboardType.Phone, lartesia = 44.dp, veprimi = ImeAction.Next,
                     kurVeprim = { Afatet.lexoSasine(r.sasia).let { s -> if (s != "") r.sasia = s.toString() } })
             }

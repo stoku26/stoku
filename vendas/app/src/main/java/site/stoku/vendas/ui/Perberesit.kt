@@ -59,7 +59,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -151,7 +153,8 @@ fun Fusha(
     ikona: ImageVector? = null, tastiera: KeyboardType = KeyboardType.Text, veprimi: ImeAction = ImeAction.Done,
     kurVeprim: (() -> Unit)? = null, fjalekalim: Boolean = false, stili: TextStyle? = null, lartesia: Dp = 50.dp,
     fokusi: FocusRequester? = null, vetemLexim: Boolean = false, djathtas: (@Composable () -> Unit)? = null,
-    sfondi: Color? = null, ngjyraTekstit: Color? = null, paVije: Boolean = false, rrezja: Dp = 14.dp
+    sfondi: Color? = null, ngjyraTekstit: Color? = null, paVije: Boolean = false, rrezja: Dp = 14.dp,
+    formato: ((riu: String, para: String) -> String)? = null
 ) {
     val n = N
     val ia = remember { MutableInteractionSource() }
@@ -169,24 +172,49 @@ fun Fusha(
     val vija = if (paVije) Color.Transparent else if (ne) n.accent else n.line
     val st = (stili ?: tx(16, 400)).copy(color = ngjyraTekstit ?: n.ink)
     val m = modifier.heightIn(min = lartesia).clip(forma).background(sfondi ?: n.surface, forma).border(if (ne && !paVije) 2.dp else 1.dp, vija, forma)
-    BasicTextField(
-        value = vlera, onValueChange = ndrysho, singleLine = true, readOnly = vetemLexim,
-        textStyle = st, cursorBrush = SolidColor(n.accent), interactionSource = ia,
-        visualTransformation = if (fjalekalim) PasswordVisualTransformation() else VisualTransformation.None,
-        keyboardOptions = KeyboardOptions(keyboardType = if (fjalekalim) KeyboardType.Password else tastiera, imeAction = veprimi),
-        keyboardActions = KeyboardActions(onAny = { kurVeprim?.invoke() }),
-        modifier = if (fokusi != null) m.focusRequester(fokusi) else m,
-        decorationBox = { brenda ->
-            Row(Modifier.padding(horizontal = 14.dp).heightIn(min = lartesia), verticalAlignment = Alignment.CenterVertically) {
-                if (ikona != null) { Icon(ikona, null, Modifier.size(20.dp), tint = n.faint); Spacer(Modifier.width(10.dp)) }
-                Box(Modifier.weight(1f)) {
-                    if (vlera.isEmpty()) Text(placeholder, style = st.copy(color = n.faint), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth())
-                    brenda()
-                }
-                if (djathtas != null) { Spacer(Modifier.width(8.dp)); djathtas() }
+    val dekorimi: @Composable (@Composable () -> Unit) -> Unit = { brenda ->
+        Row(Modifier.padding(horizontal = 14.dp).heightIn(min = lartesia), verticalAlignment = Alignment.CenterVertically) {
+            if (ikona != null) { Icon(ikona, null, Modifier.size(20.dp), tint = n.faint); Spacer(Modifier.width(10.dp)) }
+            Box(Modifier.weight(1f)) {
+                if (vlera.isEmpty()) Text(placeholder, style = st.copy(color = n.faint), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth())
+                brenda()
             }
+            if (djathtas != null) { Spacer(Modifier.width(8.dp)); djathtas() }
         }
+    }
+    val vt = if (fjalekalim) PasswordVisualTransformation() else VisualTransformation.None
+    val ko = KeyboardOptions(keyboardType = if (fjalekalim) KeyboardType.Password else tastiera, imeAction = veprimi)
+    val mf = if (fokusi != null) m.focusRequester(fokusi) else m
+    if (formato == null) {
+        BasicTextField(
+            value = vlera, onValueChange = ndrysho, singleLine = true, readOnly = vetemLexim,
+            textStyle = st, cursorBrush = SolidColor(n.accent), interactionSource = ia, visualTransformation = vt,
+            keyboardOptions = ko, keyboardActions = KeyboardActions(onAny = { kurVeprim?.invoke() }), modifier = mf, decorationBox = dekorimi
+        )
+        return
+    }
+    // Fusha me formatim gjatë shkrimit (data DD-MM-VV): fusha e mban vetë kursorin. Më parë thirrësi e shtonte vizën ("23" → "23-"),
+    // por kursori mbetej para saj dhe shifra e radhës hynte para vizës ("0", "1" jepnin "23-10" në vend të "23-01").
+    var tv by remember { mutableStateOf(TextFieldValue(vlera, TextRange(vlera.length))) }
+    val shfaqur = if (tv.text == vlera) tv else TextFieldValue(vlera, TextRange(vlera.length)) // ndryshim nga jashtë: kursori në fund
+    BasicTextField(
+        value = shfaqur, onValueChange = { v ->
+            val f = formato(v.text, shfaqur.text)
+            tv = if (f == v.text) v else TextFieldValue(f, TextRange(kursoriPasFormatimit(v, f)))
+            if (f != vlera) ndrysho(f)
+        }, singleLine = true, readOnly = vetemLexim,
+        textStyle = st, cursorBrush = SolidColor(n.accent), interactionSource = ia, visualTransformation = vt,
+        keyboardOptions = ko, keyboardActions = KeyboardActions(onAny = { kurVeprim?.invoke() }), modifier = mf, decorationBox = dekorimi
     )
+}
+
+/** Kursori pas formatimit: pas po aq shkronjave/shifrave sa ishin para tij te teksti i shkruar, dhe pas vizave të shtuara menjëherë pas tyre */
+fun kursoriPasFormatimit(v: TextFieldValue, f: String): Int {
+    val k = v.text.take(v.selection.end.coerceIn(0, v.text.length)).count { it.isLetterOrDigit() }
+    var pos = 0; var c = 0
+    while (pos < f.length && c < k) { if (f[pos].isLetterOrDigit()) c++; pos++ }
+    while (pos < f.length && !f[pos].isLetterOrDigit()) pos++
+    return pos
 }
 
 // ---------------- Dritaret ----------------
