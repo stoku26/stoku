@@ -9,13 +9,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -250,8 +253,7 @@ fun AfatetPdfFlete(te: List<Obj>, mbyll: () -> Unit, gati: (Skedari) -> Unit) {
             RreshtiIOpsionit(Ik.Rendi, "vjollce", "Renditja", EksportiPdf.RENDET.first { it.first == r }.second, EksportiPdf.RENDET, r, false) { r = it }
         }
         Text("Prek një rresht për ta ndryshuar", style = tx(12, 400, n.faint), modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Buton("Anulo", mbyll, Modifier.weight(1f), lloji = "tekst")
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Buton(if (duke) "Duke e krijuar…" else "Krijo PDF-në", {
                 if (!Llogaria.leja("eksportPdf") || lista.isEmpty() || duke) return@Buton
                 duke = true
@@ -333,18 +335,40 @@ fun AfatetFotoFlete(te: List<Obj>, mbyll: () -> Unit) {
     val furn = remember(aktive) { if (paF) emptyList() else Afatet.furnizuesitELista(aktive) }
     var zgj by remember { mutableStateOf(if (furn.size == 1) setOf(furn[0].celes) else emptySet()) }
     var duke by remember { mutableStateOf(false) }
+    var kerko by remember { mutableStateOf("") }
+    val sk = remember(aktive, furn) { furn.associate { f -> f.celes to aktive.count { Afatet.celesiFurnizuesit(it) == f.celes && Afatet.statusi(it) == "skaduar" } } }
     Flete(mbyll) {
-        Text("Eksporto si foto", style = tx(22, 700, n.ink, -0.02))
-        Text(if (paF) "Krejt afatet aktive (${aktive.size}) në një foto." else "Zgjedh një ose disa furnizues. Për secilin del një foto më vete.", style = tx(14, 400, n.muted))
-        if (furn.size >= 2) {
-            val krejt = zgj.size == furn.size
-            Lidhje(if (krejt) "Asnjë" else "Të gjithë", { zgj = if (krejt) emptySet() else furn.map { it.celes }.toSet() })
+        // Hyrja 40 (pronari, ideja 5): "Të gjithë" pranë titullit, kërkimi, lart me afate të skaduara e poshtë të tjerët, butoni poshtë
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text("Eksporto si foto", style = tx(22, 700, n.ink, -0.02), modifier = Modifier.weight(1f))
+            if (furn.size >= 2) {
+                val krejt = zgj.size == furn.size
+                Lidhje(if (krejt) "Asnjë" else "Të gjithë", { zgj = if (krejt) emptySet() else furn.map { it.celes }.toSet() }, madhesia = 14)
+            }
         }
-        if (furn.isNotEmpty()) Column {
-            furn.forEach { f ->
-                val sk = aktive.count { Afatet.celesiFurnizuesit(it) == f.celes && Afatet.statusi(it) == "skaduar" }
-                RreshtiIFurnizuesit(f.emri, if (f.n == 1) "1 afat" else "${f.n} afate", if (sk == 0) "" else if (sk == 1) "1 i skaduar" else "$sk të skaduara",
-                    zgj.contains(f.celes)) { zgj = if (zgj.contains(f.celes)) zgj - f.celes else zgj + f.celes }
+        Text(if (paF) "Krejt afatet aktive (${aktive.size}) në një foto." else "Një foto për secilin furnizues.", style = tx(13, 400, n.muted), modifier = Modifier.offset(y = (-8).dp))
+        if (furn.size >= 6) Fusha(kerko, { kerko = it }, Modifier.fillMaxWidth(), "Kërko furnizuesin", ikona = Ik.Kerko, lartesia = 46.dp, sfondi = n.surface2, paVije = true, rrezja = 12.dp)
+        if (furn.isNotEmpty()) {
+            val q = kerko.trim().lowercase()
+            val te2 = furn.filter { q.isEmpty() || it.emri.lowercase().contains(q) }
+            val me = te2.filter { (sk[it.celes] ?: 0) > 0 }
+            val pa = te2.filter { (sk[it.celes] ?: 0) == 0 }
+            val lartesia = (androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp * 0.5f).dp
+            Column(Modifier.fillMaxWidth().heightIn(max = lartesia).verticalScroll(rememberScrollState())) {
+                listOf(Triple("ME AFATE TË SKADUARA", me, true), Triple(if (me.isEmpty()) "FURNIZUESIT" else "TË TJERËT", pa, false)).forEach { (t, l, kuq) ->
+                    if (l.isEmpty()) return@forEach
+                    Text(t, style = tx(12, 600, if (kuq) n.exp else n.muted, 0.04), modifier = Modifier.padding(start = 2.dp, top = 6.dp, bottom = 8.dp))
+                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(n.surface2)) {
+                        l.forEachIndexed { i, f ->
+                            if (i > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
+                            RreshtiIFurnizuesit(f.emri, if (f.n == 1) "1 afat" else "${f.n} afate", zgj.contains(f.celes)) {
+                                zgj = if (zgj.contains(f.celes)) zgj - f.celes else zgj + f.celes
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                }
+                if (me.isEmpty() && pa.isEmpty()) Text("S'u gjet asnjë furnizues.", style = tx(14, 400, n.muted), modifier = Modifier.fillMaxWidth().padding(vertical = 18.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
             }
         }
         val nr = if (paF) 1 else zgj.size
@@ -366,29 +390,26 @@ fun AfatetFotoFlete(te: List<Obj>, mbyll: () -> Unit) {
                     try { EksportiFoto.ndaj(ctx, r, if (grupet?.size == 1) "Afatet: " + grupet[0].emri else "Afatet") }
                     catch (e: Exception) { Toast.trego("S'u hap \"Ndaj\". Provo sërish.") }
                 }
-            }, Modifier.weight(1.4f), aktiv = nr > 0 && !duke)
+            }, Modifier.fillMaxWidth(), aktiv = nr > 0 && !duke, ikona = Ik.Foto, lartesia = 52.dp)
+            Buton("Anulo", mbyll, Modifier.fillMaxWidth(), lloji = "tekst")
         }
     }
 }
 
-/** Rreshti i furnizuesit te "Eksporto si foto": kutia, emri, sa afate (dhe sa të skaduara, me të kuqe) */
+/** Rreshti i furnizuesit te "Eksporto si foto" (Hyrja 40): kutia e qartë edhe në temën e errët, emri, sa afate djathtas */
 @Composable
-private fun RreshtiIFurnizuesit(emri: String, afate: String, skaduar: String, zgjedhur: Boolean, onClick: () -> Unit) {
+private fun RreshtiIFurnizuesit(emri: String, afate: String, zgjedhur: Boolean, onClick: () -> Unit) {
     val n = N
-    Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).clip(RoundedCornerShape(12.dp)).clickable(onClick = onClick).padding(vertical = 8.dp, horizontal = 4.dp),
+    Row(Modifier.fillMaxWidth().heightIn(min = 54.dp).clickable(onClick = onClick).padding(horizontal = 14.dp),
         verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(22.dp).clip(RoundedCornerShape(6.dp)).background(if (zgjedhur) n.accent else Color.Transparent)
-            .border(if (zgjedhur) 0.dp else 1.5.dp, if (zgjedhur) Color.Transparent else n.line2, RoundedCornerShape(6.dp)), contentAlignment = Alignment.Center) {
-            if (zgjedhur) Icon(Ik.Kontroll, null, Modifier.size(15.dp), tint = Color.White)
+        Box(Modifier.size(24.dp).clip(RoundedCornerShape(7.dp)).background(if (zgjedhur) n.accent else Color.Transparent)
+            .border(if (zgjedhur) 0.dp else 2.dp, if (zgjedhur) Color.Transparent else n.faint, RoundedCornerShape(7.dp)), contentAlignment = Alignment.Center) {
+            if (zgjedhur) Icon(Ik.Kontroll, null, Modifier.size(16.dp), tint = Color.White)
         }
         Spacer(Modifier.width(12.dp))
-        Column(Modifier.weight(1f)) {
-            Text(emri, style = tx(15, 600, n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Row {
-                Text(afate, style = tx(13, 400, n.muted))
-                if (skaduar.isNotEmpty()) { Text(" · ", style = tx(13, 400, n.muted)); Text(skaduar, style = tx(13, 600, n.exp)) }
-            }
-        }
+        Text(emri, style = tx(15, 600, n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+        Spacer(Modifier.width(8.dp))
+        Text(afate, style = tx(13, 500, n.muted))
     }
 }
 
@@ -463,7 +484,7 @@ fun ImportiAfateveFlete(mbyll: () -> Unit, pasImportit: () -> Unit) {
         Text("Importo afate nga Excel", style = tx(22, 700, n.ink, -0.02))
         val f = fletet
         if (f == null) {
-            Text("Zgjidh një skedar .xlsx ose .csv me barkodin ose emrin dhe datën e skadimit. Fletët me emër muaji (Nëntor, Nëntor2…) lexohen si ai muaj.",
+            Text("Zgjidh një skedar .xlsx ose .csv me barkodin ose emrin dhe datën e skadimit. Fletët me emrin e muajit (Nëntor, Dhjetor…) lexohen si ai muaj.",
                 style = tx(14, 400, n.muted))
             Buton(if (dukeLexuar) "Duke e lexuar…" else "Zgjidh skedarin", {
                 if (dukeLexuar) return@Buton

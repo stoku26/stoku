@@ -20,6 +20,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 279, versioni: '1.49.4', data: '2026-11-07', titulli: 'Eksporto si foto më e qartë', platforma: 'tel', pikat: [
+      'Te "Eksporto si foto", furnizuesit me afate të skaduara dalin lart, të tjerët poshtë.',
+      'Mund ta kërkosh furnizuesin, "Të gjithë" është pranë titullit dhe butoni "Krijo" mbetet gjithmonë poshtë.',
+      'Te importi nga Excel, fleta e jep muajin vetëm kur quhet saktë si muaji (p.sh. "Nëntor", "Dhjetor"), jo "Nëntor2".'
+    ] },
     { v: 278, versioni: '1.49.3', data: '2026-11-07', titulli: 'Butonat e Afateve më të qartë', platforma: 'tel', pikat: [
       '"Shto" është tash njësoj si "Importo" dhe "Eksporto", pa vijën e kaltër.',
       'Menyja e "Eksporto" dallohet më mirë në temën e errët.'
@@ -738,7 +743,7 @@
     ] },
     { v: 120, data: '2026-09-30', titulli: 'Afatet: import nga Excel dhe muajt', pikat: [
       'Te Afatet ka butonin "Importo" (Excel ose CSV): kolonat gjenden vetë, dhe para importit sheh çka shtohet, çka ekziston dhe çka ka gabim.',
-      'Fletët me emër muaji në Excel (p.sh. "Nëntor", "Nëntor2") lexohen si ai muaj; numri pas emrit harrohet.',
+      'Fletët me emrin e muajit në Excel (p.sh. "Nëntor", "Dhjetor") lexohen si ai muaj.',
       'Mbi listën e afateve ka butona për muajt (Tetor, Nëntor…): kliko njërin dhe shfaqen vetëm afatet që skadojnë atë muaj.',
       'Eksporti në Excel të pyet cilin muaj do: vetëm Tetorin, vetëm Nëntorin, ose të gjithë muajt.'
     ] },

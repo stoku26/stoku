@@ -2597,7 +2597,7 @@
   });
 
   // ================= Importi i afateve (Excel / CSV) =================
-  // Çdo fletë lexohet; një fletë me emër muaji ("Nëntor", "Nëntor2"…) e jep muajin kur data ka vetëm ditën.
+  // Çdo fletë lexohet; një fletë me emrin e muajit ("Nëntor", "Dhjetor"…) e jep muajin kur data ka vetëm ditën.
   // Afatet që ekzistojnë (i njëjti barkod/emër + e njëjta datë) kalohen; rreshtat e përsëritur bashkohen.
   var ai = { fletet: [], emriSkedarit: '' };
   function hapImportinEAfateve() {

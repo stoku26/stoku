@@ -6,26 +6,18 @@ import java.time.ZoneOffset
 /*
  * Importi i afateve nga Excel/CSV: përkthim i pjesës "Importi i afateve nga Excel/CSV" të afatet.js (muajiNgaEmri,
  * tekstNgaQeliza, dataNgaQeliza, hamendesoKolonatEAfateve, planiImportitAfateve, afatetNgaPlani).
- * Çdo fletë lexohet; fleta me emër muaji ("Nëntor", "Nëntor2"…) e jep muajin kur data ka vetëm ditën. Afatet që
+ * Çdo fletë lexohet; fleta me emrin e muajit ("Nëntor", "Dhjetor"…) e jep muajin kur data ka vetëm ditën. Afatet që
  * ekzistojnë (i njëjti barkod/emër + data) kalohen; rreshtat e përsëritur bashkohen (sasitë mblidhen).
  * tani (opsional): ora "tani" për testet (datat me vetëm ditën varen nga viti i tanishëm).
  */
 object ImportiAfateve {
-    private val MUAJT_PLOTE = listOf(
-        listOf("janar", "january", "jan"), listOf("shkurt", "february", "feb", "shk"), listOf("mars", "march", "mar"), listOf("prill", "april", "pri", "apr"),
-        listOf("maj", "may"), listOf("qershor", "june", "qer", "jun"), listOf("korrik", "july", "kor", "jul"), listOf("gusht", "august", "gus", "aug"),
-        listOf("shtator", "september", "sht", "sep", "sept"), listOf("tetor", "october", "tet", "okt", "oct"), listOf("nentor", "november", "nen", "nov"),
-        listOf("dhjetor", "december", "dhj", "dec", "dhe")
-    )
-    private fun pastroShkronjat(t: Any?): String =
-        jsString(if (eVertete(t)) t else "").lowercase().replace("ë", "e").replace("ç", "c").replace(Regex("[^a-z]"), "")
+    private val MUAJT_SHQIP = listOf("janar", "shkurt", "mars", "prill", "maj", "qershor", "korrik", "gusht", "shtator", "tetor", "nentor", "dhjetor")
 
-    /** "Nëntor", "nentor2", "NENTOR 2", "Nëntor (2)", "nov" → 11. Numrat dhe shenjat harrohen. Jo-muaj → null. */
+    /** Hyrja 40 (pronari): vetëm emri i saktë i muajit ("Nëntor", "nentor", " DHJETOR "); "Nëntor2", "nov", "November" → null */
     fun muajiNgaEmri(t: Any?): Int? {
-        val sh = pastroShkronjat(t)
-        if (sh.length < 3) return null
-        MUAJT_PLOTE.forEachIndexed { i, l -> if (l.any { w -> sh == w || (w.length > 3 && w.startsWith(sh)) }) return i + 1 }
-        return null
+        val sh = jsTrim(jsString(if (eVertete(t)) t else "")).lowercase().replace("ë", "e").replace("ç", "c")
+        val i = MUAJT_SHQIP.indexOf(sh)
+        return if (i < 0) null else i + 1
     }
 
     fun tekstNgaQeliza(v: Any?): String {

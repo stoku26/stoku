@@ -8,6 +8,11 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(40, "2026-11-07", "Eksporto si foto më e qartë", listOf(
+            "Te \"Eksporto si foto\", furnizuesit me afate të skaduara dalin lart, të tjerët poshtë.",
+            "Mund ta kërkosh furnizuesin, \"Të gjithë\" është pranë titullit dhe butoni \"Krijo\" mbetet gjithmonë poshtë.",
+            "Te importi nga Excel, fleta e jep muajin vetëm kur quhet saktë si muaji (p.sh. \"Nëntor\", \"Dhjetor\"), jo \"Nëntor2\"."
+        )),
         Hyrja(39, "2026-11-07", "Butonat e Afateve më të qartë", listOf(
             "\"Shto\" është tash njësoj si \"Importo\" dhe \"Eksporto\", pa vijën e kaltër.",
             "Menyja e \"Eksporto\" dallohet më mirë në temën e errët."
