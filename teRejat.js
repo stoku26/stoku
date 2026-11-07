@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 278, versioni: '1.49.3', data: '2026-11-07', titulli: 'Butonat e Afateve më të qartë', platforma: 'tel', pikat: [
+      '"Shto" është tash njësoj si "Importo" dhe "Eksporto", pa vijën e kaltër.',
+      'Menyja e "Eksporto" dallohet më mirë në temën e errët.'
+    ] },
     { v: 277, versioni: '1.49.2', data: '2026-11-07', titulli: 'Importo dhe Eksporto te Afatet', platforma: 'tel', pikat: [
       'Te Afatet, "Shto" ka tash kornizë blu dhe ikonën e barkodit.',
       'Poshtë tij janë dy butona: "Importo" e hap direkt zgjedhjen e Excel-it, "Eksporto" hap Excel, PDF ose foto.'
