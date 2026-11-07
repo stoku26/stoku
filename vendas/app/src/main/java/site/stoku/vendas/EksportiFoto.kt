@@ -10,7 +10,6 @@ import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Typeface
 import androidx.core.content.FileProvider
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.PathParser
 import site.stoku.logjika.Afatet
 import site.stoku.logjika.Obj
@@ -61,15 +60,30 @@ object EksportiFoto {
         }
     }
 
-    private class Fontet(val onest: Typeface, val mono: Typeface)
-    private fun fontet(ctx: Context) = Fontet(
-        (try { ResourcesCompat.getFont(ctx, R.font.onest) } catch (e: Exception) { null }) ?: Typeface.SANS_SERIF,
-        (try { ResourcesCompat.getFont(ctx, R.font.jetbrains_mono) } catch (e: Exception) { null }) ?: Typeface.MONOSPACE)
+    /**
+     * Onest dhe JetBrains Mono janë fonte "variable": pesha (400–700) vendoset me boshtin 'wght' te Typeface.Builder (si Compose).
+     * Skedari i fontit kopjohet një herë te cache/fontet (Builder-i do skedar); pa sukses: fonti i sistemit.
+     */
+    private class Fontet(val ctx: Context) {
+        fun merr(mono: Boolean, pesha: Int): Typeface = synchronized(KESH) {
+            KESH.getOrPut((if (mono) "m" else "o") + pesha) {
+                try {
+                    val f = File(ctx.cacheDir, "fontet/" + (if (mono) "jetbrains_mono" else "onest") + ".ttf")
+                    if (!f.exists() || f.length() == 0L) {
+                        f.parentFile?.mkdirs()
+                        ctx.resources.openRawResource(if (mono) R.font.jetbrains_mono else R.font.onest).use { i -> f.outputStream().use { i.copyTo(it) } }
+                    }
+                    Typeface.Builder(f).setFontVariationSettings("'wght' $pesha").build()
+                } catch (e: Exception) { null } ?: if (mono) Typeface.MONOSPACE else Typeface.create(Typeface.SANS_SERIF, if (pesha >= 600) Typeface.BOLD else Typeface.NORMAL)
+            }
+        }
+    }
+    private val KESH = HashMap<String, Typeface>()
+    private fun fontet(ctx: Context) = Fontet(ctx.applicationContext ?: ctx)
 
     private fun Paint.font(f: Fontet, px: Float, pesha: Int, mono: Boolean = false, hapesira: Float = 0f) {
-        typeface = if (mono) f.mono else f.onest
+        typeface = f.merr(mono, pesha)
         textSize = px
-        try { setFontVariationSettings("'wght' $pesha") } catch (e: Exception) { }
         letterSpacing = hapesira / px // në em
     }
 
