@@ -8,6 +8,11 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(36, "2026-11-07", "Afatet në PDF për printim", listOf(
+            "Te Afatet → Excel ka tash edhe \"Eksporto PDF\": një listë e bardhë A4 me afatet, gati për printim.",
+            "Para krijimit zgjedh periudhën (të gjitha ose një muaj), gjendjen, furnizuesin dhe renditjen.",
+            "Barkodet dalin kudo me shifra më të qarta: zeroja s'ngjan më me 8."
+        )),
         Hyrja(35, "2026-11-07", "Afatet si foto për furnizuesin", listOf(
             "Te Afatet → Excel ka tash edhe \"Eksporto si foto\": zgjedh një ose disa furnizues dhe për secilin del një foto me krejt afatet e tij, gati për ta dërguar me Viber ose WhatsApp.",
             "Fotoja tregon lart sa produkte kanë skaduar, sa janë afër skadimit dhe sa në rregull, pastaj çdo produkt me datën, copët dhe barkodin. Del e errët ose e çelët, si e ke aplikacionin."

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -50,6 +51,7 @@ import site.stoku.logjika.jsTrim
 import site.stoku.logjika.obj
 import site.stoku.vendas.Dyqani
 import site.stoku.vendas.EksportiFoto
+import site.stoku.vendas.EksportiPdf
 import site.stoku.vendas.Eksportet
 import site.stoku.vendas.Llogaria
 import site.stoku.vendas.Merchandiseri
@@ -208,6 +210,110 @@ fun AfatetExcelFlete(zgjedhura: List<Obj>?, eFiltruara: (String) -> List<Obj>, m
                 val sk = Eksportet.excelIAfateve(lista, renditur, if (krejt) muaji else "", if (krejt) emriFurn else "")
                 mbyll(); gati(sk)
             }, Modifier.weight(1.4f), aktiv = tE.isNotEmpty() && lista.isNotEmpty())
+        }
+    }
+}
+
+/**
+ * Hyrja 36 (web v275, #dlgAfPdf): "PDF për printim" (pronari: ideja 1, opsionet "A"). Katër rreshta: Periudha ("Të gjitha" ose një muaj),
+ * Gjendja, Furnizuesi, Renditja; secili hap zgjedhjen e vet. PDF-ja (EksportiPdf, A4 e bardhë) del te SkedariFlete (PC / Ruaje / Ndaje).
+ */
+@Composable
+fun AfatetPdfFlete(te: List<Obj>, mbyll: () -> Unit, gati: (Skedari) -> Unit) {
+    val n = N
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val paF = Llogaria.eshteMerchandiser()
+    var mu by remember { mutableStateOf("") }
+    var gj by remember { mutableStateOf("aktive") }
+    var f by remember { mutableStateOf("") }
+    var r by remember { mutableStateOf("data") }
+    var duke by remember { mutableStateOf(false) }
+    val gjOps = EksportiPdf.GJENDJET.map { (k, t) -> k to "$t (${EksportiPdf.filtro(te, mu, k, f, paF).size})" }
+    val muajt = Afatet.muajtELista(EksportiPdf.filtro(te, "", gj, f, paF))
+    val muE = if (mu.isEmpty() || muajt.any { it.celes == mu }) mu else ""
+    val furn = if (paF) emptyList() else Afatet.furnizuesitELista(EksportiPdf.filtro(te, muE, gj, "", paF))
+    val fE = if (f.isEmpty() || furn.any { it.celes == f }) f else ""
+    val lista = EksportiPdf.filtro(te, muE, gj, fE, paF)
+    val faqet = EksportiPdf.plani(lista.size).size
+    val gjT = EksportiPdf.GJENDJET.firstOrNull { it.first == gj }?.second ?: "Të gjitha"
+    val furnT = furn.firstOrNull { it.celes == fE }?.emri ?: "Të gjithë"
+    Flete(mbyll) {
+        Text("PDF për printim", style = tx(22, 700, n.ink, -0.02))
+        Text(if (lista.isEmpty()) "S'ka afate për këtë zgjedhje." else (if (lista.size == 1) "1 afat" else "${lista.size} afate") + " · " +
+            (if (faqet == 1) "1 faqe A4" else "$faqet faqe A4"), style = tx(14, 400, n.muted))
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).border(1.dp, n.line, RoundedCornerShape(18.dp))) {
+            RreshtiIOpsionit(Ik.Kalendari, "blu", "Periudha", if (muE.isEmpty()) "Të gjitha" else muajt.first { it.celes == muE }.emri,
+                listOf("" to "Të gjitha") + muajt.map { it.celes to "${it.emri} (${it.n})" }, muE, true) { mu = it }
+            RreshtiIOpsionit(Ik.Kohe, "portokalli", "Gjendja", gjT, gjOps, gj, false) { gj = it }
+            if (!paF) RreshtiIOpsionit(Ik.Kamion, "gjelber", "Furnizuesi", furnT, listOf("" to "Të gjithë") + furn.map { it.celes to "${it.emri} (${it.n})" }, fE, false) { f = it }
+            RreshtiIOpsionit(Ik.Rendi, "vjollce", "Renditja", EksportiPdf.RENDET.first { it.first == r }.second, EksportiPdf.RENDET, r, false) { r = it }
+        }
+        Text("Prek një rresht për ta ndryshuar", style = tx(12, 400, n.faint), modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Buton("Anulo", mbyll, Modifier.weight(1f), lloji = "tekst")
+            Buton(if (duke) "Duke e krijuar…" else "Krijo PDF-në", {
+                if (!Llogaria.leja("eksportPdf") || lista.isEmpty() || duke) return@Buton
+                duke = true
+                val k = java.util.Calendar.getInstance()
+                fun dy(x: Int) = (if (x < 10) "0" else "") + x
+                val data = dy(k.get(java.util.Calendar.DAY_OF_MONTH)) + "." + dy(k.get(java.util.Calendar.MONTH) + 1) + "." + k.get(java.util.Calendar.YEAR)
+                val ora = dy(k.get(java.util.Calendar.HOUR_OF_DAY)) + ":" + dy(k.get(java.util.Calendar.MINUTE))
+                val dita = k.get(java.util.Calendar.YEAR).toString() + "-" + dy(k.get(java.util.Calendar.MONTH) + 1) + "-" + dy(k.get(java.util.Calendar.DAY_OF_MONTH))
+                val per = if (muE.isEmpty()) "Të gjitha" else Afatet.emriMuajit(muE)
+                val idM = Merchandiseri.idAktiv()
+                val cope = Afatet.shumaCopeve(lista)
+                val info = ArrayList<Pair<String, Boolean>>()
+                info.add("Periudha: " to false); info.add(per to true)
+                listOf(if (gj == "aktive") "" else gjT, if (fE.isEmpty()) "" else furnT, idM?.let { Merchandiseri.emri(it) } ?: "").filter { it.isNotEmpty() }
+                    .forEach { info.add(" · " to false); info.add(it to true) }
+                info.add(" · " to false); info.add(lista.size.toString() to true); info.add((if (lista.size == 1) " produkt" else " produkte") to false)
+                if (cope > 0) { info.add(" · " to false); info.add(EksportiPdf.numri(cope) to true); info.add(" copë" to false) }
+                val emri = "afatet_" + (if (muE.isEmpty()) "" else Eksportet.sluguFolderit(per) + "_") + dita + ".pdf"
+                val renditur = EksportiPdf.rendit(lista, r)
+                scope.launch {
+                    val b = withContext(Dispatchers.Default) { try { EksportiPdf.krijo(ctx, renditur, EksportiPdf.Opsionet(info, data, ora), paF) } catch (e: Throwable) { null } }
+                    duke = false
+                    if (b == null) { Toast.trego("PDF-ja nuk u krijua. Provo përsëri."); return@launch }
+                    mbyll(); gati(Skedari(b, emri, "application/pdf", "Afatet"))
+                }
+            }, Modifier.weight(1.4f), aktiv = lista.isNotEmpty() && !duke)
+        }
+    }
+}
+
+/** Një rresht i opsioneve të PDF-së (si te Cilësimet): ikona me ngjyrë, emri, vlera, shigjeta; prekja hap listën e zgjedhjeve */
+@Composable
+private fun RreshtiIOpsionit(ikona: androidx.compose.ui.graphics.vector.ImageVector, ngjyra: String, emri: String, vlera: String,
+                             opsionet: List<Pair<String, String>>, zgjedhur: String, iPari: Boolean, zgjidh: (String) -> Unit) {
+    val n = N
+    var hapur by remember { mutableStateOf(false) }
+    val (bg, fg) = n.ikonat[ngjyra] ?: (n.surface2 to n.ink3)
+    Column {
+        if (!iPari) Box(Modifier.fillMaxWidth().padding(horizontal = 0.dp).heightIn(min = 1.dp, max = 1.dp).background(n.line2))
+        Box {
+            Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).clickable { hapur = true }.padding(horizontal = 14.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(36.dp).clip(RoundedCornerShape(11.dp)).background(bg), contentAlignment = Alignment.Center) {
+                    Icon(ikona, null, Modifier.size(19.dp), tint = fg)
+                }
+                Spacer(Modifier.width(12.dp))
+                Text(emri, style = tx(15, 600, n.ink), modifier = Modifier.weight(1f))
+                Text(vlera, style = tx(14, 500, n.muted), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(start = 8.dp).widthIn(max = 170.dp))
+                Spacer(Modifier.width(6.dp))
+                Icon(Ik.Perpara, null, Modifier.size(18.dp), tint = n.faint)
+            }
+            androidx.compose.material3.DropdownMenu(hapur, { hapur = false }, offset = androidx.compose.ui.unit.DpOffset(0.dp, 4.dp),
+                shape = RoundedCornerShape(14.dp), containerColor = n.surface, shadowElevation = 12.dp, modifier = Modifier.widthIn(min = 230.dp)) {
+                opsionet.forEach { (k, t) ->
+                    Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { hapur = false; zgjidh(k) }.padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Text(t, style = tx(14, if (k == zgjedhur) 700 else 500, n.ink), modifier = Modifier.weight(1f))
+                        if (k == zgjedhur) Icon(Ik.Kontroll, null, Modifier.size(18.dp), tint = n.accent)
+                    }
+                }
+            }
         }
     }
 }

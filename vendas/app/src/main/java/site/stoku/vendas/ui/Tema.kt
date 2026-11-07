@@ -110,6 +110,10 @@ fun txF(madhesia: Float, pesha: Int = 400, ngjyra: Color = Color.Unspecified) =
 fun txMono(madhesia: Float, ngjyra: Color = Color.Unspecified, pesha: Int = 400) =
     TextStyle(fontFamily = Mono, fontSize = madhesia.sp, fontWeight = FontWeight(pesha), color = ngjyra)
 
+/** Barkodet (v275, pronari): Onest me shifra me gjerësi të njëjtë; zeroja e JetBrains Mono me pikë në mes ngjante me 8 */
+fun txNum(madhesia: Float, ngjyra: Color = Color.Unspecified, pesha: Int = 400) =
+    TextStyle(fontFamily = Onest, fontSize = madhesia.sp, fontWeight = FontWeight(pesha), color = ngjyra, fontFeatureSettings = "tnum")
+
 /** Tema: "auto" (si telefoni), "light", "dark" */
 @Composable
 fun StokuTema(zgjedhja: String, content: @Composable () -> Unit) {

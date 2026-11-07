@@ -64,7 +64,7 @@ object EksportiFoto {
      * Onest dhe JetBrains Mono janë fonte "variable": pesha (400–700) vendoset me boshtin 'wght' te Typeface.Builder (si Compose).
      * Skedari i fontit kopjohet një herë te cache/fontet (Builder-i do skedar); pa sukses: fonti i sistemit.
      */
-    private class Fontet(val ctx: Context) {
+    internal class Fontet(val ctx: Context) {
         fun merr(mono: Boolean, pesha: Int): Typeface = synchronized(KESH) {
             KESH.getOrPut((if (mono) "m" else "o") + pesha) {
                 try {
@@ -79,7 +79,7 @@ object EksportiFoto {
         }
     }
     private val KESH = HashMap<String, Typeface>()
-    private fun fontet(ctx: Context) = Fontet(ctx.applicationContext ?: ctx)
+    internal fun fontet(ctx: Context) = Fontet(ctx.applicationContext ?: ctx)
 
     private fun Paint.font(f: Fontet, px: Float, pesha: Int, mono: Boolean = false, hapesira: Float = 0f) {
         typeface = f.merr(mono, pesha)
@@ -119,7 +119,8 @@ object EksportiFoto {
         p.style = Paint.Style.FILL
     }
 
-    private fun Canvas.logo(p: Paint, x: Float, y: Float, h: Float, C: Ngjyrat) {
+    /** Logoja "stoku" (shenja + shkronjat), e lartë h, me ngjyrën e shkronjave C.logo (edhe për PDF-në e afateve) */
+    internal fun Canvas.logo(p: Paint, x: Float, y: Float, h: Float, C: Ngjyrat) {
         val k = h / 52f
         save(); translate(x, y); scale(k, k)
         save(); translate(0f, 4f); scale(0.6875f, 0.6875f)
@@ -203,7 +204,7 @@ object EksportiFoto {
             var ty = y + 13f
             p.font(f, 15.5f, 600); r.em.forEach { cv.tekst(p, it, x + 18f, ty + 10f, C.ink); ty += 20f }
             ty += 3f; p.font(f, 13f, 500); cv.tekst(p, r.info, x + 18f, ty + 8.5f, C.ink2); ty += 17f
-            if (r.b.isNotEmpty()) { ty += 3f; p.font(f, 12f, 400, mono = true); cv.tekst(p, r.b, x + 18f, ty + 8f, C.faint) }
+            if (r.b.isNotEmpty()) { ty += 3f; p.font(f, 12.5f, 500); p.fontFeatureSettings = "tnum"; cv.tekst(p, r.b, x + 18f, ty + 8f, C.faint); p.fontFeatureSettings = null } // Onest: zeroja pa pikë
             val q = y + r.h / 2f
             p.font(f, 18f, 700, hapesira = -0.36f); cv.tekst(p, r.d.m, x + w - 14f, q - 9f, C.sipas(r.d.k), djathtas = true)
             p.font(f, 11.5f, 500); cv.tekst(p, r.d.v, x + w - 14f, q + 11f, C.muted, djathtas = true)

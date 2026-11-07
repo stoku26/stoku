@@ -97,7 +97,7 @@
 .sb .sb-row__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .sb .sb-row__name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sb .sb-row__name--bosh { font-style: italic; color: var(--sb-faint); font-weight: 500; }
-.sb .sb-row__code { font-family: var(--sb-mono); font-size: 11px; color: var(--sb-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb .sb-row__code { font-family: var(--sb-font); font-variant-numeric: tabular-nums; font-size: 11px; color: var(--sb-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sb .sb-row__qty { font-size: 15px; font-weight: 700; min-width: 34px; text-align: right; }
 .sb .sb-row__qty--exp { color: var(--sb-exp); }
 .sb .artikull .sasia--zero { color: var(--sb-exp); }
@@ -107,7 +107,7 @@
 .sb .artikull { border-bottom: 1px solid var(--sb-line-2); }
 .sb .artikull:active { background: var(--sb-surface-2); }
 .sb .artikull .emri { font-size: 15px; font-weight: 600; }
-.sb .artikull .kodi { font-family: var(--sb-mono); font-size: 11.5px; color: var(--sb-faint); }
+.sb .artikull .kodi { font-family: var(--sb-font); font-variant-numeric: tabular-nums; font-size: 11.5px; color: var(--sb-faint); }
 .sb .artikull .sasia { font-weight: 700; }
 .sb .sasia-hap-btn { border: 0; box-shadow: var(--sb-ring); background: var(--sb-surface); }
 .sb .folder-etikete { background: var(--sb-accent-tint); border-color: var(--sb-accent-line); color: var(--sb-accent-text); }
@@ -368,7 +368,7 @@ html.me-fab #toast { bottom: calc(102px + var(--sab, 0px)); }
 .sb .sb-days--rem { background: var(--sb-rem-tint); color: var(--sb-rem); }
 .sb .af-karta .af-emri { font-size: 15px; font-weight: 600; }
 .sb .af-karta .af-nen { font-size: 12px; color: var(--sb-muted); margin-top: 3px; }
-.sb .af-kodi { font-family: var(--sb-mono); font-size: 11px; color: var(--sb-faint); margin-top: 2px; overflow-wrap: anywhere; }
+.sb .af-kodi { font-family: var(--sb-font); font-variant-numeric: tabular-nums; font-size: 11px; color: var(--sb-faint); margin-top: 2px; overflow-wrap: anywhere; }
 .sb .af-karta .af-mesazh { font-size: 12px; font-weight: 600; margin-top: 4px; }
 .sb .af-karta.hequr .af-mesazh { color: var(--sb-rem); }
 .sb .af-pill { border-radius: 10px; border-width: 0; box-shadow: 0 0 0 1.5px currentColor; padding: 6px 11px; }
@@ -449,7 +449,7 @@ body.pa-animim .mbulese > .dialog { animation: none; }
 .sb .sb-scan input[type="text"] { height: 40px; padding: 0; border-radius: 0; background: transparent; box-shadow: none; color: #fff; }
 .sb .sb-scan input[type="text"]:focus { box-shadow: 0 2px 0 0 rgba(255,255,255,.55); }
 .sb .sb-scan input::placeholder { color: rgba(255,255,255,.45); }
-.sb .sb-scan #afatBarkodi { flex: 1; min-width: 0; font-family: var(--sb-mono); font-size: 15px; letter-spacing: .08em; }
+.sb .sb-scan #afatBarkodi { flex: 1; min-width: 0; font-family: var(--sb-font); font-variant-numeric: tabular-nums; font-size: 15px; letter-spacing: .08em; }
 .sb .sb-scan #afatEmri { font-size: 16px; font-weight: 600; }
 .sb .sb-scan .af-skano { flex: none; width: 44px; height: 44px; border-radius: 12px; border: 0; background: rgba(255,255,255,.12); color: #fff; }
 .sb .sb-afat-seksion { display: flex; flex-direction: column; gap: 8px; }

@@ -20,7 +20,7 @@
 
 .sbp body { grid-template-rows: minmax(0, 1fr); background: var(--sb-bg); color: var(--sb-ink); -webkit-font-smoothing: antialiased; }
 .sbp .trupi { height: 100vh; height: 100dvh; }
-.sbp .mono { font-family: var(--sb-mono); font-size: 12.5px; letter-spacing: 0; }
+.sbp .mono { font-family: var(--sb-font); font-variant-numeric: tabular-nums; font-size: 12.5px; letter-spacing: 0; }
 .sbp [hidden] { display: none !important; }
 
 /* ---------- Anësorja ---------- */

@@ -150,7 +150,7 @@ private fun RreshtiShpejt(b: String, nr: Long, p: Obj?, iFundit: Boolean, shto: 
         Column(Modifier.weight(1f)) {
             val em = (p?.get("emri") as? String).orEmpty()
             Text(em.ifEmpty { "(pa emër)" }, style = tx(15, 600, if (em.isEmpty()) n.faint else n.ink), maxLines = 2, overflow = TextOverflow.Ellipsis)
-            Text(b + (p?.let { " · në stok " + sasiaE(it) } ?: ""), style = txMono(11.5f, n.faint), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(b + (p?.let { " · në stok " + sasiaE(it) } ?: ""), style = txNum(12f, n.faint), maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         // − / + anash numrit (si te lista e folderit); − vetëm sa u shtuan në këtë seancë
         ButonPM("−", nr > 0) { shto(-1) }

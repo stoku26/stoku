@@ -67,7 +67,9 @@ object Eksportet {
             val pt = 25.4f / 72f // 1 pikë në mm (madhësia e shkronjave)
             val vija = Paint().apply { style = Paint.Style.STROKE; strokeWidth = 0.2f; color = Color.rgb(210, 210, 210) }
             val zeza = Paint().apply { style = Paint.Style.FILL; color = Color.BLACK; isAntiAlias = false }
-            val numri = Paint().apply { color = Color.BLACK; textAlign = Paint.Align.CENTER; isAntiAlias = true; typeface = Typeface.MONOSPACE }
+            // v275: numri poshtë barkodit me Onest (zeroja pa pikë; me MONOSPACE ngjante me 8), shifra me gjerësi të njëjtë
+            val numri = Paint().apply { color = Color.BLACK; textAlign = Paint.Align.CENTER; isAntiAlias = true; fontFeatureSettings = "tnum"
+                typeface = try { EksportiFoto.fontet(StokuApp.app).merr(false, 500) } catch (e: Throwable) { Typeface.SANS_SERIF } }
             val normal = Paint().apply { color = Color.rgb(20, 20, 20); textAlign = Paint.Align.CENTER; isAntiAlias = true; typeface = Typeface.SANS_SERIF; textSize = 8 * pt }
             val trash = Paint(normal).apply { typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD); textSize = 9 * pt }
             var faqja: PdfDocument.Page? = null

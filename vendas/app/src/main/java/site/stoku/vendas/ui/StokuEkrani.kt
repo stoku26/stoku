@@ -263,7 +263,7 @@ private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, Str
                             val em = (pr["emri"] as? String).orEmpty()
                             Text(em.ifEmpty { "Pa emër" }, style = tx(14, if (em.isEmpty()) 500 else 600, if (em.isEmpty()) n.faint else n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis)
                             val fe = Dyqani.emriFolderit(pr["kategoriaId"])
-                            Text(jsString(pr["barkodi"]) + (if (fe.isNotEmpty()) "  ·  $fe" else ""), style = txMono(11f, n.faint), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(jsString(pr["barkodi"]) + (if (fe.isNotEmpty()) "  ·  $fe" else ""), style = txNum(11.5f, n.faint), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
                         val s = sasiaE(pr)
                         Text(numerMeHapesire(s), style = tx(15, 700, if (s <= 0) n.exp else n.ink))
@@ -314,7 +314,7 @@ private fun RreshtiIKerkimit(p: Obj, onClick: () -> Unit) {
             val em = (p["emri"] as? String).orEmpty()
             Text(em.ifEmpty { "(pa emër)" }, style = tx(15, 600, if (em.isEmpty()) n.faint else n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(jsString(p["barkodi"]) + ((p["furnizuesi"] as? String)?.takeIf { it.isNotEmpty() }?.let { " · $it" } ?: ""),
-                style = txMono(11.5f, n.faint), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                style = txNum(12f, n.faint), maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(Modifier.clip(RoundedCornerShape(8.dp)).background(n.surface2).padding(horizontal = 8.dp, vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -550,7 +550,7 @@ private fun RreshtiIProduktit(p: Obj, lejaShpejt: Boolean, lejaNdrysho: Boolean,
             val em = (p["emri"] as? String).orEmpty()
             Text(em.ifEmpty { "(pa emër)" }, style = tx(15, 600, if (em.isEmpty()) n.faint else n.ink), maxLines = 2, overflow = TextOverflow.Ellipsis)
             Text(jsString(p["barkodi"]) + ((p["furnizuesi"] as? String)?.takeIf { it.isNotEmpty() }?.let { " · $it" } ?: ""),
-                style = txMono(11.5f, n.faint), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                style = txNum(12f, n.faint), maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         if (lejaShpejt) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
