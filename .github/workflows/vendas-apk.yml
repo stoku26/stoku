@@ -91,7 +91,13 @@ jobs:
               k = urllib.request.Request('https://api.github.com/repos/%s/git/blobs' % repo, data=trupi,
                   headers={'Authorization': 'Bearer ' + tok, 'Accept': 'application/vnd.github+json'})
               dalja.append(os.path.basename(f) + '=' + json.load(urllib.request.urlopen(k))['sha'])
-          print('::notice title=pamjet::' + ' '.join(dalja or ['asnje']))
+          # Njoftimi pritet pas 4096 shenjave: lista ndahet në copa (pamjet 1, pamjet 2…)
+          copat, c = [], ''
+          for x in (dalja or ['asnje']):
+              if c and len(c) + len(x) + 1 > 3800: copat.append(c); c = ''
+              c = (c + ' ' + x).strip()
+          copat.append(c)
+          for i, c in enumerate(copat): print('::notice title=pamjet %d::' % (i + 1) + c)
           gab = []
           for x in glob.glob('vendas/app/build/test-results/testDebugUnitTest/*.xml'):
               for m in re.finditer(r'<testcase name="([^"]+)"[^>]*>\s*<failure message="([^"]{0,1500})', open(x).read()):
