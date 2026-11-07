@@ -54,7 +54,7 @@ const AZ = 'AZTEC-98765';
   await p.click('#btnAfatet'); await p.waitForTimeout(800);
   const af = await p.evaluate(() => ({ pllaka: document.querySelectorAll('#afVeprime .sb-pllaka').length, shto: document.getElementById('afShto').className,
     excel: document.getElementById('afExcel').className, kolonat: getComputedStyle(document.getElementById('afVeprime')).gridTemplateColumns }));
-  ok(fp === 4 && af.pllaka === 0 && af.shto === 'sb-action' && af.excel === 'sb-action', '7. butonat e rinj vetëm te Stoku; Afatet si më parë', { fp, af });
+  ok(fp === 4 && af.pllaka === 0 && /^sb-action( sb-action-ik)?$/.test(af.shto) && /^sb-action( sb-action-ik)?$/.test(af.excel), '7. butonat e rinj vetëm te Stoku; Afatet pa pllaka (v276: vetëm ikona)', { fp, af });
 
   const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
   const nr = rx => Number((sw.match(rx) || [])[1]);
