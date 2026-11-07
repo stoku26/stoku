@@ -90,7 +90,7 @@ class PamjetTest {
         r.onNodeWithContentDescription("Foldera").performClick(); r.waitForIdle() // brenda folderit s'ka tabe (si te web-i)
         kliko("Afatet")
         foto("$tema-04-afatet")
-        kliko("Shto")
+        r.onNodeWithContentDescription("Shto afat").performClick(); r.waitForIdle() // v276: vetëm ikonë
         fotoEkrani("$tema-05-afati-ri")
         kliko("Anulo")
         kliko("Cilësimet")
@@ -175,7 +175,7 @@ class PamjetTest {
         mbushMerchandiserin()
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
         kliko("Afatet")
-        kliko("Shto")
+        r.onNodeWithContentDescription("Shto afat").performClick(); r.waitForIdle() // v276: vetëm ikonë
         fotoEkrani("light-34-afati-marketi")
         val fusha = r.onAllNodes(hasSetTextAction()).onLast()
         fusha.performClick(); fusha.performTextReplacement("a"); r.waitForIdle()
@@ -360,11 +360,11 @@ class PamjetTest {
         r.onNodeWithContentDescription("Foldera").performClick(); r.waitForIdle()
         kliko("Afatet")
         // v74: te Afatet "Importo Excel" / "Eksporto Excel" janë brenda menysë së butonit "Excel"
-        kliko("Excel")
+        r.onNodeWithContentDescription("Skedarët").performClick(); r.waitForIdle() // v276: ish "Excel", vetëm ikonë
         kliko("Eksporto Excel")
         fotoEkrani("light-20-afatet-excel")
         klikoFundit("Anulo")
-        kliko("Excel")
+        r.onNodeWithContentDescription("Skedarët").performClick(); r.waitForIdle() // v276: ish "Excel", vetëm ikonë
         kliko("Importo Excel")
         fotoEkrani("light-21-importi")
     }
@@ -374,7 +374,7 @@ class PamjetTest {
         mbush()
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
         kliko("Afatet")
-        kliko("Excel")
+        r.onNodeWithContentDescription("Skedarët").performClick(); r.waitForIdle() // v276: ish "Excel", vetëm ikonë
         kliko("Eksporto si foto")
         fotoEkrani("light-43-afatet-foto")
         org.junit.Assert.assertTrue("furnizuesit", r.onAllNodesWithText("Vita").fetchSemanticsNodes().isNotEmpty() &&
@@ -410,7 +410,7 @@ class PamjetTest {
         mbush()
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
         kliko("Afatet")
-        kliko("Excel")
+        r.onNodeWithContentDescription("Skedarët").performClick(); r.waitForIdle() // v276: ish "Excel", vetëm ikonë
         kliko("Eksporto PDF")
         fotoEkrani("light-45-afatet-pdf")
         for (t in listOf("PDF për printim", "5 afate · 1 faqe A4", "Periudha", "Gjendja", "Furnizuesi", "Renditja", "Sipas datës", "Krijo PDF-në"))

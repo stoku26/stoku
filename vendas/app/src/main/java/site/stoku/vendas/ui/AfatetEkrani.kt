@@ -25,6 +25,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -145,7 +149,7 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                             Text(if (ai) "Afatet lexohen nga foto automatikisht" else "Skano barkodin ose shkruaje, pastaj zgjidh datën", style = tx(12, 400, Color(0xD9FFFFFF)))
                         }
                         if (shto || kaExcel) Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                            if (shto) KartaVeprimi(Ik.Plus, "Shto") { hapur = "" }
+                            if (shto) ButoniIkone("Shto afat", { hapur = "" }) { Icon(Ik.KalendarPlus, null, Modifier.size(30.dp), tint = N.ink) }
                             if (kaExcel) MenyjaExcel(lejaImp, lejaEks, lejaPdf, { importi = true }, {
                                 if (te.isEmpty()) Toast.trego("S'ka afate për eksport.") else excel = "krejt"
                             }, { if (te.isEmpty()) Toast.trego("S'ka afate për eksport.") else pdf = true }) { if (te.none { Afatet.statusi(it) != "hequr" }) Toast.trego("S'ka afate për eksport.") else foto = true }
@@ -253,14 +257,25 @@ private var skanuar = "" // barkodi i skanuar para hapjes së "Afat i ri"
 private fun ndryshoZgjedhjen(z: Set<String>?, id: String): Set<String>? =
     (z ?: emptySet()).let { if (id in it) it - id else it + id }.ifEmpty { null }
 
+/** v276 (pronari, ideja 8): butonat "Shto" dhe "Skedarët" vetëm me ikona, në katror gri (si #afShto / #afExcel te web-i) */
 @Composable
-private fun KartaVeprimi(ikona: androidx.compose.ui.graphics.vector.ImageVector, teksti: String, onClick: () -> Unit) {
+private fun ButoniIkone(pershkrimi: String, onClick: () -> Unit, ikona: @Composable () -> Unit) {
     val n = N
-    Row(Modifier.fillMaxWidth().height(65.dp).clip(RoundedCornerShape(18.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(18.dp))
-        .clickable(onClick = onClick).padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-        Icon(ikona, null, Modifier.size(20.dp), tint = n.accent)
-        Spacer(Modifier.width(10.dp))
-        Text(teksti, style = tx(16, 600, n.ink))
+    Box(Modifier.fillMaxWidth().height(65.dp).clip(RoundedCornerShape(18.dp)).background(n.surface2).clickable(onClick = onClick)
+        .semantics { contentDescription = pershkrimi; role = androidx.compose.ui.semantics.Role.Button }, contentAlignment = Alignment.Center) { ikona() }
+}
+
+/** Dosja me rrethin e shigjetave lart/poshtë poshtë djathtas ("C1"), me unazën me ngjyrën e butonit që e ndan nga dosja */
+@Composable
+private fun IkonaESkedareve() {
+    val n = N
+    Box(Modifier.size(width = 40.dp, height = 36.dp)) {
+        Icon(Ik.Dosje, null, Modifier.size(34.dp), tint = n.ink)
+        Box(Modifier.align(Alignment.BottomEnd).offset(x = 3.dp, y = 3.dp).size(28.dp).clip(CircleShape).background(n.surface2), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(22.dp).clip(CircleShape).background(n.ink), contentAlignment = Alignment.Center) {
+                Icon(Ik.ShigjetatLartPoshte, null, Modifier.size(14.dp), tint = n.surface2)
+            }
+        }
     }
 }
 
@@ -270,12 +285,7 @@ private fun MenyjaExcel(lejaImp: Boolean, lejaEks: Boolean, lejaPdf: Boolean, im
     val n = N
     var hapur by remember { mutableStateOf(false) }
     Box {
-        Row(Modifier.fillMaxWidth().height(65.dp).clip(RoundedCornerShape(18.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(18.dp))
-            .clickable { hapur = !hapur }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text("XLS", style = txMono(10f, n.ok, 500))
-            Spacer(Modifier.width(8.dp))
-            Text("Excel", style = tx(16, 600, n.ink))
-        }
+        ButoniIkone("Skedarët", { hapur = !hapur }) { IkonaESkedareve() }
         androidx.compose.material3.DropdownMenu(hapur, { hapur = false }, offset = androidx.compose.ui.unit.DpOffset(0.dp, 6.dp),
             shape = RoundedCornerShape(14.dp), containerColor = n.surface, shadowElevation = 12.dp,
             modifier = Modifier.widthIn(min = 210.dp).padding(horizontal = 6.dp)) {

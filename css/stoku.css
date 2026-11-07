@@ -336,6 +336,13 @@ html.me-fab #toast { bottom: calc(102px + var(--sab, 0px)); }
 .sb .sb-action svg { color: var(--sb-accent-text); flex: none; }
 .sb .sb-action > svg:last-child:not(:first-child) { margin-left: auto; color: var(--sb-faint); }
 .sb .sb-action:active { background: var(--sb-surface-2); }
+/* v276 (pronari, ideja 8 + "C1"): "Shto" dhe "Skedarët" vetëm me ikona, në katrorë gri (pa ngjyra); dosja me rrethin e shigjetave */
+.sb .sb-action.sb-action-ik { justify-content: center; background: var(--sb-surface-2); box-shadow: none; color: var(--sb-ink); }
+.sb .sb-action.sb-action-ik > svg, .sb .sb-action.sb-action-ik > svg:first-child { color: var(--sb-ink); width: 30px; height: 30px; }
+.sb .sb-action.sb-action-ik > svg.ik-skedaret { width: 34px; height: 34px; margin-right: 4px; }
+.sb .sb-action.sb-action-ik:active { background: var(--sb-sunken); }
+.sb .ik-skedaret .ik-shenja { stroke: var(--sb-surface-2); }
+.sb .ik-skedaret .ik-shigj { stroke: var(--sb-surface-2); }
 .sb .sb-xls { font-family: var(--sb-mono); font-size: 10px; font-weight: 500; color: var(--sb-ok); }
 .sb .sb-excel { position: relative; }
 .sb .sb-menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 5; min-width: 210px; background: var(--sb-surface); border-radius: 14px; box-shadow: var(--sb-ring), 0 16px 40px -12px rgba(0,0,0,.3); padding: 6px; display: flex; flex-direction: column; }
