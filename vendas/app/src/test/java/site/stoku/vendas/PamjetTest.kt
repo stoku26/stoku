@@ -405,6 +405,31 @@ class PamjetTest {
         org.junit.Assert.assertEquals("Sot", EksportiFoto.ditet(vita[1]).m)
     }
 
+    /** Hyrja 36: Afatet → Excel → "Eksporto PDF": dritarja (opsionet "A") dhe faqja e parë e PDF-së ("koka 1", pa "Gjendja") */
+    @Test fun eksportiPdf() {
+        mbush()
+        r.setContent { StokuTema("light") { Rrenja("light") {} } }
+        kliko("Afatet")
+        kliko("Excel")
+        kliko("Eksporto PDF")
+        fotoEkrani("light-45-afatet-pdf")
+        for (t in listOf("PDF për printim", "5 afate · 1 faqe A4", "Periudha", "Gjendja", "Furnizuesi", "Renditja", "Sipas datës", "Krijo PDF-në"))
+            org.junit.Assert.assertTrue(t, r.onAllNodesWithText(t).fetchSemanticsNodes().isNotEmpty())
+        val ctx: android.content.Context = org.robolectric.RuntimeEnvironment.getApplication()
+        val te = Dyqani.gjendja.value.afatet
+        org.junit.Assert.assertEquals(listOf(5, 1, 3, 1, 0), EksportiPdf.GJENDJET.map { EksportiPdf.filtro(te, "", it.first, "", false).size })
+        org.junit.Assert.assertEquals(2, EksportiPdf.filtro(te, "", "aktive", "vita", false).size)
+        org.junit.Assert.assertEquals(listOf(5), EksportiPdf.plani(5))
+        org.junit.Assert.assertEquals(listOf(33, 35, 12), EksportiPdf.plani(80))
+        val l = EksportiPdf.rendit(EksportiPdf.filtro(te, "", "aktive", "", false), "emri")
+        org.junit.Assert.assertEquals("Bukë e zezë", l[0]["emri"])
+        val o = EksportiPdf.Opsionet(listOf("Periudha: " to false, "Të gjitha" to true, " · " to false, "5" to true, " produkte" to false, " · " to false, "25" to true, " copë" to false), "07.11.2026", "14:32")
+        val bmp = EksportiPdf.faqjaSiFoto(ctx, EksportiPdf.rendit(l, "data"), o, false, 0)
+        org.junit.Assert.assertEquals(1240, bmp.width)
+        java.io.File("build/pamjet").mkdirs()
+        java.io.File("build/pamjet/light-46-pdf-faqja1.png").outputStream().use { bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+    }
+
     /** Administratori: Cilësimet → Përdoruesit (lista dhe lejet e një llogarie) */
     @Test fun perdoruesit() {
         mbush()

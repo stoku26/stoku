@@ -52,6 +52,25 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **AFATET NË PDF PËR PRINTIM + BARKODET PA ZERO ME PIKË (v275 = 1.49.0, 07.11.2026, telefoni + PC + Android Hyrja 36)**: pronari:
+   "bone edhe me i eksportu afatet krejt qka i ke skenu ose te ni muaji te caktum etj me pas opsione tjera, me i eksportu ne pdf file per me
+   printu ... veq ne white mode". Zgjodhi (pas 5 ideve) "ideja 1" (tabela) dhe dritaren "A"; pastaj: "hiqja pdf-s gjendja" (ditët e mbetura
+   s'vlejnë të nesërmen), "koka 1" për faqen e parë me vetëm datën (pa "Printuar"), "Të gjitha" e jo "Krejt" te Periudha. Afatet → "Excel"
+   → "Eksporto PDF" (leja `eksportPdf`, pas "Eksporto Excel"). Dritarja (web `#dlgAfPdf`, Android `AfatetPdfFlete`): katër rreshta si te
+   Cilësimet (Periudha / Gjendja / Furnizuesi / Renditja, me ikona me ngjyrë); te web-i një `<select>` i padukshëm mbulon krejt rreshtin
+   (lista e telefonit), te Android-i DropdownMenu. Numrat te zgjedhjet; "N afate · F faqe A4". PDF-ja (web jsPDF me helvetica, Android
+   `EksportiPdf.kt` me PdfDocument dhe Onest; mm njësoj, ndryshoji bashkë): faqja 1 logoja e vogël + data djathtas, "Lista e afateve" në
+   mes, poshtë "Periudha: Të gjitha · 11 produkte · 80 copë" (vlerat të trasha), 33 rreshta; faqet e tjera kokë e ngushtë (logoja, titulli
+   në mes, të dhënat djathtas), 35 rreshta; kolonat # / Produkti / Barkodi / Furnizuesi (jo te merchandiseri) / Copë / Skadon, rreshtat me
+   sfond të lehtë një po një jo; poshtë "Krijuar me Stoku · data, ora" dhe "Faqja X nga Y". Pastaj si eksportet e tjera: "Dërgo në PC" ose
+   "Shkarko këtu" (Android: SkedariFlete). **Barkodet** (pronari: "zeroja ... po doket si 8"): JetBrains Mono (zeroja me pikë te TTF-ja e
+   Android-it; varianti s'ekziston te fonti ynë) u zëvendësua me Onest + shifra me gjerësi të njëjtë (`tabular-nums` / `tnum`) te: web
+   `.sb-row__code`, `.artikull .kodi`, `.af-kodi`, `#afatBarkodi`, `.ss-kodi`, PC `.sbp .mono` (barkodet e tabelave dhe fushat); Android
+   `txNum` (kartat, lista e stokut, Grupi, Skanimi i shpejtë, fusha e barkodit, kodi 6-shifror), fotoja për furnizuesin, PDF-ja, numri
+   poshtë barkodit te etiketat PDF (JsBarcode `font: 'Onest'`, Android Paint). Mono mbetet vetëm te "XLS", logoja, kodet e grupit, ekrani i
+   rrëzimit. Testet: `teste/v275.js` (menuja, 4 rreshtat, zgjedhjet, PDF-ja 1 faqe dhe 3 faqe, me muaj, pa lejen), `PamjetTest.eksportiPdf`.
+   S'është testuar në telefon të vërtetë as në printer.
+
 0000000. **AFATET SI FOTO PËR FURNIZUESIN (v274 = 1.48.0, 07.11.2026, telefoni + Android Hyrja 35)**: pronari (pas 5 ideve, zgjodhi
    "ideja 5"): "boma ideja 5 po ja pershtat edhe per white mode nese e ka dikush aktiv. edhe butonin per eksport si foto e len qaty ku po
    shkrun excel te afatet qe osht ner shto". Afatet → "Excel" (nën "Shto") → "Eksporto si foto" (pas "Importo Excel" / "Eksporto Excel",

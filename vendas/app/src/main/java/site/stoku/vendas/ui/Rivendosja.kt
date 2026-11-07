@@ -154,7 +154,7 @@ fun Rivendosja(emriFillimi: String, mbrapa: (String?) -> Unit) {
                 Text("Llogaria: " + emri.trim().lowercase(), style = tx(14, 600, n.ink))
                 Text("Kodi 6-shifror", style = tx(13, 600, n.ink3))
                 Fusha(kodi, { kodi = it.filter { c -> c.isDigit() }.take(6) }, Modifier.fillMaxWidth(), "••••••", tastiera = KeyboardType.NumberPassword,
-                    stili = txMono(22f, pesha = 500), veprimi = ImeAction.Next, kurVeprim = { dergo() })
+                    stili = txNum(22f, pesha = 500), veprimi = ImeAction.Next, kurVeprim = { dergo() })
             }
             else -> {
                 Text("Fjalëkalimi i ri", style = tx(13, 600, n.ink3))

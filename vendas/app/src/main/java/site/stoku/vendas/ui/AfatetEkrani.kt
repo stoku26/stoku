@@ -73,6 +73,7 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
     var excel by remember { mutableStateOf<String?>(null) } // "krejt" = krejt lista (me muajin), "zgjedhura" = vetëm të zgjedhurat
     var importi by remember { mutableStateOf(false) }
     var foto by remember { mutableStateOf(false) } // Hyrja 35: "Eksporto si foto"
+    var pdf by remember { mutableStateOf(false) } // Hyrja 36: "Eksporto PDF" (për printim)
     var skedari by remember { mutableStateOf<site.stoku.vendas.Skedari?>(null) }
     var kuFleta by remember { mutableStateOf<android.net.Uri?>(null) } // "Ku do ta kontrollosh fletën?" (PC ose këtu)
     val (fotografo, ngaGaleria) = rememberFotoEFletes { if (mundDergoFletenNePc()) kuFleta = it else fleta = it }
@@ -123,7 +124,8 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                 val shto = Llogaria.leja("afatetShto")
                 val lejaImp = Llogaria.leja("afatetImporto")
                 val lejaEks = Llogaria.leja("eksportExcel")
-                val kaExcel = lejaImp || lejaEks // menyja "Excel" s'ka kuptim pa importin dhe pa eksportin
+                val lejaPdf = Llogaria.leja("eksportPdf")
+                val kaExcel = lejaImp || lejaEks || lejaPdf // menyja "Excel" s'ka kuptim pa asnjë nga këto
                 // Si .sb-actions te web-i: majtas "Fotografo fletën", djathtas "Shto" dhe "Excel" (Importo / Eksporto)
                 if (ai || shto || kaExcel) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -144,9 +146,9 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                         }
                         if (shto || kaExcel) Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             if (shto) KartaVeprimi(Ik.Plus, "Shto") { hapur = "" }
-                            if (kaExcel) MenyjaExcel(lejaImp, lejaEks, { importi = true }, {
+                            if (kaExcel) MenyjaExcel(lejaImp, lejaEks, lejaPdf, { importi = true }, {
                                 if (te.isEmpty()) Toast.trego("S'ka afate për eksport.") else excel = "krejt"
-                            }) { if (te.none { Afatet.statusi(it) != "hequr" }) Toast.trego("S'ka afate për eksport.") else foto = true }
+                            }, { if (te.isEmpty()) Toast.trego("S'ka afate për eksport.") else pdf = true }) { if (te.none { Afatet.statusi(it) != "hequr" }) Toast.trego("S'ka afate për eksport.") else foto = true }
                         }
                     }
                     Hapesire(12.dp)
@@ -229,6 +231,7 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
         AfatetExcelFlete(zgj, { mu -> eFiltruara(mu) }, muaji, filtri, mbyll = { excel = null }) { sk -> skedari = sk }
     }
     if (foto) AfatetFotoFlete(te) { foto = false }
+    if (pdf) AfatetPdfFlete(te, mbyll = { pdf = false }) { sk -> skedari = sk }
     if (importi) ImportiAfateveFlete(mbyll = { importi = false }) { filtri = "aktive"; muaji = ""; zgjedhja = null }
     skedari?.let { sk -> SkedariFlete(sk) { skedari = null } }
     if (fshiZgjedhjen) {
@@ -261,9 +264,9 @@ private fun KartaVeprimi(ikona: androidx.compose.ui.graphics.vector.ImageVector,
     }
 }
 
-/** Butoni "Excel" (si #afExcel te web-i): "XLS" + "Excel", me menynë Importo Excel / Eksporto Excel / Eksporto si foto (Hyrja 35) */
+/** Butoni "Excel" (si #afExcel te web-i): "XLS" + "Excel", me menynë Importo Excel / Eksporto Excel / Eksporto PDF (Hyrja 36) / Eksporto si foto (Hyrja 35) */
 @Composable
-private fun MenyjaExcel(lejaImp: Boolean, lejaEks: Boolean, importo: () -> Unit, eksporto: () -> Unit, foto: () -> Unit) {
+private fun MenyjaExcel(lejaImp: Boolean, lejaEks: Boolean, lejaPdf: Boolean, importo: () -> Unit, eksporto: () -> Unit, pdf: () -> Unit, foto: () -> Unit) {
     val n = N
     var hapur by remember { mutableStateOf(false) }
     Box {
@@ -279,6 +282,7 @@ private fun MenyjaExcel(lejaImp: Boolean, lejaEks: Boolean, importo: () -> Unit,
             listOfNotNull(
                 if (lejaImp) "Importo Excel" to importo else null,
                 if (lejaEks) "Eksporto Excel" to eksporto else null,
+                if (lejaPdf) "Eksporto PDF" to pdf else null,
                 if (lejaEks) "Eksporto si foto" to foto else null
             ).forEach { (t, f) ->
                 Text(t, style = tx(14, 600, n.ink), modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(10.dp))
@@ -348,7 +352,7 @@ private fun KartaEAfatit(a: Obj, zgjedhja: Set<String>?, paFurnizues: Boolean, h
                 .filter { it.isNotEmpty() }.joinToString(" · ")
             if (nen.isNotEmpty()) Text(nen, style = tx(12, 400, n.muted), modifier = Modifier.padding(top = 3.dp))
             if ((a["emri"] as? String).orEmpty().isNotEmpty() && (a["barkodi"] as? String).orEmpty().isNotEmpty())
-                Text(a["barkodi"] as String, style = txMono(11f, n.faint), modifier = Modifier.padding(top = 2.dp))
+                Text(a["barkodi"] as String, style = txNum(11.5f, n.faint), modifier = Modifier.padding(top = 2.dp))
             Text(Afatet.pershkrimi(a), style = tx(12, 600, mesazhi), modifier = Modifier.padding(top = 4.dp))
             if (Llogaria.leja("afatetNdrysho") && (st == "skaduar" || st == "hequr")) {
                 val ng = if (st == "skaduar") n.exp else n.rem
@@ -461,7 +465,7 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Fusha(barkodi, { barkodi = it }, Modifier.weight(1f), "Barkodi", tastiera = KeyboardType.Ascii, fokusi = fBarkodi, vetemLexim = vetemLexim,
-                    stili = txMono(18f, pesha = 500), sfondi = Color.Transparent, ngjyraTekstit = Color.White, paVije = true,
+                    stili = txNum(18f, pesha = 500), sfondi = Color.Transparent, ngjyraTekstit = Color.White, paVije = true,
                     veprimi = ImeAction.Next, kurVeprim = { plotesoNgaBarkodi(); fEmri.requestFocus() })
                 if (!vetemLexim && !pda && Llogaria.leja("kamera")) Box(Modifier.size(48.dp).clip(RoundedCornerShape(12.dp)).background(Color(0x1FFFFFFF))
                     .clickable { skano { b -> barkodi = b; plotesoNgaBarkodi() } }, contentAlignment = Alignment.Center) {

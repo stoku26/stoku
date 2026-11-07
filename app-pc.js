@@ -2257,7 +2257,7 @@
     if (f[0] !== 'CODE128') f.push('CODE128');
     for (var i = 0; i < f.length; i++) {
       try {
-        window.JsBarcode(canvas, barkodi, { format: f[i], displayValue: true, fontSize: 16, height: 46, margin: 6, background: '#ffffff', lineColor: '#000000' });
+        window.JsBarcode(canvas, barkodi, { format: f[i], displayValue: true, fontSize: 16, font: 'Onest', fontOptions: '500', height: 46, margin: 6, background: '#ffffff', lineColor: '#000000' });
         return true;
       } catch (e) { /* formati tjetër */ }
     }

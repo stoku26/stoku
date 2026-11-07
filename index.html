@@ -500,7 +500,7 @@
   .ss-info { flex: 1; min-width: 0; }
   .ss-emri { font-size: 15px; font-weight: 600; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .ss-emri.pa-emer { color: var(--gri); }
-  .ss-kodi { font-size: 11.5px; color: var(--gri); font-family: ui-monospace, monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ss-kodi { font-size: 11.5px; color: var(--gri); font-family: var(--sb-font, inherit); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ss-nr { display: flex; flex-direction: column; align-items: center; min-width: 30px; }
   .ss-rresht .ss-pm { width: 32px; height: 32px; border-radius: 16px; font-size: 18px; }
   .ss-rresht .ss-pm:disabled { opacity: .35; cursor: default; }
@@ -965,6 +965,22 @@
   .ax-rresht + .ax-rresht { border-top: 1px solid var(--vije); }
   .ax-rresht:active { background: var(--hover); }
   .ax-rresht input { width: 22px; height: 22px; margin: 0; flex: none; accent-color: var(--primar); }
+  #dlgAfPdf { z-index: 24; }
+  #dlgAfPdf .dialog { max-width: 420px; }
+  .ap-lista { border-radius: 18px; box-shadow: 0 0 0 1px var(--sb-line); overflow: hidden; margin-top: 4px; }
+  .ap-rresht { position: relative; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 10px 14px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .ap-rresht + .ap-rresht { border-top: 1px solid var(--sb-line-2); }
+  .ap-rresht:active { background: var(--sb-surface-2); }
+  .ap-rresht select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; font-size: 16px; cursor: pointer; border: 0; margin: 0; }
+  .ap-ik { flex: none; width: 36px; height: 36px; border-radius: 11px; display: flex; align-items: center; justify-content: center; }
+  .ap-ik.ap-blu { background: var(--sb-ic-blu-bg); color: var(--sb-ic-blu); }
+  .ap-ik.ap-portokalli { background: var(--sb-ic-portokalli-bg); color: var(--sb-ic-portokalli); }
+  .ap-ik.ap-gjelber { background: var(--sb-ic-gjelber-bg); color: var(--sb-ic-gjelber); }
+  .ap-ik.ap-vjollce { background: var(--sb-ic-vjollce-bg); color: var(--sb-ic-vjollce); }
+  .ap-em { flex: 1; font-size: 15.5px; font-weight: 600; color: var(--sb-ink); }
+  .ap-v { font-size: 14.5px; font-weight: 500; color: var(--sb-muted); text-align: right; max-width: 48%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ap-shigj { flex: none; color: var(--sb-faint); }
+  .ap-hint { font-size: 12.5px; color: var(--sb-faint); text-align: center; margin: 10px 0 2px; }
   #dlgAfEksFoto { z-index: 24; }
   #dlgAfEksFoto .dialog { max-width: 420px; }
   .aef-lista { max-height: 50vh; overflow-y: auto; }
@@ -1045,7 +1061,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=6">
-<link rel="stylesheet" href="css/stoku.css?v=58">
+<link rel="stylesheet" href="css/stoku.css?v=59">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -1666,6 +1682,7 @@
           <div class="sb-menu" id="afExcelMenu" hidden>
             <button class="sb-menu__item" id="afImporto" type="button" data-leja="afatetImporto"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m17 8-5-5-5 5"></path><path d="M12 3v12"></path></svg>Importo Excel</button>
             <button class="sb-menu__item" id="afEksporto" type="button" data-leja="eksportExcel"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M8 13h2M14 13h2M8 17h2M14 17h2"></path></svg>Eksporto Excel</button>
+            <button class="sb-menu__item" id="afEksPdf" type="button" data-leja="eksportPdf"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M8 13h8M8 17h5"></path></svg>Eksporto PDF</button>
             <button class="sb-menu__item" id="afEksFoto" type="button" data-leja="eksportExcel"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"></path></svg>Eksporto si foto</button>
           </div>
         </div>
@@ -1850,6 +1867,25 @@
     <div class="veprime">
       <button class="btn tekst" id="axAnulo" type="button">Anulo</button>
       <button class="btn" id="axEksporto" type="button">Eksporto</button>
+    </div>
+  </div>
+</div>
+
+<!-- v275: Afatet në PDF për printim (ideja 1 e pronarit; opsionet si rreshta, "A"): A4 e bardhë -->
+<div class="mbulese" id="dlgAfPdf">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="apTitulli">
+    <h2 id="apTitulli">PDF për printim</h2>
+    <div class="ax-nen" id="apNen"></div>
+    <div class="ap-lista">
+      <label class="ap-rresht"><span class="ap-ik ap-blu"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg></span><span class="ap-em">Periudha</span><span class="ap-v" id="apPeriudhaV"></span><svg class="ap-shigj" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg><select id="apPeriudha" aria-label="Periudha"></select></label>
+      <label class="ap-rresht"><span class="ap-ik ap-portokalli"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span><span class="ap-em">Gjendja</span><span class="ap-v" id="apGjendjaV"></span><svg class="ap-shigj" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg><select id="apGjendja" aria-label="Gjendja"></select></label>
+      <label class="ap-rresht furn-vetem"><span class="ap-ik ap-gjelber"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17h4V5H2v12h3"></path><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"></path><circle cx="7.5" cy="17.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg></span><span class="ap-em">Furnizuesi</span><span class="ap-v" id="apFurnV"></span><svg class="ap-shigj" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg><select id="apFurn" aria-label="Furnizuesi"></select></label>
+      <label class="ap-rresht"><span class="ap-ik ap-vjollce"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 4 4 4-4M7 20V4M21 8l-4-4-4 4M17 4v16"></path></svg></span><span class="ap-em">Renditja</span><span class="ap-v" id="apRendV"></span><svg class="ap-shigj" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg><select id="apRend" aria-label="Renditja"></select></label>
+    </div>
+    <div class="ap-hint">Prek një rresht për ta ndryshuar</div>
+    <div class="veprime">
+      <button class="btn tekst" id="apAnulo" type="button">Anulo</button>
+      <button class="btn" id="apKrijo" type="button">Krijo PDF-në</button>
     </div>
   </div>
 </div>
@@ -2056,8 +2092,8 @@
 <script src="harta.js?v=256"></script>
 <script src="ekipa.js?v=258"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=274"></script>
-<script src="app-tel.js?v=274"></script>
+<script src="teRejat.js?v=275"></script>
+<script src="app-tel.js?v=275"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>

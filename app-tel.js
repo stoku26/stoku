@@ -4650,7 +4650,7 @@
     for (var i = 0; i < formatet.length; i++) {
       try {
         window.JsBarcode(canvas, barkodi, {
-          format: formatet[i], displayValue: true, fontSize: 16,
+          format: formatet[i], displayValue: true, fontSize: 16, font: 'Onest', fontOptions: '500', // v275: zeroja pa pikë
           height: 46, margin: 6, background: '#ffffff', lineColor: '#000000'
         });
         return true;
@@ -5750,6 +5750,7 @@
     $('afImporto').addEventListener('click', mbyll);
     $('afEksporto').addEventListener('click', mbyll);
     $('afEksFoto').addEventListener('click', mbyll);
+    $('afEksPdf').addEventListener('click', mbyll);
     document.addEventListener('click', function (ev) { if (!menu.hidden && !menu.parentNode.contains(ev.target)) mbyll(); });
   })();
 
@@ -5877,7 +5878,7 @@
       var ty = y + 13;
       aefFont(c, 15.5, 600); r.em.forEach(function (t) { aefTekst(c, t, x + 18, ty + 10, C.ink); ty += 20; });
       ty += 3; aefFont(c, 13, 500); aefTekst(c, r.info, x + 18, ty + 8.5, C.ink2); ty += 17;
-      if (r.b) { ty += 3; aefFont(c, 12, 400, true); aefTekst(c, r.b, x + 18, ty + 8, C.faint); }
+      if (r.b) { ty += 3; aefFont(c, 12.5, 500); aefTekst(c, r.b, x + 18, ty + 8, C.faint); } // v275: Onest (zeroja pa pikë, s'ngjan me 8)
       var q = y + r.h / 2;
       aefFont(c, 18, 700, false, -0.36); aefTekst(c, r.d.m, x + w - 14, q - 9, C[r.d.k], 'right');
       aefFont(c, 11.5, 500); aefTekst(c, r.d.v, x + w - 14, q + 11, C.muted, 'right');
@@ -5979,6 +5980,182 @@
     aefRifresko();
   });
   $('aefKrijo').addEventListener('click', aefKrijo);
+
+  // ---------- v275: Afatet në PDF për printim ----------
+  // Pronari: "ideja 1" (tabela klasike, A4 e bardhë, vetëm e çelët sepse printohet) dhe opsionet "A" (rreshta: Periudha, Gjendja,
+  // Furnizuesi, Renditja; secili hap zgjedhjen e vet). Kur janë krejt muajt shkruan "Të gjitha" (pronari: jo "Krejt").
+  // jsPDF me helvetica (tekst i vërtetë, i qartë në printim). Pa kolonën "Gjendja" (pronari: ditët e mbetura s'vlejnë më të nesërmen).
+  // Android: EksportiPdf.kt me të njëjtën faqe (mm): ndryshoji bashkë.
+  var AP_GJENDJET = [['aktive', 'Të gjitha'], ['skaduar', 'Të skaduara'], ['afer', 'Afër skadimit'], ['ok', 'Në rregull'], ['hequr', 'Të hequra']];
+  var AP_RENDET = [['data', 'Sipas datës'], ['furnizuesi', 'Sipas furnizuesit'], ['emri', 'Sipas emrit']];
+  // Faqja në mm: A4, anët 12.7. Faqja 1 (pronari, "koka 1"): logoja e vogël majtas, data djathtas, "Lista e afateve" në mes dhe poshtë
+  // "Periudha: … · N produkte · M copë"; trupi nis te 37.2 (33 rreshta). Faqet e tjera: koka e ngushtë, trupi nis te 21.2 (35 rreshta).
+  var AP = { W: 210, H: 297, MX: 12.7, KOKA1: 37.2, KOKA: 21.2, RR: 7.4, FUND: 283 };
+  var AP_NGJ = { ink: [20, 22, 27], ink2: [58, 61, 68], muted: [107, 110, 118], faint: [138, 141, 148], line2: [232, 230, 225], zebra: [250, 249, 247] };
+  // Sa rreshta në secilën faqe
+  function apPlani(n) {
+    var faqet = [], y0 = AP.KOKA1;
+    do { var nxe = Math.floor((AP.FUND - y0) / AP.RR); faqet.push(Math.min(nxe, n)); n -= nxe; y0 = AP.KOKA; } while (n > 0);
+    return faqet;
+  }
+  function apGjendjaOk(a, gj) {
+    var st = AF.statusi(a);
+    if (gj === 'aktive') return st !== 'hequr';
+    if (gj === 'skaduar') return st === 'skaduar' || st === 'pa-date';
+    return st === gj;
+  }
+  function apAfatet(z) {
+    return afatetEMarketit().filter(function (a) {
+      if (z.gj && !apGjendjaOk(a, z.gj)) return false;
+      if (z.mu && AF.celesiMuajit(a) !== z.mu) return false;
+      if (z.f && !paFurnizues() && AF.celesiFurnizuesit(a) !== z.f) return false;
+      return true;
+    });
+  }
+  function apRendit(l, r) {
+    var k = function (a, b) { return AF.krahaso(a, b); };
+    if (r === 'emri') return l.sort(function (a, b) { return String(a.emri || '').localeCompare(String(b.emri || ''), 'sq') || k(a, b); });
+    if (r === 'furnizuesi') return l.sort(function (a, b) {
+      var fa = AF.celesiFurnizuesit(a), fb = AF.celesiFurnizuesit(b);
+      if (fa === fb) return k(a, b);
+      return fa === '__pa__' ? 1 : fb === '__pa__' ? -1 : String(a.furnizuesi).trim().localeCompare(String(b.furnizuesi).trim(), 'sq');
+    });
+    return l.sort(k);
+  }
+  function apZgj() {
+    return { mu: $('apPeriudha').value, gj: $('apGjendja').value || 'aktive', f: paFurnizues() ? '' : $('apFurn').value, r: $('apRend').value || 'data' };
+  }
+  function apMbush(sel, ops, para) {
+    sel.textContent = '';
+    ops.forEach(function (o) { var e = document.createElement('option'); e.value = o[0]; e.textContent = o[1]; sel.appendChild(e); });
+    sel.value = ops.some(function (o) { return o[0] === para; }) ? para : ops[0][0];
+  }
+  function apVlera(sel) { var o = sel.options[sel.selectedIndex]; return o ? o.textContent.replace(/\s*\(\d+\)$/, '') : ''; }
+  function apRifresko(fillimi) {
+    var z = fillimi ? { mu: '', gj: 'aktive', f: '', r: 'data' } : apZgj();
+    apMbush($('apGjendja'), AP_GJENDJET.map(function (g) { return [g[0], g[1] + ' (' + apAfatet({ gj: g[0], mu: z.mu, f: z.f }).length + ')']; }), z.gj);
+    z.gj = $('apGjendja').value;
+    apMbush($('apPeriudha'), [['', 'Të gjitha']].concat(AF.muajtELista(apAfatet({ gj: z.gj, f: z.f })).map(function (m) { return [m.celes, m.emri + ' (' + m.n + ')']; })), z.mu);
+    z.mu = $('apPeriudha').value;
+    if (!paFurnizues()) {
+      apMbush($('apFurn'), [['', 'Të gjithë']].concat(AF.furnizuesitELista(apAfatet({ gj: z.gj, mu: z.mu })).map(function (f) { return [f.celes, f.emri + ' (' + f.n + ')']; })), z.f);
+    }
+    apMbush($('apRend'), AP_RENDET, z.r);
+    ['apPeriudha', 'apGjendja', 'apFurn', 'apRend'].forEach(function (id) { $(id + 'V').textContent = apVlera($(id)); });
+    var n = apAfatet(apZgj()).length, f = apPlani(n).length;
+    $('apNen').textContent = n ? (n === 1 ? '1 afat' : n + ' afate') + ' · ' + (f === 1 ? '1 faqe A4' : f + ' faqe A4') : 'S\'ka afate për këtë zgjedhje.';
+    $('apKrijo').disabled = !n;
+  }
+  function apLogo() {
+    var cv = document.createElement('canvas'); cv.width = 760; cv.height = 208;
+    aefLogo(cv.getContext('2d'), 0, 0, 208, AEF_NGJ.light);
+    return cv.toDataURL('image/png');
+  }
+  // l: afatet e renditura; o: { info: [[teksti, i trashë]…] (periudha, zgjedhjet, sa produkte e copë), data, ora }. Kthen bajtet e PDF-së.
+  function apPdf(l, o) {
+    var d = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' }), C = AP_NGJ, X = AP.MX, WI = AP.W - 2 * AP.MX;
+    var pa = paFurnizues();
+    var kol = [{ k: 'nr', t: '#', w: 8 }, { k: 'emri', t: 'PRODUKTI', w: pa ? 110 : 76 }, { k: 'b', t: 'BARKODI', w: 34 }]
+      .concat(pa ? [] : [{ k: 'f', t: 'FURNIZUESI', w: 34 }])
+      .concat([{ k: 's', t: 'COPË', w: 12, al: 'right' }, { k: 'd', t: 'SKADON', w: 20.6 }]);
+    function ng(c, lloji) { d['set' + (lloji || 'Text') + 'Color'](c[0], c[1], c[2]); }
+    function font(pt, trashe) { d.setFont('helvetica', trashe ? 'bold' : 'normal'); d.setFontSize(pt); }
+    function nxe(t, w) {
+      t = String(t || '');
+      if (d.getTextWidth(t) <= w) return t;
+      while (t.length > 1 && d.getTextWidth(t + '…') > w) t = t.slice(0, -1);
+      return t.replace(/\s+$/, '') + '…';
+    }
+    function kokaETabeles(yb) {
+      var x = X;
+      font(7, true); ng(C.muted);
+      kol.forEach(function (c) { d.text(c.t, c.al === 'right' ? x + c.w - 1.6 : x + 1.6, yb, { align: c.al || 'left', charSpace: 0.2 }); x += c.w; });
+      ng(C.ink, 'Draw'); d.setLineWidth(0.26); d.line(X, yb + 2, X + WI, yb + 2);
+    }
+    function rreshti(a, i, y) {
+      if (i % 2 === 1) { ng(C.zebra, 'Fill'); d.rect(X, y + 0.15, WI, AP.RR - 0.15, 'F'); } // pa e mbuluar vijën e rreshtit sipër
+      var yb = y + 4.85, x = X;
+      kol.forEach(function (c) {
+        var px = x + 1.6, w = c.w - 3.2;
+        if (c.k === 'nr') { font(8.2, false); ng(C.faint); d.text(String(i + 1), px, yb); }
+        else if (c.k === 'emri') { font(8.6, true); ng(C.ink); d.text(nxe(a.emri || a.barkodi || 'Pa emër', w), px, yb); }
+        else if (c.k === 'b') { font(8.6, false); ng(C.ink2); d.text(nxe(a.barkodi, w), px, yb); }
+        else if (c.k === 'f') { font(8.6, false); ng(C.ink); d.text(nxe(a.furnizuesi, w), px, yb); }
+        else if (c.k === 's') { font(8.6, true); ng(C.ink); d.text(a.sasia === '' || a.sasia === null || a.sasia === undefined ? '' : String(a.sasia), x + c.w - 1.6, yb, { align: 'right' }); }
+        else { font(8.6, true); ng(C.ink); d.text(a.data ? AF.formato(a.data) : '–', px, yb); }
+        x += c.w;
+      });
+      ng(C.line2, 'Draw'); d.setLineWidth(0.2); d.line(X, y + AP.RR, X + WI, y + AP.RR);
+    }
+    var plani = apPlani(l.length), idx = 0, logo = apLogo();
+    var info = o.info.map(function (x) { return x[0]; }).join('');
+    plani.forEach(function (k, p) {
+      if (p) d.addPage();
+      var y;
+      if (p === 0) {
+        d.addImage(logo, 'PNG', X, 9.2, 15.35, 4.2);
+        font(8.6, false); ng(C.muted); d.text(o.data, X + WI, 12.4, { align: 'right' });
+        font(18, true); ng(C.ink); d.text('Lista e afateve', AP.W / 2, 21.6, { align: 'center' });
+        // "Periudha: Të gjitha · 11 produkte · 80 copë" në mes, vlerat të trasha
+        var gj = 0;
+        o.info.forEach(function (x) { font(9, x[1]); gj += d.getTextWidth(x[0]); });
+        var xi = AP.W / 2 - gj / 2;
+        o.info.forEach(function (x) { font(9, x[1]); ng(x[1] ? C.ink : C.muted); d.text(x[0], xi, 27.4); xi += d.getTextWidth(x[0]); });
+        kokaETabeles(34.6); y = AP.KOKA1;
+      } else {
+        d.addImage(logo, 'PNG', X, 9.4, 15.35, 4.2);
+        font(12, true); ng(C.ink); d.text('Lista e afateve', AP.W / 2, 13.1, { align: 'center' });
+        font(7.9, false); ng(C.muted); d.text(nxe(info, 64), X + WI, 13.1, { align: 'right' });
+        kokaETabeles(18.6); y = AP.KOKA;
+      }
+      for (var j = 0; j < k; j++, idx++) { rreshti(l[idx], idx, y); y += AP.RR; }
+    });
+    var np = d.getNumberOfPages();
+    for (var f = 1; f <= np; f++) {
+      d.setPage(f);
+      ng(C.line2, 'Draw'); d.setLineWidth(0.26); d.line(X, 286.4, X + WI, 286.4);
+      font(7.9, false); ng(C.faint);
+      d.text('Krijuar me Stoku · stoku.site · ' + o.data + ', ora ' + o.ora, X, 290.6);
+      d.text('Faqja ' + f + ' nga ' + np, X + WI, 290.6, { align: 'right' });
+    }
+    return d.output('arraybuffer');
+  }
+  function apHap() {
+    if (!leja('eksportPdf')) return;
+    if (!afatetEMarketit().length) { toast('S\'ka afate për eksport.'); return; }
+    apRifresko(true);
+    $('dlgAfPdf').classList.add('hapur');
+  }
+  function apMbyll() { $('dlgAfPdf').classList.remove('hapur'); }
+  async function apKrijo() {
+    if (!leja('eksportPdf')) return;
+    if (typeof window.jspdf === 'undefined') { toast(T('pdfNukGati')); return; }
+    var z = apZgj(), l = apRendit(apAfatet(z), z.r);
+    if (!l.length) return;
+    var d = new Date(), data = dyShifra(d.getDate()) + '.' + dyShifra(d.getMonth() + 1) + '.' + d.getFullYear();
+    var ora = dyShifra(d.getHours()) + ':' + dyShifra(d.getMinutes());
+    var dita = d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate());
+    var per = z.mu ? AF.emriMuajit(z.mu) : 'Të gjitha', idM = idMarketitAktiv(), cope = AF.shumaCopeve(l);
+    var info = [['Periudha: ', false], [per, true]];
+    [z.gj === 'aktive' ? '' : apVlera($('apGjendja')), z.f ? apVlera($('apFurn')) : '', idM ? emriMarketit(idM) : ''].filter(Boolean)
+      .forEach(function (x) { info.push([' · ', false], [x, true]); });
+    info.push([' · ', false], [String(l.length), true], [l.length === 1 ? ' produkt' : ' produkte', false]);
+    if (cope) info.push([' · ', false], [String(cope), true], [' copë', false]);
+    var b = $('apKrijo');
+    b.disabled = true;
+    try {
+      var bajtet = apPdf(l, { info: info, data: data, ora: ora });
+      var emri = 'afatet_' + (z.mu ? sluguFolderit(per) + '_' : '') + dita + '.pdf';
+      apMbyll();
+      await ndajOseShkarko({ skedari: new File([bajtet], emri, { type: 'application/pdf' }), emri: emri }, 'Afatet');
+    } catch (err) {
+      toast(T('pdfDeshtoi'));
+    } finally { b.disabled = false; }
+  }
+  $('afEksPdf').addEventListener('click', apHap);
+  $('apAnulo').addEventListener('click', apMbyll);
+  $('apKrijo').addEventListener('click', apKrijo);
+  ['apPeriudha', 'apGjendja', 'apFurn', 'apRend'].forEach(function (id) { $(id).addEventListener('change', function () { apRifresko(); }); });
   function mbyllExcelinEAfateve() { $('dlgAfExcel').classList.remove('hapur'); }
   async function eksportoTeZgjedhurat() {
     var kyçet = axTeZgjedhurat();

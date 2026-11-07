@@ -437,7 +437,7 @@ private fun KartaEAfatitTeGrupit(a: Obj, meEmer: Boolean, ctx: Konteksti) {
                 .filter { it.isNotEmpty() }.joinToString(" · ")
             if (nen.isNotEmpty()) Text(nen, style = tx(12, 400, n.muted), modifier = Modifier.padding(top = 3.dp))
             if ((a["emri"] as? String).orEmpty().isNotEmpty() && (a["barkodi"] as? String).orEmpty().isNotEmpty())
-                Text(a["barkodi"] as String, style = txMono(11f, n.faint), modifier = Modifier.padding(top = 2.dp))
+                Text(a["barkodi"] as String, style = txNum(11.5f, n.faint), modifier = Modifier.padding(top = 2.dp))
             val pritje = eVertete(a["nePritjeNga"])
             val msg = when {
                 st == "hequr" -> "U hoq nga rafti" + (if (eVertete(a["hequrNga"])) " nga " + jsString(a["hequrNga"]) else "") +

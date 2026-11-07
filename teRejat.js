@@ -20,6 +20,14 @@
   'use strict';
 
   var LISTA = [
+    { v: 275, versioni: '1.49.0', data: '2026-11-07', titulli: 'Afatet në PDF për printim', platforma: 'tel', pikat: [
+      'Te Afatet → Excel ka tash edhe "Eksporto PDF": një listë e bardhë A4 me afatet, gati për printim.',
+      'Para krijimit zgjedh periudhën (të gjitha ose një muaj), gjendjen, furnizuesin dhe renditjen.',
+      'Barkodet dalin kudo me shifra më të qarta: zeroja s\'ngjan më me 8.'
+    ] },
+    { v: 275, versioni: '1.49.0', data: '2026-11-07', titulli: 'Barkodet më të qarta', platforma: 'pc', pikat: [
+      'Barkodet dalin me shifra më të qarta, edhe te etiketat PDF: zeroja s\'ngjan më me 8.'
+    ] },
     { v: 274, versioni: '1.48.0', data: '2026-11-07', titulli: 'Afatet si foto për furnizuesin', platforma: 'tel', pikat: [
       'Te Afatet → Excel ka tash edhe "Eksporto si foto": zgjedh një ose disa furnizues dhe për secilin del një foto me krejt afatet e tij, gati për ta dërguar me Viber ose WhatsApp.',
       'Fotoja tregon lart sa produkte kanë skaduar, sa janë afër skadimit dhe sa në rregull, pastaj çdo produkt me datën, copët dhe barkodin. Del e errët ose e çelët, si e ke aplikacionin.'
