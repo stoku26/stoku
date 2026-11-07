@@ -369,6 +369,42 @@ class PamjetTest {
         fotoEkrani("light-21-importi")
     }
 
+    /** Hyrja 35: Afatet → Excel → "Eksporto si foto": dritarja me furnizuesit dhe fotot JPG (e çelët dhe e errët) */
+    @Test fun eksportiFoto() {
+        mbush()
+        r.setContent { StokuTema("light") { Rrenja("light") {} } }
+        kliko("Afatet")
+        kliko("Excel")
+        kliko("Eksporto si foto")
+        fotoEkrani("light-43-afatet-foto")
+        org.junit.Assert.assertTrue("furnizuesit", r.onAllNodesWithText("Vita").fetchSemanticsNodes().isNotEmpty() &&
+            r.onAllNodesWithText("Bylmeti").fetchSemanticsNodes().isNotEmpty() && r.onAllNodesWithText("Pa furnizues").fetchSemanticsNodes().isNotEmpty())
+        kliko("Vita")
+        org.junit.Assert.assertTrue("Krijo foton", r.onAllNodesWithText("Krijo foton").fetchSemanticsNodes().isNotEmpty())
+        kliko("Bylmeti")
+        org.junit.Assert.assertTrue("Krijo 2 foto", r.onAllNodesWithText("Krijo 2 foto").fetchSemanticsNodes().isNotEmpty())
+        val ctx: android.content.Context = org.robolectric.RuntimeEnvironment.getApplication()
+        val te = Dyqani.gjendja.value.afatet.sortedWith { a, b -> Afatet.krahaso(a, b) }
+        val vita = te.filter { Afatet.celesiFurnizuesit(it) == "vita" }
+        java.io.File("build/pamjet").mkdirs()
+        for (erret in listOf(false, true)) {
+            val bmp = EksportiFoto.vizato(ctx, "Vita", "dërgoi besa", vita, erret, "07.11.2026", "14:32")
+            org.junit.Assert.assertEquals(1080, bmp.width)
+            org.junit.Assert.assertTrue("lartësia " + bmp.height, bmp.height in 900..1400)
+            // Sfondi lart majtas sipas temës (#f6f5f2 / #0f1115)
+            org.junit.Assert.assertEquals(if (erret) 0xFF0F1115.toInt() else 0xFFF6F5F2.toInt(), bmp.getPixel(4, 4))
+            java.io.File("build/pamjet/" + (if (erret) "dark" else "light") + "-44-foto-vita.png").outputStream().use { bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+        }
+        // Një foto për secilin furnizues (Bylmeti, Vita, Pa furnizues), sa më shumë afate aq më e gjatë
+        val fotot = EksportiFoto.krijo(ctx, te, Afatet.furnizuesitELista(te), "Afatet", "", false)
+        org.junit.Assert.assertEquals(listOf("afatet_bylmeti_", "afatet_vita_", "afatet_pa_furnizues_"), fotot.map { it.name.substringBefore("20") })
+        org.junit.Assert.assertTrue(fotot.all { it.length() > 1000 && it.name.endsWith(".jpg") })
+        val gjate = EksportiFoto.vizato(ctx, "Krejt", "", te, false, "07.11.2026", "14:32").height
+        org.junit.Assert.assertTrue("5 afate > 2 afate", gjate > EksportiFoto.vizato(ctx, "Vita", "", vita, false, "07.11.2026", "14:32").height + 300)
+        org.junit.Assert.assertEquals("−2", EksportiFoto.ditet(vita[0]).m)
+        org.junit.Assert.assertEquals("Sot", EksportiFoto.ditet(vita[1]).m)
+    }
+
     /** Administratori: Cilësimet → Përdoruesit (lista dhe lejet e një llogarie) */
     @Test fun perdoruesit() {
         mbush()

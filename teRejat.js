@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 274, versioni: '1.48.0', data: '2026-11-07', titulli: 'Afatet si foto për furnizuesin', platforma: 'tel', pikat: [
+      'Te Afatet → Excel ka tash edhe "Eksporto si foto": zgjedh një ose disa furnizues dhe për secilin del një foto me krejt afatet e tij, gati për ta dërguar me Viber ose WhatsApp.',
+      'Fotoja tregon lart sa produkte kanë skaduar, sa janë afër skadimit dhe sa në rregull, pastaj çdo produkt me datën, copët dhe barkodin. Del e errët ose e çelët, si e ke aplikacionin.'
+    ] },
     { v: 273, versioni: '1.47.0', data: '2026-11-04', titulli: 'Butonat e rinj të skanimit', platforma: 'tel', pikat: [
       'Butonat e skanimit brenda folderit janë tash dy katrorë të ndarë me ikona më të mëdha: blu për kamerën, i verdhë për Skanimin e shpejtë. Dalin në mes, poshtë.',
       'Te Cilësimet → Skenimi → "Butonat e skanimit" zgjedh vetë ku të dalin: majtas, në mes ose djathtas. Aty i sheh edhe në një foto të vogël.',

@@ -965,6 +965,14 @@
   .ax-rresht + .ax-rresht { border-top: 1px solid var(--vije); }
   .ax-rresht:active { background: var(--hover); }
   .ax-rresht input { width: 22px; height: 22px; margin: 0; flex: none; accent-color: var(--primar); }
+  #dlgAfEksFoto { z-index: 24; }
+  #dlgAfEksFoto .dialog { max-width: 420px; }
+  .aef-lista { max-height: 50vh; overflow-y: auto; }
+  .aef-lista .ax-rresht { min-height: 58px; }
+  .aef-lista .aef-m { flex: 1; min-width: 0; }
+  .aef-lista .aef-m b { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .aef-lista .aef-m span { display: block; font-size: 13px; color: var(--gri); margin-top: 1px; }
+  .aef-lista .aef-m span i { font-style: normal; font-weight: 600; color: var(--rrezik); }
   .ax-gabim { color: var(--rrezik); font-size: 13px; margin: 0 2px 6px; }
   .ax-gabim:empty { display: none; }
   .kfh-statusi { display: flex; align-items: flex-start; gap: 10px; margin: 2px 0 16px; font-size: 14.5px; line-height: 1.45; color: var(--gri); }
@@ -1658,6 +1666,7 @@
           <div class="sb-menu" id="afExcelMenu" hidden>
             <button class="sb-menu__item" id="afImporto" type="button" data-leja="afatetImporto"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m17 8-5-5-5 5"></path><path d="M12 3v12"></path></svg>Importo Excel</button>
             <button class="sb-menu__item" id="afEksporto" type="button" data-leja="eksportExcel"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M8 13h2M14 13h2M8 17h2M14 17h2"></path></svg>Eksporto Excel</button>
+            <button class="sb-menu__item" id="afEksFoto" type="button" data-leja="eksportExcel"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"></path></svg>Eksporto si foto</button>
           </div>
         </div>
       </div>
@@ -1841,6 +1850,20 @@
     <div class="veprime">
       <button class="btn tekst" id="axAnulo" type="button">Anulo</button>
       <button class="btn" id="axEksporto" type="button">Eksporto</button>
+    </div>
+  </div>
+</div>
+
+<!-- v274: Afatet si foto (JPG) për furnizuesin: një foto për secilin furnizues të zgjedhur -->
+<div class="mbulese" id="dlgAfEksFoto">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="aefTitulli">
+    <h2 id="aefTitulli">Eksporto si foto</h2>
+    <div class="ax-nen" id="aefNen"></div>
+    <div class="ax-shpejt" id="aefShpejt"><button type="button" id="aefKrejt">Të gjithë</button></div>
+    <div class="ax-lista aef-lista" id="aefLista"></div>
+    <div class="veprime">
+      <button class="btn tekst" id="aefAnulo" type="button">Anulo</button>
+      <button class="btn" id="aefKrijo" type="button">Krijo foton</button>
     </div>
   </div>
 </div>
@@ -2033,8 +2056,8 @@
 <script src="harta.js?v=256"></script>
 <script src="ekipa.js?v=258"></script>
 <script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=273"></script>
-<script src="app-tel.js?v=273"></script>
+<script src="teRejat.js?v=274"></script>
+<script src="app-tel.js?v=274"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>

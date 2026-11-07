@@ -8,7 +8,11 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
-        Hyrja(34, "2026-11-05", "Data shkruhet si duhet", listOf(
+        Hyrja(35, "2026-11-07", "Afatet si foto për furnizuesin", listOf(
+            "Te Afatet → Excel ka tash edhe \"Eksporto si foto\": zgjedh një ose disa furnizues dhe për secilin del një foto me krejt afatet e tij, gati për ta dërguar me Viber ose WhatsApp.",
+            "Fotoja tregon lart sa produkte kanë skaduar, sa janë afër skadimit dhe sa në rregull, pastaj çdo produkt me datën, copët dhe barkodin. Del e errët ose e çelët, si e ke aplikacionin."
+        )),
+        Hyrja(34,"2026-11-05", "Data shkruhet si duhet", listOf(
             "Kur shkruan datën e skadimit, viza \"-\" shtohet vetë dhe kursori kalon pas saj, kështu që shifrat dalin në rendin që i shkruan (p.sh. 23-01-26)."
         )),
         Hyrja(33, "2026-11-04", "Përditësimi me faqe të re", listOf(

@@ -5749,8 +5749,236 @@
     });
     $('afImporto').addEventListener('click', mbyll);
     $('afEksporto').addEventListener('click', mbyll);
+    $('afEksFoto').addEventListener('click', mbyll);
     document.addEventListener('click', function (ev) { if (!menu.hidden && !menu.parentNode.contains(ev.target)) mbyll(); });
   })();
+
+  // ---------- v274: Afatet si foto (JPG) për furnizuesin ----------
+  // Pronari (ideja 5): menuja "Excel" → "Eksporto si foto". Zgjedh një ose disa furnizues: për secilin del një foto e gjatë me krejt
+  // afatet aktive (1080 px e gjerë, sa më shumë afate aq më e gjatë), me temën e aplikacionit (e errët ose e çelët), dhe ndahet
+  // direkt (Viber, WhatsApp…). E njëjta pamje është edhe te Android-i (vendas/…/EksportiFoto.kt): ndryshoji bashkë.
+  var AEF_MAKS = 100; // mbi kaq afate fotoja ndahet në pjesë (kujtesa e telefonit)
+  var AEF_NGJ = {
+    dark: { bg: '#0f1115', surface: '#171a20', line: '#2a2e36', line2: '#22262d', ink: '#eceef2', ink2: '#c9ccd3', muted: '#8f949e', faint: '#6f747e',
+      exp: '#f07a6f', near: '#f0b95a', ok: '#5cc98b', pillBg: '#2a2414', pillTx: '#f5b942', logo: '#ffffff', markBg: '#ffffff', markBar: '#0f1115' },
+    light: { bg: '#f6f5f2', surface: '#ffffff', line: '#e6e4df', line2: '#e6e4df', ink: '#14161b', ink2: '#3a3d44', muted: '#7a7d85', faint: '#8a8d94',
+      exp: '#c23a33', near: '#a45f10', ok: '#2e7d4f', pillBg: '#fcefd9', pillTx: '#a45f10', logo: '#14161b', markBg: '#14161b', markBar: '#ffffff' }
+  };
+  // Logoja (logo/stoku-logo.svg): shiritat e barkodit (x, gjerësia; i pesti i verdhë) dhe shkronjat "stoku"
+  var AEF_SHIRITAT = [[14, 3], [19, 2], [23, 4], [29, 2], [33, 3], [38, 2], [42, 4], [48, 2]];
+  var AEF_SHKRONJAT = ['M76 20H65a5 5 0 0 0 0 10h6a5 5 0 0 1 0 10H60', 'M91 12v23a5 5 0 0 0 5 5h3M86 20h11',
+    'M140.5 12v28M152.5 20l-12 11M145 26.9l8.5 13.1', 'M164.5 20v10a10 10 0 0 0 20 0M184.5 20v20'];
+  var AEF_W = 540, AEF_P = 20, AEF_S = 2;
+
+  function aefKendi(c, x, y, w, h, r) {
+    c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+  }
+  function aefFont(c, px, pesha, mono, hapesira) {
+    c.font = pesha + ' ' + px + 'px ' + (mono ? "'JetBrains Mono', monospace" : 'Onest, sans-serif');
+    if ('letterSpacing' in c) c.letterSpacing = (hapesira || 0) + 'px';
+  }
+  // Teksti në rreshta (deri në maks); i fundit me "…" kur s'nxë
+  function aefRreshtat(c, t, gjeresia, maks) {
+    var fjalet = String(t).replace(/\s+/g, ' ').trim().split(' '), rr = [], r = '';
+    fjalet.forEach(function (f) {
+      var p = r ? r + ' ' + f : f;
+      if (c.measureText(p).width <= gjeresia || !r) r = p; else { rr.push(r); r = f; }
+    });
+    if (r) rr.push(r);
+    if (rr.length > maks) { rr = rr.slice(0, maks); rr[maks - 1] += '…'; }
+    return rr.map(function (x, i) {
+      if (c.measureText(x).width <= gjeresia) return x;
+      var y = x.replace(/…$/, '');
+      while (y.length > 1 && c.measureText(y + '…').width > gjeresia) y = y.slice(0, -1);
+      return y.replace(/\s+$/, '') + '…';
+    });
+  }
+  function aefTekst(c, t, x, qendra, ngjyra, drejtimi) {
+    c.fillStyle = ngjyra; c.textAlign = drejtimi || 'left'; c.textBaseline = 'middle'; c.fillText(t, x, qendra);
+  }
+  function aefLogo(c, x, y, h, C) {
+    var k = h / 52;
+    c.save(); c.translate(x, y); c.scale(k, k);
+    c.save(); c.translate(0, 4); c.scale(0.6875, 0.6875);
+    c.fillStyle = '#14161b'; aefKendi(c, 0, 0, 64, 64, 15); c.fill();
+    c.strokeStyle = 'rgba(255,255,255,.16)'; c.lineWidth = 1.5; aefKendi(c, 0.75, 0.75, 62.5, 62.5, 14.25); c.stroke();
+    AEF_SHIRITAT.forEach(function (s, i) { c.fillStyle = i === 4 ? '#f5b942' : '#ffffff'; aefKendi(c, s[0], 16, s[1], 32, 1); c.fill(); });
+    c.restore();
+    c.strokeStyle = C.logo; c.lineWidth = 5; c.lineCap = 'round'; c.lineJoin = 'round';
+    if (window.Path2D) AEF_SHKRONJAT.forEach(function (d) { c.stroke(new Path2D(d)); });
+    c.beginPath(); c.arc(119.5, 30, 10, 0, Math.PI * 2); c.stroke();
+    c.restore();
+  }
+  function aefShenja(c, x, y, s, C) {
+    var k = s / 64;
+    c.save(); c.translate(x, y); c.scale(k, k);
+    c.fillStyle = C.markBg; aefKendi(c, 0, 0, 64, 64, 15); c.fill();
+    AEF_SHIRITAT.forEach(function (b, i) { c.fillStyle = i === 4 ? '#f5b942' : C.markBar; aefKendi(c, b[0], 16, b[1], 32, 1); c.fill(); });
+    c.restore();
+  }
+  // Ditët djathtas te çdo rresht: "−2 / ditë më parë", "Sot / skadon", "12 / ditë", "2 / muaj"
+  function aefDitet(a) {
+    var n = AF.ditetDeri(a.data);
+    if (n === null) return { m: '–', v: 'pa datë', k: 'exp' };
+    if (n < 0) return { m: '−' + (-n), v: 'ditë më parë', k: 'exp' };
+    if (n === 0) return { m: 'Sot', v: 'skadon', k: 'exp' };
+    if (n >= 60) return { m: String(Math.round(n / 30)), v: 'muaj', k: 'ok' };
+    return { m: String(n), v: 'ditë', k: n <= 30 ? 'near' : 'ok' };
+  }
+  // o: { titulli, meta, afatet (të renditura), tema: 'dark'|'light', data, ora, pjesa }. Kthen canvas-in (1080 px e gjerë).
+  function aefVizato(o) {
+    var C = AEF_NGJ[o.tema === 'dark' ? 'dark' : 'light'], W = AEF_W, P = AEF_P, S = AEF_S;
+    var cv = document.createElement('canvas'), c = cv.getContext('2d');
+    var gjEmrit = W - 2 * P - 18 - 14 - 74 - 14;
+    aefFont(c, 34, 700, false, -1); var tit = aefRreshtat(c, o.titulli, W - 2 * P, 2);
+    aefFont(c, 14, 400); var meta = o.meta ? aefRreshtat(c, o.meta, W - 2 * P, 1)[0] : '';
+    var rr = o.afatet.map(function (a) {
+      aefFont(c, 15.5, 600);
+      var em = aefRreshtat(c, a.emri || a.barkodi || 'Pa emër', gjEmrit, 2), b = String(a.barkodi || '');
+      aefFont(c, 13, 500); var info = aefRreshtat(c, [AF.sasiaTekst(a), a.data ? AF.formato(a.data) : 'Pa datë'].filter(Boolean).join(' · '), gjEmrit, 1)[0];
+      return { em: em, b: b, info: info, d: aefDitet(a), h: 13 + 20 * em.length + 3 + 17 + (b ? 19 : 0) + 13 };
+    });
+    var nr = AF.numero(o.afatet);
+    var H = 28 + 30 + 26 + 14 + 8 + 36 * tit.length + (meta ? 24 : 0) + 22 + 82 + 14;
+    rr.forEach(function (r) { H += 8 + r.h; });
+    H += 24 + 1 + 16 + 18 + 24;
+    cv.width = W * S; cv.height = Math.ceil(H * S);
+    c.scale(S, S);
+    c.fillStyle = C.bg; c.fillRect(0, 0, W, H);
+    var y = 28;
+    aefLogo(c, P, y, 30, C);
+    aefFont(c, 12, 600); var dw = c.measureText(o.data).width + 22;
+    c.fillStyle = C.pillBg; aefKendi(c, W - P - dw, y + 2, dw, 26, 13); c.fill();
+    aefTekst(c, o.data, W - P - 11, y + 15, C.pillTx, 'right');
+    y += 30 + 26;
+    aefFont(c, 11, 700, false, 1.32); aefTekst(c, 'AFATET E PRODUKTEVE', P, y + 7, C.muted);
+    y += 14 + 8;
+    aefFont(c, 34, 700, false, -1); tit.forEach(function (t) { aefTekst(c, t, P, y + 18, C.ink); y += 36; });
+    if (meta) { y += 6; aefFont(c, 14, 400); aefTekst(c, meta, P, y + 9, C.muted); y += 18; }
+    y += 22;
+    c.fillStyle = C.surface; aefKendi(c, P + 0.5, y + 0.5, W - 2 * P - 1, 81, 20); c.fill();
+    c.strokeStyle = C.line; c.lineWidth = 1; c.stroke();
+    var kw = (W - 2 * P) / 3;
+    [[nr.skaduar + nr['pa-date'], 'Të skaduara', C.exp], [nr.afer, 'Afër skadimit', C.near], [nr.ok, 'Në rregull', C.ok]].forEach(function (k, i) {
+      var x = P + kw * i;
+      if (i) { c.fillStyle = C.line; c.fillRect(x, y + 1, 1, 80); }
+      aefFont(c, 30, 700, false, -0.9); aefTekst(c, String(k[0]), x + 16, y + 16 + 15, k[2]);
+      aefFont(c, 12.5, 500); aefTekst(c, k[1], x + 16, y + 16 + 30 + 6 + 8, C.muted);
+    });
+    y += 82 + 14;
+    rr.forEach(function (r) {
+      y += 8;
+      var x = P, w = W - 2 * P;
+      c.save(); aefKendi(c, x, y, w, r.h, 16); c.fillStyle = C.surface; c.fill(); c.clip();
+      c.fillStyle = C[r.d.k]; aefKendi(c, x - 4, y, 8, r.h, 4); c.fill();
+      c.restore();
+      c.strokeStyle = C.line2; c.lineWidth = 1; aefKendi(c, x + 0.5, y + 0.5, w - 1, r.h - 1, 15.5); c.stroke();
+      var ty = y + 13;
+      aefFont(c, 15.5, 600); r.em.forEach(function (t) { aefTekst(c, t, x + 18, ty + 10, C.ink); ty += 20; });
+      ty += 3; aefFont(c, 13, 500); aefTekst(c, r.info, x + 18, ty + 8.5, C.ink2); ty += 17;
+      if (r.b) { ty += 3; aefFont(c, 12, 400, true); aefTekst(c, r.b, x + 18, ty + 8, C.faint); }
+      var q = y + r.h / 2;
+      aefFont(c, 18, 700, false, -0.36); aefTekst(c, r.d.m, x + w - 14, q - 9, C[r.d.k], 'right');
+      aefFont(c, 11.5, 500); aefTekst(c, r.d.v, x + w - 14, q + 11, C.muted, 'right');
+      y += r.h;
+    });
+    y += 24;
+    c.fillStyle = C.line; c.fillRect(P, y, W - 2 * P, 1);
+    y += 1 + 16;
+    aefShenja(c, P, y, 18, C);
+    aefFont(c, 12, 500); aefTekst(c, 'Krijuar me Stoku · stoku.site', P + 26, y + 9, C.faint);
+    aefTekst(c, (o.pjesa ? o.pjesa + ' · ' : '') + 'ora ' + o.ora, W - P, y + 9, C.faint, 'right');
+    return cv;
+  }
+  function aefSkedari(cv, emri) {
+    var u = cv.toDataURL('image/jpeg', 0.9), b = atob(u.slice(u.indexOf(',') + 1)), v = new Uint8Array(b.length);
+    for (var i = 0; i < b.length; i++) v[i] = b.charCodeAt(i);
+    return { skedari: new File([v], emri, { type: 'image/jpeg' }), emri: emri };
+  }
+  function aefAfatet() { return afatetEMarketit().filter(function (a) { return AF.statusi(a) !== 'hequr'; }).sort(AF.krahaso); }
+  function aefFontet() {
+    if (!document.fonts || !document.fonts.load) return Promise.resolve();
+    return Promise.all(['400 14px Onest', '500 13px Onest', '600 15px Onest', '700 34px Onest', "400 12px 'JetBrains Mono'"].map(function (f) {
+      return document.fonts.load(f).catch(function () {});
+    }));
+  }
+  var aefZgj = {}, aefFurn = [];
+  function aefRifresko() {
+    var n = paFurnizues() ? 1 : aefFurn.filter(function (f) { return aefZgj[f.celes]; }).length;
+    $('aefKrijo').disabled = !n;
+    $('aefKrijo').textContent = n > 1 ? 'Krijo ' + n + ' foto' : 'Krijo foton';
+    $('aefKrejt').textContent = aefFurn.length && n === aefFurn.length ? 'Asnjë' : 'Të gjithë';
+    Array.prototype.forEach.call(document.querySelectorAll('#aefLista input'), function (i) { i.checked = !!aefZgj[i.value]; });
+  }
+  function aefHap() {
+    if (!leja('eksportExcel')) return;
+    var te = aefAfatet();
+    if (!te.length) { toast('S\'ka afate për eksport.'); return; }
+    aefFontet();
+    var pa = paFurnizues(), l = $('aefLista');
+    aefFurn = pa ? [] : AF.furnizuesitELista(te);
+    aefZgj = {};
+    if (aefFurn.length === 1) aefZgj[aefFurn[0].celes] = 1;
+    l.textContent = '';
+    aefFurn.forEach(function (f) {
+      var r = document.createElement('label'); r.className = 'ax-rresht';
+      var i = document.createElement('input'); i.type = 'checkbox'; i.value = f.celes;
+      i.addEventListener('change', function () { if (i.checked) aefZgj[f.celes] = 1; else delete aefZgj[f.celes]; aefRifresko(); });
+      var m = document.createElement('span'); m.className = 'aef-m';
+      var b = document.createElement('b'); b.textContent = f.emri;
+      var s = document.createElement('span');
+      var sk = te.filter(function (a) { return AF.celesiFurnizuesit(a) === f.celes && AF.statusi(a) === 'skaduar'; }).length;
+      s.textContent = f.n === 1 ? '1 afat' : f.n + ' afate';
+      if (sk) { s.appendChild(document.createTextNode(' · ')); var x = document.createElement('i'); x.textContent = sk === 1 ? '1 i skaduar' : sk + ' të skaduara'; s.appendChild(x); }
+      m.appendChild(b); m.appendChild(s); r.appendChild(i); r.appendChild(m); l.appendChild(r);
+    });
+    l.hidden = pa;
+    $('aefShpejt').hidden = pa || aefFurn.length < 2;
+    $('aefNen').textContent = pa ? 'Krejt afatet aktive (' + te.length + ') në një foto.' : 'Zgjedh një ose disa furnizues. Për secilin del një foto më vete.';
+    aefRifresko();
+    $('dlgAfEksFoto').classList.add('hapur');
+  }
+  function aefMbyll() { $('dlgAfEksFoto').classList.remove('hapur'); }
+  async function aefKrijo() {
+    if (!leja('eksportExcel')) return;
+    var te = aefAfatet(), pa = paFurnizues();
+    var grupet = pa ? [{ celes: '', emri: idMarketitAktiv() ? emriMarketit(idMarketitAktiv()) : 'Afatet' }] : aefFurn.filter(function (f) { return aefZgj[f.celes]; });
+    if (!grupet.length || !te.length) return;
+    if (document.fonts && document.fonts.status !== 'loaded') await Promise.race([aefFontet(), new Promise(function (z) { setTimeout(z, 1500); })]);
+    var d = new Date(), data = dyShifra(d.getDate()) + '.' + dyShifra(d.getMonth() + 1) + '.' + d.getFullYear();
+    var ora = dyShifra(d.getHours()) + ':' + dyShifra(d.getMinutes());
+    var dita = d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate());
+    var idM = idMarketitAktiv(), kush = emriPerdoruesitAktual();
+    var meta = [pa ? '' : (idM ? emriMarketit(idM) : ''), kush ? 'dërgoi ' + kush : ''].filter(Boolean).join(' · ');
+    var skedaret = [];
+    grupet.forEach(function (g) {
+      var l = pa ? te : te.filter(function (a) { return AF.celesiFurnizuesit(a) === g.celes; });
+      var np = Math.ceil(l.length / AEF_MAKS);
+      for (var i = 0; i < np; i++) {
+        var cv = aefVizato({ titulli: g.emri, meta: meta, afatet: l.slice(i * AEF_MAKS, (i + 1) * AEF_MAKS), tema: htTema(), data: data, ora: ora,
+          pjesa: np > 1 ? 'Pjesa ' + (i + 1) + ' nga ' + np : '' });
+        skedaret.push(aefSkedari(cv, 'afatet_' + sluguFolderit(g.emri) + '_' + dita + (np > 1 ? '_' + (i + 1) : '') + '.jpg'));
+      }
+    });
+    aefMbyll();
+    var files = skedaret.map(function (f) { return f.skedari; });
+    if (navigator.canShare && navigator.share && navigator.canShare({ files: files })) {
+      try { await navigator.share({ files: files, title: grupet.length === 1 ? 'Afatet: ' + grupet[0].emri : 'Afatet' }); return; }
+      catch (err) { if (err && err.name === 'AbortError') return; }
+    }
+    skedaret.forEach(shkarkoDirekt);
+    toast(skedaret.length === 1 ? 'Fotoja u shkarkua.' : 'Fotot u shkarkuan (' + skedaret.length + ').');
+  }
+  $('afEksFoto').addEventListener('click', aefHap);
+  $('aefAnulo').addEventListener('click', aefMbyll);
+  $('aefKrejt').addEventListener('click', function () {
+    var krejt = aefFurn.length && aefFurn.every(function (f) { return aefZgj[f.celes]; });
+    aefZgj = {};
+    if (!krejt) aefFurn.forEach(function (f) { aefZgj[f.celes] = 1; });
+    aefRifresko();
+  });
+  $('aefKrijo').addEventListener('click', aefKrijo);
   function mbyllExcelinEAfateve() { $('dlgAfExcel').classList.remove('hapur'); }
   async function eksportoTeZgjedhurat() {
     var kyçet = axTeZgjedhurat();
