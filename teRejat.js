@@ -20,6 +20,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 276, versioni: '1.49.1', data: '2026-11-07', titulli: 'Butonat e rinj te Afatet', platforma: 'tel', pikat: [
+      'Te Afatet, "Shto" dhe "Excel" janë tash dy katrorë vetëm me ikona: kalendari me "+" shton një afat, dosja me shigjetat hap Importo / Eksporto (Excel, PDF, foto).'
+    ] },
     { v: 275, versioni: '1.49.0', data: '2026-11-07', titulli: 'Afatet në PDF për printim', platforma: 'tel', pikat: [
       'Te Afatet → Excel ka tash edhe "Eksporto PDF": një listë e bardhë A4 me afatet, gati për printim.',
       'Para krijimit zgjedh periudhën (të gjitha ose një muaj), gjendjen, furnizuesin dhe renditjen.',

@@ -8,6 +8,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(37, "2026-11-07", "Butonat e rinj te Afatet", listOf(
+            "Te Afatet, \"Shto\" dhe \"Excel\" janë tash dy katrorë vetëm me ikona: kalendari me \"+\" shton një afat, dosja me shigjetat hap Importo / Eksporto (Excel, PDF, foto)."
+        )),
         Hyrja(36, "2026-11-07", "Afatet në PDF për printim", listOf(
             "Te Afatet → Excel ka tash edhe \"Eksporto PDF\": një listë e bardhë A4 me afatet, gati për printim.",
             "Para krijimit zgjedh periudhën (të gjitha ose një muaj), gjendjen, furnizuesin dhe renditjen.",

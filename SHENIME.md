@@ -52,6 +52,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **BUTONAT "SHTO" DHE "SKEDARËT" VETËM ME IKONA (v276 = 1.49.1, 07.11.2026, telefoni + Android Hyrja 37)**: pronari ("Excel" s'i
+   shkonte më se ka edhe PDF/foto/import; pas shumë idesh) zgjodhi "ideja 8": dy katrorë gri (`--sb-surface-2` / `n.surface2`), pa tekst
+   e pa ngjyra. "Shto" = kalendar me "+" (`Ik.KalendarPlus`, 30), ish "Excel" = dosja me rrethin e shigjetave lart/poshtë poshtë djathtas
+   ("C1", "pak ma mrena"): rrethi `ink` me shigjetat dhe unazën me ngjyrën e butonit (web: një SVG me `overflow=visible`, `.ik-shenja`;
+   Android `IkonaESkedareve`). Emrat mbeten për lexuesin e ekranit: aria-label / contentDescription "Shto afat" dhe "Skedarët" (testet
+   e Android-it i prekin me to). Menyja e njëjtë. Testi `teste/v276.js`. S'është testuar në telefon të vërtetë.
+
 0000000. **AFATET NË PDF PËR PRINTIM + BARKODET PA ZERO ME PIKË (v275 = 1.49.0, 07.11.2026, telefoni + PC + Android Hyrja 36)**: pronari:
    "bone edhe me i eksportu afatet krejt qka i ke skenu ose te ni muaji te caktum etj me pas opsione tjera, me i eksportu ne pdf file per me
    printu ... veq ne white mode". Zgjodhi (pas 5 ideve) "ideja 1" (tabela) dhe dritaren "A"; pastaj: "hiqja pdf-s gjendja" (ditët e mbetura
