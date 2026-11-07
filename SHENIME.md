@@ -52,6 +52,23 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **AFATET SI FOTO PËR FURNIZUESIN (v274 = 1.48.0, 07.11.2026, telefoni + Android Hyrja 35)**: pronari (pas 5 ideve, zgjodhi
+   "ideja 5"): "boma ideja 5 po ja pershtat edhe per white mode nese e ka dikush aktiv. edhe butonin per eksport si foto e len qaty ku po
+   shkrun excel te afatet qe osht ner shto". Afatet → "Excel" (nën "Shto") → "Eksporto si foto" (pas "Importo Excel" / "Eksporto Excel",
+   leja `eksportExcel`). Dritarja (web `#dlgAfEksFoto`, Android `AfatetFotoFlete`): furnizuesit e afateve aktive të marketit
+   (`furnizuesitELista`, "Pa furnizues" në fund) me "N afate · M të skaduara", "Të gjithë"/"Asnjë"; i vetmi zgjidhet vetë. Për secilin
+   furnizues një JPG: 540 njësi × 2 = 1080 px e gjerë, aq e gjatë sa afatet (krejt në një foto; mbi 100 afate "Pjesa 1 nga 2"), pa të
+   hequrat, renditur si lista (`krahaso`). Pamja (ideja 5): logoja + data (cip i verdhë), "AFATET E PRODUKTEVE", emri i furnizuesit,
+   "marketi · dërgoi agim", tri kutitë (të skaduara + pa datë / afër / në rregull), rreshtat me vijën me ngjyrë majtas (emri deri në 2
+   rreshta, "copë · data", barkodi mono) dhe ditët djathtas ("−2 ditë më parë", "Sot skadon", "12 ditë", "2 muaj"), poshtë "Krijuar me
+   Stoku · stoku.site" dhe ora. Tema sipas aplikacionit (`htTema()` / `N.erret`): e errët #0f1115 ose e çelët #f6f5f2. Web: canvas
+   (`aefVizato` te app-tel.js, Path2D për shkronjat e logos), `toDataURL` sinkron që `navigator.share` të mbetet brenda prekjes; pa
+   "Shpërndaj" shkarkohen. Android: `EksportiFoto.kt` (Canvas + Paint, Onest/JetBrains Mono nga res/font, `PathParser`), në
+   `Dispatchers.Default`, `cache/eksportet`, `ACTION_SEND` / `ACTION_SEND_MULTIPLE` me FileProvider. Dy kodet e vizatimit janë njësoj:
+   ndryshoji bashkë. Merchandiseri (pa furnizues): krejt afatet në një foto me emrin e marketit. PC-ja s'u prek. Testet: `teste/v274.js`
+   (menuja, dritarja, 2 foto 1080, e çelët/e errët, shkarkimi, pa lejen), `PamjetTest.eksportiFoto` (dritarja + fotot + emrat). Kujdes:
+   WhatsApp i zvogëlon fotot shumë të gjata (me "HD" ose si dokument mbeten të qarta). S'është testuar në telefon të vërtetë.
+
 0000000. **ANDROID: KURSORI TE DATA (05.11.2026, vetëm `vendas/`, Hyrja 34)**: pronari (foto e "Afat i ri", "23-01-"): "kur je tu e shkru
    daten vijen po ta qitke mas cursorit". Shkaku: `Fusha` (BasicTextField me String) e merrte tekstin e formatuar nga thirrësi
    (`formatoDatenGjateShkrimit`: "23" → "23-"), por kursori mbetej te pozicioni i tastierës (para vizës), kështu që shifra e radhës hynte

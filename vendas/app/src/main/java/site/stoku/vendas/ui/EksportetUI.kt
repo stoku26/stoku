@@ -28,6 +28,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +49,7 @@ import site.stoku.logjika.jsString
 import site.stoku.logjika.jsTrim
 import site.stoku.logjika.obj
 import site.stoku.vendas.Dyqani
+import site.stoku.vendas.EksportiFoto
 import site.stoku.vendas.Eksportet
 import site.stoku.vendas.Llogaria
 import site.stoku.vendas.Merchandiseri
@@ -206,6 +208,80 @@ fun AfatetExcelFlete(zgjedhura: List<Obj>?, eFiltruara: (String) -> List<Obj>, m
                 val sk = Eksportet.excelIAfateve(lista, renditur, if (krejt) muaji else "", if (krejt) emriFurn else "")
                 mbyll(); gati(sk)
             }, Modifier.weight(1.4f), aktiv = tE.isNotEmpty() && lista.isNotEmpty())
+        }
+    }
+}
+
+/**
+ * Hyrja 35 (web v274, #dlgAfEksFoto): "Eksporto si foto". Zgjedh një ose disa furnizues: për secilin del një foto JPG me krejt afatet aktive
+ * (EksportiFoto, ideja 5), me temën e aplikacionit; pastaj hapet "Ndaj" (Viber, WhatsApp…). Merchandiseri: krejt afatet në një foto.
+ */
+@Composable
+fun AfatetFotoFlete(te: List<Obj>, mbyll: () -> Unit) {
+    val n = N
+    val ctx = LocalContext.current
+    val erret = n.erret
+    val scope = rememberCoroutineScope()
+    val paF = Llogaria.eshteMerchandiser()
+    val aktive = remember(te) { te.filter { Afatet.statusi(it) != "hequr" }.sortedWith { a, b -> Afatet.krahaso(a, b) } }
+    val furn = remember(aktive) { if (paF) emptyList() else Afatet.furnizuesitELista(aktive) }
+    var zgj by remember { mutableStateOf(if (furn.size == 1) setOf(furn[0].celes) else emptySet()) }
+    var duke by remember { mutableStateOf(false) }
+    Flete(mbyll) {
+        Text("Eksporto si foto", style = tx(22, 700, n.ink, -0.02))
+        Text(if (paF) "Krejt afatet aktive (${aktive.size}) në një foto." else "Zgjedh një ose disa furnizues. Për secilin del një foto më vete.", style = tx(14, 400, n.muted))
+        if (furn.size >= 2) {
+            val krejt = zgj.size == furn.size
+            Lidhje(if (krejt) "Asnjë" else "Të gjithë", { zgj = if (krejt) emptySet() else furn.map { it.celes }.toSet() })
+        }
+        if (furn.isNotEmpty()) Column {
+            furn.forEach { f ->
+                val sk = aktive.count { Afatet.celesiFurnizuesit(it) == f.celes && Afatet.statusi(it) == "skaduar" }
+                RreshtiIFurnizuesit(f.emri, if (f.n == 1) "1 afat" else "${f.n} afate", if (sk == 0) "" else if (sk == 1) "1 i skaduar" else "$sk të skaduara",
+                    zgj.contains(f.celes)) { zgj = if (zgj.contains(f.celes)) zgj - f.celes else zgj + f.celes }
+            }
+        }
+        val nr = if (paF) 1 else zgj.size
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Buton("Anulo", mbyll, Modifier.weight(1f), lloji = "tekst")
+            Buton(if (duke) "Duke e krijuar…" else if (nr > 1) "Krijo $nr foto" else "Krijo foton", {
+                if (!Llogaria.leja("eksportExcel") || nr == 0 || duke || aktive.isEmpty()) return@Buton
+                duke = true
+                val grupet = if (paF) null else furn.filter { zgj.contains(it.celes) }
+                val idM = Merchandiseri.idAktiv()
+                val kush = Llogaria.perdoruesi.value?.emri.orEmpty()
+                val meta = listOf(if (paF || idM == null) "" else Merchandiseri.emri(idM), if (kush.isNotEmpty()) "dërgoi $kush" else "").filter { it.isNotEmpty() }.joinToString(" · ")
+                val titulliPa = if (idM != null) Merchandiseri.emri(idM) else "Afatet"
+                scope.launch {
+                    val r = withContext(Dispatchers.Default) { try { EksportiFoto.krijo(ctx, aktive, grupet, titulliPa, meta, erret) } catch (e: Throwable) { null } }
+                    duke = false
+                    if (r.isNullOrEmpty()) { Toast.trego("Fotoja s'u krijua. Provo sërish."); return@launch }
+                    mbyll()
+                    try { EksportiFoto.ndaj(ctx, r, if (grupet?.size == 1) "Afatet: " + grupet[0].emri else "Afatet") }
+                    catch (e: Exception) { Toast.trego("S'u hap \"Ndaj\". Provo sërish.") }
+                }
+            }, Modifier.weight(1.4f), aktiv = nr > 0 && !duke)
+        }
+    }
+}
+
+/** Rreshti i furnizuesit te "Eksporto si foto": kutia, emri, sa afate (dhe sa të skaduara, me të kuqe) */
+@Composable
+private fun RreshtiIFurnizuesit(emri: String, afate: String, skaduar: String, zgjedhur: Boolean, onClick: () -> Unit) {
+    val n = N
+    Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).clip(RoundedCornerShape(12.dp)).clickable(onClick = onClick).padding(vertical = 8.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(22.dp).clip(RoundedCornerShape(6.dp)).background(if (zgjedhur) n.accent else Color.Transparent)
+            .border(if (zgjedhur) 0.dp else 1.5.dp, if (zgjedhur) Color.Transparent else n.line2, RoundedCornerShape(6.dp)), contentAlignment = Alignment.Center) {
+            if (zgjedhur) Icon(Ik.Kontroll, null, Modifier.size(15.dp), tint = Color.White)
+        }
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Text(emri, style = tx(15, 600, n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Row {
+                Text(afate, style = tx(13, 400, n.muted))
+                if (skaduar.isNotEmpty()) { Text(" · ", style = tx(13, 400, n.muted)); Text(skaduar, style = tx(13, 600, n.exp)) }
+            }
         }
     }
 }

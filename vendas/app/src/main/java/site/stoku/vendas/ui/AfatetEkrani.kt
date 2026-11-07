@@ -72,6 +72,7 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
     var fleta by remember { mutableStateOf<android.net.Uri?>(null) } // fotoja e fletës për leximin me AI
     var excel by remember { mutableStateOf<String?>(null) } // "krejt" = krejt lista (me muajin), "zgjedhura" = vetëm të zgjedhurat
     var importi by remember { mutableStateOf(false) }
+    var foto by remember { mutableStateOf(false) } // Hyrja 35: "Eksporto si foto"
     var skedari by remember { mutableStateOf<site.stoku.vendas.Skedari?>(null) }
     var kuFleta by remember { mutableStateOf<android.net.Uri?>(null) } // "Ku do ta kontrollosh fletën?" (PC ose këtu)
     val (fotografo, ngaGaleria) = rememberFotoEFletes { if (mundDergoFletenNePc()) kuFleta = it else fleta = it }
@@ -143,9 +144,9 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                         }
                         if (shto || kaExcel) Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             if (shto) KartaVeprimi(Ik.Plus, "Shto") { hapur = "" }
-                            if (kaExcel) MenyjaExcel(lejaImp, lejaEks, { importi = true }) {
+                            if (kaExcel) MenyjaExcel(lejaImp, lejaEks, { importi = true }, {
                                 if (te.isEmpty()) Toast.trego("S'ka afate për eksport.") else excel = "krejt"
-                            }
+                            }) { if (te.none { Afatet.statusi(it) != "hequr" }) Toast.trego("S'ka afate për eksport.") else foto = true }
                         }
                     }
                     Hapesire(12.dp)
@@ -227,6 +228,7 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
         val zgj = if (lloji == "zgjedhura") zgjedhja.orEmpty().let { z -> te.filter { a -> (a["id"] as? String)?.let { z.contains(it) } == true } } else null
         AfatetExcelFlete(zgj, { mu -> eFiltruara(mu) }, muaji, filtri, mbyll = { excel = null }) { sk -> skedari = sk }
     }
+    if (foto) AfatetFotoFlete(te) { foto = false }
     if (importi) ImportiAfateveFlete(mbyll = { importi = false }) { filtri = "aktive"; muaji = ""; zgjedhja = null }
     skedari?.let { sk -> SkedariFlete(sk) { skedari = null } }
     if (fshiZgjedhjen) {
@@ -259,9 +261,9 @@ private fun KartaVeprimi(ikona: androidx.compose.ui.graphics.vector.ImageVector,
     }
 }
 
-/** Butoni "Excel" (si #afExcel te web-i): "XLS" + "Excel", me menynë Importo Excel / Eksporto Excel */
+/** Butoni "Excel" (si #afExcel te web-i): "XLS" + "Excel", me menynë Importo Excel / Eksporto Excel / Eksporto si foto (Hyrja 35) */
 @Composable
-private fun MenyjaExcel(lejaImp: Boolean, lejaEks: Boolean, importo: () -> Unit, eksporto: () -> Unit) {
+private fun MenyjaExcel(lejaImp: Boolean, lejaEks: Boolean, importo: () -> Unit, eksporto: () -> Unit, foto: () -> Unit) {
     val n = N
     var hapur by remember { mutableStateOf(false) }
     Box {
@@ -276,7 +278,8 @@ private fun MenyjaExcel(lejaImp: Boolean, lejaEks: Boolean, importo: () -> Unit,
             modifier = Modifier.widthIn(min = 210.dp).padding(horizontal = 6.dp)) {
             listOfNotNull(
                 if (lejaImp) "Importo Excel" to importo else null,
-                if (lejaEks) "Eksporto Excel" to eksporto else null
+                if (lejaEks) "Eksporto Excel" to eksporto else null,
+                if (lejaEks) "Eksporto si foto" to foto else null
             ).forEach { (t, f) ->
                 Text(t, style = tx(14, 600, n.ink), modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(10.dp))
                     .clickable { hapur = false; f() }.padding(horizontal = 12.dp).wrapContentHeight(Alignment.CenterVertically))

@@ -2,6 +2,7 @@
 node_modules/
 wp/worker.mjs
 *.png
+*.jpg
 !foto-prove.png
 *.pdf
 *.xlsx
