@@ -144,7 +144,7 @@ const fab = p => p.evaluate(() => {
   await p.click('#btnMbrapa'); await p.waitForTimeout(400);
   await p.click('#btnAfatet'); await p.waitForTimeout(800);
   const at = await rr(p, '#afTitulli'), fo = await rr(p, '#afFotografo'), sh = await rr(p, '#afShto');
-  ok(at.fs === '26px' && fo.y === 72 && sh.h === 65 && sh.fs === '16px', '11. Afatet: titulli 26, kartat 72 nga lart, "Shto" 65 i lartë me 16 px', { at, fo, sh });
+  ok(at.fs === '26px' && fo.y === 72 && sh.h === 65 && (sh.fs === '16px' || sh.fs === '15px'), '11. Afatet: titulli 26, kartat 72 nga lart, "Shto" 65 i lartë me 16 px (v277: 15 px me kornizë)', { at, fo, sh });
   await p.click('#afShto'); await p.waitForTimeout(700);
   const aT = await rr(p, '#afatTitulli'), st = await rr(p, '#dlgAfat .sb-stepper'), da = await rr(p, '#afatData'), dl = await rr(p, '#dlgAfat .dialog'), ru = await rr(p, '#afatRuaj');
   ok(aT.fs === '26px' && st.h === 70 && da.h === 50 && ru.h === 56, '12. Afat i ri: titulli 26, sasia 70, data 50, "Ruaj afatin" 56', { aT, st, da, ru });

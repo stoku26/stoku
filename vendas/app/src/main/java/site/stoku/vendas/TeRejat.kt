@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(38, "2026-11-07", "Importo dhe Eksporto te Afatet", listOf(
+            "Te Afatet, \"Shto\" ka tash kornizë blu dhe ikonën e barkodit.",
+            "Poshtë tij janë dy butona: \"Importo\" e hap direkt zgjedhjen e Excel-it, \"Eksporto\" hap Excel, PDF ose foto."
+        )),
         Hyrja(37, "2026-11-07", "Butonat e rinj te Afatet", listOf(
             "Te Afatet, \"Shto\" dhe \"Excel\" janë tash dy katrorë vetëm me ikona: kalendari me \"+\" shton një afat, dosja me shigjetat hap Importo / Eksporto (Excel, PDF, foto)."
         )),

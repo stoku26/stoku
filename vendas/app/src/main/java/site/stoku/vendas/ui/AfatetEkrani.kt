@@ -25,7 +25,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -130,7 +129,7 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                 val lejaEks = Llogaria.leja("eksportExcel")
                 val lejaPdf = Llogaria.leja("eksportPdf")
                 val kaExcel = lejaImp || lejaEks || lejaPdf // menyja "Excel" s'ka kuptim pa asnjë nga këto
-                // Si .sb-actions te web-i: majtas "Fotografo fletën", djathtas "Shto" dhe "Excel" (Importo / Eksporto)
+                // Si .sb-actions te web-i: majtas "Fotografo fletën", djathtas "Shto" dhe poshtë tij "Importo" / "Eksporto"
                 if (ai || shto || kaExcel) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         // Karta kryesore: "Fotografo fletën" (afatet lexohen me AI) + galeria; pa këtë leje: "Afat i ri"
@@ -148,11 +147,16 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                             Text(if (ai) "Fotografo fletën" else "Afat i ri", style = tx(17, 700, Color.White))
                             Text(if (ai) "Afatet lexohen nga foto automatikisht" else "Skano barkodin ose shkruaje, pastaj zgjidh datën", style = tx(12, 400, Color(0xD9FFFFFF)))
                         }
+                        // v277 (Hyrja 38, ideja 10 "B"): "Shto" me kornizë blu; poshtë "Importo" dhe "Eksporto" pranë njëri-tjetrit
                         if (shto || kaExcel) Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                            if (shto) ButoniIkone("Shto afat", { hapur = "" }) { Icon(Ik.KalendarPlus, null, Modifier.size(30.dp), tint = N.ink) }
-                            if (kaExcel) MenyjaExcel(lejaImp, lejaEks, lejaPdf, { importi = true }, {
-                                if (te.isEmpty()) Toast.trego("S'ka afate për eksport.") else excel = "krejt"
-                            }, { if (te.isEmpty()) Toast.trego("S'ka afate për eksport.") else pdf = true }) { if (te.none { Afatet.statusi(it) != "hequr" }) Toast.trego("S'ka afate për eksport.") else foto = true }
+                            if (shto) ButoniShto { hapur = "" }
+                            val kaEks = lejaEks || lejaPdf
+                            if (kaExcel) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                if (lejaImp) ButoniKatror("Importo", Ik.Importo, Modifier.weight(1f)) { importi = true }
+                                if (kaEks) MenyjaEksportit(lejaEks, lejaPdf, Modifier.weight(1f), {
+                                    if (te.isEmpty()) Toast.trego("S'ka afate për eksport.") else excel = "krejt"
+                                }, { if (te.isEmpty()) Toast.trego("S'ka afate për eksport.") else pdf = true }) { if (te.none { Afatet.statusi(it) != "hequr" }) Toast.trego("S'ka afate për eksport.") else foto = true }
+                            }
                         }
                     }
                     Hapesire(12.dp)
@@ -174,8 +178,8 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                 Hapesire(14.dp)
                 if (lista.isEmpty()) {
                     val (titulli, teksti) = when {
-                        te.isEmpty() && idM != null -> "S'ka ende afate te ky market" to "Fotografo fletën ose shtoji me \"+ Shto\": ruhen te " + Merchandiseri.emri(idM) + "."
-                        te.isEmpty() -> "S'ka ende asnjë afat" to "Fotografo fletën ku janë shkruar afatet, ose shtoji me \"+ Shto\"."
+                        te.isEmpty() && idM != null -> "S'ka ende afate te ky market" to "Fotografo fletën ose shtoji me \"Shto\": ruhen te " + Merchandiseri.emri(idM) + "."
+                        te.isEmpty() -> "S'ka ende asnjë afat" to "Fotografo fletën ku janë shkruar afatet, ose shtoji me \"Shto\"."
                         kerkimi.isNotBlank() -> "Asgjë s'u gjet" to "Provo një kërkim tjetër."
                         filtri == "skaduar" -> "Asnjë produkt i skaduar" to "Shumë mirë!"
                         filtri == "afer" -> "Asnjë produkt afër skadimit" to "Asgjë nuk skadon brenda 30 ditëve."
@@ -257,40 +261,43 @@ private var skanuar = "" // barkodi i skanuar para hapjes së "Afat i ri"
 private fun ndryshoZgjedhjen(z: Set<String>?, id: String): Set<String>? =
     (z ?: emptySet()).let { if (id in it) it - id else it + id }.ifEmpty { null }
 
-/** v276 (pronari, ideja 8): butonat "Shto" dhe "Skedarët" vetëm me ikona, në katror gri (si #afShto / #afExcel te web-i) */
+/** v277 (pronari, ideja 10 "B"): "Shto" me kornizë blu dhe ikonën e barkodit (19 dp, sa ikonat e "Importo" / "Eksporto"), si #afShto te web-i */
 @Composable
-private fun ButoniIkone(pershkrimi: String, onClick: () -> Unit, ikona: @Composable () -> Unit) {
+private fun ButoniShto(onClick: () -> Unit) {
     val n = N
-    Box(Modifier.fillMaxWidth().height(65.dp).clip(RoundedCornerShape(18.dp)).background(n.surface2).clickable(onClick = onClick)
-        .semantics { contentDescription = pershkrimi; role = androidx.compose.ui.semantics.Role.Button }, contentAlignment = Alignment.Center) { ikona() }
-}
-
-/** Dosja me rrethin e shigjetave lart/poshtë poshtë djathtas ("C1"), me unazën me ngjyrën e butonit që e ndan nga dosja */
-@Composable
-private fun IkonaESkedareve() {
-    val n = N
-    Box(Modifier.size(width = 40.dp, height = 36.dp)) {
-        Icon(Ik.Dosje, null, Modifier.size(34.dp), tint = n.ink)
-        Box(Modifier.align(Alignment.BottomEnd).offset(x = 3.dp, y = 3.dp).size(28.dp).clip(CircleShape).background(n.surface2), contentAlignment = Alignment.Center) {
-            Box(Modifier.size(22.dp).clip(CircleShape).background(n.ink), contentAlignment = Alignment.Center) {
-                Icon(Ik.ShigjetatLartPoshte, null, Modifier.size(14.dp), tint = n.surface2)
-            }
-        }
+    Row(Modifier.fillMaxWidth().height(65.dp).clip(RoundedCornerShape(18.dp)).border(1.5.dp, n.accentText, RoundedCornerShape(18.dp)).clickable(onClick = onClick)
+        .semantics(mergeDescendants = true) { contentDescription = "Shto afat"; role = androidx.compose.ui.semantics.Role.Button },
+        horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+        Icon(Ik.ShtoBarkod, null, Modifier.size(19.dp), tint = n.accentText)
+        Spacer(Modifier.width(8.dp))
+        Text("Shto", style = tx(15, 600, n.accentText))
     }
 }
 
-/** Butoni "Excel" (si #afExcel te web-i): "XLS" + "Excel", me menynë Importo Excel / Eksporto Excel / Eksporto PDF (Hyrja 36) / Eksporto si foto (Hyrja 35) */
+/** "Importo" / "Eksporto": kornizë e hollë, pa sfond, ikona 19 dp sipër tekstit (si .sb-action-kv te web-i) */
 @Composable
-private fun MenyjaExcel(lejaImp: Boolean, lejaEks: Boolean, lejaPdf: Boolean, importo: () -> Unit, eksporto: () -> Unit, pdf: () -> Unit, foto: () -> Unit) {
+private fun ButoniKatror(teksti: String, ikona: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier, onClick: () -> Unit) {
+    val n = N
+    Column(modifier.height(65.dp).clip(RoundedCornerShape(16.dp)).border(1.5.dp, n.line, RoundedCornerShape(16.dp)).clickable(onClick = onClick)
+        .semantics(mergeDescendants = true) { contentDescription = teksti; role = androidx.compose.ui.semantics.Role.Button },
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Icon(ikona, null, Modifier.size(19.dp), tint = n.ink)
+        Spacer(Modifier.height(5.dp))
+        Text(teksti, style = tx(12, 600, n.ink), maxLines = 1)
+    }
+}
+
+/** "Eksporto" (si #afExcel te web-i), me menynë Eksporto Excel / Eksporto PDF (Hyrja 36) / Eksporto si foto (Hyrja 35); importi u nda (Hyrja 38) */
+@Composable
+private fun MenyjaEksportit(lejaEks: Boolean, lejaPdf: Boolean, modifier: Modifier, eksporto: () -> Unit, pdf: () -> Unit, foto: () -> Unit) {
     val n = N
     var hapur by remember { mutableStateOf(false) }
-    Box {
-        ButoniIkone("Skedarët", { hapur = !hapur }) { IkonaESkedareve() }
+    Box(modifier) {
+        ButoniKatror("Eksporto", Ik.Eksporto, Modifier.fillMaxWidth()) { hapur = !hapur }
         androidx.compose.material3.DropdownMenu(hapur, { hapur = false }, offset = androidx.compose.ui.unit.DpOffset(0.dp, 6.dp),
             shape = RoundedCornerShape(14.dp), containerColor = n.surface, shadowElevation = 12.dp,
             modifier = Modifier.widthIn(min = 210.dp).padding(horizontal = 6.dp)) {
             listOfNotNull(
-                if (lejaImp) "Importo Excel" to importo else null,
                 if (lejaEks) "Eksporto Excel" to eksporto else null,
                 if (lejaPdf) "Eksporto PDF" to pdf else null,
                 if (lejaEks) "Eksporto si foto" to foto else null

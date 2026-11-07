@@ -74,7 +74,7 @@ const afer = (a, b, t) => a.every((v, i) => Math.abs(v - b[i]) <= (t || 6));
     await p.click('#btnAfatet'); await p.waitForTimeout(800);
     await p.click('#afExcel'); await p.waitForTimeout(200);
     const menu = await p.evaluate(() => Array.from(document.querySelectorAll('#afExcelMenu .sb-menu__item')).filter(x => x.offsetParent).map(x => x.textContent.trim()));
-    ok(menu.join() === 'Importo Excel,Eksporto Excel,Eksporto PDF,Eksporto si foto', '1. menuja "Excel": Importo, Eksporto Excel, (v275: Eksporto PDF), Eksporto si foto', menu);
+    ok(menu.join() === 'Eksporto Excel,Eksporto PDF,Eksporto si foto', '1. menuja "Eksporto" (v277: importi u nda): Eksporto Excel, (v275: Eksporto PDF), Eksporto si foto', menu);
     await p.click('#afEksFoto'); await p.waitForTimeout(400);
     const dl = await p.evaluate(() => ({ hapur: document.getElementById('dlgAfEksFoto').classList.contains('hapur'), menu: document.getElementById('afExcelMenu').hidden,
       titulli: document.getElementById('aefTitulli').textContent, nen: document.getElementById('aefNen').textContent,

@@ -71,10 +71,10 @@ object Ik {
         "M4.5 16h4a1.5 1.5 0 0 1 1.5 1.5v2a1.5 1.5 0 0 1 -1.5 1.5h-4a1.5 1.5 0 0 1 -1.5 -1.5v-2a1.5 1.5 0 0 1 1.5 -1.5Z")
     val Kohe = ikona("M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0Z", "M12 7v5l3 2")
     val Aktiviteti = ikona("M22 12h-4l-3 9L9 3l-3 9H2")
-    /** v276: "Shto afat" (kalendar me +) dhe dosja e "Skedarëve" (si te web-i) */
-    val KalendarPlus = ikona("M8 2v4M16 2v4", "M5.5 4h13a2.5 2.5 0 0 1 2.5 2.5v13a2.5 2.5 0 0 1 -2.5 2.5h-13a2.5 2.5 0 0 1 -2.5 -2.5v-13a2.5 2.5 0 0 1 2.5 -2.5Z", "M3 10h18", "M12 13.5v6M9 16.5h6")
-    val Dosje = ikona("M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z")
-    val ShigjetatLartPoshte = ikona("m4 8 4-4 4 4M8 4v16M20 16l-4 4-4-4M16 20V4", trashesia = 2.6f)
+    /** v277 (Hyrja 38): "Shto" (këndet e skanerit me vijat e barkodit), "Importo" dhe "Eksporto" (si #afShto / #afImporto / #afExcel te web-i) */
+    val ShtoBarkod = ikona("M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2", "M9 8.5v7M12 8.5v7M15 8.5v7")
+    val Importo = ikona("M12 3v12M7 10l5 5 5-5", "M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4")
+    val Eksporto = ikona("M12 15V3M7 8l5-5 5 5", "M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4")
     val Kalendari = ikona("M5.5 4h13a2.5 2.5 0 0 1 2.5 2.5v12a2.5 2.5 0 0 1 -2.5 2.5h-13a2.5 2.5 0 0 1 -2.5 -2.5v-12a2.5 2.5 0 0 1 2.5 -2.5Z", "M16 2v4M8 2v4M3 9.5h18")
     val Koleget = ikona("M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", "M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0Z", "M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75")
     val Kurora = ikona("M3 7l4 4 5-6 5 6 4-4-2 11H5L3 7z", "M5 21h14", trashesia = 2.3f)

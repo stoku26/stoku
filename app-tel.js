@@ -2831,9 +2831,12 @@
     Array.prototype.forEach.call(document.querySelectorAll('[data-leja]'), function (el) {
       el.classList.toggle('leja-ndaluar', !leja(el.getAttribute('data-leja')));
     });
-    // Menuja "Excel" e afateve s'ka kuptim pa importin dhe pa eksportin
+    // v277: "Eksporto" (menuja Excel / PDF / foto) s'ka kuptim pa eksportet; pa "Importo" dhe pa "Eksporto" fshihet edhe rreshti
     var xl = $('afExcel') && $('afExcel').parentNode;
-    if (xl) xl.classList.toggle('leja-ndaluar', !leja('afatetImporto') && !leja('eksportExcel'));
+    if (xl) {
+      xl.classList.toggle('leja-ndaluar', !leja('eksportExcel') && !leja('eksportPdf'));
+      xl.parentNode.classList.toggle('leja-ndaluar', !leja('afatetImporto') && !leja('eksportExcel') && !leja('eksportPdf'));
+    }
     document.body.classList.toggle('leja-pa-stok', !leja('stoku'));
     document.body.classList.toggle('pa-furnizues', paFurnizues()); // v252
     // v231: Cilësimet pa pjesët që s'kanë kuptim: skanimi pa Stok dhe pa Afate, njoftimet pa Afate dhe pa Grup
@@ -5535,8 +5538,8 @@
       var b0 = document.createElement('div');
       b0.className = 'af-bosh';
       if (!afatetEMarketit().length) {
-        if (idMarketitAktiv()) { b0.innerHTML = '<b>S\'ka ende afate te ky market</b>'; b0.appendChild(document.createTextNode('Fotografo fletën ose shtoji me "+ Shto": ruhen te ' + emriMarketit(idMarketitAktiv()) + '.')); }
-        else b0.innerHTML = '<b>S\'ka ende asnjë afat</b>Fotografo fletën ku janë shkruar afatet, ose shtoji me "+ Shto".';
+        if (idMarketitAktiv()) { b0.innerHTML = '<b>S\'ka ende afate te ky market</b>'; b0.appendChild(document.createTextNode('Fotografo fletën ose shtoji me "Shto": ruhen te ' + emriMarketit(idMarketitAktiv()) + '.')); }
+        else b0.innerHTML = '<b>S\'ka ende asnjë afat</b>Fotografo fletën ku janë shkruar afatet, ose shtoji me "Shto".';
       }
       else if (k) b0.innerHTML = '<b>Asgjë s\'u gjet</b>Provo një kërkim tjetër.';
       else b0.innerHTML = { skaduar: '<b>Asnjë produkt i skaduar</b>Shumë mirë!', afer: '<b>Asnjë produkt afër skadimit</b>Asgjë nuk skadon brenda 30 ditëve.',
@@ -5738,7 +5741,7 @@
   $('axMuaji').addEventListener('change', function () { axMbushFurnizuesit(); axInfoKrejt(); });
   $('axFurn').addEventListener('change', axInfoKrejt);
   $('afEksporto').addEventListener('click', hapEksportinEAfateve);
-  // Butoni "Excel" te Afatet: menu me Importo / Eksporto
+  // Butoni "Eksporto" te Afatet (v277; "Importo" u nda në buton të vetin): menu me Excel / PDF / foto
   (function () {
     var b = $('afExcel'), menu = $('afExcelMenu');
     function mbyll() { menu.hidden = true; b.setAttribute('aria-expanded', 'false'); }
@@ -5747,7 +5750,6 @@
       menu.hidden = !menu.hidden;
       b.setAttribute('aria-expanded', menu.hidden ? 'false' : 'true');
     });
-    $('afImporto').addEventListener('click', mbyll);
     $('afEksporto').addEventListener('click', mbyll);
     $('afEksFoto').addEventListener('click', mbyll);
     $('afEksPdf').addEventListener('click', mbyll);
