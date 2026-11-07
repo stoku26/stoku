@@ -298,7 +298,7 @@ private fun MenyjaEksportit(lejaEks: Boolean, lejaPdf: Boolean, modifier: Modifi
             // v278: në temën e errët menyja dallohet nga faqja (sfond më i çelët + vijë), se hija s'shihet
             shape = RoundedCornerShape(14.dp), containerColor = if (n.erret) n.surface2 else n.surface, shadowElevation = 12.dp,
             border = androidx.compose.foundation.BorderStroke(1.dp, if (n.erret) Color(0x29FFFFFF) else n.line),
-            modifier = Modifier.widthIn(min = 210.dp).padding(horizontal = 6.dp)) {
+            modifier = Modifier.padding(horizontal = 6.dp)) { // Hyrja 40: aq e gjerë sa teksti (pa min 210)
             // Hyrja 40: me ikonat si te web-i (.sb-menu__item: ikona 18 me ngjyrën muted, 10 dp larg tekstit)
             listOfNotNull(
                 if (lejaEks) Triple("Eksporto Excel", Ik.ExcelFleta, eksporto) else null,
