@@ -79,7 +79,8 @@ object EksportiPdf {
 
     private class Vizatuesi(ctx: Context, val c: Canvas) {
         val f = EksportiFoto.fontet(ctx)
-        val p = Paint(Paint.ANTI_ALIAS_FLAG or Paint.SUBPIXEL_TEXT_FLAG)
+        // LINEAR_TEXT: shkronjat janë të vogla në njësi mm (~3); pa të Android-i i rrumbullakos gjerësitë dhe hapësirat dalin të çrregullta
+        val p = Paint(Paint.ANTI_ALIAS_FLAG or Paint.SUBPIXEL_TEXT_FLAG or Paint.LINEAR_TEXT_FLAG)
         fun font(pt: Float, trashe: Boolean, hapesira: Float = 0f, numra: Boolean = false) {
             p.typeface = f.merr(false, if (trashe) 700 else 400)
             p.textSize = pt * PT
