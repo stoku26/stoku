@@ -299,13 +299,18 @@ private fun MenyjaEksportit(lejaEks: Boolean, lejaPdf: Boolean, modifier: Modifi
             shape = RoundedCornerShape(14.dp), containerColor = if (n.erret) n.surface2 else n.surface, shadowElevation = 12.dp,
             border = androidx.compose.foundation.BorderStroke(1.dp, if (n.erret) Color(0x29FFFFFF) else n.line),
             modifier = Modifier.widthIn(min = 210.dp).padding(horizontal = 6.dp)) {
+            // Hyrja 40: me ikonat si te web-i (.sb-menu__item: ikona 18 me ngjyrën muted, 10 dp larg tekstit)
             listOfNotNull(
-                if (lejaEks) "Eksporto Excel" to eksporto else null,
-                if (lejaPdf) "Eksporto PDF" to pdf else null,
-                if (lejaEks) "Eksporto si foto" to foto else null
-            ).forEach { (t, f) ->
-                Text(t, style = tx(14, 600, n.ink), modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(10.dp))
-                    .clickable { hapur = false; f() }.padding(horizontal = 12.dp).wrapContentHeight(Alignment.CenterVertically))
+                if (lejaEks) Triple("Eksporto Excel", Ik.ExcelFleta, eksporto) else null,
+                if (lejaPdf) Triple("Eksporto PDF", Ik.Pdf, pdf) else null,
+                if (lejaEks) Triple("Eksporto si foto", Ik.Foto, foto) else null
+            ).forEach { (t, ik, f) ->
+                Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(10.dp)).clickable { hapur = false; f() }.padding(horizontal = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Icon(ik, null, Modifier.size(18.dp), tint = n.muted)
+                    Spacer(Modifier.width(10.dp))
+                    Text(t, style = tx(14, 600, n.ink))
+                }
             }
         }
     }

@@ -73,6 +73,8 @@ object Ik {
     val Aktiviteti = ikona("M22 12h-4l-3 9L9 3l-3 9H2")
     /** v277 (Hyrja 38): "Shto" (këndet e skanerit me vijat e barkodit), "Importo" dhe "Eksporto" (si #afShto / #afImporto / #afExcel te web-i) */
     val ShtoBarkod = ikona("M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2", "M9 8.5v7M12 8.5v7M15 8.5v7")
+    /** Hyrja 40: ikona e "Eksporto Excel" te menyja (si #afEksporto te web-i) */
+    val ExcelFleta = ikona("M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", "M14 2v4a2 2 0 0 0 2 2h4", "M8 13h2M14 13h2M8 17h2M14 17h2")
     val Importo = ikona("M12 3v12M7 10l5 5 5-5", "M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4")
     val Eksporto = ikona("M12 15V3M7 8l5-5 5 5", "M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4")
     val Kalendari = ikona("M5.5 4h13a2.5 2.5 0 0 1 2.5 2.5v12a2.5 2.5 0 0 1 -2.5 2.5h-13a2.5 2.5 0 0 1 -2.5 -2.5v-12a2.5 2.5 0 0 1 2.5 -2.5Z", "M16 2v4M8 2v4M3 9.5h18")

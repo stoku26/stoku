@@ -61,6 +61,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    **Muaji nga emri i fletës (pronari: "kerkush si emerton mujt qeshtu")**: `muajiNgaEmri` (afatet.js + `ImportiAfateve.kt`) pranon
    vetëm emrin e saktë shqip të muajit (pa dallim shkronjash të mëdha/vogla, ë/ç, hapësira anash); "Nëntor2", "Nëntor (2)", "nov",
    "November", "Dhjetor 2026" → null. MOS e rikthe "Nëntor2". Teksti i importit: "(Nëntor, Dhjetor…)". Fiksturat e rifreskuara.
+   Android: menyja e "Eksporto" me ikonat si te web-i (`Ik.ExcelFleta`, `Ik.Pdf`, `Ik.Foto`, 18 dp, `muted`).
    S'është testuar në telefon të vërtetë.
 
 0000000. **"SHTO" SI "IMPORTO" / "EKSPORTO" + MENYJA E QARTË NË TEMËN E ERRËT (v278 = 1.49.3, 07.11.2026, telefoni + Android Hyrja 39)**:
