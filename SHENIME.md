@@ -52,6 +52,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **"SHTO" SI "IMPORTO" / "EKSPORTO" + MENYJA E QARTË NË TEMËN E ERRËT (v278 = 1.49.3, 07.11.2026, telefoni + Android Hyrja 39)**:
+   pronari (foto nga telefoni): menyja e "Eksporto" "menxi po dallohet ne dark mode"; "Shto" pa vijën e kaltër, "njejt si" Importo /
+   Eksporto. "Shto" tash me kornizë `line` dhe ngjyrë `ink` (ikona e barkodit mbetet). Menyja në temën e errët: sfondi `surface-2`
+   + vijë e bardhë 16% (web `.sb[data-tema="dark"] .sb-menu`, vlen për krejt `.sb-menu`; Android `DropdownMenu(border = …)` te
+   `MenyjaEksportit`). Testi `teste/v278.js`. S'është testuar në telefon të vërtetë.
+
 0000000. **"SHTO" ME KORNIZË BLU + "IMPORTO" / "EKSPORTO" TË NDARË (v277 = 1.49.2, 07.11.2026, telefoni + Android Hyrja 38)**: pronari
    s'e deshi v276 ("shum keq u doka"); pas 10 ideve për ndryshim total zgjodhi "ideja 10" me "B": "Shto" = kornizë `accent-text` 1.5,
    pa sfond, ikona 19 me këndet e skanerit dhe tri vija barkodi (pa "+", sa ikonat poshtë; `Ik.ShtoBarkod`) + teksti "Shto". "Skedarët"

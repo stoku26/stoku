@@ -261,16 +261,16 @@ private var skanuar = "" // barkodi i skanuar para hapjes së "Afat i ri"
 private fun ndryshoZgjedhjen(z: Set<String>?, id: String): Set<String>? =
     (z ?: emptySet()).let { if (id in it) it - id else it + id }.ifEmpty { null }
 
-/** v277 (pronari, ideja 10 "B"): "Shto" me kornizë blu dhe ikonën e barkodit (19 dp, sa ikonat e "Importo" / "Eksporto"), si #afShto te web-i */
+/** v277 (pronari, ideja 10 "B"; v278: pa kornizën blu, njësoj si "Importo" / "Eksporto"): "Shto" me ikonën e barkodit (19 dp, sa ikonat e "Importo" / "Eksporto"), si #afShto te web-i */
 @Composable
 private fun ButoniShto(onClick: () -> Unit) {
     val n = N
-    Row(Modifier.fillMaxWidth().height(65.dp).clip(RoundedCornerShape(18.dp)).border(1.5.dp, n.accentText, RoundedCornerShape(18.dp)).clickable(onClick = onClick)
+    Row(Modifier.fillMaxWidth().height(65.dp).clip(RoundedCornerShape(18.dp)).border(1.5.dp, n.line, RoundedCornerShape(18.dp)).clickable(onClick = onClick)
         .semantics(mergeDescendants = true) { contentDescription = "Shto afat"; role = androidx.compose.ui.semantics.Role.Button },
         horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-        Icon(Ik.ShtoBarkod, null, Modifier.size(19.dp), tint = n.accentText)
+        Icon(Ik.ShtoBarkod, null, Modifier.size(19.dp), tint = n.ink)
         Spacer(Modifier.width(8.dp))
-        Text("Shto", style = tx(15, 600, n.accentText))
+        Text("Shto", style = tx(15, 600, n.ink))
     }
 }
 
@@ -295,7 +295,9 @@ private fun MenyjaEksportit(lejaEks: Boolean, lejaPdf: Boolean, modifier: Modifi
     Box(modifier) {
         ButoniKatror("Eksporto", Ik.Eksporto, Modifier.fillMaxWidth()) { hapur = !hapur }
         androidx.compose.material3.DropdownMenu(hapur, { hapur = false }, offset = androidx.compose.ui.unit.DpOffset(0.dp, 6.dp),
-            shape = RoundedCornerShape(14.dp), containerColor = n.surface, shadowElevation = 12.dp,
+            // v278: në temën e errët menyja dallohet nga faqja (sfond më i çelët + vijë), se hija s'shihet
+            shape = RoundedCornerShape(14.dp), containerColor = if (n.erret) n.surface2 else n.surface, shadowElevation = 12.dp,
+            border = androidx.compose.foundation.BorderStroke(1.dp, if (n.erret) Color(0x29FFFFFF) else n.line),
             modifier = Modifier.widthIn(min = 210.dp).padding(horizontal = 6.dp)) {
             listOfNotNull(
                 if (lejaEks) "Eksporto Excel" to eksporto else null,
