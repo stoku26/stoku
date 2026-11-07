@@ -52,6 +52,18 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **"EKSPORTO SI FOTO" E RI-ORGANIZUAR (v279 = 1.49.4, 07.11.2026, telefoni + Android Hyrja 40)**: pronari ("shum keq u doka";
+   pas 5 ideve zgjodhi "ideja 5"): "Të gjithë" pranë titullit (`.aef-koka`), nëntitulli "Një foto për secilin furnizues.", kërkimi i
+   furnizuesit (`#aefKerko`, vetëm kur janë 6 e më shumë; filtron pa i humbur të zgjedhurit), lart "Me afate të skaduara" (etiketa e kuqe)
+   e poshtë "Të tjerët" ("Furnizuesit" kur s'ka të skaduar), secili grup në kartë `surface-2` me rreshta: kutia 24 (vijë `faint` 2, e
+   qartë në temën e errët), emri, "N afate" djathtas. Lista lëviz vetë (web `max-height: 52vh`, Android 50% e ekranit), butoni "Krijo"
+   me ikonë poshtë saj, "Anulo" nën të. Android `AfatetFotoFlete` + `RreshtiIFurnizuesit`. Testi `teste/v279.js`; v274 u përshtat.
+   **Muaji nga emri i fletës (pronari: "kerkush si emerton mujt qeshtu")**: `muajiNgaEmri` (afatet.js + `ImportiAfateve.kt`) pranon
+   vetëm emrin e saktë shqip të muajit (pa dallim shkronjash të mëdha/vogla, ë/ç, hapësira anash); "Nëntor2", "Nëntor (2)", "nov",
+   "November", "Dhjetor 2026" → null. MOS e rikthe "Nëntor2". Teksti i importit: "(Nëntor, Dhjetor…)". Fiksturat e rifreskuara.
+   Android: menyja e "Eksporto" me ikonat si te web-i (`Ik.ExcelFleta`, `Ik.Pdf`, `Ik.Foto`, 18 dp, `muted`).
+   S'është testuar në telefon të vërtetë.
+
 0000000. **"SHTO" SI "IMPORTO" / "EKSPORTO" + MENYJA E QARTË NË TEMËN E ERRËT (v278 = 1.49.3, 07.11.2026, telefoni + Android Hyrja 39)**:
    pronari (foto nga telefoni): menyja e "Eksporto" "menxi po dallohet ne dark mode"; "Shto" pa vijën e kaltër, "njejt si" Importo /
    Eksporto. "Shto" tash me kornizë `line` dhe ngjyrë `ink` (ikona e barkodit mbetet). Menyja në temën e errët: sfondi `surface-2`

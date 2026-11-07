@@ -79,17 +79,18 @@ const afer = (a, b, t) => a.every((v, i) => Math.abs(v - b[i]) <= (t || 6));
     const dl = await p.evaluate(() => ({ hapur: document.getElementById('dlgAfEksFoto').classList.contains('hapur'), menu: document.getElementById('afExcelMenu').hidden,
       titulli: document.getElementById('aefTitulli').textContent, nen: document.getElementById('aefNen').textContent,
       rr: Array.from(document.querySelectorAll('#aefLista .ax-rresht')).map(r => r.innerText.replace(/\s+/g, ' ').trim()),
-      krijo: document.getElementById('aefKrijo').textContent, pa: document.getElementById('aefKrijo').disabled, krejt: document.getElementById('aefKrejt').textContent }));
-    ok(dl.hapur && dl.menu && dl.titulli === 'Eksporto si foto' && /Për secilin del një foto më vete/.test(dl.nen), '2. dritarja "Eksporto si foto" (menuja mbyllet)', dl);
-    ok(dl.rr.join(' | ') === 'Agro Fresh 3 afate · 1 i skaduar | Meridian Group 12 afate · 2 të skaduara | Pa furnizues 1 afat', '2. furnizuesit me afatet aktive dhe të skaduarat, "Pa furnizues" në fund', dl.rr);
+      krijo: document.getElementById('aefKrijo').textContent, pa: document.getElementById('aefKrijo').disabled, krejt: document.getElementById('aefKrejt').textContent,
+      grupet: Array.from(document.querySelectorAll('#aefLista .aef-etiketa')).map(e => e.textContent + ':' + e.nextElementSibling.querySelectorAll('.ax-rresht').length).join(' | ') }));
+    ok(dl.hapur && dl.menu && dl.titulli === 'Eksporto si foto' && /Një foto për secilin furnizues/.test(dl.nen), '2. dritarja "Eksporto si foto" (menuja mbyllet)', dl);
+    ok(dl.rr.join(' | ') === 'Agro Fresh 3 afate | Meridian Group 12 afate | Pa furnizues 1 afat' && dl.grupet === 'Me afate të skaduara:2 | Furnizuesit:0'.replace('Furnizuesit:0', 'Të tjerët:1'), '2. furnizuesit (v279: me afate të skaduara lart, "Pa furnizues" te të tjerët)', dl);
     ok(dl.pa && dl.krijo === 'Krijo foton' && dl.krejt === 'Të gjithë', '2. pa zgjedhje "Krijo foton" s\'punon', dl);
-    await p.click('#aefLista .ax-rresht:nth-child(2)'); await p.click('#aefLista .ax-rresht:nth-child(1)'); await p.waitForTimeout(100);
+    await p.click('#aefLista .ax-rresht >> nth=1'); await p.click('#aefLista .ax-rresht >> nth=0'); await p.waitForTimeout(100);
     const k2 = await p.evaluate(() => ({ t: document.getElementById('aefKrijo').textContent, pa: document.getElementById('aefKrijo').disabled }));
     ok(k2.t === 'Krijo 2 foto' && !k2.pa, '2. dy të zgjedhur: "Krijo 2 foto"', k2);
     await p.click('#aefKrejt'); await p.waitForTimeout(100);
     const k3 = await p.evaluate(() => ({ t: document.getElementById('aefKrijo').textContent, k: document.getElementById('aefKrejt').textContent }));
     ok(k3.t === 'Krijo 3 foto' && k3.k === 'Asnjë', '2. "Të gjithë" → 3, butoni bëhet "Asnjë"', k3);
-    await p.click('#aefKrejt'); await p.click('#aefLista .ax-rresht:nth-child(1)'); await p.click('#aefLista .ax-rresht:nth-child(2)');
+    await p.click('#aefKrejt'); await p.click('#aefLista .ax-rresht >> nth=0'); await p.click('#aefLista .ax-rresht >> nth=1');
     await p.click('#aefKrijo'); await p.waitForTimeout(1500);
     const f = await fotot(p);
     ok(f && f.r.length === 2 && f.title === 'Afatet', '3. dy foto, me një prekje te "Shpërndaj"', f && { n: f.r.length, t: f.title });
@@ -110,7 +111,7 @@ const afer = (a, b, t) => a.every((v, i) => Math.abs(v - b[i]) <= (t || 6));
     const { p, ctx } = await faqe(b, 'dark');
     await p.click('#btnAfatet'); await p.waitForTimeout(800);
     await p.click('#afExcel'); await p.click('#afEksFoto'); await p.waitForTimeout(300);
-    await p.click('#aefLista .ax-rresht:nth-child(2)'); await p.click('#aefKrijo'); await p.waitForTimeout(1500);
+    await p.click('#aefLista .ax-rresht >> nth=1'); await p.click('#aefKrijo'); await p.waitForTimeout(1500);
     const f = await fotot(p);
     ok(f && f.r.length === 1 && f.title === 'Afatet: Meridian Group' && afer(f.r[0].sfondi, [15, 17, 21]), '4. tema e errët: sfondi #0f1115', f && { t: f.title, s: f.r[0].sfondi });
     fs.writeFileSync(__dirname + '/v274-erret.jpg', Buffer.from(f.r[0].b64, 'base64'));
@@ -124,7 +125,7 @@ const afer = (a, b, t) => a.every((v, i) => Math.abs(v - b[i]) <= (t || 6));
     await p.evaluate(() => { navigator.canShare = undefined; navigator.share = undefined; });
     await p.click('#btnAfatet'); await p.waitForTimeout(800);
     await p.click('#afExcel'); await p.click('#afEksFoto'); await p.waitForTimeout(300);
-    await p.click('#aefLista .ax-rresht:nth-child(1)');
+    await p.click('#aefLista .ax-rresht >> nth=0');
     const [sh] = await Promise.all([p.waitForEvent('download', { timeout: 5000 }).catch(() => null), p.click('#aefKrijo')]);
     await p.waitForTimeout(500);
     ok(sh && sh.suggestedFilename() === 'afatet_agro_fresh_' + dita + '.jpg' && /Fotoja u shkarkua/.test(await p.textContent('#toast')), '5. pa "Shpërndaj": fotoja shkarkohet', sh && sh.suggestedFilename());

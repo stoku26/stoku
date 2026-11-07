@@ -324,21 +324,13 @@
 
   // ---------- Muajt (filtri dhe eksporti sipas muajit të skadimit) ----------
   var EMRAT_MUAJVE = ['Janar', 'Shkurt', 'Mars', 'Prill', 'Maj', 'Qershor', 'Korrik', 'Gusht', 'Shtator', 'Tetor', 'Nëntor', 'Dhjetor'];
-  var MUAJT_PLOTE = [['janar', 'january', 'jan'], ['shkurt', 'february', 'feb', 'shk'], ['mars', 'march', 'mar'], ['prill', 'april', 'pri', 'apr'],
-    ['maj', 'may'], ['qershor', 'june', 'qer', 'jun'], ['korrik', 'july', 'kor', 'jul'], ['gusht', 'august', 'gus', 'aug'],
-    ['shtator', 'september', 'sht', 'sep', 'sept'], ['tetor', 'october', 'tet', 'okt', 'oct'], ['nentor', 'november', 'nen', 'nov'], ['dhjetor', 'december', 'dhj', 'dec', 'dhe']];
-  function pastroShkronjat(t) {
-    return String(t || '').toLowerCase().replace(/ë/g, 'e').replace(/ç/g, 'c').replace(/[^a-z]/g, '');
-  }
-  // "Nëntor", "nentor2", "NENTOR 2", "Nëntor (2)", "nov" → 11. Numrat dhe shenjat harrohen. Jo-muaj → null.
+  var MUAJT_SHQIP = ['janar', 'shkurt', 'mars', 'prill', 'maj', 'qershor', 'korrik', 'gusht', 'shtator', 'tetor', 'nentor', 'dhjetor'];
+  // v279 (pronari): fleta e jep muajin vetëm kur quhet saktë si muaji ("Nëntor", "nentor", " DHJETOR "): pa numra, pa shkurtime,
+  // pa emra anglisht ("Nëntor2", "nov", "November" → null). Shkronjat e mëdha/vogla dhe ë/ç s'kanë rëndësi.
   function muajiNgaEmri(t) {
-    var sh = pastroShkronjat(t);
-    if (sh.length < 3) return null;
-    for (var i = 0; i < MUAJT_PLOTE.length; i++) {
-      var l = MUAJT_PLOTE[i];
-      for (var j = 0; j < l.length; j++) if (sh === l[j] || (sh.length >= 3 && l[j].length > 3 && l[j].indexOf(sh) === 0)) return i + 1;
-    }
-    return null;
+    var sh = String(t || '').trim().toLowerCase().replace(/ë/g, 'e').replace(/ç/g, 'c');
+    var i = MUAJT_SHQIP.indexOf(sh);
+    return i < 0 ? null : i + 1;
   }
   // 'VVVV-MM' e muajit të skadimit; 'pa-date' kur s'ka datë
   function celesiMuajit(a) { var d = a && a.data; return /^\d{4}-\d{2}/.test(String(d || '')) ? String(d).slice(0, 7) : 'pa-date'; }
@@ -386,7 +378,7 @@
     return String(v === undefined || v === null ? '' : v).trim();
   }
   // Data nga një qelizë: numër serial i Excel-it, tekst ("12.10.2026", "12 nëntor 26"…), ose vetëm dita ("15")
-  // kur fleta ka emrin e muajit ("Nëntor2" → nëntor).
+  // kur fleta ka emrin e muajit ("Nëntor" → nëntor).
   function ditaNeMuaj(dita, muaji) {
     var t = new Date(), v = t.getFullYear();
     var iso = ndertoIso(v, muaji, dita);
