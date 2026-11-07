@@ -52,6 +52,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **"SHTO" ME KORNIZË BLU + "IMPORTO" / "EKSPORTO" TË NDARË (v277 = 1.49.2, 07.11.2026, telefoni + Android Hyrja 38)**: pronari
+   s'e deshi v276 ("shum keq u doka"); pas 10 ideve për ndryshim total zgjodhi "ideja 10" me "B": "Shto" = kornizë `accent-text` 1.5,
+   pa sfond, ikona 19 me këndet e skanerit dhe tri vija barkodi (pa "+", sa ikonat poshtë; `Ik.ShtoBarkod`) + teksti "Shto". "Skedarët"
+   u nda në dy butona pranë njëri-tjetrit nën "Shto" (kornizë `line`, ikona 19 sipër tekstit 12): "Importo" (`#afImporto`, hap direkt
+   importin e Excel-it, leja `afatetImporto`) dhe "Eksporto" (`#afExcel`, menyja Eksporto Excel / PDF / si foto; fshihet pa
+   `eksportExcel` dhe `eksportPdf`). Web: `.sb-action-shto`, `.sb-ie`, `.sb-action-kv` (padding horizontal 0 që flex-i t'i bëjë
+   të barabartë). Android: `ButoniShto`, `ButoniKatror`, `MenyjaEksportit`; contentDescription "Shto afat", "Importo", "Eksporto".
+   U hoqën `Ik.KalendarPlus`, `Ik.Dosje`, `Ik.ShigjetatLartPoshte`. Testi `teste/v277.js` (zëvendëson v276.js). S'është testuar në telefon të vërtetë.
+
 0000000. **BUTONAT "SHTO" DHE "SKEDARËT" VETËM ME IKONA (v276 = 1.49.1, 07.11.2026, telefoni + Android Hyrja 37)**: pronari ("Excel" s'i
    shkonte më se ka edhe PDF/foto/import; pas shumë idesh) zgjodhi "ideja 8": dy katrorë gri (`--sb-surface-2` / `n.surface2`), pa tekst
    e pa ngjyra. "Shto" = kalendar me "+" (`Ik.KalendarPlus`, 30), ish "Excel" = dosja me rrethin e shigjetave lart/poshtë poshtë djathtas

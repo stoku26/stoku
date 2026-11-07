@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 277, versioni: '1.49.2', data: '2026-11-07', titulli: 'Importo dhe Eksporto te Afatet', platforma: 'tel', pikat: [
+      'Te Afatet, "Shto" ka tash kornizë blu dhe ikonën e barkodit.',
+      'Poshtë tij janë dy butona: "Importo" e hap direkt zgjedhjen e Excel-it, "Eksporto" hap Excel, PDF ose foto.'
+    ] },
     { v: 276, versioni: '1.49.1', data: '2026-11-07', titulli: 'Butonat e rinj te Afatet', platforma: 'tel', pikat: [
       'Te Afatet, "Shto" dhe "Excel" janë tash dy katrorë vetëm me ikona: kalendari me "+" shton një afat, dosja me shigjetat hap Importo / Eksporto (Excel, PDF, foto).'
     ] },

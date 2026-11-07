@@ -359,13 +359,12 @@ class PamjetTest {
         kliko("Anulo")
         r.onNodeWithContentDescription("Foldera").performClick(); r.waitForIdle()
         kliko("Afatet")
-        // v74: te Afatet "Importo Excel" / "Eksporto Excel" janë brenda menysë së butonit "Excel"
-        r.onNodeWithContentDescription("Skedarët").performClick(); r.waitForIdle() // v276: ish "Excel", vetëm ikonë
+        // Hyrja 38: te Afatet "Importo" o buton i vetin, "Eksporto Excel" brenda menysë së "Eksporto"
+        r.onNodeWithContentDescription("Eksporto").performClick(); r.waitForIdle() // Hyrja 38: menyja e eksportit
         kliko("Eksporto Excel")
         fotoEkrani("light-20-afatet-excel")
         klikoFundit("Anulo")
-        r.onNodeWithContentDescription("Skedarët").performClick(); r.waitForIdle() // v276: ish "Excel", vetëm ikonë
-        kliko("Importo Excel")
+        r.onNodeWithContentDescription("Importo").performClick(); r.waitForIdle() // Hyrja 38: buton i vetin, pa menu
         fotoEkrani("light-21-importi")
     }
 
@@ -374,7 +373,7 @@ class PamjetTest {
         mbush()
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
         kliko("Afatet")
-        r.onNodeWithContentDescription("Skedarët").performClick(); r.waitForIdle() // v276: ish "Excel", vetëm ikonë
+        r.onNodeWithContentDescription("Eksporto").performClick(); r.waitForIdle() // Hyrja 38: menyja e eksportit
         kliko("Eksporto si foto")
         fotoEkrani("light-43-afatet-foto")
         org.junit.Assert.assertTrue("furnizuesit", r.onAllNodesWithText("Vita").fetchSemanticsNodes().isNotEmpty() &&
@@ -410,7 +409,7 @@ class PamjetTest {
         mbush()
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
         kliko("Afatet")
-        r.onNodeWithContentDescription("Skedarët").performClick(); r.waitForIdle() // v276: ish "Excel", vetëm ikonë
+        r.onNodeWithContentDescription("Eksporto").performClick(); r.waitForIdle() // Hyrja 38: menyja e eksportit
         kliko("Eksporto PDF")
         fotoEkrani("light-45-afatet-pdf")
         for (t in listOf("PDF për printim", "5 afate · 1 faqe A4", "Periudha", "Gjendja", "Furnizuesi", "Renditja", "Sipas datës", "Krijo PDF-në"))

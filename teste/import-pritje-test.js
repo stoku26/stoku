@@ -19,7 +19,7 @@ const mock = ([emri, pc]) => {
     const p = await ctx.newPage(); p.on('pageerror', e => err.push(e.message));
     await p.goto('http://127.0.0.1:8765/index.html'); await p.waitForTimeout(1500);
     await p.evaluate(() => document.getElementById('btnAfatet').click()); await p.waitForTimeout(500);
-    await p.click('#afExcel'); await p.click('#afImporto'); await p.waitForTimeout(300);
+    await p.click('#afImporto'); await p.waitForTimeout(300);
     await p.setInputFiles('#aiSkedari', __dirname + '/afatet-test.xlsx'); await p.waitForTimeout(800);
     await p.click('#aiBtn'); await p.waitForTimeout(2500);
     const k = await p.evaluate(() => JSON.parse(localStorage.getItem('stoku:kujtesa:v1') || '{}'));
