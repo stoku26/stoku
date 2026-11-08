@@ -484,7 +484,7 @@ fun ImportiAfateveFlete(mbyll: () -> Unit, pasImportit: () -> Unit) {
         Text("Importo afate nga Excel", style = tx(22, 700, n.ink, -0.02))
         val f = fletet
         if (f == null) {
-            Text("Zgjidh një skedar .xlsx ose .csv me barkodin ose emrin dhe datën e skadimit. Fletët me emrin e muajit (Nëntor, Dhjetor…) lexohen si ai muaj.",
+            Text("Importo afatet nga një skedar Excel (.xlsx) ose .csv.",
                 style = tx(14, 400, n.muted))
             Buton(if (dukeLexuar) "Duke e lexuar…" else "Zgjidh skedarin", {
                 if (dukeLexuar) return@Buton

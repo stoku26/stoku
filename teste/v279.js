@@ -57,7 +57,7 @@ const AF = []; const shto = (e, f, n) => AF.push({ id: 'a' + AF.length, emri: e,
   const mm = ['Nëntor', 'nentor', ' DHJETOR ', 'janar', 'Nëntor2', 'NENTOR 2', 'Nëntor (2)', 'nov', 'November', 'Dhjetor 2026', 'Fleta1', ''].map(A.muajiNgaEmri);
   ok(mm.join() === '11,11,12,1,,,,,,,,', '5. muaji vetëm nga emri i saktë i fletës', mm);
   const html = require('fs').readFileSync(__dirname + '/../index.html', 'utf8') + require('fs').readFileSync(__dirname + '/../pc.html', 'utf8');
-  ok(!/Nëntor2/.test(html) && /Fletët me emrin e muajit \(Nëntor, Dhjetor…\)/.test(html), '5. teksti i importit pa "Nëntor2" (telefoni + PC)');
+  ok(!/Nëntor2/.test(html) && /Fletët me emrin e muajit/.test(html) === false, '5. teksti i importit pa "Nëntor2" (telefoni + PC)');
   await b.close();
   console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');
   process.exit(g ? 1 : 0);
