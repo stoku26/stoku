@@ -164,7 +164,7 @@ const NUMERO_GPS = () => {
   await dr.click('#afMarketi'); await dr.waitForTimeout(300);
   const opsionet = await dr.evaluate(() => [...document.querySelectorAll('#mkdLista button')].map(x => x.textContent));
   ok(opsionet.join('|') === 'Albi Mall0 m · 2 afate|Viva Fresh1 afat|Të gjitha marketet3 afate' && await duket(dr, '#mkdGps'), '1. "Ku je?": marketet me numrat (v250: Albi afër teje, me largësinë) + Krejt + GPS', opsionet);
-  await dr.evaluate(() => [...document.querySelectorAll('#mkdLista button')].find(x => /Krejt/.test(x.textContent)).click()); await dr.waitForTimeout(300);
+  await dr.evaluate(() => [...document.querySelectorAll('#mkdLista button')].find(x => /Të gjitha/.test(x.textContent)).click()); await dr.waitForTimeout(300);
   const kk = await kartat(dr);
   ok(kk.length === 3 && kk.some(x => /Jogurt \| Viva Fresh/.test(x)) && kk.some(x => /Kos Abi \| Albi Mall/.test(x)), '1. Të gjitha marketet: 3 afate, me emrin e marketit', kk);
   await dr.screenshot({ path: __dirname + '/v241-tel-krejt.png' });
