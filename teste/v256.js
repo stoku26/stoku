@@ -2,7 +2,7 @@
 //       me pasaktësi mbi 150 m asnjë; zgjedhja me dorë bie kur GPS-i (i saktë) të tregon mbi 300 m larg saj.
 //       (2) Harta dhe Marketet: një faqe "Marketet" te Cilësimet (telefoni), "Harta" e PC-së quhet "Marketet".
 //  0) njësitë (marketet.js);
-//  1) telefoni, merchandiseri në shtëpi 150 m nga marketi: "Krejt marketet" (jo "Je te"); brenda (30 m): "Je te: Albi 34";
+//  1) telefoni, merchandiseri në shtëpi 150 m nga marketi: "Të gjitha marketet" (jo "Je te"); brenda (30 m): "Je te: Albi 34";
 //     zgjedhja me dorë e Albit, pastaj GPS-i 2 km larg: bie;
 //  2) telefoni: s'ka më rresht "Harta"; "Marketet" i merchandiserit: "Je te", harta, lista me afatet, "Market i ri";
 //  3) telefoni, administratori: "Marketet" (pa "Je te", pa "Market i ri", me "+ Shto market në hartë"); agim: pa "Marketet";
@@ -77,17 +77,17 @@ const veri = (m, s) => ({ latitude: ALBI.lat + m / 111320, longitude: ALBI.lng, 
 
   // ================= 1. "Je te" në metra =================
   const { p: dr, ctx: ctxD } = await faqe('u1', 'drini', false, veri(150, 15), true);
-  ok(await prit(async () => (await cipi(dr)) === 'Krejt marketet', 6000), '1. në shtëpi, 150 m nga marketi: "Krejt marketet" (jo "Je te: Albi 34")', await cipi(dr));
+  ok(await prit(async () => (await cipi(dr)) === 'Të gjitha marketet', 6000), '1. në shtëpi, 150 m nga marketi: "Të gjitha marketet" (jo "Je te: Albi 34")', await cipi(dr));
   await ctxD.setGeolocation(veri(30, 15)); await riktheGps(dr);
   ok(await prit(async () => (await cipi(dr)) === 'Albi 34'), '1. brenda marketit (30 m): "Je te: Albi 34"', await cipi(dr));
   await ctxD.setGeolocation(veri(90, 60)); await riktheGps(dr);
   ok(await prit(async () => (await cipi(dr)) === 'Albi 34'), '1. 90 m me pasaktësi 60 m (kufiri 100 m): mbetet "Albi 34"', await cipi(dr));
   await ctxD.setGeolocation(veri(2000, 20)); await riktheGps(dr);
-  ok(await prit(async () => (await cipi(dr)) === 'Krejt marketet'), '1. 2 km larg: "Krejt marketet"', await cipi(dr));
+  ok(await prit(async () => (await cipi(dr)) === 'Të gjitha marketet'), '1. 2 km larg: "Të gjitha marketet"', await cipi(dr));
   // zgjedhja me dorë, pastaj GPS-i larg saj
   await dr.evaluate(() => { localStorage.setItem('stoku:marketi:aktiv', JSON.stringify({ id: 'm1', menyra: 'dore', koha: Date.now(), kontrolluarSe: 0 })); });
   await dr.reload(); await dr.waitForTimeout(2500);
-  ok(await prit(async () => (await cipi(dr)) === 'Krejt marketet'), '1. zgjedhur me dorë "Albi 34", por GPS-i 2 km larg: bie', await cipi(dr));
+  ok(await prit(async () => (await cipi(dr)) === 'Të gjitha marketet'), '1. zgjedhur me dorë "Albi 34", por GPS-i 2 km larg: bie', await cipi(dr));
   await ctxD.setGeolocation(veri(200, 20));
   await dr.evaluate(() => { localStorage.setItem('stoku:marketi:aktiv', JSON.stringify({ id: 'm1', menyra: 'dore', koha: Date.now(), kontrolluarSe: 0 })); });
   await dr.reload(); await dr.waitForTimeout(2500);

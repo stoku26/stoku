@@ -1,11 +1,11 @@
 package site.stoku.logjika
 
 /*
- * Lejet e përdoruesve (lejet.js): çka mund të përdorë secila llogari. Dokumenti lejet/{uid} = { lejet: { çelësi: bool } }.
+ * Lejet e përdoruesve (lejet.js): çfarë mund të përdorë secila llogari. Dokumenti lejet/{uid} = { lejet: { çelësi: bool } }.
  *  - Pa dokument: krejt të lejuara (llogari e pakontrolluar). Çelësi që mungon: i lejuar.
  *  - Leja e një pjese vlen edhe për veprimet brenda saj (zinxhiri i prindërve).
  *  - Lejet "me zgjedhje" (marketet = merchandiser) janë të fikura kur mungojnë.
- * Çka s'lejohet zhduket krejt, pa asnjë mesazh.
+ * Çfarë s'lejohet zhduket krejt, pa asnjë mesazh.
  */
 object Lejet {
     class Leja(val k: String, val emri: String, val prindi: String? = null, val zgjedhje: Boolean = false, val grupi: String = "", val pershkrim: String = "")
@@ -15,7 +15,7 @@ object Lejet {
         Leja("stokuShto", "Shto produkte të reja", "stoku", grupi = "Stoku", pershkrim = "Një barkod që s'është ende në folder."),
         Leja("stokuNdrysho", "Ndrysho produktet", "stoku", grupi = "Stoku", pershkrim = "Sasia, emri, furnizuesi dhe zhvendosja në folder tjetër."),
         Leja("stokuPlusMinus", "Sasia e shpejtë (+/-)", "stokuNdrysho", grupi = "Stoku", pershkrim = "Butonat + dhe - te lista e produkteve dhe numërimi kur skanon me kamerë një produkt që e ke."),
-        Leja("stokuFshi", "Fshi produkte dhe foldera", "stoku", grupi = "Stoku", pershkrim = "Edhe \"Fshi krejt\" brenda një folderi."),
+        Leja("stokuFshi", "Fshi produkte dhe foldera", "stoku", grupi = "Stoku", pershkrim = "Edhe \"Fshi të gjitha\" brenda një folderi."),
         Leja("stokuFoldera", "Krijo dhe ndrysho folderat", "stoku", grupi = "Stoku", pershkrim = "\"Folder i ri\", emri, ikona dhe renditja e folderave."),
         Leja("stokuImporto", "Importo stokun", "stoku", grupi = "Stoku", pershkrim = "Nga fotoja e një flete (me AI) ose nga Excel në kompjuter."),
         Leja("afatet", "Afatet", grupi = "Afatet", pershkrim = "Sheh afatet e skadimit të produkteve."),
@@ -28,7 +28,7 @@ object Lejet {
             pershkrim = "Afatet sipas marketeve, me GPS. E zgjedh vetë kur hap llogarinë (\"Punoj si merchandiser\"); këtu ia ndez ose ia fik."),
         Leja("grupi", "Grupi", grupi = "Grupi", pershkrim = "Kolegët, afatet e grupit, aktiviteti dhe kalendari."),
         Leja("grupiHeq", "Hiq nga rafti produktet e kolegëve", "grupi", grupi = "Grupi", pershkrim = "\"Unë e hoqa\" te afatet e skaduara të kolegëve (kolegu e miraton)."),
-        Leja("grupiKerkesat", "Kërkesat për heqje", "grupi", grupi = "Grupi", pershkrim = "Kërkoji një kolegu ose krejt grupit ta heqë një produkt nga rafti."),
+        Leja("grupiKerkesat", "Kërkesat për heqje", "grupi", grupi = "Grupi", pershkrim = "Kërkoji një kolegu ose të gjithë grupit ta heqë një produkt nga rafti."),
         Leja("kamera", "Skano me kamerë", grupi = "Skanimi dhe skedarët", pershkrim = "Barkodi me kamerën e telefonit, te stoku dhe te afatet."),
         Leja("skanimShpejt", "Skanim i shpejtë", "kamera", grupi = "Skanimi dhe skedarët", pershkrim = "Brenda folderit te Stoku: kamera s'mbyllet dhe çdo barkod shtohet menjëherë te lista me sasitë."),
         Leja("eksportExcel", "Eksporto në Excel", grupi = "Skanimi dhe skedarët", pershkrim = "Stoku dhe afatet."),
@@ -61,10 +61,10 @@ object Lejet {
         return o
     }
 
-    /** "Lejo krejt" (true) / "Ndalo krejt" (false): krejt lejet pa ato me zgjedhje */
+    /** "Lejo të gjitha" (true) / "Ndalo të gjitha" (false): të gjitha lejet pa ato me zgjedhje */
     fun krejt(vlera: Boolean): MObj { val o = MObj(); KATALOGU.forEach { if (!it.zgjedhje) o[it.k] = vlera }; return o }
 
-    /** "Lejo krejt" / "Ndalo krejt" s'e ndërrojnë zgjedhjen e caktuar më parë (p.sh. merchandiser) */
+    /** "Lejo të gjitha" / "Ndalo të gjitha" s'e ndërrojnë zgjedhjen e caktuar më parë (p.sh. merchandiser) */
     fun meZgjedhjet(lejetERe: Obj, teVjetrat: Obj?): MObj {
         val o = LinkedHashMap(lejetERe)
         KATALOGU.filter { it.zgjedhje }.forEach { l -> if (zgjedhja(o, l.k) == null) zgjedhja(teVjetrat, l.k)?.let { o[l.k] = it } }

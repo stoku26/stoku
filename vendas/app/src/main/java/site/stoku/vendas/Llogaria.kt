@@ -141,7 +141,7 @@ object Llogaria {
         }
     }
 
-    /** Administratori (mendurberisha) i ka krejt lejet */
+    /** Administratori (mendurberisha) i ka të gjitha lejet */
     fun eshteAdmin(): Boolean = Lejet.eshteAdmin(_perdoruesi.value?.emri)
 
     fun leja(k: String): Boolean {

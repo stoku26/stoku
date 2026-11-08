@@ -38,7 +38,7 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev'; const pushet = [];
   await agim.screenshot({ path: SC + 'krk-tel-pulti.png' });
   await agim.click('#ekKerkoHeqje'); await agim.waitForTimeout(300);
   const opts = await agim.$$eval('#krkPer option', l => l.map(o => o.textContent));
-  ok(opts.length === 3 && /Krejt grupi \(2\)/.test(opts[0]), '1. lista: krejt ekipa + 2 kolegë', opts);
+  ok(opts.length === 3 && /I gjithë grupi \(2\)/.test(opts[0]), '1. lista: e gjithë ekipa + 2 kolegë', opts);
   ok(await agim.$eval('.krk-tab.aktiv', e => e.textContent) === 'Të skaduarat1', '1. tabi i parë: të skaduarat (1)', await agim.$eval('.krk-tab.aktiv', e => e.textContent));
   ok(/Djathë.*skadoi më/.test(await agim.textContent('.krk-lista')), '1. afati i skaduar në listë', await agim.textContent('.krk-lista'));
   await agim.click('#krkDergo'); await agim.waitForTimeout(200);
@@ -88,17 +88,17 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev'; const pushet = [];
   const akt = await agim.evaluate(() => document.body.innerText);
   ok(/kërkove heqjen nga rafti: 2 produkte/.test(akt) && /e hoqi nga rafti: 2 produkte/.test(akt), '3. aktiviteti: kërkesa + kryerja');
   await agim.screenshot({ path: SC + 'krk-tel-aktiviteti.png' });
-  // 4. Blerta (PC) i kërkon krejt ekipës, me barkod të panjohur
+  // 4. Blerta (PC) i kërkon të gjithë ekipës, me barkod të panjohur
   await blerta.click('#ekKerkoHeqje'); await blerta.waitForTimeout(300);
   ok(await blerta.$eval('.krk-tab.aktiv', e => e.textContent) === 'Produktet e mia1', '4. pa të skaduara: hapet te produktet');
   await blerta.click('.krk-rresht:has-text("Lëng molle")');
   await blerta.screenshot({ path: SC + 'krk-pc-dlg.png' });
   await blerta.click('#krkDergo'); await blerta.waitForTimeout(1500);
   const n2 = [...F.S.docs.entries()].filter(([k, v]) => /njoftimet\//.test(k) && v.lloji === 'kerkese-heqje' && v.barkodi === '12345678').map(x => x[0].split('/')[1]).sort();
-  ok(JSON.stringify(n2) === '["u1","uA"]', '4. krejt ekipa: agimi + admini (jo vetja)', n2);
+  ok(JSON.stringify(n2) === '["u1","uA"]', '4. e gjithë ekipa: agimi + admini (jo vetja)', n2);
   await agim.waitForTimeout(1200);
   ok(/i kërkon ekipës ta heqë nga rafti: 12345678/.test(await agim.evaluate(() => document.body.innerText)) || true, '4. (toast/zile te agimi)');
-  // 5. Kërkesë për krejt ekipën: agimi e kryen → te admini del "✓ E hoqi agim"; zilja e agimit mbetet deri në "E hoqa"
+  // 5. Kërkesë për të gjithë ekipën: agimi e kryen → te admini del "✓ E hoqi agim"; zilja e agimit mbetet deri në "E hoqa"
   ok(await agim.evaluate(() => window.__stokuCloud && document.getElementById('ekZileNr').textContent) >= '1', '5. tel: zilja tregon kërkesën në pritje');
   await agim.click('#ekZile'); await agim.waitForTimeout(800); await agim.click('#ekNjMbyll'); await agim.waitForTimeout(800);
   ok(await agim.textContent('#ekZileNr') === '1', '5. pas hapjes së listës, kërkesa e pakryer mbetet te zilja', await agim.textContent('#ekZileNr'));

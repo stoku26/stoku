@@ -566,7 +566,7 @@
     }
     return '';
   }
-  // Ndryshon emrin e furnizuesit `vjeter` në `iRi` te krejt afatet dhe produktet (pa i prekur origjinalet).
+  // Ndryshon emrin e furnizuesit `vjeter` në `iRi` te të gjitha afatet dhe produktet (pa i prekur origjinalet).
   // Afatet marrin ndryshuarSe = tani; produktet prekurSe + 1 ms (fitojnë sinkronizimin pa u ngjitur te "Ndryshuar së fundi").
   // Kthen { afatet, produktet, nAfate, nProdukte }.
   function riemertoFurnizuesin(afatet, produktet, vjeter, iRi, tani) {
@@ -659,7 +659,7 @@
 
   // ---------- Kujtesa e produkteve (v196, grupi v197): barkodi → { emri, furnizuesi } ----------
   // Kopja në pajisje (localStorage) mbahet gjithmonë: plotësimi është i menjëhershëm edhe pa internet. Brenda një grupi,
-  // ekipa.js e sinkronizon me grupet/{g}/kujtesa (e përbashkët për krejt grupin). Mëson kur përdoruesi ruan një afat ose
+  // ekipa.js e sinkronizon me grupet/{g}/kujtesa (e përbashkët për të gjithë grupin). Mëson kur përdoruesi ruan një afat ose
   // produkt me barkod, dhe në sfond nga afatet/stoku ekzistues dhe nga afatet e kolegëve; ndryshohet te Cilësimet → Stoku →
   // Produktet (vetëm administratori, v198). Hyrja: { e: emri, f: furnizuesi, k: koha, n: kush e shtoi, a: 1 = mësuar
   // automatikisht, m: 1 = ndryshuar me dorë, s: 1 = nga administratori, x: 1 = harruar ("Harroje") }.
@@ -749,7 +749,7 @@
     // Furnizuesi i kontrolluar nga administratori. detyro: edhe mbi një furnizues të fshirë (veprim me dorë i administratorit)
     // Çelësat e furnizuesve aktivë me këtë emër, pa dallim shkronjash të mëdha/vogla (v = emri me shkronja të vogla)
     // idx (opsional): indeksiIFurnizuesve(h), i ndërtuar një herë për veprim (mësimi i shumë rreshtave, bashkimi me grupin):
-    // pa të, çdo rresht do ta kalonte krejt kujtesën (O(rreshta × hyrje), ngrin telefonin te kujtesat e mëdha)
+    // pa të, çdo rresht do ta kalonte të gjithë kujtesën (O(rreshta × hyrje), ngrin telefonin te kujtesat e mëdha)
     function celesatEFurnizuesit(h, v, idx) {
       if (idx) return (idx[v] || []).filter(function (c) { return h[c] && !h[c].x; });
       return Object.keys(h).filter(function (c) { return eshteCelesFurnizuesi(c) && !h[c].x && c.slice(FURN_PARA.length).toLocaleLowerCase('sq') === v; });
@@ -1013,7 +1013,7 @@
           return !r || hyrjaFiton(h[b], r, b);
         });
       },
-      // Hyrjet e plota për grupin (me krejt fushat, që bashkimi i Firebase-it të mos lërë mbetje nga hyrja e vjetër)
+      // Hyrjet e plota për grupin (me të gjitha fushat, që bashkimi i Firebase-it të mos lërë mbetje nga hyrja e vjetër)
       hyrjePerGrup: function (barkodet) {
         var h = lexo(), o = {};
         (barkodet || []).forEach(function (b) {

@@ -11,7 +11,7 @@
  *   klasat e VENDBANIMEVE. Asnjë shtresë tjetër me emra (dyqane, rrugë, ujëra, male, shtete) s'shtohet: kështu në hartë
  *   s'del asgjë tjetër përveç vendbanimeve dhe pikave tona.
  * - Pikat: { id, emri, lat, lng, uid, perdoruesi, tjeter }. Administratori i sheh pikat e përbashkëta të Stoku-t (v246:
- *   pikat/{id}, marketet.js) dhe ua ndryshon emrin për krejt Stoku-n; merchandiseri (v247) i sheh të gjitha, të vetat me
+ *   pikat/{id}, marketet.js) dhe ua ndryshon emrin për të gjithë Stoku-n; merchandiseri (v247) i sheh të gjitha, të vetat me
  *   ngjyrën kryesore dhe të tjerat (`tjeter`) më të zbehta.
  * - v247: SATELITI (butoni "Satelit" / "Hartë" në hartë): Esri World Imagery përmes ArcGIS Location Platform
  *   (ibasemaps-api.arcgis.com, me çelës API). Çelësi (ESRI_CELESI) është publik, si ai i Firebase-it: e sheh kushdo në

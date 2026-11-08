@@ -50,7 +50,7 @@ const SC = __dirname + '/';
   await agim.fill('#afatBarkodi', '3900001'); await agim.fill('#afatEmri', 'Coca Cola 1.25L'); await agim.fill('#afatData', '31-12-27'); await agim.fill('#afatFurnizuesi', 'Laberion');
   await agim.click('#afatRuaj'); await agim.waitForTimeout(3500);
   G = grupi();
-  ok(G['3900001'] && G['3900001'].e === 'Coca Cola 1.25L' && G['3900001'].f === 'Laberion' && G['3900001'].a === 0 && G['3900001'].m === 0 && G['3900001'].x === 0, '2. afati i agimit → kujtesa e grupit (me krejt fushat)', G['3900001']);
+  ok(G['3900001'] && G['3900001'].e === 'Coca Cola 1.25L' && G['3900001'].f === 'Laberion' && G['3900001'].a === 0 && G['3900001'].m === 0 && G['3900001'].x === 0, '2. afati i agimit → kujtesa e grupit (me të gjitha fushat)', G['3900001']);
   const v2 = await besa.evaluate(() => { const b = document.getElementById('afdBarkodi'); b.value = '3900001'; document.getElementById('afdEmri').value = ''; document.getElementById('afdFurnizuesi').value = ''; b.dispatchEvent(new Event('change')); return [document.getElementById('afdEmri').value, document.getElementById('afdFurnizuesi').value]; });
   ok(v2[0] === 'Coca Cola 1.25L' && v2[1] === 'Laberion', '2. administratori (PC) e skanon: emri dhe furnitori plotësohen', v2);
 
@@ -95,13 +95,13 @@ const SC = __dirname + '/';
   G = grupi(); ka = await kuj(agim);
   ok(G['5550005'] && G['5550005'].e === 'Biskota Plazma 300g' && G['5550005'].s === 1 && ka['5550005'] && ka['5550005'].s === 1, '5. administratori e ndryshon dhe e ruan: arrin te grupi dhe te agimi', [G['5550005'], ka['5550005']]);
   ok(/Biskota Plazma 300g/.test(await besa.textContent('#opsKujLista')) && !/Biskota/.test(await besa.textContent('#opsKujPritjeLista')), '5. pas ruajtjes kalon te lista kryesore');
-  // 6. administratori e harron 777 → për krejt grupin; mësimi në sfond s'e kthen
+  // 6. administratori e harron 777 → për të gjithë grupin; mësimi në sfond s'e kthen
   // v238: 777 u mësua vetë nga afatet: pret te "Produktet e reja" (jo te lista kryesore)
   ok(/Ujë Rugove/.test(await besa.textContent('#opsKujPritjeLista')) && !/Ujë Rugove/.test(await besa.textContent('#opsKujLista')), '6. v238: i mësuari vetë pret kontrollin');
   await besa.click('#opsKujPritjeLista .ops-furn-rresht:has-text("Ujë Rugove") button:has-text("Ndrysho")'); await besa.waitForTimeout(200);
   await besa.click('#opsKujPritjeLista .ops-furn-edit button:has-text("Fshije")'); await besa.waitForTimeout(3500);
   G = grupi(); ka = await kuj(agim);
-  ok(G['777'] && G['777'].x === 1 && ka['777'] && ka['777'].x === 1, '6. "Harroje" e administratorit vlen për krejt grupin', [G['777'], ka['777']]);
+  ok(G['777'] && G['777'].x === 1 && ka['777'] && ka['777'].x === 1, '6. "Harroje" e administratorit vlen për të gjithë grupin', [G['777'], ka['777']]);
   // 6b. v201: agimi shton edhe një produkt; e sheh te "Produktet e reja" pa mundësi ndryshimi; administratori e ruan me një klik
   await agim.click('#afShto'); await agim.waitForTimeout(200);
   await agim.fill('#afatBarkodi', '5550006'); await agim.fill('#afatEmri', 'Çokollatë Milka'); await agim.fill('#afatData', '30-12-27');

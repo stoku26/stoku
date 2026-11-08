@@ -153,7 +153,7 @@ class PamjetTest {
     @Test fun fletaEErret() = fleta("dark")
     @Test fun listaEStokut() = fleta("light", stok = true)
 
-    /** Merchandiseri me dy markete: "Krejt marketet" (afatet sipas marketit), "Ku je?" me marketet afër, Cilësimet → Marketet */
+    /** Merchandiseri me dy markete: "Të gjitha marketet" (afatet sipas marketit), "Ku je?" me marketet afër, Cilësimet → Marketet */
     @Test fun merchandiseri() {
         mbushMerchandiserin()
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
@@ -274,7 +274,7 @@ class PamjetTest {
     @Test fun grupiECelet() = grupi("light")
     @Test fun grupiEErret() = grupi("dark")
 
-    /** Cilësimet: një faqe (Skenimi, Pamja, Llogaria, Çka ka të re) */
+    /** Cilësimet: një faqe (Skenimi, Pamja, Llogaria, Çfarë ka të re) */
     private fun cilesimi(rreshti: String, emri: String) {
         mbush()
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
@@ -285,7 +285,7 @@ class PamjetTest {
     @Test fun cilesimetSkanimi() = cilesimi("Skenimi", "14-skanimi")
     @Test fun cilesimetPamja() = cilesimi("Pamja", "15-pamja")
     @Test fun cilesimetLlogaria() = cilesimi("Llogaria", "16-llogaria")
-    @Test fun cilesimetTeRejat() = cilesimi("Çka ka të re", "17-terejat")
+    @Test fun cilesimetTeRejat() = cilesimi("Çfarë ka të re", "17-terejat")
     @Test fun cilesimetNjoftimet() = cilesimi("Njoftimet", "22-njoftimet")
     @Test fun cilesimetOra() = cilesimi("Ora e dorës", "23-ora")
 
@@ -309,7 +309,7 @@ class PamjetTest {
         check(data.value == "23-0") { "pas fshirjes: " + data.value }
     }
 
-    /** Hyrja 33: faqja e përditësimit ("ideja 5" e pronarit): pyetja me "Çka ka të re" (vetëm hyrjet e reja) dhe shkarkimi */
+    /** Hyrja 33: faqja e përditësimit ("ideja 5" e pronarit): pyetja me "Çfarë ka të re" (vetëm hyrjet e reja) dhe shkarkimi */
     private fun perditesimi(tema: String) {
         val reja = Perditesimi.teReja("Aplikacioni Stoku…\n\nÇka ka të re:\n[999] Provë\n• Butonat e skanimit: dy katrorë me ikona më të mëdha\n" +
             "• Zgjedh vetë ku dalin: majtas, në mes ose djathtas\n[1] E vjetër\n• S'duhet të dalë")

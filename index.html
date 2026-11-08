@@ -66,7 +66,7 @@
 
   /* Aksentet (ngjyra kryesore) */
 
-  /* Madhësia e shkronjave: shkallëzon krejt faqen (edhe elementet me px) */
+  /* Madhësia e shkronjave: shkallëzon të gjithë faqen (edhe elementet me px) */
   body[data-madhesi="e_madhe"] { zoom: 1.12; }
   body[data-madhesi="e_vogel"] { zoom: .9; } /* v272: "E vogël" (pronari: opsion për shkronja të vogla) */
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -881,7 +881,7 @@
   #dlgKuSkedari .kfh-statusi { overflow-wrap: anywhere; } /* emri i skedarit s'ka hapësira */
   .ks-hint { margin: 10px 2px 2px; font-size: 13px; line-height: 1.45; color: var(--gri); }
   #ksPc:disabled { opacity: .45; }
-  /* v230: lejet e llogarisë (çka s'lejohet fshihet krejt; v231: pa "Stoku", kryefaqja është faqja bazë) */
+  /* v230: lejet e llogarisë (çfarë s'lejohet fshihet krejt; v231: pa "Stoku", kryefaqja është faqja bazë) */
   .leja-ndaluar { display: none !important; }
   body.leja-pa-stok #siperFolderat, body.leja-pa-stok #kryeButonatImport, body.leja-pa-stok #kerkoGlobalLista { display: none !important; }
   #dlgAfat.vetem-lexim #afatRuaj, #dlgAfat.vetem-lexim .sb-stepper__btn,
@@ -902,7 +902,7 @@
   .pd-krejt { width: 100%; margin-top: 14px; }
   .pd-shenim { margin-top: 14px; text-align: center; }
   #dlgNjoftimet { z-index: 25; }
-  /* "Çka ka të re" */
+  /* "Çfarë ka të re" */
   #dlgTeRejat { z-index: 25; }
   .tr-dialog { max-width: 420px; }
   .tr-krye { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
@@ -1079,7 +1079,7 @@
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
-<script src="porta.js?v=252"></script>
+<script src="porta.js?v=281"></script>
 
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" aria-label="Mbrapa" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
@@ -1287,12 +1287,12 @@
         <div class="ops-grupi">
           <button class="kategori-rresht" type="button" id="opsTeRejat">
             <span class="kat-ikona-badge ngj-roze"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"></path></svg></span>
-            <span class="kat-info"><span class="kat-tekst">Çka ka të re</span><span class="kat-status" id="opsTeRejatStatus"></span></span>
+            <span class="kat-info"><span class="kat-tekst">Çfarë ka të re</span><span class="kat-status" id="opsTeRejatStatus"></span></span>
             <span class="shigjeta">›</span>
           </button>
           <button class="kategori-rresht" type="button" id="opsPrivatesia">
             <span class="kat-ikona-badge ngj-blu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><rect x="9" y="11" width="6" height="5" rx="1"></rect><path d="M10.5 11V9.5a1.5 1.5 0 0 1 3 0V11"></path></svg></span>
-            <span class="kat-info"><span class="kat-tekst">Privatësia</span><span class="kat-status">Çka ruan Stoku dhe kush e sheh</span></span>
+            <span class="kat-info"><span class="kat-tekst">Privatësia</span><span class="kat-status">Çfarë ruan Stoku dhe kush e sheh</span></span>
             <span class="shigjeta">›</span>
           </button>
         </div>
@@ -1511,7 +1511,7 @@
 
         <div class="opsione-faqe" data-faqe="furnizuesit">
           <div id="furnSeksion">
-            <div class="ops-intro" id="furnIntro">Ndrysho emrin e një furnizuesi: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një.</div>
+            <div class="ops-intro" id="furnIntro">Ndrysho emrin e një furnizuesi: ndryshon te të gjitha afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një.</div>
             <div class="fushe ops-furn-kerko" id="furnKerkoKuti"><input id="furnKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko furnizuesin" aria-label="Kërko furnizuesin"></div>
             <div class="ops-grupi ops-furn" id="furnLista"></div>
           </div>
@@ -1533,7 +1533,7 @@
         </div>
 
         <div class="opsione-faqe" data-faqe="perdoruesit">
-          <div class="ops-intro">Krejt llogaritë e Stoku-t. Prek një përdorues për t'i caktuar çka mund të përdorë. Llogaritë e reja i kanë krejt lejet derisa t'i kontrollosh. Këtë faqe e sheh vetëm administratori.</div>
+          <div class="ops-intro">Të gjitha llogaritë e Stoku-t. Prek një përdorues për t'i caktuar çfarë mund të përdorë. Llogaritë e reja i kanë të gjitha lejet derisa t'i kontrollosh. Këtë faqe e sheh vetëm administratori.</div>
           <div class="fushe ops-furn-kerko" id="pdKerkoKuti" hidden><input id="pdKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko përdoruesin" aria-label="Kërko përdoruesin"></div>
           <div id="pdLista"></div>
         </div>
@@ -1619,7 +1619,7 @@
               <button class="btn ops-btn-dyte" id="cloudRiktheTani" type="button"></button>
             </div>
           </div>
-          <!-- v232: çka u fshi nga një pajisje tjetër (foldera, produkte) mbetet këtu si kopje, për t'u rikthyer -->
+          <!-- v232: çfarë u fshi nga një pajisje tjetër (foldera, produkte) mbetet këtu si kopje, për t'u rikthyer -->
           <div class="seksion" id="llKopjaSeksion" hidden>
             <div class="ops-grupi-titull">Të fshira nga një pajisje tjetër</div>
             <div class="ops-karta">
@@ -1727,7 +1727,7 @@
   </div>
 </div>
 
-<!-- Grupi: afatet e krejt llogarive (vetëm afatet), aktiviteti, kalendari, kolegët, statistikat -->
+<!-- Grupi: afatet e të gjitha llogarive (vetëm afatet), aktiviteti, kalendari, kolegët, statistikat -->
 <div class="mbulese faqe-e-plote" id="dlgEkipi">
   <div class="faqe-kuti" role="dialog" aria-modal="true" aria-labelledby="ekipiTitulli">
     <div class="opsione-krye">
@@ -1762,7 +1762,7 @@
     </div>
   </div>
 </div>
-<!-- Kërkesë që një koleg (ose krejt grupi) ta heqë nga rafti një produkt (edhe pa afat në Stoku) -->
+<!-- Kërkesë që një koleg (ose i gjithë grupi) ta heqë nga rafti një produkt (edhe pa afat në Stoku) -->
 <div class="mbulese" id="dlgKerkese">
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="krkTitulli">
     <h2 id="krkTitulli">Kërko heqje nga rafti</h2>
@@ -1864,7 +1864,7 @@
 <!-- Afatet: zgjedhja e kolonave për Excel -->
 <div class="mbulese" id="dlgAfExcel">
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="axTitulli">
-    <h2 id="axTitulli">Çka të përfshihet në Excel?</h2>
+    <h2 id="axTitulli">Çfarë të përfshihet në Excel?</h2>
     <div class="ax-nen" id="axNen"></div>
     <div class="fushe" id="axMuajiRresht" hidden>
       <label for="axMuaji">Cili muaj?</label>
@@ -1972,12 +1972,12 @@
   </div>
 </div>
 
-<!-- "Çka ka të re": tregohet në hyrje kur ka version të ri që përdoruesi s'e ka parë ende (teRejat.js) -->
+<!-- "Çfarë ka të re": tregohet në hyrje kur ka version të ri që përdoruesi s'e ka parë ende (teRejat.js) -->
 <div class="mbulese" id="dlgTeRejat">
   <div class="dialog tr-dialog" role="dialog" aria-modal="true" aria-labelledby="trTitulli">
     <div class="tr-krye">
       <span class="tr-ikona"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path><path d="M19 14.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"></path><path d="M5 2l.7 1.6 1.6.7-1.6.7L5 6.6l-.7-1.6-1.6-.7 1.6-.7z"></path></svg></span>
-      <div><h2 id="trTitulli">Çka ka të re</h2><div class="tr-nen" id="trNen"></div></div>
+      <div><h2 id="trTitulli">Çfarë ka të re</h2><div class="tr-nen" id="trNen"></div></div>
     </div>
     <div class="tr-lista" id="trLista"></div>
     <div class="veprime"><button class="btn" id="trMbyll" type="button" style="width:100%">Në rregull</button></div>
@@ -2045,7 +2045,7 @@
 <div class="mbulese" id="dlgMarketiRi">
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="mkrTitulli">
     <h2 id="mkrTitulli">Në cilin market je?</h2>
-    <p class="mk-dlg-nen" id="mkrNen">Shkruaj emrin e marketit ku je tani. Stoku e ruan vendndodhjen e tij (duhet vendndodhja e saktë e telefonit) dhe e shohin krejt merchandiserët.</p>
+    <p class="mk-dlg-nen" id="mkrNen">Shkruaj emrin e marketit ku je tani. Stoku e ruan vendndodhjen e tij (duhet vendndodhja e saktë e telefonit) dhe e shohin të gjithë merchandiserët.</p>
     <input type="text" id="mkrEmri" maxlength="60" autocomplete="off" placeholder="p.sh. Albi Mall" enterkeyhint="done" aria-label="Emri i marketit">
     <div class="mk-gabim" id="mkrGabim" role="alert"></div>
     <div class="veprime">
@@ -2102,17 +2102,17 @@
 <div id="toast"></div>
 
 <script src="xlsx.js?v=216"></script>
-<script src="bashkimi.js?v=241"></script>
-<script src="ruajtja.js?v=216"></script>
+<script src="bashkimi.js?v=281"></script>
+<script src="ruajtja.js?v=281"></script>
 <script src="skedaret.js?v=1"></script>
-<script src="lejet.js?v=5"></script>
-<script src="afatet.js?v=279"></script>
-<script src="marketet.js?v=257"></script>
-<script src="harta.js?v=256"></script>
-<script src="ekipa.js?v=258"></script>
-<script src="njoftimet.js?v=216"></script>
-<script src="teRejat.js?v=280"></script>
-<script src="app-tel.js?v=279"></script>
+<script src="lejet.js?v=6"></script>
+<script src="afatet.js?v=281"></script>
+<script src="marketet.js?v=281"></script>
+<script src="harta.js?v=281"></script>
+<script src="ekipa.js?v=281"></script>
+<script src="njoftimet.js?v=281"></script>
+<script src="teRejat.js?v=281"></script>
+<script src="app-tel.js?v=281"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
@@ -2121,6 +2121,6 @@
 <!-- Firebase (Cloud): modul i vetëm, ekspozon window.__stokuCloud për skriptin kryesor.
      Hyrje me emër përdoruesi + fjalëkalim (pa email): emri shndërrohet në një "email" të brendshëm
      (emri@stoku-app.local) vetëm që Firebase Auth ta pranojë; përdoruesi asnjëherë s'e sheh a s'e fut email. -->
-<script type="module" src="firebase-tel.js?v=252"></script>
+<script type="module" src="firebase-tel.js?v=281"></script>
 </body>
 </html>

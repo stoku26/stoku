@@ -405,7 +405,7 @@ object Grupi {
     /** Kolegët (pa mua): për "Kërko heqje nga rafti" */
     fun koleget(): List<Obj> = anetaret.value.filter { it["uid"] != uid }
 
-    /** "Kërko heqje nga rafti": te një koleg (perUid) ose te krejt grupi → null ose arsyeja (bosh, pa-kolege, anetari, …) */
+    /** "Kërko heqje nga rafti": te një koleg (perUid) ose te i gjithë grupi → null ose arsyeja (bosh, pa-kolege, anetari, …) */
     fun kerkoHeqjen(produktet: List<Obj>, shenim0: String, perUid: String?): String? {
         val u0 = uid ?: return "pa-hyrje"; val g = grupi() ?: return "pa-grup"
         val lista = GrupiLogjika.listaEKerkeses(obj("produktet" to produktet))
@@ -428,7 +428,7 @@ object Grupi {
         return null
     }
 
-    /** Pronari: fshin krejt aktivitetin e grupit → numri i rreshtave të fshirë, ose null kur s'u fshi krejt */
+    /** Pronari: fshin të gjithë aktivitetin e grupit → numri i rreshtave të fshirë, ose null kur s'u fshi krejt */
     suspend fun pastroAktivitetin(): Int? {
         val g = grupi() ?: return null
         if (!eshtePronar()) return null
@@ -624,7 +624,7 @@ object Grupi {
         } catch (e: Exception) { gabimi(e) }
     }
 
-    /** Pronari: njoftim për krejt grupin (zilja e secilit + aktiviteti) */
+    /** Pronari: njoftim për të gjithë grupin (zilja e secilit + aktiviteti) */
     fun lajmeroEkipen(tekst0: String): Boolean {
         val tekst = tekst0.trim().take(1000)
         val u0 = uid ?: return false; val g = grupi() ?: return false

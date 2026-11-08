@@ -132,7 +132,7 @@ object Marketet {
 
     fun sipasPikes(l: List<Obj>, pikaId: Any?): Obj? = l.firstOrNull { it["p"] == pikaId }
 
-    /** Market nga pika: id e qëndrueshme 'k' + pika (i njëjti në krejt pajisjet) */
+    /** Market nga pika: id e qëndrueshme 'k' + pika (i njëjti në të gjitha pajisjet) */
     fun ngaPika(pika: Obj, tani: Long = System.currentTimeMillis()): MObj =
         obj("id" to "k" + pika["id"], "emri" to pika["emri"], "lat" to pika["lat"], "lng" to pika["lng"], "p" to pika["id"], "ndryshuarSe" to tani)
 

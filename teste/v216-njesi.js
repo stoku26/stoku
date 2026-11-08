@@ -38,7 +38,7 @@ const lexo = r => JSON.parse(r.m['stoku:kujtesa:v1']);
     ok(n === 2 && H['111'].x === 1 && H['222'].f === '' && H['222'].e === 'Caj' && !K.merr('111'), '5. 111 (pa emër) harrohet, 222 mbetet pa furnizues', { n, H });
   })();
 
-  // 6) Kujtesa e madhe: bashkimi me grupin dhe mësimi i shumë rreshtave s'e kalojnë krejt kujtesën për çdo rresht
+  // 6) Kujtesa e madhe: bashkimi me grupin dhe mësimi i shumë rreshtave s'e kalojnë të gjithë kujtesën për çdo rresht
   (function () {
     const h = {};
     for (let i = 0; i < 18000; i++) h['8' + String(i).padStart(7, '0')] = { e: 'P' + i, f: 'F' + (i % 300), k: 100 + i, n: 'agim' };

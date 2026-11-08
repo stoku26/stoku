@@ -222,7 +222,7 @@ object EksportiFoto {
     private fun dy(n: Int) = (if (n < 10) "0" else "") + n
 
     /**
-     * Fotot JPG (në cache/eksportet): një për secilin furnizues te `grupet` (null = merchandiseri: krejt afatet në një foto me titullin `titulliPa`).
+     * Fotot JPG (në cache/eksportet): një për secilin furnizues te `grupet` (null = merchandiseri: të gjitha afatet në një foto me titullin `titulliPa`).
      * `te` = afatet aktive të renditura. Mbi MAKS afate: "Pjesa 1 nga 2"…
      */
     fun krijo(ctx: Context, te: List<Obj>, grupet: List<Afatet.Furnizuesi>?, titulliPa: String, meta: String, erret: Boolean): List<File> {

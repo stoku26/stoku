@@ -68,7 +68,7 @@
   var marketet = [];
   var marketiAktiv = MK.lexoAktivin();
   var rendiFolderaveKoha = 0;
-  // Instalim i ri (asnjë e dhënë ende): "Çka ka të re" s'ka kuptim — shënohet si e parë pa u treguar
+  // Instalim i ri (asnjë e dhënë ende): "Çfarë ka të re" s'ka kuptim — shënohet si e parë pa u treguar
   var __pajisjeERe = false;
   try { __pajisjeERe = !localStorage.getItem(KEY_FOLDERA); } catch (e) { /* ok */ } // folderat shkruhen që në hapjen e parë të çdo versioni
   // Prova si vizitor (porta.js, v217): të dhënat e kësaj faqeje janë shembull, të asnjë llogarie: s'sinkronizohen kurrë dhe
@@ -84,7 +84,7 @@
   function ngarkoBazen() {
     var f = lexoJSON(KEY_FOLDERA, null), p = lexoJSON(KEY_PRODUKTET, null);
     if (Array.isArray(f) && p && typeof p === 'object') {
-      // Një rresht i dëmtuar (null, pa id…) hiqet, që të mos e rrëzojë krejt faqen
+      // Një rresht i dëmtuar (null, pa id…) hiqet, që të mos e rrëzojë të gjithë faqen
       foldera = window.StokuBashkimi.pastroFolderat(f);
       produktet = {};
       window.StokuBashkimi.pastroProduktet(Object.keys(p).map(function (k) { return p[k]; })).forEach(function (x) { produktet[celesi(x.kategoriaId, x.barkodi)] = x; });
@@ -303,10 +303,10 @@
   try { localStorage.removeItem('stoku:leja:sasia-shpejte'); } catch (e) { /* ok */ } // leja e vjetër (para v240)
 
   // ================= Lejet e llogarisë (v230, lejet.js) =================
-  // Çka mund të përdorë kjo llogari; i cakton administratori te Cilësimet → Përdoruesit. Pa dokument (llogari e re, e
+  // Çfarë mund të përdorë kjo llogari; i cakton administratori te Cilësimet → Përdoruesit. Pa dokument (llogari e re, e
   // pakontrolluar) → krejt të lejuara; administratori dhe vizitori s'kanë kufizime. Butonat me data-leja fshihen kur
   // leja mungon, pamjet që s'lejohen kalojnë te pjesa e parë e lejuar; çdo veprim kontrollohet edhe vetë (leja).
-  // v231: çka s'lejohet zhduket krejt, pa asnjë mesazh: përdoruesi s'duhet ta dijë as që ekziston (pa "s'të lejohet").
+  // v231: çfarë s'lejohet zhduket krejt, pa asnjë mesazh: përdoruesi s'duhet ta dijë as që ekziston (pa "s'të lejohet").
   var lejetG = window.StokuLejet ? window.StokuLejet.krijoGjendjen({
     cloud: function () { var c = window.__stokuCloud; return (c && c.lejet) || null; },
     gati: function () { var c = window.__stokuCloud; return !!(c && c.authGati); },
@@ -330,7 +330,7 @@
   }
   // v252: merchandiserët s'e kanë furnizuesin: fushat .furn-vetem fshihen (body.pa-furnizues), ruajtja e mban atë që kishte
   function paFurnizues() { return eshteMerchandiser(); }
-  // "Çka ka të re": administratori i sheh edhe hyrjet për marketet (i ndez ai te Përdoruesit)
+  // "Çfarë ka të re": administratori i sheh edhe hyrjet për marketet (i ndez ai te Përdoruesit)
   function lejaPerTeRejat(k) { return k === 'marketet' ? leja(k) || eshteAdminiIStokut() : leja(k); }
   // Llogaria e hapur si merchandiser (ose u lexua nga Firebase pas hyrjes, ose u ndërrua llogaria): marketet dalin/zhduken
   var __merchPara = false;
@@ -344,7 +344,7 @@
   }
   window.addEventListener('stoku-merchandiser', rifreskoMerchandiserin);
   window.addEventListener('stoku-auth-ndryshoi', rifreskoMerchandiserin);
-  // Leja e llogarisë pa kushtin e PC-së: për çka vlen edhe jashtë kësaj faqeje (serveri, njoftimet push)
+  // Leja e llogarisë pa kushtin e PC-së: për çfarë vlen edhe jashtë kësaj faqeje (serveri, njoftimet push)
   function lejaELlogarise(k) { return !lejetG || lejetG.lejohet(k); }
   // v231: pa "Grupi" kjo pajisje s'regjistrohet për njoftimet e grupit (as push); pa "Afatet" serveri merr listë bosh
   function zbatoLejetJashte() {
@@ -441,7 +441,7 @@
 
   // Zbaton lokalisht një gjendje nga cloud-i, gjithmonë e bashkuar me atë që ka tani ky kompjuter
   // (pra asnjë ndryshim lokal i pasinkronizuar nuk humbet).
-  // bGati (opsional): bashkimi i llogaritur tashmë nga thirrësi (që të mos llogaritet dy herë mbi krejt dyqanin)
+  // bGati (opsional): bashkimi i llogaritur tashmë nga thirrësi (që të mos llogaritet dy herë mbi të gjithë dyqanin)
   function zbatoNgaCloud(remote, bGati) {
     var lok = gjendjaLokale();
     var b = bGati || bashkoMeCloud(remote, lok);
@@ -462,7 +462,7 @@
   }
 
   // ---------- v232: kopja e të fshirave nga një pajisje tjetër (si te telefoni) ----------
-  // Kur sinkronizimi heq foldera ose produkte që ishin këtu, ato ruhen në këtë kompjuter (vetëm çka u hoq), që të
+  // Kur sinkronizimi heq foldera ose produkte që ishin këtu, ato ruhen në këtë kompjuter (vetëm çfarë u hoq), që të
   // rikthehen te Cilësimet → Llogaria. Mbahen 30 ditë; me ndërrimin e llogarisë fshihen (porta.js).
   var KEY_KOPJA = 'stoku:kopja-fshirjeve:v1', KOPJA_MS = 30 * 864e5;
   function lexoKopjen() {
@@ -517,12 +517,12 @@
     if (!c) return;
     var k = lexoKopjen(), m = k ? teMungueshmetNgaKopja(k) : null;
     c.hidden = !m || (!m.foldera.length && !m.produktet.length);
-    // Krejt çka ishte në kopje është sërish këtu (p.sh. u rikthye nga një pajisje tjetër): kopja s'duhet më
+    // Krejt çfarë ishte në kopje është sërish këtu (p.sh. u rikthye nga një pajisje tjetër): kopja s'duhet më
     if (k && c.hidden) { try { localStorage.removeItem(KEY_KOPJA); } catch (e) { /* ok */ } }
     if (c.hidden) return;
     var nje = vetemNje(m);
     $('opsKopjaTeksti').textContent = pershkrimiIKopjes(m) + (nje ? ' u fshi' : ' u fshinë') + ' nga një pajisje tjetër. Kopja u ruajt në këtë kompjuter më ' +
-      dataOra(k.koha).replace(' ', ', ora ') + '. "Rikthe" ' + (nje ? 'e' : 'i') + ' kthen në krejt pajisjet.';
+      dataOra(k.koha).replace(' ', ', ora ') + '. "Rikthe" ' + (nje ? 'e' : 'i') + ' kthen në të gjitha pajisjet.';
   }
 
   // Bashkimi me cloud-in; v233: pa asnjë folder pas bashkimit kthehen 4 të parazgjedhurit (bashkimi.js, sigurojFolderat)
@@ -1990,7 +1990,7 @@
         s: kaFiltra ? emri + ', vetëm ato që shfaqen tani' : 'Siç shfaqen në tabelë, me të njëjtën renditje' });
     }
     lista.push({ v: 'zgjedhura', t: 'Vetëm të zgjedhurat', n: nZ, s: nZ ? 'Produktet e shënuara në tabelë' : 'Zgjidh produkte në tabelë me kutizat', jo: !nZ });
-    lista.push({ v: 'krejt', t: 'Krejt stoku', n: Object.keys(produktet).length, s: 'Të gjithë folderat (në Excel: një fletë për çdo folder + përmbledhje)' });
+    lista.push({ v: 'krejt', t: 'I gjithë stoku', n: Object.keys(produktet).length, s: 'Të gjithë folderat (në Excel: një fletë për çdo folder + përmbledhje)' });
     return lista;
   }
   function hapEksportin(formati) {
@@ -2047,13 +2047,13 @@
       lista = tabelaAktuale.fil.slice();
       if (pamja !== 'te-gjitha') folderi = folderSipasId(pamja);
     } else {
-      lista = null; // krejt stoku
+      lista = null; // i gjithë stoku
     }
     mbyllDialog('dlgEksport');
     eksportoDirekt(ek.formati, lista, folderi);
   });
 
-  // lista = null → krejt stoku; folderi = kur të gjitha janë nga një folder
+  // lista = null → i gjithë stoku; folderi = kur të gjitha janë nga një folder
   function eksportoDirekt(formati, lista, folderi) {
     if (!leja(formati === 'excel' ? 'eksportExcel' : 'eksportPdf')) return;
     if (lista && !lista.length) { toast('S\'ka produkte për eksport.'); return; }
@@ -2157,7 +2157,7 @@
       : (meFurn ? [{ t: 'Nr.', w: 11 }, { t: 'Barkodi', w: 36 }, { t: 'Emri i produktit', w: 81 }, { t: 'Furnizuesi', w: 34 }, { t: 'Sasia', w: 20, d: 1 }]
         : [{ t: 'Nr.', w: 11 }, { t: 'Barkodi', w: 38 }, { t: 'Emri i produktit', w: 113 }, { t: 'Sasia', w: 20, d: 1 }]);
     var RR = 6.6;
-    var titulli = krejt ? 'Raporti i stokut - krejt stoku' : folderi ? 'Raporti i stokut - ' + folderi.emri : 'Raporti i stokut';
+    var titulli = krejt ? 'Raporti i stokut - i gjithë stoku' : folderi ? 'Raporti i stokut - ' + folderi.emri : 'Raporti i stokut';
     var totN = 0, totS = 0;
     grupet.forEach(function (g) { totN += g.prod.length; g.prod.forEach(function (p) { totS += p.sasia | 0; }); });
 
@@ -2808,7 +2808,7 @@
     vendosStatusin(u ? (sink.statusi === 'lokal' ? 'pune' : sink.statusi) : 'lokal', true);
   }
   $('btnLlogaria').addEventListener('click', hapLlogarine);
-  // Fotoja e profilit: ruhet te Worker-i (Cloudflare), e sheh krejt grupi
+  // Fotoja e profilit: ruhet te Worker-i (Cloudflare), e sheh i gjithë grupi
   var __fotoDukeDerguar = false;
   function tekstiGabimitFotos(a) {
     return a === 'jo-foto' ? 'Ky skedar nuk është foto.' : a === 'madhesia' ? 'Fotoja është shumë e madhe.' :
@@ -2824,8 +2824,8 @@
     var r = veprimi === 'hiq' ? await e.hiqFoton() : await e.ngarkoFoton(skedari);
     __fotoDukeDerguar = false;
     $('opsFotoNdrysho').disabled = $('opsFotoHiq').disabled = false;
-    $('opsFotoHint').textContent = r.ok ? 'E sheh krejt grupi.' : tekstiGabimitFotos(r.arsye);
-    if (r.ok) toast(veprimi === 'hiq' ? 'Fotoja u hoq.' : 'Fotoja u ruajt. E sheh krejt grupi.');
+    $('opsFotoHint').textContent = r.ok ? 'E sheh i gjithë grupi.' : tekstiGabimitFotos(r.arsye);
+    if (r.ok) toast(veprimi === 'hiq' ? 'Fotoja u hoq.' : 'Fotoja u ruajt. E sheh i gjithë grupi.');
     rifreskoLlogarine();
   }
   $('opsFotoNdrysho').addEventListener('click', function () { $('opsFotoSkedari').value = ''; $('opsFotoSkedari').click(); });
@@ -2898,7 +2898,7 @@
     if (!k) { rifreskoKopjen(); return; }
     var m = teMungueshmetNgaKopja(k);
     if (!m.foldera.length && !m.produktet.length) { rifreskoKopjen(); return; }
-    if (!(await konfirmo('Të rikthehen të fshirat?', (vetemNje(m) ? 'Kthehet ' : 'Kthehen ') + pershkrimiIKopjes(m) + ' në krejt pajisjet e llogarisë.', 'Rikthe'))) return;
+    if (!(await konfirmo('Të rikthehen të fshirat?', (vetemNje(m) ? 'Kthehet ' : 'Kthehen ') + pershkrimiIKopjes(m) + ' në të gjitha pajisjet e llogarisë.', 'Rikthe'))) return;
     var tani = Date.now();
     ndrysho(function (api) {
       m.foldera.forEach(function (f) { foldera.push(Object.assign({}, f, { ndryshuarSe: tani })); delete fshira.foldera[f.id]; });
@@ -2969,13 +2969,13 @@
     return [f.afate ? sasiaETekst(f.afate, 'afat', 'afate') : '', f.produkte ? sasiaETekst(f.produkte, 'produkt', 'produkte') : '',
       f.nePritje && f.nga && f.nga.length ? 'nga ' + f.nga.join(', ') : ''].filter(Boolean).join(' · ') || 'Pa produkte';
   }
-  // vetemKerkimi: shkronjë e re te kërkimi; ruajtja e furnizuesve (kalim mbi krejt afatet e produktet) s'bëhet për çdo shkronjë
+  // vetemKerkimi: shkronjë e re te kërkimi; ruajtja e furnizuesve (kalim mbi të gjitha afatet e produktet) s'bëhet për çdo shkronjë
   function rifreskoFurnizuesit(vetemKerkimi) {
     var admin = eshteAdminiIStokut();
     if (!admin) furnNeEditim = null;
-    $('opsFurnHint').textContent = admin ? 'Furnizuesit e regjistrit të Stoku-t (krejt llogaritë). Ndrysho emrin e një furnizuesi: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një.'
-      : 'Furnizuesit e regjistrit të Stoku-t (të njëjtët për krejt llogaritë) dhe të afateve të tua. Emrat i ndryshon vetëm administratori.';
-    $('opsFurnPritjeHint').textContent = admin ? 'Furnizuesit e rinj, të kolegëve dhe ata që i shton ti. Ruaje ashtu siç është ose ndrysho emrin (ndryshon te krejt produktet e tij), pastaj kalon te Furnizuesit. Fshirja e produkteve s\'e fshin furnizuesin.'
+    $('opsFurnHint').textContent = admin ? 'Furnizuesit e regjistrit të Stoku-t (të gjitha llogaritë). Ndrysho emrin e një furnizuesi: ndryshon te të gjitha afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një.'
+      : 'Furnizuesit e regjistrit të Stoku-t (të njëjtët për të gjitha llogaritë) dhe të afateve të tua. Emrat i ndryshon vetëm administratori.';
+    $('opsFurnPritjeHint').textContent = admin ? 'Furnizuesit e rinj, të kolegëve dhe ata që i shton ti. Ruaje ashtu siç është ose ndrysho emrin (ndryshon te të gjitha produktet e tij), pastaj kalon te Furnizuesit. Fshirja e produkteve s\'e fshin furnizuesin.'
       : 'Furnizuesit e rinj. I kontrollon administratori, pastaj kalojnë te Furnizuesit.';
     // v205: edhe furnizuesit e produkteve të grupit (kujtesa); ata që dalin vetëm te produktet e reja të kolegëve presin këtu
     if (admin && !vetemKerkimi) ruajFurnizuesitEMiratuar();
@@ -3032,7 +3032,7 @@
       publikoFurnizuesitMeVonese();
     } catch (e) { /* ok */ }
   }
-  // v211: administratori: lista e furnizuesve të ruajtur shkon te sugjerimet e krejt përdoruesve (vetëm kur ndryshon)
+  // v211: administratori: lista e furnizuesve të ruajtur shkon te sugjerimet e të gjithë përdoruesve (vetëm kur ndryshon)
   var __publikoFurnKohez = null;
   function publikoFurnizuesitMeVonese() {
     clearTimeout(__publikoFurnKohez);
@@ -3132,8 +3132,8 @@
     var cont = $('opsKujLista'); if (!cont) return;
     var admin = eshteAdminiIStokut();
     if (!admin) kujNeEditim = null;
-    $('opsKujHint').textContent = admin ? 'Emri dhe furnizuesi që Stoku i mban mend për çdo barkod; krejt llogaritë e Stoku-t i shohin kur skanojnë. Produktet e reja (të kujtdo, edhe ato që i shton ti) dalin këtu pasi t\'i kontrollosh te Produktet e reja. Atë që e ndryshon ti s\'e ndryshon askush tjetër.'
-      : 'Regjistri i Stoku-t: emri dhe furnizuesi për çdo barkod, i njëjtë për krejt llogaritë; plotësohen vetë kur skanon. Produktet e reja i kontrollon dhe i ndryshon vetëm administratori.';
+    $('opsKujHint').textContent = admin ? 'Emri dhe furnizuesi që Stoku i mban mend për çdo barkod; të gjitha llogaritë e Stoku-t i shohin kur skanojnë. Produktet e reja (të kujtdo, edhe ato që i shton ti) dalin këtu pasi t\'i kontrollosh te Produktet e reja. Atë që e ndryshon ti s\'e ndryshon askush tjetër.'
+      : 'Regjistri i Stoku-t: emri dhe furnizuesi për çdo barkod, i njëjtë për të gjitha llogaritë; plotësohen vetë kur skanon. Produktet e reja i kontrollon dhe i ndryshon vetëm administratori.';
     var k = KJ(), teGjitha = k ? k.lista() : [];
     // v201: produktet e shkruara nga kolegët presin te "Produktet e reja" derisa t'i kontrollojë dhe ruajë administratori
     var lista = AF.renditSipasRuajtjes(teGjitha.filter(function (x) { return !x.nePritje; })); // v212: të ruajturat e fundit në krye
@@ -3289,8 +3289,8 @@
 
   // ================= Cilësimet → Marketet: harta (v244, harta.js; v256 skeda quhet "Marketet") =================
   // Pikat e marketeve mbi një hartë që tregon vetëm emrat e vendbanimeve; vetëm administratori dhe merchandiserët.
-  // Administratori i sheh pikat e Stoku-t (v246: pikat/{id}), ua ndryshon emrin për krejt Stoku-n, i fshin dhe (v250) i
-  // shton me dorë në hartë; merchandiseri i sheh krejt marketet e Stoku-t, pa i ndryshuar (v250).
+  // Administratori i sheh pikat e Stoku-t (v246: pikat/{id}), ua ndryshon emrin për të gjithë Stoku-n, i fshin dhe (v250) i
+  // shton me dorë në hartë; merchandiseri i sheh të gjitha marketet e Stoku-t, pa i ndryshuar (v250).
   var SH = window.StokuHarta;
   var HT = { inst: null, dukeHapur: false, pershtatur: false, pikat: null, ngarkuarSe: 0, dukeNgarkuar: false, gabime: 0, zgjedhur: '', neEditim: '' };
   function lejaHarta() { return !!SH && (eshteAdminiIStokut() || eshteMerchandiser()); }
@@ -3364,8 +3364,8 @@
     if (!htHapur()) return;
     var admin = eshteAdminiIStokut();
     $('htIntro').textContent = admin
-      ? 'Pikat e marketeve që i kanë ruajtur merchandiserët. Në hartë dalin vetëm emrat e qyteteve, fshatrave dhe lagjeve. Kliko një pikë ose një rresht për ta gjetur; me "Ndrysho emrin" e ndërron emrin e pikës për krejt Stoku-n.'
-      : 'Marketet e Stoku-t, të njëjtat për krejt merchandiserët. Në hartë dalin vetëm emrat e qyteteve, fshatrave dhe lagjeve. Emrat i ndryshon vetëm administratori.';
+      ? 'Pikat e marketeve që i kanë ruajtur merchandiserët. Në hartë dalin vetëm emrat e qyteteve, fshatrave dhe lagjeve. Kliko një pikë ose një rresht për ta gjetur; me "Ndrysho emrin" e ndërron emrin e pikës për të gjithë Stoku-n.'
+      : 'Marketet e Stoku-t, të njëjtat për të gjithë merchandiserët. Në hartë dalin vetëm emrat e qyteteve, fshatrave dhe lagjeve. Emrat i ndryshon vetëm administratori.';
     $('htShtoKuti').hidden = !admin; // v250: administratori shton market me dorë në hartë
     var c = $('htLista'); c.textContent = '';
     if (HT.inst) HT.inst.vendos(HT.pikat || []);
@@ -3509,7 +3509,7 @@
 
   // ================= Cilësimet → Përdoruesit (v230, vetëm administratori) =================
   // Llogaritë nga perdoruesit/{uid}, lejet nga lejet/{uid} (dy dëgjues, vetëm te administratori). Llogaria pa dokument
-  // lejesh = "Pa u kontrolluar" (i ka krejt lejet). Çdo ndryshim ruhet menjëherë, e shënon llogarinë si të kontrolluar
+  // lejesh = "Pa u kontrolluar" (i ka të gjitha lejet). Çdo ndryshim ruhet menjëherë, e shënon llogarinë si të kontrolluar
   // dhe vlen menjëherë te telefoni dhe kompjuteri i asaj llogarie. Llogaritë e reja dalin edhe si njoftim.
   var pd = { llogarite: null, lejet: null, gabimLlogari: false, gabimLejet: false, ndal: [], uid: null, teReja: 0 };
   var KEY_PD_PARE = 'stoku:perdoruesit:pare'; // llogaritë e pakontrolluara që administratori i ka parë në këtë pajisje
@@ -3589,8 +3589,8 @@
   function pdInfo(tekst, kujdes) { var k = pdKarte(kujdes ? 'pd-paralajmerim' : ''); k.appendChild(el('p', 'ops-hint', tekst)); k.lastChild.style.margin = '0'; return k; }
   function pdNenTeksti(a) {
     var n = window.StokuLejet.teNdaluara(a.dok && a.dok.lejet);
-    var p1 = a.statusi === 'ri' ? (a.krijuarSe ? 'Llogari e re, ' + EKL.kohaRelative(a.krijuarSe) : 'Pa u kontrolluar: krejt lejet')
-      : a.statusi === 'kufizuar' ? (n === 1 ? '1 leje e ndaluar' : n + ' leje të ndaluara') : 'Krejt lejet';
+    var p1 = a.statusi === 'ri' ? (a.krijuarSe ? 'Llogari e re, ' + EKL.kohaRelative(a.krijuarSe) : 'Pa u kontrolluar: të gjitha lejet')
+      : a.statusi === 'kufizuar' ? (n === 1 ? '1 leje e ndaluar' : n + ' leje të ndaluara') : 'Të gjitha lejet';
     return [p1, pdMerchandiser(a) ? 'merchandiser' : '', a.kycurSe ? 'u kyç ' + EKL.kohaRelative(a.kycurSe) : ''].filter(Boolean).join(' · ');
   }
   function pdShkronja(a) { return el('span', 'pd-shkronja ' + a.statusi, (String(a.emri || '?').charAt(0) || '?').toUpperCase()); }
@@ -3603,7 +3603,7 @@
       if (!pd.ndal.length) pdNis();
       return;
     }
-    if (pd.gabimLejet) c.appendChild(pdInfo('Firebase s\'i lejon ende lejet: rregullat e Firestore duhet të përditësohen (v230). Deri atëherë krejt llogaritë i kanë krejt lejet.', true));
+    if (pd.gabimLejet) c.appendChild(pdInfo('Firebase s\'i lejon ende lejet: rregullat e Firestore duhet të përditësohen (v230). Deri atëherë të gjitha llogaritë i kanë të gjitha lejet.', true));
     var lista = pdLista();
     var q = ($('pdKerkoInp') ? $('pdKerkoInp').value : '').trim().toLocaleLowerCase('sq');
     if (lista.length >= 8 || q) {
@@ -3625,15 +3625,15 @@
       kr.appendChild(el('div', 'ops-titull', x[0]));
       var nr = el('span', 'ops-numri' + (x[0] === 'Pa u kontrolluar' ? ' ops-numri--pritje' : ''), String(x[1].length)); kr.firstChild.appendChild(nr);
       if (x[0] === 'Pa u kontrolluar' && x[1].length > 1 && !q) {
-        var bk = el('button', 'btn dyte vogel pd-veprime-krye', 'Shëno krejt si të kontrolluar'); bk.type = 'button';
+        var bk = el('button', 'btn dyte vogel pd-veprime-krye', 'Shëno të gjitha si të kontrolluara'); bk.type = 'button';
         bk.addEventListener('click', async function () {
-          var po = await konfirmo('T\'i shënosh të kontrolluar?', x[1].length + ' llogari mbeten me krejt lejet dhe s\'dalin më te "Pa u kontrolluar". Lejet mund t\'i ndryshosh kurdo.', 'Po, shënoji');
+          var po = await konfirmo('T\'i shënosh të kontrolluar?', x[1].length + ' llogari mbeten me të gjitha lejet dhe s\'dalin më te "Pa u kontrolluar". Lejet mund t\'i ndryshosh kurdo.', 'Po, shënoji');
           if (!po) return;
           bk.disabled = true;
           var r = await window.__stokuCloud.lejet.ruajShume(x[1].map(function (a) { return { uid: a.uid, lejet: window.StokuLejet.krejt(true), emri: a.emri }; }), { nga: emriPerdoruesit() });
           bk.disabled = false;
           toast(r.ok ? (r.n === 1 ? '1 llogari u shënua e kontrolluar.' : r.n + ' llogari u shënuan të kontrolluara.')
-            : r.arsye === 'leje' ? 'S\'u ruajt: rregullat e Firestore duhet të përditësohen (v230).' : 'S\'u ruajtën krejt. Kontrollo internetin dhe provo sërish.');
+            : r.arsye === 'leje' ? 'S\'u ruajt: rregullat e Firestore duhet të përditësohen (v230).' : 'S\'u ruajtën të gjitha. Kontrollo internetin dhe provo sërish.');
         });
         kr.appendChild(bk);
       }
@@ -3671,7 +3671,7 @@
     var z = window.StokuLejet.zgjedhja(a.dok && a.dok.lejet, 'marketet');
     return z !== null ? z : !!a.merchandiser;
   }
-  // "Lejo krejt" / "Ndalo krejt" / "U kontrollua" s'e ndërrojnë "Merchandiser"
+  // "Lejo të gjitha" / "Ndalo të gjitha" / "U kontrollua" s'e ndërrojnë "Merchandiser"
   function pdKrejt(a, vlera) {
     var L = window.StokuLejet, tani = pd.lejet && pd.lejet[a.uid];
     return L.meZgjedhjet(L.krejt(vlera), (tani && tani.lejet) || null);
@@ -3680,7 +3680,7 @@
     var c = $('pdPamja'); c.textContent = '';
     var L = window.StokuLejet;
     var a = pdLista().filter(function (x) { return x.uid === pd.uid; })[0];
-    var mbrapa = el('button', 'btn tekst vogel', '← Krejt përdoruesit'); mbrapa.type = 'button'; mbrapa.id = 'pdMbrapa';
+    var mbrapa = el('button', 'btn tekst vogel', '← Të gjithë përdoruesit'); mbrapa.type = 'button'; mbrapa.id = 'pdMbrapa';
     mbrapa.addEventListener('click', function () { pd.uid = null; pdVizato(); });
     $('pdPershkrimi').hidden = true;
     if (!a) { $('pdTitulli').textContent = 'Përdoruesit'; c.appendChild(mbrapa); c.appendChild(pdInfo('Kjo llogari s\'ekziston më.')); return; }
@@ -3691,7 +3691,7 @@
     kr.appendChild(el('span', 'ops-av ops-av--madh', (String(a.emri).charAt(0) || '?').toUpperCase()));
     var ki = el('div');
     var n = L.teNdaluara(lejet);
-    ki.appendChild(el('div', 'ops-titull', a.statusi === 'ri' ? 'Pa u kontrolluar: i ka krejt lejet' : a.statusi === 'kufizuar' ? (n === 1 ? '1 leje e ndaluar' : n + ' leje të ndaluara') : 'Krejt lejet'));
+    ki.appendChild(el('div', 'ops-titull', a.statusi === 'ri' ? 'Pa u kontrolluar: i ka të gjitha lejet' : a.statusi === 'kufizuar' ? (n === 1 ? '1 leje e ndaluar' : n + ' leje të ndaluara') : 'Të gjitha lejet'));
     if (a.statusi === 'ri') ki.firstChild.style.color = 'var(--sb-ic-portokalli)';
     var info = [a.krijuarSe ? 'U regjistrua ' + EKL.kohaRelative(a.krijuarSe) : '', a.kycurSe ? 'U kyç ' + EKL.kohaRelative(a.kycurSe) : '',
       a.grupi ? 'Në një grup' : 'Pa grup', pdMerchandiser(a) ? 'Merchandiser' : '', a.dok && a.dok.kontrolluarSe ? 'Kontrolluar ' + EKL.kohaRelative(a.dok.kontrolluarSe) + (a.dok.kontrolluarNga ? ' nga ' + a.dok.kontrolluarNga : '') : ''].filter(Boolean);
@@ -3699,15 +3699,15 @@
     kr.appendChild(ki);
     var vk = el('div', 'pd-veprime-krye');
     if (a.statusi === 'ri') {
-      var bk = el('button', 'btn', 'U kontrollua'); bk.type = 'button'; bk.id = 'pdKontrollua'; bk.title = 'I mban krejt lejet dhe s\'del më te "Pa u kontrolluar"';
+      var bk = el('button', 'btn', 'U kontrollua'); bk.type = 'button'; bk.id = 'pdKontrollua'; bk.title = 'I mban të gjitha lejet dhe s\'del më te "Pa u kontrolluar"';
       bk.addEventListener('click', function () { bk.disabled = true; pdRuaj(a, pdKrejt(a, true), a.emri + ' u shënua i kontrolluar.').then(function () { bk.disabled = false; }); });
       vk.appendChild(bk);
     }
-    var bl = el('button', 'btn dyte', 'Lejo krejt'); bl.type = 'button'; bl.id = 'pdLejoKrejt';
-    bl.addEventListener('click', function () { pdRuaj(a, pdKrejt(a, true), a.emri + ' i ka tani krejt lejet.'); });
-    var bn = el('button', 'btn tekst rrezik', 'Ndalo krejt'); bn.type = 'button'; bn.id = 'pdNdaloKrejt';
+    var bl = el('button', 'btn dyte', 'Lejo të gjitha'); bl.type = 'button'; bl.id = 'pdLejoKrejt';
+    bl.addEventListener('click', function () { pdRuaj(a, pdKrejt(a, true), a.emri + ' i ka tani të gjitha lejet.'); });
+    var bn = el('button', 'btn tekst rrezik', 'Ndalo të gjitha'); bn.type = 'button'; bn.id = 'pdNdaloKrejt';
     bn.addEventListener('click', async function () {
-      var po = await konfirmo('T\'i ndalohen krejt lejet?', a.emri + ' do të mund vetëm të hyjë në llogari: s\'do ta shohë as stokun, as afatet, as grupin.', 'Ndalo krejt');
+      var po = await konfirmo('T\'i ndalohen të gjitha lejet?', a.emri + ' do të mund vetëm të hyjë në llogari: s\'do ta shohë as stokun, as afatet, as grupin.', 'Ndalo të gjitha');
       if (po) pdRuaj(a, pdKrejt(a, false), a.emri + ' s\'ka më asnjë leje.');
     });
     vk.appendChild(bl); vk.appendChild(bn);
@@ -3716,7 +3716,7 @@
     vk.appendChild(baf);
     kr.appendChild(vk);
     k.appendChild(kr);
-    if (a.statusi === 'ri') k.appendChild(el('p', 'pd-info-rresht', 'Ndalo çka s\'duhet të përdorë (ruhet vetë), ose kliko "U kontrollua" që t\'i mbajë krejt lejet.'));
+    if (a.statusi === 'ri') k.appendChild(el('p', 'pd-info-rresht', 'Ndalo çfarë s\'duhet të përdorë (ruhet vetë), ose kliko "U kontrollua" që t\'i mbajë të gjitha lejet.'));
     c.appendChild(mbrapa);
     c.appendChild(k);
     var rrjeti = el('div', 'pd-lejet-rrjeti');
@@ -3749,7 +3749,7 @@
       rrjeti.appendChild(gr);
     });
     c.appendChild(rrjeti);
-    var sh = el('p', 'ops-hint', 'Ndryshimet ruhen vetë dhe vlejnë menjëherë te telefoni dhe kompjuteri i ' + a.emri + '. Çka s\'i lejohet, i zhduket krejt, pa asnjë mesazh.');
+    var sh = el('p', 'ops-hint', 'Ndryshimet ruhen vetë dhe vlejnë menjëherë te telefoni dhe kompjuteri i ' + a.emri + '. Çfarë nuk i lejohet, i zhduket krejt, pa asnjë mesazh.');
     sh.style.textAlign = 'center';
     c.appendChild(sh);
   }
@@ -4060,7 +4060,7 @@
     $('afMarketiPcKuti').hidden = !ka;
     if (!ka) return;
     var s = $('afMarketiPc'); s.textContent = '';
-    var o0 = el('option', null, 'Krejt marketet'); o0.value = ''; s.appendChild(o0);
+    var o0 = el('option', null, 'Të gjitha marketet'); o0.value = ''; s.appendChild(o0);
     MK.rendit(marketet).forEach(function (m) { var o = el('option', null, m.emri); o.value = m.id; s.appendChild(o); });
     s.value = idMarketitAktiv() || '';
   }
@@ -4068,7 +4068,7 @@
     marketiAktiv = MK.ruajAktivin({ id: $('afMarketiPc').value || null, menyra: 'dore', koha: Date.now(), kontrolluarSe: marketiAktiv.kontrolluarSe || 0 });
     rivizato();
   });
-  // Afatet e reja (importi, fleta): te marketi i zgjedhur; me "Krejt marketet" pyetet (kthen undefined = mos ruaj)
+  // Afatet e reja (importi, fleta): te marketi i zgjedhur; me "Të gjitha marketet" pyetet (kthen undefined = mos ruaj)
   function marketiPerTeReja() {
     if (!kaMarkete()) return null;
     var id = idMarketitAktiv();
@@ -4314,7 +4314,7 @@
     r.textContent = '';
     r.appendChild(kpi('Të skaduara', gati ? num(n.skaduar) : '…', 'duhen hequr nga rafti', n.skaduar ? 'kritik' : null, IKONA.zero, afatet('skaduar')));
     r.appendChild(kpi('Afër skadimit', gati ? num(n.afer) : '…', 'brenda 30 ditëve', n.afer ? 'paralajm' : null, IKONA.pak, afatet('afer')));
-    r.appendChild(kpi('Në rregull', gati ? num(n.ok) : '…', 'krejt grupi', null, null, afatet('ok')));
+    r.appendChild(kpi('Në rregull', gati ? num(n.ok) : '…', 'i gjithë grupi', null, null, afatet('ok')));
     var onl = anetaret.filter(function (a) { return a.uneJam || EKL.eshteOnline(a); });
     r.appendChild(kpi('Online tani', onl.length + '/' + anetaret.length, onl.map(function (a) { return a.emri; }).join(', ') || 'askush', null, null, function () { ekShkoTe('anetaret'); }));
     // Duhet vepruar: të skaduarat + ato që skadojnë brenda 7 ditëve
@@ -4335,7 +4335,7 @@
     var frag = document.createDocumentFragment();
     lista.slice(0, 15).forEach(function (x) { frag.appendChild(ekRreshtAfati(x, true, true)); });
     trup.appendChild(frag);
-    if (lista.length > 15) { bosh.textContent = '… dhe ' + (lista.length - 16 ? (lista.length - 15) + ' të tjera' : '1 tjetër') + '. Shiko "Krejt afatet e grupit" për listën e plotë.'; bosh.classList.remove('fsheh'); }
+    if (lista.length > 15) { bosh.textContent = '… dhe ' + (lista.length - 16 ? (lista.length - 15) + ' të tjera' : '1 tjetër') + '. Shiko "Të gjitha afatet e grupit" për listën e plotë.'; bosh.classList.remove('fsheh'); }
     ekPultAnetaret(anetaret);
   }
   // Prania si ikonë: telefon/kompjuter me pikë të gjelbër kur është online; ikonë "jashtë linje" + koha kur s'është
@@ -4367,7 +4367,7 @@
 
   // ---- Afatet: një kartë për koleg, pastaj tabela ----
   function ekVAfatet(anetaret) {
-    var krejt = { uid: 'krejt', emri: 'Krejt grupi', afatet: ekTeGjitha(anetaret), ngarkuar: ekK.eGatshme() };
+    var krejt = { uid: 'krejt', emri: 'I gjithë grupi', afatet: ekTeGjitha(anetaret), ngarkuar: ekK.eGatshme() };
     var r = $('ekAnetaret');
     r.textContent = '';
     [krejt].concat(anetaret).forEach(function (x) {
@@ -4381,7 +4381,7 @@
       if (!x.ngarkuar) nen.textContent = 'duke ngarkuar…';
       if (n.skaduar) { nen.appendChild(document.createTextNode(' · ')); nen.appendChild(el('span', 'ek-kuqe', n.skaduar === 1 ? '1 i skaduar' : n.skaduar + ' të skaduara')); }
       if (n.afer) nen.appendChild(document.createTextNode(' · ' + n.afer + ' afër skadimit'));
-      k.title = x.uid === 'krejt' ? 'Shiko krejt grupin bashkë' : 'Shiko vetëm ' + x.emri + (x.uneJam ? '' : ' · ' + EKL.tekstiPranise(x));
+      k.title = x.uid === 'krejt' ? 'Shiko të gjithë grupin bashkë' : 'Shiko vetëm ' + x.emri + (x.uneJam ? '' : ' · ' + EKL.tekstiPranise(x));
       r.appendChild(k);
     });
     var zgj = ekV.anetari === 'krejt' ? krejt : anetaret.filter(function (a) { return a.uid === ekV.anetari; })[0];
@@ -4491,7 +4491,7 @@
     toast('"' + emri + '" u ' + (veprimi === 'fshij' ? 'fshi' : veprimi === 'kthe' ? 'kthye në raft' : 'shënua si i hequr') + '. ' + (a.pronariEmri || 'Kolegu') + ' u njoftua.');
   }
   // Heqja e kolegut pret miratimin e pronarit (v179)
-  // Rolet si ikona të vogla (prekja tregon çka janë): kurora = pronari i grupit, mburoja = administratori
+  // Rolet si ikona të vogla (prekja tregon çfarë janë): kurora = pronari i grupit, mburoja = administratori
   var EK_ROLET = {
     pronar: ['Admin i Grupit', '<path d="M3 7l4 4 5-6 5 6 4-4-2 11H5L3 7z"></path><path d="M5 21h14"></path>'],
     admin: ['Administrator', '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path>']
@@ -4591,7 +4591,7 @@
     function afatet(filtri) { return function () { ekV.anetari = 'krejt'; ekV.filtri = filtri; ekShkoTe('afatet'); }; }
     r.appendChild(kpi('Skadojnë sot', num(st.sot), 'afër skadimit', st.sot ? 'paralajm' : null, IKONA.pak, afatet('afer')));
     r.appendChild(kpi('Të skaduara në raft', num(st.skaduara), 'duhen hequr nga rafti', st.skaduara ? 'kritik' : null, IKONA.zero, afatet('skaduar')));
-    r.appendChild(kpi('Hequr sot', num(st.hequrSot), 'nga krejt grupi', null, null, afatet('hequr')));
+    r.appendChild(kpi('Hequr sot', num(st.hequrSot), 'nga i gjithë grupi', null, null, afatet('hequr')));
     r.appendChild(kpi('Online tani', ekOnline(anetaret) + '/' + anetaret.length, 'kolegë', null, null, function () { ekShkoTe('anetaret'); }));
     var c = $('ekAktLista');
     c.textContent = '';
@@ -4816,7 +4816,7 @@
     b.disabled = false;
     if (!r.ok) { toast(r.leje ? 'S\'u krijua: rregullat e Firebase-it për grupet s\'janë vendosur ende.' : 'S\'u krijua. Kontrollo internetin dhe provo përsëri.'); return; }
     inp.value = '';
-    toast('Grupi "' + em + '" u krijua. Tash fto shokët te Kolegët.');
+    toast('Grupi "' + em + '" u krijua. Tani fto shokët te Kolegët.');
     ekShkoTe('anetaret');
   }
   $('ekGrupiKrijo').addEventListener('click', ekKrijoGrupin);
@@ -4998,7 +4998,7 @@
       });
       if (!l.length) { var tr0 = el('tr'); tr0.appendChild(el('td', 'k-gri', 'S\'ka llogari të tjera.')); tl2.appendChild(tr0); }
       $('ekLlogariteKrejt').classList.toggle('fsheh', ekLlogariteKrejt || l.length <= 20);
-      $('ekLlogariteKrejt').textContent = 'Shfaq krejt (' + l.length + ')';
+      $('ekLlogariteKrejt').textContent = 'Shfaq të gjitha (' + l.length + ')';
     }
   }
 
@@ -5011,19 +5011,19 @@
     this.disabled = false;
     if (!r.ok) { toast('Njoftimi s\'u dërgua. Kontrollo internetin dhe provo përsëri.'); return; }
     ta.value = '';
-    toast('Njoftimi u dërgua te krejt grupi' + (r.neRadhe ? ' (sapo të ketë internet).' : '.'));
+    toast('Njoftimi u dërgua te i gjithë grupi' + (r.neRadhe ? ' (sapo të ketë internet).' : '.'));
   });
   $('ekAdminPastroAkt').addEventListener('click', async function () {
     var b = this;
-    var po = await konfirmo('Të fshihet krejt aktiviteti?', 'Krejt historiku i aktivitetit fshihet për krejt grupin. Afatet s\'preken.', 'Fshi krejt');
+    var po = await konfirmo('Të fshihet i gjithë aktiviteti?', 'I gjithë historiku i aktivitetit fshihet për të gjithë grupin. Afatet s\'preken.', 'Fshi të gjitha');
     if (!po) return;
     b.disabled = true;
     var r = await ekK.pastroAktivitetin();
     b.disabled = false;
-    toast(r.ok ? (r.n === 1 ? 'U fshi 1 rresht.' : 'U fshinë ' + r.n + ' rreshta.') : 'S\'u fshi krejt. Kontrollo internetin dhe provo përsëri.');
+    toast(r.ok ? (r.n === 1 ? 'U fshi 1 rresht.' : 'U fshinë ' + r.n + ' rreshta.') : 'S\'u fshi gjithçka. Kontrollo internetin dhe provo përsëri.');
   });
 
-  // ---- Stoku i krejt kolegëve (vetëm administratori, vetëm lexim) ----
+  // ---- Stoku i të gjithë kolegëve (vetëm administratori, vetëm lexim) ----
   var ekStoku = { uid: null, te: {}, duke: {} };
   function ekVStoku(anetaret) {
     if (!ekStoku.uid || !anetaret.some(function (a) { return a.uid === ekStoku.uid; })) ekStoku.uid = anetaret.length ? anetaret[0].uid : null;
@@ -5111,7 +5111,7 @@
     var r = $('ekStatKpi');
     r.textContent = '';
     function afatet(filtri) { return function () { ekV.anetari = 'krejt'; ekV.filtri = filtri; ekShkoTe('afatet'); }; }
-    r.appendChild(kpi('Afate në raft', num(st.aktive), 'krejt grupi', null, null, afatet('')));
+    r.appendChild(kpi('Afate në raft', num(st.aktive), 'i gjithë grupi', null, null, afatet('')));
     r.appendChild(kpi('Të skaduara', num(st.skaduara), 'duhen hequr nga rafti', st.skaduara ? 'kritik' : null, IKONA.zero, afatet('skaduar')));
     r.appendChild(kpi('Skadojnë ≤ 7 ditë', num(st.javes), 'këtë javë', st.javes ? 'paralajm' : null, IKONA.pak, afatet('afer')));
     r.appendChild(kpi('Afër skadimit', num(st.afer), '≤ 30 ditë', st.afer ? 'paralajm' : null, IKONA.pak, afatet('afer')));
@@ -5198,7 +5198,7 @@
   $('ekNjFshiKrejt').addEventListener('click', async function () {
     if (!ekK || !ekNjTeShfaqura.length) return;
     var n = ekNjTeShfaqura.length;
-    if (!(await konfirmo('Të fshihen krejt njoftimet?', (n === 1 ? 'Njoftimi fshihet' : 'Të ' + n + ' njoftimet fshihen') + ' vetëm për ty.', 'Fshiji'))) return;
+    if (!(await konfirmo('Të fshihen të gjitha njoftimet?', (n === 1 ? 'Njoftimi fshihet' : 'Të ' + n + ' njoftimet fshihen') + ' vetëm për ty.', 'Fshiji'))) return;
     var res = await ekK.fshijNjoftimet(ekNjTeShfaqura.slice());
     if (!res || !res.ok) { toast('S\'u fshinë. Kontrollo internetin dhe provo sërish.'); return; }
     toast(n === 1 ? 'Njoftimi u fshi.' : 'U fshinë ' + n + ' njoftime.');
@@ -5248,7 +5248,7 @@
     if (!ekK || !leja('grupiKerkesat')) return;
     var kol = ekK.koleget();
     var sel = $('krkPer'); sel.textContent = '';
-    var o0 = document.createElement('option'); o0.value = ''; o0.textContent = 'Krejt grupi (' + kol.length + ')'; sel.appendChild(o0);
+    var o0 = document.createElement('option'); o0.value = ''; o0.textContent = 'I gjithë grupi (' + kol.length + ')'; sel.appendChild(o0);
     kol.slice().sort(function (a, b) { return String(a.emri).localeCompare(String(b.emri)); }).forEach(function (a) {
       var o = document.createElement('option'); o.value = a.uid; o.textContent = a.emri; sel.appendChild(o);
     });
@@ -5282,7 +5282,7 @@
     $('krkDergo').disabled = false; perditesoDergo(zgj.length);
     if (!r || !r.ok) { $('krkGabim').textContent = r && r.arsye === 'pa-kolege' ? 'S\'ka ende kolegë në grup.' : 'S\'u dërgua. Kontrollo internetin dhe provo sërish.'; return; }
     mbyllDialog('dlgKerkese');
-    toast(r.neRadhe ? 'Kërkesa do të dërgohet sapo të kthehet interneti.' : 'Kërkesa u dërgua te ' + (per ? perEmri : 'krejt grupi') + '.');
+    toast(r.neRadhe ? 'Kërkesa do të dërgohet sapo të kthehet interneti.' : 'Kërkesa u dërgua te ' + (per ? perEmri : 'i gjithë grupi') + '.');
   }
   $('ekKerkoHeqje').addEventListener('click', function () { hapKerkesen(); });
   $('krkDergo').addEventListener('click', dergoKerkesen);
@@ -5399,7 +5399,7 @@
       });
     }
     if (kaMarkete() && !idMarketitAktiv()) {
-      // v248: merchandiseri te "Krejt marketet": afatet s'përzihen, secili market me afatet e veta
+      // v248: merchandiseri te "Të gjitha marketet": afatet s'përzihen, secili market me afatet e veta
       MK.grupo(lista, marketet).forEach(function (gr) {
         var tr = el('tr', 'af-grup af-grup-market');
         var td = el('td'); td.colSpan = 6;
@@ -5471,7 +5471,7 @@
     toast(ids.length === 1 ? 'U shënua si i hequr nga rafti.' : ids.length + ' produkte u shënuan si të hequra.', { veprimi: function () { zhbejAfatet(reg); } });
     ids.forEach(function (id) { ekNgjarjeAfati('hequr', afatSipasId(id)); });
   }
-  // Ngjarje për aktivitetin e Grupit (kush çka hoqi/lajmëroi/ktheu)
+  // Ngjarje për aktivitetin e Grupit (kush çfarë hoqi/lajmëroi/ktheu)
   function ekNgjarjeAfati(lloji, a) {
     var u = perdoruesi();
     if (!u || !a || !ekK) return;
@@ -5625,7 +5625,7 @@
     });
   })();
   // Fotoja e fletës: rrota e mausit zmadhon aty ku është kursori, tërheqja me maus e lëviz,
-  // dy klikime zmadhojnë (ose kthejnë te krejt fleta). Fotoja s'del kurrë krejt jashtë kutisë.
+  // dy klikime zmadhojnë (ose kthejnë te e gjithë fleta). Fotoja s'del kurrë krejt jashtë kutisë.
   var fotoPamja = (function () {
     var kuti = $('lxFotoKuti'), img = $('lxFoto');
     var s = 1, sMin = 1, x = 0, y = 0, terheqje = null;
@@ -5791,7 +5791,7 @@
     $('lxZhbejVize').addEventListener('click', zhbejVizatimin);
     $('lxFshiVizat').addEventListener('click', async function () {
       if (!vizatime.length) return;
-      if (!(await konfirmo('Të fshihen krejt vizatimet?', 'Vijat e kuqe në foto hiqen.', 'Fshi'))) return;
+      if (!(await konfirmo('Të fshihen të gjitha vizatimet?', 'Vijat e kuqe në foto hiqen.', 'Fshi'))) return;
       vizatime = []; vizatoTeGjitha(); ruajVizatimet();
     });
     document.addEventListener('keydown', function (ev) {
@@ -6426,7 +6426,7 @@
   }, 60000);
   if (window.__stokuCloud) kurNdryshonLlogaria();
 
-  // ================= "Çka ka të re" =================
+  // ================= "Çfarë ka të re" =================
   var KEY_TE_REJAT = 'stoku:te-rejat:pare';
   function versioniIPare() { try { return Number(localStorage.getItem(KEY_TE_REJAT)) || 0; } catch (e) { return 0; } }
   function shenoTeRejatSiTePara() { try { localStorage.setItem(KEY_TE_REJAT, String(window.StokuTeRejat.versioni())); } catch (e) { /* ok */ } }
@@ -6459,7 +6459,7 @@
     $('trNen').textContent = nen;
     lista.scrollTop = 0;
   }
-  // Nga Cilësimet → "Çka ka të re": 6 versionet e fundit të kompjuterit, kurdo
+  // Nga Cilësimet → "Çfarë ka të re": 6 versionet e fundit të kompjuterit, kurdo
   // v237: politika e privatësisë (faqe më vete, në dritare të re)
   $('opsPrivatesia').addEventListener('click', function () { window.open('privatesia.html', '_blank', 'noopener'); });
   $('opsTeRejat').addEventListener('click', function () {

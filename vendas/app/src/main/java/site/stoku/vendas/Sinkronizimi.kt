@@ -69,7 +69,7 @@ object Sinkronizimi {
                 } else _statusi.value = ""
             }
         }
-        // Kthehet interneti: dërgohet menjëherë çka pret dhe rinis dëgjuesi
+        // Kthehet interneti: dërgohet menjëherë çfarë pret dhe rinis dëgjuesi
         try {
             val cm = ctx.getSystemService(ConnectivityManager::class.java)
             cm?.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {

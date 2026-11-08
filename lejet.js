@@ -1,18 +1,18 @@
 /*
- * Lejet e përdoruesve (v230): çka mund të përdorë secila llogari në Stoku. E përbashkët për telefonin dhe PC-në.
+ * Lejet e përdoruesve (v230): çfarë mund të përdorë secila llogari në Stoku. E përbashkët për telefonin dhe PC-në.
  *
  * Firestore: lejet/{uid} = { lejet: { stoku: true, stokuFshi: false, ... }, kontrolluarSe, kontrolluarNga, emri }
  *   - Pa dokument: llogari e re, ende pa u kontrolluar: i ka KREJT lejet, derisa administratori ta kontrollojë.
  *   - Çelës që mungon (p.sh. një leje e shtuar më vonë): e lejuar.
  *   - Leja e një pjese (p.sh. "stoku") vlen edhe për veprimet brenda saj ("stokuFshi"...): pa pjesën, s'ka as veprime.
- *     Prindi mund të ketë prind (v240: "stokuPlusMinus" → "stokuNdrysho" → "stoku"): kontrollohet krejt zinxhiri.
+ *     Prindi mund të ketë prind (v240: "stokuPlusMinus" → "stokuNdrysho" → "stoku"): kontrollohet i gjithë zinxhiri.
  * Rregullat (v230): dokumentin e shkruan vetëm administratori; secila llogari e lexon vetëm të vetin.
- * Administratori (mendurberisha) i ka gjithmonë krejt lejet; faqja "Përdoruesit" te Cilësimet është vetëm e tij.
+ * Administratori (mendurberisha) i ka gjithmonë të gjitha lejet; faqja "Përdoruesit" te Cilësimet është vetëm e tij.
  * Lejet i zbaton aplikacioni (fsheh pjesët dhe butonat që s'lejohen); përdoruesi s'mund t'i ndryshojë vetë.
  * v241: lejet "me zgjedhje" (zgjedhje: true, p.sh. "marketet" = merchandiser) janë të FIKURA kur mungojnë: s'i marrin
  *   llogaritë ekzistuese. Vlera e tyre vjen nga regjistrimi (perdoruesit/{uid}.merchandiser) derisa administratori ta
- *   ndezë/fikë vetë (atëherë ruhet këtu si true/false dhe fiton). "Lejo krejt"/"Ndalo krejt" s'i prekin (meZgjedhjet).
- * v231: çka s'lejohet zhduket krejt, pa asnjë mesazh (as "s'të lejohet", as listë te Llogaria): përdoruesi s'e di as
+ *   ndezë/fikë vetë (atëherë ruhet këtu si true/false dhe fiton). "Lejo të gjitha"/"Ndalo të gjitha" s'i prekin (meZgjedhjet).
+ * v231: çfarë s'lejohet zhduket krejt, pa asnjë mesazh (as "s'të lejohet", as listë te Llogaria): përdoruesi s'e di as
  *   që ekziston. Pa "stoku" kryefaqja e telefonit është pjesa e parë e lejuar; pa "pc" kompjuteri hap versionin e
  *   telefonit (index.html e lexon lejen e ruajtur këtu, KEY_LOKALE); "Dërgo në PC" kërkon edhe "pc".
  */
@@ -25,9 +25,9 @@
       { k: 'stoku', emri: 'Stoku', pershkrim: 'Sheh folderat dhe produktet.' },
       { k: 'stokuShto', emri: 'Shto produkte të reja', pershkrim: 'Një barkod që s\'është ende në folder.', prindi: 'stoku' },
       { k: 'stokuNdrysho', emri: 'Ndrysho produktet', pershkrim: 'Sasia, emri, furnizuesi dhe zhvendosja në folder tjetër.', prindi: 'stoku' },
-      // v240: më parë leje e grupit (pronari, kolona "+/-"); tash si lejet e tjera, e lejuar për krejt llogaritë
+      // v240: më parë leje e grupit (pronari, kolona "+/-"); tash si lejet e tjera, e lejuar për të gjitha llogaritë
       { k: 'stokuPlusMinus', emri: 'Sasia e shpejtë (+/-)', pershkrim: 'Butonat + dhe - te lista e produkteve dhe numërimi kur skanon me kamerë një produkt që e ke.', prindi: 'stokuNdrysho' },
-      { k: 'stokuFshi', emri: 'Fshi produkte dhe foldera', pershkrim: 'Edhe "Fshi krejt" brenda një folderi.', prindi: 'stoku' },
+      { k: 'stokuFshi', emri: 'Fshi produkte dhe foldera', pershkrim: 'Edhe "Fshi të gjitha" brenda një folderi.', prindi: 'stoku' },
       { k: 'stokuFoldera', emri: 'Krijo dhe ndrysho folderat', pershkrim: '"Folder i ri", emri, ikona dhe renditja e folderave.', prindi: 'stoku' },
       { k: 'stokuImporto', emri: 'Importo stokun', pershkrim: 'Nga fotoja e një flete (me AI) ose nga Excel në kompjuter.', prindi: 'stoku' }
     ] },
@@ -43,11 +43,11 @@
     { grupi: 'Grupi', lejet: [
       { k: 'grupi', emri: 'Grupi', pershkrim: 'Kolegët, afatet e grupit, aktiviteti dhe kalendari.' },
       { k: 'grupiHeq', emri: 'Hiq nga rafti produktet e kolegëve', pershkrim: '"Unë e hoqa" te afatet e skaduara të kolegëve (kolegu e miraton).', prindi: 'grupi' },
-      { k: 'grupiKerkesat', emri: 'Kërkesat për heqje', pershkrim: 'Kërkoji një kolegu ose krejt grupit ta heqë një produkt nga rafti.', prindi: 'grupi' }
+      { k: 'grupiKerkesat', emri: 'Kërkesat për heqje', pershkrim: 'Kërkoji një kolegu ose të gjithë grupit ta heqë një produkt nga rafti.', prindi: 'grupi' }
     ] },
     { grupi: 'Skanimi dhe skedarët', lejet: [
       { k: 'kamera', emri: 'Skano me kamerë', pershkrim: 'Barkodi me kamerën e telefonit, te stoku dhe te afatet.' },
-      // v263: e lejuar për krejt llogaritë (si çdo leje e re); pa "Skano me kamerë" s'ka as këtë
+      // v263: e lejuar për të gjitha llogaritë (si çdo leje e re); pa "Skano me kamerë" s'ka as këtë
       { k: 'skanimShpejt', emri: 'Skanim i shpejtë', pershkrim: 'Brenda folderit te Stoku: kamera s\'mbyllet dhe çdo barkod shtohet menjëherë te lista me sasitë.', prindi: 'kamera' },
       { k: 'eksportExcel', emri: 'Eksporto në Excel', pershkrim: 'Stoku dhe afatet.' },
       { k: 'eksportPdf', emri: 'Eksporto në PDF', pershkrim: 'Etiketat me barkod (në kompjuter edhe raporti).' },
@@ -87,7 +87,7 @@
     CELESAT.forEach(function (k) { if (!ZGJEDHJE[k]) o[k] = !!vlera; });
     return o;
   }
-  // "Lejo krejt" / "Ndalo krejt" s'e ndërrojnë zgjedhjen e caktuar më parë (p.sh. merchandiser)
+  // "Lejo të gjitha" / "Ndalo të gjitha" s'e ndërrojnë zgjedhjen e caktuar më parë (p.sh. merchandiser)
   function meZgjedhjet(lejetERe, teVjetrat) {
     var o = Object.assign({}, lejetERe);
     Object.keys(ZGJEDHJE).forEach(function (k) { if (zgjedhja(o, k) === null && zgjedhja(teVjetrat, k) !== null) o[k] = teVjetrat[k]; });
@@ -115,7 +115,7 @@
           cb(s.exists() ? (s.data() || {}) : null);
         }, function (e) { if (cbGabim) cbGabim(e); });
       },
-      // Administratori: lejet e krejt llogarive { uid: dokumenti }
+      // Administratori: lejet e të gjitha llogarive { uid: dokumenti }
       degjoKrejt: function (cb, cbGabim) {
         return fs.onSnapshot(fs.collection(db, 'lejet'), function (s) {
           var m = {};

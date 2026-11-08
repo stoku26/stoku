@@ -5,7 +5,7 @@
 //   2. administratori i fshin vetë ato që erdhën nga pritja e një telefoni të vjetër (fshirja shkon te regjistri),
 //      ndërsa produktet e vërteta në pritje mbeten për kontroll;
 //   3. Cilësimet → Stoku te administratori: pa produktet e provës, "Produktet e reja" vetëm 1;
-//   4. "Çka ka të re" v258 vetëm për administratorin.
+//   4. "Çfarë ka të re" v258 vetëm për administratorin.
 const { chromium } = require('./pw.js');
 const { krijoFirestore } = require('./fs-server.js');
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
@@ -97,7 +97,7 @@ const FURN = ['Furnizuesi A', 'Furnizuesi B', 'Furnizuesi C'];
   const p4 = (doc('kujtesa_pritje/u2') || {}).p || {};
   ok(!Object.keys(PROVA).some(b => p4[b]), '4. testmorina: pritja ende pa provën', Object.keys(p4));
 
-  // 5. "Çka ka të re" v258: vetëm administratori
+  // 5. "Çfarë ka të re" v258: vetëm administratori
   const tr = await adm.evaluate(() => { const L = window.StokuTeRejat && (window.StokuTeRejat.LISTA || (window.StokuTeRejat.lista && window.StokuTeRejat.lista())); return (L || []).filter(x => x.v === 258).map(x => [x.titulli, !!x.vetemAdmini]); });
   ok(tr.length === 1 && tr[0][1] === true, '5. teRejat v258 vetëm për administratorin', tr);
   const cache = await adm.evaluate(() => fetch('sw.js').then(r => r.text()).then(t => (t.match(/stoku-v(\d+)/) || [])[1]));

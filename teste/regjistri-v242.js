@@ -1,6 +1,6 @@
-// v242: regjistri i përbashkët i Stoku-t: krejt llogaritë (edhe pa grup) i shohin produktet dhe furnizuesit e kontrolluar
+// v242: regjistri i përbashkët i Stoku-t: të gjitha llogaritë (edhe pa grup) i shohin produktet dhe furnizuesit e kontrolluar
 // nga administratori (kujtesa/*), emri del kur skanojnë; çdo produkt i ri i kujtdo shkon te pritja (kujtesa_pritje/{uid}) dhe
-// del për kontroll te administratori; vetëm çka ruan ai kalon te regjistri. Siguria: askush tjetër s'shkruan te regjistri,
+// del për kontroll te administratori; vetëm çfarë ruan ai kalon te regjistri. Siguria: askush tjetër s'shkruan te regjistri,
 // një "s" i falsifikuar te pritja s'e kalon kontrollin.
 const { chromium } = require('./pw.js');
 const { krijoFirestore } = require('./fs-server.js');
@@ -44,7 +44,7 @@ const prit = (fn, ms = 10000) => new Promise(async z => { const t0 = Date.now();
   const adm = await faqe('uA', 'mendurberisha', true, KUJ_ADMIN);
   ok(await prit(() => { const R = regjistri(); return R['3800001'] && R['furnizuesi Vita']; }), '1. regjistri: produktet dhe furnizuesit e administratorit', Object.keys(regjistri()));
   const R1 = regjistri();
-  ok(R1['3800001'].e === 'Kos Vita 1kg' && R1['3800001'].f === 'Vita' && R1['3800001'].s === 1 && doc('kujtesa/p1'), '1. me krejt fushat, i ndarë sipas shifrës së fundit (p1)', R1['3800001']);
+  ok(R1['3800001'].e === 'Kos Vita 1kg' && R1['3800001'].f === 'Vita' && R1['3800001'].s === 1 && doc('kujtesa/p1'), '1. me të gjitha fushat, i ndarë sipas shifrës së fundit (p1)', R1['3800001']);
   ok(!doc('kujtesa_pritje/uA'), '1. administratori s\'ka pritje');
 
   // 2. testmorina (PC, llogari e re, pa grup): i sheh produktet dhe furnizuesit; emri del kur skanon
@@ -67,7 +67,7 @@ const prit = (fn, ms = 10000) => new Promise(async z => { const t0 = Date.now();
   await tm.click('#afdRuaj'); await tm.waitForTimeout(300);
   ok(await prit(() => { const d = doc('kujtesa_pritje/u2'); return d && d.p && d.p['3800099']; }), '3. pritja e testmorinës: 3800099', doc('kujtesa_pritje/u2') && Object.keys(doc('kujtesa_pritje/u2').p));
   const pr = doc('kujtesa_pritje/u2');
-  ok(pr.emri === 'testmorina' && pr.p['3800099'].e === 'Ujë Rugove 0.5L' && !pr.p['3800001'], '3. vetëm çka s\'është te regjistri (jo Kos Vita)', Object.keys(pr.p));
+  ok(pr.emri === 'testmorina' && pr.p['3800099'].e === 'Ujë Rugove 0.5L' && !pr.p['3800001'], '3. vetëm çfarë s\'është te regjistri (jo Kos Vita)', Object.keys(pr.p));
   ok(!regjistri()['3800099'], '3. s\'kalon te regjistri pa kontroll');
   ok(await prit(async () => { const k = (await kuj(adm))['3800099']; return k && k.n === 'testmorina' && !k.s; }), '3. administratori e merr si "në pritje" nga testmorina', (await kuj(adm))['3800099']);
   await adm.click('#btnOpsione'); await adm.waitForTimeout(400); await adm.click('#dlgOpsione [data-faqe="stoku"]'); await adm.waitForTimeout(400);
@@ -75,7 +75,7 @@ const prit = (fn, ms = 10000) => new Promise(async z => { const t0 = Date.now();
   const lb = (await adm.textContent('#opsKujPritjeLista')).replace(/\s+/g, ' ');
   ok(await adm.isVisible('#opsKujPritjeSeksion') && /Ujë Rugove 0.5L.*nga testmorina/.test(lb), '3. admini: te "Produktet e reja", nga testmorina', lb.slice(0, 160));
   await adm.screenshot({ path: __dirname + '/v242-regjistri-admin.png' });
-  // 4. Administratori e ruan → regjistri → krejt llogaritë
+  // 4. Administratori e ruan → regjistri → të gjitha llogaritë
   await adm.click('#opsKujPritjeSeksion .ops-palos').catch(() => {}); await adm.waitForTimeout(150);
   await adm.click('#opsKujPritjeLista .ops-furn-rresht:has-text("Ujë Rugove") button:has-text("Ndrysho")'); await adm.waitForTimeout(200);
   await adm.locator('#opsKujPritjeLista .ops-furn-edit input').nth(0).fill('Ujë Rugove 0.5 L');

@@ -103,13 +103,13 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
     await prov('hyj te ekipa pa ftesë', () => fs.setDoc(fs.doc(null, 'grupet', 'ekipa', 'anetaret', 'u3'), { emri: 'drini', roli: 'anetar' }));
     await prov('bëhem pronar vetë', () => fs.setDoc(fs.doc(null, 'grupet', gB, 'anetaret', 'u3'), { roli: 'pronar' }, { merge: true }));
     await prov('fto si anëtar', () => fs.setDoc(fs.doc(null, 'ftesat', gB + '_zana'), { gid: gB, perdoruesi: 'zana', ngaUid: 'u3', ngaEmri: 'drini', koha: 1 }));
-    await prov('lista e krejt përdoruesve', () => fs.getDocs(fs.collection(null, 'perdoruesit')));
+    await prov('lista e të gjithë përdoruesve', () => fs.getDocs(fs.collection(null, 'perdoruesit')));
     await prov('njoftim te agimi (grup tjetër)', () => fs.setDoc(fs.doc(null, 'perdoruesit', 'u1', 'njoftimet', 'zz1'), { lloji: 'lajmerim', tekst: 'x', grupi: gB, uid: 'u3', emri: 'drini', koha: 1, lexuar: false }));
     await prov('grupi "ekipa" i rremë', () => fs.setDoc(fs.doc(null, 'grupet', 'ekipa2'), { emri: 'Ekipa', pronarUid: 'u3' }));
     return r;
   }, gB);
   ok(sig['lexo chat ekipa'] === 'permission-denied' && sig['anëtarët e ekipës'] === 'permission-denied' && sig['hyj te ekipa pa ftesë'] === 'permission-denied'
-    && sig['bëhem pronar vetë'] === 'permission-denied' && sig['fto si anëtar'] === 'permission-denied' && sig['lista e krejt përdoruesve'] === 'permission-denied'
+    && sig['bëhem pronar vetë'] === 'permission-denied' && sig['fto si anëtar'] === 'permission-denied' && sig['lista e të gjithë përdoruesve'] === 'permission-denied'
     && sig['njoftim te agimi (grup tjetër)'] === 'permission-denied', '6. rregullat: krejt qasjet jashtë grupit refuzohen', sig);
 
   // 7. Kërkesë për heqje brenda grupit (njoftimi me `grupi`)

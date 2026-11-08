@@ -37,8 +37,8 @@ import java.io.File
 
 /**
  * Kujtesa e produkteve në këtë telefon (si StokuAfatet.kujtesa() te web-i) dhe sinkronizimi i saj (ekipa.js, v197 + v242):
- * - regjistri i përbashkët i Stoku-t: kujtesa/{p0..p9, px} (vetëm çka ka kontrolluar administratori; e lexon kushdo);
- * - pritja: kujtesa_pritje/{uid}: çka mëson/shkruan secili pa kontroll; administratori i merr krejt si "në pritje";
+ * - regjistri i përbashkët i Stoku-t: kujtesa/{p0..p9, px} (vetëm çfarë ka kontrolluar administratori; e lexon kushdo);
+ * - pritja: kujtesa_pritje/{uid}: çfarë mëson/shkruan secili pa kontroll; administratori i merr krejt si "në pritje";
  * - kujtesa e grupit: grupet/{g}/kujtesa (e përbashkët për kolegët).
  * Mëson kur ruhet një afat ose produkt me barkod, nga importet, dhe në sfond nga afatet/stoku/afatet e kolegëve.
  */
@@ -148,7 +148,7 @@ object Regjistri {
             planifikoRegjistrin()
             if (n > 0 || iPari) _versioni.value++
         }
-        // Administratori: pritja e krejt llogarive → "Produktet e reja"
+        // Administratori: pritja e të gjitha llogarive → "Produktet e reja"
         if (admin) dPritje = db.collection("kujtesa_pritje").addSnapshotListener { s, e ->
             if (e != null || s == null) { dPritje?.remove(); dPritje = null; return@addSnapshotListener }
             val lista = s.documents.map { Triple(it.id, it.getString("emri").orEmpty(), it.get("p")) }
@@ -158,7 +158,7 @@ object Regjistri {
 
     private fun nr(v: Any?): Double { val d = jsNumber(v); return if (d.isNaN()) 0.0 else d }
 
-    /** Administratori: pritja e krejt llogarive hyn si "në pritje" (pa `s`, me emrin e autorit) */
+    /** Administratori: pritja e të gjitha llogarive hyn si "në pritje" (pa `s`, me emrin e autorit) */
     private fun zbatoPritjet(lista: List<Triple<String, String, Any?>>) {
         val uIm = uid ?: return
         val h = LinkedHashMap<String, Any?>()
@@ -204,7 +204,7 @@ object Regjistri {
         val u = uid ?: return
         if (!regjGati) return
         if (admin) {
-            // Administratori: te regjistri vetëm çka ka kontrolluar (ruajtur ose fshirë prej tij), jo ato në pritje
+            // Administratori: te regjistri vetëm çfarë ka kontrolluar (ruajtur ose fshirë prej tij), jo ato në pritje
             val bs = regjNdryshuar.toList(); regjNdryshuar.clear()
             if (bs.isEmpty()) return
             val te = kujtesa.hyrjePerGrup(bs).filter { (_, x) -> x["s"] == 1L && (x["x"] == 1L || x["r"] != 1L) }
@@ -213,7 +213,7 @@ object Regjistri {
             return
         }
         regjNdryshuar.clear()
-        // Të tjerët: çka di pajisja dhe s'është (ose është ndryshe) te regjistri → pritja ime, më të rejat të parat
+        // Të tjerët: çfarë di pajisja dhe s'është (ose është ndryshe) te regjistri → pritja ime, më të rejat të parat
         val hyr = kujtesa.hyrjePerGrup(kujtesa.perDergim(regjRemote))
         val lista = hyr.keys.filter { hyr[it]!!["x"] != 1L && !vendosurNgaAdmini(it) && !eShembull(it, hyr[it]) }.sortedByDescending { (hyr[it]!!["k"] as? Long) ?: 0L }
         val p = LinkedHashMap<String, Any?>(); lista.take(3000).forEach { p[it] = hyr[it] }
@@ -237,7 +237,7 @@ object Regjistri {
             if (e != null || s == null) return@addSnapshotListener // p.sh. rregullat: mbetet kujtesa e pajisjes
             val remote = pjesetE(s.documents)
             val n = kujtesa.bashko(remote)
-            if (!grupiGati) { grupiGati = true; grupiPritje.addAll(kujtesa.perDergim(remote)) } // çka di kjo pajisje më mirë shkon te grupi
+            if (!grupiGati) { grupiGati = true; grupiPritje.addAll(kujtesa.perDergim(remote)) } // çfarë di kjo pajisje më mirë shkon te grupi
             planifikoGrupin()
             if (n > 0) _versioni.value++
         }
@@ -325,7 +325,7 @@ object Regjistri {
         publikoFurnizuesit()
     }
 
-    // ---------------- v211: furnizuesit e administratorit si sugjerime për krejt përdoruesit ----------------
+    // ---------------- v211: furnizuesit e administratorit si sugjerime për të gjithë përdoruesit ----------------
     private var kohezPublikimi: Job? = null
     private var publikeLexuarSe = 0L
     private fun publikoFurnizuesit() {

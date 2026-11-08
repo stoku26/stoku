@@ -1,4 +1,4 @@
-// v270: kamera në web zë krejt ekranin si te Android-i (përdoruesi, 2 foto: "a pe sheh zi nalt ... mundohu mi eliminu let doket kamera
+// v270: kamera në web zë të gjithë ekranin si te Android-i (përdoruesi, 2 foto: "a pe sheh zi nalt ... mundohu mi eliminu let doket kamera
 // komplet nqat hapsiren e zez"). Kamera e zakonshme: kontrollet mbi kamerë (jo shirit i zi më vete). Në telefon (ekran prekës), sa është
 // kamera e hapur, faqja kalon në ekran të plotë (fshihet edhe shiriti i orës); kur mbyllet kthehet si ishte. PDA-ja s'preket.
 const { chromium } = require('./pw.js');

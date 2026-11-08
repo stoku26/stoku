@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * Përditësimi i aplikacionit: GitHub Actions e nxjerr çdo version si Release "vendas-vNN" (NN = versionCode).
  * Aplikacioni (pa WebView) s'merr pamjen nga stoku.site: çdo ndryshim vjen me një APK të re.
  * Hyrja 33 (pronari, "ideja 5"): kontrollohet sa herë hyn në aplikacion (jo më shpesh se 2 min, me ETag) dhe versioni i ri del si
- * faqe e plotë (ui/PerditesimiUI.kt: "Përditëso Stoku-n", versionet, "Çka ka të re" nga trupi i Release-it, shkarkimi me shirit).
+ * faqe e plotë (ui/PerditesimiUI.kt: "Përditëso Stoku-n", versionet, "Çfarë ka të re" nga trupi i Release-it, shkarkimi me shirit).
  * Android-i e kërkon konfirmimin e instalimit.
  */
 object Perditesimi {
@@ -31,7 +31,7 @@ object Perditesimi {
     @Volatile private var dukeKontrolluar = false
     private val anuluar = AtomicBoolean(false)
 
-    /** Një hyrje e "Çka ka të re" nga trupi i Release-it (rreshtat "[nr] titulli" dhe "• pika", nga TeRejat.kt te workflow-i) */
+    /** Një hyrje e "Çfarë ka të re" nga trupi i Release-it (rreshtat "[nr] titulli" dhe "• pika", nga TeRejat.kt te workflow-i) */
     data class Hyrja(val nr: Int, val titulli: String, val pikat: List<String>)
     /** faza: "pyet" (ka version të ri), "shkarkim", "gabim" */
     data class Gjendja(val n: Int, val url: String, val teReja: List<Hyrja>, val faza: String = "pyet",
@@ -100,7 +100,7 @@ object Perditesimi {
         return m
     }
 
-    /** "Çka ka të re" e versionit të ri: vetëm hyrjet që ky aplikacion s'i ka (nr më i madh se e fundit te TeRejat) */
+    /** "Çfarë ka të re" e versionit të ri: vetëm hyrjet që ky aplikacion s'i ka (nr më i madh se e fundit te TeRejat) */
     fun teReja(body: String): List<Hyrja> {
         val ime = TeRejat.LISTA.maxOfOrNull { it.nr } ?: 0
         val dalja = ArrayList<Hyrja>()

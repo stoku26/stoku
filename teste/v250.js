@@ -1,4 +1,4 @@
-// v250: marketet e Stoku-t, të njëjtat për krejt merchandiserët. Kontrollon:
+// v250: marketet e Stoku-t, të njëjtat për të gjithë merchandiserët. Kontrollon:
 // 0. njësitë: kontrolloShtimin (vendndodhja e saktë, jo mbi një market), sinkronizoMePikat (shtimi, emrat, heqja e kujdesshme)
 // 1. besa e shton marketin kur është brenda (telefoni): pikë e Stoku-t; drini e merr vetë te lista (pa e vizituar)
 // 2. drini: vendndodhja e përafërt refuzohet; 30 m nga Albi s'shtohet market tjetër (zgjidhet Albi); emri i përsëritur
@@ -39,7 +39,7 @@ const SHTEPIA = { latitude: 42.6300, longitude: 21.1000, accuracy: 20 };
   ok(!MK.kontrolloShtimin({ lat: 42.6476 + 0.0009, lng: 21.1491, sakt: 15 }, [], [pA]), '0. 100 m larg: lejohet (market tjetër)');
   // sinkronizoMePikat
   const s1 = MK.sinkronizoMePikat([], [pA], [], true, t);
-  ok(s1.ndryshuar && s1.marketet.length === 1 && s1.marketet[0].id === 'kpA' && s1.marketet[0].p === 'pA' && s1.marketet[0].emri === 'Albi Mall', '0. pika e re → market "k" + id (i njëjti id në krejt pajisjet)', s1.marketet);
+  ok(s1.ndryshuar && s1.marketet.length === 1 && s1.marketet[0].id === 'kpA' && s1.marketet[0].p === 'pA' && s1.marketet[0].emri === 'Albi Mall', '0. pika e re → market "k" + id (i njëjti id në të gjitha pajisjet)', s1.marketet);
   const s2 = MK.sinkronizoMePikat(s1.marketet, [Object.assign({}, pA, { emri: 'Albi Mall Prishtinë' })], [], true, t);
   ok(s2.ndryshuar && s2.marketet[0].emri === 'Albi Mall Prishtinë' && !s2.hequr.length, '0. emri i ri i pikës (administratori) → te marketi');
   ok(!MK.sinkronizoMePikat(s2.marketet, [Object.assign({}, pA, { emri: 'Albi Mall Prishtinë' })], [], true, t).ndryshuar, '0. pa ndryshime: s\'ruhet asgjë');
@@ -180,8 +180,8 @@ const SHTEPIA = { latitude: 42.6300, longitude: 21.1000, accuracy: 20 };
   ok(await prit(async () => { const o = await dpc.evaluate(() => [...document.getElementById('afMarketiPc').options].map(x => x.textContent)); return ['Albi Mall', 'Viva Fresh Dardani', 'Meridian Kalabria', 'Market me afate'].every(e => o.includes(e)) && !o.includes('Market i mbyllur'); }), '5. PC drini: marketet e Stoku-t te "Marketi"', await dpc.evaluate(() => [...document.getElementById('afMarketiPc').options].map(x => x.textContent)));
   await dpc.click('#btnOpsione'); await dpc.waitForTimeout(400);
   await dpc.click('#opsSkedaHarta'); await dpc.waitForTimeout(600);
-  ok(await prit(async () => /Meridian Kalabria/.test(await dpc.textContent('#htLista'))) && await dpc.evaluate(() => !document.querySelector('#htLista button')) && !(await duket(dpc, '#htShto')), '5. PC drini: harta me krejt marketet, pa ndryshime, pa "+ Shto"');
-  ok(/të njëjtat për krejt merchandiserët/.test(await dpc.textContent('#htIntro')), '5. PC drini: teksti "të njëjtat për krejt merchandiserët"');
+  ok(await prit(async () => /Meridian Kalabria/.test(await dpc.textContent('#htLista'))) && await dpc.evaluate(() => !document.querySelector('#htLista button')) && !(await duket(dpc, '#htShto')), '5. PC drini: harta me të gjitha marketet, pa ndryshime, pa "+ Shto"');
+  ok(/të njëjtat për të gjithë merchandiserët/.test(await dpc.textContent('#htIntro')), '5. PC drini: teksti "të njëjtat për të gjithë merchandiserët"');
   for (const [n, p] of [['besa', be], ['drini', dr], ['drini PC', dpc]]) ok(!p.__gab.length, '5. ' + n + ': pa gabime JS', p.__gab);
   await b.close();
   console.log(g ? 'GABIME: ' + g : 'Krejt në rregull');

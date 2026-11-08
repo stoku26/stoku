@@ -51,9 +51,9 @@ fun statusiIPerdoruesve(): String {
 private fun nenTeksti(r: Admini.Rreshti): String {
     val n = Lejet.teNdaluara(r.lejet)
     val p1 = when (r.statusi) {
-        "ri" -> if (r.a.krijuarSe > 0) "Llogari e re, " + GrupiLogjika.kohaRelative(r.a.krijuarSe) else "Pa u kontrolluar: krejt lejet"
+        "ri" -> if (r.a.krijuarSe > 0) "Llogari e re, " + GrupiLogjika.kohaRelative(r.a.krijuarSe) else "Pa u kontrolluar: të gjitha lejet"
         "kufizuar" -> if (n == 1) "1 leje e ndaluar" else "$n leje të ndaluara"
-        else -> "Krejt lejet"
+        else -> "Të gjitha lejet"
     }
     return listOf(p1, if (Admini.merchandiser(r)) "merchandiser" else "", if (r.a.kycurSe > 0) "u kyç " + GrupiLogjika.kohaRelative(r.a.kycurSe) else "")
         .filter { it.isNotEmpty() }.joinToString(" · ")
@@ -72,7 +72,7 @@ private fun mesazhGabimi(a: String?) = if (a == "leje") "S'u ruajt: rregullat e 
 
 private fun ngjyraEStatusit(st: String) = when (st) { "ri" -> "portokalli"; "kufizuar" -> "kuqe"; else -> "gjelber" }
 
-/** Cilësimet → Përdoruesit (vetëm administratori): krejt llogaritë, të ndara "Pa u kontrolluar" / "Të kontrolluar" */
+/** Cilësimet → Përdoruesit (vetëm administratori): të gjitha llogaritë, të ndara "Pa u kontrolluar" / "Të kontrolluar" */
 @Composable
 fun PerdoruesitFaqja(mbrapa: () -> Unit, hap: (String) -> Unit) {
     val scope = rememberFusha()
@@ -87,10 +87,10 @@ fun PerdoruesitFaqja(mbrapa: () -> Unit, hap: (String) -> Unit) {
     remember(ll, lj) { 0 }
     if (!Admini.eshteAdmin()) { LaunchedEffect(Unit) { mbrapa() }; return }
     FaqjaECilesimeve("Përdoruesit", mbrapa) {
-        IntroOps("Krejt llogaritë e Stoku-t. Prek një përdorues për t'i caktuar çka mund të përdorë. Llogaritë e reja i kanë krejt lejet derisa t'i kontrollosh. Këtë faqe e sheh vetëm administratori.")
+        IntroOps("Të gjitha llogaritë e Stoku-t. Prek një përdorues për t'i caktuar çfarë mund të përdorë. Llogaritë e reja i kanë të gjitha lejet derisa t'i kontrollosh. Këtë faqe e sheh vetëm administratori.")
         val lista = Admini.lista()
         if (!Admini.gati()) { Info(if (gabimL) "Llogaritë s'u lexuan. Kontrollo internetin dhe provo sërish." else "Duke i marrë llogaritë…"); return@FaqjaECilesimeve }
-        if (gabimLe) Info("Firebase s'i lejon ende lejet: rregullat e Firestore duhet të përditësohen (v230). Deri atëherë krejt llogaritë i kanë krejt lejet.", true)
+        if (gabimLe) Info("Firebase s'i lejon ende lejet: rregullat e Firestore duhet të përditësohen (v230). Deri atëherë të gjitha llogaritë i kanë të gjitha lejet.", true)
         if (lista.size >= 8 || kerkimi.isNotEmpty()) Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth().padding(bottom = 12.dp), "Kërko përdoruesin", ikona = Ik.Kerko)
         val q = kerkimi.trim().lowercase()
         val fil = if (q.isEmpty()) lista else lista.filter { it.a.emri.lowercase().contains(q) }
@@ -107,11 +107,11 @@ fun PerdoruesitFaqja(mbrapa: () -> Unit, hap: (String) -> Unit) {
                 }
             }
         }
-        if (rinj.size > 1 && q.isEmpty()) ButonOps("Shëno krejt \"Pa u kontrolluar\" si të kontrolluar", { konfirmoKrejt = true }, Modifier.fillMaxWidth().padding(top = 12.dp))
+        if (rinj.size > 1 && q.isEmpty()) ButonOps("Shëno të gjitha si të kontrolluara", { konfirmoKrejt = true }, Modifier.fillMaxWidth().padding(top = 12.dp))
     }
     if (konfirmoKrejt) {
         val rinj = Admini.lista().filter { it.statusi == "ri" }
-        Konfirmo("T'i shënosh të kontrolluar?", "${rinj.size} llogari mbeten me krejt lejet dhe s'dalin më te \"Pa u kontrolluar\". Lejet mund t'i ndryshosh kurdo.",
+        Konfirmo("T'i shënosh të kontrolluar?", "${rinj.size} llogari mbeten me të gjitha lejet dhe s'dalin më te \"Pa u kontrolluar\". Lejet mund t'i ndryshosh kurdo.",
             "Po, shënoji", rrezik = false, mbyll = { konfirmoKrejt = false }) {
             scope.launch {
                 var ok = 0; var gab: String? = null
@@ -150,7 +150,7 @@ fun PerdoruesiFaqja(uid: String?, mbrapa: () -> Unit, hapAfatet: () -> Unit) {
                 Column(Modifier.weight(1f)) {
                     Text(r.a.emri, style = tx(18, 700, n.ink, -0.01), maxLines = 1, overflow = TextOverflow.Ellipsis)
                     val nd = Lejet.teNdaluara(lejet)
-                    Text(when (r.statusi) { "ri" -> "Pa u kontrolluar: i ka krejt lejet"; "kufizuar" -> if (nd == 1) "1 leje e ndaluar" else "$nd leje të ndaluara"; else -> "Krejt lejet" },
+                    Text(when (r.statusi) { "ri" -> "Pa u kontrolluar: i ka të gjitha lejet"; "kufizuar" -> if (nd == 1) "1 leje e ndaluar" else "$nd leje të ndaluara"; else -> "Të gjitha lejet" },
                         style = txF(12.5f, if (r.statusi == "ri") 600 else 400, if (r.statusi == "ri") n.ikonat["portokalli"]!!.second else n.muted))
                 }
             }
@@ -165,7 +165,7 @@ fun PerdoruesiFaqja(uid: String?, mbrapa: () -> Unit, hapAfatet: () -> Unit) {
             ).filter { it.isNotEmpty() }
             Text(info.joinToString(" · ") + ".", style = txR(12.5f, 400, n.muted))
             if (r.statusi == "ri") {
-                Text("Ndalo çka s'duhet të përdorë (ruhet vetë), ose shtyp \"U kontrollua\" që t'i mbajë krejt lejet.", style = txR(12.5f, 400, n.muted), modifier = Modifier.padding(top = 12.dp))
+                Text("Ndalo çfarë s'duhet të përdorë (ruhet vetë), ose shtyp \"U kontrollua\" që t'i mbajë të gjitha lejet.", style = txR(12.5f, 400, n.muted), modifier = Modifier.padding(top = 12.dp))
                 Buton("U kontrollua", { ruaj(Admini.krejtPer(r, true), r.a.emri + " u shënua i kontrolluar.") }, Modifier.fillMaxWidth().padding(top = 12.dp))
             }
         }
@@ -192,13 +192,13 @@ fun PerdoruesiFaqja(uid: String?, mbrapa: () -> Unit, hapAfatet: () -> Unit) {
             }
         }
         Row(Modifier.fillMaxWidth().padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            ButonOps("Lejo krejt", { ruaj(Admini.krejtPer(r, true), r.a.emri + " i ka tani krejt lejet.") }, Modifier.weight(1f))
-            ButonOps("Ndalo krejt", { ndaloKrejt = true }, Modifier.weight(1f), kuqe = true)
+            ButonOps("Lejo të gjitha", { ruaj(Admini.krejtPer(r, true), r.a.emri + " i ka tani të gjitha lejet.") }, Modifier.weight(1f))
+            ButonOps("Ndalo të gjitha", { ndaloKrejt = true }, Modifier.weight(1f), kuqe = true)
         }
-        Text("Ndryshimet ruhen vetë dhe vlejnë menjëherë te telefoni dhe kompjuteri i ${r.a.emri}. Çka s'i lejohet, i zhduket krejt, pa asnjë mesazh.",
+        Text("Ndryshimet ruhen vetë dhe vlejnë menjëherë te telefoni dhe kompjuteri i ${r.a.emri}. Çfarë nuk i lejohet, i zhduket krejt, pa asnjë mesazh.",
             style = txR(14f, 400, n.ink4), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(start = 4.dp, end = 4.dp, top = 14.dp))
     }
-    if (ndaloKrejt && r != null) Konfirmo("T'i ndalohen krejt lejet?", r.a.emri + " do të mund vetëm të hyjë në llogari: s'do ta shohë as stokun, as afatet, as grupin.", "Ndalo krejt",
+    if (ndaloKrejt && r != null) Konfirmo("T'i ndalohen të gjitha lejet?", r.a.emri + " do të mund vetëm të hyjë në llogari: s'do ta shohë as stokun, as afatet, as grupin.", "Ndalo të gjitha",
         mbyll = { ndaloKrejt = false }) { ruaj(Admini.krejtPer(r, false), r.a.emri + " s'ka më asnjë leje.") }
 }
 

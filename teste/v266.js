@@ -1,4 +1,4 @@
-// v266: (1) skaneri njeh krejt llojet e barkodeve përveç QR-së (përdoruesi: "mi njoft krejta barkodet qe egzistojn perveq qr
+// v266: (1) skaneri njeh të gjitha llojet e barkodeve përveç QR-së (përdoruesi: "mi njoft krejta barkodet qe egzistojn perveq qr
 // code"): edhe Data Matrix, PDF417, Aztec (dhe te ZXing GS1 DataBar, MaxiCode); QR-ja vetëm njoftohet. Kodet 2D me tekst të
 // gjatë (p.sh. GS1 Data Matrix i ilaçeve) pranohen nga kamera, edhe te Skanimi i shpejtë. (2) Afatet pa pllaka (si para v265).
 const { chromium } = require('./pw.js');
@@ -17,7 +17,7 @@ const AZ = 'AZTEC-98765';
   await p.click('#btnKamera'); await p.waitForTimeout(800);
   const f = await p.evaluate(() => window.__formatet || []);
   const duhen = ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'code_93', 'itf', 'codabar', 'data_matrix', 'pdf417', 'aztec', 'qr_code'];
-  ok(duhen.every(x => f.includes(x)) && !f.includes('micro_qr_code') && !f.includes('rm_qr_code'), '1. detektori: krejt formatet e standardit (edhe Data Matrix, PDF417, Aztec)', f);
+  ok(duhen.every(x => f.includes(x)) && !f.includes('micro_qr_code') && !f.includes('rm_qr_code'), '1. detektori: të gjitha formatet e standardit (edhe Data Matrix, PDF417, Aztec)', f);
   await mbyll(p);
 
   // 2. Data Matrix me tekst të gjatë: pranohet si barkod

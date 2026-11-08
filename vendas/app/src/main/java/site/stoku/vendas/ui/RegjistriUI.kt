@@ -132,10 +132,10 @@ fun FurnizuesitFaqja(pritje: Boolean, mbrapa: () -> Unit) {
     }
 
     FaqjaECilesimeve(if (pritje) "Furnizuesit e rinj" else "Furnizuesit", mbrapa) {
-        IntroOps(if (pritje) (if (admin) "Furnizuesit e rinj, të kolegëve dhe ata që i shton ti. Prek njërin: ruaje ashtu siç është ose ndrysho emrin (ndryshon te krejt produktet e tij), pastaj kalon te Furnizuesit. Fshirja e produkteve s'e fshin furnizuesin."
+        IntroOps(if (pritje) (if (admin) "Furnizuesit e rinj, të kolegëve dhe ata që i shton ti. Prek njërin: ruaje ashtu siç është ose ndrysho emrin (ndryshon te të gjitha produktet e tij), pastaj kalon te Furnizuesit. Fshirja e produkteve s'e fshin furnizuesin."
             else "Furnizuesit e rinj. I kontrollon administratori, pastaj kalojnë te Furnizuesit.")
-        else if (admin) "Furnizuesit e regjistrit të Stoku-t (krejt llogaritë). Ndrysho emrin e një furnizuesi: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një."
-        else "Furnizuesit e regjistrit të Stoku-t (të njëjtët për krejt llogaritë) dhe të afateve të tua. Emrat i ndryshon vetëm administratori.")
+        else if (admin) "Furnizuesit e regjistrit të Stoku-t (të gjitha llogaritë). Ndrysho emrin e një furnizuesi: ndryshon te të gjitha afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një."
+        else "Furnizuesit e regjistrit të Stoku-t (të njëjtët për të gjitha llogaritë) dhe të afateve të tua. Emrat i ndryshon vetëm administratori.")
         val q = kerkimi.trim().lowercase(SQ)
         if (!pritje && (lista.size >= 8 || q.isNotEmpty()))
             Fusha(kerkimi, { kerkimi = it; neEditim = null }, Modifier.fillMaxWidth().padding(bottom = 10.dp), "Kërko furnizuesin", ikona = Ik.Kerko)
@@ -202,8 +202,8 @@ fun ProduktetFaqja(pritje: Boolean, mbrapa: () -> Unit) {
     FaqjaECilesimeve(if (pritje) "Produktet e reja" else "Produktet", mbrapa) {
         IntroOps(if (pritje) (if (admin) "Produktet e reja, të kolegëve dhe ato që i shton ti. Kontrolloji emrat dhe ruaji: pastaj kalojnë te Produktet."
             else "Produktet e reja. I kontrollon administratori, pastaj kalojnë te Produktet.")
-        else if (admin) "Emri dhe furnizuesi që Stoku i mban mend për çdo barkod; krejt llogaritë e Stoku-t i shohin kur skanojnë. Produktet e reja (të kujtdo, edhe ato që i shton ti) dalin këtu pasi t'i kontrollosh te Produktet e reja. Atë që e ndryshon ti s'e ndryshon askush tjetër. Prek një produkt për ta ndryshuar."
-        else "Regjistri i Stoku-t: emri dhe furnizuesi për çdo barkod, i njëjtë për krejt llogaritë; plotësohen vetë kur skanon. Produktet e reja i kontrollon dhe i ndryshon vetëm administratori.")
+        else if (admin) "Emri dhe furnizuesi që Stoku i mban mend për çdo barkod; të gjitha llogaritë e Stoku-t i shohin kur skanojnë. Produktet e reja (të kujtdo, edhe ato që i shton ti) dalin këtu pasi t'i kontrollosh te Produktet e reja. Atë që e ndryshon ti s'e ndryshon askush tjetër. Prek një produkt për ta ndryshuar."
+        else "Regjistri i Stoku-t: emri dhe furnizuesi për çdo barkod, i njëjtë për të gjitha llogaritë; plotësohen vetë kur skanon. Produktet e reja i kontrollon dhe i ndryshon vetëm administratori.")
         val q = kerkimi.trim().lowercase(SQ)
         if (!pritje && (lista.size >= 8 || q.isNotEmpty()))
             Fusha(kerkimi, { kerkimi = it; neEditim = null; saShfaqen = KUJ_MAKS }, Modifier.fillMaxWidth().padding(bottom = 10.dp), "Kërko emrin, barkodin ose furnizuesin", ikona = Ik.Kerko)

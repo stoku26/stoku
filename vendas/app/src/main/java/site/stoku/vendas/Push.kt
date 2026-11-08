@@ -122,7 +122,7 @@ object Push {
     private fun shkruajPref(k: String, v: Obj?) = StokuApp.vendosPref(k, if (v == null) "" else Json.shkruaj(v))
 
     /** Regjistron këtë pajisje te grupi (shkruan vetëm kur ndryshon diçka ose çdo 7 ditë).
-     *  → "ok", "pa-grup" (s'je në asnjë grup: s'ka çka të regjistrohet) ose arsyeja ("rrjeti", "rregullat", "pa-token"…) */
+     *  → "ok", "pa-grup" (s'je në asnjë grup: s'ka çfarë të regjistrohet) ose arsyeja ("rrjeti", "rregullat", "pa-token"…) */
     suspend fun aktivizo(detyro: Boolean): String {
         val u = uid() ?: return "pa-hyrje"
         if (!Njoftimet.lejuar(StokuApp.app)) return "pa-leje"

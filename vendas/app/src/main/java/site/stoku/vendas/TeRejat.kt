@@ -1,52 +1,56 @@
 package site.stoku.vendas
 
 /**
- * "Çka ka të re" te aplikacioni Stoku për Android (si teRejat.js te web-i, por vetëm për aplikacionin).
+ * "Çfarë ka të re" te aplikacioni Stoku për Android (si teRejat.js te web-i, por vetëm për aplikacionin).
  * Hyrja e re shtohet NË KRYE me `nr` më të madh se e para; përdoruesi i sheh një herë hyrjet që s'i ka parë.
  */
 object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(42, "2026-11-08", "Tekstet në shqipe standarde", listOf(
+            "Tekstet e aplikacionit u rregulluan sipas shqipes standarde, p.sh. \"të gjitha afatet\", \"tani\", \"Çfarë ka të re\".",
+            "Edhe ora i ka tekstet e rregulluara."
+        )),
         Hyrja(41, "2026-11-08", "Menyja e Eksportit dhe importi", listOf(
-            "Menyja e \"Eksporto\" është tash aq e gjerë sa teksti.",
+            "Menyja e \"Eksporto\" është tani aq e gjerë sa teksti.",
             "Te importi nga Excel, teksti është më i shkurtër dhe më i qartë."
         )),
         Hyrja(40, "2026-11-07", "Eksporto si foto më e qartë", listOf(
             "Te \"Eksporto si foto\", furnizuesit me afate të skaduara dalin lart, të tjerët poshtë.",
             "Mund ta kërkosh furnizuesin, \"Të gjithë\" është pranë titullit dhe butoni \"Krijo\" mbetet gjithmonë poshtë.",
             "Te importi nga Excel, fleta e jep muajin vetëm kur quhet saktë si muaji (p.sh. \"Nëntor\", \"Dhjetor\"), jo \"Nëntor2\".",
-            "Menyja e \"Eksporto\" ka tash ikonat për Excel, PDF dhe foto."
+            "Menyja e \"Eksporto\" ka tani ikonat për Excel, PDF dhe foto."
         )),
         Hyrja(39, "2026-11-07", "Butonat e Afateve më të qartë", listOf(
-            "\"Shto\" është tash njësoj si \"Importo\" dhe \"Eksporto\", pa vijën e kaltër.",
+            "\"Shto\" është tani njësoj si \"Importo\" dhe \"Eksporto\", pa vijën e kaltër.",
             "Menyja e \"Eksporto\" dallohet më mirë në temën e errët."
         )),
         Hyrja(38, "2026-11-07", "Importo dhe Eksporto te Afatet", listOf(
-            "Te Afatet, \"Shto\" ka tash kornizë blu dhe ikonën e barkodit.",
+            "Te Afatet, \"Shto\" ka tani kornizë blu dhe ikonën e barkodit.",
             "Poshtë tij janë dy butona: \"Importo\" e hap direkt zgjedhjen e Excel-it, \"Eksporto\" hap Excel, PDF ose foto."
         )),
         Hyrja(37, "2026-11-07", "Butonat e rinj te Afatet", listOf(
-            "Te Afatet, \"Shto\" dhe \"Excel\" janë tash dy katrorë vetëm me ikona: kalendari me \"+\" shton një afat, dosja me shigjetat hap Importo / Eksporto (Excel, PDF, foto)."
+            "Te Afatet, \"Shto\" dhe \"Excel\" janë tani dy katrorë vetëm me ikona: kalendari me \"+\" shton një afat, dosja me shigjetat hap Importo / Eksporto (Excel, PDF, foto)."
         )),
         Hyrja(36, "2026-11-07", "Afatet në PDF për printim", listOf(
-            "Te Afatet → Excel ka tash edhe \"Eksporto PDF\": një listë e bardhë A4 me afatet, gati për printim.",
+            "Te Afatet → Excel ka tani edhe \"Eksporto PDF\": një listë e bardhë A4 me afatet, gati për printim.",
             "Para krijimit zgjedh periudhën (të gjitha ose një muaj), gjendjen, furnizuesin dhe renditjen.",
             "Barkodet dalin kudo me shifra më të qarta: zeroja s'ngjan më me 8."
         )),
         Hyrja(35, "2026-11-07", "Afatet si foto për furnizuesin", listOf(
-            "Te Afatet → Excel ka tash edhe \"Eksporto si foto\": zgjedh një ose disa furnizues dhe për secilin del një foto me krejt afatet e tij, gati për ta dërguar me Viber ose WhatsApp.",
+            "Te Afatet → Excel ka tani edhe \"Eksporto si foto\": zgjedh një ose disa furnizues dhe për secilin del një foto me të gjitha afatet e tij, gati për ta dërguar me Viber ose WhatsApp.",
             "Fotoja tregon lart sa produkte kanë skaduar, sa janë afër skadimit dhe sa në rregull, pastaj çdo produkt me datën, copët dhe barkodin. Del e errët ose e çelët, si e ke aplikacionin."
         )),
         Hyrja(34,"2026-11-05", "Data shkruhet si duhet", listOf(
             "Kur shkruan datën e skadimit, viza \"-\" shtohet vetë dhe kursori kalon pas saj, kështu që shifrat dalin në rendin që i shkruan (p.sh. 23-01-26)."
         )),
         Hyrja(33, "2026-11-04", "Përditësimi me faqe të re", listOf(
-            "Kur del version i ri, Stoku të tregon një faqe të plotë me versionin e ri dhe çka ka të re në të, sa herë hyn në aplikacion.",
+            "Kur del version i ri, Stoku të tregon një faqe të plotë me versionin e ri dhe çfarë ka të re në të, sa herë hyn në aplikacion.",
             "Shkarkimi shihet në të njëjtën faqe, me shiritin dhe sa MB janë shkarkuar."
         )),
         Hyrja(32, "2026-11-04", "Butonat e rinj të skanimit", listOf(
-            "Butonat e skanimit brenda folderit janë tash dy katrorë të ndarë me ikona më të mëdha: blu për kamerën, i verdhë për Skanimin e shpejtë. Dalin në mes, poshtë.",
+            "Butonat e skanimit brenda folderit janë tani dy katrorë të ndarë me ikona më të mëdha: blu për kamerën, i verdhë për Skanimin e shpejtë. Dalin në mes, poshtë.",
             "Te Cilësimet → Skenimi → \"Butonat e skanimit\" zgjedh vetë ku të dalin: majtas, në mes ose djathtas. Aty i sheh edhe në një foto të vogël."
         )),
         Hyrja(31, "2026-10-31", "Afatet pa butonin e cloud-it", listOf(
@@ -66,18 +70,18 @@ object TeRejat {
         )),
         Hyrja(28, "2026-10-29", "Butoni i ri i skanimit", listOf(
             "Brenda folderit, poshtë djathtas, ka një buton të vetëm: gjysma blu hap kamerën, gjysma e verdhë hap Skanimin e shpejtë.",
-            "\"Eksporto Excel\" dhe \"Eksporto PDF\" janë tash dy ikona lart, pranë emrit të folderit.",
-            "\"Fshi të gjitha\" është tash me të kuqe mbi listën e produkteve. Kur të pyet \"A je i sigurt?\", butoni për fshirje aktivizohet pas 5 sekondash."
+            "\"Eksporto Excel\" dhe \"Eksporto PDF\" janë tani dy ikona lart, pranë emrit të folderit.",
+            "\"Fshi të gjitha\" është tani me të kuqe mbi listën e produkteve. Kur të pyet \"A je i sigurt?\", butoni për fshirje aktivizohet pas 5 sekondash."
         )),
         Hyrja(27, "2026-10-29", "Emrat e qartë te butonat", listOf(
-            "Pllakat brenda folderit kanë tash emrat e plotë: \"Skano me kamerë\", \"Skanim i shpejtë\", \"Eksporto Excel\" dhe \"Eksporto PDF\", me një tekst të vetëm."
+            "Pllakat brenda folderit kanë tani emrat e plotë: \"Skano me kamerë\", \"Skanim i shpejtë\", \"Eksporto Excel\" dhe \"Eksporto PDF\", me një tekst të vetëm."
         )),
-        Hyrja(26, "2026-10-29", "Kamera njeh krejt barkodet", listOf(
-            "Kamera tash njeh krejt llojet e barkodeve, edhe kodet katrore Data Matrix (p.sh. te ilaçet), PDF417 dhe Aztec. Vetëm kodi QR s'merret si barkod produkti.",
+        Hyrja(26, "2026-10-29", "Kamera njeh të gjitha barkodet", listOf(
+            "Kamera tani njeh të gjitha llojet e barkodeve, edhe kodet katrore Data Matrix (p.sh. te ilaçet), PDF417 dhe Aztec. Vetëm kodi QR s'merret si barkod produkti.",
             "Te Afatet butonat \"Shto\" dhe \"Excel\" janë si më parë; pllakat me ngjyra mbeten vetëm brenda folderit te Stoku."
         )),
         Hyrja(25, "2026-10-29", "Butonat e rinj me ngjyra", listOf(
-            "Brenda folderit butonat janë tash pllaka me ngjyra: Skano (blu), I shpejtë (e verdhë), Excel (e gjelbër) dhe PDF (e kuqe), secila me një shpjegim të shkurtër."
+            "Brenda folderit butonat janë tani pllaka me ngjyra: Skano (blu), I shpejtë (e verdhë), Excel (e gjelbër) dhe PDF (e kuqe), secila me një shpjegim të shkurtër."
         )),
         Hyrja(24, "2026-10-29", "Skanim i shpejtë: kamera më e vogël, lista më e madhe", listOf(
             "Kamera e Skanimit të shpejtë zë vetëm sa duhet për kutinë (pa hapësirën bosh poshtë saj). Lista e produkteve ka më shumë vend."
@@ -96,7 +100,7 @@ object TeRejat {
             "Lexohet vetëm barkodi që është i tëri brenda kutisë së bardhë. Barkodi i produktit ngjitur, ose ai që del jashtë kutisë, s'merret më."
         )),
         Hyrja(20, "2026-10-28", "Skanimi edhe më i saktë", listOf(
-            "Skanimi me kamerë tash e pranon barkodin kur lexohet 5 herë njësoj (nga deri në 10 lexime brenda një sekonde), në vend të 3 herëve. Mund të zgjasë pak më shumë, por gabimet janë edhe më të rralla."
+            "Skanimi me kamerë tani e pranon barkodin kur lexohet 5 herë njësoj (nga deri në 10 lexime brenda një sekonde), në vend të 3 herëve. Mund të zgjasë pak më shumë, por gabimet janë edhe më të rralla."
         )),
         Hyrja(19, "2026-10-28", "Skanimi më i saktë", listOf(
             "Kur skanon me kamerë, Stoku s'e merr barkodin nga një shikim i vetëm: brenda një sekonde e lexon disa herë dhe zgjedh numrin që ka dalë më shpesh. Kështu një lexim i gabuar (p.sh. kur dridhet dora) s'kalon, dhe barkodi s'humbet edhe kur shihet vetëm për një çast."
@@ -109,17 +113,17 @@ object TeRejat {
             "Një gabim i papritur s'e mbyll më aplikacionin: del \"Diçka s'shkoi mirë. Provo përsëri.\" dhe arsyeja ruhet te Cilësimet, poshtë versionit."
         )),
         Hyrja(17, "2026-10-27", "Dritaret pa u fshehur nën kamerë", listOf(
-            "Dritaret që dalin nga poshtë (p.sh. \"Çka ka të re\") s'shkojnë më deri lart nën kamerë dhe orë: mbeten pak më poshtë, me qoshet e rrumbullakëta të dukshme."
+            "Dritaret që dalin nga poshtë (p.sh. \"Çfarë ka të re\") s'shkojnë më deri lart nën kamerë dhe orë: mbeten pak më poshtë, me qoshet e rrumbullakëta të dukshme."
         )),
         Hyrja(16, "2026-10-27", "Afatet më të thjeshta, roli te kolegët", listOf(
-            "Afatet: butoni \"Skano\" u hoq (skanimi me kamerë është brenda \"Shto\"). \"Importo Excel\" dhe \"Eksporto Excel\" janë tash në një buton \"Excel\", si te web-i.",
+            "Afatet: butoni \"Skano\" u hoq (skanimi me kamerë është brenda \"Shto\"). \"Importo Excel\" dhe \"Eksporto Excel\" janë tani në një buton \"Excel\", si te web-i.",
             "Grupi → Kolegët: kur e prek kurorën (ose mburojën), emri i rolit del mbi ikonë, si te web-i.",
             "Prova si vizitor: produktet dhe furnizuesit shembull s'dalin më te \"Produktet e reja\" dhe \"Furnizuesit e rinj\". Ato që kishin hyrë fshihen vetë."
         )),
         Hyrja(15, "2026-10-27", "Dalja nga llogaria", listOf(
-            "Butoni \"Dil\" është tash te Cilësimet, në kartën me emrin tënd (djathtas). Brenda faqes Llogaria s'është më."
+            "Butoni \"Dil\" është tani te Cilësimet, në kartën me emrin tënd (djathtas). Brenda faqes Llogaria s'është më."
         )),
-        Hyrja(14, "2026-10-27", "Krejt opsionet e web-it", listOf(
+        Hyrja(14, "2026-10-27", "Të gjitha opsionet e web-it", listOf(
             "Kamera: zmadhimi 1×, 2×, 3× dhe fokusi me prekje. Kur e mban kamerën te një produkt që e ke në folder, sasia rritet +1 vetë, pa u mbyllur kamera.",
             "Folderat: mbaje gishtin te një folder, pastaj lëvize për t'i renditur.",
             "Fotografo fletën: \"Ku do ta kontrollosh fletën?\" (Dërgo në PC ose vazhdo këtu). Fotoja e zmadhuar tregon numrat e rreshtave.",
@@ -136,7 +140,7 @@ object TeRejat {
             "Kur dy markete janë afër njëri-tjetrit (p.sh. matanë rrugës) dhe GPS-i brenda ndërtesës s'i dallon dot, Stoku s'zgjedh më vetë fqinjin e gabuar: mbetet marketi ku je, ose të pyet \"Ku je?\" me të dy marketet në krye. Zgjedhja jote mbetet."
         )),
         Hyrja(11, "2026-10-27", "Marketet me hartë, fotot e kolegëve", listOf(
-            "Cilësimet → Marketet tash ka edhe hartën e marketeve (si te web-i): marketi ku je, harta, lista e marketeve dhe shtimi, krejt në një faqe.",
+            "Cilësimet → Marketet tani ka edhe hartën e marketeve (si te web-i): marketi ku je, harta, lista e marketeve dhe shtimi, të gjitha në një faqe.",
             "Administratori i sheh marketet në hartë, shton një market të ri në hartë, ua ndryshon emrin ose e fshin një market të gabuar.",
             "\"Je te: …\" del vetëm kur je vërtet brenda marketit (deri rreth 100 m). Në shtëpi ose larg marketeve s'del më.",
             "Grupi: te kolegët (Online tani, Kolegët, aktiviteti) dalin fotot e profilit."
@@ -146,13 +150,13 @@ object TeRejat {
         )),
         Hyrja(9, "2026-10-27", "Cilësimet si te web-i", listOf(
             "Cilësimet hapen si faqe të plota (me \"←\" kthehesh mbrapa), me të njëjtat rreshta, ikona dhe tekste si te web-i.",
-            "Cilësimet → Stoku: renditja e produkteve, Furnizuesit dhe Produktet e regjistrit të Stoku-t (emri dhe furnizuesi për çdo barkod, të njëjtë për krejt llogaritë).",
+            "Cilësimet → Stoku: renditja e produkteve, Furnizuesit dhe Produktet e regjistrit të Stoku-t (emri dhe furnizuesi për çdo barkod, të njëjtë për të gjitha llogaritë).",
             "Administratori kontrollon \"Produktet e reja\" dhe \"Furnizuesit e rinj\", ndryshon emrat ose i bashkon dy furnizues në një.",
             "Llogaria: foto e profilit (shto, ndrysho, hiq), dhe kopja e të dhënave që u fshinë nga një pajisje tjetër (mund t'i rikthesh brenda 30 ditëve).",
             "Stoku i mban mend barkodet: kur ruan një afat, një produkt ose importon, herën tjetër emri dhe furnizuesi plotësohen vetë."
         )),
         Hyrja(8, "2026-10-23", "Përdoruesit (administratori)", listOf(
-            "Cilësimet → Përdoruesit: krejt llogaritë, lejet e secilës (ruhen vetë), \"U kontrollua\", \"Lejo krejt\" dhe \"Ndalo krejt\".",
+            "Cilësimet → Përdoruesit: të gjitha llogaritë, lejet e secilës (ruhen vetë), \"U kontrollua\", \"Lejo të gjitha\" dhe \"Ndalo të gjitha\".",
             "Afatet e një llogarie (p.sh. merchandiser), sipas marketeve, vetëm për t'u parë."
         )),
         Hyrja(7, "2026-10-23", "Njoftimet dhe ora e dorës", listOf(
@@ -170,7 +174,7 @@ object TeRejat {
             "Pamja: madhësia e shkronjave (Normale ose E madhe).",
             "Skanimi: PDA me skaner të brendshëm (ekrani në portret, pa butonin e kamerës, kursori te barkodi), fshih tastierën në ekran, tingulli i skanimit, kursori te fusha e barkodit për skanerët me USB ose Bluetooth, dhe regjistrimi pa emër.",
             "Llogaria: ndrysho emrin e përdoruesit ose fjalëkalimin, dhe rikthe të dhënat nga cloud.",
-            "Çka ka të re: kjo listë."
+            "Çfarë ka të re: kjo listë."
         )),
         Hyrja(4, "2026-10-23", "Hyrja punon", listOf(
             "Aplikacioni s'mbyllet më menjëherë pas hyrjes.",

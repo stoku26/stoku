@@ -4,7 +4,7 @@
 //  2) telefoni: një ndryshim i afatit sinkronizohet vetë (pa asnjë prekje), statusi del te Cilësimet;
 //  3) kompjuteri: pa "Sinkronizuar · ora" poshtë në anësore (as butoni "Sinkronizo tani" aty); karta e llogarisë me emrin dhe "Dil";
 //  4) kompjuteri: sinkronizimi bëhet vetë, statusi te Cilësimet;
-//  5) versionet dhe "Çka ka të re".
+//  5) versionet dhe "Çfarë ka të re".
 const { chromium } = require('./pw.js');
 const PORTI = process.env.PORTI || '8765';
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };

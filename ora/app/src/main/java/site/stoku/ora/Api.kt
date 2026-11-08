@@ -23,7 +23,7 @@ import java.util.TimeZone
 // v241: marketi = emri i marketit (`mk`), kur përdoruesi punon në disa markete (merchandiserët)
 data class Afat(val id: String, val emri: String, val barkodi: String, val data: String, val sasia: Int?, val furnizuesi: String = "", val marketi: String = "")
 
-// v238: krejt afatet aktive (GET /ora/krejt): d7/d30 = data e sotme + 7 / + 30 ditë (krahasime teksti, si te serveri)
+// v238: të gjitha afatet aktive (GET /ora/krejt): d7/d30 = data e sotme + 7 / + 30 ditë (krahasime teksti, si te serveri)
 data class Krejt(val dita: String, val d7: String, val d30: String, val krejt: List<Afat>)
 
 data class Lista(
@@ -166,7 +166,7 @@ object Api {
         prefs(ctx).edit().putString("lista", j.toString()).apply()
     }
 
-    // v238: krejt produktet (butonat "8 deri 30 ditë", "Mbi 30 ditë" dhe kërkimi); kopja e fundit ruhet për pa internet
+    // v238: të gjitha produktet (butonat "8 deri 30 ditë", "Mbi 30 ditë" dhe kërkimi); kopja e fundit ruhet për pa internet
     suspend fun merrKrejt(ctx: Context): Krejt = withContext(Dispatchers.IO) {
         dergoRadhenPaGabim(ctx)
         val tz = URLEncoder.encode(TimeZone.getDefault().id, "UTF-8")
@@ -300,7 +300,7 @@ object Api {
         }
     }
 
-    // "Hiqi krejt": një kërkesë e vetme (serveri v162). Serveri i vjetër (400: pa "i") → një nga një, me pushim 1.1 s
+    // "Hiqi të gjitha": një kërkesë e vetme (serveri v162). Serveri i vjetër (400: pa "i") → një nga një, me pushim 1.1 s
     // (KV-ja pranon ~1 shkrim në sekondë për të njëjtin çelës). Kthen sa s'u ruajtën; -1 = pa internet (u ruajtën në orë
     // dhe dërgohen vetë më vonë).
     suspend fun hiqShume(ctx: Context, ids: List<String>): Int = withContext(Dispatchers.IO) {
@@ -336,7 +336,7 @@ object Api {
         (0 until a.length()).map { val o = a.getJSONObject(it); Koleg(o.optString("uid"), o.optString("emri")) }
     }
 
-    // Kërkesë për heqje nga rafti te një koleg (ose te krejt ekipa kur koleg == null); kthen sa marrës
+    // Kërkesë për heqje nga rafti te një koleg (ose te e gjithë ekipa kur koleg == null); kthen sa marrës
     suspend fun kerkoHeqjen(ctx: Context, a: Afat, koleg: Koleg?): Int = withContext(Dispatchers.IO) {
         val p = JSONArray().put(JSONObject().put("produkti", a.emri).put("barkodi", a.barkodi))
         val t = JSONObject().put("produktet", p)

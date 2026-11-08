@@ -155,7 +155,7 @@ private fun CipatRresht(content: @Composable () -> Unit) {
 }
 
 /**
- * "Çka të përfshihet në Excel?" (si dlgAfExcel): kolonat (zgjedhja mbahet mend), dhe te eksporti i krejt listës muaji e
+ * "Çfarë të përfshihet në Excel?" (si dlgAfExcel): kolonat (zgjedhja mbahet mend), dhe te eksporti i të gjithë listës muaji e
  * furnizuesi. zgjedhura != null: vetëm afatet e zgjedhura; përndryshe eFiltruara(muaji) = lista me filtrat e tanishëm.
  */
 @Composable
@@ -174,7 +174,7 @@ fun AfatetExcelFlete(zgjedhura: List<Obj>?, eFiltruara: (String) -> List<Obj>, m
     val emriFurn = if (!paFurnizues && furn.isNotEmpty()) furnizuesit.firstOrNull { it.celes == furn }?.emri.orEmpty() else ""
 
     Flete(mbyll) {
-        Text("Çka të përfshihet në Excel?", style = tx(22, 700, n.ink, -0.02))
+        Text("Çfarë të përfshihet në Excel?", style = tx(22, 700, n.ink, -0.02))
         val nen = if (!krejt) (if (lista.size == 1) "1 afat i zgjedhur" else "${lista.size} afate të zgjedhura") else {
             val st = mapOf("aktive" to "aktive", "skaduar" to "të skaduara", "afer" to "afër skadimit", "ok" to "në rregull", "hequr" to "të hequra")[filtri].orEmpty()
             if (lista.isNotEmpty()) "Do të eksportohen " + (if (lista.size == 1) "1 afat" else "${lista.size} afate") + (if (filtri != "aktive") " ($st)" else "") +
@@ -321,8 +321,8 @@ private fun RreshtiIOpsionit(ikona: androidx.compose.ui.graphics.vector.ImageVec
 }
 
 /**
- * Hyrja 35 (web v274, #dlgAfEksFoto): "Eksporto si foto". Zgjedh një ose disa furnizues: për secilin del një foto JPG me krejt afatet aktive
- * (EksportiFoto, ideja 5), me temën e aplikacionit; pastaj hapet "Ndaj" (Viber, WhatsApp…). Merchandiseri: krejt afatet në një foto.
+ * Hyrja 35 (web v274, #dlgAfEksFoto): "Eksporto si foto". Zgjedh një ose disa furnizues: për secilin del një foto JPG me të gjitha afatet aktive
+ * (EksportiFoto, ideja 5), me temën e aplikacionit; pastaj hapet "Ndaj" (Viber, WhatsApp…). Merchandiseri: të gjitha afatet në një foto.
  */
 @Composable
 fun AfatetFotoFlete(te: List<Obj>, mbyll: () -> Unit) {
@@ -346,7 +346,7 @@ fun AfatetFotoFlete(te: List<Obj>, mbyll: () -> Unit) {
                 Lidhje(if (krejt) "Asnjë" else "Të gjithë", { zgj = if (krejt) emptySet() else furn.map { it.celes }.toSet() }, madhesia = 14)
             }
         }
-        Text(if (paF) "Krejt afatet aktive (${aktive.size}) në një foto." else "Një foto për secilin furnizues.", style = tx(13, 400, n.muted), modifier = Modifier.offset(y = (-8).dp))
+        Text(if (paF) "Të gjitha afatet aktive (${aktive.size}) në një foto." else "Një foto për secilin furnizues.", style = tx(13, 400, n.muted), modifier = Modifier.offset(y = (-8).dp))
         if (furn.size >= 6) Fusha(kerko, { kerko = it }, Modifier.fillMaxWidth(), "Kërko furnizuesin", ikona = Ik.Kerko, lartesia = 46.dp, sfondi = n.surface2, paVije = true, rrezja = 12.dp)
         if (furn.isNotEmpty()) {
             val q = kerko.trim().lowercase()

@@ -319,7 +319,7 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, stok: Boolean = false, kurRuhet: (S
             return
         }
         if (teVlefshem.isEmpty()) { mbyll(); return }
-        // v241: marketi ku ruhen (aktivi, ose pyetet te "Krejt marketet")
+        // v241: marketi ku ruhen (aktivi, ose pyetet te "Të gjitha marketet")
         Merchandiseri.marketiPerTeReja { mkId -> ruajTeMarketi(teVlefshem, mkId) }
     }
 

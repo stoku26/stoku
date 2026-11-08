@@ -52,7 +52,7 @@
   function lista(x) { return Array.isArray(x) ? x : []; }
 
   // Pastrimi i të dhënave që vijnë nga cloud-i ose nga telefoni (një rresht i dëmtuar — null, pa id, sasi tekst —
-  // s'duhet ta rrëzojë krejt aplikacionin). Kthen kopje të pastra; objektet e vlefshme mbeten të njëjtat.
+  // s'duhet ta rrëzojë të gjithë aplikacionin). Kthen kopje të pastra; objektet e vlefshme mbeten të njëjtat.
   function folderIVlefshem(f) { return !!f && typeof f === 'object' && typeof f.id === 'string' && f.id !== ''; }
   function pastroFolderat(l) {
     return lista(l).filter(folderIVlefshem).map(function (f) {
@@ -187,7 +187,7 @@
     };
   }
 
-  // v233: dyqani s'mbetet pa asnjë folder. 4 folderat e parazgjedhur kanë të njëjtat id në krejt llogaritë dhe s'kanë
+  // v233: dyqani s'mbetet pa asnjë folder. 4 folderat e parazgjedhur kanë të njëjtat id në të gjitha llogaritë dhe s'kanë
   // ndryshuarSe, prandaj një shënim fshirjeje për ta (edhe i vjetër, edhe i ardhur gabimisht nga një llogari tjetër para
   // v232) i hiqte sa herë që aplikacioni i krijonte: llogaria mbetej pa foldera, edhe pa lejen për të krijuar foldera.
   // Kur bashkimi s'lë asnjë folder, kthehen 4 folderat e parazgjedhur me kohë të re (fitojnë ndaj shënimeve të vjetra),

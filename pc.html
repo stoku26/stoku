@@ -536,7 +536,7 @@
   }
   .mbulese.hapur { display: flex; animation: shfaq .12s ease-out; }
   #dlgKonfirmo { z-index: 55; }
-  /* "Çka ka të re" */
+  /* "Çfarë ka të re" */
   .tr-krye { gap: 14px; }
   .tr-ikona {
     flex: none; width: 46px; height: 46px; border-radius: 14px; color: #fff; display: flex; align-items: center; justify-content: center;
@@ -753,7 +753,7 @@
   .af-info.hequr { background: var(--hover); color: var(--gri); }
   input[type="date"].inp { font-variant-numeric: tabular-nums; }
   .zona-foto-pc.siper { outline: 3px dashed var(--primar); outline-offset: -6px; }
-  /* v230: lejet e llogarisë (çka s'lejohet fshihet krejt; v231: pa asnjë mesazh) */
+  /* v230: lejet e llogarisë (çfarë s'lejohet fshihet krejt; v231: pa asnjë mesazh) */
   .leja-ndaluar { display: none !important; }
   .pamja-bosh { display: flex; justify-content: center; margin: 22vh auto 0; opacity: .5; }
   .pamja-bosh img { width: 210px; height: auto; }
@@ -899,7 +899,7 @@
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
-<script src="porta.js?v=252"></script>
+<script src="porta.js?v=281"></script>
 
 <div class="trupi">
   <aside class="anesore">
@@ -968,15 +968,15 @@
     <div class="sbp-moduli" id="akordEkipiTrupi" role="tabpanel" aria-labelledby="btnAkordEkipi" hidden>
       <div class="sbp-moduli-brendia">
         <nav class="nav">
-          <button class="nav-rresht" id="navEkPulti" type="button" data-ek="pulti" title="Përmbledhja e grupit: çka duhet bërë sot">
+          <button class="nav-rresht" id="navEkPulti" type="button" data-ek="pulti" title="Përmbledhja e grupit: çfarë duhet bërë sot">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>
             <span class="emri">Përmbledhja</span>
           </button>
-          <button class="nav-rresht" id="navEkipi" type="button" data-ek="afatet" title="Afatet e krejt grupit">
+          <button class="nav-rresht" id="navEkipi" type="button" data-ek="afatet" title="Afatet e të gjithë grupit">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
             <span class="emri">Afatet e grupit</span>
           </button>
-          <button class="nav-rresht" id="navEkAktiviteti" type="button" data-ek="aktiviteti" title="Kush çka hoqi, shtoi ose lajmëroi">
+          <button class="nav-rresht" id="navEkAktiviteti" type="button" data-ek="aktiviteti" title="Kush çfarë hoqi, shtoi ose lajmëroi">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
             <span class="emri">Aktiviteti</span>
           </button>
@@ -1033,7 +1033,7 @@
         <div class="faqe-veprime">
           <button class="btn dyte" type="button" data-eksport="excel" data-leja="eksportExcel">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="m8 13 4 5M12 13l-4 5"></path></svg>
-            Eksporto krejt stokun
+            Eksporto të gjithë stokun
           </button>
         </div>
       </div>
@@ -1191,7 +1191,7 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m17 8-5-5-5 5"></path><path d="M12 3v12"></path></svg>
             Importo
           </button>
-          <button class="btn dyte" type="button" id="afBtnExcel" data-leja="eksportExcel" title="Eksporto afatet në Excel (krejt ose një muaj)">
+          <button class="btn dyte" type="button" id="afBtnExcel" data-leja="eksportExcel" title="Eksporto afatet në Excel (të gjitha ose një muaj)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="m8 13 4 5M12 13l-4 5"></path></svg>
             Excel
           </button>
@@ -1228,7 +1228,7 @@
       <input type="file" id="afFoto" accept="image/*" hidden>
     </section>
 
-    <!-- Grupi: afatet e krejt llogarive (vetëm afatet), aktiviteti, kalendari, kolegët, statistikat -->
+    <!-- Grupi: afatet e të gjitha llogarive (vetëm afatet), aktiviteti, kalendari, kolegët, statistikat -->
     <section id="pamjaEkipi" class="fsheh">
       <div class="faqe-krye">
         <div>
@@ -1236,7 +1236,7 @@
           <div class="faqe-nen" id="ekNen"></div>
         </div>
         <div class="faqe-veprime">
-          <button class="btn dyte ek-zile" type="button" id="ekKerkoHeqje" data-leja="grupiKerkesat" title="Kërkoji një kolegu (ose krejt grupit) ta heqë nga rafti një produkt">
+          <button class="btn dyte ek-zile" type="button" id="ekKerkoHeqje" data-leja="grupiKerkesat" title="Kërkoji një kolegu (ose të gjithë grupit) ta heqë nga rafti një produkt">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18"></path><path d="M5 7v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7"></path><path d="M9 7V4h6v3"></path><path d="m10 12 4 4M14 12l-4 4"></path></svg>
             Kërko heqje
           </button>
@@ -1279,11 +1279,11 @@
       </div>
 
       <div id="ekVPulti">
-        <div class="karta fsheh ek-pult-kerkesat" id="ekPultKerkesat"><div class="tk"><b id="ekPultKerkTitulli"></b><span id="ekPultKerkEmrat"></span></div><button class="btn tekst vogel" type="button" id="ekPultKerkShiko">Shiko</button><button class="btn vogel" type="button" id="ekPultKerkPrano">Prano krejt</button></div>
+        <div class="karta fsheh ek-pult-kerkesat" id="ekPultKerkesat"><div class="tk"><b id="ekPultKerkTitulli"></b><span id="ekPultKerkEmrat"></span></div><button class="btn tekst vogel" type="button" id="ekPultKerkShiko">Shiko</button><button class="btn vogel" type="button" id="ekPultKerkPrano">Prano të gjitha</button></div>
         <div class="kpi-rrjeti" id="ekPultKpi"></div>
         <div class="ek-pult-rrjeti">
           <div class="karta">
-            <div class="karta-krye"><h2>Duhet vepruar</h2><button class="btn tekst vogel" type="button" id="ekPultKrejt">Krejt afatet e grupit →</button></div>
+            <div class="karta-krye"><h2>Duhet vepruar</h2><button class="btn tekst vogel" type="button" id="ekPultKrejt">Të gjitha afatet e grupit →</button></div>
             <div class="tabela-mbajtese ek-pult-tabela"><table class="tabela" id="ekPultTabela"><thead id="ekPultKoka"></thead><tbody id="ekPultTrup"></tbody></table><div class="tabela-bosh fsheh" id="ekPultBosh"></div></div>
           </div>
           <div class="karta"><div class="karta-krye"><h2 id="ekPultAnTitulli">Kolegët</h2></div><div class="karta-trup" id="ekPultAnetaret" style="padding-top:0"></div></div>
@@ -1352,12 +1352,12 @@
         <div class="karta fsheh" id="ekAdminPanel" style="margin-top:16px">
           <div class="karta-krye"><h2>Admini i grupit</h2></div>
           <div class="karta-trup">
-            <label class="fushe"><span>Njoftim për krejt grupin (i del secilit te zilja)</span>
+            <label class="fushe"><span>Njoftim për të gjithë grupin (i del secilit te zilja)</span>
               <textarea class="inp" id="ekAdminTekst" rows="3" maxlength="1000" placeholder="Shkruaj njoftimin…"></textarea></label>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-              <button class="btn" type="button" id="ekAdminDergo">Dërgo te krejt grupi</button>
+              <button class="btn" type="button" id="ekAdminDergo">Dërgo te i gjithë grupi</button>
               <span style="flex:1"></span>
-              <button class="btn tekst rrezik" type="button" id="ekAdminPastroAkt">Pastro krejt aktivitetin</button>
+              <button class="btn tekst rrezik" type="button" id="ekAdminPastroAkt">Pastro të gjithë aktivitetin</button>
             </div>
           </div>
         </div>
@@ -1513,10 +1513,10 @@
             <div class="lexim-foto-kontrolle">
               <button type="button" id="lxZvogelo" title="Zvogëlo" aria-label="Zvogëlo">−</button>
               <button type="button" id="lxZmadho" title="Zmadho" aria-label="Zmadho">+</button>
-              <button type="button" id="lxPershtat" title="Shfaq krejt fletën">Përshtat</button>
+              <button type="button" id="lxPershtat" title="Shfaq të gjithë fletën">Përshtat</button>
               <button type="button" id="lxLaps" title="Laps i kuq: vizato mbi foto rreshtat që i ke kontrolluar">✎ Laps</button>
               <button type="button" id="lxZhbejVize" title="Zhbëj vizatimin e fundit (Ctrl+Z)" disabled>↶</button>
-              <button type="button" id="lxFshiVizat" title="Fshi krejt vizatimet" disabled>Fshi</button>
+              <button type="button" id="lxFshiVizat" title="Fshi të gjitha vizatimet" disabled>Fshi</button>
             </div>
           </div>
           <div class="lexim-ndihme" id="lxNdihme">Rrota e mausit: zmadho/zvogëlo · Tërhiq me maus: lëviz · Dy klikime: zmadho ose përshtat · ✎ Laps: shëno me të kuqe</div>
@@ -1543,12 +1543,12 @@
   </div>
 </div>
 
-<!-- "Çka ka të re": tregohet në hyrje kur ka version të ri që përdoruesi s'e ka parë ende (teRejat.js) -->
+<!-- "Çfarë ka të re": tregohet në hyrje kur ka version të ri që përdoruesi s'e ka parë ende (teRejat.js) -->
 <div class="mbulese" id="dlgTeRejat">
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="trTitulli">
     <div class="dialog-krye tr-krye">
       <span class="tr-ikona"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path><path d="M19 14.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"></path><path d="M5 2l.7 1.6 1.6.7-1.6.7L5 6.6l-.7-1.6-1.6-.7 1.6-.7z"></path></svg></span>
-      <div><h2 id="trTitulli">Çka ka të re</h2><div class="tr-nen" id="trNen"></div></div>
+      <div><h2 id="trTitulli">Çfarë ka të re</h2><div class="tr-nen" id="trNen"></div></div>
       <button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button>
     </div>
     <div class="dialog-trup tr-lista" id="trLista"></div>
@@ -1565,7 +1565,7 @@
   </div>
 </div>
 
-<!-- Kërkesë që një koleg (ose krejt grupi) ta heqë nga rafti një produkt (edhe pa afat në Stoku) -->
+<!-- Kërkesë që një koleg (ose i gjithë grupi) ta heqë nga rafti një produkt (edhe pa afat në Stoku) -->
 <div class="mbulese" id="dlgKerkese">
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="krkTitulli" style="max-width:480px">
     <div class="dialog-krye"><h2 id="krkTitulli">Kërko heqje nga rafti</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
@@ -1766,7 +1766,7 @@
         <button type="button" data-faqe="perdoruesit" id="opsSkedaPerdoruesit" hidden><span class="ops-ik ngj-kuqe"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="m16 11 2 2 4-4"></path></svg></span><span class="ops-nav-tekst">Përdoruesit<small id="opsPerdoruesitNen">Lejet e llogarive</small></span></button>
         <button type="button" data-faqe="harta" id="opsSkedaHarta" hidden><span class="ops-ik ngj-gjelber"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span><span class="ops-nav-tekst">Marketet<small id="opsHartaNen">Marketet në hartë</small></span></button>
         <div class="ops-nav-fund">
-          <button type="button" class="ops-nav-terejat" id="opsTeRejat"><span class="ops-ik ngj-roze"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path></svg></span><span class="ops-nav-tekst">Çka ka të re</span></button>
+          <button type="button" class="ops-nav-terejat" id="opsTeRejat"><span class="ops-ik ngj-roze"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path></svg></span><span class="ops-nav-tekst">Çfarë ka të re</span></button>
           <button type="button" class="ops-nav-terejat" id="opsPrivatesia"><span class="ops-ik ngj-blu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><rect x="9" y="11" width="6" height="5" rx="1"></rect><path d="M10.5 11V9.5a1.5 1.5 0 0 1 3 0V11"></path></svg></span><span class="ops-nav-tekst">Privatësia</span></button>
           <div class="ops-versioni"><span>Stoku <b id="opsVersioni"></b></span></div>
         </div>
@@ -1792,7 +1792,7 @@
             </div>
           </div>
           <div class="ops-karta">
-            <div class="ops-karta-krye"><div class="ops-titull">Madhësia e shkronjave</div><p class="ops-hint">"E madhe" rrit tekstin dhe butonat në krejt aplikacionin.</p></div>
+            <div class="ops-karta-krye"><div class="ops-titull">Madhësia e shkronjave</div><p class="ops-hint">"E madhe" rrit tekstin dhe butonat në të gjithë aplikacionin.</p></div>
             <div class="ops-zgjedhje ops-zgjedhje--2" id="opsMadhesia">
               <button type="button" data-v="normale"><span class="ops-aa">Aa</span><span class="ops-zgj-emri">Normale</span></button>
               <button type="button" data-v="e_madhe"><span class="ops-aa ops-aa--madh">Aa</span><span class="ops-zgj-emri">E madhe</span></button>
@@ -1835,7 +1835,7 @@
               <span class="ops-ik ops-ik--madh ngj-portokalli"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17h4V5H2v12h3"></path><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"></path><circle cx="7.5" cy="17.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg></span>
               <div class="ops-rresht__tekst">
                 <div class="ops-titull">Furnizuesit<span class="ops-numri" id="opsFurnNumri"></span></div>
-                <p class="ops-hint" id="opsFurnHint">Ndrysho emrin e një furnizuesi: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një.</p>
+                <p class="ops-hint" id="opsFurnHint">Ndrysho emrin e një furnizuesi: ndryshon te të gjitha afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër, të dy bashkohen në një.</p>
               </div>
               <button class="ops-palos" type="button" aria-expanded="false" aria-controls="opsFurnTrup" data-emri="furnizuesve" aria-label="Hap listën e furnizuesve"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
             </div>
@@ -1893,7 +1893,7 @@
                 <button class="btn dyte" type="button" id="opsRikthe">Rikthe nga cloud</button>
               </div>
             </div>
-            <!-- v232: çka u fshi nga një pajisje tjetër (foldera, produkte) mbetet këtu si kopje, për t'u rikthyer -->
+            <!-- v232: çfarë u fshi nga një pajisje tjetër (foldera, produkte) mbetet këtu si kopje, për t'u rikthyer -->
             <div class="ops-karta" id="opsKopja" hidden>
               <div class="ops-titull">Të fshira nga një pajisje tjetër</div>
               <p class="ops-hint" id="opsKopjaTeksti"></p>
@@ -1906,7 +1906,7 @@
               <div class="ops-fusha">
                 <span class="ops-ik ngj-vjollce"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"></path><circle cx="12" cy="13" r="3.5"></circle></svg></span>
                 <div class="ops-titull">Fotoja e profilit</div>
-                <p class="ops-hint" id="opsFotoHint">E sheh krejt grupi.</p>
+                <p class="ops-hint" id="opsFotoHint">E sheh i gjithë grupi.</p>
                 <div class="ops-foto-rresht">
                   <button class="btn dyte ops-foto-hiq" type="button" id="opsFotoHiq" style="display:none">Hiq foton</button>
                   <button class="btn dyte" type="button" id="opsFotoNdrysho">Shto foto</button>
@@ -1934,7 +1934,7 @@
         </div>
 
         <div class="opsione-faqe" data-faqe="perdoruesit">
-          <div class="ops-faqe-krye"><h2 id="pdTitulli">Përdoruesit</h2><p id="pdPershkrimi">Krejt llogaritë e Stoku-t. Kliko një përdorues për t'i caktuar çka mund të përdorë. Llogaritë e reja i kanë krejt lejet derisa t'i kontrollosh. Këtë faqe e sheh vetëm administratori.</p></div>
+          <div class="ops-faqe-krye"><h2 id="pdTitulli">Përdoruesit</h2><p id="pdPershkrimi">Të gjitha llogaritë e Stoku-t. Kliko një përdorues për t'i caktuar çfarë mund të përdorë. Llogaritë e reja i kanë të gjitha lejet derisa t'i kontrollosh. Këtë faqe e sheh vetëm administratori.</p></div>
           <div id="pdPamja"></div>
         </div>
 
@@ -1968,20 +1968,20 @@
 <div class="toast" id="toast" role="status" aria-live="polite"><span class="toast-tekst" id="toastTekst"></span><button class="btn fsheh" type="button" id="toastBtn"></button></div>
 
 <script src="xlsx.js?v=216"></script>
-<script src="bashkimi.js?v=241"></script>
-<script src="ruajtja.js?v=216"></script>
+<script src="bashkimi.js?v=281"></script>
+<script src="ruajtja.js?v=281"></script>
 <script src="skedaret.js?v=1"></script>
-<script src="lejet.js?v=5"></script>
-<script src="afatet.js?v=279"></script>
-<script src="marketet.js?v=257"></script>
-<script src="harta.js?v=256"></script>
-<script src="ekipa.js?v=258"></script>
-<script src="teRejat.js?v=280"></script>
-<script src="app-pc.js?v=279"></script>
+<script src="lejet.js?v=6"></script>
+<script src="afatet.js?v=281"></script>
+<script src="marketet.js?v=281"></script>
+<script src="harta.js?v=281"></script>
+<script src="ekipa.js?v=281"></script>
+<script src="teRejat.js?v=281"></script>
+<script src="app-pc.js?v=281"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
 
 <!-- Firebase: i njëjti projekt dhe i njëjti dokument si versioni i telefonit -->
-<script type="module" src="firebase-pc.js?v=252"></script>
+<script type="module" src="firebase-pc.js?v=281"></script>
 </body>
 </html>

@@ -215,7 +215,7 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, shpejt: ((String) -
     val pronari = LocalLifecycleOwner.current
     val ekzekutuesi = remember { Executors.newSingleThreadExecutor() }
     val skaneri: BarcodeScanner = remember {
-        // v266: krejt formatet që njeh ML Kit (edhe Data Matrix, PDF417, Aztec), përveç QR-së: ajo lexohet vetëm që të njoftohet
+        // v266: të gjitha formatet që njeh ML Kit (edhe Data Matrix, PDF417, Aztec), përveç QR-së: ajo lexohet vetëm që të njoftohet
         BarcodeScanning.getClient(BarcodeScannerOptions.Builder().setBarcodeFormats(
             Barcode.FORMAT_EAN_13, Barcode.FORMAT_EAN_8, Barcode.FORMAT_UPC_A, Barcode.FORMAT_UPC_E, Barcode.FORMAT_CODE_128,
             Barcode.FORMAT_CODE_39, Barcode.FORMAT_CODE_93, Barcode.FORMAT_ITF, Barcode.FORMAT_CODABAR, Barcode.FORMAT_DATA_MATRIX,

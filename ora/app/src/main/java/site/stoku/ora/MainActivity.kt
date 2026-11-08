@@ -228,7 +228,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit, kurHumbetLidhja: () -> Unit) {
     }
     var iRi by remember { mutableStateOf<Pair<Int, String>?>(null) }
     var dukePerditesuar by remember { mutableStateOf(false) }
-    // v238: krejt produktet (8 deri 30 ditë, mbi 30 ditë, kërkimi); ngarkohen kur hapet njëri nga këto ekrane
+    // v238: të gjitha produktet (8 deri 30 ditë, mbi 30 ditë, kërkimi); ngarkohen kur hapet njëri nga këto ekrane
     var krejt by remember { mutableStateOf(Api.krejtERuajtur(ctx)) }
     var dukeKrejt by remember { mutableStateOf(false) }
     var gabimKrejt by remember { mutableStateOf<String?>(null) }
@@ -250,7 +250,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit, kurHumbetLidhja: () -> Unit) {
     fun riktheTeKrejt(a: Afat) {
         krejt = krejt?.let { k -> if (k.krejt.any { it.id == a.id }) k else k.copy(krejt = (k.krejt + a).sortedWith(compareBy({ it.data }, { it.emri }))) }
     }
-    // "Mbi 30 ditë" dhe kërkimi: krejt produktet ngarkohen kur hapen nga lista kryesore (jo sa herë kthehesh nga një produkt: atëherë
+    // "Mbi 30 ditë" dhe kërkimi: të gjitha produktet ngarkohen kur hapen nga lista kryesore (jo sa herë kthehesh nga një produkt: atëherë
     // serveri mund ta kthente sërish produktin e sapohequr, sepse heqja ishte ende në rrugë)
     fun hapMeKrejt(p: Pamja) { pamja = p; scope.launch { ngarkoKrejt() } }
     LaunchedEffect(Rikthimi.n) { ngarko() }
@@ -420,7 +420,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit, kurHumbetLidhja: () -> Unit) {
                             Chip(
                                 modifier = Modifier.fillMaxWidth(),
                                 onClick = { pamja = Pamja.HiqKrejt(l.skaduaraL) },
-                                label = { Text("Hiqi krejt nga rafti", fontWeight = FontWeight.Bold) },
+                                label = { Text("Hiqi të gjitha nga rafti", fontWeight = FontWeight.Bold) },
                                 secondaryLabel = { Text(if (l.skaduaraL.size == 1) "1 e skaduar" else "${l.skaduaraL.size} të skaduara", color = Color.Black) },
                                 colors = ChipDefaults.chipColors(backgroundColor = Kuqe, contentColor = Color.Black),
                             )
@@ -533,7 +533,7 @@ fun ListaEGrupit(titulli: String, ngjyra: Color, lista: List<Afat>?, duke: Boole
     }
 }
 
-// v238: kërkimi sipas emrit të produktit, furnizuesit ose barkodit (në krejt produktet). Teksti shkruhet me hyrjen e orës
+// v238: kërkimi sipas emrit të produktit, furnizuesit ose barkodit (në të gjitha produktet). Teksti shkruhet me hyrjen e orës
 // (tastiera ose zëri, si te mesazhet): rezultatet dalin vetëm pasi konfirmohet ("Kërko"/✓). Fusha e tekstit brenda aplikacionit
 // s'punonte mirë në orë: tastiera në ekran të plotë s'ia kalonte fshirjet dhe rezultatet dilnin gjatë shkrimit.
 const val CELESI_KERKIMIT = "kerko"
@@ -631,7 +631,7 @@ fun Detaji(a: Afat, sot: Boolean, skaduar: Boolean = false, ekipa: Boolean, kurH
     }
 }
 
-// Kujt t'i dërgohet kërkesa: krejt ekipa ose një koleg
+// Kujt t'i dërgohet kërkesa: e gjithë ekipa ose një koleg
 @Composable
 fun ZgjedhKolegun(a: Afat, kurDergohet: (String) -> Unit, kurHumbetLidhja: () -> Unit, mbrapa: () -> Unit) {
     val ctx = LocalContext.current
@@ -671,7 +671,7 @@ fun ZgjedhKolegun(a: Afat, kurDergohet: (String) -> Unit, kurHumbetLidhja: () ->
                     Chip(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { dergo(null) },
-                        label = { Text("Krejt grupi", fontWeight = FontWeight.Bold) },
+                        label = { Text("I gjithë grupi", fontWeight = FontWeight.Bold) },
                         secondaryLabel = { Text(if (l.size == 1) "1 koleg" else "${l.size} kolegë", color = Gri) },
                         colors = ChipDefaults.primaryChipColors(),
                     )
@@ -745,13 +745,13 @@ fun HiqKrejt(n: Int, kurPo: () -> Unit, mbrapa: () -> Unit) {
     val gjendja = rememberScalingLazyListState()
     Scaffold(positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
         ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
-            item { Text("Hiqi krejt?", fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, textAlign = TextAlign.Center) }
+            item { Text("Hiqi të gjitha?", fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, textAlign = TextAlign.Center) }
             item { Text(if (n == 1) "1 produkt që ka skaduar shënohet \"hequr nga rafti\"." else "$n produkte që kanë skaduar shënohen \"hequr nga rafti\".", fontSize = 12.sp, color = Gri, textAlign = TextAlign.Center) }
             item {
                 Chip(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = kurPo,
-                    label = { Text("✓ Po, i hoqa krejt", fontWeight = FontWeight.Bold) },
+                    label = { Text("✓ Po, i hoqa të gjitha", fontWeight = FontWeight.Bold) },
                     colors = ChipDefaults.chipColors(backgroundColor = Kuqe, contentColor = Color.Black),
                 )
             }

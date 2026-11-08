@@ -38,7 +38,7 @@ import site.stoku.vendas.Perditesimi
 
 /**
  * Hyrja 33 (pronari zgjodhi "ideja 5"): versioni i ri si faqe e plotë me pamjen e Stoku-t (jo dritarja gri e Android-it):
- * ikona, "Përditëso Stoku-n", versioni i tanishëm → i riu, "Çka ka të re" dhe butoni i madh poshtë. Shkarkimi vazhdon në të njëjtën
+ * ikona, "Përditëso Stoku-n", versioni i tanishëm → i riu, "Çfarë ka të re" dhe butoni i madh poshtë. Shkarkimi vazhdon në të njëjtën
  * faqe (shiriti, sa MB, "Anulo"). Del sa herë hyn në aplikacion kur ka version të ri (Perditesimi.kontrollo).
  */
 @Composable

@@ -1,5 +1,5 @@
 // v240: "Sasia e shpejtë (+/-)" është leje te Cilësimet → Përdoruesit ("stokuPlusMinus", nën "Ndrysho produktet"), e lejuar
-// për krejt llogaritë (edhe të rejat, pa dokument lejesh); kolona "+/-" te Grupi (PC) dhe "Butonat +/-" (tel) s'janë më
+// për të gjitha llogaritë (edhe të rejat, pa dokument lejesh); kolona "+/-" te Grupi (PC) dhe "Butonat +/-" (tel) s'janë më
 const { chromium } = require('./pw.js');
 const { krijoFirestore } = require('./fs-server.js');
 const RR = process.env.STOKU_DIR || require('path').resolve(__dirname, '..');
@@ -22,7 +22,7 @@ const FARA = () => {
   ok(L.lejohet(null, 'stokuPlusMinus') && L.lejohet({}, 'stokuPlusMinus'), '0. pa dokument / çelës që mungon: e lejuar (llogari e re, dokumente të vjetra)');
   const vjeter = L.krejt(true); delete vjeter.stokuPlusMinus;
   ok(L.lejohet(vjeter, 'stokuPlusMinus'), '0. dokument i ruajtur para v240 (pa çelësin): e lejuar');
-  ok(!L.lejohet({ stokuNdrysho: false }, 'stokuPlusMinus') && !L.lejohet({ stoku: false }, 'stokuPlusMinus') && !L.lejohet({ stokuPlusMinus: false }, 'stokuPlusMinus'), '0. e ndaluar: vetë, pa "Ndrysho produktet" ose pa "Stoku" (krejt zinxhiri)');
+  ok(!L.lejohet({ stokuNdrysho: false }, 'stokuPlusMinus') && !L.lejohet({ stoku: false }, 'stokuPlusMinus') && !L.lejohet({ stokuPlusMinus: false }, 'stokuPlusMinus'), '0. e ndaluar: vetë, pa "Ndrysho produktet" ose pa "Stoku" (i gjithë zinxhiri)');
   ok(!/\+\/-/.test(L.LEJA.stokuNdrysho.pershkrim) && /Sasia e shpejtë/.test(L.LEJA.stokuPlusMinus.emri), '0. "Ndrysho produktet" s\'i përmend më butonat +/-', L.LEJA.stokuPlusMinus);
 
   const b = await chromium.launch();
@@ -88,7 +88,7 @@ const FARA = () => {
 
   const agim = await faqe('u1', 'agim', false);
   await hapPije(agim);
-  ok(await nrHap(agim) === 2, '2. agim (tel, i kontrolluar para v240): butonat +/- te krejt produktet', await nrHap(agim));
+  ok(await nrHap(agim) === 2, '2. agim (tel, i kontrolluar para v240): butonat +/- te të gjitha produktet', await nrHap(agim));
   await agim.evaluate(() => [...document.querySelectorAll('#lista .artikull')].find(x => /Lëng/.test(x.textContent)).querySelectorAll('.sasia-hap-btn')[1].click());
   await agim.waitForTimeout(400);
   const s1 = await agim.evaluate(() => JSON.parse(localStorage.getItem('stoku:produktet:v2'))['pije::3800000000017'].sasia);

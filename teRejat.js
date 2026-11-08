@@ -1,15 +1,15 @@
 /*
- * "Çka ka të re" — lista e ndryshimeve që u tregohet përdoruesve në hyrje (telefon dhe PC).
+ * "Çfarë ka të re" — lista e ndryshimeve që u tregohet përdoruesve në hyrje (telefon dhe PC).
  *
  * SI PUNON: sa herë del një version i ri, shto NJË HYRJE NË KRYE të listës, me:
  *   v      = numri i versionit — I NJËJTI me numrin te sw.js (var CACHE = 'stoku-vNN') dhe te "teRejat.js?v=NN"
  *   versioni = ai që sheh përdoruesi, "1.0.1" (MAJOR.MINOR.PATCH): rregullim i vogël → rrit të fundit (1.0.1 → 1.0.2);
- *            diçka e re → rrit të mesit, i fundit 0 (1.0.2 → 1.1.0); ndryshim i madh i krejt aplikacionit → 2.0.0.
+ *            diçka e re → rrit të mesit, i fundit 0 (1.0.2 → 1.1.0); ndryshim i madh i të gjithë aplikacionit → 2.0.0.
  *            Nëse ka dy hyrje me të njëjtin v (tel + pc), të dyja e kanë të njëjtin `versioni`.
  *            në index.html, pc.html dhe sw.js (SHELL);
  *   data   = data e publikimit (VVVV-MM-DD);
  *   titulli = një rresht i shkurtër;
- *   pikat  = çka u shtua ose u përmirësua, me fjalë të thjeshta për punëtorët dhe menaxheren (jo teknike).
+ *   pikat  = çfarë u shtua ose u përmirësua, me fjalë të thjeshta për punëtorët dhe menaxheren (jo teknike).
  *   platforma (opsionale) = 'tel' (vetëm telefoni) ose 'pc' (vetëm kompjuteri); pa të = të dyja.
  *            Telefoni s'i tregon hyrjet 'pc', kompjuteri s'i tregon hyrjet 'tel'.
  *   vetemAdmini (opsionale) = true: e sheh vetëm administratori (p.sh. lejet e përdoruesve, që të tjerët s'duhet
@@ -20,8 +20,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 281, versioni: '1.49.6', data: '2026-11-08', titulli: 'Tekstet në shqipe standarde', platforma: 'tel', pikat: [
+      'Tekstet e aplikacionit u rregulluan sipas shqipes standarde, p.sh. "të gjitha afatet", "tani", "Çfarë ka të re".',
+      'U kontrollua i gjithë aplikacioni (telefon dhe kompjuter) për gabime.'
+    ] },
     { v: 280, versioni: '1.49.5', data: '2026-11-08', titulli: 'Menyja e Eksportit dhe importi', platforma: 'tel', pikat: [
-      'Menyja e "Eksporto" është tash aq e gjerë sa teksti.',
+      'Menyja e "Eksporto" është tani aq e gjerë sa teksti.',
       'Te importi nga Excel, teksti është më i shkurtër dhe më i qartë.'
     ] },
     { v: 279, versioni: '1.49.4', data: '2026-11-07', titulli: 'Eksporto si foto më e qartë', platforma: 'tel', pikat: [
@@ -30,18 +34,18 @@
       'Te importi nga Excel, fleta e jep muajin vetëm kur quhet saktë si muaji (p.sh. "Nëntor", "Dhjetor"), jo "Nëntor2".'
     ] },
     { v: 278, versioni: '1.49.3', data: '2026-11-07', titulli: 'Butonat e Afateve më të qartë', platforma: 'tel', pikat: [
-      '"Shto" është tash njësoj si "Importo" dhe "Eksporto", pa vijën e kaltër.',
+      '"Shto" është tani njësoj si "Importo" dhe "Eksporto", pa vijën e kaltër.',
       'Menyja e "Eksporto" dallohet më mirë në temën e errët.'
     ] },
     { v: 277, versioni: '1.49.2', data: '2026-11-07', titulli: 'Importo dhe Eksporto te Afatet', platforma: 'tel', pikat: [
-      'Te Afatet, "Shto" ka tash kornizë blu dhe ikonën e barkodit.',
+      'Te Afatet, "Shto" ka tani kornizë blu dhe ikonën e barkodit.',
       'Poshtë tij janë dy butona: "Importo" e hap direkt zgjedhjen e Excel-it, "Eksporto" hap Excel, PDF ose foto.'
     ] },
     { v: 276, versioni: '1.49.1', data: '2026-11-07', titulli: 'Butonat e rinj te Afatet', platforma: 'tel', pikat: [
-      'Te Afatet, "Shto" dhe "Excel" janë tash dy katrorë vetëm me ikona: kalendari me "+" shton një afat, dosja me shigjetat hap Importo / Eksporto (Excel, PDF, foto).'
+      'Te Afatet, "Shto" dhe "Excel" janë tani dy katrorë vetëm me ikona: kalendari me "+" shton një afat, dosja me shigjetat hap Importo / Eksporto (Excel, PDF, foto).'
     ] },
     { v: 275, versioni: '1.49.0', data: '2026-11-07', titulli: 'Afatet në PDF për printim', platforma: 'tel', pikat: [
-      'Te Afatet → Excel ka tash edhe "Eksporto PDF": një listë e bardhë A4 me afatet, gati për printim.',
+      'Te Afatet → Excel ka tani edhe "Eksporto PDF": një listë e bardhë A4 me afatet, gati për printim.',
       'Para krijimit zgjedh periudhën (të gjitha ose një muaj), gjendjen, furnizuesin dhe renditjen.',
       'Barkodet dalin kudo me shifra më të qarta: zeroja s\'ngjan më me 8.'
     ] },
@@ -49,16 +53,16 @@
       'Barkodet dalin me shifra më të qarta, edhe te etiketat PDF: zeroja s\'ngjan më me 8.'
     ] },
     { v: 274, versioni: '1.48.0', data: '2026-11-07', titulli: 'Afatet si foto për furnizuesin', platforma: 'tel', pikat: [
-      'Te Afatet → Excel ka tash edhe "Eksporto si foto": zgjedh një ose disa furnizues dhe për secilin del një foto me krejt afatet e tij, gati për ta dërguar me Viber ose WhatsApp.',
+      'Te Afatet → Excel ka tani edhe "Eksporto si foto": zgjedh një ose disa furnizues dhe për secilin del një foto me të gjitha afatet e tij, gati për ta dërguar me Viber ose WhatsApp.',
       'Fotoja tregon lart sa produkte kanë skaduar, sa janë afër skadimit dhe sa në rregull, pastaj çdo produkt me datën, copët dhe barkodin. Del e errët ose e çelët, si e ke aplikacionin.'
     ] },
     { v: 273, versioni: '1.47.0', data: '2026-11-04', titulli: 'Butonat e rinj të skanimit', platforma: 'tel', pikat: [
-      'Butonat e skanimit brenda folderit janë tash dy katrorë të ndarë me ikona më të mëdha: blu për kamerën, i verdhë për Skanimin e shpejtë. Dalin në mes, poshtë.',
+      'Butonat e skanimit brenda folderit janë tani dy katrorë të ndarë me ikona më të mëdha: blu për kamerën, i verdhë për Skanimin e shpejtë. Dalin në mes, poshtë.',
       'Te Cilësimet → Skenimi → "Butonat e skanimit" zgjedh vetë ku të dalin: majtas, në mes ose djathtas. Aty i sheh edhe në një foto të vogël.',
       'Te kamera s\'ka më vijën e kuqe që lëvizte brenda kutisë.'
     ] },
     { v: 272, versioni: '1.46.0', data: '2026-10-31', titulli: 'Shkronja të vogla', platforma: 'tel', pikat: [
-      'Te Cilësimet → Pamja → Madhësia e shkronjave ka tash edhe "E vogël": krejt teksti dhe butonat dalin pak më të vegjël, që të nxë më shumë në ekran.'
+      'Te Cilësimet → Pamja → Madhësia e shkronjave ka tani edhe "E vogël": i gjithë teksti dhe butonat dalin pak më të vegjël, që të nxë më shumë në ekran.'
     ] },
     { v: 271, versioni: '1.45.3', data: '2026-10-31', titulli: 'Afatet pa butonin e cloud-it', platforma: 'tel', pikat: [
       'Lart te Afatet s\'ka më muajin dhe butonin e cloud-it. Ndryshimet ruhen dhe sinkronizohen vetë pas çdo ndryshimi; gjendjen e sheh te Cilësimet → Llogaria.'
@@ -66,29 +70,29 @@
     { v: 271, versioni: '1.45.3', data: '2026-10-31', titulli: 'Pa statusin e sinkronizimit poshtë', platforma: 'pc', pikat: [
       'Poshtë në anën e majtë, nën emrin, s\'ka më "Sinkronizuar · ora". Ndryshimet sinkronizohen vetë pas çdo ndryshimi; gjendjen e sheh te Cilësimet → Llogaria.'
     ] },
-    { v: 270, versioni: '1.45.2', data: '2026-10-29', titulli: 'Kamera në krejt ekranin', platforma: 'tel', pikat: [
-      'Kamera zë tash krejt ekranin, si në aplikacionin Android: pa shiritin e zi lart, me butonat mbi kamerë. Kur e mbyll, ekrani kthehet si ishte.'
+    { v: 270, versioni: '1.45.2', data: '2026-10-29', titulli: 'Kamera në të gjithë ekranin', platforma: 'tel', pikat: [
+      'Kamera zë tani të gjithë ekranin, si në aplikacionin Android: pa shiritin e zi lart, me butonat mbi kamerë. Kur e mbyll, ekrani kthehet si ishte.'
     ] },
     { v: 269, versioni: '1.45.1', data: '2026-10-29', titulli: 'Folderi më i pastër', platforma: 'tel', pikat: [
-      'Pyetja "Të fshihen të gjitha?" del tash në mes të ekranit, njësoj si në aplikacionin Android: "Anulo" dhe "Fshi të gjitha" e kuqe.',
+      'Pyetja "Të fshihen të gjitha?" del tani në mes të ekranit, njësoj si në aplikacionin Android: "Anulo" dhe "Fshi të gjitha" e kuqe.',
       'Lart te folderi shkruan vetëm emri i folderit, pa numrin e produkteve.',
       'Brenda folderit ka vetëm fushën "Barkodi" dhe pranë saj butonin 🔍. Fusha "Kërko" del kur e prek dhe mbyllet kur e prek prapë.'
     ] },
     { v: 268, versioni: '1.45.0', data: '2026-10-29', titulli: 'Butoni i ri i skanimit', platforma: 'tel', pikat: [
       'Brenda folderit, poshtë djathtas, ka një buton të vetëm: gjysma blu hap kamerën, gjysma e verdhë hap Skanimin e shpejtë.',
-      '"Eksporto Excel" dhe "Eksporto PDF" janë tash dy ikona lart, pranë emrit të folderit.',
-      '"Fshi të gjitha" është tash me të kuqe mbi listën e produkteve. Kur të pyet "A je i sigurt?", butoni për fshirje aktivizohet pas 5 sekondash.',
-      'Shkronjat, butonat dhe fushat në telefon kanë tash të njëjtën madhësi si në aplikacionin Android.'
+      '"Eksporto Excel" dhe "Eksporto PDF" janë tani dy ikona lart, pranë emrit të folderit.',
+      '"Fshi të gjitha" është tani me të kuqe mbi listën e produkteve. Kur të pyet "A je i sigurt?", butoni për fshirje aktivizohet pas 5 sekondash.',
+      'Shkronjat, butonat dhe fushat në telefon kanë tani të njëjtën madhësi si në aplikacionin Android.'
     ] },
     { v: 267, versioni: '1.44.2', data: '2026-10-29', titulli: 'Emrat e qartë te butonat', platforma: 'tel', pikat: [
-      'Pllakat brenda folderit kanë tash emrat e plotë: "Skano me kamerë", "Skanim i shpejtë", "Eksporto Excel" dhe "Eksporto PDF", me një tekst të vetëm.'
+      'Pllakat brenda folderit kanë tani emrat e plotë: "Skano me kamerë", "Skanim i shpejtë", "Eksporto Excel" dhe "Eksporto PDF", me një tekst të vetëm.'
     ] },
-    { v: 266, versioni: '1.44.1', data: '2026-10-29', titulli: 'Kamera njeh krejt barkodet', platforma: 'tel', pikat: [
-      'Kamera tash njeh krejt llojet e barkodeve, edhe kodet katrore Data Matrix (p.sh. te ilaçet), PDF417 dhe Aztec. Vetëm kodi QR s\'merret si barkod produkti.',
+    { v: 266, versioni: '1.44.1', data: '2026-10-29', titulli: 'Kamera njeh të gjitha barkodet', platforma: 'tel', pikat: [
+      'Kamera tani njeh të gjitha llojet e barkodeve, edhe kodet katrore Data Matrix (p.sh. te ilaçet), PDF417 dhe Aztec. Vetëm kodi QR s\'merret si barkod produkti.',
       'Te Afatet butonat "Shto" dhe "Excel" janë si më parë; pllakat me ngjyra mbeten vetëm brenda folderit te Stoku.'
     ] },
     { v: 265, versioni: '1.44.0', data: '2026-10-29', titulli: 'Butonat e rinj me ngjyra', platforma: 'tel', pikat: [
-      'Brenda folderit butonat janë tash pllaka me ngjyra: Skano (blu), I shpejtë (e verdhë), Excel (e gjelbër) dhe PDF (e kuqe), secila me një shpjegim të shkurtër.'
+      'Brenda folderit butonat janë tani pllaka me ngjyra: Skano (blu), I shpejtë (e verdhë), Excel (e gjelbër) dhe PDF (e kuqe), secila me një shpjegim të shkurtër.'
     ] },
     { v: 264, versioni: '1.43.1', data: '2026-10-29', titulli: 'Skanim i shpejtë: kamera më e vogël, lista më e madhe', platforma: 'tel', pikat: [
       'Kamera e Skanimit të shpejtë nis që lart, me butonat mbi të, dhe zë vetëm sa duhet për kutinë. Lista e produkteve poshtë ka më shumë vend.'
@@ -104,7 +108,7 @@
       'Lexohet vetëm barkodi që është i tëri brenda kutisë. Barkodi i produktit ngjitur, ose ai që del jashtë kutisë, s\'merret më.'
     ] },
     { v: 261, versioni: '1.42.1', data: '2026-10-28', titulli: 'Skanimi edhe më i saktë', platforma: 'tel', pikat: [
-      'Skanimi me kamerë tash e pranon barkodin kur lexohet 5 herë njësoj (nga deri në 10 lexime brenda një sekonde), në vend të 3 herëve. Mund të zgjasë pak më shumë, por gabimet janë edhe më të rralla.'
+      'Skanimi me kamerë tani e pranon barkodin kur lexohet 5 herë njësoj (nga deri në 10 lexime brenda një sekonde), në vend të 3 herëve. Mund të zgjasë pak më shumë, por gabimet janë edhe më të rralla.'
     ] },
     { v: 260, versioni: '1.42.0', data: '2026-10-28', titulli: 'Skanimi më i saktë', platforma: 'tel', pikat: [
       'Kur skanon me kamerë, Stoku s\'e merr barkodin nga një shikim i vetëm: brenda një sekonde e lexon disa herë dhe zgjedh numrin që ka dalë më shpesh. Kështu një lexim i gabuar (p.sh. kur dridhet dora) s\'kalon, dhe barkodi s\'humbet edhe kur shihet vetëm për një çast.'
@@ -116,21 +120,21 @@
       'Kur dy markete janë afër njëri-tjetrit (p.sh. matanë rrugës) dhe GPS-i brenda ndërtesës s\'i dallon dot, Stoku s\'zgjedh më vetë fqinjin e gabuar: mbetet marketi ku je, ose të pyet "Ku je?" me të dy marketet në krye. Zgjedhja jote mbetet.'
     ] },
     { v: 256, versioni: '1.41.0', data: '2026-10-27', titulli: 'Marketet dhe harta në një vend', platforma: 'tel', pikat: [
-      'Te Cilësimet, "Harta" dhe "Marketet" tash janë një faqe e vetme: "Marketet". Aty janë marketi ku je, harta, lista e marketeve të Stoku-t dhe shtimi i marketit ku je.',
+      'Te Cilësimet, "Harta" dhe "Marketet" tani janë një faqe e vetme: "Marketet". Aty janë marketi ku je, harta, lista e marketeve të Stoku-t dhe shtimi i marketit ku je.',
       '"Je te: …" del vetëm kur je vërtet brenda marketit (deri rreth 100 m larg tij). Në shtëpi ose larg marketeve s\'del më, edhe kur e ke zgjedhur vetë më herët.'
     ] },
     { v: 256, versioni: '1.41.0', data: '2026-10-27', titulli: 'Harta quhet "Marketet"', platforma: 'pc', pikat: [
-      'Te Cilësimet, skeda "Harta" tash quhet "Marketet", me ikonën e marketeve, si te telefoni.'
+      'Te Cilësimet, skeda "Harta" tani quhet "Marketet", me ikonën e marketeve, si te telefoni.'
     ] },
     { v: 255, versioni: '1.40.0', data: '2026-10-27', titulli: 'Aplikacioni i ri Stoku për Android', platforma: 'tel', pikat: [
-      '"Shkarko aplikacionin Android" (te Cilësimet, poshtë "Çka ka të re") tash jep aplikacionin e ri Stoku: i shpejtë dhe punon edhe pa internet.',
+      '"Shkarko aplikacionin Android" (te Cilësimet, poshtë "Çfarë ka të re") tani jep aplikacionin e ri Stoku: i shpejtë dhe punon edhe pa internet.',
       'Aplikacioni i vjetër (ai që e hapte faqen stoku.site) s\'mbahet më. Nëse e ke në telefon, instaloje të riun dhe çinstaloje të vjetrin.'
     ] },
     { v: 254, versioni: '1.39.2', data: '2026-10-27', titulli: 'Afat i ri më i thjeshtë', platforma: 'tel', pikat: [
       'Te "Afat i ri" u hoqën datat e shpejta (1 javë, 2 javë, 1 muaj, 3 muaj). Data shkruhet te fusha, si më parë, dhe poshtë saj del sa ditë ka deri në skadim.'
     ] },
     { v: 253, versioni: '1.39.1', data: '2026-10-23', titulli: 'Markete afër njëri-tjetrit', pikat: [
-      'Dy markete tash mund të jenë afër njëri-tjetrit (p.sh. në dy anët e rrugës). Marketi i ri s\'shtohet vetëm kur je më pak se 20 m nga një market tjetër.',
+      'Dy markete tani mund të jenë afër njëri-tjetrit (p.sh. në dy anët e rrugës). Marketi i ri s\'shtohet vetëm kur je më pak se 20 m nga një market tjetër.',
       'Kur afër ka një market tjetër dhe vendndodhja s\'është mjaft e saktë, Stoku të tregon cili market është dhe sa larg: zgjidhe atë te "Ku je?", ose prit pak brenda marketit dhe provo sërish.'
     ] },
     { v: 253, versioni: '1.39.1', data: '2026-10-23', titulli: 'Market afër një tjetri në hartë', vetemAdmini: true, pikat: [
@@ -150,8 +154,8 @@
       'Te telefoni (edhe te aplikacioni Android) dhe te kompjuteri, "Je te" (marketi ku je) s\'zhduket më pas pak sekondash dhe del edhe kur hyn me llogarinë tënde në një telefon të ri.',
       'Kur administratori ta ndez "Merchandiser", marketet e Stoku-t dhe vendndodhja vijnë menjëherë, pa e rifreskuar faqen.'
     ] },
-    { v: 250, versioni: '1.38.0', data: '2026-10-22', titulli: 'Të njëjtat markete për krejt', pikat: [
-      'Krejt merchandiserët i shohin të njëjtat markete: kur dikush shton një market, ai del vetë edhe te ti.',
+    { v: 250, versioni: '1.38.0', data: '2026-10-22', titulli: 'Të njëjtat markete për të gjithë', pikat: [
+      'Të gjithë merchandiserët i shohin të njëjtat markete: kur dikush shton një market, ai del vetë edhe te ti.',
       'Marketin e shton vetëm kur je brenda tij, me vendndodhjen e saktë të telefonit (jo "të përafërt"). Aty ku ka tashmë një market, s\'shtohet tjetër: zgjidhet ai.',
       'Emrat e marketeve dhe fshirjen i bën vetëm administratori.'
     ] },
@@ -162,7 +166,7 @@
       'Te Cilësimet → Harta ("Marketet në hartë") prek "Satelit" për ta parë hartën me imazhe satelitore; "Hartë" e kthen pamjen e zakonshme. Stoku e mban mend zgjedhjen.'
     ] },
     { v: 248, versioni: '1.36.1', data: '2026-10-22', titulli: 'Afatet sipas marketeve', pikat: [
-      'Merchandiserët: te çdo afat shihet marketi ku ndodhet. Te "Krejt marketet" afatet ndahen sipas marketit, që të mos përzihen.'
+      'Merchandiserët: te çdo afat shihet marketi ku ndodhet. Te "Të gjitha marketet" afatet ndahen sipas marketit, që të mos përzihen.'
     ] },
     { v: 248, versioni: '1.36.1', data: '2026-10-22', titulli: 'Kompjuteri pas rifreskimit', platforma: 'pc', pikat: [
       'Kur e rifreskon faqen, s\'del më për një çast faqja e hyrjes ("Mirë se erdhe…"): deri sa të lidhet, poshtë majtas shihet llogaria jote dhe "Duke u lidhur…".'
@@ -174,11 +178,11 @@
       'Lart te Stoku dhe te Afatet, prek "Je te" dhe zgjidh marketin vetë, edhe kur GPS-i e ka gjetur. Kështu e ndreq kur GPS-i s\'e ka kapur mirë.',
       'Aty dalin edhe marketet e Stoku-t afër teje ("Afër teje"), që i shton me një prekje.'
     ] },
-    { v: 247, versioni: '1.36.0', data: '2026-10-22', titulli: 'Krejt marketet në hartë', pikat: [
-      'Te Cilësimet → Harta ("Marketet në hartë") i sheh krejt marketet e Stoku-t: të tuat me blu, të tjerat me gri. Emrin e ndryshon vetëm te marketet e tua.'
+    { v: 247, versioni: '1.36.0', data: '2026-10-22', titulli: 'Të gjitha marketet në hartë', pikat: [
+      'Te Cilësimet → Harta ("Marketet në hartë") i sheh të gjitha marketet e Stoku-t: të tuat me blu, të tjerat me gri. Emrin e ndryshon vetëm te marketet e tua.'
     ] },
     { v: 246, versioni: '1.35.0', data: '2026-10-22', titulli: 'Dalja nga grupi', pikat: [
-      'Edhe admini i vetëm i grupit tash mund të dalë nga grupi: adminin e merr vetë kolegu që ka hyrë më herët në grup, dhe atij i vjen njoftim.',
+      'Edhe admini i vetëm i grupit tani mund të dalë nga grupi: adminin e merr vetë kolegu që ka hyrë më herët në grup, dhe atij i vjen njoftim.',
       'Kur del i fundit nga grupi, grupi fshihet komplet, bashkë me aktivitetin.'
     ] },
     { v: 246, versioni: '1.35.0', data: '2026-10-22', titulli: 'Stoku e gjen vetë marketin ku je', platforma: 'tel', pikat: [
@@ -188,7 +192,7 @@
       'Vendndodhja jote s\'ruhet askund: ruhet vetëm vendndodhja e marketit.'
     ] },
     { v: 246, versioni: '1.35.0', data: '2026-10-22', titulli: 'Pikat e marketeve', vetemAdmini: true, pikat: [
-      'Te Cilësimet → Harta dalin pikat e marketeve të krejt Stoku-t: një pikë për çdo market, edhe kur e kanë ruajtur disa merchandiserë. Emri që ia jep ti vlen për krejt merchandiserët.',
+      'Te Cilësimet → Harta dalin pikat e marketeve të të gjithë Stoku-t: një pikë për çdo market, edhe kur e kanë ruajtur disa merchandiserë. Emri që ia jep ti vlen për të gjithë merchandiserët.',
       'Pikën e gabuar e heq me "Fshije pikën".',
       'Burimet e hartës (OpenStreetMap) palosen vetë te butoni (i) pas pak sekondash.'
     ] },
@@ -197,8 +201,8 @@
       'Lagjet shkruhen me shkronja të mëdha, që të dallohen nga qytetet dhe fshatrat.'
     ] },
     { v: 244, versioni: '1.34.0', data: '2026-10-21', titulli: 'Harta e marketeve', vetemAdmini: true, pikat: [
-      'Te Cilësimet → Harta i sheh në hartë krejt marketet që i kanë ruajtur merchandiserët. Harta tregon vetëm emrat e qyteteve, fshatrave dhe lagjeve, asgjë tjetër.',
-      'Prek një pikë (ose emrin te lista) dhe ndrysho emrin e saj: emri ndryshon për krejt Stoku-n, edhe te merchandiseri që e ruajti.'
+      'Te Cilësimet → Harta i sheh në hartë të gjitha marketet që i kanë ruajtur merchandiserët. Harta tregon vetëm emrat e qyteteve, fshatrave dhe lagjeve, asgjë tjetër.',
+      'Prek një pikë (ose emrin te lista) dhe ndrysho emrin e saj: emri ndryshon për të gjithë Stoku-n, edhe te merchandiseri që e ruajti.'
     ] },
     { v: 244, versioni: '1.34.0', data: '2026-10-21', titulli: 'Marketet në hartë', pikat: [
       'Te Cilësimet → Harta i sheh marketet e tua në hartë (ato që kanë vendndodhje). Harta tregon vetëm emrat e qyteteve, fshatrave dhe lagjeve.'
@@ -212,26 +216,26 @@
       'Pa grup: te Grupi kërko grupin me emrin e tij dhe prek "Kërko të hysh". Kur ta pranojë admini i grupit, hyn vetë në grup.',
       'Admini i grupit e sheh kërkesën te Grupi (edhe me njoftim) dhe e pranon ose e refuzon.'
     ] },
-    { v: 242, versioni: '1.33.0', data: '2026-10-21', titulli: 'Produktet dhe furnizuesit për krejt', pikat: [
-      'Krejt llogaritë e Stoku-t e kanë të njëjtin regjistër produktesh dhe furnizuesish: kur skanon, emri del vetë, edhe pa grup.',
+    { v: 242, versioni: '1.33.0', data: '2026-10-21', titulli: 'Produktet dhe furnizuesit për të gjithë', pikat: [
+      'Të gjitha llogaritë e Stoku-t e kanë të njëjtin regjistër produktesh dhe furnizuesish: kur skanon, emri del vetë, edhe pa grup.',
       'Produktet e reja i kontrollon administratori para se t\'u dalin të tjerëve.'
     ] },
     { v: 242, versioni: '1.33.0', data: '2026-10-21', titulli: 'Marketi i parë më lehtë', platforma: 'tel', pikat: [
       'Merchandiserët: te Afatet del "Shto marketin ku punon". Herën e parë Stoku të pyet vetë "Në cilin market je?" dhe e ruan edhe vendndodhjen e marketit.',
       'Te "Ku je?" ka "+ Market i ri", kur arrin në një market që s\'e ke shtuar ende.',
-      'Dritarja "Ku je?" tash del mbi faqen e Afateve.'
+      'Dritarja "Ku je?" tani del mbi faqen e Afateve.'
     ] },
-    { v: 242, versioni: '1.33.0', data: '2026-10-21', titulli: 'Produktet e reja nga krejt llogaritë', vetemAdmini: true, pikat: [
-      'Te Cilësimet → Stoku → Produktet e reja dalin produktet e reja të kujtdo (edhe jashtë grupit tënd), me emrin e kujt i shtoi. Pasi t\'i ruash, i sheh krejt Stoku.'
+    { v: 242, versioni: '1.33.0', data: '2026-10-21', titulli: 'Produktet e reja nga të gjitha llogaritë', vetemAdmini: true, pikat: [
+      'Te Cilësimet → Stoku → Produktet e reja dalin produktet e reja të kujtdo (edhe jashtë grupit tënd), me emrin e kujt i shtoi. Pasi t\'i ruash, i sheh i gjithë Stoku.'
     ] },
     { v: 241, versioni: '1.32.0', data: '2026-10-21', titulli: 'Marketet', platforma: 'tel', pikat: [
       'Për merchandiserët (ata që punojnë në disa markete): kur e hap llogarinë zgjedh "Punoj si merchandiser". Pastaj te Cilësimet → Marketet i shton marketet e tua, me emrat që do ti.',
-      'Kur je brenda marketit, ruaje vendndodhjen e tij: herët e tjera Stoku e njeh vetë ku je (GPS) dhe tregon vetëm afatet e atij marketi. Lart te Afatet e ndërron marketin edhe me dorë, ose zgjedh "Krejt marketet".',
+      'Kur je brenda marketit, ruaje vendndodhjen e tij: herët e tjera Stoku e njeh vetë ku je (GPS) dhe tregon vetëm afatet e atij marketi. Lart te Afatet e ndërron marketin edhe me dorë, ose zgjedh "Të gjitha marketet".',
       'Afatet e reja (me dorë, nga fotoja e fletës ose nga Excel) ruhen te marketi ku je. Kolegët e grupit e shohin marketin te çdo afat.',
       'Vendndodhja jote s\'ruhet askund: krahasohet vetëm në telefon me vendndodhjen e marketeve.'
     ] },
     { v: 241, versioni: '1.32.0', data: '2026-10-21', titulli: 'Marketet', platforma: 'pc', pikat: [
-      'Kush punon në disa markete i shton marketet te telefoni (Cilësimet → Marketet). Këtu, te Afatet, zgjedh marketin lart dhe sheh vetëm afatet e tij, ose "Krejt marketet".',
+      'Kush punon në disa markete i shton marketet te telefoni (Cilësimet → Marketet). Këtu, te Afatet, zgjedh marketin lart dhe sheh vetëm afatet e tij, ose "Të gjitha marketet".',
       'Afatet e reja ruhen te marketi i zgjedhur.'
     ] },
     { v: 241, versioni: '1.32.0', data: '2026-10-21', titulli: 'Afatet e përdoruesve', vetemAdmini: true, pikat: [
@@ -246,10 +250,10 @@
       'Butonat + dhe - te tabela e produkteve tani i ka çdo llogari: sasinë e ndryshon me një klikim.'
     ] },
     { v: 240, versioni: '1.31.0', data: '2026-10-21', titulli: 'Leja e sasisë së shpejtë', vetemAdmini: true, pikat: [
-      'Butonat +/- s\'janë më te Grupi: leja "Sasia e shpejtë (+/-)" është te Cilësimet → Përdoruesit, te lejet e Stoku-t, dhe është e ndezur për krejt llogaritë, edhe për ato të reja.'
+      'Butonat +/- s\'janë më te Grupi: leja "Sasia e shpejtë (+/-)" është te Cilësimet → Përdoruesit, te lejet e Stoku-t, dhe është e ndezur për të gjitha llogaritë, edhe për ato të reja.'
     ] },
     { v: 239, versioni: '1.30.1', data: '2026-10-21', titulli: 'Më shumë siguri', pikat: [
-      'stoku.site tash kalon përmes Cloudflare: lidhja është gjithmonë e enkriptuar dhe faqja mbrohet më mirë nga sulmet.',
+      'stoku.site tani kalon përmes Cloudflare: lidhja është gjithmonë e enkriptuar dhe faqja mbrohet më mirë nga sulmet.',
       'Rregullime të vogla sigurie te ekrani i hyrjes.'
     ] },
     { v: 238, versioni: '1.30.0', data: '2026-10-20', titulli: 'Kontrolli, logoja, PDA dhe ora', pikat: [
@@ -260,7 +264,7 @@
       'Mbrojtje më e fortë: faqja ekzekuton vetëm kodin e Stoku-t dhe të shërbimeve të lejuara.'
     ] },
     { v: 237, versioni: '1.29.4', data: '2026-10-20', titulli: 'Privatësia', pikat: [
-      'Faqja e re "Privatësia" tregon çka ruan Stoku, ku ruhet, kush e sheh dhe si i fshin të dhënat e tua. E gjen te Cilësimet dhe poshtë ekranit të hyrjes.',
+      'Faqja e re "Privatësia" tregon çfarë ruan Stoku, ku ruhet, kush e sheh dhe si i fshin të dhënat e tua. E gjen te Cilësimet dhe poshtë ekranit të hyrjes.',
       'Stoku s\'përdor cookies, reklama ose gjurmim.'
     ] },
     { v: 235, versioni: '1.29.3', data: '2026-10-20', titulli: 'PDF dhe skaneri të përditësuar', pikat: [
@@ -274,32 +278,32 @@
       'Kodi për fjalëkalimin e harruar s\'mund të gjendet më me shumë prova njëkohësisht (pas përditësimit të serverit).'
     ] },
     { v: 233, versioni: '1.29.1', data: '2026-10-16', titulli: 'Dyqani s\'mbetet pa foldera', pikat: [
-      'Te disa llogari folderat dilnin për një çast dhe pastaj zhdukeshin, edhe kur llogaria s\'kishte leje t\'i krijonte vetë. Tash dyqani s\'mbetet kurrë pa foldera: kur s\'ka asnjë, kthehen vetë Ushqimore, Pije, Higjiene dhe Fresh.',
-      'Kur i fshin vetë krejt folderat, ata s\'kthehen menjëherë: ke kohë t\'i krijosh folderat e tu. Nëse pas 10 minutash s\'ka ende asnjë folder, kthehen 4 të parazgjedhurit.'
+      'Te disa llogari folderat dilnin për një çast dhe pastaj zhdukeshin, edhe kur llogaria s\'kishte leje t\'i krijonte vetë. Tani dyqani s\'mbetet kurrë pa foldera: kur s\'ka asnjë, kthehen vetë Ushqimore, Pije, Higjiene dhe Fresh.',
+      'Kur i fshin vetë të gjithë folderat, ata s\'kthehen menjëherë: ke kohë t\'i krijosh folderat e tu. Nëse pas 10 minutash s\'ka ende asnjë folder, kthehen 4 të parazgjedhurit.'
     ] },
     { v: 232, versioni: '1.29.0', data: '2026-10-16', titulli: 'Folderat s\'humbin më', pikat: [
-      'Kur Stoku ishte i hapur dy herë në të njëjtën pajisje (p.sh. aplikacioni i instaluar dhe Chrome, ose dy skeda) dhe në njërën hyhej me llogari tjetër, folderat dhe produktet mund të përziheshin mes llogarive ose të fshiheshin. Tash dritarja tjetër rifreskohet vetë me të dhënat e llogarisë së re.',
-      'Kur një pajisje tjetër fshin foldera ose produkte, kjo pajisje e ruan një kopje 30 ditë. Te Cilësimet → Llogaria del "Të fshira nga një pajisje tjetër", me "Rikthe" që i kthen në krejt pajisjet.'
+      'Kur Stoku ishte i hapur dy herë në të njëjtën pajisje (p.sh. aplikacioni i instaluar dhe Chrome, ose dy skeda) dhe në njërën hyhej me llogari tjetër, folderat dhe produktet mund të përziheshin mes llogarive ose të fshiheshin. Tani dritarja tjetër rifreskohet vetë me të dhënat e llogarisë së re.',
+      'Kur një pajisje tjetër fshin foldera ose produkte, kjo pajisje e ruan një kopje 30 ditë. Te Cilësimet → Llogaria del "Të fshira nga një pajisje tjetër", me "Rikthe" që i kthen në të gjitha pajisjet.'
     ] },
     { v: 231, versioni: '1.28.1', data: '2026-10-15', titulli: 'Lejet: pa asnjë mesazh', platforma: 'tel', vetemAdmini: true, pikat: [
-      'Çka s\'i lejohet një llogarie zhduket krejt: s\'i del asnjë mesazh se diçka është ndaluar, as te Cilësimet → Llogaria.',
+      'Çfarë nuk i lejohet një llogarie zhduket krejt: s\'i del asnjë mesazh se diçka është ndaluar, as te Cilësimet → Llogaria.',
       'Pa "Stoku", llogaria s\'e sheh as tabin Stoku: hapet direkt te Afatet (ose te Grupi). Pa "Stoku në kompjuter", në kompjuter hapet versioni i telefonit.',
       'Pa "Grupi" s\'i vijnë as njoftimet e Grupit; pa "Afatet" s\'i vjen as njoftimi ditor dhe ora e dorës s\'tregon produkte.',
-      'Te "Çka ka të re" s\'i dalin shënimet për pjesët që s\'i ka. Kjo hyrje dhe ajo e lejeve u dalin vetëm administratorit.'
+      'Te "Çfarë ka të re" s\'i dalin shënimet për pjesët që s\'i ka. Kjo hyrje dhe ajo e lejeve u dalin vetëm administratorit.'
     ] },
     { v: 231, versioni: '1.28.1', data: '2026-10-15', titulli: 'Lejet: pa asnjë mesazh', platforma: 'pc', vetemAdmini: true, pikat: [
-      'Çka s\'i lejohet një llogarie zhduket krejt: s\'i del asnjë mesazh se diçka është ndaluar, as te Cilësimet → Llogaria.',
+      'Çfarë nuk i lejohet një llogarie zhduket krejt: s\'i del asnjë mesazh se diçka është ndaluar, as te Cilësimet → Llogaria.',
       'Pa "Stoku në kompjuter", llogaria hap në kompjuter versionin e telefonit, pa asnjë dritare që e thotë.',
       'Pa "Grupi" s\'i vijnë as njoftimet e Grupit; pa "Afatet" s\'i vjen as njoftimi ditor dhe ora e dorës s\'tregon produkte.',
-      'Te "Çka ka të re" s\'i dalin shënimet për pjesët që s\'i ka. Kjo hyrje dhe ajo e lejeve u dalin vetëm administratorit.'
+      'Te "Çfarë ka të re" s\'i dalin shënimet për pjesët që s\'i ka. Kjo hyrje dhe ajo e lejeve u dalin vetëm administratorit.'
     ] },
     { v: 230, versioni: '1.28.0', data: '2026-10-15', titulli: 'Lejet e përdoruesve', platforma: 'tel', vetemAdmini: true, pikat: [
-      'Administratori i sheh krejt përdoruesit te Cilësimet → Aplikacioni → Përdoruesit dhe cakton çka mund të përdorë secili: stokun, afatet, grupin, eksportet, kamerën, orën, kompjuterin dhe veprimet brenda tyre.',
-      'Llogaritë e reja i kanë krejt lejet derisa administratori t\'i kontrollojë; dalin te "Pa u kontrolluar" dhe administratorit i vjen njoftim.'
+      'Administratori i sheh të gjithë përdoruesit te Cilësimet → Aplikacioni → Përdoruesit dhe cakton çfarë mund të përdorë secili: stokun, afatet, grupin, eksportet, kamerën, orën, kompjuterin dhe veprimet brenda tyre.',
+      'Llogaritë e reja i kanë të gjitha lejet derisa administratori t\'i kontrollojë; dalin te "Pa u kontrolluar" dhe administratorit i vjen njoftim.'
     ] },
     { v: 230, versioni: '1.28.0', data: '2026-10-15', titulli: 'Lejet e përdoruesve', platforma: 'pc', vetemAdmini: true, pikat: [
-      'Administratori i sheh krejt përdoruesit te Cilësimet → Përdoruesit dhe cakton çka mund të përdorë secili: stokun, afatet, grupin, eksportet, importin, kompjuterin dhe veprimet brenda tyre.',
-      'Llogaritë e reja i kanë krejt lejet derisa administratori t\'i kontrollojë; dalin te "Pa u kontrolluar" dhe administratorit i vjen njoftim.'
+      'Administratori i sheh të gjithë përdoruesit te Cilësimet → Përdoruesit dhe cakton çfarë mund të përdorë secili: stokun, afatet, grupin, eksportet, importin, kompjuterin dhe veprimet brenda tyre.',
+      'Llogaritë e reja i kanë të gjitha lejet derisa administratori t\'i kontrollojë; dalin te "Pa u kontrolluar" dhe administratorit i vjen njoftim.'
     ] },
     { v: 229, versioni: '1.27.0', data: '2026-10-15', titulli: 'Excel dhe PDF: dërgo në PC', platforma: 'tel', pikat: [
       'Kur shtyp "Eksporto në Excel" ose "Eksporto në PDF", zgjedh: "Dërgo në PC" ose "Shkarko këtu".',
@@ -310,7 +314,7 @@
       'Numri te pllaka "Stoku" tregon sa skedarë s\'janë shkarkuar ende. Mbahen 7 ditë.'
     ] },
     { v: 226, versioni: '1.25.2', data: '2026-10-15', titulli: 'Shiriti poshtë i errët', platforma: 'tel', pikat: [
-      'Te Stoku i instaluar nga Chrome, shiriti i telefonit poshtë s\'del më i bardhë: tash është i errët, si te aplikacioni Android.',
+      'Te Stoku i instaluar nga Chrome, shiriti i telefonit poshtë s\'del më i bardhë: tani është i errët, si te aplikacioni Android.',
       'Ndryshimi vjen vetë kur Chrome e përditëson Stoku-n e instaluar, zakonisht brenda një dite.'
     ] },
     { v: 224, versioni: '1.25.0', data: '2026-10-14', titulli: 'PDA: tastiera në ekran mund të fshihet', platforma: 'tel', pikat: [
@@ -318,13 +322,13 @@
       'Me "Shfaq tastierën" kthehet si më parë. I njëjti çelës është edhe te Cilësimet → Skanimi.'
     ] },
     { v: 222, versioni: '1.24.2', data: '2026-10-14', titulli: 'Historiku i përditësimeve më i pastër', pikat: [
-      'Te "Çka ka të re" u hoqën shënimet për veçoritë që s\'ekzistojnë më.'
+      'Te "Çfarë ka të re" u hoqën shënimet për veçoritë që s\'ekzistojnë më.'
     ] },
     { v: 221, versioni: '1.24.1', data: '2026-10-13', titulli: 'Grupi më i pastër', pikat: [
-      'U hoqën krejt pjesët e vjetra të Grupit që s\'përdoreshin më: aplikacioni është pak më i lehtë.',
-      'Për vizitorët, faqja e Grupit tregon saktë çka ofron Grupi me llogari: afatet e përbashkëta dhe aktivitetin.'
+      'U hoqën të gjitha pjesët e vjetra të Grupit që s\'përdoreshin më: aplikacioni është pak më i lehtë.',
+      'Për vizitorët, faqja e Grupit tregon saktë çfarë ofron Grupi me llogari: afatet e përbashkëta dhe aktivitetin.'
     ] },
-    { v: 220, versioni: '1.24.0', data: '2026-10-13', titulli: 'Ke harruar fjalëkalimin? Tash ka zgjidhje', pikat: [
+    { v: 220, versioni: '1.24.0', data: '2026-10-13', titulli: 'Ke harruar fjalëkalimin? Tani ka zgjidhje', pikat: [
       'Te faqja e hyrjes ka "Ke harruar fjalëkalimin?": shkruan emrin e përdoruesit dhe administratorit i vjen një kod 6-shifror.',
       'Administratori ta jep kodin; e shkruan, vendos fjalëkalimin e ri dy herë dhe hyn direkt. Të dhënat s\'humbin.',
       'Kodi vlen 30 minuta dhe bllokohet pas 5 provave të gabuara.'
@@ -335,7 +339,7 @@
       'Kur e njëjta pajisje kalon në një llogari tjetër, njoftimi ditor i llogarisë së mëparshme s\'vjen më aty.'
     ] },
     { v: 218, versioni: '1.23.1', data: '2026-10-13', titulli: 'Faqja e hyrjes: tekste më të qarta', pikat: [
-      'Nën "Hyr" tash shkruan që rekomandohet hapja e një llogarie, që të dhënat të ruhen në cloud.',
+      'Nën "Hyr" tani shkruan që rekomandohet hapja e një llogarie, që të dhënat të ruhen në cloud.',
       'Nën "Hyr si vizitor" shkruan qartë që vizitori e sheh si funksionon Stoku, por të dhënat e tij nuk ruhen në cloud.'
     ] },
     { v: 217, versioni: '1.23.0', data: '2026-10-13', titulli: 'Hyr si vizitor: provo Stoku-n pa llogari', pikat: [
@@ -344,7 +348,7 @@
       'Kur vizitori hyn ose krijon llogari, prova fshihet nga pajisja dhe hapen të dhënat e llogarisë.',
       '"Fillo nga e para" i kthen të dhënat shembull: te Cilësimet → Llogaria në telefon, te Përmbledhja në kompjuter.'
     ] },
-    { v: 216, versioni: '1.22.2', data: '2026-10-11', titulli: 'Kontroll i plotë: rregullime në krejt Stoku-n', pikat: [
+    { v: 216, versioni: '1.22.2', data: '2026-10-11', titulli: 'Kontroll i plotë: rregullime në të gjithë Stoku-n', pikat: [
       'Kamera: kur e mbyll ndërsa ende po hapet, s\'mbetet më e ndezur në sfond dhe s\'skanon më vetë.',
       'Sasia: një barkod i skanuar gabimisht te fusha e sasisë s\'ruhet më si sasi; del paralajmërimi.',
       'Butoni "Mbrapa" mbyll dritaren e sipërme (p.sh. "Zhvendos"), jo atë poshtë saj.',
@@ -353,11 +357,11 @@
       'Afatet nga Excel: data "12.10" (që Excel-i e ruan si 12.1) lexohet 12 tetor; kolona "Furnitori" njihet vetë.',
       'Pas daljes nga llogaria, pajisja s\'njofton më për afatet e saj.',
       'Kompjuter: kutiza e rreshtit, kërkimi me skaner, "Zhbëj" (s\'prek folderat e krijuar më pas), importi i folderave me shkronja të mëdha ose të vogla dhe kërkimi pa ë/ç te Grupi dhe Cilësimet.',
-      'Ora: "Hiqi krejt" ruhet me një kërkesë të vetme, "Zhbëj" s\'ngatërrohet me heqjen dhe numrat në listë janë të saktë.',
+      'Ora: "Hiqi të gjitha" ruhet me një kërkesë të vetme, "Zhbëj" s\'ngatërrohet me heqjen dhe numrat në listë janë të saktë.',
       'Aplikacioni Android: "Mbrapa" s\'të kthen më te faqja "S\'ka lidhje me internetin", dhe Stoku rihapet vetë nëse faqja rrëzohet.'
     ] },
     { v: 215, versioni: '1.22.1', data: '2026-10-11', titulli: 'Kontroll i plotë: drejtshkrimi dhe disa rregullime', pikat: [
-      'Tekstet u kontrolluan në krejt Stoku-n (telefon, kompjuter, ora): "Fshi" në vend të "Fshij", "furnizues" kudo, dhe numrat sipas njëjësit ose shumësit ("1 afat", "2 afate", "1 ka skaduar").',
+      'Tekstet u kontrolluan në të gjithë Stoku-n (telefon, kompjuter, ora): "Fshi" në vend të "Fshij", "furnizues" kudo, dhe numrat sipas njëjësit ose shumësit ("1 afat", "2 afate", "1 ka skaduar").',
       'Kur ndryshon një afat ekzistues (p.sh. vetëm sasinë), furnizuesi që e ka fshirë administratori s\'del më si "i ri".',
       'Afatet pa barkod që importohen nga Excel e ruajnë furnizuesin e ri më vete, që të mos humbasë kur fshihen.',
       'Datat e shpejta "1 muaj" dhe "3 muaj" nga fundi i muajit (p.sh. 31 janar) japin ditën e fundit të muajit (28 shkurt), jo fillimin e muajit tjetër.',
@@ -384,7 +388,7 @@
     ] },
     { v: 211, versioni: '1.19.4', data: '2026-10-10', titulli: 'Sugjerimet e furnizuesit për të gjithë', pikat: [
       'Te "Furnizuesi" (afat i ri, ndrysho afatin) secili përdorues, edhe jashtë grupit, i sheh si sugjerim furnizuesit që i ka kontrolluar administratori. Shkruaj disa shkronja dhe zgjidhe nga lista.',
-      'Njoftimet: secili i fshin njoftimet e veta, një nga një me ✕ ose krejt me "Fshiji të gjitha".'
+      'Njoftimet: secili i fshin njoftimet e veta, një nga një me ✕ ose të gjitha me "Fshiji të gjitha".'
     ] },
     { v: 210, versioni: '1.19.3', data: '2026-10-10', titulli: 'Fletët nga telefoni, me tekst më të saktë', pikat: [
       'Kompjuter: "Ke 1 fletë nga telefoni që pret kontrollin" / "Ke 2 fleta … që presin kontrollin", edhe "1 rresht pret kontrollin" te fleta.',
@@ -392,7 +396,7 @@
     ] },
     { v: 209, versioni: '1.19.2', data: '2026-10-10', titulli: 'Importet kalojnë në kontroll', pikat: [
       'Kur një koleg importon afate ose produkte nga foto ose Excel, produktet dhe furnizuesit e rinj dalin te Cilësimet → Stoku → Produktet e reja / Furnizuesit e rinj, që t\'i kontrollojë administratori.',
-      'Te Produktet, butoni "Harroje" tash quhet "Fshije", si te Furnizuesit.'
+      'Te Produktet, butoni "Harroje" tani quhet "Fshije", si te Furnizuesit.'
     ] },
     { v: 208, versioni: '1.19.1', data: '2026-10-10', titulli: 'Folder i ri gjatë importit në kompjuter', pikat: [
       'Kontrollo fletën e lexuar (kompjuter): zgjedhja e folderit është më e vogël dhe ka "+ Folder i ri…": e krijon dhe e emëron folderin pa e mbyllur fletën, si në telefon.'
@@ -403,21 +407,21 @@
       'Furnizuesit e rinj të kolegëve mund të ruhen me një klik ("Ruaj") ose me emër të ndryshuar.'
     ] },
     { v: 206, versioni: '1.18.5', data: '2026-10-10', titulli: 'Produktet e harruara s\'kthehen më', pikat: [
-      'Rregullim: kur administratori e harron një produkt (Cilësimet → Stoku → Produktet → Harroje), tash hiqet menjëherë edhe në pajisjet e tjera dhe s\'kthehet më, as kur e hap Stoku-n sërish.',
-      'Ndryshimet e emrave të furnizuesve vlejnë njësoj në krejt pajisjet.'
+      'Rregullim: kur administratori e harron një produkt (Cilësimet → Stoku → Produktet → Harroje), tani hiqet menjëherë edhe në pajisjet e tjera dhe s\'kthehet më, as kur e hap Stoku-n sërish.',
+      'Ndryshimet e emrave të furnizuesve vlejnë njësoj në të gjitha pajisjet.'
     ] },
     { v: 205, versioni: '1.18.4', data: '2026-10-10', titulli: 'Furnizuesit e përbashkët për grupin', pikat: [
-      'Cilësimet → Stoku → Furnizuesit: tash del krejt lista e furnizuesve të grupit, edhe te kolegët që s\'kanë afate të tyre.',
+      'Cilësimet → Stoku → Furnizuesit: tani del e gjithë lista e furnizuesve të grupit, edhe te kolegët që s\'kanë afate të tyre.',
       'Furnizuesit e rinj që i shkruajnë kolegët presin te "Furnizuesit e rinj" derisa administratori t\'i kontrollojë; emrat i ndryshon vetëm administratori.'
     ] },
     { v: 204, versioni: '1.18.3', data: '2026-10-10', titulli: 'Dalja nga llogaria me një klik', pikat: [
       'Në kompjuter, poshtë majtas te karta e llogarisë, ka një buton të vogël për të dalë nga llogaria. Kur e mban mausin mbi të, shkruan "Dil nga llogaria".'
     ] },
-    { v: 203, versioni: '1.18.2', data: '2026-10-10', titulli: 'Krejt produktet në listë', pikat: [
+    { v: 203, versioni: '1.18.2', data: '2026-10-10', titulli: 'Të gjitha produktet në listë', pikat: [
       'Cilësimet → Stoku → Produktet: kur ka shumë produkte, në fund të listës del butoni "Shfaq edhe …" që i shton të tjerat, pa pasur nevojë të kërkosh.'
     ] },
     { v: 202, versioni: '1.18.1', data: '2026-10-10', titulli: 'Stoku në telefon pa scroll të gjatë', pikat: [
-      'Cilësimet → Stoku: Furnizuesit, Produktet e reja dhe Produktet janë tash rreshta me numrin e tyre. Prek njërin për ta hapur listën në faqe më vete.',
+      'Cilësimet → Stoku: Furnizuesit, Produktet e reja dhe Produktet janë tani rreshta me numrin e tyre. Prek njërin për ta hapur listën në faqe më vete.',
       'Butoni "←" (ose "mbrapa" i telefonit) të kthen te Stoku.'
     ] },
     { v: 201, versioni: '1.18.0', data: '2026-10-10', titulli: 'Produktet e reja presin kontrollin', pikat: [
@@ -427,7 +431,7 @@
     ] },
     { v: 200, versioni: '1.17.3', data: '2026-10-10', titulli: 'Cilësimet më të rregullta në kompjuter', pikat: [
       'Cilësimet → Stoku: Furnizuesit dhe Produktet dalin të mbyllura, me numrin e tyre. Kliko te njëra për ta hapur listën.',
-      'Butoni për mbylljen e Cilësimeve është tash jashtë dritares, lart djathtas, dhe s\'lëviz kur bën scroll.'
+      'Butoni për mbylljen e Cilësimeve është tani jashtë dritares, lart djathtas, dhe s\'lëviz kur bën scroll.'
     ] },
     { v: 199, versioni: '1.17.2', data: '2026-10-10', titulli: 'Cilësimet → Stoku për të gjithë', pikat: [
       'Cilësimet → Stoku e sheh sërish kushdo: renditjen fillestare e zgjedh secili vetë, ndërsa furnizuesit dhe produktet mund t\'i shohë.',
@@ -438,9 +442,9 @@
       'Kur skanon një produkt, del emri dhe furnizuesi siç i ka ruajtur administratori. Mund t\'i ndryshosh për afatin tënd, por produkti mbetet siç e ka bërë ai.',
       'Produktet e mësuara s\'fshihen kur del nga grupi: mbeten si kujtesë.'
     ] },
-    { v: 197, versioni: '1.17.0', data: '2026-10-09', titulli: 'Produktet e përbashkëta për krejt grupin', pikat: [
-      'Produktet që Stoku i mban mend (emri dhe furnizuesi sipas barkodit) tash janë të përbashkëta për krejt kolegët e grupit: kur dikush e plotëson një produkt, e njohin të gjithë, në telefon, aplikacionin Android dhe kompjuter.',
-      'Ndryshimet te Cilësimet → Stoku → Produktet (ndrysho ose harroje) vlejnë për krejt grupin. Pa grup, produktet mbeten vetëm në pajisjen tënde.'
+    { v: 197, versioni: '1.17.0', data: '2026-10-09', titulli: 'Produktet e përbashkëta për të gjithë grupin', pikat: [
+      'Produktet që Stoku i mban mend (emri dhe furnizuesi sipas barkodit) tani janë të përbashkëta për të gjithë kolegët e grupit: kur dikush e plotëson një produkt, e njohin të gjithë, në telefon, aplikacionin Android dhe kompjuter.',
+      'Ndryshimet te Cilësimet → Stoku → Produktet (ndrysho ose harroje) vlejnë për të gjithë grupin. Pa grup, produktet mbeten vetëm në pajisjen tënde.'
     ] },
     { v: 196, versioni: '1.16.0', data: '2026-10-09', titulli: 'Stoku i mban mend produktet', pikat: [
       'Kur e skanon një barkod që e ke plotësuar një herë, emri (p.sh. "Coca Cola 1.25L") dhe furnizuesi plotësohen vetë: te afati i ri, te leximi i fletës me foto dhe te Stoku.',
@@ -449,19 +453,19 @@
       'Rregullim: kur ndryshon sasinë e një produkti te Stoku, furnizuesi i tij s\'humb më.'
     ] },
     { v: 195, versioni: '1.15.0', data: '2026-10-09', titulli: 'Njoftimet e Grupit edhe me Stoku të mbyllur', pikat: [
-      'Kur një koleg heq një nga produktet e tua dhe pret miratimin, kur e pranon ose e refuzon heqjen, kur administratori të ndryshon një afat ose njofton krejt grupin: njoftimi vjen menjëherë, edhe kur Stoku është i mbyllur (telefon, aplikacioni Android, kompjuter).',
+      'Kur një koleg heq një nga produktet e tua dhe pret miratimin, kur e pranon ose e refuzon heqjen, kur administratori të ndryshon një afat ose njofton të gjithë grupin: njoftimi vjen menjëherë, edhe kur Stoku është i mbyllur (telefon, aplikacioni Android, kompjuter).',
       'Njoftimi s\'del dy herë: kur e hap Stoku-n, i njëjti njoftim vetëm përditësohet.'
     ] },
-    { v: 194, versioni: '1.14.7', data: '2026-10-09', titulli: 'Anëtarët tash quhen Kolegët', pikat: [
-      'Te Grupi, "Anëtarët" tash quhen "Kolegët" (telefon dhe kompjuter), një fjalë që vlen për të gjithë.'
+    { v: 194, versioni: '1.14.7', data: '2026-10-09', titulli: 'Anëtarët tani quhen Kolegët', pikat: [
+      'Te Grupi, "Anëtarët" tani quhen "Kolegët" (telefon dhe kompjuter), një fjalë që vlen për të gjithë.'
     ] },
     { v: 193, versioni: '1.14.6', data: '2026-10-09', titulli: 'Tabela e anëtarëve rregulluar', platforma: 'pc', pikat: [
-      'Te Grupi → Anëtarët, butonat "Bëje admin", "Hiq nga grupi" dhe "Fshi" tash nxihen të plotë brenda tabelës (më parë "Fshi" s\'shihej).',
+      'Te Grupi → Anëtarët, butonat "Bëje admin", "Hiq nga grupi" dhe "Fshi" tani nxihen të plotë brenda tabelës (më parë "Fshi" s\'shihej).',
       'Flluska e kurorës / mburojës s\'i nxjerr më butonat jashtë tabelës; kur s\'ka vend lart, del poshtë ose anash ikonës.',
       'Në ekrane më të ngushta emri shkurtohet, ndërsa kurora dhe mburoja mbeten gjithmonë të dukshme.'
     ] },
     { v: 192, versioni: '1.14.5', data: '2026-10-09', titulli: 'Flluska e rolit te Anëtarët', platforma: 'pc', pikat: [
-      'Te Grupi → Anëtarët, kur klikon kurorën ose mburojën, flluska "Admin i Grupit" / "Administrator" tash shihet e plotë (më parë mbetej e prerë nën kokën e tabelës).'
+      'Te Grupi → Anëtarët, kur klikon kurorën ose mburojën, flluska "Admin i Grupit" / "Administrator" tani shihet e plotë (më parë mbetej e prerë nën kokën e tabelës).'
     ] },
     { v: 191, versioni: '1.14.4', data: '2026-10-09', titulli: 'Grupi pa butonin mbrapa', platforma: 'tel', pikat: [
       'Te Grupi, kur je te Afatet, Aktiviteti, Kalendari ose Anëtarët, s\'ka më buton mbrapa lart. Kalon nga kategoritë sipër; mbrapa i telefonit të kthen te Përmbledhja.'
@@ -472,20 +476,20 @@
       'Ora: kur s\'ka internet, Stoku në ekranin që del kur e rrëshqet orën tregon që lista është e një dite tjetër.'
     ] },
     { v: 189, versioni: '1.14.2', data: '2026-10-08', titulli: 'Ikonat e roleve vetëm te Anëtarët', pikat: [
-      'Kurora dhe mburoja shihen tash vetëm te Grupi → Anëtarët, jo më te "Online tani" apo te pulti.'
+      'Kurora dhe mburoja shihen tani vetëm te Grupi → Anëtarët, jo më te "Online tani" apo te pulti.'
     ] },
     { v: 188, versioni: '1.14.1', data: '2026-10-08', titulli: 'Ikonat e roleve kudo, rregullime', pikat: [
-      'Kurora dhe mburoja shihen tash edhe te "Online tani" dhe te anëtarët në kompjuter.',
+      'Kurora dhe mburoja shihen tani edhe te "Online tani" dhe te anëtarët në kompjuter.',
       'Te Grupi, koha e fundit online dhe statistikat me shkrim më të lexueshëm.',
       'Aplikacioni Android dhe ora e gjejnë gjithmonë versionin e ri, edhe kur ka shumë publikime.',
       'Grupi harxhon më pak internet.'
     ] },
-    { v: 187, versioni: '1.14.0', data: '2026-10-08', titulli: 'Ekipa tash quhet Grupi', pikat: [
-      'Kudo në Stoku (telefon, kompjuter, ora dhe aplikacioni Android) "Ekipa" tash quhet "Grupi".',
+    { v: 187, versioni: '1.14.0', data: '2026-10-08', titulli: 'Ekipa tani quhet Grupi', pikat: [
+      'Kudo në Stoku (telefon, kompjuter, ora dhe aplikacioni Android) "Ekipa" tani quhet "Grupi".',
       'S\'ka më "pronar": kurora te emri tregon "Admin i Grupit", mburoja "Administrator".'
     ] },
     { v: 186, versioni: '1.13.4', data: '2026-10-08', titulli: 'Flluska mbi ikonë, filtrat me zbehje', pikat: [
-      'Flluska e kurorës dhe e mburojës tash del gjithmonë mbi ikonë dhe mbyllet vetë pas 5 sekondash.',
+      'Flluska e kurorës dhe e mburojës tani del gjithmonë mbi ikonë dhe mbyllet vetë pas 5 sekondash.',
       'Te Afatet, rreshtat e filtrave zbehen butë te skajet kur ka edhe butona anash.'
     ] },
     { v: 185, versioni: '1.13.3', data: '2026-10-08', titulli: 'Rregullime të vogla në pamje', pikat: [
@@ -493,24 +497,24 @@
       'Te Afatet, rreshtat e filtrave (statusi dhe muajt) rrëshqasin brenda kufijve të faqes, pa dalë skaj më skaj.'
     ] },
     { v: 184, versioni: '1.13.2', data: '2026-10-08', titulli: 'Rolet me ikona', pikat: [
-      'Te Ekipa, në vend të teksteve "pronar" dhe "admin" tash dalin ikona të vogla: kurora për pronarin, mburoja për administratorin. Kur i prek, të tregon çka janë.',
+      'Te Ekipa, në vend të teksteve "pronar" dhe "admin" tani dalin ikona të vogla: kurora për pronarin, mburoja për administratorin. Kur i prek, të tregon çfarë janë.',
       'Shenja "ti" u hoq.'
     ] },
     { v: 183, versioni: '1.13.1', data: '2026-10-08', titulli: 'Ekipa: pa Stokun, ikona e re offline', pikat: [
       'Te Ekipa u hoq "Stoku".',
-      'Kur një koleg është offline, tash del pajisja e tij (telefon ose kompjuter) me ngjyrë gri dhe pikë gri, pastaj kur u pa së fundi.'
+      'Kur një koleg është offline, tani del pajisja e tij (telefon ose kompjuter) me ngjyrë gri dhe pikë gri, pastaj kur u pa së fundi.'
     ] },
     { v: 182, versioni: '1.13.0', data: '2026-10-08', titulli: 'Ekipa: Përmbledhja e re', pikat: [
-      'Te Ekipa e para del Përmbledhja: numrat (në raft, të skaduara, ≤ 7 ditë, afër skadimit, hequr këtë muaj, online), kërkesa për heqje, kolegët, çka duhet hequr, aktiviteti i fundit dhe statistikat.',
+      'Te Ekipa e para del Përmbledhja: numrat (në raft, të skaduara, ≤ 7 ditë, afër skadimit, hequr këtë muaj, online), kërkesa për heqje, kolegët, çfarë duhet hequr, aktiviteti i fundit dhe statistikat.',
       'Statistika u bashkua te Përmbledhja.',
       'Menyja e Ekipës rri gjithmonë në të njëjtin vend: kur kalon te Afatet, Aktiviteti e të tjerat, faqja s\'lëviz më lart e poshtë.'
     ] },
     { v: 181, versioni: '1.12.2', data: '2026-10-08', titulli: 'Ekipa më e pastër', platforma: 'tel', pikat: [
-      'Te Ekipa u hoq kartela "Në raft te krejt ekipa".',
-      'Afatet, Aktiviteti, Kalendari, Anëtarët, Statistika dhe Stoku tash janë butona me ikona, me emrin poshtë, në temë të çelët dhe të errët.'
+      'Te Ekipa u hoq kartela "Në raft te e gjithë ekipa".',
+      'Afatet, Aktiviteti, Kalendari, Anëtarët, Statistika dhe Stoku tani janë butona me ikona, me emrin poshtë, në temë të çelët dhe të errët.'
     ] },
     { v: 180, versioni: '1.12.1', data: '2026-10-08', titulli: 'Njoftimet më të shkurtra', pikat: [
-      'Njoftimi kur një koleg e heq produktin tënd tash është i shkurtër; poshtë tij janë vetëm butonat "Prano" dhe "Refuzo".'
+      'Njoftimi kur një koleg e heq produktin tënd tani është i shkurtër; poshtë tij janë vetëm butonat "Prano" dhe "Refuzo".'
     ] },
     { v: 179, versioni: '1.12.0', data: '2026-10-08', titulli: 'Heqja nga kolegu me miratim', pikat: [
       'Kur një koleg heq nga rafti një nga produktet e tua, ai s\'hiqet menjëherë: te zilja e Ekipës të del njoftimi me "Prano" dhe "Refuzo".',
@@ -533,10 +537,10 @@
       'Ora: llogaria dhe versioni dalin në fund të Cilësimeve.'
     ] },
     { v: 174, versioni: '1.11.2', data: '2026-10-07', titulli: 'Përmbledhja e bardhë në temën e çelët', pikat: [
-      'Në temën e çelët kartela "Produkte gjithsej" tash është e bardhë si kartelat e tjera; në temën e errët mbetet e errët.'
+      'Në temën e çelët kartela "Produkte gjithsej" tani është e bardhë si kartelat e tjera; në temën e errët mbetet e errët.'
     ] },
     { v: 173, versioni: '1.11.1', data: '2026-10-07', titulli: 'Lidhja e orës më e qartë', platforma: 'tel', pikat: [
-      'Te "Lidh orën" fusha e kodit tash shkruan "Kodi nga ora" në vend të një numri shembull që dukej si kod i vërtetë.'
+      'Te "Lidh orën" fusha e kodit tani shkruan "Kodi nga ora" në vend të një numri shembull që dukej si kod i vërtetë.'
     ] },
     { v: 172, versioni: '1.11.0', data: '2026-10-07', titulli: 'Ora: Pamja me ngjyra dhe rifreskim me rrëshqitje', pikat: [
       'Ora: te Cilësimet ka opsion të ri "Pamja" ku zgjedh ngjyrën kryesore (8 ngjyra).',
@@ -545,32 +549,32 @@
       'Kodi 6-shifror për lidhjen e orës ndërrohet çdo 15 sekonda.'
     ] },
     { v: 171, versioni: '1.10.2', data: '2026-10-07', titulli: 'Shigjeta mbrapa më e pastër', platforma: 'tel', pikat: [
-      'Butoni mbrapa në krye të faqeve ka tash një shigjetë të re, të hollë dhe në mes të rrethit.'
+      'Butoni mbrapa në krye të faqeve ka tani një shigjetë të re, të hollë dhe në mes të rrethit.'
     ] },
     { v: 170, versioni: '1.10.1', data: '2026-10-07', titulli: 'Cilësimet më të pastra', platforma: 'tel', pikat: [
       'Te Cilësimet kategoria "Ora e dorës" ka vetëm lidhjen e orës.',
-      'Aplikacioni Android: "Kontrollo për përditësim" (ose "Shkarko aplikacionin Android" në Chrome) është tash një buton i hollë poshtë "Çka ka të re".',
-      'Shigjeta "←" në krye të faqeve ka tash rreth, si butonat e tjerë.'
+      'Aplikacioni Android: "Kontrollo për përditësim" (ose "Shkarko aplikacionin Android" në Chrome) është tani një buton i hollë poshtë "Çfarë ka të re".',
+      'Shigjeta "←" në krye të faqeve ka tani rreth, si butonat e tjerë.'
     ] },
     { v: 169, versioni: '1.10.0', data: '2026-10-07', titulli: 'Cilësimet e orës dhe Ekipa më e qartë', pikat: [
-      'Te Cilësimet ka kategori të re "Ora dhe aplikacioni" (në iPhone "Ora e dorës"): aty e lidh orën dhe, në Android, e shkarkon aplikacionin Stoku. Njoftimet tash kanë vetëm njoftimet.',
-      'Ekipa tash është një gjë e vetme: s\'ka më "grup". Te Ekipa → Anëtarët e sheh ekipën tënde, i fton shokët dhe largohesh.',
+      'Te Cilësimet ka kategori të re "Ora dhe aplikacioni" (në iPhone "Ora e dorës"): aty e lidh orën dhe, në Android, e shkarkon aplikacionin Stoku. Njoftimet tani kanë vetëm njoftimet.',
+      'Ekipa tani është një gjë e vetme: s\'ka më "grup". Te Ekipa → Anëtarët e sheh ekipën tënde, i fton shokët dhe largohesh.',
       'Ora: Cilësimet e reja në orë, me "Kontrollo për përditësim" dhe "Përditëso tani" direkt nga ora.'
     ] },
     { v: 168, versioni: '1.9.1', data: '2026-10-07', titulli: 'Ora e dorës dhe rregullime', pikat: [
-      'Kudo në Stoku (telefon, kompjuter, aplikacioni Android dhe ora) tash shkruan "ora" në vend të "sahat".',
-      'Ora: produktet që kanë skaduar dalin të parat, me butonin "Hiqi krejt nga rafti".',
+      'Kudo në Stoku (telefon, kompjuter, aplikacioni Android dhe ora) tani shkruan "ora" në vend të "sahat".',
+      'Ora: produktet që kanë skaduar dalin të parat, me butonin "Hiqi të gjitha nga rafti".',
       'Aplikacioni Android: njoftimi i prekur hap direkt Grupin ose afatet, pa e ringarkuar Stoku-n.'
     ] },
     { v: 167, versioni: '1.9.0', data: '2026-10-06', titulli: 'Stoku si aplikacion Android', pikat: [
-      'Aplikacioni i ri Stoku për Android: s\'del nga llogaria kur i fshin cookies dhe të dhënat e Chrome-it dhe njoftimet vijnë menjëherë. Shkarkohet te Cilësimet, poshtë "Çka ka të re": "Shkarko aplikacionin Android".',
+      'Aplikacioni i ri Stoku për Android: s\'del nga llogaria kur i fshin cookies dhe të dhënat e Chrome-it dhe njoftimet vijnë menjëherë. Shkarkohet te Cilësimet, poshtë "Çfarë ka të re": "Shkarko aplikacionin Android".',
       'Çdo përmirësim i Stoku-t del njëkohësisht në telefon, kompjuter dhe aplikacion. Kur del version i ri i vetë aplikacionit (edhe në orë), të pyet vetë "Përditëso".'
     ] },
     { v: 166, versioni: '1.8.2', data: '2026-10-06', titulli: 'Cilësimet e llogarisë më të thjeshta', pikat: [
       'U hoq opsioni "Mos dil kur i fshin të dhënat" te Cilësimet → Llogaria.'
     ] },
     { v: 164, versioni: '1.8.0', data: '2026-10-06', titulli: 'Ekipa me ftesa', pikat: [
-      'Ekipa tash është me ftesa: krijo ekipën tënde dhe fto shokët me emrin e tyre të përdoruesit. Vetëm anëtarët e një ekipe e shohin njëri-tjetrin, aktivitetin dhe kërkesat.',
+      'Ekipa tani është me ftesa: krijo ekipën tënde dhe fto shokët me emrin e tyre të përdoruesit. Vetëm anëtarët e një ekipe e shohin njëri-tjetrin, aktivitetin dhe kërkesat.',
       'Kush sapo është regjistruar s\'sheh askënd derisa ta krijojë një ekipë ose ta pranojë një ftesë.',
       'Pronari i ekipës fton dhe heq anëtarë, ia ndërron emrin ekipës dhe mund ta bëjë edhe dikë tjetër pronar.',
       'Ekipa e deritanishme vazhdon si ekipa "Ekipa", me anëtarët dhe historikun e vet.'
@@ -578,15 +582,15 @@
     { v: 163, versioni: '1.7.0', data: '2026-10-06', titulli: 'Excel sipas furnizuesit dhe hyrje që mbetet', pikat: [
       'Te Afatet → Eksporto Excel mund të zgjedhësh vetëm një furnizues: në skedar dalin vetëm afatet e tij.',
       'Kur e fshin historinë dhe të dhënat e shfletuesit, Stoku hyn vetë me fjalëkalimin e ruajtur në Chrome (ose të pyet me një prekje). Në iPhone, Keychain e plotëson vetë emrin dhe fjalëkalimin.',
-      'iPhone (Safari): shiriti me tabe poshtë rri tash sa më poshtë.'
+      'iPhone (Safari): shiriti me tabe poshtë rri tani sa më poshtë.'
     ] },
     { v: 162, versioni: '1.6.0', data: '2026-10-06', titulli: 'Kërkesa te ekipa nga ora', pikat: [
-      'Nga ora mund t\'i kërkosh një kolegu (ose krejt ekipës) ta heqë një produkt nga rafti; ai merr njoftim si nga telefoni.',
+      'Nga ora mund t\'i kërkosh një kolegu (ose të gjithë ekipës) ta heqë një produkt nga rafti; ai merr njoftim si nga telefoni.',
       'Në orë dalin edhe produktet që kanë skaduar, jo vetëm ato të sotme.',
       'Ikona e re e Stoku-t në orë. Orën e lidhur më herët lidhe edhe një herë me kodin, që të mund të dërgojë kërkesa.'
     ] },
     { v: 161, versioni: '1.5.1', data: '2026-10-02', titulli: 'Ikona e orës më e qartë', platforma: 'tel', pikat: [
-      'Ikona e Stoku-t në orë tash është e verdhë, që të duket mirë mbi sfondin e zi të Galaxy Watch.',
+      'Ikona e Stoku-t në orë tani është e verdhë, që të duket mirë mbi sfondin e zi të Galaxy Watch.',
       'Kur serveri s\'është përditësuar, "Lidh orën" e thotë qartë këtë.'
     ] },
     { v: 160, versioni: '1.5.0', data: '2026-10-02', titulli: 'Stoku në orë (Galaxy Watch)', pikat: [
@@ -601,7 +605,7 @@
       'Në orën që zgjedh, njoftimi të tregon vetëm produktet që skadojnë atë ditë. Nëse s\'skadon asnjë, s\'vjen njoftim.'
     ] },
     { v: 157, versioni: '1.4.8', data: '2026-10-02', titulli: 'Kontroll më i qartë i serverit', platforma: 'tel', pikat: [
-      'Te Cilësimet → Njoftimet, kontrolli i serverit tregon me fjalë sa shpesh punon ora automatike dhe, nëse serveri ka gabim, çka saktësisht nuk po punon.'
+      'Te Cilësimet → Njoftimet, kontrolli i serverit tregon me fjalë sa shpesh punon ora automatike dhe, nëse serveri ka gabim, çfarë saktësisht nuk po punon.'
     ] },
     { v: 156, versioni: '1.4.7', data: '2026-10-02', titulli: 'Njoftimi ditor rregullohet vetë', platforma: 'tel', pikat: [
       'Nëse serveri e humb lidhjen me telefonin (p.sh. pas riinstalimit të Stoku-t), njoftimi ditor regjistrohet vetë sërish kur e hap aplikacionin.'
@@ -619,11 +623,11 @@
       'Te Cilësimet → Njoftimet ora e njoftimit ditor shkruhet lirshëm, me orë dhe minuta (p.sh. 17:07), dhe njoftimi vjen pikërisht atëherë.'
     ] },
     { v: 151, versioni: '1.4.2', data: '2026-10-02', titulli: 'Njoftimi ditor: kontroll i serverit', platforma: 'tel', pikat: [
-      'Te Cilësimet → Njoftimet, kur njoftimi ditor është ndezur, shfaqet a punon serveri dhe çka ndodhi sot ("u dërgua", "s\'kishte afate", ose çka duhet rregulluar).',
+      'Te Cilësimet → Njoftimet, kur njoftimi ditor është ndezur, shfaqet a punon serveri dhe çfarë ndodhi sot ("u dërgua", "s\'kishte afate", ose çfarë duhet rregulluar).',
       'Derisa serveri i njoftimit ditor të mos jetë gati, njoftimet e zakonshme për afatet vijnë si më parë, që të mos mbetesh pa asnjë njoftim.'
     ] },
     { v: 150, versioni: '1.4.1', data: '2026-10-01', titulli: 'Rregullime pas kontrollit të plotë', pikat: [
-      'Kërkesat për heqje nga rafti mbeten te zilja derisa të shtypet "E hoqa". Kur i kërkohet krejt ekipës dhe një koleg e heq, të tjerët shohin "✓ E hoqi …" në vend të butonit.',
+      'Kërkesat për heqje nga rafti mbeten te zilja derisa të shtypet "E hoqa". Kur i kërkohet të gjithë ekipës dhe një koleg e heq, të tjerët shohin "✓ E hoqi …" në vend të butonit.',
       'Telefon: tabet e Ekipës (Afatet … Statistika) s\'priten më në ekranet e ngushta.',
       'Kompjuter: tabela "Duhet vepruar" te Ekipa ka më shumë vend për emrin e produktit.'
     ] },
@@ -633,11 +637,11 @@
     ] },
     { v: 148, versioni: '1.3.1', data: '2026-10-01', titulli: 'Kërko heqje: zgjedh nga lista', pikat: [
       'Te "Kërko heqje nga rafti" s\'ke më nevojë të shkruash emrin ose barkodin: shëno produktet nga lista, te "Të skaduarat" ose "Produktet e mia". Mund të zgjedhësh disa njëherësh.',
-      'Kolegu i sheh krejt produktet e kërkesës te Njoftimet, me barkodin dhe datën e skadimit.'
+      'Kolegu i sheh të gjitha produktet e kërkesës te Njoftimet, me barkodin dhe datën e skadimit.'
     ] },
     { v: 147, versioni: '1.3.0', data: '2026-10-01', titulli: 'Kërko heqje nga rafti', pikat: [
-      'Te Ekipa ka butonin "Kërko heqje nga rafti": zgjedh produktin (ose shkruan barkodin), kolegun ose krejt ekipën dhe një shënim. Vlen edhe për produkte pa afat në Stoku.',
-      'Kolegu e merr njoftimin edhe në telefon. Te Njoftimet shtyp "E hoqa nga rafti" dhe ti njoftohesh që u krye. Krejt kjo shihet edhe te Aktiviteti.'
+      'Te Ekipa ka butonin "Kërko heqje nga rafti": zgjedh produktin (ose shkruan barkodin), kolegun ose të gjithë ekipën dhe një shënim. Vlen edhe për produkte pa afat në Stoku.',
+      'Kolegu e merr njoftimin edhe në telefon. Te Njoftimet shtyp "E hoqa nga rafti" dhe ti njoftohesh që u krye. E gjithë kjo shihet edhe te Aktiviteti.'
     ] },
     { v: 146, versioni: '1.2.2', data: '2026-10-01', titulli: 'Cilësimet më të pastra', pikat: [
       'Poshtë te Cilësimet mbeti vetëm "Stoku" me versionin, pa ikonën.'
@@ -657,23 +661,23 @@
       'Lart majtas Stoku ka logo të re si etiketë barkodi, me emrin tënd poshtë. Përshtatet vetë me temën e çelët dhe të errët.'
     ] },
     { v: 141, versioni: '1.1.0', data: '2026-10-01', titulli: 'Foto e profilit', pikat: [
-      'Te Cilësimet → Llogaria mund të vendosësh foton tënde të profilit (ose ta heqësh). Fotoja del te Ekipa, aktiviteti dhe Cilësimet, dhe e sheh krejt ekipa.'
+      'Te Cilësimet → Llogaria mund të vendosësh foton tënde të profilit (ose ta heqësh). Fotoja del te Ekipa, aktiviteti dhe Cilësimet, dhe e sheh e gjithë ekipa.'
     ] },
     { v: 140, versioni: '1.0.2', data: '2026-10-01', titulli: 'Administratori njihet gjithmonë', pikat: [
       'Llogaria "mendurberisha" njihet si administrator direkt nga llogaria: pranimi i anëtarëve, fshirja e llogarive, lejet dhe veprimet te afatet e kolegëve punojnë pa ndonjë cilësim shtesë në Firebase.'
     ] },
-    { v: 139, versioni: '1.0.1', data: '2026-10-01', titulli: 'Pa zgjedhje të krejt faqes', platforma: 'tel', pikat: [
-      'Shtypja e gjatë s\'e zgjedh më krejt faqen (titujt, butonat, menytë). Barkodet, emrat e produkteve dhe fushat mund të zgjidhen dhe kopjohen si më parë.'
+    { v: 139, versioni: '1.0.1', data: '2026-10-01', titulli: 'Pa zgjedhje të të gjithë faqes', platforma: 'tel', pikat: [
+      'Shtypja e gjatë s\'e zgjedh më të gjithë faqen (titujt, butonat, menytë). Barkodet, emrat e produkteve dhe fushat mund të zgjidhen dhe kopjohen si më parë.'
     ] },
     { v: 139, versioni: '1.0.1', data: '2026-10-01', titulli: 'Butonat pa zgjedhje teksti', platforma: 'pc', pikat: [
       'Dykliku te butonat, menyja anësore dhe titujt s\'e zgjedh më tekstin e tyre.'
     ] },
     { v: 138, versioni: '1.0.0', data: '2026-10-01', titulli: 'Stoku 1.0.0', pikat: [
-      'Versionet tani kanë tre numra. Numri i fundit rritet për rregullime të vogla (1.0.1, 1.0.2…), ai i mesit kur shtohet diçka e re (1.1.0) dhe i pari vetëm kur ndryshon krejt aplikacioni (2.0.0).'
+      'Versionet tani kanë tre numra. Numri i fundit rritet për rregullime të vogla (1.0.1, 1.0.2…), ai i mesit kur shtohet diçka e re (1.1.0) dhe i pari vetëm kur ndryshon i gjithë aplikacioni (2.0.0).'
     ] },
     { v: 137, data: '2026-10-01', titulli: 'Furnizuesit te Cilësimet', pikat: [
-      'Për administratorin: te Cilësimet → Stoku ka listën e krejt furnizuesve, me sa afate ka secili.',
-      'Prek një furnizues për t\'ia ndryshuar emrin: ndryshon te krejt afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër (p.sh. "laberion" dhe "Laberion"), të dy bashkohen në një.',
+      'Për administratorin: te Cilësimet → Stoku ka listën e të gjithë furnizuesve, me sa afate ka secili.',
+      'Prek një furnizues për t\'ia ndryshuar emrin: ndryshon te të gjitha afatet dhe produktet. Nëse i jep emrin e një furnizuesi tjetër (p.sh. "laberion" dhe "Laberion"), të dy bashkohen në një.',
       'Në telefon, kategoria "Lista" te Cilësimet tani quhet "Stoku", si te kompjuteri.'
     ] },
     { v: 134, data: '2026-10-01', titulli: 'Pa "Sasi e ulët"', platforma: 'tel', pikat: [
@@ -713,13 +717,13 @@
     { v: 128, data: '2026-10-01', titulli: 'Cilësimet e reja dhe afatet me ngjyra', platforma: 'tel', pikat: [
       'Cilësimet kanë pamje të re: llogaria në krye, grupe të qarta me ikona me ngjyra dhe shembull i drejtpërdrejtë te Pamja.',
       'Te Afatet, kartat kanë sërish ngjyra të lehta: e kuqe për të skaduarat, e verdhë për ato afër skadimit, e gjelbër për ato në rregull.',
-      'Renditja e listës zgjidhet me një prekje. Te "Çka ka të re" mund t\'i shohësh ndryshimet e fundit kurdo.',
+      'Renditja e listës zgjidhet me një prekje. Te "Çfarë ka të re" mund t\'i shohësh ndryshimet e fundit kurdo.',
       'U hoqën "Ngjyra kryesore" dhe "Motivi i sfondit".'
     ] },
     { v: 128, data: '2026-10-01', titulli: 'Cilësimet e reja dhe afatet me ngjyra', platforma: 'pc', pikat: [
       'Cilësimet kanë pamje të re: menyja me ikona majtas, llogaria në krye dhe zgjedhje me pamje për temën, dendësinë dhe shkronjat.',
       'Te Afatet, rreshtat kanë ngjyra të lehta: e kuqe për të skaduarat, e verdhë për ato afër skadimit, e gjelbër për ato në rregull.',
-      'Te Cilësimet ka "Çka ka të re", për t\'i parë ndryshimet e fundit kurdo.',
+      'Te Cilësimet ka "Çfarë ka të re", për t\'i parë ndryshimet e fundit kurdo.',
       'U hoq "Ngjyra kryesore".'
     ] },
     { v: 127, data: '2026-10-01', titulli: 'Logo e re', pikat: [
@@ -728,7 +732,7 @@
     { v: 126, data: '2026-09-30', titulli: 'Stoku me pamje të re', pikat: [
       'Pamje e re në telefon dhe në kompjuter: ngjyra më të qeta, shkronja më të qarta dhe logo e re.',
       'Tema e errët punon kudo. Në kompjuter ndërrohet shpejt poshtë menysë anësore (Tema: E çelët / E errët).',
-      'Telefoni: faqja kryesore tregon sa produkte ke, sasitë e ulëta dhe çka ndryshove së fundi. Te "Afat i ri" ka data të shpejta dhe butonat − / + për sasinë.',
+      'Telefoni: faqja kryesore tregon sa produkte ke, sasitë e ulëta dhe çfarë ndryshove së fundi. Te "Afat i ri" ka data të shpejta dhe butonat − / + për sasinë.',
       'Kompjuteri: logo, kërkimi dhe llogaria janë te menyja anësore; numrat kryesorë dalin në krye të Përmbledhjes.'
     ] },
     { v: 123, data: '2026-09-30', titulli: 'Numrat e afateve si më parë', pikat: [
@@ -746,12 +750,12 @@
       'U hoqën "Lajmëro furnizuesin" dhe butoni "Lajmërova".'
     ] },
     { v: 120, data: '2026-09-30', titulli: 'Afatet: import nga Excel dhe muajt', pikat: [
-      'Te Afatet ka butonin "Importo" (Excel ose CSV): kolonat gjenden vetë, dhe para importit sheh çka shtohet, çka ekziston dhe çka ka gabim.',
+      'Te Afatet ka butonin "Importo" (Excel ose CSV): kolonat gjenden vetë, dhe para importit sheh çfarë shtohet, çfarë ekziston dhe çfarë ka gabim.',
       'Fletët me emrin e muajit në Excel (p.sh. "Nëntor", "Dhjetor") lexohen si ai muaj.',
       'Mbi listën e afateve ka butona për muajt (Tetor, Nëntor…): kliko njërin dhe shfaqen vetëm afatet që skadojnë atë muaj.',
       'Eksporti në Excel të pyet cilin muaj do: vetëm Tetorin, vetëm Nëntorin, ose të gjithë muajt.'
     ] },
-    { v: 119, data: '2026-09-30', titulli: '"Çka ka të re" s\'humbet më', pikat: [
+    { v: 119, data: '2026-09-30', titulli: '"Çfarë ka të re" s\'humbet më', pikat: [
       'Kjo dritare s\'zhduket më kur aplikacioni rifreskohet vetë për përditësim: del pasi të përfundojë përditësimi.',
       'Shënohet si e lexuar vetëm kur e mbyll ti. Nëse e humb, del sërish herën tjetër.'
     ] },
@@ -776,8 +780,8 @@
       'Administratori sheh në krye të Ekipës kush pret miratimin dhe i pranon me një prekje.'
     ] },
     { v: 114, data: '2026-09-30', titulli: 'Ekipa me pamje të re', pikat: [
-      'Ekipa hapet me një përmbledhje: sa produkte kanë skaduar, sa janë afër skadimit dhe sa janë në rregull te krejt ekipa.',
-      'Poshtë saj: kush është online tani, çka duhet hequr nga rafti (me "Unë e hoqa" aty për aty) dhe çka skadon këtë javë.',
+      'Ekipa hapet me një përmbledhje: sa produkte kanë skaduar, sa janë afër skadimit dhe sa janë në rregull te e gjithë ekipa.',
+      'Poshtë saj: kush është online tani, çfarë duhet hequr nga rafti (me "Unë e hoqa" aty për aty) dhe çfarë skadon këtë javë.',
       'Aktiviteti, Kalendari, Anëtarët dhe Statistika hapen nga butonat me ikona; "mbrapa" të kthen te përmbledhja.'
     ] },
     { v: 113, data: '2026-09-30', titulli: 'Rregullime gabimesh', pikat: [
@@ -788,8 +792,8 @@
     { v: 112, data: '2026-09-30', titulli: 'Administratori: opsione të reja', pikat: [
       'Administratori sheh te Ekipa → "Stoku" stokun e plotë të secilit anëtar dhe e shkarkon në Excel.',
       'Administratori mund ta heqë nga rafti, ta kthejë ose ta fshijë afatin e kujtdo, dhe pronari njoftohet.',
-      'Administratori ua jep ose ua heq lejen e butonave +/- kujtdo (te Anëtarët), dhe dërgon një njoftim që i del krejt ekipës te zilja.',
-      'Administratori mund ta pastrojë krejt aktivitetin.'
+      'Administratori ua jep ose ua heq lejen e butonave +/- kujtdo (te Anëtarët), dhe dërgon një njoftim që i del të gjithë ekipës te zilja.',
+      'Administratori mund ta pastrojë të gjithë aktivitetin.'
     ] },
     { v: 110, data: '2026-09-29', titulli: 'Ekipa më e sigurt, sinkronizim më i shpejtë', pikat: [
       'Një llogari e re e sheh Ekipën vetëm pasi ta pranojë administratori (te Ekipa → Anëtarët). Anëtarët e sotëm mbeten në ekipë.',
@@ -801,11 +805,11 @@
       '"Ekipi" tani quhet "Ekipa" dhe tregon vetëm afatet e kolegëve (jo stokun).',
       'Kur një produkt i një kolegu ka skaduar, mund ta heqësh ti nga rafti me "Unë e hoqa", dhe kolegu njoftohet me emrin tënd.',
       'Zilja lart djathtas: njoftimet, p.sh. kur dikush heq nga rafti një nga produktet e tua.',
-      'Aktiviteti (kush çka hoqi, shtoi ose lajmëroi), kalendari me ngjyra për çdo ditë, anëtarët (kush është online tani) dhe statistika.'
+      'Aktiviteti (kush çfarë hoqi, shtoi ose lajmëroi), kalendari me ngjyra për çdo ditë, anëtarët (kush është online tani) dhe statistika.'
     ] },
-    { v: 105, data: '2026-09-29', titulli: 'Ekipi: stoku i përbashkët i krejt llogarive', pikat: [
+    { v: 105, data: '2026-09-29', titulli: 'Ekipi: stoku i përbashkët i të gjitha llogarive', pikat: [
       'U shtua "Ekipi": te telefoni si tab i tretë (pas Stoku-t dhe Afateve), te kompjuteri si seksion i tretë në anësore.',
-      'Aty shihen stoku dhe afatet e KREJT llogarive, të shënuara me emrin e secilit përdorues.',
+      'Aty shihen stoku dhe afatet e TË GJITHA llogarive, të shënuara me emrin e secilit përdorues.',
       'Secili sheh gjithçka, por fshin/ndryshon vetëm produktet dhe afatet e veta. Të tjerëve u shikohen, s\'u ndryshohen.'
     ] },
     { v: 103, platforma: 'pc', data: '2026-09-29', titulli: 'Kompjuteri: përmirësime te anësorja', pikat: [

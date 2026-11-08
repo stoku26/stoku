@@ -60,7 +60,7 @@ fun gjendjaENjoftimeve(ctx: android.content.Context): String {
         g == "bllokuar" -> "bllokuar"
         g != "lejuar" -> "fikur"
         !Llogaria.leja("grupi") -> "aktive"
-        // Pa grup s'ka njoftime të grupit, pra as çka të lidhet: më parë dilte "Aktive kur Stoku është hapur" dhe, pas "Provo sërish
+        // Pa grup s'ka njoftime të grupit, pra as çfarë të lidhet: më parë dilte "Aktive kur Stoku është hapur" dhe, pas "Provo sërish
         // lidhjen", "S'u lidh me serverin e njoftimeve" edhe pse serveri punonte
         site.stoku.vendas.Grupi.grupi() == null -> "aktive"
         Push.pushAktiv() -> "push"
@@ -87,7 +87,7 @@ fun statusiINjoftimeve(ctx: android.content.Context): String {
 
 private fun oraNga(ms: Long): String = Instant.ofEpochMilli(ms).atZone(ZoneId.systemDefault()).toLocalTime().let { String.format(java.util.Locale.ROOT, "%02d:%02d", it.hour, it.minute) }
 
-/** Kontrolli i serverit (si kontrolloServerinEOrarit te web-i): kodi, Cron-i dhe çka ndodhi sot me njoftimin e kësaj pajisjeje */
+/** Kontrolli i serverit (si kontrolloServerinEOrarit te web-i): kodi, Cron-i dhe çfarë ndodhi sot me njoftimin e kësaj pajisjeje */
 private fun tekstiIServerit(st: Push.Statusi, ora: String): Pair<String, Boolean> {
     val sv = st.serveri ?: return "S'u lidh me serverin për ta kontrolluar. Kontrollo internetin." to true
     val im = st.im

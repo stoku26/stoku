@@ -18,8 +18,8 @@ import site.stoku.logjika.siListe
 import site.stoku.logjika.siObj
 
 /*
- * Cilësimet → Përdoruesit (vetëm administratori mendurberisha), si te app-tel.js (pd*): krejt llogaritë (perdoruesit/{uid})
- * dhe lejet e secilës (lejet/{uid}). Llogaria pa dokument lejesh = "Pa u kontrolluar" (i ka krejt lejet). Çdo ndryshim
+ * Cilësimet → Përdoruesit (vetëm administratori mendurberisha), si te app-tel.js (pd*): të gjitha llogaritë (perdoruesit/{uid})
+ * dhe lejet e secilës (lejet/{uid}). Llogaria pa dokument lejesh = "Pa u kontrolluar" (i ka të gjitha lejet). Çdo ndryshim
  * ruhet menjëherë dhe e shënon llogarinë si të kontrolluar. Administratori s'del në listë dhe s'mund të preket.
  */
 object Admini {
@@ -77,7 +77,7 @@ object Admini {
         llogarite.value = null; lejet.value = null
     }
 
-    /** Krejt llogaritë përveç administratorit, me lejet dhe statusin ("ri" | "krejt" | "kufizuar") */
+    /** Të gjitha llogaritë përveç administratorit, me lejet dhe statusin ("ri" | "krejt" | "kufizuar") */
     fun lista(): List<Rreshti> {
         val m = lejet.value ?: emptyMap()
         return (llogarite.value ?: emptyList()).filter { !it.admin && !Lejet.eshteAdmin(it.emri) }.map { a -> val d = m[a.uid]; Rreshti(a, d, Lejet.statusi(d)) }
@@ -86,7 +86,7 @@ object Admini {
 
     /** A punon si merchandiser (zgjedhja e administratorit fiton mbi atë të regjistrimit) */
     fun merchandiser(r: Rreshti): Boolean = Lejet.zgjedhja(r.lejet, "marketet") ?: r.a.merchandiser
-    /** "Lejo krejt" / "Ndalo krejt" s'e ndërrojnë "Merchandiser" */
+    /** "Lejo të gjitha" / "Ndalo të gjitha" s'e ndërrojnë "Merchandiser" */
     fun krejtPer(r: Rreshti, vlera: Boolean): MObj = Lejet.meZgjedhjet(Lejet.krejt(vlera), lejet.value?.get(r.a.uid)?.get("lejet").siObj())
 
     class Fshirja(val ok: Boolean, val leje: Boolean = false, val mbetur: Int = 0)
