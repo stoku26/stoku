@@ -305,9 +305,9 @@ object GrupiLogjika {
                         "pranuar nga " + if (une) "ti" else ose(ng["emri"]).ifEmpty { "administratori" }, ose(ng["anetariEmri"]))
                 } else Teksti("anetar-i-ri", kush, if (une) "u bashkove me grupin" else "u bashkua me grupin", "")
             }
-            "lajmerim" -> Teksti("lajmerim", kush, if (une) "njoftove krejt grupin" else "njoftoi krejt grupin", tx(ng, "tekst"))
+            "lajmerim" -> Teksti("lajmerim", kush, if (une) "njoftove të gjithë grupin" else "njoftoi të gjithë grupin", tx(ng, "tekst"))
             "kerkese-heqje" -> Teksti("lajmeruar", kush, (if (une) "kërkove" else "kërkoi") + " heqjen nga rafti: " + produktiIKerkeses(ng),
-                (if (eVertete(ng["perUid"])) "për " + (if (ng["perUid"] == uidIm) "ty" else ose(ng["perEmri"]).ifEmpty { "një koleg" }) else "për krejt grupin") +
+                (if (eVertete(ng["perUid"])) "për " + (if (ng["perUid"] == uidIm) "ty" else ose(ng["perEmri"]).ifEmpty { "një koleg" }) else "për të gjithë grupin") +
                     (if (eVertete(ng["shenim"])) " · " + jsString(ng["shenim"]) else ""))
             "kerkese-kryer" -> Teksti("hequr", kush, (if (une) "e hoqe" else "e hoqi") + " nga rafti: " + produktiIKerkeses(ng),
                 if (ng["kerkuesUid"] == uidIm) "me kërkesën tënde" else "me kërkesë të " + ose(ng["kerkuesEmri"]).ifEmpty { "një kolegu" })
@@ -330,7 +330,7 @@ object GrupiLogjika {
             "heqje-pranuar" -> kush.ifEmpty { "Kolegu" } + " e pranoi heqjen nga rafti: " + produkti
             "heqje-refuzuar" -> kush.ifEmpty { "Kolegu" } + " e refuzoi heqjen nga rafti: " + produkti + " (mbetet në raft)"
             "lajmerim" -> kush.ifEmpty { "Administratori" } + ": " + tx(nj, "tekst")
-            "admin-i-ri" -> kush.ifEmpty { "Admini" } + " u largua nga grupi dhe tash ti je admini i grupit."
+            "admin-i-ri" -> kush.ifEmpty { "Admini" } + " u largua nga grupi dhe tani ti je admini i grupit."
             "admin-afat" -> kush.ifEmpty { "Administratori" } + " " + (FJALA_E_VEPRIMIT[nj["veprimi"]] ?: "ndryshoi") + ": " + produkti
             else -> tx(nj, "tekst")
         }

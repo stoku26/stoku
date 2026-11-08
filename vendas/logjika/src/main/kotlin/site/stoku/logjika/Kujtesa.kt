@@ -388,7 +388,7 @@ class Kujtesa(private val ruajtja: RuajtjaEKujteses?, private val ora: () -> Lon
         }
     }
 
-    /** Hyrjet e plota për dërgim (me krejt fushat, që bashkimi i Firebase-it të mos lërë mbetje nga hyrja e vjetër) */
+    /** Hyrjet e plota për dërgim (me të gjitha fushat, që bashkimi i Firebase-it të mos lërë mbetje nga hyrja e vjetër) */
     @Synchronized fun hyrjePerGrup(barkodet: List<String>): LinkedHashMap<String, MObj> {
         val h = lexo(); val o = LinkedHashMap<String, MObj>()
         barkodet.forEach { b ->

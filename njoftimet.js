@@ -17,7 +17,7 @@
   var MAKS_VECMAS = 4;               // mbi këtë numër, njoftimet e reja bashkohen në një të vetëm
   var URL_AFATET = './index.html#afatet';
 
-  // Një lidhje e vetme për krejt faqen (ose service worker-in), jo një e re për çdo lexim/shkrim
+  // Një lidhje e vetme për të gjithë faqen (ose service worker-in), jo një e re për çdo lexim/shkrim
   var dbPremtimi = null;
   function hapDb() {
     if (dbPremtimi) return dbPremtimi;

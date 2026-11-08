@@ -158,7 +158,7 @@ object Dyqani {
         }
         val g0 = _gjendja.value
         val folderaRe = if (b["foldera"] is List<*>) b["foldera"].siListe().mapNotNull { it.siObj() } else g0.foldera
-        ruajTeFshiratNeKopje(folderaRe, pm) // v232: çka fshiu një pajisje tjetër mbetet këtu si kopje
+        ruajTeFshiratNeKopje(folderaRe, pm) // v232: çfarë fshiu një pajisje tjetër mbetet këtu si kopje
         val rk = numerOse0(b["rendiKoha"]).toLong()
         vendosNgaCloud { g ->
             g.copy(
@@ -190,7 +190,7 @@ object Dyqani {
         val dok = k?.let { obj("uid" to it.uid, "koha" to it.koha, "foldera" to it.foldera, "produktet" to it.produktet) }
         shkruesi.execute { try { if (dok == null) skedariKopjes.delete() else skedariKopjes.writeText(Json.shkruaj(dok)) } catch (e: Exception) { /* memoria plot: pa kopje */ } }
     }
-    /** Para se të zbatohet gjendja e re: ruhet çka do të hiqej. Produkti i zhvendosur (i njëjti barkod në një folder tjetër)
+    /** Para se të zbatohet gjendja e re: ruhet çfarë do të hiqej. Produkti i zhvendosur (i njëjti barkod në një folder tjetër)
      *  s'është i fshirë, përveç kur i hoqi bashkë folderi i vet. */
     private fun ruajTeFshiratNeKopje(folderaRe: List<Obj>, produktetRe: Map<String, Obj>) {
         val u = uidIm() ?: return
@@ -211,7 +211,7 @@ object Dyqani {
         if (pl.size > 20000) pl = pl.takeLast(20000)
         ruajKopjen(Kopja(u, System.currentTimeMillis(), fl, pl))
     }
-    /** Çka nga kopja mungon tani (folderat dhe produktet që do të riktheheshin) */
+    /** Çfarë nga kopja mungon tani (folderat dhe produktet që do të riktheheshin) */
     fun teMungueshmetNgaKopja(k: Kopja): Pair<List<Obj>, List<Obj>> {
         val g = _gjendja.value
         val fM = k.foldera.filter { f -> g.foldera.none { it["id"] == f["id"] } }
@@ -472,7 +472,7 @@ object Dyqani {
 
     private fun Obj.kopje2(n: Map<String, Any?>): MObj { val m = LinkedHashMap(this); m.putAll(n); return m }
 
-    /** Cilësimet → Furnizuesit: emri i ri te krejt afatet dhe produktet (afati, produkte) */
+    /** Cilësimet → Furnizuesit: emri i ri te të gjitha afatet dhe produktet (afati, produkte) */
     fun riemertoFurnizuesin(vjeter: String, iRi: String): Pair<Int, Int> {
         val g = _gjendja.value
         val r = site.stoku.logjika.Furnizuesit.riemerto(g.afatet, g.produktet, vjeter, iRi, System.currentTimeMillis())

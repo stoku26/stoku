@@ -185,7 +185,7 @@ object Merchandiseri {
         if (!Llogaria.eshteAdmin()) return null
         return shtoPiken(mapOf("emri" to emri, "lat" to Math.round(lat * 1e6) / 1e6, "lng" to Math.round(lng * 1e6) / 1e6))
     }
-    /** Emri i pikës për krejt Stoku-n (emriNgaAdmini: merchandiseri s'e ndërron më) */
+    /** Emri i pikës për të gjithë Stoku-n (emriNgaAdmini: merchandiseri s'e ndërron më) */
     suspend fun ndryshoEmrinEPikes(id: String, emri: String): Boolean {
         if (FirebaseAuth.getInstance().currentUser == null || !Llogaria.eshteAdmin()) return false
         return try {
@@ -341,7 +341,7 @@ object Merchandiseri {
         dritarja.value = if (paMarkete()) Dritarja.MarketIRi else Dritarja.KuJe("zgjidh", pozEFundit(), false)
     }
 
-    /** Zgjedhja te "Ku je?": id e marketit, "p:" + id e pikës, ose null = "Krejt marketet" */
+    /** Zgjedhja te "Ku je?": id e marketit, "p:" + id e pikës, ose null = "Të gjitha marketet" */
     fun zgjidh(id: String?) {
         if (id != null && id.startsWith("p:")) {
             val pika = _pikat.value.firstOrNull { it["id"] == id.substring(2) } ?: return
@@ -368,8 +368,8 @@ object Merchandiseri {
         return null
     }
     fun tekstiIMarketitTeRi(r: MarketiIRi): String =
-        if (r.ekziston) "Këtu është tashmë marketi \"" + r.marketi["emri"] + "\". Tash je te ai."
-        else "\"" + r.marketi["emri"] + "\" u shtua me vendndodhjen." + (if (r.n > 0) " Afatet e deritashme (${r.n}) u vendosën te ky market." else "") + " Tash e shohin krejt merchandiserët."
+        if (r.ekziston) "Këtu është tashmë marketi \"" + r.marketi["emri"] + "\". Tani je te ai."
+        else "\"" + r.marketi["emri"] + "\" u shtua me vendndodhjen." + (if (r.n > 0) " Afatet e deritashme (${r.n}) u vendosën te ky market." else "") + " Tani e shohin të gjithë merchandiserët."
 
     /** → (gabimi, null) ose (null, marketi). Kërkon lejen e vendndodhjes nga ekrani kur s'e ka. */
     suspend fun shtoMarketKetu(emri0: String): Pair<String?, MarketiIRi?> {
@@ -427,7 +427,7 @@ object Merchandiseri {
         }
     }
 
-    /** Marketi për afatet e reja (fleta, importi): aktivi, ose pyetet kur shihen krejt marketet. kur(null) = pa market */
+    /** Marketi për afatet e reja (fleta, importi): aktivi, ose pyetet kur shihen të gjitha marketet. kur(null) = pa market */
     fun marketiPerTeReja(kur: (String?) -> Unit) {
         if (!kaMarkete()) { kur(null); return }
         idAktiv()?.let { kur(it); return }

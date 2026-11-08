@@ -5,9 +5,9 @@
 // v246: administratori sheh pikat e përbashkëta të Stoku-t (pikat/{id}), jo dyqanet e merchandiserëve
 // 1. telefoni, administratori: pikat e Stoku-t; në hartë vetëm vendbanimet + pikat; ndryshimi i emrit shkon te pikat/{id} dhe
 //    te pajisja e merchandiserit (marketi i lidhur); pa shkelje të CSP-së
-// 2. telefoni, merchandiseri (v247): krejt marketet e Stoku-t; v250: pa ndryshim emri as për të vetat; kush s'është
+// 2. telefoni, merchandiseri (v247): të gjitha marketet e Stoku-t; v250: pa ndryshim emri as për të vetat; kush s'është
 //    merchandiser s'e sheh "Harta"
-// 3. PC, administratori: harta, lista, "Ndrysho emrin"; merchandiseri në PC (v247): krejt marketet, pa ndryshim
+// 3. PC, administratori: harta, lista, "Ndrysho emrin"; merchandiseri në PC (v247): të gjitha marketet, pa ndryshim
 // 4. pllakat s'merren (pa internet, ose Cloudflare ende pa tiles.openfreemap.org): mesazh, lista dhe pikat mbeten
 const { chromium } = require('./pw.js');
 const fs = require('fs');

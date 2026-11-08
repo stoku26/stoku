@@ -16,7 +16,7 @@ const UA_PC = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHT
     const r = await p.goto(B + '/privatesia.html');
     const d = await p.evaluate(() => ({ titulli: document.title, h2: [...document.querySelectorAll('h2')].map(x => x.textContent), email: [...document.querySelectorAll('a[href^="mailto:"]')].map(a => a.href),
       tekst: document.body.innerText, gjeresia: document.documentElement.scrollWidth, tema: document.documentElement.getAttribute('data-tema'), bg: getComputedStyle(document.body).backgroundColor }));
-    ok(r.status() === 200 && d.titulli === 'Privatësia • Stoku' && d.h2.length >= 8, tema + ': faqja hapet me krejt pjesët', d.h2);
+    ok(r.status() === 200 && d.titulli === 'Privatësia • Stoku' && d.h2.length >= 8, tema + ': faqja hapet me të gjitha pjesët', d.h2);
     ok(d.email.length >= 3 && d.email.every(x => x === 'mailto:mendurb@gmail.com'), tema + ': kontakti mendurb@gmail.com', d.email);
     ok(!/—/.test(d.tekst) && /cookies/.test(d.tekst) && /Agjencia për Informim dhe Privatësi/.test(d.tekst), tema + ': pa vizë të gjatë, me cookies dhe AIP');
     ok(d.gjeresia <= 390 && d.tema === tema && !gab.length, tema + ': pa rrëshqitje anash, tema e saktë, pa gabime', [d.gjeresia, d.tema, d.bg, gab]);

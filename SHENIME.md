@@ -52,6 +52,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **GJUHA STANDARDE + KONTROLLI I PROJEKTIT (v281 = 1.49.6, 08.11.2026, telefoni + PC + Android Hyrja 42 + ora)**: pronari:
+   "gjuhen apet ke shtu ... fjal sikur qysh e foli une e jo me gramatik". RREGULL: tekstet që i sheh përdoruesi (web, "Çka/Çfarë
+   ka të re", Android, ora) janë në shqipe STANDARDE, edhe pse me pronarin flasim joformal: "të gjitha / i gjithë / e gjithë X"
+   (jo "krejt X"; "krejt" mbetet vetëm si ndajfolje: "zhduket krejt"), "tani" (jo "tash"), "çfarë" (jo "çka": "Çfarë ka të re"),
+   pa paskajore gege ("me i importu"). U ndryshuan edhe `lejet.js` + `Lejet.kt` (përshkrimet), fiksturat, testet që kontrollonin
+   tekstet. Testi `teste/v281.js` i kërkon këto forma te tekstet. Kontrolli: id-të e JS ekzistojnë në HTML, ekranet kryesore (390/320
+   px, të dy temat, PC) pa gabime JS dhe pa dalë jashtë ekranit; data e sotme llogaritet lokalisht (jo UTC). Worker-i s'u prek.
+   S'është testuar në telefon të vërtetë.
+
 0000000. **MENYJA E "EKSPORTO" SA TEKSTI + TEKSTI I IMPORTIT (v280 = 1.49.5, 08.11.2026, telefoni + PC + Android Hyrja 41)**: pronari:
    "ngushtoje boxin sa teksti" → `.sb-menu` `width: max-content` (pa `min-width: 210px`), `.sb-menu__item` `nowrap`; Android pa
    `widthIn(min = 210.dp)` te `MenyjaEksportit`. Teksti i importit, forma "C" (vetëm për importin, pa muajt): "Importo afatet nga një

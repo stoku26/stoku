@@ -63,7 +63,7 @@ object Furnizuesit {
     }
 
     class Riemertimi(val afatet: List<Obj>, val produktet: Map<String, Obj>, val nAfate: Int, val nProdukte: Int)
-    /** Ndryshon emrin e furnizuesit te krejt afatet (ndryshuarSe = tani) dhe produktet (prekurSe + 1 ms) */
+    /** Ndryshon emrin e furnizuesit te të gjitha afatet (ndryshuarSe = tani) dhe produktet (prekurSe + 1 ms) */
     fun riemerto(afatet: List<Obj>, produktet: Map<String, Obj>, vjeter0: String, iRi0: String, tani: Long): Riemertimi {
         val vjeter = nrm(vjeter0); val iRi = nrm(iRi0)
         var nA = 0; var nP = 0

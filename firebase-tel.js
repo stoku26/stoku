@@ -22,7 +22,7 @@
   try {
     var app = initializeApp(firebaseConfig);
     var auth = getAuth(app);
-    // ignoreUndefinedProperties: një fushë e zbrazët (undefined) s'e prish më krejt sinkronizimin
+    // ignoreUndefinedProperties: një fushë e zbrazët (undefined) s'e prish më të gjithë sinkronizimin
     var db = initializeFirestore(app, { ignoreUndefinedProperties: true });
     // Dyqani ruhet i ndarë në disa dokumente (ruajtja.js) — pa kufirin 1 MB të një dokumenti
     var ruajtja = window.StokuRuajtja.krijo({ doc: doc, getDoc: getDoc, setDoc: setDoc, runTransaction: runTransaction, onSnapshot: onSnapshot, collection: collection },
@@ -33,12 +33,12 @@
     // v229: skedarët (Excel, PDF) nga telefoni/PDA-ja te PC-ja e së njëjtës llogari (skedaret.js)
     var skedaret = window.StokuSkedaret ? window.StokuSkedaret.krijo({ doc: doc, collection: collection, setDoc: setDoc, getDocs: getDocs, deleteDoc: deleteDoc,
       onSnapshot: onSnapshot, query: query, orderBy: orderBy, limit: limit, writeBatch: writeBatch, Bytes: Bytes }, db, function () { return auth.currentUser ? auth.currentUser.uid : null; }) : null;
-    // v230: lejet e llogarive (lejet.js): çka mund të përdorë secila llogari; i ndryshon vetëm administratori
+    // v230: lejet e llogarive (lejet.js): çfarë mund të përdorë secila llogari; i ndryshon vetëm administratori
     var lejet = window.StokuLejet ? window.StokuLejet.krijo({ doc: doc, collection: collection, setDoc: setDoc, onSnapshot: onSnapshot },
       db, function () { return auth.currentUser ? auth.currentUser.uid : null; }) : null;
 
     // Regjistrohet vetja te perdoruesit/{uid} (emri i dukshëm + kur u kyç së fundi) — përdoret nga
-    // pamja e "Ekipit" për të gjetur krejt llogaritë ekzistuese dhe emrat e tyre.
+    // pamja e "Ekipit" për të gjetur të gjitha llogaritë ekzistuese dhe emrat e tyre.
     // Fusha `emri` NUK preket: rregullat e Firestore e përdorin për admin-in. Hyrja s'e pret kurrë këtë shkrim.
     // "X u bashkua me grupin" s'shkruhet më këtu: e shkruan administratori kur e pranon llogarinë në grup.
     var __regjistrimet = {}; // uid → { emri, p }: hyr()/regjistrohu() dhe onAuthStateChanged e thërrasin njëkohësisht
@@ -186,7 +186,7 @@
       degjo(cb, cbGabim) { return ruajtja.degjo(cb, cbGabim); },
       merr() { return ruajtja.merr(); },
       modaPjeseve() { return ruajtja.modaPjeseve(); },
-      // Ekipi: krejt llogaritë e regjistruara (emri i dukshëm + uid), për pamjen e përbashkët
+      // Ekipi: të gjitha llogaritë e regjistruara (emri i dukshëm + uid), për pamjen e përbashkët
       async krejtPerdoruesit() {
         try {
           var pikteka = await getDocs(collection(db, 'perdoruesit'));

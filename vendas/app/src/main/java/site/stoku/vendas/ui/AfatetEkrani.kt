@@ -73,7 +73,7 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
     var zgjedhja by remember { mutableStateOf<Set<String>?>(null) }
     var fshiZgjedhjen by remember { mutableStateOf(false) }
     var fleta by remember { mutableStateOf<android.net.Uri?>(null) } // fotoja e fletës për leximin me AI
-    var excel by remember { mutableStateOf<String?>(null) } // "krejt" = krejt lista (me muajin), "zgjedhura" = vetëm të zgjedhurat
+    var excel by remember { mutableStateOf<String?>(null) } // "krejt" = e gjithë lista (me muajin), "zgjedhura" = vetëm të zgjedhurat
     var importi by remember { mutableStateOf(false) }
     var foto by remember { mutableStateOf(false) } // Hyrja 35: "Eksporto si foto"
     var pdf by remember { mutableStateOf(false) } // Hyrja 36: "Eksporto PDF" (për printim)
@@ -88,7 +88,7 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
     remember(aktiviM, lejet) { 0 }
     val kaM = Merchandiseri.kaMarkete()
     val idM = Merchandiseri.idAktiv()
-    val te = Merchandiseri.afatetEMarketit(g.afatet) // v241: afatet e marketit ku je ("Krejt marketet" = të gjitha)
+    val te = Merchandiseri.afatetEMarketit(g.afatet) // v241: afatet e marketit ku je ("Të gjitha marketet" = të gjitha)
     val nr = Afatet.numero(te)
     val numrat = mapOf("aktive" to nr.aktive, "skaduar" to nr.skaduar + nr.paDate, "afer" to nr.afer, "ok" to nr.ok, "hequr" to nr.hequr)
     fun eFiltruara(mu: String): List<Obj> {
@@ -194,7 +194,7 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                 }
             }
             if (kaM && idM == null) {
-                // v248: merchandiseri te "Krejt marketet": secili market me afatet e veta
+                // v248: merchandiseri te "Të gjitha marketet": secili market me afatet e veta
                 Marketet.grupo(lista, Merchandiseri.marketet()).forEach { gr ->
                     item(key = "m:" + gr.id) { TitulliIMarketit((gr.id.ifEmpty { null }?.let { gr.emri } ?: "Pa market") + " · " + gr.afatet.size) }
                     items(gr.afatet, key = { "a:" + it["id"] }) { a -> KartaEAfatit(a, zgjedhja, paFurnizues, { hapur = a["id"] as String }, { zgjedhja = ndryshoZgjedhjen(zgjedhja, a["id"] as String) }) }
@@ -396,7 +396,7 @@ fun shenoHequr(a: Obj) {
     if (!Llogaria.leja("afatetNdrysho")) return
     Dyqani.perditesoAfatin(a["id"] as String, mapOf("statusi" to "hequr", "hequrSe" to System.currentTimeMillis(), "hequrNga" to (Llogaria.perdoruesi.value?.emri ?: "")))
     Toast.trego("\"" + ((a["emri"] as? String)?.ifEmpty { null } ?: jsString(a["barkodi"])) + "\" u shënua si i hequr nga rafti.")
-    Grupi.ngjarjeAfati("hequr", a) // aktiviteti i grupit: kush çka hoqi
+    Grupi.ngjarjeAfati("hequr", a) // aktiviteti i grupit: kush çfarë hoqi
 }
 
 fun riktheAktiv(a: Obj) {

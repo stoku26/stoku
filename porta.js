@@ -47,7 +47,7 @@
   function shkruaj(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { /* ok */ } }
   function hyrjaEFundit() { try { return JSON.parse(lexo(KEY_HYRJA) || 'null'); } catch (e) { return null; } }
   function eVizitor() { return lexo(KEY_VIZITOR) === '1' && lexo(KEY_PRONARI) === VIZITOR; }
-  // Kjo faqe u hap si vizitor: të dhënat e saj në memorie janë të provës për krejt jetën e faqes. Faqja s'i sinkronizon
+  // Kjo faqe u hap si vizitor: të dhënat e saj në memorie janë të provës për të gjithë jetën e faqes. Faqja s'i sinkronizon
   // kurrë (as pasi dikush hyn me llogari: porta i fshin dhe e rinis faqen).
   var ngaVizitori = eVizitor();
   // v232: llogaria të cilës i përkasin të dhënat që kjo faqe i ka në memorie (të lexuara në hapje). Aplikacioni i

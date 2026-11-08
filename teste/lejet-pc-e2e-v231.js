@@ -1,11 +1,11 @@
-// v231: lejet e përdoruesve në PC (pc.html). Çka s'lejohet zhduket krejt, PA ASNJË MESAZH. Pa "Stoku në kompjuter":
+// v231: lejet e përdoruesve në PC (pc.html). Çfarë s'lejohet zhduket krejt, PA ASNJË MESAZH. Pa "Stoku në kompjuter":
 // pc.html → versioni i telefonit (index.html s'kthehet te pc.html), dhe mbrapsht kur leja kthehet. Asgjë e lejuar: vetëm
 // logoja. Pa Afate: pa "Të skaduara në raft". Edhe: administratori te Cilësimet → Përdoruesit, rregullat para v230.
 const { chromium } = require('./pw.js');
 const fs = require('fs');
 const { krijoFirestore } = require('./fs-server.js');
 const L = require('../lejet.js');
-// v241: lejet "me zgjedhje" (p.sh. "marketet" = merchandiser) s'janë ndalime dhe s'ruhen me "Ndalo krejt"
+// v241: lejet "me zgjedhje" (p.sh. "marketet" = merchandiser) s'janë ndalime dhe s'ruhen me "Ndalo të gjitha"
 const NR_LEJEVE = L.CELESAT.filter(k => !L.ZGJEDHJE[k]).length;
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
 const B = 'http://127.0.0.1:8765';
@@ -106,10 +106,10 @@ const VP = { width: 1440, height: 900 };
   ok(!ZBULON.test(await tekstiIDukshem(a)), '1. faqja pa asnjë fjalë për lejet');
   const shkA = await a.evaluate(() => [...document.querySelectorAll('#tabShkurtoret tr td:first-child')].map(x => x.textContent));
   ok(!shkA.includes('Eksporto në PDF') && !shkA.includes('Fshi të zgjedhurat (ose rreshtin)') && shkA.includes('Eksporto në Excel') && shkA.includes('Importo'), '1. shkurtoret: pa PDF, pa Fshi (Excel dhe Importo po)', shkA.length);
-  ok(await a.evaluate(() => !window.StokuTeRejat.teRejatPas(229, 'pc', false).some(h => h.v === 230 || h.v === 231) && window.StokuTeRejat.teRejatPas(229, 'pc', true).some(h => h.v === 231)), '1. "Çka ka të re" e lejeve: vetëm administratori');
+  ok(await a.evaluate(() => !window.StokuTeRejat.teRejatPas(229, 'pc', false).some(h => h.v === 230 || h.v === 231) && window.StokuTeRejat.teRejatPas(229, 'pc', true).some(h => h.v === 231)), '1. "Çfarë ka të re" e lejeve: vetëm administratori');
   await a.click('#btnOpsione'); await a.waitForTimeout(300); await a.click('#opsTeRejat'); await a.waitForTimeout(300);
   const trPc = await a.textContent('#trLista');
-  ok(trPc.length > 50 && !/[Gg]rup|koleg|[Ii]mport|\bPDF/.test(trPc), '1. "Çka ka të re": pa shënime për Grupin, importin, PDF-në', (trPc.match(/[Gg]rup|koleg|[Ii]mport|\bPDF/) || [''])[0]);
+  ok(trPc.length > 50 && !/[Gg]rup|koleg|[Ii]mport|\bPDF/.test(trPc), '1. "Çfarë ka të re": pa shënime për Grupin, importin, PDF-në', (trPc.match(/[Gg]rup|koleg|[Ii]mport|\bPDF/) || [''])[0]);
   await a.keyboard.press('Escape'); await a.waitForTimeout(200);
   await a.screenshot({ path: __dirname + '/v231-pc-kufizuar.png' });
 
@@ -214,7 +214,7 @@ const VP = { width: 1440, height: 900 };
   // agim: lejo PDF-në → te PC-ja e agimit del butoni PDF në kohë reale
   await m.evaluate(() => [...document.querySelectorAll('#pdPamja .pd-rresht')].find(x => /agim/.test(x.textContent)).click());
   await m.waitForTimeout(300);
-  ok((await m.textContent('#pdTitulli')) === 'agim' && await duket(m, '#pdMbrapa'), '4. nënfaqja "agim" me "← Krejt përdoruesit"');
+  ok((await m.textContent('#pdTitulli')) === 'agim' && await duket(m, '#pdMbrapa'), '4. nënfaqja "agim" me "← Të gjithë përdoruesit"');
   ok((await m.evaluate(() => document.querySelectorAll('#pdPamja .lj-ndez input').length)) === L.CELESAT.length, '4. ' + L.CELESAT.length + ' leje');
   ok(await m.evaluate(() => !document.getElementById('pdLeja_eksportPdf').checked && document.getElementById('pdLeja_grupiHeq').disabled), '4. PDF e fikur; veprimet e Grupit çaktivizuar (pa Grupin)');
   await m.screenshot({ path: __dirname + '/v231-pc-agim.png', fullPage: true });
@@ -227,21 +227,21 @@ const VP = { width: 1440, height: 900 };
   await m.click('label[for=pdLeja_grupi]'); await m.waitForTimeout(500);
   ok(await prit(async () => await duket(a, '#btnAkordEkipi')), '4. agim: pllaka "Grupi" del');
   ok(await m.evaluate(() => !document.getElementById('pdLeja_grupiHeq').disabled), '4. veprimet e Grupit aktivizohen');
-  // "Ndalo krejt" për vjosën → asgjë
+  // "Ndalo të gjitha" për vjosën → asgjë
   await m.click('#pdMbrapa'); await m.waitForTimeout(200);
   await m.evaluate(() => [...document.querySelectorAll('#pdPamja .pd-rresht')].find(x => /vjosa/.test(x.textContent)).click()); await m.waitForTimeout(300);
   await m.click('#pdNdaloKrejt'); await m.waitForTimeout(300); await m.click('#kfPo'); await m.waitForTimeout(500);
-  ok(L.teNdaluara(F.S.docs.get('lejet/u7').lejet) === NR_LEJEVE, '4. "Ndalo krejt": vjosa pa asnjë leje');
+  ok(L.teNdaluara(F.S.docs.get('lejet/u7').lejet) === NR_LEJEVE, '4. "Ndalo të gjitha": vjosa pa asnjë leje');
   ok(await prit(async () => await siTelefon(v), 10000), '4. vjosa pa asnjë leje: kalon te versioni i telefonit');
   await v.waitForTimeout(1500);
   ok(await siTelefon(v) && await v.evaluate(() => document.getElementById('dlgOpsione').classList.contains('hapur')) && !ZBULON.test(await tekstiIDukshem(v)), '4. vjosa: versioni i telefonit me Cilësimet si faqe bazë, pa fjalë për lejet');
   await m.click('#pdLejoKrejt'); await m.waitForTimeout(500);
-  ok(await prit(async () => await siPc(v) && await duket(v, '#btnAkordStoku'), 10000), '4. "Lejo krejt": vjosa kthehet vetë te PC-ja, me krejt pjesët');
+  ok(await prit(async () => await siPc(v) && await duket(v, '#btnAkordStoku'), 10000), '4. "Lejo të gjitha": vjosa kthehet vetë te PC-ja, me të gjitha pjesët');
   // besa: "U kontrollua"
   await m.click('#pdMbrapa'); await m.waitForTimeout(200);
   await m.evaluate(() => [...document.querySelectorAll('#pdPamja .pd-rresht')].find(x => /besa/.test(x.textContent)).click()); await m.waitForTimeout(300);
   await m.click('#pdKontrollua'); await m.waitForTimeout(500);
-  ok(!!F.S.docs.get('lejet/u2') && L.teNdaluara(F.S.docs.get('lejet/u2').lejet) === 0, '4. "U kontrollua": besa me krejt lejet');
+  ok(!!F.S.docs.get('lejet/u2') && L.teNdaluara(F.S.docs.get('lejet/u2').lejet) === 0, '4. "U kontrollua": besa me të gjitha lejet');
   ok(/Lejet e llogarive/.test(await m.textContent('#opsPerdoruesitNen')), '4. skeda: s\'ka më të pakontrolluar', await m.textContent('#opsPerdoruesitNen'));
   ok(F.S.refuzime.filter(x => /^lejet\//.test(x.path)).length === 0, '4. asnjë refuzim nga rregullat');
   // Rregullat para v230: ruajtja dështon dhe çelësi kthehet si ishte

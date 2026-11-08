@@ -53,11 +53,11 @@ const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); 
   ok(await prit(() => doc('perdoruesit/u1').grupi === '') && !!doc('grupet/g1') && keys('grupet/g1/feed/').length === 1, '1. treguesi i agimit u pastrua; grupi dhe aktiviteti mbeten', doc('perdoruesit/u1'));
   const nj = keys('perdoruesit/u4/njoftimet/').map(doc);
   ok(nj.some(x => x.lloji === 'admin-i-ri' && x.grupi === 'g1' && x.emri === 'agim' && x.uid === 'u1'), '1. vjosa mori njoftimin "admin-i-ri"', nj);
-  ok(await vjosa.evaluate(() => window.StokuEkipa.tekstiNjoftimit({ lloji: 'admin-i-ri', emri: 'agim' })) === 'agim u largua nga grupi dhe tash ti je admini i grupit.', '1. teksti i njoftimit');
+  ok(await vjosa.evaluate(() => window.StokuEkipa.tekstiNjoftimit({ lloji: 'admin-i-ri', emri: 'agim' })) === 'agim u largua nga grupi dhe tani ti je admini i grupit.', '1. teksti i njoftimit');
   ok(await prit(async () => /U largove nga grupi "Market Agimi"/.test(await toast(agim))), '1. agim: "U largove nga grupi…"', await toast(agim));
   // vjosa e sheh veten admine (pa rifreskim): "Fto një shok" del
-  ok(await prit(() => vjosa.evaluate(() => !document.getElementById('ekFtoKarta').classList.contains('fsheh'))), '1. vjosa (PC): tash admine, "Fto një shok në grup"');
-  ok(await prit(() => !!doc('grupet_publike/g1') && doc('grupet_publike/g1').pronarEmri === 'vjosa', 10000), '1. lista publike: admini tash vjosa', doc('grupet_publike/g1'));
+  ok(await prit(() => vjosa.evaluate(() => !document.getElementById('ekFtoKarta').classList.contains('fsheh'))), '1. vjosa (PC): tani admine, "Fto një shok në grup"');
+  ok(await prit(() => !!doc('grupet_publike/g1') && doc('grupet_publike/g1').pronarEmri === 'vjosa', 10000), '1. lista publike: admini tani vjosa', doc('grupet_publike/g1'));
 
   // 2. agim rifreskon faqen: s'kthehet në grup
   await agim.reload(); await agim.waitForTimeout(2500);

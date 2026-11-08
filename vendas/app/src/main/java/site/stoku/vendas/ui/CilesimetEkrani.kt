@@ -191,8 +191,8 @@ private fun Menyja(tema: String, hap: (String) -> Unit, hapTeRejat: () -> Unit) 
             GrupiOps { RreshtKategorie(Ik.Re, "gjelber", "Llogaria", p?.emri ?: if (Llogaria.eshteVizitor()) "Vizitor · provë" else "Jo i kyçur") { hap("llogaria") } }
             TitulliGrupit("Rreth Stoku")
             GrupiOps {
-                RreshtKategorie(Ik.TeRejat, "roze", "Çka ka të re", "Ndryshimet e fundit në Stoku", onClick = hapTeRejat)
-                RreshtKategorie(Ik.Mburoja, "blu", "Privatësia", "Çka ruan Stoku dhe kush e sheh", vije = true) {
+                RreshtKategorie(Ik.TeRejat, "roze", "Çfarë ka të re", "Ndryshimet e fundit në Stoku", onClick = hapTeRejat)
+                RreshtKategorie(Ik.Mburoja, "blu", "Privatësia", "Çfarë ruan Stoku dhe kush e sheh", vije = true) {
                     try { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://stoku.site/privatesia.html"))) } catch (e: Exception) { }
                 }
             }
@@ -573,7 +573,7 @@ private fun NdryshimiILlogarise() {
     }
 }
 
-// ---------------- Çka ka të re (si #dlgTeRejat) ----------------
+// ---------------- Çfarë ka të re (si #dlgTeRejat) ----------------
 private val MUAJT = listOf("janar", "shkurt", "mars", "prill", "maj", "qershor", "korrik", "gusht", "shtator", "tetor", "nëntor", "dhjetor")
 /** "2026-10-23" → "23 tetor 2026" (si dataEPlote te teRejat.js) */
 private fun dataEPlote(iso: String): String {
@@ -593,7 +593,7 @@ fun TeRejatFlete(lista: List<TeRejat.Hyrja>, ngaCilesimet: Boolean = false, mbyl
             }
             Spacer(Modifier.width(14.dp))
             Column {
-                Text("Çka ka të re", style = tx(22, 700, n.ink, -0.02))
+                Text("Çfarë ka të re", style = tx(22, 700, n.ink, -0.02))
                 Text(nen, style = tx(13, 600, n.muted), modifier = Modifier.padding(top = 2.dp))
             }
         }

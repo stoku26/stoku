@@ -87,7 +87,7 @@ const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); 
   await agim.evaluate(() => [...document.querySelectorAll('#ekipiLista .ek-kerkesa-grupi')].find(x => /besa/.test(x.textContent)).querySelector('.btn:not(.tekst)').click());
   ok(await prit(() => !!doc('grupet/g1/anetaret/u2'), 10000), '3. besa u fut vetë në grup (pa shtypur asgjë)');
   ok(!doc('kerkesat_grupi/g1_u2') && !doc('ftesat/g1_besa') && doc('perdoruesit/u2').grupi === 'g1', '3. kërkesa dhe ftesa u fshinë; treguesi i grupit');
-  ok(await prit(async () => /Admini të pranoi/.test(await toast(besa))), '3. besa: "Admini të pranoi: tash je në grupin…"', await toast(besa));
+  ok(await prit(async () => /Admini të pranoi/.test(await toast(besa))), '3. besa: "Admini të pranoi: tani je në grupin…"', await toast(besa));
   ok(await prit(async () => (await besa.textContent('#ekipiTitulli')) !== 'Grupi' && !(await besa.isVisible('#ekGrupiKerko'))), '3. besa: pamja e grupit (jo më "Hyr në një grup")');
   ok((await kerkuarat(besa)).length === 0, '3. pajisja s\'mban më kërkesa');
 

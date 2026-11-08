@@ -1,7 +1,7 @@
 // v262: barkodi lexohet vetëm kur është i tëri brenda kutisë së bardhë (fotoja e përdoruesit: web-i e kapte barkodin poshtë
 // kutisë, sepse figura që lexohet ka edhe hapësirë rreth saj). Me kamerën e rreme: brenda → pranohet; poshtë kutisë ose
 // pjesërisht jashtë → s'merret fare (as "Skano përsëri", sepse brenda kutisë s'u lexua asgjë); dy barkode (njëri brenda,
-// tjetri jashtë) → merret ai brenda. Edhe versionet, "Çka ka të re" v262 dhe stili i "Skano përsëri".
+// tjetri jashtë) → merret ai brenda. Edhe versionet, "Çfarë ka të re" v262 dhe stili i "Skano përsëri".
 const { chromium } = require('./pw.js');
 const { hapFaqen, skano, mbyll } = require('./kamera-e-rreme.js');
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };

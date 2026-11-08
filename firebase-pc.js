@@ -20,7 +20,7 @@
   try {
     var app = initializeApp(firebaseConfig);
     var auth = getAuth(app);
-    // ignoreUndefinedProperties: një fushë e zbrazët (undefined) s'e prish më krejt sinkronizimin
+    // ignoreUndefinedProperties: një fushë e zbrazët (undefined) s'e prish më të gjithë sinkronizimin
     var db = initializeFirestore(app, { ignoreUndefinedProperties: true });
     // Dyqani ruhet i ndarë në disa dokumente (ruajtja.js) — pa kufirin 1 MB të një dokumenti
     var ruajtja = window.StokuRuajtja.krijo({ doc: doc, getDoc: getDoc, setDoc: setDoc, runTransaction: runTransaction, onSnapshot: onSnapshot, collection: collection },
@@ -31,7 +31,7 @@
     // v227: skedarët (Excel, PDF) nga telefoni/PDA-ja te PC-ja e së njëjtës llogari (skedaret.js)
     var skedaret = window.StokuSkedaret ? window.StokuSkedaret.krijo({ doc: doc, collection: collection, setDoc: setDoc, getDocs: getDocs, deleteDoc: deleteDoc,
       onSnapshot: onSnapshot, query: query, orderBy: orderBy, limit: limit, writeBatch: writeBatch, Bytes: Bytes }, db, function () { return auth.currentUser ? auth.currentUser.uid : null; }) : null;
-    // v230: lejet e llogarive (lejet.js): çka mund të përdorë secila llogari; i ndryshon vetëm administratori
+    // v230: lejet e llogarive (lejet.js): çfarë mund të përdorë secila llogari; i ndryshon vetëm administratori
     var lejet = window.StokuLejet ? window.StokuLejet.krijo({ doc: doc, collection: collection, setDoc: setDoc, onSnapshot: onSnapshot },
       db, function () { return auth.currentUser ? auth.currentUser.uid : null; }) : null;
     // Regjistrohet vetja te perdoruesit/{uid} — përdoret nga pamja e "Ekipit" për të gjetur llogaritë
@@ -151,7 +151,7 @@
         if (!auth.currentUser) return { ok: false };
         try { await deleteDoc(doc(db, 'dyqane', auth.currentUser.uid, 'fletet', id)); return { ok: true }; } catch (e) { return gabim(e); }
       },
-      // Ekipi: krejt llogaritë e regjistruara (emri i dukshëm + uid), për pamjen e përbashkët
+      // Ekipi: të gjitha llogaritë e regjistruara (emri i dukshëm + uid), për pamjen e përbashkët
       async krejtPerdoruesit() {
         try {
           var pikteka = await getDocs(collection(db, 'perdoruesit'));

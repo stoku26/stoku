@@ -1,12 +1,12 @@
-// v231: lejet e përdoruesve në telefon. Çka s'lejohet zhduket krejt, PA ASNJË MESAZH (as "s'të lejohet", as lista te
+// v231: lejet e përdoruesve në telefon. Çfarë s'lejohet zhduket krejt, PA ASNJË MESAZH (as "s'të lejohet", as lista te
 // Llogaria, as "Administratori t'i ndryshoi lejet"). Pa "Stoku": faqja bazë (Afatet/Grupi/Cilësimet), "mbrapa" s'e mbyll.
-// Skanimi pa "Shto"/"Ndrysho": neutral. Pa "pc": pa "Dërgo në PC". "Çka ka të re" e lejeve: vetëm administratori.
+// Skanimi pa "Shto"/"Ndrysho": neutral. Pa "pc": pa "Dërgo në PC". "Çfarë ka të re" e lejeve: vetëm administratori.
 // Edhe: administratori te Cilësimet → Përdoruesit (lista, nënfaqja, kohë reale), rregullat para v230.
 const { chromium } = require('./pw.js');
 const fs = require('fs');
 const { krijoFirestore } = require('./fs-server.js');
 const L = require('../lejet.js');
-// v241: lejet "me zgjedhje" (p.sh. "marketet" = merchandiser) s'janë ndalime dhe s'ruhen me "Lejo krejt"/"Ndalo krejt"
+// v241: lejet "me zgjedhje" (p.sh. "marketet" = merchandiser) s'janë ndalime dhe s'ruhen me "Lejo të gjitha"/"Ndalo të gjitha"
 const NR_LEJEVE = L.CELESAT.filter(k => !L.ZGJEDHJE[k]).length;
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
 const B = 'http://127.0.0.1:8765';
@@ -65,7 +65,7 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   ok(await duket(a, '#kryeButonatImport'), '1. importi nga fotoja duket (i lejuar)');
   await a.evaluate(() => [...document.querySelectorAll('.folder-karta')].find(x => /Pije/.test(x.textContent)).click());
   await a.waitForTimeout(400);
-  ok(!(await duket(a, '#btnKamera')) && !(await duket(a, '#btnEksportPdf')) && !(await duket(a, '#btnFshiTeGjitha')), '1. në folder: pa kamerë, pa PDF, pa "Fshi krejt"');
+  ok(!(await duket(a, '#btnKamera')) && !(await duket(a, '#btnEksportPdf')) && !(await duket(a, '#btnFshiTeGjitha')), '1. në folder: pa kamerë, pa PDF, pa "Fshi të gjitha"');
   ok(await duket(a, '#btnEksport'), '1. "Eksporto në Excel" duket');
   // Excel pa "Dërgo në PC": pa dritaren, shkarkohet direkt
   const [dlA] = await Promise.all([a.waitForEvent('download', { timeout: 8000 }).catch(() => null), a.click('#btnEksport')]);
@@ -79,7 +79,7 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   // Thirrjet e drejtpërdrejta bllokohen
   await a.evaluate(() => { document.getElementById('btnFshiTeGjitha').click(); });
   await a.waitForTimeout(200);
-  ok(!(await a.evaluate(() => document.getElementById('dlgFshirje').classList.contains('hapur'))), '1. "Fshi krejt" (klik i drejtpërdrejtë) s\'hapet');
+  ok(!(await a.evaluate(() => document.getElementById('dlgFshirje').classList.contains('hapur'))), '1. "Fshi të gjitha" (klik i drejtpërdrejtë) s\'hapet');
   await a.evaluate(() => document.getElementById('btnKamera').click()); await a.waitForTimeout(300);
   ok(!(await a.evaluate(() => document.getElementById('kamera').classList.contains('hapur'))) && !ZBULON.test(await toast(a)), '1. kamera s\'hapet, pa asnjë njoftim për lejet', await toast(a));
   // Afatet: pa "U hoq nga rafti", afati vetëm për t'u parë, pa "Fshi"
@@ -100,12 +100,12 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   ok(!ZBULON.test(await tekstiIDukshem(a)), '1. menuja e Cilësimeve pa asnjë fjalë për lejet');
   await a.click('#tabLlogaria'); await a.waitForTimeout(300);
   ok(!(await a.$('#llLejetSeksion')) && !ZBULON.test(await tekstiIDukshem(a)), '1. Llogaria: pa seksionin "Lejet e llogarisë", pa asnjë fjalë për lejet');
-  // "Çka ka të re": hyrjet e lejeve s'i dalin (vetëm administratorit)
+  // "Çfarë ka të re": hyrjet e lejeve s'i dalin (vetëm administratorit)
   await a.click('#opsPrapa'); await a.waitForTimeout(200);
   await a.click('#opsTeRejat'); await a.waitForTimeout(300);
   const trA = await a.textContent('#trLista');
-  ok(await hapur(a, 'dlgTeRejat') && !/Lejet e përdoruesve|Lejet: pa asnjë mesazh|Përdoruesit/.test(trA), '1. "Çka ka të re": pa hyrjet e lejeve', trA.slice(0, 80));
-  ok(trA.length > 50 && !/[Gg]rup|koleg|[Kk]amer|Dërgo në PC|\bora e dorës/.test(trA), '1. "Çka ka të re": pa shënime për Grupin, kamerën, "Dërgo në PC", orën', (trA.match(/[Gg]rup|koleg|[Kk]amer|Dërgo në PC/) || [''])[0]);
+  ok(await hapur(a, 'dlgTeRejat') && !/Lejet e përdoruesve|Lejet: pa asnjë mesazh|Përdoruesit/.test(trA), '1. "Çfarë ka të re": pa hyrjet e lejeve', trA.slice(0, 80));
+  ok(trA.length > 50 && !/[Gg]rup|koleg|[Kk]amer|Dërgo në PC|\bora e dorës/.test(trA), '1. "Çfarë ka të re": pa shënime për Grupin, kamerën, "Dërgo në PC", orën', (trA.match(/[Gg]rup|koleg|[Kk]amer|Dërgo në PC/) || [''])[0]);
   await a.click('#trMbyll'); await a.waitForTimeout(200);
   // Grupi nga njoftimi: s'hapet
   await a.evaluate(() => window.__stokuHapNgaNjoftimi('#ekipa-aktiviteti')); await a.waitForTimeout(300);
@@ -121,7 +121,7 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   const bs = await ctxB.newPage();
   const gabB = []; bs.on('pageerror', e => gabB.push(e.message));
   await bs.goto(B + '/index.html'); await bs.waitForTimeout(2500);
-  ok(await duket(bs, '#btnEkipi') && await duket(bs, '#btnAfatet') && !!(await bs.$('.folder-karta .folder-fshij')), '2. llogari e re: krejt lejet (Grupi, Afatet, ✕)');
+  ok(await duket(bs, '#btnEkipi') && await duket(bs, '#btnAfatet') && !!(await bs.$('.folder-karta .folder-fshij')), '2. llogari e re: të gjitha lejet (Grupi, Afatet, ✕)');
   await bs.click('#btnOpsione'); await bs.waitForTimeout(300);
   ok(await duket(bs, '#tabOra') && !(await duket(bs, '#tabPerdoruesit')), '2. Cilësimet: "Ora e dorës" po, "Përdoruesit" jo (s\'është admin)');
   await bs.evaluate(() => { document.getElementById('dlgOpsione').classList.remove('hapur'); });
@@ -181,20 +181,20 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   await bs.evaluate(() => history.back()); await bs.waitForTimeout(600);
   ok(!(await hapur(bs, 'dlgOpsione')) && await hapur(bs, 'dlgEkipi'), '3. "mbrapa" nga Cilësimet → kthehet te Grupi (faqja bazë)');
   await bs.screenshot({ path: __dirname + '/v231-tel-pa-stok.png' });
-  // "Lejo krejt"
-  await m.evaluate(() => [...document.querySelectorAll('#pdDetaje .pd-veprime button')].find(x => /Lejo krejt/.test(x.textContent)).click());
+  // "Lejo të gjitha"
+  await m.evaluate(() => [...document.querySelectorAll('#pdDetaje .pd-veprime button')].find(x => /Lejo të gjitha/.test(x.textContent)).click());
   await m.waitForTimeout(400);
-  ok(L.teNdaluara(F.S.docs.get('lejet/u2').lejet) === 0, '3. "Lejo krejt": asnjë e ndaluar');
+  ok(L.teNdaluara(F.S.docs.get('lejet/u2').lejet) === 0, '3. "Lejo të gjitha": asnjë e ndaluar');
   ok(await prit(async () => !!(await bs.$('.folder-karta')) && await duket(bs, '#btnAfatet')), '3. besa: folderat dhe Afatet rikthehen');
-  // "Ndalo krejt" (me konfirmim)
-  await m.evaluate(() => [...document.querySelectorAll('#pdDetaje .pd-veprime button')].find(x => /Ndalo krejt/.test(x.textContent)).click());
+  // "Ndalo të gjitha" (me konfirmim)
+  await m.evaluate(() => [...document.querySelectorAll('#pdDetaje .pd-veprime button')].find(x => /Ndalo të gjitha/.test(x.textContent)).click());
   await m.waitForTimeout(300); await m.click('#konfPo'); await m.waitForTimeout(400);
-  ok(L.teNdaluara(F.S.docs.get('lejet/u2').lejet) === NR_LEJEVE, '3. "Ndalo krejt": krejt të ndaluara');
+  ok(L.teNdaluara(F.S.docs.get('lejet/u2').lejet) === NR_LEJEVE, '3. "Ndalo të gjitha": krejt të ndaluara');
   ok(await prit(async () => !(await duket(bs, '#btnAfatet')) && !(await duket(bs, '#btnEkipi')) && !(await duket(bs, '#tabStoku')) && await hapur(bs, 'dlgOpsione')), '3. besa pa asgjë: faqja bazë = Cilësimet, tabi i vetëm');
   ok(!ZBULON.test(await tekstiIDukshem(bs)) && !ZBULON.test(await toast(bs)), '3. pa asnjë fjalë për lejet (as njoftim)', await toast(bs));
   await bs.click('#opsTeRejat'); await bs.waitForTimeout(300);
   const trZ = await bs.textContent('#trLista');
-  ok(await hapur(bs, 'dlgTeRejat') && trZ.length > 30 && !/[Gg]rup|koleg|[Aa]fat|[Ff]older|[Pp]rodukt|[Kk]amer|Excel|PDF|kompjuter|skad/.test(trZ), '3. "Çka ka të re" pa asgjë të lejuar: vetëm shënime të përgjithshme', (trZ.match(/[Gg]rup|koleg|[Aa]fat|[Ff]older|[Pp]rodukt|[Kk]amer|Excel|PDF|kompjuter|skad/) || [''])[0]);
+  ok(await hapur(bs, 'dlgTeRejat') && trZ.length > 30 && !/[Gg]rup|koleg|[Aa]fat|[Ff]older|[Pp]rodukt|[Kk]amer|Excel|PDF|kompjuter|skad/.test(trZ), '3. "Çfarë ka të re" pa asgjë të lejuar: vetëm shënime të përgjithshme', (trZ.match(/[Gg]rup|koleg|[Aa]fat|[Ff]older|[Pp]rodukt|[Kk]amer|Excel|PDF|kompjuter|skad/) || [''])[0]);
   await bs.click('#trMbyll'); await bs.waitForTimeout(200);
   await bs.click('#tabPamja'); await bs.waitForTimeout(300);
   await bs.evaluate(() => history.back()); await bs.waitForTimeout(600);
@@ -209,7 +209,7 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   await m.waitForTimeout(300);
   await m.click('#pdDetaje .pd-kontrollua'); await m.waitForTimeout(400);
   const dV = F.S.docs.get('lejet/u3');
-  ok(dV && L.teNdaluara(dV.lejet) === 0 && dV.kontrolluarSe > 0, '3. "U kontrollua": vjeter me krejt lejet, e shënuar');
+  ok(dV && L.teNdaluara(dV.lejet) === 0 && dV.kontrolluarSe > 0, '3. "U kontrollua": vjeter me të gjitha lejet, e shënuar');
   await m.click('#opsPrapa'); await m.waitForTimeout(300);
   ok(!(await m.evaluate(() => [...document.querySelectorAll('#pdLista .ops-grupi-titull')].some(x => /Pa u kontrolluar/.test(x.textContent)))), '3. s\'mbetet asnjë "Pa u kontrolluar"');
   ok(/3 llogari/.test(await m.textContent('#tabPerdoruesitStatus')), '3. statusi: "3 llogari"', await m.textContent('#tabPerdoruesitStatus'));
@@ -236,7 +236,7 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   const bulk = await m.$('#pdLista .pd-krejt');
   ok(!!bulk, '3. butoni "Shëno krejt … si të kontrolluar" (2+ të pakontrolluara)');
   if (bulk) { await bulk.click(); await m.waitForTimeout(300); await m.click('#konfPo'); await m.waitForTimeout(600); }
-  ok(!!F.S.docs.get('lejet/u3') && !!F.S.docs.get('lejet/u9') && L.teNdaluara(F.S.docs.get('lejet/u9').lejet) === 0, '3. bulk: vjeter + kujtim të kontrolluar, me krejt lejet');
+  ok(!!F.S.docs.get('lejet/u3') && !!F.S.docs.get('lejet/u9') && L.teNdaluara(F.S.docs.get('lejet/u9').lejet) === 0, '3. bulk: vjeter + kujtim të kontrolluar, me të gjitha lejet');
   ok(F.S.refuzime.filter(x => /^lejet\//.test(x.path)).length === 0, '3. asnjë refuzim nga rregullat për lejet', F.S.refuzime.filter(x => /^lejet\//.test(x.path)));
 
   // ================= 5. dren: pa "Shto", pa "Ndrysho", pa "Afatet", pa "Stoku në kompjuter" =================
@@ -268,7 +268,7 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   ok(!!dlD && !(await hapur(dr, 'dlgKuSkedari')), '5. pa "Stoku në kompjuter": Excel-i pa "Dërgo në PC"', dlD && dlD.suggestedFilename());
   ok(!ZBULON.test(await tekstiIDukshem(dr)), '5. faqja pa asnjë fjalë për lejet');
   await dr.screenshot({ path: __dirname + '/v231-tel-dren.png' });
-  // "Çka ka të re" sipas rolit (teRejat.js)
+  // "Çfarë ka të re" sipas rolit (teRejat.js)
   const tr = await dr.evaluate(() => ({ jo: window.StokuTeRejat.teRejatPas(229, 'tel', false).map(h => h.v), po: window.StokuTeRejat.teRejatPas(229, 'tel', true).map(h => h.v) }));
   ok(!tr.jo.includes(230) && !tr.jo.includes(231) && tr.po.includes(230) && tr.po.includes(231), '5. teRejat: hyrjet e lejeve vetëm për administratorin', tr);
 
@@ -281,7 +281,7 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   const v = await ctxV.newPage();
   const gabV = []; v.on('pageerror', e => gabV.push(e.message));
   await v.goto(B + '/index.html'); await v.waitForTimeout(2500);
-  ok(await duket(v, '#btnEkipi') && !!(await v.$('.folder-karta .folder-fshij')), '4. pa rregullat v230 (pajisje e re): krejt lejet');
+  ok(await duket(v, '#btnEkipi') && !!(await v.$('.folder-karta .folder-fshij')), '4. pa rregullat v230 (pajisje e re): të gjitha lejet');
   await m.goto(B + '/index.html'); await m.waitForTimeout(4500);
   await m.click('#btnOpsione'); await m.waitForTimeout(200); await m.click('#tabPerdoruesit'); await m.waitForTimeout(500);
   ok(/rregullat e Firestore duhet të përditësohen \(v230\)/.test(await m.textContent('#pdLista')), '4. admini: paralajmërimi për rregullat v230');

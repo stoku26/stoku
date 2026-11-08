@@ -33,7 +33,7 @@ const attr = (p, sel) => p.evaluate(s => { const e = document.querySelector(s); 
   ok(await p.evaluate(() => document.getElementById('seksionTastiera').style.display !== 'none'), '2. PDA: çelësi te Cilësimet → Skanimi');
   ok((await attr(p, '#barkodi')).im === 'text', '2. PDA pa e shtypur butonin: tastiera ende normale');
 
-  // 3. "Fshih tastierën": krejt fushat pa tastierë në ekran, shkrimi me tastierë fizike punon
+  // 3. "Fshih tastierën": të gjitha fushat pa tastierë në ekran, shkrimi me tastierë fizike punon
   await p.tap('#btnTastiera'); await p.waitForTimeout(400);
   ok((await p.textContent('#btnTastieraT')) === 'Shfaq tastierën' && (await p.getAttribute('#btnTastiera', 'aria-pressed')) === 'true', '3. butoni bëhet "Shfaq tastierën"');
   ok((await p.textContent('#toast')) === "Tastiera në ekran s'del më. Shkruaj me tastierën e PDA-së.", '3. njoftimi "Tastiera në ekran s\'del më"', await p.textContent('#toast'));
@@ -41,7 +41,7 @@ const attr = (p, sel) => p.evaluate(s => { const e = document.querySelector(s); 
   ok(bk.im === 'none' && bk.vk === 'manual' && bk.orig === 'text', '3. barkodi: inputmode none + virtualkeyboardpolicy manual (origjinali ruhet)', bk);
   ok(await p.evaluate(() => document.activeElement && document.activeElement.id === 'barkodi'), '3. kursori mbetet te barkodi');
   const krejt = await p.evaluate(() => [...document.querySelectorAll('input, textarea')].filter(e => /^(text|search|tel|number|email|url|password)$/.test(e.type || 'text') || e.tagName === 'TEXTAREA').every(e => e.getAttribute('inputmode') === 'none'));
-  ok(krejt, '3. krejt fushat e shkrimit në faqe kanë inputmode none');
+  ok(krejt, '3. të gjitha fushat e shkrimit në faqe kanë inputmode none');
   ok((await attr(p, '#afatData')).im === 'none' && (await attr(p, '#afatData')).orig === 'numeric', '3. data e afatit (numeric) ruhet për rikthim', await attr(p, '#afatData'));
   await p.focus('#barkodi'); await p.keyboard.type('3800123456789');
   ok((await p.inputValue('#barkodi')) === '3800123456789' || await p.evaluate(() => document.querySelector('.mbulese.hapur') !== null), '3. tastiera fizike / skaneri shkruan në barkod', await p.inputValue('#barkodi'));

@@ -37,7 +37,7 @@ const NUMERO_GPS = () => {
   ok(MK.largNgaMarketi(L, 'mV', { lat: ALBI.latitude, lng: ALBI.longitude, sakt: 20 }) && !MK.largNgaMarketi(L, 'mV', { lat: VIVA.latitude + 0.002, lng: VIVA.longitude, sakt: 20 }) &&
     !MK.largNgaMarketi(L, 'mV', { lat: ALBI.latitude, lng: ALBI.longitude, sakt: 500 }) && MK.pasGps(dore, gA, t, true).id === 'mA',
     '0. v256: zgjedhja me dorë bie kur GPS-i (i saktë) të tregon mbi 300 m larg saj');
-  ok(MK.pasGps({ id: 'mA', menyra: 'gps', koha: t - 1, kontrolluarSe: 0 }, null, t).id === null, '0. jashtë marketeve (pas GPS-it) → Krejt marketet');
+  ok(MK.pasGps({ id: 'mA', menyra: 'gps', koha: t - 1, kontrolluarSe: 0 }, null, t).id === null, '0. jashtë marketeve (pas GPS-it) → Të gjitha marketet');
   ok(MK.duhetKontrolli(L, { kontrolluarSe: 0 }, t) && !MK.duhetKontrolli(L, { kontrolluarSe: t - 1000 }, t) && !MK.duhetKontrolli([{ id: 'x', emri: 'X' }], { kontrolluarSe: 0 }, t), '0. GPS-i: vetëm me markete me vendndodhje, jo më shpesh se 2 min');
   const af = [{ id: 'a1', m: 'mA' }, { id: 'a2', m: 'mV' }, { id: 'a3' }, { id: 'a4', m: 'mX' }];
   ok(MK.filtro(af, 'mA').length === 1 && MK.filtro(af, null).length === 4, '0. filtro sipas marketit / krejt');
@@ -58,11 +58,11 @@ const NUMERO_GPS = () => {
   // Leja "marketet" (merchandiser): me zgjedhje, e fikur kur mungon (llogaritë e vjetra s'e marrin)
   ok(LJ.ZGJEDHJE.marketet && LJ.PRINDI.marketet === 'afatet' && !LJ.lejohet(null, 'marketet') && !LJ.lejohet({}, 'marketet') && LJ.lejohet({ marketet: true }, 'marketet') && !LJ.lejohet({ marketet: true, afatet: false }, 'marketet'), '0. lejet: "marketet" e fikur kur mungon; e ndezur vetëm kur caktohet (dhe me Afatet)');
   ok(!('marketet' in LJ.pastro({ afatet: true })) && LJ.pastro({ marketet: false }).marketet === false && LJ.pastro(null).stoku === true, '0. pastro: "marketet" ruhet vetëm kur caktohet');
-  ok(!('marketet' in LJ.krejt(true)) && !('marketet' in LJ.krejt(false)) && LJ.meZgjedhjet(LJ.krejt(true), { marketet: false }).marketet === false && LJ.meZgjedhjet(LJ.krejt(false), { marketet: true }).marketet === true, '0. "Lejo/Ndalo krejt" s\'e ndërrojnë "Merchandiser"');
+  ok(!('marketet' in LJ.krejt(true)) && !('marketet' in LJ.krejt(false)) && LJ.meZgjedhjet(LJ.krejt(true), { marketet: false }).marketet === false && LJ.meZgjedhjet(LJ.krejt(false), { marketet: true }).marketet === true, '0. "Lejo/Ndalo të gjitha" s\'e ndërrojnë "Merchandiser"');
   const TR = require(RR + '/teRejat.js');
   const tekstiTR = l => l.map(h => h.titulli + ' ' + h.pikat.join(' ')).join(' ');
   ok(!/market/i.test(tekstiTR(TR.teRejatPas(240, 'tel', false, k => k !== 'marketet'))) && /merchandiser/i.test(tekstiTR(TR.teRejatPas(240, 'tel', false, () => true))) &&
-    /Merchandiser/.test(tekstiTR(TR.teRejatPas(240, 'pc', true, () => true))), '0. "Çka ka të re": marketet vetëm për merchandiserët (dhe administratorin)');
+    /Merchandiser/.test(tekstiTR(TR.teRejatPas(240, 'pc', true, () => true))), '0. "Çfarë ka të re": marketet vetëm për merchandiserët (dhe administratorin)');
   ok(LJ.teNdaluara({ marketet: false }) === 0 && LJ.zgjedhja(null, 'marketet') === null && LJ.zgjedhja({ marketet: true }, 'marketet') === true, '0. "Merchandiser" i fikur s\'është leje e ndaluar');
 
   // ================= 1. Telefoni: merchandiseri =================
@@ -130,7 +130,7 @@ const NUMERO_GPS = () => {
   ok(/me këtë emër/.test(await dr.textContent('#mkGabim')) && (await lsMarketet(dr)).length === 1, '1. emri i përsëritur (pa dallim shkronjash) refuzohet');
   const mkA = (await lsMarketet(dr))[0];
   ok(Math.abs(mkA.lat - ALBI.latitude) < 1e-6 && Math.abs(mkA.lng - ALBI.longitude) < 1e-6, '1. v250: marketi merr vendndodhjen ku je (koordinatat e sakta)', [mkA.lat, mkA.lng]);
-  ok(await prit(async () => { const m = (await lsMarketet(dr))[0]; const pk = m && m.p && F.S.docs.get('pikat/' + m.p); return !!pk && pk.krijuarNga === 'u1' && pk.emri === 'Albi Mall'; }), '1. v250: marketi bëhet pikë e Stoku-t (e shohin krejt merchandiserët)');
+  ok(await prit(async () => { const m = (await lsMarketet(dr))[0]; const pk = m && m.p && F.S.docs.get('pikat/' + m.p); return !!pk && pk.krijuarNga === 'u1' && pk.emri === 'Albi Mall'; }), '1. v250: marketi bëhet pikë e Stoku-t (e shohin të gjithë merchandiserët)');
   await editoMarketin(dr, 'Albi Mall');
   ok(await dr.evaluate(() => !document.querySelector('#htLista input, #htLista .ops-furn-edit') && ![...document.querySelectorAll('#htLista button')].some(x => /Fshije|vendndodhjen|Ruaj/.test(x.textContent))), '1. v250: pa riemërtim, pa fshirje, pa zhvendosje te Cilësimet → Marketet');
   // marketi i dytë, kur je te Viva
@@ -160,16 +160,16 @@ const NUMERO_GPS = () => {
   ok(/Je te: Albi Mall/.test(await toast(dr)) && (await kartat(dr)).length === 2, '1. Albi: 2 afatet e veta', await kartat(dr));
   const shenja = await dr.evaluate(() => document.getElementById('afShenja').textContent);
   ok(shenja === '2', '1. shenja te tabi Afatet: vetëm e marketit (2)', shenja);
-  // Zgjedhja me dorë: Krejt marketet
+  // Zgjedhja me dorë: Të gjitha marketet
   await dr.click('#afMarketi'); await dr.waitForTimeout(300);
   const opsionet = await dr.evaluate(() => [...document.querySelectorAll('#mkdLista button')].map(x => x.textContent));
-  ok(opsionet.join('|') === 'Albi Mall0 m · 2 afate|Viva Fresh1 afat|Krejt marketet3 afate' && await duket(dr, '#mkdGps'), '1. "Ku je?": marketet me numrat (v250: Albi afër teje, me largësinë) + Krejt + GPS', opsionet);
+  ok(opsionet.join('|') === 'Albi Mall0 m · 2 afate|Viva Fresh1 afat|Të gjitha marketet3 afate' && await duket(dr, '#mkdGps'), '1. "Ku je?": marketet me numrat (v250: Albi afër teje, me largësinë) + Krejt + GPS', opsionet);
   await dr.evaluate(() => [...document.querySelectorAll('#mkdLista button')].find(x => /Krejt/.test(x.textContent)).click()); await dr.waitForTimeout(300);
   const kk = await kartat(dr);
-  ok(kk.length === 3 && kk.some(x => /Jogurt \| Viva Fresh/.test(x)) && kk.some(x => /Kos Abi \| Albi Mall/.test(x)), '1. Krejt marketet: 3 afate, me emrin e marketit', kk);
+  ok(kk.length === 3 && kk.some(x => /Jogurt \| Viva Fresh/.test(x)) && kk.some(x => /Kos Abi \| Albi Mall/.test(x)), '1. Të gjitha marketet: 3 afate, me emrin e marketit', kk);
   await dr.screenshot({ path: __dirname + '/v241-tel-krejt.png' });
   await dr.click('#afShto'); await dr.waitForTimeout(300);
-  ok(await dr.inputValue('#afatMarketi') === '', '1. Krejt marketet: afati i ri s\'ka market të zgjedhur');
+  ok(await dr.inputValue('#afatMarketi') === '', '1. Të gjitha marketet: afati i ri s\'ka market të zgjedhur');
   await dr.fill('#afatEmri', 'Qumësht'); await dr.fill('#afatData', '15-12-30'); await dr.click('#afatRuaj'); await dr.waitForTimeout(300);
   ok(/Zgjidh marketin/.test(await toast(dr)) && await dr.evaluate(() => document.getElementById('dlgAfat').classList.contains('hapur')), '1. pa market: s\'ruhet, kërkon marketin');
   await dr.selectOption('#afatMarketi', mA); await dr.click('#afatRuaj'); await dr.waitForTimeout(300);
@@ -185,7 +185,7 @@ const NUMERO_GPS = () => {
   await dr.waitForTimeout(1500); // v256: çipi është tashmë "Albi Mall": prit sa të mbarojë kërkimi i GPS-it para se të ndërrohet vendi
   // Jashtë marketeve
   await ctxD.setGeolocation(SHTEPIA); await riktheGps(dr);
-  ok(await prit(async () => (await dr.textContent('#afMarketiEmri')) === 'Krejt marketet'), '1. jashtë marketeve → Krejt marketet');
+  ok(await prit(async () => (await dr.textContent('#afMarketiEmri')) === 'Të gjitha marketet'), '1. jashtë marketeve → Të gjitha marketet');
   // Kryefaqja: çipi + të skaduarat
   await dr.evaluate(() => document.getElementById('afPrapa').click()); await dr.waitForTimeout(400);
   ok(await prit(async () => duket(dr, '.sb-home-krye .mk-chip')), '1. kryefaqja: çipi "Je te"');
@@ -208,7 +208,7 @@ const NUMERO_GPS = () => {
   ok(await ag.evaluate(() => { const x = JSON.parse(localStorage.getItem('stoku:merchandiser') || 'null'); return !!x && x.uid === 'u2' && x.v === false; }), '2. agim: s\'është merchandiser (perdoruesit/u2 pa "merchandiser")');
   ok(await ag.evaluate(() => document.getElementById('tabMarketet').classList.contains('leja-ndaluar')), '2. agim: s\'ka "Marketet" te Cilësimet');
   await ag.evaluate(() => document.getElementById('btnAfatet').click()); await ag.waitForTimeout(500);
-  ok(!(await duket(ag, '#afMarketi')) && (await kartat(ag)).length === 2 && await ag.evaluate(() => window.__gpsThirrje) === 0, '2. agim: krejt afatet, pa "Je te", pa GPS (edhe pse dyqani ka një market)');
+  ok(!(await duket(ag, '#afMarketi')) && (await kartat(ag)).length === 2 && await ag.evaluate(() => window.__gpsThirrje) === 0, '2. agim: të gjitha afatet, pa "Je te", pa GPS (edhe pse dyqani ka një market)');
   await ag.click('#afShto'); await ag.waitForTimeout(200);
   ok(await ag.evaluate(() => document.getElementById('afatMarketiRresht').hidden), '2. "Afat i ri" pa fushën e marketit');
   await ag.click('#afatAnulo').catch(() => {}); await ag.evaluate(() => { const d = document.getElementById('dlgAfat'); if (d.classList.contains('hapur')) d.classList.remove('hapur'); }); await ag.waitForTimeout(200);
@@ -236,11 +236,11 @@ const NUMERO_GPS = () => {
   await ad.click('label[for=pdLeja_marketet]'); await ad.waitForTimeout(500);
   ok(F.S.docs.get('lejet/u2') && F.S.docs.get('lejet/u2').lejet.marketet === true, '3. lejet/u2.marketet = true');
   ok(await prit(async () => await duket(ag, '#afMarketi') && !(await ag.evaluate(() => document.getElementById('tabMarketet').classList.contains('leja-ndaluar')))), '3. agim: marketet dalin në kohë reale (çipi + Cilësimet → Marketet)');
-  await ad.evaluate(() => [...document.querySelectorAll('#pdDetaje .pd-veprime button')].find(x => /Lejo krejt/.test(x.textContent)).click()); await ad.waitForTimeout(400);
-  ok(F.S.docs.get('lejet/u2').lejet.marketet === true, '3. "Lejo krejt" s\'e ndërron "Merchandiser"');
+  await ad.evaluate(() => [...document.querySelectorAll('#pdDetaje .pd-veprime button')].find(x => /Lejo të gjitha/.test(x.textContent)).click()); await ad.waitForTimeout(400);
+  ok(F.S.docs.get('lejet/u2').lejet.marketet === true, '3. "Lejo të gjitha" s\'e ndërron "Merchandiser"');
   await ad.click('label[for=pdLeja_marketet]'); await ad.waitForTimeout(500);
   ok(F.S.docs.get('lejet/u2').lejet.marketet === false, '3. lejet/u2.marketet = false');
-  ok(await prit(async () => !(await duket(ag, '#afMarketi')) && (await kartat(ag)).length === 2), '3. agim: marketet zhduken në kohë reale, krejt afatet');
+  ok(await prit(async () => !(await duket(ag, '#afMarketi')) && (await kartat(ag)).length === 2), '3. agim: marketet zhduken në kohë reale, të gjitha afatet');
   // drini: admini ia fik (p.sh. e zgjodhi gabim) → zhduket; ia ndez sërish
   await ad.click('#opsPrapa'); await ad.waitForTimeout(300);
   await ad.evaluate(() => [...document.querySelectorAll('#pdLista .ops-furn-rresht')].find(x => /drini/.test(x.textContent)).click()); await ad.waitForTimeout(400);
@@ -256,7 +256,7 @@ const NUMERO_GPS = () => {
   await pc.goto(BAZA + '/pc.html#/afatet'); await pc.waitForTimeout(2500);
   ok(await prit(async () => duket(pc, '#afMarketiPcKuti')), '4. PC: "Marketi" te Afatet');
   const opsPc = await pc.evaluate(() => [...document.getElementById('afMarketiPc').options].map(o => o.textContent));
-  ok(opsPc.join('|') === 'Krejt marketet|Albi Mall|Viva Fresh', '4. PC: opsionet', opsPc);
+  ok(opsPc.join('|') === 'Të gjitha marketet|Albi Mall|Viva Fresh', '4. PC: opsionet', opsPc);
   const rr = () => pc.evaluate(() => [...document.querySelectorAll('#afTrup tr')].filter(x => !x.classList.contains('af-grup')).map(x => x.querySelector('.af-prod').textContent));
   const krejtPc = await rr();
   ok(krejtPc.length === 4 && krejtPc.some(x => /Kos Abi.*Albi Mall/.test(x)), '4. PC Krejt: 4 afate, me emrin e marketit', krejtPc);

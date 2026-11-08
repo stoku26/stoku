@@ -224,14 +224,14 @@ fun kursoriPasFormatimit(v: TextFieldValue, f: String): Int {
 @Composable
 fun Flete(mbyll: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
     val n = N
-    // Dita e re (pas mesnatës) pret derisa të mbyllet dritarja, që të mos humbet çka po shkruhet (edhe gjatë skanimit)
+    // Dita e re (pas mesnatës) pret derisa të mbyllet dritarja, që të mos humbet çfarë po shkruhet (edhe gjatë skanimit)
     DisposableEffect(Unit) { site.stoku.vendas.Dita.hapura++; onDispose { site.stoku.vendas.Dita.hapura-- } }
     // Gjatë skanimit me kamerë dritarja s'shfaqet (përndryshe mbetet mbi kamerën); gjendja e saj ruhet te thirrësi
     if (SkaneriIHapur.hapur) return
     val gjendja = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
         onDismissRequest = mbyll, sheetState = gjendja,
-        // Edhe kur përmbajtja është e gjatë (p.sh. "Çka ka të re"), dritarja s'shkon nën shiritin e orës dhe kamerën
+        // Edhe kur përmbajtja është e gjatë (p.sh. "Çfarë ka të re"), dritarja s'shkon nën shiritin e orës dhe kamerën
         modifier = Modifier.statusBarsPadding().padding(top = 16.dp),
         shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
         containerColor = n.surface, contentColor = n.ink, scrimColor = n.overlay,

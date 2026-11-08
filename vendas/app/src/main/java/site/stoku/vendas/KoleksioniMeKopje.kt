@@ -18,8 +18,8 @@ import java.util.concurrent.Executors
 /**
  * Koleksion i përbashkët me kopje në telefon (si degjoMeKopje te ekipa.js, v252): Firebase numëron çdo dokument të lexuar,
  * prandaj sa hapet Stoku lexohen vetëm dokumentet e ndryshuara pas sinkronizimit të fundit (`ndryshuarSe`, me 1 orë
- * rezervë për orët e pasakta të telefonave), jo krejt koleksioni. Lista del menjëherë nga kopja (edhe pa internet).
- * Fshirjet: numri i dokumenteve te serveri (count) ndryshe nga kopja → lexim i plotë; krejt koleksioni lexohet edhe një
+ * rezervë për orët e pasakta të telefonave), jo i gjithë koleksioni. Lista del menjëherë nga kopja (edhe pa internet).
+ * Fshirjet: numri i dokumenteve te serveri (count) ndryshe nga kopja → lexim i plotë; i gjithë koleksioni lexohet edhe një
  * herë në 24 orë. cb(lista, serveri): serveri = lista e plotë nga serveri.
  */
 class KoleksioniMeKopje(private val skedari: File, private val pronari: String? = null) {

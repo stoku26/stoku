@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(pda) {
                 requestedOrientation = if (pda) android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT else android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             }
-            // "E madhe": krejt teksti dhe butonat pak më të mëdhenj (si zoom-i i web-it)
+            // "E madhe": i gjithë teksti dhe butonat pak më të mëdhenj (si zoom-i i web-it)
             val d0 = androidx.compose.ui.platform.LocalDensity.current
             val dendesia = if (madhesia == "e_madhe") androidx.compose.ui.unit.Density(d0.density * 1.12f, d0.fontScale) else d0
             androidx.compose.runtime.CompositionLocalProvider(androidx.compose.ui.platform.LocalDensity provides dendesia) {
@@ -205,7 +205,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
     }
 
     Box(Modifier.fillMaxSize().background(n.bg)) {
-        // Brenda një folderi shiriti me tabe fshihet (si te web-i: faqja e folderit zë krejt ekranin)
+        // Brenda një folderi shiriti me tabe fshihet (si te web-i: faqja e folderit zë të gjithë ekranin)
         val meTabe = !(tabi == "stoku" && folderi != null)
         Column(Modifier.fillMaxSize()) {
             Box(Modifier.weight(1f).statusBarsPadding().then(if (meTabe) Modifier else Modifier.navigationBarsPadding())) {
@@ -239,10 +239,10 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
         // Hyrja 32: brenda folderit toast-i del mbi butonin e skanimit (tash në mes si parazgjedhje), jo mbi të
         ToastPamja(Modifier.align(Alignment.BottomCenter).then(if (meTabe) Modifier else Modifier.navigationBarsPadding()), poshte = if (meTabe) 90.dp else 108.dp)
         DritaretEMarketeve(hapMarketet = { tabi = "cilesimet"; Merchandiseri.hapFaqen.value = true })
-        // "Çka ka të re": një herë pas përditësimit
+        // "Çfarë ka të re": një herë pas përditësimit
         var teRejat by remember { mutableStateOf(TeRejat.teReja()) }
         if (teRejat.isNotEmpty()) site.stoku.vendas.ui.TeRejatFlete(teRejat) { teRejat = emptyList() }
-        else site.stoku.vendas.ui.PyetjaENjoftimeve() // si dlgNjoftimet te web-i: pas "Çka ka të re", jo njëkohësisht
+        else site.stoku.vendas.ui.PyetjaENjoftimeve() // si dlgNjoftimet te web-i: pas "Çfarë ka të re", jo njëkohësisht
         skanimi?.let { cb ->
             Skaneri(mbyll = { skanimi = null }, shtoNjeCope = numerimi) { b -> skanimi = null; cb(b) }
         }

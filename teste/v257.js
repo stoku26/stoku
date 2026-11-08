@@ -60,7 +60,7 @@ const geo = (x, y, s) => { const p = pika(x, y); return { latitude: p.lat, longi
     console.log('      ' + emri + ': ' + rr.join(' | '));
   });
   ok(maksVjeter >= 30, '1. më parë (vetëm më i afërti): deri ' + maksVjeter + '% zgjedhje të gabuara', maksVjeter);
-  ok(maksRi <= 12, '1. tash: zgjedhjet e gabuara më së shumti ' + maksRi + '% (në vend të kësaj pyet "Ku je?")', maksRi);
+  ok(maksRi <= 12, '1. tani: zgjedhjet e gabuara më së shumti ' + maksRi + '% (në vend të kësaj pyet "Ku je?")', maksRi);
   ok(maksMeAktiv <= 12 && minMeAktiv >= 85, '1. kur je tashmë te marketi i duhur: mbetet aty ≥ ' + minMeAktiv + '%, kërcen te fqinji ≤ ' + maksMeAktiv + '%', { minMeAktiv, maksMeAktiv });
 
   // ================= 2. Telefoni =================
@@ -99,7 +99,7 @@ const geo = (x, y, s) => { const p = pika(x, y); return { latitude: p.lat, longi
   ok(/Je afër disa marketeve dhe GPS-i s'i dallon dot/.test(await p.textContent('#mkdNen')), '2. teksti: "Je afër disa marketeve dhe GPS-i s\'i dallon dot"', await p.textContent('#mkdNen'));
   const lista = await p.evaluate(() => [...document.querySelectorAll('#mkdLista button')].map(x => x.textContent));
   ok(/Viva Fly|Viva Fresh 110/.test(lista[0] || '') && /Viva Fly|Viva Fresh 110/.test(lista[1] || ''), '2. të dy marketet në krye të listës', lista.slice(0, 3));
-  ok((await cipi()) === 'Krejt marketet', '2. s\'zgjidhet vetë asnjë', await cipi());
+  ok((await cipi()) === 'Të gjitha marketet', '2. s\'zgjidhet vetë asnjë', await cipi());
   await p.evaluate(() => [...document.querySelectorAll('#mkdLista button')].find(x => /Viva Fly/.test(x.textContent)).click()); await p.waitForTimeout(300);
   ok((await cipi()) === 'Viva Fly', '2. zgjedh "Viva Fly"', await cipi());
   await rikthe(BX / 2 + 5 * UX, BY / 2 + 5 * UY, 30);

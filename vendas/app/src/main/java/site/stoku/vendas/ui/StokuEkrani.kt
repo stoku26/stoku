@@ -592,7 +592,7 @@ private fun SasiaEDrejtperdrejte(s: Long, vendos: (Long) -> Unit) {
         cursorBrush = SolidColor(n.accent),
         modifier = Modifier.size(68.dp, 50.dp).clip(RoundedCornerShape(14.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(14.dp))
             .onFocusChanged { f ->
-                // Në prekje zgjidhet krejt numri (si te web-i), që shkrimi i ri ta zëvendësojë
+                // Në prekje zgjidhet i gjithë numri (si te web-i), që shkrimi i ri ta zëvendësojë
                 if (f.isFocused && !neFokus) scope.launch { kotlinx.coroutines.delay(40); t = t.copy(selection = TextRange(0, t.text.length)) }
                 if (!f.isFocused && neFokus) ruajNumrin()
                 neFokus = f.isFocused

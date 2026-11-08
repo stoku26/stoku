@@ -1,6 +1,6 @@
 // v232: kopja e të fshirave nga një pajisje tjetër. Dy telefona (A, B) dhe një kompjuter (K) në të njëjtën llogari:
 // B fshin një folder me produkt → A dhe K e ruajnë kopjen (Cilësimet → Llogaria → "Të fshira nga një pajisje tjetër"),
-// "Rikthe" e kthen në krejt pajisjet (edhe në cloud), "Hiq kopjen" e heq. Folderi i parazgjedhur bosh s'ruhet.
+// "Rikthe" e kthen në të gjitha pajisjet (edhe në cloud), "Hiq kopjen" e heq. Folderi i parazgjedhur bosh s'ruhet.
 const { chromium } = require('./pw.js');
 const fs = require('fs');
 const { krijoFirestore } = require('./fs-server.js');
@@ -71,19 +71,19 @@ const prit = (fn, ms = 9000) => new Promise(async z => { const t0 = Date.now(); 
   // Cilësimet → Llogaria te A
   await A.click('#btnOpsione'); await A.waitForTimeout(300); await A.click('#tabLlogaria'); await A.waitForTimeout(400);
   const sA = await A.evaluate(() => ({ dukshem: !document.getElementById('llKopjaSeksion').hidden && document.getElementById('llKopjaSeksion').offsetParent !== null, t: document.getElementById('llKopjaTeksti').textContent }));
-  ok(sA.dukshem && /^1 folder \("Testi"\) dhe 1 produkt u fshinë nga një pajisje tjetër\. Kopja u ruajt në këtë telefon më \d\d\.\d\d\.\d{4}, ora \d\d:\d\d\. "Rikthe" i kthen në krejt pajisjet\.$/.test(sA.t), '1. A: "Të fshira nga një pajisje tjetër" me tekstin e saktë', sA);
+  ok(sA.dukshem && /^1 folder \("Testi"\) dhe 1 produkt u fshinë nga një pajisje tjetër\. Kopja u ruajt në këtë telefon më \d\d\.\d\d\.\d{4}, ora \d\d:\d\d\. "Rikthe" i kthen në të gjitha pajisjet\.$/.test(sA.t), '1. A: "Të fshira nga një pajisje tjetër" me tekstin e saktë', sA);
   await A.screenshot({ path: __dirname + '/v232-kopja-tel.png' });
   await Bp.click('#btnOpsione'); await Bp.waitForTimeout(300); await Bp.click('#tabLlogaria'); await Bp.waitForTimeout(400);
   ok(await Bp.evaluate(() => document.getElementById('llKopjaSeksion').hidden), '1. B: pa kartën e kopjes');
   await K.click('#btnOpsione'); await K.waitForTimeout(300); await K.click('#opsSkeda button[data-faqe="llogaria"]'); await K.waitForTimeout(400);
   const sK = await K.evaluate(() => ({ dukshem: !document.getElementById('opsKopja').hidden && document.getElementById('opsKopja').offsetParent !== null, t: document.getElementById('opsKopjaTeksti').textContent }));
-  ok(sK.dukshem && /^1 folder \("Testi"\) dhe 1 produkt u fshinë nga një pajisje tjetër\. Kopja u ruajt në këtë kompjuter më \d\d\.\d\d\.\d{4}, ora \d\d:\d\d\. "Rikthe" i kthen në krejt pajisjet\.$/.test(sK.t), '1. K: karta e kopjes me tekstin e saktë', sK);
+  ok(sK.dukshem && /^1 folder \("Testi"\) dhe 1 produkt u fshinë nga një pajisje tjetër\. Kopja u ruajt në këtë kompjuter më \d\d\.\d\d\.\d{4}, ora \d\d:\d\d\. "Rikthe" i kthen në të gjitha pajisjet\.$/.test(sK.t), '1. K: karta e kopjes me tekstin e saktë', sK);
   await K.screenshot({ path: __dirname + '/v232-kopja-pc.png' });
 
   // 2. A: "Rikthe" → "Testi" me "Qumësht" kthehen kudo
   await A.click('#llKopjaRikthe'); await A.waitForTimeout(300);
   const kt = await A.evaluate(() => document.getElementById('konfTekst') ? document.getElementById('konfTekst').textContent : [...document.querySelectorAll('#dlgKonfirmo *')].map(x => x.textContent).join('|'));
-  ok(/Kthehen 1 folder \("Testi"\) dhe 1 produkt në krejt pajisjet e llogarisë\./.test(kt), '2. A: pyetja para rikthimit', kt);
+  ok(/Kthehen 1 folder \("Testi"\) dhe 1 produkt në të gjitha pajisjet e llogarisë\./.test(kt), '2. A: pyetja para rikthimit', kt);
   await A.click('#konfPo');
   ok(await prit(async () => cloud().f.includes('Testi') && cloud().p.includes('Qumësht')), '2. cloud: "Testi" dhe "Qumësht" u kthyen', cloud());
   ok(await prit(() => kaFolder(Bp, 'Testi')) && await prit(() => kaFolder(K, 'Testi')), '2. B dhe K: "Testi" u kthye');
@@ -109,7 +109,7 @@ const prit = (fn, ms = 9000) => new Promise(async z => { const t0 = Date.now(); 
   const t3 = await K.evaluate(() => document.getElementById('opsKopjaTeksti').textContent);
   ok(/^1 folder \("Pije"\) dhe 1 produkt u fshinë/.test(t3), '3. K: karta tregon vetëm "Pije" (jo "Testi", që është sërish këtu)', t3);
   await K.click('#opsKopjaRikthe'); await K.waitForTimeout(300);
-  ok(/Kthehen 1 folder \("Pije"\) dhe 1 produkt në krejt pajisjet e llogarisë\./.test(await K.textContent('#kfTekst')), '3. K: pyetja para rikthimit', await K.textContent('#kfTekst'));
+  ok(/Kthehen 1 folder \("Pije"\) dhe 1 produkt në të gjitha pajisjet e llogarisë\./.test(await K.textContent('#kfTekst')), '3. K: pyetja para rikthimit', await K.textContent('#kfTekst'));
   await K.click('#kfPo');
   ok(await prit(async () => cloud().f.includes('Pije') && cloud().p.includes('Ujë')), '3. cloud: "Pije" me "Ujë" u kthye nga kompjuteri', cloud());
   ok(!cloud().f.includes('Higjiene'), '3. "Higjiene" mbetet e fshirë', cloud().f);
@@ -128,7 +128,7 @@ const prit = (fn, ms = 9000) => new Promise(async z => { const t0 = Date.now(); 
   ok(await prit(async () => !(await kaFolder(A, 'Fresh 2'))), '4. A: "Fresh 2" iku');
   await A.click('#btnOpsione'); await A.waitForTimeout(300); await A.click('#tabLlogaria'); await A.waitForTimeout(400);
   const t4 = await A.textContent('#llKopjaTeksti');
-  ok(!(await A.evaluate(() => document.getElementById('llKopjaSeksion').hidden)) && /^1 folder \("Fresh 2"\) u fshi nga një pajisje tjetër\..*"Rikthe" e kthen në krejt pajisjet\.$/.test(t4), '4. A: karta në njëjës ("u fshi", "e kthen")', t4);
+  ok(!(await A.evaluate(() => document.getElementById('llKopjaSeksion').hidden)) && /^1 folder \("Fresh 2"\) u fshi nga një pajisje tjetër\..*"Rikthe" e kthen në të gjitha pajisjet\.$/.test(t4), '4. A: karta në njëjës ("u fshi", "e kthen")', t4);
   await A.click('#llKopjaHiq'); await A.waitForTimeout(300); await A.click('#konfPo'); await A.waitForTimeout(300);
   ok(await A.evaluate(() => document.getElementById('llKopjaSeksion').hidden) && !(await lokale(A)).k, '4. A: "Hiq kopjen" e heq kartën dhe kopjen');
   ok(!cloud().f.includes('Fresh 2'), '4. "Fresh 2" mbetet i fshirë (Hiq s\'kthen asgjë)', cloud().f);

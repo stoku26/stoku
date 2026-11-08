@@ -1,6 +1,6 @@
 // v233: dyqani s'mbetet pa foldera. Llogaria (si pda34, pa lejen për të krijuar foldera) ka në cloud shënime fshirjeje
 // për 4 folderat e parazgjedhur (të ardhura nga një llogari tjetër para v232): para v233 folderat dilnin dhe hiqeshin
-// menjëherë. Tash: kthehen dhe mbeten (telefoni me 0 foldera, pajisje e re, PC). Fshirja e qëllimshme e krejt folderave
+// menjëherë. Tash: kthehen dhe mbeten (telefoni me 0 foldera, pajisje e re, PC). Fshirja e qëllimshme e të gjithë folderave
 // s'kthehet menjëherë (10 minuta), vetëm më vonë.
 const { chromium } = require('./pw.js');
 const fs = require('fs');
@@ -80,7 +80,7 @@ const D = ['ushqimore', 'pije', 'higjiene', 'fresh'];
   const K2 = await pajisje(F2, 'u7', 'arta', true);
   ok(await prit(async () => (await lokalF(K2.p)).length === 4) && !K2.vargu.includes(0), '4. PC i ri: 4 folderat', K2.vargu);
 
-  // ===== 5. Fshirja e qëllimshme e krejt folderave (llogari me leje të plota) =====
+  // ===== 5. Fshirja e qëllimshme e të gjithë folderave (llogari me leje të plota) =====
   const F3 = krijoFirestore();
   F3.S.docs.set('perdoruesit/u8', { perdoruesi: 'besa', kycurSe: t });
   const X = await pajisje(F3, 'u8', 'besa', false);

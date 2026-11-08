@@ -3,7 +3,7 @@
 // 1. "Produktet e reja": pritja e një kolegu (tonnyaliu) me produkte që administratori i ka kontrolluar tashmë (te regjistri)
 //    s'i nxjerr ato sërish për kontroll (edhe në një pajisje të re të administratorit); produkti vërtet i ri del; pajisja e
 //    kolegut s'i dërgon më për kontroll
-// 2. merchandiseri: te "Krejt marketet" afatet ndahen sipas marketit; çdo afat tregon marketin (tel + PC)
+// 2. merchandiseri: te "Të gjitha marketet" afatet ndahen sipas marketit; çdo afat tregon marketin (tel + PC)
 // 3. PC pas rifreskimit: para se Firebase ta dijë hyrjen, s'del "Mirë se erdhe" me hyrjen (llogaria e fundit, "Duke u lidhur…")
 const { chromium } = require('./pw.js');
 const path = require('path');
@@ -106,7 +106,7 @@ const prit = (fn, ms = 10000) => new Promise(async z => { const t0 = Date.now();
   await me.evaluate(() => document.getElementById('btnAfatet').click()); await me.waitForTimeout(800);
   await me.evaluate(() => document.querySelectorAll('.mbulese.hapur:not(.faqe-e-plote)').forEach(d => d.classList.remove('hapur')));
   const listaTel = () => me.evaluate(() => [...document.querySelectorAll('#afLista > *')].map(x => x.classList.contains('af-grup-market') ? '# ' + x.textContent.trim() : x.classList.contains('af-karta') ? x.querySelector('.af-emri').textContent + ' @ ' + ((x.querySelector('.af-market') || {}).textContent || '-') : x.className));
-  ok(await prit(async () => (await listaTel()).length >= 7), '2. tel: Afatet (Krejt marketet)', await listaTel());
+  ok(await prit(async () => (await listaTel()).length >= 7), '2. tel: Afatet (Të gjitha marketet)', await listaTel());
   ok((await listaTel()).join(' | ') === '# Albi Mall · 2 | Kos @ Albi Mall | Djathë @ Albi Mall | # Viva Fresh · 1 | Qumësht @ Viva Fresh | # Pa market · 1 | Bukë @ Pa market', '2. tel: afatet të ndara sipas marketit, secili me marketin e vet', await listaTel());
   await me.screenshot({ path: __dirname + '/v248-tel-marketet.png' });
   await me.click('#afMarketi'); await me.waitForTimeout(300);

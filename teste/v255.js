@@ -51,7 +51,7 @@ async function faqe(b, ua, ura, url) {
   const TR = require(path.join(RR, 'teRejat.js'));
   const v255 = h => h.v === 255; // vetëm hyrjet e v255 (më vonë vijnë të tjera)
   const tel = TR.teRejatPas(254, 'tel', false, () => true).filter(v255).map(h => h.titulli), pc = TR.teRejatPas(254, 'pc', false, () => true).filter(v255).map(h => h.titulli);
-  ok(tel.includes('Aplikacioni i ri Stoku për Android') && !pc.length, 'A: "Çka ka të re": vetëm telefoni', { tel, pc });
+  ok(tel.includes('Aplikacioni i ri Stoku për Android') && !pc.length, 'A: "Çfarë ka të re": vetëm telefoni', { tel, pc });
 
   const b = await chromium.launch();
   const ANDROID = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36';

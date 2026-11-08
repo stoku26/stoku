@@ -51,7 +51,7 @@ import site.stoku.vendas.Llogaria
 import site.stoku.vendas.Merchandiseri
 import kotlin.math.roundToLong
 
-/** Çipi "Je te: X" / "Po sheh: Krejt marketet" / "Marketi: Shto marketin ku punon" (si .mk-chip te web-i) */
+/** Çipi "Je te: X" / "Po sheh: Të gjitha marketet" / "Marketi: Shto marketin ku punon" (si .mk-chip te web-i) */
 @Composable
 fun CipiIMarketit(modifier: Modifier = Modifier) {
     val n = N
@@ -70,7 +70,7 @@ fun CipiIMarketit(modifier: Modifier = Modifier) {
         Spacer(Modifier.width(10.dp))
         Column(Modifier.weight(1f)) {
             Text(if (pa) "Marketi" else if (id != null) "Je te" else "Po sheh", style = txF(11.5f, 600, n.muted))
-            Text(if (pa) "Shto marketin ku punon" else if (id != null) Merchandiseri.emri(id) else "Krejt marketet", style = tx(15, 700, n.ink),
+            Text(if (pa) "Shto marketin ku punon" else if (id != null) Merchandiseri.emri(id) else "Të gjitha marketet", style = tx(15, 700, n.ink),
                 maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Icon(Ik.Poshte, null, Modifier.size(16.dp), tint = n.muted)
@@ -88,7 +88,7 @@ fun ShenjaEMarketit(emri: String, modifier: Modifier = Modifier) {
     }
 }
 
-/** Titulli i grupit të marketit te "Krejt marketet" (si .af-grup-market) */
+/** Titulli i grupit të marketit te "Të gjitha marketet" (si .af-grup-market) */
 @Composable
 fun TitulliIMarketit(teksti: String) {
     val ng = N.ikonat["gjelber"]!!.second
@@ -149,7 +149,7 @@ private fun KuJe(d: Merchandiseri.Dritarja.KuJe, hapMarketet: () -> Unit) {
         opsionet = opsionet.filter { o -> afer.none { it === o } }
     }
     val kaTjera = opsionet.isNotEmpty()
-    if (!perTeReja) opsionet = opsionet + Opsioni(null, "Krejt marketet", Merchandiseri.afateAktive(null), null)
+    if (!perTeReja) opsionet = opsionet + Opsioni(null, "Të gjitha marketet", Merchandiseri.afateAktive(null), null)
 
     Dialog(onDismissRequest = { mbyll(null, false) }) {
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(n.surface).padding(20.dp)) {
@@ -221,7 +221,7 @@ private fun MarketIRi() {
     Dialog(onDismissRequest = { if (!punon) mbyll() }) {
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(n.surface).padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(if (g.marketet.isNotEmpty()) "Market i ri" else "Në cilin market je?", style = tx(20, 700, n.ink, -0.02))
-            Text("Shkruaj emrin e marketit ku je tani. Stoku e ruan vendndodhjen e tij (duhet vendndodhja e saktë e telefonit) dhe e shohin krejt merchandiserët.",
+            Text("Shkruaj emrin e marketit ku je tani. Stoku e ruan vendndodhjen e tij (duhet vendndodhja e saktë e telefonit) dhe e shohin të gjithë merchandiserët.",
                 style = txF(13.5f, 400, n.muted))
             Fusha(emri, { emri = it.take(60); gabim = "" }, Modifier.fillMaxWidth(), "Emri i marketit", kurVeprim = { ruaj() })
             if (gabim.isNotEmpty()) Text(gabim, style = tx(13, 600, n.exp))
@@ -313,11 +313,11 @@ fun MarketetFaqja(mbyll: () -> Unit) {
         if (r.values.any { it }) shto() else gabim = Marketet.tekstiGabimit("leje")
     }
     FaqjaECilesimeve("Marketet", mbyll) {
-        IntroOps(if (admin && !merch) "Marketet e Stoku-t, të njëjtat për krejt merchandiserët. Në hartë dalin vetëm emrat e qyteteve, fshatrave dhe lagjeve. Prek një market në hartë ose te lista për t'ia ndryshuar emrin për krejt Stoku-n. Me \"+ Shto market në hartë\" e vendos një market të ri."
-            else "Marketet e Stoku-t, të njëjtat për krejt merchandiserët. Afatet ndahen sipas marketit: te çdo market i sheh vetëm afatet e tij. Stoku e njeh vetë marketin ku je (GPS), vetëm kur je brenda tij. Kur je brenda një marketi që s'është ende këtu, shtoje më poshtë. Emrat i ndryshon vetëm administratori. Vendndodhja jote s'ruhet askund, vetëm ajo e marketeve.")
+        IntroOps(if (admin && !merch) "Marketet e Stoku-t, të njëjtat për të gjithë merchandiserët. Në hartë dalin vetëm emrat e qyteteve, fshatrave dhe lagjeve. Prek një market në hartë ose te lista për t'ia ndryshuar emrin për të gjithë Stoku-n. Me \"+ Shto market në hartë\" e vendos një market të ri."
+            else "Marketet e Stoku-t, të njëjtat për të gjithë merchandiserët. Afatet ndahen sipas marketit: te çdo market i sheh vetëm afatet e tij. Stoku e njeh vetë marketin ku je (GPS), vetëm kur je brenda tij. Kur je brenda një marketi që s'është ende këtu, shtoje më poshtë. Emrat i ndryshon vetëm administratori. Vendndodhja jote s'ruhet askund, vetëm ajo e marketeve.")
         if (merch && marketet.isNotEmpty()) {
             KartaOps {
-                Text(if (id != null) "Je te: " + Merchandiseri.emri(id) else "Krejt marketet", style = txF(15.5f, 600, n.ink))
+                Text(if (id != null) "Je te: " + Merchandiseri.emri(id) else "Të gjitha marketet", style = txF(15.5f, 600, n.ink))
                 Text(if (!Marketet.kaPika(marketet)) "Asnjë market s'ka ende vendndodhje: shtoje kur je brenda marketit."
                     else if (aktivi.menyra == "dore" && id != null) "E zgjodhe me dorë. GPS-i e ndërron vetë pas disa orësh, ose kur largohesh nga ai market." else "Me GPS, kur je brenda marketit.",
                     style = txR(12.5f, 400, n.muted), modifier = Modifier.padding(top = 2.dp, bottom = 10.dp))

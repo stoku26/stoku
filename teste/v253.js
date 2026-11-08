@@ -52,7 +52,7 @@ const lindje = d => ({ lat: VF.lat, lng: Math.round((VF.lng + d) * 1e6) / 1e6 })
   const TR = require(RR + '/teRejat.js');
   const tr = (a, l) => TR.teRejatPas(252, 'tel', a, l).filter(h => h.v === 253).map(h => h.titulli); // vetëm hyrjet e v253 (më vonë vijnë të tjera)
   ok(tr(false, () => true).join() === 'Markete afër njëri-tjetrit' && tr(true).length === 2 && !tr(false, k => k !== 'marketet').length,
-    '0. "Çka ka të re": merchandiseri 1, administratori 2, të tjerët asnjë', [tr(false, () => true), tr(true)]);
+    '0. "Çfarë ka të re": merchandiseri 1, administratori 2, të tjerët asnjë', [tr(false, () => true), tr(true)]);
 
   // ================= Faqet =================
   const F = krijoFirestore();

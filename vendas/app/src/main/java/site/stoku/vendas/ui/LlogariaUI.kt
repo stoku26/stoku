@@ -67,7 +67,7 @@ internal fun AvatariMadh(emri: String, madhesia: Int = 56, uid: String? = null, 
     }
 }
 
-/** Llogaria: "Shto foto" / "Ndrysho foton" / "Hiq foton" (fotoja e profilit, e sheh krejt grupi) */
+/** Llogaria: "Shto foto" / "Ndrysho foton" / "Hiq foton" (fotoja e profilit, e sheh i gjithë grupi) */
 @Composable
 fun FotoJaProfilit() {
     val n = N
@@ -86,7 +86,7 @@ fun FotoJaProfilit() {
         scope.launch {
             val g = Fotot.ngarko(ctx, uri)
             duke = false; hint = g?.let { Fotot.tekstiGabimit(it) } ?: ""
-            if (g == null) Toast.trego("Fotoja u ruajt. E sheh krejt grupi.")
+            if (g == null) Toast.trego("Fotoja u ruajt. E sheh i gjithë grupi.")
         }
     }
     Row(Modifier.fillMaxWidth().padding(bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -115,7 +115,7 @@ fun KopjaEFshirave() {
     var hiq by remember { mutableStateOf(false) }
     val k = remember(kopja, g) { Dyqani.lexoKopjen() }
     val m = remember(k, g) { k?.let { Dyqani.teMungueshmetNgaKopja(it) } }
-    // Krejt çka ishte në kopje është sërish këtu (p.sh. u rikthye nga një pajisje tjetër): kopja s'duhet më
+    // Krejt çfarë ishte në kopje është sërish këtu (p.sh. u rikthye nga një pajisje tjetër): kopja s'duhet më
     LaunchedEffect(k, m) { if (kopja != null && (m == null || (m.first.isEmpty() && m.second.isEmpty()))) Dyqani.hiqKopjen() }
     if (k == null || m == null || (m.first.isEmpty() && m.second.isEmpty())) return
     val nje = m.first.size + m.second.size == 1
@@ -123,13 +123,13 @@ fun KopjaEFshirave() {
     KartaOps {
         Text(Dyqani.pershkrimiIKopjes(m) + (if (nje) " u fshi" else " u fshinë") + " nga një pajisje tjetër. Kopja u ruajt në këtë telefon më " +
             SimpleDateFormat("dd.MM.yyyy", Locale.ROOT).format(Date(k.koha)) + ", ora " + SimpleDateFormat("HH:mm", Locale.ROOT).format(Date(k.koha)) +
-            ". \"Rikthe\" " + (if (nje) "e" else "i") + " kthen në krejt pajisjet.", style = txR(12.5f, 400, n.muted), modifier = Modifier.padding(bottom = 10.dp))
+            ". \"Rikthe\" " + (if (nje) "e" else "i") + " kthen në të gjitha pajisjet.", style = txR(12.5f, 400, n.muted), modifier = Modifier.padding(bottom = 10.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Buton("Rikthe", { rikthe = true }, Modifier.weight(1f), lartesia = 44.dp)
             ButonOps("Hiq kopjen", { hiq = true }, Modifier.weight(1f))
         }
     }
-    if (rikthe) Konfirmo("Të rikthehen të fshirat?", (if (nje) "Kthehet " else "Kthehen ") + Dyqani.pershkrimiIKopjes(m) + " në krejt pajisjet e llogarisë.", "Rikthe",
+    if (rikthe) Konfirmo("Të rikthehen të fshirat?", (if (nje) "Kthehet " else "Kthehen ") + Dyqani.pershkrimiIKopjes(m) + " në të gjitha pajisjet e llogarisë.", "Rikthe",
         rrezik = false, mbyll = { rikthe = false }) {
         val r = Dyqani.riktheNgaKopja()
         if (r != null) Toast.trego((if (r.first.size + r.second.size == 1) "U rikthye: " else "U rikthyen: ") + Dyqani.pershkrimiIKopjes(r) + ".", 4000)

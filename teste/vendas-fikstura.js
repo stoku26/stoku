@@ -579,7 +579,7 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
     return Object.assign(p, { rreshta: plan.rreshta.map(r => [r.fleta, r.nr, r.barkodi, r.emri, r.data, r.dataOrigjinale, r.sasia, r.furnizuesi, r.gabim, r.veprimi]),
       numrat: [plan.teRinj, plan.ekzistojne, plan.gabime, plan.bashkuar], teReja });
   });
-  const muajt = ['Nëntor', 'nëntor', ' DHJETOR ', 'Janar', 'November', 'çka', 'nentor2', 'NENTOR 2', 'Nëntor (2)', 'nov', 'no', 'Fleta1', 'shk', 'Sept', 'dhe', 'Dhjetor 2026', 'tetor', 'okt', 'janarr', '', null, 7]
+  const muajt = ['Nëntor', 'nëntor', ' DHJETOR ', 'Janar', 'November', 'çfarë', 'nentor2', 'NENTOR 2', 'Nëntor (2)', 'nov', 'no', 'Fleta1', 'shk', 'Sept', 'dhe', 'Dhjetor 2026', 'tetor', 'okt', 'janarr', '', null, 7]
     .map(t => [t, A.muajiNgaEmri(t)]);
   const qelizat = [[3890010001, null], [12.5, null], [-7, null], [1e21, null], ['  x ', null], [true, null], [null, null], [46300, null], [46300.6, null], [15, 11], [15, null],
     [32, 11], [12.1, null], [10.203, null], [12.1, 11], ['15', 11], ['15.', 11], ['15', null], ['31.02.2026', null], ['12 nëntor 26', null], ['', 11], [0, 2], [20000, null]]

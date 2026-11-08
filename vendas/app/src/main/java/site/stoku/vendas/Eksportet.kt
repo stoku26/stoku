@@ -151,7 +151,7 @@ object Eksportet {
     private fun pjeseEmri(t: String) =
         t.lowercase().replace("ë", "e").replace("ç", "c").replace(Regex("[^a-z0-9]+"), "_").replace(Regex("^_+|_+$"), "").take(40)
 
-    /** lista: afatet (të renditura); muaji/furnizuesi: vetëm te eksporti i krejt listës, për emrin e fletës dhe të skedarit */
+    /** lista: afatet (të renditura); muaji/furnizuesi: vetëm te eksporti i të gjithë listës, për emrin e fletës dhe të skedarit */
     fun excelIAfateve(lista: List<Obj>, kyçet: List<String>, muaji: String, furnizuesi: String): Skedari {
         StokuApp.vendosPref("afatet_excel_kolonat", Json.shkruaj(kyçet))
         val kolonat = KOLONAT_E_AFATEVE.filter { kyçet.contains(it.k) }

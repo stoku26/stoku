@@ -43,7 +43,7 @@ const ls4 = { getItem: () => null, setItem: () => { throw new Error('QuotaExceed
   const per = G.perDergim(remote).sort();
   ok(per.join() === '222,333,furnizuesi F3', 'v197 perDergim: vetëm ato ku pajisja ka diçka më të mirë', per);
   const h = G.hyrjePerGrup(['111', '333', '555', 'mungon']);
-  ok(JSON.stringify(h['333']) === JSON.stringify({ e: 'Imi 333', f: 'F3', k: h['333'].k, a: 0, m: 0, s: 0, n: '', x: 0, r: 1 }) && h['111'].m === 1 && h['555'].x === 1 && h['555'].e === '' && !('mungon' in h), 'v197 hyrjePerGrup: krejt fushat (bashkimi i Firebase-it s\'lë mbetje)', h);
+  ok(JSON.stringify(h['333']) === JSON.stringify({ e: 'Imi 333', f: 'F3', k: h['333'].k, a: 0, m: 0, s: 0, n: '', x: 0, r: 1 }) && h['111'].m === 1 && h['555'].x === 1 && h['555'].e === '' && !('mungon' in h), 'v197 hyrjePerGrup: të gjitha fushat (bashkimi i Firebase-it s\'lë mbetje)', h);
   ok(!G.meso('111', 'Auto tjetër', '', 'plotëso') && G.merr('111').emri === 'Koleg 111 (me dorë)', 'v197 plotëso s\'prek hyrjen me dorë të kolegut');
   ok(G.meso('555', 'Rikthyer', '') && G.merr('555').emri === 'Rikthyer', 'v197 ruajtja e re e kthen të harruarën');
   G.pastro(); ok(G.numri() === 0, 'v197 pastro (grup tjetër)');
@@ -121,7 +121,7 @@ const ls4 = { getItem: () => null, setItem: () => { throw new Error('QuotaExceed
   ok(l2.find(x => x.emri === 'Devoli').nePritje, 'v238 furnizuesi i afateve të mia pa hyrje: pret kontrollin');
   ok(!L([{ furnizuesi: 'Devoli' }], {}, kj, [{ emri: 'Devoli', koha: 3 }]).find(x => x.emri === 'Devoli').nePritje, 'v238 me hyrje të kontrolluar: te Furnizuesit');
 }
-// ---- v206: "Harroje" e administratorit sinkronizohet në krejt pajisjet dhe s'kthehet ----
+// ---- v206: "Harroje" e administratorit sinkronizohet në të gjitha pajisjet dhe s'kthehet ----
 {
   const mk = () => { const m = {}; return AF.krijoKujtesen({ getItem: k => (k in m ? m[k] : null), setItem: (k, v) => { m[k] = String(v); } }); };
   const PC = mk(), TEL = mk(), KOL = mk();

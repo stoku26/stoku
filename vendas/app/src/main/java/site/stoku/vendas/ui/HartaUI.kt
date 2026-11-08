@@ -168,7 +168,7 @@ class HartaKontrolli {
         val t = m.cameraPosition.target ?: return null
         return Triple(t.latitude, t.longitude, m.cameraPosition.zoom)
     }
-    /** Si pershtat() te harta.js: krejt pikat në pamje (një pikë: zmadhimi 14; asnjë: Kosova) */
+    /** Si pershtat() te harta.js: të gjitha pikat në pamje (një pikë: zmadhimi 14; asnjë: Kosova) */
     fun pershtat(pikat: List<PikaEHartes>) {
         val m = map ?: return
         val v = pikat.filter { it.kaVend }

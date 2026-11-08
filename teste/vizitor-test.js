@@ -44,7 +44,7 @@ const dukshem = (p, sel) => p.evaluate(s => { const e = document.querySelector(s
     const pr = await json(p, 'stoku:produktet:v2'), af = await json(p, 'stoku:afatet:v1');
     ok(Object.keys(pr).length === 12 && af.length === 7 && (await ls(p, 'stoku:pronari-uid')) === 'vizitor' && (await ls(p, 'stoku:vizitor')) === '1', '1c. të dhënat shembull: 12 produkte, 7 afate, pronari "vizitor"', [Object.keys(pr).length, af.length]);
     ok(await dukshem(p, '#vizShirit') && (await p.textContent('#sbDyqani')) === 'Vizitor · provë', '1d. shiriti i vizitorit + "Vizitor · provë" poshtë logos', await p.textContent('#sbDyqani'));
-    ok(!(await dukshem(p, '#dlgTeRejat')), '1e. s\'del lista "Çka ka të re"');
+    ok(!(await dukshem(p, '#dlgTeRejat')), '1e. s\'del lista "Çfarë ka të re"');
     // ndryshim → asnjë shkrim në cloud
     await p.click('.folder-karta[data-id="pije"]'); await p.waitForTimeout(300);
     await p.fill('#barkodi', '2000200000020'); await p.press('#barkodi', 'Enter'); await p.waitForTimeout(300);

@@ -628,7 +628,7 @@ private fun Permbledhja(ftesat: List<Obj>, kerkesatG: List<Obj>, ngjarjet: List<
         }
         val skaduara = te.filter { Afatet.statusi(it) == "skaduar" }.sortedWith { a, b -> Afatet.krahaso(a, b) }
         item {
-            Seksion("Duhet hequr nga rafti", if (skaduara.size > 5) "Shiko krejt (${skaduara.size})" else null) { ctx.hapAnetarin("krejt", "skaduar") }
+            Seksion("Duhet hequr nga rafti", if (skaduara.size > 5) "Shiko të gjitha (${skaduara.size})" else null) { ctx.hapAnetarin("krejt", "skaduar") }
             when {
                 !ng -> Info("Duke ngarkuar…")
                 skaduara.isEmpty() -> Text("Asnjë produkt i skaduar në raft. Shumë mirë!", style = tx(14, 700, n.ok),
@@ -638,12 +638,12 @@ private fun Permbledhja(ftesat: List<Obj>, kerkesatG: List<Obj>, ngjarjet: List<
         items(skaduara.take(5), key = { "s" + it["pronariUid"] + it["id"] }) { KartaPultit(it, ctx) }
         val javes = te.filter { Afatet.statusi(it) == "afer" && (Afatet.ditetDeri(it["data"])?.let { d -> d <= 7 } == true) }.sortedWith { a, b -> Afatet.krahaso(a, b) }
         if (ng && javes.isNotEmpty()) {
-            item { Seksion("Skadojnë këtë javë", "Shiko krejt") { ctx.hapAnetarin("krejt", "afer") } }
+            item { Seksion("Skadojnë këtë javë", "Shiko të gjitha") { ctx.hapAnetarin("krejt", "afer") } }
             items(javes.take(5), key = { "j" + it["pronariUid"] + it["id"] }) { KartaPultit(it, ctx) }
         }
         val ngj = if (ngjGati) ngjarjet.take(3) else emptyList()
         if (ngj.isNotEmpty()) {
-            item { Seksion("Aktiviteti i fundit", "Shiko krejt") { ctx.zgjidhPamjen("aktiviteti") } }
+            item { Seksion("Aktiviteti i fundit", "Shiko të gjitha") { ctx.zgjidhPamjen("aktiviteti") } }
             items(ngj, key = { "n" + it["id"] }) { x -> Ngjarja(x, GrupiLogjika.kohaRelative(kohaE(x, "koha"), ctx.tani)) }
         }
         seksionetEStatistikave(st)
@@ -950,12 +950,12 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
         items(an, key = { "a" + it["uid"] }) { a -> RreshtiKolegut(a, ctx) }
         if (pronar) {
             item {
-                Krye("Njoftim për krejt grupin")
+                Krye("Njoftim për të gjithë grupin")
                 FushaShumeRreshta(njoftimi, { njoftimi = it.take(1000) }, "Shkruaj njoftimin (i del secilit te zilja)")
-                Buton("Dërgo te krejt grupi", {
+                Buton("Dërgo te i gjithë grupi", {
                     val t = njoftimi.trim()
                     if (t.isEmpty()) return@Buton
-                    if (Grupi.lajmeroEkipen(t)) { njoftimi = ""; Toast.trego("Njoftimi u dërgua te krejt grupi.") }
+                    if (Grupi.lajmeroEkipen(t)) { njoftimi = ""; Toast.trego("Njoftimi u dërgua te i gjithë grupi.") }
                     else Toast.trego("Njoftimi s'u dërgua. Kontrollo internetin dhe provo përsëri.", 4000)
                 }, Modifier.fillMaxWidth().padding(top = 8.dp))
             }
@@ -984,11 +984,11 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
             }
             item {
                 Krye("Pastrimi")
-                Buton("Pastro krejt aktivitetin", {
-                    ctx.pyet(Pyetja("Të fshihet krejt aktiviteti?", "Krejt historiku i aktivitetit fshihet për krejt grupin. Afatet s'preken.", "Fshi krejt", true) {
+                Buton("Pastro të gjithë aktivitetin", {
+                    ctx.pyet(Pyetja("Të fshihet i gjithë aktiviteti?", "I gjithë historiku i aktivitetit fshihet për të gjithë grupin. Afatet s'preken.", "Fshi të gjitha", true) {
                         scope.launch {
                             val r = Grupi.pastroAktivitetin()
-                            Toast.trego(if (r == null) "S'u fshi krejt. Kontrollo internetin dhe provo përsëri." else if (r == 1) "U fshi 1 rresht." else "U fshinë $r rreshta.", 4000)
+                            Toast.trego(if (r == null) "S'u fshi gjithçka. Kontrollo internetin dhe provo përsëri." else if (r == 1) "U fshi 1 rresht." else "U fshinë $r rreshta.", 4000)
                         }
                     })
                 }, Modifier.fillMaxWidth(), lloji = "rrezik")
@@ -1015,7 +1015,7 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
                 }
             }
             if (!krejtLlogarite && jashte.size > 15) item {
-                Buton("Shfaq krejt (" + jashte.size + ")", { krejtLlogarite = true }, Modifier.fillMaxWidth(), lloji = "tekst")
+                Buton("Shfaq të gjitha (" + jashte.size + ")", { krejtLlogarite = true }, Modifier.fillMaxWidth(), lloji = "tekst")
             }
         }
         item {
@@ -1221,7 +1221,7 @@ private fun PaGrup(ftesat: List<Obj>, kerkesatM: List<Obj>, ctx: Konteksti) {
         scope.launch {
             val r = Grupi.krijoGrupin(em)
             duke = false
-            if (r == null) { emriGrupit = ""; Toast.trego("Grupi \"$em\" u krijua. Tash fto shokët te Kolegët.", 4500); ctx.zgjidhPamjen("anetaret") }
+            if (r == null) { emriGrupit = ""; Toast.trego("Grupi \"$em\" u krijua. Tani fto shokët te Kolegët.", 4500); ctx.zgjidhPamjen("anetaret") }
             else Toast.trego(if (r == "leje") "S'u krijua: rregullat e Firebase-it për grupet s'janë vendosur ende." else "S'u krijua. Kontrollo internetin dhe provo përsëri.", 5000)
         }
     }
@@ -1392,7 +1392,7 @@ private fun ZiljaFlete(ctx: Konteksti, mbyll: () -> Unit) {
     }
     if (fshiKrejt) {
         val ids = lista.orEmpty().mapNotNull { it["id"] as? String }
-        Konfirmo("Të fshihen krejt njoftimet?", (if (ids.size == 1) "Njoftimi fshihet" else "Të ${ids.size} njoftimet fshihen") + " vetëm për ty.", "Fshiji", true, mbyll = { fshiKrejt = false }) {
+        Konfirmo("Të fshihen të gjitha njoftimet?", (if (ids.size == 1) "Njoftimi fshihet" else "Të ${ids.size} njoftimet fshihen") + " vetëm për ty.", "Fshiji", true, mbyll = { fshiKrejt = false }) {
             scope.launch {
                 if (Grupi.fshijNjoftimet(ids) == null) { Toast.trego(if (ids.size == 1) "Njoftimi u fshi." else "U fshinë ${ids.size} njoftime."); rifresko++ }
                 else Toast.trego("S'u fshinë. Kontrollo internetin dhe provo sërish.")
@@ -1432,7 +1432,7 @@ private fun KerkesaFlete(mbyll: () -> Unit) {
         val r = Grupi.kerkoHeqjen(zgjedhur.map { mapOf("produkti" to it["produkti"], "barkodi" to it["barkodi"], "data" to it["data"]) }, shenim, per)
         if (r != null) { gabim = if (r == "pa-kolege") "S'ka ende kolegë në grup." else "S'u dërgua. Kontrollo internetin dhe provo sërish."; return }
         mbyll()
-        Toast.trego("Kërkesa u dërgua te " + (if (per.isEmpty()) "krejt grupi" else jsString(kol.firstOrNull { it["uid"] == per }?.get("emri") ?: "")) + ".")
+        Toast.trego("Kërkesa u dërgua te " + (if (per.isEmpty()) "i gjithë grupi" else jsString(kol.firstOrNull { it["uid"] == per }?.get("emri") ?: "")) + ".")
     }
     Flete(mbyll) {
         Text("Kërko heqje nga rafti", style = tx(22, 700, n.ink, -0.02))
@@ -1475,7 +1475,7 @@ private fun KerkesaFlete(mbyll: () -> Unit) {
         }
         Text("Kujt t'ia kërkosh", style = tx(13, 600, n.ink2))
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Cip("Krejt grupi (${kol.size})", null, per.isEmpty()) { per = "" }
+            Cip("I gjithë grupi (${kol.size})", null, per.isEmpty()) { per = "" }
             kol.forEach { a -> Cip(jsString(a["emri"] ?: ""), null, per == a["uid"]) { per = a["uid"] as String } }
         }
         Text("Shënim (s'është i detyrueshëm)", style = tx(13, 600, n.ink2))
