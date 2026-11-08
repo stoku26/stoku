@@ -1,7 +1,7 @@
 /*
  * Grupi — pjesa e përbashkët e telefonit (index.html) dhe kompjuterit (pc.html) për tabin "Grupi".
  *
- * Çka ka brenda:
+ * Çfarë ka brenda:
  *  1. krijoCloud(fs, db, auth, platforma) — leximet/shkrimet në Firestore për grupin (v164: GRUPET):
  *       grupet/{g}                     → { emri, pronarUid, pronarEmri, krijuarSe } — secili grup është një grup më vete;
  *                                        anëtarët e një grupi s'shohin asgjë nga grupet e tjera
@@ -152,7 +152,7 @@
     // Firebase numëron çdo dokument të lexuar: me kopjen, sa hapet Stoku lexohen vetëm dokumentet e ndryshuara pas
     // sinkronizimit të fundit të kësaj pajisjeje (`ndryshuarSe`, me 1 orë rezervë për orët e pasakta të telefonave), jo krejt
     // koleksioni. Lista del menjëherë nga kopja (edhe pa internet). Fshirjet: numri i dokumenteve te serveri
-    // (getCountFromServer, 1 lexim për 1000) ndryshe nga kopja → lexim i plotë; krejt koleksioni lexohet edhe një herë në
+    // (getCountFromServer, 1 lexim për 1000) ndryshe nga kopja → lexim i plotë; i gjithë koleksioni lexohet edhe një herë në
     // 24 orë (edhe për ndryshimet nga një telefon me orë shumë të gabuar). cb(lista, { serveri }): serveri = lista e plotë.
     var KOPJA_PLOTE_MS = 24 * 3600 * 1000, KOPJA_MARGJINA_MS = 3600 * 1000;
     // `pronari` (opsional): kopja vlen vetëm për të (p.sh. grupi); kopja e një tjetri s'përdoret
@@ -236,7 +236,7 @@
         // kolegët e marrin njoftimin edhe me aplikacion të mbyllur
         var g0 = op.rruga[0] === 'grupet' ? op.rruga[1] : '', lloji0 = op.rruga[0] === 'grupet' ? op.rruga[2] : op.rruga[0];
         if ((lloji0 === 'feed' || lloji0 === 'ekipa_feed') && /^kerkese-/.test(op.te.lloji)) njoftoPushKerkese(op.id, g0);
-        // v195: njoftimi personal te një koleg (heqja që pret miratimin, pranimi/refuzimi, administratori, njoftimi për krejt grupin)
+        // v195: njoftimi personal te një koleg (heqja që pret miratimin, pranimi/refuzimi, administratori, njoftimi për të gjithë grupin)
         if (op.rruga[0] === 'perdoruesit' && op.rruga[2] === 'njoftimet' && op.te.grupi && !/^kerkese-/.test(op.te.lloji || '')) njoftoPushNjoftim(op.id, op.rruga[1], op.te.grupi);
         return { ok: true, id: op.id };
       }, function (e) {
@@ -693,7 +693,7 @@
         for (var i = 0; i < ids.length; i++) { try { await fs.deleteDoc(fs.doc(db, 'kerkesat_grupi', ids[i])); } catch (e) { /* ok */ } }
       } catch (e) { /* p.sh. rregullat para v242 */ }
     }
-    // Largimi nga grupi aktual. fshiGrupin: ishte anëtari i fundit → fshihet krejt grupi me historikun.
+    // Largimi nga grupi aktual. fshiGrupin: ishte anëtari i fundit → fshihet i gjithë grupi me historikun.
     // paTregues: kalim te një grup tjetër (treguesin e shkruan pranimi i ftesës).
     // trashegimtari (v246): uid i kolegut që bëhet admin, kur largohet admini i vetëm (para çdo gjëje tjetër: pa të s'largohet)
     var veprimeNeGrup = 0; // krijimi/pranimi/largimi në vazhdim: treguesin e grupit e shkruajnë ato vetë
@@ -1042,7 +1042,7 @@
         if (!fs.getDoc) return null;
         try { var s = await fs.getDoc(fs.doc(db, 'perdoruesit', uid())); return !!(s.exists() && s.data().emri === ADMIN_EMRI); } catch (e) { return null; }
       },
-      // Administratori: krejt llogaritë (për "Llogaritë e tjera": fshirja, ftesa)
+      // Administratori: të gjitha llogaritë (për "Llogaritë e tjera": fshirja, ftesa)
       degjoKrejtLlogarite: function (cb, cbGabim) {
         return fs.onSnapshot(fs.collection(db, 'perdoruesit'), function (s) {
           cb(listaNga(s).map(function (x) {
@@ -1146,7 +1146,7 @@
         } catch (e) { return gabim(e); }
       },
 
-      // ---------- Pronari i grupit: njoftim për krejt grupin, pastrimi ----------
+      // ---------- Pronari i grupit: njoftim për të gjithë grupin, pastrimi ----------
       // Njoftim te zilja e secilit (lista e uid-ve) + në aktivitet; kalon nga radha (s'humbet pa internet)
       lajmeroEkipen: function (tekst, listaUid) {
         tekst = String(tekst || '').trim().slice(0, 1000);
@@ -1158,7 +1158,7 @@
         });
         return pritPak(shtoNeRadhe(rrG('feed'), { lloji: 'lajmerim', tekst: tekst, uid: uid(), emri: emri(), koha: koha }));
       },
-      // Kërkesë që një koleg (ose krejt grupi) ta heqë nga rafti një produkt (edhe pa afat në Stoku).
+      // Kërkesë që një koleg (ose i gjithë grupi) ta heqë nga rafti një produkt (edhe pa afat në Stoku).
       // Ngjarja te aktiviteti + njoftim te zilja e secilit marrës; Worker-i dërgon push (/kerkese).
       kerkoHeqjen: function (k, listaUid) {
         var produktet = listaEKerkeses(k);
@@ -1200,7 +1200,7 @@
         return pritPak(shtoNeRadhe(rrG('feed'), Object.assign({ lloji: lloji, uid: uid(), emri: emri(), koha: koha, pronariUid: uid(),
           kerkuesUid: nj.uid || '', kerkuesEmri: nj.emri || '' }, te)));
       },
-      // Fshin krejt aktivitetin e grupit ('feed')
+      // Fshin të gjithë aktivitetin e grupit ('feed')
       pastroKoleksionin: async function (k) {
         if (!grupi || k !== 'feed') return { ok: false, n: 0 };
         try { return { ok: true, n: await pastroKol(rrG(k)) }; } catch (e) { var g = gabim(e); g.n = 0; return g; }
@@ -1260,7 +1260,7 @@
           cb(h, info);
         }, cbGabim, grupi);
       },
-      // setDoc me merge: krejt fushat e hyrjes shkruhen (a/m/x 0 ose 1), që bashkimi të mos lërë mbetje të hyrjes së vjetër
+      // setDoc me merge: të gjitha fushat e hyrjes shkruhen (a/m/x 0 ose 1), që bashkimi të mos lërë mbetje të hyrjes së vjetër
       ruajKujtesen: async function (hyrjet) {
         if (!uid() || !grupi) return { ok: false, arsye: 'pa-grup' };
         var pjeset = {};
@@ -1272,9 +1272,9 @@
         } catch (e) { return gabim(e); }
       },
 
-      // ---------- v242: regjistri i përbashkët i Stoku-t (krejt llogaritë, edhe pa grup) ----------
+      // ---------- v242: regjistri i përbashkët i Stoku-t (të gjitha llogaritë, edhe pa grup) ----------
       // kujtesa/{p0..p9, px}: produktet dhe furnizuesit e kontrolluar nga administratori; e lexon kushdo, e shkruan vetëm ai.
-      // kujtesa_pritje/{uid}: çka mëson/shkruan secili (pa kontroll ende); e lexon vetëm ai dhe administratori.
+      // kujtesa_pritje/{uid}: çfarë mëson/shkruan secili (pa kontroll ende); e lexon vetëm ai dhe administratori.
       // v252: me kopje në pajisje (degjoMeKopje): vetëm pjesët e ndryshuara lexohen sa hapet Stoku
       degjoRegjistrin: function (cb, cbGabim) {
         if (!uid()) return function () {};
@@ -1294,12 +1294,12 @@
           return { ok: true };
         } catch (e) { return gabim(e); }
       },
-      // Pritja ime zëvendësohet krejt (pa merge): çka u kontrollua ose u fshi nga administratori del vetë prej saj
+      // Pritja ime zëvendësohet krejt (pa merge): çfarë u kontrollua ose u fshi nga administratori del vetë prej saj
       ruajPritjen: async function (hyrjet) {
         if (!uid()) return { ok: false };
         try { await fs.setDoc(fs.doc(db, 'kujtesa_pritje', uid()), { p: hyrjet || {}, emri: emri(), ndryshuarSe: Date.now() }); return { ok: true }; } catch (e) { return gabim(e); }
       },
-      // Administratori: pritja e krejt llogarive, në kohë reale: cb([{ id (uid), emri, p }])
+      // Administratori: pritja e të gjitha llogarive, në kohë reale: cb([{ id (uid), emri, p }])
       degjoPritjet: function (cb, cbGabim) {
         if (!uid()) return function () {};
         return fs.onSnapshot(fs.collection(db, 'kujtesa_pritje'), function (s) { cb(listaNga(s)); }, function (e) { if (cbGabim) cbGabim(e); });
@@ -1353,7 +1353,7 @@
         } catch (e) { return gabim(e); }
       },
 
-      // ---------- v211: furnizuesit e administratorit si sugjerim për krejt përdoruesit (edhe jashtë grupit) ----------
+      // ---------- v211: furnizuesit e administratorit si sugjerim për të gjithë përdoruesit (edhe jashtë grupit) ----------
       // publike/furnizuesit → { lista: [emrat], ndryshuarSe }; e lexon kushdo i kyçur, e shkruan vetëm administratori
       lexoFurnizuesitPublike: async function () {
         if (!uid()) return { ok: false, lista: [] };
@@ -1648,10 +1648,10 @@
         }
         return { lloji: 'anetar-i-ri', kush: kush, cfare: ng.uid === uidIm ? 'u bashkove me grupin' : 'u bashkua me grupin', detaje: '' };
       case 'lajmerim':
-        return { lloji: 'lajmerim', kush: kush, cfare: ng.uid === uidIm ? 'njoftove krejt grupin' : 'njoftoi krejt grupin', detaje: ng.tekst || '' };
+        return { lloji: 'lajmerim', kush: kush, cfare: ng.uid === uidIm ? 'njoftove të gjithë grupin' : 'njoftoi të gjithë grupin', detaje: ng.tekst || '' };
       case 'kerkese-heqje':
         return { lloji: 'lajmeruar', kush: kush, cfare: (ng.uid === uidIm ? 'kërkove' : 'kërkoi') + ' heqjen nga rafti: ' + produktiIKerkeses(ng),
-          detaje: (ng.perUid ? 'për ' + (ng.perUid === uidIm ? 'ty' : (ng.perEmri || 'një koleg')) : 'për krejt grupin') + (ng.shenim ? ' · ' + ng.shenim : '') };
+          detaje: (ng.perUid ? 'për ' + (ng.perUid === uidIm ? 'ty' : (ng.perEmri || 'një koleg')) : 'për të gjithë grupin') + (ng.shenim ? ' · ' + ng.shenim : '') };
       case 'kerkese-kryer':
         return { lloji: 'hequr', kush: kush, cfare: (ng.uid === uidIm ? 'e hoqe' : 'e hoqi') + ' nga rafti: ' + produktiIKerkeses(ng),
           detaje: ng.kerkuesUid === uidIm ? 'me kërkesën tënde' : 'me kërkesë të ' + (ng.kerkuesEmri || 'një kolegu') };
@@ -1684,7 +1684,7 @@
     return l.length + ' produkte (' + emrat.join(', ') + (l.length > 3 ? ' e ' + (l.length - 3) + (l.length - 3 === 1 ? ' tjetër' : ' të tjera') : '') + ')';
   }
 
-  // Zgjedhësi i produkteve te "Kërko heqje nga rafti" (tel + PC): dy lista (të skaduarat / krejt produktet), kërkim
+  // Zgjedhësi i produkteve te "Kërko heqje nga rafti" (tel + PC): dy lista (të skaduarat / të gjitha produktet), kërkim
   // dhe shenja (disa njëherësh). burimet: { skaduara: [{ produkti, barkodi, data, nen }], produktet: [...] }
   function zgjedhesIKerkeses(rrenja, burimet, kurNdryshon) {
     var zgjedhur = {}, rendi = [], tabi = (burimet.skaduara || []).length ? 'skaduara' : 'produktet', kerkimi = '';
@@ -1751,7 +1751,7 @@
     if (nj.lloji === 'heqje-pranuar') return (nj.emri || 'Kolegu') + ' e pranoi heqjen nga rafti: ' + (nj.produkti || nj.barkodi || 'produkt');
     if (nj.lloji === 'heqje-refuzuar') return (nj.emri || 'Kolegu') + ' e refuzoi heqjen nga rafti: ' + (nj.produkti || nj.barkodi || 'produkt') + ' (mbetet në raft)';
     if (nj.lloji === 'lajmerim') return (nj.emri || 'Administratori') + ': ' + (nj.tekst || '');
-    if (nj.lloji === 'admin-i-ri') return (nj.emri || 'Admini') + ' u largua nga grupi dhe tash ti je admini i grupit.';
+    if (nj.lloji === 'admin-i-ri') return (nj.emri || 'Admini') + ' u largua nga grupi dhe tani ti je admini i grupit.';
     if (nj.lloji === 'admin-afat') return (nj.emri || 'Administratori') + ' ' + (FJALA_E_VEPRIMIT[nj.veprimi] || 'ndryshoi') + ': ' + (nj.produkti || nj.barkodi || 'produkt');
     return nj.tekst || '';
   }
@@ -1786,7 +1786,7 @@
       kerkesatEMia: [],          // v242: kërkesat e mia për t'u futur në një grup: [{ id, gid, grupiEmri, koha }]
       kerkesatEGrupit: [],       // v242: kërkesat për grupin tim (i pranon/refuzon pronari): [{ id, gid, uid, emri, koha }]
       ftesatGati: false, kerkesatGati: false,
-      krejtLlogarite: null,      // administratori: krejt llogaritë (për "Llogaritë e tjera")
+      krejtLlogarite: null,      // administratori: të gjitha llogaritë (për "Llogaritë e tjera")
       admin: false,
       permbledhjet: null,        // { uid: { emri, afatet, ndryshuarSe } } nga grupet/{g}/afatet
       permbledhjetGabim: false   // përmbledhjet s'lexohen → lexohen dyqanet (vetëm administratori mundet)
@@ -1963,7 +1963,7 @@
       pranimiAuto = false;
       if (r && r.ok) {
         ruajKerkuarat({}); // tash je në grup: kërkesat e tjera s'vlejnë më (fshihen edhe nga cloud-i)
-        if (o.njofto) o.njofto({ titulli: 'Stoku · Grupi', tag: 'ek-kr-ok-' + f.gid, pamja: 'anetaret', teksti: 'Admini të pranoi: tash je në grupin "' + (f.grupiEmri || '') + '".' });
+        if (o.njofto) o.njofto({ titulli: 'Stoku · Grupi', tag: 'ek-kr-ok-' + f.gid, pamja: 'anetaret', teksti: 'Admini të pranoi: tani je në grupin "' + (f.grupiEmri || '') + '".' });
         thirr('kerkesat');
       } else if (r && r.arsye === 'ftesa-skadoi') { harroKerkuar(f.gid); thirr('kerkesat'); }
     }
@@ -2205,7 +2205,7 @@
       }
       return r;
     }
-    // Kërkesë për heqje nga rafti (çdo anëtar): te një koleg (perUid) ose te krejt grupi
+    // Kërkesë për heqje nga rafti (çdo anëtar): te një koleg (perUid) ose te i gjithë grupi
     function koleget() { var im = o.uidIm(); return anetaretEDukshem().filter(function (a) { return a.uid !== im; }); }
     async function kerkoHeqjen(k) {
       var e = E();
@@ -2282,7 +2282,7 @@
         var gFundit = gj.grupi || grupiIFundit(); // v243: për rikthimin, nëse treguesi te Firebase humbi
         d.anetaresia = e.degjoGrupin(function (r) {
           if (r.gjendja === 'gabim') return; // pa internet: mbetet gjendja e fundit e ditur
-          if (r.uHoq) harroGrupinEFundit(); // të hoqi pronari (ose grupi u fshi): s'ka çka të rikthehet
+          if (r.uHoq) harroGrupinEFundit(); // të hoqi pronari (ose grupi u fshi): s'ka çfarë të rikthehet
           var gRi = r.gjendja === 'anetar' ? r.grupi : null;
           var roliRi = r.gjendja === 'anetar' && r.roli === 'pronar' ? 'pronar' : 'anetar';
           var ndryshoiGrupi = r.gjendja !== gj.anetaresia || gRi !== gj.grupi;
@@ -2342,11 +2342,11 @@
         if (!r || !r.ok) bs.forEach(function (b) { kujtesaGj.pritje[b] = true; }); // provohet sërish me ndryshimin e radhës
       }, 2000);
     }
-    // ---------- v242: regjistri i përbashkët i Stoku-t (produktet dhe furnizuesit, për krejt llogaritë) ----------
-    // Kushdo me llogari e merr regjistrin (kujtesa/*: vetëm çka ka kontrolluar administratori) dhe e shton te kujtesa e
-    // pajisjes: emri del kur skanon, listat te Cilësimet → Stoku. Çka mëson/shkruan dikush dhe s'është te regjistri shkon
+    // ---------- v242: regjistri i përbashkët i Stoku-t (produktet dhe furnizuesit, për të gjitha llogaritë) ----------
+    // Kushdo me llogari e merr regjistrin (kujtesa/*: vetëm çfarë ka kontrolluar administratori) dhe e shton te kujtesa e
+    // pajisjes: emri del kur skanon, listat te Cilësimet → Stoku. Çfarë mëson/shkruan dikush dhe s'është te regjistri shkon
     // te pritja e tij (kujtesa_pritje/{uid}); administratori i merr krejt pritjet si "në pritje" (pa `s`, me emrin e
-    // autorit) dhe i kontrollon te Cilësimet → Stoku. Vetëm çka ruan/fshin administratori kalon te regjistri.
+    // autorit) dhe i kontrollon te Cilësimet → Stoku. Vetëm çfarë ruan/fshin administratori kalon te regjistri.
     var KEY_PRITJA = 'stoku:kujtesa:pritja', PRITJA_MAKS = 3000;
     var regj = { gati: false, remote: {}, degjon: false, ndryshuar: {}, kohez: null, adminiDihet: false, pritjet: null };
     // v248: barkodi që administratori e ka vendosur te regjistri (i kontrolluar ose i fshirë prej tij): pritja e kolegëve
@@ -2378,7 +2378,7 @@
         if (regj.pritjet) { var pr = regj.pritjet; regj.pritjet = null; zbatoPritjet(pr); }
       });
     }
-    // Pasi dihet a jam administrator: ai dërgon çka di (të kontrolluarat) dhe dëgjon pritjet; të tjerët dërgojnë pritjen
+    // Pasi dihet a jam administrator: ai dërgon çfarë di (të kontrolluarat) dhe dëgjon pritjet; të tjerët dërgojnë pritjen
     function regjistriPasAdminit() {
       var e = E(), K = kujtesaPajisjes();
       if (!e || !K || !o.uidIm() || regj.adminiDihet) return;
@@ -2387,7 +2387,7 @@
         if (regj.gati) K.perDergim(regj.remote).forEach(function (b) { regj.ndryshuar[b] = true; });
         if (e.degjoPritjet && !d.pritjet) {
           d.pritjet = e.degjoPritjet(function (lista) {
-            if (!regj.gati && !regj.gabim) { regj.pritjet = lista; return; } // v248: pritet regjistri (çka është kontrolluar tashmë)
+            if (!regj.gati && !regj.gabim) { regj.pritjet = lista; return; } // v248: pritet regjistri (çfarë është kontrolluar tashmë)
             zbatoPritjet(lista);
           }, function () { ndal('pritjet'); });
         }
@@ -2415,7 +2415,7 @@
       K.lista().forEach(function (p) { if (p.nePritje && eShembullIProves(p.barkodi, { e: p.emri })) K.fshij(p.barkodi); });
       if (K.furnizuesit && K.fshijFurnizuesin) K.furnizuesit().forEach(function (f) { if (f.nePritje && !f.fshire && PROVA_FURNIZUESIT.indexOf(f.emri) !== -1) K.fshijFurnizuesin(f.emri); });
     }
-    // Administratori: pritja e krejt llogarive → "Produktet e reja" (pa `s`, me emrin e autorit)
+    // Administratori: pritja e të gjitha llogarive → "Produktet e reja" (pa `s`, me emrin e autorit)
     function zbatoPritjet(lista) {
       var K = kujtesaPajisjes(), uIm = o.uidIm(), h = {};
       if (!K) return;
@@ -2443,7 +2443,7 @@
         var e = E(), K = kujtesaPajisjes();
         if (!e || !K || !o.uidIm() || !regj.gati) return;
         if (gj.admin) {
-          // Administratori: te regjistri vetëm çka ka kontrolluar (ruajtur ose fshirë prej tij), jo ato në pritje
+          // Administratori: te regjistri vetëm çfarë ka kontrolluar (ruajtur ose fshirë prej tij), jo ato në pritje
           var bs = Object.keys(regj.ndryshuar);
           regj.ndryshuar = {};
           if (!bs.length) return;
@@ -2456,9 +2456,9 @@
         }
         regj.ndryshuar = {};
         if (!e.ruajPritjen) return;
-        // Të tjerët: çka di pajisja dhe s'është (ose është ndryshe) te regjistri → pritja ime, më të rejat të parat
+        // Të tjerët: çfarë di pajisja dhe s'është (ose është ndryshe) te regjistri → pritja ime, më të rejat të parat
         var hyr = K.hyrjePerGrup(K.perDergim(regj.remote)), lista = [];
-        // v248: s'dërgohet për kontroll çka administratori e ka vendosur tashmë te regjistri
+        // v248: s'dërgohet për kontroll çfarë administratori e ka vendosur tashmë te regjistri
         Object.keys(hyr).forEach(function (b) { if (hyr[b].x !== 1 && !vendosurNgaAdmini(b) && !eShembullIProves(b, hyr[b])) lista.push(b); });
         lista.sort(function (a, b) { return (Number(hyr[b].k) || 0) - (Number(hyr[a].k) || 0); });
         var p = {};
@@ -2485,7 +2485,7 @@
         lista.forEach(function (n) {
           if (uNjoftua('nj:' + n.id)) return;
           if ((Date.now() - (n.koha || 0)) >= 2 * 86400000 || !o.njofto) return;
-          // Kërkesat (dhe, me Worker-in 161+, krejt njoftimet e grupit) vijnë edhe si push: kur push-i punon, njoftimi lokal
+          // Kërkesat (dhe, me Worker-in 161+, të gjitha njoftimet e grupit) vijnë edhe si push: kur push-i punon, njoftimi lokal
           // në sfond do të ishte i dyfishtë
           var ngaPush = (/^kerkese-/.test(n.lloji) && e.pushAktiv && e.pushAktiv()) || !!(e.pushPerNjoftimet && e.pushPerNjoftimet());
           o.njofto({ titulli: /^kerkese-/.test(n.lloji) ? 'Stoku · Hiqe nga rafti' : n.lloji === 'fjalekalimi' ? 'Stoku · Fjalëkalimi' : 'Stoku · Grupi', teksti: tekstiNjoftimit(n), tag: 'ek-nj-' + n.id, pamja: 'njoftimet', vetemNePerpara: ngaPush });
@@ -2792,7 +2792,7 @@
       lexoFurnizuesitPublike: lexoFurnizuesitPublike, publikoFurnizuesit: publikoFurnizuesit,
       numriNjoftimeve: function () { return gj.njoftimetPalexuara.filter(function (n) { return !(n.lloji === 'kerkese-heqje' && kryeresiIKerkeses(n)); }).length; },
       kaLidhje: function () { return !!E() && !!o.uidIm(); },
-      // A janë marrë anëtarët dhe afatet e tyre (për "Krejt grupi")
+      // A janë marrë anëtarët dhe afatet e tyre (për "I gjithë grupi")
       eGatshme: function () { return gj.anetaret.length > 0 && (!!gj.permbledhjet || gj.ngarkuarSe > 0) && !gj.dukeNgarkuar; },
       // Grupi
       gjendjaEQasjes: gjendjaEQasjes,

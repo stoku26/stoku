@@ -17,9 +17,9 @@
  *     përndryshe s'zgjidhet vetë asnjë ("Ku je?" me to në krye). gjejMarketin(); gjej() mbetet si më parë.
  *   - Zgjedhja me dorë vlen DORE_MS para GPS-it (brenda qendrave tregtare GPS-i gabon), përveç kur GPS-i (i saktë) të tregon
  *     qartë larg atij marketi (mbi LARG_M + pasaktësia, v256). Jashtë krejt marketeve, pas një zgjedhjeje nga GPS-i, aktiv bëhet
- *     "Krejt marketet" (null).
+ *     "Të gjitha marketet" (null).
  *   - Vendndodhja e personit s'ruhet dhe s'dërgohet askund: krahasohet vetëm në pajisje me pikat e marketeve.
- * v250: marketet janë TË PËRBASHKËTA për krejt merchandiserët: lista e secilit = pikat e Stoku-t (sinkronizoMePikat).
+ * v250: marketet janë TË PËRBASHKËTA për të gjithë merchandiserët: lista e secilit = pikat e Stoku-t (sinkronizoMePikat).
  *   Merchandiseri s'i fshin e s'ua ndërron emrin; shton market vetëm kur është brenda tij, me vendndodhje të saktë
  *   (≤ SAKTESIA_MAKS_M) dhe kur s'ka asnjë market tjetër brenda LIDHJA_M. Emrin e ndryshon dhe pikën e fshin vetëm administratori.
  * v253: dy markete mund të jenë afër njëri-tjetrit (p.sh. dy anët e rrugës, rreth 50 m): "i njëjti vend" = brenda AFER_M

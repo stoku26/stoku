@@ -1,7 +1,7 @@
 /*
  * Ruajtja e dyqanit në Firebase (Firestore), e ndarë në disa dokumente — e përbashkët për telefonin dhe PC-në.
  *
- * Pse: një dokument i Firestore-it pranon maksimum 1 MB. Më parë krejt dyqani (produktet + afatet) ishte
+ * Pse: një dokument i Firestore-it pranon maksimum 1 MB. Më parë i gjithë dyqani (produktet + afatet) ishte
  * në një dokument të vetëm, pra kishte kufi (~6.000 produkte, ose afate të grumbulluara në disa muaj).
  *
  * Tani:
@@ -50,7 +50,7 @@
     return JSON.stringify(x === undefined ? null : x);
   }
   // Një pjesë, pa marrë parasysh rendin e produkteve/afateve brenda saj — që një pjesë e pandryshuar të
-  // mos rishkruhet në çdo ruajtje (përndryshe çdo sinkronizim i rishkruante krejt pjesët dhe çdo pajisje
+  // mos rishkruhet në çdo ruajtje (përndryshe çdo sinkronizim i rishkruante të gjitha pjesët dhe çdo pajisje
   // i shkarkonte sërish të gjitha).
   function pjesaKanonike(pj) {
     if (!pj) return null;
@@ -118,7 +118,7 @@
     function gabim(e) { return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e) }; }
     // Rregullat e vjetra (pa "pjeset") njihen vetëm kur kryesori lexohet, por pjesa p0 jo. Çdo "permission-denied" tjetër
     // (p.sh. llogari e fshirë, hyrje e skaduar për një çast) s'e kalon faqen në mënyrën e vjetër me një dokument të vetëm
-    // (ajo do t'i fuste krejt produktet në kryesorin 1 MB dhe s'do t'i shihte më ndryshimet e pjesëve).
+    // (ajo do t'i fuste të gjitha produktet në kryesorin 1 MB dhe s'do t'i shihte më ndryshimet e pjesëve).
     async function rregullaTeVjetra() {
       try { await fs.getDoc(refKryesor()); } catch (e) { return false; }
       try { await fs.getDoc(refPjesa(0)); return false; } catch (e) { return sLejohet(e); }
@@ -169,7 +169,7 @@
             var eRe = fnBashko(bashkoPjeset(k, pjesetPara));
             var nd = ndajNePjese(eRe, nPara);
             // Kryesori rishkruhet vetëm kur ndryshon (jo vetëm "koha"): përndryshe çdo sinkronizim pa ndryshime e
-            // shkruante dhe krejt pajisjet e tjera e shkarkonin e e bashkonin sërish krejt dyqanin pa arsye
+            // shkruante dhe të gjitha pajisjet e tjera e shkarkonin e e bashkonin sërish të gjithë dyqanin pa arsye
             if (!k || kryesoriKanonik(k) !== kryesoriKanonik(nd.kryesori)) tx.set(refKryesor(), nd.kryesori);
             nd.pjeset.forEach(function (pj, i) {
               var para = pjesetPara[i];
