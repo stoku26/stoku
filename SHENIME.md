@@ -52,6 +52,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **MENYJA E "EKSPORTO" SA TEKSTI + TEKSTI I IMPORTIT (v280 = 1.49.5, 08.11.2026, telefoni + PC + Android Hyrja 41)**: pronari:
+   "ngushtoje boxin sa teksti" → `.sb-menu` `width: max-content` (pa `min-width: 210px`), `.sb-menu__item` `nowrap`; Android pa
+   `widthIn(min = 210.dp)` te `MenyjaEksportit`. Teksti i importit, forma "C" (vetëm për importin, pa muajt): "Importo afatet nga një
+   skedar Excel (.xlsx) ose .csv." (telefoni `#aiHapi1 .hint`, PC `#aiZona small`, Android `AfatetImportFlete`). Testi `teste/v280.js`.
+   S'është testuar në telefon të vërtetë.
+
 0000000. **"EKSPORTO SI FOTO" E RI-ORGANIZUAR (v279 = 1.49.4, 07.11.2026, telefoni + Android Hyrja 40)**: pronari ("shum keq u doka";
    pas 5 ideve zgjodhi "ideja 5"): "Të gjithë" pranë titullit (`.aef-koka`), nëntitulli "Një foto për secilin furnizues.", kërkimi i
    furnizuesit (`#aefKerko`, vetëm kur janë 6 e më shumë; filtron pa i humbur të zgjedhurit), lart "Me afate të skaduara" (etiketa e kuqe)

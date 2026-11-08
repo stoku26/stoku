@@ -348,8 +348,8 @@ html.me-fab #toast { bottom: calc(102px + var(--sab, 0px)); }
 .sb .sb-action.sb-action-kv > svg, .sb .sb-action.sb-action-kv > svg:first-child { width: 19px; height: 19px; color: currentColor; }
 .sb .sb-xls { font-family: var(--sb-mono); font-size: 10px; font-weight: 500; color: var(--sb-ok); }
 .sb .sb-excel { position: relative; }
-.sb .sb-menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 5; min-width: 210px; background: var(--sb-surface); border-radius: 14px; box-shadow: var(--sb-ring), 0 16px 40px -12px rgba(0,0,0,.3); padding: 6px; display: flex; flex-direction: column; }
-.sb .sb-menu__item { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--sb-ink); font: inherit; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; }
+.sb .sb-menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 5; width: max-content; /* v280: aq e gjerë sa teksti */ background: var(--sb-surface); border-radius: 14px; box-shadow: var(--sb-ring), 0 16px 40px -12px rgba(0,0,0,.3); padding: 6px; display: flex; flex-direction: column; }
+.sb .sb-menu__item { white-space: nowrap; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--sb-ink); font: inherit; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; }
 .sb .sb-menu__item:active { background: var(--sb-surface-2); }
 /* v278: në temën e errët menyja dallohet nga faqja (sfond më i çelët + vijë), se hija s'shihet */
 .sb[data-tema="dark"] .sb-menu { background: var(--sb-surface-2); box-shadow: 0 0 0 1px rgba(255,255,255,.16), 0 16px 40px -12px rgba(0,0,0,.6); }

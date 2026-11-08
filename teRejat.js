@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 280, versioni: '1.49.5', data: '2026-11-08', titulli: 'Menyja e Eksportit dhe importi', platforma: 'tel', pikat: [
+      'Menyja e "Eksporto" është tash aq e gjerë sa teksti.',
+      'Te importi nga Excel, teksti është më i shkurtër dhe më i qartë.'
+    ] },
     { v: 279, versioni: '1.49.4', data: '2026-11-07', titulli: 'Eksporto si foto më e qartë', platforma: 'tel', pikat: [
       'Te "Eksporto si foto", furnizuesit me afate të skaduara dalin lart, të tjerët poshtë.',
       'Mund ta kërkosh furnizuesin, "Të gjithë" është pranë titullit dhe butoni "Krijo" mbetet gjithmonë poshtë.',
