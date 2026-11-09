@@ -70,6 +70,13 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
     var muaji by remember { mutableStateOf("") }
     var kerkimi by remember { mutableStateOf("") }
     var hapur by remember { mutableStateOf<String?>(null) } // id, ose "" = afat i ri
+    // v283: prekja e një ngjarjeje te Aktiviteti (Grupi) e hap afatin këtu
+    val afatiKerkuar by site.stoku.vendas.MainActivity.afatiKerkuar.collectAsState()
+    LaunchedEffect(afatiKerkuar) {
+        val id = afatiKerkuar ?: return@LaunchedEffect
+        if (g.afatet.any { it["id"] == id }) hapur = id
+        site.stoku.vendas.MainActivity.afatiKerkuar.value = null
+    }
     var zgjedhja by remember { mutableStateOf<Set<String>?>(null) }
     var fshiZgjedhjen by remember { mutableStateOf(false) }
     var fleta by remember { mutableStateOf<android.net.Uri?>(null) } // fotoja e fletës për leximin me AI
@@ -457,10 +464,11 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
             Dyqani.perditesoAfatin(id, mapOf("barkodi" to b, "emri" to em, "data" to iso, "sasia" to s, "furnizuesi" to f) + (if (kaM) mapOf("m" to (mk ?: "")) else emptyMap()))
             Toast.trego("Afati u ruajt.")
         } else {
-            Dyqani.shtoAfatin(obj("id" to Afatet.idERe(), "barkodi" to b, "emri" to em, "data" to iso, "sasia" to s, "furnizuesi" to f,
+            val idIRi = Afatet.idERe()
+            Dyqani.shtoAfatin(obj("id" to idIRi, "barkodi" to b, "emri" to em, "data" to iso, "sasia" to s, "furnizuesi" to f,
                 "statusi" to "aktiv", "krijuarSe" to tani, "ndryshuarSe" to tani, "krijuarNga" to (Llogaria.perdoruesi.value?.emri ?: "")).also { o -> if (kaM && mk != null) o["m"] = mk })
             Toast.trego(if (id != null) "Ky afat u fshi nga një pajisje tjetër ndërkohë. U ruajt si afat i ri." else "Afati u ruajt.", if (id != null) 4500 else 2600)
-            Grupi.afateTeReja(1, false)
+            Grupi.afateTeReja(1, false, listOf(idIRi))
         }
         mbyll()
     }

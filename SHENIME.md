@@ -52,6 +52,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **AKTIVITETI HAP AFATIN (v283 = 1.51.0, 09.11.2026, telefoni + PC + Android Hyrja 44; ora e dorës jo)**: pronari: "kur klikon
+   te ni produkt ose 1 afat qe u shtu me ta hap direkt qat produkt ose afat". `StokuEkipa.objektiINgjarjes(ng)` (binjaku
+   `GrupiLogjika.objektiINgjarjes` + fikstura `objektet`) kthen `{pronari, ids, kerko}` për ngjarjet e afateve (hequr, heqje-*,
+   rikthyer, admin-afat, afate-te-reja, kerkese-*). `afate-te-reja` tani ruan edhe `ids` (deri 30; rregullat e Firestore s'e
+   ndalojnë fushën shtesë). Prekja: afat i yti me 1 id → hapet dialogu i afatit; ndryshe → afatet e anëtarit (ose të gjithë grupit)
+   të filtruara me ato id (çipi "Nga aktiviteti · N afate ✕") ose me kërkim sipas barkodit/emrit për ngjarjet e vjetra pa id.
+   Ora s'ka listë aktiviteti, ndaj s'u prek. Testi `teste/v283.js`.
 0000000. **ORA E KOSOVËS KUDO (v282 = 1.50.0, 09.11.2026, telefoni + PC + Android Hyrja 43 + ora e dorës)**: pronari (foto: Aktiviteti
    "06:25" në vend të "07:25"): "ora duhet mu kon prej stoku e jo prej telefonit ose galaxy watch ... 24 oresh ... automatik kur tbohet
    ora verore". RREGULL: koha e Stoku-t = `Europe/Belgrade` (ora e Kosovës), JO zona e pajisjes. Web: `afatet.js` → `dataKs(ms)` (Date me

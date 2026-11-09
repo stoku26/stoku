@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(44, "2026-11-09", "Aktiviteti hap afatin", listOf(
+            "Te Grupi, kur prek një rresht te \"Aktiviteti i fundit\" (p.sh. \"shtoi 2 afate\" ose \"hoqi Kos\"), hapen direkt ato afate.",
+            "Nëse është afati yt, hapet vetë afati; përndryshe hapen afatet e atij anëtari vetëm me ato afate. Me ✕ i sheh të gjitha."
+        )),
         Hyrja(43, "2026-11-09", "Ora e Kosovës kudo", listOf(
             "Oraret në Stoku (aktiviteti, njoftimet, \"sot\", skedarët) janë tani gjithmonë sipas orës së Kosovës, në format 24-orësh, pavarësisht si është vendosur ora në telefon.",
             "Ndërrimi i orës verore dhe dimërore bëhet vetë. Njësoj edhe në orën e dorës."

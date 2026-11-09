@@ -286,6 +286,13 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
     { lloji: 'admin-afat', emri: 'mendurberisha', veprimi: 'hiq', produkti: 'Kos' },
     { lloji: 'x', tekst: 'tjetër' }
   ].map(nj => ({ nj, t: EK.tekstiNjoftimit(nj) }));
+  // v283: objekti i ngjarjes (prekja te Aktiviteti hap afatin/produktin)
+  const objektet = ngjarjet.concat([
+    { lloji: 'afate-te-reja', uid: 'u1', n: 2, ids: ['a1', 'a2', '', 7] },
+    { lloji: 'afate-te-reja', n: 1 },
+    { lloji: 'kerkese-kryer', uid: 'u3', produktet: [{ produkti: 'Kos', barkodi: ' 38 ' }], pronariUid: 'u1' },
+    { lloji: 'hequr', uid: 'u2' }, null
+  ]).map(ng => ({ ng, o: EK.objektiINgjarjes(ng) }));
   const harta = EK.hartaEHeqjeve(ngjarjet);
   const hartaTx = Object.keys(harta).sort().map(k => [k, harta[k].heqja ? harta[k].heqja.koha : null, harta[k].vendimi ? harta[k].vendimi.koha : null]);
   const mbiv = ['a1', 'a2', 'b1', 'a3'].map(id => { const a = afatetG.find(x => x.id === id); return { a, r: EK.mbivendosHeqjen(a, 'u1', harta) }; });
@@ -299,7 +306,7 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
   const adminAfat = [[gjA, 'a1', 'hiq'], [gjA, 'a6', 'kthe'], [gjA, 'a2', 'fshij'], [gjA, 'nuk', 'hiq'], [{ afatet: afatetG.slice(0, 2) }, 'a1', 'fshij'], [{}, 'a1', 'kthe'], [null, 'a1', 'hiq']]
     .map(([gj, id, v]) => ({ gj, id, v, emri: 'mendurberisha', r: EK.ndryshoAfatinNeGjendje(gj, id, v, 'mendurberisha', TANI_G) }));
   global.Date = DataE;
-  dalja.grupi = JSON.parse(JSON.stringify({ TANI_G, prania, kohet, afatetG, permb, anetaret, st, tekstet, njoftimet, hartaTx, mbiv, zbatimi, kal, kerkesat, rreshtat, adminAfat }));
+  dalja.grupi = JSON.parse(JSON.stringify({ TANI_G, prania, kohet, afatetG, permb, anetaret, st, tekstet, njoftimet, hartaTx, mbiv, zbatimi, kal, kerkesat, rreshtat, adminAfat, objektet }));
   fs.writeFileSync(sk, JSON.stringify(dalja));
   console.log('grupi: ' + tekstet.length + ' tekste, ' + permb.length + ' në përmbledhje');
 }

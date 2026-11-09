@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 283, versioni: '1.51.0', data: '2026-11-09', titulli: 'Aktiviteti hap afatin', platforma: 'tel', pikat: [
+      'Te Grupi → Aktiviteti, prek një ngjarje me produkt ose afat dhe hapet direkt ai afat.',
+      'Kur janë shtuar disa afate njëherësh ("shtoi 5 afate"), hapen afatet e atij personi vetëm me ato afate.'
+    ] },
     { v: 282, versioni: '1.50.0', data: '2026-11-09', titulli: 'Ora e Kosovës kudo', platforma: 'tel', pikat: [
       'Oraret në Stoku (aktiviteti, njoftimet, "sot", skedarët) janë tani gjithmonë sipas orës së Kosovës, në format 24-orësh, pavarësisht si është vendosur ora në telefon ose kompjuter.',
       'Ndërrimi i orës verore dhe dimërore bëhet vetë.'
