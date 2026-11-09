@@ -52,6 +52,19 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ORA: PRODUKTET ME 8 DERI 30 DITË NË LISTËN KRYESORE (vetëm aplikacioni i orës; kontrolli i krejt projektit, 09.11.2026)**:
+   gabim i vjetër: kur u hoq chip-i "8 deri 30 ditë" (shiko më poshtë "ORA: PA PAMJA…"), pronari tha "dalin lart te lista kryesore",
+   por lista kryesore kishte vetëm "Kanë skaduar", "Skadojnë sot", "Këtë javë" (serveri: 1–7 ditë) dhe chip-in "Mbi 30 ditë" →
+   produktet me 8–30 ditë s'dilnin askund (vetëm te kërkimi). Tani `ListaEkrani` ngarkon edhe `/ora/krejt` (`ngarkoKrejt()` bashkë me
+   `ngarko()` dhe te "Rifresko") dhe pas "Këtë javë" shfaq "8 DERI 30 DITË · n" (`d7 < data ≤ d30`, pa ato të "Këtë javë"). Worker-i
+   s'u prek. S'është testuar në orë të vërtetë.
+
+0000000. **RREGULL (pronari, 09.11.2026): "KREJT PROJEKTI" = KATËR PJESË**: kur pronari thotë "krejt projektin" (p.sh. "kontrolloje
+   krejt projektin për bugs"), fjala është GJITHMONË për: web-in e telefonit (`index.html`/`app-tel.js`), web-in e PC-së
+   (`pc.html`/`app-pc.js`), aplikacionin Android (`vendas/`) dhe aplikacionin e orës (`ora/`), pra krejt çka ka Stoku. Kontrolli
+   për gabime duhet të mbulojë kodin e të katërtave (jo vetëm testet automatike të web-it) dhe raporti thotë qartë çka u kontrollua
+   dhe çka jo. (v281 kontrolloi kryesisht web-in; pronari e vuri re.)
+
 0000000. **GJUHA STANDARDE + KONTROLLI I PROJEKTIT (v281 = 1.49.6, 08.11.2026, telefoni + PC + Android Hyrja 42 + ora)**: pronari:
    "gjuhen apet ke shtu ... fjal sikur qysh e foli une e jo me gramatik". RREGULL: tekstet që i sheh përdoruesi (web, "Çka/Çfarë
    ka të re", Android, ora) janë në shqipe STANDARDE, edhe pse me pronarin flasim joformal: "të gjitha / i gjithë / e gjithë X"

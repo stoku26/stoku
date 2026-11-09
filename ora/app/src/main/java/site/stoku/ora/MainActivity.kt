@@ -253,7 +253,8 @@ fun ListaEkrani(kurShkeputet: () -> Unit, kurHumbetLidhja: () -> Unit) {
     // "Mbi 30 ditë" dhe kërkimi: të gjitha produktet ngarkohen kur hapen nga lista kryesore (jo sa herë kthehesh nga një produkt: atëherë
     // serveri mund ta kthente sërish produktin e sapohequr, sepse heqja ishte ende në rrugë)
     fun hapMeKrejt(p: Pamja) { pamja = p; scope.launch { ngarkoKrejt() } }
-    LaunchedEffect(Rikthimi.n) { ngarko() }
+    // Lista kryesore: edhe produktet me 8 deri 30 ditë (pronari: "dalin lart te lista kryesore"; serveri i jep te /ora/krejt)
+    LaunchedEffect(Rikthimi.n) { ngarko(); ngarkoKrejt() }
     LaunchedEffect(Unit) { iRi = Perditesimi.kontrollo(ctx) }
     // Heqjet në rrugë (sipas id-së): "Zhbëj" pret që heqja të mbarojë, që të dy kërkesat të mos garojnë te serveri
     val heqjet = remember { mutableMapOf<String, Job>() }
@@ -445,6 +446,20 @@ fun ListaEkrani(kurShkeputet: () -> Unit, kurHumbetLidhja: () -> Unit) {
                             RreshtiAfatit(a, dataShkurt(a.data) + (a.sasia?.let { " · $it copë" } ?: ""), AfatAfer) { pamja = Pamja.Detaji(a, false) }
                         }
                     }
+                    // 8 deri 30 ditë: pas "Këtë javë" (pa ato që janë te "Këtë javë" dhe pa të hequrat në radhë)
+                    val k830 = krejt
+                    if (l != null && k830 != null) {
+                        val teJaves = l.java.map { it.id }.toSet()
+                        val muaji = k830.krejt.filter { it.data > k830.d7 && it.data <= k830.d30 && it.id !in teJaves }
+                        if (muaji.isNotEmpty()) {
+                            item { ListHeader { Text("8 DERI 30 DITË · ${muaji.size}", color = Gri, fontWeight = FontWeight.SemiBold) } }
+                            val cm = celesaUnike("m", muaji)
+                            items(muaji.size, key = { cm[it] }) { i ->
+                                val a = muaji[i]
+                                RreshtiAfatit(a, poshteMeFurnizues(a), AfatAfer) { pamja = Pamja.Detaji(a, false) }
+                            }
+                        }
+                    }
                     // v238: produktet me afat mbi 30 ditë (jo në faqen kryesore); kërkimi është butoni poshtë
                     if (l != null) {
                         item { ChipGrupi("Mbi 30 ditë", "Afat i gjatë", Gjelber) { hapMeKrejt(Pamja.Grupi("gjelber")) } }
@@ -453,7 +468,7 @@ fun ListaEkrani(kurShkeputet: () -> Unit, kurHumbetLidhja: () -> Unit) {
                     // Poshtë: rifresko (majtas), kërko (mes) dhe Cilësimet (djathtas)
                     item {
                         Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                            ButoniRifresko(duke = duke) { scope.launch { ngarko() } }
+                            ButoniRifresko(duke = duke) { scope.launch { ngarko(); ngarkoKrejt() } }
                             Spacer(Modifier.size(10.dp))
                             ButoniKerko { hapMeKrejt(Pamja.Kerko) }
                             Spacer(Modifier.size(10.dp))
