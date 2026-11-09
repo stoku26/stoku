@@ -52,6 +52,17 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ORA E KOSOVËS KUDO (v282 = 1.50.0, 09.11.2026, telefoni + PC + Android Hyrja 43 + ora e dorës)**: pronari (foto: Aktiviteti
+   "06:25" në vend të "07:25"): "ora duhet mu kon prej stoku e jo prej telefonit ose galaxy watch ... 24 oresh ... automatik kur tbohet
+   ora verore". RREGULL: koha e Stoku-t = `Europe/Belgrade` (ora e Kosovës), JO zona e pajisjes. Web: `afatet.js` → `dataKs(ms)` (Date me
+   fushat lokale = ora në Kosovë, me `Intl.DateTimeFormat` + `formatToParts`), `oraKs`, `sot(tani)`, `ditetDeri`, `msNgaKs(v,m,d,h,mi)`
+   (momenti i vërtetë, p.sh. mesnata/fillimi i muajit), `vendosZonen`/`zona` (testet: UTC). `ekipa.js` (kohaRelative, titulliDites,
+   kalendari, statistikat, `zonaKohore()` për orarin e njoftimeve), `app-tel.js`/`app-pc.js` (`oraKs()`, PC `mesnataKs()`), `porta.js`
+   (oraNga, prova), `xlsx.js` (dataExcel dhe ora e zip-it). MOS përdor `new Date()`/`getHours()` direkt për kohë që shfaqet. Android +
+   ora e dorës: `KohaKosoves` (`TimeZone.setDefault(Europe/Belgrade)` në `StokuApp`/`StokuOraApp` + rivendosje te `onResume` dhe kur sistemi
+   ndërron zonën/orën) → krejt `systemDefault()`, `SimpleDateFormat`, `LocalDate.now()` dhe `tz` që u dërgohet serverit. Fiksturat:
+   `vendosZonen(process.env.TZ)` (të njëjta me para). Testi `teste/v282.js` (pajisje në UTC, New York, Tokio). S'është testuar në pajisje të vërtetë.
+
 0000000. **ORA: PRODUKTET ME 8 DERI 30 DITË NË LISTËN KRYESORE (vetëm aplikacioni i orës; kontrolli i krejt projektit, 09.11.2026)**:
    gabim i vjetër: kur u hoq chip-i "8 deri 30 ditë" (shiko më poshtë "ORA: PA PAMJA…"), pronari tha "dalin lart te lista kryesore",
    por lista kryesore kishte vetëm "Kanë skaduar", "Skadojnë sot", "Këtë javë" (serveri: 1–7 ditë) dhe chip-in "Mbi 30 ditë" →

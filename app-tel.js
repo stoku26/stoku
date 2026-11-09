@@ -1,6 +1,8 @@
 // v238: u nxor nga index.html (CSP pa 'unsafe-inline': faqet s'kanë më skripta të brendshme). Kur ndryshon, rrite ?v= te index.html dhe sw.js.
 (function () {
   'use strict';
+  // v282: koha e Stoku-t = ora e Kosovës (afatet.js → dataKs), jo e pajisjes
+  function oraKs(ms) { return window.StokuAfatet && window.StokuAfatet.dataKs ? window.StokuAfatet.dataKs(ms) : (ms === undefined ? new Date() : new Date(ms)); }
 
   function $(id) { return document.getElementById(id); }
 
@@ -625,12 +627,12 @@
   function numerMeHapesire(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
   function vizatoKryefaqen(cont) {
     var te = Object.keys(produktet).map(function (k) { return produktet[k]; });
-    var sot = new Date(); sot.setHours(0, 0, 0, 0);
+    var sot0 = oraKs(), sotMs = window.StokuAfatet.msNgaKs(sot0.getFullYear(), sot0.getMonth() + 1, sot0.getDate()); // v282: mesnata në Kosovë
     var zero = 0, sotN = 0;
     te.forEach(function (p) {
       var sas = Number(p.sasia) || 0;
       if (sas <= 0) zero++;
-      if ((p.prekurSe || 0) >= sot.getTime()) sotN++;
+      if ((p.prekurSe || 0) >= sotMs) sotN++;
     });
     function el(tag, cls, tekst) { var e = document.createElement(tag); if (cls) e.className = cls; if (tekst !== undefined) e.textContent = tekst; return e; }
 
@@ -2078,8 +2080,8 @@
     kontrolloServerinEOrarit();
   }
   // Kontrolli i serverit (Cloudflare): kodi i ri, Cron-i dhe çfarë ndodhi sot me njoftimin e kësaj pajisjeje
-  function oraNga(ts) { var d = new Date(ts); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
-  function sotIso() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  function oraNga(ts) { var d = oraKs(ts); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
+  function sotIso() { var d = oraKs(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
   // A e kap Cron-i minutën e zgjedhur? "* * * * *" po; "0,15,30,45 * * * *" / "*/15 * * * *" vetëm ato minuta
   function cronKapMinuten(shprehja, ora) {
     if (!shprehja) return true; // s'dihet (kod i vjetër): s'paralajmërohet
@@ -2486,7 +2488,7 @@
   }
 
   function oraTani() {
-    var d = new Date();
+    var d = oraKs();
     return dyShifra(d.getHours()) + ':' + dyShifra(d.getMinutes());
   }
 
@@ -2676,7 +2678,7 @@
     // Krejt çfarë ishte në kopje është sërish këtu (p.sh. u rikthye nga një pajisje tjetër): kopja s'duhet më
     if (k && s.hidden) { try { localStorage.removeItem(KEY_KOPJA); } catch (e) { /* ok */ } }
     if (s.hidden) return;
-    var d = new Date(k.koha), dy = function (n) { return (n < 10 ? '0' : '') + n; };
+    var d = oraKs(k.koha), dy = function (n) { return (n < 10 ? '0' : '') + n; };
     var nje = vetemNje(m);
     $('llKopjaTeksti').textContent = pershkrimiIKopjes(m) + (nje ? ' u fshi' : ' u fshinë') + ' nga një pajisje tjetër. Kopja u ruajt në këtë telefon më ' +
       dy(d.getDate()) + '.' + dy(d.getMonth() + 1) + '.' + d.getFullYear() + ', ora ' + dy(d.getHours()) + ':' + dy(d.getMinutes()) +
@@ -4514,7 +4516,7 @@
     if (te.length === 0) { toast(T('nukKaProdukteEksport')); return null; }
     te.sort(emriKrahaso);
 
-    var d = new Date();
+    var d = oraKs();
     var emri = 'malli_' + sluguFolderit(emriFolderit(folderiAktual)) + '_' +
       d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate()) +
       '_' + dyShifra(d.getHours()) + dyShifra(d.getMinutes()) + '.xlsx';
@@ -4735,7 +4737,7 @@
         }
       });
 
-      var d = new Date();
+      var d = oraKs();
       var emriSkedarit = 'etiketa_' + sluguFolderit(emriFolderit(folderiAktual)) + '_' +
         d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate()) + '.pdf';
       var bajtet = dok.output('arraybuffer');
@@ -5966,7 +5968,7 @@
     var grupet = pa ? [{ celes: '', emri: idMarketitAktiv() ? emriMarketit(idMarketitAktiv()) : 'Afatet' }] : aefFurn.filter(function (f) { return aefZgj[f.celes]; });
     if (!grupet.length || !te.length) return;
     if (document.fonts && document.fonts.status !== 'loaded') await Promise.race([aefFontet(), new Promise(function (z) { setTimeout(z, 1500); })]);
-    var d = new Date(), data = dyShifra(d.getDate()) + '.' + dyShifra(d.getMonth() + 1) + '.' + d.getFullYear();
+    var d = oraKs(), data = dyShifra(d.getDate()) + '.' + dyShifra(d.getMonth() + 1) + '.' + d.getFullYear();
     var ora = dyShifra(d.getHours()) + ':' + dyShifra(d.getMinutes());
     var dita = d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate());
     var idM = idMarketitAktiv(), kush = emriPerdoruesitAktual();
@@ -6152,7 +6154,7 @@
     if (typeof window.jspdf === 'undefined') { toast(T('pdfNukGati')); return; }
     var z = apZgj(), l = apRendit(apAfatet(z), z.r);
     if (!l.length) return;
-    var d = new Date(), data = dyShifra(d.getDate()) + '.' + dyShifra(d.getMonth() + 1) + '.' + d.getFullYear();
+    var d = oraKs(), data = dyShifra(d.getDate()) + '.' + dyShifra(d.getMonth() + 1) + '.' + d.getFullYear();
     var ora = dyShifra(d.getHours()) + ':' + dyShifra(d.getMinutes());
     var dita = d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate());
     var per = z.mu ? AF.emriMuajit(z.mu) : 'Të gjitha', idM = idMarketitAktiv(), cope = AF.shumaCopeve(l);
@@ -6195,7 +6197,7 @@
       fleta.totalColumns = [iSasise];
       if (iSasise > 0) fleta.totalLabel = 'Gjithsej';
     }
-    var d = new Date();
+    var d = oraKs();
     var pjeseEmri = function (t) { return t.toLowerCase().replace(/ë/g, 'e').replace(/ç/g, 'c').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40); };
     var emri = 'afatet_' + (furnEks && pjeseEmri(furnEks) ? pjeseEmri(furnEks) + '_' : '') + (muajiEks ? pjeseEmri(AF.emriMuajit(muajiEks)) + '_' : '') + d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate()) +
       '_' + dyShifra(d.getHours()) + dyShifra(d.getMinutes()) + '.xlsx';
@@ -6519,7 +6521,7 @@
     var el = ekEl('span', 'ek-avatar' + (meOnline && (a.uneJam || EKL.eshteOnline(a)) ? ' online' : ''), String(a.emri || '?').charAt(0).toUpperCase());
     return EKL.Fotot.apliko(el, { uid: a.uid, emri: a.emri });
   }
-  function ekOra(ts) { var d = new Date(ts); return dyShifra(d.getHours()) + ':' + dyShifra(d.getMinutes()); }
+  function ekOra(ts) { var d = oraKs(ts); return dyShifra(d.getHours()) + ':' + dyShifra(d.getMinutes()); }
   function ekNumero(lista) {
     var n = { aktive: 0, skaduar: 0, afer: 0, ok: 0, hequr: 0 };
     lista.forEach(function (a) {
@@ -6774,7 +6776,7 @@
   var EK_MUAJT = ['JAN', 'SHK', 'MAR', 'PRI', 'MAJ', 'QER', 'KOR', 'GUS', 'SHT', 'TET', 'NËN', 'DHJ'];
   var EK_DITET = ['E diel', 'E hënë', 'E martë', 'E mërkurë', 'E enjte', 'E premte', 'E shtunë'];
   var EK_MUAJT_PLOTE = ['janar', 'shkurt', 'mars', 'prill', 'maj', 'qershor', 'korrik', 'gusht', 'shtator', 'tetor', 'nëntor', 'dhjetor'];
-  function ekDataSot() { var d = new Date(); return EK_DITET[d.getDay()] + ', ' + d.getDate() + ' ' + EK_MUAJT_PLOTE[d.getMonth()]; }
+  function ekDataSot() { var d = oraKs(); return EK_DITET[d.getDay()] + ', ' + d.getDate() + ' ' + EK_MUAJT_PLOTE[d.getMonth()]; }
   var EK_NGJYRAT = ['#1459B8', '#8E3FB0', '#0F7C7C', '#B5542C', '#5D6B2E', '#AD1457', '#37474F', '#6D4C41'];
   function ekNgjyra(emri) { var h = 0; String(emri || '').split('').forEach(function (c) { h = (h * 31 + c.charCodeAt(0)) | 0; }); return EK_NGJYRAT[Math.abs(h) % EK_NGJYRAT.length]; }
   function ekAv(emri, m, online) {
@@ -7066,7 +7068,7 @@
 
   // ---- Kalendari ----
   function vizatoKalendarin(c) {
-    var sot = new Date();
+    var sot = oraKs();
     if (!ekKal) ekKal = { viti: sot.getFullYear(), muaji: sot.getMonth(), dita: EKL.isoDites(sot) };
     var te = ekTeGjithaAfatet(ekAnetaret());
     var k = EKL.kalendari(te, ekKal.viti, ekKal.muaji);
@@ -7107,7 +7109,7 @@
     var m = ekKal.muaji + d, v = ekKal.viti;
     if (m < 0) { m = 11; v--; } else if (m > 11) { m = 0; v++; }
     ekKal = { viti: v, muaji: m, dita: null };
-    var sot = new Date();
+    var sot = oraKs();
     if (v === sot.getFullYear() && m === sot.getMonth()) ekKal.dita = EKL.isoDites(sot);
     vizatoEkipen();
   }
@@ -7568,7 +7570,7 @@
     pmb.appendChild(ekEl('span', null, d.produktet.length + (d.produktet.length === 1 ? ' produkt' : ' produkte') + ' · ' + copa + ' copë gjithsej'));
     var bx = ekEl('button', 'btn dyte', 'Excel'); bx.type = 'button';
     bx.addEventListener('click', function () {
-      var d2 = new Date();
+      var d2 = oraKs();
       var emri = 'stoku_' + sluguFolderit(zgj.emri) + '_' + d2.getFullYear() + '-' + dyShifra(d2.getMonth() + 1) + '-' + dyShifra(d2.getDate()) + '.xlsx';
       var bajtet = StokuXlsx.buildWorkbook(EKL.fletetEStokut(zgj.emri, d.produktet, d.foldera));
       ndajOseShkarko({ skedari: new File([bajtet], emri, { type: MIME_XLSX }), emri: emri }, 'Stoku i ' + zgj.emri);

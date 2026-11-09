@@ -67,7 +67,7 @@
   function mbushProven() {
     var tani = Date.now(), DITA = 86400000;
     function dy(n) { return (n < 10 ? '0' : '') + n; }
-    function data(n) { var d = new Date(tani + n * DITA); return d.getFullYear() + '-' + dy(d.getMonth() + 1) + '-' + dy(d.getDate()); }
+    function data(n) { var d = window.StokuAfatet && window.StokuAfatet.dataKs ? window.StokuAfatet.dataKs(tani + n * DITA) : new Date(tani + n * DITA); return d.getFullYear() + '-' + dy(d.getMonth() + 1) + '-' + dy(d.getDate()); }
     var foldera = [{ id: 'ushqimore', emri: 'Ushqimore' }, { id: 'pije', emri: 'Pije' }, { id: 'higjiene', emri: 'Higjiene' }, { id: 'fresh', emri: 'Fresh' }];
     var lista = [
       ['ushqimore', '2000100000014', 'Bukë e bardhë 500g', 18, 'Furnizuesi A'],
@@ -380,7 +380,8 @@
   // Llogaritë s'kanë email të vërtetë, prandaj kodi 6-shifror i vjen administratorit (zilja + push). Ai ia jep personit,
   // që e shkruan këtu, vendos fjalëkalimin e ri dy herë dhe hyn direkt.
   var riv = { hapi: 'emri', emri: '', kodi: '' };
-  function oraNga(ms) { var d = new Date(ms); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
+  function oraNga(ms) { var d = window.StokuAfatet && window.StokuAfatet.dataKs ? window.StokuAfatet.dataKs(ms) : new Date(ms); // v282: ora e Kosovës
+    return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
   function vendosHapin(hapi, teksti, gabim) {
     riv.hapi = hapi;
     $('pkRivEmriLbl').classList.toggle('pk-fsheh', hapi !== 'emri');

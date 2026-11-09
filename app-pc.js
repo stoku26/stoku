@@ -24,15 +24,19 @@
   var NF = (function () { try { return new Intl.NumberFormat('sq-AL'); } catch (e) { return null; } })();
   function num(n) { return NF ? NF.format(n) : String(n); }
   function dy(n) { return (n < 10 ? '0' : '') + n; }
+  // v282: koha e Stoku-t = ora e Kosovës (afatet.js → dataKs), jo e kompjuterit
+  function oraKs(ms) { return window.StokuAfatet && window.StokuAfatet.dataKs ? window.StokuAfatet.dataKs(ms) : (ms === undefined ? new Date() : new Date(ms)); }
+  // Mesnata e sotme në Kosovë si moment i vërtetë (getTime() krahasohet me kohët e ruajtura)
+  function mesnataKs() { var A = window.StokuAfatet, s = oraKs(); return A && A.msNgaKs ? new Date(A.msNgaKs(s.getFullYear(), s.getMonth() + 1, s.getDate())) : (s.setHours(0, 0, 0, 0), s); }
   function dataOra(ms) {
     if (!ms) return '';
-    var d = new Date(ms);
+    var d = oraKs(ms);
     return dy(d.getDate()) + '.' + dy(d.getMonth() + 1) + '.' + d.getFullYear() + ' ' + dy(d.getHours()) + ':' + dy(d.getMinutes());
   }
   function kohaRelative(ms) {
     if (!ms) return '–';
     var tani = Date.now(), dif = Math.max(0, tani - ms);
-    var d = new Date(ms), sot = new Date(); sot.setHours(0, 0, 0, 0);
+    var d = oraKs(ms), sot = mesnataKs();
     if (dif < 60000) return 'tani';
     if (dif < 3600000) return 'para ' + Math.floor(dif / 60000) + ' min';
     if (ms >= sot.getTime()) return 'sot ' + dy(d.getHours()) + ':' + dy(d.getMinutes());
@@ -423,7 +427,7 @@
   function vendosStatusin(s, vetemRivizato) {
     sink.statusi = s;
     if (s === 'ok' && !vetemRivizato) sink.koha = Date.now();
-    var dk = new Date(sink.koha || Date.now());
+    var dk = oraKs(sink.koha || Date.now());
     var viz = s === 'lokal' && !perdoruesi() && ngaVizitori();
     var lidhet = s === 'lokal' && !!hyrjaNePritje();
     var tekst = viz ? 'Provë pa llogari' : lidhet ? 'Duke u lidhur…' : {
@@ -957,7 +961,7 @@
   function renderPermbledhjen() {
     var te = teGjithaProduktet();
     var zero = 0, sot = 0;
-    var fillimiSot = new Date(); fillimiSot.setHours(0, 0, 0, 0);
+    var fillimiSot = mesnataKs();
     te.forEach(function (p) {
       if (eshteZero(p)) zero++;
       if ((p.prekurSe || 0) >= fillimiSot.getTime()) sot++;
@@ -1967,7 +1971,7 @@
     return String(emri).toLowerCase().replace(/ë/g, 'e').replace(/ç/g, 'c').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'stoku';
   }
   function vulaKohore(meOre) {
-    var d = new Date();
+    var d = oraKs();
     return d.getFullYear() + '-' + dy(d.getMonth() + 1) + '-' + dy(d.getDate()) + (meOre ? '_' + dy(d.getHours()) + dy(d.getMinutes()) : '');
   }
   function shkarko(bajtet, emri, mime) {
@@ -4211,7 +4215,7 @@
     var av = el('span', 'ek-avatar' + (meOnline && (a.uneJam || EKL.eshteOnline(a)) ? ' online' : ''), String(a.emri || '?').charAt(0).toUpperCase());
     return EKL.Fotot.apliko(av, { uid: a.uid, emri: a.emri });
   }
-  function ekOra(ts) { var d = new Date(ts); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
+  function ekOra(ts) { var d = oraKs(ts); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
   function ekTeGjitha(anetaret) { var l = []; anetaret.forEach(function (a) { l = l.concat(a.afatet); }); return l; }
   function ekOnline(anetaret) { return anetaret.filter(function (a) { return a.uneJam || EKL.eshteOnline(a); }).length; }
 
@@ -4287,7 +4291,7 @@
   // ---- Përmbledhja (faqja kryesore e Grupit, dizajni "Pulti") ----
   function ekVPulti(anetaret) {
     var te = ekTeGjitha(anetaret), n = ekNumero(te), gati = ekK.eGatshme();
-    var d = new Date();
+    var d = oraKs();
     var DITET = ['E diel', 'E hënë', 'E martë', 'E mërkurë', 'E enjte', 'E premte', 'E shtunë'];
     var MUAJT = ['janar', 'shkurt', 'mars', 'prill', 'maj', 'qershor', 'korrik', 'gusht', 'shtator', 'tetor', 'nëntor', 'dhjetor'];
     $('ekNen').textContent = DITET[d.getDay()] + ', ' + d.getDate() + ' ' + MUAJT[d.getMonth()] + ' · ' + anetaret.length + (anetaret.length === 1 ? ' koleg' : ' kolegë') + ' · ' + (gati ? nrEmer(n.aktive, 'afat', 'afate') + ' në raft' : 'duke ngarkuar…');
@@ -4621,7 +4625,7 @@
 
   // ---- Kalendari ----
   function ekVKalendari(anetaret) {
-    var sot = new Date();
+    var sot = oraKs();
     if (!ekV.kal) ekV.kal = { viti: sot.getFullYear(), muaji: sot.getMonth(), dita: EKL.isoDites(sot) };
     var te = ekTeGjitha(anetaret);
     var k = EKL.kalendari(te, ekV.kal.viti, ekV.kal.muaji);
@@ -4686,7 +4690,7 @@
   function ekNdryshoMuajin(dd) {
     var m = ekV.kal.muaji + dd, v = ekV.kal.viti;
     if (m < 0) { m = 11; v--; } else if (m > 11) { m = 0; v++; }
-    var sot = new Date();
+    var sot = oraKs();
     ekV.kal = { viti: v, muaji: m, dita: (v === sot.getFullYear() && m === sot.getMonth()) ? EKL.isoDites(sot) : null };
     ekVizato();
   }

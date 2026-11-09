@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
         rrjeti = null
         super.onStop()
     }
-    override fun onResume() { super.onResume(); Rikthimi.perpara = true; Rikthimi.n++ }
+    override fun onResume() { super.onResume(); KohaKosoves.vendos(); Rikthimi.perpara = true; Rikthimi.n++ }
     override fun onPause() { Rikthimi.perpara = false; super.onPause() }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

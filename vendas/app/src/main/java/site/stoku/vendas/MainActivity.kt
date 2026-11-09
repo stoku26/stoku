@@ -120,6 +120,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onResume() {
+        KohaKosoves.vendos()
         super.onResume()
         Dita.rifresko() // u kthye në aplikacion një ditë tjetër
         Perditesimi.vazhdoNesePritej(this)
