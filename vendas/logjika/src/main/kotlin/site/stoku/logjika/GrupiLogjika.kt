@@ -271,6 +271,22 @@ object GrupiLogjika {
             (if (l.size > 3) " e " + (l.size - 3) + (if (l.size - 3 == 1) " tjetër" else " të tjera") else "") + ")"
     }
 
+    /** v283 (ekipa.js objektiINgjarjes): prekja e një ngjarjeje te Aktiviteti hap afatin/produktin e saj; null = ngjarje pa produkt */
+    class Objekti(val pronari: String, val ids: List<String>, val kerko: String)
+    private val NGJARJE_AFATI = setOf("hequr", "heqje-pranuar", "heqje-refuzuar", "rikthyer", "admin-afat", "afate-te-reja", "kerkese-heqje", "kerkese-kryer")
+    fun objektiINgjarjes(ng: Obj?): Objekti? {
+        if (ng == null || ng["lloji"] !in NGJARJE_AFATI) return null
+        val lloji = ng["lloji"] as String
+        var ids = ng["ids"].siListe().filterIsInstance<String>().filter { it.isNotEmpty() }.take(30)
+        (ng["afatId"] as? String)?.takeIf { it.isNotEmpty() }?.let { ids = listOf(it) }
+        val kerkese = lloji == "kerkese-heqje" || lloji == "kerkese-kryer"
+        val p0: Obj = if (kerkese) (listaEKerkeses(ng).firstOrNull() ?: emptyMap()) else ng
+        val kerko = ose(p0["barkodi"], p0["produkti"]).trim()
+        val pronari = if (lloji == "afate-te-reja") ose(ng["uid"]) else if (kerkese) "" else ose(ng["pronariUid"], ng["uid"])
+        if (ids.isEmpty() && kerko.isEmpty() && lloji != "afate-te-reja") return null
+        return Objekti(pronari, ids, if (ids.isNotEmpty()) "" else kerko)
+    }
+
     fun tekstiNgjarjes(ng: Obj, uidIm: String?): Teksti {
         val une = ng["uid"] == uidIm
         val kush = if (une) "Ti" else ((ng["emri"] as? String)?.ifEmpty { null } ?: "Dikush")

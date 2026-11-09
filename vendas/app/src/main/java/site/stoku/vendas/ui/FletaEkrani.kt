@@ -293,7 +293,7 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, stok: Boolean = false, kurRuhet: (S
         }
         teReja.forEach { Dyqani.shtoAfatin(it) }
         site.stoku.vendas.Regjistri.mesoNgaImporti(teReja) // v209: si importet e tjera (kolegët: presin kontrollin)
-        Grupi.afateTeReja(teReja.size, true)
+        Grupi.afateTeReja(teReja.size, true, teReja.mapNotNull { it["id"] as? String })
         val nk = teReja.count { Afatet.statusi(it) == "skaduar" }
         val nv = teReja.count { Afatet.statusi(it) == "afer" }
         Toast.trego((if (teReja.size == 1) "U ruajt 1 afat" else "U ruajtën ${teReja.size} afate") +

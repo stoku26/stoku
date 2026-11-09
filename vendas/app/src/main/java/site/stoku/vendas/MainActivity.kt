@@ -72,6 +72,8 @@ class MainActivity : ComponentActivity() {
     companion object {
         /** Tabi që kërkohet nga jashtë (njoftimi i prekur): "afatet", "grupi" */
         val tabiKerkuar = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+        /** v283: afati që duhet hapur te Afatet (prekja e një ngjarjeje te Aktiviteti) */
+        val afatiKerkuar = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
     }
 
     private fun lexoTabin(i: android.content.Intent?) {

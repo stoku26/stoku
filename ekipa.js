@@ -1615,6 +1615,21 @@
     return r;
   }
 
+  // v283 (pronari): prekja e një ngjarjeje hap afatin/produktin e saj. Kthen { pronari, ids, kerko } ose null (ngjarje pa produkt):
+  //  pronari = uid-i që e ka afatin; ids = afatet (një për heqjet, deri në 30 për "shtove N afate"); kerko = barkodi/emri kur s'ka id
+  var NGJARJE_AFATI = { 'hequr': 1, 'heqje-pranuar': 1, 'heqje-refuzuar': 1, 'rikthyer': 1, 'admin-afat': 1, 'afate-te-reja': 1, 'kerkese-heqje': 1, 'kerkese-kryer': 1 };
+  function objektiINgjarjes(ng) {
+    if (!ng || !NGJARJE_AFATI[ng.lloji]) return null;
+    var ids = Array.isArray(ng.ids) ? ng.ids.filter(function (x) { return typeof x === 'string' && x; }).slice(0, 30) : [];
+    if (typeof ng.afatId === 'string' && ng.afatId) ids = [ng.afatId];
+    var p0 = (ng.lloji === 'kerkese-heqje' || ng.lloji === 'kerkese-kryer') ? (listaEKerkeses(ng)[0] || {}) : ng;
+    var kerko = String(p0.barkodi || p0.produkti || '').trim();
+    var kerkese = ng.lloji === 'kerkese-heqje' || ng.lloji === 'kerkese-kryer'; // kërkesat: produkti kërkohet te i gjithë grupi
+    var pronari = ng.lloji === 'afate-te-reja' ? ng.uid : kerkese ? '' : (ng.pronariUid || ng.uid || '');
+    if (!ids.length && !kerko && ng.lloji !== 'afate-te-reja') return null;
+    return { pronari: pronari || '', ids: ids, kerko: ids.length ? '' : kerko };
+  }
+
   // Teksti i një ngjarjeje të aktivitetit: { kush, cfare, detaje, lloji }
   function tekstiNgjarjes(ng, uidIm) {
     var kush = ng.uid === uidIm ? 'Ti' : (ng.emri || 'Dikush');
@@ -1792,7 +1807,7 @@
       permbledhjetGabim: false   // përmbledhjet s'lexohen → lexohen dyqanet (vetëm administratori mundet)
     };
     var d = {};
-    var rifreskimKohez = {}, afateTeReja = { n: 0, ngaFoto: false, kohez: null };
+    var rifreskimKohez = {}, afateTeReja = { n: 0, ngaFoto: false, kohez: null, ids: [] };
     var publikimi = { kohez: null, nenshkrimi: null, bllokuarDeri: 0, afatet: null };
     var migrimiNeRruge = false;
 
@@ -2703,9 +2718,11 @@
       e.shtoNgjarje(ng);
     }
     // Afatet e reja mblidhen 20 s, që "shtoi 12 afate" të dalë një herë, jo 12 herë
-    function afateTeRejaU(n, ngaFoto) {
+    // v283: ids = afatet e shtuara (ruhen te ngjarja, deri në 30), që prekja te Aktiviteti t'i hapë direkt
+    function afateTeRejaU(n, ngaFoto, ids) {
       if (!n || !E() || !o.uidIm()) return;
       afateTeReja.n += n;
+      (ids || []).forEach(function (id) { if (typeof id === 'string' && id && afateTeReja.ids.length < 30 && afateTeReja.ids.indexOf(id) < 0) afateTeReja.ids.push(id); });
       afateTeReja.ngaFoto = afateTeReja.ngaFoto || !!ngaFoto;
       clearTimeout(afateTeReja.kohez);
       afateTeReja.kohez = setTimeout(dergoAfateTeReja, 20000);
@@ -2713,8 +2730,10 @@
     function dergoAfateTeReja() {
       clearTimeout(afateTeReja.kohez); afateTeReja.kohez = null;
       if (!afateTeReja.n) return;
-      ngjarje({ lloji: 'afate-te-reja', n: afateTeReja.n, ngaFoto: afateTeReja.ngaFoto });
-      afateTeReja.n = 0; afateTeReja.ngaFoto = false;
+      var ng = { lloji: 'afate-te-reja', n: afateTeReja.n, ngaFoto: afateTeReja.ngaFoto };
+      if (afateTeReja.ids.length) ng.ids = afateTeReja.ids.slice();
+      ngjarje(ng);
+      afateTeReja.n = 0; afateTeReja.ngaFoto = false; afateTeReja.ids = [];
     }
     if (typeof window !== 'undefined') {
       window.addEventListener('pagehide', dergoAfateTeReja);
@@ -2826,7 +2845,7 @@
     ADMIN_EMRI: ADMIN_EMRI, permbledhjaEAfateve: permbledhjaEAfateve, nenshkrimi: nenshkrimi,
     ndryshoAfatinNeGjendje: ndryshoAfatinNeGjendje, fletetEStokut: fletetEStokut,
     hartaEHeqjeve: hartaEHeqjeve, mbivendosHeqjen: mbivendosHeqjen, duhetZbatuarHeqja: duhetZbatuarHeqja,
-    kalendari: kalendari, statistikat: statistikat, tekstiNgjarjes: tekstiNgjarjes, tekstiNjoftimit: tekstiNjoftimit,
+    kalendari: kalendari, statistikat: statistikat, tekstiNgjarjes: tekstiNgjarjes, objektiINgjarjes: objektiINgjarjes, tekstiNjoftimit: tekstiNjoftimit,
     isoDites: isoDites, Fotot: Fotot, listaEKerkeses: listaEKerkeses, rreshtiIProduktit: rreshtiIProduktit, zgjedhesIKerkeses: zgjedhesIKerkeses
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

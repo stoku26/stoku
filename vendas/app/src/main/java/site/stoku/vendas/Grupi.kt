@@ -288,18 +288,21 @@ object Grupi {
     private var afateTeRejaN = 0
     private var afateTeRejaFoto = false
     private var afateTeRejaJob: Job? = null
-    /** Afatet e reja mblidhen 20 s, që "shtoi 12 afate" të dalë një herë */
-    fun afateTeReja(n: Int, ngaFoto: Boolean) {
+    private val afateTeRejaIds = ArrayList<String>()
+    /** Afatet e reja mblidhen 20 s, që "shtoi 12 afate" të dalë një herë; ids (v283, deri në 30) që prekja te Aktiviteti t'i hapë */
+    fun afateTeReja(n: Int, ngaFoto: Boolean, ids: List<String> = emptyList()) {
         if (n <= 0 || grupi() == null) return
         afateTeRejaN += n; afateTeRejaFoto = afateTeRejaFoto || ngaFoto
+        ids.forEach { if (it.isNotEmpty() && afateTeRejaIds.size < 30 && it !in afateTeRejaIds) afateTeRejaIds.add(it) }
         afateTeRejaJob?.cancel()
         afateTeRejaJob = scope.launch { delay(20000); dergoAfateTeReja() }
     }
     private fun dergoAfateTeReja() {
         afateTeRejaJob?.cancel(); afateTeRejaJob = null
         if (afateTeRejaN == 0) return
-        shtoNgjarje(mapOf("lloji" to "afate-te-reja", "n" to afateTeRejaN.toLong(), "ngaFoto" to afateTeRejaFoto))
-        afateTeRejaN = 0; afateTeRejaFoto = false
+        shtoNgjarje(mapOf("lloji" to "afate-te-reja", "n" to afateTeRejaN.toLong(), "ngaFoto" to afateTeRejaFoto) +
+            (if (afateTeRejaIds.isNotEmpty()) mapOf("ids" to afateTeRejaIds.toList()) else emptyMap()))
+        afateTeRejaN = 0; afateTeRejaFoto = false; afateTeRejaIds.clear()
     }
 
     /** "U hoq nga rafti" / "Rikthe si aktiv" te afatet e mia (si ekNgjarjeAfati) */

@@ -57,6 +57,12 @@ class GrupiTest {
         f["njoftimet"].siListe().forEach { x -> val r = x.siObj()!!; assertEquals(Json.shkruaj(r["nj"]), r["t"], GrupiLogjika.tekstiNjoftimit(r["nj"].siObj()!!)) }
         f["kerkesat"].siListe().forEach { x -> val r = x.siObj()!!; eq("kerkesa " + Json.shkruaj(r["k"]), r["l"], GrupiLogjika.listaEKerkeses(r["k"].siObj())) }
         f["rreshtat"].siListe().forEach { x -> val r = x.siObj()!!; assertEquals(r["t"], GrupiLogjika.rreshtiIProduktit(r["x"].siObj()!!)) }
+        // v283: objekti i ngjarjes (prekja te Aktiviteti)
+        f["objektet"].siListe().forEach { x ->
+            val r = x.siObj()!!; val o = GrupiLogjika.objektiINgjarjes(r["ng"].siObj())
+            val m = o?.let { obj("pronari" to it.pronari, "ids" to it.ids, "kerko" to it.kerko) }
+            eq("objekti " + Json.shkruaj(r["ng"]), r["o"], m)
+        }
     }
 
     @Test fun heqjetDheKalendari() {

@@ -747,6 +747,11 @@
   .ek-nr { flex: none; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
   /* Aktiviteti */
   .ek-ngjarje { display: flex; gap: 11px; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid var(--vije); }
+  /* v283: ngjarja me afat/produkt hapet me prekje */
+  .ek-ngjarje.prekshme { cursor: pointer; -webkit-tap-highlight-color: transparent; border-radius: 10px; }
+  .ek-ngjarje.prekshme:active { background: var(--hover); }
+  .ek-ids-chip { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 10px; height: 34px; padding: 0 14px; border: 0; border-radius: 17px;
+    background: var(--sb-accent-tint, #eef3fc); color: var(--sb-accent-text, #1f5fc4); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
   .ek-ngjarje .ek-avatar { width: 32px; height: 32px; font-size: 13px; }
   .ek-ngjarje.hequr .ek-avatar { background: var(--af-kuqe-bg); color: var(--af-kuqe-tx); border-color: transparent; }
   .ek-ngjarje.lajmeruar .ek-avatar { background: var(--af-verdhe-bg); color: var(--af-verdhe-tx); border-color: transparent; }
@@ -2109,10 +2114,10 @@
 <script src="afatet.js?v=282"></script>
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
-<script src="ekipa.js?v=282"></script>
+<script src="ekipa.js?v=283"></script>
 <script src="njoftimet.js?v=281"></script>
-<script src="teRejat.js?v=282"></script>
-<script src="app-tel.js?v=282"></script>
+<script src="teRejat.js?v=283"></script>
+<script src="app-tel.js?v=283"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>

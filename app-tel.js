@@ -6475,6 +6475,7 @@
   var EKL = window.StokuEkipa;
   var ekPamja = 'permbledhja';     // permbledhja | afatet | aktiviteti | kalendari | anetaret
   var __ekipiAnetari = null;       // te "afatet": null = kartat e grupit; 'krejt' ose uid = lista e atij
+  var ekIdsFiltri = null;          // v283: afatet e një ngjarjeje të Aktivitetit (id-të), kur hapet nga prekja e saj
   var ekFiltri = null;             // null (në raft) | skaduar | afer | ok | hequr
   var ekKal = null;                // { viti, muaji, dita } — kalendari
   var EKIPI_LIMITI = 300;
@@ -6539,7 +6540,7 @@
     if (!leja('grupi')) return;
     if (pamja === 'statistika') pamja = 'permbledhja';
     if (pamja) {
-      __ekipiAnetari = null; ekFiltri = null;
+      __ekipiAnetari = null; ekFiltri = null; ekIdsFiltri = null;
       ekPamja = pamja;
       ekVendosNivelin();
     }
@@ -6563,16 +6564,35 @@
   function ekVendosNivelin() { $('dlgEkipi').classList.toggle('ne-anetar', !ekEshteShtepi()); }
   function ekipiKthehuTeKartat(paVizatim) {
     if (ekEshteShtepi()) return;
-    __ekipiAnetari = null; ekFiltri = null; ekPamja = 'permbledhja';
+    __ekipiAnetari = null; ekFiltri = null; ekIdsFiltri = null; ekPamja = 'permbledhja';
     ekVendosNivelin();
     if (!paVizatim) { $('ekipiTrup').scrollTop = 0; vizatoEkipen(); }
   }
   function ekHapAnetarin(uid, filtri) {
     ekPamja = 'afatet';
-    __ekipiAnetari = uid; ekFiltri = filtri || null;
+    __ekipiAnetari = uid; ekFiltri = filtri || null; ekIdsFiltri = null;
     ekVendosNivelin();
     $('ekipiTrup').scrollTop = 0;
     vizatoEkipen();
+  }
+  // v283 (pronari): prekja e një ngjarjeje te Aktiviteti hap afatin/produktin e saj. Afati yt i vetëm → dritarja e afatit;
+  // përndryshe Grupi → Afatet te pronari (ose i gjithë grupi), vetëm me afatet e ngjarjes, ose me kërkimin sipas barkodit/emrit.
+  function ekHapNgjarjen(x) {
+    var o = EKL.objektiINgjarjes ? EKL.objektiINgjarjes(x) : null;
+    if (!o) return;
+    var uidIm = perdoruesiAktual() ? perdoruesiAktual().uid : null;
+    if (o.pronari && o.pronari === uidIm && o.ids.length === 1 && afatet.some(function (a) { return a.id === o.ids[0]; })) { hapAfatin(o.ids[0]); return; }
+    var njihet = o.pronari && ekAnetaret().some(function (a) { return a.uid === o.pronari; });
+    ekHapAnetarin(njihet ? o.pronari : 'krejt');
+    ekIdsFiltri = o.ids.length ? o.ids.slice() : null;
+    if ($('ekKerko')) $('ekKerko').value = o.kerko || '';
+    vizatoEkipen(true);
+  }
+  function ekNgjarjaPrekshme(r, x) {
+    if (!EKL.objektiINgjarjes || !EKL.objektiINgjarjes(x)) return;
+    r.classList.add('prekshme'); r.setAttribute('role', 'button'); r.tabIndex = 0;
+    r.addEventListener('click', function () { ekHapNgjarjen(x); });
+    r.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') ekHapNgjarjen(x); });
   }
   // Pllaka "Afatet": nga Pulti hap listën e të gjithë grupit; nga një pamje tjetër kthehet te Pulti
   function ekPllaka(p) {
@@ -6580,7 +6600,7 @@
     ekZgjidhPamjen(p);
   }
   function ekZgjidhPamjen(p) {
-    __ekipiAnetari = null; ekFiltri = null;
+    __ekipiAnetari = null; ekFiltri = null; ekIdsFiltri = null;
     ekPamja = p;
     ekVendosNivelin();
     $('ekipiTrup').scrollTop = 0;
@@ -6746,7 +6766,9 @@
       permb.appendChild(b);
     });
     var k = inp.value.trim().toLowerCase();
+    var idsF = ekIdsFiltri ? ekIdsFiltri.reduce(function (o, id) { o[id] = 1; return o; }, {}) : null;
     var te = zgj.afatet.filter(function (a) {
+      if (idsF) return !!idsF[a.id]; // v283: vetëm afatet e ngjarjes (edhe të hequrat)
       var st = AF.statusi(a);
       if (ekFiltri === 'hequr') { if (st !== 'hequr') return false; }
       else if (st === 'hequr') return false;
@@ -6758,10 +6780,17 @@
     });
     if (ekFiltri === 'hequr') te.sort(function (x, y) { return (y.hequrSe || 0) - (x.hequrSe || 0); }); else te.sort(AF.krahaso);
     lista.textContent = '';
+    if (idsF) {
+      var cf = ekEl('button', 'mk-chip ek-ids-chip'); cf.type = 'button';
+      cf.appendChild(ekEl('span', null, 'Nga aktiviteti · ' + (te.length === 1 ? '1 afat' : te.length + ' afate')));
+      cf.appendChild(ekEl('b', null, '✕')); cf.setAttribute('aria-label', 'Shfaq të gjitha afatet');
+      cf.addEventListener('click', function () { ekIdsFiltri = null; vizatoEkipen(true); });
+      lista.appendChild(cf);
+    }
     if (!zgj.ngarkuar) { lista.appendChild(ekInfo('Duke ngarkuar afatet…')); return; }
     if (zgj.paTeDhena) { lista.appendChild(ekBosh('Pa të dhëna ende', 'Afatet e ' + zgj.emri + ' shfaqen këtu sapo ta hapë Stoku-n (versionin e ri) në telefon ose kompjuter.')); return; }
     if (!te.length) {
-      lista.appendChild(k ? ekBosh('Asgjë s\'u gjet', 'Provo një kërkim tjetër.') :
+      lista.appendChild(idsF ? ekBosh('Afati s\'gjendet më', 'Mund të jetë fshirë ose nuk është sinkronizuar ende.') : k ? ekBosh('Asgjë s\'u gjet', 'Provo një kërkim tjetër.') :
         ekFiltri === 'skaduar' ? ekBosh('Asnjë produkt i skaduar', 'Shumë mirë!') :
         ekFiltri === 'hequr' ? ekBosh('Asnjë produkt i hequr ende') :
         ekBosh('Asnjë afat', zgj.uneJam ? 'Shtoji te tabi "Afatet".' : ''));
@@ -6892,6 +6921,7 @@
         if (tx.detaje) bt.appendChild(ekEl('div', 'ek-ngjarje-detaje', tx.detaje));
         r.appendChild(bt);
         r.appendChild(ekEl('div', 'ek-koha', EKL.kohaRelative(x.koha)));
+        ekNgjarjaPrekshme(r, x);
         c.appendChild(r);
       });
     }
@@ -7061,6 +7091,7 @@
       if (tx.detaje) b.appendChild(ekEl('div', 'ek-ngjarje-detaje', tx.detaje));
       r.appendChild(b);
       r.appendChild(ekEl('div', 'ek-koha', ekOra(x.koha)));
+      ekNgjarjaPrekshme(r, x);
       frag.appendChild(r);
     });
     c.appendChild(frag);
@@ -8005,7 +8036,7 @@
       if (mkId) iRi.m = mkId;
       afatet = afatet.concat([iRi]);
       ruajAfatet();
-      if (perdoruesiAktual() && ekK) ekK.afateTeReja(1, false);
+      if (perdoruesiAktual() && ekK) ekK.afateTeReja(1, false, [iRi.id]);
     }
     mbyllAfatin();
     toast(uFshiNderkohe ? 'Ky afat u fshi nga një pajisje tjetër ndërkohë. U ruajt si afat i ri.' : 'Afati u ruajt.', uFshiNderkohe ? 4500 : undefined);
@@ -8331,7 +8362,7 @@
     afatet = afatet.concat(te_reja);
     try { if (KJ()) KJ().mesoShume(te_reja, 'mbishkruaj'); } catch (e) { /* ok */ } // të kontrolluara nga përdoruesi
     ruajAfatet();
-    if (te_reja.length && perdoruesiAktual() && ekK) ekK.afateTeReja(te_reja.length, true);
+    if (te_reja.length && perdoruesiAktual() && ekK) ekK.afateTeReja(te_reja.length, true, te_reja.map(function (a) { return a.id; }));
     lx.rreshtat = [];
     mbyllLeximin();
     var nk = te_reja.filter(function (a) { return AF.statusi(a) === 'skaduar'; }).length;
