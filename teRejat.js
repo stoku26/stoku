@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 282, versioni: '1.50.0', data: '2026-11-09', titulli: 'Ora e Kosovës kudo', platforma: 'tel', pikat: [
+      'Oraret në Stoku (aktiviteti, njoftimet, "sot", skedarët) janë tani gjithmonë sipas orës së Kosovës, në format 24-orësh, pavarësisht si është vendosur ora në telefon ose kompjuter.',
+      'Ndërrimi i orës verore dhe dimërore bëhet vetë.'
+    ] },
     { v: 281, versioni: '1.49.6', data: '2026-11-08', titulli: 'Tekstet në shqipe standarde', platforma: 'tel', pikat: [
       'Tekstet e aplikacionit u rregulluan sipas shqipes standarde, p.sh. "të gjitha afatet", "tani", "Çfarë ka të re".',
       'U kontrollua i gjithë aplikacioni (telefon dhe kompjuter) për gabime.'

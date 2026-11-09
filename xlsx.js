@@ -38,7 +38,7 @@
     var parts = [];
     var central = [];
     var offset = 0;
-    var dt = dosDateTime(new Date());
+    var dt = dosDateTime(typeof self !== 'undefined' && self.StokuAfatet && self.StokuAfatet.dataKs ? self.StokuAfatet.dataKs() : new Date());
 
     files.forEach(function (f) {
       var nameBytes = enc.encode(f.name);
@@ -207,7 +207,14 @@
     return e;
   }
 
+  // v282: data/ora në Excel sipas orës së Kosovës (StokuAfatet.dataKs); pa të (testet me node) sipas pajisjes
   function dataExcel(ms) {
+    var A = typeof self !== 'undefined' && self.StokuAfatet;
+    if (A && A.dataKs) {
+      var k = A.dataKs(ms), sek = Math.floor(ms / 1000) * 1000;
+      var zh = Date.UTC(k.getFullYear(), k.getMonth(), k.getDate(), k.getHours(), k.getMinutes(), k.getSeconds()) - sek;
+      return (ms + zh) / 86400000 + 25569;
+    }
     var d = new Date(ms);
     return (ms - d.getTimezoneOffset() * 60000) / 86400000 + 25569;
   }

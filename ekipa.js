@@ -416,7 +416,7 @@
       if (!r.ok && !j.arsye) j.arsye = 'http-' + r.status;
       return j;
     }
-    function zonaKohore() { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Belgrade'; } catch (e) { return 'Europe/Belgrade'; } }
+    function zonaKohore() { return (AF() && AF().zona && AF().zona()) || 'Europe/Belgrade'; } // v282: gjithmonë ora e Kosovës
     async function vendosOrarin(o) {
       if (!uid() || typeof fetch !== 'function') return { ok: false, arsye: 'pa-hyrje' };
       try {
@@ -1384,10 +1384,10 @@
     var d = tani - ts;
     if (d < 60000) return 'tani';
     if (d < 3600000) return 'para ' + Math.floor(d / 60000) + ' min';
-    var dt = new Date(ts), sot = new Date(tani);
+    var dt = AF().dataKs(ts), sot = AF().dataKs(tani); // v282: ora e Kosovës
     var ora = dy(dt.getHours()) + ':' + dy(dt.getMinutes());
     if (isoDites(dt) === isoDites(sot)) return 'sot ' + ora;
-    var dje = new Date(tani); dje.setDate(dje.getDate() - 1);
+    var dje = AF().dataKs(tani); dje.setDate(dje.getDate() - 1);
     if (isoDites(dt) === isoDites(dje)) return 'dje ' + ora;
     return dy(dt.getDate()) + '.' + dy(dt.getMonth() + 1) + (dt.getFullYear() !== sot.getFullYear() ? '.' + dt.getFullYear() : '') + ' ' + ora;
   }
@@ -1395,9 +1395,9 @@
   // Titulli i grupit të ditës në listat me kohë (aktiviteti)
   function titulliDites(ts, tani) {
     tani = tani || Date.now();
-    var dt = new Date(ts), sot = new Date(tani);
+    var dt = AF().dataKs(ts), sot = AF().dataKs(tani);
     if (isoDites(dt) === isoDites(sot)) return 'Sot';
-    var dje = new Date(tani); dje.setDate(dje.getDate() - 1);
+    var dje = AF().dataKs(tani); dje.setDate(dje.getDate() - 1);
     if (isoDites(dt) === isoDites(dje)) return 'Dje';
     return dy(dt.getDate()) + '.' + dy(dt.getMonth() + 1) + '.' + dt.getFullYear();
   }
@@ -1548,7 +1548,7 @@
 
   // Kalendari i një muaji: çdo ditë me afatet që skadojnë atë ditë dhe ngjyrën (statusi më i keq i atyre ende në raft)
   function kalendari(afatet, viti, muaji, tani) {
-    var sot = isoDites(new Date(tani || Date.now()));
+    var sot = isoDites(AF().dataKs(tani || Date.now()));
     var sipasDites = {};
     (afatet || []).forEach(function (a) { if (a.data) (sipasDites[a.data] = sipasDites[a.data] || []).push(a); });
     var e1 = new Date(viti, muaji, 1);
@@ -1576,8 +1576,8 @@
   function statistikat(anetaret, tani) {
     tani = tani || Date.now();
     var A = AF();
-    var dt = new Date(tani);
-    var fillimiMuajit = new Date(dt.getFullYear(), dt.getMonth(), 1).getTime();
+    var dt = A.dataKs(tani);
+    var fillimiMuajit = A.msNgaKs(dt.getFullYear(), dt.getMonth() + 1, 1);
     var para30 = tani - 30 * 86400000;
     var r = { aktive: 0, skaduara: 0, afer: 0, ok: 0, javes: 0, sot: 0, hequrMuajit: 0, hequrSot: 0, perAnetar: [], furnizuesit: [], heqesit: [] };
     var fur = {}, heq = {};
@@ -1589,7 +1589,7 @@
         if (st === 'hequr') {
           var hs = a.hequrSe || 0;
           if (hs >= fillimiMuajit) r.hequrMuajit++;
-          if (hs && isoDites(new Date(hs)) === sotIso) r.hequrSot++;
+          if (hs && isoDites(A.dataKs(hs)) === sotIso) r.hequrSot++;
           if (hs >= para30) {
             x.hequr30++;
             var kush = a.hequrNga || m.emri || '';

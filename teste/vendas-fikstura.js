@@ -109,6 +109,7 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
 // ---------- Afatet (afatet.js): statuset, tekstet, datat ----------
 {
   const A = require(RR + '/afatet.js');
+  A.vendosZonen(process.env.TZ || Intl.DateTimeFormat().resolvedOptions().timeZone); // v282: zona e testit (Kotlini e provon njësoj)
   const L = require(RR + '/lejet.js');
   const TANI_A = new Date(2026, 9, 22, 15, 30).getTime(); // 22.10.2026 15:30, ora lokale
   const iso = n => { const d = new Date(TANI_A); d.setDate(d.getDate() + n); return A.isoNgaData ? A.isoNgaData(d) : d.toISOString().slice(0, 10); };
@@ -223,6 +224,7 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
   process.env.TZ = 'UTC';
   const EK = require(RR + '/ekipa.js');
   const A = require(RR + '/afatet.js');
+  A.vendosZonen(process.env.TZ || Intl.DateTimeFormat().resolvedOptions().timeZone); // v282: zona e testit (Kotlini e provon njësoj)
   const TANI_G = Date.UTC(2026, 9, 23, 10, 15, 0); // 23.10.2026 10:15 UTC
   const DataE = Date;
   global.Date = class extends DataE { constructor(...x) { if (x.length) super(...x); else super(TANI_G); } static now() { return TANI_G; } };
@@ -324,6 +326,7 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
 // Një seri veprimesh me orë të ngulët; pas çdo hapi: rezultati, hyrjet e ruajtura (me radhën e çelësave), lista dhe furnizuesit.
 {
   const A = require(RR + '/afatet.js');
+  A.vendosZonen(process.env.TZ || Intl.DateTimeFormat().resolvedOptions().timeZone); // v282: zona e testit (Kotlini e provon njësoj)
   const T0 = 1760000000000;
   let ora = T0;
   const nowVjeter = Date.now;
@@ -452,6 +455,7 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
   process.env.TZ = 'UTC'; // kolonat "date" të Excel-it varen nga zona; Kotlini i provon me UTC
   const X = require(RR + '/xlsx.js');
   const A = require(RR + '/afatet.js');
+  A.vendosZonen(process.env.TZ || Intl.DateTimeFormat().resolvedOptions().timeZone); // v282: zona e testit (Kotlini e provon njësoj)
   const zlib = require('zlib');
   const JsBarcode = require(path.join(__dirname, 'npm/node_modules/jsbarcode'));
   // ZIP pa kompresim (si i krijon xlsx.js) → [[emri, teksti]]

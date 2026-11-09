@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 class StokuApp : Application() {
     override fun onCreate() {
         super.onCreate()
+        KohaKosoves.nis(this) // v282: ora e Kosovës për krejt aplikacionin
         app = this
         ruajRrezimet()
         nisFirebase(this)

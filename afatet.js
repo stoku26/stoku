@@ -22,7 +22,38 @@
 
   function dy(n) { return (n < 10 ? '0' : '') + n; }
   function isoNgaData(d) { return d.getFullYear() + '-' + dy(d.getMonth() + 1) + '-' + dy(d.getDate()); }
-  function sot() { return isoNgaData(new Date()); }
+
+  // ---- v282 (pronari): ora e Stoku-t është GJITHMONË ora e Kosovës (Europe/Belgrade, 24 orë, ora verore/dimërore vetë),
+  // jo ajo e telefonit, kompjuterit apo orës së dorës. dataKs(ms) kthen një Date që i ka fushat lokale (getHours, getDate…)
+  // = koha në Kosovë, që kodi ekzistues t'i lexojë si më parë. Testet mund ta ndërrojnë zonën (vendosZonen('UTC')).
+  var ZONA = 'Europe/Belgrade', fmtZona = null, fmtPerZone = '';
+  function vendosZonen(z) { ZONA = z || 'Europe/Belgrade'; fmtZona = null; }
+  function zona() { return ZONA; }
+  function pjesetKs(ms) {
+    try {
+      if (!fmtZona || fmtPerZone !== ZONA) {
+        fmtZona = new Intl.DateTimeFormat('en-GB', { timeZone: ZONA, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        fmtPerZone = ZONA;
+      }
+      var o = {};
+      fmtZona.formatToParts(new Date(ms)).forEach(function (p) { o[p.type] = p.value; });
+      return { v: +o.year, m: +o.month, d: +o.day, h: (+o.hour) % 24, mi: +o.minute, s: +o.second };
+    } catch (e) {
+      var d = new Date(ms); return { v: d.getFullYear(), m: d.getMonth() + 1, d: d.getDate(), h: d.getHours(), mi: d.getMinutes(), s: d.getSeconds() };
+    }
+  }
+  function dataKs(ms) {
+    var p = pjesetKs(ms === undefined || ms === null ? Date.now() : +ms);
+    return new Date(p.v, p.m - 1, p.d, p.h, p.mi, p.s);
+  }
+  function sot(tani) { return isoNgaData(dataKs(tani)); }
+  // Momenti (ms) kur në Kosovë është ora v-m-d h:mi (p.sh. fillimi i muajit); dy hapa për ndërrimin e orës verore
+  function msNgaKs(v, m, d, h, mi) {
+    var u = Date.UTC(v, m - 1, d, h || 0, mi || 0), x = u;
+    for (var i = 0; i < 2; i++) { var p = pjesetKs(x); x = u - (Date.UTC(p.v, p.m - 1, p.d, p.h, p.mi, p.s) - x); }
+    return x;
+  }
+  function oraKs(ms) { var p = pjesetKs(+ms); return dy(p.h) + ':' + dy(p.mi); }
 
   function dataNgaIso(iso) {
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
@@ -35,7 +66,7 @@
   function ditetDeri(iso, tani) {
     var d = dataNgaIso(iso);
     if (!d) return null;
-    var s = tani ? new Date(tani) : new Date();
+    var s = dataKs(tani || Date.now());
     s.setHours(0, 0, 0, 0);
     return Math.round((d.getTime() - s.getTime()) / DITA_MS);
   }
@@ -88,7 +119,7 @@
   function pershkrimi(a, tani) {
     var st = statusi(a, tani);
     var n = ditetDeri(a.data, tani);
-    if (st === 'hequr') return 'U hoq nga rafti' + (a.hequrSe ? ' më ' + formato(isoNgaData(new Date(a.hequrSe))) : '') + '.';
+    if (st === 'hequr') return 'U hoq nga rafti' + (a.hequrSe ? ' më ' + formato(isoNgaData(dataKs(a.hequrSe))) : '') + '.';
     if (st === 'pa-date') return 'Mungon data e skadimit. Plotësoje.';
     if (st === 'skaduar') return (n === -1 ? 'Skadoi dje' : 'Ka skaduar para ' + ditetParaTekst(-n)) + '. Ky produkt duhet të hiqet nga rafti/pozita.';
     if (st === 'afer') {
@@ -346,7 +377,7 @@
     (lista || []).forEach(function (a) { var k = celesiMuajit(a); m[k] = (m[k] || 0) + 1; });
     var vitet = {};
     Object.keys(m).forEach(function (k) { if (k !== 'pa-date') vitet[k.slice(0, 4)] = true; });
-    var meVit = Object.keys(vitet).length > 1 || (Object.keys(vitet).length === 1 && Object.keys(vitet)[0] !== String(new Date().getFullYear()));
+    var meVit = Object.keys(vitet).length > 1 || (Object.keys(vitet).length === 1 && Object.keys(vitet)[0] !== String(dataKs().getFullYear()));
     return Object.keys(m).sort(function (a, b) { return a === 'pa-date' ? 1 : b === 'pa-date' ? -1 : a.localeCompare(b); })
       .map(function (k) { return { celes: k, n: m[k], emri: emriMuajit(k, meVit) }; });
   }
@@ -380,7 +411,7 @@
   // Data nga një qelizë: numër serial i Excel-it, tekst ("12.10.2026", "12 nëntor 26"…), ose vetëm dita ("15")
   // kur fleta ka emrin e muajit ("Nëntor" → nëntor).
   function ditaNeMuaj(dita, muaji) {
-    var t = new Date(), v = t.getFullYear();
+    var t = dataKs(), v = t.getFullYear();
     var iso = ndertoIso(v, muaji, dita);
     if (iso && ditetDeri(iso) < -180) iso = ndertoIso(v + 1, muaji, dita);
     return iso;
@@ -1041,7 +1072,7 @@
   var api = {
     get AI_URL() { return adresaAI(); },
     DITET_PARALAJMERIMI: DITET_PARALAJMERIMI,
-    sot: sot, isoNgaData: isoNgaData, ditetDeri: ditetDeri, statusi: statusi, formato: formato,
+    sot: sot, isoNgaData: isoNgaData, dataKs: dataKs, oraKs: oraKs, msNgaKs: msNgaKs, vendosZonen: vendosZonen, zona: zona, ditetDeri: ditetDeri, statusi: statusi, formato: formato,
     pershkrimi: pershkrimi, lexoDaten: lexoDaten, lexoDatenEFushes: lexoDatenEFushes, lidhFushenEDates: lidhFushenEDates,
     formatoDatenGjateShkrimit: formatoDatenGjateShkrimit, formatoPerFushe: formatoPerFushe, idERe: idERe, krahaso: krahaso, numero: numero,
     pergatitFoton: pergatitFoton, fotoPerDergim: fotoPerDergim, lexoMeAI: lexoMeAI,

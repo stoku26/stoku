@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(43, "2026-11-09", "Ora e Kosovës kudo", listOf(
+            "Oraret në Stoku (aktiviteti, njoftimet, \"sot\", skedarët) janë tani gjithmonë sipas orës së Kosovës, në format 24-orësh, pavarësisht si është vendosur ora në telefon.",
+            "Ndërrimi i orës verore dhe dimërore bëhet vetë. Njësoj edhe në orën e dorës."
+        )),
         Hyrja(42, "2026-11-08", "Tekstet në shqipe standarde", listOf(
             "Tekstet e aplikacionit u rregulluan sipas shqipes standarde, p.sh. \"të gjitha afatet\", \"tani\", \"Çfarë ka të re\".",
             "Edhe ora i ka tekstet e rregulluara."
