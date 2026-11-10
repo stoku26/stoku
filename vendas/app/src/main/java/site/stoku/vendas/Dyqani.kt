@@ -149,8 +149,9 @@ object Dyqani {
     }
 
     /** Zbaton rezultatin e bashkimit (nga cloud-i): folderat, produktet, afatet, marketet, renditja */
-    fun zbatoBashkimin(b: Obj) {
-        if (Bashkimi.eNjejte(b, gjendjaPerCloud())) return
+    /** dihetQeNdryshon: thirrësi e ka krahasuar tashmë me gjendjen e tanishme (jashtë fillit kryesor) */
+    fun zbatoBashkimin(b: Obj, dihetQeNdryshon: Boolean = false) {
+        if (!dihetQeNdryshon && Bashkimi.eNjejte(b, gjendjaPerCloud())) return
         val pm = LinkedHashMap<String, Obj>()
         b["produktet"].siListe().forEach { x ->
             val p = x.siObj() ?: return@forEach
@@ -494,14 +495,16 @@ object Dyqani {
     fun furnizuesiNgaBarkodi(barkodi: String): String {
         if (barkodi.isEmpty()) return ""
         Regjistri.merr(barkodi)?.second?.takeIf { it.isNotEmpty() }?.let { return it }
-        return _gjendja.value.afatet.sortedByDescending { koha(it, "ndryshuarSe") }
-            .firstOrNull { it["barkodi"] == barkodi && (it["furnizuesi"] as? String).orEmpty().isNotEmpty() }?.get("furnizuesi") as? String ?: ""
+        // afati më i ri me këtë barkod që ka furnizues (pa i renditur të gjitha afatet për çdo barkod)
+        return _gjendja.value.afatet.filter { it["barkodi"] == barkodi && (it["furnizuesi"] as? String).orEmpty().isNotEmpty() }
+            .maxByOrNull { koha(it, "ndryshuarSe") }?.get("furnizuesi") as? String ?: ""
     }
 
     /** Furnizuesit për sugjerim (si furnizuesitPerSugjerim te web-i): afatet e mia + të kontrolluarit (kujtesa, stoku) + lista e administratorit */
     fun furnizuesitPerSugjerim(): List<String> {
         val m = LinkedHashMap<String, String>()
-        fun shto(f: Any?) { val s = jsString(f ?: "").replace(Regex("\\s+"), " ").trim(); val c = s.lowercase(); if (s.isNotEmpty() && s != "null" && !m.containsKey(c)) m[c] = s }
+        val hapesirat = Regex("\\s+")
+        fun shto(f: Any?) { val s = jsString(f ?: "").replace(hapesirat, " ").trim(); val c = s.lowercase(); if (s.isNotEmpty() && s != "null" && !m.containsKey(c)) m[c] = s }
         Regjistri.lexoFurnizuesitPublike()
         _gjendja.value.afatet.forEach { shto(it["furnizuesi"]) }
         Regjistri.furnizuesit().forEach { shto(it) }

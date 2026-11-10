@@ -23,13 +23,31 @@ object Afatet {
     fun sot(): String = isoNgaData(dataSot())
 
     private val ISO_RE = Regex("^(\\d{4})-(\\d{2})-(\\d{2})$")
+    // Kujtesa e datave të lexuara: renditja e një liste me mijëra afate e pyet të njëjtën datë shumë herë (LocalDate s'ndryshon)
+    private val PA_DATE = Any()
+    private val kujtesaDatave = java.util.concurrent.ConcurrentHashMap<String, Any>()
     fun dataNgaIso(iso: Any?): LocalDate? {
-        val m = ISO_RE.matchEntire((iso as? String) ?: return null) ?: return null
-        return try { LocalDate.of(m.groupValues[1].toInt(), m.groupValues[2].toInt(), m.groupValues[3].toInt()) } catch (e: Exception) { null }
+        val t = (iso as? String) ?: return null
+        kujtesaDatave[t]?.let { return it as? LocalDate }
+        val m = ISO_RE.matchEntire(t)
+        val d = if (m == null) null else try { LocalDate.of(m.groupValues[1].toInt(), m.groupValues[2].toInt(), m.groupValues[3].toInt()) } catch (e: Exception) { null }
+        if (kujtesaDatave.size > 4000) kujtesaDatave.clear()
+        kujtesaDatave[t] = d ?: PA_DATE
+        return d
     }
 
-    private fun dataETani(tani: Long?): LocalDate =
-        if (tani == null) dataSot() else Instant.ofEpochMilli(tani).atZone(ZoneId.systemDefault()).toLocalDate()
+    // Dita e sotme mbahet për të njëjtën sekondë dhe zonë: statusi() thirret për çdo afat (dhe dy herë për çdo krahasim te renditja)
+    private class Sot(val sek: Long, val zona: ZoneId, val dita: LocalDate)
+    @Volatile private var sotKujtesa: Sot? = null
+    private fun dataETani(tani: Long?): LocalDate {
+        val ms = tani ?: System.currentTimeMillis()
+        val sek = Math.floorDiv(ms, 1000L); val z = ZoneId.systemDefault()
+        val k = sotKujtesa
+        if (k != null && k.sek == sek && k.zona == z) return k.dita
+        val d = Instant.ofEpochMilli(ms).atZone(z).toLocalDate()
+        sotKujtesa = Sot(sek, z, d)
+        return d
+    }
 
     /** Sa ditë kanë mbetur deri në afat (0 = sot, negativ = ka skaduar), ose null pa datë */
     fun ditetDeri(iso: Any?, tani: Long? = null): Int? {
@@ -206,7 +224,9 @@ object Afatet {
         val sa = RENDI_STATUSIT[statusi(a, tani)]!!; val sb = RENDI_STATUSIT[statusi(b, tani)]!!
         if (sa != sb) return sa - sb
         if (sa == 4) return jsNumber(b["hequrSe"] ?: 0).let { hb -> jsNumber(a["hequrSe"] ?: 0).let { ha -> java.lang.Double.compare(if (hb.isNaN()) 0.0 else hb, if (ha.isNaN()) 0.0 else ha) } }
-        val d = krahasoTekst(ose(a["data"]), ose(b["data"]))
+        // Dy data të vlefshme "VVVV-MM-DD" renditen njësoj si tekst i thjeshtë (pa normalizimin e krahasoTekst, që është i rëndë)
+        val da = ose(a["data"]); val db = ose(b["data"])
+        val d = if (da.length == 10 && db.length == 10 && dataNgaIso(da) != null && dataNgaIso(db) != null) Integer.signum(da.compareTo(db)) else krahasoTekst(da, db)
         return if (d != 0) d else KOLATORI.compare(ose(a["emri"]), ose(b["emri"]))
     }
     private fun ose(x: Any?): String = if (x == null || x == "" || x == false) "" else jsString(x)
@@ -224,7 +244,9 @@ object Afatet {
     // ---------- Muajt ----------
     val EMRAT_MUAJVE = listOf("Janar", "Shkurt", "Mars", "Prill", "Maj", "Qershor", "Korrik", "Gusht", "Shtator", "Tetor", "Nëntor", "Dhjetor")
     val MUAJT_SHKURT = listOf("Jan", "Shk", "Mar", "Pri", "Maj", "Qer", "Kor", "Gus", "Sht", "Tet", "Nën", "Dhj")
-    fun celesiMuajit(a: Obj?): String { val d = a?.get("data"); val s = if (d == null) "" else jsString(d); return if (Regex("^\\d{4}-\\d{2}").containsMatchIn(s)) s.take(7) else "pa-date" }
+    fun celesiMuajit(a: Obj?): String { val d = a?.get("data"); val s = if (d == null) "" else jsString(d); return if (MUAJI_FILLIM.containsMatchIn(s)) s.take(7) else "pa-date" }
+    private val MUAJI_FILLIM = Regex("^\\d{4}-\\d{2}")
+    private val HAPESIRAT = Regex("\\s+")
     fun emriMuajit(celes: String, meVit: Boolean = true): String {
         if (celes == "pa-date") return "Pa datë"
         val m = Regex("^(\\d{4})-(\\d{2})$").matchEntire(celes) ?: return ""
@@ -245,7 +267,7 @@ object Afatet {
     // ---------- Furnizuesit ----------
     const val PA_FURNIZUES = "__pa__"
     fun celesiFurnizuesit(a: Obj?): String {
-        val f = ((a?.get("furnizuesi") as? String) ?: (a?.get("furnizuesi")?.let { jsString(it) } ?: "")).trim().replace(Regex("\\s+"), " ").lowercase()
+        val f = ((a?.get("furnizuesi") as? String) ?: (a?.get("furnizuesi")?.let { jsString(it) } ?: "")).trim().replace(HAPESIRAT, " ").lowercase()
         return f.ifEmpty { PA_FURNIZUES }
     }
     data class Furnizuesi(val celes: String, val n: Int, val emri: String)
@@ -254,7 +276,7 @@ object Afatet {
         lista.forEach { a ->
             val k = celesiFurnizuesit(a)
             val x = m[k]
-            m[k] = if (x == null) Furnizuesi(k, 1, if (k == PA_FURNIZUES) "Pa furnizues" else jsString(a["furnizuesi"]).trim().replace(Regex("\\s+"), " ")) else x.copy(n = x.n + 1)
+            m[k] = if (x == null) Furnizuesi(k, 1, if (k == PA_FURNIZUES) "Pa furnizues" else jsString(a["furnizuesi"]).trim().replace(HAPESIRAT, " ")) else x.copy(n = x.n + 1)
         }
         return m.values.sortedWith { a, b ->
             if (a.celes == PA_FURNIZUES) 1 else if (b.celes == PA_FURNIZUES) -1 else KOLATORI.compare(a.emri, b.emri)

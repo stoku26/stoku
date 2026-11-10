@@ -8,6 +8,11 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(47, "2026-11-10", "Më i shpejtë me shumë të dhëna", listOf(
+            "Listat e afateve renditen dhe hapen më shpejt kur ke qindra ose mijëra afate.",
+            "Sinkronizimi i një dyqani të madh nuk e ngrin më ekranin: llogaritjet e rënda bëhen në sfond.",
+            "Kërkimi i grupeve dhe i marketeve, si dhe importi nga Excel, janë më të lehtë për telefonin."
+        )),
         Hyrja(46, "2026-11-10", "Më i qëndrueshëm", listOf(
             "Kur sinkronizimi i parë pas hyrjes nuk arrin te serveri, aplikacioni e provon vetë përsëri pas pak, pa pasur nevojë ta mbyllësh e ta hapësh.",
             "Te Grupi, listat e afateve janë më të sigurta kur të dhënat e një kolegu vijnë të paplota."

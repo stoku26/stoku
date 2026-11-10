@@ -676,9 +676,11 @@ object Grupi {
     }
 
     /** Emri pa shkronja të mëdha dhe pa ë/ç (si normalizoEmrin te ekipa.js) */
+    private val SHENJAT = Regex("[\\u0300-\\u036f]") // një herë (kërkimi i grupeve e thërret për çdo grup të listës)
+    private val JO_SHKRONJE = Regex("[^a-z0-9]+")
     fun normalizoEmrin(t: String?): String =
-        java.text.Normalizer.normalize(t.orEmpty().lowercase(), java.text.Normalizer.Form.NFD).replace(Regex("[\\u0300-\\u036f]"), "")
-            .replace(Regex("[^a-z0-9]+"), " ").trim()
+        java.text.Normalizer.normalize(t.orEmpty().lowercase(), java.text.Normalizer.Form.NFD).replace(SHENJAT, "")
+            .replace(JO_SHKRONJE, " ").trim()
 
     private fun perputhet(emriG: String?, q: String): Boolean {
         val n = normalizoEmrin(emriG)

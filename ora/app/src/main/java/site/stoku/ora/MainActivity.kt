@@ -384,6 +384,11 @@ fun ListaEkrani(kurShkeputet: () -> Unit, kurHumbetLidhja: () -> Unit) {
         }
         Pamja.Lista -> {
             val gjendja = rememberScalingLazyListState()
+            // 8 deri 30 ditë (pa ato që janë te "Këtë javë"): llogaritet vetëm kur ndryshojnë listat, jo në çdo vizatim
+            val muaji830 = remember(lista, krejt) {
+                val l0 = lista; val k0 = krejt
+                if (l0 == null || k0 == null) emptyList() else { val teJaves = l0.java.map { it.id }.toSet(); k0.krejt.filter { it.data > k0.d7 && it.data <= k0.d30 && it.id !in teJaves } }
+            }
             Scaffold(timeText = { TimeText() }, positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
                 ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
                     val l = lista
@@ -447,17 +452,13 @@ fun ListaEkrani(kurShkeputet: () -> Unit, kurHumbetLidhja: () -> Unit) {
                         }
                     }
                     // 8 deri 30 ditë: pas "Këtë javë" (pa ato që janë te "Këtë javë" dhe pa të hequrat në radhë)
-                    val k830 = krejt
-                    if (l != null && k830 != null) {
-                        val teJaves = l.java.map { it.id }.toSet()
-                        val muaji = k830.krejt.filter { it.data > k830.d7 && it.data <= k830.d30 && it.id !in teJaves }
-                        if (muaji.isNotEmpty()) {
-                            item { ListHeader { Text("8 DERI 30 DITË · ${muaji.size}", color = Gri, fontWeight = FontWeight.SemiBold) } }
-                            val cm = celesaUnike("m", muaji)
-                            items(muaji.size, key = { cm[it] }) { i ->
-                                val a = muaji[i]
-                                RreshtiAfatit(a, poshteMeFurnizues(a), AfatAfer) { pamja = Pamja.Detaji(a, false) }
-                            }
+                    if (l != null && muaji830.isNotEmpty()) {
+                        val muaji = muaji830
+                        item { ListHeader { Text("8 DERI 30 DITË · ${muaji.size}", color = Gri, fontWeight = FontWeight.SemiBold) } }
+                        val cm = celesaUnike("m", muaji)
+                        items(muaji.size, key = { cm[it] }) { i ->
+                            val a = muaji[i]
+                            RreshtiAfatit(a, poshteMeFurnizues(a), AfatAfer) { pamja = Pamja.Detaji(a, false) }
                         }
                     }
                     // v238: produktet me afat mbi 30 ditë (jo në faqen kryesore); kërkimi është butoni poshtë
@@ -522,8 +523,9 @@ fun poshteMeFurnizues(a: Afat): String =
     (if (a.marketi.isNotBlank()) a.marketi + " · " else "") + dataShkurt(a.data) + (a.sasia?.let { " · $it copë" } ?: "") + (if (a.furnizuesi.isNotBlank()) " · " + a.furnizuesi else "")
 
 // Kërkimi pa dallim shkronjash dhe pa shenja (ë = e, ç = c)
+private val SHENJAT_E_SHKRONJAVE = Regex("\\p{Mn}+") // një herë (më parë krijohej për çdo produkt, tri herë, në çdo vizatim)
 fun normalizo(s: String): String =
-    java.text.Normalizer.normalize(s.lowercase(), java.text.Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "").trim()
+    java.text.Normalizer.normalize(s.lowercase(), java.text.Normalizer.Form.NFD).replace(SHENJAT_E_SHKRONJAVE, "").trim()
 
 // v238: lista e një grupi (8 deri 30 ditë ose mbi 30 ditë)
 @Composable
@@ -572,8 +574,9 @@ fun KerkoEkrani(krejt: Krejt?, duke: Boolean, gabim: String?, pyetja: String, ku
     LaunchedEffect(Unit) { if (pyetja.isEmpty()) hapHyrjen() }
     val q = normalizo(pyetja)
     val pa = pyetja.trim()
-    val rezultatet = if (krejt == null || q.isEmpty()) emptyList()
-        else krejt.krejt.filter { a -> normalizo(a.emri).contains(q) || normalizo(a.furnizuesi).contains(q) || normalizo(a.marketi).contains(q) || (pa.isNotEmpty() && a.barkodi.contains(pa)) }
+    // remember: kërkimi në të gjitha produktet bëhet vetëm kur ndryshon pyetja ose lista (jo në çdo vizatim / lëvizje të listës)
+    val rezultatet = remember(krejt, pyetja) { if (krejt == null || q.isEmpty()) emptyList()
+        else krejt.krejt.filter { a -> normalizo(a.emri).contains(q) || normalizo(a.furnizuesi).contains(q) || normalizo(a.marketi).contains(q) || (pa.isNotEmpty() && a.barkodi.contains(pa)) } }
     Scaffold(timeText = { TimeText() }, positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
         ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
             item { ListHeader { Text("KËRKO", color = Gri, fontWeight = FontWeight.SemiBold) } }

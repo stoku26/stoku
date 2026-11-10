@@ -31,6 +31,12 @@ object ImportiAfateve {
 
     private val DITE_MUAJ = Regex("^(\\d{1,2})\\.(\\d+)$")
     private val VETEM_DITA = Regex("^\\d{1,2}\\.?$")
+    // Një herë (më parë krijoheshin për çdo qelizë të skedarit të importuar)
+    private val VITI_20X = Regex("^20\\d$")
+    private val JO_SHKRONJE_NUMER = Regex("[^a-z0-9]")
+    private val BARKOD_6_14 = Regex("^\\d{6,14}$")
+    private val TRI_SHKRONJA = Regex("[a-zA-Zëç]{3,}")
+    private val NUMER_1_5 = Regex("^\\d{1,5}$")
     /** Data nga një qelizë: numër serial i Excel-it, tekst ("12.10.2026", "12 nëntor 26"…), ose vetëm dita ("15") kur fleta ka muajin */
     fun dataNgaQeliza(v0: Any?, muajiFletes: Int?, tani: Long? = null): String? {
         var v = v0
@@ -45,7 +51,7 @@ object ImportiAfateve {
             var s = numriSiTekst(d)
             val p = DITE_MUAJ.matchEntire(s)
             if (p != null && p.groupValues[2] == "1") s += "0"
-            else if (p != null && Regex("^20\\d$").matches(p.groupValues[2])) s += "0"
+            else if (p != null && VITI_20X.matches(p.groupValues[2])) s += "0"
             v = s
         }
         val s = jsTrim(if (v == null) "" else jsString(v))
@@ -56,7 +62,7 @@ object ImportiAfateve {
     }
 
     fun normTitulli(t: Any?): String =
-        jsString(if (eVertete(t)) t else "").lowercase().replace("ë", "e").replace("ç", "c").replace(Regex("[^a-z0-9]"), "")
+        jsString(if (eVertete(t)) t else "").lowercase().replace("ë", "e").replace("ç", "c").replace(JO_SHKRONJE_NUMER, "")
 
     val FUSHAT = listOf("barkodi", "emri", "data", "sasia", "furnizuesi")
     private val FJALET = mapOf(
@@ -92,9 +98,9 @@ object ImportiAfateve {
             return iM
         }
         if (k["data"]!! < 0) k["data"] = piket { v -> (v is Number && v.toDouble() > 20000 && v.toDouble() < 80000) || (v is String && Afatet.lexoDaten(v, tani) != null) }
-        if (k["barkodi"]!! < 0) k["barkodi"] = piket { v -> Regex("^\\d{6,14}$").matches(tekstNgaQeliza(v)) }
-        if (k["emri"]!! < 0) k["emri"] = piket { v -> v is String && Regex("[a-zA-Zëç]{3,}").containsMatchIn(v) }
-        if (k["sasia"]!! < 0) k["sasia"] = piket { v -> val t = tekstNgaQeliza(v); Regex("^\\d{1,5}$").matches(t) && t.toInt() < 100000 }
+        if (k["barkodi"]!! < 0) k["barkodi"] = piket { v -> BARKOD_6_14.matches(tekstNgaQeliza(v)) }
+        if (k["emri"]!! < 0) k["emri"] = piket { v -> v is String && TRI_SHKRONJA.containsMatchIn(v) }
+        if (k["sasia"]!! < 0) k["sasia"] = piket { v -> val t = tekstNgaQeliza(v); NUMER_1_5.matches(t) && t.toInt() < 100000 }
         return k
     }
 

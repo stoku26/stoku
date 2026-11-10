@@ -5386,7 +5386,11 @@
     ekShenjat();
   }
 
+  // v285: tabela e gjatë (mijëra afate) vizatohet pjesë-pjesë, që faqja të mos ngrijë: 300 rreshtat e parë menjëherë, të tjerët
+  // në grupe prej 400. afVizatimi ndal pjesët e mbetura të një vizatimi të vjetër.
+  var afVizatimi = 0;
   function renderAfatetPc() {
+    var vizatimi = ++afVizatimi;
     vizatoZgjedhjenEMarketit();
     var n = AF.numero(afatetEMarketit());
     var fur = furnizuesit().length;
@@ -5421,7 +5425,9 @@
       }
       return;
     }
-    var frag = document.createDocumentFragment();
+    // radha: rreshtat e grupeve (nyje të gatshme) dhe afatet (rreshti krijohet kur i vjen radha)
+    var radha = [];
+    var frag = { appendChild: function (x) { radha.push(x); } };
     function sipasFurnizuesit(l, nen) {
       var grupet = {};
       l.forEach(function (a) { var f = a.furnizuesi || ''; (grupet[f] = grupet[f] || []).push(a); });
@@ -5433,7 +5439,7 @@
         td.appendChild(document.createTextNode((f || 'Pa furnizues') + ' · ' + produkteTekst(g.length) + (copeGr ? ' · ' + num(copeGr) + ' copë' : '')));
         tr.appendChild(td);
         frag.appendChild(tr);
-        g.forEach(function (a) { frag.appendChild(rreshtIAfatit(a)); });
+        g.forEach(function (a) { frag.appendChild(a); });
       });
     }
     if (kaMarkete() && !idMarketitAktiv()) {
@@ -5446,14 +5452,28 @@
         tr.appendChild(td);
         frag.appendChild(tr);
         if (af.grupo && !paFurnizues()) sipasFurnizuesit(gr.afatet, true); // v252
-        else gr.afatet.forEach(function (a) { frag.appendChild(rreshtIAfatit(a)); });
+        else gr.afatet.forEach(function (a) { frag.appendChild(a); });
       });
     } else if (af.grupo && !paFurnizues()) {
       sipasFurnizuesit(lista, false);
     } else {
-      lista.forEach(function (a) { frag.appendChild(rreshtIAfatit(a)); });
+      lista.forEach(function (a) { frag.appendChild(a); });
     }
-    trup.appendChild(frag);
+    function vizatoPjesen(nga, sa) {
+      var fr = document.createDocumentFragment(), deri = Math.min(radha.length, nga + sa);
+      for (var i = nga; i < deri; i++) fr.appendChild(radha[i].nodeType ? radha[i] : rreshtIAfatit(radha[i]));
+      trup.appendChild(fr);
+      return deri;
+    }
+    var vizatuar = vizatoPjesen(0, 300);
+    (function vazhdo() {
+      if (vizatuar >= radha.length) return;
+      setTimeout(function () {
+        if (vizatimi !== afVizatimi) return; // tabela u vizatua sërish ndërkohë
+        vizatuar = vizatoPjesen(vizatuar, 400);
+        vazhdo();
+      }, 0);
+    })();
   }
 
   var IKONA_MARKETI = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';

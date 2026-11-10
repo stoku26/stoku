@@ -469,9 +469,11 @@ fun statusiIMarketeve(): String {
 private const val SUGJERIMET_MAKS = 6
 
 /** Emri pa shkronja të mëdha, pa ë/ç dhe me një hapësirë: "Viva Fresh" = "viva  fresh" = "VIVA FRESH" */
+private val SHENJAT_E_EMRIT = Regex("[\\u0300-\\u036f]") // një herë (thirret për çdo market në çdo shkronjë të shkruar)
+private val HAPESIRAT_E_EMRIT = Regex("\\s+")
 internal fun emriPerKerkim(e: String): String =
-    java.text.Normalizer.normalize(e, java.text.Normalizer.Form.NFD).replace(Regex("[\\u0300-\\u036f]"), "")
-        .lowercase().replace(Regex("\\s+"), " ").trim()
+    java.text.Normalizer.normalize(e, java.text.Normalizer.Form.NFD).replace(SHENJAT_E_EMRIT, "")
+        .lowercase().replace(HAPESIRAT_E_EMRIT, " ").trim()
 
 /**
  * Marketi te afati (si select#afatMarketi te web-i). Fusha ku shkruhet emri; poshtë dalin marketet që e përmbajnë

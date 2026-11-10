@@ -20,6 +20,14 @@
   'use strict';
 
   var LISTA = [
+    { v: 285, versioni: '1.52.1', data: '2026-11-10', titulli: 'Afatet hapen shumë më shpejt', platforma: 'tel', pikat: [
+      'Lista e Afateve hapet dhe kërkon shumë më shpejt, sidomos kur ke qindra ose mijëra afate.',
+      'Lista e gjatë mbushet pjesë-pjesë, që ekrani të mos ngrijë. "Të gjitha" i zgjedh të gjitha afatet e listës.'
+    ] },
+    { v: 285, versioni: '1.52.1', data: '2026-11-10', titulli: 'Afatet hapen shumë më shpejt', platforma: 'pc', pikat: [
+      'Tabela e Afateve dhe Përmbledhja hapen shumë më shpejt, sidomos kur ke qindra ose mijëra afate.',
+      'Tabela e gjatë mbushet pjesë-pjesë, që faqja të mos ngrijë.'
+    ] },
     { v: 284, versioni: '1.52.0', data: '2026-11-10', titulli: 'Shiko çfarë u shtua te Aktiviteti', platforma: 'tel', pikat: [
       'Te Grupi → Aktiviteti, prek cilindo rresht (p.sh. "shtoi 1 afat të ri") dhe hapet saktësisht ai afat ose produkt: emri, barkodi, sasia, data dhe gjendja.',
       'Dritarja është vetëm për shikim: aty nuk ndryshohet asgjë. E sheh çdo anëtar i grupit, edhe kur afati fshihet më vonë.'
