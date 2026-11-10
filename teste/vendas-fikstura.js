@@ -294,6 +294,38 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
     { lloji: 'hequr', uid: 'u2' }, null
   ]).map(ng => ({ ng, o: EK.objektiINgjarjes(ng) }));
   const harta = EK.hartaEHeqjeve(ngjarjet);
+  // v284: detajet e ngjarjes (pamja "vetëm shiko" te Aktiviteti) + fotografia e afateve brenda ngjarjes
+  const meAfate = (lista) => lista.map(a => Object.assign({}, a, { ngarkuar: a.uid !== 'u3', afatet: a.afatet.map(af => Object.assign(EK.mbivendosHeqjen(af, a.uid, harta), { pronariUid: a.uid, pronariEmri: a.emri })) }));
+  const anetaretD = { D: meAfate(anetaret), K: meAfate([{ uid: 'u1', emri: 'besa', afatet: [
+    { id: 'k1', emri: 'I ri 1', data: iso(9), krijuarSe: TANI_G - 3600e3 - 25e3, ndryshuarSe: TANI_G },
+    { id: 'k2', emri: 'I ri 2', barkodi: '22', data: iso(40), sasia: 5, mk: 'Viva', furnizuesi: 'Vita', ndryshuarSe: TANI_G - 3600e3 - 40e3 },
+    { id: 'k0', emri: 'I ri 0', ndryshuarSe: TANI_G - 3600e3 - 40e3 },
+    { id: 'k3', emri: 'I vjetër', data: iso(1), krijuarSe: TANI_G - 3600e3 - 200e3 },
+    { id: 'k4', emri: 'Pas ngjarjes', data: iso(0), krijuarSe: TANI_G - 3600e3 + 60e3 }] }]) };
+  const artikujtF = [{ id: 'zz', emri: ' Fshirë ', barkodi: 55, data: iso(3), sasia: 2, furnizuesi: ' F ', mk: 'M' }, { emri: '', barkodi: '' }, null, 'x', [1],
+    { id: 9, barkodi: '777', data: '2026-1-1', sasia: '3' }, { emri: 'E gjatë '.repeat(30), data: 20261023, sasia: NaN }];
+  const ngjarjetD = ngjarjet.map(ng => ['D', ng]).concat([
+    ['D', { lloji: 'afate-te-reja', uid: 'u1', emri: 'besa', koha: TANI_G - 3600e3, n: 3, ids: ['a1', 'a3', 'zz', 'yy', 4], artikujt: artikujtF }],
+    ['D', { lloji: 'afate-te-reja', uid: 'u1', emri: 'besa', koha: TANI_G - 60e3, n: 1, ids: ['zz'], artikujt: artikujtF }],
+    ['D', { lloji: 'afate-te-reja', uid: 'u3', emri: 'drini', koha: TANI_G - 3600e3, n: 4, ngaFoto: true, artikujt: artikujtF }],
+    ['D', { lloji: 'afate-te-reja', uid: 'u9', emri: 'ikur', koha: TANI_G - 3600e3, n: 2 }],
+    ['K', { lloji: 'afate-te-reja', uid: 'u1', emri: 'besa', koha: TANI_G - 3600e3, n: 4 }],
+    ['K', { lloji: 'afate-te-reja', uid: 'u1', emri: 'besa', koha: TANI_G - 3600e3, n: 2 }],
+    ['K', { lloji: 'afate-te-reja', uid: 'u1', emri: 'besa', koha: TANI_G - 9 * 3600e3 }],
+    ['K', { lloji: 'afate-te-reja', uid: 'u1', emri: 'besa', n: 1 }],
+    ['D', { lloji: 'hequr', uid: 'u2', emri: 'agim', koha: TANI_G - 2 * 3600e3, pronariUid: 'u1', pronariEmri: 'besa', afatId: 'a2', produkti: 'Qumësht', barkodi: '2', data: iso(0), sasia: 4 }],
+    ['D', { lloji: 'hequr', uid: 'u1', emri: 'besa', koha: TANI_G - 3 * 3600e3, pronariUid: 'u1', afatId: 'a6', produkti: 'Lëng' }],
+    ['D', { lloji: 'rikthyer', uid: 'u1', emri: 'besa', koha: TANI_G - 3600e3, afatId: 'nuk', produkti: '900', barkodi: '900', data: iso(-5), sasia: 2 }],
+    ['D', { lloji: 'rikthyer', uid: 'u3', emri: 'drini', koha: TANI_G - 3600e3, afatId: 7, produkti: 'Pa listë', barkodi: '901' }],
+    ['D', { lloji: 'admin-afat', uid: 'uA', emri: 'mendurberisha', koha: TANI_G - 30 * 864e5, veprimi: 'hiq', afatId: 'a9', pronariUid: 'u2', pronariEmri: 'agim', produkti: 'Pa datë' }],
+    ['D', { lloji: 'heqje-refuzuar', uid: 'u1', emri: 'besa', koha: TANI_G - 864e5, pronariUid: 'u1', afatId: 'a4', kerkuesUid: 'u2', kerkuesEmri: 'agim', produkti: 'Jogurt' }],
+    ['D', { lloji: 'anetar-i-ri', uid: 'u3', emri: 'drini', koha: TANI_G, ftuarNga: 'besa' }],
+    ['D', { lloji: 'kerkese-kryer', uid: 'u3', koha: 0, produktet: [{ produkti: '38', barkodi: '38', data: iso(2) }], kerkuesUid: 'u2', kerkuesEmri: 'agim' }],
+    ['D', {}], ['D', null]
+  ]);
+  const detajet = [];
+  ngjarjetD.forEach(([an, ng]) => ['u1', 'u2', null].filter(u => u || (ng && ng.uid)).forEach(u => detajet.push({ an, ng, u, d: EK.detajetENgjarjes(ng, u, anetaretD[an], TANI_G) })));
+  const artikujt = [{ artikujt: artikujtF }, { artikujt: 'x' }, {}, null, { artikujt: Array.from({ length: 40 }, (_, i) => ({ id: 'i' + i, emri: 'P' + i })) }].map(ng => ({ ng, l: EK.artikujtENgjarjes(ng) }));
   const hartaTx = Object.keys(harta).sort().map(k => [k, harta[k].heqja ? harta[k].heqja.koha : null, harta[k].vendimi ? harta[k].vendimi.koha : null]);
   const mbiv = ['a1', 'a2', 'b1', 'a3'].map(id => { const a = afatetG.find(x => x.id === id); return { a, r: EK.mbivendosHeqjen(a, 'u1', harta) }; });
   const zbatimi = [[afatetG[0], { koha: TANI_G }], [afatetG[0], { koha: TANI_G - 6 * 864e5 }], [afatetG[1], { koha: TANI_G }], [afatetG[5], { koha: TANI_G }], [afatetG[10], { koha: TANI_G }]]
@@ -306,7 +338,7 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
   const adminAfat = [[gjA, 'a1', 'hiq'], [gjA, 'a6', 'kthe'], [gjA, 'a2', 'fshij'], [gjA, 'nuk', 'hiq'], [{ afatet: afatetG.slice(0, 2) }, 'a1', 'fshij'], [{}, 'a1', 'kthe'], [null, 'a1', 'hiq']]
     .map(([gj, id, v]) => ({ gj, id, v, emri: 'mendurberisha', r: EK.ndryshoAfatinNeGjendje(gj, id, v, 'mendurberisha', TANI_G) }));
   global.Date = DataE;
-  dalja.grupi = JSON.parse(JSON.stringify({ TANI_G, prania, kohet, afatetG, permb, anetaret, st, tekstet, njoftimet, hartaTx, mbiv, zbatimi, kal, kerkesat, rreshtat, adminAfat, objektet }));
+  dalja.grupi = JSON.parse(JSON.stringify({ TANI_G, prania, kohet, afatetG, permb, anetaret, st, tekstet, njoftimet, hartaTx, mbiv, zbatimi, kal, kerkesat, rreshtat, adminAfat, objektet, anetaretD, detajet, artikujt }));
   fs.writeFileSync(sk, JSON.stringify(dalja));
   console.log('grupi: ' + tekstet.length + ' tekste, ' + permb.length + ' në përmbledhje');
 }

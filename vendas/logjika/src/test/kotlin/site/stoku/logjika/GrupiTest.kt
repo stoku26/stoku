@@ -65,6 +65,18 @@ class GrupiTest {
         }
     }
 
+    /** v284: detajet e ngjarjes (pamja "vetëm shiko") dhe fotografia e afateve brenda ngjarjes */
+    @Test fun detajet() {
+        f["artikujt"].siListe().forEach { x -> val r = x.siObj()!!; eq("artikujt " + Json.shkruaj(r["ng"]), r["l"], GrupiLogjika.artikujtENgjarjes(r["ng"].siObj())) }
+        val an = f["anetaretD"].siObj()!!
+        f["detajet"].siListe().forEach { x ->
+            val r = x.siObj()!!
+            val d = GrupiLogjika.detajetENgjarjes(r["ng"].siObj(), r["u"] as String?, l(an[r["an"] as String]), tani, utc)
+            eq("detajet " + Json.shkruaj(r["ng"]) + " / " + r["u"], r["d"], obj("lloji" to d.lloji, "kush" to d.kush, "cfare" to d.cfare, "avatar" to d.avatar, "kur" to d.kur,
+                "rreshtat" to d.rreshtat.map { obj("e" to it.first, "v" to it.second) }, "tekst" to d.tekst, "artikujt" to d.artikujt, "shenim" to d.shenim))
+        }
+    }
+
     @Test fun heqjetDheKalendari() {
         val ngjarjet = f["tekstet"].siListe().map { it.siObj()!!["ng"].siObj()!! }.distinctBy { Json.shkruaj(it) }
         val h = GrupiLogjika.hartaEHeqjeve(ngjarjet)

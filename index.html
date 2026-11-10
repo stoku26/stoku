@@ -747,11 +747,23 @@
   .ek-nr { flex: none; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
   /* Aktiviteti */
   .ek-ngjarje { display: flex; gap: 11px; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid var(--vije); }
-  /* v283: ngjarja me afat/produkt hapet me prekje */
+  /* v284: çdo ngjarje hapet me prekje (dritarja "vetëm shiko") */
   .ek-ngjarje.prekshme { cursor: pointer; -webkit-tap-highlight-color: transparent; border-radius: 10px; }
   .ek-ngjarje.prekshme:active { background: var(--hover); }
-  .ek-ids-chip { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 10px; height: 34px; padding: 0 14px; border: 0; border-radius: 17px;
-    background: var(--sb-accent-tint, #eef3fc); color: var(--sb-accent-text, #1f5fc4); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+  #dlgEkNgjarja .dialog { max-width: 420px; }
+  .ek-dt-trup { max-height: 62vh; overflow-y: auto; margin: 0 -6px 8px; padding: 0 6px; }
+  .ek-dt-krye { display: flex; gap: 11px; align-items: flex-start; margin-bottom: 12px; }
+  .ek-dt-krye .ek-avatar { width: 36px; height: 36px; font-size: 14px; }
+  .ek-dt-krye .ek-ngjarje-trup { font-size: 15px; }
+  .ek-dt-rresht { display: flex; gap: 10px; font-size: 14px; padding: 5px 0; overflow-wrap: anywhere; }
+  .ek-dt-rresht span { color: var(--gri); flex: 0 0 96px; }
+  .ek-dt-rresht b { font-weight: 600; flex: 1; min-width: 0; }
+  .ek-dt-tekst { font-size: 15px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; padding: 10px 12px; border-radius: 12px; background: var(--hover); margin: 6px 0 10px; }
+  .ek-dt-artikujt { margin-top: 10px; }
+  .ek-dt-artikujt .af-karta { cursor: default; -webkit-user-select: text; user-select: text; }
+  .ek-dt-artikujt .af-karta:active { filter: none; }
+  .ek-dt-shenim { font-size: 12.5px; color: var(--gri); margin-top: 4px; }
+  .ek-dt-fund { font-size: 13px; color: var(--gri); margin: 8px 0 0; line-height: 1.4; }
   .ek-ngjarje .ek-avatar { width: 32px; height: 32px; font-size: 13px; }
   .ek-ngjarje.hequr .ek-avatar { background: var(--af-kuqe-bg); color: var(--af-kuqe-tx); border-color: transparent; }
   .ek-ngjarje.lajmeruar .ek-avatar { background: var(--af-verdhe-bg); color: var(--af-verdhe-tx); border-color: transparent; }
@@ -1767,6 +1779,16 @@
     </div>
   </div>
 </div>
+<!-- v284: detajet e një ngjarjeje të Aktivitetit (vetëm shikim: çfarë u shtua, u hoq ose u kërkua) -->
+<div class="mbulese" id="dlgEkNgjarja">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="ekDtTitulli">
+    <h2 id="ekDtTitulli">Aktiviteti</h2>
+    <div class="ek-dt-trup" id="ekDtTrup"></div>
+    <div class="veprime">
+      <button class="btn tekst" id="ekDtMbyll" type="button">Mbyll</button>
+    </div>
+  </div>
+</div>
 <!-- Kërkesë që një koleg (ose i gjithë grupi) ta heqë nga rafti një produkt (edhe pa afat në Stoku) -->
 <div class="mbulese" id="dlgKerkese">
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="krkTitulli">
@@ -2114,10 +2136,10 @@
 <script src="afatet.js?v=282"></script>
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
-<script src="ekipa.js?v=283"></script>
+<script src="ekipa.js?v=284"></script>
 <script src="njoftimet.js?v=281"></script>
-<script src="teRejat.js?v=283"></script>
-<script src="app-tel.js?v=283"></script>
+<script src="teRejat.js?v=284"></script>
+<script src="app-tel.js?v=284"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>

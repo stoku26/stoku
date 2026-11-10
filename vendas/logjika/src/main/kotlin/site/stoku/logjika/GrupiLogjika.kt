@@ -334,6 +334,123 @@ object GrupiLogjika {
         }
     }
 
+    // ---------- v284: detajet e një ngjarjeje (ekipa.js detajetENgjarjes): pamja VETËM PËR SHIKIM te Aktiviteti ----------
+    const val ARTIKUJT_MAKS = 30
+    private val DATA_ISO = Regex("^\\d{4}-\\d{2}-\\d{2}$")
+    private fun nr(x: Any?): Double = if (eNumer(x)) (x as Number).toDouble() else 0.0
+    private fun njejte(x: Any?, u: String?): Boolean = x != null && u != null && x == u
+
+    /** Fotografia e një afati brenda ngjarjes (edhe pastrimi kur lexohet) */
+    fun artikulliINgjarjes(a: Obj?): MObj {
+        val d = (a?.get("data") as? String) ?: ""
+        val r = obj("id" to ose(a?.get("id")).take(60), "emri" to ose(a?.get("emri")).trim().take(120), "barkodi" to ose(a?.get("barkodi")).trim().take(40),
+            "data" to if (DATA_ISO.matches(d)) d else "")
+        if (eNumer(a?.get("sasia"))) r["sasia"] = a?.get("sasia")
+        if (eVertete(a?.get("furnizuesi"))) r["furnizuesi"] = jsString(a?.get("furnizuesi")).trim().take(80)
+        if (eVertete(a?.get("mk"))) r["mk"] = jsString(a?.get("mk")).trim().take(60)
+        return r
+    }
+    fun artikujtENgjarjes(ng: Obj?): List<MObj> = ng?.get("artikujt").siListe().mapNotNull { it.siObj() }.map { artikulliINgjarjes(it) }
+        .filter { (it["emri"] as String).isNotEmpty() || (it["barkodi"] as String).isNotEmpty() }.take(ARTIKUJT_MAKS)
+
+    /** Një artikull gati për pamje: fushat e pastra + st ("" = pa kuti ditësh), n (ditët ose null), mesazh, shenim */
+    private fun artikullPerPamje(a: Obj, eshteAfat: Boolean, uidIm: String?, tani: Long, zona: ZoneId): MObj {
+        val r = artikulliINgjarjes(a)
+        val data = r["data"] as String
+        val st = if (eshteAfat && a["statusi"] == "hequr") "hequr" else if (data.isNotEmpty()) Afatet.statusi(obj("data" to data), tani) else if (eshteAfat) "pa-date" else ""
+        val n: Int? = if (data.isNotEmpty()) Afatet.ditetDeri(data, tani) else null
+        r["st"] = st; r["n"] = n
+        r["mesazh"] = when {
+            st == "hequr" -> { val hs = nr(a["hequrSe"]).toLong()
+                "U hoq nga rafti" + (if (eVertete(a["hequrNga"])) " nga " + jsString(a["hequrNga"]) else "") + (if (hs != 0L) " · " + kohaRelative(hs, tani, zona) else "") + "." }
+            eshteAfat && eVertete(a["nePritjeNga"]) -> { val ps = nr(a["nePritjeSe"]).toLong()
+                (if (njejte(a["nePritjeUid"], uidIm)) "E hoqe nga rafti" else "E hoqi " + jsString(a["nePritjeNga"])) + (if (ps != 0L) " " + kohaRelative(ps, tani, zona) else "") + ". " +
+                    (if (njejte(a["pronariUid"], uidIm)) "Pret miratimin tënd." else "Pret miratimin e " + ose(a["pronariEmri"]).ifEmpty { "kolegut" } + ".") }
+            st == "pa-date" || (st.isNotEmpty() && n == null) -> "Pa datë skadimi."
+            st.isNotEmpty() && n != null -> if (n < 0) (if (n == -1) "Skadoi dje." else "Ka skaduar para " + Afatet.ditetParaTekst(-n) + ".")
+                else if (n == 0) "Skadon SOT." else if (n == 1) "Skadon nesër." else "Skadon për " + Afatet.ditetTekst(n) + "."
+            else -> ""
+        }
+        r["shenim"] = ""
+        return r
+    }
+
+    class Detajet(val lloji: String, val kush: String, val cfare: String, val avatar: String, val kur: String, val rreshtat: List<Pair<String, String>>,
+                  val tekst: String, val artikujt: List<MObj>, val shenim: String)
+
+    /** anetaret = anetaretMeAfate() (secili me `afatet`, `ngarkuar`) */
+    fun detajetENgjarjes(ng0: Obj?, uidIm: String?, anetaret: List<Obj>, tani: Long = System.currentTimeMillis(), zona: ZoneId = ZoneId.systemDefault()): Detajet {
+        val ng: Obj = ng0 ?: emptyMap()
+        val t = tekstiNgjarjes(ng, uidIm)
+        val ko = nr(ng["koha"]).toLong()
+        val rreshtat = ArrayList<Pair<String, String>>(); val art = ArrayList<MObj>()
+        var tekst = ""; var shenim = ""
+        fun anetari(u: Any?): Obj? = if (eVertete(u)) anetaret.firstOrNull { it["uid"] == u } else null
+        fun afati(u: Any?, id: Any?): Obj? = if (eVertete(id)) anetari(u)?.get("afatet").siListe().mapNotNull { it.siObj() }.firstOrNull { it["id"] == id } else null
+        fun mungon(u: Any?): Boolean { val a = anetari(u); return a != null && eVertete(a["ngarkuar"]) && !eVertete(a["paTeDhena"]) && tani - ko > 600000 }
+        fun ngaNgjarja(x: Obj, u: Any?): MObj { val r = artikullPerPamje(x, false, uidIm, tani, zona); if (mungon(u)) r["shenim"] = "Nuk gjendet më në listë."; return r }
+        fun iKujt() = if (njejte(ng["pronariUid"], uidIm)) "ty" else ose(ng["pronariEmri"]).ifEmpty { "kolegut" }
+        fun pa(p: Any?, b: Any?): Any? = if (p == b) "" else p
+        fun njeAfat() {
+            val pu = ose(ng["pronariUid"], ng["uid"])
+            val id = ng["afatId"] as? String
+            val a = if (id != null) afati(pu, id) else null
+            if (a != null) art.add(artikullPerPamje(a, true, uidIm, tani, zona))
+            else if (eVertete(ng["produkti"]) || eVertete(ng["barkodi"]))
+                art.add(ngaNgjarja(obj("id" to (id ?: ""), "emri" to pa(ng["produkti"], ng["barkodi"]), "barkodi" to ng["barkodi"], "data" to ng["data"], "sasia" to ng["sasia"]), pu))
+        }
+        fun produktet() = listaEKerkeses(ng).forEach { x ->
+            art.add(artikullPerPamje(obj("emri" to pa(x["produkti"], x["barkodi"]), "barkodi" to x["barkodi"], "data" to x["data"]), false, uidIm, tani, zona))
+        }
+        when (ng["lloji"]) {
+            "afate-te-reja" -> {
+                val n = nr(ng["n"]).toLong().let { if (it == 0L) 1L else it }
+                val ids = ng["ids"].siListe().filterIsInstance<String>().filter { it.isNotEmpty() }.take(ARTIKUJT_MAKS)
+                val foto = artikujtENgjarjes(ng)
+                if (ids.isNotEmpty()) {
+                    ids.forEach { id ->
+                        val a = afati(ng["uid"], id); val f = foto.firstOrNull { it["id"] == id }
+                        if (a != null) art.add(artikullPerPamje(a, true, uidIm, tani, zona)) else if (f != null) art.add(ngaNgjarja(f, ng["uid"]))
+                    }
+                } else if (foto.isNotEmpty()) {
+                    foto.forEach { art.add(ngaNgjarja(it, ng["uid"])) }
+                } else if (ko != 0L) {
+                    val kand = anetari(ng["uid"])?.get("afatet").siListe().mapNotNull { it.siObj() }
+                        .map { a -> a to (nr(a["krijuarSe"]).let { k -> if (k != 0.0) k else nr(a["ndryshuarSe"]) }) }
+                        .filter { it.second != 0.0 && it.second <= ko + 5000 }
+                        .sortedWith { x, y -> if (y.second != x.second) y.second.compareTo(x.second) else ose(x.first["id"]).compareTo(ose(y.first["id"])) }
+                    var para = ko.toDouble()
+                    for (k in kand) {
+                        if (art.size >= minOf(n, ARTIKUJT_MAKS.toLong())) break
+                        if (para - k.second > 30000) break
+                        art.add(artikullPerPamje(k.first, true, uidIm, tani, zona)); para = k.second
+                    }
+                    if (art.isNotEmpty()) shenim = "Aktivitet i vjetër: afatet u gjetën sipas kohës kur u shtuan."
+                }
+                if (eVertete(ng["ngaFoto"])) rreshtat.add("Mënyra" to "nga fleta e fotografuar")
+                if (art.isEmpty()) shenim = if (n == 1L) "Ky afat nuk gjendet më. Mund të jetë fshirë ose ndryshuar." else "Këto afate nuk gjenden më. Mund të jenë fshirë ose ndryshuar."
+                else if (art.size < n) shenim = (if (shenim.isNotEmpty()) "$shenim " else "") + "Shfaqen " + art.size + " nga " + n + " afate."
+            }
+            "hequr" -> { njeAfat(); if (eVertete(ng["pronariUid"]) && ng["pronariUid"] != ng["uid"]) rreshtat.add("I përket" to iKujt()) }
+            "rikthyer" -> njeAfat()
+            "heqje-pranuar", "heqje-refuzuar" -> { njeAfat(); rreshtat.add("E hoqi" to if (njejte(ng["kerkuesUid"], uidIm)) "ti" else ose(ng["kerkuesEmri"]).ifEmpty { "një koleg" }) }
+            "admin-afat" -> { njeAfat(); rreshtat.add("I përket" to iKujt()) }
+            "kerkese-heqje" -> {
+                produktet()
+                rreshtat.add("Për" to if (eVertete(ng["perUid"])) (if (njejte(ng["perUid"], uidIm)) "ty" else ose(ng["perEmri"]).ifEmpty { "një koleg" }) else "të gjithë grupin")
+                tekst = ose(ng["shenim"])
+            }
+            "kerkese-kryer" -> { produktet(); rreshtat.add("E kërkoi" to if (njejte(ng["kerkuesUid"], uidIm)) "ti" else ose(ng["kerkuesEmri"]).ifEmpty { "një koleg" }) }
+            "anetar-i-ri" -> {
+                if (eVertete(ng["anetariUid"]) && ng["anetariUid"] != ng["uid"]) rreshtat.add("E pranoi" to if (njejte(ng["uid"], uidIm)) "ti" else ose(ng["emri"]).ifEmpty { "administratori" })
+                else if (eVertete(ng["ftuarNga"])) rreshtat.add("E ftoi" to jsString(ng["ftuarNga"]))
+            }
+            else -> tekst = t.detaje
+        }
+        return Detajet(t.lloji, t.kush, t.cfare, t.avatar?.ifEmpty { null } ?: ose(ng["emri"]),
+            if (ko != 0L) titulliDites(ko, tani, zona) + " · " + ora(ko, zona) else "", rreshtat, tekst, art, shenim)
+    }
+
     /** Teksti i një njoftimi personal (zilja) */
     fun tekstiNjoftimit(nj: Obj): String {
         val kush = ose(nj["emri"])
