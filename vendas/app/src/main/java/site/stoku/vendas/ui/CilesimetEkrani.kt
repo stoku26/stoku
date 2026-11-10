@@ -380,7 +380,7 @@ private fun PaEmerKonfirmo(mbyll: () -> Unit, po: () -> Unit) {
     var mbetur by remember { mutableStateOf(5) }
     LaunchedEffect(Unit) { while (mbetur > 0) { kotlinx.coroutines.delay(1000); mbetur-- } }
     androidx.compose.ui.window.Dialog(onDismissRequest = mbyll) {
-        Column(Modifier.clip(RoundedCornerShape(24.dp)).background(n.surface).padding(22.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(Modifier.clip(RoundedCornerShape(24.dp)).background(ngjyraEDritares(turbulloPasDritares())).padding(22.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("Të regjistrohen produktet pa emër?", style = tx(20, 700, n.ink, -0.02))
             Text("Nuk rekomandohet të regjistrohen produktet pa emër. Në listë dhe në Excel do të shihet vetëm barkodi, kështu që është më e vështirë të gjesh, të kontrollosh ose të njohësh një produkt më vonë, sidomos nëse ndonjë barkod është skenuar gabim.\n\nProdukteve që kanë tashmë emër nuk u fshihet emri.\n\nNëse je i sigurt, prit 5 sekonda dhe shtyp \"Aktivizo\".",
                 style = tx(15, 400, n.ink2))

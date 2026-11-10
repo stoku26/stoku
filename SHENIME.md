@@ -71,6 +71,25 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    rezultatet e kërkimit dhe lista "8 deri 30 ditë" me `remember` (llogariten vetëm kur ndryshojnë të dhënat). Testi
    `teste/v285.js`. S'është testuar në pajisje të vërtetë.
 
+0000000. **DRITARET SI XHAM (v286 = 1.53.0, 10.11.2026, telefoni + Android Hyrja 48; PC dhe ora jo)**: pronari (foto e dritares "Çfarë
+   ka të re"): "A munesh mi bo te tejdukshme pak qeto ku dalin si xham po jo bash ekstrem"; pas shembullit me 3 shkallë (A 86%,
+   B 74%, C 60%) zgjodhi C: "Bone c, po nese sum pelqen e hekmi. Kudo qe ka qesi qe dalin permi faqen kryesore". MUND TA KËRKOJË
+   HEQJEN: është bërë që të hiqet me një lëvizje. **Web (telefoni)**: NJË bllok në fund të `css/stoku.css` ("v286: XHAMI" deri
+   "FUNDI I XHAMIT"; fshije bllokun dhe gjithçka kthehet si më parë): variablat `--sb-xham` (e çelët `rgba(255,255,255,.60)`,
+   e errët `rgba(44,49,62,.60)`: pak më e çelët se sfondi, përndryshe xhami s'duket), `--sb-xham-buze` (vija e ndritshme lart),
+   `--sb-xham-hije`, `--sb-xham-mbulese` (hija mbi faqe më e lehtë: .26 / .34 në vend të .5 / .6), `--sb-xham-toast`; brenda
+   `@supports (backdrop-filter)`: `.mbulese:not(.faqe-e-plote):not(#dlgOpsione) > .dialog` (të gjitha dritaret nga poshtë dhe
+   konfirmimi `dlgFshirje`), `.sb-menu` (menyja e eksportit, të dy temat), `#toast`, shiriti ngjitës `#dlgAfImport .veprime`:
+   `blur(28px) saturate(1.6)` (toast 20 px). Faqet e plota (`.faqe-e-plote`: Afatet, Grupi) dhe Cilësimet (`#dlgOpsione`) mbeten
+   me ngjyrë të plotë. `css/stoku.css?v=64`. **Android**: `ui/Xhami.kt` (`Xhami.AKTIV = false` e heq krejt): `turbulloPasDritares()`
+   thirret brenda përmbajtjes së dritares, e gjen dritaren (`DialogWindowProvider`) dhe vendos `FLAG_BLUR_BEHIND` me
+   `blurBehindRadius` 22 dp; vetëm Android 12+ dhe kur `isCrossWindowBlurEnabled` (jo në kursim baterie); `ngjyraEDritares(turbull)`
+   = ngjyra 60% kur ka turbullim, përndryshe `n.surface` e plotë (teksti s'bëhet kurrë i palexueshëm). U lidh te `Flete` (të gjitha
+   dritaret nga poshtë; edhe `scrimColor` më i lehtë), `Konfirmo`, konfirmimi i produkteve pa emër (Cilësimet) dhe dy dritaret e
+   marketeve. NDRYSHIM NGA WEB-i: te Android turbullohet e gjithë faqja pas dritares (jo vetëm pjesa nën të), sepse sistemi turbullon
+   pas gjithë dritares. Menytë e Android-it (`DropdownMenu`, `Popup`) dhe njoftimi i shkurtër mbetën si më parë (pa turbullim do
+   të ishin të palexueshme). Testi `teste/v286.js`. S'është testuar në pajisje të vërtetë (te Android s'e kam parë fare me sy).
+
 0000000. **ANDROID: SHPEJTËSIA ME SHUMË TË DHËNA + LEXIMI I KODIT (10.11.2026, vetëm `vendas/`, Hyrja 47)**: vazhdim i v285. Matja
    me JVM (scratchpad `logjika-lokale/perf/PerfTest.kt`: 3000 afate + 6000 produkte; telefoni është disa herë më i ngadaltë):
    renditja 116 → 43 ms (e ftohtë), bashkimi + krahasimi i dyqanit rreth 50 deri 80 ms. (1) `Afatet.kt` (rezultatet s'ndryshojnë,

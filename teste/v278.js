@@ -25,7 +25,8 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
     await p.click('#afExcel'); await p.waitForTimeout(200);
     const m = await p.evaluate(() => { const e = document.getElementById('afExcelMenu'), s = getComputedStyle(e), f = getComputedStyle(document.querySelector('#dlgAfatet .faqe-kuti') || document.body);
       return { bg: s.backgroundColor, hije: s.boxShadow, faqja: getComputedStyle(document.body).backgroundColor }; });
-    ok(tema === 'light' ? m.bg === 'rgb(255, 255, 255)' : (m.bg === 'rgb(31, 35, 42)' && /rgba\(255, 255, 255, 0\.16\)/.test(m.hije)), tema + ' 2. menyja e "Eksporto" dallohet (e errët: sfond më i çelët + vijë)', m);
+    // v286: menyja është xham (60%); në temën e errët mbetet më e çelët se faqja dhe me vijën e bardhë
+    ok(tema === 'light' ? /^(rgb\(255, 255, 255\)|rgba\(255, 255, 255, 0\.6\))$/.test(m.bg) : (/^(rgb\(31, 35, 42\)|rgba\(44, 49, 62, 0\.6\))$/.test(m.bg) && /rgba\(255, 255, 255, 0\.16\)/.test(m.hije)), tema + ' 2. menyja e "Eksporto" dallohet (e errët: sfond më i çelët + vijë)', m);
     ok(!p.__gab.length, tema + ' pa gabime JS', p.__gab);
     if (tema === 'light') {
       const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
