@@ -5521,7 +5521,14 @@
     });
   }
 
+  // v285: lista e gjatë (mijëra afate) vizatohet pjesë-pjesë, që ekrani të mos ngrijë: 120 kartat e para menjëherë, të tjerat
+  // në grupe prej 200 pa e bllokuar prekjen. afVizatimi ndal pjesët e mbetura të një vizatimi të vjetër; afIdsEListes = të gjitha
+  // afatet e listës së tanishme (për "Zgjidh të gjitha", edhe ato që s'janë vizatuar ende).
+  var afVizatimi = 0, afIdsEListes = [];
+  var AF_PJESA_PARE = 120, AF_PJESA = 200;
   function renderAfatet() {
+    var vizatimi = ++afVizatimi;
+    afIdsEListes = [];
     var n = AF.numero(afatetEMarketit());
     var numrat = { aktive: n.aktive, skaduar: n.skaduar + n['pa-date'], afer: n.afer, ok: n.ok, hequr: n.hequr };
     Array.prototype.forEach.call(document.querySelectorAll('#afFiltrat button'), function (b) {
@@ -5550,7 +5557,11 @@
       dilNgaZgjedhja();
       return;
     }
-    var frag = document.createDocumentFragment();
+    afIdsEListes = lista.map(function (a) { return a.id; });
+    // radha: titujt e grupeve (nyje të gatshme) dhe afatet (karta krijohet kur i vjen radha)
+    var radha = [];
+    var frag = { appendChild: function (x) { radha.push(x); } };
+    function kartaNeRadhe(a) { return a; }
     // Te "Afër skadimit": grupim sipas furnizuesit
     function sipasFurnizuesit(l, nen) {
       var grupet = {};
@@ -5562,7 +5573,7 @@
         s.textContent = (f || 'Pa furnizues') + ' · ' + grupet[f].length;
         h.appendChild(s);
         frag.appendChild(h);
-        grupet[f].forEach(function (a) { frag.appendChild(kartaEAfatit(a)); });
+        grupet[f].forEach(function (a) { frag.appendChild(kartaNeRadhe(a)); });
       });
     }
     if (kaMarkete() && !idMarketitAktiv()) {
@@ -5576,14 +5587,34 @@
         h.appendChild(s);
         frag.appendChild(h);
         if (afFiltri === 'afer' && !paFurnizues()) sipasFurnizuesit(gr.afatet, true); // v252: merchandiseri pa furnizues
-        else gr.afatet.forEach(function (a) { frag.appendChild(kartaEAfatit(a)); });
+        else gr.afatet.forEach(function (a) { frag.appendChild(kartaNeRadhe(a)); });
       });
     } else if (afFiltri === 'afer' && !paFurnizues()) {
       sipasFurnizuesit(lista, false);
     } else {
-      lista.forEach(function (a) { frag.appendChild(kartaEAfatit(a)); });
+      lista.forEach(function (a) { frag.appendChild(kartaNeRadhe(a)); });
     }
-    cont.appendChild(frag);
+    function vizatoPjesen(nga, sa) {
+      var f = document.createDocumentFragment(), deri = Math.min(radha.length, nga + sa);
+      for (var i = nga; i < deri; i++) {
+        var x = radha[i];
+        if (x.nodeType) { f.appendChild(x); continue; }
+        var karta = kartaEAfatit(x);
+        if (afZgjedhja && afZgjedhja[x.id]) { karta.classList.add('zgjedhur'); karta.setAttribute('aria-selected', 'true'); }
+        f.appendChild(karta);
+      }
+      cont.appendChild(f);
+      return deri;
+    }
+    var vizatuar = vizatoPjesen(0, AF_PJESA_PARE);
+    (function vazhdo() {
+      if (vizatuar >= radha.length) return;
+      setTimeout(function () {
+        if (vizatimi !== afVizatimi) return; // lista u vizatua sërish ndërkohë
+        vizatuar = vizatoPjesen(vizatuar, AF_PJESA);
+        vazhdo();
+      }, 0);
+    })();
     if (afZgjedhja) {
       var shihen = {};
       lista.forEach(function (a) { shihen[a.id] = true; });
@@ -6339,10 +6370,10 @@
   $('axEksporto').addEventListener('click', eksportoTeZgjedhurat);
   $('dlgAfExcel').addEventListener('click', function (ev) { if (ev.target === $('dlgAfExcel')) mbyllExcelinEAfateve(); });
   $('afZgjTeGjitha').addEventListener('click', function () {
-    var kartat = document.querySelectorAll('#afLista .af-karta');
-    var teGjitha = Array.prototype.every.call(kartat, function (k) { return afZgjedhja && afZgjedhja[k.getAttribute('data-id')]; });
+    // të gjitha afatet e listës (edhe ato që lista e gjatë s'i ka vizatuar ende)
+    var teGjitha = afIdsEListes.every(function (id) { return afZgjedhja && afZgjedhja[id]; });
     afZgjedhja = {};
-    if (!teGjitha) Array.prototype.forEach.call(kartat, function (k) { afZgjedhja[k.getAttribute('data-id')] = true; });
+    if (!teGjitha) afIdsEListes.forEach(function (id) { afZgjedhja[id] = true; });
     rifreskoZgjedhjen();
   });
 

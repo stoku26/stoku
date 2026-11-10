@@ -52,6 +52,25 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **SHPEJTËSIA ME SHUMË TË DHËNA (v285 = 1.52.1, 10.11.2026, telefoni + PC + ora e dorës; Android te hyrja më poshtë)**: pronari:
+   "mundohu per permirsim ne performance edhe stabilitet te komplet stoku.site tel edhe pc edhe appeve dyjave". Matja
+   (scratchpad `perf.js`: 6000 produkte + 3000 afate, CPU 4 herë më i ngadaltë te telefoni, 2 herë te PC, numërohen "long tasks"):
+   hapja e Afateve te telefoni bllokonte 3.3 s, kërkimi aty 0.9 s për shkronjë, tabela e Afateve te PC 1.3 s. SHKAKU KRYESOR
+   (regres i v282, ora e Kosovës): `AF.statusi` / `ditetDeri` thërrisnin `Intl.DateTimeFormat.formatToParts` për ÇDO afat, dhe
+   `AF.krahaso` (renditja) dy herë për çdo krahasim. Rregullimet te `afatet.js` (rezultatet s'ndryshojnë, binjaku Kotlin s'preket,
+   fiksturat mbeten të njëjta): `pjesetKs` e mban përgjigjen e sekondës së fundit (`pjesetKsPaKujtese` = llogaritja e vërtetë),
+   `mesnataESotme(tani)` e mban mesnatën e Kosovës për të njëjtën minutë, `msEDates(iso)` e mban datën e lexuar (kujtesë
+   `Object.create(null)`, zbrazet pas 4000 datash); `vendosZonen` i zbraz vetë (çelësi përfshin zonën). MOS e kthe `dataKs(...)`
+   brenda `ditetDeri`. Vizatimi pjesë-pjesë: telefoni `renderAfatet` (120 kartat e para menjëherë, pastaj grupe prej 200 me
+   `setTimeout(0)`; `afVizatimi` ndal pjesët e një vizatimi të vjetër; `afIdsEListes` = të gjitha afatet e listës, që "Të gjitha"
+   t'i zgjedhë edhe ato që s'janë vizatuar ende; karta e vizatuar më vonë e merr vetë klasën `zgjedhur`), PC `renderAfatetPc`
+   (300 rreshta, pastaj grupe prej 400). KUJDES: kodi që i numëron kartat/rreshtat nga DOM-i menjëherë pas vizatimit sheh vetëm
+   pjesën e parë kur lista ka mbi 120 / 300 afate. Pas rregullimit (e njëjta matje): hapja e Afateve 0.26 s, kërkimi 0.2 s,
+   tabela e PC-së 0.14 s (pjesa më e gjatë), hapja e faqes së telefonit nga 0.77 në rreth 0.4 s. Ora e dorës (`ora/MainActivity.kt`):
+   `normalizo` e krijonte shprehjen e rregullt për çdo produkt (tri herë, në çdo vizatim) → `SHENJAT_E_SHKRONJAVE` një herë;
+   rezultatet e kërkimit dhe lista "8 deri 30 ditë" me `remember` (llogariten vetëm kur ndryshojnë të dhënat). Testi
+   `teste/v285.js`. S'është testuar në pajisje të vërtetë.
+
 0000000. **KONTROLLI I PROJEKTIT PAS v284 (10.11.2026, vetëm `vendas/`, Hyrja 46; web, ora dhe Worker-i pa ndryshim)**: pronari:
    "Kontrolloje komplet projektin ... per bugs edhe permirsime urgjente ... critical bugs". U kontrollua: ESLint (no-undef,
    no-dupe-keys, no-unreachable etj.) mbi të gjithë JS-në e web-it dhe Worker-in (pa gabime të vërteta), rregullat e Firestore

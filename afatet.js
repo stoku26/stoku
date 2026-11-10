@@ -29,7 +29,17 @@
   var ZONA = 'Europe/Belgrade', fmtZona = null, fmtPerZone = '';
   function vendosZonen(z) { ZONA = z || 'Europe/Belgrade'; fmtZona = null; }
   function zona() { return ZONA; }
+  // Kujtesa e sekondës së fundit: lista me mijëra afate e pyet kohën për çdo afat (statusi, renditja), dhe
+  // Intl.DateTimeFormat është i ngadaltë (v282 e bëri hapjen e Afateve me 3000 afate disa sekonda në telefon të dobët)
+  var pjesetSek = NaN, pjesetZona = '', pjesetVlera = null;
   function pjesetKs(ms) {
+    var sek = Math.floor(ms / 1000);
+    if (sek === pjesetSek && pjesetZona === ZONA && pjesetVlera) return pjesetVlera;
+    var p = pjesetKsPaKujtese(ms);
+    pjesetSek = sek; pjesetZona = ZONA; pjesetVlera = p;
+    return p;
+  }
+  function pjesetKsPaKujtese(ms) {
     try {
       if (!fmtZona || fmtPerZone !== ZONA) {
         fmtZona = new Intl.DateTimeFormat('en-GB', { timeZone: ZONA, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -62,13 +72,35 @@
     return (d.getMonth() === +m[2] - 1 && d.getDate() === +m[3]) ? d : null;
   }
 
+  // Data ISO → ms (mesnata lokale) ose null, me kujtesë: renditja e listës e pyet të njëjtën datë shumë herë
+  var kujtesaDatave = Object.create(null), nKujtesaDatave = 0;
+  function msEDates(iso) {
+    if (typeof iso !== 'string') return null;
+    var v = kujtesaDatave[iso];
+    if (v !== undefined) return v;
+    var d = dataNgaIso(iso);
+    v = d ? d.getTime() : null;
+    if (nKujtesaDatave++ > 4000) { kujtesaDatave = Object.create(null); nKujtesaDatave = 0; }
+    kujtesaDatave[iso] = v;
+    return v;
+  }
+  // Mesnata e ditës së sotme në Kosovë (si Date lokale), e mbajtur për të njëjtën minutë: një herë për të gjithë listën
+  var mesnataMin = NaN, mesnataZona = '', mesnataVlera = 0;
+  function mesnataESotme(tani) {
+    var m = Math.floor(tani / 60000);
+    if (m !== mesnataMin || mesnataZona !== ZONA) {
+      var s = dataKs(tani);
+      s.setHours(0, 0, 0, 0);
+      mesnataVlera = s.getTime(); mesnataMin = m; mesnataZona = ZONA;
+    }
+    return mesnataVlera;
+  }
+
   // Sa ditë kanë mbetur deri në afat (0 = skadon sot, negativ = ka skaduar).
   function ditetDeri(iso, tani) {
-    var d = dataNgaIso(iso);
-    if (!d) return null;
-    var s = dataKs(tani || Date.now());
-    s.setHours(0, 0, 0, 0);
-    return Math.round((d.getTime() - s.getTime()) / DITA_MS);
+    var ms = msEDates(iso);
+    if (ms === null) return null;
+    return Math.round((ms - mesnataESotme(tani || Date.now())) / DITA_MS);
   }
 
   function statusi(a, tani) {
