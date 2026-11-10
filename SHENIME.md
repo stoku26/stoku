@@ -71,6 +71,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    rezultatet e kërkimit dhe lista "8 deri 30 ditë" me `remember` (llogariten vetëm kur ndryshojnë të dhënat). Testi
    `teste/v285.js`. S'është testuar në pajisje të vërtetë.
 
+0000000. **ANDROID: XHAMI S'DUKEJ (10.11.2026, vetëm `vendas/`, Hyrja 49)**: pronari pas v286: "Pse ne android app njejt kirnifar dallimi
+   so?". Shkaku: `turbulloPasDritares()` mbështetej te turbullimi i sistemit (`FLAG_BLUR_BEHIND` + `isCrossWindowBlurEnabled`), por
+   (a) `ModalBottomSheet` i Material 3 1.3 s'është `Dialog` (s'ka `DialogWindowProvider`), pra te dritaret nga poshtë s'vendosej
+   kurrë; (b) shumë telefona e kanë të fikur turbullimin mes dritareve. Tani turbullohet VETË FAQJA e aplikacionit:
+   `Xhami.hapura` (numri i dritareve të hapura, gjendje e Compose-it) + `Modifier.turbullKurKaDritare()` (`blur(22.dp)`) te Column-i
+   kryesor i `Rrenja` (`MainActivity`; njoftimi i shkurtër mbetet jashtë, i qartë); `turbulloPasDritares()` vetëm e rrit/zbret numrin. Punon në çdo telefon me Android 12+ (`Modifier.blur`
+   = RenderEffect, pa leje të sistemit); nën Android 12 dritaret mbeten me ngjyrë të plotë. MOS u kthe te `FLAG_BLUR_BEHIND`.
+   Kufizim: dritarja që hapet mbi një dritare tjetër e turbullon vetëm faqen, jo dritaren poshtë saj. S'është testuar në pajisje
+   të vërtetë (as kjo s'është parë me sy).
+
 0000000. **DRITARET SI XHAM (v286 = 1.53.0, 10.11.2026, telefoni + Android Hyrja 48; PC dhe ora jo)**: pronari (foto e dritares "Çfarë
    ka të re"): "A munesh mi bo te tejdukshme pak qeto ku dalin si xham po jo bash ekstrem"; pas shembullit me 3 shkallë (A 86%,
    B 74%, C 60%) zgjodhi C: "Bone c, po nese sum pelqen e hekmi. Kudo qe ka qesi qe dalin permi faqen kryesore". MUND TA KËRKOJË
