@@ -97,7 +97,11 @@ object Sinkronizimi {
     fun dergoNesePret() { if (kaKohezues && uid != null) kryeSinkronizimin() }
 
     /** Kur kthehesh në aplikacion pas një dështimi */
-    fun neRikthim() { if (deshtoi && uid != null) kryeSinkronizimin() }
+    fun neRikthim() {
+        if (uid == null) return
+        if (uidISinkronizuar == null) sinkronizoNeHyrje() // sinkronizimi i hyrjes s'u krye ende
+        else if (deshtoi) kryeSinkronizimin()
+    }
 
     // ---------------- Ruajtja në Firestore (ruajtja.js) ----------------
     private fun refKryesor(u: String): DocumentReference = db.collection("dyqane").document(u)
@@ -153,6 +157,9 @@ object Sinkronizimi {
                 uidISinkronizuar = null // pa internet: provohet sërish kur kthehet lidhja
                 _statusi.value = "S'u sinkronizua (pa internet?) · " + ora()
                 _gabim.value = true
+                // Edhe pa ndryshim rrjeti (gabim i çastit i serverit): provohet vetë pas 15 s; më parë dëgjuesi i pajisjeve të tjera
+                // s'nisej më deri te rihapja e aplikacionit
+                dora.postDelayed({ if (uid == u && uidISinkronizuar == null) sinkronizoNeHyrje() }, 15000)
                 return@launch
             }
             kryeSinkronizimin()

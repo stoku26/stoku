@@ -113,7 +113,9 @@ private fun kurTekst(n: Int?): String = when {
     else -> "për " + Afatet.ditetTekst(n)
 }
 private fun emriAfatit(a: Obj): String = (a["emri"] as? String)?.ifEmpty { null } ?: (a["barkodi"] as? String)?.ifEmpty { null } ?: "(pa emër)"
-private fun afatetE(a: Obj): List<Obj> = a["afatet"].siListe().mapNotNull { it.siObj() }
+// Vetëm afatet me id, një herë secili: listat (LazyColumn) rrëzohen kur dy rreshta kanë çelës të njëjtë, dhe të dhënat e kolegëve
+// vijnë nga pajisje të tjera
+private fun afatetE(a: Obj): List<Obj> = a["afatet"].siListe().mapNotNull { it.siObj() }.filter { (it["id"] as? String).orEmpty().isNotEmpty() }.distinctBy { it["id"] }
 private fun kohaE(o: Obj, k: String): Long = numerOse0(o[k]).toLong()
 private fun nrKolege(n: Int) = if (n == 1) "1 koleg" else "$n kolegë"
 

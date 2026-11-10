@@ -52,6 +52,18 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **KONTROLLI I PROJEKTIT PAS v284 (10.11.2026, vetëm `vendas/`, Hyrja 46; web, ora dhe Worker-i pa ndryshim)**: pronari:
+   "Kontrolloje komplet projektin ... per bugs edhe permirsime urgjente ... critical bugs". U kontrollua: ESLint (no-undef,
+   no-dupe-keys, no-unreachable etj.) mbi të gjithë JS-në e web-it dhe Worker-in (pa gabime të vërteta), rregullat e Firestore
+   për `feed` (lejojnë fushën e re `artikujt`), leximi i `Sinkronizimi.kt`, `Api.kt` + `MainActivity.kt` të orës, rrugët e
+   Worker-it (`/ora/*`, `/fjalekalimi/*`), kërkimi i kasteve të rrezikshme te Kotlini, dritarja `dlgEkNgjarja` me 30 artikuj me
+   emra shumë të gjatë në 320 / 390 / 1024 px (asgjë jashtë ekranit), "majmuni" (prekje të rastësishme, tel + PC, dy temat).
+   Gabim kritik s'u gjet. Dy rregullime qëndrueshmërie te Android: (1) `Sinkronizimi.sinkronizoNeHyrje`: kur leximi i parë
+   dështon pa ndryshim rrjeti (gabim i çastit), provohet vetë pas 15 s dhe te `neRikthim()`; më parë dëgjuesi i pajisjeve të
+   tjera s'nisej deri te rihapja e aplikacionit ose ndërrimi i rrjetit; (2) `GrupiEkrani.afatetE`: vetëm afatet me `id`, një herë
+   secili (LazyColumn rrëzohet me çelësa të dyfishtë; të dhënat e kolegëve vijnë nga pajisje të tjera). S'është testuar në
+   pajisje të vërtetë.
+
 0000000. **AKTIVITETI: DRITARJA "VETËM SHIKO" (v284 = 1.52.0, 10.11.2026, telefoni + PC + Android Hyrja 45; ora e dorës jo)**: pronari:
    "Kur po klikoj 'ti shtove 1 afat të ri' ose 'filani shtoi nje afat te ri' nuk po e qet bash qat afat po veq po tqet te afatet e
    qatij personi. Bone jo veq te kjo po te krejt opsionet kur klikon te aktiviteti me mujt me pa qka ka shtu psh cilin afat ose

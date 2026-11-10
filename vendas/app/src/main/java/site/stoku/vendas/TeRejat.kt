@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(46, "2026-11-10", "Më i qëndrueshëm", listOf(
+            "Kur sinkronizimi i parë pas hyrjes nuk arrin te serveri, aplikacioni e provon vetë përsëri pas pak, pa pasur nevojë ta mbyllësh e ta hapësh.",
+            "Te Grupi, listat e afateve janë më të sigurta kur të dhënat e një kolegu vijnë të paplota."
+        )),
         Hyrja(45, "2026-11-10", "Shiko çfarë u shtua te Aktiviteti", listOf(
             "Te Grupi, prek cilindo rresht te Aktiviteti (p.sh. \"shtoi 1 afat të ri\") dhe hapet saktësisht ai afat ose produkt: emri, barkodi, sasia, data dhe gjendja.",
             "Dritarja është vetëm për shikim: aty nuk ndryshohet asgjë. E sheh çdo anëtar i grupit, edhe kur afati fshihet më vonë."
