@@ -71,6 +71,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    rezultatet e kërkimit dhe lista "8 deri 30 ditë" me `remember` (llogariten vetëm kur ndryshojnë të dhënat). Testi
    `teste/v285.js`. S'është testuar në pajisje të vërtetë.
 
+0000000. **XHAMI U HOQ KREJT (v287 = 1.53.1, 10.11.2026, telefoni + Android Hyrja 50)**: pronari pasi e pa në telefon: "Ktheje te mas
+   komplet qeto se mut e ke bo heke glassin edhe nweb edhe ne android app". U hoq gjithçka e v286 dhe e Hyrjes 48 / 49: blloku
+   "XHAMI" te `css/stoku.css` (tani `?v=65`), `ui/Xhami.kt`, `turbulloPasDritares` / `ngjyraEDritares` / `turbullKurKaDritare`
+   te `Flete`, `Konfirmo`, Cilësimet, dritaret e marketeve dhe `MainActivity`; hyrja v286 te `teRejat.js` dhe Hyrjet 48 dhe 49 te
+   `TeRejat.kt` (në vend të tyre v287 / Hyrja 50 "Dritaret si më parë"); `teste/v286.js` u fshi, `teste/v278.js` u kthye si ishte.
+   Dritaret janë prapë me ngjyrë të plotë (`--sb-surface` / `n.surface`) dhe hija `--sb-overlay` / `n.overlay`. MOS e propozo dhe
+   mos e rikthe xhamin / tejdukshmërinë / turbullimin (është te lista e të refuzuarave). Dy hyrjet më poshtë (v286 dhe "xhami
+   s'dukej") mbeten vetëm si histori. Testi `teste/v287.js`. S'është testuar në pajisje të vërtetë.
+
 0000000. **ANDROID: XHAMI S'DUKEJ (10.11.2026, vetëm `vendas/`, Hyrja 49)**: pronari pas v286: "Pse ne android app njejt kirnifar dallimi
    so?". Shkaku: `turbulloPasDritares()` mbështetej te turbullimi i sistemit (`FLAG_BLUR_BEHIND` + `isCrossWindowBlurEnabled`), por
    (a) `ModalBottomSheet` i Material 3 1.3 s'është `Dialog` (s'ka `DialogWindowProvider`), pra te dritaret nga poshtë s'vendosej
@@ -2827,6 +2836,8 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Çdo PR duhet përshkrim të plotë shqip: çka ndryshoi, si u testua, çfarë numrash versioni u prekën.
 
 ## Gjëra që përdoruesi i ka refuzuar/anuluar shprehimisht (mos i propozo/rikthe pa pyetur)
+- **Dritaret "si xham" (tejdukshmëri + turbullim, v286 / Hyrja 48 dhe 49)**: i pa në telefon dhe i hoqi menjëherë (v287): "mut e ke bo
+  heke glassin edhe nweb edhe ne android app". Dritaret, menytë dhe njoftimi i shkurtër mbeten me ngjyrë të plotë.
 
 - Pllakat me ngjyra (ideja 4, v265/v267) edhe brenda folderit: "spom pelqen" → u zëvendësuan me butonin lundrues të ndarë (v268).
 - Pllakat me ngjyra (ideja 4) te Afatet ("Shto", "Excel"), v265 → u hoqën te v266: "veq te stoku". Pllakat vetëm brenda folderit.

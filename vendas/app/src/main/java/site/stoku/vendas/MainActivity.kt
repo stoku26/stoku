@@ -42,7 +42,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsControllerCompat
 import site.stoku.logjika.Afatet
-import site.stoku.vendas.ui.turbullKurKaDritare
 import site.stoku.vendas.ui.AfatetEkrani
 import site.stoku.vendas.ui.CilesimetEkrani
 import site.stoku.vendas.ui.DukeULidhur
@@ -211,8 +210,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
     Box(Modifier.fillMaxSize().background(n.bg)) {
         // Brenda një folderi shiriti me tabe fshihet (si te web-i: faqja e folderit zë të gjithë ekranin)
         val meTabe = !(tabi == "stoku" && folderi != null)
-        // v286: faqja (jo njoftimi i shkurtër) turbullohet sa kohë është hapur një dritare me xham (ui/Xhami.kt)
-        Column(Modifier.fillMaxSize().turbullKurKaDritare()) {
+        Column(Modifier.fillMaxSize()) {
             Box(Modifier.weight(1f).statusBarsPadding().then(if (meTabe) Modifier else Modifier.navigationBarsPadding())) {
                 val skano: ((String) -> Unit) -> Unit = { cb -> numerimi = null; skanimi = cb }
                 val skanoMeNumerim: ((String) -> Unit, (String) -> Boolean) -> Unit = { cb, nr -> numerimi = nr; skanimi = cb }
