@@ -71,6 +71,24 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    rezultatet e kërkimit dhe lista "8 deri 30 ditë" me `remember` (llogariten vetëm kur ndryshojnë të dhënat). Testi
    `teste/v285.js`. S'është testuar në pajisje të vërtetë.
 
+0000000. **ANDROID: SHPEJTËSIA ME SHUMË TË DHËNA + LEXIMI I KODIT (10.11.2026, vetëm `vendas/`, Hyrja 47)**: vazhdim i v285. Matja
+   me JVM (scratchpad `logjika-lokale/perf/PerfTest.kt`: 3000 afate + 6000 produkte; telefoni është disa herë më i ngadaltë):
+   renditja 116 → 43 ms (e ftohtë), bashkimi + krahasimi i dyqanit rreth 50 deri 80 ms. (1) `Afatet.kt` (rezultatet s'ndryshojnë,
+   testet e fiksturave kalojnë): `dataETani` e mban ditën e sotme për të njëjtën sekondë dhe zonë (`Sot`, `@Volatile`),
+   `dataNgaIso` me kujtesë (`ConcurrentHashMap`, zbrazet pas 4000), `krahaso`: dy data të vlefshme "VVVV-MM-DD" krahasohen si
+   tekst i thjeshtë (pa normalizimin NFD të `krahasoTekst`), shprehjet e rregullta një herë (`MUAJI_FILLIM`, `HAPESIRAT`).
+   (2) Shprehje të rregullta që krijoheshin për çdo element: `ImportiAfateve.kt` (çdo qelizë e skedarit), `Marketet.emriINormalizuar`,
+   `Grupi.normalizoEmrin` (çdo grup i listës publike në çdo kërkim), `MarketetUI.emriPerKerkim`, `Dyqani.furnizuesitPerSugjerim`;
+   `Dyqani.furnizuesiNgaBarkodi` pa renditur të gjitha afatet (`filter` + `maxByOrNull`). (3) `Sinkronizimi.kt`: bashkimi dhe
+   krahasimet e dyqanit të plotë (`bashkoPaFshirje`, `Bashkimi.eNjejte`) bëhen te `Dispatchers.Default`, zbatimi mbetet në fillin
+   kryesor: `zbatoNgaCloudBashkuar` punon një nga një (`dukeZbatuar`; ndryshimi që vjen ndërkohë pret te `remoteNePritje`) dhe
+   e zbaton rezultatin VETËM kur `Dyqani.versioniLokal` s'ka ndryshuar dhe s'po sinkronizohet (përndryshe provon sërish me gjendjen
+   e re); `kryeSinkronizimin` e mban `dukeSinkronizuar` true deri pas krahasimit; `Dyqani.zbatoBashkimin(b, dihetQeNdryshon)`
+   e kapërcen krahasimin e dytë. Leximi rresht për rresht (pa gabime funksionale): `ora/` e gjitha; `vendas/`: Dyqani, Grupi,
+   Sinkronizimi, Llogaria, Push, KoleksioniMeKopje, StokuApp, MainActivity, ruajtja e afatit te AfatetEkrani. Pa u lexuar rresht
+   për rresht mbetën pamjet (`ui/*` përveç pjesëve të përmendura), Regjistri, Merchandiseri, Admini, LeximiAI, Eksportet.
+   S'është testuar në pajisje të vërtetë.
+
 0000000. **KONTROLLI I PROJEKTIT PAS v284 (10.11.2026, vetëm `vendas/`, Hyrja 46; web, ora dhe Worker-i pa ndryshim)**: pronari:
    "Kontrolloje komplet projektin ... per bugs edhe permirsime urgjente ... critical bugs". U kontrollua: ESLint (no-undef,
    no-dupe-keys, no-unreachable etj.) mbi të gjithë JS-në e web-it dhe Worker-in (pa gabime të vërteta), rregullat e Firestore

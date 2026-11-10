@@ -59,7 +59,8 @@ object Marketet {
     fun rendit(l: List<Obj>): List<Obj> = l.sortedWith { a, b -> Afatet.KOLATORI.compare(jsString(a["emri"]), jsString(b["emri"])) }
     fun sipasId(l: List<Obj>?, id: Any?): Obj? = l?.firstOrNull { it["id"] == id }
     fun emri(l: List<Obj>?, id: Any?): String = (sipasId(l, id)?.get("emri") as? String) ?: ""
-    fun emriINormalizuar(e: Any?): String = (if (e == null) "" else jsString(e)).trim().lowercase().replace(Regex("\\s+"), " ")
+    private val HAPESIRAT = Regex("\\s+")
+    fun emriINormalizuar(e: Any?): String = (if (e == null) "" else jsString(e)).trim().lowercase().replace(HAPESIRAT, " ")
     fun ekzistonEmri(l: List<Obj>?, e: String, pervecId: String? = null): Boolean {
         val n = emriINormalizuar(e)
         return (l ?: emptyList()).any { it["id"] != pervecId && emriINormalizuar(it["emri"]) == n }

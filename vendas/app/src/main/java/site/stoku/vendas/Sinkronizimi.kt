@@ -14,6 +14,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.tasks.await
 import site.stoku.logjika.Bashkimi
 import site.stoku.logjika.MObj
@@ -151,7 +152,14 @@ object Sinkronizimi {
                 if (uid != u) return@launch
                 if (g != null) {
                     if (Dyqani.eshteIPaprekur() && (g["foldera"] as? List<*>)?.isNotEmpty() == true) Dyqani.zbatoGjendjenNgaCloud(g)
-                    else Dyqani.zbatoGjendjenNgaCloud(bashkoPaFshirje(g, Dyqani.gjendjaPerCloud()))
+                    else {
+                        // Bashkimi i një dyqani të madh jashtë fillit kryesor (ekrani s'ngrin); kur dyqani ndryshon ndërkohë, bëhet sërish
+                        val v0 = Dyqani.versioniLokal; val lokal = Dyqani.gjendjaPerCloud()
+                        var b = withContext(Dispatchers.Default) { bashkoPaFshirje(g, lokal) }
+                        if (uid != u) return@launch
+                        if (Dyqani.versioniLokal != v0) b = bashkoPaFshirje(g, Dyqani.gjendjaPerCloud())
+                        Dyqani.zbatoGjendjenNgaCloud(b)
+                    }
                 }
             } catch (e: Exception) {
                 uidISinkronizuar = null // pa internet: provohet sërish kur kthehet lidhja
@@ -177,11 +185,19 @@ object Sinkronizimi {
         scope.launch {
             var ok: Obj? = null
             try { ok = bashkoDheRuaj(u) { cloud -> bashkoPaFshirje(cloud, Dyqani.gjendjaPerCloud()) } } catch (e: Exception) { /* pa internet */ }
+            // A ndryshon gjë këtu? Krahasimi i dy dyqaneve të plota bëhet jashtë fillit kryesor (ekrani s'ngrin te dyqanet e mëdha);
+            // dukeSinkronizuar mbetet true deri pas tij, që dëgjuesi të presë
+            var ndryshe = true
+            val rez = ok
+            if (rez != null && uid == u && versioniPara == Dyqani.versioniLokal) {
+                val lokal = Dyqani.gjendjaPerCloud()
+                ndryshe = try { withContext(Dispatchers.Default) { !Bashkimi.eNjejte(rez, lokal) } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { true }
+            }
             dukeSinkronizuar = false
             if (uid != u) return@launch
             if (ok != null) {
                 Dyqani.pastroFshirjet()
-                if (versioniPara == Dyqani.versioniLokal) Dyqani.zbatoBashkimin(ok) else planifiko()
+                if (versioniPara == Dyqani.versioniLokal) { if (ndryshe) Dyqani.zbatoBashkimin(ok, dihetQeNdryshon = true) } else planifiko()
                 _statusi.value = "U sinkronizua " + ora() + "."
                 _gabim.value = false
                 deshtoi = false
@@ -196,18 +212,43 @@ object Sinkronizimi {
         }
     }
 
+    // Ndryshimi nga një pajisje tjetër: bashkimi dhe krahasimet (të rënda te dyqanet e mëdha) bëhen jashtë fillit kryesor; zbatimi
+    // në fillin kryesor, vetëm nëse dyqani këtu s'ka ndryshuar ndërkohë (përndryshe provohet sërish me gjendjen e re). Një nga një:
+    // ndryshimi që vjen gjatë punës pret te remoteNePritje.
+    private var dukeZbatuar = false
     private fun zbatoNgaCloudBashkuar(remote: Obj) {
-        val b = bashkoPaFshirje(remote, Dyqani.gjendjaPerCloud())
-        Dyqani.zbatoBashkimin(b)
-        if (!Bashkimi.eNjejte(b, remote) && !kaKohezues) planifiko()
+        if (dukeZbatuar) { remoteNePritje = remote; return }
+        val u = uid ?: return
+        dukeZbatuar = true
+        val v0 = Dyqani.versioniLokal; val lokal = Dyqani.gjendjaPerCloud()
+        scope.launch {
+            var b: Obj? = null; var ndryshe = false; var siCloud = true
+            try {
+                withContext(Dispatchers.Default) {
+                    val x = bashkoPaFshirje(remote, lokal)
+                    b = x; ndryshe = !Bashkimi.eNjejte(x, lokal); siCloud = Bashkimi.eNjejte(x, remote)
+                }
+            } catch (e: kotlinx.coroutines.CancellationException) { dukeZbatuar = false; throw e } catch (e: Exception) { b = null }
+            dukeZbatuar = false
+            if (uid != u) return@launch
+            val rez = b
+            if (rez == null) { zbatoRemoteNePritje(); return@launch }
+            if (Dyqani.versioniLokal != v0 || dukeSinkronizuar) {
+                // dyqani ndryshoi këtu (ose po sinkronizohet): ky rezultat s'vlen më; provohet sërish me gjendjen e re
+                if (remoteNePritje == null) remoteNePritje = remote
+                zbatoRemoteNePritje()
+                return@launch
+            }
+            if (ndryshe) Dyqani.zbatoBashkimin(rez, dihetQeNdryshon = true)
+            if (!siCloud && !kaKohezues) planifiko()
+            zbatoRemoteNePritje()
+        }
     }
 
     private fun zbatoRemoteNePritje() {
         val r = remoteNePritje ?: return
-        if (dukeSinkronizuar) return
+        if (dukeSinkronizuar || dukeZbatuar) return
         remoteNePritje = null
-        val lok = Dyqani.gjendjaPerCloud()
-        if (Bashkimi.eNjejte(bashkoPaFshirje(r, lok), lok)) return
         zbatoNgaCloudBashkuar(r)
     }
 
