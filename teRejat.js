@@ -20,6 +20,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 286, versioni: '1.53.0', data: '2026-11-10', titulli: 'Dritaret si xham', platforma: 'tel', pikat: [
+      'Dritaret që dalin mbi faqe (p.sh. "Afat i ri", konfirmimet, menyja e eksportit) janë tani gjysmë të tejdukshme, si xham: pas tyre duket faqja e turbullt.'
+    ] },
     { v: 285, versioni: '1.52.1', data: '2026-11-10', titulli: 'Afatet hapen shumë më shpejt', platforma: 'tel', pikat: [
       'Lista e Afateve hapet dhe kërkon shumë më shpejt, sidomos kur ke qindra ose mijëra afate.',
       'Lista e gjatë mbushet pjesë-pjesë, që ekrani të mos ngrijë. "Të gjitha" i zgjedh të gjitha afatet e listës.'

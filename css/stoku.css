@@ -766,3 +766,27 @@ html.sb:not([data-tema="dark"]) .sb-summary { box-shadow: 0 0 0 1px var(--sb-lin
 .sb .btn-kerko { flex: none; width: 50px; height: 50px; border: 0; border-radius: 14px; padding: 0; background: var(--sb-surface); box-shadow: var(--sb-ring); color: var(--sb-ink); display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .sb .btn-kerko:active { background: var(--sb-surface-2); }
 .sb .btn-kerko.aktiv { background: var(--sb-accent-tint); color: var(--sb-accent-text); box-shadow: 0 0 0 1px var(--sb-accent-line); }
+
+/* ================= v286: XHAMI (pronari zgjodhi shkallën "C") =================
+   Çdo gjë që del MBI faqe (dritaret nga poshtë, konfirmimet, menytë, njoftimi i shkurtër) është gjysmë e tejdukshme dhe e
+   turbullon atë që ka pas. Hija mbi faqe është më e lehtë, përndryshe xhami s'do të dukej (sidomos në temën e errët).
+   PËR TA HEQUR KREJT: fshije këtë bllok deri te "FUNDI I XHAMIT" (asgjë tjetër s'varet prej tij).
+   Vetëm ku shfletuesi e njeh backdrop-filter; përndryshe mbetet pamja e mëparshme (e plotë, e lexueshme). */
+.sb { --sb-xham: rgba(255,255,255,.60); --sb-xham-buze: rgba(255,255,255,.70); --sb-xham-hije: rgba(0,0,0,.12); --sb-xham-mbulese: rgba(20,22,27,.26); --sb-xham-toast: rgba(20,22,27,.72); }
+.sb[data-tema="dark"] { --sb-xham: rgba(44,49,62,.60); --sb-xham-buze: rgba(255,255,255,.14); --sb-xham-hije: rgba(0,0,0,.35); --sb-xham-mbulese: rgba(0,0,0,.34); --sb-xham-toast: rgba(236,238,242,.78); }
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sb .mbulese:not(.faqe-e-plote):not(#dlgOpsione) { background: var(--sb-xham-mbulese); }
+  .sb .mbulese:not(.faqe-e-plote):not(#dlgOpsione) > .dialog {
+    background: var(--sb-xham);
+    -webkit-backdrop-filter: blur(28px) saturate(1.6); backdrop-filter: blur(28px) saturate(1.6);
+    box-shadow: inset 0 1px 0 var(--sb-xham-buze), 0 -8px 30px var(--sb-xham-hije);
+  }
+  /* shiriti i butonave që rri ngjitur poshtë brenda dritares (importi i afateve): edhe ai xham, jo ngjyrë e plotë */
+  .sb #dlgAfImport .veprime { background: var(--sb-xham); -webkit-backdrop-filter: blur(28px) saturate(1.6); backdrop-filter: blur(28px) saturate(1.6); }
+  .sb .sb-menu, .sb[data-tema="dark"] .sb-menu {
+    background: var(--sb-xham);
+    -webkit-backdrop-filter: blur(28px) saturate(1.6); backdrop-filter: blur(28px) saturate(1.6);
+  }
+  .sb #toast { background: var(--sb-xham-toast); -webkit-backdrop-filter: blur(20px) saturate(1.6); backdrop-filter: blur(20px) saturate(1.6); }
+}
+/* ================= FUNDI I XHAMIT ================= */
