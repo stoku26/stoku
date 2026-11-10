@@ -54,6 +54,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
   await blerta.waitForTimeout(1500);
   const agim = await faqe('u1', 'agim@stoku-app.local', false);
   const lexo = (p) => p.evaluate(() => { const d = document.getElementById('dlgEkNgjarja'); return { hapur: d.classList.contains('hapur'), t: document.getElementById('ekDtTrup').innerText.replace(/\s+/g, ' ').trim(),
+    siper: (function () { const r = document.getElementById('ekDtTrup').getBoundingClientRect(); const e = document.elementFromPoint(r.left + r.width / 2, r.top + 12); return !!e && d.contains(e); })(),
     fusha: d.querySelectorAll('input, select, textarea').length, butona: Array.from(d.querySelectorAll('button')).map(x => (x.textContent || '').trim()) }; });
   // 2) telefoni
   await agim.click('#btnEkipi'); await agim.waitForTimeout(1500);
@@ -65,6 +66,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
   ok(t1.hapur && /blerta shtoi 1 afat të ri/.test(t1.t) && /Lëng molle/.test(t1.t) && /901/.test(t1.t) && /6 copë/.test(t1.t) && /Skadon për 12 ditë\./.test(t1.t) && !/Ujë|Çaj/.test(t1.t),
     '2. tel: "blerta shtoi 1 afat të ri" tregon BASH atë afat (Lëng molle), jo afatet e tjera', t1);
   ok(t1.fusha === 0 && t1.butona.join() === 'Mbyll', '2. tel: vetëm shikim (pa fusha, vetëm "Mbyll")', t1.butona);
+  ok(t1.siper, '2. tel: dritarja del SIPËR faqes së Grupit (duket)');
   ok(await agim.evaluate(() => !document.getElementById('dlgAfat').classList.contains('hapur') && document.getElementById('ekipiTitulli').textContent !== 'blerta'), '2. tel: s\'hapet as dritarja e ndryshimit, as lista e kolegut');
   await agim.click('#ekDtMbyll'); await agim.waitForTimeout(200);
   await agim.click('#ekipiTrup .ek-ngjarje:has-text("Djathë")'); await agim.waitForTimeout(400);
@@ -91,6 +93,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
   const p1 = await lexo(agimPc);
   ok(p1.hapur && /Lëng molle/.test(p1.t) && /901/.test(p1.t) && /Frutex/.test(p1.t) && /Skadon për 12 ditë\./.test(p1.t) && !/Ujë|Çaj/.test(p1.t) && p1.fusha === 0 && p1.butona.join() === '✕,Mbyll' && /aktiviteti/.test(await agimPc.evaluate(() => location.hash)),
     '3. PC: "blerta shtoi 1 afat të ri" tregon bash atë afat, vetëm për shikim', p1);
+  ok(p1.siper, '3. PC: dritarja duket sipër');
   await agimPc.keyboard.press('Escape'); await agimPc.waitForTimeout(300);
   ok(!(await lexo(agimPc)).hapur, '3. PC: Escape e mbyll');
   await agimPc.click('#ekAktLista .ek-ngjarje:has-text("Djathë")'); await agimPc.waitForTimeout(400);
