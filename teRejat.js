@@ -20,6 +20,14 @@
   'use strict';
 
   var LISTA = [
+    { v: 284, versioni: '1.52.0', data: '2026-11-10', titulli: 'Shiko çfarë u shtua te Aktiviteti', platforma: 'tel', pikat: [
+      'Te Grupi → Aktiviteti, prek cilindo rresht (p.sh. "shtoi 1 afat të ri") dhe hapet saktësisht ai afat ose produkt: emri, barkodi, sasia, data dhe gjendja.',
+      'Dritarja është vetëm për shikim: aty nuk ndryshohet asgjë. E sheh çdo anëtar i grupit, edhe kur afati fshihet më vonë.'
+    ] },
+    { v: 284, versioni: '1.52.0', data: '2026-11-10', titulli: 'Shiko çfarë u shtua te Aktiviteti', platforma: 'pc', pikat: [
+      'Te Grupi → Aktiviteti, kliko cilindo rresht (p.sh. "shtoi 1 afat të ri") dhe hapet saktësisht ai afat ose produkt: emri, barkodi, sasia, data dhe gjendja.',
+      'Dritarja është vetëm për shikim: aty nuk ndryshohet asgjë. E sheh çdo anëtar i grupit, edhe kur afati fshihet më vonë.'
+    ] },
     { v: 283, versioni: '1.51.0', data: '2026-11-09', titulli: 'Aktiviteti hap afatin', platforma: 'tel', pikat: [
       'Te Grupi → Aktiviteti, prek një ngjarje me produkt ose afat dhe hapet direkt ai afat.',
       'Kur janë shtuar disa afate njëherësh ("shtoi 5 afate"), hapen afatet e atij personi vetëm me ato afate.'

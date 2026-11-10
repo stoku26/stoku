@@ -152,33 +152,21 @@ fun GrupiEkrani() {
     var pamja by rememberSaveable { mutableStateOf("permbledhja") }
     var anetariZ by rememberSaveable { mutableStateOf("krejt") }
     var filtri by rememberSaveable { mutableStateOf<String?>(null) }
-    var idsF by remember { mutableStateOf<List<String>?>(null) } // v283: afatet e një ngjarjeje të Aktivitetit
-    var kerkoF by remember { mutableStateOf<Pair<String, Long>?>(null) } // v283: kërkimi që vendos prekja e ngjarjes
+    var ngjarjaZ by remember { mutableStateOf<Obj?>(null) } // v284: ngjarja e hapur te dritarja "vetëm shiko"
     var zilja by remember { mutableStateOf(false) }
     var kerkesa by remember { mutableStateOf(false) }
     var pyetja by remember { mutableStateOf<Pyetja?>(null) }
 
     val anetar = gj.qasja == "anetar"
     if (!anetar && pamja != "permbledhja") pamja = "permbledhja"
-    BackHandler(enabled = anetar && pamja != "permbledhja") { pamja = "permbledhja"; anetariZ = "krejt"; filtri = null; idsF = null }
-    fun hapAnetarin(uid: String, f: String? = null) { anetariZ = uid; filtri = f; idsF = null; pamja = "afatet" }
-    fun zgjidhPamjen(p: String) { anetariZ = "krejt"; filtri = null; idsF = null; pamja = p }
+    BackHandler(enabled = anetar && pamja != "permbledhja") { pamja = "permbledhja"; anetariZ = "krejt"; filtri = null }
+    fun hapAnetarin(uid: String, f: String? = null) { anetariZ = uid; filtri = f; pamja = "afatet" }
+    fun zgjidhPamjen(p: String) { anetariZ = "krejt"; filtri = null; pamja = p }
 
     val an = remember(anF, permF, ngjF, dq.afatet, gj, tani) { Grupi.anetaretMeAfate() }
-    // v283 (pronari, si te web-i): prekja e një ngjarjeje hap afatin/produktin e saj. Afati yt i vetëm → Afatet me dritaren e tij;
-    // përndryshe Afatet e grupit te pronari (ose i gjithë grupi), vetëm me afatet e ngjarjes, ose me kërkimin sipas barkodit/emrit
-    fun hapNgjarjen(x: Obj) {
-        val o = GrupiLogjika.objektiINgjarjes(x) ?: return
-        if (o.pronari.isNotEmpty() && o.pronari == Grupi.uidIm() && o.ids.size == 1 && Dyqani.g.afatet.any { it["id"] == o.ids[0] }) {
-            site.stoku.vendas.MainActivity.afatiKerkuar.value = o.ids[0]
-            site.stoku.vendas.MainActivity.tabiKerkuar.value = "afatet"
-            return
-        }
-        val njihet = o.pronari.isNotEmpty() && an.any { it["uid"] == o.pronari }
-        anetariZ = if (njihet) o.pronari else "krejt"; filtri = null; pamja = "afatet"
-        idsF = o.ids.ifEmpty { null }
-        kerkoF = o.kerko to System.nanoTime()
-    }
+    // v284 (pronari, si te web-i): prekja e ÇDO ngjarjeje hap dritaren "vetëm shiko" (çfarë u shtua, u hoq ose u kërkua);
+    // aty s'ndryshohet asgjë dhe e sheh çdo anëtar i grupit
+    fun hapNgjarjen(x: Obj) { ngjarjaZ = x }
     val ctx = Konteksti(an, permF != null, tani, ::hapAnetarin, ::zgjidhPamjen, ::hapNgjarjen) { pyetja = it }
 
     val titulli = when {
@@ -211,7 +199,7 @@ fun GrupiEkrani() {
                 gj.qasja == "pa-rregulla" -> Bosh("Grupi s'është gati ende", "Administratori duhet t'i vendosë rregullat e reja të Firebase-it (Firestore → Rules) për grupet. Stoku dhe afatet e tua punojnë si zakonisht.")
                 gj.qasja == "gabim" -> Bosh("S'u lidh me grupin", "Kontrollo internetin dhe provo përsëri.")
                 !anetar -> Info("Duke u lidhur me grupin…")
-                pamja == "afatet" -> AfatetEGrupit(anetariZ, filtri, { filtri = it; idsF = null }, ctx, idsF, { idsF = null }, kerkoF)
+                pamja == "afatet" -> AfatetEGrupit(anetariZ, filtri, { filtri = it }, ctx)
                 pamja == "aktiviteti" -> Aktiviteti(ngjF, ngjGati, ctx)
                 pamja == "kalendari" -> Kalendari(ctx)
                 pamja == "anetaret" -> Koleget(doc, ftesat, ftesatG, kerkesatG, ctx)
@@ -221,6 +209,7 @@ fun GrupiEkrani() {
     }
     if (zilja) ZiljaFlete(ctx) { zilja = false }
     if (kerkesa) KerkesaFlete { kerkesa = false }
+    ngjarjaZ?.let { x -> NgjarjaFlete(x, ctx) { ngjarjaZ = null } }
     pyetja?.let { p -> Konfirmo(p.titulli, p.teksti, p.veprimi, p.rrezik, mbyll = { pyetja = null }, po = p.po) }
 }
 
@@ -511,8 +500,8 @@ private fun adminAfat(a: Obj, veprimi: String, ctx: Konteksti, scope: CoroutineS
 private fun Ngjarja(x: Obj, koha: String, prek: ((Obj) -> Unit)? = null) {
     val n = N
     val t = GrupiLogjika.tekstiNgjarjes(x, Grupi.uidIm())
-    // v283: ngjarja me afat/produkt hapet me prekje
-    val prekshme = prek != null && GrupiLogjika.objektiINgjarjes(x) != null
+    // v284: çdo ngjarje hapet me prekje (dritarja "vetëm shiko")
+    val prekshme = prek != null
     Row(Modifier.fillMaxWidth().then(if (prekshme) Modifier.clip(RoundedCornerShape(10.dp)).clickable { prek!!(x) } else Modifier).padding(vertical = 11.dp),
         horizontalArrangement = Arrangement.spacedBy(11.dp)) {
         AvatariLehte(t.avatar ?: (x["emri"] as? String), t.lloji, 32.dp)
@@ -526,6 +515,67 @@ private fun Ngjarja(x: Obj, koha: String, prek: ((Obj) -> Unit)? = null) {
         Text(koha, style = tx(12, 400, n.muted), modifier = Modifier.padding(top = 2.dp))
     }
     Box(Modifier.fillMaxWidth().height(1.dp).background(n.line2))
+}
+
+/** v284: detajet e një ngjarjeje (VETËM SHIKIM): saktësisht çfarë u shtua, u hoq ose u kërkua; e sheh çdo anëtar i grupit */
+@Composable
+private fun NgjarjaFlete(x: Obj, ctx: Konteksti, mbyll: () -> Unit) {
+    val n = N
+    val d = remember(x, ctx.anetaret, ctx.tani) { Grupi.detajetENgjarjes(x, ctx.anetaret, ctx.tani) }
+    Flete(mbyll) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(11.dp)) {
+            AvatariLehte(d.avatar.ifEmpty { null }, d.lloji, 36.dp)
+            Column(Modifier.weight(1f)) {
+                Text(buildAnnotatedString {
+                    withStyle(SpanStyle(fontWeight = FontWeight(700))) { append(d.kush) }
+                    append(" " + d.cfare)
+                }, style = txF(15f, 400, n.ink))
+                if (d.kur.isNotEmpty()) Text(d.kur, style = txF(12.5f, 400, n.muted), modifier = Modifier.padding(top = 2.dp))
+            }
+        }
+        if (d.tekst.isNotEmpty()) Text(d.tekst, style = txF(15f, 400, n.ink),
+            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(n.surface2).padding(12.dp))
+        if (d.rreshtat.isNotEmpty()) Column(Modifier.fillMaxWidth()) {
+            d.rreshtat.forEach { r ->
+                Row(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                    Text(r.first, style = tx(14, 400, n.muted), modifier = Modifier.width(100.dp))
+                    Text(r.second, style = tx(14, 600, n.ink), modifier = Modifier.weight(1f))
+                }
+            }
+        }
+        if (d.artikujt.isNotEmpty()) Column(Modifier.fillMaxWidth()) { d.artikujt.forEach { a -> KartaEArtikullit(a) } }
+        if (d.shenim.isNotEmpty()) Text(d.shenim, style = tx(13, 400, n.muted))
+        Buton("Mbyll", mbyll, Modifier.fillMaxWidth(), lloji = "tekst")
+    }
+}
+
+/** Një afat/produkt te detajet e ngjarjes: si karta e afatit të grupit, por pa asnjë veprim */
+@Composable
+private fun KartaEArtikullit(a: Obj) {
+    val n = N
+    val st = jsString(a["st"] ?: "")
+    val (sfondi, vija, mesazhi) = when (st) {
+        "skaduar", "pa-date" -> Triple(n.cardExp, n.cardExpLine, n.exp)
+        "afer" -> Triple(n.cardNear, n.cardNearLine, n.near)
+        "ok" -> Triple(n.cardOk, n.cardOkLine, n.ok)
+        else -> Triple(n.cardRem, n.cardRemLine, n.rem)
+    }
+    Row(Modifier.fillMaxWidth().padding(bottom = 10.dp).clip(RoundedCornerShape(18.dp)).background(sfondi).border(1.dp, vija, RoundedCornerShape(18.dp)).padding(14.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+        if (st.isNotEmpty()) KutiaEDiteve(st, (a["n"] as? Number)?.toInt())
+        Column(Modifier.weight(1f)) {
+            Text(emriAfatit(a), style = tx(15, 600, n.ink))
+            val nen = listOf(jsString(a["mk"] ?: ""), if (Llogaria.eshteMerchandiser()) "" else (a["furnizuesi"] as? String).orEmpty(), Afatet.sasiaTekst(a),
+                if ((a["data"] as? String).orEmpty().isNotEmpty()) Afatet.formato(a["data"]) else "").filter { it.isNotEmpty() }.joinToString(" · ")
+            if (nen.isNotEmpty()) Text(nen, style = tx(12, 400, n.muted), modifier = Modifier.padding(top = 3.dp))
+            if ((a["emri"] as? String).orEmpty().isNotEmpty() && (a["barkodi"] as? String).orEmpty().isNotEmpty())
+                Text(a["barkodi"] as String, style = txNum(11.5f, n.faint), modifier = Modifier.padding(top = 2.dp))
+            val msg = jsString(a["mesazh"] ?: "")
+            if (msg.isNotEmpty()) Text(msg, style = tx(12, 600, mesazhi), modifier = Modifier.padding(top = 4.dp))
+            val sh = jsString(a["shenim"] ?: "")
+            if (sh.isNotEmpty()) Text(sh, style = tx(12, 400, n.muted), modifier = Modifier.padding(top = 3.dp))
+        }
+    }
 }
 
 /** Ftesa për një grup (ek-ftesa): Prano / Refuzo */
@@ -700,19 +750,17 @@ private fun RreshtiStatistikes(emri: String, nen: String, nr: Int) {
 
 // ---------------- Afatet e grupit ----------------
 @Composable
-private fun AfatetEGrupit(uid: String, filtri: String?, ndryshoFiltrin: (String?) -> Unit, ctx: Konteksti,
-                          ids: List<String>? = null, pastroIds: () -> Unit = {}, kerkoF: Pair<String, Long>? = null) {
+private fun AfatetEGrupit(uid: String, filtri: String?, ndryshoFiltrin: (String?) -> Unit, ctx: Konteksti) {
     val n = N
     val scope = rememberFusha()
     var kerkimi by rememberSaveable { mutableStateOf("") }
-    LaunchedEffect(kerkoF) { kerkoF?.let { kerkimi = it.first } } // v283: kërkimi nga prekja e ngjarjes
     val an = ctx.anetaret
     val zgj = if (uid == "krejt") null else an.firstOrNull { it["uid"] == uid }
     val afatet = if (zgj != null) afatetE(zgj) else ctx.krejtAfatet
     val ngarkuar = if (zgj != null) zgj["ngarkuar"] == true else ctx.ngarkuar
     val nr = Afatet.numero(afatet)
     val k = kerkimi.trim().lowercase()
-    val te = if (ids != null) afatet.filter { it["id"] in ids } else afatet.filter { a ->
+    val te = afatet.filter { a ->
         val st = Afatet.statusi(a)
         val ok = when {
             filtri == "hequr" -> st == "hequr"
@@ -733,17 +781,8 @@ private fun AfatetEGrupit(uid: String, filtri: String?, ndryshoFiltrin: (String?
                 P("hequr", nr.hequr.toString(), "Të hequra", filtri == "hequr") { ndryshoFiltrin(if (filtri == "hequr") null else "hequr") }
             ))
             Hapesire(14.dp)
-            Fusha(kerkimi, { kerkimi = it; if (ids != null) pastroIds() }, Modifier.fillMaxWidth(), placeholder = "Kërko emër, barkod ose furnizues", ikona = Ik.Kerko)
+            Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), placeholder = "Kërko emër, barkod ose furnizues", ikona = Ik.Kerko)
             Hapesire(14.dp)
-            if (ids != null) {
-                Row(Modifier.height(34.dp).clip(RoundedCornerShape(17.dp)).background(n.accentTint).clickable { pastroIds() }.padding(horizontal = 14.dp)
-                    .semantics { contentDescription = "Shfaq të gjitha afatet" }, verticalAlignment = Alignment.CenterVertically) {
-                    Text("Nga aktiviteti · " + (if (te.size == 1) "1 afat" else "${te.size} afate"), style = tx(13, 600, n.accentText))
-                    Spacer(Modifier.width(8.dp))
-                    Text("✕", style = tx(13, 700, n.accentText))
-                }
-                Hapesire(12.dp)
-            }
         }
         when {
             !ngarkuar && zgj != null && ctx.ngarkuar -> item { // kolegu s'ka përmbledhje ende (s'e ka hapur versionin e ri)

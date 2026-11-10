@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(45, "2026-11-10", "Shiko çfarë u shtua te Aktiviteti", listOf(
+            "Te Grupi, prek cilindo rresht te Aktiviteti (p.sh. \"shtoi 1 afat të ri\") dhe hapet saktësisht ai afat ose produkt: emri, barkodi, sasia, data dhe gjendja.",
+            "Dritarja është vetëm për shikim: aty nuk ndryshohet asgjë. E sheh çdo anëtar i grupit, edhe kur afati fshihet më vonë."
+        )),
         Hyrja(44, "2026-11-09", "Aktiviteti hap afatin", listOf(
             "Te Grupi, kur prek një rresht te \"Aktiviteti i fundit\" (p.sh. \"shtoi 2 afate\" ose \"hoqi Kos\"), hapen direkt ato afate.",
             "Nëse është afati yt, hapet vetë afati; përndryshe hapen afatet e atij anëtari vetëm me ato afate. Me ✕ i sheh të gjitha."

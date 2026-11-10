@@ -52,6 +52,30 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **AKTIVITETI: DRITARJA "VETËM SHIKO" (v284 = 1.52.0, 10.11.2026, telefoni + PC + Android Hyrja 45; ora e dorës jo)**: pronari:
+   "Kur po klikoj 'ti shtove 1 afat të ri' ose 'filani shtoi nje afat te ri' nuk po e qet bash qat afat po veq po tqet te afatet e
+   qatij personi. Bone jo veq te kjo po te krejt opsionet kur klikon te aktiviteti me mujt me pa qka ka shtu psh cilin afat ose
+   produkt, jo me mujt me ndryshu po veq me pa, edhe e len krejt pjestart e qatij grupi me mujt me pa". E ZËVENDËSON lundrimin e
+   v283 (u hoqën çipi "Nga aktiviteti · N afate ✕", `ekIdsFiltri` / `ekV.ids` / `idsF` dhe hapja e dritares së ndryshimit; mos i
+   rikthe). Tani ÇDO rresht i Aktivitetit (edhe lajmërimi, anëtari i ri, kërkesat) është i prekshëm dhe hap një dritare vetëm
+   për shikim: `dlgEkNgjarja` (statike te `index.html` dhe `pc.html`, vetëm butoni "Mbyll"; te telefoni edhe te
+   `ANULO_SIPAS_DIALOGUT`), te Android `NgjarjaFlete` + `KartaEArtikullit` (GrupiEkrani.kt). Logjika e pastër te `ekipa.js`
+   (binjaku `GrupiLogjika.kt`, fiksturat `grupi.detajet` / `grupi.artikujt` / `grupi.anetaretD`, `GrupiTest.detajet`):
+   `detajetENgjarjes(ng, uidIm, anetaret, tani)` → `{ lloji, kush, cfare, avatar, kur, rreshtat: [{ e, v }], tekst, artikujt, shenim }`;
+   çdo artikull ka fushat e pastra (`id, emri, barkodi, data, sasia?, furnizuesi?, mk?`) + `st` ('' = pa kuti ditësh), `n`, `mesazh`,
+   `shenim`. Mesazhi është neutral (pa "Ky produkt duhet të hiqet" dhe pa "Plotësoje", se shikuesi s'është pronari). Burimi i
+   artikullit: afati i TANISHËM i pronarit kur gjendet sipas id-së (te lista e `anetaretMeAfate()`), përndryshe FOTOGRAFIA që e
+   mban vetë ngjarja. Fotografia: ngjarja `afate-te-reja` dërgohet tani edhe me `artikujt` (deri 30, `artikulliINgjarjes(a)`, me
+   emrin e marketit `mk`; rregullat e Firestore s'ndryshojnë, se `feed` lejon fusha shtesë), që çdo anëtar ta shohë afatin edhe
+   kur fshihet më vonë ose kur lista e kolegut s'është ngarkuar; ngjarjet e tjera i kanë prej kohësh `produkti/barkodi/data/sasia`.
+   Ngjarjet e vjetra "shtoi N afate" pa `ids` (para v283): afatet gjenden sipas kohës (`krijuarSe`, ose `ndryshuarSe` te
+   përmbledhjet e kolegëve: zinxhir me hapa deri 30 s para ngjarjes) dhe del shënimi "Aktivitet i vjetër…"; kur s'gjendet asgjë:
+   "Ky afat nuk gjendet më. Mund të jetë fshirë ose ndryshuar.". "Nuk gjendet më në listë." del vetëm kur lista e pronarit është
+   ngarkuar dhe ngjarja është më e vjetër se 10 min (përmbledhja publikohet me pak vonesë). Kontrolluesi: `ekK.detajetENgjarjes(ng)`
+   + opsioni i ri `afatetMeEmra()` (afatet e mia me `mk`); Android: `Grupi.detajetENgjarjes(ng, anetaret, tani)`.
+   `objektiINgjarjes` mbeti te logjika (pa përdorim te pamjet). Testi: `teste/v284.js` (pjesët 2 dhe 3 të `teste/v283.js` u hoqën).
+   S'është testuar në pajisje të vërtetë.
+
 0000000. **AKTIVITETI HAP AFATIN (v283 = 1.51.0, 09.11.2026, telefoni + PC + Android Hyrja 44; ora e dorës jo)**: pronari: "kur klikon
    te ni produkt ose 1 afat qe u shtu me ta hap direkt qat produkt ose afat". `StokuEkipa.objektiINgjarjes(ng)` (binjaku
    `GrupiLogjika.objektiINgjarjes` + fikstura `objektet`) kthen `{pronari, ids, kerko}` për ngjarjet e afateve (hequr, heqje-*,

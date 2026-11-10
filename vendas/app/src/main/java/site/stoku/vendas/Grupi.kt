@@ -300,9 +300,27 @@ object Grupi {
     private fun dergoAfateTeReja() {
         afateTeRejaJob?.cancel(); afateTeRejaJob = null
         if (afateTeRejaN == 0) return
+        // v284: fotografia e afateve (`artikujt`), që çdo anëtar ta shohë saktësisht çfarë u shtua (edhe kur afati fshihet më vonë)
+        val art = if (afateTeRejaIds.isEmpty()) emptyList() else afatetEMiaMeEmra().let { l ->
+            afateTeRejaIds.mapNotNull { id -> l.firstOrNull { it["id"] == id } }.take(GrupiLogjika.ARTIKUJT_MAKS).map { GrupiLogjika.artikulliINgjarjes(it) }
+        }
         shtoNgjarje(mapOf("lloji" to "afate-te-reja", "n" to afateTeRejaN.toLong(), "ngaFoto" to afateTeRejaFoto) +
-            (if (afateTeRejaIds.isNotEmpty()) mapOf("ids" to afateTeRejaIds.toList()) else emptyMap()))
+            (if (afateTeRejaIds.isNotEmpty()) mapOf("ids" to afateTeRejaIds.toList()) else emptyMap()) +
+            (if (art.isNotEmpty()) mapOf("artikujt" to art) else emptyMap()))
         afateTeRejaN = 0; afateTeRejaFoto = false; afateTeRejaIds.clear()
+    }
+
+    /** Afatet e mia me emrin e marketit (`mk`) */
+    private fun afatetEMiaMeEmra(): List<Obj> = try { val dq = Dyqani.g; Marketet.meEmra(dq.afatet, Marketet.pastro(dq.marketet)) } catch (e: Exception) { Dyqani.g.afatet }
+
+    /** v284: detajet e një ngjarjeje për dritaren "vetëm shiko" (afatet e mia me emrin e marketit) */
+    fun detajetENgjarjes(ng: Obj, anetaret: List<Obj>, tani: Long): GrupiLogjika.Detajet {
+        val mk = HashMap<String, Any?>()
+        afatetEMiaMeEmra().forEach { a -> val id = a["id"] as? String; if (id != null && eVertete(a["mk"])) mk[id] = a["mk"] }
+        val an = anetaret.map { a ->
+            if (a["uneJam"] == true) a.me("afatet" to a["afatet"].siListe().mapNotNull { it.siObj() }.map { af -> (af["id"] as? String)?.let { mk[it] }?.let { af.me("mk" to it) } ?: af }) else a
+        }
+        return GrupiLogjika.detajetENgjarjes(ng, uid, an, tani)
     }
 
     /** "U hoq nga rafti" / "Rikthe si aktiv" te afatet e mia (si ekNgjarjeAfati) */

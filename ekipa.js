@@ -1699,6 +1699,140 @@
     return l.length + ' produkte (' + emrat.join(', ') + (l.length > 3 ? ' e ' + (l.length - 3) + (l.length - 3 === 1 ? ' tjetër' : ' të tjera') : '') + ')';
   }
 
+  // ---------- v284: detajet e një ngjarjeje (prekja te Aktiviteti hap një pamje VETËM PËR SHIKIM) ----------
+  // Çdo anëtar i grupit e sheh saktësisht çfarë u shtua/hoq/kërkua. Afati merret nga lista e pronarit kur gjendet (gjendja e
+  // tanishme); përndryshe nga fotografia që e mban vetë ngjarja (`artikujt`) ose nga fushat e saj. Binjaku: GrupiLogjika.kt.
+  var ARTIKUJT_MAKS = 30;
+  function numerOse0(x) { return typeof x === 'number' && isFinite(x) ? x : 0; }
+  // Fotografia e një afati brenda ngjarjes (edhe pastrimi kur lexohet: të dhënat vijnë nga pajisje të tjera)
+  function artikulliINgjarjes(a) {
+    a = a || {};
+    var r = { id: String(a.id || '').slice(0, 60), emri: String(a.emri || '').trim().slice(0, 120), barkodi: String(a.barkodi || '').trim().slice(0, 40),
+      data: typeof a.data === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(a.data) ? a.data : '' };
+    if (typeof a.sasia === 'number' && isFinite(a.sasia)) r.sasia = a.sasia;
+    if (a.furnizuesi) r.furnizuesi = String(a.furnizuesi).trim().slice(0, 80);
+    if (a.mk) r.mk = String(a.mk).trim().slice(0, 60);
+    return r;
+  }
+  function artikujtENgjarjes(ng) {
+    var l = ng && Array.isArray(ng.artikujt) ? ng.artikujt : [];
+    return l.filter(function (x) { return x && typeof x === 'object' && !Array.isArray(x); }).map(artikulliINgjarjes)
+      .filter(function (x) { return x.emri || x.barkodi; }).slice(0, ARTIKUJT_MAKS);
+  }
+  // Një artikull gati për pamje: fushat e pastra + st ('' = pa kuti ditësh), n (ditët deri te skadimi ose null), mesazh, shenim
+  function artikullPerPamje(a, eshteAfat, uidIm, tani) {
+    var A = AF();
+    var r = artikulliINgjarjes(a);
+    r.st = eshteAfat && a.statusi === 'hequr' ? 'hequr' : r.data ? A.statusi({ data: r.data }, tani) : (eshteAfat ? 'pa-date' : '');
+    r.n = r.data ? A.ditetDeri(r.data, tani) : null;
+    var m = '';
+    if (r.st === 'hequr') {
+      var hs = numerOse0(a.hequrSe);
+      m = 'U hoq nga rafti' + (a.hequrNga ? ' nga ' + a.hequrNga : '') + (hs ? ' · ' + kohaRelative(hs, tani) : '') + '.';
+    } else if (eshteAfat && a.nePritjeNga) {
+      var ps = numerOse0(a.nePritjeSe);
+      m = (a.nePritjeUid === uidIm ? 'E hoqe nga rafti' : 'E hoqi ' + a.nePritjeNga) + (ps ? ' ' + kohaRelative(ps, tani) : '') + '. ' +
+        (a.pronariUid === uidIm ? 'Pret miratimin tënd.' : 'Pret miratimin e ' + (a.pronariEmri || 'kolegut') + '.');
+    } else if (r.st === 'pa-date') m = 'Pa datë skadimi.';
+    else if (r.st) {
+      var n = r.n;
+      m = n < 0 ? (n === -1 ? 'Skadoi dje.' : 'Ka skaduar para ' + A.ditetParaTekst(-n) + '.') : n === 0 ? 'Skadon SOT.' : n === 1 ? 'Skadon nesër.' : 'Skadon për ' + A.ditetTekst(n) + '.';
+    }
+    r.mesazh = m; r.shenim = '';
+    return r;
+  }
+  // anetaret = anetaretMeAfate() (secili me `afatet`, `ngarkuar`). Kthen { lloji, kush, cfare, avatar, kur, rreshtat: [{ e, v }],
+  // tekst, artikujt: [...], shenim }.
+  function detajetENgjarjes(ng, uidIm, anetaret, tani) {
+    ng = ng || {}; anetaret = anetaret || []; tani = tani || Date.now();
+    var A = AF(), t = tekstiNgjarjes(ng, uidIm), ko = numerOse0(ng.koha);
+    var d = { lloji: t.lloji, kush: t.kush, cfare: t.cfare, avatar: t.avatar || ng.emri || '', kur: ko ? titulliDites(ko, tani) + ' · ' + A.oraKs(ko) : '',
+      rreshtat: [], tekst: '', artikujt: [], shenim: '' };
+    function rr(e, v) { d.rreshtat.push({ e: e, v: v }); }
+    function anetari(u) { for (var i = 0; i < anetaret.length; i++) if (u && anetaret[i].uid === u) return anetaret[i]; return null; }
+    function afati(u, id) {
+      var a = anetari(u), l = (a && a.afatet) || [];
+      for (var i = 0; i < l.length; i++) if (id && l[i].id === id) return l[i];
+      return null;
+    }
+    // "S'gjendet më": vetëm kur lista e pronarit është ngarkuar dhe ngjarja s'është e freskët (lista publikohet me pak vonesë)
+    function mungon(u) { var a = anetari(u); return !!(a && a.ngarkuar && !a.paTeDhena) && tani - ko > 600000; }
+    function ngaNgjarja(x, u) { var r = artikullPerPamje(x, false, uidIm, tani); if (mungon(u)) r.shenim = 'Nuk gjendet më në listë.'; return r; }
+    function iKujt() { return ng.pronariUid === uidIm ? 'ty' : (ng.pronariEmri || 'kolegut'); }
+    function njeAfat() {
+      var pu = ng.pronariUid || ng.uid || '';
+      var a = typeof ng.afatId === 'string' ? afati(pu, ng.afatId) : null;
+      if (a) d.artikujt.push(artikullPerPamje(a, true, uidIm, tani));
+      else if (ng.produkti || ng.barkodi) d.artikujt.push(ngaNgjarja({ id: typeof ng.afatId === 'string' ? ng.afatId : '', emri: ng.produkti === ng.barkodi ? '' : ng.produkti, barkodi: ng.barkodi, data: ng.data, sasia: ng.sasia }, pu));
+    }
+    function produktet() {
+      listaEKerkeses(ng).forEach(function (x) { d.artikujt.push(artikullPerPamje({ emri: x.produkti === x.barkodi ? '' : x.produkti, barkodi: x.barkodi, data: x.data }, false, uidIm, tani)); });
+    }
+    switch (ng.lloji) {
+      case 'afate-te-reja':
+        var n = numerOse0(ng.n) || 1;
+        var ids = Array.isArray(ng.ids) ? ng.ids.filter(function (x) { return typeof x === 'string' && x; }).slice(0, ARTIKUJT_MAKS) : [];
+        var foto = artikujtENgjarjes(ng);
+        if (ids.length) {
+          ids.forEach(function (id) {
+            var a = afati(ng.uid, id), f = null;
+            foto.forEach(function (x) { if (!f && x.id === id) f = x; });
+            if (a) d.artikujt.push(artikullPerPamje(a, true, uidIm, tani));
+            else if (f) d.artikujt.push(ngaNgjarja(f, ng.uid));
+          });
+        } else if (foto.length) {
+          foto.forEach(function (x) { d.artikujt.push(ngaNgjarja(x, ng.uid)); });
+        } else if (ko) {
+          // Ngjarjet e vjetra (pa `ids`): afatet e shtuara pak para ngjarjes (ajo dërgohet 20 s pas shtimit të fundit)
+          var an = anetari(ng.uid);
+          var kand = ((an && an.afatet) || []).map(function (a) { return { a: a, k: numerOse0(a.krijuarSe) || numerOse0(a.ndryshuarSe) }; })
+            .filter(function (x) { return x.k && x.k <= ko + 5000; })
+            .sort(function (x, y) { return y.k !== x.k ? y.k - x.k : (String(x.a.id || '') < String(y.a.id || '') ? -1 : String(x.a.id || '') > String(y.a.id || '') ? 1 : 0); });
+          var para = ko;
+          for (var i = 0; i < kand.length && d.artikujt.length < Math.min(n, ARTIKUJT_MAKS); i++) {
+            if (para - kand[i].k > 30000) break;
+            d.artikujt.push(artikullPerPamje(kand[i].a, true, uidIm, tani)); para = kand[i].k;
+          }
+          if (d.artikujt.length) d.shenim = 'Aktivitet i vjetër: afatet u gjetën sipas kohës kur u shtuan.';
+        }
+        if (ng.ngaFoto) rr('Mënyra', 'nga fleta e fotografuar');
+        if (!d.artikujt.length) d.shenim = n === 1 ? 'Ky afat nuk gjendet më. Mund të jetë fshirë ose ndryshuar.' : 'Këto afate nuk gjenden më. Mund të jenë fshirë ose ndryshuar.';
+        else if (d.artikujt.length < n) d.shenim = (d.shenim ? d.shenim + ' ' : '') + 'Shfaqen ' + d.artikujt.length + ' nga ' + n + ' afate.';
+        break;
+      case 'hequr':
+        njeAfat();
+        if (ng.pronariUid && ng.pronariUid !== ng.uid) rr('I përket', iKujt());
+        break;
+      case 'rikthyer':
+        njeAfat();
+        break;
+      case 'heqje-pranuar': case 'heqje-refuzuar':
+        njeAfat();
+        rr('E hoqi', ng.kerkuesUid === uidIm ? 'ti' : (ng.kerkuesEmri || 'një koleg'));
+        break;
+      case 'admin-afat':
+        njeAfat();
+        rr('I përket', iKujt());
+        break;
+      case 'kerkese-heqje':
+        produktet();
+        rr('Për', ng.perUid ? (ng.perUid === uidIm ? 'ty' : (ng.perEmri || 'një koleg')) : 'të gjithë grupin');
+        d.tekst = ng.shenim ? String(ng.shenim) : '';
+        break;
+      case 'kerkese-kryer':
+        produktet();
+        rr('E kërkoi', ng.kerkuesUid === uidIm ? 'ti' : (ng.kerkuesEmri || 'një koleg'));
+        break;
+      case 'anetar-i-ri':
+        if (ng.anetariUid && ng.anetariUid !== ng.uid) rr('E pranoi', ng.uid === uidIm ? 'ti' : (ng.emri || 'administratori'));
+        else if (ng.ftuarNga) rr('E ftoi', String(ng.ftuarNga));
+        break;
+      default:
+        d.tekst = t.detaje;
+    }
+    return d;
+  }
+
   // Zgjedhësi i produkteve te "Kërko heqje nga rafti" (tel + PC): dy lista (të skaduarat / të gjitha produktet), kërkim
   // dhe shenja (disa njëherësh). burimet: { skaduara: [{ produkti, barkodi, data, nen }], produktet: [...] }
   function zgjedhesIKerkeses(rrenja, burimet, kurNdryshon) {
@@ -1779,6 +1913,7 @@
   //   uidIm()        → uid i llogarisë aktuale (ose null)
   //   emriIm()       → emri i përdoruesit aktual
   //   afatetEMia()   → afatet lokale (të freskëta, pa pritur cloud-in)
+  //   afatetMeEmra() → (sipas dëshirës, v284) të njëjtat afate me emrin e marketit `mk`, për detajet e aktivitetit
   //   zbatoHeqjet(lista) → pronari zbaton heqjet e kolegëve në dyqanin e vet
   //   njofto({ titulli, teksti, tag, pamja }) → njoftim i sistemit (nëse lejohet)
   //   ndryshoi(cfare) → rivizato
@@ -2712,6 +2847,17 @@
     }
 
     // ---------- Aktiviteti nga faqja (heqje e vetes, lajmërim, afate të reja) ----------
+    // v284: afatet e mia me emrin e marketit (`mk`), kur faqja e jep `afatetMeEmra`
+    function afatetEMiaMeEmra() { return (o.afatetMeEmra ? o.afatetMeEmra() : o.afatetEMia()) || []; }
+    // v284: detajet e një ngjarjeje për pamjen "vetëm shiko" (afatet e mia me emrin e marketit)
+    function detajetENgjarjesK(ng) {
+      var mk = {};
+      if (o.afatetMeEmra) afatetEMiaMeEmra().forEach(function (a) { if (a && a.id && a.mk) mk[a.id] = a.mk; });
+      var an = anetaretMeAfate().map(function (a) {
+        return a.uneJam ? Object.assign({}, a, { afatet: a.afatet.map(function (af) { return mk[af.id] ? Object.assign({}, af, { mk: mk[af.id] }) : af; }) }) : a;
+      });
+      return detajetENgjarjes(ng, o.uidIm(), an);
+    }
     function ngjarje(ng) {
       var e = E();
       if (!e || !o.uidIm() || gjendjaEQasjes() !== 'ok') return;
@@ -2732,6 +2878,11 @@
       if (!afateTeReja.n) return;
       var ng = { lloji: 'afate-te-reja', n: afateTeReja.n, ngaFoto: afateTeReja.ngaFoto };
       if (afateTeReja.ids.length) ng.ids = afateTeReja.ids.slice();
+      if (afateTeReja.ids.length) { // v284: fotografia e afateve, që çdo anëtar ta shohë saktësisht çfarë u shtua
+        var teMiat = afatetEMiaMeEmra(), art = [];
+        afateTeReja.ids.forEach(function (id) { teMiat.forEach(function (a) { if (a && a.id === id && art.length < ARTIKUJT_MAKS) art.push(artikulliINgjarjes(a)); }); });
+        if (art.length) ng.artikujt = art;
+      }
       ngjarje(ng);
       afateTeReja.n = 0; afateTeReja.ngaFoto = false; afateTeReja.ids = [];
     }
@@ -2803,7 +2954,7 @@
       gj: gj,
       nisGjithmone: nisGjithmone, ndalGjithmone: ndalGjithmone,
       hap: hap, mbyll: mbyll, ngarkoDyqanet: ngarkoMungesat,
-      anetaretMeAfate: anetaretMeAfate,
+      anetaretMeAfate: anetaretMeAfate, detajetENgjarjes: detajetENgjarjesK,
       heqAfatinEKolegut: heqAfatinEKolegut, vendosPerHeqjen: vendosPerHeqjen,
       ngjarje: ngjarje, afateTeReja: afateTeRejaU,
       publikoAfatet: publikoAfatet,
@@ -2845,7 +2996,7 @@
     ADMIN_EMRI: ADMIN_EMRI, permbledhjaEAfateve: permbledhjaEAfateve, nenshkrimi: nenshkrimi,
     ndryshoAfatinNeGjendje: ndryshoAfatinNeGjendje, fletetEStokut: fletetEStokut,
     hartaEHeqjeve: hartaEHeqjeve, mbivendosHeqjen: mbivendosHeqjen, duhetZbatuarHeqja: duhetZbatuarHeqja,
-    kalendari: kalendari, statistikat: statistikat, tekstiNgjarjes: tekstiNgjarjes, objektiINgjarjes: objektiINgjarjes, tekstiNjoftimit: tekstiNjoftimit,
+    kalendari: kalendari, statistikat: statistikat, tekstiNgjarjes: tekstiNgjarjes, objektiINgjarjes: objektiINgjarjes, detajetENgjarjes: detajetENgjarjes, artikulliINgjarjes: artikulliINgjarjes, artikujtENgjarjes: artikujtENgjarjes, tekstiNjoftimit: tekstiNjoftimit,
     isoDites: isoDites, Fotot: Fotot, listaEKerkeses: listaEKerkeses, rreshtiIProduktit: rreshtiIProduktit, zgjedhesIKerkeses: zgjedhesIKerkeses
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

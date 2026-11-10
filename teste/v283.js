@@ -44,35 +44,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
   const blerta = await faqe('u2', 'blerta@stoku-app.local', true); // publikon afatet e saj te grupi
   await blerta.waitForTimeout(1500);
   const agim = await faqe('u1', 'agim@stoku-app.local', false);
-  // 2) telefoni
-  await agim.click('#btnEkipi'); await agim.waitForTimeout(1500);
-  await agim.click('#ekMenu button[data-n="aktiviteti"]'); await agim.waitForTimeout(900);
-  const rr = await agim.evaluate(() => Array.from(document.querySelectorAll('#ekipiTrup .ek-ngjarje')).map(r => ({ t: r.innerText.replace(/\s+/g, ' ').slice(0, 50), p: r.classList.contains('prekshme') })));
-  ok(rr.filter(x => x.p).length === 2 && rr.some(x => /Mbledhje|njoftoi/.test(x.t) && !x.p), '2. tel: dy ngjarje me afat janë të prekshme, lajmërimi jo', rr);
-  await agim.click('#ekipiTrup .ek-ngjarje.prekshme:has-text("Djathë")'); await agim.waitForTimeout(500);
-  const d1 = await agim.evaluate(() => ({ hapur: document.getElementById('dlgAfat').classList.contains('hapur'), t: document.getElementById('afatTitulli').textContent }));
-  ok(d1.hapur && d1.t === 'Djathë', '2. tel: "Ti e hoqe… Djathë" hap afatin tënd', d1);
-  await agim.evaluate(() => document.getElementById('dlgAfat').classList.remove('hapur')); await agim.waitForTimeout(200);
-  await agim.click('#ekipiTrup .ek-ngjarje.prekshme:has-text("shtoi 2 afate")'); await agim.waitForTimeout(800);
-  const v2 = await agim.evaluate(() => ({ titulli: document.getElementById('ekipiTitulli').textContent, chip: (document.querySelector('.ek-ids-chip') || {}).innerText,
-    kartat: Array.from(document.querySelectorAll('#ekipiRreshtat .af-karta')).map(k => k.innerText.split('\n')[0].trim()) }));
-  ok(v2.titulli === 'blerta' && /Nga aktiviteti · 2 afate/.test(v2.chip || '') && v2.kartat.length === 2, '2. tel: "blerta shtoi 2 afate" hap afatet e saj, vetëm ato 2', v2);
-  await agim.click('.ek-ids-chip'); await agim.waitForTimeout(400);
-  ok(await agim.evaluate(() => !document.querySelector('.ek-ids-chip') && document.querySelectorAll('#ekipiRreshtat .af-karta').length === 3), '2. tel: ✕ i shfaq të gjitha (3)');
-  ok(!agim.__gab.length, '2. tel pa gabime JS', agim.__gab);
-  // 3) PC (agimi)
-  const agimPc = await faqe('u1', 'agim@stoku-app.local', true);
-  await agimPc.evaluate(() => { location.hash = '#/ekipa/aktiviteti'; }); await agimPc.waitForTimeout(1200);
-  if (!(await agimPc.$('#ekAktLista .ek-ngjarje'))) { await agimPc.click('text=Aktiviteti').catch(() => {}); await agimPc.waitForTimeout(800); }
-  await agimPc.click('#ekAktLista .ek-ngjarje.prekshme:has-text("Djathë")'); await agimPc.waitForTimeout(500);
-  const d3 = await agimPc.evaluate(() => ({ hapur: !!document.querySelector('#dlgAfat[open], #dlgAfat.hapur') || getComputedStyle(document.getElementById('dlgAfat')).display !== 'none', b: (document.getElementById('afdBarkodi') || {}).value }));
-  ok(d3.b === '444', '3. PC: "Ti e hoqe… Djathë" hap afatin tënd', d3);
-  await agimPc.keyboard.press('Escape'); await agimPc.waitForTimeout(300);
-  await agimPc.evaluate(() => { location.hash = '#/ekipa/aktiviteti'; }); await agimPc.waitForTimeout(800);
-  await agimPc.click('#ekAktLista .ek-ngjarje.prekshme:has-text("shtoi 2 afate")'); await agimPc.waitForTimeout(800);
-  const v3 = await agimPc.evaluate(() => ({ chip: !document.getElementById('ekIdsChip').hidden, rr: document.querySelectorAll('#ekTrup tr').length, h: location.hash }));
-  ok(v3.chip && v3.rr === 2, '3. PC: "blerta shtoi 2 afate" → tabela e saj vetëm me 2', v3);
-  ok(!agimPc.__gab.length, '3. PC pa gabime JS', agimPc.__gab);
+  // 2) dhe 3) (lundrimi te afatet e kolegut me "Nga aktiviteti") u zëvendësuan në v284 nga dritarja "vetëm shiko": teste/v284.js
   // 4) ngjarja e re me id-të (afat i ri te telefoni)
   await agim.goto('http://127.0.0.1:8765/index.html'); await agim.waitForTimeout(2000);
   await agim.click('#btnAfatet'); await agim.waitForTimeout(600);
