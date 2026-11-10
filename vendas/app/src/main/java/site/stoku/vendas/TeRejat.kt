@@ -8,6 +8,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(49, "2026-11-10", "Xhami tani duket", listOf(
+            "Në versionin e kaluar dritaret si xham nuk dukeshin në shumicën e telefonave. Tani faqja pas dritares turbullohet në çdo telefon me Android 12 e lart."
+        )),
         Hyrja(48, "2026-11-10", "Dritaret si xham", listOf(
             "Dritaret që dalin mbi faqe (p.sh. \"Afat i ri\", konfirmimet) janë tani gjysmë të tejdukshme, si xham: pas tyre duket faqja e turbullt.",
             "Punon në Android 12 e lart. Në telefonat më të vjetër, ose kur kursehet bateria, dritaret mbeten si më parë."
