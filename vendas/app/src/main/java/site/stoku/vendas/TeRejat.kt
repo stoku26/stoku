@@ -8,6 +8,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(54, "2026-11-11", "10 zëra për skanimin", listOf(
+            "Te Cilësimet → Skanimi zgjidh njërin nga 10 zërat që bie kur skanohet një barkod. Prek një zë për ta dëgjuar."
+        )),
         Hyrja(53, "2026-11-11", "\"Shto\" me skanim, kutia lart", listOf(
             "Te Afatet, \"Shto\" hap direkt kamerën: skano barkodin dhe pastaj del \"Afat i ri\" për datën dhe të dhënat e tjera.",
             "Kutia ku vendoset barkodi te kamera është tani lart, nën butonat, jo në mes.",

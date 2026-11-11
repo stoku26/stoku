@@ -426,6 +426,7 @@
   var opsione = {
     tingull: true, rendi: 'i_ri', scanner: true, pda: false,
     paEmer: false, madhesia: 'normale', tastieraFshehur: false,
+    zeri: 'klasik', // v292: zëri kur skanohet një barkod (një nga ZERAT)
     vendiFab: 'mes' // v273: butoni i skanimit brenda folderit: 'majtas' | 'mes' | 'djathtas' (parazgjedhja për krejt: në mes)
   };
   try {
@@ -439,6 +440,7 @@
       if (['i_ri', 'emri', 'emriZA', 'sasiaUlet', 'sasiaLart'].indexOf(opsioneRuajtura.rendi) !== -1) opsione.rendi = opsioneRuajtura.rendi;
       if (['e_vogel', 'normale', 'e_madhe'].indexOf(opsioneRuajtura.madhesia) !== -1) opsione.madhesia = opsioneRuajtura.madhesia;
       if (['majtas', 'mes', 'djathtas'].indexOf(opsioneRuajtura.vendiFab) !== -1) opsione.vendiFab = opsioneRuajtura.vendiFab;
+      if (typeof opsioneRuajtura.zeri === 'string') opsione.zeri = opsioneRuajtura.zeri;
     }
   } catch (e) { /* përdor vlerat fillestare */ }
 
@@ -1035,6 +1037,7 @@
     rifreskoFabin(); // v268: butoni lundrues s'del në PDA
     $('btnEksportPdf').style.display = ''; // PDF mbetet e dukshme edhe në PDA
     $('seksionTingull').style.display = pda ? 'none' : '';
+    $('titZeri').style.display = $('seksionZeri').style.display = pda ? 'none' : ''; // v292
     $('seksionScanner').style.display = pda ? 'none' : '';
     $('seksionTastiera').style.display = pda ? '' : 'none';
     rregulloVijatNdarese();
@@ -2256,6 +2259,7 @@
   })();
   function hapOpsionet() {
     $('opsTingull').checked = opsione.tingull;
+    zbatoZerin(); // v292
     $('opsScanner').checked = opsione.scanner;
     $('opsPda').checked = opsione.pda;
     $('opsPaEmer').checked = opsione.paEmer;
@@ -2286,6 +2290,7 @@
     opsione.tingull = $('opsTingull').checked;
     ruajOpsionet();
     if (opsione.tingull) { pergatitAudion(); bip(); } // një provë e shkurtër
+    $('seksionZeri').classList.toggle('fikur', !opsione.tingull); // v292
   });
   $('opsScanner').addEventListener('change', function () {
     opsione.scanner = $('opsScanner').checked;
@@ -3529,21 +3534,79 @@
     try {
       pergatitAudion();
       if (!audioCtx) return;
-      var luaj = function () {
-        var o = audioCtx.createOscillator();
-        var g = audioCtx.createGain();
-        o.type = 'square';
-        o.frequency.value = 1800;
-        g.gain.value = 0.2;
-        o.connect(g);
-        g.connect(audioCtx.destination);
-        o.start();
-        o.stop(audioCtx.currentTime + 0.15);
-      };
+      var luaj = function () { luajZerin(opsione.zeri); };
       // Pas fikjes së ekranit/kalimit në app tjetër, zëri "fle": zgjohet dhe pastaj bie bip-i (jo i humbur)
       if (audioCtx.state !== 'running') audioCtx.resume().then(luaj, function () { /* pa tingull */ });
       else luaj();
     } catch (e) { /* pa tingull */ }
+  }
+
+  // v292 (pronari): 10 zëra të ndryshëm për skanimin, zgjidhen te Cilësimet → Skanimi.
+  // Çdo notë: [frekuenca Hz, fillimi ms, kohëzgjatja ms, forma, frekuenca në fund (rrëshqitje; 0 = pa), 1 = shuhet ngadalë].
+  // I njëjti përshkrim është te Android-i (vendas/.../Zerat.kt): kur ndryshon këtu, ndryshoje edhe atje.
+  var ZERAT = [
+    { id: 'klasik', emri: 'Bip klasik', n: [[1800, 0, 150, 'square']] },
+    { id: 'bute', emri: 'Bip i butë', n: [[1200, 0, 130, 'sine']] },
+    { id: 'dyfish', emri: 'Dy bipa', n: [[1600, 0, 70, 'square'], [1600, 110, 70, 'square']] },
+    { id: 'ding', emri: 'Ding', n: [[1760, 0, 420, 'sine', 0, 1]] },
+    { id: 'ngjitje', emri: 'Ngjitje', n: [[880, 0, 80, 'triangle'], [1320, 90, 110, 'triangle']] },
+    { id: 'zbritje', emri: 'Zbritje', n: [[1320, 0, 80, 'triangle'], [880, 90, 110, 'triangle']] },
+    { id: 'arka', emri: 'Arka', n: [[2093, 0, 60, 'sine', 0, 1], [2637, 70, 260, 'sine', 0, 1]] },
+    { id: 'akord', emri: 'Tre nota', n: [[1047, 0, 70, 'sine'], [1319, 75, 70, 'sine'], [1568, 150, 120, 'sine']] },
+    { id: 'ulet', emri: 'Pip i ulët', n: [[620, 0, 170, 'triangle']] },
+    { id: 'cicerime', emri: 'Cicërimë', n: [[1800, 0, 120, 'sine', 3200]] }
+  ];
+  var VOLUMI_ZERIT = { square: 0.2, sine: 0.38, triangle: 0.38 };
+  function zeriSipasId(id) { return ZERAT.filter(function (z) { return z.id === id; })[0] || ZERAT[0]; }
+  function luajZerin(id) {
+    if (!audioCtx) return;
+    var z = zeriSipasId(id), t0 = audioCtx.currentTime + 0.005;
+    z.n.forEach(function (n) {
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      var fil = t0 + n[1] / 1000, fund = fil + n[2] / 1000, v = VOLUMI_ZERIT[n[3]] || 0.2;
+      o.type = n[3];
+      o.frequency.setValueAtTime(n[0], fil);
+      if (n[4]) o.frequency.linearRampToValueAtTime(n[4], fund);
+      g.gain.setValueAtTime(0, fil);
+      g.gain.linearRampToValueAtTime(v, fil + 0.004);
+      if (n[5]) g.gain.exponentialRampToValueAtTime(0.001, fund);
+      else { g.gain.setValueAtTime(v, Math.max(fil + 0.004, fund - 0.008)); g.gain.linearRampToValueAtTime(0, fund); }
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(fil); o.stop(fund + 0.01);
+    });
+  }
+  // Provë nga Cilësimet: bie edhe kur tingulli është i fikur (që ta dëgjosh para se ta zgjedhësh)
+  function provoZerin(id) {
+    try {
+      pergatitAudion();
+      if (!audioCtx) return;
+      if (audioCtx.state !== 'running') audioCtx.resume().then(function () { luajZerin(id); }, function () { });
+      else luajZerin(id);
+    } catch (e) { /* pa tingull */ }
+  }
+  function ndertoZerat() {
+    var k = $('listaZerave');
+    if (!k || k.childNodes.length) return;
+    ZERAT.forEach(function (z, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('data-v', z.id);
+      var nr = document.createElement('span'); nr.className = 'zeri-nr'; nr.textContent = String(i + 1);
+      var em = document.createElement('span'); em.className = 'ops-zgjedhja__emri'; em.textContent = z.emri;
+      b.appendChild(nr); b.appendChild(em);
+      b.addEventListener('click', function () { opsione.zeri = z.id; ruajOpsionet(); zbatoZerin(); provoZerin(z.id); });
+      k.appendChild(b);
+    });
+  }
+  function zbatoZerin() {
+    ndertoZerat();
+    $('seksionZeri').classList.toggle('fikur', !opsione.tingull);
+    var v = zeriSipasId(opsione.zeri).id;
+    Array.prototype.forEach.call(document.querySelectorAll('#listaZerave button'), function (b) {
+      var po = b.getAttribute('data-v') === v;
+      b.classList.toggle('aktiv', po);
+      b.setAttribute('aria-pressed', po ? 'true' : 'false');
+    });
   }
 
   // ---------- Kamera ----------
@@ -3822,8 +3885,30 @@
     $('kameraZoom').style.display = kontrolletKam.nivelet.length > 1 ? '' : 'none';
     $('kameraDrita').classList.remove('aktiv');
     $('kameraDrita').style.display = cap.torch ? '' : 'none';
+    // v292: disa telefona (Chrome në Android) e tregojnë dritën/zmadhimin vetëm pasi kamera ka nisur të japë figurë
+    kontrolletKohezat.forEach(clearTimeout);
+    kontrolletKohezat = [1200, 3000].map(function (ms) { return setTimeout(rikontrolloKontrollet, ms); });
+  }
+  var kontrolletKohezat = [];
+  function rikontrolloKontrollet() {
+    try {
+      var t = nativDukeSkanuar ? trackuIKameres() : null;
+      if (!t || !t.getCapabilities || t.readyState === 'ended') return;
+      var cap = t.getCapabilities() || {};
+      if (cap.torch && $('kameraDrita').style.display === 'none') { $('kameraDrita').classList.remove('aktiv'); kontrolletKam.drita = false; $('kameraDrita').style.display = ''; }
+      var z = cap.zoom;
+      if (kontrolletKam.nivelet.length < 2 && z && z.max >= 1.5) {
+        var min = z.min || 1;
+        kontrolletKam.nivelet = [min].concat([2, 3].filter(function (n) { return n > min && n <= z.max; }));
+        if (kontrolletKam.nivelet.length === 1) kontrolletKam.nivelet.push(z.max);
+        kontrolletKam.zoomI = 0;
+        $('kameraZoom').textContent = '1×';
+        $('kameraZoom').style.display = '';
+      }
+    } catch (e) { /* mbeten si ishin */ }
   }
   function fshihKontrolletEKameres() {
+    kontrolletKohezat.forEach(clearTimeout); kontrolletKohezat = [];
     $('kameraZoom').style.display = 'none';
     $('kameraDrita').style.display = 'none';
   }
