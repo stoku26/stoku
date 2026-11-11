@@ -71,6 +71,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    rezultatet e kërkimit dhe lista "8 deri 30 ditë" me `remember` (llogariten vetëm kur ndryshojnë të dhënat). Testi
    `teste/v285.js`. S'është testuar në pajisje të vërtetë.
 
+0000000. **AUTOFOKUSI I KAMERËS NË WEB (v291 = 1.54.1, 11.11.2026, vetëm web telefoni)**: pronari: "ne web app autofokusi i kameres
+   so ka bon. Rregulloje edhe mos prish naj sen tjeter". Më parë fokusi i vazhdueshëm kërkohej te `getUserMedia` dhe një herë
+   pas nisjes (`aplikoAutofokusin`), dhe vetëm kur kamera e ofronte `continuous`. Tani `mbajFokusin()` (te `pasNisjes`): e vendos
+   menjëherë dhe sërish pas 0.7 s dhe 2 s (disa telefona e harrojnë kërkesën e parë sa ndizet kamera); kur kamera ofron vetëm
+   `single-shot` (pa `continuous`) e fokuson çdo 2.5 s sa kohë skanohet; pas zmadhimit (1×/2×/3×) dhe dritës fokusi vendoset
+   sërish; `ndalFokusin()` te `ndalSkanerin` i ndal të gjitha. Pa kontroll fokusi (iPhone, shfletues pa `focusMode`): asgjë s'thirret,
+   si më parë. Prekja e figurës (fokusi në pikë) mbetet. Android-i (ML Kit / CameraX) ka autofokusin e vet dhe s'u prek. Testi
+   `teste/v291.js` (gjurmë kamere me `getCapabilities` / `applyConstraints` të rreme). KUJDES: s'kam telefon, prandaj shkaku i saktë
+   në telefonin e pronarit s'është vërtetuar; nëse vazhdon, duhet modeli i telefonit dhe shfletuesi. S'është testuar në pajisje të vërtetë.
+
 0000000. **"SHTO" ME SKANIM, KUTIA LART, KËRKESA VETËM ME TË SKADUARAT (v290 = 1.54.0, 11.11.2026, telefoni + PC + Android Hyrja 53)**:
    pronari (5 foto). (1) "Kërko heqje nga rafti": "zhduke [Produktet e mia] leje veq te skadumet": `zgjedhesIKerkeses` (ekipa.js, tel +
    PC) pa tabet (`.krk-tab` s'krijohet më; CSS-ja te `stoku-tokens.css` mbeti pa përdorim), lista = `burimet.skaduara`; tel/PC s'e

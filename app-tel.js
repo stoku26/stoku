@@ -3773,19 +3773,35 @@
 
   // Autofokus i vazhdueshëm (nëse kamera e mbështet); thirret pas nisjes si masë shtesë sigurie,
   // meqë disa shfletues (sidomos Android Chrome) e injorojnë focusMode kur jepet vetëm te getUserMedia.
+  // v291: kthen 'continuous' | 'single-shot' | '' sipas asaj që u vendos
   async function aplikoAutofokusin() {
     try {
       var t = trackuIKameres();
-      if (!t || !t.getCapabilities) return;
+      if (!t || !t.getCapabilities || t.readyState === 'ended') return '';
       var cap = t.getCapabilities();
-      if (cap && cap.focusMode && cap.focusMode.indexOf('continuous') !== -1) {
-        await t.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
-      }
+      var m = (cap && cap.focusMode) || [];
+      if (m.indexOf('continuous') !== -1) { await t.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }); return 'continuous'; }
+      // v291: disa telefona (Chrome në Android) s'e ofrojnë fokusin e vazhdueshëm, vetëm "single-shot": fokusohet sa herë thirret
+      if (m.indexOf('single-shot') !== -1) { await t.applyConstraints({ advanced: [{ focusMode: 'single-shot' }] }); return 'single-shot'; }
     } catch (e) { /* mbetet fokusi i parazgjedhur i telefonit */ }
+    return '';
+  }
+  // v291 (pronari: "autofokusi i kamerës s'po bën"): fokusi vendoset disa herë pas nisjes (disa telefona e harrojnë kërkesën e
+  // parë, sa ndizet kamera), dhe kur kamera ka vetëm fokus "single-shot" ripërsëritet çdo 2.5 s sa kohë skanohet
+  var fokusKohezat = [], fokusIntervali = null;
+  function ndalFokusin() {
+    fokusKohezat.forEach(clearTimeout); fokusKohezat = [];
+    if (fokusIntervali) { clearInterval(fokusIntervali); fokusIntervali = null; }
+  }
+  async function mbajFokusin() {
+    ndalFokusin();
+    var menyra = await aplikoAutofokusin();
+    [700, 2000].forEach(function (ms) { fokusKohezat.push(setTimeout(aplikoAutofokusin, ms)); });
+    if (menyra === 'single-shot') fokusIntervali = setInterval(aplikoAutofokusin, 2500);
   }
 
   async function pasNisjes() {
-    try { await aplikoAutofokusin(); } catch (e) { /* nuk e pengon skenimin */ }
+    try { await mbajFokusin(); } catch (e) { /* nuk e pengon skenimin */ }
     try { pergatitKontrolletEKameres(); } catch (e) { /* butonat mbeten të fshehur */ }
   }
 
@@ -3818,6 +3834,7 @@
     var niv = kontrolletKam.nivelet[i];
     try {
       await t.applyConstraints({ advanced: [{ zoom: niv }] });
+      aplikoAutofokusin(); // v291: disa telefona e humbin fokusin pas ndryshimit të zmadhimit
       kontrolletKam.zoomI = i;
       this.textContent = (Math.round(niv * 10) / 10) + '×';
       this.classList.toggle('aktiv', i > 0);
@@ -3828,6 +3845,7 @@
     if (!t) return;
     try {
       await t.applyConstraints({ advanced: [{ torch: !kontrolletKam.drita }] });
+      aplikoAutofokusin(); // v291: edhe pas dritës
       kontrolletKam.drita = !kontrolletKam.drita;
       this.classList.toggle('aktiv', kontrolletKam.drita);
     } catch (e) { /* ky telefon s'e lejon */ }
@@ -4149,6 +4167,7 @@
 
   // Ndalon vetëm skanerin (dritarja e kamerës mbetet e hapur)
   async function ndalSkanerin() {
+    ndalFokusin(); // v291
     await ndalSkanerinNativ();
     var s = skaneri;
     skaneri = null;

@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 291, versioni: '1.54.1', data: '2026-11-11', titulli: 'Kamera fokusohet më mirë', platforma: 'tel', pikat: [
+      'Kamera e skanimit e mban fokusin automatik më mirë, edhe pas zmadhimit dhe dritës.',
+      'Në telefonat ku kamera s\'ka fokus të vazhdueshëm, Stoku e fokuson vetë çdo pak sekonda.'
+    ] },
     { v: 290, versioni: '1.54.0', data: '2026-11-11', titulli: '"Shto" me skanim, kutia lart', platforma: 'tel', pikat: [
       'Te Afatet, "Shto" hap direkt kamerën: skano barkodin dhe pastaj del "Afat i ri" për datën dhe të dhënat e tjera.',
       'Kutia ku vendoset barkodi te kamera është tani lart, nën butonat, jo në mes.',
