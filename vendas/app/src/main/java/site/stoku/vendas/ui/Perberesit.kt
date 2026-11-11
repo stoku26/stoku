@@ -67,6 +67,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.CoroutineScope
@@ -330,3 +334,26 @@ val PaddingFaqe = PaddingValues(horizontal = 20.dp)
 
 @Composable
 fun Hapesire(h: Dp) = Spacer(Modifier.height(h))
+
+/**
+ * v290 (pronari, si te web-i `.af-filtrat.fade-majtas/.fade-djathtas`): rresht horizontal që rrotullohet, me zbehje 28 dp në skaje,
+ * vetëm në anën ku ka ende diçka të fshehur. Zëvendëson `.horizontalScroll(rememberScrollState())` te rreshtat me çipa.
+ */
+fun Modifier.rrotullimMeZbehje(): Modifier = this.then(Modifier.composed {
+    val s = androidx.compose.foundation.rememberScrollState()
+    val fade = with(androidx.compose.ui.platform.LocalDensity.current) { 28.dp.toPx() }
+    Modifier
+        .graphicsLayer { compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen }
+        .drawWithContent {
+            drawContent()
+            val f = minOf(fade, size.width / 3f)
+            if (s.value > 2) drawRect(
+                androidx.compose.ui.graphics.Brush.horizontalGradient(0f to Color.Transparent, 1f to Color.Black, startX = 0f, endX = f),
+                size = androidx.compose.ui.geometry.Size(f, size.height), blendMode = androidx.compose.ui.graphics.BlendMode.DstIn)
+            if (s.maxValue - s.value > 2) drawRect(
+                androidx.compose.ui.graphics.Brush.horizontalGradient(0f to Color.Black, 1f to Color.Transparent, startX = size.width - f, endX = size.width),
+                topLeft = androidx.compose.ui.geometry.Offset(size.width - f, 0f), size = androidx.compose.ui.geometry.Size(f, size.height),
+                blendMode = androidx.compose.ui.graphics.BlendMode.DstIn)
+        }
+        .horizontalScroll(s)
+})

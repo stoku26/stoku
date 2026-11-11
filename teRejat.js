@@ -20,6 +20,14 @@
   'use strict';
 
   var LISTA = [
+    { v: 290, versioni: '1.54.0', data: '2026-11-11', titulli: '"Shto" me skanim, kutia lart', platforma: 'tel', pikat: [
+      'Te Afatet, "Shto" hap direkt kamerën: skano barkodin dhe pastaj del "Afat i ri" për datën dhe të dhënat e tjera.',
+      'Kutia ku vendoset barkodi te kamera është tani lart, nën butonat, jo në mes.',
+      '"Kërko heqje nga rafti" tregon vetëm produktet e skaduara.'
+    ] },
+    { v: 290, versioni: '1.54.0', data: '2026-11-11', titulli: '"Kërko heqje nga rafti" vetëm me të skaduarat', platforma: 'pc', pikat: [
+      '"Kërko heqje nga rafti" tregon vetëm produktet e skaduara.'
+    ] },
     { v: 289, versioni: '1.53.3', data: '2026-11-11', titulli: 'Ora e saktë e heqjes edhe pa internet në orë', platforma: 'tel', pikat: [
       'Kur hiqni një produkt nga rafti në orën e dorës pa internet, te Aktiviteti del ora kur e shtypët, jo ora kur ora e dorës u lidh sërish.',
       'Kërkon versionin e ri të aplikacionit në orë dhe të serverit të njoftimeve.'

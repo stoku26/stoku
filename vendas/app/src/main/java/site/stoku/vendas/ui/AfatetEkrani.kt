@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -70,6 +69,7 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
     var muaji by remember { mutableStateOf("") }
     var kerkimi by remember { mutableStateOf("") }
     var hapur by remember { mutableStateOf<String?>(null) } // id, ose "" = afat i ri
+    val kontekstiShto = androidx.compose.ui.platform.LocalContext.current
     // v283: prekja e një ngjarjeje te Aktiviteti (Grupi) e hap afatin këtu
     val afatiKerkuar by site.stoku.vendas.MainActivity.afatiKerkuar.collectAsState()
     LaunchedEffect(afatiKerkuar) {
@@ -156,7 +156,13 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                         }
                         // v277 (Hyrja 38, ideja 10 "B"): "Shto" me kornizë blu; poshtë "Importo" dhe "Eksporto" pranë njëri-tjetrit
                         if (shto || kaExcel) Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                            if (shto) ButoniShto { hapur = "" }
+                            // v290 (pronari): "Shto" hap direkt skanimin; pas barkodit del "Afat i ri" me të. PDA, pa leje për kamerën ose pa
+                            // lejen e telefonit për kamerën ende: dritarja direkt (aty butoni i skanimit e kërkon lejen), si më parë
+                            if (shto) ButoniShto {
+                                val kaKamere = !site.stoku.vendas.Opsionet.pda.value && Llogaria.leja("kamera") &&
+                                    androidx.core.content.ContextCompat.checkSelfPermission(kontekstiShto, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                                if (kaKamere) skano { b -> skanuar = b; hapur = "" } else hapur = ""
+                            }
                             val kaEks = lejaEks || lejaPdf
                             if (kaExcel) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 if (lejaImp) ButoniKatror("Importo", Ik.Importo, Modifier.weight(1f)) { importi = true }
@@ -170,14 +176,14 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                 }
                 Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), "Kërko emër, barkod ose furnizues", ikona = Ik.Kerko)
                 Hapesire(12.dp)
-                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(Modifier.fillMaxWidth().rrotullimMeZbehje(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf("aktive" to "Të gjitha", "skaduar" to "Të skaduara", "afer" to "Afër skadimit", "ok" to "Në rregull", "hequr" to "Të hequra").forEach { (f, t) ->
                         Cip(t, numrat[f]?.takeIf { it > 0 }?.toString(), filtri == f) { filtri = f; zgjedhja = null }
                     }
                 }
                 if (muajt.size >= 2 || muaji.isNotEmpty()) {
                     Hapesire(10.dp)
-                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(Modifier.fillMaxWidth().rrotullimMeZbehje(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Cip("Të gjithë muajt", null, muaji.isEmpty()) { muaji = "" }
                         muajt.forEach { m -> Cip(m.emri, m.n.toString(), muaji == m.celes) { muaji = m.celes } }
                     }
@@ -188,7 +194,7 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
                         te.isEmpty() && idM != null -> "S'ka ende afate te ky market" to "Fotografo fletën ose shtoji me \"Shto\": ruhen te " + Merchandiseri.emri(idM) + "."
                         te.isEmpty() -> "S'ka ende asnjë afat" to "Fotografo fletën ku janë shkruar afatet, ose shtoji me \"Shto\"."
                         kerkimi.isNotBlank() -> "Asgjë s'u gjet" to "Provo një kërkim tjetër."
-                        filtri == "skaduar" -> "Asnjë produkt i skaduar" to "Shumë mirë!"
+                        filtri == "skaduar" -> "Asnjë produkt i skaduar" to ""
                         filtri == "afer" -> "Asnjë produkt afër skadimit" to "Asgjë nuk skadon brenda 30 ditëve."
                         filtri == "hequr" -> "Asnjë produkt i hequr ende" to ""
                         filtri == "ok" -> "Asnjë" to ""

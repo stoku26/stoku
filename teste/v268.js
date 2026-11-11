@@ -145,7 +145,9 @@ const fab = p => p.evaluate(() => {
   await p.click('#btnAfatet'); await p.waitForTimeout(800);
   const at = await rr(p, '#afTitulli'), fo = await rr(p, '#afFotografo'), sh = await rr(p, '#afShto');
   ok(at.fs === '26px' && fo.y === 72 && sh.h === 65 && (sh.fs === '16px' || sh.fs === '15px'), '11. Afatet: titulli 26, kartat 72 nga lart, "Shto" 65 i lartë me 16 px (v277: 15 px me kornizë)', { at, fo, sh });
-  await p.click('#afShto'); await p.waitForTimeout(700);
+  // v290: "Shto" hap së pari kamerën; pas barkodit (7 lexime të njëjta) del "Afat i ri"
+  await p.evaluate(() => { for (let i = 0; i < 9; i++) window.__leximet.push(['3830000622349', 'ean_13']); });
+  await p.click('#afShto'); await p.waitForFunction(() => document.getElementById('dlgAfat').classList.contains('hapur'), null, { timeout: 8000 }).catch(() => {}); await p.waitForTimeout(700);
   const aT = await rr(p, '#afatTitulli'), st = await rr(p, '#dlgAfat .sb-stepper'), da = await rr(p, '#afatData'), dl = await rr(p, '#dlgAfat .dialog'), ru = await rr(p, '#afatRuaj');
   ok(aT.fs === '26px' && st.h === 70 && da.h === 50 && ru.h === 56, '12. Afat i ri: titulli 26, sasia 70, data 50, "Ruaj afatin" 56', { aT, st, da, ru });
   ok(ru.y - dl.y >= 458 && ru.y - dl.y <= 462, '12. hapësirat si Flete te Android-i (14 ndërmjet çdo pjese)', ru.y - dl.y);

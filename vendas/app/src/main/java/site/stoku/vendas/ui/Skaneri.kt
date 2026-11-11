@@ -113,7 +113,7 @@ fun Skaneri(mbyll: () -> Unit, shtoNjeCope: ((String) -> Boolean)? = null, shpej
     }
 
     // Kamera me kontrollet lart (X, zmadhimi, drita)
-    // kutiaSiper: Skanimi i shpejtë, kutia menjëherë nën kontrollet (null = kamera e plotë, kutia pak mbi mes)
+    // kutiaSiper: kutia menjëherë nën kontrollet (v290: edhe kamera e plotë; null = kutia pak mbi mes, s'përdoret më)
     val kamera: @Composable (Modifier, Modifier, Dp?) -> Unit = { m, mKontrollet, kutiaSiper ->
         Box(m.background(Color.Black)) {
             if (leje) KameraPamja(shtoNjeCope, shpejt, uLexua, kutiaSiper)
@@ -144,8 +144,10 @@ fun Skaneri(mbyll: () -> Unit, shtoNjeCope: ((String) -> Boolean)? = null, shpej
         }
     }
 
-    if (paneli == null) Box(Modifier.fillMaxSize().background(Color.Black)) {
-        kamera(Modifier.fillMaxSize(), Modifier.systemBarsPadding(), null)
+    // v290 (pronari): kutia e barkodit lart, menjëherë nën kontrollet (X, zmadhimi, drita), jo në mes të ekranit
+    if (paneli == null) BoxWithConstraints(Modifier.fillMaxSize().background(Color.Black)) {
+        val siperK = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + KONTROLLET_LART
+        kamera(Modifier.fillMaxSize(), Modifier.systemBarsPadding(), siperK)
         Text("Drejtoje kamerën te barkodi", style = tx(15, 600, Color.White), textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.BottomCenter).systemBarsPadding().padding(bottom = 48.dp)
                 .clip(RoundedCornerShape(14.dp)).background(Color(0x80000000)).padding(horizontal = 16.dp, vertical = 10.dp))

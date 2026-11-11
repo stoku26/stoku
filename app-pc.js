@@ -4462,7 +4462,7 @@
     }
     if (!lista.length) {
       bosh.textContent = ekV.kerkimi.trim() ? 'Asgjë s\'u gjet për "' + ekV.kerkimi.trim() + '".' :
-        ekV.filtri === 'skaduar' ? 'Asnjë produkt i skaduar. Shumë mirë!' : ekV.filtri === 'hequr' ? 'Asnjë produkt i hequr ende.' : 'S\'ka afate.';
+        ekV.filtri === 'skaduar' ? 'Asnjë produkt i skaduar.' : ekV.filtri === 'hequr' ? 'Asnjë produkt i hequr ende.' : 'S\'ka afate.';
       bosh.classList.remove('fsheh');
       return;
     }
@@ -5296,12 +5296,7 @@
       return { produkti: String(a.emri || '').trim(), barkodi: String(a.barkodi || ''), data: a.data || '',
         nen: ['skadoi më ' + AFk.formato(a.data), AFk.sasiaTekst(a)].filter(Boolean).join(' · ') };
     });
-    var prod = teGjithaProduktet().filter(function (p) { return p && (p.emri || p.barkodi); })
-      .sort(function (a, b) { return String(a.emri || a.barkodi).localeCompare(String(b.emri || b.barkodi)); }).map(function (p) {
-        var fe = emriFolderit(p.kategoriaId);
-        return { produkti: String(p.emri || '').trim(), barkodi: String(p.barkodi || ''), nen: [fe, 'sasia ' + (Number(p.sasia) || 0)].filter(Boolean).join(' · ') };
-      });
-    krkZgjedhesi = EKL.zgjedhesIKerkeses($('krkZgjedhesi'), { skaduara: skaduara, produktet: prod }, perditesoDergo);
+    krkZgjedhesi = EKL.zgjedhesIKerkeses($('krkZgjedhesi'), { skaduara: skaduara }, perditesoDergo); // v290: vetëm të skaduarat
     $('krkShenim').value = '';
     $('krkGabim').textContent = kol.length ? '' : 'S\'ka ende kolegë në grup.';
     $('krkDergo').disabled = false; $('krkDergo').textContent = 'Dërgo';
@@ -5420,7 +5415,7 @@
         bosh.appendChild(el('h3', null, idMarketitAktiv() ? 'S\'ka ende afate te ' + emriMarketit(idMarketitAktiv()) : 'S\'ka ende asnjë afat'));
         bosh.appendChild(el('div', null, 'Ngarko foton e fletës ku punëtorët kanë shkruar afatet (ose tërhiqe foton këtu), ose shtoji me dorë.'));
       } else {
-        bosh.appendChild(el('h3', null, { skaduar: 'Asnjë produkt i skaduar 👍', afer: 'Asgjë nuk skadon brenda 30 ditëve', ok: 'Asnjë', hequr: 'Asnjë produkt i hequr ende', aktive: 'Asnjë afat aktiv' }[af.filtri] || 'Asgjë s\'u gjet'));
+        bosh.appendChild(el('h3', null, { skaduar: 'Asnjë produkt i skaduar', afer: 'Asgjë nuk skadon brenda 30 ditëve', ok: 'Asnjë', hequr: 'Asnjë produkt i hequr ende', aktive: 'Asnjë afat aktiv' }[af.filtri] || 'Asgjë s\'u gjet'));
         if (af.kerkimi) bosh.appendChild(el('div', null, 'Provo një kërkim tjetër.'));
       }
       return;

@@ -1839,34 +1839,26 @@
     return d;
   }
 
-  // Zgjedhësi i produkteve te "Kërko heqje nga rafti" (tel + PC): dy lista (të skaduarat / të gjitha produktet), kërkim
+  // Zgjedhësi i produkteve te "Kërko heqje nga rafti" (tel + PC): vetëm të skaduarat (v290), kërkim
   // dhe shenja (disa njëherësh). burimet: { skaduara: [{ produkti, barkodi, data, nen }], produktet: [...] }
   function zgjedhesIKerkeses(rrenja, burimet, kurNdryshon) {
-    var zgjedhur = {}, rendi = [], tabi = (burimet.skaduara || []).length ? 'skaduara' : 'produktet', kerkimi = '';
+    // v290 (pronari): vetëm produktet e skaduara (pa tabin "Produktet e mia")
+    var zgjedhur = {}, rendi = [], tabi = 'skaduara', kerkimi = '';
     function celes(x) { return (x.barkodi || '') + '|' + (x.produkti || '') + '|' + (x.data || ''); }
     function el(tag, kl, tk) { var e = document.createElement(tag); if (kl) e.className = kl; if (tk != null) e.textContent = tk; return e; }
     rrenja.textContent = '';
-    var tabet = el('div', 'krk-tabet'); tabet.setAttribute('role', 'tablist');
-    var bT = {};
-    [['skaduara', 'Të skaduarat'], ['produktet', 'Produktet e mia']].forEach(function (t) {
-      var b = el('button', 'krk-tab'); b.type = 'button'; b.setAttribute('role', 'tab');
-      b.appendChild(el('span', null, t[1])); b.appendChild(el('span', 'krk-tab__nr', String((burimet[t[0]] || []).length)));
-      b.addEventListener('click', function () { tabi = t[0]; vizato(); });
-      bT[t[0]] = b; tabet.appendChild(b);
-    });
     var kerko = el('input', 'krk-kerko inp'); kerko.type = 'search'; kerko.placeholder = 'Kërko në listë…'; kerko.setAttribute('aria-label', 'Kërko në listë');
     kerko.autocomplete = 'off'; kerko.spellcheck = false;
     kerko.addEventListener('input', function () { kerkimi = kerko.value.trim().toLowerCase(); vizato(); });
     var lista = el('div', 'krk-lista'); lista.setAttribute('role', 'listbox'); lista.setAttribute('aria-multiselectable', 'true');
-    rrenja.appendChild(tabet); rrenja.appendChild(kerko); rrenja.appendChild(lista);
+    rrenja.appendChild(kerko); rrenja.appendChild(lista);
     function vizato() {
-      Object.keys(bT).forEach(function (k) { bT[k].classList.toggle('aktiv', k === tabi); bT[k].setAttribute('aria-selected', k === tabi ? 'true' : 'false'); });
       lista.textContent = '';
       var te = (burimet[tabi] || []).filter(function (x) {
         return !kerkimi || (String(x.produkti || '') + ' ' + String(x.barkodi || '')).toLowerCase().indexOf(kerkimi) !== -1;
       });
       if (!te.length) {
-        lista.appendChild(el('div', 'krk-bosh', kerkimi ? 'Asgjë s\'përputhet me kërkimin.' : tabi === 'skaduara' ? 'S\'ke produkte të skaduara në raft.' : 'S\'ke ende produkte në Stoku.'));
+        lista.appendChild(el('div', 'krk-bosh', kerkimi ? 'Asgjë s\'përputhet me kërkimin.' : 'S\'ke produkte të skaduara në raft.'));
         return;
       }
       te.slice(0, 300).forEach(function (x) {

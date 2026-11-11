@@ -23,7 +23,7 @@ const gjendja = p => p.evaluate(() => {
     ok(s.hapur && s.fs, '2. "Skano me kamerë": ekran i plotë (fshihet edhe shiriti i orës)', s);
     ok(s.pozita === 'absolute' && s.krye.t === 0 && s.video.t === 0 && s.video.h === 844 && s.sfondi === 'rgba(0, 0, 0, 0)', '2. kamera nga lart deri poshtë, kontrollet mbi të pa shirit të zi', s);
     const mes = Math.round((s.kutia.t + s.kutia.b) / 2);
-    ok(s.kutia.t >= s.krye.b && mes >= 380 && mes <= 460, '2. kutia në mes të ekranit, nën kontrollet', { mes, s });
+    ok(s.kutia.t >= s.krye.b && s.kutia.t <= s.krye.b + 40, '2. kutia lart, menjëherë nën kontrollet (v290: më parë në mes)', { mes, s });
     await p.tap('#mbyllKamere'); await p.waitForTimeout(600);
     s = await gjendja(p);
     ok(!s.hapur && !s.fs, '3. "Mbyll": kthehet si ishte (pa ekran të plotë)', s);
