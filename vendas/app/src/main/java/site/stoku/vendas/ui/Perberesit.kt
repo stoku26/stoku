@@ -229,18 +229,14 @@ fun Flete(mbyll: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
     // Gjatë skanimit me kamerë dritarja s'shfaqet (përndryshe mbetet mbi kamerën); gjendja e saj ruhet te thirrësi
     if (SkaneriIHapur.hapur) return
     val gjendja = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var turbull by remember { mutableStateOf(false) } // v286: xhami (Xhami.kt)
     ModalBottomSheet(
         onDismissRequest = mbyll, sheetState = gjendja,
         // Edhe kur përmbajtja është e gjatë (p.sh. "Çfarë ka të re"), dritarja s'shkon nën shiritin e orës dhe kamerën
         modifier = Modifier.statusBarsPadding().padding(top = 16.dp),
         shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
-        containerColor = ngjyraEDritares(turbull), contentColor = n.ink,
-        scrimColor = if (turbull) (if (n.erret) Xhami.MBULESA_ERRET else Xhami.MBULESA_CELET) else n.overlay,
+        containerColor = n.surface, contentColor = n.ink, scrimColor = n.overlay,
         dragHandle = { Box(Modifier.padding(top = 10.dp, bottom = 14.dp).size(40.dp, 5.dp).clip(RoundedCornerShape(3.dp)).background(n.track)) }
     ) {
-        val t = turbulloPasDritares()
-        LaunchedEffect(t) { turbull = t }
         Column(
             Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(bottom = 20.dp).navigationBarsPadding().imePadding(),
             verticalArrangement = Arrangement.spacedBy(14.dp), content = content
@@ -256,7 +252,7 @@ fun Konfirmo(titulli: String, teksti: String, veprimi: String, rrezik: Boolean =
     var mbetur by remember { mutableStateOf(vonesa) }
     LaunchedEffect(Unit) { while (mbetur > 0) { delay(1000); mbetur-- } }
     Dialog(onDismissRequest = mbyll) {
-        Column(Modifier.clip(RoundedCornerShape(24.dp)).background(ngjyraEDritares(turbulloPasDritares())).padding(22.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(Modifier.clip(RoundedCornerShape(24.dp)).background(n.surface).padding(22.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(titulli, style = tx(20, 700, n.ink, -0.02))
             Text(teksti, style = tx(15, 400, n.ink2))
             Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {

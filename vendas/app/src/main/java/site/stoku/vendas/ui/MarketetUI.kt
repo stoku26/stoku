@@ -152,7 +152,7 @@ private fun KuJe(d: Merchandiseri.Dritarja.KuJe, hapMarketet: () -> Unit) {
     if (!perTeReja) opsionet = opsionet + Opsioni(null, "Të gjitha marketet", Merchandiseri.afateAktive(null), null)
 
     Dialog(onDismissRequest = { mbyll(null, false) }) {
-        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(ngjyraEDritares(turbulloPasDritares())).padding(20.dp)) {
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(n.surface).padding(20.dp)) {
             Text(if (perTeReja) "Në cilin market?" else "Ku je?", style = tx(20, 700, n.ink, -0.02))
             val nen = if (perTeReja) "Zgjidh marketin ku i ke këto afate."
             else if (poz != null && d.paqarte) "Je afër disa marketeve dhe GPS-i s'i dallon dot. Zgjidh ku je: zgjedhja jote mbetet." // v257
@@ -219,7 +219,7 @@ private fun MarketIRi() {
         if (r.values.any { it }) ruaj() else gabim = Marketet.tekstiGabimit("leje")
     }
     Dialog(onDismissRequest = { if (!punon) mbyll() }) {
-        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(ngjyraEDritares(turbulloPasDritares())).padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(n.surface).padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(if (g.marketet.isNotEmpty()) "Market i ri" else "Në cilin market je?", style = tx(20, 700, n.ink, -0.02))
             Text("Shkruaj emrin e marketit ku je tani. Stoku e ruan vendndodhjen e tij (duhet vendndodhja e saktë e telefonit) dhe e shohin të gjithë merchandiserët.",
                 style = txF(13.5f, 400, n.muted))
