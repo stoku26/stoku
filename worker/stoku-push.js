@@ -50,7 +50,7 @@ const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databa
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
 const PUSH_MAKS = 36;
-const VERSIONI_WORKER = 167; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 168; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 const W = {
@@ -334,7 +334,12 @@ async function trajtoOren(req, env, rruga, pergjigju) {
     const teReja = new Set(ids);
     let hq = (await env.FOTO.get('ora-hequr:' + uid, 'json')) || [];
     hq = hq.filter(x => !teReja.has(x.i));
-    if (!t.zhbej) ids.forEach(i => hq.push({ i, koha: Date.now() }));
+    // v168: ora kur u shtyp heqja në orën e dorës (edhe pa internet: ora e ruan dhe e dërgon më vonë). "koha" për një, "kohet"
+    // (njësoj si "ids") për disa. Pranohet vetëm kohë e kaluar deri 7 ditë; e ardhshme (ora e dorës përpara) ose e pavlefshme → tani.
+    const tani = Date.now();
+    const kohaE = (k) => { k = Number(k); return Number.isFinite(k) && k > 0 && k <= tani && tani - k <= 7 * 864e5 ? Math.floor(k) : tani; };
+    const kohet = Array.isArray(t.kohet) ? t.kohet : [];
+    if (!t.zhbej) ids.forEach((i, n) => hq.push({ i, koha: kohaE(Array.isArray(t.ids) ? kohet[n] : t.koha) }));
     hq = hq.slice(-200);
     if (hq.length) await env.FOTO.put('ora-hequr:' + uid, JSON.stringify(hq)); else await env.FOTO.delete('ora-hequr:' + uid);
     return pergjigju({ ok: true });

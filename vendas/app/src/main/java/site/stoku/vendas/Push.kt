@@ -38,7 +38,7 @@ import java.util.TimeZone
  */
 object Push {
     const val URL_PUSH = "https://stoku-push.mendurb.workers.dev"
-    const val VERSIONI_WORKER = 163
+    const val VERSIONI_WORKER = 168
     private val scope = MainScope() + StokuApp.trajtuesi(false)
     private val _tokeni = MutableStateFlow(StokuApp.prefsOse("fcm", ""))
     val tokeni: StateFlow<String> get() = _tokeni
