@@ -1233,7 +1233,7 @@
       // ---------- Aktiviteti ----------
       shtoNgjarje: function (ng) {
         if (!uid() || !grupi) return Promise.resolve({ ok: false, arsye: 'pa-grup' });
-        return pritPak(shtoNeRadhe(rrG('feed'), Object.assign({}, ng, { uid: uid(), emri: emri(), koha: Date.now() })));
+        return pritPak(shtoNeRadhe(rrG('feed'), Object.assign({}, ng, { uid: uid(), emri: emri(), koha: kohaENgjarjes(ng && ng.koha, Date.now()) })));
       },
       degjoNgjarjet: function (cb, n, cbGabim) {
         if (!grupi) return function () {};
@@ -1373,6 +1373,12 @@
   // ======================================================================================
   // 2. Funksione të pastra
   // ======================================================================================
+  // v288: ora e një ngjarjeje. Zakonisht "tani"; kur veprimi u bë më herët diku tjetër (heqja nga rafti në orën e dorës, që
+  // telefoni/PC e merr më vonë) mbahet ora e vërtetë e veprimit: vetëm kohë e kaluar, jo më e vjetër se 30 ditë (përndryshe "tani").
+  var NGJARJA_MAKS_VJETER = 30 * 86400000;
+  function kohaENgjarjes(k, tani) {
+    return typeof k === 'number' && isFinite(k) && k > 0 && k <= tani && tani - k <= NGJARJA_MAKS_VJETER ? Math.floor(k) : tani;
+  }
   function eshteOnline(a, tani) {
     tani = tani || Date.now();
     return !!a && a.online === true && (tani - (a.aktivSe || 0)) < ONLINE_MS;
@@ -2996,7 +3002,7 @@
     ADMIN_EMRI: ADMIN_EMRI, permbledhjaEAfateve: permbledhjaEAfateve, nenshkrimi: nenshkrimi,
     ndryshoAfatinNeGjendje: ndryshoAfatinNeGjendje, fletetEStokut: fletetEStokut,
     hartaEHeqjeve: hartaEHeqjeve, mbivendosHeqjen: mbivendosHeqjen, duhetZbatuarHeqja: duhetZbatuarHeqja,
-    kalendari: kalendari, statistikat: statistikat, tekstiNgjarjes: tekstiNgjarjes, objektiINgjarjes: objektiINgjarjes, detajetENgjarjes: detajetENgjarjes, artikulliINgjarjes: artikulliINgjarjes, artikujtENgjarjes: artikujtENgjarjes, tekstiNjoftimit: tekstiNjoftimit,
+    kalendari: kalendari, statistikat: statistikat, tekstiNgjarjes: tekstiNgjarjes, objektiINgjarjes: objektiINgjarjes, detajetENgjarjes: detajetENgjarjes, kohaENgjarjes: kohaENgjarjes, artikulliINgjarjes: artikulliINgjarjes, artikujtENgjarjes: artikujtENgjarjes, tekstiNjoftimit: tekstiNjoftimit,
     isoDites: isoDites, Fotot: Fotot, listaEKerkeses: listaEKerkeses, rreshtiIProduktit: rreshtiIProduktit, zgjedhesIKerkeses: zgjedhesIKerkeses
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

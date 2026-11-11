@@ -679,7 +679,7 @@
     l.forEach(function (h) { var a = afatSipasId(h.i); if (!a) return; kryer.push(h.i); if (a.statusi !== 'hequr') te.push(h); });
     if (te.length) {
       ndryshoAfatet(function (api) { te.forEach(function (h) { var a = api.merr(h.i); if (a) { a.statusi = 'hequr'; a.hequrSe = h.koha || Date.now(); a.hequrNga = emriPerdoruesit(); api.vendos(a); } }); });
-      te.forEach(function (h) { ekNgjarjeAfati('hequr', afatSipasId(h.i)); });
+      te.forEach(function (h) { ekNgjarjeAfati('hequr', afatSipasId(h.i), h.koha); }); // v288: ora kur u hoq në orën e dorës
       toast(te.length === 1 ? '1 produkt u shënua i hequr nga rafti (nga ora).' : te.length + ' produkte u shënuan të hequra nga rafti (nga ora).');
     }
     if (kryer.length) e.pastroHeqjetNgaOra(kryer);
@@ -5530,10 +5530,10 @@
     ids.forEach(function (id) { ekNgjarjeAfati('hequr', afatSipasId(id)); });
   }
   // Ngjarje për aktivitetin e Grupit (kush çfarë hoqi/lajmëroi/ktheu)
-  function ekNgjarjeAfati(lloji, a) {
+  function ekNgjarjeAfati(lloji, a, koha) {
     var u = perdoruesi();
     if (!u || !a || !ekK) return;
-    ekK.ngjarje({ lloji: lloji, pronariUid: u.uid, pronariEmri: emriPerdoruesit(), afatId: a.id, produkti: a.emri || a.barkodi || '',
+    ekK.ngjarje({ koha: koha, lloji: lloji, pronariUid: u.uid, pronariEmri: emriPerdoruesit(), afatId: a.id, produkti: a.emri || a.barkodi || '',
       barkodi: a.barkodi || '', data: a.data || '', sasia: typeof a.sasia === 'number' ? a.sasia : undefined });
   }
   function riktheAktiv(id) {

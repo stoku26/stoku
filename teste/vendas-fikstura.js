@@ -294,6 +294,8 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
     { lloji: 'hequr', uid: 'u2' }, null
   ]).map(ng => ({ ng, o: EK.objektiINgjarjes(ng) }));
   const harta = EK.hartaEHeqjeve(ngjarjet);
+  // v288: ora e ngjarjes (heqja nga ora e dorës mban orën e vet)
+  const kohetNg = [TANI_G - 3600e3, TANI_G, TANI_G + 1, TANI_G - 30 * 864e5, TANI_G - 30 * 864e5 - 1, 0, -5, 1.7, TANI_G - 1000.9, '5', null, undefined, NaN, true].map(k => ({ k: k === undefined || (typeof k === 'number' && isNaN(k)) ? null : k, r: EK.kohaENgjarjes(k, TANI_G) }));
   // v284: detajet e ngjarjes (pamja "vetëm shiko" te Aktiviteti) + fotografia e afateve brenda ngjarjes
   const meAfate = (lista) => lista.map(a => Object.assign({}, a, { ngarkuar: a.uid !== 'u3', afatet: a.afatet.map(af => Object.assign(EK.mbivendosHeqjen(af, a.uid, harta), { pronariUid: a.uid, pronariEmri: a.emri })) }));
   const anetaretD = { D: meAfate(anetaret), K: meAfate([{ uid: 'u1', emri: 'besa', afatet: [
@@ -338,7 +340,7 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
   const adminAfat = [[gjA, 'a1', 'hiq'], [gjA, 'a6', 'kthe'], [gjA, 'a2', 'fshij'], [gjA, 'nuk', 'hiq'], [{ afatet: afatetG.slice(0, 2) }, 'a1', 'fshij'], [{}, 'a1', 'kthe'], [null, 'a1', 'hiq']]
     .map(([gj, id, v]) => ({ gj, id, v, emri: 'mendurberisha', r: EK.ndryshoAfatinNeGjendje(gj, id, v, 'mendurberisha', TANI_G) }));
   global.Date = DataE;
-  dalja.grupi = JSON.parse(JSON.stringify({ TANI_G, prania, kohet, afatetG, permb, anetaret, st, tekstet, njoftimet, hartaTx, mbiv, zbatimi, kal, kerkesat, rreshtat, adminAfat, objektet, anetaretD, detajet, artikujt }));
+  dalja.grupi = JSON.parse(JSON.stringify({ TANI_G, prania, kohet, afatetG, permb, anetaret, st, tekstet, njoftimet, hartaTx, mbiv, zbatimi, kal, kerkesat, rreshtat, adminAfat, objektet, anetaretD, detajet, artikujt, kohetNg }));
   fs.writeFileSync(sk, JSON.stringify(dalja));
   console.log('grupi: ' + tekstet.length + ' tekste, ' + permb.length + ' në përmbledhje');
 }

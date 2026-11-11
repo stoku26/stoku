@@ -281,7 +281,7 @@ object Grupi {
     // ---------------- Aktiviteti ----------------
     private fun shtoNgjarje(ng: Map<String, Any?>) {
         val u0 = uid ?: return; val g = grupi() ?: return
-        val d = LinkedHashMap<String, Any?>(ng); d["uid"] = u0; d["emri"] = emri; d["koha"] = System.currentTimeMillis()
+        val d = LinkedHashMap<String, Any?>(ng); d["uid"] = u0; d["emri"] = emri; d["koha"] = GrupiLogjika.kohaENgjarjes(ng["koha"], System.currentTimeMillis())
         db.collection("grupet").document(g).collection("feed").document(idERe()).set(d.filterValues { it != null })
     }
 
@@ -324,9 +324,9 @@ object Grupi {
     }
 
     /** "U hoq nga rafti" / "Rikthe si aktiv" te afatet e mia (si ekNgjarjeAfati) */
-    fun ngjarjeAfati(lloji: String, a: Obj) {
+    fun ngjarjeAfati(lloji: String, a: Obj, koha: Long? = null) {
         val u0 = uid ?: return
-        shtoNgjarje(mapOf("lloji" to lloji, "pronariUid" to u0, "pronariEmri" to emri, "afatId" to a["id"],
+        shtoNgjarje(mapOf("koha" to koha, "lloji" to lloji, "pronariUid" to u0, "pronariEmri" to emri, "afatId" to a["id"],
             "produkti" to ((a["emri"] as? String)?.ifEmpty { null } ?: (a["barkodi"] as? String) ?: ""), "barkodi" to (a["barkodi"] ?: ""),
             "data" to (a["data"] ?: ""), "sasia" to (a["sasia"] as? Number)))
     }

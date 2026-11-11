@@ -20,6 +20,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 288, versioni: '1.53.2', data: '2026-11-11', titulli: 'Ora e saktë e heqjes te Aktiviteti', platforma: 'tel', pikat: [
+      'Kur një produkt hiqet nga rafti në orën e dorës, te Grupi → Aktiviteti del ora kur u hoq vërtet, jo ora kur telefoni e mori heqjen.'
+    ] },
+    { v: 288, versioni: '1.53.2', data: '2026-11-11', titulli: 'Ora e saktë e heqjes te Aktiviteti', platforma: 'pc', pikat: [
+      'Kur një produkt hiqet nga rafti në orën e dorës, te Grupi → Aktiviteti del ora kur u hoq vërtet, jo ora kur kompjuteri e mori heqjen.'
+    ] },
     { v: 287, versioni: '1.53.1', data: '2026-11-10', titulli: 'Dritaret si më parë', platforma: 'tel', pikat: [
       'Dritaret që dalin mbi faqe janë prapë me ngjyrë të plotë, si më parë. Pamja "si xham" u hoq.'
     ] },

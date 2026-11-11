@@ -2185,7 +2185,7 @@
       kryer.push(h.i);
       if (a.statusi === 'hequr') return;
       perditesoAfatin(a.id, { statusi: 'hequr', hequrSe: h.koha || Date.now(), hequrNga: emriPerdoruesitAktual() });
-      ekNgjarjeAfati('hequr', a); n++;
+      ekNgjarjeAfati('hequr', a, { koha: h.koha }); n++; // v288: ora kur u hoq në orën e dorës, jo ora kur e mori telefoni
     });
     if (n) toast(n === 1 ? '1 produkt u shënua i hequr nga rafti (nga ora).' : n + ' produkte u shënuan të hequra nga rafti (nga ora).');
     if (kryer.length) e.pastroHeqjetNgaOra(kryer);

@@ -77,6 +77,11 @@ class GrupiTest {
         }
     }
 
+    /** v288: ora e ngjarjes (heqja nga ora e dorës mban orën e vet) */
+    @Test fun kohaENgjarjes() {
+        f["kohetNg"].siListe().forEach { x -> val r = x.siObj()!!; eq("koha e ngjarjes " + Json.shkruaj(r["k"]), r["r"], GrupiLogjika.kohaENgjarjes(r["k"], tani)) }
+    }
+
     @Test fun heqjetDheKalendari() {
         val ngjarjet = f["tekstet"].siListe().map { it.siObj()!!["ng"].siObj()!! }.distinctBy { Json.shkruaj(it) }
         val h = GrupiLogjika.hartaEHeqjeve(ngjarjet)

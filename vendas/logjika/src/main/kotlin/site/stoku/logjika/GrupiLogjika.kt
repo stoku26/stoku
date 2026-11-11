@@ -23,6 +23,13 @@ object GrupiLogjika {
     private fun data(ts: Long, zona: ZoneId) = Instant.ofEpochMilli(ts).atZone(zona)
     fun isoDites(ts: Long, zona: ZoneId = ZoneId.systemDefault()): String { val d = data(ts, zona); return d.year.toString() + "-" + dy(d.monthValue) + "-" + dy(d.dayOfMonth) }
 
+    /** v288 (ekipa.js kohaENgjarjes): ora e ngjarjes = ora e vërtetë e veprimit kur është e kaluar dhe jo më e vjetër se 30 ditë; përndryshe "tani" */
+    const val NGJARJA_MAKS_VJETER = 30 * 86400000L
+    fun kohaENgjarjes(k: Any?, tani: Long): Long {
+        if (!eNumer(k)) return tani
+        val d = (k as Number).toDouble()
+        return if (d > 0 && d <= tani && tani - d <= NGJARJA_MAKS_VJETER) Math.floor(d).toLong() else tani
+    }
     fun eshteOnline(a: Obj?, tani: Long = System.currentTimeMillis()): Boolean =
         a != null && a["online"] == true && tani - koha(a, "aktivSe") < ONLINE_MS
 
