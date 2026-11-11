@@ -2220,13 +2220,15 @@
       return r;
     }
     // Pronari: grupi del te kërkimi (një herë për çdo emër në këtë pajisje; grupet e krijuara para v242)
-    var KEY_PUBLIKUAR = 'stoku:grupi:publikuar';
+    // v293: emër më vete (më parë `KEY_PUBLIKUAR`, i njëjtë me atë të përmbledhjes së afateve më poshtë: të dyja shkruanin në
+    // 'stoku:grupi:publikuar' dhe njëra e fshinte shenjën e tjetrës, prandaj grupi dhe afatet dërgoheshin sërish pa nevojë)
+    var KEY_GRUPI_PUBLIKUAR = 'stoku:grupi:publikuar';
     function siguroGrupinPublik() {
       var e = E(), info = gj.grupiInfo;
       if (!e || !e.publikoGrupin || !eshtePronar() || !info || !info.emri || info.id !== gj.grupi) return;
       var celes = o.uidIm() + '|' + gj.grupi + '|' + info.emri;
-      if (lexo(KEY_PUBLIKUAR) === celes) return;
-      e.publikoGrupin(gj.grupi, info.emri).then(function (r) { if (r && r.ok) shkruaj(KEY_PUBLIKUAR, celes); });
+      if (lexo(KEY_GRUPI_PUBLIKUAR) === celes) return;
+      e.publikoGrupin(gj.grupi, info.emri).then(function (r) { if (r && r.ok) shkruaj(KEY_GRUPI_PUBLIKUAR, celes); });
     }
     async function kontrolloAdminin() {
       var e = E();

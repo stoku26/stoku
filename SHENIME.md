@@ -71,6 +71,26 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    rezultatet e kërkimit dhe lista "8 deri 30 ditë" me `remember` (llogariten vetëm kur ndryshojnë të dhënat). Testi
    `teste/v285.js`. S'është testuar në pajisje të vërtetë.
 
+0000000. **KONTROLLI I PROJEKTIT PAS v292 (v293 = 1.55.1, 12.11.2026, telefoni + PC + Android Hyrja 55; ora dhe Worker-i pa ndryshim)**:
+   pronari: "jepja komplet projektit ni sy edhe permirso bugs e gabime tjera ... performanc e stabilitet". Mënyra: ESLint (rregullat e
+   saktësisë: no-undef, no-redeclare, no-shadow, kod i paarritshëm etj.) mbi krejt JS-in e web-it dhe Worker-in; paralajmërimet e
+   Kotlin-it nga ndërtimi i CI-së; kërkim i thirrjeve që mund ta rrëzojnë Android-in (`!!`, `.first()`, indekse); matje e hapjes.
+   Gjetjet: (1) **ekipa.js**: brenda `krijoKontrollues` `var KEY_PUBLIKUAR = 'stoku:grupi:publikuar'` (v242, për `siguroGrupinPublik`)
+   e mbulonte çelësin e jashtëm 'stoku:ekipa:publikuar' edhe për `publikoTani` (përmbledhja e afateve): të dyja shkruanin në të njëjtin
+   çelës dhe njëra e fshinte shenjën e tjetrës, prandaj pas çdo hapjeje të faqes dërgoheshin sërish përmbledhja dhe grupi publik
+   (shkrime të tepërta në Firestore). Tani `KEY_GRUPI_PUBLIKUAR` (vlera e vjetër 'stoku:grupi:publikuar'); 'stoku:ekipa:publikuar' s'u
+   ndryshua. Android s'e kishte (`grupi_publikuar` vetëm për afatet). (2) **"Shto" te Afatet (v290)**: `.then` pas `hapKamere()`
+   thërriste `hapAfatin(null)` sa herë kamera s'ishte e hapur: edhe kur përdoruesi e mbyllte me ✕ ndërsa kamera ende ndizej, dhe
+   pas një skanimi që mbaronte para se `hapKamere` të kthehej (forma rihapej bosh, barkodi humbiste). Tani `kameraDeshtoi` (vendoset
+   vetëm kur kamera s'është gati, pa leje, ose `nisKamere` dështon) dhe `uSkanua`. (3) app-tel.js: `var kg` dy herë te faqja e grupit
+   (kartës iu vu `kk`). (4) Android: `android.os.CancellationSignal` në vend të `androidx.core.os` (i vjetruar) te Merchandiseri,
+   `androidx.lifecycle.compose.LocalLifecycleOwner` te Skaneri. Pa gabime të tjera: s'ka emra të papërcaktuar, kod të paarritshëm apo
+   thirrje të rrezikshme në Android. Performanca: 4 bibliotekat nga jsDelivr (PDF, JsBarcode, html5-qrcode, ponyfill) shtojnë rreth
+   0.1 s në hapje me CPU 4× më të ngadaltë, por figura e parë del njësoj shpejt (FCP i njëjtë); ngarkimi sipas nevojës s'u bë (rrezik
+   për PDF-në dhe kamerën, fitim i vogël). Regresioni v292: v254/v274/v275/v284 dështojnë VETËM midis 00:00 dhe 01:00 të Kosovës
+   (testet llogarisin "sot" me UTC, faqja me orën e Kosovës); njësoj edhe me kodin e v291. Testi `teste/v293.js`. S'është testuar në
+   pajisje të vërtetë.
+
 0000000. **10 ZËRA PËR SKANIMIN, ZMADHIMI DHE DRITA POSHTË (v292 = 1.55.0, 11.11.2026, telefoni + Android Hyrja 54)**: pronari
    (foto): "te cilesimet > skanimi shtoja ni opsion per me ja ndryshu soundin kur skanohet nje barkod, 10 sounda te ndryshem ... krejta te
    ndryshme" dhe "te skanimi ne web app flash-in leje ndjatht ... zoomin 1x ... posht ntmajt". (1) Zërat: `ZERAT` te app-tel.js (10, i pari

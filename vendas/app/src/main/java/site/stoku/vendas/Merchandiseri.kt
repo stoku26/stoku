@@ -9,7 +9,7 @@ import android.location.LocationManager
 import android.os.Build
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
-import androidx.core.os.CancellationSignal
+import android.os.CancellationSignal
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions

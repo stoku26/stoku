@@ -20,6 +20,14 @@
   'use strict';
 
   var LISTA = [
+    { v: 293, versioni: '1.55.1', data: '2026-11-12', titulli: 'Rregullime të vogla', platforma: 'tel', pikat: [
+      'Te Afatet, "Shto": nëse e mbyll kamerën ndërsa ende ndizet, s\'hapet më "Afat i ri" pa e dashur.',
+      'Barkodi i skanuar shumë shpejt s\'fshihet më nga dritarja "Afat i ri".',
+      'Grupi dërgon më pak të dhëna te serveri (përmbledhja e afateve s\'dërgohet sërish pa ndryshim).'
+    ] },
+    { v: 293, versioni: '1.55.1', data: '2026-11-12', titulli: 'Rregullime të vogla', platforma: 'pc', pikat: [
+      'Grupi dërgon më pak të dhëna te serveri (përmbledhja e afateve s\'dërgohet sërish pa ndryshim).'
+    ] },
     { v: 292, versioni: '1.55.0', data: '2026-11-11', titulli: '10 zëra për skanimin, butonat e kamerës poshtë', platforma: 'tel', pikat: [
       'Te Cilësimet → Skanimi zgjidh njërin nga 10 zërat që bie kur skanohet një barkod. Prek një zë për ta dëgjuar.',
       'Te kamera, zmadhimi (1×) është poshtë majtas dhe drita poshtë djathtas.',
