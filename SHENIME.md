@@ -71,6 +71,18 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    rezultatet e kërkimit dhe lista "8 deri 30 ditë" me `remember` (llogariten vetëm kur ndryshojnë të dhënat). Testi
    `teste/v285.js`. S'është testuar në pajisje të vërtetë.
 
+0000000. **ORA E SAKTË E HEQJES TE AKTIVITETI (v288 = 1.53.2, 11.11.2026, telefoni + PC + Android Hyrja 51; ora e dorës dhe Worker-i jo)**:
+   pronari (foto e Aktivitetit te Android, tri "Ti e hoqe nga rafti" me të njëjtën orë 13:22): "kur diqka u hek prej raftit pse nuk e
+   qet nsa ora u hek po or tjeter". Shkaku: heqjet e bëra në ORËN E DORËS ruhen te Worker-i (`ora-hequr:{uid}`, me `koha`) dhe
+   telefoni/PC i zbaton kur hapet (`zbatoHeqjetNgaOra` → `GET /ora/hequrat`); afati merrte `hequrSe = h.koha` (saktë), por ngjarja
+   e aktivitetit shkruhej me `koha = tani` (ora e marrjes), prandaj disa heqje dilnin me të njëjtën orë. Tani `shtoNgjarje` (ekipa.js;
+   Android `Grupi.shtoNgjarje`) e merr orën nga `kohaENgjarjes(ng.koha, tani)` (binjaku `GrupiLogjika.kohaENgjarjes`, fikstura
+   `grupi.kohetNg`): `ng.koha` mbahet vetëm kur është numër, e kaluar dhe jo më e vjetër se 30 ditë; përndryshe "tani" (si më parë
+   për të gjitha ngjarjet e tjera). Thirrësit: telefoni `ekNgjarjeAfati('hequr', a, { koha: h.koha })`, PC `ekNgjarjeAfati(lloji, a,
+   koha)`, Android `Grupi.ngjarjeAfati("hequr", a, kur)` te `Push.zbatoHeqjetNgaOra`. Ngjarjet e vjetra (me orën e gabuar) mbeten siç
+   janë. KUFIZIM: kur ora e dorës ishte pa internet, `h.koha` është ora kur heqja mbërriti te serveri (ora s'e dërgon kohën e vet):
+   për ta rregulluar duhet Worker-i + aplikacioni i orës. Testi `teste/v288.js`. S'është testuar në pajisje të vërtetë.
+
 0000000. **XHAMI U HOQ KREJT (v287 = 1.53.1, 10.11.2026, telefoni + Android Hyrja 50)**: pronari pasi e pa në telefon: "Ktheje te mas
    komplet qeto se mut e ke bo heke glassin edhe nweb edhe ne android app". U hoq gjithçka e v286 dhe e Hyrjes 48 / 49: blloku
    "XHAMI" te `css/stoku.css` (tani `?v=65`), `ui/Xhami.kt`, `turbulloPasDritares` / `ngjyraEDritares` / `turbullKurKaDritare`

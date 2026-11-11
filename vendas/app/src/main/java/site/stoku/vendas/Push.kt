@@ -294,8 +294,9 @@ object Push {
             val a = Dyqani.g.afatet.firstOrNull { it["id"] == id } ?: return@forEach // ende pa u sinkronizuar këtu
             kryer.add(id)
             if (a["statusi"] == "hequr") return@forEach
-            Dyqani.perditesoAfatin(id, mapOf("statusi" to "hequr", "hequrSe" to ((h["koha"] as? Number)?.toLong() ?: System.currentTimeMillis()), "hequrNga" to emri()))
-            Grupi.ngjarjeAfati("hequr", a)
+            val kur = (h["koha"] as? Number)?.toLong()
+            Dyqani.perditesoAfatin(id, mapOf("statusi" to "hequr", "hequrSe" to (kur ?: System.currentTimeMillis()), "hequrNga" to emri()))
+            Grupi.ngjarjeAfati("hequr", a, kur) // v288: ora kur u hoq në orën e dorës, jo ora kur e mori telefoni
             n++
         }
         if (kryer.isNotEmpty()) kerkese("/ora/hequrat", mapOf("pastro" to kryer))
