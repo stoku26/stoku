@@ -71,6 +71,20 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    rezultatet e kërkimit dhe lista "8 deri 30 ditë" me `remember` (llogariten vetëm kur ndryshojnë të dhënat). Testi
    `teste/v285.js`. S'është testuar në pajisje të vërtetë.
 
+0000000. **10 ZËRA PËR SKANIMIN, ZMADHIMI DHE DRITA POSHTË (v292 = 1.55.0, 11.11.2026, telefoni + Android Hyrja 54)**: pronari
+   (foto): "te cilesimet > skanimi shtoja ni opsion per me ja ndryshu soundin kur skanohet nje barkod, 10 sounda te ndryshem ... krejta te
+   ndryshme" dhe "te skanimi ne web app flash-in leje ndjatht ... zoomin 1x ... posht ntmajt". (1) Zërat: `ZERAT` te app-tel.js (10, i pari
+   `klasik` = bip-i i vjetër 1800 Hz square 150 ms, parazgjedhja); nota = [Hz, fillimi ms, kohëzgjatja ms, forma, Hz në fund, shuhet].
+   `luajZerin` (oshilatorë Web Audio me hyrje/dalje të butë), `bip()` luan `opsione.zeri`; dridhja mbetet. Cilësimet → Skanimi: titulli
+   "Zëri i skanimit" + `#listaZerave` (dy kolona, `.ops-zerat` te stoku.css v66); prekja e zgjedh, e ruan dhe e luan (edhe me tingullin e
+   fikur, atëherë lista zbehet `.fikur`); fshihet në PDA si tingulli. Android: `ui/Zerat.kt` me të njëjtat nota (AudioTrack statik, mostra
+   16-bit të gjeneruara), `bip()` te Skaneri.kt luan `prefs "zeri"` (ToneGenerator u hoq), `Opsionet.zeri`, karta te CilesimetEkrani
+   (`ZgjedhjaEZerit`). KUJDES: kur ndryshon `ZERAT`, ndrysho edhe `Zerat.kt` (teste/v292.js i krahason). (2) Web: `#kameraZoom` dhe
+   `#kameraDrita` nga lart (pranë "Mbyll") te `.kamera-poshte` brenda figurës: zmadhimi poshtë majtas, drita poshtë djathtas (56 px; te
+   Skanimi i shpejtë 44 px në fund të figurës së shkurtër). Fotoja e pronarit s'kishte fare dritë: disa Android-a e tregojnë `torch`
+   vetëm pasi kamera jep figurë, prandaj `rikontrolloKontrollet` pas 1.2 s dhe 3 s e shfaq dritën (dhe zmadhimin) nëse del më vonë.
+   Android-i (Skaneri.kt) s'u prek për butonat. Testi `teste/v292.js`. S'është testuar në pajisje të vërtetë.
+
 0000000. **AUTOFOKUSI I KAMERËS NË WEB (v291 = 1.54.1, 11.11.2026, vetëm web telefoni)**: pronari: "ne web app autofokusi i kameres
    so ka bon. Rregulloje edhe mos prish naj sen tjeter". Më parë fokusi i vazhdueshëm kërkohej te `getUserMedia` dhe një herë
    pas nisjes (`aplikoAutofokusin`), dhe vetëm kur kamera e ofronte `continuous`. Tani `mbajFokusin()` (te `pasNisjes`): e vendos

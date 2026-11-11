@@ -316,6 +316,12 @@ html.me-fab #toast { bottom: calc(102px + var(--sab, 0px)); }
 .sb .ops-fab-pill__sh { background: #e8a92e; color: #2b2100; }
 /* pronari: te tri zgjedhjet vetëm emri (fotoja e butonit mjafton lart) */
 .sb .ops-vendi button { justify-content: center; min-height: 48px; padding: 0 8px; }
+/* v292 (pronari): 10 zërat e skanimit, dy kolona */
+.sb .ops-zerat { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 12px; }
+.sb .ops-zerat button { flex-direction: row; justify-content: flex-start; min-height: 48px; padding: 0 12px; gap: 10px; text-align: left; }
+.sb .zeri-nr { flex: none; width: 24px; height: 24px; border-radius: 12px; display: grid; place-items: center; background: var(--sb-surface); color: var(--sb-ink-3); font-size: 12px; font-weight: 700; }
+.sb .ops-zerat button.aktiv .zeri-nr { background: var(--sb-accent); color: #fff; }
+.sb #seksionZeri.fikur .ops-zerat { opacity: .55; }
 .sb.me-fab #lista { padding-bottom: 104px; }
 .sb .krye-excel { color: #1e7f45; }
 .sb .krye-pdf { color: #c23030; }

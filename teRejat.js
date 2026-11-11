@@ -20,6 +20,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 292, versioni: '1.55.0', data: '2026-11-11', titulli: '10 zëra për skanimin, butonat e kamerës poshtë', platforma: 'tel', pikat: [
+      'Te Cilësimet → Skanimi zgjidh njërin nga 10 zërat që bie kur skanohet një barkod. Prek një zë për ta dëgjuar.',
+      'Te kamera, zmadhimi (1×) është poshtë majtas dhe drita poshtë djathtas.',
+      'Drita del edhe në telefonat që e tregojnë pak më vonë pasi hapet kamera.'
+    ] },
     { v: 291, versioni: '1.54.1', data: '2026-11-11', titulli: 'Kamera fokusohet më mirë', platforma: 'tel', pikat: [
       'Kamera e skanimit e mban fokusin automatik më mirë, edhe pas zmadhimit dhe dritës.',
       'Në telefonat ku kamera s\'ka fokus të vazhdueshëm, Stoku e fokuson vetë çdo pak sekonda.'
