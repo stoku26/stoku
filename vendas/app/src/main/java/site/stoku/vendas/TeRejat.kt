@@ -8,6 +8,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(52, "2026-11-11", "Ora e saktë e heqjes edhe pa internet në orë", listOf(
+            "Kur hiqni një produkt nga rafti në orën e dorës pa internet, te Aktiviteti del ora kur e shtypët, jo ora kur ora e dorës u lidh sërish."
+        )),
         Hyrja(51, "2026-11-11", "Ora e saktë e heqjes te Aktiviteti", listOf(
             "Kur një produkt hiqet nga rafti në orën e dorës, te Grupi → Aktiviteti del ora kur u hoq vërtet, jo ora kur telefoni e mori heqjen."
         )),

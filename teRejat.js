@@ -20,6 +20,13 @@
   'use strict';
 
   var LISTA = [
+    { v: 289, versioni: '1.53.3', data: '2026-11-11', titulli: 'Ora e saktë e heqjes edhe pa internet në orë', platforma: 'tel', pikat: [
+      'Kur hiqni një produkt nga rafti në orën e dorës pa internet, te Aktiviteti del ora kur e shtypët, jo ora kur ora e dorës u lidh sërish.',
+      'Kërkon versionin e ri të aplikacionit në orë dhe të serverit të njoftimeve.'
+    ] },
+    { v: 289, versioni: '1.53.3', data: '2026-11-11', titulli: 'Ora e saktë e heqjes edhe pa internet në orë', platforma: 'pc', pikat: [
+      'Kur hiqni një produkt nga rafti në orën e dorës pa internet, te Aktiviteti del ora kur e shtypët, jo ora kur ora e dorës u lidh sërish.'
+    ] },
     { v: 288, versioni: '1.53.2', data: '2026-11-11', titulli: 'Ora e saktë e heqjes te Aktiviteti', platforma: 'tel', pikat: [
       'Kur një produkt hiqet nga rafti në orën e dorës, te Grupi → Aktiviteti del ora kur u hoq vërtet, jo ora kur telefoni e mori heqjen.'
     ] },

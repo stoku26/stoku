@@ -71,6 +71,19 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    rezultatet e kërkimit dhe lista "8 deri 30 ditë" me `remember` (llogariten vetëm kur ndryshojnë të dhënat). Testi
    `teste/v285.js`. S'është testuar në pajisje të vërtetë.
 
+0000000. **ORA E SAKTË E HEQJES EDHE PA INTERNET NË ORË (v289 = 1.53.3, Worker 168, ora e dorës, 11.11.2026; Android Hyrja 52)**:
+   pronari pas v288: "bone edhe nese jam offline ne or me shku sakt sa ora jan hek produktet". **Ora e dorës** (`ora/Api.kt`): çdo
+   heqje në radhë (`radha`, pa internet) e mban orën e shtypjes `"k"` (`shtoNeRadhe(..., kur)`); `dergoRadhenPaKyc` e dërgon si
+   `kohet` (njësoj si `ids`) për grupin dhe `koha` për një; edhe heqjet me internet (`hiq`, `hiqShume`, rruga një-nga-një) dërgojnë
+   `koha` = ora e shtypjes (jo ora pas radhës / riprovimit). Heqjet e vjetra në radhë (pa `"k"`) shkojnë pa orë → ora e serverit.
+   **Worker-i** (`/ora/hiq`, `VERSIONI_WORKER` 168): ruan `koha` / `kohet[n]` te `ora-hequr:{uid}` vetëm kur është kohë e kaluar
+   deri 7 ditë; e ardhshme (ora e dorës përpara), më e vjetër ose e pavlefshme → `Date.now()` (si më parë). Telefoni/PC/Android e
+   marrin këtë orë përmes `/ora/hequrat` dhe v288 e çon te Aktiviteti (`kohaENgjarjes`, deri 30 ditë). `ekipa.js` dhe
+   `Push.VERSIONI_WORKER` = 168: derisa PRONARI ta ngjisë Worker-in e ri te Cloudflare, Cilësimet → Njoftimet thonë "Serveri ka kodin
+   e vjetër"; pa të, ora e dorës punon si më parë (serveri i vjetër e shpërfill `koha`). Ora e dorës matet me orën e vet: nëse
+   ora e saj është gabim, edhe ora e heqjes del gabim (brenda kufijve më sipër). Testi `teste/wp/ora-koha-prova.mjs`;
+   `teste/orari-test.js` dhe `wp/marketet-prova.mjs` u përshtatën për 168. S'është testuar në pajisje të vërtetë.
+
 0000000. **ORA E SAKTË E HEQJES TE AKTIVITETI (v288 = 1.53.2, 11.11.2026, telefoni + PC + Android Hyrja 51; ora e dorës dhe Worker-i jo)**:
    pronari (foto e Aktivitetit te Android, tri "Ti e hoqe nga rafti" me të njëjtën orë 13:22): "kur diqka u hek prej raftit pse nuk e
    qet nsa ora u hek po or tjeter". Shkaku: heqjet e bëra në ORËN E DORËS ruhen te Worker-i (`ora-hequr:{uid}`, me `koha`) dhe

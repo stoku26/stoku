@@ -231,7 +231,7 @@ object Api {
             skaduara = (l.skaduara - l.skaduaraL.count { it.id in h }).coerceAtLeast(0),
         )
     }
-    private fun shtoNeRadhe(ctx: Context, ids: List<String>, zhbej: Boolean) {
+    private fun shtoNeRadhe(ctx: Context, ids: List<String>, zhbej: Boolean, kur: Long = System.currentTimeMillis()) {
         val r = radha(ctx)
         if (zhbej && ids.size == 1) {
             // heqja e këtij produkti s'është dërguar ende: zhbërja e anulon (asgjë s'shkon te serveri)
@@ -244,7 +244,8 @@ object Api {
                 return
             }
         }
-        ids.forEach { r.put(JSONObject().put("i", it).put("z", zhbej)) }
+        // v168: ora kur u shtyp heqja (dërgohet te serveri edhe kur ora ishte pa internet)
+        ids.forEach { r.put(JSONObject().put("i", it).put("z", zhbej).put("k", kur)) }
         ruajRadhen(ctx, r)
     }
     // Dërgon radhën me renditje; kthen true kur u zbraz. Pa internet ndalet (provohet herën tjetër).
@@ -259,7 +260,8 @@ object Api {
             var n = 1
             if (!z && !njeNgaNje) while (n < r.length() && !r.getJSONObject(n).optBoolean("z")) n++
             val trup = if (n > 1) JSONObject().put("ids", JSONArray((0 until n).map { r.getJSONObject(it).optString("i") })).put("i", "")
-                else JSONObject().put("i", o.optString("i")).put("zhbej", z)
+                    .put("kohet", JSONArray((0 until n).map { r.getJSONObject(it).optLong("k", 0L) }))
+                else JSONObject().put("i", o.optString("i")).put("zhbej", z).also { if (o.optLong("k", 0L) > 0L) it.put("koha", o.optLong("k")) }
             val st = try { thirr("POST", "/ora/hiq", trup, sekret, shpejt).first } catch (e: java.io.IOException) { return false }
             if (st == 401) throw PaLidhje()
             if (st == 400 && n > 1) { njeNgaNje = true; continue } // serveri i vjetër (pa "ids"): një nga një
@@ -289,12 +291,13 @@ object Api {
     // Kthen true kur serveri e ruajti, false kur s'u arrit serveri (pa internet ose gabim i çastit: heqja u ruajt në orë dhe
     // dërgohet vetë më vonë); gabimet e tjera të serverit hidhen (që aplikacioni të mos thotë "u shënua" pa qenë e vërtetë)
     suspend fun hiq(ctx: Context, id: String, zhbej: Boolean = false): Boolean = withContext(Dispatchers.IO) {
+        val kur = System.currentTimeMillis() // v168: ora e shtypjes (jo ora kur arrin kërkesa, pas radhës ose riprovimit)
         radhaM.withLock {
-            if (!dergoRadhenPaKyc(ctx)) { shtoNeRadhe(ctx, listOf(id), zhbej); return@withLock false } // renditja: radha e para
-            val (st, j) = try { postoHeqjen(ctx, JSONObject().put("i", id).put("zhbej", zhbej)) }
-                catch (e: java.io.IOException) { shtoNeRadhe(ctx, listOf(id), zhbej); return@withLock false }
+            if (!dergoRadhenPaKyc(ctx)) { shtoNeRadhe(ctx, listOf(id), zhbej, kur); return@withLock false } // renditja: radha e para
+            val (st, j) = try { postoHeqjen(ctx, JSONObject().put("i", id).put("zhbej", zhbej).put("koha", kur)) }
+                catch (e: java.io.IOException) { shtoNeRadhe(ctx, listOf(id), zhbej, kur); return@withLock false }
             if (st == 401) throw PaLidhje()
-            if (provoMeVone(st)) { shtoNeRadhe(ctx, listOf(id), zhbej); return@withLock false }
+            if (provoMeVone(st)) { shtoNeRadhe(ctx, listOf(id), zhbej, kur); return@withLock false }
             if (st != 200 || !j.optBoolean("ok", true)) throw Exception("serveri-$st")
             true
         }
@@ -305,21 +308,22 @@ object Api {
     // dhe dërgohen vetë më vonë).
     suspend fun hiqShume(ctx: Context, ids: List<String>): Int = withContext(Dispatchers.IO) {
         if (ids.isEmpty()) return@withContext 0
+        val kur = System.currentTimeMillis() // v168: ora e shtypjes
         radhaM.withLock {
-            if (!dergoRadhenPaKyc(ctx)) { shtoNeRadhe(ctx, ids, false); return@withLock -1 }
-            val (st, j) = try { postoHeqjen(ctx, JSONObject().put("ids", JSONArray(ids)).put("i", "")) }
-                catch (e: java.io.IOException) { shtoNeRadhe(ctx, ids, false); return@withLock -1 }
+            if (!dergoRadhenPaKyc(ctx)) { shtoNeRadhe(ctx, ids, false, kur); return@withLock -1 }
+            val (st, j) = try { postoHeqjen(ctx, JSONObject().put("ids", JSONArray(ids)).put("i", "").put("kohet", JSONArray(ids.map { kur }))) }
+                catch (e: java.io.IOException) { shtoNeRadhe(ctx, ids, false, kur); return@withLock -1 }
             if (st == 401) throw PaLidhje()
             if (st == 200 && j.optBoolean("ok", true)) return@withLock 0
-            if (provoMeVone(st)) { shtoNeRadhe(ctx, ids, false); return@withLock -1 }
+            if (provoMeVone(st)) { shtoNeRadhe(ctx, ids, false, kur); return@withLock -1 }
             if (st != 400) throw Exception("serveri-$st")
             var deshtoi = 0
             ids.forEachIndexed { i, id ->
                 if (i > 0) delay(1100)
-                val r = try { thirr("POST", "/ora/hiq", JSONObject().put("i", id).put("zhbej", false), sekreti(ctx)).first }
-                    catch (e: java.io.IOException) { shtoNeRadhe(ctx, ids.drop(i), false); return@withLock -1 }
+                val r = try { thirr("POST", "/ora/hiq", JSONObject().put("i", id).put("zhbej", false).put("koha", kur), sekreti(ctx)).first }
+                    catch (e: java.io.IOException) { shtoNeRadhe(ctx, ids.drop(i), false, kur); return@withLock -1 }
                 if (r == 401) throw PaLidhje()
-                if (provoMeVone(r)) { shtoNeRadhe(ctx, ids.drop(i), false); return@withLock -1 }
+                if (provoMeVone(r)) { shtoNeRadhe(ctx, ids.drop(i), false, kur); return@withLock -1 }
                 if (r != 200) deshtoi++
             }
             deshtoi

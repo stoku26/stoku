@@ -14,5 +14,5 @@ for t in furn-test.js ikonat-test.js foto-test.js kerkese-test.js orari-test.js 
   sleep 0.5
   timeout 420 node $t > r5-$t.txt 2>&1; echo "$t exit=$? ok=$(grep -cE '^OK|^✓|^  ✓' r5-$t.txt) gabim=$(grep -ciE 'GABIM|pageerror|✗|FAIL' r5-$t.txt)"
 done
-for t in wp/prova.mjs wp/foto-prova.mjs wp/kerkese-prova.mjs wp/orari-prova.mjs wp/ora-prova.mjs wp/grupi-prova.mjs wp/fcm-prova.mjs wp/njoftim-prova.mjs wp/v216-prova.mjs wp/fjalekalimi-prova.mjs wp/ora-krejt-prova.mjs wp/marketet-prova.mjs; do (cd wp && cp "$RR/worker/stoku-push.js" worker.mjs && node $(basename $t) > ../r5-$(basename $t).txt 2>&1); echo "$t gabim=$(grep -c GABIM r5-$(basename $t).txt)"; done
+for t in wp/prova.mjs wp/foto-prova.mjs wp/kerkese-prova.mjs wp/orari-prova.mjs wp/ora-prova.mjs wp/grupi-prova.mjs wp/fcm-prova.mjs wp/njoftim-prova.mjs wp/v216-prova.mjs wp/fjalekalimi-prova.mjs wp/ora-krejt-prova.mjs wp/marketet-prova.mjs wp/ora-koha-prova.mjs; do (cd wp && cp "$RR/worker/stoku-push.js" worker.mjs && node $(basename $t) > ../r5-$(basename $t).txt 2>&1); echo "$t gabim=$(grep -c GABIM r5-$(basename $t).txt)"; done
 echo FUND

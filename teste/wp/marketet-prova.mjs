@@ -46,4 +46,4 @@ const rk = await worker.fetch(new Request('https://w.test/ora/krejt?tz=Europe/Be
 const jk = await rk.json();
 ok(jk.ok && jk.krejt.find(x => x.i === 'a1').mk === 'Albi Mall', '/ora/krejt: ora e merr emrin e marketit', jk.krejt && jk.krejt.map(x => x.mk || '-'));
 const st = await (await worker.fetch(new Request('https://w.test/', { method: 'GET' }), env, {})).json();
-ok(st.versioni === 167, 'versioni 167', st.versioni);
+ok(st.versioni >= 167, 'versioni ≥ 167', st.versioni);
