@@ -14,8 +14,9 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev'; const pushet = [];
   F.S.docs.set('grupet/ekipa', { emri: 'Ekipa', pronarUid: 'uA', pronarEmri: 'mendurberisha', krijuarSe: tani });
   ['uA:mendurberisha:pronar', 'u1:agim:anetar', 'u2:blerta:anetar'].forEach(x => { const [u, e, r] = x.split(':'); F.S.docs.set('grupet/ekipa/anetaret/' + u, { emri: e, roli: r, hyriSe: tani }); F.S.docs.set('perdoruesit/' + u, Object.assign({}, F.S.docs.get('perdoruesit/' + u), { grupi: 'ekipa' })); });
   F.S.docs.set('dyqane/u1', { app: 'stoku', version: 3, foldera: [{ id: 'f1', emri: 'Bulmet' }], produktet: [{ barkodi: '3900000000028', emri: 'Kos Vita', sasia: 3, kategoriaId: 'f1', prekurSe: tani }, { barkodi: '555', emri: 'Ujë Rugove', sasia: 0, kategoriaId: 'f1', prekurSe: tani }],
-    afatet: [{ id: 'a1', barkodi: '444', emri: 'Djathë', data: new Date(tani - 5 * 864e5).toISOString().slice(0, 10), sasia: 2, statusi: 'aktiv', ndryshuarSe: tani - 864e5 }], fshira: {} });
-  F.S.docs.set('dyqane/u2', { app: 'stoku', version: 3, foldera: [{ id: 'f1', emri: 'Pije' }], produktet: [{ barkodi: '12345678', emri: 'Lëng molle', sasia: 1, kategoriaId: 'f1', prekurSe: tani }], afatet: [], fshira: {} });
+    afatet: [{ id: 'a1', barkodi: '444', emri: 'Djathë', data: new Date(tani - 5 * 864e5).toISOString().slice(0, 10), sasia: 2, statusi: 'aktiv', ndryshuarSe: tani - 864e5 },
+      { id: 'a2', barkodi: '3900000000028', emri: 'Kos Vita', data: new Date(tani - 3 * 864e5).toISOString().slice(0, 10), sasia: 3, statusi: 'aktiv', ndryshuarSe: tani - 864e5 }], fshira: {} }); // v290: kërkesa vetëm për të skaduarat
+  F.S.docs.set('dyqane/u2', { app: 'stoku', version: 3, foldera: [{ id: 'f1', emri: 'Pije' }], produktet: [{ barkodi: '12345678', emri: 'Lëng molle', sasia: 1, kategoriaId: 'f1', prekurSe: tani }], afatet: [{ id: 'b1', barkodi: '12345678', emri: 'Lëng molle', data: new Date(tani - 2 * 864e5).toISOString().slice(0, 10), sasia: 1, statusi: 'aktiv', ndryshuarSe: tani - 864e5 }], fshira: {} });
   const b = await chromium.launch();
   async function faqe(uid, email, pc) {
     const ctx = await b.newContext(pc ? { viewport: { width: 1440, height: 900 }, serviceWorkers: 'block' }
@@ -39,13 +40,11 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev'; const pushet = [];
   await agim.click('#ekKerkoHeqje'); await agim.waitForTimeout(300);
   const opts = await agim.$$eval('#krkPer option', l => l.map(o => o.textContent));
   ok(opts.length === 3 && /I gjithë grupi \(2\)/.test(opts[0]), '1. lista: e gjithë ekipa + 2 kolegë', opts);
-  ok(await agim.$eval('.krk-tab.aktiv', e => e.textContent) === 'Të skaduarat1', '1. tabi i parë: të skaduarat (1)', await agim.$eval('.krk-tab.aktiv', e => e.textContent));
+  ok(!(await agim.$('.krk-tab')) && (await agim.$$('.krk-rresht')).length === 2, '1. v290: pa tabe, vetëm të skaduarat (2)');
   ok(/Djathë.*skadoi më/.test(await agim.textContent('.krk-lista')), '1. afati i skaduar në listë', await agim.textContent('.krk-lista'));
   await agim.click('#krkDergo'); await agim.waitForTimeout(200);
   ok(/Shëno të paktën/.test(await agim.textContent('#krkGabim')), '1. pa zgjedhje → mesazh');
   await agim.click('.krk-rresht:has-text("Djathë")');
-  await agim.click('.krk-tab:has-text("Produktet e mia")');
-  ok((await agim.$$('.krk-rresht')).length === 2, '1. produktet e mia: 2');
   await agim.fill('.krk-kerko', 'kos'); ok((await agim.$$('.krk-rresht')).length === 1, '1. kërkimi filtron');
   await agim.click('.krk-rresht:has-text("Kos Vita")');
   ok(await agim.textContent('#krkDergo') === 'Dërgo (2)' && !(await agim.textContent('#krkGabim')), '1. butoni "Dërgo (2)"');
@@ -90,7 +89,7 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev'; const pushet = [];
   await agim.screenshot({ path: SC + 'krk-tel-aktiviteti.png' });
   // 4. Blerta (PC) i kërkon të gjithë ekipës, me barkod të panjohur
   await blerta.click('#ekKerkoHeqje'); await blerta.waitForTimeout(300);
-  ok(await blerta.$eval('.krk-tab.aktiv', e => e.textContent) === 'Produktet e mia1', '4. pa të skaduara: hapet te produktet');
+  ok(!(await blerta.$('.krk-tab')) && (await blerta.$$('.krk-rresht')).length === 1, '4. PC: pa tabe, vetëm afati i skaduar (v290)');
   await blerta.click('.krk-rresht:has-text("Lëng molle")');
   await blerta.screenshot({ path: SC + 'krk-pc-dlg.png' });
   await blerta.click('#krkDergo'); await blerta.waitForTimeout(1500);

@@ -5551,7 +5551,7 @@
         else b0.innerHTML = '<b>S\'ka ende asnjë afat</b>Fotografo fletën ku janë shkruar afatet, ose shtoji me "Shto".';
       }
       else if (k) b0.innerHTML = '<b>Asgjë s\'u gjet</b>Provo një kërkim tjetër.';
-      else b0.innerHTML = { skaduar: '<b>Asnjë produkt i skaduar</b>Shumë mirë!', afer: '<b>Asnjë produkt afër skadimit</b>Asgjë nuk skadon brenda 30 ditëve.',
+      else b0.innerHTML = { skaduar: '<b>Asnjë produkt i skaduar</b>', afer: '<b>Asnjë produkt afër skadimit</b>Asgjë nuk skadon brenda 30 ditëve.',
         ok: '<b>Asnjë</b>', hequr: '<b>Asnjë produkt i hequr ende</b>', aktive: '<b>Asnjë afat aktiv</b>' }[afFiltri] || '';
       cont.appendChild(b0);
       dilNgaZgjedhja();
@@ -6832,7 +6832,7 @@
     if (zgj.paTeDhena) { lista.appendChild(ekBosh('Pa të dhëna ende', 'Afatet e ' + zgj.emri + ' shfaqen këtu sapo ta hapë Stoku-n (versionin e ri) në telefon ose kompjuter.')); return; }
     if (!te.length) {
       lista.appendChild(k ? ekBosh('Asgjë s\'u gjet', 'Provo një kërkim tjetër.') :
-        ekFiltri === 'skaduar' ? ekBosh('Asnjë produkt i skaduar', 'Shumë mirë!') :
+        ekFiltri === 'skaduar' ? ekBosh('Asnjë produkt i skaduar') :
         ekFiltri === 'hequr' ? ekBosh('Asnjë produkt i hequr ende') :
         ekBosh('Asnjë afat', zgj.uneJam ? 'Shtoji te tabi "Afatet".' : ''));
       return;
@@ -6932,7 +6932,7 @@
     c.appendChild(s2);
     var l2 = ekEl('div', 'ek-kartat');
     if (!krejt.ngarkuar) l2.appendChild(ekInfo('Duke ngarkuar…'));
-    else if (!skaduara.length) l2.appendChild(ekEl('div', 'ek-kart mire', 'Asnjë produkt i skaduar në raft. Shumë mirë!'));
+    else if (!skaduara.length) l2.appendChild(ekEl('div', 'ek-kart mire', 'Asnjë produkt i skaduar në raft.'));
     skaduara.slice(0, 5).forEach(function (a) { l2.appendChild(ekKartaPultit(a)); });
     c.appendChild(l2);
     // Skadojnë këtë javë
@@ -7830,12 +7830,7 @@
       return { produkti: String(a.emri || '').trim(), barkodi: String(a.barkodi || ''), data: a.data || '',
         nen: ['skadoi më ' + AFk.formato(a.data), AFk.sasiaTekst(a)].filter(Boolean).join(' · ') };
     });
-    var prod = Object.keys(produktet).map(function (k) { return produktet[k]; }).filter(function (p) { return p && (p.emri || p.barkodi); })
-      .sort(function (a, b) { return String(a.emri || a.barkodi).localeCompare(String(b.emri || b.barkodi)); }).map(function (p) {
-        var fe = emriFolderit(p.kategoriaId);
-        return { produkti: String(p.emri || '').trim(), barkodi: String(p.barkodi || ''), nen: [fe, 'sasia ' + (Number(p.sasia) || 0)].filter(Boolean).join(' · ') };
-      });
-    krkZgjedhesi = EKL.zgjedhesIKerkeses($('krkZgjedhesi'), { skaduara: skaduara, produktet: prod }, perditesoDergo);
+    krkZgjedhesi = EKL.zgjedhesIKerkeses($('krkZgjedhesi'), { skaduara: skaduara }, perditesoDergo); // v290: vetëm të skaduarat
     $('krkShenim').value = ''; $('krkGabim').textContent = '';
     $('krkDergo').disabled = false; $('krkDergo').textContent = 'Dërgo';
     $('dlgKerkese').classList.add('hapur');
@@ -8094,7 +8089,23 @@
     mbyllAfatin();
     ruajAfatet();
   }
-  $('afShto').addEventListener('click', function () { hapAfatin(null); });
+  // v290 (pronari): "Shto" hap direkt skanimin e barkodit; pasi lexohet barkodi del dritarja "Afat i ri" me të, për të dhënat e tjera.
+  // PDA (skaneri i vet), pa leje për kamerën, ose kur kamera s'hapet: dritarja hapet direkt, si më parë. Mbyllja e kamerës me ✕
+  // s'hap asgjë.
+  $('afShto').addEventListener('click', function () {
+    if (!leja('afatetShto')) return;
+    if (opsione.pda || !leja('kamera')) { hapAfatin(null); return; }
+    var pasSkanimit = function (barkodi) {
+      hapAfatin(null);
+      $('afatBarkodi').value = barkodi;
+      $('afatBarkodi').dispatchEvent(new Event('change')); // plotëson emrin/furnizuesin nëse njihen
+      ($('afatEmri').value.trim() ? $('afatData') : $('afatEmri')).focus();
+    };
+    kameraPerAfat = pasSkanimit;
+    hapKamere().then(function () {
+      if (!$('kamera').classList.contains('hapur')) { if (kameraPerAfat === pasSkanimit) kameraPerAfat = null; hapAfatin(null); } // s'u hap: forma direkt
+    });
+  });
   $('afatSkano').addEventListener('click', function () {
     var perAfat = function (barkodi) {
       $('afatBarkodi').value = barkodi;

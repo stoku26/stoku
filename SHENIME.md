@@ -71,6 +71,25 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    rezultatet e kërkimit dhe lista "8 deri 30 ditë" me `remember` (llogariten vetëm kur ndryshojnë të dhënat). Testi
    `teste/v285.js`. S'është testuar në pajisje të vërtetë.
 
+0000000. **"SHTO" ME SKANIM, KUTIA LART, KËRKESA VETËM ME TË SKADUARAT (v290 = 1.54.0, 11.11.2026, telefoni + PC + Android Hyrja 53)**:
+   pronari (5 foto). (1) "Kërko heqje nga rafti": "zhduke [Produktet e mia] leje veq te skadumet": `zgjedhesIKerkeses` (ekipa.js, tel +
+   PC) pa tabet (`.krk-tab` s'krijohet më; CSS-ja te `stoku-tokens.css` mbeti pa përdorim), lista = `burimet.skaduara`; tel/PC s'e
+   ndërtojnë më listën e produkteve; Android `KerkesaFlete` pa tabet; teksti "Shëno një ose disa produkte të skaduara." dhe
+   "Zgjidh produktet e skaduara". MOS e rikthe "Produktet e mia". (2) "Asnjë produkt i skaduar në raft" pa "Shumë mirë!" ("qajo
+   shum mire ne fund po ja prish"), kudo (tel, PC edhe 👍, Android). (3) Android: `Modifier.rrotullimMeZbehje()` (Perberesit.kt;
+   zbehje 28 dp me `BlendMode.DstIn`, vetëm në anën ku ka ende çipa, si `.af-filtrat.fade-*` te web-i) në vend të
+   `.horizontalScroll(rememberScrollState())` te: filtrat dhe muajt e Afateve, çipat e eksporteve dhe të importit, folderat te
+   FletaEkrani, "Online tani" dhe kolegët te kërkesa (GrupiEkrani). (4) "Shto" te Afatet (tel + Android): hap DIREKT skanimin; pas
+   barkodit del "Afat i ri" me barkodin (emri/furnizuesi plotësohen nga kujtesa, fokusi te emri ose data). Web: `kameraPerAfat`
+   te `#afShto`; ✕ s'hap asgjë; PDA, pa leje `kamera`, ose kur kamera s'hapet → forma direkt. Android: `skano { b -> skanuar = b;
+   hapur = "" }`; PDA, pa leje `kamera` ose pa lejen CAMERA të telefonit → forma direkt (aty butoni i skanimit e kërkon lejen).
+   Produkti pa barkod: ✕ nuk hap formën (pronari s'e kërkoi; mund ta kërkojë). (5) Kutia e skanerit lart ("nto qite nalt se sdi pse
+   osht nmes"), kudo ku ka kamerë barkodi: web `#kamera:not(.shpejt) .skan-mbulese` (flex-start, padding si `--ss-siper`);
+   `figuraNenKuti` lexon pozicionin e kutisë nga DOM-i, pra leximi e ndjek vetë. Android `Skaneri` (kamera e plotë): `kutiaSiper` =
+   shiriti i sipërm + `KONTROLLET_LART`, si te Skanimi i shpejtë (`brendaKutise` / `kutiaESkanimit` e përdorin). Testet:
+   `teste/v290.js` i ri; `kerkese-test.js` (dy afate të skaduara, pa tabe) dhe `v268.js` ("Shto" kalon nga kamera) u përshtatën.
+   S'është testuar në pajisje të vërtetë.
+
 0000000. **ORA E SAKTË E HEQJES EDHE PA INTERNET NË ORË (v289 = 1.53.3, Worker 168, ora e dorës, 11.11.2026; Android Hyrja 52)**:
    pronari pas v288: "bone edhe nese jam offline ne or me shku sakt sa ora jan hek produktet". **Ora e dorës** (`ora/Api.kt`): çdo
    heqje në radhë (`radha`, pa internet) e mban orën e shtypjes `"k"` (`shtoNeRadhe(..., kur)`); `dergoRadhenPaKyc` e dërgon si

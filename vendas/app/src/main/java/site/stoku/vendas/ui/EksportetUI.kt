@@ -8,7 +8,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -151,7 +150,7 @@ private fun Etiketa(t: String) = Text(t, style = tx(13, 600, N.ink3), modifier =
 
 @Composable
 private fun CipatRresht(content: @Composable () -> Unit) {
-    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) { content() }
+    Row(Modifier.fillMaxWidth().rrotullimMeZbehje(), horizontalArrangement = Arrangement.spacedBy(8.dp)) { content() }
 }
 
 /**
@@ -525,7 +524,7 @@ fun ImportiAfateveFlete(mbyll: () -> Unit, pasImportit: () -> Unit) {
         val k2 = if (paFurnizues) kol + ("furnizuesi" to -1) else kol
         val afatet = Dyqani.g.afatet
         val plan = remember(f, fleta, meKoke, k2, afatet) { ImportiAfateve.plani(teZgjedhurat().map { it.emri to it.rreshtat }, meKoke, k2, afatet) }
-        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(Modifier.fillMaxWidth().rrotullimMeZbehje(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             listOf("Të reja" to plan.teRinj, "Ekzistojnë" to plan.ekzistojne, "Bashkohen" to plan.bashkuar, "Me gabim" to plan.gabime).forEach { (t, v) ->
                 if (v == 0 && t != "Të reja") return@forEach
                 Text("$t: $v", style = tx(13, 600, n.ink2))

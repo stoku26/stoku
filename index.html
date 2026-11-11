@@ -477,6 +477,8 @@
   /* v263: Skanimi i shpejtë: kamera lart, lista poshtë */
   /* v264: kamera deri lart (kontrollet mbi të, si në Android) dhe vetëm sa duhet: kontrollet, kutia, teksti nën të */
   #kamera.shpejt { --ss-siper: calc(max(12px, env(safe-area-inset-top)) + 68px); --ss-kuti: min(46vw, 185px); }
+  /* v290 (pronari): edhe te kamera e zakonshme kutia e barkodit lart, menjëherë nën kontrollet (jo në mes) */
+  #kamera:not(.shpejt) .skan-mbulese { justify-content: flex-start; padding-top: calc(max(12px, env(safe-area-inset-top)) + 68px); }
   #kamera.shpejt .kamera-krye { position: absolute; top: 0; left: 0; right: 0; z-index: 2; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
   #kamera.shpejt .kamera-video-shtrat { flex: none; height: calc(var(--ss-siper) + var(--ss-kuti) + 68px); }
   #kamera.shpejt .skan-mbulese { justify-content: flex-start; padding-top: var(--ss-siper); }
@@ -1794,8 +1796,8 @@
 <div class="mbulese" id="dlgKerkese">
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="krkTitulli">
     <h2 id="krkTitulli">Kërko heqje nga rafti</h2>
-    <p class="hint">Shëno një ose disa produkte nga lista jote. Kolegu e merr njoftimin edhe në telefon.</p>
-    <div class="fushe"><label>Zgjidh produktet</label><div class="krk-zgjedhes" id="krkZgjedhesi"></div></div>
+    <p class="hint">Shëno një ose disa produkte të skaduara. Kolegu e merr njoftimin edhe në telefon.</p>
+    <div class="fushe"><label>Zgjidh produktet e skaduara</label><div class="krk-zgjedhes" id="krkZgjedhesi"></div></div>
     <div class="fushe"><label for="krkPer">Kujt t'ia kërkosh</label><select id="krkPer"></select></div>
     <div class="fushe"><label for="krkShenim">Shënim (s'është i detyrueshëm)</label><input id="krkShenim" type="text" autocomplete="off" maxlength="300" enterkeyhint="send" placeholder="p.sh. paketimi është i dëmtuar"></div>
     <div class="krk-gabim" id="krkGabim" role="alert"></div>
@@ -2137,10 +2139,10 @@
 <script src="afatet.js?v=285"></script>
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
-<script src="ekipa.js?v=289"></script>
+<script src="ekipa.js?v=290"></script>
 <script src="njoftimet.js?v=281"></script>
-<script src="teRejat.js?v=289"></script>
-<script src="app-tel.js?v=288"></script>
+<script src="teRejat.js?v=290"></script>
+<script src="app-tel.js?v=290"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>

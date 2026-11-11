@@ -8,6 +8,12 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(53, "2026-11-11", "\"Shto\" me skanim, kutia lart", listOf(
+            "Te Afatet, \"Shto\" hap direkt kamerën: skano barkodin dhe pastaj del \"Afat i ri\" për datën dhe të dhënat e tjera.",
+            "Kutia ku vendoset barkodi te kamera është tani lart, nën butonat, jo në mes.",
+            "\"Kërko heqje nga rafti\" tregon vetëm produktet e skaduara.",
+            "Rreshtat me butona që rrëshqasin anash (p.sh. filtrat te Afatet) zbehen në skaje, si te web-i."
+        )),
         Hyrja(52, "2026-11-11", "Ora e saktë e heqjes edhe pa internet në orë", listOf(
             "Kur hiqni një produkt nga rafti në orën e dorës pa internet, te Aktiviteti del ora kur e shtypët, jo ora kur ora e dorës u lidh sërish."
         )),

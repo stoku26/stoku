@@ -17,7 +17,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
@@ -353,7 +352,7 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, stok: Boolean = false, kurRuhet: (S
                 Spacer(Modifier.size(12.dp))
                 if (stok) {
                     Text("Importo në folderin", style = tx(13, 600, n.ink3), modifier = Modifier.padding(start = 2.dp, bottom = 6.dp))
-                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(Modifier.fillMaxWidth().rrotullimMeZbehje().padding(bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         gj.foldera.forEach { f -> val id = f["id"] as String; Cip(Dyqani.emriFolderit(id), null, folderi == id) { folderi = id } }
                         if (Llogaria.leja("stokuFoldera")) Cip("+ Folder i ri…", null, false) { folderIRi = true }
                     }

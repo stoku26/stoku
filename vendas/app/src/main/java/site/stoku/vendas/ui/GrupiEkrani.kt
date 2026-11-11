@@ -6,7 +6,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -689,7 +688,7 @@ private fun Permbledhja(ftesat: List<Obj>, kerkesatG: List<Obj>, ngjarjet: List<
         }
         item {
             Seksion("Online tani", nen = "$nOn nga ${an.size}")
-            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(Modifier.fillMaxWidth().rrotullimMeZbehje(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 an.forEach { a ->
                     Column(Modifier.width(64.dp).clip(RoundedCornerShape(10.dp)).clickable { ctx.hapAnetarin(a["uid"] as String, null) },
                         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -704,7 +703,7 @@ private fun Permbledhja(ftesat: List<Obj>, kerkesatG: List<Obj>, ngjarjet: List<
             Seksion("Duhet hequr nga rafti", if (skaduara.size > 5) "Shiko të gjitha (${skaduara.size})" else null) { ctx.hapAnetarin("krejt", "skaduar") }
             when {
                 !ng -> Info("Duke ngarkuar…")
-                skaduara.isEmpty() -> Text("Asnjë produkt i skaduar në raft. Shumë mirë!", style = tx(14, 700, n.ok),
+                skaduara.isEmpty() -> Text("Asnjë produkt i skaduar në raft.", style = tx(14, 700, n.ok),
                     modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(n.okTint).padding(horizontal = 14.dp, vertical = 16.dp))
             }
         }
@@ -795,7 +794,7 @@ private fun AfatetEGrupit(uid: String, filtri: String?, ndryshoFiltrin: (String?
             te.isEmpty() -> item {
                 when {
                     k.isNotEmpty() -> Bosh("Asgjë s'u gjet", "Provo një kërkim tjetër.")
-                    filtri == "skaduar" -> Bosh("Asnjë produkt i skaduar", "Shumë mirë!")
+                    filtri == "skaduar" -> Bosh("Asnjë produkt i skaduar", "")
                     filtri == "hequr" -> Bosh("Asnjë produkt i hequr ende")
                     else -> Bosh("Asnjë afat", if (zgj?.get("uneJam") == true) "Shtoji te tabi \"Afatet\"." else "")
                 }
@@ -1486,14 +1485,6 @@ private fun KerkesaFlete(mbyll: () -> Unit) {
                 "nen" to listOf("skadoi më " + Afatet.formato(a["data"]), Afatet.sasiaTekst(a)).filter { it.isNotEmpty() }.joinToString(" · "))
         }
     }
-    val produktet = remember(dq.produktet) {
-        dq.produktet.values.filter { eVertete(it["emri"]) || eVertete(it["barkodi"]) }
-            .sortedWith { a, b -> Afatet.KOLATORI.compare(jsString(a["emri"] ?: a["barkodi"] ?: ""), jsString(b["emri"] ?: b["barkodi"] ?: "")) }.map { p ->
-                mapOf("produkti" to (p["emri"] as? String).orEmpty().trim(), "barkodi" to jsString(p["barkodi"] ?: ""), "data" to "",
-                    "nen" to listOf(Dyqani.emriFolderit(p["kategoriaId"]), "sasia " + numerOse0(p["sasia"]).toLong()).filter { it.isNotEmpty() }.joinToString(" · "))
-            }
-    }
-    var tabi by remember { mutableStateOf(if (skaduara.isNotEmpty()) "skaduara" else "produktet") }
     var kerkimi by remember { mutableStateOf("") }
     var zgjedhur by remember { mutableStateOf(listOf<Map<String, String>>()) }
     var per by remember { mutableStateOf("") }
@@ -1509,25 +1500,14 @@ private fun KerkesaFlete(mbyll: () -> Unit) {
     }
     Flete(mbyll) {
         Text("Kërko heqje nga rafti", style = tx(22, 700, n.ink, -0.02))
-        Text("Shëno një ose disa produkte nga lista jote. Kolegu e merr njoftimin edhe në telefon.", style = tx(14, 400, n.muted))
-        Text("Zgjidh produktet", style = tx(13, 600, n.ink2))
-        Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(n.surface2).padding(3.dp)) {
-            listOf("skaduara" to ("Të skaduarat" to skaduara.size), "produktet" to ("Produktet e mia" to produktet.size)).forEach { (k, v) ->
-                val aktiv = tabi == k
-                Row(Modifier.weight(1f).clip(RoundedCornerShape(10.dp)).background(if (aktiv) n.surface else Color.Transparent).clickable { tabi = k }.padding(vertical = 9.dp),
-                    horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                    Text(v.first, style = tx(14, if (aktiv) 700 else 500, if (aktiv) n.ink else n.muted))
-                    Spacer(Modifier.width(6.dp))
-                    Text(v.second.toString(), style = tx(12, 700, n.muted))
-                }
-            }
-        }
+        Text("Shëno një ose disa produkte të skaduara. Kolegu e merr njoftimin edhe në telefon.", style = tx(14, 400, n.muted))
+        Text("Zgjidh produktet e skaduara", style = tx(13, 600, n.ink2)) // v290: vetëm të skaduarat (pa "Produktet e mia")
         Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), placeholder = "Kërko në listë…", ikona = Ik.Kerko, lartesia = 46.dp)
         val k = kerkimi.trim().lowercase()
-        val te = (if (tabi == "skaduara") skaduara else produktet).filter { k.isEmpty() || ((it["produkti"] ?: "") + " " + (it["barkodi"] ?: "")).lowercase().contains(k) }
+        val te = skaduara.filter { k.isEmpty() || ((it["produkti"] ?: "") + " " + (it["barkodi"] ?: "")).lowercase().contains(k) }
         Column(Modifier.fillMaxWidth().heightIn(max = 320.dp).clip(RoundedCornerShape(14.dp)).border(1.dp, n.line, RoundedCornerShape(14.dp))
             .verticalScroll(rememberScrollState())) {
-            if (te.isEmpty()) Text(if (k.isNotEmpty()) "Asgjë s'përputhet me kërkimin." else if (tabi == "skaduara") "S'ke produkte të skaduara në raft." else "S'ke ende produkte në Stoku.",
+            if (te.isEmpty()) Text(if (k.isNotEmpty()) "Asgjë s'përputhet me kërkimin." else "S'ke produkte të skaduara në raft.",
                 style = tx(14, 400, n.muted), modifier = Modifier.padding(16.dp))
             te.take(300).forEach { x ->
                 val c = celes(x)
@@ -1547,7 +1527,7 @@ private fun KerkesaFlete(mbyll: () -> Unit) {
             }
         }
         Text("Kujt t'ia kërkosh", style = tx(13, 600, n.ink2))
-        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.fillMaxWidth().rrotullimMeZbehje(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Cip("I gjithë grupi (${kol.size})", null, per.isEmpty()) { per = "" }
             kol.forEach { a -> Cip(jsString(a["emri"] ?: ""), null, per == a["uid"]) { per = a["uid"] as String } }
         }
