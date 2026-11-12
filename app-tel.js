@@ -4227,10 +4227,13 @@
   }
   document.addEventListener('fullscreenchange', function () { if (!document.fullscreenElement) __fsKamera = false; });
 
+  var kameraDeshtoi = false; // v293: hapja e fundit e kamerës dështoi (s'është gati / pa leje), jo e mbyllur me ✕
   async function hapKamere() {
-    if (!leja('kamera')) return;
+    kameraDeshtoi = false;
+    if (!leja('kamera')) { kameraDeshtoi = true; return; }
     pergatitAudion(); // duhet thirrur nga prekja e përdoruesit që tingulli të lejohet në iPhone
     if (!mbeshtetNativisht && typeof Html5Qrcode === 'undefined' && !window.BarcodeDetectionAPI) {
+      kameraDeshtoi = true;
       toast(T('kameraNukEshteGati'));
       return;
     }
@@ -4245,6 +4248,7 @@
       await nisKamere();
     } catch (err) {
       if (seanca !== seancaKamere) return; // u mbyll ose u rihap ndërkohë: s'është gabim
+      kameraDeshtoi = true;
       await ndalKamere();
       toast(T('kameraNukUHapLeje'));
     }
@@ -7504,7 +7508,7 @@
     }
     // Karta e grupit (pronari e riemërton)
     var hk = ekEl('div', 'af-grup-krye'); hk.appendChild(ekEl('span', null, 'Grupi yt')); c.appendChild(hk);
-    var kg = ekEl('div', 'ek-grupi-karta');
+    var kk = ekEl('div', 'ek-grupi-karta'); // v293: `kk` (më parë `kg`, i njëjti emër me listën e kërkesave më lart)
     if (pronar && ekRiemertim) {
       var fr = ekEl('div', 'ek-rresht-forma'); fr.style.cssText = 'flex:1;margin:0';
       var ir = ekEl('input'); ir.type = 'text'; ir.id = 'ekGrupiEmriRi'; ir.maxLength = 60; ir.value = g.emri || ''; ir.setAttribute('aria-label', 'Emri i ri i grupit');
@@ -7520,20 +7524,20 @@
       };
       bs.addEventListener('click', ruaj);
       ir.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ruaj(); } else if (ev.key === 'Escape') { ekRiemertim = false; vizatoEkipen(); } });
-      fr.appendChild(ir); fr.appendChild(bs); kg.appendChild(fr);
+      fr.appendChild(ir); fr.appendChild(bs); kk.appendChild(fr);
       setTimeout(function () { ir.focus(); }, 30);
     } else {
       var tg = ekEl('div', 'tk');
       tg.appendChild(ekEl('b', null, g.emri || 'Grupi'));
       tg.appendChild(ekEl('span', null, (pronar ? 'Ti je admin i grupit' : 'Koleg i grupit') + ' · ' + anetaret.length + (anetaret.length === 1 ? ' koleg' : ' kolegë')));
-      kg.appendChild(tg);
+      kk.appendChild(tg);
       if (pronar) {
         var br = ekEl('button', 'af-pill', 'Ndrysho emrin'); br.type = 'button';
         br.addEventListener('click', function () { ekRiemertim = true; vizatoEkipen(); });
-        kg.appendChild(br);
+        kk.appendChild(br);
       }
     }
-    c.appendChild(kg);
+    c.appendChild(kk);
     // Pronari: fto shokët
     if (pronar) {
       var hi = ekEl('div', 'af-grup-krye'); hi.appendChild(ekEl('span', null, 'Fto një shok në grup')); c.appendChild(hi);
@@ -8199,7 +8203,9 @@
   $('afShto').addEventListener('click', function () {
     if (!leja('afatetShto')) return;
     if (opsione.pda || !leja('kamera')) { hapAfatin(null); return; }
+    var uSkanua = false;
     var pasSkanimit = function (barkodi) {
+      uSkanua = true;
       hapAfatin(null);
       $('afatBarkodi').value = barkodi;
       $('afatBarkodi').dispatchEvent(new Event('change')); // plotëson emrin/furnizuesin nëse njihen
@@ -8207,7 +8213,11 @@
     };
     kameraPerAfat = pasSkanimit;
     hapKamere().then(function () {
-      if (!$('kamera').classList.contains('hapur')) { if (kameraPerAfat === pasSkanimit) kameraPerAfat = null; hapAfatin(null); } // s'u hap: forma direkt
+      // v293: forma hapet vetëm kur kamera s'u hap fare; jo kur u mbyll me ✕ ndërsa ndizej, dhe jo pas një skanimi të shpejtë
+      // (më parë hapAfatin(null) e fshinte barkodin sapo të vendosur)
+      if ($('kamera').classList.contains('hapur') || uSkanua) return;
+      if (kameraPerAfat === pasSkanimit) kameraPerAfat = null;
+      if (kameraDeshtoi) hapAfatin(null); // s'u hap: forma direkt
     });
   });
   $('afatSkano').addEventListener('click', function () {
