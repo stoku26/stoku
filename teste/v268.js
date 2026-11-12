@@ -1,3 +1,4 @@
+// v296: pamja matet me "E madhe" (zoom 1), madhësia për të cilën u shkrua testi
 // v268: brenda folderit butoni lundrues i ndarë (ideja 5 e përdoruesit nga Claude Design): poshtë djathtas, gjysma blu "Skano me kamerë",
 // gjysma e verdhë "Skanim i shpejtë", vetëm ikona; "Eksporto Excel" / "Eksporto PDF" si ikona pranë titullit (pllakat e v265/v267 u hoqën).
 // "Fshi të gjitha" (opsioni 1 i përdoruesit): lidhje e kuqe mbi listë ("Produktet"), shiriti poshtë u hoq; butoni i pyetjes aktivizohet pas 5 sekondash.
@@ -22,7 +23,7 @@ const fab = p => p.evaluate(() => {
 
 (async () => {
   for (const tema of ['light', 'dark']) {
-    const { b, p } = await hapFaqen(chromium);
+    const { b, p } = await hapFaqen(chromium, { madhesia: 'normale' });
     await p.evaluate(t => localStorage.setItem('stoku:tema', t), tema);
     await p.reload(); await p.waitForTimeout(2000);
     await p.evaluate(() => document.querySelectorAll('.mbulese.hapur').forEach(d => { if (!d.classList.contains('faqe-e-plote')) d.classList.remove('hapur'); }));
@@ -92,7 +93,7 @@ const fab = p => p.evaluate(() => {
 
   // Lejet: pa "Skanim i shpejtë" vetëm rrethi blu; pa "Skano me kamerë" asnjë buton lundrues
   for (const [lejet, pritet, m] of [[{ skanimShpejt: false }, 'blu', 'pa "Skanim i shpejtë"'], [{ kamera: false }, 'asnje', 'pa "Skano me kamerë"'], [{}, 'dy', 'krejt të lejuara']]) {
-    const x = await hapFaqen(chromium, { uid: 'uB', emri: 'besa', lejet: Object.assign(L.krejt(true), lejet) });
+    const x = await hapFaqen(chromium, { madhesia: 'normale', uid: 'uB', emri: 'besa', lejet: Object.assign(L.krejt(true), lejet) });
     await x.p.click('.folder-karta >> text=Pije'); await x.p.waitForTimeout(600);
     const f = await fab(x.p);
     const sa = !f.duket ? 'asnje' : f.dy ? 'dy' : 'blu';
@@ -101,7 +102,7 @@ const fab = p => p.evaluate(() => {
   }
 
   // Madhësitë si te Android-i (vendas): ekrani 390 px, 2 pika për px
-  const { b, p } = await hapFaqen(chromium, { dpr: 2 });
+  const { b, p } = await hapFaqen(chromium, { madhesia: 'normale', dpr: 2 });
   const lh = await p.evaluate(() => { const d = document.createElement('div'); d.style.fontSize = '12px'; d.textContent = 'Ag'; document.body.appendChild(d); const v = getComputedStyle(d).lineHeight; d.remove(); return v; });
   ok(lh === '15.3px', '8. rreshti i tekstit sa shkronja (1.275 si te Android-i, jo i rrumbullakuar lart)', lh);
   const tab = await rr(p, '#tabet'), tsvg = await rr(p, '#tabStoku svg'), tt = await rr(p, '#tabStoku .tab-tekst');

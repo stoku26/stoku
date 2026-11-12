@@ -49,6 +49,8 @@ async function hapFaqen(chromium, o) {
   await ctx.route(u => !u.href.startsWith(BAZA), r => r.abort());
   await F.lidh(ctx, u.uid, u.emri + '@stoku-app.local', 'tel');
   await ctx.addInitScript(SKRIPTI, { uid: u.uid, emri: u.emri });
+  // v296: testet e pamjes të shkruara për zoom 1 kërkojnë { madhesia: 'normale' } ("E madhe"); parazgjedhja e faqes është .9
+  if (u.madhesia) await ctx.addInitScript(m => { try { localStorage.setItem('stoku:madhesia:v296', '1'); const o = JSON.parse(localStorage.getItem('stoku:opsione:v1') || '{}'); if (!o.madhesia) { o.madhesia = m; localStorage.setItem('stoku:opsione:v1', JSON.stringify(o)); } } catch (e) {} }, u.madhesia);
   const p = await ctx.newPage(); p.__gab = [];
   p.on('pageerror', e => p.__gab.push(e.message));
   await p.goto(BAZA + '/index.html'); await p.waitForTimeout(2500);
