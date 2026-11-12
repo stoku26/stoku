@@ -121,6 +121,33 @@ object Afatet {
     }
     fun shumaCopeve(lista: List<Obj>): Double = lista.sumOf { (it["sasia"] as? Number)?.toDouble() ?: 0.0 }
 
+    // v295 / Hyrja 57 (pronari): afatet e të njëjtit barkod dhe bashkimi i sasisë kur afati (barkodi + data, + marketi) ekziston.
+    // Binjaku i afatetEBarkodit / afatiINjejte / sasiaEBashkuar te afatet.js.
+    fun afatetEBarkodit(lista: List<Any?>, barkodi: Any?, pervec: String? = null): List<Obj> {
+        val b = Kujtesa.pastroBarkodin(barkodi)
+        if (b.isEmpty()) return emptyList()
+        return lista.mapNotNull { it.siObj() }
+            .filter { it["statusi"] != "hequr" && (pervec == null || it["id"] != pervec) && Kujtesa.pastroBarkodin(it["barkodi"]) == b }
+            .sortedWith { x, y ->
+                val dx = ose(x["data"]); val dy = ose(y["data"])
+                if (dx != dy) dx.compareTo(dy).let { Integer.signum(it) }
+                else java.lang.Double.compare(koha(x["krijuarSe"]), koha(y["krijuarSe"]))
+            }
+    }
+    private fun koha(v: Any?): Double { val n = if (v == null || v == "") 0.0 else jsNumber(v); return if (n.isNaN()) 0.0 else n }
+    fun afatiINjejte(lista: List<Any?>, barkodi: Any?, data: String?, m: Any?, meMarkete: Boolean, pervec: String? = null): Obj? {
+        if (data.isNullOrEmpty()) return null
+        return afatetEBarkodit(lista, barkodi, pervec).firstOrNull { a ->
+            a["data"] == data && (!meMarkete || ose(a["m"]) == ose(m))
+        }
+    }
+    fun sasiaEBashkuar(a: Any?, b: Any?): Any {
+        val x = lexoSasine(a); val y = lexoSasine(b)
+        if (x == "") return y
+        if (y == "") return x
+        return (x as Long) + (y as Long)
+    }
+
     /** Teksti i veprimit të sugjeruar */
     fun pershkrimi(a: Obj, tani: Long? = null): String {
         val st = statusi(a, tani)

@@ -32,6 +32,23 @@ class AfatetTest {
         assertEquals(kanonik(f["furn"]), kanonik(Afatet.furnizuesitELista(afatet).map { listOf(it.celes, it.n, it.emri) }))
     }
 
+    @Test fun afatetEBarkoditDheBashkimi() { // v295
+        val lista = f["lista295"].siListe()
+        f["barkodet295"].siListe().forEach { x ->
+            val r = x.siObj()!!
+            assertEquals("barkodi " + r["b"], r["ids"], Afatet.afatetEBarkodit(lista, r["b"]).map { it["id"] })
+            assertEquals("pa b1 " + r["b"], r["pa"], Afatet.afatetEBarkodit(lista, r["b"], "b1").map { it["id"] })
+        }
+        f["njejte295"].siListe().forEach { x ->
+            val r = x.siObj()!!
+            assertEquals("njejte $r", r["id"], Afatet.afatiINjejte(lista, r["b"], r["d"] as? String, r["m"], r["mm"] == true)?.get("id"))
+        }
+        f["bashkimi295"].siListe().forEach { x ->
+            val r = x.siObj()!!
+            assertEquals("bashkimi $r", kanonik(r["s"]), kanonik(Afatet.sasiaEBashkuar(r["a"], r["b"])))
+        }
+    }
+
     @Test fun datatDheSasite() {
         f["datat"].siListe().forEach { x -> val r = x.siObj()!!; assertEquals("data " + r["t"], r["iso"], Afatet.lexoDaten(r["t"])) }
         f["shkrimi"].siListe().forEach { x -> val r = x.siObj()!!; assertEquals("shkrimi " + r["t"], r["v"], Afatet.formatoDatenGjateShkrimit(r["t"] as String)) }

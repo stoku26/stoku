@@ -8055,6 +8055,7 @@
       sm.value = a ? (a.m && MK.sipasId(marketet, a.m) ? a.m : '') : (idMarketitAktiv() || '');
       sm.disabled = vetemLexim;
     }
+    trregoAfatetEkzistuese(true); // v295: bosh te afati ekzistues; te "Afat i ri" del sapo të ketë barkod
     $('afatFshij').style.display = a ? '' : 'none';
     // Barkodi: me kamerë (butoni) ose, në modalitetin PDA, me skanerin e PDA-së direkt në fushë
     $('afatSkano').style.display = opsione.pda ? 'none' : '';
@@ -8114,6 +8115,19 @@
       if (kaMarkete()) ndr.m = mkId || '';
       perditesoAfatin(afatNeDialog, ndr);
     } else {
+      // v295 (pronari): afati i njëjtë (barkodi + data, + marketi) ekziston: copat i shtohen atij, s'krijohet rresht i ri
+      var ekz = AF.afatiINjejte(afatet, b, data, mkId, kaMarkete());
+      if (ekz) {
+        var sasiaRe = AF.sasiaEBashkuar(ekz.sasia, sasia);
+        var ndrE = { sasia: sasiaRe };
+        if (!ekz.emri && emri) ndrE.emri = emri;
+        if (!ekz.furnizuesi && f) ndrE.furnizuesi = f;
+        perditesoAfatin(ekz.id, ndrE);
+        mbyllAfatin();
+        toast(sasia === '' ? 'Ky afat ekziston tashmë (' + AF.formato(data) + '). S\'u krijua rresht i ri.'
+          : 'U shtuan ' + sasia + ' copë te afati i ' + AF.formato(data) + (sasiaRe !== '' ? ' (gjithsej ' + sasiaRe + ' copë).' : '.'), 4500);
+        return;
+      }
       var iRi = { id: AF.idERe(), barkodi: b, emri: emri, data: data, sasia: sasia, furnizuesi: f, statusi: 'aktiv',
         krijuarSe: tani, ndryshuarSe: tani, krijuarNga: emriPerdoruesitAktual() };
       if (mkId) iRi.m = mkId;
@@ -8176,7 +8190,49 @@
     var b = $('afatBarkodi').value.trim();
     if (!$('afatEmri').value.trim()) $('afatEmri').value = emriNgaProduktet(b);
     if (!$('afatFurnizuesi').value.trim()) $('afatFurnizuesi').value = furnizuesiNgaAfatet(b);
+    trregoAfatetEkzistuese();
   });
+  $('afatBarkodi').addEventListener('input', trregoAfatetEkzistuese);
+  // v295 (pronari): "kur e skanon të njëjtin produkt me të njëjtin barkod me dal afatet që i ke të atij produkti". Vetëm te
+  // "Afat i ri"; prekja e një afati e vendos datën e tij (dhe marketin), që copat t'i shtohen atij afati kur ruhet.
+  function trregoAfatetEkzistuese(detyro) {
+    var k = $('afatEkzistuese');
+    // Rindërtohet vetëm kur ndryshon barkodi: `change` vjen edhe kur fusha humb fokusin (prekja e një rreshti), dhe rindërtimi
+    // në atë çast e humbiste prekjen
+    var celesi = (afatNeDialog || '') + '|' + $('afatBarkodi').value.replace(/\s+/g, '');
+    if (detyro !== true && k.getAttribute('data-celesi') === celesi) return;
+    k.setAttribute('data-celesi', celesi);
+    k.textContent = '';
+    var lista = afatNeDialog ? [] : AF.afatetEBarkodit(afatet, $('afatBarkodi').value);
+    k.hidden = !lista.length;
+    if (!lista.length) return;
+    var t = document.createElement('div'); t.className = 'af-ekz-titulli';
+    t.textContent = lista.length === 1 ? 'Ky produkt ka 1 afat:' : 'Ky produkt ka ' + lista.length + ' afate:';
+    k.appendChild(t);
+    lista.slice(0, 6).forEach(function (a) {
+      var st = AF.statusi(a), n = AF.ditetDeri(a.data);
+      var r = document.createElement('button'); r.type = 'button'; r.className = 'af-ekz-rresht ' + st;
+      var d = document.createElement('span'); d.className = 'af-ekz-data'; d.textContent = a.data ? AF.formato(a.data) : 'Pa datë';
+      var info = [AF.sasiaTekst(a)];
+      if (kaMarkete() && a.m) { var mk = MK.sipasId(marketet, a.m); if (mk) info.push(mk.emri); }
+      var i = document.createElement('span'); i.className = 'af-ekz-info'; i.textContent = info.filter(Boolean).join(' · ');
+      var s = document.createElement('span'); s.className = 'af-ekz-st';
+      s.textContent = n === null ? '' : n < 0 ? 'Skaduar' : n === 0 ? 'Sot' : n === 1 ? 'Nesër' : AF.ditetTekst(n);
+      r.appendChild(d); r.appendChild(i); if (s.textContent) r.appendChild(s);
+      r.addEventListener('click', function () {
+        if (!a.data) return;
+        $('afatData').value = AF.formatoPerFushe(a.data);
+        $('afatData').dispatchEvent(new Event('input'));
+        if (kaMarkete() && a.m && MK.sipasId(marketet, a.m)) $('afatMarketi').value = a.m;
+        $('afatSasia').focus();
+      });
+      k.appendChild(r);
+    });
+    if (lista.length > 6) { var m = document.createElement('div'); m.className = 'af-ekz-shenim'; m.textContent = '+ ' + (lista.length - 6) + ' të tjera te lista e afateve.'; k.appendChild(m); }
+    var sh = document.createElement('div'); sh.className = 'af-ekz-shenim';
+    sh.textContent = 'Me të njëjtën datë, copat i shtohen atij afati (s\'krijohet rresht i ri).';
+    k.appendChild(sh);
+  }
   $('afatBarkodi').addEventListener('keydown', function (ev) {
     if (ev.key === 'Enter') { ev.preventDefault(); $('afatBarkodi').dispatchEvent(new Event('change')); $('afatEmri').focus(); }
   });

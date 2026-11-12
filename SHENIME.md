@@ -71,6 +71,20 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    rezultatet e kërkimit dhe lista "8 deri 30 ditë" me `remember` (llogariten vetëm kur ndryshojnë të dhënat). Testi
    `teste/v285.js`. S'është testuar në pajisje të vërtetë.
 
+0000000. **AFATET E PRODUKTIT TE "AFAT I RI" + BASHKIMI I SASISË (v295 = 1.56.0, 12.11.2026, telefoni + PC + Android Hyrja 57)**:
+   pronari (pas idesë 2 të propozuar, që s'ekzistonte): "Bone kur e skanon tnjejtin produkt me te njejtin barkod met dal afatet qe i ki
+   te qatij produkti, e ne rast se osht afati i njejt kur e shton me ju shtu sasi qasaj date te afatit". Logjika te afatet.js (binjaku
+   Afatet.kt, krahasuar te `vendas-fikstura.js` → AfatetTest `afatetEBarkoditDheBashkimi`): `afatetEBarkodit(lista, barkodi, pervec)`
+   = afatet jo të hequra me të njëjtin barkod (`pastroBarkodin`), sipas datës (tekst) pastaj `krijuarSe`; `afatiINjejte(lista, b, data,
+   m, meMarkete)` = i pari me të njëjtën datë (dhe marketin kur `kaMarkete()`, pra merchandiserët); `sasiaEBashkuar(a, b)` = shuma, ose
+   njëra kur tjetra mungon. UI: vetëm te "Afat i ri" (jo te ndryshimi i një afati): telefoni `#afatEkzistuese` nën barkodin (`input` dhe
+   `change` te `#afatBarkodi`, edhe pas skanimit), PC `#afdEkzistuese` mbi sasinë, Android `AfatetEkzistuese` mbi datën; deri në 6
+   rreshta (data, copët, marketi, çipi Skaduar/Sot/Nesër/N ditë) + "+ N të tjera" + shënimi; prekja vendos datën (dhe marketin) dhe
+   fokusin te sasia. Ruajtja e afatit të ri: kur `afatiINjejte` gjen afat, `perditesoAfatin` (PC `ndryshoAfatet`, me "Zhbëj") me sasinë
+   e bashkuar (emri/furnizuesi plotësohen vetëm kur mungonin), njoftimi "U shtuan N copë te afati i DD.MM.VVVV (gjithsej M copë)." ose,
+   pa sasi, "Ky afat ekziston tashmë"; s'ka ngjarje "afate të reja" te Grupi për bashkimin. Importi nga Excel dhe leximi i fletës me
+   AI s'u prekën (sillen si më parë). Testi `teste/v295.js`. S'është testuar në pajisje të vërtetë.
+
 0000000. **ZËRAT E SKANIMIT U HOQËN (v294 = 1.55.2, 12.11.2026, telefoni + Android Hyrja 56)**: pronari: "Heke komplet zerin e skanimit
    kthe qysh u kon". U hoq krejt pjesa e zërave të v292: web `ZERAT`/`luajZerin`/`provoZerin`/`ndertoZerat`/`zbatoZerin`, `opsione.zeri`,
    karta "Zëri i skanimit" (`#titZeri`, `#seksionZeri`, `#listaZerave`), CSS `.ops-zerat`/`.zeri-nr` (stoku.css v67); `bip()` si para

@@ -147,7 +147,26 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
     { data: 'nov 2027', sasia: null, furnizuesi: null, dyshim: 0 },
     {}, null, { barkodi: 0, emri: '', data: 0, x: 0, y: 1 }
   ].map(r => ({ r, n: A.normalizoRreshtin(r) }));
-  dalja.afatet = { TANI_A, rastet, renditur, datat, shkrimi, sasite, furn, ikonat, lejet, numero: n, ai: JSON.parse(JSON.stringify(ai)) };
+  // v295: afatet e të njëjtit barkod + afati i njëjtë + bashkimi i sasisë
+  const lista295 = [
+    { id: 'b1', barkodi: '3830000622349', data: '2026-12-01', sasia: 6, statusi: 'aktiv', m: 'm1', krijuarSe: 5 },
+    { id: 'b2', barkodi: ' 3830000622349 ', data: '2026-11-20', sasia: '', statusi: 'aktiv', krijuarSe: 3 },
+    { id: 'b3', barkodi: '3830000622349', data: '2026-12-01', sasia: 2, statusi: 'aktiv', m: 'm2', krijuarSe: 1 },
+    { id: 'b4', barkodi: '3830000622349', data: '2026-12-01', sasia: 9, statusi: 'hequr' },
+    { id: 'b5', barkodi: '3830000622349', data: '', statusi: 'aktiv' },
+    { id: 'b6', barkodi: '999', data: '2026-12-01', sasia: 1, statusi: 'aktiv' },
+    { id: 'b7', barkodi: '3830000622349', data: '2026-12-01', sasia: '4', statusi: 'aktiv', krijuarSe: 'x' },
+    null, 'tekst', { id: 'b8', data: '2026-12-01' }
+  ];
+  const barkodet295 = ['3830000622349', ' 383 0000 622349', '999', '', null, '000'].map(b => ({ b, ids: A.afatetEBarkodit(lista295, b).map(a => a.id), pa: A.afatetEBarkodit(lista295, b, 'b1').map(a => a.id) }));
+  const njejte295 = [
+    ['3830000622349', '2026-12-01', 'm2', true], ['3830000622349', '2026-12-01', 'm1', true], ['3830000622349', '2026-12-01', '', true],
+    ['3830000622349', '2026-12-01', '', false], ['3830000622349', '2026-11-20', null, true], ['3830000622349', '2027-01-01', 'm1', true],
+    ['999', '2026-12-01', 'x', false], ['3830000622349', '', '', false], ['', '2026-12-01', '', false]
+  ].map(([b, d, m, mm]) => { const a = A.afatiINjejte(lista295, b, d, m, mm); return { b, d, m, mm, id: a ? a.id : null }; });
+  const bashkimi295 = [[6, 3], ['', 3], [6, ''], ['', ''], ['4', 1], [null, 2], ['abc', 5], [7, ' 60+30 ']].map(([a, b]) => ({ a, b, s: A.sasiaEBashkuar(a, b) }));
+  dalja.afatet = { TANI_A, rastet, renditur, datat, shkrimi, sasite, furn, ikonat, lejet, numero: n, ai: JSON.parse(JSON.stringify(ai)),
+    lista295, barkodet295, njejte295, bashkimi295 };
   fs.writeFileSync(sk, JSON.stringify(dalja));
   console.log('afatet: ' + rastet.length + ' raste');
 }
