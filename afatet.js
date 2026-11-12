@@ -147,6 +147,35 @@
     return s;
   }
 
+  // v295 (pronari): "kur e skanon të njëjtin produkt me të njëjtin barkod me dal afatet që i ke të atij produkti, e në rast se
+  // është afati i njëjtë kur e shton me ju shtu sasi asaj date". Binjaku: Afatet.kt (afatetEBarkodit, afatiINjejte, sasiaEBashkuar).
+  // Afatet aktive (jo të hequrat) me të njëjtin barkod, sipas datës (pastaj sipas kohës së shtimit); `pervec` = id që lihet jashtë.
+  function afatetEBarkodit(lista, barkodi, pervec) {
+    var b = pastroBarkodin(barkodi);
+    if (!b) return [];
+    return (lista || []).filter(function (a) {
+      return a && typeof a === 'object' && a.statusi !== 'hequr' && (pervec == null || a.id !== pervec) && pastroBarkodin(a.barkodi) === b;
+    }).sort(function (x, y) {
+      var dx = String(x.data || ''), dy2 = String(y.data || '');
+      if (dx !== dy2) return dx < dy2 ? -1 : 1;
+      return (+x.krijuarSe || 0) - (+y.krijuarSe || 0);
+    });
+  }
+  // Afati i njëjtë: barkodi dhe data (dhe marketi, kur përdoren marketet); i pari sipas renditjes më lart, ose null
+  function afatiINjejte(lista, barkodi, data, m, meMarkete, pervec) {
+    if (!data) return null;
+    return afatetEBarkodit(lista, barkodi, pervec).filter(function (a) {
+      return a.data === data && (!meMarkete || String(a.m || '') === String(m || ''));
+    })[0] || null;
+  }
+  // Sasitë bashkohen: dy numra mblidhen; kur njëra mungon ('') mbetet tjetra
+  function sasiaEBashkuar(a, b) {
+    var x = lexoSasine(a), y = lexoSasine(b);
+    if (x === '') return y;
+    if (y === '') return x;
+    return x + y;
+  }
+
   // Teksti i veprimit të sugjeruar për menaxheren
   function pershkrimi(a, tani) {
     var st = statusi(a, tani);
@@ -1110,7 +1139,7 @@
     pergatitFoton: pergatitFoton, fotoPerDergim: fotoPerDergim, lexoMeAI: lexoMeAI,
     normalizoRreshtin: normalizoRreshtin, EMRAT_MUAJVE: EMRAT_MUAJVE, muajiNgaEmri: muajiNgaEmri, celesiMuajit: celesiMuajit, emriMuajit: emriMuajit,
     muajtELista: muajtELista, furnizuesitELista: furnizuesitELista, celesiFurnizuesit: celesiFurnizuesit, ditetEMbetura: ditetEMbetura, dataNgaQeliza: dataNgaQeliza, hamendesoKolonatEAfateve: hamendesoKolonatEAfateve,
-    planiImportitAfateve: planiImportitAfateve, afatetNgaPlani: afatetNgaPlani, tekstNgaQeliza: tekstNgaQeliza, ditetTekst: ditetTekst, ditetParaTekst: ditetParaTekst, lexoSasine: lexoSasine, sasiaEPranueshme: sasiaEPranueshme, SASIA_E_MADHE: SASIA_E_MADHE, sasiaSiShume: sasiaSiShume, sasiaTekst: sasiaTekst, shumaCopeve: shumaCopeve,
+    planiImportitAfateve: planiImportitAfateve, afatetNgaPlani: afatetNgaPlani, tekstNgaQeliza: tekstNgaQeliza, ditetTekst: ditetTekst, ditetParaTekst: ditetParaTekst, lexoSasine: lexoSasine, sasiaEPranueshme: sasiaEPranueshme, SASIA_E_MADHE: SASIA_E_MADHE, sasiaSiShume: sasiaSiShume, sasiaTekst: sasiaTekst, shumaCopeve: shumaCopeve, afatetEBarkodit: afatetEBarkodit, afatiINjejte: afatiINjejte, sasiaEBashkuar: sasiaEBashkuar,
     listaEFurnizuesve: listaEFurnizuesve, renditSipasRuajtjes: renditSipasRuajtjes, furnizuesiEkzistues: furnizuesiEkzistues, riemertoFurnizuesin: riemertoFurnizuesin,
     IKONAT_FOLDERAVE: IKONAT_FOLDERAVE, ikonaEFolderit: ikonaEFolderit, svgEIkones: svgEIkones, zgjedhesIIkonave: zgjedhesIIkonave,
     kujtesa: kujtesa, krijoKujtesen: krijoKujtesen, KUJTESA_KEY: KUJTESA_KEY

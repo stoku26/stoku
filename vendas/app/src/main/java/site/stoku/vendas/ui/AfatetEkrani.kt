@@ -470,6 +470,19 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
             Dyqani.perditesoAfatin(id, mapOf("barkodi" to b, "emri" to em, "data" to iso, "sasia" to s, "furnizuesi" to f) + (if (kaM) mapOf("m" to (mk ?: "")) else emptyMap()))
             Toast.trego("Afati u ruajt.")
         } else {
+            // Hyrja 57 (pronari): afati i njëjtë (barkodi + data, + marketi) ekziston: copat i shtohen atij, s'krijohet rresht i ri
+            val ekz = if (id == null) Afatet.afatiINjejte(Dyqani.g.afatet, b, iso, mk, kaM) else null
+            if (ekz != null) {
+                val sRe = Afatet.sasiaEBashkuar(ekz["sasia"], s)
+                val ndr = mutableMapOf<String, Any?>("sasia" to sRe)
+                if ((ekz["emri"] as? String).isNullOrEmpty() && em.isNotEmpty()) ndr["emri"] = em
+                if ((ekz["furnizuesi"] as? String).isNullOrEmpty() && f.isNotEmpty()) ndr["furnizuesi"] = f
+                Dyqani.perditesoAfatin(ekz["id"] as String, ndr)
+                Toast.trego(if (s == "") "Ky afat ekziston tashmë (" + Afatet.formato(iso) + "). S'u krijua rresht i ri."
+                    else "U shtuan " + jsString(s) + " copë te afati i " + Afatet.formato(iso) + (if (sRe != "") " (gjithsej " + jsString(sRe) + " copë)." else "."), 4500)
+                mbyll()
+                return
+            }
             val idIRi = Afatet.idERe()
             Dyqani.shtoAfatin(obj("id" to idIRi, "barkodi" to b, "emri" to em, "data" to iso, "sasia" to s, "furnizuesi" to f,
                 "statusi" to "aktiv", "krijuarSe" to tani, "ndryshuarSe" to tani, "krijuarNga" to (Llogaria.perdoruesi.value?.emri ?: "")).also { o -> if (kaM && mk != null) o["m"] = mk })
@@ -515,6 +528,15 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
                 stili = tx(18, 600), sfondi = Color.Transparent, ngjyraTekstit = Color.White, paVije = true, veprimi = ImeAction.Next,
                 kurVeprim = { fData.requestFocus() })
         }
+        // Hyrja 57 (pronari): "kur e skanon të njëjtin produkt me të njëjtin barkod me dal afatet që i ke të atij produkti"
+        // (si #afatEkzistuese te web-i); prekja e vendos datën (dhe marketin), që copat t'i shtohen atij afati
+        if (a == null) {
+            val ekzistuese = remember(barkodi) { Afatet.afatetEBarkodit(Dyqani.g.afatet, barkodi) }
+            if (ekzistuese.isNotEmpty()) AfatetEkzistuese(ekzistuese, kaM) { e ->
+                (e["data"] as? String)?.takeIf { it.isNotEmpty() }?.let { data = Afatet.formatoPerFushe(it) }
+                if (kaM) (e["m"] as? String)?.takeIf { Marketet.sipasId(Merchandiseri.marketet(), it) != null }?.let { mk = it }
+            }
+        }
         Text("Data e skadimit", style = tx(13, 600, n.ink3))
         // v254: pa datat e shpejta (1 javë, 2 javë, 1 muaj, 3 muaj), vetëm fusha e datës (si te web-i)
         // Hyrja 34: formatimi brenda Fusha-s, që kursori të kalojë pas vizës së shtuar (shiko kursoriPasFormatimit)
@@ -557,6 +579,41 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
     }
     if (fshi && id != null) Konfirmo("Të fshihet afati?", "Afati fshihet nga të gjitha pajisjet. Nëse produkti thjesht u hoq nga rafti, përdor \"U hoq nga rafti\" (mbetet si histori).",
         "Fshi", mbyll = { fshi = false }) { if (Llogaria.leja("afatetFshi")) { Dyqani.fshijAfatin(id); mbyll() } }
+}
+
+/** Hyrja 57: afatet që ka tashmë ky barkod (.af-ekzistuese te web-i), deri në 6 */
+@Composable
+private fun AfatetEkzistuese(lista: List<Obj>, kaM: Boolean, zgjidh: (Obj) -> Unit) {
+    val n = N
+    val f = RoundedCornerShape(16.dp)
+    Column(Modifier.fillMaxWidth().clip(f).border(1.dp, n.line, f)) {
+        Text(if (lista.size == 1) "Ky produkt ka 1 afat:" else "Ky produkt ka ${lista.size} afate:", style = tx(13, 700, n.muted),
+            modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 10.dp, bottom = 6.dp))
+        lista.take(6).forEach { e ->
+            Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
+            val st = Afatet.statusi(e)
+            val d = Afatet.ditetDeri(e["data"])
+            val info = listOf(Afatet.sasiaTekst(e), if (kaM && (e["m"] as? String).orEmpty().isNotEmpty()) Merchandiseri.emri(e["m"]) else "")
+                .filter { it.isNotEmpty() }.joinToString(" · ")
+            Row(Modifier.fillMaxWidth().clickable { zgjidh(e) }.padding(horizontal = 14.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(if ((e["data"] as? String).orEmpty().isNotEmpty()) Afatet.formato(e["data"]) else "Pa datë", style = tx(15, 700, n.ink))
+                Text(info, style = tx(13, 400, n.muted), modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (d != null) {
+                    val (sf, ng) = when (st) { "skaduar" -> n.expTint to n.expInk; "afer" -> n.nearTint to n.nearInk; else -> n.surface2 to n.ink3 }
+                    Text(when { d < 0 -> "Skaduar"; d == 0 -> "Sot"; d == 1 -> "Nesër"; else -> Afatet.ditetTekst(d) }, style = tx(12, 700, ng),
+                        modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(sf).padding(horizontal = 8.dp, vertical = 3.dp))
+                }
+            }
+        }
+        if (lista.size > 6) {
+            Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
+            Text("+ ${lista.size - 6} të tjera te lista e afateve.", style = tx(12, 400, n.muted), modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp))
+        }
+        Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
+        Text("Me të njëjtën datë, copat i shtohen atij afati (s'krijohet rresht i ri).", style = tx(12, 400, n.muted),
+            modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 10.dp))
+    }
 }
 
 /** Sugjerimet e furnizuesit (v252): lista, "+ Furnizues i ri", "Mbyll" */

@@ -5573,6 +5573,7 @@
     $('afdData').value = a && a.data ? AF.formatoPerFushe(a.data) : '';
     $('afdFurnizuesi').value = a ? a.furnizuesi || '' : furnizuesiNgaBarkodi(barkodi);
     $('afdSasia').value = a && typeof a.sasia === 'number' ? String(a.sasia) : '';
+    trregoAfatetEkzistuesePc(true); // v295
     // v241: marketi (vetëm kur ka markete); afati i ri merr marketin e zgjedhur te Afatet
     $('afdMarketiKuti').hidden = !kaMarkete();
     if (kaMarkete()) {
@@ -5608,7 +5609,41 @@
     var b = $('afdBarkodi').value.trim();
     if (!$('afdEmri').value.trim()) $('afdEmri').value = emriNgaBarkodi(b);
     if (!$('afdFurnizuesi').value.trim()) $('afdFurnizuesi').value = furnizuesiNgaBarkodi(b);
+    trregoAfatetEkzistuesePc();
   });
+  $('afdBarkodi').addEventListener('input', trregoAfatetEkzistuesePc);
+  // v295 (pronari): afatet që ka tashmë ky barkod (vetëm te "Afat i ri"); klikimi e vendos datën (dhe marketin) e atij afati
+  function trregoAfatetEkzistuesePc(detyro) {
+    var k = $('afdEkzistuese');
+    var celesi = (afdId || '') + '|' + $('afdBarkodi').value.replace(/\s+/g, ''); // vetëm kur ndryshon barkodi (si te telefoni)
+    if (detyro !== true && k.getAttribute('data-celesi') === celesi) return;
+    k.setAttribute('data-celesi', celesi);
+    k.textContent = '';
+    var lista = afdId ? [] : AF.afatetEBarkodit(afatet, $('afdBarkodi').value);
+    k.hidden = !lista.length;
+    if (!lista.length) return;
+    k.appendChild(el('div', 'af-ekz-titulli', lista.length === 1 ? 'Ky produkt ka 1 afat:' : 'Ky produkt ka ' + lista.length + ' afate:'));
+    lista.slice(0, 6).forEach(function (a) {
+      var st = AF.statusi(a), n = AF.ditetDeri(a.data);
+      var r = el('button', 'af-ekz-rresht ' + st); r.type = 'button';
+      r.appendChild(el('span', 'af-ekz-data', a.data ? AF.formato(a.data) : 'Pa datë'));
+      var info = [AF.sasiaTekst(a)];
+      if (kaMarkete() && a.m) { var mk = MK.sipasId(marketet, a.m); if (mk) info.push(mk.emri); }
+      r.appendChild(el('span', 'af-ekz-info', info.filter(Boolean).join(' · ')));
+      var stx = n === null ? '' : n < 0 ? 'Skaduar' : n === 0 ? 'Sot' : n === 1 ? 'Nesër' : AF.ditetTekst(n);
+      if (stx) r.appendChild(el('span', 'af-ekz-st', stx));
+      r.addEventListener('click', function () {
+        if (!a.data) return;
+        $('afdData').value = AF.formatoPerFushe(a.data);
+        $('afdData').dispatchEvent(new Event('input'));
+        if (kaMarkete() && a.m && MK.sipasId(marketet, a.m)) $('afdMarketi').value = a.m;
+        $('afdSasia').focus();
+      });
+      k.appendChild(r);
+    });
+    if (lista.length > 6) k.appendChild(el('div', 'af-ekz-shenim', '+ ' + (lista.length - 6) + ' të tjera te lista e afateve.'));
+    k.appendChild(el('div', 'af-ekz-shenim', 'Me të njëjtën datë, copat i shtohen atij afati (s\'krijohet rresht i ri).'));
+  }
   ['afdBarkodi', 'afdEmri', 'afdData', 'afdSasia', 'afdFurnizuesi'].forEach(function (id, i, te) {
     $(id).addEventListener('keydown', function (ev) {
       if (ev.key !== 'Enter') return;
@@ -5642,6 +5677,23 @@
     var afPara = afdId ? afatet.filter(function (a) { return a.id === afdId; })[0] : null;
     mesoNgaPerdoruesi(b, emri, f); // herën tjetër ky barkod plotëson vetë emrin dhe furnizuesin
     if (f && f !== ((afPara && afPara.furnizuesi) || '')) regjistroFurnizuesinERi(f); // v212, v214: për këdo
+    // v295 (pronari): afati i njëjtë (barkodi + data, + marketi) ekziston: copat i shtohen atij, s'krijohet rresht i ri
+    var ekz = afdId ? null : AF.afatiINjejte(afatet, b, data, mkId, kaMarkete());
+    if (ekz) {
+      var sasiaRe = AF.sasiaEBashkuar(ekz.sasia, sasia);
+      var regE = ndryshoAfatet(function (api) {
+        var x = api.merr(ekz.id);
+        if (!x) return;
+        x.sasia = sasiaRe;
+        if (!x.emri && emri) x.emri = emri;
+        if (!x.furnizuesi && f) x.furnizuesi = f;
+        api.vendos(x);
+      });
+      mbyllDialog('dlgAfat');
+      toast(sasia === '' ? 'Ky afat ekziston tashmë (' + AF.formato(data) + '). S\'u krijua rresht i ri.'
+        : 'U shtuan ' + sasia + ' copë te afati i ' + AF.formato(data) + (sasiaRe !== '' ? ' (gjithsej ' + sasiaRe + ' copë).' : '.'), { veprimi: function () { zhbejAfatet(regE); } });
+      return;
+    }
     var tani = Date.now(), idIRi = afdId || AF.idERe();
     var reg = ndryshoAfatet(function (api) {
       var a = (afdId && api.merr(afdId)) || { id: idIRi, statusi: 'aktiv', krijuarSe: tani, krijuarNga: emriPerdoruesit() };

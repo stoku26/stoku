@@ -20,6 +20,15 @@
   'use strict';
 
   var LISTA = [
+    { v: 295, versioni: '1.56.0', data: '2026-11-12', titulli: 'Afatet e produktit kur e skanon', platforma: 'tel', pikat: [
+      'Te "Afat i ri", sapo skanon ose shkruan barkodin, del lista e afateve që ka ai produkt (data, copët, sa ditë kanë mbetur).',
+      'Prek një afat nga lista dhe merr datën e tij.',
+      'Kur ruan të njëjtin produkt me të njëjtën datë, copët i shtohen atij afati dhe s\'krijohet rresht i ri.'
+    ] },
+    { v: 295, versioni: '1.56.0', data: '2026-11-12', titulli: 'Afatet e produktit kur e skanon', platforma: 'pc', pikat: [
+      'Te "Afat i ri", sapo shkruan ose skanon barkodin, del lista e afateve që ka ai produkt; klikimi e merr datën e tij.',
+      'Kur ruan të njëjtin produkt me të njëjtën datë, copët i shtohen atij afati dhe s\'krijohet rresht i ri.'
+    ] },
     { v: 294, versioni: '1.55.2', data: '2026-11-12', titulli: 'Zëri i skanimit si më parë', platforma: 'tel', pikat: [
       'Zgjedhja e zërit te Cilësimet → Skanimi u hoq: skanimi bën prapë bip-in e zakonshëm.'
     ] },

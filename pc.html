@@ -912,6 +912,18 @@
     main.kryesore { padding: 18px; }
     .tabela .k-koha { display: none; }
   }
+  /* v295 (pronari): afatet që ka tashmë produkti (te "Afat i ri"); klikimi e zgjedh datën */
+  .af-ekzistuese { margin: 0 0 14px; border: 1px solid var(--vije); border-radius: 10px; overflow: hidden; }
+  .af-ekz-titulli { font-size: 12.5px; font-weight: 700; color: var(--gri); padding: 8px 12px 6px; }
+  .af-ekz-rresht { display: flex; width: 100%; align-items: center; gap: 12px; padding: 8px 12px; border: 0; border-top: 1px solid var(--vije);
+    background: transparent; color: var(--tekst); font: inherit; text-align: left; cursor: pointer; }
+  .af-ekz-rresht:hover { background: var(--hover); }
+  .af-ekz-data { font-weight: 700; font-variant-numeric: tabular-nums; flex: none; }
+  .af-ekz-info { flex: 1; min-width: 0; font-size: 13px; color: var(--gri); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .af-ekz-st { flex: none; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 9px; background: var(--vije); color: var(--tekst); }
+  .af-ekz-rresht.skaduar .af-ekz-st { background: var(--af-kuqe-bg); color: var(--af-kuqe-tx); }
+  .af-ekz-rresht.afer .af-ekz-st { background: var(--af-verdhe-bg); color: var(--af-verdhe-tx); }
+  .af-ekz-shenim { font-size: 12px; color: var(--gri); padding: 7px 12px 9px; border-top: 1px solid var(--vije); }
 </style>
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
@@ -1505,6 +1517,7 @@
         <label class="fushe"><span>Barkodi</span><input class="inp mono" id="afdBarkodi" placeholder="Skano ose shkruaj barkodin" type="text" autocomplete="off" spellcheck="false" maxlength="64"></label>
         <label class="fushe"><span>Data e skadimit</span><input class="inp" id="afdData" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="DD-MM-VV"></label>
       </div>
+      <div class="af-ekzistuese" id="afdEkzistuese" hidden></div>
       <label class="fushe" style="max-width:220px"><span>Sasia (copë)</span><input class="inp" id="afdSasia" placeholder="Numri i copëve" type="text" inputmode="numeric" autocomplete="off"></label>
       <label class="fushe"><span>Emri i produktit</span><input class="inp" id="afdEmri" placeholder="Shkruaj emrin e produktit" type="text" autocomplete="off" maxlength="120"></label>
       <label class="fushe furn-vetem"><span>Furnizuesi</span><input class="inp" id="afdFurnizuesi" placeholder="Zgjidh ose shkruaj furnizuesin" type="text" list="afdFurnizuesit" autocomplete="off" maxlength="80"></label>
@@ -2002,12 +2015,12 @@
 <script src="ruajtja.js?v=281"></script>
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=6"></script>
-<script src="afatet.js?v=285"></script>
+<script src="afatet.js?v=295"></script>
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
 <script src="ekipa.js?v=293"></script>
-<script src="teRejat.js?v=294"></script>
-<script src="app-pc.js?v=290"></script>
+<script src="teRejat.js?v=295"></script>
+<script src="app-pc.js?v=295"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
 

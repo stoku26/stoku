@@ -902,6 +902,17 @@
   .btn.me-ikone { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
   .btn.me-ikone svg { flex: none; }
   .af-barkodi-rresht { display: flex; gap: 8px; align-items: stretch; }
+  /* v295 (pronari): afatet që ka tashmë produkti i skanuar (te "Afat i ri"); prekja e zgjedh datën */
+  .af-ekzistuese { margin: 0; border: 1px solid var(--vije); border-radius: 16px; overflow: hidden; background: var(--dialog); }
+  .af-ekz-titulli { font-size: 12.5px; font-weight: 700; color: var(--gri); padding: 8px 12px 6px; }
+  .af-ekz-rresht { display: flex; width: 100%; align-items: center; gap: 10px; padding: 9px 12px; border: 0; border-top: 1px solid var(--vije);
+    background: transparent; color: var(--tekst); font: inherit; text-align: left; cursor: pointer; justify-content: flex-start; min-height: 0; }
+  .af-ekz-data { font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; flex: none; }
+  .af-ekz-info { flex: 1; min-width: 0; text-align: left; font-size: 13px; color: var(--gri); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .af-ekz-st { flex: none; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 10px; background: var(--vije); color: var(--tekst); }
+  .af-ekz-rresht.skaduar .af-ekz-st { background: #e5484d; color: #fff; }
+  .af-ekz-rresht.afer .af-ekz-st { background: #f0b95a; color: #2b2100; }
+  .af-ekz-shenim { font-size: 12px; color: var(--gri); padding: 7px 12px 9px; border-top: 1px solid var(--vije); }
   .af-barkodi-rresht input { flex: 1; min-width: 0; }
   .af-skano {
     flex: none; width: 52px; border: 1.5px solid var(--fushe-kufi); border-radius: 12px; background: var(--fushe-bg);
@@ -2044,6 +2055,7 @@
       </div>
       <input id="afatEmri" type="text" autocomplete="off" autocorrect="off" placeholder="Emri i produktit" aria-label="Emri i produktit" enterkeyhint="next">
     </div>
+    <div class="af-ekzistuese" id="afatEkzistuese" hidden></div>
     <div class="sb-afat-seksion">
       <label class="sb-field-label" for="afatData">Data e skadimit</label>
       <input id="afatData" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="DD-MM-VV" aria-describedby="afatDataHint">
@@ -2153,13 +2165,13 @@
 <script src="ruajtja.js?v=281"></script>
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=6"></script>
-<script src="afatet.js?v=285"></script>
+<script src="afatet.js?v=295"></script>
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
 <script src="ekipa.js?v=293"></script>
 <script src="njoftimet.js?v=281"></script>
-<script src="teRejat.js?v=294"></script>
-<script src="app-tel.js?v=294"></script>
+<script src="teRejat.js?v=295"></script>
+<script src="app-tel.js?v=295"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>

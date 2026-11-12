@@ -8,6 +8,11 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(57, "2026-11-12", "Afatet e produktit kur e skanon", listOf(
+            "Te \"Afat i ri\", sapo skanon ose shkruan barkodin, del lista e afateve që ka ai produkt (data, copët, sa ditë kanë mbetur).",
+            "Prek një afat nga lista dhe merr datën e tij.",
+            "Kur ruan të njëjtin produkt me të njëjtën datë, copët i shtohen atij afati dhe s'krijohet rresht i ri."
+        )),
         Hyrja(56, "2026-11-12", "Zëri i skanimit si më parë", listOf(
             "Zgjedhja e zërit te Cilësimet → Skanimi u hoq: skanimi bën prapë bip-in e zakonshëm."
         )),
