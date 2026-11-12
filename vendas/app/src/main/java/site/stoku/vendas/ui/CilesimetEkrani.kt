@@ -39,7 +39,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
@@ -333,26 +332,9 @@ private fun Skenimi() {
             paTastiere, vije = true) { Opsionet.vendosPaTastiere(it); Toast.trego(if (it) "Tastiera në ekran s'del më. Shkruaj me tastierën e PDA-së." else "Tastiera në ekran del përsëri.") }
         if (Llogaria.leja("stoku")) RreshtNdezes(Ik.Etiketa, "portokalli", "Skano vetëm barkodin dhe sasinë (pa emër)", "Nuk rekomandohet. Produktet e reja regjistrohen pa emër dhe fusha e emrit fshihet.",
             paEmer, vije = true) { if (it) pyetPaEmer = true else Opsionet.vendosPaEmer(false) }
-        if (!pda) RreshtNdezes(Ik.Tingull, "vjollce", "Tingulli kur skanon me kamerë", "Një zë i shkurtër sa herë lexohet një barkod. Zgjidhe më poshtë.", tingulli, vije = true) { Opsionet.vendosTingullin(it) }
+        if (!pda) RreshtNdezes(Ik.Tingull, "vjollce", "Tingulli kur skanon me kamerë", "Një bip i shkurtër sa herë lexohet një barkod.", tingulli, vije = true) { Opsionet.vendosTingullin(it) }
         if (!pda) RreshtNdezes(Ik.Kursori, "gjelber", "Kursori te fusha e barkodit", "Për skanerët me USB ose Bluetooth që shkruajnë barkodin vetë.",
             kursori, vije = true) { Opsionet.vendosKursorin(it) }
-    }
-    // Hyrja 54 (pronari): 10 zëra të ndryshëm kur skanohet barkodi; prekja e zgjedh dhe e luan (si #seksionZeri te web-i)
-    if (!pda) {
-        val zeri by Opsionet.zeri.collectAsState()
-        val n = N
-        TitulliGrupit("Zëri i skanimit")
-        KartaOps {
-            Text("Prek një zë për ta dëgjuar dhe zgjedhur.", style = txR(12.5f, 400, n.muted), modifier = Modifier.padding(bottom = 12.dp))
-            val aktivi = Zerat.sipasId(zeri).id
-            Column(Modifier.fillMaxWidth().then(if (tingulli) Modifier else Modifier.alpha(0.55f)), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Zerat.LISTA.withIndex().chunked(2).forEach { rreshti ->
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        rreshti.forEach { (i, z) -> ZgjedhjaEZerit(i + 1, z.emri, z.id == aktivi, Modifier.weight(1f)) { Opsionet.vendosZerin(z.id); Zerat.luaj(z.id) } }
-                    }
-                }
-            }
-        }
     }
     // Hyrja 32 (pronari): ku del butoni blu/i verdhë brenda folderit, me foton e vogël të butonit (si #seksionVendiFab te web-i)
     if (!pda && Llogaria.leja("kamera")) {
@@ -374,20 +356,6 @@ private fun Skenimi() {
         }
     }
     if (pyetPaEmer) PaEmerKonfirmo({ pyetPaEmer = false }) { Opsionet.vendosPaEmer(true) }
-}
-
-/** Një zë te lista (.ops-zerat te web-i): numri në rreth dhe emri */
-@Composable
-private fun ZgjedhjaEZerit(nr: Int, emri: String, aktiv: Boolean, modifier: Modifier, zgjidh: () -> Unit) {
-    val n = N
-    val f = RoundedCornerShape(16.dp)
-    Row(modifier.heightIn(min = 48.dp).clip(f).background(if (aktiv) n.accentTint else n.surface2).then(if (aktiv) Modifier.border(2.dp, n.accent, f) else Modifier)
-        .clickable(onClick = zgjidh).padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        Box(Modifier.size(24.dp).clip(CircleShape).background(if (aktiv) n.accent else n.surface), contentAlignment = Alignment.Center) {
-            Text(nr.toString(), style = txF(12f, 700, if (aktiv) Color.White else n.ink3))
-        }
-        Text(emri, style = txF(13.5f, 600, if (aktiv) n.accentText else n.ink3), maxLines = 1, overflow = TextOverflow.Ellipsis)
-    }
 }
 
 /** Fotoja e vogël e butonave të skanimit (.ops-fab-pill te web-i): të njëjtët dy katrorë, 40 × 40 me ikona 22 */

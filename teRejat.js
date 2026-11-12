@@ -20,6 +20,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 294, versioni: '1.55.2', data: '2026-11-12', titulli: 'Zëri i skanimit si më parë', platforma: 'tel', pikat: [
+      'Zgjedhja e zërit te Cilësimet → Skanimi u hoq: skanimi bën prapë bip-in e zakonshëm.'
+    ] },
     { v: 293, versioni: '1.55.1', data: '2026-11-12', titulli: 'Rregullime të vogla', platforma: 'tel', pikat: [
       'Te Afatet, "Shto": nëse e mbyll kamerën ndërsa ende ndizet, s\'hapet më "Afat i ri" pa e dashur.',
       'Barkodi i skanuar shumë shpejt s\'fshihet më nga dritarja "Afat i ri".',

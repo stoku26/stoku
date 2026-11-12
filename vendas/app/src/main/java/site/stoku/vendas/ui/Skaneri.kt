@@ -3,6 +3,8 @@ package site.stoku.vendas.ui
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -423,6 +425,7 @@ fun kontrolliEAN(v: String): Boolean {
     return (10 - s % 10) % 10 == d.last()
 }
 
+private var toni: ToneGenerator? = null
 fun bip(ctx: Context) {
     try {
         val v = if (Build.VERSION.SDK_INT >= 31) (ctx.getSystemService(VibratorManager::class.java))?.defaultVibrator
@@ -430,5 +433,8 @@ fun bip(ctx: Context) {
         v?.vibrate(VibrationEffect.createOneShot(70, VibrationEffect.DEFAULT_AMPLITUDE))
     } catch (e: Exception) { }
     if (!StokuApp.prefsOseB("tingull", true)) return
-    Zerat.luaj(StokuApp.prefsOse("zeri", "klasik")) // Hyrja 54: zëri i zgjedhur te Cilësimet → Skanimi
+    try {
+        if (toni == null) toni = ToneGenerator(AudioManager.STREAM_MUSIC, 80)
+        toni?.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+    } catch (e: Exception) { }
 }

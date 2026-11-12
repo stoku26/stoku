@@ -8,6 +8,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(56, "2026-11-12", "Zëri i skanimit si më parë", listOf(
+            "Zgjedhja e zërit te Cilësimet → Skanimi u hoq: skanimi bën prapë bip-in e zakonshëm."
+        )),
         Hyrja(55, "2026-11-12", "Rregullime të vogla", listOf(
             "Kodi i vendndodhjes dhe i kamerës përdor versionet e reja të Android-it (pa ndryshim në pamje)."
         )),
