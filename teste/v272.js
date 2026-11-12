@@ -16,15 +16,10 @@ const gjendja = p => p.evaluate(() => ({ attr: document.body.getAttribute('data-
   await p.click('#btnOpsione'); await p.waitForTimeout(700);
   await p.click('text=Pamja'); await p.waitForTimeout(600);
 
-  // 1. Tri zgjedhje, me radhë
-  const btn = await p.evaluate(() => Array.from(document.querySelectorAll('#segMadhesia button')).map(b => ({ v: b.getAttribute('data-v'), t: b.innerText.replace(/\s+/g, ' ').trim(),
-    fs: getComputedStyle(b.querySelector('.ops-aa')).fontSize, w: Math.round(b.getBoundingClientRect().width), y: Math.round(b.getBoundingClientRect().top) })));
-  ok(btn.map(x => x.v).join() === 'e_vogel,normale,e_madhe' && btn.map(x => x.t).join() === 'Aa E vogël,Aa Normale,Aa E madhe', '1. tri zgjedhje: "E vogël", "Normale", "E madhe"', btn.map(x => x.t));
-  ok(btn[0].fs === '15px' && btn[1].fs === '20px' && btn[2].fs === '30px', '1. "Aa" 15 / 20 / 30 px', btn.map(x => x.fs));
-  ok(btn.every(x => x.y === btn[0].y && Math.abs(x.w - btn[0].w) <= 1), '1. në një rresht, me gjerësi të njëjtë', btn);
-  ok(/E vogël/.test(await p.textContent('#madhesiaHint')), '1. shpjegimi përmend "E vogël"', await p.textContent('#madhesiaHint'));
+  // 1. v296: dy zgjedhje ("E madhe" e vjetër u hoq; shih teste/v296.js); fillimisht "Normale" (e_vogel, zoom .9)
   let gj = await gjendja(p);
-  ok(gj.attr === '' && gj.zoom === '1' && gj.aktiv.join() === 'normale', '1. fillimisht "Normale"', gj);
+  ok(gj.attr === 'e_vogel' && gj.zoom === '0.9' && gj.aktiv.join() === 'e_vogel', '1. v296: fillimisht "Normale" (e_vogel)', gj);
+  await p.click('#segMadhesia button[data-v="normale"]'); await p.waitForTimeout(300);
 
   // 2. "E vogël": krejt faqja .9, ruhet pas rihapjes
   await p.click('#segMadhesia button[data-v="e_vogel"]'); await p.waitForTimeout(300);
@@ -43,22 +38,11 @@ const gjendja = p => p.evaluate(() => ({ attr: document.body.getAttribute('data-
   const km = await rr(p, '#kamera'), vd = await rr(p, '#kamera video');
   ok(km.y === 0 && km.b === 844 && vd.y === 0 && vd.b === 844 && vd.r === 390, '2. kamera mbush të gjithë ekranin', { km, vd });
 
-  // 3. "E madhe" dhe "Normale" punojnë si më parë
-  await p.reload(); await p.waitForTimeout(2000);
-  await p.evaluate(() => document.querySelectorAll('.mbulese.hapur').forEach(d => { if (!d.classList.contains('faqe-e-plote')) d.classList.remove('hapur'); }));
-  await p.click('#btnOpsione'); await p.waitForTimeout(700);
-  await p.click('text=Pamja'); await p.waitForTimeout(600);
-  await p.click('#segMadhesia button[data-v="e_madhe"]'); await p.waitForTimeout(300);
-  gj = await gjendja(p);
-  ok(gj.attr === 'e_madhe' && gj.zoom === '1.12' && gj.aktiv.join() === 'e_madhe', '3. "E madhe": 1.12 si më parë', gj);
-  await p.click('#segMadhesia button[data-v="normale"]'); await p.waitForTimeout(300);
-  gj = await gjendja(p);
-  ok(gj.attr === '' && gj.zoom === '1' && gj.ruajtur === 'normale', '3. "Normale": pa zoom', gj);
-  // vlerë e panjohur e ruajtur → "Normale"
+  // 3. v296: vlerë e panjohur e ruajtur → parazgjedhja "Normale" (e_vogel)
   await p.evaluate(() => localStorage.setItem('stoku:opsione:v1', JSON.stringify({ madhesia: 'shume_e_vogel' })));
   await p.reload(); await p.waitForTimeout(2000);
   gj = await gjendja(p);
-  ok(gj.attr === '' && gj.zoom === '1', '3. vlerë e panjohur → "Normale"', gj);
+  ok(gj.attr === 'e_vogel' && gj.zoom === '0.9', '3. vlerë e panjohur → "Normale" (e_vogel)', gj);
   ok(!p.__gab.length, '3. telefoni: pa gabime JS', p.__gab);
   await b.close();
 

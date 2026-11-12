@@ -143,10 +143,10 @@
       tabPerdoruesit: 'Përdoruesit',
       automatikeHint: '"Automatike" ndjek cilësimin e telefonit.',
       titMadhesiaTeksti: 'Madhësia e shkronjave',
-      madhesiaEVogelBtn: 'E vogël',
-      madhesiaNormaleBtn: 'Normale',
-      madhesiaEMadheBtn: 'E madhe',
-      madhesiaHintTeksti: 'Ndryshon madhësinë e gjithë tekstit dhe butonave: "E vogël" nxë më shumë në ekran, "E madhe" lexohet më lehtë.',
+      // v296 (pronari): "E madhe" e vjetër u hoq; "e_vogel" (zoom .9) quhet tani "Normale" dhe "normale" (zoom 1) quhet "E madhe"
+      madhesiaEVogelBtn: 'Normale',
+      madhesiaNormaleBtn: 'E madhe',
+      madhesiaHintTeksti: 'Ndryshon madhësinë e gjithë tekstit dhe butonave: "E madhe" lexohet më lehtë.',
 
       pdaLabel: 'Ky është PDA (skaner i brendshëm)',
       fshihTastieren: 'Fshih tastierën',
@@ -247,7 +247,6 @@
     { id: 'titMadhesia', prop: 'text', kyc: 'titMadhesiaTeksti' },
     { id: 'madhesiaEVogel', prop: 'text', kyc: 'madhesiaEVogelBtn' },
     { id: 'madhesiaNormale', prop: 'text', kyc: 'madhesiaNormaleBtn' },
-    { id: 'madhesiaEMadhe', prop: 'text', kyc: 'madhesiaEMadheBtn' },
     { id: 'madhesiaHint', prop: 'text', kyc: 'madhesiaHintTeksti' },
 
     { id: 'lblOpsPda', prop: 'text', kyc: 'pdaLabel' },
@@ -425,7 +424,7 @@
 
   var opsione = {
     tingull: true, rendi: 'i_ri', scanner: true, pda: false,
-    paEmer: false, madhesia: 'normale', tastieraFshehur: false,
+    paEmer: false, madhesia: 'e_vogel', tastieraFshehur: false, // v296: parazgjedhja = "Normale" (e_vogel)
     vendiFab: 'mes' // v273: butoni i skanimit brenda folderit: 'majtas' | 'mes' | 'djathtas' (parazgjedhja për krejt: në mes)
   };
   try {
@@ -437,10 +436,19 @@
       if (typeof opsioneRuajtura.tastieraFshehur === 'boolean') opsione.tastieraFshehur = opsioneRuajtura.tastieraFshehur;
       if (typeof opsioneRuajtura.paEmer === 'boolean') opsione.paEmer = opsioneRuajtura.paEmer;
       if (['i_ri', 'emri', 'emriZA', 'sasiaUlet', 'sasiaLart'].indexOf(opsioneRuajtura.rendi) !== -1) opsione.rendi = opsioneRuajtura.rendi;
-      if (['e_vogel', 'normale', 'e_madhe'].indexOf(opsioneRuajtura.madhesia) !== -1) opsione.madhesia = opsioneRuajtura.madhesia;
+      if (['e_vogel', 'normale'].indexOf(opsioneRuajtura.madhesia) !== -1) opsione.madhesia = opsioneRuajtura.madhesia; // v296: pa "e_madhe"
       if (['majtas', 'mes', 'djathtas'].indexOf(opsioneRuajtura.vendiFab) !== -1) opsione.vendiFab = opsioneRuajtura.vendiFab;
     }
   } catch (e) { /* përdor vlerat fillestare */ }
+  // v296 (pronari): "për çdo përdorues e lë default menjëherë": një herë në çdo pajisje, të gjithë kalojnë te "Normale" (e_vogel);
+  // pastaj secili zgjedh vetë dhe zgjedhja mbetet
+  try {
+    if (!localStorage.getItem('stoku:madhesia:v296')) {
+      opsione.madhesia = 'e_vogel';
+      localStorage.setItem('stoku:madhesia:v296', '1');
+      localStorage.setItem(KEY_OPSIONE, JSON.stringify(opsione));
+    }
+  } catch (e) { /* pa localStorage: mbetet parazgjedhja */ }
 
   function ruajOpsionet() {
     try { localStorage.setItem(KEY_OPSIONE, JSON.stringify(opsione)); } catch (e) { /* ok */ }
@@ -983,7 +991,7 @@
   // ---------- Madhësia e shkronjave ----------
   // ("Ngjyra kryesore" dhe "Motivi i sfondit" u hoqën në v128: Stoku ka vetëm ngjyrat e dizajnit)
   function zbatoMadhesine() {
-    document.body.setAttribute('data-madhesi', opsione.madhesia === 'e_madhe' || opsione.madhesia === 'e_vogel' ? opsione.madhesia : ''); // v272: edhe "e_vogel"
+    document.body.setAttribute('data-madhesi', opsione.madhesia === 'e_vogel' ? 'e_vogel' : ''); // v296: vetëm "e_vogel" (Normale) dhe "normale" (E madhe)
     Array.prototype.forEach.call(document.querySelectorAll('#segMadhesia button'), function (b) {
       b.classList.toggle('aktiv', b.getAttribute('data-v') === opsione.madhesia);
     });
