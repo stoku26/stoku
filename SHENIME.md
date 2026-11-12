@@ -71,6 +71,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    rezultatet e kërkimit dhe lista "8 deri 30 ditë" me `remember` (llogariten vetëm kur ndryshojnë të dhënat). Testi
    `teste/v285.js`. S'është testuar në pajisje të vërtetë.
 
+0000000. **ZËRAT E SKANIMIT U HOQËN (v294 = 1.55.2, 12.11.2026, telefoni + Android Hyrja 56)**: pronari: "Heke komplet zerin e skanimit
+   kthe qysh u kon". U hoq krejt pjesa e zërave të v292: web `ZERAT`/`luajZerin`/`provoZerin`/`ndertoZerat`/`zbatoZerin`, `opsione.zeri`,
+   karta "Zëri i skanimit" (`#titZeri`, `#seksionZeri`, `#listaZerave`), CSS `.ops-zerat`/`.zeri-nr` (stoku.css v67); `bip()` si para
+   v292 (oshilator katror 1800 Hz, gain 0.2, 0.15 s); teksti "Një bip i shkurtër sa herë lexohet një barkod.". Android: `ui/Zerat.kt` u
+   fshi, `bip()` me `ToneGenerator(STREAM_MUSIC, 80)` / `TONE_PROP_BEEP` 150 ms, `Opsionet.zeri` dhe karta te CilesimetEkrani u hoqën
+   (Opsionet.kt dhe CilesimetEkrani.kt si para v292; te Skaneri.kt mbeti ndreqja e v293 për `LocalLifecycleOwner`). Pref-i "zeri" /
+   `opsione.zeri` i ruajtur në pajisje thjesht injorohet. MBETEN nga v292: zmadhimi poshtë majtas dhe drita poshtë djathtas te kamera e
+   web-it, dhe rikontrolli i dritës. `teste/v292.js` mbeti vetëm për kamerën; `teste/v294.js` i ri. S'është testuar në pajisje të vërtetë.
+
 0000000. **KONTROLLI I PROJEKTIT PAS v292 (v293 = 1.55.1, 12.11.2026, telefoni + PC + Android Hyrja 55; ora dhe Worker-i pa ndryshim)**:
    pronari: "jepja komplet projektit ni sy edhe permirso bugs e gabime tjera ... performanc e stabilitet". Mënyra: ESLint (rregullat e
    saktësisë: no-undef, no-redeclare, no-shadow, kod i paarritshëm etj.) mbi krejt JS-in e web-it dhe Worker-in; paralajmërimet e
@@ -2924,6 +2933,8 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Çdo PR duhet përshkrim të plotë shqip: çka ndryshoi, si u testua, çfarë numrash versioni u prekën.
 
 ## Gjëra që përdoruesi i ka refuzuar/anuluar shprehimisht (mos i propozo/rikthe pa pyetur)
+- **Zgjedhja e zërit të skanimit (10 zëra, v292 / Android Hyrja 54)**: e hoqi menjëherë (v294 / Hyrja 56): "Heke komplet zerin e
+  skanimit kthe qysh u kon". Skanimi ka vetëm bip-in e zakonshëm (ndezës "Tingulli" po/jo); mos e rikthe zgjedhjen e zërit.
 - **Dritaret "si xham" (tejdukshmëri + turbullim, v286 / Hyrja 48 dhe 49)**: i pa në telefon dhe i hoqi menjëherë (v287): "mut e ke bo
   heke glassin edhe nweb edhe ne android app". Dritaret, menytë dhe njoftimi i shkurtër mbeten me ngjyrë të plotë.
 
