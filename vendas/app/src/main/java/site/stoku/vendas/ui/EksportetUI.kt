@@ -252,7 +252,10 @@ fun AfatetPdfFlete(te: List<Obj>, mbyll: () -> Unit, gati: (Skedari) -> Unit) {
             RreshtiIOpsionit(Ik.Rendi, "vjollce", "Renditja", EksportiPdf.RENDET.first { it.first == r }.second, EksportiPdf.RENDET, r, false) { r = it }
         }
         Text("Prek një rresht për ta ndryshuar", style = tx(12, 400, n.faint), modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        // Hyrja 58 (pronari: "qeky buton ish tu mungu ne android app"): butoni ishte te një Column me Modifier.weight, pra me lartësi 0
+        // dhe s'dukej; tani si te web-i: "Anulo" + "Krijo PDF-në" në një rresht
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Buton("Anulo", mbyll, Modifier.weight(1f), lloji = "tekst")
             Buton(if (duke) "Duke e krijuar…" else "Krijo PDF-në", {
                 if (!Llogaria.leja("eksportPdf") || lista.isEmpty() || duke) return@Buton
                 duke = true

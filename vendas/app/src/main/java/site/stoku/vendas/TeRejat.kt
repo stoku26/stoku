@@ -8,6 +8,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(58, "2026-11-13", "Butoni \"Krijo PDF-në\"", listOf(
+            "Te Afatet → Eksporto → PDF për printim duket tani butoni \"Krijo PDF-në\" (me \"Anulo\" pranë), si te web-i."
+        )),
         Hyrja(57, "2026-11-12", "Afatet e produktit kur e skanon", listOf(
             "Te \"Afat i ri\", sapo skanon ose shkruan barkodin, del lista e afateve që ka ai produkt (data, copët, sa ditë kanë mbetur).",
             "Prek një afat nga lista dhe merr datën e tij.",
