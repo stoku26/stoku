@@ -20,6 +20,7 @@ const URL0 = 'http://127.0.0.1:8765/';
     const ctx = await b.newContext({ userAgent: 'Mozilla/5.0 (Linux; Android 14) Chrome/140 Mobile', viewport: { width: 390, height: 844 }, serviceWorkers: 'block', acceptDownloads: true });
     await ctx.route(u => !u.href.startsWith('http://127.0.0.1'), r => r.abort());
     await F.lidh(ctx, 'u1', 'agim@stoku-app.local', 'tel');
+    await ctx.addInitScript(() => { try { localStorage.setItem('stoku:madhesia:v296', '1'); const o = JSON.parse(localStorage.getItem('stoku:opsione:v1') || '{}'); if (!o.madhesia) { o.madhesia = 'normale'; localStorage.setItem('stoku:opsione:v1', JSON.stringify(o)); } } catch (e) {} }); // v296: zoom 1 ("E madhe"), si kur u shkrua testi
     const p = await ctx.newPage();
     p.on('pageerror', e => { g++; console.log('pageerror:', e.message); });
     await p.goto(URL0 + 'index.html'); await p.waitForTimeout(2500);
@@ -51,6 +52,7 @@ const URL0 = 'http://127.0.0.1:8765/';
     const ctx = await b.newContext({ viewport: { width: 1400, height: 900 }, serviceWorkers: 'block', acceptDownloads: true });
     await ctx.route(u => !u.href.startsWith('http://127.0.0.1'), r => r.abort());
     await F.lidh(ctx, 'u1', 'agim@stoku-app.local', 'pc');
+    await ctx.addInitScript(() => { try { localStorage.setItem('stoku:madhesia:v296', '1'); const o = JSON.parse(localStorage.getItem('stoku:opsione:v1') || '{}'); if (!o.madhesia) { o.madhesia = 'normale'; localStorage.setItem('stoku:opsione:v1', JSON.stringify(o)); } } catch (e) {} }); // v296: zoom 1 ("E madhe"), si kur u shkrua testi
     const p = await ctx.newPage();
     p.on('pageerror', e => { g++; console.log('pageerror:', e.message); });
     await p.goto(URL0 + 'pc.html#/afatet'); await p.waitForTimeout(2500);
@@ -79,6 +81,7 @@ const URL0 = 'http://127.0.0.1:8765/';
       await ctx.route(u => !u.href.startsWith('http://127.0.0.1'), r => r.abort());
       if (standalone) await ctx.addInitScript(() => { Object.defineProperty(navigator, 'standalone', { get: () => true }); });
       await F.lidh(ctx, 'u1', 'agim@stoku-app.local', 'tel');
+      await ctx.addInitScript(() => { try { localStorage.setItem('stoku:madhesia:v296', '1'); const o = JSON.parse(localStorage.getItem('stoku:opsione:v1') || '{}'); if (!o.madhesia) { o.madhesia = 'normale'; localStorage.setItem('stoku:opsione:v1', JSON.stringify(o)); } } catch (e) {} }); // v296: zoom 1 ("E madhe"), si kur u shkrua testi
       const p = await ctx.newPage();
       await p.goto(URL0 + 'index.html'); await p.waitForTimeout(1500);
       const r = await p.evaluate(() => ({ kl: document.documentElement.classList.contains('ios-shfletues'), sab: getComputedStyle(document.documentElement).getPropertyValue('--sab').trim(), h: document.getElementById('tabet').getBoundingClientRect().height, bottom: innerHeight - document.getElementById('tabet').getBoundingClientRect().bottom }));
@@ -108,6 +111,7 @@ const URL0 = 'http://127.0.0.1:8765/';
         window.dispatchEvent(new Event('stoku-cloud-gati'));
       }, { once: true });
     }, opt);
+    await ctx.addInitScript(() => { try { localStorage.setItem('stoku:madhesia:v296', '1'); const o = JSON.parse(localStorage.getItem('stoku:opsione:v1') || '{}'); if (!o.madhesia) { o.madhesia = 'normale'; localStorage.setItem('stoku:opsione:v1', JSON.stringify(o)); } } catch (e) {} }); // v296: zoom 1 ("E madhe"), si kur u shkrua testi
     const p = await ctx.newPage();
     p.on('pageerror', e => { if (!/ekipa|StokuEkipa|cloud/i.test(e.message)) { g++; console.log('pageerror:', e.message); } });
     await p.goto(URL0 + 'index.html'); await p.waitForTimeout(1500);

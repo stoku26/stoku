@@ -1,3 +1,4 @@
+// v296: pamja matet me "E madhe" (zoom 1), madhësia për të cilën u shkrua testi
 // v273: pronari (foto e butonit blu/i verdhë brenda folderit): "Shto opsion te cilesimet > skenimi, per butonat e rrethekum met kuqe...
 // Qe secili perdorus me mujt me i qit anen e majt, te djatht ose ne mes. A standard me qen nmes per krejt. Ne android app edhe web app
 // boni. Edhe shtonja ni foto tvogel te cilesimet skenimi me dit per cilat butona o fjala."
@@ -20,7 +21,7 @@ const ruajtur = p => p.evaluate(() => (JSON.parse(localStorage.getItem('stoku:op
 
 (async () => {
   for (const tema of ['light', 'dark']) {
-    const { b, p } = await hapFaqen(chromium);
+    const { b, p } = await hapFaqen(chromium, { madhesia: 'normale' });
     await p.evaluate(t => localStorage.setItem('stoku:tema', t), tema);
     await p.reload(); await p.waitForTimeout(2000); await pastro(p);
 
@@ -80,7 +81,7 @@ const ruajtur = p => p.evaluate(() => (JSON.parse(localStorage.getItem('stoku:op
 
   // 5. PDA dhe pa lejet: s'del as butoni, as zgjedhja
   {
-    const { b, p } = await hapFaqen(chromium);
+    const { b, p } = await hapFaqen(chromium, { madhesia: 'normale' });
     await p.evaluate(() => { const o = JSON.parse(localStorage.getItem('stoku:opsione:v1') || '{}'); o.pda = true; localStorage.setItem('stoku:opsione:v1', JSON.stringify(o)); });
     await p.reload(); await p.waitForTimeout(2000); await pastro(p);
     const f = await folderi(p);
@@ -91,7 +92,7 @@ const ruajtur = p => p.evaluate(() => (JSON.parse(localStorage.getItem('stoku:op
     await b.close();
   }
   {
-    const { b, p } = await hapFaqen(chromium, { uid: 'uB', emri: 'besa', lejet: Object.assign(L.krejt(true), { kamera: false }) });
+    const { b, p } = await hapFaqen(chromium, { madhesia: 'normale', uid: 'uB', emri: 'besa', lejet: Object.assign(L.krejt(true), { kamera: false }) });
     await p.waitForTimeout(500); await pastro(p);
     await skenimi(p);
     const d = await p.evaluate(() => getComputedStyle(document.getElementById('seksionVendiFab')).display);
@@ -102,7 +103,7 @@ const ruajtur = p => p.evaluate(() => (JSON.parse(localStorage.getItem('stoku:op
 
   // 6. Versionet
   {
-    const { b, p } = await hapFaqen(chromium);
+    const { b, p } = await hapFaqen(chromium, { madhesia: 'normale' });
     const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
     const nr = rx => Number((sw.match(rx) || [])[1]);
     ok(nr(/stoku-v(\d+)/) >= 273 && nr(/app-tel\.js\?v=(\d+)/) >= 273 && nr(/teRejat\.js\?v=(\d+)/) >= 273 && nr(/stoku\.css\?v=(\d+)/) >= 58, '6. CACHE, app-tel, teRejat ≥ 273, stoku.css ≥ 58');

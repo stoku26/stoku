@@ -71,6 +71,24 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    rezultatet e kërkimit dhe lista "8 deri 30 ditë" me `remember` (llogariten vetëm kur ndryshojnë të dhënat). Testi
    `teste/v285.js`. S'është testuar në pajisje të vërtetë.
 
+0000000. **MADHËSIA E SHKRONJAVE: DY ZGJEDHJE (v296 = 1.56.1, 12.11.2026, vetëm web telefoni)**: pronari (foto e Cilësimet → Pamja):
+   "fshije komplet qato qka osht e madhe ... tash aktuale qe osht e vogel ndrroja emrin ne normale, a normales aktuale ... emrin e madhe.
+   Edhe per qdo perdorus e len default menjiher madhsin ntmajt". Çelësat e brendshëm s'u ndryshuan: `e_vogel` (zoom .9) quhet tani
+   **"Normale"** dhe është parazgjedhja, `normale` (zoom 1) quhet **"E madhe"**; `e_madhe` (zoom 1.12) u hoq krejt (butoni, CSS
+   `body[data-madhesi="e_madhe"]`, teksti); vlera e ruajtur `e_madhe` ose e panjohur → `e_vogel`. Migrim një herë për çdo pajisje
+   (shenja `stoku:madhesia:v296`): `opsione.madhesia = 'e_vogel'` dhe ruhet; pastaj zgjedhja e përdoruesit mbetet. `#segMadhesia` me dy
+   kolona (stoku.css v68). PC-ja dhe Android-i s'u prekën (kanë "Normale" / "E madhe" të tyre). `teste/v272.js` u përshtat; `teste/v296.js`
+   i ri. TESTET E PAMJES: parazgjedhja .9 i bën të gjitha masat 10% më të vogla (72 → 65 px etj.), prandaj testet që matin piksel për
+   zoom 1 (v268, v269, v271, v273, v275, v277, v279, v280, tre-test) nisen tani me "E madhe" (`hapFaqen(chromium, { madhesia: 'normale' })` te
+   kamera-e-rreme.js, ose një `addInitScript` që vendos `madhesia: 'normale'` + shenjën `stoku:madhesia:v296`); me zoom 1 kalojnë si më
+   parë. `harta-v244.js`: pika e prekjes llogaritet me shkallën e kanavacës (`r.width / canvas.clientWidth`); me prekje të vërteta harta
+   punon edhe me .9 (MapLibre e llogarit vetë shkallën). Pamja me .9 (shiriti poshtë, butoni lundrues, kamera e plotë) provohet te v272.
+   KËRCIMI I LOGOS: `ikonat-test` zbuloi që faqja vizatohej një herë me zoom 1 dhe pastaj zvogëlohej (logoja 152 → 137 px). Tani
+   fillimi-tel.js (v296, në <head>) vendos `data-madhesi="e_vogel"` te <html> para vizatimit të parë (përveç kur përdoruesi ka zgjedhur
+   "E madhe" pas v296); CSS `html[data-madhesi="e_vogel"] body, body[data-madhesi="e_vogel"] { zoom: .9 }`; `zbatoMadhesine` i vendos
+   të dyja.
+   S'është testuar në pajisje të vërtetë.
+
 0000000. **AFATET E PRODUKTIT TE "AFAT I RI" + BASHKIMI I SASISË (v295 = 1.56.0, 12.11.2026, telefoni + PC + Android Hyrja 57)**:
    pronari (pas idesë 2 të propozuar, që s'ekzistonte): "Bone kur e skanon tnjejtin produkt me te njejtin barkod met dal afatet qe i ki
    te qatij produkti, e ne rast se osht afati i njejt kur e shton me ju shtu sasi qasaj date te afatit". Logjika te afatet.js (binjaku

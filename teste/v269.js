@@ -1,3 +1,4 @@
+// v296: pamja matet me "E madhe" (zoom 1), madhësia për të cilën u shkrua testi
 // v269: "Të fshihen të gjitha?" njësoj si te Android-i (Konfirmo): dritare në mes, titulli, teksti (pa shënimin për Excel),
 // "Anulo" me vijë dhe "Fshi të gjitha (5)" e kuqe që aktivizohet pas 5 sekondash. Titulli i folderit vetëm emri, pa numrin e produkteve.
 // Fushat (opsioni 3 i përdoruesit): "Barkodi" + butoni 🔍 50 × 50; "Kërko" del vetëm kur e prek (ose kur ka tekst), prekja tjetër e mbyll dhe e pastron.
@@ -23,7 +24,7 @@ const dritarja = p => p.evaluate(() => {
 
 (async () => {
   for (const tema of ['light', 'dark']) {
-    const { b, p } = await hapFaqen(chromium);
+    const { b, p } = await hapFaqen(chromium, { madhesia: 'normale' });
     await shto(p, tema === 'light' ? 6 : 1);
     await p.evaluate(t => localStorage.setItem('stoku:tema', t), tema);
     await p.reload(); await p.waitForTimeout(2000);

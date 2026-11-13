@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 296, versioni: '1.56.1', data: '2026-11-12', titulli: 'Madhësia e shkronjave', platforma: 'tel', pikat: [
+      'Te Cilësimet → Pamja ka tani dy madhësi: "Normale" dhe "E madhe". Madhësia shumë e madhe u hoq.',
+      'Të gjithë kalojnë një herë te "Normale"; nëse do shkronja më të mëdha, zgjidh "E madhe".'
+    ] },
     { v: 295, versioni: '1.56.0', data: '2026-11-12', titulli: 'Afatet e produktit kur e skanon', platforma: 'tel', pikat: [
       'Te "Afat i ri", sapo skanon ose shkruan barkodin, del lista e afateve që ka ai produkt (data, copët, sa ditë kanë mbetur).',
       'Prek një afat nga lista dhe merr datën e tij.',

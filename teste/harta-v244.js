@@ -125,7 +125,7 @@ const MAPLIBRE = fs.readFileSync(NM + '/maplibre-gl/dist/maplibre-gl.js');
   ok(await ad.evaluate(() => /Burimet e hartës|OpenStreetMap/.test(document.getElementById('htHarta').textContent)), '1. atribuimi (OpenStreetMap) në hartë');
   await ad.screenshot({ path: __dirname + '/v244-tel-admin.png' });
   // Prek pikën në hartë → hapet ndryshimi i emrit
-  const pik = await ad.evaluate(() => { const m = window.StokuHarta.eFundit.map; const q = m.project([21.1600, 42.6610]); const r = m.getCanvas().getBoundingClientRect(); return { x: r.left + q.x, y: r.top + q.y }; });
+  const pik = await ad.evaluate(() => { const m = window.StokuHarta.eFundit.map; const q = m.project([21.1600, 42.6610]); const r = m.getCanvas().getBoundingClientRect(); const c = m.getCanvas(), sh = r.width / c.clientWidth; return { x: r.left + q.x * sh, y: r.top + q.y * sh }; } /* v296: edhe me zoom .9 */);
   await ad.mouse.click(pik.x, pik.y); await ad.waitForTimeout(500);
   ok(await prit(async () => await ad.evaluate(() => { const i = document.querySelector('#htLista .ops-furn-edit input'); return i && i.value === 'Albi 34'; })), '1. prekja e pikës hap ndryshimin e emrit të saj');
   await ad.fill('#htLista .ops-furn-edit input', 'Albi Mall Prishtinë');

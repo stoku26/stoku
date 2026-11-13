@@ -52,6 +52,7 @@ async function faqe(b, af) {
     navigator.canShare = x => !!(x && x.files && x.files.length);
     navigator.share = async x => { window.__ndare = { title: x.title, files: x.files }; };
   }, af);
+  await ctx.addInitScript(() => { try { localStorage.setItem('stoku:madhesia:v296', '1'); const o = JSON.parse(localStorage.getItem('stoku:opsione:v1') || '{}'); if (!o.madhesia) { o.madhesia = 'normale'; localStorage.setItem('stoku:opsione:v1', JSON.stringify(o)); } } catch (e) {} }); // v296: zoom 1 ("E madhe"), si kur u shkrua testi
   const p = await ctx.newPage();
   p.__gab = [];
   p.on('pageerror', e => p.__gab.push(e.message));

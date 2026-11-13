@@ -27,6 +27,7 @@ async function faqe(b, pc) {
     localStorage.setItem('stoku:produktet:v2', JSON.stringify({ 'f1::111': { barkodi: '111', emri: 'Bukë', sasia: 4, kategoriaId: 'f1', prekurSe: t } }));
     localStorage.setItem('stoku:afatet:v1', JSON.stringify(af));
   }, [[{ id: 'a1', emri: 'Kos', barkodi: '3800001', data: d(3), sasia: 3, statusi: 'aktiv', krijuarSe: t - 9e6, ndryshuarSe: t - 9e6 }], t]);
+  await ctx.addInitScript(() => { try { localStorage.setItem('stoku:madhesia:v296', '1'); const o = JSON.parse(localStorage.getItem('stoku:opsione:v1') || '{}'); if (!o.madhesia) { o.madhesia = 'normale'; localStorage.setItem('stoku:opsione:v1', JSON.stringify(o)); } } catch (e) {} }); // v296: zoom 1 ("E madhe"), si kur u shkrua testi
   const p = await ctx.newPage();
   p.__gab = [];
   p.on('pageerror', e => p.__gab.push(e.message));
