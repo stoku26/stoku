@@ -16,3 +16,4 @@ emu/.emu.pid
 emu/firebase-debug.log
 emu/firestore-debug.log
 emu/ui-debug.log
+wp/afatet-worker.mjs

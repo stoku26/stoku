@@ -8508,7 +8508,10 @@
     'foto-shume-e-madhe': 'Fotoja është shumë e madhe. Provo përsëri.',
     'pa-celes': 'Leximi me AI s\'është konfiguruar plotësisht (mungon çelësi API në Worker). Shkruaji rreshtat me dorë.',
     'ai': 'Shërbimi i AI-së s\'u përgjigj për momentin. Provo përsëri pas pak, ose shkruaji rreshtat me dorë.',
-    'origjina': 'Kjo adresë nuk lejohet nga shërbimi i leximit. Shkruaji rreshtat me dorë.'
+    'origjina': 'Kjo adresë nuk lejohet nga shërbimi i leximit. Shkruaji rreshtat me dorë.',
+    // v298 (pronari: "leje 10 foto ne dite"): kufiri ditor dhe leja, të kontrolluara edhe te Worker-i stoku-afatet
+    'kufiri': 'Sot e ke arritur kufirin e leximit me AI (10 fletë në ditë). Provo nesër, ose shkruaji rreshtat me dorë.',
+    'leje': 'Leximi i fletës me AI s\'lejohet për këtë llogari. Shkruaji rreshtat me dorë.'
   };
 
   // Çdo lexim ka numrin e vet: një lexim i anuluar që mbaron vonë s'i mbishkruan rreshtat e një leximi më të ri

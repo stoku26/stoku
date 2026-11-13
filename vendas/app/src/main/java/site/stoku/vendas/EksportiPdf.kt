@@ -18,7 +18,8 @@ import kotlin.math.roundToInt
  * Hyrja 36 (web v275, pronari "ideja 1" + opsionet "A"): afatet në PDF për printim, A4 e bardhë (vetëm e çelët, se printohet).
  * E njëjta faqe si `apPdf` te app-tel.js (mm: anët 12.7, rreshti 7.4, trupi deri te 283; poshtë "Faqja X nga Y").
  * Faqja 1 (pronari, "koka 1"): logoja e vogël majtas, data djathtas, "Lista e afateve" në mes, poshtë "Periudha: … · N produkte · M copë"
- * (trupi nga 37.2, 33 rreshta). Faqet e tjera: koka e ngushtë me titullin në mes dhe të dhënat djathtas (trupi nga 21.2, 35 rreshta).
+ * (trupi nga 37.2, 33 rreshta). Hyrja 61 (pronari, foto): faqet e tjera pa logo/titull/të dhëna, vetëm koka e tabelës (trupi nga 15.3,
+ * 36 rreshta); "COPË" me sasinë më majtas, larg "SKADON" (kolona 18 mm, numri 6 mm para skajit).
  * Barkodi me Onest dhe shifra me gjerësi të njëjtë (pronari: zeroja e JetBrains Mono me pikë ngjante me 8).
  * Pa kolonën "Gjendja" (pronari: ditët e mbetura s'vlejnë më të nesërmen e printimit).
  * Web-i shkruan me helvetica (jsPDF), Android-i me Onest. Ndryshoji bashkë.
@@ -30,7 +31,8 @@ object EksportiPdf {
     private const val W = 210f
     private const val MX = 12.7f
     private const val KOKA1 = 37.2f
-    private const val KOKA = 21.2f
+    private const val KOKA = 15.3f
+    private const val P_SASIA = 6f // hapësira djathtas e kolonës COPË (Hyrja 61)
     private const val RR = 7.4f
     private const val FUND = 283f
     private const val PT = 25.4f / 72f // 1 pikë (pt) në mm
@@ -118,13 +120,13 @@ object EksportiPdf {
         val k = plani[faqja]
         val v = Vizatuesi(ctx, cv)
         val X = MX; val WI = W - 2 * MX
-        val kol = listOf(Kolona("nr", "#", 8f), Kolona("emri", "PRODUKTI", if (paF) 110f else 76f), Kolona("b", "BARKODI", 34f)) +
+        val kol = listOf(Kolona("nr", "#", 8f), Kolona("emri", "PRODUKTI", if (paF) 104f else 70f), Kolona("b", "BARKODI", 34f)) +
             (if (paF) emptyList() else listOf(Kolona("f", "FURNIZUESI", 34f))) +
-            listOf(Kolona("s", "COPË", 12f, djathtas = true), Kolona("d", "SKADON", 20.6f))
+            listOf(Kolona("s", "COPË", 18f, djathtas = true), Kolona("d", "SKADON", 20.6f))
         fun kokaETabeles(yb: Float) {
             var x = X
             v.font(7f, true, hapesira = 0.2f)
-            kol.forEach { c -> v.tekst(c.t, if (c.djathtas) x + c.w - 1.6f else x + 1.6f, yb, MUTED, c.djathtas); x += c.w }
+            kol.forEach { c -> v.tekst(c.t, if (c.djathtas) x + c.w - P_SASIA else x + 1.6f, yb, MUTED, c.djathtas); x += c.w }
             v.vije(X, yb + 2f, X + WI, yb + 2f, 0.26f, INK)
         }
         var y: Float
@@ -138,10 +140,7 @@ object EksportiPdf {
             o.info.forEach { (t, tr) -> v.font(9f, tr); v.tekst(t, xi, 27.4f, if (tr) INK else MUTED); xi += v.gjeresia(t) }
             kokaETabeles(34.6f); y = KOKA1
         } else {
-            with(EksportiFoto) { cv.logo(v.p, X, 9.4f, 4.2f, EksportiFoto.CELET) }
-            v.font(12f, true); v.tekst("Lista e afateve", W / 2, 13.1f, INK, qendra = true)
-            v.font(7.9f, false); v.tekst(v.nxe(o.info.joinToString("") { it.first }, 64f), X + WI, 13.1f, MUTED, true)
-            kokaETabeles(18.6f); y = KOKA
+            kokaETabeles(12.7f); y = KOKA // Hyrja 61: logoja, titulli dhe të dhënat vetëm te faqja 1
         }
         for (j in 0 until k) {
             val i = ngaIdx + j
@@ -156,7 +155,7 @@ object EksportiPdf {
                     "emri" -> { v.font(8.6f, true); v.tekst(v.nxe((a["emri"] as? String)?.takeIf { it.isNotBlank() } ?: jsString(a["barkodi"] ?: "").ifEmpty { "Pa emër" }, w), px, yb, INK) }
                     "b" -> { v.font(8.6f, false, numra = true); v.tekst(v.nxe(jsString(a["barkodi"] ?: ""), w), px, yb, INK2) }
                     "f" -> { v.font(8.6f, false); v.tekst(v.nxe(jsString(a["furnizuesi"] ?: ""), w), px, yb, INK) }
-                    "s" -> { v.font(8.6f, true); v.tekst(jsString(a["sasia"] ?: ""), x + c.w - 1.6f, yb, INK, true) }
+                    "s" -> { v.font(8.6f, true); v.tekst(jsString(a["sasia"] ?: ""), x + c.w - P_SASIA, yb, INK, true) }
                     else -> { v.font(8.6f, true); v.tekst(if (jsString(a["data"] ?: "").isNotEmpty()) Afatet.formato(a["data"]) else "–", px, yb, INK) }
                 }
                 x += c.w

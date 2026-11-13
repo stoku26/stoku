@@ -419,7 +419,7 @@ class PamjetTest {
         org.junit.Assert.assertEquals(listOf(5, 1, 3, 1, 0), EksportiPdf.GJENDJET.map { EksportiPdf.filtro(te, "", it.first, "", false).size })
         org.junit.Assert.assertEquals(2, EksportiPdf.filtro(te, "", "aktive", "vita", false).size)
         org.junit.Assert.assertEquals(listOf(5), EksportiPdf.plani(5))
-        org.junit.Assert.assertEquals(listOf(33, 35, 12), EksportiPdf.plani(80))
+        org.junit.Assert.assertEquals(listOf(33, 36, 11), EksportiPdf.plani(80)) // Hyrja 61: faqet 2+ pa kokën e madhe, 36 rreshta
         val l = EksportiPdf.rendit(EksportiPdf.filtro(te, "", "aktive", "", false), "emri")
         org.junit.Assert.assertEquals("Bukë e zezë", l[0]["emri"])
         val o = EksportiPdf.Opsionet(listOf("Periudha: " to false, "Të gjitha" to true, " · " to false, "5" to true, " produkte" to false, " · " to false, "25" to true, " copë" to false), "07.11.2026", "14:32")

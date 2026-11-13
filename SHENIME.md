@@ -52,6 +52,21 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **LEXIMI ME AI: 10 FLETË NË DITË + WORKER-I stoku-afatet NË REPO (v298 = 1.57.1, 13.11.2026, telefoni + PC + Android Hyrja 60
+   + stoku-afatet v2)**: pronari, pas kontrollit të Worker-ave: "bone opsionin a [kodi në repo], gjithashtu edhe opsionin b [kufi
+   ditor + leja në server] veq leje 10 foto ne dite". `worker/stoku-afatet.js` = kodi i Worker-it të AI-së (i dhënë nga pronari,
+   pa çelësa: GEMINI_API_KEY / ANTHROPIC_API_KEY janë Secrets te Cloudflare; MOS shto kurrë çelës në këtë skedar). v2: (1) kufiri
+   ditor `KUFIRI_DITOR` (parazgjedhur 10) për çdo llogari, dita sipas orës së Kosovës, KV binding `KUFIRI` (mund të jetë i njëjti
+   namespace si FOTO te stoku-push; çelësi `ai-dita:{uid}:{VVVV-MM-DD}`, skadon pas 2 ditësh); llogaritet vetëm leximi që kthen
+   rreshta; i 11-ti → 429 `{ gabim: 'kufiri', kufiri, mbeten: 0 }` pa e thirrur AI-në; përgjigjja e suksesshme ka `mbeten`;
+   administratori (email mendurberisha@stoku-app.local) pa kufi; pa binding `KUFIRI` s'ka kufi (si më parë). (2) Leja në server:
+   lexon `lejet/{uid}` me tokenin e përdoruesit; afatet: `afatetAI` + `afatet`, `synim: 'stok'`: `stokuImporto` + `stoku`; vetëm
+   `false` ndalon → 403 `{ gabim: 'leje' }`; Firestore pa përgjigje = s'bllokohet. GET tregon `versioni: 2` dhe `kufiri` (null pa
+   KV). Mesazhet `kufiri` / `leje` te MESAZHET_AI (app-tel, app-pc) dhe LeximiAI.MESAZHET (Android). Testet: `teste/v298.js`
+   (stoku:ai-url te një adresë e rreme), `teste/wp/afatet-ai-prova.mjs` (token RS256 i vërtetë, Gemini/Firestore/KV të rremë;
+   regresioni e kopjon si `wp/afatet-worker.mjs`, i injoruar nga git). PRONARI: ngjit `worker/stoku-afatet.js` te Cloudflare →
+   stoku-afatet, shto binding KV me emrin `KUFIRI` (Settings → Bindings → KV namespace, i njëjti si FOTO), Deploy; kontrollo që
+   GET tregon `"versioni":2,"kufiri":10`.
 0000000. **"AFAT PËR NJË KOLEG" (v297 = 1.57.0, 13.11.2026, telefoni + PC + Android Hyrja 59 + Worker 169)**: pronari: "Bone met
    shtu dikush tjeter afate e ti me vendos a me ja aprovu a jo"; butoni "si varianti b ... posht anen e majt k te butoni ku shkrun
    ruaj afatin ... bone katror", ikona 2 (njeri me shigjetë të vogël në qoshe); "ne rast se kolega se pranon ate afat, ai afat nuk
