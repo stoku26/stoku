@@ -51,7 +51,10 @@ object LeximiAI {
         "foto-shume-e-madhe" to "Fotoja është shumë e madhe. Provo përsëri.",
         "pa-celes" to "Leximi me AI s'është konfiguruar plotësisht (mungon çelësi API në Worker). Shkruaji rreshtat me dorë.",
         "ai" to "Shërbimi i AI-së s'u përgjigj për momentin. Provo përsëri pas pak, ose shkruaji rreshtat me dorë.",
-        "origjina" to "Kjo adresë nuk lejohet nga shërbimi i leximit. Shkruaji rreshtat me dorë."
+        "origjina" to "Kjo adresë nuk lejohet nga shërbimi i leximit. Shkruaji rreshtat me dorë.",
+        // Hyrja 60 (web v298): kufiri ditor dhe leja, të kontrolluara edhe te Worker-i stoku-afatet
+        "kufiri" to "Sot e ke arritur kufirin e leximit me AI (10 fletë në ditë). Provo nesër, ose shkruaji rreshtat me dorë.",
+        "leje" to "Leximi i fletës me AI s'lejohet për këtë llogari. Shkruaji rreshtat me dorë."
     )
 
     fun mesazhi(kodi: String) = MESAZHET[kodi] ?: "Fleta s'u lexua ($kodi). Provo një foto më të qartë, ose shkruaji rreshtat me dorë."

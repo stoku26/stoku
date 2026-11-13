@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(60, "2026-11-13", "Leximi i fletës me AI: 10 në ditë", listOf(
+            "Leximi i fletës me AI (\"Fotografo fletën\") lejohet deri në 10 fletë në ditë për çdo llogari.",
+            "Kur e arrin kufirin, del një mesazh i qartë: provo nesër, ose shkruaji rreshtat me dorë."
+        )),
         Hyrja(59, "2026-11-13", "Afat për një koleg", listOf(
             "Te \"Afat i ri\", butoni katror majtas \"Ruaj afatin\" e dërgon afatin te një koleg i grupit: zgjedh kolegun dhe prek \"Dërgo te ... për miratim\".",
             "Kolegu e sheh te zilja dhe e pranon (hyn te lista e tij) ose e refuzon. Kur e refuzon, ose s'e pranon brenda 10 ditëve, afati kthehet te lista jote dhe të vjen njoftim.",

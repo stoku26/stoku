@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 298, versioni: '1.57.1', data: '2026-11-13', titulli: 'Leximi i fletës me AI: 10 në ditë', pikat: [
+      'Leximi i fletës me AI ("Fotografo fletën") lejohet deri në 10 fletë në ditë për çdo llogari.',
+      'Kur e arrin kufirin, del një mesazh i qartë: provo nesër, ose shkruaji rreshtat me dorë.'
+    ] },
     { v: 297, versioni: '1.57.0', data: '2026-11-13', titulli: 'Afat për një koleg', platforma: 'tel', pikat: [
       'Te "Afat i ri", butoni katror majtas "Ruaj afatin" e dërgon afatin te një koleg i grupit: zgjedh kolegun dhe prek "Dërgo te ... për miratim".',
       'Kolegu e sheh te zilja dhe e pranon (hyn te lista e tij) ose e refuzon. Kur e refuzon, afati kthehet te lista jote dhe të vjen njoftim.',
