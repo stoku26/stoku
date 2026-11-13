@@ -20,6 +20,18 @@
   'use strict';
 
   var LISTA = [
+    { v: 297, versioni: '1.57.0', data: '2026-11-13', titulli: 'Afat për një koleg', platforma: 'tel', pikat: [
+      'Te "Afat i ri", butoni katror majtas "Ruaj afatin" e dërgon afatin te një koleg i grupit: zgjedh kolegun dhe prek "Dërgo te ... për miratim".',
+      'Kolegu e sheh te zilja dhe e pranon (hyn te lista e tij) ose e refuzon. Kur e refuzon, afati kthehet te lista jote dhe të vjen njoftim.',
+      'Nëse kolegu s\'e pranon brenda 10 ditëve, afati kthehet vetë te lista jote dhe të vjen njoftim.'
+    ] },
+    { v: 297, versioni: '1.57.0', data: '2026-11-13', titulli: 'Afat për një koleg', platforma: 'pc', pikat: [
+      'Te "Afat i ri", butoni katror poshtë majtas e dërgon afatin te një koleg i grupit për miratim.',
+      'Kolegu e pranon ose e refuzon te zilja. Kur e refuzon, ose s\'e pranon brenda 10 ditëve, afati kthehet te lista jote dhe të vjen njoftim.'
+    ] },
+    { v: 297, versioni: '1.57.0', data: '2026-11-13', titulli: 'Leje e re: Afat për një koleg', vetemAdmini: true, pikat: [
+      'Te Cilësimet → Përdoruesit ka leje të re "Afat për një koleg" (te Grupi). Është e ndezur për të gjithë; mund t\'ia fikësh kujt të duash.'
+    ] },
     { v: 296, versioni: '1.56.1', data: '2026-11-12', titulli: 'Madhësia e shkronjave', platforma: 'tel', pikat: [
       'Te Cilësimet → Pamja ka tani dy madhësi: "Normale" dhe "E madhe". Madhësia shumë e madhe u hoq.',
       'Të gjithë kalojnë një herë te "Normale"; nëse do shkronja më të mëdha, zgjidh "E madhe".'
@@ -952,6 +964,7 @@
     ['afatetImporto', /import/i],
     ['grupi', /grup|koleg|ekip|anëtar/i],
     ['grupiKerkesat', /kërkes/i],
+    ['grupiAfatKolegu', /për një koleg|afat(in|e)? (te|për) (një )?koleg/i],
     ['kamera', /kamer/i],
     ['eksportExcel', /excel/i],
     ['eksportPdf', /\bpdf/i],

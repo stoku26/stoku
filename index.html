@@ -562,6 +562,7 @@
   #dlgImportStok { z-index: 22; }
   #dlgFolder { z-index: 23; } /* mbi #dlgImportStok — hapet edhe nga aty, "+ Folder i ri" */
   #dlgAfat { z-index: 23; }
+  #dlgKolegu { z-index: 24; } /* v297: mbi "Afat i ri" */
   #dlgMarketi, #dlgMarketiRi { z-index: 24; } /* v242: mbi faqen e Afateve (21) dhe "Afat i ri" (23) */
   .faqe-kuti { width: 100%; height: 100%; background: var(--sfond); display: flex; flex-direction: column; }
   .faqe-trup {
@@ -1120,7 +1121,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=6">
-<link rel="stylesheet" href="css/stoku.css?v=68">
+<link rel="stylesheet" href="css/stoku.css?v=69">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -2046,6 +2047,16 @@
       <h2 id="afatTitulli">Afat i ri</h2>
       <button class="btn tekst" id="afatAnulo" type="button">Anulo</button>
     </div>
+    <!-- v297: afati i ri për një koleg (zgjidhet me butonin katror poshtë) -->
+    <div class="af-per" id="afatPer" hidden>
+      <div class="af-per__rresht">
+        <span class="af-per__av" id="afatPerAv"></span>
+        <span class="af-per__tx">Për <b id="afatPerEmri"></b></span>
+        <button class="af-per__ndr" id="afatPerNdrysho" type="button">Ndrysho</button>
+        <button class="af-per__hiq" id="afatPerHiq" type="button" aria-label="Ruaje te lista jote" title="Ruaje te lista jote">✕</button>
+      </div>
+      <div class="af-per__shenim" id="afatPerShenim"></div>
+    </div>
     <div class="af-info-dlg" id="afatInfo" style="display:none"></div>
     <div class="sb-scan">
       <div class="sb-scan__status" id="afatPdaHint" style="display:none">Skano barkodin me skanerin e PDA-së.</div>
@@ -2076,9 +2087,23 @@
     <label class="mk-fusha" id="afatMarketiRresht" hidden><span class="sb-field-label">Marketi</span><select id="afatMarketi" aria-label="Marketi"></select></label>
     <div class="af-status-veprime" id="afatStatusVeprime"></div>
     <div class="veprime">
+      <button class="af-koleg" id="afatKoleg" type="button" aria-label="Për një koleg" title="Për një koleg" hidden><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="4"></circle><path d="M3 21v-1a6 6 0 0 1 6-6h2"></path><path d="M15 18h7"></path><path d="M19 15l3 3-3 3"></path></svg></button>
       <button class="btn tekst rrezik" id="afatFshij" type="button" data-leja="afatetFshi">Fshi</button>
       <button class="btn" id="afatRuaj" type="button">Ruaj afatin</button>
     </div>
+  </div>
+</div>
+
+<!-- v297: "Për cilin koleg?" (afati i ri i shkon kolegut për miratim) -->
+<div class="mbulese" id="dlgKolegu">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="kolTitulli">
+    <div class="sb-sheet-krye">
+      <h2 id="kolTitulli">Për cilin koleg?</h2>
+      <button class="btn tekst" id="kolAnulo" type="button">Anulo</button>
+    </div>
+    <p class="hint kol-hint">Afati i shkon kolegut për miratim. Hyn te lista e tij vetëm pasi ta pranojë.</p>
+    <input id="kolKerko" type="search" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Kërko kolegun" aria-label="Kërko kolegun" hidden>
+    <div class="kol-lista" id="kolLista"></div>
   </div>
 </div>
 
@@ -2164,14 +2189,14 @@
 <script src="bashkimi.js?v=281"></script>
 <script src="ruajtja.js?v=281"></script>
 <script src="skedaret.js?v=1"></script>
-<script src="lejet.js?v=6"></script>
+<script src="lejet.js?v=7"></script>
 <script src="afatet.js?v=295"></script>
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
-<script src="ekipa.js?v=293"></script>
+<script src="ekipa.js?v=297"></script>
 <script src="njoftimet.js?v=281"></script>
-<script src="teRejat.js?v=296"></script>
-<script src="app-tel.js?v=296"></script>
+<script src="teRejat.js?v=297"></script>
+<script src="app-tel.js?v=297"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>

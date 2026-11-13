@@ -50,7 +50,7 @@ const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databa
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
 const PUSH_MAKS = 36;
-const VERSIONI_WORKER = 168; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 169; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 const W = {
@@ -142,6 +142,8 @@ const W = {
         if (!iFreskët(n)) return pergjigju({ ok: false, arsye: 'i-vjeter' }, 409);
         const tekst = tekstiINjoftimit(n);
         if (!tekst) return pergjigju({ ok: false, arsye: 'bosh' }, 400);
+        // v169: afati për një koleg: regjistrohet për kthimin te dërguesi pas 10 ditëve pa vendim (Cron, edhe me Stoku të mbyllur)
+        if (n.lloji === 'afat-dergim' && env.FOTO) { try { await regjistroAfatinPerKolegun(env, id, per, uid, grupi, n); } catch (e) { console.error('stoku-push afat-kolegu:', String(e && e.message || e)); } }
         // tag-u i njëjtë me njoftimin që e nxjerr vetë aplikacioni ("ek-nj-" + id): s'del dy herë, njëri e zëvendëson tjetrin
         ngarkesa = { lloji: 'njoftim', titulli: 'Stoku · Grupi', teksti: tekst.length > 180 ? tekst.slice(0, 177) + '…' : tekst, tag: 'ek-nj-' + id, koha: Number(n.koha) || Date.now(), pamja: 'njoftimet' };
         perKe = a => a.uid === per;
@@ -195,6 +197,8 @@ const W = {
     await shenoCronin(env, tani, shprehja);
     try { await dergoNjoftimetDitore(env, tani, shprehja); }
     catch (e) { await shenoGabimin(env, tani, String(e && e.stack || e)); }
+    try { await ktheAfatetEKolegeve(env, tani); } // v169
+    catch (e) { await shenoGabimin(env, tani, 'afat-kolegu: ' + String(e && e.stack || e)); }
   }
 };
 export default W;
@@ -593,7 +597,88 @@ async function provoShkrimin(env) {
     return o;
   } catch (e) { return { ok: false, koha: Date.now(), mesazh: String(e && e.message || e).slice(0, 200) }; }
 }
-export { njoftimiDitor, kohaLokale, dergoNjoftimetDitore };
+export { njoftimiDitor, kohaLokale, dergoNjoftimetDitore, ktheAfatetEKolegeve, tekstiINjoftimit };
+
+// ---------------- v169: "Afat për një koleg" (aplikacioni v297) ----------------
+// Kolegu e pranon ose e refuzon afatin (njoftimi 'afat-dergim'). Pa vendim brenda 10 ditëve, Cron-i ia kthen dërguesit:
+// njoftimi i kolegut shënohet 'skadoi' (s'pranohet më), dërguesi merr 'afat-kthyer' (id "k"+id, njësoj si refuzimi, që
+// aplikacioni e fut afatin një herë të vetme) dhe push në pajisjet e tij. Të drejtat: FCM_SA (llogaria e shërbimit).
+// KV: 'afat-kolegu' = { id: { per, uid, g, koha, afat } }: një lexim në minutë, shkrime vetëm kur ndryshon.
+const AFAT_KOLEGU_MS = 10 * 86400000;
+const AFAT_KOLEGU_MAKS = 2000;
+async function lexoAfatetEKolegeve(env) { try { return (await env.FOTO.get('afat-kolegu', 'json')) || {}; } catch (e) { return {}; } }
+function afatiIPastër(a) {
+  a = a && typeof a === 'object' ? a : {};
+  const o = { barkodi: String(a.barkodi || '').slice(0, 64), emri: String(a.emri || '').slice(0, 200) };
+  if (DATA_RE.test(String(a.data || ''))) o.data = String(a.data);
+  if (typeof a.sasia === 'number' && isFinite(a.sasia) && a.sasia >= 0) o.sasia = Math.floor(a.sasia);
+  if (a.furnizuesi) o.furnizuesi = String(a.furnizuesi).slice(0, 200);
+  return o;
+}
+async function regjistroAfatinPerKolegun(env, id, per, uid, grupi, n) {
+  const ind = await lexoAfatetEKolegeve(env);
+  if (ind[id]) return;
+  const ids = Object.keys(ind);
+  if (ids.length >= AFAT_KOLEGU_MAKS) return; // kufiri (s'duhet të arrihet): aplikacioni i dërguesit ka rezervën e vet
+  ind[id] = { per, uid, g: grupi, koha: Number(n._krijuarSe) || Number(n.koha) || Date.now(), afat: afatiIPastër(n.afat) };
+  await env.FOTO.put('afat-kolegu', JSON.stringify(ind));
+}
+// Ndryshon vetëm fushat e dhëna te një dokument që ekziston (updateMask)
+async function perditesoFushat(rruga, obj, token) {
+  const fields = {}; for (const k in obj) fields[k] = vleraPer(obj[k]);
+  const q = Object.keys(obj).map(k => 'updateMask.fieldPaths=' + encodeURIComponent(k)).join('&') + '&currentDocument.exists=true';
+  const r = await fetch(FS + '/' + rruga + '?' + q, { method: 'PATCH', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify({ fields }) });
+  if (!r.ok) { const e = new Error('firestore-' + r.status); e.status = r.status; throw e; }
+}
+async function ktheAfatetEKolegeve(env, tani) {
+  if (!env.FOTO || !env.FCM_SA) return 0;
+  const ind = await lexoAfatetEKolegeve(env);
+  const teSkaduara = Object.keys(ind).filter(id => ind[id] && tani - (Number(ind[id].koha) || 0) >= AFAT_KOLEGU_MS);
+  if (!teSkaduara.length) return 0;
+  const at = await tokeniAdmin(env);
+  let ndryshoi = false, kthyer = 0;
+  for (const id of teSkaduara.slice(0, 8)) { // kufiri i kërkesave dalëse për ekzekutim (plani falas)
+    const x = ind[id];
+    try {
+      const rN = 'perdoruesit/' + x.per + '/njoftimet/' + id;
+      const n = await lexoDoc(rN, at);
+      let kthe;
+      if (n) kthe = !n.vendim; // kolegu e pranoi/refuzoi: s'ka çka të bëhet (refuzimin e ktheu vetë aplikacioni i tij)
+      else kthe = !(await lexoDoc('perdoruesit/' + x.uid + '/njoftimet/p' + id, at)); // u fshi: kthehet vetëm nëse s'u pranua
+      if (kthe) {
+        if (n) await perditesoFushat(rN, { vendim: 'skadoi', vendosurSe: tani, lexuar: true }, at);
+        let emriK = '';
+        try { const a = await lexoDoc('grupet/' + x.g + '/anetaret/' + x.per, at); emriK = a && a.emri ? String(a.emri).slice(0, 60) : ''; } catch (e) { /* ok */ }
+        const nj = { lloji: 'afat-kthyer', arsye: 'skadoi', afat: x.afat || {}, dergimId: id, grupi: x.g, uid: x.per, emri: emriK, koha: tani, lexuar: false };
+        // vetëm krijim: nëse kolegu e refuzoi ndërkohë (i njëjti id), s'dyfishohet
+        if (await shkruajDoc('perdoruesit/' + x.uid + '/njoftimet', 'k' + id, nj, at)) {
+          kthyer++;
+          await dergoPushPerdoruesit(env, at, x.uid, x.g, { lloji: 'njoftim', titulli: 'Stoku · Grupi', teksti: tekstiINjoftimit(nj), tag: 'ek-nj-k' + id, koha: tani, pamja: 'njoftimet' });
+        }
+      }
+      delete ind[id]; ndryshoi = true;
+    } catch (e) {
+      console.error('stoku-push afat-kolegu:', id, String(e && e.message || e));
+      if (tani - (Number(x.koha) || 0) > AFAT_KOLEGU_MS + 3 * 86400000) { delete ind[id]; ndryshoi = true; } // 3 ditë prova: mjaft
+    }
+  }
+  if (ndryshoi) await env.FOTO.put('afat-kolegu', JSON.stringify(ind));
+  return kthyer;
+}
+// Push te pajisjet e një përdoruesi të grupit (me tokenin e administratorit)
+async function dergoPushPerdoruesit(env, at, uid, grupi, ngarkesa) {
+  let pajisjet = [];
+  try { pajisjet = (await listoPajisjet(at, 'grupet/' + grupi + '/push')).filter(a => a.uid === uid); } catch (e) { return; }
+  const pare = new Set();
+  pajisjet = pajisjet.filter(a => !pare.has(a.endpoint) && pare.add(a.endpoint)).slice(0, 10);
+  const vapid = await pergatitVapid(env);
+  await Promise.all(pajisjet.map(async a => {
+    try {
+      const st = await dergoPush(a, Object.assign({}, ngarkesa, { url: a.platforma === 'pc' ? './pc.html#/ekipa/njoftimet' : './index.html#ekipa-njoftimet' }), vapid);
+      if (st === 404 || st === 410) await fshiDoc('grupet/' + grupi + '/push/' + a.id, at);
+    } catch (e) { /* një pajisje e prishur s'i ndal të tjerat */ }
+  }));
+}
 
 // ---------------- Fotot e profilit (Cloudflare KV) ----------------
 const FOTO_MAKS = 150 * 1024;
@@ -691,8 +776,20 @@ function objektNga(fields) { const o = {}; for (const k in fields) o[k] = vleraN
 // Teksti i një njoftimi personal të grupit (i njëjtë me tekstiNjoftimit te ekipa.js)
 const FJALA_E_VEPRIMIT = { hiq: 'e hoqi nga rafti', kthe: 'e ktheu në raft', fshij: 'e fshiu' };
 function dataShkurtNjoftimi(iso) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || '')); return m ? m[3] + '.' + m[2] + '.' + m[1] : ''; }
+// v169: afati për një koleg (nj.afat): "Kos Vita · 30.11.2026 · 6 copë" (si produktiIAfatitDerguar te ekipa.js)
+function produktiIAfatitDerguar(n) {
+  const a = n && n.afat && typeof n.afat === 'object' ? n.afat : {};
+  let t = String(a.emri || a.barkodi || 'produkt').slice(0, 120);
+  const d = dataShkurtNjoftimi(a.data);
+  if (d) t += ' · ' + d;
+  if (typeof a.sasia === 'number') t += ' · ' + a.sasia + ' copë';
+  return t;
+}
 function tekstiINjoftimit(n) {
   const kush = String(n.emri || '').slice(0, 40), produkti = String(n.produkti || n.barkodi || 'produkt').slice(0, 120);
+  if (n.lloji === 'afat-dergim') return (kush || 'Një koleg') + ' të dërgoi një afat: ' + produktiIAfatitDerguar(n);
+  if (n.lloji === 'afat-pranuar') return (kush || 'Kolegu') + ' e pranoi afatin që i dërgove: ' + produktiIAfatitDerguar(n);
+  if (n.lloji === 'afat-kthyer') return (kush || 'Kolegu') + (n.arsye === 'skadoi' ? ' s\'e pranoi brenda 10 ditëve afatin: ' : ' s\'e pranoi afatin: ') + produktiIAfatitDerguar(n) + '. E ke te lista jote.';
   if (n.lloji === 'hequr') { const d = dataShkurtNjoftimi(n.data); return (kush || 'Një koleg') + ' e hoqi nga rafti: ' + produkti + (d ? ' (skadoi më ' + d + ')' : ''); }
   if (n.lloji === 'heqje-pranuar') return (kush || 'Kolegu') + ' e pranoi heqjen nga rafti: ' + produkti;
   if (n.lloji === 'heqje-refuzuar') return (kush || 'Kolegu') + ' e refuzoi heqjen nga rafti: ' + produkti + ' (mbetet në raft)';

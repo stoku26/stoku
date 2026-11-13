@@ -8,6 +8,11 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(59, "2026-11-13", "Afat për një koleg", listOf(
+            "Te \"Afat i ri\", butoni katror majtas \"Ruaj afatin\" e dërgon afatin te një koleg i grupit: zgjedh kolegun dhe prek \"Dërgo te ... për miratim\".",
+            "Kolegu e sheh te zilja dhe e pranon (hyn te lista e tij) ose e refuzon. Kur e refuzon, ose s'e pranon brenda 10 ditëve, afati kthehet te lista jote dhe të vjen njoftim.",
+            "Te \"Sasia\" numri 0 s'del më përzier me kursorin; furnizuesit e sugjeruar dalin mbi fushë, që të zgjidhen lehtë."
+        )),
         Hyrja(58, "2026-11-13", "Butoni \"Krijo PDF-në\"", listOf(
             "Te Afatet → Eksporto → PDF për printim duket tani butoni \"Krijo PDF-në\" (me \"Anulo\" pranë), si te web-i."
         )),

@@ -1188,6 +1188,53 @@
         return pritPak(shtoNeRadhe(rrG('feed'), Object.assign({ lloji: 'kerkese-kryer', uid: uid(), emri: emri(), koha: koha,
           kerkuesUid: nj.uid || '', kerkuesEmri: nj.emri || '' }, te)));
       },
+      // v297: afat për një koleg: njoftim te zilja e tij (Prano / Refuzo). Push-in e dërgon Worker-i (/njoftim), i cili e
+      // regjistron edhe për kthimin pas 10 ditëve.
+      dergoAfatKolegut: function (perUid, afat) {
+        if (!uid() || !grupi || !perUid || perUid === uid()) return Promise.resolve({ ok: false, arsye: 'bosh' });
+        return pritPak(shtoNeRadhe(['perdoruesit', perUid, 'njoftimet'], { lloji: 'afat-dergim', afat: afatiPerKolegun(afat), grupi: grupi,
+          uid: uid(), emri: emri(), koha: Date.now(), lexuar: false }));
+      },
+      // Kolegu vendos: njoftimi i vet (vendim) + njoftim te dërguesi. Refuzimi = 'afat-kthyer' (id e caktuar: nëse e ka
+      // kthyer ndërkohë Worker-i, ky shkrim refuzohet nga rregullat dhe s'ka dyfishim).
+      vendosPerAfatin: async function (nj, pranoj) {
+        if (!uid() || !nj || !nj.id) return { ok: false };
+        try { // vendimi i dhënë ndërkohë (pajisja tjetër, ose Worker-i pas 10 ditëve)
+          var s = await Promise.race([fs.getDoc(fs.doc(db, 'perdoruesit', uid(), 'njoftimet', nj.id)), new Promise(function (r) { setTimeout(function () { r(null); }, 4000); })]);
+          if (s && !s.exists()) return { ok: false, arsye: 'fshire' };
+          var v0 = s && s.data().vendim;
+          if (v0) return { ok: false, arsye: v0 };
+        } catch (e) { /* pa internet: vazhdohet, kalon nga radha */ }
+        var koha = Date.now();
+        var r0 = await pritPak(shtoNeRadhe(['perdoruesit', uid(), 'njoftimet'], { vendim: pranoj ? 'pranuar' : 'refuzuar', vendosurSe: koha, lexuar: true }, { id: nj.id, perditeso: true }));
+        if (!r0.ok) return r0;
+        var g = grupi || nj.grupi;
+        if (nj.uid && nj.uid !== uid() && g) {
+          var te = { grupi: g, uid: uid(), emri: emri(), koha: koha, lexuar: false, dergimId: nj.id, afat: afatiPerKolegun(nj.afat) };
+          if (pranoj) shtoNeRadhe(['perdoruesit', nj.uid, 'njoftimet'], Object.assign({ lloji: 'afat-pranuar' }, te), { id: idPranimit(nj.id) });
+          else shtoNeRadhe(['perdoruesit', nj.uid, 'njoftimet'], Object.assign({ lloji: 'afat-kthyer', arsye: 'refuzoi' }, te), { id: idKthimit(nj.id) });
+        }
+        return { ok: true };
+      },
+      // Dërguesi: afati i kthyer u fut te afatet e mia (që pajisja tjetër të mos e fusë sërish)
+      shenoAfatinTeKthyer: function (id) {
+        if (!uid() || !id) return Promise.resolve({ ok: false });
+        return pritPak(shtoNeRadhe(['perdoruesit', uid(), 'njoftimet'], { zbatuar: true }, { id: id, perditeso: true }));
+      },
+      // Dërguesi, rezervë kur Worker-i s'e ktheu: njoftimi te kolegu (rregullat ia lejojnë `get` atij që e shkroi) dhe
+      // pranimi te zilja ime. { ok, njoftimi: obj|null, pranuar: bool }
+      kontrolloDergimin: async function (perUid, id) {
+        if (!uid() || !perUid || !id) return { ok: false };
+        try {
+          var s = null;
+          // Rregullat: dërguesi e lexon njoftimin e vet; kur kolegu e ka fshirë, leximi refuzohet ("permission-denied")
+          try { s = await fs.getDoc(fs.doc(db, 'perdoruesit', perUid, 'njoftimet', id)); }
+          catch (e1) { if (!/permission-denied/.test(String(e1 && e1.code))) throw e1; }
+          if (s && s.exists()) return { ok: true, njoftimi: s.data(), pranuar: false };
+          var p = await fs.getDoc(fs.doc(db, 'perdoruesit', uid(), 'njoftimet', idPranimit(id)));
+          return { ok: true, njoftimi: null, pranuar: p.exists() };
+        } catch (e) { return gabim(e); }
+      },
       // Pronari vendos për heqjen e një kolegu: njoftimi i vet (vendim), njoftim te kolegu dhe ngjarje te aktiviteti
       vendosPerHeqjen: async function (nj, pranoj) {
         if (!uid() || !nj || !nj.id) return { ok: false };
@@ -1885,8 +1932,44 @@
       numri: function () { return rendi.length; }
     };
   }
+  // v297 (pronari): "Afat për një koleg". Dërguesi ia dërgon afatin e ri një kolegu (njoftimi 'afat-dergim', me afatin
+  // brenda); kolegu e pranon (hyn te afatet e tij) ose e refuzon (i kthehet dërguesit, 'afat-kthyer'). Pa vendim brenda
+  // 10 ditëve, Worker-i ia kthen dërguesit (Cron). Deri atëherë dërguesi s'sheh asgjë ("pa listë në pritje").
+  var AFAT_KOLEGU_DITE = 10, AFAT_KOLEGU_MS = AFAT_KOLEGU_DITE * 86400000;
+  // Vetëm fushat që i nevojiten kolegut (marketi është i dërguesit: s'dërgohet)
+  function afatiPerKolegun(a) {
+    a = (a && typeof a === 'object') ? a : {};
+    var o = { barkodi: String(a.barkodi == null ? '' : a.barkodi).replace(/\s+/g, '').slice(0, 64), emri: String(a.emri == null ? '' : a.emri).trim().slice(0, 200) };
+    if (/^\d{4}-\d{2}-\d{2}$/.test(String(a.data || ''))) o.data = String(a.data);
+    if (typeof a.sasia === 'number' && isFinite(a.sasia) && a.sasia >= 0) o.sasia = Math.floor(a.sasia);
+    var f = String(a.furnizuesi == null ? '' : a.furnizuesi).trim().slice(0, 200);
+    if (f) o.furnizuesi = f;
+    return o;
+  }
+  // 'pritet' | 'pranuar' | 'refuzuar' | 'skadoi' (10 ditë pa vendim; edhe kur Worker-i s'e ka shënuar ende)
+  function gjendjaEAfatitKolegut(nj, tani) {
+    if (!nj) return 'skadoi';
+    if (nj.vendim === 'pranuar' || nj.vendim === 'refuzuar' || nj.vendim === 'skadoi') return nj.vendim;
+    return tani - (Number(nj.koha) || 0) >= AFAT_KOLEGU_MS ? 'skadoi' : 'pritet';
+  }
+  // Id-të e caktuara (pa dyfishime kur e zbatojnë dy pajisje ose Worker-i dhe kolegu njëkohësisht)
+  function idKthimit(dergimId) { return 'k' + dergimId; }     // njoftimi 'afat-kthyer' te dërguesi
+  function idPranimit(dergimId) { return 'p' + dergimId; }    // njoftimi 'afat-pranuar' te dërguesi
+  function idAfatitKthyer(dergimId) { return 'kd' + dergimId; } // afati që i kthehet dërguesit
+  // v297: afati që një koleg ta dërgon (nj.afat): "Kos Vita · 30.11.2026 · 6 copë"
+  function produktiIAfatitDerguar(nj) {
+    var a = (nj && nj.afat && typeof nj.afat === 'object') ? nj.afat : {}, A = AF();
+    var t = String(a.emri || a.barkodi || 'produkt');
+    if (a.data) t += ' · ' + (A ? A.formato(a.data) : a.data);
+    if (typeof a.sasia === 'number') t += ' · ' + a.sasia + ' copë';
+    return t;
+  }
   // Teksti i një njoftimi personal (zilja + njoftimi i sistemit)
   function tekstiNjoftimit(nj) {
+    if (nj.lloji === 'afat-dergim') return (nj.emri || 'Një koleg') + ' të dërgoi një afat: ' + produktiIAfatitDerguar(nj);
+    if (nj.lloji === 'afat-pranuar') return (nj.emri || 'Kolegu') + ' e pranoi afatin që i dërgove: ' + produktiIAfatitDerguar(nj);
+    if (nj.lloji === 'afat-kthyer') return (nj.emri || 'Kolegu') + (nj.arsye === 'skadoi' ? ' s\'e pranoi brenda 10 ditëve afatin: ' : ' s\'e pranoi afatin: ') +
+      produktiIAfatitDerguar(nj) + '. E ke te lista jote.';
     if (nj.lloji === 'kerkese-heqje') return (nj.emri || 'Një koleg') + (nj.perKrejt ? ' i kërkon grupit ta heqë nga rafti: ' : ' të kërkon ta heqësh nga rafti: ') +
       produktiIKerkeses(nj) + (nj.shenim ? ' · ' + nj.shenim : '');
     if (nj.lloji === 'kerkese-kryer') return (nj.emri || 'Një koleg') + ' e hoqi nga rafti: ' + produktiIKerkeses(nj) + ' (kërkesa jote)';
@@ -2640,9 +2723,96 @@
           var ngaPush = (/^kerkese-/.test(n.lloji) && e.pushAktiv && e.pushAktiv()) || !!(e.pushPerNjoftimet && e.pushPerNjoftimet());
           o.njofto({ titulli: /^kerkese-/.test(n.lloji) ? 'Stoku · Hiqe nga rafti' : n.lloji === 'fjalekalimi' ? 'Stoku · Fjalëkalimi' : 'Stoku · Grupi', teksti: tekstiNjoftimit(n), tag: 'ek-nj-' + n.id, pamja: 'njoftimet', vetemNePerpara: ngaPush });
         });
+        zbatoAfatetEKolegeve(lista);
         thirr('njoftimet');
       }, function () { /* p.sh. rregullat ende pa u vendosur — thjesht s'ka njoftime */ });
       if (e.aktivizoPush) e.aktivizoPush().then(function () { thirr('push'); }, function () { /* ok */ });
+      setTimeout(kontrolloDergimet, 8000);
+    }
+
+    // ---------- v297: afati për një koleg ----------
+    // Dërgimet e mia ende pa përgjigje: vetëm në këtë pajisje, të fshehura (s'dalin askund). Shërbejnë si rezervë kur
+    // Worker-i s'e kthen afatin pas 10 ditëve.
+    function celesiDergimeve() { return 'stoku:ekipa:afat-derguar:' + o.uidIm(); }
+    function celesiKthimeve() { return 'stoku:ekipa:afat-kthyer:' + o.uidIm(); }
+    function lexoListen(k) { try { var l = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(l) ? l : []; } catch (x) { return []; } }
+    function ruajListen(k, l) { try { localStorage.setItem(k, JSON.stringify(l)); } catch (x) { /* ok */ } }
+    function hiqDergimin(id) { if (o.uidIm()) ruajListen(celesiDergimeve(), lexoListen(celesiDergimeve()).filter(function (x) { return x && x.id !== id; })); }
+    // Afati i kthyer hyn te afatet e mia një herë të vetme (id e caktuar: dy pajisje s'e dyfishojnë)
+    function ktheAfatinTek(dergimId, afat) {
+      if (!o.uidIm() || !dergimId) return false;
+      var l = lexoListen(celesiKthimeve());
+      if (l.indexOf(dergimId) >= 0) { hiqDergimin(dergimId); return false; }
+      var shtuar = false;
+      if (o.ktheAfatin) { try { shtuar = !!o.ktheAfatin(afatiPerKolegun(afat), idAfatitKthyer(dergimId)); } catch (x) { return false; } }
+      l.push(dergimId); ruajListen(celesiKthimeve(), l.slice(-300));
+      hiqDergimin(dergimId);
+      return shtuar;
+    }
+    // Njoftimet e reja te zilja ime: kthimet (refuzim / 10 ditë) zbatohen vetë; pranimet e heqin dërgimin nga rezerva
+    function zbatoAfatetEKolegeve(lista) {
+      var e = E();
+      (lista || []).forEach(function (n) {
+        if (n.lloji === 'afat-kthyer' && n.dergimId && !n.zbatuar) {
+          ktheAfatinTek(n.dergimId, n.afat);
+          n.zbatuar = true;
+          if (e && e.shenoAfatinTeKthyer) e.shenoAfatinTeKthyer(n.id);
+        } else if (n.lloji === 'afat-pranuar' && n.dergimId) hiqDergimin(n.dergimId);
+      });
+    }
+    async function dergoAfatKolegut(perUid, afat) {
+      var e = E();
+      if (!e || !e.dergoAfatKolegut || !o.uidIm()) return { ok: false, arsye: 'pa-lidhje' };
+      var per = null;
+      kolegetPerAfat().forEach(function (a) { if (a.uid === perUid) per = a; });
+      if (!per) return { ok: false, arsye: 'anetari' };
+      var r = await e.dergoAfatKolegut(per.uid, afat);
+      if (r && r.ok && r.id) {
+        var l = lexoListen(celesiDergimeve());
+        l.push({ id: r.id, per: per.uid, perEmri: per.emri || '', koha: Date.now(), afat: afatiPerKolegun(afat) });
+        ruajListen(celesiDergimeve(), l.slice(-200));
+      }
+      return r || { ok: false };
+    }
+    // Kolegu: Prano (afati hyn te afatet e mia, o.pranoAfatin) ose Refuzo (i kthehet dërguesit)
+    async function vendosPerAfatin(nj, pranoj) {
+      var e = E();
+      if (!e || !e.vendosPerAfatin || !nj || nj.lloji !== 'afat-dergim') return { ok: false, arsye: 'pa-lidhje' };
+      var gjE = gjendjaEAfatitKolegut(nj, Date.now());
+      var largo = function () { gj.njoftimetPalexuara = gj.njoftimetPalexuara.filter(function (x) { return x.id !== nj.id; }); thirr('njoftimet'); };
+      if (gjE !== 'pritet') { largo(); return { ok: false, arsye: gjE }; }
+      var r = await e.vendosPerAfatin(nj, pranoj);
+      if (!r || !r.ok) {
+        if (r && /^(pranuar|refuzuar|skadoi)$/.test(r.arsye || '')) { nj.vendim = r.arsye; largo(); }
+        return r || { ok: false };
+      }
+      var info = null;
+      if (pranoj && o.pranoAfatin) { try { info = o.pranoAfatin(afatiPerKolegun(nj.afat), nj) || null; } catch (x) { /* ok */ } }
+      nj.vendim = pranoj ? 'pranuar' : 'refuzuar';
+      largo();
+      return { ok: true, info: info };
+    }
+    // Rezerva e dërguesit: dërgimet më të vjetra se 10 ditë (+1 orë për Worker-in) kontrollohen te serveri
+    var dergimetDukeKontrolluar = false;
+    async function kontrolloDergimet() {
+      var e = E();
+      if (dergimetDukeKontrolluar || !e || !e.kontrolloDergimin || !o.uidIm() || gjendjaEQasjes() !== 'ok') return;
+      var tani = Date.now();
+      var teVjetra = lexoListen(celesiDergimeve()).filter(function (x) { return x && x.id && tani - (Number(x.koha) || 0) >= AFAT_KOLEGU_MS + 3600000; });
+      if (!teVjetra.length) return;
+      dergimetDukeKontrolluar = true;
+      try {
+        for (var i = 0; i < teVjetra.length && i < 20; i++) {
+          var x = teVjetra[i], r = await e.kontrolloDergimin(x.per, x.id);
+          if (!r || !r.ok) { if (tani - x.koha > 3 * AFAT_KOLEGU_MS) hiqDergimin(x.id); continue; } // p.sh. pa internet: provohet herën tjetër
+          var gjE = r.njoftimi ? gjendjaEAfatitKolegut(r.njoftimi, tani) : (r.pranuar ? 'pranuar' : 'skadoi');
+          if (gjE === 'pranuar' || gjE === 'pritet') { if (gjE === 'pranuar') hiqDergimin(x.id); continue; }
+          if (ktheAfatinTek(x.id, x.afat) && o.njofto) {
+            o.njofto({ titulli: 'Stoku · Grupi', teksti: tekstiNjoftimit({ lloji: 'afat-kthyer', arsye: gjE === 'refuzuar' ? 'refuzoi' : 'skadoi', emri: x.perEmri, afat: x.afat }),
+              tag: 'ek-nj-k' + x.id, pamja: 'njoftimet' });
+          }
+        }
+      } finally { dergimetDukeKontrolluar = false; }
     }
     function ndalGjithmone(vetemDegjuesit) {
       ndal('njoftimet'); ndal('anetaresia'); ndal('fshirja'); ndal('grupiDoc'); ndal('ftesatEMia'); ndal('kujtesa');
@@ -2664,19 +2834,33 @@
       }
     }
 
+    // Anëtarët e grupit (në kohë reale). v297: edhe nga "Afat i ri" (lista e kolegëve), jo vetëm te tabi Grupi; kolegët
+    // ruhen edhe në pajisje, që butoni "Për një koleg" të dalë menjëherë.
+    function celesiKolegeve() { return 'stoku:ekipa:koleget:' + o.uidIm(); }
+    function nisAnetaret() {
+      var e = E();
+      if (d.anetaret || !e || !o.uidIm() || gjendjaEQasjes() !== 'ok') return;
+      d.anetaret = e.degjoAnetaret(function (lista) {
+        gj.anetaret = lista;
+        try { localStorage.setItem(celesiKolegeve(), JSON.stringify(lista.map(function (a) { return { uid: a.uid, emri: a.emri }; }).filter(function (a) { return a.uid !== o.uidIm(); }).slice(0, 300))); } catch (x) { /* ok */ }
+        ngarkoMungesat();
+        thirr('anetaret');
+      }, function () { gj.gabimNgarkimi = 'rregullat'; thirr('anetaret'); });
+    }
+    // v297: kolegët për "Afat për një koleg": të freskët kur janë ngarkuar, përndryshe kopja e pajisjes
+    function kolegetPerAfat() {
+      if (gjendjaEQasjes() !== 'ok') return [];
+      if (gj.anetaret.length) return koleget();
+      try { var l = JSON.parse(localStorage.getItem(celesiKolegeve()) || '[]'); return Array.isArray(l) ? l.filter(function (a) { return a && a.uid && a.uid !== o.uidIm(); }) : []; } catch (x) { return []; }
+    }
+
     // ---------- Kur hapet tabi Grupi ----------
     function hap() {
       var e = E();
       gj.hapur = true;
       if (!e || !o.uidIm()) { thirr('te-gjitha'); return; }
       if (gjendjaEQasjes() !== 'ok') { mbyllDegjuesitEFaqes(); thirr('te-gjitha'); return; } // pa grup / duke kontrolluar
-      if (!d.anetaret) {
-        d.anetaret = e.degjoAnetaret(function (lista) {
-          gj.anetaret = lista;
-          ngarkoMungesat();
-          thirr('anetaret');
-        }, function () { gj.gabimNgarkimi = 'rregullat'; thirr('anetaret'); });
-      }
+      nisAnetaret();
       if (!d.ftesatEGrupit && e.degjoFtesatEGrupit) {
         d.ftesatEGrupit = e.degjoFtesatEGrupit(function (l) {
           gj.ftesatEGrupit = l.sort(function (a, b) { return (b.koha || 0) - (a.koha || 0); });
@@ -2906,11 +3090,21 @@
       return ng ? { uneJam: ng.uid === o.uidIm(), emri: ng.emri || 'Një koleg' } : null;
     }
     // Kërkesat për heqje që s'janë kryer ende mbeten "të palexuara" (shenja te zilja) derisa të shtypet "E hoqa"
-    function ePritur(n) { return (n.lloji === 'kerkese-heqje' && !kryeresiIKerkeses(n)) || (n.lloji === 'hequr' && !n.vendim); }
+    function ePritur(n) {
+      return (n.lloji === 'kerkese-heqje' && !kryeresiIKerkeses(n)) || (n.lloji === 'hequr' && !n.vendim) ||
+        (n.lloji === 'afat-dergim' && gjendjaEAfatitKolegut(n, Date.now()) === 'pritet'); // v297: deri sa ta pranosh ose refuzosh
+    }
     // v211: fshirja e njoftimeve të mia
     async function fshijNjoftimet(ids) {
       var e = E();
       if (!e || !e.fshijNjoftimet || !ids || !ids.length) return { ok: false };
+      // v297: afati i një kolegu që s'e ke pranuar ende s'humbet me fshirjen: i kthehet atij (si "Refuzo")
+      var hId = {}; ids.forEach(function (id) { hId[id] = true; });
+      var teHapura = gj.njoftimetPalexuara.filter(function (n) { return hId[n.id] && n.lloji === 'afat-dergim' && gjendjaEAfatitKolegut(n, Date.now()) === 'pritet'; });
+      for (var i = 0; i < teHapura.length; i++) {
+        var rv = await vendosPerAfatin(teHapura[i], false);
+        if (!rv || (!rv.ok && !/^(pranuar|refuzuar|skadoi|fshire)$/.test(rv.arsye || ''))) return rv || { ok: false };
+      }
       var r = await e.fshijNjoftimet(ids);
       if (r && r.ok) {
         var h = {}; ids.forEach(function (id) { h[id] = true; });
@@ -2956,6 +3150,8 @@
       hap: hap, mbyll: mbyll, ngarkoDyqanet: ngarkoMungesat,
       anetaretMeAfate: anetaretMeAfate, detajetENgjarjes: detajetENgjarjesK,
       heqAfatinEKolegut: heqAfatinEKolegut, vendosPerHeqjen: vendosPerHeqjen,
+      dergoAfatKolegut: dergoAfatKolegut, vendosPerAfatin: vendosPerAfatin, kontrolloDergimet: kontrolloDergimet, // v297
+      kolegetPerAfat: kolegetPerAfat, ngarkoKoleget: nisAnetaret,
       ngjarje: ngjarje, afateTeReja: afateTeRejaU,
       publikoAfatet: publikoAfatet,
       merrNjoftimet: merrNjoftimet, shenoNjoftimetTeLexuara: shenoNjoftimetTeLexuara, fshijNjoftimet: fshijNjoftimet,
@@ -2997,6 +3193,7 @@
     ndryshoAfatinNeGjendje: ndryshoAfatinNeGjendje, fletetEStokut: fletetEStokut,
     hartaEHeqjeve: hartaEHeqjeve, mbivendosHeqjen: mbivendosHeqjen, duhetZbatuarHeqja: duhetZbatuarHeqja,
     kalendari: kalendari, statistikat: statistikat, tekstiNgjarjes: tekstiNgjarjes, objektiINgjarjes: objektiINgjarjes, detajetENgjarjes: detajetENgjarjes, kohaENgjarjes: kohaENgjarjes, artikulliINgjarjes: artikulliINgjarjes, artikujtENgjarjes: artikujtENgjarjes, tekstiNjoftimit: tekstiNjoftimit,
+    afatiPerKolegun: afatiPerKolegun, gjendjaEAfatitKolegut: gjendjaEAfatitKolegut, produktiIAfatitDerguar: produktiIAfatitDerguar, AFAT_KOLEGU_DITE: AFAT_KOLEGU_DITE, // v297
     isoDites: isoDites, Fotot: Fotot, listaEKerkeses: listaEKerkeses, rreshtiIProduktit: rreshtiIProduktit, zgjedhesIKerkeses: zgjedhesIKerkeses
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

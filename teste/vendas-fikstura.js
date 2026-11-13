@@ -303,7 +303,14 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
     { lloji: 'lajmerim', emri: 'besa', tekst: 'Përshëndetje' },
     { lloji: 'admin-i-ri', emri: 'besa' },
     { lloji: 'admin-afat', emri: 'mendurberisha', veprimi: 'hiq', produkti: 'Kos' },
-    { lloji: 'x', tekst: 'tjetër' }
+    { lloji: 'x', tekst: 'tjetër' },
+    // v297: afati për kolegun
+    { lloji: 'afat-dergim', emri: 'agim', afat: { barkodi: '383', emri: 'Ujë Radenska', data: iso(17), sasia: 6 } },
+    { lloji: 'afat-dergim', afat: { barkodi: '383', sasia: '' } },
+    { lloji: 'afat-dergim', emri: 'agim' },
+    { lloji: 'afat-pranuar', emri: 'besa', afat: { emri: 'Kos', data: iso(3), sasia: 0 } },
+    { lloji: 'afat-kthyer', emri: 'besa', arsye: 'refuzoi', afat: { emri: 'Kos', data: iso(3) } },
+    { lloji: 'afat-kthyer', emri: 'besa', arsye: 'skadoi', afat: { barkodi: '77', sasia: 12 } }
   ].map(nj => ({ nj, t: EK.tekstiNjoftimit(nj) }));
   // v283: objekti i ngjarjes (prekja te Aktiviteti hap afatin/produktin)
   const objektet = ngjarjet.concat([
@@ -359,7 +366,19 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
   const adminAfat = [[gjA, 'a1', 'hiq'], [gjA, 'a6', 'kthe'], [gjA, 'a2', 'fshij'], [gjA, 'nuk', 'hiq'], [{ afatet: afatetG.slice(0, 2) }, 'a1', 'fshij'], [{}, 'a1', 'kthe'], [null, 'a1', 'hiq']]
     .map(([gj, id, v]) => ({ gj, id, v, emri: 'mendurberisha', r: EK.ndryshoAfatinNeGjendje(gj, id, v, 'mendurberisha', TANI_G) }));
   global.Date = DataE;
-  dalja.grupi = JSON.parse(JSON.stringify({ TANI_G, prania, kohet, afatetG, permb, anetaret, st, tekstet, njoftimet, hartaTx, mbiv, zbatimi, kal, kerkesat, rreshtat, adminAfat, objektet, anetaretD, detajet, artikujt, kohetNg }));
+  // v297: afati për një koleg (fushat që dërgohen + gjendja: 10 ditë pa vendim = 'skadoi')
+  const afatKolegu = [
+    { barkodi: ' 38 30 ', emri: '  Ujë  ', data: iso(4), sasia: 6.7, furnizuesi: ' Vita ', m: 'mk1', id: 'x', statusi: 'aktiv' },
+    { barkodi: 3830, emri: null, data: '30-11-26', sasia: -2, furnizuesi: '' },
+    { sasia: '', data: '2026-1-5' }, { sasia: 0, emri: 'x'.repeat(250), barkodi: '9'.repeat(70) }, null, 'tekst', { sasia: Infinity, emri: 5 }
+  ].map(a => ({ a, r: EK.afatiPerKolegun(a) }));
+  const D10 = 10 * 864e5;
+  const gjendjetKolegu = [
+    { koha: TANI_G }, { koha: TANI_G - D10 + 1 }, { koha: TANI_G - D10 }, { koha: TANI_G - 30 * D10 }, {},
+    { koha: TANI_G, vendim: 'pranuar' }, { koha: TANI_G - 2 * D10, vendim: 'refuzuar' }, { koha: TANI_G, vendim: 'skadoi' }, { koha: TANI_G, vendim: 'tjeter' }, null,
+    { koha: String(TANI_G - D10) }
+  ].map(nj => ({ nj, r: EK.gjendjaEAfatitKolegut(nj, TANI_G) }));
+  dalja.grupi = JSON.parse(JSON.stringify({ TANI_G, prania, kohet, afatetG, permb, anetaret, st, tekstet, njoftimet, hartaTx, mbiv, zbatimi, kal, kerkesat, rreshtat, adminAfat, objektet, anetaretD, detajet, artikujt, kohetNg, afatKolegu, gjendjetKolegu }));
   fs.writeFileSync(sk, JSON.stringify(dalja));
   console.log('grupi: ' + tekstet.length + ' tekste, ' + permb.length + ' në përmbledhje');
 }

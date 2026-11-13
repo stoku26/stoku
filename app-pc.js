@@ -4191,6 +4191,7 @@
     emriIm: emriPerdoruesit,
     afatetEMia: function () { return afatet; }, afatetMeEmra: function () { return MK.meEmra(afatet, marketet); },
     zbatoHeqjet: ekZbatoHeqjet,
+    ktheAfatin: ktheAfatinNgaKolegu, pranoAfatin: pranoAfatinNgaKolegu, // v297
     njofto: ekNjofto,
     ndryshoi: ekKurNdryshon
   }) : null;
@@ -4269,6 +4270,10 @@
     }
     ekShenjat();
     if (cfare === 'dyqanet' || cfare === 'te-gjitha') planifikoMesimin(); // kujtesa nga afatet e kolegëve
+    if (cfare === 'anetaret' || cfare === 'dyqanet' || cfare === 'te-gjitha') { // v297: "Afat për një koleg"
+      if ($('dlgAfat').classList.contains('hapur') && !afdId && !afdPerKolegun) $('afdKoleg').hidden = !mundAfatPerKolegPc();
+      if ($('dlgKolegu').classList.contains('hapur')) vizatoKolegetPerAfat();
+    }
     if (ekDukeHapur || pamja !== 'ekipi') return;
     if (cfare === 'njoftimet') return;
     ekVizato();
@@ -5226,6 +5231,7 @@
       }
       if (n.lloji === 'kerkese-heqje') b.appendChild(ekButoniKerkeses(n));
       if (n.lloji === 'hequr' && n.afatId) b.appendChild(ekButonatEHeqjes(n, b.firstChild));
+      if (n.lloji === 'afat-dergim') b.appendChild(ekButonatEAfatit(n));
       r.appendChild(b);
       r.appendChild(fshi);
       l.appendChild(r);
@@ -5259,6 +5265,38 @@
       w.textContent = '';
       w.appendChild(el('span', 'ek-nj-kryer', pranoj ? '✓ E pranove' : '✕ E refuzove'));
       toast(pranoj ? '"' + (n.produkti || 'Produkti') + '" u hoq nga rafti. ' + (n.emri || 'Kolegu') + ' u njoftua.' : (n.emri || 'Kolegu') + ' u njoftua që produkti mbetet në raft.');
+    }
+    bp.addEventListener('click', function () { vendos(true); });
+    br.addEventListener('click', function () { vendos(false); });
+    w.appendChild(bp); w.appendChild(br);
+    return w;
+  }
+  // v297: afati që ma dërgoi një koleg: Prano / Refuzo (si te telefoni)
+  function ekButonatEAfatit(n) {
+    var w = el('div', 'ek-nj-veprim');
+    var shenja = function (gjE) {
+      w.textContent = '';
+      w.appendChild(el('span', 'ek-nj-kryer', gjE === 'pranuar' ? '✓ E pranove' : gjE === 'refuzuar' ? '✕ E refuzove' : 'Kaluan 10 ditë: iu kthye ' + (n.emri || 'kolegut')));
+    };
+    var gjE = EKL.gjendjaEAfatitKolegut(n, Date.now());
+    if (gjE !== 'pritet') { shenja(gjE); return w; }
+    if (!leja('afatet') || !leja('afatetShto')) return w;
+    var bp = el('button', 'btn vogel', 'Prano'); bp.type = 'button';
+    var br = el('button', 'btn tekst vogel', 'Refuzo'); br.type = 'button';
+    async function vendos(pranoj) {
+      bp.disabled = br.disabled = true;
+      var res = await ekK.vendosPerAfatin(n, pranoj);
+      if (!res || !res.ok) {
+        if (res && /^(pranuar|refuzuar|skadoi)$/.test(res.arsye || '')) { shenja(res.arsye); toast(res.arsye === 'skadoi' ? 'Kaluan 10 ditë: afati iu kthye ' + (n.emri || 'kolegut') + '.' : 'Ky afat u vendos ndërkohë nga një pajisje tjetër.'); return; }
+        bp.disabled = br.disabled = false;
+        toast(res && res.arsye === 'fshire' ? 'Ky njoftim u fshi ndërkohë.' : 'S\'u ruajt. Kontrollo internetin dhe provo sërish.');
+        return;
+      }
+      shenja(pranoj ? 'pranuar' : 'refuzuar');
+      var info = res.info, sasia = n.afat && typeof n.afat.sasia === 'number' ? n.afat.sasia : '', data = n.afat && n.afat.data;
+      if (!pranoj) toast('Afati iu kthye ' + (n.emri || 'kolegut') + '.');
+      else if (info && info.bashkuar) toast(sasia === '' ? 'Ky afat ekziston tashmë (' + AF.formato(data) + '). S\'u krijua rresht i ri.' : 'U shtuan ' + sasia + ' copë te afati i ' + AF.formato(data) + (info.sasiaRe !== '' ? ' (gjithsej ' + info.sasiaRe + ' copë).' : '.'));
+      else toast('Afati u shtua te lista jote. ' + (n.emri || 'Kolegu') + ' u njoftua.');
     }
     bp.addEventListener('click', function () { vendos(true); });
     br.addEventListener('click', function () { vendos(false); });
@@ -5585,6 +5623,9 @@
     }
     $('afdGabim').textContent = '';
     $('afdFshij').classList.toggle('fsheh', !a);
+    vendosKolegunEAfatitPc(null); // v297
+    $('afdKoleg').hidden = !!a || !mundAfatPerKolegPc();
+    if (!a && ekK && leja('grupiAfatKolegu')) ekK.ngarkoKoleget();
     var info = $('afdInfo');
     var sv = $('afdStatusVeprime'); sv.textContent = '';
     if (a) {
@@ -5673,10 +5714,12 @@
     if (!b && !emri) { $('afdGabim').textContent = 'Shkruaj barkodin ose emrin e produktit.'; $('afdBarkodi').focus(); return; }
     if (!data) { $('afdGabim').textContent = 'Shkruaj datën e skadimit, p.sh. 31-12-26.'; $('afdData').focus(); return; }
     var mkId = kaMarkete() ? $('afdMarketi').value : null; // v241
-    if (kaMarkete() && !afdId && !mkId) { $('afdGabim').textContent = 'Zgjidh marketin ku është ky produkt.'; $('afdMarketi').focus(); return; }
+    var perKolegun = !afdId && afdPerKolegun ? afdPerKolegun : null; // v297
+    if (kaMarkete() && !afdId && !mkId && !perKolegun) { $('afdGabim').textContent = 'Zgjidh marketin ku është ky produkt.'; $('afdMarketi').focus(); return; }
     var afPara = afdId ? afatet.filter(function (a) { return a.id === afdId; })[0] : null;
     mesoNgaPerdoruesi(b, emri, f); // herën tjetër ky barkod plotëson vetë emrin dhe furnizuesin
     if (f && f !== ((afPara && afPara.furnizuesi) || '')) regjistroFurnizuesinERi(f); // v212, v214: për këdo
+    if (perKolegun) { dergoAfatinTeKolegu(perKolegun, { barkodi: b, emri: emri, data: data, sasia: sasia, furnizuesi: f }); return; }
     // v295 (pronari): afati i njëjtë (barkodi + data, + marketi) ekziston: copat i shtohen atij, s'krijohet rresht i ri
     var ekz = afdId ? null : AF.afatiINjejte(afatet, b, data, mkId, kaMarkete());
     if (ekz) {
@@ -5706,6 +5749,98 @@
     toast(afdId ? 'Afati u ruajt.' : 'Afati u shtua.', { veprimi: function () { zhbejAfatet(reg); } });
   }
   $('afdRuaj').addEventListener('click', ruajAfatinPc);
+
+  // ---------- v297 (pronari): "Afat për një koleg" (si te telefoni) ----------
+  var afdPerKolegun = null; // { uid, emri }
+  function mundAfatPerKolegPc() {
+    return !!(ekK && perdoruesi() && leja('grupi') && leja('grupiAfatKolegu') && ekK.kolegetPerAfat().length);
+  }
+  function vendosKolegunEAfatitPc(k) {
+    afdPerKolegun = k || null;
+    $('afdPer').hidden = !afdPerKolegun;
+    $('afdRuaj').textContent = afdPerKolegun ? 'Dërgo te ' + afdPerKolegun.emri + ' për miratim' : 'Ruaj';
+    if (afdPerKolegun) {
+      $('afdPerEmri').textContent = afdPerKolegun.emri;
+      var av = $('afdPerAv'); av.className = 'ek-avatar af-per__av'; av.removeAttribute('style'); av.textContent = String(afdPerKolegun.emri || '?').charAt(0).toUpperCase();
+      try { EKL.Fotot.apliko(av, { uid: afdPerKolegun.uid, emri: afdPerKolegun.emri }); } catch (e) { /* ok */ }
+      $('afdPerShenim').textContent = 'Hyn te lista e ' + afdPerKolegun.emri + ' pasi ta pranojë. ✕ e ruan te lista jote.';
+      $('afdKoleg').hidden = true;
+    } else if ($('dlgAfat').classList.contains('hapur') && !afdId) $('afdKoleg').hidden = !mundAfatPerKolegPc();
+  }
+  function hapKolegetPerAfat() {
+    if (!mundAfatPerKolegPc()) return;
+    ekK.ngarkoKoleget();
+    $('kolKerko').value = '';
+    $('kolKerko').hidden = ekK.kolegetPerAfat().length < 6;
+    vizatoKolegetPerAfat();
+    hapDialog('dlgKolegu', $('kolKerko').hidden ? null : 'kolKerko');
+  }
+  function vizatoKolegetPerAfat() {
+    var c = $('kolLista'); c.textContent = '';
+    var q = $('kolKerko').value.trim().toLocaleLowerCase('sq');
+    var meAfate = {};
+    (ekK ? ekK.anetaretMeAfate() : []).forEach(function (a) { meAfate[a.uid] = a; });
+    var kol = (ekK ? ekK.kolegetPerAfat() : []).map(function (a) { return meAfate[a.uid] || { uid: a.uid, emri: a.emri, afatet: [], ngarkuar: false }; })
+      .filter(function (a) { return !q || String(a.emri || '').toLocaleLowerCase('sq').indexOf(q) !== -1; });
+    kol.sort(function (a, b) { var oa = EKL.eshteOnline(a) ? 0 : 1, ob = EKL.eshteOnline(b) ? 0 : 1; return oa - ob || String(a.emri).localeCompare(String(b.emri), 'sq'); });
+    if (!kol.length) { c.appendChild(el('p', 'ops-hint', q ? 'S\'u gjet asnjë koleg.' : 'S\'ka kolegë në grup.')); return; }
+    kol.forEach(function (a) {
+      var r = el('button', 'kol-rresht'); r.type = 'button';
+      r.appendChild(ekAvatar(a, true));
+      var m = el('span', 'kol-emri', a.emri);
+      m.appendChild(el('div', 'kol-nen', EKL.eshteOnline(a) ? 'Online tani' : EKL.tekstiPranise(a)));
+      r.appendChild(m);
+      if (a.ngarkuar && !a.paTeDhena) r.appendChild(el('span', 'kol-nr', ekNumero(a.afatet || []).aktive + ' në raft'));
+      r.addEventListener('click', function () { mbyllDialog('dlgKolegu'); vendosKolegunEAfatitPc({ uid: a.uid, emri: a.emri }); });
+      c.appendChild(r);
+    });
+  }
+  async function dergoAfatinTeKolegu(k, afat) {
+    if (!ekK || !leja('grupiAfatKolegu')) return;
+    var bt = $('afdRuaj');
+    bt.disabled = true; bt.textContent = 'Duke dërguar…';
+    var r = await ekK.dergoAfatKolegut(k.uid, afat);
+    bt.disabled = false;
+    if (!r || !r.ok) {
+      bt.textContent = 'Dërgo te ' + k.emri + ' për miratim';
+      $('afdGabim').textContent = r && r.arsye === 'anetari' ? k.emri + ' s\'është më në grup.' : 'Afati s\'u dërgua. Kontrollo internetin dhe provo sërish.';
+      return;
+    }
+    mbyllDialog('dlgAfat');
+    toast('Afati iu dërgua ' + k.emri + (r.neRadhe ? ' (sapo të ketë internet).' : '.') + ' Hyn te lista e ' + k.emri + ' pasi ta pranojë.');
+  }
+  // Kolegu e refuzoi ose kaluan 10 ditë: afati kthehet te lista ime (id e caktuar, një herë të vetme)
+  function ktheAfatinNgaKolegu(afat, id) {
+    if (!afat || !id || afatSipasId(id) || (fshira.afatet && fshira.afatet[id])) return false;
+    var tani = Date.now();
+    ndryshoAfatet(function (api) {
+      api.vendos({ id: id, barkodi: afat.barkodi || '', emri: afat.emri || '', data: afat.data || '', sasia: afat.sasia === undefined ? '' : afat.sasia,
+        furnizuesi: afat.furnizuesi || '', statusi: 'aktiv', krijuarSe: tani, krijuarNga: emriPerdoruesit() });
+    });
+    return true;
+  }
+  // E pranova: hyn te lista ime (v295: me afatin e njëjtë bashkohen copat)
+  function pranoAfatinNgaKolegu(afat, nj) {
+    var sasia = afat.sasia === undefined ? '' : afat.sasia, mkId = idMarketitAktiv();
+    var ekz = AF.afatiINjejte(afatet, afat.barkodi || '', afat.data || '', mkId || null, kaMarkete());
+    if (ekz) {
+      var sasiaRe = AF.sasiaEBashkuar(ekz.sasia, sasia);
+      ndryshoAfatet(function (api) { var x = api.merr(ekz.id); if (!x) return; x.sasia = sasiaRe; if (!x.emri && afat.emri) x.emri = afat.emri; if (!x.furnizuesi && afat.furnizuesi) x.furnizuesi = afat.furnizuesi; api.vendos(x); });
+      return { bashkuar: true, sasiaRe: sasiaRe, id: ekz.id };
+    }
+    var tani = Date.now(), id = AF.idERe();
+    ndryshoAfatet(function (api) {
+      var a = { id: id, barkodi: afat.barkodi || '', emri: afat.emri || '', data: afat.data || '', sasia: sasia, furnizuesi: afat.furnizuesi || '', statusi: 'aktiv', krijuarSe: tani, krijuarNga: (nj && nj.emri) || emriPerdoruesit() };
+      if (mkId) a.m = mkId;
+      api.vendos(a);
+    });
+    if (ekK) ekK.afateTeReja(1, false, [id]);
+    return { bashkuar: false, id: id };
+  }
+  $('afdKoleg').addEventListener('click', hapKolegetPerAfat);
+  $('afdPerNdrysho').addEventListener('click', hapKolegetPerAfat);
+  $('afdPerHiq').addEventListener('click', function () { vendosKolegunEAfatitPc(null); });
+  $('kolKerko').addEventListener('input', vizatoKolegetPerAfat);
   $('afdFshij').addEventListener('click', function () { var id = afdId; mbyllDialog('dlgAfat'); if (id) fshijAfatet([id]); });
 
   // ---------- Leximi i fletës nga foto ----------

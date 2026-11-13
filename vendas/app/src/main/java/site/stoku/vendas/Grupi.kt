@@ -140,8 +140,12 @@ object Grupi {
             if (s != null && uid == u0) kerkesatEMia.value = s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }
         })
         degjuesitPerdoruesit.add(db.collection("perdoruesit").document(u0).collection("njoftimet").whereEqualTo("lexuar", false).addSnapshotListener { s, _ ->
-            if (s != null && uid == u0) njoftimet.value = s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }.sortedByDescending { numerOse0(it["koha"]) }
+            if (s != null && uid == u0) {
+                njoftimet.value = s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }.sortedByDescending { numerOse0(it["koha"]) }
+                zbatoAfatetEKolegeve(njoftimet.value)
+            }
         })
+        scope.launch { delay(8000); if (uid == u0) kontrolloDergimet() }
     }
 
     private fun ndiq(g: String) {
@@ -486,6 +490,154 @@ object Grupi {
         return null
     }
 
+    // ---------------- Hyrja 59 (web v297): "Afat për një koleg" ----------------
+    // Dërguesi ia dërgon afatin e ri një kolegu (njoftimi "afat-dergim"); kolegu e pranon (hyn te afatet e tij) ose e refuzon
+    // (i kthehet dërguesit si "afat-kthyer", id "k"+id). Pa vendim brenda 10 ditëve e kthen Worker-i (Cron). Dërgimet e mia ruhen
+    // edhe në pajisje (të fshehura), si rezervë kur Worker-i s'e ktheu. Si ekipa.js.
+    fun kolegetPerAfat(): List<Obj> = if (grupi() != null) koleget() else emptyList()
+    fun mundAfatPerKoleg(): Boolean = uid != null && Llogaria.leja("grupi") && Llogaria.leja("grupiAfatKolegu") && kolegetPerAfat().isNotEmpty()
+
+    private fun prefListe(k: String): List<Any?> = try { Json.lexo(StokuApp.prefsOse(k, "[]")).siListe() } catch (e: Exception) { emptyList() }
+    private fun celesiDergimeve() = "afat_derguar_" + (uid ?: "")
+    private fun celesiKthimeve() = "afat_kthyer_" + (uid ?: "")
+    private fun hiqDergimin(id: String) {
+        if (uid == null) return
+        StokuApp.vendosPref(celesiDergimeve(), Json.shkruaj(prefListe(celesiDergimeve()).filter { it.siObj()?.get("id") != id }))
+    }
+
+    /** → null (u dërgua, ose do të dërgohet sapo të ketë internet) ose arsyeja */
+    suspend fun dergoAfatKolegut(perUid: String, afat: Obj): String? {
+        val u0 = uid ?: return "pa-hyrje"; val g = grupi() ?: return "pa-grup"
+        if (!Llogaria.leja("grupiAfatKolegu")) return "leje"
+        val per = koleget().firstOrNull { it["uid"] == perUid } ?: return "anetari"
+        val id = idERe(); val tani = System.currentTimeMillis()
+        val te = GrupiLogjika.afatiPerKolegun(afat)
+        val t = db.collection("perdoruesit").document(perUid).collection("njoftimet").document(id)
+            .set(mapOf("lloji" to "afat-dergim", "afat" to te, "grupi" to g, "uid" to u0, "emri" to emri, "koha" to tani, "lexuar" to false))
+        StokuApp.vendosPref(celesiDergimeve(), Json.shkruaj((prefListe(celesiDergimeve()) +
+            listOf(obj("id" to id, "per" to perUid, "perEmri" to (per["emri"] ?: ""), "koha" to tani, "afat" to te))).takeLast(200)))
+        scope.launch { try { t.await(); Push.njoftoNjoftim(id, perUid, g) } catch (e: Exception) { } } // push + kthimi pas 10 ditëve (Worker-i)
+        return try { kotlinx.coroutines.withTimeoutOrNull(4000) { t.await() }; null } catch (e: Exception) { hiqDergimin(id); gabimi(e) }
+    }
+
+    /** Kolegu: Prano / Refuzo → (null ose arsyeja: "pranuar"/"refuzuar"/"skadoi" kur u vendos ndërkohë, "fshire", "rrjeti"…; info e bashkimit) */
+    suspend fun vendosPerAfatin(nj: Obj, pranoj: Boolean): Pair<String?, Obj?> {
+        val u0 = uid ?: return "pa-hyrje" to null
+        val id = nj["id"] as? String ?: return "gabim" to null
+        fun largo() { njoftimet.value = njoftimet.value.filter { it["id"] != id } }
+        val gjE = GrupiLogjika.gjendjaEAfatitKolegut(nj, System.currentTimeMillis())
+        if (gjE != "pritet") { largo(); return gjE to null }
+        val ref = db.collection("perdoruesit").document(u0).collection("njoftimet").document(id)
+        try { // vendimi i dhënë ndërkohë (pajisja tjetër, ose Worker-i pas 10 ditëve)
+            val s = kotlinx.coroutines.withTimeoutOrNull(4000) { ref.get().await() }
+            if (s != null && !s.metadata.isFromCache) {
+                if (!s.exists()) return "fshire" to null
+                (s.getString("vendim"))?.takeIf { it.isNotEmpty() }?.let { largo(); return it to null }
+            }
+        } catch (e: Exception) { }
+        val tani = System.currentTimeMillis()
+        try {
+            kotlinx.coroutines.withTimeoutOrNull(4000) { ref.update(mapOf("vendim" to if (pranoj) "pranuar" else "refuzuar", "vendosurSe" to tani, "lexuar" to true)).await() }
+        } catch (e: Exception) {
+            return (if (e is FirebaseFirestoreException && e.code == FirebaseFirestoreException.Code.NOT_FOUND) "fshire" else gabimi(e)) to null
+        }
+        val g = grupi() ?: (nj["grupi"] as? String)
+        val nga = nj["uid"] as? String
+        val afat = GrupiLogjika.afatiPerKolegun(nj["afat"])
+        if (nga != null && nga != u0 && g != null) {
+            val idN = if (pranoj) GrupiLogjika.idPranimit(id) else GrupiLogjika.idKthimit(id)
+            val te = mapOf("lloji" to if (pranoj) "afat-pranuar" else "afat-kthyer", "dergimId" to id, "afat" to afat,
+                "grupi" to g, "uid" to u0, "emri" to emri, "koha" to tani, "lexuar" to false) + (if (pranoj) emptyMap() else mapOf("arsye" to "refuzoi"))
+            val t = db.collection("perdoruesit").document(nga).collection("njoftimet").document(idN).set(te)
+            scope.launch { try { t.await(); Push.njoftoNjoftim(idN, nga, g) } catch (e: Exception) { } }
+        }
+        val info = if (pranoj) pranoAfatin(afat, nj) else null
+        largo()
+        return null to info
+    }
+
+    /** E pranova: afati hyn te afatet e mia (Hyrja 57: me afatin e njëjtë bashkohen copat) */
+    private fun pranoAfatin(af: Obj, nj: Obj): Obj {
+        val kaM = Merchandiseri.kaMarkete(); val mk = Merchandiseri.idAktiv()
+        val b = (af["barkodi"] as? String).orEmpty(); val iso = (af["data"] as? String).orEmpty(); val s: Any = af["sasia"] ?: ""
+        val ekz = site.stoku.logjika.Afatet.afatiINjejte(Dyqani.g.afatet, b, iso, mk, kaM)
+        if (ekz != null) {
+            val sRe = site.stoku.logjika.Afatet.sasiaEBashkuar(ekz["sasia"], s)
+            val ndr = mutableMapOf<String, Any?>("sasia" to sRe)
+            if ((ekz["emri"] as? String).isNullOrEmpty() && (af["emri"] as? String).orEmpty().isNotEmpty()) ndr["emri"] = af["emri"]
+            if ((ekz["furnizuesi"] as? String).isNullOrEmpty() && (af["furnizuesi"] as? String).orEmpty().isNotEmpty()) ndr["furnizuesi"] = af["furnizuesi"]
+            Dyqani.perditesoAfatin(ekz["id"] as String, ndr)
+            return obj("bashkuar" to true, "sasiaRe" to sRe)
+        }
+        val tani = System.currentTimeMillis(); val idA = site.stoku.logjika.Afatet.idERe()
+        Dyqani.shtoAfatin(obj("id" to idA, "barkodi" to b, "emri" to (af["emri"] ?: ""), "data" to iso, "sasia" to s, "furnizuesi" to (af["furnizuesi"] ?: ""),
+            "statusi" to "aktiv", "krijuarSe" to tani, "ndryshuarSe" to tani, "krijuarNga" to ((nj["emri"] as? String)?.ifEmpty { null } ?: emri)).also { o -> if (kaM && mk != null) o["m"] = mk })
+        afateTeReja(1, false, listOf(idA))
+        return obj("bashkuar" to false)
+    }
+
+    /** Kolegu e refuzoi ose kaluan 10 ditë: afati kthehet te lista ime një herë të vetme (id e caktuar "kd"+id) */
+    private fun ktheAfatinTek(dergimId: String, af0: Any?): Boolean {
+        if (uid == null) return false
+        val l = prefListe(celesiKthimeve())
+        if (dergimId in l) { hiqDergimin(dergimId); return false }
+        val af = GrupiLogjika.afatiPerKolegun(af0)
+        val idA = GrupiLogjika.idAfatitKthyer(dergimId)
+        var shtuar = false
+        if (Dyqani.afati(idA) == null && !Dyqani.afatiUFshi(idA)) {
+            val tani = System.currentTimeMillis()
+            Dyqani.shtoAfatin(obj("id" to idA, "barkodi" to (af["barkodi"] ?: ""), "emri" to (af["emri"] ?: ""), "data" to (af["data"] ?: ""), "sasia" to (af["sasia"] ?: ""),
+                "furnizuesi" to (af["furnizuesi"] ?: ""), "statusi" to "aktiv", "krijuarSe" to tani, "ndryshuarSe" to tani, "krijuarNga" to emri))
+            shtuar = true
+        }
+        StokuApp.vendosPref(celesiKthimeve(), Json.shkruaj((l + dergimId).takeLast(300)))
+        hiqDergimin(dergimId)
+        return shtuar
+    }
+
+    /** Njoftimet e reja te zilja ime: kthimet zbatohen vetë; pranimet e heqin dërgimin nga rezerva */
+    private fun zbatoAfatetEKolegeve(lista: List<Obj>) {
+        val u0 = uid ?: return
+        lista.forEach { n ->
+            val dId = n["dergimId"] as? String ?: return@forEach
+            if (n["lloji"] == "afat-kthyer" && !eVertete(n["zbatuar"])) {
+                ktheAfatinTek(dId, n["afat"])
+                (n["id"] as? String)?.let { db.collection("perdoruesit").document(u0).collection("njoftimet").document(it).update("zbatuar", true) }
+            } else if (n["lloji"] == "afat-pranuar") hiqDergimin(dId)
+        }
+    }
+
+    /** Rezerva e dërguesit: dërgimet më të vjetra se 10 ditë (+1 orë për Worker-in) kontrollohen te serveri */
+    private var dergimetDukeKontrolluar = false
+    suspend fun kontrolloDergimet() {
+        val u0 = uid ?: return
+        if (dergimetDukeKontrolluar || grupi() == null) return
+        val tani = System.currentTimeMillis()
+        val teVjetra = prefListe(celesiDergimeve()).mapNotNull { it.siObj() }.filter { tani - numerOse0(it["koha"]).toLong() >= GrupiLogjika.AFAT_KOLEGU_MS + 3_600_000L }
+        if (teVjetra.isEmpty()) return
+        dergimetDukeKontrolluar = true
+        try {
+            for (x in teVjetra.take(20)) {
+                val id = x["id"] as? String ?: continue; val per = x["per"] as? String ?: continue
+                var nj: Obj? = null; var pranuar = false
+                try {
+                    val s = try { db.collection("perdoruesit").document(per).collection("njoftimet").document(id).get().await() }
+                        catch (e: FirebaseFirestoreException) { if (e.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) null else throw e } // e fshiu kolegu
+                    if (s != null && s.exists()) nj = s.data
+                    else pranuar = db.collection("perdoruesit").document(u0).collection("njoftimet").document(GrupiLogjika.idPranimit(id)).get().await().exists()
+                } catch (e: Exception) {
+                    if (tani - numerOse0(x["koha"]).toLong() > 3 * GrupiLogjika.AFAT_KOLEGU_MS) hiqDergimin(id)
+                    continue
+                }
+                val gjE = if (nj != null) GrupiLogjika.gjendjaEAfatitKolegut(nj, tani) else if (pranuar) "pranuar" else "skadoi"
+                if (gjE == "pranuar") { hiqDergimin(id); continue }
+                if (gjE == "pritet") continue
+                if (ktheAfatinTek(id, x["afat"])) Njoftimet.shfaq(StokuApp.app, "Stoku · Grupi",
+                    GrupiLogjika.tekstiNjoftimit(obj("lloji" to "afat-kthyer", "arsye" to if (gjE == "refuzuar") "refuzoi" else "skadoi", "emri" to (x["perEmri"] ?: ""), "afat" to x["afat"])), "ek-nj-k$id", "./index.html#ekipa-njoftimet")
+            }
+        } finally { dergimetDukeKontrolluar = false }
+    }
+
     // ---------------- Grupi: krijimi, ftesat, kërkesat, largimi ----------------
     /** → null (u krijua) ose arsyeja */
     suspend fun krijoGrupin(emriGrupit: String): String? {
@@ -760,8 +912,9 @@ object Grupi {
         return (ng["uid"] == uid) to ((ng["emri"] as? String)?.ifEmpty { null } ?: "Një koleg")
     }
 
-    /** Njoftimet që presin diçka nga unë: heqjet pa vendim, kërkesat pa kryer (mbeten "të palexuara") */
-    fun ePritur(n: Obj): Boolean = (n["lloji"] == "kerkese-heqje" && kryeresiIKerkeses(n) == null) || (n["lloji"] == "hequr" && !eVertete(n["vendim"]))
+    /** Njoftimet që presin diçka nga unë: heqjet pa vendim, kërkesat pa kryer, afatet e kolegëve pa vendim (mbeten "të palexuara") */
+    fun ePritur(n: Obj): Boolean = (n["lloji"] == "kerkese-heqje" && kryeresiIKerkeses(n) == null) || (n["lloji"] == "hequr" && !eVertete(n["vendim"])) ||
+        (n["lloji"] == "afat-dergim" && GrupiLogjika.gjendjaEAfatitKolegut(n, System.currentTimeMillis()) == "pritet")
 
     fun numriNjoftimeve(): Int = njoftimet.value.count { !(it["lloji"] == "kerkese-heqje" && kryeresiIKerkeses(it) != null) }
 
@@ -787,6 +940,12 @@ object Grupi {
     suspend fun fshijNjoftimet(ids: List<String>): String? {
         val u0 = uid ?: return "pa-hyrje"
         if (ids.isEmpty()) return null
+        // Hyrja 59: afati i një kolegu që s'e ke pranuar ende s'humbet me fshirjen: i kthehet atij (si "Refuzo")
+        val tani0 = System.currentTimeMillis()
+        njoftimet.value.filter { it["id"] in ids && it["lloji"] == "afat-dergim" && GrupiLogjika.gjendjaEAfatitKolegut(it, tani0) == "pritet" }.forEach { n ->
+            val r = vendosPerAfatin(n, false).first
+            if (r != null && r !in setOf("pranuar", "refuzuar", "skadoi", "fshire")) return r
+        }
         return try {
             val b = db.batch()
             ids.take(400).forEach { b.delete(db.collection("perdoruesit").document(u0).collection("njoftimet").document(it)) }

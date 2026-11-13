@@ -767,3 +767,30 @@ html.sb:not([data-tema="dark"]) .sb-summary { box-shadow: 0 0 0 1px var(--sb-lin
 .sb .btn-kerko { flex: none; width: 50px; height: 50px; border: 0; border-radius: 14px; padding: 0; background: var(--sb-surface); box-shadow: var(--sb-ring); color: var(--sb-ink); display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .sb .btn-kerko:active { background: var(--sb-surface-2); }
 .sb .btn-kerko.aktiv { background: var(--sb-accent-tint); color: var(--sb-accent-text); box-shadow: 0 0 0 1px var(--sb-accent-line); }
+
+/* v297: "Afat për një koleg": butoni katror majtas "Ruaj afatin" (sa lartësia e tij), shiriti "Për X" lart, lista e kolegëve */
+.sb #dlgAfat .af-koleg { flex: none; width: 56px; min-height: 56px; align-self: stretch; padding: 0; border: 0; border-radius: 14px;
+  background: var(--sb-surface-2); color: var(--sb-ink-3); display: grid; place-items: center; cursor: pointer; }
+.sb #dlgAfat .af-koleg[hidden] { display: none; }
+.sb #dlgAfat .af-koleg svg { display: block; }
+.sb #dlgAfat .af-koleg:active { transform: scale(.97); }
+.sb .af-per[hidden] { display: none; }
+.sb .af-per { display: flex; flex-direction: column; gap: 10px; }
+.sb .af-per__rresht { display: flex; align-items: center; gap: 10px; border-radius: 16px; padding: 9px 8px 9px 12px;
+  background: var(--sb-accent-tint); box-shadow: inset 0 0 0 1.5px var(--sb-accent); }
+.sb .af-per__av { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 15px; color: #fff; background: var(--sb-accent); }
+.sb .af-per__tx { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; color: var(--sb-ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb .af-per__tx b { color: var(--sb-ink); }
+.sb .af-per__ndr { flex: none; border: 0; border-radius: 10px; padding: 7px 10px; font: inherit; font-size: 13.5px; font-weight: 600; color: var(--sb-accent-text); background: var(--sb-surface-2); cursor: pointer; }
+.sb .af-per__hiq { flex: none; width: 34px; height: 34px; border: 0; border-radius: 50%; background: transparent; color: var(--sb-muted); font-size: 17px; font-weight: 700; cursor: pointer; }
+.sb .af-per__shenim { font-size: 12.5px; font-weight: 500; line-height: 1.35; color: var(--sb-ink-2); background: var(--sb-surface-2); border-radius: 12px; padding: 9px 12px; }
+.sb #dlgKolegu .dialog { max-width: 560px; display: flex; flex-direction: column; gap: 12px; max-height: 86vh; }
+.sb #dlgKolegu .dialog > * { margin-top: 0; margin-bottom: 0; }
+.sb #dlgKolegu .sb-sheet-krye { margin-bottom: 0; }
+.sb #dlgKolegu .kol-hint { font-size: 13px; }
+.sb #kolKerko[hidden] { display: none; }
+.sb #kolKerko { height: 46px; }
+.sb .kol-lista { overflow-y: auto; display: flex; flex-direction: column; min-height: 0; }
+.sb .kol-lista .artikull { width: 100%; text-align: left; }
+.sb .kol-lista .ek-anetar-nr { flex: none; }
+.sb #afatSasia:focus::placeholder { color: transparent; } /* v297: kursori s'del mbi "0" e zbehtë */

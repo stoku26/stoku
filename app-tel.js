@@ -4486,7 +4486,7 @@
   // thjesht klasën), që logjika e tyre (p.sh. konfirmo() që pret përgjigje) të përfundojë saktë.
   var ANULO_SIPAS_DIALOGUT = {
     dlgProdukt: 'dlgAnulo', dlgZhvendos: 'zhvendosAnulo', dlgFshirje: 'fshiAnulo',
-    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgMarketi: 'mkdAnulo', dlgMarketiRi: 'mkrAnulo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgKuSkedari: 'ksAnulo', dlgNjoftimet: 'njJoTani', dlgAfExcel: 'axAnulo', dlgTeRejat: 'trMbyll', dlgImportStok: 'impAnulo', dlgEkNjoftimet: 'ekNjMbyll', dlgEkNgjarja: 'ekDtMbyll', dlgAfImport: 'aiAnulo', dlgKerkese: 'krkAnulo'
+    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgMarketi: 'mkdAnulo', dlgMarketiRi: 'mkrAnulo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgKuSkedari: 'ksAnulo', dlgNjoftimet: 'njJoTani', dlgAfExcel: 'axAnulo', dlgTeRejat: 'trMbyll', dlgImportStok: 'impAnulo', dlgEkNjoftimet: 'ekNjMbyll', dlgEkNgjarja: 'ekDtMbyll', dlgAfImport: 'aiAnulo', dlgKerkese: 'krkAnulo', dlgKolegu: 'kolAnulo'
   };
   function mbyllShtresenMeTeFundit() {
     // Kamera del mbi çdo dialog (p.sh. skanimi te "Afat i ri"), prandaj mbyllet e para
@@ -6586,6 +6586,7 @@
     emriIm: emriPerdoruesitAktual,
     afatetEMia: function () { return afatet; }, afatetMeEmra: function () { return MK.meEmra(afatet, marketet); },
     zbatoHeqjet: zbatoHeqjetEKolegeve,
+    ktheAfatin: ktheAfatinNgaKolegu, pranoAfatin: pranoAfatinNgaKolegu, // v297
     njofto: njoftoNgaEkipa,
     ndryshoi: kurNdryshonEkipa
   }) : null;
@@ -6723,6 +6724,10 @@
     }
     rifreskoShenjatEEkipes();
     if (cfare === 'dyqanet' || cfare === 'te-gjitha') planifikoMesimin(); // kujtesa nga afatet e kolegëve
+    if (cfare === 'anetaret' || cfare === 'dyqanet' || cfare === 'te-gjitha') { // v297: "Afat për një koleg"
+      if ($('dlgAfat').classList.contains('hapur') && !afatNeDialog && !afatPerKolegun) $('afatKoleg').hidden = !mundAfatPerKoleg();
+      if ($('dlgKolegu').classList.contains('hapur')) vizatoKolegetPerAfat();
+    }
     if (!$('dlgEkipi').classList.contains('hapur')) return;
     if (cfare === 'njoftimet') return;
     // Dikush po shkruan te një fushë e pamjes (fto, njoftimi për grupin, emri i grupit): rindërtimi pritet derisa ta lëshojë
@@ -7815,6 +7820,7 @@
       }
       if (n.lloji === 'kerkese-heqje') b.appendChild(ekButoniKerkeses(n));
       if (n.lloji === 'hequr' && n.afatId) b.appendChild(ekButonatEHeqjes(n, b.firstChild));
+      if (n.lloji === 'afat-dergim') b.appendChild(ekButonatEAfatit(n));
       r.appendChild(b);
       r.appendChild(fshi);
       lista.appendChild(r);
@@ -7847,6 +7853,38 @@
       w.textContent = '';
       w.appendChild(ekEl('span', 'ek-nj-kryer', pranoj ? '✓ E pranove' : '✕ E refuzove'));
       toast(pranoj ? '"' + (n.produkti || 'Produkti') + '" u hoq nga rafti. ' + (n.emri || 'Kolegu') + ' u njoftua.' : (n.emri || 'Kolegu') + ' u njoftua që produkti mbetet në raft.');
+    }
+    bp.addEventListener('click', function () { vendos(true); });
+    br.addEventListener('click', function () { vendos(false); });
+    w.appendChild(bp); w.appendChild(br);
+    return w;
+  }
+  // v297: afati që ma dërgoi një koleg: Prano (hyn te afatet e mia) ose Refuzo (i kthehet atij). Pas 10 ditëve s'pranohet më.
+  function ekButonatEAfatit(n) {
+    var w = ekEl('div', 'ek-nj-veprim');
+    var shenja = function (gjE) {
+      w.textContent = '';
+      w.appendChild(ekEl('span', 'ek-nj-kryer', gjE === 'pranuar' ? '✓ E pranove' : gjE === 'refuzuar' ? '✕ E refuzove' : 'Kaluan 10 ditë: iu kthye ' + (n.emri || 'kolegut')));
+    };
+    var gjE = EKL.gjendjaEAfatitKolegut(n, Date.now());
+    if (gjE !== 'pritet') { shenja(gjE); return w; }
+    if (!leja('afatet') || !leja('afatetShto')) return w; // pranimi e shton afatin te lista ime
+    var bp = ekEl('button', 'btn ek-nj-btn', 'Prano'); bp.type = 'button';
+    var br = ekEl('button', 'btn tekst ek-nj-btn', 'Refuzo'); br.type = 'button';
+    async function vendos(pranoj) {
+      bp.disabled = br.disabled = true;
+      var res = await ekK.vendosPerAfatin(n, pranoj);
+      if (!res || !res.ok) {
+        if (res && /^(pranuar|refuzuar|skadoi)$/.test(res.arsye || '')) { shenja(res.arsye); toast(res.arsye === 'skadoi' ? 'Kaluan 10 ditë: afati iu kthye ' + (n.emri || 'kolegut') + '.' : 'Ky afat u vendos ndërkohë nga një pajisje tjetër.', 4500); return; }
+        bp.disabled = br.disabled = false;
+        toast(res && res.arsye === 'fshire' ? 'Ky njoftim u fshi ndërkohë.' : 'S\'u ruajt. Kontrollo internetin dhe provo sërish.', 4500);
+        return;
+      }
+      shenja(pranoj ? 'pranuar' : 'refuzuar');
+      var info = res.info;
+      if (!pranoj) toast('Afati iu kthye ' + (n.emri || 'kolegut') + '.');
+      else if (info && info.bashkuar) toast(tekstiIBashkimit(n.afat && typeof n.afat.sasia === 'number' ? n.afat.sasia : '', n.afat && n.afat.data, info.sasiaRe), 4500);
+      else toast('Afati u shtua te lista jote. ' + (n.emri || 'Kolegu') + ' u njoftua.');
     }
     bp.addEventListener('click', function () { vendos(true); });
     br.addEventListener('click', function () { vendos(false); });
@@ -8067,6 +8105,9 @@
     }
     trregoAfatetEkzistuese(true); // v295: bosh te afati ekzistues; te "Afat i ri" del sapo të ketë barkod
     $('afatFshij').style.display = a ? '' : 'none';
+    vendosKolegunEAfatit(null); // v297: çdo afat i ri nis "për mua"
+    $('afatKoleg').hidden = !!a || !mundAfatPerKoleg();
+    if (!a && ekK && leja('grupiAfatKolegu')) ekK.ngarkoKoleget();
     // Barkodi: me kamerë (butoni) ose, në modalitetin PDA, me skanerin e PDA-së direkt në fushë
     $('afatSkano').style.display = opsione.pda ? 'none' : '';
     $('afatPdaHint').style.display = opsione.pda && !a ? '' : 'none';
@@ -8095,7 +8136,127 @@
     $('dlgAfat').classList.add('hapur');
     if (!a) $('afatBarkodi').focus();
   }
-  function mbyllAfatin() { $('dlgAfat').classList.remove('hapur'); afatNeDialog = null; }
+  function mbyllAfatin() { $('dlgAfat').classList.remove('hapur'); afatNeDialog = null; vendosKolegunEAfatit(null); }
+  // Afat i ri te lista ime. v295 (pronari): afati i njëjtë (barkodi + data, + marketi) ekziston: copat i shtohen atij,
+  // s'krijohet rresht i ri. Kthen { bashkuar, sasiaRe, id }. opt.id: id e caktuar (afati i kthyer nga kolegu, v297).
+  function shtoAfatinIRi(te, mkId, opt) {
+    opt = opt || {};
+    var b = te.barkodi || '', data = te.data || '', sasia = te.sasia === undefined ? '' : te.sasia, emri = te.emri || '', f = te.furnizuesi || '';
+    if (!opt.paBashkim) {
+      var ekz = AF.afatiINjejte(afatet, b, data, mkId || null, kaMarkete());
+      if (ekz) {
+        var sasiaRe = AF.sasiaEBashkuar(ekz.sasia, sasia);
+        var ndrE = { sasia: sasiaRe };
+        if (!ekz.emri && emri) ndrE.emri = emri;
+        if (!ekz.furnizuesi && f) ndrE.furnizuesi = f;
+        perditesoAfatin(ekz.id, ndrE);
+        return { bashkuar: true, sasiaRe: sasiaRe, id: ekz.id };
+      }
+    }
+    var tani = Date.now();
+    var iRi = { id: opt.id || AF.idERe(), barkodi: b, emri: emri, data: data, sasia: sasia, furnizuesi: f, statusi: 'aktiv',
+      krijuarSe: tani, ndryshuarSe: tani, krijuarNga: opt.krijuarNga || emriPerdoruesitAktual() };
+    if (mkId) iRi.m = mkId;
+    afatet = afatet.concat([iRi]);
+    ruajAfatet();
+    if (perdoruesiAktual() && ekK) ekK.afateTeReja(1, false, [iRi.id]);
+    return { bashkuar: false, id: iRi.id };
+  }
+  function tekstiIBashkimit(sasia, data, sasiaRe) {
+    return sasia === '' ? 'Ky afat ekziston tashmë (' + AF.formato(data) + '). S\'u krijua rresht i ri.'
+      : 'U shtuan ' + sasia + ' copë te afati i ' + AF.formato(data) + (sasiaRe !== '' ? ' (gjithsej ' + sasiaRe + ' copë).' : '.');
+  }
+
+  // ---------- v297 (pronari): "Afat për një koleg" ----------
+  // Butoni katror majtas "Ruaj afatin" (vetëm te "Afat i ri", me lejen "grupiAfatKolegu" dhe kolegë në grup) hap listën e
+  // kolegëve. Pas zgjedhjes: shiriti "Për X" lart dhe "Dërgo te X për miratim". Kolegu e pranon ose e refuzon te zilja;
+  // refuzimi, ose 10 ditë pa përgjigje, e kthen afatin te lista ime (ekipa.js + Worker-i).
+  var afatPerKolegun = null; // { uid, emri }
+  function mundAfatPerKoleg() {
+    return !!(ekK && perdoruesiAktual() && leja('grupi') && leja('grupiAfatKolegu') && ekK.kolegetPerAfat().length);
+  }
+  function vendosKolegunEAfatit(k) {
+    afatPerKolegun = k || null;
+    $('afatPer').hidden = !afatPerKolegun;
+    $('afatRuaj').textContent = afatPerKolegun ? 'Dërgo te ' + afatPerKolegun.emri + ' për miratim' : 'Ruaj afatin';
+    if (afatPerKolegun) {
+      $('afatPerEmri').textContent = afatPerKolegun.emri;
+      var av = $('afatPerAv'); av.className = 'af-per__av'; av.removeAttribute('style'); av.textContent = String(afatPerKolegun.emri || '?').charAt(0).toUpperCase();
+      try { EKL.Fotot.apliko(av, { uid: afatPerKolegun.uid, emri: afatPerKolegun.emri }); } catch (e) { /* ok */ }
+      $('afatPerShenim').textContent = 'Hyn te lista e ' + afatPerKolegun.emri + ' pasi ta pranojë. ✕ e ruan te lista jote.';
+      $('afatKoleg').hidden = true;
+    } else if ($('dlgAfat').classList.contains('hapur') && !afatNeDialog) $('afatKoleg').hidden = !mundAfatPerKoleg();
+  }
+  function hapKolegetPerAfat() {
+    if (!mundAfatPerKoleg()) return;
+    $('kolKerko').value = '';
+    ekK.ngarkoKoleget();
+    $('kolKerko').hidden = ekK.kolegetPerAfat().length < 6;
+    vizatoKolegetPerAfat();
+    $('dlgKolegu').classList.add('hapur');
+  }
+  function mbyllKolegetPerAfat() { $('dlgKolegu').classList.remove('hapur'); }
+  function vizatoKolegetPerAfat() {
+    var c = $('kolLista'); c.textContent = '';
+    var q = $('kolKerko').value.trim().toLocaleLowerCase('sq');
+    var meAfate = {};
+    (ekK ? ekK.anetaretMeAfate() : []).forEach(function (a) { meAfate[a.uid] = a; });
+    var kol = (ekK ? ekK.kolegetPerAfat() : []).map(function (a) { return meAfate[a.uid] || { uid: a.uid, emri: a.emri, afatet: [], ngarkuar: false }; })
+      .filter(function (a) { return !q || String(a.emri || '').toLocaleLowerCase('sq').indexOf(q) !== -1; });
+    kol.sort(function (a, b) { var oa = EKL.eshteOnline(a) ? 0 : 1, ob = EKL.eshteOnline(b) ? 0 : 1; return oa - ob || String(a.emri).localeCompare(String(b.emri), 'sq'); });
+    if (!kol.length) { c.appendChild(ekBosh(q ? 'S\'u gjet asnjë koleg' : 'S\'ka kolegë në grup', q ? 'Provo një emër tjetër.' : '')); return; }
+    kol.forEach(function (a) {
+      var r = ekEl('button', 'artikull'); r.type = 'button';
+      r.appendChild(ekAvatar(a, true));
+      var m = ekEl('div', 'majtas');
+      m.appendChild(ekEl('div', 'emri', a.emri));
+      var pr = EKL.praniaIkone(a, false, 'tel');
+      var prEl = ekEl('span', 'ek-prania ' + (pr.online ? 'on' : 'off')); prEl.innerHTML = pr.html; prEl.title = pr.titulli;
+      var prR = ekEl('div', 'kodi ek-stat-nen'); prR.style.marginTop = '3px'; prR.appendChild(prEl); m.appendChild(prR);
+      r.appendChild(m);
+      if (a.ngarkuar && !a.paTeDhena) { // afatet e kolegut, kur janë ngarkuar (tabi Grupi)
+        var d = ekEl('div', 'ek-anetar-nr');
+        d.appendChild(ekEl('b', null, String(ekNumero(a.afatet || []).aktive)));
+        d.appendChild(ekEl('span', null, 'në raft'));
+        r.appendChild(d);
+      }
+      r.addEventListener('click', function () {
+        mbyllKolegetPerAfat();
+        vendosKolegunEAfatit({ uid: a.uid, emri: a.emri });
+      });
+      c.appendChild(r);
+    });
+  }
+  async function dergoAfatinTeKolegu(k, afat) {
+    if (!ekK || !leja('grupiAfatKolegu')) return;
+    var bt = $('afatRuaj');
+    bt.disabled = true; bt.textContent = 'Duke dërguar…';
+    var r = await ekK.dergoAfatKolegut(k.uid, afat);
+    bt.disabled = false;
+    if (!r || !r.ok) {
+      bt.textContent = 'Dërgo te ' + k.emri + ' për miratim';
+      toast(r && r.arsye === 'anetari' ? k.emri + ' s\'është më në grup.' : 'Afati s\'u dërgua. Kontrollo internetin dhe provo sërish.', 4500);
+      return;
+    }
+    mbyllAfatin();
+    toast('Afati iu dërgua ' + k.emri + (r.neRadhe ? ' (sapo të ketë internet).' : '.') + ' Hyn te lista e ' + k.emri + ' pasi ta pranojë.', 4500);
+  }
+  // Kolegu e refuzoi, ose s'u përgjigj brenda 10 ditëve: afati kthehet te lista ime (id e caktuar: një herë të vetme)
+  function ktheAfatinNgaKolegu(afat, id) {
+    if (!afat || !id || afatet.some(function (x) { return x.id === id; }) || (fshira.afatet && fshira.afatet[id])) return false;
+    shtoAfatinIRi(afat, null, { id: id, paBashkim: true });
+    return true;
+  }
+  // E pranova: afati hyn te lista ime (v295: me afatin e njëjtë bashkohen copat)
+  function pranoAfatinNgaKolegu(afat, nj) {
+    return shtoAfatinIRi(afat, idMarketitAktiv(), { krijuarNga: (nj && nj.emri) || '' });
+  }
+  $('afatKoleg').addEventListener('click', hapKolegetPerAfat);
+  $('afatPerNdrysho').addEventListener('click', hapKolegetPerAfat);
+  $('afatPerHiq').addEventListener('click', function () { vendosKolegunEAfatit(null); });
+  $('kolAnulo').addEventListener('click', mbyllKolegetPerAfat);
+  $('kolKerko').addEventListener('input', vizatoKolegetPerAfat);
+  $('dlgKolegu').addEventListener('click', function (ev) { if (ev.target === $('dlgKolegu')) mbyllKolegetPerAfat(); });
   function ruajAfatin() {
     if ($('dlgAfat').classList.contains('vetem-lexim')) { mbyllAfatin(); return; }
     if (!leja(afatNeDialog ? 'afatetNdrysho' : 'afatetShto')) return;
@@ -8109,7 +8270,8 @@
     if (!b && !emri) { toast('Shkruaj barkodin ose emrin e produktit.'); $('afatBarkodi').focus(); return; }
     if (!data) { toast('Shkruaj datën e skadimit, p.sh. 31-12-26.'); $('afatData').focus(); return; }
     var mkId = kaMarkete() ? $('afatMarketi').value : null; // v241
-    if (kaMarkete() && !afatNeDialog && !mkId) { toast('Zgjidh marketin ku është ky produkt.'); $('afatMarketi').focus(); return; }
+    var perKolegun = !afatNeDialog && afatPerKolegun ? afatPerKolegun : null; // v297
+    if (kaMarkete() && !afatNeDialog && !mkId && !perKolegun) { toast('Zgjidh marketin ku është ky produkt.'); $('afatMarketi').focus(); return; }
     // afatNeDialog është id-ja; furnizuesi i mëparshëm merret nga vetë afati (përndryshe çdo ruajtje e një afati të vjetër
     // e kthente si "të ri" një furnizues të fshirë)
     var afPara = afatNeDialog ? afatet.filter(function (x) { return x.id === afatNeDialog; })[0] : null;
@@ -8117,7 +8279,7 @@
     if (f === null) f = furnPara;
     mesoNgaPerdoruesi(b, emri, f); // herën tjetër ky barkod plotëson vetë emrin dhe furnizuesin
     if (f && f !== furnPara) regjistroFurnizuesinERi(f); // v212, v214: për këdo
-    var tani = Date.now();
+    if (perKolegun) { dergoAfatinTeKolegu(perKolegun, { barkodi: b, emri: emri, data: data, sasia: sasia, furnizuesi: f }); return; }
     // Afati që po ndryshohej u fshi ndërkohë nga një pajisje tjetër: ruhet si afat i ri (ndryshimi s'humbet pa fjalë)
     var uFshiNderkohe = !!afatNeDialog && !afPara;
     if (afatNeDialog && afPara) {
@@ -8125,25 +8287,12 @@
       if (kaMarkete()) ndr.m = mkId || '';
       perditesoAfatin(afatNeDialog, ndr);
     } else {
-      // v295 (pronari): afati i njëjtë (barkodi + data, + marketi) ekziston: copat i shtohen atij, s'krijohet rresht i ri
-      var ekz = AF.afatiINjejte(afatet, b, data, mkId, kaMarkete());
-      if (ekz) {
-        var sasiaRe = AF.sasiaEBashkuar(ekz.sasia, sasia);
-        var ndrE = { sasia: sasiaRe };
-        if (!ekz.emri && emri) ndrE.emri = emri;
-        if (!ekz.furnizuesi && f) ndrE.furnizuesi = f;
-        perditesoAfatin(ekz.id, ndrE);
+      var rz = shtoAfatinIRi({ barkodi: b, emri: emri, data: data, sasia: sasia, furnizuesi: f }, mkId);
+      if (rz.bashkuar) {
         mbyllAfatin();
-        toast(sasia === '' ? 'Ky afat ekziston tashmë (' + AF.formato(data) + '). S\'u krijua rresht i ri.'
-          : 'U shtuan ' + sasia + ' copë te afati i ' + AF.formato(data) + (sasiaRe !== '' ? ' (gjithsej ' + sasiaRe + ' copë).' : '.'), 4500);
+        toast(tekstiIBashkimit(sasia, data, rz.sasiaRe), 4500);
         return;
       }
-      var iRi = { id: AF.idERe(), barkodi: b, emri: emri, data: data, sasia: sasia, furnizuesi: f, statusi: 'aktiv',
-        krijuarSe: tani, ndryshuarSe: tani, krijuarNga: emriPerdoruesitAktual() };
-      if (mkId) iRi.m = mkId;
-      afatet = afatet.concat([iRi]);
-      ruajAfatet();
-      if (perdoruesiAktual() && ekK) ekK.afateTeReja(1, false, [iRi.id]);
     }
     mbyllAfatin();
     toast(uFshiNderkohe ? 'Ky afat u fshi nga një pajisje tjetër ndërkohë. U ruajt si afat i ri.' : 'Afati u ruajt.', uFshiNderkohe ? 4500 : undefined);
