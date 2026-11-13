@@ -71,6 +71,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    rezultatet e kërkimit dhe lista "8 deri 30 ditë" me `remember` (llogariten vetëm kur ndryshojnë të dhënat). Testi
    `teste/v285.js`. S'është testuar në pajisje të vërtetë.
 
+0000000. **ANDROID: BUTONI "KRIJO PDF-NË" MUNGONTE (13.11.2026, vetëm `vendas/`, Hyrja 58)**: pronari (foto e "PDF për printim" në web):
+   "Qeky buton ish tu mungu ne android app sdi njeri qysh me kriju pdf-n". Te `PdfFlete` (EksportetUI.kt) butoni ishte brenda një
+   `Column` me `Modifier.weight(1.4f)`: te një kolonë brenda `verticalScroll`, pesha vertikale i jepte lartësi 0, pra s'dukej fare (që nga
+   Hyrja 36). Tani `Row` me "Anulo" (`weight(1f)`, tekst) + "Krijo PDF-në" (`weight(1.4f)`), si te web-i. Dritaret e tjera të eksportit
+   (Excel, foto, importi) e kishin rreshtin si duhet. S'është testuar në pajisje të vërtetë.
+
 0000000. **MADHËSIA E SHKRONJAVE: DY ZGJEDHJE (v296 = 1.56.1, 12.11.2026, vetëm web telefoni)**: pronari (foto e Cilësimet → Pamja):
    "fshije komplet qato qka osht e madhe ... tash aktuale qe osht e vogel ndrroja emrin ne normale, a normales aktuale ... emrin e madhe.
    Edhe per qdo perdorus e len default menjiher madhsin ntmajt". Çelësat e brendshëm s'u ndryshuan: `e_vogel` (zoom .9) quhet tani
