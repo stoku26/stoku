@@ -6097,8 +6097,9 @@
   var AP_GJENDJET = [['aktive', 'Të gjitha'], ['skaduar', 'Të skaduara'], ['afer', 'Afër skadimit'], ['ok', 'Në rregull'], ['hequr', 'Të hequra']];
   var AP_RENDET = [['data', 'Sipas datës'], ['furnizuesi', 'Sipas furnizuesit'], ['emri', 'Sipas emrit']];
   // Faqja në mm: A4, anët 12.7. Faqja 1 (pronari, "koka 1"): logoja e vogël majtas, data djathtas, "Lista e afateve" në mes dhe poshtë
-  // "Periudha: … · N produkte · M copë"; trupi nis te 37.2 (33 rreshta). Faqet e tjera: koka e ngushtë, trupi nis te 21.2 (35 rreshta).
-  var AP = { W: 210, H: 297, MX: 12.7, KOKA1: 37.2, KOKA: 21.2, RR: 7.4, FUND: 283 };
+  // "Periudha: … · N produkte · M copë"; trupi nis te 37.2 (33 rreshta). v299 (pronari, foto): faqet e tjera pa logo/titull/të dhëna,
+  // vetëm koka e tabelës, trupi nis te 15.3 (36 rreshta). "COPË" më majtas, larg "SKADON": kolona 18 mm, numri 6 mm para skajit (SASIA_P).
+  var AP = { W: 210, H: 297, MX: 12.7, KOKA1: 37.2, KOKA: 15.3, RR: 7.4, FUND: 283, SASIA_P: 6 };
   var AP_NGJ = { ink: [20, 22, 27], ink2: [58, 61, 68], muted: [107, 110, 118], faint: [138, 141, 148], line2: [232, 230, 225], zebra: [250, 249, 247] };
   // Sa rreshta në secilën faqe
   function apPlani(n) {
@@ -6163,9 +6164,9 @@
   function apPdf(l, o) {
     var d = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' }), C = AP_NGJ, X = AP.MX, WI = AP.W - 2 * AP.MX;
     var pa = paFurnizues();
-    var kol = [{ k: 'nr', t: '#', w: 8 }, { k: 'emri', t: 'PRODUKTI', w: pa ? 110 : 76 }, { k: 'b', t: 'BARKODI', w: 34 }]
+    var kol = [{ k: 'nr', t: '#', w: 8 }, { k: 'emri', t: 'PRODUKTI', w: pa ? 104 : 70 }, { k: 'b', t: 'BARKODI', w: 34 }]
       .concat(pa ? [] : [{ k: 'f', t: 'FURNIZUESI', w: 34 }])
-      .concat([{ k: 's', t: 'COPË', w: 12, al: 'right' }, { k: 'd', t: 'SKADON', w: 20.6 }]);
+      .concat([{ k: 's', t: 'COPË', w: 18, al: 'right' }, { k: 'd', t: 'SKADON', w: 20.6 }]);
     function ng(c, lloji) { d['set' + (lloji || 'Text') + 'Color'](c[0], c[1], c[2]); }
     function font(pt, trashe) { d.setFont('helvetica', trashe ? 'bold' : 'normal'); d.setFontSize(pt); }
     function nxe(t, w) {
@@ -6177,7 +6178,7 @@
     function kokaETabeles(yb) {
       var x = X;
       font(7, true); ng(C.muted);
-      kol.forEach(function (c) { d.text(c.t, c.al === 'right' ? x + c.w - 1.6 : x + 1.6, yb, { align: c.al || 'left', charSpace: 0.2 }); x += c.w; });
+      kol.forEach(function (c) { d.text(c.t, c.al === 'right' ? x + c.w - AP.SASIA_P : x + 1.6, yb, { align: c.al || 'left', charSpace: 0.2 }); x += c.w; });
       ng(C.ink, 'Draw'); d.setLineWidth(0.26); d.line(X, yb + 2, X + WI, yb + 2);
     }
     function rreshti(a, i, y) {
@@ -6189,14 +6190,13 @@
         else if (c.k === 'emri') { font(8.6, true); ng(C.ink); d.text(nxe(a.emri || a.barkodi || 'Pa emër', w), px, yb); }
         else if (c.k === 'b') { font(8.6, false); ng(C.ink2); d.text(nxe(a.barkodi, w), px, yb); }
         else if (c.k === 'f') { font(8.6, false); ng(C.ink); d.text(nxe(a.furnizuesi, w), px, yb); }
-        else if (c.k === 's') { font(8.6, true); ng(C.ink); d.text(a.sasia === '' || a.sasia === null || a.sasia === undefined ? '' : String(a.sasia), x + c.w - 1.6, yb, { align: 'right' }); }
+        else if (c.k === 's') { font(8.6, true); ng(C.ink); d.text(a.sasia === '' || a.sasia === null || a.sasia === undefined ? '' : String(a.sasia), x + c.w - AP.SASIA_P, yb, { align: 'right' }); }
         else { font(8.6, true); ng(C.ink); d.text(a.data ? AF.formato(a.data) : '–', px, yb); }
         x += c.w;
       });
       ng(C.line2, 'Draw'); d.setLineWidth(0.2); d.line(X, y + AP.RR, X + WI, y + AP.RR);
     }
     var plani = apPlani(l.length), idx = 0, logo = apLogo();
-    var info = o.info.map(function (x) { return x[0]; }).join('');
     plani.forEach(function (k, p) {
       if (p) d.addPage();
       var y;
@@ -6211,10 +6211,7 @@
         o.info.forEach(function (x) { font(9, x[1]); ng(x[1] ? C.ink : C.muted); d.text(x[0], xi, 27.4); xi += d.getTextWidth(x[0]); });
         kokaETabeles(34.6); y = AP.KOKA1;
       } else {
-        d.addImage(logo, 'PNG', X, 9.4, 15.35, 4.2);
-        font(12, true); ng(C.ink); d.text('Lista e afateve', AP.W / 2, 13.1, { align: 'center' });
-        font(7.9, false); ng(C.muted); d.text(nxe(info, 64), X + WI, 13.1, { align: 'right' });
-        kokaETabeles(18.6); y = AP.KOKA;
+        kokaETabeles(12.7); y = AP.KOKA; // v299: logoja, titulli dhe të dhënat vetëm te faqja 1
       }
       for (var j = 0; j < k; j++, idx++) { rreshti(l[idx], idx, y); y += AP.RR; }
     });

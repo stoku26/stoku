@@ -52,6 +52,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PDF E AFATEVE: KOKA VETËM NË FAQEN 1, "COPË" MË MAJTAS (v299 = 1.57.2, 14.11.2026, telefoni + Android Hyrja 61)**:
+   pronari (foto e faqes 2): logoja + "Lista e afateve" + "Periudha … produkte … copë" "duhet mos mu kon ne faqe tjera ... veq te
+   faqja e par"; "cope ... qoje pak ma ntmajt se osht shum afer skadon". `apPdf` (app-tel.js) = `EksportiPdf` (Kotlin): faqet 2+
+   vetëm koka e tabelës te 12.7, trupi nga `AP.KOKA` 15.3 (36 rreshta; plani 80 → 33, 36, 11); kolonat: PRODUKTI 70 (pa furnizues 104),
+   COPË 18 mm me numrin `AP.SASIA_P` / `P_SASIA` = 6 mm para skajit. Test: `teste/v299.js` (ndihmësit e `v275.js`).
 0000000. **LEXIMI ME AI: 10 FLETË NË DITË + WORKER-I stoku-afatet NË REPO (v298 = 1.57.1, 13.11.2026, telefoni + PC + Android Hyrja 60
    + stoku-afatet v2)**: pronari, pas kontrollit të Worker-ave: "bone opsionin a [kodi në repo], gjithashtu edhe opsionin b [kufi
    ditor + leja në server] veq leje 10 foto ne dite". `worker/stoku-afatet.js` = kodi i Worker-it të AI-së (i dhënë nga pronari,

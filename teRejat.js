@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 299, versioni: '1.57.2', data: '2026-11-14', titulli: 'PDF e afateve më e pastër', platforma: 'tel', pikat: [
+      'Te PDF-ja e afateve, logoja, titulli dhe të dhënat dalin vetëm në faqen e parë; faqet e tjera nisin direkt me tabelën.',
+      'Kolona "Copë" është pak më majtas, larg datës së skadimit.'
+    ] },
     { v: 298, versioni: '1.57.1', data: '2026-11-13', titulli: 'Leximi i fletës me AI: 10 në ditë', pikat: [
       'Leximi i fletës me AI ("Fotografo fletën") lejohet deri në 10 fletë në ditë për çdo llogari.',
       'Kur e arrin kufirin, del një mesazh i qartë: provo nesër, ose shkruaji rreshtat me dorë.'
