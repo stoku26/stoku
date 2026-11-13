@@ -456,6 +456,8 @@ object Dyqani {
 
     // ---------------- Afatet ----------------
     fun afati(id: String): Obj? = _gjendja.value.afatet.firstOrNull { it["id"] == id }
+    /** Hyrja 59: afati u fshi nga kjo llogari (s'rikthehet nga "Afat për një koleg") */
+    fun afatiUFshi(id: String): Boolean = synchronized(fshira) { fshira["afatet"].siObj()?.containsKey(id) == true }
 
     fun shtoAfatin(a: Obj) = ndrysho(300) { it.copy(afatet = it.afatet + a) }
     fun shtoAfatet(l: List<Obj>) { if (l.isNotEmpty()) ndrysho(300) { it.copy(afatet = it.afatet + l) } }

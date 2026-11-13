@@ -620,3 +620,21 @@ html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-nen { background: var(--sb-s
 
 /* v252: merchandiserët s'e kanë furnizuesin (fushat, grupimi, eksporti, importi) */
 .pa-furnizues .furn-vetem { display: none !important; }
+
+/* v297: "Afat për një koleg" (PC): butoni katror majtas poshtë, shiriti "Për X", lista e kolegëve */
+#dlgAfat .af-koleg { flex: none; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 10px; background: var(--hover); color: var(--gri); display: grid; place-items: center; cursor: pointer; }
+#dlgAfat .af-koleg[hidden] { display: none; }
+#dlgAfat .af-koleg:hover { background: var(--vije); color: var(--tekst); }
+.af-per[hidden] { display: none; }
+.af-per { margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px; }
+.af-per__rresht { display: flex; align-items: center; gap: 10px; border-radius: 12px; padding: 6px 6px 6px 10px; background: var(--primar-bute); box-shadow: inset 0 0 0 1.5px var(--primar); }
+.af-per__av { flex: none; }
+.af-per__tx { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.af-per__shenim { font-size: 12.5px; color: var(--gri); }
+#dlgKolegu { z-index: 51; } /* mbi "Afat i ri", nën konfirmimin */
+.kol-lista { display: flex; flex-direction: column; gap: 2px; max-height: 50vh; overflow-y: auto; }
+.kol-rresht { display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--tekst); font: inherit; text-align: left; cursor: pointer; }
+.kol-rresht:hover { background: var(--hover); }
+.kol-rresht .kol-emri { flex: 1; min-width: 0; font-weight: 600; }
+.kol-rresht .kol-nen { font-size: 12.5px; color: var(--gri); font-weight: 400; }
+.kol-rresht .kol-nr { flex: none; font-size: 12.5px; color: var(--gri); }

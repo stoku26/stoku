@@ -294,7 +294,7 @@ private fun Avatari(emri: String?, madhesia: Dp, online: Boolean = false, uid: S
 
 /** Avatari i lehtë (ek-avatar): te aktiviteti me ngjyrën e ngjarjes, te kolegët me pikën online */
 @Composable
-private fun AvatariLehte(emri: String?, lloji: String? = null, madhesia: Dp = 34.dp, online: Boolean = false, uid: String? = null) {
+internal fun AvatariLehte(emri: String?, lloji: String? = null, madhesia: Dp = 34.dp, online: Boolean = false, uid: String? = null) {
     val n = N
     val foto = fotoEProfilit(uid ?: site.stoku.vendas.Fotot.uidPerEmrin(emri)) // v256: si Fotot.apliko te web-i
     val (sf, ng) = when (lloji) {
@@ -1424,6 +1424,38 @@ private fun ZiljaFlete(ctx: Konteksti, mbyll: () -> Unit) {
                                         else Toast.trego("S'u ruajt. Kontrollo internetin dhe provo sërish.")
                                     }
                                 }, Modifier.padding(top = 8.dp), lartesia = 36.dp)
+                            } else if (lloji == "afat-dergim") {
+                                // Hyrja 59 (web v297): afati që ma dërgoi një koleg: Prano (hyn te afatet e mia) ose Refuzo (i kthehet atij)
+                                val kush = (nj["emri"] as? String)?.ifEmpty { null } ?: "kolegut"
+                                val gjE = GrupiLogjika.gjendjaEAfatitKolegut(nj, System.currentTimeMillis())
+                                if (gjE != "pritet") Text(when (gjE) { "pranuar" -> "✓ E pranove"; "refuzuar" -> "✕ E refuzove"; else -> "Kaluan 10 ditë: iu kthye $kush" },
+                                    style = tx(13, 700, n.ok), modifier = Modifier.padding(top = 8.dp))
+                                else if (Llogaria.leja("afatet") && Llogaria.leja("afatetShto")) Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    fun vendos(pranoj: Boolean) {
+                                        scope.launch {
+                                            val (r, info) = Grupi.vendosPerAfatin(nj, pranoj)
+                                            if (r in setOf("pranuar", "refuzuar", "skadoi")) {
+                                                vendime.value = vendime.value + (id to when (r) { "pranuar" -> "✓ E pranove"; "refuzuar" -> "✕ E refuzove"; else -> "Kaluan 10 ditë: iu kthye $kush" })
+                                                Toast.trego(if (r == "skadoi") "Kaluan 10 ditë: afati iu kthye $kush." else "Ky afat u vendos ndërkohë nga një pajisje tjetër.", 4500); return@launch
+                                            }
+                                            if (r != null) { Toast.trego(if (r == "fshire") "Ky njoftim u fshi ndërkohë." else "S'u ruajt. Kontrollo internetin dhe provo sërish.", 4500); return@launch }
+                                            vendime.value = vendime.value + (id to if (pranoj) "✓ E pranove" else "✕ E refuzove")
+                                            val af = nj["afat"] as? Map<*, *>
+                                            Toast.trego(when {
+                                                !pranoj -> "Afati iu kthye $kush."
+                                                info?.get("bashkuar") == true -> {
+                                                    val s = af?.get("sasia"); val sRe = info["sasiaRe"]; val d = site.stoku.logjika.Afatet.formato(af?.get("data"))
+                                                    if (s !is Number) "Ky afat ekziston tashmë ($d). S'u krijua rresht i ri."
+                                                    else "U shtuan " + jsString(s) + " copë te afati i " + d + (if (sRe != "") " (gjithsej " + jsString(sRe) + " copë)." else ".")
+                                                }
+                                                else -> "Afati u shtua te lista jote. " + ((nj["emri"] as? String)?.ifEmpty { null } ?: "Kolegu") + " u njoftua."
+                                            }, 4500)
+                                        }
+                                    }
+                                    Buton("Prano", { vendos(true) }, lartesia = 36.dp)
+                                    Spacer(Modifier.width(6.dp))
+                                    Buton("Refuzo", { vendos(false) }, lloji = "tekst", lartesia = 36.dp)
+                                }
                             } else if (lloji == "hequr" && eVertete(nj["afatId"])) {
                                 val v = nj["vendim"] as? String
                                 if (v != null) Text(if (v == "pranuar") "✓ E pranove" else "✕ E refuzove", style = tx(13, 700, n.ok), modifier = Modifier.padding(top = 8.dp))

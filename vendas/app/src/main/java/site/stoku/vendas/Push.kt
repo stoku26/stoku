@@ -114,6 +114,10 @@ object Push {
         } catch (e: Exception) { Pergjigja(false, emptyMap(), "rrjeti") }
     }
 
+    /** Hyrja 59: njoftimi personal që sapo e shkrova te një koleg → push te pajisjet e tij (Worker-i e lexon me tokenin tim).
+     *  Për "afat-dergim" Worker-i e regjistron edhe për kthimin pas 10 ditëve. */
+    suspend fun njoftoNjoftim(id: String, per: String, grupi: String): Boolean = kerkese("/njoftim", mapOf("id" to id, "per" to per, "grupi" to grupi)).ok
+
     /** Gjendja e serverit (GET /): { ok, versioni, celesat, fcm, fotot, cron, cronShprehja, cronGabim } */
     suspend fun serveri(): Obj? = kerkese("/", null, meToken = false).te.takeIf { it.isNotEmpty() }
 

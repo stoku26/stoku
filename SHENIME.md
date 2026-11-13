@@ -52,6 +52,34 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **"AFAT PËR NJË KOLEG" (v297 = 1.57.0, 13.11.2026, telefoni + PC + Android Hyrja 59 + Worker 169)**: pronari: "Bone met
+   shtu dikush tjeter afate e ti me vendos a me ja aprovu a jo"; butoni "si varianti b ... posht anen e majt k te butoni ku shkrun
+   ruaj afatin ... bone katror", ikona 2 (njeri me shigjetë të vogël në qoshe); "ne rast se kolega se pranon ate afat, ai afat nuk
+   guxon me u fshi ... me i mbet edhe me njoftu"; "butonin duhen krejta me e pas on nfillim ... administratori ... me mujt me ja
+   nal"; "nese afati nuk pranohet brenda 10 ditesh me dal te ai qe e ka dergu ... deri ne 10 dit mos me dal kerkun nlist ne
+   pritje"; "mi ardh sakt edhe pa e hap stokun" (pra Worker-i, Cron). RRJEDHA: "Afat i ri" → butoni katror `#afatKoleg` (PC
+   `#afdKoleg`; Android `Ik.PerKoleg` te `AfatiFlete`) → "Për cilin koleg?" (`#dlgKolegu`, online së pari) → shiriti "Për X"
+   (`#afatPer`, Ndrysho / ✕) + "Dërgo te X për miratim". S'shtohet te lista e dërguesit; njoftimi `afat-dergim` me `afat`
+   (`afatiPerKolegun`: barkodi, emri, data, sasia, furnizuesi; PA market) shkon te `perdoruesit/{koleg}/njoftimet`. Kolegu:
+   Prano (`vendosPerAfatin` → vendim 'pranuar', afati hyn me bashkimin e v295, dërguesi merr `afat-pranuar` me id "p"+id) ose
+   Refuzo (vendim 'refuzuar', dërguesi merr `afat-kthyer` arsye 'refuzoi' me id "k"+id). Fshirja e një `afat-dergim` pa vendim
+   = Refuzo (afati s'humbet). Dërguesi: `afat-kthyer` pa `zbatuar` → afati hyn me id të caktuar "kd"+id (dy pajisje s'e
+   dyfishojnë; i fshiri s'rikthehet), pastaj `zbatuar: true`. 10 ditë (`gjendjaEAfatitKolegut`: koha + 10 ditë → 'skadoi',
+   edhe pa vendim në server): kolegu s'sheh më Prano ("Kaluan 10 ditë: iu kthye X"). WORKER 169: `/njoftim` për `afat-dergim`
+   e regjistron te KV `afat-kolegu` ({ id: { per, uid, g, koha, afat } }; një lexim në minutë, shkrim vetëm kur ndryshon);
+   Cron-i (`ktheAfatetEKolegeve`, deri 8 në minutë, me FCM_SA) pas 10 ditëve: pa vendim → PATCH me updateMask (vendim
+   'skadoi', lexuar) + krijim `k`+id te dërguesi (vetëm krijim: refuzimi i njëkohshëm s'dyfishohet) + push; i fshirë nga kolegu
+   → kthehet vetëm kur s'ka "p"+id. REZERVA (pa Worker): dërgimet e mia ruhen të fshehura te pajisja (`stoku:ekipa:afat-
+   derguar:{uid}`, Android pref `afat_derguar_{uid}`); 10 ditë + 1 orë pas, `kontrolloDergimet` e lexon njoftimin te kolegu
+   (`allow get` i dërguesit; i fshirë = "permission-denied") dhe e kthen vetë. Kolegët për butonin: `kolegetPerAfat` (ekipa.js
+   ngarkon anëtarët edhe pa tabin Grupi, `nisAnetaret`, me kopje te `stoku:ekipa:koleget:{uid}`). Android s'thërriste kurrë
+   `/njoftim`: tani `Push.njoftoNjoftim` për njoftimet e kësaj veçorie. LEJA e re `grupiAfatKolegu` ("Afat për një koleg",
+   prindi 'grupi', e ndezur për të gjithë) te lejet.js + Lejet.kt + FJALET_E_LEJEVE. Rregullat e Firestore-it S'NDRYSHOJNË.
+   Teksti: `tekstiNjoftimit` (ekipa.js = GrupiLogjika = Worker) + fiksturat. Edhe: web `#afatSasia:focus::placeholder` i
+   tejdukshëm; Android (foto e pronarit) "0" e zbehtë fshihet kur fusha në mes ka fokus (`Fusha`), sugjerimet e furnizuesit dalin
+   MBI fushë dhe fleta lëviz që të duken mbi tastierë. Testet: `teste/v297.js` (telefon + PC), `teste/wp/afat-kolegu-prova.mjs`;
+   `fs-server.js` tani e lejon `get` e dërguesit si rregullat e vërteta. PRONARI: ngjit `worker/stoku-push.js` te Cloudflare
+   (versioni 169); Cron-i "* * * * *" dhe KV `FOTO` mbeten si janë.
 0000000. **SHPEJTËSIA ME SHUMË TË DHËNA (v285 = 1.52.1, 10.11.2026, telefoni + PC + ora e dorës; Android te hyrja më poshtë)**: pronari:
    "mundohu per permirsim ne performance edhe stabilitet te komplet stoku.site tel edhe pc edhe appeve dyjave". Matja
    (scratchpad `perf.js`: 6000 produkte + 3000 afate, CPU 4 herë më i ngadaltë te telefoni, 2 herë te PC, numërohen "long tasks"):

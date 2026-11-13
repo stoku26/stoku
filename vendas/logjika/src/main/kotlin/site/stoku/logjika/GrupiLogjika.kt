@@ -458,11 +458,56 @@ object GrupiLogjika {
             if (ko != 0L) titulliDites(ko, tani, zona) + " · " + ora(ko, zona) else "", rreshtat, tekst, art, shenim)
     }
 
+    /** v297 / Hyrja 59: "Afat për një koleg" (ekipa.js). Kolegu e pranon ose e refuzon; pa vendim brenda 10 ditëve i kthehet dërguesit. */
+    const val AFAT_KOLEGU_DITE = 10
+    const val AFAT_KOLEGU_MS = AFAT_KOLEGU_DITE * 86_400_000L
+
+    /** Vetëm fushat që i nevojiten kolegut (marketi është i dërguesit), si afatiPerKolegun te ekipa.js */
+    fun afatiPerKolegun(a0: Any?): MObj {
+        val a = a0.siObj() ?: emptyMap()
+        val o = MObj()
+        o["barkodi"] = (if (a["barkodi"] == null) "" else jsString(a["barkodi"])).replace(Regex("\\s+"), "").let { if (it.length > 64) it.substring(0, 64) else it }
+        o["emri"] = (if (a["emri"] == null) "" else jsString(a["emri"])).trim().let { if (it.length > 200) it.substring(0, 200) else it }
+        val d = a["data"]
+        if (d is String && Regex("^\\d{4}-\\d{2}-\\d{2}$").matches(d)) o["data"] = d
+        val s = a["sasia"]
+        if (s is Number && s.toDouble().isFinite() && s.toDouble() >= 0) o["sasia"] = Math.floor(s.toDouble()).toLong()
+        val f = (if (a["furnizuesi"] == null) "" else jsString(a["furnizuesi"])).trim().let { if (it.length > 200) it.substring(0, 200) else it }
+        if (f.isNotEmpty()) o["furnizuesi"] = f
+        return o
+    }
+
+    /** 'pritet' | 'pranuar' | 'refuzuar' | 'skadoi' */
+    fun gjendjaEAfatitKolegut(nj: Obj?, tani: Long): String {
+        if (nj == null) return "skadoi"
+        val v = nj["vendim"]
+        if (v == "pranuar" || v == "refuzuar" || v == "skadoi") return v as String
+        val k = jsNumber(nj["koha"]).let { if (it.isNaN()) 0.0 else it }
+        return if (tani - k >= AFAT_KOLEGU_MS) "skadoi" else "pritet"
+    }
+    fun idKthimit(dergimId: String) = "k$dergimId"
+    fun idPranimit(dergimId: String) = "p$dergimId"
+    fun idAfatitKthyer(dergimId: String) = "kd$dergimId"
+
+    /** v297 / Hyrja 59: afati që një koleg ta dërgon (nj.afat), si produktiIAfatitDerguar te ekipa.js */
+    fun produktiIAfatitDerguar(nj: Obj?): String {
+        val a = nj?.get("afat").siObj() ?: emptyMap()
+        var t = ose(a["emri"], a["barkodi"]).ifEmpty { "produkt" }
+        if (eVertete(a["data"])) t += " · " + Afatet.formato(a["data"])
+        val s = a["sasia"]
+        if (s is Number) t += " · " + jsString(s) + " copë"
+        return t
+    }
+
     /** Teksti i një njoftimi personal (zilja) */
     fun tekstiNjoftimit(nj: Obj): String {
         val kush = ose(nj["emri"])
         val produkti = ose(nj["produkti"], nj["barkodi"]).ifEmpty { "produkt" }
         return when (nj["lloji"]) {
+            "afat-dergim" -> kush.ifEmpty { "Një koleg" } + " të dërgoi një afat: " + produktiIAfatitDerguar(nj)
+            "afat-pranuar" -> kush.ifEmpty { "Kolegu" } + " e pranoi afatin që i dërgove: " + produktiIAfatitDerguar(nj)
+            "afat-kthyer" -> kush.ifEmpty { "Kolegu" } + (if (nj["arsye"] == "skadoi") " s'e pranoi brenda 10 ditëve afatin: " else " s'e pranoi afatin: ") +
+                produktiIAfatitDerguar(nj) + ". E ke te lista jote."
             "kerkese-heqje" -> kush.ifEmpty { "Një koleg" } + (if (eVertete(nj["perKrejt"])) " i kërkon grupit ta heqë nga rafti: " else " të kërkon ta heqësh nga rafti: ") +
                 produktiIKerkeses(nj) + (if (eVertete(nj["shenim"])) " · " + jsString(nj["shenim"]) else "")
             "kerkese-kryer" -> kush.ifEmpty { "Një koleg" } + " e hoqi nga rafti: " + produktiIKerkeses(nj) + " (kërkesa jote)"

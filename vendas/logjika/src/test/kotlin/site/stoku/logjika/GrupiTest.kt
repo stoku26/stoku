@@ -46,6 +46,12 @@ class GrupiTest {
         }
     }
 
+    /** v297: afati për një koleg */
+    @Test fun afatiPerKolegun() {
+        f["afatKolegu"].siListe().forEach { x -> val r = x.siObj()!!; eq("afatiPerKolegun " + Json.shkruaj(r["a"]), r["r"], GrupiLogjika.afatiPerKolegun(r["a"])) }
+        f["gjendjetKolegu"].siListe().forEach { x -> val r = x.siObj()!!; assertEquals("gjendja " + Json.shkruaj(r["nj"]), r["r"], GrupiLogjika.gjendjaEAfatitKolegut(r["nj"].siObj(), tani)) }
+    }
+
     @Test fun tekstet() {
         f["tekstet"].siListe().forEach { x ->
             val r = x.siObj()!!; val t = GrupiLogjika.tekstiNgjarjes(r["ng"].siObj()!!, r["u"] as String?)

@@ -42,6 +42,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -57,6 +59,7 @@ import site.stoku.vendas.Dyqani
 import site.stoku.vendas.Grupi
 import site.stoku.vendas.Llogaria
 import site.stoku.vendas.Merchandiseri
+import kotlinx.coroutines.launch
 
 
 /** Afatet: lista me ngjyra sipas statusit, filtrat, kërkimi, "+ Shto" */
@@ -419,6 +422,7 @@ fun riktheAktiv(a: Obj) {
 }
 
 // ---------------- Dritarja: shto / ndrysho një afat ----------------
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -> Unit, mbyll: () -> Unit) {
     val n = N
@@ -434,6 +438,14 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
     var furn by remember { mutableStateOf((a?.get("furnizuesi") as? String) ?: if (a == null) Dyqani.furnizuesiNgaBarkodi(barkodiISkanuar) else "") }
     var fshi by remember { mutableStateOf(false) }
     var sugjerimet by remember { mutableStateOf(false) }
+    // Hyrja 59 (web v297): "Afat për një koleg" (vetëm te "Afat i ri")
+    var perKolegun by remember { mutableStateOf<Obj?>(null) }
+    var zgjedhKolegun by remember { mutableStateOf(false) }
+    var dukeDerguar by remember { mutableStateOf(false) }
+    val anetaretG by Grupi.anetaret.collectAsState()
+    val mundKoleg0 = remember(anetaretG) { Grupi.mundAfatPerKoleg() }
+    val mundKoleg = a == null && !vetemLexim && mundKoleg0
+    val scopeA = androidx.compose.runtime.rememberCoroutineScope()
     // v241: marketi (vetëm kur ka markete); afati i ri merr marketin ku je
     val kaM = Merchandiseri.kaMarkete()
     var mk by remember { mutableStateOf(if (a != null) (a["m"] as? String)?.takeIf { Marketet.sipasId(Merchandiseri.marketet(), it) != null } else Merchandiseri.idAktiv()) }
@@ -458,13 +470,26 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
         if (st.isNotEmpty() && s == "") { Toast.trego("Sasia duhet të jetë numër i plotë (p.sh. 12)."); return }
         if (b.isEmpty() && em.isEmpty()) { Toast.trego("Shkruaj barkodin ose emrin e produktit."); fBarkodi.requestFocus(); return }
         if (iso.isEmpty()) { Toast.trego("Shkruaj datën e skadimit, p.sh. 31-12-26."); fData.requestFocus(); return }
-        if (kaM && a == null && mk == null) { Toast.trego("Zgjidh marketin ku është ky produkt."); return }
+        val koleg = if (a == null) perKolegun else null
+        if (kaM && a == null && mk == null && koleg == null) { Toast.trego("Zgjidh marketin ku është ky produkt."); return }
         val afPara = id?.let { Dyqani.afati(it) }
         val furnPara = (afPara?.get("furnizuesi") as? String).orEmpty()
         val f = if (paFurnizues) furnPara else furn.trim()
         // Herën tjetër ky barkod plotëson vetë emrin dhe furnizuesin; furnizuesi i ri pret kontrollin (v212, v214)
         site.stoku.vendas.Regjistri.mesoNgaPerdoruesi(b, em, f)
         if (f.isNotEmpty() && f != furnPara) site.stoku.vendas.Regjistri.regjistroFurnizuesinERi(f)
+        if (koleg != null) {
+            if (dukeDerguar) return
+            val ke = (koleg["emri"] as? String).orEmpty()
+            dukeDerguar = true
+            scopeA.launch {
+                val r = Grupi.dergoAfatKolegut(koleg["uid"] as String, obj("barkodi" to b, "emri" to em, "data" to iso, "sasia" to s, "furnizuesi" to f))
+                dukeDerguar = false
+                if (r == null) { Toast.trego("Afati iu dërgua $ke. Hyn te lista e $ke pasi ta pranojë.", 4500); mbyll() }
+                else Toast.trego(if (r == "anetari") "$ke s'është më në grup." else "Afati s'u dërgua. Kontrollo internetin dhe provo sërish.", 4500)
+            }
+            return
+        }
         val tani = System.currentTimeMillis()
         if (id != null && afPara != null) {
             Dyqani.perditesoAfatin(id, mapOf("barkodi" to b, "emri" to em, "data" to iso, "sasia" to s, "furnizuesi" to f) + (if (kaM) mapOf("m" to (mk ?: "")) else emptyMap()))
@@ -498,6 +523,7 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
                 style = tx(26, 700, n.ink, -0.02), modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
             Text(if (vetemLexim) "Mbyll" else "Anulo", style = tx(15, 500, n.muted), modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable(onClick = mbyll).padding(6.dp))
         }
+        perKolegun?.let { k -> ShiritiPerKolegun(k, ndrysho = { zgjedhKolegun = true }, hiq = { perKolegun = null }) }
         if (a != null) {
             val st = Afatet.statusi(a)
             val (sf, ng) = when (st) { "skaduar", "pa-date" -> n.expTint to n.expInk; "afer" -> n.nearTint to n.nearInk; "ok" -> n.okTint to n.okInk; else -> n.remTint to n.ink3 }
@@ -566,19 +592,101 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
         }
         if (kaM) ZgjedhjaEMarketit(mk, a == null, vetemLexim) { mk = it }
         if (!paFurnizues) {
-            Fusha(furn, { furn = it; sugjerimet = true }, Modifier.fillMaxWidth(), "Furnizuesi (zgjidh ose shkruaj)", vetemLexim = vetemLexim,
-                kurVeprim = { sugjerimet = false; ruaj() })
-            if (sugjerimet && !vetemLexim) SugjerimetEFurnizuesit(furn, { furn = it; sugjerimet = false }) { sugjerimet = false }
+            // Hyrja 59 (pronari: "furnizuesi që rekomandohet mos të jetë ngjitur ashtu se mezi e selektojsha"): lista dilte nën fushë,
+            // poshtë tastierës. Tani del MBI fushë (si te web-i, .sugj-lista) dhe fleta lëviz vetë që lista + fusha të duken mbi tastierë.
+            val bivr = remember { androidx.compose.foundation.relocation.BringIntoViewRequester() }
+            val sugjDuken = sugjerimet && !vetemLexim
+            LaunchedEffect(sugjDuken, furn) { if (sugjDuken) { kotlinx.coroutines.delay(120); try { bivr.bringIntoView() } catch (e: Exception) { } } }
+            Column(Modifier.fillMaxWidth().bringIntoViewRequester(bivr), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (sugjDuken) SugjerimetEFurnizuesit(furn, { furn = it; sugjerimet = false }) { sugjerimet = false }
+                Fusha(furn, { furn = it; sugjerimet = true }, Modifier.fillMaxWidth().onFocusChanged { if (it.isFocused && !vetemLexim) sugjerimet = true },
+                    "Furnizuesi (zgjidh ose shkruaj)", vetemLexim = vetemLexim, kurVeprim = { sugjerimet = false; ruaj() })
+            }
         }
-        if (!vetemLexim) Buton("Ruaj afatin", { ruaj() }, Modifier.fillMaxWidth().shadow(12.dp, RoundedCornerShape(14.dp), spotColor = n.accent), lartesia = 56.dp)
+        // Hyrja 59: butoni katror majtas "Ruaj afatin" (sa lartësia e tij) hap "Për cilin koleg?"
+        if (!vetemLexim) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            if (mundKoleg && perKolegun == null) Box(Modifier.size(56.dp).clip(RoundedCornerShape(14.dp)).background(n.surface2).clickable { zgjedhKolegun = true }
+                .semantics { contentDescription = "Për një koleg"; role = androidx.compose.ui.semantics.Role.Button }, contentAlignment = Alignment.Center) {
+                Icon(Ik.PerKoleg, null, Modifier.size(26.dp), tint = n.ink3)
+            }
+            val ke = (perKolegun?.get("emri") as? String).orEmpty()
+            Buton(if (dukeDerguar) "Duke dërguar…" else if (perKolegun != null) "Dërgo te $ke për miratim" else "Ruaj afatin", { ruaj() },
+                Modifier.weight(1f).shadow(12.dp, RoundedCornerShape(14.dp), spotColor = n.accent), lartesia = 56.dp)
+        }
         if (a != null && Llogaria.leja("afatetFshi")) Buton("Fshi afatin", { fshi = true }, Modifier.fillMaxWidth(), lloji = "rrezik")
     }
     LaunchedEffect(Unit) {
         kotlinx.coroutines.delay(250)
         try { if (a == null && barkodiISkanuar.isEmpty()) fBarkodi.requestFocus() else if (a == null && emri.isEmpty()) fEmri.requestFocus() else if (a == null) fData.requestFocus() } catch (e: Exception) { }
     }
+    if (zgjedhKolegun) ZgjedhKolegun({ zgjedhKolegun = false }) { k -> perKolegun = k; zgjedhKolegun = false }
     if (fshi && id != null) Konfirmo("Të fshihet afati?", "Afati fshihet nga të gjitha pajisjet. Nëse produkti thjesht u hoq nga rafti, përdor \"U hoq nga rafti\" (mbetet si histori).",
         "Fshi", mbyll = { fshi = false }) { if (Llogaria.leja("afatetFshi")) { Dyqani.fshijAfatin(id); mbyll() } }
+}
+
+/** Hyrja 59: shiriti "Për X" (si #afatPer te web-i): Ndrysho / ✕ (kthehet "Ruaj afatin") */
+@Composable
+private fun ShiritiPerKolegun(k: Obj, ndrysho: () -> Unit, hiq: () -> Unit) {
+    val n = N
+    val ke = (k["emri"] as? String).orEmpty()
+    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(n.accentTint).border(1.5.dp, n.accent, RoundedCornerShape(16.dp))
+        .padding(start = 12.dp, end = 6.dp, top = 9.dp, bottom = 9.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        AvatariLehte(ke, madhesia = 32.dp, uid = k["uid"] as? String)
+        Text(androidx.compose.ui.text.buildAnnotatedString {
+            append("Për ")
+            pushStyle(androidx.compose.ui.text.SpanStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, color = n.ink)); append(ke); pop()
+        }, style = tx(15, 600, n.ink2), modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text("Ndrysho", style = txF(13.5f, 600, n.accentText), modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(n.surface2).clickable(onClick = ndrysho).padding(horizontal = 10.dp, vertical = 7.dp))
+        Box(Modifier.size(34.dp).clip(CircleShape).clickable(onClick = hiq).semantics { contentDescription = "Ruaje te lista jote" }, contentAlignment = Alignment.Center) {
+            Text("✕", style = tx(17, 700, n.muted))
+        }
+    }
+    Text("Hyn te lista e $ke pasi ta pranojë. ✕ e ruan te lista jote.", style = tx(13, 500, n.ink2),
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(n.surface2).padding(horizontal = 12.dp, vertical = 9.dp))
+}
+
+/** Hyrja 59: "Për cilin koleg?" (si #dlgKolegu te web-i): online së pari, pastaj sipas emrit */
+@Composable
+private fun ZgjedhKolegun(mbyll: () -> Unit, zgjidh: (Obj) -> Unit) {
+    val n = N
+    val anetaret by Grupi.anetaret.collectAsState()
+    val perm by Grupi.permbledhjet.collectAsState()
+    var q by remember { mutableStateOf("") }
+    val tani = System.currentTimeMillis()
+    val kol = remember(anetaret) { Grupi.kolegetPerAfat() }
+    Flete(mbyll) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Për cilin koleg?", style = tx(24, 700, n.ink, -0.02), modifier = Modifier.weight(1f))
+            Text("Anulo", style = tx(15, 500, n.muted), modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable(onClick = mbyll).padding(6.dp))
+        }
+        Text("Afati i shkon kolegut për miratim. Hyn te lista e tij vetëm pasi ta pranojë.", style = tx(13, 400, n.ink2))
+        if (kol.size >= 6) Fusha(q, { q = it }, Modifier.fillMaxWidth(), "Kërko kolegun")
+        val ql = q.trim().lowercase()
+        val lista = kol.filter { ql.isEmpty() || (it["emri"] as? String).orEmpty().lowercase().contains(ql) }
+            .sortedWith(compareBy<Obj>({ if (site.stoku.logjika.GrupiLogjika.eshteOnline(it, tani)) 0 else 1 }, { (it["emri"] as? String).orEmpty().lowercase() }))
+        if (lista.isEmpty()) Text(if (ql.isNotEmpty()) "S'u gjet asnjë koleg." else "S'ka kolegë në grup.", style = tx(14, 500, n.muted))
+        Column {
+            lista.forEach { k ->
+                val on = site.stoku.logjika.GrupiLogjika.eshteOnline(k, tani)
+                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable { zgjidh(k) }.padding(horizontal = 4.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    AvatariLehte(k["emri"] as? String, madhesia = 40.dp, online = on, uid = k["uid"] as? String)
+                    Column(Modifier.weight(1f)) {
+                        Text((k["emri"] as? String).orEmpty(), style = tx(16, 600, n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(if (on) "Online tani" else site.stoku.logjika.GrupiLogjika.tekstiPranise(k, tani), style = tx(12, 400, n.muted))
+                    }
+                    val p = (k["uid"] as? String)?.let { perm?.get(it) }
+                    if (p != null) {
+                        val nr = p["afatet"].let { l -> (l as? List<*>)?.count { (it as? Map<*, *>)?.get("statusi") != "hequr" } ?: 0 }
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(nr.toString(), style = tx(16, 700, n.ink))
+                            Text("në raft", style = tx(11, 500, n.muted))
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 /** Hyrja 57: afatet që ka tashmë ky barkod (.af-ekzistuese te web-i), deri në 6 */

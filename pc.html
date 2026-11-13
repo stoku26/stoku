@@ -928,7 +928,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=6">
-<link rel="stylesheet" href="css/stoku-pc.css?v=41">
+<link rel="stylesheet" href="css/stoku-pc.css?v=42">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -1512,6 +1512,16 @@
   <div class="dialog mesme" role="dialog" aria-modal="true">
     <div class="dialog-krye"><h2 id="afdTitulli">Afat i ri</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
     <div class="dialog-trup">
+      <!-- v297: afati i ri për një koleg -->
+      <div class="af-per" id="afdPer" hidden>
+        <div class="af-per__rresht">
+          <span class="ek-avatar af-per__av" id="afdPerAv"></span>
+          <span class="af-per__tx">Për <b id="afdPerEmri"></b></span>
+          <button class="btn tekst vogel" id="afdPerNdrysho" type="button">Ndrysho</button>
+          <button class="btn-ikone" id="afdPerHiq" type="button" aria-label="Ruaje te lista jote" title="Ruaje te lista jote">✕</button>
+        </div>
+        <div class="af-per__shenim" id="afdPerShenim"></div>
+      </div>
       <div class="af-info fsheh" id="afdInfo"></div>
       <div class="dy-kolona">
         <label class="fushe"><span>Barkodi</span><input class="inp mono" id="afdBarkodi" placeholder="Skano ose shkruaj barkodin" type="text" autocomplete="off" spellcheck="false" maxlength="64"></label>
@@ -1526,12 +1536,26 @@
       <div class="gabim-tekst" id="afdGabim"></div>
     </div>
     <div class="dialog-fund">
+      <button class="af-koleg" type="button" id="afdKoleg" aria-label="Për një koleg" title="Për një koleg" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="4"></circle><path d="M3 21v-1a6 6 0 0 1 6-6h2"></path><path d="M15 18h7"></path><path d="M19 15l3 3-3 3"></path></svg></button>
       <button class="btn tekst rrezik" type="button" id="afdFshij" data-leja="afatetFshi">Fshi</button>
       <span class="hapesire"></span>
       <span id="afdStatusVeprime" style="display:flex;gap:8px"></span>
       <button class="btn tekst" type="button" data-mbyll>Anulo</button>
       <button class="btn" type="button" id="afdRuaj">Ruaj</button>
     </div>
+  </div>
+</div>
+
+<!-- v297: "Për cilin koleg?" -->
+<div class="mbulese" id="dlgKolegu">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="kolTitulli" style="max-width:440px">
+    <div class="dialog-krye"><h2 id="kolTitulli">Për cilin koleg?</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
+    <div class="dialog-trup">
+      <p class="ops-hint" style="margin:0 0 12px">Afati i shkon kolegut për miratim. Hyn te lista e tij vetëm pasi ta pranojë.</p>
+      <input class="inp" id="kolKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko kolegun" aria-label="Kërko kolegun" hidden style="margin-bottom:10px">
+      <div class="kol-lista" id="kolLista"></div>
+    </div>
+    <div class="dialog-fund"><span class="hapesire"></span><button class="btn tekst" type="button" data-mbyll>Anulo</button></div>
   </div>
 </div>
 
@@ -2014,13 +2038,13 @@
 <script src="bashkimi.js?v=281"></script>
 <script src="ruajtja.js?v=281"></script>
 <script src="skedaret.js?v=1"></script>
-<script src="lejet.js?v=6"></script>
+<script src="lejet.js?v=7"></script>
 <script src="afatet.js?v=295"></script>
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
-<script src="ekipa.js?v=293"></script>
-<script src="teRejat.js?v=296"></script>
-<script src="app-pc.js?v=295"></script>
+<script src="ekipa.js?v=297"></script>
+<script src="teRejat.js?v=297"></script>
+<script src="app-pc.js?v=297"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
 

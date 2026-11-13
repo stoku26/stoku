@@ -43,7 +43,9 @@
     { grupi: 'Grupi', lejet: [
       { k: 'grupi', emri: 'Grupi', pershkrim: 'Kolegët, afatet e grupit, aktiviteti dhe kalendari.' },
       { k: 'grupiHeq', emri: 'Hiq nga rafti produktet e kolegëve', pershkrim: '"Unë e hoqa" te afatet e skaduara të kolegëve (kolegu e miraton).', prindi: 'grupi' },
-      { k: 'grupiKerkesat', emri: 'Kërkesat për heqje', pershkrim: 'Kërkoji një kolegu ose të gjithë grupit ta heqë një produkt nga rafti.', prindi: 'grupi' }
+      { k: 'grupiKerkesat', emri: 'Kërkesat për heqje', pershkrim: 'Kërkoji një kolegu ose të gjithë grupit ta heqë një produkt nga rafti.', prindi: 'grupi' },
+      // v297: butoni katror te "Afat i ri"; kolegu e pranon ose e refuzon (atëherë i kthehet dërguesit)
+      { k: 'grupiAfatKolegu', emri: 'Afat për një koleg', pershkrim: 'Te "Afat i ri": ia dërgon afatin një kolegu, që e pranon ose e refuzon.', prindi: 'grupi' }
     ] },
     { grupi: 'Skanimi dhe skedarët', lejet: [
       { k: 'kamera', emri: 'Skano me kamerë', pershkrim: 'Barkodi me kamerën e telefonit, te stoku dhe te afatet.' },

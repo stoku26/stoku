@@ -66,7 +66,8 @@ function krijoFirestore(opt = {}) {
     if (p[0] === 'ekipa_fshire') return reja && (a.uid === p[1] || eshteAdmin(a.uid));
     // v230: lejet/{uid} (S.paLejet: rregullat para v230, s'lexohen)
     if (p[0] === 'lejet') return reja && !S.paLejet && (eListe ? eshteAdmin(a.uid) : (a.uid === p[1] || eshteAdmin(a.uid)));
-    if (p[0] === 'perdoruesit' && p[2] === 'njoftimet') return a.uid === p[1] || (S.rregullat === 'reja' && eshteAdmin(a.uid));
+    // v195: dërguesi e lexon (get) njoftimin që e shkroi vetë; një njoftim i fshirë s'lexohet (resource == null → refuzohet)
+    if (p[0] === 'perdoruesit' && p[2] === 'njoftimet') return a.uid === p[1] || (S.rregullat === 'reja' && eshteAdmin(a.uid)) || (reja && !eListe && p.length === 4 && !!S.docs.get(path) && S.docs.get(path).uid === a.uid);
     if (p[0] === 'perdoruesit') return reja ? (eListe ? neEkipe(a.uid) : (a.uid === p[1] || neEkipe(a.uid))) : true;
     if (p[0] === 'ekipa_anetaret') return reja && (eListe ? neEkipe(a.uid) : (a.uid === p[1] || neEkipe(a.uid)));
     if (p[0] === 'ekipa_afatet') return reja && neEkipe(a.uid);
