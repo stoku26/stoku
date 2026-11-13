@@ -991,7 +991,9 @@
   // ---------- Madhësia e shkronjave ----------
   // ("Ngjyra kryesore" dhe "Motivi i sfondit" u hoqën në v128: Stoku ka vetëm ngjyrat e dizajnit)
   function zbatoMadhesine() {
-    document.body.setAttribute('data-madhesi', opsione.madhesia === 'e_vogel' ? 'e_vogel' : ''); // v296: vetëm "e_vogel" (Normale) dhe "normale" (E madhe)
+    var mv = opsione.madhesia === 'e_vogel' ? 'e_vogel' : ''; // v296: vetëm "e_vogel" (Normale) dhe "normale" (E madhe)
+    document.body.setAttribute('data-madhesi', mv);
+    document.documentElement.setAttribute('data-madhesi', mv); // e vendosur që te fillimi-tel.js
     Array.prototype.forEach.call(document.querySelectorAll('#segMadhesia button'), function (b) {
       b.classList.toggle('aktiv', b.getAttribute('data-v') === opsione.madhesia);
     });

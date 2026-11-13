@@ -22,7 +22,7 @@
 <meta name="apple-mobile-web-app-title" content="Stoku">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#f6f5f2" id="metaTema">
-<script src="fillimi-tel.js?v=239"></script>
+<script src="fillimi-tel.js?v=296"></script>
 <style>
   :root {
     color-scheme: light;
@@ -67,7 +67,8 @@
   /* Aksentet (ngjyra kryesore) */
 
   /* Madhësia e shkronjave: shkallëzon të gjithë faqen (edhe elementet me px) */
-  body[data-madhesi="e_vogel"] { zoom: .9; } /* v272: "E vogël" (pronari: opsion për shkronja të vogla) */
+  /* v272: zoom .9; v296: quhet "Normale" dhe është parazgjedhja. fillimi-tel.js e vendos te <html> para vizatimit (pa kërcim të logos) */
+  html[data-madhesi="e_vogel"] body, body[data-madhesi="e_vogel"] { zoom: .9; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; overflow: hidden; }
   body {

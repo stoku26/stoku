@@ -79,10 +79,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    (shenja `stoku:madhesia:v296`): `opsione.madhesia = 'e_vogel'` dhe ruhet; pastaj zgjedhja e përdoruesit mbetet. `#segMadhesia` me dy
    kolona (stoku.css v68). PC-ja dhe Android-i s'u prekën (kanë "Normale" / "E madhe" të tyre). `teste/v272.js` u përshtat; `teste/v296.js`
    i ri. TESTET E PAMJES: parazgjedhja .9 i bën të gjitha masat 10% më të vogla (72 → 65 px etj.), prandaj testet që matin piksel për
-   zoom 1 (v268, v269, v271, v273, v277, v279, v280) nisen tani me "E madhe" (`hapFaqen(chromium, { madhesia: 'normale' })` te
+   zoom 1 (v268, v269, v271, v273, v275, v277, v279, v280, tre-test) nisen tani me "E madhe" (`hapFaqen(chromium, { madhesia: 'normale' })` te
    kamera-e-rreme.js, ose një `addInitScript` që vendos `madhesia: 'normale'` + shenjën `stoku:madhesia:v296`); me zoom 1 kalojnë si më
    parë. `harta-v244.js`: pika e prekjes llogaritet me shkallën e kanavacës (`r.width / canvas.clientWidth`); me prekje të vërteta harta
    punon edhe me .9 (MapLibre e llogarit vetë shkallën). Pamja me .9 (shiriti poshtë, butoni lundrues, kamera e plotë) provohet te v272.
+   KËRCIMI I LOGOS: `ikonat-test` zbuloi që faqja vizatohej një herë me zoom 1 dhe pastaj zvogëlohej (logoja 152 → 137 px). Tani
+   fillimi-tel.js (v296, në <head>) vendos `data-madhesi="e_vogel"` te <html> para vizatimit të parë (përveç kur përdoruesi ka zgjedhur
+   "E madhe" pas v296); CSS `html[data-madhesi="e_vogel"] body, body[data-madhesi="e_vogel"] { zoom: .9 }`; `zbatoMadhesine` i vendos
+   të dyja.
    S'është testuar në pajisje të vërtetë.
 
 0000000. **AFATET E PRODUKTIT TE "AFAT I RI" + BASHKIMI I SASISË (v295 = 1.56.0, 12.11.2026, telefoni + PC + Android Hyrja 57)**:

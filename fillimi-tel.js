@@ -35,6 +35,16 @@
     }
   })();
   if (!window.__stokuDrejtPc) adresaEPaster();
+  // v296: madhësia e shkronjave para vizatimit të parë (përndryshe faqja dilte me madhësinë e plotë dhe pastaj zvogëlohej).
+  // "Normale" (e_vogel, zoom .9) është parazgjedhja; "E madhe" (normale) vetëm kur përdoruesi e ka zgjedhur pas v296.
+  (function () {
+    var m = 'e_vogel';
+    try {
+      var o = JSON.parse(localStorage.getItem('stoku:opsione:v1') || 'null');
+      if (localStorage.getItem('stoku:madhesia:v296') && o && o.madhesia === 'normale') m = 'normale';
+    } catch (e) { /* parazgjedhja */ }
+    if (m === 'e_vogel') document.documentElement.setAttribute('data-madhesi', 'e_vogel');
+  })();
   // Vendos temën para se faqja të vizatohet (që të mos ketë dridhje ndriçimi)
   (function () {
     var t = null;
