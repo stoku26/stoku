@@ -145,8 +145,8 @@
 .sbp #pamjaPermbledhja .faqe-veprime .btn.dyte:hover { opacity: .9; }
 .sbp #pamjaPermbledhja .faqe-veprime .btn.dyte svg { display: none; }
 /* Excel / PDF me etiketë si në dizajn */
-.sbp .faqe-veprime [data-eksport="excel"] svg, .sbp .faqe-veprime [data-eksport="pdf"] svg, .sbp #afBtnExcel svg { display: none; }
-.sbp #pamjaTabela .faqe-veprime [data-eksport="excel"]::before, .sbp #afBtnExcel::before { content: 'XLS'; font-family: var(--sb-mono); font-size: 10px; font-weight: 500; color: var(--sb-ok); }
+.sbp .faqe-veprime [data-eksport="excel"] svg, .sbp .faqe-veprime [data-eksport="pdf"] svg { display: none; } /* v301: #afBtnExcel ("Eksporto") me ikonën e vet */
+.sbp #pamjaTabela .faqe-veprime [data-eksport="excel"]::before { content: 'XLS'; font-family: var(--sb-mono); font-size: 10px; font-weight: 500; color: var(--sb-ok); }
 .sbp .faqe-veprime [data-eksport="pdf"]::before { content: 'PDF'; font-family: var(--sb-mono); font-size: 10px; font-weight: 500; color: var(--sb-exp); }
 
 /* Fushat */
@@ -638,3 +638,14 @@ html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-nen { background: var(--sb-s
 .kol-rresht .kol-emri { flex: 1; min-width: 0; font-weight: 600; }
 .kol-rresht .kol-nen { font-size: 12.5px; color: var(--gri); font-weight: 400; }
 .kol-rresht .kol-nr { flex: none; font-size: 12.5px; color: var(--gri); }
+
+/* v301: "Eksporto si foto" te PC-ja (lista e furnizuesve si te telefoni) */
+#dlgAfEksFoto .aef-krye { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+#dlgAfEksFoto .aef-lista { max-height: 46vh; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+#dlgAfEksFoto .aef-etiketa { font-size: 12px; font-weight: 700; color: var(--gri); text-transform: uppercase; letter-spacing: .04em; margin: 8px 2px 2px; }
+#dlgAfEksFoto .aef-etiketa.aef-skaduar { color: var(--rrezik); }
+#dlgAfEksFoto .aef-rresht { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 8px; cursor: pointer; }
+#dlgAfEksFoto .aef-rresht:hover { background: var(--hover); }
+#dlgAfEksFoto .aef-m { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#dlgAfEksFoto .aef-n { flex: none; font-size: 12.5px; color: var(--gri); }
+#dlgAfEksFoto .aef-bosh { color: var(--gri); padding: 10px 2px; }
