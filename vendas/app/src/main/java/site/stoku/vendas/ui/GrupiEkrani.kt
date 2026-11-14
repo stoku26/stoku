@@ -1118,6 +1118,7 @@ private fun tekstiGabimitTeFtesa(r: String): String = when (r) {
     "vetja" -> "Ky është emri yt."
     "anetar" -> "Ky përdorues është tashmë në grup."
     "e-ftuar" -> "Ky përdorues është ftuar tashmë."
+    "pa-llogari" -> "S'u gjet asnjë llogari me këtë emër. Nëse personi sapo e ka hapur llogarinë ose e ndryshoi emrin, le ta hapë Stoku-n një herë dhe provo përsëri."
     else -> "Ftesa s'u dërgua. Kontrollo internetin dhe provo përsëri."
 }
 

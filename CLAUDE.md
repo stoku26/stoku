@@ -25,8 +25,9 @@ Përditësoje në të njëjtin PR me çdo ndryshim domethënës.
 - Asnjë sekret në repo: çelësi privat VAPID, JSON-i i service account-it të FCM (vetëm te Cloudflare, `FCM_SA`),
   fjalëkalimi i APK-ve (sekreti `APK_FJALEKALIMI` në GitHub: mos e kërko, mos e ndrysho, mos e fshi).
   Mbeten në repo: `tel/stoku-tel.jks`, `ora/stoku-ora.jks`, `celesi-i-ri.p12.enc`, `celesi.lineage`.
-- Mos e hiq kurrë administratorin (llogaria `mendurberisha`, që nga v302 njihet VETËM nga uid-ja
-  `USfaW6Lbm3dbxEF95aKMKadIaok1`: rregullat, ekipa.js, Lejet.kt, Worker-at) as koleksionin `perdoruesit`.
+- Mos e hiq kurrë administratorin (njihet VETËM nga uid-ja `USfaW6Lbm3dbxEF95aKMKadIaok1`: rregullat, ekipa.js, Lejet.kt,
+  Worker-at; emri i përdoruesit ishte `mendurberisha`, 14.11.2026 u ndryshua në `duli96` dhe mund të ndryshojë sërish) as
+  koleksionin `perdoruesit`.
 - Mos i rikthe gjërat e refuzuara (lista e plotë te SHENIME), p.sh. chat-i, mesazhet e furnizuesve, "Jepja vetëm
   pasi ta njohësh personin", "Mos dil kur i fshin të dhënat", PDA v227, ngjyrat e çelëta te manifest-i.
 - CSP: pa skripta inline dhe pa `onclick=` në HTML; kodi i ri te `app-tel.js` / `app-pc.js`. Shërbim i ri i jashtëm =

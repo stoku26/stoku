@@ -52,11 +52,10 @@ function krijoFirestore(opt = {}) {
     }
     if (reja && p[0] === 'ftesat') {
       if (eshteAdmin(a.uid)) return true;
-      // v302: lexohet nga llogaria e uid-së, ose (si më parë, për pyetjen sipas emrit) nga emri; pranimi kërkon uid-në
-      const imja = d => d.uid === a.uid || d.perdoruesi === emriA;
-      if (!eListe) { const d = S.docs.get(path); return !!d && (imja(d) || anetar(a.uid, d.gid)); }
+      // v303: vetëm sipas uid-së (s'ka më ftesa sipas emrit)
+      if (!eListe) { const d = S.docs.get(path); return !!d && (d.uid === a.uid || anetar(a.uid, d.gid)); }
       const w = (c || []).filter(x => x.lloji === 'where' && x.op === '==');
-      return w.some(x => x.f === 'perdoruesi' && x.v === emriA) || w.some(x => x.f === 'uid' && x.v === a.uid) || w.some(x => x.f === 'gid' && anetar(a.uid, x.v));
+      return w.some(x => x.f === 'uid' && x.v === a.uid) || w.some(x => x.f === 'gid' && anetar(a.uid, x.v));
     }
     // v242: regjistri i përbashkët (kushdo i kyçur) dhe pritja e secilit (ai vetë dhe administratori)
     if (reja && p[0] === 'kujtesa' && p.length === 2) return !S.paRegjister;
@@ -111,9 +110,8 @@ function krijoFirestore(opt = {}) {
           const gPas = pas('grupet/' + g);
           return (iRi.roli === 'pronar' && !S.docs.has('grupet/' + g) && !!gPas && gPas.pronarUid === id)
             // v216: ftesa duhet të fshihet në të njëjtin batch (existsAfter), që të mos përdoret dy herë
-            // v302: ftesa sipas uid-së ({g}_{uid}, me fushën uid); e vjetra sipas emrit vetëm pa fushën uid
-            || (iRi.roli === 'anetar' && S.docs.has('grupet/' + g) && ((S.docs.has('ftesat/' + g + '_' + id) && S.docs.get('ftesat/' + g + '_' + id).uid === id && !pas('ftesat/' + g + '_' + id))
-              || (S.docs.has('ftesat/' + g + '_' + emriIm) && S.docs.get('ftesat/' + g + '_' + emriIm).uid === undefined && !pas('ftesat/' + g + '_' + emriIm))))
+            // v303: vetëm me ftesën sipas uid-së ({g}_{uid}, me fushën uid), e fshirë në të njëjtin batch
+            || (iRi.roli === 'anetar' && S.docs.has('grupet/' + g) && S.docs.has('ftesat/' + g + '_' + id) && S.docs.get('ftesat/' + g + '_' + id).uid === id && !pas('ftesat/' + g + '_' + id))
             || (g === 'ekipa' && iRi.roli === 'anetar' && S.docs.has('ekipa_anetaret/' + id));
         }
         if (lloji === 'update') {
@@ -151,9 +149,9 @@ function krijoFirestore(opt = {}) {
     }
     if (reja && p[0] === 'ftesat') {
       const adm = eshteAdmin(a.uid);
-      if (lloji === 'delete') return !!iVjeter && ((iVjeter.uid !== undefined ? iVjeter.uid === a.uid : iVjeter.perdoruesi === emriIm) || pronar(a.uid, iVjeter.gid) || adm);
-      // v302: me uid → id {gid}_{uid}; pa uid (e vjetra) → id {gid}_{emri}
-      return pronar(a.uid, iRi.gid) && (iRi.uid !== undefined ? (typeof iRi.uid === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(iRi.uid) && p[1] === iRi.gid + '_' + iRi.uid) : p[1] === iRi.gid + '_' + iRi.perdoruesi)
+      if (lloji === 'delete') return !!iVjeter && (iVjeter.uid === a.uid || pronar(a.uid, iVjeter.gid) || adm);
+      // v303: vetëm me uid → id {gid}_{uid}
+      return pronar(a.uid, iRi.gid) && typeof iRi.uid === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(iRi.uid) && p[1] === iRi.gid + '_' + iRi.uid
         && /^[a-z0-9_.-]{3,40}$/.test(iRi.perdoruesi || '')
         && iRi.ngaUid === a.uid && iRi.ngaEmri === emriIm
         && vetemKeto(Object.keys(iRi), ['gid', 'grupiEmri', 'perdoruesi', 'uid', 'ngaUid', 'ngaEmri', 'koha'])

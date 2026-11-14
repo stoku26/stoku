@@ -8,6 +8,11 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(64, "2026-11-14", "Krejt njoftimet edhe me Stoku të mbyllur", listOf(
+            "Çdo njoftim i grupit nga ky aplikacion (kërkesa për heqje nga rafti, \"U krye\", heqjet, pranimet, njoftimi për grupin, ndryshimet e administratorit) u vjen kolegëve si njoftim në telefon, si nga web-i.",
+            "Edhe ftesa në grup dhe kërkesa për t'u futur në grup vijnë si njoftim, edhe kur Stoku është i mbyllur.",
+            "Ftesa i dërgohet vetëm llogarisë së personit: nëse ai s'e ka hapur ende Stoku-n pas përditësimit, le ta hapë një herë dhe provo përsëri."
+        )),
         Hyrja(63, "2026-11-14", "Llogaria njihet nga ID-ja e saj", listOf(
             "Secila llogari njihet nga ID-ja e saj e përhershme, jo nga emri i përdoruesit: emrin mund ta ndryshosh pa i humbur lejet dhe të dhënat.",
             "Ftesa në grup i shkon llogarisë së personit: edhe nëse ai e ndryshon emrin, ftesa mbetet e tij dhe s'mund ta marrë dikush tjetër me emrin e vjetër."
