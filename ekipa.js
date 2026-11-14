@@ -31,7 +31,16 @@
 
   var ONLINE_MS = 4 * 60 * 1000;   // pa shenjë jete më shumë se kaq → s'numërohet më "online"
   var RRAHJA_MS = 90 * 1000;       // sa shpesh aplikacioni i hapur thotë "jam këtu"
-  var ADMIN_EMRI = 'mendurberisha'; // pasqyron eshteAdmin() te rregullat e Firestore-it: llogaria (email-i i hyrjes) OSE perdoruesit/{uid}.emri
+  // v302: administratori njihet nga uid-ja e llogarisë (e përhershme), jo nga emri i përdoruesit (që mund të ndryshohet).
+  // Pasqyron eshteAdmin() te rregullat e Firestore-it dhe ADMIN_UID te Worker-at e Android-i (Lejet.kt).
+  var ADMIN_UID = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
+  // Testet (teste/fs-server.js) mund ta caktojnë uid-në e administratorit të provës. Kjo ndikon vetëm pamjen në këtë
+  // shfletues: lejet e vërteta i vendosin rregullat e Firestore-it, që e njohin vetëm ADMIN_UID.
+  function eshteUidAdmin(u) {
+    if (!u) return false;
+    if (u === ADMIN_UID) return true;
+    try { return !!(root.__stokuProve && root.__stokuProve.adminUid && root.__stokuProve.adminUid === u); } catch (e) { return false; }
+  }
   var PERMBLEDHJA_HEQUR_DITE = 40; // të hequrat e kaq ditëve të fundit hyjnë te përmbledhja (statistikat e muajit)
   var PERMBLEDHJA_MAKS = 700 * 1024; // larg kufirit 1 MB të një dokumenti
   var RADHA_MAKS = 200;
@@ -144,6 +153,13 @@
   function krijoCloud(fs, db, auth, platforma) {
     function uid() { return auth.currentUser ? auth.currentUser.uid : null; }
     function emri() { return auth.currentUser ? emriNgaEmail(auth.currentUser.email) : ''; }
+    function uidOk(u) { return typeof u === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(u); }
+    // v302: ftesa në grup. Me uid: e lidhur me atë llogari (id {grupi}_{uid}); pa uid: e vjetra sipas emrit.
+    function ftesa(uidP, emriP, emriGrupit) {
+      var f = { gid: grupi, grupiEmri: String(emriGrupit || '').slice(0, 60), perdoruesi: emriP, ngaUid: uid(), ngaEmri: emri(), koha: Date.now() };
+      if (uidP) f.uid = uidP;
+      return f;
+    }
     function gabim(e) { return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e), leje: eshteLeje(e) }; }
     function eshteLeje(e) { return !!e && (e.code === 'permission-denied' || /permission/i.test(String(e.message || ''))); }
     function pastro(o) { var r = {}; Object.keys(o).forEach(function (k) { if (o[k] !== undefined) r[k] = o[k]; }); return r; }
@@ -934,16 +950,21 @@
         if (!grupi) return function () {};
         return fs.onSnapshot(fs.query(fs.collection(db, 'kerkesat_grupi'), fs.where('gid', '==', grupi)), function (s) { cb(listaNga(s)); }, function (e) { if (cbGabim) cbGabim(e); });
       },
-      // Pronari: pranimi = ftesë për atë emër + fshirja e kërkesës (një batch); refuzimi = vetëm fshirja
+      // Pronari: pranimi = ftesë për atë llogari (v302: sipas uid-së së kërkesës) + fshirja e kërkesës (një batch);
+      // refuzimi = vetëm fshirja
       pranoKerkesen: async function (k, emriGrupit) {
-        if (!uid() || !grupi || !k || k.gid !== grupi || !/^[a-z0-9_.-]{3,40}$/.test(String(k.emri || ''))) return { ok: false };
-        try {
-          var b = fs.writeBatch(db);
-          b.set(fs.doc(db, 'ftesat', grupi + '_' + k.emri), { gid: grupi, grupiEmri: String(emriGrupit || k.grupiEmri || '').slice(0, 60), perdoruesi: k.emri, ngaUid: uid(), ngaEmri: emri(), koha: Date.now() });
-          b.delete(fs.doc(db, 'kerkesat_grupi', k.id));
-          await b.commit();
-          return { ok: true };
-        } catch (e) { return gabim(e); }
+        if (!uid() || !grupi || !k || k.gid !== grupi || !/^[a-z0-9_.-]{3,40}$/.test(String(k.emri || '')) || !uidOk(k.uid)) return { ok: false };
+        // Rregullat para v302 s'e njohin ftesën sipas uid-së: atëherë si më parë (sipas emrit)
+        for (var meUid = 1; meUid >= 0; meUid--) {
+          try {
+            var b = fs.writeBatch(db);
+            b.set(fs.doc(db, 'ftesat', grupi + '_' + (meUid ? k.uid : k.emri)), ftesa(meUid ? k.uid : null, k.emri, emriGrupit || k.grupiEmri));
+            b.delete(fs.doc(db, 'kerkesat_grupi', k.id));
+            await b.commit();
+            return { ok: true };
+          } catch (e) { if (!meUid || !eshteLeje(e)) return gabim(e); }
+        }
+        return { ok: false };
       },
       refuzoKerkesen: async function (k) {
         if (!k || !k.id) return { ok: false };
@@ -951,13 +972,21 @@
       },
       fshijKerkesatEMia: function () { return fshijKerkesatEMia(); },
       // Ftesa për një emër përdoruesi (pronari). I ftuari e sheh te Grupi dhe e pranon ose e refuzon.
-      ftoNeGrup: async function (perdoruesi, emriGrupit) {
+      // v302: emri kthehet në uid (emrat/{emri}) dhe ftesa i lidhet asaj llogarie: id {grupi}_{uid}. Vetëm për llogaritë
+      // që s'e kanë hapur ende versionin e ri (pa emrat/{emri}) mbetet ftesa e vjetër sipas emrit ({grupi}_{emri}).
+      // Administratori e jep uid-në direkt (lista e llogarive).
+      ftoNeGrup: async function (perdoruesi, emriGrupit, uidP) {
         var p = String(perdoruesi || '').trim().toLowerCase().replace(/@stoku-app\.local$/, '');
         if (!uid() || !grupi) return { ok: false, arsye: 'pa-grup' };
         if (!/^[a-z0-9_.-]{3,40}$/.test(p)) return { ok: false, arsye: 'emri' };
-        if (p === emri()) return { ok: false, arsye: 'vetja' };
+        if (p === emri() || uidP === uid()) return { ok: false, arsye: 'vetja' };
+        var u = uidOk(uidP) ? uidP : null;
+        if (!u && fs.getDoc) {
+          try { var s = await fs.getDoc(fs.doc(db, 'emrat', p)); if (s.exists() && uidOk(s.data().uid)) u = s.data().uid; } catch (e) { /* rregullat para v302: si më parë */ }
+        }
+        if (u === uid()) return { ok: false, arsye: 'vetja' };
         try {
-          await fs.setDoc(fs.doc(db, 'ftesat', grupi + '_' + p), { gid: grupi, grupiEmri: String(emriGrupit || '').slice(0, 60), perdoruesi: p, ngaUid: uid(), ngaEmri: emri(), koha: Date.now() });
+          await fs.setDoc(fs.doc(db, 'ftesat', grupi + '_' + (u || p)), ftesa(u, p, emriGrupit));
           return { ok: true };
         } catch (e) { return gabim(e); }
       },
@@ -968,9 +997,17 @@
         if (!grupi) return function () {};
         return fs.onSnapshot(fs.query(fs.collection(db, 'ftesat'), fs.where('gid', '==', grupi)), function (s) { cb(listaNga(s)); }, function (e) { if (cbGabim) cbGabim(e); });
       },
+      // v302: ftesat sipas uid-së sime + të vjetrat sipas emrit (vetëm ato pa uid, nga versionet e mëparshme)
       degjoFtesatEMia: function (cb, cbGabim) {
-        if (!uid() || !emri()) return function () {};
-        return fs.onSnapshot(fs.query(fs.collection(db, 'ftesat'), fs.where('perdoruesi', '==', emri())), function (s) { cb(listaNga(s)); }, function (e) { if (cbGabim) cbGabim(e); });
+        if (!uid()) return function () {};
+        var sipasUid = [], sipasEmrit = [], ndalE = function () {};
+        function bashko() {
+          var pare = {};
+          cb(sipasUid.concat(sipasEmrit.filter(function (f) { return !f.uid; })).filter(function (f) { return !pare[f.id] && (pare[f.id] = true); }));
+        }
+        var ndalU = fs.onSnapshot(fs.query(fs.collection(db, 'ftesat'), fs.where('uid', '==', uid())), function (s) { sipasUid = listaNga(s); bashko(); }, function (e) { if (cbGabim) cbGabim(e); });
+        if (emri()) ndalE = fs.onSnapshot(fs.query(fs.collection(db, 'ftesat'), fs.where('perdoruesi', '==', emri())), function (s) { sipasEmrit = listaNga(s); bashko(); }, function () { sipasEmrit = []; bashko(); });
+        return function () { ndalU(); ndalE(); };
       },
       // Pranimi i ftesës. Së pari hyrja te grupi i ri (ftesa fshihet bashkë me të): nëse ftesa s'vlen më,
       // mbetesh ku ishe. Vetëm pastaj largohesh nga grupi i mëparshëm (fshiGrupinEVjeter: ishe i fundit aty).
@@ -1027,20 +1064,31 @@
           var lista = listaNga(s).map(function (x) {
             return { uid: x.id, emri: x.emri || x.id, aktivSe: x.aktivSe || x.hyriSe || 0, online: x.online === true, platforma: x.platforma || '',
               kycurSe: x.hyriSe || 0, roli: x.roli === 'pronar' ? 'pronar' : 'anetar', pronar: x.roli === 'pronar',
-              admin: x.emri === ADMIN_EMRI };
+              admin: eshteUidAdmin(x.id) };
           });
           Fotot.vendosEmrat(lista);
           cb(lista);
         }, function (e) { if (cbGabim) cbGabim(e); });
       },
-      // A është kjo llogari administratori? (true/false; null = s'dihet, p.sh. pa internet)
-      // (v140) Llogaria me emrin "mendurberisha" është administratori edhe pa fushën `emri` te Firestore — emri i llogarisë
-      // vjen nga Firebase Auth dhe s'falsifikohet; rregullat e Firestore-it e njohin njësoj (request.auth.token.email).
+      // A është kjo llogari administratori? (true/false; null = pa llogari). v302: sipas uid-së (s'ndryshon kurrë),
+      // si rregullat e Firestore-it; emri i përdoruesit mund të ndryshohet pa i humbur lejet.
       eshteAdmin: async function () {
         if (!uid()) return null;
-        if (emri() === ADMIN_EMRI) return true;
-        if (!fs.getDoc) return null;
-        try { var s = await fs.getDoc(fs.doc(db, 'perdoruesit', uid())); return !!(s.exists() && s.data().emri === ADMIN_EMRI); } catch (e) { return null; }
+        return eshteUidAdmin(uid());
+      },
+      // v302: emrat/{emri} → { uid }: që pronari i grupit ta ftojë personin sipas uid-së (jo sipas emrit). E shkruan
+      // secili për veten kur hyn; kur emri ndryshon, i vjetri fshihet. Kthen true kur shkrimi u bë (ose s'duhej).
+      regjistroEmrin: async function (iMeparshmi) {
+        var u = uid(), em = emri();
+        if (!u || !/^[a-z0-9_.-]{3,40}$/.test(em) || !fs.getDoc) return false;
+        try {
+          var s = await fs.getDoc(fs.doc(db, 'emrat', em));
+          if (!(s.exists() && s.data().uid === u)) await fs.setDoc(fs.doc(db, 'emrat', em), { uid: u, ndryshuarSe: Date.now() });
+        } catch (e) { return false; }
+        if (iMeparshmi && iMeparshmi !== em && /^[a-z0-9_.-]{3,40}$/.test(iMeparshmi)) {
+          try { var v = await fs.getDoc(fs.doc(db, 'emrat', iMeparshmi)); if (v.exists() && v.data().uid === u) await fs.deleteDoc(fs.doc(db, 'emrat', iMeparshmi)); } catch (e) { /* ok */ }
+        }
+        return true;
       },
       // Administratori: të gjitha llogaritë (për "Llogaritë e tjera": fshirja, ftesa)
       degjoKrejtLlogarite: function (cb, cbGabim) {
@@ -1048,7 +1096,7 @@
           cb(listaNga(s).map(function (x) {
             return { uid: x.id, emri: x.perdoruesi || x.emri || x.id, kycurSe: x.kycurSe || 0, aktivSe: x.aktivSe || 0,
               krijuarSe: typeof x.krijuarSe === 'number' ? x.krijuarSe : 0, // v230: kur u regjistrua (llogaritë e reja)
-              grupi: typeof x.grupi === 'string' ? x.grupi : null, admin: x.emri === ADMIN_EMRI || x.perdoruesi === ADMIN_EMRI,
+              grupi: typeof x.grupi === 'string' ? x.grupi : null, admin: eshteUidAdmin(x.id),
               merchandiser: x.merchandiser === true }; // v241: "Punoj si merchandiser" kur u hap llogaria
           }));
         }, function (e) { if (cbGabim) cbGabim(e); });
@@ -1090,13 +1138,19 @@
         if (grupi && grupi !== gU) { try { await fs.deleteDoc(fs.doc(db, 'grupet', grupi, 'anetaret', u)); } catch (e) { /* ok */ } }
         try { await fs.deleteDoc(fs.doc(db, 'ekipa_anetaret', u)); } catch (e) { /* ok */ }
         try { await fs.deleteDoc(fs.doc(db, 'ekipa_afatet', u)); } catch (e) { /* ok */ }
-        // Ftesat në pritje për këtë emër: emri lirohet, dhe një llogari e re me të njëjtin emër s'duhet t'i gjejë
-        if (emriTjeter) {
+        // Ftesat në pritje për këtë llogari (v302: sipas uid-së) dhe për këtë emër: emri lirohet, dhe një llogari e re me
+        // të njëjtin emër s'duhet t'i gjejë
+        var pyetjet = [fs.where('uid', '==', u)];
+        if (emriTjeter) pyetjet.push(fs.where('perdoruesi', '==', emriTjeter));
+        for (var q = 0; q < pyetjet.length; q++) {
           try {
-            var sf = await fs.getDocs(fs.query(fs.collection(db, 'ftesat'), fs.where('perdoruesi', '==', emriTjeter)));
+            var sf = await fs.getDocs(fs.query(fs.collection(db, 'ftesat'), pyetjet[q]));
             var ff = []; sf.forEach(function (d) { ff.push(d.id); });
             for (var k = 0; k < ff.length; k++) await fshij(fs.doc(db, 'ftesat', ff[k]));
           } catch (e) { /* ok */ }
+        }
+        if (emriTjeter) {
+          try { var se = await fs.getDoc(fs.doc(db, 'emrat', emriTjeter)); if (se.exists() && se.data().uid === u) await fshij(fs.doc(db, 'emrat', emriTjeter)); } catch (e) { /* ok */ }
         }
         await fshijKoleksionin(['dyqane', u, 'pjeset']);
         await fshijKoleksionin(['dyqane', u, 'fletet']);
@@ -2121,7 +2175,21 @@
       });
     }
     // Ftesat që më vijnë (gjithmonë, sa kohë jam i kyçur): shenja te Grupi + njoftim një herë
+    // v302: emrat/{emri} → uid (që të më ftojnë sipas uid-së). Një herë për çdo llogari/emër në këtë pajisje; kur emri
+    // ndryshon, i mëparshmi fshihet.
+    var KEY_EMRI_REGJISTRUAR = 'stoku:emri-regjistruar';
+    function regjistroEmrin() {
+      var e = E(), u = o.uidIm(), em = o.emriIm ? String(o.emriIm() || '') : '';
+      if (!e || !e.regjistroEmrin || !u || !em) return;
+      var para = null;
+      try { para = JSON.parse(lexo(KEY_EMRI_REGJISTRUAR) || 'null'); } catch (x) { para = null; }
+      if (para && para.uid === u && para.emri === em) return;
+      e.regjistroEmrin(para && para.uid === u ? para.emri : null).then(function (ok) {
+        if (ok && o.uidIm() === u) shkruaj(KEY_EMRI_REGJISTRUAR, JSON.stringify({ uid: u, emri: em }));
+      });
+    }
     function nisFtesatEMia() {
+      regjistroEmrin();
       var e = E();
       ndal('ftesatEMia');
       gj.ftesatEMia = [];
@@ -2382,13 +2450,14 @@
       return r;
     }
     // Pronari: fton një emër përdoruesi
-    async function ftoNeGrup(emriP) {
+    // v302: me uidP (administratori, nga lista e llogarive) ftesa i lidhet direkt asaj llogarie
+    async function ftoNeGrup(emriP, uidP) {
       var e = E();
       if (!e || !e.ftoNeGrup || !eshtePronar()) return { ok: false, arsye: 'jo-pronar' };
       var p = String(emriP || '').trim().toLowerCase();
-      if (gj.anetaret.some(function (a) { return String(a.emri || '').toLowerCase() === p; })) return { ok: false, arsye: 'anetar' };
-      if (gj.ftesatEGrupit.some(function (f) { return f.perdoruesi === p; })) return { ok: false, arsye: 'e-ftuar' };
-      return e.ftoNeGrup(p, gj.grupiInfo ? gj.grupiInfo.emri : '');
+      if (gj.anetaret.some(function (a) { return (uidP && a.uid === uidP) || String(a.emri || '').toLowerCase() === p; })) return { ok: false, arsye: 'anetar' };
+      if (gj.ftesatEGrupit.some(function (f) { return (uidP && f.uid === uidP) || f.perdoruesi === p; })) return { ok: false, arsye: 'e-ftuar' };
+      return e.ftoNeGrup(p, gj.grupiInfo ? gj.grupiInfo.emri : '', uidP);
     }
     async function anuloFtesen(f) {
       var e = E();
@@ -3163,6 +3232,8 @@
       // Grupi
       gjendjaEQasjes: gjendjaEQasjes,
       eshteAdmin: function () { return !!gj.admin; },
+      // v302: pas ndryshimit të emrit të përdoruesit: emrat/{emri} i ri (i vjetri fshihet) dhe ftesat sipas emrit të ri
+      pasNdryshimitTeEmrit: function () { nisFtesatEMia(); },
       eshtePronar: eshtePronar,
       grupiInfo: function () { return gjendjaEQasjes() === 'ok' ? (gj.grupiInfo || { id: gj.grupi, emri: '' }) : null; },
       ftesatEMia: function () { return gj.ftesatEMia; },
@@ -3189,7 +3260,7 @@
     krijoCloud: krijoCloud, krijoKontrollues: krijoKontrollues,
     eshteOnline: eshteOnline, kohaRelative: kohaRelative, titulliDites: titulliDites,
     tekstiPranise: tekstiPranise, tekstiPlatformes: tekstiPlatformes, praniaIkone: praniaIkone,
-    ADMIN_EMRI: ADMIN_EMRI, permbledhjaEAfateve: permbledhjaEAfateve, nenshkrimi: nenshkrimi,
+    ADMIN_UID: ADMIN_UID, eshteUidAdmin: eshteUidAdmin, permbledhjaEAfateve: permbledhjaEAfateve, nenshkrimi: nenshkrimi,
     ndryshoAfatinNeGjendje: ndryshoAfatinNeGjendje, fletetEStokut: fletetEStokut,
     hartaEHeqjeve: hartaEHeqjeve, mbivendosHeqjen: mbivendosHeqjen, duhetZbatuarHeqja: duhetZbatuarHeqja,
     kalendari: kalendari, statistikat: statistikat, tekstiNgjarjes: tekstiNgjarjes, objektiINgjarjes: objektiINgjarjes, detajetENgjarjes: detajetENgjarjes, kohaENgjarjes: kohaENgjarjes, artikulliINgjarjes: artikulliINgjarjes, artikujtENgjarjes: artikujtENgjarjes, tekstiNjoftimit: tekstiNjoftimit,

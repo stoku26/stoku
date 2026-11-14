@@ -10,7 +10,7 @@ const ok = (k, m, x) => { if (!k) gabime++; console.log((k ? 'OK    ' : 'GABIM '
     const ctx = await b.newContext({ userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/140', viewport: { width: 1500, height: 900 }, serviceWorkers: 'block', colorScheme: tema });
     await ctx.route(u => !u.href.startsWith('http://127.0.0.1'), r => r.abort());
     await ctx.addInitScript(([t, af]) => {
-      window.__stokuCloud = { authGati: true, perdoruesiAktual: () => ({ uid: 'u1', email: 'mendurberisha@stoku-app.local' }), token: async () => 't',
+      window.__stokuProve = { adminUid: 'u1' }; window.__stokuCloud = { authGati: true, perdoruesiAktual: () => ({ uid: 'u1', email: 'mendurberisha@stoku-app.local' }), token: async () => 't',
         merr: async () => ({ ok: true, gjendja: null }), bashkoDheRuaj: async fn => ({ ok: true, gjendja: fn(null) }), degjo: () => () => {}, degjoFletet: () => () => {}, dil: async () => {} };
       localStorage.setItem('stoku:pronari-uid', 'u1'); localStorage.setItem('stoku:porta:hyrja', JSON.stringify({ uid: 'u1', emri: 'mendurberisha' })); localStorage.setItem('stoku:te-rejat:pare', '999');
       localStorage.setItem('stoku:foldera:v1', JSON.stringify([{ id: 'f1', emri: 'Ushqimore' }, { id: 'f2', emri: 'Pije' }, { id: 'f3', emri: 'Fresh' }]));

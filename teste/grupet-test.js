@@ -65,9 +65,10 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
   ok(gB && gB !== 'ekipa' && doc('grupet/' + gB).emri === 'Market Besa' && doc('grupet/' + gB + '/anetaret/u2').roli === 'pronar', '3. grupi i besës + ajo pronare', gB);
   ok(await besa.textContent('#ekGrupiTitulli') === 'Market Besa', '3. PC: karta e grupit të ri', await besa.textContent('#ekGrupiTitulli'));
   await besa.fill('#ekFtoEmri', 'besa'); await besa.click('#ekFtoBtn'); await besa.waitForTimeout(400);
-  ok(!doc('ftesat/' + gB + '_besa'), '3. s\'fton veten');
+  ok(!doc('ftesat/' + gB + '_u2'), '3. s\'fton veten');
   await besa.fill('#ekFtoEmri', 'Drini'); await besa.click('#ekFtoBtn'); await besa.waitForTimeout(1200);
-  ok(doc('ftesat/' + gB + '_drini') && doc('ftesat/' + gB + '_drini').ngaEmri === 'besa', '3. ftesa për drinin (emri me shkronja të vogla)', keys('ftesat/'));
+  // v302: drini s'e ka hapur ende Stoku-n (pa emrat/drini) → ftesa e vjetër sipas emrit; më poshtë (8b, 14) sipas uid-së
+  ok(doc('ftesat/' + gB + '_drini') && doc('ftesat/' + gB + '_drini').ngaEmri === 'besa' && doc('ftesat/' + gB + '_drini').uid === undefined, '3. ftesa për drinin (emri me shkronja të vogla; pa llogari të hapur: sipas emrit)', keys('ftesat/'));
   ok(await besa.isVisible('#ekTabFtesat') && /drini/.test(await besa.textContent('#ekFtesatTrup')), '3. PC: ftesa në pritje');
 
   // 4. Drini (tel) — e sheh ftesën dhe e pranon
@@ -147,9 +148,10 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
   const gD = doc('perdoruesit/u3').grupi;
   ok(gD && gD !== gB && doc('grupet/' + gD + '/anetaret/u3').roli === 'pronar', '8b. drini krijoi grupin e vet', gD);
   await besa.fill('#ekFtoEmri', 'drini'); await besa.click('#ekFtoBtn'); await besa.waitForTimeout(1000);
-  const ftesaD = Object.assign({ id: gB + '_drini' }, doc('ftesat/' + gB + '_drini'));
+  const ftesaD = Object.assign({ id: gB + '_u3' }, doc('ftesat/' + gB + '_u3'));
+  ok(doc('emrat/drini') && doc('emrat/drini').uid === 'u3' && ftesaD.uid === 'u3' && ftesaD.perdoruesi === 'drini', '8b. v302: drini u regjistrua te emrat; ftesa e re sipas uid-së', ftesaD);
   await besa.click('#ekFtesatTrup tr:has-text("drini") button:has-text("Anulo")'); await besa.waitForTimeout(1000);
-  ok(!doc('ftesat/' + gB + '_drini'), '8b. besa e anuloi ftesën');
+  ok(!doc('ftesat/' + gB + '_u3'), '8b. besa e anuloi ftesën');
   const rS = await drini.evaluate(f => window.__stokuCloud.ekipa.pranoFtesen(f, false), ftesaD);
   await drini.waitForTimeout(800);
   ok(rS.ok === false && rS.arsye === 'ftesa-skadoi' && doc('perdoruesit/u3').grupi === gD && doc('grupet/' + gD + '/anetaret/u3') && !doc('grupet/' + gB + '/anetaret/u3'),
@@ -207,7 +209,7 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
   const rT = await besa.evaluate(() => window.__stokuCloud.ekipa.krijoGrupin('Test'));
   const gT = rT.grupi; await besa.waitForTimeout(800);
   await besa.evaluate(() => window.__stokuCloud.ekipa.ftoNeGrup('agim', 'Test')); await agim.waitForTimeout(1200);
-  const rA = await agim.evaluate(f => window.__stokuCloud.ekipa.pranoFtesen(f, false), Object.assign({ id: gT + '_agim' }, doc('ftesat/' + gT + '_agim')));
+  const rA = await agim.evaluate(f => window.__stokuCloud.ekipa.pranoFtesen(f, false), Object.assign({ id: gT + '_u1' }, doc('ftesat/' + gT + '_u1')));
   await agim.waitForTimeout(800);
   await besa.evaluate(() => window.__stokuCloud.ekipa.ndryshoRolin('u1', 'pronar')); await besa.waitForTimeout(500);
   const rH = await agim.evaluate(() => window.__stokuCloud.ekipa.hiqNgaGrupi('u2')); await besa.waitForTimeout(1500);

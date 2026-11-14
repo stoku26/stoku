@@ -7,7 +7,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
     const ctx = await b.newContext({ viewport: { width: 1600, height: 900 }, serviceWorkers: 'block', colorScheme: tema });
     await ctx.route(u => !u.href.startsWith('http://127.0.0.1'), r => r.abort());
     await ctx.addInitScript(() => {
-      window.__stokuCloud = { authGati: true, perdoruesiAktual: () => ({ uid: 'u1', email: 'mendurberisha@stoku-app.local' }), token: async () => 't',
+      window.__stokuProve = { adminUid: 'u1' }; window.__stokuCloud = { authGati: true, perdoruesiAktual: () => ({ uid: 'u1', email: 'mendurberisha@stoku-app.local' }), token: async () => 't',
         merr: async () => ({ ok: true, gjendja: null }), bashkoDheRuaj: async fn => ({ ok: true, gjendja: fn(null) }),
         degjo: () => () => {}, degjoFletet: cb => { window.__cbFletet = cb; return () => {}; }, fshijFleten: async () => ({ ok: true }) };
       if (sessionStorage.getItem('s')) return; sessionStorage.setItem('s', '1');

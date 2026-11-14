@@ -13,7 +13,7 @@ const rr = n => Array.from({ length: n }, (_, i) => ({ barkodi: '386000000000' +
     const ctx = await b.newContext({ viewport: { width: 1440, height: 810 }, serviceWorkers: 'block', colorScheme: 'dark' });
     await ctx.route(u => !u.href.startsWith('http://127.0.0.1'), r => r.abort());
     await ctx.addInitScript(() => {
-      window.__stokuCloud = { authGati: true, perdoruesiAktual: () => ({ uid: 'u1', email: 'mendurberisha@stoku-app.local' }), token: async () => 't',
+      window.__stokuProve = { adminUid: 'u1' }; window.__stokuCloud = { authGati: true, perdoruesiAktual: () => ({ uid: 'u1', email: 'mendurberisha@stoku-app.local' }), token: async () => 't',
         merr: async () => ({ ok: true, gjendja: null }), bashkoDheRuaj: async fn => ({ ok: true, gjendja: fn(null) }),
         degjo: () => () => {}, degjoFletet: cb => { window.__cbFletet = cb; return () => {}; }, fshijFleten: async () => ({ ok: true }) };
       localStorage.setItem('stoku:pronari-uid', 'u1'); localStorage.setItem('stoku:porta:hyrja', '1'); localStorage.setItem('stoku:te-rejat:pare', '999');

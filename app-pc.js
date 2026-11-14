@@ -2937,6 +2937,7 @@
     if (!/^[a-zA-Z0-9_.-]{3,}$/.test(v)) { $('opsLlGabim').textContent = 'Emri duhet të ketë të paktën 3 shkronja/numra (a–z, 0–9, _ . -).'; return; }
     if (await ndryshimLlogarie(function () { return window.__stokuCloud.ndryshoEmrin(v); })) {
       $('opsEmriRi').value = ''; rifreskoLlogarine(); toast('Emri i përdoruesit u ndryshua.');
+      if (typeof ekK !== 'undefined' && ekK && ekK.pasNdryshimitTeEmrit) ekK.pasNdryshimitTeEmrit(); // v302
     }
   });
   $('opsNdryshoFjalekalimin').addEventListener('click', async function () {
@@ -2965,9 +2966,9 @@
     hapDialog('dlgOpsione');
   }
   // ---------- Furnizuesit (Cilësimet → Stoku): i sheh kushdo, emrat i ndryshon vetëm administratori ----------
-  var ADMIN_I_STOKUT = 'mendurberisha';
   var furnNeEditim = null;
-  function eshteAdminiIStokut() { return !!perdoruesi() && emriPerdoruesit() === ADMIN_I_STOKUT; }
+  // v302: administratori njihet nga uid-ja (ekipa.js ADMIN_UID, si rregullat e Firestore-it), jo nga emri i përdoruesit
+  function eshteAdminiIStokut() { var u = perdoruesi(), EK = window.StokuEkipa; return !!(u && u.uid && EK && EK.eshteUidAdmin && EK.eshteUidAdmin(u.uid)); }
   function sasiaETekst(n, nje, shume) { return num(n) + ' ' + (n === 1 ? nje : shume); }
   function nenTekstiFurnizuesit(f) {
     return [f.afate ? sasiaETekst(f.afate, 'afat', 'afate') : '', f.produkte ? sasiaETekst(f.produkte, 'produkt', 'produkte') : '',
@@ -5028,7 +5029,7 @@
         var tv = el('td', 'k-av');
         if (pronar) {
           var bt = el('button', 'btn tekst vogel', 'Fto'); bt.type = 'button';
-          bt.addEventListener('click', async function () { bt.disabled = true; var x = await ekK.ftoNeGrup(a.emri); if (!x.ok) { bt.disabled = false; toast(tekstiGabimitTeFtesa(x)); } else toast('Ftesa iu dërgua ' + a.emri + '.'); });
+          bt.addEventListener('click', async function () { bt.disabled = true; var x = await ekK.ftoNeGrup(a.emri, a.uid); if (!x.ok) { bt.disabled = false; toast(tekstiGabimitTeFtesa(x)); } else toast('Ftesa iu dërgua ' + a.emri + '.'); });
           tv.appendChild(bt);
         }
         if (!a.admin) {

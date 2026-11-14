@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 302, versioni: '1.58.1', data: '2026-11-14', titulli: 'Llogaria njihet nga ID-ja e saj', pikat: [
+      'Secila llogari njihet nga ID-ja e saj e përhershme, jo nga emri i përdoruesit: emrin mund ta ndryshosh pa i humbur lejet dhe të dhënat.',
+      'Ftesa në grup i shkon llogarisë së personit: edhe nëse ai e ndryshon emrin, ftesa mbetet e tij dhe s\'mund ta marrë dikush tjetër me emrin e vjetër.'
+    ] },
     { v: 301, versioni: '1.58.0', data: '2026-11-14', titulli: 'Eksporto: Excel, PDF dhe foto', platforma: 'pc', pikat: [
       'Te Afatet, butoni "Excel" tani quhet "Eksporto" dhe ka tri mundësi si te telefoni: Eksporto Excel, Eksporto PDF dhe Eksporto si foto.',
       'PDF-ja për printim zgjedh periudhën, gjendjen, furnizuesin dhe renditjen; fotoja krijohet për secilin furnizues të zgjedhur.'

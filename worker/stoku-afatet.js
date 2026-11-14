@@ -22,7 +22,7 @@
  * v2 (web v298, pronari: "leje 10 foto ne dite"):
  *   - Kufiri ditor: deri KUFIRI_DITOR lexime të suksesshme në ditë (dita sipas orës së Kosovës) për çdo llogari;
  *     pastaj { gabim: 'kufiri', kufiri } me 429. Llogohen vetëm leximet që kthejnë rreshta (një gabim i AI-së s'llogaritet).
- *     Administratori (mendurberisha) s'ka kufi.
+ *     Administratori (sipas uid-së, v3) s'ka kufi.
  *   - Leja: Worker-i e lexon lejet/{uid} te Firestore (me tokenin e vetë përdoruesit; rregullat ia lejojnë të vetat).
  *     "afatetAI" (për afatet) ose "stokuImporto" (synim: 'stok'), bashkë me pjesën prind ("afatet" / "stoku").
  *     Pa leje → { gabim: 'leje' } me 403. Kur Firestore s'përgjigjet, s'bllokohet (si te aplikacioni: pa dokument = lejohet).
@@ -31,7 +31,8 @@
 const ORIGJINAT_PARAZGJEDHUR = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io'];
 const MADHESIA_MAKS = 16 * 1024 * 1024; // ~12 MB foto (base64): fotot vijnë në rezolucionin e plotë të kamerës
 const KUFIRI_PARAZGJEDHUR = 10;
-const ADMINI_EMAIL = 'mendurberisha@stoku-app.local';
+// v3: administratori njihet nga uid-ja (s'ndryshon kurrë), jo nga emri/email-i i përdoruesit
+const ADMIN_UID = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
 
 const UDHEZIMI = (sot) => `Je asistent që lexon fletë me shkrim dore nga një market në Kosovë/Shqipëri.
 Fleta përmban produkte me datat e skadimit ("afatet"). Për çdo produkt mund të jenë shkruar: barkodi, emri i produktit,
@@ -114,7 +115,7 @@ export default {
     const pergjigju = (obj, status = 200) => new Response(JSON.stringify(obj), { status, headers: { ...cors, 'Content-Type': 'application/json; charset=utf-8' } });
 
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
-    if (request.method === 'GET') return pergjigju({ ok: true, sherbimi: 'stoku-afatet', versioni: 2, ofruesit: ofruesit(env), kufiri: env.KUFIRI ? kufiriDitor(env) : null });
+    if (request.method === 'GET') return pergjigju({ ok: true, sherbimi: 'stoku-afatet', versioni: 3, ofruesit: ofruesit(env), kufiri: env.KUFIRI ? kufiriDitor(env) : null });
     if (request.method !== 'POST') return pergjigju({ gabim: 'metoda' }, 405);
     if (!origjinaOk) return pergjigju({ gabim: 'origjina' }, 403);
 
@@ -134,7 +135,7 @@ export default {
     const dataSot = /^\d{4}-\d{2}-\d{2}$/.test(sot || '') ? sot : new Date().toISOString().slice(0, 10);
 
     // v2: leja dhe kufiri ditor (administratori: pa kufi)
-    const admini = perdoruesi.email === ADMINI_EMAIL;
+    const admini = perdoruesi.uid === ADMIN_UID;
     if (!admini && !(await kaLeje(projekti, tokeni, perdoruesi.uid, synim === 'stok' ? ['stokuImporto', 'stoku'] : ['afatetAI', 'afatet']))) {
       return pergjigju({ gabim: 'leje' }, 403);
     }

@@ -13,7 +13,7 @@ const AF=[];for(let i=0;i<40;i++)AF.push({id:'a'+i,emri:'Produkt '+i,barkodi:'39
   const ctx=await b.newContext({viewport:{width:w,height:h},serviceWorkers:'block'});
   await ctx.route(u=>!u.href.startsWith('http://127.0.0.1'),r=>r.abort());
   await ctx.addInitScript(MOCK);
-  await ctx.addInitScript(([AF,tema,madh])=>{const c=window.__stokuCloud;c.perdoruesiAktual=()=>({uid:'u1',email:'mendurberisha@stoku-app.local'});
+  await ctx.addInitScript(([AF,tema,madh])=>{const c=window.__stokuCloud;c.perdoruesiAktual=()=>({uid:'u1',email:'mendurberisha@stoku-app.local'});window.__stokuProve={adminUid:'u1'};
    if(sessionStorage.getItem('s'))return;sessionStorage.setItem('s','1');localStorage.setItem('stoku:afatet:v1',JSON.stringify(AF));
    // v238: furnizuesit pa hyrje presin kontrollin; këtu janë kontrolluar më parë (koha 1)
    const kj={};['Albi','Albulena Impex','Argo Group','Devolli','Elkos','Extra Fruit','Laberion','Rugove','Meridian','Frutomania','Bavaria','Coca Cola HBC'].forEach(e=>{kj['furnizuesi '+e]={e,f:'',k:1,s:1};});localStorage.setItem('stoku:kujtesa:v1',JSON.stringify(kj));localStorage.setItem('stoku:kujtesa:kontrolli-v238','1');

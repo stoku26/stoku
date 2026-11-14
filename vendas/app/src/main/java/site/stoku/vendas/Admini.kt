@@ -18,7 +18,7 @@ import site.stoku.logjika.siListe
 import site.stoku.logjika.siObj
 
 /*
- * Cilësimet → Përdoruesit (vetëm administratori mendurberisha), si te app-tel.js (pd*): të gjitha llogaritë (perdoruesit/{uid})
+ * Cilësimet → Përdoruesit (vetëm administratori, sipas uid-së), si te app-tel.js (pd*): të gjitha llogaritë (perdoruesit/{uid})
  * dhe lejet e secilës (lejet/{uid}). Llogaria pa dokument lejesh = "Pa u kontrolluar" (i ka të gjitha lejet). Çdo ndryshim
  * ruhet menjëherë dhe e shënon llogarinë si të kontrolluar. Administratori s'del në listë dhe s'mund të preket.
  */
@@ -38,7 +38,7 @@ object Admini {
     private val scope = MainScope() + StokuApp.trajtuesi(false)
     private var nisur = false
 
-    fun eshteAdmin(): Boolean = Lejet.eshteAdmin(site.stoku.vendas.Llogaria.perdoruesi.value?.emri)
+    fun eshteAdmin(): Boolean = Lejet.eshteAdmin(site.stoku.vendas.Llogaria.perdoruesi.value?.uid)
 
     /** Dëgjuesit nisen vetëm për administratorin (pas hyrjes) dhe ndalen në dalje */
     fun nis() {
@@ -46,7 +46,7 @@ object Admini {
         nisur = true
         scope.launch {
             site.stoku.vendas.Llogaria.perdoruesi.collect { p ->
-                if (p != null && Lejet.eshteAdmin(p.emri)) degjo() else ndal()
+                if (p != null && Lejet.eshteAdmin(p.uid)) degjo() else ndal()
             }
         }
     }
@@ -60,7 +60,7 @@ object Admini {
                 val x = d.data ?: emptyMap()
                 val emri = ((x["perdoruesi"] as? String)?.ifEmpty { null } ?: (x["emri"] as? String)?.ifEmpty { null } ?: d.id)
                 Llogaria(d.id, emri, (x["kycurSe"] as? Number)?.toLong() ?: 0L, (x["krijuarSe"] as? Number)?.toLong() ?: 0L,
-                    x["grupi"] as? String, x["emri"] == Lejet.ADMINI || x["perdoruesi"] == Lejet.ADMINI, x["merchandiser"] == true)
+                    x["grupi"] as? String, Lejet.eshteAdmin(d.id), x["merchandiser"] == true)
             }
             njoftoTeRejat()
         }
@@ -80,7 +80,7 @@ object Admini {
     /** Të gjitha llogaritë përveç administratorit, me lejet dhe statusin ("ri" | "krejt" | "kufizuar") */
     fun lista(): List<Rreshti> {
         val m = lejet.value ?: emptyMap()
-        return (llogarite.value ?: emptyList()).filter { !it.admin && !Lejet.eshteAdmin(it.emri) }.map { a -> val d = m[a.uid]; Rreshti(a, d, Lejet.statusi(d)) }
+        return (llogarite.value ?: emptyList()).filter { !it.admin && !Lejet.eshteAdmin(it.uid) }.map { a -> val d = m[a.uid]; Rreshti(a, d, Lejet.statusi(d)) }
     }
     fun gati(): Boolean = llogarite.value != null && lejet.value != null
 
@@ -101,7 +101,7 @@ object Admini {
         val im = site.stoku.vendas.Llogaria.perdoruesi.value
         if (!eshteAdmin() || im == null || u == im.uid) return Fshirja(false)
         val a = llogarite.value?.firstOrNull { it.uid == u }
-        if (a?.admin == true || Lejet.eshteAdmin(emriTjeter)) return Fshirja(false)
+        if (a?.admin == true || Lejet.eshteAdmin(u)) return Fshirja(false)
         val gU = try { db.collection("perdoruesit").document(u).get().await().getString("grupi") } catch (e: Exception) { null }
         try {
             db.collection("ekipa_fshire").document(u).set(mapOf("emri" to emriTjeter, "fshireSe" to System.currentTimeMillis(), "fshireNga" to im.emri)).await()
@@ -131,7 +131,13 @@ object Admini {
         try { db.collection("ekipa_anetaret").document(u).delete().await() } catch (e: Exception) { }
         try { db.collection("ekipa_afatet").document(u).delete().await() } catch (e: Exception) { }
         // Ftesat në pritje për këtë emër: emri lirohet dhe një llogari e re me të njëjtin emër s'duhet t'i gjejë
+        // v302: edhe ftesat sipas uid-së dhe emrat/{emri} (lidhja emër → uid)
+        fshijTeGjitha(db.collection("ftesat").whereEqualTo("uid", u), numero = false)
         if (emriTjeter.isNotEmpty()) fshijTeGjitha(db.collection("ftesat").whereEqualTo("perdoruesi", emriTjeter), numero = false)
+        if (emriTjeter.isNotEmpty()) try {
+            val e = db.collection("emrat").document(emriTjeter)
+            if (e.get().await().getString("uid") == u) e.delete().await()
+        } catch (e: Exception) { }
         val dq = db.collection("dyqane").document(u)
         fshijTeGjitha(dq.collection("pjeset"))
         fshijTeGjitha(dq.collection("fletet"))
@@ -150,7 +156,7 @@ object Admini {
     suspend fun ruaj(uid: String, l: Obj, emri: String): String? {
         if (!eshteAdmin()) return "leje"
         val a = llogarite.value?.firstOrNull { it.uid == uid }
-        if (a == null || a.admin || Lejet.eshteAdmin(a.emri)) return "leje" // administratori s'preket kurrë
+        if (a == null || a.admin || Lejet.eshteAdmin(a.uid)) return "leje" // administratori s'preket kurrë
         return try {
             withTimeoutOrNull(15000) {
                 db.collection("lejet").document(uid).set(mapOf(

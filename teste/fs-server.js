@@ -1,11 +1,15 @@
 // Firestore i simuluar në node, me rregullat e Stoku-t (të rejat v110 ose të vjetrat v109), për teste me disa faqe.
 // Faqet përdorin kodin e VËRTETË: ruajtja.js (dyqani) + ekipa.js (krijoCloud) mbi një "fs" të rremë që flet me këtë server.
 const ADMIN = 'mendurberisha';
+// v302: administratori njihet nga uid-ja (rregullat: request.auth.uid == ADMIN_UID). Për testet e vjetra, llogaria e provës
+// me emrin "mendurberisha" (ose fushën emri te perdoruesit/{uid}) vlen si "administrator i provës" (uid të ndryshme si 'uA');
+// me opt.adminVetemUid vlen vetëm uid-ja e vërtetë, si te rregullat.
+const ADMIN_UID = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
 
 function klon(x) { return x === undefined ? undefined : JSON.parse(JSON.stringify(x)); }
 
 function krijoFirestore(opt = {}) {
-  const S = { rregullat: opt.rregullat || 'reja', docs: new Map(), shkrime: [], refuzime: [] };
+  const S = { rregullat: opt.rregullat || 'reja', adminVetemUid: !!opt.adminVetemUid, docs: new Map(), shkrime: [], refuzime: [] };
   const faqet = new Map();  // page → { uid, email }
   const subs = [];          // { page, id, lloji: 'doc'|'query', path, c }
   let nrId = 0;
@@ -14,7 +18,12 @@ function krijoFirestore(opt = {}) {
   const emriNgaEmail = e => String(e || '').split('@')[0];
   // v140: admini = llogaria "mendurberisha" (email-i) OSE fusha emri te perdoruesit/{uid} (si rregullat e reja)
   const emailet = new Map(); // uid → email (nga faqet e lidhura)
-  const eshteAdmin = uid => { if (S.rregullat === 'reja' && emriNgaEmailF(emailet.get(uid)) === ADMIN) return true; const d = S.docs.get('perdoruesit/' + uid); return !!(d && d.emri === ADMIN); };
+  const eshteAdmin = uid => {
+    if (uid && uid === ADMIN_UID && S.rregullat === 'reja') return true;
+    if (S.adminVetemUid) return false;
+    if (S.rregullat === 'reja' && emriNgaEmailF(emailet.get(uid)) === ADMIN) return true;
+    const d = S.docs.get('perdoruesit/' + uid); return !!(d && d.emri === ADMIN);
+  };
   function emriNgaEmailF(e) { return String(e || '').split('@')[0]; }
   const neEkipe = uid => S.docs.has('ekipa_anetaret/' + uid) || eshteAdmin(uid);
   const pjeset = p => p.split('/');
@@ -43,9 +52,11 @@ function krijoFirestore(opt = {}) {
     }
     if (reja && p[0] === 'ftesat') {
       if (eshteAdmin(a.uid)) return true;
-      if (!eListe) { const d = S.docs.get(path); return !!d && (d.perdoruesi === emriA || anetar(a.uid, d.gid)); }
+      // v302: lexohet nga llogaria e uid-së, ose (si më parë, për pyetjen sipas emrit) nga emri; pranimi kërkon uid-në
+      const imja = d => d.uid === a.uid || d.perdoruesi === emriA;
+      if (!eListe) { const d = S.docs.get(path); return !!d && (imja(d) || anetar(a.uid, d.gid)); }
       const w = (c || []).filter(x => x.lloji === 'where' && x.op === '==');
-      return w.some(x => x.f === 'perdoruesi' && x.v === emriA) || w.some(x => x.f === 'gid' && anetar(a.uid, x.v));
+      return w.some(x => x.f === 'perdoruesi' && x.v === emriA) || w.some(x => x.f === 'uid' && x.v === a.uid) || w.some(x => x.f === 'gid' && anetar(a.uid, x.v));
     }
     // v242: regjistri i përbashkët (kushdo i kyçur) dhe pritja e secilit (ai vetë dhe administratori)
     if (reja && p[0] === 'kujtesa' && p.length === 2) return !S.paRegjister;
@@ -60,6 +71,8 @@ function krijoFirestore(opt = {}) {
       const w = (c || []).filter(x => x.lloji === 'where' && x.op === '==');
       return w.some(x => x.f === 'uid' && x.v === a.uid) || w.some(x => x.f === 'gid' && anetar(a.uid, x.v));
     }
+    // v302: emrat/{emri} → uid (për ftesat): get për kushdo me llogari, pa listë (S.paEmrat: rregullat para v302)
+    if (reja && p[0] === 'emrat' && p.length === 2) return !S.paEmrat && !eListe;
     if (reja && p[0] === 'perdoruesit' && p.length === 2 && eListe) return eshteAdmin(a.uid); // v164: lista vetëm admini
     if (reja && p[0] === 'dyqane' && p[2] === 'skedaret') return !S.paSkedare && a.uid === p[1]; // v227 (S.paSkedare: rregullat e vjetra, pa skedarët)
     if (p[0] === 'dyqane') return reja ? ((a.uid === p[1] && !fshire(p[1])) || eshteAdmin(a.uid)) : (p[2] === 'fletet' ? (a.uid === p[1] || eshteAdmin(a.uid)) : true);
@@ -98,7 +111,9 @@ function krijoFirestore(opt = {}) {
           const gPas = pas('grupet/' + g);
           return (iRi.roli === 'pronar' && !S.docs.has('grupet/' + g) && !!gPas && gPas.pronarUid === id)
             // v216: ftesa duhet të fshihet në të njëjtin batch (existsAfter), që të mos përdoret dy herë
-            || (iRi.roli === 'anetar' && S.docs.has('ftesat/' + g + '_' + emriIm) && !pas('ftesat/' + g + '_' + emriIm) && S.docs.has('grupet/' + g))
+            // v302: ftesa sipas uid-së ({g}_{uid}, me fushën uid); e vjetra sipas emrit vetëm pa fushën uid
+            || (iRi.roli === 'anetar' && S.docs.has('grupet/' + g) && ((S.docs.has('ftesat/' + g + '_' + id) && S.docs.get('ftesat/' + g + '_' + id).uid === id && !pas('ftesat/' + g + '_' + id))
+              || (S.docs.has('ftesat/' + g + '_' + emriIm) && S.docs.get('ftesat/' + g + '_' + emriIm).uid === undefined && !pas('ftesat/' + g + '_' + emriIm))))
             || (g === 'ekipa' && iRi.roli === 'anetar' && S.docs.has('ekipa_anetaret/' + id));
         }
         if (lloji === 'update') {
@@ -129,12 +144,19 @@ function krijoFirestore(opt = {}) {
       }
       return false;
     }
+    if (reja && p[0] === 'emrat' && p.length === 2) { // v302: secili vetëm emrin e vet; fshin vetëm i zoti ose admini
+      if (S.paEmrat) return false;
+      if (lloji === 'delete') return !!iVjeter && (iVjeter.uid === a.uid || eshteAdmin(a.uid));
+      return p[1] === emriIm && iRi.uid === a.uid && vetemKeto(Object.keys(iRi), ['uid', 'ndryshuarSe']);
+    }
     if (reja && p[0] === 'ftesat') {
       const adm = eshteAdmin(a.uid);
-      if (lloji === 'delete') return !!iVjeter && (iVjeter.perdoruesi === emriIm || pronar(a.uid, iVjeter.gid) || adm);
-      return pronar(a.uid, iRi.gid) && p[1] === iRi.gid + '_' + iRi.perdoruesi && /^[a-z0-9_.-]{3,40}$/.test(iRi.perdoruesi || '')
+      if (lloji === 'delete') return !!iVjeter && ((iVjeter.uid !== undefined ? iVjeter.uid === a.uid : iVjeter.perdoruesi === emriIm) || pronar(a.uid, iVjeter.gid) || adm);
+      // v302: me uid → id {gid}_{uid}; pa uid (e vjetra) → id {gid}_{emri}
+      return pronar(a.uid, iRi.gid) && (iRi.uid !== undefined ? (typeof iRi.uid === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(iRi.uid) && p[1] === iRi.gid + '_' + iRi.uid) : p[1] === iRi.gid + '_' + iRi.perdoruesi)
+        && /^[a-z0-9_.-]{3,40}$/.test(iRi.perdoruesi || '')
         && iRi.ngaUid === a.uid && iRi.ngaEmri === emriIm
-        && vetemKeto(Object.keys(iRi), ['gid', 'grupiEmri', 'perdoruesi', 'ngaUid', 'ngaEmri', 'koha'])
+        && vetemKeto(Object.keys(iRi), ['gid', 'grupiEmri', 'perdoruesi', 'uid', 'ngaUid', 'ngaEmri', 'koha'])
         && (iRi.grupiEmri === undefined || (typeof iRi.grupiEmri === 'string' && iRi.grupiEmri.length <= 60));
     }
     if (reja && p[0] === 'kujtesa' && p.length === 2) { // v242: vetëm administratori
@@ -337,10 +359,13 @@ function krijoFirestore(opt = {}) {
 
   // ---------------- Skripti i faqes: "fs" i rremë + __stokuCloud me kodin e vërtetë ----------------
   function skripti() {
-    return ({ uid, email, platforma, lokale }) => {
+    return ({ uid, email, platforma, lokale, adminProve }) => {
       // v232 (testet): llogaria e ndërruar (si Firebase, e përbashkët për krejt skedat e pajisjes) vlen edhe pas rifreskimit
       try { const o = JSON.parse(localStorage.getItem('__fsLlogaria') || 'null'); if (o && o.uid) { uid = o.uid; email = o.email; } } catch (e) { /* ok */ }
       const emri = email.split('@')[0];
+      // v302: "administratori i provës" (uid e provës me emrin mendurberisha); ekipa.js e njeh vetëm në pamje
+      const vendosAdminin = (u, em) => { window.__stokuProve = adminProve && String(em || '').split('@')[0] === 'mendurberisha' ? { adminUid: u } : null; };
+      vendosAdminin(uid, email);
       window.__fsCb = {};
       window.__fsOffline = false;
       let rradhaOffline = [];
@@ -423,6 +448,7 @@ function krijoFirestore(opt = {}) {
       // v232 (testet): ndërrimi i llogarisë në këtë faqe, si Firebase kur në një skedë tjetër hyhet me llogari tjetër
       window.__fsNdrroLlogarine = (uid2, email2) => {
         try { localStorage.setItem('__fsLlogaria', JSON.stringify(uid2 ? { uid: uid2, email: email2 } : null)); } catch (e) { /* ok */ }
+        vendosAdminin(uid2, email2);
         auth.currentUser = uid2 ? { uid: uid2, email: email2, getIdToken: async () => 'tok.' + btoa(JSON.stringify({ user_id: uid2 })) + '.x' } : null;
         window.dispatchEvent(new Event('stoku-auth-ndryshoi'));
       };
@@ -472,10 +498,10 @@ function krijoFirestore(opt = {}) {
 
   async function lidh(ctx, uid, email, platforma, lokale) {
     await ctx.exposeBinding('__fs', (src, emer, ...x) => op(src.page, emer, ...x));
-    await ctx.addInitScript(skripti(), { uid, email, platforma, lokale: lokale || null });
+    await ctx.addInitScript(skripti(), { uid, email, platforma, lokale: lokale || null, adminProve: !S.adminVetemUid });
     emailet.set(uid, email);
     ctx.on('page', p => faqet.set(p, { uid, email }));
   }
   return { S, lidh, faqet, eshteAdmin, neEkipe, klon, subs };
 }
-module.exports = { krijoFirestore, ADMIN };
+module.exports = { krijoFirestore, ADMIN, ADMIN_UID };

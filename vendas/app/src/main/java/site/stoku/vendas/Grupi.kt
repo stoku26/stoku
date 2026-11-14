@@ -133,8 +133,15 @@ object Grupi {
             }
             ndiq(g as? String ?: "") // pa tregues fare (llogari shumë e vjetër): pa grup derisa ta hapë web-in
         })
-        degjuesitPerdoruesit.add(db.collection("ftesat").whereEqualTo("perdoruesi", p.emri).addSnapshotListener { s, _ ->
-            if (s != null && uid == u0) ftesatEMia.value = s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }
+        // v302: ftesat sipas uid-së sime + të vjetrat sipas emrit (vetëm ato pa uid, nga versionet e mëparshme)
+        var sipasUid = emptyList<Obj>(); var sipasEmrit = emptyList<Obj>()
+        fun bashkoFtesat() { ftesatEMia.value = (sipasUid + sipasEmrit.filter { it["uid"] == null }).distinctBy { it["id"] } }
+        degjuesitPerdoruesit.add(db.collection("ftesat").whereEqualTo("uid", u0).addSnapshotListener { s, _ ->
+            if (s != null && uid == u0) { sipasUid = s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }; bashkoFtesat() }
+        })
+        if (p.emri.isNotEmpty()) degjuesitPerdoruesit.add(db.collection("ftesat").whereEqualTo("perdoruesi", p.emri).addSnapshotListener { s, _ ->
+            if (uid != u0) return@addSnapshotListener
+            sipasEmrit = s?.documents?.map { (it.data ?: emptyMap()).me("id" to it.id) } ?: emptyList(); bashkoFtesat()
         })
         degjuesitPerdoruesit.add(db.collection("kerkesat_grupi").whereEqualTo("uid", u0).addSnapshotListener { s, _ ->
             if (s != null && uid == u0) kerkesatEMia.value = s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }
@@ -194,7 +201,7 @@ object Grupi {
                 val x = d.data ?: emptyMap()
                 obj("uid" to d.id, "emri" to ((x["emri"] as? String)?.ifEmpty { null } ?: d.id), "aktivSe" to (x["aktivSe"] ?: x["hyriSe"] ?: 0L),
                     "online" to (x["online"] == true), "platforma" to (x["platforma"] ?: ""), "kycurSe" to (x["hyriSe"] ?: 0L),
-                    "roli" to if (x["roli"] == "pronar") "pronar" else "anetar", "pronar" to (x["roli"] == "pronar"), "admin" to (x["emri"] == "mendurberisha"))
+                    "roli" to if (x["roli"] == "pronar") "pronar" else "anetar", "pronar" to (x["roli"] == "pronar"), "admin" to site.stoku.logjika.Lejet.eshteAdmin(d.id))
             }
         })
         degjuesitGrupit.add(ref.collection("afatet").addSnapshotListener { s, _ ->
@@ -676,18 +683,30 @@ object Grupi {
         return try { db.collection("grupet").document(g).set(mapOf("emri" to em), SetOptions.merge()).await(); publikoGrupin(g, em); null } catch (e: Exception) { gabimi(e) }
     }
 
-    /** Pronari: ftesë për një emër përdoruesi → null ose arsyeja (emri, vetja, anetar, e-ftuar, leje, rrjeti) */
-    suspend fun ftoNeGrup(perdoruesi: String): String? {
+    private fun uidOk(u: String?): Boolean = u != null && Regex("^[A-Za-z0-9_-]{1,128}$").matches(u)
+    /** v302: ftesa; me uid e lidhur me atë llogari (id {grupi}_{uid}), pa uid e vjetra sipas emrit */
+    private fun ftesa(g: String, uidP: String?, emriP: String, emriGrupit: String): Map<String, Any?> {
+        val m = mutableMapOf<String, Any?>("gid" to g, "grupiEmri" to emriGrupit.take(60), "perdoruesi" to emriP, "ngaUid" to uid, "ngaEmri" to emri, "koha" to System.currentTimeMillis())
+        if (uidP != null) m["uid"] = uidP
+        return m
+    }
+
+    /** Pronari: ftesë për një emër përdoruesi → null ose arsyeja (emri, vetja, anetar, e-ftuar, leje, rrjeti).
+     *  v302: emri kthehet në uid (emrat/{emri}) dhe ftesa i lidhet asaj llogarie; me uidP (administratori) direkt.
+     *  Vetëm për llogaritë pa emrat/{emri} (s'e kanë hapur ende versionin e ri) mbetet ftesa e vjetër sipas emrit. */
+    suspend fun ftoNeGrup(perdoruesi: String, uidP: String? = null): String? {
         val p = perdoruesi.trim().lowercase().removeSuffix("@stoku-app.local")
         val g = grupi() ?: return "pa-grup"
         if (!eshtePronar()) return "jo-pronar"
         if (!Regex("^[a-z0-9_.-]{3,40}$").matches(p)) return "emri"
-        if (p == emri) return "vetja"
-        if (anetaret.value.any { (it["emri"] as? String).orEmpty().lowercase() == p }) return "anetar"
-        if (ftesatEGrupit.value.any { it["perdoruesi"] == p }) return "e-ftuar"
+        if (p == emri || (uidP != null && uidP == uid)) return "vetja"
+        if (anetaret.value.any { (uidP != null && it["uid"] == uidP) || (it["emri"] as? String).orEmpty().lowercase() == p }) return "anetar"
+        if (ftesatEGrupit.value.any { (uidP != null && it["uid"] == uidP) || it["perdoruesi"] == p }) return "e-ftuar"
+        var u = if (uidOk(uidP)) uidP else null
+        if (u == null) u = try { db.collection("emrat").document(p).get().await().getString("uid")?.takeIf { uidOk(it) } } catch (e: Exception) { null }
+        if (u != null && u == uid) return "vetja"
         return try {
-            db.collection("ftesat").document(g + "_" + p).set(mapOf("gid" to g, "grupiEmri" to ((grupiDoc.value?.get("emri") as? String) ?: "").take(60),
-                "perdoruesi" to p, "ngaUid" to uid, "ngaEmri" to emri, "koha" to System.currentTimeMillis())).await()
+            db.collection("ftesat").document(g + "_" + (u ?: p)).set(ftesa(g, u, p, (grupiDoc.value?.get("emri") as? String) ?: "")).await()
             null
         } catch (e: Exception) { gabimi(e) }
     }
@@ -875,19 +894,24 @@ object Grupi {
         return try { db.collection("kerkesat_grupi").document(gid + "_" + u0).delete().await(); null } catch (e: Exception) { gabimi(e) }
     }
 
-    /** Pronari: pranimi = ftesë për atë emër + fshirja e kërkesës */
+    /** Pronari: pranimi = ftesë për atë llogari (v302: sipas uid-së së kërkesës) + fshirja e kërkesës */
     suspend fun pranoKerkesen(k: Obj): String? {
         val g = grupi() ?: return "pa-grup"
         val em = (k["emri"] as? String).orEmpty()
-        if (k["gid"] != g || !Regex("^[a-z0-9_.-]{3,40}$").matches(em)) return "gabim"
-        return try {
-            val b = db.batch()
-            b.set(db.collection("ftesat").document(g + "_" + em), mapOf("gid" to g, "grupiEmri" to ((grupiDoc.value?.get("emri") as? String) ?: (k["grupiEmri"] as? String) ?: "").take(60),
-                "perdoruesi" to em, "ngaUid" to uid, "ngaEmri" to emri, "koha" to System.currentTimeMillis()))
-            b.delete(db.collection("kerkesat_grupi").document(k["id"] as String))
-            b.commit().await()
-            null
-        } catch (e: Exception) { gabimi(e) }
+        val ku = k["uid"] as? String
+        if (k["gid"] != g || !Regex("^[a-z0-9_.-]{3,40}$").matches(em) || !uidOk(ku)) return "gabim"
+        val emriG = (grupiDoc.value?.get("emri") as? String) ?: (k["grupiEmri"] as? String) ?: ""
+        // Rregullat para v302 s'e njohin ftesën sipas uid-së: atëherë si më parë (sipas emrit)
+        for (meUid in listOf(true, false)) {
+            try {
+                val b = db.batch()
+                b.set(db.collection("ftesat").document(g + "_" + (if (meUid) ku else em)), ftesa(g, if (meUid) ku else null, em, emriG))
+                b.delete(db.collection("kerkesat_grupi").document(k["id"] as String))
+                b.commit().await()
+                return null
+            } catch (e: Exception) { val gb = gabimi(e); if (!meUid || gb != "leje") return gb }
+        }
+        return "leje"
     }
 
     suspend fun refuzoKerkesen(k: Obj): String? = try { db.collection("kerkesat_grupi").document(k["id"] as String).delete().await(); null } catch (e: Exception) { gabimi(e) }

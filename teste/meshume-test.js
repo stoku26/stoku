@@ -9,7 +9,7 @@ const KUJ={};for(let i=0;i<250;i++)KUJ['60'+String(i).padStart(4,'0')]={e:'Produ
   const ctx=await b.newContext(pc?{viewport:{width:1366,height:768},serviceWorkers:'block'}:{userAgent:'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36',viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
   await ctx.route(u=>!u.href.startsWith('http://127.0.0.1'),r=>r.abort());
   await ctx.addInitScript(MOCK);
-  await ctx.addInitScript(([KUJ])=>{const c=window.__stokuCloud;c.perdoruesiAktual=()=>({uid:'u1',email:'mendurberisha@stoku-app.local'});
+  await ctx.addInitScript(([KUJ])=>{const c=window.__stokuCloud;c.perdoruesiAktual=()=>({uid:'u1',email:'mendurberisha@stoku-app.local'});window.__stokuProve={adminUid:'u1'};
    if(sessionStorage.getItem('s'))return;sessionStorage.setItem('s','1');localStorage.setItem('stoku:porta:hyrja',JSON.stringify({uid:'u1',emri:'mendurberisha'}));localStorage.setItem('stoku:kujtesa:v1',JSON.stringify(KUJ));},[KUJ]);
   const p=await ctx.newPage();p.on('pageerror',e=>err.push(e.message));
   await p.goto('http://127.0.0.1:8765/'+(pc?'pc.html':''));await p.waitForTimeout(1500);
