@@ -25,9 +25,11 @@ const pajisja = { endpoint: 'https://push.test/A', p256dh: b64u(ua.getPublicKey(
 // 1. tekstet
 ok(njoftimiDitor([], '2026-10-01') === null, 'pa afate → asnjë njoftim');
 ok(njoftimiDitor([{ e: 'Kos', d: '2026-12-01' }], '2026-10-01') === null, 'afat larg → asnjë');
-ok(njoftimiDitor([{ e: 'Kos', d: '2026-09-28' }, { e: 'Ujë', d: '2026-10-03' }], '2026-10-01') === null, 'të skaduarat e vjetra dhe ato të javës → asnjë (vetëm sot)');
+ok(njoftimiDitor([{ e: 'Ujë', d: '2026-10-03' }, { e: 'Lëng', d: '2026-10-30' }], '2026-10-01') === null, 'ato të javës/muajit → asnjë (v172: pa "30 ditë para")');
+{ const k = njoftimiDitor([{ e: 'Kos', d: '2026-09-28' }, { e: 'Ujë', d: '2026-10-03' }], '2026-10-01');
+  ok(k && k.teksti === 'Kos ka skaduar. Hiqe nga rafti.' && k.titulli === 'Stoku · Hiqi nga rafti' && k.skaduar === 1, 'v172: e skaduara (pa u hequr) del çdo ditë', k); }
 let n = njoftimiDitor([{ e: 'Kos', d: '2026-10-01' }, { e: 'Ujë', d: '2026-10-03' }], '2026-10-01'); ok(n.teksti === 'Kos skadon sot. Hiqe nga rafti.' && n.titulli === 'Stoku · Skadon sot', 'një skadon sot', n);
-n = njoftimiDitor([{ e: 'A', d: '2026-10-01' }, { e: 'B', d: '2026-10-01' }, { e: 'C', d: '2026-09-01' }], '2026-10-01'); ok(n.teksti === '2 produkte skadojnë sot: A, B.', 'dy sot', n.teksti);
+n = njoftimiDitor([{ e: 'A', d: '2026-10-01' }, { e: 'B', d: '2026-10-01' }, { e: 'C', d: '2026-09-01' }], '2026-10-01'); ok(n.teksti === '2 produkte skadojnë sot: A, B. C ka skaduar. Hiqe nga rafti.' && n.titulli === 'Stoku · Skadon sot dhe të skaduara', 'dy sot + një e skaduar (v172)', n.teksti);
 ok(kohaLokale(Date.UTC(2026, 9, 1, 6, 0), 'Europe/Belgrade').minuta === 8 * 60 && kohaLokale(Date.UTC(2026, 9, 1, 23, 30), 'Europe/Belgrade').dita === '2026-10-02', 'zona kohore (Kosovë = UTC+2 në tetor)');
 // 2. /orari
 let [st, j] = await thirr({ aktiv: true, ora: '08:00', tz: 'Europe/Belgrade', pajisja }, 'x.y.z'); ok(st === 401, 'token i rremë → 401', st);

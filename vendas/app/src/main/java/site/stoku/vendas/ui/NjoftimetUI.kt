@@ -349,8 +349,10 @@ fun OraFaqja(mbrapa: () -> Unit) {
 }
 
 /**
- * Pyetja për njoftimet kur hapet Stoku (si dlgNjoftimet te web-i): vetëm Android 13+, kur leja s'është dhënë ende dhe
- * telefoni s'ka pyetur; "Jo tani" e shtyn 3 ditë.
+ * Hyrja 66 (web v304, pronari: "Detyroj njoftimet mi aktivizu ... vetem pasi dikush kyqet ne llogari, nese osht si vizitor mos
+ * e detyro"): pas hyrjes me llogari dritarja s'mbyllet (pa "Jo tani", pa "mbrapa", pa prekje jashtë) derisa njoftimet të
+ * lejohen. Kur janë të bllokuara: butoni hap cilësimet e njoftimeve të Stoku-t; kur kthehet, kontrollohet vetë.
+ * Pas lejes: pajisja regjistrohet te grupi dhe njoftimi ditor ndizet vetë herën e parë (ora e zgjedhur, 08:00).
  */
 @Composable
 fun PyetjaENjoftimeve() {
@@ -358,46 +360,64 @@ fun PyetjaENjoftimeve() {
     val ctx = LocalContext.current
     val scope = rememberFusha()
     val p by Llogaria.perdoruesi.collectAsState()
-    var hapur by remember { mutableStateOf(false) }
-    LaunchedEffect(p?.uid) {
-        hapur = false
-        if (p == null || StokuApp.neProve) return@LaunchedEffect
-        kotlinx.coroutines.delay(2000)
-        if (Njoftimet.gjendja(ctx) != "fikur") return@LaunchedEffect
-        val joTani = StokuApp.prefsOse("njoftimet_jo_tani", "0").toLongOrNull() ?: 0L
-        if (System.currentTimeMillis() - joTani < 3 * 86400000L) return@LaunchedEffect
-        hapur = true
+    val vizitor by Llogaria.vizitor.collectAsState()
+    var gjendja by remember { mutableStateOf(Njoftimet.gjendja(ctx)) }
+    var duhet by remember { mutableStateOf(false) }
+    fun pasLejes() {
+        Toast.trego("Njoftimet u aktivizuan.")
+        scope.launch {
+            try { Push.aktivizo(true) } catch (e: Exception) { }
+            try { if (Push.orariIm() == null && Llogaria.leja("afatet")) Push.vendosOrarin(true, Push.oraEZgjedhur()) } catch (e: Exception) { }
+        }
+    }
+    // Kontrollohet sa herë kthehet në aplikacion (p.sh. nga cilësimet e telefonit) dhe çdo 1.5 s sa është hapur
+    LaunchedEffect(p?.uid, vizitor) {
+        duhet = false
+        if (p == null || vizitor || StokuApp.neProve) return@LaunchedEffect
+        kotlinx.coroutines.delay(1500)
+        while (true) {
+            val g = Njoftimet.gjendja(ctx)
+            if (g == "lejuar") { if (duhet) pasLejes() else if (Push.orariIm() == null && Llogaria.leja("afatet")) try { Push.vendosOrarin(true, Push.oraEZgjedhur()) } catch (e: Exception) { }; duhet = false; break }
+            gjendja = g; duhet = true
+            kotlinx.coroutines.delay(1500)
+        }
     }
     val kerko = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { po ->
         StokuApp.vendosPrefB("njoftimet_pyetur", true)
-        if (po) { Toast.trego("Njoftimet u aktivizuan."); scope.launch { try { Push.aktivizo(false) } catch (e: Exception) { } } }
-        else Toast.trego("Njoftimet u refuzuan. Mund t'i lejosh te cilësimet e telefonit → Aplikacionet → Stoku → Njoftimet.", 5000)
+        gjendja = Njoftimet.gjendja(ctx)
+        if (!po && gjendja != "lejuar") Toast.trego("Pa njoftimet s'mund të vazhdosh. Lejoji kur të pyet telefoni, ose te cilësimet.", 5000)
     }
-    if (!hapur) return
-    fun joTani() { StokuApp.vendosPref("njoftimet_jo_tani", System.currentTimeMillis().toString()); hapur = false }
-    Flete(::joTani) {
-        Box(Modifier.size(56.dp).clip(CircleShape).background(n.accentTint), contentAlignment = Alignment.Center) {
-            androidx.compose.material3.Icon(Ik.Zile, null, Modifier.size(30.dp), tint = n.accentText)
-        }
-        Text("Njoftimet për afatet", style = tx(22, 700, n.ink, -0.02))
-        Text("Të lajmërojmë me njoftim në telefon:", style = tx(15, 400, n.ink2))
-        listOf(
-            Triple(n.near, "kur një produkti i kanë mbetur ", "30 ditë" to " deri në skadim"),
-            Triple(n.exp, "kur një produkt ", "skadon" to ", që ta heqësh nga rafti/pozita")
-        ).forEach { (ng, para, pas) ->
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Box(Modifier.size(10.dp).clip(CircleShape).background(ng))
-                Text(buildAnnotatedString {
-                    append(para); withStyle(SpanStyle(fontWeight = FontWeight(700))) { append(pas.first) }; append(pas.second)
-                }, style = tx(15, 400, n.ink))
+    if (!duhet) return
+    val bllokuar = gjendja == "bllokuar"
+    androidx.compose.ui.window.Dialog(onDismissRequest = {}, properties = androidx.compose.ui.window.DialogProperties(
+        dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false)) {
+        Column(Modifier.padding(20.dp).fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(n.surface).padding(22.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Box(Modifier.size(56.dp).clip(CircleShape).background(n.accentTint), contentAlignment = Alignment.Center) {
+                androidx.compose.material3.Icon(Ik.Zile, null, Modifier.size(30.dp), tint = n.accentText)
             }
-        }
-        Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Buton("Jo tani", ::joTani, Modifier.weight(1f), lloji = "tekst")
-            Buton("Aktivizo njoftimet", {
-                hapur = false
-                try { kerko.launch(Manifest.permission.POST_NOTIFICATIONS) } catch (e: Exception) { }
-            }, Modifier.weight(1.4f))
+            Text("Aktivizo njoftimet", style = tx(22, 700, n.ink, -0.02))
+            Text("Stoku të lajmëron me njoftim në telefon (edhe në orë):", style = tx(15, 400, n.ink2))
+            listOf(
+                Triple(n.near, "për produktet që ", "skadojnë sot" to ""),
+                Triple(n.exp, "çdo ditë për produktet që ", "kanë skaduar" to ", që t'i heqësh nga rafti/pozita"),
+                Triple(n.accent, "për kërkesat dhe njoftimet e ", "grupit" to "")
+            ).forEach { (ng, para, pas) ->
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Box(Modifier.size(10.dp).clip(CircleShape).background(ng))
+                    Text(buildAnnotatedString {
+                        append(para); withStyle(SpanStyle(fontWeight = FontWeight(700))) { append(pas.first) }; append(pas.second)
+                    }, style = tx(15, 400, n.ink))
+                }
+            }
+            if (bllokuar) Text("Njoftimet janë të bllokuara. Shtyp butonin më poshtë → Njoftimet → Lejo, pastaj kthehu këtu.", style = tx(14, 500, n.exp))
+            Buton(if (bllokuar) "Hape cilësimet e njoftimeve" else "Aktivizo njoftimet", {
+                if (bllokuar || !Njoftimet.duhetLeja()) {
+                    try {
+                        ctx.startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, ctx.packageName).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                    } catch (e: Exception) { Toast.trego("Hape te: Cilësimet e telefonit → Aplikacionet → Stoku → Njoftimet → Lejo.", 5000) }
+                } else try { kerko.launch(Manifest.permission.POST_NOTIFICATIONS) } catch (e: Exception) { }
+            }, Modifier.fillMaxWidth().padding(top = 6.dp))
         }
     }
 }

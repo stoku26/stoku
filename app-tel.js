@@ -4487,12 +4487,13 @@
   // thjesht klasën), që logjika e tyre (p.sh. konfirmo() që pret përgjigje) të përfundojë saktë.
   var ANULO_SIPAS_DIALOGUT = {
     dlgProdukt: 'dlgAnulo', dlgZhvendos: 'zhvendosAnulo', dlgFshirje: 'fshiAnulo',
-    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgMarketi: 'mkdAnulo', dlgMarketiRi: 'mkrAnulo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgKuSkedari: 'ksAnulo', dlgNjoftimet: 'njJoTani', dlgAfExcel: 'axAnulo', dlgTeRejat: 'trMbyll', dlgImportStok: 'impAnulo', dlgEkNjoftimet: 'ekNjMbyll', dlgEkNgjarja: 'ekDtMbyll', dlgAfImport: 'aiAnulo', dlgKerkese: 'krkAnulo', dlgKolegu: 'kolAnulo'
+    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgMarketi: 'mkdAnulo', dlgMarketiRi: 'mkrAnulo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgKuSkedari: 'ksAnulo', dlgAfExcel: 'axAnulo', dlgTeRejat: 'trMbyll', dlgImportStok: 'impAnulo', dlgEkNjoftimet: 'ekNjMbyll', dlgEkNgjarja: 'ekDtMbyll', dlgAfImport: 'aiAnulo', dlgKerkese: 'krkAnulo', dlgKolegu: 'kolAnulo'
   };
   function mbyllShtresenMeTeFundit() {
     // Kamera del mbi çdo dialog (p.sh. skanimi te "Afat i ri"), prandaj mbyllet e para
     if ($('kamera').classList.contains('hapur')) { ndalKamere(); return; }
     var dlgTjeter = dialogiISiperm();
+    if (dlgTjeter && dlgTjeter.id === 'dlgNjoftimet') return; // v304: njoftimet janë të detyrueshme (s'mbyllet me "mbrapa")
     if (dlgTjeter) {
       var idAnulo = ANULO_SIPAS_DIALOGUT[dlgTjeter.id];
       if (idAnulo && $(idAnulo)) $(idAnulo).click(); else dlgTjeter.classList.remove('hapur');
@@ -8705,10 +8706,9 @@
   document.addEventListener('visibilitychange', function () { if (!document.hidden) rifreskoNeseNderroiDita(); });
   rifreskoShenjen();
 
-  // ---------- Njoftimet për afatet (30 ditë para skadimit, dhe kur skadon) ----------
+  // ---------- Njoftimet për afatet (v304: vetëm kur skadon sot dhe të skaduarat, pa "30 ditë para") ----------
   // Lista e afateve kopjohet në IndexedDB që service worker-i ta kontrollojë edhe kur aplikacioni është mbyllur;
   // kur aplikacioni është hapur, kontrolli bëhet këtu pas çdo ndryshimi dhe kur rikthehesh në aplikacion.
-  var KEY_NJ_JO_TANI = 'stoku:njoftimet:jo-tani';
   var njKohezi = null, njZinxhiri = Promise.resolve();
   function njoftimetMbeshteten() { return 'Notification' in window && 'serviceWorker' in navigator && !!window.StokuNjoftimet; }
   function paLlogari() { var cl = window.__stokuCloud; return !!(cl && cl.authGati && !perdoruesiAktual()); }
@@ -8753,35 +8753,64 @@
       });
     }).catch(function () { /* s'mbështetet — kontrolli bëhet kur hapet aplikacioni */ });
   }
-  function eshteInstaluar() {
-    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+
+  // v304 (pronari: "Detyroj njoftimet mi aktivizu ... vetem pasi dikush kyqet ne llogari, nese osht si vizitor mos e detyro"):
+  // pas hyrjes me llogari, dritarja s'mbyllet ("Jo tani" u hoq, as "mbrapa") derisa njoftimet të lejohen. Vetëm aty ku
+  // shfletuesi i mbështet (iPhone pa Stoku në ekranin bazë s'i ka: s'detyrohet). Pa vizitorin; PC-ja (pc.html) jo.
+  // `window.__stokuPaNjoftime` e vendosin VETËM testet (teste/pw.js; headless e ka lejen "denied"): pa të, dritarja do t'i
+  // bllokonte. Përdoruesi s'ka asnjë mënyrë ta shtyjë ("Jo tani" dhe 'stoku:njoftimet:jo-tani' u hoqën).
+  var njRefuzuar = false; // shfletuesi e refuzoi kërkesën pa e ndryshuar lejen (p.sh. dritare private): tregohen udhëzimet
+  function duhenNjoftimet() {
+    if (window.__stokuPaNjoftime) return false;
+    return njoftimetMbeshteten() && !!perdoruesiAktual() && !ngaVizitori() && Notification.permission !== 'granted';
   }
   function pyetPerNjoftimet() {
-    if (!njoftimetMbeshteten() || Notification.permission !== 'default' || !eshteInstaluar() || ngaVizitori()) return; // prova: pa njoftime
+    var d = $('dlgNjoftimet');
+    if (!duhenNjoftimet()) { d.classList.remove('hapur'); return; }
     if (window.StokuPorta && window.StokuPorta.eHapur()) return;
-    var jo = 0;
-    try { jo = Number(localStorage.getItem(KEY_NJ_JO_TANI)) || 0; } catch (e) { /* ok */ }
-    if (Date.now() - jo < 3 * 86400000) return; // "Jo tani" → pyet sërish pas 3 ditësh
-    if (document.querySelector('.mbulese.hapur')) return; // mos e ndërprit punën — pyetet herën tjetër
-    $('dlgNjoftimet').classList.add('hapur');
+    var bll = Notification.permission === 'denied' || njRefuzuar;
+    $('njBllokuar').hidden = !bll;
+    $('njAktivizo').textContent = bll ? 'I lejova, kontrollo sërish' : 'Aktivizo njoftimet';
+    d.classList.add('hapur');
   }
-  $('njJoTani').addEventListener('click', function () {
-    try { localStorage.setItem(KEY_NJ_JO_TANI, String(Date.now())); } catch (e) { /* ok */ }
-    $('dlgNjoftimet').classList.remove('hapur');
-  });
-  $('njAktivizo').addEventListener('click', function () {
-    $('dlgNjoftimet').classList.remove('hapur');
-    Promise.resolve(Notification.requestPermission()).then(function (p) {
-      if (p === 'granted') {
-        regjistroKontrollinPeriodik();
-        aktivizoPushin();
-        kontrolloNjoftimet();
-        toast('Njoftimet u aktivizuan.');
-      } else if (p === 'denied') {
-        toast('Njoftimet u refuzuan. Mund t\'i lejosh te cilësimet e telefonit → Aplikacionet → Stoku → Njoftimet.');
+  // Njoftimi ditor ndizet vetë herën e parë (ora 08:00 ose ajo e zgjedhur); kush e ka fikur vetë, mbetet i fikur
+  function ndizDitorinNeseSKaOrar() {
+    var e = ekipaCloud();
+    if (!e || !e.vendosOrarin || !e.orariIm || e.orariIm() || !perdoruesiAktual() || !leja('afatet')) return;
+    e.vendosOrarin({ aktiv: true, ora: oraEZgjedhur() }).then(function (r) {
+      if (r && r.ok) {
+        window.StokuNjoftimet.vendosOrarin(!!(e.orariPunon && e.orariPunon()));
+        if (e.dergoAfatetPerOrarin) e.dergoAfatetPerOrarin(afatetPerServerin());
       }
+      rifreskoOrarin();
     }).catch(function () { /* ok */ });
+  }
+  function pasLejesSeNjoftimeve() {
+    $('dlgNjoftimet').classList.remove('hapur');
+    regjistroKontrollinPeriodik();
+    aktivizoPushin();
+    kontrolloNjoftimet();
+    ndizDitorinNeseSKaOrar();
+  }
+  $('njAktivizo').addEventListener('click', function () {
+    if (Notification.permission === 'granted') { pasLejesSeNjoftimeve(); return; }
+    if (Notification.permission === 'denied') { toast('Njoftimet janë ende të bllokuara. Lejoji te cilësimet (shiko tekstin më lart).', 4500); return; }
+    var ishteRefuzuar = njRefuzuar;
+    Promise.resolve(Notification.requestPermission()).then(function (p) {
+      if (p === 'granted') { njRefuzuar = false; pasLejesSeNjoftimeve(); toast('Njoftimet u aktivizuan.'); return; }
+      if (p === 'denied') njRefuzuar = true;
+      if (ishteRefuzuar) toast('Njoftimet janë ende të bllokuara. Lejoji te cilësimet (shiko tekstin më lart).', 4500);
+      pyetPerNjoftimet(); // mbetet hapur (tash me udhëzimet kur janë bllokuar)
+    }).catch(function () { pyetPerNjoftimet(); });
   });
+  // Lejuar te cilësimet e telefonit dhe u kthye: dritarja mbyllet vetë
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) return;
+    if (njoftimetMbeshteten() && Notification.permission === 'granted' && $('dlgNjoftimet').classList.contains('hapur')) pasLejesSeNjoftimeve();
+    else setTimeout(pyetPerNjoftimet, 300);
+  });
+  window.addEventListener('stoku-auth-ndryshoi', function () { setTimeout(pyetPerNjoftimet, 1500); });
+  if (njoftimetMbeshteten() && Notification.permission === 'granted' && perdoruesiAktual() && !ngaVizitori()) setTimeout(ndizDitorinNeseSKaOrar, 4000);
   function hapAfatetNgaNjoftimi() {
     if (window.StokuPorta && window.StokuPorta.eHapur()) return false;
     if (!$('dlgAfatet').classList.contains('hapur')) hapAfatetFaqe();
