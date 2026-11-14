@@ -56,7 +56,7 @@ const URL0 = 'http://127.0.0.1:8765/';
     const p = await ctx.newPage();
     p.on('pageerror', e => { g++; console.log('pageerror:', e.message); });
     await p.goto(URL0 + 'pc.html#/afatet'); await p.waitForTimeout(2500);
-    await p.click('#afBtnExcel'); await p.waitForTimeout(300);
+    await p.click('#afBtnExcel'); await p.waitForTimeout(300); await p.click('#menu button:has-text("Eksporto Excel")'); await p.waitForTimeout(300); // v301: menyja "Eksporto"
     const opt = await p.$$eval('#aeFurn option', l => l.map(o => o.textContent));
     ok(await p.isVisible('#aeFurn') && opt.length === 4, '2. PC: zgjedhja e furnizuesit', opt);
     await p.selectOption('#aeFurn', 'vipa'); await p.waitForTimeout(150);

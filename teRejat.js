@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 301, versioni: '1.58.0', data: '2026-11-14', titulli: 'Eksporto: Excel, PDF dhe foto', platforma: 'pc', pikat: [
+      'Te Afatet, butoni "Excel" tani quhet "Eksporto" dhe ka tri mundësi si te telefoni: Eksporto Excel, Eksporto PDF dhe Eksporto si foto.',
+      'PDF-ja për printim zgjedh periudhën, gjendjen, furnizuesin dhe renditjen; fotoja krijohet për secilin furnizues të zgjedhur.'
+    ] },
     { v: 300, versioni: '1.57.3', data: '2026-11-14', titulli: 'PDF e afateve: fundi i faqeve', platforma: 'tel', pikat: [
       'Faqja e parë s\'ka më vijë të dyfishtë poshtë tabelës.',
       'Faqet e tjera s\'kanë më "Krijuar me Stoku" poshtë: tabela vazhdon deri në fund të faqes, pa zbrazëti.'

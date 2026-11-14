@@ -928,7 +928,7 @@
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=6">
-<link rel="stylesheet" href="css/stoku-pc.css?v=42">
+<link rel="stylesheet" href="css/stoku-pc.css?v=43">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -1221,12 +1221,12 @@
             Shto afat
           </button>
           <button class="btn dyte" type="button" id="afBtnImport" data-leja="afatetImporto" title="Importo afate nga një skedar Excel (.xlsx) ose CSV">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m17 8-5-5-5 5"></path><path d="M12 3v12"></path></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5"></path><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path></svg>
             Importo
           </button>
-          <button class="btn dyte" type="button" id="afBtnExcel" data-leja="eksportExcel" title="Eksporto afatet në Excel (të gjitha ose një muaj)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="m8 13 4 5M12 13l-4 5"></path></svg>
-            Excel
+          <button class="btn dyte" type="button" id="afBtnExcel" data-leja="eksportExcel" aria-haspopup="true" title="Eksporto afatet: Excel, PDF për printim ose foto">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"></path><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path></svg>
+            Eksporto
           </button>
         </div>
       </div>
@@ -1556,6 +1556,34 @@
       <div class="kol-lista" id="kolLista"></div>
     </div>
     <div class="dialog-fund"><span class="hapesire"></span><button class="btn tekst" type="button" data-mbyll>Anulo</button></div>
+  </div>
+</div>
+
+<!-- v301: "PDF për printim" (si te telefoni: Periudha, Gjendja, Furnizuesi, Renditja) -->
+<div class="mbulese" id="dlgAfPdf">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="apTitulli" style="max-width:460px">
+    <div class="dialog-krye"><h2 id="apTitulli">PDF për printim</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
+    <div class="dialog-trup">
+      <p class="ops-hint" id="apNen" style="margin:0 0 14px"></p>
+      <label class="fushe"><span>Periudha</span><select class="inp" id="apPeriudha"></select></label>
+      <label class="fushe"><span>Gjendja</span><select class="inp" id="apGjendja"></select></label>
+      <label class="fushe furn-vetem"><span>Furnizuesi</span><select class="inp" id="apFurn"></select></label>
+      <label class="fushe"><span>Renditja</span><select class="inp" id="apRend"></select></label>
+    </div>
+    <div class="dialog-fund"><span class="hapesire"></span><button class="btn tekst" type="button" data-mbyll>Anulo</button><button class="btn" type="button" id="apKrijo">Krijo PDF-në</button></div>
+  </div>
+</div>
+
+<!-- v301: "Eksporto si foto" (si te telefoni: një foto për secilin furnizues të zgjedhur) -->
+<div class="mbulese" id="dlgAfEksFoto">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="aefTitulli" style="max-width:480px">
+    <div class="dialog-krye"><h2 id="aefTitulli">Eksporto si foto</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
+    <div class="dialog-trup">
+      <div class="aef-krye"><p class="ops-hint" id="aefNen" style="margin:0"></p><button class="btn tekst vogel" type="button" id="aefKrejt">Të gjithë</button></div>
+      <input class="inp" id="aefKerko" type="search" autocomplete="off" spellcheck="false" placeholder="Kërko furnizuesin" aria-label="Kërko furnizuesin" style="margin:10px 0">
+      <div class="aef-lista" id="aefLista"></div>
+    </div>
+    <div class="dialog-fund"><span class="hapesire"></span><button class="btn tekst" type="button" data-mbyll>Anulo</button><button class="btn" type="button" id="aefKrijo"><span id="aefKrijoT">Krijo foton</span></button></div>
   </div>
 </div>
 
@@ -2040,11 +2068,12 @@
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=7"></script>
 <script src="afatet.js?v=295"></script>
+<script src="eksportet.js?v=301"></script>
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
 <script src="ekipa.js?v=297"></script>
-<script src="teRejat.js?v=300"></script>
-<script src="app-pc.js?v=298"></script>
+<script src="teRejat.js?v=301"></script>
+<script src="app-pc.js?v=301"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
 
