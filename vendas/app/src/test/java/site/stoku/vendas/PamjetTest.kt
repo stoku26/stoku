@@ -432,10 +432,10 @@ class PamjetTest {
     /** Administratori: Cilësimet → Përdoruesit (lista dhe lejet e një llogarie) */
     @Test fun perdoruesit() {
         mbush()
-        Llogaria.vendosPerProve(Perdoruesi("u0", "mendurberisha"))
+        Llogaria.vendosPerProve(Perdoruesi(site.stoku.logjika.Lejet.ADMIN_UID, "mendurberisha"))
         val t = System.currentTimeMillis()
         Admini.llogarite.value = listOf(
-            Admini.Llogaria("u0", "mendurberisha", t, 0, null, true, false),
+            Admini.Llogaria(site.stoku.logjika.Lejet.ADMIN_UID, "mendurberisha", t, 0, null, true, false),
             Admini.Llogaria("u1", "besa", t - 3600000, t - 86400000L * 30, "g1", false, false),
             Admini.Llogaria("u2", "agim", t - 60000, t - 7200000, null, false, true),
             Admini.Llogaria("u3", "dren", 0, 0, "g1", false, false)
@@ -482,7 +482,7 @@ class PamjetTest {
     /** Administratori: Produktet e reja (ndryshimi i një produkti) dhe Furnizuesit */
     @Test fun cilesimetStokuAdmini() {
         mbush()
-        Llogaria.vendosPerProve(Perdoruesi("u0", "mendurberisha"))
+        Llogaria.vendosPerProve(Perdoruesi(site.stoku.logjika.Lejet.ADMIN_UID, "mendurberisha"))
         val t = System.currentTimeMillis()
         Regjistri.vendosPerProve("mendurberisha", true, mapOf(
             "3890010001" to obj("e" to "Kos Vita 500g", "f" to "Vita", "k" to t - 100000, "s" to 1L),
@@ -512,7 +512,7 @@ class PamjetTest {
     /** v256: administratori: Cilësimet → Marketet (harta brenda, lista e pikave, ndryshimi i emrit) */
     @Test fun marketetAdmini() {
         mbush()
-        Llogaria.vendosPerProve(Perdoruesi("u0", "mendurberisha"))
+        Llogaria.vendosPerProve(Perdoruesi(site.stoku.logjika.Lejet.ADMIN_UID, "mendurberisha"))
         Merchandiseri.vendosPerProve(listOf(
             obj("id" to "p1", "emri" to "Viva Fly", "lat" to 42.66290, "lng" to 21.16550, "krijuarNga" to "u1", "krijuarNgaEmri" to "besa"),
             obj("id" to "p2", "emri" to "Albi Mall", "lat" to 42.64920, "lng" to 21.14600, "krijuarNga" to "u2", "krijuarNgaEmri" to "agim", "emriNgaAdmini" to true)

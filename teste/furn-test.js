@@ -7,7 +7,7 @@ const PR={'f1::39000':{barkodi:'39000',emri:'Kos',sasia:3,kategoriaId:'f1',preku
 async function faqe(b,emri,opt,url){const ctx=await b.newContext({...opt,serviceWorkers:'block'});
  await ctx.route(u=>!u.href.startsWith('http://127.0.0.1'),r=>r.abort());
  await ctx.addInitScript(MOCK);
- await ctx.addInitScript(([emri,AF,PR])=>{const c=window.__stokuCloud;c.perdoruesiAktual=()=>({uid:'u1',email:emri+'@stoku-app.local'});
+ await ctx.addInitScript(([emri,AF,PR])=>{const c=window.__stokuCloud;c.perdoruesiAktual=()=>({uid:'u1',email:emri+'@stoku-app.local'});if(emri==='mendurberisha')window.__stokuProve={adminUid:'u1'};
    if(sessionStorage.getItem('s'))return;sessionStorage.setItem('s','1');localStorage.setItem('stoku:porta:hyrja',JSON.stringify({uid:'u1',emri}));
    localStorage.setItem('stoku:foldera:v1',JSON.stringify([{id:'f1',emri:'Ushqimore'}]));localStorage.setItem('stoku:produktet:v2',JSON.stringify(PR));localStorage.setItem('stoku:afatet:v1',JSON.stringify(AF));
    // v238: furnizuesit pa hyrje presin kontrollin; këtu janë të kontrolluar më parë nga administratori (koha 1 = pa kohë ruajtjeje)

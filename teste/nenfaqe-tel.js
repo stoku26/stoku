@@ -10,7 +10,7 @@ const KUJ={'furnizuesi Laberion':{e:'Laberion',f:'',k:1,s:1},'furnizuesi Rugove'
  const ctx=await b.newContext({userAgent:'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36',viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block',colorScheme:tema});
  await ctx.route(u=>!u.href.startsWith('http://127.0.0.1'),r=>r.abort());
  await ctx.addInitScript(MOCK);
- await ctx.addInitScript(([KUJ])=>{const c=window.__stokuCloud;c.perdoruesiAktual=()=>({uid:'u1',email:'mendurberisha@stoku-app.local'});
+ await ctx.addInitScript(([KUJ])=>{const c=window.__stokuCloud;c.perdoruesiAktual=()=>({uid:'u1',email:'mendurberisha@stoku-app.local'});window.__stokuProve={adminUid:'u1'};
   if(sessionStorage.getItem('s'))return;sessionStorage.setItem('s','1');localStorage.setItem('stoku:porta:hyrja',JSON.stringify({uid:'u1',emri:'mendurberisha'}));localStorage.setItem('stoku:kujtesa:v1',JSON.stringify(KUJ));localStorage.setItem('stoku:kujtesa:kontrolli-v238','1');},[KUJ]); // v238: '777' i mësuar vetë para v238 (pa migrim)
  const p=await ctx.newPage();p.on('pageerror',e=>err.push(e.message));
  await p.goto('http://127.0.0.1:8765/');await p.waitForTimeout(1500);

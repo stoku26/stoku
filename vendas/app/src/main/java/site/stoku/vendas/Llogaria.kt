@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import site.stoku.logjika.Json
 import site.stoku.logjika.Lejet
 import site.stoku.logjika.MObj
@@ -31,6 +32,7 @@ import site.stoku.logjika.siObj
 data class Perdoruesi(val uid: String, val emri: String)
 
 object Llogaria {
+    private val scope = kotlinx.coroutines.MainScope() + StokuApp.trajtuesi(false) // v302: regjistroEmrin
     private val auth: FirebaseAuth get() = FirebaseAuth.getInstance()
     private val db: FirebaseFirestore get() = FirebaseFirestore.getInstance()
 
@@ -141,8 +143,8 @@ object Llogaria {
         }
     }
 
-    /** Administratori (mendurberisha) i ka të gjitha lejet */
-    fun eshteAdmin(): Boolean = Lejet.eshteAdmin(_perdoruesi.value?.emri)
+    /** Administratori (v302: sipas uid-së, Lejet.ADMIN_UID) i ka të gjitha lejet */
+    fun eshteAdmin(): Boolean = Lejet.eshteAdmin(_perdoruesi.value?.uid)
 
     fun leja(k: String): Boolean {
         if (k == "marketet") return eshteMerchandiser()
@@ -162,10 +164,33 @@ object Llogaria {
         if (p.emri.isEmpty()) return
         db.collection("perdoruesit").document(p.uid)
             .set(mapOf("perdoruesi" to p.emri.lowercase(), "kycurSe" to System.currentTimeMillis()), SetOptions.merge())
+        regjistroEmrin(p)
+    }
+
+    /** v302: emrat/{emri} → { uid }, që pronari i grupit ta ftojë llogarinë sipas uid-së (si ekipa.js regjistroEmrin).
+     *  Një herë për llogari/emër në këtë pajisje; kur emri ndryshon, i mëparshmi fshihet (nëse është ende i kësaj llogarie). */
+    private fun regjistroEmrin(p: Perdoruesi) {
+        val em = p.emri.lowercase()
+        if (!Regex("^[a-z0-9_.-]{3,40}$").matches(em)) return
+        val celes = p.uid + "|" + em
+        val para = StokuApp.prefsOse("emri_regjistruar", "")
+        if (para == celes) return
+        val iMeparshmi = para.split("|").let { if (it.size == 2 && it[0] == p.uid && it[1] != em) it[1] else null }
+        scope.launch {
+            try {
+                val ref = db.collection("emrat").document(em)
+                if (ref.get().await().getString("uid") != p.uid) ref.set(mapOf("uid" to p.uid, "ndryshuarSe" to System.currentTimeMillis())).await()
+            } catch (e: Exception) { return@launch }
+            if (iMeparshmi != null) try {
+                val v = db.collection("emrat").document(iMeparshmi)
+                if (v.get().await().getString("uid") == p.uid) v.delete().await()
+            } catch (e: Exception) { }
+            if (_perdoruesi.value?.uid == p.uid) StokuApp.vendosPref("emri_regjistruar", celes)
+        }
     }
 
     private fun degjoLejet(p: Perdoruesi) {
-        if (Lejet.eshteAdmin(p.emri)) { _lejet.value = null; return }
+        if (Lejet.eshteAdmin(p.uid)) { _lejet.value = null; return }
         dLejet = db.collection("lejet").document(p.uid).addSnapshotListener { s, e ->
             if (e != null || s == null || _perdoruesi.value?.uid != p.uid) return@addSnapshotListener
             val l = if (s.exists()) s.get("lejet").siObj()?.let { Lejet.pastro(it) } else null

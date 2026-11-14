@@ -8,7 +8,7 @@ let g=0;const ok=(c,m,x)=>{if(!c)g++;console.log((c?'OK    ':'GABIM ')+m+(x!==un
   const ctx=await b.newContext({viewport:{width:1366,height:768},serviceWorkers:'block',colorScheme:tema});
   await ctx.route(u=>!u.href.startsWith('http://127.0.0.1'),r=>r.abort());
   await ctx.addInitScript(MOCK);
-  await ctx.addInitScript(()=>{const c=window.__stokuCloud;c.perdoruesiAktual=()=>({uid:'u1',email:'mendurberisha@stoku-app.local'});});
+  await ctx.addInitScript(()=>{const c=window.__stokuCloud;c.perdoruesiAktual=()=>({uid:'u1',email:'mendurberisha@stoku-app.local'});window.__stokuProve={adminUid:'u1'};});
   const p=await ctx.newPage();p.on('pageerror',e=>err.push(e.message));
   await p.goto('http://127.0.0.1:8765/pc.html');await p.waitForTimeout(1500);
   const T=`[${tema}]`;

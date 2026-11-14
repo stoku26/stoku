@@ -52,6 +52,29 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **LLOGARITË NJIHEN NGA UID-JA (v302 = 1.58.1, 14.11.2026, web + Android Hyrja 63 + stoku-push 170 + stoku-afatet v3 +
+   RREGULLAT)**: pronari: "kaloje ne uid dmth userin tem me njoft si administrator permes uid e jo permes username se ka raste qe
+   mduhet me e ndryshu" + "qdo perdorues mu identifiku permes uid". (1) **Administratori = uid `USfaW6Lbm3dbxEF95aKMKadIaok1`**
+   (llogaria mendurberisha; uid-ja e dha pronari nga Console → Authentication). Kudo: rregullat `eshteAdmin()` (pa email-in, pa
+   fushën `emri`), ekipa.js `ADMIN_UID` + `eshteUidAdmin(u)` (eksportohen; `ADMIN_EMRI` u hoq), app-tel/app-pc
+   `eshteAdminiIStokut()` → `StokuEkipa.eshteUidAdmin(uid)`, flamuri `admin` te anëtarët/llogaritë sipas uid-së, Kotlin
+   `Lejet.ADMIN_UID` + `Lejet.eshteAdmin(uid)` (Llogaria, Admini, Grupi, Regjistri, RegjistriUI, GrupiEkrani), stoku-push
+   (`njoftoAdminin`: direkt te ADMIN_UID, pa kërkim sipas emrit), stoku-afatet (pa kufi për ADMIN_UID). Emri "mendurberisha" s'jep
+   MË asnjë leje: pronari mund ta ndryshojë emrin (Cilësimet → Llogaria) pa humbur asgjë. (2) **Ftesat në grup sipas uid-së**: id
+   `{grupi}_{uid}` me fushën `uid` (ishte `{grupi}_{emri}`); pronari e kthen emrin në uid me `emrat/{emri}` → `{ uid, ndryshuarSe }`
+   (koleksion i ri: secili e shkruan vetë kur hyn, `stoku:emri-regjistruar` / pref `emri_regjistruar`; kur ndryshon emrin, i vjetri
+   fshihet; `get` për kushdo, pa listë). Pranimi i kërkesës (kerkesat_grupi ka uid) dhe administratori (lista e llogarive) e japin
+   uid-në direkt. Rregullat: hyrja në grup vetëm me ftesën `{g}_{uid}` me `uid == u`, ose (përputhshmëri) ftesën e vjetër
+   `{g}_{emri}` PA fushën uid. Llogaria pa `emrat/{emri}` (s'e ka hapur versionin e ri) merr ende ftesë sipas emrit. Rregullat e
+   vjetra: pranimi i kërkesës provon sërish sipas emrit. Pas ndryshimit të emrit: `ekK.pasNdryshimitTeEmrit()` (tel/PC),
+   Android `regjistroPerdoruesin`. Ftesat dëgjohen sipas `uid == uid-ja ime` + (të vjetrat) `perdoruesi == emri im`. Fshirja e
+   llogarisë nga administratori fshin edhe ftesat sipas uid-së dhe `emrat/{emri}`. Mbeten sipas emrit (me qëllim): rivendosja e
+   fjalëkalimit (`rivendosjet/{emri}`: personi di vetëm emrin), fushat për t'u shfaqur (emri, ngaEmri, pronarEmri, kontrolluarNga),
+   që rregullat i krahasojnë me emrin e hyrjes (`emriIm()`) vetëm që të mos falsifikohen. **PRONARI**: rregullat e reja (teksti më
+   poshtë te "rules_version") + Worker-at stoku-push 170 dhe stoku-afatet v3. Testet: fs-server.js `ADMIN_UID`, `adminVetemUid`
+   (pa "administrator prove"), `S.paEmrat`, `window.__stokuProve.adminUid` (vetëm pamja; testet e vjetra me llogarinë e provës
+   "mendurberisha"); teste/v302.js; grupet-test/grupi-kerkesa (ftesat sipas uid-së); wp/afatet-ai-prova + wp/fjalekalimi-prova.
+
 0000000. **PC: "EKSPORTO" SI TE TELEFONI (v301 = 1.58.0, 14.11.2026, PC + telefoni pa ndryshim në pamje)**: pronari (foto e PC-së): "Butoni
    excel qe osht ne pc bone identik edhe emertoje eksporto sikur ne web app tel qe osht me qato opsione edhe ne android" (Android e
    kishte tashmë). `#afBtnExcel` te pc.html: "Eksporto" me ikonën e eksportit (pa "XLS" te stoku-pc.css), hap `hapMenu` me Eksporto
@@ -3133,11 +3156,9 @@ kërkuesi dhe anëtarët e grupit; e fshin kërkuesi ose pronari). Pranimi = fte
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Administratori: llogaria "mendurberisha" (email-i i hyrjes, s'falsifikohet) ose, si më parë, fusha `emri`
-    // te perdoruesit/{uid} e vendosur nga Console (v140)
+    // v302: administratori njihet VETËM nga uid-ja e llogarisë (s'ndryshon kurrë), jo nga emri i përdoruesit
     function eshteAdmin() {
-      return request.auth != null && (request.auth.token.email == 'mendurberisha@stoku-app.local'
-        || get(/databases/$(database)/documents/perdoruesit/$(request.auth.uid)).data.get('emri', '') == 'mendurberisha');
+      return request.auth != null && request.auth.uid == 'USfaW6Lbm3dbxEF95aKMKadIaok1';
     }
     // Anëtar i ekipës së vjetër (para grupeve): vetëm për versionet e vjetra të aplikacionit
     function neEkipe() {
@@ -3278,9 +3299,14 @@ service cloud.firestore {
           && request.resource.data.keys().hasOnly(['emri', 'roli', 'hyriSe', 'aktivSe', 'online', 'platforma'])
           && ((request.resource.data.roli == 'pronar' && !exists(/databases/$(database)/documents/grupet/$(g))
                 && getAfter(/databases/$(database)/documents/grupet/$(g)).data.pronarUid == u)
+              // v302: ftesa sipas uid-së ({g}_{uid}, fusha uid == u); e vjetra sipas emrit vetëm pa fushën uid
               || (request.resource.data.roli == 'anetar' && exists(/databases/$(database)/documents/grupet/$(g))
-                && exists(/databases/$(database)/documents/ftesat/$(g + '_' + emriIm()))
-                && !existsAfter(/databases/$(database)/documents/ftesat/$(g + '_' + emriIm())))
+                && ((exists(/databases/$(database)/documents/ftesat/$(g + '_' + u))
+                     && get(/databases/$(database)/documents/ftesat/$(g + '_' + u)).data.get('uid', '') == u
+                     && !existsAfter(/databases/$(database)/documents/ftesat/$(g + '_' + u)))
+                  || (exists(/databases/$(database)/documents/ftesat/$(g + '_' + emriIm()))
+                     && !('uid' in get(/databases/$(database)/documents/ftesat/$(g + '_' + emriIm())).data)
+                     && !existsAfter(/databases/$(database)/documents/ftesat/$(g + '_' + emriIm())))))
               || (g == 'ekipa' && request.resource.data.roli == 'anetar'
                 && exists(/databases/$(database)/documents/ekipa_anetaret/$(u))))));
         // Vetë: prania. Pronari: roli dhe leja e +/- (sasiaShpejte).
@@ -3318,19 +3344,34 @@ service cloud.firestore {
         allow delete: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());
       }
     }
-    // v164: ftesat. Id = {grupi}_{emri i përdoruesit}. I ftuari i sheh me pyetjen perdoruesi == emri i tij,
-    // anëtarët e grupit me gid == grupi.
+    // v164: ftesat. v302: Id = {grupi}_{uid} me fushën uid (ftesa i lidhet asaj llogarie); e vjetra {grupi}_{emri} pa uid.
+    // I ftuari i sheh me pyetjen uid == uid-ja e tij (ose, të vjetrat, perdoruesi == emri i tij), anëtarët me gid == grupi.
     match /ftesat/{id} {
       allow read: if request.auth != null
-        && (resource.data.perdoruesi == emriIm() || anetarIGrupit(resource.data.gid) || eshteAdmin());
+        && (resource.data.get('uid', '') == request.auth.uid || resource.data.perdoruesi == emriIm()
+            || anetarIGrupit(resource.data.gid) || eshteAdmin());
       allow create, update: if request.auth != null && pronarIGrupit(request.resource.data.gid)
-        && id == request.resource.data.gid + '_' + request.resource.data.perdoruesi
+        && (('uid' in request.resource.data && request.resource.data.uid is string
+             && request.resource.data.uid.matches('[A-Za-z0-9_-]{1,128}')
+             && id == request.resource.data.gid + '_' + request.resource.data.uid)
+          || (!('uid' in request.resource.data) && id == request.resource.data.gid + '_' + request.resource.data.perdoruesi))
         && request.resource.data.perdoruesi is string && request.resource.data.perdoruesi.matches('[a-z0-9_.-]{3,40}')
         && request.resource.data.ngaUid == request.auth.uid && request.resource.data.ngaEmri == emriIm()
-        && request.resource.data.keys().hasOnly(['gid', 'grupiEmri', 'perdoruesi', 'ngaUid', 'ngaEmri', 'koha'])
+        && request.resource.data.keys().hasOnly(['gid', 'grupiEmri', 'perdoruesi', 'uid', 'ngaUid', 'ngaEmri', 'koha'])
         && request.resource.data.get('grupiEmri', '') is string && request.resource.data.get('grupiEmri', '').size() <= 60;
       allow delete: if request.auth != null
-        && (resource.data.perdoruesi == emriIm() || pronarIGrupit(resource.data.gid) || eshteAdmin());
+        && (resource.data.get('uid', '') == request.auth.uid
+            || (!('uid' in resource.data) && resource.data.perdoruesi == emriIm())
+            || pronarIGrupit(resource.data.gid) || eshteAdmin());
+    }
+    // v302: emrat/{emri} → { uid }: pronari e gjen llogarinë që fton (pa listë). Secili shkruan vetëm emrin e vet
+    // (emri i hyrjes); e fshin i zoti (kur e ndryshon emrin) ose administratori.
+    match /emrat/{em} {
+      allow get: if request.auth != null;
+      allow create, update: if request.auth != null && em == emriIm() && !uFshi(request.auth.uid)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid', 'ndryshuarSe']);
+      allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || eshteAdmin());
     }
     // v242: regjistri i përbashkët i produkteve dhe furnizuesve (barkodi → emri, furnizuesi): e lexon kushdo me llogari,
     // e shkruan vetëm administratori (çka ka kontrolluar). I ndarë si kujtesa e grupit: p0..p9, px.

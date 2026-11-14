@@ -107,7 +107,7 @@ fun FurnizuesitFaqja(pritje: Boolean, mbrapa: () -> Unit) {
     val p by Llogaria.perdoruesi.collectAsState()
     val v by KujtesaUI.versioni.collectAsState()
     val dq by Dyqani.gjendja.collectAsState()
-    val admin = Lejet.eshteAdmin(p?.emri)
+    val admin = Lejet.eshteAdmin(p?.uid)
     var kerkimi by rememberSaveable { mutableStateOf("") }
     var neEditim by remember { mutableStateOf<String?>(null) }
     var bashkimi by remember { mutableStateOf<Triple<Furnizuesit.Rreshti, String, String>?>(null) } // (f, ekzistuesi, emri i ri)
@@ -189,7 +189,7 @@ fun FurnizuesitFaqja(pritje: Boolean, mbrapa: () -> Unit) {
 fun ProduktetFaqja(pritje: Boolean, mbrapa: () -> Unit) {
     val p by Llogaria.perdoruesi.collectAsState()
     val v by KujtesaUI.versioni.collectAsState()
-    val admin = Lejet.eshteAdmin(p?.emri)
+    val admin = Lejet.eshteAdmin(p?.uid)
     var kerkimi by rememberSaveable { mutableStateOf("") }
     var neEditim by remember { mutableStateOf<String?>(null) }
     var saShfaqen by remember { mutableIntStateOf(KUJ_MAKS) }

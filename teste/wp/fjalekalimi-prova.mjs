@@ -13,7 +13,7 @@ const env = { VAPID_PUBLIC: b64u(v.getPublicKey()), VAPID_PRIVATE: b64u(v.getPri
 const S = s => ({ stringValue: s }), I = n => ({ integerValue: String(n) });
 
 // Firebase Auth (Identity Toolkit) i rremë
-const llogarite = { 'agim@stoku-app.local': { localId: 'uA' }, 'mendurberisha@stoku-app.local': { localId: 'uM' },
+const llogarite = { 'agim@stoku-app.local': { localId: 'uA' }, 'mendurberisha@stoku-app.local': { localId: 'USfaW6Lbm3dbxEF95aKMKadIaok1' },
   'fshire@stoku-app.local': { localId: 'uF' }, 'ndalur@stoku-app.local': { localId: 'uN', disabled: true } };
 const ndryshimet = [];
 // Firestore i rremë (në memorie): rruga → fields
@@ -21,9 +21,9 @@ const FSB = 'https://firestore.googleapis.com/v1/projects/stoku-appi/databases/(
 const db = new Map();
 const ver = new Map(); let verN = 0; // updateTime i rremë për çdo dokument (shkrimet me kusht)
 db.set('ekipa_fshire/uF', { emri: S('fshire') });
-db.set('perdoruesit/uM', { emri: S('mendurberisha'), grupi: S('gM') });
-db.set('grupet/gM/push/m1', { uid: S('uM'), fcm: S('fcmTokenIAdministratorit_123456'), platforma: S('tel'), koha: I(1) });
-db.set('grupet/gM/push/m2', { uid: S('uM'), endpoint: S('https://push.test/pc-admini'), p256dh: S(b64u(ua.getPublicKey())), auth: S(b64u(auth)), platforma: S('pc'), koha: I(2) });
+db.set('perdoruesit/USfaW6Lbm3dbxEF95aKMKadIaok1', { emri: S('mendurberisha'), grupi: S('gM') });
+db.set('grupet/gM/push/m1', { uid: S('USfaW6Lbm3dbxEF95aKMKadIaok1'), fcm: S('fcmTokenIAdministratorit_123456'), platforma: S('tel'), koha: I(1) });
+db.set('grupet/gM/push/m2', { uid: S('USfaW6Lbm3dbxEF95aKMKadIaok1'), endpoint: S('https://push.test/pc-admini'), p256dh: S(b64u(ua.getPublicKey())), auth: S(b64u(auth)), platforma: S('pc'), koha: I(2) });
 db.set('grupet/gM/push/k1', { uid: S('uK'), endpoint: S('https://push.test/kolegu'), p256dh: S(b64u(ua.getPublicKey())), auth: S(b64u(auth)), platforma: S('tel'), koha: I(3) });
 let fcm = [], webpush = [], oauth = [], pa = null;
 globalThis.fetch = async (url, opt = {}) => {
@@ -63,7 +63,7 @@ const thirr = async (rruga, trup, e = env, metoda = 'POST') => {
   let j = null; try { j = await r.json(); } catch (x) { /* bosh */ }
   return [r.status, j, r.headers.get('Access-Control-Allow-Origin')];
 };
-const njoftimet = () => [...db.keys()].filter(k => k.startsWith('perdoruesit/uM/njoftimet/')).map(k => ({ k, tekst: db.get(k).tekst.stringValue, lloji: db.get(k).lloji.stringValue, lexuar: db.get(k).lexuar.booleanValue }));
+const njoftimet = () => [...db.keys()].filter(k => k.startsWith('perdoruesit/USfaW6Lbm3dbxEF95aKMKadIaok1/njoftimet/')).map(k => ({ k, tekst: db.get(k).tekst.stringValue, lloji: db.get(k).lloji.stringValue, lexuar: db.get(k).lexuar.booleanValue }));
 const kodiNga = t => (t.match(/Kodi: (\d{6})/) || [])[1];
 
 // 0. shëndeti + CORS
@@ -151,7 +151,7 @@ ok(nj.length === 3 && nj.some(x => /"agim" e vendosi fjalëkalimin e ri/.test(x.
 ok(st === 410 && j.arsye === 'skadoi' && ndryshimet.length === 1, '6g. i njëjti kod s\'vlen dy herë', [st, j]);
 // 6h. njoftimi te administratori dështon: kodi s'mbetet (prova e radhës dërgon kod të ri, jo "ekziston")
 const fsVjeter = globalThis.fetch;
-globalThis.fetch = async (url, opt = {}) => (String(url).includes('/perdoruesit/uM/njoftimet/') ? new Response('{}', { status: 503 }) : fsVjeter(url, opt));
+globalThis.fetch = async (url, opt = {}) => (String(url).includes('/perdoruesit/USfaW6Lbm3dbxEF95aKMKadIaok1/njoftimet/') ? new Response('{}', { status: 503 }) : fsVjeter(url, opt));
 [st, j] = await thirr('/fjalekalimi/kerko', { emri: 'agim' });
 ok(st === 500 && !db.has('rivendosjet/agim'), '6h. njoftimi dështoi → 500, kodi hiqet', [st, db.has('rivendosjet/agim')]);
 globalThis.fetch = fsVjeter;

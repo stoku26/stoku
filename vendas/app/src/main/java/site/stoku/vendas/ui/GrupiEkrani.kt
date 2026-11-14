@@ -1051,7 +1051,7 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
                             scope.launch { val r = Grupi.hiqNgaGrupi(a["uid"] as String); Toast.trego(if (r == null) "$em u hoq nga grupi." else "S'u hoq. Kontrollo internetin dhe provo përsëri.", 4000) }
                         })
                     }
-                    if (Admini.eshteAdmin() && a["admin"] != true && !Lejet.eshteAdmin(em)) Pill("Fshi", rrezik = true) { fshijLlogarine(a["uid"] as String, em, ctx, scope) }
+                    if (Admini.eshteAdmin() && a["admin"] != true && !Lejet.eshteAdmin(a["uid"] as? String)) Pill("Fshi", rrezik = true) { fshijLlogarine(a["uid"] as String, em, ctx, scope) }
                 }
             }
             item {
@@ -1079,11 +1079,11 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
                     (if (x.kycurSe > 0) " · u kyç " + GrupiLogjika.kohaRelative(x.kycurSe, ctx.tani) else "")) {
                     if (pronar) Pill("Fto") {
                         scope.launch {
-                            val r = Grupi.ftoNeGrup(x.emri)
+                            val r = Grupi.ftoNeGrup(x.emri, x.uid)
                             Toast.trego(if (r == null) "Ftesa iu dërgua ${x.emri}." else tekstiGabimitTeFtesa(r), 4000)
                         }
                     }
-                    if (!x.admin && !Lejet.eshteAdmin(x.emri)) Pill("Fshi", rrezik = true) { fshijLlogarine(x.uid, x.emri, ctx, scope) }
+                    if (!x.admin && !Lejet.eshteAdmin(x.uid)) Pill("Fshi", rrezik = true) { fshijLlogarine(x.uid, x.emri, ctx, scope) }
                 }
             }
             if (!krejtLlogarite && jashte.size > 15) item {

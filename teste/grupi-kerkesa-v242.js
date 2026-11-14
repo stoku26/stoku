@@ -74,7 +74,7 @@ const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); 
   ok(await prit(async () => /Kur ta pranojë admini/.test(await toast(besa))), '2. "Kërkesa u dërgua…"', await toast(besa));
   ok(await prit(async () => /Pret pranimin/.test(await besa.textContent('#ekipiLista'))), '2. besa: "Kërkesa u dërgua… Pret pranimin"');
   ok((await kerkuarat(besa)).join() === 'g1', '2. pajisja e mban mend grupin e kërkuar');
-  ok(!doc('grupet/g1/anetaret/u2') && !doc('ftesat/g1_besa'), '2. ende jo në grup');
+  ok(!doc('grupet/g1/anetaret/u2') && !doc('ftesat/g1_u2'), '2. ende jo në grup');
 
   // 3. Agim (tel): kërkesa del te pulti dhe te Kolegët; e pranon → besa hyn vetë
   ok(await prit(async () => /besa kërkon të hyjë/.test(await toast(agim))), '3. agim: njoftimi "besa kërkon të hyjë në grupin tënd"', await toast(agim));
@@ -86,7 +86,7 @@ const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); 
   await agim.screenshot({ path: SC + 'v242-tel-admini-kerkesa.png' });
   await agim.evaluate(() => [...document.querySelectorAll('#ekipiLista .ek-kerkesa-grupi')].find(x => /besa/.test(x.textContent)).querySelector('.btn:not(.tekst)').click());
   ok(await prit(() => !!doc('grupet/g1/anetaret/u2'), 10000), '3. besa u fut vetë në grup (pa shtypur asgjë)');
-  ok(!doc('kerkesat_grupi/g1_u2') && !doc('ftesat/g1_besa') && doc('perdoruesit/u2').grupi === 'g1', '3. kërkesa dhe ftesa u fshinë; treguesi i grupit');
+  ok(!doc('kerkesat_grupi/g1_u2') && !doc('ftesat/g1_u2') && doc('perdoruesit/u2').grupi === 'g1', '3. kërkesa dhe ftesa u fshinë; treguesi i grupit');
   ok(await prit(async () => /Admini të pranoi/.test(await toast(besa))), '3. besa: "Admini të pranoi: tani je në grupin…"', await toast(besa));
   ok(await prit(async () => (await besa.textContent('#ekipiTitulli')) !== 'Grupi' && !(await besa.isVisible('#ekGrupiKerko'))), '3. besa: pamja e grupit (jo më "Hyr në një grup")');
   ok((await kerkuarat(besa)).length === 0, '3. pajisja s\'mban më kërkesa');
@@ -130,12 +130,12 @@ const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); 
   // 6. Siguria (rregullat): koleg jo-admin s'pranon; kërkesë për dikë tjetër; hyrje pa ftesë
   F.S.docs.set('kerkesat_grupi/g1_u5', { gid: 'g1', grupiEmri: 'Market Agimi', uid: 'u5', emri: 'zana', koha: Date.now() });
   const rV = await vjosa.evaluate(() => window.__stokuCloud.ekipa.pranoKerkesen({ id: 'g1_u5', gid: 'g1', uid: 'u5', emri: 'zana' }, 'Market Agimi'));
-  ok(!rV.ok && !doc('ftesat/g1_zana') && doc('kerkesat_grupi/g1_u5'), '6. vjosa (koleg) s\'mund ta pranojë kërkesën', rV);
+  ok(!rV.ok && !doc('ftesat/g1_u5') && doc('kerkesat_grupi/g1_u5'), '6. vjosa (koleg) s\'mund ta pranojë kërkesën', rV);
   const zana = await faqe('u5', 'zana', true);
   const rZ = await zana.evaluate(() => window.__stokuCloud.ekipa.dergoKerkesen({ id: 'g1', emri: 'Market Agimi' }));
   ok(rZ.ok, '6. zana: kërkesa e vet lejohet');
   const rZ2 = await zana.evaluate(async () => { try { await window.__stokuCloud.ekipa.pranoKerkesen({ id: 'g1_u5', gid: 'g1', uid: 'u5', emri: 'zana' }); return 'ok'; } catch (e) { return 'gabim'; } });
-  ok(!doc('ftesat/g1_zana'), '6. zana s\'e pranon vetë kërkesën', rZ2);
+  ok(!doc('ftesat/g1_u5'), '6. zana s\'e pranon vetë kërkesën', rZ2);
   const nRef = F.S.refuzime.length;
   const rZ3 = await zana.evaluate(() => window.__stokuCloud.ekipa.pranoFtesen({ id: 'g1_zana', gid: 'g1' }));
   ok(!rZ3.ok && !doc('grupet/g1/anetaret/u5') && F.S.refuzime.length > nRef, '6. pa ftesë s\'hyn në grup (edhe me kërkesë)', rZ3);

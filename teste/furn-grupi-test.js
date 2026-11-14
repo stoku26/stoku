@@ -10,7 +10,7 @@ async function faqe(b,emri,pc){
  const ctx=await b.newContext(pc?{viewport:{width:1366,height:768},serviceWorkers:'block'}:{userAgent:'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36',viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
  await ctx.route(u=>!u.href.startsWith('http://127.0.0.1'),r=>r.abort());
  await ctx.addInitScript(MOCK);
- await ctx.addInitScript(([emri,KUJ])=>{const c=window.__stokuCloud;c.perdoruesiAktual=()=>({uid:'u1',email:emri+'@stoku-app.local'});
+ await ctx.addInitScript(([emri,KUJ])=>{const c=window.__stokuCloud;c.perdoruesiAktual=()=>({uid:'u1',email:emri+'@stoku-app.local'});if(emri==='mendurberisha')window.__stokuProve={adminUid:'u1'};
   if(sessionStorage.getItem('s'))return;sessionStorage.setItem('s','1');localStorage.setItem('stoku:porta:hyrja',JSON.stringify({uid:'u1',emri}));localStorage.setItem('stoku:kujtesa:v1',JSON.stringify(KUJ));localStorage.setItem('stoku:kujtesa:kontrolli-v238','1');},[emri,KUJ]); // v238: Laberion/Rugove të kontrolluar më parë
  const p=await ctx.newPage();p.on('pageerror',e=>err.push(e.message));p.on('dialog',d=>d.accept());
  await p.goto('http://127.0.0.1:8765/'+(pc?'pc.html':''));await p.waitForTimeout(1500);return {p,ctx};}

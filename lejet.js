@@ -7,7 +7,7 @@
  *   - Leja e një pjese (p.sh. "stoku") vlen edhe për veprimet brenda saj ("stokuFshi"...): pa pjesën, s'ka as veprime.
  *     Prindi mund të ketë prind (v240: "stokuPlusMinus" → "stokuNdrysho" → "stoku"): kontrollohet i gjithë zinxhiri.
  * Rregullat (v230): dokumentin e shkruan vetëm administratori; secila llogari e lexon vetëm të vetin.
- * Administratori (mendurberisha) i ka gjithmonë të gjitha lejet; faqja "Përdoruesit" te Cilësimet është vetëm e tij.
+ * Administratori (v302: sipas uid-së, StokuEkipa.ADMIN_UID) i ka gjithmonë të gjitha lejet; faqja "Përdoruesit" te Cilësimet është vetëm e tij.
  * Lejet i zbaton aplikacioni (fsheh pjesët dhe butonat që s'lejohen); përdoruesi s'mund t'i ndryshojë vetë.
  * v241: lejet "me zgjedhje" (zgjedhje: true, p.sh. "marketet" = merchandiser) janë të FIKURA kur mungojnë: s'i marrin
  *   llogaritë ekzistuese. Vlera e tyre vjen nga regjistrimi (perdoruesit/{uid}.merchandiser) derisa administratori ta

@@ -81,6 +81,8 @@ object Lejet {
         return if (teNdaluara(dok["lejet"].siObj()) > 0) "kufizuar" else "krejt"
     }
 
-    const val ADMINI = "mendurberisha"
-    fun eshteAdmin(perdoruesi: String?): Boolean = perdoruesi?.trim()?.lowercase() == ADMINI
+    /** v302 (Hyrja 63): administratori njihet nga uid-ja e llogarisë (s'ndryshon kurrë), jo nga emri i përdoruesit,
+     *  si rregullat e Firestore-it, ekipa.js (ADMIN_UID) dhe Worker-at */
+    const val ADMIN_UID = "USfaW6Lbm3dbxEF95aKMKadIaok1"
+    fun eshteAdmin(uid: String?): Boolean = uid != null && uid == ADMIN_UID
 }

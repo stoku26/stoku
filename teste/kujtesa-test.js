@@ -10,7 +10,7 @@ const kuj = p => p.evaluate(() => JSON.parse(localStorage.getItem('stoku:kujtesa
   const ctx = await b.newContext({ userAgent: 'Mozilla/5.0 (Linux; Android 14) Chrome/140 Mobile', viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, serviceWorkers: 'block' });
   await ctx.route(u => !u.href.startsWith('http://127.0.0.1'), r => r.abort());
   await ctx.addInitScript(MOCK);
-  await ctx.addInitScript(() => { const c = window.__stokuCloud; c.perdoruesiAktual = () => ({ uid: 'u1', email: 'mendurberisha@stoku-app.local' }); }); // v198: Cilësimet → Stoku vetëm për administratorin
+  await ctx.addInitScript(() => { const c = window.__stokuCloud; c.perdoruesiAktual = () => ({ uid: 'u1', email: 'mendurberisha@stoku-app.local' }); window.__stokuProve = { adminUid: 'u1' }; }); // v198: Cilësimet → Stoku vetëm për administratorin
   await ctx.addInitScript(() => {
     if (sessionStorage.getItem('seed')) return; sessionStorage.setItem('seed', '1');
     localStorage.setItem('stoku:foldera:v1', JSON.stringify([{ id: 'f1', emri: 'Pije' }]));

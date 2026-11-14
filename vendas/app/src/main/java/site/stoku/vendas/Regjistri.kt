@@ -73,7 +73,7 @@ object Regjistri {
     // ---------------- Gjendja e sinkronizimit ----------------
     private var uid: String? = null
     private var emri: String = ""
-    private val admin: Boolean get() = Lejet.eshteAdmin(emri)
+    private val admin: Boolean get() = Lejet.eshteAdmin(uid)
     private var dReg: ListenerRegistration? = null
     private var dPritje: ListenerRegistration? = null
     private var dGrupi: ListenerRegistration? = null

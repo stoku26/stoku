@@ -50,7 +50,7 @@ const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databa
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
 const PUSH_MAKS = 36;
-const VERSIONI_WORKER = 169; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 170; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 const W = {
@@ -857,7 +857,8 @@ async function fshiDoc(rruga, token) {
 // Kodi ruhet vetëm si SHA-256 (me uid-në) te rivendosjet/{emri}, që aplikacioni s'e lexon dot (pa rregull = i mbyllur).
 const IDT = 'https://identitytoolkit.googleapis.com/v1/projects/' + PROJEKTI;
 const DOMENI_I_EMAILIT = '@stoku-app.local';
-const ADMINI = 'mendurberisha';
+// v302 (Worker 170): administratori njihet nga uid-ja e llogarisë (s'ndryshon kurrë), jo nga emri i përdoruesit
+const ADMIN_UID = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
 const RIV_KOHA = 30 * 60000; // sa vlen kodi
 const RIV_PROVA = 5;         // prova të gabuara për një kod
 async function thirrAuth(at, veprimi, trupi) {
@@ -879,8 +880,7 @@ async function vendosDoc(rruga, obj, token, kushti) {
 }
 // Njoftim te zilja e administratorit; me `push`, edhe te pajisjet e tij (Stoku i mbyllur)
 async function njoftoAdminin(env, at, teksti, push) {
-  const admini = await llogariaSipasEmrit(at, ADMINI);
-  if (!admini) return;
+  const admini = { uid: ADMIN_UID };
   const id = 'fj' + idERe(), koha = Date.now();
   let grupi = '';
   try { const p = await lexoDoc('perdoruesit/' + admini.uid, at); grupi = p && /^[A-Za-z0-9_-]{2,64}$/.test(String(p.grupi || '')) ? String(p.grupi) : ''; } catch (e) { /* ok */ }

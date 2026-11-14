@@ -43,7 +43,7 @@ const lexo = async (tok, e = env, trup = {}) => {
 };
 // 0. shëndeti
 let r0 = await (await worker.fetch(new Request('https://w.test/', { headers: { Origin: 'https://stoku.site' } }), env)).json();
-ok(r0.versioni === 2 && r0.kufiri === 10 && r0.ofruesit.join() === 'gemini', '0. GET: versioni 2, kufiri 10', r0);
+ok(r0.versioni === 3 && r0.kufiri === 10 && r0.ofruesit.join() === 'gemini', '0. GET: versioni 3, kufiri 10', r0);
 r0 = await (await worker.fetch(new Request('https://w.test/', { headers: { Origin: 'https://stoku.site' } }), { GEMINI_API_KEY: 'x', KUFIRI_DITOR: '3', KUFIRI: env.KUFIRI })).json();
 ok(r0.kufiri === 3, '0. KUFIRI_DITOR ndryshon kufirin', r0.kufiri);
 // 1. pa hyrje / token i falsifikuar
@@ -63,9 +63,12 @@ ok(/^ai-dita:u1:\d{4}-\d{2}-\d{2}$/.test(celesi) && kv.get(celesi) === '10' && t
 // 3. tjetri ka kufirin e vet
 [st, j] = await lexo(tokeni('u2', 'besa@stoku-app.local')); ok(st === 200 && j.mbeten === 9, '3. llogaria tjetër: kufiri i vet', [st, j.mbeten]);
 // 4. administratori: pa kufi, s'llogaritet
-const tA = tokeni('uA', 'mendurberisha@stoku-app.local');
+// v3: administratori njihet nga uid-ja (edhe me emër tjetër); emri "mendurberisha" me uid tjetër s'është administrator
+const tA = tokeni('USfaW6Lbm3dbxEF95aKMKadIaok1', 'emri-i-ri@stoku-app.local');
 let okA = 0; for (let i = 0; i < 12; i++) { [st, j] = await lexo(tA); if (st === 200 && j.mbeten === undefined) okA++; }
-ok(okA === 12 && ![...kv.keys()].some(k => k.includes(':uA:')), '4. administratori: 12 lexime, pa kufi', okA);
+ok(okA === 12 && ![...kv.keys()].some(k => k.includes(':USfaW6Lbm3dbxEF95aKMKadIaok1:')), '4. administratori (uid-ja, emër tjetër): 12 lexime, pa kufi', okA);
+[st, j] = await lexo(tokeni('uA', 'mendurberisha@stoku-app.local'));
+ok(st === 200 && j.mbeten === 9, '4. emri "mendurberisha" me uid tjetër: me kufi', [st, j.mbeten]);
 // 5. gabimi i AI-së s'llogaritet
 aiDeshton = true;
 [st, j] = await lexo(tokeni('u3', 'c@stoku-app.local')); ok(st === 502 && j.gabim === 'ai', '5. AI dështon → ai', st);

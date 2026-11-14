@@ -1375,9 +1375,9 @@
   // Lista e të gjithë furnizuesve të afateve/produkteve, me ndryshim emri (edhe bashkim i dy furnizuesve në një).
   // v205: edhe furnizuesit e produkteve të grupit (kujtesa); ata që dalin vetëm te produktet e reja të kolegëve
   // presin te "Furnizuesit e rinj" derisa administratori t'i kontrollojë produktet e tyre.
-  var ADMIN_I_STOKUT = 'mendurberisha';
   var furnNeEditim = null; // emri i furnizuesit që po ndryshohet tani
-  function eshteAdminiIStokut() { return !!perdoruesiAktual() && emriPerdoruesitAktual() === ADMIN_I_STOKUT; }
+  // v302: administratori njihet nga uid-ja (ekipa.js ADMIN_UID, si rregullat e Firestore-it), jo nga emri i përdoruesit
+  function eshteAdminiIStokut() { var u = perdoruesiAktual(), EK = window.StokuEkipa; return !!(u && u.uid && EK && EK.eshteUidAdmin && EK.eshteUidAdmin(u.uid)); }
   function sasiaETekst(n, nje, shume) { return n + ' ' + (n === 1 ? nje : shume); }
   function rifreskoFurnizuesit() {
     var sek = $('furnSeksion');
@@ -3073,6 +3073,7 @@
       return;
     }
     $('cloudEmriRi').value = '';
+    if (typeof ekK !== 'undefined' && ekK && ekK.pasNdryshimitTeEmrit) ekK.pasNdryshimitTeEmrit(); // v302
     fshehRiautentifikimin();
     rifreskoDukjenECloud();
     toast(T('cloudEmriURiNdryshuar'));
@@ -7423,7 +7424,7 @@
       r.appendChild(m);
       if (ekK.eshtePronar()) {
         var bt = ekEl('button', 'af-pill', 'Fto'); bt.type = 'button';
-        bt.addEventListener('click', async function () { bt.disabled = true; var x = await ekK.ftoNeGrup(a.emri); if (!x.ok) { bt.disabled = false; toast(tekstiGabimitTeFtesa(x), 4000); } else toast('Ftesa iu dërgua ' + a.emri + '.'); });
+        bt.addEventListener('click', async function () { bt.disabled = true; var x = await ekK.ftoNeGrup(a.emri, a.uid); if (!x.ok) { bt.disabled = false; toast(tekstiGabimitTeFtesa(x), 4000); } else toast('Ftesa iu dërgua ' + a.emri + '.'); });
         r.appendChild(bt);
       }
       if (!a.admin) {
