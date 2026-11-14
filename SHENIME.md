@@ -52,6 +52,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ANDROID HYRJA 65: "S'U LIDH ME SERVERIN E NJOFTIMEVE" (14.11.2026, vetëm Android)**: pronari (foto, Cilësimet →
+   Njoftimet: "Aktive kur Stoku është hapur" + "S'u lidh me serverin e njoftimeve. Kontrollo internetin" ndërsa poshtë "✓ Serveri
+   punon"). `Push.aktivizo`: "ok" dhe çdo gabim (afati 15 s i shkrimit te grupet/{g}/push, gabime të Firestore-it pa leje,
+   përjashtime) dilnin njësoj "Kontrollo internetin". Tash: afati 30 s; pa konfirmim → pajisja ruhet "pritje" (shkrimi mbetet në radhë
+   të Firestore-it) dhe provohet sërish (`r["pritje"]`), kodi "kohe"; gabimet e tjera me kodin (`firestore-…`, `gabim-…`); serveri
+   (GET /) kontrollohet me `ok` (jo vetëm a ktheu JSON), kodi `serveri-…`. NjoftimetUI tregon arsyen dhe kodin. `VERSIONI_WORKER` 171.
+   Arsyeja e vërtetë te telefoni i pronarit s'dihet ende (s'kemi telefon): pas përditësimit, mesazhi tregon kodin.
+
 0000000. **KREJT NJOFTIMET PUSH + FTESAT VETËM SIPAS UID-SË (v303 = 1.58.2, 14.11.2026, web + Android Hyrja 64 + stoku-push 171 +
    RREGULLAT)**: pronari: "boni 3-jat opsionet ... krejta njoftimet mu kon push jo gjysa po gjysa jo" + "useri ri i jemi si
    administrator osht duli96 po mos u kap fort per to ma mir me uid" (emri i administratorit u ndryshua në `duli96`; uid-ja

@@ -38,7 +38,7 @@ import java.util.TimeZone
  */
 object Push {
     const val URL_PUSH = "https://stoku-push.mendurb.workers.dev"
-    const val VERSIONI_WORKER = 168
+    const val VERSIONI_WORKER = 171 // Hyrja 65: /grupi (ftesat/kërkesat si push)
     private val scope = MainScope() + StokuApp.trajtuesi(false)
     private val _tokeni = MutableStateFlow(StokuApp.prefsOse("fcm", ""))
     val tokeni: StateFlow<String> get() = _tokeni
@@ -140,28 +140,33 @@ object Push {
         val g = Grupi.grupi()
         val id = u + "_" + hashTekst(j["endpoint"]!!)
         val r = lexoPref("push_regjistrim")
-        if (g != null && Llogaria.leja("grupi") && (detyro || r == null || r["id"] != id || r["grupi"] != g ||
+        if (g != null && Llogaria.leja("grupi") && (detyro || r == null || r["id"] != id || r["grupi"] != g || r["pritje"] == true ||
                 System.currentTimeMillis() - ((r["koha"] as? Number)?.toLong() ?: 0L) > 7 * 86400000L)) {
             val db = FirebaseFirestore.getInstance()
             if (r != null && r["uid"] == u && r["grupi"] is String && (r["id"] != id || r["grupi"] != g)) {
                 try { withTimeoutOrNull(8000) { db.collection("grupet").document(r["grupi"] as String).collection("push").document(r["id"] as String).delete().await() } } catch (e: Exception) { }
             }
-            try {
-                withTimeoutOrNull(15000) {
+            // Hyrja 65: Firestore e konfirmon shkrimin vetëm kur e pranon serveri. Pa konfirmim brenda 30 s shkrimi mbetet në radhë
+            // (e dërgon vetë sapo të lidhet): pajisja ruhet si e regjistruar "në pritje" dhe provohet sërish herën tjetër.
+            // Më parë çdo gabim dilte "Kontrollo internetin"; tash arsyeja e vërtetë (kodi) i tregohet përdoruesit.
+            val rez = try {
+                withTimeoutOrNull(30000) {
                     db.collection("grupet").document(g).collection("push").document(id)
                         .set(mapOf("uid" to u, "emri" to emri(), "platforma" to "tel", "koha" to System.currentTimeMillis()) + j).await()
-                } ?: return "rrjeti"
+                    "ok"
+                } ?: "kohe"
             } catch (e: FirebaseFirestoreException) {
                 // rregullat e Firestore-it s'e lejuan (p.sh. s'je më anëtar i këtij grupi): jo "kontrollo internetin"
-                return if (e.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) "rregullat" else "rrjeti"
-            } catch (e: Exception) { return "rrjeti" }
-            shkruajPref("push_regjistrim", mapOf("uid" to u, "id" to id, "endpoint" to j["endpoint"], "grupi" to g, "koha" to System.currentTimeMillis()))
+                if (e.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) "rregullat" else "firestore-" + e.code.name.lowercase()
+            } catch (e: Exception) { "gabim-" + e.javaClass.simpleName }
+            if (rez != "ok" && rez != "kohe") { versioni.value++; return rez }
+            shkruajPref("push_regjistrim", mapOf("uid" to u, "id" to id, "endpoint" to j["endpoint"], "grupi" to g, "koha" to System.currentTimeMillis(), "pritje" to (rez == "kohe")))
         }
         // Si te web-i (aktivizoPush → kontrolloServerin): serveri i njoftimeve pyetet, që gjendja të mos mbetet "Aktive kur Stoku
         // është hapur" vetëm pse serveri s'është pyetur në 7 ditët e fundit (pushAktiv e kërkon)
-        if (detyro && g != null && Llogaria.leja("grupi")) serveri()
+        if (detyro && g != null && Llogaria.leja("grupi")) { val sv = kerkese("/", null, meToken = false); if (!sv.ok) { versioni.value++; return if (sv.arsye == "rrjeti") "rrjeti" else "serveri-" + sv.arsye } }
         versioni.value++
-        return if (g == null) "pa-grup" else "ok"
+        return if (g == null) "pa-grup" else if (lexoPref("push_regjistrim")?.get("pritje") == true) "kohe" else "ok"
     }
 
     /** Pa lejen "Grupi" ose pas daljes: pajisja s'merr më kërkesat dhe njoftimet e grupit */
