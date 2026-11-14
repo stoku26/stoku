@@ -67,8 +67,11 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
   await besa.fill('#ekFtoEmri', 'besa'); await besa.click('#ekFtoBtn'); await besa.waitForTimeout(400);
   ok(!doc('ftesat/' + gB + '_u2'), '3. s\'fton veten');
   await besa.fill('#ekFtoEmri', 'Drini'); await besa.click('#ekFtoBtn'); await besa.waitForTimeout(1200);
-  // v302: drini s'e ka hapur ende Stoku-n (pa emrat/drini) → ftesa e vjetër sipas emrit; më poshtë (8b, 14) sipas uid-së
-  ok(doc('ftesat/' + gB + '_drini') && doc('ftesat/' + gB + '_drini').ngaEmri === 'besa' && doc('ftesat/' + gB + '_drini').uid === undefined, '3. ftesa për drinin (emri me shkronja të vogla; pa llogari të hapur: sipas emrit)', keys('ftesat/'));
+  // v303: drini s'e ka hapur ende Stoku-n (pa emrat/drini) → s'ka ftesë sipas emrit, vetëm mesazhi
+  ok(!keys('ftesat/').length && /S'u gjet asnjë llogari/.test(await besa.textContent('#toast')), '3. pa emrat/drini: "S\'u gjet asnjë llogari", pa ftesë', [keys('ftesat/'), await besa.textContent('#toast')]);
+  F.S.docs.set('emrat/drini', { uid: 'u3', ndryshuarSe: t }); // drini e hap Stoku-n (këtu me dorë, para faqes së tij)
+  await besa.fill('#ekFtoEmri', 'Drini'); await besa.click('#ekFtoBtn'); await besa.waitForTimeout(1200);
+  ok(doc('ftesat/' + gB + '_u3') && doc('ftesat/' + gB + '_u3').ngaEmri === 'besa' && doc('ftesat/' + gB + '_u3').uid === 'u3' && doc('ftesat/' + gB + '_u3').perdoruesi === 'drini', '3. ftesa për drinin (emri me shkronja të vogla) sipas uid-së', keys('ftesat/'));
   ok(await besa.isVisible('#ekTabFtesat') && /drini/.test(await besa.textContent('#ekFtesatTrup')), '3. PC: ftesa në pritje');
 
   // 4. Drini (tel) — e sheh ftesën dhe e pranon
@@ -77,7 +80,7 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
   ok(/Market Besa/.test(await drini.textContent('#ekipiLista')) && await drini.isVisible('#ekGrupiKrijo'), '4. tel: drini e sheh ftesën + formën e grupit');
   await drini.screenshot({ path: SC + 'gr-tel-ftesa.png' });
   await drini.click('.ek-ftesa .btn:has-text("Prano")'); await drini.waitForTimeout(2000);
-  ok(doc('grupet/' + gB + '/anetaret/u3') && doc('grupet/' + gB + '/anetaret/u3').roli === 'anetar' && !doc('ftesat/' + gB + '_drini') && doc('perdoruesit/u3').grupi === gB, '4. drini u bashkua (ftesa u fshi)');
+  ok(doc('grupet/' + gB + '/anetaret/u3') && doc('grupet/' + gB + '/anetaret/u3').roli === 'anetar' && !doc('ftesat/' + gB + '_u3') && doc('perdoruesit/u3').grupi === gB, '4. drini u bashkua (ftesa u fshi)');
   ok(await drini.textContent('#ekipiTitulli') === 'Kolegët' && /Market Besa/.test(await drini.textContent('#ekipiLista')), '4. tel: Kolegët e grupit të ri', await drini.textContent('#ekipiTitulli'));
   const emratD = await drini.$$eval('#ekipiLista .artikull .emri', l => l.map(e => e.childNodes[0].textContent));
   ok(emratD.includes('besa') && emratD.includes('drini') && !emratD.includes('agim') && !emratD.includes('mendurberisha'), '4. drini sheh vetëm besën (jo agimin/adminin)', emratD);

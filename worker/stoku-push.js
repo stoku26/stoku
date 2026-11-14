@@ -50,7 +50,7 @@ const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databa
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
 const PUSH_MAKS = 36;
-const VERSIONI_WORKER = 170; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 171; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 const W = {
@@ -95,6 +95,8 @@ const W = {
     let trupi = {};
     try { trupi = await req.json(); } catch (e) { /* bosh */ }
 
+    // v171 (web v303): ftesa në grup dhe kërkesa për t'u futur në grup si push (edhe me Stoku të mbyllur)
+    if (rruga === '/grupi') return meKap(trajtoGrupin(env, token, uid, trupi, pergjigju));
     try {
       let ngarkesa, perKe;
       // v164: kërkesat janë brenda grupit (grupet/{g}/feed); pajisjet te grupet/{g}/push.
@@ -665,6 +667,48 @@ async function ktheAfatetEKolegeve(env, tani) {
   if (ndryshoi) await env.FOTO.put('afat-kolegu', JSON.stringify(ind));
   return kthyer;
 }
+// v171 (web v303): /grupi { lloji: 'ftese' | 'kerkese', id }. Dokumenti lexohet ME TOKENIN E DËRGUESIT (rregullat: ftesën e
+// lexon anëtari i grupit, kërkesën kërkuesi) dhe duhet të jetë i tiji e i freskët; teksti ndërtohet këtu. Pajisjet e marrësit
+// (të ftuarit te grupi i tij, ose pronarëve të grupit) i gjen tokeni i administratorit (FCM_SA): dërguesi s'është në atë grup.
+async function trajtoGrupin(env, token, uid, trupi, pergjigju) {
+  if (!env.FCM_SA) return pergjigju({ ok: false, arsye: 'pa-fcm-sa' }, 500);
+  const lloji = String(trupi.lloji || ''), id = String(trupi.id || '');
+  if (!/^[A-Za-z0-9_-]{4,200}$/.test(id) || (lloji !== 'ftese' && lloji !== 'kerkese')) return pergjigju({ ok: false, arsye: 'id' }, 400);
+  let d;
+  try { d = await lexoDoc((lloji === 'ftese' ? 'ftesat/' : 'kerkesat_grupi/') + id, token); }
+  catch (e) { if (e.status === 403) return pergjigju({ ok: false, arsye: 'rregullat' }, 403); throw e; }
+  if (!d) return pergjigju({ ok: false, arsye: 's-u-gjet' }, 404);
+  if (!iFreskët(d)) return pergjigju({ ok: false, arsye: 'i-vjeter' }, 409);
+  const at = await tokeniAdmin(env);
+  const emriG = String(d.grupiEmri || '').slice(0, 60) || 'pa emër';
+  let n = 0;
+  if (lloji === 'ftese') {
+    if (d.ngaUid !== uid || typeof d.uid !== 'string' || !d.uid || d.uid === uid) return pergjigju({ ok: false, arsye: 'jo-i-yti' }, 403);
+    let g = '';
+    try { const p = await lexoDoc('perdoruesit/' + d.uid, at); g = p && /^[A-Za-z0-9_-]{2,64}$/.test(String(p.grupi || '')) ? String(p.grupi) : ''; } catch (e) { /* ok */ }
+    if (!g) return pergjigju({ ok: true, derguar: 0, arsye: 'pa-grup' }); // pa grup: pajisjet s'janë të regjistruara askund
+    await dergoPushPerdoruesit(env, at, d.uid, g, { lloji: 'njoftim', titulli: 'Stoku · Ftesë në grup', tag: 'ek-ft-' + id, koha: Number(d.koha) || Date.now(), pamja: 'anetaret',
+      teksti: (String(d.ngaEmri || '').slice(0, 40) || 'Dikush') + ' të fton në grupin "' + emriG + '". Hape Grupin për ta pranuar.' });
+    n = 1;
+  } else {
+    if (d.uid !== uid || !/^[A-Za-z0-9_-]{2,64}$/.test(String(d.gid || ''))) return pergjigju({ ok: false, arsye: 'jo-i-yti' }, 403);
+    let pronaret = [];
+    try { pronaret = (await listoAnetaret(at, 'grupet/' + d.gid + '/anetaret')).filter(a => a.roli === 'pronar' && a.id !== uid).map(a => a.id).slice(0, 5); } catch (e) { /* ok */ }
+    for (const p of pronaret) {
+      await dergoPushPerdoruesit(env, at, p, d.gid, { lloji: 'njoftim', titulli: 'Stoku · Kërkesë për grupin', tag: 'ek-kr-' + id, koha: Number(d.koha) || Date.now(), pamja: 'anetaret',
+        teksti: (String(d.emri || '').slice(0, 40) || 'Dikush') + ' kërkon të hyjë në grupin tënd. Hape Grupin për ta pranuar.' });
+      n++;
+    }
+  }
+  return pergjigju({ ok: true, derguar: n });
+}
+// Anëtarët e grupit me rolin: [{ id, roli }]
+async function listoAnetaret(token, koleksioni) {
+  const r = await fetch(FS + '/' + koleksioni + '?pageSize=300', { headers: { Authorization: 'Bearer ' + token } });
+  if (!r.ok) { const e = new Error('firestore-' + r.status); e.status = r.status; throw e; }
+  const j = await r.json();
+  return (j.documents || []).map(x => ({ id: String(x.name || '').split('/').pop(), roli: x.fields && x.fields.roli && x.fields.roli.stringValue || '' }));
+}
 // Push te pajisjet e një përdoruesi të grupit (me tokenin e administratorit)
 async function dergoPushPerdoruesit(env, at, uid, grupi, ngarkesa) {
   let pajisjet = [];
@@ -674,7 +718,8 @@ async function dergoPushPerdoruesit(env, at, uid, grupi, ngarkesa) {
   const vapid = await pergatitVapid(env);
   await Promise.all(pajisjet.map(async a => {
     try {
-      const st = await dergoPush(a, Object.assign({}, ngarkesa, { url: a.platforma === 'pc' ? './pc.html#/ekipa/njoftimet' : './index.html#ekipa-njoftimet' }), vapid);
+      const faqja = ngarkesa.pamja === 'anetaret' ? 'anetaret' : 'njoftimet'; // v171: ftesat/kërkesat hapin Grupin
+      const st = await dergoPush(a, Object.assign({}, ngarkesa, { url: a.platforma === 'pc' ? './pc.html#/ekipa/' + faqja : './index.html#ekipa-' + faqja }), vapid);
       if (st === 404 || st === 410) await fshiDoc('grupet/' + grupi + '/push/' + a.id, at);
     } catch (e) { /* një pajisje e prishur s'i ndal të tjerat */ }
   }));
@@ -794,6 +839,7 @@ function tekstiINjoftimit(n) {
   if (n.lloji === 'heqje-pranuar') return (kush || 'Kolegu') + ' e pranoi heqjen nga rafti: ' + produkti;
   if (n.lloji === 'heqje-refuzuar') return (kush || 'Kolegu') + ' e refuzoi heqjen nga rafti: ' + produkti + ' (mbetet në raft)';
   if (n.lloji === 'lajmerim') return (kush || 'Administratori') + ': ' + String(n.tekst || '').slice(0, 300);
+  if (n.lloji === 'admin-i-ri') return (kush || 'Admini') + ' u largua nga grupi dhe tani ti je admini i grupit.'; // v171
   if (n.lloji === 'admin-afat') return (kush || 'Administratori') + ' ' + (FJALA_E_VEPRIMIT[n.veprimi] || 'ndryshoi') + ': ' + produkti;
   return String(n.tekst || '').slice(0, 300);
 }

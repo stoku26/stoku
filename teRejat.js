@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 303, versioni: '1.58.2', data: '2026-11-14', titulli: 'Njoftimet e grupit edhe me Stoku të mbyllur', pikat: [
+      'Ftesa në grup dhe kërkesa për t\'u futur në grup të vijnë si njoftim në telefon/PC edhe kur Stoku është i mbyllur.',
+      'Ftesa i dërgohet vetëm llogarisë së personit. Nëse ai s\'e ka hapur ende Stoku-n pas përditësimit, të del "S\'u gjet asnjë llogari me këtë emër": le ta hapë një herë dhe provo përsëri.'
+    ] },
     { v: 302, versioni: '1.58.1', data: '2026-11-14', titulli: 'Llogaria njihet nga ID-ja e saj', pikat: [
       'Secila llogari njihet nga ID-ja e saj e përhershme, jo nga emri i përdoruesit: emrin mund ta ndryshosh pa i humbur lejet dhe të dhënat.',
       'Ftesa në grup i shkon llogarisë së personit: edhe nëse ai e ndryshon emrin, ftesa mbetet e tij dhe s\'mund ta marrë dikush tjetër me emrin e vjetër.'

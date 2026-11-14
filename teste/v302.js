@@ -16,7 +16,7 @@ const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); 
   ok(ek.includes("var ADMIN_UID = '" + ADMIN_UID + "'") && !/ADMIN_EMRI/.test(ek) && !/'mendurberisha'/.test(ek), '0. ekipa.js: ADMIN_UID, pa emrin');
   ok(!/'mendurberisha'/.test(tel) && !/'mendurberisha'/.test(pc) && /eshteUidAdmin\(u\.uid\)/.test(tel) && /eshteUidAdmin\(u\.uid\)/.test(pc), '0. app-tel/app-pc: administratori sipas uid-së');
   const wp = lexo('worker/stoku-push.js'), wa = lexo('worker/stoku-afatet.js');
-  ok(wp.includes("const ADMIN_UID = '" + ADMIN_UID + "'") && !/llogariaSipasEmrit\(at, ADMINI\)/.test(wp) && /VERSIONI_WORKER = 170/.test(wp), '0. stoku-push 170: administratori sipas uid-së');
+  ok(wp.includes("const ADMIN_UID = '" + ADMIN_UID + "'") && !/llogariaSipasEmrit\(at, ADMINI\)/.test(wp) && /VERSIONI_WORKER = (17[0-9])/.test(wp), '0. stoku-push ≥ 170: administratori sipas uid-së');
   ok(wa.includes("const ADMIN_UID = '" + ADMIN_UID + "'") && /perdoruesi\.uid === ADMIN_UID/.test(wa) && !/ADMINI_EMAIL/.test(wa), '0. stoku-afatet v3: administratori sipas uid-së');
   const kt = lexo('vendas/logjika/src/main/kotlin/site/stoku/logjika/Lejet.kt');
   ok(kt.includes('const val ADMIN_UID = "' + ADMIN_UID + '"') && !/"mendurberisha"/.test(kt), '0. Android (Lejet.kt): ADMIN_UID');
@@ -68,7 +68,7 @@ const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); 
   const lista = await mend.evaluate(async () => { try { await window.__fsTest.getDocs(window.__fsTest.collection(null, 'emrat')); return 'lejohet'; } catch (e) { return e.code; } });
   ok(lista === 'permission-denied', '3. emrat s\'listohen (vetëm sipas emrit)', lista);
 
-  // 4. Agimi (pronar) e fton "besa" para se besa ta hapë Stoku-n → ftesa e vjetër sipas emrit (përputhshmëri)
+  // 4. Agimi (pronar) e fton "besa" pasi besa e hap Stoku-n → ftesa sipas uid-së
   const agim = await faqe('u1', 'agim', true);
   await agim.waitForTimeout(800);
   ok(doc('emrat/agim') && doc('emrat/agim').uid === 'u1', '4. agimi te emrat');
@@ -108,7 +108,7 @@ const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); 
   const r6 = await agim.evaluate(() => window.__stokuCloud.ekipa.pranoKerkesen({ id: 'g1_u5', gid: 'g1', uid: 'u5', emri: 'zana' }, 'Market Agimi'));
   ok(r6.ok && doc('ftesat/g1_u5') && doc('ftesat/g1_u5').uid === 'u5' && !doc('kerkesat_grupi/g1_u5'), '6. pranimi i kërkesës: ftesat/g1_u5 (uid)', r6);
 
-  // 7. Rregullat para v302 (pa emrat, ftesat vetëm sipas emrit): ftesa dhe pranimi punojnë si më parë
+  // 7. Rregullat para v302 (pa emrat): v303 s'dërgon më ftesë sipas emrit; pranimi i kërkesës punon (ka uid-në)
   const F2 = krijoFirestore({ rregullat: 'reja', adminVetemUid: true });
   F2.S.paEmrat = true;
   F2.S.docs.set('grupet/g1', { emri: 'Market Agimi', pronarUid: 'u1', pronarEmri: 'agim', krijuarSe: t });
@@ -119,7 +119,7 @@ const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); 
   await F2.lidh(ctx2, 'u1', 'agim@stoku-app.local', 'pc');
   const agim2 = await ctx2.newPage(); await agim2.goto(BAZA + '/pc.html'); await agim2.waitForTimeout(2500);
   const r7 = await agim2.evaluate(() => window.__stokuEkipaK.ftoNeGrup('drini'));
-  ok(r7.ok && F2.S.docs.get('ftesat/g1_drini') && F2.S.docs.get('ftesat/g1_drini').uid === undefined, '7. pa emrat: ftesa sipas emrit (si më parë)', r7);
+  ok(!r7.ok && !F2.S.docs.get('ftesat/g1_drini'), '7. v303: pa emrat s\'ka më ftesë sipas emrit', r7);
   F2.S.docs.set('kerkesat_grupi/g1_u5', { gid: 'g1', grupiEmri: 'Market Agimi', uid: 'u5', emri: 'zana', koha: Date.now() });
   const r7b = await agim2.evaluate(() => window.__stokuCloud.ekipa.pranoKerkesen({ id: 'g1_u5', gid: 'g1', uid: 'u5', emri: 'zana' }, 'Market Agimi'));
   ok(r7b.ok && F2.S.docs.get('ftesat/g1_u5') && F2.S.docs.get('ftesat/g1_u5').uid === 'u5', '7. pranimi i kërkesës: sipas uid-së (rregullat e reja të ftesave)', r7b);

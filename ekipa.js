@@ -154,11 +154,9 @@
     function uid() { return auth.currentUser ? auth.currentUser.uid : null; }
     function emri() { return auth.currentUser ? emriNgaEmail(auth.currentUser.email) : ''; }
     function uidOk(u) { return typeof u === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(u); }
-    // v302: ftesa në grup. Me uid: e lidhur me atë llogari (id {grupi}_{uid}); pa uid: e vjetra sipas emrit.
+    // v302: ftesa në grup, e lidhur me llogarinë e të ftuarit (id {grupi}_{uid}); `perdoruesi` vetëm për t'u shfaqur
     function ftesa(uidP, emriP, emriGrupit) {
-      var f = { gid: grupi, grupiEmri: String(emriGrupit || '').slice(0, 60), perdoruesi: emriP, ngaUid: uid(), ngaEmri: emri(), koha: Date.now() };
-      if (uidP) f.uid = uidP;
-      return f;
+      return { gid: grupi, grupiEmri: String(emriGrupit || '').slice(0, 60), perdoruesi: emriP, uid: uidP, ngaUid: uid(), ngaEmri: emri(), koha: Date.now() };
     }
     function gabim(e) { return { ok: false, kodi: e && e.code, arsye: String((e && e.message) || e), leje: eshteLeje(e) }; }
     function eshteLeje(e) { return !!e && (e.code === 'permission-denied' || /permission/i.test(String(e.message || ''))); }
@@ -367,6 +365,8 @@
     }
 
     function njoftoPushKerkese(id, g) { thirrPush('/kerkese', g ? { id: id, grupi: g } : { id: id }).catch(function () { /* pa internet / pa Worker */ }); }
+    // v303: ftesa në grup / kërkesa për t'u futur në grup si push te marrësi (Worker 171, /grupi)
+    function njoftoPushGrupi(lloji, id) { thirrPush('/grupi', { lloji: lloji, id: id }).catch(function () { /* pa internet / pa Worker */ }); }
     function njoftoPushNjoftim(id, per, g) { thirrPush('/njoftim', { id: id, per: per, grupi: g }).catch(function () { /* pa internet / pa Worker */ }); }
     // Worker-i u përgjigj mirë së fundi (7 ditë)? Vetëm atëherë i besohet push-it dhe s'dalin njoftime lokale të dyfishta.
     async function kontrolloServerin() {
@@ -935,6 +935,7 @@
         } catch (e) { /* s'jam anëtar (ose s'lexohet): vazhdon kërkesa */ }
         try {
           await fs.setDoc(fs.doc(db, 'kerkesat_grupi', gr.id + '_' + uid()), { gid: gr.id, grupiEmri: String(gr.emri || '').slice(0, 60), uid: uid(), emri: emri(), koha: Date.now() });
+          njoftoPushGrupi('kerkese', gr.id + '_' + uid()); // v303
           return { ok: true };
         } catch (e) { return gabim(e); }
       },
@@ -954,17 +955,14 @@
       // refuzimi = vetëm fshirja
       pranoKerkesen: async function (k, emriGrupit) {
         if (!uid() || !grupi || !k || k.gid !== grupi || !/^[a-z0-9_.-]{3,40}$/.test(String(k.emri || '')) || !uidOk(k.uid)) return { ok: false };
-        // Rregullat para v302 s'e njohin ftesën sipas uid-së: atëherë si më parë (sipas emrit)
-        for (var meUid = 1; meUid >= 0; meUid--) {
-          try {
-            var b = fs.writeBatch(db);
-            b.set(fs.doc(db, 'ftesat', grupi + '_' + (meUid ? k.uid : k.emri)), ftesa(meUid ? k.uid : null, k.emri, emriGrupit || k.grupiEmri));
-            b.delete(fs.doc(db, 'kerkesat_grupi', k.id));
-            await b.commit();
-            return { ok: true };
-          } catch (e) { if (!meUid || !eshteLeje(e)) return gabim(e); }
-        }
-        return { ok: false };
+        try {
+          var b = fs.writeBatch(db);
+          b.set(fs.doc(db, 'ftesat', grupi + '_' + k.uid), ftesa(k.uid, k.emri, emriGrupit || k.grupiEmri));
+          b.delete(fs.doc(db, 'kerkesat_grupi', k.id));
+          await b.commit();
+          njoftoPushGrupi('ftese', grupi + '_' + k.uid); // v303: "Admini të pranoi" edhe me Stoku të mbyllur
+          return { ok: true };
+        } catch (e) { return gabim(e); }
       },
       refuzoKerkesen: async function (k) {
         if (!k || !k.id) return { ok: false };
@@ -972,8 +970,8 @@
       },
       fshijKerkesatEMia: function () { return fshijKerkesatEMia(); },
       // Ftesa për një emër përdoruesi (pronari). I ftuari e sheh te Grupi dhe e pranon ose e refuzon.
-      // v302: emri kthehet në uid (emrat/{emri}) dhe ftesa i lidhet asaj llogarie: id {grupi}_{uid}. Vetëm për llogaritë
-      // që s'e kanë hapur ende versionin e ri (pa emrat/{emri}) mbetet ftesa e vjetër sipas emrit ({grupi}_{emri}).
+      // v302: emri kthehet në uid (emrat/{emri}) dhe ftesa i lidhet asaj llogarie: id {grupi}_{uid}. v303: VETËM sipas
+      // uid-së; pa emrat/{emri} (llogari që s'ekziston ose s'e ka hapur ende versionin e ri) → arsye 'pa-llogari'.
       // Administratori e jep uid-në direkt (lista e llogarive).
       ftoNeGrup: async function (perdoruesi, emriGrupit, uidP) {
         var p = String(perdoruesi || '').trim().toLowerCase().replace(/@stoku-app\.local$/, '');
@@ -982,11 +980,13 @@
         if (p === emri() || uidP === uid()) return { ok: false, arsye: 'vetja' };
         var u = uidOk(uidP) ? uidP : null;
         if (!u && fs.getDoc) {
-          try { var s = await fs.getDoc(fs.doc(db, 'emrat', p)); if (s.exists() && uidOk(s.data().uid)) u = s.data().uid; } catch (e) { /* rregullat para v302: si më parë */ }
+          try { var s = await fs.getDoc(fs.doc(db, 'emrat', p)); if (s.exists() && uidOk(s.data().uid)) u = s.data().uid; } catch (e) { return gabim(e); }
         }
+        if (!u) return { ok: false, arsye: 'pa-llogari' };
         if (u === uid()) return { ok: false, arsye: 'vetja' };
         try {
-          await fs.setDoc(fs.doc(db, 'ftesat', grupi + '_' + (u || p)), ftesa(u, p, emriGrupit));
+          await fs.setDoc(fs.doc(db, 'ftesat', grupi + '_' + u), ftesa(u, p, emriGrupit));
+          njoftoPushGrupi('ftese', grupi + '_' + u); // v303
           return { ok: true };
         } catch (e) { return gabim(e); }
       },
@@ -997,17 +997,10 @@
         if (!grupi) return function () {};
         return fs.onSnapshot(fs.query(fs.collection(db, 'ftesat'), fs.where('gid', '==', grupi)), function (s) { cb(listaNga(s)); }, function (e) { if (cbGabim) cbGabim(e); });
       },
-      // v302: ftesat sipas uid-së sime + të vjetrat sipas emrit (vetëm ato pa uid, nga versionet e mëparshme)
+      // v303: ftesat vetëm sipas uid-së sime (s'ka më ftesa sipas emrit)
       degjoFtesatEMia: function (cb, cbGabim) {
         if (!uid()) return function () {};
-        var sipasUid = [], sipasEmrit = [], ndalE = function () {};
-        function bashko() {
-          var pare = {};
-          cb(sipasUid.concat(sipasEmrit.filter(function (f) { return !f.uid; })).filter(function (f) { return !pare[f.id] && (pare[f.id] = true); }));
-        }
-        var ndalU = fs.onSnapshot(fs.query(fs.collection(db, 'ftesat'), fs.where('uid', '==', uid())), function (s) { sipasUid = listaNga(s); bashko(); }, function (e) { if (cbGabim) cbGabim(e); });
-        if (emri()) ndalE = fs.onSnapshot(fs.query(fs.collection(db, 'ftesat'), fs.where('perdoruesi', '==', emri())), function (s) { sipasEmrit = listaNga(s); bashko(); }, function () { sipasEmrit = []; bashko(); });
-        return function () { ndalU(); ndalE(); };
+        return fs.onSnapshot(fs.query(fs.collection(db, 'ftesat'), fs.where('uid', '==', uid())), function (s) { cb(listaNga(s)); }, function (e) { if (cbGabim) cbGabim(e); });
       },
       // Pranimi i ftesës. Së pari hyrja te grupi i ri (ftesa fshihet bashkë me të): nëse ftesa s'vlen më,
       // mbetesh ku ishe. Vetëm pastaj largohesh nga grupi i mëparshëm (fshiGrupinEVjeter: ishe i fundit aty).

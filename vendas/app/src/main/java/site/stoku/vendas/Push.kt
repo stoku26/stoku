@@ -118,6 +118,12 @@ object Push {
      *  Për "afat-dergim" Worker-i e regjistron edhe për kthimin pas 10 ditëve. */
     suspend fun njoftoNjoftim(id: String, per: String, grupi: String): Boolean = kerkese("/njoftim", mapOf("id" to id, "per" to per, "grupi" to grupi)).ok
 
+    /** Hyrja 64 (web v303): "Kërko heqje" / "U krye" (ngjarja te grupet/{g}/feed) → push te kolegët (Worker /kerkese) */
+    suspend fun njoftoKerkese(id: String, grupi: String): Boolean = kerkese("/kerkese", mapOf("id" to id, "grupi" to grupi)).ok
+
+    /** Hyrja 64: ftesa në grup ("ftese", id ftesat/{g}_{uid}) ose kërkesa për t'u futur ("kerkese", id {g}_{uid}) → push (Worker /grupi) */
+    suspend fun njoftoGrupin(lloji: String, id: String): Boolean = kerkese("/grupi", mapOf("lloji" to lloji, "id" to id)).ok
+
     /** Gjendja e serverit (GET /): { ok, versioni, celesat, fcm, fotot, cron, cronShprehja, cronGabim } */
     suspend fun serveri(): Obj? = kerkese("/", null, meToken = false).te.takeIf { it.isNotEmpty() }
 

@@ -133,15 +133,9 @@ object Grupi {
             }
             ndiq(g as? String ?: "") // pa tregues fare (llogari shumë e vjetër): pa grup derisa ta hapë web-in
         })
-        // v302: ftesat sipas uid-së sime + të vjetrat sipas emrit (vetëm ato pa uid, nga versionet e mëparshme)
-        var sipasUid = emptyList<Obj>(); var sipasEmrit = emptyList<Obj>()
-        fun bashkoFtesat() { ftesatEMia.value = (sipasUid + sipasEmrit.filter { it["uid"] == null }).distinctBy { it["id"] } }
+        // Hyrja 64: ftesat vetëm sipas uid-së sime
         degjuesitPerdoruesit.add(db.collection("ftesat").whereEqualTo("uid", u0).addSnapshotListener { s, _ ->
-            if (s != null && uid == u0) { sipasUid = s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }; bashkoFtesat() }
-        })
-        if (p.emri.isNotEmpty()) degjuesitPerdoruesit.add(db.collection("ftesat").whereEqualTo("perdoruesi", p.emri).addSnapshotListener { s, _ ->
-            if (uid != u0) return@addSnapshotListener
-            sipasEmrit = s?.documents?.map { (it.data ?: emptyMap()).me("id" to it.id) } ?: emptyList(); bashkoFtesat()
+            if (s != null && uid == u0) ftesatEMia.value = s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }
         })
         degjuesitPerdoruesit.add(db.collection("kerkesat_grupi").whereEqualTo("uid", u0).addSnapshotListener { s, _ ->
             if (s != null && uid == u0) kerkesatEMia.value = s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }
@@ -290,10 +284,22 @@ object Grupi {
     }
 
     // ---------------- Aktiviteti ----------------
-    private fun shtoNgjarje(ng: Map<String, Any?>) {
-        val u0 = uid ?: return; val g = grupi() ?: return
+    private fun shtoNgjarje(ng: Map<String, Any?>): String? {
+        val u0 = uid ?: return null; val g = grupi() ?: return null
         val d = LinkedHashMap<String, Any?>(ng); d["uid"] = u0; d["emri"] = emri; d["koha"] = GrupiLogjika.kohaENgjarjes(ng["koha"], System.currentTimeMillis())
-        db.collection("grupet").document(g).collection("feed").document(idERe()).set(d.filterValues { it != null })
+        val id = idERe()
+        val t = db.collection("grupet").document(g).collection("feed").document(id).set(d.filterValues { it != null })
+        // Hyrja 64: "Kërko heqje" / "U krye" edhe si push te kolegët (si web-i)
+        if ((ng["lloji"] as? String)?.startsWith("kerkese-") == true) scope.launch { try { t.await(); Push.njoftoKerkese(id, g) } catch (e: Exception) { } }
+        return id
+    }
+
+    /** Hyrja 64: njoftim personal (zilja e kolegut) + push te pajisjet e tij, si web-i (Worker /njoftim) */
+    private fun njoftimMePush(per: String, g: String, te: Map<String, Any?>): com.google.android.gms.tasks.Task<Void> {
+        val id = idERe()
+        val t = db.collection("perdoruesit").document(per).collection("njoftimet").document(id).set(te)
+        scope.launch { try { t.await(); Push.njoftoNjoftim(id, per, g) } catch (e: Exception) { } }
+        return t
     }
 
     private var afateTeRejaN = 0
@@ -351,7 +357,7 @@ object Grupi {
         return try {
             val nj = mapOf("lloji" to "hequr", "afatId" to a["id"], "produkti" to produkti, "barkodi" to (a["barkodi"] ?: ""), "data" to (a["data"] ?: ""),
                 "grupi" to g, "uid" to u0, "emri" to emri, "koha" to tani, "lexuar" to false)
-            val t = db.collection("perdoruesit").document(pr).collection("njoftimet").document(idERe()).set(nj)
+            val t = njoftimMePush(pr, g, nj)
             shtoNgjarje(mapOf("lloji" to "hequr", "pronariUid" to pr, "pronariEmri" to (a["pronariEmri"] ?: ""), "afatId" to a["id"],
                 "produkti" to produkti, "barkodi" to (a["barkodi"] ?: ""), "data" to (a["data"] ?: ""), "sasia" to (a["sasia"] as? Number)))
             kotlinx.coroutines.withTimeoutOrNull(4000) { t.await() }
@@ -387,8 +393,7 @@ object Grupi {
             db.collection("grupet").document(g).collection("afatet").document(pr).set(mapOf("uid" to pr, "emri" to prEmri, "afatet" to p, "ndryshuarSe" to tani))
             val te = mapOf("lloji" to "admin-afat", "veprimi" to veprimi, "afatId" to id,
                 "produkti" to ((a["emri"] as? String)?.ifEmpty { null } ?: (a["barkodi"] as? String) ?: ""), "barkodi" to (a["barkodi"] ?: ""), "data" to (a["data"] ?: ""))
-            db.collection("perdoruesit").document(pr).collection("njoftimet").document(idERe())
-                .set(te + mapOf("grupi" to g, "uid" to u0, "emri" to emri, "koha" to tani, "lexuar" to false))
+            njoftimMePush(pr, g, te + mapOf("grupi" to g, "uid" to u0, "emri" to emri, "koha" to tani, "lexuar" to false))
             shtoNgjarje(mapOf("pronariUid" to pr, "pronariEmri" to prEmri) + te)
         }
         return null
@@ -413,8 +418,7 @@ object Grupi {
         val lloji = if (pranoj) "heqje-pranuar" else "heqje-refuzuar"
         val te = mapOf("afatId" to (nj["afatId"] ?: ""), "produkti" to (nj["produkti"] ?: ""), "barkodi" to (nj["barkodi"] ?: ""), "data" to (nj["data"] ?: ""))
         val nga = nj["uid"] as? String
-        if (nga != null && nga != u0) db.collection("perdoruesit").document(nga).collection("njoftimet").document(idERe())
-            .set(te + mapOf("lloji" to lloji, "grupi" to g, "uid" to u0, "emri" to emri, "koha" to tani, "lexuar" to false))
+        if (nga != null && nga != u0) njoftimMePush(nga, g, te + mapOf("lloji" to lloji, "grupi" to g, "uid" to u0, "emri" to emri, "koha" to tani, "lexuar" to false))
         shtoNgjarje(te + mapOf("lloji" to lloji, "pronariUid" to u0, "kerkuesUid" to (nga ?: ""), "kerkuesEmri" to (nj["emri"] ?: "")))
         return null
     }
@@ -448,8 +452,9 @@ object Grupi {
         val produkti = lista[0]["produkti"]; val barkodi = lista[0]["barkodi"] // për versionet e para (pa listë)
         val shenim = shenim0.trim().take(300); val koha = System.currentTimeMillis()
         val id = idERe()
-        db.collection("grupet").document(g).collection("feed").document(id).set(mapOf("lloji" to "kerkese-heqje", "uid" to u0, "emri" to emri, "koha" to koha,
+        val tF = db.collection("grupet").document(g).collection("feed").document(id).set(mapOf("lloji" to "kerkese-heqje", "uid" to u0, "emri" to emri, "koha" to koha,
             "produkti" to produkti, "barkodi" to barkodi, "produktet" to lista, "shenim" to shenim, "perUid" to (per?.get("uid") ?: ""), "perEmri" to (per?.get("emri") ?: "")))
+        scope.launch { try { tF.await(); Push.njoftoKerkese(id, g) } catch (e: Exception) { } } // Hyrja 64: push si te web-i
         (if (per != null) listOf(per) else kol).forEach { a ->
             val u = a["uid"] as String
             if (u == u0) return@forEach
@@ -684,16 +689,13 @@ object Grupi {
     }
 
     private fun uidOk(u: String?): Boolean = u != null && Regex("^[A-Za-z0-9_-]{1,128}$").matches(u)
-    /** v302: ftesa; me uid e lidhur me atë llogari (id {grupi}_{uid}), pa uid e vjetra sipas emrit */
-    private fun ftesa(g: String, uidP: String?, emriP: String, emriGrupit: String): Map<String, Any?> {
-        val m = mutableMapOf<String, Any?>("gid" to g, "grupiEmri" to emriGrupit.take(60), "perdoruesi" to emriP, "ngaUid" to uid, "ngaEmri" to emri, "koha" to System.currentTimeMillis())
-        if (uidP != null) m["uid"] = uidP
-        return m
-    }
+    /** v302: ftesa e lidhur me llogarinë e të ftuarit (id {grupi}_{uid}); `perdoruesi` vetëm për t'u shfaqur */
+    private fun ftesa(g: String, uidP: String?, emriP: String, emriGrupit: String): Map<String, Any?> =
+        mapOf("gid" to g, "grupiEmri" to emriGrupit.take(60), "perdoruesi" to emriP, "uid" to uidP, "ngaUid" to uid, "ngaEmri" to emri, "koha" to System.currentTimeMillis())
 
     /** Pronari: ftesë për një emër përdoruesi → null ose arsyeja (emri, vetja, anetar, e-ftuar, leje, rrjeti).
      *  v302: emri kthehet në uid (emrat/{emri}) dhe ftesa i lidhet asaj llogarie; me uidP (administratori) direkt.
-     *  Vetëm për llogaritë pa emrat/{emri} (s'e kanë hapur ende versionin e ri) mbetet ftesa e vjetër sipas emrit. */
+     *  Hyrja 64: pa emrat/{emri} (llogari që s'ekziston ose s'e ka hapur ende versionin e ri) → "pa-llogari". */
     suspend fun ftoNeGrup(perdoruesi: String, uidP: String? = null): String? {
         val p = perdoruesi.trim().lowercase().removeSuffix("@stoku-app.local")
         val g = grupi() ?: return "pa-grup"
@@ -703,10 +705,12 @@ object Grupi {
         if (anetaret.value.any { (uidP != null && it["uid"] == uidP) || (it["emri"] as? String).orEmpty().lowercase() == p }) return "anetar"
         if (ftesatEGrupit.value.any { (uidP != null && it["uid"] == uidP) || it["perdoruesi"] == p }) return "e-ftuar"
         var u = if (uidOk(uidP)) uidP else null
-        if (u == null) u = try { db.collection("emrat").document(p).get().await().getString("uid")?.takeIf { uidOk(it) } } catch (e: Exception) { null }
-        if (u != null && u == uid) return "vetja"
+        if (u == null) u = try { db.collection("emrat").document(p).get().await().getString("uid")?.takeIf { uidOk(it) } } catch (e: Exception) { return gabimi(e) }
+        if (u == null) return "pa-llogari" // Hyrja 64: vetëm sipas uid-së
+        if (u == uid) return "vetja"
         return try {
-            db.collection("ftesat").document(g + "_" + (u ?: p)).set(ftesa(g, u, p, (grupiDoc.value?.get("emri") as? String) ?: "")).await()
+            db.collection("ftesat").document(g + "_" + u).set(ftesa(g, u, p, (grupiDoc.value?.get("emri") as? String) ?: "")).await()
+            scope.launch { Push.njoftoGrupin("ftese", g + "_" + u) } // Hyrja 64
             null
         } catch (e: Exception) { gabimi(e) }
     }
@@ -775,8 +779,7 @@ object Grupi {
                 } catch (e: Exception) { return "trashegimtari" }
                 try {
                     kotlinx.coroutines.withTimeoutOrNull(4000) {
-                        db.collection("perdoruesit").document(trashegimtari).collection("njoftimet").document(idERe())
-                            .set(mapOf("lloji" to "admin-i-ri", "grupi" to g, "uid" to u0, "emri" to emri, "koha" to System.currentTimeMillis(), "lexuar" to false)).await()
+                        njoftimMePush(trashegimtari, g, mapOf("lloji" to "admin-i-ri", "grupi" to g, "uid" to u0, "emri" to emri, "koha" to System.currentTimeMillis(), "lexuar" to false)).await()
                     }
                 } catch (e: Exception) { }
             }
@@ -825,8 +828,7 @@ object Grupi {
         anetaret.value.forEach { a ->
             val u = a["uid"] as String
             if (u == u0) return@forEach
-            db.collection("perdoruesit").document(u).collection("njoftimet").document(idERe())
-                .set(mapOf("lloji" to "lajmerim", "tekst" to tekst, "grupi" to g, "uid" to u0, "emri" to emri, "koha" to koha, "lexuar" to false))
+            njoftimMePush(u, g, mapOf("lloji" to "lajmerim", "tekst" to tekst, "grupi" to g, "uid" to u0, "emri" to emri, "koha" to koha, "lexuar" to false))
         }
         db.collection("grupet").document(g).collection("feed").document(idERe()).set(mapOf("lloji" to "lajmerim", "tekst" to tekst, "uid" to u0, "emri" to emri, "koha" to koha))
         return true
@@ -885,6 +887,7 @@ object Grupi {
         return try {
             db.collection("kerkesat_grupi").document(gid + "_" + u0).set(mapOf("gid" to gid, "grupiEmri" to ((gr["emri"] as? String) ?: "").take(60),
                 "uid" to u0, "emri" to emri, "koha" to System.currentTimeMillis())).await()
+            scope.launch { Push.njoftoGrupin("kerkese", gid + "_" + u0) } // Hyrja 64: push te pronari i grupit
             null
         } catch (e: Exception) { gabimi(e) }
     }
@@ -901,17 +904,14 @@ object Grupi {
         val ku = k["uid"] as? String
         if (k["gid"] != g || !Regex("^[a-z0-9_.-]{3,40}$").matches(em) || !uidOk(ku)) return "gabim"
         val emriG = (grupiDoc.value?.get("emri") as? String) ?: (k["grupiEmri"] as? String) ?: ""
-        // Rregullat para v302 s'e njohin ftesën sipas uid-së: atëherë si më parë (sipas emrit)
-        for (meUid in listOf(true, false)) {
-            try {
-                val b = db.batch()
-                b.set(db.collection("ftesat").document(g + "_" + (if (meUid) ku else em)), ftesa(g, if (meUid) ku else null, em, emriG))
-                b.delete(db.collection("kerkesat_grupi").document(k["id"] as String))
-                b.commit().await()
-                return null
-            } catch (e: Exception) { val gb = gabimi(e); if (!meUid || gb != "leje") return gb }
-        }
-        return "leje"
+        return try {
+            val b = db.batch()
+            b.set(db.collection("ftesat").document(g + "_" + ku), ftesa(g, ku, em, emriG))
+            b.delete(db.collection("kerkesat_grupi").document(k["id"] as String))
+            b.commit().await()
+            scope.launch { Push.njoftoGrupin("ftese", g + "_" + ku) } // Hyrja 64: "Admini të pranoi" edhe me Stoku të mbyllur
+            null
+        } catch (e: Exception) { gabimi(e) }
     }
 
     suspend fun refuzoKerkesen(k: Obj): String? = try { db.collection("kerkesat_grupi").document(k["id"] as String).delete().await(); null } catch (e: Exception) { gabimi(e) }

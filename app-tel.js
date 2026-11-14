@@ -7224,7 +7224,8 @@
   function tekstiGabimitTeFtesa(r) {
     return r.arsye === 'emri' ? 'Emri i përdoruesit: 3–40 shkronja/numra (a–z, 0–9, _ . -).'
       : r.arsye === 'vetja' ? 'Ky është emri yt.' : r.arsye === 'anetar' ? 'Ky përdorues është tashmë në grup.'
-      : r.arsye === 'e-ftuar' ? 'Ky përdorues është ftuar tashmë.' : 'Ftesa s\'u dërgua. Kontrollo internetin dhe provo përsëri.';
+      : r.arsye === 'e-ftuar' ? 'Ky përdorues është ftuar tashmë.'
+      : r.arsye === 'pa-llogari' ? 'S\'u gjet asnjë llogari me këtë emër. Nëse personi sapo e ka hapur llogarinë ose e ndryshoi emrin, le ta hapë Stoku-n një herë dhe provo përsëri.' : 'Ftesa s\'u dërgua. Kontrollo internetin dhe provo përsëri.';
   }
 
   function vizatoAnetaret(c) {
