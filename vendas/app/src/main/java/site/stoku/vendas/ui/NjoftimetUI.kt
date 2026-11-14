@@ -155,8 +155,12 @@ fun NjoftimetFaqja(mbrapa: () -> Unit) {
                 r == "pa-token" -> "Telefoni s'është lidhur ende me shërbimin e njoftimeve të Google-it. Provo pas pak."
                 r == "rregullat" -> "Firebase s'e lejoi lidhjen e këtij telefoni me grupin. Hape Grupin një herë dhe provo sërish."
                 r == "pa-hyrje" -> "Hyr në llogari që të vijnë njoftimet e Grupit edhe kur Stoku është i mbyllur."
-                r == "ok" || r == "rrjeti" -> "S'u lidh me serverin e njoftimeve. Kontrollo internetin dhe provo sërish."
-                else -> "S'u lidh me serverin e njoftimeve ($r). Provo sërish."
+                // Hyrja 65: arsyet e ndara (më parë "ok" dhe çdo gabim dilnin "Kontrollo internetin")
+                r == "kohe" -> "Telefoni u regjistrua, por Firebase s'e ka konfirmuar ende. Njoftimet duhet të vijnë; nëse s'vijnë, provo sërish pas pak."
+                r.startsWith("serveri") -> "Telefoni u regjistrua te grupi, por serveri i njoftimeve (stoku-push) s'u përgjigj (kodi: $r). Provo sërish pas pak."
+                r == "rrjeti" -> "S'ka lidhje me internetin. Kontrollo internetin dhe provo sërish."
+                r == "ok" -> "Telefoni u regjistrua, por njoftimet ende s'janë gati (kodi: ok). Mbylle dhe hape Stoku-n, pastaj provo sërish."
+                else -> "S'u lidh me serverin e njoftimeve (kodi: $r). Provo sërish."
             }
         }
     }
