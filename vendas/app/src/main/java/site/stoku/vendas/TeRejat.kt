@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(62, "2026-11-14", "PDF e afateve: fundi i faqeve", listOf(
+            "Faqja e parë s'ka më vijë të dyfishtë poshtë tabelës.",
+            "Faqet e tjera s'kanë më \"Krijuar me Stoku\" poshtë: tabela vazhdon deri në fund të faqes, pa zbrazëti."
+        )),
         Hyrja(61, "2026-11-13", "PDF e afateve më e pastër", listOf(
             "Te PDF-ja e afateve, logoja, titulli dhe të dhënat dalin vetëm në faqen e parë; faqet e tjera nisin direkt me tabelën.",
             "Kolona \"Copë\" është pak më majtas, larg datës së skadimit."

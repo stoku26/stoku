@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 300, versioni: '1.57.3', data: '2026-11-14', titulli: 'PDF e afateve: fundi i faqeve', platforma: 'tel', pikat: [
+      'Faqja e parë s\'ka më vijë të dyfishtë poshtë tabelës.',
+      'Faqet e tjera s\'kanë më "Krijuar me Stoku" poshtë: tabela vazhdon deri në fund të faqes, pa zbrazëti.'
+    ] },
     { v: 299, versioni: '1.57.2', data: '2026-11-14', titulli: 'PDF e afateve më e pastër', platforma: 'tel', pikat: [
       'Te PDF-ja e afateve, logoja, titulli dhe të dhënat dalin vetëm në faqen e parë; faqet e tjera nisin direkt me tabelën.',
       'Kolona "Copë" është pak më majtas, larg datës së skadimit.'

@@ -6098,13 +6098,15 @@
   var AP_RENDET = [['data', 'Sipas datës'], ['furnizuesi', 'Sipas furnizuesit'], ['emri', 'Sipas emrit']];
   // Faqja në mm: A4, anët 12.7. Faqja 1 (pronari, "koka 1"): logoja e vogël majtas, data djathtas, "Lista e afateve" në mes dhe poshtë
   // "Periudha: … · N produkte · M copë"; trupi nis te 37.2 (33 rreshta). v299 (pronari, foto): faqet e tjera pa logo/titull/të dhëna,
-  // vetëm koka e tabelës, trupi nis te 15.3 (36 rreshta). "COPË" më majtas, larg "SKADON": kolona 18 mm, numri 6 mm para skajit (SASIA_P).
-  var AP = { W: 210, H: 297, MX: 12.7, KOKA1: 37.2, KOKA: 15.3, RR: 7.4, FUND: 283, SASIA_P: 6 };
+  // vetëm koka e tabelës, trupi nis te 15.3. "COPË" më majtas, larg "SKADON": kolona 18 mm, numri 6 mm para skajit (SASIA_P).
+  // v300 (pronari, foto): faqja 1 pa vijën e dytë mbi "Krijuar me Stoku" (dukej e dyfishtë); faqet 2+ pa "Krijuar me Stoku" dhe pa
+  // "Faqja X nga Y", tabela deri te FUND2 290 (37 rreshta, pa zbrazëti poshtë).
+  var AP = { W: 210, H: 297, MX: 12.7, KOKA1: 37.2, KOKA: 15.3, RR: 7.4, FUND: 283, FUND2: 290, SASIA_P: 6 };
   var AP_NGJ = { ink: [20, 22, 27], ink2: [58, 61, 68], muted: [107, 110, 118], faint: [138, 141, 148], line2: [232, 230, 225], zebra: [250, 249, 247] };
   // Sa rreshta në secilën faqe
   function apPlani(n) {
     var faqet = [], y0 = AP.KOKA1;
-    do { var nxe = Math.floor((AP.FUND - y0) / AP.RR); faqet.push(Math.min(nxe, n)); n -= nxe; y0 = AP.KOKA; } while (n > 0);
+    do { var nxe = Math.floor(((faqet.length ? AP.FUND2 : AP.FUND) - y0) / AP.RR); faqet.push(Math.min(nxe, n)); n -= nxe; y0 = AP.KOKA; } while (n > 0);
     return faqet;
   }
   function apGjendjaOk(a, gj) {
@@ -6215,14 +6217,12 @@
       }
       for (var j = 0; j < k; j++, idx++) { rreshti(l[idx], idx, y); y += AP.RR; }
     });
+    // v300: fundi vetëm te faqja 1, pa vijë (vija e rreshtit të fundit mjafton)
     var np = d.getNumberOfPages();
-    for (var f = 1; f <= np; f++) {
-      d.setPage(f);
-      ng(C.line2, 'Draw'); d.setLineWidth(0.26); d.line(X, 286.4, X + WI, 286.4);
-      font(7.9, false); ng(C.faint);
-      d.text('Krijuar me Stoku · stoku.site · ' + o.data + ', ora ' + o.ora, X, 290.6);
-      d.text('Faqja ' + f + ' nga ' + np, X + WI, 290.6, { align: 'right' });
-    }
+    d.setPage(1);
+    font(7.9, false); ng(C.faint);
+    d.text('Krijuar me Stoku · stoku.site · ' + o.data + ', ora ' + o.ora, X, 290.6);
+    d.text('Faqja 1 nga ' + np, X + WI, 290.6, { align: 'right' });
     return d.output('arraybuffer');
   }
   function apHap() {

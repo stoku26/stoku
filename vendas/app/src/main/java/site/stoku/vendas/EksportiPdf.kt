@@ -35,6 +35,7 @@ object EksportiPdf {
     private const val P_SASIA = 6f // hapësira djathtas e kolonës COPË (Hyrja 61)
     private const val RR = 7.4f
     private const val FUND = 283f
+    private const val FUND2 = 290f // Hyrja 62: faqet 2+ pa fund ("Krijuar me Stoku", "Faqja X nga Y"), tabela deri poshtë (37 rreshta)
     private const val PT = 25.4f / 72f // 1 pikë (pt) në mm
 
     private fun c(h: Long) = (h or 0xFF000000L).toInt()
@@ -46,7 +47,7 @@ object EksportiPdf {
         val faqet = ArrayList<Int>()
         var mbetur = n
         var y0 = KOKA1
-        do { val nxe = floor((FUND - y0) / RR).toInt(); faqet.add(minOf(nxe, mbetur)); mbetur -= nxe; y0 = KOKA } while (mbetur > 0)
+        do { val nxe = floor(((if (faqet.isEmpty()) FUND else FUND2) - y0) / RR).toInt(); faqet.add(minOf(nxe, mbetur)); mbetur -= nxe; y0 = KOKA } while (mbetur > 0)
         return faqet
     }
 
@@ -163,10 +164,12 @@ object EksportiPdf {
             v.vije(X, y + RR, X + WI, y + RR, 0.2f, LINE2)
             y += RR
         }
-        v.vije(X, 286.4f, X + WI, 286.4f, 0.26f, LINE2)
-        v.font(7.9f, false)
-        v.tekst("Krijuar me Stoku · stoku.site · " + o.data + ", ora " + o.ora, X, 290.6f, FAINT)
-        v.tekst("Faqja ${faqja + 1} nga ${plani.size}", X + WI, 290.6f, FAINT, true)
+        // Hyrja 62 (web v300): fundi vetëm te faqja 1, pa vijën e dytë (dukej e dyfishtë me vijën e rreshtit të fundit)
+        if (faqja == 0) {
+            v.font(7.9f, false)
+            v.tekst("Krijuar me Stoku · stoku.site · " + o.data + ", ora " + o.ora, X, 290.6f, FAINT)
+            v.tekst("Faqja 1 nga ${plani.size}", X + WI, 290.6f, FAINT, true)
+        }
     }
 
     /** PDF-ja (A4, 595 × 842 pt): bajtet */

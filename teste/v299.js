@@ -82,7 +82,7 @@ const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
   const sa = rx => (s.match(rx) || []).length;
   ok(faqet(s) === 3 && sa(/\(Lista e afateve\)/g) === 1 && sa(/\(Periudha: /g) === 1 && sa(/\(PRODUKTI\)/g) === 3,
     '2. "Lista e afateve" dhe "Periudha" vetëm në faqen 1; koka e tabelës në të 3 faqet', { faqe: faqet(s), titulli: sa(/\(Lista e afateve\)/g), periudha: sa(/\(Periudha: /g), koka: sa(/\(PRODUKTI\)/g) });
-  ok(/\(Produkti 69\)/.test(s) && /\(Produkti 80\)/.test(s) && /\(Faqja 3 nga 3\)/.test(s), '3. 33 + 36 + 11 rreshta');
+  ok(/\(Produkti 70\)/.test(s) && /\(Produkti 80\)/.test(s) && /\(Faqja 1 nga 3\)/.test(s), '3. 33 + 37 + 10 rreshta (v300)');
   const x = t => { const m = s.match(new RegExp('([0-9.]+) [0-9.]+ Td\\s*\\(' + t + '\\) Tj')); return m ? Number(m[1]) : null; };
   const xc = x('COP\xcb'), xs = x('SKADON');
   ok(xc !== null && xs !== null && xs - xc > 30, '4. "COPË" më larg nga "SKADON" (> 30 pt)', { xc, xs, dif: xs && xc ? +(xs - xc).toFixed(1) : null });

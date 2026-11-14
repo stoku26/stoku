@@ -52,6 +52,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **PDF E AFATEVE: FUNDI I FAQEVE (v300 = 1.57.3, 14.11.2026, telefoni + Android Hyrja 62)**: pronari (dy foto, "Qomi foto para
+   se me i bo" → i pa krahasimin para/pas: "Po bone perfekt osht"): faqja 1 "rregulloje qat problem me vijen e poshtme" (vija 286.4 mbi
+   "Krijuar me Stoku" + vija e rreshtit të fundit dukeshin të dyfishta) → pa vijë, vetëm teksti "Krijuar me Stoku · data, ora" dhe
+   "Faqja 1 nga N"; faqet 2+ "fshija qeto komplet" (pa "Krijuar me Stoku" as "Faqja X nga Y") "edhe rregulloje zbraztiren posht" →
+   tabela deri te `AP.FUND2` / `FUND2` 290 (37 rreshta; plani 80 → 33, 37, 10). PC-ja s'ka PDF të afateve (vetëm raportin e stokut):
+   pronari: "npc kshyrmi e boj naj her". Test: `teste/v300.js` (83 vija për 80 afate); v275/v299 të përshtatur.
 0000000. **PDF E AFATEVE: KOKA VETËM NË FAQEN 1, "COPË" MË MAJTAS (v299 = 1.57.2, 14.11.2026, telefoni + Android Hyrja 61)**:
    pronari (foto e faqes 2): logoja + "Lista e afateve" + "Periudha … produkte … copë" "duhet mos mu kon ne faqe tjera ... veq te
    faqja e par"; "cope ... qoje pak ma ntmajt se osht shum afer skadon". `apPdf` (app-tel.js) = `EksportiPdf` (Kotlin): faqet 2+
