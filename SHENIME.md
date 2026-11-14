@@ -3108,6 +3108,11 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Çdo PR duhet përshkrim të plotë shqip: çka ndryshoi, si u testua, çfarë numrash versioni u prekën.
 
 ## Gjëra që përdoruesi i ka refuzuar/anuluar shprehimisht (mos i propozo/rikthe pa pyetur)
+- **Ridizajnimi i plotë dhe riorganizimi i opsioneve (14.11.2026, vetëm propozime, asgjë s'u fut në projekt)**: kërkoi 10 dizajne
+  të reja (PC, telefon, Android, orë) dhe riorganizim (5 pjesë: Sot, Afatet, Stoku, Grupi, Profili). Asnjë dizajn s'i pëlqeu
+  ("Kurgjo hiq sum pelqej"); riorganizimin e pa si foto provë mbi dizajnin e tashëm dhe e anuloi: "Jo anuloje komplet edhe
+  riorganizimin edhe dizajnet". Mbeten dizajni dhe renditja e tashme (4 tabe: Stoku, Afatet, Grupi, Cilësimet); mos propozo
+  tab "Sot", "Profili" në vend të "Cilësimet", as ridizajnim pa e kërkuar vetë.
 - **Zgjedhja e zërit të skanimit (10 zëra, v292 / Android Hyrja 54)**: e hoqi menjëherë (v294 / Hyrja 56): "Heke komplet zerin e
   skanimit kthe qysh u kon". Skanimi ka vetëm bip-in e zakonshëm (ndezës "Tingulli" po/jo); mos e rikthe zgjedhjen e zërit.
 - **Dritaret "si xham" (tejdukshmëri + turbullim, v286 / Hyrja 48 dhe 49)**: i pa në telefon dhe i hoqi menjëherë (v287): "mut e ke bo
