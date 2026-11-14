@@ -60,6 +60,8 @@ const shkarkimi = async (p, fn) => { const [d] = await Promise.all([p.waitForEve
   await p.evaluate(() => document.querySelectorAll('.mbulese.hapur').forEach(x => x.classList.remove('hapur')));
   const tx = (await p.textContent('#afBtnExcel')).trim();
   ok(tx === 'Eksporto', '1. butoni quhet "Eksporto"', tx);
+  const ik = await p.evaluate(() => [...document.querySelectorAll('#afBtnImport svg path, #afBtnExcel svg path')].map(x => x.getAttribute('d')).join('|'));
+  ok(/M12 3v12M7 10l5 5 5-5/.test(ik) && /M12 15V3M7 8l5-5 5 5/.test(ik), '1. ikonat si te telefoni: "Importo" shigjeta poshtë, "Eksporto" shigjeta lart', ik);
   await p.click('#afBtnExcel'); await p.waitForTimeout(300);
   const menu = await p.$$eval('#menu.hapur button', l => l.map(x => x.textContent.trim()));
   ok(menu.join() === 'Eksporto Excel,Eksporto PDF,Eksporto si foto', '1. menyja si te telefoni', menu);

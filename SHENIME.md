@@ -61,7 +61,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    skedariFotos, fontet, logo, planiPdf, pdf(l, o, paFurnizues), FOTO_MAKS, NGJ): kodi i vizatimit u zhvendos PA NDRYSHIME nga
    app-tel.js (aefVizato, apPdf, AP, AEF_*), që telefoni dhe PC-ja ta ndajnë; telefoni i thërret me emrat e vjetër (aefVizato,
    apPdf, apPlani). Ngarkohet pas afatet.js te index.html, pc.html dhe SHELL i sw.js. Android: EksportiFoto.kt / EksportiPdf.kt
-   mbeten binjakët (ndryshoji bashkë). Test: `teste/v301.js` (PC); v274/v275/v299/v300 (telefoni) kalojnë pa ndryshim.
+   mbeten binjakët (ndryshoji bashkë). Pronari: "importo ne web pc e paska gabim ikonen bone si ne telefon": `#afBtnImport` me shigjetën
+   poshtë në kuti (si `#afImporto` te telefoni), "Eksporto" me shigjetën lart. Test: `teste/v301.js` (PC, edhe ikonat); v274/v275/v299/v300 (telefoni) kalojnë pa ndryshim.
 0000000. **PDF E AFATEVE: FUNDI I FAQEVE (v300 = 1.57.3, 14.11.2026, telefoni + Android Hyrja 62)**: pronari (dy foto, "Qomi foto para
    se me i bo" → i pa krahasimin para/pas: "Po bone perfekt osht"): faqja 1 "rregulloje qat problem me vijen e poshtme" (vija 286.4 mbi
    "Krijuar me Stoku" + vija e rreshtit të fundit dukeshin të dyfishta) → pa vijë, vetëm teksti "Krijuar me Stoku · data, ora" dhe
