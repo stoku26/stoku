@@ -1,8 +1,9 @@
 /*
  * Njoftimet për afatet (telefon) — e përbashkët për faqen (index.html) dhe service worker-in (sw.js).
  *
- *  - Kur një produkt hyn në 30 ditët e fundit:  "Kraco çaj limon" · "Skadon edhe 30 ditë (27.10.2026)."
- *  - Kur një produkt skadon:                    "Kraco çaj limon" · "Ka skaduar — hiqe këtë produkt nga rafti/pozita."
+ *  - v304: VETËM kur një produkt skadon sot:   "Kraco çaj limon" · "Skadon sot (27.10.2026)."
+ *  - Kur një produkt ka skaduar:                "Kraco çaj limon" · "Ka skaduar. Hiqe këtë produkt nga rafti/pozita."
+ *  (pronari: "njoftimin qe vjen per produktet qe skadojn brenda 30 diteve hiqe krejt"; s'ka më njoftim 30 ditë para)
  *
  * Çdo njoftim jepet VETËM NJË HERË për të njëjtin produkt dhe të njëjtën datë (nëse data ndryshohet, njoftohet sërish).
  * Produktet e hequra nga rafti nuk njoftohen.
@@ -75,10 +76,11 @@
       if (!a || !a.id || a.statusi === 'hequr') return;
       var st = AF.statusi(a, tani);
       if (st !== 'afer' && st !== 'skaduar') return;
+      var n = AF.ditetDeri(a.data, tani);
+      if (st === 'afer' && n !== 0) return; // v304: nga "afër skadimit" vetëm ato që skadojnë sot
       var celesi = a.id + '|' + a.data + '|' + st;
       if (njoftuar[celesi]) return;
       var emri = a.emri || a.barkodi || 'Produkt pa emër';
-      var n = AF.ditetDeri(a.data, tani);
       var teksti = st === 'skaduar'
         ? 'Ka skaduar. Hiqe këtë produkt nga rafti/pozita.'
         : (n === 0 ? 'Skadon sot' : 'Skadon edhe ' + AF.ditetTekst(n)) + ' (' + AF.formato(a.data) + ').';
@@ -116,7 +118,7 @@
         if (grupi.length > MAKS_VECMAS) {
           var emrat = grupi.slice(0, 6).map(function (x) { return x.emri; }).join(', ') + (grupi.length > 6 ? '…' : '');
           premtimet.push(reg.showNotification(
-            lloji === 'skaduar' ? grupi.length + ' produkte kanë skaduar' : grupi.length + ' produkte skadojnë brenda 30 ditëve',
+            lloji === 'skaduar' ? grupi.length + ' produkte kanë skaduar' : grupi.length + ' produkte skadojnë sot',
             opsionet((lloji === 'skaduar' ? 'Hiqi nga rafti/pozita: ' : '') + emrat + '.', 'stoku-grup-' + lloji)));
         } else {
           grupi.forEach(function (x) { premtimet.push(reg.showNotification(x.emri, opsionet(x.teksti, 'stoku-' + x.id + '-' + x.lloji))); });

@@ -50,7 +50,7 @@ const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databa
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
 const PUSH_MAKS = 36;
-const VERSIONI_WORKER = 171; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 172; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 const W = {
@@ -237,24 +237,30 @@ function kohaLokale(tani, tz) {
   formatuesi(tz).formatToParts(new Date(tani)).forEach(x => { pj[x.type] = x.value; });
   return { dita: pj.year + '-' + pj.month + '-' + pj.day, minuta: Number(pj.hour) * 60 + Number(pj.minute) };
 }
-// Teksti i njoftimit ditor; null kur s'ka çka të thuhet
-// Vetëm produktet që skadojnë SOT; pa to s'dërgohet asgjë
+// Teksti i njoftimit ditor; null kur s'ka çka të thuhet.
+// v172 (web v304, pronari): produktet që skadojnë SOT + ato që KANË SKADUAR dhe s'janë hequr ende (çdo ditë, derisa të hiqen).
 function njoftimiDitor(afatet, sot) {
-  const sotL = (afatet || []).filter(a => a && DATA_RE.test(a.d || '') && a.d === sot);
-  if (!sotL.length) return null;
+  const te = (afatet || []).filter(a => a && DATA_RE.test(a.d || ''));
+  const sotL = te.filter(a => a.d === sot), skL = te.filter(a => a.d < sot);
+  if (!sotL.length && !skL.length) return null;
   const emri = a => a.e || a.b || 'produkt';
-  let teksti;
-  if (sotL.some(a => a.mk)) {
-    // v167: disa markete (merchandiserët): "3 produkte skadojnë sot. Albi Mall: Kos, Bukë · Viva: Jogurt."
-    const gr = new Map();
-    sotL.forEach(a => { const k = a.mk || 'Pa market'; if (!gr.has(k)) gr.set(k, []); gr.get(k).push(a); });
-    const pjeset = [...gr.entries()].map(([m, l]) => m + ': ' + l.slice(0, 4).map(emri).join(', ') + (l.length > 4 ? ' +' + (l.length - 4) : ''));
-    teksti = (sotL.length === 1 ? 'Skadon sot. ' : sotL.length + ' produkte skadojnë sot. ') + pjeset.join(' · ') + '.';
-  } else {
-    teksti = sotL.length === 1 ? emri(sotL[0]) + ' skadon sot. Hiqe nga rafti.'
-      : sotL.length + ' produkte skadojnë sot: ' + sotL.slice(0, 5).map(emri).join(', ') + (sotL.length > 5 ? '…' : '') + '.';
-  }
-  return { titulli: 'Stoku · Skadon sot', teksti: teksti.length > 220 ? teksti.slice(0, 217) + '…' : teksti, sot: sotL.length };
+  // Teksti si më parë (v167) për ato që skadojnë sot; njësoj për të skaduarat
+  const pjesa = (l, nje, shume, folja, hiq) => {
+    if (l.some(a => a.mk)) { // v167: disa markete (merchandiserët): "3 produkte skadojnë sot. Albi Mall: Kos, Bukë · Viva: Jogurt."
+      const gr = new Map();
+      l.forEach(a => { const k = a.mk || 'Pa market'; if (!gr.has(k)) gr.set(k, []); gr.get(k).push(a); });
+      const pj = [...gr.entries()].map(([m, x]) => m + ': ' + x.slice(0, 4).map(emri).join(', ') + (x.length > 4 ? ' +' + (x.length - 4) : ''));
+      return (l.length === 1 ? nje + '. ' : l.length + ' produkte ' + shume + '. ') + pj.join(' · ') + '.' + (hiq ? ' Hiqi nga rafti.' : '');
+    }
+    return l.length === 1 ? emri(l[0]) + ' ' + folja + '. Hiqe nga rafti.'
+      : l.length + ' produkte ' + shume + ': ' + l.slice(0, 5).map(emri).join(', ') + (l.length > 5 ? '…' : '') + '.' + (hiq ? ' Hiqi nga rafti.' : '');
+  };
+  const pj = [];
+  if (sotL.length) pj.push(pjesa(sotL, 'Skadon sot', 'skadojnë sot', 'skadon sot', false));
+  if (skL.length) pj.push(pjesa(skL, 'Ka skaduar', 'kanë skaduar', 'ka skaduar', true));
+  const teksti = pj.join(' ');
+  const titulli = sotL.length && skL.length ? 'Stoku · Skadon sot dhe të skaduara' : sotL.length ? 'Stoku · Skadon sot' : 'Stoku · Hiqi nga rafti';
+  return { titulli, teksti: teksti.length > 220 ? teksti.slice(0, 217) + '…' : teksti, sot: sotL.length, skaduar: skL.length };
 }
 // ---------- Ora (Galaxy Watch / Wear OS) ----------
 // Lidhja: ora krijon kodin 6-shifror + një sekret 64-hex (POST /ora/kodi, pa llogari); përdoruesi e shkruan kodin

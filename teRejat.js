@@ -20,6 +20,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 304, versioni: '1.58.3', data: '2026-11-14', titulli: 'Njoftimet: të detyrueshme dhe më të qarta', platforma: 'tel', pikat: [
+      'Pas hyrjes me llogari, Stoku të kërkon t\'i aktivizosh njoftimet dhe s\'mund të vazhdosh pa to (vizitori jo).',
+      'Njoftimi "skadon brenda 30 ditëve" u hoq. Vijnë vetëm produktet që skadojnë sot dhe, çdo ditë, ato që kanë skaduar e duhen hequr nga rafti.',
+      'Njoftimi ditor ndizet vetë (ora 08:00, mund ta ndryshosh te Cilësimet → Njoftimet).'
+    ] },
     { v: 303, versioni: '1.58.2', data: '2026-11-14', titulli: 'Njoftimet e grupit edhe me Stoku të mbyllur', pikat: [
       'Ftesa në grup dhe kërkesa për t\'u futur në grup të vijnë si njoftim në telefon/PC edhe kur Stoku është i mbyllur.',
       'Ftesa i dërgohet vetëm llogarisë së personit. Nëse ai s\'e ka hapur ende Stoku-n pas përditësimit, të del "S\'u gjet asnjë llogari me këtë emër": le ta hapë një herë dhe provo përsëri.'

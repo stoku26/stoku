@@ -947,7 +947,7 @@
   .pd-rrezik { color: var(--sb-exp, var(--rrezik)) !important; }
   .pd-krejt { width: 100%; margin-top: 14px; }
   .pd-shenim { margin-top: 14px; text-align: center; }
-  #dlgNjoftimet { z-index: 25; }
+  #dlgNjoftimet { z-index: 90; } /* v304: e detyrueshme pas hyrjes me llogari, mbi çdo faqe */
   /* "Çfarë ka të re" */
   #dlgTeRejat { z-index: 25; }
   .tr-dialog { max-width: 420px; }
@@ -979,6 +979,7 @@
   .nj-pike { flex: none; width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; }
   .nj-pike.verdhe { background: #f5b400; }
   .nj-pike.kuqe { background: #e5483e; }
+  .nj-pike.blu { background: #2f6fde; }
   .af-muajt button .n { margin-left: 5px; font-weight: 600; opacity: .7; }
   #dlgAfImport { z-index: 24; }
   #dlgAfImport .dialog { max-width: 520px; }
@@ -2015,14 +2016,15 @@
 <div class="mbulese" id="dlgNjoftimet">
   <div class="dialog nj-dialog" role="dialog" aria-modal="true" aria-labelledby="njTitulli">
     <div class="nj-ikona"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg></div>
-    <h2 id="njTitulli">Njoftimet për afatet</h2>
-    <p class="nj-tekst">Të lajmërojmë me njoftim në telefon:</p>
+    <h2 id="njTitulli">Aktivizo njoftimet</h2>
+    <p class="nj-tekst" id="njTeksti">Stoku të lajmëron me njoftim në telefon (edhe në orë):</p>
     <ul class="nj-lista">
-      <li><span class="nj-pike verdhe"></span><span>kur një produkti i kanë mbetur <b>30 ditë</b> deri në skadim</span></li>
-      <li><span class="nj-pike kuqe"></span><span>kur një produkt <b>skadon</b>, që ta heqësh nga rafti/pozita</span></li>
+      <li><span class="nj-pike verdhe"></span><span>për produktet që <b>skadojnë sot</b></span></li>
+      <li><span class="nj-pike kuqe"></span><span>çdo ditë për produktet që <b>kanë skaduar</b>, që t'i heqësh nga rafti/pozita</span></li>
+      <li><span class="nj-pike blu"></span><span>për kërkesat dhe njoftimet e <b>grupit</b></span></li>
     </ul>
+    <p class="nj-tekst" id="njBllokuar" hidden>Njoftimet janë të bllokuara. Lejoji te: <b>Cilësimet e telefonit → Aplikacionet → Chrome (ose Stoku) → Njoftimet → Lejo</b>, ose te shfletuesi: ikona pranë adresës → Lejet → Njoftimet → Lejo. Pastaj kthehu këtu.</p>
     <div class="veprime">
-      <button class="btn tekst" id="njJoTani" type="button">Jo tani</button>
       <button class="btn" id="njAktivizo" type="button">Aktivizo njoftimet</button>
     </div>
   </div>
@@ -2195,9 +2197,9 @@
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
 <script src="ekipa.js?v=303"></script>
-<script src="njoftimet.js?v=281"></script>
-<script src="teRejat.js?v=303"></script>
-<script src="app-tel.js?v=303"></script>
+<script src="njoftimet.js?v=304"></script>
+<script src="teRejat.js?v=304"></script>
+<script src="app-tel.js?v=304"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>

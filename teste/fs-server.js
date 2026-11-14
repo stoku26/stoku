@@ -357,7 +357,7 @@ function krijoFirestore(opt = {}) {
 
   // ---------------- Skripti i faqes: "fs" i rremë + __stokuCloud me kodin e vërtetë ----------------
   function skripti() {
-    return ({ uid, email, platforma, lokale, adminProve }) => {
+    return ({ uid, email, platforma, lokale, adminProve, detyroNjoftimet }) => {
       // v232 (testet): llogaria e ndërruar (si Firebase, e përbashkët për krejt skedat e pajisjes) vlen edhe pas rifreskimit
       try { const o = JSON.parse(localStorage.getItem('__fsLlogaria') || 'null'); if (o && o.uid) { uid = o.uid; email = o.email; } } catch (e) { /* ok */ }
       const emri = email.split('@')[0];
@@ -455,6 +455,8 @@ function krijoFirestore(opt = {}) {
         localStorage.setItem('stoku:porta:hyrja', JSON.stringify({ uid, emri }));
       }
       localStorage.setItem('stoku:te-rejat:pare', '999');
+      // v304: dritarja e detyrueshme e njoftimeve (headless: leja "denied") s'u del testeve; v304.js e provon me S.meNjoftime
+      if (!detyroNjoftimet && !localStorage.getItem('stoku:njoftimet:jo-tani')) localStorage.setItem('stoku:njoftimet:jo-tani', String(Date.now()));
       if (lokale && !localStorage.getItem('stoku:afatet:v1')) {
         localStorage.setItem('stoku:afatet:v1', JSON.stringify(lokale.afatet || []));
         if (lokale.foldera) localStorage.setItem('stoku:foldera:v1', JSON.stringify(lokale.foldera));
@@ -496,7 +498,7 @@ function krijoFirestore(opt = {}) {
 
   async function lidh(ctx, uid, email, platforma, lokale) {
     await ctx.exposeBinding('__fs', (src, emer, ...x) => op(src.page, emer, ...x));
-    await ctx.addInitScript(skripti(), { uid, email, platforma, lokale: lokale || null, adminProve: !S.adminVetemUid });
+    await ctx.addInitScript(skripti(), { uid, email, platforma, lokale: lokale || null, adminProve: !S.adminVetemUid, detyroNjoftimet: !!S.meNjoftime });
     emailet.set(uid, email);
     ctx.on('page', p => faqet.set(p, { uid, email }));
   }

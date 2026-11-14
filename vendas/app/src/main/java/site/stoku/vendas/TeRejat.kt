@@ -8,6 +8,11 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(66, "2026-11-14", "Njoftimet: të detyrueshme dhe më të qarta", listOf(
+            "Pas hyrjes me llogari, Stoku të kërkon t'i aktivizosh njoftimet dhe s'mund të vazhdosh pa to.",
+            "Njoftimi \"skadon brenda 30 ditëve\" u hoq. Vijnë vetëm produktet që skadojnë sot dhe, çdo ditë, ato që kanë skaduar e duhen hequr nga rafti.",
+            "Njoftimi ditor ndizet vetë (ora 08:00, mund ta ndryshosh te Cilësimet → Njoftimet)."
+        )),
         Hyrja(65, "2026-11-14", "Njoftimet: arsyeja e saktë", listOf(
             "Te Cilësimet → Njoftimet, kur telefoni s'lidhet me njoftimet e grupit, tani del arsyeja e vërtetë (jo gjithmonë \"Kontrollo internetin\").",
             "Regjistrimi i telefonit për njoftimet pret më gjatë dhe, nëse Firebase vonohet, provohet sërish vetë herën tjetër."
