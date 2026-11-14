@@ -13,7 +13,7 @@ const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); 
   // 0. Kodi
   const lexo = f => fsN.readFileSync(R + f, 'utf8');
   const wp = lexo('worker/stoku-push.js'), kt = lexo('vendas/app/src/main/java/site/stoku/vendas/Grupi.kt'), push = lexo('vendas/app/src/main/java/site/stoku/vendas/Push.kt');
-  ok(/VERSIONI_WORKER = 171/.test(wp) && /rruga === '\/grupi'/.test(wp) && /lloji === 'admin-i-ri'/.test(wp), '0. Worker 171: /grupi + teksti "admin-i-ri"');
+  ok(/VERSIONI_WORKER = 17[1-9]/.test(wp) && /rruga === '\/grupi'/.test(wp) && /lloji === 'admin-i-ri'/.test(wp), '0. Worker 171: /grupi + teksti "admin-i-ri"');
   ok(/fun njoftoKerkese/.test(push) && /fun njoftoGrupin/.test(push), '0. Android Push: /kerkese + /grupi');
   const nMePush = (kt.match(/njoftimMePush\(/g) || []).length;
   ok(nMePush >= 6 && /Push\.njoftoKerkese\(id, g\)/.test(kt) && (kt.match(/Push\.njoftoGrupin\(/g) || []).length === 3, '0. Android Grupi: push për çdo njoftim (hequr, admin-afat, heqje, admin-i-ri, lajmerim), kërkesat, ftesat', nMePush);

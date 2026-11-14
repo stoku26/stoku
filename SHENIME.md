@@ -56,13 +56,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    pronari: "Detyroj njoftimet mi aktivizu ne android app edhe web app tel. Ndersa ne pc jo. Vetem pasi dikush kyqet ne llogari
    nese osht si vizitor mos e detyro. Edhe gjeje pse ne ore galaxy watch pse aty svjen asni njoftim hiq. Edhe njoftimin qe vjen per
    produktet qe skadojn brenda 30 diteve hiqe krejt, leje veq ato ditor per ato produkte qka kan skadu qe duhen mu hek edhe ato qka
-   skadojn sot". (1) **Web tel** `#dlgNjoftimet`: pa "Jo tani" (`njJoTani` u hoq), z-index 90, "mbrapa"/Escape s'e mbyllin
+   skadojn sot". (1) **Web tel** `#dlgNjoftimet`: pa "Jo tani" (`njJoTani` u hoq), z-index 39 (mbi çdo dritare, nën toast-in 40), "mbrapa"/Escape s'e mbyllin
    (`mbyllShtresenMeTeFundit`), hapet sa herë `duhenNjoftimet()` (Notification e mbështetur + me llogari + jo vizitor + leja ≠
    granted; s'kërkon më aplikacionin të instaluar, `eshteInstaluar` u hoq); leja "denied" → udhëzimet `#njBllokuar` + "I lejova,
    kontrollo sërish"; rikontroll te `visibilitychange` dhe `stoku-auth-ndryshoi`. Pas lejes: push, kontrolli periodik dhe
    `ndizDitorinNeseSKaOrar` (njoftimi ditor ndizet vetë kur `orariIm()` s'ekziston ende, ora e zgjedhur/08:00; kush e fiku vetë
-   mbetet i fikur). `stoku:njoftimet:jo-tani` mbetet VETËM për testet (fs-server.js e vendos vetë; `S.meNjoftime` e çaktivizon);
-   përdoruesi s'ka buton. PC: asgjë. iPhone pa ekranin bazë (pa Notification): s'detyrohet. (2) **Android** `PyetjaENjoftimeve`:
+   mbetet i fikur). `njRefuzuar`: shfletuesi e refuzoi kërkesën pa e ndryshuar lejen (dritare private) → tregohen udhëzimet.
+   VETËM për testet: `window.__stokuPaNjoftime` (e vendos `teste/pw.js` te çdo kontekst, sepse headless e ka lejen "denied";
+   `require('./pw.js').meNjoftime = true` e fik, si te v304.js); `stoku:njoftimet:jo-tani` s'ka më kuptim; përdoruesi s'ka buton. PC: asgjë. iPhone pa ekranin bazë (pa Notification): s'detyrohet. (2) **Android** `PyetjaENjoftimeve`:
    `Dialog` me `dismissOnBackPress = false, dismissOnClickOutside = false`, pa "Jo tani"; e bllokuar → "Hape cilësimet e
    njoftimeve" (ACTION_APP_NOTIFICATION_SETTINGS); kontrollohet çdo 1.5 s; pas lejes `Push.aktivizo(true)` + njoftimi ditor vetë
    (`Push.orariIm() == null`). Pa vizitorin. (3) **Pa "30 ditë"**: njoftimet.js `teReja` vetëm `skaduar` + `afer` me n == 0
@@ -71,7 +72,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    aplikacioni i orës (`ora/`) s'ka njoftime të vetat (vetëm lista, Tile, komplikacioni); njoftimet në orë janë ato të telefonit
    (Galaxy Wearable i pasqyron). Pa njoftime në telefon (gabimi i regjistrimit te Hyrja 65) s'ka as në orë; te Galaxy Wearable →
    Njoftimet duhet të jetë ndezur "Stoku"; Samsung i dërgon në orë vetëm kur ekrani i telefonit është i fikur. **PRONARI**:
-   stoku-push 172. Testet: teste/v304.js, wp/orari-prova (të skaduarat), fs-server.js (`detyroNjoftimet`).
+   stoku-push 172. Testet: teste/v304.js, wp/orari-prova (të skaduarat), teste/pw.js (shenja e testeve).
 
 0000000. **ANDROID HYRJA 65: "S'U LIDH ME SERVERIN E NJOFTIMEVE" (14.11.2026, vetëm Android)**: pronari (foto, Cilësimet →
    Njoftimet: "Aktive kur Stoku është hapur" + "S'u lidh me serverin e njoftimeve. Kontrollo internetin" ndërsa poshtë "✓ Serveri

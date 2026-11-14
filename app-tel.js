@@ -8757,19 +8757,18 @@
   // v304 (pronari: "Detyroj njoftimet mi aktivizu ... vetem pasi dikush kyqet ne llogari, nese osht si vizitor mos e detyro"):
   // pas hyrjes me llogari, dritarja s'mbyllet ("Jo tani" u hoq, as "mbrapa") derisa njoftimet të lejohen. Vetëm aty ku
   // shfletuesi i mbështet (iPhone pa Stoku në ekranin bazë s'i ka: s'detyrohet). Pa vizitorin; PC-ja (pc.html) jo.
-  // 'stoku:njoftimet:jo-tani' (pa buton në aplikacion; e vendosin vetëm testet) e shtyn dritaren 3 ditë
-  var KEY_NJ_JO_TANI = 'stoku:njoftimet:jo-tani';
+  // `window.__stokuPaNjoftime` e vendosin VETËM testet (teste/pw.js; headless e ka lejen "denied"): pa të, dritarja do t'i
+  // bllokonte. Përdoruesi s'ka asnjë mënyrë ta shtyjë ("Jo tani" dhe 'stoku:njoftimet:jo-tani' u hoqën).
+  var njRefuzuar = false; // shfletuesi e refuzoi kërkesën pa e ndryshuar lejen (p.sh. dritare private): tregohen udhëzimet
   function duhenNjoftimet() {
-    if (!njoftimetMbeshteten() || !perdoruesiAktual() || ngaVizitori() || Notification.permission === 'granted') return false;
-    var jo = 0;
-    try { jo = Number(localStorage.getItem(KEY_NJ_JO_TANI)) || 0; } catch (e) { /* ok */ }
-    return Date.now() - jo >= 3 * 86400000;
+    if (window.__stokuPaNjoftime) return false;
+    return njoftimetMbeshteten() && !!perdoruesiAktual() && !ngaVizitori() && Notification.permission !== 'granted';
   }
   function pyetPerNjoftimet() {
     var d = $('dlgNjoftimet');
     if (!duhenNjoftimet()) { d.classList.remove('hapur'); return; }
     if (window.StokuPorta && window.StokuPorta.eHapur()) return;
-    var bll = Notification.permission === 'denied';
+    var bll = Notification.permission === 'denied' || njRefuzuar;
     $('njBllokuar').hidden = !bll;
     $('njAktivizo').textContent = bll ? 'I lejova, kontrollo sërish' : 'Aktivizo njoftimet';
     d.classList.add('hapur');
@@ -8796,9 +8795,12 @@
   $('njAktivizo').addEventListener('click', function () {
     if (Notification.permission === 'granted') { pasLejesSeNjoftimeve(); return; }
     if (Notification.permission === 'denied') { toast('Njoftimet janë ende të bllokuara. Lejoji te cilësimet (shiko tekstin më lart).', 4500); return; }
+    var ishteRefuzuar = njRefuzuar;
     Promise.resolve(Notification.requestPermission()).then(function (p) {
-      if (p === 'granted') { pasLejesSeNjoftimeve(); toast('Njoftimet u aktivizuan.'); }
-      else pyetPerNjoftimet(); // mbetet hapur (tash me udhëzimet kur janë bllokuar)
+      if (p === 'granted') { njRefuzuar = false; pasLejesSeNjoftimeve(); toast('Njoftimet u aktivizuan.'); return; }
+      if (p === 'denied') njRefuzuar = true;
+      if (ishteRefuzuar) toast('Njoftimet janë ende të bllokuara. Lejoji te cilësimet (shiko tekstin më lart).', 4500);
+      pyetPerNjoftimet(); // mbetet hapur (tash me udhëzimet kur janë bllokuar)
     }).catch(function () { pyetPerNjoftimet(); });
   });
   // Lejuar te cilësimet e telefonit dhe u kthye: dritarja mbyllet vetë

@@ -2,7 +2,9 @@
 // ne llogari, nese osht si vizitor mos e detyro" + "njoftimin ... brenda 30 diteve hiqe krejt, leje veq ato ditor per ato
 // produkte qka kan skadu ... edhe ato qka skadojn sot". Web tel: dritarja e njoftimeve s'mbyllet (pa "Jo tani", pa "mbrapa")
 // derisa njoftimet të lejohen; njoftimet e afateve vetëm sot + të skaduarat. Kodi: Android (Hyrja 66), Worker 172.
-const { chromium } = require('./pw.js');
+const pw = require('./pw.js');
+pw.meNjoftime = true; // ky test e provon vetë dritaren e njoftimeve (pa shenjën e testeve)
+const { chromium } = pw;
 const { krijoFirestore } = require('./fs-server.js');
 const fsN = require('fs');
 const R = __dirname + '/../';
@@ -17,7 +19,7 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
   ok(/dlgNjoftimet'\) return; \/\/ v304/.test(tel) && !/eshteInstaluar/.test(tel), '0. app-tel: "mbrapa" s\'e mbyll; s\'kërkon më aplikacionin të instaluar');
   ok(!/dlgNjoftimet/.test(lexo('pc.html')) && !/pyetPerNjoftimet/.test(lexo('app-pc.js')), '0. PC: pa dritaren e detyrueshme');
   ok(/dismissOnBackPress = false, dismissOnClickOutside = false/.test(kt) && !/Buton\("Jo tani"/.test(kt) && !/30 ditë/.test(kt), '0. Android: dritarja s\'mbyllet, pa "Jo tani", pa "30 ditë"');
-  ok(/VERSIONI_WORKER = 172/.test(wp) && /skL = te\.filter\(a => a\.d < sot\)/.test(wp), '0. Worker 172: njoftimi ditor edhe me të skaduarat');
+  ok(/VERSIONI_WORKER = 17[2-9]/.test(wp) && /skL = te\.filter\(a => a\.d < sot\)/.test(wp), '0. Worker 172: njoftimi ditor edhe me të skaduarat');
 
   const b = await chromium.launch();
   // 1. Njoftimet e afateve (njoftimet.js): vetëm sot + të skaduarat, pa 30 ditët
@@ -36,7 +38,6 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
   }
 
   const F = krijoFirestore({ rregullat: 'reja' });
-  F.S.meNjoftime = true; // pa shenjën e testeve: dritarja e detyrueshme
   const t = Date.now();
   F.S.docs.set('perdoruesit/u1', { perdoruesi: 'agim', kycurSe: t });
   async function faqe(uid, emri, pc, leje) {
@@ -62,7 +63,10 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
   await p.mouse.click(5, 5); await p.waitForTimeout(300);
   ok(await hapur(p), '2. Escape / "mbrapa" / prekja jashtë s\'e mbyllin');
   const z = await p.evaluate(() => getComputedStyle(document.getElementById('dlgNjoftimet')).zIndex);
-  ok(Number(z) >= 90, '2. mbi çdo faqe (z-index ' + z + ')');
+  const zToast = await p.evaluate(() => getComputedStyle(document.getElementById('toast')).zIndex);
+  ok(Number(z) > 30 && Number(z) < Number(zToast), '2. mbi çdo dritare (më e larta 30), nën toast-in (z-index ' + z + ' < ' + zToast + ')');
+  await p.click('#njAktivizo'); await p.waitForTimeout(400);
+  ok(await hapur(p) && /ende të bllokuara/.test(await p.textContent('#toast')), '2. e bllokuar: butoni e tregon mesazhin, dritarja mbetet', await p.textContent('#toast'));
 
   // 3. Me leje të dhënë: s'del (dhe shtypja e butonit pas lejes e mbyll)
   const p3 = await faqe('u1', 'agim', false, true);
