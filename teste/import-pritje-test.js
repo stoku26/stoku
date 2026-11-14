@@ -2,6 +2,7 @@
 const { chromium } = require('./pw.js');
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
 const mock = ([emri, pc]) => {
+  if (emri === 'mendurberisha') window.__stokuProve = { adminUid: 'u1' };
   window.__stokuCloud = { authGati: true, perdoruesiAktual: () => ({ uid: 'u1', email: emri + '@stoku-app.local' }), token: async () => 't',
     merr: async () => ({ ok: true, gjendja: null }), bashkoDheRuaj: async fn => ({ ok: true, gjendja: fn(null) }), degjo: () => () => {}, degjoFletet: () => () => {}, dil: async () => {} };
   if (sessionStorage.getItem('s')) return; sessionStorage.setItem('s', '1');
