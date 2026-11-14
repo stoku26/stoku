@@ -140,7 +140,7 @@ const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
     const dr = await dritarja(p);
     ok(dr.nen === '80 afate · 3 faqe A4', '5. 80 afate · 3 faqe', dr.nen);
     const f = await krijo(p);
-    ok(f && faqet(f.tekst) === 3 && /\(Faqja 3 nga 3\)/.test(f.tekst) && /\(Periudha: T\xeb gjitha \xb7 80 produkte \xb7 3240 cop\xeb\)/.test(f.tekst) && (f.tekst.match(/\(PRODUKTI\)/g) || []).length === 3 && /\(Produkti 80\)/.test(f.tekst), '5. 3 faqe, koka e tabelës në secilën, i fundit "Produkti 80"',
+    ok(f && faqet(f.tekst) === 3 && /\(Faqja 3 nga 3\)/.test(f.tekst) && /\(Periudha: \)/.test(f.tekst) && /\(80\)/.test(f.tekst) && /\(3240\)/.test(f.tekst) /* v299: të dhënat vetëm te faqja 1 */ && (f.tekst.match(/\(PRODUKTI\)/g) || []).length === 3 && /\(Produkti 80\)/.test(f.tekst), '5. 3 faqe, koka e tabelës në secilën, i fundit "Produkti 80"',
       f && { faqe: faqet(f.tekst), koka: (f.tekst.match(/\(PRODUKTI\)/g) || []).length });
     fs.writeFileSync(__dirname + '/v275-shume.pdf', Buffer.from(f.b64, 'base64'));
     ok(!p.__gab.length, '5. pa gabime JS', p.__gab);
