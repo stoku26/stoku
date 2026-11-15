@@ -1,5 +1,6 @@
 package site.stoku.vendas.ui
 
+import site.stoku.vendas.Emrat
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -274,7 +275,7 @@ fun MarketetFaqja(mbyll: () -> Unit) {
         val l = ArrayList<RreshtiIMarketit>()
         pikatL.forEach { x ->
             val pid = x["id"] as String
-            val nga = (x["krijuarNgaEmri"] as? String).orEmpty()
+            val nga = Emrat.emri(x["krijuarNga"] as? String, (x["krijuarNgaEmri"] as? String).orEmpty()) // v308: emri i tanishëm
             val origj = if (admin) (if (nga.isNotEmpty()) "E shtoi $nga" else "Pikë e Stoku-t") + (if (x["emriNgaAdmini"] == true) " · emri nga ti" else "")
                 else if (x["krijuarNga"] == uid && uid.isNotEmpty()) "E shtove ti" else if (nga.isNotEmpty()) "E shtoi $nga" else "Market i Stoku-t"
             l.add(RreshtiIMarketit(PikaEHartes("pika|$pid", (x["emri"] as? String).orEmpty(), (x["lat"] as? Number)?.toDouble(), (x["lng"] as? Number)?.toDouble()), pid, origj,

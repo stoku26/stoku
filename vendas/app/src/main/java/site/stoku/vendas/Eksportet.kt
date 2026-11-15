@@ -140,7 +140,7 @@ object Eksportet {
         KolonaE("furnizuesi", "Furnizuesi", Xlsx.Kolona("Furnizuesi", 22)) { ose(it, "furnizuesi") },
         KolonaE("statusi", "Statusi", Xlsx.Kolona("Statusi", 15)) { ST_EMRI[Afatet.statusi(it)] ?: "" },
         KolonaE("pershkrimi", "Çfarë duhet bërë", Xlsx.Kolona("Çfarë duhet bërë", 60)) { Afatet.pershkrimi(it) },
-        KolonaE("krijuarNga", "Shtuar nga", Xlsx.Kolona("Shtuar nga", 14)) { ose(it, "krijuarNga") }
+        KolonaE("krijuarNga", "Shtuar nga", Xlsx.Kolona("Shtuar nga", 14)) { Emrat.emri(ose(it, "krijuarNga")) } // v308: emri i tanishëm
     )
 
     /** Kolonat e zgjedhura herën e fundit (si "stoku:afatet:excel-kolonat" te web-i) */

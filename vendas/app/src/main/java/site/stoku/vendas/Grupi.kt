@@ -26,6 +26,7 @@ import site.stoku.logjika.numerOse0
 import site.stoku.logjika.obj
 import site.stoku.logjika.eVertete
 import site.stoku.logjika.krahasoTekst
+import site.stoku.logjika.jsString
 import site.stoku.logjika.siListe
 import site.stoku.logjika.siObj
 
@@ -135,14 +136,14 @@ object Grupi {
         })
         // Hyrja 64: ftesat vetëm sipas uid-së sime
         degjuesitPerdoruesit.add(db.collection("ftesat").whereEqualTo("uid", u0).addSnapshotListener { s, _ ->
-            if (s != null && uid == u0) ftesatEMia.value = s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }
+            if (s != null && uid == u0) ftesatEMia.value = Emrat.perditesoListen(s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }) // v308
         })
         degjuesitPerdoruesit.add(db.collection("kerkesat_grupi").whereEqualTo("uid", u0).addSnapshotListener { s, _ ->
             if (s != null && uid == u0) kerkesatEMia.value = s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }
         })
         degjuesitPerdoruesit.add(db.collection("perdoruesit").document(u0).collection("njoftimet").whereEqualTo("lexuar", false).addSnapshotListener { s, _ ->
             if (s != null && uid == u0) {
-                njoftimet.value = s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }.sortedByDescending { numerOse0(it["koha"]) }
+                njoftimet.value = Emrat.perditesoListen(s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }).sortedByDescending { numerOse0(it["koha"]) } // v308
                 zbatoAfatetEKolegeve(njoftimet.value)
             }
         })
@@ -188,7 +189,7 @@ object Grupi {
     private fun nisGrupin(g: String, roli: String) {
         degjuesitGrupit.forEach { it.remove() }; degjuesitGrupit.clear()
         val ref = db.collection("grupet").document(g)
-        degjuesitGrupit.add(ref.addSnapshotListener { s, _ -> if (s != null && gNdjekur == g) grupiDoc.value = if (s.exists()) (s.data ?: emptyMap()).me("id" to g) else null })
+        degjuesitGrupit.add(ref.addSnapshotListener { s, _ -> if (s != null && gNdjekur == g) grupiDoc.value = if (s.exists()) Emrat.perditeso((s.data ?: emptyMap()).me("id" to g)) else null })
         degjuesitGrupit.add(ref.collection("anetaret").addSnapshotListener { s, _ ->
             if (s == null || gNdjekur != g) return@addSnapshotListener
             anetaret.value = s.documents.map { d ->
@@ -197,6 +198,11 @@ object Grupi {
                     "online" to (x["online"] == true), "platforma" to (x["platforma"] ?: ""), "kycurSe" to (x["hyriSe"] ?: 0L),
                     "roli" to if (x["roli"] == "pronar") "pronar" else "anetar", "pronar" to (x["roli"] == "pronar"), "admin" to site.stoku.logjika.Lejet.eshteAdmin(d.id))
             }
+            // v308: një koleg ndryshoi emrin: ngjarjet dhe njoftimet e vjetra marrin emrin e ri
+            if (Emrat.vendosAktuale(anetaret.value.mapNotNull { a -> (a["uid"] as? String)?.let { u -> u to jsString(a["emri"] ?: "") } })) {
+                ngjarjet.value = ngjarjet.value.map { Emrat.perditeso(it) }
+                njoftimet.value = njoftimet.value.map { Emrat.perditeso(it) }
+            }
         })
         degjuesitGrupit.add(ref.collection("afatet").addSnapshotListener { s, _ ->
             if (s == null || gNdjekur != g) return@addSnapshotListener
@@ -204,15 +210,15 @@ object Grupi {
         })
         degjuesitGrupit.add(ref.collection("feed").orderBy("koha", Query.Direction.DESCENDING).limit(150).addSnapshotListener { s, _ ->
             if (s == null || gNdjekur != g) return@addSnapshotListener
-            ngjarjet.value = s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }
+            ngjarjet.value = Emrat.perditesoListen(s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }) // v308: emrat e tanishëm
             ngjarjetGati.value = true
         })
         if (roli == "pronar") {
             degjuesitGrupit.add(db.collection("ftesat").whereEqualTo("gid", g).addSnapshotListener { s, _ ->
-                if (s != null && gNdjekur == g) ftesatEGrupit.value = s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }
+                if (s != null && gNdjekur == g) ftesatEGrupit.value = Emrat.perditesoListen(s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) })
             })
             degjuesitGrupit.add(db.collection("kerkesat_grupi").whereEqualTo("gid", g).addSnapshotListener { s, _ ->
-                if (s != null && gNdjekur == g) kerkesatEGrupit.value = s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }
+                if (s != null && gNdjekur == g) kerkesatEGrupit.value = Emrat.perditesoListen(s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) })
             })
         }
         rrahZemren(nePerpara)
@@ -873,7 +879,7 @@ object Grupi {
             .take(30)
         var l = gjej()
         if (l.isEmpty() && System.currentTimeMillis() - grupetKoha > 2000 && lexoGrupetPublike(true)) l = gjej()
-        return l
+        return Emrat.perditesoListen(l) // v308: pronarEmri i tanishëm
     }
 
     /** → null (kërkesa u dërgua), "nga-ftesa" / "rikthyer" (u fute direkt në grup), ose arsyeja e gabimit */
@@ -922,7 +928,9 @@ object Grupi {
         val u0 = uid
         val dq = Dyqani.g
         val te = if (grupi() != null) anetaret.value else emptyList()
+        val h = Emrat.harta() // v308: hequrNga, krijuarNga… me emrin e tanishëm
         return GrupiLogjika.anetaretMeAfate(te, permbledhjet.value, u0, emri, dq.afatet, ngjarjet.value)
+            .map { a -> a.me("afatet" to a["afatet"].siListe().mapNotNull { it.siObj() }.map { GrupiLogjika.meEmratAktuale(it, h) }) }
     }
 
     fun numriKerkesave(): Int = ftesatEMia.value.size + (if (eshtePronar()) kerkesatEGrupit.value.size else 0)
@@ -947,8 +955,8 @@ object Grupi {
     suspend fun merrNjoftimet(): List<Obj>? {
         val u0 = uid ?: return null
         return try {
-            db.collection("perdoruesit").document(u0).collection("njoftimet").orderBy("koha", Query.Direction.DESCENDING).limit(40).get().await()
-                .documents.map { (it.data ?: emptyMap()).me("id" to it.id) }
+            Emrat.perditesoListen(db.collection("perdoruesit").document(u0).collection("njoftimet").orderBy("koha", Query.Direction.DESCENDING).limit(40).get().await()
+                .documents.map { (it.data ?: emptyMap()).me("id" to it.id) }) // v308
         } catch (e: Exception) { null }
     }
 

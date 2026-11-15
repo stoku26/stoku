@@ -1,5 +1,6 @@
 package site.stoku.vendas.ui
 
+import site.stoku.vendas.Emrat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -161,7 +162,7 @@ fun PerdoruesiFaqja(uid: String?, mbrapa: () -> Unit, hapAfatet: () -> Unit) {
                 if (r.a.kycurSe > 0) "U kyç " + GrupiLogjika.kohaRelative(r.a.kycurSe) else "",
                 if (r.a.grupi != null) "Në një grup" else "Pa grup",
                 if (Admini.merchandiser(r)) "Merchandiser" else "",
-                if (kontrolluar > 0) "Kontrolluar " + GrupiLogjika.kohaRelative(kontrolluar) + ((dok?.get("kontrolluarNga") as? String)?.takeIf { it.isNotEmpty() }?.let { " nga $it" } ?: "") else ""
+                if (kontrolluar > 0) "Kontrolluar " + GrupiLogjika.kohaRelative(kontrolluar) + ((dok?.get("kontrolluarNga") as? String)?.takeIf { it.isNotEmpty() }?.let { " nga " + Emrat.emri(it) } ?: "") else ""
             ).filter { it.isNotEmpty() }
             Text(info.joinToString(" · ") + ".", style = txR(12.5f, 400, n.muted))
             if (r.statusi == "ri") {
@@ -254,7 +255,7 @@ private fun KartaELexuar(a: Obj) {
         Column(Modifier.weight(1f)) {
             Text((a["emri"] as? String)?.ifEmpty { null } ?: jsString(a["barkodi"] ?: "").ifEmpty { "(pa emër)" }, style = tx(15, 700, n.ink))
             val nen = listOf((a["furnizuesi"] as? String).orEmpty(), Afatet.sasiaTekst(a), if (a["data"] is String) Afatet.formato(a["data"]) else "",
-                (a["krijuarNga"] as? String)?.takeIf { it.isNotEmpty() }?.let { "nga $it" } ?: "").filter { it.isNotEmpty() }.joinToString(" · ")
+                (a["krijuarNga"] as? String)?.takeIf { it.isNotEmpty() }?.let { "nga " + Emrat.emri(it) } ?: "").filter { it.isNotEmpty() }.joinToString(" · ")
             if (nen.isNotEmpty()) Text(nen, style = tx(13, 400, n.muted))
             Text(Afatet.pershkrimi(a), style = tx(13, 500, n.ink2), modifier = Modifier.padding(top = 4.dp))
         }

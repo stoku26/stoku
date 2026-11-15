@@ -1,6 +1,8 @@
 // v238: u nxor nga pc.html (CSP pa 'unsafe-inline': faqet s'kanë më skripta të brendshme). Kur ndryshon, rrite ?v= te pc.html dhe sw.js.
 (function () {
   'use strict';
+  // v308: emri i tanishëm i personit (ekipa.js Emrat): dokumentet e vjetra mbajnë emrin që kishte atëherë
+  function EN(e, uid) { var M = window.StokuEkipa && window.StokuEkipa.Emrat; return M ? M.emri(uid || null, e) : e; }
 
   function $(id) { return document.getElementById(id); }
   function el(tag, klasa, tekst) {
@@ -2972,7 +2974,7 @@
   function sasiaETekst(n, nje, shume) { return num(n) + ' ' + (n === 1 ? nje : shume); }
   function nenTekstiFurnizuesit(f) {
     return [f.afate ? sasiaETekst(f.afate, 'afat', 'afate') : '', f.produkte ? sasiaETekst(f.produkte, 'produkt', 'produkte') : '',
-      f.nePritje && f.nga && f.nga.length ? 'nga ' + f.nga.join(', ') : ''].filter(Boolean).join(' · ') || 'Pa produkte';
+      f.nePritje && f.nga && f.nga.length ? 'nga ' + f.nga.map(function (x) { return EN(x); }).join(', ') : ''].filter(Boolean).join(' · ') || 'Pa produkte';
   }
   // vetemKerkimi: shkronjë e re te kërkimi; ruajtja e furnizuesve (kalim mbi të gjitha afatet e produktet) s'bëhet për çdo shkronjë
   function rifreskoFurnizuesit(vetemKerkimi) {
@@ -3155,7 +3157,7 @@
       rr.appendChild(el('span', 'ops-furn-shkronja ops-kuj-shkronja', ((x.emri || x.barkodi).charAt(0) || '?').toUpperCase()));
       var t = el('div', 'ops-furn-tekst');
       t.appendChild(el('div', 'ops-furn-emri', x.emri || 'Pa emër'));
-      t.appendChild(el('div', 'ops-furn-nen', [x.barkodi, x.furnizuesi, !x.ngaAdmini && x.nga ? 'nga ' + x.nga : ''].filter(Boolean).join(' · ')));
+      t.appendChild(el('div', 'ops-furn-nen', [x.barkodi, x.furnizuesi, !x.ngaAdmini && x.nga ? 'nga ' + EN(x.nga) : ''].filter(Boolean).join(' · ')));
       rr.appendChild(t);
       cont.appendChild(rr);
       if (!admin) return; // vetëm për t'u parë
@@ -3181,7 +3183,7 @@
       rr.appendChild(el('span', 'ops-furn-shkronja', ((x.emri || x.barkodi).charAt(0) || '?').toUpperCase()));
       var t = el('div', 'ops-furn-tekst');
       t.appendChild(el('div', 'ops-furn-emri', x.emri || 'Pa emër'));
-      t.appendChild(el('div', 'ops-furn-nen', [x.barkodi, x.furnizuesi, x.nga ? 'nga ' + x.nga : ''].filter(Boolean).join(' · ')));
+      t.appendChild(el('div', 'ops-furn-nen', [x.barkodi, x.furnizuesi, x.nga ? 'nga ' + EN(x.nga) : ''].filter(Boolean).join(' · ')));
       rr.appendChild(t);
       cont.appendChild(rr);
       if (!admin) return; // vetëm për t'u parë
@@ -3218,7 +3220,7 @@
     var ifu = el('input', 'inp furn-vetem'); ifu.type = 'text'; ifu.value = x.furnizuesi; ifu.maxLength = 80; ifu.placeholder = 'Furnizuesi';
     ifu.setAttribute('autocomplete', 'off'); ifu.setAttribute('aria-label', 'Furnizuesi i produktit ' + x.barkodi); ifu.setAttribute('list', 'afdFurnizuesit');
     var dl = $('afdFurnizuesit'); dl.textContent = ''; furnizuesitPerSugjerim().forEach(function (f) { var o = el('option'); o.value = f; dl.appendChild(o); });
-    t.appendChild(ie); t.appendChild(ifu); t.appendChild(el('div', 'ops-furn-nen', 'Barkodi: ' + x.barkodi + (x.nePritje && x.nga ? ' · e shkroi ' + x.nga : '')));
+    t.appendChild(ie); t.appendChild(ifu); t.appendChild(el('div', 'ops-furn-nen', 'Barkodi: ' + x.barkodi + (x.nePritje && x.nga ? ' · e shkroi ' + EN(x.nga) : '')));
     w.appendChild(t);
     var harro = el('button', 'btn tekst rrezik vogel', 'Fshije'); harro.type = 'button'; harro.title = 'Fshije nga produktet: herën tjetër s\'plotësohet vetë';
     var anulo = el('button', 'btn tekst vogel', 'Anulo'); anulo.type = 'button';
@@ -3355,7 +3357,7 @@
     HT.pikat = PK.gati ? htPikatESistemit() : null;
   }
   function htPikatESistemit() {
-    return PK.lista.map(function (x) { return { id: x.id, uid: 'pika', pika: true, emri: x.emri, lat: x.lat, lng: x.lng, perdoruesi: x.krijuarNgaEmri, krijuarNga: x.krijuarNga, emriNgaAdmini: x.emriNgaAdmini }; });
+    return PK.lista.map(function (x) { return { id: x.id, uid: 'pika', pika: true, emri: x.emri, lat: x.lat, lng: x.lng, perdoruesi: EN(x.krijuarNgaEmri, x.krijuarNga), krijuarNga: x.krijuarNga, emriNgaAdmini: x.emriNgaAdmini }; });
   }
   async function htHapFaqen(detyro) {
     HT.neEditim = '';
@@ -3699,7 +3701,7 @@
     ki.appendChild(el('div', 'ops-titull', a.statusi === 'ri' ? 'Pa u kontrolluar: i ka të gjitha lejet' : a.statusi === 'kufizuar' ? (n === 1 ? '1 leje e ndaluar' : n + ' leje të ndaluara') : 'Të gjitha lejet'));
     if (a.statusi === 'ri') ki.firstChild.style.color = 'var(--sb-ic-portokalli)';
     var info = [a.krijuarSe ? 'U regjistrua ' + EKL.kohaRelative(a.krijuarSe) : '', a.kycurSe ? 'U kyç ' + EKL.kohaRelative(a.kycurSe) : '',
-      a.grupi ? 'Në një grup' : 'Pa grup', pdMerchandiser(a) ? 'Merchandiser' : '', a.dok && a.dok.kontrolluarSe ? 'Kontrolluar ' + EKL.kohaRelative(a.dok.kontrolluarSe) + (a.dok.kontrolluarNga ? ' nga ' + a.dok.kontrolluarNga : '') : ''].filter(Boolean);
+      a.grupi ? 'Në një grup' : 'Pa grup', pdMerchandiser(a) ? 'Merchandiser' : '', a.dok && a.dok.kontrolluarSe ? 'Kontrolluar ' + EKL.kohaRelative(a.dok.kontrolluarSe) + (a.dok.kontrolluarNga ? ' nga ' + EN(a.dok.kontrolluarNga) : '') : ''].filter(Boolean);
     ki.appendChild(el('p', 'pd-info-rresht', info.join(' · ') + '.'));
     kr.appendChild(ki);
     var vk = el('div', 'pd-veprime-krye');
@@ -4117,7 +4119,7 @@
         var tr = el('tr', st);
         var t0 = el('td', 'k-st'); t0.appendChild(el('span', 'af-status ' + st, ST_EMRI[st])); tr.appendChild(t0);
         var t1 = el('td', 'af-prod'); t1.appendChild(el('div', null, a.emri || '(pa emër)'));
-        t1.appendChild(el('div', 'af-prod-nen', [a.furnizuesi, a.barkodi, a.krijuarNga ? 'nga ' + a.krijuarNga : ''].filter(Boolean).join(' · ')));
+        t1.appendChild(el('div', 'af-prod-nen', [a.furnizuesi, a.barkodi, a.krijuarNga ? 'nga ' + EN(a.krijuarNga) : ''].filter(Boolean).join(' · ')));
         tr.appendChild(t1);
         tr.appendChild(el('td', 'k-sas', typeof a.sasia === 'number' ? num(a.sasia) : '–'));
         tr.appendChild(el('td', 'k-data', a.data ? AF.formato(a.data) : '–'));
@@ -4493,7 +4495,7 @@
     if (pult && n !== null && st !== 'hequr') td.appendChild(el('small', null, n < 0 ? 'para ' + AF.ditetParaTekst(-n) : n === 0 ? 'sot' : 'për ' + AF.ditetTekst(n)));
     tr.appendChild(td);
     if (!pult) {
-      if (st === 'hequr') tr.appendChild(el('td', 'k-msg', 'U hoq' + (x.hequrNga ? ' nga ' + x.hequrNga : '') + (x.hequrSe ? ' · ' + EKL.kohaRelative(x.hequrSe) : '')));
+      if (st === 'hequr') tr.appendChild(el('td', 'k-msg', 'U hoq' + (x.hequrNga ? ' nga ' + EN(x.hequrNga) : '') + (x.hequrSe ? ' · ' + EKL.kohaRelative(x.hequrSe) : '')));
       else if (x.nePritjeNga) tr.appendChild(el('td', 'k-msg', ekTekstiNePritje(x)));
       else tr.appendChild(qelizaEDiteve(x));
     }
@@ -4716,7 +4718,7 @@
       var m = el('div', 'ek-dita-emri');
       m.appendChild(el('div', null, a.emri || a.barkodi || '(pa emër)'));
       m.appendChild(el('div', 'ek-dita-nen', [a.barkodi, a.furnizuesi, a.pronariEmri, typeof a.sasia === 'number' ? a.sasia + ' copë' : '',
-        st === 'hequr' && a.hequrNga ? 'u hoq nga ' + a.hequrNga : '', a.nePritjeNga && st !== 'hequr' ? ekTekstiNePritje(a) : ''].filter(Boolean).join(' · ')));
+        st === 'hequr' && a.hequrNga ? 'u hoq nga ' + EN(a.hequrNga) : '', a.nePritjeNga && st !== 'hequr' ? ekTekstiNePritje(a) : ''].filter(Boolean).join(' · ')));
       rr.appendChild(m);
       if (st === 'skaduar' && a.nePritjeNga) rr.appendChild(el('span', 'ek-pritje', 'Në pritje'));
       else if (st === 'skaduar' && ekLejohetHeqja(a)) { // v306: pa lejen, butoni s'del (si te tabela)
@@ -4792,7 +4794,7 @@
       var kt = el('div', 'karta ek-pult-kerkesat ek-grupi-rez');
       var tk = el('div', 'tk');
       tk.appendChild(el('b', null, gr.emri));
-      tk.appendChild(el('span', null, gr.pronarEmri ? 'Admini: ' + gr.pronarEmri : 'Grup'));
+      tk.appendChild(el('span', null, gr.pronarEmri ? 'Admini: ' + EN(gr.pronarEmri, gr.pronarUid) : 'Grup'));
       kt.appendChild(tk);
       var b = el('button', 'btn vogel', kerkuar[gr.id] ? 'U dërgua' : 'Kërko të hysh'); b.type = 'button'; b.disabled = !!kerkuar[gr.id];
       b.addEventListener('click', async function () {
@@ -5529,7 +5531,7 @@
     if (a.furnizuesi && !paFurnizues()) { nenP.appendChild(el('span', null, a.furnizuesi)); nenP.appendChild(document.createTextNode(' · ')); }
     nenP.appendChild(el('span', 'mono', a.barkodi || '–'));
     t1.appendChild(nenP);
-    t1.title = (a.emri || '') + (a.krijuarNga ? '\nShtuar nga: ' + a.krijuarNga : '') + (a.krijuarSe ? ' · ' + dataOra(a.krijuarSe) : '');
+    t1.title = (a.emri || '') + (a.krijuarNga ? '\nShtuar nga: ' + EN(a.krijuarNga) : '') + (a.krijuarSe ? ' · ' + dataOra(a.krijuarSe) : '');
     tr.appendChild(t1);
     tr.appendChild(el('td', 'k-sas', typeof a.sasia === 'number' ? num(a.sasia) : '–'));
     tr.appendChild(el('td', 'k-data', a.data ? AF.formato(a.data) : '–'));
@@ -5800,7 +5802,7 @@
     if (a) {
       var st = AF.statusi(a);
       info.className = 'af-info ' + st;
-      info.textContent = AF.pershkrimi(a) + (a.krijuarNga ? '\nShtuar nga: ' + a.krijuarNga + (a.krijuarSe ? ' më ' + dataOra(a.krijuarSe) : '') : '');
+      info.textContent = AF.pershkrimi(a) + (a.krijuarNga ? '\nShtuar nga: ' + EN(a.krijuarNga) + (a.krijuarSe ? ' më ' + dataOra(a.krijuarSe) : '') : '');
       if (vetemLexim) { /* pa veprime */ } else if (st !== 'hequr') {
         if (st === 'skaduar') {
           var h = el('button', 'btn dyte', '✓ U hoq nga rafti'); h.type = 'button';
@@ -6278,7 +6280,7 @@
       if (teReja.length) {
         var n = fletetTel.lista.length;
         toast(ePara ? (n === 1 ? 'Ke 1 fletë nga telefoni që pret kontrollin.' : 'Ke ' + n + ' fleta nga telefoni që presin kontrollin.')
-          : 'Mbërriti ' + (teReja[0].lloji === 'stok' ? 'një fletë stoku' : 'një fletë afatesh') + ' nga telefoni' + (teReja[0].nga ? ' (' + teReja[0].nga + ')' : '') + '.',
+          : 'Mbërriti ' + (teReja[0].lloji === 'stok' ? 'një fletë stoku' : 'një fletë afatesh') + ' nga telefoni' + (teReja[0].nga ? ' (' + EN(teReja[0].nga) + ')' : '') + '.',
           { veprimi: function () { hapFletenETelefonit(teReja[0].id); }, butoni: 'Hape', ms: 12000 });
       }
       ePara = false;
@@ -6310,7 +6312,7 @@
         var tx = el('div', 'teksti');
         var nr = (f.rreshtat || []).length;
         tx.appendChild(el('b', null, (f.lloji === 'stok' ? 'Fletë stoku' : 'Fletë afatesh') + ' nga telefoni: ' + (nr === 1 ? '1 rresht pret kontrollin' : nr + ' rreshta presin kontrollin')));
-        tx.appendChild(el('span', null, [f.nga ? 'Dërguar nga ' + f.nga : 'Dërguar nga telefoni', f.krijuarSe ? dataOra(f.krijuarSe) : ''].filter(Boolean).join(' · ')));
+        tx.appendChild(el('span', null, [f.nga ? 'Dërguar nga ' + EN(f.nga) : 'Dërguar nga telefoni', f.krijuarSe ? dataOra(f.krijuarSe) : ''].filter(Boolean).join(' · ')));
         r.appendChild(tx);
         var h = el('button', 'btn', 'Hape'); h.type = 'button';
         h.addEventListener('click', function () { hapFletenETelefonit(f.id); });
@@ -6348,7 +6350,7 @@
     fotoPamja.caktoVizatimet('stoku:vizatime:' + f.id);
     hapDialog('dlgLexim');
     if (typeof f.foto === 'string' && f.foto.indexOf('data:image/') === 0) $('lxFoto').src = f.foto;
-    var origjina = (f.nga ? ' (' + f.nga + ')' : '') + (f.krijuarSe ? ', ' + dataOra(f.krijuarSe) : '');
+    var origjina = (f.nga ? ' (' + EN(f.nga) + ')' : '') + (f.krijuarSe ? ', ' + dataOra(f.krijuarSe) : '');
     if (stok) {
       statusiLeximit('Fletë stoku nga telefoni' + origjina + ': ' + nrEmer(lx.rreshtat.length, 'rresht', 'rreshta') + '. Krahasoji me foton dhe korrigjo ku duhet.', false);
     } else {
@@ -6777,7 +6779,7 @@
       var n = AF.ditetDeri(a.data);
       var st = AF.statusi(a);
       return [ST_EMRI[st], a.barkodi || '', a.emri || '', typeof a.sasia === 'number' ? a.sasia : '', a.furnizuesi || '', a.data || '', st === 'hequr' || n === null ? '' : n,
-        AF.pershkrimi(a), a.hequrSe || '', a.krijuarNga || ''];
+        AF.pershkrimi(a), a.hequrSe || '', EN(a.krijuarNga || '')];
     }
     var kol = [
       { title: 'Statusi', width: 15 }, { title: 'Barkodi', width: 18 }, { title: 'Emri i produktit', width: 36 },

@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(70, "2026-11-15", "Emri i ri kudo", listOf(
+            "Kur një koleg e ndryshon emrin e përdoruesit, emri i ri del kudo: te Aktiviteti (edhe te ngjarjet e vjetra), njoftimet, ftesat, afatet (\"Shtuar nga\", \"U hoq nga\"), produktet dhe marketet.",
+            "Stoku e njeh personin nga llogaria e tij, jo nga emri: dikush tjetër që merr emrin e vjetër s'ngatërrohet me të."
+        )),
         Hyrja(69, "2026-11-15", "Fotot te Aktiviteti", listOf(
             "Te Grupi → Aktiviteti, njoftimet dhe ftesat, fotoja e kolegut del edhe te ngjarjet e vjetra, edhe pasi ai ta ketë ndryshuar emrin e përdoruesit."
         )),

@@ -1,5 +1,6 @@
 package site.stoku.vendas.ui
 
+import site.stoku.vendas.Emrat
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -530,7 +531,7 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
         if (a != null) {
             val st = Afatet.statusi(a)
             val (sf, ng) = when (st) { "skaduar", "pa-date" -> n.expTint to n.expInk; "afer" -> n.nearTint to n.nearInk; "ok" -> n.okTint to n.okInk; else -> n.remTint to n.ink3 }
-            Text(Afatet.pershkrimi(a) + ((a["krijuarNga"] as? String)?.takeIf { it.isNotEmpty() }?.let { "\nShtuar nga: $it" } ?: ""),
+            Text(Afatet.pershkrimi(a) + ((a["krijuarNga"] as? String)?.takeIf { it.isNotEmpty() }?.let { "\nShtuar nga: " + Emrat.emri(it) } ?: ""),
                 style = tx(14, 600, ng), modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(sf).padding(12.dp))
             if (!vetemLexim && (st == "skaduar" || st == "hequr")) Buton(if (st == "skaduar") "U hoq nga rafti" else "Rikthe si aktiv",
                 { mbyll(); if (st == "skaduar") shenoHequr(a) else riktheAktiv(a) }, Modifier.fillMaxWidth(), lloji = "dyte",

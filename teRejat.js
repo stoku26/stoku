@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 308, versioni: '1.58.7', data: '2026-11-15', titulli: 'Emri i ri kudo', pikat: [
+      'Kur një koleg e ndryshon emrin e përdoruesit, emri i ri del kudo: te Aktiviteti (edhe te ngjarjet e vjetra), njoftimet, ftesat, afatet ("Shtuar nga", "U hoq nga"), produktet dhe marketet.',
+      'Stoku e njeh personin nga llogaria e tij, jo nga emri: dikush tjetër që merr emrin e vjetër s\'ngatërrohet me të.'
+    ] },
     { v: 307, versioni: '1.58.6', data: '2026-11-15', titulli: 'Fotot te Aktiviteti', pikat: [
       'Te Grupi → Aktiviteti, njoftimet dhe ftesat, fotoja e kolegut del edhe te ngjarjet e vjetra, edhe pasi ai ta ketë ndryshuar emrin e përdoruesit.'
     ] },

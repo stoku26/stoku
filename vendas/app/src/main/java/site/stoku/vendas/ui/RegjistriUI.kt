@@ -1,5 +1,6 @@
 package site.stoku.vendas.ui
 
+import site.stoku.vendas.Emrat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -67,7 +68,7 @@ fun sasiaETekst(n: Int, nje: String, shume: String): String = "$n " + (if (n == 
 
 private fun nenTekstiFurnizuesit(f: Furnizuesit.Rreshti): String =
     listOf(if (f.afate > 0) sasiaETekst(f.afate, "afat", "afate") else "", if (f.produkte > 0) sasiaETekst(f.produkte, "produkt", "produkte") else "",
-        if (f.nePritje && f.nga.isNotEmpty()) "nga " + f.nga.joinToString(", ") else "").filter { it.isNotEmpty() }.joinToString(" · ").ifEmpty { "Pa produkte" }
+        if (f.nePritje && f.nga.isNotEmpty()) "nga " + f.nga.joinToString(", ") { Emrat.emri(it) } else "").filter { it.isNotEmpty() }.joinToString(" · ").ifEmpty { "Pa produkte" }
 
 /** .ops-furn > * + *::before: vija ndarëse mbi çdo rresht përveç të parit */
 @Composable
@@ -214,7 +215,7 @@ fun ProduktetFaqja(pritje: Boolean, mbrapa: () -> Unit) {
             fil.take(saShfaqen).forEachIndexed { i, x ->
                 if (x.barkodi == neEditim && admin) { Ndaresi(i); NdryshoProduktin(x) { neEditim = null } }
                 else RreshtListe(((x.emri.ifEmpty { x.barkodi }).firstOrNull()?.toString() ?: "?").uppercase(SQ), if (x.nePritje) "portokalli" else "blu",
-                    x.emri.ifEmpty { "Pa emër" }, listOf(x.barkodi, x.furnizuesi, if (!x.ngaAdmini && x.nga.isNotEmpty()) "nga " + x.nga else "").filter { it.isNotEmpty() }.joinToString(" · "),
+                    x.emri.ifEmpty { "Pa emër" }, listOf(x.barkodi, x.furnizuesi, if (!x.ngaAdmini && x.nga.isNotEmpty()) "nga " + Emrat.emri(x.nga) else "").filter { it.isNotEmpty() }.joinToString(" · "),
                     vije = i > 0, djathtas = if (admin) "laps" else null, onClick = if (admin) ({ neEditim = x.barkodi }) else null)
             }
             if (fil.size > saShfaqen) ButoniMeShume(saShfaqen, fil.size, true) { saShfaqen += KUJ_MAKS }
@@ -235,7 +236,7 @@ private fun NdryshoProduktin(x: Kujtesa.Produkti, mbyll: () -> Unit) {
         mbyll()
         Toast.trego((if (x.nePritje) "U ruajt dhe kaloi te Produktet: " else "U ruajt: ") + emri.trim().ifEmpty { x.barkodi })
     }
-    KutiaENdryshimit("Barkodi ${x.barkodi}" + (if (x.nePritje && x.nga.isNotEmpty()) " · e shkroi ${x.nga}" else ""), "", {
+    KutiaENdryshimit("Barkodi ${x.barkodi}" + (if (x.nePritje && x.nga.isNotEmpty()) " · e shkroi ${Emrat.emri(x.nga)}" else ""), "", {
         if (Llogaria.eshteAdmin()) { Regjistri.kujtesa.fshij(x.barkodi); Toast.trego("\"${x.emri.ifEmpty { x.barkodi }}\" u fshi nga produktet.") }
         mbyll()
     }, mbyll, { ruaj() }) {
