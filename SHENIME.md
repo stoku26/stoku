@@ -52,6 +52,18 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v310 / Android Hyrja 72 (15.11.2026, pronari: "qomi 10 per dark mode 10 per white mode ... te cilesimet > pamja", pastaj
+   "bone opsion me hi nto ... ato dark mode i qet veq te dark mode ... bone mu bo expand edhe minimize", "si duket hiqe komplet")**:
+   20 temat e ngjyrave nga NJË burim: `teste/temat-gjenero.py` (lista e ngjyrave + rregullat e ngjyrave të prejardhura) shkruan
+   `css/stoku-temat.css` (blloqe `:root[data-tema="dark"][data-ngj-e="2..10"]` / `[data-tema="light"][data-ngj-c="2..10"]` që
+   mbishkruajnë tokenat `--sb-*`), listën `DATA` te `temat.js` (midis `TEMAT-FILLIMI` / `TEMAT-FUNDI`) dhe `ui/Temat.kt`. Tema 1
+   (Mesnata, Letër) = ngjyrat e deritanishme (pa bllok). Kur ndryshon një ngjyrë: gjeneruesi + rrit ?v= (testi v310 kontrollon që
+   skedarët janë të freskët dhe që Android = web). Zgjedhja vetëm në pajisje: localStorage `stoku:ngjyrat` = `{"e":N,"c":N}`
+   (telefon + PC në të njëjtin shfletues), Android prefs `ngjyrat_e` / `ngjyrat_c` (`Opsionet`). `fillimi-tel.js` / `fillimi-pc.js`
+   vendosin `data-ngj-*` para vizatimit; `temat.js` `zbato()`, `vizato(vendi, menyra, kurNdryshon)`, `sfondi()` (meta theme-color),
+   `emri()`. Cilësimet → Pamja (tel `#temaNgjyrat`, PC `#opsNgjyrat`, Android `GrupiNgjyrave`): rreshti "Ngjyrat" hapet/mbyllet;
+   "E errët" vetëm 10 të errëtat, "E çelët" vetëm 10 të çelëtat, "Automatike" dy rreshta. Shembulli i afatit te Pamja ("Si duket")
+   u hoq (tel + Android). Menyja e telefonit: "E errët · Oqeani". Test: `teste/v310.js`.
 0000000. **v309 / Android Hyrja 71 (15.11.2026, pronari: "userat qka i kom pas ma heret boni me kon t'zont ... nese une si administrator
    e fshij bone me u liru qaj username"; adresa "#/grupi"; skedarët nga telefoni në vendin e duhur; PDF e afateve)**:
    (1) **Emrat e zënë**: koleksioni `emrat/{emri}` → `{ uid, ndryshuarSe }` (që nga v302 për ftesat) tani i rezervon emrat. Emri i

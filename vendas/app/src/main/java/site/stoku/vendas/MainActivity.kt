@@ -93,6 +93,8 @@ class MainActivity : ComponentActivity() {
             var tema by remember { mutableStateOf(StokuApp.prefsOse("tema", "auto")) }
             val madhesia by Opsionet.madhesia.collectAsState()
             val pda by Opsionet.pda.collectAsState()
+            val ngjE by Opsionet.ngjyratE.collectAsState()
+            val ngjC by Opsionet.ngjyratC.collectAsState()
             // PDA: ekrani kyçet në portret (si te web-i)
             LaunchedEffect(pda) {
                 requestedOrientation = if (pda) android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT else android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -101,7 +103,7 @@ class MainActivity : ComponentActivity() {
             val d0 = androidx.compose.ui.platform.LocalDensity.current
             val dendesia = if (madhesia == "e_madhe") androidx.compose.ui.unit.Density(d0.density * 1.12f, d0.fontScale) else d0
             androidx.compose.runtime.CompositionLocalProvider(androidx.compose.ui.platform.LocalDensity provides dendesia) {
-            StokuTema(tema) {
+            StokuTema(tema, ngjE, ngjC) {
                 val erret = N.erret
                 LaunchedEffect(erret) {
                     WindowInsetsControllerCompat(window, window.decorView).apply {

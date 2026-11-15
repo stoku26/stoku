@@ -649,3 +649,7 @@ html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-nen { background: var(--sb-s
 #dlgAfEksFoto .aef-m { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #dlgAfEksFoto .aef-n { flex: none; font-size: 12.5px; color: var(--gri); }
 #dlgAfEksFoto .aef-bosh { color: var(--gri); padding: 10px 2px; }
+/* v310: "Ngjyrat" te Pamja (temat.js), si kartat e tjera të kompjuterit */
+.sbp .tm-grupi { margin-bottom: 14px; border: 0; box-shadow: var(--sb-ring); }
+.sbp .tm-krye { padding: 16px 20px; }
+.sbp .tm-rrjeta { padding: 0 20px 18px; gap: 8px; }

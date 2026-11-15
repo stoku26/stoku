@@ -33,6 +33,15 @@ object Opsionet {
     /** Pas ruajtjes, kursori kthehet te fusha e barkodit (për skanerin me USB ose Bluetooth) */
     val kursori: StateFlow<Boolean> get() = _kursori
 
+    private fun nrTeme(k: String) = MutableStateFlow(StokuApp.prefsOse(k, "1").toIntOrNull()?.takeIf { it in 1..10 } ?: 1)
+    private val _ngjyratE = nrTeme("ngjyrat_e")
+    private val _ngjyratC = nrTeme("ngjyrat_c")
+    /** Hyrja 72 (web v310): tema e errët (1..10) dhe e çelët (1..10) te Cilësimet → Pamja → Ngjyrat; 1 = ngjyrat e deritanishme */
+    val ngjyratE: StateFlow<Int> get() = _ngjyratE
+    val ngjyratC: StateFlow<Int> get() = _ngjyratC
+    fun vendosNgjyratE(n: Int) { if (n !in 1..10) return; _ngjyratE.value = n; StokuApp.vendosPref("ngjyrat_e", n.toString()) }
+    fun vendosNgjyratC(n: Int) { if (n !in 1..10) return; _ngjyratC.value = n; StokuApp.vendosPref("ngjyrat_c", n.toString()) }
+
     fun tastieraEFshehur(): Boolean = _pda.value && _paTastiere.value
 
     fun vendosMadhesine(v: String) { _madhesia.value = v; StokuApp.vendosPref("madhesia", v) }

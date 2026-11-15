@@ -954,7 +954,8 @@
   // v263: kur kamera është e hapur, shiriti i sipërm (ora, bateria) del i zi si kamera, jo i çelët mbi të
   function rifreskoMetaTemen() {
     var kamera = $('kamera') && $('kamera').classList.contains('hapur');
-    $('metaTema').setAttribute('content', kamera ? '#000000' : temaEfektive() === 'dark' ? '#0f1115' : '#f6f5f2');
+    var ST = window.StokuTemat; // v310: ngjyra e sfondit të temës së zgjedhur (Cilësimet → Pamja → Ngjyrat)
+    $('metaTema').setAttribute('content', kamera ? '#000000' : ST ? ST.sfondi(temaEfektive()) : temaEfektive() === 'dark' ? '#0f1115' : '#f6f5f2');
   }
   function zgjedhjaETemes() {
     var t = null;
@@ -969,8 +970,11 @@
   function zbatoTemen() {
     var t = temaEfektive();
     document.documentElement.setAttribute('data-tema', t);
+    if (window.StokuTemat) window.StokuTemat.zbato(); // v310: data-ngj-e / data-ngj-c
     rifreskoMetaTemen();
     var z = zgjedhjaETemes();
+    // v310: "Ngjyrat" (te "E errët" vetëm të errëtat, te "E çelët" vetëm të çelëtat, te "Automatike" të dyja)
+    if (window.StokuTemat) window.StokuTemat.vizato($('temaNgjyrat'), z, function () { rifreskoMetaTemen(); rifreskoStatusetOpsioneve(); });
     Array.prototype.forEach.call(document.querySelectorAll('#segTema button'), function (b) {
       b.classList.toggle('aktiv', b.getAttribute('data-v') === z);
     });
@@ -1696,7 +1700,8 @@
 
   // Dialogu i opsioneve
   function rifreskoStatusetOpsioneve() {
-    $('tabPamjaStatus').textContent = T(zgjedhjaETemes() === 'dark' ? 'eErret' : (zgjedhjaETemes() === 'light' ? 'eCelet' : 'automatike'));
+    $('tabPamjaStatus').textContent = T(zgjedhjaETemes() === 'dark' ? 'eErret' : (zgjedhjaETemes() === 'light' ? 'eCelet' : 'automatike')) +
+      (window.StokuTemat && zgjedhjaETemes() !== 'auto' ? ' · ' + window.StokuTemat.emri(zgjedhjaETemes()) : ''); // v310
     $('tabSkenimiStatus').textContent = T(opsione.pda ? 'pdaStatusNdezur' : 'pdaStatusFikur');
     rifreskoStatusinEStokut();
     var u = perdoruesiAktual();

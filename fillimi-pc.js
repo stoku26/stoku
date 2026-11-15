@@ -28,6 +28,14 @@
     if (o && (o.dendesia === 'kompakte' || o.dendesia === 'gjere')) document.documentElement.setAttribute('data-dendesia', o.dendesia);
     if (o && o.madhesia === 'e_madhe') document.documentElement.setAttribute('data-madhesi', 'e_madhe');
   })();
+  // v310: ngjyrat e temës (Cilësimet → Pamja → Ngjyrat), para vizatimit; si temat.js zbato()
+  (function () {
+    var o = null;
+    try { o = JSON.parse(localStorage.getItem('stoku:ngjyrat') || 'null'); } catch (e) {}
+    var e = parseInt(o && o.e, 10), c = parseInt(o && o.c, 10);
+    if (e >= 2 && e <= 10) document.documentElement.setAttribute('data-ngj-e', String(e));
+    if (c >= 2 && c <= 10) document.documentElement.setAttribute('data-ngj-c', String(c));
+  })();
 
 // v238: emri i llogarisë së fundit poshtë logos, që në vizatimin e parë (si skripti i vjetër brenda HTML-së): elementi
 // s'ekziston ende kur lexohet ky skedar, prandaj e vendos një MutationObserver sapo parseri ta krijojë

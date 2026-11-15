@@ -185,7 +185,13 @@
     r.removeAttribute('data-aksent'); // "Ngjyra kryesore" u hoq në v128
     if (ops.dendesia === 'normale') r.removeAttribute('data-dendesia'); else r.setAttribute('data-dendesia', ops.dendesia);
     if (ops.madhesia === 'e_madhe') r.setAttribute('data-madhesi', 'e_madhe'); else r.removeAttribute('data-madhesi');
-    $('metaTema').setAttribute('content', t === 'dark' ? '#0f1115' : '#f6f5f2');
+    // v310: ngjyrat e temës (Cilësimet → Pamja → Ngjyrat), si te telefoni
+    var ST = window.StokuTemat;
+    if (ST) {
+      ST.zbato();
+      ST.vizato($('opsNgjyrat'), ops.tema, function () { $('metaTema').setAttribute('content', ST.sfondi(temaEfektive())); });
+    }
+    $('metaTema').setAttribute('content', ST ? ST.sfondi(t) : t === 'dark' ? '#0f1115' : '#f6f5f2');
     // Çelësi i shpejtë "Tema" në fund të anësores
     Array.prototype.forEach.call(document.querySelectorAll('#sbpTema button'), function (b) {
       b.setAttribute('aria-pressed', b.dataset.v === t ? 'true' : 'false');

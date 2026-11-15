@@ -56,6 +56,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.graphicsLayer
 import kotlinx.coroutines.launch
 import site.stoku.vendas.BuildConfig
 import site.stoku.vendas.Llogaria
@@ -234,19 +236,8 @@ private fun Menyja(tema: String, hap: (String) -> Unit, hapTeRejat: () -> Unit) 
 private fun Pamja(tema: String, ndryshoTemen: (String) -> Unit) {
     val n = N
     val madhesia by Opsionet.madhesia.collectAsState()
-    IntroOps("Zgjidh si duket Stoku në këtë telefon. Ndryshimet shihen menjëherë në shembullin poshtë.")
-    // .ops-shembull: një afat si shembull
-    Box(Modifier.padding(bottom = 12.dp).fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(n.sunken).padding(12.dp)) {
-        Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(n.cardNear).border(1.dp, n.cardNearLine, RoundedCornerShape(18.dp)).padding(14.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            KutiaEDiteve("afer", 3)
-            Column(Modifier.weight(1f)) {
-                Text("Qumësht i freskët 1L", style = tx(15, 600, n.ink))
-                Text("Furnizuesi · 12 copë · 04.10.2026", style = tx(12, 400, n.muted), modifier = Modifier.padding(top = 3.dp))
-                Text("Skadon pas 3 ditësh.", style = tx(12, 600, n.near), modifier = Modifier.padding(top = 4.dp))
-            }
-        }
-    }
+    // Hyrja 72 (pronari): pa shembullin e afatit; ngjyrat ndryshojnë menjëherë në krejt aplikacionin
+    IntroOps("Zgjidh si duket Stoku në këtë telefon. Ndryshimet shihen menjëherë.")
     KartaOps {
         Text("Tema", style = tx(15, 700, n.ink, -0.005), modifier = Modifier.padding(bottom = 12.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -254,6 +245,8 @@ private fun Pamja(tema: String, ndryshoTemen: (String) -> Unit) {
         }
         Text("\"Automatike\" ndjek cilësimin e telefonit.", style = txR(12.5f, 400, n.muted), modifier = Modifier.padding(top = 12.dp))
     }
+    if (tema != "light") GrupiNgjyrave(true, if (tema == "auto") "Ngjyrat e temës së errët" else "Ngjyrat")
+    if (tema != "dark") GrupiNgjyrave(false, if (tema == "auto") "Ngjyrat e temës së çelët" else "Ngjyrat")
     KartaOps {
         Text("Madhësia e shkronjave", style = tx(15, 700, n.ink, -0.005), modifier = Modifier.padding(bottom = 12.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -277,6 +270,63 @@ private fun ZgjedhjaEPamjes(emri: String, aktiv: Boolean, modifier: Modifier, zg
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(9.dp, Alignment.CenterVertically)) {
         shembulli()
         Text(emri, style = txF(13.5f, 600, if (aktiv) n.accentText else n.ink3), maxLines = 1, overflow = TextOverflow.Ellipsis)
+    }
+}
+
+// Hyrja 72 (web v310, pronari): "Ngjyrat" si rresht që hapet e mbyllet; te "E errët" vetëm 10 të errëtat, te "E çelët" vetëm
+// 10 të çelëtat, te "Automatike" dy rreshta (secili hapet veç e veç). Zgjedhja ruhet vetëm në këtë telefon (Opsionet).
+@Composable
+private fun GrupiNgjyrave(erret: Boolean, titulli: String) {
+    val n = N
+    val lista = if (erret) Temat.erreta else Temat.celeta
+    val aktivi by (if (erret) Opsionet.ngjyratE else Opsionet.ngjyratC).collectAsState()
+    var hapur by rememberSaveable(erret) { mutableStateOf(false) }
+    val t0 = lista.getOrNull(aktivi - 1) ?: lista[0]
+    val f = RoundedCornerShape(20.dp)
+    Column(Modifier.padding(bottom = 12.dp).fillMaxWidth().clip(f).background(n.surface).border(1.dp, n.line, f)) {
+        Row(Modifier.fillMaxWidth().clickable { hapur = !hapur }.padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            MiniaturaETemes(t0.ngjyrat, Modifier.width(44.dp).height(32.dp), vetemPika = true)
+            Column(Modifier.weight(1f)) {
+                Text(titulli, style = tx(15, 700, n.ink))
+                Text("${t0.n}. ${t0.emri}", style = tx(13, 400, n.muted), modifier = Modifier.padding(top = 2.dp))
+            }
+            Icon(Ik.Poshte, null, tint = n.muted, modifier = Modifier.size(20.dp).graphicsLayer { rotationZ = if (hapur) 180f else 0f })
+        }
+        if (hapur) Column(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            lista.chunked(5).forEach { rr ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    rr.forEach { t ->
+                        val zgj = t.n == aktivi
+                        val fk = RoundedCornerShape(12.dp)
+                        Column(Modifier.weight(1f).clip(fk).background(if (zgj) n.accentTint else Color.Transparent)
+                            .border(if (zgj) 2.dp else 1.dp, if (zgj) n.accent else n.line, fk)
+                            .clickable { if (erret) Opsionet.vendosNgjyratE(t.n) else Opsionet.vendosNgjyratC(t.n) }
+                            .padding(4.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            MiniaturaETemes(t.ngjyrat, Modifier.fillMaxWidth().height(40.dp))
+                            Text(t.emri, style = txF(10.5f, 600, n.ink).copy(textAlign = TextAlign.Center, lineHeight = 12.6.sp),
+                                maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth().height(26.dp))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Faqja e vogël e temës: sfondi, shiriti i titullit, një rresht dhe pika me ngjyrën kryesore */
+@Composable
+private fun MiniaturaETemes(q: Ngjyrat, modifier: Modifier, vetemPika: Boolean = false) {
+    val f = RoundedCornerShape(8.dp)
+    Canvas(modifier.clip(f).background(q.bg).border(1.dp, q.line, f)) {
+        val dp = density
+        val w = size.width; val h = size.height
+        if (!vetemPika) {
+            drawRoundRect(q.ink.copy(alpha = .85f), Offset(5 * dp, 6 * dp), Size(w * .6f, 5 * dp), CornerRadius(3 * dp))
+            drawRoundRect(q.surface, Offset(5 * dp, 15 * dp), Size(w - 10 * dp, 11 * dp), CornerRadius(4 * dp))
+            drawRoundRect(q.line, Offset(5 * dp, 15 * dp), Size(w - 10 * dp, 11 * dp), CornerRadius(4 * dp), style = Stroke(1 * dp))
+            drawRoundRect(q.accent, Offset(5 * dp, h - 10 * dp), Size(w * .45f, 6 * dp), CornerRadius(3 * dp))
+        } else drawRoundRect(q.accent, Offset(5 * dp, h - 11 * dp), Size(18 * dp, 6 * dp), CornerRadius(3 * dp))
     }
 }
 

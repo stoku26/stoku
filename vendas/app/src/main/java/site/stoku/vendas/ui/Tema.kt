@@ -114,11 +114,11 @@ fun txMono(madhesia: Float, ngjyra: Color = Color.Unspecified, pesha: Int = 400)
 fun txNum(madhesia: Float, ngjyra: Color = Color.Unspecified, pesha: Int = 400) =
     TextStyle(fontFamily = Onest, fontSize = madhesia.sp, fontWeight = FontWeight(pesha), color = ngjyra, fontFeatureSettings = "tnum")
 
-/** Tema: "auto" (si telefoni), "light", "dark" */
+/** Tema: "auto" (si telefoni), "light", "dark"; Hyrja 72: ngjE / ngjC = ngjyrat e zgjedhura (1..10, Temat.kt) */
 @Composable
-fun StokuTema(zgjedhja: String, content: @Composable () -> Unit) {
+fun StokuTema(zgjedhja: String, ngjE: Int = 1, ngjC: Int = 1, content: @Composable () -> Unit) {
     val erret = when (zgjedhja) { "dark" -> true; "light" -> false; else -> isSystemInDarkTheme() }
-    val n = if (erret) NgjyratEErreta else NgjyratECelet
+    val n = if (erret) Temat.eErret(ngjE) else Temat.eCelet(ngjC)
     val skema = if (erret) darkColorScheme(primary = n.accent, background = n.bg, surface = n.surface, onSurface = n.ink, onBackground = n.ink, error = n.exp)
     else lightColorScheme(primary = n.accent, background = n.bg, surface = n.surface, onSurface = n.ink, onBackground = n.ink, error = n.exp)
     CompositionLocalProvider(LocalNgjyrat provides n) {

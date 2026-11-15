@@ -22,7 +22,7 @@
 <meta name="apple-mobile-web-app-title" content="Stoku">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#f6f5f2" id="metaTema">
-<script src="fillimi-tel.js?v=296"></script>
+<script src="fillimi-tel.js?v=310"></script>
 <style>
   :root {
     color-scheme: light;
@@ -1121,7 +1121,8 @@
 </style>
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/stoku-tokens.css?v=6">
+<link rel="stylesheet" href="css/stoku-tokens.css?v=7">
+<link rel="stylesheet" href="css/stoku-temat.css?v=1">
 <link rel="stylesheet" href="css/stoku.css?v=69">
 </head>
 <body>
@@ -1349,13 +1350,8 @@
 
       <div class="opsione-faqet">
         <div class="opsione-faqe" data-faqe="pamja">
-          <div class="ops-intro">Zgjidh si duket Stoku në këtë telefon. Ndryshimet shihen menjëherë në shembullin poshtë.</div>
-          <div class="ops-shembull" aria-hidden="true">
-            <div class="af-karta afer">
-              <div class="sb-days sb-days--near"><span class="sb-days__big">3</span><span class="sb-days__small">ditë</span></div>
-              <div class="af-majtas"><div class="af-emri">Qumësht i freskët 1L</div><div class="af-nen">Furnizuesi · 12 copë · 04.10.2026</div><div class="af-mesazh">Skadon pas 3 ditësh.</div></div>
-            </div>
-          </div>
+          <!-- v310 (pronari): pa shembullin e afatit ("Si duket"); ngjyrat ndryshojnë menjëherë në krejt faqen -->
+          <div class="ops-intro">Zgjidh si duket Stoku në këtë telefon. Ndryshimet shihen menjëherë.</div>
           <div class="seksion ops-karta">
             <div class="opsion-titull" id="titPamja"></div>
             <div class="ops-tema" id="segTema">
@@ -1365,6 +1361,7 @@
             </div>
             <div class="hint" id="temaHint"></div>
           </div>
+          <div id="temaNgjyrat"></div>
           <div class="seksion ops-karta">
             <div class="opsion-titull" id="titMadhesia"></div>
             <div class="ops-madhesia" id="segMadhesia">
@@ -2198,8 +2195,9 @@
 <script src="harta.js?v=281"></script>
 <script src="ekipa.js?v=309"></script>
 <script src="njoftimet.js?v=304"></script>
-<script src="teRejat.js?v=309"></script>
-<script src="app-tel.js?v=309"></script>
+<script src="temat.js?v=1"></script>
+<script src="teRejat.js?v=310"></script>
+<script src="app-tel.js?v=310"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
