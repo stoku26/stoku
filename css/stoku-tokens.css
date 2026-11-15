@@ -184,3 +184,25 @@
 #logoButon { cursor: pointer; transition: opacity .2s; }
 #logoButon:focus-visible { outline: 2px solid var(--accent, #1f5fc4); outline-offset: 2px; }
 #logoButon.duke-rifreskuar { opacity: .55; pointer-events: none; }
+
+/* v310: Cilësimet → Pamja → "Ngjyrat" (temat.js): rresht që hapet e mbyllet, 10 kartela me ngjyrat e secilës temë */
+.tm-grupi { margin: 0 0 12px; background: var(--sb-surface); border: 1px solid var(--sb-line); border-radius: 18px; overflow: hidden; }
+.tm-krye { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; border: 0; background: transparent; color: var(--sb-ink); font: inherit; text-align: left; cursor: pointer; }
+.tm-krye-tekst { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.tm-krye-tekst b { font-size: 15px; font-weight: 700; }
+.tm-krye-tekst span { font-size: 13px; color: var(--sb-muted); }
+.tm-shigjeta { flex: none; display: flex; color: var(--sb-muted); transition: transform .2s; }
+.tm-krye[aria-expanded="true"] .tm-shigjeta { transform: rotate(180deg); }
+.tm-mini { position: relative; display: block; height: 40px; border-radius: 8px; border: 1px solid; box-sizing: border-box; overflow: hidden; }
+.tm-mini i { position: absolute; left: 5px; display: block; }
+.tm-a { top: 6px; width: 60%; height: 5px; border-radius: 3px; opacity: .85; }
+.tm-b { top: 15px; right: 5px; height: 11px; border-radius: 4px; border: 1px solid; box-sizing: border-box; }
+.tm-c { bottom: 4px; width: 45%; height: 6px; border-radius: 3px; }
+.tm-mini--krye { flex: none; width: 44px; height: 32px; }
+.tm-mini--krye .tm-a, .tm-mini--krye .tm-b { display: none; }
+.tm-mini--krye .tm-c { width: 18px; bottom: 5px; }
+.tm-rrjeta { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; padding: 0 16px 16px; }
+.tm-rrjeta[hidden] { display: none; }
+.tm-karta { display: flex; flex-direction: column; gap: 5px; min-width: 0; padding: 4px 4px 5px; border: 1px solid var(--sb-line); border-radius: 12px; background: transparent; color: var(--sb-ink); font: inherit; cursor: pointer; }
+.tm-karta[aria-pressed="true"] { padding: 3px 3px 4px; border: 2px solid var(--sb-accent); background: var(--sb-accent-tint); }
+.tm-emri { display: block; min-height: 25px; font-size: 10.5px; line-height: 1.2; font-weight: 600; text-align: center; overflow-wrap: anywhere; }

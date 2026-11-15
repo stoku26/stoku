@@ -21,6 +21,9 @@ Përditësoje në të njëjtin PR me çdo ndryshim domethënës.
 - stoku.site = GitHub Pages pas Cloudflare. Worker-in, rregullat e Firebase-it dhe Cloudflare-in i vendos **pronari**
   (unë s'kam qasje): jepja kodin ose hapat.
 
+- Temat e ngjyrave (v310): `css/stoku-temat.css`, lista te `temat.js` dhe `vendas/.../ui/Temat.kt` i shkruan VETËM
+  `python3 teste/temat-gjenero.py` (mos i ndrysho me dorë).
+
 ## Rregulla që s'thyhen
 - Asnjë sekret në repo: çelësi privat VAPID, JSON-i i service account-it të FCM (vetëm te Cloudflare, `FCM_SA`),
   fjalëkalimi i APK-ve (sekreti `APK_FJALEKALIMI` në GitHub: mos e kërko, mos e ndrysho, mos e fshi).

@@ -54,6 +54,14 @@
     }
     document.documentElement.setAttribute('data-tema', t);
   })();
+  // v310: ngjyrat e temës (Cilësimet → Pamja → Ngjyrat), para vizatimit; si temat.js zbato()
+  (function () {
+    var o = null;
+    try { o = JSON.parse(localStorage.getItem('stoku:ngjyrat') || 'null'); } catch (e) {}
+    var e = parseInt(o && o.e, 10), c = parseInt(o && o.c, 10);
+    if (e >= 2 && e <= 10) document.documentElement.setAttribute('data-ngj-e', String(e));
+    if (c >= 2 && c <= 10) document.documentElement.setAttribute('data-ngj-c', String(c));
+  })();
   // iPhone në Safari (jo nga ekrani kryesor): shiriti i Safari-t poshtë e mbulon vetë zonën e "home indicator",
   // ndërsa Safari (iOS 26) e raporton prapë env(safe-area-inset-bottom) dhe tabet ngriheshin shumë lart.
   // Atje hapësira poshtë = 0 (--sab), që tabet të rrinë sa më poshtë; në aplikacionin e instaluar mbetet env().

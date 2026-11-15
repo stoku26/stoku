@@ -20,6 +20,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 310, versioni: '1.60.0', data: '2026-11-15', titulli: '20 tema ngjyrash', pikat: [
+      'Te Cilësimet → Pamja ke "Ngjyrat": 10 tema për pamjen e errët dhe 10 për të çelëtën. Prek rreshtin që të hapet, zgjidh një temë dhe krejt Stoku ndërron ngjyrat menjëherë.',
+      'Te "E errët" dalin vetëm temat e errëta, te "E çelët" vetëm të çelëtat. Me "Automatike" zgjedh një për ditën dhe një për natën.',
+      'Zgjedhja ruhet vetëm në këtë pajisje.'
+    ] },
     { v: 309, versioni: '1.59.0', data: '2026-11-15', titulli: 'Emrat e përdoruesve mbeten të tutë', pikat: [
       'Çdo emër përdoruesi që e ke pasur mbetet i yti: askush tjetër s\'mund ta marrë, as kur ti e ndryshon emrin. Nëse do, mund të kthehesh te një emër i yti i vjetër.',
       'Skedarët që i dërgon nga telefoni te kompjuteri dalin në vendin e duhur: lista e afateve te Afatet, malli te Stoku.',
