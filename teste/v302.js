@@ -13,7 +13,7 @@ const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); 
   // 0. Kodi: asnjë kontroll administratori sipas emrit
   const lexo = f => fsN.readFileSync(R + f, 'utf8');
   const ek = lexo('ekipa.js'), tel = lexo('app-tel.js'), pc = lexo('app-pc.js');
-  ok(ek.includes("var ADMIN_UID = '" + ADMIN_UID + "'") && !/ADMIN_EMRI/.test(ek) && !/'mendurberisha'/.test(ek), '0. ekipa.js: ADMIN_UID, pa emrin');
+  ok(ek.includes("var ADMIN_UID = '" + ADMIN_UID + "'") && !/ADMIN_EMRI/.test(ek) && !/'mendurberisha'/.test(ek.replace("var EMRAT_E_VJETER = [{ emri: 'mendurberisha', uid: ADMIN_UID }];", '')), '0. ekipa.js: ADMIN_UID, pa emrin (v309: vetëm emri i vjetër i zënë për uid-në e tij)');
   ok(!/'mendurberisha'/.test(tel) && !/'mendurberisha'/.test(pc) && /eshteUidAdmin\(u\.uid\)/.test(tel) && /eshteUidAdmin\(u\.uid\)/.test(pc), '0. app-tel/app-pc: administratori sipas uid-së');
   const wp = lexo('worker/stoku-push.js'), wa = lexo('worker/stoku-afatet.js');
   ok(wp.includes("const ADMIN_UID = '" + ADMIN_UID + "'") && !/llogariaSipasEmrit\(at, ADMINI\)/.test(wp) && /VERSIONI_WORKER = (17[0-9])/.test(wp), '0. stoku-push ≥ 170: administratori sipas uid-së');
@@ -84,12 +84,13 @@ const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); 
   await besa.evaluate(() => window.__fsNdrroLlogarine('u2', 'besa2@stoku-app.local'));
   F.faqet.set(besa, { uid: 'u2', email: 'besa2@stoku-app.local' }); // tokeni i ri (Firebase) mban emrin e ri
   await besa.evaluate(() => window.__stokuEkipaK.pasNdryshimitTeEmrit());
-  ok(await prit(() => doc('emrat/besa2') && doc('emrat/besa2').uid === 'u2' && !doc('emrat/besa')), '5. emri i ri: emrat/besa2, emrat/besa u fshi', [doc('emrat/besa2'), doc('emrat/besa')]);
+  // v309: emri i vjetër mbetet i besës (s'fshihet)
+  ok(await prit(() => doc('emrat/besa2') && doc('emrat/besa2').uid === 'u2' && doc('emrat/besa') && doc('emrat/besa').uid === 'u2'), '5. emri i ri: emrat/besa2, emrat/besa mbetet i besës (v309)', [doc('emrat/besa2'), doc('emrat/besa')]);
   ok(await prit(async () => (await besa.evaluate(() => window.__stokuEkipaK.ftesatEMia().map(f => f.id))).join() === 'g1_u2'), '5. besa (tash besa2) e sheh ende ftesën');
   F.S.docs.set('perdoruesit/u9', { perdoruesi: 'besa', kycurSe: t });
   const tjetra = await faqe('u9', 'besa', true);
   await tjetra.waitForTimeout(1000);
-  ok(doc('emrat/besa') && doc('emrat/besa').uid === 'u9', '5. llogaria e re "besa" e merr emrin e lirë');
+  ok(doc('emrat/besa') && doc('emrat/besa').uid === 'u2', '5. v309: llogaria tjetër s\'e merr emrin "besa" (mbetet i besës)', doc('emrat/besa'));
   ok((await tjetra.evaluate(() => window.__stokuEkipaK.ftesatEMia().length)) === 0, '5. llogaria e re "besa" s\'e sheh ftesën e besës');
   const vjedhja = await tjetra.evaluate(async () => {
     const fs = window.__fsTest, b = fs.writeBatch(null);

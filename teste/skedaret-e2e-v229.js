@@ -99,8 +99,9 @@ const dritarja = p => p.evaluate(() => { const d = document.getElementById('dlgK
   const p = await ctxP.newPage();
   const gabP = []; p.on('pageerror', e => gabP.push(e.message));
   await p.goto(B + '/pc.html'); await p.waitForTimeout(3000);
-  ok(await prit(async () => (await p.$$('#skedaretTel .fleta-tel')).length === 3), 'PC: 3 kartat te Përmbledhja');
-  ok((await p.textContent('#stokTabSkedaret')).trim() === '3', 'PC: numri 3 te pllaka "Stoku"', await p.textContent('#stokTabSkedaret'));
+  // v309: Excel-i i afateve (afatet_…) del te Afatet, dy të tjerët (Malli, Etiketa) te Përmbledhja e Stokut
+  ok(await prit(async () => (await p.$$('#skedaretTel .fleta-tel')).length === 2 && (await p.$$('#afSkedaretTel .fleta-tel')).length === 1), 'PC: 2 kartat te Përmbledhja, 1 te Afatet (v309)');
+  ok((await p.textContent('#stokTabSkedaret')).trim() === '2' && (await p.textContent('#afTabSkedaret')).trim() === '1', 'PC: numri 2 te pllaka "Stoku", 1 te Afatet', [await p.textContent('#stokTabSkedaret'), await p.textContent('#afTabSkedaret')]);
   ok(/Ke 3 skedarë nga telefoni/.test(await p.textContent('#toastTekst')), 'PC: njoftimi "Ke 3 skedarë nga telefoni"', await p.textContent('#toastTekst'));
   const kartaExcel = p.locator('#skedaretTel .fleta-tel', { hasText: 'malli_pije_' });
   ok(/Excel nga Telefoni: malli_pije_/.test(await kartaExcel.textContent()), 'PC: karta "Excel nga Telefoni: …"', (await kartaExcel.textContent()).slice(0, 80));
@@ -108,7 +109,7 @@ const dritarja = p => p.evaluate(() => { const d = document.getElementById('dlgK
   const fx = path.join(__dirname, 'v229-shkarkuar.xlsx'); await dl.saveAs(fx);
   const rreshtat = await p.evaluate(async (b64) => { const s = atob(b64), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); const sh = await window.StokuXlsx.read(u.buffer); return sh[0].rows.map(r => r.join(' | ')); }, fs.readFileSync(fx).toString('base64'));
   ok(rreshtat.some(r => /Ujë Rugove/.test(r)) && rreshtat.some(r => /Coca-Cola/.test(r)), 'PC: "Shkarko" jep Excel-in me produktet e telefonit', rreshtat.slice(0, 3));
-  ok(await prit(async () => /shkarkuar/.test(await kartaExcel.getAttribute('class')) && (await p.textContent('#stokTabSkedaret')).trim() === '2'), 'PC: "U shkarkua", numri 2');
+  ok(await prit(async () => /shkarkuar/.test(await kartaExcel.getAttribute('class')) && (await p.textContent('#stokTabSkedaret')).trim() === '1'), 'PC: "U shkarkua", numri 1 (v309)');
   await p.screenshot({ path: __dirname + '/v229-pc.png' });
   // Skedar i ri ndërsa PC-ja është e hapur → njoftim me "Shkarko"
   await t.evaluate(() => { const k = [...document.querySelectorAll('.folder-karta')].find(x => /Pije/.test(x.textContent)); k.click(); });

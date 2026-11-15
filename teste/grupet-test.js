@@ -66,6 +66,10 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
   ok(await besa.textContent('#ekGrupiTitulli') === 'Market Besa', '3. PC: karta e grupit të ri', await besa.textContent('#ekGrupiTitulli'));
   await besa.fill('#ekFtoEmri', 'besa'); await besa.click('#ekFtoBtn'); await besa.waitForTimeout(400);
   ok(!doc('ftesat/' + gB + '_u2'), '3. s\'fton veten');
+  // v309: administratori (faqja e tij e hapur) ua zë emrat llogarive që ekzistojnë; këtu provohet rasti pa emrat/drini
+  for (let i = 0; i < 90 && !doc('emrat/drini'); i++) await besa.waitForTimeout(100);
+  ok(doc('emrat/drini') && doc('emrat/drini').uid === 'u3', '3. v309: administratori ia zuri emrin drinit', doc('emrat/drini'));
+  F.S.docs.delete('emrat/drini');
   await besa.fill('#ekFtoEmri', 'Drini'); await besa.click('#ekFtoBtn'); await besa.waitForTimeout(1200);
   // v303: drini s'e ka hapur ende Stoku-n (pa emrat/drini) → s'ka ftesë sipas emrit, vetëm mesazhi
   ok(!keys('ftesat/').length && /S'u gjet asnjë llogari/.test(await besa.textContent('#toast')), '3. pa emrat/drini: "S\'u gjet asnjë llogari", pa ftesë', [keys('ftesat/'), await besa.textContent('#toast')]);
