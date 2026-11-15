@@ -56,7 +56,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    ("Eksporto si foto"): butonat ishin në një `Row` ku "Krijo foton" me `fillMaxWidth()` ua merrte gjerësinë dy "Anulo"-ve (s'dukeshin);
    tani njëri nën tjetrin, një "Anulo" i vetëm. (2) `ui/HartaUI.kt`: `gabim` ("Harta s'u hap") pastrohet kur stili ngarkohet. (3)
    `ui/AfatetEkrani.kt` `barkodiTekst(a)`: barkodi i ruajtur si numër (afat i vjetër) del si tekst te lista dhe te forma (më parë
-   fusha dilte bosh dhe ruajtja e fshinte barkodin). Kontrolli: krejt `vendas/` u lexua rresht për rresht; Worker-at dhe rregullat e
+   fusha dilte bosh dhe ruajtja e fshinte barkodin). (4) `Push.VERSIONI_WORKER` 171 → 172 (Worker-i i vjetër lajmërohet te Njoftimet). Kontrolli: krejt `vendas/` u lexua rresht për rresht; Worker-at dhe rregullat e
    Firestore-it u lexuan pa gjetje që kërkojnë vendosje të re. S'është testuar në pajisje të vërtetë.
 
 0000000. **v305 / Android Hyrja 67 (15.11.2026, gjetur gjatë kontrollit të plotë të projektit): njoftimi ditor s'mund të mbetej i fikur.**

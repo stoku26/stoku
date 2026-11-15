@@ -38,7 +38,7 @@ import java.util.TimeZone
  */
 object Push {
     const val URL_PUSH = "https://stoku-push.mendurb.workers.dev"
-    const val VERSIONI_WORKER = 171 // Hyrja 65: /grupi (ftesat/kërkesat si push)
+    const val VERSIONI_WORKER = 172 // Hyrja 68: njoftimi ditor me të skaduarat (Worker 172); 171: /grupi (ftesat/kërkesat si push)
     private val scope = MainScope() + StokuApp.trajtuesi(false)
     private val _tokeni = MutableStateFlow(StokuApp.prefsOse("fcm", ""))
     val tokeni: StateFlow<String> get() = _tokeni
