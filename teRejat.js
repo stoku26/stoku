@@ -23,7 +23,7 @@
     { v: 311, versioni: '1.61.0', data: '2026-11-15', titulli: 'Ngjyrat e tua kudo', pikat: [
       'Ngjyrat që i zgjedh te Cilësimet → Pamja ruhen te llogaria jote: kur hyn prapë, ose në një telefon, kompjuter ose aplikacion tjetër, i gjen të njëjtat.',
       'Dritarja "Aktivizo njoftimet" ridizajnohet: del si kuti në mes të ekranit.',
-      'Dritaret që e kanë vijën lart (si "Çfarë ka të re") mbyllen tash kur i tërheq poshtë, edhe kur rrëshqet shpejt.',
+      'Dritaret që e kanë vijën lart (si "Çfarë ka të re") mbyllen tani kur i tërheq poshtë, edhe kur rrëshqet shpejt.',
       'PDF-ja e afateve: poshtë shkruan adresën e plotë, https://stoku.site.'
     ] },
     { v: 310, versioni: '1.60.0', data: '2026-11-15', titulli: '20 tema ngjyrash', pikat: [
