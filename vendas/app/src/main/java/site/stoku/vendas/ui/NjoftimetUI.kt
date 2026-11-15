@@ -107,7 +107,7 @@ private fun tekstiIServerit(st: Push.Statusi, ora: String): Pair<String, Boolean
             val rez = im["rez"] as? String
             var t: String; var keq = false
             if (sot && rez == "derguar") t = "✓ Sot njoftimi u dërgua në " + oraNga((im["kohaRez"] as? Number)?.toLong() ?: tani) + "."
-            else if (sot && rez == "asgje") t = "✓ Serveri punon. Sot s'skadon asnjë produkt, prandaj s'erdhi njoftim."
+            else if (sot && rez == "asgje") t = "✓ Serveri punon. Sot s'skadon dhe s'ka skaduar asnjë produkt, prandaj s'erdhi njoftim."
             else if (sot && rez != null) { keq = true; t = "Sot njoftimi s'u dorëzua në telefon ($rez). Fike dhe ndize sërish \"Njoftimi ditor\"." }
             else t = "✓ Serveri punon. Njoftimi i radhës: " + (if (sot) "nesër" else "sot ose nesër") + " në " + ora + "."
             if ((im["afatet"] as? Number)?.toInt() == 0) t += " (Serveri s'ka ende listën e afateve: hape Stoku-n një herë.)"
@@ -221,7 +221,7 @@ fun NjoftimetFaqja(mbrapa: () -> Unit) {
             TitulliGrupit("Njoftimi ditor për afatet")
             GrupiOps {
                 RreshtNdezes(Ik.KalendarOk, "portokalli", "Njoftimi ditor",
-                    "Në orën që zgjedh të vjen një njoftim për produktet që skadojnë atë ditë, edhe kur Stoku është i mbyllur. Nëse s'skadon asnjë, s'vjen njoftim.",
+                    "Në orën që zgjedh të vjen një njoftim për produktet që skadojnë atë ditë dhe për ato që kanë skaduar e duhen hequr nga rafti, edhe kur Stoku është i mbyllur. Nëse s'ka asnjë, s'vjen njoftim.",
                     aktiv, aktiv = !duke) { ruajOrarin(it, ora) }
                 VijaGrupit()
                 Row(Modifier.fillMaxWidth().clickable(enabled = !duke) { zgjidhOren() }.padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -354,6 +354,19 @@ fun OraFaqja(mbrapa: () -> Unit) {
  * lejohen. Kur janë të bllokuara: butoni hap cilësimet e njoftimeve të Stoku-t; kur kthehet, kontrollohet vetë.
  * Pas lejes: pajisja regjistrohet te grupi dhe njoftimi ditor ndizet vetë herën e parë (ora e zgjedhur, 08:00).
  */
+/**
+ * Hyrja 67 (web v305): njoftimi ditor ndizet vetë vetëm NJË herë për llogari në këtë telefon. Më parë (Hyrja 66) ndizej sa herë
+ * hapej aplikacioni dhe s'kishte orar, pra edhe pasi përdoruesi e kishte fikur vetë (fikja e fshin orarin): s'mund të mbetej i fikur.
+ */
+private suspend fun ndizDitorinNjeHere() {
+    try {
+        val u = Llogaria.perdoruesi.value?.uid ?: return
+        if (!Llogaria.leja("afatet") || StokuApp.prefsOse("ditori_auto", "") == u) return
+        if (Push.orariIm() != null) { StokuApp.vendosPref("ditori_auto", u); return } // e ka tashmë
+        if (Push.vendosOrarin(true, Push.oraEZgjedhur()) == "ok") StokuApp.vendosPref("ditori_auto", u)
+    } catch (e: Exception) { }
+}
+
 @Composable
 fun PyetjaENjoftimeve() {
     val n = N
@@ -367,7 +380,7 @@ fun PyetjaENjoftimeve() {
         Toast.trego("Njoftimet u aktivizuan.")
         scope.launch {
             try { Push.aktivizo(true) } catch (e: Exception) { }
-            try { if (Push.orariIm() == null && Llogaria.leja("afatet")) Push.vendosOrarin(true, Push.oraEZgjedhur()) } catch (e: Exception) { }
+            ndizDitorinNjeHere()
         }
     }
     // Kontrollohet sa herë kthehet në aplikacion (p.sh. nga cilësimet e telefonit) dhe çdo 1.5 s sa është hapur
@@ -377,7 +390,7 @@ fun PyetjaENjoftimeve() {
         kotlinx.coroutines.delay(1500)
         while (true) {
             val g = Njoftimet.gjendja(ctx)
-            if (g == "lejuar") { if (duhet) pasLejes() else if (Push.orariIm() == null && Llogaria.leja("afatet")) try { Push.vendosOrarin(true, Push.oraEZgjedhur()) } catch (e: Exception) { }; duhet = false; break }
+            if (g == "lejuar") { if (duhet) pasLejes() else ndizDitorinNjeHere(); duhet = false; break }
             gjendja = g; duhet = true
             kotlinx.coroutines.delay(1500)
         }

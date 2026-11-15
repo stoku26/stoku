@@ -20,6 +20,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 305, versioni: '1.58.4', data: '2026-11-15', titulli: 'Njoftimi ditor mbetet i fikur kur e fik', platforma: 'tel', pikat: [
+      'Rregullim: nëse e fikje "Njoftimi ditor", ai ndizej vetë herën tjetër që hapje Stoku-n. Tani ndizet vetë vetëm herën e parë; pasi ta fikësh, mbetet i fikur.'
+    ] },
     { v: 304, versioni: '1.58.3', data: '2026-11-14', titulli: 'Njoftimet: të detyrueshme dhe më të qarta', platforma: 'tel', pikat: [
       'Pas hyrjes me llogari, Stoku të kërkon t\'i aktivizosh njoftimet dhe s\'mund të vazhdosh pa to (vizitori jo).',
       'Njoftimi "skadon brenda 30 ditëve" u hoq. Vijnë vetëm produktet që skadojnë sot dhe, çdo ditë, ato që kanë skaduar e duhen hequr nga rafti.',
