@@ -406,21 +406,25 @@ fun PyetjaENjoftimeve() {
         dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false)) {
         Column(Modifier.padding(20.dp).fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(n.surface).padding(22.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Box(Modifier.size(56.dp).clip(CircleShape).background(n.accentTint), contentAlignment = Alignment.Center) {
-                androidx.compose.material3.Icon(Ik.Zile, null, Modifier.size(30.dp), tint = n.accentText)
+            // Hyrja 73 (pronari): kuti në mes, tekst i ri ("Njoftimet janë të detyrueshme, sepse Stoku të lajmëron:"), një rresht për secilën ikonë
+            Box(Modifier.align(Alignment.CenterHorizontally).size(68.dp).clip(CircleShape).background(n.accent), contentAlignment = Alignment.Center) {
+                androidx.compose.material3.Icon(Ik.Zile, null, Modifier.size(32.dp), tint = Color.White)
             }
-            Text("Aktivizo njoftimet", style = tx(22, 700, n.ink, -0.02))
-            Text("Stoku të lajmëron me njoftim në telefon (edhe në orë):", style = tx(15, 400, n.ink2))
+            Text("Aktivizo njoftimet", style = tx(22, 700, n.ink, -0.02).copy(textAlign = androidx.compose.ui.text.style.TextAlign.Center), modifier = Modifier.fillMaxWidth())
+            Text("Njoftimet janë të detyrueshme, sepse Stoku të lajmëron:", style = tx(15, 600, n.ink2).copy(textAlign = androidx.compose.ui.text.style.TextAlign.Center), modifier = Modifier.fillMaxWidth())
             listOf(
-                Triple(n.near, "për produktet që ", "skadojnë sot" to ""),
-                Triple(n.exp, "çdo ditë për produktet që ", "kanë skaduar" to ", që t'i heqësh nga rafti/pozita"),
-                Triple(n.accent, "për kërkesat dhe njoftimet e ", "grupit" to "")
-            ).forEach { (ng, para, pas) ->
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Box(Modifier.size(10.dp).clip(CircleShape).background(ng))
+                Triple(n.near, Ik.Kohe, "për produktet që " to "skadojnë sot"),
+                Triple(n.exp, Ik.Alarm, "për produktet që " to "kanë skaduar"),
+                Triple(n.accent, Ik.Grupi, "për kërkesat dhe njoftimet e " to "grupit")
+            ).forEach { (ng, ik, tekst) ->
+                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(n.surface2).padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Box(Modifier.size(38.dp).clip(RoundedCornerShape(12.dp)).background(ng.copy(alpha = 0.18f)), contentAlignment = Alignment.Center) {
+                        androidx.compose.material3.Icon(ik, null, Modifier.size(20.dp), tint = ng)
+                    }
                     Text(buildAnnotatedString {
-                        append(para); withStyle(SpanStyle(fontWeight = FontWeight(700))) { append(pas.first) }; append(pas.second)
-                    }, style = tx(15, 400, n.ink))
+                        append(tekst.first); withStyle(SpanStyle(fontWeight = FontWeight(700))) { append(tekst.second) }
+                    }, style = tx(15, 400, n.ink), modifier = Modifier.weight(1f))
                 }
             }
             if (bllokuar) Text("Njoftimet janë të bllokuara. Shtyp butonin më poshtë → Njoftimet → Lejo, pastaj kthehu këtu.", style = tx(14, 500, n.exp))

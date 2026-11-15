@@ -968,18 +968,26 @@
   .tr-version ul { list-style: none; margin: 0; padding: 0; }
   .tr-version li { position: relative; padding: 4px 0 4px 24px; font-size: 14.5px; line-height: 1.45; color: var(--dialog-tekst); }
   .tr-version li::before { content: ''; position: absolute; left: 4px; top: 11px; width: 8px; height: 8px; border-radius: 50%; background: var(--primar); }
-  .nj-dialog { max-width: 400px; text-align: left; }
+  /* v311: dritarja e njoftimeve = kuti në mes të ekranit (pa vijën e rrëshqitjes), rreshta me ikonë me ngjyrë */
+  .nj-dialog { max-width: 380px; text-align: center; }
   .nj-ikona {
-    width: 56px; height: 56px; border-radius: 16px; margin-bottom: 14px; color: #fff;
+    width: 68px; height: 68px; border-radius: 50%; margin: 6px auto 14px; color: #fff;
     display: flex; align-items: center; justify-content: center; background: var(--primar);
+    box-shadow: 0 0 0 8px rgba(47,111,222,.16);
   }
-  .nj-dialog .nj-tekst { margin-bottom: 8px; }
-  .nj-lista { list-style: none; margin: 0 0 14px; padding: 0; font-size: 15px; color: var(--dialog-tekst); }
-  .nj-lista li { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; line-height: 1.4; }
-  .nj-pike { flex: none; width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; }
-  .nj-pike.verdhe { background: #f5b400; }
-  .nj-pike.kuqe { background: #e5483e; }
-  .nj-pike.blu { background: #2f6fde; }
+  .nj-dialog h2 { margin: 0 0 6px; }
+  .nj-dialog .nj-tekst { margin: 0 0 14px; }
+  .nj-lista { list-style: none; margin: 0 0 16px; padding: 0; text-align: left; display: flex; flex-direction: column; gap: 8px; }
+  .nj-lista li { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 16px; background: var(--hover); line-height: 1.3; }
+  .nj-chip { flex: none; width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+  .nj-chip.verdhe { background: rgba(245,180,0,.18); color: #b87f00; }
+  .nj-chip.kuqe { background: rgba(229,72,62,.15); color: #d13c32; }
+  .nj-chip.blu { background: rgba(47,111,222,.15); color: #2f6fde; }
+  .nj-rr-tekst { min-width: 0; font-size: 15.5px; line-height: 1.35; color: var(--tekst); }
+  .nj-rr-tekst b { font-weight: 700; }
+  #njBllokuar { text-align: left; padding: 10px 12px; border-radius: 14px; background: rgba(229,72,62,.12); font-size: 13.5px; }
+  .nj-dialog .veprime { padding-top: 0; }
+  .nj-dialog .veprime .btn { width: 100%; height: 52px; border-radius: 16px; justify-content: center; font-size: 16px; font-weight: 700; }
   .af-muajt button .n { margin-left: 5px; font-weight: 600; opacity: .7; }
   #dlgAfImport { z-index: 24; }
   #dlgAfImport .dialog { max-width: 520px; }
@@ -1123,7 +1131,7 @@
 <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/stoku-tokens.css?v=7">
 <link rel="stylesheet" href="css/stoku-temat.css?v=1">
-<link rel="stylesheet" href="css/stoku.css?v=69">
+<link rel="stylesheet" href="css/stoku.css?v=70">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -2009,16 +2017,16 @@
   </div>
 </div>
 
-<!-- Leje për njoftimet e afateve (pyetet kur aplikacioni hapet i instaluar) -->
+<!-- Leje për njoftimet (e detyrueshme pas hyrjes): kuti në mes të ekranit, pa vijën e rrëshqitjes (v311) -->
 <div class="mbulese" id="dlgNjoftimet">
   <div class="dialog nj-dialog" role="dialog" aria-modal="true" aria-labelledby="njTitulli">
     <div class="nj-ikona"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg></div>
     <h2 id="njTitulli">Aktivizo njoftimet</h2>
-    <p class="nj-tekst" id="njTeksti">Stoku të lajmëron me njoftim në telefon (edhe në orë):</p>
+    <p class="nj-tekst" id="njTeksti">Njoftimet janë të detyrueshme, sepse Stoku të lajmëron:</p>
     <ul class="nj-lista">
-      <li><span class="nj-pike verdhe"></span><span>për produktet që <b>skadojnë sot</b></span></li>
-      <li><span class="nj-pike kuqe"></span><span>çdo ditë për produktet që <b>kanë skaduar</b>, që t'i heqësh nga rafti/pozita</span></li>
-      <li><span class="nj-pike blu"></span><span>për kërkesat dhe njoftimet e <b>grupit</b></span></li>
+      <li><span class="nj-chip verdhe" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span><span class="nj-rr-tekst">për produktet që <b>skadojnë sot</b></span></li>
+      <li><span class="nj-chip kuqe" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17h-19z"></path><path d="M12 10v4M12 17.5h.01"></path></svg></span><span class="nj-rr-tekst">për produktet që <b>kanë skaduar</b></span></li>
+      <li><span class="nj-chip blu" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"></path><path d="M16 4.5a3.2 3.2 0 0 1 0 6M18 14.4c1.8.8 3 2.6 3 5.6"></path></svg></span><span class="nj-rr-tekst">për kërkesat dhe njoftimet e <b>grupit</b></span></li>
     </ul>
     <p class="nj-tekst" id="njBllokuar" hidden>Njoftimet janë të bllokuara. Lejoji te: <b>Cilësimet e telefonit → Aplikacionet → Chrome (ose Stoku) → Njoftimet → Lejo</b>, ose te shfletuesi: ikona pranë adresës → Lejet → Njoftimet → Lejo. Pastaj kthehu këtu.</p>
     <div class="veprime">
@@ -2190,14 +2198,14 @@
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=8"></script>
 <script src="afatet.js?v=295"></script>
-<script src="eksportet.js?v=309"></script>
+<script src="eksportet.js?v=311"></script>
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
 <script src="ekipa.js?v=309"></script>
 <script src="njoftimet.js?v=304"></script>
 <script src="temat.js?v=1"></script>
-<script src="teRejat.js?v=310"></script>
-<script src="app-tel.js?v=310"></script>
+<script src="teRejat.js?v=311"></script>
+<script src="app-tel.js?v=311"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>

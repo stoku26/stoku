@@ -794,3 +794,16 @@ html.sb:not([data-tema="dark"]) .sb-summary { box-shadow: 0 0 0 1px var(--sb-lin
 .sb .kol-lista .artikull { width: 100%; text-align: left; }
 .sb .kol-lista .ek-anetar-nr { flex: none; }
 .sb #afatSasia:focus::placeholder { color: transparent; } /* v297: kursori s'del mbi "0" e zbehtë */
+
+/* v311: dritarja e njoftimeve (e detyrueshme) = kuti në mes të ekranit, jo "bottom sheet": pa vijën e rrëshqitjes */
+.sb #dlgNjoftimet.mbulese:not(.faqe-e-plote) { align-items: center; padding: 20px; }
+.sb #dlgNjoftimet.mbulese:not(.faqe-e-plote) > .dialog { max-width: 380px; border-radius: 28px; padding: 22px 20px 20px; max-height: 92%; animation: sbKuti .22s ease; }
+.sb #dlgNjoftimet.mbulese:not(.faqe-e-plote) > .dialog::before { content: none; display: none; }
+@keyframes sbKuti { from { transform: scale(.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.sb .nj-lista li { background: var(--sb-surface-2); }
+.sb .nj-rr-tekst { color: var(--sb-ink); }
+.sb .nj-dialog .nj-tekst { font-weight: 600; color: var(--sb-ink-2); }
+.sb .nj-ikona { background: var(--sb-accent); box-shadow: 0 0 0 8px var(--sb-accent-tint); }
+:root.sb[data-tema="dark"] .nj-chip.verdhe { color: var(--sb-near); }
+:root.sb[data-tema="dark"] .nj-chip.kuqe { color: var(--sb-exp); }
+:root.sb[data-tema="dark"] .nj-chip.blu { color: var(--sb-accent-text); }

@@ -189,7 +189,7 @@
     var ST = window.StokuTemat;
     if (ST) {
       ST.zbato();
-      ST.vizato($('opsNgjyrat'), ops.tema, function () { $('metaTema').setAttribute('content', ST.sfondi(temaEfektive())); });
+      ST.vizato($('opsNgjyrat'), ops.tema, function () { $('metaTema').setAttribute('content', ST.sfondi(temaEfektive())); ruajPamjenNeLlogari(); });
     }
     $('metaTema').setAttribute('content', ST ? ST.sfondi(t) : t === 'dark' ? '#0f1115' : '#f6f5f2');
     // Çelësi i shpejtë "Tema" në fund të anësores
@@ -3281,6 +3281,17 @@
   Array.prototype.forEach.call(document.querySelectorAll('#opsSkeda button[data-faqe]'), function (b) {
     b.addEventListener('click', function () { zgjidhSkeden(b.dataset.faqe); });
   });
+  // v311: pamja (tema + ngjyrat) ruhet te llogaria dhe është e njëjtë në çdo pajisje (ekipa.js nisPamjen / pamjaNdryshoi)
+  function ruajPamjenNeLlogari() { try { if (window.__stokuEkipaK && window.__stokuEkipaK.pamjaNdryshoi) window.__stokuEkipaK.pamjaNdryshoi(); } catch (e) { /* ok */ } }
+  function pamjaTani() {
+    var n = window.StokuTemat ? window.StokuTemat.lexo() : { e: 1, c: 1 };
+    return { tema: ops.tema, e: n.e, c: n.c };
+  }
+  function vendosPamjen(p) {
+    ops.tema = p.tema; ruajOps();
+    if (window.StokuTemat) window.StokuTemat.ruaj({ e: p.e, c: p.c });
+    zbatoPamjen(); rifreskoOpsionet();
+  }
   function rifreskoOpsionet() {
     function seg(id, v) { Array.prototype.forEach.call(document.querySelectorAll('#' + id + ' button'), function (b) { b.classList.toggle('aktiv', b.dataset.v === v); }); }
     seg('opsTema', ops.tema); seg('opsDendesia', ops.dendesia); seg('opsMadhesia', ops.madhesia);
@@ -3288,7 +3299,7 @@
   }
   [['opsTema', 'tema'], ['opsDendesia', 'dendesia'], ['opsMadhesia', 'madhesia']].forEach(function (x) {
     Array.prototype.forEach.call(document.querySelectorAll('#' + x[0] + ' button'), function (b) {
-      b.addEventListener('click', function () { ops[x[1]] = b.dataset.v; ruajOps(); zbatoPamjen(); rifreskoOpsionet(); });
+      b.addEventListener('click', function () { ops[x[1]] = b.dataset.v; ruajOps(); zbatoPamjen(); rifreskoOpsionet(); if (x[1] === 'tema') ruajPamjenNeLlogari(); });
     });
   });
   $('opsRendi').addEventListener('change', function () {
@@ -3298,7 +3309,7 @@
   });
   $('btnOpsione').addEventListener('click', function () { hapOpsionet(); });
   Array.prototype.forEach.call(document.querySelectorAll('#sbpTema button'), function (b) {
-    b.addEventListener('click', function () { ops.tema = b.dataset.v; ruajOps(); zbatoPamjen(); rifreskoOpsionet(); });
+    b.addEventListener('click', function () { ops.tema = b.dataset.v; ruajOps(); zbatoPamjen(); rifreskoOpsionet(); ruajPamjenNeLlogari(); });
   });
 
   // ================= Cilësimet → Marketet: harta (v244, harta.js; v256 skeda quhet "Marketet") =================
@@ -4199,6 +4210,7 @@
     llogariaUFshi: llogariaUFshiNgaAdmini,
     uidIm: function () { var u = perdoruesi(); return u ? u.uid : null; },
     emriIm: emriPerdoruesit,
+    pamjaTani: pamjaTani, vendosPamjen: vendosPamjen, // v311
     afatetEMia: function () { return afatet; }, afatetMeEmra: function () { return MK.meEmra(afatet, marketet); },
     zbatoHeqjet: ekZbatoHeqjet,
     ktheAfatin: ktheAfatinNgaKolegu, pranoAfatin: pranoAfatinNgaKolegu, // v297

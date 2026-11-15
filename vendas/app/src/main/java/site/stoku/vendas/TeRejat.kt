@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(73, "2026-11-15", "Ngjyrat e tua kudo", listOf(
+            "Ngjyrat që i zgjedh te Cilësimet → Pamja ruhen te llogaria jote: kur hyn prapë, ose në një pajisje tjetër (edhe te web-i), i gjen të njëjtat.",
+            "PDF-ja e afateve: poshtë shkruan adresën e plotë, https://stoku.site."
+        )),
         Hyrja(72, "2026-11-15", "20 tema ngjyrash", listOf(
             "Te Cilësimet → Pamja ke \"Ngjyrat\": 10 tema për pamjen e errët dhe 10 për të çelëtën. Prek rreshtin që të hapet, zgjidh një temë dhe krejt aplikacioni ndërron ngjyrat menjëherë.",
             "Te \"E errët\" dalin vetëm temat e errëta, te \"E çelët\" vetëm të çelëtat. Me \"Automatike\" zgjedh një për ditën dhe një për natën.",

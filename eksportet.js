@@ -226,7 +226,7 @@
     var np = d.getNumberOfPages();
     d.setPage(1);
     font(7.9, false); ng(C.faint);
-    d.text('Krijuar me Stoku · stoku.site · ' + o.data + ', ora ' + o.ora, X, 290.6);
+    d.text('Krijuar me Stoku · https://stoku.site · ' + o.data + ', ora ' + o.ora, X, 290.6);
     d.text('Faqja 1 nga ' + np, X + WI, 290.6, { align: 'right' });
     return d.output('arraybuffer');
   }
