@@ -37,6 +37,13 @@
     // Regjistrohet vetja te perdoruesit/{uid} — përdoret nga pamja e "Ekipit" për të gjetur llogaritë
     // "X u bashkua me grupin" s'shkruhet më këtu: e shkruan administratori kur e pranon llogarinë në grup.
     var regjistrimet = {}; // uid → { emri, p }: hyr()/regjistrohu() dhe onAuthStateChanged e thërrasin njëkohësisht
+    // v309: emrat e zënë (emrat/{emri} → { uid }, i zë ekipa.js regjistroEmrin): emri që e ka pasur një llogari mbetet i saj (edhe
+    // pasi e ndryshon), askush tjetër s'mund ta marrë; lirohet vetëm kur administratori e fshin llogarinë. → uid-ja e pronarit, ''
+    // (i lirë) ose null (s'u lexua: pa internet a rregullat e vjetra; atëherë s'ndalet asgjë)
+    async function pronariIEmrit(emri) {
+      try { var s = await getDoc(doc(db, 'emrat', String(emri || '').trim().toLowerCase())); return s.exists() ? String((s.data() || {}).uid || '') : ''; }
+      catch (e) { return null; }
+    }
     function regjistroPerdoruesin(emriPerdoruesit, uid) {
       var emri = String(emriPerdoruesit).trim().toLowerCase();
       var ne = regjistrimet[uid];
@@ -89,6 +96,7 @@
 
     window.__stokuCloud = {
       async regjistrohu(u, p, opsionet) {
+        if (await pronariIEmrit(u)) return { ok: false, kodi: 'auth/email-already-in-use', arsye: 'emri-i-zene' }; // v309
         try {
           var k = await createUserWithEmailAndPassword(auth, emailIBrendshem(u), p);
           var merch = !!(opsionet && opsionet.merchandiser);
@@ -115,7 +123,7 @@
         if (window.StokuPorta && window.StokuPorta.dilMeDore) window.StokuPorta.dilMeDore();
         try { await deleteUser(auth.currentUser); } catch (e) { try { await signOut(auth); } catch (e2) { /* ok */ } }
       },
-      async ndryshoEmrin(u) { if (!auth.currentUser) return { ok: false }; try { await updateEmail(auth.currentUser, emailIBrendshem(u)); regjistroPerdoruesin(u, auth.currentUser.uid); return { ok: true }; } catch (e) { return gabim(e); } },
+      async ndryshoEmrin(u) { if (!auth.currentUser) return { ok: false }; var prE = await pronariIEmrit(u); if (prE && prE !== auth.currentUser.uid) return { ok: false, kodi: 'auth/email-already-in-use', arsye: 'emri-i-zene' }; /* v309: vetëm emër i lirë ose i imi */ try { await updateEmail(auth.currentUser, emailIBrendshem(u)); regjistroPerdoruesin(u, auth.currentUser.uid); return { ok: true }; } catch (e) { return gabim(e); } },
       async ndryshoFjalekalimin(p) {
         if (!auth.currentUser) return { ok: false };
         try {

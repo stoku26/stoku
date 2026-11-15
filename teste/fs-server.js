@@ -71,7 +71,8 @@ function krijoFirestore(opt = {}) {
       return w.some(x => x.f === 'uid' && x.v === a.uid) || w.some(x => x.f === 'gid' && anetar(a.uid, x.v));
     }
     // v302: emrat/{emri} → uid (për ftesat): get për kushdo me llogari, pa listë (S.paEmrat: rregullat para v302)
-    if (reja && p[0] === 'emrat' && p.length === 2) return !S.paEmrat && !eListe;
+    // v309: lista vetëm administratori (fshirja e llogarisë i liron krejt emrat e saj)
+    if (reja && p[0] === 'emrat' && p.length === 2) return !S.paEmrat && (!eListe || eshteAdmin(a.uid));
     if (reja && p[0] === 'perdoruesit' && p.length === 2 && eListe) return eshteAdmin(a.uid); // v164: lista vetëm admini
     if (reja && p[0] === 'dyqane' && p[2] === 'skedaret') return !S.paSkedare && a.uid === p[1]; // v227 (S.paSkedare: rregullat e vjetra, pa skedarët)
     if (p[0] === 'dyqane') return reja ? ((a.uid === p[1] && !fshire(p[1])) || eshteAdmin(a.uid)) : (p[2] === 'fletet' ? (a.uid === p[1] || eshteAdmin(a.uid)) : true);
@@ -142,10 +143,12 @@ function krijoFirestore(opt = {}) {
       }
       return false;
     }
-    if (reja && p[0] === 'emrat' && p.length === 2) { // v302: secili vetëm emrin e vet; fshin vetëm i zoti ose admini
+    if (reja && p[0] === 'emrat' && p.length === 2) { // v309: emri mbetet i pronarit; s'mbishkruhet; fshin vetëm admini; admini zë për të tjerët
       if (S.paEmrat) return false;
-      if (lloji === 'delete') return !!iVjeter && (iVjeter.uid === a.uid || eshteAdmin(a.uid));
-      return p[1] === emriIm && iRi.uid === a.uid && vetemKeto(Object.keys(iRi), ['uid', 'ndryshuarSe']);
+      if (lloji === 'delete') return !!iVjeter && eshteAdmin(a.uid);
+      if (!vetemKeto(Object.keys(iRi), ['uid', 'ndryshuarSe'])) return false;
+      if (iVjeter) return iVjeter.uid === a.uid && iRi.uid === a.uid;
+      return (p[1] === emriIm && iRi.uid === a.uid) || eshteAdmin(a.uid);
     }
     if (reja && p[0] === 'ftesat') {
       const adm = eshteAdmin(a.uid);

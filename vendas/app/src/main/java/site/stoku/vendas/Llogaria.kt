@@ -175,16 +175,12 @@ object Llogaria {
         val celes = p.uid + "|" + em
         val para = StokuApp.prefsOse("emri_regjistruar", "")
         if (para == celes) return
-        val iMeparshmi = para.split("|").let { if (it.size == 2 && it[0] == p.uid && it[1] != em) it[1] else null }
         scope.launch {
             try {
+                // Hyrja 71: emri i zënë nga një llogari tjetër s'mbishkruhet; emri i mëparshëm s'fshihet më (mbetet i kësaj llogarie)
                 val ref = db.collection("emrat").document(em)
-                if (ref.get().await().getString("uid") != p.uid) ref.set(mapOf("uid" to p.uid, "ndryshuarSe" to System.currentTimeMillis())).await()
+                if (!ref.get().await().exists()) ref.set(mapOf("uid" to p.uid, "ndryshuarSe" to System.currentTimeMillis())).await()
             } catch (e: Exception) { return@launch }
-            if (iMeparshmi != null) try {
-                val v = db.collection("emrat").document(iMeparshmi)
-                if (v.get().await().getString("uid") == p.uid) v.delete().await()
-            } catch (e: Exception) { }
             if (_perdoruesi.value?.uid == p.uid) StokuApp.vendosPref("emri_regjistruar", celes)
         }
     }
@@ -242,7 +238,19 @@ object Llogaria {
         }
     }
 
-    suspend fun regjistrohu(emri: String, fjalekalimi: String, merchandiser: Boolean): String? = try {
+    /** Hyrja 71 (si pronariIEmrit te firebase-tel.js): pronari i një emri (emrat/{emri}) → uid, "" (i lirë) ose null (s'u lexua) */
+    suspend fun pronariIEmrit(emri: String): String? = try {
+        val s = db.collection("emrat").document(emri.trim().lowercase()).get().await()
+        if (s.exists()) (s.getString("uid") ?: "") else ""
+    } catch (e: Exception) { null }
+
+    suspend fun regjistrohu(emri: String, fjalekalimi: String, merchandiser: Boolean): String? {
+        // Hyrja 71: emri që e ka (ose e ka pasur) një llogari tjetër s'merret
+        if (!pronariIEmrit(emri).isNullOrEmpty()) return EMRI_I_ZENE
+        return regjistrohuTani(emri, fjalekalimi, merchandiser)
+    }
+
+    private suspend fun regjistrohuTani(emri: String, fjalekalimi: String, merchandiser: Boolean): String? = try {
         val kred = auth.createUserWithEmailAndPassword(emailIBrendshem(emri), fjalekalimi).await()
         mesazhiIHyrjes.value = ""
         val uid = kred.user?.uid
@@ -269,6 +277,9 @@ object Llogaria {
         val emriRi = emriRi0.trim().lowercase()
         if (!Regex("^[a-z0-9_.-]{3,40}$").matches(emriRi)) return "emri"
         val u = auth.currentUser ?: return "pa-hyrje"
+        // Hyrja 71: vetëm një emër i lirë ose një emër që e ka pasur vetë kjo llogari
+        val pr = pronariIEmrit(emriRi)
+        if (!pr.isNullOrEmpty() && pr != u.uid) return "zene"
         return try {
             val token = u.getIdToken(true).await().token ?: return "rrjeti"
             val gabim = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
@@ -325,8 +336,10 @@ object Llogaria {
     }
     private fun ruajEmrinEFundit(emri: String) { if (mbajEmrin() && emri.isNotEmpty()) StokuApp.vendosPref("emri_i_fundit", emri) }
 
+    private val EMRI_I_ZENE = "Ky emër përdoruesi është i zënë. Zgjidh një tjetër, ose hyr nëse është llogaria jote."
+
     private fun tekstiGabimit(e: Exception): String = when (e) {
-        is FirebaseAuthUserCollisionException -> "Ky emër përdoruesi është i zënë. Zgjidh një tjetër, ose hyr nëse është llogaria jote."
+        is FirebaseAuthUserCollisionException -> EMRI_I_ZENE
         is FirebaseAuthWeakPasswordException -> "Fjalëkalimi duhet të ketë të paktën 6 shenja."
         is FirebaseAuthInvalidUserException ->
             if (e.errorCode == "ERROR_USER_DISABLED") "Kjo llogari është çaktivizuar. Kontakto administratorin."

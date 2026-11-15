@@ -42,6 +42,13 @@
     // Fusha `emri` NUK preket: rregullat e Firestore e përdorin për admin-in. Hyrja s'e pret kurrë këtë shkrim.
     // "X u bashkua me grupin" s'shkruhet më këtu: e shkruan administratori kur e pranon llogarinë në grup.
     var __regjistrimet = {}; // uid → { emri, p }: hyr()/regjistrohu() dhe onAuthStateChanged e thërrasin njëkohësisht
+    // v309: emrat e zënë (emrat/{emri} → { uid }, i zë ekipa.js regjistroEmrin): emri që e ka pasur një llogari mbetet i saj (edhe
+    // pasi e ndryshon), askush tjetër s'mund ta marrë; lirohet vetëm kur administratori e fshin llogarinë. → uid-ja e pronarit, ''
+    // (i lirë) ose null (s'u lexua: pa internet a rregullat e vjetra; atëherë s'ndalet asgjë)
+    async function pronariIEmrit(emri) {
+      try { var s = await getDoc(doc(db, 'emrat', String(emri || '').trim().toLowerCase())); return s.exists() ? String((s.data() || {}).uid || '') : ''; }
+      catch (e) { return null; }
+    }
     function regjistroPerdoruesin(emriPerdoruesit, uid) {
       var emri = String(emriPerdoruesit).trim().toLowerCase();
       var ne = __regjistrimet[uid];
@@ -94,6 +101,8 @@
 
     window.__stokuCloud = {
       async regjistrohu(emriPerdoruesit, fjalekalimi, opsionet) {
+        // v309: emri i zënë nga një llogari tjetër (edhe një emër i vjetër i saj) s'merret
+        if (await pronariIEmrit(emriPerdoruesit)) return { ok: false, kodi: 'auth/email-already-in-use', arsye: 'emri-i-zene' };
         try {
           var kred = await createUserWithEmailAndPassword(auth, emailIBrendshem(emriPerdoruesit), fjalekalimi);
           var merch = !!(opsionet && opsionet.merchandiser);
@@ -132,6 +141,9 @@
       },
       async ndryshoEmrin(emriRiPerdoruesit) {
         if (!auth.currentUser) return { ok: false, arsye: 'pa-hyrje' };
+        // v309: lejohet vetëm një emër i lirë ose një emër që e ka pasur vetë kjo llogari
+        var prE = await pronariIEmrit(emriRiPerdoruesit);
+        if (prE && prE !== auth.currentUser.uid) return { ok: false, kodi: 'auth/email-already-in-use', arsye: 'emri-i-zene' };
         try {
           await updateEmail(auth.currentUser, emailIBrendshem(emriRiPerdoruesit));
           regjistroPerdoruesin(emriRiPerdoruesit, auth.currentUser.uid); // lista e Ekipit e merr emrin e ri menjëherë

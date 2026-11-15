@@ -1343,7 +1343,7 @@ private fun PaGrup(ftesat: List<Obj>, kerkesatM: List<Obj>, ctx: Konteksti) {
                         when (res) {
                             null -> Toast.trego("Kërkesa u dërgua. Kur ta pranojë admini i grupit, hyn vetë në grup.", 5000)
                             "nga-ftesa" -> { Toast.trego("U bashkove me grupin \"$em\" (të kishin ftuar)."); ctx.zgjidhPamjen("anetaret") }
-                            "rikthyer" -> { Toast.trego("U ktheve në grupin \"$em\" (ishe ende anëtar)."); ctx.zgjidhPamjen("anetaret") }
+                            "rikthyer" -> { Toast.trego("U ktheve në grupin \"$em\" (ishe ende në grup)."); ctx.zgjidhPamjen("anetaret") }
                             "leje" -> { uDergua = false; Toast.trego("Kërkesa s'u dërgua: ky grup s'ekziston më, ose rregullat e Firebase-it s'janë vendosur ende.", 5000) }
                             else -> { uDergua = false; Toast.trego("Kërkesa s'u dërgua. Kontrollo internetin dhe provo përsëri.", 5000) }
                         }
