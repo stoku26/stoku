@@ -14,6 +14,16 @@ class GrupiTest {
     private fun l(x: Any?) = x.siListe().map { it.siObj()!! }
     private fun eq(msg: String, pritur: Any?, marre: Any?) = assertEquals(msg, kanonik(pritur), kanonik(marre))
 
+    /** v307: fotoja e ngjarjes sipas uid-së (njësoj si uidIAvatarit te ekipa.js; teste/v307.js) */
+    @Test fun uidIAvatarit() {
+        assertEquals("u1", GrupiLogjika.uidIAvatarit(mapOf("lloji" to "hequr", "uid" to "u1", "emri" to "mendurberisha")))
+        assertEquals("u2", GrupiLogjika.uidIAvatarit(mapOf("lloji" to "anetar-i-ri", "uid" to "u1", "anetariUid" to "u2", "anetariEmri" to "x")))
+        assertEquals("u1", GrupiLogjika.uidIAvatarit(mapOf("lloji" to "anetar-i-ri", "uid" to "u1", "anetariUid" to "u1")))
+        assertEquals("u1", GrupiLogjika.uidIAvatarit(mapOf("lloji" to "hequr", "uid" to "u1", "anetariUid" to "u2")))
+        assertEquals("", GrupiLogjika.uidIAvatarit(mapOf("lloji" to "hequr", "emri" to "a")))
+        assertEquals("", GrupiLogjika.uidIAvatarit(null))
+    }
+
     @Test fun praniaDheKoha() {
         f["prania"].siListe().forEach { x ->
             val r = x.siObj()!!; val a = r["a"].siObj()

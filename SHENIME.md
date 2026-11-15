@@ -52,6 +52,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v307 / Android Hyrja 69 (15.11.2026, pronari: foto e Aktivitetit pa foto te ngjarjet e "mendurberisha")**: avatarët e
+   Aktivitetit, të dritares "vetëm shiko", të njoftimeve (zilja) dhe të ftesave e kërkonin foton sipas EMRIT të shkruar te dokumenti
+   (`Fotot.apliko({ emri })` / `Fotot.uidPerEmrin`); pas ndryshimit të emrit të përdoruesit (p.sh. mendurberisha → duli96) ngjarjet e
+   vjetra mbeteshin vetëm me shkronjë. Tani sipas uid-së: `ekipa.js uidIAvatarit(ng)` (autori; te "anetar-i-ri" i pranuar nga tjetri:
+   `anetariUid`) + binjaku `GrupiLogjika.uidIAvatarit` (Kotlin, test te GrupiTest); web tel + PC `ekAvatar({ uid, emri })` kudo; Android
+   `AvatariLehte(uid = ...)` te Ngjarja, NgjarjaFlete, njoftimet dhe `RreshtiMenaxhimit` (ftesat, kolegët, llogaritë). Shkronja dhe
+   teksti i ngjarjeve të vjetra mbeten me emrin e vjetër (ashtu siç u ruajtën). Test: `teste/v307.js`. S'është testuar në pajisje të vërtetë.
+
 0000000. **v306 (15.11.2026, nga kontrolli i plotë i projektit, vetëm web)**: (1) **GABIM**: `app-tel.js` e ndizte vetë njoftimin
    ditor (`ndizDitorinNeseSKaOrar`, v304/v305) me një kusht që vlerësohej kur ngarkohej skripti, para Firebase-it (modul):
    `perdoruesiAktual()` ishte gjithmonë null, pra s'ndizej KURRË për ata që e kishin lejen e njoftimeve (vetëm pas dhënies së lejes

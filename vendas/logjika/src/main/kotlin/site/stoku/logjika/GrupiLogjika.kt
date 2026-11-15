@@ -294,6 +294,15 @@ object GrupiLogjika {
         return Objekti(pronari, ids, if (ids.isNotEmpty()) "" else kerko)
     }
 
+    /** v307 (si uidIAvatarit te ekipa.js): uid-ja e personit në avatar të ngjarjes. Fotoja kërkohet sipas uid-së, jo sipas emrit të
+     *  shkruar te ngjarja (pas ndryshimit të emrit të përdoruesit, ngjarjet e vjetra ruajnë emrin e vjetër). */
+    fun uidIAvatarit(ng: Obj?): String {
+        if (ng == null) return ""
+        val an = ng["anetariUid"] as? String
+        val a = if (ng["lloji"] == "anetar-i-ri" && !an.isNullOrEmpty() && an != ng["uid"]) an else ng["uid"]
+        return a as? String ?: ""
+    }
+
     fun tekstiNgjarjes(ng: Obj, uidIm: String?): Teksti {
         val une = ng["uid"] == uidIm
         val kush = if (une) "Ti" else ((ng["emri"] as? String)?.ifEmpty { null } ?: "Dikush")

@@ -4205,7 +4205,7 @@
     var d = ekK.detajetENgjarjes(x);
     var t = $('ekDtTrup'); t.textContent = '';
     var kr = el('div', 'ek-ngjarje ek-dt-krye ' + d.lloji);
-    kr.appendChild(ekAvatar({ emri: d.avatar }, false));
+    kr.appendChild(ekAvatar({ uid: EKL.uidIAvatarit(x), emri: d.avatar }, false)); // v307: fotoja sipas uid-së
     var b = el('div', 'ek-ngjarje-trup');
     var p = el('div'); p.appendChild(el('b', null, d.kush)); p.appendChild(document.createTextNode(' ' + d.cfare)); b.appendChild(p);
     if (d.kur) b.appendChild(el('div', 'ek-ngjarje-detaje', d.kur));
@@ -4648,7 +4648,7 @@
       if (t !== dita) { dita = t; frag.appendChild(el('div', 'ek-dita-krye', t)); }
       var tx = EKL.tekstiNgjarjes(x, uidIm);
       var rr = el('div', 'ek-ngjarje ' + tx.lloji);
-      rr.appendChild(ekAvatar({ emri: tx.avatar || x.emri }, false));
+      rr.appendChild(ekAvatar({ uid: EKL.uidIAvatarit(x), emri: tx.avatar || x.emri }, false));
       var b = el('div', 'ek-ngjarje-trup');
       var p = el('div');
       p.appendChild(el('b', null, tx.kush));
@@ -4957,7 +4957,7 @@
     fe.forEach(function (f) {
       var tr = el('tr');
       var t0 = el('div', 'ek-anetar-qeliza');
-      t0.appendChild(ekAvatar({ emri: f.perdoruesi }, false));
+      t0.appendChild(ekAvatar({ uid: f.uid, emri: f.perdoruesi }, false));
       t0.appendChild(el('span', 'ek-anetar-emri', f.perdoruesi));
       tr.appendChild(el('td')).appendChild(t0);
       tr.appendChild(el('td', 'k-gri', 'Në pritje · ftuar nga ' + (f.ngaEmri || '') + (f.koha ? ' · ' + EKL.kohaRelative(f.koha) : '')));
@@ -5220,7 +5220,7 @@
         ekNjTeShfaqura = ekNjTeShfaqura.filter(function (id) { return id !== n.id; });
         if (!ekNjTeShfaqura.length) { $('ekNjFshiKrejt').style.display = 'none'; l.appendChild(el('div', 'bosh-mesazh', BOSH_NJ)); }
       });
-      r.appendChild(ekAvatar({ emri: n.emri }, false));
+      r.appendChild(ekAvatar({ uid: n.uid, emri: n.emri }, false));
       var b = el('div', 'ek-nj-trup', EKL.tekstiNjoftimit(n));
       b.appendChild(el('div', 'ek-nj-koha', EKL.kohaRelative(n.koha)));
       if (/^kerkese-/.test(n.lloji)) {
