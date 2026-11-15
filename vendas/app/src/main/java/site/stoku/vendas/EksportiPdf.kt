@@ -168,7 +168,7 @@ object EksportiPdf {
         // Hyrja 62 (web v300): fundi vetëm te faqja 1, pa vijën e dytë (dukej e dyfishtë me vijën e rreshtit të fundit)
         if (faqja == 0) {
             v.font(7.9f, false)
-            v.tekst("Krijuar me Stoku · stoku.site · " + o.data + ", ora " + o.ora, X, 290.6f, FAINT)
+            v.tekst("Krijuar me Stoku · https://stoku.site · " + o.data + ", ora " + o.ora, X, 290.6f, FAINT)
             v.tekst("Faqja 1 nga ${plani.size}", X + WI, 290.6f, FAINT, true)
         }
     }

@@ -33,14 +33,28 @@ object Opsionet {
     /** Pas ruajtjes, kursori kthehet te fusha e barkodit (për skanerin me USB ose Bluetooth) */
     val kursori: StateFlow<Boolean> get() = _kursori
 
+    private val _tema = MutableStateFlow(StokuApp.prefsOse("tema", "auto").takeIf { it == "light" || it == "dark" } ?: "auto")
+    /** Hyrja 73 (web v311): "auto", "light" ose "dark"; ruhet edhe te llogaria (Llogaria.ruajPamjen) */
+    val tema: StateFlow<String> get() = _tema
+    fun vendosTemen(v: String) { _tema.value = v; StokuApp.vendosPref("tema", v); Llogaria.ruajPamjen() }
+    fun pamjaEParazgjedhur(): Boolean = _tema.value == "auto" && _ngjyratE.value == 1 && _ngjyratC.value == 1
+    /** Nga llogaria (pa e ruajtur prapë): tema dhe ngjyrat që i ka zgjedhur përdoruesi në një pajisje tjetër */
+    fun zbatoPamjenNgaLlogaria(t: String?, e: Int?, c: Int?) {
+        val tema = if (t == "light" || t == "dark") t else "auto"
+        val ne = e?.takeIf { it in 1..10 } ?: 1
+        val nc = c?.takeIf { it in 1..10 } ?: 1
+        if (_tema.value != tema) { _tema.value = tema; StokuApp.vendosPref("tema", tema) }
+        if (_ngjyratE.value != ne) { _ngjyratE.value = ne; StokuApp.vendosPref("ngjyrat_e", ne.toString()) }
+        if (_ngjyratC.value != nc) { _ngjyratC.value = nc; StokuApp.vendosPref("ngjyrat_c", nc.toString()) }
+    }
     private fun nrTeme(k: String) = MutableStateFlow(StokuApp.prefsOse(k, "1").toIntOrNull()?.takeIf { it in 1..10 } ?: 1)
     private val _ngjyratE = nrTeme("ngjyrat_e")
     private val _ngjyratC = nrTeme("ngjyrat_c")
     /** Hyrja 72 (web v310): tema e errët (1..10) dhe e çelët (1..10) te Cilësimet → Pamja → Ngjyrat; 1 = ngjyrat e deritanishme */
     val ngjyratE: StateFlow<Int> get() = _ngjyratE
     val ngjyratC: StateFlow<Int> get() = _ngjyratC
-    fun vendosNgjyratE(n: Int) { if (n !in 1..10) return; _ngjyratE.value = n; StokuApp.vendosPref("ngjyrat_e", n.toString()) }
-    fun vendosNgjyratC(n: Int) { if (n !in 1..10) return; _ngjyratC.value = n; StokuApp.vendosPref("ngjyrat_c", n.toString()) }
+    fun vendosNgjyratE(n: Int) { if (n !in 1..10) return; _ngjyratE.value = n; StokuApp.vendosPref("ngjyrat_e", n.toString()); Llogaria.ruajPamjen() }
+    fun vendosNgjyratC(n: Int) { if (n !in 1..10) return; _ngjyratC.value = n; StokuApp.vendosPref("ngjyrat_c", n.toString()); Llogaria.ruajPamjen() }
 
     fun tastieraEFshehur(): Boolean = _pda.value && _paTastiere.value
 

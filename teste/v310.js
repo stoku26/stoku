@@ -90,7 +90,9 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
   ok(s.e === '3' && s.c === '4' && s.bg === '#0a1220', '1. pas rifreskimit: Oqeani menjëherë', s);
   ok(!t.__gab.length, '1. pa gabime JS', t.__gab);
 
-  // 2) Kompjuteri
+  // 2) Kompjuteri (v311: pamja e telefonit ruhet te llogaria; këtu llogaria fillon pa pamje të ruajtur, që PC-ja të nisë me parazgjedhjen)
+  await t.context().close(); // telefoni i hapur do ta ngarkonte prapë pamjen e vet te llogaria
+  F.S.docs.set('perdoruesit/u1', { perdoruesi: 'agim', kycurSe: tani });
   const p = await faqe(true);
   await p.click('#btnOpsione'); await p.waitForTimeout(400);
   await p.click('#opsTema [data-v="light"]'); await p.waitForTimeout(300);

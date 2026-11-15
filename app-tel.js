@@ -974,7 +974,7 @@
     rifreskoMetaTemen();
     var z = zgjedhjaETemes();
     // v310: "Ngjyrat" (te "E errët" vetëm të errëtat, te "E çelët" vetëm të çelëtat, te "Automatike" të dyja)
-    if (window.StokuTemat) window.StokuTemat.vizato($('temaNgjyrat'), z, function () { rifreskoMetaTemen(); rifreskoStatusetOpsioneve(); });
+    if (window.StokuTemat) window.StokuTemat.vizato($('temaNgjyrat'), z, function () { rifreskoMetaTemen(); rifreskoStatusetOpsioneve(); ruajPamjenNeLlogari(); });
     Array.prototype.forEach.call(document.querySelectorAll('#segTema button'), function (b) {
       b.classList.toggle('aktiv', b.getAttribute('data-v') === z);
     });
@@ -983,6 +983,19 @@
     try {
       if (v === 'auto') localStorage.removeItem(KEY_TEMA); else localStorage.setItem(KEY_TEMA, v);
     } catch (e) { /* ok */ }
+    zbatoTemen();
+    rifreskoStatusetOpsioneve();
+    ruajPamjenNeLlogari();
+  }
+  // v311: pamja (tema + ngjyrat) ruhet te llogaria dhe është e njëjtë në çdo pajisje (ekipa.js nisPamjen / pamjaNdryshoi)
+  function ruajPamjenNeLlogari() { try { if (typeof ekK !== 'undefined' && ekK && ekK.pamjaNdryshoi) ekK.pamjaNdryshoi(); } catch (e) { /* ok */ } }
+  function pamjaTani() {
+    var n = window.StokuTemat ? window.StokuTemat.lexo() : { e: 1, c: 1 };
+    return { tema: zgjedhjaETemes(), e: n.e, c: n.c };
+  }
+  function vendosPamjen(p) {
+    try { if (p.tema === 'auto') localStorage.removeItem(KEY_TEMA); else localStorage.setItem(KEY_TEMA, p.tema); } catch (e) { /* ok */ }
+    if (window.StokuTemat) window.StokuTemat.ruaj({ e: p.e, c: p.c });
     zbatoTemen();
     rifreskoStatusetOpsioneve();
   }
@@ -4558,6 +4571,74 @@
     });
   }
 
+  // v311 (pronari: "ajo vija nuk bohet slide poshtë ... nese e bo slide shpejt me u hek direkt"): dritaret "bottom sheet" (ato me vijën
+  // lart) mbyllen kur i tërheq poshtë: nga vija/koka, ose kudo kur përmbajtja është në krye. Mbyllen si me "mbrapa"
+  // (mbyllShtresenMeTeFundit), vetëm dritarja e sipërme; një rrëshqitje e shpejtë mbyll menjëherë, një e ngadaltë mbyll pas pragut
+  // (ose kthehet). Dritarja e njoftimeve (e detyrueshme, kuti në mes), faqet e plota dhe Opsionet s'preken.
+  (function () {
+    var PA_RRESHQITJE = { dlgOpsione: 1, dlgAfatet: 1, dlgEkipi: 1, dlgNjoftimet: 1 };
+    var g = null; // { ov, dlg, x0, y0, fillo, shenja: [{ y, t }] }
+    function eSkrolluar(el, dlg) {
+      for (var x = el; x; x = x.parentNode) {
+        if (x.scrollTop > 0) return true;
+        if (x === dlg) break;
+      }
+      return false;
+    }
+    document.addEventListener('touchstart', function (e) {
+      g = null;
+      if (e.touches.length !== 1 || $('kamera').classList.contains('hapur')) return;
+      var t = e.target, ov = t && t.closest ? t.closest('.mbulese.hapur') : null;
+      if (!ov || PA_RRESHQITJE[ov.id] || ov.classList.contains('faqe-e-plote') || dialogiISiperm() !== ov) return;
+      var dlg = t.closest('.dialog');
+      if (!dlg || dlg.parentNode !== ov) return;
+      if (t.closest('input, textarea, select, [contenteditable="true"]')) return;
+      var r = dlg.getBoundingClientRect(), y = e.touches[0].clientY;
+      if (y - r.top > 64 && eSkrolluar(t, dlg)) return; // jashtë vijës/kokës: vetëm kur përmbajtja është në krye
+      g = { ov: ov, dlg: dlg, x0: e.touches[0].clientX, y0: y, fillo: false, shenja: [] };
+    }, { passive: true });
+    document.addEventListener('touchmove', function (e) {
+      if (!g) return;
+      var p = e.touches[0], dy = p.clientY - g.y0, dx = p.clientX - g.x0;
+      if (!g.fillo) {
+        if (Math.abs(dy) < 8 && Math.abs(dx) < 8) return;
+        if (dy > 0 && Math.abs(dy) > Math.abs(dx) * 1.2) g.fillo = true; else { g = null; return; }
+      }
+      e.preventDefault();
+      if (dy < 0) dy = 0;
+      g.dy = dy;
+      g.dlg.style.transition = 'none';
+      g.dlg.style.transform = 'translateY(' + dy + 'px)';
+      g.shenja.push({ y: p.clientY, t: Date.now() });
+      if (g.shenja.length > 6) g.shenja.shift();
+    }, { passive: false });
+    function mbaro() {
+      var q = g; g = null;
+      if (!q || !q.fillo) return;
+      var dlg = q.dlg, ov = q.ov, lart = dlg.getBoundingClientRect().height, dy = q.dy || 0, v = 0;
+      var a = q.shenja[0], b = q.shenja[q.shenja.length - 1];
+      if (a && b && b.t > a.t) v = (b.y - a.y) / (b.t - a.t); // px/ms, poshtë = pozitive
+      var mbyll = dy > Math.min(120, lart * 0.3) || (v > 0.5 && dy > 20);
+      function pastro() { dlg.style.transition = ''; dlg.style.transform = ''; }
+      if (!mbyll) {
+        dlg.style.transition = 'transform .2s ease-out'; dlg.style.transform = 'translateY(0)';
+        setTimeout(pastro, 230);
+        return;
+      }
+      dlg.style.transition = 'transform .16s ease-out';
+      dlg.style.transform = 'translateY(' + (window.innerHeight - dlg.getBoundingClientRect().top + 10) + 'px)';
+      setTimeout(function () {
+        if (ov.classList.contains('hapur') && dialogiISiperm() === ov) mbyllShtresenMeTeFundit();
+        if (ov.classList.contains('hapur')) { // dritarja s'u mbyll (p.sh. pret përgjigje): kthehet në vend
+          dlg.style.transition = 'transform .2s ease-out'; dlg.style.transform = 'translateY(0)';
+          setTimeout(pastro, 230);
+        } else pastro();
+      }, 170);
+    }
+    document.addEventListener('touchend', mbaro, { passive: true });
+    document.addEventListener('touchcancel', mbaro, { passive: true });
+  })();
+
   // ---------- Eksporti në Excel (.xlsx) ----------
   function dyShifra(n) { return (n < 10 ? '0' : '') + n; }
 
@@ -6379,6 +6460,7 @@
     llogariaUFshi: llogariaUFshiNgaAdmini,
     uidIm: function () { var u = perdoruesiAktual(); return u ? u.uid : null; },
     emriIm: emriPerdoruesitAktual,
+    pamjaTani: pamjaTani, vendosPamjen: vendosPamjen, // v311
     afatetEMia: function () { return afatet; }, afatetMeEmra: function () { return MK.meEmra(afatet, marketet); },
     zbatoHeqjet: zbatoHeqjetEKolegeve,
     ktheAfatin: ktheAfatinNgaKolegu, pranoAfatin: pranoAfatinNgaKolegu, // v297

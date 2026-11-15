@@ -52,6 +52,7 @@ object Llogaria {
     private var dLejet: ListenerRegistration? = null
     private var dMerch: ListenerRegistration? = null
     private var dFshirja: ListenerRegistration? = null
+    private var dPamja: ListenerRegistration? = null
     private var poFshihet = false
 
     /** Mesazhi një-herësh për hyrjen (si "stoku:porta:mesazh" te web-i), p.sh. kur administratori e fshiu llogarinë */
@@ -111,13 +112,34 @@ object Llogaria {
                     degjoLejet(p)
                     degjoMerchandiserin(p)
                     degjoFshirjen(p)
+                    degjoPamjen(p) // v311
                 } else { _lejet.value = null; _merchandiser.value = false }
             }
             _gati.value = true
         }
     }
 
-    private fun ndalDegjuesit() { dLejet?.remove(); dLejet = null; dMerch?.remove(); dMerch = null; dFshirja?.remove(); dFshirja = null }
+    private fun ndalDegjuesit() { dLejet?.remove(); dLejet = null; dMerch?.remove(); dMerch = null; dFshirja?.remove(); dFshirja = null; dPamja?.remove(); dPamja = null }
+
+    // v311 (web v311): pamja (tema + ngjyrat) ruhet te llogaria, perdoruesit/{uid}.pamja = { tema, e, c, t }, e njëjtë në çdo pajisje
+    // (web telefon, PC, Android). Cloud-i fiton kur ka vlerë; nëse s'ka ende dhe kjo pajisje ka zgjedhje jo të parazgjedhura, ngarkohet.
+    private fun degjoPamjen(p: Perdoruesi) {
+        dPamja = db.collection("perdoruesit").document(p.uid).addSnapshotListener(MetadataChanges.INCLUDE) { s, e ->
+            if (e != null || s == null || _perdoruesi.value?.uid != p.uid) return@addSnapshotListener
+            if (s.metadata.hasPendingWrites()) return@addSnapshotListener // jehona e ndryshimit tim
+            if (!s.exists() && s.metadata.isFromCache) return@addSnapshotListener
+            val x = s.get("pamja") as? Map<*, *>
+            if (x != null) Opsionet.zbatoPamjenNgaLlogaria(x["tema"] as? String, (x["e"] as? Number)?.toInt(), (x["c"] as? Number)?.toInt())
+            else if (!s.metadata.isFromCache && !Opsionet.pamjaEParazgjedhur()) ruajPamjen()
+        }
+    }
+
+    /** Përdoruesi e ndryshoi temën ose ngjyrat (ose kjo pajisje e ngarkon të parën): ruhet te llogaria */
+    fun ruajPamjen() {
+        val p = _perdoruesi.value ?: return
+        val te = mapOf("pamja" to mapOf("tema" to Opsionet.tema.value, "e" to Opsionet.ngjyratE.value, "c" to Opsionet.ngjyratC.value, "t" to System.currentTimeMillis()))
+        try { db.collection("perdoruesit").document(p.uid).set(te, SetOptions.merge()) } catch (e: Exception) { }
+    }
 
     // Administratori e fshiu këtë llogari (ekipa_fshire/{uid}, si degjoFshirjen te ekipa.js): njoftimi ditor hiqet nga serveri,
     // llogaria e hyrjes fshihet (ose të paktën dilet), të dhënat e saj hiqen nga telefoni dhe hyrja e tregon arsyen

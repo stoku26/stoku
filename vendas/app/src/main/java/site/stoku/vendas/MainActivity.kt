@@ -90,7 +90,7 @@ class MainActivity : ComponentActivity() {
         lexoTabin(intent)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(0, 0), navigationBarStyle = SystemBarStyle.auto(0, 0))
         setContent {
-            var tema by remember { mutableStateOf(StokuApp.prefsOse("tema", "auto")) }
+            val tema by Opsionet.tema.collectAsState() // v311: edhe nga llogaria
             val madhesia by Opsionet.madhesia.collectAsState()
             val pda by Opsionet.pda.collectAsState()
             val ngjE by Opsionet.ngjyratE.collectAsState()
@@ -114,7 +114,7 @@ class MainActivity : ComponentActivity() {
                 Box(Modifier.fillMaxSize()) {
                     if (rrezimi.isNotEmpty() || !StokuApp.moduletNisur) EkraniIRrezimit(rrezimi) {
                         StokuApp.vendosPref("rrezimi_i_fundit", ""); rrezimi = ""; StokuApp.nisModulet()
-                    } else Rrenja(tema) { tema = it; StokuApp.vendosPref("tema", it) }
+                    } else Rrenja(tema) { Opsionet.vendosTemen(it) }
                     // Hyrja 33: versioni i ri si faqe e plotë, mbi gjithçka (edhe mbi hyrjen në llogari)
                     site.stoku.vendas.ui.PerditesimiFaqja()
                 }

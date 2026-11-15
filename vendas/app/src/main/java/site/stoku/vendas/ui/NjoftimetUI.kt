@@ -410,7 +410,7 @@ fun PyetjaENjoftimeve() {
                 androidx.compose.material3.Icon(Ik.Zile, null, Modifier.size(30.dp), tint = n.accentText)
             }
             Text("Aktivizo njoftimet", style = tx(22, 700, n.ink, -0.02))
-            Text("Stoku të lajmëron me njoftim në telefon (edhe në orë):", style = tx(15, 400, n.ink2))
+            Text("Stoku të lajmëron me njoftim në telefon:", style = tx(15, 400, n.ink2))
             listOf(
                 Triple(n.near, "për produktet që ", "skadojnë sot" to ""),
                 Triple(n.exp, "çdo ditë për produktet që ", "kanë skaduar" to ", që t'i heqësh nga rafti/pozita"),

@@ -52,6 +52,21 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v311 / Android Hyrja 73 (15.11.2026, pronari: "ngjyren qe e zgjedh useri me majt men kur del e kur bohet login apet, synced mu kon
+   kudo ne web app edhe android app"; "stoku.site shtoja https"; "ajo vija nuk bohet slide posht ... nese e bo slide shpejt me u hek
+   direkt"; "kto bone si box nmes te ekranit")**: (1) **Pamja te llogaria**: `perdoruesit/{uid}.pamja = { tema, e, c, t }` (tema
+   auto|light|dark, e/c = ngjyra e errët/e çelët 1..10). Rregullat e `perdoruesit` e lejojnë pronarin të shkruajë çdo fushë
+   përveç `emri`: S'DUHEN rregulla të reja. `ekipa.js`: cloud `degjoPamjen` (injoron jehonën `hasPendingWrites`) / `ruajPamjen`,
+   kontrollues `nisPamjen` (nis bashkë me ftesat; cloud-i fiton kur ka vlerë; pa vlerë dhe pajisja ka zgjedhje jo të parazgjedhura
+   → ngarkohet) dhe `pamjaNdryshoi` (thirret nga app-tel/app-pc kur përdoruesi ndryshon temën ose ngjyrat); `o.pamjaTani` /
+   `o.vendosPamjen` janë të aplikacionit (tel: `stoku:tema` + `stoku:ngjyrat`; PC: `ops.tema` + `stoku:ngjyrat`). Android:
+   `Llogaria.degjoPamjen` / `ruajPamjen`, `Opsionet.tema` (StateFlow, më parë `remember` te MainActivity) / `vendosTemen` /
+   `zbatoPamjenNgaLlogaria`. (2) PDF e afateve: "Krijuar me Stoku · https://stoku.site · …" (web + `EksportiPdf.kt`; fotoja e
+   eksportit mbeti me "stoku.site"). (3) **Dritarja e njoftimeve** (`#dlgNjoftimet`, e detyrueshme) = kuti në mes të ekranit, pa
+   vijën, e ridizajnuar (rreshta me ikonë me ngjyrë). (4) **Rrëshqitje poshtë** për dritaret "bottom sheet" (`app-tel.js`, pas
+   MutationObserver): nga vija/koka ose kudo kur përmbajtja është në krye; mbyllet me `mbyllShtresenMeTeFundit` (si "mbrapa", vetëm
+   dritarja e sipërme); prag min(120 px, 30% e lartësisë) ose shpejtësi > 0.5 px/ms; përjashtim: dlgOpsione, dlgAfatet, dlgEkipi,
+   dlgNjoftimet, `.faqe-e-plote`. Test: `teste/v311.js` (prekje të vërteta me CDP).
 0000000. **v310 / Android Hyrja 72 (15.11.2026, pronari: "qomi 10 per dark mode 10 per white mode ... te cilesimet > pamja", pastaj
    "bone opsion me hi nto ... ato dark mode i qet veq te dark mode ... bone mu bo expand edhe minimize", "si duket hiqe komplet")**:
    20 temat e ngjyrave nga NJË burim: `teste/temat-gjenero.py` (lista e ngjyrave + rregullat e ngjyrave të prejardhura) shkruan

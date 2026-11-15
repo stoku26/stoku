@@ -1176,6 +1176,19 @@
       },
       // v302: emrat/{emri} → { uid }: që pronari i grupit ta ftojë personin sipas uid-së (jo sipas emrit). E shkruan
       // secili për veten kur hyn; kur emri ndryshon, i vjetri fshihet. Kthen true kur shkrimi u bë (ose s'duhej).
+      // v311: pamja (tema + ngjyrat) ruhet te llogaria: perdoruesit/{uid}.pamja = { tema, e, c, t } (rregullat e `perdoruesit` e lejojnë
+      // pronarin të shkruajë çdo fushë përveç `emri`), që të jetë e njëjtë në çdo pajisje (web tel, PC, Android)
+      degjoPamjen: function (cb) {
+        var u = uid();
+        return fs.onSnapshot(fs.doc(db, 'perdoruesit', u), { includeMetadataChanges: true }, function (s) {
+          var m = s.metadata || {};
+          if (m.hasPendingWrites) return; // jehona e ndryshimit tim
+          if (!s.exists() && m.fromCache) return;
+          var x = s.exists() ? (s.data() || {}) : {};
+          cb(x.pamja && typeof x.pamja === 'object' ? x.pamja : null, !!m.fromCache);
+        }, function () { /* pa rregulla ose pa rrjet: pamja mbetet lokale */ });
+      },
+      ruajPamjen: function (p) { return fs.setDoc(fs.doc(db, 'perdoruesit', uid()), { pamja: p }, { merge: true }); },
       regjistroEmrin: async function (iMeparshmi) {
         var u = uid(), em = emri();
         if (!u || !/^[a-z0-9_.-]{3,40}$/.test(em) || !fs.getDoc) return false;
@@ -2315,6 +2328,30 @@
         if (ok && o.uidIm() === u) shkruaj(KEY_EMRI_REGJISTRUAR, JSON.stringify({ uid: u, emri: em }));
       });
     }
+    // v311: pamja (tema + ngjyrat) e llogarisë. Cloud-i fiton kur ka vlerë (e njëjtë në çdo pajisje); nëse s'ka ende dhe kjo pajisje
+    // ka zgjedhje të ndryshme nga parazgjedhja, ngarkohet ajo. Ndryshimi nga përdoruesi ruhet menjëherë (pamjaNdryshoi).
+    function pamjaEPastert(p) {
+      var t = p && (p.tema === 'light' || p.tema === 'dark') ? p.tema : 'auto';
+      var e = parseInt(p && p.e, 10), c = parseInt(p && p.c, 10);
+      return { tema: t, e: e >= 1 && e <= 10 ? e : 1, c: c >= 1 && c <= 10 ? c : 1 };
+    }
+    function pamjaNjejte(a, b) { return a.tema === b.tema && a.e === b.e && a.c === b.c; }
+    function nisPamjen() {
+      var e = E();
+      ndal('pamja');
+      if (!e || !e.degjoPamjen || !o.uidIm() || !o.pamjaTani || !o.vendosPamjen) return;
+      var u = o.uidIm();
+      d.pamja = e.degjoPamjen(function (cloud, ngaCache) {
+        if (o.uidIm() !== u) return;
+        var lok = pamjaEPastert(o.pamjaTani());
+        if (cloud) {
+          var re = pamjaEPastert(cloud);
+          if (!pamjaNjejte(re, lok)) o.vendosPamjen(re);
+        } else if (!ngaCache && !pamjaNjejte(lok, { tema: 'auto', e: 1, c: 1 })) {
+          e.ruajPamjen(Object.assign({}, lok, { t: Date.now() })).catch(function () { /* herën tjetër */ });
+        }
+      });
+    }
     function nisFtesatEMia() {
       regjistroEmrin();
       var e = E();
@@ -2726,6 +2763,7 @@
       } else gj.anetaresia = 'pa-rregulla';
       nisDegjuesitEGrupit();
       nisFtesatEMia();
+      nisPamjen(); // v311
       nisKerkesatEMia();
       nisDegjuesitPersonale();
       nisRegjistrin(); // v242: regjistri i përbashkët (edhe pa grup)
@@ -3011,7 +3049,7 @@
       } finally { dergimetDukeKontrolluar = false; }
     }
     function ndalGjithmone(vetemDegjuesit) {
-      ndal('njoftimet'); ndal('anetaresia'); ndal('fshirja'); ndal('grupiDoc'); ndal('ftesatEMia'); ndal('kujtesa');
+      ndal('njoftimet'); ndal('anetaresia'); ndal('fshirja'); ndal('grupiDoc'); ndal('ftesatEMia'); ndal('kujtesa'); ndal('pamja'); // v311
       ndal('kerkesatEMia'); ndal('kerkesatEGrupit'); clearTimeout(kohezKerkesave); // v242
       ndal('regjistri'); ndal('pritjet'); clearTimeout(regj.kohez); regj.gati = false; regj.adminiDihet = false;
       kujtesaGj.gati = false; clearTimeout(kujtesaGj.kohez);
@@ -3384,6 +3422,12 @@
       gjendjaEQasjes: gjendjaEQasjes,
       eshteAdmin: function () { return !!gj.admin; },
       // v302: pas ndryshimit të emrit të përdoruesit: emrat/{emri} i ri (i vjetri fshihet) dhe ftesat sipas emrit të ri
+      // v311: përdoruesi e ndryshoi pamjen (temën ose ngjyrat) → ruhet te llogaria
+      pamjaNdryshoi: function () {
+        var e = E();
+        if (!e || !e.ruajPamjen || !o.uidIm() || !o.pamjaTani) return;
+        e.ruajPamjen(Object.assign({}, pamjaEPastert(o.pamjaTani()), { t: Date.now() })).catch(function () { /* herën tjetër */ });
+      },
       pasNdryshimitTeEmrit: function () { if (o.uidIm()) Emrat.vendosAktuale([{ uid: o.uidIm(), emri: o.emriIm() }]); nisFtesatEMia(); }, // v308
       eshtePronar: eshtePronar,
       grupiInfo: function () { return gjendjaEQasjes() === 'ok' ? Emrat.perditeso(gj.grupiInfo || { id: gj.grupi, emri: '' }) : null; },
