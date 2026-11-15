@@ -52,6 +52,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v312 / Android Hyrja 74 (15.11.2026, pronari: "te permbledhja zgjedhe 3shin", "bone 2shin te afatet", vetëm telefon: web + Android,
+   jo PC)**: Grupi → Përmbledhja: 6 pllakat (`af-permb ek-permb-nr` / `RrjetaEPllakave`) u zëvendësuan me një fjali të madhe
+   (`.ek-rez`, `FjaliaERezymese`): e kuqe "N produkte kanë skaduar" (etiketa "Vëmendje") kur ka të skaduara, e verdhë "N produkte
+   skadojnë këtë javë" kur ka (`st.javes`), e gjelbër "Asnjë produkt nuk skadon këtë javë"; poshtë "84 në raft, 46 afër skadimit,
+   15 të hequr këtë muaj" me numra të prekshëm (hapin të njëjtat lista si pllakat: `ekHapAnetarin`). Grupi → Afatet: 4 pllakat-filtra u
+   zëvendësuan me shirit segmentuar me 5 pjesë (`.ek-segm`, `ShiritiSegmentuar`): Të gjitha (`n.aktive`), Skaduara, Afër, Rregull,
+   Hequra; `ekFiltri = null` = Të gjitha. PC (`app-pc.js`) pa ndryshim. Pronari e refuzoi një ri-organizim të plotë të Grupit
+   (shih "Gjëra që përdoruesi i ka refuzuar"). Test: `teste/v312.js`.
 0000000. **v311 / Android Hyrja 73 (15.11.2026, pronari: "ngjyren qe e zgjedh useri me majt men kur del e kur bohet login apet, synced mu kon
    kudo ne web app edhe android app"; "stoku.site shtoja https"; "ajo vija nuk bohet slide posht ... nese e bo slide shpejt me u hek
    direkt"; "kto bone si box nmes te ekranit")**: (1) **Pamja te llogaria**: `perdoruesit/{uid}.pamja = { tema, e, c, t }` (tema
@@ -3205,6 +3213,11 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   ("Kurgjo hiq sum pelqej"); riorganizimin e pa si foto provë mbi dizajnin e tashëm dhe e anuloi: "Jo anuloje komplet edhe
   riorganizimin edhe dizajnet". Mbeten dizajni dhe renditja e tashme (4 tabe: Stoku, Afatet, Grupi, Cilësimet); mos propozo
   tab "Sot", "Profili" në vend të "Cilësimet", as ridizajnim pa e kërkuar vetë.
+- **Ri-organizimi i plotë i Grupit (15.11.2026, vetëm foto propozimi, asgjë s'u fut në projekt)**: pasi i pëlqeu fjalia te Përmbledhja
+  dhe shiriti segmentuar te Afatet (v312), kërkoi "ri-organizim 100%" të Grupit dhe pa foto provë (4 skeda: Sot, Afatet me çelës
+  Listë/Kalendar, Aktiviteti, Kolegët; çipa kolegësh; statistika te Kolegët). E refuzoi: "fshije qfar ri organizimi katastrofal ke
+  bo". Mbeten 5 skedat e Grupit (Përmbledhja, Afatet, Aktiviteti, Kalendari, Kolegët) dhe 4 tabet e poshtme; mos propozo "Sot", mos e
+  bashko Kalendarin te Afatet, as ri-organizim të Grupit pa e kërkuar vetë. Ndryshime të vogla (si v312) pranohen kur i kërkon ai.
 - **Zgjedhja e zërit të skanimit (10 zëra, v292 / Android Hyrja 54)**: e hoqi menjëherë (v294 / Hyrja 56): "Heke komplet zerin e
   skanimit kthe qysh u kon". Skanimi ka vetëm bip-in e zakonshëm (ndezës "Tingulli" po/jo); mos e rikthe zgjedhjen e zërit.
 - **Dritaret "si xham" (tejdukshmëri + turbullim, v286 / Hyrja 48 dhe 49)**: i pa në telefon dhe i hoqi menjëherë (v287): "mut e ke bo

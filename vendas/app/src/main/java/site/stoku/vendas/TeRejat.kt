@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(74, "2026-11-15", "Grupi më i qartë", listOf(
+            "Grupi → Përmbledhja: në vend të 6 kutive me numra, tani del një fjali e madhe që të thotë çfarë ka rëndësi (\"9 produkte skadojnë këtë javë\"). Numrat e tjerë poshtë janë të prekshëm.",
+            "Grupi → Afatet: në vend të 4 kutive, një shirit me pjesë (Të gjitha, Skaduara, Afër, Rregull, Hequra). Prek një pjesë dhe lista filtrohet."
+        )),
         Hyrja(73, "2026-11-15", "Ngjyrat e tua kudo", listOf(
             "Ngjyrat që i zgjedh te Cilësimet → Pamja ruhen te llogaria jote: kur hyn prapë, ose në një pajisje tjetër (edhe te web-i), i gjen të njëjtat.",
             "PDF-ja e afateve: poshtë shkruan adresën e plotë, https://stoku.site."
