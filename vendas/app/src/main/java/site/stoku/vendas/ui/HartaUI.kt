@@ -291,6 +291,7 @@ fun HartaEMarketeve(pikat: List<PikaEHartes>, zgjedhur: String, shenjestra: Bool
             stiliGati = false
             m.setStyle(Style.Builder().fromJson(HartaStili.stili(erret, satelit, zgjedhurTani, pikatTani))) {
                 stiliGati = true
+                gabim = "" // stili u ngarkua: mesazhi i vjetër "Harta s'u hap" s'vlen më
                 if (!pershtatur) { pershtatur = true; kontrolli.pershtat(pikatTani) }
             }
         }
