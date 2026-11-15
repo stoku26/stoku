@@ -2157,7 +2157,7 @@
       keq = false;
       var sot = im.dita === sotIso();
       if (sot && im.rez === 'derguar') t = '✓ Sot njoftimi u dërgua në ' + oraNga(im.kohaRez) + '.';
-      else if (sot && im.rez === 'asgje') t = '✓ Serveri punon. Sot s\'skadon asnjë produkt, prandaj s\'erdhi njoftim.';
+      else if (sot && im.rez === 'asgje') t = '✓ Serveri punon. Sot s\'skadon dhe s\'ka skaduar asnjë produkt, prandaj s\'erdhi njoftim.';
       else if (sot && im.rez) { keq = true; t = 'Sot njoftimi s\'u dorëzua në telefon (' + im.rez + '). Fike dhe ndize sërish "Njoftimi ditor".'; }
       else t = '✓ Serveri punon. Njoftimi i radhës: ' + (sot ? 'nesër' : 'sot ose nesër') + ' në ' + o.ora + '.';
       if (im.afatet === 0) t += ' (Serveri s\'ka ende listën e afateve: hape Stoku-n një herë.)';
@@ -3038,7 +3038,7 @@
     var aktual = Object.keys(produktet).length;
     var po = await konfirmo(T('cloudTeRiktheteCloud'), T('cloudRiktheTekst', { aktual: aktual }), T('rikthe'));
     if (!po) { if (statusiPara) vendosStatusinCloud(statusiPara); else rifreskoDukjenECloud(); return; }
-    fshira = { produktet: {}, foldera: {}, afatet: {} };
+    fshira = { produktet: {}, foldera: {}, afatet: {}, marketet: {} };
     ruajFshiraet();
     if (!Array.isArray(rez.gjendja.afatet)) rez.gjendja.afatet = [];
     zbatoGjendjenNgaCloud(rez.gjendja, true);
@@ -5532,7 +5532,7 @@
   }
   $('mkShto').addEventListener('click', shtoMarketin);
   $('mkEmriRi').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); shtoMarketin(); } });
-  $('mkZgjidh').addEventListener('click', hapZgjedhjenEMarketit);
+  $('mkZgjidh').addEventListener('click', function () { hapZgjedhjenEMarketit(pozEFundit()); }); // v306: jo ngjarja e klikimit si pozicion
   $('mkGjejGps').addEventListener('click', function () { kontrolloGps(true); });
 
   function rifreskoAfatet() {
@@ -8818,7 +8818,11 @@
     else setTimeout(pyetPerNjoftimet, 300);
   });
   window.addEventListener('stoku-auth-ndryshoi', function () { setTimeout(pyetPerNjoftimet, 1500); });
-  if (njoftimetMbeshteten() && Notification.permission === 'granted' && perdoruesiAktual() && !ngaVizitori()) setTimeout(ndizDitorinNeseSKaOrar, 4000);
+  // v306: kushti kontrollohet pas 4 s (dhe pas çdo hyrjeje), jo kur ngarkohet faqja: atëherë Firebase s'është gati ende dhe
+  // perdoruesiAktual() ishte gjithmonë null, prandaj njoftimi ditor s'ndizej kurrë vetë për ata që e kishin lejen e njoftimeve
+  function provoDitorin() { if (njoftimetMbeshteten() && Notification.permission === 'granted' && perdoruesiAktual() && !ngaVizitori()) ndizDitorinNeseSKaOrar(); }
+  setTimeout(provoDitorin, 4000);
+  window.addEventListener('stoku-auth-ndryshoi', function () { setTimeout(provoDitorin, 4000); });
   function hapAfatetNgaNjoftimi() {
     if (window.StokuPorta && window.StokuPorta.eHapur()) return false;
     if (!$('dlgAfatet').classList.contains('hapur')) hapAfatetFaqe();

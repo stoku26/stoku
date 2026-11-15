@@ -52,6 +52,17 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v306 (15.11.2026, nga kontrolli i plotë i projektit, vetëm web)**: (1) **GABIM**: `app-tel.js` e ndizte vetë njoftimin
+   ditor (`ndizDitorinNeseSKaOrar`, v304/v305) me një kusht që vlerësohej kur ngarkohej skripti, para Firebase-it (modul):
+   `perdoruesiAktual()` ishte gjithmonë null, pra s'ndizej KURRË për ata që e kishin lejen e njoftimeve (vetëm pas dhënies së lejes
+   te dritarja). Tani `provoDitorin()` pas 4 s dhe pas çdo `stoku-auth-ndryshoi` (funksioni mbetet "një herë për llogari").
+   (2) `ekipa.js` `VERSIONI_WORKER` 168 → 172 (si Worker-i dhe Android). (3) Teksti "Sot s'skadon dhe s'ka skaduar asnjë produkt".
+   (4) `mkZgjidh` (Cilësimet → Marketet): klikimi s'jepet më si pozicion te `hapZgjedhjenEMarketit` (tani `pozEFundit()`).
+   (5) `fshira` te rikthimi nga cloud-i me `marketet: {}`. PC (`app-pc.js`): dëgjuesi `storage` edhe për `MK.KEY_LISTA`;
+   `duhetShkruar` edhe për fshirjet e marketeve; Kalendari i Grupit: "Unë e hoqa" vetëm me `ekLejohetHeqja(a)`. Test: `teste/v306.js`.
+   Kontrolli i plotë mbaroi: Android, web tel + PC (krejt app-tel.js, app-pc.js, modulet e përbashkëta), Worker-at, rregullat, ora.
+   S'kërkohet vendosje e re e Worker-it apo e rregullave. S'është testuar në pajisje të vërtetë.
+
 0000000. **ANDROID HYRJA 68 (15.11.2026, vetëm Android, nga kontrolli i plotë i ekraneve)**: (1) `ui/EksportetUI.kt` AfatetFotoFlete
    ("Eksporto si foto"): butonat ishin në një `Row` ku "Krijo foton" me `fillMaxWidth()` ua merrte gjerësinë dy "Anulo"-ve (s'dukeshin);
    tani njëri nën tjetrin, një "Anulo" i vetëm. (2) `ui/HartaUI.kt`: `gabim` ("Harta s'u hap") pastrohet kur stili ngarkohet. (3)

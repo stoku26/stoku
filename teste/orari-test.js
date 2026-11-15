@@ -25,6 +25,9 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
     if (q.url().endsWith('/orari')) { if (!kvGati) return r.fulfill({ status: 500, contentType: 'application/json', headers: h, body: '{"ok":false,"arsye":"mungon-kv"}' }); orari.push(JSON.parse(q.postData())); return r.fulfill({ status: 200, contentType: 'application/json', headers: h, body: '{"ok":true}' }); }
     return r.fulfill({ status: 200, contentType: 'application/json', headers: h, body: '{"ok":true}' });
   });
+  // v306: ndezja automatike e njoftimit ditor (një herë për llogari) tani punon vërtet; ky test fillon pa orar, si llogari që
+  // e ka pasur tashmë atë ndezje (shënja), që të provojë ndezjen/fikjen me dorë
+  await ctx.addInitScript(() => { try { localStorage.setItem('stoku:nj:ditor-auto', 'u1'); } catch (e) { /* ok */ } });
   await ctx.addInitScript(() => {
     window.__njoftimet = [];
     const sub = { endpoint: 'https://fcm.googleapis.com/fcm/send/u1', options: { applicationServerKey: null }, toJSON() { return { endpoint: this.endpoint, keys: { p256dh: 'BPku1', auth: 'auu1' } }; }, unsubscribe: async () => true };
@@ -76,7 +79,7 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
   health = Object.assign({}, health, { versioni: 163 });
   tk = await kutia();
   ok(/kodin e vjetër: ngjite kodin e ri te stoku-push\.$/.test(tk), '5a3. serveri 163 (aplikacioni pret 164, pa chat) → paralajmërim', tk);
-  health = Object.assign({}, health, { versioni: 168, cron: Date.now() - 600000, cronShprehja: '0,15,30,45 * * * *' });
+  health = Object.assign({}, health, { versioni: 172, cron: Date.now() - 600000, cronShprehja: '0,15,30,45 * * * *' });
   tk = await kutia();
   ok(/punon çdo 15 minuta, jo çdo minutë/.test(tk) && /"Every minute"/.test(tk) && !tk.includes('*'), '5c0. Cron çdo 15 min + ora 18:47 → paralajmërim me fjalë (pa yje)', tk);
   ok(kvThirrje === 0, '5c0. Cron-i punon → pa provë të KV-së');
@@ -92,7 +95,7 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
   health = Object.assign({}, health, { cronGabim: { koha: Date.now() - 2 * 3600000, mesazh: 'i vjetër' } });
   health = Object.assign({}, health, { cronShprehja: '* * * * *' });
   await p.click('#btnOpsione'); await p.waitForTimeout(300); await p.click('#tabNjoftimet'); await p.waitForTimeout(1200);
-  ok(/Serveri punon\. Sot s'skadon asnjë/.test(await p.textContent('#njOraServer')), '5c. serveri gati → "Serveri punon"', await p.textContent('#njOraServer'));
+  ok(/Serveri punon\. Sot s'skadon dhe s'ka skaduar asnjë/.test(await p.textContent('#njOraServer')), '5c. serveri gati → "Serveri punon"', await p.textContent('#njOraServer'));
   await p.screenshot({ path: 'orari-3.png' });
   await p.evaluate(() => { indexedDB.deleteDatabase('stoku-njoftimet'); localStorage.removeItem('stoku:orari:cron-ok'); });
   await p.reload(); await p.waitForTimeout(3500);
