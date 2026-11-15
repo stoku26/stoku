@@ -285,7 +285,7 @@ object Merchandiseri {
         }
         gpsDukePunuar = true
         if (meDore) Toast.trego(DUKE_GJETUR, 15000)
-        scope.launch {
+        scope.launch { try {
             val (gab, p) = pozita()
             if (gab != null || p == null) {
                 gpsDukePunuar = false
@@ -333,7 +333,7 @@ object Merchandiseri {
             StokuApp.vendosPref("marketet_kuje", Json.shkruaj(mapOf("uid" to Llogaria.perdoruesi.value?.uid, "koha" to System.currentTimeMillis())))
             if (!paqarte && marketet().isEmpty() && Marketet.pikatAfer(_pikat.value, p, 2000.0, 1).isEmpty()) { dritarja.value = Dritarja.MarketIRi; return@launch }
             dritarja.value = Dritarja.KuJe("zgjidh", p, true, paqarte = paqarte)
-        }
+        } finally { gpsDukePunuar = false } } // Hyrja 67: një gabim i papritur s'e lë GPS-in të bllokuar deri në rinisje
     }
 
     /** Çipi "Je te" / "Shto marketin ku punon" */

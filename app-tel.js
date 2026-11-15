@@ -8774,11 +8774,19 @@
     d.classList.add('hapur');
   }
   // Njoftimi ditor ndizet vetë herën e parë (ora 08:00 ose ajo e zgjedhur); kush e ka fikur vetë, mbetet i fikur
+  var KEY_NJ_DITOR_AUTO = 'stoku:nj:ditor-auto';
   function ndizDitorinNeseSKaOrar() {
-    var e = ekipaCloud();
-    if (!e || !e.vendosOrarin || !e.orariIm || e.orariIm() || !perdoruesiAktual() || !leja('afatet')) return;
+    var e = ekipaCloud(), u = perdoruesiAktual();
+    if (!e || !e.vendosOrarin || !e.orariIm || !u || !u.uid || !leja('afatet')) return;
+    // v305: vetëm NJË herë për llogari në këtë pajisje. Më parë (v304) ndizej sa herë hapej Stoku dhe s'kishte orar, pra edhe
+    // pasi përdoruesi e kishte fikur vetë (fikja e fshin orarin): njoftimi ditor s'mund të mbetej i fikur.
+    var bere = null; try { bere = localStorage.getItem(KEY_NJ_DITOR_AUTO); } catch (g) { /* ok */ }
+    function sheno() { try { localStorage.setItem(KEY_NJ_DITOR_AUTO, u.uid); } catch (g) { /* ok */ } }
+    if (bere === u.uid) return;
+    if (e.orariIm()) { sheno(); return; } // e ka tashmë (nga para v304 ose nga një hapje e mëparshme)
     e.vendosOrarin({ aktiv: true, ora: oraEZgjedhur() }).then(function (r) {
       if (r && r.ok) {
+        sheno();
         window.StokuNjoftimet.vendosOrarin(!!(e.orariPunon && e.orariPunon()));
         if (e.dergoAfatetPerOrarin) e.dergoAfatetPerOrarin(afatetPerServerin());
       }
