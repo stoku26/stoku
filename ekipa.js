@@ -34,6 +34,10 @@
   // v302: administratori njihet nga uid-ja e llogarisë (e përhershme), jo nga emri i përdoruesit (që mund të ndryshohet).
   // Pasqyron eshteAdmin() te rregullat e Firestore-it dhe ADMIN_UID te Worker-at e Android-i (Lejet.kt).
   var ADMIN_UID = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
+  // v309: emrat e përdoruesve (si te regjistrimi): 3 deri 40 shkronja të vogla, numra, _ . -
+  var EMRI_I_VLEFSHEM = /^[a-z0-9_.-]{3,40}$/;
+  // v309: emrat e vjetër të njohur me siguri (para ruajtjes së emrave): i zë administratori për pronarin e tyre
+  var EMRAT_E_VJETER = [{ emri: 'mendurberisha', uid: ADMIN_UID }];
   // Testet (teste/fs-server.js) mund ta caktojnë uid-në e administratorit të provës. Kjo ndikon vetëm pamjen në këtë
   // shfletues: lejet e vërteta i vendosin rregullat e Firestore-it, që e njohin vetëm ADMIN_UID.
   function eshteUidAdmin(u) {
@@ -1177,11 +1181,10 @@
         if (!u || !/^[a-z0-9_.-]{3,40}$/.test(em) || !fs.getDoc) return false;
         try {
           var s = await fs.getDoc(fs.doc(db, 'emrat', em));
-          if (!(s.exists() && s.data().uid === u)) await fs.setDoc(fs.doc(db, 'emrat', em), { uid: u, ndryshuarSe: Date.now() });
+          // v309: emri i zënë nga një llogari tjetër s'mbishkruhet (rregullat s'e lejojnë më)
+          if (!s.exists()) await fs.setDoc(fs.doc(db, 'emrat', em), { uid: u, ndryshuarSe: Date.now() });
         } catch (e) { return false; }
-        if (iMeparshmi && iMeparshmi !== em && /^[a-z0-9_.-]{3,40}$/.test(iMeparshmi)) {
-          try { var v = await fs.getDoc(fs.doc(db, 'emrat', iMeparshmi)); if (v.exists() && v.data().uid === u) await fs.deleteDoc(fs.doc(db, 'emrat', iMeparshmi)); } catch (e) { /* ok */ }
-        }
+        // v309 (pronari): emri i mëparshëm s'fshihet më: mbetet i kësaj llogarie (askush tjetër s'e merr; ajo mund të kthehet te ai)
         return true;
       },
       // Administratori: të gjitha llogaritë (për "Llogaritë e tjera": fshirja, ftesa)
@@ -1198,6 +1201,23 @@
       // Administratori: fshin llogarinë komplet. Së pari shënohet te ekipa_fshire/{uid} (rregullat ia mbyllin çdo
       // qasje menjëherë, dhe aplikacioni i tij e fshin llogarinë e Firebase-it sapo hapet), pastaj fshihen krejt të
       // dhënat: dyqani (me pjesët dhe fletët), anëtarësia në grup, afatet e grupit, njoftimet dhe profili.
+      // v309: administratori i zë emrat e vjetër të llogarive (emrat/{emri} → uid), që askush tjetër të mos i marrë;
+      // një emër i zënë tashmë s'preket. → emrat e kryer (të zënë tani ose më parë); ata që dështuan provohen herën tjetër
+      zeEmrat: async function (lista) {
+        if (!uid() || !eshteUidAdmin(uid())) return [];
+        var kryer = [];
+        for (var i = 0; i < (lista || []).length; i++) {
+          var x = lista[i];
+          if (!x || !x.uid || !EMRI_I_VLEFSHEM.test(String(x.emri || ''))) continue;
+          try {
+            var ref = fs.doc(db, 'emrat', x.emri);
+            var s = await fs.getDoc(ref);
+            if (!s.exists()) await fs.setDoc(ref, { uid: x.uid, ndryshuarSe: Date.now() });
+            kryer.push(x.emri);
+          } catch (e) { /* rregullat para v309 ose pa internet */ }
+        }
+        return kryer;
+      },
       fshijLlogarine: async function (u, emriTjeter) {
         if (!uid() || !u || u === uid()) return { ok: false };
         var gU = null;
@@ -1243,6 +1263,12 @@
             for (var k = 0; k < ff.length; k++) await fshij(fs.doc(db, 'ftesat', ff[k]));
           } catch (e) { /* ok */ }
         }
+        // v309: emrat e kësaj llogarie (i tanishmi dhe të vjetrit) lirohen: vetëm fshirja nga administratori i liron
+        try {
+          var se = await fs.getDocs(fs.query(fs.collection(db, 'emrat'), fs.where('uid', '==', u)));
+          var ee = []; se.forEach(function (d) { ee.push(d.id); });
+          for (var m = 0; m < ee.length; m++) await fshij(fs.doc(db, 'emrat', ee[m]));
+        } catch (e) { /* rregullat para v309 */ }
         if (emriTjeter) {
           try { var se = await fs.getDoc(fs.doc(db, 'emrat', emriTjeter)); if (se.exists() && se.data().uid === u) await fshij(fs.doc(db, 'emrat', emriTjeter)); } catch (e) { /* ok */ }
         }
@@ -3040,7 +3066,7 @@
         }, function () { ndal('ftesatEGrupit'); });
       }
       if (gj.admin && !d.krejtLlogarite && e.degjoKrejtLlogarite) {
-        d.krejtLlogarite = e.degjoKrejtLlogarite(function (l) { Emrat.vendosAktuale(l); gj.krejtLlogarite = l; thirr('anetaret'); }, function () { ndal('krejtLlogarite'); });
+        d.krejtLlogarite = e.degjoKrejtLlogarite(function (l) { Emrat.vendosAktuale(l); zeEmratEVjeter(l); gj.krejtLlogarite = l; thirr('anetaret'); }, function () { ndal('krejtLlogarite'); });
       }
       if (!d.permbledhjet && e.degjoAfatetEEkipes && !gj.permbledhjetGabim) {
         d.permbledhjet = e.degjoAfatetEEkipes(function (m) {
@@ -3213,6 +3239,28 @@
         return a.uneJam ? Object.assign({}, a, { afatet: a.afatet.map(function (af) { return mk[af.id] ? Object.assign({}, af, { mk: mk[af.id] }) : af; }) }) : a;
       });
       return detajetENgjarjes(ng, o.uidIm(), an);
+    }
+    // v309: administratori: emrat e tanishëm të llogarive dhe emrat e vjetër të njohur (nga Aktiviteti, njoftimet, ftesat: një
+    // emër që i ka përkitur vetëm një llogarie) zihen për pronarin e tyre, që askush tjetër të mos i marrë. Një herë për emër.
+    var KEY_EMRAT_ZENE = 'stoku:emrat:zene', __zeniaKohez = null;
+    function zeEmratEVjeter(llogarite) {
+      var e = E();
+      if (!e || !e.zeEmrat || !o.uidIm() || !eshteUidAdmin(o.uidIm())) return;
+      clearTimeout(__zeniaKohez);
+      __zeniaKohez = setTimeout(function () {
+        var bere = {};
+        try { bere = JSON.parse(localStorage.getItem(KEY_EMRAT_ZENE) || '{}') || {}; } catch (x) { bere = {}; }
+        var h = Emrat.harta(), l = EMRAT_E_VJETER.slice();
+        (llogarite || []).forEach(function (a) { if (a && a.uid && a.emri) l.push({ emri: String(a.emri).trim().toLowerCase(), uid: a.uid }); });
+        Object.keys(h.aliaset || {}).forEach(function (k) { var u = h.aliaset[k]; if (u && u.length === 1) l.push({ emri: k, uid: u[0] }); });
+        var pare = {};
+        l = l.filter(function (x) { if (!EMRI_I_VLEFSHEM.test(x.emri) || bere[x.emri] || pare[x.emri]) return false; pare[x.emri] = true; return true; });
+        if (!l.length) return;
+        e.zeEmrat(l).then(function (kryer) {
+          (kryer || []).forEach(function (k) { bere[k] = true; });
+          try { localStorage.setItem(KEY_EMRAT_ZENE, JSON.stringify(bere)); } catch (x) { /* ok */ }
+        }).catch(function () { /* ok */ });
+      }, 5000);
     }
     function ngjarje(ng) {
       var e = E();

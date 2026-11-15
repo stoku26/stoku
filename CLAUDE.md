@@ -33,7 +33,9 @@ Përditësoje në të njëjtin PR me çdo ndryshim domethënës.
 - CSP: pa skripta inline dhe pa `onclick=` në HTML; kodi i ri te `app-tel.js` / `app-pc.js`. Shërbim i ri i jashtëm =
   CSP në meta të 5 faqeve + rreshti `CSP_CLOUDFLARE` te SHENIME + pronari e ndryshon rregullën "siguria" te Cloudflare.
 - Ora e dorës: pa fusha teksti brenda aplikacionit (hyrja e sistemit, RemoteInput).
-- Mos i ndrysho identifikuesit `stoku:ekipa:*`, grupin "ekipa", `anetaret`, `#/ekipa/anetaret`.
+- Mos i ndrysho identifikuesit `stoku:ekipa:*`, grupin "ekipa", `anetaret`. Adresa e PC-së është `#/grupi` (`#/grupi/koleget`, v309);
+  `#/ekipa/anetaret` dhe `#/ekipa...` duhet të punojnë gjithmonë.
+- Emrat e përdoruesve (`emrat/{emri}`) mbeten të llogarisë; lirohen vetëm kur administratori e fshin llogarinë (v309).
 - Pa emra ose identifikues modelesh të AI-së në commit, PR, kod ose skedarë.
 
 ## Çdo ndryshim në web

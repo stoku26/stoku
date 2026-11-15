@@ -4607,6 +4607,8 @@
   var ks = { f: null, titulli: '', zgjidh: null, kohez: null };
   // v231: pa lejen "Stoku në kompjuter" s'ka as "Dërgo në PC" (s'do të kishte ku t'i shkarkojë)
   function lejaDergoNePc() { return leja('dergoNePc') && leja('pc'); }
+  // v309: ku del skedari në PC: afatet te faqja Afatet, stoku (malli, etiketat, stoku i kolegut) te Stoku → Përmbledhja
+  function kuNePc(titulli) { return titulli === 'Afatet' ? 'te Afatet' : 'te Stoku, te Përmbledhja'; }
   function ndajOseShkarko(f, titulliShpernd) {
     if (!lejaDergoNePc()) return ndajOseShkarkoKetu(f, titulliShpernd);
     return new Promise(function (zgjidh) {
@@ -4636,7 +4638,7 @@
     $('ksPc').disabled = !pc;
     $('ksPc').lastChild.textContent = g === 'gabim' ? 'Provo sërish në PC' : 'Dërgo në PC';
     $('ksKetu').style.display = g === 'zgjedhje' || g === 'gabim' ? '' : 'none';
-    $('ksHint').textContent = g !== 'zgjedhje' ? '' : pc ? 'Në PC del te Përmbledhja, me butonin "Shkarko". Duhet e njëjta llogari në kompjuter.'
+    $('ksHint').textContent = g !== 'zgjedhje' ? '' : pc ? 'Në PC del ' + kuNePc(ks.titulli) + ', me butonin "Shkarko". Duhet e njëjta llogari në kompjuter.'
       : 'Për ta dërguar në PC duhet llogari (e njëjta edhe në kompjuter).';
     $('ksHint').hidden = !$('ksHint').textContent;
     $('ksAnulo').textContent = g === 'gati' || g === 'pune' ? 'Mbyll' : 'Anulo';
@@ -4663,11 +4665,11 @@
     var r = navigator.onLine === false ? { ok: false, arsye: 'rrjeti' }
       : await c.skedaret.dergo(ky.f.skedari, { emri: ky.f.emri, titulli: ky.titulli, pajisja: opsione.pda ? 'PDA' : 'Telefoni' });
     if (ks !== ky) { // dritarja u mbyll ndërkohë: rezultati del si njoftim
-      toast(r.ok ? 'U dërgua në PC. E gjen te Stoku në kompjuter, te Përmbledhja.' : 'S\'u dërgua në PC. Provo sërish.', 4500);
+      toast(r.ok ? 'U dërgua në PC. E gjen në kompjuter ' + kuNePc(ky.titulli) + '.' : 'S\'u dërgua në PC. Provo sërish.', 4500);
       return;
     }
     if (r.ok) {
-      gjendjaKs('gati', 'E gjen te Stoku në kompjuter, te Përmbledhja, me butonin "Shkarko".');
+      gjendjaKs('gati', 'E gjen në kompjuter ' + kuNePc(ky.titulli) + ', me butonin "Shkarko".');
       ky.kohez = setTimeout(function () { if (ks === ky) { mbaroKs(); fokusoBarkodin(); } }, 2500);
       return;
     }
@@ -7084,7 +7086,7 @@
             return;
           }
           if (r.ngaFtesa) { toast('U bashkove me grupin "' + gr.emri + '" (të kishin ftuar).'); __ekipiAnetari = null; ekZgjidhPamjen('anetaret'); return; }
-          if (r.rikthyer) { toast('U ktheve në grupin "' + gr.emri + '" (ishe ende anëtar).'); __ekipiAnetari = null; ekZgjidhPamjen('anetaret'); return; }
+          if (r.rikthyer) { toast('U ktheve në grupin "' + gr.emri + '" (ishe ende në grup).'); __ekipiAnetari = null; ekZgjidhPamjen('anetaret'); return; }
           b.textContent = 'U dërgua';
           toast('Kërkesa u dërgua. Kur ta pranojë admini i grupit, hyn vetë në grup.', 5000);
         });
@@ -7782,10 +7784,11 @@
     if (!njoftimetMbeshteten() || Notification.permission !== 'granted') return;
     navigator.serviceWorker.ready.then(function (reg) {
       return reg.showNotification(nj.titulli, { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=3', badge: './logo/badge-96.png?v=1', vibrate: [180, 80, 180],
-        data: { url: './index.html#ekipa-' + (nj.pamja === 'anetaret' || nj.pamja === 'njoftimet' ? nj.pamja : 'afatet') } });
+        data: { url: './index.html#grupi-' + (nj.pamja === 'anetaret' ? 'koleget' : nj.pamja === 'njoftimet' ? 'njoftimet' : 'afatet') } });
     }).catch(function () { /* ok */ });
   }
   function hapEkipenNgaNjoftimi(pamja) {
+    if (pamja === 'koleget') pamja = 'anetaret'; // v309: adresa e re "#grupi-koleget"
     if (window.StokuPorta && window.StokuPorta.eHapur()) return false;
     if (!$('dlgEkipi').classList.contains('hapur')) $('btnEkipi').click();
     if (['aktiviteti', 'kalendari', 'anetaret', 'afatet'].indexOf(pamja) !== -1) ekZgjidhPamjen(pamja);
@@ -8844,12 +8847,12 @@
   window.__stokuHapNgaNjoftimi = function (hash) {
     hash = String(hash || '');
     if (hash === '#afatet') return hapAfatetNgaNjoftimi();
-    if (/^#ekipa/.test(hash)) return hapEkipenNgaNjoftimi(hash.split('#ekipa-')[1] || '');
+    if (/^#(ekipa|grupi)/.test(hash)) return hapEkipenNgaNjoftimi(hash.replace(/^#(ekipa|grupi)-?/, '')); // v309: edhe "#grupi-…"
     return true;
   };
-  // Njoftimet e Grupit hapin "./index.html#ekipa-<pamja>"
-  if (/^#ekipa/.test(location.hash)) {
-    var __pamjaEkipesNgaAdresa = location.hash.split('#ekipa-')[1] || '';
+  // Njoftimet e Grupit hapin "./index.html#grupi-<pamja>" (v309; të vjetrat "#ekipa-<pamja>" punojnë njësoj)
+  if (/^#(ekipa|grupi)/.test(location.hash)) {
+    var __pamjaEkipesNgaAdresa = location.hash.replace(/^#(ekipa|grupi)-?/, '');
     try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) { /* ok */ }
     var __hapEkipenNgaAdresa = function () { return hapEkipenNgaNjoftimi(__pamjaEkipesNgaAdresa); };
     if (!__hapEkipenNgaAdresa()) window.addEventListener('stoku-porta-hapur', __hapEkipenNgaAdresa, { once: true });

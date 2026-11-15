@@ -20,6 +20,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 309, versioni: '1.59.0', data: '2026-11-15', titulli: 'Emrat e përdoruesve mbeten të tutë', pikat: [
+      'Çdo emër përdoruesi që e ke pasur mbetet i yti: askush tjetër s\'mund ta marrë, as kur ti e ndryshon emrin. Nëse do, mund të kthehesh te një emër i yti i vjetër.',
+      'Skedarët që i dërgon nga telefoni te kompjuteri dalin në vendin e duhur: lista e afateve te Afatet, malli te Stoku.',
+      'PDF-ja e afateve: titulli në mes të faqes, logoja dhe data në të njëjtën vijë me të.',
+      'Faqja e kolegëve te kompjuteri ka adresë të re (Grupi → Kolegët). Lidhjet e vjetra punojnë njësoj.'
+    ] },
     { v: 308, versioni: '1.58.7', data: '2026-11-15', titulli: 'Emri i ri kudo', pikat: [
       'Kur një koleg e ndryshon emrin e përdoruesit, emri i ri del kudo: te Aktiviteti (edhe te ngjarjet e vjetra), njoftimet, ftesat, afatet ("Shtuar nga", "U hoq nga"), produktet dhe marketet.',
       'Stoku e njeh personin nga llogaria e tij, jo nga emri: dikush tjetër që merr emrin e vjetër s\'ngatërrohet me të.'

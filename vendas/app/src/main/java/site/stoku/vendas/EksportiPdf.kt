@@ -36,6 +36,7 @@ object EksportiPdf {
     private const val RR = 7.4f
     private const val FUND = 283f
     private const val FUND2 = 290f // Hyrja 62: faqet 2+ pa fund ("Krijuar me Stoku", "Faqja X nga Y"), tabela deri poshtë (37 rreshta)
+    private const val MESI = 18.5f // Hyrja 71: vija e mesit e kokës (logoja, titulli me rreshtin poshtë, data), si web-i
     private const val PT = 25.4f / 72f // 1 pikë (pt) në mm
 
     private fun c(h: Long) = (h or 0xFF000000L).toInt()
@@ -132,13 +133,13 @@ object EksportiPdf {
         }
         var y: Float
         if (faqja == 0) {
-            with(EksportiFoto) { cv.logo(v.p, X, 9.2f, 4.2f, EksportiFoto.CELET) }
-            v.font(8.6f, false); v.tekst(o.data, X + WI, 12.4f, MUTED, true)
-            v.font(18f, true); v.tekst("Lista e afateve", W / 2, 21.6f, INK, qendra = true)
+            with(EksportiFoto) { cv.logo(v.p, X, MESI - 2.1f, 4.2f, EksportiFoto.CELET) }
+            v.font(8.6f, false); v.tekst(o.data, X + WI, MESI + 1.09f, MUTED, true)
+            v.font(18f, true); v.tekst("Lista e afateve", W / 2, MESI - 1.56f, INK, qendra = true)
             var gj = 0f
             o.info.forEach { (t, tr) -> v.font(9f, tr); gj += v.gjeresia(t) }
             var xi = W / 2 - gj / 2
-            o.info.forEach { (t, tr) -> v.font(9f, tr); v.tekst(t, xi, 27.4f, if (tr) INK else MUTED); xi += v.gjeresia(t) }
+            o.info.forEach { (t, tr) -> v.font(9f, tr); v.tekst(t, xi, MESI + 5.72f, if (tr) INK else MUTED); xi += v.gjeresia(t) }
             kokaETabeles(34.6f); y = KOKA1
         } else {
             kokaETabeles(12.7f); y = KOKA // Hyrja 61: logoja, titulli dhe të dhënat vetëm te faqja 1

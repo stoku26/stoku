@@ -10,7 +10,7 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v308';
+var CACHE = 'stoku-v309';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
 importScripts('./afatet.js?v=295', './njoftimet.js?v=304');
@@ -35,22 +35,22 @@ var SHELL = FAQET.concat([
   './skedaret.js?v=1',
   './lejet.js?v=8',
   './afatet.js?v=295',
-  './eksportet.js?v=301',
+  './eksportet.js?v=309',
   './marketet.js?v=281',
   './harta.js?v=281',
-  './ekipa.js?v=308',
+  './ekipa.js?v=309',
   './porta.js?v=282',
   './njoftimet.js?v=304',
-  './teRejat.js?v=308',
+  './teRejat.js?v=309',
   // v238: skriptat e faqeve (më parë brenda HTML-së; CSP pa 'unsafe-inline')
   './kornize.js?v=238',
   './es2020.js?v=238',
   './fillimi-tel.js?v=296',
   './fillimi-pc.js?v=239',
-  './app-tel.js?v=308',
-  './app-pc.js?v=308',
-  './firebase-tel.js?v=281',
-  './firebase-pc.js?v=281',
+  './app-tel.js?v=309',
+  './app-pc.js?v=309',
+  './firebase-tel.js?v=309',
+  './firebase-pc.js?v=309',
   './manifest.webmanifest?v=87',
   './css/stoku-tokens.css?v=6',
   './css/stoku.css?v=69',
@@ -212,7 +212,8 @@ self.addEventListener('notificationclick', function (e) {
   // v234: hapen vetëm faqet e Stoku-t (adresë relative ose e të njëjtës origjinë), asnjëherë një faqe e huaj
   try { if (new URL(url, self.location.href).origin !== self.location.origin) url = './index.html#afatet'; } catch (x) { url = './index.html#afatet'; }
   var perPc = /pc\.html/.test(url);
-  var mesazhi = /#\/?ekipa/.test(url) ? { lloji: 'hap-ekipa', pamja: /anetaret/.test(url) ? 'anetaret' : /njoftimet/.test(url) ? 'njoftimet' : 'afatet' } : { lloji: 'hap-afatet' };
+  // v309: adresat e reja "#grupi-…" / "#/grupi/…" (koleget = anetaret); të vjetrat "#ekipa…" punojnë njësoj
+  var mesazhi = /#\/?(ekipa|grupi)/.test(url) ? { lloji: 'hap-ekipa', pamja: /anetaret|koleget/.test(url) ? 'anetaret' : /njoftimet/.test(url) ? 'njoftimet' : 'afatet' } : { lloji: 'hap-afatet' };
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (dritaret) {
     for (var i = 0; i < dritaret.length; i++) {
       var d = dritaret[i];

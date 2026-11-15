@@ -154,7 +154,7 @@
       return document.fonts.load(f).catch(function () {});
     }));
   }
-  var AP = { W: 210, H: 297, MX: 12.7, KOKA1: 37.2, KOKA: 15.3, RR: 7.4, FUND: 283, FUND2: 290, SASIA_P: 6 };
+  var AP = { W: 210, H: 297, MX: 12.7, KOKA1: 37.2, KOKA: 15.3, RR: 7.4, FUND: 283, FUND2: 290, SASIA_P: 6, MESI: 18.5 };
   var AP_NGJ = { ink: [20, 22, 27], ink2: [58, 61, 68], muted: [107, 110, 118], faint: [138, 141, 148], line2: [232, 230, 225], zebra: [250, 249, 247] };
   // Sa rreshta në secilën faqe
   function apPlani(n) {
@@ -207,14 +207,15 @@
       if (p) d.addPage();
       var y;
       if (p === 0) {
-        d.addImage(logo, 'PNG', X, 9.2, 15.35, 4.2);
-        font(8.6, false); ng(C.muted); d.text(o.data, X + WI, 12.4, { align: 'right' });
-        font(18, true); ng(C.ink); d.text('Lista e afateve', AP.W / 2, 21.6, { align: 'center' });
+        // v309: titulli dhe rreshti poshtë tij si një bllok, në mes të faqes majtas-djathtas; logoja dhe data në të njëjtën vijë mesi (AP.MESI)
+        d.addImage(logo, 'PNG', X, AP.MESI - 2.1, 15.35, 4.2);
+        font(8.6, false); ng(C.muted); d.text(o.data, X + WI, AP.MESI + 1.09, { align: 'right' });
+        font(18, true); ng(C.ink); d.text('Lista e afateve', AP.W / 2, AP.MESI - 1.56, { align: 'center' });
         // "Periudha: Të gjitha · 11 produkte · 80 copë" në mes, vlerat të trasha
         var gj = 0;
         o.info.forEach(function (x) { font(9, x[1]); gj += d.getTextWidth(x[0]); });
         var xi = AP.W / 2 - gj / 2;
-        o.info.forEach(function (x) { font(9, x[1]); ng(x[1] ? C.ink : C.muted); d.text(x[0], xi, 27.4); xi += d.getTextWidth(x[0]); });
+        o.info.forEach(function (x) { font(9, x[1]); ng(x[1] ? C.ink : C.muted); d.text(x[0], xi, AP.MESI + 5.72); xi += d.getTextWidth(x[0]); });
         kokaETabeles(34.6); y = AP.KOKA1;
       } else {
         kokaETabeles(12.7); y = AP.KOKA; // v299: logoja, titulli dhe të dhënat vetëm te faqja 1

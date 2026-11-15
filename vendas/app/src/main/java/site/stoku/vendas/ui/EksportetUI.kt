@@ -76,6 +76,8 @@ fun SkedariFlete(sk: Skedari, mbyll: () -> Unit) {
     val kaLlogari = Skedaret.kaLlogari()
     val lloji = Skedaret.llojiISkedarit(sk.emri)
     val emriLlojit = when (lloji) { "pdf" -> "PDF-ja"; "xlsx" -> "Excel-i"; else -> "Skedari" }
+    // Hyrja 71 (si web-i): ku del në PC: afatet te faqja Afatet, stoku te Stoku → Përmbledhja
+    val kuNePc = if (sk.titulli == "Afatet") "te Afatet" else "te Stoku, te Përmbledhja"
     val ruajSi = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(sk.mime)) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         if (Skedaret.shkruajTe(ctx, uri, sk)) { Toast.trego("U ruajt: " + sk.emri); mbyll() } else Toast.trego("S'u ruajt. Provo sërish.")
@@ -87,11 +89,11 @@ fun SkedariFlete(sk: Skedari, mbyll: () -> Unit) {
         Skedaret.fusha.launch {
             val r = if (!Skedaret.kaInternet(ctx)) Skedaret.Rezultati(false, "rrjeti") else Skedaret.dergoNePc(sk)
             if (!shfaqur[0]) { // dritarja u mbyll ndërkohë: rezultati del si njoftim
-                Toast.trego(if (r.ok) "U dërgua në PC. E gjen te Stoku në kompjuter, te Përmbledhja." else "S'u dërgua në PC. Provo sërish.", 4500)
+                Toast.trego(if (r.ok) "U dërgua në PC. E gjen në kompjuter $kuNePc." else "S'u dërgua në PC. Provo sërish.", 4500)
                 return@launch
             }
             if (r.ok) {
-                gjendja = "gati"; teksti = "E gjen te Stoku në kompjuter, te Përmbledhja, me butonin \"Shkarko\"."
+                gjendja = "gati"; teksti = "E gjen në kompjuter $kuNePc, me butonin \"Shkarko\"."
                 delay(2500)
                 if (shfaqur[0] && gjendja == "gati") mbyll()
                 return@launch
@@ -123,7 +125,7 @@ fun SkedariFlete(sk: Skedari, mbyll: () -> Unit) {
             Buton("Ruaje në telefon", { ruaj() }, Modifier.fillMaxWidth(), lloji = if (lejaPc) "dyte" else "kryesor", ikona = Ik.Shkarko)
             Buton("Ndaje (WhatsApp, email…)", { try { Skedaret.ndaj(ctx, sk); mbyll() } catch (e: Exception) { Toast.trego("S'u hap menyja e ndarjes.") } },
                 Modifier.fillMaxWidth(), lloji = "dyte", ikona = Ik.Ndaj)
-            if (gjendja == "zgjedhje" && lejaPc) Text(if (kaLlogari) "Në PC del te Përmbledhja, me butonin \"Shkarko\". Duhet e njëjta llogari në kompjuter."
+            if (gjendja == "zgjedhje" && lejaPc) Text(if (kaLlogari) "Në PC del $kuNePc, me butonin \"Shkarko\". Duhet e njëjta llogari në kompjuter."
                 else "Për ta dërguar në PC duhet llogari (e njëjta edhe në kompjuter).", style = tx(13, 400, n.muted))
         }
         Buton(if (gjendja == "gati" || gjendja == "pune") "Mbyll" else "Anulo", mbyll, Modifier.fillMaxWidth(), lloji = "tekst")

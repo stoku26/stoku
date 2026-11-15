@@ -51,6 +51,36 @@ object Admini {
         }
     }
 
+    /**
+     * Hyrja 71 (si zeEmratEVjeter te ekipa.js): administratori i zë emrat e tanishëm të llogarive dhe emrat e vjetër të njohur
+     * (Aktiviteti, njoftimet, ftesat: një emër që i ka përkitur vetëm një llogarie) për pronarin e tyre, që askush tjetër të mos i
+     * marrë. Një emër i zënë tashmë s'preket; ata që s'u shkruan (pa internet, rregullat e vjetra) provohen herën tjetër.
+     */
+    private var zeniaDuke = false
+    private fun zeEmratEVjeter(l: List<Llogaria>) {
+        if (!Lejet.eshteAdmin(site.stoku.vendas.Llogaria.perdoruesi.value?.uid) || zeniaDuke) return
+        val bere = try { Json.lexo(StokuApp.prefsOse("emrat_zene", "[]")).siListe().filterIsInstance<String>().toMutableSet() } catch (e: Exception) { mutableSetOf() }
+        val kand = LinkedHashMap<String, String>()
+        kand["mendurberisha"] = Lejet.ADMIN_UID // emri i vjetër i administratorit (para ruajtjes së emrave)
+        l.forEach { a -> val e = a.emri.trim().lowercase(); if (!kand.containsKey(e)) kand[e] = a.uid }
+        Emrat.harta().aliaset.forEach { (e, u) -> if (u.size == 1 && !kand.containsKey(e)) kand[e] = u[0] }
+        val teReja = kand.filter { (e, _) -> Regex("^[a-z0-9_.-]{3,40}$").matches(e) && e !in bere }
+        if (teReja.isEmpty()) return
+        zeniaDuke = true
+        scope.launch {
+            try {
+                teReja.forEach { (e, u) ->
+                    try {
+                        val ref = db.collection("emrat").document(e)
+                        if (!ref.get().await().exists()) ref.set(mapOf("uid" to u, "ndryshuarSe" to System.currentTimeMillis())).await()
+                        bere.add(e)
+                    } catch (x: Exception) { }
+                }
+                StokuApp.vendosPref("emrat_zene", Json.shkruaj(bere.toList()))
+            } finally { zeniaDuke = false }
+        }
+    }
+
     private fun degjo() {
         if (dL != null) return
         dL = db.collection("perdoruesit").addSnapshotListener { s, e ->
@@ -63,6 +93,7 @@ object Admini {
                     x["grupi"] as? String, Lejet.eshteAdmin(d.id), x["merchandiser"] == true)
             }
             njoftoTeRejat()
+            zeEmratEVjeter(llogarite.value.orEmpty())
         }
         dLe = db.collection("lejet").addSnapshotListener { s, e ->
             if (e != null || s == null) { gabimLejet.value = true; if (lejet.value == null) lejet.value = emptyMap(); return@addSnapshotListener }
@@ -138,6 +169,8 @@ object Admini {
             val e = db.collection("emrat").document(emriTjeter)
             if (e.get().await().getString("uid") == u) e.delete().await()
         } catch (e: Exception) { }
+        // Hyrja 71 (pronari): krejt emrat e kësaj llogarie (edhe të vjetrit) lirohen; vetëm fshirja nga administratori i liron
+        fshijTeGjitha(db.collection("emrat").whereEqualTo("uid", u), numero = false)
         val dq = db.collection("dyqane").document(u)
         fshijTeGjitha(dq.collection("pjeset"))
         fshijTeGjitha(dq.collection("fletet"))

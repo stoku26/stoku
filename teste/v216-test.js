@@ -109,7 +109,7 @@ const prod = (p, k) => p.evaluate(k => JSON.parse(localStorage.getItem('stoku:pr
     const { p, ctx } = await faqe(b, true, { hash: '#/f/100%' });
     ok(await p.evaluate(() => !!window.__stokuPc), 'P6: "#/f/100%" s\'e ndal nisjen e faqes');
     await p.evaluate(() => { location.hash = '#/ekipa/chat'; }); await p.waitForTimeout(400);
-    ok(/#\/ekipa$/.test(await p.evaluate(() => location.hash)) || (await p.evaluate(() => location.hash)) === '#/ekipa', 'P6: "#/ekipa/chat" → Grupi (Pulti)', await p.evaluate(() => location.hash));
+    ok((await p.evaluate(() => location.hash)) === '#/grupi', 'P6: "#/ekipa/chat" → Grupi (Pulti), adresa "#/grupi" (v309)', await p.evaluate(() => location.hash));
     // 7. Tabela: kutiza e rreshtit mbetet e shënuar pas klikimit
     await p.evaluate(() => { location.hash = '#/f/f1'; }); await p.waitForTimeout(500);
     const kut = await p.$('#tabelaTrup tr .kutize');

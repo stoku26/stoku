@@ -52,6 +52,24 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v309 / Android Hyrja 71 (15.11.2026, pronari: "userat qka i kom pas ma heret boni me kon t'zont ... nese une si administrator
+   e fshij bone me u liru qaj username"; adresa "#/grupi"; skedarët nga telefoni në vendin e duhur; PDF e afateve)**:
+   (1) **Emrat e zënë**: koleksioni `emrat/{emri}` → `{ uid, ndryshuarSe }` (që nga v302 për ftesat) tani i rezervon emrat. Emri i
+   vjetër s'fshihet më kur ndryshon emrin (`ekipa.js` `regjistroEmrin`, `Llogaria.kt`); i zëni s'mbishkruhet (krijohet vetëm kur
+   s'ekziston). Regjistrimi (`firebase-tel/pc.js` `pronariIEmrit`, `Llogaria.kt`) refuzon emrin e zënë ("Ky emër përdoruesi është i
+   zënë"); ndryshimi i emrit lejohet vetëm te emri i lirë ose te një emër i vetes. Administratori (vetëm uid) i zë vetë emrat e vjetër
+   (`zeEmratEVjeter`: `EMRAT_E_VJETER` = `mendurberisha` → ADMIN_UID, emrat e tanishëm të llogarive, aliaset me një uid të vetme te
+   `Emrat`; localStorage `stoku:emrat:zene`, Android pref `emrat_zene`). Fshirja e llogarisë nga administratori (`fshijLlogarine`, web +
+   `Admini.kt`) i fshin krejt `emrat` me atë uid, pra emrat lirohen. S'ka buton "liroje emrin". **Rregullat e reja të `emrat`** (te
+   blloku i rregullave më poshtë) duhet t'i vendosë pronari; deri atëherë leximi pa hyrje mund të dështojë dhe kontrolli lejon (s'bllokon).
+   (2) **Adresa e PC-së** `#/grupi`, Kolegët `#/grupi/koleget` (pronari e lejoi vetëm adresën); `#/ekipa...`, `#/ekipa/anetaret`,
+   `#ekipa-...` (njoftimet, sw.js) punojnë njësoj. Identifikuesit e të dhënave (`stoku:ekipa:*`, "ekipa", `anetaret`) s'ndryshuan.
+   Tekstet: "Kolegët e grupit tënd" (privatesia.html), "(ishe ende në grup)" (web + `GrupiEkrani.kt`).
+   (3) **Skedarët nga telefoni te PC-ja**: `app-pc.js` `eSkedarAfatesh` (titulli "Afatet" ose emri `afatet_...`) → te Afatet (pllaka
+   `afPllSkedaret`, skeda `afTabSkedaret`, lista `afSkedaretTel`), të tjerët te Stoku → Përmbledhja; telefoni (`kuNePc`) dhe
+   `EksportetUI.kt` thonë ku del. (4) **PDF e afateve** (`eksportet.js` `AP.MESI` = 18.5, `EksportiPdf.kt` `MESI`): titulli me rreshtin
+   "Periudha" si bllok në mes të faqes (matur: 105 mm), logoja, blloku dhe data me të njëjtën qendër vertikale (18.5 mm); tabela në
+   vend. Test: `teste/v309.js`.
 0000000. **v308 / Android Hyrja 70 (15.11.2026, pronari: "kudo qe ka gjurm qaj person qe e ka ndrru emrin me dal me emer te ri ...
    i njejti person osht lidhi me uid")**: emri i TANISHËM kudo, vetëm gjatë shfaqjes (të dhënat në Firestore s'ndryshohen). `ekipa.js`:
    `Emrat` (localStorage `stoku:emrat:v1`: `aktual` uid → emri i tanishëm nga anëtarët/vetja/llogaritë e administratorit; `aliaset`
@@ -3457,12 +3475,19 @@ service cloud.firestore {
     }
     // v302: emrat/{emri} → { uid }: pronari e gjen llogarinë që fton (pa listë). Secili shkruan vetëm emrin e vet
     // (emri i hyrjes); e fshin i zoti (kur e ndryshon emrin) ose administratori.
+    // v309 (pronari): çdo emër që e ka pasur një llogari mbetet i saj (edhe pasi e ndryshon); askush tjetër s'e merr. Lexohet edhe
+    // pa hyrje (kontrolli para krijimit të llogarisë); s'mbishkruhet nga një llogari tjetër; e fshin VETËM administratori (fshirja e
+    // llogarisë i liron krejt emrat e saj); administratori i zë edhe emrat e vjetër për pronarin e tyre.
     match /emrat/{em} {
-      allow get: if request.auth != null;
-      allow create, update: if request.auth != null && em == emriIm() && !uFshi(request.auth.uid)
-        && request.resource.data.uid == request.auth.uid
+      allow get: if true;
+      allow list: if request.auth != null && eshteAdmin();
+      allow create: if request.auth != null && !uFshi(request.auth.uid)
+        && request.resource.data.keys().hasOnly(['uid', 'ndryshuarSe'])
+        && ((em == emriIm() && request.resource.data.uid == request.auth.uid) || eshteAdmin());
+      allow update: if request.auth != null && !uFshi(request.auth.uid)
+        && resource.data.uid == request.auth.uid && request.resource.data.uid == request.auth.uid
         && request.resource.data.keys().hasOnly(['uid', 'ndryshuarSe']);
-      allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || eshteAdmin());
+      allow delete: if request.auth != null && eshteAdmin();
     }
     // v242: regjistri i përbashkët i produkteve dhe furnizuesve (barkodi → emri, furnizuesi): e lexon kushdo me llogari,
     // e shkruan vetëm administratori (çka ka kontrolluar). I ndarë si kujtesa e grupit: p0..p9, px.

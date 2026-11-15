@@ -715,7 +715,7 @@
   /* v227: skedar nga telefoni që është shkarkuar tashmë: pa theksim */
   .fleta-tel.shkarkuar, .sbp .fleta-tel.shkarkuar { background: var(--karta); border-color: var(--sb-line, rgba(0,0,0,.12)); box-shadow: 0 0 0 1px var(--sb-line, rgba(0,0,0,.12)); }
   .fleta-tel.shkarkuar .ikona, .sbp .fleta-tel.shkarkuar .ikona { color: var(--gri); }
-  #skedaretTel .fleta-tel .teksti b { overflow-wrap: anywhere; } /* emrat e skedarëve s'kanë hapësira */
+  #skedaretTel .fleta-tel .teksti b, #afSkedaretTel .fleta-tel .teksti b { overflow-wrap: anywhere; } /* emrat e skedarëve s'kanë hapësira */
   .kpi.af-kpi { border-width: 2px; }
   .kpi.af-kpi.aktiv { border-color: currentColor; }
   .kpi.af-kpi.skaduar { color: var(--af-kuqe-tx); background: var(--af-kuqe-bg); }
@@ -957,7 +957,7 @@
     <!-- v213: tri pllaka (Stoku, Afatet, Grupi); poshtë shfaqet vetëm menyja e pllakës aktive -->
     <div class="sbp-pllakat" role="tablist" aria-label="Pjesët e Stoku-t">
       <button class="sbp-pllake" id="btnAkordStoku" data-leja="stoku" type="button" role="tab" aria-selected="true" aria-controls="akordStokuTrupi" title="Stoku: produktet dhe folderat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5z"></path><path d="m3 8 9 5 9-5"></path><path d="M12 13v8"></path></svg><b>Stoku</b><small id="pllStokuNen"></small><span class="af-cip fleta" id="stokTabFleta" title="Fletë stoku nga telefoni që presin kontrollin"></span><span class="af-cip fleta" id="stokTabSkedaret" title="Skedarë nga telefoni për t'i shkarkuar"></span></button>
-      <button class="sbp-pllake" id="btnAkordAfatet" data-leja="afatet" type="button" role="tab" aria-selected="false" aria-controls="akordAfatetTrupi" title="Afatet e produkteve (datat e skadimit)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg><b>Afatet</b><small id="pllAfatetNen"></small><span class="af-cip fleta" id="afPllFleta" title="Fletë afatesh nga telefoni që presin kontrollin"></span></button>
+      <button class="sbp-pllake" id="btnAkordAfatet" data-leja="afatet" type="button" role="tab" aria-selected="false" aria-controls="akordAfatetTrupi" title="Afatet e produkteve (datat e skadimit)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg><b>Afatet</b><small id="pllAfatetNen"></small><span class="af-cip fleta" id="afPllFleta" title="Fletë afatesh nga telefoni që presin kontrollin"></span><span class="af-cip fleta" id="afPllSkedaret" title="Skedarë afatesh nga telefoni për t'i shkarkuar"></span></button>
       <button class="sbp-pllake" id="btnAkordEkipi" data-leja="grupi" type="button" role="tab" aria-selected="false" aria-controls="akordEkipiTrupi" title="Grupi: kolegët, afatet e grupit, aktiviteti"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><b>Grupi</b><small id="pllEkipiNen"></small><span class="af-cip kuqe" id="ekAkordShenja" title="Njoftime të palexuara"></span></button>
     </div>
     <div class="sbp-moduli" id="akordStokuTrupi" role="tabpanel" aria-labelledby="btnAkordStoku">
@@ -984,6 +984,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg>
             <span class="emri">Afatet e produkteve</span>
             <span class="af-cip fleta" id="afTabFleta" title="Fletë nga telefoni që presin kontrollin"></span>
+            <span class="af-cip fleta" id="afTabSkedaret" title="Skedarë afatesh nga telefoni për t'i shkarkuar"></span>
           </button>
           <button class="nav-rresht" id="navAfSkaduara" type="button" title="Produktet e skaduara">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M4.9 4.9l14.2 14.2"></path></svg>
@@ -1231,6 +1232,7 @@
         </div>
       </div>
       <div class="fletet-tel" id="afFletetTel"></div>
+      <div class="fletet-tel" id="afSkedaretTel" aria-label="Skedarët e afateve nga telefoni"></div>
       <div class="mjetet">
         <div class="kuti-fushe" style="flex:1 1 260px;max-width:380px">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>
@@ -2068,16 +2070,16 @@
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=8"></script>
 <script src="afatet.js?v=295"></script>
-<script src="eksportet.js?v=301"></script>
+<script src="eksportet.js?v=309"></script>
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
-<script src="ekipa.js?v=308"></script>
-<script src="teRejat.js?v=308"></script>
-<script src="app-pc.js?v=308"></script>
+<script src="ekipa.js?v=309"></script>
+<script src="teRejat.js?v=309"></script>
+<script src="app-pc.js?v=309"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
 
 <!-- Firebase: i njëjti projekt dhe i njëjti dokument si versioni i telefonit -->
-<script type="module" src="firebase-pc.js?v=281"></script>
+<script type="module" src="firebase-pc.js?v=309"></script>
 </body>
 </html>
