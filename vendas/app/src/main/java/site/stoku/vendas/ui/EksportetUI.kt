@@ -374,27 +374,26 @@ fun AfatetFotoFlete(te: List<Obj>, mbyll: () -> Unit) {
             }
         }
         val nr = if (paF) 1 else zgj.size
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Buton("Anulo", mbyll, Modifier.weight(1f), lloji = "tekst")
-            Buton(if (duke) "Duke e krijuar…" else if (nr > 1) "Krijo $nr foto" else "Krijo foton", {
-                if (!Llogaria.leja("eksportExcel") || nr == 0 || duke || aktive.isEmpty()) return@Buton
-                duke = true
-                val grupet = if (paF) null else furn.filter { zgj.contains(it.celes) }
-                val idM = Merchandiseri.idAktiv()
-                val kush = Llogaria.perdoruesi.value?.emri.orEmpty()
-                val meta = listOf(if (paF || idM == null) "" else Merchandiseri.emri(idM), if (kush.isNotEmpty()) "dërgoi $kush" else "").filter { it.isNotEmpty() }.joinToString(" · ")
-                val titulliPa = if (idM != null) Merchandiseri.emri(idM) else "Afatet"
-                scope.launch {
-                    val r = withContext(Dispatchers.Default) { try { EksportiFoto.krijo(ctx, aktive, grupet, titulliPa, meta, erret) } catch (e: Throwable) { null } }
-                    duke = false
-                    if (r.isNullOrEmpty()) { Toast.trego("Fotoja s'u krijua. Provo sërish."); return@launch }
-                    mbyll()
-                    try { EksportiFoto.ndaj(ctx, r, if (grupet?.size == 1) "Afatet: " + grupet[0].emri else "Afatet") }
-                    catch (e: Exception) { Toast.trego("S'u hap \"Ndaj\". Provo sërish.") }
-                }
-            }, Modifier.fillMaxWidth(), aktiv = nr > 0 && !duke, ikona = Ik.Foto, lartesia = 52.dp)
-            Buton("Anulo", mbyll, Modifier.fillMaxWidth(), lloji = "tekst")
-        }
+        // Njëri nën tjetrin (në një Row, butoni me fillMaxWidth ua merrte krejt gjerësinë të dy "Anulo"-ve dhe s'dukeshin)
+        Buton(if (duke) "Duke e krijuar…" else if (nr > 1) "Krijo $nr foto" else "Krijo foton", {
+            if (!Llogaria.leja("eksportExcel") || nr == 0 || duke || aktive.isEmpty()) return@Buton
+            duke = true
+            val grupet = if (paF) null else furn.filter { zgj.contains(it.celes) }
+            val idM = Merchandiseri.idAktiv()
+            val kush = Llogaria.perdoruesi.value?.emri.orEmpty()
+            val meta = listOf(if (paF || idM == null) "" else Merchandiseri.emri(idM), if (kush.isNotEmpty()) "dërgoi $kush" else "").filter { it.isNotEmpty() }.joinToString(" · ")
+            val titulliPa = if (idM != null) Merchandiseri.emri(idM) else "Afatet"
+            scope.launch {
+                val r = withContext(Dispatchers.Default) { try { EksportiFoto.krijo(ctx, aktive, grupet, titulliPa, meta, erret) } catch (e: Throwable) { null } }
+                duke = false
+                if (r.isNullOrEmpty()) { Toast.trego("Fotoja s'u krijua. Provo sërish."); return@launch }
+                mbyll()
+                try { EksportiFoto.ndaj(ctx, r, if (grupet?.size == 1) "Afatet: " + grupet[0].emri else "Afatet") }
+                catch (e: Exception) { Toast.trego("S'u hap \"Ndaj\". Provo sërish.") }
+            }
+        }, Modifier.fillMaxWidth(), aktiv = nr > 0 && !duke, ikona = Ik.Foto, lartesia = 52.dp)
+        Spacer(Modifier.height(6.dp))
+        Buton("Anulo", mbyll, Modifier.fillMaxWidth(), lloji = "tekst")
     }
 }
 

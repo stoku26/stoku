@@ -52,6 +52,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **ANDROID HYRJA 68 (15.11.2026, vetëm Android, nga kontrolli i plotë i ekraneve)**: (1) `ui/EksportetUI.kt` AfatetFotoFlete
+   ("Eksporto si foto"): butonat ishin në një `Row` ku "Krijo foton" me `fillMaxWidth()` ua merrte gjerësinë dy "Anulo"-ve (s'dukeshin);
+   tani njëri nën tjetrin, një "Anulo" i vetëm. (2) `ui/HartaUI.kt`: `gabim` ("Harta s'u hap") pastrohet kur stili ngarkohet. (3)
+   `ui/AfatetEkrani.kt` `barkodiTekst(a)`: barkodi i ruajtur si numër (afat i vjetër) del si tekst te lista dhe te forma (më parë
+   fusha dilte bosh dhe ruajtja e fshinte barkodin). Kontrolli: krejt `vendas/` u lexua rresht për rresht; Worker-at dhe rregullat e
+   Firestore-it u lexuan pa gjetje që kërkojnë vendosje të re. S'është testuar në pajisje të vërtetë.
+
 0000000. **v305 / Android Hyrja 67 (15.11.2026, gjetur gjatë kontrollit të plotë të projektit): njoftimi ditor s'mund të mbetej i fikur.**
    Te v304 njoftimi ditor ndizej vetë sa herë hapej Stoku dhe s'kishte orar; por fikja e FSHIN orarin (web `KEY_ORARI`, Android pref
    `orari` = null), pra ndizej prapë. Tani vetëm NJË herë për llogari në pajisje: web `KEY_NJ_DITOR_AUTO` (`stoku:nj:ditor-auto` = uid)

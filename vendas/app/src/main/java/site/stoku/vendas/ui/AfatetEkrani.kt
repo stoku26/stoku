@@ -382,7 +382,7 @@ private fun KartaEAfatit(a: Obj, zgjedhja: Set<String>?, paFurnizues: Boolean, h
         horizontalArrangement = Arrangement.spacedBy(14.dp)) {
         KutiaEDiteve(st, d)
         Column(Modifier.weight(1f)) {
-            Text((a["emri"] as? String)?.ifEmpty { null } ?: (a["barkodi"] as? String)?.ifEmpty { null } ?: "(pa emër)", style = tx(15, 600, n.ink))
+            Text((a["emri"] as? String)?.ifEmpty { null } ?: barkodiTekst(a).ifEmpty { null } ?: "(pa emër)", style = tx(15, 600, n.ink))
             // v248: merchandiseri: te çdo afat shihet marketi ku ndodhet
             if (Merchandiseri.kaMarkete()) {
                 val mk = a["m"] as? String
@@ -391,8 +391,8 @@ private fun KartaEAfatit(a: Obj, zgjedhja: Set<String>?, paFurnizues: Boolean, h
             val nen = listOf(if (paFurnizues) "" else (a["furnizuesi"] as? String).orEmpty(), Afatet.sasiaTekst(a), if ((a["data"] as? String).orEmpty().isNotEmpty()) Afatet.formato(a["data"]) else "")
                 .filter { it.isNotEmpty() }.joinToString(" · ")
             if (nen.isNotEmpty()) Text(nen, style = tx(12, 400, n.muted), modifier = Modifier.padding(top = 3.dp))
-            if ((a["emri"] as? String).orEmpty().isNotEmpty() && (a["barkodi"] as? String).orEmpty().isNotEmpty())
-                Text(a["barkodi"] as String, style = txNum(11.5f, n.faint), modifier = Modifier.padding(top = 2.dp))
+            if ((a["emri"] as? String).orEmpty().isNotEmpty() && barkodiTekst(a).isNotEmpty())
+                Text(barkodiTekst(a), style = txNum(11.5f, n.faint), modifier = Modifier.padding(top = 2.dp))
             Text(Afatet.pershkrimi(a), style = tx(12, 600, mesazhi), modifier = Modifier.padding(top = 4.dp))
             if (Llogaria.leja("afatetNdrysho") && (st == "skaduar" || st == "hequr")) {
                 val ng = if (st == "skaduar") n.exp else n.rem
@@ -407,6 +407,9 @@ private fun KartaEAfatit(a: Obj, zgjedhja: Set<String>?, paFurnizues: Boolean, h
         }
     }
 }
+
+/** Barkodi i afatit si tekst: edhe kur një afat i vjetër e ka të ruajtur si numër (web-i e kthen në tekst; këtu fusha dilte bosh dhe ruajtja e fshinte) */
+fun barkodiTekst(a: Obj?): String { val b = a?.get("barkodi"); return if (b == null) "" else jsString(b) }
 
 fun shenoHequr(a: Obj) {
     if (!Llogaria.leja("afatetNdrysho")) return
@@ -431,7 +434,7 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
     val vetemLexim = a != null && !Llogaria.leja("afatetNdrysho")
     val paFurnizues = Llogaria.eshteMerchandiser()
     val pda by site.stoku.vendas.Opsionet.pda.collectAsState()
-    var barkodi by remember { mutableStateOf((a?.get("barkodi") as? String) ?: barkodiISkanuar) }
+    var barkodi by remember { mutableStateOf(if (a != null) barkodiTekst(a) else barkodiISkanuar) }
     var emri by remember { mutableStateOf((a?.get("emri") as? String) ?: Dyqani.emriNgaBarkodi(barkodiISkanuar)) }
     var data by remember { mutableStateOf(Afatet.formatoPerFushe(a?.get("data"))) }
     var sasia by remember { mutableStateOf(a?.get("sasia")?.takeIf { it != "" }?.let { jsString(it) } ?: "") }
@@ -519,7 +522,7 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
 
     Flete(mbyll) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(if (a != null) ((a["emri"] as? String)?.ifEmpty { null } ?: (a["barkodi"] as? String)?.ifEmpty { null } ?: "Afati") else "Afat i ri",
+            Text(if (a != null) ((a["emri"] as? String)?.ifEmpty { null } ?: barkodiTekst(a).ifEmpty { null } ?: "Afati") else "Afat i ri",
                 style = tx(26, 700, n.ink, -0.02), modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
             Text(if (vetemLexim) "Mbyll" else "Anulo", style = tx(15, 500, n.muted), modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable(onClick = mbyll).padding(6.dp))
         }

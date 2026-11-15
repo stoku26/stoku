@@ -8,6 +8,11 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(68, "2026-11-15", "Rregullime të vogla", listOf(
+            "Te \"Eksporto si foto\" butoni \"Anulo\" duket sërish (poshtë butonit \"Krijo foton\").",
+            "Te Marketet, mesazhi \"Harta s'u hap\" zhduket vetë sapo harta hapet.",
+            "Një afat i vjetër me barkod të ruajtur si numër s'e humb më barkodin kur e ndryshon."
+        )),
         Hyrja(67, "2026-11-15", "Njoftimi ditor mbetet i fikur kur e fik", listOf(
             "Rregullim: nëse e fikje \"Njoftimi ditor\", ai ndizej vetë herën tjetër që hapje Stoku-n. Tani ndizet vetë vetëm herën e parë; pasi ta fikësh, mbetet i fikur."
         )),
