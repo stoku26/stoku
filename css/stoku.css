@@ -807,3 +807,25 @@ html.sb:not([data-tema="dark"]) .sb-summary { box-shadow: 0 0 0 1px var(--sb-lin
 :root.sb[data-tema="dark"] .nj-chip.verdhe { color: var(--sb-near); }
 :root.sb[data-tema="dark"] .nj-chip.kuqe { color: var(--sb-exp); }
 :root.sb[data-tema="dark"] .nj-chip.blu { color: var(--sb-accent-text); }
+
+/* v312: Grupi → Përmbledhja = fjali e madhe në vend të 6 kutive; Grupi → Afatet = shirit segmentuar në vend të 4 kutive (vetëm telefoni) */
+.sb .ek-rez { margin: 4px 0 6px; }
+.sb .ek-rez__ky { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--sb-muted); text-transform: uppercase; }
+.sb .ek-rez__tx { display: block; width: 100%; padding: 0; margin: 6px 0 8px; border: 0; background: none; font: inherit; text-align: left; color: var(--sb-ink); font-size: 27px; line-height: 1.15; font-weight: 800; letter-spacing: -.02em; cursor: pointer; }
+.sb .ek-rez__tx u { text-decoration: none; }
+.sb .ek-rez__tx.kuqe u { color: var(--sb-exp); }
+.sb .ek-rez__tx.afer u { color: var(--sb-near); }
+.sb .ek-rez__tx.ok u { color: var(--sb-ok); }
+.sb .ek-rez__ps { font-size: 14px; line-height: 1.55; color: var(--sb-ink-3); }
+.sb .ek-rez__ps button { padding: 0; border: 0; border-bottom: 1.5px dotted var(--sb-faint-2); background: none; font: inherit; font-weight: 700; color: var(--sb-ink); cursor: pointer; }
+.sb .ek-segm { display: flex; gap: 2px; padding: 4px; margin: 2px 0 12px; border-radius: 16px; background: var(--sb-sunken); }
+.sb .ek-segm__s { flex: 1; min-width: 0; padding: 8px 0 7px; border: 0; border-radius: 12px; background: transparent; font: inherit; text-align: center; cursor: pointer; color: var(--sb-muted); }
+.sb .ek-segm__s b { display: block; font-size: 18px; font-weight: 800; line-height: 1.25; }
+.sb .ek-segm__s span { display: block; font-size: 10.5px; font-weight: 600; white-space: nowrap; }
+.sb .ek-segm__s.c-gj b { color: var(--sb-ink); }
+.sb .ek-segm__s.c-skaduar b { color: var(--sb-exp); }
+.sb .ek-segm__s.c-afer b { color: var(--sb-near); }
+.sb .ek-segm__s.c-ok b { color: var(--sb-ok); }
+.sb .ek-segm__s.c-hequr b { color: var(--sb-muted); }
+.sb .ek-segm__s.on { background: var(--sb-seg-on); box-shadow: 0 1px 4px rgba(0,0,0,.25); }
+.sb .ek-segm__s.on span { color: var(--sb-ink); }
