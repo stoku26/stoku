@@ -21,6 +21,12 @@ const prit = async (fn, ms = 8000) => { const t0 = Date.now(); while (Date.now()
 
   ok(!/njTeksti">[^<]*orë/.test(lx('index.html')) && !/Stoku të lajmëron me njoftim në telefon \(edhe në orë\)/.test(lx(K + 'ui/NjoftimetUI.kt')), '0. dritarja e njoftimeve: pa "(edhe në orë)" (web + Android)');
 
+  const ihtml = lx('index.html'), nkt = lx(K + 'ui/NjoftimetUI.kt');
+  ok(/id="njTeksti">Njoftimet janë të detyrueshme, sepse Stoku të lajmëron:<\/p>/.test(ihtml) && /"Njoftimet janë të detyrueshme, sepse Stoku të lajmëron:"/.test(nkt), '0. teksti: "Njoftimet janë të detyrueshme, sepse Stoku të lajmëron:" (web + Android)');
+  ok(/për produktet që <b>skadojnë sot<\/b>/.test(ihtml) && /për produktet që <b>kanë skaduar<\/b>/.test(ihtml) && /për kërkesat dhe njoftimet e <b>grupit<\/b>/.test(ihtml) &&
+    !/nj-rr-tekst"><b>/.test(ihtml) && /"për produktet që " to "skadojnë sot"/.test(nkt) && /"për produktet që " to "kanë skaduar"/.test(nkt) && /"për kërkesat dhe njoftimet e " to "grupit"/.test(nkt) && !/nga rafti\/pozita/.test(nkt),
+    '0. tre rreshta me një tekst secili, pa nëntekstet (web + Android)');
+
   // 1) Ngjyrat te llogaria
   const F = krijoFirestore({ rregullat: 'reja' });
   const tani = Date.now();

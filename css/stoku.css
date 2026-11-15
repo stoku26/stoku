@@ -801,8 +801,8 @@ html.sb:not([data-tema="dark"]) .sb-summary { box-shadow: 0 0 0 1px var(--sb-lin
 .sb #dlgNjoftimet.mbulese:not(.faqe-e-plote) > .dialog::before { content: none; display: none; }
 @keyframes sbKuti { from { transform: scale(.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .sb .nj-lista li { background: var(--sb-surface-2); }
-.sb .nj-rr-tekst b { color: var(--sb-ink); }
-.sb .nj-rr-tekst span { color: var(--sb-muted); }
+.sb .nj-rr-tekst { color: var(--sb-ink); }
+.sb .nj-dialog .nj-tekst { font-weight: 600; color: var(--sb-ink-2); }
 .sb .nj-ikona { background: var(--sb-accent); box-shadow: 0 0 0 8px var(--sb-accent-tint); }
 :root.sb[data-tema="dark"] .nj-chip.verdhe { color: var(--sb-near); }
 :root.sb[data-tema="dark"] .nj-chip.kuqe { color: var(--sb-exp); }

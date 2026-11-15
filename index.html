@@ -983,9 +983,8 @@
   .nj-chip.verdhe { background: rgba(245,180,0,.18); color: #b87f00; }
   .nj-chip.kuqe { background: rgba(229,72,62,.15); color: #d13c32; }
   .nj-chip.blu { background: rgba(47,111,222,.15); color: #2f6fde; }
-  .nj-rr-tekst { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-  .nj-rr-tekst b { font-size: 15px; font-weight: 700; color: var(--tekst); }
-  .nj-rr-tekst span { font-size: 13px; color: var(--gri); }
+  .nj-rr-tekst { min-width: 0; font-size: 15.5px; line-height: 1.35; color: var(--tekst); }
+  .nj-rr-tekst b { font-weight: 700; }
   #njBllokuar { text-align: left; padding: 10px 12px; border-radius: 14px; background: rgba(229,72,62,.12); font-size: 13.5px; }
   .nj-dialog .veprime { padding-top: 0; }
   .nj-dialog .veprime .btn { width: 100%; height: 52px; border-radius: 16px; justify-content: center; font-size: 16px; font-weight: 700; }
@@ -2023,11 +2022,11 @@
   <div class="dialog nj-dialog" role="dialog" aria-modal="true" aria-labelledby="njTitulli">
     <div class="nj-ikona"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg></div>
     <h2 id="njTitulli">Aktivizo njoftimet</h2>
-    <p class="nj-tekst" id="njTeksti">Stoku të lajmëron me njoftim në telefon:</p>
+    <p class="nj-tekst" id="njTeksti">Njoftimet janë të detyrueshme, sepse Stoku të lajmëron:</p>
     <ul class="nj-lista">
-      <li><span class="nj-chip verdhe" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span><span class="nj-rr-tekst"><b>Skadojnë sot</b><span>për produktet që skadojnë sot</span></span></li>
-      <li><span class="nj-chip kuqe" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17h-19z"></path><path d="M12 10v4M12 17.5h.01"></path></svg></span><span class="nj-rr-tekst"><b>Kanë skaduar</b><span>çdo ditë, që t'i heqësh nga rafti/pozita</span></span></li>
-      <li><span class="nj-chip blu" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"></path><path d="M16 4.5a3.2 3.2 0 0 1 0 6M18 14.4c1.8.8 3 2.6 3 5.6"></path></svg></span><span class="nj-rr-tekst"><b>Grupi</b><span>për kërkesat dhe njoftimet e grupit</span></span></li>
+      <li><span class="nj-chip verdhe" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span><span class="nj-rr-tekst">për produktet që <b>skadojnë sot</b></span></li>
+      <li><span class="nj-chip kuqe" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17h-19z"></path><path d="M12 10v4M12 17.5h.01"></path></svg></span><span class="nj-rr-tekst">për produktet që <b>kanë skaduar</b></span></li>
+      <li><span class="nj-chip blu" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"></path><path d="M16 4.5a3.2 3.2 0 0 1 0 6M18 14.4c1.8.8 3 2.6 3 5.6"></path></svg></span><span class="nj-rr-tekst">për kërkesat dhe njoftimet e <b>grupit</b></span></li>
     </ul>
     <p class="nj-tekst" id="njBllokuar" hidden>Njoftimet janë të bllokuara. Lejoji te: <b>Cilësimet e telefonit → Aplikacionet → Chrome (ose Stoku) → Njoftimet → Lejo</b>, ose te shfletuesi: ikona pranë adresës → Lejet → Njoftimet → Lejo. Pastaj kthehu këtu.</p>
     <div class="veprime">

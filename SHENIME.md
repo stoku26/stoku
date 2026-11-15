@@ -63,7 +63,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    `Llogaria.degjoPamjen` / `ruajPamjen`, `Opsionet.tema` (StateFlow, më parë `remember` te MainActivity) / `vendosTemen` /
    `zbatoPamjenNgaLlogaria`. (2) PDF e afateve: "Krijuar me Stoku · https://stoku.site · …" (web + `EksportiPdf.kt`; fotoja e
    eksportit mbeti me "stoku.site"). (3) **Dritarja e njoftimeve** (`#dlgNjoftimet`, e detyrueshme) = kuti në mes të ekranit, pa
-   vijën, e ridizajnuar (rreshta me ikonë me ngjyrë). (4) **Rrëshqitje poshtë** për dritaret "bottom sheet" (`app-tel.js`, pas
+   vijën, e ridizajnuar: "Njoftimet janë të detyrueshme, sepse Stoku të lajmëron:" + tre rreshta me ikonë me ngjyrë (e verdhë "për
+   produktet që skadojnë sot", e kuqe "për produktet që kanë skaduar", blu "për kërkesat dhe njoftimet e grupit"), pa "(edhe në orë)";
+   e njëjta pamje te Android (`NjoftimetUI.kt`). (4) **Rrëshqitje poshtë** për dritaret "bottom sheet" (`app-tel.js`, pas
    MutationObserver): nga vija/koka ose kudo kur përmbajtja është në krye; mbyllet me `mbyllShtresenMeTeFundit` (si "mbrapa", vetëm
    dritarja e sipërme); prag min(120 px, 30% e lartësisë) ose shpejtësi > 0.5 px/ms; përjashtim: dlgOpsione, dlgAfatet, dlgEkipi,
    dlgNjoftimet, `.faqe-e-plote`. Test: `teste/v311.js` (prekje të vërteta me CDP).
