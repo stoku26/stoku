@@ -154,7 +154,7 @@
 
   // Një skedë tjetër e këtij shfletuesi (p.sh. versioni i telefonit) ndryshoi të dhënat: rilexo.
   window.addEventListener('storage', function (e) {
-    if ([KEY_FOLDERA, KEY_PRODUKTET, KEY_FSHIRE, KEY_RENDI_KOHA, KEY_AFATET].indexOf(e.key) === -1) return;
+    if ([KEY_FOLDERA, KEY_PRODUKTET, KEY_FSHIRE, KEY_RENDI_KOHA, KEY_AFATET, MK.KEY_LISTA].indexOf(e.key) === -1) return; // v306: edhe marketet
     ngarkoBazen();
     rivizato();
   });
@@ -540,7 +540,7 @@
     if (!window.StokuBashkimi.eNjejte(b, remote)) return true;
     if ((b.rendiKoha || 0) !== (Number(remote.rendiKoha) || 0)) return true;
     var rf = remote.fshira || {};
-    return ['produktet', 'foldera', 'afatet'].some(function (l) {
+    return ['produktet', 'foldera', 'afatet', 'marketet'].some(function (l) { // v306: edhe marketet
       var r = rf[l] || {};
       return Object.keys(b.fshira[l] || {}).some(function (k) { return !(k in r); });
     });
@@ -4719,7 +4719,7 @@
         st === 'hequr' && a.hequrNga ? 'u hoq nga ' + a.hequrNga : '', a.nePritjeNga && st !== 'hequr' ? ekTekstiNePritje(a) : ''].filter(Boolean).join(' · ')));
       rr.appendChild(m);
       if (st === 'skaduar' && a.nePritjeNga) rr.appendChild(el('span', 'ek-pritje', 'Në pritje'));
-      else if (st === 'skaduar') {
+      else if (st === 'skaduar' && ekLejohetHeqja(a)) { // v306: pa lejen, butoni s'del (si te tabela)
         var b = el('button', 'btn af-btn kuqe', '✓ Unë e hoqa'); b.type = 'button';
         b.addEventListener('click', function () { ekHeq(a, b); });
         rr.appendChild(b);
