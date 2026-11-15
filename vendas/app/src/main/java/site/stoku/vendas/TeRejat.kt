@@ -8,6 +8,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(69, "2026-11-15", "Fotot te Aktiviteti", listOf(
+            "Te Grupi → Aktiviteti, njoftimet dhe ftesat, fotoja e kolegut del edhe te ngjarjet e vjetra, edhe pasi ai ta ketë ndryshuar emrin e përdoruesit."
+        )),
         Hyrja(68, "2026-11-15", "Rregullime të vogla", listOf(
             "Te \"Eksporto si foto\" butoni \"Anulo\" duket sërish (poshtë butonit \"Krijo foton\").",
             "Te Marketet, mesazhi \"Harta s'u hap\" zhduket vetë sapo harta hapet.",

@@ -505,7 +505,7 @@ private fun Ngjarja(x: Obj, koha: String, prek: ((Obj) -> Unit)? = null) {
     val prekshme = prek != null
     Row(Modifier.fillMaxWidth().then(if (prekshme) Modifier.clip(RoundedCornerShape(10.dp)).clickable { prek!!(x) } else Modifier).padding(vertical = 11.dp),
         horizontalArrangement = Arrangement.spacedBy(11.dp)) {
-        AvatariLehte(t.avatar ?: (x["emri"] as? String), t.lloji, 32.dp)
+        AvatariLehte(t.avatar ?: (x["emri"] as? String), t.lloji, 32.dp, uid = GrupiLogjika.uidIAvatarit(x).ifEmpty { null }) // v307: fotoja sipas uid-së
         Column(Modifier.weight(1f)) {
             Text(buildAnnotatedString {
                 withStyle(SpanStyle(fontWeight = FontWeight(700))) { append(t.kush) }
@@ -525,7 +525,7 @@ private fun NgjarjaFlete(x: Obj, ctx: Konteksti, mbyll: () -> Unit) {
     val d = remember(x, ctx.anetaret, ctx.tani) { Grupi.detajetENgjarjes(x, ctx.anetaret, ctx.tani) }
     Flete(mbyll) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(11.dp)) {
-            AvatariLehte(d.avatar.ifEmpty { null }, d.lloji, 36.dp)
+            AvatariLehte(d.avatar.ifEmpty { null }, d.lloji, 36.dp, uid = GrupiLogjika.uidIAvatarit(x).ifEmpty { null })
             Column(Modifier.weight(1f)) {
                 Text(buildAnnotatedString {
                     withStyle(SpanStyle(fontWeight = FontWeight(700))) { append(d.kush) }
@@ -1008,7 +1008,7 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
                 item { Krye("Ftesa në pritje (${ftesatG.size})") }
                 items(ftesatG, key = { "fg" + it["id"] }) { f ->
                     RreshtiMenaxhimit(jsString(f["perdoruesi"] ?: ""), "Ftuar nga " + jsString(f["ngaEmri"] ?: "") +
-                        (if (kohaE(f, "koha") > 0) " · " + GrupiLogjika.kohaRelative(kohaE(f, "koha"), ctx.tani) else "")) {
+                        (if (kohaE(f, "koha") > 0) " · " + GrupiLogjika.kohaRelative(kohaE(f, "koha"), ctx.tani) else ""), f["uid"] as? String) {
                         Pill("Anulo") { scope.launch { if (Grupi.anuloFtesen(f["id"] as String) != null) Toast.trego("S'u anulua. Kontrollo internetin.", 4000) } }
                     }
                 }
@@ -1039,7 +1039,7 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
             items(tjeret, key = { "m" + it["uid"] }) { a ->
                 val em = jsString(a["emri"] ?: "")
                 val eshteP = a["pronar"] == true
-                RreshtiMenaxhimit(em, if (eshteP) "Admin i grupit" else GrupiLogjika.tekstiPranise(a, ctx.tani)) {
+                RreshtiMenaxhimit(em, if (eshteP) "Admin i grupit" else GrupiLogjika.tekstiPranise(a, ctx.tani), a["uid"] as? String) {
                     Pill(if (eshteP) "Hiqe si admin" else "Bëje admin") {
                         scope.launch {
                             val r = Grupi.ndryshoRolin(a["uid"] as String, if (eshteP) "anetar" else "pronar")
@@ -1076,7 +1076,7 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
             }
             items(if (krejtLlogarite) jashte else jashte.take(15), key = { "l" + it.uid }) { x ->
                 RreshtiMenaxhimit(x.emri, (if (x.grupi != null) "Në një grup tjetër" else "Pa grup") +
-                    (if (x.kycurSe > 0) " · u kyç " + GrupiLogjika.kohaRelative(x.kycurSe, ctx.tani) else "")) {
+                    (if (x.kycurSe > 0) " · u kyç " + GrupiLogjika.kohaRelative(x.kycurSe, ctx.tani) else ""), x.uid) {
                     if (pronar) Pill("Fto") {
                         scope.launch {
                             val r = Grupi.ftoNeGrup(x.emri, x.uid)
@@ -1145,10 +1145,10 @@ private fun Pill(t: String, rrezik: Boolean = false, onClick: () -> Unit) {
 }
 
 @Composable
-private fun RreshtiMenaxhimit(emri: String, nen: String, veprimet: @Composable () -> Unit) {
+private fun RreshtiMenaxhimit(emri: String, nen: String, uid: String? = null, veprimet: @Composable () -> Unit) {
     val n = N
     Row(Modifier.fillMaxWidth().padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        AvatariLehte(emri)
+        AvatariLehte(emri, uid = uid?.ifEmpty { null })
         Column(Modifier.weight(1f)) {
             Text(emri, style = tx(15, 500, n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(nen, style = tx(12, 400, n.muted), maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -1404,7 +1404,7 @@ private fun ZiljaFlete(ctx: Konteksti, mbyll: () -> Unit) {
                     val eRe = id in tePalexuara
                     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(if (eRe) n.surface2 else Color.Transparent).padding(horizontal = 6.dp, vertical = 10.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        AvatariLehte(nj["emri"] as? String)
+                        AvatariLehte(nj["emri"] as? String, uid = (nj["uid"] as? String)?.ifEmpty { null })
                         Column(Modifier.weight(1f)) {
                             Text(GrupiLogjika.tekstiNjoftimit(nj), style = txF(14.5f, if (eRe) 600 else 400, n.ink))
                             Text(GrupiLogjika.kohaRelative(kohaE(nj, "koha"), ctx.tani), style = tx(12, 400, n.muted), modifier = Modifier.padding(top = 2.dp))

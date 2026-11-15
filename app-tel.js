@@ -6454,7 +6454,7 @@
     var d = ekK.detajetENgjarjes(x);
     var t = $('ekDtTrup'); t.textContent = '';
     var kr = ekEl('div', 'ek-dt-krye ek-ngjarje ' + d.lloji);
-    kr.appendChild(ekAvatar({ emri: d.avatar }, false));
+    kr.appendChild(ekAvatar({ uid: EKL.uidIAvatarit(x), emri: d.avatar }, false)); // v307: fotoja sipas uid-së
     var b = ekEl('div', 'ek-ngjarje-trup');
     var rr = ekEl('div'); rr.appendChild(ekEl('b', null, d.kush)); rr.appendChild(document.createTextNode(' ' + d.cfare)); b.appendChild(rr);
     if (d.kur) b.appendChild(ekEl('div', 'ek-ngjarje-detaje', d.kur));
@@ -6801,7 +6801,7 @@
       ngj.forEach(function (x) {
         var tx = EKL.tekstiNgjarjes(x, uidIm);
         var r = ekEl('div', 'ek-ngjarje ' + tx.lloji);
-        r.appendChild(ekAvatar({ emri: tx.avatar || x.emri }, false));
+        r.appendChild(ekAvatar({ uid: EKL.uidIAvatarit(x), emri: tx.avatar || x.emri }, false));
         var bt = ekEl('div', 'ek-ngjarje-trup'), rr2 = ekEl('div');
         rr2.appendChild(ekEl('b', null, tx.kush)); rr2.appendChild(document.createTextNode(' ' + tx.cfare));
         bt.appendChild(rr2);
@@ -6969,7 +6969,7 @@
       if (t !== dita) { dita = t; var h = ekEl('div', 'af-grup-krye'); h.appendChild(ekEl('span', null, t)); frag.appendChild(h); }
       var tx = EKL.tekstiNgjarjes(x, uidIm);
       var r = ekEl('div', 'ek-ngjarje ' + tx.lloji);
-      r.appendChild(ekAvatar({ emri: tx.avatar || x.emri }, false));
+      r.appendChild(ekAvatar({ uid: EKL.uidIAvatarit(x), emri: tx.avatar || x.emri }, false));
       var b = ekEl('div', 'ek-ngjarje-trup');
       var rr = ekEl('div');
       rr.appendChild(ekEl('b', null, tx.kush));
@@ -7304,7 +7304,7 @@
         var hp = ekEl('div', 'af-grup-krye'); hp.appendChild(ekEl('span', null, 'Ftesa në pritje (' + fe.length + ')')); c.appendChild(hp);
         fe.forEach(function (f) {
           var r = ekEl('div', 'artikull ek-menaxho'); r.style.cursor = 'default';
-          r.appendChild(ekAvatar({ emri: f.perdoruesi }, false));
+          r.appendChild(ekAvatar({ uid: f.uid, emri: f.perdoruesi }, false));
           var m = ekEl('div', 'majtas');
           m.appendChild(ekEl('div', 'emri', f.perdoruesi));
           m.appendChild(ekEl('div', 'kodi ek-stat-nen', 'Ftuar nga ' + (f.ngaEmri || '') + (f.koha ? ' · ' + EKL.kohaRelative(f.koha) : '')));
@@ -7594,7 +7594,7 @@
         ekNjTeShfaqura = ekNjTeShfaqura.filter(function (id) { return id !== n.id; });
         if (!ekNjTeShfaqura.length) { $('ekNjFshiKrejt').hidden = true; lista.appendChild(ekBosh('S\'ka njoftime', 'Këtu të del kur një koleg heq nga rafti një nga produktet e tua që ka skaduar.')); }
       });
-      r.appendChild(ekAvatar({ emri: n.emri }, false));
+      r.appendChild(ekAvatar({ uid: n.uid, emri: n.emri }, false));
       var b = ekEl('div', 'ek-nj-trup', EKL.tekstiNjoftimit(n));
       b.appendChild(ekEl('div', 'ek-nj-koha', EKL.kohaRelative(n.koha)));
       if (/^kerkese-/.test(n.lloji)) {

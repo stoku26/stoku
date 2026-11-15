@@ -1731,6 +1731,13 @@
   }
 
   // Teksti i një ngjarjeje të aktivitetit: { kush, cfare, detaje, lloji }
+  // v307: uid-ja e personit që del në avatar të ngjarjes (si te tekstiNgjarjes: te pranimi në grup, i riu). Fotoja kërkohet sipas
+  // uid-së, jo sipas emrit të shkruar te ngjarja: pas ndryshimit të emrit të përdoruesit, ngjarjet e vjetra ruajnë emrin e vjetër.
+  function uidIAvatarit(ng) {
+    ng = ng || {};
+    var a = ng.lloji === 'anetar-i-ri' && typeof ng.anetariUid === 'string' && ng.anetariUid && ng.anetariUid !== ng.uid ? ng.anetariUid : ng.uid;
+    return typeof a === 'string' ? a : '';
+  }
   function tekstiNgjarjes(ng, uidIm) {
     var kush = ng.uid === uidIm ? 'Ti' : (ng.emri || 'Dikush');
     var A = AF();
@@ -3256,7 +3263,7 @@
     ADMIN_UID: ADMIN_UID, eshteUidAdmin: eshteUidAdmin, permbledhjaEAfateve: permbledhjaEAfateve, nenshkrimi: nenshkrimi,
     ndryshoAfatinNeGjendje: ndryshoAfatinNeGjendje, fletetEStokut: fletetEStokut,
     hartaEHeqjeve: hartaEHeqjeve, mbivendosHeqjen: mbivendosHeqjen, duhetZbatuarHeqja: duhetZbatuarHeqja,
-    kalendari: kalendari, statistikat: statistikat, tekstiNgjarjes: tekstiNgjarjes, objektiINgjarjes: objektiINgjarjes, detajetENgjarjes: detajetENgjarjes, kohaENgjarjes: kohaENgjarjes, artikulliINgjarjes: artikulliINgjarjes, artikujtENgjarjes: artikujtENgjarjes, tekstiNjoftimit: tekstiNjoftimit,
+    kalendari: kalendari, statistikat: statistikat, tekstiNgjarjes: tekstiNgjarjes, uidIAvatarit: uidIAvatarit, objektiINgjarjes: objektiINgjarjes, detajetENgjarjes: detajetENgjarjes, kohaENgjarjes: kohaENgjarjes, artikulliINgjarjes: artikulliINgjarjes, artikujtENgjarjes: artikujtENgjarjes, tekstiNjoftimit: tekstiNjoftimit,
     afatiPerKolegun: afatiPerKolegun, gjendjaEAfatitKolegut: gjendjaEAfatitKolegut, produktiIAfatitDerguar: produktiIAfatitDerguar, AFAT_KOLEGU_DITE: AFAT_KOLEGU_DITE, // v297
     isoDites: isoDites, Fotot: Fotot, listaEKerkeses: listaEKerkeses, rreshtiIProduktit: rreshtiIProduktit, zgjedhesIKerkeses: zgjedhesIKerkeses
   };

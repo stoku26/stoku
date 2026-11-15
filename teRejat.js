@@ -20,6 +20,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 307, versioni: '1.58.6', data: '2026-11-15', titulli: 'Fotot te Aktiviteti', pikat: [
+      'Te Grupi → Aktiviteti, njoftimet dhe ftesat, fotoja e kolegut del edhe te ngjarjet e vjetra, edhe pasi ai ta ketë ndryshuar emrin e përdoruesit.'
+    ] },
     { v: 306, versioni: '1.58.5', data: '2026-11-15', titulli: 'Njoftimi ditor ndizet vetë', platforma: 'tel', pikat: [
       'Rregullim: kur Stoku e kishte tashmë lejen për njoftime, "Njoftimi ditor" s\'ndizej vetë. Tani ndizet vetë herën e parë që hap Stoku-n (pasi ta fikësh, mbetet i fikur).',
       'Te Cilësimet → Njoftimet, mesazhi "s\'erdhi njoftim" tani thotë qartë që sot s\'skadon dhe s\'ka skaduar asnjë produkt.'
