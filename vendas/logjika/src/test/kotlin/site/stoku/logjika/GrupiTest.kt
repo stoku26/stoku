@@ -14,6 +14,21 @@ class GrupiTest {
     private fun l(x: Any?) = x.siListe().map { it.siObj()!! }
     private fun eq(msg: String, pritur: Any?, marre: Any?) = assertEquals(msg, kanonik(pritur), kanonik(marre))
 
+    /** v308: emri i tanishëm kudo (njësoj si meEmratAktuale te ekipa.js; teste/v308.js) */
+    @Test fun emratAktuale() {
+        val h = GrupiLogjika.HartaEEmrave(mapOf("u1" to "duli96", "u2" to "blerta"), mapOf("mendurberisha" to listOf("u1"), "duli96" to listOf("u1"), "ana" to listOf("u1", "u3")))
+        val r = GrupiLogjika.meEmratAktuale(mapOf("lloji" to "hequr", "uid" to "u1", "emri" to "mendurberisha", "pronariUid" to "u2", "pronariEmri" to "blerta_e_vjeter",
+            "hequrNga" to "mendurberisha", "krijuarNga" to "ana", "nga" to listOf("mendurberisha", "tjeter")), h)
+        assertEquals("duli96", r["emri"]); assertEquals("blerta", r["pronariEmri"]); assertEquals("duli96", r["hequrNga"])
+        assertEquals("ana", r["krijuarNga"]); assertEquals(listOf("duli96", "tjeter"), r["nga"])
+        val pika = GrupiLogjika.meEmratAktuale(mapOf("id" to "p1", "krijuarNga" to "u1", "krijuarNgaEmri" to "mendurberisha"), h)
+        assertEquals("u1", pika["krijuarNga"]); assertEquals("duli96", pika["krijuarNgaEmri"])
+        val pa = mapOf("uid" to "u9", "emri" to "iku")
+        assertEquals(true, GrupiLogjika.meEmratAktuale(pa, h) === pa)
+        assertEquals("duli96", GrupiLogjika.meEmratAktuale(mapOf("id" to "g", "pronarEmri" to "mendurberisha"), h)["pronarEmri"])
+        assertEquals(2, GrupiLogjika.ciftetEEmrave(mapOf("uid" to "u1", "emri" to "a", "kerkuesUid" to "u2", "kerkuesEmri" to "b")).size)
+    }
+
     /** v307: fotoja e ngjarjes sipas uid-së (njësoj si uidIAvatarit te ekipa.js; teste/v307.js) */
     @Test fun uidIAvatarit() {
         assertEquals("u1", GrupiLogjika.uidIAvatarit(mapOf("lloji" to "hequr", "uid" to "u1", "emri" to "mendurberisha")))

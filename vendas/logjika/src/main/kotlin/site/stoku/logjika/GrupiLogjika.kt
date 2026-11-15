@@ -294,6 +294,60 @@ object GrupiLogjika {
         return Objekti(pronari, ids, if (ids.isNotEmpty()) "" else kerko)
     }
 
+    // ---------- v308 (si Emrat te ekipa.js): emri i tanishëm i personit kudo, sipas uid-së ----------
+    /** aktual: uid → emri i tanishëm; aliaset: emri (shkronja të vogla) → uid-të që e kanë pasur atë emër */
+    class HartaEEmrave(val aktual: Map<String, String>, val aliaset: Map<String, List<String>>)
+    private val CIFTET_E_EMRAVE = listOf("uid" to "emri", "pronariUid" to "pronariEmri", "kerkuesUid" to "kerkuesEmri", "anetariUid" to "anetariEmri",
+        "perUid" to "perEmri", "ngaUid" to "ngaEmri", "nePritjeUid" to "nePritjeNga", "pronarUid" to "pronarEmri", "uid" to "perdoruesi")
+    private val EMRAT_PA_UID = listOf("krijuarNga", "hequrNga", "ftuarNga", "kontrolluarNga", "nga")
+    fun celesEmrit(e: String?): String = (e ?: "").trim().lowercase()
+    /** Çiftet (uid, emri) të një dokumenti (për të mësuar emrat e vjetër) */
+    fun ciftetEEmrave(o: Obj?): List<Pair<String, String>> {
+        if (o == null) return emptyList()
+        val l = ArrayList<Pair<String, String>>()
+        CIFTET_E_EMRAVE.forEach { (ku, ke) ->
+            val u = o[ku] as? String; val e = (o[ke] as? String)?.trim()
+            if (!u.isNullOrEmpty() && !e.isNullOrEmpty()) l.add(u to e)
+        }
+        val u = o["krijuarNga"] as? String; val e = (o["krijuarNgaEmri"] as? String)?.trim()
+        if (!u.isNullOrEmpty() && !e.isNullOrEmpty()) l.add(u to e)
+        return l
+    }
+    /** Fushë me uid: emri i tanishëm i asaj uid-je. Fushë vetëm me emër: emri i tanishëm vetëm kur ai emër i ka përkitur NJË personi */
+    fun emriAktual(h: HartaEEmrave, uid: String?, emri: String?): String? {
+        if (!uid.isNullOrEmpty()) return h.aktual[uid] ?: emri
+        if (emri.isNullOrBlank()) return emri
+        val u = h.aliaset[celesEmrit(emri)]
+        return if (u != null && u.size == 1) h.aktual[u[0]] ?: emri else emri
+    }
+    /** Kopje e dokumentit me emrat e tanishëm (si meEmratAktuale te ekipa.js) */
+    fun meEmratAktuale(o: Obj, h: HartaEEmrave): Obj {
+        var r: MObj? = null
+        fun vendos(k: String, v: Any?) { if (v != o[k]) { val m = r ?: LinkedHashMap(o).also { r = it }; m[k] = v } }
+        CIFTET_E_EMRAVE.forEach { (ku, ke) ->
+            val u = o[ku] as? String; val e = o[ke] as? String
+            if (!e.isNullOrEmpty() && !u.isNullOrEmpty()) vendos(ke, emriAktual(h, u, e))
+        }
+        val pikaUid = o["krijuarNga"] as? String
+        if (o["krijuarNgaEmri"] is String && !pikaUid.isNullOrEmpty()) vendos("krijuarNgaEmri", emriAktual(h, pikaUid, o["krijuarNgaEmri"] as String))
+        EMRAT_PA_UID.forEach { k ->
+            if (k == "krijuarNga" && o["krijuarNgaEmri"] is String) return@forEach
+            val v = o[k]
+            if (v is String && v.isNotEmpty()) vendos(k, emriAktual(h, null, v))
+            else if (k == "nga" && v is List<*>) {
+                val l = v.map { x -> if (x is String) emriAktual(h, null, x) else x }
+                if (l != v) vendos("nga", l)
+            }
+        }
+        val np = o["nePritjeNga"] as? String
+        if (!np.isNullOrEmpty() && o["nePritjeUid"] == null) vendos("nePritjeNga", emriAktual(h, null, np))
+        val ke = o["kerkuesEmri"] as? String
+        if (!ke.isNullOrEmpty() && o["kerkuesUid"] == null) vendos("kerkuesEmri", emriAktual(h, null, ke))
+        val pe = o["pronarEmri"] as? String
+        if (!pe.isNullOrEmpty() && o["pronarUid"] == null) vendos("pronarEmri", emriAktual(h, null, pe)) // grupet publike
+        return r ?: o
+    }
+
     /** v307 (si uidIAvatarit te ekipa.js): uid-ja e personit në avatar të ngjarjes. Fotoja kërkohet sipas uid-së, jo sipas emrit të
      *  shkruar te ngjarja (pas ndryshimit të emrit të përdoruesit, ngjarjet e vjetra ruajnë emrin e vjetër). */
     fun uidIAvatarit(ng: Obj?): String {

@@ -70,12 +70,112 @@
   //    te localStorage që fotot të dalin menjëherë (edhe pa internet, nga cache-i i shfletuesit).
   //    Çdo vend me avatar thërret Fotot.apliko(el, { uid, emri }): ka foto → sfond me foton, përndryshe shkronja.
   // ======================================================================================
+  // ======================================================================================
+  // 0a. v308: emri i tanishëm i një personi KUDO (ngjarjet, njoftimet, afatet, ftesat, kujtesa, pikat, lejet), sipas uid-së.
+  //    Dokumentet e vjetra mbajnë emrin që kishte personi atëherë (p.sh. "mendurberisha" pas ndryshimit në "duli96").
+  //    harta = { aktual: { uid: emri i tanishëm }, aliaset: { emri i vjetër (shkronja të vogla): [uid, ...] } }.
+  //    - fushë me uid (uid/emri, pronariUid/pronariEmri…): emri i tanishëm i asaj uid-je, kur dihet;
+  //    - fushë vetëm me emër (krijuarNga, hequrNga…): vetëm kur ai emër i ka përkitur NJË personi të vetëm (sipas dokumenteve
+  //      me uid); po t'i ketë përkitur dy personave (emër i liruar dhe i marrë nga dikush tjetër), mbetet siç është.
+  // ======================================================================================
+  var CIFTET_E_EMRAVE = [['uid', 'emri'], ['pronariUid', 'pronariEmri'], ['kerkuesUid', 'kerkuesEmri'], ['anetariUid', 'anetariEmri'],
+    ['perUid', 'perEmri'], ['ngaUid', 'ngaEmri'], ['nePritjeUid', 'nePritjeNga'], ['pronarUid', 'pronarEmri'], ['uid', 'perdoruesi']];
+  var EMRAT_PA_UID = ['krijuarNga', 'hequrNga', 'ftuarNga', 'kontrolluarNga', 'nga'];
+  function celesEmrit(e) { return String(e || '').trim().toLowerCase(); }
+  // Çiftet (uid, emri) që gjenden në një dokument (për të mësuar emrat e vjetër)
+  function ciftetEEmrave(o) {
+    var l = [];
+    if (!o || typeof o !== 'object') return l;
+    CIFTET_E_EMRAVE.forEach(function (c) {
+      if (typeof o[c[0]] === 'string' && o[c[0]] && typeof o[c[1]] === 'string' && o[c[1]].trim()) l.push({ uid: o[c[0]], emri: o[c[1]].trim() });
+    });
+    // pikat: krijuarNga = uid, krijuarNgaEmri = emri
+    if (typeof o.krijuarNga === 'string' && o.krijuarNga && typeof o.krijuarNgaEmri === 'string' && o.krijuarNgaEmri.trim()) l.push({ uid: o.krijuarNga, emri: o.krijuarNgaEmri.trim() });
+    return l;
+  }
+  function emriAktual(harta, uid, emri) {
+    var h = harta || {}, ak = h.aktual || {};
+    if (uid && typeof uid === 'string') return ak[uid] || emri;
+    if (typeof emri !== 'string' || !emri.trim()) return emri;
+    var u = (h.aliaset || {})[celesEmrit(emri)];
+    return u && u.length === 1 && ak[u[0]] ? ak[u[0]] : emri;
+  }
+  // Kopje e dokumentit me emrat e tanishëm (dokumenti origjinal s'preket)
+  function meEmratAktuale(o, harta) {
+    if (!o || typeof o !== 'object' || Array.isArray(o)) return o;
+    var r = null;
+    function vendos(k, v) { if (v !== o[k]) { if (!r) r = Object.assign({}, o); r[k] = v; } }
+    CIFTET_E_EMRAVE.forEach(function (c) {
+      if (typeof o[c[1]] === 'string' && o[c[1]] && typeof o[c[0]] === 'string' && o[c[0]]) vendos(c[1], emriAktual(harta, o[c[0]], o[c[1]]));
+    });
+    if (typeof o.krijuarNgaEmri === 'string' && typeof o.krijuarNga === 'string' && o.krijuarNga) vendos('krijuarNgaEmri', emriAktual(harta, o.krijuarNga, o.krijuarNgaEmri));
+    EMRAT_PA_UID.forEach(function (k) {
+      if (k === 'krijuarNga' && typeof o.krijuarNgaEmri === 'string') return; // te pikat është uid
+      if (typeof o[k] === 'string' && o[k]) vendos(k, emriAktual(harta, null, o[k]));
+      else if (k === 'nga' && Array.isArray(o.nga)) { var l = o.nga.map(function (x) { return emriAktual(harta, null, x); }); if (l.some(function (x, i) { return x !== o.nga[i]; })) vendos('nga', l); }
+    });
+    if (typeof o.nePritjeNga === 'string' && o.nePritjeNga && !o.nePritjeUid) vendos('nePritjeNga', emriAktual(harta, null, o.nePritjeNga));
+    if (typeof o.kerkuesEmri === 'string' && o.kerkuesEmri && !o.kerkuesUid) vendos('kerkuesEmri', emriAktual(harta, null, o.kerkuesEmri));
+    if (typeof o.pronarEmri === 'string' && o.pronarEmri && !o.pronarUid) vendos('pronarEmri', emriAktual(harta, null, o.pronarEmri)); // grupet publike
+    return r || o;
+  }
+  // Ruajtja në këtë pajisje: emrat e tanishëm (nga anëtarët, llogaritë, vetja) dhe emrat e vjetër (nga dokumentet me uid)
+  var KEY_EMRAT = 'stoku:emrat:v1';
+  var Emrat = (function () {
+    function lexo() { try { var x = JSON.parse(localStorage.getItem(KEY_EMRAT) || 'null'); return x && typeof x === 'object' ? x : {}; } catch (e) { return {}; } }
+    var h = lexo();
+    h.aktual = h.aktual && typeof h.aktual === 'object' ? h.aktual : {};
+    h.aliaset = h.aliaset && typeof h.aliaset === 'object' ? h.aliaset : {};
+    var kohez = null, versioni = 0;
+    function ruaj() {
+      versioni++;
+      clearTimeout(kohez);
+      kohez = setTimeout(function () { try { localStorage.setItem(KEY_EMRAT, JSON.stringify(h)); } catch (e) { /* ok */ } }, 300);
+    }
+    function shtoAlias(uid, emri) {
+      var k = celesEmrit(emri);
+      if (!k || !uid) return false;
+      var l = h.aliaset[k] || [];
+      if (l.indexOf(uid) !== -1) return false;
+      h.aliaset[k] = l.concat([uid]).slice(-5);
+      return true;
+    }
+    // lista = [{ uid, emri }] me emrat e TANISHËM
+    function vendosAktuale(lista) {
+      var ndr = false;
+      (lista || []).forEach(function (a) {
+        if (!a || typeof a.uid !== 'string' || !a.uid || typeof a.emri !== 'string' || !a.emri.trim() || a.emri === a.uid) return;
+        var e = a.emri.trim();
+        if (h.aktual[a.uid] !== e) { h.aktual[a.uid] = e; ndr = true; }
+        if (shtoAlias(a.uid, e)) ndr = true;
+      });
+      if (ndr) ruaj();
+      return ndr;
+    }
+    // Mëson çiftet (uid, emri) nga dokumentet (emra të vjetër ose të tanishëm)
+    function meso(dokumentet) {
+      var ndr = false;
+      (dokumentet || []).forEach(function (o) { ciftetEEmrave(o).forEach(function (c) { if (shtoAlias(c.uid, c.emri)) ndr = true; }); });
+      if (ndr) ruaj();
+      return ndr;
+    }
+    return {
+      vendosAktuale: vendosAktuale, meso: meso,
+      emri: function (uid, emri) { return emriAktual(h, uid, emri); },
+      perditeso: function (o) { return meEmratAktuale(o, h); },
+      perditesoListen: function (l) { meso(l); return (l || []).map(function (o) { return meEmratAktuale(o, h); }); },
+      harta: function () { return h; },
+      versioni: function () { return versioni; }
+    };
+  })();
+
   var KEY_FOTOT = 'stoku:fotot:indeksi', KEY_FOTOT_EMRAT = 'stoku:fotot:emrat';
   var FOTO_MASA = 256, FOTO_CILESIA = 0.82;
   var Fotot = (function () {
     function lexo(k) { try { return JSON.parse(localStorage.getItem(k) || 'null') || {}; } catch (e) { return {}; } }
     function shkruaj(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ok */ } }
     var indeksi = lexo(KEY_FOTOT), emrat = lexo(KEY_FOTOT_EMRAT);
+    Emrat.meso(Object.keys(emrat).map(function (k) { return { uid: emrat[k], emri: k }; })); // v308: emrat e njohur më parë
     function celesEmri(e) { return String(e || '').trim().toLowerCase(); }
     function url(u) { return u && indeksi[u] ? PUSH_URL + '/foto/' + encodeURIComponent(u) + '?v=' + indeksi[u] : ''; }
     function uidPer(kush) {
@@ -112,6 +212,7 @@
       vendosIndeksin(ind);
     }
     function vendosEmrat(lista) {
+      Emrat.vendosAktuale(lista); // v308: listat me emrat e tanishëm (anëtarët, vetja)
       var ri = Object.assign({}, emrat), ndr = false;
       (lista || []).forEach(function (a) {
         if (!a || !a.uid || !a.emri) return;
@@ -2324,7 +2425,7 @@
         var r2 = await lexoGrupetPublike(true);
         if (r2.ok) lista = gjej();
       }
-      return { ok: true, lista: lista };
+      return { ok: true, lista: Emrat.perditesoListen(lista) }; // v308: pronarEmri i tanishëm
     }
     async function dergoKerkesen(gr) {
       var e = E();
@@ -2783,7 +2884,7 @@
       }
       d.njoftimet = e.degjoNjoftimetEPalexuara(function (lista) {
         lista.sort(function (a, b) { return (b.koha || 0) - (a.koha || 0); });
-        gj.njoftimetPalexuara = lista;
+        gj.njoftimetPalexuara = Emrat.perditesoListen(lista); // v308
         lista.forEach(function (n) {
           if (uNjoftua('nj:' + n.id)) return;
           if ((Date.now() - (n.koha || 0)) >= 2 * 86400000 || !o.njofto) return;
@@ -2911,6 +3012,8 @@
       if (d.anetaret || !e || !o.uidIm() || gjendjaEQasjes() !== 'ok') return;
       d.anetaret = e.degjoAnetaret(function (lista) {
         gj.anetaret = lista;
+        // v308: një koleg ndryshoi emrin: ngjarjet dhe njoftimet e vjetra marrin emrin e ri
+        if (Emrat.vendosAktuale(lista)) { gj.ngjarjet = gj.ngjarjet.map(Emrat.perditeso); gj.njoftimetPalexuara = gj.njoftimetPalexuara.map(Emrat.perditeso); }
         try { localStorage.setItem(celesiKolegeve(), JSON.stringify(lista.map(function (a) { return { uid: a.uid, emri: a.emri }; }).filter(function (a) { return a.uid !== o.uidIm(); }).slice(0, 300))); } catch (x) { /* ok */ }
         ngarkoMungesat();
         thirr('anetaret');
@@ -2937,7 +3040,7 @@
         }, function () { ndal('ftesatEGrupit'); });
       }
       if (gj.admin && !d.krejtLlogarite && e.degjoKrejtLlogarite) {
-        d.krejtLlogarite = e.degjoKrejtLlogarite(function (l) { gj.krejtLlogarite = l; thirr('anetaret'); }, function () { ndal('krejtLlogarite'); });
+        d.krejtLlogarite = e.degjoKrejtLlogarite(function (l) { Emrat.vendosAktuale(l); gj.krejtLlogarite = l; thirr('anetaret'); }, function () { ndal('krejtLlogarite'); });
       }
       if (!d.permbledhjet && e.degjoAfatetEEkipes && !gj.permbledhjetGabim) {
         d.permbledhjet = e.degjoAfatetEEkipes(function (m) {
@@ -2958,7 +3061,7 @@
           var teRejaNgaTjeret = gj.ngjarjetGati ? lista.filter(function (ng) {
             return ng.uid !== o.uidIm() && !gj.ngjarjet.some(function (x) { return x.id === ng.id; });
           }) : [];
-          gj.ngjarjet = lista;
+          gj.ngjarjet = Emrat.perditesoListen(lista); // v308: emrat e tanishëm sipas uid-së
           gj.ngjarjetGati = true;
           // Një koleg pa përmbledhje (version i vjetër) shtoi afate ose hoqi të vetat → rilexo dyqanin e tij
           teRejaNgaTjeret.forEach(function (ng) {
@@ -3030,7 +3133,7 @@
           ngarkuar: une || !!p || !!dq,
           paTeDhena: !une && !p && !!(dq && dq.gabim), // s'ka përmbledhje dhe dyqani s'lexohet: s'e ka hapur ende versionin e ri
           afatet: burimi.map(function (af) {
-            return Object.assign(mbivendosHeqjen(af, a.uid, harta), { pronariUid: a.uid, pronariEmri: a.emri });
+            return Emrat.perditeso(Object.assign(mbivendosHeqjen(af, a.uid, harta), { pronariUid: a.uid, pronariEmri: a.emri })); // v308: hequrNga, krijuarNga…
           })
         });
       }).sort(function (x, y) {
@@ -3149,7 +3252,7 @@
       var e = E();
       if (!e) return [];
       var r = await e.merrNjoftimet(40);
-      return (r && r.lista) || [];
+      return Emrat.perditesoListen((r && r.lista) || []); // v308
     }
     // Kush e kreu një kërkesë për heqje: unë (njoftimi im ka kryer) ose një koleg (ngjarja "kerkese-kryer" te aktiviteti)
     function kryeresiIKerkeses(nj) {
@@ -3233,15 +3336,15 @@
       gjendjaEQasjes: gjendjaEQasjes,
       eshteAdmin: function () { return !!gj.admin; },
       // v302: pas ndryshimit të emrit të përdoruesit: emrat/{emri} i ri (i vjetri fshihet) dhe ftesat sipas emrit të ri
-      pasNdryshimitTeEmrit: function () { nisFtesatEMia(); },
+      pasNdryshimitTeEmrit: function () { if (o.uidIm()) Emrat.vendosAktuale([{ uid: o.uidIm(), emri: o.emriIm() }]); nisFtesatEMia(); }, // v308
       eshtePronar: eshtePronar,
-      grupiInfo: function () { return gjendjaEQasjes() === 'ok' ? (gj.grupiInfo || { id: gj.grupi, emri: '' }) : null; },
-      ftesatEMia: function () { return gj.ftesatEMia; },
-      ftesatEGrupit: function () { return gj.ftesatEGrupit; },
+      grupiInfo: function () { return gjendjaEQasjes() === 'ok' ? Emrat.perditeso(gj.grupiInfo || { id: gj.grupi, emri: '' }) : null; },
+      ftesatEMia: function () { return Emrat.perditesoListen(gj.ftesatEMia); },
+      ftesatEGrupit: function () { return Emrat.perditesoListen(gj.ftesatEGrupit); },
       // Shenja te Grupi: ftesat e reja që më kanë ardhur; v242: + kërkesat për grupin tim (vetëm pronari)
       numriKerkesave: function () { return gj.ftesatEMia.length + (eshtePronar() ? gj.kerkesatEGrupit.length : 0); },
       kerkesatEMia: function () { return gj.kerkesatEMia; },
-      kerkesatEGrupit: function () { return eshtePronar() ? gj.kerkesatEGrupit : []; },
+      kerkesatEGrupit: function () { return eshtePronar() ? Emrat.perditesoListen(gj.kerkesatEGrupit) : []; },
       kerkoGrupet: kerkoGrupet, dergoKerkesen: dergoKerkesen, anuloKerkesen: anuloKerkesen,
       pranoKerkesen: pranoKerkesen, refuzoKerkesen: refuzoKerkesen,
       krijoGrupin: krijoGrupin, pranoFtesen: pranoFtesen, refuzoFtesen: refuzoFtesen, largohuNgaGrupi: largohuNgaGrupi,
@@ -3265,7 +3368,7 @@
     hartaEHeqjeve: hartaEHeqjeve, mbivendosHeqjen: mbivendosHeqjen, duhetZbatuarHeqja: duhetZbatuarHeqja,
     kalendari: kalendari, statistikat: statistikat, tekstiNgjarjes: tekstiNgjarjes, uidIAvatarit: uidIAvatarit, objektiINgjarjes: objektiINgjarjes, detajetENgjarjes: detajetENgjarjes, kohaENgjarjes: kohaENgjarjes, artikulliINgjarjes: artikulliINgjarjes, artikujtENgjarjes: artikujtENgjarjes, tekstiNjoftimit: tekstiNjoftimit,
     afatiPerKolegun: afatiPerKolegun, gjendjaEAfatitKolegut: gjendjaEAfatitKolegut, produktiIAfatitDerguar: produktiIAfatitDerguar, AFAT_KOLEGU_DITE: AFAT_KOLEGU_DITE, // v297
-    isoDites: isoDites, Fotot: Fotot, listaEKerkeses: listaEKerkeses, rreshtiIProduktit: rreshtiIProduktit, zgjedhesIKerkeses: zgjedhesIKerkeses
+    isoDites: isoDites, Fotot: Fotot, Emrat: Emrat, emriAktual: emriAktual, meEmratAktuale: meEmratAktuale, ciftetEEmrave: ciftetEEmrave, listaEKerkeses: listaEKerkeses, rreshtiIProduktit: rreshtiIProduktit, zgjedhesIKerkeses: zgjedhesIKerkeses
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuEkipa = api;

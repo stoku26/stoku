@@ -1,6 +1,8 @@
 // v238: u nxor nga index.html (CSP pa 'unsafe-inline': faqet s'kanë më skripta të brendshme). Kur ndryshon, rrite ?v= te index.html dhe sw.js.
 (function () {
   'use strict';
+  // v308: emri i tanishëm i personit (ekipa.js Emrat): dokumentet e vjetra mbajnë emrin që kishte atëherë
+  function EN(e, uid) { var M = window.StokuEkipa && window.StokuEkipa.Emrat; return M ? M.emri(uid || null, e) : e; }
   // v282: koha e Stoku-t = ora e Kosovës (afatet.js → dataKs), jo e pajisjes
   function oraKs(ms) { return window.StokuAfatet && window.StokuAfatet.dataKs ? window.StokuAfatet.dataKs(ms) : (ms === undefined ? new Date() : new Date(ms)); }
 
@@ -1412,7 +1414,7 @@
   }
   function nenTekstiFurnizuesit(f) {
     return [f.afate ? sasiaETekst(f.afate, 'afat', 'afate') : '', f.produkte ? sasiaETekst(f.produkte, 'produkt', 'produkte') : '',
-      f.nePritje && f.nga && f.nga.length ? 'nga ' + f.nga.join(', ') : ''].filter(Boolean).join(' · ') || 'Pa produkte';
+      f.nePritje && f.nga && f.nga.length ? 'nga ' + f.nga.map(function (x) { return EN(x); }).join(', ') : ''].filter(Boolean).join(' · ') || 'Pa produkte';
   }
   // v207: administratori: furnizuesit ruhen më vete, që të mos fshihen kur fshihen produktet e tyre. v238: emrat pa asnjë
   // hyrje ruhen NË PRITJE (më parë si të kontrolluar: kalonin te Furnizuesit pa kontroll); të fshirët s'preken.
@@ -1588,7 +1590,7 @@
     var ik = document.createElement('span'); ik.className = 'kat-ikona-badge ' + (x.nePritje ? 'ngj-portokalli' : 'ngj-blu') + ' ops-furn-ik'; ik.textContent = ((x.emri || x.barkodi).charAt(0) || '?').toUpperCase();
     var t = document.createElement('span'); t.className = 'ops-rresht__tekst';
     var e = document.createElement('span'); e.className = 'ops-furn-emri'; e.textContent = x.emri || 'Pa emër';
-    var n = document.createElement('span'); n.className = 'hint'; n.textContent = [x.barkodi, x.furnizuesi, !x.ngaAdmini && x.nga ? 'nga ' + x.nga : ''].filter(Boolean).join(' · ');
+    var n = document.createElement('span'); n.className = 'hint'; n.textContent = [x.barkodi, x.furnizuesi, !x.ngaAdmini && x.nga ? 'nga ' + EN(x.nga) : ''].filter(Boolean).join(' · ');
     t.appendChild(e); t.appendChild(n);
     b.appendChild(ik); b.appendChild(t);
     if (!admin) return b; // vetëm për t'u parë
@@ -1604,7 +1606,7 @@
   }
   function rreshtIEditimitTeKujteses(x) {
     var w = document.createElement('div'); w.className = 'ops-furn-edit';
-    var lbl = document.createElement('div'); lbl.className = 'hint'; lbl.textContent = 'Barkodi ' + x.barkodi + (x.nePritje && x.nga ? ' · e shkroi ' + x.nga : '');
+    var lbl = document.createElement('div'); lbl.className = 'hint'; lbl.textContent = 'Barkodi ' + x.barkodi + (x.nePritje && x.nga ? ' · e shkroi ' + EN(x.nga) : '');
     var ie = document.createElement('input'); ie.type = 'text'; ie.value = x.emri; ie.maxLength = 120; ie.placeholder = 'Emri i produktit';
     ie.setAttribute('autocomplete', 'off'); ie.setAttribute('aria-label', 'Emri i produktit');
     mbushFurnizuesit();
@@ -1877,7 +1879,7 @@
     k.appendChild(kutiaEDiteve(st, AF.ditetDeri(a.data)));
     var m = document.createElement('div'); m.className = 'af-majtas';
     var e = document.createElement('div'); e.className = 'af-emri'; e.textContent = a.emri || a.barkodi || '(pa emër)'; m.appendChild(e);
-    var nen = [a.furnizuesi, AF.sasiaTekst(a), a.data ? AF.formato(a.data) : '', a.krijuarNga ? 'nga ' + a.krijuarNga : ''].filter(Boolean).join(' · ');
+    var nen = [a.furnizuesi, AF.sasiaTekst(a), a.data ? AF.formato(a.data) : '', a.krijuarNga ? 'nga ' + EN(a.krijuarNga) : ''].filter(Boolean).join(' · ');
     if (nen) { var ne = document.createElement('div'); ne.className = 'af-nen'; ne.textContent = nen; m.appendChild(ne); }
     if (a.emri && a.barkodi) { var kd = document.createElement('div'); kd.className = 'af-kodi'; kd.textContent = a.barkodi; m.appendChild(kd); }
     var ms = document.createElement('div'); ms.className = 'af-mesazh'; ms.textContent = AF.pershkrimi(a); m.appendChild(ms);
@@ -1952,7 +1954,7 @@
     kr.appendChild(ki);
     k.appendChild(kr);
     var info = [a.krijuarSe ? 'U regjistrua ' + K.kohaRelative(a.krijuarSe) : '', a.kycurSe ? 'U kyç ' + K.kohaRelative(a.kycurSe) : '',
-      a.grupi ? 'Në një grup' : 'Pa grup', pdMerchandiser(a) ? 'Merchandiser' : '', a.dok && a.dok.kontrolluarSe ? 'Kontrolluar ' + K.kohaRelative(a.dok.kontrolluarSe) + (a.dok.kontrolluarNga ? ' nga ' + a.dok.kontrolluarNga : '') : ''].filter(Boolean);
+      a.grupi ? 'Në një grup' : 'Pa grup', pdMerchandiser(a) ? 'Merchandiser' : '', a.dok && a.dok.kontrolluarSe ? 'Kontrolluar ' + K.kohaRelative(a.dok.kontrolluarSe) + (a.dok.kontrolluarNga ? ' nga ' + EN(a.dok.kontrolluarNga) : '') : ''].filter(Boolean);
     k.appendChild(pdEl('div', 'hint', info.join(' · ') + '.'));
     if (a.statusi === 'ri') {
       k.appendChild(pdEl('div', 'hint', 'Ndalo çfarë s\'duhet të përdorë (ruhet vetë), ose shtyp "U kontrollua" që t\'i mbajë të gjitha lejet.'));
@@ -5311,7 +5313,7 @@
   }
   // v246: administratori sheh pikat e përbashkëta të Stoku-t (pikat/{id})
   function htPikatESistemit() {
-    return PK.lista.map(function (x) { return { id: x.id, uid: 'pika', pika: true, emri: x.emri, lat: x.lat, lng: x.lng, perdoruesi: x.krijuarNgaEmri, emriNgaAdmini: x.emriNgaAdmini }; });
+    return PK.lista.map(function (x) { return { id: x.id, uid: 'pika', pika: true, emri: x.emri, lat: x.lat, lng: x.lng, perdoruesi: EN(x.krijuarNgaEmri, x.krijuarNga), emriNgaAdmini: x.emriNgaAdmini }; });
   }
   // v250: merchandiseri i sheh marketet e Stoku-t (pikat, të njëjtat për krejt) dhe të vetat që s'janë pika (të vjetra, pa
   // vendndodhje); s'ndryshon asgjë: emrat i ndryshon vetëm administratori
@@ -5742,7 +5744,7 @@
     { k: 'furnizuesi', emri: 'Furnizuesi', col: { title: 'Furnizuesi', width: 22 }, v: function (a) { return a.furnizuesi || ''; } },
     { k: 'statusi', emri: 'Statusi', col: { title: 'Statusi', width: 15 }, v: function (a) { return AF_ST_EMRI[AF.statusi(a)] || ''; } },
     { k: 'pershkrimi', emri: 'Çfarë duhet bërë', col: { title: 'Çfarë duhet bërë', width: 60 }, v: function (a) { return AF.pershkrimi(a); } },
-    { k: 'krijuarNga', emri: 'Shtuar nga', col: { title: 'Shtuar nga', width: 14 }, v: function (a) { return a.krijuarNga || ''; } }
+    { k: 'krijuarNga', emri: 'Shtuar nga', col: { title: 'Shtuar nga', width: 14 }, v: function (a) { return EN(a.krijuarNga || ''); } }
   ];
   var KEY_AX_KOLONAT = 'stoku:afatet:excel-kolonat';
   function axKolonatERuajtura() {
@@ -6828,7 +6830,7 @@
     if (nen) m.appendChild(ekEl('div', 'af-nen', nen));
     if (a.emri && a.barkodi) m.appendChild(ekEl('div', 'af-kodi', a.barkodi));
     m.appendChild(ekEl('div', 'af-mesazh', st === 'hequr'
-      ? 'U hoq nga rafti' + (a.hequrNga ? ' nga ' + a.hequrNga : '') + (a.hequrSe ? ' · ' + EKL.kohaRelative(a.hequrSe) : '') + '.'
+      ? 'U hoq nga rafti' + (a.hequrNga ? ' nga ' + EN(a.hequrNga) : '') + (a.hequrSe ? ' · ' + EKL.kohaRelative(a.hequrSe) : '') + '.'
       : a.nePritjeNga ? ekTekstiNePritje(a) : AF.pershkrimi(a)));
     if (st === 'skaduar' && a.nePritjeNga) m.appendChild(ekEl('span', 'af-pill ek-pill-pritje', 'Në pritje të miratimit'));
     else if (st === 'skaduar' && ekLejohetHeqja(a)) {
@@ -7069,7 +7071,7 @@
         var bk = ekEl('div', 'ek-pult-kerkesat ek-ftesa');
         var tk = ekEl('div', 'tk');
         tk.appendChild(ekEl('b', null, gr.emri));
-        tk.appendChild(document.createTextNode(gr.pronarEmri ? 'Admini: ' + gr.pronarEmri : 'Grup'));
+        tk.appendChild(document.createTextNode(gr.pronarEmri ? 'Admini: ' + EN(gr.pronarEmri, gr.pronarUid) : 'Grup'));
         bk.appendChild(tk);
         var b = ekEl('button', 'btn', kerkuar[gr.id] ? 'U dërgua' : 'Kërko të hysh'); b.type = 'button'; b.disabled = !!kerkuar[gr.id];
         b.addEventListener('click', async function () {
@@ -7904,7 +7906,7 @@
     if (a) {
       var st = AF.statusi(a);
       info.className = 'af-info-dlg ' + st;
-      info.textContent = AF.pershkrimi(a) + (a.krijuarNga ? '\nShtuar nga: ' + a.krijuarNga : '');
+      info.textContent = AF.pershkrimi(a) + (a.krijuarNga ? '\nShtuar nga: ' + EN(a.krijuarNga) : '');
       info.style.whiteSpace = 'pre-line';
       info.style.display = '';
       var veprime = [];

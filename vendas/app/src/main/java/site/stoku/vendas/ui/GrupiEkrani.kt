@@ -1,5 +1,6 @@
 package site.stoku.vendas.ui
 
+import site.stoku.vendas.Emrat
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.ui.layout.ContentScale
@@ -448,7 +449,7 @@ private fun KartaEAfatitTeGrupit(a: Obj, meEmer: Boolean, ctx: Konteksti) {
                 Text(a["barkodi"] as String, style = txNum(11.5f, n.faint), modifier = Modifier.padding(top = 2.dp))
             val pritje = eVertete(a["nePritjeNga"])
             val msg = when {
-                st == "hequr" -> "U hoq nga rafti" + (if (eVertete(a["hequrNga"])) " nga " + jsString(a["hequrNga"]) else "") +
+                st == "hequr" -> "U hoq nga rafti" + (if (eVertete(a["hequrNga"])) " nga " + Emrat.emri(jsString(a["hequrNga"])) else "") +
                     (if (kohaE(a, "hequrSe") > 0) " · " + GrupiLogjika.kohaRelative(kohaE(a, "hequrSe"), ctx.tani) else "") + "."
                 pritje -> tekstiNePritje(a, ctx.tani)
                 else -> Afatet.pershkrimi(a)

@@ -52,6 +52,18 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v308 / Android Hyrja 70 (15.11.2026, pronari: "kudo qe ka gjurm qaj person qe e ka ndrru emrin me dal me emer te ri ...
+   i njejti person osht lidhi me uid")**: emri i TANISHËM kudo, vetëm gjatë shfaqjes (të dhënat në Firestore s'ndryshohen). `ekipa.js`:
+   `Emrat` (localStorage `stoku:emrat:v1`: `aktual` uid → emri i tanishëm nga anëtarët/vetja/llogaritë e administratorit; `aliaset`
+   emri i vjetër → uid-të, mësuar nga çdo dokument me uid + emër: ngjarjet, njoftimet, ftesat, pikat), `emriAktual`, `meEmratAktuale`
+   (çiftet uid/emri, pronariUid/pronariEmri, kerkues…, anetari…, per…, nga…, nePritje…, pronar…, uid/perdoruesi; pikat
+   krijuarNga/krijuarNgaEmri; fushat vetëm me emër krijuarNga, hequrNga, ftuarNga, kontrolluarNga, nga[], kerkuesEmri, pronarEmri
+   ndërrohen VETËM kur emri i ka përkitur një uid-je të vetme, që një emër i liruar e i marrë nga dikush tjetër të mos ngatërrohet).
+   Kontrolluesi: ngjarjet, njoftimet, afatet e kolegëve, ftesat, kërkesat, grupiInfo, kërkimi i grupeve; ri-zbatohet kur ndryshojnë
+   anëtarët. Web: `EN(emri, uid)` te "Shtuar nga", regjistri, fletët, pikat, lejet, eksporti. Android: binjaku
+   `GrupiLogjika.HartaEEmrave/emriAktual/meEmratAktuale/ciftetEEmrave` (test te GrupiTest) + `Emrat.kt` (pref `emrat_v1`) te
+   `Grupi.kt` dhe ekranet. Test: `teste/v308.js`. S'është testuar në pajisje të vërtetë.
+
 0000000. **v307 / Android Hyrja 69 (15.11.2026, pronari: foto e Aktivitetit pa foto te ngjarjet e "mendurberisha")**: avatarët e
    Aktivitetit, të dritares "vetëm shiko", të njoftimeve (zilja) dhe të ftesave e kërkonin foton sipas EMRIT të shkruar te dokumenti
    (`Fotot.apliko({ emri })` / `Fotot.uidPerEmrin`); pas ndryshimit të emrit të përdoruesit (p.sh. mendurberisha → duli96) ngjarjet e
