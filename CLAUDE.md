@@ -10,6 +10,14 @@ Përditësoje në të njëjtin PR me çdo ndryshim domethënës.
 - Mos e përdor fjalën "sahat": ora, orën, orës.
 - Thuaj gjithmonë që ndryshimi s'është testuar në pajisje të vërteta (s'kemi telefon, PDA, orë as Firebase real).
 
+## Vazhdimi pas kufirit (rregull i përhershëm, nga pronari)
+- Nëse puna ndërpritet përgjysmë se u arrit kufiri 5-orësh ose ai javor, pasi kufiri të rivendoset **vazhdo vetë ku ke mbetur**, automatikisht.
+  Mos pritë që pronari të thotë "vazhdo". Vlen gjithmonë, në çdo bisedë, jo vetëm për një punë.
+- Për ta bërë të mundur: gjatë punës së gjatë mbaj listën e detyrave (TaskCreate/TaskUpdate) të përditësuar dhe, kur ka punë të nisur
+  (regresion në sfond, PR pa u bashkuar, publikim përgjysmë), planifiko një rikthim me `send_later` pas rreth një ore e vazhdo me të
+  njëjtin plan; kur ai rikthim vjen, kontrollo gjendjen (git, CI, regresioni) dhe vazhdo, pastaj planifiko të radhën nëse mbeti punë.
+- Pas rikthimit mos e ripërsërit çka u bë: lexo gjendjen (git log/status, lista e detyrave, SHENIME) dhe vazhdo nga hapi i parë i pambaruar.
+
 ## Projekti
 - "Krejt projekti" = web (`index.html` telefoni/PDA, `pc.html` kompjuteri; kodi te `app-tel.js` / `app-pc.js`) +
   aplikacioni Android "Stoku" `vendas/` (Kotlin/Compose, pa WebView; i vetmi aplikacion i telefonit) + aplikacioni i orës
