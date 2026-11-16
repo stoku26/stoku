@@ -220,7 +220,7 @@ fun AfatetExcelFlete(zgjedhura: List<Obj>?, eFiltruara: (String) -> List<Obj>, m
 
 /**
  * Hyrja 36 (web v275, #dlgAfPdf): "PDF për printim" (pronari: ideja 1, opsionet "A"). Katër rreshta: Periudha ("Të gjitha" ose një muaj),
- * Gjendja, Furnizuesi, Renditja; secili hap zgjedhjen e vet. PDF-ja (EksportiPdf, A4 e bardhë) del te SkedariFlete (PC / Ruaje / Ndaje).
+ * Shtuar (Hyrja 79, në vend të "Gjendja": dita kur u shtuan afatet), Furnizuesi, Renditja; secili hap zgjedhjen e vet. PDF-ja (EksportiPdf, A4 e bardhë) del te SkedariFlete (PC / Ruaje / Ndaje).
  */
 @Composable
 fun AfatetPdfFlete(te: List<Obj>, mbyll: () -> Unit, gati: (Skedari) -> Unit) {
@@ -229,18 +229,23 @@ fun AfatetPdfFlete(te: List<Obj>, mbyll: () -> Unit, gati: (Skedari) -> Unit) {
     val scope = rememberCoroutineScope()
     val paF = Llogaria.eshteMerchandiser()
     var mu by remember { mutableStateOf("") }
-    var gj by remember { mutableStateOf("aktive") }
+    var sh by remember { mutableStateOf("") } // Hyrja 79: "Shtuar" në vend të "Gjendja"
+    val sot = remember { java.time.LocalDate.now() }
+    var nga by remember { mutableStateOf(sot) }
+    var deri by remember { mutableStateOf(sot) }
     var f by remember { mutableStateOf("") }
     var r by remember { mutableStateOf("data") }
     var duke by remember { mutableStateOf(false) }
-    val gjOps = EksportiPdf.GJENDJET.map { (k, t) -> k to "$t (${EksportiPdf.filtro(te, mu, k, f, paF).size})" }
-    val muajt = Afatet.muajtELista(EksportiPdf.filtro(te, "", gj, f, paF))
+    fun iv(k: String) = EksportiPdf.intervali(k, sot, nga, deri)
+    val ivZ = iv(sh)
+    val shOps = EksportiPdf.SHTUAR.map { (k, t) -> k to "$t (${EksportiPdf.filtro(te, mu, iv(k), f, paF).size})" }
+    val muajt = Afatet.muajtELista(EksportiPdf.filtro(te, "", ivZ, f, paF))
     val muE = if (mu.isEmpty() || muajt.any { it.celes == mu }) mu else ""
-    val furn = if (paF) emptyList() else Afatet.furnizuesitELista(EksportiPdf.filtro(te, muE, gj, "", paF))
+    val furn = if (paF) emptyList() else Afatet.furnizuesitELista(EksportiPdf.filtro(te, muE, ivZ, "", paF))
     val fE = if (f.isEmpty() || furn.any { it.celes == f }) f else ""
-    val lista = EksportiPdf.filtro(te, muE, gj, fE, paF)
+    val lista = EksportiPdf.filtro(te, muE, ivZ, fE, paF)
     val faqet = EksportiPdf.plani(lista.size).size
-    val gjT = EksportiPdf.GJENDJET.firstOrNull { it.first == gj }?.second ?: "Të gjitha"
+    val shT = if (ivZ == null) "Të gjitha" else if (sh == "zgjidh") EksportiPdf.tekstiIntervalit(ivZ) else EksportiPdf.SHTUAR.first { it.first == sh }.second
     val furnT = furn.firstOrNull { it.celes == fE }?.emri ?: "Të gjithë"
     Flete(mbyll) {
         Text("PDF për printim", style = tx(22, 700, n.ink, -0.02))
@@ -249,7 +254,11 @@ fun AfatetPdfFlete(te: List<Obj>, mbyll: () -> Unit, gati: (Skedari) -> Unit) {
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).border(1.dp, n.line, RoundedCornerShape(18.dp))) {
             RreshtiIOpsionit(Ik.Kalendari, "blu", "Periudha", if (muE.isEmpty()) "Të gjitha" else muajt.first { it.celes == muE }.emri,
                 listOf("" to "Të gjitha") + muajt.map { it.celes to "${it.emri} (${it.n})" }, muE, true) { mu = it }
-            RreshtiIOpsionit(Ik.Kohe, "portokalli", "Gjendja", gjT, gjOps, gj, false) { gj = it }
+            RreshtiIOpsionit(Ik.KalendariShto, "portokalli", "Shtuar", shT, shOps, sh, false) { sh = it }
+            if (sh == "zgjidh") Row(Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, bottom = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                ZgjidhDaten("Nga", nga, Modifier.weight(1f)) { nga = it }
+                ZgjidhDaten("Deri", deri, Modifier.weight(1f)) { deri = it }
+            }
             if (!paF) RreshtiIOpsionit(Ik.Kamion, "gjelber", "Furnizuesi", furnT, listOf("" to "Të gjithë") + furn.map { it.celes to "${it.emri} (${it.n})" }, fE, false) { f = it }
             RreshtiIOpsionit(Ik.Rendi, "vjollce", "Renditja", EksportiPdf.RENDET.first { it.first == r }.second, EksportiPdf.RENDET, r, false) { r = it }
         }
@@ -271,7 +280,7 @@ fun AfatetPdfFlete(te: List<Obj>, mbyll: () -> Unit, gati: (Skedari) -> Unit) {
                 val cope = Afatet.shumaCopeve(lista)
                 val info = ArrayList<Pair<String, Boolean>>()
                 info.add("Periudha: " to false); info.add(per to true)
-                listOf(if (gj == "aktive") "" else gjT, if (fE.isEmpty()) "" else furnT, idM?.let { Merchandiseri.emri(it) } ?: "").filter { it.isNotEmpty() }
+                listOf(if (ivZ == null) "" else "Shtuar: $shT", if (fE.isEmpty()) "" else furnT, idM?.let { Merchandiseri.emri(it) } ?: "").filter { it.isNotEmpty() }
                     .forEach { info.add(" · " to false); info.add(it to true) }
                 info.add(" · " to false); info.add(lista.size.toString() to true); info.add((if (lista.size == 1) " produkt" else " produkte") to false)
                 if (cope > 0) { info.add(" · " to false); info.add(EksportiPdf.numri(cope) to true); info.add(" copë" to false) }
@@ -285,6 +294,19 @@ fun AfatetPdfFlete(te: List<Obj>, mbyll: () -> Unit, gati: (Skedari) -> Unit) {
                 }
             }, Modifier.weight(1.4f), aktiv = lista.isNotEmpty() && !duke)
         }
+    }
+}
+
+/** Hyrja 79: fusha e datës ("Nga" / "Deri") te "Shtuar → Zgjidh datat"; prekja hap kalendarin e sistemit */
+@Composable
+private fun ZgjidhDaten(emri: String, data: java.time.LocalDate, modifier: Modifier, zgjidh: (java.time.LocalDate) -> Unit) {
+    val n = N
+    val ctx = LocalContext.current
+    Column(modifier.clip(RoundedCornerShape(12.dp)).border(1.dp, n.line, RoundedCornerShape(12.dp)).clickable {
+        android.app.DatePickerDialog(ctx, { _, v, m, d -> zgjidh(java.time.LocalDate.of(v, m + 1, d)) }, data.year, data.monthValue - 1, data.dayOfMonth).show()
+    }.padding(horizontal = 12.dp, vertical = 8.dp)) {
+        Text(emri, style = tx(12, 600, n.muted))
+        Text(EksportiPdf.tekstiIntervalit(data to data), style = tx(15, 600, n.ink))
     }
 }
 

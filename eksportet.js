@@ -139,7 +139,7 @@
       return document.fonts.load(f).catch(function () {});
     }));
   }
-  var AP = { W: 210, H: 297, MX: 12.7, KOKA1: 37.2, KOKA: 15.3, RR: 7.4, FUND: 283, FUND2: 290, SASIA_P: 6, MESI: 18.5 };
+  var AP = { W: 210, H: 297, MX: 12.7, KOKA1: 37.2, KOKA: 15.3, RR: 7.4, FUND: 290, FUND2: 290, SASIA_P: 6, MESI: 18.5 };
   var AP_NGJ = { ink: [20, 22, 27], ink2: [58, 61, 68], muted: [107, 110, 118], faint: [138, 141, 148], line2: [232, 230, 225], zebra: [250, 249, 247] };
   // Sa rreshta në secilën faqe
   function apPlani(n) {
@@ -156,7 +156,7 @@
   }
   // l: afatet e renditura; o: { info: [[teksti, i trashë]…] (periudha, zgjedhjet, sa produkte e copë), data, ora }. Kthen bajtet e PDF-së.
   function apPdf(l, o, pa) { // pa: pa kolonën e furnizuesit (merchandiseri)
-    var d = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' }), C = AP_NGJ, X = AP.MX, WI = AP.W - 2 * AP.MX;
+    var d = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', compress: true }), C = AP_NGJ, X = AP.MX, WI = AP.W - 2 * AP.MX;
     var kol = [{ k: 'nr', t: '#', w: 8 }, { k: 'emri', t: 'PRODUKTI', w: pa ? 104 : 70 }, { k: 'b', t: 'BARKODI', w: 34 }]
       .concat(pa ? [] : [{ k: 'f', t: 'FURNIZUESI', w: 34 }])
       .concat([{ k: 's', t: 'COPË', w: 18, al: 'right' }, { k: 'd', t: 'SKADON', w: 20.6 }]);
@@ -209,17 +209,51 @@
       }
       for (var j = 0; j < k; j++, idx++) { rreshti(l[idx], idx, y); y += AP.RR; }
     });
-    // v300: fundi vetëm te faqja 1, pa vijë (vija e rreshtit të fundit mjafton). v313 (pronari, foto e fundit të faqes: "krijuar me
-    // stoku hiqe ... veq webin leje"): vetëm adresa, pa "Krijuar me Stoku", datën me orën dhe "Faqja 1 nga N" (data mbetet lart djathtas)
-    d.setPage(1);
-    font(7.9, false); ng(C.faint);
-    d.text('https://stoku.site', X, 290.6);
+    // v317 (pronari, foto: "hiqja krejt qeto mos le kurgjo ne fund te fletave"): asnjë tekst poshtë në asnjë faqe; edhe faqja 1
+    // e çon tabelën deri te FUND 290 (34 rreshta). compress: true (pronari: "pse pdf e web appit ka ma shum kb"): pa të, jsPDF i
+    // shkruante vizatimet e faqeve pa i ngjeshur, ndërsa PdfDocument i Android-it i ngjesh gjithmonë.
     return d.output('arraybuffer');
+  }
+
+  // v317 (pronari: "qite ni opsion me mujt me eksportu nkohen kur jan shtu afatet ... me zgjedh dita ti vet"): filtri "Shtuar" sipas
+  // ditës kur u shtua afati (krijuarSe, ora e Kosovës). sh: '' (të gjitha) | 'sot' | 'dje' | '7' | '14' | '30' | 'zgjidh' (nga/deri, ISO).
+  // Kthen [nga, deri] si 'YYYY-MM-DD' ose null (pa kufizim). Android: EksportiPdf.intervali (ndryshoji bashkë).
+  var AP_SHTUAR = [['', 'Të gjitha'], ['sot', 'Sot'], ['dje', 'Dje'], ['7', '7 ditët e fundit'], ['14', '14 ditët e fundit'], ['30', '30 ditët e fundit'], ['zgjidh', 'Zgjidh datat']];
+  function apDitaPara(iso, n) {
+    var p = String(iso).split('-'), t = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] - n));
+    return t.getUTCFullYear() + '-' + ('0' + (t.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + t.getUTCDate()).slice(-2);
+  }
+  function apIntervali(sh, sot, nga, deri) {
+    if (sh === 'sot') return [sot, sot];
+    if (sh === 'dje') { var dj = apDitaPara(sot, 1); return [dj, dj]; }
+    if (sh === '7' || sh === '14' || sh === '30') return [apDitaPara(sot, +sh - 1), sot];
+    if (sh === 'zgjidh') {
+      var a = /^\d{4}-\d{2}-\d{2}$/.test(nga || '') ? nga : sot, b = /^\d{4}-\d{2}-\d{2}$/.test(deri || '') ? deri : a;
+      return a <= b ? [a, b] : [b, a];
+    }
+    return null;
+  }
+  // Dita kur u shtua afati ('YYYY-MM-DD', ora e Kosovës); '' kur s'dihet (afatet shumë të vjetra pa krijuarSe)
+  function apDitaEShtimit(a) {
+    var AF = root.StokuAfatet, k = +(a && a.krijuarSe) || 0;
+    return k > 0 && AF ? AF.isoNgaData(AF.dataKs(k)) : '';
+  }
+  function apShtuarOk(a, iv) {
+    if (!iv) return true;
+    var d = apDitaEShtimit(a);
+    return !!d && d >= iv[0] && d <= iv[1];
+  }
+  // "16.11.2026" ose "12.11 deri 16.11.2026" (për rreshtin dhe PDF-në)
+  function apTekstiIntervalit(iv) {
+    var f = function (x, vit) { var p = x.split('-'); return p[2] + '.' + p[1] + (vit ? '.' + p[0] : ''); };
+    if (iv[0] === iv[1]) return f(iv[0], true);
+    return f(iv[0], iv[0].slice(0, 4) !== iv[1].slice(0, 4)) + ' deri ' + f(iv[1], true);
   }
 
   root.StokuEksportet = {
     FOTO_MAKS: AEF_MAKS, NGJ: AEF_NGJ,
     vizatoFoton: aefVizato, skedariFotos: aefSkedari, fontet: aefFontet, logo: aefLogo,
-    planiPdf: apPlani, pdf: apPdf
+    planiPdf: apPlani, pdf: apPdf,
+    SHTUAR: AP_SHTUAR, intervaliShtuar: apIntervali, shtuarOk: apShtuarOk, ditaEShtimit: apDitaEShtimit, tekstiIntervalit: apTekstiIntervalit
   };
 })(typeof window !== 'undefined' ? window : this);

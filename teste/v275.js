@@ -24,7 +24,7 @@ const sot = new Date(), dita = sot.getFullYear() + '-' + String(sot.getMonth() +
 function teDhenat(n) {
   const A = [];
   const shto = (emri, f, dn, s, st) => A.push({ id: 'a' + A.length, emri, barkodi: '38900100' + String(1000 + A.length), data: d(dn), sasia: s, furnizuesi: f,
-    statusi: st || 'aktiv', krijuarSe: t - 9e6, ndryshuarSe: t - 9e6 });
+    statusi: st || 'aktiv', krijuarSe: t - 6e4, ndryshuarSe: t - 6e4 }); // v317: 1 minutë më parë ("Shtuar: Sot" edhe pas mesnatës)
   if (n) { for (let i = 0; i < n; i++) shto('Produkti ' + (i + 1), i % 2 ? 'Agro Fresh' : 'Meridian Group', i - 5, i + 1); return A; }
   [['Kos 500g', -2, 3], ['Ajran 250ml', -1, 8], ['Qumësht i freskët 1L', 0, 6], ['Djathë i bardhë 400g', 2, 2], ['Jogurt me dredhëz 150g', 4, 12],
     ['Gjalpë 250g', 38, 10], ['Kaçkavall 300g', 66, 7]].forEach(([e, dn, s]) => shto(e, 'Meridian Group', dn, s));
@@ -64,19 +64,21 @@ async function faqe(b, af) {
 }
 const dritarja = p => p.evaluate(() => ({ hapur: document.getElementById('dlgAfPdf').classList.contains('hapur'), nen: document.getElementById('apNen').textContent,
   rr: Array.from(document.querySelectorAll('#dlgAfPdf .ap-rresht')).filter(x => x.offsetParent).map(x => x.querySelector('.ap-em').textContent + '=' + x.querySelector('.ap-v').textContent),
-  ops: Object.fromEntries(['apPeriudha', 'apGjendja', 'apFurn', 'apRend'].map(id => [id, Array.from(document.getElementById(id).options).map(o => o.textContent)])),
+  ops: Object.fromEntries(['apPeriudha', 'apShtuar', 'apFurn', 'apRend'].map(id => [id, Array.from(document.getElementById(id).options).map(o => o.textContent)])),
   pa: document.getElementById('apKrijo').disabled }));
 // Krijo → "Shkarko këtu" (ose direkt) → skedari i ndarë: emri, lloji, teksti i PDF-së (latin1)
 async function krijo(p) {
   await p.click('#apKrijo'); await p.waitForTimeout(800);
   if (await p.evaluate(() => document.getElementById('dlgKuSkedari').classList.contains('hapur'))) { await p.click('#ksKetu'); await p.waitForTimeout(800); }
-  return p.evaluate(async () => {
+  const r = await p.evaluate(async () => {
     const n = window.__ndare; if (!n) return null;
     const f = n.files[0], b = new Uint8Array(await f.arrayBuffer());
     let s = ''; for (let i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
     let b64 = ''; for (let i = 0; i < b.length; i += 0x8000) b64 += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
     return { emri: f.name, lloji: f.type, madh: f.size, tekst: s, b64: btoa(b64) };
   });
+  if (r) r.tekst = require('./pdf-tekst.js')(r.b64); // v317: PDF-ja e ngjeshur
+  return r;
 }
 const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
 
@@ -91,24 +93,22 @@ const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
     ok(menu.join() === 'Eksporto Excel,Eksporto PDF,Eksporto si foto', '1. menuja "Eksporto" me "Eksporto PDF" (v277: pa importin)', menu);
     await p.click('#afEksPdf'); await p.waitForTimeout(400);
     let dr = await dritarja(p);
-    ok(dr.hapur && dr.rr.join(' | ') === 'Periudha=Të gjitha | Gjendja=Të gjitha | Furnizuesi=Të gjithë | Renditja=Sipas datës', '2. katër rreshtat, Periudha "Të gjitha" (jo "Krejt")', dr.rr);
+    ok(dr.hapur && dr.rr.join(' | ') === 'Periudha=Të gjitha | Shtuar=Të gjitha | Furnizuesi=Të gjithë | Renditja=Sipas datës', '2. katër rreshtat, Periudha "Të gjitha" (jo "Krejt")', dr.rr);
     ok(dr.nen === '11 afate · 1 faqe A4' && !dr.pa, '2. 11 afate aktive, 1 faqe', dr.nen);
-    ok(dr.ops.apGjendja.join() === 'Të gjitha (11),Të skaduara (3),Afër skadimit (5),Në rregull (3),Të hequra (1)', '2. Gjendja me numrat', dr.ops.apGjendja);
+    ok(dr.ops.apShtuar.join() === 'Të gjitha (11),Sot (11),Dje (0),7 ditët e fundit (11),14 ditët e fundit (11),30 ditët e fundit (11),Zgjidh datat (11)', '2. Shtuar (v317, në vend të Gjendja) me numrat, pa të hequrin', dr.ops.apShtuar);
     ok(dr.ops.apFurn.join() === 'Të gjithë,Agro Fresh (3),Meridian Group (7),Pa furnizues (1)' && dr.ops.apRend.join() === 'Sipas datës,Sipas furnizuesit,Sipas emrit', '2. Furnizuesi dhe Renditja', [dr.ops.apFurn, dr.ops.apRend]);
     ok(dr.ops.apPeriudha[0] === 'Të gjitha' && dr.ops.apPeriudha.length >= 3, '2. Periudha: "Të gjitha" + muajt', dr.ops.apPeriudha);
     const st = await p.evaluate(() => { const r = document.querySelector('#dlgAfPdf .ap-rresht'), s = r.querySelector('select'), x = r.getBoundingClientRect(), y = s.getBoundingClientRect();
       return { h: Math.round(x.height), mbulon: Math.abs(x.width - y.width) < 1 && Math.abs(x.height - y.height) < 1, op: getComputedStyle(s).opacity }; });
     ok(st.h >= 56 && st.mbulon && st.op === '0', '2. secili rresht hap zgjedhjen (lista e padukshme mbulon krejt rreshtin)', st);
-    // 3. Gjendja + furnizuesi ndryshojnë numrin
-    await p.selectOption('#apGjendja', 'skaduar'); await p.waitForTimeout(100);
+    // 3. Shtuar + furnizuesi ndryshojnë numrin
+    await p.selectOption('#apShtuar', 'dje'); await p.waitForTimeout(100);
     dr = await dritarja(p);
-    ok(dr.nen === '3 afate · 1 faqe A4' && dr.rr[1] === 'Gjendja=Të skaduara', '3. "Të skaduara": 3 afate', dr);
-    await p.selectOption('#apFurn', { label: 'Agro Fresh (1)' }); await p.waitForTimeout(100);
+    ok(dr.nen === 'S\'ka afate për këtë zgjedhje.' && dr.rr[1] === 'Shtuar=Dje' && dr.pa, '3. "Dje": asnjë afat, butoni i fikur', dr);
+    await p.selectOption('#apShtuar', 'sot'); await p.waitForTimeout(100);
+    await p.selectOption('#apFurn', { label: 'Agro Fresh (3)' }); await p.waitForTimeout(100);
     dr = await dritarja(p);
-    ok(dr.nen === '1 afat · 1 faqe A4' && dr.rr[2] === 'Furnizuesi=Agro Fresh', '3. + "Agro Fresh": 1 afat', dr);
-    await p.selectOption('#apGjendja', 'ok'); await p.waitForTimeout(100);
-    dr = await dritarja(p);
-    ok(dr.nen === '1 afat · 1 faqe A4' && dr.rr[2] === 'Furnizuesi=Agro Fresh', '3. "Në rregull" + Agro Fresh: 1 (Ujë)', dr);
+    ok(dr.nen === '3 afate · 1 faqe A4' && dr.rr[1] === 'Shtuar=Sot' && dr.rr[2] === 'Furnizuesi=Agro Fresh', '3. "Sot" + "Agro Fresh": 3 afate', dr);
     await p.click('#apAnulo'); await p.waitForTimeout(200);
     // 4. PDF-ja me "Të gjitha"
     await p.click('#afExcel'); await p.click('#afEksPdf'); await p.waitForTimeout(300);
@@ -116,7 +116,7 @@ const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
     ok(dr.nen === '11 afate · 1 faqe A4' && dr.rr[0] === 'Periudha=Të gjitha', '4. hapet sërish me zgjedhjet fillestare', dr.nen);
     const f = await krijo(p);
     ok(f && f.emri === 'afatet_' + dita + '.pdf' && f.lloji === 'application/pdf' && f.tekst.startsWith('%PDF'), '4. PDF-ja (emri, lloji)', f && [f.emri, f.lloji]);
-    ok(faqet(f.tekst) === 1 && /\(Lista e afateve\)/.test(f.tekst) && /\(Periudha: \)/.test(f.tekst) && /\(T\xeb gjitha\)/.test(f.tekst) && /\(11\)/.test(f.tekst) && /\( produkte\)/.test(f.tekst) && /\(80\)/.test(f.tekst) && !/Printuar/.test(f.tekst) && /\(https:\/\/stoku\.site\)/.test(f.tekst) && !/\(Faqja \d/.test(f.tekst), '4. 1 faqe: "Lista e afateve", "Periudha: Të gjitha", poshtë vetëm "https://stoku.site" (v313)');
+    ok(faqet(f.tekst) === 1 && /\(Lista e afateve\)/.test(f.tekst) && /\(Periudha: \)/.test(f.tekst) && /\(T\xeb gjitha\)/.test(f.tekst) && /\(11\)/.test(f.tekst) && /\( produkte\)/.test(f.tekst) && /\(80\)/.test(f.tekst) && !/Printuar/.test(f.tekst) && !/stoku\.site/.test(f.tekst) && !/\(Faqja \d/.test(f.tekst) && !/Shtuar/.test(f.tekst), '4. 1 faqe: "Lista e afateve", "Periudha: Të gjitha", asgjë poshtë (v317)');
     ok(/\(Kos 500g\)/.test(f.tekst) && /\(Kaçkavall 300g\)/.test(f.tekst.replace(/\xe7/g, 'ç')) && !/Kos i hequr/.test(f.tekst) && /\(SKADON\)/.test(f.tekst) && /\(FURNIZUESI\)/.test(f.tekst),
       '4. rreshtat (pa të hequrin), kolonat deri te "SKADON"');
     ok(!/GJENDJA|Ka skaduar|Para 2 dit|\(Dje\)|\(Sot\)/.test(f.tekst), '4. pa kolonën "Gjendja" dhe pa legjendën (pronari: ditët s\'vlejnë të nesërmen)');
@@ -140,7 +140,7 @@ const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
     const dr = await dritarja(p);
     ok(dr.nen === '80 afate · 3 faqe A4', '5. 80 afate · 3 faqe', dr.nen);
     const f = await krijo(p);
-    ok(f && faqet(f.tekst) === 3 && (f.tekst.match(/\(https:\/\/stoku\.site\)/g) || []).length === 1 /* v300: fundi vetëm te faqja 1; v313: vetëm adresa */ &&/\(Periudha: \)/.test(f.tekst) && /\(80\)/.test(f.tekst) && /\(3240\)/.test(f.tekst) /* v299: të dhënat vetëm te faqja 1 */ && (f.tekst.match(/\(PRODUKTI\)/g) || []).length === 3 && /\(Produkti 80\)/.test(f.tekst), '5. 3 faqe, koka e tabelës në secilën, i fundit "Produkti 80"',
+    ok(f && faqet(f.tekst) === 3 && !/stoku\.site/.test(f.tekst) /* v317: asgjë poshtë në asnjë faqe */ &&/\(Periudha: \)/.test(f.tekst) && /\(80\)/.test(f.tekst) && /\(3240\)/.test(f.tekst) /* v299: të dhënat vetëm te faqja 1 */ && (f.tekst.match(/\(PRODUKTI\)/g) || []).length === 3 && /\(Produkti 80\)/.test(f.tekst), '5. 3 faqe, koka e tabelës në secilën, i fundit "Produkti 80"',
       f && { faqe: faqet(f.tekst), koka: (f.tekst.match(/\(PRODUKTI\)/g) || []).length });
     fs.writeFileSync(__dirname + '/v275-shume.pdf', Buffer.from(f.b64, 'base64'));
     ok(!p.__gab.length, '5. pa gabime JS', p.__gab);

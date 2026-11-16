@@ -1561,14 +1561,15 @@
   </div>
 </div>
 
-<!-- v301: "PDF për printim" (si te telefoni: Periudha, Gjendja, Furnizuesi, Renditja) -->
+<!-- v301: "PDF për printim" (si te telefoni: Periudha, Shtuar, Furnizuesi, Renditja; v317 pa Gjendja) -->
 <div class="mbulese" id="dlgAfPdf">
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="apTitulli" style="max-width:460px">
     <div class="dialog-krye"><h2 id="apTitulli">PDF për printim</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
     <div class="dialog-trup">
       <p class="ops-hint" id="apNen" style="margin:0 0 14px"></p>
       <label class="fushe"><span>Periudha</span><select class="inp" id="apPeriudha"></select></label>
-      <label class="fushe"><span>Gjendja</span><select class="inp" id="apGjendja"></select></label>
+      <label class="fushe"><span>Shtuar</span><select class="inp" id="apShtuar"></select></label>
+      <div class="ap-datat-pc" id="apDatat" style="display:none;gap:10px"><label class="fushe" style="flex:1"><span>Nga</span><input class="inp" type="date" id="apNga"></label><label class="fushe" style="flex:1"><span>Deri</span><input class="inp" type="date" id="apDeri"></label></div>
       <label class="fushe furn-vetem"><span>Furnizuesi</span><select class="inp" id="apFurn"></select></label>
       <label class="fushe"><span>Renditja</span><select class="inp" id="apRend"></select></label>
     </div>
@@ -2071,13 +2072,13 @@
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=8"></script>
 <script src="afatet.js?v=295"></script>
-<script src="eksportet.js?v=313"></script>
+<script src="eksportet.js?v=317"></script>
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
 <script src="ekipa.js?v=316"></script>
 <script src="temat.js?v=2"></script>
-<script src="teRejat.js?v=316"></script>
-<script src="app-pc.js?v=315"></script>
+<script src="teRejat.js?v=317"></script>
+<script src="app-pc.js?v=317"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
 

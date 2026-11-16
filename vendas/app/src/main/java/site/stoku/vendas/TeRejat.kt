@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(79, "2026-11-16", "PDF e afateve", listOf(
+            "Te \"Eksporto PDF\" rreshti \"Gjendja\" u zëvendësua me \"Shtuar\": zgjedh afatet sipas ditës kur i ke shtuar (Sot, Dje, 7, 14 ose 30 ditët e fundit), ose \"Zgjidh datat\" për një ditë a disa ditë sipas dëshirës.",
+            "Poshtë faqeve të PDF-së s'del më asgjë, dhe tabela e faqes së parë shkon deri poshtë."
+        )),
         Hyrja(78, "2026-11-16", "Ora e dorës", listOf(
             "Te Cilësimet → Ora e dorës, kur ora është e lidhur, tani del cila orë është, kur u lidh, kur ishte aktive dhe versioni. Ora shkëputet direkt nga telefoni me \"Shkëput orën\".",
             "Kur e ndryshon emrin e përdoruesit, ora e merr vetë emrin e ri, pa e lidhur prapë.",

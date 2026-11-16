@@ -20,6 +20,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 317, versioni: '1.63.3', data: '2026-11-16', titulli: 'PDF e afateve', pikat: [
+      'Te "Eksporto PDF" rreshti "Gjendja" u zëvendësua me "Shtuar": zgjedh afatet sipas ditës kur i ke shtuar (Sot, Dje, 7, 14 ose 30 ditët e fundit), ose "Zgjidh datat" për një ditë a disa ditë sipas dëshirës.',
+      'Poshtë faqeve të PDF-së s\'del më asgjë, dhe tabela e faqes së parë shkon deri poshtë.',
+      'PDF-ja nga telefoni tani është shumë më e vogël (rreth 25 herë), si ajo e aplikacionit Android.'
+    ] },
     { v: 316, versioni: '1.63.2', data: '2026-11-16', titulli: 'Ora e dorës', platforma: 'tel', pikat: [
       'Te Cilësimet → Ora e dorës, kur ora është e lidhur, tani del cila orë është, kur u lidh, kur ishte aktive dhe versioni. Ora shkëputet direkt nga telefoni me "Shkëput orën".',
       'Kur e ndryshon emrin e përdoruesit, ora e merr vetë emrin e ri, pa e lidhur prapë.',
