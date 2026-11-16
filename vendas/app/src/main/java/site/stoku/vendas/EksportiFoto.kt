@@ -40,13 +40,6 @@ object EksportiFoto {
         c(0xf07a6f), c(0xf0b95a), c(0x5cc98b), c(0x2a2414), c(0xf5b942), c(0xffffff), c(0xffffff), c(0x0f1115))
     val CELET = Ngjyrat(c(0xf6f5f2), c(0xffffff), c(0xe6e4df), c(0xe6e4df), c(0x14161b), c(0x3a3d44), c(0x7a7d85), c(0x8a8d94),
         c(0xc23a33), c(0xa45f10), c(0x2e7d4f), c(0xfcefd9), c(0xa45f10), c(0x14161b), c(0x14161b), c(0xffffff))
-    private val VERDHE = c(0xf5b942)
-    private val ZI = c(0x14161b)
-
-    // Logoja (logo/stoku-logo.svg): shiritat e barkodit (x, gjerësia; i pesti i verdhë) dhe shkronjat "stoku"
-    private val SHIRITAT = listOf(14f to 3f, 19f to 2f, 23f to 4f, 29f to 2f, 33f to 3f, 38f to 2f, 42f to 4f, 48f to 2f)
-    private val SHKRONJAT = listOf("M76 20H65a5 5 0 0 0 0 10h6a5 5 0 0 1 0 10H60", "M91 12v23a5 5 0 0 0 5 5h3M86 20h11",
-        "M140.5 12v28M152.5 20l-12 11M145 26.9l8.5 13.1", "M164.5 20v10a10 10 0 0 0 20 0M184.5 20v20")
 
     /** Ditët djathtas te çdo rresht: "−2 / ditë më parë", "Sot / skadon", "12 / ditë", "2 / muaj" */
     class Ditet(val m: String, val v: String, val k: String)
@@ -119,29 +112,32 @@ object EksportiFoto {
         p.style = Paint.Style.FILL
     }
 
-    /** Logoja "stoku" (shenja + shkronjat), e lartë h, me ngjyrën e shkronjave C.logo (edhe për PDF-në e afateve) */
+    /** Hyrja 75 (web v313): logoja 60 me ngjyrat e zgjedhura (Cilësimet → Pamja → Logoja), e lartë h; shkronjat me C.logo (edhe për PDF-në) */
     internal fun Canvas.logo(p: Paint, x: Float, y: Float, h: Float, C: Ngjyrat) {
-        val k = h / 52f
+        val v = site.stoku.vendas.ui.Logot.varianti(Opsionet.logoja.value)
+        val erret = C === ERRET
+        val f = c(if (erret) v.dk else v.br); val a = c(if (erret) v.acD else v.acL)
+        val k = h / site.stoku.vendas.ui.Logot.LOGO_H
         save(); translate(x, y); scale(k, k)
-        save(); translate(0f, 4f); scale(0.6875f, 0.6875f)
-        kendi(p, 0f, 0f, 64f, 64f, 15f, ZI)
-        p.strokeWidth = 1.5f; kendi(p, 0.75f, 0.75f, 62.5f, 62.5f, 14.25f, 0x29FFFFFF, vije = true)
-        SHIRITAT.forEachIndexed { i, (bx, bw) -> kendi(p, bx, 16f, bw, 32f, 1f, if (i == 4) VERDHE else -1) }
-        restore()
-        p.color = C.logo; p.style = Paint.Style.STROKE; p.strokeWidth = 5f
-        p.strokeCap = Paint.Cap.ROUND; p.strokeJoin = Paint.Join.ROUND
-        SHKRONJAT.forEach { d -> try { drawPath(PathParser.createPathFromPathData(d), p) } catch (e: Exception) { } }
-        drawCircle(119.5f, 30f, 10f, p)
         p.style = Paint.Style.FILL
+        site.stoku.vendas.ui.Logot.logoShenja.forEach { sh -> p.color = if (sh.rol == 'a') a else f; p.alpha = (sh.o * 255).roundToInt(); mbush(sh.d, p) }
+        p.color = C.logo; mbush(site.stoku.vendas.ui.Logot.FJALA, p)
+        p.color = a; mbush(site.stoku.vendas.ui.Logot.PIKA, p)
         restore()
     }
-    private fun Canvas.shenja(p: Paint, x: Float, y: Float, s: Float, C: Ngjyrat) {
+    /** Ikona e vogël e aplikacionit (si te telefoni) në fund të fotos */
+    private fun Canvas.shenja(p: Paint, x: Float, y: Float, s: Float) {
+        val v = site.stoku.vendas.ui.Logot.varianti(Opsionet.logoja.value)
         val k = s / 64f
         save(); translate(x, y); scale(k, k)
-        kendi(p, 0f, 0f, 64f, 64f, 15f, C.markBg)
-        SHIRITAT.forEachIndexed { i, (bx, bw) -> kendi(p, bx, 16f, bw, 32f, 1f, if (i == 4) VERDHE else C.markBar) }
+        p.style = Paint.Style.FILL
+        p.color = c(v.bg); mbush("M15 0h34a15 15 0 0 1 15 15v34a15 15 0 0 1-15 15H15A15 15 0 0 1 0 49V15A15 15 0 0 1 15 0Z", p)
+        translate(6.4f, 6.4f); scale(0.8f, 0.8f)
+        site.stoku.vendas.ui.Logot.shenja.forEach { sh -> p.color = c(if (sh.rol == 'a') v.ac else v.fg); p.alpha = (sh.o * 255).roundToInt(); mbush(sh.d, p) }
+        p.alpha = 255
         restore()
     }
+    private fun Canvas.mbush(d: String, p: Paint) { try { drawPath(PathParser.createPathFromPathData(d), p) } catch (e: Exception) { } }
 
     private class Rreshti(val em: List<String>, val b: String, val info: String, val d: Ditet, val h: Float)
 
@@ -213,7 +209,7 @@ object EksportiFoto {
         y += 24f
         p.color = C.line; cv.drawRect(P, y, W - P, y + 1f, p)
         y += 1f + 16f
-        cv.shenja(p, P, y, 18f, C)
+        cv.shenja(p, P, y, 18f)
         p.font(f, 12f, 500); cv.tekst(p, "Krijuar me Stoku · stoku.site", P + 26f, y + 9f, C.faint)
         cv.tekst(p, (if (pjesa.isNotEmpty()) "$pjesa · " else "") + "ora $ora", W - P, y + 9f, C.faint, djathtas = true)
         return bmp

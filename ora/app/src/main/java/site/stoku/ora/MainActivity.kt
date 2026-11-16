@@ -170,14 +170,11 @@ fun Lidhja(kurLidhet: () -> Unit) {
     }
 }
 
+// v313: logoja 60 (shenja + "stoku" + pika), si te telefoni (res/drawable/logo_stoku.xml nga teste/logot-gjenero.py)
 @Composable
 fun Logo() {
     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        androidx.compose.foundation.layout.Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(12.dp).background(Verdhe, androidx.compose.foundation.shape.RoundedCornerShape(3.dp)))
-            Spacer(Modifier.size(6.dp))
-            Text("STOKU", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 2.sp, color = Color.White)
-        }
+        androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(R.drawable.logo_stoku), "Stoku", Modifier.height(18.dp))
     }
 }
 

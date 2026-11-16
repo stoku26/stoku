@@ -62,6 +62,12 @@
     if (e >= 2 && e <= 10) document.documentElement.setAttribute('data-ngj-e', String(e));
     if (c >= 2 && c <= 10) document.documentElement.setAttribute('data-ngj-c', String(c));
   })();
+  // v313: logoja e zgjedhur (Cilësimet → Pamja → Logoja), para vizatimit; si logot.js zbato()
+  (function () {
+    var id = null;
+    try { id = localStorage.getItem('stoku:logoja'); } catch (e) {}
+    if (id && /^60-([1-9]|1[0-9]|2[0-4])$/.test(id)) document.documentElement.setAttribute('data-logo', id);
+  })();
   // iPhone në Safari (jo nga ekrani kryesor): shiriti i Safari-t poshtë e mbulon vetë zonën e "home indicator",
   // ndërsa Safari (iOS 26) e raporton prapë env(safe-area-inset-bottom) dhe tabet ngriheshin shumë lart.
   // Atje hapësira poshtë = 0 (--sab), që tabet të rrinë sa më poshtë; në aplikacionin e instaluar mbetet env().

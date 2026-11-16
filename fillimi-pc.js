@@ -36,6 +36,12 @@
     if (e >= 2 && e <= 10) document.documentElement.setAttribute('data-ngj-e', String(e));
     if (c >= 2 && c <= 10) document.documentElement.setAttribute('data-ngj-c', String(c));
   })();
+  // v313: logoja e zgjedhur (Cilësimet → Pamja → Logoja), para vizatimit; si logot.js zbato()
+  (function () {
+    var id = null;
+    try { id = localStorage.getItem('stoku:logoja'); } catch (e) {}
+    if (id && /^60-([1-9]|1[0-9]|2[0-4])$/.test(id)) document.documentElement.setAttribute('data-logo', id);
+  })();
 
 // v238: emri i llogarisë së fundit poshtë logos, që në vizatimin e parë (si skripti i vjetër brenda HTML-së): elementi
 // s'ekziston ende kur lexohet ky skedar, prandaj e vendos një MutationObserver sapo parseri ta krijojë

@@ -975,6 +975,8 @@
     var z = zgjedhjaETemes();
     // v310: "Ngjyrat" (te "E errët" vetëm të errëtat, te "E çelët" vetëm të çelëtat, te "Automatike" të dyja)
     if (window.StokuTemat) window.StokuTemat.vizato($('temaNgjyrat'), z, function () { rifreskoMetaTemen(); rifreskoStatusetOpsioneve(); ruajPamjenNeLlogari(); });
+    // v313 (pronari: "krejta qeto te cilesimet > pamja ni opsion minimized"): 25 kombinimet e logos 60, ruhen edhe te llogaria
+    if (window.StokuLogot) window.StokuLogot.vizato($('pamjaLogoja'), function () { rifreskoStatusetOpsioneve(); ruajPamjenNeLlogari(); });
     Array.prototype.forEach.call(document.querySelectorAll('#segTema button'), function (b) {
       b.classList.toggle('aktiv', b.getAttribute('data-v') === z);
     });
@@ -991,11 +993,12 @@
   function ruajPamjenNeLlogari() { try { if (typeof ekK !== 'undefined' && ekK && ekK.pamjaNdryshoi) ekK.pamjaNdryshoi(); } catch (e) { /* ok */ } }
   function pamjaTani() {
     var n = window.StokuTemat ? window.StokuTemat.lexo() : { e: 1, c: 1 };
-    return { tema: zgjedhjaETemes(), e: n.e, c: n.c };
+    return { tema: zgjedhjaETemes(), e: n.e, c: n.c, logo: window.StokuLogot ? window.StokuLogot.lexo() : '60' }; // v313: + logoja
   }
   function vendosPamjen(p) {
     try { if (p.tema === 'auto') localStorage.removeItem(KEY_TEMA); else localStorage.setItem(KEY_TEMA, p.tema); } catch (e) { /* ok */ }
     if (window.StokuTemat) window.StokuTemat.ruaj({ e: p.e, c: p.c });
+    if (window.StokuLogot && p.logo) { window.StokuLogot.ruaj(p.logo); window.StokuLogot.zbato(); } // v313
     zbatoTemen();
     rifreskoStatusetOpsioneve();
   }
@@ -1714,7 +1717,8 @@
   // Dialogu i opsioneve
   function rifreskoStatusetOpsioneve() {
     $('tabPamjaStatus').textContent = T(zgjedhjaETemes() === 'dark' ? 'eErret' : (zgjedhjaETemes() === 'light' ? 'eCelet' : 'automatike')) +
-      (window.StokuTemat && zgjedhjaETemes() !== 'auto' ? ' · ' + window.StokuTemat.emri(zgjedhjaETemes()) : ''); // v310
+      (window.StokuTemat && zgjedhjaETemes() !== 'auto' ? ' · ' + window.StokuTemat.emri(zgjedhjaETemes()) : '') + // v310
+      (window.StokuLogot && window.StokuLogot.lexo() !== window.StokuLogot.PARAZGJEDHJA ? ' · logoja ' + window.StokuLogot.lexo() : ''); // v313
     $('tabSkenimiStatus').textContent = T(opsione.pda ? 'pdaStatusNdezur' : 'pdaStatusFikur');
     rifreskoStatusinEStokut();
     var u = perdoruesiAktual();
@@ -2223,7 +2227,11 @@
   document.addEventListener('visibilitychange', function () { if (!document.hidden) zbatoHeqjetNgaOra(false).catch(function () { /* ok */ }); });
   window.addEventListener('stoku-cloud-gati', function () { setTimeout(function () { zbatoHeqjetNgaOra(true).catch(function () { /* ok */ }); }, 4000); });
   window.addEventListener('stoku-auth-ndryshoi', function () { setTimeout(function () { zbatoHeqjetNgaOra(true).catch(function () { /* ok */ }); }, 4000); });
-  $('njDitor').addEventListener('change', function () { ruajOrarin(this.checked); });
+  // v313: njoftimi ditor është i detyrueshëm: ndizet, por s'fiket
+  $('njDitor').addEventListener('change', function () {
+    if (!this.checked) { this.checked = true; toast('Njoftimi ditor është i detyrueshëm dhe s\'mund të fiket.'); return; }
+    ruajOrarin(true);
+  });
   // Ora 24-orëshe e shkruar me dorë: vetëm shifra, ":" vendoset vetë pas orës ("1705" → "17:05")
   function oraNgaTeksti(t) {
     var d = String(t || '').replace(/\D/g, '');
@@ -7882,7 +7890,7 @@
     if (nj.vetemNePerpara) return; // vjen si push nga Worker-i
     if (!njoftimetMbeshteten() || Notification.permission !== 'granted') return;
     navigator.serviceWorker.ready.then(function (reg) {
-      return reg.showNotification(nj.titulli, { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=3', badge: './logo/badge-96.png?v=1', vibrate: [180, 80, 180],
+      return reg.showNotification(nj.titulli, { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=4', badge: './logo/badge-96.png?v=2', vibrate: [180, 80, 180],
         data: { url: './index.html#grupi-' + (nj.pamja === 'anetaret' ? 'koleget' : nj.pamja === 'njoftimet' ? 'njoftimet' : 'afatet') } });
     }).catch(function () { /* ok */ });
   }
@@ -8864,18 +8872,63 @@
   // `window.__stokuPaNjoftime` e vendosin VETËM testet (teste/pw.js; headless e ka lejen "denied"): pa të, dritarja do t'i
   // bllokonte. Përdoruesi s'ka asnjë mënyrë ta shtyjë ("Jo tani" dhe 'stoku:njoftimet:jo-tani' u hoqën).
   var njRefuzuar = false; // shfletuesi e refuzoi kërkesën pa e ndryshuar lejen (p.sh. dritare private): tregohen udhëzimet
+  // v313 (pronari: "nese i ka nal njoftimet ma heret lypja edhe bonja te detyrushme secilit ... mos e le me kalu ne dritare tjeter pa
+  // i aktivizu"): (1) edhe "Njoftimi ditor" (kush ka lejen e afateve) duhet të jetë i ndezur: s'fiket më te Cilësimet dhe kush e kishte
+  // fikur pyetet sërish; kur ndezja s'ia del për shkak të serverit/internetit (jo të përdoruesit), dritarja pushon 30 min.
+  // (2) iPhone në Safari (pa Stoku në ekranin bazë, iOS 16.4+): njoftimet vijnë vetëm nga ekrani bazë, prandaj tregohet si shtohet.
+  var njDitorDeshtoi = 0;
+  function ditoriMungon() {
+    var e = ekipaCloud(), u = perdoruesiAktual();
+    if (!e || !e.orariIm || !e.vendosOrarin || !u || !u.uid || !leja('afatet')) return false;
+    if (Date.now() - njDitorDeshtoi < 30 * 60000) return false;
+    var o = e.orariIm();
+    return !(o && o.aktiv);
+  }
+  function iphonePaEkranBaze() {
+    var ua = navigator.userAgent || '';
+    if (!/iPhone|iPod/.test(ua) || njoftimetMbeshteten()) return false;
+    if (navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)) return false;
+    var m = /OS (\d+)_(\d+)/.exec(ua);
+    return !m || +m[1] > 16 || (+m[1] === 16 && +m[2] >= 4);
+  }
   function duhenNjoftimet() {
     if (window.__stokuPaNjoftime) return false;
-    return njoftimetMbeshteten() && !!perdoruesiAktual() && !ngaVizitori() && Notification.permission !== 'granted';
+    if (!perdoruesiAktual() || ngaVizitori()) return false;
+    if (iphonePaEkranBaze()) return true;
+    if (!njoftimetMbeshteten()) return false;
+    return Notification.permission !== 'granted' || ditoriMungon();
   }
   function pyetPerNjoftimet() {
     var d = $('dlgNjoftimet');
     if (!duhenNjoftimet()) { d.classList.remove('hapur'); return; }
     if (window.StokuPorta && window.StokuPorta.eHapur()) return;
-    var bll = Notification.permission === 'denied' || njRefuzuar;
+    var iph = iphonePaEkranBaze();
+    var bll = !iph && (Notification.permission === 'denied' || njRefuzuar);
+    $('njIphone').hidden = !iph;
     $('njBllokuar').hidden = !bll;
-    $('njAktivizo').textContent = bll ? 'I lejova, kontrollo sërish' : 'Aktivizo njoftimet';
+    $('njAktivizo').hidden = iph;
+    if (!$('njAktivizo').disabled) $('njAktivizo').textContent = bll ? 'I lejova, kontrollo sërish' : 'Aktivizo njoftimet';
     d.classList.add('hapur');
+  }
+  // Leja është dhënë, por njoftimi ditor është i fikur: ndizet (pa pritur "një herë për pajisje" si ndizDitorinNeseSKaOrar)
+  function ndizDitorinTani() {
+    var e = ekipaCloud(), b = $('njAktivizo'), u = perdoruesiAktual();
+    if (!e || !e.vendosOrarin || !u) return;
+    b.disabled = true; b.textContent = 'Duke aktivizuar…';
+    e.vendosOrarin({ aktiv: true, ora: oraEZgjedhur() }).then(function (r) {
+      b.disabled = false;
+      if (r && r.ok) {
+        try { localStorage.setItem(KEY_NJ_DITOR_AUTO, u.uid); } catch (x) { /* ok */ }
+        window.StokuNjoftimet.vendosOrarin(!!(e.orariPunon && e.orariPunon()));
+        if (e.dergoAfatetPerOrarin) e.dergoAfatetPerOrarin(afatetPerServerin());
+        toast('Njoftimet u aktivizuan.');
+      } else {
+        njDitorDeshtoi = Date.now();
+        toast(tekstiGabimitOrarit(r && r.arsye), 4500);
+      }
+      rifreskoOrarin();
+      pyetPerNjoftimet();
+    }).catch(function () { b.disabled = false; njDitorDeshtoi = Date.now(); pyetPerNjoftimet(); });
   }
   // Njoftimi ditor ndizet vetë herën e parë (ora 08:00 ose ajo e zgjedhur); kush e ka fikur vetë, mbetet i fikur
   var KEY_NJ_DITOR_AUTO = 'stoku:nj:ditor-auto';
@@ -8903,9 +8956,11 @@
     aktivizoPushin();
     kontrolloNjoftimet();
     ndizDitorinNeseSKaOrar();
+    setTimeout(pyetPerNjoftimet, 8000); // v313: nëse njoftimi ditor s'u ndez vetë, dritarja pyet sërish
   }
   $('njAktivizo').addEventListener('click', function () {
-    if (Notification.permission === 'granted') { pasLejesSeNjoftimeve(); return; }
+    if (!njoftimetMbeshteten()) return;
+    if (Notification.permission === 'granted') { if (ditoriMungon()) ndizDitorinTani(); else pasLejesSeNjoftimeve(); return; }
     if (Notification.permission === 'denied') { toast('Njoftimet janë ende të bllokuara. Lejoji te cilësimet (shiko tekstin më lart).', 4500); return; }
     var ishteRefuzuar = njRefuzuar;
     Promise.resolve(Notification.requestPermission()).then(function (p) {
@@ -8918,7 +8973,7 @@
   // Lejuar te cilësimet e telefonit dhe u kthye: dritarja mbyllet vetë
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) return;
-    if (njoftimetMbeshteten() && Notification.permission === 'granted' && $('dlgNjoftimet').classList.contains('hapur')) pasLejesSeNjoftimeve();
+    if (njoftimetMbeshteten() && Notification.permission === 'granted' && $('dlgNjoftimet').classList.contains('hapur') && !ditoriMungon()) pasLejesSeNjoftimeve();
     else setTimeout(pyetPerNjoftimet, 300);
   });
   window.addEventListener('stoku-auth-ndryshoi', function () { setTimeout(pyetPerNjoftimet, 1500); });

@@ -247,6 +247,7 @@ private fun Pamja(tema: String, ndryshoTemen: (String) -> Unit) {
     }
     if (tema != "light") GrupiNgjyrave(true, if (tema == "auto") "Ngjyrat e temës së errët" else "Ngjyrat")
     if (tema != "dark") GrupiNgjyrave(false, if (tema == "auto") "Ngjyrat e temës së çelët" else "Ngjyrat")
+    GrupiLogos()
     KartaOps {
         Text("Madhësia e shkronjave", style = tx(15, 700, n.ink, -0.005), modifier = Modifier.padding(bottom = 12.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -306,6 +307,48 @@ private fun GrupiNgjyrave(erret: Boolean, titulli: String) {
                             MiniaturaETemes(t.ngjyrat, Modifier.fillMaxWidth().height(40.dp))
                             Text(t.emri, style = txF(10.5f, 600, n.ink).copy(textAlign = TextAlign.Center, lineHeight = 12.6.sp),
                                 maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth().height(26.dp))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Hyrja 75 (web v313, pronari: "krejta qeto te cilesimet > pamja ni opsion minimized ... me ju bo synced ne llogari"): logoja 60
+// me 25 kombinime ngjyrash, rresht që hapet e mbyllet si "Ngjyrat"; zgjedhja ruhet te llogaria (Llogaria.ruajPamjen) dhe kthehet pas hyrjes.
+@Composable
+private fun GrupiLogos() {
+    val n = N
+    val aktivi by Opsionet.logoja.collectAsState()
+    var hapur by rememberSaveable { mutableStateOf(false) }
+    val v0 = Logot.varianti(aktivi)
+    val ik0 = remember(aktivi) { ikonaStoku(aktivi) }
+    val ikonat = remember { Logot.variantet.associate { it.id to ikonaStoku(it.id) } }
+    val f = RoundedCornerShape(20.dp)
+    Column(Modifier.padding(bottom = 12.dp).fillMaxWidth().clip(f).background(n.surface).border(1.dp, n.line, f)) {
+        Row(Modifier.fillMaxWidth().clickable { hapur = !hapur }.padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            androidx.compose.foundation.Image(ik0, null, Modifier.size(36.dp))
+            Column(Modifier.weight(1f)) {
+                Text("Logoja", style = tx(15, 700, n.ink))
+                Text("${v0.id} · ${v0.emri}", style = tx(13, 400, n.muted), modifier = Modifier.padding(top = 2.dp))
+            }
+            Icon(Ik.Poshte, null, tint = n.muted, modifier = Modifier.size(20.dp).graphicsLayer { rotationZ = if (hapur) 180f else 0f })
+        }
+        if (hapur) Column(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Logot.variantet.chunked(5).forEach { rr ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    rr.forEach { v ->
+                        val zgj = v.id == aktivi
+                        val fk = RoundedCornerShape(12.dp)
+                        Column(Modifier.weight(1f).clip(fk).background(if (zgj) n.accentTint else Color.Transparent)
+                            .border(if (zgj) 2.dp else 1.dp, if (zgj) n.accent else n.line, fk)
+                            .clickable { Opsionet.vendosLogon(v.id) }
+                            .padding(start = 4.dp, end = 4.dp, top = 6.dp, bottom = 5.dp), horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            androidx.compose.foundation.Image(ikonat.getValue(v.id), "Logoja ${v.id}, ${v.emri}", Modifier.size(44.dp))
+                            Text(v.id, style = txF(10.5f, 600, n.ink).copy(textAlign = TextAlign.Center), maxLines = 1, modifier = Modifier.fillMaxWidth())
                         }
                     }
                 }
