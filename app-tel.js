@@ -975,8 +975,6 @@
     var z = zgjedhjaETemes();
     // v310: "Ngjyrat" (te "E errët" vetëm të errëtat, te "E çelët" vetëm të çelëtat, te "Automatike" të dyja)
     if (window.StokuTemat) window.StokuTemat.vizato($('temaNgjyrat'), z, function () { rifreskoMetaTemen(); rifreskoStatusetOpsioneve(); ruajPamjenNeLlogari(); });
-    // v313 (pronari: "krejta qeto te cilesimet > pamja ni opsion minimized"): 25 kombinimet e logos 60, ruhen edhe te llogaria
-    if (window.StokuLogot) window.StokuLogot.vizato($('pamjaLogoja'), function () { rifreskoStatusetOpsioneve(); ruajPamjenNeLlogari(); });
     Array.prototype.forEach.call(document.querySelectorAll('#segTema button'), function (b) {
       b.classList.toggle('aktiv', b.getAttribute('data-v') === z);
     });
@@ -993,12 +991,11 @@
   function ruajPamjenNeLlogari() { try { if (typeof ekK !== 'undefined' && ekK && ekK.pamjaNdryshoi) ekK.pamjaNdryshoi(); } catch (e) { /* ok */ } }
   function pamjaTani() {
     var n = window.StokuTemat ? window.StokuTemat.lexo() : { e: 1, c: 1 };
-    return { tema: zgjedhjaETemes(), e: n.e, c: n.c, logo: window.StokuLogot ? window.StokuLogot.lexo() : '60' }; // v313: + logoja
+    return { tema: zgjedhjaETemes(), e: n.e, c: n.c };
   }
   function vendosPamjen(p) {
     try { if (p.tema === 'auto') localStorage.removeItem(KEY_TEMA); else localStorage.setItem(KEY_TEMA, p.tema); } catch (e) { /* ok */ }
     if (window.StokuTemat) window.StokuTemat.ruaj({ e: p.e, c: p.c });
-    if (window.StokuLogot && p.logo) { window.StokuLogot.ruaj(p.logo); window.StokuLogot.zbato(); } // v313
     zbatoTemen();
     rifreskoStatusetOpsioneve();
   }
@@ -1717,8 +1714,7 @@
   // Dialogu i opsioneve
   function rifreskoStatusetOpsioneve() {
     $('tabPamjaStatus').textContent = T(zgjedhjaETemes() === 'dark' ? 'eErret' : (zgjedhjaETemes() === 'light' ? 'eCelet' : 'automatike')) +
-      (window.StokuTemat && zgjedhjaETemes() !== 'auto' ? ' · ' + window.StokuTemat.emri(zgjedhjaETemes()) : '') + // v310
-      (window.StokuLogot && window.StokuLogot.lexo() !== window.StokuLogot.PARAZGJEDHJA ? ' · logoja ' + window.StokuLogot.lexo() : ''); // v313
+      (window.StokuTemat && zgjedhjaETemes() !== 'auto' ? ' · ' + window.StokuTemat.emri(zgjedhjaETemes()) : ''); // v310
     $('tabSkenimiStatus').textContent = T(opsione.pda ? 'pdaStatusNdezur' : 'pdaStatusFikur');
     rifreskoStatusinEStokut();
     var u = perdoruesiAktual();
@@ -7890,7 +7886,7 @@
     if (nj.vetemNePerpara) return; // vjen si push nga Worker-i
     if (!njoftimetMbeshteten() || Notification.permission !== 'granted') return;
     navigator.serviceWorker.ready.then(function (reg) {
-      return reg.showNotification(nj.titulli, { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=4', badge: './logo/badge-96.png?v=2', vibrate: [180, 80, 180],
+      return reg.showNotification(nj.titulli, { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=5', badge: './logo/badge-96.png?v=3', vibrate: [180, 80, 180],
         data: { url: './index.html#grupi-' + (nj.pamja === 'anetaret' ? 'koleget' : nj.pamja === 'njoftimet' ? 'njoftimet' : 'afatet') } });
     }).catch(function () { /* ok */ });
   }

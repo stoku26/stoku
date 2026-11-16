@@ -149,7 +149,7 @@
 .stk-etiketa { display: inline-flex; width: 152px; flex-direction: column; align-items: flex-start; gap: 4px; flex: none; max-width: 100%; box-sizing: border-box; padding: 0; border-radius: 6px; color: var(--sb-ink); font-family: 'Onest', system-ui, sans-serif; }
 /* v314 (pronari: "hiqja ikonen ... shkronja te mdhaja ... boxin permas hiqja"): vetëm shkronjat "stoku.", sa krejt gjerësia, pa kuti */
 .stk-etiketa__logo { margin: 0; }
-.stk-etiketa__nen { padding-left: 1px; }
+.stk-etiketa__nen { display: none !important; } /* v314 (pronari): emri i përdoruesit s'del më poshtë logos */
 .stk-etiketa__nen { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; font-weight: 500; letter-spacing: 1px; line-height: 1.2; color: var(--sb-muted); }
 
 /* Ikonat e folderave (afatet.js IKONAT_FOLDERAVE): ngjyrat .ngj-* përshtaten me temën */
@@ -207,10 +207,3 @@
 .tm-karta[aria-pressed="true"] { padding: 3px 3px 4px; border: 2px solid var(--sb-accent); background: var(--sb-accent-tint); }
 .tm-emri { display: block; min-height: 25px; font-size: 10.5px; line-height: 1.2; font-weight: 600; text-align: center; overflow-wrap: anywhere; }
 /* v313: Cilësimet → Pamja → Logoja (25 kombinimet e logos 60), si "Ngjyrat" */
-.lg-ik { display: flex; align-items: center; justify-content: center; }
-.lg-ik svg { display: block; width: 100%; max-width: 44px; height: auto; }
-.lg-ik--krye { flex: none; width: 36px; height: 36px; }
-.lg-ik--krye svg { width: 36px; height: 36px; }
-.lg-karta { align-items: center; padding: 6px 4px 5px; }
-.lg-karta[aria-pressed="true"] { padding: 5px 3px 4px; }
-.lg-karta .tm-emri { min-height: 0; font-variant-numeric: tabular-nums; }

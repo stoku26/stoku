@@ -37,15 +37,12 @@ object Opsionet {
     /** Hyrja 73 (web v311): "auto", "light" ose "dark"; ruhet edhe te llogaria (Llogaria.ruajPamjen) */
     val tema: StateFlow<String> get() = _tema
     fun vendosTemen(v: String) { _tema.value = v; StokuApp.vendosPref("tema", v); Llogaria.ruajPamjen() }
-    fun pamjaEParazgjedhur(): Boolean = _tema.value == "auto" && _ngjyratE.value == 1 && _ngjyratC.value == 1 &&
-        _logoja.value == site.stoku.vendas.ui.Logot.PARAZGJEDHJA
-    /** Nga llogaria (pa e ruajtur prapë): tema, ngjyrat dhe logoja që i ka zgjedhur përdoruesi në një pajisje tjetër */
-    fun zbatoPamjenNgaLlogaria(t: String?, e: Int?, c: Int?, logo: String? = null) {
+    fun pamjaEParazgjedhur(): Boolean = _tema.value == "auto" && _ngjyratE.value == 1 && _ngjyratC.value == 1
+    /** Nga llogaria (pa e ruajtur prapë): tema dhe ngjyrat që i ka zgjedhur përdoruesi në një pajisje tjetër */
+    fun zbatoPamjenNgaLlogaria(t: String?, e: Int?, c: Int?) {
         val tema = if (t == "light" || t == "dark") t else "auto"
         val ne = e?.takeIf { it in 1..10 } ?: 1
         val nc = c?.takeIf { it in 1..10 } ?: 1
-        val lg = site.stoku.vendas.ui.Logot.varianti(logo).id
-        if (_logoja.value != lg) { _logoja.value = lg; StokuApp.vendosPref("logoja", lg) }
         if (_tema.value != tema) { _tema.value = tema; StokuApp.vendosPref("tema", tema) }
         if (_ngjyratE.value != ne) { _ngjyratE.value = ne; StokuApp.vendosPref("ngjyrat_e", ne.toString()) }
         if (_ngjyratC.value != nc) { _ngjyratC.value = nc; StokuApp.vendosPref("ngjyrat_c", nc.toString()) }
@@ -58,14 +55,7 @@ object Opsionet {
     val ngjyratC: StateFlow<Int> get() = _ngjyratC
     fun vendosNgjyratE(n: Int) { if (n !in 1..10) return; _ngjyratE.value = n; StokuApp.vendosPref("ngjyrat_e", n.toString()); Llogaria.ruajPamjen() }
     fun vendosNgjyratC(n: Int) { if (n !in 1..10) return; _ngjyratC.value = n; StokuApp.vendosPref("ngjyrat_c", n.toString()); Llogaria.ruajPamjen() }
-    private val _logoja = MutableStateFlow(site.stoku.vendas.ui.Logot.varianti(StokuApp.prefsOse("logoja", site.stoku.vendas.ui.Logot.PARAZGJEDHJA)).id)
-    /** Hyrja 75 (web v313): logoja 60 me njërin nga 25 kombinimet e ngjyrave (Cilësimet → Pamja → Logoja); ruhet edhe te llogaria */
-    val logoja: StateFlow<String> get() = _logoja
-    fun vendosLogon(id: String) {
-        val v = site.stoku.vendas.ui.Logot.varianti(id).id
-        if (_logoja.value == v) return
-        _logoja.value = v; StokuApp.vendosPref("logoja", v); Llogaria.ruajPamjen()
-    }
+    // Hyrja 76 (web v314): zgjedhja e 25 logove (Hyrja 75) u hoq, pronari: "te cilesimet pamja qato logot komplet fshij"
 
     fun tastieraEFshehur(): Boolean = _pda.value && _paTastiere.value
 

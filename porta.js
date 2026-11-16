@@ -196,7 +196,7 @@
     '<div class="pk">' +
       // v313: logoja 60 me ngjyrat e zgjedhura në këtë pajisje (logot.js); pa të, skedarët me ngjyrat e parazgjedhura
       '<div class="pk-logo" role="img" aria-label="Stoku">' + (window.StokuLogot ? window.StokuLogot.svgLogo('stk-logo--porta') :
-        '<img class="pk-logo-cel" src="logo/stoku-logo.svg?v=4" alt="Stoku"><img class="pk-logo-err" src="logo/stoku-logo-dark.svg?v=4" alt="Stoku">') + '</div>' +
+        '<img class="pk-logo-cel" src="logo/stoku-logo.svg?v=5" alt="Stoku"><img class="pk-logo-err" src="logo/stoku-logo-dark.svg?v=5" alt="Stoku">') + '</div>' +
       '<p class="pk-nen" id="pkNen">Regjistrimi i mallit dhe i afateve të skadimit.</p>' +
       '<div class="pk-pritje" id="pkPritje"><div class="pk-rrotull"></div><div id="pkPritjeTekst">Duke u lidhur…</div></div>' +
       '<form id="pkForma" class="pk-fsheh" novalidate autocomplete="on">' +

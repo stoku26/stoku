@@ -28,12 +28,34 @@
             android:exported="true"
             android:launchMode="singleTask"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode|density"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Hyrja 76 (pronari: "4-shin kur e ka perdoruesi dark mode ... 5-shin e bon ne white mode ... mu ndrru edhe ikona e jashtme"):
+             dy hyrje në ekranin bazë; aplikacioni lë të ndezur vetëm atë të temës (IkonaJashtme.kt). E errëta e ndezur si parazgjedhje. -->
+        <activity-alias
+            android:name=".IkonaErret"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity-alias>
+        <activity-alias
+            android:name=".IkonaCelet"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_celet"
+            android:roundIcon="@mipmap/ic_launcher_celet"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
 
         <!-- Njoftimet push nga Worker-i stoku-push (Firebase Cloud Messaging) -->
         <service

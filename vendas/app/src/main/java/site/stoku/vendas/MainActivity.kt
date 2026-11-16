@@ -146,6 +146,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
+        IkonaJashtme.perditeso(applicationContext) // Hyrja 76: ikona e ekranit bazë sipas temës (e errët / e çelët)
         if (!StokuApp.moduletNisur) return
         Sinkronizimi.dergoNesePret() // ndryshimi i fundit shkon në cloud edhe kur aplikacioni kalon në sfond
         Grupi.vendosPerpara(false)

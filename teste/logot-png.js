@@ -1,4 +1,4 @@
-// v313: PNG-të e logos 60 nga SVG-të që shkruan teste/logot-gjenero.py (pas tij): node teste/logot-png.js
+// v314: PNG-të e logos dhe ikonës nga SVG-të që shkruan teste/logot-gjenero.py (pas tij): node teste/logot-png.js
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('./pw.js');
@@ -7,8 +7,8 @@ const lx = f => fs.readFileSync(path.join(RR, f), 'utf8');
 const PUNET = [
   // [burimi, dalja, gjerësia, lartësia]
   ['logo/favicon.svg', 'logo/favicon-32.png', 32, 32],
-  ['logo/favicon.svg', 'icon-192.png', 192, 192],
-  ['logo/favicon.svg', 'icon-512.png', 512, 512],
+  ['logo/stoku-icon.svg', 'icon-192.png', 192, 192],
+  ['logo/stoku-icon.svg', 'icon-512.png', 512, 512],
   ['logo/stoku-icon-square.svg', 'apple-touch-icon.png', 180, 180],
   ['logo/stoku-icon-square.svg', 'logo/icon-maskable-512.png', 512, 512],
   ['logo/stoku-mono.svg', 'logo/badge-96.png', 96, 96]

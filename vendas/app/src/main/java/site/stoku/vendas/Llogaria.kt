@@ -129,7 +129,7 @@ object Llogaria {
             if (s.metadata.hasPendingWrites()) return@addSnapshotListener // jehona e ndryshimit tim
             if (!s.exists() && s.metadata.isFromCache) return@addSnapshotListener
             val x = s.get("pamja") as? Map<*, *>
-            if (x != null) Opsionet.zbatoPamjenNgaLlogaria(x["tema"] as? String, (x["e"] as? Number)?.toInt(), (x["c"] as? Number)?.toInt(), x["logo"] as? String)
+            if (x != null) Opsionet.zbatoPamjenNgaLlogaria(x["tema"] as? String, (x["e"] as? Number)?.toInt(), (x["c"] as? Number)?.toInt())
             else if (!s.metadata.isFromCache && !Opsionet.pamjaEParazgjedhur()) ruajPamjen()
         }
     }
@@ -138,7 +138,7 @@ object Llogaria {
     fun ruajPamjen() {
         val p = _perdoruesi.value ?: return
         val te = mapOf("pamja" to mapOf("tema" to Opsionet.tema.value, "e" to Opsionet.ngjyratE.value, "c" to Opsionet.ngjyratC.value,
-            "logo" to Opsionet.logoja.value, "t" to System.currentTimeMillis())) // Hyrja 75: + logoja
+            "t" to System.currentTimeMillis()))
         try { db.collection("perdoruesit").document(p.uid).set(te, SetOptions.merge()) } catch (e: Exception) { }
     }
 
