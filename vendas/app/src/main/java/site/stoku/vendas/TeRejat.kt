@@ -8,6 +8,11 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(78, "2026-11-16", "Ora e dorës", listOf(
+            "Te Cilësimet → Ora e dorës, kur ora është e lidhur, tani del cila orë është, kur u lidh, kur ishte aktive dhe versioni. Ora shkëputet direkt nga telefoni me \"Shkëput orën\".",
+            "Kur e ndryshon emrin e përdoruesit, ora e merr vetë emrin e ri, pa e lidhur prapë.",
+            "Në orë: \"8 deri 30 ditë\" është tani një buton që hapet me prekje, dhe titulli \"Për t'u hequr\" u hoq. Kur s'ka asgjë për t'u hequr këtë javë, lart del me të gjelbër."
+        )),
         Hyrja(77, "2026-11-16", "Heqja nga rafti dhe ngjyrat", listOf(
             "Kur i kërkon një kolegu ta heqë një produkt nga rafti dhe ai shtyp \"E hoqa nga rafti\", produkti te Afatet e tua tani shënohet vetë i hequr (me emrin e tij).",
             "Te Cilësimet → Pamja → Ngjyrat: \"Trëndafili\" u zëvendësua me \"Portokalli\" (edhe te temat e çelëta) dhe \"Mokë\" me \"Cyan\". Secila ngjyrë tani tregohet me \"stoku.\" dhe një buton me ngjyrën e saj."

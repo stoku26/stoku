@@ -50,7 +50,7 @@ const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databa
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
 const PUSH_MAKS = 36;
-const VERSIONI_WORKER = 172; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 173; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 const W = {
@@ -276,6 +276,8 @@ async function afatetPaTeHequrat(env, uid) {
   const ids = new Set(hq.map(x => x.i));
   return af.filter(a => !a.i || !ids.has(a.i));
 }
+function tekstOres(x) { return typeof x === 'string' ? x.replace(/[\u0000-\u001f]/g, '').trim().slice(0, 60) : ''; }
+function numerOres(x) { const n = parseInt(x, 10); return Number.isFinite(n) && n > 0 && n < 100000 ? n : 0; }
 function oretELidhura(v) { try { const a = JSON.parse(v || '[]'); return Array.isArray(a) ? a.filter(x => typeof x === 'string') : []; } catch (e) { return []; } }
 function shtoDite(iso, n) { const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
 async function trajtoOren(req, env, rruga, pergjigju) {
@@ -286,9 +288,37 @@ async function trajtoOren(req, env, rruga, pergjigju) {
     if (!KODI_RE.test(t.kodi || '') || !SEKRET_RE.test(t.sekret || '')) return pergjigju({ ok: false, arsye: 'forma' }, 400);
     const h = await sha256Hex(t.sekret), para = await env.FOTO.get('ora-kodi:' + t.kodi, 'json');
     if (para && para.h !== h) return pergjigju({ ok: false, arsye: 'zene' }, 409);
-    if (!para) await env.FOTO.put('ora-kodi:' + t.kodi, JSON.stringify({ h, koha: Date.now() }), { expirationTtl: 900 });
+    // v173: modeli i orës dhe versioni i aplikacionit (telefoni i tregon te "Ora e dorës")
+    if (!para) await env.FOTO.put('ora-kodi:' + t.kodi, JSON.stringify({ h, koha: Date.now(), model: tekstOres(t.model), v: numerOres(t.v) }), { expirationTtl: 900 });
     const tok = await env.FOTO.get('ora-tok:' + h, 'json');
     return pergjigju({ ok: true, lidhur: !!tok, emri: tok ? tok.emri || '' : '' });
+  }
+  // v173 (pronari: "kur osht i lidht me oren ... me te tregu me qfar ore osht e lidh ... me mujt me shkput prej appit tel"):
+  // /ora/oret = orët e lidhura të llogarisë; /ora/shkeput-tel {id} = shkëputja nga telefoni; /ora/emri {emri} = emri i ri i
+  // llogarisë te orët ("kur dikush po e ndrrojke username ... me ta qit userin e ri"), pa e lidhur orën prapë.
+  if (rruga === '/ora/oret' || rruga === '/ora/shkeput-tel' || rruga === '/ora/emri') {
+    const uid = await verifikoTokenin((req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, ''));
+    if (!uid) return pergjigju({ ok: false, arsye: 'pa-hyrje' }, 401);
+    const ka = await env.FOTO.get('ora-ka:' + uid), hashet = ka && ka !== '1' ? oretELidhura(ka) : [];
+    const oret = [];
+    for (const h of hashet) { const tk = await env.FOTO.get('ora-tok:' + h, 'json'); if (tk && tk.uid === uid) oret.push({ h, tk }); }
+    if (rruga === '/ora/oret') {
+      return pergjigju({ ok: true, oret: oret.map(o => ({ id: o.h.slice(0, 16), model: o.tk.model || '', koha: o.tk.koha || 0, aktiv: o.tk.aktiv || o.tk.koha || 0, v: o.tk.v || 0, emri: o.tk.emri || '' })) });
+    }
+    if (rruga === '/ora/shkeput-tel') {
+      const id = String(t.id || '');
+      const o = id.length === 16 ? oret.find(x => x.h.slice(0, 16) === id) : null;
+      if (!o) return pergjigju({ ok: false, arsye: 'pa-ore' }, 404);
+      await env.FOTO.delete('ora-tok:' + o.h);
+      const mbeten = hashet.filter(x => x !== o.h);
+      if (mbeten.length) await env.FOTO.put('ora-ka:' + uid, JSON.stringify(mbeten)); else await env.FOTO.delete('ora-ka:' + uid);
+      return pergjigju({ ok: true });
+    }
+    const emri = String(t.emri || '').slice(0, 60);
+    if (!emri) return pergjigju({ ok: false, arsye: 'emri' }, 400);
+    let n = 0;
+    for (const o of oret) if (o.tk.emri !== emri) { o.tk.emri = emri; await env.FOTO.put('ora-tok:' + o.h, JSON.stringify(o.tk)); n++; }
+    return pergjigju({ ok: true, n });
   }
   if (rruga === '/ora/lidh' || rruga === '/ora/hequrat') {
     const token = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
@@ -301,7 +331,7 @@ async function trajtoOren(req, env, rruga, pergjigju) {
       if (!k || Date.now() - k.koha > 900000) return pergjigju({ ok: false, arsye: 'kodi' }, 404);
       // rt = refresh token i llogarisë: me të ora vepron si përdoruesi (kërkesat te ekipa), sipas rregullave të Firestore
       const rt = typeof t.rt === 'string' && t.rt.length > 20 && t.rt.length < 2000 ? t.rt : '';
-      await env.FOTO.put('ora-tok:' + k.h, JSON.stringify({ uid, emri: String(t.emri || '').slice(0, 60), rt, koha: Date.now() }));
+      await env.FOTO.put('ora-tok:' + k.h, JSON.stringify({ uid, emri: String(t.emri || '').slice(0, 60), rt, koha: Date.now(), aktiv: Date.now(), model: k.model || '', v: k.v || 0 }));
       // ora-ka: lista e orëve të lidhura (hash-et e sekreteve), që shkëputja e njërës të mos e fshijë për të tjerat
       await env.FOTO.put('ora-ka:' + uid, JSON.stringify(Array.from(new Set(oretELidhura(await env.FOTO.get('ora-ka:' + uid)).concat([k.h])))));
       await env.FOTO.delete('ora-kodi:' + kodi);
@@ -324,6 +354,12 @@ async function trajtoOren(req, env, rruga, pergjigju) {
   const uid = tok.uid;
   if (rruga === '/ora/sot' && req.method === 'GET') {
     const u = new URL(req.url), tz = u.searchParams.get('tz') || 'Europe/Belgrade';
+    // v173: "hera e fundit aktive", versioni dhe modeli: shkruhen më së shumti një herë në orë (kufiri i shkrimeve të KV-së)
+    const vO = numerOres(u.searchParams.get('v')), mO = tekstOres(u.searchParams.get('m'));
+    if (Date.now() - (tok.aktiv || 0) > 3600000 || (vO && vO !== tok.v) || (mO && mO !== tok.model)) {
+      tok.aktiv = Date.now(); if (vO) tok.v = vO; if (mO) tok.model = mO;
+      try { await env.FOTO.put('ora-tok:' + await sha256Hex(sekret), JSON.stringify(tok)); } catch (e) { /* kufiri i KV-së: herën tjetër */ }
+    }
     const sot = kohaLokale(Date.now(), tzIVlefshem(tz) ? tz : 'Europe/Belgrade').dita, javaFund = shtoDite(sot, 7);
     const af = await afatetPaTeHequrat(env, uid);
     const lista = af.filter(a => a.d === sot).sort((x, y) => (x.e || '').localeCompare(y.e || '')).slice(0, 60);

@@ -635,6 +635,21 @@
         return r;
       } catch (e) { return { ok: false, arsye: 'rrjeti' }; }
     }
+    // v316 (Worker 173): orët e lidhura (modeli, kur u lidh, hera e fundit aktive, versioni), shkëputja nga telefoni dhe emri i ri.
+    // Serveri i vjetër (pa këto rrugë) kthen arsye 'http-404' ose 'pa-rruge': faqja mbetet me kutinë e kodit si më parë.
+    async function oretELidhura() {
+      if (!uid()) return { ok: false, arsye: 'pa-hyrje' };
+      try { var r = await thirrOrarin({}, '/ora/oret'); if (r && r.ok && r.oret) { var e = emri(); if (e && r.oret.some(function (o) { return o.emri !== e; })) thirrOrarin({ emri: e }, '/ora/emri').catch(function () {}); } return r; }
+      catch (e) { return { ok: false, arsye: 'rrjeti' }; }
+    }
+    async function shkeputOrenNgaTel(id) {
+      if (!uid()) return { ok: false, arsye: 'pa-hyrje' };
+      try { return await thirrOrarin({ id: String(id || '') }, '/ora/shkeput-tel'); } catch (e) { return { ok: false, arsye: 'rrjeti' }; }
+    }
+    async function emriTeOret() {
+      if (!uid() || !emri()) return { ok: false };
+      try { return await thirrOrarin({ emri: emri() }, '/ora/emri'); } catch (e) { return { ok: false, arsye: 'rrjeti' }; }
+    }
     var heqjetOraKoha = 0;
     async function merrHeqjetNgaOra(detyro) {
       if (!uid() || (!detyro && Date.now() - heqjetOraKoha < 120000)) return [];
@@ -1480,7 +1495,7 @@
       aktivizoPush: aktivizoPush,
       caktivizoPush: caktivizoPush, pastroOrarinEJetim: pastroOrarinEJetim, lejoPushinEGrupit: lejoPushinEGrupit,
       pushAktiv: pushAktiv, pushPerNjoftimet: pushPerNjoftimet,
-      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 172,
+      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, oretELidhura: oretELidhura, shkeputOrenNgaTel: shkeputOrenNgaTel, emriTeOret: emriTeOret, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 173,
 
       // ---------- Kujtesa e produkteve e grupit (v197): grupet/{g}/kujtesa/{p0..p9, px} → { p: { barkodi: {e,f,k,a,m,x} } } ----------
       // E ndarë sipas shifrës së fundit të barkodit (çdo dokument ≤ 1 MB), që të nxërë dhjetëra mijëra produkte.
@@ -3462,7 +3477,8 @@
         if (!e || !e.ruajPamjen || !o.uidIm() || !o.pamjaTani) return;
         e.ruajPamjen(Object.assign({}, pamjaEPastert(o.pamjaTani()), { t: Date.now() })).catch(function () { /* herën tjetër */ });
       },
-      pasNdryshimitTeEmrit: function () { if (o.uidIm()) Emrat.vendosAktuale([{ uid: o.uidIm(), emri: o.emriIm() }]); nisFtesatEMia(); }, // v308
+      pasNdryshimitTeEmrit: function () { if (o.uidIm()) Emrat.vendosAktuale([{ uid: o.uidIm(), emri: o.emriIm() }]); nisFtesatEMia();
+        var e = E(); if (e && e.emriTeOret) e.emriTeOret().catch(function () { /* ok */ }); }, // v308; v316: emri i ri edhe te ora
       eshtePronar: eshtePronar,
       grupiInfo: function () { return gjendjaEQasjes() === 'ok' ? Emrat.perditeso(gj.grupiInfo || { id: gj.grupi, emri: '' }) : null; },
       ftesatEMia: function () { return Emrat.perditesoListen(gj.ftesatEMia); },

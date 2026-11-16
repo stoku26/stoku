@@ -77,6 +77,11 @@ object Api {
 
     fun lidhur(ctx: Context) = prefs(ctx).getBoolean("lidhur", false)
 
+    // v316 (Worker 173): modeli i orës dhe versioni i aplikacionit, që telefoni t'i tregojë te "Ora e dorës" (ora e lidhur)
+    fun modeli(ctx: Context): String = (try { android.provider.Settings.Global.getString(ctx.contentResolver, "device_name") } catch (e: Exception) { null })
+        ?.takeIf { it.isNotBlank() } ?: android.os.Build.MODEL.orEmpty()
+    fun versioni(ctx: Context): Int = try { ctx.packageManager.getPackageInfo(ctx.packageName, 0).longVersionCode.toInt() } catch (e: Exception) { 0 }
+
     // Shkëputja (Cilësimet → Shkëput orën): këtu fshihet menjëherë krejt (sekreti, lista, radha) dhe krijohet sekret i ri, që ora
     // të mos e lexojë më llogarinë e vjetër; serveri njoftohet në sfond me sekretin e vjetër dhe e fshin lidhjen. Më parë ora priste
     // serverin (deri në 25 s pa internet) para se të dilte ekrani i kodit.
@@ -125,10 +130,11 @@ object Api {
 
     // Kthen true kur telefoni e ka lidhur orën me llogarinë
     suspend fun kontrolloLidhjen(ctx: Context): Boolean = withContext(Dispatchers.IO) {
-        var (st, j) = thirr("POST", "/ora/kodi", JSONObject().put("kodi", kodi(ctx)).put("sekret", sekreti(ctx)), null)
+        fun trupi() = JSONObject().put("kodi", kodi(ctx)).put("sekret", sekreti(ctx)).put("model", modeli(ctx)).put("v", versioni(ctx))
+        var (st, j) = thirr("POST", "/ora/kodi", trupi(), null)
         if (st == 409) { // kodi i zënë nga një orë tjetër: krijohet një i ri
             kodiIRi(ctx)
-            val r = thirr("POST", "/ora/kodi", JSONObject().put("kodi", kodi(ctx)).put("sekret", sekreti(ctx)), null)
+            val r = thirr("POST", "/ora/kodi", trupi(), null)
             st = r.first; j = r.second
         }
         val ok = st == 200 && j.optBoolean("lidhur")
@@ -142,9 +148,11 @@ object Api {
     suspend fun merrListen(ctx: Context, shpejt: Boolean = false): Lista = withContext(Dispatchers.IO) {
         dergoRadhenPaGabim(ctx, shpejt) // v252: heqjet e bëra pa internet shkojnë te serveri para listës së re
         val tz = URLEncoder.encode(TimeZone.getDefault().id, "UTF-8")
-        val (st, j) = thirr("GET", "/ora/sot?tz=$tz", null, sekreti(ctx), shpejt)
+        val m = URLEncoder.encode(modeli(ctx), "UTF-8")
+        val (st, j) = thirr("GET", "/ora/sot?tz=$tz&v=${versioni(ctx)}&m=$m", null, sekreti(ctx), shpejt)
         if (st == 401) {
-            prefs(ctx).edit().putBoolean("lidhur", false).remove("lista").apply()
+            // v316: edhe lista e plotë (ndryshe mbetej ajo e llogarisë së kaluar deri në rifreskimin e radhës)
+            prefs(ctx).edit().putBoolean("lidhur", false).remove("lista").remove("krejt").apply()
             throw PaLidhje()
         }
         if (st != 200 || !j.optBoolean("ok")) throw Exception("serveri-$st")

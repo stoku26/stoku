@@ -2197,11 +2197,64 @@
     if (r && r.ok) {
       $('oraKodi').value = '';
       h.textContent = '✓ Ora u lidh. Pas pak sekondash në orë del lista e produkteve që skadojnë sot.';
+      setTimeout(function () { rifreskoOret().catch(function () { /* ok */ }); }, 1500);
       e.dergoAfatetPerOrarin(afatetPerServerin()).catch(function () { /* ok */ });
     } else h.textContent = r && r.arsye === 'rruga' ? 'Serveri (Cloudflare) ka kodin e vjetër: ngjite kodin e ri te stoku-push (versioni 157 ose më i ri) dhe provo prapë.'
       : r && r.arsye === 'kodi' ? 'Ky kod s\'u gjet ose ka skaduar. Shiko kodin e ri në orë.'
       : r && r.arsye === 'rrjeti' ? 'S\'ka internet. Provo prapë.' : 'S\'u lidh (' + ((r && r.arsye) || 'gabim') + '). Provo prapë.';
   }
+  // v316 (pronari: "kur osht i lidht me oren qajo llogari me te tregu me qfar ore osht e lidh e detaje tjera e jo me ta qit apet me u
+  // lidh me tjeter, edhe me mujt me shkput prej appit tel qaty"): ora e lidhur me detajet + "Shkëput orën"; kutia e kodit vetëm pa orë
+  function kohaRelativeOres(t) {
+    var m = Math.round((Date.now() - t) / 60000);
+    if (!t) return '–';
+    if (m < 2) return 'tani';
+    if (m < 60) return 'para ' + m + ' minutash';
+    var o = Math.round(m / 60);
+    if (o < 24) return o === 1 ? 'para 1 ore' : 'para ' + o + ' orësh';
+    var d = Math.round(o / 24);
+    return d === 1 ? 'dje' : 'para ' + d + ' ditësh';
+  }
+  function dataOres(t) { var d = new Date(t); function z(n) { return (n < 10 ? '0' : '') + n; } return z(d.getDate()) + '.' + z(d.getMonth() + 1) + '.' + d.getFullYear() + ', ora ' + z(d.getHours()) + ':' + z(d.getMinutes()); }
+  var oretTani = [];
+  function vizatoOret() {
+    var k = $('oraLidhur'), kod = $('oraLidhKuti');
+    k.textContent = '';
+    k.hidden = !oretTani.length; kod.hidden = !!oretTani.length;
+    oretTani.forEach(function (o, i) {
+      if (i) { var nd = document.createElement('div'); nd.style.height = '6px'; k.appendChild(nd); }
+      var krye = document.createElement('div'); krye.className = 'ora-lidhur__krye';
+      var ok = document.createElement('span'); ok.className = 'ora-lidhur__ok'; ok.textContent = '✓';
+      var tk = document.createElement('div'); var b = document.createElement('div'); b.className = 'ops-ll-titull'; b.textContent = 'Ora është e lidhur';
+      var m = document.createElement('div'); m.className = 'kat-status'; m.textContent = o.model || 'Ora e dorës';
+      tk.appendChild(b); tk.appendChild(m); krye.appendChild(ok); krye.appendChild(tk); k.appendChild(krye);
+      [['Llogaria', emriPerdoruesitAktual() || o.emri || '–'], ['U lidh', o.koha ? dataOres(o.koha) : '–'], ['Hera e fundit aktive', kohaRelativeOres(o.aktiv)], ['Versioni në orë', o.v ? '1.0.' + o.v : '–']].forEach(function (x) {
+        var r = document.createElement('div'); r.className = 'ora-lidhur__rr';
+        var a = document.createElement('span'); a.textContent = x[0]; var v = document.createElement('span'); v.textContent = x[1];
+        r.appendChild(a); r.appendChild(v); k.appendChild(r);
+      });
+      var sh = document.createElement('button'); sh.type = 'button'; sh.className = 'btn ora-lidhur__shkeput'; sh.textContent = 'Shkëput orën';
+      sh.addEventListener('click', function () { shkeputOren(o, sh); });
+      k.appendChild(sh);
+    });
+    if (oretTani.length) {
+      var h = document.createElement('div'); h.className = 'hint'; h.textContent = 'Pas shkëputjes, ora s\'e sheh më llogarinë dhe kërkon kod të ri.'; k.appendChild(h);
+    }
+  }
+  async function rifreskoOret() {
+    var e = ekipaCloud();
+    if (!e || !e.oretELidhura || !perdoruesiAktual()) { oretTani = []; vizatoOret(); return; }
+    var r = await e.oretELidhura();
+    if (r && r.ok && Array.isArray(r.oret)) { oretTani = r.oret; vizatoOret(); } // serveri i vjetër / pa internet: mbetet si ishte
+  }
+  async function shkeputOren(o, btn) {
+    if (btn.getAttribute('data-pyet') !== '1') { btn.setAttribute('data-pyet', '1'); btn.textContent = 'Prek sërish për ta shkëputur'; return; }
+    var e = ekipaCloud(); btn.disabled = true; btn.textContent = 'Duke shkëputur…';
+    var r = e && e.shkeputOrenNgaTel ? await e.shkeputOrenNgaTel(o.id) : null;
+    if (r && r.ok) { toast('Ora u shkëput.'); oretTani = oretTani.filter(function (x) { return x.id !== o.id; }); vizatoOret(); }
+    else { btn.disabled = false; btn.removeAttribute('data-pyet'); btn.textContent = 'Shkëput orën'; toast(r && r.arsye === 'rrjeti' ? 'S\'ka internet. Provo prapë.' : 'S\'u shkëput. Provo prapë.'); }
+  }
+  $('tabOra').addEventListener('click', function () { setTimeout(function () { rifreskoOret().catch(function () { /* ok */ }); }, 50); });
   $('oraLidh').addEventListener('click', lidhOrenMeKod);
   $('oraKodi').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); lidhOrenMeKod(); } });
   // Heqjet nga rafti të bëra në orë zbatohen këtu (dhe dërgohen te cloud-i si çdo heqje tjetër)

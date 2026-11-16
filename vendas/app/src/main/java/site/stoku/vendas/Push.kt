@@ -22,6 +22,7 @@ import site.stoku.logjika.Marketet
 import site.stoku.logjika.Obj
 import site.stoku.logjika.eVertete
 import site.stoku.logjika.jsString
+import site.stoku.logjika.numerOse0
 import site.stoku.logjika.siListe
 import site.stoku.logjika.siObj
 import java.net.HttpURLConnection
@@ -292,6 +293,22 @@ object Push {
         if (r.ok) { shkruajPref("orari_afatet", null); try { dergoAfatet(true) } catch (e: Exception) { } }
         return if (r.ok) "ok" else r.arsye.ifEmpty { "gabim" }
     }
+
+    /** Hyrja 78 (web v316, Worker 173): orët e lidhura; null kur serveri s'u arrit ose ka kodin e vjetër (faqja mbetet me kodin) */
+    class OraELidhur(val id: String, val model: String, val koha: Long, val aktiv: Long, val v: Int, val emri: String)
+    suspend fun oretELidhura(): List<OraELidhur>? {
+        if (uid() == null) return null
+        val r = kerkese("/ora/oret", emptyMap<String, Any>())
+        if (!r.ok) return null
+        val l = (r.te["oret"] as? List<*>)?.mapNotNull { it.siObj() }?.map { o ->
+            OraELidhur(o["id"] as? String ?: "", o["model"] as? String ?: "", numerOse0(o["koha"]).toLong(), numerOse0(o["aktiv"]).toLong(), numerOse0(o["v"]).toInt(), o["emri"] as? String ?: "")
+        } ?: return null
+        // emri i ri i llogarisë te ora, pa e lidhur prapë
+        val e = emri()
+        if (e.isNotBlank() && l.any { it.emri != e }) try { kerkese("/ora/emri", mapOf("emri" to e)) } catch (x: Exception) { }
+        return l
+    }
+    suspend fun shkeputOren(id: String): String { val r = kerkese("/ora/shkeput-tel", mapOf("id" to id)); return if (r.ok) "ok" else r.arsye.ifEmpty { "gabim" } }
 
     private var heqjetKoha = 0L
     /** Heqjet nga rafti të bëra në orë: zbatohen këtu (si çdo heqje tjetër) dhe pastrohen te serveri */
