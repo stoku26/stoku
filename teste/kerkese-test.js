@@ -72,6 +72,10 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev'; const pushet = [];
   ok(njA.length === 1 && njA[0].lloji === 'kerkese-kryer' && njA[0].emri === 'blerta', '2. Agimi njoftohet që u hoq', njA);
   ok([...F.S.docs.values()].some(v => v.lloji === 'kerkese-kryer' && v.kerkuesUid === 'u1' && v.produktet && v.produktet.length === 2), '2. ngjarja "u krye" te aktiviteti');
   ok(pushet.filter(x => x.startsWith('u2 /kerkese')).length === 1, '2. push për Agimin', pushet);
+  // v315 (pronari: "erdh njoftimi po produkti hala osht si ne raft"): afatet e Agimit për këto produkte shënohen të hequra nga Blerta
+  const prit = async (fn, ms = 8000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return true; await new Promise(r => setTimeout(r, 150)); } return false; };
+  const afA = () => agim.evaluate(() => JSON.parse(localStorage.getItem('stoku:afatet:v1') || '[]').filter(a => a.id === 'a1' || a.id === 'a2').map(a => a.id + ':' + a.statusi + ':' + (a.hequrNga || '')).sort().join());
+  ok(await prit(async () => (await afA()) === 'a1:hequr:blerta,a2:hequr:blerta'), '2. v315: te Agimi afatet e kërkesës dalin të hequra (nga blerta)', await afA());
   await blerta.keyboard.press('Escape'); await blerta.waitForTimeout(200);
   // rihapja: mbetet e kryer
   await blerta.click('#ekZile'); await blerta.waitForTimeout(800);

@@ -6467,6 +6467,10 @@
     pamjaTani: pamjaTani, vendosPamjen: vendosPamjen, // v311
     afatetEMia: function () { return afatet; }, afatetMeEmra: function () { return MK.meEmra(afatet, marketet); },
     zbatoHeqjet: zbatoHeqjetEKolegeve,
+    zbatoKerkesenEKryer: function (k) { // v315: kolegu e hoqi nga rafti produktin që ia kërkova
+      zbatoHeqjetEKolegeve(EKL.afatetEKerkesesKryer(afatet, k).map(function (id) { return { afatId: id, emri: k.emri, koha: k.koha }; }));
+      rifreskoPamjen();
+    },
     ktheAfatin: ktheAfatinNgaKolegu, pranoAfatin: pranoAfatinNgaKolegu, // v297
     njofto: njoftoNgaEkipa,
     ndryshoi: kurNdryshonEkipa
