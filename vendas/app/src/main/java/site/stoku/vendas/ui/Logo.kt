@@ -32,13 +32,12 @@ import androidx.compose.ui.unit.sp
 /** Hyrja 75 (web v313): logoja 60 (shenja + "stoku" + pika) me kombinimin e ngjyrave të zgjedhur (Logot.kt, si logot.js).
  *  E çelët: ngjyra br/acL; e errët: dk/acD; shkronjat me ngjyrën e tekstit të temës. */
 fun logoStoku(erret: Boolean, ink: Color = if (erret) Color(0xFFF5F5F7) else Color(0xFF14161B), id: String? = Opsionet.logoja.value): ImageVector {
+    // Hyrja 76 (web v314, pronari: "hiqja ikonen ... shkronja te mdhaja"): vetëm shkronjat "stoku." + pika me ngjyrën e theksit
     val v = Logot.varianti(id)
-    val f = Color(if (erret) v.dk else v.br)
     val a = Color(if (erret) v.acD else v.acL)
-    val b = ImageVector.Builder(defaultWidth = Logot.LOGO_W.dp, defaultHeight = Logot.LOGO_H.dp, viewportWidth = Logot.LOGO_W, viewportHeight = Logot.LOGO_H)
-    Logot.logoShenja.forEach { sh -> b.addPath(PathParser().parsePathString(sh.d).toNodes(), fill = SolidColor(if (sh.rol == 'a') a else f), fillAlpha = sh.o) }
-    b.addPath(PathParser().parsePathString(Logot.FJALA).toNodes(), fill = SolidColor(ink))
-    b.addPath(PathParser().parsePathString(Logot.PIKA).toNodes(), fill = SolidColor(a))
+    val b = ImageVector.Builder(defaultWidth = Logot.FJ_W.dp, defaultHeight = Logot.FJ_H.dp, viewportWidth = Logot.FJ_W, viewportHeight = Logot.FJ_H)
+    b.addPath(PathParser().parsePathString(Logot.FJ_T).toNodes(), fill = SolidColor(ink))
+    b.addPath(PathParser().parsePathString(Logot.FJ_P).toNodes(), fill = SolidColor(a))
     return b.build()
 }
 
@@ -72,14 +71,15 @@ fun LogoEPlote(modifier: Modifier = Modifier) {
 @Composable
 fun EtiketaStoku(emri: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val n = N
-    val forma = RoundedCornerShape(10.dp)
+    val forma = RoundedCornerShape(6.dp)
     val id by Opsionet.logoja.collectAsState()
     val logo = remember(n.erret, n.ink, id) { logoStoku(n.erret, n.ink, id) }
+    // Hyrja 76 (web v314): pa kuti, shkronjat sa krejt gjerësia (152dp), emri poshtë majtas
     Column(
-        modifier.width(152.dp).clip(forma).background(n.surface).border(1.dp, n.line, forma).clickable(onClick = onClick).padding(start = 14.dp, end = 14.dp, top = 7.dp, bottom = 6.dp),
-        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(3.dp)
+        modifier.width(152.dp).clip(forma).clickable(onClick = onClick),
+        horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Image(logo, "Stoku", Modifier.padding(top = 1.dp, bottom = 2.dp).height(22.dp).width((22f * Logot.LOGO_W / Logot.LOGO_H).dp))
+        Image(logo, "Stoku", Modifier.width(152.dp).height((152f * Logot.FJ_H / Logot.FJ_W).dp))
         Text(emri, style = txMono(10f, n.muted, 500).copy(letterSpacing = 1.sp),
             maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.height(13.dp))
     }

@@ -195,7 +195,7 @@
     if (window.StokuLogot) {
       window.StokuLogot.vizato($('opsLogoja'), function () { ruajPamjenNeLlogari(); });
       var bosh = $('pamjaBoshLogo');
-      if (bosh && !bosh.firstChild) bosh.innerHTML = window.StokuLogot.svgLogo();
+      if (bosh && !bosh.firstChild) bosh.innerHTML = window.StokuLogot.svgLogo('stk-logo--bosh');
     }
     $('metaTema').setAttribute('content', ST ? ST.sfondi(t) : t === 'dark' ? '#0f1115' : '#f6f5f2');
     // Çelësi i shpejtë "Tema" në fund të anësores

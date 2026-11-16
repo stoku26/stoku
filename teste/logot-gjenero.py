@@ -218,6 +218,10 @@ FY = LH / 2 - (sy0 + sy1) / 2                  # vija bazë: shkronjat në mes t
 LW = FX + max(sx1, PIKA.bounds[2]) + PAD
 TR_SHENJA_LOGO = (1, 0, 0, 1, PAD - BX0, PAD - BY0)
 TR_FJALA = (1, 0, 0, 1, FX, FY)
+# v314 (pronari: "hiqja ikonen ... bone si logo me shkronja te mdhaja ... boxin permas hiqja"): logoja vetëm me shkronja "stoku."
+FJ_X0, FJ_Y0, FJ_X1, FJ_Y1 = kufijte([SHKRONJAT, PIKA])
+FJ_W, FJ_H = FJ_X1 - FJ_X0, FJ_Y1 - FJ_Y0
+TR_FJ = (1, 0, 0, 1, -FJ_X0, -FJ_Y0)
 
 
 def shtresat_d(tr=None):
@@ -230,6 +234,7 @@ DATA = {
     'kutia': [round(BX0, 2), round(BY0, 2), round(BX1, 2), round(BY1, 2)],
     'logo': {'w': round(LW, 2), 'h': round(LH, 2), 'shenja': shtresat_d(TR_SHENJA_LOGO),
              'fjala': ne_d(SHKRONJAT, TR_FJALA), 'pika': ne_d(PIKA, TR_FJALA)},
+    'fjala': {'w': round(FJ_W, 2), 'h': round(FJ_H, 2), 't': ne_d(SHKRONJAT, TR_FJ), 'p': ne_d(PIKA, TR_FJ)},
     'variantet': V,
 }
 
@@ -251,9 +256,9 @@ def svg_paths(shtresat, kont, klasa=False):
 
 def svg_logo(v, erret, tekst):
     kont = {'f': v['dk'] if erret else v['br'], 'a': v['acD'] if erret else v['acL']}
-    L = DATA['logo']
-    return ('<svg xmlns="http://www.w3.org/2000/svg" width="%s" height="%s" viewBox="0 0 %s %s">%s<path fill="%s" d="%s"/><path fill="%s" d="%s"/></svg>' % (
-        nr(L['w'] * 4), nr(L['h'] * 4), nr(L['w']), nr(L['h']), svg_paths(L['shenja'], kont), tekst, L['fjala'], kont['a'], L['pika']))
+    F = DATA['fjala']
+    return ('<svg xmlns="http://www.w3.org/2000/svg" width="%s" height="%s" viewBox="0 0 %s %s"><path fill="%s" d="%s"/><path fill="%s" d="%s"/></svg>' % (
+        nr(F['w'] * 4), nr(F['h'] * 4), nr(F['w']), nr(F['h']), tekst, F['t'], kont['a'], F['p']))
 
 
 SQUIRCLE = 'M15 0h34a15 15 0 0 1 15 15v34a15 15 0 0 1-15 15H15A15 15 0 0 1 0 49V15A15 15 0 0 1 15 0z'
@@ -298,6 +303,9 @@ def js_data():
     rr.append('    // Logoja e plotë (shenja + "stoku" + pika), %s x %s' % (nr(L['w']), nr(L['h'])))
     rr.append('    logo: {\n      w: %s, h: %s,\n      shenja: [\n%s\n      ],\n      fjala: \'%s\',\n      pika: \'%s\'\n    },' % (
         nr(L['w']), nr(L['h']), ',\n'.join("        { d: '%s', r: '%s', o: %s }" % (s['d'], s['r'], nr(s['o'])) for s in L['shenja']), L['fjala'], L['pika']))
+    F = DATA['fjala']
+    rr.append('    // v314: logoja vetëm me shkronja ("stoku." + pika), %s x %s' % (nr(F['w']), nr(F['h'])))
+    rr.append("    fjala: { w: %s, h: %s, t: '%s', p: '%s' }," % (nr(F['w']), nr(F['h']), F['t'], F['p']))
     rr.append('    variantet: [\n' + ',\n'.join(
         "      { id: '%s', emri: '%s', bg: '%s', fg: '%s', ac: '%s', br: '%s', acL: '%s', dk: '%s', acD: '%s' }" % tuple(v[k] for k in FUSHAT)
         for v in V) + '\n    ]')
@@ -322,14 +330,18 @@ def css():
            '/* përmasat sipas lartësisë (raporti %s : %s) */' % (nr(L['w']), nr(L['h'])),
            '.stk-logo--22 { height: 22px; width: %spx; }' % nr(22 * L['w'] / L['h']),
            '.stk-logo--40 { height: 40px; width: %spx; }' % nr(40 * L['w'] / L['h']),
-           '.stk-logo--44 { height: 44px; width: %spx; }' % nr(44 * L['w'] / L['h'])]
+           '.stk-logo--44 { height: 44px; width: %spx; }' % nr(44 * L['w'] / L['h']),
+           '/* v314: logoja vetëm me shkronja (raporti %s : %s), përmasat sipas gjerësisë */' % (nr(DATA['fjala']['w']), nr(DATA['fjala']['h']))]
+    for emri, w in (('etiketa', 152), ('porta', 172), ('bosh', 210)):
+        rr.append('.stk-logo--%s { width: %spx; height: %spx; }' % (emri, w, nr(w * DATA['fjala']['h'] / DATA['fjala']['w'])))
+    rr = rr
     return '\n'.join(rr) + '\n'
 
 
 def html_logo(klasa):
-    L = DATA['logo']
-    return ('<svg class="stk-logo %s" viewBox="0 0 %s %s" aria-hidden="true" focusable="false">%s<path class="lg-t" d="%s"/><path class="lg-a" d="%s"/></svg>' % (
-        klasa, nr(L['w']), nr(L['h']), svg_paths(L['shenja'], None, klasa=True), L['fjala'], L['pika']))
+    F = DATA['fjala']
+    return ('<svg class="stk-logo %s" viewBox="0 0 %s %s" aria-hidden="true" focusable="false"><path class="lg-t" d="%s"/><path class="lg-a" d="%s"/></svg>' % (
+        klasa, nr(F['w']), nr(F['h']), F['t'], F['p']))
 
 
 def kt_long(h):
@@ -358,6 +370,12 @@ def kotlin():
     rr.append('    val logoShenja: List<Shtresa> = listOf(\n' + ',\n'.join('        Shtresa("%s", \'%s\', %sf)' % (s['d'], s['r'], nr(s['o'])) for s in L['shenja']) + '\n    )')
     rr.append('    const val FJALA = "%s"' % L['fjala'])
     rr.append('    const val PIKA = "%s"' % L['pika'])
+    F = DATA['fjala']
+    rr.append('    /** v314: logoja vetëm me shkronja ("stoku." + pika): %s x %s */' % (nr(F['w']), nr(F['h'])))
+    rr.append('    const val FJ_W = %sf' % nr(F['w']))
+    rr.append('    const val FJ_H = %sf' % nr(F['h']))
+    rr.append('    const val FJ_T = "%s"' % F['t'])
+    rr.append('    const val FJ_P = "%s"' % F['p'])
     rr.append('    const val PARAZGJEDHJA = "%s"' % PARAZGJEDHJA['id'])
     rr.append('    fun varianti(id: String?): Varianti = variantet.firstOrNull { it.id == id } ?: variantet[0]')
     rr.append('}')
@@ -390,7 +408,7 @@ def kryesore():
     zevendeso_bllokun('logot.js', '/* LOGOT-FILLIMI */', '/* LOGOT-FUNDI */', js_data())
     shkruaj('css/stoku-logot.css', css())
     for f in ('index.html', 'pc.html'):
-        zevendeso_bllokun(f, '<!-- LOGO-FILLIMI -->', '<!-- LOGO-FUNDI -->', html_logo('stk-logo--22 stk-etiketa__logo'))
+        zevendeso_bllokun(f, '<!-- LOGO-FILLIMI -->', '<!-- LOGO-FUNDI -->', html_logo('stk-logo--etiketa stk-etiketa__logo'))
     shkruaj('logo/favicon.svg', svg_ikona(p))
     shkruaj('logo/stoku-icon-square.svg', svg_ikona(p, katror=True, madhesia=512))
     kont = {'f': p['br'], 'a': p['acL']}
@@ -431,14 +449,14 @@ def kryesore():
             '    <solid android:color="%s" />\n</shape>\n' % p['bg'].upper())
     shkruaj('ora/app/src/main/res/drawable/ic_stoku.xml', njoftimi.replace('ikona e vogël e njoftimit', 'ikona e komplikacionit'))
     # logoja e plotë brenda aplikacionit të orës (sfond i zi): ngjyrat e errëta, shkronjat të bardha
-    L = DATA['logo']
+    L = DATA['fjala']
     kont_e = {'f': p['dk'], 'a': p['acD']}
     shkruaj('ora/app/src/main/res/drawable/logo_stoku.xml',
-            '<?xml version="1.0" encoding="utf-8"?>\n<!-- Logoja 60 e plotë për ekranin e orës (e gjeneruar nga teste/logot-gjenero.py, mos e ndrysho me dorë) -->\n'
+            '<?xml version="1.0" encoding="utf-8"?>\n<!-- Logoja me shkronja për ekranin e orës (e gjeneruar nga teste/logot-gjenero.py, mos e ndrysho me dorë) -->\n'
             '<vector xmlns:android="http://schemas.android.com/apk/res/android"\n    android:width="%sdp" android:height="%sdp"\n'
             '    android:viewportWidth="%s" android:viewportHeight="%s">\n%s\n'
             '    <path android:fillColor="#FFFFFFFF" android:pathData="%s" />\n    <path android:fillColor="%s" android:pathData="%s" />\n</vector>\n' % (
-                nr(L['w'] / 2), nr(L['h'] / 2), nr(L['w']), nr(L['h']), xml_shtresat(L['shenja'], kont_e, '    '), L['fjala'], kont_e['a'].upper(), L['pika']))
+                nr(L['w'] / 2), nr(L['h'] / 2), nr(L['w']), nr(L['h']), '', L['t'], kont_e['a'].upper(), L['p']))
     rreth = '    <path android:fillColor="%s" android:pathData="M54,0a54,54 0,1 1,0 108a54,54 0,1 1,0 -108z" />' % p['bg'].upper()
     shkruaj('ora/app/src/main/res/drawable/tile_preview.xml',
             xml_vektor('Logoja 60: pamja e Tile-it', 108, 108, rreth + '\n' + grupi(1.2, 54 - 32 * 1.2, 54 - 32 * 1.2, xml_shtresat(DATA['shenja'], kont_ik))))

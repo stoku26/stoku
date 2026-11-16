@@ -116,13 +116,12 @@ object EksportiFoto {
     internal fun Canvas.logo(p: Paint, x: Float, y: Float, h: Float, C: Ngjyrat) {
         val v = site.stoku.vendas.ui.Logot.varianti(Opsionet.logoja.value)
         val erret = C === ERRET
-        val f = c(if (erret) v.dk else v.br); val a = c(if (erret) v.acD else v.acL)
-        val k = h / site.stoku.vendas.ui.Logot.LOGO_H
+        val a = c(if (erret) v.acD else v.acL)
+        val k = h / site.stoku.vendas.ui.Logot.FJ_H // Hyrja 76: vetëm shkronjat "stoku." (pa shenjën)
         save(); translate(x, y); scale(k, k)
         p.style = Paint.Style.FILL
-        site.stoku.vendas.ui.Logot.logoShenja.forEach { sh -> p.color = if (sh.rol == 'a') a else f; p.alpha = (sh.o * 255).roundToInt(); mbush(sh.d, p) }
-        p.color = C.logo; mbush(site.stoku.vendas.ui.Logot.FJALA, p)
-        p.color = a; mbush(site.stoku.vendas.ui.Logot.PIKA, p)
+        p.color = C.logo; mbush(site.stoku.vendas.ui.Logot.FJ_T, p)
+        p.color = a; mbush(site.stoku.vendas.ui.Logot.FJ_P, p)
         restore()
     }
     /** Ikona e vogël e aplikacionit (si te telefoni) në fund të fotos */

@@ -146,9 +146,10 @@
 /* Logoja në krye (telefon + PC): "Etiketë barkodi" — STOKU, barkodi, emri i përdoruesit */
 :root { --stk-qelibar: #e3a42e; }
 :root[data-tema="dark"] { --stk-qelibar: #f5b942; }
-.stk-etiketa { display: inline-flex; width: 152px; flex-direction: column; align-items: center; gap: 3px; flex: none; max-width: 100%; box-sizing: border-box; padding: 7px 14px 6px; border-radius: 10px; background: var(--sb-surface); box-shadow: inset 0 0 0 1px var(--sb-line); color: var(--sb-ink); font-family: 'Onest', system-ui, sans-serif; }
-/* v313: logoja 60 (shenja + "stoku" + pika) në vend të "STOKU" + barkodit; ngjyrat nga css/stoku-logot.css */
-.stk-etiketa__logo { margin: 1px 0 2px; }
+.stk-etiketa { display: inline-flex; width: 152px; flex-direction: column; align-items: flex-start; gap: 4px; flex: none; max-width: 100%; box-sizing: border-box; padding: 0; border-radius: 6px; color: var(--sb-ink); font-family: 'Onest', system-ui, sans-serif; }
+/* v314 (pronari: "hiqja ikonen ... shkronja te mdhaja ... boxin permas hiqja"): vetëm shkronjat "stoku.", sa krejt gjerësia, pa kuti */
+.stk-etiketa__logo { margin: 0; }
+.stk-etiketa__nen { padding-left: 1px; }
 .stk-etiketa__nen { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; font-weight: 500; letter-spacing: 1px; line-height: 1.2; color: var(--sb-muted); }
 
 /* Ikonat e folderave (afatet.js IKONAT_FOLDERAVE): ngjyrat .ngj-* përshtaten me temën */

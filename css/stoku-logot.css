@@ -58,3 +58,7 @@
 .stk-logo--22 { height: 22px; width: 80.73px; }
 .stk-logo--40 { height: 40px; width: 146.79px; }
 .stk-logo--44 { height: 44px; width: 161.47px; }
+/* v314: logoja vetëm me shkronja (raporti 100.42 : 26.94), përmasat sipas gjerësisë */
+.stk-logo--etiketa { width: 152px; height: 40.78px; }
+.stk-logo--porta { width: 172px; height: 46.14px; }
+.stk-logo--bosh { width: 210px; height: 56.34px; }
