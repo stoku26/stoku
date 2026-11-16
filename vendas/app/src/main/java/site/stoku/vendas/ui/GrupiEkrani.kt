@@ -64,6 +64,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextDecoration
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import site.stoku.logjika.Afatet
@@ -332,6 +334,66 @@ private fun Pllaka(lloji: String, numri: String, teksti: String, modifier: Modif
     Column(m.padding(horizontal = 13.dp, vertical = 12.dp), verticalArrangement = Arrangement.Center) {
         Text(numri, style = tx(26, 700, ng))
         Text(teksti, style = tx(13, 600, ng), modifier = Modifier.padding(top = 2.dp))
+    }
+}
+
+/** Hyrja 73 (pronari: "zgjedhe 3shin"): fjali e madhe në vend të 6 pllakave te Grupi → Përmbledhja; numrat e tjerë janë tekst i prekshëm */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun FjaliaERezymese(st: GrupiLogjika.Statistikat, ng: Boolean, ctx: Konteksti) {
+    val n = N
+    val sk = st.skaduara
+    val jv = st.javes
+    val ngjyra = if (sk > 0) n.exp else if (jv > 0) n.near else n.ok
+    val nr = if (sk > 0) sk else jv
+    val pjesa1 = if (nr > 0) "$nr " + (if (nr == 1) "produkt" else "produkte") else "Asnjë produkt nuk skadon këtë javë"
+    val pjesa2 = when {
+        sk > 0 -> if (sk == 1) " ka skaduar" else " kanë skaduar"
+        jv > 0 -> if (jv == 1) " skadon këtë javë" else " skadojnë këtë javë"
+        else -> ""
+    }
+    Column(Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 6.dp)) {
+        Text((if (sk > 0) "Vëmendje" else "Kjo javë").uppercase(), style = tx(12, 700, n.muted, 0.08))
+        var titulli = Modifier.padding(top = 6.dp, bottom = 8.dp)
+        if (ng && nr > 0) titulli = titulli.clickable { ctx.hapAnetarin("krejt", if (sk > 0) "skaduar" else "afer") }
+        Text(
+            if (!ng) buildAnnotatedString { append("Duke ngarkuar…") }
+            else buildAnnotatedString { withStyle(SpanStyle(color = ngjyra)) { append(pjesa1) }; append(pjesa2) },
+            style = tx(27, 800, n.ink, -0.02).copy(lineHeight = 31.sp), modifier = titulli
+        )
+        if (ng) FlowRow(Modifier.fillMaxWidth()) {
+            if (sk == 0) Text("Asnjë i skaduar në raft. ", style = tx(14, 400, n.ink3))
+            listOf(
+                Triple(st.aktive, " në raft, ") { ctx.hapAnetarin("krejt", null) },
+                Triple(st.afer, " afër skadimit, ") { ctx.hapAnetarin("krejt", "afer") },
+                Triple(st.hequrMuajit, " të hequr këtë muaj.") { ctx.hapAnetarin("krejt", "hequr") }
+            ).forEach { (vlera, tekst, hap) ->
+                Row {
+                    Text(vlera.toString(), style = tx(14, 700, n.ink).copy(textDecoration = TextDecoration.Underline), modifier = Modifier.clickable(onClick = hap))
+                    Text(tekst, style = tx(14, 400, n.ink3))
+                }
+            }
+        }
+    }
+}
+
+/** Hyrja 73 (pronari: "bone 2shin te afatet"): shirit segmentuar në vend të 4 pllakave te Grupi → Afatet; e zgjedhura ngrihet */
+@Composable
+private fun ShiritiSegmentuar(pjeset: List<Triple<String?, String, Int>>, aktivi: String?, zgjidh: (String?) -> Unit) {
+    val n = N
+    Row(Modifier.fillMaxWidth().padding(top = 14.dp).clip(RoundedCornerShape(16.dp)).background(n.sunken).padding(4.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+        pjeset.forEach { (k, emri, nr) ->
+            val on = aktivi == k
+            val ng = when (k) { "skaduar" -> n.exp; "afer" -> n.near; "ok" -> n.ok; "hequr" -> n.muted; else -> n.ink }
+            Column(
+                Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(if (on) (if (n.erret) n.line else n.surface) else Color.Transparent)
+                    .clickable { zgjidh(k) }.padding(vertical = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(nr.toString(), style = tx(18, 800, ng))
+                Text(emri, style = txF(10.5f, 600, if (on) n.ink else n.muted), maxLines = 1)
+            }
+        }
     }
 }
 
@@ -665,14 +727,7 @@ private fun Permbledhja(ftesat: List<Obj>, kerkesatG: List<Obj>, ngjarjet: List<
     val ng = ctx.ngarkuar
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 24.dp)) {
         item {
-            RrjetaEPllakave(listOf(
-                P("", if (ng) st.aktive.toString() else "–", "Në raft") { ctx.hapAnetarin("krejt", null) },
-                P("skaduar", if (ng) st.skaduara.toString() else "–", "Të skaduara") { ctx.hapAnetarin("krejt", "skaduar") },
-                P("afer", if (ng) st.javes.toString() else "–", "Skadojnë ≤ 7 ditë") { ctx.hapAnetarin("krejt", "afer") },
-                P("afer", if (ng) st.afer.toString() else "–", "Afër skadimit") { ctx.hapAnetarin("krejt", "afer") },
-                P("ok", if (ng) st.hequrMuajit.toString() else "–", "Hequr këtë muaj") { ctx.hapAnetarin("krejt", "hequr") },
-                P("", if (ng) "$nOn/${an.size}" else "–", "Online tani") { ctx.zgjidhPamjen("anetaret") }
-            ))
+            FjaliaERezymese(st, ng, ctx)
         }
         items(ftesat, key = { "f" + it["id"] }) { FtesaKarta(it, ctx) }
         if (Grupi.eshtePronar()) items(kerkesatG, key = { "k" + it["id"] }) { KerkesaEGrupitKarta(it, ctx) }
@@ -776,12 +831,13 @@ private fun AfatetEGrupit(uid: String, filtri: String?, ndryshoFiltrin: (String?
     }.let { l -> if (filtri == "hequr") l.sortedByDescending { kohaE(it, "hequrSe") } else l.sortedWith { a, b -> Afatet.krahaso(a, b) } }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 24.dp)) {
         item {
-            RrjetaEPllakave(listOf(
-                P("skaduar", (nr.skaduar + nr.paDate).toString(), "Të skaduara", filtri == "skaduar") { ndryshoFiltrin(if (filtri == "skaduar") null else "skaduar") },
-                P("afer", nr.afer.toString(), "Afër skadimit", filtri == "afer") { ndryshoFiltrin(if (filtri == "afer") null else "afer") },
-                P("ok", nr.ok.toString(), "Në rregull", filtri == "ok") { ndryshoFiltrin(if (filtri == "ok") null else "ok") },
-                P("hequr", nr.hequr.toString(), "Të hequra", filtri == "hequr") { ndryshoFiltrin(if (filtri == "hequr") null else "hequr") }
-            ))
+            ShiritiSegmentuar(listOf(
+                Triple<String?, String, Int>(null, "Të gjitha", nr.skaduar + nr.paDate + nr.afer + nr.ok),
+                Triple<String?, String, Int>("skaduar", "Skaduara", nr.skaduar + nr.paDate),
+                Triple<String?, String, Int>("afer", "Afër", nr.afer),
+                Triple<String?, String, Int>("ok", "Rregull", nr.ok),
+                Triple<String?, String, Int>("hequr", "Hequra", nr.hequr)
+            ), filtri, ndryshoFiltrin)
             Hapesire(14.dp)
             Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), placeholder = "Kërko emër, barkod ose furnizues", ikona = Ik.Kerko)
             Hapesire(14.dp)

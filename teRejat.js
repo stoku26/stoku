@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 312, versioni: '1.61.1', data: '2026-11-15', titulli: 'Grupi më i qartë', platforma: 'tel', pikat: [
+      'Grupi → Përmbledhja: në vend të 6 kutive me numra, tani del një fjali e madhe që të thotë çfarë ka rëndësi ("9 produkte skadojnë këtë javë"). Numrat e tjerë poshtë janë të prekshëm dhe të çojnë te lista përkatëse.',
+      'Grupi → Afatet: në vend të 4 kutive, një shirit me pjesë (Të gjitha, Skaduara, Afër, Rregull, Hequra). Prek një pjesë dhe lista filtrohet; e zgjedhura ngrihet.'
+    ] },
     { v: 311, versioni: '1.61.0', data: '2026-11-15', titulli: 'Ngjyrat e tua kudo', pikat: [
       'Ngjyrat që i zgjedh te Cilësimet → Pamja ruhen te llogaria jote: kur hyn prapë, ose në një telefon, kompjuter ose aplikacion tjetër, i gjen të njëjtat.',
       'Dritarja "Aktivizo njoftimet" ridizajnohet: del si kuti në mes të ekranit.',
