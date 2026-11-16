@@ -16,7 +16,7 @@ import kotlin.math.roundToInt
 
 /**
  * Hyrja 36 (web v275, pronari "ideja 1" + opsionet "A"): afatet në PDF për printim, A4 e bardhë (vetëm e çelët, se printohet).
- * E njëjta faqe si `apPdf` te app-tel.js (mm: anët 12.7, rreshti 7.4, trupi deri te 283; poshtë "Faqja X nga Y").
+ * E njëjta faqe si `apPdf` te eksportet.js (mm: anët 12.7, rreshti 7.4, trupi deri te 283; poshtë te faqja 1 vetëm "https://stoku.site").
  * Faqja 1 (pronari, "koka 1"): logoja e vogël majtas, data djathtas, "Lista e afateve" në mes, poshtë "Periudha: … · N produkte · M copë"
  * (trupi nga 37.2, 33 rreshta). Hyrja 61 (pronari, foto): faqet e tjera pa logo/titull/të dhëna, vetëm koka e tabelës (trupi nga 15.3,
  * 36 rreshta); "COPË" me sasinë më majtas, larg "SKADON" (kolona 18 mm, numri 6 mm para skajit).
@@ -165,11 +165,12 @@ object EksportiPdf {
             v.vije(X, y + RR, X + WI, y + RR, 0.2f, LINE2)
             y += RR
         }
-        // Hyrja 62 (web v300): fundi vetëm te faqja 1, pa vijën e dytë (dukej e dyfishtë me vijën e rreshtit të fundit)
+        // Hyrja 62 (web v300): fundi vetëm te faqja 1, pa vijën e dytë (dukej e dyfishtë me vijën e rreshtit të fundit).
+        // Hyrja 75 (web v313, pronari: "krijuar me stoku hiqe ... veq webin leje"): vetëm adresa, pa "Krijuar me Stoku", datën me orën
+        // dhe "Faqja 1 nga N" (data mbetet lart djathtas)
         if (faqja == 0) {
             v.font(7.9f, false)
-            v.tekst("Krijuar me Stoku · https://stoku.site · " + o.data + ", ora " + o.ora, X, 290.6f, FAINT)
-            v.tekst("Faqja 1 nga ${plani.size}", X + WI, 290.6f, FAINT, true)
+            v.tekst("https://stoku.site", X, 290.6f, FAINT)
         }
     }
 

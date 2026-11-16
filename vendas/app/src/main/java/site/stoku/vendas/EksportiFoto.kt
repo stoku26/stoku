@@ -210,7 +210,7 @@ object EksportiFoto {
         p.color = C.line; cv.drawRect(P, y, W - P, y + 1f, p)
         y += 1f + 16f
         cv.shenja(p, P, y, 18f)
-        p.font(f, 12f, 500); cv.tekst(p, "Krijuar me Stoku · stoku.site", P + 26f, y + 9f, C.faint)
+        p.font(f, 12f, 500); cv.tekst(p, "stoku.site", P + 26f, y + 9f, C.faint) // Hyrja 75: pa "Krijuar me Stoku" (pronari)
         cv.tekst(p, (if (pjesa.isNotEmpty()) "$pjesa · " else "") + "ora $ora", W - P, y + 9f, C.faint, djathtas = true)
         return bmp
     }

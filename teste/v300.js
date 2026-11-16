@@ -81,8 +81,9 @@ const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
   const f = await krijo(p);
   const s = f.tekst;
   const sa = rx => (s.match(rx) || []).length;
-  ok(faqet(s) === 3 && sa(/\(Krijuar me Stoku/g) === 1 && sa(/\(Faqja \d+ nga \d+\)/g) === 1 && /\(Faqja 1 nga 3\)/.test(s),
-    '2. "Krijuar me Stoku" dhe "Faqja 1 nga 3" vetëm te faqja 1', { faqe: faqet(s), krijuar: sa(/\(Krijuar me Stoku/g), faqja: sa(/\(Faqja \d+ nga \d+\)/g) });
+  // v313 (pronari): fundi i faqes 1 = vetëm "https://stoku.site" (pa "Krijuar me Stoku", datë me orë as "Faqja 1 nga 3")
+  ok(faqet(s) === 3 && sa(/\(https:\/\/stoku\.site\)/g) === 1 && !/Krijuar me Stoku/.test(s) && !/\(Faqja \d+ nga \d+\)/.test(s) && !/, ora \d/.test(s),
+    '2. poshtë vetëm "https://stoku.site", vetëm te faqja 1 (v313)', { faqe: faqet(s), adresa: sa(/\(https:\/\/stoku\.site\)/g), krijuar: sa(/Krijuar me Stoku/g), faqja: sa(/\(Faqja \d+ nga \d+\)/g) });
   ok(/\(Produkti 70\)/.test(s) && /\(Produkti 80\)/.test(s), '3. 33 + 37 + 10 rreshta: faqja 2 deri te "Produkti 70"');
   // vijat: 80 rreshta + 3 koka tabele = 83 (më parë edhe 3 vija mbi "Krijuar me Stoku" = 86)
   ok(sa(/ l\n/g) === 83, '4. pa vijën e dytë mbi "Krijuar me Stoku" (83 vija)', sa(/ l\n/g));

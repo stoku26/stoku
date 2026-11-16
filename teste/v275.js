@@ -116,7 +116,7 @@ const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
     ok(dr.nen === '11 afate · 1 faqe A4' && dr.rr[0] === 'Periudha=Të gjitha', '4. hapet sërish me zgjedhjet fillestare', dr.nen);
     const f = await krijo(p);
     ok(f && f.emri === 'afatet_' + dita + '.pdf' && f.lloji === 'application/pdf' && f.tekst.startsWith('%PDF'), '4. PDF-ja (emri, lloji)', f && [f.emri, f.lloji]);
-    ok(faqet(f.tekst) === 1 && /\(Lista e afateve\)/.test(f.tekst) && /\(Periudha: \)/.test(f.tekst) && /\(T\xeb gjitha\)/.test(f.tekst) && /\(11\)/.test(f.tekst) && /\( produkte\)/.test(f.tekst) && /\(80\)/.test(f.tekst) && !/Printuar/.test(f.tekst) && /\(Faqja 1 nga 1\)/.test(f.tekst), '4. 1 faqe: "Lista e afateve", "Periudha: Të gjitha", "Faqja 1 nga 1"');
+    ok(faqet(f.tekst) === 1 && /\(Lista e afateve\)/.test(f.tekst) && /\(Periudha: \)/.test(f.tekst) && /\(T\xeb gjitha\)/.test(f.tekst) && /\(11\)/.test(f.tekst) && /\( produkte\)/.test(f.tekst) && /\(80\)/.test(f.tekst) && !/Printuar/.test(f.tekst) && /\(https:\/\/stoku\.site\)/.test(f.tekst) && !/\(Faqja \d/.test(f.tekst), '4. 1 faqe: "Lista e afateve", "Periudha: Të gjitha", poshtë vetëm "https://stoku.site" (v313)');
     ok(/\(Kos 500g\)/.test(f.tekst) && /\(Kaçkavall 300g\)/.test(f.tekst.replace(/\xe7/g, 'ç')) && !/Kos i hequr/.test(f.tekst) && /\(SKADON\)/.test(f.tekst) && /\(FURNIZUESI\)/.test(f.tekst),
       '4. rreshtat (pa të hequrin), kolonat deri te "SKADON"');
     ok(!/GJENDJA|Ka skaduar|Para 2 dit|\(Dje\)|\(Sot\)/.test(f.tekst), '4. pa kolonën "Gjendja" dhe pa legjendën (pronari: ditët s\'vlejnë të nesërmen)');
@@ -140,7 +140,7 @@ const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
     const dr = await dritarja(p);
     ok(dr.nen === '80 afate · 3 faqe A4', '5. 80 afate · 3 faqe', dr.nen);
     const f = await krijo(p);
-    ok(f && faqet(f.tekst) === 3 && /\(Faqja 1 nga 3\)/.test(f.tekst) /* v300: fundi vetëm te faqja 1 */ && /\(Periudha: \)/.test(f.tekst) && /\(80\)/.test(f.tekst) && /\(3240\)/.test(f.tekst) /* v299: të dhënat vetëm te faqja 1 */ && (f.tekst.match(/\(PRODUKTI\)/g) || []).length === 3 && /\(Produkti 80\)/.test(f.tekst), '5. 3 faqe, koka e tabelës në secilën, i fundit "Produkti 80"',
+    ok(f && faqet(f.tekst) === 3 && (f.tekst.match(/\(https:\/\/stoku\.site\)/g) || []).length === 1 /* v300: fundi vetëm te faqja 1; v313: vetëm adresa */ &&/\(Periudha: \)/.test(f.tekst) && /\(80\)/.test(f.tekst) && /\(3240\)/.test(f.tekst) /* v299: të dhënat vetëm te faqja 1 */ && (f.tekst.match(/\(PRODUKTI\)/g) || []).length === 3 && /\(Produkti 80\)/.test(f.tekst), '5. 3 faqe, koka e tabelës në secilën, i fundit "Produkti 80"',
       f && { faqe: faqet(f.tekst), koka: (f.tekst.match(/\(PRODUKTI\)/g) || []).length });
     fs.writeFileSync(__dirname + '/v275-shume.pdf', Buffer.from(f.b64, 'base64'));
     ok(!p.__gab.length, '5. pa gabime JS', p.__gab);

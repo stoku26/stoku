@@ -28,6 +28,10 @@
       '"Njoftimi ditor" për afatet tani është i detyrueshëm dhe s\'fiket më. Kush e kishte fikur, Stoku e pyet sërish dhe s\'vazhdon pa e aktivizuar.',
       'Në iPhone, kur Stoku hapet nga Safari, të tregon si ta shtosh në ekranin bazë, sepse vetëm ashtu vijnë njoftimet.'
     ] },
+    { v: 313, versioni: '1.62.0', data: '2026-11-16', titulli: 'PDF dhe fotoja e afateve', platforma: 'tel', pikat: [
+      'Poshtë faqes së PDF-së së afateve tani del vetëm adresa https://stoku.site, pa "Krijuar me Stoku", pa datën me orën dhe pa "Faqja 1 nga …". Data mbetet lart djathtas.',
+      'Edhe fotoja e afateve s\'ka më "Krijuar me Stoku": poshtë del vetëm stoku.site.'
+    ] },
     { v: 312, versioni: '1.61.1', data: '2026-11-15', titulli: 'Grupi më i qartë', platforma: 'tel', pikat: [
       'Grupi → Përmbledhja: në vend të 6 kutive me numra, tani del një fjali e madhe që të thotë çfarë ka rëndësi ("9 produkte skadojnë këtë javë"). Numrat e tjerë poshtë janë të prekshëm dhe të çojnë te lista përkatëse.',
       'Grupi → Afatet: në vend të 4 kutive, një shirit me pjesë (Të gjitha, Skaduara, Afër, Rregull, Hequra). Prek një pjesë dhe lista filtrohet; e zgjedhura ngrihet.'

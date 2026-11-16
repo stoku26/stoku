@@ -124,7 +124,7 @@
     c.fillStyle = C.line; c.fillRect(P, y, W - 2 * P, 1);
     y += 1 + 16;
     aefShenja(c, P, y, 18);
-    aefFont(c, 12, 500); aefTekst(c, 'Krijuar me Stoku · stoku.site', P + 26, y + 9, C.faint);
+    aefFont(c, 12, 500); aefTekst(c, 'stoku.site', P + 26, y + 9, C.faint); // v313: pa "Krijuar me Stoku" (pronari)
     aefTekst(c, (o.pjesa ? o.pjesa + ' · ' : '') + 'ora ' + o.ora, W - P, y + 9, C.faint, 'right');
     return cv;
   }
@@ -209,12 +209,11 @@
       }
       for (var j = 0; j < k; j++, idx++) { rreshti(l[idx], idx, y); y += AP.RR; }
     });
-    // v300: fundi vetëm te faqja 1, pa vijë (vija e rreshtit të fundit mjafton)
-    var np = d.getNumberOfPages();
+    // v300: fundi vetëm te faqja 1, pa vijë (vija e rreshtit të fundit mjafton). v313 (pronari, foto e fundit të faqes: "krijuar me
+    // stoku hiqe ... veq webin leje"): vetëm adresa, pa "Krijuar me Stoku", datën me orën dhe "Faqja 1 nga N" (data mbetet lart djathtas)
     d.setPage(1);
     font(7.9, false); ng(C.faint);
-    d.text('Krijuar me Stoku · https://stoku.site · ' + o.data + ', ora ' + o.ora, X, 290.6);
-    d.text('Faqja 1 nga ' + np, X + WI, 290.6, { align: 'right' });
+    d.text('https://stoku.site', X, 290.6);
     return d.output('arraybuffer');
   }
 

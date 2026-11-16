@@ -77,9 +77,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    Android: kanali "Njoftimet e Stoku-t" i fikur = "bllokuar"; kontrolli edhe sa herë kthehet në aplikacion (ON_RESUME). iPhone në
    Safari (iOS 16.4+, pa Stoku në ekranin bazë): dritarja tregon si shtohet në ekranin bazë (pa buton, s'kalon); iOS më i vjetër dhe
    shfletuesit pa njoftime (p.sh. brenda Facebook-ut, PDA me shfletues të vjetër) s'detyrohen. PC dhe vizitori: si më parë, pa detyrim.
+   (4) **PDF/foto e afateve** (pronari, foto e fundit të faqes 1 me rrathë rreth "Krijuar me Stoku · https://stoku.site · data, ora" dhe
+   "Faqja 1 nga 3": "edhe qajo 'krijuar me stoku' hiqe kto veq webin leje"): poshtë faqes 1 vetëm `https://stoku.site` (majtas, si më
+   parë; pa "Krijuar me Stoku", datën me orën dhe "Faqja 1 nga N"; data mbetet lart djathtas), web `apPdf` + `EksportiPdf.kt`; faqet 2+
+   pa fund si te v300. Fotoja (`aefVizato` + `EksportiFoto.kt`): "stoku.site" pa "Krijuar me Stoku" (pjesa/ora djathtas mbeten).
    Testet: `teste/v313.js` (i ri); të përshtatura: `v304.js` (me leje + njoftim ditor të ndezur s'del dritarja), `orari-test.js` (prekja
    s'e fik më; e fikura provohet pa orar në pajisje), `v226-manifest-test.js` (manifest `?v=88`), `v309.js` (gjerësia e logos në PDF
-   `4.2 * apRaporti()`), `v310.js` (vetëm grupet e ngjyrave `.tm-grupi[data-k]`). S'ka rregulla të reja Firebase.
+   `4.2 * apRaporti()`), `v310.js` (vetëm grupet e ngjyrave `.tm-grupi[data-k]`), `v275.js`/`v299.js`/`v300.js`/`v311.js` (fundi i
+   PDF-së vetëm adresa). S'ka rregulla të reja Firebase.
 
 0000000. **v312 / Android Hyrja 74 (15.11.2026, pronari: "te permbledhja zgjedhe 3shin", "bone 2shin te afatet", vetëm telefon: web + Android,
    jo PC)**: Grupi → Përmbledhja: 6 pllakat (`af-permb ek-permb-nr` / `RrjetaEPllakave`) u zëvendësuan me një fjali të madhe
