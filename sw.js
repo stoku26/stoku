@@ -10,10 +10,10 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v312';
+var CACHE = 'stoku-v313';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
-importScripts('./afatet.js?v=295', './njoftimet.js?v=304');
+importScripts('./afatet.js?v=295', './njoftimet.js?v=313');
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js',
@@ -35,27 +35,29 @@ var SHELL = FAQET.concat([
   './skedaret.js?v=1',
   './lejet.js?v=8',
   './afatet.js?v=295',
-  './eksportet.js?v=311',
+  './eksportet.js?v=313',
   './marketet.js?v=281',
   './harta.js?v=281',
-  './ekipa.js?v=309',
-  './porta.js?v=282',
-  './njoftimet.js?v=304',
+  './ekipa.js?v=313',
+  './porta.js?v=313',
+  './njoftimet.js?v=313',
   './temat.js?v=1',
-  './teRejat.js?v=312',
+  './logot.js?v=1',
+  './teRejat.js?v=313',
   // v238: skriptat e faqeve (më parë brenda HTML-së; CSP pa 'unsafe-inline')
   './kornize.js?v=238',
   './es2020.js?v=238',
-  './fillimi-tel.js?v=310',
-  './fillimi-pc.js?v=310',
-  './app-tel.js?v=312',
-  './app-pc.js?v=311',
+  './fillimi-tel.js?v=313',
+  './fillimi-pc.js?v=313',
+  './app-tel.js?v=313',
+  './app-pc.js?v=313',
   './firebase-tel.js?v=309',
   './firebase-pc.js?v=309',
-  './manifest.webmanifest?v=87',
-  './css/stoku-tokens.css?v=7',
+  './manifest.webmanifest?v=88',
+  './css/stoku-tokens.css?v=8',
+  './css/stoku-logot.css?v=1',
   './css/stoku-temat.css?v=1',
-  './css/stoku.css?v=71',
+  './css/stoku.css?v=72',
   './css/stoku-pc.css?v=44',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',

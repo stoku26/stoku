@@ -8822,7 +8822,7 @@
   // Lista e afateve kopjohet në IndexedDB që service worker-i ta kontrollojë edhe kur aplikacioni është mbyllur;
   // kur aplikacioni është hapur, kontrolli bëhet këtu pas çdo ndryshimi dhe kur rikthehesh në aplikacion.
   var njKohezi = null, njZinxhiri = Promise.resolve();
-  function njoftimetMbeshteten() { return 'Notification' in window && 'serviceWorker' in navigator && !!window.StokuNjoftimet; }
+  function njoftimetMbeshteten() { return 'Notification' in window && !!window.Notification && 'serviceWorker' in navigator && !!window.StokuNjoftimet; }
   function paLlogari() { var cl = window.__stokuCloud; return !!(cl && cl.authGati && !perdoruesiAktual()); }
   function kontrolloNjoftimet() {
     if (!njoftimetMbeshteten()) return;
@@ -8954,6 +8954,7 @@
         if (e.dergoAfatetPerOrarin) e.dergoAfatetPerOrarin(afatetPerServerin());
       }
       rifreskoOrarin();
+      pyetPerNjoftimet(); // v313: dritarja mbyllet vetë kur njoftimi ditor u ndez
     }).catch(function () { /* ok */ });
   }
   function pasLejesSeNjoftimeve() {

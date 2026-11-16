@@ -25,7 +25,7 @@ const rgb = h => 'rgb(' + [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)).jo
   // 0) statike
   const logot = lx('logot.js'), css = lx('css/stoku-logot.css'), html = lx('index.html'), pc = lx('pc.html'), kt = lx('vendas/app/src/main/java/site/stoku/vendas/ui/Logot.kt');
   ok((logot.match(/\{ id: '60(-\d+)?'/g) || []).length === 25 && /LOGOT-FILLIMI \*\/\n  var DATA/.test(logot), '0. logot.js: 25 kombinime (60, 60-1 … 60-24)');
-  ok((css.match(/:root\[data-logo="60-\d+"\]/g) || []).length === 48 && /\.stk-logo \.lg-t \{ fill: currentColor; \}/.test(css), '0. stoku-logot.css: ngjyrat për 24 variantet (e çelët + e errët)');
+  ok((css.match(/\[data-logo="60-\d+"\]/g) || []).length === 48 && /\.stk-logo \.lg-t \{ fill: currentColor; \}/.test(css), '0. stoku-logot.css: ngjyrat për 24 variantet (e çelët + e errët)');
   ok([html, pc].every(h => /<!-- LOGO-FILLIMI --><svg class="stk-logo stk-logo--22 stk-etiketa__logo"/.test(h) && !/stk-etiketa__barkodi/.test(h) && /logot\.js\?v=1/.test(h) && /stoku-logot\.css\?v=1/.test(h)),
     '0. index.html + pc.html: logoja 60 në kokë (pa "STOKU" + barkodin), logot.js + stoku-logot.css');
   ok(/id="pamjaLogoja"/.test(html) && /id="opsLogoja"/.test(pc) && /id="pamjaBoshLogo"/.test(pc), '0. vendi i "Logoja" te Pamja (telefon + PC) dhe logoja e faqes bosh te PC-ja');
@@ -54,7 +54,7 @@ const rgb = h => 'rgb(' + [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)).jo
       : { userAgent: opt.ua || UA, viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
     await ctx.route(u => !u.href.startsWith(B), r => r.abort());
     await ctx.route(u => u.href.startsWith(PUSH), r => r.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true, fotot: {} }) }));
-    if (opt.paNjoftime) await ctx.addInitScript(() => { try { delete window.Notification; } catch (e) { /* ok */ } window.Notification = undefined; });
+    if (opt.paNjoftime) await ctx.addInitScript(() => { try { delete window.Notification; } catch (e) { /* ok */ } });
     else {
       await ctx.addInitScript(() => { try { Object.defineProperty(Notification, 'permission', { get: () => 'granted' }); } catch (e) { /* ok */ } });
       if (!opt.paDitor) await ctx.addInitScript(u => { try { localStorage.setItem('stoku:orari', JSON.stringify({ uid: u, aktiv: true, ora: '08:00', koha: Date.now() })); } catch (e) { /* ok */ } }, uid);
@@ -152,7 +152,7 @@ const rgb = h => 'rgb(' + [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)).jo
     await pi.screenshot({ path: __dirname + '/v313-iphone.png' });
     const pv = await faqe('uA', { ua: UA_IPHONE('15_4'), paNjoftime: true });
     ok(!(await pv.evaluate(() => document.getElementById('dlgNjoftimet').classList.contains('hapur'))), '7. iPhone iOS 15 (pa njoftime në web): s\'detyrohet');
-    pi.__gab.length = 0; pv.__gab.length = 0;
+    ok(!pi.__gab.length && !pv.__gab.length, '7. iPhone: pa gabime JS', [pi.__gab, pv.__gab]);
   }
 
   const gab = [p1, p2, pp, p6].flatMap(x => x.__gab || []);

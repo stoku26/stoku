@@ -117,9 +117,15 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
   await p.click('#btnOpsione'); await p.waitForTimeout(300); await p.click('[data-faqe="njoftimet"]'); await p.waitForTimeout(1200);
   ok(/Cron/.test(await p.textContent('#njOraServer')), '6b. pa Cron → paralajmërim', await p.textContent('#njOraServer'));
   ok(await p.isChecked('#njDitor') && await p.inputValue('#njOra') === '18:47', '7. pas rihapjes: ndezur, 18:47');
+  // v313: njoftimi ditor është i detyrueshëm: prekja s'e fik (toast), serveri s'merr aktiv:false
   orari.length = 0; await p.click('label[for="njDitor"]'); await p.waitForTimeout(1200);
-  ok(orari.some(x => x.aktiv === false) && await p.evaluate(() => localStorage.getItem('stoku:orari')) === null, '7. fikja → aktiv:false');
-  // serveri pa KV
+  ok(await p.isChecked('#njDitor') && !orari.some(x => x.aktiv === false) && await p.evaluate(() => localStorage.getItem('stoku:orari')) !== null &&
+    /i detyrueshëm/.test(await p.textContent('#toast')), '7. s\'fiket më (v313): mbetet ndezur, "i detyrueshëm"', await p.textContent('#toast'));
+  // pajisja pa orar (p.sh. e fikur para v313): ndezja me serverin pa KV dështon dhe mbetet e fikur
+  await p.evaluate(() => localStorage.removeItem('stoku:orari'));
+  await p.reload(); await p.waitForTimeout(3000);
+  await p.click('#btnOpsione'); await p.waitForTimeout(300); await p.click('[data-faqe="njoftimet"]'); await p.waitForTimeout(800);
+  ok(!(await p.isChecked('#njDitor')), '8. pa orar në pajisje: "Njoftimi ditor" i fikur');
   kvGati = false; await p.click('label[for="njDitor"]'); await p.waitForTimeout(1200);
   ok(!(await p.isChecked('#njDitor')), '8. serveri pa KV: mbetet e fikur');
   // dalja nga llogaria heq orarin

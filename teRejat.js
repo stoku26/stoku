@@ -20,6 +20,14 @@
   'use strict';
 
   var LISTA = [
+    { v: 313, versioni: '1.62.0', data: '2026-11-16', titulli: 'Logoja e re', pikat: [
+      'Stoku ka logo të re: një listë me shenjë. Te Cilësimet → Pamja → Logoja zgjedh njërën nga 25 ngjyrat e saj. Logoja e zgjedhur del kudo: lart në Stoku, në hyrje, në skedën e shfletuesit, te PDF-ja dhe fotoja e afateve.',
+      'Logoja që zgjedh ruhet te llogaria jote: kur hyn prapë, ose në një telefon, kompjuter ose aplikacion tjetër, e gjen të njëjtën.'
+    ] },
+    { v: 313, versioni: '1.62.0', data: '2026-11-16', titulli: 'Njoftimet e detyrueshme', platforma: 'tel', pikat: [
+      '"Njoftimi ditor" për afatet tani është i detyrueshëm dhe s\'fiket më. Kush e kishte fikur, Stoku e pyet sërish dhe s\'vazhdon pa e aktivizuar.',
+      'Në iPhone, kur Stoku hapet nga Safari, të tregon si ta shtosh në ekranin bazë, sepse vetëm ashtu vijnë njoftimet.'
+    ] },
     { v: 312, versioni: '1.61.1', data: '2026-11-15', titulli: 'Grupi më i qartë', platforma: 'tel', pikat: [
       'Grupi → Përmbledhja: në vend të 6 kutive me numra, tani del një fjali e madhe që të thotë çfarë ka rëndësi ("9 produkte skadojnë këtë javë"). Numrat e tjerë poshtë janë të prekshëm dhe të çojnë te lista përkatëse.',
       'Grupi → Afatet: në vend të 4 kutive, një shirit me pjesë (Të gjitha, Skaduara, Afër, Rregull, Hequra). Prek një pjesë dhe lista filtrohet; e zgjedhura ngrihet.'

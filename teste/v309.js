@@ -27,7 +27,8 @@ const ADMIN = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
   ok(/function kuNePc\(titulli\) \{ return titulli === 'Afatet' \? 'te Afatet'/.test(tel) && /val kuNePc = if \(sk\.titulli == "Afatet"\) "te Afatet"/.test(lx('vendas/app/src/main/java/site/stoku/vendas/ui/EksportetUI.kt')),
     '0. telefoni dhe Android thonë ku del skedari në PC');
   const ep = lx('eksportet.js'), ekt = lx('vendas/app/src/main/java/site/stoku/vendas/EksportiPdf.kt');
-  ok(/MESI: 18\.5 \}/.test(ep) && /'PNG', X, AP\.MESI - 2\.1, 15\.35, 4\.2\)/.test(ep) && /d\.text\(o\.data, X \+ WI, AP\.MESI \+ 1\.09/.test(ep) &&
+  // v313: gjerësia e logos sipas raportit të logos 60 (apRaporti), jo 15.35 mm e logos së vjetër
+  ok(/MESI: 18\.5 \}/.test(ep) && /'PNG', X, AP\.MESI - 2\.1, 4\.2 \* apRaporti\(\), 4\.2\)/.test(ep) && /d\.text\(o\.data, X \+ WI, AP\.MESI \+ 1\.09/.test(ep) &&
     /'Lista e afateve', AP\.W \/ 2, AP\.MESI - 1\.56, \{ align: 'center' \}/.test(ep) && /xi, AP\.MESI \+ 5\.72\)/.test(ep) &&
     /private const val MESI = 18\.5f/.test(ekt) && /cv\.logo\(v\.p, X, MESI - 2\.1f/.test(ekt) && /W \/ 2, MESI - 1\.56f, INK, qendra = true/.test(ekt) && /xi, MESI \+ 5\.72f/.test(ekt),
     '0. PDF e afateve: titulli në mes, logoja dhe data në të njëjtën vijë (web + Android)');
