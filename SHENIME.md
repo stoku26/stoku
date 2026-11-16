@@ -84,7 +84,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    Testet: `teste/v313.js` (i ri); të përshtatura: `v304.js` (me leje + njoftim ditor të ndezur s'del dritarja), `orari-test.js` (prekja
    s'e fik më; e fikura provohet pa orar në pajisje), `v226-manifest-test.js` (manifest `?v=88`), `v309.js` (gjerësia e logos në PDF
    `4.2 * apRaporti()`), `v310.js` (vetëm grupet e ngjyrave `.tm-grupi[data-k]`), `v275.js`/`v299.js`/`v300.js`/`v311.js` (fundi i
-   PDF-së vetëm adresa). S'ka rregulla të reja Firebase.
+   PDF-së vetëm adresa), `v268.js` (etiketa me logon 22 px është 54 px si `EtiketaStoku`: kërkimi nga 80, më parë 94). Regresioni
+   `teste/regresioni-v313.txt` (në dy gjysma: 69 testet e para para ndryshimit të PDF-së, që s'i prek): si v312, përveç `v313.js`
+   të ri. S'ka rregulla të reja Firebase.
 
 0000000. **v312 / Android Hyrja 74 (15.11.2026, pronari: "te permbledhja zgjedhe 3shin", "bone 2shin te afatet", vetëm telefon: web + Android,
    jo PC)**: Grupi → Përmbledhja: 6 pllakat (`af-permb ek-permb-nr` / `RrjetaEPllakave`) u zëvendësuan me një fjali të madhe

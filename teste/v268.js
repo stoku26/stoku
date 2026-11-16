@@ -109,7 +109,8 @@ const fab = p => p.evaluate(() => {
   ok(tab.h === 65 && tsvg.w === 26 && tt.fs === '11px' && tt.y - tsvg.b === 4, '8. shiriti poshtë: 64 + vija, ikona 26, teksti 11 (4 nën ikonë)', { tab, tsvg, tt });
   const imp = await rr(p, '#btnImportGaleria'), kk = await rr(p, '#kerkoGlobal');
   const kuti = await p.evaluate(() => { const k = document.getElementById('kerkoGlobal').closest('.kerko-kuti').getBoundingClientRect(); const s = document.querySelector('.sb-summary').getBoundingClientRect(); return { h: Math.round(k.height), top: Math.round(k.top), poshte: Math.round(k.bottom), kartela: Math.round(s.top) }; });
-  ok(imp.w === 46 && kuti.h === 50 && kuti.top >= 94 && kuti.top <= 95 && kuti.kartela - kuti.poshte === 18, '8. Stoku: butonat lart 46, kërkimi 50 (12 + logoja + 14 nga lart), 18 deri te kartela', { imp, kuti });
+  // v313: logoja 60 (22 px) në vend të "STOKU" + barkodit: etiketa 54 px (si EtiketaStoku te Android-i), kërkimi nga 80 (më parë 94)
+  ok(imp.w === 46 && kuti.h === 50 && kuti.top >= 80 && kuti.top <= 81 && kuti.kartela - kuti.poshte === 18, '8. Stoku: butonat lart 46, kërkimi 50 (12 + logoja + 14 nga lart), 18 deri te kartela', { imp, kuti });
   await p.click('.folder-karta >> text=Pije'); await p.waitForTimeout(600);
   await p.click('#btnKerko'); await p.waitForTimeout(200); // v269: "Kërko" hapet me 🔍
   const fush = await p.evaluate(() => Array.from(document.querySelectorAll('#siperFolderi .kerko-kuti')).map(e => { const r = e.getBoundingClientRect(); return [Math.round(r.top), Math.round(r.height)]; }));
