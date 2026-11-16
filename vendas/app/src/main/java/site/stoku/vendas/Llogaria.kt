@@ -326,6 +326,7 @@ object Llogaria {
             _perdoruesi.value = Perdoruesi(u.uid, emriRi)
             regjistroPerdoruesin(Perdoruesi(u.uid, emriRi)) // lista e kolegëve e merr emrin e ri menjëherë
             ruajEmrinEFundit(emriRi)
+            try { Push.oretELidhura() } catch (e: Exception) { } // Hyrja 78: emri i ri edhe te ora (pa e lidhur prapë)
             null
         } catch (e: Exception) { "rrjeti" }
     }

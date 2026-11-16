@@ -283,6 +283,10 @@ fun OraFaqja(mbrapa: () -> Unit) {
     var hint by remember { mutableStateOf("") }
     var duke by remember { mutableStateOf(false) }
     var ora by remember { mutableStateOf("galaxy") }
+    // Hyrja 78 (web v316): ora e lidhur me detajet + "Shkëput orën"; kutia e kodit vetëm kur s'ka orë të lidhur
+    var oret by remember { mutableStateOf<List<Push.OraELidhur>>(emptyList()) }
+    var rifresko by remember { mutableStateOf(0) }
+    LaunchedEffect(rifresko) { Push.oretELidhura()?.let { oret = it } }
     fun lidh() {
         val k = kodi.filter { it.isDigit() }
         if (Llogaria.perdoruesi.value == null) { hint = "Hyr në llogari që ta lidhësh orën."; return }
@@ -292,7 +296,7 @@ fun OraFaqja(mbrapa: () -> Unit) {
             val r = Push.lidhOren(k)
             duke = false
             hint = when (r) {
-                "ok" -> { kodi = ""; "✓ Ora u lidh. Pas pak sekondash në orë del lista e produkteve që skadojnë sot." }
+                "ok" -> { kodi = ""; scope.launch { kotlinx.coroutines.delay(1500); rifresko++ }; "✓ Ora u lidh. Pas pak sekondash në orë del lista e produkteve që skadojnë sot." }
                 "rruga" -> "Serveri (Cloudflare) ka kodin e vjetër: ngjite kodin e ri te stoku-push (versioni 157 ose më i ri) dhe provo prapë."
                 "kodi" -> "Ky kod s'u gjet ose ka skaduar. Shiko kodin e ri në orë."
                 "rrjeti" -> "S'ka internet. Provo prapë."
@@ -315,8 +319,9 @@ fun OraFaqja(mbrapa: () -> Unit) {
                     }
                 }
             }
+            if (ora == "galaxy" && oret.isNotEmpty()) oret.forEach { o -> OraELidhurKarta(o) { oret = oret.filter { it.id != o.id } } }
             if (ora == "galaxy") {
-                Column(Modifier.padding(bottom = 12.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(n.surface2).border(1.dp, n.line, RoundedCornerShape(14.dp))
+                if (oret.isEmpty()) Column(Modifier.padding(bottom = 12.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(n.surface2).border(1.dp, n.line, RoundedCornerShape(14.dp))
                     .padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Aplikacioni Stoku në orë", style = tx(18, 700, n.ink, -0.01))
                     Text("Hape Stoku në orë: del një kod me 6 shifra (ndërrohet çdo 15 sekonda). Shkruaje këtu që ora të lidhet me llogarinë tënde.", style = txR(12.5f, 400, n.muted))
@@ -479,5 +484,42 @@ fun PyetjaENjoftimeve() {
                 } else try { kerko.launch(Manifest.permission.POST_NOTIFICATIONS) } catch (e: Exception) { }
             }, Modifier.fillMaxWidth().padding(top = 6.dp))
         }
+    }
+}
+
+
+/** Hyrja 78: karta "Ora është e lidhur" (modeli, llogaria, kur u lidh, hera e fundit aktive, versioni) me "Shkëput orën" (prek dy herë) */
+@Composable
+private fun OraELidhurKarta(o: Push.OraELidhur, kurShkeputet: () -> Unit) {
+    val n = N
+    val scope = rememberFusha()
+    var pyet by remember { mutableStateOf(false) }
+    var duke by remember { mutableStateOf(false) }
+    var gabim by remember { mutableStateOf("") }
+    fun data(t: Long): String { if (t <= 0) return "–"; val c = java.util.Calendar.getInstance().apply { timeInMillis = t }
+        fun z(x: Int) = (if (x < 10) "0" else "") + x
+        return z(c.get(java.util.Calendar.DAY_OF_MONTH)) + "." + z(c.get(java.util.Calendar.MONTH) + 1) + "." + c.get(java.util.Calendar.YEAR) + ", ora " + z(c.get(java.util.Calendar.HOUR_OF_DAY)) + ":" + z(c.get(java.util.Calendar.MINUTE)) }
+    fun relative(t: Long): String { if (t <= 0) return "–"; val m = ((System.currentTimeMillis() - t) / 60000).toInt()
+        return when { m < 2 -> "tani"; m < 60 -> "para $m minutash"; m < 1440 -> (m / 60).let { if (it == 1) "para 1 ore" else "para $it orësh" }; else -> (m / 1440).let { if (it == 1) "dje" else "para $it ditësh" } } }
+    Column(Modifier.padding(bottom = 12.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(n.surface2).border(1.dp, n.line, RoundedCornerShape(14.dp))
+        .padding(horizontal = 14.dp, vertical = 12.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Box(Modifier.size(38.dp).clip(RoundedCornerShape(11.dp)).background(n.accentTint), contentAlignment = Alignment.Center) { Text("✓", style = tx(18, 800, n.accent)) }
+            Column { Text("Ora është e lidhur", style = tx(16, 700, n.ink)); Text(o.model.ifBlank { "Ora e dorës" }, style = txR(12.5f, 400, n.muted)) }
+        }
+        listOf("Llogaria" to (Llogaria.perdoruesi.value?.emri ?: o.emri).ifBlank { "–" }, "U lidh" to data(o.koha), "Hera e fundit aktive" to relative(o.aktiv), "Versioni në orë" to (if (o.v > 0) "1.0.${o.v}" else "–")).forEach { (k, v) ->
+            Box(Modifier.padding(top = 8.dp).fillMaxWidth().height(1.dp).background(n.line))
+            Row(Modifier.fillMaxWidth().padding(top = 7.dp), horizontalArrangement = Arrangement.SpaceBetween) { Text(k, style = txR(13.5f, 400, n.muted)); Text(v, style = txR(13.5f, 500, n.ink)) }
+        }
+        Box(Modifier.padding(top = 12.dp).fillMaxWidth().height(44.dp).clip(RoundedCornerShape(12.dp)).border(1.5.dp, Color(0xFFDC2626), RoundedCornerShape(12.dp))
+            .clickable(enabled = !duke) {
+                if (!pyet) { pyet = true; return@clickable }
+                duke = true; gabim = ""
+                scope.launch { val r = Push.shkeputOren(o.id); duke = false; if (r == "ok") kurShkeputet() else { pyet = false; gabim = if (r == "rrjeti") "S'ka internet. Provo prapë." else "S'u shkëput. Provo prapë." } }
+            }, contentAlignment = Alignment.Center) {
+            Text(if (duke) "Duke shkëputur…" else if (pyet) "Prek sërish për ta shkëputur" else "Shkëput orën", style = tx(14, 700, Color(0xFFEF4444)))
+        }
+        if (gabim.isNotEmpty()) Text(gabim, style = txR(12.5f, 500, Color(0xFFEF4444)), modifier = Modifier.padding(top = 6.dp))
+        Text("Pas shkëputjes, ora s'e sheh më llogarinë dhe kërkon kod të ri.", style = txR(12f, 400, n.muted), modifier = Modifier.padding(top = 8.dp))
     }
 }

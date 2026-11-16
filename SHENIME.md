@@ -53,6 +53,19 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v316 / Android Hyrja 78 / ora / Worker 173 (16.11.2026): ORA E DORËS**. Pronari (4 foto, aprovoi propozimet):
+   (1) "kur osht i lidht me oren ... me te tregu me qfar ore osht e lidh e detaje tjera e jo me ta qit apet me u lidh me tjeter, edhe me
+   mujt me shkput prej appit tel": Cilësimet → Ora e dorës: karta "Ora është e lidhur" (modeli, llogaria, u lidh, hera e fundit aktive,
+   versioni) + "Shkëput orën" (prek dy herë); kutia e kodit vetëm pa orë. Web tel `rifreskoOret`/`vizatoOret` (#oraLidhur, #oraLidhKuti),
+   Android `OraELidhurKarta`/`Push.oretELidhura`. Worker 173: `/ora/kodi` merr `model`, `v`; `ora-tok` ruan `model`, `v`, `aktiv`
+   (`/ora/sot?v=&m=` e përditëson më së shumti një herë në orë, kufiri i shkrimeve KV); `/ora/oret`, `/ora/shkeput-tel {id = 16 shkronjat e
+   para të hash-it}`, `/ora/emri`. Serveri i vjetër: faqja mbetet me kodin (s'del gabim). (3) "kur dikush po e ndrrojke username ... me
+   ta qit userin e ri": `/ora/emri` pas ndryshimit të emrit (`pasNdryshimitTeEmrit`, Android `ndryshoEmrin`) dhe kur hapet faqja e orës.
+   (2) ora: "8 deri 30 ditë" = `ChipGrupi` (hapet `Pamja.Grupi("muaji")`); (4) pa "PËR T'U HEQUR · N"; kur s'ka të skaduara, sot as këtë
+   javë: "✓ Asgjë për t'u hequr këtë javë" me të gjelbër. Kontrolli i orës: 401 te `/ora/sot` fshin edhe `krejt`; ora dërgon modelin
+   (`Settings.Global device_name`) dhe versionin. **Pronari: ngjite `worker/stoku-push.js` (versioni 173) te Cloudflare.**
+   Teste: `teste/v316.js`, `teste/wp/ora-oret-prova.mjs`.
+
 0000000. **v315 / Android Hyrja 77 (16.11.2026): HEQJA NGA RAFTI PAS KËRKESËS + NGJYRAT (CYAN, PORTOKALLI, IKONAT "B")**.
    (1) Pronari: "ja qova e heki prej rafti erdh njoftimi po produkti hala osht si ne raft nfaqe te afatet": kur kolegu shtyp "E hoqa
    nga rafti" (`kryejKerkesen`), kërkuesi merr "kerkese-kryer" (njoftim + ngjarje me `kerkuesUid`), por afati i tij s'ndryshonte.

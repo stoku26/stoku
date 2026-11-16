@@ -521,6 +521,13 @@ html.sb body { -webkit-user-select: none; user-select: none; -webkit-touch-callo
 
 /* Njoftimi ditor: zgjedhja e orës */
 .sb input.nj-ora { flex: none; width: 96px; height: 44px; box-sizing: border-box; padding: 0 8px; border: 1px solid var(--sb-line); border-radius: 12px; background: var(--sb-surface); color: var(--sb-ink); font: inherit; font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: center; color-scheme: light dark; }
+.sb .ora-lidh[hidden] { display: none; }
+/* v316: ora e lidhur (modeli, llogaria, kur u lidh, hera e fundit aktive, versioni) + "Shkëput orën" */
+.sb .ora-lidhur__krye { display: flex; align-items: center; gap: 10px; }
+.sb .ora-lidhur__ok { flex: none; width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: var(--sb-accent-tint); color: var(--sb-accent); font-weight: 800; font-size: 18px; }
+.sb .ora-lidhur__rr { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-top: 1px solid var(--sb-line); font-size: 13.5px; }
+.sb .ora-lidhur__rr span:first-child { color: var(--sb-muted); }
+.sb .ora-lidhur__shkeput { width: 100%; margin-top: 4px; color: var(--sb-danger, #dc2626); box-shadow: inset 0 0 0 1.5px var(--sb-danger, #dc2626); background: transparent; }
 .sb .ora-lidh { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; margin-bottom: 12px; border-radius: 14px; background: var(--sb-surface-2, var(--sb-surface)); box-shadow: inset 0 0 0 1px var(--sb-line); }
 .sb .ora-lidh__rresht { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .sb input.nj-ora.ora-kodi { width: 140px; letter-spacing: 3px; }

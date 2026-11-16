@@ -170,7 +170,7 @@ fun Lidhja(kurLidhet: () -> Unit) {
     }
 }
 
-// v313: logoja 60 (shenja + "stoku" + pika), si te telefoni (res/drawable/logo_stoku.xml nga teste/logot-gjenero.py)
+// v314: logoja me shkronja "stoku." (res/drawable/logo_stoku.xml nga teste/logot-gjenero.py)
 @Composable
 fun Logo() {
     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -389,10 +389,12 @@ fun ListaEkrani(kurShkeputet: () -> Unit, kurHumbetLidhja: () -> Unit) {
             Scaffold(timeText = { TimeText() }, positionIndicator = { PositionIndicator(scalingLazyListState = gjendja) }) {
                 ScalingLazyColumn(state = gjendja, modifier = Modifier.fillMaxSize().background(Color.Black)) {
                     val l = lista
-                    item {
-                        ListHeader {
-                            Text(if (l == null) "STOKU" else "PËR T'U HEQUR · ${l.sot.size + l.skaduara}", color = Gri, fontWeight = FontWeight.SemiBold)
-                        }
+                    // v316 (pronari: "per tu hequr heke komplet ... nese nuk ka skadu kurgjo ose nuk ka me skadu kurgjo nqet jav met gjelbert
+                    // bone me shkru"): pa titullin "PËR T'U HEQUR"; kur s'ka asgjë të skaduar, sot as këtë javë: një rresht i gjelbër
+                    val bosh = l != null && l.skaduaraL.isEmpty() && l.skaduara == 0 && l.sot.isEmpty() && l.javaN == 0
+                    if (bosh) item {
+                        Text("✓ Asgjë për t'u hequr\nkëtë javë", textAlign = TextAlign.Center, color = Gjelber, fontWeight = FontWeight.Bold, fontSize = 15.sp,
+                            modifier = Modifier.fillMaxWidth().padding(top = 18.dp, bottom = 10.dp))
                     }
                     iRi?.let { v ->
                         item {
@@ -429,8 +431,8 @@ fun ListaEkrani(kurShkeputet: () -> Unit, kurHumbetLidhja: () -> Unit) {
                             )
                         }
                     }
-                    item { ListHeader { Text("SKADOJNË SOT · ${l?.sot?.size ?: 0}", color = Verdhe, fontWeight = FontWeight.SemiBold) } }
-                    if (l != null && l.sot.isEmpty()) item {
+                    if (!bosh) item { ListHeader { Text("SKADOJNË SOT · ${l?.sot?.size ?: 0}", color = Verdhe, fontWeight = FontWeight.SemiBold) } }
+                    if (l != null && l.sot.isEmpty() && !bosh) item {
                         Text("Asnjë produkt s'skadon sot ✓", textAlign = TextAlign.Center, color = Color.White, modifier = Modifier.padding(8.dp))
                     }
                     if (l != null) {
@@ -449,14 +451,9 @@ fun ListaEkrani(kurShkeputet: () -> Unit, kurHumbetLidhja: () -> Unit) {
                         }
                     }
                     // 8 deri 30 ditë: pas "Këtë javë" (pa ato që janë te "Këtë javë" dhe pa të hequrat në radhë)
+                    // v316 (pronari: "8 deri 30 dit bone te minimizume sikur ajo met gjelbert"): buton i mbyllur, lista hapet me prekje
                     if (l != null && muaji830.isNotEmpty()) {
-                        val muaji = muaji830
-                        item { ListHeader { Text("8 DERI 30 DITË · ${muaji.size}", color = Gri, fontWeight = FontWeight.SemiBold) } }
-                        val cm = celesaUnike("m", muaji)
-                        items(muaji.size, key = { cm[it] }) { i ->
-                            val a = muaji[i]
-                            RreshtiAfatit(a, poshteMeFurnizues(a), AfatAfer) { pamja = Pamja.Detaji(a, false) }
-                        }
+                        item { ChipGrupi("8 deri 30 ditë · ${muaji830.size}", "Prek për listën", AfatAfer) { hapMeKrejt(Pamja.Grupi("muaji")) } }
                     }
                     // v238: produktet me afat mbi 30 ditë (jo në faqen kryesore); kërkimi është butoni poshtë
                     if (l != null) {
