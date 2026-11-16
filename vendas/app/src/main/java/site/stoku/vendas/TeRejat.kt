@@ -8,6 +8,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(77, "2026-11-16", "Heqja nga rafti dhe ngjyrat", listOf(
+            "Kur i kërkon një kolegu ta heqë një produkt nga rafti dhe ai shtyp \"E hoqa nga rafti\", produkti te Afatet e tua tani shënohet vetë i hequr (me emrin e tij).",
+            "Te Cilësimet → Pamja → Ngjyrat: \"Trëndafili\" u zëvendësua me \"Portokalli\" (edhe te temat e çelëta) dhe \"Mokë\" me \"Cyan\". Secila ngjyrë tani tregohet me \"stoku.\" dhe një buton me ngjyrën e saj."
+        )),
         Hyrja(76, "2026-11-16", "Logoja me shkronja", listOf(
             "Logoja e Stoku-t tani është vetëm me shkronja: \"stoku.\" e madhe lart, pa kuti dhe pa emrin e përdoruesit poshtë saj.",
             "Ikona e aplikacionit në ekranin e telefonit ndërron sipas temës: e zezë me temën e errët, e bardhë me të çelëtën. Ndërrohet kur del nga aplikacioni; në disa telefona duhet ta vendosësh prapë në ekranin kryesor.",

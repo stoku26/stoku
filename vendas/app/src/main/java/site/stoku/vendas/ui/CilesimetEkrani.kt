@@ -314,19 +314,17 @@ private fun GrupiNgjyrave(erret: Boolean, titulli: String) {
     }
 }
 
-/** Faqja e vogël e temës: sfondi, shiriti i titullit, një rresht dhe pika me ngjyrën kryesore */
+/** Hyrja 77 (web v315, pronari zgjodhi idenë "B"): "stoku." me ngjyrën e tekstit të temës (pika me ngjyrën kryesore) dhe një buton poshtë */
 @Composable
 private fun MiniaturaETemes(q: Ngjyrat, modifier: Modifier, vetemPika: Boolean = false) {
     val f = RoundedCornerShape(8.dp)
-    Canvas(modifier.clip(f).background(q.bg).border(1.dp, q.line, f)) {
-        val dp = density
-        val w = size.width; val h = size.height
-        if (!vetemPika) {
-            drawRoundRect(q.ink.copy(alpha = .85f), Offset(5 * dp, 6 * dp), Size(w * .6f, 5 * dp), CornerRadius(3 * dp))
-            drawRoundRect(q.surface, Offset(5 * dp, 15 * dp), Size(w - 10 * dp, 11 * dp), CornerRadius(4 * dp))
-            drawRoundRect(q.line, Offset(5 * dp, 15 * dp), Size(w - 10 * dp, 11 * dp), CornerRadius(4 * dp), style = Stroke(1 * dp))
-            drawRoundRect(q.accent, Offset(5 * dp, h - 10 * dp), Size(w * .45f, 6 * dp), CornerRadius(3 * dp))
-        } else drawRoundRect(q.accent, Offset(5 * dp, h - 11 * dp), Size(18 * dp, 6 * dp), CornerRadius(3 * dp))
+    val m = if (vetemPika) 4.dp else 6.dp
+    Box(modifier.clip(f).background(q.bg).border(1.dp, q.line, f)) {
+        Text(buildAnnotatedString { append("stoku"); withStyle(SpanStyle(color = q.accent)) { append(".") } },
+            style = tx(if (vetemPika) 9 else 12, 800, q.ink, -0.03), maxLines = 1, softWrap = false,
+            modifier = Modifier.align(Alignment.TopStart).padding(start = m, top = if (vetemPika) 3.dp else 4.dp))
+        Box(Modifier.align(Alignment.BottomCenter).padding(start = m, end = m, bottom = m).fillMaxWidth().height(if (vetemPika) 6.dp else 8.dp)
+            .clip(RoundedCornerShape(4.dp)).background(q.accent))
     }
 }
 
