@@ -8876,11 +8876,15 @@
   // i aktivizu"): (1) edhe "Njoftimi ditor" (kush ka lejen e afateve) duhet të jetë i ndezur: s'fiket më te Cilësimet dhe kush e kishte
   // fikur pyetet sërish; kur ndezja s'ia del për shkak të serverit/internetit (jo të përdoruesit), dritarja pushon 30 min.
   // (2) iPhone në Safari (pa Stoku në ekranin bazë, iOS 16.4+): njoftimet vijnë vetëm nga ekrani bazë, prandaj tregohet si shtohet.
-  var njDitorDeshtoi = 0;
+  // Kur shfletuesi s'e pranon push-in (p.sh. telefon pa shërbimet e Google): pyet sërish vetëm pas 24 orësh
+  var njDitorDeshtoi = 0, KEY_NJ_PA_PUSH = 'stoku:nj:ditor-pa-push';
   function ditoriMungon() {
     var e = ekipaCloud(), u = perdoruesiAktual();
     if (!e || !e.orariIm || !e.vendosOrarin || !u || !u.uid || !leja('afatet')) return false;
+    if (e.pushMbeshtetet && !e.pushMbeshtetet()) return false;
     if (Date.now() - njDitorDeshtoi < 30 * 60000) return false;
+    var pp = 0; try { pp = Number(localStorage.getItem(KEY_NJ_PA_PUSH)) || 0; } catch (x) { /* ok */ }
+    if (Date.now() - pp < 24 * 3600000) return false;
     var o = e.orariIm();
     return !(o && o.aktiv);
   }
@@ -8924,7 +8928,9 @@
         toast('Njoftimet u aktivizuan.');
       } else {
         njDitorDeshtoi = Date.now();
-        toast(tekstiGabimitOrarit(r && r.arsye), 4500);
+        var paPush = r && (r.arsye === 'pa-push' || r.arsye === 'pa-mbeshtetje');
+        if (paPush) { try { localStorage.setItem(KEY_NJ_PA_PUSH, String(Date.now())); } catch (x) { /* ok */ } }
+        toast(paPush ? 'Ky shfletues s\'i pranon njoftimet nga serveri. Provo me Chrome ose me aplikacionin Stoku për Android.' : tekstiGabimitOrarit(r && r.arsye), 4500);
       }
       rifreskoOrarin();
       pyetPerNjoftimet();

@@ -84,4 +84,3 @@ fun EtiketaStoku(emri: String, onClick: () -> Unit, modifier: Modifier = Modifie
             maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.height(13.dp))
     }
 }
-}

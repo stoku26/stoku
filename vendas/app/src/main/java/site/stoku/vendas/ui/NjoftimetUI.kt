@@ -383,8 +383,10 @@ fun PyetjaENjoftimeve() {
     var ditor by remember { mutableStateOf(false) }
     var dukeDitor by remember { mutableStateOf(false) }
     var ditorDeshtoi by remember { mutableStateOf(0L) }
+    // pa FCM (p.sh. telefon pa shërbimet e Google): pyet sërish vetëm pas 24 orësh
     fun ditoriMungon(): Boolean = Llogaria.leja("afatet") && Push.orariIm()?.get("aktiv") != true &&
-        System.currentTimeMillis() - ditorDeshtoi > 30 * 60000L
+        System.currentTimeMillis() - ditorDeshtoi > 30 * 60000L &&
+        System.currentTimeMillis() - (StokuApp.prefsOse("ditori_pa_push", "0").toLongOrNull() ?: 0L) > 24 * 3600000L
     fun pasLejes() {
         Toast.trego("Njoftimet u aktivizuan.")
         scope.launch {
@@ -399,7 +401,11 @@ fun PyetjaENjoftimeve() {
             val r = try { Push.vendosOrarin(true, Push.oraEZgjedhur()) } catch (e: Exception) { "rrjeti" }
             dukeDitor = false
             if (r == "ok") { Llogaria.perdoruesi.value?.uid?.let { StokuApp.vendosPref("ditori_auto", it) }; Toast.trego("Njoftimet u aktivizuan.") }
-            else { ditorDeshtoi = System.currentTimeMillis(); Toast.trego(tekstiGabimitOrarit(r), 4500) }
+            else {
+                ditorDeshtoi = System.currentTimeMillis()
+                if (r == "pa-push") StokuApp.vendosPref("ditori_pa_push", System.currentTimeMillis().toString())
+                Toast.trego(tekstiGabimitOrarit(r), 4500)
+            }
         }
     }
     // Kontrollohet sa herë kthehet në aplikacion (p.sh. nga cilësimet e telefonit) dhe çdo 1.5 s sa është hapur
