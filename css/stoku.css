@@ -664,7 +664,6 @@ html.sb:not([data-tema="dark"]) .sb-stat__value--exp { color: var(--sb-exp, #d04
 .sb #kryeButonatFolderi { gap: 8px; }
 .sb #kryeButonatFolderi .btn-ikone, .sb #btnMbrapa { width: 42px; height: 42px; }
 .sb #btnMbrapa { margin-right: 2px; }
-.sb .stk-etiketa__emri { line-height: 1.275; }
 .sb .stk-etiketa__nen { line-height: 13px; }
 .sb .kerko-kuti { height: 50px; }
 .sb .sb-summary__value { line-height: 1.275; }

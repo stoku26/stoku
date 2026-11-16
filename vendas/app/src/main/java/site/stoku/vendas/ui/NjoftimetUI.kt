@@ -220,9 +220,10 @@ fun NjoftimetFaqja(mbrapa: () -> Unit) {
         if (Llogaria.leja("afatet")) {
             TitulliGrupit("Njoftimi ditor për afatet")
             GrupiOps {
+                // Hyrja 75 (web v313): i detyrueshëm, ndizet por s'fiket
                 RreshtNdezes(Ik.KalendarOk, "portokalli", "Njoftimi ditor",
-                    "Në orën që zgjedh të vjen një njoftim për produktet që skadojnë atë ditë dhe për ato që kanë skaduar e duhen hequr nga rafti, edhe kur Stoku është i mbyllur. Nëse s'ka asnjë, s'vjen njoftim.",
-                    aktiv, aktiv = !duke) { ruajOrarin(it, ora) }
+                    "I detyrueshëm. Në orën që zgjedh të vjen një njoftim për produktet që skadojnë atë ditë dhe për ato që kanë skaduar e duhen hequr nga rafti, edhe kur Stoku është i mbyllur. Nëse s'ka asnjë, s'vjen njoftim.",
+                    aktiv, aktiv = !duke) { if (it) ruajOrarin(true, ora) else Toast.trego("Njoftimi ditor është i detyrueshëm dhe s'mund të fiket.") }
                 VijaGrupit()
                 Row(Modifier.fillMaxWidth().clickable(enabled = !duke) { zgjidhOren() }.padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.align(Alignment.Top)) { IkonaEKategorise(Ik.Alarm, "blu") }
@@ -376,6 +377,16 @@ fun PyetjaENjoftimeve() {
     val vizitor by Llogaria.vizitor.collectAsState()
     var gjendja by remember { mutableStateOf(Njoftimet.gjendja(ctx)) }
     var duhet by remember { mutableStateOf(false) }
+    // Hyrja 75 (web v313, pronari: "nese i ka nal njoftimet ma heret lypja edhe bonja te detyrushme secilit ... mos e le me kalu
+    // ne dritare tjeter pa i aktivizu"): edhe "Njoftimi ditor" (kush ka lejen e afateve) duhet të jetë i ndezur; kush e kishte fikur
+    // pyetet sërish. Kur ndezja s'ia del për shkak të serverit/internetit (jo të përdoruesit), dritarja pushon 30 min.
+    var ditor by remember { mutableStateOf(false) }
+    var dukeDitor by remember { mutableStateOf(false) }
+    var ditorDeshtoi by remember { mutableStateOf(0L) }
+    // pa FCM (p.sh. telefon pa shërbimet e Google): pyet sërish vetëm pas 24 orësh
+    fun ditoriMungon(): Boolean = Llogaria.leja("afatet") && Push.orariIm()?.get("aktiv") != true &&
+        System.currentTimeMillis() - ditorDeshtoi > 30 * 60000L &&
+        System.currentTimeMillis() - (StokuApp.prefsOse("ditori_pa_push", "0").toLongOrNull() ?: 0L) > 24 * 3600000L
     fun pasLejes() {
         Toast.trego("Njoftimet u aktivizuan.")
         scope.launch {
@@ -383,17 +394,48 @@ fun PyetjaENjoftimeve() {
             ndizDitorinNjeHere()
         }
     }
+    fun ndizDitorin() {
+        if (dukeDitor) return
+        dukeDitor = true
+        scope.launch {
+            val r = try { Push.vendosOrarin(true, Push.oraEZgjedhur()) } catch (e: Exception) { "rrjeti" }
+            dukeDitor = false
+            if (r == "ok") { Llogaria.perdoruesi.value?.uid?.let { StokuApp.vendosPref("ditori_auto", it) }; Toast.trego("Njoftimet u aktivizuan.") }
+            else {
+                ditorDeshtoi = System.currentTimeMillis()
+                if (r == "pa-push") StokuApp.vendosPref("ditori_pa_push", System.currentTimeMillis().toString())
+                Toast.trego(tekstiGabimitOrarit(r), 4500)
+            }
+        }
+    }
     // Kontrollohet sa herë kthehet në aplikacion (p.sh. nga cilësimet e telefonit) dhe çdo 1.5 s sa është hapur
-    LaunchedEffect(p?.uid, vizitor) {
-        duhet = false
-        if (p == null || vizitor || StokuApp.neProve) return@LaunchedEffect
+    var rikthime by remember { mutableStateOf(0) }
+    val lc = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    androidx.compose.runtime.DisposableEffect(lc) {
+        val v = androidx.lifecycle.LifecycleEventObserver { _, ev -> if (ev == androidx.lifecycle.Lifecycle.Event.ON_RESUME) rikthime++ }
+        lc.lifecycle.addObserver(v)
+        onDispose { lc.lifecycle.removeObserver(v) }
+    }
+    LaunchedEffect(p?.uid, vizitor, rikthime) {
+        if (p == null || vizitor || StokuApp.neProve) { duhet = false; return@LaunchedEffect }
         kotlinx.coroutines.delay(1500)
+        var pritiLejen = false
+        // 1) leja e telefonit dhe kanali i njoftimeve
         while (true) {
             val g = Njoftimet.gjendja(ctx)
-            if (g == "lejuar") { if (duhet) pasLejes() else ndizDitorinNjeHere(); duhet = false; break }
-            gjendja = g; duhet = true
+            if (g == "lejuar") break
+            gjendja = g; ditor = false; duhet = true; pritiLejen = true
             kotlinx.coroutines.delay(1500)
         }
+        gjendja = "lejuar"
+        if (pritiLejen) pasLejes() else ndizDitorinNjeHere()
+        // 2) njoftimi ditor
+        kotlinx.coroutines.delay(if (pritiLejen) 8000 else 2000)
+        while (ditoriMungon() && Njoftimet.gjendja(ctx) == "lejuar") {
+            ditor = true; duhet = true
+            kotlinx.coroutines.delay(1500)
+        }
+        ditor = false; duhet = false
     }
     val kerko = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { po ->
         StokuApp.vendosPrefB("njoftimet_pyetur", true)
@@ -428,8 +470,9 @@ fun PyetjaENjoftimeve() {
                 }
             }
             if (bllokuar) Text("Njoftimet janë të bllokuara. Shtyp butonin më poshtë → Njoftimet → Lejo, pastaj kthehu këtu.", style = tx(14, 500, n.exp))
-            Buton(if (bllokuar) "Hape cilësimet e njoftimeve" else "Aktivizo njoftimet", {
-                if (bllokuar || !Njoftimet.duhetLeja()) {
+            Buton(if (dukeDitor) "Duke aktivizuar…" else if (bllokuar) "Hape cilësimet e njoftimeve" else "Aktivizo njoftimet", {
+                if (ditor) ndizDitorin()
+                else if (bllokuar || !Njoftimet.duhetLeja()) {
                     try {
                         ctx.startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, ctx.packageName).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                     } catch (e: Exception) { Toast.trego("Hape te: Cilësimet e telefonit → Aplikacionet → Stoku → Njoftimet → Lejo.", 5000) }

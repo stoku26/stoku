@@ -50,8 +50,9 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
     const r = document.documentElement, cs = getComputedStyle(r);
     return { tema: r.getAttribute('data-tema'), e: r.getAttribute('data-ngj-e'), c: r.getAttribute('data-ngj-c'), bg: cs.getPropertyValue('--sb-bg').trim(),
       accent: cs.getPropertyValue('--sb-accent').trim(), meta: document.getElementById('metaTema').getAttribute('content'),
-      grupet: [...document.querySelectorAll('.tm-grupi')].filter(x => x.offsetParent).map(x => x.getAttribute('data-k') + ':' + x.querySelector('.tm-krye b').textContent + ':' + x.querySelector('.tm-krye-tekst span').textContent),
-      kartela: [...document.querySelectorAll('.tm-karta')].filter(x => x.offsetParent).length, ruajtur: localStorage.getItem('stoku:ngjyrat') };
+      // v313: vetëm grupet e ngjyrave (data-k); "Logoja" është grup më vete
+      grupet: [...document.querySelectorAll('.tm-grupi[data-k]')].filter(x => x.offsetParent).map(x => x.getAttribute('data-k') + ':' + x.querySelector('.tm-krye b').textContent + ':' + x.querySelector('.tm-krye-tekst span').textContent),
+      kartela: [...document.querySelectorAll('.tm-grupi[data-k] .tm-karta')].filter(x => x.offsetParent).length, ruajtur: localStorage.getItem('stoku:ngjyrat') };
   });
 
   // 1) Telefoni

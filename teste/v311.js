@@ -11,8 +11,9 @@ const prit = async (fn, ms = 8000) => { const t0 = Date.now(); while (Date.now()
   const R = __dirname + '/../', lx = f => fsN.readFileSync(R + f, 'utf8');
   const K = 'vendas/app/src/main/java/site/stoku/vendas/';
   // 0) statike
-  ok(/https:\/\/stoku\.site/.test(lx('eksportet.js').split('\n').filter(l => /Krijuar me Stoku · .*o\.data/.test(l)).join()) &&
-    /Krijuar me Stoku · https:\/\/stoku\.site · " \+ o\.data/.test(lx(K + 'EksportiPdf.kt')), '0. PDF: "https://stoku.site" në fund (web + Android)');
+  // v313 (pronari): poshtë vetëm adresa, pa "Krijuar me Stoku"
+  ok(/d\.text\('https:\/\/stoku\.site', X, 290\.6\)/.test(lx('eksportet.js')) &&
+    /v\.tekst\("https:\/\/stoku\.site", X, 290\.6f, FAINT\)/.test(lx(K + 'EksportiPdf.kt')), '0. PDF: "https://stoku.site" në fund (web + Android)');
   ok(/fun ruajPamjen\(\)/.test(lx(K + 'Llogaria.kt')) && /degjoPamjen\(p\)/.test(lx(K + 'Llogaria.kt')) && /zbatoPamjenNgaLlogaria/.test(lx(K + 'Opsionet.kt')) &&
     /Opsionet\.tema\.collectAsState\(\)/.test(lx(K + 'MainActivity.kt')) && /Llogaria\.ruajPamjen\(\)/.test(lx(K + 'Opsionet.kt')), '0. Android: pamja nga llogaria dhe te llogaria');
   const ek = lx('ekipa.js');

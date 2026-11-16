@@ -45,6 +45,8 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
       : { userAgent: 'Mozilla/5.0 (Linux; Android 14) Chrome/140 Mobile', viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
     // headless s'i jep lejet e njoftimeve ("denied"): leja simulohet
     if (leje) await ctx.addInitScript(() => { try { Object.defineProperty(Notification, 'permission', { get: () => 'granted' }); } catch (e) { /* ok */ } });
+    // v313: me leje, edhe njoftimi ditor duhet të jetë i ndezur (përndryshe dritarja pyet për të): ndezur në këtë pajisje
+    if (leje) await ctx.addInitScript(u => { try { localStorage.setItem('stoku:orari', JSON.stringify({ uid: u, aktiv: true, ora: '08:00', koha: Date.now() })); } catch (e) { /* ok */ } }, uid);
     await ctx.route(u => !u.href.startsWith(BAZA), r => r.abort());
     await ctx.route(u => u.href.startsWith(PUSH), r => r.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true, fotot: {} }) }));
     await F.lidh(ctx, uid, emri + '@stoku-app.local', pc ? 'pc' : 'tel');

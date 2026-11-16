@@ -12,14 +12,10 @@
   var AEF_MAKS = 100; // mbi kaq afate fotoja ndahet në pjesë (kujtesa e telefonit)
   var AEF_NGJ = {
     dark: { bg: '#0f1115', surface: '#171a20', line: '#2a2e36', line2: '#22262d', ink: '#eceef2', ink2: '#c9ccd3', muted: '#8f949e', faint: '#6f747e',
-      exp: '#f07a6f', near: '#f0b95a', ok: '#5cc98b', pillBg: '#2a2414', pillTx: '#f5b942', logo: '#ffffff', markBg: '#ffffff', markBar: '#0f1115' },
+      exp: '#f07a6f', near: '#f0b95a', ok: '#5cc98b', pillBg: '#2a2414', pillTx: '#f5b942', logo: '#ffffff', erret: true },
     light: { bg: '#f6f5f2', surface: '#ffffff', line: '#e6e4df', line2: '#e6e4df', ink: '#14161b', ink2: '#3a3d44', muted: '#7a7d85', faint: '#8a8d94',
-      exp: '#c23a33', near: '#a45f10', ok: '#2e7d4f', pillBg: '#fcefd9', pillTx: '#a45f10', logo: '#14161b', markBg: '#14161b', markBar: '#ffffff' }
+      exp: '#c23a33', near: '#a45f10', ok: '#2e7d4f', pillBg: '#fcefd9', pillTx: '#a45f10', logo: '#14161b', erret: false }
   };
-  // Logoja (logo/stoku-logo.svg): shiritat e barkodit (x, gjerësia; i pesti i verdhë) dhe shkronjat "stoku"
-  var AEF_SHIRITAT = [[14, 3], [19, 2], [23, 4], [29, 2], [33, 3], [38, 2], [42, 4], [48, 2]];
-  var AEF_SHKRONJAT = ['M76 20H65a5 5 0 0 0 0 10h6a5 5 0 0 1 0 10H60', 'M91 12v23a5 5 0 0 0 5 5h3M86 20h11',
-    'M140.5 12v28M152.5 20l-12 11M145 26.9l8.5 13.1', 'M164.5 20v10a10 10 0 0 0 20 0M184.5 20v20'];
   var AEF_W = 540, AEF_P = 20, AEF_S = 2;
 
   function aefKendi(c, x, y, w, h, r) {
@@ -49,25 +45,14 @@
   function aefTekst(c, t, x, qendra, ngjyra, drejtimi) {
     c.fillStyle = ngjyra; c.textAlign = drejtimi || 'left'; c.textBaseline = 'middle'; c.fillText(t, x, qendra);
   }
+  // v313: logoja 60 me ngjyrat që ka zgjedhur përdoruesi (Cilësimet → Pamja → Logoja, logot.js); C.logo = ngjyra e shkronjave.
+  // Kthen gjerësinë e vizatuar (lartësia h, raporti StokuLogot.logoW : logoH).
   function aefLogo(c, x, y, h, C) {
-    var k = h / 52;
-    c.save(); c.translate(x, y); c.scale(k, k);
-    c.save(); c.translate(0, 4); c.scale(0.6875, 0.6875);
-    c.fillStyle = '#14161b'; aefKendi(c, 0, 0, 64, 64, 15); c.fill();
-    c.strokeStyle = 'rgba(255,255,255,.16)'; c.lineWidth = 1.5; aefKendi(c, 0.75, 0.75, 62.5, 62.5, 14.25); c.stroke();
-    AEF_SHIRITAT.forEach(function (s, i) { c.fillStyle = i === 4 ? '#f5b942' : '#ffffff'; aefKendi(c, s[0], 16, s[1], 32, 1); c.fill(); });
-    c.restore();
-    c.strokeStyle = C.logo; c.lineWidth = 5; c.lineCap = 'round'; c.lineJoin = 'round';
-    if (window.Path2D) AEF_SHKRONJAT.forEach(function (d) { c.stroke(new Path2D(d)); });
-    c.beginPath(); c.arc(119.5, 30, 10, 0, Math.PI * 2); c.stroke();
-    c.restore();
+    var L = root.StokuLogot;
+    return L ? L.vizatoLogon(c, x, y, h, { erret: !!C.erret, tekst: C.logo }) : 0;
   }
-  function aefShenja(c, x, y, s, C) {
-    var k = s / 64;
-    c.save(); c.translate(x, y); c.scale(k, k);
-    c.fillStyle = C.markBg; aefKendi(c, 0, 0, 64, 64, 15); c.fill();
-    AEF_SHIRITAT.forEach(function (b, i) { c.fillStyle = i === 4 ? '#f5b942' : C.markBar; aefKendi(c, b[0], 16, b[1], 32, 1); c.fill(); });
-    c.restore();
+  function aefShenja(c, x, y, s) {
+    if (root.StokuLogot) root.StokuLogot.vizatoIkonen(c, x, y, s);
   }
   // Ditët djathtas te çdo rresht: "−2 / ditë më parë", "Sot / skadon", "12 / ditë", "2 / muaj"
   function aefDitet(a) {
@@ -138,8 +123,8 @@
     y += 24;
     c.fillStyle = C.line; c.fillRect(P, y, W - 2 * P, 1);
     y += 1 + 16;
-    aefShenja(c, P, y, 18, C);
-    aefFont(c, 12, 500); aefTekst(c, 'Krijuar me Stoku · stoku.site', P + 26, y + 9, C.faint);
+    aefShenja(c, P, y, 18);
+    aefFont(c, 12, 500); aefTekst(c, 'stoku.site', P + 26, y + 9, C.faint); // v313: pa "Krijuar me Stoku" (pronari)
     aefTekst(c, (o.pjesa ? o.pjesa + ' · ' : '') + 'ora ' + o.ora, W - P, y + 9, C.faint, 'right');
     return cv;
   }
@@ -162,8 +147,10 @@
     do { var nxe = Math.floor(((faqet.length ? AP.FUND2 : AP.FUND) - y0) / AP.RR); faqet.push(Math.min(nxe, n)); n -= nxe; y0 = AP.KOKA; } while (n > 0);
     return faqet;
   }
+  // v313: raporti i logos (gjerësia / lartësia), për PDF-në
+  function apRaporti() { return root.StokuLogot ? root.StokuLogot.logoW / root.StokuLogot.logoH : 158.53 / 43.2; }
   function apLogo() {
-    var cv = document.createElement('canvas'); cv.width = 760; cv.height = 208;
+    var cv = document.createElement('canvas'); cv.width = Math.round(208 * apRaporti()); cv.height = 208;
     aefLogo(cv.getContext('2d'), 0, 0, 208, AEF_NGJ.light);
     return cv.toDataURL('image/png');
   }
@@ -208,7 +195,7 @@
       var y;
       if (p === 0) {
         // v309: titulli dhe rreshti poshtë tij si një bllok, në mes të faqes majtas-djathtas; logoja dhe data në të njëjtën vijë mesi (AP.MESI)
-        d.addImage(logo, 'PNG', X, AP.MESI - 2.1, 15.35, 4.2);
+        d.addImage(logo, 'PNG', X, AP.MESI - 2.1, 4.2 * apRaporti(), 4.2);
         font(8.6, false); ng(C.muted); d.text(o.data, X + WI, AP.MESI + 1.09, { align: 'right' });
         font(18, true); ng(C.ink); d.text('Lista e afateve', AP.W / 2, AP.MESI - 1.56, { align: 'center' });
         // "Periudha: Të gjitha · 11 produkte · 80 copë" në mes, vlerat të trasha
@@ -222,12 +209,11 @@
       }
       for (var j = 0; j < k; j++, idx++) { rreshti(l[idx], idx, y); y += AP.RR; }
     });
-    // v300: fundi vetëm te faqja 1, pa vijë (vija e rreshtit të fundit mjafton)
-    var np = d.getNumberOfPages();
+    // v300: fundi vetëm te faqja 1, pa vijë (vija e rreshtit të fundit mjafton). v313 (pronari, foto e fundit të faqes: "krijuar me
+    // stoku hiqe ... veq webin leje"): vetëm adresa, pa "Krijuar me Stoku", datën me orën dhe "Faqja 1 nga N" (data mbetet lart djathtas)
     d.setPage(1);
     font(7.9, false); ng(C.faint);
-    d.text('Krijuar me Stoku · https://stoku.site · ' + o.data + ', ora ' + o.ora, X, 290.6);
-    d.text('Faqja 1 nga ' + np, X + WI, 290.6, { align: 'right' });
+    d.text('https://stoku.site', X, 290.6);
     return d.output('arraybuffer');
   }
 

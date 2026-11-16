@@ -33,7 +33,13 @@ object Njoftimet {
         val lejuarTeSistemi = NotificationManagerCompat.from(ctx).areNotificationsEnabled()
         if (duhetLeja() && ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
             return if (StokuApp.prefsOseB("njoftimet_pyetur", false)) "bllokuar" else "fikur"
-        return if (lejuarTeSistemi) "lejuar" else "bllokuar"
+        if (!lejuarTeSistemi) return "bllokuar"
+        // Hyrja 75: edhe kanali "Njoftimet e Stoku-t" i fikur te cilësimet e telefonit = të bllokuara (njoftimet s'dalin)
+        if (Build.VERSION.SDK_INT >= 26) {
+            val k = ctx.getSystemService(NotificationManager::class.java)?.getNotificationChannel(KANALI)
+            if (k != null && k.importance == NotificationManager.IMPORTANCE_NONE) return "bllokuar"
+        }
+        return "lejuar"
     }
     fun lejuar(ctx: Context): Boolean = gjendja(ctx) == "lejuar"
 
@@ -54,7 +60,7 @@ object Njoftimet {
         val pi = PendingIntent.getActivity(ctx, (tag + url).hashCode(), hap, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val n = NotificationCompat.Builder(ctx, KANALI)
             .setSmallIcon(R.drawable.ic_njoftim)
-            .setColor(0xFF14161B.toInt())
+            .setColor(site.stoku.vendas.ui.Logot.varianti(Opsionet.logoja.value).br.toInt()) // Hyrja 75: ngjyra e logos së zgjedhur
             .setContentTitle(titulli.ifBlank { "Stoku" })
             .setContentText(teksti)
             .setStyle(NotificationCompat.BigTextStyle().bigText(teksti))

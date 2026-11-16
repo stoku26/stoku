@@ -126,6 +126,7 @@
     '#porta .pk-logo .pk-logo-err { display: none; }',
     'html[data-tema="dark"] #porta .pk-logo .pk-logo-cel { display: none; }',
     'html[data-tema="dark"] #porta .pk-logo .pk-logo-err { display: block; }',
+    '#porta .pk-logo .stk-logo { color: var(--sb-ink, #14161b); }',
     '#porta .pk-nen { text-align: center; margin: 0 0 20px; font-size: 14px; color: var(--sb-muted, #7a7d85); line-height: 1.45; }',
     '#porta .pk-tabet { display: flex; background: var(--sb-sunken, #ebe9e4); border-radius: 14px; padding: 4px; margin-bottom: 18px; }',
     '#porta .pk-tabet button { flex: 1; height: 38px; border: 0; border-radius: 10px; background: transparent; font: inherit;',
@@ -193,7 +194,9 @@
   porta.setAttribute('aria-label', 'Hyr në Stoku');
   porta.innerHTML =
     '<div class="pk">' +
-      '<div class="pk-logo"><img class="pk-logo-cel" src="logo/stoku-logo.svg?v=3" alt="Stoku"><img class="pk-logo-err" src="logo/stoku-logo-dark.svg?v=3" alt="Stoku"></div>' +
+      // v313: logoja 60 me ngjyrat e zgjedhura në këtë pajisje (logot.js); pa të, skedarët me ngjyrat e parazgjedhura
+      '<div class="pk-logo" role="img" aria-label="Stoku">' + (window.StokuLogot ? window.StokuLogot.svgLogo('stk-logo--44') :
+        '<img class="pk-logo-cel" src="logo/stoku-logo.svg?v=4" alt="Stoku"><img class="pk-logo-err" src="logo/stoku-logo-dark.svg?v=4" alt="Stoku">') + '</div>' +
       '<p class="pk-nen" id="pkNen">Regjistrimi i mallit dhe i afateve të skadimit.</p>' +
       '<div class="pk-pritje" id="pkPritje"><div class="pk-rrotull"></div><div id="pkPritjeTekst">Duke u lidhur…</div></div>' +
       '<form id="pkForma" class="pk-fsheh" novalidate autocomplete="on">' +

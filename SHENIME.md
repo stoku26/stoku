@@ -42,7 +42,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 | `manifest.webmanifest` | PWA manifest (emri "Stoku", ikonat). |
 | `css/` | Pamja (v126): `stoku-tokens.css` (fontet, ngjyrat e çelëta/errëta), `stoku.css` (telefoni), `stoku-pc.css` (kompjuteri). |
 | `fonts/` | Onest dhe JetBrains Mono (woff2, OFL), që pamja të punojë edhe pa internet. |
-| `logo/` | Logo e re (SVG, favicon, ikona "maskable"; edhe disa variante të logos që aplikacioni s'i përdor, si arkiv). |
+| `logo/` | Logoja 60 (v313): SVG, favicon, ikona "maskable", badge; i shkruan `teste/logot-gjenero.py` + `teste/logot-png.js`. |
+| `logot.js` | v313: logoja 60 dhe 25 kombinimet e ngjyrave (Cilësimet → Pamja → Logoja), vizatimi në canvas (PDF/foto), favicon-i. DATA e gjeneruar. |
 
 ## Rregulla teknike THEMELORE (mos i harro)
 
@@ -51,6 +52,41 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    Në fjali: presje, pikë, dy pika ose kllapa. Si ndarës: "·" (p.sh. "Sinkronizuar · 12:21") ose "•" (titulli
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
+
+0000000. **v313 / Android Hyrja 75 / ora (16.11.2026): LOGOJA 60 ME 25 NGJYRA + NJOFTIMET E DETYRUESHME MË TË FORTA**. Pronari zgjodhi
+   nga 100 setet e Claude Design (artefakti "Stoku: 100 logo dhe ikona") setin **60 "Lista e kontrollit"** dhe kërkoi: "Boni krejta qeto
+   te cilesimet > pamja ni opsion minimized ... me ju bo synced ne llogari ... Si tbohen login me ju kthy edhe me ju vendos kudo".
+   (1) **Logoja 60 e parazgjedhur kudo** ("60" e gjelbër: sfond #2e7d4f, shenja e bardhë, theksi #d9f99d; fjala "stoku" + pika, Onest
+   800): ikonat e web-it (favicon, PWA, maskable, apple-touch, badge), ikona e Android-it (sfondi `ikona_sfondi` #2E7D4F, para,
+   njëngjyrëshja e re `ic_launcher_monochrome`, `ic_njoftim`), ora (ikona, Tile, komplikacioni, `logo_stoku.xml` te ekrani i lidhjes).
+   (2) **25 kombinime** ("60", "60-1" … "60-24") te Cilësimet → Pamja → **Logoja** (grup i mbyllur si "Ngjyrat"; web tel `#pamjaLogoja`,
+   PC `#opsLogoja`, Android `GrupiLogos`). Ruhet në pajisje (`stoku:logoja` / pref `logoja`) dhe te llogaria
+   (`perdoruesit/{uid}.pamja.logo`, ekipa.js `pamjaEPastert`/`pamjaNjejte`, Android `Llogaria` + `Opsionet.logoja`); kthehet pas hyrjes.
+   Zbatohet në kokë (`.stk-etiketa`: logoja në vend të "STOKU" + barkodit), hyrje (porta, edhe para hyrjes: zgjedhja e pajisjes),
+   skedën e shfletuesit (favicon dinamik `data:`), faqen bosh të PC-së, PDF/foto (web `StokuLogot.vizatoLogon`, Android
+   `EksportiFoto.logo`) dhe ngjyrën e njoftimeve të Android-it. Ikona e aplikacionit në ekranin bazë (web/Android/ora) mbetet "60"
+   për të gjithë (ndërrimi i ikonës në Android me activity-alias e heq ikonën nga ekrani bazë në shumë telefona).
+   **Si është ndërtuar**: `teste/logot-gjenero.py` (fontTools + HarfBuzz + skia-pathops, `pip` në një venv jashtë repo-s) e rrafshon
+   shenjën (vijat → forma, prerjet → vrima të vërteta) dhe e shkruan VETËM ai: `logot.js` (DATA), `css/stoku-logot.css` (ngjyrat sipas
+   `data-logo` + `data-tema`), logon e kokës te index/pc (midis `<!-- LOGO-FILLIMI -->`), `logo/*.svg`, `ui/Logot.kt`, XML-të e Android-it
+   dhe të orës; PNG-të pastaj me `node teste/logot-png.js`. `fillimi-*.js` e vendos `data-logo` para vizatimit. Ikonat `?v=4`
+   (badge `?v=2`). (3) **Njoftimet** (pronari: "nese i ka nal njoftimet ma heret lypja edhe bonja te detyrushme secilit ... mos e le me
+   kalu ne dritare tjeter pa i aktivizu"): "Njoftimi ditor" (kush ka lejen e afateve) s'fiket më (çelësi e refuzon me toast) dhe dritarja
+   e detyrueshme pyet edhe kur leja është dhënë, por njoftimi ditor është i fikur (`ditoriMungon`, web + Android); kur ndezja dështon
+   nga serveri/interneti, pushon 30 min; kur shfletuesi/telefoni s'e pranon push-in ("pa-push", p.sh. pa shërbimet e Google), 24 orë.
+   Android: kanali "Njoftimet e Stoku-t" i fikur = "bllokuar"; kontrolli edhe sa herë kthehet në aplikacion (ON_RESUME). iPhone në
+   Safari (iOS 16.4+, pa Stoku në ekranin bazë): dritarja tregon si shtohet në ekranin bazë (pa buton, s'kalon); iOS më i vjetër dhe
+   shfletuesit pa njoftime (p.sh. brenda Facebook-ut, PDA me shfletues të vjetër) s'detyrohen. PC dhe vizitori: si më parë, pa detyrim.
+   (4) **PDF/foto e afateve** (pronari, foto e fundit të faqes 1 me rrathë rreth "Krijuar me Stoku · https://stoku.site · data, ora" dhe
+   "Faqja 1 nga 3": "edhe qajo 'krijuar me stoku' hiqe kto veq webin leje"): poshtë faqes 1 vetëm `https://stoku.site` (majtas, si më
+   parë; pa "Krijuar me Stoku", datën me orën dhe "Faqja 1 nga N"; data mbetet lart djathtas), web `apPdf` + `EksportiPdf.kt`; faqet 2+
+   pa fund si te v300. Fotoja (`aefVizato` + `EksportiFoto.kt`): "stoku.site" pa "Krijuar me Stoku" (pjesa/ora djathtas mbeten).
+   Testet: `teste/v313.js` (i ri); të përshtatura: `v304.js` (me leje + njoftim ditor të ndezur s'del dritarja), `orari-test.js` (prekja
+   s'e fik më; e fikura provohet pa orar në pajisje), `v226-manifest-test.js` (manifest `?v=88`), `v309.js` (gjerësia e logos në PDF
+   `4.2 * apRaporti()`), `v310.js` (vetëm grupet e ngjyrave `.tm-grupi[data-k]`), `v275.js`/`v299.js`/`v300.js`/`v311.js` (fundi i
+   PDF-së vetëm adresa), `v268.js` (etiketa me logon 22 px është 54 px si `EtiketaStoku`: kërkimi nga 80, më parë 94). Regresioni
+   `teste/regresioni-v313.txt` (në dy gjysma: 69 testet e para para ndryshimit të PDF-së, që s'i prek): si v312, përveç `v313.js`
+   të ri. S'ka rregulla të reja Firebase.
 
 0000000. **v312 / Android Hyrja 74 (15.11.2026, pronari: "te permbledhja zgjedhe 3shin", "bone 2shin te afatet", vetëm telefon: web + Android,
    jo PC)**: Grupi → Përmbledhja: 6 pllakat (`af-permb ek-permb-nr` / `RrjetaEPllakave`) u zëvendësuan me një fjali të madhe
@@ -3187,6 +3223,9 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   `java -jar firestore-emu.jar --host=127.0.0.1 --port=8089`, provat `node rregullat-prova.mjs` (lexon `firestore.rules`
   të nxjerrë nga ky skedar). v164: 105 prova OK (krijimi i grupit me `getAfter`, ftesat me query `gid ==`, njoftimet
   brenda grupit, heqja/rihyrja, llogaria pa profil). Scratchpad-i s'mbetet mes bisedave: rikrijoje kur ndryshojnë rregullat.
+- **v313: regresioni në sfond ndalet kur kontejneri fiket** (pak minuta pasi biseda mbetet pa punë, edhe me `setsid nohup`). Nise
+  me `setsid nohup` dhe rri aktiv: një `Bash` me `run_in_background` (until-loop që pret `DONE`) ose `Monitor` që i ndjek rreshtat.
+  Nëse u ndal (uptime i vogël, pa `regresioni.sh`), nise prapë nga fillimi.
 - **Gjithmonë bëhet edhe një regresion i plotë** (folderat, skanimi, eksporti, afatet, sinkronizimi) para
   se të hapet PR, jo vetëm testi i veçorisë së re — disa gabime u zbuluan kështu (jo nga testi i
   synuar, por nga regresioni i plotë).
@@ -3230,6 +3269,8 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Logoja e re (28.10.2026): 20 idetë e Claude Design ("asnjona s'po m'pëlqen", faqja u fshi) dhe paketa `Stoku_brand_assets.zip`
   (dy gjashtëkëndësha blu #2563FF / cian #00D4FF si "S", "Stoku" në Arial Bold): u vendos në web, Android dhe orë, pastaj u anulua
   para merge-it ("ktheje te mas komplet qysh u kon logo"). Logoja mbetet ajo me barkod + shufrën e verdhë.
+  **Ndryshim (16.11.2026, v313)**: pronari kërkoi vetë 100 logo, zgjodhi setin 60 dhe 25 ngjyrat e tij te Pamja. Mos i rikthe
+  gjashtëkëndëshat e vitit 28.10 as logon me barkod pa e kërkuar ai.
 - Opsioni "Mos dil kur i fshin të dhënat" te Cilësimet → Llogaria dhe udhëzimi "shtyp Ruaj" te porta (v165, u hoq
   te v166): "hiq bash kurgjo ske bo, hiqe fshije".
 - Chat-i i Grupit (u fsheh te v182, u hoq krejt te v221: "zhduke 100% se e kemi hek chatin"; te v222 edhe nga historiku

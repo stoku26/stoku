@@ -191,6 +191,12 @@
       ST.zbato();
       ST.vizato($('opsNgjyrat'), ops.tema, function () { $('metaTema').setAttribute('content', ST.sfondi(temaEfektive())); ruajPamjenNeLlogari(); });
     }
+    // v313: Cilësimet → Pamja → Logoja (25 kombinimet e logos 60, si te telefoni) dhe logoja te faqja bosh
+    if (window.StokuLogot) {
+      window.StokuLogot.vizato($('opsLogoja'), function () { ruajPamjenNeLlogari(); });
+      var bosh = $('pamjaBoshLogo');
+      if (bosh && !bosh.firstChild) bosh.innerHTML = window.StokuLogot.svgLogo();
+    }
     $('metaTema').setAttribute('content', ST ? ST.sfondi(t) : t === 'dark' ? '#0f1115' : '#f6f5f2');
     // Çelësi i shpejtë "Tema" në fund të anësores
     Array.prototype.forEach.call(document.querySelectorAll('#sbpTema button'), function (b) {
@@ -3285,11 +3291,12 @@
   function ruajPamjenNeLlogari() { try { if (window.__stokuEkipaK && window.__stokuEkipaK.pamjaNdryshoi) window.__stokuEkipaK.pamjaNdryshoi(); } catch (e) { /* ok */ } }
   function pamjaTani() {
     var n = window.StokuTemat ? window.StokuTemat.lexo() : { e: 1, c: 1 };
-    return { tema: ops.tema, e: n.e, c: n.c };
+    return { tema: ops.tema, e: n.e, c: n.c, logo: window.StokuLogot ? window.StokuLogot.lexo() : '60' }; // v313: + logoja
   }
   function vendosPamjen(p) {
     ops.tema = p.tema; ruajOps();
     if (window.StokuTemat) window.StokuTemat.ruaj({ e: p.e, c: p.c });
+    if (window.StokuLogot && p.logo) { window.StokuLogot.ruaj(p.logo); window.StokuLogot.zbato(); } // v313
     zbatoPamjen(); rifreskoOpsionet();
   }
   function rifreskoOpsionet() {
@@ -5421,7 +5428,7 @@
     if (nj.vetemNePerpara) return; // vjen si push nga Worker-i
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
     var url = './pc.html#/grupi' + (nj.pamja === 'anetaret' ? '/koleget' : nj.pamja === 'njoftimet' ? '/njoftimet' : '');
-    var opsionet = { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=3', badge: './logo/badge-96.png?v=1', data: { url: url } };
+    var opsionet = { body: nj.teksti, tag: nj.tag, icon: './icon-192.png?v=4', badge: './logo/badge-96.png?v=2', data: { url: url } };
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then(function (reg) { return reg.showNotification(nj.titulli, opsionet); })
         .catch(function () { try { new Notification(nj.titulli, opsionet); } catch (e) { /* ok */ } });

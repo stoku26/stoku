@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Opsioni 5: gri e ndritshme (dallohet mbi sfondin e zi të Galaxy Watch) -->
+<!-- Logoja 60: sfondi i ikonës (e gjeneruar nga teste/logot-gjenero.py) -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <gradient android:angle="270" android:startColor="#4B505B" android:endColor="#2A2D34" />
+    <solid android:color="#2E7D4F" />
 </shape>
