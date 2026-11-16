@@ -79,6 +79,7 @@ object Ik {
     val Importo = ikona("M12 3v12M7 10l5 5 5-5", "M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4")
     val Eksporto = ikona("M12 15V3M7 8l5-5 5 5", "M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4")
     val Kalendari = ikona("M5.5 4h13a2.5 2.5 0 0 1 2.5 2.5v12a2.5 2.5 0 0 1 -2.5 2.5h-13a2.5 2.5 0 0 1 -2.5 -2.5v-12a2.5 2.5 0 0 1 2.5 -2.5Z", "M16 2v4M8 2v4M3 9.5h18")
+    val KalendariShto = ikona("M5.5 4h13a2.5 2.5 0 0 1 2.5 2.5v12a2.5 2.5 0 0 1 -2.5 2.5h-13a2.5 2.5 0 0 1 -2.5 -2.5v-12a2.5 2.5 0 0 1 2.5 -2.5Z", "M16 2v4M8 2v4M3 9.5h18M12 13v6M9 16h6") // Hyrja 79: "Shtuar" te PDF-ja
     val Koleget = ikona("M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", "M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0Z", "M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75")
     val Kurora = ikona("M3 7l4 4 5-6 5 6 4-4-2 11H5L3 7z", "M5 21h14", trashesia = 2.3f)
     val Administratori = ikona("M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z", "m9 12 2 2 4-4", trashesia = 2.3f)

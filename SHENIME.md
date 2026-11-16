@@ -53,6 +53,21 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v317 / Android Hyrja 79 (16.11.2026): PDF E AFATEVE PA FUND, MË E VOGËL, FILTRI "SHTUAR"**. Pronari (foto e PDF-së dhe e dritares):
+   "Hiqja krejt qeto mos le kurgjo ne fund te fletave te eksportume si pdf afate", "gjeje arsyjen pse pdf e web appit ntel ka ma shum kb
+   ndersa ajo e android app ka ma pak kb", "hiqe gjendjen qite ni opsion me mujt me eksportu nkohen kur jan shtu afatet ... me zgjedh dita ti vet".
+   - Fundi: u hoq "https://stoku.site" (web `apPdf` te eksportet.js + `EksportiPdf.kt`); asgjë poshtë në asnjë faqe. Faqja 1 tani shkon deri te
+     FUND 290 si faqet e tjera: plani 34 + 37 + … rreshta (më parë 33 + 37).
+   - Madhësia: jsPDF krijohej pa `compress: true`, pra vizatimet e faqeve DHE logoja (PNG) ruheshin pa u ngjeshur: PDF me 11 afate ~660 KB,
+     me 80 afate ~725 KB. Tani ~26 KB / ~32 KB. `PdfDocument` i Android-it i ngjesh gjithmonë, prandaj ishte më e vogël. Testet e lexojnë
+     tekstin me `teste/pdf-tekst.js` (i hap rrjedhat me zlib). PDF-të e tjera te app-pc.js (2169, 2288) janë ende pa compress (s'u prekën).
+   - "Gjendja" → "Shtuar" (web telefon, PC, Android): Të gjitha, Sot, Dje, 7 / 14 / 30 ditët e fundit, Zgjidh datat (Nga / Deri: web
+     `<input type="date">` #apNga/#apDeri te #apDatat; Android `DatePickerDialog`). Sipas `krijuarSe` (ora e Kosovës te web-i, zona e
+     telefonit te Android-i). Të hequrat s'hyjnë kurrë; afatet pa `krijuarSe` vetëm te "Të gjitha". PDF-ja shkruan "Shtuar: …" te rreshti
+     i të dhënave. Logjika e pastër: `EX.SHTUAR / intervaliShtuar / shtuarOk / tekstiIntervalit` te eksportet.js = `EksportiPdf.SHTUAR /
+     intervali / filtro / tekstiIntervalit` (v317.js krahason listat).
+   - Teste: `teste/v317.js` (i ri); u përshtatën v275, v299, v300, v301, v311, v313 dhe PamjetTest.eksportiPdf.
+
 0000000. **v316 / Android Hyrja 78 / ora / Worker 173 (16.11.2026): ORA E DORËS**. Pronari (4 foto, aprovoi propozimet):
    (1) "kur osht i lidht me oren ... me te tregu me qfar ore osht e lidh e detaje tjera e jo me ta qit apet me u lidh me tjeter, edhe me
    mujt me shkput prej appit tel": Cilësimet → Ora e dorës: karta "Ora është e lidhur" (modeli, llogaria, u lidh, hera e fundit aktive,

@@ -15,7 +15,7 @@ const sot = new Date(), dita = sot.getFullYear() + '-' + String(sot.getMonth() +
 function teDhenat(n) {
   const A = [];
   const shto = (emri, f, dn, s, st) => A.push({ id: 'a' + A.length, emri, barkodi: '38900100' + String(1000 + A.length), data: d(dn), sasia: s, furnizuesi: f,
-    statusi: st || 'aktiv', krijuarSe: t - 9e6, ndryshuarSe: t - 9e6 });
+    statusi: st || 'aktiv', krijuarSe: t - 6e4, ndryshuarSe: t - 6e4 }); // v317: 1 minutë më parë
   if (n) { for (let i = 0; i < n; i++) shto('Produkti ' + (i + 1), i % 2 ? 'Agro Fresh' : 'Meridian Group', i - 5, i + 1); return A; }
   [['Kos 500g', -2, 3], ['Ajran 250ml', -1, 8], ['Qumësht i freskët 1L', 0, 6], ['Djathë i bardhë 400g', 2, 2], ['Jogurt me dredhëz 150g', 4, 12],
     ['Gjalpë 250g', 38, 10], ['Kaçkavall 300g', 66, 7]].forEach(([e, dn, s]) => shto(e, 'Meridian Group', dn, s));
@@ -74,17 +74,18 @@ const shkarkimi = async (p, fn) => { const [d] = await Promise.all([p.waitForEve
   // PDF
   await p.click('#afBtnExcel'); await p.click('#menu button:has-text("Eksporto PDF")'); await p.waitForTimeout(400);
   const ap = await p.evaluate(() => ({ hapur: document.getElementById('dlgAfPdf').classList.contains('hapur'), nen: document.getElementById('apNen').textContent,
-    gj: [...document.getElementById('apGjendja').options].map(o => o.textContent), r: [...document.getElementById('apRend').options].map(o => o.textContent),
+    gj: [...document.getElementById('apShtuar').options].map(o => o.textContent), r: [...document.getElementById('apRend').options].map(o => o.textContent),
     per: document.getElementById('apPeriudha').options[0].textContent }));
-  ok(ap.hapur && ap.nen === '11 afate · 1 faqe A4' && ap.gj[0] === 'Të gjitha (11)' && ap.r.join() === 'Sipas datës,Sipas furnizuesit,Sipas emrit' && ap.per === 'Të gjitha',
-    '3. "PDF për printim": Periudha, Gjendja, Furnizuesi, Renditja si te telefoni', ap);
+  ok(ap.hapur && ap.nen === '11 afate · 1 faqe A4' && ap.gj.slice(0, 3).join() === 'Të gjitha (11),Sot (11),Dje (0)' && ap.r.join() === 'Sipas datës,Sipas furnizuesit,Sipas emrit' && ap.per === 'Të gjitha',
+    '3. "PDF për printim": Periudha, Shtuar (v317, pa Gjendja), Furnizuesi, Renditja si te telefoni', ap);
   await p.screenshot({ path: __dirname + '/v301-pdf.png' });
-  await p.selectOption('#apGjendja', 'skaduar'); await p.waitForTimeout(150);
-  ok(await p.textContent('#apNen') === '3 afate · 1 faqe A4', '3. zgjedhja ndryshon numrin', await p.textContent('#apNen'));
+  await p.selectOption('#apShtuar', 'dje'); await p.waitForTimeout(150);
+  ok(await p.textContent('#apNen') === 'S\'ka afate për këtë zgjedhje.', '3. zgjedhja ndryshon numrin ("Dje": asnjë)', await p.textContent('#apNen'));
+  await p.selectOption('#apShtuar', 'sot'); await p.waitForTimeout(150);
   const pdf = await shkarkimi(p, () => p.click('#apKrijo'));
-  const s = pdf && pdf.b.toString('latin1');
-  ok(pdf && /^afatet_\d{4}-\d{2}-\d{2}\.pdf$/.test(pdf.emri) && /^%PDF/.test(s) && /\(Lista e afateve\)/.test(s) && /\(Kos 500g\)/.test(s) && !/\(Gjalp/.test(s) && /\(COP\xcb\)/.test(s),
-    '3. PDF-ja shkarkohet: vetëm të skaduarat, e njëjta faqe si te telefoni', pdf && pdf.emri);
+  const s = pdf && require('./pdf-tekst.js')(pdf.b.toString('base64')); // v317: e ngjeshur
+  ok(pdf && /^afatet_\d{4}-\d{2}-\d{2}\.pdf$/.test(pdf.emri) && /^%PDF/.test(s) && /\(Lista e afateve\)/.test(s) && /\(Kos 500g\)/.test(s) && /\(Gjalp/.test(s) && /\(Shtuar: Sot\)/.test(s) && !/stoku\.site/.test(s) && /\(COP\xcb\)/.test(s),
+    '3. PDF-ja shkarkohet: "Shtuar: Sot", pa adresë poshtë (v317), e njëjta faqe si te telefoni', pdf && pdf.emri);
   // Foto
   await p.click('#afBtnExcel'); await p.click('#menu button:has-text("Eksporto si foto")'); await p.waitForTimeout(400);
   const af = await p.evaluate(() => ({ hapur: document.getElementById('dlgAfEksFoto').classList.contains('hapur'), nen: document.getElementById('aefNen').textContent,

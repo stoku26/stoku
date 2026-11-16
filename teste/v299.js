@@ -61,13 +61,15 @@ const dritarja = p => p.evaluate(() => ({ hapur: document.getElementById('dlgAfP
 async function krijo(p) {
   await p.click('#apKrijo'); await p.waitForTimeout(800);
   if (await p.evaluate(() => document.getElementById('dlgKuSkedari').classList.contains('hapur'))) { await p.click('#ksKetu'); await p.waitForTimeout(800); }
-  return p.evaluate(async () => {
+  const r = await p.evaluate(async () => {
     const n = window.__ndare; if (!n) return null;
     const f = n.files[0], b = new Uint8Array(await f.arrayBuffer());
     let s = ''; for (let i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
     let b64 = ''; for (let i = 0; i < b.length; i += 0x8000) b64 += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
     return { emri: f.name, lloji: f.type, madh: f.size, tekst: s, b64: btoa(b64) };
   });
+  if (r) r.tekst = require('./pdf-tekst.js')(r.b64); // v317: PDF-ja e ngjeshur
+  return r;
 }
 const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
 
@@ -82,7 +84,7 @@ const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
   const sa = rx => (s.match(rx) || []).length;
   ok(faqet(s) === 3 && sa(/\(Lista e afateve\)/g) === 1 && sa(/\(Periudha: /g) === 1 && sa(/\(PRODUKTI\)/g) === 3,
     '2. "Lista e afateve" dhe "Periudha" vetëm në faqen 1; koka e tabelës në të 3 faqet', { faqe: faqet(s), titulli: sa(/\(Lista e afateve\)/g), periudha: sa(/\(Periudha: /g), koka: sa(/\(PRODUKTI\)/g) });
-  ok(/\(Produkti 70\)/.test(s) && /\(Produkti 80\)/.test(s) && /\(https:\/\/stoku\.site\)/.test(s), '3. 33 + 37 + 10 rreshta (v300; poshtë "https://stoku.site", v313)');
+  ok(/\(Produkti 70\)/.test(s) && /\(Produkti 80\)/.test(s) && !/stoku\.site/.test(s), '3. 34 + 37 + 9 rreshta (v317: asgjë poshtë, faqja 1 deri te fundi)');
   const x = t => { const m = s.match(new RegExp('([0-9.]+) [0-9.]+ Td\\s*\\(' + t + '\\) Tj')); return m ? Number(m[1]) : null; };
   const xc = x('COP\xcb'), xs = x('SKADON');
   ok(xc !== null && xs !== null && xs - xc > 30, '4. "COPË" më larg nga "SKADON" (> 30 pt)', { xc, xs, dif: xs && xc ? +(xs - xc).toFixed(1) : null });

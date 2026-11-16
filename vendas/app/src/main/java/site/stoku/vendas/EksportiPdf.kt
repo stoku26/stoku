@@ -16,7 +16,7 @@ import kotlin.math.roundToInt
 
 /**
  * Hyrja 36 (web v275, pronari "ideja 1" + opsionet "A"): afatet në PDF për printim, A4 e bardhë (vetëm e çelët, se printohet).
- * E njëjta faqe si `apPdf` te eksportet.js (mm: anët 12.7, rreshti 7.4, trupi deri te 283; poshtë te faqja 1 vetëm "https://stoku.site").
+ * E njëjta faqe si `apPdf` te eksportet.js (mm: anët 12.7, rreshti 7.4, trupi deri te 290, pa asgjë poshtë (Hyrja 79)).
  * Faqja 1 (pronari, "koka 1"): logoja e vogël majtas, data djathtas, "Lista e afateve" në mes, poshtë "Periudha: … · N produkte · M copë"
  * (trupi nga 37.2, 33 rreshta). Hyrja 61 (pronari, foto): faqet e tjera pa logo/titull/të dhëna, vetëm koka e tabelës (trupi nga 15.3,
  * 36 rreshta); "COPË" me sasinë më majtas, larg "SKADON" (kolona 18 mm, numri 6 mm para skajit).
@@ -25,7 +25,9 @@ import kotlin.math.roundToInt
  * Web-i shkruan me helvetica (jsPDF), Android-i me Onest. Ndryshoji bashkë.
  */
 object EksportiPdf {
-    val GJENDJET = listOf("aktive" to "Të gjitha", "skaduar" to "Të skaduara", "afer" to "Afër skadimit", "ok" to "Në rregull", "hequr" to "Të hequra")
+    /** Hyrja 79 (web v317, pronari: "hiqe gjendjen qite ni opsion me mujt me eksportu nkohen kur jan shtu afatet"): pa "Gjendja";
+     *  "Shtuar" sipas ditës kur u shtua afati (krijuarSe). Si EX.SHTUAR / intervaliShtuar te eksportet.js: ndryshoji bashkë. */
+    val SHTUAR = listOf("" to "Të gjitha", "sot" to "Sot", "dje" to "Dje", "7" to "7 ditët e fundit", "14" to "14 ditët e fundit", "30" to "30 ditët e fundit", "zgjidh" to "Zgjidh datat")
     val RENDET = listOf("data" to "Sipas datës", "furnizuesi" to "Sipas furnizuesit", "emri" to "Sipas emrit")
 
     private const val W = 210f
@@ -34,7 +36,7 @@ object EksportiPdf {
     private const val KOKA = 15.3f
     private const val P_SASIA = 6f // hapësira djathtas e kolonës COPË (Hyrja 61)
     private const val RR = 7.4f
-    private const val FUND = 283f
+    private const val FUND = 290f // Hyrja 79: pa fund, faqja 1 deri poshtë (34 rreshta)
     private const val FUND2 = 290f // Hyrja 62: faqet 2+ pa fund ("Krijuar me Stoku", "Faqja X nga Y"), tabela deri poshtë (37 rreshta)
     private const val MESI = 18.5f // Hyrja 71: vija e mesit e kokës (logoja, titulli me rreshtin poshtë, data), si web-i
     private const val PT = 25.4f / 72f // 1 pikë (pt) në mm
@@ -52,13 +54,28 @@ object EksportiPdf {
         return faqet
     }
 
-    fun gjendjaOk(a: Obj, gj: String): Boolean {
-        val st = Afatet.statusi(a)
-        return when (gj) { "aktive" -> st != "hequr"; "skaduar" -> st == "skaduar" || st == "pa-date"; else -> st == gj }
+    /** [nga, deri] si data, ose null (pa kufizim) */
+    fun intervali(sh: String, sot: java.time.LocalDate, nga: java.time.LocalDate?, deri: java.time.LocalDate?): Pair<java.time.LocalDate, java.time.LocalDate>? = when (sh) {
+        "sot" -> sot to sot
+        "dje" -> sot.minusDays(1).let { it to it }
+        "7", "14", "30" -> sot.minusDays(sh.toLong() - 1) to sot
+        "zgjidh" -> { val a = nga ?: sot; val b = deri ?: a; if (a <= b) a to b else b to a }
+        else -> null
     }
-    /** Afatet sipas zgjedhjeve (bosh = pa e kufizuar) */
-    fun filtro(te: List<Obj>, mu: String, gj: String, f: String, paF: Boolean): List<Obj> = te.filter { a ->
-        (gj.isEmpty() || gjendjaOk(a, gj)) && (mu.isEmpty() || Afatet.celesiMuajit(a) == mu) && (f.isEmpty() || paF || Afatet.celesiFurnizuesit(a) == f)
+    /** Dita kur u shtua afati (null kur s'dihet: afatet shumë të vjetra pa krijuarSe) */
+    fun ditaEShtimit(a: Obj): java.time.LocalDate? {
+        val k = (a["krijuarSe"] as? Number)?.toLong() ?: 0L
+        return if (k > 0) java.time.Instant.ofEpochMilli(k).atZone(java.time.ZoneId.systemDefault()).toLocalDate() else null
+    }
+    /** "16.11.2026" ose "12.11 deri 16.11.2026" */
+    fun tekstiIntervalit(iv: Pair<java.time.LocalDate, java.time.LocalDate>): String {
+        fun f(x: java.time.LocalDate, vit: Boolean) = "%02d.%02d".format(x.dayOfMonth, x.monthValue) + (if (vit) "." + x.year else "")
+        return if (iv.first == iv.second) f(iv.first, true) else f(iv.first, iv.first.year != iv.second.year) + " deri " + f(iv.second, true)
+    }
+    /** Afatet sipas zgjedhjeve (bosh / null = pa e kufizuar); të hequrat s'hyjnë kurrë */
+    fun filtro(te: List<Obj>, mu: String, iv: Pair<java.time.LocalDate, java.time.LocalDate>?, f: String, paF: Boolean): List<Obj> = te.filter { a ->
+        Afatet.statusi(a) != "hequr" && (iv == null || ditaEShtimit(a)?.let { it >= iv.first && it <= iv.second } == true) &&
+            (mu.isEmpty() || Afatet.celesiMuajit(a) == mu) && (f.isEmpty() || paF || Afatet.celesiFurnizuesit(a) == f)
     }
     fun rendit(l: List<Obj>, r: String): List<Obj> {
         val k = Comparator<Obj> { a, b -> Afatet.krahaso(a, b) }
@@ -165,13 +182,7 @@ object EksportiPdf {
             v.vije(X, y + RR, X + WI, y + RR, 0.2f, LINE2)
             y += RR
         }
-        // Hyrja 62 (web v300): fundi vetëm te faqja 1, pa vijën e dytë (dukej e dyfishtë me vijën e rreshtit të fundit).
-        // Hyrja 75 (web v313, pronari: "krijuar me stoku hiqe ... veq webin leje"): vetëm adresa, pa "Krijuar me Stoku", datën me orën
-        // dhe "Faqja 1 nga N" (data mbetet lart djathtas)
-        if (faqja == 0) {
-            v.font(7.9f, false)
-            v.tekst("https://stoku.site", X, 290.6f, FAINT)
-        }
+        // Hyrja 79 (web v317, pronari: "hiqja krejt qeto mos le kurgjo ne fund te fletave"): asnjë tekst poshtë në asnjë faqe
     }
 
     /** PDF-ja (A4, 595 × 842 pt): bajtet */

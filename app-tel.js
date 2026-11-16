@@ -6103,7 +6103,6 @@
   // Furnizuesi, Renditja; secili hap zgjedhjen e vet). Kur janë të gjithë muajt shkruan "Të gjitha" (pronari: jo "Krejt").
   // jsPDF me helvetica (tekst i vërtetë, i qartë në printim). Pa kolonën "Gjendja" (pronari: ditët e mbetura s'vlejnë më të nesërmen).
   // Android: EksportiPdf.kt me të njëjtën faqe (mm): ndryshoji bashkë.
-  var AP_GJENDJET = [['aktive', 'Të gjitha'], ['skaduar', 'Të skaduara'], ['afer', 'Afër skadimit'], ['ok', 'Në rregull'], ['hequr', 'Të hequra']];
   var AP_RENDET = [['data', 'Sipas datës'], ['furnizuesi', 'Sipas furnizuesit'], ['emri', 'Sipas emrit']];
   // Faqja në mm: A4, anët 12.7. Faqja 1 (pronari, "koka 1"): logoja e vogël majtas, data djathtas, "Lista e afateve" në mes dhe poshtë
   // "Periudha: … · N produkte · M copë"; trupi nis te 37.2 (33 rreshta). v299 (pronari, foto): faqet e tjera pa logo/titull/të dhëna,
@@ -6112,15 +6111,18 @@
   // "Faqja X nga Y", tabela deri te FUND2 290 (37 rreshta, pa zbrazëti poshtë).
   // v301: masat e faqes (AP) dhe plani i faqeve janë te eksportet.js
   function apPlani(n) { return EX.planiPdf(n); }
-  function apGjendjaOk(a, gj) {
-    var st = AF.statusi(a);
-    if (gj === 'aktive') return st !== 'hequr';
-    if (gj === 'skaduar') return st === 'skaduar' || st === 'pa-date';
-    return st === gj;
+  // v317 (pronari: "hiqe gjendjen qite ni opsion me mujt me eksportu nkohen kur jan shtu afatet"): pa "Gjendja"; "Shtuar" sipas
+  // ditës kur u shtua afati (EX.intervaliShtuar). Të hequrat s'hyjnë kurrë (si "Të gjitha" e vjetër).
+  function apIv(z) { return z.sh ? EX.intervaliShtuar(z.sh, AF.sot(), z.nga, z.deri) : null; }
+  function apTekstiShtuar(z) {
+    var iv = apIv(z);
+    if (!iv) return '';
+    return z.sh === 'zgjidh' ? EX.tekstiIntervalit(iv) : (EX.SHTUAR.filter(function (o) { return o[0] === z.sh; })[0] || ['', ''])[1];
   }
   function apAfatet(z) {
+    var iv = apIv(z);
     return afatetEMarketit().filter(function (a) {
-      if (z.gj && !apGjendjaOk(a, z.gj)) return false;
+      if (AF.statusi(a) === 'hequr' || !EX.shtuarOk(a, iv)) return false;
       if (z.mu && AF.celesiMuajit(a) !== z.mu) return false;
       if (z.f && !paFurnizues() && AF.celesiFurnizuesit(a) !== z.f) return false;
       return true;
@@ -6137,7 +6139,7 @@
     return l.sort(k);
   }
   function apZgj() {
-    return { mu: $('apPeriudha').value, gj: $('apGjendja').value || 'aktive', f: paFurnizues() ? '' : $('apFurn').value, r: $('apRend').value || 'data' };
+    return { mu: $('apPeriudha').value, sh: $('apShtuar').value, nga: $('apNga').value, deri: $('apDeri').value, f: paFurnizues() ? '' : $('apFurn').value, r: $('apRend').value || 'data' };
   }
   function apMbush(sel, ops, para) {
     sel.textContent = '';
@@ -6146,16 +6148,19 @@
   }
   function apVlera(sel) { var o = sel.options[sel.selectedIndex]; return o ? o.textContent.replace(/\s*\(\d+\)$/, '') : ''; }
   function apRifresko(fillimi) {
-    var z = fillimi ? { mu: '', gj: 'aktive', f: '', r: 'data' } : apZgj();
-    apMbush($('apGjendja'), AP_GJENDJET.map(function (g) { return [g[0], g[1] + ' (' + apAfatet({ gj: g[0], mu: z.mu, f: z.f }).length + ')']; }), z.gj);
-    z.gj = $('apGjendja').value;
-    apMbush($('apPeriudha'), [['', 'Të gjitha']].concat(AF.muajtELista(apAfatet({ gj: z.gj, f: z.f })).map(function (m) { return [m.celes, m.emri + ' (' + m.n + ')']; })), z.mu);
+    if (fillimi) { $('apNga').value = AF.sot(); $('apDeri').value = AF.sot(); }
+    var z = fillimi ? { mu: '', sh: '', nga: AF.sot(), deri: AF.sot(), f: '', r: 'data' } : apZgj();
+    apMbush($('apShtuar'), EX.SHTUAR.map(function (g) { return [g[0], g[1] + ' (' + apAfatet({ sh: g[0], nga: z.nga, deri: z.deri, mu: z.mu, f: z.f }).length + ')']; }), z.sh);
+    z.sh = $('apShtuar').value;
+    $('apDatat').hidden = z.sh !== 'zgjidh';
+    apMbush($('apPeriudha'), [['', 'Të gjitha']].concat(AF.muajtELista(apAfatet({ sh: z.sh, nga: z.nga, deri: z.deri, f: z.f })).map(function (m) { return [m.celes, m.emri + ' (' + m.n + ')']; })), z.mu);
     z.mu = $('apPeriudha').value;
     if (!paFurnizues()) {
-      apMbush($('apFurn'), [['', 'Të gjithë']].concat(AF.furnizuesitELista(apAfatet({ gj: z.gj, mu: z.mu })).map(function (f) { return [f.celes, f.emri + ' (' + f.n + ')']; })), z.f);
+      apMbush($('apFurn'), [['', 'Të gjithë']].concat(AF.furnizuesitELista(apAfatet({ sh: z.sh, nga: z.nga, deri: z.deri, mu: z.mu })).map(function (f) { return [f.celes, f.emri + ' (' + f.n + ')']; })), z.f);
     }
     apMbush($('apRend'), AP_RENDET, z.r);
-    ['apPeriudha', 'apGjendja', 'apFurn', 'apRend'].forEach(function (id) { $(id + 'V').textContent = apVlera($(id)); });
+    ['apPeriudha', 'apShtuar', 'apFurn', 'apRend'].forEach(function (id) { $(id + 'V').textContent = apVlera($(id)); });
+    if (z.sh === 'zgjidh') $('apShtuarV').textContent = apTekstiShtuar(z);
     var n = apAfatet(apZgj()).length, f = apPlani(n).length;
     $('apNen').textContent = n ? (n === 1 ? '1 afat' : n + ' afate') + ' · ' + (f === 1 ? '1 faqe A4' : f + ' faqe A4') : 'S\'ka afate për këtë zgjedhje.';
     $('apKrijo').disabled = !n;
@@ -6178,7 +6183,7 @@
     var dita = d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate());
     var per = z.mu ? AF.emriMuajit(z.mu) : 'Të gjitha', idM = idMarketitAktiv(), cope = AF.shumaCopeve(l);
     var info = [['Periudha: ', false], [per, true]];
-    [z.gj === 'aktive' ? '' : apVlera($('apGjendja')), z.f ? apVlera($('apFurn')) : '', idM ? emriMarketit(idM) : ''].filter(Boolean)
+    [apTekstiShtuar(z) ? 'Shtuar: ' + apTekstiShtuar(z) : '', z.f ? apVlera($('apFurn')) : '', idM ? emriMarketit(idM) : ''].filter(Boolean)
       .forEach(function (x) { info.push([' · ', false], [x, true]); });
     info.push([' · ', false], [String(l.length), true], [l.length === 1 ? ' produkt' : ' produkte', false]);
     if (cope) info.push([' · ', false], [String(cope), true], [' copë', false]);
@@ -6196,7 +6201,7 @@
   $('afEksPdf').addEventListener('click', apHap);
   $('apAnulo').addEventListener('click', apMbyll);
   $('apKrijo').addEventListener('click', apKrijo);
-  ['apPeriudha', 'apGjendja', 'apFurn', 'apRend'].forEach(function (id) { $(id).addEventListener('change', function () { apRifresko(); }); });
+  ['apPeriudha', 'apShtuar', 'apNga', 'apDeri', 'apFurn', 'apRend'].forEach(function (id) { $(id).addEventListener('change', function () { apRifresko(); }); });
   function mbyllExcelinEAfateve() { $('dlgAfExcel').classList.remove('hapur'); }
   async function eksportoTeZgjedhurat() {
     var kyçet = axTeZgjedhurat();

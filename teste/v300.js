@@ -62,13 +62,15 @@ const dritarja = p => p.evaluate(() => ({ hapur: document.getElementById('dlgAfP
 async function krijo(p) {
   await p.click('#apKrijo'); await p.waitForTimeout(800);
   if (await p.evaluate(() => document.getElementById('dlgKuSkedari').classList.contains('hapur'))) { await p.click('#ksKetu'); await p.waitForTimeout(800); }
-  return p.evaluate(async () => {
+  const r = await p.evaluate(async () => {
     const n = window.__ndare; if (!n) return null;
     const f = n.files[0], b = new Uint8Array(await f.arrayBuffer());
     let s = ''; for (let i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
     let b64 = ''; for (let i = 0; i < b.length; i += 0x8000) b64 += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
     return { emri: f.name, lloji: f.type, madh: f.size, tekst: s, b64: btoa(b64) };
   });
+  if (r) r.tekst = require('./pdf-tekst.js')(r.b64); // v317: PDF-ja e ngjeshur
+  return r;
 }
 const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
 
@@ -81,10 +83,10 @@ const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
   const f = await krijo(p);
   const s = f.tekst;
   const sa = rx => (s.match(rx) || []).length;
-  // v313 (pronari): fundi i faqes 1 = vetëm "https://stoku.site" (pa "Krijuar me Stoku", datë me orë as "Faqja 1 nga 3")
-  ok(faqet(s) === 3 && sa(/\(https:\/\/stoku\.site\)/g) === 1 && !/Krijuar me Stoku/.test(s) && !/\(Faqja \d+ nga \d+\)/.test(s) && !/, ora \d/.test(s),
-    '2. poshtë vetëm "https://stoku.site", vetëm te faqja 1 (v313)', { faqe: faqet(s), adresa: sa(/\(https:\/\/stoku\.site\)/g), krijuar: sa(/Krijuar me Stoku/g), faqja: sa(/\(Faqja \d+ nga \d+\)/g) });
-  ok(/\(Produkti 70\)/.test(s) && /\(Produkti 80\)/.test(s), '3. 33 + 37 + 10 rreshta: faqja 2 deri te "Produkti 70"');
+  // v317 (pronari: "hiqja krejt qeto mos le kurgjo ne fund te fletave"): asnjë tekst poshtë në asnjë faqe
+  ok(faqet(s) === 3 && !/stoku\.site/.test(s) && !/Krijuar me Stoku/.test(s) && !/\(Faqja \d+ nga \d+\)/.test(s) && !/, ora \d/.test(s),
+    '2. asgjë poshtë në asnjë faqe (v317)', { faqe: faqet(s), adresa: sa(/stoku\.site/g), krijuar: sa(/Krijuar me Stoku/g), faqja: sa(/\(Faqja \d+ nga \d+\)/g) });
+  ok(/\(Produkti 70\)/.test(s) && /\(Produkti 80\)/.test(s), '3. 34 + 37 + 9 rreshta (v317: faqja 1 deri poshtë)');
   // vijat: 80 rreshta + 3 koka tabele = 83 (më parë edhe 3 vija mbi "Krijuar me Stoku" = 86)
   ok(sa(/ l\n/g) === 83, '4. pa vijën e dytë mbi "Krijuar me Stoku" (83 vija)', sa(/ l\n/g));
   fs.writeFileSync(__dirname + '/v300.pdf', Buffer.from(f.b64, 'base64'));
