@@ -53,6 +53,19 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v315 / Android Hyrja 77 (16.11.2026): HEQJA NGA RAFTI PAS KËRKESËS + NGJYRAT (CYAN, PORTOKALLI, IKONAT "B")**.
+   (1) Pronari: "ja qova e heki prej rafti erdh njoftimi po produkti hala osht si ne raft nfaqe te afatet": kur kolegu shtyp "E hoqa
+   nga rafti" (`kryejKerkesen`), kërkuesi merr "kerkese-kryer" (njoftim + ngjarje me `kerkuesUid`), por afati i tij s'ndryshonte.
+   Tani `zbatoKerkesatEKryera` (ekipa.js, kontrolluesi; Android `Grupi.zbatoKerkesatEKryera`) i shënon "hequr" (hequrNga = kolegu)
+   afatet që përputhen sipas `afatetEKerkesesKryer` (barkodi + data kur dihet; emri kur s'ka barkod; jo të hequrat, jo ato të
+   ndryshuara pas kryerjes), një herë për kërkesë (`stoku:ekipa:kerkese-kryer:{uid}` / pref `kerkese_kryer_{uid}`). Konfirmim shtesë
+   para dërgimit s'u shtua (pronarit iu propozua; dërgimi është vetë konfirmimi). Test: `kerkese-test.js` (pika v315), `v315.js`.
+   (2) Ngjyrat (pronari: "heke trendafil shtoja njo tportokallt ... mokë ndrroje me cyan", zgjodhi idenë "B" "edhe per white mode"):
+   e errëta 6 Mokë → Cyan, 10 Trëndafili → Portokalli; e çelëta 10 Trëndafili → Portokalli (`teste/temat-gjenero.py`). Miniatura e
+   temës = "stoku." (ink, pika accent) + butoni accent (`temat.js` `miniatura`, `.tm-w`; Android `MiniaturaETemes`). Kush kishte
+   Mokën / Trëndafilin merr Cyan / Portokallin (i njëjti numër). (3) Ikona e Stoku-t të instaluar nga Chrome/Safari s'ndërron sipas
+   temës (kufizim i shfletuesve): Chrome e përditëson vetë pas 1-3 ditësh (ndoshta me pyetje), Safari jo (hiqet e shtohet sërish).
+
 0000000. **v314 / Android Hyrja 76 / ora (16.11.2026): LOGOJA ME SHKRONJA, IKONA E ERRËT / E ÇELËT, PA 25 LOGOT**. Pronari (foto e kokës):
    "hiqja ikonen ndersa bone si logo me shkronja te mdhaja ... komplet qat hapsir edhe boxin permas hiqja", "mush krejt qat hapsir ne
    pc", "nr 4 osht perfekt per ikonat" e pastaj "bone 4-shin kur e ka perdoruesi dark mode ... 5-shin e bon ne white mode", "te

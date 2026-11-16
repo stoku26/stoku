@@ -212,6 +212,7 @@ object Grupi {
             if (s == null || gNdjekur != g) return@addSnapshotListener
             ngjarjet.value = Emrat.perditesoListen(s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }) // v308: emrat e tanishëm
             ngjarjetGati.value = true
+            zbatoKerkesatEKryera(ngjarjet.value) // Hyrja 77
         })
         if (roli == "pronar") {
             degjuesitGrupit.add(db.collection("ftesat").whereEqualTo("gid", g).addSnapshotListener { s, _ ->
@@ -616,6 +617,7 @@ object Grupi {
     /** Njoftimet e reja te zilja ime: kthimet zbatohen vetë; pranimet e heqin dërgimin nga rezerva */
     private fun zbatoAfatetEKolegeve(lista: List<Obj>) {
         val u0 = uid ?: return
+        zbatoKerkesatEKryera(lista)
         lista.forEach { n ->
             val dId = n["dergimId"] as? String ?: return@forEach
             if (n["lloji"] == "afat-kthyer" && !eVertete(n["zbatuar"])) {
@@ -623,6 +625,40 @@ object Grupi {
                 (n["id"] as? String)?.let { db.collection("perdoruesit").document(u0).collection("njoftimet").document(it).update("zbatuar", true) }
             } else if (n["lloji"] == "afat-pranuar") hiqDergimin(dId)
         }
+    }
+
+    /**
+     * Hyrja 77 (web v315, pronari: "ja qova e heki prej rafti erdh njoftimi po produkti hala osht si ne raft"): kur një koleg e kryen
+     * kërkesën time për heqje ("kerkese-kryer", njoftim ose ngjarje me kerkuesUid = unë), afatet e mia me të njëjtin barkod (dhe datë,
+     * kur dihet) shënohen të hequra me emrin e tij. Një herë për kërkesë (si ekipa.js zbatoKerkesatEKryera).
+     */
+    private fun zbatoKerkesatEKryera(lista: List<Obj>) {
+        val u0 = uid ?: return
+        val k = "kerkese_kryer_$u0"
+        val bere = prefListe(k).mapNotNull { it as? String }.toMutableList()
+        var ndryshoi = false
+        lista.forEach { n ->
+            if (n["lloji"] != "kerkese-kryer") return@forEach
+            val nga = n["uid"] as? String ?: return@forEach
+            if (nga == u0) return@forEach
+            if (n.containsKey("kerkuesUid") && n["kerkuesUid"] != u0) return@forEach
+            val c = (n["kerkeseId"] as? String)?.takeIf { it.isNotEmpty() } ?: (n["id"] as? String) ?: return@forEach
+            if (c in bere) return@forEach
+            val koha = numerOse0(n["koha"]).toLong().takeIf { it > 0 } ?: System.currentTimeMillis()
+            val prod = GrupiLogjika.listaEKerkeses(n)
+            Dyqani.gjendja.value.afatet.forEach { a ->
+                if (a["statusi"] == "hequr" || numerOse0(a["ndryshuarSe"]).toLong() > koha) return@forEach
+                val perputhet = prod.any { x ->
+                    val b = x["barkodi"] as? String ?: ""; val pr = x["produkti"] as? String ?: ""; val d = x["data"] as? String ?: ""
+                    val njejte = if (b.isNotEmpty()) jsString(a["barkodi"] ?: "") == b
+                        else pr.isNotEmpty() && jsString(a["emri"] ?: "").trim().lowercase() == pr.lowercase()
+                    njejte && (d.isEmpty() || a["data"] == d)
+                }
+                if (perputhet) Dyqani.perditesoAfatin(a["id"] as String, mapOf("statusi" to "hequr", "hequrSe" to koha, "hequrNga" to (n["emri"] ?: "")))
+            }
+            bere.add(c); ndryshoi = true
+        }
+        if (ndryshoi) StokuApp.vendosPref(k, Json.shkruaj(bere.takeLast(300)))
     }
 
     /** Rezerva e dërguesit: dërgimet më të vjetra se 10 ditë (+1 orë për Worker-in) kontrollohen te serveri */

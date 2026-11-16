@@ -15,11 +15,11 @@
       { n: 3, emri: 'Oqeani', bg: '#0a1220', surface: '#101b2e', line: '#22324d', ink: '#e9f1fb', accent: '#0e7490' },
       { n: 4, emri: 'Smeraldi', bg: '#0b1513', surface: '#11201c', line: '#22392f', ink: '#eaf5f0', accent: '#0b7a66' },
       { n: 5, emri: 'Ametisti', bg: '#120f1a', surface: '#1b1727', line: '#322b45', ink: '#f1eef8', accent: '#7c4ddb' },
-      { n: 6, emri: 'Mokë', bg: '#14110e', surface: '#1e1915', line: '#362e26', ink: '#f4efe9', accent: '#2b6cb0' },
+      { n: 6, emri: 'Cyan', bg: '#071417', surface: '#0d1f23', line: '#1b363c', ink: '#e6f7f9', accent: '#0891b2' },
       { n: 7, emri: 'Indigo', bg: '#0e0f1c', surface: '#161830', line: '#2b2f55', ink: '#eef0fb', accent: '#5850ec' },
       { n: 8, emri: 'E zezë (OLED)', bg: '#000000', surface: '#0f0f11', line: '#26262b', ink: '#f5f5f7', accent: '#2563eb' },
       { n: 9, emri: 'Akull', bg: '#0f172a', surface: '#1e293b', line: '#334155', ink: '#f1f5f9', accent: '#0369a1' },
-      { n: 10, emri: 'Trëndafili', bg: '#150f14', surface: '#20161e', line: '#3a2a37', ink: '#f8eef4', accent: '#be185d' }
+      { n: 10, emri: 'Portokalli', bg: '#16100c', surface: '#211812', line: '#3a2a1e', ink: '#fbf1e9', accent: '#ea580c' }
     ],
     celeta: [
       { n: 1, emri: 'Letër', bg: '#f6f5f2', surface: '#ffffff', line: '#e6e4df', ink: '#14161b', accent: '#1f5fc4' },
@@ -31,7 +31,7 @@
       { n: 7, emri: 'Indigo', bg: '#f3f4fb', surface: '#ffffff', line: '#dcdff2', ink: '#141631', accent: '#4f46e5' },
       { n: 8, emri: 'Kontrast i lartë', bg: '#ffffff', surface: '#ffffff', line: '#c9cdd3', ink: '#000000', accent: '#0047ab' },
       { n: 9, emri: 'Shkëmb', bg: '#f1f5f9', surface: '#ffffff', line: '#dbe2ea', ink: '#0f172a', accent: '#1e293b' },
-      { n: 10, emri: 'Trëndafili', bg: '#fbf3f6', surface: '#ffffff', line: '#eed6e0', ink: '#2a1320', accent: '#be185d' }
+      { n: 10, emri: 'Portokalli', bg: '#fdf6f0', surface: '#ffffff', line: '#efdccb', ink: '#2a170a', accent: '#ea580c' }
     ]
   };
   /* TEMAT-FUNDI */
@@ -66,12 +66,14 @@
   var hapur = { e: false, c: false }; // vetëm sa është faqja e hapur
 
   function el(tag, klasa) { var x = document.createElement(tag); if (klasa) x.className = klasa; return x; }
+  // v315 (pronari zgjodhi idenë "B"): "stoku." me ngjyrën e tekstit të temës (pika me ngjyrën kryesore) dhe një buton poshtë
   function miniatura(t, klasa) {
     var m = el('span', klasa);
     m.style.background = t.bg; m.style.borderColor = t.line;
-    var a = el('i', 'tm-a'), b = el('i', 'tm-b'), c = el('i', 'tm-c');
-    a.style.background = t.ink; b.style.background = t.surface; b.style.borderColor = t.line; c.style.background = t.accent;
-    m.appendChild(a); m.appendChild(b); m.appendChild(c);
+    var w = el('span', 'tm-w'); w.style.color = t.ink; w.textContent = 'stoku';
+    var pk = el('span'); pk.style.color = t.accent; pk.textContent = '.'; w.appendChild(pk);
+    var c = el('i', 'tm-c'); c.style.background = t.accent;
+    m.appendChild(w); m.appendChild(c);
     return m;
   }
   function grupi(k, titulli, kurNdryshon) {

@@ -1925,6 +1925,20 @@
     }
   }
 
+  // v315: afatet e mia (në raft) që i përkasin produkteve të një kërkese të kryer: i njëjti barkod (ose emri kur s'ka barkod)
+  // dhe e njëjta datë kur kërkesa e ka; vetëm ato që s'janë ndryshuar pas kryerjes. Kthen id-të.
+  function afatetEKerkesesKryer(afatet, k) {
+    var prod = listaEKerkeses(k), ids = [];
+    (afatet || []).forEach(function (a) {
+      if (!a || !a.id || a.statusi === 'hequr' || (a.ndryshuarSe || 0) > (k.koha || 0)) return;
+      var pr = prod.some(function (x) {
+        var njejte = x.barkodi ? String(a.barkodi || '') === x.barkodi : (x.produkti && String(a.emri || '').trim().toLowerCase() === x.produkti.toLowerCase());
+        return njejte && (!x.data || a.data === x.data);
+      });
+      if (pr) ids.push(a.id);
+    });
+    return ids;
+  }
   // Produktet e një kërkese për heqje: lista `produktet` (v148), ose produkti/barkodi i vetëm (kërkesat e para)
   var KERKESA_MAKS = 30;
   function listaEKerkeses(k) {
@@ -2985,8 +2999,26 @@
       return shtuar;
     }
     // Njoftimet e reja te zilja ime: kthimet (refuzim / 10 ditë) zbatohen vetë; pranimet e heqin dërgimin nga rezerva
+    // v315 (pronari: "ja qova e heki prej rafti erdh njoftimi po produkti hala osht si ne raft nfaqe te afatet"): kur një koleg
+    // e kryen kërkesën time për heqje ("kerkese-kryer": njoftimi te zilja ose ngjarja te aktiviteti me kerkuesUid = unë),
+    // afatet e mia me të njëjtin barkod (dhe datë, kur dihet) shënohen të hequra me emrin e tij. Një herë për çdo kërkesë.
+    function celesiKerkesaveKryer() { return 'stoku:ekipa:kerkese-kryer:' + o.uidIm(); }
+    function zbatoKerkesatEKryera(lista) {
+      if (!o.uidIm() || !o.zbatoKerkesenEKryer) return;
+      var bere = lexoListen(celesiKerkesaveKryer()), ndryshoi = false;
+      (lista || []).forEach(function (n) {
+        if (!n || n.lloji !== 'kerkese-kryer' || !n.uid || n.uid === o.uidIm()) return;
+        if (n.kerkuesUid !== undefined && n.kerkuesUid !== o.uidIm()) return; // ngjarje te aktiviteti për kërkesën e dikujt tjetër
+        var c = n.kerkeseId || n.id;
+        if (!c || bere.indexOf(c) !== -1) return;
+        try { o.zbatoKerkesenEKryer({ produktet: listaEKerkeses(n), emri: n.emri || '', koha: n.koha || Date.now() }); } catch (x) { /* ok */ }
+        bere.push(c); ndryshoi = true;
+      });
+      if (ndryshoi) ruajListen(celesiKerkesaveKryer(), bere.slice(-300));
+    }
     function zbatoAfatetEKolegeve(lista) {
       var e = E();
+      zbatoKerkesatEKryera(lista);
       (lista || []).forEach(function (n) {
         if (n.lloji === 'afat-kthyer' && n.dergimId && !n.zbatuar) {
           ktheAfatinTek(n.dergimId, n.afat);
@@ -3128,6 +3160,7 @@
           }) : [];
           gj.ngjarjet = Emrat.perditesoListen(lista); // v308: emrat e tanishëm sipas uid-së
           gj.ngjarjetGati = true;
+          zbatoKerkesatEKryera(lista); // v315
           // Një koleg pa përmbledhje (version i vjetër) shtoi afate ose hoqi të vetat → rilexo dyqanin e tij
           teRejaNgaTjeret.forEach(function (ng) {
             if (ng.lloji === 'afate-te-reja' || ng.lloji === 'rikthyer' || (ng.lloji === 'hequr' && ng.pronariUid === ng.uid)) rifreskoDyqanin(ng.uid);
@@ -3461,7 +3494,7 @@
     hartaEHeqjeve: hartaEHeqjeve, mbivendosHeqjen: mbivendosHeqjen, duhetZbatuarHeqja: duhetZbatuarHeqja,
     kalendari: kalendari, statistikat: statistikat, tekstiNgjarjes: tekstiNgjarjes, uidIAvatarit: uidIAvatarit, objektiINgjarjes: objektiINgjarjes, detajetENgjarjes: detajetENgjarjes, kohaENgjarjes: kohaENgjarjes, artikulliINgjarjes: artikulliINgjarjes, artikujtENgjarjes: artikujtENgjarjes, tekstiNjoftimit: tekstiNjoftimit,
     afatiPerKolegun: afatiPerKolegun, gjendjaEAfatitKolegut: gjendjaEAfatitKolegut, produktiIAfatitDerguar: produktiIAfatitDerguar, AFAT_KOLEGU_DITE: AFAT_KOLEGU_DITE, // v297
-    isoDites: isoDites, Fotot: Fotot, Emrat: Emrat, emriAktual: emriAktual, meEmratAktuale: meEmratAktuale, ciftetEEmrave: ciftetEEmrave, listaEKerkeses: listaEKerkeses, rreshtiIProduktit: rreshtiIProduktit, zgjedhesIKerkeses: zgjedhesIKerkeses
+    isoDites: isoDites, Fotot: Fotot, Emrat: Emrat, emriAktual: emriAktual, meEmratAktuale: meEmratAktuale, ciftetEEmrave: ciftetEEmrave, listaEKerkeses: listaEKerkeses, afatetEKerkesesKryer: afatetEKerkesesKryer, rreshtiIProduktit: rreshtiIProduktit, zgjedhesIKerkeses: zgjedhesIKerkeses
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuEkipa = api;

@@ -20,6 +20,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 315, versioni: '1.63.1', data: '2026-11-16', titulli: 'Heqja nga rafti dhe ngjyrat', pikat: [
+      'Kur i kërkon një kolegu ta heqë një produkt nga rafti dhe ai shtyp "E hoqa nga rafti", produkti te Afatet e tua tani shënohet vetë i hequr (me emrin e tij).',
+      'Te Cilësimet → Pamja → Ngjyrat: "Trëndafili" u zëvendësua me "Portokalli" (edhe te temat e çelëta) dhe "Mokë" me "Cyan". Secila ngjyrë tani tregohet me "stoku." dhe një buton me ngjyrën e saj.'
+    ] },
     { v: 314, versioni: '1.63.0', data: '2026-11-16', titulli: 'Logoja me shkronja', pikat: [
       'Logoja e Stoku-t tani është vetëm me shkronja: "stoku." e madhe lart, pa kuti dhe pa emrin e përdoruesit poshtë saj. Në kompjuter zë krejt gjerësinë e anës së majtë.',
       'Ikona e Stoku-t ndërron sipas temës: e zezë kur përdor temën e errët, e bardhë kur përdor të çelëtën (edhe te skeda e shfletuesit).',
