@@ -42,8 +42,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 | `manifest.webmanifest` | PWA manifest (emri "Stoku", ikonat). |
 | `css/` | Pamja (v126): `stoku-tokens.css` (fontet, ngjyrat e çelëta/errëta), `stoku.css` (telefoni), `stoku-pc.css` (kompjuteri). |
 | `fonts/` | Onest dhe JetBrains Mono (woff2, OFL), që pamja të punojë edhe pa internet. |
-| `logo/` | Logoja 60 (v313): SVG, favicon, ikona "maskable", badge; i shkruan `teste/logot-gjenero.py` + `teste/logot-png.js`. |
-| `logot.js` | v313: logoja 60 dhe 25 kombinimet e ngjyrave (Cilësimet → Pamja → Logoja), vizatimi në canvas (PDF/foto), favicon-i. DATA e gjeneruar. |
+| `logo/` | v314: logoja "stoku." (SVG/PNG), ikonat e errëta (nr. 4) dhe të çelëta (nr. 5), favicon "s.", badge; i shkruan `teste/logot-gjenero.py` + `teste/logot-png.js`. |
+| `logot.js` | v314: logoja me shkronja "stoku.", vizatimi në canvas (PDF/foto), favicon-i sipas temës (e errët / e çelët). DATA e gjeneruar. |
 
 ## Rregulla teknike THEMELORE (mos i harro)
 
@@ -52,6 +52,24 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    Në fjali: presje, pikë, dy pika ose kllapa. Si ndarës: "·" (p.sh. "Sinkronizuar · 12:21") ose "•" (titulli
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
+
+0000000. **v314 / Android Hyrja 76 / ora (16.11.2026): LOGOJA ME SHKRONJA, IKONA E ERRËT / E ÇELËT, PA 25 LOGOT**. Pronari (foto e kokës):
+   "hiqja ikonen ndersa bone si logo me shkronja te mdhaja ... komplet qat hapsir edhe boxin permas hiqja", "mush krejt qat hapsir ne
+   pc", "nr 4 osht perfekt per ikonat" e pastaj "bone 4-shin kur e ka perdoruesi dark mode ... 5-shin e bon ne white mode", "te
+   cilesimet pamja qato logot komplet fshij", "useri qe osht te logo ... mos tdalin qaty mo", "mos harro edhe te hyrja ... qite logon",
+   "sigurohu qe mu ndrru edhe ikona e jashtme e appit kur zgjidhet dark mode ose white mode". (1) **Logoja** = "stoku." (Onest 800,
+   pika e gjelbër #16a34a / #4ade80) pa shenjë: koka (telefon 152 px; PC sa krejt anësorja, `.stk-logo--pc` 100%), hyrja (porta
+   172 px, Android `LogoEPlote`), faqja bosh e PC-së, PDF/foto, ora (`logo_stoku.xml`). `.stk-etiketa` pa kuti, emri (`#sbDyqani`,
+   `#sbpBrandNen`) i fshehur me CSS (elementet mbeten për JS); Android `EtiketaStoku` vetëm Image. (2) **Ikonat**: nr. 4 (e zezë
+   #14161b, "stoku." e bardhë) dhe nr. 5 (e bardhë, "stoku." e zezë); në madhësi të vogla (favicon, njoftimi, komplikacioni, fundi i
+   fotos) "s.". Web: favicon-i ndryshon me `data-tema` (logot.js `rifreskoFavicon`, MutationObserver); ikona e PWA-së së instaluar
+   (manifest, apple-touch) s'mund të ndryshojë sipas temës: mbetet e errëta. Android: `activity-alias` `.IkonaErret` (parazgjedhja) /
+   `.IkonaCelet` (`mipmap/ic_launcher_celet`), `IkonaJashtme.perditeso` te `MainActivity.onStop` sipas `Opsionet.tema` (auto =
+   tema e telefonit). Me përditësimin e parë launcher-i mund ta heqë ikonën nga ekrani bazë (komponenti i ri); kur ndërrohet tema,
+   disa launcher-a e vendosin ikonën te lista. Ora: vetëm e errëta (ora s'ka temë të çelët). (3) **Pa 25 logot**: hiqen `vizato`,
+   `#pamjaLogoja`, `#opsLogoja`, `data-logo`, `stoku:logoja` (fshihet), `pamja.logo` (s'shkruhet, injorohet), Android `GrupiLogos`,
+   `Opsionet.logoja`, `ikonaStoku`; `logo/stoku-mark.svg` u fshi. Gjeneruesi `teste/logot-gjenero.py` u rishkrua (pa shenjën).
+   Testet: `teste/v314.js` (i ri); `v313.js` pa kontrollet e logove; `v268.js` (kërkimi nga 72), `v226` (manifest ?v=89).
 
 0000000. **v313 / Android Hyrja 75 / ora (16.11.2026): LOGOJA 60 ME 25 NGJYRA + NJOFTIMET E DETYRUESHME MË TË FORTA**. Pronari zgjodhi
    nga 100 setet e Claude Design (artefakti "Stoku: 100 logo dhe ikona") setin **60 "Lista e kontrollit"** dhe kërkoi: "Boni krejta qeto
@@ -3271,6 +3289,9 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
   para merge-it ("ktheje te mas komplet qysh u kon logo"). Logoja mbetet ajo me barkod + shufrën e verdhë.
   **Ndryshim (16.11.2026, v313)**: pronari kërkoi vetë 100 logo, zgjodhi setin 60 dhe 25 ngjyrat e tij te Pamja. Mos i rikthe
   gjashtëkëndëshat e vitit 28.10 as logon me barkod pa e kërkuar ai.
+  **Ndryshim (16.11.2026, v314)**: pronari e hoqi shenjën (lista me kuti) dhe 25 ngjyrat ("te cilesimet pamja qato logot komplet
+  fshij"): logoja = vetëm shkronjat "stoku." pa kuti e pa emrin e përdoruesit; ikona nr. 4 (e zezë) për temën e errët, nr. 5
+  (e bardhë) për të çelëtën. Mos i rikthe shenjën 60, zgjedhjen e logove te Pamja as emrin poshtë logos.
 - Opsioni "Mos dil kur i fshin të dhënat" te Cilësimet → Llogaria dhe udhëzimi "shtyp Ruaj" te porta (v165, u hoq
   te v166): "hiq bash kurgjo ske bo, hiqe fshije".
 - Chat-i i Grupit (u fsheh te v182, u hoq krejt te v221: "zhduke 100% se e kemi hek chatin"; te v222 edhe nga historiku
