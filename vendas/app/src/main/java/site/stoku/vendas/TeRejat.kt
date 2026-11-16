@@ -8,6 +8,11 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(76, "2026-11-16", "Logoja me shkronja", listOf(
+            "Logoja e Stoku-t tani është vetëm me shkronja: \"stoku.\" e madhe lart, pa kuti dhe pa emrin e përdoruesit poshtë saj.",
+            "Ikona e aplikacionit në ekranin e telefonit ndërron sipas temës: e zezë me temën e errët, e bardhë me të çelëtën. Ndërrohet kur del nga aplikacioni; në disa telefona duhet ta vendosësh prapë në ekranin kryesor.",
+            "Zgjedhja e 25 ngjyrave të logos te Cilësimet → Pamja u hoq."
+        )),
         Hyrja(75, "2026-11-16", "Logoja e re dhe njoftimet", listOf(
             "Stoku ka logo të re: lista me shenjë. Te Cilësimet → Pamja → Logoja zgjedh njërën nga 25 ngjyrat e saj. Logoja e zgjedhur del kudo: lart në Stoku, në hyrje, te PDF-ja dhe fotoja e afateve.",
             "Logoja që zgjedh ruhet te llogaria: kur hyn prapë, ose në një pajisje tjetër (edhe te web-i), e gjen të njëjtën.",

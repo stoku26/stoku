@@ -112,29 +112,26 @@ object EksportiFoto {
         p.style = Paint.Style.FILL
     }
 
-    /** Hyrja 75 (web v313): logoja 60 me ngjyrat e zgjedhura (Cilësimet → Pamja → Logoja), e lartë h; shkronjat me C.logo (edhe për PDF-në) */
+    /** Hyrja 76 (web v314): logoja vetëm me shkronja "stoku.", e lartë h; shkronjat me C.logo (edhe për PDF-në), pika e gjelbër */
     internal fun Canvas.logo(p: Paint, x: Float, y: Float, h: Float, C: Ngjyrat) {
-        val v = site.stoku.vendas.ui.Logot.varianti(Opsionet.logoja.value)
-        val erret = C === ERRET
-        val f = c(if (erret) v.dk else v.br); val a = c(if (erret) v.acD else v.acL)
-        val k = h / site.stoku.vendas.ui.Logot.LOGO_H
+        val L = site.stoku.vendas.ui.Logot
+        val k = h / L.FJ_H
         save(); translate(x, y); scale(k, k)
         p.style = Paint.Style.FILL
-        site.stoku.vendas.ui.Logot.logoShenja.forEach { sh -> p.color = if (sh.rol == 'a') a else f; p.alpha = (sh.o * 255).roundToInt(); mbush(sh.d, p) }
-        p.color = C.logo; mbush(site.stoku.vendas.ui.Logot.FJALA, p)
-        p.color = a; mbush(site.stoku.vendas.ui.Logot.PIKA, p)
+        p.color = C.logo; mbush(L.FJ_T, p)
+        p.color = c(if (C === ERRET) L.PIKA_ERRET else L.PIKA_CELET); mbush(L.FJ_P, p)
         restore()
     }
-    /** Ikona e vogël e aplikacionit (si te telefoni) në fund të fotos */
+    /** Ikona e vogël e aplikacionit ("s." mbi të zezë, si ikona e telefonit) në fund të fotos */
     private fun Canvas.shenja(p: Paint, x: Float, y: Float, s: Float) {
-        val v = site.stoku.vendas.ui.Logot.varianti(Opsionet.logoja.value)
-        val k = s / 64f
+        val L = site.stoku.vendas.ui.Logot
+        val k = s / 72f
         save(); translate(x, y); scale(k, k)
         p.style = Paint.Style.FILL
-        p.color = c(v.bg); mbush("M15 0h34a15 15 0 0 1 15 15v34a15 15 0 0 1-15 15H15A15 15 0 0 1 0 49V15A15 15 0 0 1 15 0Z", p)
-        translate(6.4f, 6.4f); scale(0.8f, 0.8f)
-        site.stoku.vendas.ui.Logot.shenja.forEach { sh -> p.color = c(if (sh.rol == 'a') v.ac else v.fg); p.alpha = (sh.o * 255).roundToInt(); mbush(sh.d, p) }
-        p.alpha = 255
+        p.color = c(L.IKONA_BG); drawRoundRect(0f, 0f, 72f, 72f, 17f, 17f, p)
+        translate(-18f, -18f)
+        p.color = c(L.IKONA_FG); mbush(L.IK_S_T, p)
+        p.color = c(L.IKONA_AC); mbush(L.IK_S_P, p)
         restore()
     }
     private fun Canvas.mbush(d: String, p: Paint) { try { drawPath(PathParser.createPathFromPathData(d), p) } catch (e: Exception) { } }

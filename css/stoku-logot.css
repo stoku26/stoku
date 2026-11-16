@@ -1,60 +1,12 @@
-/* E GJENERUAR nga teste/logot-gjenero.py (v313): mos e ndrysho me dorë.
-   Logoja (seti 60) me ngjyrat e zgjedhura te Cilësimet → Pamja → Logoja (data-logo te <html>; pa atribut = "60"). */
-:root { --lg-f: #2e7d4f; --lg-a: #65a30d; --lg-bg: #2e7d4f; --lg-fg: #ffffff; --lg-ac: #d9f99d; }
-:root[data-tema="dark"] { --lg-f: #86efac; --lg-a: #d9f99d; }
-:root[data-logo="60-1"] { --lg-f: #1f5fc4; --lg-a: #e0a020; --lg-bg: #1f5fc4; --lg-fg: #ffffff; --lg-ac: #f5b942; }
-:root[data-tema="dark"][data-logo="60-1"] { --lg-f: #7aaaf2; --lg-a: #f5b942; }
-:root[data-logo="60-2"] { --lg-f: #1e3a8a; --lg-a: #0284c7; --lg-bg: #1e3a8a; --lg-fg: #ffffff; --lg-ac: #38bdf8; }
-:root[data-tema="dark"][data-logo="60-2"] { --lg-f: #93c5fd; --lg-a: #38bdf8; }
-:root[data-logo="60-3"] { --lg-f: #0369a1; --lg-a: #d97706; --lg-bg: #0369a1; --lg-fg: #ffffff; --lg-ac: #fcd34d; }
-:root[data-tema="dark"][data-logo="60-3"] { --lg-f: #7dd3fc; --lg-a: #fcd34d; }
-:root[data-logo="60-4"] { --lg-f: #0f172a; --lg-a: #0284c7; --lg-bg: #0f172a; --lg-fg: #67d0f8; --lg-ac: #fbbf24; }
-:root[data-tema="dark"][data-logo="60-4"] { --lg-f: #67d0f8; --lg-a: #fbbf24; }
-:root[data-logo="60-5"] { --lg-f: #172554; --lg-a: #65a30d; --lg-bg: #172554; --lg-fg: #ffffff; --lg-ac: #a3e635; }
-:root[data-tema="dark"][data-logo="60-5"] { --lg-f: #93c5fd; --lg-a: #a3e635; }
-:root[data-logo="60-6"] { --lg-f: #0f766e; --lg-a: #d97706; --lg-bg: #0f766e; --lg-fg: #ffffff; --lg-ac: #fbbf24; }
-:root[data-tema="dark"][data-logo="60-6"] { --lg-f: #5eead4; --lg-a: #fbbf24; }
-:root[data-logo="60-7"] { --lg-f: #0b3d2e; --lg-a: #16a34a; --lg-bg: #0b3d2e; --lg-fg: #e7f6ee; --lg-ac: #4ade80; }
-:root[data-tema="dark"][data-logo="60-7"] { --lg-f: #86efac; --lg-a: #4ade80; }
-:root[data-logo="60-8"] { --lg-f: #3f6212; --lg-a: #a16207; --lg-bg: #3f6212; --lg-fg: #ecfccb; --lg-ac: #facc15; }
-:root[data-tema="dark"][data-logo="60-8"] { --lg-f: #bef264; --lg-a: #facc15; }
-:root[data-logo="60-9"] { --lg-f: #065f46; --lg-a: #059669; --lg-bg: #d1fae5; --lg-fg: #065f46; --lg-ac: #10b981; }
-:root[data-tema="dark"][data-logo="60-9"] { --lg-f: #6ee7b7; --lg-a: #34d399; }
-:root[data-logo="60-10"] { --lg-f: #4f46e5; --lg-a: #db2777; --lg-bg: #4f46e5; --lg-fg: #ffffff; --lg-ac: #f9a8d4; }
-:root[data-tema="dark"][data-logo="60-10"] { --lg-f: #a5b4fc; --lg-a: #f9a8d4; }
-:root[data-logo="60-11"] { --lg-f: #6d28d9; --lg-a: #d97706; --lg-bg: #6d28d9; --lg-fg: #ffffff; --lg-ac: #fbbf24; }
-:root[data-tema="dark"][data-logo="60-11"] { --lg-f: #c4b5fd; --lg-a: #fbbf24; }
-:root[data-logo="60-12"] { --lg-f: #4c1d95; --lg-a: #059669; --lg-bg: #4c1d95; --lg-fg: #ffffff; --lg-ac: #6ee7b7; }
-:root[data-tema="dark"][data-logo="60-12"] { --lg-f: #c4b5fd; --lg-a: #6ee7b7; }
-:root[data-logo="60-13"] { --lg-f: #be185d; --lg-a: #d97706; --lg-bg: #be185d; --lg-fg: #ffffff; --lg-ac: #fde68a; }
-:root[data-tema="dark"][data-logo="60-13"] { --lg-f: #f9a8d4; --lg-a: #fde68a; }
-:root[data-logo="60-14"] { --lg-f: #c23a33; --lg-a: #ca8a04; --lg-bg: #c23a33; --lg-fg: #ffffff; --lg-ac: #fde68a; }
-:root[data-tema="dark"][data-logo="60-14"] { --lg-f: #fca5a5; --lg-a: #fde68a; }
-:root[data-logo="60-15"] { --lg-f: #ea580c; --lg-a: #ca8a04; --lg-bg: #ea580c; --lg-fg: #ffffff; --lg-ac: #fde68a; }
-:root[data-tema="dark"][data-logo="60-15"] { --lg-f: #fdba74; --lg-a: #fde68a; }
-:root[data-logo="60-16"] { --lg-f: #9a3412; --lg-a: #d97706; --lg-bg: #9a3412; --lg-fg: #ffedd5; --lg-ac: #fbbf24; }
-:root[data-tema="dark"][data-logo="60-16"] { --lg-f: #fdba74; --lg-a: #fbbf24; }
-:root[data-logo="60-17"] { --lg-f: #b7791f; --lg-a: #1f5fc4; --lg-bg: #f5b942; --lg-fg: #14161b; --lg-ac: #1f5fc4; }
-:root[data-tema="dark"][data-logo="60-17"] { --lg-f: #f5b942; --lg-a: #7aaaf2; }
-:root[data-logo="60-18"] { --lg-f: #14161b; --lg-a: #d99a1e; --lg-bg: #14161b; --lg-fg: #ffffff; --lg-ac: #f5b942; }
-:root[data-tema="dark"][data-logo="60-18"] { --lg-f: #ffffff; --lg-a: #f5b942; }
-:root[data-logo="60-19"] { --lg-f: #1c1917; --lg-a: #ea580c; --lg-bg: #1c1917; --lg-fg: #fafaf9; --lg-ac: #fb923c; }
-:root[data-tema="dark"][data-logo="60-19"] { --lg-f: #ffffff; --lg-a: #fb923c; }
-:root[data-logo="60-20"] { --lg-f: #000000; --lg-a: #16a34a; --lg-bg: #000000; --lg-fg: #f5f5f7; --lg-ac: #22c55e; }
-:root[data-tema="dark"][data-logo="60-20"] { --lg-f: #ffffff; --lg-a: #22c55e; }
-:root[data-logo="60-21"] { --lg-f: #334155; --lg-a: #d97706; --lg-bg: #334155; --lg-fg: #f1f5f9; --lg-ac: #f59e0b; }
-:root[data-tema="dark"][data-logo="60-21"] { --lg-f: #e2e8f0; --lg-a: #f59e0b; }
-:root[data-logo="60-22"] { --lg-f: #14161b; --lg-a: #1f5fc4; --lg-bg: #ffffff; --lg-fg: #14161b; --lg-ac: #1f5fc4; }
-:root[data-tema="dark"][data-logo="60-22"] { --lg-f: #ffffff; --lg-a: #7aaaf2; }
-:root[data-logo="60-23"] { --lg-f: #1f2937; --lg-a: #16a34a; --lg-bg: #ffffff; --lg-fg: #1f2937; --lg-ac: #22c55e; }
-:root[data-tema="dark"][data-logo="60-23"] { --lg-f: #ffffff; --lg-a: #4ade80; }
-:root[data-logo="60-24"] { --lg-f: #3b2f22; --lg-a: #c2410c; --lg-bg: #f6f1e7; --lg-fg: #3b2f22; --lg-ac: #c2410c; }
-:root[data-tema="dark"][data-logo="60-24"] { --lg-f: #f6f1e7; --lg-a: #fb923c; }
+/* E GJENERUAR nga teste/logot-gjenero.py (v314): mos e ndrysho me dorë.
+   Logoja vetëm me shkronja "stoku.": shkronjat me ngjyrën e tekstit, pika e gjelbër. */
+:root { --lg-a: #16a34a; }
+:root[data-tema="dark"] { --lg-a: #4ade80; }
 .stk-logo { display: block; flex: none; overflow: visible; }
-.stk-logo .lg-f { fill: var(--lg-f); }
 .stk-logo .lg-a { fill: var(--lg-a); }
 .stk-logo .lg-t { fill: currentColor; }
-/* përmasat sipas lartësisë (raporti 158.53 : 43.2) */
-.stk-logo--22 { height: 22px; width: 80.73px; }
-.stk-logo--40 { height: 40px; width: 146.79px; }
-.stk-logo--44 { height: 44px; width: 161.47px; }
+/* përmasat sipas gjerësisë (raporti 100.52 : 26.97) */
+.stk-logo--etiketa { width: 152px; height: 40.78px; }
+.stk-logo--pc { width: 236px; height: 63.32px; }
+.stk-logo--porta { width: 172px; height: 46.15px; }
+.stk-logo--bosh { width: 210px; height: 56.34px; }

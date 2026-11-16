@@ -2330,14 +2330,13 @@
     }
     // v311: pamja (tema + ngjyrat) e llogarisë. Cloud-i fiton kur ka vlerë (e njëjtë në çdo pajisje); nëse s'ka ende dhe kjo pajisje
     // ka zgjedhje të ndryshme nga parazgjedhja, ngarkohet ajo. Ndryshimi nga përdoruesi ruhet menjëherë (pamjaNdryshoi).
-    // v313: + logo ("60" e parazgjedhura, "60-1" … "60-24" te Cilësimet → Pamja → Logoja)
+    // v314: pa "logo" (zgjedhja e 25 logove të v313 u hoq; fusha e vjetër te llogaria injorohet)
     function pamjaEPastert(p) {
       var t = p && (p.tema === 'light' || p.tema === 'dark') ? p.tema : 'auto';
       var e = parseInt(p && p.e, 10), c = parseInt(p && p.c, 10);
-      var lg = p && typeof p.logo === 'string' && /^60(-([1-9]|1[0-9]|2[0-4]))?$/.test(p.logo) ? p.logo : '60';
-      return { tema: t, e: e >= 1 && e <= 10 ? e : 1, c: c >= 1 && c <= 10 ? c : 1, logo: lg };
+      return { tema: t, e: e >= 1 && e <= 10 ? e : 1, c: c >= 1 && c <= 10 ? c : 1 };
     }
-    function pamjaNjejte(a, b) { return a.tema === b.tema && a.e === b.e && a.c === b.c && a.logo === b.logo; }
+    function pamjaNjejte(a, b) { return a.tema === b.tema && a.e === b.e && a.c === b.c }
     function nisPamjen() {
       var e = E();
       ndal('pamja');
@@ -2349,7 +2348,7 @@
         if (cloud) {
           var re = pamjaEPastert(cloud);
           if (!pamjaNjejte(re, lok)) o.vendosPamjen(re);
-        } else if (!ngaCache && !pamjaNjejte(lok, { tema: 'auto', e: 1, c: 1, logo: '60' })) {
+        } else if (!ngaCache && !pamjaNjejte(lok, { tema: 'auto', e: 1, c: 1 })) {
           e.ruajPamjen(Object.assign({}, lok, { t: Date.now() })).catch(function () { /* herën tjetër */ });
         }
       });

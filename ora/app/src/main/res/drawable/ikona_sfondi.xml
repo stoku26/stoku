@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Logoja 60: sfondi i ikonës (e gjeneruar nga teste/logot-gjenero.py) -->
+<!-- Sfondi i ikonës (e gjeneruar nga teste/logot-gjenero.py) -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="#2E7D4F" />
+    <solid android:color="#14161B" />
 </shape>

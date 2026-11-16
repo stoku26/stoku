@@ -9,9 +9,9 @@ const CACHE = /var CACHE = '([^']+)'/.exec(fs.readFileSync(RR + '/sw.js', 'utf8'
   const m = JSON.parse(fs.readFileSync(RR + '/manifest.webmanifest', 'utf8'));
   ok(m.theme_color === '#0f1115' && m.background_color === '#0f1115', 'manifesti: theme_color dhe background_color #0f1115', { theme_color: m.theme_color, background_color: m.background_color });
   ok(m.display === 'standalone' && m.icons.some(i => i.sizes === '512x512') && m.icons.some(i => i.sizes === '192x192'), 'manifesti: ikonat dhe standalone si më parë');
-  // v313: ikonat e reja (logoja 60) → manifest ?v=88
-  for (const f of ['index.html', 'pc.html']) ok(fs.readFileSync(RR + '/' + f, 'utf8').includes('manifest.webmanifest?v=88'), f + ': manifest ?v=88');
-  ok(fs.readFileSync(RR + '/sw.js', 'utf8').includes("'./manifest.webmanifest?v=88'"), 'sw.js: manifest ?v=88 te SHELL');
+  // v314: ikonat e reja → manifest ?v=89
+  for (const f of ['index.html', 'pc.html']) ok(fs.readFileSync(RR + '/' + f, 'utf8').includes('manifest.webmanifest?v=89'), f + ': manifest ?v=89');
+  ok(fs.readFileSync(RR + '/sw.js', 'utf8').includes("'./manifest.webmanifest?v=89'"), 'sw.js: manifest ?v=89 te SHELL');
   const b = await chromium.launch();
   for (const [skema, tema, pritet] of [['dark', null, '#0f1115'], ['light', null, '#f6f5f2'], ['light', 'dark', '#0f1115'], ['dark', 'light', '#f6f5f2']]) {
     const ctx = await b.newContext({ userAgent: 'Mozilla/5.0 (Linux; Android 15; SM-S921B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36', viewport: { width: 390, height: 844 }, colorScheme: skema });
@@ -25,14 +25,14 @@ const CACHE = /var CACHE = '([^']+)'/.exec(fs.readFileSync(RR + '/sw.js', 'utf8'
     if (!tema && skema === 'dark') {
       const cdp = await ctx.newCDPSession(p);
       const man = await cdp.send('Page.getAppManifest');
-      ok(man.url.includes('manifest.webmanifest?v=88') && !(man.errors || []).length, 'Chrome e lexon manifestin e ri pa gabime', { url: man.url, errors: man.errors });
+      ok(man.url.includes('manifest.webmanifest?v=89') && !(man.errors || []).length, 'Chrome e lexon manifestin e ri pa gabime', { url: man.url, errors: man.errors });
       const md = JSON.parse(man.data || '{}');
       ok(md.theme_color === '#0f1115' && md.background_color === '#0f1115', 'manifesti që e merr Chrome ka ngjyrat e errëta', { theme_color: md.theme_color, background_color: md.background_color });
       const reg = await p.evaluate(async () => { const r = await Promise.race([navigator.serviceWorker.ready, new Promise(x => setTimeout(() => x(null), 20000))]); return !!(r && r.active); });
       await p.reload(); await p.waitForTimeout(1500);
       const inst = await cdp.send('Page.getInstallabilityErrors');
       ok(reg && !inst.installabilityErrors.length, 'Stoku mbetet i instalueshëm (pa gabime instalimi)', inst.installabilityErrors);
-      const c = await p.evaluate(async (n) => { const k = await caches.keys(); const c = await caches.open(n); return { k, ka: (await c.keys()).some(r => r.url.includes('manifest.webmanifest?v=88')) }; }, CACHE);
+      const c = await p.evaluate(async (n) => { const k = await caches.keys(); const c = await caches.open(n); return { k, ka: (await c.keys()).some(r => r.url.includes('manifest.webmanifest?v=89')) }; }, CACHE);
       ok(c.k.includes(CACHE) && c.ka, 'SW: cache ' + CACHE + ' me manifestin e ri', c.k);
       await ctx.setOffline(true); await p.reload(); await p.waitForTimeout(1500);
       ok(await p.evaluate(() => !!document.body.innerText.trim()), 'hapet edhe pa internet');

@@ -60,7 +60,7 @@ object Njoftimet {
         val pi = PendingIntent.getActivity(ctx, (tag + url).hashCode(), hap, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val n = NotificationCompat.Builder(ctx, KANALI)
             .setSmallIcon(R.drawable.ic_njoftim)
-            .setColor(site.stoku.vendas.ui.Logot.varianti(Opsionet.logoja.value).br.toInt()) // Hyrja 75: ngjyra e logos së zgjedhur
+            .setColor(site.stoku.vendas.ui.Logot.IKONA_AC.toInt()) // Hyrja 76: e gjelbra e pikës së logos
             .setContentTitle(titulli.ifBlank { "Stoku" })
             .setContentText(teksti)
             .setStyle(NotificationCompat.BigTextStyle().bigText(teksti))

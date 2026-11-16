@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Logoja e Stoku-t (v313): seti 60 "Lista e kontrollit" (nga 100 setet e Claude Design) me 25 kombinime ngjyrash.
-Pronari: krejt 25 te Cilësimet → Pamja → Logoja; zgjedhja ruhet te llogaria dhe zbatohet kudo.
+"""Logoja e Stoku-t (v314): vetëm shkronjat "stoku." (Onest 800) dhe ikona nr. 4 e pronarit:
+"stoku." e bardhë me pikë të gjelbër mbi sfond të zi. Pronari: "hiqja ikonen ... bone si logo me shkronja te mdhaja",
+"nr 4 osht perfekt per ikonat", "te cilesimet pamja qato logot komplet fshij" (25 kombinimet e v313 u hoqën).
+Në madhësi shumë të vogla (skeda e shfletuesit, njoftimet, komplikacioni i orës) përdoret "s." që të lexohet.
 
 Këto i shkruan VETËM ky skedar (mos i ndrysho me dorë):
   - logot.js: blloku DATA midis /* LOGOT-FILLIMI */ dhe /* LOGOT-FUNDI */
-  - css/stoku-logot.css: ngjyrat e logos sipas data-logo dhe data-tema
+  - css/stoku-logot.css: ngjyrat dhe përmasat e logos
   - index.html, pc.html: logoja e kokës midis <!-- LOGO-FILLIMI --> dhe <!-- LOGO-FUNDI -->
-  - logo/*.svg me ngjyrat e parazgjedhura ("60"); PNG-të pastaj: node teste/logot-png.js
+  - logo/*.svg; PNG-të pastaj: node teste/logot-png.js
   - vendas: ui/Logot.kt, drawable/ic_launcher_foreground.xml, ic_launcher_monochrome.xml, ic_njoftim.xml, values/colors.xml (ikona_sfondi)
   - ora: drawable/ic_launcher_foreground.xml, ikona_sfondi.xml, ic_stoku.xml, tile_preview.xml, logo_stoku.xml
 
@@ -15,18 +17,23 @@ Varësitë (një herë, jashtë repo-s):
 Përdorimi (nga rrënja e repo-s):
   /tmp/vl/bin/python teste/logot-gjenero.py && node teste/logot-png.js
 """
-import json, math, os, re, sys
+import math, os, re, sys
 import pathops
 import uharfbuzz as hb
 from fontTools.ttLib import TTFont
 from fontTools.varLib.instancer import instantiateVariableFont
 from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.transformPen import TransformPen
-from fontTools.svgLib.path import parse_path
 
 RR = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 VENDAS = os.path.join(RR, 'vendas/app/src/main')
-ORA = os.path.join(RR, 'ora/app/src/main')
+FONTI = os.path.join(VENDAS, 'res/font/onest.ttf')
+PESHA, HAPESIRA = 800, -0.03
+
+# Ngjyrat: ikona (sfondi, shkronjat, pika); logoja brenda faqes: shkronjat me ngjyrën e tekstit, pika e çelët / e errët
+NG = {'bg': '#14161b', 'fg': '#ffffff', 'ac': '#4ade80', 'acL': '#16a34a', 'acD': '#4ade80'}
+# Ikona nr. 5 (pronari: "5-shin e bon ne white mode"): e bardhë, shkronjat e zeza, pika e gjelbër
+NG_C = {'bg': '#ffffff', 'fg': '#14161b', 'ac': '#16a34a'}
 
 
 def nr(v):
@@ -34,145 +41,7 @@ def nr(v):
     return '0' if s in ('', '-0') else s
 
 
-# ---------- Shenja (rrjeta 64 x 64, si te Claude Design) ----------
-def R(x, y, w, h, r):
-    r = min(r or 0, w / 2, h / 2)
-    if not r:
-        return 'M%s %sh%sv%sh%sz' % (nr(x), nr(y), nr(w), nr(h), nr(-w))
-    return ('M%s %sh%sa%s %s 0 0 1 %s %sv%sa%s %s 0 0 1 %s %sh%sa%s %s 0 0 1 %s %sv%sa%s %s 0 0 1 %s %sz' % (
-        nr(x + r), nr(y), nr(w - 2 * r), nr(r), nr(r), nr(r), nr(r), nr(h - 2 * r), nr(r), nr(r), nr(-r), nr(r),
-        nr(2 * r - w), nr(r), nr(r), nr(-r), nr(-r), nr(2 * r - h), nr(r), nr(r), nr(r), nr(-r)))
-
-
-def PL(p):
-    return 'M' + 'L'.join('%s %s' % (nr(a), nr(b)) for a, b in p)
-
-
-# f = ngjyra kryesore, a = theksi, k = prerje (vrimë e vërtetë)
-SHENJA = [
-    {'d': R(12, 13, 11, 11, 3), 'f': 'a'},
-    {'d': PL([[14.8, 18.5], [17, 20.8], [20.5, 16]]), 's': 'k', 'w': 2.2},
-    {'d': R(28, 16.5, 24, 4, 2), 'f': 'f'},
-    {'d': R(13, 28, 9, 9, 2.5), 's': 'f', 'w': 2.4},
-    {'d': R(28, 30.5, 20, 4, 2), 'f': 'f', 'o': 0.8},
-    {'d': R(13, 42, 9, 9, 2.5), 's': 'f', 'w': 2.4},
-    {'d': R(28, 44.5, 16, 4, 2), 'f': 'f', 'o': 0.8},
-]
-
-# 25 kombinimet: id, emri, ikona (bg, fg, ac), logoja e çelët (br, acL), logoja e errët (dk, acD)
-VARIANTET = [
-    ('60', 'Gjelbër', '#2e7d4f', '#ffffff', '#d9f99d', '#2e7d4f', '#65a30d', '#86efac', '#d9f99d'),
-    ('60-1', 'Blu', '#1f5fc4', '#ffffff', '#f5b942', '#1f5fc4', '#e0a020', '#7aaaf2', '#f5b942'),
-    ('60-2', 'Kobalt', '#1e3a8a', '#ffffff', '#38bdf8', '#1e3a8a', '#0284c7', '#93c5fd', '#38bdf8'),
-    ('60-3', 'Qielli', '#0369a1', '#ffffff', '#fcd34d', '#0369a1', '#d97706', '#7dd3fc', '#fcd34d'),
-    ('60-4', 'Natë', '#0f172a', '#67d0f8', '#fbbf24', '#0f172a', '#0284c7', '#67d0f8', '#fbbf24'),
-    ('60-5', 'Blu e thellë + limon', '#172554', '#ffffff', '#a3e635', '#172554', '#65a30d', '#93c5fd', '#a3e635'),
-    ('60-6', 'Gurkali', '#0f766e', '#ffffff', '#fbbf24', '#0f766e', '#d97706', '#5eead4', '#fbbf24'),
-    ('60-7', 'Pyll natë', '#0b3d2e', '#e7f6ee', '#4ade80', '#0b3d2e', '#16a34a', '#86efac', '#4ade80'),
-    ('60-8', 'Ulliri', '#3f6212', '#ecfccb', '#facc15', '#3f6212', '#a16207', '#bef264', '#facc15'),
-    ('60-9', 'Mente', '#d1fae5', '#065f46', '#10b981', '#065f46', '#059669', '#6ee7b7', '#34d399'),
-    ('60-10', 'Indigo', '#4f46e5', '#ffffff', '#f9a8d4', '#4f46e5', '#db2777', '#a5b4fc', '#f9a8d4'),
-    ('60-11', 'Vjollcë', '#6d28d9', '#ffffff', '#fbbf24', '#6d28d9', '#d97706', '#c4b5fd', '#fbbf24'),
-    ('60-12', 'Vjollcë + mente', '#4c1d95', '#ffffff', '#6ee7b7', '#4c1d95', '#059669', '#c4b5fd', '#6ee7b7'),
-    ('60-13', 'Rozë', '#be185d', '#ffffff', '#fde68a', '#be185d', '#d97706', '#f9a8d4', '#fde68a'),
-    ('60-14', 'E kuqe', '#c23a33', '#ffffff', '#fde68a', '#c23a33', '#ca8a04', '#fca5a5', '#fde68a'),
-    ('60-15', 'Portokalli', '#ea580c', '#ffffff', '#fde68a', '#ea580c', '#ca8a04', '#fdba74', '#fde68a'),
-    ('60-16', 'Bakër', '#9a3412', '#ffedd5', '#fbbf24', '#9a3412', '#d97706', '#fdba74', '#fbbf24'),
-    ('60-17', 'Qelibar', '#f5b942', '#14161b', '#1f5fc4', '#b7791f', '#1f5fc4', '#f5b942', '#7aaaf2'),
-    ('60-18', 'Grafit', '#14161b', '#ffffff', '#f5b942', '#14161b', '#d99a1e', '#ffffff', '#f5b942'),
-    ('60-19', 'Grafit + portokalli', '#1c1917', '#fafaf9', '#fb923c', '#1c1917', '#ea580c', '#ffffff', '#fb923c'),
-    ('60-20', 'E zezë', '#000000', '#f5f5f7', '#22c55e', '#000000', '#16a34a', '#ffffff', '#22c55e'),
-    ('60-21', 'Shkëmb', '#334155', '#f1f5f9', '#f59e0b', '#334155', '#d97706', '#e2e8f0', '#f59e0b'),
-    ('60-22', 'E bardhë', '#ffffff', '#14161b', '#1f5fc4', '#14161b', '#1f5fc4', '#ffffff', '#7aaaf2'),
-    ('60-23', 'E bardhë + jeshile', '#ffffff', '#1f2937', '#22c55e', '#1f2937', '#16a34a', '#ffffff', '#4ade80'),
-    ('60-24', 'Krem', '#f6f1e7', '#3b2f22', '#c2410c', '#3b2f22', '#c2410c', '#f6f1e7', '#fb923c'),
-]
-FUSHAT = ('id', 'emri', 'bg', 'fg', 'ac', 'br', 'acL', 'dk', 'acD')
-V = [dict(zip(FUSHAT, x)) for x in VARIANTET]
-PARAZGJEDHJA = V[0]
-
-# Fjala: "stoku" + pika me ngjyrën e theksit (Onest 800, hapësira -0.03em), si te seti 60 i Claude Design
-FONTI = os.path.join(VENDAS, 'res/font/onest.ttf')
-PESHA, HAPESIRA = 800, -0.03
-
-
-# ---------- Rrafshimi: vijat bëhen forma, prerjet bëhen vrima të vërteta ----------
-def nga_d(d):
-    p = pathops.Path()
-    parse_path(d, p.getPen())
-    return p
-
-
-def zona(e):
-    baza = nga_d(e['d'])
-    pjeset = []
-    if e.get('f'):
-        f = pathops.Path(baza)
-        f.fillType = pathops.FillType.WINDING
-        pjeset.append(pathops.simplify(f))
-    if e.get('s') and float(e.get('w') or 0) > 0:
-        s = pathops.Path(baza)
-        s.stroke(float(e['w']), pathops.LineCap.ROUND_CAP, pathops.LineJoin.ROUND_JOIN, 4)
-        s.convertConicsToQuads()
-        pjeset.append(pathops.simplify(s))
-    z = pjeset[0]
-    for q in pjeset[1:]:
-        z = pathops.op(z, q, pathops.PathOp.UNION)
-    return z
-
-
-def bosh(p):
-    try:
-        return abs(p.area) < 1e-3
-    except Exception:
-        return True
-
-
-def ne_d(p, tr=None):
-    pen = SVGPathPen(None, ntos=nr)
-    if tr:
-        p = p.transform(*tr)
-    p.draw(pen)
-    return pen.getCommands()
-
-
-def rrafsho(el):
-    shtresat = []
-    for e in el:
-        rol = e.get('f') or e.get('s')
-        o = float(e.get('o', 1))
-        z = zona(e)
-        if rol == 'k':
-            te_reja = []
-            for (p, r, op) in shtresat:
-                jashte = pathops.op(p, z, pathops.PathOp.DIFFERENCE)
-                if not bosh(jashte):
-                    te_reja.append([jashte, r, op])
-                if o < 0.999:
-                    brenda = pathops.op(p, z, pathops.PathOp.INTERSECTION)
-                    if not bosh(brenda):
-                        te_reja.append([brenda, r, op * (1 - o)])
-            shtresat = te_reja
-        else:
-            shtresat.append([z, rol, o])
-    mono = pathops.Path()
-    for (p, r, op) in shtresat:
-        if op >= 0.5:
-            mono = pathops.op(mono, p, pathops.PathOp.UNION)
-    return shtresat, mono
-
-
-def kufijte(paths):
-    x0 = y0 = 1e9
-    x1 = y1 = -1e9
-    for p in paths:
-        a, b, c, d = p.bounds
-        x0, y0, x1, y1 = min(x0, a), min(y0, b), max(x1, c), max(y1, d)
-    return x0, y0, x1, y1
-
-
-# ---------- Fjala "stoku." si vija ----------
-def fjala(tekst, madhesia):
+def fjala(tekst, madhesia=100.0):
     blob = hb.Blob.from_file_path(FONTI)
     font = hb.Font(hb.Face(blob))
     font.set_variations({'wght': float(PESHA)})
@@ -199,71 +68,65 @@ def bashko(paths):
     return z
 
 
+def kufijte(paths):
+    x0 = y0 = 1e9
+    x1 = y1 = -1e9
+    for p in paths:
+        a, b, c, d = p.bounds
+        x0, y0, x1, y1 = min(x0, a), min(y0, b), max(x1, c), max(y1, d)
+    return x0, y0, x1, y1
+
+
+def ne_d(p, tr=None):
+    pen = SVGPathPen(None, ntos=nr)
+    if tr:
+        p = p.transform(*tr)
+    p.draw(pen)
+    return pen.getCommands()
+
+
+def vendos(pjeset, R, cx, cy):
+    """Shkallëzon shkronjat që kutia e tyre të hyjë në rrethin me rreze R, në mes (cx, cy). Kthen {t, p}."""
+    x0, y0, x1, y1 = kufijte(pjeset)
+    w, h = x1 - x0, y1 - y0
+    s = R / math.hypot(w / 2, h / 2)
+    tr = (s, 0, 0, s, cx - (x0 + w / 2) * s, cy - (y0 + h / 2) * s)
+    return {'t': ne_d(pjeset[0], tr), 'p': ne_d(pjeset[1], tr)}
+
+
 # ---------- Llogaritja ----------
-SHTRESAT, MONO = rrafsho(SHENJA)
-BX0, BY0, BX1, BY1 = kufijte([s[0] for s in SHTRESAT])
-MH, MW = BY1 - BY0, BX1 - BX0
-PAD = 2.0
-LH = MH + 2 * PAD
-GAP = 0.355 * MH
-# madhësia e shkronjave: lartësia e "stoku" (t, k) = 0.68 e lartësisë së shenjës (si te kartat e Claude Design)
-prove = bashko(fjala('stoku', 100)[:5])
-_, py0, _, py1 = prove.bounds
-MADHESIA = 0.68 * MH / ((py1 - py0) / 100.0)
-GL = fjala('stoku.', MADHESIA)
-SHKRONJAT, PIKA = bashko(GL[:5]), GL[5]
-sx0, sy0, sx1, sy1 = SHKRONJAT.bounds
-FX = PAD + MW + GAP - sx0                      # zhvendosja e fjalës në x
-FY = LH / 2 - (sy0 + sy1) / 2                  # vija bazë: shkronjat në mes të shenjës
-LW = FX + max(sx1, PIKA.bounds[2]) + PAD
-TR_SHENJA_LOGO = (1, 0, 0, 1, PAD - BX0, PAD - BY0)
-TR_FJALA = (1, 0, 0, 1, FX, FY)
-
-
-def shtresat_d(tr=None):
-    return [{'d': ne_d(p, tr), 'r': r, 'o': round(o, 3)} for (p, r, o) in SHTRESAT]
-
+G = fjala('stoku.', 37.3)
+SHKRONJAT, PIKA = bashko(G[:5]), G[5]
+FJ_X0, FJ_Y0, FJ_X1, FJ_Y1 = kufijte([SHKRONJAT, PIKA])
+FJ_W, FJ_H = FJ_X1 - FJ_X0, FJ_Y1 - FJ_Y0
+TR_FJ = (1, 0, 0, 1, -FJ_X0, -FJ_Y0)
+GS = fjala('s.', 100)
+# Ikona përshtatëse 108 (zona e dukshme 72 në mes, zona e sigurt rreth me rreze 33): fjala brenda rrethit 30.5
+IKONA = vendos([SHKRONJAT, PIKA], 30.5, 54, 54)
+IKONA_S = vendos([GS[0], GS[1]], 22.5, 54, 54)
 
 DATA = {
-    'shenja': shtresat_d(),                        # rrjeta 64 (ikona: translate(6.4 6.4) scale(.8))
-    'mono': ne_d(MONO),
-    'kutia': [round(BX0, 2), round(BY0, 2), round(BX1, 2), round(BY1, 2)],
-    'logo': {'w': round(LW, 2), 'h': round(LH, 2), 'shenja': shtresat_d(TR_SHENJA_LOGO),
-             'fjala': ne_d(SHKRONJAT, TR_FJALA), 'pika': ne_d(PIKA, TR_FJALA)},
-    'variantet': V,
+    'fjala': {'w': round(FJ_W, 2), 'h': round(FJ_H, 2), 't': ne_d(SHKRONJAT, TR_FJ), 'p': ne_d(PIKA, TR_FJ)},
+    'ikona': IKONA, 'ikonaS': IKONA_S,
 }
 
 
-def ngjyra(rol, kont):
-    return kont['a'] if rol == 'a' else kont['f']
+def svg_ikona(e_vogel=False, katror=False, madhesia=512, ng=None):
+    """Ikona në rrjetën 108 e prerë te zona e dukshme 18..90: katror (maskable/apple) ose katror i rrumbullakosur"""
+    I = IKONA_S if e_vogel else IKONA
+    NG_ = ng or NG
+    sfondi = ('<rect x="18" y="18" width="72" height="72" fill="%s"/>' % NG['bg'] if katror
+              else '<rect x="18" y="18" width="72" height="72" rx="17" fill="%s"%s/>' % (NG_['bg'], ' stroke="#d9d7d2" stroke-width="0.6"' if NG_ is NG_C else ''))
+    if katror:
+        sfondi = '<rect x="18" y="18" width="72" height="72" fill="%s"/>' % NG_['bg']
+    return ('<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d" viewBox="18 18 72 72">%s<path fill="%s" d="%s"/><path fill="%s" d="%s"/></svg>' % (
+        madhesia, madhesia, sfondi, NG_['fg'], I['t'], NG_['ac'], I['p']))
 
 
-def svg_paths(shtresat, kont, klasa=False):
-    out = []
-    for s in shtresat:
-        op = '' if s['o'] >= 0.999 else ' opacity="%s"' % nr(s['o'])
-        if klasa:
-            out.append('<path class="lg-%s" d="%s"%s/>' % ('a' if s['r'] == 'a' else 'f', s['d'], op))
-        else:
-            out.append('<path fill="%s" d="%s"%s/>' % (ngjyra(s['r'], kont), s['d'], op))
-    return ''.join(out)
-
-
-def svg_logo(v, erret, tekst):
-    kont = {'f': v['dk'] if erret else v['br'], 'a': v['acD'] if erret else v['acL']}
-    L = DATA['logo']
-    return ('<svg xmlns="http://www.w3.org/2000/svg" width="%s" height="%s" viewBox="0 0 %s %s">%s<path fill="%s" d="%s"/><path fill="%s" d="%s"/></svg>' % (
-        nr(L['w'] * 4), nr(L['h'] * 4), nr(L['w']), nr(L['h']), svg_paths(L['shenja'], kont), tekst, L['fjala'], kont['a'], L['pika']))
-
-
-SQUIRCLE = 'M15 0h34a15 15 0 0 1 15 15v34a15 15 0 0 1-15 15H15A15 15 0 0 1 0 49V15A15 15 0 0 1 15 0z'
-
-
-def svg_ikona(v, katror=False, madhesia=64):
-    kont = {'f': v['fg'], 'a': v['ac']}
-    sfondi = '<rect width="64" height="64" fill="%s"/>' % v['bg'] if katror else '<path fill="%s" d="%s"/>' % (v['bg'], SQUIRCLE)
-    return ('<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d" viewBox="0 0 64 64">%s<g transform="translate(6.4 6.4) scale(0.8)">%s</g></svg>' % (
-        madhesia, madhesia, sfondi, svg_paths(DATA['shenja'], kont)))
+def svg_logo(tekst, pika):
+    F = DATA['fjala']
+    return ('<svg xmlns="http://www.w3.org/2000/svg" width="%s" height="%s" viewBox="0 0 %s %s"><path fill="%s" d="%s"/><path fill="%s" d="%s"/></svg>' % (
+        nr(F['w'] * 4), nr(F['h'] * 4), nr(F['w']), nr(F['h']), tekst, F['t'], pika, F['p']))
 
 
 # ---------- Shkrimi i skedarëve ----------
@@ -289,47 +152,39 @@ def zevendeso_bllokun(rel, fillimi, fundi, tekst):
 
 
 def js_data():
-    L = DATA['logo']
-    rr = ['  var DATA = {']
-    rr.append('    // Shenja në rrjetën 64 (ikona: translate(6.4 6.4) scale(.8)); r: "f" ngjyra kryesore, "a" theksi; prerjet janë vrima të vërteta')
-    rr.append('    shenja: [\n' + ',\n'.join("      { d: '%s', r: '%s', o: %s }" % (s['d'], s['r'], nr(s['o'])) for s in DATA['shenja']) + '\n    ],')
-    rr.append("    mono: '%s'," % DATA['mono'])
-    rr.append('    kutia: [%s],' % ', '.join(nr(x) for x in DATA['kutia']))
-    rr.append('    // Logoja e plotë (shenja + "stoku" + pika), %s x %s' % (nr(L['w']), nr(L['h'])))
-    rr.append('    logo: {\n      w: %s, h: %s,\n      shenja: [\n%s\n      ],\n      fjala: \'%s\',\n      pika: \'%s\'\n    },' % (
-        nr(L['w']), nr(L['h']), ',\n'.join("        { d: '%s', r: '%s', o: %s }" % (s['d'], s['r'], nr(s['o'])) for s in L['shenja']), L['fjala'], L['pika']))
-    rr.append('    variantet: [\n' + ',\n'.join(
-        "      { id: '%s', emri: '%s', bg: '%s', fg: '%s', ac: '%s', br: '%s', acL: '%s', dk: '%s', acD: '%s' }" % tuple(v[k] for k in FUSHAT)
-        for v in V) + '\n    ]')
-    rr.append('  };')
+    F, I, S = DATA['fjala'], DATA['ikona'], DATA['ikonaS']
+    rr = ['  var DATA = {',
+          '    // Logoja: shkronjat "stoku." (t) dhe pika (p), %s x %s' % (nr(F['w']), nr(F['h'])),
+          "    fjala: { w: %s, h: %s, t: '%s', p: '%s' }," % (nr(F['w']), nr(F['h']), F['t'], F['p']),
+          '    // Ikona (rrjeta 108, zona e dukshme 18..90): fjala e plotë dhe "s." për madhësitë e vogla',
+          "    ikona: { t: '%s', p: '%s' }," % (I['t'], I['p']),
+          "    ikonaS: { t: '%s', p: '%s' }," % (S['t'], S['p']),
+          "    ngjyrat: { bg: '%s', fg: '%s', ac: '%s', acL: '%s', acD: '%s' }," % (NG['bg'], NG['fg'], NG['ac'], NG['acL'], NG['acD']),
+          "    // Ikona e çelët (nr. 5) për temën e çelët",
+          "    celet: { bg: '%s', fg: '%s', ac: '%s' }" % (NG_C['bg'], NG_C['fg'], NG_C['ac']),
+          '  };']
     return '\n' + '\n'.join(rr) + '\n  '
 
 
 def css():
-    p = PARAZGJEDHJA
-    rr = ['/* E GJENERUAR nga teste/logot-gjenero.py (v313): mos e ndrysho me dorë.',
-          '   Logoja (seti 60) me ngjyrat e zgjedhura te Cilësimet → Pamja → Logoja (data-logo te <html>; pa atribut = "60"). */',
-          ':root { --lg-f: %s; --lg-a: %s; --lg-bg: %s; --lg-fg: %s; --lg-ac: %s; }' % (p['br'], p['acL'], p['bg'], p['fg'], p['ac']),
-          ':root[data-tema="dark"] { --lg-f: %s; --lg-a: %s; }' % (p['dk'], p['acD'])]
-    for v in V[1:]:
-        rr.append(':root[data-logo="%s"] { --lg-f: %s; --lg-a: %s; --lg-bg: %s; --lg-fg: %s; --lg-ac: %s; }' % (v['id'], v['br'], v['acL'], v['bg'], v['fg'], v['ac']))
-        rr.append(':root[data-tema="dark"][data-logo="%s"] { --lg-f: %s; --lg-a: %s; }' % (v['id'], v['dk'], v['acD']))
-    L = DATA['logo']
-    rr += ['.stk-logo { display: block; flex: none; overflow: visible; }',
-           '.stk-logo .lg-f { fill: var(--lg-f); }',
-           '.stk-logo .lg-a { fill: var(--lg-a); }',
-           '.stk-logo .lg-t { fill: currentColor; }',
-           '/* përmasat sipas lartësisë (raporti %s : %s) */' % (nr(L['w']), nr(L['h'])),
-           '.stk-logo--22 { height: 22px; width: %spx; }' % nr(22 * L['w'] / L['h']),
-           '.stk-logo--40 { height: 40px; width: %spx; }' % nr(40 * L['w'] / L['h']),
-           '.stk-logo--44 { height: 44px; width: %spx; }' % nr(44 * L['w'] / L['h'])]
+    F = DATA['fjala']
+    rr = ['/* E GJENERUAR nga teste/logot-gjenero.py (v314): mos e ndrysho me dorë.',
+          '   Logoja vetëm me shkronja "stoku.": shkronjat me ngjyrën e tekstit, pika e gjelbër. */',
+          ':root { --lg-a: %s; }' % NG['acL'],
+          ':root[data-tema="dark"] { --lg-a: %s; }' % NG['acD'],
+          '.stk-logo { display: block; flex: none; overflow: visible; }',
+          '.stk-logo .lg-a { fill: var(--lg-a); }',
+          '.stk-logo .lg-t { fill: currentColor; }',
+          '/* përmasat sipas gjerësisë (raporti %s : %s) */' % (nr(F['w']), nr(F['h']))]
+    for emri, w in (('etiketa', 152), ('pc', 236), ('porta', 172), ('bosh', 210)):
+        rr.append('.stk-logo--%s { width: %spx; height: %spx; }' % (emri, w, nr(w * F['h'] / F['w'])))
     return '\n'.join(rr) + '\n'
 
 
 def html_logo(klasa):
-    L = DATA['logo']
-    return ('<svg class="stk-logo %s" viewBox="0 0 %s %s" aria-hidden="true" focusable="false">%s<path class="lg-t" d="%s"/><path class="lg-a" d="%s"/></svg>' % (
-        klasa, nr(L['w']), nr(L['h']), svg_paths(L['shenja'], None, klasa=True), L['fjala'], L['pika']))
+    F = DATA['fjala']
+    return ('<svg class="stk-logo %s" viewBox="0 0 %s %s" aria-hidden="true" focusable="false"><path class="lg-t" d="%s"/><path class="lg-a" d="%s"/></svg>' % (
+        klasa, nr(F['w']), nr(F['h']), F['t'], F['p']))
 
 
 def kt_long(h):
@@ -337,111 +192,105 @@ def kt_long(h):
 
 
 def kotlin():
-    L = DATA['logo']
-    rr = ['// E GJENERUAR nga teste/logot-gjenero.py (v313): mos e ndrysho me dorë.',
-          '// Logoja (seti 60 "Lista e kontrollit") dhe 25 kombinimet e ngjyrave (Cilësimet → Pamja → Logoja), si logot.js te web-i.',
+    F = DATA['fjala']
+    rr = ['// E GJENERUAR nga teste/logot-gjenero.py (v314): mos e ndrysho me dorë.',
+          '// Logoja vetëm me shkronja "stoku." dhe ngjyrat e ikonës (nr. 4 e pronarit), si logot.js te web-i.',
           'package site.stoku.vendas.ui', '',
           'object Logot {',
-          '    class Varianti(val id: String, val emri: String, val bg: Long, val fg: Long, val ac: Long, val br: Long, val acL: Long, val dk: Long, val acD: Long)',
-          '    /** rol: \'f\' ngjyra kryesore, \'a\' theksi; o: tejdukshmëria */',
-          '    class Shtresa(val d: String, val rol: Char, val o: Float)', '',
-          '    val variantet: List<Varianti> = listOf(']
-    rr.append(',\n'.join('        Varianti("%s", "%s", %s, %s, %s, %s, %s, %s, %s)' % (
-        v['id'], v['emri'], kt_long(v['bg']), kt_long(v['fg']), kt_long(v['ac']), kt_long(v['br']), kt_long(v['acL']), kt_long(v['dk']), kt_long(v['acD'])) for v in V))
-    rr.append('    )')
-    rr.append('    /** Shenja në rrjetën 64 (ikona: zhvendosje 6.4, shkallë 0.8) */')
-    rr.append('    val shenja: List<Shtresa> = listOf(\n' + ',\n'.join('        Shtresa("%s", \'%s\', %sf)' % (s['d'], s['r'], nr(s['o'])) for s in DATA['shenja']) + '\n    )')
-    rr.append('    const val MONO = "%s"' % DATA['mono'])
-    rr.append('    /** Logoja e plotë (shenja + "stoku" + pika): %s x %s */' % (nr(L['w']), nr(L['h'])))
-    rr.append('    const val LOGO_W = %sf' % nr(L['w']))
-    rr.append('    const val LOGO_H = %sf' % nr(L['h']))
-    rr.append('    val logoShenja: List<Shtresa> = listOf(\n' + ',\n'.join('        Shtresa("%s", \'%s\', %sf)' % (s['d'], s['r'], nr(s['o'])) for s in L['shenja']) + '\n    )')
-    rr.append('    const val FJALA = "%s"' % L['fjala'])
-    rr.append('    const val PIKA = "%s"' % L['pika'])
-    rr.append('    const val PARAZGJEDHJA = "%s"' % PARAZGJEDHJA['id'])
-    rr.append('    fun varianti(id: String?): Varianti = variantet.firstOrNull { it.id == id } ?: variantet[0]')
-    rr.append('}')
+          '    /** Logoja: shkronjat (FJ_T) dhe pika (FJ_P), %s x %s */' % (nr(F['w']), nr(F['h'])),
+          '    const val FJ_W = %sf' % nr(F['w']),
+          '    const val FJ_H = %sf' % nr(F['h']),
+          '    const val FJ_T = "%s"' % F['t'],
+          '    const val FJ_P = "%s"' % F['p'],
+          '    /** Ikona "s." (rrjeta 108, zona e dukshme 18..90), për fundin e fotos */',
+          '    const val IK_S_T = "%s"' % IKONA_S['t'],
+          '    const val IK_S_P = "%s"' % IKONA_S['p'],
+          '    /** Pika: e çelët / e errët; ikona: sfondi, shkronjat, pika */',
+          '    const val PIKA_CELET = %sL' % kt_long(NG['acL']),
+          '    const val PIKA_ERRET = %sL' % kt_long(NG['acD']),
+          '    const val IKONA_BG = %sL' % kt_long(NG['bg']),
+          '    const val IKONA_FG = %sL' % kt_long(NG['fg']),
+          '    const val IKONA_AC = %sL' % kt_long(NG['ac']),
+          '    const val IKONA_C_BG = %sL' % kt_long(NG_C['bg']),
+          '    const val IKONA_C_FG = %sL' % kt_long(NG_C['fg']),
+          '    const val IKONA_C_AC = %sL' % kt_long(NG_C['ac']),
+          '}']
     return '\n'.join(rr) + '\n'
 
 
-def xml_shtresat(shtresat, kont, ind='        '):
-    out = []
-    for s in shtresat:
-        alfa = '' if s['o'] >= 0.999 else ' android:fillAlpha="%s"' % nr(s['o'])
-        out.append('%s<path android:fillColor="%s" android:pathData="%s"%s />' % (ind, ngjyra(s['r'], kont).upper(), s['d'], alfa))
-    return '\n'.join(out)
+def xp(ngj, d, ind='    '):
+    return '%s<path android:fillColor="%s" android:pathData="%s" />' % (ind, ngj, d)
 
 
-def xml_vektor(koment, w, vp, trupi, dp=None):
-    dp = dp or w
+def vektor(koment, w, h, vw, vh, trupi):
     return ('<?xml version="1.0" encoding="utf-8"?>\n<!-- %s (e gjeneruar nga teste/logot-gjenero.py, mos e ndrysho me dorë) -->\n'
             '<vector xmlns:android="http://schemas.android.com/apk/res/android"\n    android:width="%sdp" android:height="%sdp"\n'
-            '    android:viewportWidth="%s" android:viewportHeight="%s">\n%s\n</vector>\n' % (koment, dp, dp, vp, vp, trupi))
-
-
-def grupi(sh, tx, ty, trupi):
-    return '    <group android:scaleX="%s" android:scaleY="%s" android:translateX="%s" android:translateY="%s">\n%s\n    </group>' % (nr(sh), nr(sh), nr(tx), nr(ty), trupi)
+            '    android:viewportWidth="%s" android:viewportHeight="%s">\n%s\n</vector>\n' % (koment, w, h, vw, vh, trupi))
 
 
 def kryesore():
-    p = PARAZGJEDHJA
-    print('Logoja 60: shenja %s x %s, logoja %s x %s, shkronjat %spx' % (nr(MW), nr(MH), nr(LW), nr(LH), nr(MADHESIA)))
+    F = DATA['fjala']
+    print('Logoja: fjala %s x %s' % (nr(F['w']), nr(F['h'])))
     # web
     zevendeso_bllokun('logot.js', '/* LOGOT-FILLIMI */', '/* LOGOT-FUNDI */', js_data())
     shkruaj('css/stoku-logot.css', css())
-    for f in ('index.html', 'pc.html'):
-        zevendeso_bllokun(f, '<!-- LOGO-FILLIMI -->', '<!-- LOGO-FUNDI -->', html_logo('stk-logo--22 stk-etiketa__logo'))
-    shkruaj('logo/favicon.svg', svg_ikona(p))
-    shkruaj('logo/stoku-icon-square.svg', svg_ikona(p, katror=True, madhesia=512))
-    kont = {'f': p['br'], 'a': p['acL']}
-    shkruaj('logo/stoku-mark.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="%s" height="%s" viewBox="%s %s %s %s">%s</svg>' % (
-        nr(MW), nr(MH), nr(BX0), nr(BY0), nr(MW), nr(MH), svg_paths(DATA['shenja'], kont)))
-    shkruaj('logo/stoku-mono.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="%s %s %s %s"><path fill="#ffffff" d="%s"/></svg>' % (
-        nr((BX0 + BX1) / 2 - 26), nr((BY0 + BY1) / 2 - 26), 52, 52, DATA['mono']))
-    shkruaj('logo/stoku-logo.svg', svg_logo(p, False, '#14161b'))
-    shkruaj('logo/stoku-logo-dark.svg', svg_logo(p, True, '#f5f5f7'))
-    # Android: ikona e nisjes (sipër sfondit me ngjyrë), njëngjyrëshja, njoftimi
-    kont_ik = {'f': p['fg'], 'a': p['ac']}
-    # ikona 64 (shenja 0.8) → zona e dukshme 72dp e ikonës përshtatëse 108dp: shkalla 0.9, zhvendosja 25.2
-    fg = xml_vektor('Logoja 60 (seti 60, "Lista e kontrollit"): ikona e nisjes', 108, 108, grupi(0.9, 25.2, 25.2, xml_shtresat(DATA['shenja'], kont_ik)))
-    mono = xml_vektor('Logoja 60: ikona njëngjyrëshe (Android 13+ "Ikona me temë")', 108, 108,
-                      grupi(0.9, 25.2, 25.2, '        <path android:fillColor="#FFFFFFFF" android:pathData="%s" />' % DATA['mono']))
-    k24 = 20.0 / max(MW, MH)
-    njoftimi = xml_vektor('Logoja 60: ikona e vogël e njoftimit (njëngjyrëshe)', 24, 24,
-                          grupi(k24, 12 - (BX0 + BX1) / 2 * k24, 12 - (BY0 + BY1) / 2 * k24,
-                                '        <path android:fillColor="#FFFFFFFF" android:pathData="%s" />' % DATA['mono']))
+    zevendeso_bllokun('index.html', '<!-- LOGO-FILLIMI -->', '<!-- LOGO-FUNDI -->', html_logo('stk-logo--etiketa stk-etiketa__logo'))
+    zevendeso_bllokun('pc.html', '<!-- LOGO-FILLIMI -->', '<!-- LOGO-FUNDI -->', html_logo('stk-logo--pc stk-etiketa__logo'))
+    shkruaj('logo/favicon.svg', svg_ikona(e_vogel=True, madhesia=64))
+    shkruaj('logo/stoku-icon.svg', svg_ikona(madhesia=512))
+    shkruaj('logo/stoku-icon-square.svg', svg_ikona(katror=True, madhesia=512))
+    shkruaj('logo/favicon-celet.svg', svg_ikona(e_vogel=True, madhesia=64, ng=NG_C))
+    shkruaj('logo/stoku-icon-celet.svg', svg_ikona(madhesia=512, ng=NG_C))
+    shkruaj('logo/stoku-mono.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="18 18 72 72"><path fill="#ffffff" d="%s"/><path fill="#ffffff" d="%s"/></svg>' % (
+        IKONA_S['t'], IKONA_S['p']))
+    shkruaj('logo/stoku-logo.svg', svg_logo('#14161b', NG['acL']))
+    shkruaj('logo/stoku-logo-dark.svg', svg_logo('#f5f5f7', NG['acD']))
+    # Android: ikona e nisjes (rrjeta 108 = ikona përshtatëse), njëngjyrëshja, njoftimi ("s.")
+    fg = vektor('Ikona e nisjes: "stoku." e bardhë me pikë të gjelbër (sfondi ikona_sfondi i zi)', 108, 108, 108, 108,
+                xp(NG['fg'].upper(), IKONA['t']) + '\n' + xp(NG['ac'].upper(), IKONA['p']))
+    mono = vektor('Ikona njëngjyrëshe (Android 13+ "Ikona me temë")', 108, 108, 108, 108,
+                  xp('#FFFFFFFF', IKONA['t']) + '\n' + xp('#FFFFFFFF', IKONA['p']))
+    grupi = ('    <group android:translateX="-18" android:translateY="-18">\n' + xp('#FFFFFFFF', IKONA_S['t'], '        ') + '\n' +
+             xp('#FFFFFFFF', IKONA_S['p'], '        ') + '\n    </group>')
+    njoftimi = vektor('Ikona e vogël e njoftimit: "s."', 24, 24, 72, 72, grupi)
     shkruaj('vendas/app/src/main/res/drawable/ic_launcher_foreground.xml', fg)
     shkruaj('vendas/app/src/main/res/drawable/ic_launcher_monochrome.xml', mono)
+    # ikona e çelët (nr. 5): aktivizohet nga aplikacioni kur tema është e çelët (IkonaJashtme.kt, activity-alias)
+    shkruaj('vendas/app/src/main/res/drawable/ic_launcher_foreground_celet.xml',
+            vektor('Ikona e nisjes e çelët: "stoku." e zezë me pikë të gjelbër (sfondi i bardhë)', 108, 108, 108, 108,
+                   xp(NG_C['fg'].upper(), IKONA['t']) + '\n' + xp(NG_C['ac'].upper(), IKONA['p'])))
+    shkruaj('vendas/app/src/main/res/mipmap-anydpi-v26/ic_launcher_celet.xml',
+            '<?xml version="1.0" encoding="utf-8"?>\n<!-- Ikona e çelët (e gjeneruar nga teste/logot-gjenero.py) -->\n'
+            '<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n'
+            '    <background android:drawable="@color/ikona_sfondi_celet" />\n'
+            '    <foreground android:drawable="@drawable/ic_launcher_foreground_celet" />\n'
+            '    <monochrome android:drawable="@drawable/ic_launcher_monochrome" />\n</adaptive-icon>\n')
     shkruaj('vendas/app/src/main/res/drawable/ic_njoftim.xml', njoftimi)
     ngj = os.path.join(VENDAS, 'res/values/colors.xml')
     with open(ngj, encoding='utf-8') as f:
         s = f.read()
-    s2 = re.sub(r'(<color name="ikona_sfondi">)#[0-9A-Fa-f]{6}(</color>)', r'\g<1>%s\g<2>' % p['bg'].upper(), s)
-    if s2 == s and p['bg'].upper() not in s:
+    s2 = re.sub(r'(<color name="ikona_sfondi">)#[0-9A-Fa-f]{6}(</color>)', r'\g<1>%s\g<2>' % NG['bg'].upper(), s)
+    if 'ikona_sfondi_celet' not in s2:
+        s2 = s2.replace('</resources>', '    <color name="ikona_sfondi_celet">#FFFFFF</color>\n</resources>')
+    if s2 == s and NG['bg'].upper() not in s:
         sys.exit('s\'u gjet ikona_sfondi te colors.xml')
     with open(ngj, 'w', encoding='utf-8') as f:
         f.write(s2)
     print('  përditësova vendas/app/src/main/res/values/colors.xml')
     shkruaj('vendas/app/src/main/java/site/stoku/vendas/ui/Logot.kt', kotlin())
-    # Ora: e njëjta ikonë mbi sfond të gjelbër, ikona e komplikacionit dhe pamja e Tile-it
+    # Ora: e njëjta ikonë mbi sfond të zi, komplikacioni "s.", logoja brenda aplikacionit dhe pamja e Tile-it
     shkruaj('ora/app/src/main/res/drawable/ic_launcher_foreground.xml', fg)
     shkruaj('ora/app/src/main/res/drawable/ikona_sfondi.xml',
-            '<?xml version="1.0" encoding="utf-8"?>\n<!-- Logoja 60: sfondi i ikonës (e gjeneruar nga teste/logot-gjenero.py) -->\n'
+            '<?xml version="1.0" encoding="utf-8"?>\n<!-- Sfondi i ikonës (e gjeneruar nga teste/logot-gjenero.py) -->\n'
             '<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">\n'
-            '    <solid android:color="%s" />\n</shape>\n' % p['bg'].upper())
-    shkruaj('ora/app/src/main/res/drawable/ic_stoku.xml', njoftimi.replace('ikona e vogël e njoftimit', 'ikona e komplikacionit'))
-    # logoja e plotë brenda aplikacionit të orës (sfond i zi): ngjyrat e errëta, shkronjat të bardha
-    L = DATA['logo']
-    kont_e = {'f': p['dk'], 'a': p['acD']}
+            '    <solid android:color="%s" />\n</shape>\n' % NG['bg'].upper())
+    shkruaj('ora/app/src/main/res/drawable/ic_stoku.xml', vektor('Ikona e komplikacionit: "s."', 24, 24, 72, 72, grupi))
     shkruaj('ora/app/src/main/res/drawable/logo_stoku.xml',
-            '<?xml version="1.0" encoding="utf-8"?>\n<!-- Logoja 60 e plotë për ekranin e orës (e gjeneruar nga teste/logot-gjenero.py, mos e ndrysho me dorë) -->\n'
-            '<vector xmlns:android="http://schemas.android.com/apk/res/android"\n    android:width="%sdp" android:height="%sdp"\n'
-            '    android:viewportWidth="%s" android:viewportHeight="%s">\n%s\n'
-            '    <path android:fillColor="#FFFFFFFF" android:pathData="%s" />\n    <path android:fillColor="%s" android:pathData="%s" />\n</vector>\n' % (
-                nr(L['w'] / 2), nr(L['h'] / 2), nr(L['w']), nr(L['h']), xml_shtresat(L['shenja'], kont_e, '    '), L['fjala'], kont_e['a'].upper(), L['pika']))
-    rreth = '    <path android:fillColor="%s" android:pathData="M54,0a54,54 0,1 1,0 108a54,54 0,1 1,0 -108z" />' % p['bg'].upper()
+            vektor('Logoja me shkronja për ekranin e orës', nr(F['w'] / 2), nr(F['h'] / 2), nr(F['w']), nr(F['h']),
+                   xp('#FFFFFFFF', F['t']) + '\n' + xp(NG['acD'].upper(), F['p'])))
+    rreth = '    <path android:fillColor="%s" android:pathData="M54,0a54,54 0,1 1,0 108a54,54 0,1 1,0 -108z" />' % NG['bg'].upper()
     shkruaj('ora/app/src/main/res/drawable/tile_preview.xml',
-            xml_vektor('Logoja 60: pamja e Tile-it', 108, 108, rreth + '\n' + grupi(1.2, 54 - 32 * 1.2, 54 - 32 * 1.2, xml_shtresat(DATA['shenja'], kont_ik))))
+            vektor('Pamja e Tile-it', 108, 108, 108, 108, rreth + '\n' + xp(NG['fg'].upper(), IKONA['t']) + '\n' + xp(NG['ac'].upper(), IKONA['p'])))
 
 
 if __name__ == '__main__':

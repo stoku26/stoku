@@ -20,6 +20,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 314, versioni: '1.63.0', data: '2026-11-16', titulli: 'Logoja me shkronja', pikat: [
+      'Logoja e Stoku-t tani është vetëm me shkronja: "stoku." e madhe lart, pa kuti dhe pa emrin e përdoruesit poshtë saj. Në kompjuter zë krejt gjerësinë e anës së majtë.',
+      'Ikona e Stoku-t ndërron sipas temës: e zezë kur përdor temën e errët, e bardhë kur përdor të çelëtën (edhe te skeda e shfletuesit).',
+      'Zgjedhja e 25 ngjyrave të logos te Cilësimet → Pamja u hoq.'
+    ] },
     { v: 313, versioni: '1.62.0', data: '2026-11-16', titulli: 'Logoja e re', pikat: [
       'Stoku ka logo të re: një listë me shenjë. Te Cilësimet → Pamja → Logoja zgjedh njërën nga 25 ngjyrat e saj. Logoja e zgjedhur del kudo: lart në Stoku, në hyrje, në skedën e shfletuesit, te PDF-ja dhe fotoja e afateve.',
       'Logoja që zgjedh ruhet te llogaria jote: kur hyn prapë, ose në një telefon, kompjuter ose aplikacion tjetër, e gjen të njëjtën.'
