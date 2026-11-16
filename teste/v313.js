@@ -46,7 +46,7 @@ const rgb = h => 'rgb(' + [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)).jo
   const eks = lx('eksportet.js'), kPdf = lx('vendas/app/src/main/java/site/stoku/vendas/EksportiPdf.kt'), kFoto = lx('vendas/app/src/main/java/site/stoku/vendas/EksportiFoto.kt');
   ok(/d\.text\('https:\/\/stoku\.site', X, 290\.6\);/.test(eks) && !/d\.text\('Krijuar|'Faqja 1 nga '|, ora ' \+ o\.ora/.test(eks) && /aefTekst\(c, 'stoku\.site', P \+ 26/.test(eks) && !/aefTekst\(c, 'Krijuar/.test(eks),
     '0. web: PDF poshtë vetëm "https://stoku.site", fotoja "stoku.site" (pa "Krijuar me Stoku")');
-  ok(/v\.tekst\("https:\/\/stoku\.site", X, 290\.6f, FAINT\)/.test(kPdf) && !/v\.tekst\("Krijuar|"Faqja 1 nga/.test(kPdf) && /cv\.tekst\(p, "stoku\.site", P \+ 26f/.test(kFoto) && !/tekst\(p, "Krijuar/.test(kFoto),
+  ok(/v\.tekst\("https:\/\/stoku\.site", X, 290\.6f, FAINT\)/.test(kPdf) && !/v\.tekst\("(Krijuar|Faqja)/.test(kPdf) && /cv\.tekst\(p, "stoku\.site", P \+ 26f/.test(kFoto) && !/tekst\(p, "Krijuar/.test(kFoto),
     '0. Android: i njëjti fund te PDF-ja dhe fotoja');
 
   const F = krijoFirestore({ rregullat: 'reja' });
