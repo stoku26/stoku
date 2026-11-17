@@ -25,7 +25,7 @@ ok(!gjetjet.krejt.length, '1. pa "krejt X" (të gjitha / i gjithë / e gjithë)'
 ok(!gjetjet.tash.length, '1. pa "tash" (tani)', gjetjet.tash.slice(0, 5));
 ok(!gjetjet.cka.length, '1. pa "çka" (çfarë)', gjetjet.cka.slice(0, 5));
 const tel = fs.readFileSync(path.join(RR, 'index.html'), 'utf8');
-ok(/Çfarë ka të re/.test(tel), '2. "Çfarë ka të re" te Cilësimet');
+ok(!/Çfarë ka të re/.test(tel), '2. v318: pa "Çfarë ka të re" te Cilësimet (u fshi krejt)');
 const sw = fs.readFileSync(path.join(RR, 'sw.js'), 'utf8');
 const nr = rx => Number((sw.match(rx) || [])[1]);
 ok(nr(/stoku-v(\d+)/) >= 281 && nr(/app-tel\.js\?v=(\d+)/) >= 281 && nr(/app-pc\.js\?v=(\d+)/) >= 281 && nr(/lejet\.js\?v=(\d+)/) >= 6, '3. versionet ≥ 281');

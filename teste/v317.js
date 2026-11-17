@@ -146,7 +146,8 @@ async function krijo(p) {
   // ===== 7. Versionet =====
   {
     const sw = lx('sw.js');
-    ok(/stoku-v317/.test(sw) && /eksportet\.js\?v=317/.test(sw) && /app-tel\.js\?v=317/.test(sw) && /app-pc\.js\?v=317/.test(sw), '7. CACHE dhe versionet 317');
+    const nr = rx => Number((sw.match(rx) || [])[1]);
+    ok(nr(/stoku-v(\d+)/) >= 317 && nr(/eksportet\.js\?v=(\d+)/) >= 317 && nr(/app-tel\.js\?v=(\d+)/) >= 317 && nr(/app-pc\.js\?v=(\d+)/) >= 317, '7. CACHE dhe versionet ≥ 317');
   }
   await b.close();
   console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');

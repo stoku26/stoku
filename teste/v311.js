@@ -110,8 +110,13 @@ const prit = async (fn, ms = 8000) => { const t0 = Date.now(); while (Date.now()
   ok(!(await hapur(a, 'dlgAfPdf')), '3. rrëshqitje e gjatë poshtë e mbyll');
   ok(!(await a.evaluate(() => document.querySelector('#dlgAfPdf > .dialog').style.transform)), '3. stili i tërheqjes pastrohet (hapja tjetër normale)');
   await hap('dlgAfPdf'); y = await kokaY(a, 'dlgAfPdf');
-  await rrezhqit(a, 195, y, y + 70, 70); await a.waitForTimeout(700); // e shkurtër por SHPEJT: mbyllet direkt
-  ok(!(await hapur(a, 'dlgAfPdf')), '3. rrëshqitje e shpejtë (70 px në 70 ms) e mbyll direkt');
+  // v318: dlgAfPdf (382 px) në vend të dlgTeRejat bosh: 100 px < pragu 114 px, pra mbyllet vetëm nga shpejtësia
+  // Chromium pa ekran i jep lëvizjet e prekjes rrallë (~50 ms), pra ora e faqes shpejtohet vetëm gjatë kësaj rrëshqitjeje (10 ms për lëvizje)
+  await a.evaluate(() => { const r = Date.now; let t = r(); window.__oraVjeter = r; Date.now = () => (t += 10); });
+  await rrezhqit(a, 195, y, y + 100, 0);
+  await a.evaluate(() => { Date.now = window.__oraVjeter; });
+  await a.waitForTimeout(700); // e shkurtër por SHPEJT: mbyllet direkt
+  ok(!(await hapur(a, 'dlgAfPdf')), '3. rrëshqitje e shpejtë (100 px shpejt, nën pragun e distancës) e mbyll direkt');
   // Rrëshqitje lart nuk mbyll
   await hap('dlgAfPdf'); y = await kokaY(a, 'dlgAfPdf');
   await rrezhqit(a, 195, y + 100, y - 40, 150); await a.waitForTimeout(400);
