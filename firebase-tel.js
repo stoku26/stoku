@@ -4,7 +4,7 @@
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
     updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser
   } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-  import { initializeFirestore, getCountFromServer, doc, getDoc, getDocs, setDoc, runTransaction, collection, addDoc, onSnapshot, deleteDoc, query, where, orderBy, limit, writeBatch, Bytes } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  import { initializeFirestore, getCountFromServer, doc, getDoc, getDocs, setDoc, runTransaction, collection, addDoc, onSnapshot, deleteDoc, updateDoc, query, where, orderBy, limit, writeBatch, Bytes } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
   var firebaseConfig = {
     apiKey: "AIzaSyCttsCATjbQQ8LaspIb1BnFrsnzusKy6IY",
@@ -37,7 +37,7 @@
     var lejet = window.StokuLejet ? window.StokuLejet.krijo({ doc: doc, collection: collection, setDoc: setDoc, onSnapshot: onSnapshot },
       db, function () { return auth.currentUser ? auth.currentUser.uid : null; }) : null;
     // v319: pajisjet ku je i kyçur (pajisjet.js); "Shkëput" nga një pajisje tjetër → kjo del vetë
-    var pajisjet = window.StokuPajisjet ? window.StokuPajisjet.krijo({ doc: doc, collection: collection, setDoc: setDoc, deleteDoc: deleteDoc, onSnapshot: onSnapshot },
+    var pajisjet = window.StokuPajisjet ? window.StokuPajisjet.krijo({ doc: doc, collection: collection, setDoc: setDoc, updateDoc: updateDoc, deleteDoc: deleteDoc, onSnapshot: onSnapshot },
       db, function () { return auth.currentUser ? auth.currentUser.uid : null; }, 'tel', window.StokuVersioni ? window.StokuVersioni.emri : '') : null;
 
     // Regjistrohet vetja te perdoruesit/{uid} (emri i dukshëm + kur u kyç së fundi) — përdoret nga

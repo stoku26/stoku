@@ -30,7 +30,7 @@ const SC = '/tmp/claude-0/-home-user-stoku/e6bed5df-a3f5-5158-8183-d77a3d2bc01d/
   ok(/private fun EksportoFlete\(/.test(af) && !/DropdownMenu\(hapur/.test(af), '0. Android: "Eksporto" si dritare');
   ok(/viewBox="10\.8 10\.8 86\.4 86\.4"/.test(lx('logo/stoku-icon-maskable.svg')) && /icon-maskable-512\.png\?v=6/.test(lx('manifest.webmanifest')), '0. ikona maskable me zonën e sigurt');
   const sw = lx('sw.js');
-  ok(/stoku-v319/.test(sw) && /pajisjet\.js\?v=1/.test(sw) && /app-tel\.js\?v=319/.test(sw) && /firebase-tel\.js\?v=319/.test(sw), '0. sw.js: CACHE v319, pajisjet.js');
+  ok(/stoku-v3[2-9]\d/.test(sw) && /pajisjet\.js\?v=\d/.test(sw) && /app-tel\.js\?v=3\d\d/.test(sw) && /firebase-tel\.js\?v=3\d\d/.test(sw), '0. sw.js: CACHE v319, pajisjet.js');
   ok(/match \/pajisjet\/\{p\}/.test(lx('SHENIME.md')), '0. SHENIME: rregulli i Firestore për pajisjet');
 
   // ===== Faqet =====
@@ -110,6 +110,28 @@ const SC = '/tmp/claude-0/-home-user-stoku/e6bed5df-a3f5-5158-8183-d77a3d2bc01d/
   const rr = await tel.evaluate(() => [...document.querySelectorAll('#dlgAfPdf .ap-rresht')].filter(x => x.offsetParent).map(x => x.querySelector('.ap-em').textContent));
   ok(rr.includes('Ditët e skanimit') && !rr.includes('Shtuar'), '4. rreshti "Ditët e skanimit" (pa "Shtuar")', rr);
   ok(!tel.__gab.length, '4. pa gabime JS', tel.__gab);
+  // ===== 6. Pronari: "nese du me shkeput ... kur hy ne app ... nuk e ka shkyq hiq": shkëputja ndërsa faqja ishte e mbyllur =====
+  {
+    const ctx = tel.context();
+    const idTel = await tel.evaluate(() => localStorage.getItem('stoku:pajisja:id'));
+    const kTel = 'perdoruesit/uA/pajisjet/' + idTel;
+    ok(await tel.evaluate(() => localStorage.getItem('stoku:pajisja:uid')) === 'uA', '6. pas regjistrimit: stoku:pajisja:uid = uA');
+    const krijuar = (F.S.docs.get(kTel) || {}).krijuarSe;
+    await tel.close();
+    const t2 = await ctx.newPage(); t2.__gab = []; t2.on('pageerror', e => t2.__gab.push(e.message));
+    await t2.goto('http://127.0.0.1:8765/index.html'); await t2.waitForTimeout(2500);
+    ok(F.S.docs.has(kTel) && F.S.docs.get(kTel).krijuarSe === krijuar && !(await t2.evaluate(() => window.__dalur || 0)), '6. rihapja me pajisjen në listë: vetëm rifreskohet, mbetet e kyçur');
+    await t2.close();
+    F.S.docs.delete(kTel); // "Shkëput" nga një pajisje tjetër ndërsa kjo ishte e mbyllur
+    const t3 = await ctx.newPage(); t3.__gab = []; t3.on('pageerror', e => t3.__gab.push(e.message));
+    await t3.goto('http://127.0.0.1:8765/index.html');
+    ok(await prit(() => t3.evaluate(() => (window.__dalur || 0) >= 1)), '6. rihapja pas shkëputjes: del vetë nga llogaria');
+    ok(!F.S.docs.has(kTel), '6. pajisja e shkëputur s\'rikthehet vetë në listë');
+    ok(await t3.evaluate(() => localStorage.getItem('stoku:pajisja:uid')) === null, '6. regjistrimi harrohet (hyrja tjetër e krijon nga e para)');
+    ok(!t2.__gab.length && !t3.__gab.length, '6. pa gabime JS', [t2.__gab, t3.__gab]);
+    const kt = lx(K + 'Pajisjet.kt');
+    ok(/pajisja_uid/.test(kt) && /Code\.NOT_FOUND/.test(kt) && /fun harro\(/.test(kt) && /Pajisjet\.harro\(\)/.test(lx(K + 'Llogaria.kt')), '6. Android: e njëjta (pajisja_uid, update, NOT_FOUND → del)');
+  }
   await b.close();
   console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');
   process.exit(g ? 1 : 0);

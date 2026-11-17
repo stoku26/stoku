@@ -33,8 +33,8 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
   F.S.docs.set('dyqane/u2', { app: 'stoku', version: 3, foldera: [{ id: 'f1', emri: 'Pije' }], produktet: [], fshira: {},
     afatet: [{ id: 'b1', barkodi: '40', emri: 'Kos', data: dita(9), statusi: 'aktiv', krijuarNga: 'mendurberisha', ndryshuarSe: tani }] });
   F.S.docs.set('grupet/ekipa/feed/n1', { lloji: 'hequr', uid: 'u1', emri: 'mendurberisha', koha: tani - 6e5, pronariUid: 'u1', pronariEmri: 'mendurberisha', afatId: 'a1', produkti: 'Jaffa', barkodi: '39', data: dita(-3) });
-  F.S.docs.set('grupet/ekipa/feed/n2', { lloji: 'lajmerim', uid: 'u1', emri: 'mendurberisha', koha: tani - 5e5, tekst: 'Mbledhje' });
-  F.S.docs.set('perdoruesit/u2/njoftimet/j1', { lloji: 'lajmerim', uid: 'u1', emri: 'mendurberisha', tekst: 'Mbledhje', grupi: 'ekipa', koha: tani - 5e5, lexuar: true });
+  F.S.docs.set('grupet/ekipa/feed/n2', { lloji: 'rikthyer', uid: 'u1', emri: 'mendurberisha', koha: tani - 5e5, produkti: 'Mbledhje', barkodi: '77' }); // v320: jo më 'lajmerim'
+  F.S.docs.set('perdoruesit/u2/njoftimet/j1', { lloji: 'hequr', uid: 'u1', emri: 'mendurberisha', produkti: 'Mbledhje', grupi: 'ekipa', koha: tani - 5e5, lexuar: true });
   const b = await chromium.launch();
   async function faqe(pc) {
     const ctx = await b.newContext(pc ? { viewport: { width: 1440, height: 900 }, serviceWorkers: 'block' }
@@ -50,7 +50,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
   await tel.click('#btnEkipi'); await tel.waitForTimeout(1500);
   await tel.click('#ekMenu button[data-n="aktiviteti"]'); await tel.waitForTimeout(1200);
   const t1 = await tel.evaluate(() => Array.from(document.querySelectorAll('.ek-ngjarje')).filter(x => x.offsetParent).map(x => x.innerText.replace(/\s+/g, ' ')).join(' | '));
-  ok(/agim e hoqi nga rafti: Jaffa/.test(t1) && /agim njoftoi/.test(t1) && !/mendurberisha/.test(t1), '2. telefoni: Aktiviteti me emrin e ri', t1);
+  ok(/agim e hoqi nga rafti: Jaffa/.test(t1) && /agim e ktheu në raft: Mbledhje/.test(t1) && !/mendurberisha/.test(t1), '2. telefoni: Aktiviteti me emrin e ri', t1);
   const kr = await tel.evaluate(() => { const E = window.StokuEkipa.Emrat; return [E.emri(null, 'mendurberisha'), E.emri('u1', 'mendurberisha')]; });
   ok(kr[0] === 'agim' && kr[1] === 'agim', '2. telefoni: emri i vjetër pa uid (p.sh. "Shtuar nga") → emri i ri', kr);
   const pc = await faqe(true);

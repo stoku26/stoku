@@ -13,6 +13,12 @@
 (function (root) {
   'use strict';
   var KEY_ID = 'stoku:pajisja:id';
+  // v319 (pronari: "nese du me shkeput nga appi ... nuk po bojka"): uid-ja për të cilën kjo pajisje është regjistruar. Kur faqja
+  // hapet sërish me të njëjtën llogari, dokumenti s'krijohet më nga e para (përndryshe pajisja e shkëputur ndërsa ishte e mbyllur
+  // do të rikthehej vetë në listë): vetëm rifreskohet (updateDoc); nëse s'ekziston më ('not-found') = u shkëput, del.
+  var KEY_UID = 'stoku:pajisja:uid';
+  function uidERegjistruar() { try { return localStorage.getItem(KEY_UID); } catch (e) { return null; } }
+  function shenjoUid(uid) { try { if (uid) localStorage.setItem(KEY_UID, uid); else localStorage.removeItem(KEY_UID); } catch (e) { /* ok */ } }
   var RIFRESKO_MS = 30 * 60 * 1000;
 
   function idEPajisjes() {
@@ -44,7 +50,7 @@
     });
   }
 
-  // fs: { doc, collection, setDoc, deleteDoc, onSnapshot }; lloji: 'tel' | 'pc'
+  // fs: { doc, collection, setDoc, updateDoc, deleteDoc, onSnapshot }; lloji: 'tel' | 'pc'
   function krijo(fs, db, uidFn, lloji, versioni) {
     var id = idEPajisjes();
     var gj = { uid: null, ndalVeten: null, ekziston: false, shkruar: 0, kurShkeputet: null };
@@ -52,9 +58,19 @@
     function shkruaj(uid, iRi) {
       var t = Date.now();
       var d = { emri: emriNgaUA(root.navigator && root.navigator.userAgent), lloji: lloji, paraSe: t, v: String(versioni || '') };
-      if (iRi) d.krijuarSe = t;
       gj.shkruar = t;
-      return fs.setDoc(ref(uid), d, { merge: true }).catch(function () { gj.shkruar = 0; });
+      if (!iRi && fs.updateDoc) {
+        return fs.updateDoc(ref(uid), d).catch(function (e) {
+          gj.shkruar = 0;
+          if (e && e.code === 'not-found' && gj.uid === uid) shkeputur(); // u shkëput nga një pajisje tjetër ndërsa kjo ishte e mbyllur
+        });
+      }
+      d.krijuarSe = t;
+      return fs.setDoc(ref(uid), d, { merge: true }).then(function () { if (gj.uid === uid) shenjoUid(uid); }, function () { gj.shkruar = 0; });
+    }
+    function shkeputur() {
+      shenjoUid(null); gj.ekziston = false;
+      if (gj.kurShkeputet) gj.kurShkeputet();
     }
     function ndal() {
       if (gj.ndalVeten) { try { gj.ndalVeten(); } catch (e) { /* ok */ } }
@@ -65,13 +81,13 @@
       var uid = uidFn();
       if (uid === gj.uid) return;
       ndal();
-      if (!uid) return;
+      if (!uid) { shenjoUid(null); return; } // doli nga llogaria: herën tjetër regjistrohet nga e para
       gj.uid = uid;
-      shkruaj(uid, true);
+      shkruaj(uid, uidERegjistruar() !== uid);
       gj.ndalVeten = fs.onSnapshot(ref(uid), function (s) {
         if (gj.uid !== uid) return;
         if (s.exists()) { gj.ekziston = true; return; }
-        if (gj.ekziston && gj.kurShkeputet) { gj.ekziston = false; gj.kurShkeputet(); } // u shkëput nga një pajisje tjetër
+        if (gj.ekziston) shkeputur(); // u shkëput nga një pajisje tjetër
       }, function () { /* pa rregullat e reja ose pa internet: s'ndalet asgjë */ });
     }
     // Kur faqja shihet sërish: paraSe rifreskohet (jo më shpesh se 30 min)
@@ -103,14 +119,14 @@
       // "Dil" në këtë pajisje: hiqet nga lista
       fshiVeten: async function () {
         var uid = gj.uid || uidFn();
-        ndal();
+        ndal(); shenjoUid(null);
         if (!uid) return;
         try { await fs.deleteDoc(ref(uid)); } catch (e) { /* ok */ }
       }
     };
   }
 
-  var api = { krijo: krijo, emriNgaUA: emriNgaUA, renditLista: renditLista, KEY_ID: KEY_ID, RIFRESKO_MS: RIFRESKO_MS };
+  var api = { krijo: krijo, emriNgaUA: emriNgaUA, renditLista: renditLista, KEY_ID: KEY_ID, KEY_UID: KEY_UID, RIFRESKO_MS: RIFRESKO_MS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StokuPajisjet = api;
 })(typeof window !== 'undefined' ? window : this);

@@ -4626,7 +4626,7 @@
   // thjesht klasën), që logjika e tyre (p.sh. konfirmo() që pret përgjigje) të përfundojë saktë.
   var ANULO_SIPAS_DIALOGUT = {
     dlgProdukt: 'dlgAnulo', dlgZhvendos: 'zhvendosAnulo', dlgFshirje: 'fshiAnulo',
-    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgMarketi: 'mkdAnulo', dlgMarketiRi: 'mkrAnulo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgKuSkedari: 'ksAnulo', dlgAfExcel: 'axAnulo', dlgAfEksporto: 'aeAnulo', dlgImportStok: 'impAnulo', dlgEkNjoftimet: 'ekNjMbyll', dlgEkNgjarja: 'ekDtMbyll', dlgAfImport: 'aiAnulo', dlgKerkese: 'krkAnulo', dlgKolegu: 'kolAnulo'
+    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgMarketi: 'mkdAnulo', dlgMarketiRi: 'mkrAnulo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgKuSkedari: 'ksAnulo', dlgAfExcel: 'axAnulo', dlgAfEksporto: 'aeAnulo', dlgGrupiCil: 'gcMbyll', dlgImportStok: 'impAnulo', dlgEkNjoftimet: 'ekNjMbyll', dlgEkNgjarja: 'ekDtMbyll', dlgAfImport: 'aiAnulo', dlgKerkese: 'krkAnulo', dlgKolegu: 'kolAnulo'
   };
   function mbyllShtresenMeTeFundit() {
     // Kamera del mbi çdo dialog (p.sh. skanimi te "Afat i ri"), prandaj mbyllet e para
@@ -6623,6 +6623,7 @@
     });
     return n;
   }
+  window.__stokuEkipaK = ekK; // v320: për testet (si te app-pc.js)
   function ekAnetaret() { return ekK ? ekK.anetaretMeAfate() : []; }
   function ekTeGjithaAfatet(anetaret) { var l = []; anetaret.forEach(function (a) { l = l.concat(a.afatet); }); return l; }
 
@@ -7483,8 +7484,9 @@
     }
     // Karta e grupit (pronari e riemërton)
     var hk = ekEl('div', 'af-grup-krye'); hk.appendChild(ekEl('span', null, 'Grupi yt')); c.appendChild(hk);
-    // v319 (pronari, foto: "qato heke bone si buton ngushtoje grupi yt edhe anen e djatht e len ikon veq ni njeri me ni plus"):
-    // "Fto një shok" s'është më seksion i hapur; butoni katror me një njeri dhe plus pranë kartës e hap/mbyll fushën e ftesës
+    // v319: butoni katror me një njeri dhe plus e hap/mbyll fushën e ftesës.
+    // v320 (pronari: "balancoj qeto komplet ... butonin ndrysho emrin bone me ikon tvogel ... shtoje edhe ni buton me tri pika vertikal
+    // per cilesime te grupit"): karta, "+" dhe "⋮" me të njëjtën lartësi; "Ndrysho emrin" = laps i vogël; "⋮" hap "Cilësimet e grupit"
     var kr = ekEl('div', 'ek-grupi-rresht');
     var kk = ekEl('div', 'ek-grupi-karta'); // v293: `kk` (më parë `kg`, i njëjti emër me listën e kërkesave më lart)
     if (pronar && ekRiemertim) {
@@ -7510,7 +7512,9 @@
       tg.appendChild(ekEl('span', null, (pronar ? 'Ti je admin i grupit' : 'Koleg i grupit') + ' · ' + anetaret.length + (anetaret.length === 1 ? ' koleg' : ' kolegë')));
       kk.appendChild(tg);
       if (pronar) {
-        var br = ekEl('button', 'af-pill', 'Ndrysho emrin'); br.type = 'button';
+        var br = ekEl('button', 'ek-laps-btn'); br.type = 'button'; br.id = 'ekRiemerto';
+        br.setAttribute('aria-label', 'Ndrysho emrin e grupit'); br.title = 'Ndrysho emrin e grupit';
+        br.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>';
         br.addEventListener('click', function () { ekRiemertim = true; vizatoEkipen(); });
         kk.appendChild(br);
       }
@@ -7519,12 +7523,19 @@
     if (pronar) {
       var bFto = ekEl('button', 'ek-fto-btn' + (ekFtoHapur ? ' on' : '')); bFto.type = 'button'; bFto.id = 'ekFtoHap';
       bFto.setAttribute('aria-label', 'Fto një shok në grup'); bFto.setAttribute('aria-expanded', ekFtoHapur ? 'true' : 'false'); bFto.title = 'Fto një shok në grup';
-      bFto.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M19 8v6M22 11h-6"></path></svg>';
+      bFto.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M19 8v6M22 11h-6"></path></svg>';
       bFto.addEventListener('click', function () {
         ekFtoHapur = !ekFtoHapur; vizatoEkipen();
         if (ekFtoHapur) setTimeout(function () { var x = $('ekFtoEmri'); if (x) x.focus(); }, 30);
       });
       kr.appendChild(bFto);
+    }
+    if (pronar || ekK.eshteAdmin()) {
+      var bCil = ekEl('button', 'ek-cil-btn'); bCil.type = 'button'; bCil.id = 'ekGrupiCil';
+      bCil.setAttribute('aria-label', 'Cilësimet e grupit'); bCil.title = 'Cilësimet e grupit';
+      bCil.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5h.01M12 12h.01M12 19h.01"></path></svg>';
+      bCil.addEventListener('click', function () { vizatoCilesimetEGrupit(); $('dlgGrupiCil').classList.add('hapur'); });
+      kr.appendChild(bCil);
     }
     c.appendChild(kr);
     // Pronari: fto shokët (fusha del vetëm pasi preket butoni me plus)
@@ -7591,31 +7602,27 @@
       r.addEventListener('click', function () { ekHapAnetarin(a.uid); });
       c.appendChild(r);
     });
-    if (pronar) vizatoPanelinEPronarit(c, anetaret);
-    if (ekK.eshteAdmin()) vizatoLlogariteETjera(c);
+    if ($('dlgGrupiCil').classList.contains('hapur')) vizatoCilesimetEGrupit(); // v320: lista në dritare rifreskohet bashkë me grupin
     var bl = ekEl('button', 'btn tekst rrezik', 'Largohu nga grupi'); bl.type = 'button'; bl.id = 'ekLargohu'; bl.style.cssText = 'width:100%;margin-top:18px';
     bl.addEventListener('click', ekLargohu);
     c.appendChild(bl);
   }
 
-  // ---- Paneli i pronarit të grupit (te Kolegët) ----
-  function vizatoPanelinEPronarit(c, anetaret) {
-    var h = ekEl('div', 'af-grup-krye'); h.appendChild(ekEl('span', null, 'Njoftim për të gjithë grupin')); c.appendChild(h);
-    var nj = ekEl('div', 'ek-admin-njoftim');
-    var ta = ekEl('textarea'); ta.id = 'ekAdminTekst'; ta.maxLength = 1000; ta.placeholder = 'Shkruaj njoftimin (i del secilit te zilja)';
-    var bd = ekEl('button', 'btn', 'Dërgo te i gjithë grupi'); bd.type = 'button';
-    bd.addEventListener('click', async function () {
-      var t = ta.value.trim();
-      if (!t) { ta.focus(); return; }
-      bd.disabled = true;
-      var r = await ekK.lajmeroEkipen(t);
-      bd.disabled = false;
-      if (!r.ok) { toast('Njoftimi s\'u dërgua. Kontrollo internetin dhe provo përsëri.', 4000); return; }
-      ekZbrazFushen(ta);
-      toast('Njoftimi u dërgua te i gjithë grupi' + (r.neRadhe ? ' (sapo të ketë internet).' : '.'));
-    });
-    nj.appendChild(ta); nj.appendChild(bd);
-    c.appendChild(nj);
+  // ---- v320: "Cilësimet e grupit" (butoni me tri pika te "Grupi yt"): Menaxho kolegët (pronari) + Llogaritë e tjera (administratori) ----
+  function vizatoCilesimetEGrupit() {
+    var c = $('gcTrup'); if (!c) return;
+    var g = ekK.grupiInfo() || {}, anetaret = ekAnetaret();
+    $('gcNen').textContent = g.emri || 'Grupi';
+    c.textContent = '';
+    if (ekK.eshtePronar()) vizatoMenaxhimin(c, anetaret);
+    if (ekK.eshteAdmin()) vizatoLlogariteETjera(c);
+    if (!ekK.eshtePronar() && !ekK.eshteAdmin()) $('dlgGrupiCil').classList.remove('hapur');
+  }
+  $('gcMbyll').addEventListener('click', function () { $('dlgGrupiCil').classList.remove('hapur'); });
+  $('dlgGrupiCil').addEventListener('click', function (ev) { if (ev.target === this) this.classList.remove('hapur'); });
+
+  // ---- Menaxho kolegët (pronari i grupit; v320 te "Cilësimet e grupit") ----
+  function vizatoMenaxhimin(c, anetaret) {
     var tjeret = anetaret.filter(function (a) { return !a.uneJam; });
     // v240: "Butonat +/-" s'janë më këtu: leje te Cilësimet → Përdoruesit (stokuPlusMinus)
     var hm = ekEl('div', 'af-grup-krye'); hm.appendChild(ekEl('span', null, 'Menaxho kolegët')); c.appendChild(hm);

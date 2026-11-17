@@ -60,7 +60,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
   await agim.click('#btnEkipi'); await agim.waitForTimeout(1500);
   await agim.click('#ekMenu button[data-n="aktiviteti"]'); await agim.waitForTimeout(900);
   const rr = await agim.evaluate(() => Array.from(document.querySelectorAll('#ekipiTrup .ek-ngjarje')).map(r => r.classList.contains('prekshme')));
-  ok(rr.length === 4 && rr.every(Boolean), '2. tel: të 4 ngjarjet janë të prekshme (edhe lajmërimi)', rr);
+  ok(rr.length === 3 && rr.every(Boolean), '2. tel: të 3 ngjarjet janë të prekshme (v320: njoftimi i vjetër për krejt grupin s\'del më)', rr);
   await agim.click('#ekipiTrup .ek-ngjarje:has-text("shtoi 1 afat"):has-text("blerta") >> nth=0'); await agim.waitForTimeout(500);
   const t1 = await lexo(agim);
   ok(t1.hapur && /blerta shtoi 1 afat të ri/.test(t1.t) && /Lëng molle/.test(t1.t) && /901/.test(t1.t) && /6 copë/.test(t1.t) && /Skadon për 12 ditë\./.test(t1.t) && !/Ujë|Çaj/.test(t1.t),
@@ -74,10 +74,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
   ok(t2.hapur && /Ti e hoqe nga rafti: Djathë/.test(t2.t) && /444/.test(t2.t) && /U hoq nga rafti/.test(t2.t) && !(await agim.evaluate(() => document.getElementById('dlgAfat').classList.contains('hapur'))), '2. tel: afati im i hequr hapet vetëm për shikim', t2);
   await agim.evaluate(() => history.back()); await agim.waitForTimeout(400);
   ok(!(await lexo(agim)).hapur, '2. tel: butoni "prapa" e mbyll dritaren');
-  await agim.click('#ekipiTrup .ek-ngjarje:has-text("njoftoi")'); await agim.waitForTimeout(400);
-  const t3 = await lexo(agim);
-  ok(t3.hapur && /Mbledhje nesër në 9/.test(t3.t), '2. tel: lajmërimi hapet me tekstin e plotë', t3.t);
-  await agim.click('#ekDtMbyll'); await agim.waitForTimeout(200);
+  ok(!(await agim.evaluate(() => /njoftoi|Mbledhje nesër në 9/.test(document.getElementById('ekipiTrup').textContent))), '2. tel: v320: njoftimi i vjetër për krejt grupin s\'del');
   await agim.click('#ekipiTrup .ek-ngjarje:has-text("shtoi 1 afat") >> nth=1'); await agim.waitForTimeout(400);
   const t4 = await lexo(agim);
   ok(t4.hapur && /Salcë e fshirë/.test(t4.t) && /Meridian/.test(t4.t) && /3 copë/.test(t4.t), '2. tel: afati i fshirë shihet nga fotografia e ngjarjes', t4.t);
@@ -88,7 +85,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
   await agimPc.evaluate(() => { location.hash = '#/ekipa/aktiviteti'; }); await agimPc.waitForTimeout(1200);
   if (!(await agimPc.$('#ekAktLista .ek-ngjarje'))) { await agimPc.click('text=Aktiviteti').catch(() => {}); await agimPc.waitForTimeout(800); }
   const rp = await agimPc.evaluate(() => Array.from(document.querySelectorAll('#ekAktLista .ek-ngjarje')).map(r => r.classList.contains('prekshme')));
-  ok(rp.length === 4 && rp.every(Boolean), '3. PC: të 4 ngjarjet janë të klikueshme', rp);
+  ok(rp.length === 3 && rp.every(Boolean), '3. PC: të 3 ngjarjet janë të klikueshme (v320: pa njoftimin e vjetër për krejt grupin)', rp);
   await agimPc.click('#ekAktLista .ek-ngjarje:has-text("shtoi 1 afat") >> nth=0'); await agimPc.waitForTimeout(500);
   const p1 = await lexo(agimPc);
   ok(p1.hapur && /Lëng molle/.test(p1.t) && /901/.test(p1.t) && /Frutex/.test(p1.t) && /Skadon për 12 ditë\./.test(p1.t) && !/Ujë|Çaj/.test(p1.t) && p1.fusha === 0 && p1.butona.join() === '✕,Mbyll' && /aktiviteti/.test(await agimPc.evaluate(() => location.hash)),

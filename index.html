@@ -709,7 +709,6 @@
   .ek-kart-hiq:disabled { opacity: .6; }
   .ek-kart.mire { color: var(--af-gjelber-tx); background: var(--af-gjelber-bg); border-color: transparent; font-size: 14px; font-weight: 700; }
   /* Administratori */
-  .ek-admin-njoftim { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 10px; }
   /* Ekipat (v164) */
   .ek-grupi-karta { display: flex; align-items: center; gap: 12px; margin: 2px 0 12px; padding: 14px 16px; border-radius: 18px;
     background: var(--sb-surface, var(--sfond)); box-shadow: 0 0 0 1px var(--sb-line, var(--vije)); }
@@ -728,16 +727,27 @@
   .ll-paj__tk span.kjo { color: var(--sb-ok, #16a34a); font-weight: 600; }
   .ll-paj .af-pill { flex: none; }
   .ll-paj-krejt { width: 100%; margin: 4px 0 8px; }
-  /* v319: "Grupi yt" më e ngushtë + butoni katror "Fto" (një njeri me plus) */
-  .ek-grupi-rresht { display: flex; gap: 10px; align-items: stretch; margin: 2px 0 12px; }
-  .ek-grupi-rresht .ek-grupi-karta { flex: 1; min-width: 0; margin: 0; }
-  .ek-fto-btn { flex: none; width: 66px; min-height: 66px; border: 0; border-radius: 18px; background: var(--sb-accent, var(--primar)); color: #fff;
-    display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-  .ek-fto-btn:active { transform: scale(.96); }
+  /* v319: "Grupi yt" më e ngushtë + butoni katror "Fto" (një njeri me plus).
+     v320 (pronari: "balancoj qeto komplet ... jo njo e madhe njo e vogel"): karta, "+" dhe "⋮" me të njëjtën lartësi (56 px: "mat holl komplet se gjon shum");
+     "Ndrysho emrin" = laps i vogël brenda kartës */
+  .ek-grupi-rresht { display: flex; gap: 8px; align-items: stretch; height: 56px; margin: 2px 0 12px; }
+  .ek-grupi-rresht .ek-grupi-karta { flex: 1; min-width: 0; margin: 0; padding: 0 9px 0 14px; gap: 8px; border-radius: 16px; }
+  .ek-grupi-rresht .tk b { font-size: 16px; line-height: 1.2; }
+  .ek-grupi-rresht .tk span { font-size: 12px; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ek-fto-btn, .ek-cil-btn { flex: none; width: 56px; height: 56px; border: 0; border-radius: 16px; background: var(--sb-accent, var(--primar)); color: #fff;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; padding: 0; }
+  .ek-fto-btn:active, .ek-cil-btn:active, .ek-laps-btn:active { transform: scale(.96); }
   .ek-fto-btn.on { background: var(--sb-surface-2, var(--sfond)); color: var(--sb-accent, var(--primar)); box-shadow: 0 0 0 1px var(--sb-line, var(--vije)); }
+  .ek-cil-btn { background: var(--sb-surface, var(--karta)); color: var(--sb-ink, var(--tekst)); box-shadow: 0 0 0 1px var(--sb-line, var(--vije)); }
+  .ek-laps-btn { flex: none; width: 34px; height: 34px; border: 0; border-radius: 10px; padding: 0; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; background: var(--sb-surface-2, var(--sfond)); color: var(--sb-ink-2, var(--tekst)); -webkit-tap-highlight-color: transparent; }
+  #dlgGrupiCil { z-index: 24; }
+  #dlgGrupiCil .dialog { max-width: 520px; max-height: calc(100vh - 40px); overflow-y: auto; }
+  #gcTrup .af-grup-krye:first-child { margin-top: 4px; }
   .ek-rresht-forma { display: flex; gap: 8px; margin: 4px 0 6px; }
   .ek-rresht-forma input { flex: 1; min-width: 0; height: 46px; }
   .ek-rresht-forma .btn { flex: none; height: 46px; padding: 0 16px; }
+  .ek-grupi-karta .ek-rresht-forma input, .ek-grupi-karta .ek-rresht-forma .btn { height: 40px; }
   .ek-ftesa { flex-wrap: wrap; }
   .ek-ftesa .btn.tekst { height: 38px; padding: 0 10px; }
   .ek-kerko-grupin { margin: 0 0 4px; }
@@ -745,10 +755,6 @@
   .ek-kerko-rez .info { margin: 8px 2px; }
   .ek-grupi-hint { font-size: 13px; color: var(--sb-muted, var(--gri)); line-height: 1.45; margin: 2px 2px 12px; }
   .ek-grupi-hint b { color: var(--sb-ink, var(--tekst)); font-family: var(--sb-mono, monospace); }
-  .ek-admin-njoftim textarea {
-    width: 100%; box-sizing: border-box; min-height: 74px; resize: vertical; padding: 10px 12px; font: inherit; font-size: 16px;
-    color: var(--tekst); background: var(--fushe-bg); border: 1px solid var(--fushe-kufi); border-radius: 12px;
-  }
   label.artikull { cursor: pointer; }
   label.artikull input[type=checkbox] { flex: none; width: 22px; height: 22px; accent-color: var(--primar); }
   .ek-stok-permb { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; font-size: 13px; color: var(--gri); }
@@ -1969,6 +1975,16 @@
 </div>
 
 <!-- v319 (pronari: "dritaret te afatet importo exporto sjan te njejta bone ... sikur importo"): "Eksporto" hap dritare si "Importo" -->
+<!-- v320: "Cilësimet e grupit" (butoni me tri pika te "Grupi yt"): Menaxho kolegët + Llogaritë e tjera -->
+<div class="mbulese" id="dlgGrupiCil">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="gcTitulli">
+    <h2 id="gcTitulli">Cilësimet e grupit</h2>
+    <p class="hint" style="margin-top:0" id="gcNen"></p>
+    <div id="gcTrup"></div>
+    <div class="veprime"><button class="btn tekst" id="gcMbyll" type="button" style="width:100%">Mbyll</button></div>
+  </div>
+</div>
+
 <div class="mbulese" id="dlgAfEksporto">
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="aeTitulli">
     <h2 id="aeTitulli">Eksporto afatet</h2>
@@ -2220,16 +2236,16 @@
 <script src="ruajtja.js?v=281"></script>
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=8"></script>
-<script src="pajisjet.js?v=1"></script>
+<script src="pajisjet.js?v=2"></script>
 <script src="afatet.js?v=295"></script>
 <script src="eksportet.js?v=319"></script>
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
-<script src="ekipa.js?v=316"></script>
+<script src="ekipa.js?v=320"></script>
 <script src="njoftimet.js?v=313"></script>
 <script src="temat.js?v=2"></script>
-<script src="versioni.js?v=319"></script>
-<script src="app-tel.js?v=319"></script>
+<script src="versioni.js?v=320"></script>
+<script src="app-tel.js?v=320"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
@@ -2238,6 +2254,6 @@
 <!-- Firebase (Cloud): modul i vetëm, ekspozon window.__stokuCloud për skriptin kryesor.
      Hyrje me emër përdoruesi + fjalëkalim (pa email): emri shndërrohet në një "email" të brendshëm
      (emri@stoku-app.local) vetëm që Firebase Auth ta pranojë; përdoruesi asnjëherë s'e sheh a s'e fut email. -->
-<script type="module" src="firebase-tel.js?v=319"></script>
+<script type="module" src="firebase-tel.js?v=320"></script>
 </body>
 </html>
