@@ -4560,7 +4560,7 @@
   // thjesht klasën), që logjika e tyre (p.sh. konfirmo() që pret përgjigje) të përfundojë saktë.
   var ANULO_SIPAS_DIALOGUT = {
     dlgProdukt: 'dlgAnulo', dlgZhvendos: 'zhvendosAnulo', dlgFshirje: 'fshiAnulo',
-    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgMarketi: 'mkdAnulo', dlgMarketiRi: 'mkrAnulo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgKuSkedari: 'ksAnulo', dlgAfExcel: 'axAnulo', dlgImportStok: 'impAnulo', dlgEkNjoftimet: 'ekNjMbyll', dlgEkNgjarja: 'ekDtMbyll', dlgAfImport: 'aiAnulo', dlgKerkese: 'krkAnulo', dlgKolegu: 'kolAnulo'
+    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgMarketi: 'mkdAnulo', dlgMarketiRi: 'mkrAnulo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgKuSkedari: 'ksAnulo', dlgAfExcel: 'axAnulo', dlgAfEksporto: 'aeAnulo', dlgImportStok: 'impAnulo', dlgEkNjoftimet: 'ekNjMbyll', dlgEkNgjarja: 'ekDtMbyll', dlgAfImport: 'aiAnulo', dlgKerkese: 'krkAnulo', dlgKolegu: 'kolAnulo'
   };
   function mbyllShtresenMeTeFundit() {
     // Kamera del mbi çdo dialog (p.sh. skanimi te "Afat i ri"), prandaj mbyllet e para
@@ -5974,19 +5974,16 @@
   $('axMuaji').addEventListener('change', function () { axMbushFurnizuesit(); axInfoKrejt(); });
   $('axFurn').addEventListener('change', axInfoKrejt);
   $('afEksporto').addEventListener('click', hapEksportinEAfateve);
-  // Butoni "Eksporto" te Afatet (v277; "Importo" u nda në buton të vetin): menu me Excel / PDF / foto
+  // Butoni "Eksporto" te Afatet: v319 (pronari: "dritaret ... importo exporto sjan te njejta bone ... sikur importo") hap dritaren
+  // #dlgAfEksporto (si "Importo": titull, tekst, opsionet si rreshta me ikonë), jo më menynë e vogël
   (function () {
-    var b = $('afExcel'), menu = $('afExcelMenu');
-    function mbyll() { menu.hidden = true; b.setAttribute('aria-expanded', 'false'); }
-    b.addEventListener('click', function (ev) {
-      ev.stopPropagation();
-      menu.hidden = !menu.hidden;
-      b.setAttribute('aria-expanded', menu.hidden ? 'false' : 'true');
-    });
+    var b = $('afExcel');
+    function mbyll() { $('dlgAfEksporto').classList.remove('hapur'); b.setAttribute('aria-expanded', 'false'); }
+    b.addEventListener('click', function () { $('dlgAfEksporto').classList.add('hapur'); b.setAttribute('aria-expanded', 'true'); });
+    $('aeAnulo').addEventListener('click', mbyll);
     $('afEksporto').addEventListener('click', mbyll);
     $('afEksFoto').addEventListener('click', mbyll);
     $('afEksPdf').addEventListener('click', mbyll);
-    document.addEventListener('click', function (ev) { if (!menu.hidden && !menu.parentNode.contains(ev.target)) mbyll(); });
   })();
 
   // ---------- v274: Afatet si foto (JPG) për furnizuesin ----------

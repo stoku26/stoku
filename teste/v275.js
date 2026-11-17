@@ -89,8 +89,8 @@ const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
   {
     const { p, ctx } = await faqe(b, teDhenat());
     await p.click('#afExcel'); await p.waitForTimeout(200);
-    const menu = await p.evaluate(() => Array.from(document.querySelectorAll('#afExcelMenu .sb-menu__item')).filter(x => x.offsetParent).map(x => x.textContent.trim()));
-    ok(menu.join() === 'Eksporto Excel,Eksporto PDF,Eksporto si foto', '1. menuja "Eksporto" me "Eksporto PDF" (v277: pa importin)', menu);
+    const menu = await p.evaluate(() => Array.from(document.querySelectorAll('#afExcelMenu .ae-op')).filter(x => x.offsetParent).map(x => x.querySelector('.ap-em').textContent.trim()));
+    ok(menu.join() === 'Excel,PDF për printim,Si foto', '1. menuja "Eksporto" me "Eksporto PDF" (v277: pa importin)', menu);
     await p.click('#afEksPdf'); await p.waitForTimeout(400);
     let dr = await dritarja(p);
     ok(dr.hapur && dr.rr.join(' | ') === 'Periudha=Të gjitha | Ditët e skanimit=Të gjitha | Furnizuesi=Të gjithë | Renditja=Sipas datës', '2. katër rreshtat, Periudha "Të gjitha" (jo "Krejt")', dr.rr);

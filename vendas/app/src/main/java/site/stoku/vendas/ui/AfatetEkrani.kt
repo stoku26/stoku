@@ -304,32 +304,46 @@ private fun ButoniKatror(teksti: String, ikona: androidx.compose.ui.graphics.vec
     }
 }
 
-/** "Eksporto" (si #afExcel te web-i), me menynë Eksporto Excel / Eksporto PDF (Hyrja 36) / Eksporto si foto (Hyrja 35); importi u nda (Hyrja 38) */
+/** "Eksporto" (si #afExcel te web-i). Hyrja 81 (pronari: "dritaret te afatet importo exporto sjan te njejta bone ... sikur importo"):
+ *  hap një dritare nga poshtë si "Importo" (titull, tekst dhe opsionet si rreshta me ikonë), jo më menynë e vogël */
 @Composable
 private fun MenyjaEksportit(lejaEks: Boolean, lejaPdf: Boolean, modifier: Modifier, eksporto: () -> Unit, pdf: () -> Unit, foto: () -> Unit) {
-    val n = N
     var hapur by remember { mutableStateOf(false) }
-    Box(modifier) {
-        ButoniKatror("Eksporto", Ik.Eksporto, Modifier.fillMaxWidth()) { hapur = !hapur }
-        androidx.compose.material3.DropdownMenu(hapur, { hapur = false }, offset = androidx.compose.ui.unit.DpOffset(0.dp, 6.dp),
-            // v278: në temën e errët menyja dallohet nga faqja (sfond më i çelët + vijë), se hija s'shihet
-            shape = RoundedCornerShape(14.dp), containerColor = if (n.erret) n.surface2 else n.surface, shadowElevation = 12.dp,
-            border = androidx.compose.foundation.BorderStroke(1.dp, if (n.erret) Color(0x29FFFFFF) else n.line),
-            modifier = Modifier.padding(horizontal = 6.dp)) { // Hyrja 40: aq e gjerë sa teksti (pa min 210)
-            // Hyrja 40: me ikonat si te web-i (.sb-menu__item: ikona 18 me ngjyrën muted, 10 dp larg tekstit)
-            listOfNotNull(
-                if (lejaEks) Triple("Eksporto Excel", Ik.ExcelFleta, eksporto) else null,
-                if (lejaPdf) Triple("Eksporto PDF", Ik.Pdf, pdf) else null,
-                if (lejaEks) Triple("Eksporto si foto", Ik.Foto, foto) else null
-            ).forEach { (t, ik, f) ->
-                Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(RoundedCornerShape(10.dp)).clickable { hapur = false; f() }.padding(horizontal = 12.dp),
+    Box(modifier) { ButoniKatror("Eksporto", Ik.Eksporto, Modifier.fillMaxWidth()) { hapur = true } }
+    if (hapur) EksportoFlete(lejaEks, lejaPdf, { hapur = false }, eksporto, pdf, foto)
+}
+
+@Composable
+private fun EksportoFlete(lejaEks: Boolean, lejaPdf: Boolean, mbyll: () -> Unit, eksporto: () -> Unit, pdf: () -> Unit, foto: () -> Unit) {
+    val n = N
+    Flete(mbyll) {
+        Text("Eksporto afatet", style = tx(22, 700, n.ink, -0.02))
+        Text("Zgjidh si do t'i nxjerrësh afatet.", style = tx(14, 400, n.muted))
+        val ops = listOfNotNull(
+            if (lejaEks) listOf("Excel", "Tabelë .xlsx me kolonat që zgjedh", "gjelber", Ik.ExcelFleta, eksporto) else null,
+            if (lejaPdf) listOf("PDF për printim", "Lista e afateve në fletë A4", "kuqe", Ik.Pdf, pdf) else null,
+            if (lejaEks) listOf("Si foto", "Një foto për secilin furnizues, për Viber ose WhatsApp", "blu", Ik.Foto, foto) else null
+        )
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).border(1.dp, n.line, RoundedCornerShape(18.dp))) {
+            ops.forEachIndexed { i, o ->
+                @Suppress("UNCHECKED_CAST") val f = o[4] as () -> Unit
+                val (bg, fg) = n.ikonat[o[2] as String] ?: (n.surface2 to n.ink3)
+                if (i > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(n.line2))
+                Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).clickable { mbyll(); f() }.padding(horizontal = 14.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically) {
-                    Icon(ik, null, Modifier.size(18.dp), tint = n.muted)
-                    Spacer(Modifier.width(10.dp))
-                    Text(t, style = tx(14, 600, n.ink))
+                    Box(Modifier.size(36.dp).clip(RoundedCornerShape(11.dp)).background(bg), contentAlignment = Alignment.Center) {
+                        Icon(o[3] as androidx.compose.ui.graphics.vector.ImageVector, null, Modifier.size(19.dp), tint = fg)
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(o[0] as String, style = tx(15, 600, n.ink))
+                        Text(o[1] as String, style = tx(12, 400, n.muted), modifier = Modifier.padding(top = 1.dp))
+                    }
+                    Icon(Ik.Perpara, null, Modifier.size(18.dp), tint = n.faint)
                 }
             }
         }
+        Buton("Anulo", mbyll, Modifier.fillMaxWidth(), lloji = "tekst")
     }
 }
 

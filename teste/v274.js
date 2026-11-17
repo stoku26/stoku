@@ -73,10 +73,10 @@ const afer = (a, b, t) => a.every((v, i) => Math.abs(v - b[i]) <= (t || 6));
     const { p, ctx } = await faqe(b, 'light');
     await p.click('#btnAfatet'); await p.waitForTimeout(800);
     await p.click('#afExcel'); await p.waitForTimeout(200);
-    const menu = await p.evaluate(() => Array.from(document.querySelectorAll('#afExcelMenu .sb-menu__item')).filter(x => x.offsetParent).map(x => x.textContent.trim()));
-    ok(menu.join() === 'Eksporto Excel,Eksporto PDF,Eksporto si foto', '1. menuja "Eksporto" (v277: importi u nda): Eksporto Excel, (v275: Eksporto PDF), Eksporto si foto', menu);
+    const menu = await p.evaluate(() => Array.from(document.querySelectorAll('#afExcelMenu .ae-op')).filter(x => x.offsetParent).map(x => x.querySelector('.ap-em').textContent.trim()));
+    ok(menu.join() === 'Excel,PDF për printim,Si foto', '1. dritarja "Eksporto" (v319, si "Importo"): Excel, PDF për printim, Si foto', menu);
     await p.click('#afEksFoto'); await p.waitForTimeout(400);
-    const dl = await p.evaluate(() => ({ hapur: document.getElementById('dlgAfEksFoto').classList.contains('hapur'), menu: document.getElementById('afExcelMenu').hidden,
+    const dl = await p.evaluate(() => ({ hapur: document.getElementById('dlgAfEksFoto').classList.contains('hapur'), menu: !document.getElementById('dlgAfEksporto').classList.contains('hapur'),
       titulli: document.getElementById('aefTitulli').textContent, nen: document.getElementById('aefNen').textContent,
       rr: Array.from(document.querySelectorAll('#aefLista .ax-rresht')).map(r => r.innerText.replace(/\s+/g, ' ').trim()),
       krijo: document.getElementById('aefKrijo').textContent, pa: document.getElementById('aefKrijo').disabled, krejt: document.getElementById('aefKrejt').textContent,

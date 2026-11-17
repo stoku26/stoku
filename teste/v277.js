@@ -33,9 +33,9 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
     const sf = await p.evaluate(() => { const e = document.getElementById('afExcel'); return e.scrollWidth <= e.clientWidth; });
     ok(sf, tema + ' 1. "Eksporto" nxë pa u prerë');
     await p.click('#afExcel'); await p.waitForTimeout(200);
-    const m = await p.evaluate(() => Array.from(document.querySelectorAll('#afExcelMenu .sb-menu__item')).filter(x => x.offsetParent).map(x => x.textContent.trim()));
-    ok(m.join() === 'Eksporto Excel,Eksporto PDF,Eksporto si foto', tema + ' 2. "Eksporto" hap menynë (pa importin)', m);
-    await p.click('#afExcel'); await p.waitForTimeout(150);
+    const m = await p.evaluate(() => Array.from(document.querySelectorAll('#afExcelMenu .ae-op')).filter(x => x.offsetParent).map(x => x.querySelector('.ap-em').textContent.trim()));
+    ok(m.join() === 'Excel,PDF për printim,Si foto', tema + ' 2. "Eksporto" hap dritaren (v319, pa importin)', m);
+    await p.click('#aeAnulo'); await p.waitForTimeout(250);
     await p.click('#afImporto'); await p.waitForTimeout(400);
     ok(await p.evaluate(() => !!document.querySelector('.mbulese.hapur #aiSkedari') || document.querySelector('#aiSkedari').closest('.mbulese').classList.contains('hapur')), tema + ' 2. "Importo" hap importin e Excel-it');
     await p.evaluate(() => document.querySelectorAll('.mbulese.hapur').forEach(x => { if (x.id !== 'dlgAfatet') x.classList.remove('hapur'); }));
