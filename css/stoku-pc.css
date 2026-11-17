@@ -21,6 +21,8 @@
 .sbp body { grid-template-rows: minmax(0, 1fr); background: var(--sb-bg); color: var(--sb-ink); -webkit-font-smoothing: antialiased; }
 .sbp .trupi { height: 100vh; height: 100dvh; }
 .sbp .mono { font-family: var(--sb-font); font-variant-numeric: tabular-nums; font-size: 12.5px; letter-spacing: 0; }
+/* v326 (pronari, foto e "Afat i ri": "te barkodi nfush shkronjat tvogla nkrahasim me tjerat"): fushat e barkodit si fushat e tjera */
+.sbp input.inp.mono { font-size: inherit; }
 .sbp [hidden] { display: none !important; }
 
 /* ---------- Anësorja ---------- */

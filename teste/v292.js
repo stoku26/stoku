@@ -19,7 +19,7 @@ const RR = __dirname + '/../';
     P.applyConstraints = function () { return Promise.resolve(); };
   });
 
-  // B) Kamera: zmadhimi poshtë majtas, drita poshtë djathtas
+  // B) Kamera: zmadhimi dhe drita (v326: lart djathtas, si te Android-i)
   await p.click('.folder-karta >> text=Pije'); await p.waitForTimeout(600);
   await p.evaluate(() => { window.__leximet = []; window.__t0.v = performance.now(); });
   await p.click('#btnKamera'); await p.waitForTimeout(700);
@@ -32,9 +32,10 @@ const RR = __dirname + '/../';
     return { w: innerWidth, h: innerHeight, zoom: r('kameraZoom'), drita: r('kameraDrita'), kutiaPoshte: Math.round(k.bottom), lart: document.querySelectorAll('.kamera-veprime .kamera-ikone').length };
   });
   ok(poz.drita.dukt, 'B. drita del kur telefoni e tregon më vonë (rikontrolli pas 1.2 s / 3 s)', poz.drita);
-  ok(poz.zoom.l < poz.w * 0.3 && poz.zoom.t > poz.h * 0.7, 'B. zmadhimi (1×) poshtë majtas', poz.zoom);
-  ok(poz.drita.r > poz.w * 0.7 && poz.drita.t > poz.h * 0.7 && Math.abs(poz.drita.t - poz.zoom.t) < 3, 'B. drita poshtë djathtas, në një vijë me zmadhimin', poz.drita);
-  ok(poz.lart === 0 && poz.zoom.t > poz.kutiaPoshte, 'B. lart te "Mbyll" s\'mbetet asnjë buton; butonat nën kutinë', poz);
+  // v326 (pronari): "bone ... identik si te android appit": zmadhimi dhe drita lart djathtas (para tyre ishin poshtë, v292)
+  ok(poz.zoom.l > poz.w * 0.6 && poz.zoom.b < poz.kutiaPoshte, 'B. v326: zmadhimi (1×) lart djathtas, si te Android-i', poz.zoom);
+  ok(poz.drita.r > poz.w * 0.9 && Math.abs(poz.drita.t - poz.zoom.t) < 3 && poz.drita.l > poz.zoom.r, 'B. v326: drita lart djathtas, pas zmadhimit, në një vijë', poz.drita);
+  ok(poz.lart === 2, 'B. v326: të dy butonat lart (te kontrollet)', poz);
   await p.click('#kameraZoom'); await p.click('#kameraDrita'); await p.waitForTimeout(200);
   st = await p.evaluate(() => ({ zoom: document.getElementById('kameraZoom').textContent, drita: document.getElementById('kameraDrita').classList.contains('aktiv') }));
   ok(st.zoom === '2×' && st.drita, 'B. butonat punojnë si më parë', st);

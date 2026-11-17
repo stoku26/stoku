@@ -165,19 +165,17 @@ fun AfatetExcelFlete(zgjedhura: List<Obj>?, eFiltruara: (String) -> List<Obj>, m
                 (if (emriFurn.isNotEmpty()) " të furnizuesit $emriFurn" else "") else "S'ka afate $st për këtë zgjedhje"
         }
         Text(nen, style = tx(14, 400, n.muted))
-        if (krejt && muajt.isNotEmpty()) {
-            Etiketa("Cili muaj?")
-            CipatRresht {
-                Cip("Të gjithë muajt", null, muaji.isEmpty()) { muaji = "" }
-                muajt.forEach { m -> Cip(m.emri, m.n.toString(), muaji == m.celes) { muaji = m.celes } }
+        // Web v326 (pronari: "asnjona dritare prej ktyne 3jave nuk osht e njejt ... boni sikur te pdf per printim"): rreshta si te PDF-ja
+        val meMuaj = krejt && muajt.isNotEmpty()
+        val meFurn = krejt && !paFurnizues && furnizuesit.size >= 2
+        if (meMuaj || meFurn) {
+            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).border(1.dp, n.line, RoundedCornerShape(18.dp))) {
+                if (meMuaj) RreshtiIOpsionit(Ik.Kalendari, "blu", "Muaji", if (muaji.isEmpty()) "Të gjithë muajt" else muajt.first { it.celes == muaji }.emri,
+                    listOf("" to "Të gjithë muajt") + muajt.map { it.celes to "${it.emri} (${it.n})" }, muaji, true) { muaji = it }
+                if (meFurn) RreshtiIOpsionit(Ik.Kamion, "gjelber", "Furnizuesi", if (emriFurn.isEmpty()) "Të gjithë" else emriFurn,
+                    listOf("" to "Të gjithë furnizuesit") + furnizuesit.map { it.celes to "${it.emri} (${it.n})" }, furn, !meMuaj) { furn = it }
             }
-        }
-        if (krejt && !paFurnizues && furnizuesit.size >= 2) {
-            Etiketa("Cili furnizues?")
-            CipatRresht {
-                Cip("Të gjithë furnizuesit", null, furn.isEmpty()) { furn = "" }
-                furnizuesit.forEach { f -> Cip(f.emri, f.n.toString(), furn == f.celes) { furn = f.celes } }
-            }
+            Text("Prek një rresht për ta ndryshuar", style = tx(12, 400, n.faint), modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Buton("Anulo", mbyll, Modifier.weight(1f), lloji = "tekst")
@@ -267,11 +265,11 @@ fun AfatetPdfFlete(te: List<Obj>, mbyll: () -> Unit, gati: (Skedari) -> Unit) {
 
 /** Hyrja 81: rresht si RreshtiIOpsionit, por prekja hap/mbyll kalendarin (jo listë) */
 @Composable
-private fun RreshtiIButonit(ikona: androidx.compose.ui.graphics.vector.ImageVector, ngjyra: String, emri: String, vlera: String, prek: () -> Unit) {
+private fun RreshtiIButonit(ikona: androidx.compose.ui.graphics.vector.ImageVector, ngjyra: String, emri: String, vlera: String, pa: Boolean = false, prek: () -> Unit) {
     val n = N
     val (bg, fg) = n.ikonat[ngjyra] ?: (n.surface2 to n.ink3)
     Column {
-        Box(Modifier.fillMaxWidth().heightIn(min = 1.dp, max = 1.dp).background(n.line2))
+        if (!pa) Box(Modifier.fillMaxWidth().heightIn(min = 1.dp, max = 1.dp).background(n.line2))
         Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).clickable(onClick = prek).padding(horizontal = 14.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(36.dp).clip(RoundedCornerShape(11.dp)).background(bg), contentAlignment = Alignment.Center) { Icon(ikona, null, Modifier.size(19.dp), tint = fg) }
             Spacer(Modifier.width(12.dp))
@@ -376,46 +374,57 @@ fun AfatetFotoFlete(te: List<Obj>, mbyll: () -> Unit) {
     val paF = Llogaria.eshteMerchandiser()
     val aktive = remember(te) { te.filter { Afatet.statusi(it) != "hequr" }.sortedWith { a, b -> Afatet.krahaso(a, b) } }
     val furn = remember(aktive) { if (paF) emptyList() else Afatet.furnizuesitELista(aktive) }
-    var zgj by remember { mutableStateOf(if (furn.size == 1) setOf(furn[0].celes) else emptySet()) }
+    var zgj by remember { mutableStateOf(furn.map { it.celes }.toSet()) } // web v326: "Të gjithë" në fillim, si te PDF-ja
+    var listaHapur by remember { mutableStateOf(false) }
     var duke by remember { mutableStateOf(false) }
     var kerko by remember { mutableStateOf("") }
     val sk = remember(aktive, furn) { furn.associate { f -> f.celes to aktive.count { Afatet.celesiFurnizuesit(it) == f.celes && Afatet.statusi(it) == "skaduar" } } }
     Flete(mbyll) {
-        // Hyrja 40 (pronari, ideja 5): "Të gjithë" pranë titullit, kërkimi, lart me afate të skaduara e poshtë të tjerët, butoni poshtë
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("Eksporto si foto", style = tx(22, 700, n.ink, -0.02), modifier = Modifier.weight(1f))
-            if (furn.size >= 2) {
-                val krejt = zgj.size == furn.size
-                Lidhje(if (krejt) "Asnjë" else "Të gjithë", { zgj = if (krejt) emptySet() else furn.map { it.celes }.toSet() }, madhesia = 14)
-            }
-        }
-        Text(if (paF) "Të gjitha afatet aktive (${aktive.size}) në një foto." else "Një foto për secilin furnizues.", style = tx(13, 400, n.muted), modifier = Modifier.offset(y = (-8).dp))
-        if (furn.size >= 6) Fusha(kerko, { kerko = it }, Modifier.fillMaxWidth(), "Kërko furnizuesin", ikona = Ik.Kerko, lartesia = 46.dp, sfondi = n.surface2, paVije = true, rrezja = 12.dp)
+        // Web v326: si "PDF për printim": titulli, nëntitulli, rreshti "Furnizuesit" që hap listën (si kalendari te PDF-ja)
+        Text("Eksporto si foto", style = tx(22, 700, n.ink, -0.02))
+        Text(if (paF) "Të gjitha afatet aktive (${aktive.size}) në një foto." else (if (aktive.size == 1) "1 afat" else "${aktive.size} afate") + " · një foto për secilin furnizues",
+            style = tx(14, 400, n.muted))
         if (furn.isNotEmpty()) {
-            val q = kerko.trim().lowercase()
-            val te2 = furn.filter { q.isEmpty() || it.emri.lowercase().contains(q) }
-            val me = te2.filter { (sk[it.celes] ?: 0) > 0 }
-            val pa = te2.filter { (sk[it.celes] ?: 0) == 0 }
-            val lartesia = (androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp * 0.5f).dp
-            Column(Modifier.fillMaxWidth().heightIn(max = lartesia).verticalScroll(rememberScrollState())) {
-                listOf(Triple("ME AFATE TË SKADUARA", me, true), Triple(if (me.isEmpty()) "FURNIZUESIT" else "TË TJERËT", pa, false)).forEach { (t, l, kuq) ->
-                    if (l.isEmpty()) return@forEach
-                    Text(t, style = tx(12, 600, if (kuq) n.exp else n.muted, 0.04), modifier = Modifier.padding(start = 2.dp, top = 6.dp, bottom = 8.dp))
-                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(n.surface2)) {
-                        l.forEachIndexed { i, f ->
-                            if (i > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
-                            RreshtiIFurnizuesit(f.emri, if (f.n == 1) "1 afat" else "${f.n} afate", zgj.contains(f.celes)) {
-                                zgj = if (zgj.contains(f.celes)) zgj - f.celes else zgj + f.celes
-                            }
+            val vlera = when { zgj.isEmpty() -> "Asnjë"; zgj.size == furn.size -> "Të gjithë"; zgj.size == 1 -> furn.first { zgj.contains(it.celes) }.emri; else -> "${zgj.size} të zgjedhur" }
+            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).border(1.dp, n.line, RoundedCornerShape(18.dp))) {
+                RreshtiIButonit(Ik.Kamion, "gjelber", "Furnizuesit", vlera, pa = true) { listaHapur = !listaHapur }
+                if (listaHapur) Column(Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, bottom = 12.dp)) {
+                    Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text("Zgjidh furnizuesit", style = txF(12.5f, 400, n.muted), modifier = Modifier.weight(1f))
+                        if (furn.size >= 2) {
+                            val krejtZ = zgj.size == furn.size
+                            Lidhje(if (krejtZ) "Asnjë" else "Të gjithë", { zgj = if (krejtZ) emptySet() else furn.map { it.celes }.toSet() }, madhesia = 13)
                         }
                     }
-                    Spacer(Modifier.height(8.dp))
+                    if (furn.size >= 6) Fusha(kerko, { kerko = it }, Modifier.fillMaxWidth().padding(bottom = 8.dp), "Kërko furnizuesin", ikona = Ik.Kerko, lartesia = 44.dp, sfondi = n.surface2, paVije = true, rrezja = 12.dp)
+                    val q = kerko.trim().lowercase()
+                    val te2 = furn.filter { q.isEmpty() || it.emri.lowercase().contains(q) }
+                    val me = te2.filter { (sk[it.celes] ?: 0) > 0 }
+                    val pa = te2.filter { (sk[it.celes] ?: 0) == 0 }
+                    val lartesia = (androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp * 0.42f).dp
+                    Column(Modifier.fillMaxWidth().heightIn(max = lartesia).verticalScroll(rememberScrollState())) {
+                        listOf(Triple("ME AFATE TË SKADUARA", me, true), Triple(if (me.isEmpty()) "FURNIZUESIT" else "TË TJERËT", pa, false)).forEach { (t, l, kuq) ->
+                            if (l.isEmpty()) return@forEach
+                            Text(t, style = tx(12, 600, if (kuq) n.exp else n.muted, 0.04), modifier = Modifier.padding(start = 2.dp, top = 6.dp, bottom = 8.dp))
+                            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(n.surface2)) {
+                                l.forEachIndexed { i, f ->
+                                    if (i > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
+                                    RreshtiIFurnizuesit(f.emri, if (f.n == 1) "1 afat" else "${f.n} afate", zgj.contains(f.celes)) {
+                                        zgj = if (zgj.contains(f.celes)) zgj - f.celes else zgj + f.celes
+                                    }
+                                }
+                            }
+                            Spacer(Modifier.height(8.dp))
+                        }
+                        if (me.isEmpty() && pa.isEmpty()) Text("S'u gjet asnjë furnizues.", style = tx(14, 400, n.muted), modifier = Modifier.fillMaxWidth().padding(vertical = 18.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                    }
                 }
-                if (me.isEmpty() && pa.isEmpty()) Text("S'u gjet asnjë furnizues.", style = tx(14, 400, n.muted), modifier = Modifier.fillMaxWidth().padding(vertical = 18.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
             }
+            Text("Prek një rresht për ta ndryshuar", style = tx(12, 400, n.faint), modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
         }
         val nr = if (paF) 1 else zgj.size
-        // Njëri nën tjetrin (në një Row, butoni me fillMaxWidth ua merrte krejt gjerësinë të dy "Anulo"-ve dhe s'dukeshin)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Buton("Anulo", mbyll, Modifier.weight(1f), lloji = "tekst")
         Buton(if (duke) "Duke e krijuar…" else if (nr > 1) "Krijo $nr foto" else "Krijo foton", {
             if (!Llogaria.leja("eksportExcel") || nr == 0 || duke || aktive.isEmpty()) return@Buton
             duke = true
@@ -432,9 +441,8 @@ fun AfatetFotoFlete(te: List<Obj>, mbyll: () -> Unit) {
                 try { EksportiFoto.ndaj(ctx, r, if (grupet?.size == 1) "Afatet: " + grupet[0].emri else "Afatet") }
                 catch (e: Exception) { Toast.trego("S'u hap \"Ndaj\". Provo sërish.") }
             }
-        }, Modifier.fillMaxWidth(), aktiv = nr > 0 && !duke, ikona = Ik.Foto, lartesia = 52.dp)
-        Spacer(Modifier.height(6.dp))
-        Buton("Anulo", mbyll, Modifier.fillMaxWidth(), lloji = "tekst")
+        }, Modifier.weight(1.4f), aktiv = nr > 0 && !duke, ikona = Ik.Foto)
+        }
     }
 }
 

@@ -21,6 +21,14 @@
   'use strict';
 
   var LISTA = [
+    { v: 326, versioni: '1.69.0', data: '2026-11-17', titulli: 'Kamera dhe eksporti', platforma: 'tel', pikat: [
+      'Kamera e skanimit duket si në aplikacionin Android: kutia e bardhë, X lart majtas, zmadhimi dhe drita lart djathtas.',
+      'Kamera fokusohet vetëm brenda kutisë së bardhë, ku vendos barkodin.',
+      'Dritaret "Eksporto në Excel" dhe "Eksporto si foto" tani janë si "PDF për printim": rreshta me ikonë që i prek për t\'i ndryshuar.'
+    ] },
+    { v: 326, versioni: '1.69.0', data: '2026-11-17', titulli: 'Fusha e barkodit', platforma: 'pc', pikat: [
+      'Te "Afat i ri" barkodi shkruhet me shkronja të së njëjtës madhësi si fushat e tjera.'
+    ] },
     { v: 325, versioni: '1.68.1', data: '2026-11-17', titulli: 'Logoja', pikat: [
       'Barkodi kthehet në logo vetëm një herë: te hyrja pas 1 sekonde, dhe lart pas çdo hyrjeje në llogari. Pastaj mbetet logoja, edhe kur e mbyll dhe e hap Stoku-n.'
     ] },

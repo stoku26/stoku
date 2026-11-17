@@ -81,9 +81,14 @@ const afer = (a, b, t) => a.every((v, i) => Math.abs(v - b[i]) <= (t || 6));
       rr: Array.from(document.querySelectorAll('#aefLista .ax-rresht')).map(r => r.innerText.replace(/\s+/g, ' ').trim()),
       krijo: document.getElementById('aefKrijo').textContent, pa: document.getElementById('aefKrijo').disabled, krejt: document.getElementById('aefKrejt').textContent,
       grupet: Array.from(document.querySelectorAll('#aefLista .aef-etiketa')).map(e => e.textContent + ':' + e.nextElementSibling.querySelectorAll('.ax-rresht').length).join(' | ') }));
-    ok(dl.hapur && dl.menu && dl.titulli === 'Eksporto si foto' && /Një foto për secilin furnizues/.test(dl.nen), '2. dritarja "Eksporto si foto" (menuja mbyllet)', dl);
-    ok(dl.rr.join(' | ') === 'Agro Fresh 3 afate | Meridian Group 12 afate | Pa furnizues 1 afat' && dl.grupet === 'Me afate të skaduara:2 | Furnizuesit:0'.replace('Furnizuesit:0', 'Të tjerët:1'), '2. furnizuesit (v279: me afate të skaduara lart, "Pa furnizues" te të tjerët)', dl);
-    ok(dl.pa && dl.krijo === 'Krijo foton' && dl.krejt === 'Të gjithë', '2. pa zgjedhje "Krijo foton" s\'punon', dl);
+    ok(dl.hapur && dl.menu && dl.titulli === 'Eksporto si foto' && /një foto për secilin furnizues/.test(dl.nen), '2. dritarja "Eksporto si foto" (menuja mbyllet)', dl);
+    ok(dl.rr.join(' | ').replace(/ /g, '') === 'Agro Fresh 3 afate | Meridian Group 12 afate | Pa furnizues 1 afat'.replace(/ /g, '') && dl.grupet === 'Me afate të skaduara:2 | Furnizuesit:0'.replace('Furnizuesit:0', 'Të tjerët:1'), '2. furnizuesit (v279: me afate të skaduara lart, "Pa furnizues" te të tjerët)', dl);
+    // v326 (si te PDF-ja): në fillim të gjithë furnizuesit; lista hapet nga rreshti "Furnizuesit"
+    ok(!dl.pa && dl.krijo === 'Krijo 3 foto' && dl.krejt === 'Asnjë' && await p.evaluate(() => document.getElementById('aefPanel').hidden && document.getElementById('aefV').textContent === 'Të gjithë'),
+      '2. v326: në fillim "Të gjithë" (Krijo 3 foto), lista e mbyllur', dl);
+    await p.click('#aefRr'); await p.click('#aefKrejt'); await p.waitForTimeout(100);
+    const k0 = await p.evaluate(() => ({ t: document.getElementById('aefKrijo').textContent, pa: document.getElementById('aefKrijo').disabled, v: document.getElementById('aefV').textContent }));
+    ok(k0.pa && k0.t === 'Krijo foton' && k0.v === 'Asnjë', '2. pa zgjedhje "Krijo foton" s\'punon', k0);
     await p.click('#aefLista .ax-rresht >> nth=1'); await p.click('#aefLista .ax-rresht >> nth=0'); await p.waitForTimeout(100);
     const k2 = await p.evaluate(() => ({ t: document.getElementById('aefKrijo').textContent, pa: document.getElementById('aefKrijo').disabled }));
     ok(k2.t === 'Krijo 2 foto' && !k2.pa, '2. dy të zgjedhur: "Krijo 2 foto"', k2);
@@ -111,6 +116,7 @@ const afer = (a, b, t) => a.every((v, i) => Math.abs(v - b[i]) <= (t || 6));
     const { p, ctx } = await faqe(b, 'dark');
     await p.click('#btnAfatet'); await p.waitForTimeout(800);
     await p.click('#afExcel'); await p.click('#afEksFoto'); await p.waitForTimeout(300);
+    await p.click('#aefRr'); await p.click('#aefKrejt'); // v326: në fillim të gjithë
     await p.click('#aefLista .ax-rresht >> nth=1'); await p.click('#aefKrijo'); await p.waitForTimeout(1500);
     const f = await fotot(p);
     ok(f && f.r.length === 1 && f.title === 'Afatet: Meridian Group' && afer(f.r[0].sfondi, [15, 17, 21]), '4. tema e errët: sfondi #0f1115', f && { t: f.title, s: f.r[0].sfondi });
@@ -125,6 +131,7 @@ const afer = (a, b, t) => a.every((v, i) => Math.abs(v - b[i]) <= (t || 6));
     await p.evaluate(() => { navigator.canShare = undefined; navigator.share = undefined; });
     await p.click('#btnAfatet'); await p.waitForTimeout(800);
     await p.click('#afExcel'); await p.click('#afEksFoto'); await p.waitForTimeout(300);
+    await p.click('#aefRr'); await p.click('#aefKrejt'); // v326: në fillim të gjithë
     await p.click('#aefLista .ax-rresht >> nth=0');
     const [sh] = await Promise.all([p.waitForEvent('download', { timeout: 5000 }).catch(() => null), p.click('#aefKrijo')]);
     await p.waitForTimeout(500);

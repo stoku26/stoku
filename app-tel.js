@@ -287,7 +287,7 @@
 
     { id: 'kameraDrejtoje', prop: 'text', kyc: 'kameraDrejtoje' },
     { id: 'skanHint', prop: 'text', kyc: 'kameraHint' },
-    { id: 'mbyllKamere', prop: 'text', kyc: 'mbyll' }
+    { id: 'mbyllKamere', prop: 'title', kyc: 'mbyll' } // v326: X si te Android-i (teksti vetëm për lexuesin e ekranit)
   ];
 
   function perkthoStatiket() {
@@ -3928,21 +3928,43 @@
   // Autofokus i vazhdueshëm (nëse kamera e mbështet); thirret pas nisjes si masë shtesë sigurie,
   // meqë disa shfletues (sidomos Android Chrome) e injorojnë focusMode kur jepet vetëm te getUserMedia.
   // v291: kthen 'continuous' | 'single-shot' | '' sipas asaj që u vendos
-  async function aplikoAutofokusin() {
+  // v326 (pronari: "fokusi i kamerës me u kon 100% gjatë gjithë kohës vetëm brenda kutisë së barkodit"): pika e fokusit (dhe e dritës
+  // së figurës) është gjithmonë brenda kutisë së bardhë: mesi i saj, ose pika e prekur e kufizuar brenda kutisë. Koordinatat janë
+  // të figurës së kamerës (0..1), jo të ekranit: video shfaqet me object-fit: cover, prandaj llogaritet pjesa e prerë.
+  function pikaNeFigure(x, y) {
+    var v = $('kameraVideo'), k = document.querySelector('.skan-korniza');
+    var rv = v && v.getBoundingClientRect(), rk = k && k.getBoundingClientRect();
+    if (!rv || !rk || !rk.width || !rv.width) return null;
+    if (x === undefined) { x = rk.left + rk.width / 2; y = rk.top + rk.height / 2; }
+    x = Math.min(rk.right - 4, Math.max(rk.left + 4, x)); y = Math.min(rk.bottom - 4, Math.max(rk.top + 4, y));
+    var vw = v.videoWidth || rv.width, vh = v.videoHeight || rv.height;
+    var s = Math.max(rv.width / vw, rv.height / vh), ox = (rv.width - vw * s) / 2, oy = (rv.height - vh * s) / 2;
+    return { x: Math.min(1, Math.max(0, (x - rv.left - ox) / s / vw)), y: Math.min(1, Math.max(0, (y - rv.top - oy) / s / vh)) };
+  }
+  window.__stokuPikaEFokusit = pikaNeFigure; // për testet
+  async function aplikoAutofokusin(pika) {
     try {
       var t = trackuIKameres();
       if (!t || !t.getCapabilities || t.readyState === 'ended') return '';
       var cap = t.getCapabilities();
       var m = (cap && cap.focusMode) || [];
-      if (m.indexOf('continuous') !== -1) { await t.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }); return 'continuous'; }
+      var menyra = m.indexOf('continuous') !== -1 ? 'continuous' : (m.indexOf('single-shot') !== -1 ? 'single-shot' : '');
       // v291: disa telefona (Chrome në Android) s'e ofrojnë fokusin e vazhdueshëm, vetëm "single-shot": fokusohet sa herë thirret
-      if (m.indexOf('single-shot') !== -1) { await t.applyConstraints({ advanced: [{ focusMode: 'single-shot' }] }); return 'single-shot'; }
+      var p = pika || pikaNeFigure();
+      var k = {};
+      if (menyra) k.focusMode = menyra;
+      if (p) k.pointsOfInterest = [p];
+      if (!Object.keys(k).length) return '';
+      // Telefoni që s'e njeh pikën kalon te grupi i dytë (vetëm fokusi), që fokusi të mos humbet
+      try { await t.applyConstraints({ advanced: menyra && p ? [k, { focusMode: menyra }] : [k] }); }
+      catch (e) { if (!menyra) return ''; await t.applyConstraints({ advanced: [{ focusMode: menyra }] }); } // pa pikë, vetëm fokusi
+      return menyra;
     } catch (e) { /* mbetet fokusi i parazgjedhur i telefonit */ }
     return '';
   }
   // v291 (pronari: "autofokusi i kamerës s'po bën"): fokusi vendoset disa herë pas nisjes (disa telefona e harrojnë kërkesën e
   // parë, sa ndizet kamera), dhe kur kamera ka vetëm fokus "single-shot" ripërsëritet çdo 2.5 s sa kohë skanohet
-  var fokusKohezat = [], fokusIntervali = null;
+  var fokusKohezat = [], fokusIntervali = null, fokusPrekur = 0;
   function ndalFokusin() {
     fokusKohezat.forEach(clearTimeout); fokusKohezat = [];
     if (fokusIntervali) { clearInterval(fokusIntervali); fokusIntervali = null; }
@@ -3950,8 +3972,9 @@
   async function mbajFokusin() {
     ndalFokusin();
     var menyra = await aplikoAutofokusin();
-    [700, 2000].forEach(function (ms) { fokusKohezat.push(setTimeout(aplikoAutofokusin, ms)); });
-    if (menyra === 'single-shot') fokusIntervali = setInterval(aplikoAutofokusin, 2500);
+    [700, 2000].forEach(function (ms) { fokusKohezat.push(setTimeout(function () { aplikoAutofokusin(); }, ms)); });
+    // v326: edhe me fokus të vazhdueshëm pika rivendoset çdo 2.5 s (disa telefona e harrojnë dhe kthehen te mesi i figurës)
+    if (menyra) fokusIntervali = setInterval(function () { if (Date.now() - fokusPrekur > 1500) aplikoAutofokusin(); }, 2500);
   }
 
   async function pasNisjes() {
@@ -4026,20 +4049,22 @@
       this.classList.toggle('aktiv', kontrolletKam.drita);
     } catch (e) { /* ky telefon s'e lejon */ }
   });
-  // Prek figurën → fokusohet aty (pastaj kthehet te autofokusi i vazhdueshëm)
+  // Prek figurën → fokusohet aty, por vetëm brenda kutisë (prekja jashtë saj merr pikën më të afërt të kutisë); pas 1.5 s mesi i kutisë
   $('kameraVideo').addEventListener('click', async function (ev) {
     var t = trackuIKameres();
     if (!t || !t.getCapabilities) return;
     var cap = t.getCapabilities();
-    if (!cap.focusMode || cap.focusMode.indexOf('single-shot') === -1) return;
-    var r = this.getBoundingClientRect();
-    var pika = { x: Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width)), y: Math.min(1, Math.max(0, (ev.clientY - r.top) / r.height)) };
+    var pika = pikaNeFigure(ev.clientX, ev.clientY);
+    if (!pika) return;
+    fokusPrekur = Date.now();
+    var m = cap.focusMode || [];
     try {
-      await t.applyConstraints({ advanced: [{ pointsOfInterest: [pika], focusMode: 'single-shot' }] });
+      var ss = m.indexOf('single-shot') !== -1;
+      await t.applyConstraints({ advanced: ss ? [{ pointsOfInterest: [pika], focusMode: 'single-shot' }, { focusMode: 'single-shot' }] : [{ pointsOfInterest: [pika] }] });
     } catch (e) {
-      try { await t.applyConstraints({ advanced: [{ focusMode: 'single-shot' }] }); } catch (e2) { return; }
+      try { if (m.indexOf('single-shot') !== -1) await t.applyConstraints({ advanced: [{ focusMode: 'single-shot' }] }); else return; } catch (e2) { return; }
     }
-    setTimeout(aplikoAutofokusin, 1500);
+    setTimeout(function () { aplikoAutofokusin(); }, 1500);
   });
 
   function krijoSkanerin() {
@@ -5965,6 +5990,7 @@
     $('axFurnRresht').hidden = true;
     $('axNen').textContent = n === 1 ? '1 afat i zgjedhur' : n + ' afate të zgjedhura';
     $('axEksporto').disabled = false;
+    axVlerat();
     $('dlgAfExcel').classList.add('hapur');
   }
   function hapEksportinEAfateve() {
@@ -5993,6 +6019,13 @@
     // Me vetëm një furnizues (ose asnjë) zgjedhja s'ka kuptim
     $('axFurnRresht').hidden = lista.length < 2;
   }
+  // v326: vlerat te rreshtat (si apVlera te PDF-ja: pa numrin në kllapa)
+  function axVlerat() {
+    var v = function (s) { var o = s.options[s.selectedIndex]; return o ? o.textContent.replace(/\s*\(\d+\)$/, '') : ''; };
+    $('axMuajiV').textContent = v($('axMuaji')); $('axFurnV').textContent = v($('axFurn'));
+    var ka = !$('axMuajiRresht').hidden || !$('axFurnRresht').hidden;
+    $('axRreshtat').style.display = ka ? '' : 'none'; $('axHint').hidden = !ka;
+  }
   function axAfatetEKrejt() {
     var f = paFurnizues() ? '' : $('axFurn').value;
     return afatetEFiltruara($('axMuaji').value).filter(function (a) { return !f || AF.celesiFurnizuesit(a) === f; });
@@ -6007,6 +6040,7 @@
     var fe = axEmriFurnizuesit();
     $('axNen').textContent = n ? 'Do të eksportohen ' + (n === 1 ? '1 afat' : n + ' afate') + (afFiltri !== 'aktive' ? ' (' + st + ')' : '') + (fe ? ' të furnizuesit ' + fe : '') : 'S\'ka afate ' + st + ' për këtë zgjedhje';
     $('axEksporto').disabled = !n;
+    axVlerat();
   }
   $('axMuaji').addEventListener('change', function () { axMbushFurnizuesit(); axInfoKrejt(); });
   $('axFurn').addEventListener('change', axInfoKrejt);
@@ -6039,6 +6073,9 @@
     $('aefKrijo').disabled = !n;
     $('aefKrijoT').textContent = n > 1 ? 'Krijo ' + n + ' foto' : 'Krijo foton';
     $('aefKrejt').textContent = aefFurn.length && n === aefFurn.length ? 'Asnjë' : 'Të gjithë';
+    // v326: vlera te rreshti "Furnizuesit"
+    var zg = aefFurn.filter(function (f) { return aefZgj[f.celes]; });
+    $('aefV').textContent = !n ? 'Asnjë' : n === aefFurn.length ? 'Të gjithë' : n === 1 ? zg[0].emri : n + ' të zgjedhur';
     Array.prototype.forEach.call(document.querySelectorAll('#aefLista input'), function (i) { i.checked = !!aefZgj[i.value]; });
   }
   function aefNormalizo(t) { return String(t || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
@@ -6076,13 +6113,14 @@
     aefFurn = pa ? [] : AF.furnizuesitELista(te);
     aefFurn.forEach(function (f) { f.sk = te.filter(function (a) { return AF.celesiFurnizuesit(a) === f.celes && AF.statusi(a) === 'skaduar'; }).length; });
     aefZgj = {};
-    if (aefFurn.length === 1) aefZgj[aefFurn[0].celes] = 1;
+    aefFurn.forEach(function (f) { aefZgj[f.celes] = 1; }); // v326: si te PDF-ja, "Të gjithë" në fillim
+    $('aefPanel').hidden = true; $('aefRr').setAttribute('aria-expanded', 'false');
     $('aefKerko').value = '';
     aefVizatoListen();
-    $('aefLista').hidden = pa;
+    $('aefRreshtat').hidden = pa; $('aefHint').hidden = pa;
     $('aefKerkoKuti').hidden = pa || aefFurn.length < 6;
     $('aefKrejt').hidden = pa || aefFurn.length < 2;
-    $('aefNen').textContent = pa ? 'Të gjitha afatet aktive (' + te.length + ') në një foto.' : 'Një foto për secilin furnizues.';
+    $('aefNen').textContent = pa ? 'Të gjitha afatet aktive (' + te.length + ') në një foto.' : (te.length === 1 ? '1 afat' : te.length + ' afate') + ' · një foto për secilin furnizues';
     aefRifresko();
     $('dlgAfEksFoto').classList.add('hapur');
   }
@@ -6126,6 +6164,7 @@
     aefRifresko();
   });
   $('aefKrijo').addEventListener('click', aefKrijo);
+  $('aefRr').addEventListener('click', function () { var h = !$('aefPanel').hidden; $('aefPanel').hidden = h; this.setAttribute('aria-expanded', h ? 'false' : 'true'); });
   $('aefKerko').addEventListener('input', function () { aefVizatoListen(); });
 
   // ---------- v275: Afatet në PDF për printim ----------
