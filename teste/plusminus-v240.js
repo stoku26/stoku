@@ -56,8 +56,10 @@ const FARA = () => {
         await p.click('#btnEkipi'); await p.waitForTimeout(1500);
         await p.evaluate(() => [...document.querySelectorAll('#dlgEkipi button, #dlgEkipi [role=tab], #dlgEkipi a')].find(x => x.textContent.trim() === 'Kolegët').click());
         await p.waitForTimeout(800);
-        const tx = await p.evaluate(() => document.getElementById('dlgEkipi').innerText);
-        ok(!/Butonat \+\/-/.test(tx) && /Menaxho kolegët/i.test(tx), '1. tel Grupi: pa "Butonat +/-", "Menaxho kolegët" mbetet', { butonat: /Butonat/.test(tx), menaxho: /Menaxho/i.test(tx), fund: tx.slice(-300) });
+        // v320: "Menaxho kolegët" është te "Cilësimet e grupit" (butoni me tri pika)
+        await p.click('#ekGrupiCil'); await p.waitForTimeout(400);
+        const tx = await p.evaluate(() => document.getElementById('dlgEkipi').innerText + '\n' + document.getElementById('dlgGrupiCil').innerText);
+        ok(!/Butonat \+\/-/.test(tx) && /Menaxho kolegët/i.test(tx), '1. tel Grupi: pa "Butonat +/-", "Menaxho kolegët" mbetet (te Cilësimet e grupit)', { butonat: /Butonat/.test(tx), menaxho: /Menaxho/i.test(tx), fund: tx.slice(-300) });
       }
       ok(!gab.length, '1. ' + (pc ? 'PC' : 'tel') + ': pa gabime JS', gab);
       await ctx.close();
