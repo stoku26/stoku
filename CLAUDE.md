@@ -28,6 +28,9 @@ Përditësoje në të njëjtin PR me çdo ndryshim domethënës.
   dhe përshtat Kotlinin (testet e krahasojnë me web-in).
 - stoku.site = GitHub Pages pas Cloudflare. Worker-in, rregullat e Firebase-it dhe Cloudflare-in i vendos **pronari**
   (unë s'kam qasje): jepja kodin ose hapat.
+- Rregullat e Firebase (pronari, 17.11.2026: "Qoma gjithmon fajlin per firebase hi aty e mar"): sa herë ndryshojnë, dërgoja
+  GJITHMONË si skedar krejt rregullat (`node teste/emu/rregullat.js > rregullat-firestore.txt` te scratchpad + SendUserFile), jo
+  vetëm pjesën e re dhe jo të kopjuara me dorë në chat (në chat u gabua një herë 'lista' → 'lemma').
 
 - Temat e ngjyrave (v310): `css/stoku-temat.css`, lista te `temat.js` dhe `vendas/.../ui/Temat.kt` i shkruan VETËM
   `python3 teste/temat-gjenero.py` (mos i ndrysho me dorë).
