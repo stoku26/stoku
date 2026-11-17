@@ -7514,7 +7514,7 @@
       if (pronar) {
         var br = ekEl('button', 'ek-laps-btn'); br.type = 'button'; br.id = 'ekRiemerto';
         br.setAttribute('aria-label', 'Ndrysho emrin e grupit'); br.title = 'Ndrysho emrin e grupit';
-        br.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>';
+        br.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>';
         br.addEventListener('click', function () { ekRiemertim = true; vizatoEkipen(); });
         kk.appendChild(br);
       }
@@ -7523,7 +7523,7 @@
     if (pronar) {
       var bFto = ekEl('button', 'ek-fto-btn' + (ekFtoHapur ? ' on' : '')); bFto.type = 'button'; bFto.id = 'ekFtoHap';
       bFto.setAttribute('aria-label', 'Fto një shok në grup'); bFto.setAttribute('aria-expanded', ekFtoHapur ? 'true' : 'false'); bFto.title = 'Fto një shok në grup';
-      bFto.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M19 8v6M22 11h-6"></path></svg>';
+      bFto.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M19 8v6M22 11h-6"></path></svg>';
       bFto.addEventListener('click', function () {
         ekFtoHapur = !ekFtoHapur; vizatoEkipen();
         if (ekFtoHapur) setTimeout(function () { var x = $('ekFtoEmri'); if (x) x.focus(); }, 30);
@@ -7533,7 +7533,7 @@
     if (pronar || ekK.eshteAdmin()) {
       var bCil = ekEl('button', 'ek-cil-btn'); bCil.type = 'button'; bCil.id = 'ekGrupiCil';
       bCil.setAttribute('aria-label', 'Cilësimet e grupit'); bCil.title = 'Cilësimet e grupit';
-      bCil.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5h.01M12 12h.01M12 19h.01"></path></svg>';
+      bCil.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5h.01M12 12h.01M12 19h.01"></path></svg>';
       bCil.addEventListener('click', function () { vizatoCilesimetEGrupit(); $('dlgGrupiCil').classList.add('hapur'); });
       kr.appendChild(bCil);
     }

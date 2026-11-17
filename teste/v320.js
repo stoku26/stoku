@@ -64,8 +64,8 @@ const ADM = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
       pill: /Ndrysho emrin/.test(t), menaxho: /Menaxho kolegët/.test(t), llog: /Llogaritë e tjera/.test(t), njoft: /Njoftim për të gjithë|Dërgo te i gjithë grupi/.test(t),
       ta: !!document.getElementById('ekAdminTekst') };
   });
-  ok(r.karta && r.plus && r.cil && r.karta.h === r.plus.h && r.plus.h === r.cil.h && r.plus.w === r.plus.h && r.cil.w === r.cil.h && r.plus.h >= 60 && r.karta.top === r.plus.top && r.plus.top === r.cil.top,
-    '1. karta, + dhe ⋮: e njëjta lartësi, katrorë, në të njëjtën vijë', r);
+  ok(r.karta && r.plus && r.cil && r.karta.h === r.plus.h && r.plus.h === r.cil.h && r.plus.w === r.plus.h && r.cil.w === r.cil.h && r.plus.h >= 48 && r.plus.h <= 56 && r.karta.top === r.plus.top && r.plus.top === r.cil.top,
+    '1. karta, + dhe ⋮: e njëjta lartësi (56, më e hollë), katrorë, në të njëjtën vijë', r);
   ok(r.laps && r.laps.w <= 40 && !r.pill, '1. "Ndrysho emrin" = laps i vogël (pa tekst)', r.laps);
   ok(!r.menaxho && !r.llog && !r.njoft && !r.ta, '2/3. te faqja: pa "Menaxho kolegët", pa "Llogaritë e tjera", pa njoftimin e grupit', r);
   await tel.screenshot({ path: SC + 'v320-koleget.png' });
@@ -89,7 +89,7 @@ const ADM = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
   const ko = await faqe(false, 'u3', 'drini');
   await ko.click('#btnEkipi'); await ko.waitForTimeout(1200);
   await ko.click('#ekMenu button[data-n="anetaret"]'); await ko.waitForTimeout(800);
-  ok(await ko.evaluate(() => !document.getElementById('ekFtoHap') && !document.getElementById('ekGrupiCil') && !document.getElementById('ekRiemerto') && document.querySelector('.ek-grupi-karta').getBoundingClientRect().height >= 60),
+  ok(await ko.evaluate(() => !document.getElementById('ekFtoHap') && !document.getElementById('ekGrupiCil') && !document.getElementById('ekRiemerto') && document.querySelector('.ek-grupi-karta').getBoundingClientRect().height >= 48),
     '1. kolegu (jo admin): vetëm karta, pa +, ⋮ dhe laps');
   ok(!ko.__gab.length, '1. pa gabime JS', ko.__gab);
   // PC

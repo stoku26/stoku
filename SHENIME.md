@@ -57,9 +57,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    "balancoj qeto komplet ... grupi yt me at butonin per shtim ... butonin ndrysho emrin bone me ikon tvogel ... shtoje edhe ni buton me
    tri pika vertikal per cilesime te grupit ... komplet i balancon jo njo e madhe njo e vogel", "menaxho koleget e shtin mrena cilesimeve
    te grupit te qaj butoni ... me tri pika", "e fshin komplet te rrethekumen (Njoftim për të gjithë grupin) ... mos le naj gjurm".
-   - Web tel (`app-tel.js`, `index.html`) + Android (`GrupiEkrani.kt`, `Ik.TrePika`): rreshti "Grupi yt" 72 px (web `.ek-grupi-rresht`,
+   - Web tel (`app-tel.js`, `index.html`) + Android (`GrupiEkrani.kt`, `Ik.TrePika`): rreshti "Grupi yt" 56 px (fillimisht 72; pronari: "mat
+     holl komplet se gjon shum"; web `.ek-grupi-rresht`,
      zoom-i e zvogëlon njësoj): karta + "+" (katror, i kaltër) + "⋮" (katror, i bardhë me kufi; pronari ose administratori).
-     "Ndrysho emrin" = laps 38 px brenda kartës (`#ekRiemerto`). "⋮" (`#ekGrupiCil`) hap `#dlgGrupiCil` / `Flete` "Cilësimet e grupit":
+     "Ndrysho emrin" = laps 34 px brenda kartës (`#ekRiemerto`). "⋮" (`#ekGrupiCil`) hap `#dlgGrupiCil` / `Flete` "Cilësimet e grupit":
      "Menaxho kolegët" (pronari: Bëje admin / Hiq / Fshi) + "Llogaritë e tjera (vetëm administratori)". Te faqja s'janë më.
      `vizatoPanelinEPronarit` → `vizatoMenaxhimin`; dritarja rifreskohet bashkë me grupin; konfirmimi del mbi të (z-index 26 > 24).
      PC: vetëm u hoq njoftimi (paneli "Admini i grupit" mbetet me "Pastro të gjithë aktivitetin").

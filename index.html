@@ -728,16 +728,18 @@
   .ll-paj .af-pill { flex: none; }
   .ll-paj-krejt { width: 100%; margin: 4px 0 8px; }
   /* v319: "Grupi yt" më e ngushtë + butoni katror "Fto" (një njeri me plus).
-     v320 (pronari: "balancoj qeto komplet ... jo njo e madhe njo e vogel"): karta, "+" dhe "⋮" me të njëjtën lartësi (72 px);
+     v320 (pronari: "balancoj qeto komplet ... jo njo e madhe njo e vogel"): karta, "+" dhe "⋮" me të njëjtën lartësi (56 px: "mat holl komplet se gjon shum");
      "Ndrysho emrin" = laps i vogël brenda kartës */
-  .ek-grupi-rresht { display: flex; gap: 10px; align-items: stretch; height: 72px; margin: 2px 0 12px; }
-  .ek-grupi-rresht .ek-grupi-karta { flex: 1; min-width: 0; margin: 0; padding: 0 12px 0 16px; gap: 10px; }
-  .ek-fto-btn, .ek-cil-btn { flex: none; width: 72px; height: 72px; border: 0; border-radius: 18px; background: var(--sb-accent, var(--primar)); color: #fff;
+  .ek-grupi-rresht { display: flex; gap: 8px; align-items: stretch; height: 56px; margin: 2px 0 12px; }
+  .ek-grupi-rresht .ek-grupi-karta { flex: 1; min-width: 0; margin: 0; padding: 0 9px 0 14px; gap: 8px; border-radius: 16px; }
+  .ek-grupi-rresht .tk b { font-size: 16px; line-height: 1.2; }
+  .ek-grupi-rresht .tk span { font-size: 12px; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ek-fto-btn, .ek-cil-btn { flex: none; width: 56px; height: 56px; border: 0; border-radius: 16px; background: var(--sb-accent, var(--primar)); color: #fff;
     display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; padding: 0; }
   .ek-fto-btn:active, .ek-cil-btn:active, .ek-laps-btn:active { transform: scale(.96); }
   .ek-fto-btn.on { background: var(--sb-surface-2, var(--sfond)); color: var(--sb-accent, var(--primar)); box-shadow: 0 0 0 1px var(--sb-line, var(--vije)); }
   .ek-cil-btn { background: var(--sb-surface, var(--karta)); color: var(--sb-ink, var(--tekst)); box-shadow: 0 0 0 1px var(--sb-line, var(--vije)); }
-  .ek-laps-btn { flex: none; width: 38px; height: 38px; border: 0; border-radius: 12px; padding: 0; cursor: pointer; display: flex; align-items: center;
+  .ek-laps-btn { flex: none; width: 34px; height: 34px; border: 0; border-radius: 10px; padding: 0; cursor: pointer; display: flex; align-items: center;
     justify-content: center; background: var(--sb-surface-2, var(--sfond)); color: var(--sb-ink-2, var(--tekst)); -webkit-tap-highlight-color: transparent; }
   #dlgGrupiCil { z-index: 24; }
   #dlgGrupiCil .dialog { max-width: 520px; max-height: calc(100vh - 40px); overflow-y: auto; }
@@ -745,6 +747,7 @@
   .ek-rresht-forma { display: flex; gap: 8px; margin: 4px 0 6px; }
   .ek-rresht-forma input { flex: 1; min-width: 0; height: 46px; }
   .ek-rresht-forma .btn { flex: none; height: 46px; padding: 0 16px; }
+  .ek-grupi-karta .ek-rresht-forma input, .ek-grupi-karta .ek-rresht-forma .btn { height: 40px; }
   .ek-ftesa { flex-wrap: wrap; }
   .ek-ftesa .btn.tekst { height: 38px; padding: 0 10px; }
   .ek-kerko-grupin { margin: 0 0 4px; }

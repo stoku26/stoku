@@ -982,9 +982,9 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
             // Hyrja 82 (pronari, foto: "balancoj qeto komplet ... butonin ndrysho emrin bone me ikon tvogel ... shtoje edhe ni buton me tri
             // pika vertikal per cilesime te grupit ... komplet i balancon jo njo e madhe njo e vogel"): karta, "+" dhe "⋮" me të njëjtën lartësi
             val meCilesime = pronar || Admini.eshteAdmin()
-            Row(Modifier.fillMaxWidth().height(72.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(18.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(18.dp))
-                .padding(start = 16.dp, end = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(Modifier.fillMaxWidth().height(56.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) { // "mat holl komplet se gjon shum"
+            Row(Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(16.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(16.dp))
+                .padding(start = 14.dp, end = 9.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (pronar && riemertim) {
                     fun ruaj() {
                         val em = emriRi.trim()
@@ -994,28 +994,28 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
                             if (r == null) riemertim = false else Toast.trego("Emri s'u ndryshua. Kontrollo internetin.", 4000)
                         }
                     }
-                    Fusha(emriRi, { emriRi = it.take(60) }, Modifier.weight(1f), kurVeprim = { ruaj() }, lartesia = 46.dp)
-                    Buton("Ruaj", { ruaj() }, lartesia = 46.dp)
+                    Fusha(emriRi, { emriRi = it.take(60) }, Modifier.weight(1f), kurVeprim = { ruaj() }, lartesia = 40.dp)
+                    Buton("Ruaj", { ruaj() }, lartesia = 40.dp)
                 } else {
                     Column(Modifier.weight(1f)) {
-                        Text(emriG, style = tx(17, 800, n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text((if (pronar) "Ti je admin i grupit" else "Koleg i grupit") + " · " + nrKolege(an.size), style = tx(13, 400, n.muted),
-                            maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp))
+                        Text(emriG, style = tx(16, 800, n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text((if (pronar) "Ti je admin i grupit" else "Koleg i grupit") + " · " + nrKolege(an.size), style = tx(12, 400, n.muted),
+                            maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 1.dp))
                     }
-                    if (pronar) Box(Modifier.size(38.dp).clip(RoundedCornerShape(12.dp)).background(n.surface2).clickable { emriRi = emriG; riemertim = true }
+                    if (pronar) Box(Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(n.surface2).clickable { emriRi = emriG; riemertim = true }
                         .semantics { contentDescription = "Ndrysho emrin e grupit" }, contentAlignment = Alignment.Center) {
-                        Icon(Ik.Laps, null, Modifier.size(18.dp), tint = n.ink2)
+                        Icon(Ik.Laps, null, Modifier.size(16.dp), tint = n.ink2)
                     }
                 }
             }
-            if (pronar) Box(Modifier.size(72.dp).clip(RoundedCornerShape(18.dp))
-                .background(if (ftoHapur) n.surface2 else n.accent).border(if (ftoHapur) 1.dp else 0.dp, n.line, RoundedCornerShape(18.dp))
+            if (pronar) Box(Modifier.size(56.dp).clip(RoundedCornerShape(16.dp))
+                .background(if (ftoHapur) n.surface2 else n.accent).border(if (ftoHapur) 1.dp else 0.dp, n.line, RoundedCornerShape(16.dp))
                 .clickable { ftoHapur = !ftoHapur }.semantics { contentDescription = "Fto një shok në grup" }, contentAlignment = Alignment.Center) {
-                Icon(Ik.FtoKoleg, null, Modifier.size(26.dp), tint = if (ftoHapur) n.accent else Color.White)
+                Icon(Ik.FtoKoleg, null, Modifier.size(22.dp), tint = if (ftoHapur) n.accent else Color.White)
             }
-            if (meCilesime) Box(Modifier.size(72.dp).clip(RoundedCornerShape(18.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(18.dp))
+            if (meCilesime) Box(Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(16.dp))
                 .clickable { cilesimet = true }.semantics { contentDescription = "Cilësimet e grupit" }, contentAlignment = Alignment.Center) {
-                Icon(Ik.TrePika, null, Modifier.size(26.dp), tint = n.ink)
+                Icon(Ik.TrePika, null, Modifier.size(22.dp), tint = n.ink)
             }
             }
         }
