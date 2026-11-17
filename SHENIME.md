@@ -63,6 +63,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      `--pg`) dhe fëmijëve u jep `pg-pas` (margin pas) ose `pg-para` (pas tekstit të lirë); MutationObserver + kontroll pas klikimit.
      Shfletuesit e rinj: s'bën asgjë. `color-mix()` (3 te index.html) mbetet: vetëm ngjyrë, s'e prish faqen.
    - Test `teste/v319-tv.js` (pa inset/:is/:has në listë; pa flex-gap hapësira mes ikonës dhe tekstit mbetet). Pa test në TV të vërtetë.
+   - Pronari: "Qfar ka te re u fshi, kontrollo 100% projektin": mbetej te `privatesia.html` ("Ndryshimet e mëdha njoftohen te
+     \"Çfarë ka të re\"") u hoq; data 17 nëntor 2026; privatësia tani përmend edhe "Pajisjet ku je i kyçur". README e Android-it
+     u pastrua; klasa `ops-nav-terejat` → `ops-nav-privatesia` (pc.html); `njoftoTeRejat` → `njoftoLlogaritEReja` (Admini.kt, llogaritë
+     e reja te administratori, s'kishte lidhje). v319-tv.js kontrollon krejt skedarët e git-it (pa komentet) që "Çfarë ka të re" s'mbetet.
 
 0000000. **v319 / Android Hyrja 81 (17.11.2026): PAJISJET E LLOGARISË, KALENDARI I PDF-SË, EKSPORTO SI IMPORTO, GRUPI, IKONA E WEB APP-IT**.
    Pronari (5 foto + foto e ikonave):

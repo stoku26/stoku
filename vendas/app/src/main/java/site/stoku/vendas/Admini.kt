@@ -92,14 +92,14 @@ object Admini {
                 Llogaria(d.id, emri, (x["kycurSe"] as? Number)?.toLong() ?: 0L, (x["krijuarSe"] as? Number)?.toLong() ?: 0L,
                     x["grupi"] as? String, Lejet.eshteAdmin(d.id), x["merchandiser"] == true)
             }
-            njoftoTeRejat()
+            njoftoLlogaritEReja()
             zeEmratEVjeter(llogarite.value.orEmpty())
         }
         dLe = db.collection("lejet").addSnapshotListener { s, e ->
             if (e != null || s == null) { gabimLejet.value = true; if (lejet.value == null) lejet.value = emptyMap(); return@addSnapshotListener }
             gabimLejet.value = false
             lejet.value = s.documents.associate { it.id to (it.data ?: emptyMap<String, Any?>()) }
-            njoftoTeRejat()
+            njoftoLlogaritEReja()
         }
     }
 
@@ -211,7 +211,7 @@ object Admini {
     } catch (e: Exception) { null }
     private fun ruajPare(l: List<String>) = StokuApp.vendosPref("perdoruesit_pare", Json.shkruaj(l.takeLast(1000)))
 
-    private fun njoftoTeRejat() {
+    private fun njoftoLlogaritEReja() {
         if (!gati()) return
         val rinj = lista().filter { it.statusi == "ri" }
         var pare = lexoPare()
