@@ -127,6 +127,11 @@ object EksportiPdf {
         }
     }
 
+    /** Web v321 (= EX.nrFurnizuesve): sa furnizues të ndryshëm (me emër) ka lista; koka e PDF-së e tregon në vend të "Periudha" */
+    fun nrFurnizuesve(l: List<Obj>): Int = l.mapNotNull { a ->
+        ((a["furnizuesi"] as? String) ?: "").trim().replace(Regex("\\s+"), " ").lowercase().ifEmpty { null }
+    }.toSet().size
+
     fun numri(v: Double) = if (v == floor(v)) v.toLong().toString() else v.toString()
 
     /** Vizaton faqen `faqja` (0 = e para) në Canvas-in me njësi mm (thirrësi e shkallëzon) */

@@ -117,7 +117,7 @@ const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
     ok(dr.nen === '11 afate · 1 faqe A4' && dr.rr[0] === 'Periudha=Të gjitha', '4. hapet sërish me zgjedhjet fillestare', dr.nen);
     const f = await krijo(p);
     ok(f && f.emri === 'afatet_' + dita + '.pdf' && f.lloji === 'application/pdf' && f.tekst.startsWith('%PDF'), '4. PDF-ja (emri, lloji)', f && [f.emri, f.lloji]);
-    ok(faqet(f.tekst) === 1 && /\(Lista e afateve\)/.test(f.tekst) && /\(Periudha: \)/.test(f.tekst) && /\(T\xeb gjitha\)/.test(f.tekst) && /\(11\)/.test(f.tekst) && /\( produkte\)/.test(f.tekst) && /\(80\)/.test(f.tekst) && !/Printuar/.test(f.tekst) && !/stoku\.site/.test(f.tekst) && !/\(Faqja \d/.test(f.tekst) && !/Shtuar|Dit\xebt/.test(f.tekst), '4. 1 faqe: "Lista e afateve", "Periudha: Të gjitha", asgjë poshtë (v317)');
+    ok(faqet(f.tekst) === 1 && /\(Lista e afateve\)/.test(f.tekst) && !/Periudha|T\xeb gjitha/.test(f.tekst) /* v321: pa "Periudha" */ && /\(11\)/.test(f.tekst) && /\( produkte\)/.test(f.tekst) && /\(80\)/.test(f.tekst) && !/Printuar/.test(f.tekst) && !/stoku\.site/.test(f.tekst) && !/\(Faqja \d/.test(f.tekst) && !/Shtuar|Dit\xebt/.test(f.tekst), '4. 1 faqe: "Lista e afateve", pa "Periudha" (v321), asgjë poshtë (v317)');
     ok(/\(Kos 500g\)/.test(f.tekst) && /\(Kaçkavall 300g\)/.test(f.tekst.replace(/\xe7/g, 'ç')) && !/Kos i hequr/.test(f.tekst) && /\(SKADON\)/.test(f.tekst) && /\(FURNIZUESI\)/.test(f.tekst),
       '4. rreshtat (pa të hequrin), kolonat deri te "SKADON"');
     ok(!/GJENDJA|Ka skaduar|Para 2 dit|\(Dje\)|\(Sot\)/.test(f.tekst), '4. pa kolonën "Gjendja" dhe pa legjendën (pronari: ditët s\'vlejnë të nesërmen)');
@@ -129,7 +129,7 @@ const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
     await p.selectOption('#apPeriudha', muaji.v); await p.waitForTimeout(100);
     const f2 = await krijo(p);
     const slug = muaji.t.toLowerCase().replace(/ë/g, 'e').replace(/ç/g, 'c').replace(/[^a-z0-9]+/g, '_');
-    ok(f2 && f2.emri === 'afatet_' + slug + '_' + dita + '.pdf' && f2.tekst.includes('(' + muaji.t.replace(/ë/g, '\xeb') + ')'), '4. me një muaj: emri i muajit te Periudha dhe te skedari', f2 && [f2.emri, muaji.t]);
+    ok(f2 && f2.emri === 'afatet_' + slug + '_' + dita + '.pdf' && f2.tekst.includes('(' + muaji.t.replace(/ë/g, '\xeb') + ')'), '4. me një muaj: emri i muajit te koka (pa "Periudha:") dhe te skedari', f2 && [f2.emri, muaji.t]);
     ok(!p.__gab.length, '4. pa gabime JS', p.__gab);
     await ctx.close();
   }
@@ -141,7 +141,7 @@ const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
     const dr = await dritarja(p);
     ok(dr.nen === '80 afate · 3 faqe A4', '5. 80 afate · 3 faqe', dr.nen);
     const f = await krijo(p);
-    ok(f && faqet(f.tekst) === 3 && !/stoku\.site/.test(f.tekst) /* v317: asgjë poshtë në asnjë faqe */ &&/\(Periudha: \)/.test(f.tekst) && /\(80\)/.test(f.tekst) && /\(3240\)/.test(f.tekst) /* v299: të dhënat vetëm te faqja 1 */ && (f.tekst.match(/\(PRODUKTI\)/g) || []).length === 3 && /\(Produkti 80\)/.test(f.tekst), '5. 3 faqe, koka e tabelës në secilën, i fundit "Produkti 80"',
+    ok(f && faqet(f.tekst) === 3 && !/stoku\.site/.test(f.tekst) /* v317: asgjë poshtë në asnjë faqe */ && !/Periudha/.test(f.tekst) && /\(80\)/.test(f.tekst) && /\(3240\)/.test(f.tekst) /* v299: të dhënat vetëm te faqja 1 */ && (f.tekst.match(/\(PRODUKTI\)/g) || []).length === 3 && /\(Produkti 80\)/.test(f.tekst), '5. 3 faqe, koka e tabelës në secilën, i fundit "Produkti 80"',
       f && { faqe: faqet(f.tekst), koka: (f.tekst.match(/\(PRODUKTI\)/g) || []).length });
     fs.writeFileSync(__dirname + '/v275-shume.pdf', Buffer.from(f.b64, 'base64'));
     ok(!p.__gab.length, '5. pa gabime JS', p.__gab);

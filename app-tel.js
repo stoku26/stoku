@@ -2219,6 +2219,9 @@
     var k = $('oraLidhur'), kod = $('oraLidhKuti');
     k.textContent = '';
     k.hidden = !oretTani.length; kod.hidden = !!oretTani.length;
+    // v321 (pronari: "mos me ta qit qato (Galaxy Watch / Apple Watch) kur perdoruesi veq se osht i lidht me or"): ora e lidhur është Galaxy Watch
+    $('segOra').hidden = !!oretTani.length;
+    if (oretTani.length && typeof zgjidhOren === 'function') zgjidhOren('galaxy');
     oretTani.forEach(function (o, i) {
       if (i) { var nd = document.createElement('div'); nd.style.height = '6px'; k.appendChild(nd); }
       var krye = document.createElement('div'); krye.className = 'ora-lidhur__krye';
@@ -6242,11 +6245,15 @@
     var ora = dyShifra(d.getHours()) + ':' + dyShifra(d.getMinutes());
     var dita = d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate());
     var per = z.mu ? AF.emriMuajit(z.mu) : 'Të gjitha', idM = idMarketitAktiv(), cope = AF.shumaCopeve(l);
-    var info = [['Periudha: ', false], [per, true]];
-    [z.f ? apVlera($('apFurn')) : '', idM ? emriMarketit(idM) : ''].filter(Boolean)
-      .forEach(function (x) { info.push([' · ', false], [x, true]); });
-    info.push([' · ', false], [String(l.length), true], [l.length === 1 ? ' produkt' : ' produkte', false]);
-    if (cope) info.push([' · ', false], [String(cope), true], [' copë', false]);
+    // v321 (pronari, foto e PDF-së: "hiqe periudha bone njo sa furnizus jan nqat list ja qet nr qaty nvend te saj"):
+    // pa "Periudha: …"; numri i furnizuesve (ose emri, kur zgjidhet një), muaji vetëm kur zgjidhet një
+    var info = [], shto = function (p) { if (info.length) info.push([' · ', false]); info.push.apply(info, p); };
+    if (z.mu) shto([[per, true]]);
+    if (z.f) shto([[apVlera($('apFurn')), true]]);
+    else if (!paFurnizues()) { var nF = EX.nrFurnizuesve(l); if (nF) shto([[String(nF), true], [' furnizues', false]]); }
+    if (idM) shto([[emriMarketit(idM), true]]);
+    shto([[String(l.length), true], [l.length === 1 ? ' produkt' : ' produkte', false]]);
+    if (cope) shto([[String(cope), true], [' copë', false]]);
     var b = $('apKrijo');
     b.disabled = true;
     try {
@@ -7530,7 +7537,7 @@
       });
       kr.appendChild(bFto);
     }
-    if (pronar || ekK.eshteAdmin()) {
+    { // v321: "⋮" për çdo koleg, se aty është edhe "Largohu nga grupi"
       var bCil = ekEl('button', 'ek-cil-btn'); bCil.type = 'button'; bCil.id = 'ekGrupiCil';
       bCil.setAttribute('aria-label', 'Cilësimet e grupit'); bCil.title = 'Cilësimet e grupit';
       bCil.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5h.01M12 12h.01M12 19h.01"></path></svg>';
@@ -7603,20 +7610,20 @@
       c.appendChild(r);
     });
     if ($('dlgGrupiCil').classList.contains('hapur')) vizatoCilesimetEGrupit(); // v320: lista në dritare rifreskohet bashkë me grupin
-    var bl = ekEl('button', 'btn tekst rrezik', 'Largohu nga grupi'); bl.type = 'button'; bl.id = 'ekLargohu'; bl.style.cssText = 'width:100%;margin-top:18px';
-    bl.addEventListener('click', ekLargohu);
-    c.appendChild(bl);
   }
 
-  // ---- v320: "Cilësimet e grupit" (butoni me tri pika te "Grupi yt"): Menaxho kolegët (pronari) + Llogaritë e tjera (administratori) ----
+  // ---- v320: "Cilësimet e grupit" (butoni me tri pika te "Grupi yt"): Menaxho kolegët (pronari).
+  // v321 (pronari: "largohu nga grupi qite si buton tkuq ... te cilesimet e grupit"; "Llogarit e tjera hiqi komplet"): + butoni i kuq "Largohu"
   function vizatoCilesimetEGrupit() {
     var c = $('gcTrup'); if (!c) return;
-    var g = ekK.grupiInfo() || {}, anetaret = ekAnetaret();
+    var g = ekK.grupiInfo(), anetaret = ekAnetaret();
+    if (!g) { $('dlgGrupiCil').classList.remove('hapur'); return; }
     $('gcNen').textContent = g.emri || 'Grupi';
     c.textContent = '';
     if (ekK.eshtePronar()) vizatoMenaxhimin(c, anetaret);
-    if (ekK.eshteAdmin()) vizatoLlogariteETjera(c);
-    if (!ekK.eshtePronar() && !ekK.eshteAdmin()) $('dlgGrupiCil').classList.remove('hapur');
+    var bl = ekEl('button', 'btn ora-lidhur__shkeput', 'Largohu nga grupi'); bl.type = 'button'; bl.id = 'ekLargohu'; bl.style.cssText = 'width:100%;margin-top:16px';
+    bl.addEventListener('click', function () { $('dlgGrupiCil').classList.remove('hapur'); ekLargohu(); });
+    c.appendChild(bl);
   }
   $('gcMbyll').addEventListener('click', function () { $('dlgGrupiCil').classList.remove('hapur'); });
   $('dlgGrupiCil').addEventListener('click', function (ev) { if (ev.target === this) this.classList.remove('hapur'); });
@@ -7656,39 +7663,6 @@
   }
 
   var ekFtoHapur = false; // v319: fusha "Fto një shok" e hapur (butoni me plus te "Grupi yt")
-  // ---- Administratori: llogaritë jashtë grupit tim (fshirja; ftesa nëse je pronar) ----
-  var ekLlogariteKrejt = false;
-  function vizatoLlogariteETjera(c) {
-    var l = ekK.llogariteJashte();
-    var h = ekEl('div', 'af-grup-krye'); h.appendChild(ekEl('span', null, 'Llogaritë e tjera (vetëm administratori) · ' + l.length)); c.appendChild(h);
-    if (!l.length) { c.appendChild(ekInfo('S\'ka llogari të tjera.')); return; }
-    (ekLlogariteKrejt ? l : l.slice(0, 15)).forEach(function (a) {
-      var r = ekEl('div', 'artikull ek-menaxho'); r.style.cursor = 'default';
-      r.appendChild(ekAvatar(a, false));
-      var m = ekEl('div', 'majtas');
-      m.appendChild(ekEl('div', 'emri', a.emri));
-      var kur = a.kycurSe || a.aktivSe;
-      m.appendChild(ekEl('div', 'kodi ek-stat-nen', (a.grupi ? 'Në një grup tjetër' : 'Pa grup') + (kur ? ' · u kyç ' + EKL.kohaRelative(kur) : '')));
-      r.appendChild(m);
-      if (ekK.eshtePronar()) {
-        var bt = ekEl('button', 'af-pill', 'Fto'); bt.type = 'button';
-        bt.addEventListener('click', async function () { bt.disabled = true; var x = await ekK.ftoNeGrup(a.emri, a.uid); if (!x.ok) { bt.disabled = false; toast(tekstiGabimitTeFtesa(x), 4000); } else toast('Ftesa iu dërgua ' + a.emri + '.'); });
-        r.appendChild(bt);
-      }
-      if (!a.admin) {
-        var bf = ekEl('button', 'af-pill ek-pill-rrezik', 'Fshi'); bf.type = 'button'; bf.title = 'Fshi llogarinë e ' + a.emri + ' komplet';
-        bf.addEventListener('click', function () { ekFshijLlogarine(a); });
-        r.appendChild(bf);
-      }
-      c.appendChild(r);
-    });
-    if (!ekLlogariteKrejt && l.length > 15) {
-      var bk = ekEl('button', 'btn tekst', 'Shfaq të gjitha (' + l.length + ')'); bk.type = 'button'; bk.style.cssText = 'width:100%';
-      bk.addEventListener('click', function () { ekLlogariteKrejt = true; vizatoEkipen(); });
-      c.appendChild(bk);
-    }
-  }
-
   // ---- Stoku i të gjithë kolegëve (vetëm administratori, vetëm lexim) ----
   var ekStoku = { uid: null, te: {} };
   function vizatoStokunAdmin(c, rifreskim) {

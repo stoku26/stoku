@@ -4,6 +4,9 @@ const { krijoFirestore } = require('./fs-server.js');
 const SC = __dirname + '/';
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
 const PUSH = 'https://stoku-push.mendurb.workers.dev';
+// v321: te telefoni "Largohu nga grupi" është brenda "⋮" (Cilësimet e grupit)
+async function hapLargohu(p) { if (!(await p.isVisible('#ekLargohu')) && await p.isVisible('#ekGrupiCil')) { await p.click('#ekGrupiCil'); await p.waitForTimeout(400); } }
+
 (async () => {
   const F = krijoFirestore({ rregullat: 'reja' });
   const t = Date.now();
@@ -174,7 +177,7 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
   await drini.click('#konfPo'); await drini.waitForTimeout(2500);
   ok(!doc('grupet/' + gD) && !keys('grupet/' + gD + '/').filter(k => !/\/kujtesa\//.test(k)).length && doc('grupet/' + gB + '/anetaret/u3') && doc('perdoruesit/u3').grupi === gB, '8b. kaloi te besa; "Drini Shop" u fshi (kujtesa e produkteve mbetet, v198)', keys('grupet/' + gD));
   await drini.click('#ekMenu [data-n="anetaret"]').catch(() => {}); await drini.waitForTimeout(1000);
-  await drini.click('#ekLargohu'); await drini.waitForTimeout(300); await drini.click('#konfPo'); await drini.waitForTimeout(1500);
+  await hapLargohu(drini); await drini.click('#ekLargohu'); await drini.waitForTimeout(300); await drini.click('#konfPo'); await drini.waitForTimeout(1500);
   ok(!doc('grupet/' + gB + '/anetaret/u3') && doc('perdoruesit/u3').grupi === '' && doc('grupet/' + gB), '8b. drini u largua nga grupi i besës (grupi mbetet)');
 
   // 9. Besa riemërton grupin
@@ -195,20 +198,20 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
 
   // 11. Admini: llogaritë e tjera; largimi i pronarit të vetëm me anëtarë s'lejohet
   await admin.click('#ekMenu [data-n="anetaret"]').catch(() => {}); await admin.waitForTimeout(1200);
-  const tjera = await admin.textContent('#ekLlogariteTrup');
-  ok(/besa/.test(tjera) && /drini/.test(tjera) && /agim/.test(tjera), '11. admini: llogaritë e tjera (jashtë grupit)', tjera.slice(0, 160));
+  // v321 (pronari: "Llogarit e tjera hiqi komplet"): s'ka më listë të llogarive jashtë grupit
+  ok(!(await admin.$('#ekLlogariteTrup')) && !/Llogaritë e tjera/.test(await admin.textContent('body')), '11. admini: pa "Llogaritë e tjera"');
   // v246: admini i vetëm mund të largohet (adminin e merr kolegu); këtu besa e anulon
-  await besa.click('#ekLargohu'); await besa.waitForTimeout(500);
+  await hapLargohu(besa); await besa.click('#ekLargohu'); await besa.waitForTimeout(500);
   const pyetjaB = await besa.textContent('#kfTekst');
   ok(/admin bëhet agim/.test(pyetjaB), '11. besa (admine e vetme me agimin): "admin bëhet agim"', pyetjaB);
   await besa.click('#kfJo'); await besa.waitForTimeout(300);
   ok(doc('grupet/' + gB + '/anetaret/u2') && doc('grupet/' + gB + '/anetaret/u2').roli === 'pronar' && doc('grupet/' + gB + '/anetaret/u1').roli !== 'pronar', '11. e anuloi: asgjë s\'ndryshon');
 
   // 12. Agimi largohet; pastaj besa (e fundit) → grupi fshihet
-  await agim.click('#ekLargohu'); await agim.waitForTimeout(300); await agim.click('#konfPo'); await agim.waitForTimeout(1500);
+  await hapLargohu(agim); await agim.click('#ekLargohu'); await agim.waitForTimeout(300); await agim.click('#konfPo'); await agim.waitForTimeout(1500);
   ok(!doc('grupet/' + gB + '/anetaret/u1') && doc('perdoruesit/u1').grupi === '', '12. agimi u largua (pa grup)');
   await besa.waitForTimeout(1200);
-  await besa.click('#ekLargohu'); await besa.waitForTimeout(300); await besa.click('#kfPo'); await besa.waitForTimeout(2000);
+  await hapLargohu(besa); await besa.click('#ekLargohu'); await besa.waitForTimeout(300); await besa.click('#kfPo'); await besa.waitForTimeout(2000);
   ok(!doc('grupet/' + gB) && !keys('grupet/' + gB + '/').filter(k => !/\/kujtesa\//.test(k)).length && !keys('ftesat/' + gB).length, '12. besa e fundit → grupi u fshi (kujtesa e produkteve mbetet, v198)', keys('grupet/' + gB));
   ok(F.S.refuzime.filter(x => !['get', 'query'].includes(x.op)).length <= 14, '13. refuzimet janë vetëm provat e sigurisë', F.S.refuzime.filter(x => !/zz1|zana|ekipa2|u3$|u1$/.test(x.path)).slice(0, 8));
 

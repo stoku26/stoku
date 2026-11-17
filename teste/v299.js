@@ -82,8 +82,8 @@ const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
   const f = await krijo(p);
   const s = f.tekst;
   const sa = rx => (s.match(rx) || []).length;
-  ok(faqet(s) === 3 && sa(/\(Lista e afateve\)/g) === 1 && sa(/\(Periudha: /g) === 1 && sa(/\(PRODUKTI\)/g) === 3,
-    '2. "Lista e afateve" dhe "Periudha" vetëm në faqen 1; koka e tabelës në të 3 faqet', { faqe: faqet(s), titulli: sa(/\(Lista e afateve\)/g), periudha: sa(/\(Periudha: /g), koka: sa(/\(PRODUKTI\)/g) });
+  ok(faqet(s) === 3 && sa(/\(Lista e afateve\)/g) === 1 && sa(/\(Periudha: /g) === 0 && sa(/\( produkte\)/g) === 1 && sa(/\(PRODUKTI\)/g) === 3,
+    '2. "Lista e afateve" dhe të dhënat vetëm në faqen 1 (v321: pa "Periudha"); koka e tabelës në të 3 faqet', { faqe: faqet(s), titulli: sa(/\(Lista e afateve\)/g), periudha: sa(/\(Periudha: /g), koka: sa(/\(PRODUKTI\)/g) });
   ok(/\(Produkti 70\)/.test(s) && /\(Produkti 80\)/.test(s) && !/stoku\.site/.test(s), '3. 34 + 37 + 9 rreshta (v317: asgjë poshtë, faqja 1 deri te fundi)');
   const x = t => { const m = s.match(new RegExp('([0-9.]+) [0-9.]+ Td\\s*\\(' + t + '\\) Tj')); return m ? Number(m[1]) : null; };
   const xc = x('COP\xcb'), xs = x('SKADON');

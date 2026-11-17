@@ -5025,8 +5025,6 @@
   }
   $('ekFtoBtn').addEventListener('click', ekFto);
   $('ekFtoEmri').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ekFto(); } });
-  var ekLlogariteKrejt = false;
-  $('ekLlogariteKrejt').addEventListener('click', function () { ekLlogariteKrejt = true; ekVizato(); });
 
   function ekVAnetaret(anetaret) {
     var admin = ekK.eshteAdmin(), pronar = ekK.eshtePronar(), g = ekK.grupiInfo() || {};
@@ -5105,39 +5103,7 @@
       tr.addEventListener('click', function () { ekV.anetari = a.uid; ekV.filtri = ''; ekShkoTe('afatet'); });
       t.appendChild(tr);
     });
-    // Administratori: llogaritë jashtë grupit
-    $('ekLlogaritePanel').classList.toggle('fsheh', !admin);
-    if (admin) {
-      var l = ekK.llogariteJashte();
-      $('ekLlogariteTitulli').textContent = 'Llogaritë e tjera (vetëm administratori) · ' + l.length;
-      var tl2 = $('ekLlogariteTrup');
-      tl2.textContent = '';
-      (ekLlogariteKrejt ? l : l.slice(0, 20)).forEach(function (a) {
-        var tr = el('tr');
-        var t0 = el('div', 'ek-anetar-qeliza');
-        t0.appendChild(ekAvatar(a, false));
-        t0.appendChild(el('span', 'ek-anetar-emri', a.emri));
-        tr.appendChild(el('td')).appendChild(t0);
-        var kur = a.kycurSe || a.aktivSe;
-        tr.appendChild(el('td', 'k-gri', (a.grupi ? 'Në një grup tjetër' : 'Pa grup') + (kur ? ' · u kyç ' + EKL.kohaRelative(kur) : '')));
-        var tv = el('td', 'k-av');
-        if (pronar) {
-          var bt = el('button', 'btn tekst vogel', 'Fto'); bt.type = 'button';
-          bt.addEventListener('click', async function () { bt.disabled = true; var x = await ekK.ftoNeGrup(a.emri, a.uid); if (!x.ok) { bt.disabled = false; toast(tekstiGabimitTeFtesa(x)); } else toast('Ftesa iu dërgua ' + a.emri + '.'); });
-          tv.appendChild(bt);
-        }
-        if (!a.admin) {
-          var bf = el('button', 'btn tekst rrezik vogel', 'Fshi'); bf.type = 'button'; bf.title = 'Fshi llogarinë e ' + a.emri + ' komplet';
-          bf.addEventListener('click', function () { ekFshijLlogarine(a); });
-          tv.appendChild(bf);
-        }
-        tr.appendChild(tv);
-        tl2.appendChild(tr);
-      });
-      if (!l.length) { var tr0 = el('tr'); tr0.appendChild(el('td', 'k-gri', 'S\'ka llogari të tjera.')); tl2.appendChild(tr0); }
-      $('ekLlogariteKrejt').classList.toggle('fsheh', ekLlogariteKrejt || l.length <= 20);
-      $('ekLlogariteKrejt').textContent = 'Shfaq të gjitha (' + l.length + ')';
-    }
+    // v321 (pronari: "Llogarit e tjera hiqi komplet"): pa listën e llogarive jashtë grupit
   }
 
   // ---- Paneli i pronarit të grupit ----
@@ -5755,11 +5721,15 @@
     if (!l.length) return;
     var d = oraKs(), data = dy(d.getDate()) + '.' + dy(d.getMonth() + 1) + '.' + d.getFullYear(), ora = dy(d.getHours()) + ':' + dy(d.getMinutes());
     var per = z.mu ? AF.emriMuajit(z.mu) : 'Të gjitha', idM = idMarketitAktiv(), cope = AF.shumaCopeve(l);
-    var info = [['Periudha: ', false], [per, true]];
-    [z.f ? apVlera($('apFurn')) : '', idM ? emriMarketit(idM) : ''].filter(Boolean)
-      .forEach(function (x) { info.push([' · ', false], [x, true]); });
-    info.push([' · ', false], [String(l.length), true], [l.length === 1 ? ' produkt' : ' produkte', false]);
-    if (cope) info.push([' · ', false], [String(cope), true], [' copë', false]);
+    // v321 (pronari, foto e PDF-së: "hiqe periudha bone njo sa furnizus jan nqat list ja qet nr qaty nvend te saj"):
+    // pa "Periudha: …"; numri i furnizuesve (ose emri, kur zgjidhet një), muaji vetëm kur zgjidhet një
+    var info = [], shto = function (p) { if (info.length) info.push([' · ', false]); info.push.apply(info, p); };
+    if (z.mu) shto([[per, true]]);
+    if (z.f) shto([[apVlera($('apFurn')), true]]);
+    else if (!paFurnizues()) { var nF = EX.nrFurnizuesve(l); if (nF) shto([[String(nF), true], [' furnizues', false]]); }
+    if (idM) shto([[emriMarketit(idM), true]]);
+    shto([[String(l.length), true], [l.length === 1 ? ' produkt' : ' produkte', false]]);
+    if (cope) shto([[String(cope), true], [' copë', false]]);
     try {
       var bajtet = EX.pdf(l, { info: info, data: data, ora: ora }, paFurnizues());
       var emri = 'afatet_' + (z.mu ? slug(per) + '_' : '') + vulaKohore(false) + '.pdf';

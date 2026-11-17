@@ -58,6 +58,22 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v321 / Android (17.11.2026): GRUPI, ORA, PDF**. Pronari (5 foto):
+   - **"Grupi yt"**: "hekja ngjyren e kalter butonit ... edhe pak ma te vogel komplet": rreshti 48 (ishte 56), "+" pa blu (si "⋮"),
+     laps 30, tekstet pak më të vogla (web `.ek-grupi-rresht`, Android `height(48.dp)`). "⋮" tani për çdo koleg (jo vetëm adminët).
+   - **"Largohu nga grupi"**: "qite si buton tkuq ... te cilesimet e grupit": s'është më poshtë listës; është në fund të "Cilësimet e
+     grupit" si buton me kornizë të kuqe (web: klasa `ora-lidhur__shkeput`, si "Shkëput orën"; id-ja `ekLargohu` mbeti). PC s'ndryshoi.
+   - **"Llogaritë e tjera" u hoq krejt** (web tel, PC `ekLlogaritePanel`, Android); ekipa.js e mban `llogariteJashte`/`krejtLlogarite`
+     (Emrat i përdor). Ftesa: "+" → shkruan emrin → "Fto" (si më parë). Shih listën e refuzimeve.
+   - **Ora e dorës**: "mos me ta qit qato kur perdoruesi veq se osht i lidht me or": `#segOra` fshihet kur ka orë të lidhur dhe hapet
+     faqja Galaxy (edhe në iPhone); Android: `if (oret.isEmpty()) Row(...)`.
+   - **PC "PDF për printim"**: "Ditët e skanimit" (buton `.inp`) dukej si butoni gri i shfletuesit: `button.inp` hyri te stilet e fushave
+     (pc.html + `.sbp button.inp` te stoku-pc.css), me shigjetën e select-it. Select-et e tjera ishin në rregull.
+   - **PDF**: "hiqe periudha bone njo sa furnizus jan nqat list": koka s'ka më "Periudha: …"; ka "N furnizues" (`EX.nrFurnizuesve` =
+     `EksportiPdf.nrFurnizuesve`: furnizues të ndryshëm me emër), emrin kur zgjidhet një furnizues, muajin vetëm kur zgjidhet një muaj.
+   - **5 GIF me logon** (pa e ndryshuar): pika rreh, valë, mbushja, pika kërcen, shkëlqim; u dërguan si skedarë (s'janë në repo).
+   - Teste: `v321.js`; u përshtatën v320, v275, v299, grupet-test, grupi-dalja-v246.
+
 0000000. **v320 (vazhdim): "GRUPI YT" I BALANCUAR, "CILËSIMET E GRUPIT", PA NJOFTIMIN PËR KREJT GRUPIN**. Pronari (3 foto):
    "balancoj qeto komplet ... grupi yt me at butonin per shtim ... butonin ndrysho emrin bone me ikon tvogel ... shtoje edhe ni buton me
    tri pika vertikal per cilesime te grupit ... komplet i balancon jo njo e madhe njo e vogel", "menaxho koleget e shtin mrena cilesimeve
@@ -3409,6 +3425,9 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Çdo PR duhet përshkrim të plotë shqip: çka ndryshoi, si u testua, çfarë numrash versioni u prekën.
 
 ## Gjëra që përdoruesi i ka refuzuar/anuluar shprehimisht (mos i propozo/rikthe pa pyetur)
+- **"Llogaritë e tjera" te Grupi (17.11.2026, v321)**: lista e administratorit me llogaritë jashtë grupit (Fto / Fshi) te "Cilësimet
+  e grupit" (tel, Android) dhe karta te PC. Pronari: "Llogarit e tjera hiqi komplet"; ftesa bëhet vetëm me emrin te butoni "+".
+  Fshirja e llogarisë mbetet te kolegët e grupit (Menaxho kolegët / faqja e kolegut). Mos e rikthe.
 - **"Njoftim për të gjithë grupin" (17.11.2026, v320 / Hyrja 82)**: fusha + "Dërgo te i gjithë grupi" te Kolegët (admini i grupit).
   Pronari: "e fshin komplet te rrethekumen edhe mos le naj gjurm per to". U fshi te web tel, PC, Android, ekipa.js, Grupi.kt,
   GrupiLogjika; ato të vjetrat (lloji `lajmerim`) s'dalin te aktiviteti as te zilja. Mos e rikthe.
