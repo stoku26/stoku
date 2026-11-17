@@ -80,6 +80,7 @@ function krijoFirestore(opt = {}) {
     // v230: lejet/{uid} (S.paLejet: rregullat para v230, s'lexohen)
     if (p[0] === 'lejet') return reja && !S.paLejet && (eListe ? eshteAdmin(a.uid) : (a.uid === p[1] || eshteAdmin(a.uid)));
     // v195: dërguesi e lexon (get) njoftimin që e shkroi vetë; një njoftim i fshirë s'lexohet (resource == null → refuzohet)
+    if (p[0] === 'perdoruesit' && p[2] === 'pajisjet') return reja && !S.paPajisje && a.uid === p[1]; // v319: pajisjet e llogarisë (vetëm vetja)
     if (p[0] === 'perdoruesit' && p[2] === 'njoftimet') return a.uid === p[1] || (S.rregullat === 'reja' && eshteAdmin(a.uid)) || (reja && !eListe && p.length === 4 && !!S.docs.get(path) && S.docs.get(path).uid === a.uid);
     if (p[0] === 'perdoruesit') return reja ? (eListe ? neEkipe(a.uid) : (a.uid === p[1] || neEkipe(a.uid))) : true;
     if (p[0] === 'ekipa_anetaret') return reja && (eListe ? neEkipe(a.uid) : (a.uid === p[1] || neEkipe(a.uid)));
@@ -221,6 +222,11 @@ function krijoFirestore(opt = {}) {
       if (lloji === 'delete') return true;
       return vetemKeto(Object.keys(iRi), ['lejet', 'kontrolluarSe', 'kontrolluarNga', 'emri']) && !!iRi.lejet && typeof iRi.lejet === 'object'
         && !Array.isArray(iRi.lejet) && Object.keys(iRi.lejet).length <= 60;
+    }
+    if (p[0] === 'perdoruesit' && p[2] === 'pajisjet') { // v319: vetëm vetja; fushat e lejuara
+      if (!reja || S.paPajisje || a.uid !== p[1] || fshire(p[1])) return lloji === 'delete' && reja && !S.paPajisje && a.uid === p[1];
+      if (lloji === 'delete') return true;
+      return vetemKeto(Object.keys(iRi), ['emri', 'lloji', 'krijuarSe', 'paraSe', 'v']) && typeof iRi.emri === 'string' && iRi.emri.length <= 80;
     }
     if (p[0] === 'perdoruesit' && p[2] === 'njoftimet') {
       // v164: dërguesi dhe marrësi në të njëjtin grup (fusha `grupi`), ose administratori
@@ -467,7 +473,8 @@ function krijoFirestore(opt = {}) {
         const ruajtja = window.StokuRuajtja.krijo(fs, db, () => auth.currentUser && auth.currentUser.uid);
         const ekipa = window.StokuEkipa.krijoCloud(fs, db, auth, platforma);
         window.__stokuCloud = {
-          authGati: true, perdoruesiAktual: () => auth.currentUser, token: async () => 't', dil: async () => {},
+          authGati: true, perdoruesiAktual: () => auth.currentUser, token: async () => 't',
+          dil: async () => { window.__dalur = (window.__dalur || 0) + 1; if (window.__stokuCloud.pajisjet) await window.__stokuCloud.pajisjet.fshiVeten(); }, // v319
           hyr: async () => ({ ok: true }), regjistrohu: async () => ({ ok: true }),
           riautentifikohu: async p => (p === 'sakte1' ? { ok: true } : { ok: false, kodi: 'auth/invalid-credential' }),
           fshiVeten: async () => { sessionStorage.setItem('__fshire', '1'); auth.currentUser = null; },
@@ -478,6 +485,7 @@ function krijoFirestore(opt = {}) {
           krejtPerdoruesit: async () => ({ ok: true, lista: [] }),
           skedaret: window.StokuSkedaret ? window.StokuSkedaret.krijo(fs, db, () => auth.currentUser && auth.currentUser.uid) : null,
           lejet: window.StokuLejet ? window.StokuLejet.krijo(fs, db, () => auth.currentUser && auth.currentUser.uid) : null, // v230
+          pajisjet: window.StokuPajisjet ? window.StokuPajisjet.krijo(fs, db, () => auth.currentUser && auth.currentUser.uid, platforma === 'pc' ? 'pc' : 'tel', '') : null, // v319
           ndryshoDyqaninEPerdoruesit: async (u, fn) => { try { return await window.StokuRuajtja.krijo(fs, db, () => u).bashkoDheRuaj(fn); } catch (e) { return { ok: false, kodi: e.code }; } },
           ekipa
         };
@@ -491,6 +499,7 @@ function krijoFirestore(opt = {}) {
             localStorage.setItem('stoku:merchandiser', JSON.stringify({ uid, v }));
             if (!!(para && para.uid === uid && para.v === true) !== v) window.dispatchEvent(new Event('stoku-merchandiser'));
           }).catch(() => {});
+        if (window.__stokuCloud.pajisjet && auth.currentUser) window.__stokuCloud.pajisjet.nis(); // v319 (si onAuthStateChanged)
         window.dispatchEvent(new Event('stoku-cloud-gati'));
         window.dispatchEvent(new Event('stoku-auth-ndryshoi'));
       }, { once: true });

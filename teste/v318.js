@@ -19,8 +19,8 @@ const K = 'vendas/app/src/main/java/site/stoku/vendas/';
   const wf = lx('.github/workflows/vendas-apk.yml');
   ok(!/TeRejat\.kt|Çka ka të re:/.test(wf) && /shenimet\.md/.test(wf), '0. Release-t: pa "Çka ka të re"');
   const V = require(RR + 'versioni.js');
-  ok(V.v === 318 && /^\d+\.\d+\.\d+$/.test(V.emri), '0. versioni.js', V);
-  ok(/stoku-v318/.test(lx('sw.js')) && /'\.\/versioni\.js\?v=318'/.test(lx('sw.js')) && !/teRejat/.test(lx('sw.js').split('var SHELL')[1] || ''), '0. sw.js: CACHE v318, versioni.js në SHELL');
+  ok(V.v >= 318 && /^\d+\.\d+\.\d+$/.test(V.emri), '0. versioni.js', V);
+  ok(+(lx('sw.js').match(/stoku-v(\d+)/) || [])[1] >= 318 && /'\.\/versioni\.js\?v=\d+'/.test(lx('sw.js')) && !/teRejat/.test(lx('sw.js').split('var SHELL')[1] || ''), '0. sw.js: CACHE v318, versioni.js në SHELL');
 
   const b = await chromium.launch();
   // 1. Telefoni: përdorues me versionin e vjetër të parë (para v318) s'e sheh më dritaren; Cilësimet pa rreshtin
@@ -40,7 +40,7 @@ const K = 'vendas/app/src/main/java/site/stoku/vendas/';
       tekst: document.body.textContent.includes('Çfarë ka të re'), versioni: document.getElementById('opsVersioni').textContent }));
     ok(!r.dlg && !r.ops && !r.tekst, '1. telefoni: pa dritare, pa rresht te Cilësimet, asnjë tekst "Çfarë ka të re"', r);
     ok(!r.hapur.length && r.ls === null, '1. asgjë s\'hapet vetë; shënimi i vjetër fshihet nga pajisja', r);
-    ok(r.versioni.trim() === '1.64.0', '1. Cilësimet: "Stoku 1.64.0"', r.versioni);
+    ok(r.versioni.trim() === V.emri, '1. Cilësimet: "Stoku " + versioni', r.versioni);
     ok(!gab.length, '1. pa gabime JS', gab);
     await ctx.close();
   }
@@ -53,7 +53,7 @@ const K = 'vendas/app/src/main/java/site/stoku/vendas/';
     const r = await p.evaluate(() => ({ dlg: !!document.getElementById('dlgTeRejat'), ops: !!document.getElementById('opsTeRejat'),
       hapur: [...document.querySelectorAll('.mbulese.hapur')].map(x => x.id), tekst: document.body.textContent.includes('Çfarë ka të re'),
       versioni: document.getElementById('opsVersioni').textContent }));
-    ok(!r.dlg && !r.ops && !r.tekst && !r.hapur.includes('dlgTeRejat') && r.versioni === '1.64.0', '2. PC: pa dritare, pa butonin, versioni 1.64.0', r);
+    ok(!r.dlg && !r.ops && !r.tekst && !r.hapur.includes('dlgTeRejat') && r.versioni === V.emri, '2. PC: pa dritare, pa butonin, versioni', r);
     ok(!gab.length, '2. pa gabime JS', gab);
     await ctx.close();
   }

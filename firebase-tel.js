@@ -36,6 +36,9 @@
     // v230: lejet e llogarive (lejet.js): çfarë mund të përdorë secila llogari; i ndryshon vetëm administratori
     var lejet = window.StokuLejet ? window.StokuLejet.krijo({ doc: doc, collection: collection, setDoc: setDoc, onSnapshot: onSnapshot },
       db, function () { return auth.currentUser ? auth.currentUser.uid : null; }) : null;
+    // v319: pajisjet ku je i kyçur (pajisjet.js); "Shkëput" nga një pajisje tjetër → kjo del vetë
+    var pajisjet = window.StokuPajisjet ? window.StokuPajisjet.krijo({ doc: doc, collection: collection, setDoc: setDoc, deleteDoc: deleteDoc, onSnapshot: onSnapshot },
+      db, function () { return auth.currentUser ? auth.currentUser.uid : null; }, 'tel', window.StokuVersioni ? window.StokuVersioni.emri : '') : null;
 
     // Regjistrohet vetja te perdoruesit/{uid} (emri i dukshëm + kur u kyç së fundi) — përdoret nga
     // pamja e "Ekipit" për të gjetur të gjitha llogaritë ekzistuese dhe emrat e tyre.
@@ -127,6 +130,7 @@
         }
       },
       async dil() {
+        if (pajisjet) { try { await pajisjet.fshiVeten(); } catch (e) { /* ok */ } } // v319: hiqet nga lista e pajisjeve
         if (ekipa) ekipa.ndalPranine(); // "offline" para daljes, sa ende lejohet shkrimi
         if (ekipa && ekipa.caktivizoPush) { try { await ekipa.caktivizoPush(); } catch (e) { /* ok */ } } // kjo pajisje s'merr më njoftimet e kësaj llogarie
         if (window.StokuPorta && window.StokuPorta.dilMeDore) window.StokuPorta.dilMeDore(); // mos hyr vetë me fjalëkalimin e ruajtur
@@ -231,10 +235,12 @@
       },
       skedaret: skedaret,
       lejet: lejet,
+      pajisjet: pajisjet,
       ekipa: ekipa
     };
 
     onAuthStateChanged(auth, function (perdoruesi) {
+      if (pajisjet) pajisjet.nis(); // v319
       window.__stokuCloud.authGati = true; // porta e hyrjes pret këtë: tani dihet a është hyrë
       // Regjistrimi te perdoruesit/{uid} për llogaritë ekzistuese (të kyçura para këtij ndryshimi,
       // pa kaluar nga regjistrohu()/hyr() që sapo u shtuan) — bëhet një herë, në heshtje, kur ka sesion.

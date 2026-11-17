@@ -716,6 +716,17 @@
   .ek-grupi-karta .tk b { display: block; font-size: 17px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .ek-grupi-karta .tk span { display: block; font-size: 13px; color: var(--sb-muted, var(--gri)); margin-top: 2px; }
   .ek-grupi-karta .af-pill { flex: none; }
+  /* v319: Cilësimet → Llogaria → Pajisjet ku je i kyçur */
+  .ll-pajisjet { padding: 4px 16px; }
+  .ll-paj { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+  .ll-paj + .ll-paj { border-top: 1px solid var(--sb-line-2, var(--vije)); }
+  .ll-paj__ik { flex: none; width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--sb-surface-2, var(--sfond)); color: var(--sb-ink-2, inherit); }
+  .ll-paj__tk { flex: 1; min-width: 0; }
+  .ll-paj__tk b { display: block; font-size: 15px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ll-paj__tk span { display: block; font-size: 12.5px; color: var(--sb-muted, var(--gri)); margin-top: 2px; }
+  .ll-paj__tk span.kjo { color: var(--sb-ok, #16a34a); font-weight: 600; }
+  .ll-paj .af-pill { flex: none; }
+  .ll-paj-krejt { width: 100%; margin: 4px 0 8px; }
   /* v319: "Grupi yt" më e ngushtë + butoni katror "Fto" (një njeri me plus) */
   .ek-grupi-rresht { display: flex; gap: 10px; align-items: stretch; margin: 2px 0 12px; }
   .ek-grupi-rresht .ek-grupi-karta { flex: 1; min-width: 0; margin: 0; }
@@ -1714,6 +1725,9 @@
                 <button class="btn" id="btnRiautentifiko" type="button" style="width:100%"></button>
               </div>
             </div>
+            <!-- v319: pajisjet ku je i kyçur (pajisjet.js) + "Shkëput" nga distanca -->
+            <div class="ops-grupi-titull">Pajisjet ku je i kyçur</div>
+            <div class="ops-karta ll-pajisjet" id="llPajisjet"></div>
             <button class="ops-dil" id="cloudDilBtn" type="button"></button>
           </div>
         </div>
@@ -2205,15 +2219,16 @@
 <script src="ruajtja.js?v=281"></script>
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=8"></script>
+<script src="pajisjet.js?v=1"></script>
 <script src="afatet.js?v=295"></script>
-<script src="eksportet.js?v=317"></script>
+<script src="eksportet.js?v=319"></script>
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
 <script src="ekipa.js?v=316"></script>
 <script src="njoftimet.js?v=313"></script>
 <script src="temat.js?v=2"></script>
-<script src="versioni.js?v=318"></script>
-<script src="app-tel.js?v=318"></script>
+<script src="versioni.js?v=319"></script>
+<script src="app-tel.js?v=319"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
@@ -2222,6 +2237,6 @@
 <!-- Firebase (Cloud): modul i vetëm, ekspozon window.__stokuCloud për skriptin kryesor.
      Hyrje me emër përdoruesi + fjalëkalim (pa email): emri shndërrohet në një "email" të brendshëm
      (emri@stoku-app.local) vetëm që Firebase Auth ta pranojë; përdoruesi asnjëherë s'e sheh a s'e fut email. -->
-<script type="module" src="firebase-tel.js?v=309"></script>
+<script type="module" src="firebase-tel.js?v=319"></script>
 </body>
 </html>

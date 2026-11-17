@@ -34,6 +34,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -222,9 +223,51 @@ private fun Menyja(tema: String, hap: (String) -> Unit) {
             // v270: jo me scope-in e ekranit: nëse kalon në një faqe tjetër ndërsa pritet (pa internet deri 9 s), dalja s'anulohet
             kotlinx.coroutines.MainScope().launch(site.stoku.vendas.StokuApp.trajtuesi(false)) {
                 try { kotlinx.coroutines.withTimeoutOrNull(9000) { site.stoku.vendas.Push.caktivizo() } } catch (e: Exception) { }
+                try { kotlinx.coroutines.withTimeoutOrNull(4000) { site.stoku.vendas.Pajisjet.fshiVeten() } } catch (e: Exception) { } // Hyrja 81
                 Llogaria.dil()
             }
         }
+}
+
+/** Hyrja 81 (web v319): pajisjet ku është i kyçur ky përdorues; "Shkëput" e nxjerr atë pajisje nga llogaria */
+@Composable
+private fun PajisjetEMia() {
+    val n = N
+    val scope = rememberCoroutineScope()
+    val lista by site.stoku.vendas.Pajisjet.lista.collectAsState()
+    var pyet by remember { mutableStateOf<site.stoku.vendas.Pajisjet.Pajisja?>(null) }
+    var krejt by remember { mutableStateOf(false) }
+    val tani = System.currentTimeMillis()
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(18.dp)).padding(horizontal = 16.dp, vertical = 4.dp)) {
+        if (lista.isEmpty()) Text("Duke i ngarkuar pajisjet…", style = tx(13, 400, n.muted), modifier = Modifier.padding(vertical = 12.dp))
+        lista.forEachIndexed { i, p ->
+            if (i > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(n.line2))
+            Row(Modifier.fillMaxWidth().padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Box(Modifier.size(38.dp).clip(RoundedCornerShape(12.dp)).background(n.surface2), contentAlignment = Alignment.Center) {
+                    Icon(if (p.lloji == "pc") Ik.Kompjuter else Ik.Telefon, null, Modifier.size(20.dp), tint = n.ink2)
+                }
+                Column(Modifier.weight(1f)) {
+                    Text(p.emri + if (p.lloji == "android") " (aplikacioni)" else "", style = tx(15, 700, n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(if (p.kjo) "Kjo pajisje" else "Aktive " + (if (p.paraSe > 0) site.stoku.logjika.GrupiLogjika.kohaRelative(p.paraSe, tani) else "pa datë"),
+                        style = tx(12, if (p.kjo) 600 else 400, if (p.kjo) n.ok else n.muted), modifier = Modifier.padding(top = 2.dp))
+                }
+                if (!p.kjo) Text("Shkëput", style = tx(13, 700, n.exp), modifier = Modifier.clip(RoundedCornerShape(16.dp))
+                    .border(1.5.dp, n.exp.copy(alpha = 0.6f), RoundedCornerShape(16.dp)).clickable { pyet = p }.padding(horizontal = 12.dp, vertical = 7.dp))
+            }
+        }
+        if (lista.count { !it.kjo } > 1) Buton("Shkëput të gjitha të tjerat", { krejt = true }, Modifier.fillMaxWidth().padding(bottom = 6.dp), lloji = "tekst")
+    }
+    pyet?.let { p ->
+        Konfirmo("Të shkëputet kjo pajisje?", "\"${p.emri}\" del nga llogaria jote sapo të lidhet me internetin. Për të hyrë sërish duhet fjalëkalimi.", "Shkëput", mbyll = { pyet = null }) {
+            scope.launch { val r = site.stoku.vendas.Pajisjet.shkeput(p.id); Toast.trego(if (r == null) "Pajisja u shkëput." else "Pajisja s'u shkëput. Kontrollo internetin dhe provo përsëri.", 4000) }
+        }
+    }
+    if (krejt) Konfirmo("Të shkëputen të gjitha pajisjet e tjera?", "Mbetesh i kyçur vetëm në këtë pajisje.", "Shkëput të gjitha", mbyll = { krejt = false }) {
+        scope.launch {
+            val r = lista.filter { !it.kjo }.map { site.stoku.vendas.Pajisjet.shkeput(it.id) }
+            Toast.trego(if (r.all { it == null }) "U shkëputën të gjitha pajisjet e tjera." else "Disa s'u shkëputën. Kontrollo internetin.", 4000)
+        }
+    }
 }
 
 // ---------------- Pamja ----------------
@@ -512,6 +555,8 @@ private fun LlogariaFaqja(mbrapa: () -> Unit) {
         KopjaEFshirave()
         TitulliGrupit("Të dhënat e hyrjes")
         NdryshimiILlogarise()
+        TitulliGrupit("Pajisjet ku je i kyçur") // Hyrja 81
+        PajisjetEMia()
         // "Dil nga llogaria" u zhvendos te karta e profilit (menyja e Cilësimeve)
     }
     if (rikthe) {

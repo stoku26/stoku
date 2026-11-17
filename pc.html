@@ -573,6 +573,16 @@
   .ap-kal-dite.on small { color: rgba(255,255,255,.85); }
   .ap-kal-fund { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--gri); }
   .ap-kal-pastro { border: 0; background: none; font: inherit; font-weight: 700; color: var(--primar); cursor: pointer; }
+  /* v319: Llogaria → Pajisjet ku je i kyçur */
+  .ll-pajisjet-pc { margin-top: 14px; }
+  .ll-paj { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
+  .ll-paj + .ll-paj { border-top: 1px solid var(--vije); }
+  .ll-paj__ik { flex: none; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: var(--sfond); }
+  .ll-paj__tk { flex: 1; min-width: 0; }
+  .ll-paj__tk b { display: block; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ll-paj__tk span { display: block; font-size: 12px; color: var(--gri); }
+  .ll-paj__tk span.kjo { color: #16a34a; font-weight: 600; }
+  .ll-paj-krejt { margin-top: 6px; }
   @keyframes shfaq { from { opacity: 0; } to { opacity: 1; } }
   .dialog {
     width: 100%; max-width: 480px; background: var(--karta); border-radius: 16px; box-shadow: var(--hije-e-larte);
@@ -2014,6 +2024,8 @@
               </div>
               <div class="gabim-tekst" id="opsLlGabim"></div>
             </div>
+            <!-- v319: pajisjet ku je i kyçur (pajisjet.js) + "Shkëput" nga distanca -->
+            <div class="ops-karta ll-pajisjet-pc"><div class="ops-titull" style="margin-bottom:4px">Pajisjet ku je i kyçur</div><div id="llPajisjet"></div></div>
             <button class="ops-dil" type="button" id="opsDil"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>Dil nga llogaria</button>
           </div>
         </div>
@@ -2057,18 +2069,19 @@
 <script src="ruajtja.js?v=281"></script>
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=8"></script>
+<script src="pajisjet.js?v=1"></script>
 <script src="afatet.js?v=295"></script>
-<script src="eksportet.js?v=317"></script>
+<script src="eksportet.js?v=319"></script>
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
 <script src="ekipa.js?v=316"></script>
 <script src="temat.js?v=2"></script>
-<script src="versioni.js?v=318"></script>
-<script src="app-pc.js?v=318"></script>
+<script src="versioni.js?v=319"></script>
+<script src="app-pc.js?v=319"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
 
 <!-- Firebase: i njëjti projekt dhe i njëjti dokument si versioni i telefonit -->
-<script type="module" src="firebase-pc.js?v=309"></script>
+<script type="module" src="firebase-pc.js?v=319"></script>
 </body>
 </html>
