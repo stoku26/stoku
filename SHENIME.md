@@ -63,6 +63,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      `--pg`) dhe fëmijëve u jep `pg-pas` (margin pas) ose `pg-para` (pas tekstit të lirë); MutationObserver + kontroll pas klikimit.
      Shfletuesit e rinj: s'bën asgjë. `color-mix()` (3 te index.html) mbetet: vetëm ngjyrë, s'e prish faqen.
    - Test `teste/v319-tv.js` (pa inset/:is/:has në listë; pa flex-gap hapësira mes ikonës dhe tekstit mbetet). Pa test në TV të vërtetë.
+   - Rregulli `pajisjet` u fut edhe te blloku i plotë "## Rregullat e Firestore" (brenda `match /perdoruesit/{uid}`); pronarit iu dha
+     krejt blloku për ta ngjitur. Provuar në emulatorin e vërtetë: `teste/emu/pajisjet-v319.mjs` (KREJT OK).
    - Pronari: "Qfar ka te re u fshi, kontrollo 100% projektin": mbetej te `privatesia.html` ("Ndryshimet e mëdha njoftohen te
      \"Çfarë ka të re\"") u hoq; data 17 nëntor 2026; privatësia tani përmend edhe "Pajisjet ku je i kyçur". README e Android-it
      u pastrua; klasa `ops-nav-terejat` → `ops-nav-privatesia` (pc.html); `njoftoTeRejat` → `njoftoLlogaritEReja` (Admini.kt, llogaritë
@@ -3569,6 +3571,13 @@ service cloud.firestore {
                && anetarIGrupit(request.resource.data.grupi)
                && exists(/databases/$(database)/documents/grupet/$(request.resource.data.grupi)/anetaret/$(uid)))
               || eshteAdmin());
+      }
+      // v319: pajisjet ku je i kyçur (Cilësimet → Llogaria); vetëm vetë llogaria i sheh dhe i shkëput
+      match /pajisjet/{p} {
+        allow read, delete: if request.auth != null && request.auth.uid == uid;
+        allow create, update: if request.auth != null && request.auth.uid == uid && !uFshi(uid)
+          && request.resource.data.keys().hasOnly(['emri', 'lloji', 'krijuarSe', 'paraSe', 'v'])
+          && request.resource.data.emri is string && request.resource.data.emri.size() <= 80;
       }
     }
     match /ekipa_fshire/{uid} {
