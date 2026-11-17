@@ -23,22 +23,21 @@
   // çdo madhësi). Të dy shtresat priten (clipPath) nga një drejtkëndësh 150 i gjerë që lëviz me translateX: kur kalon nga një pjesë e
   // loop-it te tjetra mbulon gjithmonë krejt logon ose asgjë, prandaj s'ka kërcim. Të njëjtat kohë si ValaELogos/SkanimiILogos (Android).
   // Barkodi: shtylla deterministe (si GIF-i). "Zvogëlo lëvizjet": vetëm logoja, pa lëvizje.
-  var SK_SEK = 6;
+  // v325 (pronari: "nonstop po rrin tu u bo her barkod her logo. Bone kshtu ... me u shendrru prej barkodit ne logo pas 1 sekonde ...
+  // edhe me nejt logo ... vetem 1 her me u pa deri ne loginin tjeter"): pa loop. Barkodi 1 s → skanimi 1 s → logoja mbetet. Hyrja
+  // (#porta) e luan sa herë del; koka e luan NJË herë pas çdo hyrjeje (KEY_SKANUAR; e fshin porta.js kur hapet hyrja), pastaj vetëm logo,
+  // edhe kur aplikacioni mbyllet e hapet. Të njëjtat kohë si SkanimiILogos (Android).
   var SK_CSS =
-    '@keyframes stkSkL{0%{transform:translateX(-153px)}15%{transform:translateX(-153px);animation-timing-function:ease-in-out}' +
-    '32%{transform:translateX(-46px);animation-timing-function:linear}80%{transform:translateX(-3px);animation-timing-function:ease-in-out}' +
-    '97%{transform:translateX(104px)}100%{transform:translateX(104px)}}' +
-    '@keyframes stkSkB{0%{transform:translateX(-38.83px)}15%{transform:translateX(-3px);animation-timing-function:ease-in-out}' +
-    '32%{transform:translateX(104px)}80%{transform:translateX(104px)}80.01%{transform:translateX(-153px);animation-timing-function:ease-in-out}' +
-    '97%{transform:translateX(-46px)}100%{transform:translateX(-38.83px)}}' +
-    '@keyframes stkSkV{0%{transform:translateX(-3px);opacity:0}14.99%{transform:translateX(-3px);opacity:0}15%{transform:translateX(-3px);opacity:1;animation-timing-function:ease-in-out}' +
-    '32%{transform:translateX(104px);opacity:1}32.01%{transform:translateX(104px);opacity:0}79.99%{transform:translateX(-3px);opacity:0}' +
-    '80%{transform:translateX(-3px);opacity:1;animation-timing-function:ease-in-out}97%{transform:translateX(104px);opacity:1}97.01%{transform:translateX(104px);opacity:0}100%{transform:translateX(104px);opacity:0}}' +
+    '@keyframes stkSkL{0%{transform:translateX(-153px)}50%{transform:translateX(-153px);animation-timing-function:ease-in-out}100%{transform:translateX(-46px)}}' +
+    '@keyframes stkSkB{0%{transform:translateX(-3px)}50%{transform:translateX(-3px);animation-timing-function:ease-in-out}100%{transform:translateX(104px)}}' +
+    '@keyframes stkSkV{0%{transform:translateX(-3px);opacity:0}49.99%{transform:translateX(-3px);opacity:0}50%{transform:translateX(-3px);opacity:1;animation-timing-function:ease-in-out}' +
+    '99.99%{transform:translateX(104px);opacity:1}100%{transform:translateX(104px);opacity:0}}' +
     '.stk-logo .sk-l{transform:translateX(-20px)}.stk-logo .sk-b{transform:translateX(104px)}.stk-logo .sk-v{opacity:0}' +
-    '.stk-logo--skanim .sk-l{animation:stkSkL ' + SK_SEK + 's linear infinite}.stk-logo--skanim .sk-b{animation:stkSkB ' + SK_SEK + 's linear infinite}' +
-    '.stk-logo--skanim .sk-v{animation:stkSkV ' + SK_SEK + 's linear infinite}' +
+    '.stk-logo--skanim .sk-l{animation:stkSkL 2s linear both}.stk-logo--skanim .sk-b{animation:stkSkB 2s linear both}' +
+    '.stk-logo--skanim .sk-v{animation:stkSkV 2s linear both}' +
     '.stk-logo .sk-v rect{fill:#4ade80}' +
     '@media (prefers-reduced-motion: reduce){.stk-logo--skanim .sk-l,.stk-logo--skanim .sk-b,.stk-logo--skanim .sk-v{animation:none}}';
+  var KEY_SKANUAR = 'stoku:logo:skanuar';
   function shtoStilinESkanimit() {
     if (!root.document || root.document.getElementById('stkSkanimStil')) return;
     var st = root.document.createElement('style'); st.id = 'stkSkanimStil'; st.textContent = SK_CSS;
@@ -59,20 +58,31 @@
       '<g clip-path="url(#' + L + ')"><path class="lg-t" d="' + t + '"></path><path class="lg-a" d="' + p + '"></path></g>' +
       '<g class="sk-v"><rect x="-6" y="-4" width="6" height="35" opacity=".12"></rect><rect x="-.35" y="-4" width=".7" height="35"></rect></g>';
   }
+  function skanuar() { try { return localStorage.getItem(KEY_SKANUAR) === '1'; } catch (e) { return false; } }
+  var kokatNePritje = [];
+  function luajKoken(svg) { svg.classList.add('stk-logo--skanim'); try { localStorage.setItem(KEY_SKANUAR, '1'); } catch (e) { /* ok */ } }
   function skanim(svg) {
     if (!svg || svg.__skanim) return;
     svg.__skanim = 1;
     var t = svg.querySelector('.lg-t'), p = svg.querySelector('.lg-a');
     if (t && p && !svg.querySelector('.lg-bk')) svg.innerHTML = brendaSkanimit(t.getAttribute('d'), p.getAttribute('d'));
-    svg.classList.add('stk-logo--skanim');
+    if (svg.closest && svg.closest('#porta')) { svg.classList.add('stk-logo--skanim'); return; } // hyrja: sa herë del
+    if (skanuar()) return; // koka: tashmë u pa pas kësaj hyrjeje → vetëm logoja
+    kokatNePritje.push(svg); // luhet kur mbyllet hyrja (porta.js: "stoku-porta-hapur" = dyqani u hap)
   }
+  if (root.addEventListener) root.addEventListener('stoku-porta-hapur', function () {
+    var l = kokatNePritje; kokatNePritje = [];
+    if (!skanuar()) l.forEach(luajKoken);
+  });
   function skanimKudo() { shtoStilinESkanimit(); Array.prototype.forEach.call(root.document.querySelectorAll('svg.stk-logo'), skanim); }
 
   // Logoja brenda faqes: shkronjat me ngjyrën e tekstit (currentColor), pika nga css/stoku-logot.css; v324 me skanimin
   function svgLogo(klasa) {
     var F = DATA.fjala;
     shtoStilinESkanimit();
-    return '<svg class="stk-logo stk-logo--skanim' + (klasa ? ' ' + klasa : '') + '" viewBox="0 0 ' + F.w + ' ' + F.h + '" aria-hidden="true" focusable="false">' +
+    // svgLogo përdoret te hyrja (porta.js, luhet sa herë del) dhe te faqja bosh e PC-së (vetëm logoja)
+    var luaj = /porta/.test(klasa || '');
+    return '<svg class="stk-logo' + (luaj ? ' stk-logo--skanim' : '') + (klasa ? ' ' + klasa : '') + '" viewBox="0 0 ' + F.w + ' ' + F.h + '" aria-hidden="true" focusable="false">' +
       brendaSkanimit(F.t, F.p) + '</svg>';
   }
   // Vizatimi në canvas (PDF, fotoja e afateve). o: { erret, tekst (ngjyra e shkronjave) }. Kthen gjerësinë.
@@ -118,7 +128,7 @@
   if (root.document) {
     if (root.document.readyState === 'loading') root.document.addEventListener('DOMContentLoaded', skanimKudo); else skanimKudo();
   }
-  root.StokuLogot = { logoW: DATA.fjala.w, logoH: DATA.fjala.h, svgLogo: svgLogo, vizatoLogon: vizatoLogon, vizatoIkonen: vizatoIkonen, svgIkona: svgIkona, rifreskoFavicon: rifreskoFavicon, barkodi: BARKODI };
+  root.StokuLogot = { logoW: DATA.fjala.w, logoH: DATA.fjala.h, svgLogo: svgLogo, vizatoLogon: vizatoLogon, vizatoIkonen: vizatoIkonen, svgIkona: svgIkona, rifreskoFavicon: rifreskoFavicon, barkodi: BARKODI, KEY_SKANUAR: KEY_SKANUAR };
   // Pastrimi i zgjedhjes së vjetër të logos (v313)
   try { localStorage.removeItem('stoku:logoja'); } catch (e) { /* ok */ }
   if (typeof document !== 'undefined') {

@@ -1,12 +1,10 @@
 package site.stoku.vendas.ui
 
 import android.provider.Settings
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -27,7 +25,6 @@ import kotlin.math.pow
  *  shtylla si `stkSkL/stkSkB/stkSkV` te logot.js: dy drejtkëndësha 150 të gjerë presin barkodin dhe logon; kur kalon nga një pjesë e
  *  loop-it te tjetra secili mbulon krejt logon ose asgjë. "Hiq animacionet" e sistemit: vetëm logoja, pa lëvizje. */
 object SkanimiILogos {
-    const val SEK = 6
     /** Shtyllat e barkodit (x, gjerësia) në njësitë e logos 100.52 x 26.97 (si BARKODI te logot.js) */
     val BARKODI: List<Pair<Float, Float>> = run {
         var s = 7L
@@ -41,27 +38,29 @@ object SkanimiILogos {
     private fun eio(t: Float) = if (t < .5f) 4 * t * t * t else 1 - (-2 * t + 2).pow(3) / 2
     private fun lerp(a: Float, b: Float, t: Float) = a + (b - a) * t
     private fun seg(p: Float, a: Float, b: Float) = ((p - a) / (b - a)).coerceIn(0f, 1f)
-    /** p ∈ [0, 1): [zhvendosja e logos, zhvendosja e barkodit, vija x (NaN = s'duket)] */
+    /** Web v325 (pronari: "nonstop po rrin tu u bo her barkod her logo ... prej barkodit ne logo veq niher per 1 login pas 1 sekonde"):
+     *  pa loop. p ∈ [0, 1]: barkodi deri 0.5 (1 s), skanimi 0.5 → 1 (1 s), pastaj logoja. [logoja, barkodi, vija x (NaN = s'duket)] */
     fun gjendja(p: Float): FloatArray {
-        val l = when { p < .15f -> -153f; p < .32f -> lerp(-153f, -46f, eio(seg(p, .15f, .32f))); p < .80f -> lerp(-46f, -3f, seg(p, .32f, .80f))
-            p < .97f -> lerp(-3f, 104f, eio(seg(p, .80f, .97f))); else -> 104f }
-        val b = when { p < .15f -> lerp(-38.83f, -3f, seg(p, 0f, .15f)); p < .32f -> lerp(-3f, 104f, eio(seg(p, .15f, .32f))); p < .80f -> 104f
-            p < .97f -> lerp(-153f, -46f, eio(seg(p, .80f, .97f))); else -> lerp(-46f, -38.83f, seg(p, .97f, 1f)) }
-        val v = when { p >= .15f && p < .32f -> lerp(-3f, 104f, eio(seg(p, .15f, .32f))); p >= .80f && p < .97f -> lerp(-3f, 104f, eio(seg(p, .80f, .97f))); else -> Float.NaN }
-        return floatArrayOf(l, b, v)
+        if (p >= 1f) return floatArrayOf(-20f, 104f, Float.NaN)
+        if (p < .5f) return floatArrayOf(-153f, -3f, Float.NaN)
+        val e = eio(seg(p, .5f, 1f))
+        return floatArrayOf(lerp(-153f, -46f, e), lerp(-3f, 104f, e), lerp(-3f, 104f, e))
     }
+    const val KEY_SKANUAR = "logo_skanuar" // si "stoku:logo:skanuar" te web-i: koka e ka bërë skanimin pas kësaj hyrjeje
+    /** Hyrja u shfaq: pas hyrjes së radhës koka e bën sërish skanimin (një herë) */
+    fun harro() = site.stoku.vendas.StokuApp.vendosPref(KEY_SKANUAR, "")
 }
 
-/** Logoja "stoku." me skanimin në loop (koka e Stoku-t dhe hyrja) */
+/** Logoja "stoku." me skanimin: `luaj` = barkodi → logo një herë (2 s); përndryshe vetëm logoja. kurNis: thirret kur nis skanimi */
 @Composable
-fun LogoMeSkanim(ink: Color, pika: Color, pershkrimi: String, modifier: Modifier = Modifier) {
+fun LogoMeSkanim(ink: Color, pika: Color, pershkrimi: String, modifier: Modifier = Modifier, luaj: Boolean = false, kurNis: () -> Unit = {}) {
     val ctx = LocalContext.current
     val paLevizje = remember { try { Settings.Global.getFloat(ctx.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f } catch (e: Exception) { false } }
     val t = remember { PathParser().parsePathString(Logot.FJ_T).toPath() }
     val pk = remember { PathParser().parsePathString(Logot.FJ_P).toPath() }
-    val p = if (paLevizje) .5f else rememberInfiniteTransition(label = "skanimi").animateFloat(0f, 1f,
-        infiniteRepeatable(tween(SkanimiILogos.SEK * 1000, easing = LinearEasing), RepeatMode.Restart), label = "p").value
-    val gj = SkanimiILogos.gjendja(p)
+    val anim = remember { Animatable(if (luaj && !paLevizje) 0f else 1f) }
+    LaunchedEffect(Unit) { if (anim.value < 1f) { kurNis(); anim.animateTo(1f, tween(2000, easing = LinearEasing)) } }
+    val gj = SkanimiILogos.gjendja(anim.value)
     val gjelber = Color(0xFF4ADE80)
     Canvas(modifier.semantics { contentDescription = pershkrimi }) {
         val k = size.width / Logot.FJ_W

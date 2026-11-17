@@ -58,6 +58,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v325 / Android Hyrja 87 (17.11.2026): SKANIMI I LOGOS NJË HERË**. Pronari: "nonstop po rrin tu u bo her barkod her logo. Bone
+   kshtu kur e hap ... te porta me u shendrru prej barkodit ne logo pas 1 sekonde ... edhe me nejt logo ... masi te bohesh login me pa barkodin
+   mas 1 sekonde me dal logo ... nese e mshel ... e e qel mos me u ndrru mo vetem 1 her ... deri ne loginin tjeter". Pa loop: barkod 1 s →
+   skanim 1 s → logo (mbetet). Web: keyframes 2 s `both`; hyrja (#porta, `svgLogo('...porta...')`) luan sa herë del; koka luan NJË herë kur
+   mbyllet hyrja (ngjarja `stoku-porta-hapur`) nëse s'ka `stoku:logo:skanuar`='1', pastaj e vendos; porta.js e fshin te `hap()` dhe kur hapet
+   pa llogari. Faqja bosh e PC-së: vetëm logo. Android: `LogoMeSkanim(luaj, kurNis)` me Animatable 2 s; hyrja `luaj = true`; koka me pref
+   `logo_skanuar`; `PortaBrenda` thërret `SkanimiILogos.harro()`. Teste: `v325.js` (v324.js pa kontrollet e loop-it).
+
 0000000. **v324 / Android Hyrja 86 (17.11.2026): LOGOJA ME SKANIM + HYRJA E RE**.
    - **Logoja**: pronari pa 10 GIF "barkodi shndërrohet në logo" dhe zgjodhi 02 (skanimi): "bone sa ma high quality ... edhe tjen nloop
      mos tdoket keq ne nisje edhe mbarim. Kudo qe osht qashtu e madhe logoja". Vala e v322 u hoq krejt (web, Android, ora: `LogoVala.kt`

@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -47,6 +48,7 @@ fun Porta() = PortaTema { PortaBrenda() } // web v324: ngjyrat e hyrjes s'ndrysh
 @Composable
 private fun PortaBrenda() {
     val n = N
+    LaunchedEffect(Unit) { SkanimiILogos.harro() } // web v325: pas hyrjes së radhës koka e bën sërish skanimin
     val scope = rememberFusha()
     var krijo by remember { mutableStateOf(false) }
     var emri by remember { mutableStateOf(Llogaria.emriIFundit()) }

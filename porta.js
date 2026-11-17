@@ -693,7 +693,10 @@
     setTimeout(function () { if (!gjendja.eHapur) porta.style.display = 'none'; }, 260);
     window.dispatchEvent(new Event('stoku-porta-hapur'));
   }
+  // v325: kur del hyrja, logoja e kokës do të bëjë sërish skanimin (një herë) pas hyrjes së radhës
+  function harroSkaniminEKokes() { try { localStorage.removeItem('stoku:logo:skanuar'); } catch (e) { /* ok */ } }
   function hap(mesazh) {
+    harroSkaniminEKokes();
     gjendja.eHapur = true;
     porta.style.display = '';
     porta.classList.remove('po-zhduket');
@@ -777,6 +780,7 @@
     var lajmero = function () { if (!gjendja.eHapur) window.dispatchEvent(new Event('stoku-porta-hapur')); };
     if (document.readyState === 'complete') setTimeout(lajmero, 0); else window.addEventListener('load', lajmero, { once: true });
   }
+  if (gjendja.eHapur && !(fundit && fundit.uid)) harroSkaniminEKokes(); // pa llogari në këtë pajisje: hyrja e re
   shfaqPritjen(fundit && fundit.emri ? 'Duke hyrë si ' + fundit.emri + '…' : 'Duke u lidhur…');
   // Pa internet (sipas shfletuesit) në një pajisje të kyçur më parë: s'ka pse të pritet — Firebase e ka
   // hyrjen të ruajtur lokalisht dhe do ta konfirmojë vetë; ndërkohë punohet me të dhënat lokale.

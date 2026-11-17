@@ -18,11 +18,10 @@ const B = 'http://127.0.0.1:8765';
   // Android: të njëjtat shtylla si web-i
   let s = 7; const r = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; }; const W = [0.9, 1.8, 2.7]; let x = 2, n = 0; while (x < 98) { const w = W[Math.floor(r() * 3)]; n++; x += w + W[Math.floor(r() * 3)]; }
   ok((L.barkodi.match(/M/g) || []).length === n && /s = \(s \* 9301 \+ 49297\) % 233280/.test(sk) && /floatArrayOf\(0\.9f, 1\.8f, 2\.7f\)/.test(sk), '1. Android: barkodi i njëjtë me web-in', n);
-  ok(/-153f.*-46f/.test(sk) && /-38\.83f/.test(lx(K + 'ui/LogoSkanim.kt')) && /stkSkB\{0%\{transform:translateX\(-38\.83px\)\}/.test(lx('logot.js')), '1. kohët e njëjta (web = Android)');
   const pt = lx(K + 'ui/Porta.kt'), tm = lx(K + 'ui/Tema.kt');
   ok(/fun Porta\(\) = PortaTema \{/.test(pt) && /fun DukeULidhur\(\) = PortaTema \{/.test(pt) && /val NgjyratEPortes/.test(tm) && (pt.match(/Malli dhe afatet, nën kontroll\./g) || []).length === 2 && !/Regjistrimi i mallit/.test(pt),
     '2. Android: hyrja me ngjyra fikse dhe teksti i ri');
-  ok(/stoku-v324/.test(lx('sw.js')) && /porta\.js\?v=324/.test(lx('sw.js')) && /logot\.js\?v=4/.test(lx('sw.js')), '0. versionet');
+  ok(/stoku-v3(2[4-9]|[3-9]\d)/.test(lx('sw.js')), '0. versionet');
 
   const b = await chromium.launch();
   async function faqe(pc, tema, reduce) {
@@ -39,21 +38,8 @@ const B = 'http://127.0.0.1:8765';
     const tr = q => { const m = getComputedStyle(s.querySelector(q)).transform.match(/matrix\(([^)]+)\)/); return m ? +m[1].split(',')[4] : 0; };
     return { l: tr('.sk-l'), b: tr('.sk-b'), v: +getComputedStyle(s.querySelector('.sk-v')).opacity, bk: !!s.querySelector('.lg-bk'), sk: s.classList.contains('stk-logo--skanim') };
   }, [sel, t]);
-  // Mbulimi: logoja duket në [l, l+150], barkodi në [b, b+150]; logoja zë 0..100.52
-  const mbulon = (a, x) => a <= x && a + 150 >= x;
+  // v325: loop-i u zëvendësua me skanimin një herë (teste/v325.js)
   const tel = await faqe(false, 'light');
-  for (const sel of ['#logoButon svg.stk-logo', '#porta .pk-logo svg.stk-logo']) {
-    const f = [];
-    for (const t of [0, 0.5, 0.9, 1.4, 1.92, 3, 4.79, 5.3, 5.82, 5.999]) f.push([t, await ne(tel, sel, t)]);
-    const st = Object.fromEntries(f);
-    ok(st[0] && st[0].bk && st[0].sk, '1. ' + sel + ': barkodi + logoja + vija në SVG');
-    ok(mbulon(st[0].b, 0) && mbulon(st[0].b, 100.52) && st[0].l + 150 < 0 && st[0].v === 0, '1. ' + sel + ': fillimi = barkodi i plotë, pa vijë', st[0]);
-    ok(st[1.4].v === 1 && st[1.4].l + 150 > 0 && st[1.4].b > 0 && st[1.4].b < 100, '1. ' + sel + ': skanimi (vija duket, majtas logo, djathtas barkod)', st[1.4]);
-    ok(mbulon(st[3].l, 0) && mbulon(st[3].l, 100.52) && st[3].b > 100.52 && st[3].v === 0, '1. ' + sel + ': mesi = logoja e plotë', st[3]);
-    ok(st[5.3].v === 1 && st[5.3].b + 150 > 0 && st[5.3].l > 0, '1. ' + sel + ': skanimi i dytë (barkodi kthehet)', st[5.3]);
-    const fsheh = l => l + 150 < 0 || l > 100.52;
-    ok(Math.abs(st[5.999].b - st[0].b) < 0.1 && fsheh(st[5.999].l) && fsheh(st[0].l) && st[5.999].v === 0, '1. ' + sel + ': fundi = fillimi (loop pa kërcim)', [st[5.999], st[0]]);
-  }
   ok(!tel.__gab.length, '1. telefoni: pa gabime JS', tel.__gab);
   // Hyrja: ngjyrat fikse edhe me temë të çelët
   const ng = await tel.evaluate(() => { const p = document.getElementById('porta'); return { bg: getComputedStyle(p).backgroundColor, btn: getComputedStyle(document.getElementById('pkDergo')).backgroundColor,
@@ -71,7 +57,7 @@ const B = 'http://127.0.0.1:8765';
   ok(!pc.__gab.length, '2. PC: pa gabime JS', pc.__gab);
   // "Zvogëlo lëvizjet": pa animacion, vetëm logoja
   const rm = await faqe(false, 'dark', true);
-  ok(await rm.evaluate(() => { const s = document.querySelector('#logoButon svg.stk-logo'); return getComputedStyle(s.querySelector('.sk-l')).animationName === 'none' && /-20/.test(getComputedStyle(s.querySelector('.sk-l')).transform) && /104/.test(getComputedStyle(s.querySelector('.sk-b')).transform); }),
+  ok(await rm.evaluate(() => { const s = document.querySelector('#porta .pk-logo svg.stk-logo'); return getComputedStyle(s.querySelector('.sk-l')).animationName === 'none' && /-20/.test(getComputedStyle(s.querySelector('.sk-l')).transform) && /104/.test(getComputedStyle(s.querySelector('.sk-b')).transform); }),
     '1. "zvogëlo lëvizjet": logoja pa lëvizje');
   await b.close();
   console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');
