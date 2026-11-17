@@ -53,6 +53,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **Rregull i përhershëm (17.11.2026)**: pronari: "Qoma gjithmon fajlin per firebase hi aty e mar". Kur ndryshojnë rregullat
+   e Firestore, i dërgohet GJITHMONË skedari me krejt rregullat (`node teste/emu/rregullat.js`, nga blloku "## Rregullat e Firestore"),
+   jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
+   Edhe te CLAUDE.md.
+
 0000000. **v320 (vazhdim): "GRUPI YT" I BALANCUAR, "CILËSIMET E GRUPIT", PA NJOFTIMIN PËR KREJT GRUPIN**. Pronari (3 foto):
    "balancoj qeto komplet ... grupi yt me at butonin per shtim ... butonin ndrysho emrin bone me ikon tvogel ... shtoje edhe ni buton me
    tri pika vertikal per cilesime te grupit ... komplet i balancon jo njo e madhe njo e vogel", "menaxho koleget e shtin mrena cilesimeve
