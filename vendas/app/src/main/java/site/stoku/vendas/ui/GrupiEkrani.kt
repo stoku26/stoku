@@ -33,7 +33,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -55,7 +54,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.SpanStyle
@@ -966,7 +964,7 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
     var emriRi by remember { mutableStateOf("") }
     var fto by rememberSaveable { mutableStateOf("") }
     var ftoHapur by rememberSaveable { mutableStateOf(false) } // Hyrja 81: fusha e ftesës del pas butonit me plus
-    var njoftimi by rememberSaveable { mutableStateOf("") }
+    var cilesimet by rememberSaveable { mutableStateOf(false) } // Hyrja 82: "Cilësimet e grupit" (butoni me tri pika)
     val llogarite by Admini.llogarite.collectAsState() // administratori: "Llogaritë e tjera"
     var krejtLlogarite by rememberSaveable { mutableStateOf(false) }
     val emriG = (doc?.get("emri") as? String)?.ifEmpty { null } ?: "Grupi"
@@ -981,10 +979,12 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
         }
         item {
             Krye("Grupi yt")
-            // Hyrja 81 (pronari, foto: "ngushtoje grupi yt edhe anen e djatht e len ikon veq ni njeri me ni plus")
-            Row(Modifier.fillMaxWidth().height(androidx.compose.foundation.layout.IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(Modifier.weight(1f).clip(RoundedCornerShape(18.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(18.dp))
-                .padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            // Hyrja 82 (pronari, foto: "balancoj qeto komplet ... butonin ndrysho emrin bone me ikon tvogel ... shtoje edhe ni buton me tri
+            // pika vertikal per cilesime te grupit ... komplet i balancon jo njo e madhe njo e vogel"): karta, "+" dhe "⋮" me të njëjtën lartësi
+            val meCilesime = pronar || Admini.eshteAdmin()
+            Row(Modifier.fillMaxWidth().height(72.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(18.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(18.dp))
+                .padding(start = 16.dp, end = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (pronar && riemertim) {
                     fun ruaj() {
                         val em = emriRi.trim()
@@ -999,15 +999,23 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
                 } else {
                     Column(Modifier.weight(1f)) {
                         Text(emriG, style = tx(17, 800, n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text((if (pronar) "Ti je admin i grupit" else "Koleg i grupit") + " · " + nrKolege(an.size), style = tx(13, 400, n.muted), modifier = Modifier.padding(top = 2.dp))
+                        Text((if (pronar) "Ti je admin i grupit" else "Koleg i grupit") + " · " + nrKolege(an.size), style = tx(13, 400, n.muted),
+                            maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp))
                     }
-                    if (pronar) Pill("Ndrysho emrin") { emriRi = emriG; riemertim = true }
+                    if (pronar) Box(Modifier.size(38.dp).clip(RoundedCornerShape(12.dp)).background(n.surface2).clickable { emriRi = emriG; riemertim = true }
+                        .semantics { contentDescription = "Ndrysho emrin e grupit" }, contentAlignment = Alignment.Center) {
+                        Icon(Ik.Laps, null, Modifier.size(18.dp), tint = n.ink2)
+                    }
                 }
             }
-            if (pronar) Box(Modifier.width(66.dp).fillMaxHeight().defaultMinSize(minHeight = 66.dp).clip(RoundedCornerShape(18.dp))
+            if (pronar) Box(Modifier.size(72.dp).clip(RoundedCornerShape(18.dp))
                 .background(if (ftoHapur) n.surface2 else n.accent).border(if (ftoHapur) 1.dp else 0.dp, n.line, RoundedCornerShape(18.dp))
                 .clickable { ftoHapur = !ftoHapur }.semantics { contentDescription = "Fto një shok në grup" }, contentAlignment = Alignment.Center) {
-                Icon(Ik.FtoKoleg, null, Modifier.size(24.dp), tint = if (ftoHapur) n.accent else Color.White)
+                Icon(Ik.FtoKoleg, null, Modifier.size(26.dp), tint = if (ftoHapur) n.accent else Color.White)
+            }
+            if (meCilesime) Box(Modifier.size(72.dp).clip(RoundedCornerShape(18.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(18.dp))
+                .clickable { cilesimet = true }.semantics { contentDescription = "Cilësimet e grupit" }, contentAlignment = Alignment.Center) {
+                Icon(Ik.TrePika, null, Modifier.size(26.dp), tint = n.ink)
             }
             }
         }
@@ -1045,65 +1053,6 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
             Text("$nOn online nga " + nrKolege(an.size), style = tx(14, 400, n.muted), modifier = Modifier.padding(bottom = 4.dp))
         }
         items(an, key = { "a" + it["uid"] }) { a -> RreshtiKolegut(a, ctx) }
-        if (pronar) {
-            item {
-                Krye("Njoftim për të gjithë grupin")
-                FushaShumeRreshta(njoftimi, { njoftimi = it.take(1000) }, "Shkruaj njoftimin (i del secilit te zilja)")
-                Buton("Dërgo te i gjithë grupi", {
-                    val t = njoftimi.trim()
-                    if (t.isEmpty()) return@Buton
-                    if (Grupi.lajmeroEkipen(t)) { njoftimi = ""; Toast.trego("Njoftimi u dërgua te i gjithë grupi.") }
-                    else Toast.trego("Njoftimi s'u dërgua. Kontrollo internetin dhe provo përsëri.", 4000)
-                }, Modifier.fillMaxWidth().padding(top = 8.dp))
-            }
-            val tjeret = an.filter { it["uneJam"] != true }
-            item {
-                Krye("Menaxho kolegët")
-                if (tjeret.isEmpty()) Text("S'ka kolegë të tjerë ende. Fto shokët me butonin + te \"Grupi yt\".", style = tx(14, 400, n.muted))
-            }
-            items(tjeret, key = { "m" + it["uid"] }) { a ->
-                val em = jsString(a["emri"] ?: "")
-                val eshteP = a["pronar"] == true
-                RreshtiMenaxhimit(em, if (eshteP) "Admin i grupit" else GrupiLogjika.tekstiPranise(a, ctx.tani), a["uid"] as? String) {
-                    Pill(if (eshteP) "Hiqe si admin" else "Bëje admin") {
-                        scope.launch {
-                            val r = Grupi.ndryshoRolin(a["uid"] as String, if (eshteP) "anetar" else "pronar")
-                            if (r != null) Toast.trego(if (r == "pronari-i-vetem") "Grupi duhet të ketë të paktën një admin." else "S'u ndryshua. Kontrollo internetin.", 4000)
-                        }
-                    }
-                    Pill("Hiq") {
-                        ctx.pyet(Pyetja("Të hiqet nga grupi?", "$em s'do ta shohë më grupin (afatet e kolegëve dhe aktivitetin) derisa ta ftosh sërish. Stoku dhe afatet e tij s'preken.", "Hiqe", true) {
-                            scope.launch { val r = Grupi.hiqNgaGrupi(a["uid"] as String); Toast.trego(if (r == null) "$em u hoq nga grupi." else "S'u hoq. Kontrollo internetin dhe provo përsëri.", 4000) }
-                        })
-                    }
-                    if (Admini.eshteAdmin() && a["admin"] != true && !Lejet.eshteAdmin(a["uid"] as? String)) Pill("Fshi", rrezik = true) { fshijLlogarine(a["uid"] as String, em, ctx, scope) }
-                }
-            }
-        }
-        if (Admini.eshteAdmin()) {
-            val brenda = an.mapNotNull { it["uid"] as? String }.toSet()
-            val uIm = Grupi.uidIm()
-            val jashte = (llogarite ?: emptyList()).filter { it.uid !in brenda && it.uid != uIm }.sortedByDescending { it.kycurSe }
-            item {
-                Krye("Llogaritë e tjera (vetëm administratori) · " + jashte.size)
-                if (jashte.isEmpty()) Text("S'ka llogari të tjera.", style = tx(14, 400, n.muted))
-            }
-            items(if (krejtLlogarite) jashte else jashte.take(15), key = { "l" + it.uid }) { x ->
-                RreshtiMenaxhimit(x.emri, (if (x.grupi != null) "Në një grup tjetër" else "Pa grup") +
-                    (if (x.kycurSe > 0) " · u kyç " + GrupiLogjika.kohaRelative(x.kycurSe, ctx.tani) else ""), x.uid) {
-                    if (pronar) Pill("Fto") {
-                        scope.launch {
-                            val r = Grupi.ftoNeGrup(x.emri, x.uid)
-                            Toast.trego(if (r == null) "Ftesa iu dërgua ${x.emri}." else tekstiGabimitTeFtesa(r), 4000)
-                        }
-                    }
-                    if (!x.admin && !Lejet.eshteAdmin(x.uid)) Pill("Fshi", rrezik = true) { fshijLlogarine(x.uid, x.emri, ctx, scope) }
-                }
-            }
-            if (!krejtLlogarite && jashte.size > 15) item {
-                Buton("Shfaq të gjitha (" + jashte.size + ")", { krejtLlogarite = true }, Modifier.fillMaxWidth(), lloji = "tekst")
-            }
-        }
         item {
             Buton("Largohu nga grupi", {
                 val m = Grupi.mundTeLargohet()
@@ -1123,6 +1072,58 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
                     }
                 })
             }, Modifier.fillMaxWidth().padding(top = 18.dp), lloji = "rrezik")
+        }
+    }
+    // Hyrja 82 (pronari: "menaxho koleget e shtin mrena cilesimeve te grupit te qaj butoni ... me tri pika")
+    if (cilesimet) Flete({ cilesimet = false }) {
+        Text("Cilësimet e grupit", style = tx(22, 700, n.ink, -0.02))
+        Text(emriG, style = tx(14, 400, n.muted))
+        if (pronar) {
+            val tjeret = an.filter { it["uneJam"] != true }
+            Column {
+                Krye("Menaxho kolegët")
+                if (tjeret.isEmpty()) Text("S'ka kolegë të tjerë ende. Fto shokët me butonin + te \"Grupi yt\".", style = tx(14, 400, n.muted))
+                tjeret.forEach { a ->
+                    val em = jsString(a["emri"] ?: "")
+                    val eshteP = a["pronar"] == true
+                    RreshtiMenaxhimit(em, if (eshteP) "Admin i grupit" else GrupiLogjika.tekstiPranise(a, ctx.tani), a["uid"] as? String) {
+                        Pill(if (eshteP) "Hiqe si admin" else "Bëje admin") {
+                            scope.launch {
+                                val r = Grupi.ndryshoRolin(a["uid"] as String, if (eshteP) "anetar" else "pronar")
+                                if (r != null) Toast.trego(if (r == "pronari-i-vetem") "Grupi duhet të ketë të paktën një admin." else "S'u ndryshua. Kontrollo internetin.", 4000)
+                            }
+                        }
+                        Pill("Hiq") {
+                            ctx.pyet(Pyetja("Të hiqet nga grupi?", "$em s'do ta shohë më grupin (afatet e kolegëve dhe aktivitetin) derisa ta ftosh sërish. Stoku dhe afatet e tij s'preken.", "Hiqe", true) {
+                                scope.launch { val r = Grupi.hiqNgaGrupi(a["uid"] as String); Toast.trego(if (r == null) "$em u hoq nga grupi." else "S'u hoq. Kontrollo internetin dhe provo përsëri.", 4000) }
+                            })
+                        }
+                        if (Admini.eshteAdmin() && a["admin"] != true && !Lejet.eshteAdmin(a["uid"] as? String)) Pill("Fshi", rrezik = true) { fshijLlogarine(a["uid"] as String, em, ctx, scope) }
+                    }
+                }
+            }
+        }
+        if (Admini.eshteAdmin()) {
+            val brenda = an.mapNotNull { it["uid"] as? String }.toSet()
+            val uIm = Grupi.uidIm()
+            val jashte = (llogarite ?: emptyList()).filter { it.uid !in brenda && it.uid != uIm }.sortedByDescending { it.kycurSe }
+            Column {
+                Krye("Llogaritë e tjera (vetëm administratori) · " + jashte.size)
+                if (jashte.isEmpty()) Text("S'ka llogari të tjera.", style = tx(14, 400, n.muted))
+                (if (krejtLlogarite) jashte else jashte.take(15)).forEach { x ->
+                    RreshtiMenaxhimit(x.emri, (if (x.grupi != null) "Në një grup tjetër" else "Pa grup") +
+                        (if (x.kycurSe > 0) " · u kyç " + GrupiLogjika.kohaRelative(x.kycurSe, ctx.tani) else ""), x.uid) {
+                        if (pronar) Pill("Fto") {
+                            scope.launch {
+                                val r = Grupi.ftoNeGrup(x.emri, x.uid)
+                                Toast.trego(if (r == null) "Ftesa iu dërgua ${x.emri}." else tekstiGabimitTeFtesa(r), 4000)
+                            }
+                        }
+                        if (!x.admin && !Lejet.eshteAdmin(x.uid)) Pill("Fshi", rrezik = true) { fshijLlogarine(x.uid, x.emri, ctx, scope) }
+                    }
+                }
+                if (!krejtLlogarite && jashte.size > 15) Buton("Shfaq të gjitha (" + jashte.size + ")", { krejtLlogarite = true }, Modifier.fillMaxWidth(), lloji = "tekst")
+            }
         }
     }
 }
@@ -1267,20 +1268,6 @@ private fun Prania(a: Obj, une: Boolean, online: Boolean, tani: Long) {
         Box(Modifier.size(7.dp).clip(CircleShape).background(if (online) n.okDot else n.muted.copy(alpha = 0.55f)))
         if (kur.isNotEmpty()) Text(kur, style = tx(12, 600, ng), maxLines = 1)
     }
-}
-
-@Composable
-private fun FushaShumeRreshta(vlera: String, ndrysho: (String) -> Unit, placeholder: String) {
-    val n = N
-    val forma = RoundedCornerShape(12.dp)
-    BasicTextField(vlera, ndrysho, Modifier.fillMaxWidth().heightIn(min = 74.dp).clip(forma).background(n.surface, forma).border(1.dp, n.line, forma),
-        textStyle = tx(16, 400, n.ink), cursorBrush = SolidColor(n.accent), minLines = 3,
-        decorationBox = { brenda ->
-            Box(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
-                if (vlera.isEmpty()) Text(placeholder, style = tx(16, 400, n.faint))
-                brenda()
-            }
-        })
 }
 
 // ---------------- Pa grup ----------------

@@ -44,7 +44,7 @@ const ADMIN = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
     F.S.docs.set('dyqane/' + id, { app: 'stoku', version: 3, foldera: [{ id: 'f1', emri: 'Pije' }], produktet: [], afatet: [], fshira: {} });
   });
   // emri i vjetër i blertës (pa u zënë ende), i njohur nga Aktiviteti; "agim_vjeter" i zënë tashmë nga agimi
-  F.S.docs.set('grupet/ekipa/feed/n1', { lloji: 'lajmerim', uid: 'u2', emri: 'blerta_vjeter', koha: tani - 9e5, tekst: 'Përshëndetje' });
+  F.S.docs.set('grupet/ekipa/feed/n1', { lloji: 'rikthyer', uid: 'u2', emri: 'blerta_vjeter', koha: tani - 9e5, produkti: 'Përshëndetje', barkodi: '78' }); // v320: jo më 'lajmerim'
   F.S.docs.set('emrat/agim_vjeter', { uid: 'u3', ndryshuarSe: tani - 9e5 });
   F.S.docs.set('dyqane/' + ADMIN + '/skedaret/s1', { emri: 'afatet_2026-11-15.pdf', lloji: 'pdf', titulli: 'Afatet', pajisja: 'Telefoni', madhesia: 90000, pjeset: 1, krijuarSe: tani - 6e4, skadon: tani + 6 * 864e5 });
   F.S.docs.set('dyqane/' + ADMIN + '/skedaret/s2', { emri: 'malli_pije_2026-11-15.xlsx', lloji: 'xlsx', titulli: 'Malli', pajisja: 'Telefoni', madhesia: 12000, pjeset: 1, krijuarSe: tani - 5e4, skadon: tani + 6 * 864e5 });

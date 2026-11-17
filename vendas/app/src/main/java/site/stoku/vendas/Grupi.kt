@@ -143,7 +143,7 @@ object Grupi {
         })
         degjuesitPerdoruesit.add(db.collection("perdoruesit").document(u0).collection("njoftimet").whereEqualTo("lexuar", false).addSnapshotListener { s, _ ->
             if (s != null && uid == u0) {
-                njoftimet.value = Emrat.perditesoListen(s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }).sortedByDescending { numerOse0(it["koha"]) } // v308
+                njoftimet.value = Emrat.perditesoListen(paLajmerime(s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) })).sortedByDescending { numerOse0(it["koha"]) } // v308
                 zbatoAfatetEKolegeve(njoftimet.value)
             }
         })
@@ -210,7 +210,7 @@ object Grupi {
         })
         degjuesitGrupit.add(ref.collection("feed").orderBy("koha", Query.Direction.DESCENDING).limit(150).addSnapshotListener { s, _ ->
             if (s == null || gNdjekur != g) return@addSnapshotListener
-            ngjarjet.value = Emrat.perditesoListen(s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) }) // v308: emrat e tanishëm
+            ngjarjet.value = Emrat.perditesoListen(paLajmerime(s.documents.map { (it.data ?: emptyMap()).me("id" to it.id) })) // v308: emrat e tanishëm
             ngjarjetGati.value = true
             zbatoKerkesatEKryera(ngjarjet.value) // Hyrja 77
         })
@@ -861,21 +861,6 @@ object Grupi {
         } catch (e: Exception) { gabimi(e) }
     }
 
-    /** Pronari: njoftim për të gjithë grupin (zilja e secilit + aktiviteti) */
-    fun lajmeroEkipen(tekst0: String): Boolean {
-        val tekst = tekst0.trim().take(1000)
-        val u0 = uid ?: return false; val g = grupi() ?: return false
-        if (tekst.isEmpty()) return false
-        val koha = System.currentTimeMillis()
-        anetaret.value.forEach { a ->
-            val u = a["uid"] as String
-            if (u == u0) return@forEach
-            njoftimMePush(u, g, mapOf("lloji" to "lajmerim", "tekst" to tekst, "grupi" to g, "uid" to u0, "emri" to emri, "koha" to koha, "lexuar" to false))
-        }
-        db.collection("grupet").document(g).collection("feed").document(idERe()).set(mapOf("lloji" to "lajmerim", "tekst" to tekst, "uid" to u0, "emri" to emri, "koha" to koha))
-        return true
-    }
-
     // ---------------- "Hyr në një grup" (v242) ----------------
     suspend fun listaEGrupeve(): List<Obj>? = try {
         db.collection("grupet_publike").limit(2000).get().await().documents.map { (it.data ?: emptyMap()).me("id" to it.id) }.filter { (it["emri"] as? String).orEmpty().isNotEmpty() }
@@ -992,9 +977,13 @@ object Grupi {
         val u0 = uid ?: return null
         return try {
             Emrat.perditesoListen(db.collection("perdoruesit").document(u0).collection("njoftimet").orderBy("koha", Query.Direction.DESCENDING).limit(40).get().await()
-                .documents.map { (it.data ?: emptyMap()).me("id" to it.id) }) // v308
+                .documents.map { (it.data ?: emptyMap()).me("id" to it.id) }.let { paLajmerime(it) }) // v308
         } catch (e: Exception) { null }
     }
+
+    /** Hyrja 82 (pronari: "e fshin komplet ... mos le naj gjurm"): njoftimi i adminit për krejt grupin (lloji "lajmerim") s'ekziston më;
+     *  ato të vjetrat s'dalin te aktiviteti as te zilja (si paLajmerime te ekipa.js) */
+    private fun paLajmerime(l: List<Obj>): List<Obj> = l.filter { it["lloji"] != "lajmerim" }
 
     /** Të palexuarat që s'presin asgjë shënohen të lexuara (pas hapjes së zilës) */
     fun shenoNjoftimetTeLexuara() {

@@ -53,6 +53,22 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v320 (vazhdim): "GRUPI YT" I BALANCUAR, "CILËSIMET E GRUPIT", PA NJOFTIMIN PËR KREJT GRUPIN**. Pronari (3 foto):
+   "balancoj qeto komplet ... grupi yt me at butonin per shtim ... butonin ndrysho emrin bone me ikon tvogel ... shtoje edhe ni buton me
+   tri pika vertikal per cilesime te grupit ... komplet i balancon jo njo e madhe njo e vogel", "menaxho koleget e shtin mrena cilesimeve
+   te grupit te qaj butoni ... me tri pika", "e fshin komplet te rrethekumen (Njoftim për të gjithë grupin) ... mos le naj gjurm".
+   - Web tel (`app-tel.js`, `index.html`) + Android (`GrupiEkrani.kt`, `Ik.TrePika`): rreshti "Grupi yt" 72 px (web `.ek-grupi-rresht`,
+     zoom-i e zvogëlon njësoj): karta + "+" (katror, i kaltër) + "⋮" (katror, i bardhë me kufi; pronari ose administratori).
+     "Ndrysho emrin" = laps 38 px brenda kartës (`#ekRiemerto`). "⋮" (`#ekGrupiCil`) hap `#dlgGrupiCil` / `Flete` "Cilësimet e grupit":
+     "Menaxho kolegët" (pronari: Bëje admin / Hiq / Fshi) + "Llogaritë e tjera (vetëm administratori)". Te faqja s'janë më.
+     `vizatoPanelinEPronarit` → `vizatoMenaxhimin`; dritarja rifreskohet bashkë me grupin; konfirmimi del mbi të (z-index 26 > 24).
+     PC: vetëm u hoq njoftimi (paneli "Admini i grupit" mbetet me "Pastro të gjithë aktivitetin").
+   - Njoftimi për krejt grupin u fshi (shih "Gjëra që ... refuzuar"): `lajmeroEkipen` (ekipa.js + Grupi.kt), tekstet te
+     GrupiLogjika + ekipa.js, `FushaShumeRreshta`, CSS `.ek-admin-njoftim`, `#ekAdminTekst/#ekAdminDergo` (PC). `paLajmerime` (web +
+     Android) i fsheh ato të vjetrat. Mbetet vetëm një rresht te Worker-i (`tekstiINjoftimit`, 'lajmerim'): s'thirret më kurrë; hiqe
+     herën tjetër kur ndryshon Worker-i (që pronari të mos e ngjisë kodin vetëm për këtë). Fikstura e Kotlinit u rigjenerua.
+   - `window.__stokuEkipaK` edhe te app-tel.js (testet). Testet: `v320.js` (i ri); v284, v303, v308, v309 pa 'lajmerim'.
+
 0000000. **v320 / Android Hyrja 82 (17.11.2026): SHKËPUTJA E PAJISJES QË ISHTE E MBYLLUR**. Pronari: "nese e shkeputi nje llogari web
    app ne telefon ose pc funksionon pa problem. po nese du me shkeput nga appi ne android aty nuk po bojka, nuk osht ne list mo pajisja
    po kur hy ne app android nuk ka nevoje me u kyq prap". Shkaku (web + Android): kur aplikacioni/faqja hapej sërish, pajisja e
@@ -3387,6 +3403,9 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Çdo PR duhet përshkrim të plotë shqip: çka ndryshoi, si u testua, çfarë numrash versioni u prekën.
 
 ## Gjëra që përdoruesi i ka refuzuar/anuluar shprehimisht (mos i propozo/rikthe pa pyetur)
+- **"Njoftim për të gjithë grupin" (17.11.2026, v320 / Hyrja 82)**: fusha + "Dërgo te i gjithë grupi" te Kolegët (admini i grupit).
+  Pronari: "e fshin komplet te rrethekumen edhe mos le naj gjurm per to". U fshi te web tel, PC, Android, ekipa.js, Grupi.kt,
+  GrupiLogjika; ato të vjetrat (lloji `lajmerim`) s'dalin te aktiviteti as te zilja. Mos e rikthe.
 - **"Çfarë ka të re" / "Çka ka të re" (17.11.2026, v318 / Hyrja 80)**: "A mujna me fshi 100% cfare ka te re se so ka vyn kurgjo?".
   U fshi kudo (web, PC, Android, Release-t). Mos e rikthe as si dritare, as si rresht te Cilësimet, as si listë te faqja e përditësimit.
 - **Ridizajnimi i plotë dhe riorganizimi i opsioneve (14.11.2026, vetëm propozime, asgjë s'u fut në projekt)**: kërkoi 10 dizajne

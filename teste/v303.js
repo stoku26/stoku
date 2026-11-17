@@ -16,7 +16,7 @@ const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); 
   ok(/VERSIONI_WORKER = 17[1-9]/.test(wp) && /rruga === '\/grupi'/.test(wp) && /lloji === 'admin-i-ri'/.test(wp), '0. Worker 171: /grupi + teksti "admin-i-ri"');
   ok(/fun njoftoKerkese/.test(push) && /fun njoftoGrupin/.test(push), '0. Android Push: /kerkese + /grupi');
   const nMePush = (kt.match(/njoftimMePush\(/g) || []).length;
-  ok(nMePush >= 6 && /Push\.njoftoKerkese\(id, g\)/.test(kt) && (kt.match(/Push\.njoftoGrupin\(/g) || []).length === 3, '0. Android Grupi: push për çdo njoftim (hequr, admin-afat, heqje, admin-i-ri, lajmerim), kërkesat, ftesat', nMePush);
+  ok(nMePush >= 5 && /Push\.njoftoKerkese\(id, g\)/.test(kt) && (kt.match(/Push\.njoftoGrupin\(/g) || []).length === 3, '0. Android Grupi: push për çdo njoftim (hequr, admin-afat, heqje, admin-i-ri; v320 pa lajmerim), kërkesat, ftesat', nMePush);
   ok(!/whereEqualTo\("perdoruesi"/.test(kt.replace(/fshijTeGjitha[^\n]*/g, '')) && /"pa-llogari"/.test(kt), '0. Android: ftesat vetëm sipas uid-së');
   const sh = lexo('SHENIME.md'), rr = sh.slice(sh.indexOf('match /ftesat/{id}'), sh.indexOf('match /emrat/{em}'));
   ok(rr && !/perdoruesi == emriIm\(\)/.test(rr) && /request\.resource\.data\.uid is string/.test(rr), '0. rregullat: ftesat pa emrin');
@@ -85,8 +85,8 @@ const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); 
   ok(rB && rB.ok && doc('grupet/g1/anetaret/u2'), '5. besa e pranon ftesën', rB);
   await agim.waitForTimeout(1000);
   thirrjet.length = 0;
-  await agim.evaluate(() => window.__stokuEkipaK.lajmeroEkipen && window.__stokuEkipaK.lajmeroEkipen('Nesër inventar'));
-  ok(await prit(() => thirrjet.some(x => x.rruga === '/njoftim' && x.trup.per === 'u2')), '5. "Njoftim për grupin" → push (/njoftim) te besa', thirrjet.filter(x => x.rruga === '/njoftim').map(x => x.nga + '>' + JSON.stringify(x.trup)));
+  // v320: "Njoftim për të gjithë grupin" u fshi (pronari); s'ka më funksion
+  ok(await agim.evaluate(() => !window.__stokuEkipaK.lajmeroEkipen), '5. v320: pa njoftimin për krejt grupin (lajmeroEkipen s\'ekziston)');
 
   const gab = [agim, besa, zana].flatMap(p => p.__gab || []);
   ok(!gab.length, '6. pa gabime JS', gab);

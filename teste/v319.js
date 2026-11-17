@@ -30,7 +30,7 @@ const SC = '/tmp/claude-0/-home-user-stoku/e6bed5df-a3f5-5158-8183-d77a3d2bc01d/
   ok(/private fun EksportoFlete\(/.test(af) && !/DropdownMenu\(hapur/.test(af), '0. Android: "Eksporto" si dritare');
   ok(/viewBox="10\.8 10\.8 86\.4 86\.4"/.test(lx('logo/stoku-icon-maskable.svg')) && /icon-maskable-512\.png\?v=6/.test(lx('manifest.webmanifest')), '0. ikona maskable me zonën e sigurt');
   const sw = lx('sw.js');
-  ok(/stoku-v3[2-9]\d/.test(sw) && /pajisjet\.js\?v=\d/.test(sw) && /app-tel\.js\?v=319/.test(sw) && /firebase-tel\.js\?v=3\d\d/.test(sw), '0. sw.js: CACHE v319, pajisjet.js');
+  ok(/stoku-v3[2-9]\d/.test(sw) && /pajisjet\.js\?v=\d/.test(sw) && /app-tel\.js\?v=3\d\d/.test(sw) && /firebase-tel\.js\?v=3\d\d/.test(sw), '0. sw.js: CACHE v319, pajisjet.js');
   ok(/match \/pajisjet\/\{p\}/.test(lx('SHENIME.md')), '0. SHENIME: rregulli i Firestore për pajisjet');
 
   // ===== Faqet =====

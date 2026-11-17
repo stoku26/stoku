@@ -5141,16 +5141,6 @@
   }
 
   // ---- Paneli i pronarit të grupit ----
-  $('ekAdminDergo').addEventListener('click', async function () {
-    var ta = $('ekAdminTekst'), t = ta.value.trim();
-    if (!t) { ta.focus(); return; }
-    this.disabled = true;
-    var r = await ekK.lajmeroEkipen(t);
-    this.disabled = false;
-    if (!r.ok) { toast('Njoftimi s\'u dërgua. Kontrollo internetin dhe provo përsëri.'); return; }
-    ta.value = '';
-    toast('Njoftimi u dërgua te i gjithë grupi' + (r.neRadhe ? ' (sapo të ketë internet).' : '.'));
-  });
   $('ekAdminPastroAkt').addEventListener('click', async function () {
     var b = this;
     var po = await konfirmo('Të fshihet i gjithë aktiviteti?', 'I gjithë historiku i aktivitetit fshihet për të gjithë grupin. Afatet s\'preken.', 'Fshi të gjitha');

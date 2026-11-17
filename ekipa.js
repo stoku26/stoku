@@ -267,6 +267,9 @@
     function eshteLeje(e) { return !!e && (e.code === 'permission-denied' || /permission/i.test(String(e.message || ''))); }
     function pastro(o) { var r = {}; Object.keys(o).forEach(function (k) { if (o[k] !== undefined) r[k] = o[k]; }); return r; }
     function listaNga(s) { var l = []; s.forEach(function (d) { l.push(Object.assign({}, d.data(), { id: d.id })); }); return l; }
+    // v320 (pronari: "e fshin komplet ... mos le naj gjurm"): njoftimi i adminit për krejt grupin (lloji 'lajmerim') s'ekziston më;
+    // ato të vjetrat te aktiviteti dhe te zilja s'dalin
+    function paLajmerime(l) { return l.filter(function (x) { return x.lloji !== 'lajmerim'; }); }
     // ---------- v252: koleksion i përbashkët me kopje në pajisje (pikat, regjistri) ----------
     // Firebase numëron çdo dokument të lexuar: me kopjen, sa hapet Stoku lexohen vetëm dokumentet e ndryshuara pas
     // sinkronizimit të fundit të kësaj pajisjeje (`ndryshuarSe`, me 1 orë rezervë për orët e pasakta të telefonave), jo krejt
@@ -1348,18 +1351,6 @@
         } catch (e) { return gabim(e); }
       },
 
-      // ---------- Pronari i grupit: njoftim për të gjithë grupin, pastrimi ----------
-      // Njoftim te zilja e secilit (lista e uid-ve) + në aktivitet; kalon nga radha (s'humbet pa internet)
-      lajmeroEkipen: function (tekst, listaUid) {
-        tekst = String(tekst || '').trim().slice(0, 1000);
-        if (!tekst || !uid() || !grupi) return Promise.resolve({ ok: false, arsye: 'bosh' });
-        var koha = Date.now();
-        (listaUid || []).forEach(function (u) {
-          if (u === uid()) return;
-          shtoNeRadhe(['perdoruesit', u, 'njoftimet'], { lloji: 'lajmerim', tekst: tekst, grupi: grupi, uid: uid(), emri: emri(), koha: koha, lexuar: false });
-        });
-        return pritPak(shtoNeRadhe(rrG('feed'), { lloji: 'lajmerim', tekst: tekst, uid: uid(), emri: emri(), koha: koha }));
-      },
       // Kërkesë që një koleg (ose i gjithë grupi) ta heqë nga rafti një produkt (edhe pa afat në Stoku).
       // Ngjarja te aktiviteti + njoftim te zilja e secilit marrës; Worker-i dërgon push (/kerkese).
       kerkoHeqjen: function (k, listaUid) {
@@ -1487,7 +1478,7 @@
       degjoNgjarjet: function (cb, n, cbGabim) {
         if (!grupi) return function () {};
         var q = fs.query(fs.collection(db, 'grupet', grupi, 'feed'), fs.orderBy('koha', 'desc'), fs.limit(n || 150));
-        return fs.onSnapshot(q, function (s) { cb(listaNga(s)); }, function (e) { if (cbGabim) cbGabim(e); });
+        return fs.onSnapshot(q, function (s) { cb(paLajmerime(listaNga(s))); }, function (e) { if (cbGabim) cbGabim(e); });
       },
 
       // ---------- Njoftimet push ----------
@@ -1563,13 +1554,13 @@
       degjoNjoftimetEPalexuara: function (cb, cbGabim) {
         if (!uid()) return function () {};
         var q = fs.query(fs.collection(db, 'perdoruesit', uid(), 'njoftimet'), fs.where('lexuar', '==', false));
-        return fs.onSnapshot(q, function (s) { cb(listaNga(s)); }, function (e) { if (cbGabim) cbGabim(e); });
+        return fs.onSnapshot(q, function (s) { cb(paLajmerime(listaNga(s))); }, function (e) { if (cbGabim) cbGabim(e); });
       },
       merrNjoftimet: async function (n) {
         if (!uid()) return { ok: false, lista: [] };
         try {
           var s = await fs.getDocs(fs.query(fs.collection(db, 'perdoruesit', uid(), 'njoftimet'), fs.orderBy('koha', 'desc'), fs.limit(n || 40)));
-          return { ok: true, lista: listaNga(s) };
+          return { ok: true, lista: paLajmerime(listaNga(s)) };
         } catch (e) { var g = gabim(e); g.lista = []; return g; }
       },
       shenoTeLexuara: async function (ids) {
@@ -1924,8 +1915,6 @@
             detaje: 'pranuar nga ' + (ng.uid === uidIm ? 'ti' : (ng.emri || 'administratori')), avatar: ng.anetariEmri || '' };
         }
         return { lloji: 'anetar-i-ri', kush: kush, cfare: ng.uid === uidIm ? 'u bashkove me grupin' : 'u bashkua me grupin', detaje: '' };
-      case 'lajmerim':
-        return { lloji: 'lajmerim', kush: kush, cfare: ng.uid === uidIm ? 'njoftove të gjithë grupin' : 'njoftoi të gjithë grupin', detaje: ng.tekst || '' };
       case 'kerkese-heqje':
         return { lloji: 'lajmeruar', kush: kush, cfare: (ng.uid === uidIm ? 'kërkove' : 'kërkoi') + ' heqjen nga rafti: ' + produktiIKerkeses(ng),
           detaje: (ng.perUid ? 'për ' + (ng.perUid === uidIm ? 'ty' : (ng.perEmri || 'një koleg')) : 'për të gjithë grupin') + (ng.shenim ? ' · ' + ng.shenim : '') };
@@ -2203,7 +2192,6 @@
     }
     if (nj.lloji === 'heqje-pranuar') return (nj.emri || 'Kolegu') + ' e pranoi heqjen nga rafti: ' + (nj.produkti || nj.barkodi || 'produkt');
     if (nj.lloji === 'heqje-refuzuar') return (nj.emri || 'Kolegu') + ' e refuzoi heqjen nga rafti: ' + (nj.produkti || nj.barkodi || 'produkt') + ' (mbetet në raft)';
-    if (nj.lloji === 'lajmerim') return (nj.emri || 'Administratori') + ': ' + (nj.tekst || '');
     if (nj.lloji === 'admin-i-ri') return (nj.emri || 'Admini') + ' u largua nga grupi dhe tani ti je admini i grupit.';
     if (nj.lloji === 'admin-afat') return (nj.emri || 'Administratori') + ' ' + (FJALA_E_VEPRIMIT[nj.veprimi] || 'ndryshoi') + ': ' + (nj.produkti || nj.barkodi || 'produkt');
     return nj.tekst || '';
@@ -2718,12 +2706,6 @@
       var r = await e.kryejKerkesen(nj);
       if (r && r.ok) { nj.kryer = true; gj.njoftimetPalexuara = gj.njoftimetPalexuara.filter(function (x) { return x.id !== nj.id; }); thirr('njoftimet'); }
       return r;
-    }
-    // Pronari i grupit: njoftim te zilja e krejt anëtarëve
-    async function lajmeroEkipen(tekst) {
-      var e = E();
-      if (!e || !eshtePronar() || !e.lajmeroEkipen) return { ok: false };
-      return e.lajmeroEkipen(tekst, anetaretEDukshem().map(function (a) { return a.uid; }));
     }
     // Pronari i grupit: 'feed' (aktiviteti)
     async function pastro(k) {
@@ -3493,7 +3475,6 @@
       mundTeLargohet: mundTeLargohet, ftoNeGrup: ftoNeGrup, anuloFtesen: anuloFtesen, ndryshoRolin: ndryshoRolin, riemertoGrupin: riemertoGrupin,
       llogariteJashte: llogariteJashte,
       hiqNgaEkipa: hiqNgaEkipa, fshijLlogarine: fshijLlogarine,
-      lajmeroEkipen: lajmeroEkipen,
       koleget: koleget, kerkoHeqjen: kerkoHeqjen, kryejKerkesen: kryejKerkesen, kryeresiIKerkeses: kryeresiIKerkeses,
       pastroAktivitetin: function () { return pastro('feed'); },
       merrStokun: merrStokun, adminNdryshoAfatin: adminNdryshoAfatin
