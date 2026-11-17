@@ -91,6 +91,18 @@ val NgjyratEErreta = Ngjyrat(
     erret = true
 )
 
+/** Web v324 (pronari: "qesaj pjese mos e le me ju ndrru ngjyra ... dmth portes"): hyrja ka gjithmonë këto ngjyra (e zezë me vjollcë,
+ *  si #porta te porta.js), pavarësisht temës */
+val NgjyratEPortes = NgjyratEErreta.copy(
+    bg = c(0x000000), surface = c(0x0e0f12), surface2 = c(0x141519), sunken = c(0x16171b), head = c(0x0e0f12),
+    line = c(0x23252b), line2 = c(0x1a1b20), ink = c(0xf5f5f7), ink2 = c(0xd4d4d8), ink3 = c(0xc9cad0), ink4 = c(0xa1a1aa),
+    muted = c(0x8a8c94), faint = c(0x6b6d75), control = c(0x45454a),
+    accent = c(0x5b3cf5), accentPress = c(0x4a2fd6), accentText = c(0x9d8cff), accentTint = c(0x1a1730), accentLine = c(0x2f2470)
+)
+
+@Composable
+fun PortaTema(content: @Composable () -> Unit) = CompositionLocalProvider(LocalNgjyrat provides NgjyratEPortes, content = content)
+
 val LocalNgjyrat = staticCompositionLocalOf { NgjyratECelet }
 val N: Ngjyrat @Composable get() = LocalNgjyrat.current
 

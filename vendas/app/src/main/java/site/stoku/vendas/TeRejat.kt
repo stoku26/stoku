@@ -10,6 +10,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(86, "2026-11-17", "Hyrja dhe logoja e re", listOf(
+            "Logoja e Stoku-t lart dhe te hyrja tani nis si barkod: një vijë e gjelbër skanimi e kalon dhe e kthen në \"stoku.\".",
+            "Hyrja ka gjithmonë të njëjtat ngjyra (e zezë me vjollcë), cilado temë që ke zgjedhur, dhe teksti i ri: \"Malli dhe afatet, nën kontroll.\""
+        )),
         Hyrja(85, "2026-11-17", "Excel më i thjeshtë", listOf(
             "Kur eksporton afatet në Excel, zgjedh vetëm muajin dhe furnizuesin. Excel-i ka gjithmonë të njëjtat kolona: Barkodi, Emri i produktit, Sasia, Furnizuesi dhe Skadon më.",
             "Numrat (sasia) dhe datat në Excel nisin nga ana e majtë, si teksti.",

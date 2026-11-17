@@ -58,6 +58,20 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v324 / Android Hyrja 86 (17.11.2026): LOGOJA ME SKANIM + HYRJA E RE**.
+   - **Logoja**: pronari pa 10 GIF "barkodi shndërrohet në logo" dhe zgjodhi 02 (skanimi): "bone sa ma high quality ... edhe tjen nloop
+     mos tdoket keq ne nisje edhe mbarim. Kudo qe osht qashtu e madhe logoja". Vala e v322 u hoq krejt (web, Android, ora: `LogoVala.kt`
+     u fshinë). Tani te logot e mëdha (koka tel, PC, hyrja; Android koka + hyrja): barkod → vija e gjelbër majtas-djathtas → "stoku."
+     (~3 s) → vija → barkod, 6 s në loop. Web `logot.js` (`skanimKudo`, `svgLogo`, `@keyframes stkSkL/stkSkB/stkSkV`, `BARKODI` me PRNG
+     seed 7 si GIF-i): dy `<clipPath>` me drejtkëndësha 150 të gjerë që lëvizin me translateX; në kalimet mes pjesëve secili mbulon krejt
+     logon ose asgjë, prandaj loop-i s'kërcen. Android `ui/LogoSkanim.kt` (`SkanimiILogos.gjendja(p)` = të njëjtat kohë; `clipRect`).
+     "Zvogëlo lëvizjet" (web) / animacionet e fikura (Android): vetëm logoja. Ora: logoja statike (e vogël).
+   - **Hyrja**: pronari zgjodhi idenë 1 për PC dhe tekstin "Malli dhe afatet, nën kontroll." (në vend të "Regjistrimi i mallit ...");
+     "qesaj pjese mos e le me ju ndrru ngjyra as ne pc as ne web app as ne android app dmth portes": `#porta` ka variablat `--sb-*` fikse
+     (e zezë, vjollcë #5b3cf5); Android `NgjyratEPortes` + `PortaTema` (Porta, DukeULidhur). PC (`<html class="sbp">`, ≥ 1000 px):
+     `.porta-pc`, majtas `.pk-ana` (logoja me skanim, h1, 3 pika), djathtas `.pk-djathtas` me formën ("Mirë se vjen"); më ngushtë si telefoni.
+   - Teste: `v324.js` (v322.js u fshi); v314 (hyrja: 3 shtigje).
+
 0000000. **v323 / Android Hyrja 85 (17.11.2026): "ÇFARË KA TË RE" U RIKTHYE + EXCEL MË I THJESHTË**.
    - **"Çfarë ka të re"**: pronari: "shtoja apet cfare ka te re se pa to spo bojka ... te versioni pc e len veq te cilesimet ... ne web app
      telefon e len te cilesimet afer privatesise ... ne android app ajo dritarja qe tdel kur ka version te ri ... mu kon qfare ka te re

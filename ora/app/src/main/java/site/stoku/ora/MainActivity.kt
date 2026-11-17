@@ -174,7 +174,7 @@ fun Lidhja(kurLidhet: () -> Unit) {
 @Composable
 fun Logo() {
     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        LogoMeVale(Modifier.height(18.dp)) // web v322: vala një herë (LogoVala.kt)
+        androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(R.drawable.logo_stoku), "Stoku", Modifier.height(18.dp)) // web v324: në orë pa lëvizje (logo e vogël)
     }
 }
 
