@@ -77,8 +77,6 @@ const RR = __dirname + '/../';
   const sw = fs.readFileSync(RR + 'sw.js', 'utf8'), ix = fs.readFileSync(RR + 'index.html', 'utf8');
   const nr = (s, rx) => Number((s.match(rx) || [])[1]);
   ok(nr(sw, /stoku-v(\d+)/) >= 290 && nr(sw, /app-tel\.js\?v=(\d+)/) >= 290 && nr(sw, /app-pc\.js\?v=(\d+)/) >= 290 && nr(sw, /ekipa\.js\?v=(\d+)/) >= 290 && nr(ix, /app-tel\.js\?v=(\d+)/) >= 290, 'versionet ≥ 290');
-  const tr = fs.readFileSync(RR + 'teRejat.js', 'utf8');
-  ok(/\{ v: 290,[^\n]*platforma: 'tel'/.test(tr) && /\{ v: 290,[^\n]*platforma: 'pc'/.test(tr), 'teRejat v290 (tel + pc)');
   console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');
   process.exit(g ? 1 : 0);
 })();

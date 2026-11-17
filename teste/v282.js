@@ -44,7 +44,6 @@ const DIMER = Date.UTC(2026, 10, 9, 6, 25), VERE = Date.UTC(2026, 6, 9, 6, 25), 
     const sw = await q.evaluate(() => fetch('sw.js').then(x => x.text()));
     const nr = rx => Number((sw.match(rx) || [])[1]);
     ok(nr(/stoku-v(\d+)/) >= 282 && nr(/afatet\.js\?v=(\d+)/) >= 282 && nr(/ekipa\.js\?v=(\d+)/) >= 282 && nr(/app-tel\.js\?v=(\d+)/) >= 282 && nr(/app-pc\.js\?v=(\d+)/) >= 282 && nr(/xlsx\.js\?v=(\d+)/) >= 282 && nr(/porta\.js\?v=(\d+)/) >= 282, '4. versionet ≥ 282');
-    ok(/\{ v: 282,[^\n]*platforma: 'tel'/.test(await q.evaluate(() => fetch('teRejat.js?v=' + Date.now()).then(x => x.text()))), '4. teRejat v282');
     await c2.close();
   }
   await b.close();

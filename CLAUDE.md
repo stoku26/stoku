@@ -53,10 +53,10 @@ Përditësoje në të njëjtin PR me çdo ndryshim domethënës.
 1. `git fetch origin main && git checkout -B claude/qysh-funksionon-ilbmdw origin/main` (ose dega e bisedës).
 2. Ndryshimi + test i ri te `teste/` (shtoje edhe te lista e `teste/regresioni.sh`).
 3. Rrit `CACHE` te `sw.js` dhe `?v=` të çdo skedari të ndryshuar: `index.html`, `pc.html` dhe SHELL te `sw.js`.
-4. Hyrje e re në krye të `LISTA` te `teRejat.js` ("Çka ka të re"; `platforma: 'tel'|'pc'`, `vetemAdmini` sipas nevojës).
+4. "Çka ka të re" s'ekziston më (v318, pronari e fshiu krejt): mos e rikthe. Te `versioni.js` rrit `v` dhe `emri` (versioni te Cilësimet).
 5. Hyrje e re në krye të listës `0000000.` te `SHENIME.md`.
 6. `node teste/gjej-vizat.js index.html pc.html app-tel.js app-pc.js fillimi-tel.js fillimi-pc.js firebase-tel.js
-   firebase-pc.js teRejat.js porta.js afatet.js privatesia.html 404.html android.html` duhet të japë "gjithsej 0".
+   firebase-pc.js versioni.js porta.js afatet.js privatesia.html 404.html android.html` duhet të japë "gjithsej 0".
 7. Regresioni i plotë: `bash teste/regresioni.sh > teste/regresioni-vNNN.txt` (rreth 30 min, në sfond); krahasoje me
    të fundit. Mos i ndrysho skedarët ndërsa punon.
 8. Commit, push, PR (përshkrim shqip), merge me SHA-në e plotë, sinkronizo degën me main, prit deploy-in e Pages.

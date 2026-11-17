@@ -245,10 +245,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
         // Hyrja 32: brenda folderit toast-i del mbi butonin e skanimit (tash në mes si parazgjedhje), jo mbi të
         ToastPamja(Modifier.align(Alignment.BottomCenter).then(if (meTabe) Modifier else Modifier.navigationBarsPadding()), poshte = if (meTabe) 90.dp else 108.dp)
         DritaretEMarketeve(hapMarketet = { tabi = "cilesimet"; Merchandiseri.hapFaqen.value = true })
-        // "Çfarë ka të re": një herë pas përditësimit
-        var teRejat by remember { mutableStateOf(TeRejat.teReja()) }
-        if (teRejat.isNotEmpty()) site.stoku.vendas.ui.TeRejatFlete(teRejat) { teRejat = emptyList() }
-        else site.stoku.vendas.ui.PyetjaENjoftimeve() // si dlgNjoftimet te web-i: pas "Çfarë ka të re", jo njëkohësisht
+        site.stoku.vendas.ui.PyetjaENjoftimeve() // si dlgNjoftimet te web-i (Hyrja 80: pa "Çfarë ka të re")
         skanimi?.let { cb ->
             Skaneri(mbyll = { skanimi = null }, shtoNjeCope = numerimi) { b -> skanimi = null; cb(b) }
         }

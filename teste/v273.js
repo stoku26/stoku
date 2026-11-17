@@ -106,9 +106,7 @@ const ruajtur = p => p.evaluate(() => (JSON.parse(localStorage.getItem('stoku:op
     const { b, p } = await hapFaqen(chromium, { madhesia: 'normale' });
     const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
     const nr = rx => Number((sw.match(rx) || [])[1]);
-    ok(nr(/stoku-v(\d+)/) >= 273 && nr(/app-tel\.js\?v=(\d+)/) >= 273 && nr(/teRejat\.js\?v=(\d+)/) >= 273 && nr(/stoku\.css\?v=(\d+)/) >= 58, '6. CACHE, app-tel, teRejat ≥ 273, stoku.css ≥ 58');
-    const tr = await p.evaluate(() => fetch('teRejat.js?v=' + Date.now()).then(x => x.text()));
-    ok(/\{ v: 273,[^\n]*platforma: 'tel'/.test(tr), '6. teRejat v273 (telefon)');
+    ok(nr(/stoku-v(\d+)/) >= 273 && nr(/app-tel\.js\?v=(\d+)/) >= 273 && nr(/stoku\.css\?v=(\d+)/) >= 58, '6. CACHE, app-tel, teRejat ≥ 273, stoku.css ≥ 58');
     await b.close();
   }
   console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');

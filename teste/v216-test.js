@@ -70,10 +70,10 @@ const prod = (p, k) => p.evaluate(k => JSON.parse(localStorage.getItem('stoku:pr
     // 4. Skanimi kur një dritare është e hapur: fusha e barkodit zbrazet (skanimi tjetër s'i ngjitet)
     const { p: p2, ctx: c2 } = await faqe(b, false);
     await p2.click('.folder-karta[data-id="f1"]'); await p2.waitForTimeout(300);
-    await p2.evaluate(() => document.getElementById('dlgTeRejat').classList.add('hapur'));
+    await p2.evaluate(() => document.getElementById('dlgKonfirmo').classList.add('hapur'));
     await p2.fill('#barkodi', '5901234123457'); await p2.press('#barkodi', 'Enter'); await p2.waitForTimeout(300);
     ok((await p2.inputValue('#barkodi')) === '', 'T4: fusha e barkodit zbrazet edhe kur një dritare është e hapur', await p2.inputValue('#barkodi'));
-    await p2.evaluate(() => document.getElementById('dlgTeRejat').classList.remove('hapur'));
+    await p2.evaluate(() => document.getElementById('dlgKonfirmo').classList.remove('hapur'));
     // 5. Renditja Z-A: produkti pa emër në fund
     await p2.evaluate(() => { var o = JSON.parse(localStorage.getItem('stoku:opsione:v1') || '{}'); });
     const rend = await p2.evaluate(() => {

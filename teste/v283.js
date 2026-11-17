@@ -58,7 +58,6 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
   const sw = require('fs').readFileSync(__dirname + '/../sw.js', 'utf8');
   const nr = rx => Number((sw.match(rx) || [])[1]);
   ok(nr(/stoku-v(\d+)/) >= 283 && nr(/ekipa\.js\?v=(\d+)/) >= 283 && nr(/app-tel\.js\?v=(\d+)/) >= 283 && nr(/app-pc\.js\?v=(\d+)/) >= 283, '5. versionet ≥ 283');
-  ok(/\{ v: 283,[^\n]*platforma: 'tel'/.test(require('fs').readFileSync(__dirname + '/../teRejat.js', 'utf8')), '5. teRejat v283');
   await b.close();
   console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');
   process.exit(g ? 1 : 0);

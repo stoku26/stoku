@@ -30,8 +30,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
     if (tema === 'light') {
       const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
       const nr = rx => Number((sw.match(rx) || [])[1]);
-      ok(nr(/stoku-v(\d+)/) >= 278 && nr(/stoku\.css\?v=(\d+)/) >= 62 && nr(/teRejat\.js\?v=(\d+)/) >= 278, '3. CACHE ≥ 278, stoku.css ≥ 62, teRejat ≥ 278');
-      ok(/\{ v: 278,[^\n]*platforma: 'tel'/.test(await p.evaluate(() => fetch('teRejat.js?v=' + Date.now()).then(x => x.text()))), '3. teRejat v278');
+      ok(nr(/stoku-v(\d+)/) >= 278 && nr(/stoku\.css\?v=(\d+)/) >= 62, '3. CACHE ≥ 278, stoku.css ≥ 62, teRejat ≥ 278');
     }
     await ctx.close();
   }

@@ -59,10 +59,6 @@ const NUMERO_GPS = () => {
   ok(LJ.ZGJEDHJE.marketet && LJ.PRINDI.marketet === 'afatet' && !LJ.lejohet(null, 'marketet') && !LJ.lejohet({}, 'marketet') && LJ.lejohet({ marketet: true }, 'marketet') && !LJ.lejohet({ marketet: true, afatet: false }, 'marketet'), '0. lejet: "marketet" e fikur kur mungon; e ndezur vetëm kur caktohet (dhe me Afatet)');
   ok(!('marketet' in LJ.pastro({ afatet: true })) && LJ.pastro({ marketet: false }).marketet === false && LJ.pastro(null).stoku === true, '0. pastro: "marketet" ruhet vetëm kur caktohet');
   ok(!('marketet' in LJ.krejt(true)) && !('marketet' in LJ.krejt(false)) && LJ.meZgjedhjet(LJ.krejt(true), { marketet: false }).marketet === false && LJ.meZgjedhjet(LJ.krejt(false), { marketet: true }).marketet === true, '0. "Lejo/Ndalo të gjitha" s\'e ndërrojnë "Merchandiser"');
-  const TR = require(RR + '/teRejat.js');
-  const tekstiTR = l => l.map(h => h.titulli + ' ' + h.pikat.join(' ')).join(' ');
-  ok(!/market/i.test(tekstiTR(TR.teRejatPas(240, 'tel', false, k => k !== 'marketet'))) && /merchandiser/i.test(tekstiTR(TR.teRejatPas(240, 'tel', false, () => true))) &&
-    /Merchandiser/.test(tekstiTR(TR.teRejatPas(240, 'pc', true, () => true))), '0. "Çfarë ka të re": marketet vetëm për merchandiserët (dhe administratorin)');
   ok(LJ.teNdaluara({ marketet: false }) === 0 && LJ.zgjedhja(null, 'marketet') === null && LJ.zgjedhja({ marketet: true }, 'marketet') === true, '0. "Merchandiser" i fikur s\'është leje e ndaluar');
 
   // ================= 1. Telefoni: merchandiseri =================

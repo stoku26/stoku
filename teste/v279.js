@@ -50,8 +50,7 @@ const AF = []; const shto = (e, f, n) => AF.push({ id: 'a' + AF.length, emri: e,
     if (tema === 'light') {
       const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
       const nr = rx => Number((sw.match(rx) || [])[1]);
-      ok(nr(/stoku-v(\d+)/) >= 279 && nr(/app-tel\.js\?v=(\d+)/) >= 279 && nr(/teRejat\.js\?v=(\d+)/) >= 279, '4. CACHE ≥ 279, app-tel ≥ 279, teRejat ≥ 279');
-      ok(/\{ v: 279,[^\n]*platforma: 'tel'/.test(await p.evaluate(() => fetch('teRejat.js?v=' + Date.now()).then(x => x.text()))), '4. teRejat v279');
+      ok(nr(/stoku-v(\d+)/) >= 279 && nr(/app-tel\.js\?v=(\d+)/) >= 279, '4. CACHE ≥ 279, app-tel ≥ 279, teRejat ≥ 279');
     }
     await ctx.close();
   }

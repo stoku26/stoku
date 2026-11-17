@@ -53,6 +53,22 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v318 / Android Hyrja 80 (17.11.2026): "ÇFARË KA TË RE" U FSHI KREJT**. Pronari: "A mujna me fshi 100% cfare ka te re se so ka
+   vyn kurgjo?". MOS E RIKTHE (shtuar te "Gjëra që përdoruesi i ka refuzuar").
+   - Web: u fshi `teRejat.js` (lista, `teRejatPas`, `FJALET_E_LEJEVE`), dritarja `#dlgTeRejat` (tel + PC) me CSS-in `.tr-*`, rreshti/butoni
+     `#opsTeRejat` te Cilësimet, shfaqja vetë në hyrje dhe `lejaPerTeRejat`. Pajisjet e fshijnë `stoku:te-rejat:pare` në hapje.
+     Versioni te Cilësimet ("Stoku 1.64.0") vjen tani nga `versioni.js` (`{ v, emri }`, rrite me çdo version të web-it).
+   - Android: u fshi `TeRejat.kt`, `TeRejatFlete` (Cilësimet + dritarja pas përditësimit te MainActivity), ikona `Ik.TeRejat`, lista
+     "ÇKA KA TË RE" te faqja e përditësimit (`Perditesimi.Gjendja` pa `teReja`); `StokuApp` fshin pref-in `te_rejat_pare`.
+   - `vendas-apk.yml`: trupi i Release-it vetëm me përshkrimin (pa "Çka ka të re" nga TeRejat.kt).
+   - CLAUDE.md: hapi 4 i punës në web tani = rrit `versioni.js` (jo më hyrje te teRejat).
+   - Teste: `teste/v318.js`; u hoqën kontrollet e teRejat nga testet e vjetra (v253 deri v291, lejet-e2e/pc, marketet-v241, v258,
+     v317), v216-test dhe v311 përdorin dritare tjetër (dlgKonfirmo / dlgAfPdf), vizitor-test kontrollon që dritarja s'ekziston.
+   - Siguria (pronari solli 3 pika nga ChatGPT): (1) lejet zbatohen vetëm në aplikacion: e njohur dhe e pranuar (shih "Të mbetura"
+     te v234); rregullat `dyqane/{kodi}` lejojnë vetëm pronarin e dyqanit ose administratorin, pra një llogari e kufizuar mund të
+     ndryshojë me API vetëm dyqanin e VET. (2) firebase-pc.js përdor vetëm `auth.currentUser.uid` / uid-në e vet; rregullat e mbrojnë.
+     (3) çelësi API i Firebase-it është publik sipas dizajnit. Asnjë ndryshim i rregullave.
+
 0000000. **v317 / Android Hyrja 79 (16.11.2026): PDF E AFATEVE PA FUND, MË E VOGËL, FILTRI "SHTUAR"**. Pronari (foto e PDF-së dhe e dritares):
    "Hiqja krejt qeto mos le kurgjo ne fund te fletave te eksportume si pdf afate", "gjeje arsyjen pse pdf e web appit ntel ka ma shum kb
    ndersa ajo e android app ka ma pak kb", "hiqe gjendjen qite ni opsion me mujt me eksportu nkohen kur jan shtu afatet ... me zgjedh dita ti vet".
@@ -3306,6 +3322,8 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Çdo PR duhet përshkrim të plotë shqip: çka ndryshoi, si u testua, çfarë numrash versioni u prekën.
 
 ## Gjëra që përdoruesi i ka refuzuar/anuluar shprehimisht (mos i propozo/rikthe pa pyetur)
+- **"Çfarë ka të re" / "Çka ka të re" (17.11.2026, v318 / Hyrja 80)**: "A mujna me fshi 100% cfare ka te re se so ka vyn kurgjo?".
+  U fshi kudo (web, PC, Android, Release-t). Mos e rikthe as si dritare, as si rresht te Cilësimet, as si listë te faqja e përditësimit.
 - **Ridizajnimi i plotë dhe riorganizimi i opsioneve (14.11.2026, vetëm propozime, asgjë s'u fut në projekt)**: kërkoi 10 dizajne
   të reja (PC, telefon, Android, orë) dhe riorganizim (5 pjesë: Sot, Afatet, Stoku, Grupi, Profili). Asnjë dizajn s'i pëlqeu
   ("Kurgjo hiq sum pelqej"); riorganizimin e pa si foto provë mbi dizajnin e tashëm dhe e anuloi: "Jo anuloje komplet edhe

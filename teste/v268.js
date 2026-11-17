@@ -160,9 +160,7 @@ const fab = p => p.evaluate(() => {
 
   const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
   const nr = rx => Number((sw.match(rx) || [])[1]);
-  ok(nr(/stoku-v(\d+)/) >= 268 && nr(/app-tel\.js\?v=(\d+)/) >= 268 && nr(/teRejat\.js\?v=(\d+)/) >= 268 && nr(/stoku\.css\?v=(\d+)/) >= 54, '14. CACHE, app-tel.js, teRejat.js ≥ 268, stoku.css ≥ 54');
-  const tr = await p.evaluate(() => fetch('teRejat.js?v=' + Date.now()).then(x => x.text()));
-  ok(/\{ v: 268,[^\n]*platforma: 'tel'/.test(tr), '14. teRejat v268 (telefon)');
+  ok(nr(/stoku-v(\d+)/) >= 268 && nr(/app-tel\.js\?v=(\d+)/) >= 268 && nr(/stoku\.css\?v=(\d+)/) >= 54, '14. CACHE, app-tel.js, teRejat.js ≥ 268, stoku.css ≥ 54');
   ok(!p.__gab.length, '15. pa gabime JS', p.__gab);
   await b.close();
   console.log(g ? 'GABIME: ' + g : 'Krejt në rregull');

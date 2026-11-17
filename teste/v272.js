@@ -57,9 +57,7 @@ const gjendja = p => p.evaluate(() => ({ attr: document.body.getAttribute('data-
     ok(v.join() === 'normale,e_madhe', '4. PC: vetëm "Normale" dhe "E madhe" (pa ndryshim)', v);
     const sw = await q.evaluate(() => fetch('/sw.js').then(x => x.text()));
     const nr = rx => Number((sw.match(rx) || [])[1]);
-    ok(nr(/stoku-v(\d+)/) >= 272 && nr(/app-tel\.js\?v=(\d+)/) >= 272 && nr(/teRejat\.js\?v=(\d+)/) >= 272 && nr(/stoku\.css\?v=(\d+)/) >= 57, '5. CACHE, app-tel, teRejat ≥ 272, stoku.css ≥ 57');
-    const tr = await q.evaluate(() => fetch('/teRejat.js?v=' + Date.now()).then(x => x.text()));
-    ok(/\{ v: 272,[^\n]*platforma: 'tel'/.test(tr), '5. teRejat v272 (telefon)');
+    ok(nr(/stoku-v(\d+)/) >= 272 && nr(/app-tel\.js\?v=(\d+)/) >= 272 && nr(/stoku\.css\?v=(\d+)/) >= 57, '5. CACHE, app-tel, teRejat ≥ 272, stoku.css ≥ 57');
     await b2.close();
   }
   console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');

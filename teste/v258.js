@@ -97,9 +97,6 @@ const FURN = ['Furnizuesi A', 'Furnizuesi B', 'Furnizuesi C'];
   const p4 = (doc('kujtesa_pritje/u2') || {}).p || {};
   ok(!Object.keys(PROVA).some(b => p4[b]), '4. testmorina: pritja ende pa provën', Object.keys(p4));
 
-  // 5. "Çfarë ka të re" v258: vetëm administratori
-  const tr = await adm.evaluate(() => { const L = window.StokuTeRejat && (window.StokuTeRejat.LISTA || (window.StokuTeRejat.lista && window.StokuTeRejat.lista())); return (L || []).filter(x => x.v === 258).map(x => [x.titulli, !!x.vetemAdmini]); });
-  ok(tr.length === 1 && tr[0][1] === true, '5. teRejat v258 vetëm për administratorin', tr);
   const cache = await adm.evaluate(() => fetch('sw.js').then(r => r.text()).then(t => (t.match(/stoku-v(\d+)/) || [])[1]));
   ok(Number(cache) >= 258, '5. CACHE ≥ 258', cache);
 

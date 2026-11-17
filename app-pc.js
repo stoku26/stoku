@@ -347,8 +347,6 @@
   }
   // v252: merchandiserët s'e kanë furnizuesin: fushat .furn-vetem fshihen (body.pa-furnizues), ruajtja e mban atë që kishte
   function paFurnizues() { return eshteMerchandiser(); }
-  // "Çfarë ka të re": administratori i sheh edhe hyrjet për marketet (i ndez ai te Përdoruesit)
-  function lejaPerTeRejat(k) { return k === 'marketet' ? leja(k) || eshteAdminiIStokut() : leja(k); }
   // Llogaria e hapur si merchandiser (ose u lexua nga Firebase pas hyrjes, ose u ndërrua llogaria): marketet dalin/zhduken
   var __merchPara = false;
   function rifreskoMerchandiserin() {
@@ -6884,78 +6882,11 @@
   }, 60000);
   if (window.__stokuCloud) kurNdryshonLlogaria();
 
-  // ================= "Çfarë ka të re" =================
-  var KEY_TE_REJAT = 'stoku:te-rejat:pare';
-  function versioniIPare() { try { return Number(localStorage.getItem(KEY_TE_REJAT)) || 0; } catch (e) { return 0; } }
-  function shenoTeRejatSiTePara() { try { localStorage.setItem(KEY_TE_REJAT, String(window.StokuTeRejat.versioni())); } catch (e) { /* ok */ } }
-  function tregoTeRejat() {
-    var TR = window.StokuTeRejat;
-    if (!TR || !TR.versioni()) return false;
-    if ((__pajisjeERe || ngaVizitori()) && !versioniIPare()) { shenoTeRejatSiTePara(); return false; } // vizitori i ri: pa listë përditësimesh
-    var hyrjet = TR.teRejatPas(versioniIPare(), 'pc', eshteAdminiIStokut(), lejaPerTeRejat); // vetëm të rejat e kompjuterit
-    if (!hyrjet.length) return false;
-    if (window.StokuPorta && window.StokuPorta.eHapur()) return false;
-    if (dialogISiperm()) return false;
-    mbushTeRejat(hyrjet, hyrjet.length === 1 ? TR.etiketa(hyrjet[0]) : hyrjet.length + ' përditësime të reja');
-    hapDialog('dlgTeRejat');
-    setTimeout(function () { $('trMbyll').focus(); }, 30);
-    return true;
-  }
-  function mbushTeRejat(hyrjet, nen) {
-    var TR = window.StokuTeRejat;
-    var lista = $('trLista');
-    lista.textContent = '';
-    hyrjet.forEach(function (h) {
-      var b = el('div', 'tr-version');
-      b.appendChild(el('div', 'tr-version-titulli', h.titulli));
-      b.appendChild(el('div', 'tr-version-data', TR.etiketa(h)));
-      var ul = el('ul');
-      (h.pikat || []).forEach(function (pika) { ul.appendChild(el('li', null, pika)); });
-      b.appendChild(ul);
-      lista.appendChild(b);
-    });
-    $('trNen').textContent = nen;
-    lista.scrollTop = 0;
-  }
-  // Nga Cilësimet → "Çfarë ka të re": 6 versionet e fundit të kompjuterit, kurdo
+  // ================= v318 (pronari: "fshi 100% cfare ka te re"): pa "Çfarë ka të re" =================
+  try { localStorage.removeItem('stoku:te-rejat:pare'); } catch (e) { /* ok */ }
   // v237: politika e privatësisë (faqe më vete, në dritare të re)
   $('opsPrivatesia').addEventListener('click', function () { window.open('privatesia.html', '_blank', 'noopener'); });
-  $('opsTeRejat').addEventListener('click', function () {
-    var TR = window.StokuTeRejat;
-    if (!TR || !TR.versioni()) return;
-    var hyrjet = TR.teRejatPas(0, 'pc', eshteAdminiIStokut(), lejaPerTeRejat).slice(0, 6);
-    if (!hyrjet.length) return;
-    mbushTeRejat(hyrjet, 'Përditësimet e fundit');
-    mbyllDialog('dlgOpsione'); // dritarja e të rejave del mbi faqe, jo poshtë Cilësimeve
-    hapDialog('dlgTeRejat');
-    setTimeout(function () { $('trMbyll').focus(); }, 30);
-  });
-  if (window.StokuTeRejat && window.StokuTeRejat.versioni()) $('opsVersioni').textContent = window.StokuTeRejat.emriVersionit(window.StokuTeRejat.versioni());
-
-  // Shfaqet vetëm kur faqja shihet dhe s'ka përditësim në instalim (përndryshe rifreskimi e zhdukte menjëherë);
-  // shënohet "e parë" vetëm kur mbyllet, jo kur shfaqet, që një rifreskim i papritur të mos e humbasë.
-  var __teRejatShfaqur = false;
-  function perditesimNeRruge(cb) {
-    if (!('serviceWorker' in navigator)) { cb(false); return; }
-    navigator.serviceWorker.getRegistration().then(function (r) { cb(!!(r && (r.installing || r.waiting))); }, function () { cb(false); });
-  }
-  function tregoTeRejatKurGati(prova) {
-    prova = prova || 0;
-    if (document.hidden) {
-      var kurShihet = function () { if (document.hidden) return; document.removeEventListener('visibilitychange', kurShihet); setTimeout(tregoTeRejatKurGati, 1200); };
-      document.addEventListener('visibilitychange', kurShihet);
-      return;
-    }
-    perditesimNeRruge(function (po) {
-      if (po && prova < 20) { setTimeout(function () { tregoTeRejatKurGati(prova + 1); }, 1500); return; } // rifreskimi vjen së shpejti
-      if (tregoTeRejat()) __teRejatShfaqur = true;
-    });
-  }
-  new MutationObserver(function () {
-    if (__teRejatShfaqur && !$('dlgTeRejat').classList.contains('hapur')) { __teRejatShfaqur = false; shenoTeRejatSiTePara(); }
-  }).observe($('dlgTeRejat'), { attributes: true, attributeFilter: ['class'] });
-  window.addEventListener('stoku-porta-hapur', function () { setTimeout(tregoTeRejatKurGati, 700); });
-  setTimeout(function () { if (!(window.StokuPorta && window.StokuPorta.eHapur())) tregoTeRejatKurGati(); }, 2500);
+  if (window.StokuVersioni) $('opsVersioni').textContent = window.StokuVersioni.emri;
 
   // ================= Service worker + përditësimi automatik =================
   // Sa herë hapet Stoku (dhe sa herë kthehesh në skedë), kontrollohet në sfond a ka version të ri (sw.js).
