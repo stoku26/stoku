@@ -21,6 +21,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 325, versioni: '1.68.1', data: '2026-11-17', titulli: 'Logoja', pikat: [
+      'Barkodi kthehet në logo vetëm një herë: te hyrja pas 1 sekonde, dhe lart pas çdo hyrjeje në llogari. Pastaj mbetet logoja, edhe kur e mbyll dhe e hap Stoku-n.'
+    ] },
     { v: 324, versioni: '1.68.0', data: '2026-11-17', titulli: 'Hyrja dhe logoja e re', pikat: [
       'Logoja e Stoku-t lart dhe te hyrja tani nis si barkod: një vijë e gjelbër skanimi e kalon dhe e kthen në "stoku.".',
       'Hyrja ka gjithmonë të njëjtat ngjyra (e zezë me vjollcë), cilado temë që ke zgjedhur, dhe teksti i ri: "Malli dhe afatet, nën kontroll."'

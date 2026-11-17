@@ -44,8 +44,8 @@ fun logoStoku(erret: Boolean, ink: Color = if (erret) Color(0xFFF5F5F7) else Col
 fun LogoEPlote(modifier: Modifier = Modifier) {
     val erret = N.erret
     val ink = N.ink
-    // web v324: barkodi → logo me skanimin në loop (LogoSkanim.kt)
-    LogoMeSkanim(ink, Color(if (erret) Logot.PIKA_ERRET else Logot.PIKA_CELET), "Stoku", modifier.aspectRatio(Logot.FJ_W / Logot.FJ_H))
+    // web v325: hyrja: barkodi → logo një herë sa herë del (LogoSkanim.kt)
+    LogoMeSkanim(ink, Color(if (erret) Logot.PIKA_ERRET else Logot.PIKA_CELET), "Stoku", modifier.aspectRatio(Logot.FJ_W / Logot.FJ_H), luaj = true)
 }
 
 /** Etiketa në krye të Stoku-t (stk-etiketa): vetëm logoja me shkronja, pa kuti dhe pa emrin e përdoruesit (Hyrja 76, si web-i v314).
@@ -53,6 +53,9 @@ fun LogoEPlote(modifier: Modifier = Modifier) {
 @Composable
 fun EtiketaStoku(emri: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val n = N
+    // web v325: koka e bën skanimin NJË herë pas çdo hyrjeje (edhe kur aplikacioni mbyllet e hapet, pastaj vetëm logoja)
+    val luaj = remember { site.stoku.vendas.StokuApp.prefsOse(SkanimiILogos.KEY_SKANUAR, "") != "1" }
     LogoMeSkanim(n.ink, Color(if (n.erret) Logot.PIKA_ERRET else Logot.PIKA_CELET), if (emri.isBlank()) "Stoku" else "Stoku, $emri",
-        modifier.clip(RoundedCornerShape(6.dp)).clickable(onClick = onClick).width(152.dp).height((152f * Logot.FJ_H / Logot.FJ_W).dp))
+        modifier.clip(RoundedCornerShape(6.dp)).clickable(onClick = onClick).width(152.dp).height((152f * Logot.FJ_H / Logot.FJ_W).dp),
+        luaj = luaj, kurNis = { site.stoku.vendas.StokuApp.vendosPref(SkanimiILogos.KEY_SKANUAR, "1") })
 }
