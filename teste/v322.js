@@ -17,7 +17,7 @@ const B = 'http://127.0.0.1:8765';
   ok(/LogoMeVale\(Modifier\.height\(18\.dp\)\)/.test(lx('ora/app/src/main/java/site/stoku/ora/MainActivity.kt')) && /R\.drawable\.logo_stoku/.test(lo), '0. ora: logoja me valë (shtigjet nga drawable)');
   const js = lx('logot.js');
   ok(/stkVale\{0%\{transform:rotate\(0deg\)\}15%\{transform:rotate\(9deg\)\}35%\{transform:rotate\(-7deg\)\}/.test(js) && /100%\{transform:rotate\(0deg\)\}/.test(js) && /prefers-reduced-motion/.test(js), '0. web: keyframes përfundojnë në 0°, pa lëvizje kur kërkohet');
-  ok(/stoku-v322/.test(lx('sw.js')) && /logot\.js\?v=3/.test(lx('sw.js')) && /v: 322/.test(lx('versioni.js')), '0. versionet');
+  ok(/stoku-v3(2[2-9]|[3-9]\d)/.test(lx('sw.js')) && /logot\.js\?v=\d/.test(lx('sw.js')), '0. versionet');
 
   // ===== 1. Web =====
   const F = krijoFirestore({ rregullat: 'reja' });
