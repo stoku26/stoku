@@ -716,6 +716,13 @@
   .ek-grupi-karta .tk b { display: block; font-size: 17px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .ek-grupi-karta .tk span { display: block; font-size: 13px; color: var(--sb-muted, var(--gri)); margin-top: 2px; }
   .ek-grupi-karta .af-pill { flex: none; }
+  /* v319: "Grupi yt" më e ngushtë + butoni katror "Fto" (një njeri me plus) */
+  .ek-grupi-rresht { display: flex; gap: 10px; align-items: stretch; margin: 2px 0 12px; }
+  .ek-grupi-rresht .ek-grupi-karta { flex: 1; min-width: 0; margin: 0; }
+  .ek-fto-btn { flex: none; width: 66px; min-height: 66px; border: 0; border-radius: 18px; background: var(--sb-accent, var(--primar)); color: #fff;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .ek-fto-btn:active { transform: scale(.96); }
+  .ek-fto-btn.on { background: var(--sb-surface-2, var(--sfond)); color: var(--sb-accent, var(--primar)); box-shadow: 0 0 0 1px var(--sb-line, var(--vije)); }
   .ek-rresht-forma { display: flex; gap: 8px; margin: 4px 0 6px; }
   .ek-rresht-forma input { flex: 1; min-width: 0; height: 46px; }
   .ek-rresht-forma .btn { flex: none; height: 46px; padding: 0 16px; }

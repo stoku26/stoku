@@ -11,11 +11,11 @@ const prit = async (fn, ms = 6000) => { const t0 = Date.now(); while (Date.now()
   const R = __dirname + '/../', lx = f => fsN.readFileSync(R + f, 'utf8');
   const K = lx('vendas/app/src/main/java/site/stoku/vendas/ui/GrupiEkrani.kt'), tel = lx('app-tel.js'), pc = lx('app-pc.js');
   // 0) statike
-  ok(/private fun FjaliaERezymese\(/.test(K) && /FjaliaERezymese\(st, ng, ctx\)/.test(K) && /private fun ShiritiSegmentuar\(/.test(K) && /ShiritiSegmentuar\(listOf\(/.test(K), '0. Android: fjalia e madhe dhe shiriti segmentuar');
+  ok(/private fun ShiritiINumrave\(/.test(K) /* v319: pa fjalinë */ && /private fun ShiritiSegmentuar\(/.test(K) && /ShiritiSegmentuar\(listOf\(/.test(K), '0. Android: fjalia e madhe dhe shiriti segmentuar');
   ok(!/P\("", if \(ng\) st\.aktive\.toString\(\)/.test(K) && !/"Të hequra", filtri == "hequr"/.test(K), '0. Android: pa pllakat e vjetra te Përmbledhja dhe Afatet');
   ok(/"Të gjitha"/.test(K) && /"Skaduara"/.test(K) && /"Rregull"/.test(K) && /"Hequra"/.test(K), '0. Android: 5 pjesët e shiritit');
-  ok(/'ek-rez'/.test(tel) && /'ek-segm'/.test(tel) && !/'af-permb ek-permb-nr'/.test(tel) && !/'af-permb ek-permb'/.test(tel), '0. web telefon: fjalia dhe shiriti, pa kutitë e vjetra');
-  ok(!/ek-rez|ek-segm/.test(pc), '0. PC: pa ndryshim (vetëm telefoni)');
+  ok(/'ek-segm ek-segm--permb'/.test(tel) /* v319: shiriti edhe te Përmbledhja */ && /'ek-segm'/.test(tel) && !/'af-permb ek-permb-nr'/.test(tel) && !/'af-permb ek-permb'/.test(tel), '0. web telefon: fjalia dhe shiriti, pa kutitë e vjetra');
+  ok(!/ek-segm/.test(pc), '0. PC: pa ndryshim (vetëm telefoni)');
 
   const tani = Date.now(), dita = n => new Date(tani + n * 864e5).toISOString().slice(0, 10);
   const F = krijoFirestore({ rregullat: 'reja' });
@@ -43,16 +43,16 @@ const prit = async (fn, ms = 6000) => { const t0 = Date.now(); while (Date.now()
   await blerta.waitForTimeout(1500);
   const agim = await faqe('u1', 'agim@stoku-app.local', false);
   await agim.click('#btnEkipi'); await agim.waitForTimeout(1500);
-  const rez = () => agim.evaluate(() => { const r = document.querySelector('#ekipiTrup .ek-rez'); return r ? { ky: r.querySelector('.ek-rez__ky').textContent, tx: r.querySelector('.ek-rez__tx').textContent, kl: r.querySelector('.ek-rez__tx').className,
-    ps: (r.querySelector('.ek-rez__ps') || {}).textContent, nr: Array.from(r.querySelectorAll('.ek-rez__ps button')).map(x => x.textContent), kuti: document.querySelectorAll('#ekipiTrup .af-numer').length } : null; });
+  // v319 (pronari): Përmbledhja pa fjalinë e madhe, me shiritin e numrave si te Afatet
+  const rez = () => agim.evaluate(() => { const r = document.querySelector('#ekipiTrup #ekPermbNumrat'); return r ? { pjeset: Array.from(r.querySelectorAll('.ek-segm__s')).map(x => x.querySelector('b').textContent + ' ' + x.querySelector('span').textContent),
+    fjalia: !!document.querySelector('#ekipiTrup .ek-rez'), kuti: document.querySelectorAll('#ekipiTrup .af-numer').length } : null; });
   // 1) Përmbledhja
-  ok(await prit(async () => { const r = await rez(); return r && /skadon këtë javë/.test(r.tx); }), '1. Përmbledhja: fjalia "1 produkt skadon këtë javë"', await rez());
+  ok(await prit(async () => { const r = await rez(); return r && r.pjeset[0] === '4 Në raft'; }), '1. Përmbledhja: shiriti me numra', await rez());
   const r1 = await rez();
-  ok(r1.ky === 'Kjo javë' && /afer/.test(r1.kl) && r1.tx === '1 produkt skadon këtë javë' && r1.kuti === 0, '1. e verdhë, "Kjo javë", pa kutitë e vjetra', r1);
-  ok(/^Asnjë i skaduar në raft\. 4 në raft, \d+ afër skadimit, 1 të hequr këtë muaj\.$/.test(r1.ps) && r1.nr.length === 3, '1. rreshti i numrave: 4 në raft, 1 i hequr këtë muaj', r1.ps);
+  ok(/^4 Në raft\|0 Skaduara\|1 Këtë javë\|\d+ Afër\|1 Hequra$/.test(r1.pjeset.join('|')) && !r1.fjalia && r1.kuti === 0, '1. Në raft 4, Skaduara 0, Këtë javë 1, Afër, Hequra 1; pa fjalinë e madhe', r1);
   await agim.screenshot({ path: __dirname + '/v312-permbledhja.png' });
-  await agim.click('#ekipiTrup .ek-rez__ps button >> nth=0'); await agim.waitForTimeout(700);
-  ok(await agim.evaluate(() => document.getElementById('ekipiTitulli').textContent === 'Afatet' && !!document.querySelector('#ekPermb .ek-segm__s')), '1. prekja te "4" hap Afatet e grupit', await agim.textContent('#ekipiTitulli'));
+  await agim.click('#ekPermbNumrat .ek-segm__s >> nth=0'); await agim.waitForTimeout(700);
+  ok(await agim.evaluate(() => document.getElementById('ekipiTitulli').textContent === 'Afatet' && !!document.querySelector('#ekPermb .ek-segm__s')), '1. prekja te "Në raft" hap Afatet e grupit', await agim.textContent('#ekipiTitulli'));
   // 2) Afatet: shiriti segmentuar
   const seg = () => agim.evaluate(() => ({ pjeset: Array.from(document.querySelectorAll('#ekPermb .ek-segm__s')).map(x => x.querySelector('b').textContent + ' ' + x.querySelector('span').textContent + (x.classList.contains('on') ? ' *' : '')),
     lista: Array.from(document.querySelectorAll('#ekipiRreshtat .artikull .emri, #ekipiRreshtat .af-karta .af-emri')).map(x => x.textContent.trim()), kuti: document.querySelectorAll('#ekipiTrup .af-numer').length }));

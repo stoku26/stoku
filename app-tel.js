@@ -6890,31 +6890,20 @@
     var te = krejt.afatet;
     var st = EKL.statistikat(anetaret);
     var nOn = anetaret.filter(function (a) { return a.uneJam || EKL.eshteOnline(a); }).length;
-    // v312 (pronari: "zgjedhe 3shin"): një fjali e madhe në vend të 6 kutive; numrat e tjerë janë tekst i prekshëm (hapin të njëjtat lista)
+    // v319 (pronari, foto: "heke qato bone sikur ne foton 3, opsionet si ndrron veq pamjen"): në vend të fjalisë së madhe "N produkte
+    // skadojnë këtë javë", i njëjti shirit me numra si te Grupi → Afatet; secila pjesë hap listën si më parë
     var ngark = krejt.ngarkuar;
-    var klRez = st.skaduara > 0 ? 'kuqe' : st.javes > 0 ? 'afer' : 'ok';
-    var rez = ekEl('div', 'ek-rez');
-    rez.appendChild(ekEl('div', 'ek-rez__ky', st.skaduara > 0 ? 'Vëmendje' : 'Kjo javë'));
-    var rezTx = ekEl('button', 'ek-rez__tx ' + klRez); rezTx.type = 'button';
-    if (!ngark) rezTx.textContent = 'Duke ngarkuar…';
-    else if (st.skaduara > 0) {
-      rezTx.appendChild(ekEl('u', null, st.skaduara + (st.skaduara === 1 ? ' produkt' : ' produkte')));
-      rezTx.appendChild(document.createTextNode(st.skaduara === 1 ? ' ka skaduar' : ' kanë skaduar'));
-    } else if (st.javes > 0) {
-      rezTx.appendChild(ekEl('u', null, st.javes + (st.javes === 1 ? ' produkt' : ' produkte')));
-      rezTx.appendChild(document.createTextNode(st.javes === 1 ? ' skadon këtë javë' : ' skadojnë këtë javë'));
-    } else rezTx.appendChild(ekEl('u', null, 'Asnjë produkt nuk skadon këtë javë'));
-    rezTx.addEventListener('click', function () { if (st.skaduara > 0) ekHapAnetarin('krejt', 'skaduar'); else if (st.javes > 0) ekHapAnetarin('krejt', 'afer'); });
-    rez.appendChild(rezTx);
-    if (ngark) {
-      var ps = ekEl('div', 'ek-rez__ps');
-      var nr = function (vlera, tekstiPas, hap) { var b = ekEl('button', null, String(vlera)); b.type = 'button'; b.addEventListener('click', hap); ps.appendChild(b); ps.appendChild(document.createTextNode(tekstiPas)); };
-      if (st.skaduara === 0) ps.appendChild(document.createTextNode('Asnjë i skaduar në raft. '));
-      nr(st.aktive, ' në raft, ', function () { ekHapAnetarin('krejt'); });
-      nr(st.afer, ' afër skadimit, ', function () { ekHapAnetarin('krejt', 'afer'); });
-      nr(st.hequrMuajit, ' të hequr këtë muaj.', function () { ekHapAnetarin('krejt', 'hequr'); });
-      rez.appendChild(ps);
-    }
+    var rez = ekEl('div', 'ek-segm ek-segm--permb'); rez.id = 'ekPermbNumrat';
+    [[null, 'Në raft', st.aktive, 'gj', 'në raft'], ['skaduar', 'Skaduara', st.skaduara, 'skaduar', 'të skaduara në raft'],
+      ['afer', 'Këtë javë', st.javes, 'afer', 'skadojnë këtë javë'], ['afer', 'Afër', st.afer, 'afer', 'afër skadimit'],
+      ['hequr', 'Hequra', st.hequrMuajit, 'hequr', 'të hequra këtë muaj']].forEach(function (x) {
+      var b = ekEl('button', 'ek-segm__s c-' + x[3]); b.type = 'button';
+      b.appendChild(ekEl('b', null, ngark ? String(x[2]) : '…'));
+      b.appendChild(ekEl('span', null, x[1]));
+      b.setAttribute('aria-label', (ngark ? x[2] + ' ' : '') + x[4]);
+      b.addEventListener('click', function () { if (x[0]) ekHapAnetarin('krejt', x[0]); else ekHapAnetarin('krejt'); });
+      rez.appendChild(b);
+    });
     c.appendChild(rez);
     // Ftesat për një grup tjetër (shfaqen edhe te Kolegët); v242: kërkesat për t'u futur në grupin tim (admini i grupit)
     ekK.ftesatEMia().forEach(function (f) { c.appendChild(ekFtesaEl(f)); });
@@ -7114,9 +7103,10 @@
     c.textContent = '';
     var anetaret = ekAnetaret();
     var st = EKL.statistikat(anetaret);
-    var p = ekEl('div', 'af-permb');
-    [['afer', st.sot, 'Skadojnë sot', 'afer'], ['skaduar', st.skaduara, 'Të skaduara në raft', 'skaduar'], ['ok', st.hequrSot, 'Hequr sot', 'hequr']].forEach(function (x) {
-      var b = ekEl('button', 'af-numer ' + x[0]); b.type = 'button';
+    // v319 (pronari: "edhe te aktiviteti ... bone njejt si foton e 3t"): shiriti me numra si te Grupi → Afatet (më parë 3 kuti)
+    var p = ekEl('div', 'ek-segm ek-segm--akt'); p.id = 'ekAktNumrat';
+    [['afer', st.sot, 'Skadojnë sot', 'afer'], ['skaduar', st.skaduara, 'Skaduara', 'skaduar'], ['hequr', st.hequrSot, 'Hequr sot', 'hequr']].forEach(function (x) {
+      var b = ekEl('button', 'ek-segm__s c-' + x[0]); b.type = 'button';
       b.appendChild(ekEl('b', null, String(x[1])));
       b.appendChild(ekEl('span', null, x[2]));
       b.addEventListener('click', function () { ekHapAnetarin('krejt', x[3]); });
@@ -7125,7 +7115,7 @@
     c.appendChild(p);
     var ng = ekK.gj.ngjarjet;
     if (!ekK.gj.ngjarjetGati) { c.appendChild(ekInfo('Duke ngarkuar…')); return; }
-    if (!ng.length) { c.appendChild(ekBosh('S\'ka aktivitet ende', 'Kur dikush heq nga rafti, ose shton afate, del këtu.')); return; }
+    if (!ng.length) { c.appendChild(ekBosh('S\'ka aktivitet ende', 'Kur dikush heq nga rafti, ose shton afate, del këtu.')); ekPastrimi(c); return; }
     var uidIm = perdoruesiAktual() ? perdoruesiAktual().uid : null;
     var dita = '';
     var frag = document.createDocumentFragment();
@@ -7147,6 +7137,22 @@
       frag.appendChild(r);
     });
     c.appendChild(frag);
+    ekPastrimi(c);
+  }
+  // v319 (pronari: "heke fshirjen e aktivitetit prej qaty e qite te aktiviteti"): "Pastro të gjithë aktivitetin" (vetëm admini i
+  // grupit) në fund të Aktivitetit, jo më te Kolegët
+  function ekPastrimi(c) {
+    if (!ekK.eshtePronar()) return;
+    var b = ekEl('button', 'btn tekst rrezik', 'Pastro të gjithë aktivitetin'); b.type = 'button'; b.id = 'ekPastroAkt'; b.style.cssText = 'width:100%;margin-top:18px';
+    b.addEventListener('click', async function () {
+      var po = await konfirmo('Të fshihet i gjithë aktiviteti?', 'I gjithë historiku i aktivitetit fshihet për të gjithë grupin. Afatet s\'preken.', 'Fshi të gjitha');
+      if (!po) return;
+      b.disabled = true;
+      var r = await ekK.pastroAktivitetin();
+      b.disabled = false;
+      toast(r.ok ? (r.n === 1 ? 'U fshi 1 rresht.' : 'U fshinë ' + r.n + ' rreshta.') : 'S\'u fshi gjithçka. Kontrollo internetin dhe provo përsëri.', 4000);
+    });
+    c.appendChild(b);
   }
 
   // ---- Kalendari ----
@@ -7412,6 +7418,9 @@
     }
     // Karta e grupit (pronari e riemërton)
     var hk = ekEl('div', 'af-grup-krye'); hk.appendChild(ekEl('span', null, 'Grupi yt')); c.appendChild(hk);
+    // v319 (pronari, foto: "qato heke bone si buton ngushtoje grupi yt edhe anen e djatht e len ikon veq ni njeri me ni plus"):
+    // "Fto një shok" s'është më seksion i hapur; butoni katror me një njeri dhe plus pranë kartës e hap/mbyll fushën e ftesës
+    var kr = ekEl('div', 'ek-grupi-rresht');
     var kk = ekEl('div', 'ek-grupi-karta'); // v293: `kk` (më parë `kg`, i njëjti emër me listën e kërkesave më lart)
     if (pronar && ekRiemertim) {
       var fr = ekEl('div', 'ek-rresht-forma'); fr.style.cssText = 'flex:1;margin:0';
@@ -7441,10 +7450,20 @@
         kk.appendChild(br);
       }
     }
-    c.appendChild(kk);
-    // Pronari: fto shokët
+    kr.appendChild(kk);
     if (pronar) {
-      var hi = ekEl('div', 'af-grup-krye'); hi.appendChild(ekEl('span', null, 'Fto një shok në grup')); c.appendChild(hi);
+      var bFto = ekEl('button', 'ek-fto-btn' + (ekFtoHapur ? ' on' : '')); bFto.type = 'button'; bFto.id = 'ekFtoHap';
+      bFto.setAttribute('aria-label', 'Fto një shok në grup'); bFto.setAttribute('aria-expanded', ekFtoHapur ? 'true' : 'false'); bFto.title = 'Fto një shok në grup';
+      bFto.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M19 8v6M22 11h-6"></path></svg>';
+      bFto.addEventListener('click', function () {
+        ekFtoHapur = !ekFtoHapur; vizatoEkipen();
+        if (ekFtoHapur) setTimeout(function () { var x = $('ekFtoEmri'); if (x) x.focus(); }, 30);
+      });
+      kr.appendChild(bFto);
+    }
+    c.appendChild(kr);
+    // Pronari: fto shokët (fusha del vetëm pasi preket butoni me plus)
+    if (pronar && ekFtoHapur) {
       var ff = ekEl('div', 'ek-rresht-forma');
       var ie = ekEl('input'); ie.type = 'text'; ie.id = 'ekFtoEmri'; ie.maxLength = 40; ie.autocomplete = 'off';
       ie.setAttribute('autocapitalize', 'none'); ie.setAttribute('autocorrect', 'off'); ie.spellcheck = false; ie.setAttribute('enterkeyhint', 'send');
@@ -7464,6 +7483,8 @@
       ie.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); fto(); } });
       ff.appendChild(ie); ff.appendChild(bf); c.appendChild(ff);
       c.appendChild(ekEl('div', 'ek-grupi-hint', 'Shkruaj emrin e përdoruesit me të cilin shoku hyn në Stoku. Ai e sheh ftesën te Grupi dhe e pranon. Pa ftesë askush s\'e sheh grupin.'));
+    }
+    if (pronar) {
       var fe = ekK.ftesatEGrupit();
       if (fe.length) {
         var hp = ekEl('div', 'af-grup-krye'); hp.appendChild(ekEl('span', null, 'Ftesa në pritje (' + fe.length + ')')); c.appendChild(hp);
@@ -7533,7 +7554,7 @@
     var tjeret = anetaret.filter(function (a) { return !a.uneJam; });
     // v240: "Butonat +/-" s'janë më këtu: leje te Cilësimet → Përdoruesit (stokuPlusMinus)
     var hm = ekEl('div', 'af-grup-krye'); hm.appendChild(ekEl('span', null, 'Menaxho kolegët')); c.appendChild(hm);
-    if (!tjeret.length) c.appendChild(ekInfo('S\'ka kolegë të tjerë ende. Fto shokët më lart.'));
+    if (!tjeret.length) c.appendChild(ekInfo('S\'ka kolegë të tjerë ende. Fto shokët me butonin + te "Grupi yt".'));
     tjeret.forEach(function (a) {
       var r = ekEl('div', 'artikull ek-menaxho'); r.style.cursor = 'default';
       r.appendChild(ekAvatar(a, false));
@@ -7560,21 +7581,9 @@
       }
       c.appendChild(r);
     });
-    var hp = ekEl('div', 'af-grup-krye'); hp.appendChild(ekEl('span', null, 'Pastrimi')); c.appendChild(hp);
-    [['Pastro të gjithë aktivitetin', 'Të fshihet i gjithë aktiviteti?', 'I gjithë historiku i aktivitetit fshihet për të gjithë grupin. Afatet s\'preken.', function () { return ekK.pastroAktivitetin(); }]].forEach(function (x) {
-      var b = ekEl('button', 'btn tekst rrezik', x[0]); b.type = 'button'; b.style.cssText = 'width:100%';
-      b.addEventListener('click', async function () {
-        var po = await konfirmo(x[1], x[2], 'Fshi të gjitha');
-        if (!po) return;
-        b.disabled = true;
-        var r = await x[3]();
-        b.disabled = false;
-        toast(r.ok ? (r.n === 1 ? 'U fshi 1 rresht.' : 'U fshinë ' + r.n + ' rreshta.') : 'S\'u fshi gjithçka. Kontrollo internetin dhe provo përsëri.', 4000);
-      });
-      c.appendChild(b);
-    });
   }
 
+  var ekFtoHapur = false; // v319: fusha "Fto një shok" e hapur (butoni me plus te "Grupi yt")
   // ---- Administratori: llogaritë jashtë grupit tim (fshirja; ftesa nëse je pronar) ----
   var ekLlogariteKrejt = false;
   function vizatoLlogariteETjera(c) {

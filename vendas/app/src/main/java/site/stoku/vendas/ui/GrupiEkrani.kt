@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
@@ -316,62 +318,18 @@ internal fun AvatariLehte(emri: String?, lloji: String? = null, madhesia: Dp = 3
     }
 }
 
-/** Pllaka me numër (af-numer): e kuqe/portokalli/e gjelbër/gri sipas llojit */
+/** Hyrja 81 (pronari, foto: "heke qato bone sikur ne foton 3"): shiriti me numra si te Grupi → Afatet, për Përmbledhjen dhe Aktivitetin;
+ *  secila pjesë hap listën (pa pjesë të zgjedhur) */
+private class PS(val ngjyra: String?, val emri: String, val nr: String, val prek: () -> Unit)
 @Composable
-private fun Pllaka(lloji: String, numri: String, teksti: String, modifier: Modifier, aktiv: Boolean = false, onClick: (() -> Unit)? = null) {
+private fun ShiritiINumrave(pjeset: List<PS>) {
     val n = N
-    val (sf, ng) = when (lloji) {
-        "skaduar" -> n.expTint to n.exp
-        "afer" -> n.nearTint to n.near
-        "ok" -> n.okTint to n.ok
-        "hequr" -> n.remTint to n.rem
-        else -> n.surface to n.ink
-    }
-    val forma = RoundedCornerShape(18.dp)
-    var m = modifier.heightIn(min = 82.dp).clip(forma).background(sf, forma)
-    if (lloji == "" || aktiv) m = m.border(if (aktiv) 2.dp else 1.dp, if (aktiv) ng else n.line, forma)
-    if (onClick != null) m = m.clickable(onClick = onClick)
-    Column(m.padding(horizontal = 13.dp, vertical = 12.dp), verticalArrangement = Arrangement.Center) {
-        Text(numri, style = tx(26, 700, ng))
-        Text(teksti, style = tx(13, 600, ng), modifier = Modifier.padding(top = 2.dp))
-    }
-}
-
-/** Hyrja 73 (pronari: "zgjedhe 3shin"): fjali e madhe në vend të 6 pllakave te Grupi → Përmbledhja; numrat e tjerë janë tekst i prekshëm */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun FjaliaERezymese(st: GrupiLogjika.Statistikat, ng: Boolean, ctx: Konteksti) {
-    val n = N
-    val sk = st.skaduara
-    val jv = st.javes
-    val ngjyra = if (sk > 0) n.exp else if (jv > 0) n.near else n.ok
-    val nr = if (sk > 0) sk else jv
-    val pjesa1 = if (nr > 0) "$nr " + (if (nr == 1) "produkt" else "produkte") else "Asnjë produkt nuk skadon këtë javë"
-    val pjesa2 = when {
-        sk > 0 -> if (sk == 1) " ka skaduar" else " kanë skaduar"
-        jv > 0 -> if (jv == 1) " skadon këtë javë" else " skadojnë këtë javë"
-        else -> ""
-    }
-    Column(Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 6.dp)) {
-        Text((if (sk > 0) "Vëmendje" else "Kjo javë").uppercase(), style = tx(12, 700, n.muted, 0.08))
-        var titulli = Modifier.padding(top = 6.dp, bottom = 8.dp)
-        if (ng && nr > 0) titulli = titulli.clickable { ctx.hapAnetarin("krejt", if (sk > 0) "skaduar" else "afer") }
-        Text(
-            if (!ng) buildAnnotatedString { append("Duke ngarkuar…") }
-            else buildAnnotatedString { withStyle(SpanStyle(color = ngjyra)) { append(pjesa1) }; append(pjesa2) },
-            style = tx(27, 800, n.ink, -0.02).copy(lineHeight = 31.sp), modifier = titulli
-        )
-        if (ng) FlowRow(Modifier.fillMaxWidth()) {
-            if (sk == 0) Text("Asnjë i skaduar në raft. ", style = tx(14, 400, n.ink3))
-            listOf(
-                Triple(st.aktive, " në raft, ") { ctx.hapAnetarin("krejt", null) },
-                Triple(st.afer, " afër skadimit, ") { ctx.hapAnetarin("krejt", "afer") },
-                Triple(st.hequrMuajit, " të hequr këtë muaj.") { ctx.hapAnetarin("krejt", "hequr") }
-            ).forEach { (vlera, tekst, hap) ->
-                Row {
-                    Text(vlera.toString(), style = tx(14, 700, n.ink).copy(textDecoration = TextDecoration.Underline), modifier = Modifier.clickable(onClick = hap))
-                    Text(tekst, style = tx(14, 400, n.ink3))
-                }
+    Row(Modifier.fillMaxWidth().padding(top = 14.dp, bottom = 2.dp).clip(RoundedCornerShape(16.dp)).background(n.sunken).padding(4.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+        pjeset.forEach { p ->
+            val ng = when (p.ngjyra) { "skaduar" -> n.exp; "afer" -> n.near; "ok" -> n.ok; "hequr" -> n.muted; else -> n.ink }
+            Column(Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).clickable { p.prek() }.padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(p.nr, style = tx(18, 800, ng))
+                Text(p.emri, style = txF(10.5f, 600, n.muted), maxLines = 1)
             }
         }
     }
@@ -392,22 +350,6 @@ private fun ShiritiSegmentuar(pjeset: List<Triple<String?, String, Int>>, aktivi
             ) {
                 Text(nr.toString(), style = tx(18, 800, ng))
                 Text(emri, style = txF(10.5f, 600, if (on) n.ink else n.muted), maxLines = 1)
-            }
-        }
-    }
-}
-
-/** Të dhënat e një pllake */
-private class P(val lloji: String, val numri: String, val teksti: String, val aktiv: Boolean = false, val onClick: () -> Unit)
-
-/** Rrjeta me 3 pllaka për rresht */
-@Composable
-private fun RrjetaEPllakave(pllakat: List<P>) {
-    Column(Modifier.fillMaxWidth().padding(top = 14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        pllakat.chunked(3).forEach { r ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                r.forEach { Pllaka(it.lloji, it.numri, it.teksti, Modifier.weight(1f), it.aktiv, it.onClick) }
-                repeat(3 - r.size) { Spacer(Modifier.weight(1f)) }
             }
         }
     }
@@ -727,7 +669,13 @@ private fun Permbledhja(ftesat: List<Obj>, kerkesatG: List<Obj>, ngjarjet: List<
     val ng = ctx.ngarkuar
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 24.dp)) {
         item {
-            FjaliaERezymese(st, ng, ctx)
+            ShiritiINumrave(listOf(
+                PS(null, "Në raft", if (ng) st.aktive.toString() else "…") { ctx.hapAnetarin("krejt", null) },
+                PS("skaduar", "Skaduara", if (ng) st.skaduara.toString() else "…") { ctx.hapAnetarin("krejt", "skaduar") },
+                PS("afer", "Këtë javë", if (ng) st.javes.toString() else "…") { ctx.hapAnetarin("krejt", "afer") },
+                PS("afer", "Afër", if (ng) st.afer.toString() else "…") { ctx.hapAnetarin("krejt", "afer") },
+                PS("hequr", "Hequra", if (ng) st.hequrMuajit.toString() else "…") { ctx.hapAnetarin("krejt", "hequr") }
+            ))
         }
         items(ftesat, key = { "f" + it["id"] }) { FtesaKarta(it, ctx) }
         if (Grupi.eshtePronar()) items(kerkesatG, key = { "k" + it["id"] }) { KerkesaEGrupitKarta(it, ctx) }
@@ -879,13 +827,14 @@ private fun AfatetEGrupit(uid: String, filtri: String?, ndryshoFiltrin: (String?
 @Composable
 private fun Aktiviteti(ngjarjet: List<Obj>, gati: Boolean, ctx: Konteksti) {
     val n = N
+    val scope = rememberFusha()
     val st = remember(ctx.anetaret, ctx.tani) { GrupiLogjika.statistikat(ctx.anetaret, ctx.tani) }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 24.dp)) {
         item {
-            RrjetaEPllakave(listOf(
-                P("afer", st.sot.toString(), "Skadojnë sot") { ctx.hapAnetarin("krejt", "afer") },
-                P("skaduar", st.skaduara.toString(), "Të skaduara në raft") { ctx.hapAnetarin("krejt", "skaduar") },
-                P("ok", st.hequrSot.toString(), "Hequr sot") { ctx.hapAnetarin("krejt", "hequr") }
+            ShiritiINumrave(listOf( // Hyrja 81: si te Afatet (më parë 3 pllaka)
+                PS("afer", "Skadojnë sot", st.sot.toString()) { ctx.hapAnetarin("krejt", "afer") },
+                PS("skaduar", "Skaduara", st.skaduara.toString()) { ctx.hapAnetarin("krejt", "skaduar") },
+                PS("hequr", "Hequr sot", st.hequrSot.toString()) { ctx.hapAnetarin("krejt", "hequr") }
             ))
         }
         when {
@@ -899,6 +848,17 @@ private fun Aktiviteti(ngjarjet: List<Obj>, gati: Boolean, ctx: Konteksti) {
                     item(key = "n" + x["id"]) { Ngjarja(x, GrupiLogjika.ora(kohaE(x, "koha")), ctx.hapNgjarjen) }
                 }
             }
+        }
+        // Hyrja 81 (pronari: "heke fshirjen e aktivitetit prej qaty e qite te aktiviteti"): vetëm admini i grupit, jo më te Kolegët
+        if (gati && Grupi.eshtePronar()) item {
+            Buton("Pastro të gjithë aktivitetin", {
+                ctx.pyet(Pyetja("Të fshihet i gjithë aktiviteti?", "I gjithë historiku i aktivitetit fshihet për të gjithë grupin. Afatet s'preken.", "Fshi të gjitha", true) {
+                    scope.launch {
+                        val r = Grupi.pastroAktivitetin()
+                        Toast.trego(if (r == null) "S'u fshi gjithçka. Kontrollo internetin dhe provo përsëri." else if (r == 1) "U fshi 1 rresht." else "U fshinë $r rreshta.", 4000)
+                    }
+                })
+            }, Modifier.fillMaxWidth().padding(top = 18.dp), lloji = "rrezik")
         }
     }
 }
@@ -1005,6 +965,7 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
     var riemertim by remember { mutableStateOf(false) }
     var emriRi by remember { mutableStateOf("") }
     var fto by rememberSaveable { mutableStateOf("") }
+    var ftoHapur by rememberSaveable { mutableStateOf(false) } // Hyrja 81: fusha e ftesës del pas butonit me plus
     var njoftimi by rememberSaveable { mutableStateOf("") }
     val llogarite by Admini.llogarite.collectAsState() // administratori: "Llogaritë e tjera"
     var krejtLlogarite by rememberSaveable { mutableStateOf(false) }
@@ -1020,7 +981,9 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
         }
         item {
             Krye("Grupi yt")
-            Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(18.dp))
+            // Hyrja 81 (pronari, foto: "ngushtoje grupi yt edhe anen e djatht e len ikon veq ni njeri me ni plus")
+            Row(Modifier.fillMaxWidth().height(androidx.compose.foundation.layout.IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(Modifier.weight(1f).clip(RoundedCornerShape(18.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(18.dp))
                 .padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (pronar && riemertim) {
                     fun ruaj() {
@@ -1041,11 +1004,16 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
                     if (pronar) Pill("Ndrysho emrin") { emriRi = emriG; riemertim = true }
                 }
             }
+            if (pronar) Box(Modifier.width(66.dp).fillMaxHeight().defaultMinSize(minHeight = 66.dp).clip(RoundedCornerShape(18.dp))
+                .background(if (ftoHapur) n.surface2 else n.accent).border(if (ftoHapur) 1.dp else 0.dp, n.line, RoundedCornerShape(18.dp))
+                .clickable { ftoHapur = !ftoHapur }.semantics { contentDescription = "Fto një shok në grup" }, contentAlignment = Alignment.Center) {
+                Icon(Ik.FtoKoleg, null, Modifier.size(24.dp), tint = if (ftoHapur) n.accent else Color.White)
+            }
+            }
         }
         if (pronar) {
-            item {
-                Krye("Fto një shok në grup")
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (ftoHapur) item {
+                Row(Modifier.padding(top = 12.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     fun dergo() {
                         val em = fto.trim()
                         if (em.isEmpty()) return
@@ -1091,7 +1059,7 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
             val tjeret = an.filter { it["uneJam"] != true }
             item {
                 Krye("Menaxho kolegët")
-                if (tjeret.isEmpty()) Text("S'ka kolegë të tjerë ende. Fto shokët më lart.", style = tx(14, 400, n.muted))
+                if (tjeret.isEmpty()) Text("S'ka kolegë të tjerë ende. Fto shokët me butonin + te "Grupi yt".", style = tx(14, 400, n.muted))
             }
             items(tjeret, key = { "m" + it["uid"] }) { a ->
                 val em = jsString(a["emri"] ?: "")
@@ -1110,17 +1078,6 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
                     }
                     if (Admini.eshteAdmin() && a["admin"] != true && !Lejet.eshteAdmin(a["uid"] as? String)) Pill("Fshi", rrezik = true) { fshijLlogarine(a["uid"] as String, em, ctx, scope) }
                 }
-            }
-            item {
-                Krye("Pastrimi")
-                Buton("Pastro të gjithë aktivitetin", {
-                    ctx.pyet(Pyetja("Të fshihet i gjithë aktiviteti?", "I gjithë historiku i aktivitetit fshihet për të gjithë grupin. Afatet s'preken.", "Fshi të gjitha", true) {
-                        scope.launch {
-                            val r = Grupi.pastroAktivitetin()
-                            Toast.trego(if (r == null) "S'u fshi gjithçka. Kontrollo internetin dhe provo përsëri." else if (r == 1) "U fshi 1 rresht." else "U fshinë $r rreshta.", 4000)
-                        }
-                    })
-                }, Modifier.fillMaxWidth(), lloji = "rrezik")
             }
         }
         if (Admini.eshteAdmin()) {
