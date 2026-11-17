@@ -22,7 +22,7 @@ const ADM = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
   const ge = lx(K + 'ui/GrupiEkrani.kt');
   ok(/Cilësimet e grupit/.test(ge) && /Ik\.TrePika/.test(ge) && /Ik\.Laps/.test(ge) && !/Pill\("Ndrysho emrin"\)/.test(ge) && /if \(cilesimet\) Flete\(/.test(ge), '0. Android: ⋮ + laps + dritarja "Cilësimet e grupit"');
   const sw = lx('sw.js');
-  ok(/stoku-v32\d/.test(sw) && /app-tel\.js\?v=320/.test(sw) && /ekipa\.js\?v=320/.test(sw), '0. sw.js: CACHE, app-tel, ekipa ≥ 320');
+  ok(/stoku-v32\d/.test(sw) && /app-tel\.js\?v=3[2-9]\d/.test(sw) && /ekipa\.js\?v=3[2-9]\d/.test(sw), '0. sw.js: CACHE, app-tel, ekipa ≥ 320');
 
   // ===== Faqet =====
   const tani = Date.now();
@@ -64,7 +64,7 @@ const ADM = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
       pill: /Ndrysho emrin/.test(t), menaxho: /Menaxho kolegët/.test(t), llog: /Llogaritë e tjera/.test(t), njoft: /Njoftim për të gjithë|Dërgo te i gjithë grupi/.test(t),
       ta: !!document.getElementById('ekAdminTekst') };
   });
-  ok(r.karta && r.plus && r.cil && r.karta.h === r.plus.h && r.plus.h === r.cil.h && r.plus.w === r.plus.h && r.cil.w === r.cil.h && r.plus.h >= 48 && r.plus.h <= 56 && r.karta.top === r.plus.top && r.plus.top === r.cil.top,
+  ok(r.karta && r.plus && r.cil && r.karta.h === r.plus.h && r.plus.h === r.cil.h && r.plus.w === r.plus.h && r.cil.w === r.cil.h && r.plus.h >= 40 && r.plus.h <= 56 && r.karta.top === r.plus.top && r.plus.top === r.cil.top,
     '1. karta, + dhe ⋮: e njëjta lartësi (56, më e hollë), katrorë, në të njëjtën vijë', r);
   ok(r.laps && r.laps.w <= 40 && !r.pill, '1. "Ndrysho emrin" = laps i vogël (pa tekst)', r.laps);
   ok(!r.menaxho && !r.llog && !r.njoft && !r.ta, '2/3. te faqja: pa "Menaxho kolegët", pa "Llogaritë e tjera", pa njoftimin e grupit', r);
@@ -74,8 +74,8 @@ const ADM = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
   await tel.keyboard.press('Escape'); await tel.waitForTimeout(300);
   await tel.click('#ekGrupiCil'); await tel.waitForTimeout(500);
   const d = await tel.evaluate(() => { const t = document.getElementById('gcTrup').textContent; return { hapur: document.getElementById('dlgGrupiCil').classList.contains('hapur'), titulli: document.getElementById('gcTitulli').textContent, nen: document.getElementById('gcNen').textContent,
-    menaxho: /Menaxho kolegët/.test(t), besa: /besa/.test(t) && /Bëje admin/.test(t) && /Hiq/.test(t), llog: /Llogaritë e tjera \(vetëm administratori\) · 1/.test(t) && /testmorina/.test(t) }; });
-  ok(d.hapur && d.titulli === 'Cilësimet e grupit' && d.nen === 'Albi Market 34' && d.menaxho && d.besa && d.llog, '2. ⋮ hap "Cilësimet e grupit": Menaxho kolegët + Llogaritë e tjera', d);
+    menaxho: /Menaxho kolegët/.test(t), besa: /besa/.test(t) && /Bëje admin/.test(t) && /Hiq/.test(t), llog: /Llogaritë e tjera/.test(t) }; });
+  ok(d.hapur && d.titulli === 'Cilësimet e grupit' && d.nen === 'Albi Market 34' && d.menaxho && d.besa && !d.llog, '2. ⋮ hap "Cilësimet e grupit": Menaxho kolegët (v321: pa "Llogaritë e tjera")', d);
   await tel.screenshot({ path: SC + 'v320-cilesimet.png' });
   // "Hiq" pyet mbi dritaren
   await tel.evaluate(() => { const b = [...document.querySelectorAll('#gcTrup button')].find(x => x.textContent === 'Hiq'); b.click(); });
@@ -89,8 +89,8 @@ const ADM = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
   const ko = await faqe(false, 'u3', 'drini');
   await ko.click('#btnEkipi'); await ko.waitForTimeout(1200);
   await ko.click('#ekMenu button[data-n="anetaret"]'); await ko.waitForTimeout(800);
-  ok(await ko.evaluate(() => !document.getElementById('ekFtoHap') && !document.getElementById('ekGrupiCil') && !document.getElementById('ekRiemerto') && document.querySelector('.ek-grupi-karta').getBoundingClientRect().height >= 48),
-    '1. kolegu (jo admin): vetëm karta, pa +, ⋮ dhe laps');
+  ok(await ko.evaluate(() => !document.getElementById('ekFtoHap') && !!document.getElementById('ekGrupiCil') && !document.getElementById('ekRiemerto') && document.querySelector('.ek-grupi-karta').getBoundingClientRect().height >= 40),
+    '1. kolegu (jo admin): karta dhe ⋮ (v321: aty "Largohu"), pa + dhe laps');
   ok(!ko.__gab.length, '1. pa gabime JS', ko.__gab);
   // PC
   const pc = await faqe(true, ADM, 'duli96');

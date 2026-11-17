@@ -156,7 +156,7 @@
 
 /* Fushat */
 .sbp .fushe > span, .sbp .ops-titull { font-size: 13px; font-weight: 600; color: var(--sb-ink-3); }
-.sbp input.inp, .sbp select.inp, .sbp textarea.inp { border: 0; border-radius: 10px; background-color: var(--sb-surface); color: var(--sb-ink); box-shadow: var(--sb-ring); }
+.sbp input.inp, .sbp select.inp, .sbp textarea.inp, .sbp button.inp { border: 0; border-radius: 10px; background-color: var(--sb-surface); color: var(--sb-ink); box-shadow: var(--sb-ring); }
 .sbp .inp:focus { border-color: transparent; box-shadow: 0 0 0 2px var(--sb-accent); }
 .sbp .inp::placeholder { color: var(--sb-faint); }
 .sbp .kuti-fushe { height: 38px; border: 0; border-radius: 10px; background: var(--sb-surface); box-shadow: var(--sb-ring); }

@@ -289,10 +289,18 @@
     el.appendChild(fund);
   }
 
+  // v321: sa furnizues (të ndryshëm, me emër) ka lista, për kokën e PDF-së në vend të "Periudha" (= EksportiPdf.nrFurnizuesve)
+  function apNrFurnizuesve(l) {
+    var u = {}, n = 0;
+    (l || []).forEach(function (a) { var f = String((a && a.furnizuesi) || '').trim().replace(/\s+/g, ' ').toLowerCase(); if (f && !u[f]) { u[f] = 1; n++; } });
+    return n;
+  }
+
   root.StokuEksportet = {
     FOTO_MAKS: AEF_MAKS, NGJ: AEF_NGJ,
     vizatoFoton: aefVizato, skedariFotos: aefSkedari, fontet: aefFontet, logo: aefLogo,
     planiPdf: apPlani, pdf: apPdf,
-    ditaEShtimit: apDitaEShtimit, ditaOk: apDitaOk, numratEDiteve: apNumratEDiteve, tekstiDiteve: apTekstiDiteve, kalendari: apKalendari
+    ditaEShtimit: apDitaEShtimit, ditaOk: apDitaOk, numratEDiteve: apNumratEDiteve, tekstiDiteve: apTekstiDiteve, kalendari: apKalendari,
+    nrFurnizuesve: apNrFurnizuesve
   };
 })(typeof window !== 'undefined' ? window : this);

@@ -397,12 +397,13 @@
   .fushe { display: block; margin-bottom: 14px; }
   .fushe > span { display: block; font-size: 12px; font-weight: 600; color: var(--gri); margin: 0 0 6px 2px; }
   .fushe > span .fushe-opsionale { font-size: 11px; font-weight: 400; }
-  input.inp, select.inp, textarea.inp {
+  input.inp, select.inp, textarea.inp, button.inp {
     width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--fushe-kufi); border-radius: 10px;
     background: var(--fushe-bg); outline: none; transition: border-color .12s, box-shadow .12s;
   }
   textarea.inp { height: auto; padding: 10px 12px; resize: vertical; }
-  select.inp {
+  button.inp { font: inherit; color: inherit; } /* v321: "Ditët e skanimit" (buton) si fushat e tjera */
+  select.inp, button.inp.ap-ditet-btn {
     appearance: none; -webkit-appearance: none; padding-right: 34px;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23888' stroke-width='2'/></svg>");
     background-repeat: no-repeat; background-position: right 12px center;
@@ -560,7 +561,7 @@
   .mbulese.hapur { display: flex; animation: shfaq .12s ease-out; }
   #dlgKonfirmo { z-index: 55; }
   /* v319: "Ditët e skanimit" (kalendar me shumë ditë, si te telefoni) */
-  .ap-ditet-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; text-align: left; cursor: pointer; }
+  .ap-ditet-btn { display: flex; align-items: center; width: 100%; text-align: left; cursor: pointer; }
   .ap-kal { margin: -4px 0 12px; padding: 10px; border-radius: 12px; background: var(--sfond); box-shadow: 0 0 0 1px var(--vije); }
   .ap-kal[hidden] { display: none; }
   .ap-kal-krye { display: flex; align-items: center; justify-content: space-between; padding: 0 0 6px; }
@@ -942,7 +943,7 @@
 <link rel="stylesheet" href="css/stoku-temat.css?v=2">
 <link rel="stylesheet" href="css/stoku-logot.css?v=2">
 <script src="logot.js?v=2"></script>
-<link rel="stylesheet" href="css/stoku-pc.css?v=47">
+<link rel="stylesheet" href="css/stoku-pc.css?v=48">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -1405,10 +1406,6 @@
             </div>
           </div>
         </div>
-        <div class="karta fsheh" id="ekLlogaritePanel" style="margin-top:16px">
-          <div class="karta-krye"><h2 id="ekLlogariteTitulli">Llogaritë e tjera</h2></div>
-          <div class="karta-trup"><table class="tabela"><tbody id="ekLlogariteTrup"></tbody></table><button class="btn tekst vogel fsheh" type="button" id="ekLlogariteKrejt" style="margin-top:8px"></button></div>
-        </div>
       </div>
 
       <div id="ekVStoku" class="fsheh">
@@ -1577,7 +1574,7 @@
     <div class="dialog-trup">
       <p class="ops-hint" id="apNen" style="margin:0 0 14px"></p>
       <label class="fushe"><span>Periudha</span><select class="inp" id="apPeriudha"></select></label>
-      <div class="fushe"><span>Ditët e skanimit</span><button type="button" class="inp ap-ditet-btn" id="apDitetRr" aria-expanded="false" aria-controls="apKal"><span id="apDitetV"></span><span aria-hidden="true">▾</span></button></div>
+      <div class="fushe"><span>Ditët e skanimit</span><button type="button" class="inp ap-ditet-btn" id="apDitetRr" aria-expanded="false" aria-controls="apKal"><span id="apDitetV"></span></button></div>
       <div class="ap-kal" id="apKal" hidden></div>
       <label class="fushe furn-vetem"><span>Furnizuesi</span><select class="inp" id="apFurn"></select></label>
       <label class="fushe"><span>Renditja</span><select class="inp" id="apRend"></select></label>
@@ -2070,13 +2067,13 @@
 <script src="lejet.js?v=8"></script>
 <script src="pajisjet.js?v=2"></script>
 <script src="afatet.js?v=295"></script>
-<script src="eksportet.js?v=319"></script>
+<script src="eksportet.js?v=321"></script>
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
 <script src="ekipa.js?v=320"></script>
 <script src="temat.js?v=2"></script>
-<script src="versioni.js?v=320"></script>
-<script src="app-pc.js?v=320"></script>
+<script src="versioni.js?v=321"></script>
+<script src="app-pc.js?v=321"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
 

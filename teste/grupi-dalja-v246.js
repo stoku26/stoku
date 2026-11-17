@@ -6,6 +6,9 @@ const { krijoFirestore } = require('./fs-server.js');
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
 const PUSH = 'https://stoku-push.mendurb.workers.dev';
 const BAZA = process.env.STOKU_B || 'http://127.0.0.1:8765';
+// v321: te telefoni "Largohu nga grupi" është brenda "⋮" (Cilësimet e grupit)
+async function hapLargohu(p) { if (!(await p.isVisible('#ekLargohu')) && await p.isVisible('#ekGrupiCil')) { await p.click('#ekGrupiCil'); await p.waitForTimeout(400); } }
+
 const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return z(true); await new Promise(r => setTimeout(r, 100)); } z(false); });
 (async () => {
   const F = krijoFirestore({ rregullat: 'reja' });
@@ -43,8 +46,8 @@ const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); 
   ok(await vjosa.evaluate(() => document.getElementById('ekFtoKarta').classList.contains('fsheh')), '1. vjosa ende jo admine: pa "Fto një shok"');
   const agim = await faqe('u1', 'agim', false);
   await kolegetTel(agim);
-  ok(await agim.isVisible('#ekLargohu'), '1. agim: "Largohu nga grupi"');
-  await agim.click('#ekLargohu'); await agim.waitForTimeout(400);
+  await hapLargohu(agim); ok(await agim.isVisible('#ekLargohu'), '1. agim: "Largohu nga grupi"');
+  await hapLargohu(agim); await agim.click('#ekLargohu'); await agim.waitForTimeout(400);
   const pyetja = (await agim.textContent('#dlgKonfirmo')).replace(/\s+/g, ' ');
   ok(/admin bëhet vjosa/.test(pyetja) && !/admini i vetëm/.test(pyetja), '1. pyetja: "admin bëhet vjosa" (ka hyrë më herët se besa)', pyetja.slice(0, 200));
   await agim.click('#konfPo');
@@ -69,7 +72,7 @@ const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); 
   // 3. besa (tel, anëtare e zakonshme) largohet: grupi mbetet me vjosën
   const besa = await faqe('u2', 'besa', false);
   await kolegetTel(besa);
-  await besa.click('#ekLargohu'); await besa.waitForTimeout(400);
+  await hapLargohu(besa); await besa.click('#ekLargohu'); await besa.waitForTimeout(400);
   const pyetjaB = (await besa.textContent('#dlgKonfirmo')).replace(/\s+/g, ' ');
   ok(!/admin bëhet/.test(pyetjaB) && !/fshihet/.test(pyetjaB), '3. besa: pyetja e zakonshme (pa admin të ri, pa fshirje)', pyetjaB.slice(0, 200));
   await besa.click('#konfPo');
@@ -77,7 +80,7 @@ const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); 
 
   // 4. vjosa (PC), e fundit në grup: largohet → grupi fshihet krejt
   ok(await prit(async () => !/besa/.test(await vjosa.textContent('#ekTabAnetaret'))), '4. vjosa: besa s\'është më te kolegët');
-  await vjosa.click('#ekLargohu'); await vjosa.waitForTimeout(400);
+  await hapLargohu(vjosa); await vjosa.click('#ekLargohu'); await vjosa.waitForTimeout(400);
   const pyetjaV = await vjosa.textContent('#kfTekst');
   ok(/Je i fundit në grup: grupi fshihet komplet/.test(pyetjaV), '4. pyetja: "Je i fundit në grup: grupi fshihet komplet"', pyetjaV);
   await vjosa.click('#kfPo');

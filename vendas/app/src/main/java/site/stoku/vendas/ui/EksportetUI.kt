@@ -272,11 +272,14 @@ fun AfatetPdfFlete(te: List<Obj>, mbyll: () -> Unit, gati: (Skedari) -> Unit) {
                 val idM = Merchandiseri.idAktiv()
                 val cope = Afatet.shumaCopeve(lista)
                 val info = ArrayList<Pair<String, Boolean>>()
-                info.add("Periudha: " to false); info.add(per to true)
-                listOf(if (fE.isEmpty()) "" else furnT, idM?.let { Merchandiseri.emri(it) } ?: "").filter { it.isNotEmpty() }
-                    .forEach { info.add(" · " to false); info.add(it to true) }
-                info.add(" · " to false); info.add(lista.size.toString() to true); info.add((if (lista.size == 1) " produkt" else " produkte") to false)
-                if (cope > 0) { info.add(" · " to false); info.add(EksportiPdf.numri(cope) to true); info.add(" copë" to false) }
+                // Web v321 (pronari: "hiqe periudha bone njo sa furnizus jan nqat list ja qet nr qaty nvend te saj")
+                fun shto(vararg p: Pair<String, Boolean>) { if (info.isNotEmpty()) info.add(" · " to false); info.addAll(p) }
+                if (muE.isNotEmpty()) shto(per to true)
+                if (fE.isNotEmpty()) shto(furnT to true)
+                else if (!paF) { val nF = EksportiPdf.nrFurnizuesve(lista); if (nF > 0) shto(nF.toString() to true, " furnizues" to false) }
+                idM?.let { Merchandiseri.emri(it) }?.takeIf { it.isNotEmpty() }?.let { shto(it to true) }
+                shto(lista.size.toString() to true, (if (lista.size == 1) " produkt" else " produkte") to false)
+                if (cope > 0) shto(EksportiPdf.numri(cope) to true, " copë" to false)
                 val emri = "afatet_" + (if (muE.isEmpty()) "" else Eksportet.sluguFolderit(per) + "_") + dita + ".pdf"
                 val renditur = EksportiPdf.rendit(lista, r)
                 scope.launch {

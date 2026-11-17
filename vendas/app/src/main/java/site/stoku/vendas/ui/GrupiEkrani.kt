@@ -965,8 +965,6 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
     var fto by rememberSaveable { mutableStateOf("") }
     var ftoHapur by rememberSaveable { mutableStateOf(false) } // Hyrja 81: fusha e ftesës del pas butonit me plus
     var cilesimet by rememberSaveable { mutableStateOf(false) } // Hyrja 82: "Cilësimet e grupit" (butoni me tri pika)
-    val llogarite by Admini.llogarite.collectAsState() // administratori: "Llogaritë e tjera"
-    var krejtLlogarite by rememberSaveable { mutableStateOf(false) }
     val emriG = (doc?.get("emri") as? String)?.ifEmpty { null } ?: "Grupi"
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 24.dp)) {
         if (ftesat.isNotEmpty()) {
@@ -981,10 +979,10 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
             Krye("Grupi yt")
             // Hyrja 82 (pronari, foto: "balancoj qeto komplet ... butonin ndrysho emrin bone me ikon tvogel ... shtoje edhe ni buton me tri
             // pika vertikal per cilesime te grupit ... komplet i balancon jo njo e madhe njo e vogel"): karta, "+" dhe "⋮" me të njëjtën lartësi
-            val meCilesime = pronar || Admini.eshteAdmin()
-            Row(Modifier.fillMaxWidth().height(56.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) { // "mat holl komplet se gjon shum"
-            Row(Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(16.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(16.dp))
-                .padding(start = 14.dp, end = 9.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Web v321 (pronari: "hekja ngjyren e kalter butonit ... edhe pak ma te vogel"): 48 dp, "+" pa blu; "⋮" për çdo koleg (aty është "Largohu")
+            Row(Modifier.fillMaxWidth().height(48.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(14.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(14.dp))
+                .padding(start = 13.dp, end = 7.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (pronar && riemertim) {
                     fun ruaj() {
                         val em = emriRi.trim()
@@ -994,26 +992,26 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
                             if (r == null) riemertim = false else Toast.trego("Emri s'u ndryshua. Kontrollo internetin.", 4000)
                         }
                     }
-                    Fusha(emriRi, { emriRi = it.take(60) }, Modifier.weight(1f), kurVeprim = { ruaj() }, lartesia = 40.dp)
-                    Buton("Ruaj", { ruaj() }, lartesia = 40.dp)
+                    Fusha(emriRi, { emriRi = it.take(60) }, Modifier.weight(1f), kurVeprim = { ruaj() }, lartesia = 36.dp)
+                    Buton("Ruaj", { ruaj() }, lartesia = 36.dp)
                 } else {
                     Column(Modifier.weight(1f)) {
-                        Text(emriG, style = tx(16, 800, n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text((if (pronar) "Ti je admin i grupit" else "Koleg i grupit") + " · " + nrKolege(an.size), style = tx(12, 400, n.muted),
+                        Text(emriG, style = tx(15, 800, n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text((if (pronar) "Ti je admin i grupit" else "Koleg i grupit") + " · " + nrKolege(an.size), style = txF(11.5f, 400, n.muted),
                             maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 1.dp))
                     }
-                    if (pronar) Box(Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(n.surface2).clickable { emriRi = emriG; riemertim = true }
+                    if (pronar) Box(Modifier.size(30.dp).clip(RoundedCornerShape(9.dp)).background(n.surface2).clickable { emriRi = emriG; riemertim = true }
                         .semantics { contentDescription = "Ndrysho emrin e grupit" }, contentAlignment = Alignment.Center) {
                         Icon(Ik.Laps, null, Modifier.size(16.dp), tint = n.ink2)
                     }
                 }
             }
-            if (pronar) Box(Modifier.size(56.dp).clip(RoundedCornerShape(16.dp))
-                .background(if (ftoHapur) n.surface2 else n.accent).border(if (ftoHapur) 1.dp else 0.dp, n.line, RoundedCornerShape(16.dp))
+            if (pronar) Box(Modifier.size(48.dp).clip(RoundedCornerShape(14.dp))
+                .background(if (ftoHapur) n.surface2 else n.surface).border(1.dp, n.line, RoundedCornerShape(14.dp))
                 .clickable { ftoHapur = !ftoHapur }.semantics { contentDescription = "Fto një shok në grup" }, contentAlignment = Alignment.Center) {
-                Icon(Ik.FtoKoleg, null, Modifier.size(22.dp), tint = if (ftoHapur) n.accent else Color.White)
+                Icon(Ik.FtoKoleg, null, Modifier.size(22.dp), tint = n.ink)
             }
-            if (meCilesime) Box(Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(16.dp))
+            Box(Modifier.size(48.dp).clip(RoundedCornerShape(14.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(14.dp))
                 .clickable { cilesimet = true }.semantics { contentDescription = "Cilësimet e grupit" }, contentAlignment = Alignment.Center) {
                 Icon(Ik.TrePika, null, Modifier.size(22.dp), tint = n.ink)
             }
@@ -1053,26 +1051,6 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
             Text("$nOn online nga " + nrKolege(an.size), style = tx(14, 400, n.muted), modifier = Modifier.padding(bottom = 4.dp))
         }
         items(an, key = { "a" + it["uid"] }) { a -> RreshtiKolegut(a, ctx) }
-        item {
-            Buton("Largohu nga grupi", {
-                val m = Grupi.mundTeLargohet()
-                if (!m.ok) { Toast.trego("Prit pak, po ngarkohen kolegët e grupit…", 5000); return@Buton }
-                ctx.pyet(Pyetja("Të largohesh nga grupi \"$emriG\"?",
-                    if (m.iFundit) "Je i fundit në grup: grupi fshihet komplet, bashkë me aktivitetin. Stoku dhe afatet e tua s'preken."
-                    else (if (m.trashegimtari != null) "Je admini i grupit: kur largohesh, admin bëhet " + (m.trashegimtariEmri ?: "kolegu") + ". " else "") +
-                        "S'do t'i shohësh më kolegët dhe aktivitetin e këtij grupi. Stoku dhe afatet e tua s'preken.", "Largohu", true) {
-                    scope.launch {
-                        val r = Grupi.largohuNgaGrupi()
-                        Toast.trego(when (r) {
-                            null -> "U largove nga grupi \"$emriG\"."
-                            "trashegimtari" -> "S'u largove: kolegu s'u bë dot admin. Kontrollo internetin dhe provo përsëri."
-                            "duke-ngarkuar" -> "Prit pak, po ngarkohen kolegët e grupit…"
-                            else -> "S'u largove. Kontrollo internetin dhe provo përsëri."
-                        }, 5000)
-                    }
-                })
-            }, Modifier.fillMaxWidth().padding(top = 18.dp), lloji = "rrezik")
-        }
     }
     // Hyrja 82 (pronari: "menaxho koleget e shtin mrena cilesimeve te grupit te qaj butoni ... me tri pika")
     if (cilesimet) Flete({ cilesimet = false }) {
@@ -1103,28 +1081,26 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
                 }
             }
         }
-        if (Admini.eshteAdmin()) {
-            val brenda = an.mapNotNull { it["uid"] as? String }.toSet()
-            val uIm = Grupi.uidIm()
-            val jashte = (llogarite ?: emptyList()).filter { it.uid !in brenda && it.uid != uIm }.sortedByDescending { it.kycurSe }
-            Column {
-                Krye("Llogaritë e tjera (vetëm administratori) · " + jashte.size)
-                if (jashte.isEmpty()) Text("S'ka llogari të tjera.", style = tx(14, 400, n.muted))
-                (if (krejtLlogarite) jashte else jashte.take(15)).forEach { x ->
-                    RreshtiMenaxhimit(x.emri, (if (x.grupi != null) "Në një grup tjetër" else "Pa grup") +
-                        (if (x.kycurSe > 0) " · u kyç " + GrupiLogjika.kohaRelative(x.kycurSe, ctx.tani) else ""), x.uid) {
-                        if (pronar) Pill("Fto") {
-                            scope.launch {
-                                val r = Grupi.ftoNeGrup(x.emri, x.uid)
-                                Toast.trego(if (r == null) "Ftesa iu dërgua ${x.emri}." else tekstiGabimitTeFtesa(r), 4000)
-                            }
-                        }
-                        if (!x.admin && !Lejet.eshteAdmin(x.uid)) Pill("Fshi", rrezik = true) { fshijLlogarine(x.uid, x.emri, ctx, scope) }
-                    }
+        // Web v321 (pronari: "largohu nga grupi qite si buton tkuq ... te cilesimet e grupit"; "Llogarit e tjera hiqi komplet")
+        Buton("Largohu nga grupi", {
+            cilesimet = false
+            val m = Grupi.mundTeLargohet()
+            if (!m.ok) { Toast.trego("Prit pak, po ngarkohen kolegët e grupit…", 5000); return@Buton }
+            ctx.pyet(Pyetja("Të largohesh nga grupi \"$emriG\"?",
+                if (m.iFundit) "Je i fundit në grup: grupi fshihet komplet, bashkë me aktivitetin. Stoku dhe afatet e tua s'preken."
+                else (if (m.trashegimtari != null) "Je admini i grupit: kur largohesh, admin bëhet " + (m.trashegimtariEmri ?: "kolegu") + ". " else "") +
+                    "S'do t'i shohësh më kolegët dhe aktivitetin e këtij grupi. Stoku dhe afatet e tua s'preken.", "Largohu", true) {
+                scope.launch {
+                    val r = Grupi.largohuNgaGrupi()
+                    Toast.trego(when (r) {
+                        null -> "U largove nga grupi \"$emriG\"."
+                        "trashegimtari" -> "S'u largove: kolegu s'u bë dot admin. Kontrollo internetin dhe provo përsëri."
+                        "duke-ngarkuar" -> "Prit pak, po ngarkohen kolegët e grupit…"
+                        else -> "S'u largove. Kontrollo internetin dhe provo përsëri."
+                    }, 5000)
                 }
-                if (!krejtLlogarite && jashte.size > 15) Buton("Shfaq të gjitha (" + jashte.size + ")", { krejtLlogarite = true }, Modifier.fillMaxWidth(), lloji = "tekst")
-            }
-        }
+            })
+        }, Modifier.fillMaxWidth().padding(top = 16.dp).border(1.5.dp, n.exp, RoundedCornerShape(14.dp)), lloji = "rrezik")
     }
 }
 

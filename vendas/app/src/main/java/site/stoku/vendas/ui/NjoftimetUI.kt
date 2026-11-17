@@ -309,8 +309,10 @@ fun OraFaqja(mbrapa: () -> Unit) {
         TitulliGrupit("Ora e dorës", pare = true)
         KartaOps {
             KokaEKartes(Ik.OraDore, "blu", "Stoku në orë", "Produktet që skadojnë, heqja nga rafti dhe njoftimet e telefonit, direkt në dorë.")
-            // .segment: Galaxy Watch / Apple Watch
-            Row(Modifier.fillMaxWidth().padding(bottom = 14.dp).clip(RoundedCornerShape(12.dp)).background(n.sunken).padding(4.dp)) {
+            // .segment: Galaxy Watch / Apple Watch. Web v321 (pronari: "mos me ta qit qato kur perdoruesi veq se osht i lidht me or"):
+            // kur ka orë të lidhur (Galaxy Watch) zgjedhja s'del
+            LaunchedEffect(oret.isNotEmpty()) { if (oret.isNotEmpty()) ora = "galaxy" }
+            if (oret.isEmpty()) Row(Modifier.fillMaxWidth().padding(bottom = 14.dp).clip(RoundedCornerShape(12.dp)).background(n.sunken).padding(4.dp)) {
                 listOf("galaxy" to "Galaxy Watch", "apple" to "Apple Watch").forEach { (k, t) ->
                     val a = ora == k
                     Box(Modifier.weight(1f).height(38.dp).then(if (a) Modifier.shadow(2.dp, RoundedCornerShape(9.dp)) else Modifier).clip(RoundedCornerShape(9.dp))
