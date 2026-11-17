@@ -1059,7 +1059,7 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
             val tjeret = an.filter { it["uneJam"] != true }
             item {
                 Krye("Menaxho kolegët")
-                if (tjeret.isEmpty()) Text("S'ka kolegë të tjerë ende. Fto shokët me butonin + te "Grupi yt".", style = tx(14, 400, n.muted))
+                if (tjeret.isEmpty()) Text("S'ka kolegë të tjerë ende. Fto shokët me butonin + te \"Grupi yt\".", style = tx(14, 400, n.muted))
             }
             items(tjeret, key = { "m" + it["uid"] }) { a ->
                 val em = jsString(a["emri"] ?: "")
