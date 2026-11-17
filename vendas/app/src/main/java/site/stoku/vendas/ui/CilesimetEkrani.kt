@@ -66,6 +66,7 @@ import site.stoku.vendas.Opsionet
 import site.stoku.vendas.Perditesimi
 import site.stoku.vendas.Sinkronizimi
 import site.stoku.vendas.StokuApp
+import site.stoku.vendas.TeRejat
 
 private val TEMAT = listOf("auto" to "Automatike", "light" to "E çelët", "dark" to "E errët")
 
@@ -91,6 +92,7 @@ private class RreshtiMenyse(val ik: ImageVector, val ngj: String, val titulli: S
 fun CilesimetEkrani(tema: String, ndryshoTemen: (String) -> Unit) {
     var faqja by rememberSaveable { mutableStateOf("") }
     var pdUid by rememberSaveable { mutableStateOf<String?>(null) }
+    var teRejat by remember { mutableStateOf(false) }
     val hapMarketet by site.stoku.vendas.Merchandiseri.hapFaqen.collectAsState()
     LaunchedEffect(hapMarketet) { if (hapMarketet) { faqja = "marketet"; site.stoku.vendas.Merchandiseri.hapFaqen.value = false } }
     val p by Llogaria.perdoruesi.collectAsState()
@@ -123,13 +125,14 @@ fun CilesimetEkrani(tema: String, ndryshoTemen: (String) -> Unit) {
         "perdoruesi" -> PerdoruesiFaqja(pdUid, mbrapa) { faqja = "perdoruesiAfatet" }
         "perdoruesiAfatet" -> PerdoruesiAfatetFaqja(pdUid, mbrapa)
         "llogaria" -> LlogariaFaqja(mbrapa)
-        else -> Menyja(tema) { faqja = it }
+        else -> Menyja(tema, { faqja = it }, { teRejat = true })
     }
+    if (teRejat) TeRejatFlete(TeRejat.LISTA.take(6), ngaCilesimet = true) { teRejat = false }
 }
 
 // ---------------- Menyja ----------------
 @Composable
-private fun Menyja(tema: String, hap: (String) -> Unit) {
+private fun Menyja(tema: String, hap: (String) -> Unit, hapTeRejat: () -> Unit) {
     val n = N
     val ctx = LocalContext.current
     val p by Llogaria.perdoruesi.collectAsState()
@@ -191,7 +194,8 @@ private fun Menyja(tema: String, hap: (String) -> Unit) {
             GrupiOps { RreshtKategorie(Ik.Re, "gjelber", "Llogaria", p?.emri ?: if (Llogaria.eshteVizitor()) "Vizitor · provë" else "Jo i kyçur") { hap("llogaria") } }
             TitulliGrupit("Rreth Stoku")
             GrupiOps {
-                RreshtKategorie(Ik.Mburoja, "blu", "Privatësia", "Çfarë ruan Stoku dhe kush e sheh") { // Hyrja 80: pa "Çfarë ka të re"
+                RreshtKategorie(Ik.TeRejat, "roze", "Çfarë ka të re", "Ndryshimet e fundit në Stoku", onClick = hapTeRejat)
+                RreshtKategorie(Ik.Mburoja, "blu", "Privatësia", "Çfarë ruan Stoku dhe kush e sheh", vije = true) {
                     try { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://stoku.site/privatesia.html"))) } catch (e: Exception) { }
                 }
             }
@@ -662,3 +666,46 @@ private fun NdryshimiILlogarise() {
     }
 }
 
+// ---------------- Çfarë ka të re (si #dlgTeRejat) ----------------
+private val MUAJT = listOf("janar", "shkurt", "mars", "prill", "maj", "qershor", "korrik", "gusht", "shtator", "tetor", "nëntor", "dhjetor")
+/** "2026-10-23" → "23 tetor 2026" (si dataEPlote te teRejat.js) */
+private fun dataEPlote(iso: String): String {
+    val m = Regex("^(\\d{4})-(\\d{2})-(\\d{2})$").matchEntire(iso) ?: return iso
+    return m.groupValues[3].toInt().toString() + " " + MUAJT[m.groupValues[2].toInt() - 1] + " " + m.groupValues[1]
+}
+
+@Composable
+fun TeRejatFlete(lista: List<TeRejat.Hyrja>, ngaCilesimet: Boolean = false, mbyll: () -> Unit) {
+    val n = N
+    val nen = if (ngaCilesimet) "Përditësimet e fundit" else if (lista.size == 1) dataEPlote(lista[0].data) else "${lista.size} përditësime të reja"
+    Flete({ TeRejat.shenoTeLexuara(); mbyll() }) {
+        Row(Modifier.padding(bottom = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(52.dp).shadow(12.dp, RoundedCornerShape(16.dp), spotColor = n.accent).clip(RoundedCornerShape(16.dp))
+                .background(Brush.linearGradient(listOf(Color(0xFF6B97DB), n.accent))), contentAlignment = Alignment.Center) {
+                Icon(Ik.TeRejat, null, Modifier.size(26.dp), tint = Color.White)
+            }
+            Spacer(Modifier.width(14.dp))
+            Column {
+                Text("Çfarë ka të re", style = tx(22, 700, n.ink, -0.02))
+                Text(nen, style = tx(13, 600, n.muted), modifier = Modifier.padding(top = 2.dp))
+            }
+        }
+        Column {
+            lista.forEachIndexed { i, h ->
+                if (i > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
+                Column(Modifier.padding(top = if (i == 0) 2.dp else 12.dp, bottom = 8.dp)) {
+                    Text(h.titulli, style = txF(15.5f, 700, n.ink))
+                    Text(dataEPlote(h.data), style = tx(12, 400, n.muted), modifier = Modifier.padding(top = 2.dp, bottom = 8.dp))
+                    h.pikat.forEach { p ->
+                        Row(Modifier.padding(vertical = 4.dp)) {
+                            Box(Modifier.padding(start = 4.dp, top = 7.dp).size(8.dp).clip(CircleShape).background(n.accent))
+                            Spacer(Modifier.width(12.dp))
+                            Text(p, style = txR(14.5f, 400, n.ink2))
+                        }
+                    }
+                }
+            }
+        }
+        Buton("Në rregull", { TeRejat.shenoTeLexuara(); mbyll() }, Modifier.fillMaxWidth())
+    }
+}

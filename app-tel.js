@@ -1672,6 +1672,7 @@
     $('opsProfilSub').textContent = u ? (statusiCloudFundit || T('cloudStatusiAsgje')) : ngaVizitori() ? 'Provë pa llogari, vetëm në këtë telefon' : 'Hyr që lista të ruhet edhe në internet';
     var VS = window.StokuVersioni;
     $('opsVersioni').textContent = VS ? ' ' + VS.emri : '';
+    $('opsTeRejatStatus').textContent = 'Ndryshimet e fundit në Stoku';
   }
   // Fotoja e profilit: ruhet te Worker-i (Cloudflare), e sheh i gjithë grupi
   var __fotoDukeDerguar = false;
@@ -5942,51 +5943,19 @@
   $('afZgjAnulo').addEventListener('click', dilNgaZgjedhja);
   $('afZgjFshij').addEventListener('click', fshijTeZgjedhurat);
 
-  // Excel vetëm me afatet e zgjedhura: së pari pyetet përdoruesi cilat kolona t'i përfshijë
-  // (zgjedhja mbahet mend për herën tjetër). Në telefon hapet menuja "Shpërndaj", përndryshe shkarkohet.
-  var AF_ST_EMRI = { skaduar: 'Ka skaduar', 'pa-date': 'Pa datë', afer: 'Afër skadimit', ok: 'Në rregull', hequr: 'I hequr' };
+  // Excel i afateve. v323 (pronari: "Bone thjesht kur e zgjedh excel sikur ne pc"; "statusi, dite te mbetura, qfare duhet bere, hequr nga
+  // rafti si dhe shtuar nga ... mos i le as si opsione as ne excel"): pa zgjedhjen e kolonave; gjithmonë të njëjtat 5 kolona si te PC-ja
+  // (= Eksportet.KOLONAT_E_AFATEVE te Android). Merchandiseri: pa furnizuesin. Në telefon hapet "Shpërndaj", përndryshe shkarkohet.
   var AX_KOLONAT = [
-    { k: 'barkodi', emri: 'Barkodi', col: { title: 'Barkodi', width: 18 }, v: function (a) { return a.barkodi || ''; } },
-    { k: 'emri', emri: 'Emri i produktit', col: { title: 'Emri i produktit', width: 36 }, v: function (a) { return a.emri || ''; } },
-    { k: 'sasia', emri: 'Sasia (copë)', col: { title: 'Sasia (copë)', width: 12, type: 'number' }, v: function (a) { return typeof a.sasia === 'number' ? a.sasia : ''; } },
-    { k: 'data', emri: 'Data e skadimit', col: { title: 'Skadon më', width: 13, type: 'day' }, v: function (a) { return a.data || ''; } },
-    { k: 'ditet', emri: 'Ditë të mbetura', col: { title: 'Ditë të mbetura', width: 14, type: 'number' }, v: function (a) { var n = AF.ditetDeri(a.data); return AF.statusi(a) === 'hequr' || n === null ? '' : n; } },
-    { k: 'furnizuesi', emri: 'Furnizuesi', col: { title: 'Furnizuesi', width: 22 }, v: function (a) { return a.furnizuesi || ''; } },
-    { k: 'statusi', emri: 'Statusi', col: { title: 'Statusi', width: 15 }, v: function (a) { return AF_ST_EMRI[AF.statusi(a)] || ''; } },
-    { k: 'pershkrimi', emri: 'Çfarë duhet bërë', col: { title: 'Çfarë duhet bërë', width: 60 }, v: function (a) { return AF.pershkrimi(a); } },
-    { k: 'krijuarNga', emri: 'Shtuar nga', col: { title: 'Shtuar nga', width: 14 }, v: function (a) { return EN(a.krijuarNga || ''); } }
+    { k: 'barkodi', col: { title: 'Barkodi', width: 18 }, v: function (a) { return a.barkodi || ''; } },
+    { k: 'emri', col: { title: 'Emri i produktit', width: 36 }, v: function (a) { return a.emri || ''; } },
+    { k: 'sasia', col: { title: 'Sasia (copë)', width: 12, type: 'number' }, v: function (a) { return typeof a.sasia === 'number' ? a.sasia : ''; } },
+    { k: 'furnizuesi', col: { title: 'Furnizuesi', width: 22 }, v: function (a) { return a.furnizuesi || ''; } },
+    { k: 'data', col: { title: 'Skadon më', width: 13, type: 'day' }, v: function (a) { return a.data || ''; } }
   ];
-  var KEY_AX_KOLONAT = 'stoku:afatet:excel-kolonat';
-  function axKolonatERuajtura() {
-    try {
-      var r = JSON.parse(localStorage.getItem(KEY_AX_KOLONAT) || 'null');
-      if (Array.isArray(r) && r.length) return r;
-    } catch (e) { /* ok */ }
-    return AX_KOLONAT.map(function (c) { return c.k; });
-  }
-  function axVendos(kyçet) {
-    Array.prototype.forEach.call(document.querySelectorAll('#axLista input'), function (i) { i.checked = kyçet.indexOf(i.value) >= 0; });
-    axRifresko();
-  }
-  function axTeZgjedhurat() {
-    return Array.prototype.filter.call(document.querySelectorAll('#axLista input'), function (i) { return i.checked && !(paFurnizues() && i.value === 'furnizuesi'); })
-      .map(function (i) { return i.value; });
-  }
-  function axRifresko() {
-    var n = axTeZgjedhurat().length;
-    $('axEksporto').disabled = !n || (typeof axKrejt !== 'undefined' && axKrejt && !axAfatetEKrejt().length);
-    $('axGabim').textContent = n ? '' : 'Zgjidh të paktën një kolonë.';
-  }
-  (function ndertoListenAx() {
-    var lista = $('axLista');
-    AX_KOLONAT.forEach(function (c) {
-      var l = document.createElement('label'); l.className = 'ax-rresht' + (c.k === 'furnizuesi' ? ' furn-vetem' : '');
-      var i = document.createElement('input'); i.type = 'checkbox'; i.value = c.k;
-      i.addEventListener('change', axRifresko);
-      var t = document.createElement('span'); t.textContent = c.emri;
-      l.appendChild(i); l.appendChild(t); lista.appendChild(l);
-    });
-  })();
+  try { localStorage.removeItem('stoku:afatet:excel-kolonat'); } catch (e) { /* ok */ }
+  function axTeZgjedhurat() { return AX_KOLONAT.map(function (c) { return c.k; }).filter(function (k) { return !(paFurnizues() && k === 'furnizuesi'); }); }
+  window.__stokuAxKolonat = axTeZgjedhurat; // vetëm për testet (v252, v323)
   var axKrejt = false; // true = eksport i të gjithë listës (me zgjedhjen e muajit), false = vetëm të zgjedhurat
   function hapExcelinEAfateve() {
     var n = Object.keys(afZgjedhja || {}).length;
@@ -5995,7 +5964,7 @@
     $('axMuajiRresht').hidden = true;
     $('axFurnRresht').hidden = true;
     $('axNen').textContent = n === 1 ? '1 afat i zgjedhur' : n + ' afate të zgjedhura';
-    axVendos(axKolonatERuajtura());
+    $('axEksporto').disabled = false;
     $('dlgAfExcel').classList.add('hapur');
   }
   function hapEksportinEAfateve() {
@@ -6011,7 +5980,6 @@
     $('axFurn').value = '';
     axMbushFurnizuesit();
     axInfoKrejt();
-    axVendos(axKolonatERuajtura());
     $('dlgAfExcel').classList.add('hapur');
   }
   // Furnizuesit e muajit të zgjedhur (zgjedhja ruhet nëse furnizuesi ka ende afate atë muaj)
@@ -6038,7 +6006,7 @@
     var st = { aktive: 'aktive', skaduar: 'të skaduara', afer: 'afër skadimit', ok: 'në rregull', hequr: 'të hequra' }[afFiltri] || '';
     var fe = axEmriFurnizuesit();
     $('axNen').textContent = n ? 'Do të eksportohen ' + (n === 1 ? '1 afat' : n + ' afate') + (afFiltri !== 'aktive' ? ' (' + st + ')' : '') + (fe ? ' të furnizuesit ' + fe : '') : 'S\'ka afate ' + st + ' për këtë zgjedhje';
-    $('axEksporto').disabled = !n || !axTeZgjedhurat().length;
+    $('axEksporto').disabled = !n;
   }
   $('axMuaji').addEventListener('change', function () { axMbushFurnizuesit(); axInfoKrejt(); });
   $('axFurn').addEventListener('change', axInfoKrejt);
@@ -6273,8 +6241,6 @@
   function mbyllExcelinEAfateve() { $('dlgAfExcel').classList.remove('hapur'); }
   async function eksportoTeZgjedhurat() {
     var kyçet = axTeZgjedhurat();
-    if (!kyçet.length) { axRifresko(); return; }
-    try { localStorage.setItem(KEY_AX_KOLONAT, JSON.stringify(kyçet)); } catch (e) { /* ok */ }
     var kolonat = AX_KOLONAT.filter(function (c) { return kyçet.indexOf(c.k) >= 0; });
     var zgj = afZgjedhja || {};
     var muajiEks = axKrejt ? $('axMuaji').value : '';
@@ -6425,8 +6391,6 @@
     var n = AF.numero(teReja);
     toast((teReja.length === 1 ? 'U importua 1 afat' : 'U importuan ' + teReja.length + ' afate') + (n.skaduar ? ' · ' + (n.skaduar === 1 ? '1 ka skaduar!' : n.skaduar + ' kanë skaduar!') : '') + (n.afer ? ' · ' + (n.afer === 1 ? '1 skadon' : n.afer + ' skadojnë') + ' brenda 30 ditëve' : '') + '.', 4500);
   });
-  $('axKrejt').addEventListener('click', function () { axVendos(AX_KOLONAT.map(function (c) { return c.k; })); });
-  $('axBaze').addEventListener('click', function () { axVendos(['barkodi', 'emri', 'sasia']); });
   $('axAnulo').addEventListener('click', mbyllExcelinEAfateve);
   $('axEksporto').addEventListener('click', eksportoTeZgjedhurat);
   $('dlgAfExcel').addEventListener('click', function (ev) { if (ev.target === $('dlgAfExcel')) mbyllExcelinEAfateve(); });
@@ -9139,6 +9103,31 @@
   try { localStorage.removeItem('stoku:te-rejat:pare'); } catch (e) { /* ok */ }
   // v237: politika e privatësisë (faqe më vete, në dritare të re)
   $('opsPrivatesia').addEventListener('click', function () { window.open('privatesia.html', '_blank', 'noopener'); });
+  // v323 (pronari: "shtoja apet cfare ka te re ... ne web app telefon e len te cilesimet afer privatesise"): hapet VETËM nga Cilësimet,
+  // jo vetë në hyrje pas përditësimit (teRejat.js: 6 versionet e fundit të telefonit, pa pjesët që s'lejohen)
+  function lejaPerTeRejat(k) { return k === 'dergoNePc' ? lejaDergoNePc() : k === 'marketet' ? leja(k) || eshteAdminiIStokut() : leja(k); }
+  $('opsTeRejat').addEventListener('click', function () {
+    var TR = window.StokuTeRejat;
+    if (!TR || !TR.versioni()) return;
+    var hyrjet = TR.teRejatPas(0, 'tel', eshteAdminiIStokut(), lejaPerTeRejat).slice(0, 6);
+    if (!hyrjet.length) return;
+    var lista = $('trLista');
+    lista.textContent = '';
+    hyrjet.forEach(function (h) {
+      var b = document.createElement('div'); b.className = 'tr-version';
+      var t = document.createElement('div'); t.className = 'tr-version-titulli'; t.textContent = h.titulli;
+      var d = document.createElement('div'); d.className = 'tr-version-data'; d.textContent = TR.etiketa(h);
+      var ul = document.createElement('ul');
+      (h.pikat || []).forEach(function (pika) { var li = document.createElement('li'); li.textContent = pika; ul.appendChild(li); });
+      b.appendChild(t); b.appendChild(d); b.appendChild(ul);
+      lista.appendChild(b);
+    });
+    $('trNen').textContent = 'Përditësimet e fundit';
+    lista.scrollTop = 0;
+    $('dlgTeRejat').classList.add('hapur');
+  });
+  $('trMbyll').addEventListener('click', function () { $('dlgTeRejat').classList.remove('hapur'); });
+  $('dlgTeRejat').addEventListener('click', function (ev) { if (ev.target === $('dlgTeRejat')) $('trMbyll').click(); });
 
   // ---------- Rreshtat e filtrave: skajet zbehen (fade) kur ka edhe butona anash ----------
   (function () {

@@ -98,7 +98,8 @@ const SHTEPIA = { latitude: 42.6300, longitude: 21.1000, accuracy: 20 };
   const iRi = (await d.evaluate(() => JSON.parse(localStorage.getItem('stoku:afatet:v1') || '[]'))).find(a => a.id !== 'a1' && a.barkodi === '5551');
   ok(iRi && !iRi.furnizuesi, '2. afati i ri pa furnizues (edhe kur barkodi njihet)', iRi);
   // Excel: pa kolonën e furnizuesit
-  ok(await d.evaluate(() => { const l = [...document.querySelectorAll('#axLista label')].find(x => x.querySelector('input').value === 'furnizuesi'); return !!l && getComputedStyle(l).display === 'none'; }), '2. Excel: kolona "Furnizuesi" e fshehur');
+  // v323: pa zgjedhjen e kolonave; merchandiseri s'e ka kolonën e furnizuesit
+  ok(await d.evaluate(() => !document.getElementById('axLista') && typeof window.__stokuAxKolonat === 'function' && window.__stokuAxKolonat().indexOf('furnizuesi') < 0), '2. Excel: pa kolonën "Furnizuesi"');
   ok(!d.__gab.length, '2. drini: pa gabime JS', d.__gab);
   // PC
   const { p: dpc } = await faqe('u1', 'drini', true, { afatet: AF_D });

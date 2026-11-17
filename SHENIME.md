@@ -58,6 +58,22 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v323 / Android Hyrja 85 (17.11.2026): "ÇFARË KA TË RE" U RIKTHYE + EXCEL MË I THJESHTË**.
+   - **"Çfarë ka të re"**: pronari: "shtoja apet cfare ka te re se pa to spo bojka ... te versioni pc e len veq te cilesimet ... ne web app
+     telefon e len te cilesimet afer privatesise ... ne android app ajo dritarja qe tdel kur ka version te ri ... mu kon qfare ka te re
+     ... edhe te cilesimet afer privatesise". U rikthyen nga 67ba1be^: `teRejat.js` (+ hyrjet v319 deri v323), `#dlgTeRejat` + `#opsTeRejat`
+     (tel + PC, CSS `.tr-*`), Android `TeRejat.kt` (+ Hyrja 81 deri 85), `TeRejatFlete` + rreshti te Cilësimet, `Ik.TeRejat`, lista te
+     faqja e përditësimit (`Perditesimi.teReja` nga trupi i Release-it) dhe workflow-i që e shkruan trupin e Release-it nga TeRejat.kt.
+     NUK u rikthye shfaqja vetë: web `tregoTeRejat`/`tregoTeRejatKurGati`, Android `TeRejatFlete` te MainActivity (teste/v318.js).
+     Numri i versionit te Cilësimet mbetet nga `versioni.js`. Çdo version i ri: hyrje te teRejat.js (web) dhe TeRejat.kt (Android).
+   - **Excel**: pronari (foto e Excel-it të PC-së): "statusi ... dite te mbetura, qfare duhet bere, hequr nga rafti si dhe shtuar nga ...
+     mos i le as si opsione as ne excel"; "sasia ... me fillu prej anes majt ne qdo excel"; "hiqe per furnizuesit ... krejt i len me ni
+     faqe"; foto e Android-it: "Bone thjesht kur e zgjedh excel sikur ne pc". Tani kudo (tel `AX_KOLONAT`, PC `eksportoAfatet`, Android
+     `Eksportet.KOLONAT_E_AFATEVE`): Barkodi, Emri i produktit, Sasia (copë), Furnizuesi, Skadon më (merchandiseri pa furnizuesin);
+     dritarja e telefonit/Android "Eksporto afatet në Excel" vetëm me muajin dhe furnizuesin (si PC); `stoku:afatet:excel-kolonat` fshihet.
+     `xlsx.js` + `Xlsx.kt`: stilet e numrave dhe datave (3, 4, 6, 7, 8) me `<alignment horizontal="left"/>` (çdo Excel); fikstura u rigjenerua.
+   - Teste: `v323.js`; `v318.js` tani kontrollon që s'del vetë; v319-tv (pa kontrollin "s'ekziston"), v252 (kolonat e merchandiserit).
+
 0000000. **v322 / Android / ora (17.11.2026): LOGOJA ME VALË (GIF 17)**. Pronari: "bone logon 17 ne krejta ku osht qajo logo qe shkrun
    qashtu gat, amo masi ta kryn me u nal pa u vrejt si loop dmth me perfundu sakt". Shkronjat e "stoku." anohen si valë NJË herë kur
    shfaqet logoja (njëra pas tjetrës 0.08 s, 1.4 s secila; kënde 0 → 9 → -7 → 4 → -1.5 → 0°), pika s'lëviz; mbaron saktë në 0°.
@@ -3441,8 +3457,11 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - **"Njoftim për të gjithë grupin" (17.11.2026, v320 / Hyrja 82)**: fusha + "Dërgo te i gjithë grupi" te Kolegët (admini i grupit).
   Pronari: "e fshin komplet te rrethekumen edhe mos le naj gjurm per to". U fshi te web tel, PC, Android, ekipa.js, Grupi.kt,
   GrupiLogjika; ato të vjetrat (lloji `lajmerim`) s'dalin te aktiviteti as te zilja. Mos e rikthe.
-- **"Çfarë ka të re" / "Çka ka të re" (17.11.2026, v318 / Hyrja 80)**: "A mujna me fshi 100% cfare ka te re se so ka vyn kurgjo?".
-  U fshi kudo (web, PC, Android, Release-t). Mos e rikthe as si dritare, as si rresht te Cilësimet, as si listë te faqja e përditësimit.
+- **"Çfarë ka të re" që del VETË** (v318 u fshi krejt; v323 pronari e riktheu vetëm te Cilësimet afër Privatësisë, web tel + PC + Android,
+  dhe te faqja e përditësimit të Android-it): mos e shfaq vetë në hyrje ose pas përditësimit (as web, as Android).
+- **Excel i afateve me zgjedhje kolonash / kolonat Statusi, Ditë të mbetura, Çfarë duhet bërë, Hequr nga rafti, Shtuar nga / faqja
+  "Për furnizuesit" (17.11.2026, v323)**: "mos i le as si opsione as ne excel", "Bone thjesht kur e zgjedh excel sikur ne pc",
+  "hiqe per furnizuesit se svyn". Mos i rikthe.
 - **Ridizajnimi i plotë dhe riorganizimi i opsioneve (14.11.2026, vetëm propozime, asgjë s'u fut në projekt)**: kërkoi 10 dizajne
   të reja (PC, telefon, Android, orë) dhe riorganizim (5 pjesë: Sot, Afatet, Stoku, Grupi, Profili). Asnjë dizajn s'i pëlqeu
   ("Kurgjo hiq sum pelqej"); riorganizimin e pa si foto provë mbi dizajnin e tashëm dhe e anuloi: "Jo anuloje komplet edhe

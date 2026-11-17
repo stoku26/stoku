@@ -586,6 +586,22 @@
   .ll-paj__tk span { display: block; font-size: 12px; color: var(--gri); }
   .ll-paj__tk span.kjo { color: #16a34a; font-weight: 600; }
   .ll-paj-krejt { margin-top: 6px; }
+  /* "Çfarë ka të re" */
+  .tr-krye { gap: 14px; }
+  .tr-ikona {
+    flex: none; width: 46px; height: 46px; border-radius: 14px; color: #fff; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(145deg, color-mix(in srgb, var(--primar) 65%, #fff), var(--primar));
+  }
+  .tr-krye > div { flex: 1; min-width: 0; }
+  .tr-nen { font-size: 12.5px; font-weight: 600; color: var(--gri); margin-top: 2px; }
+  .tr-lista { max-height: 60vh; overflow-y: auto; }
+  .tr-version { padding: 12px 0 6px; border-top: 1px solid var(--vije); }
+  .tr-version:first-child { border-top: 0; padding-top: 0; }
+  .tr-version-titulli { font-size: 15px; font-weight: 700; }
+  .tr-version-data { font-size: 12px; color: var(--gri); margin: 2px 0 8px; }
+  .tr-version ul { list-style: none; margin: 0; padding: 0; }
+  .tr-version li { position: relative; padding: 3px 0 3px 22px; font-size: 14px; line-height: 1.45; }
+  .tr-version li::before { content: ''; position: absolute; left: 4px; top: 10px; width: 7px; height: 7px; border-radius: 50%; background: var(--primar); }
   @keyframes shfaq { from { opacity: 0; } to { opacity: 1; } }
   .dialog {
     width: 100%; max-width: 480px; background: var(--karta); border-radius: 16px; box-shadow: var(--hije-e-larte);
@@ -943,7 +959,7 @@
 <link rel="stylesheet" href="css/stoku-temat.css?v=2">
 <link rel="stylesheet" href="css/stoku-logot.css?v=2">
 <script src="logot.js?v=3"></script>
-<link rel="stylesheet" href="css/stoku-pc.css?v=48">
+<link rel="stylesheet" href="css/stoku-pc.css?v=49">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -1638,6 +1654,19 @@
   </div>
 </div>
 
+<!-- "Çfarë ka të re" (teRejat.js): v323 hapet VETËM nga Cilësimet (afër Privatësisë), jo vetë në hyrje -->
+<div class="mbulese" id="dlgTeRejat">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="trTitulli">
+    <div class="dialog-krye tr-krye">
+      <span class="tr-ikona"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path><path d="M19 14.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"></path><path d="M5 2l.7 1.6 1.6.7-1.6.7L5 6.6l-.7-1.6-1.6-.7 1.6-.7z"></path></svg></span>
+      <div><h2 id="trTitulli">Çfarë ka të re</h2><div class="tr-nen" id="trNen"></div></div>
+      <button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button>
+    </div>
+    <div class="dialog-trup tr-lista" id="trLista"></div>
+    <div class="dialog-fund"><span class="hapesire"></span><button class="btn" type="button" id="trMbyll" data-mbyll>Në rregull</button></div>
+  </div>
+</div>
+
 <!-- Zilja e Grupit: njoftimet personale -->
 <div class="mbulese" id="dlgEkNjoftimet">
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="ekNjTitulli" style="max-width:480px">
@@ -1857,6 +1886,7 @@
         <button type="button" data-faqe="perdoruesit" id="opsSkedaPerdoruesit" hidden><span class="ops-ik ngj-kuqe"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="m16 11 2 2 4-4"></path></svg></span><span class="ops-nav-tekst">Përdoruesit<small id="opsPerdoruesitNen">Lejet e llogarive</small></span></button>
         <button type="button" data-faqe="harta" id="opsSkedaHarta" hidden><span class="ops-ik ngj-gjelber"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span><span class="ops-nav-tekst">Marketet<small id="opsHartaNen">Marketet në hartë</small></span></button>
         <div class="ops-nav-fund">
+          <button type="button" class="ops-nav-privatesia" id="opsTeRejat"><span class="ops-ik ngj-roze"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path></svg></span><span class="ops-nav-tekst">Çfarë ka të re</span></button>
           <button type="button" class="ops-nav-privatesia" id="opsPrivatesia"><span class="ops-ik ngj-blu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><rect x="9" y="11" width="6" height="5" rx="1"></rect><path d="M10.5 11V9.5a1.5 1.5 0 0 1 3 0V11"></path></svg></span><span class="ops-nav-tekst">Privatësia</span></button>
           <div class="ops-versioni"><span>Stoku <b id="opsVersioni"></b></span></div>
         </div>
@@ -2060,7 +2090,7 @@
 <div class="menu" id="menu" role="menu"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"><span class="toast-tekst" id="toastTekst"></span><button class="btn fsheh" type="button" id="toastBtn"></button></div>
 
-<script src="xlsx.js?v=282"></script>
+<script src="xlsx.js?v=323"></script>
 <script src="bashkimi.js?v=281"></script>
 <script src="ruajtja.js?v=281"></script>
 <script src="skedaret.js?v=1"></script>
@@ -2072,8 +2102,9 @@
 <script src="harta.js?v=281"></script>
 <script src="ekipa.js?v=320"></script>
 <script src="temat.js?v=2"></script>
-<script src="versioni.js?v=322"></script>
-<script src="app-pc.js?v=321"></script>
+<script src="versioni.js?v=323"></script>
+<script src="teRejat.js?v=323"></script>
+<script src="app-pc.js?v=323"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
 

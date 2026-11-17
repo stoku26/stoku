@@ -56,7 +56,8 @@ Përditësoje në të njëjtin PR me çdo ndryshim domethënës.
 1. `git fetch origin main && git checkout -B claude/qysh-funksionon-ilbmdw origin/main` (ose dega e bisedës).
 2. Ndryshimi + test i ri te `teste/` (shtoje edhe te lista e `teste/regresioni.sh`).
 3. Rrit `CACHE` te `sw.js` dhe `?v=` të çdo skedari të ndryshuar: `index.html`, `pc.html` dhe SHELL te `sw.js`.
-4. "Çka ka të re" s'ekziston më (v318, pronari e fshiu krejt): mos e rikthe. Te `versioni.js` rrit `v` dhe `emri` (versioni te Cilësimet).
+4. Te `versioni.js` rrit `v` dhe `emri` (versioni te Cilësimet) dhe shto hyrje te `teRejat.js` ("Çfarë ka të re", v323: del VETËM te
+   Cilësimet, jo vetë në hyrje); për Android hyrje te `TeRejat.kt` (del te faqja e përditësimit dhe te Cilësimet).
 5. Hyrje e re në krye të listës `0000000.` te `SHENIME.md`.
 6. `node teste/gjej-vizat.js index.html pc.html app-tel.js app-pc.js fillimi-tel.js fillimi-pc.js firebase-tel.js
    firebase-pc.js versioni.js porta.js afatet.js privatesia.html 404.html android.html` duhet të japë "gjithsej 0".

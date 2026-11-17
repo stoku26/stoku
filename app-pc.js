@@ -6846,29 +6846,14 @@
     muaji = muaji || ''; furn = furn || '';
     var lista = afatetPerEksport(muaji, furn);
     if (!lista.length) { toast('S\'ka afate për këtë zgjedhje.'); return; }
-    function rresht(a) {
-      var n = AF.ditetDeri(a.data);
-      var st = AF.statusi(a);
-      return [ST_EMRI[st], a.barkodi || '', a.emri || '', typeof a.sasia === 'number' ? a.sasia : '', a.furnizuesi || '', a.data || '', st === 'hequr' || n === null ? '' : n,
-        AF.pershkrimi(a), a.hequrSe || '', EN(a.krijuarNga || '')];
-    }
-    var kol = [
-      { title: 'Statusi', width: 15 }, { title: 'Barkodi', width: 18 }, { title: 'Emri i produktit', width: 36 },
-      { title: 'Sasia (copë)', width: 12, type: 'number' }, { title: 'Furnizuesi', width: 22 }, { title: 'Skadon më', width: 13, type: 'day' }, { title: 'Ditë të mbetura', width: 14, type: 'number' },
-      { title: 'Çfarë duhet bërë', width: 60 },
-      { title: 'Hequr nga rafti', width: 18, type: 'date' }, { title: 'Shtuar nga', width: 14 }
-    ];
-    var paF = paFurnizues(); // v252: merchandiseri: pa kolonën e furnizuesit dhe pa fletën "Për furnizuesit"
-    if (paF) kol.splice(4, 1);
-    var fletet = [{ name: 'Afatet', columns: kol, rows: lista.map(function (a) { var r = rresht(a); if (paF) r.splice(4, 1); return r; }), totalLabel: 'Gjithsej', totalColumns: [3] }];
-    var perFurnizues = afatetEMarketit().filter(function (a) { var s = AF.statusi(a); return (s === 'afer' || s === 'skaduar') && (!muaji || AF.celesiMuajit(a) === muaji) && (!furn || AF.celesiFurnizuesit(a) === furn); })
-      .sort(function (a, b) { return (a.furnizuesi || '~').localeCompare(b.furnizuesi || '~', 'sq') || String(a.data).localeCompare(String(b.data)); });
-    if (perFurnizues.length && !paF) {
-      fletet.push({ name: 'Për furnizuesit', columns: [
-        { title: 'Furnizuesi', width: 22 }, { title: 'Emri i produktit', width: 36 }, { title: 'Barkodi', width: 18 },
-        { title: 'Sasia (copë)', width: 12, type: 'number' }, { title: 'Skadon më', width: 13, type: 'day' }, { title: 'Ditë të mbetura', width: 14, type: 'number' }
-      ], totalLabel: 'Gjithsej', totalColumns: [3], rows: perFurnizues.map(function (a) { return [a.furnizuesi || '(pa furnizues)', a.emri || '', a.barkodi || '', typeof a.sasia === 'number' ? a.sasia : '', a.data, AF.ditetDeri(a.data)]; }) });
-    }
+    // v323 (pronari: "statusi, dite te mbetura, qfare duhet bere, hequr nga rafti si dhe shtuar nga ... mos i le"; "hiqe per furnizuesit
+    // ... krejt i len me ni faqe"): vetëm 5 kolonat (si te telefoni dhe Android) dhe një faqe
+    var paF = paFurnizues(); // v252: merchandiseri: pa kolonën e furnizuesit
+    var kol = [{ title: 'Barkodi', width: 18 }, { title: 'Emri i produktit', width: 36 }, { title: 'Sasia (copë)', width: 12, type: 'number' },
+      { title: 'Furnizuesi', width: 22 }, { title: 'Skadon më', width: 13, type: 'day' }];
+    function rresht(a) { return [a.barkodi || '', a.emri || '', typeof a.sasia === 'number' ? a.sasia : '', a.furnizuesi || '', a.data || '']; }
+    if (paF) kol.splice(3, 1);
+    var fletet = [{ name: 'Afatet', columns: kol, rows: lista.map(function (a) { var r = rresht(a); if (paF) r.splice(3, 1); return r; }), totalLabel: 'Gjithsej', totalColumns: [2] }];
     if (muaji) fletet[0].name = AF.emriMuajit(muaji);
     if (emriFurn) fletet[0].name = emriFurn;
     var emri = 'afatet_' + (emriFurn && slug(emriFurn) ? slug(emriFurn) + '_' : '') + (muaji ? slug(AF.emriMuajit(muaji)) + '_' : '') + vulaKohore(true) + '.xlsx';
@@ -6915,6 +6900,31 @@
   try { localStorage.removeItem('stoku:te-rejat:pare'); } catch (e) { /* ok */ }
   // v237: politika e privatësisë (faqe më vete, në dritare të re)
   $('opsPrivatesia').addEventListener('click', function () { window.open('privatesia.html', '_blank', 'noopener'); });
+  // v323 (pronari: "te versioni pc e len veq te cilesimet ... afer privatesise"): "Çfarë ka të re" hapet VETËM nga Cilësimet,
+  // jo vetë në hyrje (teRejat.js: 6 versionet e fundit të kompjuterit)
+  function lejaPerTeRejat(k) { return k === 'marketet' ? leja(k) || eshteAdminiIStokut() : leja(k); }
+  $('opsTeRejat').addEventListener('click', function () {
+    var TR = window.StokuTeRejat;
+    if (!TR || !TR.versioni()) return;
+    var hyrjet = TR.teRejatPas(0, 'pc', eshteAdminiIStokut(), lejaPerTeRejat).slice(0, 6);
+    if (!hyrjet.length) return;
+    var lista = $('trLista');
+    lista.textContent = '';
+    hyrjet.forEach(function (h) {
+      var b = el('div', 'tr-version');
+      b.appendChild(el('div', 'tr-version-titulli', h.titulli));
+      b.appendChild(el('div', 'tr-version-data', TR.etiketa(h)));
+      var ul = el('ul');
+      (h.pikat || []).forEach(function (pika) { ul.appendChild(el('li', null, pika)); });
+      b.appendChild(ul);
+      lista.appendChild(b);
+    });
+    $('trNen').textContent = 'Përditësimet e fundit';
+    lista.scrollTop = 0;
+    mbyllDialog('dlgOpsione'); // dritarja e të rejave del mbi faqe, jo poshtë Cilësimeve
+    hapDialog('dlgTeRejat');
+    setTimeout(function () { $('trMbyll').focus(); }, 30);
+  });
   if (window.StokuVersioni) $('opsVersioni').textContent = window.StokuVersioni.emri;
 
   // ================= Service worker + përditësimi automatik =================

@@ -35,11 +35,22 @@ jobs:
         env:
           P: ${{ secrets.APK_FJALEKALIMI }}
         run: bash .github/apk/nenshkruaj.sh tel vendas/app/build/outputs/apk/release/app-release.apk stoku-${{ github.run_number }}.apk
-      # Hyrja 80 (pronari: "fshi 100% cfare ka te re"): trupi i Release-it pa "Çka ka të re", vetëm përshkrimi
+      # Hyrja 33: "Çka ka të re" e Release-it nga TeRejat.kt (5 hyrjet e fundit): faqja e përditësimit te aplikacioni i lexon rreshtat
+      # "[nr] titulli" dhe "• pika" dhe tregon vetëm hyrjet që telefoni s'i ka ende
       - name: Shënimet e versionit
         run: |
-          echo 'Aplikacioni Stoku për telefon Android. Instalohet një herë; versionet e reja i ofron vetë aplikacioni. Udhëzimi te vendas/README.md.' > shenimet.md
-          cat shenimet.md
+          python3 - <<'PY'
+          import re, pathlib
+          s = pathlib.Path('vendas/app/src/main/java/site/stoku/vendas/TeRejat.kt').read_text(encoding='utf-8')
+          STR = r'"((?:[^"\\]|\\.)*)"'
+          un = lambda x: x.replace('\\"', '"').replace('\\\\', '\\')
+          d = ['Aplikacioni Stoku për telefon Android. Instalohet një herë; versionet e reja i ofron vetë aplikacioni. Udhëzimi te vendas/README.md.', '', 'Çka ka të re:']
+          for m in list(re.finditer(r'Hyrja\((\d+),\s*' + STR + r',\s*' + STR + r',\s*listOf\((.*?)\)\)', s, re.S))[:5]:
+              d.append('[%s] %s' % (m.group(1), un(m.group(3))))
+              d += ['• ' + un(x) for x in re.findall(STR, m.group(4))]
+          pathlib.Path('shenimet.md').write_text('\n'.join(d) + '\n', encoding='utf-8')
+          print('\n'.join(d))
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: stoku-apk
