@@ -14,7 +14,8 @@ object TeRejat {
             "Në mes të shiritit poshtë ka butonin e ri me shtëpinë: Kreu. Hapet i pari sa hyn në llogari ose e hap aplikacionin.",
             "Te Kreu sheh me një shikim afatet, çfarë skadon së pari, grafikun e muajve, mallin, furnizuesit, grupin, marketin dhe orën. Me butonin lart djathtas zgjedh çfarë del dhe me çfarë radhe.",
             "Tabi \"Stoku\" tani quhet \"Malli\".",
-            "Kamera fokusohet vetëm brenda kutisë së bardhë, ku vendos barkodin."
+            "Kamera fokusohet vetëm brenda kutisë së bardhë, ku vendos barkodin.",
+            "Dritaret \"Eksporto në Excel\" dhe \"Eksporto si foto\" tani janë si \"PDF për printim\": rreshta me ikonë që i prek për t'i ndryshuar."
         )),
         Hyrja(87, "2026-11-17", "Logoja", listOf(
             "Barkodi kthehet në logo vetëm një herë: te hyrja pas 1 sekonde, dhe lart pas çdo hyrjeje në llogari. Pastaj mbetet logoja, edhe kur e mbyll dhe e hap aplikacionin."

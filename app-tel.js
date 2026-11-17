@@ -5990,6 +5990,7 @@
     $('axFurnRresht').hidden = true;
     $('axNen').textContent = n === 1 ? '1 afat i zgjedhur' : n + ' afate të zgjedhura';
     $('axEksporto').disabled = false;
+    axVlerat();
     $('dlgAfExcel').classList.add('hapur');
   }
   function hapEksportinEAfateve() {
@@ -6018,6 +6019,13 @@
     // Me vetëm një furnizues (ose asnjë) zgjedhja s'ka kuptim
     $('axFurnRresht').hidden = lista.length < 2;
   }
+  // v326: vlerat te rreshtat (si apVlera te PDF-ja: pa numrin në kllapa)
+  function axVlerat() {
+    var v = function (s) { var o = s.options[s.selectedIndex]; return o ? o.textContent.replace(/\s*\(\d+\)$/, '') : ''; };
+    $('axMuajiV').textContent = v($('axMuaji')); $('axFurnV').textContent = v($('axFurn'));
+    var ka = !$('axMuajiRresht').hidden || !$('axFurnRresht').hidden;
+    $('axRreshtat').style.display = ka ? '' : 'none'; $('axHint').hidden = !ka;
+  }
   function axAfatetEKrejt() {
     var f = paFurnizues() ? '' : $('axFurn').value;
     return afatetEFiltruara($('axMuaji').value).filter(function (a) { return !f || AF.celesiFurnizuesit(a) === f; });
@@ -6032,6 +6040,7 @@
     var fe = axEmriFurnizuesit();
     $('axNen').textContent = n ? 'Do të eksportohen ' + (n === 1 ? '1 afat' : n + ' afate') + (afFiltri !== 'aktive' ? ' (' + st + ')' : '') + (fe ? ' të furnizuesit ' + fe : '') : 'S\'ka afate ' + st + ' për këtë zgjedhje';
     $('axEksporto').disabled = !n;
+    axVlerat();
   }
   $('axMuaji').addEventListener('change', function () { axMbushFurnizuesit(); axInfoKrejt(); });
   $('axFurn').addEventListener('change', axInfoKrejt);
@@ -6064,6 +6073,9 @@
     $('aefKrijo').disabled = !n;
     $('aefKrijoT').textContent = n > 1 ? 'Krijo ' + n + ' foto' : 'Krijo foton';
     $('aefKrejt').textContent = aefFurn.length && n === aefFurn.length ? 'Asnjë' : 'Të gjithë';
+    // v326: vlera te rreshti "Furnizuesit"
+    var zg = aefFurn.filter(function (f) { return aefZgj[f.celes]; });
+    $('aefV').textContent = !n ? 'Asnjë' : n === aefFurn.length ? 'Të gjithë' : n === 1 ? zg[0].emri : n + ' të zgjedhur';
     Array.prototype.forEach.call(document.querySelectorAll('#aefLista input'), function (i) { i.checked = !!aefZgj[i.value]; });
   }
   function aefNormalizo(t) { return String(t || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
@@ -6101,13 +6113,14 @@
     aefFurn = pa ? [] : AF.furnizuesitELista(te);
     aefFurn.forEach(function (f) { f.sk = te.filter(function (a) { return AF.celesiFurnizuesit(a) === f.celes && AF.statusi(a) === 'skaduar'; }).length; });
     aefZgj = {};
-    if (aefFurn.length === 1) aefZgj[aefFurn[0].celes] = 1;
+    aefFurn.forEach(function (f) { aefZgj[f.celes] = 1; }); // v326: si te PDF-ja, "Të gjithë" në fillim
+    $('aefPanel').hidden = true; $('aefRr').setAttribute('aria-expanded', 'false');
     $('aefKerko').value = '';
     aefVizatoListen();
-    $('aefLista').hidden = pa;
+    $('aefRreshtat').hidden = pa; $('aefHint').hidden = pa;
     $('aefKerkoKuti').hidden = pa || aefFurn.length < 6;
     $('aefKrejt').hidden = pa || aefFurn.length < 2;
-    $('aefNen').textContent = pa ? 'Të gjitha afatet aktive (' + te.length + ') në një foto.' : 'Një foto për secilin furnizues.';
+    $('aefNen').textContent = pa ? 'Të gjitha afatet aktive (' + te.length + ') në një foto.' : (te.length === 1 ? '1 afat' : te.length + ' afate') + ' · një foto për secilin furnizues';
     aefRifresko();
     $('dlgAfEksFoto').classList.add('hapur');
   }
@@ -6151,6 +6164,7 @@
     aefRifresko();
   });
   $('aefKrijo').addEventListener('click', aefKrijo);
+  $('aefRr').addEventListener('click', function () { var h = !$('aefPanel').hidden; $('aefPanel').hidden = h; this.setAttribute('aria-expanded', h ? 'false' : 'true'); });
   $('aefKerko').addEventListener('input', function () { aefVizatoListen(); });
 
   // ---------- v275: Afatet në PDF për printim ----------

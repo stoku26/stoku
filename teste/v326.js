@@ -32,6 +32,15 @@ const paKom = t => t.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '');
     '2. Android: fokusi vetëm brenda kutisë (mesi i saj, çdo 2 s; prekja kufizohet brenda)');
   ok(/Hyrja\(88, "2026-11-17", "Kreu/.test(lx(K + 'TeRejat.kt')), '3. TeRejat.kt: Hyrja 88');
 
+  // ===== 4. Dritaret e eksportit si "PDF për printim" (web tel + Android) + PC: fusha e barkodit =====
+  const ix = lx('index.html'), eu = lx(K + 'ui/EksportetUI.kt');
+  const dx = ix.slice(ix.indexOf('id="dlgAfExcel"'), ix.indexOf('id="dlgAfEksFoto"')), df = ix.slice(ix.indexOf('id="dlgAfEksFoto"'), ix.indexOf('id="dlgAfImport"'));
+  ok(/class="ap-lista" id="axRreshtat"/.test(dx) && /class="ap-rresht"/.test(dx) && /id="axHint"/.test(dx) && !/type="checkbox"/.test(dx), '4. web: Excel me rreshta si te PDF-ja');
+  ok(/id="aefRr"/.test(df) && /id="aefPanel" hidden/.test(df) && /id="aefHint"/.test(df), '4. web: "Si foto" me rreshtin "Furnizuesit" që hap listën');
+  const exF = eu.slice(eu.indexOf('fun AfatetExcelFlete'), eu.indexOf('fun AfatetExcelFlete') + 6000), foF = eu.slice(eu.indexOf('fun AfatetFotoFlete'), eu.indexOf('fun AfatetFotoFlete') + 7000);
+  ok(/RreshtiIOpsionit\(/.test(exF) && /RreshtiIButonit\(/.test(foF), '4. Android: Excel dhe foto me rreshta si te PDF-ja');
+  ok(/\.sbp input\.inp\.mono \{ font-size: inherit; \}/.test(lx('css/stoku-pc.css')), '4. PC: fusha e barkodit me shkronja si fushat e tjera');
+
   // ===== 1 + 2. Web =====
   const { b, p } = await hapFaqen(chromium);
   await p.evaluate(() => {

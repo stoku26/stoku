@@ -58,6 +58,32 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v326 / Android Hyrja 88 (17.11.2026): KREU + MALLI, KAMERA SI ANDROID, FOKUSI NË KUTI, EKSPORTI SI PDF**.
+   - **Android Kreu** (pronari: "ni buton ... me emer loko hiq pa emer so tab kryesor ... kur te bohet login ose me qel android app met qit
+     qaty direkt"; ikona: shtëpia pa pikë, ideja 3; "balanco qat buton pak ma posht"): `ui/KreuEkrani.kt`. Shiriti: Malli, Afatet, [Kreu],
+     Grupi, Cilësimet; Kreu = rreth 62 dp (`KREU_MADHESIA`) që del 16 dp (`KREU_MBI_SHIRIT`) mbi shirit, unazë me ngjyrën e faqes, i
+     gjelbër kur je aty. Hapet i pari (`tabi = "kreu"`), "Mbrapa" kthen te Kreu. 9 pjesë (`PjesetEKreut`): butonat e shpejtë (Skano,
+     Afat i ri, Skanim i shpejtë, PDF), numrat e afateve, 3 që skadojnë së pari, grafiku 6 muaj, malli, furnizuesit (jo merchandiseri),
+     grupi, marketi (`CipiIMarketit`), ora (vetëm me orë të lidhur). Pa "Mirë se vjen" (pronari). Lart djathtas "Përshtat faqen"
+     (`Ik.Pershtat`): çelës për secilën + zvarritja nga ☰, "Si në fillim", "Ruaj"; ruhet te pref `kreu_pjeset` ("id:1,id:0,…", vetëm në
+     këtë telefon). Skano: produkti i malli hapet te Malli (`MainActivity.produktiKerkuar`), përndryshe "Afat i ri" me barkodin
+     (`MainActivity.veprimiIAfateve` = "i-ri:<barkod>" / "pdf").
+   - **"Stoku" → "Malli"** edhe në kod (pronari: "mos ja le emrin stoku ne kod"): tabi `"malli"`, `ui/MalliEkrani.kt` (`MalliEkrani`,
+     `FaqjaEMallit`), `Ik.Malli`, Cilësimet → "Malli" (`MalliCilesimet`). **Leja mbetet `"stoku"`** (ruhet te llogaritë, rregullat dhe
+     web-i); njoftimet me tabin e vjetër "stoku" hapin Mallin. Emri i aplikacionit "Stoku" s'preket. Web-i/PC s'u ndryshuan.
+   - Logoja e kokës (Android): pa `clip(RoundedCornerShape(6.dp))` (i priste qoshet e barkodit, foto e pronarit).
+   - **Kamera e web app-it si Android** (pronari: "boxin e barkodit identik si te android appit me vi komplet tbardh edhe tjerat
+     funksione"): kutia e bardhë e plotë 78% (`78cqw`, `container-type` te `#kamera`), lartësia 0.55, qoshet 24; X (`#mbyllKamere`,
+     teksti vetëm `title`/`aria-label`) lart majtas; `#kameraZoom` + `#kameraDrita` lart djathtas (më parë poshtë, v292); hint nën kuti;
+     `.kamera-tekst` poshtë (s'del te Skanimi i shpejtë). `.skan-qoshe` dhe `.kamera-poshte` u hoqën.
+   - **Fokusi vetëm brenda kutisë** (pronari: "fokusi i kameres me u kon 100% gjat gjith kohes vetem brenda kutis"): web
+     `pikaNeFigure()` (mesi i kutisë në koordinatat e figurës, object-fit cover) → `pointsOfInterest` te `aplikoAutofokusin`, rivendoset çdo
+     2.5 s; prekja kufizohet brenda kutisë. Android `Skaneri.kt`: `FocusMeteringAction` (AF + AE, `disableAutoCancel`) te mesi i kutisë,
+     madhësia 0.2, çdo 2 s (`FOKUSI_CDO_MS`); prekja `coerceIn` brenda kutisë. **S'është testuar në telefon të vërtetë.**
+   - **Dritaret e eksportit si "PDF për printim"** (web tel + Android): Excel me rreshtat "Muaji"/"Furnizuesi" (ikonë + vlerë + shigjetë,
+     `#axRreshtat`, `axVlerat()`); "Si foto" me rreshtin "Furnizuesit" (`#aefRr`) që hap listën (`#aefPanel`), në fillim të gjithë të
+     zgjedhur; Anulo + Krijo në një rresht. PC: `.sbp input.inp.mono { font-size: inherit; }` (barkodi te "Afat i ri" me shkronja të
+     vogla). Teste: `v326.js`; v274/v279/v292 u përshtatën; `PamjetTest` (Kreu, "Malli").
 0000000. **v325 / Android Hyrja 87 (17.11.2026): SKANIMI I LOGOS NJË HERË**. Pronari: "nonstop po rrin tu u bo her barkod her logo. Bone
    kshtu kur e hap ... te porta me u shendrru prej barkodit ne logo pas 1 sekonde ... edhe me nejt logo ... masi te bohesh login me pa barkodin
    mas 1 sekonde me dal logo ... nese e mshel ... e e qel mos me u ndrru mo vetem 1 her ... deri ne loginin tjeter". Pa loop: barkod 1 s →

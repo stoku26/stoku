@@ -28,13 +28,15 @@ const AF = []; const shto = (e, f, n) => AF.push({ id: 'a' + AF.length, emri: e,
     await p.evaluate(() => document.querySelectorAll('.mbulese.hapur').forEach(x => { if (!x.classList.contains('faqe-e-plote')) x.classList.remove('hapur'); }));
     await p.click('#btnAfatet'); await p.waitForTimeout(700);
     await p.click('#afExcel'); await p.click('#afEksFoto'); await p.waitForTimeout(400);
+    await p.click('#aefRr'); await p.waitForTimeout(150); // v326: lista hapet nga rreshti "Furnizuesit" (si kalendari te PDF-ja)
     const gr = () => p.evaluate(() => Array.from(document.querySelectorAll('#aefLista .aef-etiketa')).map(e => e.textContent + ': ' +
       Array.from(e.nextElementSibling.querySelectorAll('.ax-rresht')).map(r => r.querySelector('.aef-m').textContent + ' (' + r.querySelector('.aef-n').textContent + ')').join(', ')));
     const g1 = await gr();
     ok(g1.join(' | ') === 'Me afate të skaduara: Argo Group (3 afate), Laberion (3 afate) | Të tjerët: Abi Drink (1 afat), Albi (4 afate), Albulena Impex (2 afate), Devolli (2 afate), Meridian (2 afate)', tema + ' 1. lart me afate të skaduara, poshtë të tjerët', g1);
-    const k = await p.evaluate(() => { const h = document.getElementById('aefTitulli').getBoundingClientRect(), x = document.getElementById('aefKrejt').getBoundingClientRect(), kr = document.getElementById('aefKrijo').getBoundingClientRect(), l = document.getElementById('aefLista').getBoundingClientRect();
+    const k = await p.evaluate(() => { const h = document.querySelector('#aefPanelT').getBoundingClientRect(), x = document.getElementById('aefKrejt').getBoundingClientRect(), kr = document.getElementById('aefKrijo').getBoundingClientRect(), l = document.getElementById('aefLista').getBoundingClientRect();
       return { pranë: Math.abs((h.top + h.bottom) / 2 - (x.top + x.bottom) / 2) < 8 && x.left > h.right, kerko: !document.getElementById('aefKerkoKuti').hidden, poshte: kr.top >= l.bottom, nen: document.getElementById('aefNen').textContent }; });
-    ok(k.pranë && k.kerko && k.poshte && k.nen === 'Një foto për secilin furnizues.', tema + ' 1. "Të gjithë" pranë titullit, kërkimi, butoni poshtë listës', k);
+    ok(k.pranë && k.kerko && k.poshte && /një foto për secilin furnizues$/.test(k.nen), tema + ' 1. "Të gjithë" në krye të listës, kërkimi, butoni poshtë listës', k);
+    await p.click('#aefKrejt'); // v326: në fillim janë të gjithë të zgjedhur
     await p.click('#aefLista .ax-rresht >> nth=0'); await p.click('#aefLista .ax-rresht >> nth=3');
     await p.fill('#aefKerko', 'ALB'); await p.waitForTimeout(150);
     const g2 = await gr(), t2 = await p.textContent('#aefKrijoT');
