@@ -114,7 +114,7 @@ object Llogaria {
                     degjoFshirjen(p)
                     degjoPamjen(p) // v311
                     Pajisjet.nis(p.uid) { Pajisjet.dilNgaDistanca() } // Hyrja 81: pajisjet ku je i kyçur
-                } else { _lejet.value = null; _merchandiser.value = false; Pajisjet.ndal() }
+                } else { _lejet.value = null; _merchandiser.value = false; Pajisjet.harro() }
             }
             _gati.value = true
         }
@@ -289,7 +289,7 @@ object Llogaria {
         null
     } catch (e: Exception) { tekstiGabimit(e) }
 
-    fun dil() { ndalDegjuesit(); Pajisjet.ndal(); StokuApp.prefs(ctx).edit().remove("ora_rt").apply(); auth.signOut() }
+    fun dil() { ndalDegjuesit(); Pajisjet.harro(); StokuApp.prefs(ctx).edit().remove("ora_rt").apply(); auth.signOut() }
 
     // ---------------- Ndryshimi i emrit dhe i fjalëkalimit (si firebase-tel.js) ----------------
     /**

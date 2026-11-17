@@ -1,7 +1,7 @@
 // v319 kundër emulatorit të vërtetë (bash teste/emu/nis.sh): rregulli i ri perdoruesit/{uid}/pajisjet/{p} nga SHENIME.md
 // + pajisjet.js me SDK-në e vërtetë (shkruan veten, lista, shkëputja nga një pajisje tjetër e nxjerr tjetrën).
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
-import { doc, getDoc, getDocs, setDoc, deleteDoc, collection, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, collection, onSnapshot } from 'firebase/firestore';
 import { createRequire } from 'node:module';
 const req = createRequire(import.meta.url);
 globalThis.localStorage = { _m: {}, getItem(k) { return k in this._m ? this._m[k] : null; }, setItem(k, v) { this._m[k] = String(v); }, removeItem(k) { delete this._m[k]; } };
@@ -23,7 +23,7 @@ ok(!(await lejohet(setDoc(doc(db('uA'), 'perdoruesit/uA/pajisjet/p2'), { ...d1, 
 ok(!(await lejohet(setDoc(doc(db('uA'), 'perdoruesit/uA/pajisjet/p2'), { ...d1, emri: 'x'.repeat(81) }))), '3. emër > 80 ndalohet');
 ok(!(await lejohet(getDoc(doc(env.unauthenticatedContext().firestore(), 'perdoruesit/uA/pajisjet/p1')))), '3. pa hyrje: asgjë');
 // pajisjet.js: dy pajisje të së njëjtës llogari
-const fsx = { doc, collection, setDoc, deleteDoc, onSnapshot };
+const fsx = { doc, collection, setDoc, updateDoc, deleteDoc, onSnapshot };
 localStorage._m = {}; const a = P.krijo(fsx, db('uA'), () => 'uA', 'tel', '1.65.0');
 localStorage._m = {}; const b = P.krijo(fsx, db('uA'), () => 'uA', 'pc', '1.65.0');
 let dalur = false; b.kurShkeputet(() => { dalur = true; });
@@ -35,5 +35,16 @@ ok(r.ok && dalur, '4. "Shkëput" nga pajisja tjetër: ajo del vetë', { r, dalur
 await a.fshiVeten(); await prit(800);
 ok(lista.length === 1, '4. "Dil" e heq veten nga lista', lista.length);
 ndal(); b.ndal();
+// 5. Rihapja: pajisja e regjistruar vetëm rifreskohet; nëse u shkëput ndërsa ishte e mbyllur, del (Firebase kthen 'not-found')
+let e5 = null; try { await updateDoc(doc(db('uA'), 'perdoruesit/uA/pajisjet/sNukEkziston'), { emri: 'Chrome në Android', lloji: 'tel', paraSe: 2, v: '1' }); } catch (e) { e5 = e.code; }
+ok(e5 === 'not-found', '5. update i një pajisjeje të fshirë: not-found (jo permission-denied)', e5);
+localStorage._m = {}; const c = P.krijo(fsx, db('uA'), () => 'uA', 'tel', '1.65.0'); c.nis(); await prit(1500);
+ok(localStorage.getItem(P.KEY_UID) === 'uA', '5. regjistruar');
+c.ndal(); await env.withSecurityRulesDisabled(async x => { await deleteDoc(doc(x.firestore(), 'perdoruesit/uA/pajisjet/' + c.id)); });
+const c2 = P.krijo(fsx, db('uA'), () => 'uA', 'tel', '1.65.0'); let dalur2 = false; c2.kurShkeputet(() => { dalur2 = true; });
+c2.nis(); await prit(2000);
+const ekz = await env.withSecurityRulesDisabled(async x => { const r = await getDoc(doc(x.firestore(), 'perdoruesit/uA/pajisjet/' + c.id)); globalThis.__e = r.exists(); });
+ok(dalur2 && !globalThis.__e, '5. rihapja pas shkëputjes: del dhe s\'rikthehet në listë', { dalur2, ekziston: globalThis.__e });
+c2.ndal();
 await env.cleanup();
 console.log(gab ? '\nGABIME: ' + gab : '\nKREJT OK'); process.exit(gab ? 1 : 0);

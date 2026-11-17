@@ -53,6 +53,20 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v320 / Android Hyrja 82 (17.11.2026): SHKËPUTJA E PAJISJES QË ISHTE E MBYLLUR**. Pronari: "nese e shkeputi nje llogari web
+   app ne telefon ose pc funksionon pa problem. po nese du me shkeput nga appi ne android aty nuk po bojka, nuk osht ne list mo pajisja
+   po kur hy ne app android nuk ka nevoje me u kyq prap". Shkaku (web + Android): kur aplikacioni/faqja hapej sërish, pajisja e
+   KRIJONTE dokumentin e vet nga e para (`set` me krijuarSe), kështu që shkëputja e bërë ndërsa ishte e mbyllur humbiste. Te web-i
+   dukej se punon sepse faqja ishte e hapur (dëgjuesi e kapte fshirjen menjëherë).
+   - Tani ruhet uid-ja për të cilën pajisja u regjistrua (web `stoku:pajisja:uid`, Android pref `pajisja_uid`). Rihapja me të njëjtën
+     llogari = vetëm `updateDoc` (paraSe, emri, lloji, v); nëse Firebase kthen `not-found` = u shkëput → del vetë (si "Dil") me
+     mesazhin "U shkëpute nga llogaria nga një pajisje tjetër." Regjistrimi harrohet kur del (Dil, shkëputje, përdoruesi null), që
+     hyrja tjetër ta krijojë nga e para. Edhe `rifresko` (çdo 30 min) e kap shkëputjen në të njëjtën mënyrë.
+   - Rregullat e Firebase s'ndryshojnë: emulatori i vërtetë kthen `not-found` (jo permission-denied) për update-in me fushat e plota
+     (`teste/emu/pajisjet-v319.mjs`, pjesa 5). Kujdes: një update vetëm me `paraSe` do të jepte permission-denied (rregulli kërkon emri).
+   - Pajisjet që u shkëputën para këtij përditësimi s'kanë regjistrimin e ruajtur: pas përditësimit shkëputen edhe një herë dhe pastaj
+     punon. firebase-tel/pc importojnë `updateDoc`; fs-server.js ka `updateDoc`. Test: v319.js pjesa 6.
+
 0000000. **v319 (vazhdim, 17.11.2026): SHFLETUESIT E VJETËR (LG TV)**. Pronari (foto nga shfletuesi i TV-së LG): paneli i hyrjes dhe
    Cilësimet dilnin si kuti lart majtas, jo në krejt ekranin; teksti ngjitur pas ikonave. Shkaku: shfletuesi i TV-ve (webOS) është
    Chrome i vjetër (rreth 68 deri 79). Nuk i njeh: `inset:` (Chrome < 87), `:is()` (< 88), `:has()` dhe `:focus-visible` (në një listë

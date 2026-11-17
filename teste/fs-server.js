@@ -412,6 +412,7 @@ function krijoFirestore(opt = {}) {
         getCountFromServer: async q => { await prit(); const r = await window.__fs('query', q.path, q.c || []); if (!r.ok) throw gabim(r.code); return { data: () => ({ count: r.docs.length }) }; }, // v252
         setDoc: async (ref, te, o) => { await prit(); const r = await window.__fs('batch', [['set', ref.path, JSON.parse(JSON.stringify(te)), !!(o && o.merge)]]); if (!r.ok) throw gabim(r.code); },
         addDoc: async (col, te) => { const ref = fs.doc(null, col); await fs.setDoc(ref, te); return { id: ref.path.split('/').pop() }; },
+        updateDoc: async (ref, te) => { await prit(); const r = await window.__fs('batch', [['update', ref.path, JSON.parse(JSON.stringify(te))]]); if (!r.ok) throw gabim(r.code); }, // v319
         deleteDoc: async ref => { await prit(); const r = await window.__fs('batch', [['delete', ref.path]]); if (!r.ok) throw gabim(r.code); },
         writeBatch: () => {
           const ops = [];

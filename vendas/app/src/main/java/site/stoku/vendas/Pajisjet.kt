@@ -1,6 +1,7 @@
 package site.stoku.vendas
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.MainScope
@@ -43,25 +44,43 @@ object Pajisjet {
 
     private fun ref(u: String, pid: String = id) = db.collection("perdoruesit").document(u).collection("pajisjet").document(pid)
 
+    /* Pronari: "nese du me shkeput nga appi ne android aty nuk po bojka ... kur hy ne app android nuk ka nevoje me u kyq prap".
+     * Shkaku: sa herë hapej aplikacioni, pajisja e krijonte dokumentin nga e para, edhe pasi ishte shkëputur ndërsa aplikacioni ishte
+     * i mbyllur. Tani: uid-ja për të cilën u regjistrua ruhet (pref `pajisja_uid`); kur hapet sërish me të njëjtën llogari vetëm
+     * rifreskohet (update), dhe nëse dokumenti s'ekziston më (NOT_FOUND) = u shkëput: del. Si pajisjet.js (KEY_UID). */
+    private var kurShkeputet: (() -> Unit)? = null
+    private fun uidERegjistruar() = StokuApp.prefs(StokuApp.app).getString("pajisja_uid", null)
+    private fun shenjoUid(u: String?) { StokuApp.prefs(StokuApp.app).edit().apply { if (u == null) remove("pajisja_uid") else putString("pajisja_uid", u) }.apply() }
+
     private fun shkruaj(u: String, iRi: Boolean) {
         val t = System.currentTimeMillis()
         val d = hashMapOf<String, Any>("emri" to emri(), "lloji" to "android", "paraSe" to t, "v" to BuildConfig.VERSION_NAME)
-        if (iRi) d["krijuarSe"] = t
         shkruar = t
-        ref(u).set(d, SetOptions.merge()).addOnFailureListener { shkruar = 0L }
+        if (!iRi) {
+            ref(u).update(d).addOnFailureListener { e ->
+                shkruar = 0L
+                if ((e as? FirebaseFirestoreException)?.code == FirebaseFirestoreException.Code.NOT_FOUND && uid == u) shkeputur()
+            }
+            return
+        }
+        d["krijuarSe"] = t
+        ref(u).set(d, SetOptions.merge()).addOnSuccessListener { if (uid == u) shenjoUid(u) }.addOnFailureListener { shkruar = 0L }
     }
+
+    private fun shkeputur() { shenjoUid(null); ekziston = false; kurShkeputet?.invoke() }
 
     /** Thirret kur ndryshon llogaria (Llogaria.nis); kurShkeputet: kjo pajisje u shkëput nga një tjetër */
     fun nis(u: String?, kurShkeputet: () -> Unit) {
         if (u == uid) return
         ndal()
-        if (u == null) return
+        if (u == null) { shenjoUid(null); return } // doli nga llogaria: herën tjetër regjistrohet nga e para
         uid = u
-        shkruaj(u, true)
+        this.kurShkeputet = kurShkeputet
+        shkruaj(u, uidERegjistruar() != u)
         dVeten = ref(u).addSnapshotListener { s, e ->
             if (e != null || s == null || uid != u) return@addSnapshotListener
             if (s.exists()) { ekziston = true; return@addSnapshotListener }
-            if (ekziston && !s.metadata.isFromCache) { ekziston = false; kurShkeputet() }
+            if (ekziston && !s.metadata.isFromCache) shkeputur()
         }
         dLista = db.collection("perdoruesit").document(u).collection("pajisjet").addSnapshotListener { q, e ->
             if (e != null || q == null || uid != u) return@addSnapshotListener
@@ -71,9 +90,12 @@ object Pajisjet {
         }
     }
 
+    /** Dalja nga llogaria (Llogaria.dil / përdoruesi null): ndal + harro regjistrimin */
+    fun harro() { ndal(); shenjoUid(null) }
+
     fun ndal() {
         dVeten?.remove(); dVeten = null; dLista?.remove(); dLista = null
-        uid = null; ekziston = false; _lista.value = emptyList()
+        uid = null; ekziston = false; kurShkeputet = null; _lista.value = emptyList()
     }
 
     /** Kur aplikacioni hapet sërish: paraSe rifreskohet (jo më shpesh se 30 min) */
@@ -90,6 +112,7 @@ object Pajisjet {
     suspend fun fshiVeten() {
         val u = uid ?: return
         ekziston = false
+        shenjoUid(null)
         try { ref(u).delete().await() } catch (e: Exception) { }
     }
 
