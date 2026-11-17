@@ -18,6 +18,7 @@ class StokuApp : Application() {
         super.onCreate()
         KohaKosoves.nis(this) // v282: ora e Kosovës për krejt aplikacionin
         app = this
+        try { prefs(this).edit().remove("te_rejat_pare").apply() } catch (e: Exception) { } // Hyrja 80: pa "Çfarë ka të re"
         ruajRrezimet()
         nisFirebase(this)
         Njoftimet.krijoKanalin(this)

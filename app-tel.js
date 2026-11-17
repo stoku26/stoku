@@ -1670,10 +1670,8 @@
     }
     $('opsProfilEmri').textContent = u ? emri : ngaVizitori() ? 'Vizitor' : 'Pa llogari';
     $('opsProfilSub').textContent = u ? (statusiCloudFundit || T('cloudStatusiAsgje')) : ngaVizitori() ? 'Provë pa llogari, vetëm në këtë telefon' : 'Hyr që lista të ruhet edhe në internet';
-    var TR = window.StokuTeRejat;
-    var v = TR && TR.versioni ? TR.versioni() : 0;
-    $('opsVersioni').textContent = v ? ' ' + TR.emriVersionit(v) : '';
-    $('opsTeRejatStatus').textContent = v ? 'Ndryshimet e fundit në Stoku' : '';
+    var VS = window.StokuVersioni;
+    $('opsVersioni').textContent = VS ? ' ' + VS.emri : '';
   }
   // Fotoja e profilit: ruhet te Worker-i (Cloudflare), e sheh i gjithë grupi
   var __fotoDukeDerguar = false;
@@ -2914,8 +2912,6 @@
   // v252: merchandiserët s'e kanë furnizuesin (as te afatet, as te stoku, as te eksporti a importi): fushat .furn-vetem
   // fshihen (body.pa-furnizues) dhe ruajtja e mban furnizuesin që kishte afati/produkti
   function paFurnizues() { return eshteMerchandiser(); }
-  // "Çfarë ka të re" (teRejat.js): pa shënimet për pjesët që s'lejohen ("Dërgo në PC" kërkon edhe "pc")
-  function lejaPerTeRejat(k) { return k === 'dergoNePc' ? lejaDergoNePc() : k === 'marketet' ? leja(k) || eshteAdminiIStokut() : leja(k); }
   function zbatoLejet(paVizatim) {
     Array.prototype.forEach.call(document.querySelectorAll('[data-leja]'), function (el) {
       el.classList.toggle('leja-ndaluar', !leja(el.getAttribute('data-leja')));
@@ -4564,7 +4560,7 @@
   // thjesht klasën), që logjika e tyre (p.sh. konfirmo() që pret përgjigje) të përfundojë saktë.
   var ANULO_SIPAS_DIALOGUT = {
     dlgProdukt: 'dlgAnulo', dlgZhvendos: 'zhvendosAnulo', dlgFshirje: 'fshiAnulo',
-    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgMarketi: 'mkdAnulo', dlgMarketiRi: 'mkrAnulo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgKuSkedari: 'ksAnulo', dlgAfExcel: 'axAnulo', dlgTeRejat: 'trMbyll', dlgImportStok: 'impAnulo', dlgEkNjoftimet: 'ekNjMbyll', dlgEkNgjarja: 'ekDtMbyll', dlgAfImport: 'aiAnulo', dlgKerkese: 'krkAnulo', dlgKolegu: 'kolAnulo'
+    dlgFolder: 'dlgFolderAnulo', dlgKonfirmo: 'konfJo', dlgMarketi: 'mkdAnulo', dlgMarketiRi: 'mkrAnulo', dlgAfat: 'afatAnulo', dlgAfatLexim: 'leximAnulo', dlgKuFleta: 'kfhAnulo', dlgKuSkedari: 'ksAnulo', dlgAfExcel: 'axAnulo', dlgImportStok: 'impAnulo', dlgEkNjoftimet: 'ekNjMbyll', dlgEkNgjarja: 'ekDtMbyll', dlgAfImport: 'aiAnulo', dlgKerkese: 'krkAnulo', dlgKolegu: 'kolAnulo'
   };
   function mbyllShtresenMeTeFundit() {
     // Kamera del mbi çdo dialog (p.sh. skanimi te "Afat i ri"), prandaj mbyllet e para
@@ -9084,84 +9080,10 @@
   if (njoftimetMbeshteten() && Notification.permission === 'granted') regjistroKontrollinPeriodik();
   kontrolloNjoftimet();
 
-  // ---------- "Çfarë ka të re" ----------
-  // Në hyrje, pas ekranit të hyrjes: tregohen hyrjet e teRejat.js më të reja se versioni i fundit që u pa.
-  var KEY_TE_REJAT = 'stoku:te-rejat:pare';
-  function versioniIPare() { try { return Number(localStorage.getItem(KEY_TE_REJAT)) || 0; } catch (e) { return 0; } }
-  function shenoTeRejatSiTePara() { try { localStorage.setItem(KEY_TE_REJAT, String(window.StokuTeRejat.versioni())); } catch (e) { /* ok */ } }
-  function tregoTeRejat() {
-    var TR = window.StokuTeRejat;
-    if (!TR || !TR.versioni()) return false;
-    if ((__pajisjeERe || ngaVizitori()) && !versioniIPare()) { shenoTeRejatSiTePara(); return false; } // vizitori i ri: pa listë përditësimesh
-    var hyrjet = TR.teRejatPas(versioniIPare(), 'tel', eshteAdminiIStokut(), lejaPerTeRejat); // vetëm të rejat e telefonit
-    if (!hyrjet.length) return false;
-    if (window.StokuPorta && window.StokuPorta.eHapur()) return false;
-    if (document.querySelector('.mbulese.hapur') || $('kamera').classList.contains('hapur')) return false;
-    mbushTeRejat(hyrjet, hyrjet.length === 1 ? TR.etiketa(hyrjet[0]) : hyrjet.length + ' përditësime të reja');
-    __teRejatNgaCilesimet = false;
-    $('dlgTeRejat').classList.add('hapur');
-    return true;
-  }
-  var __teRejatNgaCilesimet = false;
-  function mbushTeRejat(hyrjet, nen) {
-    var TR = window.StokuTeRejat;
-    var lista = $('trLista');
-    lista.textContent = '';
-    hyrjet.forEach(function (h) {
-      var b = document.createElement('div'); b.className = 'tr-version';
-      var t = document.createElement('div'); t.className = 'tr-version-titulli'; t.textContent = h.titulli;
-      var d = document.createElement('div'); d.className = 'tr-version-data'; d.textContent = TR.etiketa(h);
-      var ul = document.createElement('ul');
-      (h.pikat || []).forEach(function (pika) { var li = document.createElement('li'); li.textContent = pika; ul.appendChild(li); });
-      b.appendChild(t); b.appendChild(d); b.appendChild(ul);
-      lista.appendChild(b);
-    });
-    $('trNen').textContent = nen;
-    lista.scrollTop = 0;
-  }
-  // Nga Cilësimet → "Çfarë ka të re": 6 versionet e fundit të telefonit, kurdo
+  // ---------- v318 (pronari: "fshi 100% cfare ka te re"): pa "Çfarë ka të re"; vetëm numri i versionit (versioni.js) ----------
+  try { localStorage.removeItem('stoku:te-rejat:pare'); } catch (e) { /* ok */ }
   // v237: politika e privatësisë (faqe më vete, në dritare të re)
   $('opsPrivatesia').addEventListener('click', function () { window.open('privatesia.html', '_blank', 'noopener'); });
-  $('opsTeRejat').addEventListener('click', function () {
-    var TR = window.StokuTeRejat;
-    if (!TR || !TR.versioni()) return;
-    var hyrjet = TR.teRejatPas(0, 'tel', eshteAdminiIStokut(), lejaPerTeRejat).slice(0, 6);
-    if (!hyrjet.length) return;
-    mbushTeRejat(hyrjet, 'Përditësimet e fundit');
-    __teRejatNgaCilesimet = true;
-    $('dlgTeRejat').classList.add('hapur');
-  });
-  $('trMbyll').addEventListener('click', function () {
-    $('dlgTeRejat').classList.remove('hapur');
-    if (__teRejatNgaCilesimet) { __teRejatNgaCilesimet = false; return; }
-    setTimeout(pyetPerNjoftimet, 400); // leja për njoftimet, nëse s'është pyetur ende
-  });
-  $('dlgTeRejat').addEventListener('click', function (ev) { if (ev.target === $('dlgTeRejat')) $('trMbyll').click(); });
-
-  // Shfaqet vetëm kur faqja shihet dhe s'ka përditësim në instalim (përndryshe rifreskimi e zhdukte menjëherë);
-  // shënohet "e parë" vetëm kur mbyllet, jo kur shfaqet, që një rifreskim i papritur të mos e humbasë.
-  var __teRejatShfaqur = false;
-  function perditesimNeRruge(cb) {
-    if (!('serviceWorker' in navigator)) { cb(false); return; }
-    navigator.serviceWorker.getRegistration().then(function (r) { cb(!!(r && (r.installing || r.waiting))); }, function () { cb(false); });
-  }
-  function tregoTeRejatKurGati(prova) {
-    prova = prova || 0;
-    if (document.hidden) {
-      var kurShihet = function () { if (document.hidden) return; document.removeEventListener('visibilitychange', kurShihet); setTimeout(tregoTeRejatKurGati, 1200); };
-      document.addEventListener('visibilitychange', kurShihet);
-      return;
-    }
-    perditesimNeRruge(function (po) {
-      if (po && prova < 20) { setTimeout(function () { tregoTeRejatKurGati(prova + 1); }, 1500); return; } // rifreskimi vjen së shpejti
-      if (tregoTeRejat()) __teRejatShfaqur = true;
-    });
-  }
-  new MutationObserver(function () {
-    if (__teRejatShfaqur && !$('dlgTeRejat').classList.contains('hapur')) { __teRejatShfaqur = false; shenoTeRejatSiTePara(); }
-  }).observe($('dlgTeRejat'), { attributes: true, attributeFilter: ['class'] });
-  window.addEventListener('stoku-porta-hapur', function () { setTimeout(tregoTeRejatKurGati, 700); });
-  setTimeout(function () { if (!(window.StokuPorta && window.StokuPorta.eHapur())) tregoTeRejatKurGati(); }, 2500);
 
   // ---------- Rreshtat e filtrave: skajet zbehen (fade) kur ka edhe butona anash ----------
   (function () {

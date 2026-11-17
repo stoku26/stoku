@@ -75,21 +75,7 @@ fun PerditesimiFaqja() {
                 }, style = tx(14, 500, n.muted), modifier = Modifier.padding(top = 10.dp))
             }
             if (x.faza == "gabim") Text(x.mesazhi, style = txR(14f, 500, n.exp), textAlign = TextAlign.Center, modifier = Modifier.padding(top = 18.dp))
-            val pikat = x.teReja.flatMap { it.pikat }.take(6)
-            if (pikat.isNotEmpty() && !shkarkim) {
-                Column(Modifier.padding(top = 26.dp).fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(n.surface)
-                    .border(1.dp, n.line, RoundedCornerShape(20.dp)).padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 16.dp)) {
-                    Text("ÇKA KA TË RE", style = tx(12, 700, n.muted, 0.06))
-                    pikat.forEach { t ->
-                        Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            Box(Modifier.size(22.dp).clip(RoundedCornerShape(7.dp)).background(n.okTint), contentAlignment = Alignment.Center) {
-                                Icon(Ik.Kontroll, null, Modifier.size(14.dp), tint = n.ok)
-                            }
-                            Text(t, style = txR(14f, 400, n.ink2, 1.35f), modifier = Modifier.weight(1f))
-                        }
-                    }
-                }
-            }
+            // Hyrja 80 (pronari: "fshi 100% cfare ka te re"): pa listën "ÇKA KA TË RE"
             Text("Të dhënat dhe hyrja mbeten siç janë.", style = txR(13.5f, 400, n.muted), textAlign = TextAlign.Center, modifier = Modifier.padding(top = 16.dp))
         }
         if (shkarkim) Buton("Anulo", { Perditesimi.anulo() }, Modifier.fillMaxWidth(), lloji = "dyte", lartesia = 56.dp)

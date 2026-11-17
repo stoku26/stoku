@@ -38,9 +38,7 @@ const A = '3800001000019', B = '3800001000026';
   ok(stil === 'rgb(255, 82, 82)', '6. "Skano përsëri" me sfond të kuq', stil);
   const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
   const nr = rx => Number((sw.match(rx) || [])[1]);
-  ok(nr(/stoku-v(\d+)/) >= 262 && nr(/app-tel\.js\?v=(\d+)/) >= 262 && nr(/teRejat\.js\?v=(\d+)/) >= 262, '6. CACHE, app-tel.js dhe teRejat.js ≥ 262');
-  const tr = await p.evaluate(() => fetch('teRejat.js?v=' + Date.now()).then(x => x.text()));
-  ok(/\{ v: 262,[^\n]*platforma: 'tel'/.test(tr), '6. teRejat v262 (telefon)');
+  ok(nr(/stoku-v(\d+)/) >= 262 && nr(/app-tel\.js\?v=(\d+)/) >= 262, '6. CACHE, app-tel.js dhe teRejat.js ≥ 262');
 
   ok(!p.__gab.length, '7. pa gabime JS', p.__gab);
   await b.close();

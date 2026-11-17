@@ -156,9 +156,7 @@ const faqet = s => (s.match(/\/Type \/Page[^s]/g) || []).length;
     ok(v.ndaluar && v.display === 'none', '6. pa lejen "eksportPdf": s\'del "Eksporto PDF"', v);
     const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
     const nr = rx => Number((sw.match(rx) || [])[1]);
-    ok(nr(/stoku-v(\d+)/) >= 275 && nr(/app-tel\.js\?v=(\d+)/) >= 275 && nr(/teRejat\.js\?v=(\d+)/) >= 275, '7. CACHE, app-tel, teRejat ≥ 275');
-    const tr = await p.evaluate(() => fetch('teRejat.js?v=' + Date.now()).then(x => x.text()));
-    ok(/\{ v: 275,[^\n]*platforma: 'tel'/.test(tr), '7. teRejat v275 (telefon)');
+    ok(nr(/stoku-v(\d+)/) >= 275 && nr(/app-tel\.js\?v=(\d+)/) >= 275, '7. CACHE, app-tel, teRejat ≥ 275');
     await b2.close();
   }
   console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');

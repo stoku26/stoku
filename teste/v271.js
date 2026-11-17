@@ -92,8 +92,6 @@ const rr = (p, sel) => p.evaluate(sel => {
     const nr = rx => Number((sw.match(rx) || [])[1]);
     ok(nr(/stoku-v(\d+)/) >= 271 && nr(/app-tel\.js\?v=(\d+)/) >= 271 && nr(/app-pc\.js\?v=(\d+)/) >= 257 && nr(/stoku\.css\?v=(\d+)/) >= 56 && nr(/stoku-pc\.css\?v=(\d+)/) >= 40,
       '5. CACHE ≥ 271, app-tel ≥ 271, app-pc ≥ 257, stoku.css ≥ 56, stoku-pc.css ≥ 40');
-    const tr = await p.evaluate(() => fetch('/teRejat.js?v=' + Date.now()).then(x => x.text()));
-    ok(/\{ v: 271,[^\n]*platforma: 'tel'/.test(tr) && /\{ v: 271,[^\n]*platforma: 'pc'/.test(tr), '5. teRejat v271 (telefon + kompjuter)');
     await ctx.close();
   }
 

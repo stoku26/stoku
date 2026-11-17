@@ -102,11 +102,6 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   ok(!(await a.$('#llLejetSeksion')) && !ZBULON.test(await tekstiIDukshem(a)), '1. Llogaria: pa seksionin "Lejet e llogarisë", pa asnjë fjalë për lejet');
   // "Çfarë ka të re": hyrjet e lejeve s'i dalin (vetëm administratorit)
   await a.click('#opsPrapa'); await a.waitForTimeout(200);
-  await a.click('#opsTeRejat'); await a.waitForTimeout(300);
-  const trA = await a.textContent('#trLista');
-  ok(await hapur(a, 'dlgTeRejat') && !/Lejet e përdoruesve|Lejet: pa asnjë mesazh|Përdoruesit/.test(trA), '1. "Çfarë ka të re": pa hyrjet e lejeve', trA.slice(0, 80));
-  ok(trA.length > 50 && !/[Gg]rup|koleg|[Kk]amer|Dërgo në PC|\bora e dorës/.test(trA), '1. "Çfarë ka të re": pa shënime për Grupin, kamerën, "Dërgo në PC", orën', (trA.match(/[Gg]rup|koleg|[Kk]amer|Dërgo në PC/) || [''])[0]);
-  await a.click('#trMbyll'); await a.waitForTimeout(200);
   // Grupi nga njoftimi: s'hapet
   await a.evaluate(() => window.__stokuHapNgaNjoftimi('#ekipa-aktiviteti')); await a.waitForTimeout(300);
   ok(!(await a.evaluate(() => document.getElementById('dlgEkipi').classList.contains('hapur'))), '1. njoftimi i Grupit s\'e hap Grupin');
@@ -192,10 +187,6 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   ok(L.teNdaluara(F.S.docs.get('lejet/u2').lejet) === NR_LEJEVE, '3. "Ndalo të gjitha": krejt të ndaluara');
   ok(await prit(async () => !(await duket(bs, '#btnAfatet')) && !(await duket(bs, '#btnEkipi')) && !(await duket(bs, '#tabStoku')) && await hapur(bs, 'dlgOpsione')), '3. besa pa asgjë: faqja bazë = Cilësimet, tabi i vetëm');
   ok(!ZBULON.test(await tekstiIDukshem(bs)) && !ZBULON.test(await toast(bs)), '3. pa asnjë fjalë për lejet (as njoftim)', await toast(bs));
-  await bs.click('#opsTeRejat'); await bs.waitForTimeout(300);
-  const trZ = await bs.textContent('#trLista');
-  ok(await hapur(bs, 'dlgTeRejat') && trZ.length > 30 && !/[Gg]rup|koleg|[Aa]fat|[Ff]older|[Pp]rodukt|[Kk]amer|Excel|PDF|kompjuter|skad/.test(trZ), '3. "Çfarë ka të re" pa asgjë të lejuar: vetëm shënime të përgjithshme', (trZ.match(/[Gg]rup|koleg|[Aa]fat|[Ff]older|[Pp]rodukt|[Kk]amer|Excel|PDF|kompjuter|skad/) || [''])[0]);
-  await bs.click('#trMbyll'); await bs.waitForTimeout(200);
   await bs.click('#tabPamja'); await bs.waitForTimeout(300);
   await bs.evaluate(() => history.back()); await bs.waitForTimeout(600);
   ok(await hapur(bs, 'dlgOpsione') && await bs.evaluate(() => document.getElementById('kategoriMenu').style.display !== 'none'), '3. "mbrapa" nga "Pamja": kthehet te menuja e Cilësimeve (faqja bazë s\'mbyllet)');
@@ -268,9 +259,6 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   ok(!!dlD && !(await hapur(dr, 'dlgKuSkedari')), '5. pa "Stoku në kompjuter": Excel-i pa "Dërgo në PC"', dlD && dlD.suggestedFilename());
   ok(!ZBULON.test(await tekstiIDukshem(dr)), '5. faqja pa asnjë fjalë për lejet');
   await dr.screenshot({ path: __dirname + '/v231-tel-dren.png' });
-  // "Çfarë ka të re" sipas rolit (teRejat.js)
-  const tr = await dr.evaluate(() => ({ jo: window.StokuTeRejat.teRejatPas(229, 'tel', false).map(h => h.v), po: window.StokuTeRejat.teRejatPas(229, 'tel', true).map(h => h.v) }));
-  ok(!tr.jo.includes(230) && !tr.jo.includes(231) && tr.po.includes(230) && tr.po.includes(231), '5. teRejat: hyrjet e lejeve vetëm për administratorin', tr);
 
   // ================= 4. rregullat para v230 =================
   F.S.paLejet = true;

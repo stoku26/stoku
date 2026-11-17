@@ -3,14 +3,14 @@
  *
  * VERSION I RI = ndrysho numrin te CACHE (v90 → v91). Faqja e kontrollon sw.js në sfond sa herë hapet
  * aplikacioni; kur numri ndryshon, instalohet versioni i ri dhe aplikacioni rinis vetë në çastin e parë
- * të qetë. Kur ndryshon një skedar me "?v=" (xlsx.js, afatet.js, teRejat.js…), ndrysho "?v=" edhe te
- * index.html, pc.html dhe te SHELL më poshtë. Te teRejat.js shto edhe shënimin "Çka ka të re".
+ * të qetë. Kur ndryshon një skedar me "?v=" (xlsx.js, afatet.js, versioni.js…), ndrysho "?v=" edhe te
+ * index.html, pc.html dhe te SHELL më poshtë. v318: pa "Çka ka të re"; te versioni.js vetëm numri i versionit.
  *
  * Instalimi është i lirë: skedarët e pandryshuar (bibliotekat, ikonat, skedarët me të njëjtin ?v=)
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v317';
+var CACHE = 'stoku-v318';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
 importScripts('./afatet.js?v=295', './njoftimet.js?v=313');
@@ -43,14 +43,14 @@ var SHELL = FAQET.concat([
   './njoftimet.js?v=313',
   './temat.js?v=2',
   './logot.js?v=2',
-  './teRejat.js?v=317',
+  './versioni.js?v=318',
   // v238: skriptat e faqeve (më parë brenda HTML-së; CSP pa 'unsafe-inline')
   './kornize.js?v=238',
   './es2020.js?v=238',
   './fillimi-tel.js?v=314',
   './fillimi-pc.js?v=314',
-  './app-tel.js?v=317',
-  './app-pc.js?v=317',
+  './app-tel.js?v=318',
+  './app-pc.js?v=318',
   './firebase-tel.js?v=309',
   './firebase-pc.js?v=309',
   './manifest.webmanifest?v=89',
@@ -58,7 +58,7 @@ var SHELL = FAQET.concat([
   './css/stoku-logot.css?v=2',
   './css/stoku-temat.css?v=2',
   './css/stoku.css?v=73',
-  './css/stoku-pc.css?v=45',
+  './css/stoku-pc.css?v=46',
   './fonts/onest.woff2',
   './fonts/jetbrains-mono.woff2',
   './logo/stoku-logo.svg?v=5',

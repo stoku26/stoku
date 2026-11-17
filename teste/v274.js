@@ -141,9 +141,7 @@ const afer = (a, b, t) => a.every((v, i) => Math.abs(v - b[i]) <= (t || 6));
     ok(v.ndaluar && v.display === 'none', '6. pa lejen "eksportExcel": s\'del "Eksporto si foto"', v);
     const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
     const nr = rx => Number((sw.match(rx) || [])[1]);
-    ok(nr(/stoku-v(\d+)/) >= 274 && nr(/app-tel\.js\?v=(\d+)/) >= 274 && nr(/teRejat\.js\?v=(\d+)/) >= 274, '7. CACHE, app-tel, teRejat ≥ 274');
-    const tr = await p.evaluate(() => fetch('teRejat.js?v=' + Date.now()).then(x => x.text()));
-    ok(/\{ v: 274,[^\n]*platforma: 'tel'/.test(tr), '7. teRejat v274 (telefon)');
+    ok(nr(/stoku-v(\d+)/) >= 274 && nr(/app-tel\.js\?v=(\d+)/) >= 274, '7. CACHE, app-tel, teRejat ≥ 274');
     await b2.close();
   }
   console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');

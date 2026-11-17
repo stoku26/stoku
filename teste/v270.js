@@ -56,9 +56,7 @@ const gjendja = p => p.evaluate(() => {
     await mbyll(p);
     const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
     const nr = rx => Number((sw.match(rx) || [])[1]);
-    ok(nr(/stoku-v(\d+)/) >= 270 && nr(/app-tel\.js\?v=(\d+)/) >= 270 && nr(/teRejat\.js\?v=(\d+)/) >= 270, '8. CACHE, app-tel.js, teRejat.js ≥ 270');
-    const tr = await p.evaluate(() => fetch('teRejat.js?v=' + Date.now()).then(x => x.text()));
-    ok(/\{ v: 270,[^\n]*platforma: 'tel'/.test(tr), '8. teRejat v270 (telefon)');
+    ok(nr(/stoku-v(\d+)/) >= 270 && nr(/app-tel\.js\?v=(\d+)/) >= 270, '8. CACHE, app-tel.js, teRejat.js ≥ 270');
     ok(!p.__gab.length, '9. pa gabime JS', p.__gab);
     await b.close();
   }

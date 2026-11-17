@@ -58,9 +58,7 @@ const AZ = 'AZTEC-98765';
 
   const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
   const nr = rx => Number((sw.match(rx) || [])[1]);
-  ok(nr(/stoku-v(\d+)/) >= 266 && nr(/app-tel\.js\?v=(\d+)/) >= 266 && nr(/teRejat\.js\?v=(\d+)/) >= 266 && nr(/stoku\.css\?v=(\d+)/) >= 51, '8. CACHE, app-tel.js, teRejat.js ≥ 266, stoku.css ≥ 51');
-  const tr = await p.evaluate(() => fetch('teRejat.js?v=' + Date.now()).then(x => x.text()));
-  ok(/\{ v: 266,[^\n]*platforma: 'tel'/.test(tr), '8. teRejat v266 (telefon)');
+  ok(nr(/stoku-v(\d+)/) >= 266 && nr(/app-tel\.js\?v=(\d+)/) >= 266 && nr(/stoku\.css\?v=(\d+)/) >= 51, '8. CACHE, app-tel.js, teRejat.js ≥ 266, stoku.css ≥ 51');
 
   ok(!p.__gab.length, '9. pa gabime JS', p.__gab);
   await b.close();

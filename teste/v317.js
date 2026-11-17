@@ -145,9 +145,8 @@ async function krijo(p) {
   }
   // ===== 7. Versionet =====
   {
-    const sw = lx('sw.js'), tr = lx('teRejat.js');
+    const sw = lx('sw.js');
     ok(/stoku-v317/.test(sw) && /eksportet\.js\?v=317/.test(sw) && /app-tel\.js\?v=317/.test(sw) && /app-pc\.js\?v=317/.test(sw), '7. CACHE dhe versionet 317');
-    ok(/\{ v: 317, versioni: '1\.63\.3'/.test(tr), '7. teRejat v317 (telefon + PC)');
   }
   await b.close();
   console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');

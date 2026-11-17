@@ -31,7 +31,7 @@ import java.time.LocalDate
 
 /** Aplikacioni pa Firebase për testet e pamjeve */
 class ProvaApp : Application() {
-    override fun onCreate() { super.onCreate(); StokuApp.vendosPerProve(this); StokuApp.prefs(this).edit().putInt("te_rejat_pare", 999).apply() }
+    override fun onCreate() { super.onCreate(); StokuApp.vendosPerProve(this) }
 }
 
 /**
@@ -285,7 +285,6 @@ class PamjetTest {
     @Test fun cilesimetSkanimi() = cilesimi("Skenimi", "14-skanimi")
     @Test fun cilesimetPamja() = cilesimi("Pamja", "15-pamja")
     @Test fun cilesimetLlogaria() = cilesimi("Llogaria", "16-llogaria")
-    @Test fun cilesimetTeRejat() = cilesimi("Çfarë ka të re", "17-terejat")
     @Test fun cilesimetNjoftimet() = cilesimi("Njoftimet", "22-njoftimet")
     @Test fun cilesimetOra() = cilesimi("Ora e dorës", "23-ora")
 
@@ -309,16 +308,13 @@ class PamjetTest {
         check(data.value == "23-0") { "pas fshirjes: " + data.value }
     }
 
-    /** Hyrja 33: faqja e përditësimit ("ideja 5" e pronarit): pyetja me "Çfarë ka të re" (vetëm hyrjet e reja) dhe shkarkimi */
+    /** Hyrja 33: faqja e përditësimit ("ideja 5" e pronarit): pyetja (Hyrja 80: pa "Çfarë ka të re") dhe shkarkimi */
     private fun perditesimi(tema: String) {
-        val reja = Perditesimi.teReja("Aplikacioni Stoku…\n\nÇka ka të re:\n[999] Provë\n• Butonat e skanimit: dy katrorë me ikona më të mëdha\n" +
-            "• Zgjedh vetë ku dalin: majtas, në mes ose djathtas\n[1] E vjetër\n• S'duhet të dalë")
-        check(reja.size == 1 && reja[0].nr == 999 && reja[0].pikat.size == 2) { "teReja: $reja" }
-        Perditesimi.gjendja.value = Perditesimi.Gjendja(BuildConfig.VERSION_CODE + 4, "https://shembull.invalid/stoku.apk", reja)
+        Perditesimi.gjendja.value = Perditesimi.Gjendja(BuildConfig.VERSION_CODE + 4, "https://shembull.invalid/stoku.apk")
         r.setContent { StokuTema(tema) { site.stoku.vendas.ui.PerditesimiFaqja() } }
         r.onNodeWithText("Përditëso Stoku-n").assertExists()
         r.onNodeWithText("Përditëso tani").assertExists()
-        r.onNodeWithText("S'duhet të dalë").assertDoesNotExist()
+        r.onNodeWithText("ÇKA KA TË RE").assertDoesNotExist() // Hyrja 80
         foto("$tema-41-perditesimi")
         Perditesimi.gjendja.value = Perditesimi.gjendja.value!!.copy(faza = "shkarkim", lexuar = 3_400_000L, gjithsej = 9_800_000L)
         r.waitForIdle()

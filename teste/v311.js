@@ -102,21 +102,21 @@ const prit = async (fn, ms = 8000) => { const t0 = Date.now(); while (Date.now()
 
   // 3) Rrëshqitja poshtë mbyll dritaret me vijë
   async function hap(id) { await a.evaluate(i => document.getElementById(i).classList.add('hapur'), id); await a.waitForTimeout(500); }
-  await hap('dlgTeRejat');
-  let y = await kokaY(a, 'dlgTeRejat');
+  await hap('dlgAfPdf');
+  let y = await kokaY(a, 'dlgAfPdf');
   await rrezhqit(a, 195, y, y + 30, 300); await a.waitForTimeout(500); // e shkurtër dhe ngadaltë: kthehet
-  ok(await hapur(a, 'dlgTeRejat') && !(await a.evaluate(() => document.querySelector('#dlgTeRejat > .dialog').style.transform)), '3. rrëshqitje e shkurtër e ngadaltë: kthehet në vend');
+  ok(await hapur(a, 'dlgAfPdf') && !(await a.evaluate(() => document.querySelector('#dlgAfPdf > .dialog').style.transform)), '3. rrëshqitje e shkurtër e ngadaltë: kthehet në vend');
   await rrezhqit(a, 195, y, y + 220, 500); await a.waitForTimeout(700);
-  ok(!(await hapur(a, 'dlgTeRejat')), '3. rrëshqitje e gjatë poshtë e mbyll');
-  ok(!(await a.evaluate(() => document.querySelector('#dlgTeRejat > .dialog').style.transform)), '3. stili i tërheqjes pastrohet (hapja tjetër normale)');
-  await hap('dlgTeRejat'); y = await kokaY(a, 'dlgTeRejat');
+  ok(!(await hapur(a, 'dlgAfPdf')), '3. rrëshqitje e gjatë poshtë e mbyll');
+  ok(!(await a.evaluate(() => document.querySelector('#dlgAfPdf > .dialog').style.transform)), '3. stili i tërheqjes pastrohet (hapja tjetër normale)');
+  await hap('dlgAfPdf'); y = await kokaY(a, 'dlgAfPdf');
   await rrezhqit(a, 195, y, y + 70, 70); await a.waitForTimeout(700); // e shkurtër por SHPEJT: mbyllet direkt
-  ok(!(await hapur(a, 'dlgTeRejat')), '3. rrëshqitje e shpejtë (70 px në 70 ms) e mbyll direkt');
+  ok(!(await hapur(a, 'dlgAfPdf')), '3. rrëshqitje e shpejtë (70 px në 70 ms) e mbyll direkt');
   // Rrëshqitje lart nuk mbyll
-  await hap('dlgTeRejat'); y = await kokaY(a, 'dlgTeRejat');
+  await hap('dlgAfPdf'); y = await kokaY(a, 'dlgAfPdf');
   await rrezhqit(a, 195, y + 100, y - 40, 150); await a.waitForTimeout(400);
-  ok(await hapur(a, 'dlgTeRejat'), '3. rrëshqitja lart s\'mbyll');
-  await a.evaluate(() => document.getElementById('dlgTeRejat').classList.remove('hapur'));
+  ok(await hapur(a, 'dlgAfPdf'), '3. rrëshqitja lart s\'mbyll');
+  await a.evaluate(() => document.getElementById('dlgAfPdf').classList.remove('hapur'));
   ok(!a.__gab.length, '3. pa gabime JS', a.__gab);
   await b.close();
   console.log(g ? g + ' GABIME' : 'KREJT OK');

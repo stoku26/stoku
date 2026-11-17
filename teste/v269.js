@@ -81,9 +81,7 @@ const dritarja = p => p.evaluate(() => {
     if (tema === 'light') {
       const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
       const nr = rx => Number((sw.match(rx) || [])[1]);
-      ok(nr(/stoku-v(\d+)/) >= 269 && nr(/app-tel\.js\?v=(\d+)/) >= 269 && nr(/teRejat\.js\?v=(\d+)/) >= 269 && nr(/stoku\.css\?v=(\d+)/) >= 55, '6. CACHE, app-tel.js, teRejat.js ≥ 269, stoku.css ≥ 55');
-      const tr = await p.evaluate(() => fetch('teRejat.js?v=' + Date.now()).then(x => x.text()));
-      ok(/\{ v: 269,[^\n]*platforma: 'tel'/.test(tr), '6. teRejat v269 (telefon)');
+      ok(nr(/stoku-v(\d+)/) >= 269 && nr(/app-tel\.js\?v=(\d+)/) >= 269 && nr(/stoku\.css\?v=(\d+)/) >= 55, '6. CACHE, app-tel.js, teRejat.js ≥ 269, stoku.css ≥ 55');
     }
     ok(!p.__gab.length, tema + ' 7. pa gabime JS', p.__gab);
     await b.close();

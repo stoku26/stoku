@@ -36,8 +36,6 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
   const sw = fs.readFileSync(rr + 'sw.js', 'utf8'), ix = fs.readFileSync(rr + 'index.html', 'utf8');
   const nr = (s, rx) => Number((s.match(rx) || [])[1]);
   ok(nr(sw, /stoku-v(\d+)/) >= 287 && nr(sw, /css\/stoku\.css\?v=(\d+)/) >= 65 && nr(ix, /css\/stoku\.css\?v=(\d+)/) === nr(sw, /css\/stoku\.css\?v=(\d+)/), 'versionet (CACHE ≥ 287, stoku.css ≥ 65)');
-  const tr = fs.readFileSync(rr + 'teRejat.js', 'utf8');
-  ok(/\{ v: 287,[^\n]*platforma: 'tel'/.test(tr) && !/v: 286/.test(tr), 'teRejat: v287, pa hyrjen e xhamit (v286)');
   await b.close();
   console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');
   process.exit(g ? 1 : 0);

@@ -41,9 +41,7 @@ const A = '3800001000019';
 
   const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));
   const nrV = rx => Number((sw.match(rx) || [])[1]);
-  ok(nrV(/stoku-v(\d+)/) >= 264 && nrV(/teRejat\.js\?v=(\d+)/) >= 264, '7. CACHE dhe teRejat.js ≥ 264');
-  const tr = await p.evaluate(() => fetch('teRejat.js?v=' + Date.now()).then(x => x.text()));
-  ok(/\{ v: 264,[^\n]*platforma: 'tel'/.test(tr), '7. teRejat v264 (telefon)');
+  ok(nrV(/stoku-v(\d+)/) >= 264, '7. CACHE dhe teRejat.js ≥ 264');
 
   ok(!p.__gab.length, '8. pa gabime JS', p.__gab);
   await b.close();

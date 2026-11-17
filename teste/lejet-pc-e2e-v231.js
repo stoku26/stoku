@@ -106,11 +106,6 @@ const VP = { width: 1440, height: 900 };
   ok(!ZBULON.test(await tekstiIDukshem(a)), '1. faqja pa asnjë fjalë për lejet');
   const shkA = await a.evaluate(() => [...document.querySelectorAll('#tabShkurtoret tr td:first-child')].map(x => x.textContent));
   ok(!shkA.includes('Eksporto në PDF') && !shkA.includes('Fshi të zgjedhurat (ose rreshtin)') && shkA.includes('Eksporto në Excel') && shkA.includes('Importo'), '1. shkurtoret: pa PDF, pa Fshi (Excel dhe Importo po)', shkA.length);
-  ok(await a.evaluate(() => !window.StokuTeRejat.teRejatPas(229, 'pc', false).some(h => h.v === 230 || h.v === 231) && window.StokuTeRejat.teRejatPas(229, 'pc', true).some(h => h.v === 231)), '1. "Çfarë ka të re" e lejeve: vetëm administratori');
-  await a.click('#btnOpsione'); await a.waitForTimeout(300); await a.click('#opsTeRejat'); await a.waitForTimeout(300);
-  const trPc = await a.textContent('#trLista');
-  ok(trPc.length > 50 && !/[Gg]rup|koleg|[Ii]mport|\bPDF/.test(trPc), '1. "Çfarë ka të re": pa shënime për Grupin, importin, PDF-në', (trPc.match(/[Gg]rup|koleg|[Ii]mport|\bPDF/) || [''])[0]);
-  await a.keyboard.press('Escape'); await a.waitForTimeout(200);
   await a.screenshot({ path: __dirname + '/v231-pc-kufizuar.png' });
 
   // ================= 2. besa: pa "Stoku në kompjuter" =================
