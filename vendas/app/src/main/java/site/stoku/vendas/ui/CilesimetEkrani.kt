@@ -116,7 +116,7 @@ fun CilesimetEkrani(tema: String, ndryshoTemen: (String) -> Unit) {
         "njoftimet" -> NjoftimetFaqja(mbrapa)
         "ora" -> OraFaqja(mbrapa)
         "marketet" -> MarketetFaqja(mbrapa)
-        "lista" -> FaqjaECilesimeve("Stoku", mbrapa) { StokuCilesimet { faqja = it } }
+        "lista" -> FaqjaECilesimeve("Malli", mbrapa) { MalliCilesimet { faqja = it } }
         "furnPritje" -> FurnizuesitFaqja(true, mbrapa)
         "furnizuesit" -> FurnizuesitFaqja(false, mbrapa)
         "pritje" -> ProduktetFaqja(true, mbrapa)
@@ -158,7 +158,7 @@ private fun Menyja(tema: String, hap: (String) -> Unit, hapTeRejat: () -> Unit) 
         RreshtiMenyse(Ik.Zile, "vjollce", "Njoftimet", stNj, false) { hap("njoftimet") },
         if (Llogaria.leja("ora")) RreshtiMenyse(Ik.Ora, "blu", "Ora e dorës", "Galaxy Watch, Apple Watch", false) { hap("ora") } else null,
         if (Llogaria.leja("marketet") || Llogaria.eshteAdmin()) RreshtiMenyse(Ik.Vendi, "gjelber", "Marketet", statusiIMarketeve(), false) { hap("marketet") } else null,
-        if (Llogaria.leja("stoku")) RreshtiMenyse(Ik.Rendi, "portokalli", "Stoku", if (nP > 0) (if (nP == 1) "1 produkt i ri për kontroll" else "$nP produkte të reja për kontroll")
+        if (Llogaria.leja("stoku")) RreshtiMenyse(Ik.Rendi, "portokalli", "Malli", if (nP > 0) (if (nP == 1) "1 produkt i ri për kontroll" else "$nP produkte të reja për kontroll")
             else RENDET.first { it.k == rendi() }.titulli, nP > 0) { hap("lista") } else null,
         if (site.stoku.vendas.Admini.eshteAdmin()) RreshtiMenyse(Ik.Perdoruesit, "kuqe", "Përdoruesit", stPd, stPd.contains("pa u kontrolluar")) { hap("perdoruesit") } else null
     )
@@ -485,7 +485,7 @@ private fun PaEmerKonfirmo(mbyll: () -> Unit, po: () -> Unit) {
 
 // ---------------- Stoku: renditja + furnizuesit dhe produktet ----------------
 @Composable
-private fun StokuCilesimet(hap: (String) -> Unit) {
+private fun MalliCilesimet(hap: (String) -> Unit) {
     var rendi by remember { mutableStateOf(rendi()) }
     val kujtesa by KujtesaUI.versioni.collectAsState()
     TitulliGrupit("Renditja e produkteve", pare = true)

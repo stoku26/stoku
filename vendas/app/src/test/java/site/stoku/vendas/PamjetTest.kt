@@ -81,7 +81,10 @@ class PamjetTest {
     private fun krejt(tema: String) {
         mbush()
         r.setContent { StokuTema(tema) { Rrenja(tema) {} } }
-        foto("$tema-01-stoku")
+        foto("$tema-00-kreu") // pronari: Kreu hapet i pari
+        r.onNodeWithContentDescription("Kreu").assertExists()
+        kliko("Malli")
+        foto("$tema-01-malli")
         kliko("Pije")
         foto("$tema-02-folderi")
         kliko("Ujë Rugove 1.5L")
@@ -95,6 +98,22 @@ class PamjetTest {
         kliko("Anulo")
         kliko("Cilësimet")
         foto("$tema-06-cilesimet")
+    }
+
+    /** Kreu: "Përshtat faqen" (çelësat dhe radha) */
+    @Test fun kreu() {
+        mbush()
+        r.setContent { StokuTema("light") { Rrenja("light") {} } }
+        r.onNodeWithText("Skadojnë së pari").assertExists()
+        r.onNodeWithContentDescription("Përshtat faqen").performClick(); r.waitForIdle()
+        fotoEkrani("light-41-kreu-pershtat")
+        klikoFundit("Si në fillim")
+        klikoFundit("Ruaj")
+        r.onNodeWithText("Afatet në 6 muajt e ardhshëm").assertExists()
+        // radha e ruajtur lexohet sërish njësoj; një pjesë e fikur s'del
+        val l = site.stoku.vendas.ui.PjesetEKreut.lexo("grafiku:0,afatet:1,xyz:1")
+        org.junit.Assert.assertEquals(listOf("grafiku" to false, "afatet" to true), l.take(2))
+        org.junit.Assert.assertEquals(site.stoku.vendas.ui.PjesetEKreut.TE_GJITHA.size, l.size)
     }
 
     @Test fun eCelet() = krejt("light")
@@ -348,6 +367,7 @@ class PamjetTest {
     @Test fun eksportet() {
         mbush()
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
+        kliko("Malli") // pronari: Kreu hapet i pari
         kliko("Pije")
         foto("light-18-folderi-excel")
         r.onNodeWithContentDescription("Eksporto Excel").performClick(); r.waitForIdle() // v268: ikona pranë titullit të folderit
@@ -459,14 +479,14 @@ class PamjetTest {
         fotoEkrani("light-25-lejet")
     }
 
-    /** Rreshti më lart me këtë tekst (p.sh. "Stoku" te Cilësimet, jo tabi poshtë) */
+    /** Rreshti më lart me këtë tekst (p.sh. "Malli" te Cilësimet, jo tabi poshtë) */
     private fun klikoSiper(t: String) {
         val l = r.onAllNodesWithText(t)
         val i = l.fetchSemanticsNodes().withIndex().minByOrNull { it.value.boundsInRoot.top }!!.index
         l[i].performClick(); r.waitForIdle()
     }
 
-    /** Cilësimet → Stoku: renditja dhe furnizuesit/produktet (përdoruesi i zakonshëm, vetëm për t'i parë) */
+    /** Cilësimet → Malli: renditja dhe furnizuesit/produktet (përdoruesi i zakonshëm, vetëm për t'i parë) */
     @Test fun cilesimetStoku() {
         mbush()
         val t = System.currentTimeMillis()
@@ -479,7 +499,7 @@ class PamjetTest {
         ))
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
         kliko("Cilësimet")
-        klikoSiper("Stoku")
+        klikoSiper("Malli")
         fotoEkrani("light-26-stoku")
         kliko("Produktet")
         fotoEkrani("light-27-produktet")
@@ -502,7 +522,7 @@ class PamjetTest {
         ))
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
         kliko("Cilësimet")
-        klikoSiper("Stoku")
+        klikoSiper("Malli")
         fotoEkrani("light-28-stoku-admin")
         kliko("Produktet e reja")
         fotoEkrani("light-29-produktet-reja")

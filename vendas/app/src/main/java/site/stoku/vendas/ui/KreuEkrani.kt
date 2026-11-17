@@ -1,0 +1,457 @@
+package site.stoku.vendas.ui
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import site.stoku.logjika.Afatet
+import site.stoku.logjika.GrupiLogjika
+import site.stoku.logjika.Obj
+import site.stoku.logjika.jsString
+import site.stoku.logjika.numerOse0
+import site.stoku.vendas.Dyqani
+import site.stoku.vendas.Grupi
+import site.stoku.vendas.Llogaria
+import site.stoku.vendas.MainActivity
+import site.stoku.vendas.Merchandiseri
+import site.stoku.vendas.Opsionet
+import site.stoku.vendas.Push
+import site.stoku.vendas.StokuApp
+import site.stoku.vendas.Sinkronizimi
+
+/**
+ * Kreu (pronari, 17.11.2026): tabi kryesor, me shtëpinë në mes të shiritit poshtë (rreth pak mbi shirit). Hapet i pari pas hyrjes
+ * dhe sa herë hapet aplikacioni. Lart logoja (si te Malli) dhe djathtas "Përshtat faqen": secili përdorues zgjedh cilat pjesë
+ * dalin dhe me çfarë radhe (ruhet në këtë telefon, `kreu_pjeset`). Çdo pjesë del vetëm kur përdoruesi ka lejen përkatëse.
+ */
+const val KREU = "kreu"
+/** Rrethi i shtëpisë (me unazën që e ndan nga faqja) dhe sa del mbi shiritin poshtë (64 dp) */
+val KREU_MADHESIA: Dp = 62.dp
+val KREU_MBI_SHIRIT: Dp = 16.dp
+
+/** Pjesët e Kreut: id, emri te "Përshtat faqen", shpjegimi (bosh = s'ka) */
+object PjesetEKreut {
+    class Pjesa(val id: String, val emri: String, val shpjegimi: String = "")
+    val TE_GJITHA = listOf(
+        Pjesa("butonat", "Butonat e shpejtë", "Skano, Afat i ri, Skanim i shpejtë, PDF"),
+        Pjesa("afatet", "Numrat e afateve"),
+        Pjesa("skadojne", "Skadojnë së pari", "3 produktet që skadojnë më herët"),
+        Pjesa("grafiku", "Grafiku i muajve", "Sa afate skadojnë në 6 muajt e ardhshëm"),
+        Pjesa("malli", "Numrat e mallit"),
+        Pjesa("furnizuesit", "Furnizuesit", "Me më shumë produkte që skadojnë"),
+        Pjesa("grupi", "Grupi", "Kërkesat dhe aktiviteti i fundit"),
+        Pjesa("marketi", "Marketi", "Del vetëm kur ke markete"),
+        Pjesa("ora", "Ora e dorës", "Del vetëm kur ke orë të lidhur")
+    )
+    const val KEY = "kreu_pjeset"
+    fun emri(id: String) = TE_GJITHA.firstOrNull { it.id == id }?.emri ?: id
+    /** "id:1,id:0,…" → radha me gjendjen (ndezur/fikur); të rejat (që s'janë ruajtur ende) shtohen në fund, të ndezura */
+    fun lexo(teksti: String = StokuApp.prefsOse(KEY, "")): List<Pair<String, Boolean>> {
+        val njihen = TE_GJITHA.map { it.id }.toSet()
+        val l = teksti.split(",").mapNotNull { c ->
+            val p = c.trim().split(":")
+            if (p.size == 2 && p[0] in njihen) p[0] to (p[1] == "1") else null
+        }.distinctBy { it.first }
+        return l + TE_GJITHA.filter { p -> l.none { it.first == p.id } }.map { it.id to true }
+    }
+    fun ruaj(l: List<Pair<String, Boolean>>) = StokuApp.vendosPref(KEY, l.joinToString(",") { it.first + ":" + (if (it.second) "1" else "0") })
+    fun siNeFillim(): List<Pair<String, Boolean>> = TE_GJITHA.map { it.id to true }
+    /** Pjesët që i lejon llogaria (pa lejen e afateve s'ka pjesë afatesh etj.) */
+    fun lejohet(id: String): Boolean {
+        val af = Llogaria.leja("afatet")
+        return when (id) {
+            "butonat" -> butonat().isNotEmpty()
+            "afatet", "skadojne", "grafiku" -> af
+            "furnizuesit" -> af && !Llogaria.eshteMerchandiser()
+            "malli" -> Llogaria.leja("stoku")
+            "grupi" -> Llogaria.leja("grupi") && !Llogaria.eshteVizitor()
+            else -> true
+        }
+    }
+    /** Butonat e shpejtë që lejohen: "skano", "afat", "shpejt", "pdf" */
+    fun butonat(): List<String> {
+        val kamera = Llogaria.leja("kamera") && !Opsionet.pda.value
+        val shtoAfat = Llogaria.leja("afatet") && Llogaria.leja("afatetShto")
+        return listOfNotNull(
+            if (kamera && (Llogaria.leja("stoku") || shtoAfat)) "skano" else null,
+            if (shtoAfat) "afat" else null,
+            if (kamera && Llogaria.leja("stoku") && Llogaria.leja("skanimShpejt") && (Llogaria.leja("stokuShto") || Llogaria.leja("stokuNdrysho"))) "shpejt" else null,
+            if (Llogaria.leja("afatet") && Llogaria.leja("eksportPdf")) "pdf" else null
+        )
+    }
+}
+
+/** Rrethi me shtëpinë në mes të shiritit poshtë: unaza me ngjyrën e faqes e ndan nga ajo; i gjelbër kur je te Kreu */
+@Composable
+fun KreuButoni(aktiv: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val n = N
+    val gjelber = Color(if (n.erret) Logot.PIKA_ERRET else Logot.PIKA_CELET)
+    Box(modifier.size(KREU_MADHESIA).shadow(10.dp, CircleShape).clip(CircleShape).background(n.bg).padding(4.dp).clip(CircleShape)
+        .background(n.surface).border(2.dp, if (aktiv) gjelber else n.line, CircleShape).clickable(onClick = onClick)
+        .semantics { contentDescription = "Kreu" }, contentAlignment = Alignment.Center) {
+        Icon(Ik.Kreu, null, Modifier.size(27.dp), tint = if (aktiv) n.ink else n.faint)
+    }
+}
+
+@Composable
+fun KreuEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit, skanoShpejt: (String) -> Unit) {
+    val n = N
+    val g by Dyqani.gjendja.collectAsState()
+    val p by Llogaria.perdoruesi.collectAsState()
+    val lejet by Llogaria.lejet.collectAsState()
+    val aktiviM by Merchandiseri.aktivi.collectAsState()
+    Opsionet.pda.collectAsState().value
+    remember(lejet, aktiviM) { 0 }
+    var pjeset by remember { mutableStateOf(PjesetEKreut.lexo()) }
+    var pershtat by remember { mutableStateOf(false) }
+    var zgjidhFolderin by remember { mutableStateOf(false) }
+    val te = remember(g, aktiviM, lejet) { Merchandiseri.afatetEMarketit(g.afatet) }
+    val nr = remember(te, site.stoku.vendas.Dita.sot) { Afatet.numero(te) }
+
+    fun hapAfatin(id: String?) { if (id != null) MainActivity.afatiKerkuar.value = id; hapTabin("afatet") }
+    fun afatIRi(barkodi: String = "") { MainActivity.veprimiIAfateve.value = if (barkodi.isEmpty()) "i-ri" else "i-ri:$barkodi"; hapTabin("afatet") }
+    // Skano: produkti që është te malli hapet atje; përndryshe "Afat i ri" me këtë barkod
+    fun skanoBarkodin() = skano { b ->
+        val pr = if (Llogaria.leja("stoku")) Dyqani.g.produktet.values.firstOrNull { jsString(it["barkodi"]) == b } else null
+        val fid = pr?.get("kategoriaId") as? String
+        when {
+            fid != null -> { MainActivity.produktiKerkuar.value = fid to b; hapTabin("malli") }
+            Llogaria.leja("afatet") && Llogaria.leja("afatetShto") -> afatIRi(b)
+            else -> Toast.trego("Ky barkod s'është te malli.")
+        }
+    }
+
+    val dukshme = pjeset.filter { it.second && PjesetEKreut.lejohet(it.first) }.map { it.first }
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp + KREU_MBI_SHIRIT),
+        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        item {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                EtiketaStoku(p?.emri ?: if (Llogaria.eshteVizitor()) "Vizitor · provë" else "", { Sinkronizimi.rifresko(); Toast.trego("Duke sinkronizuar…", 1500) })
+                Spacer(Modifier.weight(1f))
+                ButonIkone(Ik.Pershtat, "Përshtat faqen", { pershtat = true })
+            }
+        }
+        if (dukshme.isEmpty()) item {
+            Karta(Modifier.fillMaxWidth(), rrezja = 22.dp, onClick = { pershtat = true }) {
+                Column(Modifier.padding(18.dp)) {
+                    Text("Faqja është bosh", style = tx(16, 700, n.ink))
+                    Text("Shtyp butonin lart djathtas dhe zgjidh çfarë do të shohësh këtu.", style = tx(13, 400, n.muted), modifier = Modifier.padding(top = 4.dp))
+                }
+            }
+        }
+        dukshme.forEach { id ->
+            item(key = id) {
+                when (id) {
+                    "butonat" -> ButonatEShpejte(PjesetEKreut.butonat()) { b ->
+                        when (b) {
+                            "skano" -> skanoBarkodin()
+                            "afat" -> afatIRi()
+                            "pdf" -> { MainActivity.veprimiIAfateve.value = "pdf"; hapTabin("afatet") }
+                            "shpejt" -> when {
+                                g.foldera.isEmpty() -> Toast.trego("Krijo fillimisht një folder te Malli.")
+                                g.foldera.size == 1 -> skanoShpejt(g.foldera.first()["id"] as String)
+                                else -> zgjidhFolderin = true
+                            }
+                        }
+                    }
+                    "afatet" -> PjesaEKreut("Afatet", "Hape", { hapAfatin(null) }) {
+                        TreNumra(Triple(nr.skaduar.toString(), "Të skaduara", n.exp), Triple(nr.afer.toString(), "Skadojnë së shpejti", n.near),
+                            Triple(nr.paDate.toString(), "Pa datë", n.ink))
+                    }
+                    "skadojne" -> {
+                        val lista = remember(te, site.stoku.vendas.Dita.sot) {
+                            te.filter { val s = Afatet.statusi(it); s == "skaduar" || s == "afer" }.sortedWith { a, b -> Afatet.krahaso(a, b) }.take(3)
+                        }
+                        PjesaEKreut("Skadojnë së pari", "Krejt", { hapAfatin(null) }) {
+                            if (lista.isEmpty()) Text("Asnjë produkt që skadon së shpejti.", style = tx(14, 600, n.ok), modifier = Modifier.padding(vertical = 4.dp))
+                            lista.forEachIndexed { i, a -> RreshtiIAfatit(a, i > 0) { hapAfatin(a["id"] as? String) } }
+                        }
+                    }
+                    "grafiku" -> PjesaEKreut("Afatet në 6 muajt e ardhshëm", null, { hapAfatin(null) }) { GrafikuIMuajve(te) }
+                    "malli" -> {
+                        val sasia = remember(g.produktet) { g.produktet.values.sumOf { sasiaE(it) } }
+                        PjesaEKreut("Malli", "Hape", { hapTabin("malli") }) {
+                            TreNumra(Triple(numerMeHapesire(g.produktet.size.toLong()), "Produkte", n.ink), Triple(g.foldera.size.toString(), "Folderat", n.ink),
+                                Triple(numerMeHapesire(sasia), "Sasia", n.ink))
+                        }
+                    }
+                    "furnizuesit" -> {
+                        val f = remember(te, site.stoku.vendas.Dita.sot) {
+                            Afatet.furnizuesitELista(te.filter { val s = Afatet.statusi(it); s == "skaduar" || s == "afer" })
+                                .filter { it.celes != Afatet.PA_FURNIZUES }.sortedByDescending { it.n }.take(3)
+                        }
+                        PjesaEKreut("Furnizuesit me më shumë produkte që skadojnë", null, { hapAfatin(null) }) {
+                            if (f.isEmpty()) Text("Asnjë produkt që skadon me furnizues të shënuar.", style = tx(14, 400, n.muted))
+                            val max = (f.maxOfOrNull { it.n } ?: 1).coerceAtLeast(1)
+                            f.forEach { x ->
+                                Row(Modifier.fillMaxWidth().padding(vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Text(x.emri, style = tx(14, 500, n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.width(96.dp))
+                                    Box(Modifier.weight(1f).height(8.dp).clip(RoundedCornerShape(4.dp)).background(n.track)) {
+                                        Box(Modifier.fillMaxHeight().fillMaxWidth(x.n / max.toFloat()).clip(RoundedCornerShape(4.dp)).background(n.near))
+                                    }
+                                    Text(x.n.toString(), style = tx(14, 700, n.ink), textAlign = TextAlign.End, modifier = Modifier.width(36.dp))
+                                }
+                            }
+                        }
+                    }
+                    "grupi" -> PjesaEGrupit { hapTabin("grupi") }
+                    "marketi" -> CipiIMarketit()
+                    "ora" -> PjesaEOres(nr.skaduar)
+                }
+            }
+        }
+    }
+
+    if (pershtat) PershtatFaqen(pjeset, mbyll = { pershtat = false }) { l -> PjesetEKreut.ruaj(l); pjeset = l; pershtat = false }
+    if (zgjidhFolderin) Flete({ zgjidhFolderin = false }) {
+        Text("Skanim i shpejtë", style = tx(20, 700, n.ink))
+        Text("Në cilin folder?", style = tx(14, 400, n.muted))
+        g.foldera.forEach { f ->
+            Karta(Modifier.fillMaxWidth(), onClick = { zgjidhFolderin = false; skanoShpejt(f["id"] as String) }) {
+                Text((f["emri"] as? String).orEmpty(), style = tx(16, 600, n.ink), modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp))
+            }
+        }
+    }
+}
+
+/** Karta e një pjese: titulli majtas, lidhja djathtas ("Hape", "Krejt") */
+@Composable
+private fun PjesaEKreut(titulli: String, lidhja: String?, prek: () -> Unit, permbajtja: @Composable () -> Unit) {
+    val n = N
+    Karta(Modifier.fillMaxWidth(), rrezja = 22.dp, onClick = prek) {
+        Column(Modifier.padding(horizontal = 18.dp, vertical = 16.dp)) {
+            Row(Modifier.fillMaxWidth().padding(bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(titulli, style = tx(14, 500, n.muted), modifier = Modifier.weight(1f))
+                if (lidhja != null) Text(lidhja, style = tx(14, 600, n.accentText))
+            }
+            permbajtja()
+        }
+    }
+}
+
+@Composable
+private fun TreNumra(vararg numrat: Triple<String, String, Color>) {
+    val n = N
+    Row(Modifier.fillMaxWidth()) {
+        numrat.forEach { (v, e, c) ->
+            Column(Modifier.weight(1f)) {
+                Text(v, style = tx(26, 700, c))
+                Text(e, style = tx(12, 400, n.muted), modifier = Modifier.padding(top = 2.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ButonatEShpejte(butonat: List<String>, prek: (String) -> Unit) {
+    val n = N
+    val te = mapOf("skano" to (Ik.Skano to "Skano"), "afat" to (Ik.Plus to "Afat i ri"), "shpejt" to (Ik.Rrufe to "Skanim i shpejtë"), "pdf" to (Ik.Pdf to "PDF"))
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        butonat.forEachIndexed { i, b ->
+            val (ik, t) = te.getValue(b)
+            val kryesor = i == 0
+            val forma = RoundedCornerShape(16.dp)
+            Column(Modifier.weight(1f).heightIn(min = 76.dp).clip(forma).background(if (kryesor) n.accent else n.surface, forma)
+                .then(if (kryesor) Modifier else Modifier.border(1.dp, n.line, forma)).clickable { prek(b) }.padding(horizontal = 4.dp, vertical = 12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterVertically)) {
+                val ngj = if (kryesor) Color.White else n.ink
+                Icon(ik, null, Modifier.size(22.dp), tint = ngj)
+                Text(t, style = tx(12, 600, ngj), textAlign = TextAlign.Center, maxLines = 2)
+            }
+        }
+    }
+}
+
+@Composable
+private fun RreshtiIAfatit(a: Obj, vije: Boolean, prek: () -> Unit) {
+    val n = N
+    val d = Afatet.ditetDeri(a["data"])
+    val ngj = if (Afatet.statusi(a) == "skaduar") n.exp else n.near
+    val koha = when {
+        d == null -> ""
+        d < 0 -> "Skadoi"
+        d == 0 -> "Sot"
+        d == 1 -> "Nesër"
+        else -> Afatet.ditetTekst(d)
+    }
+    if (vije) Box(Modifier.fillMaxWidth().height(1.dp).background(n.line2))
+    Row(Modifier.fillMaxWidth().clickable(onClick = prek).padding(vertical = 9.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(8.dp).clip(CircleShape).background(ngj))
+        Spacer(Modifier.width(10.dp))
+        Column(Modifier.weight(1f)) {
+            Text((a["emri"] as? String).orEmpty().ifEmpty { jsString(a["barkodi"] ?: "") }, style = tx(15, 600, n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            val nen = listOf((a["furnizuesi"] as? String).orEmpty().trim(), Afatet.sasiaTekst(a)).filter { it.isNotEmpty() }.joinToString(" · ")
+            if (nen.isNotEmpty()) Text(nen, style = tx(12, 400, n.muted), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        Text(koha, style = tx(13, 700, ngj))
+    }
+}
+
+/** Shtyllat: afatet aktive (jo të hequra) që skadojnë në secilin nga 6 muajt (ky muaj e 5 të ardhshmit) */
+@Composable
+private fun GrafikuIMuajve(te: List<Obj>) {
+    val n = N
+    val sot = site.stoku.vendas.Dita.sot
+    val muajt = remember(te, sot) {
+        val fillimi = sot.withDayOfMonth(1)
+        (0 until 6).map { i ->
+            val m = fillimi.plusMonths(i.toLong())
+            val k = m.year.toString() + "-" + (if (m.monthValue < 10) "0" else "") + m.monthValue
+            Triple(Afatet.MUAJT_SHKURT[m.monthValue - 1], te.count { Afatet.statusi(it) != "hequr" && Afatet.celesiMuajit(it) == k }, i == 0)
+        }
+    }
+    val max = (muajt.maxOfOrNull { it.second } ?: 0).coerceAtLeast(1)
+    Row(Modifier.fillMaxWidth().height(120.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Bottom) {
+        muajt.forEach { (emri, nr, ky) ->
+            Column(Modifier.weight(1f).fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Bottom) {
+                Text(nr.toString(), style = tx(11, 700, if (nr > 0) n.ink2 else n.faint))
+                Spacer(Modifier.height(4.dp))
+                Box(Modifier.fillMaxWidth().height((70f * nr / max).coerceAtLeast(3f).dp).clip(RoundedCornerShape(6.dp))
+                    .background(if (nr == 0) n.track else if (ky) n.near else n.accent))
+                Spacer(Modifier.height(6.dp))
+                Text(emri, style = tx(11, 500, n.muted))
+            }
+        }
+    }
+}
+
+@Composable
+private fun PjesaEGrupit(prek: () -> Unit) {
+    val n = N
+    val gj by Grupi.gjendja.collectAsState()
+    val ngj by Grupi.ngjarjet.collectAsState()
+    val gati by Grupi.ngjarjetGati.collectAsState()
+    Grupi.njoftimet.collectAsState().value; Grupi.ftesatEMia.collectAsState().value; Grupi.kerkesatEGrupit.collectAsState().value
+    val ne = gj.qasja == "anetar"
+    val kerkesa = Grupi.numriKerkesave() + Grupi.numriNjoftimeve()
+    PjesaEKreut("Grupi", "Hape", prek) {
+        if (!ne && kerkesa == 0) { Text("S'je ende në një grup. Hape për të krijuar ose për t'u bashkuar.", style = tx(14, 400, n.muted)); return@PjesaEKreut }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (kerkesa > 0) { Shenja(if (kerkesa > 99) "99+" else kerkesa.toString()); Spacer(Modifier.width(8.dp)) }
+            Text(when (kerkesa) { 0 -> "Asnjë kërkesë e re"; 1 -> "1 kërkesë ose njoftim i ri"; else -> "$kerkesa kërkesa ose njoftime të reja" }, style = tx(15, 500, n.ink))
+        }
+        if (gati) {
+            val tani = System.currentTimeMillis()
+            ngj.take(2).forEach { x ->
+                val t = GrupiLogjika.tekstiNgjarjes(x, Grupi.uidIm())
+                Text(t.kush + " " + t.cfare + " · " + GrupiLogjika.kohaRelative(numerOse0(x["koha"]).toLong(), tani), style = tx(12, 400, n.muted),
+                    maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 8.dp))
+            }
+        }
+    }
+}
+
+/** Ora e dorës: vetëm kur ka orë të lidhur (pyetet serveri një herë kur hapet Kreu) */
+@Composable
+private fun PjesaEOres(skaduara: Int) {
+    val n = N
+    var oret by remember { mutableStateOf<List<Push.OraELidhur>>(emptyList()) }
+    LaunchedEffect(Unit) { if (!StokuApp.neProve && !Llogaria.eshteVizitor()) Push.oretELidhura()?.let { oret = it } }
+    val o = oret.firstOrNull() ?: return
+    PjesaEKreut("Ora e dorës", null, {}) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(Ik.OraDore, null, Modifier.size(20.dp), tint = n.okDot)
+            Spacer(Modifier.width(8.dp))
+            Text("E lidhur · " + o.model.ifBlank { "Ora e dorës" } + (if (skaduara > 0) " · $skaduara për t'u hequr" else ""), style = tx(15, 500, n.ink),
+                maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+    }
+}
+
+/** "Përshtat faqen": çelësi ndez/fik secilën pjesë; radha ndryshohet duke e zvarritur rreshtin nga ☰ */
+@Composable
+private fun PershtatFaqen(fillimi: List<Pair<String, Boolean>>, mbyll: () -> Unit, ruaj: (List<Pair<String, Boolean>>) -> Unit) {
+    val n = N
+    val lista = remember { mutableStateListOf<Pair<String, Boolean>>().apply { addAll(fillimi.filter { PjesetEKreut.lejohet(it.first) }) } }
+    val tePalejuara = remember { fillimi.filter { !PjesetEKreut.lejohet(it.first) } }
+    var zvarritet by remember { mutableStateOf<String?>(null) }
+    var zhvendosja by remember { mutableFloatStateOf(0f) }
+    val lartesia = with(LocalDensity.current) { RRESHTI_PERSHTAT.toPx() }
+    Flete(mbyll) {
+        Column {
+            Text("Përshtat faqen", style = tx(20, 700, n.ink))
+            Text("Zgjidh çfarë del. Mbaje gishtin te ☰ dhe lëvize për radhën.", style = tx(13, 400, n.muted), modifier = Modifier.padding(top = 4.dp))
+        }
+        Column {
+            lista.forEachIndexed { i, (id, ndezur) ->
+                val pj = PjesetEKreut.TE_GJITHA.first { it.id == id }
+                val kjo = zvarritet == id
+                Row(Modifier.fillMaxWidth().height(RRESHTI_PERSHTAT).zIndex(if (kjo) 1f else 0f)
+                    .graphicsLayer { translationY = if (kjo) zhvendosja else 0f; shadowElevation = if (kjo) 12f else 0f }
+                    .background(n.surface),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(44.dp).pointerInput(id) {
+                        detectDragGestures(
+                            onDragStart = { zvarritet = id; zhvendosja = 0f },
+                            onDrag = { ndr, d ->
+                                ndr.consume()
+                                zhvendosja += d.y
+                                val k = lista.indexOfFirst { it.first == id }
+                                if (zhvendosja > lartesia / 2 && k < lista.lastIndex) { lista.add(k + 1, lista.removeAt(k)); zhvendosja -= lartesia }
+                                else if (zhvendosja < -lartesia / 2 && k > 0) { lista.add(k - 1, lista.removeAt(k)); zhvendosja += lartesia }
+                            },
+                            onDragEnd = { zvarritet = null; zhvendosja = 0f },
+                            onDragCancel = { zvarritet = null; zhvendosja = 0f }
+                        )
+                    }.semantics { contentDescription = "Lëvize " + pj.emri }, contentAlignment = Alignment.Center) {
+                        Icon(Ik.Kapja, null, Modifier.size(20.dp), tint = n.faint)
+                    }
+                    Column(Modifier.weight(1f)) {
+                        Text(pj.emri, style = tx(15, 600, if (ndezur) n.ink else n.muted))
+                        if (pj.shpjegimi.isNotEmpty()) Text(pj.shpjegimi, style = tx(12, 400, n.faint), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    Ndezesi(ndezur) { v -> val k = lista.indexOfFirst { it.first == id }; if (k >= 0) lista[k] = id to v }
+                }
+            }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Buton("Si në fillim", { lista.clear(); lista.addAll(PjesetEKreut.siNeFillim().filter { PjesetEKreut.lejohet(it.first) }) }, Modifier.weight(1f), lloji = "dyte")
+            Buton("Ruaj", { ruaj(lista.toList() + tePalejuara) }, Modifier.weight(1f))
+        }
+    }
+}
+
+private val RRESHTI_PERSHTAT = 60.dp

@@ -31,6 +31,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -75,19 +76,26 @@ import java.util.Calendar
 
 /** Stoku: kryefaqja me folderat, ose lista e produkteve të një folderi */
 @Composable
-fun StokuEkrani(folderi: String?, hapFolderin: (String?) -> Unit, skano: ((String) -> Unit, (String) -> Boolean) -> Unit, skanoShpejt: (String) -> Unit) {
+fun MalliEkrani(folderi: String?, hapFolderin: (String?) -> Unit, skano: ((String) -> Unit, (String) -> Boolean) -> Unit, skanoShpejt: (String) -> Unit) {
     // Produkti i zgjedhur te kërkimi i kryefaqes: hapet folderi dhe dritarja e produktit
     var produktiPerTuHapur by remember { mutableStateOf<String?>(null) }
-    if (folderi == null) Kryefaqja(hapFolderin) { fid, b -> produktiPerTuHapur = b; hapFolderin(fid) }
+    // Kreu: barkodi i skanuar që është te malli hap folderin dhe produktin
+    val kerkuar by site.stoku.vendas.MainActivity.produktiKerkuar.collectAsState()
+    LaunchedEffect(kerkuar) {
+        val (fid, b) = kerkuar ?: return@LaunchedEffect
+        site.stoku.vendas.MainActivity.produktiKerkuar.value = null
+        produktiPerTuHapur = b; hapFolderin(fid)
+    }
+    if (folderi == null) FaqjaEMallit(hapFolderin) { fid, b -> produktiPerTuHapur = b; hapFolderin(fid) }
     else FolderiEkrani(folderi, { hapFolderin(null) }, skano, skanoShpejt, produktiPerTuHapur) { produktiPerTuHapur = null }
 }
 
 fun numerMeHapesire(n: Long): String = n.toString().reversed().chunked(3).joinToString(" ").reversed()
 fun sasiaE(p: Obj): Long = (p["sasia"] as? Number)?.toLong() ?: 0L
 
-// ---------------- Kryefaqja ----------------
+// ---------------- Faqja e mallit (folderat) ----------------
 @Composable
-private fun Kryefaqja(hapFolderin: (String?) -> Unit, hapProduktin: (String, String) -> Unit) {
+private fun FaqjaEMallit(hapFolderin: (String?) -> Unit, hapProduktin: (String, String) -> Unit) {
     val n = N
     val g by Dyqani.gjendja.collectAsState()
     val p by Llogaria.perdoruesi.collectAsState()
