@@ -148,6 +148,7 @@ fun KreuEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit, sk
     var pjeset by remember { mutableStateOf(PjesetEKreut.lexo()) }
     var pershtat by remember { mutableStateOf(false) }
     var zgjidhFolderin by remember { mutableStateOf(false) }
+    var kerkimi by remember { mutableStateOf("") } // v327: kërkimi kudo
     val te = remember(g, aktiviM, lejet) { Merchandiseri.afatetEMarketit(g.afatet) }
     val nr = remember(te, site.stoku.vendas.Dita.sot) { Afatet.numero(te) }
 
@@ -164,7 +165,8 @@ fun KreuEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit, sk
         }
     }
 
-    val dukshme = pjeset.filter { it.second && PjesetEKreut.lejohet(it.first) }.map { it.first }
+    val dukshme = if (kerkimi.isNotBlank()) emptyList() else pjeset.filter { it.second && PjesetEKreut.lejohet(it.first) }.map { it.first }
+    val rezultatet = remember(kerkimi, g, lejet, aktiviM) { if (kerkimi.isBlank()) emptyList() else kerkoKudo(kerkimi) }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp + KREU_MBI_SHIRIT),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
@@ -174,7 +176,39 @@ fun KreuEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit, sk
                 ButonIkone(Ik.Pershtat, "Përshtat faqen", { pershtat = true })
             }
         }
-        if (dukshme.isEmpty()) item {
+        // v327 (pronari): "qite ni search bar qe kur te lyp qaty diqka ne krejt projektin me ta qit qaty"
+        item(key = "kerkimi") { Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), "Kërko kudo: barkod, produkt, afat…", ikona = Ik.Kerko) }
+        if (kerkimi.isNotBlank()) {
+            if (rezultatet.isEmpty()) item { Text("S'u gjet asgjë për \"" + kerkimi.trim() + "\".", style = tx(14, 400, n.muted), textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(vertical = 18.dp)) }
+            rezultatet.forEach { gr ->
+                item(key = "g:" + gr.titulli) { Text(gr.titulli + (if (gr.n > gr.rreshtat.size) " (${gr.n})" else ""), style = tx(13, 600, n.muted), modifier = Modifier.padding(top = 4.dp)) }
+                gr.rreshtat.forEachIndexed { i, x ->
+                    item(key = "r:" + gr.titulli + ":" + i) {
+                        Karta(Modifier.fillMaxWidth(), onClick = {
+                            when (val v = x.veprimi) {
+                                is Veprimi.Produkti -> { MainActivity.produktiKerkuar.value = v.folderi to v.barkodi; hapTabin("malli") }
+                                is Veprimi.Folderi -> { MainActivity.produktiKerkuar.value = v.id to ""; hapTabin("malli") }
+                                is Veprimi.Afati -> hapAfatin(v.id)
+                                is Veprimi.Kerko -> { MainActivity.veprimiIAfateve.value = "kerko:" + v.teksti; hapTabin("afatet") }
+                                is Veprimi.Tabi -> hapTabin(v.tabi)
+                                is Veprimi.Cilesimi -> { MainActivity.cilesimiKerkuar.value = v.faqja; hapTabin("cilesimet") }
+                            }
+                        }) {
+                            Row(Modifier.padding(horizontal = 14.dp, vertical = 11.dp), verticalAlignment = Alignment.CenterVertically) {
+                                IkonaMeNgjyre(gr.ikona, gr.ngj, 36.dp, 11.dp, 19.dp)
+                                Spacer(Modifier.width(12.dp))
+                                Column(Modifier.weight(1f)) {
+                                    Text(x.emri, style = tx(15, 600, n.ink), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    if (x.nen.isNotEmpty()) Text(x.nen, style = tx(12, 400, n.muted), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (kerkimi.isBlank() && dukshme.isEmpty()) item {
             Karta(Modifier.fillMaxWidth(), rrezja = 22.dp, onClick = { pershtat = true }) {
                 Column(Modifier.padding(18.dp)) {
                     Text("Faqja është bosh", style = tx(16, 700, n.ink))
@@ -455,3 +489,93 @@ private fun PershtatFaqen(fillimi: List<Pair<String, Boolean>>, mbyll: () -> Uni
 }
 
 private val RRESHTI_PERSHTAT = 60.dp
+
+/** v327: kërkimi kudo te Kreu: malli, folderat, afatet, furnizuesit, kolegët, marketet dhe faqet e Cilësimeve (si krKerko te app-tel.js) */
+sealed class Veprimi {
+    class Produkti(val folderi: String, val barkodi: String) : Veprimi()
+    class Folderi(val id: String) : Veprimi()
+    class Afati(val id: String) : Veprimi()
+    class Kerko(val teksti: String) : Veprimi()
+    class Tabi(val tabi: String) : Veprimi()
+    class Cilesimi(val faqja: String) : Veprimi()
+}
+class Rezultati(val emri: String, val nen: String, val veprimi: Veprimi)
+class GrupiIRezultateve(val titulli: String, val ikona: androidx.compose.ui.graphics.vector.ImageVector, val ngj: String, val n: Int, val rreshtat: List<Rezultati>)
+
+private fun normalizo(t: Any?): String = java.text.Normalizer.normalize(jsString(t ?: "").lowercase(), java.text.Normalizer.Form.NFD)
+    .replace(Regex("\\p{Mn}+"), "").trim()
+
+fun kerkoKudo(q: String): List<GrupiIRezultateve> {
+    val k = normalizo(q)
+    if (k.isEmpty()) return emptyList()
+    fun ka(t: Any?) = t != null && normalizo(t).contains(k)
+    val MAX = 5
+    val g = Dyqani.g
+    val l = ArrayList<GrupiIRezultateve>()
+    val emriF = g.foldera.associate { (it["id"] as? String).orEmpty() to (it["emri"] as? String).orEmpty() }
+    if (Llogaria.leja("stoku")) {
+        val pr = g.produktet.values.filter { ka(it["emri"]) || ka(it["barkodi"]) || ka(it["furnizuesi"]) }
+            .sortedBy { (it["emri"] as? String).orEmpty().lowercase() }
+        if (pr.isNotEmpty()) l.add(GrupiIRezultateve("Malli", Ik.Malli, "blu", pr.size, pr.take(MAX).map {
+            val f = (it["kategoriaId"] as? String).orEmpty()
+            Rezultati((it["emri"] as? String).orEmpty().ifEmpty { "Pa emër" }, jsString(it["barkodi"] ?: "") + " · " + emriF[f].orEmpty() + " · " + sasiaE(it) + " copë",
+                Veprimi.Produkti(f, jsString(it["barkodi"] ?: "")))
+        }))
+        val fo = g.foldera.filter { ka(it["emri"]) }
+        if (fo.isNotEmpty()) l.add(GrupiIRezultateve("Folderat", Ik.Folder, "portokalli", fo.size, fo.take(MAX).map {
+            Rezultati((it["emri"] as? String).orEmpty(), "Folder", Veprimi.Folderi((it["id"] as? String).orEmpty()))
+        }))
+    }
+    if (Llogaria.leja("afatet")) {
+        val af = Merchandiseri.afatetEMarketit(g.afatet).filter { ka(it["emri"]) || ka(it["barkodi"]) || ka(it["furnizuesi"]) }.sortedWith { a, b -> Afatet.krahaso(a, b) }
+        if (af.isNotEmpty()) l.add(GrupiIRezultateve("Afatet", Ik.Afatet, "kuqe", af.size, af.take(MAX).map { a ->
+            val d = Afatet.ditetDeri(a["data"])
+            val kur = when {
+                Afatet.statusi(a) == "hequr" -> "U hoq nga rafti"
+                d == null -> "Pa datë"
+                else -> Afatet.formato(a["data"]) + " · " + (if (d < 0) "Skadoi" else if (d == 0) "Sot" else if (d == 1) "Nesër" else Afatet.ditetTekst(d))
+            }
+            Rezultati((a["emri"] as? String).orEmpty().ifEmpty { jsString(a["barkodi"] ?: "") }, listOf(jsString(a["barkodi"] ?: ""), kur).filter { it.isNotEmpty() }.joinToString(" · "),
+                Veprimi.Afati((a["id"] as? String).orEmpty()))
+        }))
+    }
+    // Furnizuesit (nga afatet dhe malli)
+    val furn = LinkedHashMap<String, Triple<String, Int, Int>>()
+    fun shtoF(e: Any?, afat: Boolean) {
+        val emri = (e as? String)?.trim().orEmpty()
+        if (emri.isEmpty() || !ka(emri)) return
+        val c = normalizo(emri); val x = furn[c] ?: Triple(emri, 0, 0)
+        furn[c] = if (afat) x.copy(second = x.second + 1) else x.copy(third = x.third + 1)
+    }
+    if (Llogaria.leja("afatet")) g.afatet.forEach { shtoF(it["furnizuesi"], true) }
+    if (Llogaria.leja("stoku")) g.produktet.values.forEach { shtoF(it["furnizuesi"], false) }
+    val fl = furn.values.sortedBy { it.first.lowercase() }
+    if (fl.isNotEmpty()) l.add(GrupiIRezultateve("Furnizuesit", Ik.Kamion, "gjelber", fl.size, fl.take(MAX).map { (e, a, p) ->
+        Rezultati(e, listOf(if (a > 0) (if (a == 1) "1 afat" else "$a afate") else "", if (p > 0) (if (p == 1) "1 produkt" else "$p produkte") else "").filter { it.isNotEmpty() }.joinToString(" · "),
+            if (a > 0 && Llogaria.leja("afatet")) Veprimi.Kerko(e) else Veprimi.Tabi("malli"))
+    }))
+    if (Llogaria.leja("grupi") && !Llogaria.eshteVizitor()) {
+        val an = Grupi.anetaret.value.filter { ka(it["emri"]) }
+        if (an.isNotEmpty()) l.add(GrupiIRezultateve("Kolegët", Ik.Personi, "vjollce", an.size, an.take(MAX).map {
+            Rezultati((it["emri"] as? String).orEmpty(), if (it["pronar"] == true || it["roli"] == "pronar") "Admin i grupit" else "Koleg", Veprimi.Tabi("grupi"))
+        }))
+    }
+    if (Llogaria.eshteMerchandiser()) {
+        val mk = Merchandiseri.marketet().filter { ka(it["emri"]) }
+        if (mk.isNotEmpty()) l.add(GrupiIRezultateve("Marketet", Ik.Vendi, "gjelber", mk.size, mk.take(MAX).map {
+            Rezultati((it["emri"] as? String).orEmpty(), "Market", Veprimi.Cilesimi("marketet"))
+        }))
+    }
+    val ci = listOfNotNull(
+        "pamja" to "Pamja", "skenimi" to "Skenimi", "njoftimet" to "Njoftimet",
+        if (Llogaria.leja("ora")) "ora" to "Ora e dorës" else null,
+        if (Llogaria.leja("marketet") || Llogaria.eshteAdmin()) "marketet" to "Marketet" else null,
+        if (Llogaria.leja("stoku")) "lista" to "Malli" else null,
+        if (Llogaria.leja("stoku")) "furnizuesit" to "Furnizuesit" else null,
+        if (Llogaria.leja("stoku")) "produktet" to "Produktet" else null,
+        if (site.stoku.vendas.Admini.eshteAdmin()) "perdoruesit" to "Përdoruesit" else null,
+        if (Llogaria.perdoruesi.value != null || Llogaria.eshteVizitor()) "llogaria" to "Llogaria" else null
+    ).filter { ka(it.second) }
+    if (ci.isNotEmpty()) l.add(GrupiIRezultateve("Cilësimet", Ik.Cilesimet, "gri", ci.size, ci.take(MAX).map { Rezultati(it.second, "Cilësimet", Veprimi.Cilesimi(it.first)) }))
+    return l
+}

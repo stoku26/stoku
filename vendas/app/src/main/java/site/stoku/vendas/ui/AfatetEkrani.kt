@@ -98,6 +98,7 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
         site.stoku.vendas.MainActivity.veprimiIAfateve.value = null
         when {
             v == "pdf" -> if (Llogaria.leja("eksportPdf")) pdf = true
+            v.startsWith("kerko:") -> { kerkimi = v.removePrefix("kerko:"); filtri = "aktive"; muaji = "" } // v327: kërkimi kudo → furnizuesi
             v.startsWith("i-ri") -> if (Llogaria.leja("afatetShto")) { skanuar = v.removePrefix("i-ri").removePrefix(":"); hapur = "" }
         }
     }

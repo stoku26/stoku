@@ -105,7 +105,7 @@ const fab = p => p.evaluate(() => {
   const { b, p } = await hapFaqen(chromium, { madhesia: 'normale', dpr: 2 });
   const lh = await p.evaluate(() => { const d = document.createElement('div'); d.style.fontSize = '12px'; d.textContent = 'Ag'; document.body.appendChild(d); const v = getComputedStyle(d).lineHeight; d.remove(); return v; });
   ok(lh === '15.3px', '8. rreshti i tekstit sa shkronja (1.275 si te Android-i, jo i rrumbullakuar lart)', lh);
-  const tab = await rr(p, '#tabet'), tsvg = await rr(p, '#tabStoku svg'), tt = await rr(p, '#tabStoku .tab-tekst');
+  const tab = await rr(p, '#tabet'), tsvg = await rr(p, '#tabMalli svg'), tt = await rr(p, '#tabMalli .tab-tekst');
   ok(tab.h === 65 && tsvg.w === 26 && tt.fs === '11px' && tt.y - tsvg.b === 4, '8. shiriti poshtë: 64 + vija, ikona 26, teksti 11 (4 nën ikonë)', { tab, tsvg, tt });
   const imp = await rr(p, '#btnImportGaleria'), kk = await rr(p, '#kerkoGlobal');
   const kuti = await p.evaluate(() => { const k = document.getElementById('kerkoGlobal').closest('.kerko-kuti').getBoundingClientRect(); const s = document.querySelector('.sb-summary').getBoundingClientRect(); return { h: Math.round(k.height), top: Math.round(k.top), poshte: Math.round(k.bottom), kartela: Math.round(s.top) }; });

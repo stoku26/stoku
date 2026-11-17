@@ -84,7 +84,7 @@ fun MalliEkrani(folderi: String?, hapFolderin: (String?) -> Unit, skano: ((Strin
     LaunchedEffect(kerkuar) {
         val (fid, b) = kerkuar ?: return@LaunchedEffect
         site.stoku.vendas.MainActivity.produktiKerkuar.value = null
-        produktiPerTuHapur = b; hapFolderin(fid)
+        produktiPerTuHapur = b.ifEmpty { null }; hapFolderin(fid)
     }
     if (folderi == null) FaqjaEMallit(hapFolderin) { fid, b -> produktiPerTuHapur = b; hapFolderin(fid) }
     else FolderiEkrani(folderi, { hapFolderin(null) }, skano, skanoShpejt, produktiPerTuHapur) { produktiPerTuHapur = null }
@@ -164,7 +164,8 @@ private fun FaqjaEMallit(hapFolderin: (String?) -> Unit, hapProduktin: (String, 
         verticalArrangement = Arrangement.spacedBy(0.dp)) {
         item {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                EtiketaStoku(p?.emri ?: if (Llogaria.eshteVizitor()) "Vizitor · provë" else "", { Sinkronizimi.rifresko(); Toast.trego("Duke sinkronizuar…", 1500) })
+                // v327 (pronari): pa logon "stoku." (ajo është te Kreu), vetëm titulli si te Afatet
+                Text("Malli", style = tx(26, 700, n.ink, -0.025))
                 Spacer(Modifier.weight(1f))
                 if (Llogaria.leja("stoku") && Llogaria.leja("stokuImporto")) {
                     ButonIkone(Ik.Foto, "Importo stokun nga galeria", { if (kaFolder()) galeriaStok() })

@@ -23,7 +23,7 @@ const KUJ={'furnizuesi Laberion':{e:'Laberion',f:'',k:1,s:1},'furnizuesi Rugove'
  ok((await p.textContent('#opsioneTitulli'))==='Produktet' && await p.isVisible('#kujtesaLista'),T+' Produktet hapen');
  await p.screenshot({path:`${__dirname}/nenfaqe-${tema}-produktet.png`});
  await p.goBack();await p.waitForTimeout(300);
- ok((await p.textContent('#opsioneTitulli'))==='Stoku' && await p.isVisible('#stProduktet'),T+' "mbrapa" kthehet te Stoku');
+ ok((await p.textContent('#opsioneTitulli'))==='Malli' && await p.isVisible('#stProduktet'),T+' "mbrapa" kthehet te Malli (v327)');
  await p.goBack();await p.waitForTimeout(300);
  ok(await p.isVisible('#kategoriMenu') && await p.isVisible('#dlgOpsione'),T+' "mbrapa" sërish: menyja e Cilësimeve');
  await p.goBack();await p.waitForTimeout(300);

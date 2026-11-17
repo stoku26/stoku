@@ -105,6 +105,13 @@ class PamjetTest {
         mbush()
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
         r.onNodeWithText("Skadojnë së pari").assertExists()
+        // v327: kërkimi kudo (afatet, malli, furnizuesit)
+        val fusha = r.onAllNodes(hasSetTextAction())[0]
+        fusha.performClick(); fusha.performTextInput("vita"); r.waitForIdle()
+        r.onAllNodesWithText("Kos Vita 500g")[0].assertExists()
+        r.onAllNodesWithText("Furnizuesit")[0].assertExists()
+        fotoEkrani("light-42-kreu-kerkimi")
+        fusha.performTextReplacement(""); r.waitForIdle()
         r.onNodeWithContentDescription("Përshtat faqen").performClick(); r.waitForIdle()
         fotoEkrani("light-41-kreu-pershtat")
         klikoFundit("Si në fillim")

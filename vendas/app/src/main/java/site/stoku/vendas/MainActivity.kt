@@ -81,6 +81,8 @@ class MainActivity : ComponentActivity() {
         val afatiKerkuar = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
         /** Kreu: veprimi te Afatet: "i-ri", "i-ri:<barkodi>" ose "pdf" */
         val veprimiIAfateve = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+        /** Kreu (kërkimi kudo): faqja e Cilësimeve që hapet ("pamja", "skenimi", "lista", "llogaria"…) */
+        val cilesimiKerkuar = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
         /** Kreu: produkti i skanuar që hapet te Malli (folderi, barkodi) */
         val produktiKerkuar = kotlinx.coroutines.flow.MutableStateFlow<Pair<String, String>?>(null)
     }
