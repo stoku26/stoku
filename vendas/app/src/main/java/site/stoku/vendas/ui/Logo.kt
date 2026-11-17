@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -43,8 +44,8 @@ fun logoStoku(erret: Boolean, ink: Color = if (erret) Color(0xFFF5F5F7) else Col
 fun LogoEPlote(modifier: Modifier = Modifier) {
     val erret = N.erret
     val ink = N.ink
-    val v = remember(erret, ink) { logoStoku(erret, ink) }
-    Image(v, "Stoku", modifier)
+    // web v322: shkronjat anohen si valë një herë (LogoVala.kt)
+    LogoMeVale("porta", ink, Color(if (erret) Logot.PIKA_ERRET else Logot.PIKA_CELET), "Stoku", modifier.aspectRatio(Logot.FJ_W / Logot.FJ_H))
 }
 
 /** Etiketa në krye të Stoku-t (stk-etiketa): vetëm logoja me shkronja, pa kuti dhe pa emrin e përdoruesit (Hyrja 76, si web-i v314).
@@ -52,7 +53,6 @@ fun LogoEPlote(modifier: Modifier = Modifier) {
 @Composable
 fun EtiketaStoku(emri: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val n = N
-    val logo = remember(n.erret, n.ink) { logoStoku(n.erret, n.ink) }
-    Image(logo, if (emri.isBlank()) "Stoku" else "Stoku, $emri",
+    LogoMeVale("koka", n.ink, Color(if (n.erret) Logot.PIKA_ERRET else Logot.PIKA_CELET), if (emri.isBlank()) "Stoku" else "Stoku, $emri",
         modifier.clip(RoundedCornerShape(6.dp)).clickable(onClick = onClick).width(152.dp).height((152f * Logot.FJ_H / Logot.FJ_W).dp))
 }

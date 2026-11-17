@@ -58,6 +58,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v322 / Android / ora (17.11.2026): LOGOJA ME VALË (GIF 17)**. Pronari: "bone logon 17 ne krejta ku osht qajo logo qe shkrun
+   qashtu gat, amo masi ta kryn me u nal pa u vrejt si loop dmth me perfundu sakt". Shkronjat e "stoku." anohen si valë NJË herë kur
+   shfaqet logoja (njëra pas tjetrës 0.08 s, 1.4 s secila; kënde 0 → 9 → -7 → 4 → -1.5 → 0°), pika s'lëviz; mbaron saktë në 0°.
+   - Web: `logot.js` (jashtë bllokut DATA): `shkronjat()` ndan shtegun në 5 shkronja (nën-shtigjet afër = një shkronjë, "o" me vrimë),
+     `valeKudo()` i ndan logot statike të kokës (telefon, PC; blloku LOGO-FILLIMI mbetet i gjeneruar) dhe `svgLogo()` i jep të ndara
+     (hyrja, PC pa faqe); stili `#stkValeStil` shtohet nga JS (`@keyframes stkVale`, pa valë me prefers-reduced-motion).
+   - Android: `ui/LogoVala.kt` (`ValaELogos` + `LogoMeVale`): koka ("koka") dhe hyrja ("porta"), një herë për çdo hapje të aplikacionit.
+   - Ora: `LogoVala.kt` lexon shtigjet nga `res/drawable/logo_stoku.xml` (pa i kopjuar të dhënat); pa to del fotoja e vjetër.
+   - Pikat kyçe janë të njëjta në të tre vendet (teste/v322.js i kontrollon). v314.js: logoja e hyrjes ka 6 shtigje (5 + pika).
+
 0000000. **v321 / Android (17.11.2026): GRUPI, ORA, PDF**. Pronari (5 foto):
    - **"Grupi yt"**: "hekja ngjyren e kalter butonit ... edhe pak ma te vogel komplet": rreshti 48 (ishte 56), "+" pa blu (si "⋮"),
      laps 30, tekstet pak më të vogla (web `.ek-grupi-rresht`, Android `height(48.dp)`). "⋮" tani për çdo koleg (jo vetëm adminët).

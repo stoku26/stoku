@@ -17,11 +17,50 @@
   };
   /* LOGOT-FUNDI */
 
+  // v322 (pronari: "bone logon 17 ne krejta ... masi ta kryn me u nal pa u vrejt si loop dmth me perfundu sakt"): shkronjat e
+  // "stoku." anohen si valë NJË herë kur shfaqet logoja (njëra pas tjetrës, 0.08 s), me lëkundje që zvogëlohet deri në 0°, pra
+  // ndalet butë aty ku është logoja normale. Të njëjtat pika kyçe si ValaELogos (Android + ora). Pa lëvizje kur sistemi e kërkon.
+  var VALA_CSS = '@keyframes stkVale{0%{transform:rotate(0deg)}15%{transform:rotate(9deg)}35%{transform:rotate(-7deg)}' +
+    '55%{transform:rotate(4deg)}75%{transform:rotate(-1.5deg)}100%{transform:rotate(0deg)}}' +
+    '.stk-logo .lg-sh{transform-box:fill-box;transform-origin:50% 100%}' +
+    '.stk-logo--vale .lg-sh{animation:stkVale 1.4s ease-in-out both}' +
+    '@media (prefers-reduced-motion: reduce){.stk-logo--vale .lg-sh{animation:none}}';
+  function shtoStilinEVales() {
+    if (!root.document || root.document.getElementById('stkValeStil')) return;
+    var st = root.document.createElement('style'); st.id = 'stkValeStil'; st.textContent = VALA_CSS;
+    (root.document.head || root.document.documentElement).appendChild(st);
+  }
+  // Shtigjet e shkronjave veç e veç: nën-shtigjet që nisin afër njëra-tjetrës (vrima e "o") janë një shkronjë
+  function shkronjat(t) {
+    var p = (String(t).match(/M[^M]*/g) || [String(t)]).map(function (d) { return { x: parseFloat(d.slice(1)) || 0, d: d }; })
+      .sort(function (a, b) { return a.x - b.x; });
+    var g = [];
+    p.forEach(function (x) { var u = g[g.length - 1]; if (u && x.x - u.x < 2) { u.d += x.d; u.x = x.x; } else g.push({ x: x.x, d: x.d }); });
+    return g.map(function (x) { return x.d; });
+  }
+  function vale(svg) {
+    if (!svg || svg.__vale) return;
+    svg.__vale = 1;
+    var t = svg.querySelector('.lg-t');
+    if (t && !svg.querySelector('.lg-sh')) {
+      shkronjat(t.getAttribute('d')).forEach(function (d, i) {
+        var p = root.document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        p.setAttribute('class', 'lg-t lg-sh'); p.setAttribute('d', d); p.style.animationDelay = (i * 0.08).toFixed(2) + 's';
+        svg.insertBefore(p, t);
+      });
+      svg.removeChild(t);
+    }
+    svg.classList.add('stk-logo--vale');
+  }
+  function valeKudo() { shtoStilinEVales(); Array.prototype.forEach.call(root.document.querySelectorAll('svg.stk-logo'), vale); }
+
   // Logoja brenda faqes: shkronjat me ngjyrën e tekstit (currentColor), pika nga css/stoku-logot.css
   function svgLogo(klasa) {
     var F = DATA.fjala;
-    return '<svg class="stk-logo' + (klasa ? ' ' + klasa : '') + '" viewBox="0 0 ' + F.w + ' ' + F.h + '" aria-hidden="true" focusable="false">' +
-      '<path class="lg-t" d="' + F.t + '"></path><path class="lg-a" d="' + F.p + '"></path></svg>';
+    shtoStilinEVales();
+    return '<svg class="stk-logo stk-logo--vale' + (klasa ? ' ' + klasa : '') + '" viewBox="0 0 ' + F.w + ' ' + F.h + '" aria-hidden="true" focusable="false">' +
+      shkronjat(F.t).map(function (d, i) { return '<path class="lg-t lg-sh" style="animation-delay:' + (i * 0.08).toFixed(2) + 's" d="' + d + '"></path>'; }).join('') +
+      '<path class="lg-a" d="' + F.p + '"></path></svg>';
   }
   // Vizatimi në canvas (PDF, fotoja e afateve). o: { erret, tekst (ngjyra e shkronjave) }. Kthen gjerësinë.
   function vizatoLogon(c, x, y, h, o) {
@@ -63,7 +102,10 @@
     var href = 'data:image/svg+xml,' + encodeURIComponent(svgIkona(erret, true));
     Array.prototype.forEach.call(document.querySelectorAll('link[rel="icon"]'), function (l) { l.setAttribute('href', href); l.setAttribute('type', 'image/svg+xml'); });
   }
-  root.StokuLogot = { logoW: DATA.fjala.w, logoH: DATA.fjala.h, svgLogo: svgLogo, vizatoLogon: vizatoLogon, vizatoIkonen: vizatoIkonen, svgIkona: svgIkona, rifreskoFavicon: rifreskoFavicon };
+  if (root.document) {
+    if (root.document.readyState === 'loading') root.document.addEventListener('DOMContentLoaded', valeKudo); else valeKudo();
+  }
+  root.StokuLogot = { logoW: DATA.fjala.w, logoH: DATA.fjala.h, svgLogo: svgLogo, vizatoLogon: vizatoLogon, vizatoIkonen: vizatoIkonen, svgIkona: svgIkona, rifreskoFavicon: rifreskoFavicon, shkronjat: shkronjat };
   // Pastrimi i zgjedhjes së vjetër të logos (v313)
   try { localStorage.removeItem('stoku:logoja'); } catch (e) { /* ok */ }
   if (typeof document !== 'undefined') {

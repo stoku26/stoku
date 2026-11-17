@@ -25,7 +25,7 @@ const ADM = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
   ok(/if \(oret\.isEmpty\(\)\) Row\(/.test(lx(K + 'ui/NjoftimetUI.kt')), '2. Android: Galaxy/Apple vetëm pa orë të lidhur');
   ok(['app-tel.js', 'app-pc.js', K + 'ui/EksportetUI.kt'].every(f => !/"Periudha: "|'Periudha: '/.test(lx(f))) && /fun nrFurnizuesve/.test(lx(K + 'EksportiPdf.kt')) && /EksportiPdf\.nrFurnizuesve\(lista\)/.test(lx(K + 'ui/EksportetUI.kt')),
     '5. PDF: pa "Periudha: " (web tel, PC, Android), me numrin e furnizuesve');
-  ok(/stoku-v321/.test(lx('sw.js')) && /app-tel\.js\?v=321/.test(lx('sw.js')) && /eksportet\.js\?v=321/.test(lx('sw.js')) && /v: 321/.test(lx('versioni.js')), '0. versionet');
+  ok(/stoku-v3(2[1-9]|[3-9]\d)/.test(lx('sw.js')) && /app-tel\.js\?v=3(2[1-9]|[3-9]\d)/.test(lx('sw.js')) && /eksportet\.js\?v=3(2[1-9]|[3-9]\d)/.test(lx('sw.js')), '0. versionet');
 
   const tani = Date.now();
   const F = krijoFirestore({ rregullat: 'reja' });
