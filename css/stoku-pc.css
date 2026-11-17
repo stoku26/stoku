@@ -101,9 +101,11 @@
 .sbp .sbp-account__user { grid-column: 1; grid-row: 1; }
 /* v204: dalja nga llogaria, vetëm ikonë; teksti del kur mausi qëndron mbi të */
 .sbp .sbp-dil { grid-column: 2; grid-row: 1; align-self: center; position: relative; width: 30px; height: 30px; margin-left: 2px; padding: 0; border: 0; border-radius: 10px; background: transparent; color: var(--sb-muted); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: background .15s, color .15s; }
-.sbp .sbp-dil:hover, .sbp .sbp-dil:focus-visible { background: var(--sb-exp-tint); color: var(--sb-exp); }
+.sbp .sbp-dil:hover { background: var(--sb-exp-tint); color: var(--sb-exp); }
+.sbp .sbp-dil:focus-visible { background: var(--sb-exp-tint); color: var(--sb-exp); } /* veç e veç: shfletuesit e vjetër (TV) s'e njohin :focus-visible */
 .sbp .sbp-dil::after { content: attr(data-tip); position: absolute; right: 0; bottom: calc(100% + 8px); padding: 6px 10px; border-radius: 8px; background: var(--sb-ink); color: var(--sb-bg); font-size: 12px; font-weight: 600; white-space: nowrap; box-shadow: 0 8px 20px -8px rgba(0,0,0,.45); opacity: 0; transform: translateY(3px); pointer-events: none; transition: opacity .12s, transform .12s; }
-.sbp .sbp-dil:hover::after, .sbp .sbp-dil:focus-visible::after { opacity: 1; transform: none; transition-delay: .25s; }
+.sbp .sbp-dil:hover::after { opacity: 1; transform: none; transition-delay: .25s; }
+.sbp .sbp-dil:focus-visible::after { opacity: 1; transform: none; transition-delay: .25s; } /* veç e veç: shfletuesit e vjetër (TV) s'e njohin :focus-visible */
 .sbp .sbp-dil.fsheh { display: none; }
 /* Anësorja e ngushtë (220px): karta pak më kompakte */
 @media (max-width: 1180px) {
@@ -286,23 +288,23 @@
 .sbp .af-status.afer { color: var(--sb-near); background: var(--sb-near-tint); }
 .sbp .af-status.ok { color: var(--sb-ok); background: var(--sb-ok-tint); }
 .sbp .af-status.hequr { color: var(--sb-ink-4); background: var(--sb-surface-2); }
-.sbp :is(#afTabela, #ekTabela, #ekPultTabela) tbody tr td { background: transparent; }
-.sbp :is(#afTabela, #ekTabela, #ekPultTabela) tbody tr:hover td { background: var(--sb-head); filter: none; }
-.sbp :is(#afTabela, #ekTabela, #ekPultTabela) tbody tr td:first-child { box-shadow: none; }
-.sbp :is(#afTabela, #ekTabela, #ekPultTabela) td { padding-top: 9px; padding-bottom: 9px; }
-.sbp #afTabela .k-st, .sbp :is(#ekTabela, #ekPultTabela) .k-st { padding-left: 16px; }
+.sbp #afTabela tbody tr td, .sbp #ekTabela tbody tr td, .sbp #ekPultTabela tbody tr td { background: transparent; }
+.sbp #afTabela tbody tr:hover td, .sbp #ekTabela tbody tr:hover td, .sbp #ekPultTabela tbody tr:hover td { background: var(--sb-head); filter: none; }
+.sbp #afTabela tbody tr td:first-child, .sbp #ekTabela tbody tr td:first-child, .sbp #ekPultTabela tbody tr td:first-child { box-shadow: none; }
+.sbp #afTabela td, .sbp #ekTabela td, .sbp #ekPultTabela td { padding-top: 9px; padding-bottom: 9px; }
+.sbp #afTabela .k-st, .sbp #ekTabela .k-st, .sbp #ekPultTabela .k-st { padding-left: 16px; }
 .sbp #afTabela td { font-size: 14px; }
-.sbp #afTabela .af-prod div:first-child, .sbp :is(#ekTabela, #ekPultTabela) .af-prod div:first-child { font-size: 14px; font-weight: 600; }
+.sbp #afTabela .af-prod div:first-child, .sbp #ekTabela .af-prod div:first-child, .sbp #ekPultTabela .af-prod div:first-child { font-size: 14px; font-weight: 600; }
 .sbp .af-prod-nen { font-size: 12px; color: var(--sb-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sbp .af-prod-nen .mono { font-size: 11.5px; }
-.sbp #afTabela td.k-data, .sbp :is(#ekTabela, #ekPultTabela) td.k-data { font-family: var(--sb-mono); font-size: 13px; font-weight: 500; }
-.sbp #afTabela td.k-sas, .sbp :is(#ekTabela, #ekPultTabela) td.k-sas { font-size: 14px; }
+.sbp #afTabela td.k-data, .sbp #ekTabela td.k-data, .sbp #ekPultTabela td.k-data { font-family: var(--sb-mono); font-size: 13px; font-weight: 500; }
+.sbp #afTabela td.k-sas, .sbp #ekTabela td.k-sas, .sbp #ekPultTabela td.k-sas { font-size: 14px; }
 .sbp #afTabela tr.hequr td { color: var(--sb-muted); }
 /* Ngjyra të lehta sipas statusit (v128), si te kartat e telefonit */
 .sbp #afTabela tbody tr.skaduar td, .sbp #afTabela tbody tr.pa-date td { background: var(--sb-card-exp); }
 .sbp #afTabela tbody tr.afer td { background: var(--sb-card-near); }
 .sbp #afTabela tbody tr.ok td { background: var(--sb-card-ok); }
-.sbp #afTabela tbody tr:is(.skaduar, .pa-date, .afer, .ok):hover td { background: var(--sb-head); }
+.sbp #afTabela tbody tr.skaduar:hover td, .sbp #afTabela tbody tr.pa-date:hover td, .sbp #afTabela tbody tr.afer:hover td, .sbp #afTabela tbody tr.ok:hover td { background: var(--sb-head); }
 .sbp #afTabela tbody tr.zgjedhur td { background: var(--sb-accent-tint); }
 .sbp #afTabela tr.af-grup td { background: var(--sb-head) !important; height: 40px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--sb-ink-3); border-top: 1px solid var(--sb-line-2); }
 .sbp .btn.af-btn { height: 30px; padding: 0 12px; border-radius: 8px; font-size: 12.5px; box-shadow: none; }

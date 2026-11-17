@@ -114,7 +114,7 @@
   var stili = document.createElement('style');
   stili.textContent = [
     'html.porta-hapur, html.porta-hapur body { overflow: hidden !important; }',
-    '#porta { position: fixed; inset: 0; z-index: 2147483000; display: flex; align-items: center; justify-content: center;',
+    '#porta { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 2147483000; display: flex; align-items: center; justify-content: center;',
     '  padding: max(20px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));',
     '  background: var(--sb-bg, #f6f5f2); font-family: var(--sb-font, inherit); color: var(--sb-ink, #14161b);',
     '  overflow-y: auto; transition: opacity .25s ease; -webkit-font-smoothing: antialiased; }',

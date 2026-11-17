@@ -53,6 +53,17 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v319 (vazhdim, 17.11.2026): SHFLETUESIT E VJETËR (LG TV)**. Pronari (foto nga shfletuesi i TV-së LG): paneli i hyrjes dhe
+   Cilësimet dilnin si kuti lart majtas, jo në krejt ekranin; teksti ngjitur pas ikonave. Shkaku: shfletuesi i TV-ve (webOS) është
+   Chrome i vjetër (rreth 68 deri 79). Nuk i njeh: `inset:` (Chrome < 87), `:is()` (< 88), `:has()` dhe `:focus-visible` (në një listë
+   selektorësh e hedhin KREJT rregullin), `gap` te flex-i (< 84). E njëjta gjë ndodh në telefonat e vjetër Android dhe TV të tjerë.
+   - `inset: 0` → `top: 0; right: 0; bottom: 0; left: 0` (porta.js, index.html, pc.html); `:is(...)` u shpalos (stoku-pc.css, pc.html);
+     `:has()` dhe `:focus-visible` në rregulla veç e veç (stoku.css, stoku-pc.css, pc.html). RREGULL: mos i përdor këto në CSS-në tonë.
+   - `vjeter.js` (i ri, në kokë të index/pc + SHELL): VETËM kur flex-gap mungon, i shënon kontejnerët flex me gap (`pg-r`/`pg-c` +
+     `--pg`) dhe fëmijëve u jep `pg-pas` (margin pas) ose `pg-para` (pas tekstit të lirë); MutationObserver + kontroll pas klikimit.
+     Shfletuesit e rinj: s'bën asgjë. `color-mix()` (3 te index.html) mbetet: vetëm ngjyrë, s'e prish faqen.
+   - Test `teste/v319-tv.js` (pa inset/:is/:has në listë; pa flex-gap hapësira mes ikonës dhe tekstit mbetet). Pa test në TV të vërtetë.
+
 0000000. **v319 / Android Hyrja 81 (17.11.2026): PAJISJET E LLOGARISË, KALENDARI I PDF-SË, EKSPORTO SI IMPORTO, GRUPI, IKONA E WEB APP-IT**.
    Pronari (5 foto + foto e ikonave):
    - **Pajisjet ku je i kyçur** (Cilësimet → Llogaria; web tel `#llPajisjet`, PC, Android `PajisjetEMia`): `pajisjet.js` (i ri) / `Pajisjet.kt`.
