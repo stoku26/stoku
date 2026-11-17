@@ -58,6 +58,22 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v327 / Android Hyrja 89 (18.11.2026): KREU NË WEB APP TË TELEFONIT + MALLI ME TITULL + KËRKO KUDO**.
+   - Pronari: "Edhe ne web app duhet me kon veq ne telefon. Jo ne pc. Edhe logon stoku te malli e hek e len veq tekst qysh o te afatet
+     ... ne faqe kryesore ... qite ni search bar. Qe kur te lyp qaty diqka ne krejt projektin me lyp e me ta qit qaty".
+   - **Web tel (index.html, jo PC)**: `#dlgKreu` (faqe e plotë, z 21) me logon (`#logoSlika`/`#logoButon` u zhvendosën nga koka te Kreu),
+     `#krPershtat`, `#krKerko`, `#krRezultatet`, `#krPjeset`; `#dlgKreuPershtat` dhe `#dlgKreuFolder` (z 22). Shiriti: `#tabMalli`
+     (dikur `#tabStoku`), `#btnAfatet`, `#tabKreu` (`.tab-kreu-rreth` 62 px, 16 px mbi shirit), `#btnEkipi`, `#btnOpsione`. Kreu =
+     `faqjaBaze()` (`krAktiv()`): hapet në fillim dhe kur mbyllet çdo tab tjetër; `__malliZgjedhur` (tabi Malli) e ndal rihapjen;
+     `niveletEHapura` +1 kur Kreu s'është i hapur, që "mbrapa" nga Malli/tabet të kthejë te Kreu. Pjesët si te Android-i, ruhen te
+     `stoku:kreu:pjeset` ("id:1,id:0,…"). Koka e Mallit: `#titulli.titulli-faqes` "Malli"; Cilësimet → "Malli" (`tabLista`).
+   - **Testet e vjetra**: `teste/pw.js` u vendos `window.__stokuPaKreu` (si `__stokuPaNjoftime`): Kreu s'është faqja bazë dhe `#tabKreu`
+     fshihet, që testet të nisin si më parë nga Malli. Testi i Kreut (`v327.js`, `logo-v238.js`) e ndez me `pw.meKreu = true`.
+   - **Kërko kudo** (web `krKerko()`, Android `kerkoKudo()` te KreuEkrani.kt): malli (emri/barkodi/furnizuesi), folderat, afatet,
+     furnizuesit (nga afatet dhe malli), kolegët e grupit, marketet (merchandiseri), faqet e Cilësimeve; pa dallim shkronjash dhe
+     "ë/ç"; deri 5 për grup. Prekja: produkti hapet në folderin e vet, afati te Afatet, furnizuesi = kërkimi te Afatet
+     (Android `veprimiIAfateve = "kerko:<emri>"`), Cilësimet (Android `MainActivity.cilesimiKerkuar`).
+   - **Android Malli**: pa `EtiketaStoku`, titulli `Text("Malli", tx(26, 700))`. PamjetTest: kërkimi te Kreu (`light-42-kreu-kerkimi`).
 0000000. **v326 / Android Hyrja 88 (17.11.2026): KREU + MALLI, KAMERA SI ANDROID, FOKUSI NË KUTI, EKSPORTI SI PDF**.
    - **Android Kreu** (pronari: "ni buton ... me emer loko hiq pa emer so tab kryesor ... kur te bohet login ose me qel android app met qit
      qaty direkt"; ikona: shtëpia pa pikë, ideja 3; "balanco qat buton pak ma posht"): `ui/KreuEkrani.kt`. Shiriti: Malli, Afatet, [Kreu],

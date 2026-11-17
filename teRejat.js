@@ -21,6 +21,12 @@
   'use strict';
 
   var LISTA = [
+    { v: 327, versioni: '1.70.0', data: '2026-11-18', titulli: 'Kreu dhe Malli', platforma: 'tel', pikat: [
+      'Në mes të shiritit poshtë ka butonin e ri me shtëpinë: Kreu. Hapet i pari sa hyn, dhe "Mbrapa" kthen gjithmonë aty.',
+      'Te Kreu sheh me një shikim afatet, çfarë skadon së pari, grafikun e muajve, mallin, furnizuesit dhe grupin. Me butonin lart djathtas zgjedh çfarë del dhe me çfarë radhe.',
+      'Kërko kudo: shkruaj një barkod, produkt, afat, furnizues, koleg ose një faqe të Cilësimeve dhe e hap me një prekje.',
+      'Tabi "Stoku" tani quhet "Malli" dhe lart ka vetëm titullin; logoja është te Kreu.'
+    ] },
     { v: 326, versioni: '1.69.0', data: '2026-11-17', titulli: 'Kamera dhe eksporti', platforma: 'tel', pikat: [
       'Kamera e skanimit duket si në aplikacionin Android: kutia e bardhë, X lart majtas, zmadhimi dhe drita lart djathtas.',
       'Kamera fokusohet vetëm brenda kutisë së bardhë, ku vendos barkodin.',

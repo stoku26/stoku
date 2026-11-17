@@ -10,6 +10,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(89, "2026-11-18", "Kërko kudo", listOf(
+            "Te Kreu ka fushën e re \"Kërko kudo\": shkruaj një barkod, produkt, afat, furnizues, koleg ose një faqe të Cilësimeve dhe e hap me një prekje.",
+            "Te Malli lart ka vetëm titullin \"Malli\"; logoja është te Kreu."
+        )),
         Hyrja(88, "2026-11-17", "Kreu dhe Malli", listOf(
             "Në mes të shiritit poshtë ka butonin e ri me shtëpinë: Kreu. Hapet i pari sa hyn në llogari ose e hap aplikacionin.",
             "Te Kreu sheh me një shikim afatet, çfarë skadon së pari, grafikun e muajve, mallin, furnizuesit, grupin, marketin dhe orën. Me butonin lart djathtas zgjedh çfarë del dhe me çfarë radhe.",

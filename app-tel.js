@@ -4935,7 +4935,7 @@
           zh = e2.clientY - y0;
           var k2 = krpLista.indexOf(x);
           if (zh > h / 2 && k2 < krpLista.length - 1) { krpLista.splice(k2, 1); krpLista.splice(k2 + 1, 0, x); l.insertBefore(r.nextSibling, r); y0 += h; zh -= h; }
-          else if (zh < -h / 2 && k2 > 0) { krpLista.splice(k2, 1); krpLista.splice(k2 - 1, 0, x); l.insertBefore(r, r.previousSibling); y0 -= h; zh += h; }
+          else if (zh < -h / 2 && k2 > 0) { krpLista.splice(k2, 1); krpLista.splice(k2 - 1, 0, x); l.insertBefore(r.previousSibling, r.nextSibling); y0 -= h; zh += h; } // lëvizet fqinji (jo rreshti), që gishti të mos e humbë
           r.style.transform = 'translateY(' + zh + 'px)';
         };
         var fund = function () { r.classList.remove('zvarritet'); r.style.transform = ''; kap.removeEventListener('pointermove', leviz); kap.removeEventListener('pointerup', fund); kap.removeEventListener('pointercancel', fund); };
