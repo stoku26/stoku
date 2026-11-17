@@ -511,6 +511,8 @@
 .sbp .lexim-rreshtat th { background: var(--sb-head); }
 .sbp .lexim-rreshtat tr.dyshim td { background: var(--sb-near-tint); }
 .sbp .lexim-statusi { background: var(--sb-surface-2); }
+.sbp .tr-ikona { background: var(--sb-accent); }
+.sbp .tr-version li::before { background: var(--sb-accent); }
 
 /* Tost */
 .sbp .toast { background: var(--sb-inv-bg); color: var(--sb-inv-fg); border-radius: 12px; }

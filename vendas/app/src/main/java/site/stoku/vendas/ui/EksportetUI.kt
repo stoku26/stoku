@@ -132,21 +132,6 @@ fun SkedariFlete(sk: Skedari, mbyll: () -> Unit) {
     }
 }
 
-/** Rresht me kuti zgjedhjeje (kolonat e Excel-it) */
-@Composable
-private fun RreshtiIKutise(teksti: String, zgjedhur: Boolean, onClick: () -> Unit) {
-    val n = N
-    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).clickable(onClick = onClick).padding(vertical = 9.dp, horizontal = 4.dp),
-        verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(22.dp).clip(RoundedCornerShape(6.dp)).background(if (zgjedhur) n.accent else Color.Transparent)
-            .border(if (zgjedhur) 0.dp else 1.5.dp, if (zgjedhur) Color.Transparent else n.line2, RoundedCornerShape(6.dp)), contentAlignment = Alignment.Center) {
-            if (zgjedhur) Icon(Ik.Kontroll, null, Modifier.size(15.dp), tint = Color.White)
-        }
-        Spacer(Modifier.width(12.dp))
-        Text(teksti, style = tx(15, 400, n.ink))
-    }
-}
-
 @Composable
 private fun Etiketa(t: String) = Text(t, style = tx(13, 600, N.ink3), modifier = Modifier.padding(start = 2.dp))
 
@@ -156,7 +141,7 @@ private fun CipatRresht(content: @Composable () -> Unit) {
 }
 
 /**
- * "Çfarë të përfshihet në Excel?" (si dlgAfExcel): kolonat (zgjedhja mbahet mend), dhe te eksporti i të gjithë listës muaji e
+ * "Eksporto afatet në Excel" (si dlgAfExcel). Web v323: pa zgjedhjen e kolonave (si te PC-ja); te eksporti i të gjithë listës muaji e
  * furnizuesi. zgjedhura != null: vetëm afatet e zgjedhura; përndryshe eFiltruara(muaji) = lista me filtrat e tanishëm.
  */
 @Composable
@@ -164,18 +149,16 @@ fun AfatetExcelFlete(zgjedhura: List<Obj>?, eFiltruara: (String) -> List<Obj>, m
     val n = N
     val paFurnizues = Llogaria.eshteMerchandiser()
     val krejt = zgjedhura == null
-    var kyçet by remember { mutableStateOf(Eksportet.kolonatERuajtura().toSet()) }
     val muajt = remember { if (krejt) Afatet.muajtELista(eFiltruara("")) else emptyList() }
     var muaji by remember { mutableStateOf(if (krejt && muajt.any { it.celes == muajiFillim }) muajiFillim else "") }
     var furn by remember { mutableStateOf("") }
-    val tE = kyçet.filter { !(paFurnizues && it == "furnizuesi") }
     val furnizuesit = if (krejt) Afatet.furnizuesitELista(eFiltruara(muaji)) else emptyList()
     if (furn.isNotEmpty() && furnizuesit.none { it.celes == furn }) furn = ""
     val lista = if (krejt) eFiltruara(muaji).filter { a -> paFurnizues || furn.isEmpty() || Afatet.celesiFurnizuesit(a) == furn } else zgjedhura!!.sortedWith { a, b -> Afatet.krahaso(a, b) }
     val emriFurn = if (!paFurnizues && furn.isNotEmpty()) furnizuesit.firstOrNull { it.celes == furn }?.emri.orEmpty() else ""
 
     Flete(mbyll) {
-        Text("Çfarë të përfshihet në Excel?", style = tx(22, 700, n.ink, -0.02))
+        Text("Eksporto afatet në Excel", style = tx(22, 700, n.ink, -0.02))
         val nen = if (!krejt) (if (lista.size == 1) "1 afat i zgjedhur" else "${lista.size} afate të zgjedhura") else {
             val st = mapOf("aktive" to "aktive", "skaduar" to "të skaduara", "afer" to "afër skadimit", "ok" to "në rregull", "hequr" to "të hequra")[filtri].orEmpty()
             if (lista.isNotEmpty()) "Do të eksportohen " + (if (lista.size == 1) "1 afat" else "${lista.size} afate") + (if (filtri != "aktive") " ($st)" else "") +
@@ -196,24 +179,13 @@ fun AfatetExcelFlete(zgjedhura: List<Obj>?, eFiltruara: (String) -> List<Obj>, m
                 furnizuesit.forEach { f -> Cip(f.emri, f.n.toString(), furn == f.celes) { furn = f.celes } }
             }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Lidhje("Të gjitha", { kyçet = Eksportet.KOLONAT_E_AFATEVE.map { it.k }.toSet() })
-            Lidhje("Barkodi, emri, sasia", { kyçet = setOf("barkodi", "emri", "sasia") })
-        }
-        Column {
-            Eksportet.KOLONAT_E_AFATEVE.filter { !(paFurnizues && it.k == "furnizuesi") }.forEach { c ->
-                RreshtiIKutise(c.emri, kyçet.contains(c.k)) { kyçet = if (kyçet.contains(c.k)) kyçet - c.k else kyçet + c.k }
-            }
-        }
-        if (tE.isEmpty()) Text("Zgjidh të paktën një kolonë.", style = tx(13, 600, n.exp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Buton("Anulo", mbyll, Modifier.weight(1f), lloji = "tekst")
             Buton("Eksporto", {
-                if (!Llogaria.leja("eksportExcel") || tE.isEmpty() || lista.isEmpty()) return@Buton
-                val renditur = Eksportet.KOLONAT_E_AFATEVE.map { it.k }.filter { tE.contains(it) }
-                val sk = Eksportet.excelIAfateve(lista, renditur, if (krejt) muaji else "", if (krejt) emriFurn else "")
+                if (!Llogaria.leja("eksportExcel") || lista.isEmpty()) return@Buton
+                val sk = Eksportet.excelIAfateve(lista, paFurnizues, if (krejt) muaji else "", if (krejt) emriFurn else "")
                 mbyll(); gati(sk)
-            }, Modifier.weight(1.4f), aktiv = tE.isNotEmpty() && lista.isNotEmpty())
+            }, Modifier.weight(1.4f), aktiv = lista.isNotEmpty())
         }
     }
 }

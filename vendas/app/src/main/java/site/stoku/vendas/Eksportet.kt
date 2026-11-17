@@ -127,33 +127,23 @@ object Eksportet {
 
     // ---------------- Excel-i i afateve ----------------
     class KolonaE(val k: String, val emri: String, val col: Xlsx.Kolona, val v: (Obj) -> Any?)
-    private val ST_EMRI = mapOf("skaduar" to "Ka skaduar", "pa-date" to "Pa datë", "afer" to "Afër skadimit", "ok" to "Në rregull", "hequr" to "I hequr")
     private fun ose(a: Obj, k: String): Any? = if (eVertete(a[k])) a[k] else ""
+    /** Web v323 (pronari: "Bone thjesht kur e zgjedh excel sikur ne pc"; pa Statusi, Ditë të mbetura, Çfarë duhet bërë, Hequr nga rafti,
+     *  Shtuar nga): gjithmonë këto 5 kolona (si AX_KOLONAT te app-tel.js dhe PC-ja); merchandiseri pa furnizuesin */
     val KOLONAT_E_AFATEVE = listOf(
         KolonaE("barkodi", "Barkodi", Xlsx.Kolona("Barkodi", 18)) { ose(it, "barkodi") },
         KolonaE("emri", "Emri i produktit", Xlsx.Kolona("Emri i produktit", 36)) { ose(it, "emri") },
         KolonaE("sasia", "Sasia (copë)", Xlsx.Kolona("Sasia (copë)", 12, "number")) { a -> if (a["sasia"] is Number) a["sasia"] else "" },
-        KolonaE("data", "Data e skadimit", Xlsx.Kolona("Skadon më", 13, "day")) { ose(it, "data") },
-        KolonaE("ditet", "Ditë të mbetura", Xlsx.Kolona("Ditë të mbetura", 14, "number")) { a ->
-            val n = Afatet.ditetDeri(a["data"]); if (Afatet.statusi(a) == "hequr" || n == null) "" else n
-        },
         KolonaE("furnizuesi", "Furnizuesi", Xlsx.Kolona("Furnizuesi", 22)) { ose(it, "furnizuesi") },
-        KolonaE("statusi", "Statusi", Xlsx.Kolona("Statusi", 15)) { ST_EMRI[Afatet.statusi(it)] ?: "" },
-        KolonaE("pershkrimi", "Çfarë duhet bërë", Xlsx.Kolona("Çfarë duhet bërë", 60)) { Afatet.pershkrimi(it) },
-        KolonaE("krijuarNga", "Shtuar nga", Xlsx.Kolona("Shtuar nga", 14)) { Emrat.emri(jsString(ose(it, "krijuarNga"))) } // v308: emri i tanishëm
+        KolonaE("data", "Data e skadimit", Xlsx.Kolona("Skadon më", 13, "day")) { ose(it, "data") }
     )
-
-    /** Kolonat e zgjedhura herën e fundit (si "stoku:afatet:excel-kolonat" te web-i) */
-    fun kolonatERuajtura(): List<String> = try {
-        Json.lexo(StokuApp.prefsOse("afatet_excel_kolonat", "")).siListe().filterIsInstance<String>().ifEmpty { null }
-    } catch (e: Exception) { null } ?: KOLONAT_E_AFATEVE.map { it.k }
 
     private fun pjeseEmri(t: String) =
         t.lowercase().replace("ë", "e").replace("ç", "c").replace(Regex("[^a-z0-9]+"), "_").replace(Regex("^_+|_+$"), "").take(40)
 
     /** lista: afatet (të renditura); muaji/furnizuesi: vetëm te eksporti i të gjithë listës, për emrin e fletës dhe të skedarit */
-    fun excelIAfateve(lista: List<Obj>, kyçet: List<String>, muaji: String, furnizuesi: String): Skedari {
-        StokuApp.vendosPref("afatet_excel_kolonat", Json.shkruaj(kyçet))
+    fun excelIAfateve(lista: List<Obj>, paFurnizues: Boolean, muaji: String, furnizuesi: String): Skedari {
+        val kyçet = KOLONAT_E_AFATEVE.map { it.k }.filter { !(paFurnizues && it == "furnizuesi") }
         val kolonat = KOLONAT_E_AFATEVE.filter { kyçet.contains(it.k) }
         val rreshtat = lista.map { a -> kolonat.map { it.v(a) } }
         val iSasise = if (kyçet.contains("sasia")) kolonat.indexOfFirst { it.k == "sasia" } else -1

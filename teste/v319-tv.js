@@ -15,14 +15,8 @@ const RR = __dirname + '/../', lx = f => fs.readFileSync(RR + f, 'utf8');
   const lista = [];
   sk.forEach(f => lx(f).split('\n').forEach((l, i) => { const s = l.split('{')[0]; if (/,/.test(s) && /:has\(|:focus-visible/.test(s) && !/^\s*(\/\/|\*|')/.test(l)) lista.push(f + ':' + (i + 1)); }));
   ok(lista.length === 0, '3. :has()/:focus-visible jo në lista selektorësh', lista);
-  // Pronari: "Qfar ka te re u fshi, kontrollo 100% projektin" (u gjet te privatesia.html): asnjë tekst që e sheh përdoruesi
-  const { execSync } = require('child_process');
-  const skedaret = execSync('git ls-files', { cwd: RR }).toString().split('\n').filter(f => f && !/^teste\/|^SHENIME\.md$|^CLAUDE\.md$|\.(png|jpg|jks|p12|enc|woff2?|ttf|pdf|webp|ico)$/.test(f));
-  const mbetje = [];
-  skedaret.forEach(f => { let t; try { t = lx(f); } catch (e) { return; }
-    t.split('\n').forEach((l, i) => { l = l.replace(/\s(\/\/|#) .*$/, ''); if (/(ç|c|q)(farë|fare|ka) ka t[eë] re/i.test(l) && !/^\s*(\/\/|\*|\/\*|#)/.test(l) && !/assertDoesNotExist/.test(l)) mbetje.push(f + ':' + (i + 1)); }); });
-  ok(mbetje.length === 0, '4. "Çfarë ka të re" s\'mbetet askund (përveç komenteve)', mbetje);
-  ok(!/teRejat|terejat/i.test(lx('pc.html') + lx('app-pc.js') + lx('app-tel.js') + lx('index.html')) && /Pajisjet ku je i kyçur/.test(lx('privatesia.html')), '4. pa emra "terejat"; privatësia përmend pajisjet');
+  // v323: "Çfarë ka të re" u rikthye (pronari: "shtoja apet cfare ka te re"); privatësia vetëm përmend pajisjet
+  ok(/Pajisjet ku je i kyçur/.test(lx('privatesia.html')), '4. privatësia përmend pajisjet');
   ok(/vjeter\.js\?v=\d+/.test(lx('index.html')) && /vjeter\.js\?v=\d+/.test(lx('pc.html')) && /vjeter\.js\?v=\d+/.test(lx('sw.js')), '4. vjeter.js në faqe dhe te sw.js');
 
   const b = await chromium.launch();

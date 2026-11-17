@@ -31,8 +31,10 @@ object Perditesimi {
     @Volatile private var dukeKontrolluar = false
     private val anuluar = AtomicBoolean(false)
 
+    /** Një hyrje e "Çfarë ka të re" nga trupi i Release-it (rreshtat "[nr] titulli" dhe "• pika", nga TeRejat.kt te workflow-i) */
+    data class Hyrja(val nr: Int, val titulli: String, val pikat: List<String>)
     /** faza: "pyet" (ka version të ri), "shkarkim", "gabim" */
-    data class Gjendja(val n: Int, val url: String, val faza: String = "pyet",
+    data class Gjendja(val n: Int, val url: String, val teReja: List<Hyrja>, val faza: String = "pyet",
                        val lexuar: Long = 0, val gjithsej: Long = 0, val mesazhi: String = "")
     /** null = faqja e përditësimit s'duket */
     val gjendja = MutableStateFlow<Gjendja?>(null)
@@ -72,7 +74,8 @@ object Perditesimi {
                 pr.edit().putLong("perditesimi_koha", System.currentTimeMillis()).apply()
                 val n = rez.optInt("n"); val url = rez.optString("url")
                 if (n > BuildConfig.VERSION_CODE && url.isNotEmpty()) {
-                    a.runOnUiThread { if (gjendja.value == null) gjendja.value = Gjendja(n, url) } // Hyrja 80: pa "Çfarë ka të re"
+                    val reja = teReja(rez.optString("body"))
+                    a.runOnUiThread { if (gjendja.value == null) gjendja.value = Gjendja(n, url, reja) }
                 } else if (detyro) toast(a, "Aplikacioni është i përditësuar")
             } catch (e: Exception) { provoPasPak(a); if (detyro) toast(a, "S'u kontrollua (internet?)") }
             finally { dukeKontrolluar = false }
@@ -95,6 +98,23 @@ object Perditesimi {
             }
         }
         return m
+    }
+
+    /** "Çfarë ka të re" e versionit të ri: vetëm hyrjet që ky aplikacion s'i ka (nr më i madh se e fundit te TeRejat) */
+    fun teReja(body: String): List<Hyrja> {
+        val ime = TeRejat.LISTA.maxOfOrNull { it.nr } ?: 0
+        val dalja = ArrayList<Hyrja>()
+        var nr = -1; var titulli = ""; var pikat = ArrayList<String>()
+        fun mbyll() { if (nr > ime && pikat.isNotEmpty()) dalja.add(Hyrja(nr, titulli, pikat)); nr = -1; pikat = ArrayList() }
+        val koka = Regex("^\\[(\\d+)\\] (.+)$")
+        for (r0 in body.lines()) {
+            val r = r0.trim()
+            val m = koka.find(r)
+            if (m != null) { mbyll(); nr = m.groupValues[1].toInt(); titulli = m.groupValues[2] }
+            else if (r.startsWith("• ") && nr >= 0) pikat.add(r.removePrefix("• ").trim())
+        }
+        mbyll()
+        return dalja.sortedByDescending { it.nr }
     }
 
     // Pas një kontrolli të dështuar (pa internet, kufiri i GitHub-it) provohet sërish pas 5 min, jo në çdo rikthim
