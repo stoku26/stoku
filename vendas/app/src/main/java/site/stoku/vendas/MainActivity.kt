@@ -52,7 +52,12 @@ import site.stoku.vendas.ui.GrupiEkrani
 import site.stoku.vendas.ui.Porta
 import site.stoku.vendas.ui.Shenja
 import site.stoku.vendas.ui.Skaneri
-import site.stoku.vendas.ui.StokuEkrani
+import site.stoku.vendas.ui.MalliEkrani
+import site.stoku.vendas.ui.KreuEkrani
+import site.stoku.vendas.ui.KreuButoni
+import site.stoku.vendas.ui.KREU
+import site.stoku.vendas.ui.KREU_MADHESIA
+import site.stoku.vendas.ui.KREU_MBI_SHIRIT
 import site.stoku.vendas.ui.StokuTema
 import site.stoku.vendas.ui.ToastPamja
 import site.stoku.vendas.ui.tx
@@ -74,6 +79,10 @@ class MainActivity : ComponentActivity() {
         val tabiKerkuar = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
         /** v283: afati që duhet hapur te Afatet (prekja e një ngjarjeje te Aktiviteti) */
         val afatiKerkuar = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+        /** Kreu: veprimi te Afatet: "i-ri", "i-ri:<barkodi>" ose "pdf" */
+        val veprimiIAfateve = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+        /** Kreu: produkti i skanuar që hapet te Malli (folderi, barkodi) */
+        val produktiKerkuar = kotlinx.coroutines.flow.MutableStateFlow<Pair<String, String>?>(null)
     }
 
     private fun lexoTabin(i: android.content.Intent?) {
@@ -167,7 +176,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
     val lejet by Llogaria.lejet.collectAsState()
     val merch by Llogaria.merchandiserIRegjistrimit.collectAsState()
     remember(lejet, merch) { 0 } // rivizatohet kur ndryshojnë lejet
-    var tabi by rememberSaveable { mutableStateOf("stoku") }
+    var tabi by rememberSaveable { mutableStateOf("kreu") } // pronari: pas hyrjes dhe sa herë hapet aplikacioni, Kreu
     var folderi by rememberSaveable { mutableStateOf<String?>(null) }
     var skanimi by remember { mutableStateOf<((String) -> Unit)?>(null) }
     var numerimi by remember { mutableStateOf<((String) -> Boolean)?>(null) } // +1 pa e mbyllur kamerën (folderi)
@@ -191,29 +200,32 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
         }
     }
 
-    // Pjesa e parë e lejuar (pa "Stoku" hapet "Afatet")
+    // Kreu (shtëpia) është gjithmonë në mes të shiritit dhe hapet i pari; tabi "Malli" (dikur "Stoku") ka ende lejen "stoku"
+    // (çelësi i lejes ruhet te llogaritë dhe te web-i, prandaj s'ndryshohet)
     val tabet = listOfNotNull(
-        if (Llogaria.leja("stoku")) Triple("stoku", "Stoku", Ik.Stoku) else null,
+        if (Llogaria.leja("stoku")) Triple("malli", "Malli", Ik.Malli) else null,
         if (Llogaria.leja("afatet")) Triple("afatet", "Afatet", Ik.Afatet) else null,
+        Triple(KREU, "Kreu", Ik.Kreu),
         if (Llogaria.leja("grupi")) Triple("grupi", "Grupi", Ik.Grupi) else null,
         Triple("cilesimet", "Cilësimet", Ik.Cilesimet)
     )
-    if (tabet.none { it.first == tabi }) tabi = tabet.first().first
+    if (tabet.none { it.first == tabi }) tabi = KREU
     // Njoftimi i prekur hap tabin e vet (Grupi, Afatet)
     val kerkuar by MainActivity.tabiKerkuar.collectAsState()
     LaunchedEffect(kerkuar) {
         val k = kerkuar ?: return@LaunchedEffect
-        if (tabet.any { it.first == k }) { tabi = k; folderi = null; skanimiShpejt = null }
+        val k2 = if (k == "stoku") "malli" else k
+        if (tabet.any { it.first == k2 }) { tabi = k2; folderi = null; skanimiShpejt = null }
         MainActivity.tabiKerkuar.value = null
     }
 
-    BackHandler(enabled = skanimi == null && skanimiShpejt == null && (folderi != null || tabi != tabet.first().first)) {
-        if (tabi == "stoku" && folderi != null) folderi = null else tabi = tabet.first().first
+    BackHandler(enabled = skanimi == null && skanimiShpejt == null && (folderi != null || tabi != KREU)) {
+        if (tabi == "malli" && folderi != null) folderi = null else tabi = KREU
     }
 
     Box(Modifier.fillMaxSize().background(n.bg)) {
         // Brenda një folderi shiriti me tabe fshihet (si te web-i: faqja e folderit zë të gjithë ekranin)
-        val meTabe = !(tabi == "stoku" && folderi != null)
+        val meTabe = !(tabi == "malli" && folderi != null)
         Column(Modifier.fillMaxSize()) {
             Box(Modifier.weight(1f).statusBarsPadding().then(if (meTabe) Modifier else Modifier.navigationBarsPadding())) {
                 val skano: ((String) -> Unit) -> Unit = { cb -> numerimi = null; skanimi = cb }
@@ -221,7 +233,8 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
                 // Kur ndërrohet dita, ekranet vizatohen nga e para (statuset e afateve varen nga data e sotme)
                 androidx.compose.runtime.key(sot) {
                     when (tabi) {
-                        "stoku" -> StokuEkrani(folderi, { folderi = it }, skanoMeNumerim) { skanimiShpejt = it }
+                        KREU -> KreuEkrani(skano, hapTabin = { t -> folderi = null; tabi = t }) { skanimiShpejt = it }
+                        "malli" -> MalliEkrani(folderi, { folderi = it }, skanoMeNumerim) { skanimiShpejt = it }
                         "afatet" -> AfatetEkrani(skano)
                         "grupi" -> GrupiEkrani()
                         else -> CilesimetEkrani(tema, ndryshoTemen)
@@ -230,19 +243,25 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
             }
             // Shiriti me tabe poshtë
             if (meTabe) Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
-            if (meTabe) Row(Modifier.fillMaxWidth().background(n.surface).navigationBarsPadding().height(64.dp)) {
+            if (meTabe) Box(Modifier.fillMaxWidth().background(n.surface).navigationBarsPadding().height(64.dp)) {
                 val nAf = remember(g, aktiviM, lejet, merch, sot) { Afatet.numero(Merchandiseri.afatetEMarketit(g.afatet)) }
                 val nGr = remember(njGr, ftGr, krGr, ngjGr, gjGr, vizitor) { if (vizitor && p == null) 0 else Grupi.numriNjoftimeve() + Grupi.numriKerkesave() } // si te web-i: zilja + ftesat/kërkesat (vizitori: asnjë)
-                tabet.forEach { (k, t, ik) ->
-                    val nr = when (k) { "afatet" -> nAf.skaduar + nAf.afer + nAf.paDate; "grupi" -> nGr; else -> 0 }
-                    val shenja = nr.takeIf { it > 0 }?.let { if (it > 99) "99+" else it.toString() }
-                    Tabi(t, ik, tabi == k, shenja, Modifier.weight(1f)) {
-                        if (k == "stoku" && tabi == "stoku") folderi = null
-                        tabi = k
+                Row(Modifier.fillMaxSize()) {
+                    tabet.forEach { (k, t, ik) ->
+                        // Kreu: vetëm vendi bosh në mes; butoni i rrumbullakët vizatohet mbi shirit (KreuButoni)
+                        if (k == KREU) { Box(Modifier.weight(1f).fillMaxSize()); return@forEach }
+                        val nr = when (k) { "afatet" -> nAf.skaduar + nAf.afer + nAf.paDate; "grupi" -> nGr; else -> 0 }
+                        val shenja = nr.takeIf { it > 0 }?.let { if (it > 99) "99+" else it.toString() }
+                        Tabi(t, ik, tabi == k, shenja, Modifier.weight(1f)) {
+                            if (k == "malli" && tabi == "malli") folderi = null
+                            tabi = k
+                        }
                     }
                 }
             }
         }
+        // Kreu: rrethi me shtëpinë, pak mbi shiritin poshtë (në mes)
+        if (meTabe) KreuButoni(tabi == KREU, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 64.dp - KREU_MADHESIA + KREU_MBI_SHIRIT)) { tabi = KREU }
         // Hyrja 32: brenda folderit toast-i del mbi butonin e skanimit (tash në mes si parazgjedhje), jo mbi të
         ToastPamja(Modifier.align(Alignment.BottomCenter).then(if (meTabe) Modifier else Modifier.navigationBarsPadding()), poshte = if (meTabe) 90.dp else 108.dp)
         DritaretEMarketeve(hapMarketet = { tabi = "cilesimet"; Merchandiseri.hapFaqen.value = true })

@@ -281,6 +281,25 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, shpejt: ((String) -
         }
         // Votimi s'arriti 7 të njëjta: "Skano përsëri" (pa zë), jo më shpesh se sa zgjat (1.5 s)
         fun skanoPerseri(tash: Long) { if (perseriDeri == 0L) perseriDeri = tash + 1500 }
+        // Pronari: "fokusi i kamerës me u kon 100% gjatë gjithë kohës vetëm brenda kutisë": fokusi dhe drita e figurës (AF + AE)
+        // matet vetëm në një pikë brenda kutisë së bardhë (në mes të saj) dhe rinis çdo 2 s (si skanerët e zakonshëm), që kur
+        // e afron a e largon telefonin të fokusohet sërish, prapë vetëm aty. Kamerat pa fokus (fiks) e injorojnë.
+        var fokusoKutine = Runnable {} // fokusi te mesi i kutisë (rinis vetë çdo FOKUSI_CDO_MS)
+        fun fokusoNe(x: Float, y: Float) {
+            if (mbyllur) return
+            val k = DritaKamere.kamera
+            if (k != null && pamja.width > 0) try {
+                val pika = pamja.meteringPointFactory.createPoint(x, y, PIKA_E_FOKUSIT)
+                val v = FocusMeteringAction.Builder(pika, FocusMeteringAction.FLAG_AF or FocusMeteringAction.FLAG_AE).disableAutoCancel().build()
+                if (k.cameraInfo.isFocusMeteringSupported(v)) k.cameraControl.startFocusAndMetering(v)
+            } catch (ex: Exception) { }
+            pamja.removeCallbacks(fokusoKutine)
+            pamja.postDelayed(fokusoKutine, FOKUSI_CDO_MS)
+        }
+        fokusoKutine = Runnable {
+            val k = kutiaESkanimit(pamja.width.toFloat(), pamja.height.toFloat(), siperAktual)
+            fokusoNe(k.center.x, k.center.y)
+        }
         fut.addListener({
             if (mbyllur) return@addListener
             val o = try { fut.get() } catch (e: Exception) { Toast.trego("Kamera s'u hap. Provo sërish."); return@addListener }
@@ -326,16 +345,15 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, shpejt: ((String) -
                 kameraELidhur = k
                 DritaKamere.kaDrite = k.cameraInfo.hasFlashUnit()
                 k.cameraInfo.zoomState.observe(pronari) { z -> if (DritaKamere.kamera === k && DritaKamere.nivelet.size < 2) DritaKamere.pergatitZoomin(z.minZoomRatio, z.maxZoomRatio) }
+                // Pronari: fokusi (dhe drita e figurës) gjithmonë brenda kutisë së barkodit, jo jashtë saj
+                pamja.removeCallbacks(fokusoKutine); pamja.postDelayed(fokusoKutine, 300)
             } catch (e: Exception) { Toast.trego("Kamera s'u hap. Provo sërish.") }
         }, ContextCompat.getMainExecutor(ctx))
-        // Prek figurën: fokusohet aty, pas 1.5 s kthehet te autofokusi i vazhdueshëm (si te web-i)
+        // Prek figurën: fokusohet aty, por vetëm brenda kutisë (prekja jashtë saj merr pikën më të afërt të kutisë)
         pamja.setOnTouchListener { v, e ->
             if (e.action == MotionEvent.ACTION_UP) {
-                val k = DritaKamere.kamera
-                if (k != null) try {
-                    val pika = pamja.meteringPointFactory.createPoint(e.x, e.y)
-                    k.cameraControl.startFocusAndMetering(FocusMeteringAction.Builder(pika).setAutoCancelDuration(1500, TimeUnit.MILLISECONDS).build())
-                } catch (x: Exception) { }
+                val k = kutiaESkanimit(pamja.width.toFloat(), pamja.height.toFloat(), siperAktual)
+                fokusoNe(e.x.coerceIn(k.left, k.right), e.y.coerceIn(k.top, k.bottom))
                 v.performClick()
             }
             true
@@ -343,6 +361,7 @@ private fun KameraPamja(shtoNjeCope: ((String) -> Boolean)?, shpejt: ((String) -
         onDispose {
             mbyllur = true
             pamja.removeCallbacks(ndalNumerimin)
+            pamja.removeCallbacks(fokusoKutine)
             votimi.rinis()
             try { kameraELidhur?.cameraInfo?.zoomState?.removeObservers(pronari) } catch (e: Exception) { }
             try { ofruesi?.unbindAll() } catch (e: Exception) { }
@@ -386,6 +405,9 @@ private fun kutiaESkanimit(vw: Float, vh: Float, siper: Float? = null): Rect {
     return Rect(l, t, l + w, t + h)
 }
 private const val KUTIA_GJERESIA = 0.78f
+/** Madhësia e zonës së fokusit (pjesë e figurës): mjaft e vogël që të mbetet brenda kutisë së bardhë */
+private const val PIKA_E_FOKUSIT = 0.2f
+private const val FOKUSI_CDO_MS = 2000L
 private const val KUTIA_RAPORTI = 0.55f
 /** Skanimi i shpejtë: nga shiriti i sipërm deri te kutia (kontrollet 16 + 46 dp dhe pak hapësirë) dhe nën kuti (teksti + pak) */
 private val KONTROLLET_LART = 76.dp
