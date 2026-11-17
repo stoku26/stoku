@@ -10,9 +10,10 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <style id="paKornize">html{display:none!important}</style>
 <script src="kornize.js?v=238"></script>
+<script src="vjeter.js?v=1"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <title>Stoku</title>
-<link rel="manifest" href="manifest.webmanifest?v=89">
+<link rel="manifest" href="manifest.webmanifest?v=90">
 <link rel="privacy-policy" href="privatesia.html">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=5">
 <link rel="icon" href="logo/favicon.svg?v=5" type="image/svg+xml">
@@ -82,7 +83,7 @@
     overflow: hidden;
     overscroll-behavior: none;
     position: fixed;
-    inset: 0;
+    top: 0; right: 0; bottom: 0; left: 0;
     width: 100%;
   }
 
@@ -286,7 +287,7 @@
 
   /* Dialogët */
   .mbulese {
-    position: fixed; inset: 0;
+    position: fixed; top: 0; right: 0; bottom: 0; left: 0;
     background: rgba(0,0,0,.5);
     display: none;
     align-items: center;
@@ -398,8 +399,8 @@
     font-size: 16px; color: var(--tekst); margin: 0; padding: 8px 0; cursor: pointer;
   }
   .ndez { position: relative; flex: none; width: 52px; height: 32px; }
-  .ndez input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; z-index: 1; }
-  .ndez .pist { position: absolute; inset: 0; border-radius: 16px; background: var(--fushe-kufi); transition: background .15s; }
+  .ndez input { position: absolute; top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; z-index: 1; }
+  .ndez .pist { position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: 16px; background: var(--fushe-kufi); transition: background .15s; }
   .ndez .pist::after {
     content: ''; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px;
     border-radius: 50%; background: #fff; transition: transform .15s;
@@ -418,7 +419,7 @@
 
   /* Kamera */
   #kamera {
-    position: fixed; inset: 0;
+    position: fixed; top: 0; right: 0; bottom: 0; left: 0;
     background: #000;
     z-index: 30;
     display: none;
@@ -463,7 +464,7 @@
     width: 100%; height: 100%; object-fit: cover; background: #000;
   }
   .skan-mbulese {
-    position: absolute; inset: 0; display: flex; flex-direction: column;
+    position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: flex; flex-direction: column;
     align-items: center; justify-content: center; pointer-events: none;
   }
   .skan-korniza {
@@ -716,6 +717,24 @@
   .ek-grupi-karta .tk b { display: block; font-size: 17px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .ek-grupi-karta .tk span { display: block; font-size: 13px; color: var(--sb-muted, var(--gri)); margin-top: 2px; }
   .ek-grupi-karta .af-pill { flex: none; }
+  /* v319: Cilësimet → Llogaria → Pajisjet ku je i kyçur */
+  .ll-pajisjet { padding: 4px 16px; }
+  .ll-paj { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+  .ll-paj + .ll-paj { border-top: 1px solid var(--sb-line-2, var(--vije)); }
+  .ll-paj__ik { flex: none; width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--sb-surface-2, var(--sfond)); color: var(--sb-ink-2, inherit); }
+  .ll-paj__tk { flex: 1; min-width: 0; }
+  .ll-paj__tk b { display: block; font-size: 15px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ll-paj__tk span { display: block; font-size: 12.5px; color: var(--sb-muted, var(--gri)); margin-top: 2px; }
+  .ll-paj__tk span.kjo { color: var(--sb-ok, #16a34a); font-weight: 600; }
+  .ll-paj .af-pill { flex: none; }
+  .ll-paj-krejt { width: 100%; margin: 4px 0 8px; }
+  /* v319: "Grupi yt" më e ngushtë + butoni katror "Fto" (një njeri me plus) */
+  .ek-grupi-rresht { display: flex; gap: 10px; align-items: stretch; margin: 2px 0 12px; }
+  .ek-grupi-rresht .ek-grupi-karta { flex: 1; min-width: 0; margin: 0; }
+  .ek-fto-btn { flex: none; width: 66px; min-height: 66px; border: 0; border-radius: 18px; background: var(--sb-accent, var(--primar)); color: #fff;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .ek-fto-btn:active { transform: scale(.96); }
+  .ek-fto-btn.on { background: var(--sb-surface-2, var(--sfond)); color: var(--sb-accent, var(--primar)); box-shadow: 0 0 0 1px var(--sb-line, var(--vije)); }
   .ek-rresht-forma { display: flex; gap: 8px; margin: 4px 0 6px; }
   .ek-rresht-forma input { flex: 1; min-width: 0; height: 46px; }
   .ek-rresht-forma .btn { flex: none; height: 46px; padding: 0 16px; }
@@ -1001,22 +1020,41 @@
   .ax-rresht:active { background: var(--hover); }
   .ax-rresht input { width: 22px; height: 22px; margin: 0; flex: none; accent-color: var(--primar); }
   #dlgAfPdf { z-index: 24; }
+  #dlgAfEksporto { z-index: 24; } /* v319: mbi faqen e Afateve, si Importo */
   #dlgAfPdf .dialog { max-width: 420px; }
   .ap-lista { border-radius: 18px; box-shadow: 0 0 0 1px var(--sb-line); overflow: hidden; margin-top: 4px; }
   .ap-rresht { position: relative; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 10px 14px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .ap-rresht + .ap-rresht { border-top: 1px solid var(--sb-line-2); }
   .ap-rresht:active { background: var(--sb-surface-2); }
-  /* v317: "Shtuar" → "Zgjidh datat": dy fusha date nën rresht */
-  .ap-datat { display: flex; gap: 10px; padding: 4px 14px 14px; }
-  .ap-datat[hidden] { display: none; }
-  .ap-datat label { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--sb-muted); }
-  .ap-datat input { width: 100%; min-height: 44px; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--sb-line); background: var(--sb-surface); color: var(--sb-ink); font: inherit; font-size: 16px; }
-  .ap-datat + .ap-rresht { border-top: 1px solid var(--sb-line-2); }
-  .ap-rresht select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; font-size: 16px; cursor: pointer; border: 0; margin: 0; }
+  /* v319: "Ditët e skanimit": kalendar nën rresht, preken ditët (shumë) kur u shtuan afatet */
+  .ap-rresht-btn { width: 100%; border: 0; background: none; font: inherit; color: inherit; text-align: left; }
+  .ae-op { min-height: 66px; }
+  .ae-tk { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .ae-tk .ap-em { flex: none; }
+  .ae-tk small { font-size: 12.5px; color: var(--sb-muted); line-height: 1.3; }
+  .ae-op.leja-ndaluar { display: none; }
+  .ap-kal { padding: 2px 12px 12px; }
+  .ap-kal[hidden] { display: none; }
+  .ap-kal + .ap-rresht { border-top: 1px solid var(--sb-line-2); }
+  .ap-kal-krye { display: flex; align-items: center; justify-content: space-between; padding: 2px 0 6px; }
+  .ap-kal-krye b { font-size: 15px; font-weight: 700; }
+  .ap-kal-nav { width: 40px; height: 40px; border: 0; border-radius: 12px; background: var(--sb-surface-2); color: var(--sb-ink); font-size: 22px; line-height: 1; cursor: pointer; }
+  .ap-kal-rrjeta { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .ap-kal-emer { text-align: center; font-size: 11px; font-weight: 700; color: var(--sb-faint); padding: 2px 0 4px; }
+  .ap-kal-dite { position: relative; height: 42px; border: 0; border-radius: 12px; background: transparent; color: var(--sb-faint); font: inherit; font-size: 14px; font-weight: 600; cursor: default; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 0; }
+  .ap-kal-dite.ka { background: var(--sb-surface-2); color: var(--sb-ink); cursor: pointer; }
+  .ap-kal-dite small { font-size: 9.5px; font-weight: 700; color: var(--sb-muted); line-height: 1; }
+  .ap-kal-dite.sot span { text-decoration: underline; text-underline-offset: 3px; }
+  .ap-kal-dite.on { background: var(--sb-accent); color: #fff; }
+  .ap-kal-dite.on small { color: rgba(255,255,255,.85); }
+  .ap-kal-fund { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; font-size: 12.5px; color: var(--sb-muted); }
+  .ap-kal-pastro { border: 0; background: none; font: inherit; font-weight: 700; color: var(--sb-accent); padding: 6px 4px; cursor: pointer; }
+  .ap-rresht select { position: absolute; top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%; opacity: 0; font-size: 16px; cursor: pointer; border: 0; margin: 0; }
   .ap-ik { flex: none; width: 36px; height: 36px; border-radius: 11px; display: flex; align-items: center; justify-content: center; }
   .ap-ik.ap-blu { background: var(--sb-ic-blu-bg); color: var(--sb-ic-blu); }
   .ap-ik.ap-portokalli { background: var(--sb-ic-portokalli-bg); color: var(--sb-ic-portokalli); }
   .ap-ik.ap-gjelber { background: var(--sb-ic-gjelber-bg); color: var(--sb-ic-gjelber); }
+  .ap-ik.ap-kuqe { background: var(--sb-ic-kuqe-bg); color: var(--sb-ic-kuqe); }
   .ap-ik.ap-vjollce { background: var(--sb-ic-vjollce-bg); color: var(--sb-ic-vjollce); }
   .ap-em { flex: 1; font-size: 15.5px; font-weight: 600; color: var(--sb-ink); }
   .ap-v { font-size: 14.5px; font-weight: 500; color: var(--sb-muted); text-align: right; max-width: 48%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1084,7 +1122,7 @@
   .lx-foto.e-madhe { max-height: none; cursor: zoom-out; }
   .lx-foto-kuti { position: relative; margin-bottom: 10px; }
   /* Numrat e rreshtave mbi foto (nga pozicioni x/y i dhënë nga AI) */
-  .lx-numrat { position: absolute; inset: 0; pointer-events: none; }
+  .lx-numrat { position: absolute; top: 0; right: 0; bottom: 0; left: 0; pointer-events: none; }
   .foto-numri {
     position: absolute; transform: translate(-50%, -50%); width: 20px; height: 20px; border-radius: 50%;
     background: #fff; border: 2px solid #e53935; color: #e53935; font-weight: 800; font-size: 11px;
@@ -1119,11 +1157,11 @@
 <link rel="stylesheet" href="css/stoku-temat.css?v=2">
 <link rel="stylesheet" href="css/stoku-logot.css?v=2">
 <script src="logot.js?v=2"></script>
-<link rel="stylesheet" href="css/stoku.css?v=73">
+<link rel="stylesheet" href="css/stoku.css?v=74">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
-<script src="porta.js?v=314"></script>
+<script src="porta.js?v=319"></script>
 
 <header>
   <button id="btnMbrapa" class="btn-ikone" type="button" aria-label="Mbrapa" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
@@ -1688,6 +1726,9 @@
                 <button class="btn" id="btnRiautentifiko" type="button" style="width:100%"></button>
               </div>
             </div>
+            <!-- v319: pajisjet ku je i kyçur (pajisjet.js) + "Shkëput" nga distanca -->
+            <div class="ops-grupi-titull">Pajisjet ku je i kyçur</div>
+            <div class="ops-karta ll-pajisjet" id="llPajisjet"></div>
             <button class="ops-dil" id="cloudDilBtn" type="button"></button>
           </div>
         </div>
@@ -1730,11 +1771,6 @@
           <button class="sb-action sb-action-kv" id="afImporto" type="button" data-leja="afatetImporto" aria-label="Importo Excel" title="Importo Excel"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5"></path><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path></svg>Importo</button>
           <div class="sb-excel">
           <button class="sb-action sb-action-kv" id="afExcel" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="afExcelMenu" aria-label="Eksporto" title="Eksporto"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"></path><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path></svg>Eksporto</button>
-          <div class="sb-menu" id="afExcelMenu" hidden>
-            <button class="sb-menu__item" id="afEksporto" type="button" data-leja="eksportExcel"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M8 13h2M14 13h2M8 17h2M14 17h2"></path></svg>Eksporto Excel</button>
-            <button class="sb-menu__item" id="afEksPdf" type="button" data-leja="eksportPdf"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M8 13h8M8 17h5"></path></svg>Eksporto PDF</button>
-            <button class="sb-menu__item" id="afEksFoto" type="button" data-leja="eksportExcel"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"></path></svg>Eksporto si foto</button>
-          </div>
           </div>
         </div>
       </div>
@@ -1932,6 +1968,20 @@
   </div>
 </div>
 
+<!-- v319 (pronari: "dritaret te afatet importo exporto sjan te njejta bone ... sikur importo"): "Eksporto" hap dritare si "Importo" -->
+<div class="mbulese" id="dlgAfEksporto">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="aeTitulli">
+    <h2 id="aeTitulli">Eksporto afatet</h2>
+    <p class="hint" style="margin-top:0">Zgjidh si do t'i nxjerrësh afatet.</p>
+    <div class="ap-lista" id="afExcelMenu">
+      <button type="button" class="ap-rresht ap-rresht-btn ae-op" id="afEksporto" data-leja="eksportExcel"><span class="ap-ik ap-gjelber"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M8 13h2M14 13h2M8 17h2M14 17h2"></path></svg></span><span class="ae-tk"><span class="ap-em">Excel</span><small>Tabelë .xlsx me kolonat që zgjedh</small></span><svg class="ap-shigj" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button>
+      <button type="button" class="ap-rresht ap-rresht-btn ae-op" id="afEksPdf" data-leja="eksportPdf"><span class="ap-ik ap-kuqe"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M8 13h8M8 17h5"></path></svg></span><span class="ae-tk"><span class="ap-em">PDF për printim</span><small>Lista e afateve në fletë A4</small></span><svg class="ap-shigj" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button>
+      <button type="button" class="ap-rresht ap-rresht-btn ae-op" id="afEksFoto" data-leja="eksportExcel"><span class="ap-ik ap-blu"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="19" height="19" rx="3"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"></path></svg></span><span class="ae-tk"><span class="ap-em">Si foto</span><small>Një foto për secilin furnizues, për Viber ose WhatsApp</small></span><svg class="ap-shigj" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button>
+    </div>
+    <div class="veprime"><button class="btn tekst" id="aeAnulo" type="button" style="width:100%">Anulo</button></div>
+  </div>
+</div>
+
 <!-- v275: Afatet në PDF për printim (ideja 1 e pronarit; opsionet si rreshta, "A"): A4 e bardhë -->
 <div class="mbulese" id="dlgAfPdf">
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="apTitulli">
@@ -1939,8 +1989,8 @@
     <div class="ax-nen" id="apNen"></div>
     <div class="ap-lista">
       <label class="ap-rresht"><span class="ap-ik ap-blu"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg></span><span class="ap-em">Periudha</span><span class="ap-v" id="apPeriudhaV"></span><svg class="ap-shigj" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg><select id="apPeriudha" aria-label="Periudha"></select></label>
-      <label class="ap-rresht"><span class="ap-ik ap-portokalli"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18M12 13v6M9 16h6"></path></svg></span><span class="ap-em">Shtuar</span><span class="ap-v" id="apShtuarV"></span><svg class="ap-shigj" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg><select id="apShtuar" aria-label="Shtuar"></select></label>
-      <div class="ap-datat" id="apDatat" hidden><label><span>Nga</span><input type="date" id="apNga" aria-label="Nga data"></label><label><span>Deri</span><input type="date" id="apDeri" aria-label="Deri te data"></label></div>
+      <button type="button" class="ap-rresht ap-rresht-btn" id="apDitetRr" aria-expanded="false" aria-controls="apKal"><span class="ap-ik ap-portokalli"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18M12 13v6M9 16h6"></path></svg></span><span class="ap-em">Ditët e skanimit</span><span class="ap-v" id="apDitetV"></span><svg class="ap-shigj" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button>
+      <div class="ap-kal" id="apKal" hidden></div>
       <label class="ap-rresht furn-vetem"><span class="ap-ik ap-gjelber"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17h4V5H2v12h3"></path><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"></path><circle cx="7.5" cy="17.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg></span><span class="ap-em">Furnizuesi</span><span class="ap-v" id="apFurnV"></span><svg class="ap-shigj" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg><select id="apFurn" aria-label="Furnizuesi"></select></label>
       <label class="ap-rresht"><span class="ap-ik ap-vjollce"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 4 4 4-4M7 20V4M21 8l-4-4-4 4M17 4v16"></path></svg></span><span class="ap-em">Renditja</span><span class="ap-v" id="apRendV"></span><svg class="ap-shigj" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg><select id="apRend" aria-label="Renditja"></select></label>
     </div>
@@ -2170,15 +2220,16 @@
 <script src="ruajtja.js?v=281"></script>
 <script src="skedaret.js?v=1"></script>
 <script src="lejet.js?v=8"></script>
+<script src="pajisjet.js?v=1"></script>
 <script src="afatet.js?v=295"></script>
-<script src="eksportet.js?v=317"></script>
+<script src="eksportet.js?v=319"></script>
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
 <script src="ekipa.js?v=316"></script>
 <script src="njoftimet.js?v=313"></script>
 <script src="temat.js?v=2"></script>
-<script src="versioni.js?v=318"></script>
-<script src="app-tel.js?v=318"></script>
+<script src="versioni.js?v=319"></script>
+<script src="app-tel.js?v=319"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
@@ -2187,6 +2238,6 @@
 <!-- Firebase (Cloud): modul i vetëm, ekspozon window.__stokuCloud për skriptin kryesor.
      Hyrje me emër përdoruesi + fjalëkalim (pa email): emri shndërrohet në një "email" të brendshëm
      (emri@stoku-app.local) vetëm që Firebase Auth ta pranojë; përdoruesi asnjëherë s'e sheh a s'e fut email. -->
-<script type="module" src="firebase-tel.js?v=309"></script>
+<script type="module" src="firebase-tel.js?v=319"></script>
 </body>
 </html>

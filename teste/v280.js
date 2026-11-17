@@ -21,11 +21,10 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
     await p.evaluate(() => document.querySelectorAll('.mbulese.hapur').forEach(x => { if (!x.classList.contains('faqe-e-plote')) x.classList.remove('hapur'); }));
     await p.click('#btnAfatet'); await p.waitForTimeout(700);
     await p.click('#afExcel'); await p.waitForTimeout(200);
-    const m = await p.evaluate(() => { const e = document.getElementById('afExcelMenu'), r = e.getBoundingClientRect();
-      const t = Math.max(...Array.from(e.querySelectorAll('.sb-menu__item')).map(i => i.scrollWidth));
-      return { w: Math.round(r.width), t, zbrazet: Math.round(r.width) - t }; });
-    ok(m.w < 210 && m.zbrazet >= 0 && m.zbrazet <= 16, tema + ' 1. menyja e "Eksporto" aq e gjerë sa teksti (jo më 210 px)', m);
-    await p.click('#afExcel'); await p.waitForTimeout(150);
+    // v319: dritare si "Importo" (jo më menyja e ngushtë); rreshtat e lartë si te PDF-ja
+    const m = await p.evaluate(() => Array.from(document.querySelectorAll('#afExcelMenu .ae-op')).map(x => Math.round(x.getBoundingClientRect().height)));
+    ok(m.length === 3 && m.every(h => h >= 60), tema + ' 1. dritarja "Eksporto": 3 rreshta të lartë', m);
+    await p.click('#aeAnulo'); await p.waitForTimeout(250);
     await p.click('#afImporto'); await p.waitForTimeout(400);
     const tx = await p.evaluate(() => document.querySelector('#aiHapi1 .hint').textContent.trim());
     ok(tx === 'Importo afatet nga një skedar Excel (.xlsx) ose .csv.', tema + ' 2. teksti i importit (forma "C")', tx);

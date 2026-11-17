@@ -28,7 +28,7 @@ kërkimi, +/-, skanimi, zhvendosja, fshirja, folder i ri, **importi i stokut nga
 "U hoq nga rafti", zgjedhja e shumëfishtë, **"Fotografo fletën"**: fotoja (kamera ose galeria) lexohet me AI nga Worker-i
 `stoku-afatet`, rreshtat kontrollohen dhe ruhen si te web-i), Cilësimet (pamja dhe madhësia e shkronjave, renditja,
 skanimi: PDA, fshih tastierën, pa emër, tingulli, kursori; llogaria: ndrysho emrin ose fjalëkalimin, rikthe nga cloud;
-"Çka ka të re", versioni), sinkronizimi me Firebase dhe lejet e llogarisë.
+versioni), sinkronizimi me Firebase dhe lejet e llogarisë.
 
 **Marketet e merchandiserit**: GPS kur hapet aplikacioni, "Ku je?" me marketet afër, "Je te: …", "Market i ri", afatet sipas
 marketit, Cilësimet → Marketet (`Merchandiseri.kt`, `ui/MarketetUI.kt`).
@@ -48,7 +48,7 @@ Excel-i i afateve (kolonat, muaji, furnizuesi, të zgjedhurat), importi i afatev
 
 **Cilësimet si te web-i** (`ui/CilesimetEkrani.kt`, `ui/CilesimetPerberes.kt`): faqe të plota me "←", menyja me profilin,
 Pamja, Skenimi, Njoftimet, Ora e dorës, Marketet, Stoku, Përdoruesit (administratori), Llogaria (foto e profilit me
-`Fotot.kt`, kopja e të fshirave nga një pajisje tjetër), "Çka ka të re". Cilësimet → Stoku: renditja, Furnizuesit dhe
+`Fotot.kt`, kopja e të fshirave nga një pajisje tjetër, pajisjet ku je i kyçur me `Pajisjet.kt`). Cilësimet → Stoku: renditja, Furnizuesit dhe
 Produktet (`ui/RegjistriUI.kt`) nga kujtesa e produkteve (`logjika/Kujtesa.kt`, `logjika/Furnizuesit.kt`, krahasuar me
 afatet.js te `KujtesaTest`) dhe regjistri i përbashkët i Stoku-t (`Regjistri.kt`, si ekipa.js).
 

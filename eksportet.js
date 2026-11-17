@@ -215,45 +215,84 @@
     return d.output('arraybuffer');
   }
 
-  // v317 (pronari: "qite ni opsion me mujt me eksportu nkohen kur jan shtu afatet ... me zgjedh dita ti vet"): filtri "Shtuar" sipas
-  // ditës kur u shtua afati (krijuarSe, ora e Kosovës). sh: '' (të gjitha) | 'sot' | 'dje' | '7' | '14' | '30' | 'zgjidh' (nga/deri, ISO).
-  // Kthen [nga, deri] si 'YYYY-MM-DD' ose null (pa kufizim). Android: EksportiPdf.intervali (ndryshoji bashkë).
-  var AP_SHTUAR = [['', 'Të gjitha'], ['sot', 'Sot'], ['dje', 'Dje'], ['7', '7 ditët e fundit'], ['14', '14 ditët e fundit'], ['30', '30 ditët e fundit'], ['zgjidh', 'Zgjidh datat']];
-  function apDitaPara(iso, n) {
-    var p = String(iso).split('-'), t = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] - n));
-    return t.getUTCFullYear() + '-' + ('0' + (t.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + t.getUTCDate()).slice(-2);
-  }
-  function apIntervali(sh, sot, nga, deri) {
-    if (sh === 'sot') return [sot, sot];
-    if (sh === 'dje') { var dj = apDitaPara(sot, 1); return [dj, dj]; }
-    if (sh === '7' || sh === '14' || sh === '30') return [apDitaPara(sot, +sh - 1), sot];
-    if (sh === 'zgjidh') {
-      var a = /^\d{4}-\d{2}-\d{2}$/.test(nga || '') ? nga : sot, b = /^\d{4}-\d{2}-\d{2}$/.test(deri || '') ? deri : a;
-      return a <= b ? [a, b] : [b, a];
-    }
-    return null;
-  }
+  // v319 (pronari: "Shtuar ndrroja emrin se pa kuptim e qet ni kalendar mi selektu nto ditet ka njo ka njo se cilat dita ke skanu
+  // me i zgjedh vet ti, me mujt ne kalendar me prek mi zgjedh"): rreshti "Ditët e skanimit" hap një kalendar; preken ditët (një nga
+  // një, sa të duash) kur janë shtuar afatet (krijuarSe, ora e Kosovës). Asnjë ditë e zgjedhur = të gjitha. Android: EksportiPdf
+  // (ditaEShtimit / filtro / tekstiDiteve) + KalendariIDiteve te EksportetUI.kt.
+  var AP_MUAJT = ['Janar', 'Shkurt', 'Mars', 'Prill', 'Maj', 'Qershor', 'Korrik', 'Gusht', 'Shtator', 'Tetor', 'Nëntor', 'Dhjetor'];
+  var AP_JAVA = ['H', 'M', 'M', 'E', 'P', 'S', 'D'];
   // Dita kur u shtua afati ('YYYY-MM-DD', ora e Kosovës); '' kur s'dihet (afatet shumë të vjetra pa krijuarSe)
   function apDitaEShtimit(a) {
     var AF = root.StokuAfatet, k = +(a && a.krijuarSe) || 0;
     return k > 0 && AF ? AF.isoNgaData(AF.dataKs(k)) : '';
   }
-  function apShtuarOk(a, iv) {
-    if (!iv) return true;
+  // ditet: listë 'YYYY-MM-DD' (bosh = pa kufizim)
+  function apDitaOk(a, ditet) {
+    if (!ditet || !ditet.length) return true;
     var d = apDitaEShtimit(a);
-    return !!d && d >= iv[0] && d <= iv[1];
+    return !!d && ditet.indexOf(d) >= 0;
   }
-  // "16.11.2026" ose "12.11 deri 16.11.2026" (për rreshtin dhe PDF-në)
-  function apTekstiIntervalit(iv) {
-    var f = function (x, vit) { var p = x.split('-'); return p[2] + '.' + p[1] + (vit ? '.' + p[0] : ''); };
-    if (iv[0] === iv[1]) return f(iv[0], true);
-    return f(iv[0], iv[0].slice(0, 4) !== iv[1].slice(0, 4)) + ' deri ' + f(iv[1], true);
+  // { 'YYYY-MM-DD': sa afate u shtuan atë ditë }
+  function apNumratEDiteve(l) {
+    var m = {};
+    (l || []).forEach(function (a) { var d = apDitaEShtimit(a); if (d) m[d] = (m[d] || 0) + 1; });
+    return m;
+  }
+  // Vlera e rreshtit: "Të gjitha", "16.11.2026", "12.11, 14.11, 16.11" ose "5 ditë"
+  function apTekstiDiteve(ditet) {
+    var l = (ditet || []).slice().sort();
+    if (!l.length) return 'Të gjitha';
+    var f = function (x) { var p = x.split('-'); return p[2] + '.' + p[1]; };
+    if (l.length === 1) { var p = l[0].split('-'); return p[2] + '.' + p[1] + '.' + p[0]; }
+    return l.length <= 3 ? l.map(f).join(', ') : l.length + ' ditë';
+  }
+  // Kalendari (web telefon + PC): o = { viti, muaji (0-11), numrat, zgjedhur: [iso], sot: iso, ndrysho(zgjedhur), muaj(viti, muaji) }
+  function apKalendari(el, o) {
+    el.textContent = '';
+    var mk = function (tag, kl, tx) { var x = document.createElement(tag); if (kl) x.className = kl; if (tx !== undefined) x.textContent = tx; return x; };
+    var krye = mk('div', 'ap-kal-krye');
+    var para = mk('button', 'ap-kal-nav', '‹'); para.type = 'button'; para.setAttribute('aria-label', 'Muaji i kaluar');
+    var pas = mk('button', 'ap-kal-nav', '›'); pas.type = 'button'; pas.setAttribute('aria-label', 'Muaji tjetër');
+    para.addEventListener('click', function () { var m = o.muaji - 1, v = o.viti; if (m < 0) { m = 11; v--; } o.muaj(v, m); });
+    pas.addEventListener('click', function () { var m = o.muaji + 1, v = o.viti; if (m > 11) { m = 0; v++; } o.muaj(v, m); });
+    krye.appendChild(para); krye.appendChild(mk('b', null, AP_MUAJT[o.muaji] + ' ' + o.viti)); krye.appendChild(pas);
+    el.appendChild(krye);
+    var g = mk('div', 'ap-kal-rrjeta');
+    AP_JAVA.forEach(function (d) { g.appendChild(mk('span', 'ap-kal-emer', d)); });
+    var e1 = new Date(Date.UTC(o.viti, o.muaji, 1)).getUTCDay(), bosh = (e1 + 6) % 7, nd = new Date(Date.UTC(o.viti, o.muaji + 1, 0)).getUTCDate();
+    for (var i = 0; i < bosh; i++) g.appendChild(mk('span'));
+    for (var d = 1; d <= nd; d++) {
+      var iso = o.viti + '-' + ('0' + (o.muaji + 1)).slice(-2) + '-' + ('0' + d).slice(-2), n = o.numrat[iso] || 0, on = o.zgjedhur.indexOf(iso) >= 0;
+      var b = mk('button', 'ap-kal-dite' + (n ? ' ka' : '') + (on ? ' on' : '') + (iso === o.sot ? ' sot' : '')); b.type = 'button';
+      b.setAttribute('data-iso', iso); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.setAttribute('aria-label', d + ' ' + AP_MUAJT[o.muaji] + (n ? ': ' + n + (n === 1 ? ' afat' : ' afate') : ''));
+      b.appendChild(mk('span', null, String(d)));
+      if (n) b.appendChild(mk('small', null, String(n)));
+      b.disabled = !n && !on;
+      (function (iso, on) {
+        b.addEventListener('click', function () {
+          var z = o.zgjedhur.filter(function (x) { return x !== iso; });
+          if (!on) z.push(iso);
+          o.ndrysho(z.sort());
+        });
+      })(iso, on);
+      g.appendChild(b);
+    }
+    el.appendChild(g);
+    var fund = mk('div', 'ap-kal-fund');
+    fund.appendChild(mk('span', null, o.zgjedhur.length ? (o.zgjedhur.length === 1 ? '1 ditë e zgjedhur' : o.zgjedhur.length + ' ditë të zgjedhura') : 'Prek ditët që do t\'i nxjerrësh'));
+    if (o.zgjedhur.length) {
+      var pz = mk('button', 'ap-kal-pastro', 'Pastro'); pz.type = 'button';
+      pz.addEventListener('click', function () { o.ndrysho([]); });
+      fund.appendChild(pz);
+    }
+    el.appendChild(fund);
   }
 
   root.StokuEksportet = {
     FOTO_MAKS: AEF_MAKS, NGJ: AEF_NGJ,
     vizatoFoton: aefVizato, skedariFotos: aefSkedari, fontet: aefFontet, logo: aefLogo,
     planiPdf: apPlani, pdf: apPdf,
-    SHTUAR: AP_SHTUAR, intervaliShtuar: apIntervali, shtuarOk: apShtuarOk, ditaEShtimit: apDitaEShtimit, tekstiIntervalit: apTekstiIntervalit
+    ditaEShtimit: apDitaEShtimit, ditaOk: apDitaOk, numratEDiteve: apNumratEDiteve, tekstiDiteve: apTekstiDiteve, kalendari: apKalendari
   };
 })(typeof window !== 'undefined' ? window : this);

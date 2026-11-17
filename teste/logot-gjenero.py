@@ -111,6 +111,16 @@ DATA = {
 }
 
 
+def svg_ikona_maskable(madhesia=512, ng=None):
+    """v319 (pronari, foto: ikona e web app-it kishte shkronjat më të mëdha se ajo e Android-it): ikona "maskable" e manifestit.
+    Rrethi i sigurt i maskable (80% e fotos) = rrethi i sigurt i ikonës përshtatëse të Android-it (66 nga 108), pra fotoja mbulon
+    86.4 njësi të rrjetës 108 (jo vetëm 72 të dukshmet, provuar me foton e pronarit): kur launcher-i e pret, shkronjat dalin njësoj si te aplikacioni Android."""
+    NG_ = ng or NG
+    a, w = 10.8, 86.4 # në mes: 54 - 43.2; 86.4 = 72 / 0.833: Chrome-i (WebAPK) tregon rreth 83% të fotos maskable
+    return ('<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d" viewBox="%s %s %s %s"><rect x="%s" y="%s" width="%s" height="%s" fill="%s"/><path fill="%s" d="%s"/><path fill="%s" d="%s"/></svg>' % (
+        madhesia, madhesia, a, a, w, w, a, a, w, w, NG_['bg'], NG_['fg'], IKONA['t'], NG_['ac'], IKONA['p']))
+
+
 def svg_ikona(e_vogel=False, katror=False, madhesia=512, ng=None):
     """Ikona në rrjetën 108 e prerë te zona e dukshme 18..90: katror (maskable/apple) ose katror i rrumbullakosur"""
     I = IKONA_S if e_vogel else IKONA
@@ -239,6 +249,7 @@ def kryesore():
     shkruaj('logo/favicon.svg', svg_ikona(e_vogel=True, madhesia=64))
     shkruaj('logo/stoku-icon.svg', svg_ikona(madhesia=512))
     shkruaj('logo/stoku-icon-square.svg', svg_ikona(katror=True, madhesia=512))
+    shkruaj('logo/stoku-icon-maskable.svg', svg_ikona_maskable(madhesia=512))
     shkruaj('logo/favicon-celet.svg', svg_ikona(e_vogel=True, madhesia=64, ng=NG_C))
     shkruaj('logo/stoku-icon-celet.svg', svg_ikona(madhesia=512, ng=NG_C))
     shkruaj('logo/stoku-mono.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="18 18 72 72"><path fill="#ffffff" d="%s"/><path fill="#ffffff" d="%s"/></svg>' % (

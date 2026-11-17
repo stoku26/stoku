@@ -220,7 +220,7 @@ fun AfatetExcelFlete(zgjedhura: List<Obj>?, eFiltruara: (String) -> List<Obj>, m
 
 /**
  * Hyrja 36 (web v275, #dlgAfPdf): "PDF për printim" (pronari: ideja 1, opsionet "A"). Katër rreshta: Periudha ("Të gjitha" ose një muaj),
- * Shtuar (Hyrja 79, në vend të "Gjendja": dita kur u shtuan afatet), Furnizuesi, Renditja; secili hap zgjedhjen e vet. PDF-ja (EksportiPdf, A4 e bardhë) del te SkedariFlete (PC / Ruaje / Ndaje).
+ * Ditët e skanimit (Hyrja 81: kalendar, në vend të "Gjendja" / "Shtuar"), Furnizuesi, Renditja; secili hap zgjedhjen e vet. PDF-ja (EksportiPdf, A4 e bardhë) del te SkedariFlete (PC / Ruaje / Ndaje).
  */
 @Composable
 fun AfatetPdfFlete(te: List<Obj>, mbyll: () -> Unit, gati: (Skedari) -> Unit) {
@@ -229,23 +229,19 @@ fun AfatetPdfFlete(te: List<Obj>, mbyll: () -> Unit, gati: (Skedari) -> Unit) {
     val scope = rememberCoroutineScope()
     val paF = Llogaria.eshteMerchandiser()
     var mu by remember { mutableStateOf("") }
-    var sh by remember { mutableStateOf("") } // Hyrja 79: "Shtuar" në vend të "Gjendja"
-    val sot = remember { java.time.LocalDate.now() }
-    var nga by remember { mutableStateOf(sot) }
-    var deri by remember { mutableStateOf(sot) }
+    // Hyrja 81 (pronari: "Shtuar ndrroja emrin ... e qet ni kalendar mi selektu nto ditet ka njo ka njo"): "Ditët e skanimit" me kalendar
+    var ditet by remember { mutableStateOf(emptySet<java.time.LocalDate>()) }
+    var kalHapur by remember { mutableStateOf(false) }
     var f by remember { mutableStateOf("") }
     var r by remember { mutableStateOf("data") }
     var duke by remember { mutableStateOf(false) }
-    fun iv(k: String) = EksportiPdf.intervali(k, sot, nga, deri)
-    val ivZ = iv(sh)
-    val shOps = EksportiPdf.SHTUAR.map { (k, t) -> k to "$t (${EksportiPdf.filtro(te, mu, iv(k), f, paF).size})" }
-    val muajt = Afatet.muajtELista(EksportiPdf.filtro(te, "", ivZ, f, paF))
+    val muajt = Afatet.muajtELista(EksportiPdf.filtro(te, "", ditet, f, paF))
     val muE = if (mu.isEmpty() || muajt.any { it.celes == mu }) mu else ""
-    val furn = if (paF) emptyList() else Afatet.furnizuesitELista(EksportiPdf.filtro(te, muE, ivZ, "", paF))
+    val furn = if (paF) emptyList() else Afatet.furnizuesitELista(EksportiPdf.filtro(te, muE, ditet, "", paF))
     val fE = if (f.isEmpty() || furn.any { it.celes == f }) f else ""
-    val lista = EksportiPdf.filtro(te, muE, ivZ, fE, paF)
+    val lista = EksportiPdf.filtro(te, muE, ditet, fE, paF)
     val faqet = EksportiPdf.plani(lista.size).size
-    val shT = if (ivZ == null) "Të gjitha" else if (sh == "zgjidh") EksportiPdf.tekstiIntervalit(ivZ) else EksportiPdf.SHTUAR.first { it.first == sh }.second
+    val numratD = remember(te, muE, fE) { EksportiPdf.numratEDiteve(EksportiPdf.filtro(te, muE, emptySet(), fE, paF)) }
     val furnT = furn.firstOrNull { it.celes == fE }?.emri ?: "Të gjithë"
     Flete(mbyll) {
         Text("PDF për printim", style = tx(22, 700, n.ink, -0.02))
@@ -254,11 +250,8 @@ fun AfatetPdfFlete(te: List<Obj>, mbyll: () -> Unit, gati: (Skedari) -> Unit) {
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).border(1.dp, n.line, RoundedCornerShape(18.dp))) {
             RreshtiIOpsionit(Ik.Kalendari, "blu", "Periudha", if (muE.isEmpty()) "Të gjitha" else muajt.first { it.celes == muE }.emri,
                 listOf("" to "Të gjitha") + muajt.map { it.celes to "${it.emri} (${it.n})" }, muE, true) { mu = it }
-            RreshtiIOpsionit(Ik.KalendariShto, "portokalli", "Shtuar", shT, shOps, sh, false) { sh = it }
-            if (sh == "zgjidh") Row(Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, bottom = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                ZgjidhDaten("Nga", nga, Modifier.weight(1f)) { nga = it }
-                ZgjidhDaten("Deri", deri, Modifier.weight(1f)) { deri = it }
-            }
+            RreshtiIButonit(Ik.KalendariShto, "portokalli", "Ditët e skanimit", EksportiPdf.tekstiDiteve(ditet)) { kalHapur = !kalHapur }
+            if (kalHapur) KalendariIDiteve(numratD, ditet) { ditet = it }
             if (!paF) RreshtiIOpsionit(Ik.Kamion, "gjelber", "Furnizuesi", furnT, listOf("" to "Të gjithë") + furn.map { it.celes to "${it.emri} (${it.n})" }, fE, false) { f = it }
             RreshtiIOpsionit(Ik.Rendi, "vjollce", "Renditja", EksportiPdf.RENDET.first { it.first == r }.second, EksportiPdf.RENDET, r, false) { r = it }
         }
@@ -280,7 +273,7 @@ fun AfatetPdfFlete(te: List<Obj>, mbyll: () -> Unit, gati: (Skedari) -> Unit) {
                 val cope = Afatet.shumaCopeve(lista)
                 val info = ArrayList<Pair<String, Boolean>>()
                 info.add("Periudha: " to false); info.add(per to true)
-                listOf(if (ivZ == null) "" else "Shtuar: $shT", if (fE.isEmpty()) "" else furnT, idM?.let { Merchandiseri.emri(it) } ?: "").filter { it.isNotEmpty() }
+                listOf(if (fE.isEmpty()) "" else furnT, idM?.let { Merchandiseri.emri(it) } ?: "").filter { it.isNotEmpty() }
                     .forEach { info.add(" · " to false); info.add(it to true) }
                 info.add(" · " to false); info.add(lista.size.toString() to true); info.add((if (lista.size == 1) " produkt" else " produkte") to false)
                 if (cope > 0) { info.add(" · " to false); info.add(EksportiPdf.numri(cope) to true); info.add(" copë" to false) }
@@ -297,16 +290,65 @@ fun AfatetPdfFlete(te: List<Obj>, mbyll: () -> Unit, gati: (Skedari) -> Unit) {
     }
 }
 
-/** Hyrja 79: fusha e datës ("Nga" / "Deri") te "Shtuar → Zgjidh datat"; prekja hap kalendarin e sistemit */
+/** Hyrja 81: rresht si RreshtiIOpsionit, por prekja hap/mbyll kalendarin (jo listë) */
 @Composable
-private fun ZgjidhDaten(emri: String, data: java.time.LocalDate, modifier: Modifier, zgjidh: (java.time.LocalDate) -> Unit) {
+private fun RreshtiIButonit(ikona: androidx.compose.ui.graphics.vector.ImageVector, ngjyra: String, emri: String, vlera: String, prek: () -> Unit) {
     val n = N
-    val ctx = LocalContext.current
-    Column(modifier.clip(RoundedCornerShape(12.dp)).border(1.dp, n.line, RoundedCornerShape(12.dp)).clickable {
-        android.app.DatePickerDialog(ctx, { _, v, m, d -> zgjidh(java.time.LocalDate.of(v, m + 1, d)) }, data.year, data.monthValue - 1, data.dayOfMonth).show()
-    }.padding(horizontal = 12.dp, vertical = 8.dp)) {
-        Text(emri, style = tx(12, 600, n.muted))
-        Text(EksportiPdf.tekstiIntervalit(data to data), style = tx(15, 600, n.ink))
+    val (bg, fg) = n.ikonat[ngjyra] ?: (n.surface2 to n.ink3)
+    Column {
+        Box(Modifier.fillMaxWidth().heightIn(min = 1.dp, max = 1.dp).background(n.line2))
+        Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).clickable(onClick = prek).padding(horizontal = 14.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(36.dp).clip(RoundedCornerShape(11.dp)).background(bg), contentAlignment = Alignment.Center) { Icon(ikona, null, Modifier.size(19.dp), tint = fg) }
+            Spacer(Modifier.width(12.dp))
+            Text(emri, style = tx(15, 600, n.ink), modifier = Modifier.weight(1f))
+            Text(vlera, style = tx(14, 500, n.muted), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(start = 8.dp).widthIn(max = 170.dp))
+            Spacer(Modifier.width(6.dp))
+            Icon(Ik.Perpara, null, Modifier.size(18.dp), tint = n.faint)
+        }
+    }
+}
+
+/** Hyrja 81 (web v319, EX.kalendari): kalendari i ditëve kur u shtuan afatet; preken ditët (shumë), ditët pa afate s'preken */
+@Composable
+private fun KalendariIDiteve(numrat: Map<java.time.LocalDate, Int>, zgjedhur: Set<java.time.LocalDate>, ndrysho: (Set<java.time.LocalDate>) -> Unit) {
+    val n = N
+    val MUAJT = listOf("Janar", "Shkurt", "Mars", "Prill", "Maj", "Qershor", "Korrik", "Gusht", "Shtator", "Tetor", "Nëntor", "Dhjetor")
+    val sot = remember { java.time.LocalDate.now() }
+    var muaji by remember { mutableStateOf(java.time.YearMonth.from(zgjedhur.maxOrNull() ?: sot)) }
+    Column(Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, bottom = 12.dp)) {
+        Row(Modifier.fillMaxWidth().padding(bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(n.surface2).clickable { muaji = muaji.minusMonths(1) }, contentAlignment = Alignment.Center) { Text("‹", style = tx(22, 500, n.ink)) }
+            Text(MUAJT[muaji.monthValue - 1] + " " + muaji.year, style = tx(15, 700, n.ink), modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+            Box(Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(n.surface2).clickable { muaji = muaji.plusMonths(1) }, contentAlignment = Alignment.Center) { Text("›", style = tx(22, 500, n.ink)) }
+        }
+        Row(Modifier.fillMaxWidth()) { listOf("H", "M", "M", "E", "P", "S", "D").forEach { Text(it, style = tx(11, 700, n.faint), modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Center) } }
+        val bosh = muaji.atDay(1).dayOfWeek.value - 1
+        val qelizat = List(bosh) { null } + (1..muaji.lengthOfMonth()).map { muaji.atDay(it) }
+        qelizat.chunked(7).forEach { jv ->
+            Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                (0 until 7).forEach { i ->
+                    val d = jv.getOrNull(i)
+                    if (d == null) Spacer(Modifier.weight(1f).height(42.dp))
+                    else {
+                        val nr = numrat[d] ?: 0
+                        val on = d in zgjedhur
+                        val sf = when { on -> n.accent; nr > 0 -> n.surface2; else -> Color.Transparent }
+                        Column(Modifier.weight(1f).height(42.dp).clip(RoundedCornerShape(12.dp)).background(sf)
+                            .then(if (nr > 0 || on) Modifier.clickable { ndrysho(if (on) zgjedhur - d else zgjedhur + d) } else Modifier),
+                            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                            Text(d.dayOfMonth.toString(), style = tx(14, 600, if (on) Color.White else if (nr > 0) n.ink else n.faint)
+                                .copy(textDecoration = if (d == sot) androidx.compose.ui.text.style.TextDecoration.Underline else null))
+                            if (nr > 0) Text(nr.toString(), style = txF(9.5f, 700, if (on) Color.White.copy(alpha = 0.85f) else n.muted))
+                        }
+                    }
+                }
+            }
+        }
+        Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(if (zgjedhur.isEmpty()) "Prek ditët që do t'i nxjerrësh" else if (zgjedhur.size == 1) "1 ditë e zgjedhur" else "${zgjedhur.size} ditë të zgjedhura",
+                style = txF(12.5f, 400, n.muted), modifier = Modifier.weight(1f))
+            if (zgjedhur.isNotEmpty()) Text("Pastro", style = tx(13, 700, n.accent), modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable { ndrysho(emptySet()) }.padding(6.dp))
+        }
     }
 }
 

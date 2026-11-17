@@ -2882,6 +2882,72 @@
     mbyllDialog('dlgLlogaria');
     kurNdryshonLlogaria();
   }
+  // ---------- v319: Cilësimet → Llogaria → "Pajisjet ku je i kyçur" (pajisjet.js) ----------
+  // Pronari: "me i pa pajisjet ku osht i kyqt qaj perdorues edhe me pas mundesi me e shkyq llogarin prej ku don"
+  var __pajL = [], __pajNdal = null;
+  var IK_PAJ = {
+    tel: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"></rect><path d="M11 18h2"></path></svg>',
+    pc: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg>'
+  };
+  function pajisjetCloud() { return window.__stokuCloud && window.__stokuCloud.pajisjet; }
+  function vizatoPajisjet() {
+    var el = $('llPajisjet');
+    if (!el) return;
+    el.textContent = '';
+    if (!__pajL.length) { var h = document.createElement('div'); h.className = 'hint'; h.style.margin = '12px 0'; h.textContent = 'Duke i ngarkuar pajisjet…'; el.appendChild(h); return; }
+    __pajL.forEach(function (x) {
+      var r = document.createElement('div'); r.className = 'll-paj'; r.setAttribute('data-id', x.id);
+      var ik = document.createElement('span'); ik.className = 'll-paj__ik'; ik.innerHTML = x.lloji === 'pc' ? IK_PAJ.pc : IK_PAJ.tel; r.appendChild(ik);
+      var tk = document.createElement('div'); tk.className = 'll-paj__tk';
+      var b = document.createElement('b'); b.textContent = x.emri + (x.lloji === 'android' ? ' (aplikacioni)' : ''); tk.appendChild(b);
+      var nen = document.createElement('span');
+      if (x.kjo) { nen.className = 'kjo'; nen.textContent = 'Kjo pajisje'; }
+      else nen.textContent = 'Aktive ' + (x.paraSe ? EKL.kohaRelative(x.paraSe) : 'pa datë');
+      tk.appendChild(nen); r.appendChild(tk);
+      if (!x.kjo) {
+        var bs = document.createElement('button'); bs.type = 'button'; bs.className = 'btn dyte vogel rrezik ll-paj-shkeput'; bs.textContent = 'Shkëput';
+        bs.addEventListener('click', async function () {
+          var po = await konfirmo('Të shkëputet kjo pajisje?', '"' + x.emri + '" del nga llogaria jote sapo të lidhet me internetin. Për të hyrë sërish duhet fjalëkalimi.', 'Shkëput');
+          if (!po) return;
+          bs.disabled = true;
+          var rz = await pajisjetCloud().shkeput(x.id);
+          if (!rz.ok) { bs.disabled = false; toast('Pajisja s\'u shkëput. Kontrollo internetin dhe provo përsëri.', 4000); return; }
+          toast('Pajisja u shkëput.');
+        });
+        r.appendChild(bs);
+      }
+      el.appendChild(r);
+    });
+    var tjerat = __pajL.filter(function (x) { return !x.kjo; });
+    if (tjerat.length > 1) {
+      var bk = document.createElement('button'); bk.type = 'button'; bk.className = 'btn tekst rrezik ll-paj-krejt'; bk.id = 'llPajKrejt'; bk.textContent = 'Shkëput të gjitha të tjerat';
+      bk.addEventListener('click', async function () {
+        var po = await konfirmo('Të shkëputen të gjitha pajisjet e tjera?', 'Mbetesh i kyçur vetëm në këtë pajisje.', 'Shkëput të gjitha');
+        if (!po) return;
+        bk.disabled = true;
+        var rz = await Promise.all(tjerat.map(function (x) { return pajisjetCloud().shkeput(x.id); }));
+        bk.disabled = false;
+        toast(rz.every(function (q) { return q.ok; }) ? 'U shkëputën të gjitha pajisjet e tjera.' : 'Disa s\'u shkëputën. Kontrollo internetin.', 4000);
+      });
+      el.appendChild(bk);
+    }
+  }
+  function nisPajisjet() {
+    if (__pajNdal) { try { __pajNdal(); } catch (e) { /* ok */ } __pajNdal = null; }
+    __pajL = [];
+    var P = pajisjetCloud();
+    if (!P || !perdoruesi()) { vizatoPajisjet(); return; }
+    P.kurShkeputet(async function () {
+      ndalDegjuesin();
+      if (window.__stokuCloud && window.__stokuCloud.dil) await window.__stokuCloud.dil();
+      kurNdryshonLlogaria();
+      toast('U shkëpute nga llogaria nga një pajisje tjetër.', 6000);
+    });
+    __pajNdal = P.degjoListen(function (l) { __pajL = l; vizatoPajisjet(); }, function () { /* pa rregullat e reja: lista mbetet bosh */ });
+    vizatoPajisjet();
+  }
+  window.addEventListener('stoku-auth-ndryshoi', nisPajisjet);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && pajisjetCloud()) pajisjetCloud().rifresko(); });
   $('llDil').addEventListener('click', dil);
   $('opsDil').addEventListener('click', dil);
   $('sbpDil').addEventListener('click', dil); // v204: butoni i daljes te karta e llogarisë në anësore
@@ -5634,18 +5700,21 @@
   }
   // ---- PDF për printim ----
   var AP_RENDET = [['data', 'Sipas datës'], ['furnizuesi', 'Sipas furnizuesit'], ['emri', 'Sipas emrit']];
-  // v317 (pronari: "hiqe gjendjen qite ni opsion me mujt me eksportu nkohen kur jan shtu afatet"): pa "Gjendja"; "Shtuar" sipas
-  // ditës kur u shtua afati (EX.intervaliShtuar). Të hequrat s'hyjnë kurrë (si "Të gjitha" e vjetër).
-  function apIv(z) { return z.sh ? EX.intervaliShtuar(z.sh, AF.sot(), z.nga, z.deri) : null; }
-  function apTekstiShtuar(z) {
-    var iv = apIv(z);
-    if (!iv) return '';
-    return z.sh === 'zgjidh' ? EX.tekstiIntervalit(iv) : (EX.SHTUAR.filter(function (o) { return o[0] === z.sh; })[0] || ['', ''])[1];
+  // v319 (pronari: "Shtuar ndrroja emrin se pa kuptim e qet ni kalendar mi selektu nto ditet ka njo ka njo"): rreshti "Ditët e
+  // skanimit" hap kalendarin (EX.kalendari); preken ditët kur u shtuan afatet, sa të duash. Asnjë ditë = të gjitha. Të hequrat s'hyjnë.
+  var apDitet = [], apKalM = null;
+  function apKalHapur() { return !$('apKal').hidden; }
+  function apVizatoKal(z) {
+    var el = $('apKal');
+    if (el.hidden) return;
+    if (!apKalM) { var t = AF.dataKs(), l = apDitet.length ? apDitet[apDitet.length - 1].split('-') : null; apKalM = l ? { viti: +l[0], muaji: +l[1] - 1 } : { viti: t.getFullYear(), muaji: t.getMonth() }; }
+    var baza = apAfatet({ mu: z.mu, f: z.f }); // numrat e ditëve sipas zgjedhjeve të tjera
+    EX.kalendari(el, { viti: apKalM.viti, muaji: apKalM.muaji, numrat: EX.numratEDiteve(baza), zgjedhur: apDitet.slice(), sot: AF.sot(),
+      ndrysho: function (d) { apDitet = d; apRifresko(); }, muaj: function (v, m) { apKalM = { viti: v, muaji: m }; apRifresko(); } });
   }
   function apAfatet(z) {
-    var iv = apIv(z);
     return afatetEMarketit().filter(function (a) {
-      if (AF.statusi(a) === 'hequr' || !EX.shtuarOk(a, iv)) return false;
+      if (AF.statusi(a) === 'hequr' || !EX.ditaOk(a, z.ditet)) return false;
       if (z.mu && AF.celesiMuajit(a) !== z.mu) return false;
       if (z.f && !paFurnizues() && AF.celesiFurnizuesit(a) !== z.f) return false;
       return true;
@@ -5661,7 +5730,7 @@
     });
     return l.sort(k);
   }
-  function apZgj() { return { mu: $('apPeriudha').value, sh: $('apShtuar').value, nga: $('apNga').value, deri: $('apDeri').value, f: paFurnizues() ? '' : $('apFurn').value, r: $('apRend').value || 'data' }; }
+  function apZgj() { return { mu: $('apPeriudha').value, ditet: apDitet.slice(), f: paFurnizues() ? '' : $('apFurn').value, r: $('apRend').value || 'data' }; }
   function apMbush(sel, ops, para) {
     sel.textContent = '';
     ops.forEach(function (o) { var e = el('option', null, o[1]); e.value = o[0]; sel.appendChild(e); });
@@ -5669,17 +5738,16 @@
   }
   function apVlera(sel) { var o = sel.options[sel.selectedIndex]; return o ? o.textContent.replace(/\s*\(\d+\)$/, '') : ''; }
   function apRifresko(fillimi) {
-    if (fillimi) { $('apNga').value = AF.sot(); $('apDeri').value = AF.sot(); }
-    var z = fillimi ? { mu: '', sh: '', nga: AF.sot(), deri: AF.sot(), f: '', r: 'data' } : apZgj();
-    apMbush($('apShtuar'), EX.SHTUAR.map(function (g) { return [g[0], g[1] + ' (' + apAfatet({ sh: g[0], nga: z.nga, deri: z.deri, mu: z.mu, f: z.f }).length + ')']; }), z.sh);
-    z.sh = $('apShtuar').value;
-    $('apDatat').style.display = z.sh === 'zgjidh' ? 'flex' : 'none';
-    apMbush($('apPeriudha'), [['', 'Të gjitha']].concat(AF.muajtELista(apAfatet({ sh: z.sh, nga: z.nga, deri: z.deri, f: z.f })).map(function (m) { return [m.celes, m.emri + ' (' + m.n + ')']; })), z.mu);
+    if (fillimi) { apDitet = []; apKalM = null; $('apKal').hidden = true; $('apDitetRr').setAttribute('aria-expanded', 'false'); }
+    var z = fillimi ? { mu: '', ditet: [], f: '', r: 'data' } : apZgj();
+    apMbush($('apPeriudha'), [['', 'Të gjitha']].concat(AF.muajtELista(apAfatet({ ditet: z.ditet, f: z.f })).map(function (m) { return [m.celes, m.emri + ' (' + m.n + ')']; })), z.mu);
     z.mu = $('apPeriudha').value;
     if (!paFurnizues()) {
-      apMbush($('apFurn'), [['', 'Të gjithë']].concat(AF.furnizuesitELista(apAfatet({ sh: z.sh, nga: z.nga, deri: z.deri, mu: z.mu })).map(function (f) { return [f.celes, f.emri + ' (' + f.n + ')']; })), z.f);
+      apMbush($('apFurn'), [['', 'Të gjithë']].concat(AF.furnizuesitELista(apAfatet({ ditet: z.ditet, mu: z.mu })).map(function (f) { return [f.celes, f.emri + ' (' + f.n + ')']; })), z.f);
     }
     apMbush($('apRend'), AP_RENDET, z.r);
+    $('apDitetV').textContent = EX.tekstiDiteve(apDitet);
+    apVizatoKal(z);
     var n = apAfatet(apZgj()).length, f = EX.planiPdf(n).length;
     $('apNen').textContent = n ? (n === 1 ? '1 afat' : n + ' afate') + ' · ' + (f === 1 ? '1 faqe A4' : f + ' faqe A4') : 'S\'ka afate për këtë zgjedhje.';
     $('apKrijo').disabled = !n;
@@ -5698,7 +5766,7 @@
     var d = oraKs(), data = dy(d.getDate()) + '.' + dy(d.getMonth() + 1) + '.' + d.getFullYear(), ora = dy(d.getHours()) + ':' + dy(d.getMinutes());
     var per = z.mu ? AF.emriMuajit(z.mu) : 'Të gjitha', idM = idMarketitAktiv(), cope = AF.shumaCopeve(l);
     var info = [['Periudha: ', false], [per, true]];
-    [apTekstiShtuar(z) ? 'Shtuar: ' + apTekstiShtuar(z) : '', z.f ? apVlera($('apFurn')) : '', idM ? emriMarketit(idM) : ''].filter(Boolean)
+    [z.f ? apVlera($('apFurn')) : '', idM ? emriMarketit(idM) : ''].filter(Boolean)
       .forEach(function (x) { info.push([' · ', false], [x, true]); });
     info.push([' · ', false], [String(l.length), true], [l.length === 1 ? ' produkt' : ' produkte', false]);
     if (cope) info.push([' · ', false], [String(cope), true], [' copë', false]);
@@ -5710,7 +5778,8 @@
       toast('U shkarkua: ' + emri);
     } catch (err) { toast('PDF-ja s\'u krijua. Provo përsëri.'); }
   }
-  ['apPeriudha', 'apShtuar', 'apNga', 'apDeri', 'apFurn', 'apRend'].forEach(function (id) { $(id).addEventListener('change', function () { apRifresko(false); }); });
+  $('apDitetRr').addEventListener('click', function () { var h = !apKalHapur(); $('apKal').hidden = !h; $('apDitetRr').setAttribute('aria-expanded', h ? 'true' : 'false'); apRifresko(); });
+  ['apPeriudha', 'apFurn', 'apRend'].forEach(function (id) { $(id).addEventListener('change', function () { apRifresko(false); }); });
   $('apKrijo').addEventListener('click', apKrijo);
   // ---- Eksporto si foto ----
   var aefZgj = {}, aefFurn = [];

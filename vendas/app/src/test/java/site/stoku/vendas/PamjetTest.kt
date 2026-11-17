@@ -408,23 +408,26 @@ class PamjetTest {
         r.onNodeWithContentDescription("Eksporto").performClick(); r.waitForIdle() // Hyrja 38: menyja e eksportit
         kliko("Eksporto PDF")
         fotoEkrani("light-45-afatet-pdf")
-        for (t in listOf("PDF për printim", "5 afate · 1 faqe A4", "Periudha", "Shtuar", "Furnizuesi", "Renditja", "Sipas datës", "Krijo PDF-në"))
+        for (t in listOf("PDF për printim", "5 afate · 1 faqe A4", "Periudha", "Ditët e skanimit", "Furnizuesi", "Renditja", "Sipas datës", "Krijo PDF-në"))
             org.junit.Assert.assertTrue(t, r.onAllNodesWithText(t).fetchSemanticsNodes().isNotEmpty())
         val ctx: android.content.Context = org.robolectric.RuntimeEnvironment.getApplication()
         val te = Dyqani.gjendja.value.afatet
-        org.junit.Assert.assertEquals(5, EksportiPdf.filtro(te, "", null, "", false).size)
-        org.junit.Assert.assertEquals(2, EksportiPdf.filtro(te, "", null, "vita", false).size)
-        // Hyrja 79: "Shtuar" sipas ditës kur u shtua afati (pa "Gjendja")
+        org.junit.Assert.assertEquals(5, EksportiPdf.filtro(te, "", emptySet(), "", false).size)
+        org.junit.Assert.assertEquals(2, EksportiPdf.filtro(te, "", emptySet(), "vita", false).size)
+        // Hyrja 81: "Ditët e skanimit" (kalendar): vetëm ditët e zgjedhura
         val sot = java.time.LocalDate.now()
         fun ms(d: java.time.LocalDate) = d.atTime(10, 0).atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli().toDouble()
         val sh = listOf(sot, sot.minusDays(1), sot.minusDays(6), sot.minusDays(20)).mapIndexed { i, d -> mapOf<String, Any?>("id" to "s$i", "emri" to "P$i", "data" to "2027-01-01", "statusi" to "aktiv", "krijuarSe" to ms(d)) } +
             listOf(mapOf<String, Any?>("id" to "h", "emri" to "H", "data" to "2027-01-01", "statusi" to "hequr", "krijuarSe" to ms(sot)), mapOf<String, Any?>("id" to "v", "emri" to "V", "data" to "2027-01-01", "statusi" to "aktiv"))
-        org.junit.Assert.assertEquals(listOf(5, 1, 1, 3, 3, 4, 1), EksportiPdf.SHTUAR.map { (k, _) ->
-            EksportiPdf.filtro(sh, "", EksportiPdf.intervali(k, sot, sot.minusDays(20), sot.minusDays(20)), "", false).size })
-        org.junit.Assert.assertEquals("12.11 deri 16.11.2026", EksportiPdf.tekstiIntervalit(java.time.LocalDate.of(2026, 11, 12) to java.time.LocalDate.of(2026, 11, 16)))
+        org.junit.Assert.assertEquals(5, EksportiPdf.filtro(sh, "", emptySet(), "", false).size) // të hequrat s'hyjnë, "Pa kohe" po
+        org.junit.Assert.assertEquals(1, EksportiPdf.filtro(sh, "", setOf(sot), "", false).size)
+        org.junit.Assert.assertEquals(2, EksportiPdf.filtro(sh, "", setOf(sot.minusDays(1), sot.minusDays(20)), "", false).size)
+        org.junit.Assert.assertEquals(mapOf(sot to 2, sot.minusDays(1) to 1, sot.minusDays(6) to 1, sot.minusDays(20) to 1), EksportiPdf.numratEDiteve(sh))
+        org.junit.Assert.assertEquals("12.11, 16.11", EksportiPdf.tekstiDiteve(setOf(java.time.LocalDate.of(2026, 11, 16), java.time.LocalDate.of(2026, 11, 12))))
+        org.junit.Assert.assertEquals("Të gjitha", EksportiPdf.tekstiDiteve(emptySet()))
         org.junit.Assert.assertEquals(listOf(5), EksportiPdf.plani(5))
         org.junit.Assert.assertEquals(listOf(34, 37, 9), EksportiPdf.plani(80)) // Hyrja 61-62: faqet 2+ pa kokë, 37 rreshta; Hyrja 79: faqja 1 pa fund, 34
-        val l = EksportiPdf.rendit(EksportiPdf.filtro(te, "", null, "", false), "emri")
+        val l = EksportiPdf.rendit(EksportiPdf.filtro(te, "", emptySet(), "", false), "emri")
         org.junit.Assert.assertEquals("Bukë e zezë", l[0]["emri"])
         val o = EksportiPdf.Opsionet(listOf("Periudha: " to false, "Të gjitha" to true, " · " to false, "5" to true, " produkte" to false, " · " to false, "25" to true, " copë" to false), "07.11.2026", "14:32")
         val bmp = EksportiPdf.faqjaSiFoto(ctx, EksportiPdf.rendit(l, "data"), o, false, 0)

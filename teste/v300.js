@@ -56,7 +56,7 @@ async function faqe(b, af) {
 }
 const dritarja = p => p.evaluate(() => ({ hapur: document.getElementById('dlgAfPdf').classList.contains('hapur'), nen: document.getElementById('apNen').textContent,
   rr: Array.from(document.querySelectorAll('#dlgAfPdf .ap-rresht')).filter(x => x.offsetParent).map(x => x.querySelector('.ap-em').textContent + '=' + x.querySelector('.ap-v').textContent),
-  ops: Object.fromEntries(['apPeriudha', 'apShtuar', 'apFurn', 'apRend'].map(id => [id, Array.from(document.getElementById(id).options).map(o => o.textContent)])),
+  ops: Object.fromEntries(['apPeriudha', 'apFurn', 'apRend'].map(id => [id, Array.from(document.getElementById(id).options).map(o => o.textContent)])),
   pa: document.getElementById('apKrijo').disabled }));
 // Krijo → "Shkarko këtu" (ose direkt) → skedari i ndarë: emri, lloji, teksti i PDF-së (latin1)
 async function krijo(p) {

@@ -53,6 +53,55 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v319 (vazhdim, 17.11.2026): SHFLETUESIT E VJETËR (LG TV)**. Pronari (foto nga shfletuesi i TV-së LG): paneli i hyrjes dhe
+   Cilësimet dilnin si kuti lart majtas, jo në krejt ekranin; teksti ngjitur pas ikonave. Shkaku: shfletuesi i TV-ve (webOS) është
+   Chrome i vjetër (rreth 68 deri 79). Nuk i njeh: `inset:` (Chrome < 87), `:is()` (< 88), `:has()` dhe `:focus-visible` (në një listë
+   selektorësh e hedhin KREJT rregullin), `gap` te flex-i (< 84). E njëjta gjë ndodh në telefonat e vjetër Android dhe TV të tjerë.
+   - `inset: 0` → `top: 0; right: 0; bottom: 0; left: 0` (porta.js, index.html, pc.html); `:is(...)` u shpalos (stoku-pc.css, pc.html);
+     `:has()` dhe `:focus-visible` në rregulla veç e veç (stoku.css, stoku-pc.css, pc.html). RREGULL: mos i përdor këto në CSS-në tonë.
+   - `vjeter.js` (i ri, në kokë të index/pc + SHELL): VETËM kur flex-gap mungon, i shënon kontejnerët flex me gap (`pg-r`/`pg-c` +
+     `--pg`) dhe fëmijëve u jep `pg-pas` (margin pas) ose `pg-para` (pas tekstit të lirë); MutationObserver + kontroll pas klikimit.
+     Shfletuesit e rinj: s'bën asgjë. `color-mix()` (3 te index.html) mbetet: vetëm ngjyrë, s'e prish faqen.
+   - Test `teste/v319-tv.js` (pa inset/:is/:has në listë; pa flex-gap hapësira mes ikonës dhe tekstit mbetet). Pa test në TV të vërtetë.
+   - Pronari: "Qfar ka te re u fshi, kontrollo 100% projektin": mbetej te `privatesia.html` ("Ndryshimet e mëdha njoftohen te
+     \"Çfarë ka të re\"") u hoq; data 17 nëntor 2026; privatësia tani përmend edhe "Pajisjet ku je i kyçur". README e Android-it
+     u pastrua; klasa `ops-nav-terejat` → `ops-nav-privatesia` (pc.html); `njoftoTeRejat` → `njoftoLlogaritEReja` (Admini.kt, llogaritë
+     e reja te administratori, s'kishte lidhje). v319-tv.js kontrollon krejt skedarët e git-it (pa komentet) që "Çfarë ka të re" s'mbetet.
+
+0000000. **v319 / Android Hyrja 81 (17.11.2026): PAJISJET E LLOGARISË, KALENDARI I PDF-SË, EKSPORTO SI IMPORTO, GRUPI, IKONA E WEB APP-IT**.
+   Pronari (5 foto + foto e ikonave):
+   - **Pajisjet ku je i kyçur** (Cilësimet → Llogaria; web tel `#llPajisjet`, PC, Android `PajisjetEMia`): `pajisjet.js` (i ri) / `Pajisjet.kt`.
+     Firestore `perdoruesit/{uid}/pajisjet/{id}` = { emri ("Chrome në Android", emri i telefonit te Android-i), lloji tel|pc|android,
+     krijuarSe, paraSe (rifreskohet ≤ 1 herë në 30 min), v }. Id-ja e pajisjes: localStorage `stoku:pajisja:id`, Android pref `pajisja_id`.
+     "Shkëput" = fshirja e dokumentit; pajisja e dëgjon dokumentin e vet dhe kur zhduket (pasi është parë) del vetë (si "Dil") me
+     mesazhin "U shkëpute nga llogaria nga një pajisje tjetër." "Dil" e fshin dokumentin e vet. **RREGULLI I RI (pronari e shton te
+     Firebase, brenda `match /perdoruesit/{uid}`, pranë `match /njoftimet/{nid}`)**:
+     ```
+     match /pajisjet/{p} {
+       allow read, delete: if request.auth != null && request.auth.uid == uid;
+       allow create, update: if request.auth != null && request.auth.uid == uid && !uFshi(uid)
+         && request.resource.data.keys().hasOnly(['emri', 'lloji', 'krijuarSe', 'paraSe', 'v'])
+         && request.resource.data.emri is string && request.resource.data.emri.size() <= 80;
+     }
+     ```
+     Pa rregullin, lista s'ngarkohet ("Duke i ngarkuar pajisjet…") dhe asgjë tjetër s'prishet. Kufiri: Firebase s'mund ta nxjerrë
+     me forcë një pajisje pa internet; ajo del sapo të lidhet.
+   - **PDF "Ditët e skanimit"** (në vend të "Shtuar", që pronarit i dukej pa kuptim): kalendar nën rresht (EX.kalendari te eksportet.js;
+     Android `KalendariIDiteve`), preken ditët një nga një (sa të duash) kur janë shtuar afatet; ditët pa afate s'preken; "Pastro".
+     Asnjë ditë = të gjitha. PDF-ja s'shkruan më "Shtuar: …" te rreshti i të dhënave.
+   - **Eksporto si Importo**: butoni "Eksporto" te Afatet hap dritaren `#dlgAfEksporto` (Android `EksportoFlete`) me titull, tekst dhe
+     tre rreshta me ikonë (Excel, PDF për printim, Si foto), jo më menynë e vogël (`#afExcelMenu` tani është lista brenda dritares).
+   - **Grupi** (web tel + Android; PC pa ndryshim): Përmbledhja pa fjalinë e madhe "N produkte skadojnë këtë javë", në vend të saj
+     shiriti me numra si te Grupi → Afatet (Në raft, Skaduara, Këtë javë, Afër, Hequra); Aktiviteti me të njëjtin shirit (Skadojnë sot,
+     Skaduara, Hequr sot); Kolegët: "Fto një shok në grup" s'është më seksion i hapur, "Grupi yt" më e ngushtë me butonin katror
+     (një njeri me plus) që e hap/mbyll fushën e ftesës; "Pastro të gjithë aktivitetin" u zhvendos në fund të Aktivitetit (admini i grupit).
+   - **Ikona e web app-it** (pronari: e Android-it "perfekt", e web-it me shkronja më të mëdha): `logo/stoku-icon-maskable.svg` (e re,
+     nga `teste/logot-gjenero.py`) e mbulon rrjetën 108 nga 10.8 deri 97.2 (86.4), që kur Chrome-i e pret, shkronjat dalin si te Android-i;
+     manifest ?v=90, maskable ?v=6. iPhone (apple-touch-icon) kishte tashmë të njëjtat përmasa. Ikona e re del pasi Chrome-i ta
+     përditësojë (disa ditë) ose kur web app-i hiqet e shtohet sërish.
+   - Teste: `teste/v319.js` (i ri); u përshtatën v274, v275, v277, v278, v280, v287, v299, v300, v301, v312, v317, v318, v226-manifest,
+     PamjetTest; fs-server.js njeh `perdoruesit/{uid}/pajisjet`.
+
 0000000. **v318 / Android Hyrja 80 (17.11.2026): "ÇFARË KA TË RE" U FSHI KREJT**. Pronari: "A mujna me fshi 100% cfare ka te re se so ka
    vyn kurgjo?". MOS E RIKTHE (shtuar te "Gjëra që përdoruesi i ka refuzuar").
    - Web: u fshi `teRejat.js` (lista, `teRejatPas`, `FJALET_E_LEJEVE`), dritarja `#dlgTeRejat` (tel + PC) me CSS-in `.tr-*`, rreshti/butoni

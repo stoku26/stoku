@@ -127,6 +127,7 @@ class MainActivity : ComponentActivity() {
         KohaKosoves.vendos()
         super.onResume()
         Dita.rifresko() // u kthye në aplikacion një ditë tjetër
+        Pajisjet.rifresko() // Hyrja 81: "Aktive" te lista e pajisjeve
         Perditesimi.vazhdoNesePritej(this)
         Perditesimi.kontrollo(this, false) // Hyrja 33: sa herë hyn në aplikacion (jo më shpesh se 2 min; me ETag, pa e harxhuar kufirin e GitHub-it)
         if (!StokuApp.moduletNisur) return

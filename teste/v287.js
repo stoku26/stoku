@@ -25,7 +25,8 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
     ok(mb && /0\.[56]\)$/.test(mb.bg), tema + ': hija mbi faqe si më parë', mb && mb.bg);
     await p.evaluate(() => document.getElementById('dlgAfat').classList.remove('hapur')); await p.waitForTimeout(300);
     await p.click('#afExcel'); await p.waitForTimeout(400);
-    ok(plote(await stili('#afExcelMenu')), tema + ': menyja e eksportit me ngjyrë të plotë');
+    ok(plote(await stili('#dlgAfEksporto > .dialog')), tema + ': dritarja e eksportit me ngjyrë të plotë (v319)');
+    await p.click('#aeAnulo'); await p.waitForTimeout(300);
     ok(plote(await stili('#toast')), tema + ': njoftimi i shkurtër me ngjyrë të plotë');
     ok(!gab.length, tema + ' pa gabime JS', gab);
     await ctx.close();

@@ -23,9 +23,10 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
       return { hije: s.boxShadow, c: s.color, hijeIm: si.boxShadow, cIm: si.color, ikC: getComputedStyle(e.querySelector('svg')).color }; });
     ok(sh.hije === sh.hijeIm && sh.c === sh.cIm && sh.ikC === sh.cIm, tema + ' 1. "Shto" pa kornizë blu, njësoj si "Importo"', sh);
     await p.click('#afExcel'); await p.waitForTimeout(200);
-    const m = await p.evaluate(() => { const e = document.getElementById('afExcelMenu'), s = getComputedStyle(e), f = getComputedStyle(document.querySelector('#dlgAfatet .faqe-kuti') || document.body);
-      return { bg: s.backgroundColor, hije: s.boxShadow, faqja: getComputedStyle(document.body).backgroundColor }; });
-    ok(tema === 'light' ? m.bg === 'rgb(255, 255, 255)' : (m.bg === 'rgb(31, 35, 42)' && /rgba\(255, 255, 255, 0\.16\)/.test(m.hije)), tema + ' 2. menyja e "Eksporto" dallohet (e errët: sfond më i çelët + vijë)', m);
+    // v319: "Eksporto" hap dritaren si "Importo" (jo më menynë); dritarja me ngjyrë të plotë
+    const m = await p.evaluate(() => ({ hapur: document.getElementById('dlgAfEksporto').classList.contains('hapur'), bg: getComputedStyle(document.querySelector('#dlgAfEksporto > .dialog')).backgroundColor }));
+    ok(m.hapur && /^rgb\(/.test(m.bg), tema + ' 2. "Eksporto" hap dritaren (v319)', m);
+    await p.click('#aeAnulo'); await p.waitForTimeout(250);
     ok(!p.__gab.length, tema + ' pa gabime JS', p.__gab);
     if (tema === 'light') {
       const sw = await p.evaluate(() => fetch('sw.js').then(x => x.text()));

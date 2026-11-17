@@ -721,7 +721,8 @@ html.sb:not([data-tema="dark"]) .sb-summary { box-shadow: 0 0 0 1px var(--sb-lin
 .sb #dlgAfatet .sb-actions { margin: 4px 0 12px; }
 .sb #dlgAfatet .kerko-kuti { margin-bottom: 10px; }
 .sb #afFiltrat { margin-bottom: 6px; }
-.sb #afFiltrat:has(+ #afMuajt[hidden]), .sb #afMuajt { margin-bottom: 12px; }
+.sb #afMuajt { margin-bottom: 12px; }
+.sb #afFiltrat:has(+ #afMuajt[hidden]) { margin-bottom: 12px; } /* v319: veç e veç, që shfletuesit e vjetër (TV) s'e hedhin edhe #afMuajt */
 /* Kartat e afateve: rreshtat si te Android-i (lartësia natyrale e shkronjës), numri i muajit 11 */
 .sb .af-karta .af-mesazh { line-height: 1.275; }
 .sb .sb-days { line-height: 1.275; }

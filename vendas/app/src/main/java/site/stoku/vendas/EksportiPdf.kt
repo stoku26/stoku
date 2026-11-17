@@ -25,9 +25,6 @@ import kotlin.math.roundToInt
  * Web-i shkruan me helvetica (jsPDF), Android-i me Onest. Ndryshoji bashkë.
  */
 object EksportiPdf {
-    /** Hyrja 79 (web v317, pronari: "hiqe gjendjen qite ni opsion me mujt me eksportu nkohen kur jan shtu afatet"): pa "Gjendja";
-     *  "Shtuar" sipas ditës kur u shtua afati (krijuarSe). Si EX.SHTUAR / intervaliShtuar te eksportet.js: ndryshoji bashkë. */
-    val SHTUAR = listOf("" to "Të gjitha", "sot" to "Sot", "dje" to "Dje", "7" to "7 ditët e fundit", "14" to "14 ditët e fundit", "30" to "30 ditët e fundit", "zgjidh" to "Zgjidh datat")
     val RENDET = listOf("data" to "Sipas datës", "furnizuesi" to "Sipas furnizuesit", "emri" to "Sipas emrit")
 
     private const val W = 210f
@@ -54,27 +51,27 @@ object EksportiPdf {
         return faqet
     }
 
-    /** [nga, deri] si data, ose null (pa kufizim) */
-    fun intervali(sh: String, sot: java.time.LocalDate, nga: java.time.LocalDate?, deri: java.time.LocalDate?): Pair<java.time.LocalDate, java.time.LocalDate>? = when (sh) {
-        "sot" -> sot to sot
-        "dje" -> sot.minusDays(1).let { it to it }
-        "7", "14", "30" -> sot.minusDays(sh.toLong() - 1) to sot
-        "zgjidh" -> { val a = nga ?: sot; val b = deri ?: a; if (a <= b) a to b else b to a }
-        else -> null
-    }
     /** Dita kur u shtua afati (null kur s'dihet: afatet shumë të vjetra pa krijuarSe) */
     fun ditaEShtimit(a: Obj): java.time.LocalDate? {
         val k = (a["krijuarSe"] as? Number)?.toLong() ?: 0L
         return if (k > 0) java.time.Instant.ofEpochMilli(k).atZone(java.time.ZoneId.systemDefault()).toLocalDate() else null
     }
-    /** "16.11.2026" ose "12.11 deri 16.11.2026" */
-    fun tekstiIntervalit(iv: Pair<java.time.LocalDate, java.time.LocalDate>): String {
-        fun f(x: java.time.LocalDate, vit: Boolean) = "%02d.%02d".format(x.dayOfMonth, x.monthValue) + (if (vit) "." + x.year else "")
-        return if (iv.first == iv.second) f(iv.first, true) else f(iv.first, iv.first.year != iv.second.year) + " deri " + f(iv.second, true)
+    /** Hyrja 81 (web v319): vlera e rreshtit "Ditët e skanimit": "Të gjitha", "16.11.2026", "12.11, 14.11, 16.11" ose "5 ditë" (si EX.tekstiDiteve) */
+    fun tekstiDiteve(ditet: Collection<java.time.LocalDate>): String {
+        val l = ditet.sorted()
+        fun f(x: java.time.LocalDate) = "%02d.%02d".format(x.dayOfMonth, x.monthValue)
+        return when {
+            l.isEmpty() -> "Të gjitha"
+            l.size == 1 -> f(l[0]) + "." + l[0].year
+            l.size <= 3 -> l.joinToString(", ") { f(it) }
+            else -> "${l.size} ditë"
+        }
     }
-    /** Afatet sipas zgjedhjeve (bosh / null = pa e kufizuar); të hequrat s'hyjnë kurrë */
-    fun filtro(te: List<Obj>, mu: String, iv: Pair<java.time.LocalDate, java.time.LocalDate>?, f: String, paF: Boolean): List<Obj> = te.filter { a ->
-        Afatet.statusi(a) != "hequr" && (iv == null || ditaEShtimit(a)?.let { it >= iv.first && it <= iv.second } == true) &&
+    /** Sa afate u shtuan secilën ditë */
+    fun numratEDiteve(l: List<Obj>): Map<java.time.LocalDate, Int> = l.mapNotNull { ditaEShtimit(it) }.groupingBy { it }.eachCount()
+    /** Afatet sipas zgjedhjeve (bosh = pa e kufizuar); ditet: ditët e zgjedhura te kalendari; të hequrat s'hyjnë kurrë */
+    fun filtro(te: List<Obj>, mu: String, ditet: Set<java.time.LocalDate>, f: String, paF: Boolean): List<Obj> = te.filter { a ->
+        Afatet.statusi(a) != "hequr" && (ditet.isEmpty() || ditaEShtimit(a)?.let { it in ditet } == true) &&
             (mu.isEmpty() || Afatet.celesiMuajit(a) == mu) && (f.isEmpty() || paF || Afatet.celesiFurnizuesit(a) == f)
     }
     fun rendit(l: List<Obj>, r: String): List<Obj> {
