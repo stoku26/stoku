@@ -6107,18 +6107,21 @@
   // "Faqja X nga Y", tabela deri te FUND2 290 (37 rreshta, pa zbrazëti poshtë).
   // v301: masat e faqes (AP) dhe plani i faqeve janë te eksportet.js
   function apPlani(n) { return EX.planiPdf(n); }
-  // v317 (pronari: "hiqe gjendjen qite ni opsion me mujt me eksportu nkohen kur jan shtu afatet"): pa "Gjendja"; "Shtuar" sipas
-  // ditës kur u shtua afati (EX.intervaliShtuar). Të hequrat s'hyjnë kurrë (si "Të gjitha" e vjetër).
-  function apIv(z) { return z.sh ? EX.intervaliShtuar(z.sh, AF.sot(), z.nga, z.deri) : null; }
-  function apTekstiShtuar(z) {
-    var iv = apIv(z);
-    if (!iv) return '';
-    return z.sh === 'zgjidh' ? EX.tekstiIntervalit(iv) : (EX.SHTUAR.filter(function (o) { return o[0] === z.sh; })[0] || ['', ''])[1];
+  // v319 (pronari: "Shtuar ndrroja emrin se pa kuptim e qet ni kalendar mi selektu nto ditet ka njo ka njo"): rreshti "Ditët e
+  // skanimit" hap kalendarin (EX.kalendari); preken ditët kur u shtuan afatet, sa të duash. Asnjë ditë = të gjitha. Të hequrat s'hyjnë.
+  var apDitet = [], apKalM = null;
+  function apKalHapur() { return !$('apKal').hidden; }
+  function apVizatoKal(z) {
+    var el = $('apKal');
+    if (el.hidden) return;
+    if (!apKalM) { var t = AF.dataKs(), l = apDitet.length ? apDitet[apDitet.length - 1].split('-') : null; apKalM = l ? { viti: +l[0], muaji: +l[1] - 1 } : { viti: t.getFullYear(), muaji: t.getMonth() }; }
+    var baza = apAfatet({ mu: z.mu, f: z.f }); // numrat e ditëve sipas zgjedhjeve të tjera
+    EX.kalendari(el, { viti: apKalM.viti, muaji: apKalM.muaji, numrat: EX.numratEDiteve(baza), zgjedhur: apDitet.slice(), sot: AF.sot(),
+      ndrysho: function (d) { apDitet = d; apRifresko(); }, muaj: function (v, m) { apKalM = { viti: v, muaji: m }; apRifresko(); } });
   }
   function apAfatet(z) {
-    var iv = apIv(z);
     return afatetEMarketit().filter(function (a) {
-      if (AF.statusi(a) === 'hequr' || !EX.shtuarOk(a, iv)) return false;
+      if (AF.statusi(a) === 'hequr' || !EX.ditaOk(a, z.ditet)) return false;
       if (z.mu && AF.celesiMuajit(a) !== z.mu) return false;
       if (z.f && !paFurnizues() && AF.celesiFurnizuesit(a) !== z.f) return false;
       return true;
@@ -6135,7 +6138,7 @@
     return l.sort(k);
   }
   function apZgj() {
-    return { mu: $('apPeriudha').value, sh: $('apShtuar').value, nga: $('apNga').value, deri: $('apDeri').value, f: paFurnizues() ? '' : $('apFurn').value, r: $('apRend').value || 'data' };
+    return { mu: $('apPeriudha').value, ditet: apDitet.slice(), f: paFurnizues() ? '' : $('apFurn').value, r: $('apRend').value || 'data' };
   }
   function apMbush(sel, ops, para) {
     sel.textContent = '';
@@ -6144,19 +6147,17 @@
   }
   function apVlera(sel) { var o = sel.options[sel.selectedIndex]; return o ? o.textContent.replace(/\s*\(\d+\)$/, '') : ''; }
   function apRifresko(fillimi) {
-    if (fillimi) { $('apNga').value = AF.sot(); $('apDeri').value = AF.sot(); }
-    var z = fillimi ? { mu: '', sh: '', nga: AF.sot(), deri: AF.sot(), f: '', r: 'data' } : apZgj();
-    apMbush($('apShtuar'), EX.SHTUAR.map(function (g) { return [g[0], g[1] + ' (' + apAfatet({ sh: g[0], nga: z.nga, deri: z.deri, mu: z.mu, f: z.f }).length + ')']; }), z.sh);
-    z.sh = $('apShtuar').value;
-    $('apDatat').hidden = z.sh !== 'zgjidh';
-    apMbush($('apPeriudha'), [['', 'Të gjitha']].concat(AF.muajtELista(apAfatet({ sh: z.sh, nga: z.nga, deri: z.deri, f: z.f })).map(function (m) { return [m.celes, m.emri + ' (' + m.n + ')']; })), z.mu);
+    if (fillimi) { apDitet = []; apKalM = null; $('apKal').hidden = true; $('apDitetRr').setAttribute('aria-expanded', 'false'); }
+    var z = fillimi ? { mu: '', ditet: [], f: '', r: 'data' } : apZgj();
+    apMbush($('apPeriudha'), [['', 'Të gjitha']].concat(AF.muajtELista(apAfatet({ ditet: z.ditet, f: z.f })).map(function (m) { return [m.celes, m.emri + ' (' + m.n + ')']; })), z.mu);
     z.mu = $('apPeriudha').value;
     if (!paFurnizues()) {
-      apMbush($('apFurn'), [['', 'Të gjithë']].concat(AF.furnizuesitELista(apAfatet({ sh: z.sh, nga: z.nga, deri: z.deri, mu: z.mu })).map(function (f) { return [f.celes, f.emri + ' (' + f.n + ')']; })), z.f);
+      apMbush($('apFurn'), [['', 'Të gjithë']].concat(AF.furnizuesitELista(apAfatet({ ditet: z.ditet, mu: z.mu })).map(function (f) { return [f.celes, f.emri + ' (' + f.n + ')']; })), z.f);
     }
     apMbush($('apRend'), AP_RENDET, z.r);
-    ['apPeriudha', 'apShtuar', 'apFurn', 'apRend'].forEach(function (id) { $(id + 'V').textContent = apVlera($(id)); });
-    if (z.sh === 'zgjidh') $('apShtuarV').textContent = apTekstiShtuar(z);
+    ['apPeriudha', 'apFurn', 'apRend'].forEach(function (id) { $(id + 'V').textContent = apVlera($(id)); });
+    $('apDitetV').textContent = EX.tekstiDiteve(apDitet);
+    apVizatoKal(z);
     var n = apAfatet(apZgj()).length, f = apPlani(n).length;
     $('apNen').textContent = n ? (n === 1 ? '1 afat' : n + ' afate') + ' · ' + (f === 1 ? '1 faqe A4' : f + ' faqe A4') : 'S\'ka afate për këtë zgjedhje.';
     $('apKrijo').disabled = !n;
@@ -6179,7 +6180,7 @@
     var dita = d.getFullYear() + '-' + dyShifra(d.getMonth() + 1) + '-' + dyShifra(d.getDate());
     var per = z.mu ? AF.emriMuajit(z.mu) : 'Të gjitha', idM = idMarketitAktiv(), cope = AF.shumaCopeve(l);
     var info = [['Periudha: ', false], [per, true]];
-    [apTekstiShtuar(z) ? 'Shtuar: ' + apTekstiShtuar(z) : '', z.f ? apVlera($('apFurn')) : '', idM ? emriMarketit(idM) : ''].filter(Boolean)
+    [z.f ? apVlera($('apFurn')) : '', idM ? emriMarketit(idM) : ''].filter(Boolean)
       .forEach(function (x) { info.push([' · ', false], [x, true]); });
     info.push([' · ', false], [String(l.length), true], [l.length === 1 ? ' produkt' : ' produkte', false]);
     if (cope) info.push([' · ', false], [String(cope), true], [' copë', false]);
@@ -6197,7 +6198,8 @@
   $('afEksPdf').addEventListener('click', apHap);
   $('apAnulo').addEventListener('click', apMbyll);
   $('apKrijo').addEventListener('click', apKrijo);
-  ['apPeriudha', 'apShtuar', 'apNga', 'apDeri', 'apFurn', 'apRend'].forEach(function (id) { $(id).addEventListener('change', function () { apRifresko(); }); });
+  $('apDitetRr').addEventListener('click', function () { var h = !apKalHapur(); $('apKal').hidden = !h; $('apDitetRr').setAttribute('aria-expanded', h ? 'true' : 'false'); apRifresko(); });
+  ['apPeriudha', 'apFurn', 'apRend'].forEach(function (id) { $(id).addEventListener('change', function () { apRifresko(); }); });
   function mbyllExcelinEAfateve() { $('dlgAfExcel').classList.remove('hapur'); }
   async function eksportoTeZgjedhurat() {
     var kyçet = axTeZgjedhurat();

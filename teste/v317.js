@@ -59,7 +59,7 @@ async function faqe(b, af) {
 }
 const dritarja = p => p.evaluate(() => ({ hapur: document.getElementById('dlgAfPdf').classList.contains('hapur'), nen: document.getElementById('apNen').textContent,
   rr: Array.from(document.querySelectorAll('#dlgAfPdf .ap-rresht')).filter(x => x.offsetParent).map(x => x.querySelector('.ap-em').textContent + '=' + x.querySelector('.ap-v').textContent),
-  ops: Object.fromEntries(['apPeriudha', 'apShtuar', 'apFurn', 'apRend'].map(id => [id, Array.from(document.getElementById(id).options).map(o => o.textContent)])),
+  ops: Object.fromEntries(['apPeriudha', 'apFurn', 'apRend'].map(id => [id, Array.from(document.getElementById(id).options).map(o => o.textContent)])),
   pa: document.getElementById('apKrijo').disabled }));
 // Krijo → "Shkarko këtu" (ose direkt) → skedari i ndarë: emri, lloji, teksti i PDF-së (latin1)
 async function krijo(p) {
@@ -82,45 +82,9 @@ async function krijo(p) {
   const K = 'vendas/app/src/main/java/site/stoku/vendas/';
   const eks = lx('eksportet.js'), pdfF = eks.split('function apPdf')[1].split('root.StokuEksportet')[0], kPdf = lx(K + 'EksportiPdf.kt'), kUi = lx(K + 'ui/EksportetUI.kt');
   ok(!/stoku\.site/.test(pdfF) && /compress: true/.test(pdfF) && /FUND: 290, FUND2: 290/.test(eks), '0. web: pa asgjë poshtë, compress: true, faqja 1 deri te 290');
-  ok(!/"https:\/\/stoku\.site"/.test(kPdf) && /FUND = 290f/.test(kPdf) && !/GJENDJET/.test(kPdf + kUi) && /"Shtuar"/.test(kUi) && /DatePickerDialog/.test(kUi), '0. Android: pa fund, pa Gjendja, "Shtuar" me kalendarin');
+  ok(!/"https:\/\/stoku\.site"/.test(kPdf) && /FUND = 290f/.test(kPdf) && !/GJENDJET/.test(kPdf + kUi), '0. Android: pa fund, pa Gjendja (v319: "Shtuar" u bë kalendar, shih v319.js)');
   const E = (() => { global.window = global; require('../afatet.js'); require('../eksportet.js'); return global.StokuEksportet; })();
-  const kL = [...kPdf.match(/val SHTUAR = listOf\(([^\n]*)\)/)[1].matchAll(/"([^"]*)" to "([^"]*)"/g)].map(m => [m[1], m[2]]);
-  ok(JSON.stringify(kL) === JSON.stringify(E.SHTUAR), '0. opsionet "Shtuar" të njëjta web + Android', { web: E.SHTUAR, kt: kL });
-  ok(JSON.stringify([E.intervaliShtuar('sot', '2026-03-01'), E.intervaliShtuar('dje', '2026-03-01'), E.intervaliShtuar('7', '2026-03-01'), E.intervaliShtuar('', '2026-03-01'),
-    E.intervaliShtuar('zgjidh', '2026-03-01', '2026-02-20', '2026-02-10')]) === JSON.stringify([['2026-03-01', '2026-03-01'], ['2026-02-28', '2026-02-28'], ['2026-02-23', '2026-03-01'], null, ['2026-02-10', '2026-02-20']]),
-    '0. intervalet (dje kalon muajin, 7 ditë me sot, datat e kthyera rregullohen)');
-  ok(E.tekstiIntervalit(['2026-11-12', '2026-11-16']) === '12.11 deri 16.11.2026' && E.tekstiIntervalit(['2026-11-16', '2026-11-16']) === '16.11.2026' &&
-    E.tekstiIntervalit(['2025-12-30', '2026-01-02']) === '30.12.2025 deri 02.01.2026', '0. teksti i datave');
-
   const b = await chromium.launch();
-  // ===== 1. Dritarja: "Shtuar" në vend të "Gjendja" =====
-  {
-    const { p, ctx } = await faqe(b, teDhenat());
-    await p.click('#afExcel'); await p.click('#afEksPdf'); await p.waitForTimeout(400);
-    let dr = await dritarja(p);
-    ok(dr.hapur && dr.rr.join(' | ') === 'Periudha=Të gjitha | Shtuar=Të gjitha | Furnizuesi=Të gjithë | Renditja=Sipas datës' && !await p.$('#apGjendja'), '1. katër rreshtat, pa "Gjendja"', dr.rr);
-    ok(dr.ops.apShtuar.join() === 'Të gjitha (6),Sot (1),Dje (1),7 ditët e fundit (3),14 ditët e fundit (3),30 ditët e fundit (4),Zgjidh datat (1)',
-      '1. numrat: të hequrat s\'hyjnë; "Pa kohe" vetëm te "Të gjitha"', dr.ops.apShtuar);
-    ok(await p.evaluate(() => document.getElementById('apDatat').hidden), '1. fushat e datave të fshehura');
-    await p.selectOption('#apShtuar', '7'); await p.waitForTimeout(100);
-    dr = await dritarja(p);
-    ok(dr.nen === '3 afate · 1 faqe A4' && dr.rr[1] === 'Shtuar=7 ditët e fundit', '2. "7 ditët e fundit": 3 afate', dr);
-    // Zgjidh datat: nga 20 ditë më parë deri 5 ditë më parë
-    await p.selectOption('#apShtuar', 'zgjidh'); await p.waitForTimeout(100);
-    const dt = await p.evaluate(t => { const A = window.StokuAfatet, f = ms => A.isoNgaData(A.dataKs(ms)); return { nga: f(t - 20 * 864e5), deri: f(t - 5 * 864e5) }; }, t);
-    await p.fill('#apNga', dt.nga); await p.dispatchEvent('#apNga', 'change');
-    await p.fill('#apDeri', dt.deri); await p.dispatchEvent('#apDeri', 'change'); await p.waitForTimeout(150);
-    dr = await dritarja(p);
-    const pj = x => x.split('-'), tekstiP = pj(dt.nga)[2] + '.' + pj(dt.nga)[1] + (dt.nga.slice(0, 4) !== dt.deri.slice(0, 4) ? '.' + pj(dt.nga)[0] : '') + ' deri ' + pj(dt.deri)[2] + '.' + pj(dt.deri)[1] + '.' + pj(dt.deri)[0];
-    ok(!await p.evaluate(() => document.getElementById('apDatat').hidden) && dr.nen === '2 afate · 1 faqe A4' && dr.rr[1] === 'Shtuar=' + tekstiP, '3. "Zgjidh datat": fushat Nga/Deri, 2 afate', { dr, tekstiP });
-    await p.screenshot({ path: __dirname + '/v317-dritarja.png' });
-    const f = await krijo(p);
-    ok(f && /\(Para 20 ditesh\)/.test(f.tekst) && /\(Para 5 ditesh\)/.test(f.tekst) && !/\(Sot 1\)|\(Dje 1\)|\(Para 40|\(Pa kohe|\(Hequr/.test(f.tekst) && f.tekst.includes('(Shtuar: ' + tekstiP + ')'),
-      '3. PDF-ja: vetëm 2 afatet e atyre ditëve, "Shtuar: …" te të dhënat', f && f.emri);
-    ok(f && !/stoku\.site/.test(f.tekst), '4. asgjë poshtë faqes');
-    ok(!p.__gab.length, '4. pa gabime JS', p.__gab);
-    await ctx.close();
-  }
   // ===== 5. Madhësia: 80 afate (3 faqe) =====
   {
     const { p, ctx } = await faqe(b, teDhenat(80));
@@ -132,15 +96,6 @@ async function krijo(p) {
     const faqja1 = f.tekst.split(/\/Type \/Page\b(?!s)/)[0] + '';
     ok(/\(Produkti 34\)/.test(f.tekst) && /\(Produkti 80\)/.test(f.tekst), '5. 34 + 37 + 9 rreshta');
     ok(!p.__gab.length, '5. pa gabime JS', p.__gab);
-    await ctx.close();
-  }
-  // ===== 6. PC =====
-  {
-    const ctx = await b.newContext({ viewport: { width: 1280, height: 860 }, serviceWorkers: 'block' });
-    const p = await ctx.newPage();
-    await p.goto('http://127.0.0.1:' + PORTI + '/pc.html'); await p.waitForTimeout(800);
-    const pc = await p.evaluate(() => ({ sh: !!document.getElementById('apShtuar'), gj: !!document.getElementById('apGjendja'), dt: document.getElementById('apDatat') && document.getElementById('apDatat').style.display }));
-    ok(pc.sh && !pc.gj && pc.dt === 'none', '6. PC: "Shtuar" në vend të "Gjendja", datat të fshehura', pc);
     await ctx.close();
   }
   // ===== 7. Versionet =====

@@ -557,6 +557,22 @@
   }
   .mbulese.hapur { display: flex; animation: shfaq .12s ease-out; }
   #dlgKonfirmo { z-index: 55; }
+  /* v319: "Ditët e skanimit" (kalendar me shumë ditë, si te telefoni) */
+  .ap-ditet-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; text-align: left; cursor: pointer; }
+  .ap-kal { margin: -4px 0 12px; padding: 10px; border-radius: 12px; background: var(--sfond); box-shadow: 0 0 0 1px var(--vije); }
+  .ap-kal[hidden] { display: none; }
+  .ap-kal-krye { display: flex; align-items: center; justify-content: space-between; padding: 0 0 6px; }
+  .ap-kal-nav { width: 34px; height: 34px; border: 0; border-radius: 10px; background: var(--karta); color: inherit; font-size: 20px; cursor: pointer; }
+  .ap-kal-rrjeta { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .ap-kal-emer { text-align: center; font-size: 11px; font-weight: 700; color: var(--gri); }
+  .ap-kal-dite { height: 38px; border: 0; border-radius: 10px; background: transparent; color: var(--gri); font: inherit; font-size: 13px; font-weight: 600; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0; }
+  .ap-kal-dite.ka { background: var(--karta); color: inherit; cursor: pointer; }
+  .ap-kal-dite small { font-size: 9px; font-weight: 700; color: var(--gri); line-height: 1; }
+  .ap-kal-dite.sot span { text-decoration: underline; text-underline-offset: 3px; }
+  .ap-kal-dite.on { background: var(--primar); color: #fff; }
+  .ap-kal-dite.on small { color: rgba(255,255,255,.85); }
+  .ap-kal-fund { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--gri); }
+  .ap-kal-pastro { border: 0; background: none; font: inherit; font-weight: 700; color: var(--primar); cursor: pointer; }
   @keyframes shfaq { from { opacity: 0; } to { opacity: 1; } }
   .dialog {
     width: 100%; max-width: 480px; background: var(--karta); border-radius: 16px; box-shadow: var(--hije-e-larte);
@@ -1545,15 +1561,15 @@
   </div>
 </div>
 
-<!-- v301: "PDF për printim" (si te telefoni: Periudha, Shtuar, Furnizuesi, Renditja; v317 pa Gjendja) -->
+<!-- v301: "PDF për printim" (si te telefoni: Periudha, Ditët e skanimit, Furnizuesi, Renditja; v319 kalendar) -->
 <div class="mbulese" id="dlgAfPdf">
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="apTitulli" style="max-width:460px">
     <div class="dialog-krye"><h2 id="apTitulli">PDF për printim</h2><button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button></div>
     <div class="dialog-trup">
       <p class="ops-hint" id="apNen" style="margin:0 0 14px"></p>
       <label class="fushe"><span>Periudha</span><select class="inp" id="apPeriudha"></select></label>
-      <label class="fushe"><span>Shtuar</span><select class="inp" id="apShtuar"></select></label>
-      <div class="ap-datat-pc" id="apDatat" style="display:none;gap:10px"><label class="fushe" style="flex:1"><span>Nga</span><input class="inp" type="date" id="apNga"></label><label class="fushe" style="flex:1"><span>Deri</span><input class="inp" type="date" id="apDeri"></label></div>
+      <div class="fushe"><span>Ditët e skanimit</span><button type="button" class="inp ap-ditet-btn" id="apDitetRr" aria-expanded="false" aria-controls="apKal"><span id="apDitetV"></span><span aria-hidden="true">▾</span></button></div>
+      <div class="ap-kal" id="apKal" hidden></div>
       <label class="fushe furn-vetem"><span>Furnizuesi</span><select class="inp" id="apFurn"></select></label>
       <label class="fushe"><span>Renditja</span><select class="inp" id="apRend"></select></label>
     </div>

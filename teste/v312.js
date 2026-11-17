@@ -68,13 +68,12 @@ const prit = async (fn, ms = 6000) => { const t0 = Date.now(); while (Date.now()
   await agim.click('#ekPermb .ek-segm__s.c-gj'); await agim.waitForTimeout(500);
   s = await seg();
   ok(s.pjeset[0].endsWith('*') && s.lista.length === 4, '2. "Të gjitha": kthehet lista e plotë (4 aktive, pa të hequrat)', s);
-  // 3) Gjendjet e fjalisë: e kuqe (ka të skaduara) dhe e gjelbër (asgjë këtë javë)
+  // 3) Me të skaduar (v319: shiriti, pa fjalinë)
   F.S.docs.set('dyqane/u2', dyqan([{ id: 'b9', barkodi: '999', emri: 'Qumësht', data: dita(-2), sasia: 1, statusi: 'aktiv', ndryshuarSe: tani }, { id: 'b2', barkodi: '902', emri: 'Ujë', data: dita(40), statusi: 'aktiv', ndryshuarSe: tani }]));
   await blerta.reload(); await blerta.waitForTimeout(3500);
   await agim.click('#ekMenu button[data-n="permbledhja"]'); await agim.waitForTimeout(800);
-  ok(await prit(async () => { const r = await rez(); return r && /kanë skaduar|ka skaduar/.test(r.tx); }, 9000), '3. me të skaduar: fjalia e kuqe "1 produkt ka skaduar"', await rez());
-  const r3 = await rez();
-  ok(r3 && r3.ky === 'Vëmendje' && /kuqe/.test(r3.kl) && r3.tx === '1 produkt ka skaduar', '3. "Vëmendje" + e kuqe', r3);
+  // v319: pa fjalinë; "Skaduara" te shiriti tregon të skaduarin
+  ok(await prit(async () => { const r = await rez(); return r && r.pjeset.includes('1 Skaduara'); }, 9000), '3. me të skaduar: "1 Skaduara" te shiriti', await rez());
   ok(!agim.__gab.length && !blerta.__gab.length, '3. pa gabime JS', [agim.__gab, blerta.__gab]);
   // PC: pllakat e vjetra mbeten
   await b.close();
