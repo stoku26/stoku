@@ -42,7 +42,10 @@ import site.stoku.vendas.Llogaria
 
 /** Porta e hyrjes (porta.js): Hyr / Krijo llogari */
 @Composable
-fun Porta() {
+fun Porta() = PortaTema { PortaBrenda() } // web v324: ngjyrat e hyrjes s'ndryshojnë me temën
+
+@Composable
+private fun PortaBrenda() {
     val n = N
     val scope = rememberFusha()
     var krijo by remember { mutableStateOf(false) }
@@ -90,7 +93,7 @@ fun Porta() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             LogoEPlote(Modifier.padding(top = 4.dp, bottom = 14.dp).height(48.dp))
-            Text("Regjistrimi i mallit dhe i afateve të skadimit.", style = tx(14, 400, n.muted), textAlign = TextAlign.Center)
+            Text("Malli dhe afatet, nën kontroll.", style = tx(14, 400, n.muted), textAlign = TextAlign.Center)
             Spacer(Modifier.height(20.dp))
             if (rivendosja) {
                 Rivendosja(emri) { msg -> rivendosja = false; if (msg != null) { njoftimi = msg; gabim = "" } }
@@ -188,14 +191,17 @@ fun Kutia(v: Boolean, ndrysho: (Boolean) -> Unit, teksti: String) {
 
 /** Ekrani "Duke u lidhur…" (para se Firebase të dijë a je i kyçur) */
 @Composable
-fun DukeULidhur() {
+fun DukeULidhur() = PortaTema { DukeULidhurBrenda() }
+
+@Composable
+private fun DukeULidhurBrenda() {
     val n = N
     Box(Modifier.fillMaxSize().background(n.bg), contentAlignment = Alignment.Center) {
         Column(Modifier.padding(16.dp).widthIn(max = 400.dp).fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(n.surface)
             .border(1.dp, n.line, RoundedCornerShape(22.dp)).padding(28.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             LogoEPlote(Modifier.height(48.dp))
             Spacer(Modifier.height(14.dp))
-            Text("Regjistrimi i mallit dhe i afateve të skadimit.", style = tx(14, 400, n.muted), textAlign = TextAlign.Center)
+            Text("Malli dhe afatet, nën kontroll.", style = tx(14, 400, n.muted), textAlign = TextAlign.Center)
             Spacer(Modifier.height(28.dp))
             CircularProgressIndicator(Modifier.size(28.dp), color = n.accent, strokeWidth = 3.dp)
             Spacer(Modifier.height(14.dp))

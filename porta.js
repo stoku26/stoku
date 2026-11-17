@@ -119,6 +119,33 @@
     '  background: var(--sb-bg, #f6f5f2); font-family: var(--sb-font, inherit); color: var(--sb-ink, #14161b);',
     '  overflow-y: auto; transition: opacity .25s ease; -webkit-font-smoothing: antialiased; }',
     '#porta.po-zhduket { opacity: 0; pointer-events: none; }',
+    // v324 (pronari: "qesaj pjese mos e le me ju ndrru ngjyra as ne pc as ne web app as ne android app dmth portes"): hyrja ka
+    // gjithmonë të njëjtat ngjyra (e zezë me vjollcë, si te foto e pronarit), pavarësisht temës së zgjedhur
+    '#porta { --sb-bg: #000; --sb-surface: #0e0f12; --sb-line: #23252b; --sb-sunken: #16171b; --sb-seg-on: #26272d; --sb-ink: #f5f5f7;',
+    '  --sb-ink-2: #d4d4d8; --sb-ink-3: #c9cad0; --sb-ink-4: #a1a1aa; --sb-muted: #8a8c94; --sb-faint: #6b6d75; --sb-control: #45454a;',
+    '  --sb-accent: #5b3cf5; --sb-accent-press: #4a2fd6; --sb-accent-line: #2f2470; --sb-accent-text: #9d8cff; --sb-exp: #f07a6f;',
+    '  --sb-shadow-accent: none; --lg-a: #4ade80; color-scheme: dark; }',
+    '#porta .pk-btn.pk-dyte { background: #141519 !important; box-shadow: 0 0 0 1px #23252b !important; }',
+    // v324: PC (pronari zgjodhi idenë 1): majtas logoja, "Malli dhe afatet, nën kontroll." dhe 3 pikat; djathtas forma
+    '#porta .pk-ana, #porta .pk-mire { display: none; }',
+    '#porta.porta-pc { padding: 0; display: flex; align-items: stretch; justify-content: stretch; }',
+    '#porta.porta-pc .pk-ana { display: flex; flex: 1; flex-direction: column; justify-content: center; padding: 60px 80px; min-width: 0;',
+    '  background: linear-gradient(160deg, #17123a, #07070b 70%); }',
+    '#porta.porta-pc .pk-ana .stk-logo { width: 300px; height: auto; color: #f5f5f7; }',
+    '#porta.porta-pc .pk-ana h1 { margin: 36px 0 6px; font-size: 36px; font-weight: 800; letter-spacing: -.01em; line-height: 1.2; }',
+    '#porta.porta-pc .pk-pika { display: flex; gap: 14px; align-items: flex-start; margin-top: 22px; }',
+    '#porta.porta-pc .pk-pika > span { flex: none; width: 42px; height: 42px; border-radius: 12px; background: #1a1730; color: #9d8cff;',
+    '  display: flex; align-items: center; justify-content: center; }',
+    '#porta.porta-pc .pk-pika b { display: block; font-size: 16px; }',
+    '#porta.porta-pc .pk-pika small { display: block; font-size: 13.5px; color: #8a8c94; margin-top: 2px; }',
+    '#porta .pk-djathtas { width: 100%; display: flex; justify-content: center; margin: auto; }',
+    '#porta.porta-pc .pk-djathtas { width: 620px; margin: 0; flex: none; display: flex; align-items: center; justify-content: center; background: #08090b;',
+    '  overflow-y: auto; padding: 40px 0; }',
+    '#porta.porta-pc .pk { max-width: 420px; background: transparent; box-shadow: none; padding: 0; }',
+    '#porta.porta-pc .pk .pk-logo, #porta.porta-pc .pk .pk-nen { display: none; }',
+    '#porta.porta-pc .pk-mire { display: block; margin: 0 0 22px; }',
+    '#porta.porta-pc .pk-mire b { display: block; font-size: 28px; font-weight: 800; }',
+    '#porta.porta-pc .pk-mire span { display: block; margin-top: 6px; font-size: 14px; color: #8a8c94; }',
     '#porta .pk { width: 100%; max-width: 400px; background: var(--sb-surface, #fff); border-radius: 22px; padding: 28px 24px 22px;',
     '  box-shadow: 0 0 0 1px var(--sb-line, #e6e4df), 0 30px 80px -30px rgba(0,0,0,.25); margin: auto; }',
     '#porta .pk-logo { display: flex; align-items: center; justify-content: center; margin: 4px 0 14px; }',
@@ -197,7 +224,8 @@
       // v313: logoja 60 me ngjyrat e zgjedhura në këtë pajisje (logot.js); pa të, skedarët me ngjyrat e parazgjedhura
       '<div class="pk-logo" role="img" aria-label="Stoku">' + (window.StokuLogot ? window.StokuLogot.svgLogo('stk-logo--porta') :
         '<img class="pk-logo-cel" src="logo/stoku-logo.svg?v=5" alt="Stoku"><img class="pk-logo-err" src="logo/stoku-logo-dark.svg?v=5" alt="Stoku">') + '</div>' +
-      '<p class="pk-nen" id="pkNen">Regjistrimi i mallit dhe i afateve të skadimit.</p>' +
+      '<p class="pk-nen" id="pkNen">Malli dhe afatet, nën kontroll.</p>' +
+      '<div class="pk-mire"><b>Mirë se vjen</b><span>Hyr me llogarinë tënde të Stoku-t.</span></div>' +
       '<div class="pk-pritje" id="pkPritje"><div class="pk-rrotull"></div><div id="pkPritjeTekst">Duke u lidhur…</div></div>' +
       '<form id="pkForma" class="pk-fsheh" novalidate autocomplete="on">' +
         '<div class="pk-tabet" role="tablist">' +
@@ -239,6 +267,26 @@
       '<p class="pk-fund"><a href="privatesia.html" target="_blank" rel="noopener">Privatësia</a></p>' +
     '</div>';
   document.body.insertBefore(porta, document.body.firstChild);
+  // v324: te PC-ja (pc.html, dritare e gjerë) hyrja ndahet dysh: majtas logoja + teksti + 3 pikat, djathtas forma
+  if (document.documentElement.classList.contains('sbp')) { // pc.html (<html class="sbp">; adresa mund të jetë edhe "/")
+    var IK = function (d) { return '<span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg></span>'; };
+    var ana = document.createElement('div'); ana.className = 'pk-ana';
+    ana.innerHTML = (window.StokuLogot ? window.StokuLogot.svgLogo('stk-logo--porta-pc') : '') +
+      '<h1>Malli dhe afatet, nën kontroll.</h1>' +
+      '<div class="pk-pika">' + IK('<path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M8 7v10M12 7v10M16 7v10"></path>') +
+        '<div><b>Skano me telefon</b><small>Barkodi, sasia dhe data në pak sekonda.</small></div></div>' +
+      '<div class="pk-pika">' + IK('<circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>') +
+        '<div><b>Afatet nën kontroll</b><small>Njoftim kur një produkt po skadon.</small></div></div>' +
+      '<div class="pk-pika">' + IK('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path>') +
+        '<div><b>Punoni si grup</b><small>Kolegët shohin të njëjtat afate.</small></div></div>';
+    var djathtas = document.createElement('div'); djathtas.className = 'pk-djathtas';
+    var pk = porta.querySelector('.pk');
+    porta.insertBefore(ana, pk); porta.insertBefore(djathtas, pk); djathtas.appendChild(pk);
+    var gjere = window.matchMedia ? window.matchMedia('(min-width: 1000px)') : null;
+    var vendosPc = function () { porta.classList.toggle('porta-pc', !gjere || gjere.matches); };
+    vendosPc();
+    if (gjere) { if (gjere.addEventListener) gjere.addEventListener('change', vendosPc); else if (gjere.addListener) gjere.addListener(vendosPc); }
+  }
 
   function $(id) { return document.getElementById(id); }
   function mbajEmrin() { return lexo(KEY_MBAJ_EMRIN) !== '0'; }

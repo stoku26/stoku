@@ -15,16 +15,16 @@ const paKom = t => t.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '');
 (async () => {
   // ===== 0. Kodi =====
   const TR = require(RR + 'teRejat.js');
-  ok(TR.versioni() === 323 && TR.teRejatPas(0, 'pc', false, () => true)[0].titulli === 'Excel më i thjeshtë', '1. teRejat.js: v323 në krye');
+  ok(TR.versioni() >= 323 && TR.teRejatPas(0, 'pc', false, () => true).some(h => h.titulli === 'Excel më i thjeshtë'), '1. teRejat.js: hyrja e v323');
   const tk = lx(K + 'TeRejat.kt');
-  ok(/Hyrja\(85, "2026-11-17", "Excel më i thjeshtë"/.test(tk), '1. TeRejat.kt: Hyrja 85 në krye');
+  ok(/Hyrja\(85, "2026-11-17", "Excel më i thjeshtë"/.test(tk), '1. TeRejat.kt: Hyrja 85');
   const ce = lx(K + 'ui/CilesimetEkrani.kt');
   const iT = ce.indexOf('"Çfarë ka të re", "Ndryshimet e fundit në Stoku"'), iP = ce.indexOf('"Privatësia", "Çfarë ruan Stoku');
   ok(iT > 0 && iP > iT && iP - iT < 400 && /TeRejatFlete\(TeRejat\.LISTA\.take\(6\)/.test(ce), '1. Android: rreshti te Cilësimet, afër Privatësisë');
   ok(!/TeRejatFlete|TeRejat\.teReja\(\)/.test(paKom(lx(K + 'MainActivity.kt'))), '1. Android: s\'del vetë pas përditësimit');
   ok(/teReja/.test(lx(K + 'ui/PerditesimiUI.kt')) && /fun teReja\(body: String\)/.test(lx(K + 'Perditesimi.kt')) && /TeRejat\.kt/.test(lx('.github/workflows/vendas-apk.yml')),
     '1. Android: "Çfarë ka të re" te faqja e përditësimit (nga Release-i)');
-  ok(/'\.\/teRejat\.js\?v=323'/.test(lx('sw.js')) && /teRejat\.js\?v=323/.test(lx('index.html')) && /teRejat\.js\?v=323/.test(lx('pc.html')), '1. web: teRejat.js në faqe dhe te sw.js');
+  ok(/'\.\/teRejat\.js\?v=3\d\d'/.test(lx('sw.js')) && /teRejat\.js\?v=3\d\d/.test(lx('index.html')) && /teRejat\.js\?v=3\d\d/.test(lx('pc.html')), '1. web: teRejat.js në faqe dhe te sw.js');
   const ek = lx(K + 'Eksportet.kt'), eu = lx(K + 'ui/EksportetUI.kt'), pc = lx('app-pc.js'), tel = lx('app-tel.js');
   const kolHequra = /Statusi|Ditë të mbetura|Çfarë duhet bërë|Hequr nga rafti|Shtuar nga/;
   ok(!kolHequra.test(paKom(ek.slice(ek.indexOf('val KOLONAT_E_AFATEVE'), ek.indexOf('fun excelIAfateve')))) && !/RreshtiIKutise|kolonatERuajtura|Lidhje\("Barkodi, emri, sasia"/.test(eu), '2. Android: 5 kolona, pa kutitë e zgjedhjes');
@@ -62,7 +62,7 @@ const paKom = t => t.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '');
     await p.click('#opsTeRejat'); await p.waitForTimeout(300);
     const d = await p.evaluate(() => ({ hapur: document.getElementById('dlgTeRejat').classList.contains('hapur'), nen: document.getElementById('trNen').textContent,
       tit: [...document.querySelectorAll('#trLista .tr-version-titulli')].map(x => x.textContent) }));
-    ok(d.hapur && d.nen === 'Përditësimet e fundit' && d.tit[0] === 'Excel më i thjeshtë' && d.tit.length <= 6 && !d.tit.includes('Excel me një faqe'), '1. telefoni: hapet nga Cilësimet, pa hyrjet e PC-së', d);
+    ok(d.hapur && d.nen === 'Përditësimet e fundit' && d.tit.includes('Excel më i thjeshtë') && d.tit.length <= 6 && !d.tit.includes('Excel me një faqe'), '1. telefoni: hapet nga Cilësimet, pa hyrjet e PC-së', d);
     await p.click('#trMbyll'); await p.waitForTimeout(200);
     ok(await p.evaluate(() => !document.getElementById('dlgTeRejat').classList.contains('hapur')), '1. "Në rregull" e mbyll');
     ok(!gab.length, 'telefoni: pa gabime JS', gab);
@@ -76,7 +76,7 @@ const paKom = t => t.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '');
     ok(await p.evaluate(() => { const t = document.getElementById('opsTeRejat'); return !!t && t.nextElementSibling === document.getElementById('opsPrivatesia'); }), '1. PC: "Çfarë ka të re" afër Privatësisë');
     await p.evaluate(() => document.getElementById('opsTeRejat').click()); await p.waitForTimeout(300);
     const d = await p.evaluate(() => ({ hapur: document.getElementById('dlgTeRejat').classList.contains('hapur'), tit: [...document.querySelectorAll('#trLista .tr-version-titulli')].map(x => x.textContent) }));
-    ok(d.hapur && d.tit[0] === 'Excel më i thjeshtë' && d.tit.includes('Excel me një faqe') && !d.tit.includes('Grupi yt'), '1. PC: hapet nga Cilësimet, me hyrjet e PC-së', d);
+    ok(d.hapur && d.tit.includes('Excel më i thjeshtë') && d.tit.includes('Excel me një faqe') && !d.tit.includes('Grupi yt'), '1. PC: hapet nga Cilësimet, me hyrjet e PC-së', d);
     ok(!gab.length, 'PC: pa gabime JS', gab);
     await ctx.close();
   }

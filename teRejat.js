@@ -21,6 +21,13 @@
   'use strict';
 
   var LISTA = [
+    { v: 324, versioni: '1.68.0', data: '2026-11-17', titulli: 'Hyrja dhe logoja e re', pikat: [
+      'Logoja e Stoku-t lart dhe te hyrja tani nis si barkod: një vijë e gjelbër skanimi e kalon dhe e kthen në "stoku.".',
+      'Hyrja ka gjithmonë të njëjtat ngjyra (e zezë me vjollcë), cilado temë që ke zgjedhur, dhe teksti i ri: "Malli dhe afatet, nën kontroll."'
+    ] },
+    { v: 324, versioni: '1.68.0', data: '2026-11-17', titulli: 'Hyrja në kompjuter', platforma: 'pc', pikat: [
+      'Në kompjuter hyrja është e ndarë dysh: majtas logoja dhe çfarë bën Stoku, djathtas forma e hyrjes.'
+    ] },
     { v: 323, versioni: '1.67.0', data: '2026-11-17', titulli: 'Excel më i thjeshtë', pikat: [
       'Kur eksporton afatet në Excel, zgjedh vetëm muajin dhe furnizuesin. Excel-i ka gjithmonë të njëjtat kolona: Barkodi, Emri i produktit, Sasia, Furnizuesi dhe Skadon më.',
       'Numrat (sasia) dhe datat në Excel nisin nga ana e majtë, si teksti.',

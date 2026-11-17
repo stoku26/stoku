@@ -61,7 +61,7 @@ const B = 'http://127.0.0.1:8765', K = 'vendas/app/src/main/';
   // 3) Hyrja (pa llogari): logoja me shkronja
   const ph = await faqe(false, 'light', null);
   const h = await ph.evaluate(() => { const s = document.querySelector('#porta .pk-logo svg.stk-logo'); return s ? { w: Math.round(s.getBoundingClientRect().width), p: s.querySelectorAll('path').length } : null; });
-  ok(h && (h.w === 172 || h.w === 155) && h.p === 6, '3. hyrja: logoja "stoku." (172 px, 155 me .9; v322: 5 shkronja + pika)', h);
+  ok(h && (h.w === 172 || h.w === 155) && h.p === 3, '3. hyrja: logoja "stoku." (172 px, 155 me .9; v324: barkodi + shkronjat + pika)', h);
   // 4) Eksporti: logoja vizatohet (pa shenjë), ikona e vogël "s."
   const ex = await p1.evaluate(() => { const c = document.createElement('canvas'); c.width = 200; c.height = 60; const x = c.getContext('2d'); const w = window.StokuLogot.vizatoLogon(x, 0, 0, 40, { erret: false }); window.StokuLogot.vizatoIkonen(x, 170, 0, 18); const d = x.getImageData(0, 0, 200, 60).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; return { w: Math.round(w), n }; });
   ok(ex.w === 149 && ex.n > 1500, '4. PDF/foto: logoja me shkronja dhe ikona e vogël', ex);
