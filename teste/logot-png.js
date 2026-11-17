@@ -10,7 +10,7 @@ const PUNET = [
   ['logo/stoku-icon.svg', 'icon-192.png', 192, 192],
   ['logo/stoku-icon.svg', 'icon-512.png', 512, 512],
   ['logo/stoku-icon-square.svg', 'apple-touch-icon.png', 180, 180],
-  ['logo/stoku-icon-square.svg', 'logo/icon-maskable-512.png', 512, 512],
+  ['logo/stoku-icon-maskable.svg', 'logo/icon-maskable-512.png', 512, 512], // v319: zona e sigurt si te Android-i
   ['logo/stoku-mono.svg', 'logo/badge-96.png', 96, 96]
 ];
 (async () => {
