@@ -209,11 +209,8 @@ self.addEventListener('push', function (e) {
     data: { url: d.url || './index.html#ekipa-njoftimet' },
     actions: [{ action: 'hap', title: d.lloji === 'afatet' ? 'Hap afatet' : 'Hap njoftimet' }]
   };
-  if (!eshteTelefon()) op.icon = './icon-192.png?v=5'; // në kompjuter s'ka ikonë tjetër
   e.waitUntil(self.registration.showNotification(d.titulli || 'Stoku', op));
 });
-// v337: në telefon (Android, iPhone) ikona e aplikacionit del vetë majtas; 'icon' do ta nxirrte edhe djathtas
-function eshteTelefon() { try { return /Android|iPhone|iPad|iPod|Mobile/i.test(self.navigator.userAgent || ''); } catch (x) { return false; } }
 
 // Prekja e njoftimit: afatet → "Afatet e produkteve"; Ekipa (#ekipa… / #/ekipa…) → tabi Ekipa, në të njëjtin lloj
 // dritareje nga erdhi njoftimi (telefon = index.html, kompjuter = pc.html)
