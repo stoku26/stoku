@@ -4554,8 +4554,7 @@
     r.appendChild(kpi('Të skaduara', gati ? num(n.skaduar) : '…', 'duhen hequr nga rafti', n.skaduar ? 'kritik' : null, IKONA.zero, afatet('skaduar')));
     r.appendChild(kpi('Afër skadimit', gati ? num(n.afer) : '…', 'brenda 30 ditëve', n.afer ? 'paralajm' : null, IKONA.pak, afatet('afer')));
     r.appendChild(kpi('Në rregull', gati ? num(n.ok) : '…', 'i gjithë grupi', null, null, afatet('ok')));
-    var onl = anetaret.filter(function (a) { return a.uneJam || EKL.eshteOnline(a); });
-    r.appendChild(kpi('Online tani', onl.length + '/' + anetaret.length, onl.map(function (a) { return a.emri; }).join(', ') || 'askush', null, null, function () { ekShkoTe('anetaret'); }));
+    // v332 (pronari: "hiqi komplet te rrethekumen prej permbledhjes let jen veq te tabi koleget"): "Online tani" vetëm te Kolegët
     // Duhet vepruar: të skaduarat + ato që skadojnë brenda 7 ditëve
     var koka = $('ekPultKoka'), trup = $('ekPultTrup'), bosh = $('ekPultBosh');
     koka.textContent = ''; trup.textContent = '';

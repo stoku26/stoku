@@ -663,7 +663,6 @@ private fun Permbledhja(ftesat: List<Obj>, kerkesatG: List<Obj>, ngjarjet: List<
     val an = ctx.anetaret
     val st = remember(an, ctx.tani) { GrupiLogjika.statistikat(an, ctx.tani) }
     val te = ctx.krejtAfatet
-    val nOn = an.count { ctx.online(it) }
     val ng = ctx.ngarkuar
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 24.dp)) {
         item {
@@ -688,18 +687,7 @@ private fun Permbledhja(ftesat: List<Obj>, kerkesatG: List<Obj>, ngjarjet: List<
                 Text("›", style = tx(20, 400, n.faint))
             }
         }
-        item {
-            Seksion("Online tani", nen = "$nOn nga ${an.size}")
-            Row(Modifier.fillMaxWidth().rrotullimMeZbehje(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                an.forEach { a ->
-                    Column(Modifier.width(64.dp).clip(RoundedCornerShape(10.dp)).clickable { ctx.hapAnetarin(a["uid"] as String, null) },
-                        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                        Avatari(a["emri"] as? String, 46.dp, ctx.online(a), a["uid"] as? String)
-                        Text(jsString(a["emri"] ?: ""), style = txF(11.5f, 600, n.muted), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    }
-                }
-            }
-        }
+        // Hyrja 93 (pronari: "hiqi komplet te rrethekumen prej permbledhjes let jen veq te tabi koleget"): "Online tani" vetëm te Kolegët
         val skaduara = te.filter { Afatet.statusi(it) == "skaduar" }.sortedWith { a, b -> Afatet.krahaso(a, b) }
         item {
             Seksion("Duhet hequr nga rafti", if (skaduara.size > 5) "Shiko të gjitha (${skaduara.size})" else null) { ctx.hapAnetarin("krejt", "skaduar") }

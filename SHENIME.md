@@ -58,6 +58,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v332 / Android Hyrja 93 (18.11.2026): PA "ONLINE TANI" TE PËRMBLEDHJA E GRUPIT + "DIL" TE KARTA E PROFILIT (web tel)**. Pronari
+   (2 foto): "hiqi komplet te rrethekumen prej permbledhjes let jen veq te tabi koleget" / "butoni dil nuk osht si ne android app, ish hala
+   mrena llogaris heke prej aty qite qaty". (1) Grupi → Përmbledhja pa "Online tani": web tel (`ek-online-rrip` s'vizatohet më), PC (KPI
+   "Online tani" te `ekVPulti`), Android (`GrupiEkrani.kt`, edhe `val nOn` i papërdorur). Kolegët e tregojnë ende ("N online nga ...").
+   (2) Web tel: `#cloudDilBtn` u zhvendos nga faqja Llogaria te `#opsProfilRresht` (mbështjellës i `#opsProfil`, s'ka buton brenda butonit):
+   `.ops-profil-dil` (ikona + "Dil", e kuqe) majtas shigjetës; del vetëm me llogari (`rifreskoProfilin`). Teksti s'vendoset më nga
+   lista e përkthimeve (pa `prop: 'text'`). `css/stoku.css` v75. Testi `teste/v332.js`.
 0000000. **v331 (18.11.2026): BALLINA NË PC (opsioni D)**. Pronari zgjodhi nga 4 fotot (A pllakë e 4-t, B rreth te logoja, C katror te kërkimi,
    D rresht mbi pllakat): "Bone opsionin D amo quaje ballina". `pc.html`: `#btnBallina` (shtëpia + "Ballina" + "afatet, malli, grupi") mbi
    `.sbp-pllakat`; `#pamjaBallina` me `#blPjeset`. `app-pc.js`: pamja `ballina` (`hashPer` → `#/ballina`), faqja e parë kur adresa është bosh
