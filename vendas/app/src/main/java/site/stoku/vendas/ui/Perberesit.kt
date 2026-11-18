@@ -158,7 +158,7 @@ fun Fusha(
     kurVeprim: (() -> Unit)? = null, fjalekalim: Boolean = false, stili: TextStyle? = null, lartesia: Dp = 50.dp,
     fokusi: FocusRequester? = null, vetemLexim: Boolean = false, djathtas: (@Composable () -> Unit)? = null,
     sfondi: Color? = null, ngjyraTekstit: Color? = null, paVije: Boolean = false, rrezja: Dp = 14.dp,
-    formato: ((riu: String, para: String) -> String)? = null
+    formato: ((riu: String, para: String) -> String)? = null, stiliPlaceholder: TextStyle? = null
 ) {
     val n = N
     val ia = remember { MutableInteractionSource() }
@@ -182,7 +182,7 @@ fun Fusha(
             Box(Modifier.weight(1f)) {
                 // Hyrja 59 (pronari, foto e "Sasia"): te fushat me tekst në mes, kursori dilte mbi "0" e zbehtë; me fokus ajo fshihet
                 if (vlera.isEmpty() && !(ne && st.textAlign == androidx.compose.ui.text.style.TextAlign.Center))
-                    Text(placeholder, style = st.copy(color = n.faint), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth())
+                    Text(placeholder, style = (stiliPlaceholder ?: st).copy(color = n.faint), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth().align(Alignment.CenterStart))
                 brenda()
             }
             if (djathtas != null) { Spacer(Modifier.width(8.dp)); djathtas() }

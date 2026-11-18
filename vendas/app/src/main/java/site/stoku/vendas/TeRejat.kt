@@ -10,6 +10,11 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(92, "2026-11-18", "Përditësimi dhe ora", listOf(
+            "Gjatë shkarkimit të versionit të ri, poshtë shiritit del prapë \"Çfarë ka të re\".",
+            "Kur ora është e lidhur, te Cilësimet → Ora e dorës s'del më për një moment zgjedhja Galaxy Watch / Apple Watch as kutia e kodit.",
+            "Fusha \"Kodi nga ora\" tani lexohet mirë (pa hapësira mes shkronjave)."
+        )),
         Hyrja(91, "2026-11-18", "Malli te lejet", listOf(
             "Te lejet e kolegëve dhe te Grupi, pjesa e produkteve tani quhet \"Malli\" kudo (më parë \"Stoku\")."
         )),
