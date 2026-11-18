@@ -58,6 +58,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v331 (18.11.2026): BALLINA NË PC (opsioni D)**. Pronari zgjodhi nga 4 fotot (A pllakë e 4-t, B rreth te logoja, C katror te kërkimi,
+   D rresht mbi pllakat): "Bone opsionin D amo quaje ballina". `pc.html`: `#btnBallina` (shtëpia + "Ballina" + "afatet, malli, grupi") mbi
+   `.sbp-pllakat`; `#pamjaBallina` me `#blPjeset`. `app-pc.js`: pamja `ballina` (`hashPer` → `#/ballina`), faqja e parë kur adresa është bosh
+   (`ballinaEPare()` = `!window.__stokuPaKreu`, si Kreu i telefonit: testet e vjetra pa `pw.meKreu` nisin si më parë te `#/malli`);
+   `moduliIPamjes('ballina')` = 'ballina' (asnjë pllakë aktive, pa nënmeny); s'kërkon leje (çdo kartë del vetëm me lejen e vet: afatet/stoku/grupi).
+   `renderBallinen()`: Afatet (4 numra, gjerë), Skadojnë së pari (5), grafiku 6 muajt, Malli (produkte/folderat/sasia), Furnizuesit, Grupi
+   (kërkesat + online); çdo kartë → `shkoTe(...)`. Rifreskohet çdo minutë me intervalin e kohëve. CSS `.sbp-ballina`, `.bl-*` te
+   `css/stoku-pc.css` (v51). Telefoni mbetet me "Kreu". Testi `teste/v331.js`; `v329.js` pranon `hashPer` me ballina.
 0000000. **v330 / Android Hyrja 92 (18.11.2026): "ÇFARË KA TË RE" GJATË SHKARKIMIT + ORA PA "FLASH" + "KODI NGA ORA"**. Pronari (2 foto):
    "qaty qite qfare ka te re qysh u kon ma heret" / "qato nalt (Galaxy/Apple) po i qet edhe kur jam i lidht me or amo shum shpejt heken
    rregulloje nkrejt projektin" / "kodi nga ora rregullo tekstin keq po doket". (1) Android `PerditesimiUI.kt`: lista "ÇFARË KA TË RE"
