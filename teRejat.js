@@ -21,6 +21,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 336, versioni: '1.73.1', data: '2026-11-18', titulli: 'Ballina dhe Cilësimet', platforma: 'tel', pikat: [
+      'Te Ballina s\'ka më butonat e shpejtë (Skano, Afat i ri, Skanim i shpejtë, PDF), as te "Përshtat faqen".',
+      'Titulli i Cilësimeve është tani në të njëjtën vijë si te Malli, Afatet dhe Grupi.'
+    ] },
     { v: 335, versioni: '1.73.0', data: '2026-11-18', titulli: 'Malli i kolegëve', platforma: 'tel', pikat: [
       'Kërkimi te Ballina gjen edhe mallin e kolegëve të grupit tënd: emrin, barkodin, folderin dhe sasinë (vetëm brenda grupit).',
       'Malli yt ndahet vetë me kolegët e grupit (vetëm për kërkim). Kur del nga grupi, hiqet.'

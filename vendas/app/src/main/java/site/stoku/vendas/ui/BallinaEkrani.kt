@@ -76,7 +76,6 @@ val BALLINA_MBI_SHIRIT: Dp = 16.dp
 object PjesetEBallines {
     class Pjesa(val id: String, val emri: String, val shpjegimi: String = "")
     val TE_GJITHA = listOf(
-        Pjesa("butonat", "Butonat e shpejtë", "Skano, Afat i ri, Skanim i shpejtë, PDF"),
         Pjesa("afatet", "Numrat e afateve"),
         Pjesa("skadojne", "Skadojnë së pari", "3 produktet që skadojnë më herët"),
         Pjesa("grafiku", "Grafiku i muajve", "Sa afate skadojnë në 6 muajt e ardhshëm"),
@@ -105,24 +104,12 @@ object PjesetEBallines {
     fun lejohet(id: String): Boolean {
         val af = Llogaria.leja("afatet")
         return when (id) {
-            "butonat" -> butonat().isNotEmpty()
             "afatet", "skadojne", "grafiku" -> af
             "furnizuesit" -> af && !Llogaria.eshteMerchandiser()
             "malli" -> Llogaria.leja("stoku")
             "grupi" -> Llogaria.leja("grupi") && !Llogaria.eshteVizitor()
             else -> true
         }
-    }
-    /** Butonat e shpejtë që lejohen: "skano", "afat", "shpejt", "pdf" */
-    fun butonat(): List<String> {
-        val kamera = Llogaria.leja("kamera") && !Opsionet.pda.value
-        val shtoAfat = Llogaria.leja("afatet") && Llogaria.leja("afatetShto")
-        return listOfNotNull(
-            if (kamera && (Llogaria.leja("stoku") || shtoAfat)) "skano" else null,
-            if (shtoAfat) "afat" else null,
-            if (kamera && Llogaria.leja("stoku") && Llogaria.leja("skanimShpejt") && (Llogaria.leja("stokuShto") || Llogaria.leja("stokuNdrysho"))) "shpejt" else null,
-            if (Llogaria.leja("afatet") && Llogaria.leja("eksportPdf")) "pdf" else null
-        )
     }
 }
 
@@ -149,24 +136,11 @@ fun BallinaEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit,
     remember(lejet, aktiviM) { 0 }
     var pjeset by remember { mutableStateOf(PjesetEBallines.lexo()) }
     var pershtat by remember { mutableStateOf(false) }
-    var zgjidhFolderin by remember { mutableStateOf(false) }
     var kerkimi by remember { mutableStateOf("") } // v327: kërkimi kudo
     val te = remember(g, aktiviM, lejet) { Merchandiseri.afatetEMarketit(g.afatet) }
     val nr = remember(te, site.stoku.vendas.Dita.sot) { Afatet.numero(te) }
 
     fun hapAfatin(id: String?) { if (id != null) MainActivity.afatiKerkuar.value = id; hapTabin("afatet") }
-    fun afatIRi(barkodi: String = "") { MainActivity.veprimiIAfateve.value = if (barkodi.isEmpty()) "i-ri" else "i-ri:$barkodi"; hapTabin("afatet") }
-    // Skano: produkti që është te malli hapet atje; përndryshe "Afat i ri" me këtë barkod
-    fun skanoBarkodin() = skano { b ->
-        val pr = if (Llogaria.leja("stoku")) Dyqani.g.produktet.values.firstOrNull { jsString(it["barkodi"]) == b } else null
-        val fid = pr?.get("kategoriaId") as? String
-        when {
-            fid != null -> { MainActivity.produktiKerkuar.value = fid to b; hapTabin("malli") }
-            Llogaria.leja("afatet") && Llogaria.leja("afatetShto") -> afatIRi(b)
-            else -> Toast.trego("Ky barkod s'është te malli.")
-        }
-    }
-
     val dukshme = if (kerkimi.isNotBlank()) emptyList() else pjeset.filter { it.second && PjesetEBallines.lejohet(it.first) }.map { it.first }
     val rezultatet = remember(kerkimi, g, lejet, aktiviM) { if (kerkimi.isBlank()) emptyList() else kerkoKudo(kerkimi) }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp + BALLINA_MBI_SHIRIT),
@@ -221,18 +195,7 @@ fun BallinaEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit,
         dukshme.forEach { id ->
             item(key = id) {
                 when (id) {
-                    "butonat" -> ButonatEShpejte(PjesetEBallines.butonat()) { b ->
-                        when (b) {
-                            "skano" -> skanoBarkodin()
-                            "afat" -> afatIRi()
-                            "pdf" -> { MainActivity.veprimiIAfateve.value = "pdf"; hapTabin("afatet") }
-                            "shpejt" -> when {
-                                g.foldera.isEmpty() -> Toast.trego("Krijo fillimisht një folder te Malli.")
-                                g.foldera.size == 1 -> skanoShpejt(g.foldera.first()["id"] as String)
-                                else -> zgjidhFolderin = true
-                            }
-                        }
-                    }
+                    // v336 (pronari: "hiqi qato mos i le as te opsionet e as te widgets"): pa butonat e shpejtë
                     "afatet" -> PjesaEBallines("Afatet", "Hape", { hapAfatin(null) }) {
                         TreNumra(Triple(nr.skaduar.toString(), "Të skaduara", n.exp), Triple(nr.afer.toString(), "Skadojnë së shpejti", n.near),
                             Triple(nr.paDate.toString(), "Pa datë", n.ink))
@@ -282,15 +245,7 @@ fun BallinaEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit,
     }
 
     if (pershtat) PershtatFaqen(pjeset, mbyll = { pershtat = false }) { l -> PjesetEBallines.ruaj(l); pjeset = l; pershtat = false }
-    if (zgjidhFolderin) Flete({ zgjidhFolderin = false }) {
-        Text("Skanim i shpejtë", style = tx(20, 700, n.ink))
-        Text("Në cilin folder?", style = tx(14, 400, n.muted))
-        g.foldera.forEach { f ->
-            Karta(Modifier.fillMaxWidth(), onClick = { zgjidhFolderin = false; skanoShpejt(f["id"] as String) }) {
-                Text((f["emri"] as? String).orEmpty(), style = tx(16, 600, n.ink), modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp))
-            }
-        }
-    }
+
 }
 
 /** Karta e një pjese: titulli majtas, lidhja djathtas ("Hape", "Krejt") */
@@ -316,26 +271,6 @@ private fun TreNumra(vararg numrat: Triple<String, String, Color>) {
             Column(Modifier.weight(1f)) {
                 Text(v, style = tx(26, 700, c))
                 Text(e, style = tx(12, 400, n.muted), modifier = Modifier.padding(top = 2.dp))
-            }
-        }
-    }
-}
-
-@Composable
-private fun ButonatEShpejte(butonat: List<String>, prek: (String) -> Unit) {
-    val n = N
-    val te = mapOf("skano" to (Ik.Skano to "Skano"), "afat" to (Ik.Plus to "Afat i ri"), "shpejt" to (Ik.Rrufe to "Skanim i shpejtë"), "pdf" to (Ik.Pdf to "PDF"))
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        butonat.forEachIndexed { i, b ->
-            val (ik, t) = te.getValue(b)
-            val kryesor = i == 0
-            val forma = RoundedCornerShape(16.dp)
-            Column(Modifier.weight(1f).heightIn(min = 76.dp).clip(forma).background(if (kryesor) n.accent else n.surface, forma)
-                .then(if (kryesor) Modifier else Modifier.border(1.dp, n.line, forma)).clickable { prek(b) }.padding(horizontal = 4.dp, vertical = 12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterVertically)) {
-                val ngj = if (kryesor) Color.White else n.ink
-                Icon(ik, null, Modifier.size(22.dp), tint = ngj)
-                Text(t, style = tx(12, 600, ngj), textAlign = TextAlign.Center, maxLines = 2)
             }
         }
     }

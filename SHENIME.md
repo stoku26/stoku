@@ -58,6 +58,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v336 / Android Hyrja 97 (18.11.2026): CILËSIMET NË VIJË + PA BUTONAT E SHPEJTË TE BALLINA**. Pronari: "cilesimet ku shkrun nalt
+   nuk jan ne te njejten vi me emrat e tabeve tjer si malli afatet edhe emri grupit" dhe "hiqi qato mos i le as te opsionet e as te widgets
+   nqosh ku o. Edhe android app edhe web app." (1) Web tel: `.sb #dlgOpsione .opsione-krye` si Afatet/Grupi (12px + 44px, h2 26/700, te
+   css/stoku.css); Android `CilesimetEkrani`: Row padding(top=12).heightIn(min=44). (2) Butonat e shpejtë të Ballinës (Skano, Afat i ri,
+   Skanim i shpejtë, PDF) u hoqën krejt: web tel (BL_PJESET pa 'butonat', blButonat/blSkano/blAfatIRi/blSkanimShpejt, CSS .bl-buton*) dhe
+   Android (Pjesa "butonat", butonat(), ButonatEShpejte, fleta e folderit). "butonat:1" i ruajtur më parë injorohet (s'njihet më).
+   Mos i rikthe. PC-ja ka butonat e veta te Ballina (.bl-btn, v334): s'u prekën. Test: `teste/v336.js`; u përshtatën v326/v327.
+
 0000000. **v335 / Android Hyrja 96 (18.11.2026): MALLI I KOLEGËVE TE KËRKIMI I BALLINËS (RREGULL I RI FIREBASE)**. Pronari: "Po" (pas pyetjes
    se kolegët do t'i shohin sasitë e mallit të njëri-tjetrit). Koleksioni `grupet/{g}/malli/{uid}` = { uid, emri, p: [[barkodi, emri, sasia,
    furnizuesi, folderi], ...] (≤ 8000, renditur sipas barkodit), ndryshuarSe }. Rregulli (blloku "## Rregullat e Firestore" + fs-server.js):
@@ -3597,6 +3605,8 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Çdo PR duhet përshkrim të plotë shqip: çka ndryshoi, si u testua, çfarë numrash versioni u prekën.
 
 ## Gjëra që përdoruesi i ka refuzuar/anuluar shprehimisht (mos i propozo/rikthe pa pyetur)
+- **Butonat e shpejtë te Ballina (18.11.2026, v336 / Hyrja 97)**: Skano, Afat i ri, Skanim i shpejtë, PDF (web tel + Android), edhe si pjesë
+  te "Përshtat faqen". Pronari: "hiqi qato mos i le as te opsionet e as te widgets nqosh ku o". Mos i rikthe.
 - **"Llogaritë e tjera" te Grupi (17.11.2026, v321)**: lista e administratorit me llogaritë jashtë grupit (Fto / Fshi) te "Cilësimet
   e grupit" (tel, Android) dhe karta te PC. Pronari: "Llogarit e tjera hiqi komplet"; ftesa bëhet vetëm me emrin te butoni "+".
   Fshirja e llogarisë mbetet te kolegët e grupit (Menaxho kolegët / faqja e kolegut). Mos e rikthe.

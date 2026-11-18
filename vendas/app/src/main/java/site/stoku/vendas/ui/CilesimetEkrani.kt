@@ -166,7 +166,8 @@ private fun Menyja(tema: String, hap: (String) -> Unit, hapTeRejat: () -> Unit) 
         if (site.stoku.vendas.Admini.eshteAdmin()) RreshtiMenyse(Ik.Perdoruesit, "kuqe", "Përdoruesit", stPd, stPd.contains("pa u kontrolluar")) { hap("perdoruesit") } else null
     )
     Column(Modifier.fillMaxSize()) {
-        Row(Modifier.fillMaxWidth().heightIn(min = 58.dp).padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+        // v336: koka si te Afatet, Malli dhe Grupi (12 dp lart + 44 dp), që titujt të jenë në të njëjtën vijë
+        Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 12.dp).heightIn(min = 44.dp), verticalAlignment = Alignment.CenterVertically) {
             Text("Cilësimet", style = tx(26, 700, n.ink, -0.025))
         }
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 28.dp)) {
