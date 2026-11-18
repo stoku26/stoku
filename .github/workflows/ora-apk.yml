@@ -26,7 +26,7 @@ jobs:
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.9'
+          gradle-version: '9.6.0'
       - name: Ndërto APK
         run: gradle -p ora assembleRelease --stacktrace --no-daemon
       # Me vulën e re (pasi ta krijojë apk-celesat.yml një herë): v3 + zinxhiri i ndërrimit; pa të: si e nënshkroi Gradle-i
@@ -51,7 +51,7 @@ jobs:
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.9'
+          gradle-version: '9.6.0'
       - name: Lint
         continue-on-error: true
         run: gradle -p ora :app:lintDebug --continue --no-daemon

@@ -1,6 +1,5 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
@@ -9,12 +8,13 @@ val numri = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInt()
 
 android {
     namespace = "site.stoku.vendas"
-    compileSdk = 34
+    // Android 17 (API 37): telefoni i pronarit (S24 Ultra, One UI 9). Minimumi mbetet Android 8 (API 26), si më parë.
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "site.stoku.vendas"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 37
         versionCode = numri
         versionName = "0.1.$numri"
         // v256: harta (MapLibre) ka biblioteka native të mëdha: vetëm për telefonat dhe PDA-të ARM (krejt pajisjet e vërteta)
@@ -42,7 +42,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
+    // AGP 9: Kotlin i brendshëm (pa pluginin kotlin-android); jvmTarget merret nga compileOptions (17)
     buildFeatures { compose = true; buildConfig = true }
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
     // Pamjet e ekraneve (Robolectric + Roborazzi, pa telefon): app/build/pamjet/*.png, për krahasim me web-in
