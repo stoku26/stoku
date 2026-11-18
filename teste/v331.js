@@ -34,23 +34,23 @@ const AFT = [
     pllakaAktive: [...document.querySelectorAll('.sbp-pllake.aktiv')].length,
     duket: !document.getElementById('pamjaBallina').classList.contains('fsheh') && document.getElementById('pamjaTabela').classList.contains('fsheh') && document.getElementById('pamjaPermbledhja').classList.contains('fsheh'),
     kartat: [...document.querySelectorAll('#blPjeset .bl-karta h3')].map(x => x.textContent),
-    numrat: [...document.querySelectorAll('#blPjeset .bl-karta')][0].textContent,
-    skadojne: [...document.querySelectorAll('#blPjeset .bl-rresht b')].map(x => x.textContent),
+    numrat: [...document.querySelectorAll('#blPjeset .bl-hero-nr')].map(x => x.textContent).join('|'),
+    skadojne: [...document.querySelectorAll('#blPjeset .bl-tabela tr')].slice(1).map(x => x.firstChild.textContent),
     titulli: document.title
   }));
   ok(gj.btn && /^Ballina/.test(gj.tekst) && gj.rendi && gj.pllakaAktive === 0, '1. butoni "Ballina" mbi pllakat, aktiv; asnjë pllakë aktive', gj);
   ok(gj.duket && gj.titulli.indexOf('Ballina') === 0, '1. faqja Ballina duket (titulli "Ballina")', gj.titulli);
-  ok(['Afatet', 'Skadojnë së pari', 'Afatet në 6 muajt e ardhshëm', 'Malli', 'Furnizuesit me më shumë produkte që skadojnë', 'Grupi'].every(x => gj.kartat.includes(x)), '2. kartat: afatet, skadojnë, grafiku, malli, furnizuesit, grupi', gj.kartat);
-  ok(/1Të skaduara/.test(gj.numrat) && /1Skadojnë së shpejti/.test(gj.numrat) && /3Gjithsej/.test(gj.numrat), '2. numrat e afateve', gj.numrat);
-  ok(gj.skadojne[0] === 'Qumësht Vita 1L' && gj.skadojne[1] === 'Jogurt Abi' && gj.skadojne.length === 2, '2. skadojnë së pari (pa Lëng Frutti, 60 ditë)', gj.skadojne);
+  ok(['Afatet e 14 ditëve të ardhshme', 'Furnizuesit', 'Afatet në 6 muajt e ardhshëm'].every(x => gj.kartat.includes(x)), '2. kartat (v334): tabela e 14 ditëve, furnizuesit, grafiku', gj.kartat);
+  ok(gj.numrat === '1Të skaduara|1Afër|3Gjithsej', '2. numrat e afateve', gj.numrat);
+  ok(gj.skadojne[0] === 'Qumësht Vita 1L' && gj.skadojne[1] === 'Jogurt Abi' && gj.skadojne.length === 2, '2. tabela e 14 ditëve (pa Lëng Frutti, 60 ditë)', gj.skadojne);
   // Kartat hapin faqet
-  await p.click('#blPjeset .bl-karta:has(h3:text-is("Malli"))'); await p.waitForTimeout(400);
-  ok(/#\/malli$/.test(p.url()), '3. karta "Malli" → #/malli', p.url());
+  await p.click('#btnAkordStoku'); await p.waitForTimeout(400);
+  ok(/#\/malli$/.test(p.url()), '3. pllaka "Malli" → #/malli', p.url());
   ok(await p.evaluate(() => !document.getElementById('btnBallina').classList.contains('aktiv') && document.getElementById('btnAkordStoku').classList.contains('aktiv')), '3. te Malli: pllaka Malli aktive, Ballina jo');
   await p.click('#btnBallina'); await p.waitForTimeout(400);
   ok(/#\/ballina$/.test(p.url()), '3. butoni "Ballina" → #/ballina', p.url());
-  await p.click('#blPjeset .bl-karta:has(h3:text-is("Afatet"))'); await p.waitForTimeout(400);
-  ok(/#\/afatet$/.test(p.url()), '3. karta "Afatet" → #/afatet', p.url());
+  await p.click('#blPjeset .bl-hero-nr'); await p.waitForTimeout(400);
+  ok(/#\/afatet$/.test(p.url()), '3. numrat e afateve → #/afatet', p.url());
   await p.goBack(); await p.waitForTimeout(400);
   ok(/#\/ballina$/.test(p.url()) && await p.evaluate(() => !document.getElementById('pamjaBallina').classList.contains('fsheh')), '3. "Mbrapa" → Ballina', p.url());
   await p.evaluate(() => { location.hash = '#/permbledhja'; }); await p.waitForTimeout(400);

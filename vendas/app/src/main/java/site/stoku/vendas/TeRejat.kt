@@ -10,6 +10,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(95, "2026-11-18", "Grupi", listOf(
+            "Te Grupi s'del më data lart, dhe titulli është në të njëjtën lartësi si te Malli, Afatet dhe Cilësimet."
+        )),
         Hyrja(94, "2026-11-18", "Ballina", listOf(
             "Faqja kryesore (butoni me ikonën në mes të shiritit poshtë) tani quhet Ballina, si në kompjuter.",
             "Kërkimi te Ballina gjen edhe afatet e kolegëve të grupit tënd (vetëm brenda grupit)."

@@ -21,6 +21,14 @@
   'use strict';
 
   var LISTA = [
+    { v: 334, versioni: '1.72.0', data: '2026-11-18', titulli: 'Ballina e re', platforma: 'pc', pikat: [
+      'Ballina ka pamje të re: lart përshëndetja dhe fjalia e ditës ("1 produkt skadon sot, 2 nesër"), butonat Afat i ri, Lexo nga foto, Importo Excel, PDF për printim dhe numrat kryesorë.',
+      'Poshtë është tabela e afateve të 14 ditëve të ardhshme, djathtas furnizuesit dhe grafiku i 6 muajve.',
+      'Te Ballina, anësorja majtas tregon kolegët e grupit (kush është online) dhe aktivitetin e fundit.'
+    ] },
+    { v: 334, versioni: '1.72.0', data: '2026-11-18', titulli: 'Grupi', platforma: 'tel', pikat: [
+      'Te Grupi s\'del më data lart, dhe titulli është në të njëjtën lartësi si te Malli, Afatet dhe Cilësimet.'
+    ] },
     { v: 333, versioni: '1.71.2', data: '2026-11-18', titulli: 'Ballina', platforma: 'tel', pikat: [
       'Faqja kryesore (butoni me ikonën në mes të shiritit poshtë) tani quhet Ballina, si në kompjuter.',
       'Kërkimi te Ballina gjen edhe afatet e kolegëve të grupit tënd (vetëm brenda grupit). Me një prekje hapet Grupi te afatet e atij kolegu.'
