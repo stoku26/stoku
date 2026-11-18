@@ -76,10 +76,11 @@ fun PerditesimiFaqja() {
             }
             if (x.faza == "gabim") Text(x.mesazhi, style = txR(14f, 500, n.exp), textAlign = TextAlign.Center, modifier = Modifier.padding(top = 18.dp))
             val pikat = x.teReja.flatMap { it.pikat }.take(6)
-            if (pikat.isNotEmpty() && !shkarkim) {
+            // Hyrja 92 (pronari, foto e shkarkimit): "Çfarë ka të re" del edhe gjatë shkarkimit, si më parë (jo hapësirë bosh)
+            if (pikat.isNotEmpty()) {
                 Column(Modifier.padding(top = 26.dp).fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(n.surface)
                     .border(1.dp, n.line, RoundedCornerShape(20.dp)).padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 16.dp)) {
-                    Text("ÇKA KA TË RE", style = tx(12, 700, n.muted, 0.06))
+                    Text("ÇFARË KA TË RE", style = tx(12, 700, n.muted, 0.06))
                     pikat.forEach { t ->
                         Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             Box(Modifier.size(22.dp).clip(RoundedCornerShape(7.dp)).background(n.okTint), contentAlignment = Alignment.Center) {

@@ -22,7 +22,7 @@ const ADM = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
   const fl = ge.slice(ge.indexOf('if (cilesimet) Flete('));
   ok(/Buton\("Largohu nga grupi"/.test(fl) && (ge.match(/Buton\("Largohu nga grupi"/g) || []).length === 1, '1. Android: "Largohu" vetëm te "Cilësimet e grupit"');
   ok(/height\(48\.dp\)/.test(ge) && !/else n\.accent\)\.border\(if \(ftoHapur\)/.test(ge) && !/val meCilesime/.test(ge), '1. Android: rreshti 48, "+" pa blu, "⋮" për çdo koleg');
-  ok(/if \(oret\.isEmpty\(\)\) Row\(/.test(lx(K + 'ui/NjoftimetUI.kt')), '2. Android: Galaxy/Apple vetëm pa orë të lidhur');
+  ok(/if \((gati && )?oret\.isEmpty\(\)\) Row\(/.test(lx(K + 'ui/NjoftimetUI.kt')), '2. Android: Galaxy/Apple vetëm pa orë të lidhur');
   ok(['app-tel.js', 'app-pc.js', K + 'ui/EksportetUI.kt'].every(f => !/"Periudha: "|'Periudha: '/.test(lx(f))) && /fun nrFurnizuesve/.test(lx(K + 'EksportiPdf.kt')) && /EksportiPdf\.nrFurnizuesve\(lista\)/.test(lx(K + 'ui/EksportetUI.kt')),
     '5. PDF: pa "Periudha: " (web tel, PC, Android), me numrin e furnizuesve');
   ok(/stoku-v3(2[1-9]|[3-9]\d)/.test(lx('sw.js')) && /app-tel\.js\?v=3(2[1-9]|[3-9]\d)/.test(lx('sw.js')) && /eksportet\.js\?v=3(2[1-9]|[3-9]\d)/.test(lx('sw.js')), '0. versionet');

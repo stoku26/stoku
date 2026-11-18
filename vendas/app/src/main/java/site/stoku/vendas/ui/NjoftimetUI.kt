@@ -274,6 +274,9 @@ private fun Hapat(hapat: List<String>) {
     }
 }
 
+/** Hyrja 92: oret e lidhura të fundit (uid → lista), që faqja të mos e tregojë për një moment kutinë e kodit */
+private var oretKujtesa: Pair<String, List<Push.OraELidhur>>? = null
+
 /** Cilësimet → Ora e dorës: lidhja me kodin 6-shifror (Galaxy Watch) dhe hapat për njoftimet (Galaxy Watch, Apple Watch) */
 @Composable
 fun OraFaqja(mbrapa: () -> Unit) {
@@ -284,9 +287,14 @@ fun OraFaqja(mbrapa: () -> Unit) {
     var duke by remember { mutableStateOf(false) }
     var ora by remember { mutableStateOf("galaxy") }
     // Hyrja 78 (web v316): ora e lidhur me detajet + "Shkëput orën"; kutia e kodit vetëm kur s'ka orë të lidhur
-    var oret by remember { mutableStateOf<List<Push.OraELidhur>>(emptyList()) }
+    // Hyrja 92 (pronari: "Galaxy Watch / Apple Watch po i qet edhe kur jam i lidht me or amo shum shpejt heken"): derisa të vijë
+    // përgjigjja e serverit s'del as zgjedhja, as kutia e kodit; ora e fundit e njohur mbahet në kujtesë (hapja e dytë është e menjëhershme)
+    val uidTani = remember { Llogaria.perdoruesi.value?.uid ?: "" }
+    var oret by remember { mutableStateOf(oretKujtesa?.takeIf { it.first == uidTani }?.second ?: emptyList()) }
+    var gati by remember { mutableStateOf(uidTani.isEmpty() || oretKujtesa?.first == uidTani) }
     var rifresko by remember { mutableStateOf(0) }
-    LaunchedEffect(rifresko) { Push.oretELidhura()?.let { oret = it } }
+    LaunchedEffect(rifresko) { Push.oretELidhura()?.let { oret = it }; gati = true }
+    LaunchedEffect(oret, gati) { if (gati && uidTani.isNotEmpty()) oretKujtesa = uidTani to oret }
     fun lidh() {
         val k = kodi.filter { it.isDigit() }
         if (Llogaria.perdoruesi.value == null) { hint = "Hyr në llogari që ta lidhësh orën."; return }
@@ -312,7 +320,8 @@ fun OraFaqja(mbrapa: () -> Unit) {
             // .segment: Galaxy Watch / Apple Watch. Web v321 (pronari: "mos me ta qit qato kur perdoruesi veq se osht i lidht me or"):
             // kur ka orë të lidhur (Galaxy Watch) zgjedhja s'del
             LaunchedEffect(oret.isNotEmpty()) { if (oret.isNotEmpty()) ora = "galaxy" }
-            if (oret.isEmpty()) Row(Modifier.fillMaxWidth().padding(bottom = 14.dp).clip(RoundedCornerShape(12.dp)).background(n.sunken).padding(4.dp)) {
+            if (!gati) Text("Duke kontrolluar orën…", style = txR(13f, 500, n.muted), modifier = Modifier.padding(bottom = 12.dp))
+            if (gati && oret.isEmpty()) Row(Modifier.fillMaxWidth().padding(bottom = 14.dp).clip(RoundedCornerShape(12.dp)).background(n.sunken).padding(4.dp)) {
                 listOf("galaxy" to "Galaxy Watch", "apple" to "Apple Watch").forEach { (k, t) ->
                     val a = ora == k
                     Box(Modifier.weight(1f).height(38.dp).then(if (a) Modifier.shadow(2.dp, RoundedCornerShape(9.dp)) else Modifier).clip(RoundedCornerShape(9.dp))
@@ -323,13 +332,14 @@ fun OraFaqja(mbrapa: () -> Unit) {
             }
             if (ora == "galaxy" && oret.isNotEmpty()) oret.forEach { o -> OraELidhurKarta(o) { oret = oret.filter { it.id != o.id } } }
             if (ora == "galaxy") {
-                if (oret.isEmpty()) Column(Modifier.padding(bottom = 12.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(n.surface2).border(1.dp, n.line, RoundedCornerShape(14.dp))
+                if (gati && oret.isEmpty()) Column(Modifier.padding(bottom = 12.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(n.surface2).border(1.dp, n.line, RoundedCornerShape(14.dp))
                     .padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Aplikacioni Stoku në orë", style = tx(18, 700, n.ink, -0.01))
                     Text("Hape Stoku në orë: del një kod me 6 shifra (ndërrohet çdo 15 sekonda). Shkruaje këtu që ora të lidhet me llogarinë tënde.", style = txR(12.5f, 400, n.muted))
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                         Fusha(kodi, { kodi = it.filter { c -> c.isDigit() }.take(6) }, Modifier.weight(1f), "Kodi nga ora", tastiera = KeyboardType.NumberPassword,
-                            kurVeprim = { lidh() }, lartesia = 44.dp, rrezja = 12.dp, stili = tx(17, 700).copy(letterSpacing = 3.sp, textAlign = TextAlign.Center))
+                            kurVeprim = { lidh() }, lartesia = 44.dp, rrezja = 12.dp, stili = tx(17, 700).copy(letterSpacing = 3.sp, textAlign = TextAlign.Center),
+                            stiliPlaceholder = tx(14, 500).copy(textAlign = TextAlign.Center)) // Hyrja 92: "Kodi nga ora" pa hapësira mes shkronjave
                         Buton("Lidh orën", { lidh() }, Modifier.weight(1f), aktiv = !duke, lartesia = 44.dp)
                     }
                     if (hint.isNotEmpty()) Text(hint, style = txR(12.5f, 500, n.ink2))

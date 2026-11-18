@@ -138,6 +138,7 @@
       '<Default Extension="xml" ContentType="application/xml"/>' +
       '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
       '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' +
+      '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
       '</Types>';
 
     var rels = xmlKok +
@@ -153,14 +154,18 @@
     var workbookRels = xmlKok +
       '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
       '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>' +
+      '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>' +
       '</Relationships>';
 
     var rows = [];
     // v212: kolona "Furnizuesi" (bosh kur produkti s'ka furnitor të shënuar)
     rows.push('<row>' + tekst('Barkodi') + tekst('Emri i produktit') + tekst('Sasia') + tekst('Furnizuesi') + '</row>');
     produktet.forEach(function (p) {
-      rows.push('<row>' + tekst(p.barkodi) + tekst(p.emri) + '<c><v>' + (p.sasia | 0) + '</v></c>' + tekst(p.furnizuesi || '') + '</row>');
+      rows.push('<row>' + tekst(p.barkodi) + tekst(p.emri) + '<c s="1"><v>' + (p.sasia | 0) + '</v></c>' + tekst(p.furnizuesi || '') + '</row>');
     });
+
+    // v330 (pronari, foto e Excel-it të mallit): sasia majtas, si te afatet (stili 1: numër + alignment left)
+    var styles = xmlKok + '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="1"><font><sz val="11"/><name val="Calibri"/><family val="2"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="1" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyAlignment="1"><alignment horizontal="left"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
 
     var sheet = xmlKok +
       '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
@@ -176,7 +181,8 @@
       { name: '_rels/.rels', data: enc.encode(rels) },
       { name: 'xl/workbook.xml', data: enc.encode(workbook) },
       { name: 'xl/_rels/workbook.xml.rels', data: enc.encode(workbookRels) },
-      { name: 'xl/worksheets/sheet1.xml', data: enc.encode(sheet) }
+      { name: 'xl/worksheets/sheet1.xml', data: enc.encode(sheet) },
+      { name: 'xl/styles.xml', data: enc.encode(styles) }
     ]);
   }
 

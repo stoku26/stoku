@@ -58,6 +58,17 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v330 / Android Hyrja 92 (18.11.2026): "ÇFARË KA TË RE" GJATË SHKARKIMIT + ORA PA "FLASH" + "KODI NGA ORA"**. Pronari (2 foto):
+   "qaty qite qfare ka te re qysh u kon ma heret" / "qato nalt (Galaxy/Apple) po i qet edhe kur jam i lidht me or amo shum shpejt heken
+   rregulloje nkrejt projektin" / "kodi nga ora rregullo tekstin keq po doket". (1) Android `PerditesimiUI.kt`: lista "ÇFARË KA TË RE"
+   (nga Release-i) del edhe gjatë shkarkimit (më parë `!shkarkim` e fshihte). (2) Ora e dorës: derisa vjen `/ora/oret` s'del as segmenti
+   Galaxy/Apple as kutia e kodit, vetëm "Duke kontrolluar orën…"; ora e fundit mbahet në kujtesë për uid-në: web tel `localStorage`
+   `stoku:ora:oret` ({uid, oret}), Android `oretKujtesa` (në memorie). Pa internet: pas përgjigjes së dështuar del si më parë (s'ngec).
+   PC s'ka faqe të orës. (3) Android `Fusha(stiliPlaceholder)`: "Kodi nga ora" me 14/500 pa letterSpacing (web e kishte tashmë me CSS).
+   (4) Excel-i i mallit (`xlsx.js build` + binjaku `Xlsx.kt hyrjetEBuild`): pronari "exceli i mallit ... sasia numri me fillu anen e
+   majt": shtohet `xl/styles.xml` (cellXfs 1 = numër, alignment left), qeliza e sasisë `s="1"`; fikstura.json rigjeneruar.
+   PC (`buildWorkbook`) e kishte tashmë (v323).
+   Testi `teste/v330.js`; `v321.js` pranon `if (gati && oret.isEmpty())`.
 0000000. **v329 / Android Hyrja 91 (18.11.2026): "STOKU" → "MALLI" KUDO QË DUKET (PC + LEJET)**. Pronari: "foto 1 ne pc butoni stoku ...
    emertoje malli kudo ... edhe ne link pc po thirka permbledhja ... kur klikon nto bone nlink me dal malli ... kshyri krejta lidhjet pa prish
    kurgjo". PC: pllaka `btnAkordStoku` tani "Malli" (title, nëntitulli "Malli dhe afatet"), Cilësimet → "Malli" (nav + h2), adresa e

@@ -2214,8 +2214,20 @@
   }
   function dataOres(t) { var d = new Date(t); function z(n) { return (n < 10 ? '0' : '') + n; } return z(d.getDate()) + '.' + z(d.getMonth() + 1) + '.' + d.getFullYear() + ', ora ' + z(d.getHours()) + ':' + z(d.getMinutes()); }
   var oretTani = [];
+  // v330 (pronari: "Galaxy Watch / Apple Watch po i qet edhe kur jam i lidht me or amo shum shpejt heken"): derisa të vijë përgjigjja
+  // e serverit s'del as zgjedhja Galaxy/Apple, as kutia e kodit; ora e fundit e njohur ruhet (për llogarinë) që hapja tjetër të jetë e menjëhershme
+  var KEY_ORET = 'stoku:ora:oret', oretGati = false;
+  function uidOres() { var u = perdoruesiAktual(); return (u && u.uid) || ''; }
+  function oretNgaKujtesa() {
+    try { var x = JSON.parse(localStorage.getItem(KEY_ORET) || 'null'); var u = uidOres(); if (x && u && x.uid === u && Array.isArray(x.oret)) return x.oret; } catch (e) { /* ok */ }
+    return null;
+  }
   function vizatoOret() {
     var k = $('oraLidhur'), kod = $('oraLidhKuti');
+    if (!oretGati) { var c = oretNgaKujtesa(); if (c) { oretTani = c; oretGati = true; } }
+    $('oraPritje').hidden = oretGati;
+    if (!oretGati) { k.hidden = true; kod.hidden = true; $('segOra').hidden = true; return; }
+    try { var u = uidOres(); if (u) localStorage.setItem(KEY_ORET, JSON.stringify({ uid: u, oret: oretTani })); } catch (e) { /* ok */ }
     k.textContent = '';
     k.hidden = !oretTani.length; kod.hidden = !!oretTani.length;
     // v321 (pronari: "mos me ta qit qato (Galaxy Watch / Apple Watch) kur perdoruesi veq se osht i lidht me or"): ora e lidhur është Galaxy Watch
@@ -2243,9 +2255,11 @@
   }
   async function rifreskoOret() {
     var e = ekipaCloud();
-    if (!e || !e.oretELidhura || !perdoruesiAktual()) { oretTani = []; vizatoOret(); return; }
-    var r = await e.oretELidhura();
-    if (r && r.ok && Array.isArray(r.oret)) { oretTani = r.oret; vizatoOret(); } // serveri i vjetër / pa internet: mbetet si ishte
+    if (!e || !e.oretELidhura || !perdoruesiAktual()) { oretTani = []; oretGati = true; vizatoOret(); return; }
+    if (!oretGati) vizatoOret(); // kujtesa e llogarisë (tani dihet uid-ja): karta menjëherë, pa pritur serverin
+    var r = null; try { r = await e.oretELidhura(); } catch (x) { /* ok */ }
+    if (r && r.ok && Array.isArray(r.oret)) oretTani = r.oret; // serveri i vjetër / pa internet: mbetet si ishte
+    oretGati = true; vizatoOret();
   }
   async function shkeputOren(o, btn) {
     if (btn.getAttribute('data-pyet') !== '1') { btn.setAttribute('data-pyet', '1'); btn.textContent = 'Prek sërish për ta shkëputur'; return; }
@@ -2255,6 +2269,7 @@
     else { btn.disabled = false; btn.removeAttribute('data-pyet'); btn.textContent = 'Shkëput orën'; toast(r && r.arsye === 'rrjeti' ? 'S\'ka internet. Provo prapë.' : 'S\'u shkëput. Provo prapë.'); }
   }
   $('tabOra').addEventListener('click', function () { setTimeout(function () { rifreskoOret().catch(function () { /* ok */ }); }, 50); });
+  try { vizatoOret(); } catch (e) { /* ok */ }
   $('oraLidh').addEventListener('click', lidhOrenMeKod);
   $('oraKodi').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); lidhOrenMeKod(); } });
   // Heqjet nga rafti të bëra në orë zbatohen këtu (dhe dërgohen te cloud-i si çdo heqje tjetër)

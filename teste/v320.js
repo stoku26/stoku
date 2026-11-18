@@ -22,7 +22,7 @@ const ADM = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
   const ge = lx(K + 'ui/GrupiEkrani.kt');
   ok(/Cilësimet e grupit/.test(ge) && /Ik\.TrePika/.test(ge) && /Ik\.Laps/.test(ge) && !/Pill\("Ndrysho emrin"\)/.test(ge) && /if \(cilesimet\) Flete\(/.test(ge), '0. Android: ⋮ + laps + dritarja "Cilësimet e grupit"');
   const sw = lx('sw.js');
-  ok(/stoku-v32\d/.test(sw) && /app-tel\.js\?v=3[2-9]\d/.test(sw) && /ekipa\.js\?v=3[2-9]\d/.test(sw), '0. sw.js: CACHE, app-tel, ekipa ≥ 320');
+  ok(/stoku-v3([2-9]\d|\d{3})/.test(sw) && /app-tel\.js\?v=3[2-9]\d/.test(sw) && /ekipa\.js\?v=3[2-9]\d/.test(sw), '0. sw.js: CACHE, app-tel, ekipa ≥ 320');
 
   // ===== Faqet =====
   const tani = Date.now();
