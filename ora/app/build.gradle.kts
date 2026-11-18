@@ -1,6 +1,5 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
@@ -8,12 +7,13 @@ val numri = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInt()
 
 android {
     namespace = "site.stoku.ora"
-    compileSdk = 34
+    // Wear OS 6 / One UI 8 Watch (Android 16, API 36): ora e pronarit (Galaxy Watch Ultra 2025). Minimumi mbetet API 30.
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "site.stoku.ora"
         minSdk = 30
-        targetSdk = 34
+        targetSdk = 36
         versionCode = numri
         versionName = "1.0.$numri"
     }
@@ -39,7 +39,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
+    // AGP 9: Kotlin i brendshëm (pa pluginin kotlin-android); jvmTarget merret nga compileOptions (17)
     buildFeatures { compose = true }
     lint {
         checkReleaseBuilds = false
