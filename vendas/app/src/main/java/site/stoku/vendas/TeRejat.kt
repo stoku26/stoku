@@ -10,6 +10,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(90, "2026-11-18", "Android 17", listOf(
+            "Stoku tani është ndërtuar për Android 17 (më parë Android 14). Punon si më parë në telefonat me Android 8 e më të rinj.",
+            "Në telefonat e rinj s'del më paralajmërimi \"This app was designed for an older version of Android\". Stoku s'ka nevojë për lejen \"Nearby devices\": mund ta ndalosh pa problem."
+        )),
         Hyrja(89, "2026-11-18", "Kërko kudo", listOf(
             "Te Kreu ka fushën e re \"Kërko kudo\": shkruaj një barkod, produkt, afat, furnizues, koleg ose një faqe të Cilësimeve dhe e hap me një prekje.",
             "Te Malli lart ka vetëm titullin \"Malli\"; logoja është te Kreu."
