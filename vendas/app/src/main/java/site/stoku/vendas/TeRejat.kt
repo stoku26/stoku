@@ -10,6 +10,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(96, "2026-11-18", "Malli i kolegëve", listOf(
+            "Kërkimi te Ballina gjen edhe mallin e kolegëve të grupit tënd: emrin, barkodin, folderin dhe sasinë (vetëm brenda grupit).",
+            "Malli yt ndahet vetë me kolegët e grupit (vetëm për kërkim). Kur del nga grupi, hiqet."
+        )),
         Hyrja(95, "2026-11-18", "Grupi", listOf(
             "Te Grupi s'del më data lart, dhe titulli është në të njëjtën lartësi si te Malli, Afatet dhe Cilësimet."
         )),
