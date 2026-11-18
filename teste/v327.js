@@ -63,6 +63,14 @@ const AFT = [
     return { mbi: Math.round(tb.top - rr.top), w: Math.round(rr.width), mes: Math.abs((rr.left + rr.right) / 2 - innerWidth / 2) < 2, logo: l.width > 100 && l.top < 80, af };
   });
   ok(r.mbi >= 10 && r.mbi <= 22 && r.w >= 50 && r.mes, '1. rrethi i shtëpisë në mes, pak mbi shirit', r);
+  // pronari (foto): te tabet e tjera rrethi dilte përgjysmë (faqja e plotë e mbulonte pjesën mbi shirit)
+  const iPlote = () => p.evaluate(() => { const r = document.querySelector('#tabKreu .tab-kreu-rreth').getBoundingClientRect(); const e = document.elementFromPoint(r.left + r.width / 2, r.top + 4); return !!(e && e.closest('#tabKreu')); });
+  ok(await iPlote(), '1. rrethi i plotë te Kreu');
+  await p.click('#btnAfatet'); await p.waitForTimeout(400);
+  ok(await iPlote(), '1. rrethi i plotë edhe te Afatet (jo përgjysmë)');
+  await p.click('#btnOpsione'); await p.waitForTimeout(400);
+  ok(await iPlote(), '1. ... dhe te Cilësimet');
+  await p.click('#tabKreu'); await p.waitForTimeout(400);
   ok(r.logo && /Afatet Hape 1 Të skaduara 1 Skadojnë së shpejti 0 Pa datë/.test(r.af), '1. logoja lart te Kreu; numrat e afateve', r);
   await p.screenshot({ path: __dirname + '/v327-kreu.png' });
 

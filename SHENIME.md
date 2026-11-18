@@ -58,6 +58,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v328 (18.11.2026): RRETHI I SHTËPISË I PLOTË NË ÇDO TAB (web tel)**. Pronari (foto): "te tjerat tabs del ngjysm". Faqet e plota
+   (Kreu, Afatet, Grupi, Cilësimet, z 21) mbulonin pjesën e `.tab-kreu-rreth` mbi shirit (#tabet z 19); te Malli (pa faqe) dilte mirë.
+   `rifreskoTabet` vendos `body.tabet-siper` kur shiriti duket dhe s'ka dritare tjetër sipër (`dialogiISiperm()`), dhe atëherë
+   `#tabet` ka z 22. Dritaret e zakonshme (z 20+) e mbulojnë shiritin si më parë. Test: `v327.js` (rrethi i plotë te Kreu/Afatet/Cilësimet).
 0000000. **v327 / Android Hyrja 89 (18.11.2026): KREU NË WEB APP TË TELEFONIT + MALLI ME TITULL + KËRKO KUDO**.
    - Pronari: "Edhe ne web app duhet me kon veq ne telefon. Jo ne pc. Edhe logon stoku te malli e hek e len veq tekst qysh o te afatet
      ... ne faqe kryesore ... qite ni search bar. Qe kur te lyp qaty diqka ne krejt projektin me lyp e me ta qit qaty".

@@ -21,6 +21,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 328, versioni: '1.70.1', data: '2026-11-18', titulli: 'Butoni i shtëpisë', platforma: 'tel', pikat: [
+      'Rrethi i shtëpisë në mes të shiritit tani del i plotë në çdo tab (më parë te Afatet, Grupi dhe Cilësimet dilte përgjysmë).'
+    ] },
     { v: 327, versioni: '1.70.0', data: '2026-11-18', titulli: 'Kreu dhe Malli', platforma: 'tel', pikat: [
       'Në mes të shiritit poshtë ka butonin e ri me shtëpinë: Kreu. Hapet i pari sa hyn, dhe "Mbrapa" kthen gjithmonë aty.',
       'Te Kreu sheh me një shikim afatet, çfarë skadon së pari, grafikun e muajve, mallin, furnizuesit dhe grupin. Me butonin lart djathtas zgjedh çfarë del dhe me çfarë radhe.',
