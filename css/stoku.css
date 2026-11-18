@@ -850,3 +850,8 @@ html.sb:not([data-tema="dark"]) .sb-summary { box-shadow: 0 0 0 1px var(--sb-lin
 .sb #dlgEkipi .opsione-krye { min-height: 0; padding-top: calc(12px + env(safe-area-inset-top)); padding-bottom: 0; box-sizing: content-box; height: 44px; }
 .sb #dlgEkipi .ek-titulli-kuti h2 { font-size: 26px; font-weight: 700; letter-spacing: -.025em; line-height: 1.1; }
 .sb #dlgEkipi .opsione-krye #ekZile { width: 44px; height: 44px; }
+
+/* v336 (pronari, foto e Cilësimeve: "nuk jan ne te njejten vi me emrat e tabeve tjer si malli afatet edhe emri grupit"):
+   koka e Cilësimeve si te Afatet dhe Grupi (12px + 44px), titulli 26px */
+.sb #dlgOpsione .opsione-krye { min-height: 0; padding-top: calc(12px + env(safe-area-inset-top)); padding-bottom: 0; box-sizing: content-box; height: 44px; }
+.sb #dlgOpsione .opsione-krye h2 { font-size: 26px; font-weight: 700; letter-spacing: -.025em; line-height: 1.1; }

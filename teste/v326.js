@@ -23,9 +23,9 @@ const paKom = t => t.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '');
   ok(!/"stoku" ->|Triple\("stoku"|StokuEkrani|Ik\.Stoku\b/.test(ma) && fs.existsSync(RR + K + 'ui/MalliEkrani.kt') && !fs.existsSync(RR + K + 'ui/StokuEkrani.kt') &&
     /Triple\("malli", "Malli", Ik\.Malli\)/.test(ma) && /leja\("stoku"\)\) Triple\("malli"/.test(ma), '3. Android: "Stoku" → "Malli" (tabi, ekrani, ikona); leja mbetet "stoku"');
   ok(/if \(k == "stoku"\) "malli"/.test(ma), '3. Android: njoftimet e vjetra me tabin "stoku" hapin Mallin');
-  const pj = ['butonat', 'afatet', 'skadojne', 'grafiku', 'malli', 'furnizuesit', 'grupi', 'marketi', 'ora'];
+  const pj = ['afatet', 'skadojne', 'grafiku', 'malli', 'furnizuesit', 'grupi', 'marketi', 'ora'];
   ok(pj.every(x => ballina.includes('Pjesa("' + x + '"')) && /"Përshtat faqen"/.test(ballina) && /"Si në fillim"/.test(ballina) && /detectDragGestures/.test(ballina) && /ballina_pjeset/.test(ballina),
-    '3. Android: 9 pjesët e Ballinës + "Përshtat faqen" (çelësat, zvarritja, Si në fillim)');
+    '3. Android: 8 pjesët e Ballinës (v336: pa butonat) + "Përshtat faqen" (çelësat, zvarritja, Si në fillim)');
   ok(!/Mirë se vjen/.test(paKom(ballina)), '3. Android: pa "Mirë se vjen"');
   ok(!/clip\(RoundedCornerShape\(6\.dp\)\)/.test(logo.slice(logo.indexOf('fun EtiketaStoku'))), '3. Android: logoja e kokës pa qoshe të rrumbullakëta (barkodi s\'pritet)');
   ok(/disableAutoCancel\(\)/.test(sk) && /FLAG_AF or FocusMeteringAction\.FLAG_AE/.test(sk) && /coerceIn\(k\.left, k\.right\)/.test(sk) && /FOKUSI_CDO_MS/.test(sk),

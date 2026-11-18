@@ -4617,7 +4617,6 @@
   // një tab tjetër; "Mbrapa" nga Malli/Afatet/Grupi/Cilësimet kthen te Ballina. Lart logoja dhe "Përshtat faqen" (secili zgjedh pjesët
   // dhe radhën, `stoku:ballina:pjeset`), pastaj kërkimi kudo dhe pjesët. Testet e vjetra e fikin me `window.__stokuPaBallina` (pw.js).
   var BL_PJESET = [
-    { id: 'butonat', emri: 'Butonat e shpejtë', sh: 'Skano, Afat i ri, Skanim i shpejtë, PDF' },
     { id: 'afatet', emri: 'Numrat e afateve', sh: '' },
     { id: 'skadojne', emri: 'Skadojnë së pari', sh: '3 produktet që skadojnë më herët' },
     { id: 'grafiku', emri: 'Grafiku i muajve', sh: 'Sa afate skadojnë në 6 muajt e ardhshëm' },
@@ -4643,18 +4642,8 @@
     return l;
   }
   function blRuaj(l) { try { localStorage.setItem(BL_KEY, l.map(function (x) { return x.id + ':' + (x.on ? '1' : '0'); }).join(',')); } catch (e) { /* ok */ } }
-  function blButonat() {
-    var kamera = leja('kamera') && !opsione.pda, shtoAfat = leja('afatet') && leja('afatetShto');
-    var l = [];
-    if (kamera && (leja('stoku') || shtoAfat)) l.push('skano');
-    if (shtoAfat) l.push('afat');
-    if (kamera && leja('stoku') && lejaSkanimShpejt()) l.push('shpejt');
-    if (leja('afatet') && leja('eksportPdf')) l.push('pdf');
-    return l;
-  }
   function blLejohet(id) {
     var af = leja('afatet');
-    if (id === 'butonat') return blButonat().length > 0;
     if (id === 'afatet' || id === 'skadojne' || id === 'grafiku') return af;
     if (id === 'furnizuesit') return af && !eshteMerchandiser();
     if (id === 'malli') return leja('stoku');
@@ -4712,39 +4701,7 @@
     else if (cfare && cfare.kerko !== undefined) { $('afKerko').value = cfare.kerko; renderAfatet(); }
   }
   function blHapMallin() { kaloTab(function () { __malliZgjedhur = true; mbyllBallinen(); }); }
-  function blAfatIRi(barkodi) {
-    blHapAfatet(null);
-    hapAfatin(null);
-    if (barkodi) {
-      $('afatBarkodi').value = barkodi;
-      $('afatBarkodi').dispatchEvent(new Event('change'));
-      ($('afatEmri').value.trim() ? $('afatData') : $('afatEmri')).focus();
-    }
-  }
   // Skano: produkti që është te malli hapet atje; përndryshe "Afat i ri" me këtë barkod
-  function blSkano() {
-    kameraPerAfat = function (b) {
-      var p = null;
-      if (leja('stoku')) Object.keys(produktet).some(function (c) { if (String(produktet[c].barkodi) === String(b)) { p = produktet[c]; return true; } return false; });
-      if (p) { blHapMallin(); burimiIFundit = 'kamera'; hapFolderin(p.kategoriaId); hapDialogun(p.barkodi); return; }
-      if (leja('afatet') && leja('afatetShto')) { blAfatIRi(b); return; }
-      toast('Ky barkod s\'është te malli.');
-    };
-    hapKamere().then(function () { if (kameraDeshtoi) kameraPerAfat = null; });
-  }
-  function blSkanimShpejt() {
-    if (!foldera.length) { toast('Krijo fillimisht një folder te Malli.'); return; }
-    var nis = function (id) { blHapMallin(); hapFolderin(id); setTimeout(hapSkanimShpejt, 0); };
-    if (foldera.length === 1) { nis(foldera[0].id); return; }
-    var l = $('krfLista'); l.textContent = '';
-    foldera.forEach(function (f) {
-      var b = blEl('button', 'bl-rez'); b.type = 'button';
-      b.appendChild(blEl('span', 'bl-info')).appendChild(blEl('b', null, f.emri));
-      b.addEventListener('click', function () { $('dlgBallinaFolder').classList.remove('hapur'); nis(f.id); });
-      l.appendChild(b);
-    });
-    $('dlgBallinaFolder').classList.add('hapur');
-  }
   $('krfAnulo').addEventListener('click', function () { $('dlgBallinaFolder').classList.remove('hapur'); });
 
   function blDitet(a) {
@@ -4763,18 +4720,8 @@
     }
     dukshme.forEach(function (x) {
       var k;
-      if (x.id === 'butonat') {
-        k = blEl('div', 'bl-butonat');
-        var EM = { skano: 'Skano', afat: 'Afat i ri', shpejt: 'Skanim i shpejtë', pdf: 'PDF' };
-        blButonat().forEach(function (b, i) {
-          var bt = blEl('button', 'bl-buton' + (i === 0 ? ' kryesor' : '')); bt.type = 'button'; bt.setAttribute('data-bl', b);
-          bt.innerHTML = blSvg(b); bt.appendChild(blEl('span', null, EM[b]));
-          bt.addEventListener('click', function () {
-            if (b === 'skano') blSkano(); else if (b === 'afat') blAfatIRi(''); else if (b === 'pdf') blHapAfatet('pdf'); else blSkanimShpejt();
-          });
-          k.appendChild(bt);
-        });
-      } else if (x.id === 'afatet') {
+      // v336 (pronari: "hiqi qato mos i le as te opsionet e as te widgets"): pa butonat e shpejtë (Skano, Afat i ri, Skanim i shpejtë, PDF)
+      if (x.id === 'afatet') {
         k = blKarta('Afatet', 'Hape', function () { blHapAfatet(null); });
         k.appendChild(blTreNumra([[String(nr.skaduar), 'Të skaduara', 'bl-exp'], [String(nr.afer), 'Skadojnë së shpejti', 'bl-near'], [String(nr['pa-date']), 'Pa datë']]));
       } else if (x.id === 'skadojne') {

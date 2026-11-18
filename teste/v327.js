@@ -56,7 +56,7 @@ const AFT = [
   const gj = () => p.evaluate(() => ({ ballina: document.getElementById('dlgBallina').classList.contains('hapur'), afatet: document.getElementById('dlgAfatet').classList.contains('hapur'),
     tab: (document.querySelector('#tabet .tab.aktiv') || {}).id, pjeset: [...document.querySelectorAll('#blPjeset [data-pjesa]')].map(x => x.getAttribute('data-pjesa')) }));
   let s = await gj();
-  ok(s.ballina && s.tab === 'tabBallina' && s.pjeset.join() === 'butonat,afatet,skadojne,grafiku,malli,furnizuesit,grupi', '1. Ballina hapet e para, me pjesët', s);
+  ok(s.ballina && s.tab === 'tabBallina' && s.pjeset.join() === 'afatet,skadojne,grafiku,malli,furnizuesit,grupi', '1. Ballina hapet e para, me pjesët', s);
   const r = await p.evaluate(() => {
     const rr = document.querySelector('#tabBallina .tab-ballina-rreth').getBoundingClientRect(), tb = document.getElementById('tabet').getBoundingClientRect(), l = document.getElementById('logoButon').getBoundingClientRect();
     const af = document.querySelector('#blPjeset [data-pjesa="afatet"]').innerText.replace(/\s+/g, ' ');
@@ -111,7 +111,7 @@ const AFT = [
 
   // 1. Përshtat faqen: fik "Grafiku", lëviz "Malli" lart
   await p.click('#blPershtat'); await p.waitForTimeout(300);
-  ok(await p.evaluate(() => document.querySelectorAll('#blpLista .blp-rresht').length) === 8, '1. "Përshtat faqen": pjesët e lejuara (pa Marketin pa markete)', await p.evaluate(() => [...document.querySelectorAll('#blpLista .blp-rresht')].map(x => x.getAttribute('data-id'))));
+  ok(await p.evaluate(() => document.querySelectorAll('#blpLista .blp-rresht').length) === 7, '1. "Përshtat faqen": pjesët e lejuara (pa Marketin pa markete)', await p.evaluate(() => [...document.querySelectorAll('#blpLista .blp-rresht')].map(x => x.getAttribute('data-id'))));
   await p.evaluate(() => document.querySelector('#blpLista [data-id="grafiku"] input').click());
   const kap = await p.$('#blpLista [data-id="malli"] .blp-kapja'), bb = await kap.boundingBox();
   await p.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2); await p.mouse.down();
@@ -122,7 +122,7 @@ const AFT = [
   s = await gj();
   ok(!s.pjeset.includes('grafiku') && s.pjeset.indexOf('malli') < s.pjeset.indexOf('afatet') && /grafiku:0/.test(await p.evaluate(() => localStorage.getItem('stoku:ballina:pjeset'))), '1. "Ruaj": pa grafikun, Malli më lart; ruhet', s.pjeset);
   await p.click('#blPershtat'); await p.click('#blpFillim'); await p.click('#blpRuaj'); await p.waitForTimeout(300);
-  ok((await gj()).pjeset.join() === 'butonat,afatet,skadojne,grafiku,malli,furnizuesit,grupi', '1. "Si në fillim"');
+  ok((await gj()).pjeset.join() === 'afatet,skadojne,grafiku,malli,furnizuesit,grupi', '1. "Si në fillim"');
   await p.click('#tabMalli'); await p.waitForTimeout(300);
   ok(!(await gj()).ballina && (await gj()).tab === 'tabMalli', '1. "Malli" e mbyll Ballinën (s\'rihapet vetë)');
   await p.click('#tabBallina'); await p.waitForTimeout(300);
