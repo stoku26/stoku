@@ -200,7 +200,7 @@ fun GrupiEkrani() {
         Box(Modifier.weight(1f)) {
             when {
                 gj.qasja == "pa-grup" -> PaGrup(ftesat, kerkesatM, ctx)
-                gj.qasja == "pa-rregulla" -> Bosh("Grupi s'është gati ende", "Administratori duhet t'i vendosë rregullat e reja të Firebase-it (Firestore → Rules) për grupet. Stoku dhe afatet e tua punojnë si zakonisht.")
+                gj.qasja == "pa-rregulla" -> Bosh("Grupi s'është gati ende", "Administratori duhet t'i vendosë rregullat e reja të Firebase-it (Firestore → Rules) për grupet. Malli dhe afatet e tua punojnë si zakonisht.")
                 gj.qasja == "gabim" -> Bosh("S'u lidh me grupin", "Kontrollo internetin dhe provo përsëri.")
                 !anetar -> Info("Duke u lidhur me grupin…")
                 pamja == "afatet" -> AfatetEGrupit(anetariZ, filtri, { filtri = it }, ctx)
@@ -615,7 +615,7 @@ private fun FtesaKarta(f: Obj, ctx: Konteksti) {
                 val g = jsString(Grupi.grupiDoc.value?.get("emri") ?: "")
                 ctx.pyet(Pyetja("Të kalosh te grupi \"" + jsString(f["grupiEmri"] ?: "") + "\"?", "Largohesh nga grupi \"$g\"" +
                     (if (m.iFundit) " (je i fundit në grup: grupi fshihet bashkë me aktivitetin)" else if (m.trashegimtari != null) " (admin bëhet " + (m.trashegimtariEmri ?: "kolegu") + ")" else "") +
-                    ". Stoku dhe afatet e tua s'preken.", "Kalo", false) { prano() })
+                    ". Malli dhe afatet e tua s'preken.", "Kalo", false) { prano() })
             } else prano()
         }, aktiv = !duke, lartesia = 38.dp)
         Buton("Refuzo", { scope.launch { if (Grupi.refuzoFtesen(f) != null) Toast.trego("S'u refuzua. Kontrollo internetin.", 4000) } }, lloji = "tekst", lartesia = 38.dp)
@@ -810,7 +810,7 @@ private fun AfatetEGrupit(uid: String, filtri: String?, ndryshoFiltrin: (String?
         if (zgj != null && zgj["uneJam"] != true && Grupi.eshtePronar()) item {
             val emri = jsString(zgj["emri"] ?: "")
             Buton("Hiq $emri nga grupi", {
-                ctx.pyet(Pyetja("Të hiqet nga grupi?", "$emri s'do ta shohë më grupin (afatet e kolegëve dhe aktivitetin) derisa ta ftosh sërish. Stoku dhe afatet e tij s'preken.", "Hiqe", true) {
+                ctx.pyet(Pyetja("Të hiqet nga grupi?", "$emri s'do ta shohë më grupin (afatet e kolegëve dhe aktivitetin) derisa ta ftosh sërish. Malli dhe afatet e tij s'preken.", "Hiqe", true) {
                     scope.launch {
                         val r = Grupi.hiqNgaGrupi(zgj["uid"] as String)
                         if (r == null) { ctx.zgjidhPamjen("permbledhja"); Toast.trego("$emri u hoq nga grupi.") } else Toast.trego("S'u hoq. Kontrollo internetin dhe provo përsëri.", 4000)
@@ -1072,7 +1072,7 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
                             }
                         }
                         Pill("Hiq") {
-                            ctx.pyet(Pyetja("Të hiqet nga grupi?", "$em s'do ta shohë më grupin (afatet e kolegëve dhe aktivitetin) derisa ta ftosh sërish. Stoku dhe afatet e tij s'preken.", "Hiqe", true) {
+                            ctx.pyet(Pyetja("Të hiqet nga grupi?", "$em s'do ta shohë më grupin (afatet e kolegëve dhe aktivitetin) derisa ta ftosh sërish. Malli dhe afatet e tij s'preken.", "Hiqe", true) {
                                 scope.launch { val r = Grupi.hiqNgaGrupi(a["uid"] as String); Toast.trego(if (r == null) "$em u hoq nga grupi." else "S'u hoq. Kontrollo internetin dhe provo përsëri.", 4000) }
                             })
                         }
@@ -1087,9 +1087,9 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
             val m = Grupi.mundTeLargohet()
             if (!m.ok) { Toast.trego("Prit pak, po ngarkohen kolegët e grupit…", 5000); return@Buton }
             ctx.pyet(Pyetja("Të largohesh nga grupi \"$emriG\"?",
-                if (m.iFundit) "Je i fundit në grup: grupi fshihet komplet, bashkë me aktivitetin. Stoku dhe afatet e tua s'preken."
+                if (m.iFundit) "Je i fundit në grup: grupi fshihet komplet, bashkë me aktivitetin. Malli dhe afatet e tua s'preken."
                 else (if (m.trashegimtari != null) "Je admini i grupit: kur largohesh, admin bëhet " + (m.trashegimtariEmri ?: "kolegu") + ". " else "") +
-                    "S'do t'i shohësh më kolegët dhe aktivitetin e këtij grupi. Stoku dhe afatet e tua s'preken.", "Largohu", true) {
+                    "S'do t'i shohësh më kolegët dhe aktivitetin e këtij grupi. Malli dhe afatet e tua s'preken.", "Largohu", true) {
                 scope.launch {
                     val r = Grupi.largohuNgaGrupi()
                     Toast.trego(when (r) {

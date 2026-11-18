@@ -737,7 +737,7 @@
   var tab = { kerkimi: '', filtri: 'te-gjitha', rendiK: 'koha', rendiD: -1, faqja: 0, zgjedhura: {}, fokus: -1, ankoraZgjedhjes: null, flash: null };
   (function () { var r = ops.rendi.split(':'); tab.rendiK = r[0]; tab.rendiD = parseInt(r[1], 10); })();
 
-  function hashPer(p) { return p === 'permbledhja' ? '#/permbledhja' : p === 'te-gjitha' ? '#/te-gjitha' : p === 'afatet' ? '#/afatet' : p === 'ekipi' ? '#/grupi' + (ekNen !== 'pulti' ? '/' + (ekNen === 'anetaret' ? 'koleget' : ekNen) : '') : '#/f/' + encodeURIComponent(p); }
+  function hashPer(p) { return p === 'permbledhja' ? '#/malli' : p === 'te-gjitha' ? '#/te-gjitha' : p === 'afatet' ? '#/afatet' : p === 'ekipi' ? '#/grupi' + (ekNen !== 'pulti' ? '/' + (ekNen === 'anetaret' ? 'koleget' : ekNen) : '') : '#/f/' + encodeURIComponent(p); }
   function shkoTe(p, opsionet) {
     opsionet = opsionet || {};
     if (!leja(lejaEPamjes(p))) return; // v230
@@ -802,7 +802,7 @@
     // Rezultatet rifreskohen vetëm kur fusha ka fokusin (përndryshe dritarja e rezultateve rihapej vetë pas çdo ndryshimi)
     if ($('kerkoGlobal').value.trim() && document.activeElement === $('kerkoGlobal')) renderKerkimiGlobal();
     if ((!neEkipi || paAsgje) && ekK && ekK.gj.hapur) ekK.mbyll(); // dëgjuesit e Grupit vetëm sa kohë është e hapur
-    var titull = permb ? 'Përmbledhja' : neAfate ? 'Afatet' : neEkipi ? 'Grupi • ' + EK_TITUJT[ekNen] : pamja === 'te-gjitha' ? 'Të gjitha produktet' : emriFolderit(pamja);
+    var titull = permb ? 'Malli' : neAfate ? 'Afatet' : neEkipi ? 'Grupi • ' + EK_TITUJT[ekNen] : pamja === 'te-gjitha' ? 'Të gjitha produktet' : emriFolderit(pamja);
     document.title = titull + ' • Stoku';
   }
 
@@ -2792,7 +2792,7 @@
     if (u) $('sbpBrandNen').textContent = emri;
     else if (hp) $('sbpBrandNen').textContent = hp.emri;
     else if (viz) $('sbpBrandNen').textContent = 'Vizitor · provë';
-    else if (cl && cl.authGati) $('sbpBrandNen').textContent = 'Stoku dhe afatet';
+    else if (cl && cl.authGati) $('sbpBrandNen').textContent = 'Malli dhe afatet';
     $('opsLlJashteTitull').textContent = viz ? 'Je si vizitor' : 'Nuk ke hyrë';
     $('opsLlJashteHint').textContent = viz ? 'Provë pa llogari: të dhëna shembull, vetëm në këtë kompjuter. Kur hyn me llogari, prova fshihet.' : 'Të dhënat ruhen vetëm në këtë kompjuter.';
     $('opsVizRinis').classList.toggle('fsheh', !viz);
@@ -4254,7 +4254,7 @@
   var EKL = window.StokuEkipa;
   var EK_NENET = ['pulti', 'afatet', 'aktiviteti', 'kalendari', 'anetaret', 'statistika', 'stoku'];
   var EK_PAMJET = { pulti: 'ekVPulti', afatet: 'ekVAfatet', aktiviteti: 'ekVAktiviteti', kalendari: 'ekVKalendari', anetaret: 'ekVAnetaret', statistika: 'ekVStatistika', stoku: 'ekVStoku' };
-  var EK_TITUJT = { pulti: 'Përmbledhja', afatet: 'Afatet e grupit', aktiviteti: 'Aktiviteti', kalendari: 'Kalendari', anetaret: 'Kolegët', statistika: 'Statistika', stoku: 'Stoku i kolegëve' };
+  var EK_TITUJT = { pulti: 'Përmbledhja', afatet: 'Afatet e grupit', aktiviteti: 'Aktiviteti', kalendari: 'Kalendari', anetaret: 'Kolegët', statistika: 'Statistika', stoku: 'Malli i kolegëve' };
   var ekNen = 'pulti';
   var ekV = { anetari: 'krejt', filtri: '', kerkimi: '', kal: null };
   var EK_LIMITI = 500;
@@ -4401,7 +4401,7 @@
     if (lidhur && qasja === 'pa-grup') ekVPaGrup();
     if (!lidhur) $('ekPaLidhjeTekst').textContent = ngaVizitori() ? 'Grupi punon me llogari: me kolegët ndani afatet dhe aktivitetin. Si vizitor provon Stoku-n dhe Afatet; hyr ose krijo llogari (poshtë majtas) që ta shohësh grupin.' :
       !window.__stokuCloud ? 'Grupi kërkon lidhje me internetin.' : 'Hyr me llogarinë tënde (poshtë majtas) që ta shohësh grupin.';
-    else if (qasja === 'pa-rregulla') $('ekPaLidhjeTekst').textContent = 'Grupi s\'është gati ende: administratori duhet t\'i vendosë rregullat e reja të Firebase-it (Firestore → Rules). Stoku dhe afatet e tua punojnë si zakonisht.';
+    else if (qasja === 'pa-rregulla') $('ekPaLidhjeTekst').textContent = 'Grupi s\'është gati ende: administratori duhet t\'i vendosë rregullat e reja të Firebase-it (Firestore → Rules). Malli dhe afatet e tua punojnë si zakonisht.';
     else if (qasja !== 'ok') $('ekPaLidhjeTekst').textContent = 'Duke u lidhur me grupin…';
     $('ekMenu').classList.toggle('fsheh', !!lidhur && qasja !== 'ok');
     if (lidhur && qasja !== 'ok') lidhur = false;
@@ -4968,7 +4968,7 @@
       var g = ekK.grupiInfo() || {}, m = ekK.mundTeLargohet();
       if (!m.ok) { toast(ekTekstiLargimit(m)); return; }
       var po = await konfirmo('Të kalosh te grupi "' + (f.grupiEmri || '') + '"?',
-        'Largohesh nga grupi "' + (g.emri || '') + '"' + (m.iFundit ? ' (je i fundit në grup: grupi fshihet bashkë me aktivitetin)' : m.trashegimtari ? ' (admin bëhet ' + (m.trashegimtariEmri || 'kolegu') + ')' : '') + '. Stoku dhe afatet e tua s\'preken.', 'Kalo');
+        'Largohesh nga grupi "' + (g.emri || '') + '"' + (m.iFundit ? ' (je i fundit në grup: grupi fshihet bashkë me aktivitetin)' : m.trashegimtari ? ' (admin bëhet ' + (m.trashegimtariEmri || 'kolegu') + ')' : '') + '. Malli dhe afatet e tua s\'preken.', 'Kalo');
       if (!po) return;
     }
     if (btn) btn.disabled = true;
@@ -4982,9 +4982,9 @@
     var g = ekK.grupiInfo() || {}, m = ekK.mundTeLargohet();
     if (!m.ok) { toast(ekTekstiLargimit(m)); return; }
     var po = await konfirmo('Të largohesh nga grupi "' + (g.emri || '') + '"?',
-      m.iFundit ? 'Je i fundit në grup: grupi fshihet komplet, bashkë me aktivitetin. Stoku dhe afatet e tua s\'preken.'
+      m.iFundit ? 'Je i fundit në grup: grupi fshihet komplet, bashkë me aktivitetin. Malli dhe afatet e tua s\'preken.'
         : (m.trashegimtari ? 'Je admini i grupit: kur largohesh, admin bëhet ' + (m.trashegimtariEmri || 'kolegu') + '. ' : '') +
-          'S\'do t\'i shohësh më kolegët dhe aktivitetin e këtij grupi. Stoku dhe afatet e tua s\'preken.', 'Largohu');
+          'S\'do t\'i shohësh më kolegët dhe aktivitetin e këtij grupi. Malli dhe afatet e tua s\'preken.', 'Largohu');
     if (!po) return;
     var r = await ekK.largohuNgaGrupi();
     if (!r.ok) { toast(r.arsye ? ekTekstiLargimit(r) : 'S\'u largove. Kontrollo internetin dhe provo përsëri.'); return; }
@@ -5143,7 +5143,7 @@
     var k = $('ekStokKerko').value.trim().toLowerCase();
     var te = d.produktet.filter(function (p) { return !k || ((p.emri || '') + ' ' + p.barkodi + ' ' + (emriF[p.kategoriaId] || '')).toLowerCase().indexOf(k) !== -1; })
       .sort(function (a, b) { return String(a.emri || '').localeCompare(String(b.emri || ''), 'sq'); });
-    if (!te.length) { bosh.textContent = k ? 'Asgjë s\'u gjet për "' + k + '".' : 'Stoku është bosh.'; return; }
+    if (!te.length) { bosh.textContent = k ? 'Asgjë s\'u gjet për "' + k + '".' : 'Malli është bosh.'; return; }
     bosh.classList.add('fsheh');
     var frag = document.createDocumentFragment();
     te.slice(0, EK_LIMITI).forEach(function (p) {
@@ -5180,7 +5180,7 @@
 
   // ---- Pronari i grupit: heq një koleg ----
   async function ekHiqNgaEkipa(a) {
-    var po = await konfirmo('Të hiqet nga grupi?', a.emri + ' s\'do ta shohë më grupin (afatet e kolegëve dhe aktivitetin) derisa ta ftosh sërish. Stoku dhe afatet e tij s\'preken.', 'Hiqe');
+    var po = await konfirmo('Të hiqet nga grupi?', a.emri + ' s\'do ta shohë më grupin (afatet e kolegëve dhe aktivitetin) derisa ta ftosh sërish. Malli dhe afatet e tij s\'preken.', 'Hiqe');
     if (!po) return;
     var r = await ekK.hiqNgaEkipa(a);
     if (!r.ok) { toast('S\'u hoq. Kontrollo internetin dhe provo përsëri.'); return; }

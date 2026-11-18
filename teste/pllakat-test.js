@@ -45,7 +45,7 @@ const ok = (k, m, x) => { if (!k) gabime++; console.log((k ? 'OK    ' : 'GABIM '
     ok(await c.evaluate(() => document.getElementById('navAfatet').classList.contains('aktiv')), tema + ': pllaka aktive "Afatet" të kthen te "Afatet e produkteve"');
     // Stoku: mban mend folderin
     await c.click('#btnAkordStoku'); await c.waitForTimeout(400);
-    ok(/permbledhja/.test(await hash()), tema + ': pllaka "Stoku" të çon te Përmbledhja', await hash());
+    ok(/#\/malli$/.test(await hash()), tema + ': pllaka "Malli" të çon te #/malli', await hash());
     await vetem('Stoku', tema + ': vetëm menyja e Stokut (me folderat)');
     await c.click('#folderat .folder-rresht:has-text("Pije")'); await c.waitForTimeout(300);
     ok(/#\/f\/f2/.test(await hash()), tema + ': folderi "Pije" hapet', await hash());
@@ -54,7 +54,7 @@ const ok = (k, m, x) => { if (!k) gabime++; console.log((k ? 'OK    ' : 'GABIM '
     await c.click('#btnAkordStoku'); await c.waitForTimeout(400);
     ok(/#\/f\/f2/.test(await hash()), tema + ': kthimi te "Stoku" të çon te folderi ku ishe (Pije)', await hash());
     await c.click('#btnAkordStoku'); await c.waitForTimeout(400);
-    ok(/permbledhja/.test(await hash()), tema + ': pllaka aktive "Stoku" të kthen te Përmbledhja', await hash());
+    ok(/#\/malli$/.test(await hash()), tema + ': pllaka aktive "Malli" të kthen te #/malli', await hash());
     // Ndryshimi i hash-it (Mbrapa e shfletuesit) e ndërron edhe pllakën
     await c.goBack(); await c.waitForTimeout(400);
     await vetem('Stoku', tema + ': "Mbrapa" te folderi: pllaka mbetet Stoku');

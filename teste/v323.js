@@ -62,7 +62,7 @@ const paKom = t => t.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '');
     await p.click('#opsTeRejat'); await p.waitForTimeout(300);
     const d = await p.evaluate(() => ({ hapur: document.getElementById('dlgTeRejat').classList.contains('hapur'), nen: document.getElementById('trNen').textContent,
       tit: [...document.querySelectorAll('#trLista .tr-version-titulli')].map(x => x.textContent) }));
-    ok(d.hapur && d.nen === 'Përditësimet e fundit' && d.tit.includes('Excel më i thjeshtë') && d.tit.length <= 6 && !d.tit.includes('Excel me një faqe'), '1. telefoni: hapet nga Cilësimet, pa hyrjet e PC-së', d);
+    ok(d.hapur && d.nen === 'Përditësimet e fundit' && d.tit.length >= 1 && d.tit.length <= 6 && !d.tit.includes('Excel me një faqe') && !d.tit.includes('Malli edhe në kompjuter') && !d.tit.includes('Fusha e barkodit'), '1. telefoni: hapet nga Cilësimet, pa hyrjet e PC-së', d);
     await p.click('#trMbyll'); await p.waitForTimeout(200);
     ok(await p.evaluate(() => !document.getElementById('dlgTeRejat').classList.contains('hapur')), '1. "Në rregull" e mbyll');
     ok(!gab.length, 'telefoni: pa gabime JS', gab);
@@ -76,7 +76,7 @@ const paKom = t => t.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '');
     ok(await p.evaluate(() => { const t = document.getElementById('opsTeRejat'); return !!t && t.nextElementSibling === document.getElementById('opsPrivatesia'); }), '1. PC: "Çfarë ka të re" afër Privatësisë');
     await p.evaluate(() => document.getElementById('opsTeRejat').click()); await p.waitForTimeout(300);
     const d = await p.evaluate(() => ({ hapur: document.getElementById('dlgTeRejat').classList.contains('hapur'), tit: [...document.querySelectorAll('#trLista .tr-version-titulli')].map(x => x.textContent) }));
-    ok(d.hapur && d.tit.includes('Excel më i thjeshtë') && d.tit.includes('Excel me një faqe') && !d.tit.includes('Grupi yt'), '1. PC: hapet nga Cilësimet, me hyrjet e PC-së', d);
+    ok(d.hapur && d.tit.includes('Malli edhe në kompjuter') && d.tit.includes('Fusha e barkodit') && !d.tit.includes('Butoni i shtëpisë') && !d.tit.includes('Kreu dhe Malli'), '1. PC: hapet nga Cilësimet, me hyrjet e PC-së', d);
     ok(!gab.length, 'PC: pa gabime JS', gab);
     await ctx.close();
   }
