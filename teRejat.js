@@ -21,6 +21,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 338, versioni: '1.73.3', data: '2026-11-18', titulli: 'Skanimi në iPhone të vjetër', platforma: 'tel', pikat: [
+      'Në iPhone të vjetër (p.sh. iPhone 5s, 6), ku kamera s\'hapet dot direkt në web, butoni i skanimit hap kamerën për foto: bëje foton e barkodit dhe barkodi lexohet vetë.'
+    ] },
     { v: 337, versioni: '1.73.2', data: '2026-11-18', titulli: 'Njoftimet', platforma: 'tel', pikat: [
       'Te njoftimet në telefon logoja e Stoku-t del vetëm majtas, jo edhe djathtas.'
     ] },

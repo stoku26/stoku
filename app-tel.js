@@ -175,6 +175,7 @@
 
       kameraNukUHap: 'Kamera nuk u hap.',
       kameraNukUHapLeje: 'Kamera nuk u hap. Lejo kamerën për Stoku-n te Cilësimet e telefonit.',
+      fotoPaBarkod: 'S\'u gjet barkod në foto. Bëje foton më afër, me barkodin të qartë.',
       kameraNukEshteGati: 'Kamera nuk është gati. Lidhu me internet dhe hape prapë aplikacionin.',
       kameraDrejtoje: 'Drejtoje kamerën te barkodi',
       kameraHint: 'Vendos vetëm një barkod brenda kutisë',
@@ -4370,6 +4371,7 @@
       toast(T('kameraNukEshteGati'));
       return;
     }
+    if (!kaKameraDirekte()) { skanoMeFoto(); return; } // v338: iPhone i vjetër (iOS 12): kamera si foto
     perpunuar = false;
     ndaloNumrimVazhdues();
     rinisVotimin();
@@ -4386,6 +4388,68 @@
       toast(T('kameraNukUHapLeje'));
     }
   }
+
+  // v338 (pronari, iPhone 5s: "kamera nuk u hap ska kerkun opsion me ja leju kameren"): iOS 12 (iPhone 5s, 6) s'e ka kamerën direkte
+  // në web (getUserMedia: në Safari vetëm nga iOS 13.4, sidomos te web app-i në ekranin kryesor). Aty s'ka as leje për ta dhënë.
+  // Në këto telefona butoni i skanimit hap kamerën e telefonit për foto: bëhet foto e barkodit dhe barkodi lexohet nga fotoja
+  // (ZXing, ose html5-qrcode kur ai s'punon). Pastaj vazhdon njësoj si skanimi i zakonshëm (Afat i ri, Malli).
+  function kaKameraDirekte() { return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia); }
+  var fotoPerAfat = null; // ku shkon barkodi i fotos ("Afat i ri"), sepse kameraPerAfat pastrohet sapo kthehet hapKamere
+  function skanoMeFoto() {
+    fotoPerAfat = kameraPerAfat;
+    kameraDeshtoi = true; // kamera direkte s'u hap: "Shto" te Afatet e hap formën menjëherë, barkodi vjen pas fotos
+    var inp = $('skanFoto');
+    inp.value = '';
+    inp.click();
+  }
+  function fotoNeKanavace(skedari) {
+    return new Promise(function (ok, gabim) {
+      var url = URL.createObjectURL(skedari), img = new Image();
+      img.onload = function () {
+        var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height, shk = Math.min(1, 2000 / Math.max(w, h));
+        var c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(w * shk)); c.height = Math.max(1, Math.round(h * shk));
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        ok(c);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); gabim(new Error('foto')); };
+      img.src = url;
+    });
+  }
+  function barkodiNgaRezultatet(r) {
+    var b = (r || []).filter(function (x) { return x && x.rawValue && String(x.format || '').toLowerCase() !== 'qr_code'; })[0];
+    return b ? { kodi: String(b.rawValue).trim(), formati: String(b.format || '').toUpperCase() } : null;
+  }
+  async function lexoBarkodinNgaFoto(skedari) {
+    try {
+      var det = detektoriNativ || await pergatitDetektorinWasm();
+      if (det) {
+        var g = barkodiNgaRezultatet(await det.detect(await fotoNeKanavace(skedari)));
+        if (g) return g;
+      }
+    } catch (e) { /* provo html5-qrcode */ }
+    if (typeof Html5Qrcode !== 'undefined') {
+      try {
+        var h = new Html5Qrcode('reader');
+        var t = await h.scanFile(skedari, false);
+        try { h.clear(); } catch (e) { /* ok */ }
+        if (t) return { kodi: String(t).trim(), formati: '' };
+      } catch (e) { /* s'u gjet */ }
+    }
+    return null;
+  }
+  $('skanFoto').addEventListener('change', async function () {
+    var f = this.files && this.files[0], perAfat = fotoPerAfat;
+    fotoPerAfat = null;
+    if (!f) return;
+    var g = await lexoBarkodinNgaFoto(f);
+    if (!g || !g.kodi) { toast(T('fotoPaBarkod')); return; }
+    bip();
+    if (perAfat) { perAfat(g.kodi); return; }
+    burimiIFundit = 'kamera';
+    hapDialogun(g.kodi);
+  });
 
   // Ndalon vetëm skanerin (dritarja e kamerës mbetet e hapur)
   async function ndalSkanerin() {
