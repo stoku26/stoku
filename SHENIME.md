@@ -3611,8 +3611,6 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Çdo PR duhet përshkrim të plotë shqip: çka ndryshoi, si u testua, çfarë numrash versioni u prekën.
 
 ## Gjëra që përdoruesi i ka refuzuar/anuluar shprehimisht (mos i propozo/rikthe pa pyetur)
-- **Përshtatja për iPhone 5s / iOS 12 (18.11.2026)**: skanimi me foto kur s'ka kamerë direkte (v338) u bë dhe u kthye. Pronari: "Fshij krejt
-  qka ke bo per iphone 5s". iOS 12 s'mbështetet (Firebase 12 kërkon ES2020). Mos e rikthe.
 - **Butonat e shpejtë te Ballina (18.11.2026, v336 / Hyrja 97)**: Skano, Afat i ri, Skanim i shpejtë, PDF (web tel + Android), edhe si pjesë
   te "Përshtat faqen". Pronari: "hiqi qato mos i le as te opsionet e as te widgets nqosh ku o". Mos i rikthe.
 - **"Llogaritë e tjera" te Grupi (17.11.2026, v321)**: lista e administratorit me llogaritë jashtë grupit (Fto / Fshi) te "Cilësimet
