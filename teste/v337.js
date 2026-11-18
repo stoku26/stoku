@@ -24,7 +24,7 @@ async function pushMe(ua) {
   const sn = at.slice(at.indexOf('reg.showNotification(nj.titulli'), at.indexOf('reg.showNotification(nj.titulli') + 300);
   ok(sn && !/icon:/.test(sn), '2. app-tel.js: njoftimi pa icon');
   ok(/<link rel="apple-touch-icon" href="apple-touch-icon\.png/.test(ix) && /<link rel="manifest"/.test(ix), '3. iPhone/Android: ikona e aplikacionit (apple-touch-icon, manifest) ekziston për majtas');
-  ok(/v: 337/.test(lx('teRejat.js')), '0. teRejat: hyrja 337');
+  ok(/v: 337/.test(lx('teRejat.js')) && /v: 337/.test(lx('versioni.js')), '0. versioni 337');
   console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');
   process.exit(g ? 1 : 0);
 })();

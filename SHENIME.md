@@ -58,14 +58,6 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
-0000000. **v338 (18.11.2026): SKANIMI ME FOTO NË IPHONE TË VJETËR (iOS 12)**. Pronari (foto, iPhone 5s): "kamera nuk u hap ska kerkun
-   opsion me ja leju kameren me perdor per skanim". Shkaku: iOS 12 (iPhone 5s/6 s'kalojnë iOS 12.5) s'ka `navigator.mediaDevices.getUserMedia`
-   në web app-in e ekranit kryesor (vjen vetëm nga iOS 13.4), prandaj s'ka as leje për t'u dhënë. Tani: `kaKameraDirekte()` false →
-   `skanoMeFoto()` hap `#skanFoto` (input file, capture=environment); barkodi lexohet nga fotoja me ZXing (`pergatitDetektorinWasm`, mbi
-   kanavacë ≤2000 px) ose me `Html5Qrcode.scanFile` si rezervë. "Afat i ri": forma hapet menjëherë (`kameraDeshtoi = true`), barkodi vjen
-   pas fotos (`fotoPerAfat`); Malli: `hapDialogun`. Foto pa barkod: "S'u gjet barkod në foto...". Skanimi i shpejtë s'ka mënyrë me foto
-   (mbyllet si kur kamera s'hapet). Telefonat e tjerë s'preken. Test: `teste/v338.js` (iOS 12 i simuluar; ZXing dhe html5-qrcode).
-
 0000000. **v337 (18.11.2026): NJOFTIMET E WEB APP-IT TË TELEFONIT PA IKONËN DJATHTAS**. Pronari (foto e njoftimit në Android): "Kur e qet
    ikonen ntmajt sdi pse edhe ndjatht e qet hekja qato ndjatht ... sigurohu qe edhe ne iphone e ka ato ntmajt". Shkaku: opsioni `icon` i
    `showNotification` në Chrome Android del si foto e madhe djathtas (majtas del vetë ikona e aplikacionit). U hoq `icon` te sw.js (push),
