@@ -810,9 +810,9 @@
   }
 
   // ================= Ballina (v331, pronari: opsioni D, "quaje ballina") =================
-  // Faqja e parë në PC: afatet, çfarë skadon së pari, grafiku i 6 muajve, malli, furnizuesit dhe grupi (si Kreu i telefonit).
+  // Faqja e parë në PC: afatet, çfarë skadon së pari, grafiku i 6 muajve, malli, furnizuesit dhe grupi (si Ballina i telefonit).
   // Çdo kartë hap faqen e vet; kartat që s'lejohen (lejet e llogarisë) s'dalin.
-  function ballinaEPare() { return !window.__stokuPaKreu; }
+  function ballinaEPare() { return !window.__stokuPaBallina; }
   function blEl(tag, klasa, tekst) { var e = document.createElement(tag); if (klasa) e.className = klasa; if (tekst !== undefined) e.textContent = tekst; return e; }
   function blKarta(titulli, lidhja, prek, klasa) {
     var k = blEl('div', 'bl-karta' + (klasa ? ' ' + klasa : ''));

@@ -853,7 +853,7 @@
     $('kryeButonatFolderi').style.display = brenda ? '' : 'none';
     rifreskoFabin();
     if (brenda) {
-      $('titulli').classList.remove('titulli-faqes'); // v327: brenda folderit emri i tij; jashtë "Malli" (pa logo: logoja është te Kreu)
+      $('titulli').classList.remove('titulli-faqes'); // v327: brenda folderit emri i tij; jashtë "Malli" (pa logo: logoja është te Ballina)
       $('btnMbrapa').setAttribute('aria-label', T('foldera'));
       $('btnMbrapa').title = T('foldera');
       renderLista();
@@ -864,7 +864,7 @@
       renderKerkimiGlobal();
     }
     rifreskoTabet();
-    vizatoKreun();
+    vizatoBallinen();
   }
 
   function hapFolderin(id) {
@@ -2982,7 +2982,7 @@
   // (Afatet, Grupi, ose Cilësimet kur s'ka asnjërën), e hapur gjithmonë si kryefaqja. S'numërohet si nivel i historisë:
   // "mbrapa" s'e mbyll (si kryefaqja), ndërsa kur mbyllet një tab tjetër, rihapet ajo.
   function faqjaBaze() {
-    if (krAktiv()) return 'dlgKreu'; // v327: Kreu është kryefaqja
+    if (blAktiv()) return 'dlgBallina'; // v327: Ballina është kryefaqja
     if (leja('stoku')) return null;
     return leja('afatet') ? 'dlgAfatet' : leja('grupi') ? 'dlgEkipi' : 'dlgOpsione';
   }
@@ -2990,7 +2990,7 @@
     var b = faqjaBaze();
     if (!b) return;
     if ($('dlgAfatet').classList.contains('hapur') || $('dlgEkipi').classList.contains('hapur') || $('dlgOpsione').classList.contains('hapur')) return;
-    if (b === 'dlgKreu') { if (!kreuHapur() && (!__malliZgjedhur || !leja('stoku'))) kaloTab(hapKreun); return; }
+    if (b === 'dlgBallina') { if (!ballinaHapur() && (!__malliZgjedhur || !leja('stoku'))) kaloTab(hapBallinen); return; }
     kaloTab(function () { if (b === 'dlgAfatet') hapAfatetFaqe(); else if (b === 'dlgEkipi') hapEkipiFaqe(); else hapOpsionet(); });
   }
   // Pas mbylljes së një tabi: nëse s'u hap tjetër në vend të tij (p.sh. "mbrapa"), kthehet faqja bazë
@@ -4550,17 +4550,17 @@
     var afatetHapur = $('dlgAfatet').classList.contains('hapur');
     var cilesimetHapur = $('dlgOpsione').classList.contains('hapur');
     var ekipiHapur = $('dlgEkipi').classList.contains('hapur');
-    var kreuH = $('dlgKreu').classList.contains('hapur');
-    var dukshem = (folderiAktual === null || afatetHapur || cilesimetHapur || ekipiHapur || kreuH) &&
+    var ballinaH = $('dlgBallina').classList.contains('hapur');
+    var dukshem = (folderiAktual === null || afatetHapur || cilesimetHapur || ekipiHapur || ballinaH) &&
       !$('kamera').classList.contains('hapur') && !$('dlgAfatLexim').classList.contains('hapur') &&
       !$('dlgImportStok').classList.contains('hapur') && !tastieraHapur;
     document.body.classList.toggle('me-tabe', dukshem);
-    // v327 (pronari: "te tabet e tjera del ngjysm"): faqet e plota (Kreu, Afatet, Grupi, Cilësimet, z 21) e mbulonin pjesën e rrethit të
+    // v327 (pronari: "te tabet e tjera del ngjysm"): faqet e plota (Ballina, Afatet, Grupi, Cilësimet, z 21) e mbulonin pjesën e rrethit të
     // shtëpisë që del mbi shirit; kur s'ka asnjë dritare tjetër sipër, shiriti del mbi to (dritaret e zakonshme e mbulojnë si më parë)
     var siper = false; try { siper = dukshem && !dialogiISiperm(); } catch (e) { /* në nisje, para radhës së dritareve */ }
     document.body.classList.toggle('tabet-siper', siper);
-    var aktiv = cilesimetHapur ? 'btnOpsione' : ekipiHapur ? 'btnEkipi' : afatetHapur ? 'btnAfatet' : kreuH ? 'tabKreu' : 'tabMalli';
-    ['tabMalli', 'btnAfatet', 'tabKreu', 'btnEkipi', 'btnOpsione'].forEach(function (id) {
+    var aktiv = cilesimetHapur ? 'btnOpsione' : ekipiHapur ? 'btnEkipi' : afatetHapur ? 'btnAfatet' : ballinaH ? 'tabBallina' : 'tabMalli';
+    ['tabMalli', 'btnAfatet', 'tabBallina', 'btnEkipi', 'btnOpsione'].forEach(function (id) {
       var po = id === aktiv;
       $(id).classList.toggle('aktiv', po);
       if (po) $(id).setAttribute('aria-current', 'page'); else $(id).removeAttribute('aria-current');
@@ -4574,8 +4574,8 @@
   }
   $('tabMalli').addEventListener('click', function () {
     kaloTab(function () {
-      __malliZgjedhur = true; // v327: Kreu s'rihapet vetë (faqjaBaze) derisa të zgjidhet një tab tjetër
-      if ($('dlgKreu').classList.contains('hapur')) mbyllKreun();
+      __malliZgjedhur = true; // v327: Ballina s'rihapet vetë (faqjaBaze) derisa të zgjidhet një tab tjetër
+      if ($('dlgBallina').classList.contains('hapur')) mbyllBallinen();
       if ($('dlgOpsione').classList.contains('hapur')) mbyllOpsionet();
       if ($('dlgAfatet').classList.contains('hapur')) mbyllAfatetFaqe();
       if ($('dlgEkipi').classList.contains('hapur')) mbyllEkipiFaqe();
@@ -4584,7 +4584,7 @@
   });
   $('btnAfatet').addEventListener('click', function () {
     kaloTab(function () {
-      __malliZgjedhur = false; if ($('dlgKreu').classList.contains('hapur')) mbyllKreun();
+      __malliZgjedhur = false; if ($('dlgBallina').classList.contains('hapur')) mbyllBallinen();
       if ($('dlgOpsione').classList.contains('hapur')) mbyllOpsionet();
       if ($('dlgEkipi').classList.contains('hapur')) mbyllEkipiFaqe();
       if ($('dlgAfatet').classList.contains('hapur')) { $('afTrup').scrollTop = 0; return; }
@@ -4593,7 +4593,7 @@
   });
   $('btnEkipi').addEventListener('click', function () {
     kaloTab(function () {
-      __malliZgjedhur = false; if ($('dlgKreu').classList.contains('hapur')) mbyllKreun();
+      __malliZgjedhur = false; if ($('dlgBallina').classList.contains('hapur')) mbyllBallinen();
       if ($('dlgOpsione').classList.contains('hapur')) mbyllOpsionet();
       if ($('dlgAfatet').classList.contains('hapur')) mbyllAfatetFaqe();
       if ($('dlgEkipi').classList.contains('hapur')) { ekipiKthehuTeKartat(); $('ekipiTrup').scrollTop = 0; return; }
@@ -4602,7 +4602,7 @@
   });
   $('btnOpsione').addEventListener('click', function () {
     kaloTab(function () {
-      __malliZgjedhur = false; if ($('dlgKreu').classList.contains('hapur')) mbyllKreun();
+      __malliZgjedhur = false; if ($('dlgBallina').classList.contains('hapur')) mbyllBallinen();
       if ($('dlgAfatet').classList.contains('hapur')) mbyllAfatetFaqe();
       if ($('dlgEkipi').classList.contains('hapur')) mbyllEkipiFaqe();
       if ($('dlgOpsione').classList.contains('hapur')) { aktivizoTabin(null); return; }
@@ -4610,11 +4610,11 @@
     });
   });
 
-  // ---------- v327 (pronari): Kreu, faqja kryesore e web app-it të telefonit (si te aplikacioni Android, KreuEkrani.kt) ----------
-  // Shtëpia në mes të shiritit (rreth pak mbi të). Kreu është faqja bazë (faqjaBaze): hapet në fillim, pas hyrjes dhe sa herë mbyllet
-  // një tab tjetër; "Mbrapa" nga Malli/Afatet/Grupi/Cilësimet kthen te Kreu. Lart logoja dhe "Përshtat faqen" (secili zgjedh pjesët
-  // dhe radhën, `stoku:kreu:pjeset`), pastaj kërkimi kudo dhe pjesët. Testet e vjetra e fikin me `window.__stokuPaKreu` (pw.js).
-  var KR_PJESET = [
+  // ---------- v327 (pronari): Ballina, faqja kryesore e web app-it të telefonit (si te aplikacioni Android, BallinaEkrani.kt) ----------
+  // Ballina (ikona) në mes të shiritit (rreth pak mbi të). Ballina është faqja bazë (faqjaBaze): hapet në fillim, pas hyrjes dhe sa herë mbyllet
+  // një tab tjetër; "Mbrapa" nga Malli/Afatet/Grupi/Cilësimet kthen te Ballina. Lart logoja dhe "Përshtat faqen" (secili zgjedh pjesët
+  // dhe radhën, `stoku:ballina:pjeset`), pastaj kërkimi kudo dhe pjesët. Testet e vjetra e fikin me `window.__stokuPaBallina` (pw.js).
+  var BL_PJESET = [
     { id: 'butonat', emri: 'Butonat e shpejtë', sh: 'Skano, Afat i ri, Skanim i shpejtë, PDF' },
     { id: 'afatet', emri: 'Numrat e afateve', sh: '' },
     { id: 'skadojne', emri: 'Skadojnë së pari', sh: '3 produktet që skadojnë më herët' },
@@ -4625,22 +4625,23 @@
     { id: 'marketi', emri: 'Marketi', sh: 'Del vetëm kur ke markete' },
     { id: 'ora', emri: 'Ora e dorës', sh: 'Del vetëm kur ke orë të lidhur' }
   ];
-  var KR_KEY = 'stoku:kreu:pjeset';
-  var __malliZgjedhur = false; // u zgjodh tabi "Malli": Kreu s'rihapet vetë derisa të zgjidhet një tab tjetër
-  function krAktiv() { return !window.__stokuPaKreu; }
-  function krLexo(t) {
-    if (t === undefined) { try { t = localStorage.getItem(KR_KEY) || ''; } catch (e) { t = ''; } }
-    var njihen = {}; KR_PJESET.forEach(function (p) { njihen[p.id] = 1; });
+  var BL_KEY = 'stoku:ballina:pjeset';
+  var __malliZgjedhur = false; // u zgjodh tabi "Malli": Ballina s'rihapet vetë derisa të zgjidhet një tab tjetër
+  function blAktiv() { return !window.__stokuPaBallina; }
+  function blLexo(t) {
+    // v333: çelësi i ri i radhës; radha e ruajtur me çelësin e vjetër lexohet ende (që të mos humbë)
+    if (t === undefined) { try { t = localStorage.getItem(BL_KEY) || localStorage.getItem('stoku:' + 'kreu:pjeset') || ''; } catch (e) { t = ''; } }
+    var njihen = {}; BL_PJESET.forEach(function (p) { njihen[p.id] = 1; });
     var l = [], pare = {};
     String(t || '').split(',').forEach(function (c) {
       var p = c.trim().split(':');
       if (p.length === 2 && njihen[p[0]] && !pare[p[0]]) { pare[p[0]] = 1; l.push({ id: p[0], on: p[1] === '1' }); }
     });
-    KR_PJESET.forEach(function (p) { if (!pare[p.id]) l.push({ id: p.id, on: true }); });
+    BL_PJESET.forEach(function (p) { if (!pare[p.id]) l.push({ id: p.id, on: true }); });
     return l;
   }
-  function krRuaj(l) { try { localStorage.setItem(KR_KEY, l.map(function (x) { return x.id + ':' + (x.on ? '1' : '0'); }).join(',')); } catch (e) { /* ok */ } }
-  function krButonat() {
+  function blRuaj(l) { try { localStorage.setItem(BL_KEY, l.map(function (x) { return x.id + ':' + (x.on ? '1' : '0'); }).join(',')); } catch (e) { /* ok */ } }
+  function blButonat() {
     var kamera = leja('kamera') && !opsione.pda, shtoAfat = leja('afatet') && leja('afatetShto');
     var l = [];
     if (kamera && (leja('stoku') || shtoAfat)) l.push('skano');
@@ -4649,9 +4650,9 @@
     if (leja('afatet') && leja('eksportPdf')) l.push('pdf');
     return l;
   }
-  function krLejohet(id) {
+  function blLejohet(id) {
     var af = leja('afatet');
-    if (id === 'butonat') return krButonat().length > 0;
+    if (id === 'butonat') return blButonat().length > 0;
     if (id === 'afatet' || id === 'skadojne' || id === 'grafiku') return af;
     if (id === 'furnizuesit') return af && !eshteMerchandiser();
     if (id === 'malli') return leja('stoku');
@@ -4660,17 +4661,22 @@
     if (id === 'ora') return !ngaVizitori() && !!perdoruesiAktual();
     return true;
   }
-  function kreuHapur() { return $('dlgKreu').classList.contains('hapur'); }
-  function hapKreun() {
-    if (!krAktiv()) return;
+  function ballinaHapur() { return $('dlgBallina').classList.contains('hapur'); }
+  function hapBallinen() {
+    if (!blAktiv()) return;
     __malliZgjedhur = false;
-    $('dlgKreu').classList.add('hapur');
-    vizatoKreun();
-    $('krTrup').scrollTop = 0;
+    $('dlgBallina').classList.add('hapur');
+    vizatoBallinen();
+    $('blTrup').scrollTop = 0;
   }
-  function mbyllKreun() { $('dlgKreu').classList.remove('hapur'); }
-  function krEl(tag, klasa, tekst) { var e = document.createElement(tag); if (klasa) e.className = klasa; if (tekst !== undefined) e.textContent = tekst; return e; }
-  var KR_IK = {
+  var blGrupiPerKerkim = false; // v333: dëgjuesit e grupit u nisën vetëm për kërkimin te Ballina
+  function mbyllBallinen() {
+    $('dlgBallina').classList.remove('hapur');
+    if (blGrupiPerKerkim && ekK && ekK.gj.hapur && !$('dlgEkipi').classList.contains('hapur')) ekK.mbyll();
+    blGrupiPerKerkim = false;
+  }
+  function blEl(tag, klasa, tekst) { var e = document.createElement(tag); if (klasa) e.className = klasa; if (tekst !== undefined) e.textContent = tekst; return e; }
+  var BL_IK = {
     skano: '<path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"></path><path d="M7 12h10"></path>',
     afat: '<path d="M12 5v14M5 12h14"></path>',
     shpejt: '<path d="M13 2 4 14h7l-1 8 9-12h-7z"></path>',
@@ -4684,28 +4690,28 @@
     pin: '<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2"></circle>',
     ora: '<circle cx="12" cy="12" r="6.5"></circle><path d="M12 9v3l2 1.5M8.5 3h7l1 3h-9zM8.5 21h7l1-3h-9z"></path>'
   };
-  function krSvg(k) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + KR_IK[k] + '</svg>'; }
-  function krKarta(titulli, lidhja, prek) {
-    var b = krEl('div', 'kr-pjesa'); b.setAttribute('role', 'button'); b.tabIndex = 0;
-    var k = krEl('div', 'kr-koka'); k.appendChild(krEl('span', null, titulli)); if (lidhja) k.appendChild(krEl('b', null, lidhja));
+  function blSvg(k) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + BL_IK[k] + '</svg>'; }
+  function blKarta(titulli, lidhja, prek) {
+    var b = blEl('div', 'bl-pjesa'); b.setAttribute('role', 'button'); b.tabIndex = 0;
+    var k = blEl('div', 'bl-koka'); k.appendChild(blEl('span', null, titulli)); if (lidhja) k.appendChild(blEl('b', null, lidhja));
     b.appendChild(k);
     if (prek) { b.addEventListener('click', prek); b.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') prek(); }); }
     return b;
   }
-  function krTreNumra(numrat) {
-    var r = krEl('div', 'kr-tre');
-    numrat.forEach(function (x) { var d = krEl('div'); d.appendChild(krEl('b', x[2] || null, x[0])); d.appendChild(krEl('small', null, x[1])); r.appendChild(d); });
+  function blTreNumra(numrat) {
+    var r = blEl('div', 'bl-tre');
+    numrat.forEach(function (x) { var d = blEl('div'); d.appendChild(blEl('b', x[2] || null, x[0])); d.appendChild(blEl('small', null, x[1])); r.appendChild(d); });
     return r;
   }
-  function krHapAfatet(cfare) {
-    kaloTab(function () { mbyllKreun(); __malliZgjedhur = false; if (!$('dlgAfatet').classList.contains('hapur')) hapAfatetFaqe(); });
+  function blHapAfatet(cfare) {
+    kaloTab(function () { mbyllBallinen(); __malliZgjedhur = false; if (!$('dlgAfatet').classList.contains('hapur')) hapAfatetFaqe(); });
     if (cfare === 'pdf') apHap();
     else if (cfare && cfare.id) hapAfatin(cfare.id);
     else if (cfare && cfare.kerko !== undefined) { $('afKerko').value = cfare.kerko; renderAfatet(); }
   }
-  function krHapMallin() { kaloTab(function () { __malliZgjedhur = true; mbyllKreun(); }); }
-  function krAfatIRi(barkodi) {
-    krHapAfatet(null);
+  function blHapMallin() { kaloTab(function () { __malliZgjedhur = true; mbyllBallinen(); }); }
+  function blAfatIRi(barkodi) {
+    blHapAfatet(null);
     hapAfatin(null);
     if (barkodi) {
       $('afatBarkodi').value = barkodi;
@@ -4714,182 +4720,197 @@
     }
   }
   // Skano: produkti që është te malli hapet atje; përndryshe "Afat i ri" me këtë barkod
-  function krSkano() {
+  function blSkano() {
     kameraPerAfat = function (b) {
       var p = null;
       if (leja('stoku')) Object.keys(produktet).some(function (c) { if (String(produktet[c].barkodi) === String(b)) { p = produktet[c]; return true; } return false; });
-      if (p) { krHapMallin(); burimiIFundit = 'kamera'; hapFolderin(p.kategoriaId); hapDialogun(p.barkodi); return; }
-      if (leja('afatet') && leja('afatetShto')) { krAfatIRi(b); return; }
+      if (p) { blHapMallin(); burimiIFundit = 'kamera'; hapFolderin(p.kategoriaId); hapDialogun(p.barkodi); return; }
+      if (leja('afatet') && leja('afatetShto')) { blAfatIRi(b); return; }
       toast('Ky barkod s\'është te malli.');
     };
     hapKamere().then(function () { if (kameraDeshtoi) kameraPerAfat = null; });
   }
-  function krSkanimShpejt() {
+  function blSkanimShpejt() {
     if (!foldera.length) { toast('Krijo fillimisht një folder te Malli.'); return; }
-    var nis = function (id) { krHapMallin(); hapFolderin(id); setTimeout(hapSkanimShpejt, 0); };
+    var nis = function (id) { blHapMallin(); hapFolderin(id); setTimeout(hapSkanimShpejt, 0); };
     if (foldera.length === 1) { nis(foldera[0].id); return; }
     var l = $('krfLista'); l.textContent = '';
     foldera.forEach(function (f) {
-      var b = krEl('button', 'kr-rez'); b.type = 'button';
-      b.appendChild(krEl('span', 'kr-info')).appendChild(krEl('b', null, f.emri));
-      b.addEventListener('click', function () { $('dlgKreuFolder').classList.remove('hapur'); nis(f.id); });
+      var b = blEl('button', 'bl-rez'); b.type = 'button';
+      b.appendChild(blEl('span', 'bl-info')).appendChild(blEl('b', null, f.emri));
+      b.addEventListener('click', function () { $('dlgBallinaFolder').classList.remove('hapur'); nis(f.id); });
       l.appendChild(b);
     });
-    $('dlgKreuFolder').classList.add('hapur');
+    $('dlgBallinaFolder').classList.add('hapur');
   }
-  $('krfAnulo').addEventListener('click', function () { $('dlgKreuFolder').classList.remove('hapur'); });
+  $('krfAnulo').addEventListener('click', function () { $('dlgBallinaFolder').classList.remove('hapur'); });
 
-  function krDitet(a) {
+  function blDitet(a) {
     var d = AF.ditetDeri(a.data);
     return d === null ? '' : d < 0 ? 'Skadoi' : d === 0 ? 'Sot' : d === 1 ? 'Nesër' : AF.ditetTekst(d);
   }
-  function vizatoKreun() {
-    if (!kreuHapur()) return;
-    var c = $('krPjeset'); c.textContent = '';
+  function vizatoBallinen() {
+    if (!ballinaHapur()) return;
+    var c = $('blPjeset'); c.textContent = '';
     var te = afatetEMarketit(), nr = AF.numero(te);
-    var dukshme = krLexo().filter(function (x) { return x.on && krLejohet(x.id); });
+    var dukshme = blLexo().filter(function (x) { return x.on && blLejohet(x.id); });
     if (!dukshme.length) {
-      var b0 = krKarta('Faqja është bosh', null, hapPershtatjen);
-      b0.appendChild(krEl('div', 'kr-nen', 'Shtyp butonin lart djathtas dhe zgjidh çfarë do të shohësh këtu.'));
+      var b0 = blKarta('Faqja është bosh', null, hapPershtatjen);
+      b0.appendChild(blEl('div', 'bl-nen', 'Shtyp butonin lart djathtas dhe zgjidh çfarë do të shohësh këtu.'));
       c.appendChild(b0);
     }
     dukshme.forEach(function (x) {
       var k;
       if (x.id === 'butonat') {
-        k = krEl('div', 'kr-butonat');
+        k = blEl('div', 'bl-butonat');
         var EM = { skano: 'Skano', afat: 'Afat i ri', shpejt: 'Skanim i shpejtë', pdf: 'PDF' };
-        krButonat().forEach(function (b, i) {
-          var bt = krEl('button', 'kr-buton' + (i === 0 ? ' kryesor' : '')); bt.type = 'button'; bt.setAttribute('data-kr', b);
-          bt.innerHTML = krSvg(b); bt.appendChild(krEl('span', null, EM[b]));
+        blButonat().forEach(function (b, i) {
+          var bt = blEl('button', 'bl-buton' + (i === 0 ? ' kryesor' : '')); bt.type = 'button'; bt.setAttribute('data-bl', b);
+          bt.innerHTML = blSvg(b); bt.appendChild(blEl('span', null, EM[b]));
           bt.addEventListener('click', function () {
-            if (b === 'skano') krSkano(); else if (b === 'afat') krAfatIRi(''); else if (b === 'pdf') krHapAfatet('pdf'); else krSkanimShpejt();
+            if (b === 'skano') blSkano(); else if (b === 'afat') blAfatIRi(''); else if (b === 'pdf') blHapAfatet('pdf'); else blSkanimShpejt();
           });
           k.appendChild(bt);
         });
       } else if (x.id === 'afatet') {
-        k = krKarta('Afatet', 'Hape', function () { krHapAfatet(null); });
-        k.appendChild(krTreNumra([[String(nr.skaduar), 'Të skaduara', 'kr-exp'], [String(nr.afer), 'Skadojnë së shpejti', 'kr-near'], [String(nr['pa-date']), 'Pa datë']]));
+        k = blKarta('Afatet', 'Hape', function () { blHapAfatet(null); });
+        k.appendChild(blTreNumra([[String(nr.skaduar), 'Të skaduara', 'bl-exp'], [String(nr.afer), 'Skadojnë së shpejti', 'bl-near'], [String(nr['pa-date']), 'Pa datë']]));
       } else if (x.id === 'skadojne') {
         var lista = te.filter(function (a) { var s = AF.statusi(a); return s === 'skaduar' || s === 'afer'; }).sort(AF.krahaso).slice(0, 3);
-        k = krKarta('Skadojnë së pari', 'Krejt', function () { krHapAfatet(null); });
-        if (!lista.length) k.appendChild(krEl('div', 'kr-teksti kr-ok', 'Asnjë produkt që skadon së shpejti.'));
+        k = blKarta('Skadojnë së pari', 'Krejt', function () { blHapAfatet(null); });
+        if (!lista.length) k.appendChild(blEl('div', 'bl-teksti bl-ok', 'Asnjë produkt që skadon së shpejti.'));
         lista.forEach(function (a) {
-          var r = krEl('div', 'kr-rresht'), sk = AF.statusi(a) === 'skaduar';
-          var pk = krEl('span', 'kr-pika'); pk.style.background = sk ? 'var(--sb-exp, #d93025)' : 'var(--sb-near, #b26a00)'; r.appendChild(pk);
-          var inf = krEl('div', 'kr-info'); inf.appendChild(krEl('b', null, a.emri || a.barkodi || ''));
+          var r = blEl('div', 'bl-rresht'), sk = AF.statusi(a) === 'skaduar';
+          var pk = blEl('span', 'bl-pika'); pk.style.background = sk ? 'var(--sb-exp, #d93025)' : 'var(--sb-near, #b26a00)'; r.appendChild(pk);
+          var inf = blEl('div', 'bl-info'); inf.appendChild(blEl('b', null, a.emri || a.barkodi || ''));
           var nen = [String(a.furnizuesi || '').trim(), AF.sasiaTekst(a)].filter(Boolean).join(' · ');
-          if (nen) inf.appendChild(krEl('small', null, nen));
-          r.appendChild(inf); r.appendChild(krEl('span', 'kr-dit ' + (sk ? 'kr-exp' : 'kr-near'), krDitet(a)));
-          r.addEventListener('click', function (ev) { ev.stopPropagation(); krHapAfatet({ id: a.id }); });
+          if (nen) inf.appendChild(blEl('small', null, nen));
+          r.appendChild(inf); r.appendChild(blEl('span', 'bl-dit ' + (sk ? 'bl-exp' : 'bl-near'), blDitet(a)));
+          r.addEventListener('click', function (ev) { ev.stopPropagation(); blHapAfatet({ id: a.id }); });
           k.appendChild(r);
         });
       } else if (x.id === 'grafiku') {
-        k = krKarta('Afatet në 6 muajt e ardhshëm', null, function () { krHapAfatet(null); });
+        k = blKarta('Afatet në 6 muajt e ardhshëm', null, function () { blHapAfatet(null); });
         var sot = AF.sot(), v = +sot.slice(0, 4), m = +sot.slice(5, 7), muajt = [];
         for (var i = 0; i < 6; i++) {
           var mm = (m - 1 + i) % 12 + 1, vv = v + Math.floor((m - 1 + i) / 12), kk = vv + '-' + (mm < 10 ? '0' : '') + mm;
           muajt.push({ e: AF.EMRAT_MUAJVE[mm - 1].slice(0, 3), n: te.filter(function (a) { return AF.statusi(a) !== 'hequr' && AF.celesiMuajit(a) === kk; }).length, ky: i === 0 });
         }
         var max = Math.max(1, Math.max.apply(null, muajt.map(function (q) { return q.n; })));
-        var g = krEl('div', 'kr-graf');
+        var g = blEl('div', 'bl-graf');
         muajt.forEach(function (q) {
-          var d = krEl('div'); d.appendChild(krEl('b', null, String(q.n)));
-          var sh = krEl('i', q.n ? (q.ky ? 'ky' : '') : 'zero'); sh.style.height = Math.max(3, Math.round(70 * q.n / max)) + 'px'; d.appendChild(sh);
-          d.appendChild(krEl('span', null, q.e)); g.appendChild(d);
+          var d = blEl('div'); d.appendChild(blEl('b', null, String(q.n)));
+          var sh = blEl('i', q.n ? (q.ky ? 'ky' : '') : 'zero'); sh.style.height = Math.max(3, Math.round(70 * q.n / max)) + 'px'; d.appendChild(sh);
+          d.appendChild(blEl('span', null, q.e)); g.appendChild(d);
         });
         k.appendChild(g);
       } else if (x.id === 'malli') {
         var pr = Object.keys(produktet).map(function (c2) { return produktet[c2]; });
         var sasia = pr.reduce(function (s, p) { return s + (Number(p.sasia) || 0); }, 0);
-        k = krKarta('Malli', 'Hape', krHapMallin);
-        k.appendChild(krTreNumra([[String(pr.length), 'Produkte'], [String(foldera.length), 'Folderat'], [String(sasia).replace(/\B(?=(\d{3})+(?!\d))/g, ' '), 'Sasia']]));
+        k = blKarta('Malli', 'Hape', blHapMallin);
+        k.appendChild(blTreNumra([[String(pr.length), 'Produkte'], [String(foldera.length), 'Folderat'], [String(sasia).replace(/\B(?=(\d{3})+(?!\d))/g, ' '), 'Sasia']]));
       } else if (x.id === 'furnizuesit') {
         var f = AF.furnizuesitELista(te.filter(function (a) { var s = AF.statusi(a); return s === 'skaduar' || s === 'afer'; }))
           .filter(function (q) { return q.celes !== '__pa__'; }).sort(function (a, b) { return b.n - a.n; }).slice(0, 3);
-        k = krKarta('Furnizuesit me më shumë produkte që skadojnë', null, function () { krHapAfatet(null); });
-        if (!f.length) k.appendChild(krEl('div', 'kr-nen', 'Asnjë produkt që skadon me furnizues të shënuar.'));
+        k = blKarta('Furnizuesit me më shumë produkte që skadojnë', null, function () { blHapAfatet(null); });
+        if (!f.length) k.appendChild(blEl('div', 'bl-nen', 'Asnjë produkt që skadon me furnizues të shënuar.'));
         var mx = Math.max(1, f.length ? f[0].n : 1);
         f.forEach(function (q) {
-          var r = krEl('div', 'kr-furn'); r.appendChild(krEl('span', null, q.emri));
-          var vi = krEl('i'), u = krEl('u'); u.style.width = Math.round(100 * q.n / mx) + '%'; vi.appendChild(u); r.appendChild(vi);
-          r.appendChild(krEl('b', null, String(q.n)));
-          r.addEventListener('click', function (ev) { ev.stopPropagation(); krHapAfatet({ kerko: q.emri }); });
+          var r = blEl('div', 'bl-furn'); r.appendChild(blEl('span', null, q.emri));
+          var vi = blEl('i'), u = blEl('u'); u.style.width = Math.round(100 * q.n / mx) + '%'; vi.appendChild(u); r.appendChild(vi);
+          r.appendChild(blEl('b', null, String(q.n)));
+          r.addEventListener('click', function (ev) { ev.stopPropagation(); blHapAfatet({ kerko: q.emri }); });
           k.appendChild(r);
         });
       } else if (x.id === 'grupi') {
         var n1 = ekK ? ekK.numriNjoftimeve() + ekK.numriKerkesave() : 0;
-        k = krKarta('Grupi', 'Hape', function () { kaloTab(function () { mbyllKreun(); __malliZgjedhur = false; hapEkipiFaqe(); }); });
-        var t1 = krEl('div', 'kr-teksti');
-        if (n1) t1.appendChild(krEl('span', 'kr-shenje', n1 > 99 ? '99+' : String(n1)));
+        k = blKarta('Grupi', 'Hape', function () { kaloTab(function () { mbyllBallinen(); __malliZgjedhur = false; hapEkipiFaqe(); }); });
+        var t1 = blEl('div', 'bl-teksti');
+        if (n1) t1.appendChild(blEl('span', 'bl-shenje', n1 > 99 ? '99+' : String(n1)));
         t1.appendChild(document.createTextNode(n1 === 0 ? 'Asnjë kërkesë e re' : n1 === 1 ? '1 kërkesë ose njoftim i ri' : n1 + ' kërkesa ose njoftime të reja'));
         k.appendChild(t1);
         var uidIm = perdoruesiAktual() ? perdoruesiAktual().uid : null;
         (ekK && ekK.gj && ekK.gj.ngjarjetGati ? ekK.gj.ngjarjet.slice(0, 2) : []).forEach(function (ng) {
           var tx = EKL.tekstiNgjarjes(ng, uidIm);
-          k.appendChild(krEl('div', 'kr-nen', tx.kush + ' ' + tx.cfare + ' · ' + EKL.kohaRelative(ng.koha)));
+          k.appendChild(blEl('div', 'bl-nen', tx.kush + ' ' + tx.cfare + ' · ' + EKL.kohaRelative(ng.koha)));
         });
       } else if (x.id === 'marketi') {
         if (!$('afMarketi').hidden || kaMarkete()) {
-          k = krKarta('Marketi', null, prekCipin);
-          var mt = krEl('div', 'kr-teksti'), idM = idMarketitAktiv();
+          k = blKarta('Marketi', null, prekCipin);
+          var mt = blEl('div', 'bl-teksti'), idM = idMarketitAktiv();
           mt.textContent = !marketet.length ? 'Shto marketin ku punon' : idM ? 'Je te ' + emriMarketit(idM) : 'Po sheh të gjitha marketet';
           k.appendChild(mt);
         }
       } else if (x.id === 'ora') {
         if (oretTani.length) {
           var o = oretTani[0];
-          k = krKarta('Ora e dorës', null, null);
-          k.appendChild(krEl('div', 'kr-teksti', 'E lidhur · ' + (o.model || 'Ora e dorës') + (nr.skaduar ? ' · ' + nr.skaduar + ' për t\'u hequr' : '')));
+          k = blKarta('Ora e dorës', null, null);
+          k.appendChild(blEl('div', 'bl-teksti', 'E lidhur · ' + (o.model || 'Ora e dorës') + (nr.skaduar ? ' · ' + nr.skaduar + ' për t\'u hequr' : '')));
         }
       }
       if (k) { k.setAttribute('data-pjesa', x.id); c.appendChild(k); }
     });
   }
-  window.__stokuKreu = { lexo: krLexo, vizato: vizatoKreun, hap: hapKreun, kerko: function (t) { return krKerko(t); } };
+  window.__stokuBallina = { lexo: blLexo, vizato: vizatoBallinen, hap: hapBallinen, kerko: function (t) { return blKerko(t); } };
 
   // ---------- Kërkimi kudo (pronari: "kur te lyp qaty diqka ne krejt projektin me ta qit qaty") ----------
-  function krNorm(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ë/g, 'e').replace(/ç/g, 'c').trim(); }
-  function krKerko(q) {
-    var k = krNorm(q), gr = [];
+  function blNorm(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ë/g, 'e').replace(/ç/g, 'c').trim(); }
+  function blKerko(q) {
+    var k = blNorm(q), gr = [];
     if (!k) return gr;
-    var ka = function (t) { return krNorm(t).indexOf(k) !== -1; };
+    var ka = function (t) { return blNorm(t).indexOf(k) !== -1; };
     var MAX = 5;
     if (leja('stoku')) {
       var pr = Object.keys(produktet).map(function (c) { return produktet[c]; })
         .filter(function (p) { return ka(p.emri) || ka(p.barkodi) || ka(p.furnizuesi); }).sort(krahaso);
       if (pr.length) gr.push({ t: 'Malli', ik: 'produkt', n: pr.length, r: pr.slice(0, MAX).map(function (p) {
-        return { e: p.emri || T('paEmerListe'), s: p.barkodi + ' · ' + emriFolderit(p.kategoriaId) + ' · ' + p.sasia + ' copë', hap: function () { krHapMallin(); burimiIFundit = 'lista'; hapFolderin(p.kategoriaId); hapDialogun(p.barkodi); } };
+        return { e: p.emri || T('paEmerListe'), s: p.barkodi + ' · ' + emriFolderit(p.kategoriaId) + ' · ' + p.sasia + ' copë', hap: function () { blHapMallin(); burimiIFundit = 'lista'; hapFolderin(p.kategoriaId); hapDialogun(p.barkodi); } };
       }) });
       var fo = foldera.filter(function (f) { return ka(f.emri); });
       if (fo.length) gr.push({ t: 'Folderat', ik: 'folder', n: fo.length, r: fo.slice(0, MAX).map(function (f) {
-        return { e: f.emri, s: 'Folder', hap: function () { krHapMallin(); hapFolderin(f.id); } };
+        return { e: f.emri, s: 'Folder', hap: function () { blHapMallin(); hapFolderin(f.id); } };
       }) });
     }
     if (leja('afatet')) {
       var af = afatetEMarketit().filter(function (a) { return ka(a.emri) || ka(a.barkodi) || ka(a.furnizuesi); }).sort(AF.krahaso);
       if (af.length) gr.push({ t: 'Afatet', ik: 'kalendar', n: af.length, r: af.slice(0, MAX).map(function (a) {
-        return { e: a.emri || a.barkodi || '', s: [a.barkodi, AF.statusi(a) === 'hequr' ? 'U hoq nga rafti' : a.data ? AF.formato(a.data) + ' · ' + krDitet(a) : 'Pa datë'].filter(Boolean).join(' · '), hap: function () { krHapAfatet({ id: a.id }); } };
+        return { e: a.emri || a.barkodi || '', s: [a.barkodi, AF.statusi(a) === 'hequr' ? 'U hoq nga rafti' : a.data ? AF.formato(a.data) + ' · ' + blDitet(a) : 'Pa datë'].filter(Boolean).join(' · '), hap: function () { blHapAfatet({ id: a.id }); } };
       }) });
     }
     var furn = {};
-    var shtoF = function (emri, nga) { emri = String(emri || '').trim(); if (!emri || !ka(emri)) return; var c = krNorm(emri); if (!furn[c]) furn[c] = { e: emri, a: 0, p: 0 }; furn[c][nga]++; };
+    var shtoF = function (emri, nga) { emri = String(emri || '').trim(); if (!emri || !ka(emri)) return; var c = blNorm(emri); if (!furn[c]) furn[c] = { e: emri, a: 0, p: 0 }; furn[c][nga]++; };
     if (leja('afatet')) afatet.forEach(function (a) { shtoF(a.furnizuesi, 'a'); });
     if (leja('stoku')) Object.keys(produktet).forEach(function (c) { shtoF(produktet[c].furnizuesi, 'p'); });
     var fl = Object.keys(furn).map(function (c) { return furn[c]; }).sort(function (a, b) { return a.e.localeCompare(b.e, 'sq'); });
     if (fl.length) gr.push({ t: 'Furnizuesit', ik: 'kamion', n: fl.length, r: fl.slice(0, MAX).map(function (f) {
       return { e: f.e, s: [f.a ? (f.a === 1 ? '1 afat' : f.a + ' afate') : '', f.p ? (f.p === 1 ? '1 produkt' : f.p + ' produkte') : ''].filter(Boolean).join(' · '),
-        hap: function () { if (f.a && leja('afatet')) krHapAfatet({ kerko: f.e }); else { krHapMallin(); $('kerkoGlobal').value = f.e; renderKerkimiGlobal(); } } };
+        hap: function () { if (f.a && leja('afatet')) blHapAfatet({ kerko: f.e }); else { blHapMallin(); $('kerkoGlobal').value = f.e; renderKerkimiGlobal(); } } };
     }) });
+    // v333 (pronari: "me mujt me lyp qdo sen ... krejt kolegt qe jan ne qat grup ... veq brenda grupit"): afatet e kolegëve të grupit
+    if (leja('grupi') && !ngaVizitori() && ekK) {
+      if (!ekK.gj.hapur) { ekK.hap(); blGrupiPerKerkim = true; } // dëgjuesit e grupit (afatet e kolegëve) sa kohë kërkohet te Ballina
+      var afK = [];
+      ekAnetaret().forEach(function (x) {
+        if (x.uneJam || x.uid === (perdoruesiAktual() || {}).uid) return;
+        (x.afatet || []).forEach(function (a) { if (AF.statusi(a) !== 'hequr' && (ka(a.emri) || ka(a.barkodi) || ka(a.furnizuesi))) afK.push({ a: a, k: x }); });
+      });
+      afK.sort(function (p, q) { return AF.krahaso(p.a, q.a); });
+      if (afK.length) gr.push({ t: 'Afatet e kolegëve', ik: 'kalendar', n: afK.length, r: afK.slice(0, MAX).map(function (y) {
+        var a = y.a;
+        return { e: a.emri || a.barkodi || '', s: [y.k.emri, a.barkodi, a.data ? AF.formato(a.data) + ' · ' + blDitet(a) : 'Pa datë'].filter(Boolean).join(' · '),
+          hap: function () { kaloTab(function () { mbyllBallinen(); __malliZgjedhur = false; hapEkipiFaqe(); ekHapAnetarin(y.k.uid); }); } };
+      }) });
+    }
     if (leja('grupi') && !ngaVizitori()) {
       var an = ekAnetaret().filter(function (x) { return ka(x.emri); });
       if (an.length) gr.push({ t: 'Kolegët', ik: 'personi', n: an.length, r: an.slice(0, MAX).map(function (x) {
-        return { e: x.emri, s: x.pronar ? 'Admin i grupit' : 'Koleg', hap: function () { kaloTab(function () { mbyllKreun(); __malliZgjedhur = false; hapEkipiFaqe('anetaret'); }); } };
+        return { e: x.emri, s: x.pronar ? 'Admin i grupit' : 'Koleg', hap: function () { kaloTab(function () { mbyllBallinen(); __malliZgjedhur = false; hapEkipiFaqe('anetaret'); }); } };
       }) });
     }
     if (eshteMerchandiser()) {
       var mk = marketet.filter(function (x) { return ka(x.emri); });
       if (mk.length) gr.push({ t: 'Marketet', ik: 'pin', n: mk.length, r: mk.slice(0, MAX).map(function (x) {
-        return { e: x.emri, s: 'Market', hap: function () { kaloTab(function () { mbyllKreun(); __malliZgjedhur = false; hapOpsionet(); }); aktivizoTabin('marketet'); } };
+        return { e: x.emri, s: 'Market', hap: function () { kaloTab(function () { mbyllBallinen(); __malliZgjedhur = false; hapOpsionet(); }); aktivizoTabin('marketet'); } };
       }) });
     }
     var ci = [];
@@ -4899,51 +4920,51 @@
       if (e && ka(e) && !ci.some(function (q) { return q.e === e; })) ci.push({ e: e, b: b });
     });
     if (ci.length) gr.push({ t: 'Cilësimet', ik: 'cilesim', n: ci.length, r: ci.slice(0, MAX).map(function (x) {
-      return { e: x.e, s: 'Cilësimet', hap: function () { kaloTab(function () { mbyllKreun(); __malliZgjedhur = false; hapOpsionet(); }); x.b.click(); } };
+      return { e: x.e, s: 'Cilësimet', hap: function () { kaloTab(function () { mbyllBallinen(); __malliZgjedhur = false; hapOpsionet(); }); x.b.click(); } };
     }) });
     return gr;
   }
   function vizatoKerkimin() {
-    var q = $('krKerko').value, gr = krKerko(q), kont = $('krRezultatet');
+    var q = $('blKerko').value, gr = blKerko(q), kont = $('blRezultatet');
     var ka = !!q.trim();
-    kont.hidden = !ka; $('krPjeset').hidden = ka;
+    kont.hidden = !ka; $('blPjeset').hidden = ka;
     kont.textContent = '';
     if (!ka) return;
-    if (!gr.length) { kont.appendChild(krEl('div', 'kr-bosh', 'S\'u gjet asgjë për "' + q.trim() + '".')); return; }
+    if (!gr.length) { kont.appendChild(blEl('div', 'bl-bosh', 'S\'u gjet asgjë për "' + q.trim() + '".')); return; }
     var NG = { produkt: 'blu', folder: 'portokalli', kalendar: 'kuqe', kamion: 'gjelber', personi: 'vjollce', cilesim: 'gri', pin: 'gjelber' };
     gr.forEach(function (g) {
-      var s = krEl('div', 'kr-grupi'); s.setAttribute('data-grupi', g.t);
-      s.appendChild(krEl('h3', null, g.t + (g.n > g.r.length ? ' (' + g.n + ')' : '')));
+      var s = blEl('div', 'bl-grupi'); s.setAttribute('data-grupi', g.t);
+      s.appendChild(blEl('h3', null, g.t + (g.n > g.r.length ? ' (' + g.n + ')' : '')));
       g.r.forEach(function (x) {
-        var b = krEl('button', 'kr-rez'); b.type = 'button';
-        var ik = krEl('span', 'kr-ik'); ik.innerHTML = krSvg(g.ik);
+        var b = blEl('button', 'bl-rez'); b.type = 'button';
+        var ik = blEl('span', 'bl-ik'); ik.innerHTML = blSvg(g.ik);
         ik.style.background = 'var(--sb-ic-' + NG[g.ik] + '-bg)'; ik.style.color = 'var(--sb-ic-' + NG[g.ik] + ')';
         b.appendChild(ik);
-        var inf = krEl('span', 'kr-info'); inf.appendChild(krEl('b', null, x.e)); if (x.s) inf.appendChild(krEl('small', null, x.s));
+        var inf = blEl('span', 'bl-info'); inf.appendChild(blEl('b', null, x.e)); if (x.s) inf.appendChild(blEl('small', null, x.s));
         b.appendChild(inf);
-        b.addEventListener('click', function () { $('krKerko').blur(); x.hap(); });
+        b.addEventListener('click', function () { $('blKerko').blur(); x.hap(); });
         s.appendChild(b);
       });
       kont.appendChild(s);
     });
   }
-  $('krKerko').addEventListener('input', vizatoKerkimin);
-  $('krKerko').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); this.blur(); } });
+  $('blKerko').addEventListener('input', vizatoKerkimin);
+  $('blKerko').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); this.blur(); } });
 
   // ---------- "Përshtat faqen" ----------
-  var krpLista = [];
+  var blpLista = [];
   function vizatoPershtatjen() {
-    var l = $('krpLista'); l.textContent = '';
-    krpLista.forEach(function (x, i) {
-      var p = KR_PJESET.filter(function (q) { return q.id === x.id; })[0];
-      var r = krEl('div', 'krp-rresht' + (x.on ? '' : ' fikur')); r.setAttribute('data-id', x.id);
-      var kap = krEl('button', 'krp-kapja'); kap.type = 'button'; kap.setAttribute('aria-label', 'Lëvize ' + p.emri);
+    var l = $('blpLista'); l.textContent = '';
+    blpLista.forEach(function (x, i) {
+      var p = BL_PJESET.filter(function (q) { return q.id === x.id; })[0];
+      var r = blEl('div', 'blp-rresht' + (x.on ? '' : ' fikur')); r.setAttribute('data-id', x.id);
+      var kap = blEl('button', 'blp-kapja'); kap.type = 'button'; kap.setAttribute('aria-label', 'Lëvize ' + p.emri);
       kap.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 9h14M5 15h14"></path></svg>';
       r.appendChild(kap);
-      var tk = krEl('div', 'krp-tk'); tk.appendChild(krEl('b', null, p.emri)); if (p.sh) tk.appendChild(krEl('small', null, p.sh)); r.appendChild(tk);
-      var nd = krEl('span', 'ndez'), cb = krEl('input'); cb.type = 'checkbox'; cb.checked = x.on; cb.setAttribute('aria-label', p.emri);
+      var tk = blEl('div', 'blp-tk'); tk.appendChild(blEl('b', null, p.emri)); if (p.sh) tk.appendChild(blEl('small', null, p.sh)); r.appendChild(tk);
+      var nd = blEl('span', 'ndez'), cb = blEl('input'); cb.type = 'checkbox'; cb.checked = x.on; cb.setAttribute('aria-label', p.emri);
       cb.addEventListener('change', function () { x.on = cb.checked; r.classList.toggle('fikur', !x.on); });
-      nd.appendChild(cb); nd.appendChild(krEl('span', 'pist')); r.appendChild(nd);
+      nd.appendChild(cb); nd.appendChild(blEl('span', 'pist')); r.appendChild(nd);
       // Zvarritja nga ☰: rreshti ndjek gishtin dhe ndërrohet me fqinjin kur kalon gjysmën e tij
       kap.addEventListener('pointerdown', function (ev) {
         ev.preventDefault();
@@ -4952,9 +4973,9 @@
         try { kap.setPointerCapture(ev.pointerId); } catch (e) { /* ok */ }
         var leviz = function (e2) {
           zh = e2.clientY - y0;
-          var k2 = krpLista.indexOf(x);
-          if (zh > h / 2 && k2 < krpLista.length - 1) { krpLista.splice(k2, 1); krpLista.splice(k2 + 1, 0, x); l.insertBefore(r.nextSibling, r); y0 += h; zh -= h; }
-          else if (zh < -h / 2 && k2 > 0) { krpLista.splice(k2, 1); krpLista.splice(k2 - 1, 0, x); l.insertBefore(r.previousSibling, r.nextSibling); y0 -= h; zh += h; } // lëvizet fqinji (jo rreshti), që gishti të mos e humbë
+          var k2 = blpLista.indexOf(x);
+          if (zh > h / 2 && k2 < blpLista.length - 1) { blpLista.splice(k2, 1); blpLista.splice(k2 + 1, 0, x); l.insertBefore(r.nextSibling, r); y0 += h; zh -= h; }
+          else if (zh < -h / 2 && k2 > 0) { blpLista.splice(k2, 1); blpLista.splice(k2 - 1, 0, x); l.insertBefore(r.previousSibling, r.nextSibling); y0 -= h; zh += h; } // lëvizet fqinji (jo rreshti), që gishti të mos e humbë
           r.style.transform = 'translateY(' + zh + 'px)';
         };
         var fund = function () { r.classList.remove('zvarritet'); r.style.transform = ''; kap.removeEventListener('pointermove', leviz); kap.removeEventListener('pointerup', fund); kap.removeEventListener('pointercancel', fund); };
@@ -4963,26 +4984,26 @@
       l.appendChild(r);
     });
   }
-  var krpTePalejuara = [];
+  var blpTePalejuara = [];
   function hapPershtatjen() {
-    var l = krLexo();
-    krpLista = l.filter(function (x) { return krLejohet(x.id); }).map(function (x) { return { id: x.id, on: x.on }; });
-    krpTePalejuara = l.filter(function (x) { return !krLejohet(x.id); });
+    var l = blLexo();
+    blpLista = l.filter(function (x) { return blLejohet(x.id); }).map(function (x) { return { id: x.id, on: x.on }; });
+    blpTePalejuara = l.filter(function (x) { return !blLejohet(x.id); });
     vizatoPershtatjen();
-    $('dlgKreuPershtat').classList.add('hapur');
+    $('dlgBallinaPershtat').classList.add('hapur');
   }
-  $('krPershtat').addEventListener('click', hapPershtatjen);
-  $('krpFillim').addEventListener('click', function () { krpLista = KR_PJESET.filter(function (p) { return krLejohet(p.id); }).map(function (p) { return { id: p.id, on: true }; }); vizatoPershtatjen(); });
-  $('krpRuaj').addEventListener('click', function () { krRuaj(krpLista.concat(krpTePalejuara)); $('dlgKreuPershtat').classList.remove('hapur'); vizatoKreun(); });
-  if (!krAktiv()) $('tabKreu').style.display = 'none';
-  $('tabKreu').addEventListener('click', function () {
+  $('blPershtat').addEventListener('click', hapPershtatjen);
+  $('blpFillim').addEventListener('click', function () { blpLista = BL_PJESET.filter(function (p) { return blLejohet(p.id); }).map(function (p) { return { id: p.id, on: true }; }); vizatoPershtatjen(); });
+  $('blpRuaj').addEventListener('click', function () { blRuaj(blpLista.concat(blpTePalejuara)); $('dlgBallinaPershtat').classList.remove('hapur'); vizatoBallinen(); });
+  if (!blAktiv()) $('tabBallina').style.display = 'none';
+  $('tabBallina').addEventListener('click', function () {
     kaloTab(function () {
       __malliZgjedhur = false;
       if ($('dlgOpsione').classList.contains('hapur')) mbyllOpsionet();
       if ($('dlgAfatet').classList.contains('hapur')) mbyllAfatetFaqe();
       if ($('dlgEkipi').classList.contains('hapur')) mbyllEkipiFaqe();
-      if (kreuHapur()) { $('krTrup').scrollTop = 0; return; }
-      hapKreun();
+      if (ballinaHapur()) { $('blTrup').scrollTop = 0; return; }
+      hapBallinen();
     });
   });
   $('ekipiPrapa').addEventListener('click', function () { if (!ekEshteShtepi()) ekipiKthehuTeKartat(); else mbyllEkipiFaqe(); });
@@ -5026,11 +5047,11 @@
       if (PRINDI_I_FAQES[faqjaEOpsioneve]) n++; // nënfaqe (p.sh. Stoku → Produktet) = edhe 1 nivel
     }
     // Çdo dialog i hapur (p.sh. "Zhvendos" mbi produktin) është një nivel: "mbrapa" i mbyll një nga një
-    n += document.querySelectorAll('.mbulese.hapur:not(#dlgOpsione):not(#dlgAfatet):not(#dlgEkipi):not(#dlgKreu)').length;
+    n += document.querySelectorAll('.mbulese.hapur:not(#dlgOpsione):not(#dlgAfatet):not(#dlgEkipi):not(#dlgBallina)').length;
     // v231: faqja bazë (pa lejen "Stoku") është kryefaqja, jo nivel
     var baza = faqjaBaze();
-    // v327: Kreu s'është nivel; kur s'është i hapur (Malli ose një tab tjetër), "mbrapa" e rihap (+1)
-    if (baza === 'dlgKreu') { if (!kreuHapur()) n++; }
+    // v327: Ballina s'është nivel; kur s'është i hapur (Malli ose një tab tjetër), "mbrapa" e rihap (+1)
+    if (baza === 'dlgBallina') { if (!ballinaHapur()) n++; }
     else if (baza && $(baza).classList.contains('hapur')) n--;
     return n;
   }
@@ -5049,9 +5070,9 @@
     rifreskoRendinEDialogeve();
     for (var i = __rendiDialogeve.length - 1; i >= 0; i--) {
       var id = __rendiDialogeve[i];
-      if (id !== 'dlgOpsione' && id !== 'dlgAfatet' && id !== 'dlgEkipi' && id !== 'dlgKreu' && $(id) && $(id).classList.contains('hapur')) return $(id);
+      if (id !== 'dlgOpsione' && id !== 'dlgAfatet' && id !== 'dlgEkipi' && id !== 'dlgBallina' && $(id) && $(id).classList.contains('hapur')) return $(id);
     }
-    return document.querySelector('.mbulese.hapur:not(#dlgOpsione):not(#dlgAfatet):not(#dlgEkipi):not(#dlgKreu)');
+    return document.querySelector('.mbulese.hapur:not(#dlgOpsione):not(#dlgAfatet):not(#dlgEkipi):not(#dlgBallina)');
   }
 
   // Mbyll vetëm shtresën e sipërme. Dialogët mbyllen përmes butonit të tyre "Anulo" (jo duke hequr
@@ -5081,7 +5102,7 @@
       return;
     }
     if (folderiAktual !== null) { mbrapaNeFoldera(); return; }
-    if (faqjaBaze() === 'dlgKreu' && !kreuHapur()) kaloTab(hapKreun); // v327: nga Malli "mbrapa" kthen te Kreu
+    if (faqjaBaze() === 'dlgBallina' && !ballinaHapur()) kaloTab(hapBallinen); // v327: nga Malli "mbrapa" kthen te Ballina
   }
 
   // Historia sinkronizohet me vonesë të shkurtër, që kalimet e shpejta (p.sh. kamera mbyllet dhe
@@ -5128,7 +5149,7 @@
   // (mbyllShtresenMeTeFundit), vetëm dritarja e sipërme; një rrëshqitje e shpejtë mbyll menjëherë, një e ngadaltë mbyll pas pragut
   // (ose kthehet). Dritarja e njoftimeve (e detyrueshme, kuti në mes), faqet e plota dhe Opsionet s'preken.
   (function () {
-    var PA_RRESHQITJE = { dlgOpsione: 1, dlgAfatet: 1, dlgEkipi: 1, dlgNjoftimet: 1, dlgKreu: 1 };
+    var PA_RRESHQITJE = { dlgOpsione: 1, dlgAfatet: 1, dlgEkipi: 1, dlgNjoftimet: 1, dlgBallina: 1 };
     var g = null; // { ov, dlg, x0, y0, fillo, shenja: [{ y, t }] }
     function eSkrolluar(el, dlg) {
       for (var x = el; x; x = x.parentNode) {
@@ -6226,7 +6247,7 @@
   var afVizatimi = 0, afIdsEListes = [];
   var AF_PJESA_PARE = 120, AF_PJESA = 200;
   function renderAfatet() {
-    if ($('dlgKreu').classList.contains('hapur')) setTimeout(vizatoKreun, 0); // v327: numrat e Kreut ndjekin afatet
+    if ($('dlgBallina').classList.contains('hapur')) setTimeout(vizatoBallinen, 0); // v327: numrat e Ballinës ndjekin afatet
     var vizatimi = ++afVizatimi;
     afIdsEListes = [];
     var n = AF.numero(afatetEMarketit());
@@ -7148,6 +7169,8 @@
       if ($('dlgAfat').classList.contains('hapur') && !afatNeDialog && !afatPerKolegun) $('afatKoleg').hidden = !mundAfatPerKoleg();
       if ($('dlgKolegu').classList.contains('hapur')) vizatoKolegetPerAfat();
     }
+    // v333: afatet e kolegëve te kërkimi i Ballinës rifreskohen kur vijnë
+    if (cfare !== 'njoftimet' && ballinaHapur() && $('blKerko').value.trim()) vizatoKerkimin();
     if (!$('dlgEkipi').classList.contains('hapur')) return;
     if (cfare === 'njoftimet') return;
     // Dikush po shkruan te një fushë e pamjes (fto, njoftimi për grupin, emri i grupit): rindërtimi pritet derisa ta lëshojë

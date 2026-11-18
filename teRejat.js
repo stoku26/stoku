@@ -21,6 +21,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 333, versioni: '1.71.2', data: '2026-11-18', titulli: 'Ballina', platforma: 'tel', pikat: [
+      'Faqja kryesore (butoni me ikonën në mes të shiritit poshtë) tani quhet Ballina, si në kompjuter.',
+      'Kërkimi te Ballina gjen edhe afatet e kolegëve të grupit tënd (vetëm brenda grupit). Me një prekje hapet Grupi te afatet e atij kolegu.'
+    ] },
     { v: 332, versioni: '1.71.1', data: '2026-11-18', titulli: 'Grupi dhe butoni Dil', platforma: 'tel', pikat: [
       'Te Grupi → Përmbledhja s\'del më "Online tani" me rrathët e kolegëve: kush është online e sheh te Kolegët.',
       'Butoni "Dil" tani është te karta e profilit, në krye të Cilësimeve (si te aplikacioni Android), jo më brenda faqes Llogaria.'
@@ -46,11 +50,11 @@
     { v: 328, versioni: '1.70.1', data: '2026-11-18', titulli: 'Butoni i shtëpisë', platforma: 'tel', pikat: [
       'Rrethi i shtëpisë në mes të shiritit tani del i plotë në çdo tab (më parë te Afatet, Grupi dhe Cilësimet dilte përgjysmë).'
     ] },
-    { v: 327, versioni: '1.70.0', data: '2026-11-18', titulli: 'Kreu dhe Malli', platforma: 'tel', pikat: [
-      'Në mes të shiritit poshtë ka butonin e ri me shtëpinë: Kreu. Hapet i pari sa hyn, dhe "Mbrapa" kthen gjithmonë aty.',
-      'Te Kreu sheh me një shikim afatet, çfarë skadon së pari, grafikun e muajve, mallin, furnizuesit dhe grupin. Me butonin lart djathtas zgjedh çfarë del dhe me çfarë radhe.',
+    { v: 327, versioni: '1.70.0', data: '2026-11-18', titulli: 'Ballina dhe Malli', platforma: 'tel', pikat: [
+      'Në mes të shiritit poshtë ka butonin e ri me shtëpinë: Ballina. Hapet i pari sa hyn, dhe "Mbrapa" kthen gjithmonë aty.',
+      'Te Ballina sheh me një shikim afatet, çfarë skadon së pari, grafikun e muajve, mallin, furnizuesit dhe grupin. Me butonin lart djathtas zgjedh çfarë del dhe me çfarë radhe.',
       'Kërko kudo: shkruaj një barkod, produkt, afat, furnizues, koleg ose një faqe të Cilësimeve dhe e hap me një prekje.',
-      'Tabi "Stoku" tani quhet "Malli" dhe lart ka vetëm titullin; logoja është te Kreu.'
+      'Tabi "Stoku" tani quhet "Malli" dhe lart ka vetëm titullin; logoja është te Ballina.'
     ] },
     { v: 326, versioni: '1.69.0', data: '2026-11-17', titulli: 'Kamera dhe eksporti', platforma: 'tel', pikat: [
       'Kamera e skanimit duket si në aplikacionin Android: kutia e bardhë, X lart majtas, zmadhimi dhe drita lart djathtas.',

@@ -547,7 +547,7 @@
   #dlgImportStok { z-index: 22; }
   #dlgFolder { z-index: 23; } /* mbi #dlgImportStok — hapet edhe nga aty, "+ Folder i ri" */
   #dlgAfat { z-index: 23; }
-  #dlgKreuPershtat, #dlgKreuFolder { z-index: 22; } /* v327: mbi Kreun (21) */
+  #dlgBallinaPershtat, #dlgBallinaFolder { z-index: 22; } /* v327: mbi Ballinën (21) */
   #dlgKolegu { z-index: 24; } /* v297: mbi "Afat i ri" */
   #dlgMarketi, #dlgMarketiRi { z-index: 24; } /* v242: mbi faqen e Afateve (21) dhe "Afat i ri" (23) */
   .faqe-kuti { width: 100%; height: 100%; background: var(--sfond); display: flex; flex-direction: column; }
@@ -845,7 +845,7 @@
   .ek-nj-fshi-krejt { color: var(--sb-exp, #c23a33) !important; }
   .ek-nj-koha { font-size: 12px; color: var(--gri); font-weight: 400; margin-top: 2px; }
   /* Afatet dhe Cilësimet janë tabe: faqja e tyre mbaron mbi shirit, dhe s'kanë shigjetë "prapa" (tabi Stoku i mbyll) */
-  body.me-tabe #dlgAfatet, body.me-tabe #dlgOpsione, body.me-tabe #dlgEkipi, body.me-tabe #dlgKreu { bottom: calc(var(--tabet-lartesia) + var(--sab)); }
+  body.me-tabe #dlgAfatet, body.me-tabe #dlgOpsione, body.me-tabe #dlgEkipi, body.me-tabe #dlgBallina { bottom: calc(var(--tabet-lartesia) + var(--sab)); }
   body.me-tabe #toast { bottom: calc(var(--tabet-lartesia) + var(--sab) + 14px); }
   #afPrapa { display: none; }
   /* Kalimi nga një tab te tjetri: pa rrëshqitje anash (ajo mbetet vetëm kur hapen si dritare, p.sh. nga njoftimi) */
@@ -1169,80 +1169,80 @@
   .lx-shenim { font-size: 12px; margin: -2px 2px 6px; color: var(--gri); }
   .lx-shenim.paralajm { color: var(--af-verdhe-tx); font-weight: 700; }
   .lx-rresht .lx-numri { font-size: 12px; font-weight: 700; color: var(--gri); margin: 0 0 6px 2px; }
-  /* ---------- v327 (pronari): Kreu, shtëpia në mes të shiritit (rreth pak mbi të), Malli me titull ---------- */
+  /* ---------- v327 (pronari): Ballina, ikona në mes të shiritit (rreth pak mbi të), Malli me titull ---------- */
   header h1.titulli-faqes, .sb header h1.titulli-faqes { font-size: 26px; font-weight: 700; letter-spacing: -.025em; line-height: 1.1; }
-  #tabet .tab-kreu { position: relative; overflow: visible; }
-  #tabet .tab-kreu-rreth {
+  #tabet .tab-ballina { position: relative; overflow: visible; }
+  #tabet .tab-ballina-rreth {
     position: absolute; left: 50%; top: -16px; transform: translateX(-50%);
     width: 62px; height: 62px; box-sizing: border-box; border-radius: 50%;
     border: 4px solid var(--sb-bg, var(--sfond)); background: var(--sb-surface, var(--sfond));
     box-shadow: 0 0 0 2px var(--sb-line, var(--vije)), 0 6px 16px rgba(0,0,0,.28);
     display: flex; align-items: center; justify-content: center; color: var(--sb-faint, var(--gri));
   }
-  #tabet .tab-kreu.aktiv .tab-kreu-rreth { color: var(--sb-ink, var(--tekst)); box-shadow: 0 0 0 2px var(--lg-a, #4ade80), 0 6px 16px rgba(0,0,0,.28); }
-  #tabet .tab-kreu svg { width: 27px; height: 27px; }
-  .kreu-krye { justify-content: space-between; }
-  .kreu-krye .sb-brand { flex: 1; min-width: 0; }
-  #krTrup { padding-bottom: 28px; }
-  .kr-kerko { margin: 4px 0 14px; }
-  .kr-pjesa {
+  #tabet .tab-ballina.aktiv .tab-ballina-rreth { color: var(--sb-ink, var(--tekst)); box-shadow: 0 0 0 2px var(--lg-a, #4ade80), 0 6px 16px rgba(0,0,0,.28); }
+  #tabet .tab-ballina svg { width: 27px; height: 27px; }
+  .ballina-krye { justify-content: space-between; }
+  .ballina-krye .sb-brand { flex: 1; min-width: 0; }
+  #blTrup { padding-bottom: 28px; }
+  .bl-kerko { margin: 4px 0 14px; }
+  .bl-pjesa {
     display: block; width: 100%; box-sizing: border-box; text-align: left; font: inherit; color: var(--sb-ink, var(--tekst));
     background: var(--sb-surface, var(--dialog)); border: 1px solid var(--sb-line, var(--vije)); border-radius: 22px;
     padding: 16px 18px; margin: 0 0 12px; cursor: pointer;
   }
-  .kr-koka { display: flex; align-items: center; margin-bottom: 10px; }
-  .kr-koka span { flex: 1; color: var(--sb-muted, var(--gri)); font-size: 14px; font-weight: 500; }
-  .kr-koka b { color: var(--sb-accent-text, var(--btn-tekst)); font-size: 14px; font-weight: 600; }
-  .kr-tre { display: flex; }
-  .kr-tre > div { flex: 1; display: flex; flex-direction: column; }
-  .kr-tre b { font-size: 26px; font-weight: 700; line-height: 1.15; }
-  .kr-tre small { font-size: 12px; color: var(--sb-muted, var(--gri)); margin-top: 2px; }
-  .kr-exp { color: var(--sb-exp, #d93025); } .kr-near { color: var(--sb-near, #b26a00); } .kr-ok { color: var(--sb-ok, #188038); }
-  .kr-butonat { display: flex; gap: 8px; margin-bottom: 12px; }
-  .kr-buton {
+  .bl-koka { display: flex; align-items: center; margin-bottom: 10px; }
+  .bl-koka span { flex: 1; color: var(--sb-muted, var(--gri)); font-size: 14px; font-weight: 500; }
+  .bl-koka b { color: var(--sb-accent-text, var(--btn-tekst)); font-size: 14px; font-weight: 600; }
+  .bl-tre { display: flex; }
+  .bl-tre > div { flex: 1; display: flex; flex-direction: column; }
+  .bl-tre b { font-size: 26px; font-weight: 700; line-height: 1.15; }
+  .bl-tre small { font-size: 12px; color: var(--sb-muted, var(--gri)); margin-top: 2px; }
+  .bl-exp { color: var(--sb-exp, #d93025); } .bl-near { color: var(--sb-near, #b26a00); } .bl-ok { color: var(--sb-ok, #188038); }
+  .bl-butonat { display: flex; gap: 8px; margin-bottom: 12px; }
+  .bl-buton {
     flex: 1; min-width: 0; min-height: 76px; border-radius: 16px; border: 1px solid var(--sb-line, var(--vije));
     background: var(--sb-surface, var(--dialog)); color: var(--sb-ink, var(--tekst)); font: inherit; font-size: 12px; font-weight: 600;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 10px 4px; cursor: pointer; text-align: center;
   }
-  .kr-buton.kryesor { background: var(--sb-accent, var(--btn)); border-color: transparent; color: #fff; }
-  .kr-buton svg { width: 22px; height: 22px; }
-  .kr-rresht { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--sb-line-2, var(--vije)); }
-  .kr-rresht:first-of-type { border-top: 0; }
-  .kr-pika { width: 8px; height: 8px; border-radius: 4px; flex: none; }
-  .kr-info { flex: 1; min-width: 0; }
-  .kr-info b { display: block; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .kr-info small { display: block; font-size: 12px; color: var(--sb-muted, var(--gri)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .kr-dit { font-size: 13px; font-weight: 700; flex: none; }
-  .kr-graf { display: flex; align-items: flex-end; gap: 10px; height: 120px; }
-  .kr-graf > div { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; font-size: 11px; color: var(--sb-muted, var(--gri)); }
-  .kr-graf i { display: block; width: 100%; border-radius: 6px; background: var(--sb-accent, var(--btn)); min-height: 3px; }
-  .kr-graf i.ky { background: var(--sb-near, #b26a00); } .kr-graf i.zero { background: var(--sb-track, var(--vije)); }
-  .kr-graf b { font-size: 11px; color: var(--sb-ink-2, var(--tekst)); }
-  .kr-furn { display: flex; align-items: center; gap: 10px; margin: 5px 0; font-size: 14px; }
-  .kr-furn span { width: 96px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .kr-furn i { flex: 1; height: 8px; border-radius: 4px; background: var(--sb-track, var(--vije)); position: relative; overflow: hidden; }
-  .kr-furn i u { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--sb-near, #b26a00); }
-  .kr-furn b { width: 32px; text-align: right; }
-  .kr-teksti { font-size: 15px; } .kr-nen { font-size: 12.5px; color: var(--sb-muted, var(--gri)); margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .kr-shenje { display: inline-block; min-width: 18px; padding: 1px 7px; margin-right: 8px; border-radius: 10px; background: var(--sb-badge, #d93025); color: #fff; font-size: 12px; font-weight: 700; text-align: center; }
+  .bl-buton.kryesor { background: var(--sb-accent, var(--btn)); border-color: transparent; color: #fff; }
+  .bl-buton svg { width: 22px; height: 22px; }
+  .bl-rresht { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--sb-line-2, var(--vije)); }
+  .bl-rresht:first-of-type { border-top: 0; }
+  .bl-pika { width: 8px; height: 8px; border-radius: 4px; flex: none; }
+  .bl-info { flex: 1; min-width: 0; }
+  .bl-info b { display: block; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bl-info small { display: block; font-size: 12px; color: var(--sb-muted, var(--gri)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bl-dit { font-size: 13px; font-weight: 700; flex: none; }
+  .bl-graf { display: flex; align-items: flex-end; gap: 10px; height: 120px; }
+  .bl-graf > div { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; font-size: 11px; color: var(--sb-muted, var(--gri)); }
+  .bl-graf i { display: block; width: 100%; border-radius: 6px; background: var(--sb-accent, var(--btn)); min-height: 3px; }
+  .bl-graf i.ky { background: var(--sb-near, #b26a00); } .bl-graf i.zero { background: var(--sb-track, var(--vije)); }
+  .bl-graf b { font-size: 11px; color: var(--sb-ink-2, var(--tekst)); }
+  .bl-furn { display: flex; align-items: center; gap: 10px; margin: 5px 0; font-size: 14px; }
+  .bl-furn span { width: 96px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bl-furn i { flex: 1; height: 8px; border-radius: 4px; background: var(--sb-track, var(--vije)); position: relative; overflow: hidden; }
+  .bl-furn i u { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--sb-near, #b26a00); }
+  .bl-furn b { width: 32px; text-align: right; }
+  .bl-teksti { font-size: 15px; } .bl-nen { font-size: 12.5px; color: var(--sb-muted, var(--gri)); margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bl-shenje { display: inline-block; min-width: 18px; padding: 1px 7px; margin-right: 8px; border-radius: 10px; background: var(--sb-badge, #d93025); color: #fff; font-size: 12px; font-weight: 700; text-align: center; }
   /* Rezultatet e kërkimit kudo */
-  .kr-grupi { margin: 6px 0 14px; }
-  .kr-grupi h3 { margin: 0 0 6px; font-size: 13px; font-weight: 600; color: var(--sb-muted, var(--gri)); text-transform: none; }
-  .kr-rez {
+  .bl-grupi { margin: 6px 0 14px; }
+  .bl-grupi h3 { margin: 0 0 6px; font-size: 13px; font-weight: 600; color: var(--sb-muted, var(--gri)); text-transform: none; }
+  .bl-rez {
     display: flex; align-items: center; gap: 12px; width: 100%; box-sizing: border-box; text-align: left; font: inherit; color: var(--sb-ink, var(--tekst));
     background: var(--sb-surface, var(--dialog)); border: 1px solid var(--sb-line, var(--vije)); border-radius: 16px; padding: 11px 14px; margin-bottom: 8px; cursor: pointer;
   }
-  .kr-rez .kr-ik { width: 36px; height: 36px; border-radius: 11px; flex: none; display: flex; align-items: center; justify-content: center; }
-  .kr-rez .kr-ik svg { width: 19px; height: 19px; }
-  .kr-bosh { padding: 18px 4px; color: var(--sb-muted, var(--gri)); text-align: center; font-size: 14px; }
+  .bl-rez .bl-ik { width: 36px; height: 36px; border-radius: 11px; flex: none; display: flex; align-items: center; justify-content: center; }
+  .bl-rez .bl-ik svg { width: 19px; height: 19px; }
+  .bl-bosh { padding: 18px 4px; color: var(--sb-muted, var(--gri)); text-align: center; font-size: 14px; }
   /* Përshtat faqen */
-  .krp-lista { display: flex; flex-direction: column; margin: 6px 0 4px; }
-  .krp-rresht { display: flex; align-items: center; gap: 10px; min-height: 58px; border-top: 1px solid var(--sb-line-2, var(--vije)); background: var(--sb-surface, var(--dialog)); touch-action: pan-y; }
-  .krp-rresht:first-child { border-top: 0; }
-  .krp-rresht.zvarritet { position: relative; z-index: 2; box-shadow: 0 8px 20px rgba(0,0,0,.25); border-radius: 12px; }
-  .krp-kapja { width: 40px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--sb-faint, var(--gri)); cursor: grab; touch-action: none; flex: none; border: 0; background: transparent; }
-  .krp-tk { flex: 1; min-width: 0; } .krp-tk b { display: block; font-size: 15px; font-weight: 600; } .krp-tk small { display: block; font-size: 12px; color: var(--sb-faint, var(--gri)); }
-  .krp-rresht.fikur .krp-tk b { color: var(--sb-muted, var(--gri)); }
+  .blp-lista { display: flex; flex-direction: column; margin: 6px 0 4px; }
+  .blp-rresht { display: flex; align-items: center; gap: 10px; min-height: 58px; border-top: 1px solid var(--sb-line-2, var(--vije)); background: var(--sb-surface, var(--dialog)); touch-action: pan-y; }
+  .blp-rresht:first-child { border-top: 0; }
+  .blp-rresht.zvarritet { position: relative; z-index: 2; box-shadow: 0 8px 20px rgba(0,0,0,.25); border-radius: 12px; }
+  .blp-kapja { width: 40px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--sb-faint, var(--gri)); cursor: grab; touch-action: none; flex: none; border: 0; background: transparent; }
+  .blp-tk { flex: 1; min-width: 0; } .blp-tk b { display: block; font-size: 15px; font-weight: 600; } .blp-tk small { display: block; font-size: 12px; color: var(--sb-faint, var(--gri)); }
+  .blp-rresht.fikur .blp-tk b { color: var(--sb-muted, var(--gri)); }
   .krf-lista { display: flex; flex-direction: column; gap: 8px; margin: 8px 0; }
 </style>
 <link rel="preload" href="fonts/onest.woff2" as="font" type="font/woff2" crossorigin>
@@ -1850,40 +1850,40 @@
 
 
 <!-- ================= Afatet (datat e skadimit) ================= -->
-<!-- v327 (pronari): Kreu, faqja kryesore (shtëpia në mes të shiritit poshtë): logoja, "Përshtat faqen", kërkimi kudo dhe pjesët -->
-<div class="mbulese faqe-e-plote" id="dlgKreu">
-  <div class="faqe-kuti" role="dialog" aria-modal="true" aria-label="Kreu">
-    <div class="opsione-krye kreu-krye">
+<!-- v327 (pronari): Ballina, faqja kryesore (ikona në mes të shiritit poshtë): logoja, "Përshtat faqen", kërkimi kudo dhe pjesët -->
+<div class="mbulese faqe-e-plote" id="dlgBallina">
+  <div class="faqe-kuti" role="dialog" aria-modal="true" aria-label="Ballina">
+    <div class="opsione-krye ballina-krye">
       <div class="sb-brand" id="logoSlika">
       <div class="stk-etiketa" id="logoButon" role="button" tabindex="0" title="Rifresko dhe sinkronizo" aria-label="Stoku: rifresko dhe sinkronizo">
         <!-- LOGO-FILLIMI --><svg class="stk-logo stk-logo--etiketa stk-etiketa__logo" viewBox="0 0 100.52 26.97" aria-hidden="true" focusable="false"><path class="lg-t" d="M40.6 26.68Q37.66 26.68 35.38 25.5Q33.09 24.32 31.78 22.06Q30.47 19.8 30.47 16.62Q30.47 13.38 31.8 11.09Q33.13 8.8 35.4 7.59Q37.67 6.37 40.53 6.37Q43.45 6.37 45.7 7.62Q47.95 8.86 49.24 11.16Q50.53 13.47 50.53 16.71Q50.53 19.86 49.28 22.1Q48.03 24.35 45.79 25.52Q43.56 26.68 40.6 26.68ZM52.48 26.4V0H58.4V13.99H60.66L65.13 6.74H71.75L65.57 16.11L72.25 26.4H65.42L60.83 19.25H58.4V26.4ZM81.86 26.68Q77.43 26.68 75.03 24.45Q72.62 22.21 72.62 17.7V6.74H78.54V17.25Q78.54 18.42 78.86 19.34Q79.18 20.25 79.92 20.79Q80.65 21.32 81.86 21.32Q83.2 21.32 83.87 20.73Q84.53 20.13 84.74 19.19Q84.95 18.24 84.95 17.25V6.74H90.87V17.7Q90.87 22.45 88.46 24.57Q86.04 26.68 81.86 26.68ZM8.92 26.68Q7.49 26.68 6.02 26.36Q4.56 26.04 3.29 25.29Q2.03 24.54 1.16 23.23Q0.28 21.92 0 19.96H5.98Q6.18 20.55 6.66 20.97Q7.14 21.4 7.81 21.61Q8.49 21.83 9.22 21.83Q9.7 21.83 10.14 21.75Q10.58 21.68 10.93 21.49Q11.29 21.3 11.48 21.01Q11.68 20.72 11.68 20.31Q11.68 19.8 11.36 19.52Q11.04 19.25 10.49 19.08Q9.94 18.91 9.2 18.76Q8.5 18.58 7.74 18.44Q6.99 18.31 6.26 18.14Q4.83 17.79 3.52 17.18Q2.22 16.56 1.39 15.42Q0.57 14.29 0.57 12.39Q0.57 10.73 1.28 9.57Q1.99 8.42 3.19 7.72Q4.38 7.01 5.83 6.69Q7.28 6.37 8.73 6.37Q10.79 6.37 12.54 7.03Q14.3 7.69 15.47 9.12Q16.64 10.55 16.92 12.86H11.23Q11.12 12.11 10.36 11.67Q9.61 11.23 8.5 11.23Q8.09 11.23 7.68 11.31Q7.28 11.38 6.95 11.53Q6.62 11.68 6.43 11.94Q6.24 12.2 6.24 12.56Q6.24 12.84 6.41 13.11Q6.59 13.39 6.97 13.59Q7.35 13.79 7.91 13.93Q9.06 14.19 10.27 14.42Q11.48 14.66 12.56 14.93Q13.78 15.21 14.89 15.76Q16.01 16.32 16.73 17.37Q17.45 18.42 17.45 20.22Q17.45 22.09 16.68 23.34Q15.92 24.6 14.66 25.32Q13.4 26.04 11.89 26.36Q10.39 26.68 8.92 26.68ZM27.51 26.4Q24.98 26.4 23.33 25.82Q21.69 25.24 20.88 23.8Q20.07 22.37 20.07 19.76V12.02H17.25V6.74H20.07V1.66H25.98V6.74H29.93V12.02H25.98V18.89Q25.98 19.86 26.32 20.48Q26.66 21.1 28.03 21.1H29.73V26.4ZM40.52 21.23Q42.08 21.23 43.01 20.56Q43.94 19.89 44.34 18.83Q44.74 17.77 44.74 16.65Q44.74 15.53 44.34 14.42Q43.94 13.32 43.03 12.58Q42.11 11.85 40.52 11.85Q38.96 11.85 38.01 12.58Q37.07 13.32 36.67 14.41Q36.27 15.5 36.27 16.65Q36.27 17.8 36.68 18.86Q37.1 19.92 38.03 20.57Q38.96 21.23 40.52 21.23Z"/><path class="lg-a" d="M97.03 26.97Q95.58 26.97 94.55 26.07Q93.51 25.16 93.51 23.45Q93.51 21.7 94.58 20.72Q95.64 19.75 97.06 19.75Q98.48 19.75 99.5 20.71Q100.52 21.67 100.52 23.42Q100.52 25.16 99.5 26.07Q98.48 26.97 97.03 26.97Z"/></svg><!-- LOGO-FUNDI -->
         <span class="stk-etiketa__nen" id="sbDyqani">Vetëm në këtë telefon</span>
       </div>
     </div>
-      <button id="krPershtat" class="btn-ikone" type="button" aria-label="Përshtat faqen" title="Përshtat faqen"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h9M19 6h1M4 12h3M13 12h7M4 18h11"></path><circle cx="16.2" cy="6" r="2.2"></circle><circle cx="9.8" cy="12" r="2.2"></circle><circle cx="17.8" cy="18" r="2.2"></circle></svg></button>
+      <button id="blPershtat" class="btn-ikone" type="button" aria-label="Përshtat faqen" title="Përshtat faqen"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h9M19 6h1M4 12h3M13 12h7M4 18h11"></path><circle cx="16.2" cy="6" r="2.2"></circle><circle cx="9.8" cy="12" r="2.2"></circle><circle cx="17.8" cy="18" r="2.2"></circle></svg></button>
     </div>
-    <div class="faqe-trup" id="krTrup">
-      <div class="kerko-kuti kr-kerko">
+    <div class="faqe-trup" id="blTrup">
+      <div class="kerko-kuti bl-kerko">
         <svg class="kerko-ikona" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>
-        <input id="krKerko" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Kërko kudo: barkod, produkt, afat…" aria-label="Kërko kudo">
+        <input id="blKerko" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Kërko kudo: barkod, produkt, afat…" aria-label="Kërko kudo">
       </div>
-      <div id="krRezultatet" hidden></div>
-      <div id="krPjeset"></div>
+      <div id="blRezultatet" hidden></div>
+      <div id="blPjeset"></div>
     </div>
   </div>
 </div>
-<div class="mbulese" id="dlgKreuPershtat">
-  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="krpTitulli">
-    <h2 id="krpTitulli">Përshtat faqen</h2>
+<div class="mbulese" id="dlgBallinaPershtat">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="blpTitulli">
+    <h2 id="blpTitulli">Përshtat faqen</h2>
     <div class="ax-nen">Zgjidh çfarë del. Mbaje gishtin te ☰ dhe lëvize për radhën.</div>
-    <div class="krp-lista" id="krpLista"></div>
+    <div class="blp-lista" id="blpLista"></div>
     <div class="veprime">
-      <button class="btn dyte" id="krpFillim" type="button">Si në fillim</button>
-      <button class="btn" id="krpRuaj" type="button">Ruaj</button>
+      <button class="btn dyte" id="blpFillim" type="button">Si në fillim</button>
+      <button class="btn" id="blpRuaj" type="button">Ruaj</button>
     </div>
   </div>
 </div>
-<div class="mbulese" id="dlgKreuFolder">
+<div class="mbulese" id="dlgBallinaFolder">
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="krfTitulli">
     <h2 id="krfTitulli">Skanim i shpejtë</h2>
     <div class="ax-nen">Në cilin folder?</div>
@@ -2364,7 +2364,7 @@
 <nav id="tabet" aria-label="Faqet kryesore">
   <button type="button" class="tab aktiv" id="tabMalli" aria-current="page" data-leja="stoku"><span class="tab-ikona"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5Z"></path><path d="M3 8l9 5 9-5M12 13v8"></path></svg></span><span class="tab-tekst">Malli</span></button>
   <button type="button" class="tab" id="btnAfatet" title="Afatet e produkteve" data-leja="afatet"><span class="tab-ikona"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg><span class="af-shenje" id="afShenja" style="display:none"></span></span><span class="tab-tekst">Afatet</span></button>
-  <button type="button" class="tab tab-kreu" id="tabKreu" aria-label="Kreu" title="Kreu"><span class="tab-kreu-rreth"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg></span></button>
+  <button type="button" class="tab tab-ballina" id="tabBallina" aria-label="Ballina" title="Ballina"><span class="tab-ballina-rreth"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg></span></button>
   <button type="button" class="tab" id="btnEkipi" title="Grupi" data-leja="grupi"><span class="tab-ikona"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span class="af-shenje" id="ekTabShenja" style="display:none"></span></span><span class="tab-tekst">Grupi</span></button>
   <button type="button" class="tab" id="btnOpsione"><span class="tab-ikona"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg><span class="af-shenje" id="opsShenja" style="display:none"></span></span><span class="tab-tekst" id="tabCilesimetTxt"></span></button>
 </nav>
@@ -2384,9 +2384,9 @@
 <script src="ekipa.js?v=320"></script>
 <script src="njoftimet.js?v=313"></script>
 <script src="temat.js?v=2"></script>
-<script src="versioni.js?v=332"></script>
-<script src="teRejat.js?v=332"></script>
-<script src="app-tel.js?v=332"></script>
+<script src="versioni.js?v=333"></script>
+<script src="teRejat.js?v=333"></script>
+<script src="app-tel.js?v=333"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>

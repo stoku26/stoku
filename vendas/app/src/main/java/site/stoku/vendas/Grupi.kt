@@ -956,7 +956,7 @@ object Grupi {
 
     fun numriKerkesave(): Int = ftesatEMia.value.size + (if (eshtePronar()) kerkesatEGrupit.value.size else 0)
 
-    /** Kush e kreu një kërkesë për heqje: unë (njoftimi im ka "kryer") ose një koleg (ngjarja "kerkese-kryer") → (uneJam, emri) */
+    /** Kush e ballina një kërkesë për heqje: unë (njoftimi im ka "kryer") ose një koleg (ngjarja "kerkese-kryer") → (uneJam, emri) */
     fun kryeresiIKerkeses(nj: Obj?): Pair<Boolean, String>? {
         if (nj == null) return null
         if (eVertete(nj["kryer"])) return true to ""

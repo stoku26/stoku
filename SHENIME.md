@@ -58,6 +58,18 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v333 / Android Hyrja 94 (18.11.2026): "KREU" → "BALLINA" KUDO + KËRKIMI ME AFATET E KOLEGËVE**. Pronari: "Butoni posht ... me pas emrin
+   Ballina amo ne web app tel edhe android app veq ikon e len ... Kreu shtepi shpia ja hek kto emra e len 100% Ballina" + "search bar ... me
+   mujt me lyp ... krejt kolegt qe jan ne qat grup edhe mallin e tyne ... veq brenda grupit". (1) Riemërtim mekanik (skripti te scratchpad):
+   `dlgKreu*`→`dlgBallina*`, `tabKreu`→`tabBallina`, `hapKreun/mbyllKreun/vizatoKreun`→`...Ballinen`, `kreuHapur`→`ballinaHapur`,
+   `__stokuPaKreu`→`__stokuPaBallina`, `pw.meKreu`→`pw.meBallina`, prefiksi `kr*`/`kr-*`/`KR_*` (app-tel.js, index.html) → `bl*`/`bl-*`/`BL_*`
+   (PC i ka `.sbp .bl-*` te stoku-pc.css: faqe të ndara, s'përplasen); Android `KreuEkrani.kt`→`BallinaEkrani.kt`, `KREU`→`BALLINA`,
+   `PjesetEKreut`→`PjesetEBallines`, tabi "ballina". Çelësat e radhës: `stoku:ballina:pjeset` / `ballina_pjeset`, me lexim të çelësit të
+   vjetër (`stoku:` + `kreu:pjeset`, `"k" + "reu_pjeset"`) që radha e ruajtur të mos humbë. Edhe hyrjet e vjetra te "Çfarë ka të re". Hyrjet e
+   vjetra te SHENIME mbeten me "Kreu" (histori). (2) Kërkimi te Ballina: grupi "Afatet e kolegëve" (pa të hequrat, pa veten; vetëm grupi
+   im: web `ekAnetaret()` → `afatet`, Android `Grupi.permbledhjet`); web tel nis dëgjuesit e grupit (`ekK.hap()`) kur kërkohet dhe i mbyll kur
+   mbyllet Ballina (nëse Grupi s'është hapur). Prekja hap Grupi → afatet e kolegut. MALLI I KOLEGËVE (hapi 2): rregullat lejojnë `dyqane/{uid}`
+   vetëm pronarin dhe administratorin: duhet koleksion i ri i grupit + rregull i ri (pronari). Testi `teste/v333.js`.
 0000000. **v332 / Android Hyrja 93 (18.11.2026): PA "ONLINE TANI" TE PËRMBLEDHJA E GRUPIT + "DIL" TE KARTA E PROFILIT (web tel)**. Pronari
    (2 foto): "hiqi komplet te rrethekumen prej permbledhjes let jen veq te tabi koleget" / "butoni dil nuk osht si ne android app, ish hala
    mrena llogaris heke prej aty qite qaty". (1) Grupi → Përmbledhja pa "Online tani": web tel (`ek-online-rrip` s'vizatohet më), PC (KPI

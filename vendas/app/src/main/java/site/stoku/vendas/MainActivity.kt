@@ -53,11 +53,11 @@ import site.stoku.vendas.ui.Porta
 import site.stoku.vendas.ui.Shenja
 import site.stoku.vendas.ui.Skaneri
 import site.stoku.vendas.ui.MalliEkrani
-import site.stoku.vendas.ui.KreuEkrani
-import site.stoku.vendas.ui.KreuButoni
-import site.stoku.vendas.ui.KREU
-import site.stoku.vendas.ui.KREU_MADHESIA
-import site.stoku.vendas.ui.KREU_MBI_SHIRIT
+import site.stoku.vendas.ui.BallinaEkrani
+import site.stoku.vendas.ui.BallinaButoni
+import site.stoku.vendas.ui.BALLINA
+import site.stoku.vendas.ui.BALLINA_MADHESIA
+import site.stoku.vendas.ui.BALLINA_MBI_SHIRIT
 import site.stoku.vendas.ui.StokuTema
 import site.stoku.vendas.ui.ToastPamja
 import site.stoku.vendas.ui.tx
@@ -79,11 +79,11 @@ class MainActivity : ComponentActivity() {
         val tabiKerkuar = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
         /** v283: afati që duhet hapur te Afatet (prekja e një ngjarjeje te Aktiviteti) */
         val afatiKerkuar = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
-        /** Kreu: veprimi te Afatet: "i-ri", "i-ri:<barkodi>" ose "pdf" */
+        /** Ballina: veprimi te Afatet: "i-ri", "i-ri:<barkodi>" ose "pdf" */
         val veprimiIAfateve = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
-        /** Kreu (kërkimi kudo): faqja e Cilësimeve që hapet ("pamja", "skenimi", "lista", "llogaria"…) */
+        /** Ballina (kërkimi kudo): faqja e Cilësimeve që hapet ("pamja", "skenimi", "lista", "llogaria"…) */
         val cilesimiKerkuar = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
-        /** Kreu: produkti i skanuar që hapet te Malli (folderi, barkodi) */
+        /** Ballina: produkti i skanuar që hapet te Malli (folderi, barkodi) */
         val produktiKerkuar = kotlinx.coroutines.flow.MutableStateFlow<Pair<String, String>?>(null)
     }
 
@@ -178,7 +178,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
     val lejet by Llogaria.lejet.collectAsState()
     val merch by Llogaria.merchandiserIRegjistrimit.collectAsState()
     remember(lejet, merch) { 0 } // rivizatohet kur ndryshojnë lejet
-    var tabi by rememberSaveable { mutableStateOf("kreu") } // pronari: pas hyrjes dhe sa herë hapet aplikacioni, Kreu
+    var tabi by rememberSaveable { mutableStateOf("ballina") } // pronari: pas hyrjes dhe sa herë hapet aplikacioni, Ballina
     var folderi by rememberSaveable { mutableStateOf<String?>(null) }
     var skanimi by remember { mutableStateOf<((String) -> Unit)?>(null) }
     var numerimi by remember { mutableStateOf<((String) -> Boolean)?>(null) } // +1 pa e mbyllur kamerën (folderi)
@@ -202,16 +202,16 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
         }
     }
 
-    // Kreu (shtëpia) është gjithmonë në mes të shiritit dhe hapet i pari; tabi "Malli" (dikur "Stoku") ka ende lejen "stoku"
+    // Ballina (shtëpia) është gjithmonë në mes të shiritit dhe hapet i pari; tabi "Malli" (dikur "Stoku") ka ende lejen "stoku"
     // (çelësi i lejes ruhet te llogaritë dhe te web-i, prandaj s'ndryshohet)
     val tabet = listOfNotNull(
         if (Llogaria.leja("stoku")) Triple("malli", "Malli", Ik.Malli) else null,
         if (Llogaria.leja("afatet")) Triple("afatet", "Afatet", Ik.Afatet) else null,
-        Triple(KREU, "Kreu", Ik.Kreu),
+        Triple(BALLINA, "Ballina", Ik.Ballina),
         if (Llogaria.leja("grupi")) Triple("grupi", "Grupi", Ik.Grupi) else null,
         Triple("cilesimet", "Cilësimet", Ik.Cilesimet)
     )
-    if (tabet.none { it.first == tabi }) tabi = KREU
+    if (tabet.none { it.first == tabi }) tabi = BALLINA
     // Njoftimi i prekur hap tabin e vet (Grupi, Afatet)
     val kerkuar by MainActivity.tabiKerkuar.collectAsState()
     LaunchedEffect(kerkuar) {
@@ -221,8 +221,8 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
         MainActivity.tabiKerkuar.value = null
     }
 
-    BackHandler(enabled = skanimi == null && skanimiShpejt == null && (folderi != null || tabi != KREU)) {
-        if (tabi == "malli" && folderi != null) folderi = null else tabi = KREU
+    BackHandler(enabled = skanimi == null && skanimiShpejt == null && (folderi != null || tabi != BALLINA)) {
+        if (tabi == "malli" && folderi != null) folderi = null else tabi = BALLINA
     }
 
     Box(Modifier.fillMaxSize().background(n.bg)) {
@@ -235,7 +235,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
                 // Kur ndërrohet dita, ekranet vizatohen nga e para (statuset e afateve varen nga data e sotme)
                 androidx.compose.runtime.key(sot) {
                     when (tabi) {
-                        KREU -> KreuEkrani(skano, hapTabin = { t -> folderi = null; tabi = t }) { skanimiShpejt = it }
+                        BALLINA -> BallinaEkrani(skano, hapTabin = { t -> folderi = null; tabi = t }) { skanimiShpejt = it }
                         "malli" -> MalliEkrani(folderi, { folderi = it }, skanoMeNumerim) { skanimiShpejt = it }
                         "afatet" -> AfatetEkrani(skano)
                         "grupi" -> GrupiEkrani()
@@ -250,8 +250,8 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
                 val nGr = remember(njGr, ftGr, krGr, ngjGr, gjGr, vizitor) { if (vizitor && p == null) 0 else Grupi.numriNjoftimeve() + Grupi.numriKerkesave() } // si te web-i: zilja + ftesat/kërkesat (vizitori: asnjë)
                 Row(Modifier.fillMaxSize()) {
                     tabet.forEach { (k, t, ik) ->
-                        // Kreu: vetëm vendi bosh në mes; butoni i rrumbullakët vizatohet mbi shirit (KreuButoni)
-                        if (k == KREU) { Box(Modifier.weight(1f).fillMaxSize()); return@forEach }
+                        // Ballina: vetëm vendi bosh në mes; butoni i rrumbullakët vizatohet mbi shirit (BallinaButoni)
+                        if (k == BALLINA) { Box(Modifier.weight(1f).fillMaxSize()); return@forEach }
                         val nr = when (k) { "afatet" -> nAf.skaduar + nAf.afer + nAf.paDate; "grupi" -> nGr; else -> 0 }
                         val shenja = nr.takeIf { it > 0 }?.let { if (it > 99) "99+" else it.toString() }
                         Tabi(t, ik, tabi == k, shenja, Modifier.weight(1f)) {
@@ -262,8 +262,8 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
                 }
             }
         }
-        // Kreu: rrethi me shtëpinë, pak mbi shiritin poshtë (në mes)
-        if (meTabe) KreuButoni(tabi == KREU, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 64.dp - KREU_MADHESIA + KREU_MBI_SHIRIT)) { tabi = KREU }
+        // Ballina: rrethi me shtëpinë, pak mbi shiritin poshtë (në mes)
+        if (meTabe) BallinaButoni(tabi == BALLINA, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 64.dp - BALLINA_MADHESIA + BALLINA_MBI_SHIRIT)) { tabi = BALLINA }
         // Hyrja 32: brenda folderit toast-i del mbi butonin e skanimit (tash në mes si parazgjedhje), jo mbi të
         ToastPamja(Modifier.align(Alignment.BottomCenter).then(if (meTabe) Modifier else Modifier.navigationBarsPadding()), poshte = if (meTabe) 90.dp else 108.dp)
         DritaretEMarketeve(hapMarketet = { tabi = "cilesimet"; Merchandiseri.hapFaqen.value = true })

@@ -1,5 +1,5 @@
 // v238: vetëm logoja (jo hapësira anash) rifreskon faqen dhe sinkronizon (PC, telefon); "Përmbledhja" s'del më te logoja
-const pw = require('./pw.js'); pw.meKreu = true; // v327: te telefoni logoja është te Kreu
+const pw = require('./pw.js'); pw.meBallina = true; // v327: te telefoni logoja është te Ballina
 const { chromium } = pw;
 const { krijoFirestore } = require('./fs-server.js');
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
@@ -17,7 +17,7 @@ const UA_PC = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHT
     await F.lidh(ctx, 'u1', 'agim@stoku-app.local', pc ? 'pc' : 'tel', { afatet: [] });
     const p = await ctx.newPage(); const gab = []; p.on('pageerror', e => gab.push(e.message));
     await p.goto(B + (pc ? '/pc.html' : '/index.html')); await p.waitForTimeout(3000);
-    await p.evaluate(() => document.querySelectorAll('.mbulese.hapur').forEach(d => { if (d.id !== 'dlgKreu') d.classList.remove('hapur'); }));
+    await p.evaluate(() => document.querySelectorAll('.mbulese.hapur').forEach(d => { if (d.id !== 'dlgBallina') d.classList.remove('hapur'); }));
     const kut = await p.evaluate(() => { const l = document.getElementById('logoButon').getBoundingClientRect(), c = document.getElementById(document.getElementById('logo') ? 'logo' : 'logoSlika').getBoundingClientRect();
       return { l: [l.left, l.top, l.width, l.height], c: [c.left, c.top, c.width, c.height], titulli: document.getElementById('logoButon').title, ktj: (document.getElementById('logo') || {}).title || '' }; });
     ok(kut.titulli === 'Rifresko dhe sinkronizo' && !/Përmbledhja/.test(kut.ktj), em + ': logoja: "Rifresko dhe sinkronizo", jo "Përmbledhja"', kut);
