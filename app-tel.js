@@ -272,7 +272,6 @@
     { id: 'cloudFjalekalimi', prop: 'placeholder', kyc: 'lblCloudFjalekalimi' },
     { id: 'cloudKrijoLlogari', prop: 'text', kyc: 'cloudKrijoLlogariBtn' },
     { id: 'cloudHyrBtn', prop: 'text', kyc: 'cloudHyrBtn' },
-    { id: 'cloudDilBtn', prop: 'text', kyc: 'cloudDilBtn' },
     { id: 'cloudEmriRi', prop: 'placeholder', kyc: 'lblCloudEmriRi' },
     { id: 'cloudFjalekalimiRi', prop: 'placeholder', kyc: 'lblCloudFjalekalimiRi' },
     { id: 'riautHint', prop: 'text', kyc: 'riautHintTeksti' },
@@ -1667,6 +1666,7 @@
       $('opsFotoHiq').style.display = kaFoto ? '' : 'none';
     }
     $('opsProfilEmri').textContent = u ? emri : ngaVizitori() ? 'Vizitor' : 'Pa llogari';
+    $('cloudDilBtn').hidden = !u; $('opsProfilRresht').classList.toggle('me-dil', !!u); // v332: "Dil" te karta e profilit (si Android)
     $('opsProfilSub').textContent = u ? (statusiCloudFundit || T('cloudStatusiAsgje')) : ngaVizitori() ? 'Provë pa llogari, vetëm në këtë telefon' : 'Hyr që lista të ruhet edhe në internet';
     var VS = window.StokuVersioni;
     $('opsVersioni').textContent = VS ? ' ' + VS.emri : '';
@@ -7393,19 +7393,7 @@
     bKrk.innerHTML = '<span class="ek-kerko-heqje__ik"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18"></path><path d="M5 7v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7"></path><path d="M9 7V4h6v3"></path><path d="m10 12 4 4M14 12l-4 4"></path></svg></span><span class="ek-kerko-heqje__tk"><b>Kërko heqje nga rafti</b><span>Dërgoji një kolegu një produkt për ta hequr</span></span><span class="shigjeta">›</span>';
     bKrk.addEventListener('click', function () { hapKerkesen(); });
     if (leja('grupiKerkesat')) c.appendChild(bKrk);
-    // Kolegët (online së pari)
-    var nOnline = anetaret.filter(function (a) { return a.uneJam || EKL.eshteOnline(a); }).length;
-    var s1 = ekEl('div', 'ek-seksion'); s1.appendChild(ekEl('b', null, 'Online tani')); s1.appendChild(ekEl('span', null, nOnline + ' nga ' + anetaret.length)); c.appendChild(s1);
-    var rr = ekEl('div', 'ek-online-rrip');
-    anetaret.forEach(function (a) {
-      var b = ekEl('button'); b.type = 'button';
-      b.title = a.emri + ' · ' + (a.uneJam ? 'Online tani' : EKL.tekstiPranise(a));
-      b.appendChild(ekAv(a.emri, 46, a.uneJam || EKL.eshteOnline(a)));
-      b.appendChild(ekEl('span', null, a.emri));
-      b.addEventListener('click', function () { ekHapAnetarin(a.uid); });
-      rr.appendChild(b);
-    });
-    c.appendChild(rr);
+    // v332 (pronari: "hiqi komplet te rrethekumen prej permbledhjes let jen veq te tabi koleget"): "Online tani" vetëm te Kolegët
     // Duhet hequr nga rafti
     var skaduara = te.filter(function (a) { return AF.statusi(a) === 'skaduar'; }).sort(AF.krahaso);
     var s2 = ekEl('div', 'ek-seksion'); s2.appendChild(ekEl('b', null, 'Duhet hequr nga rafti'));

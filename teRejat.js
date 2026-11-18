@@ -21,6 +21,13 @@
   'use strict';
 
   var LISTA = [
+    { v: 332, versioni: '1.71.1', data: '2026-11-18', titulli: 'Grupi dhe butoni Dil', platforma: 'tel', pikat: [
+      'Te Grupi → Përmbledhja s\'del më "Online tani" me rrathët e kolegëve: kush është online e sheh te Kolegët.',
+      'Butoni "Dil" tani është te karta e profilit, në krye të Cilësimeve (si te aplikacioni Android), jo më brenda faqes Llogaria.'
+    ] },
+    { v: 332, versioni: '1.71.1', data: '2026-11-18', titulli: 'Grupi', platforma: 'pc', pikat: [
+      'Te Grupi → Përmbledhja s\'del më karta "Online tani": kush është online e sheh te Kolegët.'
+    ] },
     { v: 331, versioni: '1.71.0', data: '2026-11-18', titulli: 'Ballina', platforma: 'pc', pikat: [
       'Në kompjuter ka faqe të re të parë: Ballina (butoni me shtëpinë mbi Malli, Afatet dhe Grupi). Adresa: stoku.site/#/ballina.',
       'Aty sheh me një shikim afatet, çfarë skadon së pari, grafikun e 6 muajve, mallin, furnizuesit dhe grupin. Çdo kartë hap faqen e vet.'

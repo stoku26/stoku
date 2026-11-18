@@ -836,3 +836,10 @@ html.sb:not([data-tema="dark"]) .sb-summary { box-shadow: 0 0 0 1px var(--sb-lin
 .sb .ek-segm__s.c-hequr b { color: var(--sb-muted); }
 .sb .ek-segm__s.on { background: var(--sb-seg-on); box-shadow: 0 1px 4px rgba(0,0,0,.25); }
 .sb .ek-segm__s.on span { color: var(--sb-ink); }
+
+/* v332: "Dil" te karta e profilit (si Android): mbi kartë, majtas shigjetës */
+.sb .ops-profil-rresht { position: relative; }
+.sb .ops-profil-rresht.me-dil .ops-profil .kat-info { margin-right: 84px; min-width: 0; }
+.sb .ops-profil-dil { position: absolute; right: 38px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; gap: 6px; margin-top: 2px; padding: 8px 12px; border: 0; border-radius: 12px; background: var(--sb-exp-tint); color: var(--sb-exp); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+.sb .ops-profil-dil:active { filter: brightness(.92); }
+.sb .ops-profil-dil:focus-visible { outline: 2px solid var(--sb-exp); outline-offset: 2px; }

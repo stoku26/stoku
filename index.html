@@ -1251,7 +1251,7 @@
 <link rel="stylesheet" href="css/stoku-temat.css?v=2">
 <link rel="stylesheet" href="css/stoku-logot.css?v=2">
 <script src="logot.js?v=5"></script>
-<link rel="stylesheet" href="css/stoku.css?v=74">
+<link rel="stylesheet" href="css/stoku.css?v=75">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -1398,11 +1398,15 @@
 
     <div class="opsione-trup">
       <div class="kategori-menu" id="kategoriMenu">
+        <!-- v332 (pronari: "butoni dil nuk osht si ne android app ... heke prej aty (Llogaria) qite qaty"): "Dil" te karta e profilit -->
+        <div class="ops-profil-rresht" id="opsProfilRresht">
         <button class="ops-profil" type="button" data-faqe="llogaria" id="opsProfil">
           <span class="ops-av" id="opsProfilAv" aria-hidden="true">?</span>
           <span class="kat-info"><span class="ops-profil__emri" id="opsProfilEmri"></span><span class="kat-status" id="opsProfilSub"></span></span>
           <span class="shigjeta">›</span>
         </button>
+        <button class="ops-profil-dil" id="cloudDilBtn" type="button" hidden aria-label="Dil nga llogaria"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path></svg><span>Dil</span></button>
+        </div>
 
         <div class="ops-grupi-titull">Aplikacioni</div>
         <div class="ops-grupi">
@@ -1823,7 +1827,6 @@
             <!-- v319: pajisjet ku je i kyçur (pajisjet.js) + "Shkëput" nga distanca -->
             <div class="ops-grupi-titull">Pajisjet ku je i kyçur</div>
             <div class="ops-karta ll-pajisjet" id="llPajisjet"></div>
-            <button class="ops-dil" id="cloudDilBtn" type="button"></button>
           </div>
         </div>
 
@@ -2381,9 +2384,9 @@
 <script src="ekipa.js?v=320"></script>
 <script src="njoftimet.js?v=313"></script>
 <script src="temat.js?v=2"></script>
-<script src="versioni.js?v=331"></script>
-<script src="teRejat.js?v=331"></script>
-<script src="app-tel.js?v=330"></script>
+<script src="versioni.js?v=332"></script>
+<script src="teRejat.js?v=332"></script>
+<script src="app-tel.js?v=332"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
