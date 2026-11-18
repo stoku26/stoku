@@ -77,7 +77,7 @@ fun SkedariFlete(sk: Skedari, mbyll: () -> Unit) {
     val lloji = Skedaret.llojiISkedarit(sk.emri)
     val emriLlojit = when (lloji) { "pdf" -> "PDF-ja"; "xlsx" -> "Excel-i"; else -> "Skedari" }
     // Hyrja 71 (si web-i): ku del në PC: afatet te faqja Afatet, stoku te Stoku → Përmbledhja
-    val kuNePc = if (sk.titulli == "Afatet") "te Afatet" else "te Stoku, te Përmbledhja"
+    val kuNePc = if (sk.titulli == "Afatet") "te Afatet" else "te Malli, te Përmbledhja"
     val ruajSi = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(sk.mime)) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         if (Skedaret.shkruajTe(ctx, uri, sk)) { Toast.trego("U ruajt: " + sk.emri); mbyll() } else Toast.trego("S'u ruajt. Provo sërish.")

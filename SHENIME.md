@@ -58,6 +58,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v329 / Android Hyrja 91 (18.11.2026): "STOKU" → "MALLI" KUDO QË DUKET (PC + LEJET)**. Pronari: "foto 1 ne pc butoni stoku ...
+   emertoje malli kudo ... edhe ne link pc po thirka permbledhja ... kur klikon nto bone nlink me dal malli ... kshyri krejta lidhjet pa prish
+   kurgjo". PC: pllaka `btnAkordStoku` tani "Malli" (title, nëntitulli "Malli dhe afatet"), Cilësimet → "Malli" (nav + h2), adresa e
+   Përmbledhjes së Mallit tani `#/malli` (`hashPer`); `#/permbledhja` dhe çdo adresë e panjohur të çojnë aty (replaceState). Tekstet:
+   "Malli dhe afatet e tua/tij", "Malli është bosh", "te Malli, te Përmbledhja", Grupi `stoku: 'Malli i kolegëve'` (i fshehur).
+   Lejet: lejet.js dhe Lejet.kt `grupi: 'Malli'`, leja `stoku` quhet "Malli" (fikstura.json rigjeneruar). Android: EksportetUI, GrupiEkrani.
+   MBETEN (s'preken): çelësi i lejes `stoku`, id-të (`btnAkordStoku`, `pllStokuNen`, `opsStokuNen`, `ekSegStoku`, MODULET `['stoku','Stoku']`
+   që ndërton id-të), emri i aplikacionit "Stoku" (versioni te Cilësimet, "Stoku në kompjuter", "Stoku në orë", njoftimet).
+   Testi `teste/v329.js`; `pllakat-test.js` pret tani `#/malli`; `v323.js` kontrollon "Çfarë ka të re" pa u varur nga hyrjet e vjetra. Regresioni v329 = v328.
 0000000. **Android Hyrja 90 + ora (18.11.2026): ANDROID 17 (API 37) PËR TELEFONIN, WEAR OS 6 (API 36) PËR ORËN**. Pronari: telefoni S24 Ultra
    (One UI 9, Android 17), ora Galaxy Watch Ultra 2025 (One UI 8 Watch): "bone mat rivin". Shkaku: te leja "Nearby devices" Samsung-u
    paralajmëronte "designed for an older version of Android" (targetSdk 34); Stoku s'përdor rrjetin lokal as Bluetooth (leja mund të ndalohet).

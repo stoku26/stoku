@@ -10,6 +10,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(91, "2026-11-18", "Malli te lejet", listOf(
+            "Te lejet e kolegëve dhe te Grupi, pjesa e produkteve tani quhet \"Malli\" kudo (më parë \"Stoku\")."
+        )),
         Hyrja(90, "2026-11-18", "Android 17", listOf(
             "Stoku tani është ndërtuar për Android 17 (më parë Android 14). Punon si më parë në telefonat me Android 8 e më të rinj.",
             "Në telefonat e rinj s'del më paralajmërimi \"This app was designed for an older version of Android\". Stoku s'ka nevojë për lejen \"Nearby devices\": mund ta ndalosh pa problem."

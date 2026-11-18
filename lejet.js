@@ -21,8 +21,8 @@
 
   // Lista e plotë e lejeve, në grupe (renditja = renditja te faqja e administratorit). prindi: leja e pjesës
   var KATALOGU = [
-    { grupi: 'Stoku', lejet: [
-      { k: 'stoku', emri: 'Stoku', pershkrim: 'Sheh folderat dhe produktet.' },
+    { grupi: 'Malli', lejet: [
+      { k: 'stoku', emri: 'Malli', pershkrim: 'Sheh folderat dhe produktet.' },
       { k: 'stokuShto', emri: 'Shto produkte të reja', pershkrim: 'Një barkod që s\'është ende në folder.', prindi: 'stoku' },
       { k: 'stokuNdrysho', emri: 'Ndrysho produktet', pershkrim: 'Sasia, emri, furnizuesi dhe zhvendosja në folder tjetër.', prindi: 'stoku' },
       // v240: më parë leje e grupit (pronari, kolona "+/-"); tash si lejet e tjera, e lejuar për të gjitha llogaritë
@@ -50,8 +50,8 @@
     { grupi: 'Skanimi dhe skedarët', lejet: [
       { k: 'kamera', emri: 'Skano me kamerë', pershkrim: 'Barkodi me kamerën e telefonit, te stoku dhe te afatet.' },
       // v263: e lejuar për të gjitha llogaritë (si çdo leje e re); pa "Skano me kamerë" s'ka as këtë
-      { k: 'skanimShpejt', emri: 'Skanim i shpejtë', pershkrim: 'Brenda folderit te Stoku: kamera s\'mbyllet dhe çdo barkod shtohet menjëherë te lista me sasitë.', prindi: 'kamera' },
-      { k: 'eksportExcel', emri: 'Eksporto në Excel', pershkrim: 'Stoku dhe afatet.' },
+      { k: 'skanimShpejt', emri: 'Skanim i shpejtë', pershkrim: 'Brenda folderit te Malli: kamera s\'mbyllet dhe çdo barkod shtohet menjëherë te lista me sasitë.', prindi: 'kamera' },
+      { k: 'eksportExcel', emri: 'Eksporto në Excel', pershkrim: 'Malli dhe afatet.' },
       { k: 'eksportPdf', emri: 'Eksporto në PDF', pershkrim: 'Etiketat me barkod (në kompjuter edhe raporti).' },
       { k: 'dergoNePc', emri: 'Dërgo skedarët në PC', pershkrim: 'Excel-i dhe PDF-ja nga telefoni te Stoku në kompjuter (kërkon edhe "Stoku në kompjuter").' }
     ] },

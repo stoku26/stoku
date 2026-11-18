@@ -21,6 +21,13 @@
   'use strict';
 
   var LISTA = [
+    { v: 329, versioni: '1.70.2', data: '2026-11-18', titulli: 'Malli edhe në kompjuter', platforma: 'pc', pikat: [
+      'Pllaka "Stoku" në kompjuter tani quhet "Malli" dhe adresa e saj është stoku.site/#/malli (lidhja e vjetër #/permbledhja të çon aty vetë).',
+      'Te Cilësimet, te lejet e kolegëve dhe te Grupi, pjesa e produkteve tani quhet "Malli" kudo.'
+    ] },
+    { v: 329, versioni: '1.70.2', data: '2026-11-18', titulli: 'Malli te lejet', platforma: 'tel', pikat: [
+      'Te Cilësimet, te lejet e kolegëve dhe te Grupi, pjesa e produkteve tani quhet "Malli" kudo (më parë "Stoku").'
+    ] },
     { v: 328, versioni: '1.70.1', data: '2026-11-18', titulli: 'Butoni i shtëpisë', platforma: 'tel', pikat: [
       'Rrethi i shtëpisë në mes të shiritit tani del i plotë në çdo tab (më parë te Afatet, Grupi dhe Cilësimet dilte përgjysmë).'
     ] },
