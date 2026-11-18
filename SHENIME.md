@@ -58,6 +58,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v337 (18.11.2026): NJOFTIMET E WEB APP-IT TË TELEFONIT PA IKONËN DJATHTAS**. Pronari (foto e njoftimit në Android): "Kur e qet
+   ikonen ntmajt sdi pse edhe ndjatht e qet hekja qato ndjatht ... sigurohu qe edhe ne iphone e ka ato ntmajt". Shkaku: opsioni `icon` i
+   `showNotification` në Chrome Android del si foto e madhe djathtas (majtas del vetë ikona e aplikacionit). U hoq `icon` te sw.js (push,
+   vetëm në telefon: `eshteTelefon()` sipas userAgent; në kompjuter mbetet se aty s'ka ikonë tjetër), njoftimet.js (njoftimet ditore) dhe
+   app-tel.js. iPhone: `icon` s'përdoret fare; majtas del ikona e aplikacionit nga `apple-touch-icon`/manifest. Mos e rikthe `icon` në
+   telefon. Test: `teste/v337.js`.
+
 0000000. **v336 / Android Hyrja 97 (18.11.2026): CILËSIMET NË VIJË + PA BUTONAT E SHPEJTË TE BALLINA**. Pronari: "cilesimet ku shkrun nalt
    nuk jan ne te njejten vi me emrat e tabeve tjer si malli afatet edhe emri grupit" dhe "hiqi qato mos i le as te opsionet e as te widgets
    nqosh ku o. Edhe android app edhe web app." (1) Web tel: `.sb #dlgOpsione .opsione-krye` si Afatet/Grupi (12px + 44px, h2 26/700, te
