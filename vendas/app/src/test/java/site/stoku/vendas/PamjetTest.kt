@@ -81,8 +81,8 @@ class PamjetTest {
     private fun krejt(tema: String) {
         mbush()
         r.setContent { StokuTema(tema) { Rrenja(tema) {} } }
-        foto("$tema-00-kreu") // pronari: Kreu hapet i pari
-        r.onNodeWithContentDescription("Kreu").assertExists()
+        foto("$tema-00-ballina") // pronari: Ballina hapet e para
+        r.onNodeWithContentDescription("Ballina").assertExists()
         kliko("Malli")
         foto("$tema-01-malli")
         kliko("Pije")
@@ -100,8 +100,8 @@ class PamjetTest {
         foto("$tema-06-cilesimet")
     }
 
-    /** Kreu: "Përshtat faqen" (çelësat dhe radha) */
-    @Test fun kreu() {
+    /** Ballina: "Përshtat faqen" (çelësat dhe radha) */
+    @Test fun ballina() {
         mbush()
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
         r.onNodeWithText("Skadojnë së pari").assertExists()
@@ -110,17 +110,17 @@ class PamjetTest {
         fusha.performClick(); fusha.performTextInput("vita"); r.waitForIdle()
         r.onAllNodesWithText("Kos Vita 500g")[0].assertExists()
         r.onAllNodesWithText("Furnizuesit")[0].assertExists()
-        fotoEkrani("light-42-kreu-kerkimi")
+        fotoEkrani("light-42-ballina-kerkimi")
         fusha.performTextReplacement(""); r.waitForIdle()
         r.onNodeWithContentDescription("Përshtat faqen").performClick(); r.waitForIdle()
-        fotoEkrani("light-41-kreu-pershtat")
+        fotoEkrani("light-41-ballina-pershtat")
         klikoFundit("Si në fillim")
         klikoFundit("Ruaj")
         r.onNodeWithText("Afatet në 6 muajt e ardhshëm").assertExists()
         // radha e ruajtur lexohet sërish njësoj; një pjesë e fikur s'del
-        val l = site.stoku.vendas.ui.PjesetEKreut.lexo("grafiku:0,afatet:1,xyz:1")
+        val l = site.stoku.vendas.ui.PjesetEBallines.lexo("grafiku:0,afatet:1,xyz:1")
         org.junit.Assert.assertEquals(listOf("grafiku" to false, "afatet" to true), l.take(2))
-        org.junit.Assert.assertEquals(site.stoku.vendas.ui.PjesetEKreut.TE_GJITHA.size, l.size)
+        org.junit.Assert.assertEquals(site.stoku.vendas.ui.PjesetEBallines.TE_GJITHA.size, l.size)
     }
 
     @Test fun eCelet() = krejt("light")
@@ -374,7 +374,7 @@ class PamjetTest {
     @Test fun eksportet() {
         mbush()
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
-        kliko("Malli") // pronari: Kreu hapet i pari
+        kliko("Malli") // pronari: Ballina hapet e para
         kliko("Pije")
         foto("light-18-folderi-excel")
         r.onNodeWithContentDescription("Eksporto Excel").performClick(); r.waitForIdle() // v268: ikona pranë titullit të folderit

@@ -52,10 +52,10 @@ object Ik {
     val X = ikona("M18 6 6 18M6 6l12 12")
     val Kosh = ikona("M3 6h18", "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6", "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2", "M10 11v6M14 11v6")
     /** Tabi kryesor (shtëpia, në mes të shiritit poshtë) */
-    val Kreu = ikona("M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z")
-    /** "Përshtat faqen" te Kreu */
+    val Ballina = ikona("M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z")
+    /** "Përshtat faqen" te Ballina */
     val Pershtat = ikona("M4 6h9M19 6h1M4 12h3M13 12h7M4 18h11M20 18h0", "M14 6a2.2 2.2 0 1 0 4.4 0a2.2 2.2 0 1 0 -4.4 0Z", "M7.6 12a2.2 2.2 0 1 0 4.4 0a2.2 2.2 0 1 0 -4.4 0Z", "M15.6 18a2.2 2.2 0 1 0 4.4 0a2.2 2.2 0 1 0 -4.4 0Z")
-    /** Kapja për zvarritje (radha e pjesëve te Kreu) */
+    /** Kapja për zvarritje (radha e pjesëve te Ballina) */
     val Kapja = ikona("M5 9h14M5 15h14")
     val Malli = ikona("M21 8 12 3 3 8v8l9 5 9-5Z", "M3 8l9 5 9-5M12 13v8")
     val Afatet = ikona("M5.5 4h13a2.5 2.5 0 0 1 2.5 2.5v12a2.5 2.5 0 0 1 -2.5 2.5h-13a2.5 2.5 0 0 1 -2.5 -2.5v-12a2.5 2.5 0 0 1 2.5 -2.5Z", "M16 2v4M8 2v4M3 9.5h18", "M12 13v3l2 1.2")

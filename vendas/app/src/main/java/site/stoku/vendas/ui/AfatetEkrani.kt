@@ -91,7 +91,7 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
     var skedari by remember { mutableStateOf<site.stoku.vendas.Skedari?>(null) }
     var kuFleta by remember { mutableStateOf<android.net.Uri?>(null) } // "Ku do ta kontrollosh fletën?" (PC ose këtu)
     val (fotografo, ngaGaleria) = rememberFotoEFletes { if (mundDergoFletenNePc()) kuFleta = it else fleta = it }
-    // Kreu: "Afat i ri" (me barkodin e skanuar, nëse ka) ose "PDF"
+    // Ballina: "Afat i ri" (me barkodin e skanuar, nëse ka) ose "PDF"
     val veprimi by site.stoku.vendas.MainActivity.veprimiIAfateve.collectAsState()
     LaunchedEffect(veprimi) {
         val v = veprimi ?: return@LaunchedEffect

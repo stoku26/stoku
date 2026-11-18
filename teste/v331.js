@@ -1,6 +1,6 @@
 // v331 (pronari, 18.11.2026: "Bone opsionin D amo quaje ballina"): PC: butoni "Ballina" mbi pllakat dhe faqja Ballina
 //  (afatet, skadojnë së pari, grafiku i 6 muajve, malli, furnizuesit, grupi). Faqja e parë kur adresa është bosh; #/ballina.
-const pw = require('./pw.js'); pw.meKreu = true;
+const pw = require('./pw.js'); pw.meBallina = true;
 const { chromium } = pw;
 const PORTI = process.env.PORTI || '8765';
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };

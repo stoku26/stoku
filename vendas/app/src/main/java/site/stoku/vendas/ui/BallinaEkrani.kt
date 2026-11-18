@@ -63,17 +63,17 @@ import site.stoku.vendas.StokuApp
 import site.stoku.vendas.Sinkronizimi
 
 /**
- * Kreu (pronari, 17.11.2026): tabi kryesor, me shtëpinë në mes të shiritit poshtë (rreth pak mbi shirit). Hapet i pari pas hyrjes
+ * Ballina (pronari, 17.11.2026): tabi kryesor, me shtëpinë në mes të shiritit poshtë (rreth pak mbi shirit). Hapet i pari pas hyrjes
  * dhe sa herë hapet aplikacioni. Lart logoja (si te Malli) dhe djathtas "Përshtat faqen": secili përdorues zgjedh cilat pjesë
- * dalin dhe me çfarë radhe (ruhet në këtë telefon, `kreu_pjeset`). Çdo pjesë del vetëm kur përdoruesi ka lejen përkatëse.
+ * dalin dhe me çfarë radhe (ruhet në këtë telefon, `ballina_pjeset`). Çdo pjesë del vetëm kur përdoruesi ka lejen përkatëse.
  */
-const val KREU = "kreu"
+const val BALLINA = "ballina"
 /** Rrethi i shtëpisë (me unazën që e ndan nga faqja) dhe sa del mbi shiritin poshtë (64 dp) */
-val KREU_MADHESIA: Dp = 62.dp
-val KREU_MBI_SHIRIT: Dp = 16.dp
+val BALLINA_MADHESIA: Dp = 62.dp
+val BALLINA_MBI_SHIRIT: Dp = 16.dp
 
-/** Pjesët e Kreut: id, emri te "Përshtat faqen", shpjegimi (bosh = s'ka) */
-object PjesetEKreut {
+/** Pjesët e Ballinës: id, emri te "Përshtat faqen", shpjegimi (bosh = s'ka) */
+object PjesetEBallines {
     class Pjesa(val id: String, val emri: String, val shpjegimi: String = "")
     val TE_GJITHA = listOf(
         Pjesa("butonat", "Butonat e shpejtë", "Skano, Afat i ri, Skanim i shpejtë, PDF"),
@@ -86,10 +86,12 @@ object PjesetEKreut {
         Pjesa("marketi", "Marketi", "Del vetëm kur ke markete"),
         Pjesa("ora", "Ora e dorës", "Del vetëm kur ke orë të lidhur")
     )
-    const val KEY = "kreu_pjeset"
+    const val KEY = "ballina_pjeset"
+    /** Hyrja 94: çelësi i vjetër (para emrit "Ballina"), që radha e ruajtur të mos humbë */
+    private const val KEY_VJETER = "k" + "reu_pjeset"
     fun emri(id: String) = TE_GJITHA.firstOrNull { it.id == id }?.emri ?: id
     /** "id:1,id:0,…" → radha me gjendjen (ndezur/fikur); të rejat (që s'janë ruajtur ende) shtohen në fund, të ndezura */
-    fun lexo(teksti: String = StokuApp.prefsOse(KEY, "")): List<Pair<String, Boolean>> {
+    fun lexo(teksti: String = StokuApp.prefsOse(KEY, "").ifEmpty { StokuApp.prefsOse(KEY_VJETER, "") }): List<Pair<String, Boolean>> {
         val njihen = TE_GJITHA.map { it.id }.toSet()
         val l = teksti.split(",").mapNotNull { c ->
             val p = c.trim().split(":")
@@ -124,20 +126,20 @@ object PjesetEKreut {
     }
 }
 
-/** Rrethi me shtëpinë në mes të shiritit poshtë: unaza me ngjyrën e faqes e ndan nga ajo; i gjelbër kur je te Kreu */
+/** Rrethi me shtëpinë në mes të shiritit poshtë: unaza me ngjyrën e faqes e ndan nga ajo; i gjelbër kur je te Ballina */
 @Composable
-fun KreuButoni(aktiv: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun BallinaButoni(aktiv: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
     val n = N
     val gjelber = Color(if (n.erret) Logot.PIKA_ERRET else Logot.PIKA_CELET)
-    Box(modifier.size(KREU_MADHESIA).shadow(10.dp, CircleShape).clip(CircleShape).background(n.bg).padding(4.dp).clip(CircleShape)
+    Box(modifier.size(BALLINA_MADHESIA).shadow(10.dp, CircleShape).clip(CircleShape).background(n.bg).padding(4.dp).clip(CircleShape)
         .background(n.surface).border(2.dp, if (aktiv) gjelber else n.line, CircleShape).clickable(onClick = onClick)
-        .semantics { contentDescription = "Kreu" }, contentAlignment = Alignment.Center) {
-        Icon(Ik.Kreu, null, Modifier.size(27.dp), tint = if (aktiv) n.ink else n.faint)
+        .semantics { contentDescription = "Ballina" }, contentAlignment = Alignment.Center) {
+        Icon(Ik.Ballina, null, Modifier.size(27.dp), tint = if (aktiv) n.ink else n.faint)
     }
 }
 
 @Composable
-fun KreuEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit, skanoShpejt: (String) -> Unit) {
+fun BallinaEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit, skanoShpejt: (String) -> Unit) {
     val n = N
     val g by Dyqani.gjendja.collectAsState()
     val p by Llogaria.perdoruesi.collectAsState()
@@ -145,7 +147,7 @@ fun KreuEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit, sk
     val aktiviM by Merchandiseri.aktivi.collectAsState()
     Opsionet.pda.collectAsState().value
     remember(lejet, aktiviM) { 0 }
-    var pjeset by remember { mutableStateOf(PjesetEKreut.lexo()) }
+    var pjeset by remember { mutableStateOf(PjesetEBallines.lexo()) }
     var pershtat by remember { mutableStateOf(false) }
     var zgjidhFolderin by remember { mutableStateOf(false) }
     var kerkimi by remember { mutableStateOf("") } // v327: kërkimi kudo
@@ -165,9 +167,9 @@ fun KreuEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit, sk
         }
     }
 
-    val dukshme = if (kerkimi.isNotBlank()) emptyList() else pjeset.filter { it.second && PjesetEKreut.lejohet(it.first) }.map { it.first }
+    val dukshme = if (kerkimi.isNotBlank()) emptyList() else pjeset.filter { it.second && PjesetEBallines.lejohet(it.first) }.map { it.first }
     val rezultatet = remember(kerkimi, g, lejet, aktiviM) { if (kerkimi.isBlank()) emptyList() else kerkoKudo(kerkimi) }
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp + KREU_MBI_SHIRIT),
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp + BALLINA_MBI_SHIRIT),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -219,7 +221,7 @@ fun KreuEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit, sk
         dukshme.forEach { id ->
             item(key = id) {
                 when (id) {
-                    "butonat" -> ButonatEShpejte(PjesetEKreut.butonat()) { b ->
+                    "butonat" -> ButonatEShpejte(PjesetEBallines.butonat()) { b ->
                         when (b) {
                             "skano" -> skanoBarkodin()
                             "afat" -> afatIRi()
@@ -231,7 +233,7 @@ fun KreuEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit, sk
                             }
                         }
                     }
-                    "afatet" -> PjesaEKreut("Afatet", "Hape", { hapAfatin(null) }) {
+                    "afatet" -> PjesaEBallines("Afatet", "Hape", { hapAfatin(null) }) {
                         TreNumra(Triple(nr.skaduar.toString(), "Të skaduara", n.exp), Triple(nr.afer.toString(), "Skadojnë së shpejti", n.near),
                             Triple(nr.paDate.toString(), "Pa datë", n.ink))
                     }
@@ -239,15 +241,15 @@ fun KreuEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit, sk
                         val lista = remember(te, site.stoku.vendas.Dita.sot) {
                             te.filter { val s = Afatet.statusi(it); s == "skaduar" || s == "afer" }.sortedWith { a, b -> Afatet.krahaso(a, b) }.take(3)
                         }
-                        PjesaEKreut("Skadojnë së pari", "Krejt", { hapAfatin(null) }) {
+                        PjesaEBallines("Skadojnë së pari", "Krejt", { hapAfatin(null) }) {
                             if (lista.isEmpty()) Text("Asnjë produkt që skadon së shpejti.", style = tx(14, 600, n.ok), modifier = Modifier.padding(vertical = 4.dp))
                             lista.forEachIndexed { i, a -> RreshtiIAfatit(a, i > 0) { hapAfatin(a["id"] as? String) } }
                         }
                     }
-                    "grafiku" -> PjesaEKreut("Afatet në 6 muajt e ardhshëm", null, { hapAfatin(null) }) { GrafikuIMuajve(te) }
+                    "grafiku" -> PjesaEBallines("Afatet në 6 muajt e ardhshëm", null, { hapAfatin(null) }) { GrafikuIMuajve(te) }
                     "malli" -> {
                         val sasia = remember(g.produktet) { g.produktet.values.sumOf { sasiaE(it) } }
-                        PjesaEKreut("Malli", "Hape", { hapTabin("malli") }) {
+                        PjesaEBallines("Malli", "Hape", { hapTabin("malli") }) {
                             TreNumra(Triple(numerMeHapesire(g.produktet.size.toLong()), "Produkte", n.ink), Triple(g.foldera.size.toString(), "Folderat", n.ink),
                                 Triple(numerMeHapesire(sasia), "Sasia", n.ink))
                         }
@@ -257,7 +259,7 @@ fun KreuEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit, sk
                             Afatet.furnizuesitELista(te.filter { val s = Afatet.statusi(it); s == "skaduar" || s == "afer" })
                                 .filter { it.celes != Afatet.PA_FURNIZUES }.sortedByDescending { it.n }.take(3)
                         }
-                        PjesaEKreut("Furnizuesit me më shumë produkte që skadojnë", null, { hapAfatin(null) }) {
+                        PjesaEBallines("Furnizuesit me më shumë produkte që skadojnë", null, { hapAfatin(null) }) {
                             if (f.isEmpty()) Text("Asnjë produkt që skadon me furnizues të shënuar.", style = tx(14, 400, n.muted))
                             val max = (f.maxOfOrNull { it.n } ?: 1).coerceAtLeast(1)
                             f.forEach { x ->
@@ -279,7 +281,7 @@ fun KreuEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit, sk
         }
     }
 
-    if (pershtat) PershtatFaqen(pjeset, mbyll = { pershtat = false }) { l -> PjesetEKreut.ruaj(l); pjeset = l; pershtat = false }
+    if (pershtat) PershtatFaqen(pjeset, mbyll = { pershtat = false }) { l -> PjesetEBallines.ruaj(l); pjeset = l; pershtat = false }
     if (zgjidhFolderin) Flete({ zgjidhFolderin = false }) {
         Text("Skanim i shpejtë", style = tx(20, 700, n.ink))
         Text("Në cilin folder?", style = tx(14, 400, n.muted))
@@ -293,7 +295,7 @@ fun KreuEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit, sk
 
 /** Karta e një pjese: titulli majtas, lidhja djathtas ("Hape", "Krejt") */
 @Composable
-private fun PjesaEKreut(titulli: String, lidhja: String?, prek: () -> Unit, permbajtja: @Composable () -> Unit) {
+private fun PjesaEBallines(titulli: String, lidhja: String?, prek: () -> Unit, permbajtja: @Composable () -> Unit) {
     val n = N
     Karta(Modifier.fillMaxWidth(), rrezja = 22.dp, onClick = prek) {
         Column(Modifier.padding(horizontal = 18.dp, vertical = 16.dp)) {
@@ -401,8 +403,8 @@ private fun PjesaEGrupit(prek: () -> Unit) {
     Grupi.njoftimet.collectAsState().value; Grupi.ftesatEMia.collectAsState().value; Grupi.kerkesatEGrupit.collectAsState().value
     val ne = gj.qasja == "anetar"
     val kerkesa = Grupi.numriKerkesave() + Grupi.numriNjoftimeve()
-    PjesaEKreut("Grupi", "Hape", prek) {
-        if (!ne && kerkesa == 0) { Text("S'je ende në një grup. Hape për të krijuar ose për t'u bashkuar.", style = tx(14, 400, n.muted)); return@PjesaEKreut }
+    PjesaEBallines("Grupi", "Hape", prek) {
+        if (!ne && kerkesa == 0) { Text("S'je ende në një grup. Hape për të krijuar ose për t'u bashkuar.", style = tx(14, 400, n.muted)); return@PjesaEBallines }
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (kerkesa > 0) { Shenja(if (kerkesa > 99) "99+" else kerkesa.toString()); Spacer(Modifier.width(8.dp)) }
             Text(when (kerkesa) { 0 -> "Asnjë kërkesë e re"; 1 -> "1 kërkesë ose njoftim i ri"; else -> "$kerkesa kërkesa ose njoftime të reja" }, style = tx(15, 500, n.ink))
@@ -418,14 +420,14 @@ private fun PjesaEGrupit(prek: () -> Unit) {
     }
 }
 
-/** Ora e dorës: vetëm kur ka orë të lidhur (pyetet serveri një herë kur hapet Kreu) */
+/** Ora e dorës: vetëm kur ka orë të lidhur (pyetet serveri një herë kur hapet Ballina) */
 @Composable
 private fun PjesaEOres(skaduara: Int) {
     val n = N
     var oret by remember { mutableStateOf<List<Push.OraELidhur>>(emptyList()) }
     LaunchedEffect(Unit) { if (!StokuApp.neProve && !Llogaria.eshteVizitor()) Push.oretELidhura()?.let { oret = it } }
     val o = oret.firstOrNull() ?: return
-    PjesaEKreut("Ora e dorës", null, {}) {
+    PjesaEBallines("Ora e dorës", null, {}) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(Ik.OraDore, null, Modifier.size(20.dp), tint = n.okDot)
             Spacer(Modifier.width(8.dp))
@@ -439,8 +441,8 @@ private fun PjesaEOres(skaduara: Int) {
 @Composable
 private fun PershtatFaqen(fillimi: List<Pair<String, Boolean>>, mbyll: () -> Unit, ruaj: (List<Pair<String, Boolean>>) -> Unit) {
     val n = N
-    val lista = remember { mutableStateListOf<Pair<String, Boolean>>().apply { addAll(fillimi.filter { PjesetEKreut.lejohet(it.first) }) } }
-    val tePalejuara = remember { fillimi.filter { !PjesetEKreut.lejohet(it.first) } }
+    val lista = remember { mutableStateListOf<Pair<String, Boolean>>().apply { addAll(fillimi.filter { PjesetEBallines.lejohet(it.first) }) } }
+    val tePalejuara = remember { fillimi.filter { !PjesetEBallines.lejohet(it.first) } }
     var zvarritet by remember { mutableStateOf<String?>(null) }
     var zhvendosja by remember { mutableFloatStateOf(0f) }
     val lartesia = with(LocalDensity.current) { RRESHTI_PERSHTAT.toPx() }
@@ -451,7 +453,7 @@ private fun PershtatFaqen(fillimi: List<Pair<String, Boolean>>, mbyll: () -> Uni
         }
         Column {
             lista.forEachIndexed { i, (id, ndezur) ->
-                val pj = PjesetEKreut.TE_GJITHA.first { it.id == id }
+                val pj = PjesetEBallines.TE_GJITHA.first { it.id == id }
                 val kjo = zvarritet == id
                 Row(Modifier.fillMaxWidth().height(RRESHTI_PERSHTAT).zIndex(if (kjo) 1f else 0f)
                     .graphicsLayer { translationY = if (kjo) zhvendosja else 0f; shadowElevation = if (kjo) 12f else 0f }
@@ -482,7 +484,7 @@ private fun PershtatFaqen(fillimi: List<Pair<String, Boolean>>, mbyll: () -> Uni
             }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Buton("Si në fillim", { lista.clear(); lista.addAll(PjesetEKreut.siNeFillim().filter { PjesetEKreut.lejohet(it.first) }) }, Modifier.weight(1f), lloji = "dyte")
+            Buton("Si në fillim", { lista.clear(); lista.addAll(PjesetEBallines.siNeFillim().filter { PjesetEBallines.lejohet(it.first) }) }, Modifier.weight(1f), lloji = "dyte")
             Buton("Ruaj", { ruaj(lista.toList() + tePalejuara) }, Modifier.weight(1f))
         }
     }
@@ -490,7 +492,7 @@ private fun PershtatFaqen(fillimi: List<Pair<String, Boolean>>, mbyll: () -> Uni
 
 private val RRESHTI_PERSHTAT = 60.dp
 
-/** v327: kërkimi kudo te Kreu: malli, folderat, afatet, furnizuesit, kolegët, marketet dhe faqet e Cilësimeve (si krKerko te app-tel.js) */
+/** v327: kërkimi kudo te Ballina: malli, folderat, afatet, furnizuesit, kolegët, marketet dhe faqet e Cilësimeve (si blKerko te app-tel.js) */
 sealed class Veprimi {
     class Produkti(val folderi: String, val barkodi: String) : Veprimi()
     class Folderi(val id: String) : Veprimi()
@@ -537,6 +539,26 @@ fun kerkoKudo(q: String): List<GrupiIRezultateve> {
             }
             Rezultati((a["emri"] as? String).orEmpty().ifEmpty { jsString(a["barkodi"] ?: "") }, listOf(jsString(a["barkodi"] ?: ""), kur).filter { it.isNotEmpty() }.joinToString(" · "),
                 Veprimi.Afati((a["id"] as? String).orEmpty()))
+        }))
+    }
+    // Hyrja 94 (pronari: "me mujt me lyp qdo sen ... krejt kolegt qe jan ne qat grup ... veq brenda grupit"): afatet e kolegëve të grupit
+    if (Llogaria.leja("grupi") && !Llogaria.eshteVizitor()) {
+        val uIm = Llogaria.perdoruesi.value?.uid
+        val afK = ArrayList<Pair<Obj, String>>()
+        (Grupi.permbledhjet.value ?: emptyMap()).forEach { (u, p) ->
+            if (u == uIm) return@forEach
+            val emriK = (p["emri"] as? String).orEmpty()
+            (p["afatet"] as? List<*>)?.forEach { x ->
+                @Suppress("UNCHECKED_CAST") val a = x as? Obj ?: return@forEach
+                if (Afatet.statusi(a) != "hequr" && (ka(a["emri"]) || ka(a["barkodi"]) || ka(a["furnizuesi"]))) afK.add(a to emriK)
+            }
+        }
+        afK.sortWith { x, y -> Afatet.krahaso(x.first, y.first) }
+        if (afK.isNotEmpty()) l.add(GrupiIRezultateve("Afatet e kolegëve", Ik.Afatet, "kuqe", afK.size, afK.take(MAX).map { (a, emriK) ->
+            val d = Afatet.ditetDeri(a["data"])
+            val kur = if (d == null) "Pa datë" else Afatet.formato(a["data"]) + " · " + (if (d < 0) "Skadoi" else if (d == 0) "Sot" else if (d == 1) "Nesër" else Afatet.ditetTekst(d))
+            Rezultati((a["emri"] as? String).orEmpty().ifEmpty { jsString(a["barkodi"] ?: "") },
+                listOf(emriK, jsString(a["barkodi"] ?: ""), kur).filter { it.isNotEmpty() }.joinToString(" · "), Veprimi.Tabi("grupi"))
         }))
     }
     // Furnizuesit (nga afatet dhe malli)

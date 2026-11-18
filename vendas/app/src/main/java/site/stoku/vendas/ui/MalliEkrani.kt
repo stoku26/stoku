@@ -79,7 +79,7 @@ import java.util.Calendar
 fun MalliEkrani(folderi: String?, hapFolderin: (String?) -> Unit, skano: ((String) -> Unit, (String) -> Boolean) -> Unit, skanoShpejt: (String) -> Unit) {
     // Produkti i zgjedhur te kërkimi i kryefaqes: hapet folderi dhe dritarja e produktit
     var produktiPerTuHapur by remember { mutableStateOf<String?>(null) }
-    // Kreu: barkodi i skanuar që është te malli hap folderin dhe produktin
+    // Ballina: barkodi i skanuar që është te malli hap folderin dhe produktin
     val kerkuar by site.stoku.vendas.MainActivity.produktiKerkuar.collectAsState()
     LaunchedEffect(kerkuar) {
         val (fid, b) = kerkuar ?: return@LaunchedEffect
@@ -164,7 +164,7 @@ private fun FaqjaEMallit(hapFolderin: (String?) -> Unit, hapProduktin: (String, 
         verticalArrangement = Arrangement.spacedBy(0.dp)) {
         item {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                // v327 (pronari): pa logon "stoku." (ajo është te Kreu), vetëm titulli si te Afatet
+                // v327 (pronari): pa logon "stoku." (ajo është te Ballina), vetëm titulli si te Afatet
                 Text("Malli", style = tx(26, 700, n.ink, -0.025))
                 Spacer(Modifier.weight(1f))
                 if (Llogaria.leja("stoku") && Llogaria.leja("stokuImporto")) {

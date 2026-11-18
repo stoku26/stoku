@@ -95,7 +95,7 @@ fun CilesimetEkrani(tema: String, ndryshoTemen: (String) -> Unit) {
     var teRejat by remember { mutableStateOf(false) }
     val hapMarketet by site.stoku.vendas.Merchandiseri.hapFaqen.collectAsState()
     LaunchedEffect(hapMarketet) { if (hapMarketet) { faqja = "marketet"; site.stoku.vendas.Merchandiseri.hapFaqen.value = false } }
-    // v327: Kreu → kërkimi kudo → një faqe e Cilësimeve
+    // v327: Ballina → kërkimi kudo → një faqe e Cilësimeve
     val kerkuar by site.stoku.vendas.MainActivity.cilesimiKerkuar.collectAsState()
     LaunchedEffect(kerkuar) { kerkuar?.let { faqja = it; site.stoku.vendas.MainActivity.cilesimiKerkuar.value = null } }
     val p by Llogaria.perdoruesi.collectAsState()

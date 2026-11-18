@@ -10,6 +10,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(94, "2026-11-18", "Ballina", listOf(
+            "Faqja kryesore (butoni me ikonën në mes të shiritit poshtë) tani quhet Ballina, si në kompjuter.",
+            "Kërkimi te Ballina gjen edhe afatet e kolegëve të grupit tënd (vetëm brenda grupit)."
+        )),
         Hyrja(93, "2026-11-18", "Grupi", listOf(
             "Te Grupi → Përmbledhja s'del më \"Online tani\" me rrathët e kolegëve: kush është online e sheh te Kolegët."
         )),
@@ -27,12 +31,12 @@ object TeRejat {
             "Në telefonat e rinj s'del më paralajmërimi \"This app was designed for an older version of Android\". Stoku s'ka nevojë për lejen \"Nearby devices\": mund ta ndalosh pa problem."
         )),
         Hyrja(89, "2026-11-18", "Kërko kudo", listOf(
-            "Te Kreu ka fushën e re \"Kërko kudo\": shkruaj një barkod, produkt, afat, furnizues, koleg ose një faqe të Cilësimeve dhe e hap me një prekje.",
-            "Te Malli lart ka vetëm titullin \"Malli\"; logoja është te Kreu."
+            "Te Ballina ka fushën e re \"Kërko kudo\": shkruaj një barkod, produkt, afat, furnizues, koleg ose një faqe të Cilësimeve dhe e hap me një prekje.",
+            "Te Malli lart ka vetëm titullin \"Malli\"; logoja është te Ballina."
         )),
-        Hyrja(88, "2026-11-17", "Kreu dhe Malli", listOf(
-            "Në mes të shiritit poshtë ka butonin e ri me shtëpinë: Kreu. Hapet i pari sa hyn në llogari ose e hap aplikacionin.",
-            "Te Kreu sheh me një shikim afatet, çfarë skadon së pari, grafikun e muajve, mallin, furnizuesit, grupin, marketin dhe orën. Me butonin lart djathtas zgjedh çfarë del dhe me çfarë radhe.",
+        Hyrja(88, "2026-11-17", "Ballina dhe Malli", listOf(
+            "Në mes të shiritit poshtë ka butonin e ri me shtëpinë: Ballina. Hapet i pari sa hyn në llogari ose e hap aplikacionin.",
+            "Te Ballina sheh me një shikim afatet, çfarë skadon së pari, grafikun e muajve, mallin, furnizuesit, grupin, marketin dhe orën. Me butonin lart djathtas zgjedh çfarë del dhe me çfarë radhe.",
             "Tabi \"Stoku\" tani quhet \"Malli\".",
             "Kamera fokusohet vetëm brenda kutisë së bardhë, ku vendos barkodin.",
             "Dritaret \"Eksporto në Excel\" dhe \"Eksporto si foto\" tani janë si \"PDF për printim\": rreshta me ikonë që i prek për t'i ndryshuar."

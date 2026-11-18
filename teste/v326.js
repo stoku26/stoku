@@ -3,7 +3,7 @@
 //     djathtas, "Vendos vetëm një barkod brenda kutisë" nën kuti, "Drejtoje kamerën te barkodi" poshtë
 //  2. Fokusi i kamerës vetëm brenda kutisë: pika e fokusit = mesi i kutisë (në koordinatat e figurës); prekja jashtë kutisë
 //     kufizohet brenda saj (web + Android me FocusMeteringAction)
-//  3. Android: Kreu (shtëpia në mes, hapet i pari, "Përshtat faqen"), "Stoku" → "Malli" në kod, logoja e kokës pa qoshe të rrumbullakëta
+//  3. Android: Ballina (Ballina (ikona) në mes, hapet i pari, "Përshtat faqen"), "Stoku" → "Malli" në kod, logoja e kokës pa qoshe të rrumbullakëta
 const { chromium } = require('./pw.js');
 const { hapFaqen } = require('./kamera-e-rreme.js');
 const fs = require('fs');
@@ -15,22 +15,22 @@ const paKom = t => t.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '');
 
 (async () => {
   // ===== 3. Android (kodi) =====
-  const ma = paKom(lx(K + 'MainActivity.kt')), kreu = lx(K + 'ui/KreuEkrani.kt'), sk = paKom(lx(K + 'ui/Skaneri.kt')), logo = paKom(lx(K + 'ui/Logo.kt'));
-  ok(/mutableStateOf\("kreu"\)/.test(ma) && /Triple\(KREU, "Kreu", Ik\.Kreu\)/.test(ma) && /tabi = KREU/.test(ma), '3. Android: Kreu hapet i pari (edhe "Mbrapa" kthen te Kreu)');
-  const iA = ma.indexOf('Triple("afatet"'), iK = ma.indexOf('Triple(KREU'), iG = ma.indexOf('Triple("grupi"');
-  ok(iA > 0 && iK > iA && iG > iK, '3. Android: shtëpia në mes (pas Afatet, para Grupi)');
-  ok(/KreuButoni\(/.test(ma) && /KREU_MBI_SHIRIT/.test(kreu) && /fun KreuButoni/.test(kreu), '3. Android: rrethi i shtëpisë pak mbi shiritin');
+  const ma = paKom(lx(K + 'MainActivity.kt')), ballina = lx(K + 'ui/BallinaEkrani.kt'), sk = paKom(lx(K + 'ui/Skaneri.kt')), logo = paKom(lx(K + 'ui/Logo.kt'));
+  ok(/mutableStateOf\("ballina"\)/.test(ma) && /Triple\(BALLINA, "Ballina", Ik\.Ballina\)/.test(ma) && /tabi = BALLINA/.test(ma), '3. Android: Ballina hapet e para (edhe "Mbrapa" kthen te Ballina)');
+  const iA = ma.indexOf('Triple("afatet"'), iK = ma.indexOf('Triple(BALLINA'), iG = ma.indexOf('Triple("grupi"');
+  ok(iA > 0 && iK > iA && iG > iK, '3. Android: Ballina (ikona) në mes (pas Afatet, para Grupi)');
+  ok(/BallinaButoni\(/.test(ma) && /BALLINA_MBI_SHIRIT/.test(ballina) && /fun BallinaButoni/.test(ballina), '3. Android: rrethi i shtëpisë pak mbi shiritin');
   ok(!/"stoku" ->|Triple\("stoku"|StokuEkrani|Ik\.Stoku\b/.test(ma) && fs.existsSync(RR + K + 'ui/MalliEkrani.kt') && !fs.existsSync(RR + K + 'ui/StokuEkrani.kt') &&
     /Triple\("malli", "Malli", Ik\.Malli\)/.test(ma) && /leja\("stoku"\)\) Triple\("malli"/.test(ma), '3. Android: "Stoku" → "Malli" (tabi, ekrani, ikona); leja mbetet "stoku"');
   ok(/if \(k == "stoku"\) "malli"/.test(ma), '3. Android: njoftimet e vjetra me tabin "stoku" hapin Mallin');
   const pj = ['butonat', 'afatet', 'skadojne', 'grafiku', 'malli', 'furnizuesit', 'grupi', 'marketi', 'ora'];
-  ok(pj.every(x => kreu.includes('Pjesa("' + x + '"')) && /"Përshtat faqen"/.test(kreu) && /"Si në fillim"/.test(kreu) && /detectDragGestures/.test(kreu) && /kreu_pjeset/.test(kreu),
-    '3. Android: 9 pjesët e Kreut + "Përshtat faqen" (çelësat, zvarritja, Si në fillim)');
-  ok(!/Mirë se vjen/.test(paKom(kreu)), '3. Android: pa "Mirë se vjen"');
+  ok(pj.every(x => ballina.includes('Pjesa("' + x + '"')) && /"Përshtat faqen"/.test(ballina) && /"Si në fillim"/.test(ballina) && /detectDragGestures/.test(ballina) && /ballina_pjeset/.test(ballina),
+    '3. Android: 9 pjesët e Ballinës + "Përshtat faqen" (çelësat, zvarritja, Si në fillim)');
+  ok(!/Mirë se vjen/.test(paKom(ballina)), '3. Android: pa "Mirë se vjen"');
   ok(!/clip\(RoundedCornerShape\(6\.dp\)\)/.test(logo.slice(logo.indexOf('fun EtiketaStoku'))), '3. Android: logoja e kokës pa qoshe të rrumbullakëta (barkodi s\'pritet)');
   ok(/disableAutoCancel\(\)/.test(sk) && /FLAG_AF or FocusMeteringAction\.FLAG_AE/.test(sk) && /coerceIn\(k\.left, k\.right\)/.test(sk) && /FOKUSI_CDO_MS/.test(sk),
     '2. Android: fokusi vetëm brenda kutisë (mesi i saj, çdo 2 s; prekja kufizohet brenda)');
-  ok(/Hyrja\(88, "2026-11-17", "Kreu/.test(lx(K + 'TeRejat.kt')), '3. TeRejat.kt: Hyrja 88');
+  ok(/Hyrja\(88, "2026-11-17", "Ballina/.test(lx(K + 'TeRejat.kt')), '3. TeRejat.kt: Hyrja 88');
 
   // ===== 4. Dritaret e eksportit si "PDF për printim" (web tel + Android) + PC: fusha e barkodit =====
   const ix = lx('index.html'), eu = lx(K + 'ui/EksportetUI.kt');
