@@ -102,6 +102,7 @@ object Xlsx {
             "<Default Extension=\"xml\" ContentType=\"application/xml\"/>" +
             "<Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/>" +
             "<Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>" +
+            "<Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/>" +
             "</Types>"
         val workbook = KOKA +
             "<workbook xmlns=\"$NS_MAIN\" xmlns:r=\"$NS_REL\">" +
@@ -109,11 +110,12 @@ object Xlsx {
         val wbRels = KOKA +
             "<Relationships xmlns=\"$NS_PKG_REL\">" +
             "<Relationship Id=\"rId1\" Type=\"$NS_REL/worksheet\" Target=\"worksheets/sheet1.xml\"/>" +
+            "<Relationship Id=\"rId2\" Type=\"$NS_REL/styles\" Target=\"styles.xml\"/>" +
             "</Relationships>"
         val rows = StringBuilder()
         rows.append("<row>" + tekst("Barkodi") + tekst("Emri i produktit") + tekst("Sasia") + tekst("Furnizuesi") + "</row>")
         produktet.forEach { p ->
-            rows.append("<row>" + tekst(fusha(p, "barkodi")) + tekst(fusha(p, "emri")) + "<c><v>" + jsInt32(p["sasia"]) + "</v></c>" +
+            rows.append("<row>" + tekst(fusha(p, "barkodi")) + tekst(fusha(p, "emri")) + "<c s=\"1\"><v>" + jsInt32(p["sasia"]) + "</v></c>" +
                 tekst(if (eVertete(p["furnizuesi"])) p["furnizuesi"] else "") + "</row>")
         }
         val sheet = KOKA +
@@ -127,9 +129,12 @@ object Xlsx {
         return listOf(
             Hyrje("[Content_Types].xml", ct.toByteArray()), Hyrje("_rels/.rels", RELS_KRYESORE.toByteArray()),
             Hyrje("xl/workbook.xml", workbook.toByteArray()), Hyrje("xl/_rels/workbook.xml.rels", wbRels.toByteArray()),
-            Hyrje("xl/worksheets/sheet1.xml", sheet.toByteArray())
+            Hyrje("xl/worksheets/sheet1.xml", sheet.toByteArray()),
+            Hyrje("xl/styles.xml", (KOKA + STILET_E_MALLIT).toByteArray())
         )
     }
+    /** web v330: sasia majtas (stili 1), si te afatet */
+    private const val STILET_E_MALLIT = "<styleSheet xmlns=\"$NS_MAIN\"><fonts count=\"1\"><font><sz val=\"11\"/><name val=\"Calibri\"/><family val=\"2\"/></font></fonts><fills count=\"2\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill></fills><borders count=\"1\"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/></cellStyleXfs><cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"1\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\" applyAlignment=\"1\"><alignment horizontal=\"left\"/></xf></cellXfs><cellStyles count=\"1\"><cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/></cellStyles></styleSheet>"
     fun build(produktet: List<Obj>): ByteArray = zip(hyrjetEBuild(produktet))
 
     // ================= Libër pune me disa fletë + stil =================

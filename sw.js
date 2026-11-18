@@ -29,7 +29,7 @@ var CDN_BIBLIOTEKA = [
 // Faqet: merren gjithmonë nga interneti (duke anashkaluar cache-in HTTP të shfletuesit)
 var FAQET = ['./', './index.html', './pc.html'];
 var SHELL = FAQET.concat([
-  './xlsx.js?v=323',
+  './xlsx.js?v=330',
   './bashkimi.js?v=281',
   './ruajtja.js?v=281',
   './skedaret.js?v=1',

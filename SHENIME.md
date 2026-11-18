@@ -65,6 +65,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    Galaxy/Apple as kutia e kodit, vetëm "Duke kontrolluar orën…"; ora e fundit mbahet në kujtesë për uid-në: web tel `localStorage`
    `stoku:ora:oret` ({uid, oret}), Android `oretKujtesa` (në memorie). Pa internet: pas përgjigjes së dështuar del si më parë (s'ngec).
    PC s'ka faqe të orës. (3) Android `Fusha(stiliPlaceholder)`: "Kodi nga ora" me 14/500 pa letterSpacing (web e kishte tashmë me CSS).
+   (4) Excel-i i mallit (`xlsx.js build` + binjaku `Xlsx.kt hyrjetEBuild`): pronari "exceli i mallit ... sasia numri me fillu anen e
+   majt": shtohet `xl/styles.xml` (cellXfs 1 = numër, alignment left), qeliza e sasisë `s="1"`; fikstura.json rigjeneruar.
+   PC (`buildWorkbook`) e kishte tashmë (v323).
    Testi `teste/v330.js`; `v321.js` pranon `if (gati && oret.isEmpty())`.
 0000000. **v329 / Android Hyrja 91 (18.11.2026): "STOKU" → "MALLI" KUDO QË DUKET (PC + LEJET)**. Pronari: "foto 1 ne pc butoni stoku ...
    emertoje malli kudo ... edhe ne link pc po thirka permbledhja ... kur klikon nto bone nlink me dal malli ... kshyri krejta lidhjet pa prish

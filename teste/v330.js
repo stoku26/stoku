@@ -20,6 +20,13 @@ const ADM = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
     '2. Android: pa Galaxy/Apple e pa kod derisa vjen përgjigjja; kujtesa e orëve');
   ok(/stiliPlaceholder = tx\(14, 500\)/.test(nj) && /\(stiliPlaceholder \?: st\)\.copy\(color = n\.faint\)/.test(pb), '3. Android: "Kodi nga ora" me tekst normal');
   ok(/Hyrja\(92, "2026-11-18"/.test(lx(K + 'TeRejat.kt')), '0. TeRejat.kt: Hyrja 92');
+  // 4. Excel-i i mallit: sasia majtas (web + Kotlin, fikstura e njëjtë)
+  const X = require(RR + 'xlsx.js');
+  const zb = Buffer.from(X.build([{ barkodi: '123', emri: 'hehe', sasia: 56, furnizuesi: 'hiji' }])).toString('latin1');
+  ok(/<c s="1"><v>56<\/v><\/c>/.test(zb) && /xl\/styles\.xml/.test(zb) && /<alignment horizontal="left"\/>/.test(zb) && /Target="styles\.xml"/.test(zb) && /\/xl\/styles\.xml/.test(zb),
+    '4. web: Excel-i i mallit me sasinë majtas (styles.xml + s="1")');
+  ok(/<c s=\\"1\\"><v>/.test(lx('vendas/logjika/src/main/kotlin/site/stoku/logjika/Xlsx.kt')) && /STILET_E_MALLIT/.test(lx('vendas/logjika/src/main/kotlin/site/stoku/logjika/Xlsx.kt')),
+    '4. Android: i njëjti Excel (Xlsx.kt)');
 
   const tani = Date.now();
   const F = krijoFirestore({ rregullat: 'reja' });

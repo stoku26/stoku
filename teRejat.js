@@ -22,7 +22,8 @@
 
   var LISTA = [
     { v: 330, versioni: '1.70.3', data: '2026-11-18', titulli: 'Ora e dorës', platforma: 'tel', pikat: [
-      'Kur ora është e lidhur, te Cilësimet → Ora e dorës s\'del më për një moment zgjedhja Galaxy Watch / Apple Watch as kutia e kodit: derisa kontrollohet del "Duke kontrolluar orën…", pastaj karta e orës.'
+      'Kur ora është e lidhur, te Cilësimet → Ora e dorës s\'del më për një moment zgjedhja Galaxy Watch / Apple Watch as kutia e kodit: derisa kontrollohet del "Duke kontrolluar orën…", pastaj karta e orës.',
+      'Excel-i i mallit (Eksporto te folderi): sasia tani fillon nga ana e majtë, si te afatet.'
     ] },
     { v: 329, versioni: '1.70.2', data: '2026-11-18', titulli: 'Malli edhe në kompjuter', platforma: 'pc', pikat: [
       'Pllaka "Stoku" në kompjuter tani quhet "Malli" dhe adresa e saj është stoku.site/#/malli (lidhja e vjetër #/permbledhja të çon aty vetë).',
