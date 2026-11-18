@@ -3287,9 +3287,11 @@
     function publikoMallin(produktet, foldera) {
       if (!Array.isArray(produktet)) return;
       var ef = {}; (foldera || []).forEach(function (f) { ef[f.id] = f.emri || ''; });
+      // v339: çdo produkt një tekst "barkodi⇥emri⇥sasia⇥furnizuesi⇥folderi" (Firestore s'pranon listë brenda liste)
+      var pa = function (t) { return String(t == null ? '' : t).replace(/[\t\r\n]+/g, ' '); };
       publikimiM.p = produktet.slice(0, 8000).map(function (x) {
-        return [String(x.barkodi || ''), String(x.emri || ''), Number(x.sasia) || 0, String(x.furnizuesi || ''), ef[x.kategoriaId] || ''];
-      }).sort(function (a, b) { return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0; });
+        return [pa(x.barkodi), pa(x.emri), Number(x.sasia) || 0, pa(x.furnizuesi), pa(ef[x.kategoriaId])].join('\t');
+      }).sort();
       clearTimeout(publikimiM.kohez);
       publikimiM.kohez = setTimeout(publikoMallinTani, 2500);
     }
@@ -3308,7 +3310,11 @@
       var uIm = o.uidIm(), an = {};
       anetaretEDukshem().forEach(function (a) { an[a.uid] = a.emri; });
       var m = gj.malli || {};
-      return Object.keys(m).filter(function (u) { return u !== uIm && an[u] !== undefined; }).map(function (u) { return { uid: u, emri: an[u] || m[u].emri, p: m[u].p }; });
+      return Object.keys(m).filter(function (u) { return u !== uIm && an[u] !== undefined; }).map(function (u) {
+        // v339: rreshti vjen si tekst me ⇥ (formati i vjetër [..] pranohet ende)
+        var p = (m[u].p || []).map(function (r) { if (typeof r !== 'string') return r; var x = r.split('\t'); x[2] = Number(x[2]) || 0; return x; });
+        return { uid: u, emri: an[u] || m[u].emri, p: p };
+      });
     }
 
     // ---------- Heqja nga rafti ----------

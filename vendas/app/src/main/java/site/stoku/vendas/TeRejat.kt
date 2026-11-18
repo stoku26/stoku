@@ -10,6 +10,11 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(98, "2026-11-18", "Rregullime", listOf(
+            "U rregullua ndarja e mallit me kolegët e grupit: më parë s'ruhej dot dhe kolegët s'e gjenin mallin tënd te kërkimi i Ballinës.",
+            "Kërkimi te Ballina s'e ngadalëson më shkrimin, edhe kur kolegët kanë shumë mall.",
+            "Përgatitja e mallit për kolegët bëhet në sfond, pa e ngecur ekranin."
+        )),
         Hyrja(97, "2026-11-18", "Ballina dhe Cilësimet", listOf(
             "Te Ballina s'ka më butonat e shpejtë (Skano, Afat i ri, Skanim i shpejtë, PDF), as te \"Përshtat faqen\".",
             "Titulli i Cilësimeve është tani në të njëjtën vijë si te Malli, Afatet dhe Grupi."

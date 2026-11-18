@@ -341,6 +341,9 @@ function krijoFirestore(opt = {}) {
       return { ok: true, docs: ekzekutoPyetjen(x[0], x[1]) };
     }
     if (emer === 'batch') {
+      // v339: si Firestore i vërtetë: listë brenda liste s'lejohet ("Nested arrays are not supported")
+      const kaListeNeListe = v => Array.isArray(v) ? v.some(y => Array.isArray(y) || kaListeNeListe(y)) : (v && typeof v === 'object' ? Object.values(v).some(kaListeNeListe) : false);
+      for (const o of x[0]) if (o[0] !== 'delete' && kaListeNeListe(o[2])) { S.refuzime.push({ uid: a && a.uid, op: o[0], path: o[1], kodi: 'invalid-argument' }); return { ok: false, code: 'invalid-argument' }; }
       const fn = [];
       pasBatch = new Map();
       for (const o of x[0]) {
