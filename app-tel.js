@@ -4540,6 +4540,10 @@
       !$('kamera').classList.contains('hapur') && !$('dlgAfatLexim').classList.contains('hapur') &&
       !$('dlgImportStok').classList.contains('hapur') && !tastieraHapur;
     document.body.classList.toggle('me-tabe', dukshem);
+    // v327 (pronari: "te tabet e tjera del ngjysm"): faqet e plota (Kreu, Afatet, Grupi, Cilësimet, z 21) e mbulonin pjesën e rrethit të
+    // shtëpisë që del mbi shirit; kur s'ka asnjë dritare tjetër sipër, shiriti del mbi to (dritaret e zakonshme e mbulojnë si më parë)
+    var siper = false; try { siper = dukshem && !dialogiISiperm(); } catch (e) { /* në nisje, para radhës së dritareve */ }
+    document.body.classList.toggle('tabet-siper', siper);
     var aktiv = cilesimetHapur ? 'btnOpsione' : ekipiHapur ? 'btnEkipi' : afatetHapur ? 'btnAfatet' : kreuH ? 'tabKreu' : 'tabMalli';
     ['tabMalli', 'btnAfatet', 'tabKreu', 'btnEkipi', 'btnOpsione'].forEach(function (id) {
       var po = id === aktiv;
