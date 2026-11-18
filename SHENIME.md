@@ -58,11 +58,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v338 (18.11.2026): KTHEHET LOGOJA DJATHTAS TE NJOFTIMET (ANULON v337)**. Pas v337 Samsung-u vuri djathtas një "S" gri (kur
+   njoftimi s'ka `icon`, telefoni vë shkronjën e parë të faqes); majtas ikonën e web app-it e vendos telefoni vetë dhe s'hiqet. Pronari:
+   "Jojo logo ndreqe te stokut". `icon: icon-192.png` u kthye te sw.js (push), njoftimet.js dhe app-tel.js. Hyrja e teRejat për v337
+   u hoq (s'ka më çka të thotë). Mos e hiq `icon` sërish. Test: `teste/v337.js` (tani kontrollon që icon ekziston).
+
 0000000. **v337 (18.11.2026): NJOFTIMET E WEB APP-IT TË TELEFONIT PA IKONËN DJATHTAS**. Pronari (foto e njoftimit në Android): "Kur e qet
    ikonen ntmajt sdi pse edhe ndjatht e qet hekja qato ndjatht ... sigurohu qe edhe ne iphone e ka ato ntmajt". Shkaku: opsioni `icon` i
    `showNotification` në Chrome Android del si foto e madhe djathtas (majtas del vetë ikona e aplikacionit). U hoq `icon` te sw.js (push),
-   njoftimet.js (njoftimet ditore) dhe app-tel.js (kompjuteri s'ka njoftime, v304, pronari: "Ne kompjuter ska njoftime"). iPhone: `icon` s'përdoret fare; majtas del ikona e aplikacionit nga `apple-touch-icon`/manifest. Mos e rikthe `icon` në
-   telefon. Test: `teste/v337.js`.
+   njoftimet.js (njoftimet ditore) dhe app-tel.js (kompjuteri s'ka njoftime, v304, pronari: "Ne kompjuter ska njoftime"). iPhone: `icon` s'përdoret fare; majtas del ikona e aplikacionit nga `apple-touch-icon`/manifest. U ANULUA te v338 (Samsung-u
+   vuri "S" gri djathtas). Test: `teste/v337.js`.
 
 0000000. **v336 / Android Hyrja 97 (18.11.2026): CILËSIMET NË VIJË + PA BUTONAT E SHPEJTË TE BALLINA**. Pronari: "cilesimet ku shkrun nalt
    nuk jan ne te njejten vi me emrat e tabeve tjer si malli afatet edhe emri grupit" dhe "hiqi qato mos i le as te opsionet e as te widgets

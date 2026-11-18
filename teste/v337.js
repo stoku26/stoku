@@ -1,5 +1,5 @@
-// v337 (pronari, 18.11.2026, foto e njoftimit): te njoftimet e telefonit logoja del vetëm majtas; pa 'icon' që e nxirrte edhe djathtas
-//  (Android). Në iPhone majtas del vetë ikona e aplikacionit (apple-touch-icon). Kompjuteri s'ka njoftime.
+// v337 → v338 (pronari, 18.11.2026): v337 e hoqi 'icon' te njoftimet e telefonit, por Samsung-u vuri djathtas një "S" gri.
+//  Pronari: "Jojo logo ndreqe te stokut": logoja e Stoku-t kthehet djathtas (sw.js push, njoftimet.js, app-tel.js).
 const fs = require('fs'), vm = require('vm');
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
 const RR = __dirname + '/../', lx = f => fs.readFileSync(RR + f, 'utf8');
@@ -15,16 +15,13 @@ async function pushMe(ua) {
 }
 (async () => {
   const an = await pushMe('Mozilla/5.0 (Linux; Android 14; SM-S928B) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36');
-  ok(an && an[0] === 'EKO Vishnje 1L' && !('icon' in an[1]) && an[1].badge, '1. push në Android: pa icon (vetëm majtas), me badge', an && an[1]);
-  const ip = await pushMe('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148');
-  ok(ip && !('icon' in ip[1]), '1. push në iPhone: pa icon');
-  const nj = lx('njoftimet.js'), at = lx('app-tel.js'), ix = lx('index.html');
+  ok(an && an[0] === 'EKO Vishnje 1L' && an[1].icon === './icon-192.png?v=5' && an[1].badge, '1. push: me logon e Stoku-t (icon) dhe badge', an && an[1]);
+  const nj = lx('njoftimet.js'), at = lx('app-tel.js');
   const op = nj.slice(nj.indexOf('function opsionet('), nj.indexOf('function opsionet(') + 400);
-  ok(!/icon:/.test(op), '2. njoftimet.js (njoftimet ditore të afateve): pa icon');
+  ok(/icon: 'icon-192\.png\?v=5'/.test(op), '2. njoftimet.js (njoftimet ditore): me logon');
   const sn = at.slice(at.indexOf('reg.showNotification(nj.titulli'), at.indexOf('reg.showNotification(nj.titulli') + 300);
-  ok(sn && !/icon:/.test(sn), '2. app-tel.js: njoftimi pa icon');
-  ok(/<link rel="apple-touch-icon" href="apple-touch-icon\.png/.test(ix) && /<link rel="manifest"/.test(ix), '3. iPhone/Android: ikona e aplikacionit (apple-touch-icon, manifest) ekziston për majtas');
-  ok(/v: 337/.test(lx('teRejat.js')) && /v: 337/.test(lx('versioni.js')), '0. versioni 337');
+  ok(/icon: '\.\/icon-192\.png\?v=5'/.test(sn), '2. app-tel.js: njoftimi me logon');
+  ok(/v: 338/.test(lx('versioni.js')) && !/v: 337/.test(lx('teRejat.js')), '0. versioni 338; pa hyrjen e v337 te teRejat');
   console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');
   process.exit(g ? 1 : 0);
 })();
