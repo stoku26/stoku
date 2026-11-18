@@ -76,7 +76,7 @@ const kuj = p => p.evaluate(() => JSON.parse(localStorage.getItem('stoku:kujtesa
 
   // 5. Stoku: produkt i ri me barkod të njohur → emri plotësohet; ndryshimi i sasisë s'e humb furnitorin
   await p.evaluate(() => document.querySelectorAll('.mbulese.hapur').forEach(d => d.classList.remove('hapur')));
-  await p.click('#tabStoku').catch(() => {}); await p.waitForTimeout(300);
+  await p.click('#tabMalli').catch(() => {}); await p.waitForTimeout(300);
   await p.click('.folder-karta >> nth=0'); await p.waitForTimeout(400);
   await p.fill('#barkodi', '3900001'); await p.press('#barkodi', 'Enter'); await p.waitForTimeout(400);
   const dlg = await p.evaluate(() => ({ hapur: document.getElementById('dlgProdukt').classList.contains('hapur'), emri: document.getElementById('dlgEmri').value, fokus: document.activeElement && document.activeElement.id }));

@@ -20,7 +20,7 @@ const furnLS=p=>p.evaluate(()=>JSON.parse(localStorage.getItem('stoku:afatet:v1'
  // TELEFONI, admin
  let {p,ctx}=await faqe(b,'mendurberisha',TEL,'/');
  await p.click('#btnOpsione');await p.waitForTimeout(300);
- ok((await p.textContent('#tabListaTxt'))==='Stoku','tel: kategoria quhet "Stoku"');
+ ok((await p.textContent('#tabListaTxt'))==='Malli','tel: kategoria quhet "Malli" (v327)');
  await p.click('#tabLista');await p.waitForTimeout(300);
  ok(await p.isVisible('#stFurnizuesit') && await p.isVisible('#stProduktet') && !(await p.isVisible('#furnLista')) && !(await p.isVisible('#kujtesaLista')),'v202 tel: te Stoku dalin rreshtat Furnizuesit/Produktet, jo listat',await p.textContent('#stokuHyrjet'));
  ok(/4 furnizues/.test(await p.textContent('#stFurnizuesitStatus')),'v202 tel: numri i furnizuesve te rreshti',await p.textContent('#stFurnizuesitStatus'));
@@ -48,7 +48,7 @@ const furnLS=p=>p.evaluate(()=>JSON.parse(localStorage.getItem('stoku:afatet:v1'
  ok(await p.evaluate(()=>JSON.parse(localStorage.getItem('stoku:produktet:v2'))['f1::39000'].furnizuesi==='Laberion'),'produkti mbeti me "Laberion"');
  // afatet tregojnë emrin e ri
  await p.click('#opsPrapa');await p.waitForTimeout(150);
- ok(await p.isVisible('#stFurnizuesit') && (await p.textContent('#opsioneTitulli'))==='Stoku' && /3 furnizues/.test(await p.textContent('#stFurnizuesitStatus')),'v202 tel: "←" kthehet te Stoku (me numrin e ri)',await p.textContent('#stFurnizuesitStatus'));
+ ok(await p.isVisible('#stFurnizuesit') && (await p.textContent('#opsioneTitulli'))==='Malli' && /3 furnizues/.test(await p.textContent('#stFurnizuesitStatus')),'v202 tel: "←" kthehet te Stoku (me numrin e ri)',await p.textContent('#stFurnizuesitStatus'));
  await p.click('#opsPrapa');await p.click('#opsPrapa').catch(()=>{});await p.click('#btnAfatet');await p.waitForTimeout(400);
  ok(/Rugove Sh\.p\.k/.test(await p.textContent('#afLista')),'te Afatet del emri i ri');
  await ctx.close();

@@ -59,7 +59,7 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   const gabA = []; a.on('pageerror', e => gabA.push(e.message));
   let shkA = 0; a.on('download', () => shkA++);
   await a.goto(B + '/index.html'); await a.waitForTimeout(2500);
-  ok(!(await duket(a, '#btnEkipi')) && await duket(a, '#btnAfatet') && await duket(a, '#tabStoku'), '1. pa "Grupi": tabi Grupi s\'duket (Stoku dhe Afatet po)');
+  ok(!(await duket(a, '#btnEkipi')) && await duket(a, '#btnAfatet') && await duket(a, '#tabMalli'), '1. pa "Grupi": tabi Grupi s\'duket (Stoku dhe Afatet po)');
   ok(!(await a.$('.folder-karta .folder-fshij')), '1. pa "Fshi": s\'ka ✕ te folderat');
   ok(!(await a.evaluate(() => [...document.querySelectorAll('.sb-link')].some(x => /Folder i ri/.test(x.textContent)))), '1. pa "Krijo folderat": s\'ka "+ Folder i ri"');
   ok(await duket(a, '#kryeButonatImport'), '1. importi nga fotoja duket (i lejuar)');
@@ -166,7 +166,7 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   // "Stoku" i ndaluar (Afatet janë ndaluar më lart) → faqja bazë = Grupi; tabi Stoku zhduket, pa asnjë kartë/mesazh
   await m.click('label[for=pdLeja_stoku]'); await m.waitForTimeout(400);
   ok(await prit(async () => await hapur(bs, 'dlgEkipi')), '3. besa pa "Stoku" (pa Afate): hapet Grupi si faqja bazë');
-  ok(!(await duket(bs, '#tabStoku')) && !(await duket(bs, '#btnAfatet')) && await duket(bs, '#btnEkipi') && await duket(bs, '#btnOpsione'), '3. tabet: vetëm Grupi dhe Cilësimet (pa Stoku)');
+  ok(!(await duket(bs, '#tabMalli')) && !(await duket(bs, '#btnAfatet')) && await duket(bs, '#btnEkipi') && await duket(bs, '#btnOpsione'), '3. tabet: vetëm Grupi dhe Cilësimet (pa Stoku)');
   ok(await bs.evaluate(() => document.getElementById('btnEkipi').classList.contains('aktiv')), '3. tabi Grupi është aktiv');
   ok(!(await bs.$('.leja-mbyllur')) && !/Stoku s'është/.test(await tekstiIDukshem(bs)) && !ZBULON.test(await tekstiIDukshem(bs)), '3. pa kartën "Stoku s\'është i lejuar", pa asnjë fjalë për lejet');
   ok(await bs.evaluate(() => document.getElementById('tabLista').classList.contains('leja-ndaluar')), '3. besa pa "Stoku": s\'ka "Stoku" te Cilësimet');
@@ -185,7 +185,7 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   await m.evaluate(() => [...document.querySelectorAll('#pdDetaje .pd-veprime button')].find(x => /Ndalo të gjitha/.test(x.textContent)).click());
   await m.waitForTimeout(300); await m.click('#konfPo'); await m.waitForTimeout(400);
   ok(L.teNdaluara(F.S.docs.get('lejet/u2').lejet) === NR_LEJEVE, '3. "Ndalo të gjitha": krejt të ndaluara');
-  ok(await prit(async () => !(await duket(bs, '#btnAfatet')) && !(await duket(bs, '#btnEkipi')) && !(await duket(bs, '#tabStoku')) && await hapur(bs, 'dlgOpsione')), '3. besa pa asgjë: faqja bazë = Cilësimet, tabi i vetëm');
+  ok(await prit(async () => !(await duket(bs, '#btnAfatet')) && !(await duket(bs, '#btnEkipi')) && !(await duket(bs, '#tabMalli')) && await hapur(bs, 'dlgOpsione')), '3. besa pa asgjë: faqja bazë = Cilësimet, tabi i vetëm');
   ok(!ZBULON.test(await tekstiIDukshem(bs)) && !ZBULON.test(await toast(bs)), '3. pa asnjë fjalë për lejet (as njoftim)', await toast(bs));
   await bs.click('#tabPamja'); await bs.waitForTimeout(300);
   await bs.evaluate(() => history.back()); await bs.waitForTimeout(600);
@@ -205,7 +205,7 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   ok(!(await m.evaluate(() => [...document.querySelectorAll('#pdLista .ops-grupi-titull')].some(x => /Pa u kontrolluar/.test(x.textContent)))), '3. s\'mbetet asnjë "Pa u kontrolluar"');
   ok(/3 llogari/.test(await m.textContent('#tabPerdoruesitStatus')), '3. statusi: "3 llogari"', await m.textContent('#tabPerdoruesitStatus'));
   // Llogari e re ndërsa admini punon → njoftim + shenjë
-  await m.click('#opsPrapa'); await m.click('#tabStoku'); await m.waitForTimeout(300);
+  await m.click('#opsPrapa'); await m.click('#tabMalli'); await m.waitForTimeout(300);
   const ctxK = await b.newContext({ userAgent: UA, viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
   await rrugetE(ctxK);
   await F.lidh(ctxK, 'u9', 'kujtim@stoku-app.local', 'tel', { afatet: [] });
@@ -242,7 +242,7 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
   await dr.goto(B + '/index.html'); await dr.waitForTimeout(2500);
   const stat = await dr.evaluate(() => [...document.querySelectorAll('.sb-stats .sb-stat__label')].map(x => x.textContent));
   ok(stat.join('|') === 'Folderat|Sasi 0', '5. pa Afate: kryefaqja pa "Të skaduara"', stat);
-  ok(!(await duket(dr, '#btnAfatet')) && await duket(dr, '#tabStoku') && !(await hapur(dr, 'dlgAfatet')), '5. Stoku është kryefaqja (pa tabin Afatet)');
+  ok(!(await duket(dr, '#btnAfatet')) && await duket(dr, '#tabMalli') && !(await hapur(dr, 'dlgAfatet')), '5. Stoku është kryefaqja (pa tabin Afatet)');
   await dr.evaluate(() => [...document.querySelectorAll('.folder-karta')].find(x => /Pije/.test(x.textContent)).click());
   await dr.waitForTimeout(400);
   await dr.evaluate(() => [...document.querySelectorAll('#lista .artikull')].find(x => /Ujë Rugove/.test(x.textContent)).click());

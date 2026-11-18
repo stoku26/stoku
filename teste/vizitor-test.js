@@ -61,7 +61,7 @@ const dukshem = (p, sel) => p.evaluate(s => { const e = document.querySelector(s
     await p.click('#ekipiLista .ek-viz-hyr'); await p.waitForTimeout(400);
     ok(await dukshem(p, '#porta'), '1h3. butoni te Grupi hap portën');
     await p.click('#pkVizitor'); await p.waitForTimeout(500);
-    await p.click('#tabStoku'); await p.waitForTimeout(400);
+    await p.click('#tabMalli'); await p.waitForTimeout(400);
     ok(!(await dukshem(p, '#porta')) && await dukshem(p, '#vizShirit'), '1h4. kthimi te prova, te Stoku');
     // "Hyr" → porta; "Vazhdo provën si vizitor" → kthehet pa humbur gjë
     await p.click('#vizShiritHyr'); await p.waitForTimeout(400);

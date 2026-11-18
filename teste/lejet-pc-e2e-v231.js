@@ -32,7 +32,7 @@ const toast = p => p.evaluate(() => document.getElementById('toastTekst').textCo
 const ZBULON = /lejohet|lejuar|administrator|ndalua|ndaluar/i;
 const tekstiIDukshem = p => p.evaluate(() => document.body.innerText).catch(() => '');
 const faqja = p => { try { return new URL(p.url()).pathname; } catch (e) { return ''; } };
-const siTelefon = p => p.evaluate(() => !!document.getElementById('tabStoku') && !document.getElementById('btnAkordStoku')).catch(() => false);
+const siTelefon = p => p.evaluate(() => !!document.getElementById('tabMalli') && !document.getElementById('btnAkordStoku')).catch(() => false);
 const siPc = p => p.evaluate(() => !!document.getElementById('btnAkordStoku')).catch(() => false);
 const VP = { width: 1440, height: 900 };
 
