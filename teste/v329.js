@@ -20,7 +20,7 @@ const PR = { 'pije::3800001': { kategoriaId: 'pije', barkodi: '3800001', emri: '
   ok(/k: 'stoku', emri: 'Malli'/.test(lx('lejet.js')) && /grupi: 'Malli'/.test(lx('lejet.js')) && !/grupi: 'Stoku'|emri: 'Stoku'/.test(lx('lejet.js')), '1. lejet.js: "Malli" (çelësi mbetet "stoku")');
   ok(/Leja\("stoku", "Malli"/.test(lk) && !/grupi = "Stoku"/.test(lk), '1. Lejet.kt: "Malli"');
   ok(!/te Stoku, te Përmbledhja|folderit te Stoku|Stoku dhe afatet|Stoku është bosh/.test(lx('app-pc.js') + lx('app-tel.js') + lx('pc.html') + lx('lejet.js')), '1. pa tekstet e vjetra "folderit te Stoku", "Stoku dhe afatet", "Stoku është bosh"');
-  ok(/function hashPer\(p\) \{ return p === 'permbledhja' \? '#\/malli'/.test(lx('app-pc.js')), '2. PC: adresa e Mallit #/malli');
+  ok(/p === 'permbledhja' \? '#\/malli'/.test(lx('app-pc.js')), '2. PC: adresa e Mallit #/malli');
   ok(/Hyrja\(91, "2026-11-18"/.test(lx('vendas/app/src/main/java/site/stoku/vendas/TeRejat.kt')), '3. TeRejat.kt: Hyrja 91');
 
 

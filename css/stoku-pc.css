@@ -660,3 +660,50 @@ html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-nen { background: var(--sb-s
 .sbp .tm-grupi { margin-bottom: 14px; border: 0; box-shadow: var(--sb-ring); }
 .sbp .tm-krye { padding: 16px 20px; }
 .sbp .tm-rrjeta { padding: 0 20px 18px; gap: 8px; }
+
+/* v331: Ballina (pronari: opsioni D, "quaje ballina"): butoni mbi pllakat + faqja me kartat */
+.sbp .sbp-ballina { display: flex; align-items: center; gap: 10px; width: 100%; margin: 4px 0 2px; padding: 11px 14px; border: 0; border-radius: 12px; background: var(--sb-surface); color: var(--sb-ink); box-shadow: inset 0 0 0 1px var(--sb-line-2, rgba(127,127,127,.18)); font: inherit; cursor: pointer; text-align: left; }
+.sbp .sbp-ballina b { font-size: 14.5px; font-weight: 700; }
+.sbp .sbp-ballina small { margin-left: auto; font-size: 11.5px; color: var(--sb-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.sbp .sbp-ballina svg { flex: none; color: var(--sb-muted); }
+.sbp .sbp-ballina:hover { background: var(--sb-surface-2); }
+.sbp .sbp-ballina.aktiv { background: var(--sb-accent-tint); color: var(--sb-accent-text); box-shadow: inset 0 0 0 1.5px var(--sb-accent-line, var(--sb-accent)); }
+.sbp .sbp-ballina.aktiv svg { color: var(--sb-accent-text); }
+.sbp .sbp-ballina:focus-visible { outline: 2px solid var(--sb-ring); outline-offset: 2px; }
+.sbp .bl-pjeset { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; align-items: start; }
+.sbp .bl-karta { background: var(--sb-surface); border-radius: 16px; padding: 16px 18px 18px; box-shadow: inset 0 0 0 1px var(--sb-line-2, rgba(127,127,127,.18)); min-width: 0; }
+.sbp .bl-karta.bl-gjere { grid-column: 1 / -1; }
+.sbp .bl-karta.bl-prek { cursor: pointer; }
+.sbp .bl-karta.bl-prek:hover { background: var(--sb-surface-2); }
+.sbp .bl-karta:focus-visible { outline: 2px solid var(--sb-ring); outline-offset: 2px; }
+.sbp .bl-krye { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.sbp .bl-krye h3 { font-size: 15px; font-weight: 700; color: var(--sb-ink); margin: 0; }
+.sbp .bl-lidhja { font-size: 12.5px; font-weight: 600; color: var(--sb-accent-text); white-space: nowrap; }
+.sbp .bl-numrat { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 10px; }
+.sbp .bl-numrat > div { background: var(--sb-surface-2); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; }
+.sbp .bl-numrat b { font-size: 26px; font-weight: 700; letter-spacing: -.02em; color: var(--sb-ink); font-variant-numeric: tabular-nums; }
+.sbp .bl-numrat span { font-size: 12.5px; color: var(--sb-muted); }
+.sbp .bl-numrat .bl-exp b { color: var(--sb-exp); } .sbp .bl-numrat .bl-near b { color: var(--sb-near); }
+.sbp .bl-rresht { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--sb-line-2, rgba(127,127,127,.15)); }
+.sbp .bl-rresht:first-of-type { border-top: 0; }
+.sbp .bl-pika { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.sbp .bl-pika.bl-exp { background: var(--sb-exp); } .sbp .bl-pika.bl-near { background: var(--sb-near); }
+.sbp .bl-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.sbp .bl-info b { font-size: 14px; font-weight: 600; color: var(--sb-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sbp .bl-info small { font-size: 12px; color: var(--sb-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sbp .bl-dit { font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.sbp .bl-dit.bl-exp { color: var(--sb-exp); } .sbp .bl-dit.bl-near { color: var(--sb-near); }
+.sbp .bl-graf { display: flex; align-items: flex-end; gap: 12px; height: 140px; }
+.sbp .bl-graf > div { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px; font-size: 12px; color: var(--sb-muted); }
+.sbp .bl-graf i { display: block; width: 100%; max-width: 46px; border-radius: 7px; background: var(--sb-accent); min-height: 3px; }
+.sbp .bl-graf i.ky { background: var(--sb-near); } .sbp .bl-graf i.zero { background: var(--sb-track, var(--sb-surface-2)); }
+.sbp .bl-graf b { font-size: 12px; color: var(--sb-ink-2, var(--sb-ink)); }
+.sbp .bl-furn { display: grid; grid-template-columns: minmax(0, 1fr) minmax(60px, 1.2fr) auto; align-items: center; gap: 10px; padding: 6px 0; }
+.sbp .bl-furn span { font-size: 13.5px; color: var(--sb-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sbp .bl-furn i { display: block; height: 8px; border-radius: 4px; background: var(--sb-surface-2); overflow: hidden; }
+.sbp .bl-furn u { display: block; height: 100%; border-radius: 4px; background: var(--sb-near); text-decoration: none; }
+.sbp .bl-furn b { font-size: 13px; font-weight: 700; color: var(--sb-ink); font-variant-numeric: tabular-nums; }
+.sbp .bl-teksti { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--sb-ink); }
+.sbp .bl-shenje { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--sb-exp); color: #fff; font-size: 12px; font-weight: 700; display: inline-grid; place-items: center; }
+.sbp .bl-nen { margin-top: 6px; font-size: 12.5px; color: var(--sb-muted); }
+.sbp .bl-bosh { font-size: 13.5px; color: var(--sb-muted); padding: 4px 0; }

@@ -737,10 +737,10 @@
   var tab = { kerkimi: '', filtri: 'te-gjitha', rendiK: 'koha', rendiD: -1, faqja: 0, zgjedhura: {}, fokus: -1, ankoraZgjedhjes: null, flash: null };
   (function () { var r = ops.rendi.split(':'); tab.rendiK = r[0]; tab.rendiD = parseInt(r[1], 10); })();
 
-  function hashPer(p) { return p === 'permbledhja' ? '#/malli' : p === 'te-gjitha' ? '#/te-gjitha' : p === 'afatet' ? '#/afatet' : p === 'ekipi' ? '#/grupi' + (ekNen !== 'pulti' ? '/' + (ekNen === 'anetaret' ? 'koleget' : ekNen) : '') : '#/f/' + encodeURIComponent(p); }
+  function hashPer(p) { return p === 'ballina' ? '#/ballina' : p === 'permbledhja' ? '#/malli' : p === 'te-gjitha' ? '#/te-gjitha' : p === 'afatet' ? '#/afatet' : p === 'ekipi' ? '#/grupi' + (ekNen !== 'pulti' ? '/' + (ekNen === 'anetaret' ? 'koleget' : ekNen) : '') : '#/f/' + encodeURIComponent(p); }
   function shkoTe(p, opsionet) {
     opsionet = opsionet || {};
-    if (!leja(lejaEPamjes(p))) return; // v230
+    if (p !== 'ballina' && !leja(lejaEPamjes(p))) return; // v230
     var ePare = pamja !== p;
     if (ePare || opsionet.reset) {
       tab.kerkimi = opsionet.kerkimi || '';
@@ -762,7 +762,9 @@
   }
   function pamjaNgaHash(h) {
     var r = { pamja: 'permbledhja', ekNen: null };
-    if (h === '#/te-gjitha') r.pamja = 'te-gjitha';
+    // v331 (pronari: opsioni D, "quaje ballina"): Ballina është faqja e parë (adresa bosh) dhe "#/ballina"
+    if (h === '#/ballina' || ((h === '' || h === '#' || h === '#/') && ballinaEPare())) r.pamja = 'ballina';
+    else if (h === '#/te-gjitha') r.pamja = 'te-gjitha';
     else if (h === '#/afatet') r.pamja = 'afatet';
     else if (h === '#/ekipi' || /^#\/(ekipa|grupi)(\/|$)/.test(h)) { // v309: adresa "#/grupi/…"; lidhjet e vjetra "#/ekipa/…" punojnë
       var n = h.replace(/^#\/(ekipa|grupi)\/?/, '').replace(/^#\/ekipi$/, '');
@@ -783,28 +785,127 @@
   window.addEventListener('popstate', lexoHash);
 
   function rivizato() {
-    if (pamja !== 'permbledhja' && pamja !== 'te-gjitha' && pamja !== 'afatet' && pamja !== 'ekipi' && !folderSipasId(pamja)) {
+    if (pamja !== 'ballina' && pamja !== 'permbledhja' && pamja !== 'te-gjitha' && pamja !== 'afatet' && pamja !== 'ekipi' && !folderSipasId(pamja)) {
       pamja = 'permbledhja';
       history.replaceState(null, '', hashPer(pamja));
     }
     // v230: pamja që s'lejohet → pjesa e parë e lejuar; asnjë e lejuar → faqja "S'ka asgjë të lejuar"
     var ePara = pamjaEPareELejuar(), paAsgje = !ePara;
-    if (ePara && !leja(lejaEPamjes(pamja))) { pamja = ePara; history.replaceState(null, '', hashPer(pamja)); }
+    if (ePara && pamja !== 'ballina' && !leja(lejaEPamjes(pamja))) { pamja = ePara; history.replaceState(null, '', hashPer(pamja)); }
     renderAnesoren();
     renderAfatetAnesore();
-    var permb = pamja === 'permbledhja', neAfate = pamja === 'afatet', neEkipi = pamja === 'ekipi';
+    var permb = pamja === 'permbledhja', neAfate = pamja === 'afatet', neEkipi = pamja === 'ekipi', neBallina = pamja === 'ballina';
     $('pamjaMbyllur').classList.toggle('fsheh', !paAsgje);
+    $('pamjaBallina').classList.toggle('fsheh', !neBallina || paAsgje);
     $('pamjaPermbledhja').classList.toggle('fsheh', !permb || paAsgje);
     $('pamjaAfatet').classList.toggle('fsheh', !neAfate || paAsgje);
     $('pamjaEkipi').classList.toggle('fsheh', !neEkipi || paAsgje);
-    $('pamjaTabela').classList.toggle('fsheh', permb || neAfate || neEkipi || paAsgje);
-    if (paAsgje) { /* asgjë për të vizatuar */ } else if (permb) renderPermbledhjen(); else if (neAfate) renderAfatetPc(); else if (neEkipi) renderEkipiPc(); else renderTabelen();
+    $('pamjaTabela').classList.toggle('fsheh', permb || neAfate || neEkipi || neBallina || paAsgje);
+    if (paAsgje) { /* asgjë për të vizatuar */ } else if (neBallina) renderBallinen(); else if (permb) renderPermbledhjen(); else if (neAfate) renderAfatetPc(); else if (neEkipi) renderEkipiPc(); else renderTabelen();
     // Rezultatet rifreskohen vetëm kur fusha ka fokusin (përndryshe dritarja e rezultateve rihapej vetë pas çdo ndryshimi)
     if ($('kerkoGlobal').value.trim() && document.activeElement === $('kerkoGlobal')) renderKerkimiGlobal();
     if ((!neEkipi || paAsgje) && ekK && ekK.gj.hapur) ekK.mbyll(); // dëgjuesit e Grupit vetëm sa kohë është e hapur
-    var titull = permb ? 'Malli' : neAfate ? 'Afatet' : neEkipi ? 'Grupi • ' + EK_TITUJT[ekNen] : pamja === 'te-gjitha' ? 'Të gjitha produktet' : emriFolderit(pamja);
+    var titull = neBallina ? 'Ballina' : permb ? 'Malli' : neAfate ? 'Afatet' : neEkipi ? 'Grupi • ' + EK_TITUJT[ekNen] : pamja === 'te-gjitha' ? 'Të gjitha produktet' : emriFolderit(pamja);
     document.title = titull + ' • Stoku';
   }
+
+  // ================= Ballina (v331, pronari: opsioni D, "quaje ballina") =================
+  // Faqja e parë në PC: afatet, çfarë skadon së pari, grafiku i 6 muajve, malli, furnizuesit dhe grupi (si Kreu i telefonit).
+  // Çdo kartë hap faqen e vet; kartat që s'lejohen (lejet e llogarisë) s'dalin.
+  function ballinaEPare() { return !window.__stokuPaKreu; }
+  function blEl(tag, klasa, tekst) { var e = document.createElement(tag); if (klasa) e.className = klasa; if (tekst !== undefined) e.textContent = tekst; return e; }
+  function blKarta(titulli, lidhja, prek, klasa) {
+    var k = blEl('div', 'bl-karta' + (klasa ? ' ' + klasa : ''));
+    var kr = blEl('div', 'bl-krye'); kr.appendChild(blEl('h3', null, titulli));
+    if (lidhja) kr.appendChild(blEl('span', 'bl-lidhja', lidhja + ' ›'));
+    k.appendChild(kr);
+    if (prek) { k.classList.add('bl-prek'); k.tabIndex = 0; k.setAttribute('role', 'button'); k.addEventListener('click', prek);
+      k.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); prek(); } }); }
+    return k;
+  }
+  function blNumrat(l) {
+    var r = blEl('div', 'bl-numrat');
+    l.forEach(function (x) { var d = blEl('div', x[2] || ''); d.appendChild(blEl('b', null, x[0])); d.appendChild(blEl('span', null, x[1])); r.appendChild(d); });
+    return r;
+  }
+  function blDitet(a) {
+    var AF = window.StokuAfatet, d = AF.ditetDeri(a.data);
+    return d === null ? '' : d < 0 ? 'Skadoi' : d === 0 ? 'Sot' : d === 1 ? 'Nesër' : AF.ditetTekst(d);
+  }
+  function renderBallinen() {
+    var AF = window.StokuAfatet;
+    var c = $('blPjeset'); c.textContent = '';
+    var te = afatetEMarketit(), nr = AF.numero(te);
+    var meAfate = leja('afatet'), meMall = leja('stoku'), meGrup = leja('grupi');
+    var sot = AF.sot(), d0 = new Date(sot + 'T12:00:00');
+    $('blNen').textContent = d0.getDate() + ' ' + AF.EMRAT_MUAJVE[d0.getMonth()] + ' ' + d0.getFullYear();
+    if (meAfate) {
+      var k1 = blKarta('Afatet', 'Hape', function () { shkoTe('afatet'); }, 'bl-gjere');
+      k1.appendChild(blNumrat([[num(nr.skaduar), 'Të skaduara', 'bl-exp'], [num(nr.afer), 'Skadojnë së shpejti', 'bl-near'], [num(nr['pa-date']), 'Pa datë'],
+        [num(te.filter(function (a) { return AF.statusi(a) !== 'hequr'; }).length), 'Gjithsej']]));
+      c.appendChild(k1);
+      var lista = te.filter(function (a) { var s0 = AF.statusi(a); return s0 === 'skaduar' || s0 === 'afer'; }).sort(AF.krahaso).slice(0, 5);
+      var k2 = blKarta('Skadojnë së pari', 'Krejt', function () { shkoTe('afatet'); });
+      if (!lista.length) k2.appendChild(blEl('div', 'bl-bosh', 'Asnjë produkt që skadon së shpejti.'));
+      lista.forEach(function (a) {
+        var r = blEl('div', 'bl-rresht'), sk = AF.statusi(a) === 'skaduar';
+        r.appendChild(blEl('span', 'bl-pika ' + (sk ? 'bl-exp' : 'bl-near')));
+        var inf = blEl('div', 'bl-info'); inf.appendChild(blEl('b', null, a.emri || a.barkodi || ''));
+        var nen = [String(a.furnizuesi || '').trim(), AF.sasiaTekst(a)].filter(Boolean).join(' · ');
+        if (nen) inf.appendChild(blEl('small', null, nen));
+        r.appendChild(inf); r.appendChild(blEl('span', 'bl-dit ' + (sk ? 'bl-exp' : 'bl-near'), blDitet(a)));
+        k2.appendChild(r);
+      });
+      c.appendChild(k2);
+      var k3 = blKarta('Afatet në 6 muajt e ardhshëm', null, function () { shkoTe('afatet'); });
+      var v = +sot.slice(0, 4), m = +sot.slice(5, 7), muajt = [];
+      for (var i = 0; i < 6; i++) {
+        var mm = (m - 1 + i) % 12 + 1, vv = v + Math.floor((m - 1 + i) / 12), kk = vv + '-' + (mm < 10 ? '0' : '') + mm;
+        muajt.push({ e: AF.EMRAT_MUAJVE[mm - 1].slice(0, 3), n: te.filter(function (a) { return AF.statusi(a) !== 'hequr' && AF.celesiMuajit(a) === kk; }).length, ky: i === 0 });
+      }
+      var max = Math.max(1, Math.max.apply(null, muajt.map(function (q) { return q.n; })));
+      var g = blEl('div', 'bl-graf');
+      muajt.forEach(function (q) {
+        var d = blEl('div'); d.appendChild(blEl('b', null, String(q.n)));
+        var sh = blEl('i', q.n ? (q.ky ? 'ky' : '') : 'zero'); sh.style.height = Math.max(3, Math.round(90 * q.n / max)) + 'px'; d.appendChild(sh);
+        d.appendChild(blEl('span', null, q.e)); g.appendChild(d);
+      });
+      k3.appendChild(g); c.appendChild(k3);
+    }
+    if (meMall) {
+      var pr = Object.keys(produktet).map(function (x) { return produktet[x]; });
+      var sasia = pr.reduce(function (s0, p) { return s0 + (Number(p.sasia) || 0); }, 0);
+      var k4 = blKarta('Malli', 'Hape', function () { shkoTe('permbledhja'); });
+      k4.appendChild(blNumrat([[num(pr.length), 'Produkte'], [num(foldera.length), 'Folderat'], [num(sasia), 'Sasia']]));
+      c.appendChild(k4);
+    }
+    if (meAfate) {
+      var f = AF.furnizuesitELista(te.filter(function (a) { var s0 = AF.statusi(a); return s0 === 'skaduar' || s0 === 'afer'; }))
+        .filter(function (q) { return q.celes !== '__pa__'; }).sort(function (a, b) { return b.n - a.n; }).slice(0, 4);
+      var k5 = blKarta('Furnizuesit me më shumë produkte që skadojnë', null, function () { shkoTe('afatet'); });
+      if (!f.length) k5.appendChild(blEl('div', 'bl-bosh', 'Asnjë produkt që skadon me furnizues të shënuar.'));
+      var mx = Math.max(1, f.length ? f[0].n : 1);
+      f.forEach(function (q) {
+        var r = blEl('div', 'bl-furn'); r.appendChild(blEl('span', null, q.emri));
+        var vi = blEl('i'), u = blEl('u'); u.style.width = Math.round(100 * q.n / mx) + '%'; vi.appendChild(u); r.appendChild(vi);
+        r.appendChild(blEl('b', null, String(q.n))); k5.appendChild(r);
+      });
+      c.appendChild(k5);
+    }
+    if (meGrup) {
+      var n1 = ekK ? ekK.numriNjoftimeve() + ekK.numriKerkesave() : 0;
+      var k6 = blKarta('Grupi', 'Hape', function () { shkoTe('ekipi'); });
+      var t1 = blEl('div', 'bl-teksti');
+      if (n1) t1.appendChild(blEl('span', 'bl-shenje', n1 > 99 ? '99+' : String(n1)));
+      t1.appendChild(document.createTextNode(n1 === 0 ? 'Asnjë kërkesë e re' : n1 === 1 ? '1 kërkesë ose njoftim i ri' : n1 + ' kërkesa ose njoftime të reja'));
+      k6.appendChild(t1);
+      var on = $('ekNavOnline').textContent;
+      if (on) k6.appendChild(blEl('div', 'bl-nen', on));
+      c.appendChild(k6);
+    }
+    if (!c.children.length) c.appendChild(blEl('div', 'bl-bosh', 'S\'ka asgjë për të treguar këtu.'));
+  }
+  $('btnBallina').addEventListener('click', function () { shkoTe('ballina'); });
 
   // ================= Shiriti anësor =================
   var zvarritjaFolderit = null;
@@ -812,7 +913,7 @@
   // Pllaka mban mend faqen e fundit brenda saj; klikimi te pllaka aktive të kthen te faqja e saj kryesore.
   var MODULET = [['stoku', 'Stoku'], ['afatet', 'Afatet'], ['ekipi', 'Ekipi']];
   var faqjaEFunditEStokut = 'permbledhja';
-  function moduliIPamjes(p) { return p === 'afatet' ? 'afatet' : p === 'ekipi' ? 'ekipi' : 'stoku'; }
+  function moduliIPamjes(p) { return p === 'ballina' ? 'ballina' : p === 'afatet' ? 'afatet' : p === 'ekipi' ? 'ekipi' : 'stoku'; }
   function vendosPllakat() {
     var m = moduliIPamjes(pamja);
     if (m === 'stoku') faqjaEFunditEStokut = pamja;
@@ -851,6 +952,8 @@
 
   function renderAnesoren() {
     vendosPllakat();
+    $('btnBallina').classList.toggle('aktiv', pamja === 'ballina');
+    $('btnBallina').setAttribute('aria-current', pamja === 'ballina' ? 'page' : 'false');
     $('navPermbledhja').classList.toggle('aktiv', pamja === 'permbledhja');
     $('navTeGjitha').classList.toggle('aktiv', pamja === 'te-gjitha');
     Array.prototype.forEach.call(document.querySelectorAll('[data-ek]'), function (b) { b.classList.toggle('aktiv', pamja === 'ekipi' && b.dataset.ek === ekNen); });
@@ -3968,7 +4071,7 @@
     // Shkronjat e një barkodi të skaneri USB (vijnë shumë shpejt njëra pas tjetrës) s'janë shkurtore ("N", "M", "B"…)
     if (k.length === 1 && skanBuf.length >= 2 && performance.now() - skanKoha < 60) return;
 
-    var neTabele = pamja !== 'permbledhja' && pamja !== 'afatet' && pamja !== 'ekipi';
+    var neTabele = pamja !== 'ballina' && pamja !== 'permbledhja' && pamja !== 'afatet' && pamja !== 'ekipi';
     if (k === '/') { ev.preventDefault(); if (leja('stoku')) veproPasPak(function () { $('kerkoGlobal').focus(); }); return; }
     if (k === '?') { ev.preventDefault(); veproPasPak(function () { hapOpsionet('shkurtoret'); }); return; }
     if (pamja === 'ekipi') return;
@@ -6885,7 +6988,8 @@
   // Te tabela e produkteve rifreskohen vetëm qelizat e kohës (jo krejt 500 rreshtat); faqet e tjera rivizatohen
   setInterval(function () {
     if (document.hidden) return;
-    if (pamja !== 'permbledhja' && pamja !== 'afatet' && pamja !== 'ekipi') {
+    if (pamja === 'ballina') renderBallinen();
+    else if (pamja !== 'permbledhja' && pamja !== 'afatet' && pamja !== 'ekipi') {
       Array.prototype.forEach.call(document.querySelectorAll('#tabelaTrup td.k-koha[data-koha]'), function (td) {
         var t = kohaRelative(Number(td.dataset.koha) || 0);
         if (td.textContent !== t) td.textContent = t;
