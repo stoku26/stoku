@@ -93,9 +93,9 @@
 
   function opsionet(teksti, tag) {
     return {
-      body: teksti, tag: tag, badge: 'logo/badge-96.png?v=3', vibrate: [180, 80, 180], lang: 'sq',
+      body: teksti, tag: tag, icon: 'icon-192.png?v=5', badge: 'logo/badge-96.png?v=3', vibrate: [180, 80, 180], lang: 'sq',
       data: { url: URL_AFATET }, renotify: false
-      // v337 (pronari): pa 'icon' në telefon (në Android dilte edhe djathtas); majtas del vetë ikona e aplikacionit, edhe në iPhone
+      // v338 (pronari): me logon djathtas (pa të Samsung-u vë një "S" gri)
     };
   }
 

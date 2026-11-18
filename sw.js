@@ -10,10 +10,10 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v337';
+var CACHE = 'stoku-v338';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
-importScripts('./afatet.js?v=295', './njoftimet.js?v=314');
+importScripts('./afatet.js?v=295', './njoftimet.js?v=315');
 var CDN_BIBLIOTEKA = [
   'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js',
@@ -42,17 +42,17 @@ var SHELL = FAQET.concat([
   './ekipa.js?v=335',
   './porta.js?v=325',
   './vjeter.js?v=1',
-  './njoftimet.js?v=314',
+  './njoftimet.js?v=315',
   './temat.js?v=2',
   './logot.js?v=5',
-  './versioni.js?v=337',
-  './teRejat.js?v=337',
+  './versioni.js?v=338',
+  './teRejat.js?v=338',
   // v238: skriptat e faqeve (më parë brenda HTML-së; CSP pa 'unsafe-inline')
   './kornize.js?v=238',
   './es2020.js?v=238',
   './fillimi-tel.js?v=314',
   './fillimi-pc.js?v=314',
-  './app-tel.js?v=337',
+  './app-tel.js?v=338',
   './app-pc.js?v=335',
   './firebase-tel.js?v=320',
   './firebase-pc.js?v=320',
@@ -201,7 +201,8 @@ self.addEventListener('push', function (e) {
     body: d.teksti || '',
     tag: d.tag || 'stoku-push',
     renotify: true,
-    // v337 (pronari): pa 'icon' (në Android dilte edhe djathtas); majtas mbetet ikona e aplikacionit (edhe në iPhone)
+    // v338 (pronari): logoja djathtas mbetet; pa të Samsung-u vë një "S" gri (majtas e vendos vetë telefoni, s'hiqet)
+    icon: './icon-192.png?v=5',
     badge: './logo/badge-96.png?v=3',
     vibrate: [180, 80, 180],
     timestamp: d.koha || Date.now(),
