@@ -58,6 +58,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v334 / Android Hyrja 95 (18.11.2026): BALLINA E RE NË PC (ideja 2) + GRUPI PA DATË**. Pronari zgjodhi nga 5 ide "2" (përshëndetja +
+   fjalia e ditës + butonat + numrat lart, tabela e 14 ditëve), pastaj "2b" (Grupi te anësorja) dhe "2shin me grafikun" (djathtas poshtë grafiku i 6
+   muajve, jo Grupi/Malli). `renderBallinen()`: `.bl-hero` (Mirëmëngjes/Mirëdita/Mirëmbrëma + emri + data; fjalia nga skaduar/sot/nesër;
+   butonat sipas lejeve: Afat i ri `hapAfatinPc`, Lexo nga foto `#afBtnFoto`, Importo Excel `hapImportinEAfateve`, PDF `apHap`; 3 numra →
+   #/afatet), `.bl-rrjeti` (tabela `.bl-tabela` 10 rreshta skaduar/afër ≤ 14 ditë | Furnizuesit + grafiku). Pa leje afatesh: karta e Mallit.
+   Anësorja: `#blAnesore` (mbi `#akordStokuTrupi`) vetëm te Ballina me grup: "Grupi tani" (online së pari, `ekAvatar`, koha) + 3 ngjarjet e
+   fundit; `ekK.hap()` edhe te Ballina (s'mbyllet), `ekKurNdryshon` → `renderBallinenAnesore()`. Data mbi titull u hoq (`#blNen` hidden).
+   CSS `.bl-hero*`, `.bl-btn`, `.bl-tabela`, `.bl-an-*` (stoku-pc.css v52). Grupi te telefoni (pronari: "Hekja daten nalt, edhe balancoje
+   titullin njejten lartesi ... si malli, afatet edhe cilesimet"): web `#ekipiData` display none, koka 12px + 44px si `#dlgAfatet`, h2 26/700,
+   zilja 44 (stoku.css v76); Android `GrupiEkrani` pa `dataSot()`, titulli 26/700 në rresht min 44. Testi `teste/v334.js`.
 0000000. **v333 / Android Hyrja 94 (18.11.2026): "KREU" → "BALLINA" KUDO + KËRKIMI ME AFATET E KOLEGËVE**. Pronari: "Butoni posht ... me pas emrin
    Ballina amo ne web app tel edhe android app veq ikon e len ... Kreu shtepi shpia ja hek kto emra e len 100% Ballina" + "search bar ... me
    mujt me lyp ... krejt kolegt qe jan ne qat grup edhe mallin e tyne ... veq brenda grupit". (1) Riemërtim mekanik (skripti te scratchpad):

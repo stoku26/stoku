@@ -93,8 +93,6 @@ import kotlin.math.roundToInt
  */
 
 private val EK_MUAJT = listOf("JAN", "SHK", "MAR", "PRI", "MAJ", "QER", "KOR", "GUS", "SHT", "TET", "NËN", "DHJ")
-private val EK_DITET = listOf("E diel", "E hënë", "E martë", "E mërkurë", "E enjte", "E premte", "E shtunë")
-private val EK_MUAJT_PLOTE = listOf("janar", "shkurt", "mars", "prill", "maj", "qershor", "korrik", "gusht", "shtator", "tetor", "nëntor", "dhjetor")
 private val EK_NGJYRAT = listOf(0x1459B8, 0x8E3FB0, 0x0F7C7C, 0xB5542C, 0x5D6B2E, 0xAD1457, 0x37474F, 0x6D4C41)
 
 /** Ngjyra e avatarit sipas emrit (si ekNgjyra te web-i: i njëjti koleg ka të njëjtën ngjyrë kudo) */
@@ -105,7 +103,6 @@ fun ngjyraEEmrit(emri: String?): Color {
 }
 
 private fun shkronja(emri: String?): String = emri.orEmpty().take(1).uppercase().ifEmpty { "?" }
-private fun dataSot(): String { val d = LocalDate.now(); return EK_DITET[d.dayOfWeek.value % 7] + ", " + d.dayOfMonth + " " + EK_MUAJT_PLOTE[d.monthValue - 1] }
 private fun kurTekst(n: Int?): String = when {
     n == null -> ""
     n < -1 -> "para " + Afatet.ditetParaTekst(-n)
@@ -184,12 +181,10 @@ fun GrupiEkrani() {
     val nNj = remember(njoftimet, ngjF) { Grupi.numriNjoftimeve() }
 
     Column(Modifier.fillMaxSize()) {
-        // Koka: data (vetëm në faqen e parë), titulli dhe zilja
-        Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                if (pamja == "permbledhja") Text(dataSot(), style = tx(14, 500, n.muted))
-                Text(titulli, style = tx(28, 800, n.ink, -0.02), maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
+        // Hyrja 95 (pronari: "Hekja daten nalt, edhe balancoje titullin njejten lartesi ... si malli, afatet edhe cilesimet"):
+        // pa datë; titulli 26/700 në rreshtin 44 të lartë, si te Afatet
+        Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 14.dp).heightIn(min = 44.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(titulli, style = tx(26, 700, n.ink, -0.025), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
             Spacer(Modifier.width(12.dp))
             ButonIkone(Ik.Zile, "Njoftimet", { zilja = true }, shenja = if (nNj > 0) (if (nNj > 99) "99+" else nNj.toString()) else null)
         }

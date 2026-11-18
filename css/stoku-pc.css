@@ -707,3 +707,39 @@ html.sbp:not([data-tema="dark"]) .kpi.kpi-hero .kpi-nen { background: var(--sb-s
 .sbp .bl-shenje { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--sb-exp); color: #fff; font-size: 12px; font-weight: 700; display: inline-grid; place-items: center; }
 .sbp .bl-nen { margin-top: 6px; font-size: 12.5px; color: var(--sb-muted); }
 .sbp .bl-bosh { font-size: 13.5px; color: var(--sb-muted); padding: 4px 0; }
+
+/* v334: Ballina (ideja 2): lart përshëndetja + fjalia e ditës + butonat + numrat; poshtë tabela e 14 ditëve dhe (Furnizuesit, Grafiku) */
+.sbp .bl-hero { display: flex; align-items: center; gap: 32px; padding: 26px 30px; margin-bottom: 18px; border-radius: 20px; background: linear-gradient(120deg, var(--sb-surface), var(--sb-surface-2)); box-shadow: inset 0 0 0 1px var(--sb-line-2, rgba(127,127,127,.18)); }
+.sbp .bl-hero-majtas { flex: 1; min-width: 0; }
+.sbp .bl-pershendetja { font-size: 14px; color: var(--sb-muted); }
+.sbp .bl-fjalia { margin-top: 6px; font-size: 32px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; color: var(--sb-ink); }
+.sbp .bl-fjalia .bl-exp { color: var(--sb-exp); } .sbp .bl-fjalia .bl-near { color: var(--sb-near); } .sbp .bl-fjalia .bl-ok { color: var(--sb-ok); }
+.sbp .bl-butonat { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.sbp .bl-btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px; border: 0; border-radius: 12px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; background: var(--sb-surface-2); color: var(--sb-ink); box-shadow: inset 0 0 0 1px var(--sb-line-2, rgba(127,127,127,.18)); }
+.sbp .bl-btn:hover { filter: brightness(1.08); }
+.sbp .bl-btn.kryesor { background: var(--sb-accent); color: #fff; box-shadow: none; }
+.sbp .bl-btn:focus-visible { outline: 2px solid var(--sb-ring); outline-offset: 2px; }
+.sbp .bl-hero-numrat { display: flex; gap: 30px; flex: none; }
+.sbp .bl-hero-nr { display: flex; flex-direction: column; align-items: center; gap: 2px; border: 0; background: transparent; font: inherit; color: var(--sb-ink); cursor: pointer; padding: 4px; border-radius: 12px; }
+.sbp .bl-hero-nr b { font-size: 44px; font-weight: 800; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.sbp .bl-hero-nr span { font-size: 12.5px; color: var(--sb-muted); }
+.sbp .bl-hero-nr.bl-exp b { color: var(--sb-exp); } .sbp .bl-hero-nr.bl-near b { color: var(--sb-near); }
+.sbp .bl-rrjeti { display: grid; grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr); gap: 18px; align-items: start; }
+.sbp .bl-kolona { display: grid; gap: 18px; }
+.sbp .bl-tabela { width: 100%; border-collapse: collapse; font-size: 14px; }
+.sbp .bl-tabela th { text-align: left; font-size: 12px; font-weight: 600; color: var(--sb-muted); padding: 4px 8px 8px 0; }
+.sbp .bl-tabela td { padding: 10px 8px 10px 0; border-top: 1px solid var(--sb-line-2, rgba(127,127,127,.15)); color: var(--sb-muted); }
+.sbp .bl-tabela td.bl-emri { color: var(--sb-ink); font-weight: 600; }
+.sbp .bl-tabela td.bl-dit { font-weight: 700; white-space: nowrap; }
+.sbp .bl-tabela td.bl-exp { color: var(--sb-exp); } .sbp .bl-tabela td.bl-near { color: var(--sb-near); }
+@media (max-width: 1100px) { .sbp .bl-hero { flex-direction: column; align-items: flex-start; } .sbp .bl-rrjeti { grid-template-columns: 1fr; } }
+/* Anësorja te Ballina: Grupi tani + Aktiviteti i fundit */
+.sbp .bl-anesore { margin: 4px 0 0; padding: 0 2px; }
+.sbp .bl-an-titulli { display: flex; justify-content: space-between; margin: 14px 8px 6px; font: 600 11px var(--sb-mono, monospace); letter-spacing: .08em; text-transform: uppercase; color: var(--sb-muted); }
+.sbp .bl-an-rresht { display: flex; align-items: center; gap: 10px; width: 100%; padding: 7px 8px; border: 0; border-radius: 10px; background: transparent; font: inherit; font-size: 14px; color: var(--sb-ink); cursor: pointer; text-align: left; }
+.sbp .bl-an-rresht:hover, .sbp .bl-an-ngjarje:hover { background: var(--sb-surface); }
+.sbp .bl-an-rresht .ek-avatar { width: 28px; height: 28px; font-size: 12px; flex: none; }
+.sbp .bl-an-emri { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sbp .bl-an-rresht small { font-size: 12px; font-weight: 600; color: var(--sb-muted); white-space: nowrap; }
+.sbp .bl-an-rresht small.bl-ok { color: var(--sb-ok); }
+.sbp .bl-an-ngjarje { display: block; width: 100%; padding: 6px 8px; border: 0; border-radius: 10px; background: transparent; font: inherit; font-size: 12.5px; line-height: 1.45; color: var(--sb-muted); text-align: left; cursor: pointer; }

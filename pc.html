@@ -960,7 +960,7 @@
 <link rel="stylesheet" href="css/stoku-temat.css?v=2">
 <link rel="stylesheet" href="css/stoku-logot.css?v=2">
 <script src="logot.js?v=5"></script>
-<link rel="stylesheet" href="css/stoku-pc.css?v=51">
+<link rel="stylesheet" href="css/stoku-pc.css?v=52">
 </head>
 <body>
 <script src="es2020.js?v=238"></script>
@@ -993,6 +993,8 @@
       <button class="sbp-pllake" id="btnAkordAfatet" data-leja="afatet" type="button" role="tab" aria-selected="false" aria-controls="akordAfatetTrupi" title="Afatet e produkteve (datat e skadimit)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2.5"></rect><path d="M16 2v4M8 2v4M3 9.5h18"></path><path d="M12 13v3l2 1.2"></path></svg><b>Afatet</b><small id="pllAfatetNen"></small><span class="af-cip fleta" id="afPllFleta" title="Fletë afatesh nga telefoni që presin kontrollin"></span><span class="af-cip fleta" id="afPllSkedaret" title="Skedarë afatesh nga telefoni për t'i shkarkuar"></span></button>
       <button class="sbp-pllake" id="btnAkordEkipi" data-leja="grupi" type="button" role="tab" aria-selected="false" aria-controls="akordEkipiTrupi" title="Grupi: kolegët, afatet e grupit, aktiviteti"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><b>Grupi</b><small id="pllEkipiNen"></small><span class="af-cip kuqe" id="ekAkordShenja" title="Njoftime të palexuara"></span></button>
     </div>
+    <!-- v334: te Ballina, anësorja tregon kolegët e grupit dhe aktivitetin e fundit -->
+    <div class="bl-anesore" id="blAnesore" hidden></div>
     <div class="sbp-moduli" id="akordStokuTrupi" role="tabpanel" aria-labelledby="btnAkordStoku">
       <div class="sbp-moduli-brendia">
         <nav class="nav">
@@ -1095,10 +1097,10 @@
       <div class="faqe-krye">
         <div>
           <h1>Ballina</h1>
-          <div class="faqe-nen" id="blNen"></div>
+          <div class="faqe-nen" id="blNen" hidden></div>
         </div>
       </div>
-      <div class="bl-pjeset" id="blPjeset"></div>
+      <div class="bl-faqja" id="blPjeset"></div>
     </section>
     <section id="pamjaPermbledhja">
       <div class="faqe-krye">
@@ -2114,9 +2116,9 @@
 <script src="harta.js?v=281"></script>
 <script src="ekipa.js?v=320"></script>
 <script src="temat.js?v=2"></script>
-<script src="versioni.js?v=333"></script>
-<script src="teRejat.js?v=333"></script>
-<script src="app-pc.js?v=333"></script>
+<script src="versioni.js?v=334"></script>
+<script src="teRejat.js?v=334"></script>
+<script src="app-pc.js?v=334"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
 
