@@ -58,6 +58,8 @@ object EksportiFoto {
      * Skedari i fontit kopjohet një herë te cache/fontet (Builder-i do skedar); pa sukses: fonti i sistemit.
      */
     internal class Fontet(val ctx: Context) {
+        // R.font.* hapet si skedar i papërpunuar (punon); lint-i pret R.raw.* ("ResourceType"), prandaj heshtet këtu
+        @android.annotation.SuppressLint("ResourceType")
         fun merr(mono: Boolean, pesha: Int): Typeface = synchronized(KESH) {
             KESH.getOrPut((if (mono) "m" else "o") + pesha) {
                 try {

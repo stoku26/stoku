@@ -58,6 +58,17 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **Android Hyrja 90 + ora (18.11.2026): ANDROID 17 (API 37) PËR TELEFONIN, WEAR OS 6 (API 36) PËR ORËN**. Pronari: telefoni S24 Ultra
+   (One UI 9, Android 17), ora Galaxy Watch Ultra 2025 (One UI 8 Watch): "bone mat rivin". Shkaku: te leja "Nearby devices" Samsung-u
+   paralajmëronte "designed for an older version of Android" (targetSdk 34); Stoku s'përdor rrjetin lokal as Bluetooth (leja mund të ndalohet).
+   - `vendas`: compileSdk/targetSdk 37, **minSdk mbetet 26** (Android 8). `ora`: compileSdk 37, targetSdk 36, minSdk mbetet 30.
+   - Mjetet: AGP **9.5.0** (Kotlin i brendshëm: pa pluginin `org.jetbrains.kotlin.android`, pa `kotlinOptions`; jvmTarget nga
+     compileOptions 17), Kotlin/Compose plugin **2.4.10**, Gradle **9.6.0** te workflow-et (vendas-apk.yml, ora-apk.yml).
+   - Robolectric 4.13 s'e njeh API 37: `vendas/app/src/test/resources/robolectric.properties` → `sdk=34` (pamjet si më parë).
+   - Kontrolli i ndryshimeve të sjelljes (API 35-37): edge-to-edge (gati), "mbrapa" parashikues (BackHandler i Compose), rrjeti lokal
+     (s'përdoret), PendingIntent IMMUTABLE, pa shërbime në plan të parë, pa sensorë shëndeti, ekranet e mëdha (portreti i PDA-së injorohet
+     vetëm në sw≥600dp). Lint: pa gabime të reja; `ResourceType` te EksportiFoto (fontet si raw) u hesht me shpjegim.
+   - Ndërtimi, pamjet (Robolectric), lint-i: në rregull te GitHub Actions (telefoni + ora). **S'është testuar në telefon/orë të vërtetë.**
 0000000. **v328 (18.11.2026): RRETHI I SHTËPISË I PLOTË NË ÇDO TAB (web tel)**. Pronari (foto): "te tjerat tabs del ngjysm". Faqet e plota
    (Kreu, Afatet, Grupi, Cilësimet, z 21) mbulonin pjesën e `.tab-kreu-rreth` mbi shirit (#tabet z 19); te Malli (pa faqe) dilte mirë.
    `rifreskoTabet` vendos `body.tabet-siper` kur shiriti duket dhe s'ka dritare tjetër sipër (`dialogiISiperm()`), dhe atëherë
