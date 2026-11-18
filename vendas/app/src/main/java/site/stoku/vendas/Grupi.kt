@@ -47,6 +47,8 @@ object Grupi {
     val anetaret = MutableStateFlow<List<Obj>>(emptyList())
     /** uid → { emri, afatet }; null = ende pa përgjigje */
     val permbledhjet = MutableStateFlow<Map<String, Obj>?>(null)
+    /** Hyrja 96 (web v335): uid → { emri, p = [[barkodi, emri, sasia, furnizuesi, folderi]] }: malli i kolegëve për kërkimin te Ballina */
+    val malli = MutableStateFlow<Map<String, Obj>>(emptyMap())
     val ngjarjet = MutableStateFlow<List<Obj>>(emptyList())
     val ngjarjetGati = MutableStateFlow(false)
     val ftesatEMia = MutableStateFlow<List<Obj>>(emptyList())
@@ -98,6 +100,11 @@ object Grupi {
         scope.launch {
             combine(Dyqani.gjendja, gjendja) { g, gj -> Triple(g.afatet, g.marketet, gj.grupi.takeIf { gj.qasja == "anetar" }) }
                 .distinctUntilChanged().collect { (_, _, g) -> if (g != null) planifikoPublikimin() }
+        }
+        // Hyrja 96: malli im → kolegët e grupit (kërkimi te Ballina), me pak vonesë
+        scope.launch {
+            combine(Dyqani.gjendja, gjendja) { g, gj -> Triple(g.produktet, g.foldera, gj.grupi.takeIf { gj.qasja == "anetar" }) }
+                .distinctUntilChanged().collect { (_, _, g) -> if (g != null) planifikoMallin() }
         }
     }
 
@@ -182,7 +189,7 @@ object Grupi {
 
     private fun ndalGrupin() {
         degjuesitGrupit.forEach { it.remove() }; degjuesitGrupit.clear()
-        grupiDoc.value = null; anetaret.value = emptyList(); permbledhjet.value = null; ngjarjet.value = emptyList(); ngjarjetGati.value = false
+        grupiDoc.value = null; anetaret.value = emptyList(); permbledhjet.value = null; malli.value = emptyMap(); ngjarjet.value = emptyList(); ngjarjetGati.value = false
         ftesatEGrupit.value = emptyList(); kerkesatEGrupit.value = emptyList()
     }
 
@@ -207,6 +214,11 @@ object Grupi {
         degjuesitGrupit.add(ref.collection("afatet").addSnapshotListener { s, _ ->
             if (s == null || gNdjekur != g) return@addSnapshotListener
             permbledhjet.value = s.documents.associate { d -> val x = d.data ?: emptyMap(); d.id to obj("emri" to (x["emri"] ?: ""), "afatet" to (x["afatet"] as? List<*> ?: emptyList<Any>()), "ndryshuarSe" to (x["ndryshuarSe"] ?: 0L)) }
+        })
+        // Hyrja 96: malli i kolegëve (rregull i ri; pa të, dëgjuesi dështon në heshtje dhe kërkimi s'e tregon)
+        degjuesitGrupit.add(ref.collection("malli").addSnapshotListener { s, _ ->
+            if (s == null || gNdjekur != g) return@addSnapshotListener
+            malli.value = s.documents.associate { d -> val x = d.data ?: emptyMap(); d.id to obj("emri" to (x["emri"] ?: ""), "p" to (x["p"] as? List<*> ?: emptyList<Any>())) }
         })
         degjuesitGrupit.add(ref.collection("feed").orderBy("koha", Query.Direction.DESCENDING).limit(150).addSnapshotListener { s, _ ->
             if (s == null || gNdjekur != g) return@addSnapshotListener
@@ -288,6 +300,27 @@ object Grupi {
         db.collection("grupet").document(g).collection("afatet").document(u0)
             .set(mapOf("uid" to u0, "emri" to emri, "afatet" to p, "ndryshuarSe" to System.currentTimeMillis()))
             .addOnSuccessListener { StokuApp.vendosPref("grupi_publikuar", n) }
+    }
+
+    // ---------------- Hyrja 96: malli im për kolegët (grupet/{g}/malli/{uid}) ----------------
+    private var publikimiM: Job? = null
+    private fun planifikoMallin() {
+        publikimiM?.cancel()
+        publikimiM = scope.launch { delay(2500); publikoMallin() }
+    }
+    private fun publikoMallin() {
+        val u0 = uid ?: return; val g = grupi() ?: return
+        if (!Llogaria.leja("stoku")) return
+        val dq = Dyqani.g
+        val ef = dq.foldera.associate { (it["id"] as? String).orEmpty() to (it["emri"] as? String).orEmpty() }
+        val p = dq.produktet.values.take(8000).map { x ->
+            listOf(jsString(x["barkodi"] ?: ""), jsString(x["emri"] ?: ""), numerOse0(x["sasia"]).toLong(), jsString(x["furnizuesi"] ?: ""), ef[(x["kategoriaId"] as? String).orEmpty()].orEmpty())
+        }.sortedBy { it[0] as String }
+        val n = u0 + "|" + g + "|" + emri + "|" + Ruajtja.hash(Json.shkruaj(p)) + ":" + p.size
+        if (n == StokuApp.prefsOse("grupi_malli_publikuar", "")) return
+        db.collection("grupet").document(g).collection("malli").document(u0)
+            .set(mapOf("uid" to u0, "emri" to emri, "p" to p, "ndryshuarSe" to System.currentTimeMillis()))
+            .addOnSuccessListener { StokuApp.vendosPref("grupi_malli_publikuar", n) }
     }
 
     // ---------------- Aktiviteti ----------------
@@ -826,8 +859,9 @@ object Grupi {
                 } catch (e: Exception) { }
             }
             try { db.collection("grupet").document(g).collection("afatet").document(u0).delete().await() } catch (e: Exception) { }
+            try { db.collection("grupet").document(g).collection("malli").document(u0).delete().await() } catch (e: Exception) { }
             if (fshiGrupin) {
-                for (k in listOf("feed", "afatet", "push")) pastroKol(db.collection("grupet").document(g).collection(k))
+                for (k in listOf("feed", "afatet", "malli", "push")) pastroKol(db.collection("grupet").document(g).collection(k))
                 try { db.collection("ftesat").whereEqualTo("gid", g).get().await().documents.forEach { try { it.reference.delete().await() } catch (e: Exception) { } } } catch (e: Exception) { }
                 try { db.collection("kerkesat_grupi").whereEqualTo("gid", g).get().await().documents.forEach { try { it.reference.delete().await() } catch (e: Exception) { } } } catch (e: Exception) { }
                 try { db.collection("grupet").document(g).delete().await() } catch (e: Exception) { }
@@ -857,6 +891,7 @@ object Grupi {
         return try {
             db.collection("grupet").document(g).collection("anetaret").document(u).delete().await()
             try { db.collection("grupet").document(g).collection("afatet").document(u).delete().await() } catch (e: Exception) { }
+            try { db.collection("grupet").document(g).collection("malli").document(u).delete().await() } catch (e: Exception) { }
             null
         } catch (e: Exception) { gabimi(e) }
     }

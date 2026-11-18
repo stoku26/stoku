@@ -2675,6 +2675,8 @@
       if (versioniPara === __versioniLokal) zbatoBashkimin(rez.gjendja);
       else planifikoSinkronizimin();
       if (typeof ekK !== 'undefined' && ekK) ekK.publikoAfatet(MK.meEmra(afatet, marketet)); // kolegët i shohin afatet e mia (vetëm afatet), me emrin e marketit
+      // v335: kolegët e grupit e gjejnë mallin tim te kërkimi i Ballinës (barkodi, emri, sasia, furnizuesi, folderi)
+      if (typeof ekK !== 'undefined' && ekK && ekK.publikoMallin && leja('stoku')) ekK.publikoMallin(Object.keys(produktet).map(function (c) { return produktet[c]; }), foldera);
     }
     vendosStatusinCloud(rez.ok ? T('cloudStatusiUSink', { kur: oraTani() }) : T('cloudStatusiDeshtoi'));
     if (!rez.ok && /maximum|exceeds|too large/i.test(String(rez.arsye || ''))) {
@@ -4899,6 +4901,19 @@
         var a = y.a;
         return { e: a.emri || a.barkodi || '', s: [y.k.emri, a.barkodi, a.data ? AF.formato(a.data) + ' · ' + blDitet(a) : 'Pa datë'].filter(Boolean).join(' · '),
           hap: function () { kaloTab(function () { mbyllBallinen(); __malliZgjedhur = false; hapEkipiFaqe(); ekHapAnetarin(y.k.uid); }); } };
+      }) });
+    }
+    // v335 (pronari: "Po"): malli i kolegëve të grupit (barkodi, emri, sasia, furnizuesi, folderi), vetëm lexim
+    if (leja('grupi') && !ngaVizitori() && ekK && ekK.malliIKolegeve) {
+      var mK = [];
+      ekK.malliIKolegeve().forEach(function (x) {
+        (x.p || []).forEach(function (r) { if (ka(r[1]) || ka(r[0]) || ka(r[3])) mK.push({ r: r, k: x }); });
+      });
+      mK.sort(function (p, q) { return String(p.r[1]).localeCompare(String(q.r[1]), 'sq') || String(p.k.emri).localeCompare(String(q.k.emri), 'sq'); });
+      if (mK.length) gr.push({ t: 'Malli i kolegëve', ik: 'produkt', n: mK.length, r: mK.slice(0, MAX).map(function (y) {
+        var r = y.r;
+        return { e: r[1] || r[0], s: [y.k.emri, r[0], r[4], (r[2] | 0) + ' copë'].filter(Boolean).join(' · '),
+          hap: function () { kaloTab(function () { mbyllBallinen(); __malliZgjedhur = false; hapEkipiFaqe('anetaret'); }); } };
       }) });
     }
     if (leja('grupi') && !ngaVizitori()) {

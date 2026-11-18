@@ -849,8 +849,9 @@
         }
         await hiqPajisjenNgaGrupi();
         try { await fs.deleteDoc(fs.doc(db, 'grupet', g, 'afatet', uid())); } catch (e) { /* ok */ }
+        try { await fs.deleteDoc(fs.doc(db, 'grupet', g, 'malli', uid())); } catch (e) { /* ok: v335 */ }
         if (fshiGrupin) {
-          var kol = ['feed', 'afatet', 'push']; // kujtesa e produkteve mbetet (v198): s'fshihet me grupin
+          var kol = ['feed', 'afatet', 'malli', 'push']; // kujtesa e produkteve mbetet (v198): s'fshihet me grupin
           for (var i = 0; i < kol.length; i++) { try { await pastroKol(['grupet', g, kol[i]]); } catch (e) { /* ok */ } }
           await fshijFtesatEGrupit(g);
           await fshijKerkesatEGrupit(g);
@@ -1159,6 +1160,7 @@
         try {
           await fshijAnetaresine(grupi, u);
           try { await fs.deleteDoc(fs.doc(db, 'grupet', grupi, 'afatet', u)); } catch (e) { /* ok */ }
+          try { await fs.deleteDoc(fs.doc(db, 'grupet', grupi, 'malli', u)); } catch (e) { /* ok: v335 */ }
           try {
             var s = await fs.getDocs(fs.query(fs.collection(db, 'grupet', grupi, 'push'), fs.where('uid', '==', u)));
             var ids = []; s.forEach(function (d) { ids.push(d.id); });
@@ -1265,7 +1267,7 @@
           } catch (e) { mbetur++; }
         }
         if (gU) {
-          await fshij(fs.doc(db, 'grupet', gU, 'anetaret', u)); await fshij(fs.doc(db, 'grupet', gU, 'afatet', u));
+          await fshij(fs.doc(db, 'grupet', gU, 'anetaret', u)); await fshij(fs.doc(db, 'grupet', gU, 'afatet', u)); try { await fshij(fs.doc(db, 'grupet', gU, 'malli', u)); } catch (e) { /* ok: v335 */ }
           try {
             var sp = await fs.getDocs(fs.query(fs.collection(db, 'grupet', gU, 'push'), fs.where('uid', '==', u)));
             var pp = []; sp.forEach(function (d) { pp.push(d.id); });
@@ -1459,6 +1461,21 @@
           await fs.setDoc(fs.doc(db, 'grupet', grupi, 'afatet', uid()), { uid: uid(), emri: emri(), afatet: afatet, ndryshuarSe: Date.now() });
           return { ok: true };
         } catch (e) { return gabim(e); }
+      },
+      // ---------- v335: malli i secilit për kolegët (grupet/{g}/malli/{uid}: p = [[barkodi, emri, sasia, furnizuesi, folderi], ...]) ----------
+      publikoMallin: async function (p) {
+        if (!uid()) return { ok: false, arsye: 'pa-hyrje' };
+        if (!grupi) return { ok: false, arsye: 'pa-grup' };
+        try { await fs.setDoc(fs.doc(db, 'grupet', grupi, 'malli', uid()), { uid: uid(), emri: emri(), p: p, ndryshuarSe: Date.now() }); return { ok: true }; } catch (e) { return gabim(e); }
+      },
+      // { uid: { emri, p, ndryshuarSe } }, në kohë reale
+      degjoMallinEGrupit: function (cb, cbGabim) {
+        if (!grupi) return function () {};
+        return fs.onSnapshot(fs.collection(db, 'grupet', grupi, 'malli'), function (s) {
+          var m = {};
+          s.forEach(function (d) { var x = d.data() || {}; m[d.id] = { emri: x.emri || '', p: Array.isArray(x.p) ? x.p : [], ndryshuarSe: x.ndryshuarSe || 0 }; });
+          cb(m);
+        }, function (e) { if (cbGabim) cbGabim(e); });
       },
       // { uid: { emri, afatet, ndryshuarSe } }, në kohë reale
       degjoAfatetEEkipes: function (cb, cbGabim) {
@@ -2212,7 +2229,8 @@
   // }
   var KEY_NJOFTUAR = 'stoku:ekipa:njoftuar';
   var KEY_ANETARESIA = 'stoku:ekipa:anetaresia';  // { uid, gjendja, admin } — e fundit e ditur (hapje e shpejtë / pa internet)
-  var KEY_PUBLIKUAR = 'stoku:ekipa:publikuar';     // nënshkrimi i përmbledhjes së fundit të dërguar nga kjo pajisje
+  var KEY_PUBLIKUAR = 'stoku:ekipa:publikuar';
+  var KEY_PUBLIKUAR_MALLI = 'stoku:ekipa:publikuar-malli'; // v335: nënshkrimi i mallit të fundit të dërguar     // nënshkrimi i përmbledhjes së fundit të dërguar nga kjo pajisje
 
   function krijoKontrollues(o) {
     var gj = {
@@ -2236,6 +2254,7 @@
     var d = {};
     var rifreskimKohez = {}, afateTeReja = { n: 0, ngaFoto: false, kohez: null, ids: [] };
     var publikimi = { kohez: null, nenshkrimi: null, bllokuarDeri: 0, afatet: null };
+    var publikimiM = { kohez: null, nenshkrimi: null, bllokuarDeri: 0, p: null }; // v335: malli
     var migrimiNeRruge = false;
 
     function E() { var c = o.cloud && o.cloud(); return (c && c.ekipa) || null; }
@@ -3149,6 +3168,9 @@
         });
       }
       if (!e.degjoAfatetEEkipes) gj.permbledhjetGabim = true;
+      if (!d.malli && e.degjoMallinEGrupit && !gj.malliGabim) { // v335: malli i kolegëve (rregull i ri; pa të, s'del)
+        d.malli = e.degjoMallinEGrupit(function (m) { gj.malli = m; thirr('malli'); }, function () { gj.malliGabim = true; gj.malli = null; ndal('malli'); });
+      }
       ngarkoMungesat();
       if (!d.ngjarjet) {
         d.ngjarjet = e.degjoNgjarjet(function (lista) {
@@ -3167,7 +3189,7 @@
       }
       thirr('te-gjitha');
     }
-    function mbyllDegjuesitEFaqes() { ndal('anetaret'); ndal('ngjarjet'); ndal('permbledhjet'); ndal('ftesatEGrupit'); ndal('krejtLlogarite'); }
+    function mbyllDegjuesitEFaqes() { ndal('malli'); ndal('anetaret'); ndal('ngjarjet'); ndal('permbledhjet'); ndal('ftesatEGrupit'); ndal('krejtLlogarite'); }
     function mbyll() {
       gj.hapur = false;
       mbyllDegjuesitEFaqes();
@@ -3258,6 +3280,35 @@
       var r = await e.publikoAfatet(p);
       if (r && r.ok) { publikimi.nenshkrimi = n; shkruaj(KEY_PUBLIKUAR, n); }
       else if (r && r.leje) publikimi.bllokuarDeri = Date.now() + 10 * 60 * 1000; // rregullat e vjetra: mos provo pas çdo ndryshimi
+    }
+
+    // ---------- v335: malli im për kërkimin e kolegëve (grupet/{g}/malli/{uid}) ----------
+    // produktet: [{ barkodi, emri, sasia, furnizuesi, kategoriaId }], foldera: [{ id, emri }]. Dërgohet vetëm kur ndryshon.
+    function publikoMallin(produktet, foldera) {
+      if (!Array.isArray(produktet)) return;
+      var ef = {}; (foldera || []).forEach(function (f) { ef[f.id] = f.emri || ''; });
+      publikimiM.p = produktet.slice(0, 8000).map(function (x) {
+        return [String(x.barkodi || ''), String(x.emri || ''), Number(x.sasia) || 0, String(x.furnizuesi || ''), ef[x.kategoriaId] || ''];
+      }).sort(function (a, b) { return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0; });
+      clearTimeout(publikimiM.kohez);
+      publikimiM.kohez = setTimeout(publikoMallinTani, 2500);
+    }
+    async function publikoMallinTani() {
+      clearTimeout(publikimiM.kohez); publikimiM.kohez = null;
+      var e = E();
+      if (!e || !e.publikoMallin || !o.uidIm() || !publikimiM.p || !gj.grupi || Date.now() < publikimiM.bllokuarDeri) return;
+      var n = o.uidIm() + '|' + gj.grupi + '|' + (o.emriIm() || '') + '|' + nenshkrimi(publikimiM.p);
+      if (n === publikimiM.nenshkrimi || n === lexo(KEY_PUBLIKUAR_MALLI)) { publikimiM.nenshkrimi = n; return; }
+      var r = await e.publikoMallin(publikimiM.p);
+      if (r && r.ok) { publikimiM.nenshkrimi = n; shkruaj(KEY_PUBLIKUAR_MALLI, n); }
+      else if (r && r.leje) publikimiM.bllokuarDeri = Date.now() + 10 * 60 * 1000; // rregullat pa "malli" ende: mos provo pas çdo ndryshimi
+    }
+    // [{ uid, emri, p }] e kolegëve të grupit (pa mua), vetëm sa kohë dëgjuesit e grupit janë hapur
+    function malliIKolegeve() {
+      var uIm = o.uidIm(), an = {};
+      anetaretEDukshem().forEach(function (a) { an[a.uid] = a.emri; });
+      var m = gj.malli || {};
+      return Object.keys(m).filter(function (u) { return u !== uIm && an[u] !== undefined; }).map(function (u) { return { uid: u, emri: an[u] || m[u].emri, p: m[u].p }; });
     }
 
     // ---------- Heqja nga rafti ----------
@@ -3442,7 +3493,7 @@
       dergoAfatKolegut: dergoAfatKolegut, vendosPerAfatin: vendosPerAfatin, kontrolloDergimet: kontrolloDergimet, // v297
       kolegetPerAfat: kolegetPerAfat, ngarkoKoleget: nisAnetaret,
       ngjarje: ngjarje, afateTeReja: afateTeRejaU,
-      publikoAfatet: publikoAfatet,
+      publikoAfatet: publikoAfatet, publikoMallin: publikoMallin, malliIKolegeve: malliIKolegeve, // v335
       merrNjoftimet: merrNjoftimet, shenoNjoftimetTeLexuara: shenoNjoftimetTeLexuara, fshijNjoftimet: fshijNjoftimet,
       lexoFurnizuesitPublike: lexoFurnizuesitPublike, publikoFurnizuesit: publikoFurnizuesit,
       numriNjoftimeve: function () { return gj.njoftimetPalexuara.filter(function (n) { return !(n.lloji === 'kerkese-heqje' && kryeresiIKerkeses(n)); }).length; },

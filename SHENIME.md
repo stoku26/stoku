@@ -58,6 +58,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v335 / Android Hyrja 96 (18.11.2026): MALLI I KOLEGËVE TE KËRKIMI I BALLINËS (RREGULL I RI FIREBASE)**. Pronari: "Po" (pas pyetjes
+   se kolegët do t'i shohin sasitë e mallit të njëri-tjetrit). Koleksioni `grupet/{g}/malli/{uid}` = { uid, emri, p: [[barkodi, emri, sasia,
+   furnizuesi, folderi], ...] (≤ 8000, renditur sipas barkodit), ndryshuarSe }. Rregulli (blloku "## Rregullat e Firestore" + fs-server.js):
+   lexon grupi/admini; create/update vetëm vetë (`request.auth.uid == u && !uFshi(u) && anetarIGrupit(g)`, hasOnly 4 fushat, p ≤ 8000);
+   delete vetë/pronari i grupit/admini. Web (`ekipa.js`): `publikoMallin` (E) + kontrolluesi `publikoMallin(produktet, foldera)` me vonesë
+   2.5 s dhe nënshkrim (`stoku:ekipa:publikuar-malli`), thirret pas sinkronizimit (app-tel + app-pc, me lejen "stoku"); dëgjuesi `malli`
+   brenda `hap()` (gabim i rregullave → `malliGabim`, pa provë tjetër); `malliIKolegeve()` (pa mua, vetëm anëtarët e dukshëm). Fshirja: dalja
+   nga grupi, heqja e kolegut, fshirja e llogarisë dhe e grupit (`kol` + 'malli'). Kërkimi (web tel `blKerko`, Android `kerkoKudo`): grupi
+   "Malli i kolegëve" ("besa · barkodi · folderi · N copë"), prekja hap Grupi → Kolegët. Android `Grupi.kt`: `malli` (StateFlow), dëgjuesi
+   te `nisGrupin`, `publikoMallin()` (pref `grupi_malli_publikuar`). Testi `teste/v335.js`. Rregullat iu dërguan pronarit si skedar.
 0000000. **v334 / Android Hyrja 95 (18.11.2026): BALLINA E RE NË PC (ideja 2) + GRUPI PA DATË**. Pronari zgjodhi nga 5 ide "2" (përshëndetja +
    fjalia e ditës + butonat + numrat lart, tabela e 14 ditëve), pastaj "2b" (Grupi te anësorja) dhe "2shin me grafikun" (djathtas poshtë grafiku i 6
    muajve, jo Grupi/Malli). `renderBallinen()`: `.bl-hero` (Mirëmëngjes/Mirëdita/Mirëmbrëma + emri + data; fjalia nga skaduar/sot/nesër;
@@ -3879,6 +3889,14 @@ service cloud.firestore {
         allow read: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());
         allow write: if request.auth != null && ((request.auth.uid == u && !uFshi(u) && anetarIGrupit(g)) || eshteAdmin());
         allow delete: if request.auth != null && (request.auth.uid == u || pronarIGrupit(g));
+      }
+      // v335: malli i secilit (barkodi, emri, sasia, furnizuesi, folderi) për kërkimin te Ballina: e shkruan vetëm ai, e lexon grupi
+      match /malli/{u} {
+        allow read: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());
+        allow create, update: if request.auth != null && request.auth.uid == u && !uFshi(u) && anetarIGrupit(g)
+          && request.resource.data.keys().hasOnly(['uid', 'emri', 'p', 'ndryshuarSe'])
+          && request.resource.data.p is list && request.resource.data.p.size() <= 8000;
+        allow delete: if request.auth != null && (request.auth.uid == u || pronarIGrupit(g) || eshteAdmin());
       }
       match /feed/{id} {
         allow read: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());

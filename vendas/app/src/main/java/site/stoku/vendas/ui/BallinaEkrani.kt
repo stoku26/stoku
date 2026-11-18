@@ -561,6 +561,22 @@ fun kerkoKudo(q: String): List<GrupiIRezultateve> {
                 listOf(emriK, jsString(a["barkodi"] ?: ""), kur).filter { it.isNotEmpty() }.joinToString(" · "), Veprimi.Tabi("grupi"))
         }))
     }
+    // Hyrja 96 (web v335): malli i kolegëve të grupit (vetëm lexim; vetëm kolegët që janë ende në grup)
+    if (Llogaria.leja("grupi") && !Llogaria.eshteVizitor()) {
+        val uIm = Llogaria.perdoruesi.value?.uid
+        val emrat = Grupi.anetaret.value.associate { (it["uid"] as? String).orEmpty() to (it["emri"] as? String).orEmpty() }
+        val mK = ArrayList<Pair<List<*>, String>>()
+        Grupi.malli.value.forEach { (u, x) ->
+            if (u == uIm || u !in emrat) return@forEach
+            val emriK = emrat[u].orEmpty().ifEmpty { (x["emri"] as? String).orEmpty() }
+            (x["p"] as? List<*>)?.forEach { r -> val rr = r as? List<*> ?: return@forEach; if (ka(rr.getOrNull(1)) || ka(rr.getOrNull(0)) || ka(rr.getOrNull(3))) mK.add(rr to emriK) }
+        }
+        mK.sortWith(compareBy<Pair<List<*>, String>> { jsString(it.first.getOrNull(1) ?: "").lowercase() }.thenBy { it.second.lowercase() })
+        if (mK.isNotEmpty()) l.add(GrupiIRezultateve("Malli i kolegëve", Ik.Malli, "blu", mK.size, mK.take(MAX).map { (r, emriK) ->
+            val bk = jsString(r.getOrNull(0) ?: ""); val em = jsString(r.getOrNull(1) ?: "")
+            Rezultati(em.ifEmpty { bk }, listOf(emriK, bk, jsString(r.getOrNull(4) ?: ""), numerOse0(r.getOrNull(2)).toLong().toString() + " copë").filter { it.isNotEmpty() }.joinToString(" · "), Veprimi.Tabi("grupi"))
+        }))
+    }
     // Furnizuesit (nga afatet dhe malli)
     val furn = LinkedHashMap<String, Triple<String, Int, Int>>()
     fun shtoF(e: Any?, afat: Boolean) {

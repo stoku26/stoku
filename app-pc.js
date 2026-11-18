@@ -586,6 +586,8 @@
       } catch (e) { /* ok */ }
       vendosStatusin('ok');
       if (typeof ekK !== 'undefined' && ekK) ekK.publikoAfatet(MK.meEmra(afatet, marketet)); // kolegët i shohin afatet e mia (vetëm afatet), me emrin e marketit
+      // v335: kolegët e grupit e gjejnë mallin tim te kërkimi i Ballinës (barkodi, emri, sasia, furnizuesi, folderi)
+      if (typeof ekK !== 'undefined' && ekK && ekK.publikoMallin && leja('stoku')) ekK.publikoMallin(Object.keys(produktet).map(function (c) { return produktet[c]; }), foldera);
     } else {
       vendosStatusin(perdoruesi() ? 'gabim' : 'lokal');
       if (/maximum|exceeds|too large/i.test(String(rez.arsye || ''))) {

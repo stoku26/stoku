@@ -47,7 +47,7 @@ function krijoFirestore(opt = {}) {
       if (p.length === 2) return (eListe && (c || []).some(x => x.lloji === 'where' && x.op === '==' && x.f === 'pronarUid' && x.v === a.uid)) || anetar(a.uid, g) || eshteAdmin(a.uid);
       if (p[2] === 'anetaret') return (!eListe && a.uid === p[3]) || anetar(a.uid, g) || eshteAdmin(a.uid);
       if (p[2] === 'push') return anetar(a.uid, g) || eshteAdmin(a.uid);
-      if (!['afatet', 'feed', 'kujtesa'].includes(p[2])) return false; // v221: pa chat (vetëm nënkoleksionet e rregullave)
+      if (!['afatet', 'feed', 'kujtesa', 'malli'].includes(p[2])) return false; // v221: pa chat (vetëm nënkoleksionet e rregullave)
       return anetar(a.uid, g) || eshteAdmin(a.uid);
     }
     if (reja && p[0] === 'ftesat') {
@@ -126,6 +126,12 @@ function krijoFirestore(opt = {}) {
       if (k === 'afatet') {
         if (lloji === 'delete' && (pronar(a.uid, g) || a.uid === id)) return true;
         return adm || (a.uid === id && !fshire(id) && anetar(a.uid, g));
+      }
+      // v335: malli i secilit për kolegët e grupit (vetë e shkruan; e lexon grupi)
+      if (k === 'malli') {
+        if (lloji === 'delete') return a.uid === id || pronar(a.uid, g) || adm;
+        return a.uid === id && !fshire(id) && anetar(a.uid, g) && vetemKeto(Object.keys(iRi || {}), ['uid', 'emri', 'p', 'ndryshuarSe'])
+          && Array.isArray(iRi.p) && iRi.p.length <= 8000;
       }
       if (k === 'feed') {
         if (lloji === 'update') return false;

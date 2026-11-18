@@ -21,6 +21,13 @@
   'use strict';
 
   var LISTA = [
+    { v: 335, versioni: '1.73.0', data: '2026-11-18', titulli: 'Malli i kolegëve', platforma: 'tel', pikat: [
+      'Kërkimi te Ballina gjen edhe mallin e kolegëve të grupit tënd: emrin, barkodin, folderin dhe sasinë (vetëm brenda grupit).',
+      'Malli yt ndahet vetë me kolegët e grupit (vetëm për kërkim). Kur del nga grupi, hiqet.'
+    ] },
+    { v: 335, versioni: '1.73.0', data: '2026-11-18', titulli: 'Malli me grupin', platforma: 'pc', pikat: [
+      'Malli yt ndahet vetë me kolegët e grupit, që ta gjejnë te kërkimi i Ballinës në telefon. Kur del nga grupi, hiqet.'
+    ] },
     { v: 334, versioni: '1.72.0', data: '2026-11-18', titulli: 'Ballina e re', platforma: 'pc', pikat: [
       'Ballina ka pamje të re: lart përshëndetja dhe fjalia e ditës ("1 produkt skadon sot, 2 nesër"), butonat Afat i ri, Lexo nga foto, Importo Excel, PDF për printim dhe numrat kryesorë.',
       'Poshtë është tabela e afateve të 14 ditëve të ardhshme, djathtas furnizuesit dhe grafiku i 6 muajve.',
