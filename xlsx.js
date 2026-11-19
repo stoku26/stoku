@@ -447,6 +447,9 @@
     return { emrat: Object.keys(hyrjet), lexo: lexo };
   }
 
+  // v342: kufijtë e leximit (importi s'ka nevojë për më shumë; Xlsx.kt i ka të njëjtët)
+  var KOL_MAKS = 200, RRESHT_MAKS = 100000;
+
   function kolonaNgaRef(ref) {
     var m = /^([A-Z]+)/.exec(ref || '');
     if (!m) return -1;
@@ -506,6 +509,7 @@
           var cel = cs[c];
           var kol = kolonaNgaRef(cel.getAttribute('r'));
           if (kol < 0) kol = rresht.length;
+          if (kol >= KOL_MAKS) continue; // v342: qelizë shumë larg djathtas (p.sh. XFD): s'ka kuptim për importin, përndryshe krijonte mijëra qeliza bosh
           var t = cel.getAttribute('t');
           var vEl = cel.getElementsByTagNameNS('*', 'v')[0];
           var v = vEl ? vEl.textContent : '';
@@ -521,6 +525,7 @@
         // Rreshtat bosh (vetëm formatim, shpesh me numër shumë të madh p.sh. 1048576) anashkalohen —
         // përndryshe lista mbushej me qindra-mijëra rreshta bosh dhe importi ngrinte.
         if (!rresht.some(function (x) { return x !== '' && x !== null; })) continue;
+        if (idx >= RRESHT_MAKS) continue; // v342: rresht shumë poshtë (p.sh. 1048576): përndryshe lista mbushej me qindra-mijëra rreshta bosh
         rreshtat[idx] = rresht;
       }
       for (var w = 0; w < rreshtat.length; w++) if (!rreshtat[w]) rreshtat[w] = [];

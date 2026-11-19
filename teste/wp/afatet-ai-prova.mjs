@@ -14,10 +14,10 @@ const tokeni = (uid, email, ndrysho) => {
   return k + '.' + t + '.' + b64u(crypto.sign('RSA-SHA256', Buffer.from(k + '.' + t), privateKey));
 };
 const lejet = { uN: { afatetAI: false }, uS: { stokuImporto: true, stoku: false }, uP: { afatet: false } };
-let thirrjetAI = 0, aiDeshton = false;
+let thirrjetAI = 0, aiDeshton = false, shkarkimeJwk = 0, jwkLista = [jwk];
 globalThis.fetch = async (url, opt = {}) => {
   url = String(url);
-  if (url.startsWith('https://www.googleapis.com/service_accounts/')) return new Response(JSON.stringify({ keys: [jwk] }));
+  if (url.startsWith('https://www.googleapis.com/service_accounts/')) { shkarkimeJwk++; return new Response(JSON.stringify({ keys: jwkLista })); }
   const m = url.match(/documents\/lejet\/([^/?]+)$/);
   if (m) {
     const u = decodeURIComponent(m[1]);
@@ -43,7 +43,7 @@ const lexo = async (tok, e = env, trup = {}) => {
 };
 // 0. shëndeti
 let r0 = await (await worker.fetch(new Request('https://w.test/', { headers: { Origin: 'https://stoku.site' } }), env)).json();
-ok(r0.versioni === 3 && r0.kufiri === 10 && r0.ofruesit.join() === 'gemini', '0. GET: versioni 3, kufiri 10', r0);
+ok(r0.versioni === 4 && r0.kufiri === 10 && r0.ofruesit.join() === 'gemini', '0. GET: versioni 4, kufiri 10', r0);
 r0 = await (await worker.fetch(new Request('https://w.test/', { headers: { Origin: 'https://stoku.site' } }), { GEMINI_API_KEY: 'x', KUFIRI_DITOR: '3', KUFIRI: env.KUFIRI })).json();
 ok(r0.kufiri === 3, '0. KUFIRI_DITOR ndryshon kufirin', r0.kufiri);
 // 1. pa hyrje / token i falsifikuar
@@ -84,5 +84,24 @@ aiDeshton = false;
 const pa = { GEMINI_API_KEY: 'x' };
 let n7 = 0; for (let i = 0; i < 12; i++) { [st, j] = await lexo(t1, pa); if (st === 200) n7++; }
 ok(n7 === 12, '7. pa KV (KUFIRI): pa kufi, si më parë', n7);
+// 8. v4: Google ndërron çelësat: një çelës i ri (kid i panjohur) i rishkarkon menjëherë, jo pas një ore (por jo më shpesh se 1 herë në minutë)
+const k2 = crypto.generateKeyPairSync('rsa', { modulusLength: 2048 });
+const jwk2 = Object.assign(k2.publicKey.export({ format: 'jwk' }), { kid: 'k2', alg: 'RS256', use: 'sig' });
+const tokeniK2 = (uid) => {
+  const tani = Math.floor(Date.now() / 1000);
+  const k = b64u(JSON.stringify({ alg: 'RS256', kid: 'k2', typ: 'JWT' }));
+  const t = b64u(JSON.stringify({ iss: 'https://securetoken.google.com/stoku-appi', aud: 'stoku-appi', sub: uid, user_id: uid, iat: tani, exp: tani + 3600 }));
+  return k + '.' + t + '.' + b64u(crypto.sign('RSA-SHA256', Buffer.from(k + '.' + t), k2.privateKey));
+};
+const nowReal = Date.now; Date.now = () => nowReal() + 5 * 60 * 1000; // 5 min më vonë (çelësat e vjetër ende "të freskët": 1 orë)
+jwkLista = [jwk, jwk2];
+let sh0 = shkarkimeJwk;
+[st, j] = await lexo(tokeniK2('uK2'), pa);
+ok(st === 200 && shkarkimeJwk === sh0 + 1, '8. çelës i ri i Google-it: rishkarkohet menjëherë dhe leximi punon', [st, shkarkimeJwk - sh0]);
+sh0 = shkarkimeJwk;
+for (let i = 0; i < 3; i++) [st, j] = await lexo(tokeniK2('uK2').replace('.', '.') .replace(/^[^.]+/, b64u(JSON.stringify({ alg: 'RS256', kid: 'kX', typ: 'JWT' }))), pa);
+ok(st === 401 && shkarkimeJwk === sh0, '8. kid i rremë: s\'e rishkarkon sërish brenda minutës', [st, shkarkimeJwk - sh0]);
+[st, j] = await lexo(t1, pa); ok(st === 200, '8. çelësi i vjetër punon ende', st);
+Date.now = nowReal;
 console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');
 process.exit(g ? 1 : 0);

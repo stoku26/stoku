@@ -10,6 +10,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(101, "2026-11-19", "Importi nga Excel", listOf(
+            "Excel-ët me shkrime shumë larg djathtas ose shumë poshtë në fletë importohen pa e ngadalësuar aplikacionin."
+        )),
         Hyrja(100, "2026-11-19", "Grupi", listOf(
             "Kur një koleg hiqet nga grupi ose llogaria e tij fshihet, hiqen menjëherë edhe pajisjet e tij nga njoftimet e grupit dhe malli i tij."
         )),

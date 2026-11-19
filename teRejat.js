@@ -21,6 +21,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 342, versioni: '1.73.7', data: '2026-11-19', titulli: 'Importi nga Excel', pikat: [
+      'Excel-ët me shkrime shumë larg djathtas ose shumë poshtë në fletë importohen pa e ngadalësuar aplikacionin.'
+    ] },
     { v: 341, versioni: '1.73.6', data: '2026-11-19', titulli: 'Rregullime', platforma: 'tel', pikat: [
       'Versioni i ri i aplikacionit ngarkohet vetë edhe kur je te Ballina (më parë duhej ta mbyllje e ta hapje aplikacionin).',
       'Kur kthehet interneti, aplikacioni lidhet sërish vetë edhe nga Ballina.'

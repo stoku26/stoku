@@ -59,7 +59,7 @@ const ADM = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
   ok(/collection\("push"\)\.whereEqualTo\("uid", u\)/.test(gk), '3. Android: heqja nga grupi fshin pajisjet push të kolegut');
   ok(/g\.collection\("malli"\)\.document\(u\)\.delete\(\)/.test(ak), '3. Android: fshirja e llogarisë fshin edhe mallin e grupit');
   ok(/Hyrja\(100, "2026-11-19"/.test(lx(K + 'TeRejat.kt')), '0. TeRejat.kt: Hyrja 100');
-  ok(/v: 341/.test(lx('versioni.js')) && /stoku-v341/.test(lx('sw.js')), '0. versioni 341');
+  ok(+(/v: (\d+)/.exec(lx('versioni.js')) || [])[1] >= 341 && +(/stoku-v(\d+)/.exec(lx('sw.js')) || [])[1] >= 341, '0. versioni 341 ose më i ri');
   console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');
   process.exit(g ? 1 : 0);
 })();

@@ -413,6 +413,9 @@ object Xlsx {
     }
     private fun Element.atr(emri: String): String? = if (hasAttribute(emri)) getAttribute(emri) else null
 
+    private const val KOL_MAKS = 200
+    private const val RRESHT_MAKS = 100000
+
     private fun kolonaNgaRef(ref: String?): Int {
         val m = Regex("^([A-Z]+)").find(ref ?: "") ?: return -1
         var n = 0
@@ -465,13 +468,14 @@ object Xlsx {
                         "b" -> v == "1"
                         else -> if (v == "") "" else jsNumber(v)
                     }
-                    if (kol > 20000) return@forEach // qelizë e çuditshme (XFD...): s'ka kuptim për importin
+                    if (kol >= KOL_MAKS) return@forEach // qelizë shumë larg djathtas (XFD...): s'ka kuptim për importin (si xlsx.js v342)
                     while (rresht.size <= kol) rresht.add(null)
                     rresht[kol] = vlera
                 }
                 for (q in rresht.indices) if (rresht[q] == null) rresht[q] = ""
                 if (rresht.none { it != "" && it != null }) return@forEach
                 if (idx < 0) return@forEach // si rreshtat[-1] te JavaScript-i: s'hyn në listë
+                if (idx >= RRESHT_MAKS) return@forEach // rresht shumë poshtë (p.sh. 1048576): pa qindra-mijëra rreshta bosh (si xlsx.js v342)
                 rreshtat[idx] = rresht
                 if (idx + 1 > gjatesia) gjatesia = idx + 1
             }
