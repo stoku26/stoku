@@ -21,7 +21,7 @@ async function pushMe(ua) {
   ok(/icon: 'icon-192\.png\?v=5'/.test(op), '2. njoftimet.js (njoftimet ditore): me logon');
   const sn = at.slice(at.indexOf('reg.showNotification(nj.titulli'), at.indexOf('reg.showNotification(nj.titulli') + 300);
   ok(/icon: '\.\/icon-192\.png\?v=5'/.test(sn), '2. app-tel.js: njoftimi me logon');
-  ok(/v: 338/.test(lx('versioni.js')) && !/v: 337/.test(lx('teRejat.js')), '0. versioni 338; pa hyrjen e v337 te teRejat');
+  ok(+(/v: (\d+)/.exec(lx('versioni.js')) || [])[1] >= 338 && !/v: 337,/.test(lx('teRejat.js')), '0. versioni ≥ 338; pa hyrjen e v337 te teRejat');
   console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');
   process.exit(g ? 1 : 0);
 })();
