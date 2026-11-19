@@ -66,6 +66,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      (`trajtoFshirjenEAdminit`): vetëm me biletë të verifikuar të ADMIN_UID; administratori vetë s'fshihet. Thirret nga `ekipa.js`
      (`fshijLlogarine`, brenda try: Worker-i i vjetër s'e ka rrugën) dhe `Admini.kt` (`Push.fshiLlogarineTeServeri`).
      **PRONARI duhet ta vendosë `worker/stoku-push.js` (v174) te Cloudflare**; derisa ta vendosë, fshirja punon si më parë.
+     `VERSIONI_WORKER` 174 te ekipa.js dhe Push.kt: derisa të vendoset, Njoftimet tregojnë "Serveri ka kodin e vjetër".
    - Android: `remember` për llogaritjet e rënda (Malli: zero/sotN/tefundit, edhe gjatë zvarritjes së dosjeve; Afatet: lista, muajt,
      numrat; Grupi Përmbledhja: skaduara/javes); `Emrat.harta()` ruhet derisa ndryshojnë burimet (identiteti i listave) ose emrat
      (numëruesi `ndryshime`). "Lejo njoftimet në telefon" (Grupi → Njoftimet) para Android 13 hap cilësimet e njoftimeve.
