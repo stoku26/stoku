@@ -42,6 +42,8 @@
  *   GET    /foto/{uid}?v=koha           → vetë fotoja (publike, me cache të gjatë)
  *   Tokeni verifikohet me çelësat publikë të Google-it (nënshkrimi RS256), pa lexuar databazën e Firebase-it.
  *
+ * Fshirja e llogarisë (v174): POST /admin/fshi { uid } (vetëm administratori) heq edhe të dhënat e saj te KV (foto, orari, ora).
+ *
  * Pa varësi të jashtme: vetëm WebCrypto e Cloudflare-it.
  */
 
@@ -50,7 +52,7 @@ const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databa
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
 const PUSH_MAKS = 36;
-const VERSIONI_WORKER = 173; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 174; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 const W = {
@@ -77,6 +79,7 @@ const W = {
     if (rrugaF === '/orari' && req.method === 'POST') return meKap(trajtoOrarin(req, env, pergjigju));
     if (rrugaF.indexOf('/ora/') === 0) return meKap(trajtoOren(req, env, rrugaF, pergjigju));
     if (rrugaF.indexOf('/fjalekalimi/') === 0) return meKap(trajtoFjalekalimin(req, env, rrugaF, pergjigju));
+    if (rrugaF === '/admin/fshi') return meKap(trajtoFshirjenEAdminit(req, env, pergjigju)); // v174
     if (req.method !== 'POST') {
       // Kontrolli i shëndetit: a janë çelësat, KV-ja, versioni i kodit dhe kur punoi Cron-i së fundi (njoftimi ditor)
       const c = env.FOTO ? await lexoCronin(env) : {};
@@ -937,6 +940,46 @@ async function listoIdte(token, koleksioni) {
 }
 async function fshiDoc(rruga, token) {
   try { await fetch(FS + '/' + rruga, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } }); } catch (e) { /* ok */ }
+}
+
+// ---------------- v174 (web v344): fshirja e llogarisë nga administratori: edhe të dhënat te KV ----------------
+// Pas fshirjes së llogarisë (Firestore, nga aplikacioni i administratorit) këtu hiqen: fotoja e profilit (publike sipas uid-së),
+// njoftimi ditor i pajisjeve të saj (orari:{uid}:*), kopja e afateve (orari-afatet), orët e lidhura (ora-ka, ora-tok: ora s'e sheh
+// më llogarinë), heqjet e orës në pritje dhe afatet për kolegët që presin kthimin. Vetëm administratori (uid-ja e tij, token i verifikuar).
+async function trajtoFshirjenEAdminit(req, env, pergjigju) {
+  if (req.method !== 'POST') return pergjigju({ ok: false, arsye: 'metoda' }, 405);
+  if (!env.FOTO) return pergjigju({ ok: false, arsye: 'mungon-kv' }, 500);
+  const admini = await verifikoTokenin((req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, ''));
+  if (admini !== ADMIN_UID) return pergjigju({ ok: false, arsye: 'leje' }, 403);
+  let t = {};
+  try { t = await req.json(); } catch (e) { return pergjigju({ ok: false, arsye: 'json' }, 400); }
+  const u = String(t.uid || '');
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(u) || u === ADMIN_UID) return pergjigju({ ok: false, arsye: 'uid' }, 400);
+  const n = { foto: 0, orare: 0, ore: 0, kolegu: 0 };
+  // Fotoja
+  if (await env.FOTO.get('foto:' + u, 'arrayBuffer')) { await env.FOTO.delete('foto:' + u); n.foto = 1; }
+  const indF = await lexoIndeksin(env);
+  if (u in indF) { delete indF[u]; await env.FOTO.put('indeksi', JSON.stringify(indF)); n.foto = 1; }
+  // Njoftimi ditor
+  const indO = await lexoIndeksinEOrareve(env);
+  const oraret = Object.keys(indO).filter(k => k.indexOf('orari:' + u + ':') === 0);
+  for (const k of oraret) { await env.FOTO.delete(k); delete indO[k]; n.orare++; }
+  if (oraret.length) await env.FOTO.put('orari-indeksi', JSON.stringify(indO));
+  await env.FOTO.delete('orari-afatet:' + u);
+  // Ora e dorës
+  const ka = await env.FOTO.get('ora-ka:' + u);
+  for (const h of (ka && ka !== '1' ? oretELidhura(ka) : [])) {
+    const tk = await env.FOTO.get('ora-tok:' + h, 'json');
+    if (tk && tk.uid === u) { await env.FOTO.delete('ora-tok:' + h); n.ore++; }
+  }
+  await env.FOTO.delete('ora-ka:' + u);
+  await env.FOTO.delete('ora-hequr:' + u);
+  // Afatet për kolegët (v169) ku kjo llogari është dërguesi ose marrësi
+  const indK = await lexoAfatetEKolegeve(env);
+  const kk = Object.keys(indK).filter(id => indK[id] && (indK[id].uid === u || indK[id].per === u));
+  for (const id of kk) { delete indK[id]; n.kolegu++; }
+  if (kk.length) await env.FOTO.put('afat-kolegu', JSON.stringify(indK));
+  return pergjigju(Object.assign({ ok: true }, n));
 }
 
 // ---------------- Fjalëkalimi i harruar (v163) ----------------

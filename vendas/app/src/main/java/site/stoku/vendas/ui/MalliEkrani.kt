@@ -154,8 +154,11 @@ private fun FaqjaEMallit(hapFolderin: (String?) -> Unit, hapProduktin: (String, 
     val te = remember(g.produktet) { g.produktet.values.toList() }
     val nrNeFolder = remember(g.produktet) { g.produktet.values.groupingBy { it["kategoriaId"] }.eachCount() }
     val sot = Calendar.getInstance().apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }.timeInMillis
-    val zero = te.count { sasiaE(it) <= 0 }
-    val sotN = te.count { ((it["prekurSe"] as? Number)?.toLong() ?: 0L) >= sot }
+    // Hyrja 102: numërohen vetëm kur ndryshojnë produktet (më parë në çdo rivizatim, edhe gjatë zvarritjes së dosjeve)
+    val zero = remember(te) { te.count { sasiaE(it) <= 0 } }
+    val sotN = remember(te, sot) { te.count { ((it["prekurSe"] as? Number)?.toLong() ?: 0L) >= sot } }
+    val tefundit = remember(te) { te.filter { (it["prekurSe"] as? Number)?.toLong()?.let { t -> t > 0 } == true }
+        .sortedByDescending { (it["prekurSe"] as Number).toLong() }.take(5) }
     val aktiviM by site.stoku.vendas.Merchandiseri.aktivi.collectAsState()
     val nAf = remember(g, aktiviM, lejet) { Afatet.numero(site.stoku.vendas.Merchandiseri.afatetEMarketit(g.afatet)) }
     val skaduara = nAf.skaduar + nAf.paDate
@@ -257,8 +260,6 @@ private fun FaqjaEMallit(hapFolderin: (String?) -> Unit, hapProduktin: (String, 
                 repeat(3 - rreshtat[i].size) { Spacer(Modifier.weight(1f)) }
             }
         }
-        val tefundit = te.filter { (it["prekurSe"] as? Number)?.toLong()?.let { t -> t > 0 } == true }
-            .sortedByDescending { (it["prekurSe"] as Number).toLong() }.take(5)
         if (tefundit.isNotEmpty()) item {
             Hapesire(14.dp)
             TitulliISeksionit("Ndryshuar së fundi")

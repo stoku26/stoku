@@ -10,6 +10,11 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(102, "2026-11-19", "Rregullime", listOf(
+            "Faqet Malli, Afatet dhe Grupi punojnë më lehtë me shumë produkte (llogaritjet s'përsëriten më pa nevojë).",
+            "Në Android 12 e më të vjetër, \"Lejo njoftimet në telefon\" i hap cilësimet e njoftimeve të Stoku-t.",
+            "Kur administratori fshin një llogari, fshihen edhe fotoja, njoftimi ditor dhe lidhja me orën te serveri i njoftimeve."
+        )),
         Hyrja(101, "2026-11-19", "Importi nga Excel", listOf(
             "Excel-ët me shkrime shumë larg djathtas ose shumë poshtë në fletë importohen pa e ngadalësuar aplikacionin."
         )),

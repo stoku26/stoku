@@ -14,7 +14,7 @@ const B = 'http://127.0.0.1:8765', PUSH = 'https://stoku-push.mendurb.workers.de
   ok(/put\("model", modeli\(ctx\)\)/.test(api) && /&v=\$\{versioni\(ctx\)\}&m=/.test(api) && /remove\("lista"\)\.remove\("krejt"\)/.test(api), '0. ora: modeli + versioni te serveri; 401 fshin edhe listën e plotë');
   ok(/fun OraELidhurKarta/.test(lx('vendas/app/src/main/java/site/stoku/vendas/ui/NjoftimetUI.kt')) && /suspend fun oretELidhura/.test(lx('vendas/app/src/main/java/site/stoku/vendas/Push.kt')) &&
     /Push\.oretELidhura\(\)/.test(lx('vendas/app/src/main/java/site/stoku/vendas/Llogaria.kt')), '0. Android: karta e orës, shkëputja, emri i ri pas ndryshimit');
-  ok(/VERSIONI_WORKER = 173/.test(lx('worker/stoku-push.js')) && /'\/ora\/oret'/.test(lx('worker/stoku-push.js')) && /VERSIONI_WORKER: 173/.test(lx('ekipa.js')), '0. Worker 173 + ekipa.js');
+  ok(+/VERSIONI_WORKER = (\d+)/.exec(lx('worker/stoku-push.js'))[1] >= 173 && /'\/ora\/oret'/.test(lx('worker/stoku-push.js')) && +/VERSIONI_WORKER: (\d+)/.exec(lx('ekipa.js'))[1] >= 173, '0. Worker ≥ 173 + ekipa.js');
 
   const F = krijoFirestore({ rregullat: 'reja' });
   F.S.docs.set('perdoruesit/uA', { perdoruesi: 'duli96', kycurSe: Date.now() });

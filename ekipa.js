@@ -1318,6 +1318,8 @@
           var kk = []; sk.forEach(function (d) { kk.push(d.id); });
           for (var q = 0; q < kk.length; q++) await fshij(fs.doc(db, 'kerkesat_grupi', kk[q]));
         } catch (e) { /* ok */ }
+        // v344 (Worker 174): edhe te serveri i njoftimeve: fotoja e profilit, njoftimi ditor, ora e lidhur (Worker-i i vjetër: s'ka këtë rrugë)
+        try { await thirrPush('/admin/fshi', { uid: u }); } catch (e) { /* pa internet / Worker i vjetër */ }
         return { ok: true, mbetur: mbetur };
       },
       // Kjo llogari u fshi nga administratori? cb() thirret sapo shënimi ekziston (edhe kur je duke punuar)
@@ -1503,7 +1505,7 @@
       aktivizoPush: aktivizoPush,
       caktivizoPush: caktivizoPush, pastroOrarinEJetim: pastroOrarinEJetim, lejoPushinEGrupit: lejoPushinEGrupit,
       pushAktiv: pushAktiv, pushPerNjoftimet: pushPerNjoftimet,
-      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, oretELidhura: oretELidhura, shkeputOrenNgaTel: shkeputOrenNgaTel, emriTeOret: emriTeOret, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 173,
+      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, oretELidhura: oretELidhura, shkeputOrenNgaTel: shkeputOrenNgaTel, emriTeOret: emriTeOret, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 174,
 
       // ---------- Kujtesa e produkteve e grupit (v197): grupet/{g}/kujtesa/{p0..p9, px} → { p: { barkodi: {e,f,k,a,m,x} } } ----------
       // E ndarë sipas shifrës së fundit të barkodit (çdo dokument ≤ 1 MB), që të nxërë dhjetëra mijëra produkte.

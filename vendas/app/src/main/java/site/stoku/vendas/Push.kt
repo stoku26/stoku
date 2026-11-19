@@ -39,7 +39,7 @@ import java.util.TimeZone
  */
 object Push {
     const val URL_PUSH = "https://stoku-push.mendurb.workers.dev"
-    const val VERSIONI_WORKER = 173 // Hyrja 78: /ora/oret, /ora/shkeput-tel, /ora/emri (Worker 173); Hyrja 68: njoftimi ditor me të skaduarat (Worker 172); 171: /grupi (ftesat/kërkesat si push)
+    const val VERSIONI_WORKER = 174 // Hyrja 102: /admin/fshi (Worker 174); Hyrja 78: /ora/oret, /ora/shkeput-tel, /ora/emri (Worker 173); Hyrja 68: njoftimi ditor me të skaduarat (Worker 172); 171: /grupi (ftesat/kërkesat si push)
     private val scope = MainScope() + StokuApp.trajtuesi(false)
     private val _tokeni = MutableStateFlow(StokuApp.prefsOse("fcm", ""))
     val tokeni: StateFlow<String> get() = _tokeni
@@ -114,6 +114,9 @@ object Push {
             Pergjigja(ok, j, (j["arsye"] as? String) ?: if (ok) "" else "http-$kodi")
         } catch (e: Exception) { Pergjigja(false, emptyMap(), "rrjeti") }
     }
+
+    /** Hyrja 102 (Worker 174): administratori fshiu një llogari: edhe të dhënat e saj te serveri (foto, njoftimi ditor, ora) */
+    suspend fun fshiLlogarineTeServeri(u: String): Boolean = kerkese("/admin/fshi", mapOf("uid" to u)).ok
 
     /** Hyrja 59: njoftimi personal që sapo e shkrova te një koleg → push te pajisjet e tij (Worker-i e lexon me tokenin tim).
      *  Për "afat-dergim" Worker-i e regjistron edhe për kthimin pas 10 ditëve. */
