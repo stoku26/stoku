@@ -7,7 +7,7 @@ const { rregullat } = req('./rregullat.js');
 const env = await initializeTestEnvironment({ projectId: 'stoku-p246-' + Date.now(), firestore: { host: '127.0.0.1', port: 8089, rules: rregullat() } });
 let gab = 0; const ok = (k, m) => { if (!k) gab++; console.log((k ? 'OK    ' : 'GABIM ') + m); };
 const db = (u, em) => env.authenticatedContext(u, { email: em + '@stoku-app.local' }).firestore();
-const D = db('u1', 'drini'), B = db('u2', 'besa'), A = db('uA', 'mendurberisha'), X = env.unauthenticatedContext().firestore();
+const D = db('u1', 'drini'), B = db('u2', 'besa'), A = db('USfaW6Lbm3dbxEF95aKMKadIaok1', 'duli96') /* v302: administratori njihet nga uid-ja */, X = env.unauthenticatedContext().firestore();
 const leje = p => p.then(() => true, () => false);
 const t = Date.now();
 const pika = (u, em, o) => Object.assign({ emri: 'Albi Mall', lat: 42.6476, lng: 21.1491, krijuarNga: u, krijuarNgaEmri: em, krijuarSe: t, ndryshuarSe: t }, o || {});
@@ -20,7 +20,7 @@ ok(await leje(getDocs(collection(B, 'pikat'))) && await leje(getDoc(doc(B, 'pika
 ok(!(await leje(getDocs(collection(X, 'pikat')))), 'pa llogari: s\'lexohen');
 ok(!(await leje(setDoc(doc(D, 'pikat/p1'), { emri: 'Albi Mall 34', ndryshuarSe: t + 1 }, { merge: true }))), 'v250: krijuesi s\'e riemërton');
 ok(!(await leje(setDoc(doc(D, 'pikat/p1'), { lat: 42.65, ndryshuarSe: t + 1 }, { merge: true }))), 'v250: krijuesi s\'e zhvendos');
-ok(await leje(setDoc(doc(A, 'pikat/pA'), pika('uA', 'mendurberisha', { emri: 'Viva Fresh Qendër' }))), 'v250: administratori shton market me dorë');
+ok(await leje(setDoc(doc(A, 'pikat/pA'), pika('USfaW6Lbm3dbxEF95aKMKadIaok1', 'duli96', { emri: 'Viva Fresh Qendër' }))), 'v250: administratori shton market me dorë');
 ok(!(await leje(setDoc(doc(A, 'pikat/pB'), pika('u1', 'drini', { emri: 'Tjetër' })))), 'administratori s\'krijon në emër të tjetrit');
 ok(!(await leje(setDoc(doc(B, 'pikat/p1'), { emri: 'Tjetër', ndryshuarSe: t + 2 }, { merge: true }))), 'tjetri s\'e riemërton');
 ok(!(await leje(setDoc(doc(D, 'pikat/p1'), { krijuarNga: 'u2' }, { merge: true }))), 'krijuesi s\'e ndërron krijuesin');

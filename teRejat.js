@@ -21,6 +21,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 345, versioni: '1.73.10', data: '2026-11-19', titulli: 'Fotot e profilit', pikat: [
+      'Fotoja e profilit e një kolegu s\'humbet më nga lista kur dy veta e ndryshojnë foton në të njëjtën kohë.'
+    ] },
     { v: 344, versioni: '1.73.9', data: '2026-11-19', titulli: 'Fshirja e llogarisë', vetemAdmini: true, pikat: [
       'Kur administratori fshin një llogari, fshihen edhe fotoja e profilit, njoftimi ditor dhe lidhja me orën e dorës te serveri i njoftimeve.'
     ] },

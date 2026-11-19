@@ -42,6 +42,7 @@
  *   GET    /foto/{uid}?v=koha           → vetë fotoja (publike, me cache të gjatë)
  *   Tokeni verifikohet me çelësat publikë të Google-it (nënshkrimi RS256), pa lexuar databazën e Firebase-it.
  *
+ * Lista e fotove (v175): GET /fotot e rindërton 'indeksi' nga çelësat 'foto:*' (më së shumti një herë në orë) kur ka humbur një hyrje.
  * Fshirja e llogarisë (v174): POST /admin/fshi { uid } (vetëm administratori) heq edhe të dhënat e saj te KV (foto, orari, ora).
  *
  * Pa varësi të jashtme: vetëm WebCrypto e Cloudflare-it.
@@ -52,7 +53,7 @@ const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databa
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
 const PUSH_MAKS = 36;
-const VERSIONI_WORKER = 174; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 175; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 const W = {
@@ -808,6 +809,28 @@ function llojiIFotos(b) {
   if (b.length > 12 && b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 && b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50) return 'image/webp';
   return null;
 }
+// v175: dy ngarkime njëkohësisht (ose KV-ja që s'e ka parë ende shkrimin e fundit) mund ta humbin një hyrje te 'indeksi'.
+// Lista e fotove rindërtohet nga vetë çelësat 'foto:*' (metadata.koha): më së shumti një herë në orë për isolate,
+// që të mos harxhohen veprimet e listës (kufiri falas). Shkruhet vetëm kur ndryshon diçka.
+let indeksiKontrolluarSe = 0;
+async function riparoIndeksin(env, ind) {
+  if (Date.now() - indeksiKontrolluarSe < 3600e3 || typeof env.FOTO.list !== 'function') return ind;
+  indeksiKontrolluarSe = Date.now();
+  try {
+    const iRi = {};
+    let cursor;
+    for (let i = 0; i < 20; i++) {
+      const r = await env.FOTO.list(cursor ? { prefix: 'foto:', cursor } : { prefix: 'foto:' });
+      for (const k of r.keys || []) { const u = k.name.slice(5); iRi[u] = (k.metadata && Number(k.metadata.koha)) || ind[u] || 1; }
+      if (r.list_complete || !r.cursor) { cursor = null; break; }
+      cursor = r.cursor;
+    }
+    if (cursor) return ind; // shumë faqe: s'e prekim
+    const njejte = Object.keys(iRi).length === Object.keys(ind).length && Object.keys(iRi).every(u => ind[u] === iRi[u]);
+    if (!njejte) await env.FOTO.put('indeksi', JSON.stringify(iRi));
+    return iRi;
+  } catch (e) { return ind; }
+}
 async function lexoIndeksin(env) { try { return (await env.FOTO.get('indeksi', 'json')) || {}; } catch (e) { return {}; } }
 async function trajtoFotot(req, env, rruga, cors, pergjigju) {
   if (!env.FOTO) return pergjigju({ ok: false, arsye: 'mungon-kv' }, 500);
@@ -823,7 +846,7 @@ async function trajtoFotot(req, env, rruga, cors, pergjigju) {
   const token = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
   const uid = await verifikoTokenin(token);
   if (!uid) return pergjigju({ ok: false, arsye: 'pa-hyrje' }, 401);
-  if (req.method === 'GET' && rruga === '/fotot') return pergjigju({ ok: true, fotot: await lexoIndeksin(env) });
+  if (req.method === 'GET' && rruga === '/fotot') return pergjigju({ ok: true, fotot: await riparoIndeksin(env, await lexoIndeksin(env)) });
   if (rruga !== '/foto') return pergjigju({ ok: false, arsye: 'rruga' }, 404);
   if (req.method === 'PUT') {
     const b = new Uint8Array(await req.arrayBuffer());

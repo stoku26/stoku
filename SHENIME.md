@@ -58,6 +58,21 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v345 / Android Hyrja 103 / stoku-push v175 (19.11.2026): PIKAT 4-6 TË KONTROLLIT**. Pronari: "4, 5, 6 rregulloji komplet".
+   - Regresioni: `gabim=N` te `regresioni.sh` numëronte edhe rreshtat "pa gabime" (dukej sikur 130 teste kishin gabime); tash vetëm
+     rreshtat që nisin me GABIM/✗ dhe pageerror. Gabimet e vërteta ishin 4: v306/v316 (versioni i Worker-it, u rregulluan te v344),
+     v323 (titujt e "Çfarë ka të re" në PC të shkruar me dorë: tash llogariten nga teRejat.js), librarite-v235 (s'ishte gabim: rreshti OK
+     me "ERR_FAILED" të CDN-it të bllokuar). Krahasimi me regresionet para v345: numrat `gabim=` s'krahasohen drejtpërdrejt.
+   - Emulatori (`teste/emu`, s'është te regresioni): pikat-v246 (administratori me uid-në e vërtetë, v302) dhe grupi-dalja-v246
+     ("Largohu" te Cilësimet e grupit, v321) u përshtatën; krejt testet e emulatorit kalojnë.
+   - Worker 175: `GET /fotot` e rindërton `indeksi` nga çelësat `foto:*` (metadata.koha), më së shumti një herë në orë për isolate
+     (`indeksiKontrolluarSe`), shkruan vetëm kur ndryshon. `VERSIONI_WORKER` 175 te ekipa.js dhe Push.kt. Prova: `wp/foto-indeksi-prova.mjs`.
+   - Rregullat e Firestore: `ngjarjaOk` (≤ 60 fusha, shenim ≤ 1000, produktet ≤ 100, emri ≤ 80) te `grupet/{g}/feed` dhe
+     `perdoruesit/{uid}/njoftimet` (create); `pajisjaPushOk` (≤ 30 fusha, endpoint ≤ 1000, emri ≤ 80) te `grupet/{g}/push`. Aplikacioni
+     shkruan ≤ 30 produkte dhe shënim ≤ 300. Prova me emulatorin: `teste/emu/kufijte-v345.mjs`. **PRONARI i vendos rregullat e reja.**
+   - Workflows: actions/checkout, setup-java, upload/download-artifact dhe gradle/actions/setup-gradle v4 → v5 (Node 24; s'del më paralajmërimi).
+   - **PRONARI**: `worker/stoku-push.js` v175 te Cloudflare (zëvendëson v174) + rregullat e Firestore (skedari i plotë).
+
 0000000. **v344 / Android Hyrja 102 / stoku-push v174 (19.11.2026): KONTROLLI I PIKAVE 6-10 (Android pjesa tjetër, stoku-push, ora,
    rregullat e Firebase, CSS/workflows/faqet)**. Pronari: "edhe pikat prej 6 deri 10 kontrolloj, per bugs, permirsime, stabilitet, edhe performanc".
    - GABIMI KRYESOR: kur administratori fshinte një llogari, te Worker-i (KV) mbeteshin fotoja publike e profilit (`foto:{uid}` + `indeksi`),
@@ -3830,6 +3845,19 @@ service cloud.firestore {
       return d.emri is string && d.emri.size() >= 2 && d.emri.size() <= 60;
     }
     // v246: pika e përbashkët e një marketi (emri + vendndodhja)
+    // v345: kufij madhësie për dokumentet që i lexojnë të tjerët (aktiviteti, njoftimet, pajisjet e push-it): aplikacioni
+    // s'i afrohet kurrë (≤ 30 produkte, shënimi ≤ 300 shkronja), por një shkrim i keq s'i rëndon më kolegët
+    function ngjarjaOk(d) {
+      return d.size() <= 60
+        && (!('shenim' in d) || (d.shenim is string && d.shenim.size() <= 1000))
+        && (!('produktet' in d) || (d.produktet is list && d.produktet.size() <= 100))
+        && (!('emri' in d) || (d.emri is string && d.emri.size() <= 80));
+    }
+    function pajisjaPushOk(d) {
+      return d.size() <= 30
+        && (!('endpoint' in d) || (d.endpoint is string && d.endpoint.size() <= 1000))
+        && (!('emri' in d) || (d.emri is string && d.emri.size() <= 80));
+    }
     function pikaOk(d) {
       return d.keys().hasOnly(['emri', 'lat', 'lng', 'krijuarNga', 'krijuarNgaEmri', 'krijuarSe', 'ndryshuarSe', 'emriNgaAdmini'])
         && d.emri is string && d.emri.size() >= 1 && d.emri.size() <= 60
@@ -3882,6 +3910,7 @@ service cloud.firestore {
         // v164: dërguesi dhe marrësi në të njëjtin grup (fusha `grupi`), ose administratori
         allow create: if request.auth != null
           && request.resource.data.uid == request.auth.uid && request.resource.data.emri == emriIm()
+          && ngjarjaOk(request.resource.data)
           && ((request.resource.data.get('grupi', '') is string && request.resource.data.get('grupi', '') != ''
                && anetarIGrupit(request.resource.data.grupi)
                && exists(/databases/$(database)/documents/grupet/$(request.resource.data.grupi)/anetaret/$(uid)))
@@ -3983,7 +4012,8 @@ service cloud.firestore {
       match /feed/{id} {
         allow read: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());
         allow create: if request.auth != null && (eshteAdmin() || (anetarIGrupit(g)
-          && request.resource.data.uid == request.auth.uid && request.resource.data.emri == emriIm()));
+          && request.resource.data.uid == request.auth.uid && request.resource.data.emri == emriIm()
+          && ngjarjaOk(request.resource.data)));
         allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || pronarIGrupit(g) || eshteAdmin());
       }
       // v197: kujtesa e produkteve e grupit (barkodi → emri, furnizuesi), e ndarë sipas shifrës së fundit: p0..p9, px
@@ -3998,7 +4028,7 @@ service cloud.firestore {
       match /push/{id} {
         allow read: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());
         allow create, update: if request.auth != null && anetarIGrupit(g) && request.resource.data.uid == request.auth.uid
-          && id.matches(request.auth.uid + '_[A-Za-z0-9]+');
+          && id.matches(request.auth.uid + '_[A-Za-z0-9]+') && pajisjaPushOk(request.resource.data);
         allow delete: if request.auth != null && (anetarIGrupit(g) || eshteAdmin());
       }
     }
