@@ -6,7 +6,7 @@ const { chromium } = require('./pw.js');
 const A = require('../afatet.js');
 const PORTI = process.env.PORTI || '8765';
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
-const t = Date.now(), d = n => new Date(t + n * 864e5).toISOString().slice(0, 10);
+const t = Date.now(), d = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(t + n * 864e5));
 const AF = []; const shto = (e, f, n) => AF.push({ id: 'a' + AF.length, emri: e, barkodi: '38900100' + (1000 + AF.length), data: d(n), sasia: 3, furnizuesi: f, statusi: 'aktiv', krijuarSe: t - 9e6, ndryshuarSe: t - 9e6 });
 [['Abi Drink', 1, 0], ['Albi', 4, 0], ['Albulena Impex', 2, 0], ['Argo Group', 3, 1], ['Devolli', 2, 0], ['Laberion', 3, 2], ['Meridian', 2, 0]]
   .forEach(([f, n, sk]) => { for (let i = 0; i < n; i++) shto('P' + i, f, i < sk ? -2 : 5 + i); });

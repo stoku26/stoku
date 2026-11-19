@@ -20,7 +20,7 @@ const ADM = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
   ok(/"Afatet e kolegëve"/.test(lx(K + 'ui/BallinaEkrani.kt')) && /Grupi\.permbledhjet\.value/.test(lx(K + 'ui/BallinaEkrani.kt')), '2. Android: kërkimi me afatet e kolegëve');
   ok(/Hyrja\(94, "2026-11-18"/.test(lx(K + 'TeRejat.kt')), '0. TeRejat.kt: Hyrja 94');
 
-  const t = Date.now(), d = n => new Date(t + n * 864e5).toISOString().slice(0, 10);
+  const t = Date.now(), d = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(t + n * 864e5));
   const F = krijoFirestore({ rregullat: 'reja' });
   const perd = (u, em, gr) => F.S.docs.set('perdoruesit/' + u, { perdoruesi: em, kycurSe: t - 6e4, grupi: gr || '' });
   perd(ADM, 'duli96', 'g1'); perd('u2', 'besa', 'g1'); perd('u9', 'jashte', 'g9');

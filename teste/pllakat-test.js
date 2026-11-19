@@ -5,7 +5,7 @@ let gabime = 0;
 const ok = (k, m, x) => { if (!k) gabime++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
 (async () => {
   const b = await chromium.launch();
-  const t = Date.now(), d = n => new Date(t + n * 864e5).toISOString().slice(0, 10);
+  const t = Date.now(), d = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(t + n * 864e5));
   for (const tema of ['light', 'dark']) {
     const ctx = await b.newContext({ userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/140', viewport: { width: 1500, height: 900 }, serviceWorkers: 'block', colorScheme: tema });
     await ctx.route(u => !u.href.startsWith('http://127.0.0.1'), r => r.abort());

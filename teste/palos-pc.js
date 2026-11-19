@@ -3,7 +3,7 @@ const { chromium } = require('./pw.js');
 const src=require('fs').readFileSync(__dirname+'/audit.js','utf8');
 const MOCK=eval('('+src.match(/const MOCK = (\(\) => \{[\s\S]*?\n\};)/)[1].slice(0,-1)+')');
 let g=0;const ok=(c,m,x)=>{if(!c)g++;console.log((c?'OK    ':'GABIM ')+m+(x!==undefined?'  → '+JSON.stringify(x):''));};
-const d=n=>{const x=new Date();x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)};
+const d=n=>{const x=new Date();x.setDate(x.getDate()+n);return ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(x)};
 const FURN=['Albi','Albulena Impex','Argo Group','Devolli','Elkos','Extra Fruit','Laberion','Rugove','Meridian','Frutomania','Bavaria','Coca Cola HBC'];
 const AF=[];for(let i=0;i<40;i++)AF.push({id:'a'+i,emri:'Produkt '+i,barkodi:'3900'+String(i).padStart(3,'0'),data:d(5+i),sasia:1,furnizuesi:FURN[i%FURN.length],statusi:'aktiv',krijuarSe:1,ndryshuarSe:1});
 (async()=>{const b=await chromium.launch();const err=[];

@@ -3,7 +3,7 @@ const { chromium } = require('./pw.js');
 const { krijoFirestore } = require('./fs-server.js');
 const { KONTROLLO } = require('./zv-lib.js');
 (async () => {
-  const F = krijoFirestore({ rregullat: 'reja' }); const t = Date.now(), d = n => new Date(t + n * 864e5).toISOString().slice(0, 10);
+  const F = krijoFirestore({ rregullat: 'reja' }); const t = Date.now(), d = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(t + n * 864e5));
   F.S.docs.set('perdoruesit/u1', { perdoruesi: 'agim', kycurSe: t }); F.S.docs.set('perdoruesit/u2', { perdoruesi: 'blerta', kycurSe: t });
   F.S.docs.set('ekipa_anetaret/u1', { emri: 'agim' }); F.S.docs.set('ekipa_anetaret/u2', { emri: 'blerta' });
   F.S.docs.set('dyqane/u1', { app: 'stoku', version: 3, foldera: [{ id: 'f1', emri: 'Ushqimore' }, { id: 'f2', emri: 'Pije', ikona: 'kafe' }],

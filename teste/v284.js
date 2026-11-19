@@ -8,7 +8,7 @@ const { krijoFirestore } = require('./fs-server.js');
 const EK = require('../ekipa.js');
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
 (async () => {
-  const tani = Date.now(), dita = n => new Date(tani + n * 864e5).toISOString().slice(0, 10);
+  const tani = Date.now(), dita = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(tani + n * 864e5));
   // 1) logjika
   const an = [{ uid: 'u2', emri: 'blerta', ngarkuar: true, afatet: [{ id: 'b1', emri: 'Lëng', barkodi: '901', data: dita(12), sasia: 6, mk: 'Viva', pronariUid: 'u2', pronariEmri: 'blerta' },
     { id: 'v1', emri: 'I vjetër', data: dita(5), ndryshuarSe: tani - 3600e3 - 10e3 }] }];

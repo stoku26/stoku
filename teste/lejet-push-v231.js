@@ -9,7 +9,7 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
 const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return z(true); await new Promise(r => setTimeout(r, 100)); } z(false); });
 (async () => {
   const F = krijoFirestore({ rregullat: 'reja' });
-  const t = Date.now(), d = n => new Date(t + n * 864e5).toISOString().slice(0, 10);
+  const t = Date.now(), d = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(t + n * 864e5));
   const AF = [{ id: 'a1', barkodi: '1', emri: 'Kos', data: d(0), sasia: 5, statusi: 'aktiv', ndryshuarSe: t },
     { id: 'a2', barkodi: '2', emri: 'Bukë', data: d(20), sasia: 1, statusi: 'aktiv', ndryshuarSe: t }];
   F.S.docs.set('perdoruesit/u1', { perdoruesi: 'agim', kycurSe: t });

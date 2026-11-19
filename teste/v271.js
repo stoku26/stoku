@@ -8,7 +8,7 @@
 const { chromium } = require('./pw.js');
 const PORTI = process.env.PORTI || '8765';
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
-const t = Date.now(), d = n => new Date(t + n * 864e5).toISOString().slice(0, 10);
+const t = Date.now(), d = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(t + n * 864e5));
 const MUAJT = /Janar|Shkurt|Mars|Prill|Maj|Qershor|Korrik|Gusht|Shtator|Tetor|Nëntor|Dhjetor/;
 
 async function faqe(b, pc) {

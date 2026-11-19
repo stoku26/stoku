@@ -38,7 +38,7 @@ const hapur = (p, id) => p.evaluate(i => document.getElementById(i).classList.co
 
 (async () => {
   const F = krijoFirestore();
-  const t0 = Date.now(), d = n => new Date(t0 + n * 864e5).toISOString().slice(0, 10);
+  const t0 = Date.now(), d = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(t0 + n * 864e5));
   const AF = [{ id: 'a1', barkodi: '1', emri: 'Kos', data: d(-2), sasia: 5, furnizuesi: 'Meridian', statusi: 'aktiv', ndryshuarSe: t0 },
     { id: 'a2', barkodi: '2', emri: 'Bukë', data: d(20), sasia: 1, furnizuesi: 'Vipa', statusi: 'aktiv', ndryshuarSe: t0 }];
   // agim (u1): i kontrolluar, me kufizime; besa (u2): llogari e re (pa dokument lejesh)

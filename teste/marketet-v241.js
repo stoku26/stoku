@@ -66,7 +66,7 @@ const NUMERO_GPS = () => {
   F.S.docs.set('perdoruesit/u1', { perdoruesi: 'drini', kycurSe: t, krijuarSe: t, merchandiser: true }); // u regjistrua si merchandiser
   F.S.docs.set('perdoruesit/u2', { perdoruesi: 'agim', kycurSe: t });
   F.S.docs.set('perdoruesit/uA', { perdoruesi: 'mendurberisha', kycurSe: t });
-  const sot = n => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
+  const sot = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(Date.now() + n * 864e5));
   const AF0 = [{ id: 'x1', barkodi: '1', emri: 'Kos Abi', data: sot(3), sasia: 4, furnizuesi: 'Abi', statusi: 'aktiv', ndryshuarSe: t - 5000 },
     { id: 'x2', barkodi: '2', emri: 'Bukë', data: sot(-1), sasia: 2, furnizuesi: 'Vipa', statusi: 'aktiv', ndryshuarSe: t - 5000 }];
   const b = await chromium.launch();

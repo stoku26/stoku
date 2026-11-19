@@ -11,7 +11,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
   const T = Date.now();
   ok(EK.kohaENgjarjes(T - 7200e3, T) === T - 7200e3 && EK.kohaENgjarjes(T + 5000, T) === T && EK.kohaENgjarjes(T - 31 * 864e5, T) === T && EK.kohaENgjarjes(undefined, T) === T &&
     EK.kohaENgjarjes('x', T) === T && EK.kohaENgjarjes(0, T) === T && EK.kohaENgjarjes(NaN, T) === T, '1. ora e ngjarjes: e kaluara (deri 30 ditë) mbahet, të tjerat → tani');
-  const dita = n => new Date(T + n * 864e5).toISOString().slice(0, 10);
+  const dita = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(T + n * 864e5));
   for (const pc of [false, true]) {
     const em = pc ? 'PC' : 'tel';
     const F = krijoFirestore({ rregullat: 'reja' });

@@ -12,7 +12,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
 const lx = f => fs.readFileSync(RR + f, 'utf8');
 const K = 'vendas/app/src/main/java/site/stoku/vendas/';
 const paKom = t => t.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '');
-const t = Date.now(), d = n => new Date(t + n * 864e5).toISOString().slice(0, 10);
+const t = Date.now(), d = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(t + n * 864e5));
 const FOLDERA = [{ id: 'ushqimore', emri: 'Ushqimore' }, { id: 'pije', emri: 'Pije' }];
 const PR = {
   'pije::3800001': { kategoriaId: 'pije', barkodi: '3800001', emri: 'Ujë Rugove 1.5L', sasia: 24, furnizuesi: 'Rugove', ndryshuarSe: t },

@@ -30,7 +30,7 @@ const dritarja = p => p.evaluate(() => { const d = document.getElementById('dlgK
 
 (async () => {
   const F = krijoFirestore();
-  const t0 = Date.now(), d = n => new Date(t0 + n * 864e5).toISOString().slice(0, 10);
+  const t0 = Date.now(), d = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(t0 + n * 864e5));
   const b = await chromium.launch();
   // ---------------- Telefoni i zakonshëm (jo PDA) ----------------
   const ctxT = await b.newContext({ userAgent: 'Mozilla/5.0 (Linux; Android 14; SM-S921B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36', viewport: { width: 390, height: 844 }, serviceWorkers: 'block', hasTouch: true, acceptDownloads: true });

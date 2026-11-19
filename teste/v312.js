@@ -17,7 +17,7 @@ const prit = async (fn, ms = 6000) => { const t0 = Date.now(); while (Date.now()
   ok(/'ek-segm ek-segm--permb'/.test(tel) /* v319: shiriti edhe te Përmbledhja */ && /'ek-segm'/.test(tel) && !/'af-permb ek-permb-nr'/.test(tel) && !/'af-permb ek-permb'/.test(tel), '0. web telefon: fjalia dhe shiriti, pa kutitë e vjetra');
   ok(!/ek-segm/.test(pc), '0. PC: pa ndryshim (vetëm telefoni)');
 
-  const tani = Date.now(), dita = n => new Date(tani + n * 864e5).toISOString().slice(0, 10);
+  const tani = Date.now(), dita = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(tani + n * 864e5));
   const F = krijoFirestore({ rregullat: 'reja' });
   F.S.docs.set('perdoruesit/uA', { perdoruesi: 'mendurberisha', emri: 'mendurberisha', kycurSe: tani, ekipaMigruarSe: tani });
   F.S.docs.set('grupet/ekipa', { emri: 'Ekipa', pronarUid: 'uA', pronarEmri: 'mendurberisha', krijuarSe: tani });

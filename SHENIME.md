@@ -70,6 +70,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    - Rregullat e Firestore: `ngjarjaOk` (≤ 60 fusha, shenim ≤ 1000, produktet ≤ 100, emri ≤ 80) te `grupet/{g}/feed` dhe
      `perdoruesit/{uid}/njoftimet` (create); `pajisjaPushOk` (≤ 30 fusha, endpoint ≤ 1000, emri ≤ 80) te `grupet/{g}/push`. Aplikacioni
      shkruan ≤ 30 produkte dhe shënim ≤ 300. Prova me emulatorin: `teste/emu/kufijte-v345.mjs`. **PRONARI i vendos rregullat e reja.**
+   - Datat në teste: 41 teste i ndërtonin datat e afateve me `toISOString().slice(0, 10)` (UTC), kurse aplikacioni përdor datën lokale;
+     mes 00:00 dhe 01:00 (02:00 në verë) të Kosovës ato ndryshojnë dhe v284/v334 dështonin. Tash data lokale (`getFullYear/getMonth/getDate`).
+     Rregull: në teste mos përdor `toISOString().slice(0, 10)` për datat e afateve.
    - Workflows: actions/checkout, setup-java, upload/download-artifact dhe gradle/actions/setup-gradle v4 → v5 (Node 24; s'del më paralajmërimi).
    - **PRONARI**: `worker/stoku-push.js` v175 te Cloudflare (zëvendëson v174) + rregullat e Firestore (skedari i plotë).
 

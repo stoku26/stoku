@@ -13,7 +13,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
   ok(A.ditetDeri('2026-02-31') === null && A.ditetDeri('__proto__') === null && A.ditetDeri('constructor') === null && A.ditetDeri(20261110) === null && A.ditetDeri('') === null && A.statusi({ data: 'x' }) === 'pa-date', '1. datat e pavlefshme mbeten "pa datë"');
   A.vendosZonen('Pacific/Kiritimati'); const k1 = A.sot(m); A.vendosZonen('Pacific/Pago_Pago'); const k2 = A.sot(m); A.vendosZonen();
   ok(k1 === '2026-11-11' && k2 === '2026-11-10' && A.sot(m) === '2026-11-10' && A.oraKs(m) === '23:59', '1. ndërrimi i zonës e zbraz kujtesën', [k1, k2, A.sot(m), A.oraKs(m)]);
-  const t = Date.now(), d = n => new Date(t + n * 864e5).toISOString().slice(0, 10);
+  const t = Date.now(), d = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(t + n * 864e5));
   const AF = []; for (let i = 0; i < 3000; i++) AF.push({ id: 'a' + i, emri: 'Afat ' + i, data: d((i % 200) - 20), statusi: i % 15 === 0 ? 'hequr' : 'aktiv', hequrSe: t - i * 1000 });
   const t0 = Date.now(); AF.slice().sort(A.krahaso); A.numero(AF); const ms = Date.now() - t0;
   ok(ms < 400, '1. renditja + numërimi i 3000 afateve nën 400 ms (ishte mbi 1 s)', ms);

@@ -1,7 +1,7 @@
 const { chromium } = require('./pw.js');
 const {MOCK}=require('./zv-lib.js');
 const ok=(c,m)=>console.log(c?'OK ':'GABIM',m);
-const d=n=>{const x=new Date();x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)};
+const d=n=>{const x=new Date();x.setDate(x.getDate()+n);return ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(x)};
 const AF=[['Kos','Laberion'],['Qumësht','Laberion'],['Lëng','laberion '],['Ujë','Rugove'],['Bukë','Extra Fruit'],['Djathë','']].map(([e,f],i)=>({id:'a'+i,emri:e,barkodi:'39000'+i,data:d(10+i),sasia:2,furnizuesi:f,statusi:'aktiv',krijuarSe:1,ndryshuarSe:1}));
 const PR={'f1::39000':{barkodi:'39000',emri:'Kos',sasia:3,kategoriaId:'f1',prekurSe:500,furnizuesi:'Laberion'}};
 async function faqe(b,emri,opt,url){const ctx=await b.newContext({...opt,serviceWorkers:'block'});

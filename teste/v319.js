@@ -34,7 +34,7 @@ const SC = '/tmp/claude-0/-home-user-stoku/e6bed5df-a3f5-5158-8183-d77a3d2bc01d/
   ok(/match \/pajisjet\/\{p\}/.test(lx('SHENIME.md')), '0. SHENIME: rregulli i Firestore për pajisjet');
 
   // ===== Faqet =====
-  const tani = Date.now(), dita = n => new Date(tani + n * 864e5).toISOString().slice(0, 10);
+  const tani = Date.now(), dita = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(tani + n * 864e5));
   const F = krijoFirestore({ rregullat: 'reja' });
   F.S.docs.set('perdoruesit/uA', { perdoruesi: 'agim', kycurSe: tani, grupi: 'g1' });
   F.S.docs.set('grupet/g1', { emri: 'Market', pronarUid: 'uA', pronarEmri: 'agim', krijuarSe: tani });
