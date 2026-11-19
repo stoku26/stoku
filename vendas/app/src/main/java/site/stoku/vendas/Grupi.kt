@@ -308,18 +308,26 @@ object Grupi {
         publikimiM?.cancel()
         publikimiM = scope.launch { delay(2500); publikoMallin() }
     }
-    private fun publikoMallin() {
+    private suspend fun publikoMallin() {
         val u0 = uid ?: return; val g = grupi() ?: return
         if (!Llogaria.leja("stoku")) return
         val dq = Dyqani.g
+        val emriIm = emri
+        // Hyrja 98: lista (deri 8000 produkte) dhe nënshkrimi përgatiten jashtë fillit të ekranit
+        val (p, n) = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
         val ef = dq.foldera.associate { (it["id"] as? String).orEmpty() to (it["emri"] as? String).orEmpty() }
+        // Hyrja 98: çdo produkt një tekst "barkodi⇥emri⇥sasia⇥furnizuesi⇥folderi" (Firestore s'pranon listë brenda liste;
+        // me formatin e vjetër shkrimi dështonte në heshtje dhe kolegët s'e shihnin mallin)
+        val ndares = Regex("[\\t\\r\\n]+")
+        fun pa(t: Any?) = jsString(t ?: "").replace(ndares, " ")
         val p = dq.produktet.values.take(8000).map { x ->
-            listOf(jsString(x["barkodi"] ?: ""), jsString(x["emri"] ?: ""), numerOse0(x["sasia"]).toLong(), jsString(x["furnizuesi"] ?: ""), ef[(x["kategoriaId"] as? String).orEmpty()].orEmpty())
-        }.sortedBy { it[0] as String }
-        val n = u0 + "|" + g + "|" + emri + "|" + Ruajtja.hash(Json.shkruaj(p)) + ":" + p.size
-        if (n == StokuApp.prefsOse("grupi_malli_publikuar", "")) return
+            listOf(pa(x["barkodi"]), pa(x["emri"]), numerOse0(x["sasia"]).toLong().toString(), pa(x["furnizuesi"]), pa(ef[(x["kategoriaId"] as? String).orEmpty()])).joinToString("\t")
+        }.sorted()
+        p to (u0 + "|" + g + "|" + emriIm + "|" + Ruajtja.hash(Json.shkruaj(p)) + ":" + p.size)
+        }
+        if (n == StokuApp.prefsOse("grupi_malli_publikuar", "") || uid != u0 || grupi() != g) return
         db.collection("grupet").document(g).collection("malli").document(u0)
-            .set(mapOf("uid" to u0, "emri" to emri, "p" to p, "ndryshuarSe" to System.currentTimeMillis()))
+            .set(mapOf("uid" to u0, "emri" to emriIm, "p" to p, "ndryshuarSe" to System.currentTimeMillis()))
             .addOnSuccessListener { StokuApp.vendosPref("grupi_malli_publikuar", n) }
     }
 

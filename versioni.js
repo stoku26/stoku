@@ -2,7 +2,7 @@
  * Ky skedar mban vetëm versionin që shihet te Cilësimet ("Stoku 1.64.0"). Rrite `emri` kur del version i ri i web-it. */
 (function (root) {
   'use strict';
-  var V = { v: 338, emri: '1.73.3' };
+  var V = { v: 339, emri: '1.73.4' };
   root.StokuVersioni = V;
   if (typeof module !== 'undefined' && module.exports) module.exports = V;
 })(typeof window !== 'undefined' ? window : this);

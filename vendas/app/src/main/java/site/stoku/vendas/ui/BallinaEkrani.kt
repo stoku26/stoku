@@ -142,7 +142,15 @@ fun BallinaEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit,
 
     fun hapAfatin(id: String?) { if (id != null) MainActivity.afatiKerkuar.value = id; hapTabin("afatet") }
     val dukshme = if (kerkimi.isNotBlank()) emptyList() else pjeset.filter { it.second && PjesetEBallines.lejohet(it.first) }.map { it.first }
-    val rezultatet = remember(kerkimi, g, lejet, aktiviM) { if (kerkimi.isBlank()) emptyList() else kerkoKudo(kerkimi) }
+    // Hyrja 98: kërkimi (edhe në mallin e kolegëve, deri në mijëra rreshta) bëhet jashtë fillit të ekranit, pak pas shkronjës së fundit,
+    // që shkrimi të mos ngecë; null = ende po kërkon (s'del "S'u gjet asgjë" para kohe)
+    val malliK by Grupi.malli.collectAsState()
+    val permK by Grupi.permbledhjet.collectAsState()
+    val rezultatet by androidx.compose.runtime.produceState<List<GrupiIRezultateve>?>(null, kerkimi, g, lejet, aktiviM, malliK, permK) {
+        if (kerkimi.isBlank()) { value = emptyList(); return@produceState }
+        kotlinx.coroutines.delay(120)
+        value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { try { kerkoKudo(kerkimi) } catch (e: Exception) { emptyList() } }
+    }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp + BALLINA_MBI_SHIRIT),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
@@ -155,9 +163,10 @@ fun BallinaEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit,
         // v327 (pronari): "qite ni search bar qe kur te lyp qaty diqka ne krejt projektin me ta qit qaty"
         item(key = "kerkimi") { Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), "Kërko kudo: barkod, produkt, afat…", ikona = Ik.Kerko) }
         if (kerkimi.isNotBlank()) {
-            if (rezultatet.isEmpty()) item { Text("S'u gjet asgjë për \"" + kerkimi.trim() + "\".", style = tx(14, 400, n.muted), textAlign = TextAlign.Center,
+            val rz = rezultatet
+            if (rz != null && rz.isEmpty()) item { Text("S'u gjet asgjë për \"" + kerkimi.trim() + "\".", style = tx(14, 400, n.muted), textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 18.dp)) }
-            rezultatet.forEach { gr ->
+            rz?.forEach { gr ->
                 item(key = "g:" + gr.titulli) { Text(gr.titulli + (if (gr.n > gr.rreshtat.size) " (${gr.n})" else ""), style = tx(13, 600, n.muted), modifier = Modifier.padding(top = 4.dp)) }
                 gr.rreshtat.forEachIndexed { i, x ->
                     item(key = "r:" + gr.titulli + ":" + i) {
@@ -439,8 +448,9 @@ sealed class Veprimi {
 class Rezultati(val emri: String, val nen: String, val veprimi: Veprimi)
 class GrupiIRezultateve(val titulli: String, val ikona: androidx.compose.ui.graphics.vector.ImageVector, val ngj: String, val n: Int, val rreshtat: List<Rezultati>)
 
+private val SHENJAT = Regex("\\p{Mn}+") // Hyrja 98: krijohet një herë (jo për çdo fushë në çdo shkronjë të kërkimit)
 private fun normalizo(t: Any?): String = java.text.Normalizer.normalize(jsString(t ?: "").lowercase(), java.text.Normalizer.Form.NFD)
-    .replace(Regex("\\p{Mn}+"), "").trim()
+    .replace(SHENJAT, "").trim()
 
 fun kerkoKudo(q: String): List<GrupiIRezultateve> {
     val k = normalizo(q)
@@ -504,7 +514,7 @@ fun kerkoKudo(q: String): List<GrupiIRezultateve> {
         Grupi.malli.value.forEach { (u, x) ->
             if (u == uIm || u !in emrat) return@forEach
             val emriK = emrat[u].orEmpty().ifEmpty { (x["emri"] as? String).orEmpty() }
-            (x["p"] as? List<*>)?.forEach { r -> val rr = r as? List<*> ?: return@forEach; if (ka(rr.getOrNull(1)) || ka(rr.getOrNull(0)) || ka(rr.getOrNull(3))) mK.add(rr to emriK) }
+            (x["p"] as? List<*>)?.forEach { r -> val rr = (r as? String)?.split('\t') ?: r as? List<*> ?: return@forEach; if (ka(rr.getOrNull(1)) || ka(rr.getOrNull(0)) || ka(rr.getOrNull(3))) mK.add(rr to emriK) }
         }
         mK.sortWith(compareBy<Pair<List<*>, String>> { jsString(it.first.getOrNull(1) ?: "").lowercase() }.thenBy { it.second.lowercase() })
         if (mK.isNotEmpty()) l.add(GrupiIRezultateve("Malli i kolegëve", Ik.Malli, "blu", mK.size, mK.take(MAX).map { (r, emriK) ->

@@ -76,7 +76,7 @@ const paKom = t => t.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '');
     ok(await p.evaluate(() => { const t = document.getElementById('opsTeRejat'); return !!t && t.nextElementSibling === document.getElementById('opsPrivatesia'); }), '1. PC: "Çfarë ka të re" afër Privatësisë');
     await p.evaluate(() => document.getElementById('opsTeRejat').click()); await p.waitForTimeout(300);
     const d = await p.evaluate(() => ({ hapur: document.getElementById('dlgTeRejat').classList.contains('hapur'), tit: [...document.querySelectorAll('#trLista .tr-version-titulli')].map(x => x.textContent) }));
-    ok(d.hapur && d.tit.includes('Malli edhe në kompjuter') && d.tit.includes('Fusha e barkodit') && !d.tit.includes('Butoni i shtëpisë') && !d.tit.includes('Ballina dhe Malli'), '1. PC: hapet nga Cilësimet, me hyrjet e PC-së', d);
+    ok(d.hapur && d.tit.includes('Malli edhe në kompjuter') && d.tit.includes('Malli me grupin') && /* v339: dritarja ka vend për 6, 'Fusha e barkodit' doli */ !d.tit.includes('Butoni i shtëpisë') && !d.tit.includes('Ballina dhe Malli'), '1. PC: hapet nga Cilësimet, me hyrjet e PC-së', d);
     ok(!gab.length, 'PC: pa gabime JS', gab);
     await ctx.close();
   }

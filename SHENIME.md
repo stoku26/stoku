@@ -58,6 +58,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v339 / Android Hyrja 98 (18.11.2026): KONTROLLI I ANDROID-IT + MALLI I KOLEGËVE S'RUHEJ NË FIREBASE**. Pronari: "Kontrolloje
+   android appin per bugs, gabime, permirsime, performanc, stabilitet". Gabimi kryesor (edhe web, v335): `grupet/{g}/malli/{uid}.p` ishte
+   listë listash ([[barkodi, emri, ...]]); Firestore i vërtetë s'e pranon ("Nested arrays are not supported"), kështu shkrimi dështonte në
+   heshtje dhe kolegët s'e shihnin kurrë mallin. Tani çdo produkt është tekst `barkodi⇥emri⇥sasia⇥furnizuesi⇥folderi` (⇥ = tab; tab/rresht
+   i ri brenda fushave → hapësirë); leximi pranon edhe formatin e vjetër. Rregullat s'ndryshojnë (p is list, ≤ 8000). `teste/fs-server.js`
+   tani e refuzon listën brenda liste (invalid-argument), si Firestore. Android: `kerkoKudo` (Ballina) bëhet në Dispatchers.Default me 120 ms
+   vonesë (produceState; null = ende po kërkon), Regex-i i shenjave krijohet një herë; `publikoMallin` (8000 produkte + hash) në sfond.
+   Test: `teste/v339.js`; v335.js u përshtat. Kompilimi i Android-it kontrollohet nga GitHub Actions (s'ka SDK këtu).
+
 0000000. **v338 (18.11.2026): KTHEHET LOGOJA DJATHTAS TE NJOFTIMET (ANULON v337)**. Pas v337 Samsung-u vuri djathtas një "S" gri (kur
    njoftimi s'ka `icon`, telefoni vë shkronjën e parë të faqes); majtas ikonën e web app-it e vendos telefoni vetë dhe s'hiqet. Pronari:
    "Jojo logo ndreqe te stokut". `icon: icon-192.png` u kthye te sw.js (push), njoftimet.js dhe app-tel.js. Hyrja e teRejat për v337

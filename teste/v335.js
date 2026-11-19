@@ -44,7 +44,7 @@ const ADM = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
   // Malli im ndahet me grupin (pas sinkronizimit)
   await p.waitForTimeout(4000);
   const im = F.S.docs.get('grupet/g1/malli/' + ADM);
-  ok(im && im.uid === ADM && im.emri === 'duli96' && Array.isArray(im.p) && im.p.some(x => x[0] === '3800009' && x[1] === 'Ujë Dea' && x[2] === 12 && x[4] === 'Pije'), '2. web tel: malli im u nda me grupin', im);
+  ok(im && im.uid === ADM && im.emri === 'duli96' && Array.isArray(im.p) && im.p.includes('3800009\tUjë Dea\t12\tDea\tPije'), '2. web tel: malli im u nda me grupin (v339: rreshti si tekst me ⇥)', im);
   ok(!F.S.docs.get('grupet/g9/malli/' + ADM), '2. jo te grupi tjetër');
   ok(!gab.length, 'pa gabime JS', gab);
   await b.close();
