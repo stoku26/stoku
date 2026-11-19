@@ -21,6 +21,14 @@
   'use strict';
 
   var LISTA = [
+    { v: 341, versioni: '1.73.6', data: '2026-11-19', titulli: 'Rregullime', platforma: 'tel', pikat: [
+      'Versioni i ri i aplikacionit ngarkohet vetë edhe kur je te Ballina (më parë duhej ta mbyllje e ta hapje aplikacionin).',
+      'Kur kthehet interneti, aplikacioni lidhet sërish vetë edhe nga Ballina.'
+    ] },
+    { v: 341, versioni: '1.73.6', data: '2026-11-19', titulli: 'Rregullime', platforma: 'pc', pikat: [
+      'Mesazhet pas shkëputjes së pajisjeve qëndrojnë aq sa duhet në ekran.',
+      'Zvarritja e diçkaje nga jashtë mbi një folder s\'shkakton më gabim.'
+    ] },
     { v: 340, versioni: '1.73.5', data: '2026-11-19', titulli: 'Kërkimi më i shpejtë', platforma: 'tel', pikat: [
       'Kërkimi te Ballina s\'e ngadalëson më shkrimin, edhe kur kolegët kanë shumë mall.'
     ] },

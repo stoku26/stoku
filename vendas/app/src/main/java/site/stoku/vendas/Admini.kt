@@ -147,6 +147,7 @@ object Admini {
         if (!gU.isNullOrEmpty()) {
             val g = db.collection("grupet").document(gU)
             fshij(g.collection("anetaret").document(u)); fshij(g.collection("afatet").document(u))
+            try { g.collection("malli").document(u).delete().await() } catch (e: Exception) { } // Hyrja 100: si ekipa.js (malli i kolegut)
             fshijTeGjitha(g.collection("push").whereEqualTo("uid", u), numero = false)
             // Ishte admini i vetëm: admin bëhet anëtari më i vjetër (përndryshe askush s'mund të ftojë a të heqë)
             try {

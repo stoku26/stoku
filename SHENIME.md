@@ -58,6 +58,18 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v341 / Android Hyrja 100 (19.11.2026): KONTROLLI I PLOTË I PROJEKTIT (pjesa 2, "prej a deri zh")**. Pronari: "Komplet projektin me
+   skanu 100% ... web pc, web app tel. Android app, appi ne ore, workerat, kodin e firebase". Gjetjet dhe rregullimet: (1) Web tel: Ballina
+   (dlgBallina, e hapur gati gjithmonë që nga v327) llogaritej si "dialog i hapur", kështu `eshteCastIQete` (rinisja pas përditësimit të
+   service worker-it) dhe rilidhja pas 'online' (kur Firebase s'u ngarkua) s'ndodhnin kurrë pa dalë në sfond: tani `:not(#dlgBallina)`.
+   (2) PC: `toast(teksti, 4000)` → `{ ms: 4000 }` (te PC toast-i merr opsione, numri injorohej); zvarritja nga jashtë mbi folder
+   (`application/x-stoku-produkte` me JSON të prishur) jepte gabim: tani JSON.parse me try. (3) Android: `Grupi.hiqNgaGrupi` fshin edhe
+   `grupet/{g}/push` të kolegut (si ekipa.js; Worker-i i filtronte gjithsesi); `Admini.fshijLlogarine` fshin edhe `grupet/{g}/malli/{u}`.
+   Rregullat e lejojnë të dyja (s'ndryshojnë). Kontrolluar pa gabime: krejt app-tel.js, app-pc.js, libraritë e përbashkëta, Android
+   (Sinkronizimi, Dyqani, Push, Grupi, Llogaria, MainActivity, Merchandiseri, Perditesimi, Admini, Regjistri), Worker-at (stoku-push,
+   stoku-afatet), ora (ndryshimet pas v316), rregullat e Firestore. Vërejtje pa ndryshim: stoku-afatet i mban çelësat e Google 1 orë
+   (stoku-push sipas Cache-Control); xlsx me rreshta shumë të rrallë krijon lista të mëdha. Test: `teste/v341.js`.
+
 0000000. **v340 / Android Hyrja 99 (19.11.2026): KONTROLLI I PLOTË I PROJEKTIT (pjesa 1)**. Pronari: "Kontrolloje komplet projektin per bugs,
    permirsime, stabilitet, performanc. Edhe ne rast qe limiti arrihet me ja nis vet". (1) Web tel: kërkimi i Ballinës vizatohet 120 ms pas
    shkronjës së fundit; `malliIKolegeve` (ekipa.js) e mban mallin e zbërthyer në WeakMap derisa të vijë malli i ri (më parë zbërthente mijëra
