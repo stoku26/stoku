@@ -2639,7 +2639,7 @@
       if (window.__stokuCloud || !navigator.onLine) return;
       if (performance.now() < 10000) { setTimeout(prit, 10000 - performance.now()); return; } // Firebase mund të jetë ende duke u ngarkuar
       var ae = document.activeElement;
-      if (document.querySelector('.hapur[id^="dlg"], .mbulese.hapur') || (ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))) { setTimeout(prit, 3000); return; }
+      if (document.querySelector('.hapur[id^="dlg"]:not(#dlgBallina), .mbulese.hapur:not(#dlgBallina)') || (ae &&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))) { setTimeout(prit, 3000); return; }
       try { sessionStorage.setItem('stoku:rilidhja', String(Date.now())); } catch (e) { /* ok */ }
       location.reload();
     })();
@@ -9578,7 +9578,8 @@
     var eshteCastIQete = function () {
       var a = document.activeElement;
       if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA') && a.value) return false;  // po shkruan diçka
-      if (document.querySelector('.mbulese.hapur:not(#dlgAfatet):not(#dlgOpsione):not(#dlgEkipi)')) return false; // dialog i hapur
+      // dialog i hapur (v341: pa Ballinën: është faqja kryesore, e hapur gati gjithmonë, dhe përditësimi s'vinte kurrë pa dalë në sfond)
+      if (document.querySelector('.mbulese.hapur:not(#dlgAfatet):not(#dlgOpsione):not(#dlgEkipi):not(#dlgBallina)')) return false;
       if ($('kamera').classList.contains('hapur')) return false;
       if (dukeSinkronizuar || sinkronizoKohezi) return false;                                // ruajtje në cloud në pritje
       return true;

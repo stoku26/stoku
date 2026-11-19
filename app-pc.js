@@ -1086,7 +1086,7 @@
         var prod = ev.dataTransfer.getData('application/x-stoku-produkte');
         var lart = r.classList.contains('cak-lart');
         pastroCaqet();
-        if (prod) { zhvendosProduktet(JSON.parse(prod), f); return; }
+        if (prod) { var kk = null; try { kk = JSON.parse(prod); } catch (e) { /* zvarritje nga jashtë */ } if (Array.isArray(kk)) zhvendosProduktet(kk, f); return; }
         var id = ev.dataTransfer.getData('application/x-stoku-folder');
         if (!id || id === f.id || !leja('stokuFoldera')) return;
         var levizur = folderSipasId(id);
@@ -3081,7 +3081,7 @@
           if (!po) return;
           bs.disabled = true;
           var rz = await pajisjetCloud().shkeput(x.id);
-          if (!rz.ok) { bs.disabled = false; toast('Pajisja s\'u shkëput. Kontrollo internetin dhe provo përsëri.', 4000); return; }
+          if (!rz.ok) { bs.disabled = false; toast('Pajisja s\'u shkëput. Kontrollo internetin dhe provo përsëri.', { ms: 4000 }); return; }
           toast('Pajisja u shkëput.');
         });
         r.appendChild(bs);
@@ -3097,7 +3097,7 @@
         bk.disabled = true;
         var rz = await Promise.all(tjerat.map(function (x) { return pajisjetCloud().shkeput(x.id); }));
         bk.disabled = false;
-        toast(rz.every(function (q) { return q.ok; }) ? 'U shkëputën të gjitha pajisjet e tjera.' : 'Disa s\'u shkëputën. Kontrollo internetin.', 4000);
+        toast(rz.every(function (q) { return q.ok; }) ? 'U shkëputën të gjitha pajisjet e tjera.' : 'Disa s\'u shkëputën. Kontrollo internetin.', { ms: 4000 });
       });
       el.appendChild(bk);
     }
@@ -3111,7 +3111,7 @@
       ndalDegjuesin();
       if (window.__stokuCloud && window.__stokuCloud.dil) await window.__stokuCloud.dil();
       kurNdryshonLlogaria();
-      toast('U shkëpute nga llogaria nga një pajisje tjetër.', 6000);
+      toast('U shkëpute nga llogaria nga një pajisje tjetër.', { ms: 6000 });
     });
     __pajNdal = P.degjoListen(function (l) { __pajL = l; vizatoPajisjet(); }, function () { /* pa rregullat e reja: lista mbetet bosh */ });
     vizatoPajisjet();
