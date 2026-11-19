@@ -48,7 +48,7 @@ function zip(sk) {
   const fk = JSON.parse(lx('vendas/logjika/src/test/resources/fikstura.json')).excel.leximi.find(a => a.emri === 'dore').rez[0].rows;
   ok(fk.length === 7 && fk[6].length === 200 && fk[6][199] === 199, '2. fikstura e Kotlinit: rreshti 7 deri te GR, pa GS/XFD, pa rreshtin 100001', { n: fk.length, k: fk[6].length });
   ok(/celesatGoogle\(true\)/.test(lx('worker/stoku-afatet.js')) && /versioni: 4/.test(lx('worker/stoku-afatet.js')), '3. stoku-afatet v4: çelësi i panjohur rishkarkohet');
-  ok(/Hyrja\(101, "2026-11-19"/.test(lx(K + 'TeRejat.kt')) && /v: 342/.test(lx('versioni.js')) && /stoku-v342/.test(lx('sw.js')), '0. versionet 342 / Hyrja 101');
+  ok(/Hyrja\(101, "2026-11-19"/.test(lx(K + 'TeRejat.kt')) && +(/v: (\d+)/.exec(lx('versioni.js')) || [])[1] >= 342 && +(/stoku-v(\d+)/.exec(lx('sw.js')) || [])[1] >= 342, '0. versionet 342 / Hyrja 101');
   console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');
   process.exit(g ? 1 : 0);
 })();

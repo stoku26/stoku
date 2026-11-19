@@ -58,6 +58,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v343 (19.11.2026): NJOFTIMET PUSH NË IPHONE PA "Stoku · " NË TITULL**. Pronari (foto e njoftimit në iPhone: "Stoku · Hiqe nga
+   rafti / from Stoku"): "from Stoku" e shton iOS-i (web app në ekranin bazë), s'hiqet nga ne. `sw.js` `titulliPush`: kur userAgent-i
+   i service worker-it ka iPhone/iPad/iPod, prefiksi "Stoku · " hiqet nga titulli (p.sh. "Hiqe nga rafti"). Android (web app + aplikacioni,
+   FCM) dhe PC mbeten si më parë (pronari: "skisha pas qef me met pa to"). Worker-i s'ndryshon. iPad-i në "desktop mode" (UA Macintosh) e
+   mban prefiksin. Test: `teste/v343.js`.
+
 0000000. **v342 / Android Hyrja 101 / stoku-afatet v4 (19.11.2026): DY VËREJTJET E KONTROLLIT U RREGULLUAN**. Pronari: "Ok rregulloj".
    (1) Leximi i Excel-it (`xlsx.js` read + `Xlsx.kt`): qelizat nga kolona 200 (GS) e tutje dhe rreshtat nga 100.001 e poshtë injorohen
    (`KOL_MAKS = 200`, `RRESHT_MAKS = 100000`, të njëjtët në web dhe Kotlin; Kotlini kishte më parë kufi 20000 kolona). Më parë një qelizë
