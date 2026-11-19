@@ -21,6 +21,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 343, versioni: '1.73.8', data: '2026-11-19', titulli: 'Njoftimet në iPhone', platforma: 'tel', pikat: [
+      'Në iPhone njoftimet s\'e përsërisin më "Stoku" në titull (iPhone e shkruan vetë "from Stoku" poshtë tij).'
+    ] },
     { v: 342, versioni: '1.73.7', data: '2026-11-19', titulli: 'Importi nga Excel', pikat: [
       'Excel-ët me shkrime shumë larg djathtas ose shumë poshtë në fletë importohen pa e ngadalësuar aplikacionin.'
     ] },

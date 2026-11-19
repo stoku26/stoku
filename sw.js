@@ -10,7 +10,7 @@
  * kopjohen nga cache-i i versionit të mëparshëm, pa u shkarkuar sërish; vetëm faqet dhe skedarët e rinj
  * merren nga interneti.
  */
-var CACHE = 'stoku-v342';
+var CACHE = 'stoku-v343';
 
 // Njoftimet për afatet (kontrolli bëhet edhe kur aplikacioni është mbyllur — shih njoftimet.js)
 importScripts('./afatet.js?v=295', './njoftimet.js?v=315');
@@ -45,8 +45,8 @@ var SHELL = FAQET.concat([
   './njoftimet.js?v=315',
   './temat.js?v=2',
   './logot.js?v=5',
-  './versioni.js?v=342',
-  './teRejat.js?v=342',
+  './versioni.js?v=343',
+  './teRejat.js?v=343',
   // v238: skriptat e faqeve (më parë brenda HTML-së; CSP pa 'unsafe-inline')
   './kornize.js?v=238',
   './es2020.js?v=238',
@@ -210,8 +210,15 @@ self.addEventListener('push', function (e) {
     data: { url: d.url || './index.html#ekipa-njoftimet' },
     actions: [{ action: 'hap', title: d.lloji === 'afatet' ? 'Hap afatet' : 'Hap njoftimet' }]
   };
-  e.waitUntil(self.registration.showNotification(d.titulli || 'Stoku', op));
+  e.waitUntil(self.registration.showNotification(titulliPush(d.titulli, self.navigator && self.navigator.userAgent), op));
 });
+// v343 (pronari): iPhone/iPad e shton vetë "from Stoku" poshtë titullit, kështu "Stoku · " te titulli përsëritej: aty hiqet.
+// Android (web app dhe aplikacioni) dhe kompjuteri mbeten "Stoku · …".
+function titulliPush(t, ua) {
+  t = t || 'Stoku';
+  if (/iPhone|iPad|iPod/.test(ua || '')) t = t.replace(/^Stoku · /, '') || 'Stoku';
+  return t;
+}
 
 // Prekja e njoftimit: afatet → "Afatet e produkteve"; Ekipa (#ekipa… / #/ekipa…) → tabi Ekipa, në të njëjtin lloj
 // dritareje nga erdhi njoftimi (telefon = index.html, kompjuter = pc.html)
