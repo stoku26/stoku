@@ -11,7 +11,8 @@ const B = 'http://127.0.0.1:' + (process.env.PORTI || '8765');
 const SC = process.env.SC || '/tmp/';
 const ADM = 'USfaW6Lbm3dbxEF95aKMKadIaok1';
 (async () => {
-  const t = Date.now(), d = n => new Date(t + n * 864e5).toISOString().slice(0, 10);
+  // v345: data lokale (si aplikacioni), jo UTC: mes 00:00 dhe 01:00 të Kosovës UTC ishte ende dita e kaluar
+  const t = Date.now(), d = n => { const x = new Date(t); x.setDate(x.getDate() + n); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
   const F = krijoFirestore({ rregullat: 'reja' });
   const perd = (u, em, gr) => F.S.docs.set('perdoruesit/' + u, { perdoruesi: em, kycurSe: t - 6e4, grupi: gr || '' });
   perd(ADM, 'duli96', 'g1'); perd('u2', 'pda34', 'g1'); perd('u3', 'tonnyaliu', 'g1');
