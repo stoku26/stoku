@@ -659,6 +659,9 @@ private fun Permbledhja(ftesat: List<Obj>, kerkesatG: List<Obj>, ngjarjet: List<
     val st = remember(an, ctx.tani) { GrupiLogjika.statistikat(an, ctx.tani) }
     val te = ctx.krejtAfatet
     val ng = ctx.ngarkuar
+    // Hyrja 102: llogaritet vetëm kur ndryshojnë afatet (më parë në çdo rivizatim)
+    val skaduara = remember(an, ctx.tani) { te.filter { Afatet.statusi(it) == "skaduar" }.sortedWith { a, b -> Afatet.krahaso(a, b) } }
+    val javes = remember(an, ctx.tani) { te.filter { Afatet.statusi(it) == "afer" && (Afatet.ditetDeri(it["data"])?.let { d -> d <= 7 } == true) }.sortedWith { a, b -> Afatet.krahaso(a, b) } }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 24.dp)) {
         item {
             ShiritiINumrave(listOf(
@@ -683,8 +686,6 @@ private fun Permbledhja(ftesat: List<Obj>, kerkesatG: List<Obj>, ngjarjet: List<
             }
         }
         // Hyrja 93 (pronari: "hiqi komplet te rrethekumen prej permbledhjes let jen veq te tabi koleget"): "Online tani" vetëm te Kolegët
-        // Hyrja 102: llogaritet vetëm kur ndryshojnë afatet (më parë në çdo rivizatim)
-        val skaduara = remember(an, ctx.tani) { te.filter { Afatet.statusi(it) == "skaduar" }.sortedWith { a, b -> Afatet.krahaso(a, b) } }
         item {
             Seksion("Duhet hequr nga rafti", if (skaduara.size > 5) "Shiko të gjitha (${skaduara.size})" else null) { ctx.hapAnetarin("krejt", "skaduar") }
             when {
@@ -694,7 +695,6 @@ private fun Permbledhja(ftesat: List<Obj>, kerkesatG: List<Obj>, ngjarjet: List<
             }
         }
         items(skaduara.take(5), key = { "s" + it["pronariUid"] + it["id"] }) { KartaPultit(it, ctx) }
-        val javes = remember(an, ctx.tani) { te.filter { Afatet.statusi(it) == "afer" && (Afatet.ditetDeri(it["data"])?.let { d -> d <= 7 } == true) }.sortedWith { a, b -> Afatet.krahaso(a, b) } }
         if (ng && javes.isNotEmpty()) {
             item { Seksion("Skadojnë këtë javë", "Shiko të gjitha") { ctx.hapAnetarin("krejt", "afer") } }
             items(javes.take(5), key = { "j" + it["pronariUid"] + it["id"] }) { KartaPultit(it, ctx) }
