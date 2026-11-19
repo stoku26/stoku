@@ -21,6 +21,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 340, versioni: '1.73.5', data: '2026-11-19', titulli: 'Kërkimi më i shpejtë', platforma: 'tel', pikat: [
+      'Kërkimi te Ballina s\'e ngadalëson më shkrimin, edhe kur kolegët kanë shumë mall.'
+    ] },
     { v: 339, versioni: '1.73.4', data: '2026-11-18', titulli: 'Malli i kolegëve', platforma: 'tel', pikat: [
       'U rregullua ndarja e mallit me kolegët e grupit: më parë s\'ruhej dot dhe kolegët s\'e gjenin mallin tënd te kërkimi i Ballinës.'
     ] },

@@ -3290,8 +3290,12 @@
       // v339: çdo produkt një tekst "barkodi⇥emri⇥sasia⇥furnizuesi⇥folderi" (Firestore s'pranon listë brenda liste)
       var pa = function (t) { return String(t == null ? '' : t).replace(/[\t\r\n]+/g, ' '); };
       publikimiM.p = produktet.slice(0, 8000).map(function (x) {
-        return [pa(x.barkodi), pa(x.emri), Number(x.sasia) || 0, pa(x.furnizuesi), pa(ef[x.kategoriaId])].join('\t');
+        return [pa(x.barkodi), pa(x.emri).slice(0, 120), Number(x.sasia) || 0, pa(x.furnizuesi).slice(0, 60), pa(ef[x.kategoriaId]).slice(0, 60)].join('\t');
       }).sort();
+      // v340: dokumenti i Firestore-it lejon deri 1 MiB; mbahet nën ~900 KB (përndryshe shkrimi dështon krejt)
+      var bajte = 0, deri = publikimiM.p.length;
+      for (var i = 0; i < publikimiM.p.length; i++) { bajte += unescape(encodeURIComponent(publikimiM.p[i])).length + 2; if (bajte > 900000) { deri = i; break; } }
+      publikimiM.p = publikimiM.p.slice(0, deri);
       clearTimeout(publikimiM.kohez);
       publikimiM.kohez = setTimeout(publikoMallinTani, 2500);
     }
@@ -3306,13 +3310,19 @@
       else if (r && r.leje) publikimiM.bllokuarDeri = Date.now() + 10 * 60 * 1000; // rregullat pa "malli" ende: mos provo pas çdo ndryshimi
     }
     // [{ uid, emri, p }] e kolegëve të grupit (pa mua), vetëm sa kohë dëgjuesit e grupit janë hapur
+    var malliIZberthyer = new WeakMap();
     function malliIKolegeve() {
       var uIm = o.uidIm(), an = {};
       anetaretEDukshem().forEach(function (a) { an[a.uid] = a.emri; });
       var m = gj.malli || {};
       return Object.keys(m).filter(function (u) { return u !== uIm && an[u] !== undefined; }).map(function (u) {
-        // v339: rreshti vjen si tekst me ⇥ (formati i vjetër [..] pranohet ende)
-        var p = (m[u].p || []).map(function (r) { if (typeof r !== 'string') return r; var x = r.split('\t'); x[2] = Number(x[2]) || 0; return x; });
+        // v339: rreshti vjen si tekst me ⇥ (formati i vjetër [..] pranohet ende). v340: i zbërthyer ruhet derisa të vijë malli i ri
+        // (kërkimi e thërret këtë për çdo shkronjë; pa kopjen zbërthehen mijëra rreshta çdo herë)
+        var p = malliIZberthyer.get(m[u]);
+        if (!p) {
+          p = (m[u].p || []).map(function (r) { if (typeof r !== 'string') return r; var x = r.split('\t'); x[2] = Number(x[2]) || 0; return x; });
+          malliIZberthyer.set(m[u], p);
+        }
         return { uid: u, emri: an[u] || m[u].emri, p: p };
       });
     }

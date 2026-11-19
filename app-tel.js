@@ -4910,7 +4910,9 @@
       kont.appendChild(s);
     });
   }
-  $('blKerko').addEventListener('input', vizatoKerkimin);
+  // v340: pak pas shkronjës së fundit (kërkimi kalon edhe mallin e kolegëve, mijëra rreshta), që shkrimi të mos ngecë
+  var blKerkoKohez = null;
+  $('blKerko').addEventListener('input', function () { clearTimeout(blKerkoKohez); blKerkoKohez = setTimeout(vizatoKerkimin, $('blKerko').value.trim() ? 120 : 0); });
   $('blKerko').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); this.blur(); } });
 
   // ---------- "Përshtat faqen" ----------

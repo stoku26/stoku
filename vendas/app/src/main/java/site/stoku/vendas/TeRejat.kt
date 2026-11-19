@@ -10,6 +10,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(99, "2026-11-19", "Rregullime", listOf(
+            "Malli shumë i madh ndahet me kolegët pa e kaluar kufirin e Firebase-it (më parë shkrimi mund të dështonte krejt)."
+        )),
         Hyrja(98, "2026-11-18", "Rregullime", listOf(
             "U rregullua ndarja e mallit me kolegët e grupit: më parë s'ruhej dot dhe kolegët s'e gjenin mallin tënd te kërkimi i Ballinës.",
             "Kërkimi te Ballina s'e ngadalëson më shkrimin, edhe kur kolegët kanë shumë mall.",

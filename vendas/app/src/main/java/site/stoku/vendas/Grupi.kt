@@ -321,8 +321,13 @@ object Grupi {
         val ndares = Regex("[\\t\\r\\n]+")
         fun pa(t: Any?) = jsString(t ?: "").replace(ndares, " ")
         val p = dq.produktet.values.take(8000).map { x ->
-            listOf(pa(x["barkodi"]), pa(x["emri"]), numerOse0(x["sasia"]).toLong().toString(), pa(x["furnizuesi"]), pa(ef[(x["kategoriaId"] as? String).orEmpty()])).joinToString("\t")
-        }.sorted()
+            listOf(pa(x["barkodi"]), pa(x["emri"]).take(120), numerOse0(x["sasia"]).toLong().toString(), pa(x["furnizuesi"]).take(60), pa(ef[(x["kategoriaId"] as? String).orEmpty()]).take(60)).joinToString("\t")
+        }.sorted().let { l ->
+            // Hyrja 99: dokumenti i Firestore-it lejon deri 1 MiB; mbahet nën ~900 KB (përndryshe shkrimi dështon krejt)
+            var bajte = 0; var deri = l.size
+            for (i in l.indices) { bajte += l[i].toByteArray(Charsets.UTF_8).size + 2; if (bajte > 900_000) { deri = i; break } }
+            l.take(deri)
+        }
         p to (u0 + "|" + g + "|" + emriIm + "|" + Ruajtja.hash(Json.shkruaj(p)) + ":" + p.size)
         }
         if (n == StokuApp.prefsOse("grupi_malli_publikuar", "") || uid != u0 || grupi() != g) return

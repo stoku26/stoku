@@ -58,6 +58,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v340 / Android Hyrja 99 (19.11.2026): KONTROLLI I PLOTË I PROJEKTIT (pjesa 1)**. Pronari: "Kontrolloje komplet projektin per bugs,
+   permirsime, stabilitet, performanc. Edhe ne rast qe limiti arrihet me ja nis vet". (1) Web tel: kërkimi i Ballinës vizatohet 120 ms pas
+   shkronjës së fundit; `malliIKolegeve` (ekipa.js) e mban mallin e zbërthyer në WeakMap derisa të vijë malli i ri (më parë zbërthente mijëra
+   rreshta për çdo shkronjë). (2) Web + Android: malli i ndarë me kolegët mbahet nën ~900 KB (emri ≤120, furnizuesi/folderi ≤60 shenja; pastaj
+   produktet e tepërta s'dërgohen): dokumenti i Firestore-it lejon deri 1 MiB dhe pa kufi shkrimi dështonte krejt. Kontrolluar pa gjetur gabime:
+   sw.js, innerHTML (vetëm ikona statike), JSON.parse i localStorage (krejt me try), pyetjet e Firestore-it (pa indekse të përbëra), intervalet.
+   Test: `teste/v340.js`.
+
 0000000. **v339 / Android Hyrja 98 (18.11.2026): KONTROLLI I ANDROID-IT + MALLI I KOLEGËVE S'RUHEJ NË FIREBASE**. Pronari: "Kontrolloje
    android appin per bugs, gabime, permirsime, performanc, stabilitet". Gabimi kryesor (edhe web, v335): `grupet/{g}/malli/{uid}.p` ishte
    listë listash ([[barkodi, emri, ...]]); Firestore i vërtetë s'e pranon ("Nested arrays are not supported"), kështu shkrimi dështonte në
