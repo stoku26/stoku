@@ -58,6 +58,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v342 / Android Hyrja 101 / stoku-afatet v4 (19.11.2026): DY VËREJTJET E KONTROLLIT U RREGULLUAN**. Pronari: "Ok rregulloj".
+   (1) Leximi i Excel-it (`xlsx.js` read + `Xlsx.kt`): qelizat nga kolona 200 (GS) e tutje dhe rreshtat nga 100.001 e poshtë injorohen
+   (`KOL_MAKS = 200`, `RRESHT_MAKS = 100000`, të njëjtët në web dhe Kotlin; Kotlini kishte më parë kufi 20000 kolona). Më parë një qelizë
+   te XFD ose një rresht i fundit 1048576 me tekst krijonte mijëra qeliza / qindra-mijëra rreshta bosh. Fikstura "dore" e
+   `vendas-fikstura.js` ka rreshtin 7 me GR/GS/XFD dhe rreshtin 100001. (2) Worker-i `stoku-afatet` v4: çelësat e Google-it (JWK) mbahen
+   sipas Cache-Control (si stoku-push), dhe një `kid` i panjohur i rishkarkon menjëherë (jo më shpesh se 1 herë në minutë); më parë 1 orë
+   fikse, kështu ndërrimi i çelësave mund ta ndalte leximin me AI deri në një orë. **Pronari duhet ta vendosë `worker/stoku-afatet.js`
+   te Cloudflare.** Teste: `teste/v342.js`, `teste/wp/afatet-ai-prova.mjs` (pika 8).
+
 0000000. **v341 / Android Hyrja 100 (19.11.2026): KONTROLLI I PLOTË I PROJEKTIT (pjesa 2, "prej a deri zh")**. Pronari: "Komplet projektin me
    skanu 100% ... web pc, web app tel. Android app, appi ne ore, workerat, kodin e firebase". Gjetjet dhe rregullimet: (1) Web tel: Ballina
    (dlgBallina, e hapur gati gjithmonë që nga v327) llogaritej si "dialog i hapur", kështu `eshteCastIQete` (rinisja pas përditësimit të

@@ -115,7 +115,7 @@ export default {
     const pergjigju = (obj, status = 200) => new Response(JSON.stringify(obj), { status, headers: { ...cors, 'Content-Type': 'application/json; charset=utf-8' } });
 
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
-    if (request.method === 'GET') return pergjigju({ ok: true, sherbimi: 'stoku-afatet', versioni: 3, ofruesit: ofruesit(env), kufiri: env.KUFIRI ? kufiriDitor(env) : null });
+    if (request.method === 'GET') return pergjigju({ ok: true, sherbimi: 'stoku-afatet', versioni: 4, ofruesit: ofruesit(env), kufiri: env.KUFIRI ? kufiriDitor(env) : null });
     if (request.method !== 'POST') return pergjigju({ gabim: 'metoda' }, 405);
     if (!origjinaOk) return pergjigju({ gabim: 'origjina' }, 403);
 
@@ -318,12 +318,16 @@ function nxirrRreshtat(tekst) {
 }
 
 // ---------- Verifikimi i tokenit të Firebase (JWT RS256) ----------
-let celesatCache = { kur: 0, celesat: null };
-async function celesatGoogle() {
-  if (celesatCache.celesat && Date.now() - celesatCache.kur < 3600 * 1000) return celesatCache.celesat;
+// v4: çelësat mbahen aq sa thotë Google (Cache-Control max-age, si te stoku-push); një çelës i panjohur i rishkarkon menjëherë
+// (jo më shpesh se një herë në minutë), që ndërrimi i çelësave nga Google të mos e ndalë leximin deri në një orë.
+let celesatCache = { kur: 0, skadon: 0, celesat: null };
+async function celesatGoogle(detyro) {
+  if (celesatCache.celesat && (detyro ? Date.now() - celesatCache.kur < 60 * 1000 : Date.now() < celesatCache.skadon)) return celesatCache.celesat;
   const r = await fetch('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com');
+  if (!r.ok) { if (celesatCache.celesat) return celesatCache.celesat; throw new Error('jwk-' + r.status); }
   const j = await r.json();
-  celesatCache = { kur: Date.now(), celesat: j.keys || [] };
+  const m = /max-age=(\d+)/.exec(r.headers.get('Cache-Control') || '');
+  celesatCache = { kur: Date.now(), skadon: Date.now() + (m ? Number(m[1]) * 1000 : 3600 * 1000), celesat: j.keys || [] };
   return celesatCache.celesat;
 }
 function b64urlNeBajte(s) {
@@ -344,7 +348,8 @@ async function verifikoTokenin(tokeni, projekti) {
     const tani = Math.floor(Date.now() / 1000);
     if (te.aud !== projekti || te.iss !== 'https://securetoken.google.com/' + projekti) return null;
     if (!te.exp || te.exp < tani - 60 || !te.sub) return null;
-    const jwk = (await celesatGoogle()).find((k) => k.kid === koka.kid);
+    let jwk = (await celesatGoogle()).find((k) => k.kid === koka.kid);
+    if (!jwk) jwk = (await celesatGoogle(true)).find((k) => k.kid === koka.kid); // çelës i ri i Google-it
     if (!jwk) return null;
     const celesi = await crypto.subtle.importKey('jwk', jwk, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);
     const ok = await crypto.subtle.verify('RSASSA-PKCS1-v1_5', celesi, b64urlNeBajte(pjeset[2]), new TextEncoder().encode(pjeset[0] + '.' + pjeset[1]));

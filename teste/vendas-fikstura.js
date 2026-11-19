@@ -598,6 +598,9 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
       '<row r="0"><c r="A0"><v>5</v></c></row>' +
       '<row r="1048576"><c r="A1048576" s="3"/></row>' +
       '<row r="6"><c r="C6"><v>1E-7</v></c><c r="AA6" t="inlineStr"><is><r><t>a</t></r><r><t>b</t></r></is></c></row>' +
+      // v342: qeliza shumë larg djathtas (GS = 200, XFD) dhe rreshti shumë poshtë injorohen (web + Kotlin)
+      '<row r="7"><c r="A7"><v>7</v></c><c r="GR7"><v>199</v></c><c r="GS7"><v>200</v></c><c r="XFD7"><v>16384</v></c></row>' +
+      '<row r="100001"><c r="A100001"><v>9</v></c></row>' +
       '</sheetData></worksheet>'],
     ['xl/worksheets/sheet2.xml', '<?xml version="1.0"?><worksheet ' + NS + '><sheetData><row r="2"><c r="B2" t="inlineStr"><is><t>vetëm B2</t></is></c></row></sheetData></worksheet>'],
     ['xl/worksheets/tjeter.xml', '<?xml version="1.0"?><x:worksheet xmlns:x="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><x:sheetData><x:row x:r="1"><x:c r="A1" t="inlineStr"><x:is><x:t>me prefiks</x:t></x:is></x:c></x:row></x:sheetData></x:worksheet>']
