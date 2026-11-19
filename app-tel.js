@@ -2639,7 +2639,7 @@
       if (window.__stokuCloud || !navigator.onLine) return;
       if (performance.now() < 10000) { setTimeout(prit, 10000 - performance.now()); return; } // Firebase mund të jetë ende duke u ngarkuar
       var ae = document.activeElement;
-      if (document.querySelector('.hapur[id^="dlg"]:not(#dlgBallina), .mbulese.hapur:not(#dlgBallina)') || (ae &&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))) { setTimeout(prit, 3000); return; }
+      if (document.querySelector('.hapur[id^="dlg"]:not(#dlgBallina), .mbulese.hapur:not(#dlgBallina)') || (ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))) { setTimeout(prit, 3000); return; }
       try { sessionStorage.setItem('stoku:rilidhja', String(Date.now())); } catch (e) { /* ok */ }
       location.reload();
     })();

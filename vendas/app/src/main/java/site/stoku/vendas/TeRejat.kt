@@ -10,6 +10,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(100, "2026-11-19", "Grupi", listOf(
+            "Kur një koleg hiqet nga grupi ose llogaria e tij fshihet, hiqen menjëherë edhe pajisjet e tij nga njoftimet e grupit dhe malli i tij."
+        )),
         Hyrja(99, "2026-11-19", "Rregullime", listOf(
             "Malli shumë i madh ndahet me kolegët pa e kaluar kufirin e Firebase-it (më parë shkrimi mund të dështonte krejt)."
         )),

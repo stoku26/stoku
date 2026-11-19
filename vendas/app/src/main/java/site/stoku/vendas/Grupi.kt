@@ -905,6 +905,8 @@ object Grupi {
             db.collection("grupet").document(g).collection("anetaret").document(u).delete().await()
             try { db.collection("grupet").document(g).collection("afatet").document(u).delete().await() } catch (e: Exception) { }
             try { db.collection("grupet").document(g).collection("malli").document(u).delete().await() } catch (e: Exception) { }
+            // Hyrja 100: edhe pajisjet e tij te njoftimet e grupit (si hiqNgaGrupi te ekipa.js); Worker-i i injoron gjithsesi
+            try { db.collection("grupet").document(g).collection("push").whereEqualTo("uid", u).get().await().documents.forEach { try { it.reference.delete().await() } catch (e: Exception) { } } } catch (e: Exception) { }
             null
         } catch (e: Exception) { gabimi(e) }
     }
