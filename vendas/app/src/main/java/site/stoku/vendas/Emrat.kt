@@ -17,6 +17,10 @@ object Emrat {
     private val aktualR = HashMap<String, String>()
     private val aliaset = HashMap<String, MutableList<String>>()
     private var ngarkuar = false
+    // Hyrja 102: harta ruhet derisa të ndryshojnë burimet ose emrat (më parë rindërtohej në çdo thirrje të emri())
+    private var ndryshime = 0
+    private var hartaRuajtur: GrupiLogjika.HartaEEmrave? = null
+    private var celesiHartes: List<Any?> = emptyList()
 
     @Synchronized private fun ngarko() {
         if (ngarkuar) return
@@ -29,6 +33,7 @@ object Emrat {
     }
 
     @Synchronized private fun ruaj() {
+        ndryshime++
         try { StokuApp.vendosPref(PREF, Json.shkruaj(mapOf("aktual" to HashMap(aktualR), "aliaset" to aliaset.mapValues { it.value.toList() }))) } catch (e: Exception) { /* ok */ }
     }
 
@@ -75,9 +80,19 @@ object Emrat {
         return l
     }
 
+    private fun burimet(): List<Any?> = try { listOf(Admini.llogarite.value, Grupi.anetaret.value, Llogaria.perdoruesi.value) } catch (e: Exception) { listOf(null, null, null) }
+
     @Synchronized fun harta(): GrupiLogjika.HartaEEmrave {
+        ngarko()
+        val b = burimet()
+        val h0 = hartaRuajtur
+        val njejta = h0 != null && celesiHartes.size == b.size + 1 && celesiHartes[0] == ndryshime && b.indices.all { celesiHartes[it + 1] === b[it] }
+        if (njejta) return h0!!
         vendosAktuale(teGjalla())
-        return GrupiLogjika.HartaEEmrave(HashMap(aktualR), aliaset.mapValues { it.value.toList() })
+        val h = GrupiLogjika.HartaEEmrave(HashMap(aktualR), aliaset.mapValues { it.value.toList() })
+        hartaRuajtur = h
+        celesiHartes = listOf<Any?>(ndryshime) + b
+        return h
     }
 
     /** Emri i tanishëm: me uid (kur dihet), ose sipas emrit të vjetër */

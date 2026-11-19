@@ -21,6 +21,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 344, versioni: '1.73.9', data: '2026-11-19', titulli: 'Fshirja e llogarisë', vetemAdmini: true, pikat: [
+      'Kur administratori fshin një llogari, fshihen edhe fotoja e profilit, njoftimi ditor dhe lidhja me orën e dorës te serveri i njoftimeve.'
+    ] },
     { v: 343, versioni: '1.73.8', data: '2026-11-19', titulli: 'Njoftimet në iPhone', platforma: 'tel', pikat: [
       'Në iPhone njoftimet s\'e përsërisin më "Stoku" në titull (iPhone e shkruan vetë "from Stoku" poshtë tij).'
     ] },

@@ -182,6 +182,8 @@ object Admini {
         try { db.collection("lejet").document(u).delete().await() } catch (e: Exception) { }
         try { db.collection("kujtesa_pritje").document(u).delete().await() } catch (e: Exception) { }
         fshijTeGjitha(db.collection("kerkesat_grupi").whereEqualTo("uid", u), numero = false)
+        // Hyrja 102 (Worker 174): edhe te serveri i njoftimeve: fotoja, njoftimi ditor, ora e lidhur (Worker-i i vjetër: s'ka këtë rrugë)
+        try { Push.fshiLlogarineTeServeri(u) } catch (e: Exception) { }
         llogarite.value = llogarite.value?.filter { it.uid != u }
         return Fshirja(true, mbetur = mbetur)
     }

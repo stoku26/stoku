@@ -115,6 +115,9 @@ object Push {
         } catch (e: Exception) { Pergjigja(false, emptyMap(), "rrjeti") }
     }
 
+    /** Hyrja 102 (Worker 174): administratori fshiu një llogari: edhe të dhënat e saj te serveri (foto, njoftimi ditor, ora) */
+    suspend fun fshiLlogarineTeServeri(u: String): Boolean = kerkese("/admin/fshi", mapOf("uid" to u)).ok
+
     /** Hyrja 59: njoftimi personal që sapo e shkrova te një koleg → push te pajisjet e tij (Worker-i e lexon me tokenin tim).
      *  Për "afat-dergim" Worker-i e regjistron edhe për kthimin pas 10 ditëve. */
     suspend fun njoftoNjoftim(id: String, per: String, grupi: String): Boolean = kerkese("/njoftim", mapOf("id" to id, "per" to per, "grupi" to grupi)).ok

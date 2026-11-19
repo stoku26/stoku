@@ -110,8 +110,10 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
     remember(aktiviM, lejet) { 0 }
     val kaM = Merchandiseri.kaMarkete()
     val idM = Merchandiseri.idAktiv()
-    val te = Merchandiseri.afatetEMarketit(g.afatet) // v241: afatet e marketit ku je ("Të gjitha marketet" = të gjitha)
-    val nr = Afatet.numero(te)
+    // Hyrja 102: listat llogariten vetëm kur ndryshojnë afatet, filtri, kërkimi, muaji ose dita (më parë në çdo rivizatim)
+    val sotK = java.time.LocalDate.now().toEpochDay()
+    val te = remember(g.afatet, idM, aktiviM) { Merchandiseri.afatetEMarketit(g.afatet) } // v241: afatet e marketit ku je ("Të gjitha marketet" = të gjitha)
+    val nr = remember(te, sotK) { Afatet.numero(te) }
     val numrat = mapOf("aktive" to nr.aktive, "skaduar" to nr.skaduar + nr.paDate, "afer" to nr.afer, "ok" to nr.ok, "hequr" to nr.hequr)
     fun eFiltruara(mu: String): List<Obj> {
         val k = kerkimi.trim().lowercase()
@@ -130,8 +132,9 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
             true
         }.sortedWith { a, b -> Afatet.krahaso(a, b) }
     }
-    val lista = eFiltruara(muaji)
-    val muajt = Afatet.muajtELista(eFiltruara("")).toMutableList()
+    val lista = remember(te, filtri, kerkimi, muaji, sotK) { eFiltruara(muaji) }
+    val muajtBaze = remember(te, filtri, kerkimi, sotK) { Afatet.muajtELista(eFiltruara("")) }
+    val muajt = muajtBaze.toMutableList()
     if (muaji.isNotEmpty() && muajt.none { it.celes == muaji }) muajt.add(Afatet.Muaji(muaji, 0, Afatet.emriMuajit(muaji)))
     val paFurnizues = Llogaria.eshteMerchandiser()
 

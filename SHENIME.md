@@ -58,6 +58,22 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v344 / Android Hyrja 102 / stoku-push v174 (19.11.2026): KONTROLLI I PIKAVE 6-10 (Android pjesa tjetër, stoku-push, ora,
+   rregullat e Firebase, CSS/workflows/faqet)**. Pronari: "edhe pikat prej 6 deri 10 kontrolloj, per bugs, permirsime, stabilitet, edhe performanc".
+   - GABIMI KRYESOR: kur administratori fshinte një llogari, te Worker-i (KV) mbeteshin fotoja publike e profilit (`foto:{uid}` + `indeksi`),
+     njoftimi ditor (`orari:{uid}:*`, `orari-indeksi`, `orari-afatet:{uid}`: vazhdonte të dërgohej te pajisjet e llogarisë së fshirë), ora
+     e lidhur (`ora-ka`, `ora-tok`, `ora-hequr`: ora vazhdonte t'i shfaqte afatet) dhe `afat-kolegu`. Rruga e re **POST `/admin/fshi`**
+     (`trajtoFshirjenEAdminit`): vetëm me biletë të verifikuar të ADMIN_UID; administratori vetë s'fshihet. Thirret nga `ekipa.js`
+     (`fshijLlogarine`, brenda try: Worker-i i vjetër s'e ka rrugën) dhe `Admini.kt` (`Push.fshiLlogarineTeServeri`).
+     **PRONARI duhet ta vendosë `worker/stoku-push.js` (v174) te Cloudflare**; derisa ta vendosë, fshirja punon si më parë.
+   - Android: `remember` për llogaritjet e rënda (Malli: zero/sotN/tefundit, edhe gjatë zvarritjes së dosjeve; Afatet: lista, muajt,
+     numrat; Grupi Përmbledhja: skaduara/javes); `Emrat.harta()` ruhet derisa ndryshojnë burimet (identiteti i listave) ose emrat
+     (numëruesi `ndryshime`). "Lejo njoftimet në telefon" (Grupi → Njoftimet) para Android 13 hap cilësimet e njoftimeve.
+   - Vërejtje pa ndryshim: indeksi i fotove te KV mund të humbë një hyrje kur dy ngarkime ndodhin njëkohësisht (rrallë, rregullohet
+     në ngarkimin e radhës); fushat te rregullat pa kufi madhësie (Firestore e ka 1 MB për dokument); workflows me veprimet v4 (paralajmërim
+     Node 20, punojnë); `Regjistri.planifikoMesimin` në thread-in kryesor (i lehtë).
+   - Teste: `teste/v344.js`, `teste/wp/admin-fshi-prova.mjs` (te regresioni; Worker-i i vjetër jep 13 GABIM); v343.js pranon versione më të reja.
+
 0000000. **v343 (19.11.2026): NJOFTIMET PUSH NË IPHONE PA "Stoku · " NË TITULL**. Pronari (foto e njoftimit në iPhone: "Stoku · Hiqe nga
    rafti / from Stoku"): "from Stoku" e shton iOS-i (web app në ekranin bazë), s'hiqet nga ne. `sw.js` `titulliPush`: kur userAgent-i
    i service worker-it ka iPhone/iPad/iPod, prefiksi "Stoku · " hiqet nga titulli (p.sh. "Hiqe nga rafti"). Android (web app + aplikacioni,

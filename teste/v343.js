@@ -19,6 +19,6 @@ ok(r.iph === 'Hiqe nga rafti' && r.ipad === 'Grupi', '1. iPhone/iPad: pa "Stoku 
 ok(r.and === 'Stoku · Hiqe nga rafti' && r.pc === 'Stoku · Skadon sot' && r.paUa === 'Stoku · Grupi', '2. Android dhe PC: si më parë', r);
 ok(r.bosh === 'Stoku' && r.vetem === 'Stoku', '3. pa titull: "Stoku"', r);
 ok(/showNotification\(titulliPush\(d\.titulli, self\.navigator && self\.navigator\.userAgent\), op\)/.test(sw), '4. push-i e përdor titulliPush');
-ok(/stoku-v343/.test(sw) && /v: 343/.test(lx('versioni.js')), '0. versioni 343');
+ok(+/stoku-v(\d+)/.exec(sw)[1] >= 343 && +/v: (\d+)/.exec(lx('versioni.js'))[1] >= 343, '0. versioni ≥ 343');
 console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');
 process.exit(g ? 1 : 0);
