@@ -270,7 +270,7 @@ object Llogaria {
 
     suspend fun regjistrohu(emri: String, fjalekalimi: String, merchandiser: Boolean, kushtet: Boolean = false): String? {
         // Hyrja 71: emri që e ka (ose e ka pasur) një llogari tjetër s'merret
-        if (!kushtet) return "Për të vazhduar, shëno që pajtohesh me Kushtet e përdorimit." // Hyrja 105: pa Kushtet, pa llogari
+        if (!kushtet) return "Për të vazhduar, duhet t'i lexoni dhe t'i pranoni Kushtet e përdorimit." // Hyrja 105: pa Kushtet, pa llogari
         if (!pronariIEmrit(emri).isNullOrEmpty()) return EMRI_I_ZENE
         return regjistrohuTani(emri, fjalekalimi, merchandiser, kushtet)
     }

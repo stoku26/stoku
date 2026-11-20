@@ -76,7 +76,7 @@ private fun PortaBrenda() {
             fj.isEmpty() -> "Shkruaj fjalëkalimin."
             fj.length < 6 -> "Fjalëkalimi duhet të ketë të paktën 6 shenja."
             krijo && fj2 != fj -> "Fjalëkalimet nuk përputhen."
-            krijo && !kushtet -> "Për të vazhduar, shëno që pajtohesh me Kushtet e përdorimit."
+            krijo && !kushtet -> "Për të vazhduar, duhet t'i lexoni dhe t'i pranoni Kushtet e përdorimit."
             else -> ""
         }
         if (gabim.isNotEmpty()) return

@@ -21,6 +21,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 348, versioni: '1.74.2', data: '2026-11-20', titulli: 'Krijimi i llogarisë', pikat: [
+      'Kutitë "Pajtohem me Kushtet e përdorimit" dhe "Punoj si merchandiser" kanë pamje më të thjeshtë, si katrorë të vegjël.'
+    ] },
     { v: 347, versioni: '1.74.1', data: '2026-11-20', titulli: 'Krijimi i llogarisë', pikat: [
       'Kur krijon një llogari të re, shëno kutinë "Pajtohem me Kushtet e përdorimit" (e para, mbi "Punoj si merchandiser").'
     ] },
