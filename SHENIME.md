@@ -58,6 +58,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **WORKFLOW "Fshi Releases e vjetra" (20.11.2026)**: pronari kërkoi fshirjen e Releases të vjetra ("veq tfundit lej"). Sesionet e
+   Claude s'lejohen t'i fshijnë Releases (HTTP 403 "not permitted for this session type"), prandaj `.github/workflows/fshi-releases.yml`
+   (vetëm `workflow_dispatch`, `contents: write`): e nis PRONARI me dorë (Actions → "Fshi Releases e vjetra" → Run workflow). Mban vetëm
+   `vendas-vNN` dhe `ora-vNN` me numrin më të madh (aplikacionet, ora dhe android.html marrin vetëm të fundit), fshin krejt të tjerat
+   (edhe `tel-vNN` e aplikacionit të vjetër); etiketat (tags) mbeten. Mos e nis vetë (Claude): është anashkalim i ndalesës.
+
 0000000. **PASTRIMI I REPO-S (20.11.2026, pa version të web-it: s'preket asnjë skedar që e ngarkon faqja)**. Pronari: "kontrolloje 100%
    githubin edhe fshij filet qka nuk nevojitet 100%". U kontrollua çdo skedar: referencat në HTML, `sw.js`, JS, CSS, manifest, Kotlin,
    resurset Android, workflows dhe teste; edhe e kundërta (asnjë skedar që kërkohet nga faqet/SHELL s'mungon). U fshinë VETËM
