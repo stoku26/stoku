@@ -567,6 +567,16 @@ class PamjetTest {
         foto("light-00-porta")
     }
 
+    /** Hyrja 108: "Krijo llogari" me kutitë (Kushtet + merchandiser), e errët, që të shihen qoshet e kutive */
+    @Test fun portaKrijo() {
+        Llogaria.vendosPerProve(null)
+        r.setContent { StokuTema("dark") { Porta() } }
+        kliko("Krijo llogari")
+        foto("dark-00-porta-krijo")
+        r.onNodeWithText("Krijo llogarinë").performClick(); r.waitForIdle()
+        foto("dark-00-porta-krijo-gabim")
+    }
+
     /** "Hyr si vizitor": të dhënat shembull, shiriti i provës, Cilësimet → Llogaria dhe Grupi pa llogari */
     @Test fun vizitori() {
         Dyqani.mbushProven()
