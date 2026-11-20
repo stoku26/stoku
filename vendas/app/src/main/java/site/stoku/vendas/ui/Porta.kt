@@ -180,14 +180,14 @@ private fun PortaBrenda() {
 @Composable
 private fun Etiketa(t: String) = Text(t, style = tx(13, 600, N.ink3), modifier = Modifier.padding(bottom = 0.dp))
 
-/** Kutia e zgjedhjes (pk-mbaj) */
+/** Kutia e zgjedhjes (pk-mbaj). Web v347 (pronari: "pamja 1"): katror klasik 20 dp, kënde 4 dp (edhe merchandiser, edhe Kushtet) */
 @Composable
 fun Kutia(v: Boolean, ndrysho: (Boolean) -> Unit, teksti: String) {
     val n = N
     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).clickable { ndrysho(!v) }.padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(22.dp).clip(RoundedCornerShape(7.dp)).background(if (v) n.accent else n.surface).border(if (v) 0.dp else 1.5.dp, n.control, RoundedCornerShape(7.dp)),
+        Box(Modifier.padding(horizontal = 2.dp).size(20.dp).clip(RoundedCornerShape(4.dp)).background(if (v) n.accent else Color.Transparent).border(if (v) 0.dp else 2.dp, n.muted, RoundedCornerShape(4.dp)),
             contentAlignment = Alignment.Center) {
-            if (v) Icon(Ik.Kontroll, null, Modifier.size(15.dp), tint = Color.White)
+            if (v) Icon(Ik.Kontroll, null, Modifier.size(13.dp), tint = Color.White)
         }
         Spacer(Modifier.size(10.dp))
         Text(teksti, style = tx(14, 500, n.ink2))
@@ -201,9 +201,9 @@ fun KutiaEKushteve(v: Boolean, ndrysho: (Boolean) -> Unit) {
     val ctx = androidx.compose.ui.platform.LocalContext.current
     Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
         Row(Modifier.clip(RoundedCornerShape(10.dp)).clickable { ndrysho(!v) }, verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(22.dp).clip(RoundedCornerShape(7.dp)).background(if (v) n.accent else n.surface).border(if (v) 0.dp else 1.5.dp, n.control, RoundedCornerShape(7.dp)),
+            Box(Modifier.padding(horizontal = 2.dp).size(20.dp).clip(RoundedCornerShape(4.dp)).background(if (v) n.accent else Color.Transparent).border(if (v) 0.dp else 2.dp, n.muted, RoundedCornerShape(4.dp)),
                 contentAlignment = Alignment.Center) {
-                if (v) Icon(Ik.Kontroll, null, Modifier.size(15.dp), tint = Color.White)
+                if (v) Icon(Ik.Kontroll, null, Modifier.size(13.dp), tint = Color.White)
             }
             Spacer(Modifier.size(10.dp))
             Text("Pajtohem me ", style = tx(14, 500, n.ink2))

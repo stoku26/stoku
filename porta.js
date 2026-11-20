@@ -187,9 +187,11 @@
     '#porta .pk-mbaj { display: flex; align-items: center; gap: 10px; margin: 2px 2px 8px; min-height: 44px; cursor: pointer;',
     '  font-size: 14.5px; font-weight: 600; color: var(--sb-ink-2, #3a3d44); -webkit-user-select: none; user-select: none; }',
     '#porta .pk-mbaj input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; padding: 0; box-shadow: none; }',
-    '#porta .pk-tick { flex: none; width: 24px; height: 24px; border-radius: 7px; box-sizing: border-box; display: flex; align-items: center;',
-    '  justify-content: center; background: var(--sb-surface, #fff); box-shadow: inset 0 0 0 1.5px var(--sb-control, #c9c7c1); color: transparent;',
+    // v347 (pronari zgjodhi "pamjen 1"): katror klasik, i vogël, me kënde pak të rrumbullakëta (edhe merchandiser, edhe Kushtet)
+    '#porta .pk-tick { flex: none; width: 20px; height: 20px; margin: 0 2px; border-radius: 4px; box-sizing: border-box; display: flex; align-items: center;',
+    '  justify-content: center; background: transparent; box-shadow: inset 0 0 0 2px var(--sb-muted, #7a7d85); color: transparent;',
     '  transition: background .15s, box-shadow .15s; }',
+    '#porta .pk-tick svg { width: 13px; height: 13px; }',
     '#porta .pk-mbaj input:checked + .pk-tick { background: var(--sb-accent, #1f5fc4); box-shadow: none; color: #fff; }',
     '#porta .pk-mbaj input:focus-visible + .pk-tick { outline: 2px solid var(--sb-accent, #1f5fc4); outline-offset: 2px; }',
     '#porta .pk-mbaj a { color: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }',
