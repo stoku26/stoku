@@ -62,6 +62,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    qoshet e MAJTA të prera (e merchandiser-it jo). Shkaku: te `KutiaEKushteve` rreshti i brendshëm (kutia + "Pajtohem me ") kishte
    `.clip(RoundedCornerShape(10.dp))` dhe lartësinë e kutisë (20 dp, pa padding vertikal): klipi 10 dp ia priste kutisë qoshet e majta.
    Te `Kutia` s'ndodhte se rreshti ka padding vertikal 6 dp. U hoq klipi. Mësim: mos e kliko rreshtin kur kutia është në skaj të tij.
+   Verifikuar me pamjen e Robolectric-ut `dark-00-porta-krijo.png` (test i ri `PamjetTest.portaKrijo`, blob-i te njoftimi "pamjet" i CI-së):
+   të dyja kutitë identike. `PamjetTest` s'kompilohej (Gjendja pa `teReja`): u ndreq; testet e vjetra eksportet/eksportiFoto/eksportiPdf/
+   ballina dështojnë ende (s'gjejnë tekste të ndryshuara), s'lidhen me këtë.
 
 0000000. **Android Hyrja 107 (20.11.2026, vetëm Android): QOSHET E KUTIVE TE "KRIJO LLOGARI"**. Pronari (foto, rrethuar): "Kshyja qoshat
    boxit kushteve bre rregulloje". Te `Porta.kt` (`Kutia`, `KutiaEKushteve`) kutia bëhej me `clip` + `background` + `border` me të njëjtën
