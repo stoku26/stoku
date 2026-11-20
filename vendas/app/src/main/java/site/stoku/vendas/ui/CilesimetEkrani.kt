@@ -202,6 +202,10 @@ private fun Menyja(tema: String, hap: (String) -> Unit, hapTeRejat: () -> Unit) 
                 RreshtKategorie(Ik.Mburoja, "blu", "Privatësia", "Çfarë ruan Stoku dhe kush e sheh", vije = true) {
                     try { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://stoku.site/privatesia.html"))) } catch (e: Exception) { }
                 }
+                // Hyrja 104 (web v346): Kushtet e përdorimit, afër Privatësisë
+                RreshtKategorie(Ik.Kushtet, "gri", "Kushtet e përdorimit", "Rregullat për përdorimin e Stoku-t", vije = true) {
+                    try { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://stoku.site/kushtet.html"))) } catch (e: Exception) { }
+                }
             }
             // .ops-app-btn: brenda aplikacionit "Kontrollo për përditësim"
             Row(Modifier.padding(top = 18.dp).align(Alignment.CenterHorizontally).heightIn(min = 34.dp).clip(RoundedCornerShape(50))

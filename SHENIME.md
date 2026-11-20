@@ -58,6 +58,17 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v346 / Android Hyrja 104 (20.11.2026): KUSHTET E PËRDORIMIT**. Pronari: "A munesh me i shtu terms and services ne shqip
+   gramatik 100% pa gabime. Mi lon afer privatesis jo bashk me to po kudo qe osht privatesia naper ui kto me lon qaty afer".
+   - Faqja `kushtet.html` (si `privatesia.html`: e njëjta CSP, `tema.js`, adresa absolute, pa skripta inline): llogaria, përdorimi i
+     lejuar, grupet, të dhënat (mbeten të përdoruesit; regjistri i përbashkët pas kontrollit të administratorit), afatet/AI (data
+     kontrollohet te produkti), shërbimi "ashtu siç është", kufizimi i përgjegjësisë, pezullimi/fshirja, ndryshimet, ligjet e Kosovës,
+     kontakti. Faqe më vete (jo brenda Privatësisë); dy faqet lidhen me njëra-tjetrën.
+   - Lidhja menjëherë PAS Privatësisë kudo: Cilësimet te telefoni (`#opsKushtet`, ikona fletë, ngjyra gri), PC (`.ops-nav-privatesia`),
+     poshtë hyrjes (`porta.js`: "Privatësia · Kushtet e përdorimit") dhe Android (`CilesimetEkrani.kt`, `Ik.Kushtet`).
+   - CSP: tash 6 faqe me meta (edhe `kushtet.html`); `csp-v238.js`, `siguria-v239.js`, `v281.js` e përfshijnë. Test: `teste/v346.js`.
+   - Teksti s'është këshillë ligjore: nëse Stoku bëhet me pagesë ose firmë, kushtet duhen rishikuar.
+
 0000000. **WORKFLOW "Fshi Releases e vjetra" (20.11.2026)**: pronari kërkoi fshirjen e Releases të vjetra ("veq tfundit lej"). Sesionet e
    Claude s'lejohen t'i fshijnë Releases (HTTP 403 "not permitted for this session type"), prandaj `.github/workflows/fshi-releases.yml`
    (vetëm `workflow_dispatch`, `contents: write`): e nis PRONARI me dorë (Actions → "Fshi Releases e vjetra" → Run workflow). Mban vetëm

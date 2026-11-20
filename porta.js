@@ -264,7 +264,7 @@
         '<button type="button" class="pk-lidhje pk-mbrapa pk-fsheh" id="pkRivSerish">Dërgo sërish kërkesën</button>' +
         '<button type="button" class="pk-lidhje pk-mbrapa" id="pkRivMbrapa">Kthehu te hyrja</button>' +
       '</div>' +
-      '<p class="pk-fund"><a href="privatesia.html" target="_blank" rel="noopener">Privatësia</a></p>' +
+      '<p class="pk-fund"><a href="privatesia.html" target="_blank" rel="noopener">Privatësia</a> · <a href="kushtet.html" target="_blank" rel="noopener">Kushtet e përdorimit</a></p>' +
     '</div>';
   document.body.insertBefore(porta, document.body.firstChild);
   // v324: te PC-ja (pc.html, dritare e gjerë) hyrja ndahet dysh: majtas logoja + teksti + 3 pikat, djathtas forma
