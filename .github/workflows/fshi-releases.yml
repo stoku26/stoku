@@ -1,0 +1,38 @@
+# Fshin Releases e vjetra (APK-të e vjetra), duke mbajtur VETËM të fundit të telefonit (vendas-vNN) dhe të fundit
+# të orës (ora-vNN). Aplikacionet dhe android.html marrin gjithmonë vetëm publikimin e fundit, kështu që përditësimet
+# s'preken. NIS VETËM ME DORË (Actions → "Fshi Releases e vjetra" → Run workflow); s'nis kurrë vetë.
+# Etiketat (tags) mbeten; fshihen vetëm publikimet me APK-të e tyre. S'kthehet mbrapa.
+name: Fshi Releases e vjetra
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write # vetëm për fshirjen e publikimeve
+
+concurrency:
+  group: fshi-releases
+
+jobs:
+  fshi:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fshi krejt përveç të fundit të telefonit dhe të orës
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh api --paginate "repos/$REPO/releases?per_page=100" --jq '.[] | "\(.id) \(.tag_name)"' > lista.txt
+          echo "Publikime gjithsej: $(wc -l < lista.txt)"
+          mbaj() { grep -E " $1-v[0-9]+$" lista.txt | awk '{n=$2; sub(/.*-v/, "", n); print n, $2}' | sort -n | tail -1 | awk '{print $2}'; }
+          T=$(mbaj vendas); O=$(mbaj ora)
+          if [ -z "$T" ] || [ -z "$O" ]; then echo "S'u gjet publikimi i fundit i telefonit ose i orës: s'fshihet asgjë."; exit 1; fi
+          echo "Mbeten: $T (telefoni) dhe $O (ora)"
+          n=0
+          while read -r id tag; do
+            if [ "$tag" = "$T" ] || [ "$tag" = "$O" ]; then continue; fi
+            gh api -X DELETE "repos/$REPO/releases/$id" > /dev/null
+            echo "U fshi: $tag"; n=$((n+1))
+          done < lista.txt
+          echo "Gjithsej u fshinë $n publikime."
