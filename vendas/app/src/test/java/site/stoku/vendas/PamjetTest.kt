@@ -336,7 +336,7 @@ class PamjetTest {
 
     /** Hyrja 33: faqja e përditësimit ("ideja 5" e pronarit): pyetja (Hyrja 80: pa "Çfarë ka të re") dhe shkarkimi */
     private fun perditesimi(tema: String) {
-        Perditesimi.gjendja.value = Perditesimi.Gjendja(BuildConfig.VERSION_CODE + 4, "https://shembull.invalid/stoku.apk")
+        Perditesimi.gjendja.value = Perditesimi.Gjendja(BuildConfig.VERSION_CODE + 4, "https://shembull.invalid/stoku.apk", emptyList())
         r.setContent { StokuTema(tema) { site.stoku.vendas.ui.PerditesimiFaqja() } }
         r.onNodeWithText("Përditëso Stoku-n").assertExists()
         r.onNodeWithText("Përditëso tani").assertExists()
