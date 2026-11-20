@@ -20,8 +20,8 @@ const duket = (p, s) => p.evaluate(s => { const e = document.querySelector(s); i
   ok(/if \(!\(opsionet && opsionet\.kushtet\)\) return \{ ok: false, kodi: 'stoku\/kushtet'/.test(lx('firebase-tel.js')) && /if \(!\(opsionet && opsionet\.kushtet\)\) return \{ ok: false, kodi: 'stoku\/kushtet'/.test(lx('firebase-pc.js')), '0a. firebase-tel/pc: pa Kushtet s\'krijohet llogari');
   ok(/kushtetPranuarSe = fillimi\.krijuarSe/.test(lx('firebase-tel.js')) && /kushtetPranuarSe = fillimi\.krijuarSe/.test(lx('firebase-pc.js')), '0b. ruhet koha e pranimit (perdoruesit/{uid}.kushtetPranuarSe)');
   const K = 'vendas/app/src/main/java/site/stoku/vendas/', pk = lx(K + 'ui/Porta.kt'), ll = lx(K + 'Llogaria.kt');
-  ok(/krijo && !kushtet -> "Që ta krijosh llogarinë, prano Kushtet e përdorimit\."/.test(pk) && /KutiaEKushteve\(kushtet\)/.test(pk) && /https:\/\/stoku\.site\/kushtet\.html/.test(pk), '0c. Android: kutia + mesazhi te Porta');
-  ok(/if \(!kushtet\) return "Që ta krijosh llogarinë, prano Kushtet e përdorimit\."/.test(ll) && /fillimi\["kushtetPranuarSe"\]/.test(ll), '0d. Android: Llogaria.regjistrohu e refuzon pa Kushtet dhe e ruan kohën');
+  ok(/krijo && !kushtet -> "Për të vazhduar, shëno që pajtohesh me Kushtet e përdorimit\."/.test(pk) && /KutiaEKushteve\(kushtet\)/.test(pk) && /https:\/\/stoku\.site\/kushtet\.html/.test(pk), '0c. Android: kutia + mesazhi te Porta');
+  ok(/if \(!kushtet\) return "Për të vazhduar, shëno që pajtohesh me Kushtet e përdorimit\."/.test(ll) && /fillimi\["kushtetPranuarSe"\]/.test(ll), '0d. Android: Llogaria.regjistrohu e refuzon pa Kushtet dhe e ruan kohën');
   ok(+/v: (\d+)/.exec(lx('versioni.js'))[1] >= 347 && /Hyrja\(105,/.test(lx(K + 'TeRejat.kt')), '0e. versionet');
   const b = await chromium.launch();
   for (const pc of [false, true]) {
@@ -34,8 +34,9 @@ const duket = (p, s) => p.evaluate(s => { const e = document.querySelector(s); i
     ok(!(await duket(p, '#pkKushtetLbl')), em + ': te "Hyr" s\'del kutia');
     await p.click('#pkTabKrijo'); await p.waitForTimeout(150);
     ok(await duket(p, '#pkKushtetLbl') && !(await p.isChecked('#pkKushtet')), em + ': te "Krijo llogari" del, e pashënuar');
+    ok(await p.evaluate(() => document.getElementById('pkKushtetLbl').nextElementSibling === document.getElementById('pkMerchLbl')), em + ': kutia e Kushteve është e para, mbi "Punoj si merchandiser"');
     const l = await p.evaluate(() => { const a = document.getElementById('pkKushtetLidhja'); return { href: a.getAttribute('href'), target: a.target, tekst: a.parentElement.textContent }; });
-    ok(l.href === 'kushtet.html' && l.target === '_blank' && l.tekst === 'Pranoj Kushtet e përdorimit', em + ': "Pranoj Kushtet e përdorimit" me lidhje', l);
+    ok(l.href === 'kushtet.html' && l.target === '_blank' && l.tekst === 'Pajtohem me Kushtet e përdorimit', em + ': "Pajtohem me Kushtet e përdorimit" me lidhje', l);
     // klikimi i lidhjes e hap faqen dhe s'e shënon kutinë
     const [faqja] = await Promise.all([ctx.waitForEvent('page', { timeout: 5000 }).catch(() => null), p.click('#pkKushtetLidhja')]);
     ok(faqja && /\/kushtet\.html$/.test(faqja.url()) && !(await p.isChecked('#pkKushtet')), em + ': lidhja e hap kushtet.html, kutia mbetet e pashënuar', faqja && faqja.url());
@@ -43,7 +44,7 @@ const duket = (p, s) => p.evaluate(s => { const e = document.querySelector(s); i
     await p.fill('#pkEmri', 'besnik'); await p.fill('#pkFjalekalimi', 'sakte123'); await p.fill('#pkPerserit', 'sakte123');
     await p.click('#pkDergo'); await p.waitForTimeout(300);
     const g1 = await p.textContent('#pkGabim'), t1 = await p.evaluate(() => window.__thirrje.length);
-    ok(g1 === 'Që ta krijosh llogarinë, prano Kushtet e përdorimit.' && t1 === 0, em + ': pa kutinë s\'krijohet llogaria', [g1, t1]);
+    ok(g1 === 'Për të vazhduar, shëno që pajtohesh me Kushtet e përdorimit.' && t1 === 0, em + ': pa kutinë s\'krijohet llogaria', [g1, t1]);
     if (!pc) await p.screenshot({ path: __dirname + '/v347-krijo-tel.png' });
     await p.click('#pkKushtetLbl .pk-tick'); await p.waitForTimeout(100);
     ok(await p.isChecked('#pkKushtet'), em + ': klikimi i kutisë e shënon');

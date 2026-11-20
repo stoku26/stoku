@@ -60,9 +60,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 
 0000000. **v347 / Android Hyrja 105 (20.11.2026): PRANIMI I DETYRUESHËM I KUSHTEVE TE "KRIJO LLOGARI"**. Pronari (foto e formës):
    "Kur krijon llogari bone ni kerkes me tick qe mi pranu kushtet. Nese se klikon tick dmth mos me mujt me qel llogari".
-   - Web (`porta.js`, tel + PC): kutia `#pkKushtet` "Pranoj Kushtet e përdorimit" (lidhja `#pkKushtetLidhja` hap `kushtet.html`
-     në dritare të re pa e shënuar kutinë), vetëm te "Krijo llogari", pas "Punoj si merchandiser"; kalimi te "Hyr" e heq. Pa të:
-     "Që ta krijosh llogarinë, prano Kushtet e përdorimit." dhe s'thirret `regjistrohu`.
+   - Pronari pastaj: "Qite permi punoj si merchandiser, edhe tekstin ndrro se po i bjen si me detyru mi pranu": kutia e para (mbi
+     merchandiser), teksti "Pajtohem me Kushtet e përdorimit", mesazhi "Për të vazhduar, shëno që pajtohesh me Kushtet e përdorimit."
+   - Web (`porta.js`, tel + PC): kutia `#pkKushtet` "Pajtohem me Kushtet e përdorimit" (lidhja `#pkKushtetLidhja` hap `kushtet.html`
+     në dritare të re pa e shënuar kutinë), vetëm te "Krijo llogari", mbi "Punoj si merchandiser"; kalimi te "Hyr" e heq. Pa të:
+     "Për të vazhduar, shëno që pajtohesh me Kushtet e përdorimit." dhe s'thirret `regjistrohu`.
    - `firebase-tel.js` / `firebase-pc.js` `regjistrohu`: pa `opsionet.kushtet` kthen `stoku/kushtet` (edhe nëse thirret nga diku tjetër;
      `kryeRregjistrimHyrje`/`hyrOseKrijo` te app-tel/app-pc s'thirren askund). Me të: `perdoruesit/{uid}.kushtetPranuarSe` (= krijuarSe).
    - Android: `Porta.kt` `KutiaEKushteve` + mesazhi; `Llogaria.regjistrohu(…, kushtet)` e refuzon pa të dhe e ruan `kushtetPranuarSe`.

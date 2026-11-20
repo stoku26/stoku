@@ -237,9 +237,9 @@
         '<label><span>Fjalëkalimi</span><div class="pk-fusha"><input id="pkFjalekalimi" class="me-sy" name="password" type="password" autocomplete="current-password" maxlength="100" enterkeyhint="go" placeholder="Fjalëkalimi"><button type="button" class="pk-sy" id="pkSy" aria-label="Shfaq fjalëkalimin" title="Shfaq fjalëkalimin">' + SY + '</button></div></label>' +
         '<div class="pk-harrova" id="pkHarrovaRresht"><button type="button" class="pk-lidhje" id="pkHarrova">Ke harruar fjalëkalimin?</button></div>' +
         '<label id="pkPerseritLbl" class="pk-fsheh"><span>Përsërit fjalëkalimin</span><input id="pkPerserit" class="me-sy" name="password2" type="password" autocomplete="new-password" maxlength="100" enterkeyhint="go" placeholder="Shkruaje edhe një herë"></label>' +
+        // v347 (e para, mbi "Punoj si merchandiser"; pronari: "kur krijon llogari bone ni kerkes me tick qe mi pranu kushtet ... te detyrushme"): pa këtë s'krijohet llogaria
+        '<label class="pk-mbaj pk-fsheh" id="pkKushtetLbl" for="pkKushtet"><input type="checkbox" id="pkKushtet"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Pajtohem me <a href="kushtet.html" target="_blank" rel="noopener" id="pkKushtetLidhja">Kushtet e përdorimit</a></div></label>' +
         '<label class="pk-mbaj pk-fsheh" id="pkMerchLbl" for="pkMerch"><input type="checkbox" id="pkMerch"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Punoj si merchandiser (në disa markete)</div></label>' +
-        // v347 (pronari: "kur krijon llogari bone ni kerkes me tick qe mi pranu kushtet ... te detyrushme"): pa këtë s'krijohet llogaria
-        '<label class="pk-mbaj pk-fsheh" id="pkKushtetLbl" for="pkKushtet"><input type="checkbox" id="pkKushtet"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Pranoj <a href="kushtet.html" target="_blank" rel="noopener" id="pkKushtetLidhja">Kushtet e përdorimit</a></div></label>' +
         '<label class="pk-mbaj" id="pkMbajLbl" for="pkMbaj"><input type="checkbox" id="pkMbaj"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Më mbaj mend emrin e përdoruesit</div></label>' +
         '<div class="pk-gabim" id="pkGabim" role="alert"></div>' +
         '<button type="submit" class="pk-btn" id="pkDergo">Hyr</button>' +
@@ -358,7 +358,7 @@
         return 'Emri i përdoruesit ose fjalëkalimi është gabim.';
       case 'auth/email-already-in-use': return 'Ky emër përdoruesi është i zënë. Zgjidh një tjetër, ose hyr nëse është llogaria jote.';
       case 'auth/weak-password': return 'Fjalëkalimi duhet të ketë të paktën 6 shenja.';
-      case 'stoku/kushtet': return 'Që ta krijosh llogarinë, prano Kushtet e përdorimit.';
+      case 'stoku/kushtet': return 'Për të vazhduar, shëno që pajtohesh me Kushtet e përdorimit.';
       case 'auth/invalid-email': return 'Emri i përdoruesit ka shenja të palejuara. Përdor vetëm a–z, 0–9, _ . -';
       case 'auth/too-many-requests': return 'Shumë prova të gabuara. Prit pak minuta dhe provo përsëri.';
       case 'auth/network-request-failed': return 'S\'ka lidhje me internetin. Kontrollo internetin dhe provo përsëri.';
@@ -594,7 +594,7 @@
     if (!fjalekalimi) { gabim.textContent = 'Shkruaj fjalëkalimin.'; $('pkFjalekalimi').focus(); return; }
     if (fjalekalimi.length < 6) { gabim.textContent = 'Fjalëkalimi duhet të ketë të paktën 6 shenja.'; $('pkFjalekalimi').focus(); return; }
     if (krijo && $('pkPerserit').value !== fjalekalimi) { gabim.textContent = 'Fjalëkalimet nuk përputhen.'; $('pkPerserit').focus(); return; }
-    if (krijo && !$('pkKushtet').checked) { gabim.textContent = 'Që ta krijosh llogarinë, prano Kushtet e përdorimit.'; $('pkKushtet').focus(); return; }
+    if (krijo && !$('pkKushtet').checked) { gabim.textContent = 'Për të vazhduar, shëno që pajtohesh me Kushtet e përdorimit.'; $('pkKushtet').focus(); return; }
     if (SHFLETUES_I_VJETER) { gabim.textContent = MESAZHI_VJETER; return; }
     gabim.textContent = '';
     gjendja.dukePunuar = true;

@@ -11,7 +11,7 @@ object TeRejat {
 
     val LISTA = listOf(
         Hyrja(105, "2026-11-20", "Krijimi i llogarisë", listOf(
-            "Kur krijon një llogari të re, duhet t'i pranosh Kushtet e përdorimit (kutia \"Pranoj Kushtet e përdorimit\"). Pa këtë, llogaria nuk krijohet."
+            "Kur krijon një llogari të re, shëno kutinë \"Pajtohem me Kushtet e përdorimit\" (e para, mbi \"Punoj si merchandiser\")."
         )),
         Hyrja(104, "2026-11-20", "Kushtet e përdorimit", listOf(
             "Te Cilësimet, afër Privatësisë, tani janë edhe Kushtet e përdorimit: rregullat për përdorimin e Stoku-t."

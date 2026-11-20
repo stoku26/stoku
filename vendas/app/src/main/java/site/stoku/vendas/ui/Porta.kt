@@ -76,7 +76,7 @@ private fun PortaBrenda() {
             fj.isEmpty() -> "Shkruaj fjalëkalimin."
             fj.length < 6 -> "Fjalëkalimi duhet të ketë të paktën 6 shenja."
             krijo && fj2 != fj -> "Fjalëkalimet nuk përputhen."
-            krijo && !kushtet -> "Që ta krijosh llogarinë, prano Kushtet e përdorimit."
+            krijo && !kushtet -> "Për të vazhduar, shëno që pajtohesh me Kushtet e përdorimit."
             else -> ""
         }
         if (gabim.isNotEmpty()) return
@@ -132,8 +132,8 @@ private fun PortaBrenda() {
                     Etiketa("Përsërit fjalëkalimin")
                     Fusha(fj2, { fj2 = it }, Modifier.fillMaxWidth(), "Shkruaje edhe një herë", fjalekalim = !shfaq, fokusi = fFj2,
                         veprimi = ImeAction.Go, kurVeprim = { dergo() })
-                    Kutia(merch, { merch = it }, "Punoj si merchandiser (në disa markete)")
                     KutiaEKushteve(kushtet) { kushtet = it }
+                    Kutia(merch, { merch = it }, "Punoj si merchandiser (në disa markete)")
                 }
                 if (gabim.isNotEmpty()) Text(gabim, style = tx(13, 500, n.exp))
                 Box(Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(14.dp)).background(n.accent).clickable(enabled = !duke) { dergo() },
@@ -194,7 +194,7 @@ fun Kutia(v: Boolean, ndrysho: (Boolean) -> Unit, teksti: String) {
     }
 }
 
-/** Hyrja 105 (web v347): "Pranoj Kushtet e përdorimit": kutia e ndryshon zgjedhjen, lidhja e hap faqen e kushteve */
+/** Hyrja 105 (web v347): "Pajtohem me Kushtet e përdorimit": kutia e ndryshon zgjedhjen, lidhja e hap faqen e kushteve */
 @Composable
 fun KutiaEKushteve(v: Boolean, ndrysho: (Boolean) -> Unit) {
     val n = N
@@ -206,7 +206,7 @@ fun KutiaEKushteve(v: Boolean, ndrysho: (Boolean) -> Unit) {
                 if (v) Icon(Ik.Kontroll, null, Modifier.size(15.dp), tint = Color.White)
             }
             Spacer(Modifier.size(10.dp))
-            Text("Pranoj ", style = tx(14, 500, n.ink2))
+            Text("Pajtohem me ", style = tx(14, 500, n.ink2))
         }
         Text("Kushtet e përdorimit", style = tx(14, 700, n.ink2).copy(textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline),
             modifier = Modifier.clickable {
