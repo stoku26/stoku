@@ -703,8 +703,8 @@
     setTimeout(function () { if (!gjendja.eHapur) porta.style.display = 'none'; }, 260);
     window.dispatchEvent(new Event('stoku-porta-hapur'));
   }
-  // v325: kur del hyrja, logoja e kokës do të bëjë sërish skanimin (një herë) pas hyrjes së radhës
-  function harroSkaniminEKokes() { try { localStorage.removeItem('stoku:logo:skanuar'); } catch (e) { /* ok */ } }
+  // v325: kur del hyrja, logoja e kokës do të bëjë sërish skanimin (një herë) pas hyrjes së radhës (v349: shënimi te sessionStorage)
+  function harroSkaniminEKokes() { try { sessionStorage.removeItem('stoku:logo:skanuar'); localStorage.removeItem('stoku:logo:skanuar'); } catch (e) { /* ok */ } }
   function hap(mesazh) {
     harroSkaniminEKokes();
     gjendja.eHapur = true;

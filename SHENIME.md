@@ -58,6 +58,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v349 / Android Hyrja 109 (20.11.2026): LOGOJA BARKOD → STOKU PAS 1.5 s**. Pronari: "Bone pas 1.5 sekondave me u ndryshu nga
+barkodi ne logo stoku. Edhe me u ndryshu qdo her kur e sheh. Nese bohesh login niher ... edhe mo me met veq logo stoku deri sa te mbyllet e
+hapet prap stoku web appi e android appi edhe pc". (1) Kohët: barkodi 1.5 s, skanimi 1 s, 2.5 s gjithsej (logot.js keyframes 60%, `2.5s`;
+LogoSkanim.kt `KOHA_MS = 2500`, `NIS = .6f`). (2) Hyrja (porta): skanimi sa herë del (si më parë). (3) Koka pas hyrjes: NJË herë për çdo
+hapje. Web: shënimi `stoku:logo:skanuar` kaloi nga localStorage te **sessionStorage** (mbetet gjatë rifreskimit/përditësimit të SW,
+fshihet kur mbyllet skeda ose aplikacioni; çelësi i vjetër te localStorage fshihet në ngarkim); porta.js `harroSkaniminEKokes` fshin të dyja.
+Android: pref-i `logo_skanuar` u hoq, në vend të tij `SkanimiILogos.kokaLuajti` në memorie; `MainActivity.onCreate` me
+`savedInstanceState == null` e fshin (hapje e re, jo rrotullim), Porta e fshin me `harro()`. Teste: v349.js (tel + PC: 1.4 s barkod,
+1.6 s skanim; rifreskim = vetëm logo; skedë e re = sërish), v325.js u përshtat (1/2/3 s, sessionStorage). Pa testim në pajisje të vërteta.
+
 0000000. **Android Hyrja 108 (20.11.2026, vetëm Android): SHKAKU I VËRTETË I QOSHEVE**. Pronari (foto e dytë): kutia e Kushteve kishte dy
    qoshet e MAJTA të prera (e merchandiser-it jo). Shkaku: te `KutiaEKushteve` rreshti i brendshëm (kutia + "Pajtohem me ") kishte
    `.clip(RoundedCornerShape(10.dp))` dhe lartësinë e kutisë (20 dp, pa padding vertikal): klipi 10 dp ia priste kutisë qoshet e majta.

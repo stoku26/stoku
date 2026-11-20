@@ -11,9 +11,9 @@ const B = 'http://127.0.0.1:8765';
 (async () => {
   // ===== 0. Kodi =====
   const js = lx('logot.js'), sk = lx(K + 'ui/LogoSkanim.kt'), lo = lx(K + 'ui/Logo.kt'), pt = lx(K + 'ui/Porta.kt');
-  ok(!/infinite/.test(js) && /stkSkL 2s linear both/.test(js) && /KEY_SKANUAR = 'stoku:logo:skanuar'/.test(js), '0. web: pa loop, 2 s një herë');
+  ok(!/infinite/.test(js) && /stkSkL 2\.5s linear both/.test(js) && /KEY_SKANUAR = 'stoku:logo:skanuar'/.test(js), '0. web: pa loop, 2.5 s një herë (v349)');
   ok(/stoku:logo:skanuar/.test(lx('porta.js')) && /function hap\(mesazh\) \{\n    harroSkaniminEKokes\(\);/.test(lx('porta.js')), '0. web: hyrja e fshin shënimin (koka luan pas hyrjes së radhës)');
-  ok(!/rememberInfiniteTransition/.test(sk) && /tween\(2000/.test(sk) && /KEY_SKANUAR = "logo_skanuar"/.test(sk) && /luaj = true\)/.test(lo) && /prefsOse\(SkanimiILogos\.KEY_SKANUAR, ""\) != "1"/.test(lo) && /SkanimiILogos\.harro\(\)/.test(pt),
+  ok(!/rememberInfiniteTransition/.test(sk) && /tween\(SkanimiILogos\.KOHA_MS/.test(sk) && /KOHA_MS = 2500/.test(sk) && /luaj = true\)/.test(lo) && /!SkanimiILogos\.kokaLuajti/.test(lo) && /SkanimiILogos\.harro\(\)/.test(pt),
     '0. Android: një herë; hyrja gjithmonë, koka një herë pas hyrjes');
 
   const F = krijoFirestore({ rregullat: 'reja' });
@@ -36,11 +36,11 @@ const B = 'http://127.0.0.1:8765';
     const p = await ctx.newPage(); const gab = []; p.on('pageerror', e => gab.push(e.message));
     await p.goto(B + '/index.html'); await p.waitForTimeout(800);
     const S = '#porta .pk-logo svg.stk-logo';
-    const f = { a: await ne(p, S, 0.5), b: await ne(p, S, 1.5), c: await ne(p, S, 2.5), d: await ne(p, S, 60) };
-    ok(f.a.luan && barkodPlote(f.a), '1. hyrja: 0.5 s = barkodi', f.a);
-    ok(f.b.v === 1 && f.b.l + 150 > 0 && f.b.b > -3 && f.b.b < 104, '1. hyrja: 1.5 s = skanimi', f.b);
-    ok(logoPlote(f.c) && logoPlote(f.d), '1. hyrja: 2.5 s dhe 60 s = logoja (s\'kthehet më në barkod)', [f.c, f.d]);
-    ok(await p.evaluate(() => localStorage.getItem('stoku:logo:skanuar')) === null, '1. hyrja e fshin shënimin e kokës');
+    const f = { a: await ne(p, S, 1.0), b: await ne(p, S, 2.0), c: await ne(p, S, 3.0), d: await ne(p, S, 60) };
+    ok(f.a.luan && barkodPlote(f.a), '1. hyrja: 1 s = barkodi (v349: deri 1.5 s)', f.a);
+    ok(f.b.v === 1 && f.b.l + 150 > 0 && f.b.b > -3 && f.b.b < 104, '1. hyrja: 2 s = skanimi', f.b);
+    ok(logoPlote(f.c) && logoPlote(f.d), '1. hyrja: 3 s dhe 60 s = logoja (s\'kthehet më në barkod)', [f.c, f.d]);
+    ok(await p.evaluate(() => localStorage.getItem('stoku:logo:skanuar') === null && sessionStorage.getItem('stoku:logo:skanuar') === null), '1. hyrja e fshin shënimin e kokës');
     ok(await p.evaluate(() => !document.querySelector('#logoButon svg.stk-logo').classList.contains('stk-logo--skanim')), '1. koka s\'luan prapa hyrjes');
     ok(!gab.length, '1. pa gabime JS', gab);
     await ctx.close();
@@ -52,14 +52,14 @@ const B = 'http://127.0.0.1:8765';
     await F.lidh(ctx, 'uA', 'duli96@stoku-app.local', 'tel');
     await ctx.addInitScript(() => { try { localStorage.setItem('stoku:njoftimet:jo-tani', String(Date.now())); } catch (e) {} });
     const p = await ctx.newPage(); const gab = []; p.on('pageerror', e => gab.push(e.message));
-    await p.goto(B + '/index.html'); await p.waitForTimeout(2500);
+    await p.goto(B + '/index.html'); await p.waitForTimeout(3000);
     const S = '#logoButon svg.stk-logo';
-    const a = await ne(p, S, 0.5), c = await ne(p, S, 2.5);
+    const a = await ne(p, S, 1.0), c = await ne(p, S, 3.0);
     ok(a.luan && barkodPlote(a) && logoPlote(c), '2. pas hyrjes: koka barkod → logo një herë', [a, c]);
-    ok(await p.evaluate(() => localStorage.getItem('stoku:logo:skanuar')) === '1', '2. u shënua që u pa');
-    await p.reload(); await p.waitForTimeout(2500);
-    const r = await ne(p, S, 0.5);
-    ok(!r.luan && logoPlote(r), '2. pas rihapjes: vetëm logoja (pa barkod)', r);
+    ok(await p.evaluate(() => sessionStorage.getItem('stoku:logo:skanuar')) === '1', '2. u shënua që u pa (v349: për këtë hapje)');
+    await p.reload(); await p.waitForTimeout(3000);
+    const r = await ne(p, S, 1.0);
+    ok(!r.luan && logoPlote(r), '2. pas rifreskimit: vetëm logoja (pa barkod)', r);
     ok(!gab.length, '2. pa gabime JS', gab);
     await ctx.close();
   }

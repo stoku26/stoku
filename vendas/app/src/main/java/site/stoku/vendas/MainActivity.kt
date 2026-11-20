@@ -98,6 +98,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // web v349: hapje e re (jo rrotullim i ekranit): logoja e kokës bën sërish skanimin një herë
+        if (savedInstanceState == null) site.stoku.vendas.ui.SkanimiILogos.harro()
         lexoTabin(intent)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(0, 0), navigationBarStyle = SystemBarStyle.auto(0, 0))
         setContent {
