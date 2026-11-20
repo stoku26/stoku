@@ -360,7 +360,7 @@
         return 'Emri i përdoruesit ose fjalëkalimi është gabim.';
       case 'auth/email-already-in-use': return 'Ky emër përdoruesi është i zënë. Zgjidh një tjetër, ose hyr nëse është llogaria jote.';
       case 'auth/weak-password': return 'Fjalëkalimi duhet të ketë të paktën 6 shenja.';
-      case 'stoku/kushtet': return 'Për të vazhduar, duhet t\'i lexoni dhe t\'i pranoni Kushtet e përdorimit.';
+      case 'stoku/kushtet': return 'Për të vazhduar, duhet ti lexoni dhe ti pranoni Kushtet e përdorimit.';
       case 'auth/invalid-email': return 'Emri i përdoruesit ka shenja të palejuara. Përdor vetëm a–z, 0–9, _ . -';
       case 'auth/too-many-requests': return 'Shumë prova të gabuara. Prit pak minuta dhe provo përsëri.';
       case 'auth/network-request-failed': return 'S\'ka lidhje me internetin. Kontrollo internetin dhe provo përsëri.';
@@ -596,7 +596,7 @@
     if (!fjalekalimi) { gabim.textContent = 'Shkruaj fjalëkalimin.'; $('pkFjalekalimi').focus(); return; }
     if (fjalekalimi.length < 6) { gabim.textContent = 'Fjalëkalimi duhet të ketë të paktën 6 shenja.'; $('pkFjalekalimi').focus(); return; }
     if (krijo && $('pkPerserit').value !== fjalekalimi) { gabim.textContent = 'Fjalëkalimet nuk përputhen.'; $('pkPerserit').focus(); return; }
-    if (krijo && !$('pkKushtet').checked) { gabim.textContent = 'Për të vazhduar, duhet t\'i lexoni dhe t\'i pranoni Kushtet e përdorimit.'; $('pkKushtet').focus(); return; }
+    if (krijo && !$('pkKushtet').checked) { gabim.textContent = 'Për të vazhduar, duhet ti lexoni dhe ti pranoni Kushtet e përdorimit.'; $('pkKushtet').focus(); return; }
     if (SHFLETUES_I_VJETER) { gabim.textContent = MESAZHI_VJETER; return; }
     gabim.textContent = '';
     gjendja.dukePunuar = true;

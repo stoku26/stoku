@@ -60,8 +60,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 
 0000000. **v348 / Android Hyrja 106 (20.11.2026): KUTITË DHE MESAZHI I KUSHTEVE**. Pronari zgjodhi "pamjen 1" (nga 5 opsione) për kutitë e
    "Krijo llogari" (Kushtet + merchandiser; edhe "Më mbaj mend"): katror klasik 20 px, kënde 4 px, vija 2 px `--sb-muted`, pa sfond
-   (Android: `Kutia`/`KutiaEKushteve` 20 dp, 4 dp, `n.muted`). Mesazhi (pronari, i shkruar nga ai, rregulluar gramatikisht): "Për të
-   vazhduar, duhet t'i lexoni dhe t'i pranoni Kushtet e përdorimit." (porta.js 2 herë, Porta.kt, Llogaria.kt, v347.js).
+   (Android: `Kutia`/`KutiaEKushteve` 20 dp, 4 dp, `n.muted`). Mesazhi (pronari; pastaj kërkoi pa apostrof: "Qat apostrof ... t'i heke ti leje", edhe pse standardi është "t'i"): "Për të
+   vazhduar, duhet ti lexoni dhe ti pranoni Kushtet e përdorimit." (porta.js 2 herë, Porta.kt, Llogaria.kt, v347.js).
 
 0000000. **v347 / Android Hyrja 105 (20.11.2026): PRANIMI I DETYRUESHËM I KUSHTEVE TE "KRIJO LLOGARI"**. Pronari (foto e formës):
    "Kur krijon llogari bone ni kerkes me tick qe mi pranu kushtet. Nese se klikon tick dmth mos me mujt me qel llogari".
