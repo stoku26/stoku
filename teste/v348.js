@@ -4,7 +4,7 @@ const fs = require('fs');
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
 const B = 'http://127.0.0.1:8765';
 const RR = __dirname + '/../', lx = f => fs.readFileSync(RR + f, 'utf8');
-const MESAZHI = "Për të vazhduar, duhet ti lexoni dhe ti pranoni Kushtet e përdorimit.";
+const MESAZHI = "Për të vazhduar, duhet t'i lexoni dhe t'i pranoni Kushtet e përdorimit.";
 (async () => {
   const pk = lx('vendas/app/src/main/java/site/stoku/vendas/ui/Porta.kt');
   ok((pk.match(/size\(20\.dp\)\.clip\(RoundedCornerShape\(4\.dp\)\)\.background\(if \(v\) n\.accent else Color\.Transparent\)\.border\(if \(v\) 0\.dp else 2\.dp, n\.muted/g) || []).length === 2, '1. Android: të dyja kutitë 20 dp, kënde 4 dp, vijë 2 dp');
