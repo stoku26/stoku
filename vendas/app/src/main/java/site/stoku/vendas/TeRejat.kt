@@ -10,6 +10,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(109, "2026-11-20", "Logoja", listOf(
+            "Logoja duket si barkod 1.5 sekonda, pastaj kthehet në \"stoku.\". Në hyrje kjo ndodh sa herë del.",
+            "Pas hyrjes, logoja lart e bën këtë vetëm një herë; pastaj mbetet vetëm \"stoku.\" derisa ta mbyllësh dhe ta hapësh sërish aplikacionin."
+        )),
         Hyrja(108, "2026-11-20", "Krijimi i llogarisë", listOf(
             "Kutia \"Pajtohem me Kushtet e përdorimit\" ka katër qoshet njësoj (më parë dy qoshet e majta dukeshin të prera)."
         )),

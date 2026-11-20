@@ -40,18 +40,23 @@ object SkanimiILogos {
     private fun seg(p: Float, a: Float, b: Float) = ((p - a) / (b - a)).coerceIn(0f, 1f)
     /** Web v325 (pronari: "nonstop po rrin tu u bo her barkod her logo ... prej barkodit ne logo veq niher per 1 login pas 1 sekonde"):
      *  pa loop. p ∈ [0, 1]: barkodi deri 0.5 (1 s), skanimi 0.5 → 1 (1 s), pastaj logoja. [logoja, barkodi, vija x (NaN = s'duket)] */
+    /** Web v349: barkodi deri 0.6 (1.5 s nga 2.5 s), skanimi 0.6 → 1 (1 s) */
+    const val KOHA_MS = 2500
+    private const val NIS = .6f
     fun gjendja(p: Float): FloatArray {
         if (p >= 1f) return floatArrayOf(-20f, 104f, Float.NaN)
-        if (p < .5f) return floatArrayOf(-153f, -3f, Float.NaN)
-        val e = eio(seg(p, .5f, 1f))
+        if (p < NIS) return floatArrayOf(-153f, -3f, Float.NaN)
+        val e = eio(seg(p, NIS, 1f))
         return floatArrayOf(lerp(-153f, -46f, e), lerp(-3f, 104f, e), lerp(-3f, 104f, e))
     }
-    const val KEY_SKANUAR = "logo_skanuar" // si "stoku:logo:skanuar" te web-i: koka e ka bërë skanimin pas kësaj hyrjeje
-    /** Hyrja u shfaq: pas hyrjes së radhës koka e bën sërish skanimin (një herë) */
-    fun harro() = site.stoku.vendas.StokuApp.vendosPref(KEY_SKANUAR, "")
+    /** Web v349 (pronari: "... edhe mo me met veq logo stoku deri sa te mbyllet e hapet prap"): koka e bën skanimin NJË herë për çdo hapje
+     *  të aplikacionit (MainActivity.onCreate pa gjendje të ruajtur e fshin) dhe sërish pas çdo hyrjeje (Porta e fshin). Vetëm në memorie. */
+    @Volatile var kokaLuajti = false
+    /** Hyrja u shfaq ose aplikacioni u hap rishtas: koka e bën sërish skanimin (një herë) */
+    fun harro() { kokaLuajti = false }
 }
 
-/** Logoja "stoku." me skanimin: `luaj` = barkodi → logo një herë (2 s); përndryshe vetëm logoja. kurNis: thirret kur nis skanimi */
+/** Logoja "stoku." me skanimin: `luaj` = barkodi → logo një herë (2.5 s); përndryshe vetëm logoja. kurNis: thirret kur nis skanimi */
 @Composable
 fun LogoMeSkanim(ink: Color, pika: Color, pershkrimi: String, modifier: Modifier = Modifier, luaj: Boolean = false, kurNis: () -> Unit = {}) {
     val ctx = LocalContext.current
@@ -59,7 +64,7 @@ fun LogoMeSkanim(ink: Color, pika: Color, pershkrimi: String, modifier: Modifier
     val t = remember { PathParser().parsePathString(Logot.FJ_T).toPath() }
     val pk = remember { PathParser().parsePathString(Logot.FJ_P).toPath() }
     val anim = remember { Animatable(if (luaj && !paLevizje) 0f else 1f) }
-    LaunchedEffect(Unit) { if (anim.value < 1f) { kurNis(); anim.animateTo(1f, tween(2000, easing = LinearEasing)) } }
+    LaunchedEffect(Unit) { if (anim.value < 1f) { kurNis(); anim.animateTo(1f, tween(SkanimiILogos.KOHA_MS, easing = LinearEasing)) } }
     val gj = SkanimiILogos.gjendja(anim.value)
     val gjelber = Color(0xFF4ADE80)
     Canvas(modifier.semantics { contentDescription = pershkrimi }) {

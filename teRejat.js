@@ -21,6 +21,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 349, versioni: '1.74.3', data: '2026-11-20', titulli: 'Logoja', pikat: [
+      'Logoja duket si barkod 1.5 sekonda, pastaj kthehet në "stoku.". Në hyrje kjo ndodh sa herë del.',
+      'Pas hyrjes, logoja lart e bën këtë vetëm një herë; pastaj mbetet vetëm "stoku." derisa ta mbyllësh dhe ta hapësh sërish Stoku-n.'
+    ] },
     { v: 348, versioni: '1.74.2', data: '2026-11-20', titulli: 'Krijimi i llogarisë', pikat: [
       'Kutitë "Pajtohem me Kushtet e përdorimit" dhe "Punoj si merchandiser" kanë pamje më të thjeshtë, si katrorë të vegjël.'
     ] },

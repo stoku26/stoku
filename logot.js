@@ -27,14 +27,17 @@
   // edhe me nejt logo ... vetem 1 her me u pa deri ne loginin tjeter"): pa loop. Barkodi 1 s → skanimi 1 s → logoja mbetet. Hyrja
   // (#porta) e luan sa herë del; koka e luan NJË herë pas çdo hyrjeje (KEY_SKANUAR; e fshin porta.js kur hapet hyrja), pastaj vetëm logo,
   // edhe kur aplikacioni mbyllet e hapet. Të njëjtat kohë si SkanimiILogos (Android).
+  // v349 (pronari: "pas 1.5 sekondave me u ndryshu nga barkodi ne logo ... Nese bohesh login niher ... edhe mo me met veq logo stoku deri
+  // sa te mbyllet e hapet prap"): barkodi 1.5 s → skanimi 1 s (2.5 s gjithsej). Hyrja: sa herë del. Koka: NJË herë për çdo hapje të
+  // Stoku-t (sessionStorage: mbetet gjatë rifreskimeve, fshihet kur mbyllet skeda/aplikacioni) dhe sërish pas çdo hyrjeje.
   var SK_CSS =
-    '@keyframes stkSkL{0%{transform:translateX(-153px)}50%{transform:translateX(-153px);animation-timing-function:ease-in-out}100%{transform:translateX(-46px)}}' +
-    '@keyframes stkSkB{0%{transform:translateX(-3px)}50%{transform:translateX(-3px);animation-timing-function:ease-in-out}100%{transform:translateX(104px)}}' +
-    '@keyframes stkSkV{0%{transform:translateX(-3px);opacity:0}49.99%{transform:translateX(-3px);opacity:0}50%{transform:translateX(-3px);opacity:1;animation-timing-function:ease-in-out}' +
+    '@keyframes stkSkL{0%{transform:translateX(-153px)}60%{transform:translateX(-153px);animation-timing-function:ease-in-out}100%{transform:translateX(-46px)}}' +
+    '@keyframes stkSkB{0%{transform:translateX(-3px)}60%{transform:translateX(-3px);animation-timing-function:ease-in-out}100%{transform:translateX(104px)}}' +
+    '@keyframes stkSkV{0%{transform:translateX(-3px);opacity:0}59.99%{transform:translateX(-3px);opacity:0}60%{transform:translateX(-3px);opacity:1;animation-timing-function:ease-in-out}' +
     '99.99%{transform:translateX(104px);opacity:1}100%{transform:translateX(104px);opacity:0}}' +
     '.stk-logo .sk-l{transform:translateX(-20px)}.stk-logo .sk-b{transform:translateX(104px)}.stk-logo .sk-v{opacity:0}' +
-    '.stk-logo--skanim .sk-l{animation:stkSkL 2s linear both}.stk-logo--skanim .sk-b{animation:stkSkB 2s linear both}' +
-    '.stk-logo--skanim .sk-v{animation:stkSkV 2s linear both}' +
+    '.stk-logo--skanim .sk-l{animation:stkSkL 2.5s linear both}.stk-logo--skanim .sk-b{animation:stkSkB 2.5s linear both}' +
+    '.stk-logo--skanim .sk-v{animation:stkSkV 2.5s linear both}' +
     '.stk-logo .sk-v rect{fill:#4ade80}' +
     '@media (prefers-reduced-motion: reduce){.stk-logo--skanim .sk-l,.stk-logo--skanim .sk-b,.stk-logo--skanim .sk-v{animation:none}}';
   var KEY_SKANUAR = 'stoku:logo:skanuar';
@@ -58,9 +61,11 @@
       '<g clip-path="url(#' + L + ')"><path class="lg-t" d="' + t + '"></path><path class="lg-a" d="' + p + '"></path></g>' +
       '<g class="sk-v"><rect x="-6" y="-4" width="6" height="35" opacity=".12"></rect><rect x="-.35" y="-4" width=".7" height="35"></rect></g>';
   }
-  function skanuar() { try { return localStorage.getItem(KEY_SKANUAR) === '1'; } catch (e) { return false; } }
+  // v349: për hapje (sessionStorage), jo përgjithmonë; shënimi i vjetër te localStorage (v325) hiqet
+  try { localStorage.removeItem(KEY_SKANUAR); } catch (e) { /* ok */ }
+  function skanuar() { try { return sessionStorage.getItem(KEY_SKANUAR) === '1'; } catch (e) { return false; } }
   var kokatNePritje = [];
-  function luajKoken(svg) { svg.classList.add('stk-logo--skanim'); try { localStorage.setItem(KEY_SKANUAR, '1'); } catch (e) { /* ok */ } }
+  function luajKoken(svg) { svg.classList.add('stk-logo--skanim'); try { sessionStorage.setItem(KEY_SKANUAR, '1'); } catch (e) { /* ok */ } }
   function skanim(svg) {
     if (!svg || svg.__skanim) return;
     svg.__skanim = 1;

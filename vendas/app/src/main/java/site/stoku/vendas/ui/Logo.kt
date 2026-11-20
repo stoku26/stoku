@@ -53,9 +53,9 @@ fun LogoEPlote(modifier: Modifier = Modifier) {
 @Composable
 fun EtiketaStoku(emri: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val n = N
-    // web v325: koka e bën skanimin NJË herë pas çdo hyrjeje (edhe kur aplikacioni mbyllet e hapet, pastaj vetëm logoja)
-    val luaj = remember { site.stoku.vendas.StokuApp.prefsOse(SkanimiILogos.KEY_SKANUAR, "") != "1" }
+    // web v349: koka e bën skanimin NJË herë për çdo hapje të aplikacionit dhe pas çdo hyrjeje, pastaj vetëm logoja
+    val luaj = remember { !SkanimiILogos.kokaLuajti }
     LogoMeSkanim(n.ink, Color(if (n.erret) Logot.PIKA_ERRET else Logot.PIKA_CELET), if (emri.isBlank()) "Stoku" else "Stoku, $emri",
         modifier.clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null, onClick = onClick).width(152.dp).height((152f * Logot.FJ_H / Logot.FJ_W).dp),
-        luaj = luaj, kurNis = { site.stoku.vendas.StokuApp.vendosPref(SkanimiILogos.KEY_SKANUAR, "1") })
+        luaj = luaj, kurNis = { SkanimiILogos.kokaLuajti = true })
 }
