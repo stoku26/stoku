@@ -58,6 +58,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **Android Hyrja 107 (20.11.2026, vetëm Android): QOSHET E KUTIVE TE "KRIJO LLOGARI"**. Pronari (foto, rrethuar): "Kshyja qoshat
+   boxit kushteve bre rregulloje". Te `Porta.kt` (`Kutia`, `KutiaEKushteve`) kutia bëhej me `clip` + `background` + `border` me të njëjtën
+   formë: qoshet e vijës dilnin të prera. Tash vetëm `border(2.dp, n.muted, RoundedCornerShape(4.dp))` (e pashënuar) ose vetëm
+   `background(n.accent, RoundedCornerShape(4.dp))` (e shënuar), pa clip. Web-i s'e kishte problemin (u kontrollua i zmadhuar 4×).
+
 0000000. **v348 / Android Hyrja 106 (20.11.2026): KUTITË DHE MESAZHI I KUSHTEVE**. Pronari zgjodhi "pamjen 1" (nga 5 opsione) për kutitë e
    "Krijo llogari" (Kushtet + merchandiser; edhe "Më mbaj mend"): katror klasik 20 px, kënde 4 px, vija 2 px `--sb-muted`, pa sfond
    (Android: `Kutia`/`KutiaEKushteve` 20 dp, 4 dp, `n.muted`). Mesazhi (pronari, i shkruar nga ai, rregulluar gramatikisht): "Për të
