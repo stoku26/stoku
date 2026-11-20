@@ -5,7 +5,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
 const URL0 = 'http://127.0.0.1:8765/';
 (async () => {
   const b = await chromium.launch();
-  const t = Date.now(), d = n => new Date(t + n * 864e5).toISOString().slice(0, 10);
+  const t = Date.now(), d = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(t + n * 864e5));
   const afatet = [
     { id: 'a1', barkodi: '1', emri: 'Kos', data: d(3), sasia: 5, furnizuesi: 'Meridian', statusi: 'aktiv', ndryshuarSe: t },
     { id: 'a2', barkodi: '2', emri: 'Ujë', data: d(5), sasia: 2, furnizuesi: 'meridian ', statusi: 'aktiv', ndryshuarSe: t },

@@ -12,6 +12,8 @@ async function grupiTel(p) { await mbyllDialoget(p); if (!(await p.evaluate(() =
 async function kolegetTel(p) { await grupiTel(p); await p.click('#ekMenu [data-n="anetaret"]').catch(() => {}); await p.waitForTimeout(1200); }
 async function largohu(p) {
   await kolegetTel(p);
+  // v321: "Largohu nga grupi" është te Cilësimet e grupit (butoni ⋮ te "Grupi yt")
+  if (await p.isVisible('#ekGrupiCil')) { await p.click('#ekGrupiCil'); await p.waitForTimeout(400); }
   if (!(await p.isVisible('#ekLargohu'))) return 'pa-buton';
   await p.click('#ekLargohu'); await p.waitForTimeout(400);
   const t = await p.evaluate(() => document.getElementById('dlgKonfirmo') && document.getElementById('dlgKonfirmo').classList.contains('hapur') ? document.getElementById('konfTekst').textContent : '');

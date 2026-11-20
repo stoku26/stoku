@@ -17,7 +17,7 @@ const SHTEPIA = { latitude: 42.6300, longitude: 21.1000, accuracy: 20 };
 (async () => {
   const F = krijoFirestore();
   const t = Date.now(), DITE = 864e5;
-  const sot = n => new Date(Date.now() + n * DITE).toISOString().slice(0, 10);
+  const sot = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(Date.now() + n * DITE));
   F.S.docs.set('perdoruesit/u1', { perdoruesi: 'drini', kycurSe: t, merchandiser: true });
   F.S.docs.set('perdoruesit/u2', { perdoruesi: 'agim', kycurSe: t });
   for (let j = 0; j < 6; j++) F.S.docs.set('pikat/p' + j, { emri: 'Market ' + j, lat: 42.5 + j * 0.02, lng: 21.0 + j * 0.02, krijuarNga: 'u9', krijuarNgaEmri: 'besa', krijuarSe: t - 3 * DITE, ndryshuarSe: t - 3 * DITE });

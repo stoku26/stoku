@@ -21,7 +21,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
   ok(/fun meEmratAktuale\(/.test(lx('vendas/logjika/src/main/kotlin/site/stoku/logjika/GrupiLogjika.kt')), '1. Android: binjaku Kotlin');
 
   // 2) telefoni: blerta (u2) sheh ngjarjet e vjetra të "mendurberisha" (u1, tani "agim") me emrin e ri
-  const tani = Date.now(), dita = n => new Date(tani + n * 864e5).toISOString().slice(0, 10);
+  const tani = Date.now(), dita = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(tani + n * 864e5));
   const F = krijoFirestore({ rregullat: 'reja' });
   F.S.docs.set('grupet/ekipa', { emri: 'Ekipa', pronarUid: 'u1', pronarEmri: 'mendurberisha', krijuarSe: tani });
   ['u1:agim:pronar', 'u2:blerta:anetar'].forEach(x => { const [id, e, ro] = x.split(':');

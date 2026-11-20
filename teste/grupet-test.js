@@ -19,7 +19,7 @@ async function hapLargohu(p) { if (!(await p.isVisible('#ekLargohu')) && await p
   F.S.docs.set('ekipa_chat/c1', { uid: 'u1', emri: 'agim', tekst: 'Mirëmëngjes ekipë', koha: t - 3600e3 });
   F.S.docs.set('ekipa_feed/e1', { lloji: 'afate-te-reja', n: 3, uid: 'u1', emri: 'agim', koha: t - 3500e3 });
   F.S.docs.set('ekipa_afatet/u1', { uid: 'u1', emri: 'agim', afatet: [{ id: 'x1', emri: 'Kos', data: '2026-10-08', statusi: 'aktiv' }], ndryshuarSe: t });
-  F.S.docs.set('dyqane/u2', { app: 'stoku', version: 3, foldera: [], produktet: [], afatet: [{ id: 'b1', emri: 'Bukë', barkodi: '1', data: new Date(t - 2 * 864e5).toISOString().slice(0, 10), statusi: 'aktiv', ndryshuarSe: t }], fshira: {} });
+  F.S.docs.set('dyqane/u2', { app: 'stoku', version: 3, foldera: [], produktet: [], afatet: [{ id: 'b1', emri: 'Bukë', barkodi: '1', data: ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(t - 2 * 864e5)), statusi: 'aktiv', ndryshuarSe: t }], fshira: {} });
   const b = await chromium.launch();
   const pushet = [];
   async function faqe(uid, emri, pc) {

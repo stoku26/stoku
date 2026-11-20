@@ -4,7 +4,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
 const PUSH = 'https://stoku-push.mendurb.workers.dev';
 (async () => {
   const F = krijoFirestore({ rregullat: 'reja' });
-  const t = Date.now(), d = n => new Date(t + n * 864e5).toISOString().slice(0, 10);
+  const t = Date.now(), d = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(t + n * 864e5));
   F.S.docs.set('perdoruesit/u1', { perdoruesi: 'agim', kycurSe: t }); F.S.docs.set('ekipa_anetaret/u1', { emri: 'agim' });
   F.S.docs.set('dyqane/u1', { app: 'stoku', version: 3, foldera: [{ id: 'f1', emri: 'Bulmet' }], produktet: [],
     afatet: [{ id: 'a1', barkodi: '444', emri: 'Djathë', data: d(-3), sasia: 2, statusi: 'aktiv', ndryshuarSe: t }, { id: 'a2', barkodi: '5', emri: 'Kos', data: d(4), statusi: 'aktiv', ndryshuarSe: t },
@@ -79,7 +79,7 @@ const PUSH = 'https://stoku-push.mendurb.workers.dev';
   health = Object.assign({}, health, { versioni: 163 });
   tk = await kutia();
   ok(/kodin e vjetër: ngjite kodin e ri te stoku-push\.$/.test(tk), '5a3. serveri 163 (aplikacioni pret 164, pa chat) → paralajmërim', tk);
-  health = Object.assign({}, health, { versioni: 174, cron: Date.now() - 600000, cronShprehja: '0,15,30,45 * * * *' });
+  health = Object.assign({}, health, { versioni: 175, cron: Date.now() - 600000, cronShprehja: '0,15,30,45 * * * *' });
   tk = await kutia();
   ok(/punon çdo 15 minuta, jo çdo minutë/.test(tk) && /"Every minute"/.test(tk) && !tk.includes('*'), '5c0. Cron çdo 15 min + ora 18:47 → paralajmërim me fjalë (pa yje)', tk);
   ok(kvThirrje === 0, '5c0. Cron-i punon → pa provë të KV-së');

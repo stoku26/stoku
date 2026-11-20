@@ -57,7 +57,7 @@ const SHTEPIA = { latitude: 42.6300, longitude: 21.1000, accuracy: 20 };
   F.S.docs.set('perdoruesit/u2', { perdoruesi: 'besa', kycurSe: t, merchandiser: true });
   F.S.docs.set('perdoruesit/uA', { perdoruesi: 'mendurberisha', kycurSe: t });
   // pika të vjetra që administratori i ka fshirë: drini ka dy markete të tyre (njërin me afat)
-  const sot = n => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
+  const sot = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(Date.now() + n * 864e5));
   const MK_D = [{ id: 'kpOld', emri: 'Market i mbyllur', lat: 42.60, lng: 21.20, p: 'pOld', ndryshuarSe: t - 30 * 60e3 },
     { id: 'kpOld2', emri: 'Market me afate', lat: 42.61, lng: 21.21, p: 'pOld2', ndryshuarSe: t - 30 * 60e3 }];
   const AF_D = [{ id: 'x1', barkodi: '1', emri: 'Kos', data: sot(5), sasia: 2, statusi: 'aktiv', m: 'kpOld2', ndryshuarSe: t - 5000 }];

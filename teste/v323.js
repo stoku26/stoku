@@ -75,8 +75,14 @@ const paKom = t => t.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '');
     await p.goto('http://127.0.0.1:' + PORTI + '/pc.html'); await p.waitForTimeout(3000);
     ok(await p.evaluate(() => { const t = document.getElementById('opsTeRejat'); return !!t && t.nextElementSibling === document.getElementById('opsPrivatesia'); }), '1. PC: "Çfarë ka të re" afër Privatësisë');
     await p.evaluate(() => document.getElementById('opsTeRejat').click()); await p.waitForTimeout(300);
-    const d = await p.evaluate(() => ({ hapur: document.getElementById('dlgTeRejat').classList.contains('hapur'), tit: [...document.querySelectorAll('#trLista .tr-version-titulli')].map(x => x.textContent) }));
-    ok(d.hapur && /* v341: 'Malli edhe në kompjuter' doli nga 6 të fundit */ d.tit[0] === 'Rregullime' && d.tit.includes('Malli me grupin') && /* v339: dritarja ka vend për 6, 'Fusha e barkodit' doli */ !d.tit.includes('Butoni i shtëpisë') && !d.tit.includes('Ballina dhe Malli'), '1. PC: hapet nga Cilësimet, me hyrjet e PC-së', d);
+    // v344: pritjet llogariten nga teRejat.js (më parë titujt ishin të shkruar me dorë dhe dilnin nga 6 të fundit me çdo version)
+    const d = await p.evaluate(() => {
+      const TR = window.StokuTeRejat, pa = h => !h.vetemAdmini;
+      return { hapur: document.getElementById('dlgTeRejat').classList.contains('hapur'), tit: [...document.querySelectorAll('#trLista .tr-version-titulli')].map(x => x.textContent),
+        pritur: TR.LISTA.filter(h => h.platforma !== 'tel' && pa(h)).slice(0, 6).map(h => h.titulli),
+        vetemTel: TR.LISTA.filter(h => h.platforma === 'tel').slice(0, 6).map(h => h.titulli) };
+    });
+    ok(d.hapur && d.tit.length >= 1 && d.tit.length <= 6 && JSON.stringify(d.tit) === JSON.stringify(d.pritur), '1. PC: hapet nga Cilësimet, 6 hyrjet e fundit të PC-së', d);
     ok(!gab.length, 'PC: pa gabime JS', gab);
     await ctx.close();
   }

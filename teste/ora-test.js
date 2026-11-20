@@ -4,7 +4,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
 const PUSH = 'https://stoku-push.mendurb.workers.dev';
 (async () => {
   const F = krijoFirestore({ rregullat: 'reja' });
-  const t = Date.now(), d = n => new Date(t + n * 864e5).toISOString().slice(0, 10);
+  const t = Date.now(), d = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(t + n * 864e5));
   F.S.docs.set('perdoruesit/u1', { perdoruesi: 'agim', kycurSe: t }); F.S.docs.set('ekipa_anetaret/u1', { emri: 'agim' });
   F.S.docs.set('dyqane/u1', { app: 'stoku', version: 3, foldera: [{ id: 'f1', emri: 'Bulmet' }], produktet: [],
     afatet: [{ id: 'a1', barkodi: '444', emri: 'Djathë', data: d(0), sasia: 2, statusi: 'aktiv', ndryshuarSe: t }, { id: 'a2', barkodi: '5', emri: 'Kos', data: d(0), statusi: 'aktiv', ndryshuarSe: t }], fshira: {} });

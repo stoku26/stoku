@@ -15,7 +15,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
   ok(o1.pronari === 'u1' && o1.ids.join() === 'a1' && o2.pronari === 'u2' && o2.ids.join() === 'b1,b2' && o3.pronari === '' && o3.kerko === '39' && o4 === null, '1. objekti i ngjarjes', { o1, o2, o3, o4 });
 
   const F = krijoFirestore({ rregullat: 'reja' });
-  const tani = Date.now(), dita = n => new Date(tani + n * 864e5).toISOString().slice(0, 10);
+  const tani = Date.now(), dita = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(tani + n * 864e5));
   F.S.docs.set('perdoruesit/uA', { perdoruesi: 'mendurberisha', emri: 'mendurberisha', kycurSe: tani, ekipaMigruarSe: tani });
   F.S.docs.set('perdoruesit/u1', { perdoruesi: 'agim', kycurSe: tani });
   F.S.docs.set('perdoruesit/u2', { perdoruesi: 'blerta', kycurSe: tani });

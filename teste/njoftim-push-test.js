@@ -5,7 +5,7 @@ let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'G
 const SC = __dirname + '/';
 (async () => {
   const F = krijoFirestore({ rregullat: 'reja' });
-  const t = Date.now(), dje = new Date(t - 2 * 864e5).toISOString().slice(0, 10);
+  const t = Date.now(), dje = ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(t - 2 * 864e5));
   const af = [['a1', 'Kos Vita'], ['a2', 'Bukë'], ['a3', 'Djathë']].map(([id, emri]) => ({ id, emri, barkodi: id, data: dje, statusi: 'aktiv', ndryshuarSe: t - 6e5 }));
   F.S.docs.set('perdoruesit/u1', { perdoruesi: 'agim', kycurSe: t, grupi: 'g1' });
   F.S.docs.set('perdoruesit/u2', { perdoruesi: 'besa', kycurSe: t, grupi: 'g1' });

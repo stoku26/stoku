@@ -93,7 +93,7 @@ const prit = (fn, ms = 10000) => new Promise(async z => { const t0 = Date.now();
   ok(Object.keys(ka2).length <= 20000 && !ad2.__gab.length, '1b. kujtesa s\'kalon 20 000; pa gabime JS', [Object.keys(ka2).length, ad2.__gab]);
 
   // ================= 2. Merchandiseri: afatet sipas marketeve =================
-  const sot = n => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
+  const sot = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(Date.now() + n * 864e5));
   const MK = [{ id: 'm1', emri: 'Albi Mall', ndryshuarSe: t }, { id: 'm2', emri: 'Viva Fresh', ndryshuarSe: t }];
   const AF0 = [
     { id: 'a1', barkodi: '111', emri: 'Kos', data: sot(5), sasia: 2, statusi: 'aktiv', m: 'm1', ndryshuarSe: t },

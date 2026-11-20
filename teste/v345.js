@@ -1,0 +1,21 @@
+// v345 / Android Hyrja 103 / stoku-push 175: lista e fotove riparohet vetë, kufijtë te rregullat, actions v5, numëruesi i regresionit
+const fs = require('fs');
+let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
+const RR = __dirname + '/../', lx = f => fs.readFileSync(RR + f, 'utf8');
+const w = lx('worker/stoku-push.js');
+const vW = +/VERSIONI_WORKER = (\d+)/.exec(w)[1], vE = +/VERSIONI_WORKER: (\d+)/.exec(lx('ekipa.js'))[1];
+const vK = +/const val VERSIONI_WORKER = (\d+)/.exec(lx('vendas/app/src/main/java/site/stoku/vendas/Push.kt'))[1];
+ok(vW >= 175 && vW === vE && vE === vK, '1. Worker ≥ 175, i njëjtë te ekipa.js dhe Push.kt', [vW, vE, vK]);
+ok(/fotot: await riparoIndeksin\(env, await lexoIndeksin\(env\)\)/.test(w) && /indeksiKontrolluarSe < 3600e3/.test(w), '2. /fotot e riparon listën (më së shumti një herë në orë)');
+const rr = require('./emu/rregullat.js').rregullat();
+ok(/function ngjarjaOk\(d\)/.test(rr) && /function pajisjaPushOk\(d\)/.test(rr), '3a. rregullat: ngjarjaOk + pajisjaPushOk');
+ok((rr.match(/ngjarjaOk\(request\.resource\.data\)/g) || []).length === 2 && /pajisjaPushOk\(request\.resource\.data\)/.test(rr), '3b. përdoren te feed, njoftimet dhe push');
+ok(/USfaW6Lbm3dbxEF95aKMKadIaok1/.test(rr), '3c. administratori sipas uid-së mbetet');
+const wf = ['vendas-apk.yml', 'ora-apk.yml', 'apk-celesat.yml'].map(f => lx('.github/workflows/' + f)).join('\n');
+ok(!/actions\/(checkout|setup-java|upload-artifact|download-artifact)@v4|setup-gradle@v4/.test(wf) && /actions\/checkout@v5/.test(wf), '4. workflows pa veprimet v4 (Node 20)');
+ok(/grep -cE '\^ \*\(GABIM\|✗\)\|pageerror\|\^FAIL'/.test(lx('teste/regresioni.sh')), '5. regresioni numëron vetëm gabimet e vërteta');
+ok(/foto-indeksi-prova\.mjs/.test(lx('teste/regresioni.sh')) && /v345\.js/.test(lx('teste/regresioni.sh')), '6. testet e reja te regresioni');
+const sw = lx('sw.js');
+ok(+/stoku-v(\d+)/.exec(sw)[1] >= 345 && +/v: (\d+)/.exec(lx('versioni.js'))[1] >= 345 && /Hyrja\(103,/.test(lx('vendas/app/src/main/java/site/stoku/vendas/TeRejat.kt')), '7. versionet');
+console.log(g ? '\n' + g + ' GABIME' : '\nKREJT OK');
+process.exit(g ? 1 : 0);

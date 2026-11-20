@@ -5,7 +5,7 @@ const { chromium } = require('./pw.js');
 const { krijoFirestore } = require('./fs-server.js');
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
 const PUSH = 'https://stoku-push.mendurb.workers.dev'; const pushet = [];
-const D = 864e5, iso = n => new Date(Date.now() + n * D).toISOString().slice(0, 10);
+const D = 864e5, iso = n => ((x) => { x = new Date(x); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })(new Date(Date.now() + n * D));
 (async () => {
   const F = krijoFirestore({ rregullat: 'reja' });
   const tani = Date.now();
