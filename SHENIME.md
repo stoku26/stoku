@@ -58,6 +58,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **PASTRIMI I REPO-S (20.11.2026, pa version të web-it: s'preket asnjë skedar që e ngarkon faqja)**. Pronari: "kontrolloje 100%
+   githubin edhe fshij filet qka nuk nevojitet 100%". U kontrollua çdo skedar: referencat në HTML, `sw.js`, JS, CSS, manifest, Kotlin,
+   resurset Android, workflows dhe teste; edhe e kundërta (asnjë skedar që kërkohet nga faqet/SHELL s'mungon). U fshinë VETËM
+   `orari-1.png`, `orari-2.png`, `orari-3.png` (rrënja): pamje ekrani të `teste/orari-test.js` të futura gabimisht te v289, pa asnjë
+   referencë; `.gitignore` i ndalon tash. Mbeten qëllimisht: `logo/*` (arkivi i logove, vendim i pronarit v223), `fonts/OFL-*.txt` dhe
+   `vendas/.../assets/OFL-*.txt` (licencat e shkronjave, të detyrueshme), çelësat e nënshkrimit, `worker/stoku-afatet.js`, krejt testet
+   (secili përdoret nga regresioni, emulatori ose gradle). GitHub: vetëm degët `main` + dega e punës; Releases (APK të vjetra
+   `vendas-vNN`/`ora-vNN`) s'u prekën.
+
 0000000. **v345 / Android Hyrja 103 / stoku-push v175 (19.11.2026): PIKAT 4-6 TË KONTROLLIT**. Pronari: "4, 5, 6 rregulloji komplet".
    - Regresioni: `gabim=N` te `regresioni.sh` numëronte edhe rreshtat "pa gabime" (dukej sikur 130 teste kishin gabime); tash vetëm
      rreshtat që nisin me GABIM/✗ dhe pageerror. Gabimet e vërteta ishin 4: v306/v316 (versioni i Worker-it, u rregulluan te v344),

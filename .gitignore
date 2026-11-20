@@ -1,1 +1,4 @@
 teste/__pycache__/
+
+# v346: pamjet e ekranit të teste/orari-test.js kur nisej nga rrënja (u futën gabimisht te v289)
+/orari-*.png
