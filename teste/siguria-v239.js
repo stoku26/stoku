@@ -24,7 +24,7 @@ const RR = process.env.STOKU_DIR || require('path').resolve(__dirname, '..');
   // 2. CSP_CLOUDFLARE = bashkimi i meta-ve + frame-ancestors 'none'
   const ndaj = p => { const d = {}; p.split(';').map(x => x.trim()).filter(Boolean).forEach(x => { const [k, ...v] = x.split(/\s+/); d[k] = new Set(v); }); return d; };
   const bashkimi = {};
-  for (const f of ['index.html', 'pc.html', '404.html', 'android.html', 'privatesia.html']) {
+  for (const f of ['index.html', 'pc.html', '404.html', 'android.html', 'privatesia.html', 'kushtet.html']) {
     const c = (/<meta http-equiv="Content-Security-Policy" content="([^"]+)"/.exec(fs.readFileSync(RR + '/' + f, 'utf8')) || [])[1];
     ok(!!c, '2. ' + f + ' ka CSP në meta');
     const d = ndaj(c || '');

@@ -19,7 +19,7 @@ const FARA = () => {
 const VEZHGO = () => { window.__csp = []; document.addEventListener('securitypolicyviolation', e => window.__csp.push(e.violatedDirective + ' ' + (e.blockedURI || '') + ' ' + (e.sourceFile || '') + ':' + e.lineNumber)); };
 (async () => {
   // 0. asnjë skript inline në faqe; CSP pa unsafe-inline/unsafe-eval te script-src
-  for (const f of ['index.html', 'pc.html', '404.html', 'android.html', 'privatesia.html']) {
+  for (const f of ['index.html', 'pc.html', '404.html', 'android.html', 'privatesia.html', 'kushtet.html']) {
     const s = fs.readFileSync(RR + '/' + f, 'utf8');
     const inline = (s.match(/<script(?![^>]*\bsrc=)[^>]*>/g) || []);
     const csp = (/<meta http-equiv="Content-Security-Policy" content="([^"]+)"/.exec(s) || [])[1] || '';
@@ -89,7 +89,7 @@ const VEZHGO = () => { window.__csp = []; document.addEventListener('securitypol
     await P0.ctx.close();
   }
   // 3. faqet e tjera
-  for (const r of ['/privatesia.html', '/404.html', '/android.html']) {
+  for (const r of ['/privatesia.html', '/kushtet.html', '/404.html', '/android.html']) {
     const X = await faqe(false, r, false);
     const v = await X.csp();
     const t = await X.p.evaluate(() => document.documentElement.getAttribute('data-tema') || document.title);

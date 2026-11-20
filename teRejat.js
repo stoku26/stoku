@@ -21,6 +21,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 346, versioni: '1.74.0', data: '2026-11-20', titulli: 'Kushtet e përdorimit', pikat: [
+      'Te Cilësimet, afër Privatësisë, tani janë edhe Kushtet e përdorimit: rregullat për përdorimin e Stoku-t. Lidhja është edhe poshtë faqes së hyrjes.'
+    ] },
     { v: 345, versioni: '1.73.10', data: '2026-11-19', titulli: 'Fotot e profilit', pikat: [
       'Fotoja e profilit e një kolegu s\'humbet më nga lista kur dy veta e ndryshojnë foton në të njëjtën kohë.'
     ] },

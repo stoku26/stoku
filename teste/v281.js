@@ -6,7 +6,7 @@ const path = require('path');
 const RR = path.join(__dirname, '..');
 let g = 0; const ok = (k, m, x) => { if (!k) g++; console.log((k ? 'OK    ' : 'GABIM ') + m + (x !== undefined ? '  → ' + JSON.stringify(x) : '')); };
 const ecurr = d => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? ecurr(path.join(d, e.name)) : [path.join(d, e.name)]);
-const skedaret = ['index.html', 'pc.html', 'app-tel.js', 'app-pc.js', 'versioni.js', 'lejet.js', 'porta.js', 'privatesia.html', '404.html'].map(f => path.join(RR, f))
+const skedaret = ['index.html', 'pc.html', 'app-tel.js', 'app-pc.js', 'versioni.js', 'lejet.js', 'porta.js', 'privatesia.html', 'kushtet.html', '404.html'].map(f => path.join(RR, f))
   .concat(ecurr(path.join(RR, 'vendas/app/src/main')).filter(f => f.endsWith('.kt')), ecurr(path.join(RR, 'ora/app/src/main')).filter(f => f.endsWith('.kt')));
 const rxStr = /'((?:[^'\\\n]|\\.)*)'|"((?:[^"\\\n]|\\.)*)"|`([^`]*)`/g;
 const gjetjet = { krejt: [], tash: [], cka: [] };

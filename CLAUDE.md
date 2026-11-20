@@ -45,7 +45,7 @@ Përditësoje në të njëjtin PR me çdo ndryshim domethënës.
 - Mos i rikthe gjërat e refuzuara (lista e plotë te SHENIME), p.sh. chat-i, mesazhet e furnizuesve, "Jepja vetëm
   pasi ta njohësh personin", "Mos dil kur i fshin të dhënat", PDA v227, ngjyrat e çelëta te manifest-i.
 - CSP: pa skripta inline dhe pa `onclick=` në HTML; kodi i ri te `app-tel.js` / `app-pc.js`. Shërbim i ri i jashtëm =
-  CSP në meta të 5 faqeve + rreshti `CSP_CLOUDFLARE` te SHENIME + pronari e ndryshon rregullën "siguria" te Cloudflare.
+  CSP në meta të 6 faqeve (edhe `kushtet.html`, v346) + rreshti `CSP_CLOUDFLARE` te SHENIME + pronari e ndryshon rregullën "siguria" te Cloudflare.
 - Ora e dorës: pa fusha teksti brenda aplikacionit (hyrja e sistemit, RemoteInput).
 - Mos i ndrysho identifikuesit `stoku:ekipa:*`, grupin "ekipa", `anetaret`. Adresa e PC-së është `#/grupi` (`#/grupi/koleget`, v309);
   `#/ekipa/anetaret` dhe `#/ekipa...` duhet të punojnë gjithmonë.
@@ -60,7 +60,7 @@ Përditësoje në të njëjtin PR me çdo ndryshim domethënës.
    Cilësimet, jo vetë në hyrje); për Android hyrje te `TeRejat.kt` (del te faqja e përditësimit dhe te Cilësimet).
 5. Hyrje e re në krye të listës `0000000.` te `SHENIME.md`.
 6. `node teste/gjej-vizat.js index.html pc.html app-tel.js app-pc.js fillimi-tel.js fillimi-pc.js firebase-tel.js
-   firebase-pc.js versioni.js porta.js afatet.js privatesia.html 404.html android.html` duhet të japë "gjithsej 0".
+   firebase-pc.js versioni.js porta.js afatet.js privatesia.html kushtet.html 404.html android.html` duhet të japë "gjithsej 0".
 7. Regresioni i plotë: `bash teste/regresioni.sh > teste/regresioni-vNNN.txt` (rreth 30 min, në sfond); krahasoje me
    të fundit. Mos i ndrysho skedarët ndërsa punon.
 8. Commit, push, PR (përshkrim shqip), merge me SHA-në e plotë, sinkronizo degën me main, prit deploy-in e Pages.
