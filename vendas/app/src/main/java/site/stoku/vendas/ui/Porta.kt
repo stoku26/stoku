@@ -201,7 +201,8 @@ fun KutiaEKushteve(v: Boolean, ndrysho: (Boolean) -> Unit) {
     val n = N
     val ctx = androidx.compose.ui.platform.LocalContext.current
     Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-        Row(Modifier.clip(RoundedCornerShape(10.dp)).clickable { ndrysho(!v) }, verticalAlignment = Alignment.CenterVertically) {
+        // Hyrja 108: pa clip(10.dp) këtu: rreshti ka lartësinë e kutisë dhe ia priste dy qoshet e majta (foto e pronarit)
+        Row(Modifier.clickable { ndrysho(!v) }, verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.padding(horizontal = 2.dp).size(20.dp).then(if (v) Modifier.background(n.accent, RoundedCornerShape(4.dp)) else Modifier.border(2.dp, n.muted, RoundedCornerShape(4.dp))),
                 contentAlignment = Alignment.Center) {
                 if (v) Icon(Ik.Kontroll, null, Modifier.size(13.dp), tint = Color.White)

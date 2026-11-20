@@ -336,7 +336,7 @@ class PamjetTest {
 
     /** Hyrja 33: faqja e përditësimit ("ideja 5" e pronarit): pyetja (Hyrja 80: pa "Çfarë ka të re") dhe shkarkimi */
     private fun perditesimi(tema: String) {
-        Perditesimi.gjendja.value = Perditesimi.Gjendja(BuildConfig.VERSION_CODE + 4, "https://shembull.invalid/stoku.apk")
+        Perditesimi.gjendja.value = Perditesimi.Gjendja(BuildConfig.VERSION_CODE + 4, "https://shembull.invalid/stoku.apk", emptyList())
         r.setContent { StokuTema(tema) { site.stoku.vendas.ui.PerditesimiFaqja() } }
         r.onNodeWithText("Përditëso Stoku-n").assertExists()
         r.onNodeWithText("Përditëso tani").assertExists()
@@ -565,6 +565,16 @@ class PamjetTest {
         Llogaria.vendosPerProve(null)
         r.setContent { StokuTema("light") { Porta() } }
         foto("light-00-porta")
+    }
+
+    /** Hyrja 108: "Krijo llogari" me kutitë (Kushtet + merchandiser), e errët, që të shihen qoshet e kutive */
+    @Test fun portaKrijo() {
+        Llogaria.vendosPerProve(null)
+        r.setContent { StokuTema("dark") { Porta() } }
+        kliko("Krijo llogari")
+        foto("dark-00-porta-krijo")
+        r.onNodeWithText("Krijo llogarinë").performClick(); r.waitForIdle()
+        foto("dark-00-porta-krijo-gabim")
     }
 
     /** "Hyr si vizitor": të dhënat shembull, shiriti i provës, Cilësimet → Llogaria dhe Grupi pa llogari */
