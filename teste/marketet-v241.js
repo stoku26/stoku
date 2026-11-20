@@ -315,6 +315,7 @@ const NUMERO_GPS = () => {
     }
     const emri = merch ? 'meri' : 'besnik';
     await p.fill('#pkEmri', emri); await p.fill('#pkFjalekalimi', 'sakte123'); await p.fill('#pkPerserit', 'sakte123');
+    await p.click('#pkKushtetLbl .pk-tick'); // v347
     await p.click('#pkDergo');
     await prit(async () => !!(await p.evaluate(() => sessionStorage.getItem('argsRegjistrimit'))));
     const args = JSON.parse(await p.evaluate(() => sessionStorage.getItem('argsRegjistrimit')));

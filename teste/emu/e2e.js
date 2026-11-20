@@ -71,6 +71,7 @@ async function regjistrohu(p, emri, pc, merch) {
   await p.click('#pkTabKrijo');
   await p.fill('#pkEmri', emri); await p.fill('#pkFjalekalimi', 'sakte123'); await p.fill('#pkPerserit', 'sakte123');
   if (merch) await p.click('#pkMerchLbl');
+  await p.click('#pkKushtetLbl .pk-tick'); // v347: pranimi i Kushteve, i detyrueshëm
   await p.click('#pkDergo');
   await p.waitForFunction(() => !document.getElementById('porta') || getComputedStyle(document.getElementById('porta')).display === 'none' || document.getElementById('porta').hidden, null, { timeout: 30000 }).catch(() => {});
   await p.waitForTimeout(3500);

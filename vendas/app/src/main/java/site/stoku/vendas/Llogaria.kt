@@ -268,13 +268,14 @@ object Llogaria {
         if (s.exists()) (s.getString("uid") ?: "") else ""
     } catch (e: Exception) { null }
 
-    suspend fun regjistrohu(emri: String, fjalekalimi: String, merchandiser: Boolean): String? {
+    suspend fun regjistrohu(emri: String, fjalekalimi: String, merchandiser: Boolean, kushtet: Boolean = false): String? {
         // Hyrja 71: emri që e ka (ose e ka pasur) një llogari tjetër s'merret
+        if (!kushtet) return "Që ta krijosh llogarinë, prano Kushtet e përdorimit." // Hyrja 105: pa Kushtet, pa llogari
         if (!pronariIEmrit(emri).isNullOrEmpty()) return EMRI_I_ZENE
-        return regjistrohuTani(emri, fjalekalimi, merchandiser)
+        return regjistrohuTani(emri, fjalekalimi, merchandiser, kushtet)
     }
 
-    private suspend fun regjistrohuTani(emri: String, fjalekalimi: String, merchandiser: Boolean): String? = try {
+    private suspend fun regjistrohuTani(emri: String, fjalekalimi: String, merchandiser: Boolean, kushtet: Boolean = false): String? = try {
         val kred = auth.createUserWithEmailAndPassword(emailIBrendshem(emri), fjalekalimi).await()
         mesazhiIHyrjes.value = ""
         val uid = kred.user?.uid
@@ -283,6 +284,7 @@ object Llogaria {
             StokuApp.prefs(ctx).edit().putBoolean("merchandiser", merchandiser).putString("lejet_uid", uid).apply()
             val fillimi = MObj(); fillimi["krijuarSe"] = System.currentTimeMillis()
             if (merchandiser) fillimi["merchandiser"] = true
+            if (kushtet) fillimi["kushtetPranuarSe"] = fillimi["krijuarSe"] // Hyrja 105: kur u pranuan Kushtet e përdorimit
             db.collection("perdoruesit").document(uid).set(fillimi, SetOptions.merge())
         }
         ruajEmrinEFundit(emri.trim().lowercase())

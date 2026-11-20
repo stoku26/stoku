@@ -58,6 +58,18 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v347 / Android Hyrja 105 (20.11.2026): PRANIMI I DETYRUESHËM I KUSHTEVE TE "KRIJO LLOGARI"**. Pronari (foto e formës):
+   "Kur krijon llogari bone ni kerkes me tick qe mi pranu kushtet. Nese se klikon tick dmth mos me mujt me qel llogari".
+   - Web (`porta.js`, tel + PC): kutia `#pkKushtet` "Pranoj Kushtet e përdorimit" (lidhja `#pkKushtetLidhja` hap `kushtet.html`
+     në dritare të re pa e shënuar kutinë), vetëm te "Krijo llogari", pas "Punoj si merchandiser"; kalimi te "Hyr" e heq. Pa të:
+     "Që ta krijosh llogarinë, prano Kushtet e përdorimit." dhe s'thirret `regjistrohu`.
+   - `firebase-tel.js` / `firebase-pc.js` `regjistrohu`: pa `opsionet.kushtet` kthen `stoku/kushtet` (edhe nëse thirret nga diku tjetër;
+     `kryeRregjistrimHyrje`/`hyrOseKrijo` te app-tel/app-pc s'thirren askund). Me të: `perdoruesit/{uid}.kushtetPranuarSe` (= krijuarSe).
+   - Android: `Porta.kt` `KutiaEKushteve` + mesazhi; `Llogaria.regjistrohu(…, kushtet)` e refuzon pa të dhe e ruan `kushtetPranuarSe`.
+   - Llogaritë ekzistuese s'pyeten (vetëm llogaritë e reja). Vizitori s'preket.
+   - Teste: `teste/v347.js`; `marketet-v241.js` dhe `emu/e2e.js` (regjistrohu) e shënojnë kutinë (`#pkKushtetLbl .pk-tick`; mos e kliko
+     mesin e etiketës: aty është lidhja).
+
 0000000. **v346 / Android Hyrja 104 (20.11.2026): KUSHTET E PËRDORIMIT**. Pronari: "A munesh me i shtu terms and services ne shqip
    gramatik 100% pa gabime. Mi lon afer privatesis jo bashk me to po kudo qe osht privatesia naper ui kto me lon qaty afer".
    - Faqja `kushtet.html` (si `privatesia.html`: e njëjta CSP, `tema.js`, adresa absolute, pa skripta inline): llogaria, përdorimi i
