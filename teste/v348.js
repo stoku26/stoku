@@ -7,7 +7,8 @@ const RR = __dirname + '/../', lx = f => fs.readFileSync(RR + f, 'utf8');
 const MESAZHI = "Për të vazhduar, duhet t'i lexoni dhe t'i pranoni Kushtet e përdorimit.";
 (async () => {
   const pk = lx('vendas/app/src/main/java/site/stoku/vendas/ui/Porta.kt');
-  ok((pk.match(/size\(20\.dp\)\.clip\(RoundedCornerShape\(4\.dp\)\)\.background\(if \(v\) n\.accent else Color\.Transparent\)\.border\(if \(v\) 0\.dp else 2\.dp, n\.muted/g) || []).length === 2, '1. Android: të dyja kutitë 20 dp, kënde 4 dp, vijë 2 dp');
+  // Hyrja 107: pa clip + border njëherësh (qoshet dilnin të prera)
+  ok((pk.match(/size\(20\.dp\)\.then\(if \(v\) Modifier\.background\(n\.accent, RoundedCornerShape\(4\.dp\)\) else Modifier\.border\(2\.dp, n\.muted, RoundedCornerShape\(4\.dp\)\)\)/g) || []).length === 2, '1. Android: të dyja kutitë 20 dp, kënde 4 dp, vijë 2 dp (pa clip)');
   ok(pk.includes('"' + MESAZHI + '"') && lx('vendas/app/src/main/java/site/stoku/vendas/Llogaria.kt').includes('"' + MESAZHI + '"'), '2. Android: mesazhi i ri');
   ok(+/v: (\d+)/.exec(lx('versioni.js'))[1] >= 348 && /Hyrja\(106,/.test(lx('vendas/app/src/main/java/site/stoku/vendas/TeRejat.kt')), '3. versionet');
   const b = await chromium.launch();
