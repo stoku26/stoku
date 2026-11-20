@@ -56,6 +56,7 @@ private fun PortaBrenda() {
     var fj2 by remember { mutableStateOf("") }
     var shfaq by remember { mutableStateOf(false) }
     var merch by remember { mutableStateOf(false) }
+    var kushtet by remember { mutableStateOf(false) } // Hyrja 105 (web v347): pranimi i Kushteve të përdorimit, i detyrueshëm
     var gabim by remember { mutableStateOf("") }
     var duke by remember { mutableStateOf(false) }
     var rivendosja by remember { mutableStateOf(false) }
@@ -75,12 +76,13 @@ private fun PortaBrenda() {
             fj.isEmpty() -> "Shkruaj fjalëkalimin."
             fj.length < 6 -> "Fjalëkalimi duhet të ketë të paktën 6 shenja."
             krijo && fj2 != fj -> "Fjalëkalimet nuk përputhen."
+            krijo && !kushtet -> "Për të vazhduar, shëno që pajtohesh me Kushtet e përdorimit."
             else -> ""
         }
         if (gabim.isNotEmpty()) return
         duke = true
         scope.launch {
-            val r = if (krijo) Llogaria.regjistrohu(e, fj, merch) else Llogaria.hyr(e, fj)
+            val r = if (krijo) Llogaria.regjistrohu(e, fj, merch, kushtet) else Llogaria.hyr(e, fj)
             duke = false
             if (r != null) gabim = r else { fj = ""; fj2 = "" }
         }
@@ -130,6 +132,7 @@ private fun PortaBrenda() {
                     Etiketa("Përsërit fjalëkalimin")
                     Fusha(fj2, { fj2 = it }, Modifier.fillMaxWidth(), "Shkruaje edhe një herë", fjalekalim = !shfaq, fokusi = fFj2,
                         veprimi = ImeAction.Go, kurVeprim = { dergo() })
+                    KutiaEKushteve(kushtet) { kushtet = it }
                     Kutia(merch, { merch = it }, "Punoj si merchandiser (në disa markete)")
                 }
                 if (gabim.isNotEmpty()) Text(gabim, style = tx(13, 500, n.exp))
@@ -188,6 +191,27 @@ fun Kutia(v: Boolean, ndrysho: (Boolean) -> Unit, teksti: String) {
         }
         Spacer(Modifier.size(10.dp))
         Text(teksti, style = tx(14, 500, n.ink2))
+    }
+}
+
+/** Hyrja 105 (web v347): "Pajtohem me Kushtet e përdorimit": kutia e ndryshon zgjedhjen, lidhja e hap faqen e kushteve */
+@Composable
+fun KutiaEKushteve(v: Boolean, ndrysho: (Boolean) -> Unit) {
+    val n = N
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.clip(RoundedCornerShape(10.dp)).clickable { ndrysho(!v) }, verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(22.dp).clip(RoundedCornerShape(7.dp)).background(if (v) n.accent else n.surface).border(if (v) 0.dp else 1.5.dp, n.control, RoundedCornerShape(7.dp)),
+                contentAlignment = Alignment.Center) {
+                if (v) Icon(Ik.Kontroll, null, Modifier.size(15.dp), tint = Color.White)
+            }
+            Spacer(Modifier.size(10.dp))
+            Text("Pajtohem me ", style = tx(14, 500, n.ink2))
+        }
+        Text("Kushtet e përdorimit", style = tx(14, 700, n.ink2).copy(textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline),
+            modifier = Modifier.clickable {
+                try { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://stoku.site/kushtet.html"))) } catch (e: Exception) { }
+            })
     }
 }
 

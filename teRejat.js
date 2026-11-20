@@ -21,6 +21,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 347, versioni: '1.74.1', data: '2026-11-20', titulli: 'Krijimi i llogarisë', pikat: [
+      'Kur krijon një llogari të re, shëno kutinë "Pajtohem me Kushtet e përdorimit" (e para, mbi "Punoj si merchandiser").'
+    ] },
     { v: 346, versioni: '1.74.0', data: '2026-11-20', titulli: 'Kushtet e përdorimit', pikat: [
       'Te Cilësimet, afër Privatësisë, tani janë edhe Kushtet e përdorimit: rregullat për përdorimin e Stoku-t. Lidhja është edhe poshtë faqes së hyrjes.'
     ] },

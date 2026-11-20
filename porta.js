@@ -192,6 +192,7 @@
     '  transition: background .15s, box-shadow .15s; }',
     '#porta .pk-mbaj input:checked + .pk-tick { background: var(--sb-accent, #1f5fc4); box-shadow: none; color: #fff; }',
     '#porta .pk-mbaj input:focus-visible + .pk-tick { outline: 2px solid var(--sb-accent, #1f5fc4); outline-offset: 2px; }',
+    '#porta .pk-mbaj a { color: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }',
     '#porta .pk-ose { display: flex; align-items: center; gap: 12px; margin: 18px 2px 14px; font-size: 12.5px; color: var(--sb-faint, #8a8d94); }',
     '#porta .pk-ose::before, #porta .pk-ose::after { content: ""; flex: 1; height: 1px; background: var(--sb-line, #e6e4df); }',
     '#porta .pk-btn.pk-dyte { background: var(--sb-sunken, #ebe9e4); color: var(--sb-ink, #14161b); box-shadow: none; }',
@@ -236,6 +237,8 @@
         '<label><span>Fjalëkalimi</span><div class="pk-fusha"><input id="pkFjalekalimi" class="me-sy" name="password" type="password" autocomplete="current-password" maxlength="100" enterkeyhint="go" placeholder="Fjalëkalimi"><button type="button" class="pk-sy" id="pkSy" aria-label="Shfaq fjalëkalimin" title="Shfaq fjalëkalimin">' + SY + '</button></div></label>' +
         '<div class="pk-harrova" id="pkHarrovaRresht"><button type="button" class="pk-lidhje" id="pkHarrova">Ke harruar fjalëkalimin?</button></div>' +
         '<label id="pkPerseritLbl" class="pk-fsheh"><span>Përsërit fjalëkalimin</span><input id="pkPerserit" class="me-sy" name="password2" type="password" autocomplete="new-password" maxlength="100" enterkeyhint="go" placeholder="Shkruaje edhe një herë"></label>' +
+        // v347 (e para, mbi "Punoj si merchandiser"; pronari: "kur krijon llogari bone ni kerkes me tick qe mi pranu kushtet ... te detyrushme"): pa këtë s'krijohet llogaria
+        '<label class="pk-mbaj pk-fsheh" id="pkKushtetLbl" for="pkKushtet"><input type="checkbox" id="pkKushtet"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Pajtohem me <a href="kushtet.html" target="_blank" rel="noopener" id="pkKushtetLidhja">Kushtet e përdorimit</a></div></label>' +
         '<label class="pk-mbaj pk-fsheh" id="pkMerchLbl" for="pkMerch"><input type="checkbox" id="pkMerch"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Punoj si merchandiser (në disa markete)</div></label>' +
         '<label class="pk-mbaj" id="pkMbajLbl" for="pkMbaj"><input type="checkbox" id="pkMbaj"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Më mbaj mend emrin e përdoruesit</div></label>' +
         '<div class="pk-gabim" id="pkGabim" role="alert"></div>' +
@@ -324,6 +327,9 @@
     // v241: afatet sipas marketeve (me GPS) vetëm për llogaritë e reja që e zgjedhin këtu; administratori e ndryshon më vonë
     $('pkMerchLbl').classList.toggle('pk-fsheh', !krijo);
     if (!krijo) $('pkMerch').checked = false;
+    // v347: pranimi i Kushteve të përdorimit, i detyrueshëm vetëm te "Krijo llogari"
+    $('pkKushtetLbl').classList.toggle('pk-fsheh', !krijo);
+    if (!krijo) $('pkKushtet').checked = false;
     // v241: "Më mbaj mend emrin e përdoruesit" vetëm te "Hyr" (te "Krijo llogari" s'duhet); zgjedhja e ruajtur vlen njësoj
     $('pkMbajLbl').classList.toggle('pk-fsheh', krijo);
     $('pkHarrovaRresht').classList.toggle('pk-fsheh', krijo);
@@ -352,6 +358,7 @@
         return 'Emri i përdoruesit ose fjalëkalimi është gabim.';
       case 'auth/email-already-in-use': return 'Ky emër përdoruesi është i zënë. Zgjidh një tjetër, ose hyr nëse është llogaria jote.';
       case 'auth/weak-password': return 'Fjalëkalimi duhet të ketë të paktën 6 shenja.';
+      case 'stoku/kushtet': return 'Për të vazhduar, shëno që pajtohesh me Kushtet e përdorimit.';
       case 'auth/invalid-email': return 'Emri i përdoruesit ka shenja të palejuara. Përdor vetëm a–z, 0–9, _ . -';
       case 'auth/too-many-requests': return 'Shumë prova të gabuara. Prit pak minuta dhe provo përsëri.';
       case 'auth/network-request-failed': return 'S\'ka lidhje me internetin. Kontrollo internetin dhe provo përsëri.';
@@ -587,6 +594,7 @@
     if (!fjalekalimi) { gabim.textContent = 'Shkruaj fjalëkalimin.'; $('pkFjalekalimi').focus(); return; }
     if (fjalekalimi.length < 6) { gabim.textContent = 'Fjalëkalimi duhet të ketë të paktën 6 shenja.'; $('pkFjalekalimi').focus(); return; }
     if (krijo && $('pkPerserit').value !== fjalekalimi) { gabim.textContent = 'Fjalëkalimet nuk përputhen.'; $('pkPerserit').focus(); return; }
+    if (krijo && !$('pkKushtet').checked) { gabim.textContent = 'Për të vazhduar, shëno që pajtohesh me Kushtet e përdorimit.'; $('pkKushtet').focus(); return; }
     if (SHFLETUES_I_VJETER) { gabim.textContent = MESAZHI_VJETER; return; }
     gabim.textContent = '';
     gjendja.dukePunuar = true;
@@ -605,7 +613,7 @@
       }
     }
     var rez;
-    try { rez = krijo ? await cloud.regjistrohu(emri, fjalekalimi, { merchandiser: $('pkMerch').checked }) : await cloud.hyr(emri, fjalekalimi); }
+    try { rez = krijo ? await cloud.regjistrohu(emri, fjalekalimi, { merchandiser: $('pkMerch').checked, kushtet: $('pkKushtet').checked }) : await cloud.hyr(emri, fjalekalimi); }
     catch (e) { rez = { ok: false }; }
     gjendja.dukePunuar = false;
     btn.disabled = false;

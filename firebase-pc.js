@@ -99,6 +99,7 @@
 
     window.__stokuCloud = {
       async regjistrohu(u, p, opsionet) {
+        if (!(opsionet && opsionet.kushtet)) return { ok: false, kodi: 'stoku/kushtet', arsye: 'kushtet' }; // v347: pa Kushtet, pa llogari
         if (await pronariIEmrit(u)) return { ok: false, kodi: 'auth/email-already-in-use', arsye: 'emri-i-zene' }; // v309
         try {
           var k = await createUserWithEmailAndPassword(auth, emailIBrendshem(u), p);
@@ -107,6 +108,7 @@
           // v230: kur u krijua llogaria (administratori e sheh si "llogari e re" te Cilësimet → Përdoruesit); v241: + merchandiser
           var fillimi = { krijuarSe: Date.now() };
           if (merch) fillimi.merchandiser = true;
+          if (opsionet && opsionet.kushtet) fillimi.kushtetPranuarSe = fillimi.krijuarSe; // v347: kur u pranuan Kushtet e përdorimit
           setDoc(doc(db, 'perdoruesit', k.user.uid), fillimi, { merge: true }).catch(function () { /* ok */ });
           regjistroPerdoruesin(u, k.user.uid);
           return { ok: true, uid: k.user.uid };

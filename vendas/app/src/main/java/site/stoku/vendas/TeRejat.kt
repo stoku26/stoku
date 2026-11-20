@@ -10,6 +10,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(105, "2026-11-20", "Krijimi i llogarisë", listOf(
+            "Kur krijon një llogari të re, shëno kutinë \"Pajtohem me Kushtet e përdorimit\" (e para, mbi \"Punoj si merchandiser\")."
+        )),
         Hyrja(104, "2026-11-20", "Kushtet e përdorimit", listOf(
             "Te Cilësimet, afër Privatësisë, tani janë edhe Kushtet e përdorimit: rregullat për përdorimin e Stoku-t."
         )),
