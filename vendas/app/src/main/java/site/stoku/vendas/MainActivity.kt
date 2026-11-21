@@ -206,27 +206,20 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
 
     // Ballina (shtëpia) është gjithmonë në mes të shiritit dhe hapet i pari; tabi "Malli" (dikur "Stoku") ka ende lejen "stoku"
     // (çelësi i lejes ruhet te llogaritë dhe te web-i, prandaj s'ndryshohet)
-    // Web v352 (pronari: "Leje qysh osht te ni person qe i ka krejta te lejume. Veq te kta qka i ndalohet diqka me ja qit qe nuk ki
-    // akses ne ket sherbim"): shiriti ka gjithmonë të 5 vendet; tabi që s'lejohet zbehet me dry dhe prekja tregon mesazhin
-    val tabet = listOf(
-        Triple("malli", "Malli", Ik.Malli),
-        Triple("afatet", "Afatet", Ik.Afatet),
+    val tabet = listOfNotNull(
+        if (Llogaria.leja("stoku")) Triple("malli", "Malli", Ik.Malli) else null,
+        if (Llogaria.leja("afatet")) Triple("afatet", "Afatet", Ik.Afatet) else null,
         Triple(BALLINA, "Ballina", Ik.Ballina),
-        Triple("grupi", "Grupi", Ik.Grupi),
+        if (Llogaria.leja("grupi")) Triple("grupi", "Grupi", Ik.Grupi) else null,
         Triple("cilesimet", "Cilësimet", Ik.Cilesimet)
     )
-    val ndaluar = setOfNotNull(
-        if (!Llogaria.leja("stoku")) "malli" else null,
-        if (!Llogaria.leja("afatet")) "afatet" else null,
-        if (!Llogaria.leja("grupi")) "grupi" else null
-    )
-    if (tabi in ndaluar) tabi = BALLINA
+    if (tabet.none { it.first == tabi }) tabi = BALLINA
     // Njoftimi i prekur hap tabin e vet (Grupi, Afatet)
     val kerkuar by MainActivity.tabiKerkuar.collectAsState()
     LaunchedEffect(kerkuar) {
         val k = kerkuar ?: return@LaunchedEffect
         val k2 = if (k == "stoku") "malli" else k
-        if (tabet.any { it.first == k2 } && k2 !in ndaluar) { tabi = k2; folderi = null; skanimiShpejt = null }
+        if (tabet.any { it.first == k2 }) { tabi = k2; folderi = null; skanimiShpejt = null }
         MainActivity.tabiKerkuar.value = null
     }
 
@@ -262,10 +255,8 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
                         // Ballina: vetëm vendi bosh në mes; butoni i rrumbullakët vizatohet mbi shirit (BallinaButoni)
                         if (k == BALLINA) { Box(Modifier.weight(1f).fillMaxSize()); return@forEach }
                         val nr = when (k) { "afatet" -> nAf.skaduar + nAf.afer + nAf.paDate; "grupi" -> nGr; else -> 0 }
-                        val nd = k in ndaluar
-                        val shenja = if (nd) null else nr.takeIf { it > 0 }?.let { if (it > 99) "99+" else it.toString() }
-                        Tabi(t, ik, tabi == k && !nd, shenja, Modifier.weight(1f), ndaluar = nd) {
-                            if (nd) { site.stoku.vendas.ui.Toast.trego("Nuk ke qasje në këtë shërbim."); return@Tabi }
+                        val shenja = nr.takeIf { it > 0 }?.let { if (it > 99) "99+" else it.toString() }
+                        Tabi(t, ik, tabi == k, shenja, Modifier.weight(1f)) {
                             if (k == "malli" && tabi == "malli") folderi = null
                             tabi = k
                         }
@@ -288,19 +279,14 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
 }
 
 @Composable
-private fun Tabi(t: String, ik: ImageVector, aktiv: Boolean, shenja: String?, modifier: Modifier, ndaluar: Boolean = false, onClick: () -> Unit) {
+private fun Tabi(t: String, ik: ImageVector, aktiv: Boolean, shenja: String?, modifier: Modifier, onClick: () -> Unit) {
     val n = N
-    val ngjyra = if (aktiv) n.accentText else if (ndaluar) n.faint.copy(alpha = .38f) else n.faint
+    val ngjyra = if (aktiv) n.accentText else n.faint
     Column(modifier.fillMaxSize().clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center) {
         Box {
             Icon(ik, t, Modifier.size(26.dp), tint = ngjyra)
             if (shenja != null) Shenja(shenja, Modifier.align(Alignment.TopEnd).offset(x = 12.dp, y = (-6).dp))
-            // Web v352: dryni i vogël te tabi që s'lejohet
-            if (ndaluar) Box(Modifier.align(Alignment.TopEnd).offset(x = 10.dp, y = (-5).dp).size(16.dp).clip(androidx.compose.foundation.shape.CircleShape)
-                .background(n.surface), contentAlignment = Alignment.Center) {
-                Icon(Ik.Dry, null, Modifier.size(11.dp), tint = n.faint)
-            }
         }
         Text(t, style = tx(11, if (aktiv) 600 else 500, ngjyra), modifier = Modifier.padding(top = 4.dp))
     }

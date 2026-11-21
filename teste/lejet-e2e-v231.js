@@ -29,7 +29,7 @@ const FARA = () => {
 };
 const prit = (fn, ms = 8000) => new Promise(async z => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return z(true); await new Promise(r => setTimeout(r, 100)); } z(false); });
 const UA = 'Mozilla/5.0 (Linux; Android 14; SM-S921B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36';
-const duket = (p, sel) => p.evaluate(s => { const e = document.querySelector(s); if (!e) return false; const r = e.getBoundingClientRect(); return getComputedStyle(e).display !== 'none' && r.width > 0 && r.height > 0 && !e.classList.contains('tab-ndaluar'); /* v352: tabi i ndaluar mbetet në shirit, i zbehur me dry */ }, sel);
+const duket = (p, sel) => p.evaluate(s => { const e = document.querySelector(s); if (!e) return false; const r = e.getBoundingClientRect(); return getComputedStyle(e).display !== 'none' && r.width > 0 && r.height > 0; }, sel);
 const toast = p => p.evaluate(() => document.getElementById('toast').textContent);
 // Asnjë fjalë që e zbulon lejen (toast, faqja e dukshme)
 const ZBULON = /lejohet|lejuar|administrator|ndalua|ndaluar/i;
