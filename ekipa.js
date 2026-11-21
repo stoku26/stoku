@@ -1322,6 +1322,70 @@
         try { await thirrPush('/admin/fshi', { uid: u }); } catch (e) { /* pa internet / Worker i vjetër */ }
         return { ok: true, mbetur: mbetur };
       },
+      // v351 (Google Play, pronari 21.11.2026): përdoruesi e fshin VETË llogarinë e vet (Cilësimet → Llogaria → Fshi llogarinë).
+      // Së pari shënimi ekipa_fshire/{uid} (fshireNga 'vete'): rregullat ia mbyllin menjëherë çdo shkrim (edhe pajisjeve të tjera, që
+      // dalin vetë si te fshirja nga administratori), pastaj fshihen të dhënat e saj (rregullat v351 e lejojnë fshirjen e vetes edhe pas
+      // shënimit). Grupi: kur je admini, admin bëhet anëtari më i vjetër; kur je i vetmi, grupi fshihet. Emrat e përdoruesit (emrat/)
+      // mbeten të rezervuar (askush tjetër s'i merr; vetëm administratori i liron). Administratori s'mund ta fshijë veten.
+      fshijLlogarineTime: async function () {
+        var u = uid();
+        if (!u || eshteUidAdmin(u)) return { ok: false, arsye: 'admin' };
+        var gU = grupi;
+        try { var pu = await fs.getDoc(fs.doc(db, 'perdoruesit', u)); if (pu.exists() && pu.data().grupi) gU = pu.data().grupi; } catch (e) { /* ok */ }
+        try { await fs.setDoc(fs.doc(db, 'ekipa_fshire', u), { emri: emri(), fshireSe: Date.now(), fshireNga: 'vete' }); }
+        catch (e) { return gabim(e); }
+        var mbetur = 0;
+        async function fshij(ref) { try { await fs.deleteDoc(ref); } catch (e) { mbetur++; } }
+        async function fshijPyetjen(q) {
+          try { var s = await fs.getDocs(q); var l = []; s.forEach(function (d) { l.push(d.ref); }); for (var i = 0; i < l.length; i++) await fshij(l[i]); }
+          catch (e) { mbetur++; }
+        }
+        var grupet = [gU, grupi].filter(function (g, i, l) { return g && l.indexOf(g) === i; });
+        for (var gi = 0; gi < grupet.length; gi++) {
+          var g = grupet[gi];
+          var anet = [];
+          try { anet = listaNga(await fs.getDocs(fs.collection(db, 'grupet', g, 'anetaret'))); } catch (e) { continue; } // s'je më anëtar
+          var une = anet.filter(function (x) { return x.id === u; })[0];
+          if (!une) continue;
+          var tjeret = anet.filter(function (x) { return x.id !== u; });
+          await fshijPyetjen(fs.query(fs.collection(db, 'grupet', g, 'push'), fs.where('uid', '==', u)));
+          await fshijPyetjen(fs.query(fs.collection(db, 'grupet', g, 'feed'), fs.where('uid', '==', u)));
+          await fshij(fs.doc(db, 'grupet', g, 'afatet', u));
+          await fshij(fs.doc(db, 'grupet', g, 'malli', u));
+          if (une.roli === 'pronar' && !tjeret.length) {
+            // I vetmi në grup: grupi fshihet krejt (aktiviteti, kujtesa, kërkesat, ftesat, kërkimi publik)
+            var nen = ['feed', 'kujtesa', 'push', 'afatet', 'malli'];
+            for (var ni = 0; ni < nen.length; ni++) await fshijPyetjen(fs.collection(db, 'grupet', g, nen[ni]));
+            await fshijPyetjen(fs.query(fs.collection(db, 'ftesat'), fs.where('gid', '==', g)));
+            await fshijPyetjen(fs.query(fs.collection(db, 'kerkesat_grupi'), fs.where('gid', '==', g)));
+            await fshij(fs.doc(db, 'grupet_publike', g));
+            await fshij(fs.doc(db, 'grupet', g));
+          } else if (une.roli === 'pronar' && !tjeret.some(function (x) { return x.roli === 'pronar'; })) {
+            tjeret.sort(function (x, y) { return (x.hyriSe || 0) - (y.hyriSe || 0); });
+            try { await fs.setDoc(fs.doc(db, 'grupet', g, 'anetaret', tjeret[0].id), { roli: 'pronar' }, { merge: true }); } catch (e) { mbetur++; }
+          }
+          await fshij(fs.doc(db, 'grupet', g, 'anetaret', u));
+        }
+        try { await fs.deleteDoc(fs.doc(db, 'ekipa_anetaret', u)); } catch (e) { /* ok */ }
+        try { await fs.deleteDoc(fs.doc(db, 'ekipa_afatet', u)); } catch (e) { /* ok */ }
+        await fshijPyetjen(fs.query(fs.collection(db, 'ftesat'), fs.where('uid', '==', u)));
+        await fshijPyetjen(fs.query(fs.collection(db, 'kerkesat_grupi'), fs.where('uid', '==', u)));
+        try { // skedarët për PC-në (me copat e tyre)
+          var sk = await fs.getDocs(fs.collection(db, 'dyqane', u, 'skedaret')); var skl = []; sk.forEach(function (d) { skl.push(d.id); });
+          for (var si = 0; si < skl.length; si++) { await fshijPyetjen(fs.collection(db, 'dyqane', u, 'skedaret', skl[si], 'pjeset')); await fshij(fs.doc(db, 'dyqane', u, 'skedaret', skl[si])); }
+        } catch (e) { /* ok */ }
+        await fshijPyetjen(fs.collection(db, 'dyqane', u, 'pjeset'));
+        await fshijPyetjen(fs.collection(db, 'dyqane', u, 'fletet'));
+        await fshij(fs.doc(db, 'dyqane', u));
+        await fshijPyetjen(fs.collection(db, 'perdoruesit', u, 'njoftimet'));
+        await fshijPyetjen(fs.collection(db, 'perdoruesit', u, 'pajisjet'));
+        await fshij(fs.doc(db, 'perdoruesit', u));
+        try { await fs.deleteDoc(fs.doc(db, 'lejet', u)); } catch (e) { /* ok */ }
+        try { await fs.deleteDoc(fs.doc(db, 'kujtesa_pritje', u)); } catch (e) { /* ok */ }
+        // Worker 176: edhe te serveri i njoftimeve (fotoja e profilit, njoftimi ditor, ora e lidhur)
+        try { await thirrPush('/admin/fshi', { uid: u }); } catch (e) { /* pa internet / Worker i vjetër */ }
+        return { ok: true, mbetur: mbetur };
+      },
       // Kjo llogari u fshi nga administratori? cb() thirret sapo shënimi ekziston (edhe kur je duke punuar)
       degjoFshirjen: function (cb) {
         if (!uid()) return function () {};
@@ -1505,7 +1569,7 @@
       aktivizoPush: aktivizoPush,
       caktivizoPush: caktivizoPush, pastroOrarinEJetim: pastroOrarinEJetim, lejoPushinEGrupit: lejoPushinEGrupit,
       pushAktiv: pushAktiv, pushPerNjoftimet: pushPerNjoftimet,
-      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, oretELidhura: oretELidhura, shkeputOrenNgaTel: shkeputOrenNgaTel, emriTeOret: emriTeOret, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 175,
+      orariIm: orariIm, vendosOrarin: vendosOrarin, dergoAfatetPerOrarin: dergoAfatetPerOrarin, lidhOren: lidhOren, oretELidhura: oretELidhura, shkeputOrenNgaTel: shkeputOrenNgaTel, emriTeOret: emriTeOret, merrHeqjetNgaOra: merrHeqjetNgaOra, pastroHeqjetNgaOra: pastroHeqjetNgaOra, statusiIOrarit: statusiIOrarit, provoKV: provoKV, rinovoOrarinNesesMungon: rinovoOrarinNesesMungon, orariPunon: orariPunon, kontrolloServerin: kontrolloServerin, VERSIONI_WORKER: 176,
 
       // ---------- Kujtesa e produkteve e grupit (v197): grupet/{g}/kujtesa/{p0..p9, px} → { p: { barkodi: {e,f,k,a,m,x} } } ----------
       // E ndarë sipas shifrës së fundit të barkodit (çdo dokument ≤ 1 MB), që të nxërë dhjetëra mijëra produkte.
@@ -3544,6 +3608,7 @@
       mundTeLargohet: mundTeLargohet, ftoNeGrup: ftoNeGrup, anuloFtesen: anuloFtesen, ndryshoRolin: ndryshoRolin, riemertoGrupin: riemertoGrupin,
       llogariteJashte: llogariteJashte,
       hiqNgaEkipa: hiqNgaEkipa, fshijLlogarine: fshijLlogarine,
+      fshijLlogarineTime: function () { var e = E(); return e && e.fshijLlogarineTime ? e.fshijLlogarineTime() : Promise.resolve({ ok: false }); },
       koleget: koleget, kerkoHeqjen: kerkoHeqjen, kryejKerkesen: kryejKerkesen, kryeresiIKerkeses: kryeresiIKerkeses,
       pastroAktivitetin: function () { return pastro('feed'); },
       merrStokun: merrStokun, adminNdryshoAfatin: adminNdryshoAfatin

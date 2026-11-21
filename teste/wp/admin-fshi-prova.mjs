@@ -37,4 +37,9 @@ ok(!kv.has('orari-afatet:uX') && kv.has('orari-afatet:uY'),'afatet e njoftimit d
 ok(!kv.has('ora-ka:uX') && !kv.has('ora-tok:o1') && kv.has('ora-tok:o2') && kv.has('ora-ka:uY') && !kv.has('ora-hequr:uX'),'ora e uX shkëputet, ajo e uY mbetet');
 ok(Object.keys(JSON.parse(kv.get('afat-kolegu'))).join()==='a3','afatet për kolegët me uX hiqen');
 r = await thirr('POST', bileta(ADMIN), {uid:'uX'}); const j2 = await r.json(); ok(j2.ok && j2.foto===0 && j2.orare===0 && j2.ore===0 && j2.kolegu===0,'herën e dytë s\'ka çka të fshijë', j2);
-r = await worker.fetch(new Request('https://w.test/'),env,{}); ok((await r.json()).versioni>=174,'versioni i Worker-it ≥ 174');
+// v176 (web v351, Google Play): llogaria i fshin vetë të dhënat e veta, jo të tjerëve
+mbush();
+r = await thirr('POST', bileta('uY'), {uid:'uY'}); const j3 = await r.json();
+ok(r.status===200 && j3.ok && !kv.has('foto:uY') && !kv.has('orari:uY:h3') && kv.has('foto:uX') && kv.has('orari:uX:h1'),'vetja fshin vetëm të vetat (v176)', j3);
+r = await thirr('POST', bileta('uY'), {uid:'uX'}); ok(r.status===403 && kv.has('foto:uX'),'vetja s\'fshin tjetrin', r.status);
+r = await worker.fetch(new Request('https://w.test/'),env,{}); ok((await r.json()).versioni>=176,'versioni i Worker-it ≥ 176');

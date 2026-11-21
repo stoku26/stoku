@@ -3941,11 +3941,15 @@ service cloud.firestore {
     }
     match /dyqane/{kodi} {
       allow read, write: if request.auth != null && ((request.auth.uid == kodi && !uFshi(kodi)) || eshteAdmin());
+      // v351 (Google Play): fshirja e llogarisë nga vetë përdoruesi: i zoti e fshin dyqanin edhe pas shënimit ekipa_fshire
+      allow delete: if request.auth != null && request.auth.uid == kodi;
       match /pjeset/{pjesa} {
         allow read, write: if request.auth != null && ((request.auth.uid == kodi && !uFshi(kodi)) || eshteAdmin());
+        allow list, delete: if request.auth != null && request.auth.uid == kodi; // v351: gjetja e pjesëve për fshirjen e vetes
       }
       match /fletet/{fleta} {
         allow read, write: if request.auth != null && ((request.auth.uid == kodi && !uFshi(kodi)) || eshteAdmin());
+        allow list, delete: if request.auth != null && request.auth.uid == kodi; // v351: gjetja e pjesëve për fshirjen e vetes
       }
       // v229: skedarët (Excel, PDF) që telefoni/PDA-ja ia dërgon PC-së së vet; copat te /pjeset (Bytes ≤ 900 KB)
       match /skedaret/{sk} {
@@ -3977,7 +3981,7 @@ service cloud.firestore {
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['perdoruesi'])
             || request.resource.data.perdoruesi == emriIm()))
         || (eshteAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sasiaShpejte'])));
-      allow delete: if request.auth != null && eshteAdmin();
+      allow delete: if request.auth != null && (eshteAdmin() || request.auth.uid == uid); // v351: edhe vetë llogaria
       match /njoftimet/{nid} {
         allow read, delete: if request.auth != null && (request.auth.uid == uid || eshteAdmin());
         // v195: dërguesi e lexon njoftimin që e shkroi vetë (Worker-i, me tokenin e tij, e dërgon si push te marrësi)
@@ -4003,6 +4007,10 @@ service cloud.firestore {
     match /ekipa_fshire/{uid} {
       allow read: if request.auth != null && (request.auth.uid == uid || eshteAdmin());
       allow write: if request.auth != null && eshteAdmin();
+      // v351 (Google Play): përdoruesi e fshin vetë llogarinë (jo administratori): shënimi i mbyll qasjen në krejt pajisjet
+      allow create: if request.auth != null && request.auth.uid == uid && !eshteAdmin()
+        && request.resource.data.keys().hasOnly(['emri', 'fshireSe', 'fshireNga'])
+        && request.resource.data.fshireNga == 'vete' && request.resource.data.emri == emriIm();
     }
     // v230: lejet e secilës llogari (çka mund të përdorë në Stoku). I ndryshon vetëm administratori (Cilësimet →
     // Përdoruesit); llogaria lexon vetëm të vetat. Pa dokument = llogari e pakontrolluar, me krejt lejet.
@@ -4011,7 +4019,7 @@ service cloud.firestore {
       allow create, update: if request.auth != null && eshteAdmin()
         && request.resource.data.keys().hasOnly(['lejet', 'kontrolluarSe', 'kontrolluarNga', 'emri'])
         && request.resource.data.lejet is map && request.resource.data.lejet.size() <= 60;
-      allow delete: if request.auth != null && eshteAdmin();
+      allow delete: if request.auth != null && (eshteAdmin() || request.auth.uid == uid); // v351: edhe vetë llogaria
     }
     // Ekipa e vjetër (para grupeve): mbetet për versionet e vjetra të aplikacionit
     match /ekipa_anetaret/{uid} {
@@ -4023,6 +4031,7 @@ service cloud.firestore {
     match /ekipa_afatet/{uid} {
       allow read: if request.auth != null && neEkipe();
       allow write: if request.auth != null && ((request.auth.uid == uid && !uFshi(uid)) || eshteAdmin());
+      allow delete: if request.auth != null && request.auth.uid == uid; // v351
     }
     match /ekipa_feed/{id} {
       allow read: if request.auth != null && neEkipe();

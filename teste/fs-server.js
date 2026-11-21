@@ -75,6 +75,7 @@ function krijoFirestore(opt = {}) {
     if (reja && p[0] === 'emrat' && p.length === 2) return !S.paEmrat && (!eListe || eshteAdmin(a.uid));
     if (reja && p[0] === 'perdoruesit' && p.length === 2 && eListe) return eshteAdmin(a.uid); // v164: lista vetëm admini
     if (reja && p[0] === 'dyqane' && p[2] === 'skedaret') return !S.paSkedare && a.uid === p[1]; // v227 (S.paSkedare: rregullat e vjetra, pa skedarët)
+    if (reja && p[0] === 'dyqane' && p.length === 3 && eListe && a.uid === p[1]) return true; // v351: lista e pjesëve/fletëve për fshirjen e vetes
     if (p[0] === 'dyqane') return reja ? ((a.uid === p[1] && !fshire(p[1])) || eshteAdmin(a.uid)) : (p[2] === 'fletet' ? (a.uid === p[1] || eshteAdmin(a.uid)) : true);
     if (p[0] === 'ekipa_fshire') return reja && (a.uid === p[1] || eshteAdmin(a.uid));
     // v230: lejet/{uid} (S.paLejet: rregullat para v230, s'lexohen)
@@ -221,9 +222,12 @@ function krijoFirestore(opt = {}) {
       }
       return false;
     }
+    if (p[0] === 'dyqane' && lloji === 'delete' && reja && a.uid === p[1]) return true; // v351: fshirja e vetes
     if (p[0] === 'dyqane') return (a.uid === p[1] && !fshire(p[1])) || eshteAdmin(a.uid);
-    if (p[0] === 'ekipa_fshire') return reja && eshteAdmin(a.uid);
+    if (p[0] === 'ekipa_fshire') return reja && (eshteAdmin(a.uid) || (lloji === 'create' && a.uid === p[1] && p.length === 2 // v351
+      && vetemKeto(Object.keys(iRi), ['emri', 'fshireSe', 'fshireNga']) && iRi.fshireNga === 'vete' && iRi.emri === emriIm));
     if (p[0] === 'lejet') { // v230: vetëm administratori
+      if (reja && !S.paLejet && p.length === 2 && lloji === 'delete' && a.uid === p[1]) return true; // v351
       if (!reja || S.paLejet || !eshteAdmin(a.uid) || p.length !== 2) return false;
       if (lloji === 'delete') return true;
       return vetemKeto(Object.keys(iRi), ['lejet', 'kontrolluarSe', 'kontrolluarNga', 'emri']) && !!iRi.lejet && typeof iRi.lejet === 'object'
@@ -241,7 +245,7 @@ function krijoFirestore(opt = {}) {
       return a.uid === p[1];
     }
     if (p[0] === 'perdoruesit') {
-      if (lloji === 'delete') return reja && eshteAdmin(a.uid);
+      if (lloji === 'delete') return reja && (eshteAdmin(a.uid) || a.uid === p[1]); // v351: edhe vetë llogaria
       if (a.uid === p[1] && fshire(p[1])) return false;
       if (a.uid !== p[1]) {
         // administratori: vetëm leja e sasisë së shpejtë te dokumenti i tjetrit (rregullat v112)
@@ -254,7 +258,7 @@ function krijoFirestore(opt = {}) {
       return !ndryshuar('emri') && (!reja || !ndryshuar('perdoruesi') || iRi.perdoruesi === emriIm);
     }
     if (p[0] === 'ekipa_anetaret') return reja && (eshteAdmin(a.uid) || (lloji === 'delete' && (a.uid === p[1] || pronar(a.uid, 'ekipa'))));
-    if (p[0] === 'ekipa_afatet') return reja && ((a.uid === p[1] && !fshire(p[1])) || eshteAdmin(a.uid));
+    if (p[0] === 'ekipa_afatet') return reja && ((a.uid === p[1] && (!fshire(p[1]) || lloji === 'delete')) || eshteAdmin(a.uid));
     if (p[0] === 'ekipa_push') { // v130: pajisjet për njoftimet push
       if (!reja || !neEkipe(a.uid)) return false;
       if (lloji === 'delete') return true;
@@ -488,6 +492,16 @@ function krijoFirestore(opt = {}) {
           hyr: async () => ({ ok: true }), regjistrohu: async () => ({ ok: true }),
           riautentifikohu: async p => (p === 'sakte1' ? { ok: true } : { ok: false, kodi: 'auth/invalid-credential' }),
           fshiVeten: async () => { sessionStorage.setItem('__fshire', '1'); auth.currentUser = null; },
+          // v351: si firebase-tel.js (fjalëkalimi i saktë i provës: 'sakte1')
+          fshiLlogarineTime: async p => {
+            if (p !== 'sakte1') return { ok: false, arsye: 'fjalekalimi' };
+            window.__stokuFshirjaVetes = true;
+            try { if (ekipa.caktivizoPush) await ekipa.caktivizoPush(); } catch (e) { /* ok */ }
+            const r = await ekipa.fshijLlogarineTime();
+            if (!r.ok) { window.__stokuFshirjaVetes = false; return r; }
+            window.__fshiraVeten = (window.__fshiraVeten || 0) + 1; sessionStorage.setItem('__fshire', '1'); auth.currentUser = null;
+            return r;
+          },
           merr: () => ruajtja.merr(), bashkoDheRuaj: fn => ruajtja.bashkoDheRuaj(fn), ruaj: g => ruajtja.ruaj(g),
           degjo: (cb, e) => ruajtja.degjo(cb, e), modaPjeseve: () => ruajtja.modaPjeseve(),
           degjoFletet: () => () => {}, dergoFleten: async () => ({ ok: true }), fshijFleten: async () => ({ ok: true }),
