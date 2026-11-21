@@ -596,6 +596,15 @@
   }
   #tabet .tab.aktiv .tab-ikona { background: color-mix(in srgb, var(--btn-tekst) 18%, transparent); }
   #tabet .tab:active .tab-ikona { background: var(--hover); }
+  /* v352 (pronari): tabi që s'lejohet mbetet në vend (shiriti si te kush i ka të gjitha lejet), i zbehur me dry;
+     prekja tregon "Nuk ke qasje në këtë shërbim." */
+  #tabet .tab.tab-ndaluar { color: var(--gri); }
+  #tabet .tab.tab-ndaluar .tab-ikona, #tabet .tab.tab-ndaluar .tab-tekst { opacity: .38; }
+  #tabet .tab.tab-ndaluar.aktiv .tab-ikona, #tabet .tab.tab-ndaluar:active .tab-ikona { background: transparent; }
+  #tabet .tab-dry { display: none; position: absolute; right: 6px; top: -3px; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--sfond); color: var(--gri); align-items: center; justify-content: center; }
+  #tabet .tab.tab-ndaluar .tab-dry { display: flex; }
+  #tabet .tab-dry svg { width: 12px; height: 12px; stroke-width: 2.4; }
   #tabet svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   #tabet .af-shenje {
     position: absolute; top: -5px; right: 7px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
