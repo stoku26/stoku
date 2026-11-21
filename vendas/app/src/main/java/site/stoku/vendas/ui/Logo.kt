@@ -57,5 +57,5 @@ fun EtiketaStoku(emri: String, onClick: () -> Unit, modifier: Modifier = Modifie
     val luaj = remember { !SkanimiILogos.kokaLuajti }
     LogoMeSkanim(n.ink, Color(if (n.erret) Logot.PIKA_ERRET else Logot.PIKA_CELET), if (emri.isBlank()) "Stoku" else "Stoku, $emri",
         modifier.clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null, onClick = onClick).width(152.dp).height((152f * Logot.FJ_H / Logot.FJ_W).dp),
-        luaj = luaj, kurNis = { SkanimiILogos.kokaLuajti = true })
+        luaj = luaj, kurNis = { SkanimiILogos.kokaLuajti = true }, koka = true)
 }

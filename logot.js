@@ -38,8 +38,16 @@
     '.stk-logo .sk-l{transform:translateX(-20px)}.stk-logo .sk-b{transform:translateX(104px)}.stk-logo .sk-v{opacity:0}' +
     '.stk-logo--skanim .sk-l{animation:stkSkL 2.5s linear both}.stk-logo--skanim .sk-b{animation:stkSkB 2.5s linear both}' +
     '.stk-logo--skanim .sk-v{animation:stkSkV 2.5s linear both}' +
+    // v350 (pronari: "logo nalt prej barkodit qe bohet logo bone me u shendrru per 1 sekond apet"): koka barkod 1 s → skanim 1 s (2 s);
+    // hyrja mbetet 1.5 s
+    '@keyframes stkSkLk{0%{transform:translateX(-153px)}50%{transform:translateX(-153px);animation-timing-function:ease-in-out}100%{transform:translateX(-46px)}}' +
+    '@keyframes stkSkBk{0%{transform:translateX(-3px)}50%{transform:translateX(-3px);animation-timing-function:ease-in-out}100%{transform:translateX(104px)}}' +
+    '@keyframes stkSkVk{0%{transform:translateX(-3px);opacity:0}49.99%{transform:translateX(-3px);opacity:0}50%{transform:translateX(-3px);opacity:1;animation-timing-function:ease-in-out}' +
+    '99.99%{transform:translateX(104px);opacity:1}100%{transform:translateX(104px);opacity:0}}' +
+    '.stk-logo--skanim.stk-logo--koka .sk-l{animation:stkSkLk 2s linear both}.stk-logo--skanim.stk-logo--koka .sk-b{animation:stkSkBk 2s linear both}' +
+    '.stk-logo--skanim.stk-logo--koka .sk-v{animation:stkSkVk 2s linear both}' +
     '.stk-logo .sk-v rect{fill:#4ade80}' +
-    '@media (prefers-reduced-motion: reduce){.stk-logo--skanim .sk-l,.stk-logo--skanim .sk-b,.stk-logo--skanim .sk-v{animation:none}}';
+    '@media (prefers-reduced-motion: reduce){.stk-logo--skanim .sk-l,.stk-logo--skanim .sk-b,.stk-logo--skanim .sk-v,.stk-logo--koka .sk-l,.stk-logo--koka .sk-b,.stk-logo--koka .sk-v{animation:none}}';
   var KEY_SKANUAR = 'stoku:logo:skanuar';
   function shtoStilinESkanimit() {
     if (!root.document || root.document.getElementById('stkSkanimStil')) return;
@@ -65,7 +73,7 @@
   try { localStorage.removeItem(KEY_SKANUAR); } catch (e) { /* ok */ }
   function skanuar() { try { return sessionStorage.getItem(KEY_SKANUAR) === '1'; } catch (e) { return false; } }
   var kokatNePritje = [];
-  function luajKoken(svg) { svg.classList.add('stk-logo--skanim'); try { sessionStorage.setItem(KEY_SKANUAR, '1'); } catch (e) { /* ok */ } }
+  function luajKoken(svg) { svg.classList.add('stk-logo--koka', 'stk-logo--skanim'); try { sessionStorage.setItem(KEY_SKANUAR, '1'); } catch (e) { /* ok */ } }
   function skanim(svg) {
     if (!svg || svg.__skanim) return;
     svg.__skanim = 1;

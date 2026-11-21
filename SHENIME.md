@@ -58,6 +58,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v350 / Android Hyrja 110 (21.11.2026): KOKA BARKOD 1 s**. Pronari: "Hej logo nalt prej barkodit qe bohet logo bone me u
+shendrru per 1 sekond apet. Tjeter qka mos prek". VETËM logoja e kokës (pas hyrjes): barkodi 1 s → skanimi 1 s (2 s gjithsej). Web:
+klasa `stk-logo--koka` (luajKoken) me keyframes `stkSkLk/stkSkBk/stkSkVk` (50%, `2s`); Android: `LogoMeSkanim(..., koka = true)` me
+`KOHA_KOKA_MS = 2000`, `NIS_KOKA = .5f`. Hyrja (porta) mbetet 1.5 s si v349; "një herë për hapje" i pandryshuar. Test: v350.js.
+
 0000000. **v349 / Android Hyrja 109 (20.11.2026): LOGOJA BARKOD → STOKU PAS 1.5 s**. Pronari: "Bone pas 1.5 sekondave me u ndryshu nga
 barkodi ne logo stoku. Edhe me u ndryshu qdo her kur e sheh. Nese bohesh login niher ... edhe mo me met veq logo stoku deri sa te mbyllet e
 hapet prap stoku web appi e android appi edhe pc". (1) Kohët: barkodi 1.5 s, skanimi 1 s, 2.5 s gjithsej (logot.js keyframes 60%, `2.5s`;

@@ -43,10 +43,13 @@ object SkanimiILogos {
     /** Web v349: barkodi deri 0.6 (1.5 s nga 2.5 s), skanimi 0.6 → 1 (1 s) */
     const val KOHA_MS = 2500
     private const val NIS = .6f
-    fun gjendja(p: Float): FloatArray {
+    /** Web v350 (pronari: "logo nalt ... bone me u shendrru per 1 sekond apet"): koka barkod 1 s → skanim 1 s (2 s); hyrja mbetet 1.5 s */
+    const val KOHA_KOKA_MS = 2000
+    const val NIS_KOKA = .5f
+    fun gjendja(p: Float, nis: Float = NIS): FloatArray {
         if (p >= 1f) return floatArrayOf(-20f, 104f, Float.NaN)
-        if (p < NIS) return floatArrayOf(-153f, -3f, Float.NaN)
-        val e = eio(seg(p, NIS, 1f))
+        if (p < nis) return floatArrayOf(-153f, -3f, Float.NaN)
+        val e = eio(seg(p, nis, 1f))
         return floatArrayOf(lerp(-153f, -46f, e), lerp(-3f, 104f, e), lerp(-3f, 104f, e))
     }
     /** Web v349 (pronari: "... edhe mo me met veq logo stoku deri sa te mbyllet e hapet prap"): koka e bën skanimin NJË herë për çdo hapje
@@ -58,14 +61,14 @@ object SkanimiILogos {
 
 /** Logoja "stoku." me skanimin: `luaj` = barkodi → logo një herë (2.5 s); përndryshe vetëm logoja. kurNis: thirret kur nis skanimi */
 @Composable
-fun LogoMeSkanim(ink: Color, pika: Color, pershkrimi: String, modifier: Modifier = Modifier, luaj: Boolean = false, kurNis: () -> Unit = {}) {
+fun LogoMeSkanim(ink: Color, pika: Color, pershkrimi: String, modifier: Modifier = Modifier, luaj: Boolean = false, kurNis: () -> Unit = {}, koka: Boolean = false) {
     val ctx = LocalContext.current
     val paLevizje = remember { try { Settings.Global.getFloat(ctx.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f } catch (e: Exception) { false } }
     val t = remember { PathParser().parsePathString(Logot.FJ_T).toPath() }
     val pk = remember { PathParser().parsePathString(Logot.FJ_P).toPath() }
     val anim = remember { Animatable(if (luaj && !paLevizje) 0f else 1f) }
-    LaunchedEffect(Unit) { if (anim.value < 1f) { kurNis(); anim.animateTo(1f, tween(SkanimiILogos.KOHA_MS, easing = LinearEasing)) } }
-    val gj = SkanimiILogos.gjendja(anim.value)
+    LaunchedEffect(Unit) { if (anim.value < 1f) { kurNis(); anim.animateTo(1f, tween(if (koka) SkanimiILogos.KOHA_KOKA_MS else SkanimiILogos.KOHA_MS, easing = LinearEasing)) } }
+    val gj = if (koka) SkanimiILogos.gjendja(anim.value, SkanimiILogos.NIS_KOKA) else SkanimiILogos.gjendja(anim.value)
     val gjelber = Color(0xFF4ADE80)
     Canvas(modifier.semantics { contentDescription = pershkrimi }) {
         val k = size.width / Logot.FJ_W

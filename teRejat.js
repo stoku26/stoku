@@ -21,6 +21,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 350, versioni: '1.74.4', data: '2026-11-21', titulli: 'Logoja', pikat: [
+      'Logoja lart, pas hyrjes, kthehet nga barkodi në "stoku." pas 1 sekonde.'
+    ] },
     { v: 349, versioni: '1.74.3', data: '2026-11-20', titulli: 'Logoja', pikat: [
       'Logoja duket si barkod 1.5 sekonda, pastaj kthehet në "stoku.". Në hyrje kjo ndodh sa herë del.',
       'Pas hyrjes, logoja lart e bën këtë vetëm një herë; pastaj mbetet vetëm "stoku." derisa ta mbyllësh dhe ta hapësh sërish Stoku-n.'
