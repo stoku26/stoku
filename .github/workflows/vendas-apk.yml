@@ -1,5 +1,7 @@
 # Ndërton aplikacionin Stoku për Android (vendas/, pa WebView): provon logjikën (vendas/logjika, e njëjtë me web-in) dhe e vendos
 # APK-në si "artifact"; në main edhe si Release "vendas-vNN" (aplikacioni e gjen vetë versionin e ri).
+# Play Store (21.11.2026): ndërtohet edhe AAB-ja e versionit "play" (pa përditësimin e vetvetishëm), artifact "stoku-play-aab"
+# dhe skedar te i njëjti Release; ngarkohet me dorë te Play Console. Udhëzimi: vendas/PLAY.md.
 name: Stoku APK
 
 on:
@@ -9,6 +11,7 @@ on:
       - '!vendas/**/*.md'
       - '.github/workflows/vendas-apk.yml'
       - '.github/apk/nenshkruaj.sh'
+      - '.github/apk/aab.sh'
   workflow_dispatch:
 
 permissions:
@@ -29,12 +32,18 @@ jobs:
       - name: Provo logjikën (bashkimi, ruajtja, afatet, lejet = web-i)
         run: gradle -p vendas :logjika:test --stacktrace --no-daemon
       - name: Ndërto APK
-        run: gradle -p vendas :app:assembleRelease --stacktrace --no-daemon
+        run: gradle -p vendas :app:assembleGithubRelease --stacktrace --no-daemon
       # Me vulën e re të tel/ (v3 + zinxhiri i ndërrimit), si aplikacioni tel/
       - name: Nënshkrimi
         env:
           P: ${{ secrets.APK_FJALEKALIMI }}
-        run: bash .github/apk/nenshkruaj.sh tel vendas/app/build/outputs/apk/release/app-release.apk stoku-${{ github.run_number }}.apk
+        run: bash .github/apk/nenshkruaj.sh tel vendas/app/build/outputs/apk/github/release/app-github-release.apk stoku-${{ github.run_number }}.apk
+      - name: Ndërto AAB për Google Play
+        run: gradle -p vendas :app:bundlePlayRelease --stacktrace --no-daemon
+      - name: Nënshkrimi i AAB-së (çelësi i ngarkimit)
+        env:
+          P: ${{ secrets.APK_FJALEKALIMI }}
+        run: bash .github/apk/aab.sh vendas/app/build/outputs/bundle/playRelease/app-play-release.aab stoku-play-${{ github.run_number }}.aab
       # Hyrja 33: "Çka ka të re" e Release-it nga TeRejat.kt (5 hyrjet e fundit): faqja e përditësimit te aplikacioni i lexon rreshtat
       # "[nr] titulli" dhe "• pika" dhe tregon vetëm hyrjet që telefoni s'i ka ende
       - name: Shënimet e versionit
@@ -57,6 +66,10 @@ jobs:
           path: |
             stoku-${{ github.run_number }}.apk
             shenimet.md
+      - uses: actions/upload-artifact@v5
+        with:
+          name: stoku-play-aab
+          path: stoku-play-${{ github.run_number }}.aab
 
   # Pamjet e ekraneve (Robolectric, pa telefon) vetëm në degët e punës: çdo PNG ruhet si blob i git-it (pa prekur asnjë degë)
   # dhe "sha"-të dalin si shënim (annotation), që të lexohen me API-në e GitHub-it dhe të krahasohen me pamjet e web-it.
@@ -76,7 +89,7 @@ jobs:
           gradle-version: '9.6.0'
       - name: Pamjet (Robolectric)
         continue-on-error: true
-        run: gradle -p vendas :app:testDebugUnitTest --stacktrace --no-daemon
+        run: gradle -p vendas :app:testGithubDebugUnitTest --stacktrace --no-daemon
       - name: Blob-et e pamjeve
         if: always()
         env:
@@ -99,7 +112,7 @@ jobs:
           copat.append(c)
           for i, c in enumerate(copat): print('::notice title=pamjet %d::' % (i + 1) + c)
           gab = []
-          for x in glob.glob('vendas/app/build/test-results/testDebugUnitTest/*.xml'):
+          for x in glob.glob('vendas/app/build/test-results/testGithubDebugUnitTest/*.xml'):
               for m in re.finditer(r'<testcase name="([^"]+)"[^>]*>\s*<failure message="([^"]{0,1500})', open(x).read()):
                   gab.append(m.group(1) + ': ' + m.group(2).replace('\n', ' '))
           for g in gab[:8]:
@@ -121,7 +134,7 @@ jobs:
           gradle-version: '9.6.0'
       - name: Lint
         continue-on-error: true
-        run: gradle -p vendas :app:lintDebug --continue --no-daemon
+        run: gradle -p vendas :app:lintGithubDebug --continue --no-daemon
       - name: Rezultatet e lint-it
         if: always()
         run: |
@@ -149,10 +162,15 @@ jobs:
       - uses: actions/download-artifact@v5
         with:
           name: stoku-apk
+      - uses: actions/download-artifact@v5
+        with:
+          name: stoku-play-aab
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: vendas-v${{ github.run_number }}
           name: Stoku për Android ${{ github.run_number }}
           body_path: shenimet.md
-          files: stoku-${{ github.run_number }}.apk
+          files: |
+            stoku-${{ github.run_number }}.apk
+            stoku-play-${{ github.run_number }}.aab

@@ -3188,6 +3188,37 @@
       if (typeof ekK !== 'undefined' && ekK && ekK.pasNdryshimitTeEmrit) ekK.pasNdryshimitTeEmrit(); // v302
     }
   });
+
+  // ---------- v351 (Google Play): Cilësimet → Llogaria → "Fshi llogarinë" (vetë përdoruesi; jo administratori) ----------
+  (function () {
+    var btn = $('llFshiBtn'); if (!btn) return;
+    function rifreskoFshirjen() {
+      var u = (window.__stokuCloud && window.__stokuCloud.perdoruesiAktual) ? window.__stokuCloud.perdoruesiAktual() : null;
+      var shfaq = !!u && !(window.StokuEkipa && window.StokuEkipa.eshteUidAdmin && window.StokuEkipa.eshteUidAdmin(u.uid));
+      ['llFshiKarta'].forEach(function (id) { var e = $(id); if (e) e.hidden = !shfaq; });
+    }
+    rifreskoFshirjen(); setInterval(rifreskoFshirjen, 3000);
+    btn.addEventListener('click', async function () {
+      var c = window.__stokuCloud, gab = $('llFshiGabim'), f = $('llFshiFjalekalimi');
+      if (!c || !c.fshiLlogarineTime) return;
+      gab.textContent = '';
+      if (!f.value) { gab.textContent = 'Shkruaj fjalëkalimin për ta konfirmuar.'; f.focus(); return; }
+      if (!navigator.onLine) { gab.textContent = 'Duhet internet për ta fshirë llogarinë.'; return; }
+      var po = await konfirmo('Të fshihet llogaria?', 'Llogaria dhe të gjitha të dhënat e saj fshihen përgjithmonë, në të gjitha pajisjet. Kjo s\'kthehet mbrapa.', 'Fshi llogarinë', 5);
+      if (!po) return;
+      btn.disabled = true; btn.textContent = 'Duke e fshirë…';
+      var r = await c.fshiLlogarineTime(f.value);
+      if (!r || !r.ok) {
+        btn.disabled = false; btn.textContent = 'Fshi llogarinë';
+        gab.textContent = r && r.arsye === 'fjalekalimi' ? 'Fjalëkalimi s\'është i saktë.' : 'Llogaria s\'u fshi. Kontrollo internetin dhe provo prapë.';
+        return;
+      }
+      try { Object.keys(localStorage).filter(function (k) { return k.indexOf('stoku:') === 0 && k !== 'stoku:orari:pastro'; }).forEach(function (k) { localStorage.removeItem(k); }); } catch (e) { /* ok */ }
+      try { localStorage.setItem('stoku:porta:mesazh', 'Llogaria jote u fshi.'); } catch (e) { /* ok */ }
+      location.reload();
+    });
+  })();
+
   $('opsNdryshoFjalekalimin').addEventListener('click', async function () {
     var v = $('opsFjalekalimiRi').value;
     if (v.length < 6) { $('opsLlGabim').textContent = 'Fjalëkalimi duhet të ketë të paktën 6 shkronja/numra.'; return; }
@@ -4432,15 +4463,15 @@
   // Administratori e fshiu këtë llogari: hiqen krejt të dhënat lokale, fshihet llogaria e Firebase-it (emri lirohet)
   // dhe faqja rinis te hyrja me mesazh. Rregullat ia kanë mbyllur tashmë çdo qasje në cloud.
   var __llogariaUFshi = false;
-  function llogariaUFshiNgaAdmini() {
-    if (__llogariaUFshi) return;
+  function llogariaUFshiNgaAdmini(x) {
+    if (__llogariaUFshi || window.__stokuFshirjaVetes) return; // v351: kjo pajisje po e fshin vetë (fshiLlogarineTime)
     __llogariaUFshi = true;
     var c = window.__stokuCloud, ek = c && c.ekipa;
     // Së pari njoftimi ditor i kësaj llogarie hiqet nga serveri (përndryshe pajisja i merrte ende çdo ditë); ai lexon orarin
     // e ruajtur këtu, prandaj shënimet lokale fshihen pas tij ("stoku:orari:pastro" mbetet, nëse serveri s'u arrit)
     Promise.resolve(ek && ek.caktivizoPush ? ek.caktivizoPush() : null).catch(function () { /* ok */ }).then(function () {
       try { Object.keys(localStorage).filter(function (k) { return k.indexOf('stoku:') === 0 && k !== 'stoku:orari:pastro'; }).forEach(function (k) { localStorage.removeItem(k); }); } catch (e) { /* ok */ }
-      try { localStorage.setItem('stoku:porta:mesazh', 'Kjo llogari u fshi nga administratori.'); } catch (e) { /* ok */ }
+      try { localStorage.setItem('stoku:porta:mesazh', x && x.fshireNga === 'vete' ? 'Llogaria jote u fshi.' : 'Kjo llogari u fshi nga administratori.'); } catch (e) { /* ok */ }
       return c && c.fshiVeten ? c.fshiVeten() : null;
     }).catch(function () { /* ok */ }).then(function () { location.reload(); });
   }

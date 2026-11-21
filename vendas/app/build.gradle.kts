@@ -38,6 +38,14 @@ android {
         }
         debug { signingConfig = signingConfigs.getByName("stoku") }
     }
+    // Play Store (pronari 21.11.2026): dy versione nga i njëjti kod. "github" = si më parë (APK te Releases "vendas-vNN", përditësimi
+    // i vetvetishëm); "play" = AAB për Google Play: pa shkarkimin e APK-së dhe pa lejen REQUEST_INSTALL_PACKAGES, përditësimet vetëm nga
+    // Play (Play In-App Updates, PerditesimiPlay.kt). E njëjta paketë site.stoku.vendas.
+    flavorDimensions += "shperndarja"
+    productFlavors {
+        create("github") { dimension = "shperndarja"; isDefault = true; buildConfigField("boolean", "PLAY", "false") }
+        create("play") { dimension = "shperndarja"; buildConfigField("boolean", "PLAY", "true") }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -86,6 +94,8 @@ dependencies {
     // v256: harta e marketeve (si harta.js te web-i): MapLibre Native me pllakat e OpenFreeMap dhe satelitin e Esri-t
     implementation("org.maplibre.gl:android-sdk:11.8.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0") // Referer-i stoku.site për satelitin (çelësi i Esri-t është i kufizuar te faqja)
+
+    "playImplementation"("com.google.android.play:app-update:2.1.0") // përditësimet nga Google Play (vetëm versioni "play")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.13")

@@ -53,7 +53,7 @@ const FS = 'https://firestore.googleapis.com/v1/projects/' + PROJEKTI + '/databa
 const ORIGJINAT = ['https://stoku.site', 'https://www.stoku.site', 'https://stoku26.github.io', 'http://127.0.0.1:8765', 'http://localhost:8765'];
 const MESAZH_MAKS_MS = 3 * 60 * 1000;
 const PUSH_MAKS = 36;
-const VERSIONI_WORKER = 175; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
+const VERSIONI_WORKER = 176; // rritet kur ndryshon kodi; aplikacioni e krahason për të thënë "ngjite kodin e ri"
 
 
 const W = {
@@ -968,16 +968,18 @@ async function fshiDoc(rruga, token) {
 // ---------------- v174 (web v344): fshirja e llogarisë nga administratori: edhe të dhënat te KV ----------------
 // Pas fshirjes së llogarisë (Firestore, nga aplikacioni i administratorit) këtu hiqen: fotoja e profilit (publike sipas uid-së),
 // njoftimi ditor i pajisjeve të saj (orari:{uid}:*), kopja e afateve (orari-afatet), orët e lidhura (ora-ka, ora-tok: ora s'e sheh
-// më llogarinë), heqjet e orës në pritje dhe afatet për kolegët që presin kthimin. Vetëm administratori (uid-ja e tij, token i verifikuar).
+// më llogarinë), heqjet e orës në pritje dhe afatet për kolegët që presin kthimin. Administratori ose vetë llogaria (v176), token i verifikuar.
 async function trajtoFshirjenEAdminit(req, env, pergjigju) {
   if (req.method !== 'POST') return pergjigju({ ok: false, arsye: 'metoda' }, 405);
   if (!env.FOTO) return pergjigju({ ok: false, arsye: 'mungon-kv' }, 500);
-  const admini = await verifikoTokenin((req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, ''));
-  if (admini !== ADMIN_UID) return pergjigju({ ok: false, arsye: 'leje' }, 403);
+  // v176 (web v351, Google Play): edhe vetë llogaria i fshin të dhënat e veta (kur e fshin llogarinë nga Cilësimet); askush tjetër
+  const kush = await verifikoTokenin((req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, ''));
+  if (!kush) return pergjigju({ ok: false, arsye: 'leje' }, 403);
   let t = {};
   try { t = await req.json(); } catch (e) { return pergjigju({ ok: false, arsye: 'json' }, 400); }
   const u = String(t.uid || '');
   if (!/^[A-Za-z0-9_-]{1,128}$/.test(u) || u === ADMIN_UID) return pergjigju({ ok: false, arsye: 'uid' }, 400);
+  if (kush !== ADMIN_UID && kush !== u) return pergjigju({ ok: false, arsye: 'leje' }, 403);
   const n = { foto: 0, orare: 0, ore: 0, kolegu: 0 };
   // Fotoja
   if (await env.FOTO.get('foto:' + u, 'arrayBuffer')) { await env.FOTO.delete('foto:' + u); n.foto = 1; }

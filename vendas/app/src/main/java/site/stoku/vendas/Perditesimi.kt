@@ -40,6 +40,8 @@ object Perditesimi {
     val gjendja = MutableStateFlow<Gjendja?>(null)
 
     fun kontrollo(a: Activity, detyro: Boolean) {
+        // Versioni për Google Play: përditësimet vetëm nga Play (PerditesimiPlay.kt), pa GitHub dhe pa shkarkim APK-je
+        if (BuildConfig.PLAY) { PerditesimiPlay.kontrollo(a, detyro); return }
         val pr = StokuApp.prefs(a)
         if (gjendja.value != null) return // faqja është e hapur (ose po shkarkohet)
         if (!detyro && System.currentTimeMillis() - pr.getLong("perditesimi_koha", 0) < PUSHIMI_MS) return
@@ -199,6 +201,7 @@ object Perditesimi {
 
     /** Pas kthimit nga leja "Instalo aplikacione": vazhdon instalimi. */
     fun vazhdoNesePritej(a: Activity) {
+        if (BuildConfig.PLAY) return
         val pr = StokuApp.prefs(a)
         val f = apkNePritje ?: pr.getString("perditesimi_apk", null)?.let { File(it) } ?: return
         val n = pr.getInt("perditesimi_apk_n", 0)

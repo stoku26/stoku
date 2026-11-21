@@ -1824,6 +1824,14 @@
             <!-- v319: pajisjet ku je i kyçur (pajisjet.js) + "Shkëput" nga distanca -->
             <div class="ops-grupi-titull">Pajisjet ku je i kyçur</div>
             <div class="ops-karta ll-pajisjet" id="llPajisjet"></div>
+            <!-- v351 (Google Play): përdoruesi e fshin vetë llogarinë -->
+            <div class="ops-grupi-titull" id="llFshiTitulli">Fshi llogarinë</div>
+            <div class="ops-karta" id="llFshiKarta">
+              <div class="hint" style="margin:0 0 10px">Fshihen përgjithmonë stoku, afatet, fotoja e profilit, njoftimet dhe anëtarësia në grup, në të gjitha pajisjet. Kjo s'kthehet mbrapa.</div>
+              <div class="fushe"><input id="llFshiFjalekalimi" type="password" autocomplete="current-password" enterkeyhint="done" maxlength="100" placeholder="Fjalëkalimi" aria-label="Fjalëkalimi"></div>
+              <button class="btn tekst rrezik" id="llFshiBtn" type="button" style="width:100%">Fshi llogarinë përgjithmonë</button>
+              <div class="hint" id="llFshiGabim"></div>
+            </div>
           </div>
         </div>
 
@@ -2378,12 +2386,12 @@
 <script src="eksportet.js?v=321"></script>
 <script src="marketet.js?v=281"></script>
 <script src="harta.js?v=281"></script>
-<script src="ekipa.js?v=345"></script>
+<script src="ekipa.js?v=351"></script>
 <script src="njoftimet.js?v=315"></script>
 <script src="temat.js?v=2"></script>
-<script src="versioni.js?v=350"></script>
-<script src="teRejat.js?v=350"></script>
-<script src="app-tel.js?v=346"></script>
+<script src="versioni.js?v=351"></script>
+<script src="teRejat.js?v=351"></script>
+<script src="app-tel.js?v=351"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.js" integrity="sha384-ZQvvHKgw7Ktqkui5vapXokyfDpQcnXLZhR9hfFMh8rUQztTRNywKQdQ994308nhY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
@@ -2392,6 +2400,6 @@
 <!-- Firebase (Cloud): modul i vetëm, ekspozon window.__stokuCloud për skriptin kryesor.
      Hyrje me emër përdoruesi + fjalëkalim (pa email): emri shndërrohet në një "email" të brendshëm
      (emri@stoku-app.local) vetëm që Firebase Auth ta pranojë; përdoruesi asnjëherë s'e sheh a s'e fut email. -->
-<script type="module" src="firebase-tel.js?v=347"></script>
+<script type="module" src="firebase-tel.js?v=351"></script>
 </body>
 </html>

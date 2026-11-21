@@ -569,6 +569,8 @@ private fun LlogariaFaqja(mbrapa: () -> Unit) {
         NdryshimiILlogarise()
         TitulliGrupit("Pajisjet ku je i kyçur") // Hyrja 81
         PajisjetEMia()
+        // Web v351 (Google Play): përdoruesi e fshin vetë llogarinë (jo administratori)
+        if (!Llogaria.eshteAdmin()) { TitulliGrupit("Fshi llogarinë"); FshirjaELlogarise() }
         // "Dil nga llogaria" u zhvendos te karta e profilit (menyja e Cilësimeve)
     }
     if (rikthe) {
@@ -580,6 +582,57 @@ private fun LlogariaFaqja(mbrapa: () -> Unit) {
                 Toast.trego("Duke rikthyer nga cloud…", 2000)
                 val r = Sinkronizimi.riktheNgaCloud()
                 Toast.trego(when (r) { null -> "S'u lexua cloud-i. Kontrollo internetin dhe provo përsëri."; -1 -> "S'ka asnjë të dhënë të ruajtur në cloud për këtë llogari."; else -> "U rikthye nga cloud." }, 4000)
+            }
+        }
+    }
+}
+
+/** Web v351 (Google Play, si #llFshiKarta): fjalëkalimi + "Fshi llogarinë përgjithmonë" → konfirmimi me 5 sekonda → Llogaria.fshiLlogarineTime */
+@Composable
+private fun FshirjaELlogarise() {
+    val n = N
+    val scope = rememberFusha()
+    var fj by remember { mutableStateOf("") }
+    var gabim by remember { mutableStateOf("") }
+    var pyet by remember { mutableStateOf(false) }
+    var duke by remember { mutableStateOf(false) }
+    KartaOps {
+        Text("Fshihen përgjithmonë stoku, afatet, fotoja e profilit, njoftimet dhe anëtarësia në grup, në të gjitha pajisjet. Kjo s'kthehet mbrapa.",
+            style = tx(14, 400, n.ink2), modifier = Modifier.padding(bottom = 12.dp))
+        Fusha(fj, { fj = it; gabim = "" }, Modifier.fillMaxWidth(), "Fjalëkalimi", fjalekalim = true, lartesia = 46.dp)
+        Buton(if (duke) "Duke e fshirë…" else "Fshi llogarinë përgjithmonë", {
+            if (fj.isEmpty()) gabim = "Shkruaj fjalëkalimin për ta konfirmuar." else pyet = true
+        }, Modifier.fillMaxWidth().padding(top = 12.dp), aktiv = !duke, lloji = "kuqe")
+        if (gabim.isNotEmpty()) Text(gabim, style = txR(13f, 500, n.exp), modifier = Modifier.padding(top = 8.dp))
+    }
+    if (pyet) KonfirmoMePritje("Të fshihet llogaria?", "Llogaria dhe të gjitha të dhënat e saj fshihen përgjithmonë, në të gjitha pajisjet. Kjo s'kthehet mbrapa.",
+        "Fshi llogarinë", mbyll = { pyet = false }) {
+        duke = true
+        scope.launch {
+            when (Llogaria.fshiLlogarineTime(fj)) {
+                null -> { }
+                "fjalekalimi" -> gabim = "Fjalëkalimi s'është i saktë."
+                "admin" -> gabim = "Administratori s'mund ta fshijë llogarinë e vet."
+                else -> gabim = "Llogaria s'u fshi. Kontrollo internetin dhe provo prapë."
+            }
+            duke = false
+        }
+    }
+}
+
+/** Konfirmimi i një veprimi që s'kthehet: butoni i kuq aktivizohet pas 5 sekondave (si konfirmo(…, 5) te web-i) */
+@Composable
+private fun KonfirmoMePritje(titulli: String, teksti: String, butoni: String, mbyll: () -> Unit, po: () -> Unit) {
+    val n = N
+    var mbetur by remember { mutableStateOf(5) }
+    LaunchedEffect(Unit) { while (mbetur > 0) { kotlinx.coroutines.delay(1000); mbetur-- } }
+    androidx.compose.ui.window.Dialog(onDismissRequest = mbyll) {
+        Column(Modifier.clip(RoundedCornerShape(24.dp)).background(n.surface).padding(22.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(titulli, style = tx(20, 700, n.ink, -0.02))
+            Text(teksti, style = tx(15, 400, n.ink2))
+            Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Buton("Anulo", mbyll, Modifier.weight(1f), lloji = "dyte")
+                Buton(if (mbetur > 0) "$butoni ($mbetur)" else butoni, { mbyll(); po() }, Modifier.weight(1f), aktiv = mbetur == 0, lloji = "kuqe")
             }
         }
     }

@@ -148,23 +148,85 @@ object Llogaria {
     private fun degjoFshirjen(p: Perdoruesi) {
         dFshirja = db.collection("ekipa_fshire").document(p.uid).addSnapshotListener { s, e ->
             if (e != null || s == null || !s.exists() || _perdoruesi.value?.uid != p.uid) return@addSnapshotListener
-            llogariaUFshi()
+            llogariaUFshi(s.getString("fshireNga") == "vete")
         }
     }
 
-    private fun llogariaUFshi() {
+    private fun llogariaUFshi(vete: Boolean = false) {
         if (poFshihet) return
         poFshihet = true
         kotlinx.coroutines.MainScope().launch(StokuApp.trajtuesi(false)) {
             try { kotlinx.coroutines.withTimeoutOrNull(9000) { Push.caktivizo() } } catch (e: Exception) { }
             ndalDegjuesit()
             StokuApp.prefs(ctx).edit().remove("ora_rt").apply()
-            mesazhiIHyrjes.value = "Kjo llogari u fshi nga administratori."
+            mesazhiIHyrjes.value = if (vete) "Llogaria jote u fshi." else "Kjo llogari u fshi nga administratori."
             try { kotlinx.coroutines.withTimeoutOrNull(9000) { auth.currentUser?.delete()?.await() } } catch (e: Exception) { }
             try { if (auth.currentUser != null) auth.signOut() } catch (e: Exception) { }
             Dyqani.vendosPronarin("llogari-e-fshire") // të dhënat e llogarisë së fshirë s'mbeten në telefon
             poFshihet = false
         }
+    }
+
+    /**
+     * Web v351 (Google Play, pronari 21.11.2026): përdoruesi e fshin VETË llogarinë (Cilësimet → Llogaria → Fshi llogarinë), si
+     * fshijLlogarineTime te ekipa.js: konfirmimi me fjalëkalimin, shënimi ekipa_fshire/{uid} (fshireNga "vete": rregullat ia mbyllin
+     * shkrimin në krejt pajisjet, që dalin vetë), të dhënat në cloud (grupi: admin bëhet më i vjetri; i vetmi: grupi fshihet), serveri i
+     * njoftimeve (Worker 176), pastaj llogaria e hyrjes dhe të dhënat në telefon. Emrat (emrat/) mbeten të rezervuar. Jo administratori.
+     * → null kur u fshi, ose "fjalekalimi", "rrjeti", "admin".
+     */
+    suspend fun fshiLlogarineTime(fjalekalimi: String): String? {
+        val p = _perdoruesi.value ?: return "rrjeti"
+        val u = p.uid
+        if (Lejet.eshteAdmin(u)) return "admin"
+        val cu = auth.currentUser ?: return "rrjeti"
+        val email = cu.email ?: return "rrjeti"
+        try { cu.reauthenticate(com.google.firebase.auth.EmailAuthProvider.getCredential(email, fjalekalimi)).await() }
+        catch (e: Exception) { return if (e is FirebaseNetworkException) "rrjeti" else "fjalekalimi" }
+        poFshihet = true
+        try { kotlinx.coroutines.withTimeoutOrNull(9000) { Push.caktivizo() } } catch (e: Exception) { }
+        val gU = try { db.collection("perdoruesit").document(u).get().await().getString("grupi") } catch (e: Exception) { null }
+        try {
+            db.collection("ekipa_fshire").document(u).set(mapOf("emri" to p.emri, "fshireSe" to System.currentTimeMillis(), "fshireNga" to "vete")).await()
+        } catch (e: Exception) { poFshihet = false; return "rrjeti" }
+        ndalDegjuesit()
+        suspend fun fshij(ref: com.google.firebase.firestore.DocumentReference) { try { ref.delete().await() } catch (e: Exception) { } }
+        suspend fun fshijPyetjen(q: com.google.firebase.firestore.Query) { try { q.get().await().documents.forEach { fshij(it.reference) } } catch (e: Exception) { } }
+        for (g in listOfNotNull(gU, Grupi.grupi()).filter { it.isNotEmpty() }.distinct()) {
+            val gr = db.collection("grupet").document(g)
+            val anet = try { gr.collection("anetaret").get().await().documents } catch (e: Exception) { continue }
+            val une = anet.firstOrNull { it.id == u } ?: continue
+            val tjeret = anet.filter { it.id != u }
+            fshijPyetjen(gr.collection("push").whereEqualTo("uid", u))
+            fshijPyetjen(gr.collection("feed").whereEqualTo("uid", u))
+            fshij(gr.collection("afatet").document(u)); fshij(gr.collection("malli").document(u))
+            if (une.getString("roli") == "pronar" && tjeret.isEmpty()) {
+                for (n in listOf("feed", "kujtesa", "push", "afatet", "malli")) fshijPyetjen(gr.collection(n))
+                fshijPyetjen(db.collection("ftesat").whereEqualTo("gid", g))
+                fshijPyetjen(db.collection("kerkesat_grupi").whereEqualTo("gid", g))
+                fshij(db.collection("grupet_publike").document(g)); fshij(gr)
+            } else if (une.getString("roli") == "pronar" && tjeret.none { it.getString("roli") == "pronar" }) {
+                val i = tjeret.minByOrNull { (it.get("hyriSe") as? Number)?.toLong() ?: 0L }!!
+                try { gr.collection("anetaret").document(i.id).set(mapOf("roli" to "pronar"), SetOptions.merge()).await() } catch (e: Exception) { }
+            }
+            fshij(gr.collection("anetaret").document(u))
+        }
+        fshij(db.collection("ekipa_anetaret").document(u)); fshij(db.collection("ekipa_afatet").document(u))
+        fshijPyetjen(db.collection("ftesat").whereEqualTo("uid", u))
+        fshijPyetjen(db.collection("kerkesat_grupi").whereEqualTo("uid", u))
+        val dq = db.collection("dyqane").document(u)
+        try { dq.collection("skedaret").get().await().documents.forEach { fshijPyetjen(it.reference.collection("pjeset")); fshij(it.reference) } } catch (e: Exception) { }
+        fshijPyetjen(dq.collection("pjeset")); fshijPyetjen(dq.collection("fletet")); fshij(dq)
+        val pr = db.collection("perdoruesit").document(u)
+        fshijPyetjen(pr.collection("njoftimet")); fshijPyetjen(pr.collection("pajisjet")); fshij(pr)
+        fshij(db.collection("lejet").document(u)); fshij(db.collection("kujtesa_pritje").document(u))
+        try { kotlinx.coroutines.withTimeoutOrNull(9000) { Push.fshiLlogarineTeServeri(u) } } catch (e: Exception) { }
+        StokuApp.prefs(ctx).edit().remove("ora_rt").apply()
+        mesazhiIHyrjes.value = "Llogaria jote u fshi."
+        try { kotlinx.coroutines.withTimeoutOrNull(9000) { auth.currentUser?.delete()?.await() } } catch (e: Exception) { }
+        try { if (auth.currentUser != null) auth.signOut() } catch (e: Exception) { }
+        Dyqani.vendosPronarin("llogari-e-fshire") // të dhënat e llogarisë s'mbeten në telefon
+        poFshihet = false
+        return null
     }
 
     /** Administratori (v302: sipas uid-së, Lejet.ADMIN_UID) i ka të gjitha lejet */

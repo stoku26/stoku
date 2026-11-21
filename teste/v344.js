@@ -12,7 +12,7 @@ ok(f && /try \{ await thirrPush\('\/admin\/fshi', \{ uid: u \}\); \} catch \(e\)
 const w = lx('worker/stoku-push.js');
 ok(/rrugaF === '\/admin\/fshi'\) return meKap\(trajtoFshirjenEAdminit/.test(w), '2a. Worker: rruga /admin/fshi');
 ok(/VERSIONI_WORKER = (\d+)/.exec(w)[1] >= 174, '2b. Worker ≥ 174');
-ok(/admini !== ADMIN_UID\) return pergjigju\(\{ ok: false, arsye: 'leje' \}, 403\)/.test(w) && /u === ADMIN_UID\) return pergjigju/.test(w), '2c. vetëm administratori; administratori s\'fshihet');
+ok(/kush !== ADMIN_UID && kush !== u\) return pergjigju\(\{ ok: false, arsye: 'leje' \}, 403\)/.test(w) && /u === ADMIN_UID\) return pergjigju/.test(w), '2c. administratori (ose vetë llogaria, v351/Worker 176); administratori s\'fshihet');
 // 3. Android: e njëjta thirrje
 const push = lx(K + 'Push.kt'), adm = lx(K + 'Admini.kt');
 ok(/suspend fun fshiLlogarineTeServeri\(u: String\): Boolean = kerkese\("\/admin\/fshi", mapOf\("uid" to u\)\)\.ok/.test(push), '3a. Push.kt fshiLlogarineTeServeri');

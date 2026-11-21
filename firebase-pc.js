@@ -122,6 +122,23 @@
         if (window.StokuPorta && window.StokuPorta.dilMeDore) window.StokuPorta.dilMeDore(); // mos hyr vetë me fjalëkalimin e ruajtur
         try { await signOut(auth); } catch (e) { /* ok */ }
       },
+      // v351 (Google Play): përdoruesi e fshin vetë llogarinë: konfirmimi me fjalëkalimin, njoftimet e kësaj pajisjeje, të dhënat
+      // në cloud (ekipa.fshijLlogarineTime), pastaj llogaria e hyrjes. Administratori s'mund ta fshijë veten.
+      async fshiLlogarineTime(fjalekalimi) {
+        var cu = auth.currentUser;
+        if (!cu || !cu.email) return { ok: false, arsye: 'pa-hyrje' };
+        try { await reauthenticateWithCredential(cu, EmailAuthProvider.credential(cu.email, fjalekalimi)); }
+        catch (e) { return { ok: false, kodi: e && e.code, arsye: (e && /network/.test(String(e.code))) ? 'rrjeti' : 'fjalekalimi' }; }
+        if (!ekipa || !ekipa.fshijLlogarineTime) return { ok: false, arsye: 'ekipa' };
+        window.__stokuFshirjaVetes = true;
+        if (ekipa.caktivizoPush) { try { await ekipa.caktivizoPush(); } catch (e) { /* ok */ } }
+        try { ekipa.ndalPranine(); } catch (e) { /* ok */ }
+        var r = await ekipa.fshijLlogarineTime();
+        if (!r || !r.ok) { window.__stokuFshirjaVetes = false; return r || { ok: false }; }
+        if (window.StokuPorta && window.StokuPorta.dilMeDore) window.StokuPorta.dilMeDore();
+        try { await deleteUser(auth.currentUser || cu); } catch (e) { try { await signOut(auth); } catch (e2) { /* ok */ } }
+        return { ok: true, mbetur: r.mbetur };
+      },
       // Llogaria u fshi nga administratori: fshihet edhe llogaria e Firebase-it (emri lirohet). Nëse Firebase kërkon
       // hyrje të freskët, vetëm dilet — herën tjetër që hyn, fshirja provohet sërish.
       async fshiVeten() {
