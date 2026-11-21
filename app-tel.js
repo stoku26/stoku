@@ -3245,7 +3245,7 @@
       gab.textContent = '';
       if (!f.value) { gab.textContent = 'Shkruaj fjalëkalimin për ta konfirmuar.'; f.focus(); return; }
       if (!navigator.onLine) { gab.textContent = 'Duhet internet për ta fshirë llogarinë.'; return; }
-      var po = await konfirmo('Të fshihet llogaria?', 'Llogaria dhe krejt të dhënat e saj fshihen përgjithmonë, në krejt pajisjet. Kjo s\'kthehet mbrapa.', 'Fshi llogarinë', 5);
+      var po = await konfirmo('Të fshihet llogaria?', 'Llogaria dhe të gjitha të dhënat e saj fshihen përgjithmonë, në të gjitha pajisjet. Kjo s\'kthehet mbrapa.', 'Fshi llogarinë', 5);
       if (!po) return;
       btn.disabled = true; btn.textContent = 'Duke e fshirë…';
       var r = await c.fshiLlogarineTime(f.value);

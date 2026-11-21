@@ -597,7 +597,7 @@ private fun FshirjaELlogarise() {
     var pyet by remember { mutableStateOf(false) }
     var duke by remember { mutableStateOf(false) }
     KartaOps {
-        Text("Fshihen përgjithmonë stoku, afatet, fotoja e profilit, njoftimet dhe anëtarësia në grup, në krejt pajisjet. Kjo s'kthehet mbrapa.",
+        Text("Fshihen përgjithmonë stoku, afatet, fotoja e profilit, njoftimet dhe anëtarësia në grup, në të gjitha pajisjet. Kjo s'kthehet mbrapa.",
             style = tx(14, 400, n.ink2), modifier = Modifier.padding(bottom = 12.dp))
         Fusha(fj, { fj = it; gabim = "" }, Modifier.fillMaxWidth(), "Fjalëkalimi", fjalekalim = true, lartesia = 46.dp)
         Buton(if (duke) "Duke e fshirë…" else "Fshi llogarinë përgjithmonë", {
@@ -605,7 +605,7 @@ private fun FshirjaELlogarise() {
         }, Modifier.fillMaxWidth().padding(top = 12.dp), aktiv = !duke, lloji = "kuqe")
         if (gabim.isNotEmpty()) Text(gabim, style = txR(13f, 500, n.exp), modifier = Modifier.padding(top = 8.dp))
     }
-    if (pyet) KonfirmoMePritje("Të fshihet llogaria?", "Llogaria dhe krejt të dhënat e saj fshihen përgjithmonë, në krejt pajisjet. Kjo s'kthehet mbrapa.",
+    if (pyet) KonfirmoMePritje("Të fshihet llogaria?", "Llogaria dhe të gjitha të dhënat e saj fshihen përgjithmonë, në të gjitha pajisjet. Kjo s'kthehet mbrapa.",
         "Fshi llogarinë", mbyll = { pyet = false }) {
         duke = true
         scope.launch {
