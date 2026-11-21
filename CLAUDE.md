@@ -67,6 +67,8 @@ Përditësoje në të njëjtin PR me çdo ndryshim domethënës.
 
 Ndryshimet vetëm në `vendas/` ose `ora/` (Kotlin): pa version të web-it, vetëm shënim te SHENIME; APK-të i ndërton
 GitHub Actions (në push të degës për kontroll, në main për publikim).
+`vendas/` ka dy versione (v351): `github` (APK + përditësimi vetë, mos e fshi) dhe `play` (AAB për Google Play, përditësimi vetëm nga Play);
+udhëzuesi `vendas/PLAY.md`.
 
 ## Testet (`teste/`)
 - Playwright + Firestore i rremë (`fs-server.js`); `teste/wp/` për Worker-in. Herën e parë në kontejner të ri:

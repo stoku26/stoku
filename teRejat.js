@@ -21,6 +21,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 351, versioni: '1.75.0', data: '2026-11-21', titulli: 'Fshi llogarinë', pikat: [
+      'Llogarinë mund ta fshish vetë te Cilësimet → Llogaria → "Fshi llogarinë": shkruan fjalëkalimin dhe konfirmon.',
+      'Fshihen përgjithmonë stoku, afatet, fotoja e profilit, njoftimet dhe anëtarësia në grup, në krejt pajisjet.'
+    ] },
     { v: 350, versioni: '1.74.4', data: '2026-11-21', titulli: 'Logoja', pikat: [
       'Logoja lart, pas hyrjes, kthehet nga barkodi në "stoku." pas 1 sekonde.'
     ] },

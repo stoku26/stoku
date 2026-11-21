@@ -10,6 +10,10 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(111, "2026-11-21", "Fshi llogarinë", listOf(
+            "Llogarinë mund ta fshish vetë te Cilësimet → Llogaria → \"Fshi llogarinë\": shkruan fjalëkalimin dhe konfirmon.",
+            "Fshihen përgjithmonë stoku, afatet, fotoja e profilit, njoftimet dhe anëtarësia në grup, në krejt pajisjet."
+        )),
         Hyrja(110, "2026-11-21", "Logoja", listOf(
             "Logoja lart, pas hyrjes, kthehet nga barkodi në \"stoku.\" pas 1 sekonde."
         )),

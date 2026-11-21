@@ -58,6 +58,30 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v351 / Android Hyrja 111 / Worker 176 (21.11.2026): GOOGLE PLAY + FSHIRJA E LLOGARISË NGA VETË PËRDORUESI**. Pronari: "A munesh me
+bo gati 100% stokun per playstore krejt qka duhet edhe me .aab file edhe llogarite mos harro qe aty duhet update me u bo prej playstore.
+Qatij versioni duhet me ja hek update qe e ka mrena vetvetiu. A ket versionin android qka e kem mos e fshij nihere."
+(1) **Dy versione të Android-it** (`productFlavors`, dimensioni `shperndarja`): `github` = si më parë (APK te Releases `vendas-vNN`,
+Perditesimi.kt), `play` = AAB për Google Play, `BuildConfig.PLAY`: Perditesimi.kontrollo → `PerditesimiPlay` (src/play, Play In-App
+Updates `com.google.android.play:app-update:2.1.0`, IMMEDIATE ose faqja e Play-it); `REQUEST_INSTALL_PACKAGES` kaloi te
+`src/github/AndroidManifest.xml`. E njëjta paketë `site.stoku.vendas`. CI: `assembleGithubRelease` (APK-ja si më parë),
+`bundlePlayRelease` + `.github/apk/aab.sh` (heq nënshkrimin e Gradle-it, nënshkruan me çelësin e ri të `tel/` si "upload key", kontrollon që
+s'ka REQUEST_INSTALL_PACKAGES), artifact `stoku-play-aab` + skedar te Release-i (faqja-android.js dhe Perditesimi marrin vetëm `.apk`).
+Detyrat e testeve/lint u bënë `testGithubDebugUnitTest`/`lintGithubDebug`. Udhëzuesi për Play Console, tekstet, Data safety: `vendas/PLAY.md`;
+figurat: `vendas/play/` (ikona 512, banda 1024x500, pamjet 1080x2160 nga PamjetTest). Upload key SHA-1 `CE:78:DC:…:87`.
+(2) **Fshirja e llogarisë nga vetë përdoruesi** (kërkesë e Play-it): Cilësimet → Llogaria → "Fshi llogarinë" (web tel `#llFshiKarta`
+`#llFshiTitulli`, PC `#llFshiKarta`, Android `FshirjaELlogarise`; jo administratori): fjalëkalimi + konfirmimi 5 s → web
+`__stokuCloud.fshiLlogarineTime` (firebase-tel/pc: reauth, caktivizoPush, ndalPranine, `ekipa.fshijLlogarineTime`, deleteUser), Android
+`Llogaria.fshiLlogarineTime`. Rendi: shënimi `ekipa_fshire/{uid}` {emri, fshireSe, fshireNga:'vete'} I PARI (mbyll shkrimet në krejt
+pajisjet; pajisjet e tjera dalin vetë me "Llogaria jote u fshi.", kjo pajisje e shpërfill me `__stokuFshirjaVetes`/`poFshihet`), pastaj
+grupi (push/feed/afatet/malli e mia; admin bëhet më i vjetri; i vetmi: grupi krejt + ftesat/kërkesat/grupet_publike), ekipa_*, ftesat,
+kerkesat_grupi, dyqane (skedaret, pjeset, fletet), perdoruesit (njoftimet, pajisjet), lejet, kujtesa_pritje, Worker `/admin/fshi` (v176 lejon
+vetveten). **emrat/ mbeten** (rregulla e pronarit: lirohen vetëm nga administratori). Rregullat v351: `ekipa_fshire` create vetë (vete),
+`perdoruesit`/`lejet` delete vetë, `dyqane` + pjeset/fletet `list, delete` vetë edhe pas shënimit, `ekipa_afatet` delete vetë.
+privatesia.html `#fshirja` (adresa për Play) + kushtet.html. Teste: v351.js (fs-server me rregullat e reja + `ref` te pyetjet),
+`teste/emu/fshirja-v351.mjs` (emulatori i vërtetë, KREJT OK), wp/admin-fshi-prova.mjs. VERSIONI_WORKER 176 (ekipa.js, Push.kt).
+PRONARI: ngjit Worker-in stoku-push (176) dhe rregullat e reja. Pa testim në pajisje të vërteta.
+
 0000000. **v350 / Android Hyrja 110 (21.11.2026): KOKA BARKOD 1 s**. Pronari: "Hej logo nalt prej barkodit qe bohet logo bone me u
 shendrru per 1 sekond apet. Tjeter qka mos prek". VETËM logoja e kokës (pas hyrjes): barkodi 1 s → skanimi 1 s (2 s gjithsej). Web:
 klasa `stk-logo--koka` (luajKoken) me keyframes `stkSkLk/stkSkBk/stkSkVk` (50%, `2s`); Android: `LogoMeSkanim(..., koka = true)` me

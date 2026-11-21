@@ -75,7 +75,7 @@ function krijoFirestore(opt = {}) {
     if (reja && p[0] === 'emrat' && p.length === 2) return !S.paEmrat && (!eListe || eshteAdmin(a.uid));
     if (reja && p[0] === 'perdoruesit' && p.length === 2 && eListe) return eshteAdmin(a.uid); // v164: lista vetëm admini
     if (reja && p[0] === 'dyqane' && p[2] === 'skedaret') return !S.paSkedare && a.uid === p[1]; // v227 (S.paSkedare: rregullat e vjetra, pa skedarët)
-    if (reja && p[0] === 'dyqane' && p.length === 3 && eListe && a.uid === p[1]) return true; // v351: lista e pjesëve/fletëve për fshirjen e vetes
+    if (reja && p[0] === 'dyqane' && p.length === 4 && (p[2] === 'pjeset' || p[2] === 'fletet') && eListe && a.uid === p[1]) return true; // v351: lista e pjesëve/fletëve për fshirjen e vetes
     if (p[0] === 'dyqane') return reja ? ((a.uid === p[1] && !fshire(p[1])) || eshteAdmin(a.uid)) : (p[2] === 'fletet' ? (a.uid === p[1] || eshteAdmin(a.uid)) : true);
     if (p[0] === 'ekipa_fshire') return reja && (a.uid === p[1] || eshteAdmin(a.uid));
     // v230: lejet/{uid} (S.paLejet: rregullat para v230, s'lexohen)
@@ -407,7 +407,7 @@ function krijoFirestore(opt = {}) {
         const o = {}; Object.keys(d).forEach(k => { o[k] = ringjall(d[k]); }); return o;
       };
       const dok = (id, r) => ({ id, exists: () => !!r.exists, data: () => ringjall(r.data), metadata: { hasPendingWrites: false, fromCache: false } });
-      const pyetje = r => { const docs = r.docs.map(d => ({ id: d.id, data: () => ringjall(d.data), exists: () => true })); return { docs, empty: !docs.length, size: docs.length, forEach: f => docs.forEach(f), metadata: { hasPendingWrites: false, fromCache: false } }; };
+      const pyetje = (r, p) => { const docs = r.docs.map(d => ({ id: d.id, ref: { path: p + '/' + d.id, id: d.id }, data: () => ringjall(d.data), exists: () => true })); return { docs, empty: !docs.length, size: docs.length, forEach: f => docs.forEach(f), metadata: { hasPendingWrites: false, fromCache: false } }; };
       const fs = {
         doc: (db, ...p) => {
           const ri = k => { const path = k.path + '/' + 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); return { path, id: path.split('/').pop() }; };
@@ -421,7 +421,7 @@ function krijoFirestore(opt = {}) {
         orderBy: (f, dir) => ({ lloji: 'orderBy', f, dir: dir || 'asc' }),
         limit: n => ({ lloji: 'limit', n }),
         getDoc: async ref => { await prit(); const r = await window.__fs('get', ref.path); if (!r.ok) throw gabim(r.code); return dok(ref.path.split('/').pop(), r); },
-        getDocs: async q => { await prit(); const r = await window.__fs('query', q.path, q.c || []); if (!r.ok) throw gabim(r.code); return pyetje(r); },
+        getDocs: async q => { await prit(); const r = await window.__fs('query', q.path, q.c || []); if (!r.ok) throw gabim(r.code); return pyetje(r, q.path); },
         getCountFromServer: async q => { await prit(); const r = await window.__fs('query', q.path, q.c || []); if (!r.ok) throw gabim(r.code); return { data: () => ({ count: r.docs.length }) }; }, // v252
         setDoc: async (ref, te, o) => { await prit(); const r = await window.__fs('batch', [['set', ref.path, JSON.parse(JSON.stringify(te)), !!(o && o.merge)]]); if (!r.ok) throw gabim(r.code); },
         addDoc: async (col, te) => { const ref = fs.doc(null, col); await fs.setDoc(ref, te); return { id: ref.path.split('/').pop() }; },
@@ -455,7 +455,7 @@ function krijoFirestore(opt = {}) {
           window.__fsCb[id] = r => {
             if (r.gabim) { delete window.__fsCb[id]; if (cbE) cbE(gabim(r.gabim)); return; }
             if (window.__fsOffline) return;
-            cb(lloji === 'doc' ? dok(ref.path.split('/').pop(), r) : pyetje(r));
+            cb(lloji === 'doc' ? dok(ref.path.split('/').pop(), r) : pyetje(r, ref.path));
           };
           window.__fs('sub', id, lloji, ref.path, ref.c || []);
           return () => { delete window.__fsCb[id]; window.__fs('unsub', id); };
