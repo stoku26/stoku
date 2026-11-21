@@ -14,7 +14,7 @@ const B = 'http://127.0.0.1:8765';
   ok(/stkSkL\{0%\{transform:translateX\(-153px\)\}60%/.test(js) && /stkSkB\{0%\{transform:translateX\(-3px\)\}60%/.test(js) && /59\.99%/.test(js) && (js.match(/2\.5s linear both/g) || []).length === 3, '0. web: barkodi 60% e 2.5 s = 1.5 s');
   ok(/sessionStorage\.getItem\(KEY_SKANUAR\)/.test(js) && /sessionStorage\.setItem\(KEY_SKANUAR/.test(js) && !/localStorage\.setItem\(KEY_SKANUAR/.test(js), '0. web: koka shënohet vetëm për këtë hapje');
   ok(/sessionStorage\.removeItem\('stoku:logo:skanuar'\)/.test(pt), '0. web: hyrja e fshin shënimin');
-  ok(/KOHA_MS = 2500/.test(sk) && /NIS = \.6f/.test(sk) && /tween\(SkanimiILogos\.KOHA_MS/.test(sk) && !/logo_skanuar/.test(sk + lo), '0. Android: 2.5 s, barkodi deri 0.6, pa pref të përhershëm');
+  ok(/KOHA_MS = 2500/.test(sk) && /NIS = \.6f/.test(sk) && /SkanimiILogos\.KOHA_MS, easing/.test(sk) && !/logo_skanuar/.test(sk + lo), '0. Android: 2.5 s, barkodi deri 0.6, pa pref të përhershëm');
   ok(/!SkanimiILogos\.kokaLuajti/.test(lo) && /SkanimiILogos\.kokaLuajti = true/.test(lo) && /savedInstanceState == null\) site\.stoku\.vendas\.ui\.SkanimiILogos\.harro\(\)/.test(ma), '0. Android: koka një herë për hapje (MainActivity e fshin)');
   // Kotlin gjendja() e përkthyer: barkodi deri 0.6
   const gj = p => p >= 1 ? 'logo' : p < .6 ? 'barkod' : 'skanim';
@@ -57,14 +57,14 @@ const B = 'http://127.0.0.1:8765';
       const p = await ctx.newPage(); const gab = []; p.on('pageerror', e => gab.push(e.message));
       await p.goto(B + faqja); await p.waitForTimeout(3000);
       const S = (await p.$('#logoButon svg.stk-logo')) ? '#logoButon svg.stk-logo' : 'svg.stk-logo:not(#porta svg)';
-      const a = await ne(p, S, 1.0), c = await ne(p, S, 2.6);
+      const a = await ne(p, S, 0.9), c = await ne(p, S, 2.6); // v350: koka barkod 1 s
       ok(a && a.luan && barkodPlote(a) && logoPlote(c), em + ' b. koka: barkod → logo (shënimi i vjetër s\'e ndal)', [a, c]);
       await p.reload(); await p.waitForTimeout(2000);
       const r = await ne(p, S, 1.0);
       ok(r && !r.luan && logoPlote(r), em + ' b. rifreskim (pa u mbyllur): vetëm logoja', r);
       const p2 = await ctx.newPage(); p2.on('pageerror', e => gab.push(e.message));
       await p2.goto(B + faqja); await p2.waitForTimeout(2000);
-      const n = await ne(p2, S, 1.0);
+      const n = await ne(p2, S, 0.9);
       ok(n && n.luan && barkodPlote(n), em + ' b. e mbyllur e hapur (skedë e re): sërish barkod → logo', n);
       ok(!gab.length, em + ' b. pa gabime JS', gab);
       await ctx.close();
