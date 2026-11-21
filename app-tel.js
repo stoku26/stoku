@@ -2935,6 +2935,20 @@
     Array.prototype.forEach.call(document.querySelectorAll('[data-leja]'), function (el) {
       el.classList.toggle('leja-ndaluar', !leja(el.getAttribute('data-leja')));
     });
+    // v352 (pronari: "Leje qysh osht te ni person qe i ka krejta te lejume. Veq te kta qka i ndalohet diqka me ja qit qe nuk ki akses
+    // ne ket sherbim"): tabet poshtë s'zhduken (Ballina mbetet në mes); i ndaluari zbehet me dry dhe prekja tregon mesazhin
+    Array.prototype.forEach.call(document.querySelectorAll('#tabet .tab[data-leja]'), function (el) {
+      var nd = el.classList.contains('leja-ndaluar');
+      el.classList.remove('leja-ndaluar');
+      el.classList.toggle('tab-ndaluar', nd);
+      el.setAttribute('aria-disabled', nd ? 'true' : 'false');
+      var ik = el.querySelector('.tab-ikona');
+      if (ik && !ik.querySelector('.tab-dry')) {
+        var d = document.createElement('span'); d.className = 'tab-dry'; d.setAttribute('aria-hidden', 'true');
+        d.innerHTML = '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>';
+        ik.appendChild(d);
+      }
+    });
     // v277: "Eksporto" (menuja Excel / PDF / foto) s'ka kuptim pa eksportet; pa "Importo" dhe pa "Eksporto" fshihet edhe rreshti
     var xl = $('afExcel') && $('afExcel').parentNode;
     if (xl) {
@@ -4605,6 +4619,13 @@
     rifreskoTabet();
     setTimeout(function () { document.body.classList.remove('pa-animim'); }, 80);
   }
+  // v352: tabi i ndaluar s'hapet; vetëm mesazhi (kapet para dëgjuesve të vetë tabit)
+  $('tabet').addEventListener('click', function (e) {
+    var t = e.target && e.target.closest ? e.target.closest('.tab-ndaluar') : null;
+    if (!t) return;
+    e.preventDefault(); e.stopPropagation();
+    toast('Nuk ke qasje në këtë shërbim.');
+  }, true);
   $('tabMalli').addEventListener('click', function () {
     kaloTab(function () {
       __malliZgjedhur = true; // v327: Ballina s'rihapet vetë (faqjaBaze) derisa të zgjidhet një tab tjetër

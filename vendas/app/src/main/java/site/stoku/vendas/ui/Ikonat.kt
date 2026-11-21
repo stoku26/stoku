@@ -44,6 +44,8 @@ object Ik {
     val Re = ikona("M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z")
     val TeRejat = ikona("M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z", "M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z")
     val Mburoja = ikona("M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z", "M10 11h4a1 1 0 0 1 1 1v3a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1Z", "M10.5 11V9.5a1.5 1.5 0 0 1 3 0V11")
+    /** Web v352: dryni te tabi që s'lejohet */
+    val Dry = ikona("M7 11h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6a2 2 0 0 1 2 -2Z", "M8 11V7a4 4 0 0 1 8 0v4", trashesia = 2.4f)
     /** v346: Kushtet e përdorimit (fletë me rreshta) */
     val Kushtet = ikona("M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z", "M14 2v6h6M8 9h2M8 13h8M8 17h8")
     val Telefon = ikona("M8.5 2h7a2.5 2.5 0 0 1 2.5 2.5v15a2.5 2.5 0 0 1 -2.5 2.5h-7a2.5 2.5 0 0 1 -2.5 -2.5v-15a2.5 2.5 0 0 1 2.5 -2.5Z", "M11 18h2")
