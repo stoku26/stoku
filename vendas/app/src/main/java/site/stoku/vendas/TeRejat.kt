@@ -10,8 +10,8 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
-        Hyrja(112, "2026-11-21", "Shiriti poshtë", listOf(
-            "Shiriti poshtë është gjithmonë i njëjtë, me Ballinën në mes. Kur një pjesë s'të lejohet, butoni i saj duket i zbehur me dry dhe kur e prek del \"Nuk ke qasje në këtë shërbim.\""
+        Hyrja(113, "2026-11-22", "Shiriti poshtë", listOf(
+            "Shiriti poshtë është sërish si më parë."
         )),
         Hyrja(111, "2026-11-21", "Fshi llogarinë", listOf(
             "Llogarinë mund ta fshish vetë te Cilësimet → Llogaria → \"Fshi llogarinë\": shkruan fjalëkalimin dhe konfirmon.",

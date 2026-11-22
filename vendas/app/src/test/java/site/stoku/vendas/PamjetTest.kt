@@ -123,19 +123,6 @@ class PamjetTest {
         org.junit.Assert.assertEquals(site.stoku.vendas.ui.PjesetEBallines.TE_GJITHA.size, l.size)
     }
 
-    /** Web v352: pa "Malli" (leja stoku) shiriti mbetet me 5 vende, Malli i zbehur me dry; prekja → "Nuk ke qasje në këtë shërbim." */
-    @Test fun tabetNdaluara() {
-        mbush()
-        Llogaria.vendosLejetPerProve(mapOf("stoku" to false))
-        r.setContent { StokuTema("dark") { Rrenja("dark") {} } }
-        kliko("Afatet")
-        foto("dark-43-tabet-ndaluar")
-        kliko("Malli")
-        r.onNodeWithText("Nuk ke qasje në këtë shërbim.").assertExists()
-        fotoEkrani("dark-44-tabet-ndaluar-mesazhi")
-        Llogaria.vendosLejetPerProve(null)
-    }
-
     @Test fun eCelet() = krejt("light")
     @Test fun eErret() = krejt("dark")
 

@@ -21,8 +21,8 @@
   'use strict';
 
   var LISTA = [
-    { v: 352, versioni: '1.75.1', data: '2026-11-21', titulli: 'Shiriti poshtë', pikat: [
-      'Shiriti poshtë është gjithmonë i njëjtë, me Ballinën në mes. Kur një pjesë s\'të lejohet, butoni i saj duket i zbehur me dry dhe kur e prek del "Nuk ke qasje në këtë shërbim."'
+    { v: 353, versioni: '1.75.2', data: '2026-11-22', titulli: 'Shiriti poshtë', pikat: [
+      'Shiriti poshtë është sërish si më parë.'
     ], platforma: 'tel' },
     { v: 351, versioni: '1.75.0', data: '2026-11-21', titulli: 'Fshi llogarinë', pikat: [
       'Llogarinë mund ta fshish vetë te Cilësimet → Llogaria → "Fshi llogarinë": shkruan fjalëkalimin dhe konfirmon.',

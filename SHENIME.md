@@ -58,14 +58,10 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
-0000000. **v352 / Android Hyrja 112 (21.11.2026): TABET E NDALUARA MBETEN NË SHIRIT**. Pronari (foto: pa "Malli" Ballina s'ishte në mes):
-"Leje qysh osht te ni person qe i ka krejta te lejume. Veq te kta qka i ndalohet diqka me ja qit qe nuk ki akses ne ket sherbim". Shiriti
-poshtë ka gjithmonë 5 vendet (Malli, Afatet, Ballina, Grupi, Cilësimet); tabi që s'lejohet (leja stoku/afatet/grupi) zbehet (.38), merr
-dryn e vogël dhe prekja tregon toast-in "Nuk ke qasje në këtë shërbim." pa e hapur. KUJDES: kjo e ndryshon rregullën v231 ("çfarë s'lejohet
-zhduket krejt, pa mesazh") VETËM për tabet poshtë; butonat e tjerë me data-leja zhduken si më parë. Web: zbatoLejet() i kthen
-`.leja-ndaluar` te `#tabet .tab[data-leja]` në `.tab-ndaluar` (+ `.tab-dry`, aria-disabled), dëgjuesi në capture te `#tabet` ndal klikimin.
-Android: MainActivity `tabet` gjithmonë 5 + `ndaluar`, `Tabi(..., ndaluar)`, `Ik.Dry`; `Llogaria.vendosLejetPerProve` (vetëm PamjetTest
-`tabetNdaluara`: dark-43/44). Teste: v352.js (pw.meBallina = true), lejet-e2e-v231.js (`duket` = jo `.tab-ndaluar`). Pa testim në pajisje.
+0000000. **v353 / Android Hyrja 113 (22.11.2026): v352 U KTHYE MBRAPA**. Pronari: "A munesh me kthy te mas ndryshimin e fundit se spom
+pelqen". `git revert -m 1 868a546` (PR #339): tabet e ndaluara sërish zhduken si te v231 (pa dry, pa "Nuk ke qasje në këtë shërbim."),
+pastaj versionet v353 (CACHE, ?v=, versioni.js 1.75.2), që pajisjet ta marrin vetë. MOS E RIKTHE (shtuar te "Gjëra që përdoruesi i ka
+refuzuar"). Problemi fillestar mbetet: pa një tab (p.sh. Malli) Ballina s'është saktë në mes; pronari s'e ka zgjedhur ende zgjidhjen.
 
 0000000. **v351 / Android Hyrja 111 / Worker 176 (21.11.2026): GOOGLE PLAY + FSHIRJA E LLOGARISË NGA VETË PËRDORUESI**. Pronari: "A munesh me
 bo gati 100% stokun per playstore krejt qka duhet edhe me .aab file edhe llogarite mos harro qe aty duhet update me u bo prej playstore.
@@ -3801,6 +3797,7 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Çdo PR duhet përshkrim të plotë shqip: çka ndryshoi, si u testua, çfarë numrash versioni u prekën.
 
 ## Gjëra që përdoruesi i ka refuzuar/anuluar shprehimisht (mos i propozo/rikthe pa pyetur)
+- **v352 (22.11.2026): tabet e ndaluara poshtë si butona të zbehur me dry + "Nuk ke qasje në këtë shërbim."** (u kthye me v353: "spom pelqen").
 - **Butonat e shpejtë te Ballina (18.11.2026, v336 / Hyrja 97)**: Skano, Afat i ri, Skanim i shpejtë, PDF (web tel + Android), edhe si pjesë
   te "Përshtat faqen". Pronari: "hiqi qato mos i le as te opsionet e as te widgets nqosh ku o". Mos i rikthe.
 - **"Llogaritë e tjera" te Grupi (17.11.2026, v321)**: lista e administratorit me llogaritë jashtë grupit (Fto / Fshi) te "Cilësimet

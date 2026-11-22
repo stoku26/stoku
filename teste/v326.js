@@ -21,7 +21,7 @@ const paKom = t => t.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '');
   ok(iA > 0 && iK > iA && iG > iK, '3. Android: Ballina (ikona) në mes (pas Afatet, para Grupi)');
   ok(/BallinaButoni\(/.test(ma) && /BALLINA_MBI_SHIRIT/.test(ballina) && /fun BallinaButoni/.test(ballina), '3. Android: rrethi i shtëpisë pak mbi shiritin');
   ok(!/"stoku" ->|Triple\("stoku"|StokuEkrani|Ik\.Stoku\b/.test(ma) && fs.existsSync(RR + K + 'ui/MalliEkrani.kt') && !fs.existsSync(RR + K + 'ui/StokuEkrani.kt') &&
-    /Triple\("malli", "Malli", Ik\.Malli\)/.test(ma) && /!Llogaria\.leja\("stoku"\)\) "malli"/.test(ma) /* v352: tabi mbetet, vetëm i ndaluar */, '3. Android: "Stoku" → "Malli" (tabi, ekrani, ikona); leja mbetet "stoku"');
+    /Triple\("malli", "Malli", Ik\.Malli\)/.test(ma) && /leja\("stoku"\)\) Triple\("malli"/.test(ma), '3. Android: "Stoku" → "Malli" (tabi, ekrani, ikona); leja mbetet "stoku"');
   ok(/if \(k == "stoku"\) "malli"/.test(ma), '3. Android: njoftimet e vjetra me tabin "stoku" hapin Mallin');
   const pj = ['afatet', 'skadojne', 'grafiku', 'malli', 'furnizuesit', 'grupi', 'marketi', 'ora'];
   ok(pj.every(x => ballina.includes('Pjesa("' + x + '"')) && /"Përshtat faqen"/.test(ballina) && /"Si në fillim"/.test(ballina) && /detectDragGestures/.test(ballina) && /ballina_pjeset/.test(ballina),

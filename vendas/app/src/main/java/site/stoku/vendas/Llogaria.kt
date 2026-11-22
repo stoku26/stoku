@@ -89,8 +89,6 @@ object Llogaria {
         _perdoruesi.value = p; _gati.value = true; _merchandiser.value = merchandiser; _vizitor.value = vizitor
     }
 
-    /** Vetëm për PamjetTest (web v352: tabet e ndaluara) */
-    fun vendosLejetPerProve(l: Obj?) { _lejet.value = l }
     fun emailIBrendshem(emri: String) = emri.trim().lowercase() + "@stoku-app.local"
 
     fun nis(c: Context) {
