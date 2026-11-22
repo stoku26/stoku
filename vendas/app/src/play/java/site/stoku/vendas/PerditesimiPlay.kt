@@ -52,5 +52,5 @@ object PerditesimiPlay {
         }
     }
 
-    private fun toast(a: Activity, t: String) = a.runOnUiThread { Toast.makeText(a.applicationContext, t, Toast.LENGTH_SHORT).show() }
+    private fun toast(a: Activity, t: String) = a.runOnUiThread { Toast.makeText(a.applicationContext, site.stoku.vendas.ui.Gjuha.t(t), Toast.LENGTH_SHORT).show() }
 }

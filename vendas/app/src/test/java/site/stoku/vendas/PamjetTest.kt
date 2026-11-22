@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -142,6 +143,8 @@ class PamjetTest {
             org.junit.Assert.assertEquals("Expiry dates", site.stoku.vendas.ui.Gjuha.t("Afatet"))
             r.setContent { StokuTema("light") { Rrenja("light") {} } }
             fotoEkrani("light-44-en-ballina")
+            r.onAllNodesWithText("All")[0].assertExists() // web v356: "Krejt" te "Expiring first"
+            r.onAllNodesWithText("Krejt").assertCountEquals(0)
             kliko("Stock")
             foto("light-45-en-malli")
             kliko("Pije")

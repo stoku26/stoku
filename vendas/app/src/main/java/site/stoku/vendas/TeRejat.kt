@@ -10,6 +10,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(116, "2026-11-22", "Gjuha anglisht", listOf(
+            "Në anglisht janë përkthyer edhe tekstet që kishin mbetur shqip (p.sh. \"Krejt\", muajt, ditët e javës, emrat e ngjyrave)."
+        )),
         Hyrja(115, "2026-11-22", "Gjuha anglisht", listOf(
             "Stoku tani mund të përdoret edhe në anglisht: Cilësimet → Pamja → Gjuha → English. Zgjedhja ruhet në këtë telefon."
         )),

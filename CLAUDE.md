@@ -53,7 +53,7 @@ Përditësoje në të njëjtin PR me çdo ndryshim domethënës.
 - Pa emra ose identifikues modelesh të AI-së në commit, PR, kod ose skedarë.
 - Gjuha (v355, pronari: "me majt men mos e harro"): kodi shqip, pamja shqip + anglisht (web tel, PC, Android github + play). Çdo tekst
   i ri i pamjes duhet edhe anglisht te `perkthimi/en.json`, pastaj `python3 teste/perkthimi-gjenero.py`; `python3 teste/perkthimi-nxirr.py
-  krejt` duhet "0 pa përkthim". Android: `Text` nga `site.stoku.vendas.ui` (jo `androidx.compose.material3.Text`).
+  krejt` duhet "0 pa përkthim" (merr çdo varg me shkronja; ai që s'është tekst i pamjes shkon te "injoro"). Android: `Text` nga `site.stoku.vendas.ui` (jo `androidx.compose.material3.Text`).
 
 ## Çdo ndryshim në web
 1. `git fetch origin main && git checkout -B claude/qysh-funksionon-ilbmdw origin/main` (ose dega e bisedës).
