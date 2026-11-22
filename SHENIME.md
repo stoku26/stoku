@@ -58,6 +58,14 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    jo pjesë dhe jo tekst i kopjuar me dorë në chat. Shkaku: në chat u shkrua gabim 'lemma' në vend të 'lista' (/publike/furnizuesit).
    Edhe te CLAUDE.md.
 
+0000000. **v354 / Android Hyrja 114 (22.11.2026): TABI I NDALUAR LË VENDIN BOSH**. Pronari (foto: pa "Malli" tabet shtyheshin majtas):
+"Balancoj ... qaty ku jan me kon jo mu ndryshu ... Lej ku jan kur i kan tlejume krejta. E nese i ndaloj diqka veq qaj buton me i mungu".
+Shiriti poshtë ka gjithmonë 5 vende; tabi që s'lejohet s'duket (pa dry, pa mesazh: v352 u refuzua), vendi i tij mbetet bosh, të tjerët
+s'lëvizin (Ballina saktë në mes). Web: zbatoLejet() `.leja-ndaluar` → `.tab-bosh` (visibility hidden, pointer-events none, aria-hidden,
+tabIndex -1) te `#tabet .tab[data-leja]`. Android: MainActivity `TE_GJITHA_TABET` (5) → `Box(weight 1f)` bosh për tabin e ndaluar;
+`Llogaria.vendosLejetPerProve` + PamjetTest `tabetBosh` (dark-43-tabet-bosh). Teste: v354.js (vendet e njëjta për të gjitha lejet / pa Mallin
+/ pa Mallin e Afatet), lejet-e2e-v231.js (`duket` edhe me visibility). Pa testim në pajisje.
+
 0000000. **v353 / Android Hyrja 113 (22.11.2026): v352 U KTHYE MBRAPA**. Pronari: "A munesh me kthy te mas ndryshimin e fundit se spom
 pelqen". `git revert -m 1 868a546` (PR #339): tabet e ndaluara sërish zhduken si te v231 (pa dry, pa "Nuk ke qasje në këtë shërbim."),
 pastaj versionet v353 (CACHE, ?v=, versioni.js 1.75.2), që pajisjet ta marrin vetë. MOS E RIKTHE (shtuar te "Gjëra që përdoruesi i ka

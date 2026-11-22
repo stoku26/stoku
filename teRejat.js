@@ -21,6 +21,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 354, versioni: '1.75.3', data: '2026-11-22', titulli: 'Shiriti poshtë', pikat: [
+      'Butonat poshtë janë gjithmonë në të njëjtin vend, me Ballinën në mes. Kur një pjesë s\'të lejohet, mungon vetëm butoni i saj.'
+    ], platforma: 'tel' },
     { v: 353, versioni: '1.75.2', data: '2026-11-22', titulli: 'Shiriti poshtë', pikat: [
       'Shiriti poshtë është sërish si më parë.'
     ], platforma: 'tel' },
