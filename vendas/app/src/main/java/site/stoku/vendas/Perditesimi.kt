@@ -124,7 +124,7 @@ object Perditesimi {
         StokuApp.prefs(a).edit().putLong("perditesimi_koha", System.currentTimeMillis() - PUSHIMI_MS + 5 * 60_000L).apply()
     }
 
-    private fun toast(a: Activity, t: String) = a.runOnUiThread { Toast.makeText(a.applicationContext, t, Toast.LENGTH_SHORT).show() }
+    private fun toast(a: Activity, t: String) = a.runOnUiThread { Toast.makeText(a.applicationContext, site.stoku.vendas.ui.Gjuha.t(t), Toast.LENGTH_SHORT).show() }
 
     /** "Më vonë": faqja mbyllet; del sërish herën tjetër që hyn në aplikacion */
     fun mbyll() { if (gjendja.value?.faza != "shkarkim") gjendja.value = null }
@@ -186,7 +186,7 @@ object Perditesimi {
             // Herën e parë: Android kërkon lejen "Instalo aplikacione të panjohura" për Stoku-n
             apkNePritje = f
             StokuApp.prefs(a).edit().putString("perditesimi_apk", f.absolutePath).putInt("perditesimi_apk_n", n).apply()
-            Toast.makeText(a, "Lejo \"Instalo aplikacione\" për Stoku-n, pastaj kthehu mbrapa", Toast.LENGTH_LONG).show()
+            Toast.makeText(a, site.stoku.vendas.ui.Gjuha.t("Lejo \"Instalo aplikacione\" për Stoku-n, pastaj kthehu mbrapa"), Toast.LENGTH_LONG).show()
             try { a.startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + a.packageName))) }
             catch (e: Exception) { /* ok */ }
             return

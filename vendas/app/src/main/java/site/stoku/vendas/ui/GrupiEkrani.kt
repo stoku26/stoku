@@ -870,7 +870,8 @@ private fun Kalendari(ctx: Konteksti) {
                 ButonIkone(Ik.Perpara, "Muaji tjetër", { ndrysho(1) }, madhesia = 42.dp)
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                GrupiLogjika.DITET_SHKURT.forEach { Text(it, style = txF(11.5f, 700, n.muted), textAlign = TextAlign.Center, modifier = Modifier.weight(1f).padding(top = 2.dp, bottom = 4.dp)) }
+                // web v355: ditët e javës në anglisht merren këtu ("Mar"/"Sht" janë të paqarta për fjalorin)
+                (if (Gjuha.en) listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun") else GrupiLogjika.DITET_SHKURT).forEach { Text(it, style = txF(11.5f, 700, n.muted), textAlign = TextAlign.Center, modifier = Modifier.weight(1f).padding(top = 2.dp, bottom = 4.dp)) }
             }
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 k.qelizat.chunked(7).forEach { rr ->

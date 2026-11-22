@@ -21,7 +21,7 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
   është **shqip + anglisht** (pronari 22.11.2026: "A munesh gjuhen anglisht 100% ... jo ne kod po veq ne pamje ose ui edhe me majt men
   mos e harro"). RREGULL I PËRHERSHËM: çdo tekst i ri që shfaqet (web tel, PC, Android github + play) duhet të ketë edhe përkthimin
   anglisht te `perkthimi/en.json` (pastaj `python3 teste/perkthimi-gjenero.py`); `python3 teste/perkthimi-nxirr.py krejt` duhet të
-  japë "0 pa përkthim" (teste/v355.js e kontrollon). Ora dhe të tjerat: jo ende (pronari: "Ntjera jo niher kshyrmi ma von").
+  japë "0 pa përkthim" (teste/v355.js, v356.js). Vargjet që s'janë tekst i pamjes (kod, CSS, emra teknikë) shkojnë te "injoro". Ora dhe të tjerat: jo ende (pronari: "Ntjera jo niher kshyrmi ma von").
 - **Përdoruesi (pronari i repo-s) flet shqip (dialekti i Kosovës), joformal, shkurt.** Përgjigju gjithmonë
   shqip, në të njëjtin regjistër — jo shqipe letrare e ngurtë.
 
@@ -55,6 +55,15 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    Në fjali: presje, pikë, dy pika ose kllapa. Si ndarës: "·" (p.sh. "Sinkronizuar · 12:21") ose "•" (titulli
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
+
+0000000. **v356 / Android Hyrja 116 (22.11.2026): ANGLISHTJA, TEKSTET E HARRUARA**. Pronari (foto e Ballinës në Android në anglisht,
+   "Krejt" e rrethuar): "Perveq produkteve qe secili i emeron qysh te dojn, kshyr kunke harru fjale ose fjali pa i perkthy". Shkaku:
+   `perkthimi-nxirr.py` merrte vetëm vargjet me ë/ç ose me fjalë shqipe të njohura, prandaj fjalët e vetme si "Krejt", "Aktive", "Mbrapa",
+   muajt e shkurtër (DHJ...), emrat e ngjyrave (Mesnata...) mbetën pa përkthim. Tani filtri merr ÇDO varg me ≥ 2 shkronja (web +
+   Android main/github/play); çdo varg duhet ose te `fjalet` ose te `injoro` (kod, CSS, të dhëna shembull, emra teknikë). U shtuan
+   ~180 përkthime; ditët e javës së kalendarit (Hën Mar Mër...: "Mar"/"Sht" të paqarta) merren direkt në anglisht te app-tel.js,
+   app-pc.js, GrupiEkrani.kt; Toast-et e Perditesimi.kt dhe PerditesimiPlay.kt (versioni play) përkthehen. Testi `teste/v356.js`;
+   PamjetTest.anglisht: "All" del, "Krejt" jo.
 
 0000000. **v355 / Android Hyrja 115 (22.11.2026): GJUHA ANGLISHT NË PAMJE** (web tel, PC, Android github + play). Pronari: "A munesh
    gjuhen anglisht 100% me ja qit komplet web appit, jo ne kod po veq ne pamje ose ui edhe me majt men mos e harro ... Ne web pc mu kon,

@@ -21,6 +21,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 356, versioni: '1.76.1', data: '2026-11-22', titulli: 'Gjuha anglisht', pikat: [
+      'Në anglisht janë përkthyer edhe tekstet që kishin mbetur shqip (p.sh. "Krejt", muajt, ditët e javës, emrat e ngjyrave).'
+    ] },
     { v: 355, versioni: '1.76.0', data: '2026-11-22', titulli: 'Gjuha anglisht', pikat: [
       'Stoku tani mund të përdoret edhe në anglisht: Cilësimet → Pamja → Gjuha → English. Zgjedhja ruhet në këtë pajisje.'
     ] },

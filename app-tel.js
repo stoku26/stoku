@@ -7673,7 +7673,9 @@
     krye.appendChild(para); krye.appendChild(ekEl('b', null, k.titulli)); krye.appendChild(pas);
     c.appendChild(krye);
     var g = ekEl('div', 'ek-kal');
-    k.ditet.forEach(function (d) { g.appendChild(ekEl('div', 'ek-kal-emer', d)); });
+    // v355: "Mar"/"Sht" janë të paqarta për fjalorin (muaj/ditë), prandaj ditët e javës në anglisht merren këtu
+    var DITET_EN = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], en = window.StokuGjuha && window.StokuGjuha.eshteEn();
+    k.ditet.forEach(function (d, i) { g.appendChild(ekEl('div', 'ek-kal-emer', en ? DITET_EN[i] : d)); });
     k.qelizat.forEach(function (q) {
       if (!q) { g.appendChild(ekEl('div')); return; }
       var b = ekEl('button', 'ek-kal-dite' + (q.statusi ? ' ' + q.statusi : '') + (q.sot ? ' sot' : '') + (ekKal.dita === q.iso ? ' zgjedhur' : ''));

@@ -3,8 +3,9 @@
 Përdorimi: python3 teste/perkthimi-nxirr.py [web|android|krejt] -> lista JSON në dalje."""
 import re, json, sys, glob, os
 RR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
-# Teksti shqip: ë/ç ose fjalë shqipe të zakonshme (pa dallim shkronjash të mëdha/vogla)
-ALB = re.compile(r"(?i)[ëç]|\b(dhe|për|në|nga|të|një|ka|je|ke|ose|më|s'|te|e|i|si|jo|po|ku|sa|mund|duhet|ende|edhe|kjo|ky|tani|pas|para|deri|apo|nuk|sot|dje|nesër|afat\w*|mall\w*|grup\w*|folder\w*|produkt\w*|vizitor\w*|koleg\w*|market\w*|furnizues\w*|sasi\w*|barkod\w*|llogari\w*|fjalëkalim\w*|cilësim\w*|njoftim\w*|skad\w*|hiq\w*|fshi\w*|shto\w*|ruaj\w*|zgjidh\w*|kliko|prek|hap\w*|mbyll\w*|ditë\w*|muaj\w*|javë|ora|orën|copë|fletë\w*|kamer\w*|lej\w*|pajisje\w*|telefon\w*|kompjuter\w*|emr\w*|emri|përdorues\w*|kursor\w*|fush\w*|shembull\w*|prov\w*|hyr\w*|dil\w*|dalje|gabim\w*|kontroll\w*|provo|internet\w*|rifresko|sinkron\w*|zbrit|rrit|bashk\w*|kthe\w*|import\w*|eksport\w*|ndrysho\w*|pamj\w*|tem\w*|ngjyr\w*|shkronj\w*|madh\w*|vogël|normale|automatike|errët|çelët|letër|udhëzim\w*|Anulo|Kërko|Vazhdo|Prano|Refuzo|Fto|Skano|Kthehu|Ballina|Kolegët|Aktiviteti|Kalendari)\b")
+# v355 (pronari: "kshyr kunke harru fjale ose fjali pa i perkthy", p.sh. "Krejt"): çdo varg me të paktën 2 shkronja numërohet;
+# ai që s'është tekst i pamjes (CSS, kod, emra teknikë, të dhëna shembull) shtohet te "injoro" i perkthimi/en.json.
+ALB = re.compile(r"[A-Za-zËÇëç]{2}")
 # Jo tekst: klasat e CSS-it, shtigjet, çelësat
 JO = re.compile(r"^\s*([a-z][a-z0-9]*(-{1,2}[a-z0-9]+)+(\s+[a-z][a-z0-9-]*)*|/[\w/.-]*|[a-z]+[A-Z]\w*|[a-z0-9_]+)\s*$")
 WEB = ['index.html', 'pc.html', 'app-tel.js', 'app-pc.js', 'ekipa.js', 'porta.js', 'afatet.js', 'njoftimet.js', 'pajisjet.js', 'eksportet.js',
@@ -34,7 +35,8 @@ def mblidh(lloji):
                 # HTML brenda vargjeve të JS-it (innerHTML): vetëm tekstet dhe atributet e tij
                 for u in (html('>' + t + '<') if ('<' in t and '>' in t) else [t]): d.setdefault(u, set()).add(f)
     if lloji in ('android', 'krejt'):
-        for f in glob.glob(os.path.join(RR, 'vendas/app/src/main/java/site/stoku/vendas/**/*.kt'), recursive=True):
+        # main + versionet github/play (jo testet)
+        for f in [x for d in ('main', 'github', 'play') for x in glob.glob(os.path.join(RR, 'vendas/app/src', d, 'java/site/stoku/vendas/**/*.kt'), recursive=True)]:
             if f.endswith('TeRejat.kt'): continue
             s = pa_komente_js(open(f, encoding='utf-8').read())
             for t0 in re.findall(r'"((?:[^"\\\n]|\\.)*)"', s):
