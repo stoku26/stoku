@@ -10,6 +10,9 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(114, "2026-11-22", "Shiriti poshtë", listOf(
+            "Butonat poshtë janë gjithmonë në të njëjtin vend, me Ballinën në mes. Kur një pjesë s'të lejohet, mungon vetëm butoni i saj."
+        )),
         Hyrja(113, "2026-11-22", "Shiriti poshtë", listOf(
             "Shiriti poshtë është sërish si më parë."
         )),
