@@ -14,10 +14,38 @@
   var KEY = 'stoku:gjuha';
   var gjuha = 'sq';
   try { gjuha = localStorage.getItem(KEY) === 'en' ? 'en' : 'sq'; } catch (e) { /* ok */ }
-  var D = root.STOKU_FJALORI_EN || { fjalet: {}, modelet: [] };
-  var FJ = D.fjalet || {};
-  var MOD = (D.modelet || []).map(function (m) { try { return [new RegExp(m[0]), m[1]]; } catch (e) { return null; } }).filter(Boolean);
+  // Fjalori (perkthimi-en.js, 150 KB) ngarkohet vetëm kur gjuha është anglisht: document.write e fut menjëherë pas këtij skedari,
+  // para pjesës tjetër të faqes. Kur ndryshon perkthimi-en.js, rrite VERSIONI_FJALORIT këtu dhe te SHELL i sw.js.
+  var VERSIONI_FJALORIT = 355;
+  var FJ = {}, MOD = [], MODG = [], FRAG = null, MEMO = Object.create(null), gati = false;
+  function ngarko() {
+    if (gati) return; gati = true;
+    var D = root.STOKU_FJALORI_EN || { fjalet: {}, modelet: [] };
+    FJ = D.fjalet || {};
+    // Modelet me "^" përputhen me krejt tekstin; të tjerat zëvendësohen kudo brenda tekstit (pas copave), p.sh. "(\\d+) ditë"
+    (D.modelet || []).forEach(function (m) {
+      try {
+        if (m[0].charAt(0) === '^') MOD.push([new RegExp(m[0]), m[1]]);
+        else MODG.push([new RegExp(m[0], 'g'), m[1]]);
+      } catch (e) { /* model i gabuar: anashkalohet */ }
+    });
+    // Copat: tekstet e Stoku-t që ngjiten me emra/numra (p.sh. "S'ka ende afate te " + marketi) zëvendësohen brenda tekstit;
+    // vetëm ato me të paktën 8 shenja, më të gjatat të parat, që të mos preken fjalët e shkurtra të emrave të produkteve.
+    var k = Object.keys(FJ).filter(function (x) { return x.replace(/\s+/g, '').length >= 8; });
+    k.sort(function (a, b) { return b.length - a.length; });
+    if (k.length) FRAG = new RegExp(k.map(function (x) { return x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|'), 'g');
+  }
 
+  // "$1" = grupi siç është, "@1" = grupi i përkthyer
+  function zevendesuesi(shabllon) {
+    return function () {
+      var g = arguments;
+      return shabllon.replace(/([$@])(\d)/g, function (_, s, n) {
+        var v = g[+n]; if (v === undefined || typeof v !== 'string') return '';
+        return s === '@' ? perkthe(v) : v;
+      });
+    };
+  }
   function perktheBerthamen(t) {
     if (!t) return t;
     if (Object.prototype.hasOwnProperty.call(FJ, t)) return FJ[t];
@@ -37,6 +65,13 @@
   function perkthe(t) {
     if (gjuha !== 'en' || t == null) return t;
     var s = String(t);
+    if (!gati) ngarko();
+    var mm = MEMO[s]; if (mm !== undefined) return mm;
+    var r0 = perktheTekstin(s);
+    MEMO[s] = r0;
+    return r0;
+  }
+  function perktheTekstin(s) {
     var m = /^(\s*)([\s\S]*?)(\s*)$/.exec(s), mes = m[2];
     if (!mes) return s;
     var r = perktheBerthamen(mes);
@@ -49,6 +84,13 @@
       var rr = mes.split('\n'), nd2 = false;
       rr = rr.map(function (p) { var x = perktheBerthamen(p.trim()); if (x != null) { nd2 = true; return p.replace(p.trim(), x); } return p; });
       if (nd2) r = rr.join('\n');
+    }
+    if (r == null && (FRAG || MODG.length)) {
+      var x3 = FRAG ? mes.replace(FRAG, function (c) { return FJ[c]; }) : mes;
+      for (var i = 0; i < MODG.length; i++) {
+        x3 = x3.replace(MODG[i][0], zevendesuesi(MODG[i][1]));
+      }
+      if (x3 !== mes) r = x3;
     }
     return r == null ? s : m[1] + r + m[3];
   }
@@ -84,6 +126,9 @@
     while ((x = w.nextNode())) { if (x.nodeType === 3) tekst(x); else atribute(x); }
   }
 
+  if (gjuha === 'en' && root.document && !root.STOKU_FJALORI_EN && root.document.readyState === 'loading') {
+    root.document.write('<script src="perkthimi-en.js?v=' + VERSIONI_FJALORIT + '"><\/script>');
+  }
   if (gjuha === 'en' && root.document) {
     var doc = root.document;
     doc.documentElement.setAttribute('lang', 'en');

@@ -27,7 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
+import site.stoku.vendas.ui.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -98,6 +98,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        site.stoku.vendas.ui.Gjuha.nis(this) // web v355: gjuha e zgjedhur (edhe pas recreate())
         // web v349: hapje e re (jo rrotullim i ekranit): logoja e kokës bën sërish skanimin një herë
         if (savedInstanceState == null) site.stoku.vendas.ui.SkanimiILogos.harro()
         lexoTabin(intent)

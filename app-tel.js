@@ -465,7 +465,7 @@
     }
   } catch (e) { /* ok */ }
 
-  document.documentElement.lang = 'sq';
+  document.documentElement.lang = window.StokuGjuha ? window.StokuGjuha.gjuha() : 'sq';
 
   // ---------- Foldera ----------
   // ---------- Renditja e folderave me zvarritje (mbaje gishtin ~0.4s, pastaj lëvize) ----------
@@ -1024,7 +1024,14 @@
   });
   zbatoMadhesine();
 
-  // (gjuha u hoq — aplikacioni tani është vetëm shqip)
+  // ---------- Gjuha e pamjes (v355, perkthimi.js): Shqip / English; ndërrimi e rihap faqen ----------
+  (function () {
+    var G = window.StokuGjuha, gj = G ? G.gjuha() : 'sq';
+    Array.prototype.forEach.call(document.querySelectorAll('#segGjuha button'), function (b) {
+      b.classList.toggle('aktiv', b.getAttribute('data-v') === gj);
+      b.addEventListener('click', function () { if (G) G.vendos(b.getAttribute('data-v')); });
+    });
+  })();
 
   // Rendi i listës
   function emriKrahaso(a, b) {

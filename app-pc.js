@@ -3572,6 +3572,14 @@
       b.addEventListener('click', function () { ops[x[1]] = b.dataset.v; ruajOps(); zbatoPamjen(); rifreskoOpsionet(); if (x[1] === 'tema') ruajPamjenNeLlogari(); });
     });
   });
+  // v355: gjuha e pamjes (perkthimi.js): Shqip / English; ndërrimi e rihap faqen
+  (function () {
+    var G = window.StokuGjuha, gj = G ? G.gjuha() : 'sq';
+    Array.prototype.forEach.call(document.querySelectorAll('#opsGjuha button'), function (b) {
+      b.classList.toggle('aktiv', b.dataset.v === gj);
+      b.addEventListener('click', function () { if (G) G.vendos(b.dataset.v); });
+    });
+  })();
   $('opsRendi').addEventListener('change', function () {
     ops.rendi = $('opsRendi').value; ruajOps();
     var r = ops.rendi.split(':'); tab.rendiK = r[0]; tab.rendiD = parseInt(r[1], 10);

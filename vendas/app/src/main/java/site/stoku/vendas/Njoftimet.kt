@@ -21,8 +21,8 @@ object Njoftimet {
 
     fun krijoKanalin(ctx: Context) {
         if (Build.VERSION.SDK_INT < 26) return
-        val k = NotificationChannel(KANALI, "Njoftimet e Stoku-t", NotificationManager.IMPORTANCE_HIGH)
-        k.description = "Afatet që skadojnë dhe kërkesat e grupit"
+        val k = NotificationChannel(KANALI, site.stoku.vendas.ui.Gjuha.t("Njoftimet e Stoku-t"), NotificationManager.IMPORTANCE_HIGH)
+        k.description = site.stoku.vendas.ui.Gjuha.t("Afatet që skadojnë dhe kërkesat e grupit")
         k.enableVibration(true)
         ctx.getSystemService(NotificationManager::class.java)?.createNotificationChannel(k)
     }
@@ -61,9 +61,10 @@ object Njoftimet {
         val n = NotificationCompat.Builder(ctx, KANALI)
             .setSmallIcon(R.drawable.ic_njoftim)
             .setColor(site.stoku.vendas.ui.Logot.IKONA_AC.toInt()) // Hyrja 76: e gjelbra e pikës së logos
-            .setContentTitle(titulli.ifBlank { "Stoku" })
-            .setContentText(teksti)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(teksti))
+            // web v355: në anglisht edhe njoftimet (teksti vjen shqip nga serveri; përkthehet me fjalorin)
+            .setContentTitle(site.stoku.vendas.ui.Gjuha.t(titulli.ifBlank { "Stoku" }))
+            .setContentText(site.stoku.vendas.ui.Gjuha.t(teksti))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(site.stoku.vendas.ui.Gjuha.t(teksti)))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .setContentIntent(pi)
