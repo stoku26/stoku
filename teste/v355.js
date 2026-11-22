@@ -46,6 +46,7 @@ async function faqe(b, pc) {
   return { p, ctx };
 }
 // Klikon një nga një butonat e dukshëm të një faqeje (pa ata që fshijnë, dalin ose ndërrojnë gjuhën) dhe mbledh tekstet e dritareve
+const TE_KLIKUARIT = new Set();
 async function butonat(p, emri, nav, shembull, shto, max) {
   const indekso = () => p.evaluate(() => {
     const PA = /sign out|delete|remove|leave|clear|reset|restart|disconnect|log ?out|Shqip|English|install|download|share|print|camera|scan|photo|gallery|excel|pdf|export|import/i;
@@ -55,15 +56,19 @@ async function butonat(p, emri, nav, shembull, shto, max) {
       const t = (b.textContent + ' ' + (b.getAttribute('aria-label') || '') + ' ' + (b.title || '')).trim();
       return !PA.test(t) && !PA.test(b.id || '');
     });
-    l.forEach((b, i) => b.setAttribute('data-zv', i));
+    l.forEach((b, i) => { b.setAttribute('data-zv', i); b.setAttribute('data-zv-sh', (b.id || '') + '|' + b.className + '|' + (b.textContent || '').trim().slice(0, 40) + '|' + (b.getAttribute('aria-label') || '')); });
     return l.length;
   });
   await nav(); let n = Math.min(await indekso(), max || 30);
+  const shenjat = await p.evaluate(() => [...document.querySelectorAll('[data-zv]')].map(b => b.getAttribute('data-zv-sh')));
   for (let i = 0; i < n; i++) {
-    await p.reload(); await p.waitForTimeout(900); await nav(); await indekso();
+    // i njëjti buton (p.sh. shiriti poshtë, koka) klikohet vetëm një herë në krejt testin
+    if (TE_KLIKUARIT.has(shenjat[i])) continue;
+    TE_KLIKUARIT.add(shenjat[i]);
+    await p.reload(); await p.waitForTimeout(700); await nav(); await indekso();
     try {
       await p.evaluate(i => { const b = document.querySelector('[data-zv="' + i + '"]'); if (b) b.click(); }, i);
-      await p.waitForTimeout(500);
+      await p.waitForTimeout(400);
       shto(emri + ' #' + i, await mbledh(p, shembull));
     } catch (e) { /* faqja u rihap: vazhdo */ }
   }

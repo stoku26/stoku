@@ -72,7 +72,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      `node teste/perkthimi-fikstura.js` duhet të japë saktë si web-i) + `ui/Gjuha.kt`: mbështjellësi `Text(...)` (në vend të
      material3.Text, në krejt skedarët) + njoftimet e sistemit. Kur shtohet `import androidx.compose.material3.Text`, teksti s'përkthehet.
    - S'përkthehen ende: PDF/Excel/foto e eksportit (dokumente), "Çfarë ka të re", njoftimet push te shfletuesi, ora.
-   - Testi: `teste/v355.js` (zgjedhja, ruajtja, zvarritësi i faqeve dhe dritareve në anglisht si vizitor).
+   - Testi: `teste/v355.js` (zgjedhja, ruajtja, zvarritësi i faqeve dhe dritareve në anglisht si vizitor; çdo buton klikohet
+     një herë, rreth 5 min, nën kufirin 420 s të regresionit). Regresioni v355: krejt 0 gabime (si v354); CI Stoku APK në rregull,
+     me PamjetTest.anglisht (pamjet light-44..47-en).
 
 0000000. **Rregull i përhershëm (17.11.2026)**: pronari: "Qoma gjithmon fajlin per firebase hi aty e mar". Kur ndryshojnë rregullat
    e Firestore, i dërgohet GJITHMONË skedari me krejt rregullat (`node teste/emu/rregullat.js`, nga blloku "## Rregullat e Firestore"),
