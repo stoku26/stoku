@@ -130,6 +130,13 @@ const klik = async (p, sel) => { try { await p.evaluate(s => { const e = documen
   const l = Object.keys(mbetur);
   fs.writeFileSync(__dirname + '/r5-v355-mbetur.txt', l.map(t => t + '\t' + [...mbetur[t]].join(', ')).join('\n'));
   ok(l.length === 0, '3. asnjë tekst shqip i mbetur në pamjet e hapura (anglisht)', l.length + ' (lista: teste/r5-v355-mbetur.txt)');
+  // Rregulla e përhershme: çdo tekst i pamjes ka përkthim (web + Android)
+  const nx = require('child_process').spawnSync('python3', [__dirname + '/perkthimi-nxirr.py', 'krejt'], { encoding: 'utf8' });
+  const pa = JSON.parse(nx.stdout || '[]');
+  ok(pa.length === 0, '4. çdo tekst i pamjes (web + Android) ka anglisht te perkthimi/en.json', pa.slice(0, 10));
+  const fj = fs.readFileSync(__dirname + '/../perkthimi-en.js', 'utf8'), en = JSON.parse(fs.readFileSync(__dirname + '/../perkthimi/en.json', 'utf8'));
+  ok(fj.indexOf(JSON.stringify(en.fjalet).slice(0, 200)) !== -1 && JSON.parse(fs.readFileSync(__dirname + '/../vendas/app/src/main/assets/en.json', 'utf8')).modelet.length === en.modelet.length,
+    '4a. perkthimi-en.js dhe assets/en.json të gjeneruara nga en.json (python3 teste/perkthimi-gjenero.py)');
   console.log(g ? 'GABIME: ' + g : 'KREJT OK');
   process.exit(g ? 1 : 0);
 })();

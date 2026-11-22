@@ -17,8 +17,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
 
 - **Faqja e vërtetë:** https://stoku.site (GitHub Pages, degë `main`, skedari `CNAME`)
 - **Repo:** stoku26/stoku
-- **Gjuha:** vetëm shqip, edhe në UI edhe në kod (komente, emra ndryshoresh/funksionesh). Mos e ndrysho
-  këtë — as identifikuesit teknikë s'janë në anglisht, është vendim i qëllimshëm.
+- **Gjuha:** kodi vetëm shqip (komente, emra ndryshoresh/funksionesh, identifikues): vendim i qëllimshëm. Pamja (UI) që nga v355
+  është **shqip + anglisht** (pronari 22.11.2026: "A munesh gjuhen anglisht 100% ... jo ne kod po veq ne pamje ose ui edhe me majt men
+  mos e harro"). RREGULL I PËRHERSHËM: çdo tekst i ri që shfaqet (web tel, PC, Android github + play) duhet të ketë edhe përkthimin
+  anglisht te `perkthimi/en.json` (pastaj `python3 teste/perkthimi-gjenero.py`); `python3 teste/perkthimi-nxirr.py krejt` duhet të
+  japë "0 pa përkthim" (teste/v355.js e kontrollon). Ora dhe të tjerat: jo ende (pronari: "Ntjera jo niher kshyrmi ma von").
 - **Përdoruesi (pronari i repo-s) flet shqip (dialekti i Kosovës), joformal, shkurt.** Përgjigju gjithmonë
   shqip, në të njëjtin regjistër — jo shqipe letrare e ngurtë.
 
@@ -52,6 +55,24 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    Në fjali: presje, pikë, dy pika ose kllapa. Si ndarës: "·" (p.sh. "Sinkronizuar · 12:21") ose "•" (titulli
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
+
+0000000. **v355 / Android Hyrja 115 (22.11.2026): GJUHA ANGLISHT NË PAMJE** (web tel, PC, Android github + play). Pronari: "A munesh
+   gjuhen anglisht 100% me ja qit komplet web appit, jo ne kod po veq ne pamje ose ui edhe me majt men mos e harro ... Ne web pc mu kon,
+   edhe android app, edhe android app qe o per playstore. Ntjera jo niher". Cilësimet → Pamja → **Gjuha**: Shqip / English (ruhet në
+   pajisje: `stoku:gjuha` te web-i, pref `gjuha` te Android-i; ndërrimi e rihap faqen/ekranin).
+   - Fjalori i përbashkët `perkthimi/en.json`: `fjalet` (tekst shqip → anglisht), `modelet` (shprehje me numra/data/muaj; "^" = krejt
+     teksti, pa "^" = kudo brenda tekstit; `$1` grupi siç është, `@1` grupi i përkthyer), `injoro` (vargje që s'janë tekst i pamjes).
+     `python3 teste/perkthimi-gjenero.py` shkruan `perkthimi-en.js` (web) dhe `vendas/app/src/main/assets/en.json` (Android): mos i
+     ndrysho me dorë. `python3 teste/perkthimi-nxirr.py krejt` gjen tekstet pa përkthim (duhet 0).
+   - Web: `perkthimi.js` (në head, pas `vjeter.js`): MutationObserver që përkthen tekstet + placeholder/title/aria-label/alt; fjalori
+     (150 KB) ngarkohet vetëm në anglisht (document.write; `VERSIONI_FJALORIT` = `?v=` te SHELL i sw.js). Rradha: teksti i plotë →
+     modelet "^" → pjesët " · " → rreshtat → copat (tekstet ≥ 8 shenja brenda tekstit) + modelet kudo. `data-pa-perkthim` = mos e
+     përkthe. Të dhënat e përdoruesit (emrat e produkteve, folderave) s'preken, përveç kur janë saktë një tekst i Stoku-t.
+   - Android: `site.stoku.logjika.Perkthyesi` (Perkthimi.kt, binjaku i perkthimi.js; PerkthimiTest me 7110 raste nga
+     `node teste/perkthimi-fikstura.js` duhet të japë saktë si web-i) + `ui/Gjuha.kt`: mbështjellësi `Text(...)` (në vend të
+     material3.Text, në krejt skedarët) + njoftimet e sistemit. Kur shtohet `import androidx.compose.material3.Text`, teksti s'përkthehet.
+   - S'përkthehen ende: PDF/Excel/foto e eksportit (dokumente), "Çfarë ka të re", njoftimet push te shfletuesi, ora.
+   - Testi: `teste/v355.js` (zgjedhja, ruajtja, zvarritësi i faqeve dhe dritareve në anglisht si vizitor).
 
 0000000. **Rregull i përhershëm (17.11.2026)**: pronari: "Qoma gjithmon fajlin per firebase hi aty e mar". Kur ndryshojnë rregullat
    e Firestore, i dërgohet GJITHMONË skedari me krejt rregullat (`node teste/emu/rregullat.js`, nga blloku "## Rregullat e Firestore"),

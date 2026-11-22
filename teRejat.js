@@ -21,6 +21,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 355, versioni: '1.76.0', data: '2026-11-22', titulli: 'Gjuha anglisht', pikat: [
+      'Stoku tani mund të përdoret edhe në anglisht: Cilësimet → Pamja → Gjuha → English. Zgjedhja ruhet në këtë pajisje.'
+    ] },
     { v: 354, versioni: '1.75.3', data: '2026-11-22', titulli: 'Shiriti poshtë', pikat: [
       'Butonat poshtë janë gjithmonë në të njëjtin vend, me Ballinën në mes. Kur një pjesë s\'të lejohet, mungon vetëm butoni i saj.'
     ], platforma: 'tel' },
