@@ -2170,6 +2170,14 @@
  },
  "modelet": [
   [
+   "^Lëvize (.+)$",
+   "Move @1"
+  ],
+  [
+   "^(\\d+)–(\\d+) nga (\\d+)$",
+   "$1–$2 of $3"
+  ],
+  [
    "^Në rregull, skadon për 1 ditë\\.$",
    "OK, expires in 1 day."
   ],

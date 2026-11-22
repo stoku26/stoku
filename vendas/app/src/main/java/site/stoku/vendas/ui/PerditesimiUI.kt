@@ -85,7 +85,7 @@ fun PerditesimiFaqja() {
                             Box(Modifier.size(22.dp).clip(RoundedCornerShape(7.dp)).background(n.okTint), contentAlignment = Alignment.Center) {
                                 Icon(Ik.Kontroll, null, Modifier.size(14.dp), tint = n.ok)
                             }
-                            Text(t, style = txR(14f, 400, n.ink2, 1.35f), modifier = Modifier.weight(1f))
+                            androidx.compose.material3.Text(t, style = txR(14f, 400, n.ink2, 1.35f), modifier = Modifier.weight(1f))
                         }
                     }
                 }
