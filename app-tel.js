@@ -2935,6 +2935,15 @@
     Array.prototype.forEach.call(document.querySelectorAll('[data-leja]'), function (el) {
       el.classList.toggle('leja-ndaluar', !leja(el.getAttribute('data-leja')));
     });
+    // v354 (pronari: "Lej ku jan kur i kan tlejume krejta. E nese i ndaloj diqka veq qaj buton me i mungu"): tabi poshtë që s'lejohet
+    // s'duket, por vendi i tij mbetet bosh, që të tjerët (Ballina në mes) të mos lëvizin. Pa mesazh (v352 u refuzua).
+    Array.prototype.forEach.call(document.querySelectorAll('#tabet .tab[data-leja]'), function (el) {
+      var nd = el.classList.contains('leja-ndaluar');
+      el.classList.remove('leja-ndaluar');
+      el.classList.toggle('tab-bosh', nd);
+      if (nd) el.setAttribute('aria-hidden', 'true'); else el.removeAttribute('aria-hidden');
+      el.tabIndex = nd ? -1 : 0;
+    });
     // v277: "Eksporto" (menuja Excel / PDF / foto) s'ka kuptim pa eksportet; pa "Importo" dhe pa "Eksporto" fshihet edhe rreshti
     var xl = $('afExcel') && $('afExcel').parentNode;
     if (xl) {

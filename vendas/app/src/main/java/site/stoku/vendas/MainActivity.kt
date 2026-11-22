@@ -206,6 +206,7 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
 
     // Ballina (shtëpia) është gjithmonë në mes të shiritit dhe hapet i pari; tabi "Malli" (dikur "Stoku") ka ende lejen "stoku"
     // (çelësi i lejes ruhet te llogaritë dhe te web-i, prandaj s'ndryshohet)
+    val TE_GJITHA_TABET = listOf("malli", "afatet", BALLINA, "grupi", "cilesimet")
     val tabet = listOfNotNull(
         if (Llogaria.leja("stoku")) Triple("malli", "Malli", Ik.Malli) else null,
         if (Llogaria.leja("afatet")) Triple("afatet", "Afatet", Ik.Afatet) else null,
@@ -251,7 +252,12 @@ internal fun Rrenja(tema: String, ndryshoTemen: (String) -> Unit) {
                 val nAf = remember(g, aktiviM, lejet, merch, sot) { Afatet.numero(Merchandiseri.afatetEMarketit(g.afatet)) }
                 val nGr = remember(njGr, ftGr, krGr, ngjGr, gjGr, vizitor) { if (vizitor && p == null) 0 else Grupi.numriNjoftimeve() + Grupi.numriKerkesave() } // si te web-i: zilja + ftesat/kërkesat (vizitori: asnjë)
                 Row(Modifier.fillMaxSize()) {
-                    tabet.forEach { (k, t, ik) ->
+                    // Web v354 (pronari: "Lej ku jan kur i kan tlejume krejta. E nese i ndaloj diqka veq qaj buton me i mungu"): 5 vendet
+                    // mbeten gjithmonë; tabi që s'lejohet mungon, por vendi i tij mbetet bosh (të tjerët s'lëvizin, Ballina në mes)
+                    TE_GJITHA_TABET.forEach { k0 ->
+                        val x = tabet.firstOrNull { it.first == k0 }
+                        if (x == null) { Box(Modifier.weight(1f).fillMaxSize()); return@forEach }
+                        val (k, t, ik) = x
                         // Ballina: vetëm vendi bosh në mes; butoni i rrumbullakët vizatohet mbi shirit (BallinaButoni)
                         if (k == BALLINA) { Box(Modifier.weight(1f).fillMaxSize()); return@forEach }
                         val nr = when (k) { "afatet" -> nAf.skaduar + nAf.afer + nAf.paDate; "grupi" -> nGr; else -> 0 }

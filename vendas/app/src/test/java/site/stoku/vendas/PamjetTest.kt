@@ -123,6 +123,16 @@ class PamjetTest {
         org.junit.Assert.assertEquals(site.stoku.vendas.ui.PjesetEBallines.TE_GJITHA.size, l.size)
     }
 
+    /** Web v354: pa "Malli" vendi i tij mbetet bosh; Afatet, Ballina, Grupi, Cilësimet s'lëvizin */
+    @Test fun tabetBosh() {
+        mbush()
+        Llogaria.vendosLejetPerProve(mapOf("stoku" to false))
+        r.setContent { StokuTema("dark") { Rrenja("dark") {} } }
+        kliko("Grupi")
+        foto("dark-43-tabet-bosh")
+        Llogaria.vendosLejetPerProve(null)
+    }
+
     @Test fun eCelet() = krejt("light")
     @Test fun eErret() = krejt("dark")
 

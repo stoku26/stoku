@@ -596,6 +596,9 @@
   }
   #tabet .tab.aktiv .tab-ikona { background: color-mix(in srgb, var(--btn-tekst) 18%, transparent); }
   #tabet .tab:active .tab-ikona { background: var(--hover); }
+  /* v354 (pronari: "qaty ku jan me kon ... E nese i ndaloj diqka veq qaj buton me i mungu"): tabi që s'lejohet s'duket, por e mban
+     vendin e vet; të tjerët s'lëvizin (si te kush i ka të gjitha lejet) */
+  #tabet .tab.tab-bosh { display: flex !important; visibility: hidden; pointer-events: none; }
   #tabet svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   #tabet .af-shenje {
     position: absolute; top: -5px; right: 7px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
