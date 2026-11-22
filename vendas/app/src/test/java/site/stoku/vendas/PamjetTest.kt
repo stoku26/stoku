@@ -133,6 +133,30 @@ class PamjetTest {
         Llogaria.vendosLejetPerProve(null)
     }
 
+    /** Web v355: gjuha anglisht (Cilësimet → Pamja → Gjuha): tabet dhe faqet në anglisht, të dhënat e përdoruesit si janë */
+    @Test fun anglisht() {
+        mbush()
+        StokuApp.prefs(StokuApp.app).edit().putString("gjuha", "en").commit()
+        site.stoku.vendas.ui.Gjuha.nis(StokuApp.app)
+        try {
+            org.junit.Assert.assertEquals("Expiry dates", site.stoku.vendas.ui.Gjuha.t("Afatet"))
+            r.setContent { StokuTema("light") { Rrenja("light") {} } }
+            fotoEkrani("light-44-en-ballina")
+            kliko("Stock")
+            foto("light-45-en-malli")
+            kliko("Pije")
+            r.onAllNodesWithText("Ujë Rugove 1.5L")[0].assertExists()
+            r.onNodeWithContentDescription("Foldera").performClick(); r.waitForIdle()
+            kliko("Expiry dates")
+            foto("light-46-en-afatet")
+            kliko("Settings")
+            foto("light-47-en-cilesimet")
+        } finally {
+            StokuApp.prefs(StokuApp.app).edit().putString("gjuha", "sq").commit()
+            site.stoku.vendas.ui.Gjuha.nis(StokuApp.app)
+        }
+    }
+
     @Test fun eCelet() = krejt("light")
     @Test fun eErret() = krejt("dark")
 

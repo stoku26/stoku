@@ -18,6 +18,7 @@ class StokuApp : Application() {
         super.onCreate()
         KohaKosoves.nis(this) // v282: ora e Kosovës për krejt aplikacionin
         app = this
+        site.stoku.vendas.ui.Gjuha.nis(this) // web v355: gjuha e pamjes (Shqip / English)
         ruajRrezimet()
         nisFirebase(this)
         Njoftimet.krijoKanalin(this)

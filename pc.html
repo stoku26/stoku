@@ -11,6 +11,7 @@
 <style id="paKornize">html{display:none!important}</style>
 <script src="kornize.js?v=238"></script>
 <script src="vjeter.js?v=1"></script>
+<script src="perkthimi.js?v=355"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stoku • Kompjuter</title>
 <link rel="manifest" href="manifest.webmanifest?v=90">
@@ -1676,7 +1677,7 @@
       <div><h2 id="trTitulli">Çfarë ka të re</h2><div class="tr-nen" id="trNen"></div></div>
       <button class="btn-ikone" type="button" data-mbyll aria-label="Mbyll">✕</button>
     </div>
-    <div class="dialog-trup tr-lista" id="trLista"></div>
+    <div class="dialog-trup tr-lista" id="trLista" data-pa-perkthim></div>
     <div class="dialog-fund"><span class="hapesire"></span><button class="btn" type="button" id="trMbyll" data-mbyll>Në rregull</button></div>
   </div>
 </div>
@@ -1934,6 +1935,14 @@
               <button type="button" data-v="e_madhe"><span class="ops-aa ops-aa--madh">Aa</span><span class="ops-zgj-emri">E madhe</span></button>
             </div>
           </div>
+          <!-- v355 (pronari): gjuha e pamjes, Shqip / English (perkthimi.js); emrat e gjuhëve s'përkthehen -->
+          <div class="ops-karta">
+            <div class="ops-karta-krye"><div class="ops-titull">Gjuha</div><p class="ops-hint">Gjuha e aplikacionit në këtë pajisje.</p></div>
+            <div class="ops-zgjedhje ops-zgjedhje--2" id="opsGjuha" data-pa-perkthim>
+              <button type="button" data-v="sq"><span class="ops-aa">SQ</span><span class="ops-zgj-emri">Shqip</span></button>
+              <button type="button" data-v="en"><span class="ops-aa">EN</span><span class="ops-zgj-emri">English</span></button>
+            </div>
+          </div>
         </div>
 
         <div class="opsione-faqe" data-faqe="stoku">
@@ -2126,9 +2135,9 @@
 <script src="harta.js?v=281"></script>
 <script src="ekipa.js?v=351"></script>
 <script src="temat.js?v=2"></script>
-<script src="versioni.js?v=354"></script>
-<script src="teRejat.js?v=354"></script>
-<script src="app-pc.js?v=351"></script>
+<script src="versioni.js?v=355"></script>
+<script src="teRejat.js?v=355"></script>
+<script src="app-pc.js?v=355"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
 

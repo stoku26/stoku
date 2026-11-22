@@ -2,5 +2,7 @@
 plugins { id("org.jetbrains.kotlin.jvm") }
 java { toolchain { languageVersion.set(JavaLanguageVersion.of(17)) } }
 kotlin { jvmToolchain(17) }
+// v355: fjalori i përkthimit (perkthimi/en.json) për PerkthimiTest
+sourceSets { test { resources.srcDir("../../perkthimi") } }
 dependencies { testImplementation("junit:junit:4.13.2") }
 tasks.test { testLogging { events("failed"); exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL } }

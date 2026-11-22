@@ -27,7 +27,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -308,6 +307,19 @@ private fun Pamja(tema: String, ndryshoTemen: (String) -> Unit) {
             }
         }
         Text("Rrit pak madhësinë e gjithë tekstit dhe butonave, për lexueshmëri më të lehtë.", style = txR(12.5f, 400, n.muted), modifier = Modifier.padding(top = 12.dp))
+    }
+    // web v355 (pronari): gjuha e pamjes, Shqip / English (Gjuha.kt); emrat e gjuhëve s'përkthehen; ndërrimi e rihap ekranin
+    val ctx = LocalContext.current
+    KartaOps {
+        Text("Gjuha", style = tx(15, 700, n.ink, -0.005), modifier = Modifier.padding(bottom = 12.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            listOf("sq" to "Shqip", "en" to "English").forEach { (k, t) ->
+                ZgjedhjaEPamjes(t, (if (Gjuha.en) "en" else "sq") == k, Modifier.weight(1f), { (ctx as? Activity)?.let { Gjuha.vendos(it, k) } }) {
+                    Box(Modifier.height(52.dp), contentAlignment = Alignment.Center) { Text(k.uppercase(), style = tx(20, 700, n.ink, -0.02)) }
+                }
+            }
+        }
+        Text("Gjuha e aplikacionit në këtë pajisje.", style = txR(12.5f, 400, n.muted), modifier = Modifier.padding(top = 12.dp))
     }
 }
 
@@ -755,13 +767,13 @@ fun TeRejatFlete(lista: List<TeRejat.Hyrja>, ngaCilesimet: Boolean = false, mbyl
             lista.forEachIndexed { i, h ->
                 if (i > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
                 Column(Modifier.padding(top = if (i == 0) 2.dp else 12.dp, bottom = 8.dp)) {
-                    Text(h.titulli, style = txF(15.5f, 700, n.ink))
+                    androidx.compose.material3.Text(h.titulli, style = txF(15.5f, 700, n.ink))
                     Text(dataEPlote(h.data), style = tx(12, 400, n.muted), modifier = Modifier.padding(top = 2.dp, bottom = 8.dp))
                     h.pikat.forEach { p ->
                         Row(Modifier.padding(vertical = 4.dp)) {
                             Box(Modifier.padding(start = 4.dp, top = 7.dp).size(8.dp).clip(CircleShape).background(n.accent))
                             Spacer(Modifier.width(12.dp))
-                            Text(p, style = txR(14.5f, 400, n.ink2))
+                            androidx.compose.material3.Text(p, style = txR(14.5f, 400, n.ink2))
                         }
                     }
                 }
