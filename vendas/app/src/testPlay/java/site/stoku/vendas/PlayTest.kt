@@ -26,7 +26,7 @@ import site.stoku.vendas.ui.StokuTema
 import java.time.LocalDate
 
 /**
- * Pronari (24.11.2026): versioni i Play-it = paketa "com.stoku.app", nis në anglisht, asnjë tekst shqip në ekrane.
+ * Pronari (24.11.2026): versioni i Play-it = paketa "app.stoku.android", nis në anglisht, asnjë tekst shqip në ekrane.
  * Vetëm për versionin play: gradle :app:testPlayDebugUnitTest --tests site.stoku.vendas.PlayTest
  */
 @RunWith(RobolectricTestRunner::class)
@@ -74,14 +74,14 @@ class PlayTest {
     }
 
     @Test fun paketaDheAnglishtja() {
-        assertEquals("com.stoku.app", BuildConfig.APPLICATION_ID)
+        assertEquals("app.stoku.android", BuildConfig.APPLICATION_ID)
         assertTrue(BuildConfig.PLAY)
         // telefon i ri: pa zgjedhje të ruajtur → anglisht
         StokuApp.prefs(StokuApp.app).edit().clear().commit()
         Gjuha.nis(StokuApp.app)
         assertTrue("versioni play nis në anglisht", Gjuha.en)
         assertEquals("All", Gjuha.t("Krejt"))
-        assertEquals("com.stoku.app.skedaret", StokuApp.app.packageName + ".skedaret")
+        assertEquals("app.stoku.android.skedaret", StokuApp.app.packageName + ".skedaret")
 
         mbush()
         r.setContent { StokuTema("light") { Rrenja("light") {} } }

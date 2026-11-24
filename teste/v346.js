@@ -16,7 +16,7 @@ const UA_PC = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHT
   const K = 'vendas/app/src/main/java/site/stoku/vendas/';
   const c = lx(K + 'ui/CilesimetEkrani.kt');
   const iP = c.indexOf('"Privatësia"'), iK = c.indexOf('"Kushtet e përdorimit"');
-  ok(iP > 0 && iK > iP && iK - iP < 400 && /https:\/\/stoku\.site\/kushtet\.html/.test(c) && /val Kushtet = ikona\(/.test(lx(K + 'ui/Ikonat.kt')), '0d. Android: "Kushtet e përdorimit" menjëherë pas Privatësisë');
+  ok(iP > 0 && iK > iP && iK - iP < 600 && /https:\/\/stoku\.site\/kushtet\.html/.test(c) && /https:\/\/stoku\.site\/terms\.html/.test(c) && /val Kushtet = ikona\(/.test(lx(K + 'ui/Ikonat.kt')), '0d. Android: "Kushtet e përdorimit" menjëherë pas Privatësisë');
   ok(+/v: (\d+)/.exec(lx('versioni.js'))[1] >= 346 && /Hyrja\(104,/.test(lx(K + 'TeRejat.kt')), '0e. versionet');
   const b = await chromium.launch();
   // 1. faqja, e çelët dhe e errët

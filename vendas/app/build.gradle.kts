@@ -44,9 +44,9 @@ android {
     flavorDimensions += "shperndarja"
     productFlavors {
         create("github") { dimension = "shperndarja"; isDefault = true; buildConfigField("boolean", "PLAY", "false") }
-        // Pronari (24.11.2026): versioni i Play-it ka paketën "com.stoku.app" (aplikacion më vete në telefon); versioni github mbetet
+        // Pronari (24.11.2026): versioni i Play-it ka paketën "app.stoku.android" (aplikacion më vete në telefon); versioni github mbetet
         // "site.stoku.vendas". Kodi (namespace, klasat) s'ndryshon; çdo vend që do paketën e merr nga packageName / ${applicationId}.
-        create("play") { dimension = "shperndarja"; applicationId = "com.stoku.app"; buildConfigField("boolean", "PLAY", "true") }
+        create("play") { dimension = "shperndarja"; applicationId = "app.stoku.android"; buildConfigField("boolean", "PLAY", "true") }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

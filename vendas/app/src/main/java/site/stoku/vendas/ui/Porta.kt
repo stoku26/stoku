@@ -210,7 +210,7 @@ fun KutiaEKushteve(v: Boolean, ndrysho: (Boolean) -> Unit) {
         }
         Text("Kushtet e përdorimit", style = tx(14, 700, n.ink2).copy(textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline),
             modifier = Modifier.clickable {
-                try { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://stoku.site/kushtet.html"))) } catch (e: Exception) { }
+                try { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(if (Gjuha.en) "https://stoku.site/terms.html" else "https://stoku.site/kushtet.html"))) } catch (e: Exception) { }
             })
     }
 }

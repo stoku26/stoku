@@ -7111,9 +7111,9 @@
   // ================= v318 (pronari: "fshi 100% cfare ka te re"): pa "Çfarë ka të re" =================
   try { localStorage.removeItem('stoku:te-rejat:pare'); } catch (e) { /* ok */ }
   // v237: politika e privatësisë (faqe më vete, në dritare të re)
-  $('opsPrivatesia').addEventListener('click', function () { window.open('privatesia.html', '_blank', 'noopener'); });
+  $('opsPrivatesia').addEventListener('click', function () { window.open(window.StokuGjuha && window.StokuGjuha.eshteEn() ? 'privacy.html' : 'privatesia.html', '_blank', 'noopener'); });
   // v346: kushtet e përdorimit, afër Privatësisë
-  $('opsKushtet').addEventListener('click', function () { window.open('kushtet.html', '_blank', 'noopener'); });
+  $('opsKushtet').addEventListener('click', function () { window.open(window.StokuGjuha && window.StokuGjuha.eshteEn() ? 'terms.html' : 'kushtet.html', '_blank', 'noopener'); });
   // v323 (pronari: "te versioni pc e len veq te cilesimet ... afer privatesise"): "Çfarë ka të re" hapet VETËM nga Cilësimet,
   // jo vetë në hyrje (teRejat.js: 6 versionet e fundit të kompjuterit)
   function lejaPerTeRejat(k) { return k === 'marketet' ? leja(k) || eshteAdminiIStokut() : leja(k); }

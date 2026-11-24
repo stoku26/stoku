@@ -5,15 +5,15 @@ Aplikacioni ndërtohet në dy versione nga i njëjti kod (`vendas/app/build.grad
 | Versioni | Ku shkon | Përditësimi |
 |---|---|---|
 | **github** | APK te GitHub Releases (`vendas-vNN`), si deri tani | vetë aplikacioni (Perditesimi.kt), nga Releases |
-| **play** | AAB për Google Play (`stoku-play-NN.aab`), paketa **`com.stoku.app`**, nis në **anglisht** | VETËM nga Google Play (PerditesimiPlay.kt, "Play In-App Updates") |
+| **play** | AAB për Google Play (`stoku-play-NN.aab`), paketa **`app.stoku.android`**, nis në **anglisht** | VETËM nga Google Play (PerditesimiPlay.kt, "Play In-App Updates") |
 
 Versioni **play** s'e ka shkarkimin e APK-së nga GitHub dhe as lejen `REQUEST_INSTALL_PACKAGES` (rregullat e Play-it e ndalojnë
 përditësimin jashtë Play-it). Kur ka version të ri në Play, aplikacioni e hap vetë faqen e përditësimit të Play-it.
 Versioni **github** mbetet i pandryshuar (paketa `site.stoku.vendas`, nis në shqip) dhe s'fshihet.
 
-**Paketa (pronari, 24.11.2026):** versioni play ka `applicationId = "com.stoku.app"` (vetëm te `productFlavors` → `play`); kodi
+**Paketa (pronari, 24.11.2026):** versioni play ka `applicationId = "app.stoku.android"` (vetëm te `productFlavors` → `play`); kodi
 (namespace `site.stoku.vendas`, klasat) s'ndryshon dhe çdo vend që do paketën e merr nga `packageName` / `${applicationId}`
-(FileProvider `com.stoku.app.skedaret`, ikonat e jashtme, lidhja e Play-it). Në telefon është aplikacion më vete nga versioni github
+(FileProvider `app.stoku.android.skedaret`, ikonat e jashtme, lidhja e Play-it). Në telefon është aplikacion më vete nga versioni github
 (mund të jenë të dy të instaluar). Pasi të publikohet në Play, paketa s'mund të ndryshohet më kurrë.
 **Gjuha:** versioni play nis në anglisht (kur s'ka zgjedhje të ruajtur); shqipja te Settings → Appearance → Language.
 Testi `PlayTest` (vetëm play, CI "Versioni Play") e kontrollon paketën, anglishten dhe që asnjë ekran s'ka tekst shqip.
@@ -33,16 +33,16 @@ sekretin `APK_FJALEKALIMI`; `.github/apk/aab.sh`). Gjurmët e tij (publike):
    Kujdes: llogaritë personale të reja duhet ta testojnë aplikacionin së pari me **të paktën 12 testues për 14 ditë**
    ("Closed testing") para se ta publikojnë për të gjithë. Llogaria e organizatës (biznesit) s'e ka këtë kusht.
 2. **Krijo aplikacionin**: emri `Stoku`, gjuha bazë **English (United States) – en-US**, App, Falas. Paketa merret vetë nga
-   AAB-ja e parë: `com.stoku.app`.
+   AAB-ja e parë: `app.stoku.android`.
 3. **Play App Signing**: lëre si e propozon Google ("Google generates and manages the app signing key"). Ngarko
    `stoku-play-NN.aab`; Google e pranon çelësin e ngarkimit më lart.
 4. **Firebase**: nëse çelësi i API-së te Google Cloud është i kufizuar sipas aplikacioneve Android (paketa + SHA-1), shto
-   paketën **`com.stoku.app`** me SHA-1 e "App signing key" që e tregon Play Console te *Setup → App integrity*. Pa kufizim s'duhet
+   paketën **`app.stoku.android`** me SHA-1 e "App signing key" që e tregon Play Console te *Setup → App integrity*. Pa kufizim s'duhet
    asgjë (hyrja, të dhënat dhe njoftimet punojnë njësoj me paketën e re). Opsionale: te Firebase Console → Project settings →
-   *Add app* → Android, paketa `com.stoku.app` (s'është e domosdoshme, aplikacioni s'përdor google-services.json).
+   *Add app* → Android, paketa `app.stoku.android` (s'është e domosdoshme, aplikacioni s'përdor google-services.json).
 5. **Përmbajtja e aplikacionit** (*Policy → App content*):
-   - Politika e privatësisë: `https://stoku.site/privatesia.html`
-   - Fshirja e llogarisë (*Data deletion*): `https://stoku.site/privatesia.html#fshirja` (në aplikacion: Cilësimet → Llogaria →
+   - Politika e privatësisë: `https://stoku.site/privacy.html` (anglisht; shqip: `privatesia.html`)
+   - Fshirja e llogarisë (*Data deletion*): `https://stoku.site/privacy.html#fshirja` (në aplikacion: Cilësimet → Llogaria →
      Fshi llogarinë).
    - *App access*: hyrja kërkon llogari. Krijo një llogari prove (p.sh. `provagoogle` me një fjalëkalim) dhe shkruaji te
      "Instructions": "Hyr me emrin e përdoruesit dhe fjalëkalimin. S'ka kod tjetër."

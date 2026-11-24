@@ -9570,9 +9570,9 @@
   // ---------- v318 (pronari: "fshi 100% cfare ka te re"): pa "Çfarë ka të re"; vetëm numri i versionit (versioni.js) ----------
   try { localStorage.removeItem('stoku:te-rejat:pare'); } catch (e) { /* ok */ }
   // v237: politika e privatësisë (faqe më vete, në dritare të re)
-  $('opsPrivatesia').addEventListener('click', function () { window.open('privatesia.html', '_blank', 'noopener'); });
+  $('opsPrivatesia').addEventListener('click', function () { window.open(window.StokuGjuha && window.StokuGjuha.eshteEn() ? 'privacy.html' : 'privatesia.html', '_blank', 'noopener'); });
   // v346: kushtet e përdorimit, afër Privatësisë
-  $('opsKushtet').addEventListener('click', function () { window.open('kushtet.html', '_blank', 'noopener'); });
+  $('opsKushtet').addEventListener('click', function () { window.open(window.StokuGjuha && window.StokuGjuha.eshteEn() ? 'terms.html' : 'kushtet.html', '_blank', 'noopener'); });
   // v323 (pronari: "shtoja apet cfare ka te re ... ne web app telefon e len te cilesimet afer privatesise"): hapet VETËM nga Cilësimet,
   // jo vetë në hyrje pas përditësimit (teRejat.js: 6 versionet e fundit të telefonit, pa pjesët që s'lejohen)
   function lejaPerTeRejat(k) { return k === 'dergoNePc' ? lejaDergoNePc() : k === 'marketet' ? leja(k) || eshteAdminiIStokut() : leja(k); }
