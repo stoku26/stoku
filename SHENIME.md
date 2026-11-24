@@ -65,6 +65,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    pamjet anglisht `vendas/play/pamjet-en/` (9:16, anët e mbushura; Play s'pranon më shumë se 2:1, Robolectric jep 780x1688).
    Gjendja te Play Console (pronari, 24.11.2026): App content, Store listing dhe Store settings të kryera; Internal testing 0.1.335 draft;
    Closed testing pa nisur (duhen 12 testues). teste/v346.js: kufiri Privatësi-Kushte 600 shenja (lidhjet sipas gjuhës).
+   Pas v359 (pronari: "Qomi 6 screenshota ne anglisht"): PlayTest ka edhe `pamjetShtese` (folderi, Pamja) dhe `pamjetErret`
+   (Ballina, Afatet në temë të errët); pamjet dalin si blob te shënimet e job-it "pamjet" dhe ruhen te `vendas/play/pamjet-en/` (9:16).
 
 0000000. **v358 / Android Hyrja 118 (24.11.2026): PRIVATËSIA DHE KUSHTET NË ANGLISHT**. Pronari: "Boni ne anglisht termet dhe kushtet
    edhe privatesine kur osht appi ne anglisht kto me kon anglisht. Kur osht ne shqip me shkru ne shqip te dyja". Faqet e reja
