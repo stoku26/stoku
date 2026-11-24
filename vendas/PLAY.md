@@ -41,8 +41,8 @@ sekretin `APK_FJALEKALIMI`; `.github/apk/aab.sh`). Gjurmët e tij (publike):
    asgjë (hyrja, të dhënat dhe njoftimet punojnë njësoj me paketën e re). Opsionale: te Firebase Console → Project settings →
    *Add app* → Android, paketa `com.stoku.app` (s'është e domosdoshme, aplikacioni s'përdor google-services.json).
 5. **Përmbajtja e aplikacionit** (*Policy → App content*):
-   - Politika e privatësisë: `https://stoku.site/privatesia.html`
-   - Fshirja e llogarisë (*Data deletion*): `https://stoku.site/privatesia.html#fshirja` (në aplikacion: Cilësimet → Llogaria →
+   - Politika e privatësisë: `https://stoku.site/privacy.html` (anglisht; shqip: `privatesia.html`)
+   - Fshirja e llogarisë (*Data deletion*): `https://stoku.site/privacy.html#fshirja` (në aplikacion: Cilësimet → Llogaria →
      Fshi llogarinë).
    - *App access*: hyrja kërkon llogari. Krijo një llogari prove (p.sh. `provagoogle` me një fjalëkalim) dhe shkruaji te
      "Instructions": "Hyr me emrin e përdoruesit dhe fjalëkalimin. S'ka kod tjetër."

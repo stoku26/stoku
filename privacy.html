@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: blob: https://*.googleapis.com https://*.mendurb.workers.dev https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://www.gstatic.com https://tiles.openfreemap.org https://ibasemaps-api.arcgis.com; frame-src https://stoku-appi.firebaseapp.com; worker-src 'self' blob:; media-src 'self' data: blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Privacy • Stoku</title>
+<meta name="description" content="What Stoku stores, where it is stored, who has access and how the data is deleted.">
+<link rel="icon" href="/logo/favicon.svg?v=5" type="image/svg+xml">
+<link rel="icon" href="/logo/favicon-32.png?v=5" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=5">
+<!-- v358 (pronari: "Boni ne anglisht termet dhe kushtet edhe privatesine kur osht appi ne anglisht"): versioni anglisht i privatesia.html.
+     Kur ndryshon privatesia.html, ndryshoje edhe këtë (e njëjta përmbajtje). -->
+<script src="/tema.js?v=238"></script>
+<style>
+  @font-face { font-family: 'Onest'; src: url('/fonts/onest.woff2') format('woff2'); font-weight: 400 800; font-style: normal; font-display: swap; }
+  :root { --bg: #f6f5f2; --surface: #ffffff; --line: #e6e4df; --ink: #14161b; --muted: #6b6e76; --accent: #1f5fc4; color-scheme: light; }
+  :root[data-tema="dark"] { --bg: #0f1115; --surface: #171a20; --line: #2a2e36; --ink: #eceef2; --muted: #9ca1aa; --accent: #6f9ff0; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Onest', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; padding: 24px 16px 48px; }
+  main { max-width: 720px; margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 28px 22px 32px; }
+  .logo { display: block; height: 36px; width: auto; margin: 0 0 20px; }
+  .logo-e-erret { display: none; }
+  :root[data-tema="dark"] .logo-e-celet { display: none; }
+  :root[data-tema="dark"] .logo-e-erret { display: block; }
+  h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 6px; }
+  .data { color: var(--muted); font-size: 14px; margin: 0 0 22px; }
+  h2 { font-size: 18px; font-weight: 750; margin: 28px 0 8px; }
+  p, li { font-size: 15.5px; line-height: 1.6; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 22px; }
+  li { margin: 0 0 6px; }
+  a { color: var(--accent); }
+  .gjuha { float: right; margin: 6px 0 0; font-size: 14px; font-weight: 700; } /* v358: Shqip / English */
+  .kthehu { display: inline-block; margin-top: 26px; font-weight: 700; }
+  @media (min-width: 640px) { main { padding: 36px 40px 40px; } }
+</style>
+</head>
+<body>
+<main>
+  <img class="logo logo-e-celet" src="/logo/stoku-logo.svg?v=5" alt="Stoku" width="134" height="36">
+  <img class="logo logo-e-erret" src="/logo/stoku-logo-dark.svg?v=5" alt="Stoku" width="134" height="36">
+  <p class="gjuha"><a href="/privatesia.html" hreflang="sq" lang="sq">Shqip</a></p>
+  <h1>Privacy</h1>
+  <p class="data">Updated on November 17, 2026</p>
+
+  <p>This page explains what Stoku (stoku.site, the Stoku app for Android and for the smartwatch) stores, where it is stored, who can see it and how it is deleted. Stoku is an app for keeping track of stock and expiry dates in a store.</p>
+
+  <h2>Who is responsible</h2>
+  <p>Stoku. For any question or request about your data: <a href="mailto:mendurb@gmail.com">mendurb@gmail.com</a>.</p>
+
+  <h2>What is stored</h2>
+  <ul>
+    <li><b>Account:</b> the username, when it was created and when you last signed in. Stoku doesn't ask for an email, a phone number or your real name. The password is stored by Firebase Authentication (Google) in encrypted form; Stoku never sees it.</li>
+    <li><b>Store data:</b> folders, products (barcode, name, quantity, supplier), expiry dates and the photos of sheets you send from the phone to the computer.</li>
+    <li><b>Markets</b> (only for merchandisers, when you choose "I work as a merchandiser" while creating the account): this choice, the name of each market and the location of the market (not yours), taken when you add the market while you are inside it. The market becomes a shared Stoku point (the market name, its location and your username as the one who added it): all merchandisers see it, as a shared list of markets, so that Stoku recognizes the market by itself when they arrive there. The Stoku administrator sees the points on the map and can add a market by hand, rename it or delete it.</li>
+    <li><b>Excel and PDF files</b> you send from the phone to the computer: they are deleted automatically after 7 days.</li>
+    <li><b>Group</b> (only if you join a group): your name in the group, your role, whether you are active and when you were last active (phone or computer), the expiry dates you share with the group, the activity (e.g. "removed it from the shelf"), notifications, invitations and requests to join. The group name and the username of its admin are visible to anyone with an account who searches for a group ("Join a group").</li>
+    <li><b>Product registry:</b> the barcode, name and supplier of the products checked by the administrator; all Stoku accounts see them when they scan. New products you add (barcode, name, supplier and your username) are seen only by the administrator until they are checked.</li>
+    <li><b>Profile photo</b>, if you set one.</li>
+    <li><b>Notifications:</b> the technical address of the device for notifications (without personal data), the time you choose for the daily notification and a copy of the expiry dates for that notification. If you connect a smartwatch, a connection code for it.</li>
+    <li><b>Devices where you are signed in:</b> the type of browser and system (e.g. "Chrome on Android") or the phone name in the Android app, when you signed in and when it was last used, so that you can see them in Settings → Account and disconnect them. The device is removed from the list when you sign out or disconnect it.</li>
+    <li><b>Permissions</b> of the account (what it can use), if the administrator sets them.</li>
+    <li><b>Forgotten password:</b> the 6-digit code is stored only in encrypted form and is valid for 30 minutes.</li>
+  </ul>
+
+  <h2>Reading sheets with AI</h2>
+  <p>When you photograph a sheet with expiry dates or stock, the photo is sent through the Stoku server to an AI service (Google Gemini, Anthropic Claude or Cloudflare Workers AI) only to read the barcodes, names and dates. Stoku doesn't store the photo at the AI service.</p>
+
+  <h2>On your device</h2>
+  <p>Stoku keeps a copy of your data and your settings in the browser (or in the app), so that it also works offline. This copy is deleted when another account signs in on that device, or when you clear the browser data. As a guest, the data stays only on the device and is not sent anywhere.</p>
+  <p><b>Location:</b> only for merchandisers: when you open Stoku, the phone compares your location with your markets and with the Stoku market points, to know which market you are in. This happens only on the phone: your location is not stored or sent anywhere (only the location of the market is stored, when you save it). For accounts that are not merchandisers, Stoku doesn't ask for location at all.</p>
+  <p>Stoku <b>doesn't use cookies</b>, has no ads and doesn't use tracking or analytics services.</p>
+
+  <h2>Who sees the data</h2>
+  <ul>
+    <li><b>You</b>, on all devices where you sign in with your account.</li>
+    <li><b>Your group colleagues</b>, only the group parts (name, presence, shared expiry dates, activity).</li>
+    <li><b>The Stoku administrator</b>, for maintenance and support: sees the list of accounts, sets permissions, receives the forgotten password code to hand it over, and can delete an account. Technically they also have access to the store data.</li>
+  </ul>
+  <p>Stoku doesn't sell or give your data to anyone else.</p>
+
+  <h2>Where it is stored</h2>
+  <p>With the services that keep Stoku running, which may have servers outside Kosovo (in the EU or the USA):</p>
+  <ul>
+    <li>Google Firebase (accounts and store data),</li>
+    <li>Cloudflare (notifications, profile photos, smartwatch, the AI server),</li>
+    <li>GitHub Pages (the stoku.site website itself) and jsDelivr (some website libraries): like any server, they see the IP address when the page is opened,</li>
+    <li>OpenFreeMap (map tiles, only when you open the map in Settings → Markets): sees the IP address and the map area you view; Stoku doesn't send it any other data,</li>
+    <li>Esri (satellite view, only when you choose "Satellite" on the map): sees the IP address and the map area you view; Stoku doesn't send it any other data,</li>
+    <li>Google, Anthropic or Cloudflare for reading with AI, only when you use it.</li>
+  </ul>
+
+  <h2>How long it is kept</h2>
+  <p>As long as the account exists. Exceptions: Excel/PDF files on the computer 7 days, password codes 30 minutes, records of deleted products (so that other devices delete them too) 120 days, the copy of deleted items on the device 30 days.</p>
+
+  <h2 id="fshirja">Deleting the account</h2>
+  <p>You can delete the account yourself, at any time: in Stoku (on the phone, on the computer or in the Android app) open <b>Settings → Account → Delete account</b>, enter your password and confirm. The account is deleted immediately, on all devices, together with the stock, expiry dates, profile photo, notifications, signed-in devices, permissions, the connected smartwatch and the group membership. If you are the group admin, the oldest member becomes admin; if you are the only one in the group, the group is deleted too. Only the username remains, reserved so that no one else can take it; it is no longer linked to any data. Deletion can't be undone.</p>
+  <p>If you can't sign in to the account (e.g. you forgot the password), request a new code with "Forgot your password?" on the sign-in screen, or write to <a href="mailto:mendurb@gmail.com">mendurb@gmail.com</a> on behalf of the account and the account will be deleted within 30 days.</p>
+
+  <h2>Your rights</h2>
+  <p>You can ask to see, correct or delete your data, or delete the whole account: you delete the account yourself in Settings → Account (see <a href="#fshirja">Deleting the account</a>); for everything else write to <a href="mailto:mendurb@gmail.com">mendurb@gmail.com</a> on behalf of the account. You can change or delete products and expiry dates yourself at any time inside Stoku. If you think your data is not handled properly, you have the right to complain to the Information and Privacy Agency (AIP) of Kosovo.</p>
+
+  <h2>Security</h2>
+  <p>The connection to Stoku is always encrypted (HTTPS). The data of each account is protected by Firebase rules: one account can't read the data of another. Security issues can be reported to <a href="mailto:mendurb@gmail.com">mendurb@gmail.com</a> (see also <a href="/.well-known/security.txt">security.txt</a>).</p>
+
+  <h2>Changes</h2>
+  <p>When this page changes, the date at the top changes too.</p>
+  <p>See also the <a href="/terms.html">Terms of use</a>.</p>
+
+  <a class="kthehu" href="/">Open Stoku</a>
+</main>
+</body>
+</html>

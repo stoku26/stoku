@@ -17,6 +17,9 @@
 (function () {
   'use strict';
 
+  // v358 (pronari): Privatësia dhe Kushtet në gjuhën e pamjes (anglisht: privacy.html / terms.html)
+  var EN = !!(window.StokuGjuha && window.StokuGjuha.eshteEn && window.StokuGjuha.eshteEn());
+  var F_PRIV = EN ? 'privacy.html' : 'privatesia.html', F_KUSH = EN ? 'terms.html' : 'kushtet.html';
   var KEY_HYRJA = 'stoku:porta:hyrja';      // { uid, emri } e hyrjes së fundit (për hyrje pa internet)
   var KEY_PRONARI = 'stoku:pronari-uid';    // llogaria të cilës i përkasin të dhënat lokale
   var KEY_EMRI_FUNDIT = 'stoku:porta:emri'; // emri i fundit i shkruar (plotësohet vetë, nëse "Më mbaj mend" është aktiv)
@@ -240,7 +243,7 @@
         '<div class="pk-harrova" id="pkHarrovaRresht"><button type="button" class="pk-lidhje" id="pkHarrova">Ke harruar fjalëkalimin?</button></div>' +
         '<label id="pkPerseritLbl" class="pk-fsheh"><span>Përsërit fjalëkalimin</span><input id="pkPerserit" class="me-sy" name="password2" type="password" autocomplete="new-password" maxlength="100" enterkeyhint="go" placeholder="Shkruaje edhe një herë"></label>' +
         // v347 (e para, mbi "Punoj si merchandiser"; pronari: "kur krijon llogari bone ni kerkes me tick qe mi pranu kushtet ... te detyrushme"): pa këtë s'krijohet llogaria
-        '<label class="pk-mbaj pk-fsheh" id="pkKushtetLbl" for="pkKushtet"><input type="checkbox" id="pkKushtet"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Pajtohem me <a href="kushtet.html" target="_blank" rel="noopener" id="pkKushtetLidhja">Kushtet e përdorimit</a></div></label>' +
+        '<label class="pk-mbaj pk-fsheh" id="pkKushtetLbl" for="pkKushtet"><input type="checkbox" id="pkKushtet"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Pajtohem me <a href="' + F_KUSH + '" target="_blank" rel="noopener" id="pkKushtetLidhja">Kushtet e përdorimit</a></div></label>' +
         '<label class="pk-mbaj pk-fsheh" id="pkMerchLbl" for="pkMerch"><input type="checkbox" id="pkMerch"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Punoj si merchandiser (në disa markete)</div></label>' +
         '<label class="pk-mbaj" id="pkMbajLbl" for="pkMbaj"><input type="checkbox" id="pkMbaj"><div class="pk-tick" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div><div>Më mbaj mend emrin e përdoruesit</div></label>' +
         '<div class="pk-gabim" id="pkGabim" role="alert"></div>' +
@@ -269,7 +272,7 @@
         '<button type="button" class="pk-lidhje pk-mbrapa pk-fsheh" id="pkRivSerish">Dërgo sërish kërkesën</button>' +
         '<button type="button" class="pk-lidhje pk-mbrapa" id="pkRivMbrapa">Kthehu te hyrja</button>' +
       '</div>' +
-      '<p class="pk-fund"><a href="privatesia.html" target="_blank" rel="noopener">Privatësia</a> · <a href="kushtet.html" target="_blank" rel="noopener">Kushtet e përdorimit</a></p>' +
+      '<p class="pk-fund"><a href="' + F_PRIV + '" target="_blank" rel="noopener">Privatësia</a> · <a href="' + F_KUSH + '" target="_blank" rel="noopener">Kushtet e përdorimit</a></p>' +
     '</div>';
   document.body.insertBefore(porta, document.body.firstChild);
   // v324: te PC-ja (pc.html, dritare e gjerë) hyrja ndahet dysh: majtas logoja + teksti + 3 pikat, djathtas forma
