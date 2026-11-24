@@ -62,7 +62,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    lidhje "English"/"Shqip" lart djathtas). Kur ndryshon njëra, NDRYSHO edhe tjetrën. Lidhjet sipas gjuhës: porta.js (F_PRIV/F_KUSH),
    app-tel.js + app-pc.js (Cilësimet), Android CilesimetEkrani.kt + Porta.kt (`Gjuha.en`). Play Console: privacy URL
    `https://stoku.site/privacy.html` (PLAY.md). CSP tani në 8 faqe (csp-v238.js i kontrollon). Testi `teste/v358.js`.
-   Pronari, te Play Console: `com.stoku.app` është i zënë ("already in use"); pritet emri i ri (propozuar `site.stoku.app`).
+   **Paketa e versionit play: `app.stoku.android`** (pronari, 24.11.2026: te Play Console `com.stoku.app` doli "already in use";
+   "app.stoku.android e pranoi, boje ate"). Ndryshuar te build.gradle.kts, aab.sh, workflow, PlayTest, v357.js, PLAY.md. Hyrja v357 më
+   poshtë që thotë `com.stoku.app` vlen tani për `app.stoku.android`. Pasi të publikohet në Play, s'ndryshon MË KURRË.
 
 0000000. **v357 / Android Hyrja 117 (24.11.2026): VERSIONI PLAY = com.stoku.app, NIS NË ANGLISHT**. Pronari: "Versionit per playstore
    bonja ne com.stoku.app edhe kshyr mos prish naj sen 100% mir bone. Edhe kshyre versionin per playstore 100% qdo cep kontrolloje per
