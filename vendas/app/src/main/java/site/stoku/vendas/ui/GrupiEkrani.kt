@@ -261,7 +261,7 @@ private fun Bosh(titulli: String, teksti: String = "", modifier: Modifier = Modi
 /** Titulli i vogël me shkronja të mëdha (af-grup-krye) */
 @Composable
 private fun Krye(t: String, modifier: Modifier = Modifier) {
-    Text(t.uppercase(), style = tx(12, 600, N.muted, 0.06), modifier = modifier.padding(top = 20.dp, bottom = 8.dp))
+    Text(Gjuha.t(t).uppercase(), style = tx(12, 600, N.muted, 0.06), modifier = modifier.padding(top = 20.dp, bottom = 8.dp))
 }
 
 /** Seksioni i Përmbledhjes (ek-seksion): titull + lidhje djathtas */

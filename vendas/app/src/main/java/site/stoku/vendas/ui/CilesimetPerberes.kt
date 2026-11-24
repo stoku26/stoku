@@ -68,7 +68,8 @@ fun IntroOps(teksti: String, modifier: Modifier = Modifier) {
 /** .ops-grupi-titull: "APLIKACIONI", "NJOFTIMI DITOR PËR AFATET" */
 @Composable
 fun TitulliGrupit(teksti: String, pare: Boolean = false) {
-    Text(teksti.uppercase(), style = tx(12, 700, N.faint, 0.06), modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = if (pare) 4.dp else 22.dp, bottom = 8.dp))
+    Text(Gjuha.t(teksti).uppercase(), // v357: përkthimi para shkronjave të mëdha
+        style = tx(12, 700, N.faint, 0.06), modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = if (pare) 4.dp else 22.dp, bottom = 8.dp))
 }
 
 /** .ops-grupi: kutia e bardhë me rreshta të ndarë me vijë */
