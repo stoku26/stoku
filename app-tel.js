@@ -6889,7 +6889,7 @@
     else if (n >= 60) { madh = String(Math.round(n / 30)); vogel = 'muaj'; lloji = 'ok'; }
     else { madh = String(n); vogel = 'ditë'; lloji = st === 'afer' ? 'near' : 'ok'; }
     k.className = 'sb-days sb-days--' + lloji;
-    var b = document.createElement('span'); b.className = 'sb-days__big'; b.textContent = madh;
+    var b = document.createElement('span'); b.className = 'sb-days__big' + (madh === 'Sot' ? ' sb-days__big--sot' : ''); b.textContent = madh;
     var v = document.createElement('span'); v.className = 'sb-days__small'; v.textContent = vogel;
     k.appendChild(b); k.appendChild(v);
     return k;

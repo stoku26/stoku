@@ -1413,6 +1413,7 @@
   "Në Stoku ka tashmë një market me këtë emër. Shto edhe vendin, p.sh. \"": "Stoku already has a market with this name. Add the place too, e.g. \"",
   "Në anglisht janë përkthyer edhe tekstet që kishin mbetur shqip (p.sh. \"Krejt\", muajt, ditët e javës, emrat e ngjyrave).": "Texts that had stayed in Albanian are now translated into English too (e.g. \"All\", the months, the days of the week, the color names).",
   "Në anglisht përkthehen edhe përshkrimet për lexuesin e ekranit, njoftimet e vogla dhe skedarët Excel, PDF e foto.": "In English, the screen reader descriptions, the short messages and the Excel, PDF and photo files are translated too.",
+  "Në anglisht, fjala \"Today\" te kutia e ditëve të afatit s'ndahet më në dy rreshta.": "In English, the word \"Today\" in the expiry date box no longer breaks onto two lines.",
   "Në cilin folder?": "Which folder?",
   "Në cilin market je?": "Which market are you in?",
   "Në cilin market?": "Which market?",
@@ -3953,6 +3954,7 @@
   "zoomend",
   "zvarritet",
   "{\"image\":\"",
-  "| Esri, Vantor, Earthstar Geographics, and the GIS User Community"
+  "| Esri, Vantor, Earthstar Geographics, and the GIS User Community",
+  " sb-days__big--sot"
  ]
 }

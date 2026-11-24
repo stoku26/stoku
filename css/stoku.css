@@ -375,6 +375,7 @@ html.me-fab #toast { bottom: calc(102px + var(--sab, 0px)); }
 .sb .af-zgjedh { align-self: center; }
 .sb .sb-days { width: 52px; height: 52px; border-radius: 14px; flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; text-align: center; }
 .sb .sb-days__big { font-size: 19px; font-weight: 700; }
+.sb[lang="en"] .sb-days__big--sot { font-size: 14px; white-space: nowrap; } /* v359: "Today" s'nxë me 19px në kutinë 52px */
 .sb .sb-days__small { font-size: 9.5px; font-weight: 600; margin-top: 3px; padding: 0 2px; }
 .sb .sb-days--exp { background: var(--sb-exp-tint); color: var(--sb-exp); }
 .sb .sb-days--near { background: var(--sb-near-tint); color: var(--sb-near); }

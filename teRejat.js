@@ -21,6 +21,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 359, versioni: '1.76.4', data: '2026-11-24', titulli: 'Gjuha anglisht', pikat: [
+      'Në anglisht, fjala "Today" te kutia e ditëve të afatit s\'ndahet më në dy rreshta.'
+    ] },
     { v: 358, versioni: '1.76.3', data: '2026-11-24', titulli: 'Privatësia dhe kushtet', pikat: [
       'Faqet e privatësisë dhe të kushteve të përdorimit hapen në gjuhën e aplikacionit (anglisht ose shqip).'
     ] },
