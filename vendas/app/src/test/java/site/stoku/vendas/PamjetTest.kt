@@ -438,11 +438,15 @@ class PamjetTest {
         r.onNodeWithContentDescription("Eksporto").performClick(); r.waitForIdle() // Hyrja 38: menyja e eksportit
         klikoFundit("Si foto") // web v326: menyja "Eksporto afatet"
         fotoEkrani("light-43-afatet-foto")
+        // web v326: furnizuesit janë në listën që hapet te rreshti "Furnizuesit"; në fillim "Të gjithë" të zgjedhur
+        org.junit.Assert.assertTrue("Krijo 3 foto", r.onAllNodesWithText("Krijo 3 foto").fetchSemanticsNodes().isNotEmpty())
+        klikoFundit("Furnizuesit")
+        klikoFundit("Asnjë")
         org.junit.Assert.assertTrue("furnizuesit", r.onAllNodesWithText("Vita").fetchSemanticsNodes().isNotEmpty() &&
             r.onAllNodesWithText("Bylmeti").fetchSemanticsNodes().isNotEmpty() && r.onAllNodesWithText("Pa furnizues").fetchSemanticsNodes().isNotEmpty())
-        kliko("Vita")
+        klikoFundit("Vita")
         org.junit.Assert.assertTrue("Krijo foton", r.onAllNodesWithText("Krijo foton").fetchSemanticsNodes().isNotEmpty())
-        kliko("Bylmeti")
+        klikoFundit("Bylmeti")
         org.junit.Assert.assertTrue("Krijo 2 foto", r.onAllNodesWithText("Krijo 2 foto").fetchSemanticsNodes().isNotEmpty())
         val ctx: android.content.Context = org.robolectric.RuntimeEnvironment.getApplication()
         val te = Dyqani.gjendja.value.afatet.sortedWith { a, b -> Afatet.krahaso(a, b) }
