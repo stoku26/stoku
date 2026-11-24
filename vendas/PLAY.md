@@ -43,8 +43,9 @@ sekretin `APK_FJALEKALIMI`; `.github/apk/aab.sh`). Gjurmët e tij (publike):
 6. **Faqja te Play Store** (*Grow → Store listing*): tekstet më poshtë dhe figurat te `vendas/play/`:
    - Ikona: `vendas/play/ikona-512.png` (512 x 512)
    - Banda: `vendas/play/banda-1024x500.png`
-   - Pamjet e telefonit (anglisht, 9:16): `vendas/play/pamjet-en/*.png` (nga `PlayTest`, me anët e mbushura që raporti të jetë
-     brenda kufirit 2:1 të Play-it). Pamjet shqip `vendas/play/pamjet/*.png` janë për listën shqip (opsionale, *Add translations → Albanian*).
+   - Pamjet e telefonit (anglisht, 950 x 1688, 9:16): `vendas/play/pamjet-en/1-home.png`, `2-expiry-dates.png`, `3-stock.png`,
+     `4-settings.png` (nga `PlayTest`, anët e zgjatura që raporti të jetë brenda kufirit 2:1 të Play-it; Grupi s'futet se pa
+     server del vetëm "Connecting to the group..."). Linku: https://github.com/stoku26/stoku/tree/main/vendas/play/pamjet-en Pamjet shqip `vendas/play/pamjet/*.png` janë për listën shqip (opsionale, *Add translations → Albanian*).
 7. **Publikimi**, me radhë (llogari personale e re):
    1. **Internal testing** (opsional, për provë të shpejtë): *Test and release → Testing → Internal testing → Create new release*
       → ngarko `stoku-play-NN.aab` → shënimet → *Next* → *Save and publish*. Testuesit (email Gmail) e marrin brenda pak minutash.
