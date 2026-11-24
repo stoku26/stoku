@@ -2,7 +2,9 @@ package site.stoku.vendas.ui
 
 import android.app.Activity
 import android.content.Context
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,19 +34,23 @@ object Gjuha {
         private set
 
     fun nis(ctx: Context) {
-        en = StokuApp.prefs(ctx).getString("gjuha", "sq") == "en"
+        // Pronari (24.11.2026): versioni i Play-it nis në anglisht (kush do shqip e ndërron te Cilësimet → Pamja → Gjuha)
+        en = StokuApp.prefs(ctx).getString("gjuha", if (site.stoku.vendas.BuildConfig.PLAY) "en" else "sq") == "en"
         if (en && perkthyesi == null) {
             perkthyesi = try { Perkthyesi.ngaJson(ctx.assets.open("en.json").bufferedReader(Charsets.UTF_8).use { it.readText() }) } catch (e: Exception) { null }
         }
     }
+
+    /** A ka përkthim ky tekst (p.sh. hyrjet e "Çfarë ka të re" që shfaqen në anglisht vetëm kur janë përkthyer krejt). */
+    fun kaPerkthim(s: String): Boolean = !en || (perkthyesi?.t(s) ?: s) != s
 
     /** Teksti në gjuhën e zgjedhur (shqip: i njëjti). */
     fun t(s: String): String = if (!en) s else perkthyesi?.t(s) ?: s
 
     fun vendos(a: Activity, g: String) {
         val v = if (g == "en") "en" else "sq"
-        if (v == if (en) "en" else "sq") return
         StokuApp.prefs(a).edit().putString("gjuha", v).apply()
+        if (v == if (en) "en" else "sq") return
         nis(a)
         a.recreate()
     }
@@ -115,3 +121,8 @@ private fun perktheAnnotated(a: AnnotatedString): AnnotatedString {
     }
     return b.toAnnotatedString()
 }
+
+/** Si material3.Icon: përshkrimi për lexuesin e ekranit (TalkBack) përkthehet kur gjuha është anglisht. */
+@Composable
+fun Icon(imageVector: ImageVector, contentDescription: String?, modifier: Modifier = Modifier, tint: Color = LocalContentColor.current) =
+    androidx.compose.material3.Icon(imageVector = imageVector, contentDescription = contentDescription?.let { Gjuha.t(it) }, modifier = modifier, tint = tint)

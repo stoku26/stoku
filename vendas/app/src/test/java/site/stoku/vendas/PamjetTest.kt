@@ -149,7 +149,7 @@ class PamjetTest {
             foto("light-45-en-malli")
             kliko("Pije")
             r.onAllNodesWithText("Ujë Rugove 1.5L")[0].assertExists()
-            r.onNodeWithContentDescription("Foldera").performClick(); r.waitForIdle()
+            r.onNodeWithContentDescription("Folders").performClick(); r.waitForIdle()
             kliko("Expiry dates")
             foto("light-46-en-afatet")
             kliko("Settings")

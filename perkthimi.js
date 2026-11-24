@@ -16,7 +16,7 @@
   try { gjuha = localStorage.getItem(KEY) === 'en' ? 'en' : 'sq'; } catch (e) { /* ok */ }
   // Fjalori (perkthimi-en.js, 150 KB) ngarkohet vetëm kur gjuha është anglisht: document.write e fut menjëherë pas këtij skedari,
   // para pjesës tjetër të faqes. Kur ndryshon perkthimi-en.js, rrite VERSIONI_FJALORIT këtu dhe te SHELL i sw.js.
-  var VERSIONI_FJALORIT = 356;
+  var VERSIONI_FJALORIT = 357;
   var FJ = {}, MOD = [], MODG = [], FRAG = null, MEMO = Object.create(null), gati = false;
   function ngarko() {
     if (gati) return; gati = true;
@@ -77,12 +77,13 @@
     var r = perktheBerthamen(mes);
     if (r == null && mes.indexOf(' · ') !== -1) {
       var pj = mes.split(' · '), ndr = false;
-      pj = pj.map(function (p) { var x = perktheBerthamen(p); if (x != null) { ndr = true; return x; } return p; });
+      // çdo pjesë përkthehet krejt (edhe copat dhe modelet me numra, p.sh. "5 afate · 1 faqe A4")
+      pj = pj.map(function (p) { var x = perkthe(p); if (x !== p) ndr = true; return x; });
       if (ndr) r = pj.join(' · ');
     }
     if (r == null && mes.indexOf('\n') !== -1) {
       var rr = mes.split('\n'), nd2 = false;
-      rr = rr.map(function (p) { var x = perktheBerthamen(p.trim()); if (x != null) { nd2 = true; return p.replace(p.trim(), x); } return p; });
+      rr = rr.map(function (p) { var x = perkthe(p); if (x !== p) nd2 = true; return x; });
       if (nd2) r = rr.join('\n');
     }
     if (r == null && (FRAG || MODG.length)) {

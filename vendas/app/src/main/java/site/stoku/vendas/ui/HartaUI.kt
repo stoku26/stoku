@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -343,7 +342,7 @@ fun HartaEMarketeve(pikat: List<PikaEHartes>, zgjedhur: String, shenjestra: Bool
 
 @Composable
 private fun ButoniIHartes(teksti: String, pershkrimi: String, onClick: () -> Unit) {
-    Box(Modifier.size(36.dp).semantics { contentDescription = pershkrimi }.clickable(onClick = onClick), contentAlignment = Alignment.Center) {
+    Box(Modifier.size(36.dp).semantics { contentDescription = site.stoku.vendas.ui.Gjuha.t(pershkrimi) }.clickable(onClick = onClick), contentAlignment = Alignment.Center) {
         Text(teksti, style = tx(20, 500, N.ink))
     }
 }

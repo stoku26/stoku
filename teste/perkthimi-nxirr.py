@@ -7,9 +7,11 @@ RR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 # ai që s'është tekst i pamjes (CSS, kod, emra teknikë, të dhëna shembull) shtohet te "injoro" i perkthimi/en.json.
 ALB = re.compile(r"[A-Za-zËÇëç]{2}")
 # Jo tekst: klasat e CSS-it, shtigjet, çelësat
-JO = re.compile(r"^\s*([a-z][a-z0-9]*(-{1,2}[a-z0-9]+)+(\s+[a-z][a-z0-9-]*)*|/[\w/.-]*|[a-z]+[A-Z]\w*|[a-z0-9_]+)\s*$")
+JO = re.compile(r"^\s*([a-z][a-z0-9]*(-{1,2}[a-z0-9]+)+(\s+[a-z][a-z0-9-]*)*|/[\w/.-]*|[a-z]+[A-Z]\w*|[a-z0-9_]*_[a-z0-9_]*)\s*$")
 WEB = ['index.html', 'pc.html', 'app-tel.js', 'app-pc.js', 'ekipa.js', 'porta.js', 'afatet.js', 'njoftimet.js', 'pajisjet.js', 'eksportet.js',
-       'harta.js', 'marketet.js', 'temat.js', 'lejet.js', 'skedaret.js', 'firebase-tel.js', 'firebase-pc.js', 'ruajtja.js']
+       'harta.js', 'marketet.js', 'temat.js', 'lejet.js', 'skedaret.js', 'firebase-tel.js', 'firebase-pc.js', 'ruajtja.js',
+       # v355: njoftimet push që vijnë nga serveri (Android-i i përkthen me fjalorin kur gjuha është anglisht)
+       'worker/stoku-push.js']
 def pa_komente_js(s):
     s = re.sub(r'/\*.*?\*/', '', s, flags=re.S)
     return re.sub(r'(?m)(^|[^:\\\'"])//[^\n]*', r'\1', s)
@@ -37,8 +39,11 @@ def mblidh(lloji):
     if lloji in ('android', 'krejt'):
         # main + versionet github/play (jo testet)
         for f in [x for d in ('main', 'github', 'play') for x in glob.glob(os.path.join(RR, 'vendas/app/src', d, 'java/site/stoku/vendas/**/*.kt'), recursive=True)]:
-            if f.endswith('TeRejat.kt'): continue
             s = pa_komente_js(open(f, encoding='utf-8').read())
+            # "Çfarë ka të re" (Android): 10 hyrjet e fundit duhet të kenë anglisht (në anglisht shfaqen vetëm hyrjet e përkthyera)
+            if f.endswith('TeRejat.kt'):
+                h = [m.start() for m in re.finditer(r'Hyrja\(\d+,', s)]
+                s = s[h[0]:h[10]] if len(h) > 10 else ''
             for t0 in re.findall(r'"((?:[^"\\\n]|\\.)*)"', s):
                 t0 = t0.replace('\\"', '"').replace('\\n', '\n')
                 # Shabllonet e Kotlin-it ndahen në pjesët fikse (fjalori i përkthen pjesë-pjesë brenda tekstit të plotë)

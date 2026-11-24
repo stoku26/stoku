@@ -106,16 +106,17 @@ object EksportiPdf {
             p.fontFeatureSettings = if (numra) "tnum" else null
             p.style = Paint.Style.FILL
         }
-        fun gjeresia(t: String) = p.measureText(t)
+        // v355: tekstet e PDF-së në gjuhën e pamjes (anglisht te versioni play); gjerësia matet mbi tekstin e përkthyer
+        fun gjeresia(t: String) = p.measureText(site.stoku.vendas.ui.Gjuha.t(t))
         fun nxe(t0: String, w: Float): String {
-            var t = t0
+            var t = site.stoku.vendas.ui.Gjuha.t(t0)
             if (gjeresia(t) <= w) return t
             while (t.length > 1 && gjeresia("$t…") > w) t = t.dropLast(1)
             return t.trimEnd() + "…"
         }
         fun tekst(t: String, x: Float, y: Float, ngjyra: Int, djathtas: Boolean = false, qendra: Boolean = false) {
             p.color = ngjyra; p.textAlign = if (qendra) Paint.Align.CENTER else if (djathtas) Paint.Align.RIGHT else Paint.Align.LEFT
-            c.drawText(t, x, y, p)
+            c.drawText(site.stoku.vendas.ui.Gjuha.t(t), x, y, p)
         }
         fun vije(x1: Float, y1: Float, x2: Float, y2: Float, w: Float, ngjyra: Int) {
             p.color = ngjyra; p.style = Paint.Style.STROKE; p.strokeWidth = w; p.strokeCap = Paint.Cap.ROUND

@@ -26,7 +26,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -764,16 +763,17 @@ fun TeRejatFlete(lista: List<TeRejat.Hyrja>, ngaCilesimet: Boolean = false, mbyl
             }
         }
         Column {
-            lista.forEachIndexed { i, h ->
+            // v355: në anglisht shfaqen vetëm hyrjet e përkthyera krejt (10 të fundit kanë anglisht; teste/perkthimi-nxirr.py)
+            lista.filter { h -> Gjuha.kaPerkthim(h.titulli) && h.pikat.all { Gjuha.kaPerkthim(it) } }.forEachIndexed { i, h ->
                 if (i > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(n.line))
                 Column(Modifier.padding(top = if (i == 0) 2.dp else 12.dp, bottom = 8.dp)) {
-                    androidx.compose.material3.Text(h.titulli, style = txF(15.5f, 700, n.ink))
+                    Text(h.titulli, style = txF(15.5f, 700, n.ink))
                     Text(dataEPlote(h.data), style = tx(12, 400, n.muted), modifier = Modifier.padding(top = 2.dp, bottom = 8.dp))
                     h.pikat.forEach { p ->
                         Row(Modifier.padding(vertical = 4.dp)) {
                             Box(Modifier.padding(start = 4.dp, top = 7.dp).size(8.dp).clip(CircleShape).background(n.accent))
                             Spacer(Modifier.width(12.dp))
-                            androidx.compose.material3.Text(p, style = txR(14.5f, 400, n.ink2))
+                            Text(p, style = txR(14.5f, 400, n.ink2))
                         }
                     }
                 }

@@ -56,6 +56,28 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v357 / Android Hyrja 117 (24.11.2026): VERSIONI PLAY = com.stoku.app, NIS NË ANGLISHT**. Pronari: "Versionit per playstore
+   bonja ne com.stoku.app edhe kshyr mos prish naj sen 100% mir bone. Edhe kshyre versionin per playstore 100% qdo cep kontrolloje per
+   gabime drejtshkrimore ne anglisht edhe bone anglishten default ne start."
+   - `vendas/app/build.gradle.kts`: vetëm flavor-i `play` ka `applicationId = "com.stoku.app"`; github mbetet `site.stoku.vendas`
+     (përdoruesit e tanishëm s'preken). Namespace/klasat s'ndryshojnë; paketa merret kudo nga `packageName`/`${applicationId}`
+     (FileProvider `.skedaret`, ikonat e jashtme me ComponentName(packageName, "site.stoku.vendas.Ikona…"), lidhja e Play-it).
+     MOS e ndrysho më pasi të publikohet në Play. `.github/apk/aab.sh` e kontrollon paketën në AAB.
+   - `ui/Gjuha.kt`: pa zgjedhje të ruajtur, versioni play nis në anglisht (`BuildConfig.PLAY`), github në shqip.
+   - Anglisht edhe: përshkrimet e TalkBack-ut (mbështjellësi `Icon` te ui/Gjuha.kt + `semantics { contentDescription = Gjuha.t(..) }`),
+     Toast-et e Perditesimi/PerditesimiPlay, eksportet Android (Excel: `Xlsx.build(te, tr)`, kolonat/fleta/"Gjithsej"; PDF: `tekst`/
+     `gjeresia`/`nxe`; foto: `tekst`/`rreshtat`), njoftimet push të serverit (worker/stoku-push.js futet te perkthimi-nxirr.py;
+     Android-i i përkthen me fjalorin), "Çfarë ka të re" (10 hyrjet e fundit të TeRejat.kt kanë anglisht; në anglisht shfaqen
+     vetëm hyrjet e përkthyera krejt; perkthimi-nxirr.py i kërkon).
+   - Motori (perkthimi.js + Perkthimi.kt, njësoj): pjesët e " · " dhe rreshtat përkthehen krejt (edhe copat/modelet). Modele të reja:
+     "Pjesa X nga Y", "Faqja X nga Y", "ora HH:MM", "Krijo N foto", "Ke N ftesa", "N faqe A4", foto/ftesa/kërkesa/rresht.
+   - perkthimi-nxirr.py: s'i kalon më fjalët e vetme me shkronja të vogla (p.sh. "muaj", " produkte"); kodi/CSS shkon te "injoro".
+   - Drejtshkrimi: u kontrolluan krejt 1032 fjalët anglisht të fjalorit (s'u lejua instalimi i pyspellchecker, u kontrollua me dorë);
+     drejtshkrim amerikan (color, center, canceled).
+   - Testet: `teste/v357.js`; Android `src/testPlay/.../PlayTest.kt` (CI "Versioni Play (com.stoku.app, anglisht)": paketa, anglishtja
+     si parazgjedhje, asnjë tekst shqip në Ballinë/Malli/Afatet/Grupi/Cilësimet dhe faqet e tyre, pamjet `play-en-*.png` për Play Store).
+   - PLAY.md: gjuha bazë en-US, tekstet e Store-it në anglisht, Firebase me paketën e re (vetëm nëse çelësi është i kufizuar).
+
 0000000. **v356 / Android Hyrja 116 (22.11.2026): ANGLISHTJA, TEKSTET E HARRUARA**. Pronari (foto e Ballinës në Android në anglisht,
    "Krejt" e rrethuar): "Perveq produkteve qe secili i emeron qysh te dojn, kshyr kunke harru fjale ose fjali pa i perkthy". Shkaku:
    `perkthimi-nxirr.py` merrte vetëm vargjet me ë/ç ose me fjalë shqipe të njohura, prandaj fjalët e vetme si "Krejt", "Aktive", "Mbrapa",

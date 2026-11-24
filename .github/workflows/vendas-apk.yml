@@ -90,6 +90,9 @@ jobs:
       - name: Pamjet (Robolectric)
         continue-on-error: true
         run: gradle -p vendas :app:testGithubDebugUnitTest --stacktrace --no-daemon
+      # Pronari (24.11.2026): versioni i Play-it = com.stoku.app, nis në anglisht, asnjë tekst shqip në ekrane
+      - name: Versioni Play (com.stoku.app, anglisht)
+        run: gradle -p vendas :app:testPlayDebugUnitTest --tests site.stoku.vendas.PlayTest --stacktrace --no-daemon
       - name: Blob-et e pamjeve
         if: always()
         env:
