@@ -95,7 +95,7 @@ object Xlsx {
     }
 
     /** Excel-i i folderit: produktet = [{ barkodi, emri, sasia, furnizuesi }] (të renditura nga thirrësi) */
-    fun hyrjetEBuild(produktet: List<Obj>): List<Hyrje> {
+    fun hyrjetEBuild(produktet: List<Obj>, tr: (String) -> String = { it }): List<Hyrje> {
         val ct = KOKA +
             "<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\">" +
             "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/>" +
@@ -106,14 +106,15 @@ object Xlsx {
             "</Types>"
         val workbook = KOKA +
             "<workbook xmlns=\"$NS_MAIN\" xmlns:r=\"$NS_REL\">" +
-            "<sheets><sheet name=\"Malli\" sheetId=\"1\" r:id=\"rId1\"/></sheets></workbook>"
+            "<sheets><sheet name=\"" + tr("Malli") + "\" sheetId=\"1\" r:id=\"rId1\"/></sheets></workbook>"
         val wbRels = KOKA +
             "<Relationships xmlns=\"$NS_PKG_REL\">" +
             "<Relationship Id=\"rId1\" Type=\"$NS_REL/worksheet\" Target=\"worksheets/sheet1.xml\"/>" +
             "<Relationship Id=\"rId2\" Type=\"$NS_REL/styles\" Target=\"styles.xml\"/>" +
             "</Relationships>"
         val rows = StringBuilder()
-        rows.append("<row>" + tekst("Barkodi") + tekst("Emri i produktit") + tekst("Sasia") + tekst("Furnizuesi") + "</row>")
+        // v355: tr = gjuha e pamjes (Android: Gjuha.t); pa të, si te web-i
+        rows.append("<row>" + tekst(tr("Barkodi")) + tekst(tr("Emri i produktit")) + tekst(tr("Sasia")) + tekst(tr("Furnizuesi")) + "</row>")
         produktet.forEach { p ->
             rows.append("<row>" + tekst(fusha(p, "barkodi")) + tekst(fusha(p, "emri")) + "<c s=\"1\"><v>" + jsInt32(p["sasia"]) + "</v></c>" +
                 tekst(if (eVertete(p["furnizuesi"])) p["furnizuesi"] else "") + "</row>")
@@ -135,7 +136,7 @@ object Xlsx {
     }
     /** web v330: sasia majtas (stili 1), si te afatet */
     private const val STILET_E_MALLIT = "<styleSheet xmlns=\"$NS_MAIN\"><fonts count=\"1\"><font><sz val=\"11\"/><name val=\"Calibri\"/><family val=\"2\"/></font></fonts><fills count=\"2\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill></fills><borders count=\"1\"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/></cellStyleXfs><cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"1\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\" applyAlignment=\"1\"><alignment horizontal=\"left\"/></xf></cellXfs><cellStyles count=\"1\"><cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/></cellStyles></styleSheet>"
-    fun build(produktet: List<Obj>): ByteArray = zip(hyrjetEBuild(produktet))
+    fun build(produktet: List<Obj>, tr: (String) -> String = { it }): ByteArray = zip(hyrjetEBuild(produktet, tr))
 
     // ================= Libër pune me disa fletë + stil =================
     /** type: "text" (parazgjedhur), "number", "date" (ms, me orë), "day" ('VVVV-MM-DD') */

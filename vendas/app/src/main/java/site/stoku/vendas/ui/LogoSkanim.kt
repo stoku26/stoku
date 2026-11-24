@@ -70,7 +70,7 @@ fun LogoMeSkanim(ink: Color, pika: Color, pershkrimi: String, modifier: Modifier
     LaunchedEffect(Unit) { if (anim.value < 1f) { kurNis(); anim.animateTo(1f, tween(if (koka) SkanimiILogos.KOHA_KOKA_MS else SkanimiILogos.KOHA_MS, easing = LinearEasing)) } }
     val gj = if (koka) SkanimiILogos.gjendja(anim.value, SkanimiILogos.NIS_KOKA) else SkanimiILogos.gjendja(anim.value)
     val gjelber = Color(0xFF4ADE80)
-    Canvas(modifier.semantics { contentDescription = pershkrimi }) {
+    Canvas(modifier.semantics { contentDescription = site.stoku.vendas.ui.Gjuha.t(pershkrimi) }) {
         val k = size.width / Logot.FJ_W
         withTransform({ scale(k, k, pivot = Offset.Zero) }) {
             clipRect(gj[1], -8f, gj[1] + 150f, 37f) {

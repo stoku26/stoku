@@ -48,7 +48,7 @@ object Eksportet {
         val te = Dyqani.produktetEFolderit(folderId).sortedWith(emriKrahaso)
         if (te.isEmpty()) return null
         val emri = "malli_" + sluguFolderit(Dyqani.emriFolderit(folderId)) + "_" + dataEmri(LocalDateTime.now(), true) + ".xlsx"
-        return Skedari(Xlsx.build(te), emri, Xlsx.MIME, "Malli")
+        return Skedari(Xlsx.build(te) { site.stoku.vendas.ui.Gjuha.t(it) }, emri, Xlsx.MIME, "Malli")
     }
 
     private fun shkurto(t: String, maks: Int) = if (t.length > maks) t.take(maks - 1) + "…" else t
@@ -110,8 +110,8 @@ object Eksportet {
                     numri.textScaleX = sx / sy
                     c.drawText(barkodi, imgX + bGj / 2, imgY + 70 * sy, numri)
                     val yT = y + 2 + bL + 4
-                    c.drawText(shkurto((p["emri"] as? String)?.ifEmpty { null } ?: "(pa emër)", 28), qendraX, yT, normal)
-                    c.drawText("Sasia: " + jsString(p["sasia"]), qendraX, yT + 5, trash)
+                    c.drawText(shkurto((p["emri"] as? String)?.ifEmpty { null } ?: site.stoku.vendas.ui.Gjuha.t("(pa emër)"), 28), qendraX, yT, normal)
+                    c.drawText(site.stoku.vendas.ui.Gjuha.t("Sasia: ") + jsString(p["sasia"]), qendraX, yT + 5, trash)
                 } else {
                     val t = Paint(normal).apply { textSize = 9 * pt }
                     c.drawText(barkodi, qendraX, y + qL / 2, t)
@@ -147,8 +147,10 @@ object Eksportet {
         val kolonat = KOLONAT_E_AFATEVE.filter { kyçet.contains(it.k) }
         val rreshtat = lista.map { a -> kolonat.map { it.v(a) } }
         val iSasise = if (kyçet.contains("sasia")) kolonat.indexOfFirst { it.k == "sasia" } else -1
-        val fleta = Xlsx.Fleta(furnizuesi.ifEmpty { if (muaji.isNotEmpty()) Afatet.emriMuajit(muaji) else "Afatet" }, kolonat.map { it.col }, rreshtat,
-            totalLabel = if (iSasise > 0) "Gjithsej" else null, totalColumns = if (iSasise >= 0) listOf(iSasise) else emptyList())
+        // v355: titujt e kolonave, emri i fletës dhe "Gjithsej" në gjuhën e pamjes (anglisht te versioni play)
+        val fleta = Xlsx.Fleta(site.stoku.vendas.ui.Gjuha.t(furnizuesi.ifEmpty { if (muaji.isNotEmpty()) Afatet.emriMuajit(muaji) else "Afatet" }),
+            kolonat.map { Xlsx.Kolona(site.stoku.vendas.ui.Gjuha.t(it.col.title), it.col.width, it.col.type) }, rreshtat,
+            totalLabel = if (iSasise > 0) site.stoku.vendas.ui.Gjuha.t("Gjithsej") else null, totalColumns = if (iSasise >= 0) listOf(iSasise) else emptyList())
         val emri = "afatet_" + (pjeseEmri(furnizuesi).let { if (furnizuesi.isNotEmpty() && it.isNotEmpty()) it + "_" else "" }) +
             (if (muaji.isNotEmpty()) pjeseEmri(Afatet.emriMuajit(muaji)) + "_" else "") + dataEmri(LocalDateTime.now(), true) + ".xlsx"
         return Skedari(Xlsx.buildWorkbook(listOf(fleta)), emri, Xlsx.MIME, "Afatet")

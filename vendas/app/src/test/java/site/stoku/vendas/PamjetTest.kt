@@ -109,6 +109,8 @@ class PamjetTest {
         // v327: kërkimi kudo (afatet, malli, furnizuesit)
         val fusha = r.onAllNodes(hasSetTextAction())[0]
         fusha.performClick(); fusha.performTextInput("vita"); r.waitForIdle()
+        // kërkimi bëhet në sfond (Dispatchers.Default): prit rezultatet
+        r.waitUntil(10_000) { r.onAllNodesWithText("Kos Vita 500g").fetchSemanticsNodes().isNotEmpty() }
         r.onAllNodesWithText("Kos Vita 500g")[0].assertExists()
         r.onAllNodesWithText("Furnizuesit")[0].assertExists()
         fotoEkrani("light-42-ballina-kerkimi")
@@ -149,7 +151,7 @@ class PamjetTest {
             foto("light-45-en-malli")
             kliko("Pije")
             r.onAllNodesWithText("Ujë Rugove 1.5L")[0].assertExists()
-            r.onNodeWithContentDescription("Foldera").performClick(); r.waitForIdle()
+            r.onNodeWithContentDescription("Folders").performClick(); r.waitForIdle()
             kliko("Expiry dates")
             foto("light-46-en-afatet")
             kliko("Settings")
@@ -421,7 +423,7 @@ class PamjetTest {
         kliko("Afatet")
         // Hyrja 38: te Afatet "Importo" o buton i vetin, "Eksporto Excel" brenda menysë së "Eksporto"
         r.onNodeWithContentDescription("Eksporto").performClick(); r.waitForIdle() // Hyrja 38: menyja e eksportit
-        kliko("Eksporto Excel")
+        klikoFundit("Excel") // web v326: menyja "Eksporto afatet" (Excel / PDF për printim / Si foto)
         fotoEkrani("light-20-afatet-excel")
         klikoFundit("Anulo")
         r.onNodeWithContentDescription("Importo").performClick(); r.waitForIdle() // Hyrja 38: buton i vetin, pa menu
@@ -434,13 +436,17 @@ class PamjetTest {
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
         kliko("Afatet")
         r.onNodeWithContentDescription("Eksporto").performClick(); r.waitForIdle() // Hyrja 38: menyja e eksportit
-        kliko("Eksporto si foto")
+        klikoFundit("Si foto") // web v326: menyja "Eksporto afatet"
         fotoEkrani("light-43-afatet-foto")
+        // web v326: furnizuesit janë në listën që hapet te rreshti "Furnizuesit"; në fillim "Të gjithë" të zgjedhur
+        org.junit.Assert.assertTrue("Krijo 3 foto", r.onAllNodesWithText("Krijo 3 foto").fetchSemanticsNodes().isNotEmpty())
+        klikoFundit("Furnizuesit")
+        klikoFundit("Asnjë")
         org.junit.Assert.assertTrue("furnizuesit", r.onAllNodesWithText("Vita").fetchSemanticsNodes().isNotEmpty() &&
             r.onAllNodesWithText("Bylmeti").fetchSemanticsNodes().isNotEmpty() && r.onAllNodesWithText("Pa furnizues").fetchSemanticsNodes().isNotEmpty())
-        kliko("Vita")
+        klikoFundit("Vita")
         org.junit.Assert.assertTrue("Krijo foton", r.onAllNodesWithText("Krijo foton").fetchSemanticsNodes().isNotEmpty())
-        kliko("Bylmeti")
+        klikoFundit("Bylmeti")
         org.junit.Assert.assertTrue("Krijo 2 foto", r.onAllNodesWithText("Krijo 2 foto").fetchSemanticsNodes().isNotEmpty())
         val ctx: android.content.Context = org.robolectric.RuntimeEnvironment.getApplication()
         val te = Dyqani.gjendja.value.afatet.sortedWith { a, b -> Afatet.krahaso(a, b) }
@@ -470,7 +476,7 @@ class PamjetTest {
         r.setContent { StokuTema("light") { Rrenja("light") {} } }
         kliko("Afatet")
         r.onNodeWithContentDescription("Eksporto").performClick(); r.waitForIdle() // Hyrja 38: menyja e eksportit
-        kliko("Eksporto PDF")
+        klikoFundit("PDF për printim") // web v326: menyja "Eksporto afatet"
         fotoEkrani("light-45-afatet-pdf")
         for (t in listOf("PDF për printim", "5 afate · 1 faqe A4", "Periudha", "Ditët e skanimit", "Furnizuesi", "Renditja", "Sipas datës", "Krijo PDF-në"))
             org.junit.Assert.assertTrue(t, r.onAllNodesWithText(t).fetchSemanticsNodes().isNotEmpty())

@@ -53,12 +53,13 @@ class Perkthyesi(private val fjalet: Map<String, String>, modelet: List<Pair<Str
         var r = berthama(mes)
         if (r == null && mes.contains(" · ")) {
             var ndr = false
-            val pj = mes.split(" · ").map { p -> val x = berthama(p); if (x != null) { ndr = true; x } else p }
+            // çdo pjesë përkthehet krejt (edhe copat dhe modelet me numra), si te perkthimi.js
+            val pj = mes.split(" · ").map { p -> val x = t(p); if (x != p) ndr = true; x }
             if (ndr) r = pj.joinToString(" · ")
         }
         if (r == null && mes.contains('\n')) {
             var ndr = false
-            val rr = mes.split("\n").map { p -> val x = berthama(p.trim()); if (x != null) { ndr = true; p.replaceFirst(p.trim(), x) } else p }
+            val rr = mes.split("\n").map { p -> val x = t(p); if (x != p) ndr = true; x }
             if (ndr) r = rr.joinToString("\n")
         }
         if (r == null && (frag != null || modg.isNotEmpty())) {

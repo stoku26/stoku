@@ -21,6 +21,9 @@
   'use strict';
 
   var LISTA = [
+    { v: 357, versioni: '1.76.2', data: '2026-11-24', titulli: 'Gjuha anglisht', pikat: [
+      'Në anglisht përkthehen më mirë tekstet me numra të ndarë me " · " (p.sh. "5 afate · 1 faqe A4").'
+    ] },
     { v: 356, versioni: '1.76.1', data: '2026-11-22', titulli: 'Gjuha anglisht', pikat: [
       'Në anglisht janë përkthyer edhe tekstet që kishin mbetur shqip (p.sh. "Krejt", muajt, ditët e javës, emrat e ngjyrave).'
     ] },

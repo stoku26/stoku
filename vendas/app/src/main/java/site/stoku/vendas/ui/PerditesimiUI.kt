@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -74,7 +73,7 @@ fun PerditesimiFaqja() {
                 }, style = tx(14, 500, n.muted), modifier = Modifier.padding(top = 10.dp))
             }
             if (x.faza == "gabim") Text(x.mesazhi, style = txR(14f, 500, n.exp), textAlign = TextAlign.Center, modifier = Modifier.padding(top = 18.dp))
-            val pikat = x.teReja.flatMap { it.pikat }.take(6)
+            val pikat = x.teReja.flatMap { it.pikat }.filter { Gjuha.kaPerkthim(it) }.take(6) // v355: në anglisht vetëm të përkthyerat
             // Hyrja 92 (pronari, foto e shkarkimit): "Çfarë ka të re" del edhe gjatë shkarkimit, si më parë (jo hapësirë bosh)
             if (pikat.isNotEmpty()) {
                 Column(Modifier.padding(top = 26.dp).fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(n.surface)
@@ -85,7 +84,7 @@ fun PerditesimiFaqja() {
                             Box(Modifier.size(22.dp).clip(RoundedCornerShape(7.dp)).background(n.okTint), contentAlignment = Alignment.Center) {
                                 Icon(Ik.Kontroll, null, Modifier.size(14.dp), tint = n.ok)
                             }
-                            androidx.compose.material3.Text(t, style = txR(14f, 400, n.ink2, 1.35f), modifier = Modifier.weight(1f))
+                            Text(t, style = txR(14f, 400, n.ink2, 1.35f), modifier = Modifier.weight(1f))
                         }
                     }
                 }

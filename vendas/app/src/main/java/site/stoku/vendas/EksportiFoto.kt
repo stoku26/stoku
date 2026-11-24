@@ -86,7 +86,7 @@ object EksportiFoto {
     private fun rreshtat(p: Paint, t: String, gjeresia: Float, maks: Int): List<String> {
         val rr = ArrayList<String>()
         var r = ""
-        t.replace(Regex("\\s+"), " ").trim().split(" ").forEach { f ->
+        site.stoku.vendas.ui.Gjuha.t(t).replace(Regex("\\s+"), " ").trim().split(" ").forEach { f ->
             val pr = if (r.isEmpty()) f else "$r $f"
             if (p.measureText(pr) <= gjeresia || r.isEmpty()) r = pr else { rr.add(r); r = f }
         }
@@ -105,7 +105,7 @@ object EksportiFoto {
         p.color = ngjyra
         p.textAlign = if (djathtas) Paint.Align.RIGHT else Paint.Align.LEFT
         val fm = p.fontMetrics
-        drawText(t, x, qendra - (fm.ascent + fm.descent) / 2f, p)
+        drawText(site.stoku.vendas.ui.Gjuha.t(t), x, qendra - (fm.ascent + fm.descent) / 2f, p) // v355: gjuha e pamjes
     }
     private fun Canvas.kendi(p: Paint, x: Float, y: Float, w: Float, h: Float, r: Float, ngjyra: Int, vije: Boolean = false) {
         p.color = ngjyra

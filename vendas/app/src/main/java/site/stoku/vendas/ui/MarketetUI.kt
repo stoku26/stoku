@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -160,7 +159,7 @@ private fun KuJe(d: Merchandiseri.Dritarja.KuJe, hapMarketet: () -> Unit) {
             else "Afatet dhe numrat tregohen për marketin që zgjedh. Nëse GPS-i s'e ka gjetur mirë, zgjidhe vetë."
             Text(nen, style = txF(13.5f, 400, n.muted), modifier = Modifier.padding(top = 6.dp, bottom = 10.dp))
             Column(Modifier.heightIn(max = 380.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                @Composable fun titulli(t: String) = Text(t.uppercase(), style = txF(11.5f, 700, n.muted), modifier = Modifier.padding(start = 2.dp, top = 6.dp))
+                @Composable fun titulli(t: String) = Text(Gjuha.t(t).uppercase(), style = txF(11.5f, 700, n.muted), modifier = Modifier.padding(start = 2.dp, top = 6.dp))
                 @Composable fun butoni(o: Opsioni, iAfert: Boolean) {
                     val iZgjedhur = !perTeReja && o.id == aktiv
                     val forma = RoundedCornerShape(14.dp)

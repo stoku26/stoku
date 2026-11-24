@@ -254,7 +254,8 @@ fun NjoftimetFaqja(mbrapa: () -> Unit) {
 
 /** Teksti me pjesë të trasha: **kështu** (si <b> te hapat e web-it) */
 private fun meTeTrasha(t: String, ngjyra: Color) = buildAnnotatedString {
-    t.split("**").forEachIndexed { i, pj -> if (i % 2 == 1) withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = ngjyra)) { append(pj) } else append(pj) }
+    // v357: përkthehet teksti i plotë (me **) para se të ndahet, që fjalia të mos përkthehet copa-copa
+    Gjuha.t(t).split("**").forEachIndexed { i, pj -> if (i % 2 == 1) withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = ngjyra)) { append(pj) } else append(pj) }
 }
 
 /** .ops-hapat: hapat me numër në rreth blu */

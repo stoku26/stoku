@@ -24,6 +24,10 @@ if [ "$RI" != "$NE" ] || [ "$N" != "1" ]; then echo "::error::AAB-ja s'është e
 if unzip -p "$TMP/a.aab" base/manifest/AndroidManifest.xml | grep -aq REQUEST_INSTALL_PACKAGES; then
   echo "::error::AAB-ja për Play ka lejen REQUEST_INSTALL_PACKAGES."; exit 1
 fi
+# Pronari (24.11.2026): paketa e versionit play është com.stoku.app
+if ! unzip -p "$TMP/a.aab" base/manifest/AndroidManifest.xml | grep -aq 'com.stoku.app'; then
+  echo "::error::AAB-ja për Play s'e ka paketën com.stoku.app."; exit 1
+fi
 cp "$TMP/a.aab" "$OUT"
 echo "OK: AAB e nënshkruar me çelësin e ngarkimit. Gjurma (për Play Console, 'Upload key'):"
 keytool -list -v -keystore "$TMP/k.p12" -storepass:env P -alias stoku | grep -E "SHA1:|SHA256:"

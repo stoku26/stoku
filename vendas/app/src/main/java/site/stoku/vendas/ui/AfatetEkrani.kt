@@ -29,7 +29,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -296,7 +295,7 @@ private fun ndryshoZgjedhjen(z: Set<String>?, id: String): Set<String>? =
 private fun ButoniShto(onClick: () -> Unit) {
     val n = N
     Row(Modifier.fillMaxWidth().height(65.dp).clip(RoundedCornerShape(18.dp)).border(1.5.dp, n.line, RoundedCornerShape(18.dp)).clickable(onClick = onClick)
-        .semantics(mergeDescendants = true) { contentDescription = "Shto afat"; role = androidx.compose.ui.semantics.Role.Button },
+        .semantics(mergeDescendants = true) { contentDescription = site.stoku.vendas.ui.Gjuha.t("Shto afat"); role = androidx.compose.ui.semantics.Role.Button },
         horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
         Icon(Ik.ShtoBarkod, null, Modifier.size(19.dp), tint = n.ink)
         Spacer(Modifier.width(8.dp))
@@ -309,7 +308,7 @@ private fun ButoniShto(onClick: () -> Unit) {
 private fun ButoniKatror(teksti: String, ikona: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier, onClick: () -> Unit) {
     val n = N
     Column(modifier.height(65.dp).clip(RoundedCornerShape(16.dp)).border(1.5.dp, n.line, RoundedCornerShape(16.dp)).clickable(onClick = onClick)
-        .semantics(mergeDescendants = true) { contentDescription = teksti; role = androidx.compose.ui.semantics.Role.Button },
+        .semantics(mergeDescendants = true) { contentDescription = site.stoku.vendas.ui.Gjuha.t(teksti); role = androidx.compose.ui.semantics.Role.Button },
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Icon(ikona, null, Modifier.size(19.dp), tint = n.ink)
         Spacer(Modifier.height(5.dp))
@@ -637,7 +636,7 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
         // Hyrja 59: butoni katror majtas "Ruaj afatin" (sa lartësia e tij) hap "Për cilin koleg?"
         if (!vetemLexim) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             if (mundKoleg && perKolegun == null) Box(Modifier.size(56.dp).clip(RoundedCornerShape(14.dp)).background(n.surface2).clickable { zgjedhKolegun = true }
-                .semantics { contentDescription = "Për një koleg"; role = androidx.compose.ui.semantics.Role.Button }, contentAlignment = Alignment.Center) {
+                .semantics { contentDescription = site.stoku.vendas.ui.Gjuha.t("Për një koleg"); role = androidx.compose.ui.semantics.Role.Button }, contentAlignment = Alignment.Center) {
                 Icon(Ik.PerKoleg, null, Modifier.size(26.dp), tint = n.ink3)
             }
             val ke = (perKolegun?.get("emri") as? String).orEmpty()
@@ -668,7 +667,7 @@ private fun ShiritiPerKolegun(k: Obj, ndrysho: () -> Unit, hiq: () -> Unit) {
             pushStyle(androidx.compose.ui.text.SpanStyle(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, color = n.ink)); append(ke); pop()
         }, style = tx(15, 600, n.ink2), modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
         Text("Ndrysho", style = txF(13.5f, 600, n.accentText), modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(n.surface2).clickable(onClick = ndrysho).padding(horizontal = 10.dp, vertical = 7.dp))
-        Box(Modifier.size(34.dp).clip(CircleShape).clickable(onClick = hiq).semantics { contentDescription = "Ruaje te lista jote" }, contentAlignment = Alignment.Center) {
+        Box(Modifier.size(34.dp).clip(CircleShape).clickable(onClick = hiq).semantics { contentDescription = site.stoku.vendas.ui.Gjuha.t("Ruaje te lista jote") }, contentAlignment = Alignment.Center) {
             Text("✕", style = tx(17, 700, n.muted))
         }
     }

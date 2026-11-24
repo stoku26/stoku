@@ -34,7 +34,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -262,7 +261,7 @@ private fun Bosh(titulli: String, teksti: String = "", modifier: Modifier = Modi
 /** Titulli i vogël me shkronja të mëdha (af-grup-krye) */
 @Composable
 private fun Krye(t: String, modifier: Modifier = Modifier) {
-    Text(t.uppercase(), style = tx(12, 600, N.muted, 0.06), modifier = modifier.padding(top = 20.dp, bottom = 8.dp))
+    Text(Gjuha.t(t).uppercase(), style = tx(12, 600, N.muted, 0.06), modifier = modifier.padding(top = 20.dp, bottom = 8.dp))
 }
 
 /** Seksioni i Përmbledhjes (ek-seksion): titull + lidhje djathtas */
@@ -985,18 +984,18 @@ private fun Koleget(doc: Obj?, ftesat: List<Obj>, ftesatG: List<Obj>, kerkesatG:
                             maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 1.dp))
                     }
                     if (pronar) Box(Modifier.size(30.dp).clip(RoundedCornerShape(9.dp)).background(n.surface2).clickable { emriRi = emriG; riemertim = true }
-                        .semantics { contentDescription = "Ndrysho emrin e grupit" }, contentAlignment = Alignment.Center) {
+                        .semantics { contentDescription = site.stoku.vendas.ui.Gjuha.t("Ndrysho emrin e grupit") }, contentAlignment = Alignment.Center) {
                         Icon(Ik.Laps, null, Modifier.size(16.dp), tint = n.ink2)
                     }
                 }
             }
             if (pronar) Box(Modifier.size(48.dp).clip(RoundedCornerShape(14.dp))
                 .background(if (ftoHapur) n.surface2 else n.surface).border(1.dp, n.line, RoundedCornerShape(14.dp))
-                .clickable { ftoHapur = !ftoHapur }.semantics { contentDescription = "Fto një shok në grup" }, contentAlignment = Alignment.Center) {
+                .clickable { ftoHapur = !ftoHapur }.semantics { contentDescription = site.stoku.vendas.ui.Gjuha.t("Fto një shok në grup") }, contentAlignment = Alignment.Center) {
                 Icon(Ik.FtoKoleg, null, Modifier.size(22.dp), tint = n.ink)
             }
             Box(Modifier.size(48.dp).clip(RoundedCornerShape(14.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(14.dp))
-                .clickable { cilesimet = true }.semantics { contentDescription = "Cilësimet e grupit" }, contentAlignment = Alignment.Center) {
+                .clickable { cilesimet = true }.semantics { contentDescription = site.stoku.vendas.ui.Gjuha.t("Cilësimet e grupit") }, contentAlignment = Alignment.Center) {
                 Icon(Ik.TrePika, null, Modifier.size(22.dp), tint = n.ink)
             }
             }

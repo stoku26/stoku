@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -119,7 +118,7 @@ fun BallinaButoni(aktiv: Boolean, modifier: Modifier = Modifier, onClick: () -> 
     val gjelber = Color(if (n.erret) Logot.PIKA_ERRET else Logot.PIKA_CELET)
     Box(modifier.size(BALLINA_MADHESIA).shadow(10.dp, CircleShape).clip(CircleShape).background(n.bg).padding(4.dp).clip(CircleShape)
         .background(n.surface).border(2.dp, if (aktiv) gjelber else n.line, CircleShape).clickable(onClick = onClick)
-        .semantics { contentDescription = "Ballina" }, contentAlignment = Alignment.Center) {
+        .semantics { contentDescription = site.stoku.vendas.ui.Gjuha.t("Ballina") }, contentAlignment = Alignment.Center) {
         Icon(Ik.Ballina, null, Modifier.size(27.dp), tint = if (aktiv) n.ink else n.faint)
     }
 }
@@ -415,7 +414,7 @@ private fun PershtatFaqen(fillimi: List<Pair<String, Boolean>>, mbyll: () -> Uni
                             onDragEnd = { zvarritet = null; zhvendosja = 0f },
                             onDragCancel = { zvarritet = null; zhvendosja = 0f }
                         )
-                    }.semantics { contentDescription = "Lëvize " + pj.emri }, contentAlignment = Alignment.Center) {
+                    }.semantics { contentDescription = site.stoku.vendas.ui.Gjuha.t("Lëvize " + pj.emri) }, contentAlignment = Alignment.Center) {
                         Icon(Ik.Kapja, null, Modifier.size(20.dp), tint = n.faint)
                     }
                     Column(Modifier.weight(1f)) {

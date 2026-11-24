@@ -5,11 +5,18 @@ Aplikacioni ndërtohet në dy versione nga i njëjti kod (`vendas/app/build.grad
 | Versioni | Ku shkon | Përditësimi |
 |---|---|---|
 | **github** | APK te GitHub Releases (`vendas-vNN`), si deri tani | vetë aplikacioni (Perditesimi.kt), nga Releases |
-| **play** | AAB për Google Play (`stoku-play-NN.aab`) | VETËM nga Google Play (PerditesimiPlay.kt, "Play In-App Updates") |
+| **play** | AAB për Google Play (`stoku-play-NN.aab`), paketa **`com.stoku.app`**, nis në **anglisht** | VETËM nga Google Play (PerditesimiPlay.kt, "Play In-App Updates") |
 
 Versioni **play** s'e ka shkarkimin e APK-së nga GitHub dhe as lejen `REQUEST_INSTALL_PACKAGES` (rregullat e Play-it e ndalojnë
 përditësimin jashtë Play-it). Kur ka version të ri në Play, aplikacioni e hap vetë faqen e përditësimit të Play-it.
-Versioni **github** mbetet i pandryshuar dhe s'fshihet.
+Versioni **github** mbetet i pandryshuar (paketa `site.stoku.vendas`, nis në shqip) dhe s'fshihet.
+
+**Paketa (pronari, 24.11.2026):** versioni play ka `applicationId = "com.stoku.app"` (vetëm te `productFlavors` → `play`); kodi
+(namespace `site.stoku.vendas`, klasat) s'ndryshon dhe çdo vend që do paketën e merr nga `packageName` / `${applicationId}`
+(FileProvider `com.stoku.app.skedaret`, ikonat e jashtme, lidhja e Play-it). Në telefon është aplikacion më vete nga versioni github
+(mund të jenë të dy të instaluar). Pasi të publikohet në Play, paketa s'mund të ndryshohet më kurrë.
+**Gjuha:** versioni play nis në anglisht (kur s'ka zgjedhje të ruajtur); shqipja te Settings → Appearance → Language.
+Testi `PlayTest` (vetëm play, CI "Versioni Play") e kontrollon paketën, anglishten dhe që asnjë ekran s'ka tekst shqip.
 
 ## Ku e gjen skedarin .aab
 Çdo ndryshim në `main` krijon Release-in `vendas-vNN` me dy skedarë: `stoku-NN.apk` (github) dhe **`stoku-play-NN.aab`** (Play).
@@ -25,11 +32,14 @@ sekretin `APK_FJALEKALIMI`; `.github/apk/aab.sh`). Gjurmët e tij (publike):
 1. **Llogaria e zhvilluesit**: https://play.google.com/console → regjistrimi (25 $ një herë) dhe verifikimi i identitetit.
    Kujdes: llogaritë personale të reja duhet ta testojnë aplikacionin së pari me **të paktën 12 testues për 14 ditë**
    ("Closed testing") para se ta publikojnë për të gjithë. Llogaria e organizatës (biznesit) s'e ka këtë kusht.
-2. **Krijo aplikacionin**: emri `Stoku`, gjuha bazë Shqip (sq), App, Falas.
+2. **Krijo aplikacionin**: emri `Stoku`, gjuha bazë **English (United States) – en-US**, App, Falas. Paketa merret vetë nga
+   AAB-ja e parë: `com.stoku.app`.
 3. **Play App Signing**: lëre si e propozon Google ("Google generates and manages the app signing key"). Ngarko
    `stoku-play-NN.aab`; Google e pranon çelësin e ngarkimit më lart.
-4. **Firebase**: nëse çelësi i API-së te Google Cloud është i kufizuar sipas aplikacioneve Android (SHA-1), shto edhe SHA-1 e
-   "App signing key" që e tregon Play Console te *Setup → App integrity* (paketa `site.stoku.vendas`). Pa kufizim s'duhet asgjë.
+4. **Firebase**: nëse çelësi i API-së te Google Cloud është i kufizuar sipas aplikacioneve Android (paketa + SHA-1), shto
+   paketën **`com.stoku.app`** me SHA-1 e "App signing key" që e tregon Play Console te *Setup → App integrity*. Pa kufizim s'duhet
+   asgjë (hyrja, të dhënat dhe njoftimet punojnë njësoj me paketën e re). Opsionale: te Firebase Console → Project settings →
+   *Add app* → Android, paketa `com.stoku.app` (s'është e domosdoshme, aplikacioni s'përdor google-services.json).
 5. **Përmbajtja e aplikacionit** (*Policy → App content*):
    - Politika e privatësisë: `https://stoku.site/privatesia.html`
    - Fshirja e llogarisë (*Data deletion*): `https://stoku.site/privatesia.html#fshirja` (në aplikacion: Cilësimet → Llogaria →
@@ -42,7 +52,8 @@ sekretin `APK_FJALEKALIMI`; `.github/apk/aab.sh`). Gjurmët e tij (publike):
 6. **Faqja te Play Store** (*Grow → Store listing*): tekstet më poshtë dhe figurat te `vendas/play/`:
    - Ikona: `vendas/play/ikona-512.png` (512 x 512)
    - Banda: `vendas/play/banda-1024x500.png`
-   - Pamjet e telefonit: `vendas/play/pamjet/*.png` (1080 x 2160; zgjidh 2 deri në 8)
+   - Pamjet e telefonit: në anglisht nga `PlayTest` (`play-en-*.png`, CI "pamjet"); pamjet shqip `vendas/play/pamjet/*.png`
+     janë për listën shqip (opsionale, *Add translations → Albanian*).
 7. **Publikimi**: *Testing → Closed testing* (ose *Production*) → *Create release* → ngarko `stoku-play-NN.aab` → shënimet e versionit
    (nga "Çka ka të re" te Release-i) → *Review* → *Rollout*.
 
@@ -55,7 +66,29 @@ Versioni github dhe ai i Play-it kanë të njëjtën paketë, por nënshkrim tje
 njëri mbi tjetrin: kush do të kalojë te Play e çinstalon së pari versionin github dhe hyn sërish me llogarinë. Të dhënat (stoku, afatet,
 grupi) janë në cloud dhe s'humbin; humbin vetëm cilësimet e atij telefoni.
 
-## Tekstet për Play Store
+## Tekstet për Play Store (anglisht, gjuha bazë)
+**Name:** Stoku
+
+**Short description (≤ 80 characters):**
+Stock and expiry dates under control: scan, track and work with your team.
+
+**Full description:**
+Stoku is an app for keeping track of stock and expiry dates in stores and for merchandisers.
+
+• Stock: folders, products with barcodes, quantity with +/-, search and Excel.
+• Expiry dates: add a date by scanning the barcode, see what has expired and what expires soon, mark "Removed from the shelf".
+• Photograph the sheet: expiry dates are read automatically from a photo of the sheet.
+• Group: work together with colleagues, see the whole group's expiry dates, removal requests and activity.
+• Notifications: a daily notification about expiry dates at the time you choose.
+• Merchandisers: markets, "You're at" and expiry dates by market.
+• PDF for printing, Excel and a photo of the expiry dates.
+• Works offline too; your data is saved in the cloud and you see it on every device, also at stoku.site.
+• Light and dark, with the colors you choose.
+• English and Albanian.
+
+You can delete your account yourself at any time in Settings → Account.
+
+## Tekstet për Play Store (shqip, përkthim opsional)
 **Emri:** Stoku
 
 **Përshkrimi i shkurtër (≤ 80 shenja):**
