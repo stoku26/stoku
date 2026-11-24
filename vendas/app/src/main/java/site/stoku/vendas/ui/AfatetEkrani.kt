@@ -384,7 +384,8 @@ internal fun KutiaEDiteve(st: String, d: Int?) {
     }
     val (sf, ng) = when (lloji) { "exp" -> n.expTint to n.exp; "near" -> n.nearTint to n.near; "rem" -> n.remTint to n.rem; else -> n.okTint to n.ok }
     Column(Modifier.size(52.dp).clip(RoundedCornerShape(14.dp)).background(sf), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-        Text(madh, style = tx(19, 700, ng))
+        // "Today" (anglisht) s'nxë me 19 në kutinë 52 dp: më e vogël, në një rresht
+        Text(madh, style = tx(if (Gjuha.en && madh == "Sot") 14 else 19, 700, ng), maxLines = 1, softWrap = false)
         Text(vogel, style = txF(9.5f, 600, ng), textAlign = TextAlign.Center, lineHeight = androidx.compose.ui.unit.TextUnit.Unspecified, maxLines = 2,
             modifier = Modifier.padding(top = 3.dp, start = 2.dp, end = 2.dp))
     }

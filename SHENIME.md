@@ -56,6 +56,16 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v359 / Android Hyrja 119 (24.11.2026): "TODAY" NË NJË RRESHT + PLAY CONSOLE**. Pronari: "krejta kryj edhe qoma apet play.md
+   nese ka nevoj tja qes lokal chatit". Te pamjet anglisht të Play-it (PlayTest) "Today" në kutinë e ditëve (52 dp/px) ndahej "Toda / y".
+   Android `KutiaEDiteve` (AfatetEkrani.kt): 14 sp, një rresht kur `Gjuha.en` dhe "Sot"; web app-tel.js `sb-days__big--sot` + CSS
+   `.sb[lang="en"] .sb-days__big--sot` (14px, nowrap; `<html class="sb">`, prandaj jo `html[lang] .sb`). Shqip "Sot" mbetet 19.
+   Testi `teste/v359.js`. PLAY.md: Firebase s'do asgjë (REST pa paketë/SHA-1), publikimi Internal → Closed (12 testues, 14 ditë) →
+   Production, përgjigjet e App content (Content rating, App access, Data safety...), versionet github/play janë aplikacione të ndara,
+   pamjet anglisht `vendas/play/pamjet-en/` (9:16, anët e mbushura; Play s'pranon më shumë se 2:1, Robolectric jep 780x1688).
+   Gjendja te Play Console (pronari, 24.11.2026): App content, Store listing dhe Store settings të kryera; Internal testing 0.1.335 draft;
+   Closed testing pa nisur (duhen 12 testues). teste/v346.js: kufiri Privatësi-Kushte 600 shenja (lidhjet sipas gjuhës).
+
 0000000. **v358 / Android Hyrja 118 (24.11.2026): PRIVATËSIA DHE KUSHTET NË ANGLISHT**. Pronari: "Boni ne anglisht termet dhe kushtet
    edhe privatesine kur osht appi ne anglisht kto me kon anglisht. Kur osht ne shqip me shkru ne shqip te dyja". Faqet e reja
    `privacy.html` dhe `terms.html` = binjakët anglisht të `privatesia.html` / `kushtet.html` (e njëjta përmbajtje, CSP, stil, #fshirja;

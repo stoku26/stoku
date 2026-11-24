@@ -36,35 +36,62 @@ sekretin `APK_FJALEKALIMI`; `.github/apk/aab.sh`). Gjurmët e tij (publike):
    AAB-ja e parë: `app.stoku.android`.
 3. **Play App Signing**: lëre si e propozon Google ("Google generates and manages the app signing key"). Ngarko
    `stoku-play-NN.aab`; Google e pranon çelësin e ngarkimit më lart.
-4. **Firebase**: nëse çelësi i API-së te Google Cloud është i kufizuar sipas aplikacioneve Android (paketa + SHA-1), shto
-   paketën **`app.stoku.android`** me SHA-1 e "App signing key" që e tregon Play Console te *Setup → App integrity*. Pa kufizim s'duhet
-   asgjë (hyrja, të dhënat dhe njoftimet punojnë njësoj me paketën e re). Opsionale: te Firebase Console → Project settings →
-   *Add app* → Android, paketa `app.stoku.android` (s'është e domosdoshme, aplikacioni s'përdor google-services.json).
-5. **Përmbajtja e aplikacionit** (*Policy → App content*):
-   - Politika e privatësisë: `https://stoku.site/privacy.html` (anglisht; shqip: `privatesia.html`)
-   - Fshirja e llogarisë (*Data deletion*): `https://stoku.site/privacy.html#fshirja` (në aplikacion: Cilësimet → Llogaria →
-     Fshi llogarinë).
-   - *App access*: hyrja kërkon llogari. Krijo një llogari prove (p.sh. `provagoogle` me një fjalëkalim) dhe shkruaji te
-     "Instructions": "Hyr me emrin e përdoruesit dhe fjalëkalimin. S'ka kod tjetër."
-   - Reklama: Jo. Vlerësimi i përmbajtjes: aplikacion pune (Utility/Productivity), pa dhunë, pa blerje.
-   - Publiku: 18+ (aplikacion pune).
-   - *Data safety*: shih më poshtë.
+4. **Firebase: s'duhet asgjë.** Aplikacioni lidhet me Firebase me REST (si web-i), pa e dërguar paketën as SHA-1, prandaj një
+   kufizim i çelësit sipas aplikacioneve Android do ta bllokonte edhe versionin github që punon. Paketa e re `app.stoku.android`
+   punon njësoj (hyrja, të dhënat, njoftimet). S'ka nevojë për *Add app* te Firebase as për google-services.json.
+5. **Përmbajtja e aplikacionit** (*Policy → App content*): krejt përgjigjet janë te pjesa "Përgjigjet për App content" më poshtë.
 6. **Faqja te Play Store** (*Grow → Store listing*): tekstet më poshtë dhe figurat te `vendas/play/`:
    - Ikona: `vendas/play/ikona-512.png` (512 x 512)
    - Banda: `vendas/play/banda-1024x500.png`
-   - Pamjet e telefonit: në anglisht nga `PlayTest` (`play-en-*.png`, CI "pamjet"); pamjet shqip `vendas/play/pamjet/*.png`
-     janë për listën shqip (opsionale, *Add translations → Albanian*).
-7. **Publikimi**: *Testing → Closed testing* (ose *Production*) → *Create release* → ngarko `stoku-play-NN.aab` → shënimet e versionit
-   (nga "Çka ka të re" te Release-i) → *Review* → *Rollout*.
+   - Pamjet e telefonit (anglisht, 9:16): `vendas/play/pamjet-en/*.png` (nga `PlayTest`, me anët e mbushura që raporti të jetë
+     brenda kufirit 2:1 të Play-it). Pamjet shqip `vendas/play/pamjet/*.png` janë për listën shqip (opsionale, *Add translations → Albanian*).
+7. **Publikimi**, me radhë (llogari personale e re):
+   1. **Internal testing** (opsional, për provë të shpejtë): *Test and release → Testing → Internal testing → Create new release*
+      → ngarko `stoku-play-NN.aab` → shënimet → *Next* → *Save and publish*. Testuesit (email Gmail) e marrin brenda pak minutash.
+   2. **Closed testing** (i detyrueshëm para Production): *Closed testing → Create track* (ose "Alpha") →
+      *Countries/regions*: Kosova, Shqipëria, Maqedonia e Veriut, Gjermania, Zvicra (ose krejt vendet) →
+      *Testers*: listë me **të paktën 12** llogari Gmail (më mirë 14-15) → *Create new release* → *Add from library* (AAB-ja e fundit)
+      → *Next* → *Save* → *Send for review*. Pas miratimit, secili testues e hap linkun e testit, shtyp *Become a tester* dhe e instalon.
+   3. **14 ditë** pa ndërprerje me të paktën 12 testues të regjistruar (opted-in). Mos e çinstalojnë gjatë kësaj kohe.
+   4. **Production**: *Dashboard → Apply for production* → pyetjet e Google-it për testin → pas miratimit *Production → Create new
+      release* → *Add from library* → *Send for review*.
+   - *Publishing overview → Send changes for review* hapet vetëm pasi të publikohet Internal testing ose të dërgohet Closed testing.
+   - Paralajmërimet për "deobfuscation file" dhe "debug symbols" janë vetëm këshilla (s'duhen).
 
 ## Përditësimet e mëvonshme
 Pas çdo ndryshimi në `main`: merr `stoku-play-NN.aab` nga Release-i më i ri dhe ngarkoje te Play Console si release i ri. Numri i versionit
 (`versionCode`) rritet vetë me çdo ndërtim. Telefonat me versionin nga Play e marrin përditësimin vetëm nga Play.
 
-## Kalimi nga versioni github te ai i Play-it
-Versioni github dhe ai i Play-it kanë të njëjtën paketë, por nënshkrim tjetër (Play e nënshkruan vetë), prandaj s'mund të instalohet
-njëri mbi tjetrin: kush do të kalojë te Play e çinstalon së pari versionin github dhe hyn sërish me llogarinë. Të dhënat (stoku, afatet,
-grupi) janë në cloud dhe s'humbin; humbin vetëm cilësimet e atij telefoni.
+## Versioni github dhe ai i Play-it në të njëjtin telefon
+Kanë paketa të ndryshme (`site.stoku.vendas` dhe `app.stoku.android`), prandaj për telefonin janë dy aplikacione të ndara: mund të
+jenë të dy të instaluar njëkohësisht. Te versioni nga Play hyhet sërish me llogarinë; malli, afatet, grupi dhe pamja janë te llogaria
+(cloud) dhe dalin njësoj. Cilësimet e vetë telefonit (p.sh. ora e njoftimit, gjuha) zgjidhen sërish. Kush kalon krejt te Play, mund ta
+çinstalojë versionin github pasi të hyjë te versioni i Play-it.
+
+## Përgjigjet për App content (Play Console → Policy → App content)
+- **Privacy policy:** `https://stoku.site/privacy.html` (shqip: `privatesia.html`)
+- **App access (Sign in details):** *Is any part of your app restricted?* **Yes** → *Add instructions*:
+  - Name `Test account`, Username / Password të një llogarie prove (p.sh. `googletest`) që e krijon pronari, e bën admin të një grupi
+    dhe i shton disa produkte e afate. Mos e fshij dhe mos ia ndrysho fjalëkalimin. Kurrë llogarinë e administratorit.
+  - *Any other information:*
+    ```
+    Only the username and password above are needed. There is no 2-step verification, code or payment.
+    The test account is the admin of a group, so all sections are available (stock, expiry dates, group, activity, settings).
+    Barcode scanning uses the camera, but barcodes can also be typed by hand.
+    Location is optional and only used for the "Markets" section; markets can also be added without location.
+    The smartwatch app is optional and not needed for the review.
+    ```
+- **Ads:** *No, my app does not contain ads*. Nëse shtohen reklama më vonë: ndryshoje në *Yes* para atij versioni dhe përditëso Data safety.
+- **Content rating:** Email `mendurb@gmail.com`, Category **All Other App Types**, prano IARC Terms.
+  - Downloaded App (ratings-relevant content): **No**
+  - User Content Sharing: interact/exchange content **Yes**; UGC primary source **No**; public nudity **No**; public graphic violence
+    **No**; block users **Yes** (admini e heq kolegun, kushdo largohet vetë); report users **No**; chat moderation **No**;
+    limited to invited friends only **Yes**
+  - Online Content: krejt **No**. Age-Restricted Products: krejt **No**. Miscellaneous: krejt **No**.
+- **Target audience:** vetëm **18 and over**; *Appeal to children* **No**.
+- **Data safety:** shih "Data safety (përgjigjet)" më poshtë.
+- **Government apps:** **No**. **Financial features:** *My app doesn't provide any financial features*. **Health:** asnjë.
+- **App category:** App, **Business**. **Contact:** email `mendurb@gmail.com`, website `https://stoku.site`.
 
 ## Tekstet për Play Store (anglisht, gjuha bazë)
 **Name:** Stoku
@@ -110,7 +137,8 @@ Stoku është aplikacion për regjistrimin e mallit dhe të afateve të skadimit
 Llogarinë mund ta fshish vetë në çdo kohë te Cilësimet → Llogaria.
 
 ## Data safety (përgjigjet)
-- Mbledh të dhëna: **Po**. Të enkriptuara gjatë dërgimit: **Po**. Përdoruesi mund të kërkojë fshirjen: **Po** (në aplikacion).
+- Mbledh të dhëna: **Po**. Të enkriptuara gjatë dërgimit: **Po**. Krijimi i llogarisë: **Username and password**.
+- Përdoruesi mund të kërkojë fshirjen: **Po**, URL `https://stoku.site/privacy.html#fshirja` (në aplikacion: Settings → Account → Delete account).
 - Të dhënat (krejt për "App functionality", asnjë për reklama, asnjë s'shitet):
   - *Personal info → User IDs*: emri i përdoruesit (i detyrueshëm).
   - *Photos*: fotoja e profilit (opsionale) dhe foto e fletës që lexohet me AI (opsionale, s'ruhet).
