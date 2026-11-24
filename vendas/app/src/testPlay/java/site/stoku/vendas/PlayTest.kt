@@ -101,4 +101,21 @@ class PlayTest {
         println("PlayTest: tekste shqip: " + l.size); l.take(40).forEach { println("  " + it) }
         assertEquals("tekste shqip në versionin play (anglisht): " + l.take(15), 0, l.size)
     }
+
+    /** Pamje shtesë për Play Store (pronari: "Qomi 6 screenshota ne anglisht"): folderi, Pamja (e çelët) dhe Ballina/Afatet (e errët). */
+    @Test fun pamjetShtese() {
+        StokuApp.prefs(StokuApp.app).edit().clear().commit(); Gjuha.nis(StokuApp.app)
+        mbush()
+        r.setContent { StokuTema("light") { Rrenja("light") {} } }
+        if (kliko("Stock") && kliko("Drinks")) foto("6-folder")
+        kliko("Settings"); if (kliko(Gjuha.t("Pamja"))) foto("7-appearance")
+    }
+
+    @Test fun pamjetErret() {
+        StokuApp.prefs(StokuApp.app).edit().clear().commit(); Gjuha.nis(StokuApp.app)
+        mbush()
+        r.setContent { StokuTema("dark") { Rrenja("dark") {} } }
+        foto("8-home-dark")
+        if (kliko("Expiry dates")) foto("9-expiry-dates-dark")
+    }
 }
