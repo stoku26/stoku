@@ -88,6 +88,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    para nënshkrimit (s'shkojnë në telefon). **Gabim i rregulluar te aab.sh**: `unzip | grep -q` me `set -o pipefail` (grep e mbyll tubin herët
    → SIGPIPE → rezultati "s'u gjet" edhe kur gjendej): kontrolli i REQUEST_INSTALL_PACKAGES dhe ai i kodit të vetë-përditësimit s'kapnin
    asgjë. Tani shkruhen në skedarë (manifest.bin, dex.bin, lista.txt) dhe kontrollohen me grep; u provua me AAB 338 (e kap).
+   **Rrëzimi i kamerës te versioni play 0.1.347** (pronari, foto: Malli dhe Afatet, sa hapet kamera): NullPointerException te
+   `KameraPamja` (BarcodeScanning.getClient). Me "mapping"-un e AAB-së 347: `qn4` = ML Kit `barcode.internal.zzg`, `ao4` = `zzi`:
+   MlKitContext.get(zzg) → null pasi R8 (full mode) e optimizoi ML Kit-in. `proguard-play.pro`: `-keep` për `com.google.mlkit.**`,
+   `com.google.android.gms.internal.mlkit_*`, `com.google.android.gms.vision.**`, `com.google.firebase.components.**`. `aab.sh` e ndal CI-në
+   nëse "mapping"-u tregon ML Kit të riemërtuar (354 do të kapej). Mapping-u: `unzip -p AAB BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map`.
    Paralajmërimi "16 KB" te Play Console ishte për 338; 345 e ka në rregull. Ikona e Play Store (e errët mbi temën e errët): 5 propozime u
    dërguan (e bardhë, blu, e gjelbër, gradient blu, e errët me unazë të gjelbër); pronari zgjedh dhe e ngarkon te Store listing.
 
