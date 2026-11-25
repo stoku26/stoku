@@ -14,3 +14,5 @@
 -dontwarn org.conscrypt.**
 -dontwarn org.bouncycastle.**
 -dontwarn org.openjsse.**
+# gRPC (Firestore) i referon OkHttp 2 (com.squareup.okhttp), që s'përdoret: s'duhet (versioni github pa ngjeshje e sheh)
+-dontwarn com.squareup.okhttp.**
