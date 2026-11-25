@@ -74,6 +74,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    - Firebase: çelësi është i njëjtë për web-in dhe Android-in, prandaj s'është i kufizuar sipas aplikacioneve: paketa e re s'do asgjë.
    - Pa ndryshim, për pronarin: `KohaKosoves` (v282) e vendos orën e Kosovës edhe për përdoruesit e Play jashtë Kosovës.
    Testi `teste/v360.js`.
+   **Pas v360 (pronari, foto e Play Console 25.11.2026: "DEX code optimization ... Obfuscation 1%", afati shkurt 2027)**: R8 i ndezur
+   për `release` (APK github + AAB play), `vendas/app/proguard-rules.pro`: `-keep class site.stoku.** { *; }` (kodi ynë i paprekur), libraritë
+   ngjishen/fshihen me rregullat e veta. AAB 25,3 → 21,7 MB. Mapping-u shkon vetë brenda AAB-së (Play s'kërkon më "deobfuscation file").
+   S'është provuar në telefon: nëse diçka mbyllet, ekrani i rrëzimit e tregon arsyen (shto rregull -keep për atë librari).
+   Paralajmërimi "16 KB" te Play Console ishte për 338; 345 e ka në rregull. Ikona e Play Store (e errët mbi temën e errët): 5 propozime u
+   dërguan (e bardhë, blu, e gjelbër, gradient blu, e errët me unazë të gjelbër); pronari zgjedh dhe e ngarkon te Store listing.
 
 0000000. **v359 / Android Hyrja 119 (24.11.2026): "TODAY" NË NJË RRESHT + PLAY CONSOLE**. Pronari: "krejta kryj edhe qoma apet play.md
    nese ka nevoj tja qes lokal chatit". Te pamjet anglisht të Play-it (PlayTest) "Today" në kutinë e ditëve (52 dp/px) ndahej "Toda / y".
