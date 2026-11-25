@@ -107,7 +107,7 @@ const keq = RASTE.map(s => [s, t(s)]).filter(([s, r]) => SHQIP.test(r.replace(/"
 ok(!keq.length, '4. ' + RASTE.length + ' tekste të përbëra pa mbetje shqip në anglisht', keq.slice(0, 5));
 ok(t('Ushqimore') === 'Groceries' && t('Pije') === 'Drinks' && t('Higjiene') === 'Hygiene' && t('Kos 500g') === 'Yogurt 500g', '4a. folderat e parazgjedhur dhe të dhënat shembull anglisht');
 ok(t('Afatet e produkteve (datat e skadimit) · Ti') === 'Product expiry dates · You' && t('nga galeria') === t('nga galeria'.toLowerCase()), '4b. modelet e reja s\'i prishin përkthimet e vjetra');
-ok(/isMinifyEnabled = true/.test(lx('vendas/app/build.gradle.kts')) && /-keep class site\.stoku\.\*\* \{ \*; \}/.test(lx('vendas/app/proguard-rules.pro')), '2a. R8 për release, kodi i Stoku-t i paprekur');
+ok(/isMinifyEnabled = true/.test(lx('vendas/app/build.gradle.kts')) && /isShrinkResources = true/.test(lx('vendas/app/build.gradle.kts')) && /proguardFiles\("proguard-play\.pro"\)/.test(lx('vendas/app/build.gradle.kts')) && /-dontobfuscate/.test(lx('vendas/app/proguard-github.pro')) && !/-keep class site\.stoku/.test(lx('vendas/app/proguard-rules.pro') + lx('vendas/app/proguard-play.pro').replace(/^#.*$/gm, '')) && /optimizedResourceShrinking=true/.test(lx('vendas/gradle.properties')), '2a. R8 i plotë + heqja e burimeve vetëm te play; github pa ndryshime');
 const kt = lx(V + 'main/java/site/stoku/vendas/TeRejat.kt');
 ok(/Hyrja\(120, "2026-11-25", "Gjuha anglisht dhe Google Play"/.test(kt), '5. TeRejat.kt: Hyrja 120');
 console.log(g ? 'GABIME: ' + g : 'KREJT OK'); process.exit(g ? 1 : 0);

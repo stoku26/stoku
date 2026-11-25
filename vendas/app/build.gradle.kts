@@ -33,10 +33,11 @@ android {
     }
     buildTypes {
         release {
-            // Play Console (25.11.2026: "DEX code optimization ... Obfuscation 1%", afati shkurt 2027): R8 e ngjesh dhe e fsheh kodin e
-            // librarive (Firebase, Compose, MapLibre, CameraX, ML Kit kanë rregullat e veta). Kodi i Stoku-t (site.stoku.**) mbetet i
-            // paprekur (proguard-rules.pro), që asgjë e jona të mos prishet; AAB-ja e mban vetë skedarin "mapping" për Play-in.
+            // Play Console (25.11.2026: "DEX code optimization ... Obfuscation 1%"; pronari: "rregulloj 100% veq per appin play"): R8 i plotë
+            // (ngjeshja, optimizimi, riemërtimi) dhe heqja e burimeve të papërdorura VETËM te versioni play (proguard-play.pro). Versioni
+            // github (APK-ja e pronarit) mbetet si më parë: proguard-github.pro i fik krejt ndryshimet e R8-it. AAB-ja e mban vetë "mapping"-un.
             isMinifyEnabled = true
+            isShrinkResources = true // Play Console: "Resource Shrinking"
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("stoku")
         }
@@ -47,10 +48,10 @@ android {
     // Play (Play In-App Updates, PerditesimiPlay.kt). E njëjta paketë site.stoku.vendas.
     flavorDimensions += "shperndarja"
     productFlavors {
-        create("github") { dimension = "shperndarja"; isDefault = true; buildConfigField("boolean", "PLAY", "false") }
+        create("github") { dimension = "shperndarja"; isDefault = true; buildConfigField("boolean", "PLAY", "false"); proguardFiles("proguard-github.pro") }
         // Pronari (24.11.2026): versioni i Play-it ka paketën "app.stoku.android" (aplikacion më vete në telefon); versioni github mbetet
         // "site.stoku.vendas". Kodi (namespace, klasat) s'ndryshon; çdo vend që do paketën e merr nga packageName / ${applicationId}.
-        create("play") { dimension = "shperndarja"; applicationId = "app.stoku.android"; buildConfigField("boolean", "PLAY", "true") }
+        create("play") { dimension = "shperndarja"; applicationId = "app.stoku.android"; buildConfigField("boolean", "PLAY", "true"); proguardFiles("proguard-play.pro") }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
