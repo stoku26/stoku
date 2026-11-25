@@ -70,6 +70,11 @@ for i in z.infolist():
     if not al or min(al) < 16384: keq.append(i.filename)
 if keq: print('::error::Libraritë pa faqe 16 KB (Google Play s\'e pranon): ' + ', '.join(keq)); sys.exit(1)
 PY
+# R8 (versioni play): ML Kit-i s'duhet riemërtuar (rrëzimi i kamerës te 0.1.347, NullPointerException te BarcodeScanning.getClient)
+unzip -p "$TMP/a.aab" 'BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map' > "$TMP/map.txt" || true
+if awk '/^com\.google\.mlkit[^ ]* -> /{ if ($1 != substr($3, 1, length($3) - 1)) { print "riemërtuar: " $0; k = 1 } } END { exit !k }' "$TMP/map.txt"; then
+  echo "::error::R8 e ka riemërtuar ML Kit-in (kamera mbyllet). Shih vendas/app/proguard-play.pro."; exit 1
+fi
 # Play Console: simbolet e kodit native (pa to del paralajmërimi "you've not uploaded debug symbols")
 grep 'debugsymbols' "$TMP/lista.txt" || true
 if ! grep -q 'BUNDLE-METADATA/com.android.tools.build.debugsymbols/' "$TMP/lista.txt"; then
