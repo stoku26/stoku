@@ -58,6 +58,8 @@ sekretin `APK_FJALEKALIMI`; `.github/apk/aab.sh`). Gjurmët e tij (publike):
       release* → *Add from library* → *Send for review*.
    - *Publishing overview → Send changes for review* hapet vetëm pasi të publikohet Internal testing ose të dërgohet Closed testing.
    - Paralajmërimet për "deobfuscation file" dhe "debug symbols" janë vetëm këshilla (s'duhen).
+   - CI (`.github/apk/aab.sh`) e ndal AAB-në kur: ka lejen REQUEST_INSTALL_PACKAGES, kod të vetë-përditësimit (GitHub/APK), paketë tjetër
+     nga `app.stoku.android`, ose libraritë arm64 pa faqe 16 KB (Google Play i refuzon që nga nëntori 2025).
 
 ## Përditësimet e mëvonshme
 Pas çdo ndryshimi në `main`: merr `stoku-play-NN.aab` nga Release-i më i ri dhe ngarkoje te Play Console si release i ri. Numri i versionit

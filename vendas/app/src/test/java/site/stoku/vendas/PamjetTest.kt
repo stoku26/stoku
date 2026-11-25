@@ -149,7 +149,7 @@ class PamjetTest {
             r.onAllNodesWithText("Krejt").assertCountEquals(0)
             kliko("Stock")
             foto("light-45-en-malli")
-            kliko("Pije")
+            kliko("Drinks") // folderi i parazgjedhur "Pije" del anglisht (Play, kontrolli 25.11.2026)
             r.onAllNodesWithText("Ujë Rugove 1.5L")[0].assertExists()
             r.onNodeWithContentDescription("Folders").performClick(); r.waitForIdle()
             kliko("Expiry dates")

@@ -875,6 +875,7 @@
   "Gjithsej: ": "Total: ",
   "Gjuha": "Language",
   "Gjuha anglisht": "English language",
+  "Gjuha anglisht dhe Google Play": "English and Google Play",
   "Gjuha e aplikacionit në këtë pajisje.": "The app language on this device.",
   "Grafiku i muajve": "Monthly chart",
   "Grafit": "Graphite",
@@ -1022,6 +1023,7 @@
   "Kalohen": "Skipped",
   "Kaluan 10 ditë: afati iu kthye ": "10 days passed: the expiry date was returned to ",
   "Kaluan 10 ditë: iu kthye ": "10 days passed: returned to ",
+  "Kamera e skanimit është përditësuar për telefonat e rinj Android.": "The scanning camera has been updated for newer Android phones.",
   "Kamera nuk u hap.": "The camera didn't open.",
   "Kamera nuk u hap. Lejo kamerën për Stoku-n te Cilësimet e telefonit.": "The camera didn't open. Allow the camera for Stoku in the phone Settings.",
   "Kamera nuk është gati. Lidhu me internet dhe hape prapë aplikacionin.": "The camera isn't ready. Connect to the internet and open the app again.",
@@ -1416,8 +1418,10 @@
   "Në PC del ": "On the PC it shows ",
   "Në Stoku ka tashmë një market me këtë emër.": "Stoku already has a market with this name.",
   "Në Stoku ka tashmë një market me këtë emër. Shto edhe vendin, p.sh. \"": "Stoku already has a market with this name. Add the place too, e.g. \"",
+  "Në anglisht edhe folderat e parazgjedhur dhe të dhënat shembull të vizitorit dalin anglisht.": "In English, the default folders and the visitor sample data are shown in English too.",
   "Në anglisht janë përkthyer edhe tekstet që kishin mbetur shqip (p.sh. \"Krejt\", muajt, ditët e javës, emrat e ngjyrave).": "Texts that had stayed in Albanian are now translated into English too (e.g. \"All\", the months, the days of the week, the color names).",
   "Në anglisht përkthehen edhe përshkrimet për lexuesin e ekranit, njoftimet e vogla dhe skedarët Excel, PDF e foto.": "In English, the screen reader descriptions, the short messages and the Excel, PDF and photo files are translated too.",
+  "Në anglisht përkthehen edhe tekstet me emra dhe numra (p.sh. \"3 foldera dhe 45 produkte u fshinë…\", kodi i rivendosjes së fjalëkalimit, butonat me numërim).": "In English, texts with names and numbers are now translated too (e.g. \"3 folders and 45 products deleted…\", the password reset code, buttons with a countdown).",
   "Në anglisht, fjala \"Today\" te kutia e ditëve të afatit s'ndahet më në dy rreshta.": "In English, the word \"Today\" in the expiry date box no longer breaks onto two lines.",
   "Në cilin folder?": "Which folder?",
   "Në cilin market je?": "Which market are you in?",
@@ -2024,6 +2028,7 @@
   "Te \"Afat i ri\": ia dërgon afatin një kolegu, që e pranon ose e refuzon.": "In \"New expiry date\": sends the expiry date to a colleague, who accepts or declines it.",
   "Te Cilësimet →": "In Settings →",
   "Te Cilësimet → **Njoftimet** shtyp **Aktivizo njoftimet** dhe lejoji.": "In Settings → **Notifications** tap **Turn on notifications** and allow them.",
+  "Te hyrja janë shtuar lidhjet \"Privatësia\" dhe \"Kushtet e përdorimit\".": "The sign-in screen now has the \"Privacy\" and \"Terms of use\" links.",
   "Telefoni": "Phone",
   "Telefoni s'është lidhur ende me shërbimin e njoftimeve të Google-it. Provo pas pak.": "The phone isn't connected to Google's notification service yet. Try again in a moment.",
   "Telefoni u regjistrua te grupi, por serveri i njoftimeve (stoku-push) s'u përgjigj (kodi: ": "The phone was registered in the group, but the notification server (stoku-push) didn't respond (code: ",
@@ -2414,6 +2419,10 @@
   "✕ E refuzove": "✕ You declined it"
  },
  "modelet": [
+  [
+   "^(.+) \\((\\d+)\\)$",
+   "@1 ($2)"
+  ],
   [
    "^\\(admin bëhet (.+)\\)$",
    "(the new admin is $1)"
