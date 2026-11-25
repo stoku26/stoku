@@ -35,7 +35,7 @@ class StokuApp : Application() {
                 val sw = java.io.StringWriter(); e.printStackTrace(java.io.PrintWriter(sw))
                 val rreshtat = sw.toString().lines().filter { it.isNotBlank() }.map { it.trim() }
                 val zgjedhur = LinkedHashSet<String>()
-                rreshtat.take(4).forEach { zgjedhur.add(it) }
+                rreshtat.take(10).forEach { zgjedhur.add(it) } // versioni play: emrat e klasave janë të riemërtuar (R8), prandaj më shumë rreshta
                 rreshtat.forEachIndexed { i, r -> if (r.startsWith("Caused by")) rreshtat.drop(i).take(3).forEach { zgjedhur.add(it) } }
                 rreshtat.filter { it.contains("site.stoku") }.take(8).forEach { zgjedhur.add(it) }
                 val tekst = (listOf("thread " + t.name) + zgjedhur).joinToString("\n").take(2500)
