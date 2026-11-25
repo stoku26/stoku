@@ -78,6 +78,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    për `release` (APK github + AAB play), `vendas/app/proguard-rules.pro`: `-keep class site.stoku.** { *; }` (kodi ynë i paprekur), libraritë
    ngjishen/fshihen me rregullat e veta. AAB 25,3 → 21,7 MB. Mapping-u shkon vetë brenda AAB-së (Play s'kërkon më "deobfuscation file").
    S'është provuar në telefon: nëse diçka mbyllet, ekrani i rrëzimit e tregon arsyen (shto rregull -keep për atë librari).
+   Pas raportit të Play Console për 347 (Optimization 52%, Obfuscation 53%, Shrinking 52%, pa Resource Shrinking; pronari: "rregulloj 100%
+   veq per appin play"): **play** = R8 i plotë pa përjashtime (`proguard-play.pro` bosh), `isShrinkResources = true`,
+   `android.r8.optimizedResourceShrinking=true` (gradle.properties); **github** = `proguard-github.pro` (-dontshrink -dontoptimize
+   -dontobfuscate + keep site.stoku), APK si para R8-it. `-dontwarn com.squareup.okhttp.**` (gRPC i Firestore-it). AAB 20,9 MB.
+   Ekrani i rrëzimit merr 10 rreshtat e parë (te play emrat e klasave janë të riemërtuar). Stoku s'përdor reflection.
    Paralajmërimi "16 KB" te Play Console ishte për 338; 345 e ka në rregull. Ikona e Play Store (e errët mbi temën e errët): 5 propozime u
    dërguan (e bardhë, blu, e gjelbër, gradient blu, e errët me unazë të gjelbër); pronari zgjedh dhe e ngarkon te Store listing.
 
