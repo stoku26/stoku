@@ -14,6 +14,24 @@ openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000 -in "$ENC" -out "$TMP/k.p12" -p
 cp "$IN" "$TMP/a.aab"
 # Hiq nënshkrimin e Gradle-it (çelësi i vjetër publik): Play pranon vetëm një nënshkrues
 zip -q -d "$TMP/a.aab" 'META-INF/*.SF' 'META-INF/*.RSA' 'META-INF/*.DSA' 'META-INF/*.EC' 'META-INF/MANIFEST.MF' || true
+# Play Console ("you've not uploaded debug symbols"): libraritë native vijnë të zhveshura nga Maven (MapLibre, ML Kit, CameraX), prandaj
+# AGP (debugSymbolLevel) s'nxjerr asgjë. Tabelat e simboleve që kanë (.dynsym) futen si skedarë simbolesh te BUNDLE-METADATA (Play i
+# përdor vetëm për raportet e rrëzimeve; s'shkojnë në telefon).
+python3 - "$TMP/a.aab" <<'PY'
+import sys, zipfile
+p = sys.argv[1]; z = zipfile.ZipFile(p)
+emrat = set(z.namelist()); shto = []
+for n in emrat:
+    if n.startswith('base/lib/') and n.endswith('.so'):
+        abi, emri = n.split('/')[2], n.split('/')[3]
+        d = 'BUNDLE-METADATA/com.android.tools.build.debugsymbols/' + abi + '/' + emri + '.sym'
+        if d not in emrat: shto.append((d, z.read(n)))
+z.close()
+if shto:
+    with zipfile.ZipFile(p, 'a', zipfile.ZIP_DEFLATED) as w:
+        for d, b in shto: w.writestr(d, b)
+print('simbolet native:', len(shto), 'skedarë')
+PY
 jarsigner -sigalg SHA256withRSA -digestalg SHA-256 -keystore "$TMP/k.p12" -storetype PKCS12 -storepass:env P "$TMP/a.aab" stoku > /dev/null
 jarsigner -verify -certs "$TMP/a.aab" | tail -3
 RI="$(keytool -list -v -keystore "$TMP/k.p12" -storepass:env P -alias stoku | awk '/SHA256:/ {print $2; exit}')"
