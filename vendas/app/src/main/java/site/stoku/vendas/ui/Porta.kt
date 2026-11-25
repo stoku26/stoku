@@ -170,6 +170,15 @@ private fun PortaBrenda() {
                         else "Hyr si vizitor për të parë si funksionojnë shërbimet e Stoku-t (kujdes: të dhënat nuk ruhen në cloud).",
                         style = tx(12, 400, n.muted), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                 }
+                // Google Play (Hyrja 120): politika e privatësisë duhet të gjendet edhe brenda aplikacionit para hyrjes (si poshtë portës
+                // te web-i: "Privatësia · Kushtet e përdorimit"), në gjuhën e aplikacionit
+                val ctx = androidx.compose.ui.platform.LocalContext.current
+                fun hap(f: String) { try { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://stoku.site/$f"))) } catch (e: Exception) { } }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                    Lidhje("Privatësia", { hap(if (Gjuha.en) "privacy.html" else "privatesia.html") }, ngjyra = n.muted, madhesia = 12)
+                    Text(" · ", style = tx(12, 400, n.faint))
+                    Lidhje("Kushtet e përdorimit", { hap(if (Gjuha.en) "terms.html" else "kushtet.html") }, ngjyra = n.muted, madhesia = 12)
+                }
             }
         }
     }

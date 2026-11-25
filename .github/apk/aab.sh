@@ -28,6 +28,11 @@ fi
 if ! unzip -p "$TMP/a.aab" base/manifest/AndroidManifest.xml | grep -aq 'app.stoku.android'; then
   echo "::error::AAB-ja për Play s'e ka paketën app.stoku.android."; exit 1
 fi
+# Rregullat e Play (pajisja dhe rrjeti): versioni "play" s'ka kod që shkarkon ose instalon APK jashtë Play-it, as adresën e Releases
+# (vetë-përditësimi është vetëm te github/Perditesimi.kt)
+for x in 'api.github.com/repos/stoku26' 'application/vnd.android.package-archive' 'MANAGE_UNKNOWN_APP_SOURCES'; do
+  if unzip -p "$TMP/a.aab" 'base/dex/*.dex' | grep -aq "$x"; then echo "::error::AAB-ja për Play ka kod të vetë-përditësimit: $x"; exit 1; fi
+done
 # Google Play: libraritë native 64-bit duhet të kenë segmente të rreshtuara në 16 KB (Android 15+, "16 KB page size");
 # përndryshe Play Console e refuzon ngarkimin. 32-bit (armeabi-v7a) s'kontrollohen (Play s'i kërkon).
 python3 - "$TMP/a.aab" <<'PY'
