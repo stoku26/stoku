@@ -38,6 +38,9 @@ android {
             // github (APK-ja e pronarit) mbetet si më parë: proguard-github.pro i fik krejt ndryshimet e R8-it. AAB-ja e mban vetë "mapping"-un.
             isMinifyEnabled = true
             isShrinkResources = true // Play Console: "Resource Shrinking"
+            // Play Console (25.11.2026: "This App Bundle contains native code, and you've not uploaded debug symbols"): simbolet e
+            // librarive native (harta, kamera, ML Kit) futen vetë në AAB (BUNDLE-METADATA/...debugsymbols), që rrëzimet të lexohen
+            ndk { debugSymbolLevel = "SYMBOL_TABLE" }
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("stoku")
         }
