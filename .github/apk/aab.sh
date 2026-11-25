@@ -21,17 +21,21 @@ NE="$(keytool -printcert -jarfile "$TMP/a.aab" | awk '/SHA256:/ {print $2; exit}
 N="$(keytool -printcert -jarfile "$TMP/a.aab" | grep -c 'SHA256:')"
 if [ "$RI" != "$NE" ] || [ "$N" != "1" ]; then echo "::error::AAB-ja s'është e nënshkruar vetëm me çelësin e ngarkimit."; exit 1; fi
 # Rregullat e Play: versioni "play" s'ka lejen e instalimit të aplikacioneve (s'përditësohet vetë jashtë Play-it)
-if unzip -p "$TMP/a.aab" base/manifest/AndroidManifest.xml | grep -aq REQUEST_INSTALL_PACKAGES; then
+# (pa "| grep -q" mbi unzip: me pipefail, grep -q e mbyll tubin herët dhe rezultati del gabim edhe kur e gjen vargun)
+unzip -p "$TMP/a.aab" base/manifest/AndroidManifest.xml > "$TMP/manifest.bin"
+unzip -p "$TMP/a.aab" 'base/dex/*.dex' > "$TMP/dex.bin"
+unzip -l "$TMP/a.aab" > "$TMP/lista.txt"
+if grep -aq REQUEST_INSTALL_PACKAGES "$TMP/manifest.bin"; then
   echo "::error::AAB-ja për Play ka lejen REQUEST_INSTALL_PACKAGES."; exit 1
 fi
 # Pronari (24.11.2026): paketa e versionit play është app.stoku.android
-if ! unzip -p "$TMP/a.aab" base/manifest/AndroidManifest.xml | grep -aq 'app.stoku.android'; then
+if ! grep -aq 'app.stoku.android' "$TMP/manifest.bin"; then
   echo "::error::AAB-ja për Play s'e ka paketën app.stoku.android."; exit 1
 fi
 # Rregullat e Play (pajisja dhe rrjeti): versioni "play" s'ka kod që shkarkon ose instalon APK jashtë Play-it, as adresën e Releases
 # (vetë-përditësimi është vetëm te github/Perditesimi.kt)
 for x in 'api.github.com/repos/stoku26' 'application/vnd.android.package-archive' 'MANAGE_UNKNOWN_APP_SOURCES'; do
-  if unzip -p "$TMP/a.aab" 'base/dex/*.dex' | grep -aq "$x"; then echo "::error::AAB-ja për Play ka kod të vetë-përditësimit: $x"; exit 1; fi
+  if grep -aq "$x" "$TMP/dex.bin"; then echo "::error::AAB-ja për Play ka kod të vetë-përditësimit: $x"; exit 1; fi
 done
 # Google Play: libraritë native 64-bit duhet të kenë segmente të rreshtuara në 16 KB (Android 15+, "16 KB page size");
 # përndryshe Play Console e refuzon ngarkimin. 32-bit (armeabi-v7a) s'kontrollohen (Play s'i kërkon).
@@ -49,7 +53,8 @@ for i in z.infolist():
 if keq: print('::error::Libraritë pa faqe 16 KB (Google Play s\'e pranon): ' + ', '.join(keq)); sys.exit(1)
 PY
 # Play Console: simbolet e kodit native (pa to del paralajmërimi "you've not uploaded debug symbols")
-if ! unzip -l "$TMP/a.aab" | grep -q 'BUNDLE-METADATA/com.android.tools.build.debugsymbols/'; then
+grep 'debugsymbols' "$TMP/lista.txt" || true
+if ! grep -q 'BUNDLE-METADATA/com.android.tools.build.debugsymbols/' "$TMP/lista.txt"; then
   echo "::error::AAB-ja s'i ka simbolet e kodit native (debugSymbolLevel)."; exit 1
 fi
 cp "$TMP/a.aab" "$OUT"
