@@ -83,6 +83,11 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    `android.r8.optimizedResourceShrinking=true` (gradle.properties); **github** = `proguard-github.pro` (-dontshrink -dontoptimize
    -dontobfuscate + keep site.stoku), APK si para R8-it. `-dontwarn com.squareup.okhttp.**` (gRPC i Firestore-it). AAB 20,9 MB.
    Ekrani i rrëzimit merr 10 rreshtat e parë (te play emrat e klasave janë të riemërtuar). Stoku s'përdor reflection.
+   Simbolet native (Play: "you've not uploaded debug symbols"): `debugSymbolLevel = "SYMBOL_TABLE"` s'nxjerr asgjë (libraritë nga Maven vijnë
+   të zhveshura), prandaj `aab.sh` i fut vetë `.so`-të (tabelat .dynsym) si `BUNDLE-METADATA/com.android.tools.build.debugsymbols/<abi>/<lib>.so.sym`
+   para nënshkrimit (s'shkojnë në telefon). **Gabim i rregulluar te aab.sh**: `unzip | grep -q` me `set -o pipefail` (grep e mbyll tubin herët
+   → SIGPIPE → rezultati "s'u gjet" edhe kur gjendej): kontrolli i REQUEST_INSTALL_PACKAGES dhe ai i kodit të vetë-përditësimit s'kapnin
+   asgjë. Tani shkruhen në skedarë (manifest.bin, dex.bin, lista.txt) dhe kontrollohen me grep; u provua me AAB 338 (e kap).
    Paralajmërimi "16 KB" te Play Console ishte për 338; 345 e ka në rregull. Ikona e Play Store (e errët mbi temën e errët): 5 propozime u
    dërguan (e bardhë, blu, e gjelbër, gradient blu, e errët me unazë të gjelbër); pronari zgjedh dhe e ngarkon te Store listing.
 
