@@ -33,7 +33,11 @@ android {
     }
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // Play Console (25.11.2026: "DEX code optimization ... Obfuscation 1%", afati shkurt 2027): R8 e ngjesh dhe e fsheh kodin e
+            // librarive (Firebase, Compose, MapLibre, CameraX, ML Kit kanë rregullat e veta). Kodi i Stoku-t (site.stoku.**) mbetet i
+            // paprekur (proguard-rules.pro), që asgjë e jona të mos prishet; AAB-ja e mban vetë skedarin "mapping" për Play-in.
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("stoku")
         }
         debug { signingConfig = signingConfigs.getByName("stoku") }
