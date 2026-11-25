@@ -48,6 +48,10 @@ for i in z.infolist():
     if not al or min(al) < 16384: keq.append(i.filename)
 if keq: print('::error::Libraritë pa faqe 16 KB (Google Play s\'e pranon): ' + ', '.join(keq)); sys.exit(1)
 PY
+# Play Console: simbolet e kodit native (pa to del paralajmërimi "you've not uploaded debug symbols")
+if ! unzip -l "$TMP/a.aab" | grep -q 'BUNDLE-METADATA/com.android.tools.build.debugsymbols/'; then
+  echo "::error::AAB-ja s'i ka simbolet e kodit native (debugSymbolLevel)."; exit 1
+fi
 cp "$TMP/a.aab" "$OUT"
 echo "OK: AAB e nënshkruar me çelësin e ngarkimit. Gjurma (për Play Console, 'Upload key'):"
 keytool -list -v -keystore "$TMP/k.p12" -storepass:env P -alias stoku | grep -E "SHA1:|SHA256:"
