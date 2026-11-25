@@ -22,7 +22,7 @@ const paKom = t => t.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '');
   const iT = ce.indexOf('"Çfarë ka të re", "Ndryshimet e fundit në Stoku"'), iP = ce.indexOf('"Privatësia", "Çfarë ruan Stoku');
   ok(iT > 0 && iP > iT && iP - iT < 400 && /TeRejatFlete\(TeRejat\.LISTA\.take\(6\)/.test(ce), '1. Android: rreshti te Cilësimet, afër Privatësisë');
   ok(!/TeRejatFlete|TeRejat\.teReja\(\)/.test(paKom(lx(K + 'MainActivity.kt'))), '1. Android: s\'del vetë pas përditësimit');
-  ok(/teReja/.test(lx(K + 'ui/PerditesimiUI.kt')) && /fun teReja\(body: String\)/.test(lx(K + 'Perditesimi.kt')) && /TeRejat\.kt/.test(lx('.github/workflows/vendas-apk.yml')),
+  ok(/teReja/.test(lx(K + 'ui/PerditesimiUI.kt')) && /fun teReja\(body: String\)/.test(lx('vendas/app/src/github/java/site/stoku/vendas/Perditesimi.kt')) && /TeRejat\.kt/.test(lx('.github/workflows/vendas-apk.yml')),
     '1. Android: "Çfarë ka të re" te faqja e përditësimit (nga Release-i)');
   ok(/'\.\/teRejat\.js\?v=3\d\d'/.test(lx('sw.js')) && /teRejat\.js\?v=3\d\d/.test(lx('index.html')) && /teRejat\.js\?v=3\d\d/.test(lx('pc.html')), '1. web: teRejat.js në faqe dhe te sw.js');
   const ek = lx(K + 'Eksportet.kt'), eu = lx(K + 'ui/EksportetUI.kt'), pc = lx('app-pc.js'), tel = lx('app-tel.js');

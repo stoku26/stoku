@@ -15,7 +15,7 @@ import java.net.URL
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Përditësimi i aplikacionit: GitHub Actions e nxjerr çdo version si Release "vendas-vNN" (NN = versionCode).
+ * Vetëm versioni "github" (Play: play/Perditesimi.kt, pa asnjë shkarkim APK-je në AAB). Përditësimi i aplikacionit: GitHub Actions e nxjerr çdo version si Release "vendas-vNN" (NN = versionCode).
  * Aplikacioni (pa WebView) s'merr pamjen nga stoku.site: çdo ndryshim vjen me një APK të re.
  * Hyrja 33 (pronari, "ideja 5"): kontrollohet sa herë hyn në aplikacion (jo më shpesh se 2 min, me ETag) dhe versioni i ri del si
  * faqe e plotë (ui/PerditesimiUI.kt: "Përditëso Stoku-n", versionet, "Çfarë ka të re" nga trupi i Release-it, shkarkimi me shirit).
@@ -40,8 +40,6 @@ object Perditesimi {
     val gjendja = MutableStateFlow<Gjendja?>(null)
 
     fun kontrollo(a: Activity, detyro: Boolean) {
-        // Versioni për Google Play: përditësimet vetëm nga Play (PerditesimiPlay.kt), pa GitHub dhe pa shkarkim APK-je
-        if (BuildConfig.PLAY) { PerditesimiPlay.kontrollo(a, detyro); return }
         val pr = StokuApp.prefs(a)
         if (gjendja.value != null) return // faqja është e hapur (ose po shkarkohet)
         if (!detyro && System.currentTimeMillis() - pr.getLong("perditesimi_koha", 0) < PUSHIMI_MS) return
@@ -201,7 +199,6 @@ object Perditesimi {
 
     /** Pas kthimit nga leja "Instalo aplikacione": vazhdon instalimi. */
     fun vazhdoNesePritej(a: Activity) {
-        if (BuildConfig.PLAY) return
         val pr = StokuApp.prefs(a)
         val f = apkNePritje ?: pr.getString("perditesimi_apk", null)?.let { File(it) } ?: return
         val n = pr.getInt("perditesimi_apk_n", 0)

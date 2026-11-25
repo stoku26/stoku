@@ -56,6 +56,25 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v360 / Android Hyrja 120 (25.11.2026): KONTROLLI I VERSIONIT PLAY**. Pronari: "Kontrolloje versionin .aab qe osht per playstore
+   per bugs 100% jepe edhe rregulloje qdo problem qe e ka". Gjetjet dhe rregullimet:
+   - **Vetë-përditësimi jashtë AAB-së**: `Perditesimi.kt` (GitHub Releases, shkarkimi i APK-së, instaluesi, MANAGE_UNKNOWN_APP_SOURCES) u
+     zhvendos te `vendas/app/src/github/`; `src/play/.../Perditesimi.kt` ka të njëjtin API, vetëm `PerditesimiPlay.kontrollo` (rregullat e Play-it
+     ndalojnë kodin që instalon aplikacione jashtë Play-it edhe kur s'thirret). AAB 338 i kishte të treja vargjet; `aab.sh` tani e ndal CI-në.
+   - **16 KB**: `libimage_processing_util_jni.so` (CameraX 1.3.4) kishte segmente 4 KB në arm64: Play s'e pranon. CameraX → 1.4.2 (16 KB);
+     `aab.sh` kontrollon krejt `.so` arm64 (python, ELF p_align ≥ 16384). armeabi-v7a s'kërkohet.
+   - **Privatësia te hyrja** (Porta.kt): "Privatësia · Kushtet e përdorimit" poshtë portës, sipas gjuhës (Play: politika brenda aplikacionit).
+   - **Anglishtja e teksteve të përbëra**: skripti i kontrollit (vargjet me `+` dhe `$` te Kotlin, të provuara me perkthimi.js) gjeti ~50 tekste
+     gjysmë shqip ("3 folders dhe 45 products u fshinë…", "Delete llogarinë (5)" te fshirja e llogarisë, rivendosja e fjalëkalimit, Grupi,
+     marketet). U shtuan 58 modele te `perkthimi/en.json` (në krye; `^(.+) \((\d+)\)$` → "@1 ($2)" i pari). Modelet e përgjithshme
+     ("^nga …", "^Afatet e …", "^dërgoi …") pranojnë vetëm emra përdoruesish [a-z0-9_.-] (përndryshe e prishnin "Afatet e produkteve…").
+     Krahasimi me 7743 rastet e fiksturës: vetëm përmirësime.
+   - **Folderat e parazgjedhur dhe të dhënat e vizitorit** (Ushqimore, Pije, Higjiene, Kos 500g…) hoqën nga "injoro": në anglisht Groceries,
+     Drinks… (pronari: përkthehet krejt përveç produkteve që i emëron vetë përdoruesi). PamjetTest.anglisht klikon "Drinks".
+   - Firebase: çelësi është i njëjtë për web-in dhe Android-in, prandaj s'është i kufizuar sipas aplikacioneve: paketa e re s'do asgjë.
+   - Pa ndryshim, për pronarin: `KohaKosoves` (v282) e vendos orën e Kosovës edhe për përdoruesit e Play jashtë Kosovës.
+   Testi `teste/v360.js`.
+
 0000000. **v359 / Android Hyrja 119 (24.11.2026): "TODAY" NË NJË RRESHT + PLAY CONSOLE**. Pronari: "krejta kryj edhe qoma apet play.md
    nese ka nevoj tja qes lokal chatit". Te pamjet anglisht të Play-it (PlayTest) "Today" në kutinë e ditëve (52 dp/px) ndahej "Toda / y".
    Android `KutiaEDiteve` (AfatetEkrani.kt): 14 sp, një rresht kur `Gjuha.en` dhe "Sot"; web app-tel.js `sb-days__big--sot` + CSS

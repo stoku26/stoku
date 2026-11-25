@@ -86,10 +86,11 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-messaging") // njoftimet push (Grupi, njoftimi ditor) nga stoku-push
-    // Kamera: CameraX + ML Kit (njohja e barkodit e Google-it, si te Google Lens), punon edhe pa internet
-    implementation("androidx.camera:camera-camera2:1.3.4")
-    implementation("androidx.camera:camera-lifecycle:1.3.4")
-    implementation("androidx.camera:camera-view:1.3.4")
+    // Kamera: CameraX + ML Kit (njohja e barkodit e Google-it, si te Google Lens), punon edhe pa internet. CameraX 1.4.2: libraria
+    // native (libimage_processing_util_jni) me faqe 16 KB, që Google Play e kërkon (1.3.4 kishte 4 KB; kontrolli te .github/apk/aab.sh)
+    implementation("androidx.camera:camera-camera2:1.4.2")
+    implementation("androidx.camera:camera-lifecycle:1.4.2")
+    implementation("androidx.camera:camera-view:1.4.2")
     implementation("com.google.mlkit:barcode-scanning:17.3.0")
     implementation("com.google.guava:guava:33.3.1-android") // ListenableFuture e CameraX-it
     implementation("androidx.exifinterface:exifinterface:1.3.7") // fotoja e fletës drejt (rrotullimi i kamerës)

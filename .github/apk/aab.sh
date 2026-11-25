@@ -28,6 +28,26 @@ fi
 if ! unzip -p "$TMP/a.aab" base/manifest/AndroidManifest.xml | grep -aq 'app.stoku.android'; then
   echo "::error::AAB-ja për Play s'e ka paketën app.stoku.android."; exit 1
 fi
+# Rregullat e Play (pajisja dhe rrjeti): versioni "play" s'ka kod që shkarkon ose instalon APK jashtë Play-it, as adresën e Releases
+# (vetë-përditësimi është vetëm te github/Perditesimi.kt)
+for x in 'api.github.com/repos/stoku26' 'application/vnd.android.package-archive' 'MANAGE_UNKNOWN_APP_SOURCES'; do
+  if unzip -p "$TMP/a.aab" 'base/dex/*.dex' | grep -aq "$x"; then echo "::error::AAB-ja për Play ka kod të vetë-përditësimit: $x"; exit 1; fi
+done
+# Google Play: libraritë native 64-bit duhet të kenë segmente të rreshtuara në 16 KB (Android 15+, "16 KB page size");
+# përndryshe Play Console e refuzon ngarkimin. 32-bit (armeabi-v7a) s'kontrollohen (Play s'i kërkon).
+python3 - "$TMP/a.aab" <<'PY'
+import struct, sys, zipfile
+z = zipfile.ZipFile(sys.argv[1]); keq = []
+for i in z.infolist():
+    if not (i.filename.endswith('.so') and '/arm64-v8a/' in i.filename): continue
+    b = z.read(i.filename)
+    if b[:4] != b'\x7fELF' or b[4] != 2: continue
+    phoff = struct.unpack_from('<Q', b, 0x20)[0]; phentsize, phnum = struct.unpack_from('<HH', b, 0x36)
+    al = [struct.unpack_from('<Q', b, phoff + k * phentsize + 48)[0] for k in range(phnum) if struct.unpack_from('<I', b, phoff + k * phentsize)[0] == 1]
+    print(('OK ' if al and min(al) >= 16384 else 'KEQ ') + str(min(al) if al else 0) + ' ' + i.filename)
+    if not al or min(al) < 16384: keq.append(i.filename)
+if keq: print('::error::Libraritë pa faqe 16 KB (Google Play s\'e pranon): ' + ', '.join(keq)); sys.exit(1)
+PY
 cp "$TMP/a.aab" "$OUT"
 echo "OK: AAB e nënshkruar me çelësin e ngarkimit. Gjurma (për Play Console, 'Upload key'):"
 keytool -list -v -keystore "$TMP/k.p12" -storepass:env P -alias stoku | grep -E "SHA1:|SHA256:"
