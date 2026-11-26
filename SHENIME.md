@@ -56,6 +56,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **Ora në Google Play (26.11.2026, pa version web-i)**. Pronari: "Krejt 100% identik ... sikur ne github ... e qesmi bashk me telefon".
+   `ora/app/build.gradle.kts`: flavors **github** (si deri tani: `site.stoku.ora`, APK, vetë-përditësimi) dhe **play** (`app.stoku.android`,
+   versionCode 1 000 000 + numri). `Perditesimi.kt` → `src/github/`; `src/play/Perditesimi.kt` pa GitHub/APK (Cilësimet → "Kontrollo për
+   përditësim" hap Play Store). REQUEST_INSTALL_PACKAGES vetëm te `src/github/AndroidManifest.xml`. `ora-apk.yml`: `assembleGithubRelease`
+   (rruga e re e APK-së) + `bundlePlayRelease` → `aab.sh` (i njëjti upload key si telefoni) → `stoku-ora-play-NN.aab` te Release `ora-vNN`.
+   `aab.sh`: simbolet native kërkohen vetëm kur ka `.so`; 16 KB edhe për x86_64. Pa R8 te ora (si github). Udhëzimi: PLAY.md → "Ora".
+
 0000000. **v360 / Android Hyrja 120 (25.11.2026): KONTROLLI I VERSIONIT PLAY**. Pronari: "Kontrolloje versionin .aab qe osht per playstore
    per bugs 100% jepe edhe rregulloje qdo problem qe e ka". Gjetjet dhe rregullimet:
    - **Vetë-përditësimi jashtë AAB-së**: `Perditesimi.kt` (GitHub Releases, shkarkimi i APK-së, instaluesi, MANAGE_UNKNOWN_APP_SOURCES) u

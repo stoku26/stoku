@@ -61,7 +61,7 @@ python3 - "$TMP/a.aab" <<'PY'
 import struct, sys, zipfile
 z = zipfile.ZipFile(sys.argv[1]); keq = []
 for i in z.infolist():
-    if not (i.filename.endswith('.so') and '/arm64-v8a/' in i.filename): continue
+    if not (i.filename.endswith('.so') and ('/arm64-v8a/' in i.filename or '/x86_64/' in i.filename)): continue
     b = z.read(i.filename)
     if b[:4] != b'\x7fELF' or b[4] != 2: continue
     phoff = struct.unpack_from('<Q', b, 0x20)[0]; phentsize, phnum = struct.unpack_from('<HH', b, 0x36)

@@ -152,3 +152,19 @@ Llogarinë mund ta fshish vetë në çdo kohë te Cilësimet → Llogaria.
 
 ## Lejet e aplikacionit (versioni play)
 Interneti, kamera (skanimi dhe foto e fletës), vendndodhja (vetëm kur aplikacioni është i hapur, për marketet), njoftimet, dridhja.
+
+## Ora (Galaxy Watch / Wear OS) te i njëjti aplikacion
+Pronari (26.11.2026): ora "100% identik" me versionin github, bashkë me telefonin te Play Store.
+- `ora/` ka dy versione: **github** (APK te Release-i `ora-vNN`, paketa `site.stoku.ora`, përditësimi vetë) dhe **play** (AAB
+  `stoku-ora-play-NN.aab` te i njëjti Release, paketa **`app.stoku.android`** si telefoni, përditësimi vetëm nga Play,
+  versionCode 1 000 000 + NN që të mos përplaset me telefonin). Kodi tjetër është i njëjtë; vetë-përditësimi është te `ora/app/src/github/`.
+- AAB-ja e orës nënshkruhet me të njëjtin "upload key" si telefoni (`.github/apk/aab.sh`, gjurma SHA-1 CE:78:DC:…:F6:87).
+- Play Console, një herë: *Test and release → Advanced settings → Form factors → **Add form factor → Wear OS*** (pranoje).
+  Pastaj te *Testing* zgjidh lart **Wear OS** (në vend të "Phones, Tablets…") → *Create new release* → ngarko `stoku-ora-play-NN.aab`.
+- *Store listing → Wear OS*: të paktën 1 pamje e orës (katrore, të paktën 384 x 384; pa kornizë ore). Në Galaxy Watch: shtyp njëkohësisht
+  dy butonat anash → pamja ruhet dhe del te Galeria e telefonit.
+- *App access* (udhëzimi për rishikuesin), shto:
+  ```
+  Watch app: open Stoku on the watch, a 6-digit code appears. On the phone app (signed in with the test account): Settings → Watch → Link watch, and enter the code.
+  ```
+
