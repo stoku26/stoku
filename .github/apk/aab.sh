@@ -77,7 +77,8 @@ if awk '/^com\.google\.mlkit[^ ]* -> /{ if ($1 != substr($3, 1, length($3) - 1))
 fi
 # Play Console: simbolet e kodit native (pa to del paralajmërimi "you've not uploaded debug symbols")
 grep 'debugsymbols' "$TMP/lista.txt" || true
-if ! grep -q 'BUNDLE-METADATA/com.android.tools.build.debugsymbols/' "$TMP/lista.txt"; then
+# (vetëm kur AAB-ja ka kod native: ora mund të mos ketë fare)
+if grep -q 'base/lib/.*\.so$' "$TMP/lista.txt" && ! grep -q 'BUNDLE-METADATA/com.android.tools.build.debugsymbols/' "$TMP/lista.txt"; then
   echo "::error::AAB-ja s'i ka simbolet e kodit native (debugSymbolLevel)."; exit 1
 fi
 cp "$TMP/a.aab" "$OUT"

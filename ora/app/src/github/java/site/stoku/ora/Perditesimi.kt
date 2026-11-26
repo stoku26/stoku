@@ -13,7 +13,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * Versioni i ri i aplikacionit të orës: GitHub Actions e nxjerr si Release "ora-vNN" (NN = versionCode).
+ * Vetëm versioni "github" (Play: src/play/Perditesimi.kt, pa shkarkim APK-je). Versioni i ri i aplikacionit të orës: GitHub Actions e nxjerr si Release "ora-vNN" (NN = versionCode).
  * Ora e kontrollon vetë (më së shumti një herë në 6 orë) dhe e tregon te lista; instalimi kërkon konfirmim.
  */
 object Perditesimi {
