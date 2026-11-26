@@ -62,6 +62,8 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    përditësim" hap Play Store). REQUEST_INSTALL_PACKAGES vetëm te `src/github/AndroidManifest.xml`. `ora-apk.yml`: `assembleGithubRelease`
    (rruga e re e APK-së) + `bundlePlayRelease` → `aab.sh` (i njëjti upload key si telefoni) → `stoku-ora-play-NN.aab` te Release `ora-vNN`.
    `aab.sh`: simbolet native kërkohen vetëm kur ka `.so`; 16 KB edhe për x86_64. Pa R8 te ora (si github). Udhëzimi: PLAY.md → "Ora".
+   Pamjet e orës për Play (pronari: "pamjet sja ke bo ores"): `ora/app/src/test/.../PamjetOraTest.kt` (Robolectric, `w227dp-h283dp-round-xhdpi`
+   = 454 x 454 pas shiritave), puna `pamjet` te `ora-apk.yml` (blob-e si te vendas); ruajtur te `vendas/play/pamjet-ora/`.
 
 0000000. **v360 / Android Hyrja 120 (25.11.2026): KONTROLLI I VERSIONIT PLAY**. Pronari: "Kontrolloje versionin .aab qe osht per playstore
    per bugs 100% jepe edhe rregulloje qdo problem qe e ka". Gjetjet dhe rregullimet:
