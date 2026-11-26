@@ -39,7 +39,7 @@ import java.time.LocalDate
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [34], qualifiers = "w227dp-h227dp-round-xhdpi")
+@Config(sdk = [34], qualifiers = "w227dp-h283dp-round-xhdpi") // +56 dp për shiritat e sistemit të Robolectric: pamja del 454 x 454
 class PamjetOraTest {
     @get:Rule val r = createComposeRule()
 
