@@ -268,8 +268,7 @@ object Regjistri {
             _paDerguar.value = te.size
             if (_gabimi.value.isEmpty() || riprovimet == 0) Toast.trego("Produktet s'u ruajtën në cloud ($gabim). Provohet sërish vetë.", 6000)
             _gabimi.value = gabim
-            val pritja = minOf(600_000L, 15_000L shl minOf(riprovimet, 6))
-            riprovimet++
+            val pritja = pritjaERiprovimit(riprovimet++)
             kohezReg = scope.launch { delay(pritja); dergoRegjistrin() }
             return
         }
@@ -284,14 +283,15 @@ object Regjistri {
             withTimeoutOrNull(30000) {
                 db.collection("kujtesa_pritje").document(u).set(mapOf("p" to p, "emri" to emri, "ndryshuarSe" to System.currentTimeMillis())).await(); true
             } ?: false
-        } catch (e: Exception) { false }
-        if (ok) StokuApp.vendosPref("kujtesa_pritja", celes)
+        } catch (e: CancellationException) { throw e } catch (e: Exception) { false }
+        if (ok) { StokuApp.vendosPref("kujtesa_pritja", celes); riprovimet = 0 }
+        else if (uid == u) { val pritja = pritjaERiprovimit(riprovimet++); kohezReg = scope.launch { delay(pritja); dergoRegjistrin() } } // web v361
     }
 
     // ---------------- Kujtesa e grupit (v197) ----------------
     private fun nisGrupin(g: String?) {
         if (g == grupiAktiv && dGrupi != null) return
-        dGrupi?.remove(); dGrupi = null; grupiGati = false; kohezGrupi?.cancel()
+        dGrupi?.remove(); dGrupi = null; grupiGati = false; kohezGrupi?.cancel(); riprovimetGrupi = 0
         grupiAktiv = g
         if (g == null || uid == null) return
         dGrupi = db.collection("grupet").document(g).collection("kujtesa").addSnapshotListener { s, e ->
@@ -304,18 +304,28 @@ object Regjistri {
         }
     }
 
-    private fun planifikoGrupin() {
+    private var riprovimetGrupi = 0
+    private var grupiDukeDerguar = false
+    private fun planifikoGrupin(ms: Long = 2000) {
         if (!grupiGati) return
+        if (grupiDukeDerguar) return // pas dërgimit të tanishëm planifikohet vetë sërish
         kohezGrupi?.cancel()
         kohezGrupi = scope.launch {
-            delay(2000)
+            delay(ms)
             val g = grupiAktiv ?: return@launch
             val bs = grupiPritje.toList()
             if (bs.isEmpty()) return@launch
             grupiPritje.clear()
-            if (ruajNePjese(db.collection("grupet").document(g).collection("kujtesa"), kujtesa.hyrjePerGrup(bs)) != null) grupiPritje.addAll(bs)
+            grupiDukeDerguar = true
+            val gabim = try { ruajNePjese(db.collection("grupet").document(g).collection("kujtesa"), kujtesa.hyrjePerGrup(bs)) } finally { grupiDukeDerguar = false }
+            if (grupiAktiv != g) return@launch
+            if (gabim == null) { riprovimetGrupi = 0; if (grupiPritje.isNotEmpty()) planifikoGrupin(); return@launch }
+            grupiPritje.addAll(bs)
+            planifikoGrupin(pritjaERiprovimit(riprovimetGrupi++)) // web v361: provohet vetë sërish
         }
     }
+    /** Dërgimi që dështon provohet vetë sërish: 15 s, 30 s, 1 min, ... deri 10 min */
+    private fun pritjaERiprovimit(n: Int): Long = minOf(600_000L, 15_000L shl minOf(n, 6))
 
     // ---------------- Mësimi ----------------
     /** Kur përdoruesi ruan një afat ose produkt me barkod (herën tjetër ky barkod plotëson vetë emrin dhe furnizuesin) */

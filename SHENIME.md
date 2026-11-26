@@ -56,6 +56,18 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v361 / Android Hyrja 121 (26.11.2026): RUAJTJA NË CLOUD PROVOHET VETË SËRISH**. Pronari: "Edhe kontrollo stoku.site
+   faqen 100% pas qdo ndryshimi me u rujt qdo sen ne cloud, gjithashtu edhe ne appet". Kontrolli: sinkronizimi kryesor (dyqane/{uid},
+   afatet/malli/folderat) kishte tashmë riprovim çdo 15 s (web tel `kryeSinkronizimin`, PC `sink.riprovo`, Android `Sinkronizimi.kt`)
+   dhe radha e aktivitetit/njoftimeve (`shtoNeRadhe`) ruhet te localStorage derisa serveri ta pranojë. Pa riprovim (vetëm me
+   ndryshimin e radhës) ishin: web `ekipa.js` regjistri (administratori + pritja e të tjerëve), kujtesa e grupit, `publikoTani`
+   (afatet për kolegët), `publikoMallinTani`; Android `Regjistri.kt` kujtesa e grupit + pritja, `Grupi.kt` publikoTani/publikoMallin.
+   Tani të gjitha: `pritjaERiprovimit(n)` = 15 s, 30 s, 1 min, ... deri 10 min (gabimi "leje" s'riprovohet, si më parë). Web-i si
+   Android-i (PR #355): dëgjimi i regjistrit që dështon riprovohet pas 1 min (`degjoRegjistrinTani`), administratori dërgon edhe
+   pa regjistrin (`mundDergimin`), dërgimi që po punon s'ndërpritet (`dukeDerguar` + `serish`). Firestore Android i mban vetë
+   shkrimet e papranuara edhe pas rinisjes; web-i jo gjithmonë, prandaj riprovimi aty ka më shumë rëndësi. Test: `teste/v361.js`
+   (shkrimi te kujtesa/* dështon një herë → produkti arrin vetë në cloud pas ~18 s, pa ndryshim tjetër).
+
 0000000. **Android: "Produktet e reja" që s'arrinin në cloud (26.11.2026, pa version web-i)**. Pronari (foto e "Produktet e reja"):
    "Gjeje pse pas kontrolles nuk i rujti ne cloud edhe pse i hina ruaj". `vendas/Regjistri.kt` kishte dy dobësi: (1) kur leximi i
    `kujtesa/*` dështonte një herë (pa internet, token, etj.), dëgjimi s'nisej më deri në rihapje dhe `planifikoRegjistrin` priste

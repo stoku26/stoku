@@ -21,6 +21,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 361, versioni: '1.76.6', data: '2026-11-26', titulli: 'Ruajtja në cloud më e sigurt', pikat: [
+      'Kur ruajtja në cloud dështon për një moment (p.sh. pa internet), Stoku provon vetë sërish derisa të ruhet, pa pritur ndryshimin tjetër.',
+      'Kjo vlen për produktet e kontrolluara nga administratori, produktet e grupit dhe afatet e mallin që i shohin kolegët.'
+    ] },
     { v: 360, versioni: '1.76.5', data: '2026-11-25', titulli: 'Gjuha anglisht', pikat: [
       'Në anglisht përkthehen edhe tekstet me emra dhe numra (p.sh. "3 foldera dhe 45 produkte u fshinë…", kodi i rivendosjes së fjalëkalimit, butonat me numërim).',
       'Në anglisht edhe folderat e parazgjedhur dhe të dhënat shembull të vizitorit dalin anglisht.'
