@@ -56,6 +56,20 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **Android: "Produktet e reja" që s'arrinin në cloud (26.11.2026, pa version web-i)**. Pronari (foto e "Produktet e reja"):
+   "Gjeje pse pas kontrolles nuk i rujti ne cloud edhe pse i hina ruaj". `vendas/Regjistri.kt` kishte dy dobësi: (1) kur leximi i
+   `kujtesa/*` dështonte një herë (pa internet, token, etj.), dëgjimi s'nisej më deri në rihapje dhe `planifikoRegjistrin` priste
+   `regjGati`, pra ruajtjet e administratorit s'dërgoheshin FARE; (2) kur `set` te `kujtesa/pX` dështonte, provohej vetëm me ndryshimin
+   e radhës, pa asnjë njoftim. Tani: leximi provohet sërish pas 1 min (`degjoRegjistrin`); administratori dërgon edhe pa regjistrin
+   (të tjerët e presin si më parë); dështimi → riprovim vetë 15 s, 30 s, ... deri 10 min + Toast me arsyen (kodi i Firebase-it); te
+   "Produktet e reja" / "Produktet" administratori sheh "N produkte të kontrolluara s'kanë arritur ende në cloud", "Arsyeja: ..." dhe
+   "Provo tani" (`Regjistri.provoTani`). Dërgimi që po punon s'ndërpritet më nga një ndryshim i ri (`dukeDerguar`), ndërprerja nga
+   ndërrimi i llogarisë s'numërohet si dështim. Në hapje, `perDergim` i ridërgon vetë të kontrolluarat e mëparshme që s'kishin arritur.
+   Arsyeja e saktë te telefoni i pronarit s'dihet pa pajisjen: tani del në ekran (nëse përsëritet, kërkoja tekstin "Arsyeja").
+   Tekstet e reja edhe anglisht (`perkthimi/en.json`, rigjeneruar edhe `perkthimi-en.js` pa rritur VERSIONI_FJALORIT: web-i s'i përdor
+   ende, i merr me versionin e radhës). Test: `teste/regjistri-dergimi-android.js`. Web-i (`ekipa.js` planifikoRegjistrin) ka ende të
+   njëjtën sjellje (provohet me ndryshimin e radhës); s'u ndryshua këtu.
+
 0000000. **Ora në Google Play (26.11.2026, pa version web-i)**. Pronari: "Krejt 100% identik ... sikur ne github ... e qesmi bashk me telefon".
    `ora/app/build.gradle.kts`: flavors **github** (si deri tani: `site.stoku.ora`, APK, vetë-përditësimi) dhe **play** (`app.stoku.android`,
    versionCode 1 000 000 + numri). `Perditesimi.kt` → `src/github/`; `src/play/Perditesimi.kt` pa GitHub/APK (Cilësimet → "Kontrollo për

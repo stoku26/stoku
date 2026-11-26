@@ -166,6 +166,7 @@
   " produkte skadojnë nesër": " products expire tomorrow",
   " produkte skadojnë sot": " products expire today",
   " produkte skadojnë së shpejti": " products expire soon",
+  " produkte të kontrolluara s'kanë arritur ende në cloud.": " checked products haven't reached the cloud yet.",
   " produkte të reja për kontroll": " new products to review",
   " produkte u shënuan si të hequra.": " products were marked as removed.",
   " produkte u shënuan të hequra nga rafti (nga ora).": " products were marked as removed from the shelf (from the watch).",
@@ -315,6 +316,7 @@
   "). Provo përsëri pas pak.": "). Try again in a moment.",
   "). Provo sërish pas pak.": "). Try again in a moment.",
   "). Provo sërish.": "). Try again.",
+  "). Provohet sërish vetë.": "). Retrying automatically.",
   "). S'u krijua rresht i ri.": "). No new row was created.",
   "). Shkruaje orën sërish dhe shtyp Enter.": "). Type the time again and press Enter.",
   "). Zgjidhe orën sërish.": "). Choose the time again.",
@@ -365,6 +367,7 @@
   "1 pikë në hartë": "1 point on the map",
   "1 pret kontrollin": "1 waiting to be checked",
   "1 produkt": "1 product",
+  "1 produkt i kontrolluar s'ka arritur ende në cloud.": "1 checked product hasn't reached the cloud yet.",
   "1 produkt i ri për kontroll": "1 new product to review",
   "1 produkt ka skaduar": "1 product has expired",
   "1 produkt skadon nesër": "1 product expires tomorrow",
@@ -449,6 +452,7 @@
   "Aplikacioni u mbyll papritur herën e kaluar": "The app closed unexpectedly last time",
   "Aplikacioni është i përditësuar": "The app is up to date",
   "Apple Watch i merr njoftimet vetëm kur iPhone-i është i kyçur (ekrani i fikur) dhe ora është në dorë dhe e shkyçur. Nëse s'e sheh Stoku-n te lista e aplikacionit Watch, hape Stoku një herë nga ikona dhe lejo njoftimet, pastaj kontrollo prapë.": "Apple Watch gets notifications only when the iPhone is locked (screen off) and the watch is on your wrist and unlocked. If you don't see Stoku in the Watch app list, open Stoku once from the icon and allow notifications, then check again.",
+  "Arsyeja: ": "Reason: ",
   "Asgjë nuk skadon brenda 30 ditëve": "Nothing expires within 30 days",
   "Asgjë nuk skadon brenda 30 ditëve.": "Nothing expires within 30 days.",
   "Asgjë për të bërë: asnjë produkt i skaduar dhe asgjë s'skadon këtë javë.": "Nothing to do: no expired products and nothing expires this week.",
@@ -1571,6 +1575,7 @@
   "Produktet me më shumë copë dalin lart.": "Products with the most pieces appear on top.",
   "Produktet që po mbarojnë dalin lart.": "Products running low appear on top.",
   "Produktet që skadojnë, heqja nga rafti dhe njoftimet e telefonit, direkt në dorë.": "Expiring products, shelf removal and phone notifications, right on your wrist.",
+  "Produktet s'u ruajtën në cloud (": "Products weren't saved to the cloud (",
   "Produktet sipas folderave": "Products by folder",
   "Produkti": "Product",
   "Produkti ekziston (tani: ": "The product exists (now: ",
@@ -1584,6 +1589,8 @@
   "Provo sërish": "Try again",
   "Provo sërish lidhjen": "Try connecting again",
   "Provo sërish në PC": "Try again on the PC",
+  "Provo tani": "Try now",
+  "Provohet sërish vetë.": "Retrying automatically.",
   "Provë pa llogari": "Trial without an account",
   "Provë pa llogari, vetëm në këtë telefon": "Trial without an account, only on this phone",
   "Provë pa llogari: të dhëna shembull, vetëm në këtë kompjuter. Kur hyn me llogari, prova fshihet.": "Trial without an account: sample data, only on this computer. When you sign in with an account, the trial is deleted.",
@@ -2281,6 +2288,7 @@
   "emrin e përdoruesit dhe fjalëkalimin.": "the username and password.",
   "etiketë": "label",
   "fshihet krejt": "is deleted completely",
+  "gabim i panjohur": "unknown error",
   "gabim i papritur": "unexpected error",
   "i gjithë grupi": "the whole group",
   "i paplotë ": "incomplete ",
@@ -2354,7 +2362,9 @@
   "për produktet që ": "for the products that ",
   "për të gjithë grupin": "for the whole group",
   "që të mos humbet nëse fshihet aplikacioni ose ndërrohet telefoni.": "so it isn't lost if the app is deleted or the phone is changed.",
+  "s'u lexua regjistri: ": "couldn't read the registry: ",
   "sasi e pavlefshme": "invalid quantity",
+  "serveri s'u përgjigj brenda 30 sekondave": "the server didn't respond within 30 seconds",
   "shtohen te afatet": "are added to the expiry dates",
   "shtohen te stoku": "are added to the stock",
   "shënohet si i hequr nga rafti": "is marked as removed from the shelf",
@@ -2419,6 +2429,22 @@
   "✕ E refuzove": "✕ You declined it"
  },
  "modelet": [
+  [
+   "^(\\d+) produkte të kontrolluara s'kanë arritur ende në cloud\\.$",
+   "$1 checked products haven't reached the cloud yet."
+  ],
+  [
+   "^Arsyeja: (.+)$",
+   "Reason: @1"
+  ],
+  [
+   "^s'u lexua regjistri: (.+)$",
+   "couldn't read the registry: $1"
+  ],
+  [
+   "^Produktet s'u ruajtën në cloud \\((.+)\\)\\. Provohet sërish vetë\\.$",
+   "Products weren't saved to the cloud (@1). Retrying automatically."
+  ],
   [
    "^(.+) \\((\\d+)\\)$",
    "@1 ($2)"
