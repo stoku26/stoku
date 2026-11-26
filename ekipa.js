@@ -2872,11 +2872,14 @@
     // Kopja në pajisje plotëson menjëherë (edhe pa internet); grupi është burimi i përbashkët. Ndryshimet e bëra këtu
     // dërgohen te grupi 2 s më vonë (bashkë), ato të kolegëve vijnë në kohë reale.
     var KEY_KUJTESA_GRUPI = 'stoku:kujtesa:grupi';
-    var kujtesaGj = { gati: false, pritje: {}, kohez: null, degjon: false };
+    var kujtesaGj = { gati: false, pritje: {}, kohez: null, degjon: false, riprovimet: 0 };
+    // v361 (pronari: "100% pas qdo ndryshimi me u rujt qdo sen ne cloud"): dërgimi që dështon provohet vetë sërish, me pritje
+    // që rritet (15 s, 30 s, 1 min, ... deri 10 min). Më parë provohej vetëm me ndryshimin e radhës (mund të mbetej pa u dërguar).
+    function pritjaERiprovimit(n) { return Math.min(600000, 15000 * Math.pow(2, Math.min(n, 6))); }
     function kujtesaPajisjes() { var A = AF(); return A && A.kujtesa ? A.kujtesa() : null; }
     function nisKujtesen() {
       var e = E(), K = kujtesaPajisjes();
-      ndal('kujtesa'); kujtesaGj.gati = false;
+      ndal('kujtesa'); kujtesaGj.gati = false; kujtesaGj.riprovimet = 0;
       if (!e || !K || !e.degjoKujtesen || !o.uidIm() || gjendjaEQasjes() !== 'ok' || !gj.grupi) return;
       if (!kujtesaGj.degjon) {
         kujtesaGj.degjon = true;
@@ -2895,16 +2898,24 @@
         thirr('kujtesa');
       }, function () { /* p.sh. rregullat e reja s'janë vendosur ende: mbetet kujtesa e pajisjes */ });
     }
-    function planifikoDergiminEKujteses() {
+    function planifikoDergiminEKujteses(ms) {
       if (!kujtesaGj.gati) return; // pritet gjendja e grupit, që të mos mbishkruhet diçka më e mirë atje
+      if (kujtesaGj.dukeDerguar) { kujtesaGj.serish = true; return; }
       clearTimeout(kujtesaGj.kohez);
       kujtesaGj.kohez = setTimeout(async function () {
-        var e = E(), K = kujtesaPajisjes(), bs = Object.keys(kujtesaGj.pritje);
+        var e = E(), K = kujtesaPajisjes(), bs = Object.keys(kujtesaGj.pritje), g0 = gj.grupi;
         if (!e || !K || !bs.length || !gj.grupi || !kujtesaGj.gati) return;
         kujtesaGj.pritje = {};
-        var r = await e.ruajKujtesen(K.hyrjePerGrup(bs));
-        if (!r || !r.ok) bs.forEach(function (b) { kujtesaGj.pritje[b] = true; }); // provohet sërish me ndryshimin e radhës
-      }, 2000);
+        kujtesaGj.dukeDerguar = true;
+        var r;
+        try { r = await e.ruajKujtesen(K.hyrjePerGrup(bs)); } catch (er) { r = { ok: false }; }
+        kujtesaGj.dukeDerguar = false;
+        if (gj.grupi !== g0) return;
+        if (r && r.ok) { kujtesaGj.riprovimet = 0; if (kujtesaGj.serish || Object.keys(kujtesaGj.pritje).length) { kujtesaGj.serish = false; planifikoDergiminEKujteses(); } return; }
+        bs.forEach(function (b) { kujtesaGj.pritje[b] = true; });
+        kujtesaGj.serish = false;
+        planifikoDergiminEKujteses(pritjaERiprovimit(kujtesaGj.riprovimet++)); // v361: provohet vetë sërish
+      }, ms === undefined ? 2000 : ms);
     }
     // ---------- v242: regjistri i përbashkët i Stoku-t (produktet dhe furnizuesit, për të gjitha llogaritë) ----------
     // Kushdo me llogari e merr regjistrin (kujtesa/*: vetëm çfarë ka kontrolluar administratori) dhe e shton te kujtesa e
@@ -2912,7 +2923,7 @@
     // te pritja e tij (kujtesa_pritje/{uid}); administratori i merr krejt pritjet si "në pritje" (pa `s`, me emrin e
     // autorit) dhe i kontrollon te Cilësimet → Stoku. Vetëm çfarë ruan/fshin administratori kalon te regjistri.
     var KEY_PRITJA = 'stoku:kujtesa:pritja', PRITJA_MAKS = 3000;
-    var regj = { gati: false, remote: {}, degjon: false, ndryshuar: {}, kohez: null, adminiDihet: false, pritjet: null };
+    var regj = { gati: false, remote: {}, degjon: false, ndryshuar: {}, kohez: null, adminiDihet: false, pritjet: null, riprovimet: 0, kohezLeximit: null };
     // v248: barkodi që administratori e ka vendosur te regjistri (i kontrolluar ose i fshirë prej tij): pritja e kolegëve
     // s'vlen më për të. Pa këtë, kur pajisja e administratorit s'e kishte më në kujtesë (p.sh. kujtesa plot, të dhënat e
     // pastruara), një koleg që e kishte skanuar dikur e kthente produktin e kontrolluar te "Produktet e reja".
@@ -2921,11 +2932,19 @@
       var e = E(), K = kujtesaPajisjes();
       ndal('regjistri'); ndal('pritjet');
       regj.gati = false; regj.remote = {}; regj.ndryshuar = {}; regj.adminiDihet = false; regj.pritjet = null; regj.gabim = false;
+      regj.riprovimet = 0; clearTimeout(regj.kohezLeximit); regj.kohezLeximit = null;
       if (!e || !K || !e.degjoRegjistrin || !o.uidIm()) return;
       if (!regj.degjon) {
         regj.degjon = true;
         K.degjo(function (barkodet) { barkodet.forEach(function (b) { regj.ndryshuar[b] = true; }); planifikoRegjistrin(); });
       }
+      degjoRegjistrinTani();
+    }
+    function degjoRegjistrinTani() {
+      var e = E(), K = kujtesaPajisjes();
+      ndal('regjistri');
+      if (!e || !K || !e.degjoRegjistrin || !o.uidIm()) return;
+      var u0 = o.uidIm();
       d.regjistri = e.degjoRegjistrin(function (remote, info) {
         // v252: kopja e pajisjes (para serverit) vetëm plotëson emrat; dërgimi pret listën nga serveri
         if (info && info.ngaKopja) { if (K.bashko(remote || {})) thirr('kujtesa'); return; }
@@ -2935,11 +2954,17 @@
         regj.gati = true;
         if (iPari && regj.pritjet) { var pr = regj.pritjet; regj.pritjet = null; zbatoPritjet(pr); } // erdhën para regjistrit
         if (iPari && gj.admin && regj.adminiDihet) K.perDergim(regj.remote).forEach(function (b) { regj.ndryshuar[b] = true; });
+        regj.gabim = false;
         planifikoRegjistrin();
         if (n || iPari) thirr('kujtesa');
-      }, function () { // rregullat para v242: mbetet kujtesa e pajisjes dhe e grupit
+      }, function () { // p.sh. pa internet ose token i skaduar: mbetet kujtesa e pajisjes dhe e grupit
         regj.gabim = true;
         if (regj.pritjet) { var pr = regj.pritjet; regj.pritjet = null; zbatoPritjet(pr); }
+        // v361: më parë dëgjimi mbetej i ndalur deri në rihapje dhe ruajtjet e administratorit s'dërgoheshin fare
+        ndal('regjistri');
+        clearTimeout(regj.kohezLeximit);
+        regj.kohezLeximit = setTimeout(function () { if (o.uidIm() === u0 && !d.regjistri) degjoRegjistrinTani(); }, 60000);
+        planifikoRegjistrin(); // administratori dërgon edhe pa regjistrin
       });
     }
     // Pasi dihet a jam administrator: ai dërgon çfarë di (të kontrolluarat) dhe dëgjon pritjet; të tjerët dërgojnë pritjen
@@ -3000,12 +3025,22 @@
       pastroProven();
     }
     function hashiI(t) { var h = 5381; for (var i = 0; i < t.length; i++) h = ((h * 33) ^ t.charCodeAt(i)) >>> 0; return h.toString(36) + ':' + t.length; }
-    function planifikoRegjistrin() {
-      if (!regj.gati || !regj.adminiDihet) return;
+    // v361: administratori dërgon çfarë ka kontrolluar edhe kur regjistri s'është lexuar (p.sh. dëgjimi dështoi); të tjerët e presin
+    function mundDergimin() { return regj.adminiDihet && (regj.gati || gj.admin); }
+    function planifikoRegjistrin(ms) {
+      if (!mundDergimin()) return;
+      if (regj.dukeDerguar) { regj.serish = true; return; } // dërgimi që po punon s'ndërpritet; pas tij planifikohet sërish
       clearTimeout(regj.kohez);
       regj.kohez = setTimeout(async function () {
-        var e = E(), K = kujtesaPajisjes();
-        if (!e || !K || !o.uidIm() || !regj.gati) return;
+        var e = E(), K = kujtesaPajisjes(), u0 = o.uidIm();
+        if (!e || !K || !u0 || !mundDergimin()) return;
+        function pasDergimit(ok) {
+          regj.dukeDerguar = false;
+          if (o.uidIm() !== u0) return;
+          if (ok) { regj.riprovimet = 0; if (regj.serish) { regj.serish = false; planifikoRegjistrin(); } return; }
+          regj.serish = false;
+          planifikoRegjistrin(pritjaERiprovimit(regj.riprovimet++)); // v361: provohet vetë sërish (15 s ... 10 min)
+        }
         if (gj.admin) {
           // Administratori: te regjistri vetëm çfarë ka kontrolluar (ruajtur ose fshirë prej tij), jo ato në pritje
           var bs = Object.keys(regj.ndryshuar);
@@ -3014,12 +3049,18 @@
           var hy = K.hyrjePerGrup(bs), te = {};
           Object.keys(hy).forEach(function (b) { var x = hy[b]; if (x.s === 1 && (x.x === 1 || x.r !== 1)) te[b] = x; });
           if (!Object.keys(te).length) return;
-          var r = await e.ruajRegjistrin(te);
-          if (!r || !r.ok) bs.forEach(function (b) { regj.ndryshuar[b] = true; }); // provohet me ndryshimin e radhës
+          regj.dukeDerguar = true;
+          var r;
+          try { r = await e.ruajRegjistrin(te); } catch (er) { r = { ok: false }; }
+          if (!r || !r.ok) {
+            bs.forEach(function (b) { regj.ndryshuar[b] = true; });
+            try { console.warn('Stoku: regjistri s\'u ruajt në cloud', r && (r.kodi || r.arsye)); } catch (er2) { /* ok */ }
+          }
+          pasDergimit(!!(r && r.ok));
           return;
         }
         regj.ndryshuar = {};
-        if (!e.ruajPritjen) return;
+        if (!e.ruajPritjen || !regj.gati) return;
         // Të tjerët: çfarë di pajisja dhe s'është (ose është ndryshe) te regjistri → pritja ime, më të rejat të parat
         var hyr = K.hyrjePerGrup(K.perDergim(regj.remote)), lista = [];
         // v248: s'dërgohet për kontroll çfarë administratori e ka vendosur tashmë te regjistri
@@ -3029,9 +3070,12 @@
         lista.slice(0, PRITJA_MAKS).forEach(function (b) { p[b] = hyr[b]; });
         var celes = o.uidIm() + '|' + hashiI(JSON.stringify(p, Object.keys(p).sort().concat(['e', 'f', 'k', 'a', 'm', 's', 'n', 'x', 'r'])));
         if (lexo(KEY_PRITJA) === celes) return; // asgjë e re për administratorin
-        var r2 = await e.ruajPritjen(p);
+        regj.dukeDerguar = true;
+        var r2;
+        try { r2 = await e.ruajPritjen(p); } catch (er) { r2 = { ok: false }; }
         if (r2 && r2.ok) shkruaj(KEY_PRITJA, celes);
-      }, 2500);
+        pasDergimit(!!(r2 && r2.ok));
+      }, ms === undefined ? 2500 : ms);
     }
     // Njoftimet personale (zilja), vetëm kur ke qasje në grup
     function nisDegjuesitPersonale() {
@@ -3343,9 +3387,11 @@
       // Me grupin brenda: pas kalimit në një grup tjetër përmbledhja dërgohet sërish (përndryshe kolegët e rinj s'e shihnin)
       var n = o.uidIm() + '|' + (gj.grupi || '') + '|' + (o.emriIm() || '') + '|' + nenshkrimi(p);
       if (n === publikimi.nenshkrimi || n === lexo(KEY_PUBLIKUAR)) { publikimi.nenshkrimi = n; return; }
-      var r = await e.publikoAfatet(p);
-      if (r && r.ok) { publikimi.nenshkrimi = n; shkruaj(KEY_PUBLIKUAR, n); }
+      var r;
+      try { r = await e.publikoAfatet(p); } catch (er) { r = { ok: false }; }
+      if (r && r.ok) { publikimi.nenshkrimi = n; shkruaj(KEY_PUBLIKUAR, n); publikimi.riprovimet = 0; }
       else if (r && r.leje) publikimi.bllokuarDeri = Date.now() + 10 * 60 * 1000; // rregullat e vjetra: mos provo pas çdo ndryshimi
+      else if (!publikimi.kohez) publikimi.kohez = setTimeout(publikoTani, pritjaERiprovimit(publikimi.riprovimet = (publikimi.riprovimet || 0) + 1)); // v361: provohet vetë sërish
     }
 
     // ---------- v335: malli im për kërkimin e kolegëve (grupet/{g}/malli/{uid}) ----------
@@ -3371,9 +3417,11 @@
       if (!e || !e.publikoMallin || !o.uidIm() || !publikimiM.p || !gj.grupi || Date.now() < publikimiM.bllokuarDeri) return;
       var n = o.uidIm() + '|' + gj.grupi + '|' + (o.emriIm() || '') + '|' + nenshkrimi(publikimiM.p);
       if (n === publikimiM.nenshkrimi || n === lexo(KEY_PUBLIKUAR_MALLI)) { publikimiM.nenshkrimi = n; return; }
-      var r = await e.publikoMallin(publikimiM.p);
-      if (r && r.ok) { publikimiM.nenshkrimi = n; shkruaj(KEY_PUBLIKUAR_MALLI, n); }
+      var r;
+      try { r = await e.publikoMallin(publikimiM.p); } catch (er) { r = { ok: false }; }
+      if (r && r.ok) { publikimiM.nenshkrimi = n; shkruaj(KEY_PUBLIKUAR_MALLI, n); publikimiM.riprovimet = 0; }
       else if (r && r.leje) publikimiM.bllokuarDeri = Date.now() + 10 * 60 * 1000; // rregullat pa "malli" ende: mos provo pas çdo ndryshimi
+      else if (!publikimiM.kohez) publikimiM.kohez = setTimeout(publikoMallinTani, pritjaERiprovimit(publikimiM.riprovimet = (publikimiM.riprovimet || 0) + 1)); // v361
     }
     // [{ uid, emri, p }] e kolegëve të grupit (pa mua), vetëm sa kohë dëgjuesit e grupit janë hapur
     var malliIZberthyer = new WeakMap();

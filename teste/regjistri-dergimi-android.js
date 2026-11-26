@@ -20,14 +20,14 @@ const pl = fn(R, 'planifikoRegjistrin');
 ok(/if \(!regjGati && !admin\) return/.test(pl) && !/if \(!regjGati\) return/.test(pl), '1b. administratori dërgon edhe pa regjistrin; të tjerët e presin');
 ok(/if \(!regjGati && !admin\) return/.test(fn(R, 'dergoRegjistrin')), '1c. dergoRegjistrin: njësoj');
 const dg = fn(R, 'dergoRegjistrin');
-ok(/regjNdryshuar\.addAll\(bs\)/.test(dg) && /delay\(pritja\); dergoRegjistrin\(\)/.test(dg) && /minOf\(600_000L, 15_000L shl/.test(dg), '2. dështimi: riprovim vetë 15 s ... 10 min');
+ok(/regjNdryshuar\.addAll\(bs\)/.test(dg) && /delay\(pritja\); dergoRegjistrin\(\)/.test(dg) && /pritjaERiprovimit\(riprovimet\+\+\)/.test(dg) && /minOf\(600_000L, 15_000L shl minOf\(n, 6\)\)/.test(R), '2. dështimi: riprovim vetë 15 s ... 10 min');
 ok(/Toast\.trego\("Produktet s'u ruajtën në cloud \(\$gabim\)\. Provohet sërish vetë\."/.test(dg) && /_gabimi\.value = gabim/.test(dg), '2a. njoftimi me arsyen');
 ok(/riprovimet = 0; _gabimi\.value = ""; _paDerguar\.value = 0/.test(dg), '2b. pas suksesit pastrohet gjendja');
 const rp = fn(R, 'ruajNePjese');
 ok(/\): String\? \{/.test(rp) && /catch \(e: CancellationException\) \{ throw e \}/.test(rp) && /if \(ok == true\) null else/.test(rp), '2c. ruajNePjese kthen arsyen; ndërprerja s\'është dështim');
 ok(/if \(dukeDerguar\) return/.test(pl) && /try \{ ruajNePjese\(db\.collection\("kujtesa"\), te\) \} finally \{ dukeDerguar = false \}/.test(dg), '3. dërgimi që po punon s\'ndërpritet');
 ok(/fun provoTani\(\)/.test(R) && /Lidhje\("Provo tani", \{ Regjistri\.provoTani\(\) \}\)/.test(UI) && /if \(admin\) PaDerguarNeCloud\(\)/.test(UI), '2d. "Produktet": sa s\'kanë arritur në cloud + Provo tani');
-ok(/ruajNePjese\(db\.collection\("grupet"\)\.document\(g\)\.collection\("kujtesa"\), kujtesa\.hyrjePerGrup\(bs\)\) != null\) grupiPritje\.addAll\(bs\)/.test(R), '2e. kujtesa e grupit: si më parë');
+ok(/ruajNePjese\(db\.collection\("grupet"\)\.document\(g\)\.collection\("kujtesa"\), kujtesa\.hyrjePerGrup\(bs\)\)/.test(R) && /grupiPritje\.addAll\(bs\)\n\s*planifikoGrupin\(pritjaERiprovimit\(riprovimetGrupi\+\+\)\)/.test(R), '2e. kujtesa e grupit: riprovim vetë (web v361)');
 ok(/kohezLeximit\?\.cancel\(\)/.test(fn(R, 'ndalRegjistrin')), '1d. ndërrimi i llogarisë e ndal riprovimin e leximit');
 
 global.window = global; global.localStorage = { getItem: () => 'en', setItem() {} };

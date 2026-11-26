@@ -299,8 +299,13 @@ object Grupi {
         if (n == StokuApp.prefsOse("grupi_publikuar", "")) return
         db.collection("grupet").document(g).collection("afatet").document(u0)
             .set(mapOf("uid" to u0, "emri" to emri, "afatet" to p, "ndryshuarSe" to System.currentTimeMillis()))
-            .addOnSuccessListener { StokuApp.vendosPref("grupi_publikuar", n) }
+            .addOnSuccessListener { StokuApp.vendosPref("grupi_publikuar", n); riprovimetA = 0 }
+            .addOnFailureListener { e -> if (gabimi(e) != "leje" && uid == u0) { publikimi?.cancel(); publikimi = scope.launch { delay(pritjaERiprovimit(riprovimetA++)); publikoTani() } } } // web v361
     }
+    private var riprovimetA = 0
+    private var riprovimetM = 0
+    /** web v361: dërgimi që dështon provohet vetë sërish: 15 s, 30 s, 1 min, ... deri 10 min */
+    private fun pritjaERiprovimit(n: Int): Long = minOf(600_000L, 15_000L shl minOf(n, 6))
 
     // ---------------- Hyrja 96: malli im për kolegët (grupet/{g}/malli/{uid}) ----------------
     private var publikimiM: Job? = null
@@ -333,7 +338,8 @@ object Grupi {
         if (n == StokuApp.prefsOse("grupi_malli_publikuar", "") || uid != u0 || grupi() != g) return
         db.collection("grupet").document(g).collection("malli").document(u0)
             .set(mapOf("uid" to u0, "emri" to emriIm, "p" to p, "ndryshuarSe" to System.currentTimeMillis()))
-            .addOnSuccessListener { StokuApp.vendosPref("grupi_malli_publikuar", n) }
+            .addOnSuccessListener { StokuApp.vendosPref("grupi_malli_publikuar", n); riprovimetM = 0 }
+            .addOnFailureListener { e -> if (gabimi(e) != "leje" && uid == u0) { publikimiM?.cancel(); publikimiM = scope.launch { delay(pritjaERiprovimit(riprovimetM++)); publikoMallin() } } } // web v361
     }
 
     // ---------------- Aktiviteti ----------------
