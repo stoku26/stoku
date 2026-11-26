@@ -50,6 +50,16 @@ android {
     }
     // AGP 9: Kotlin i brendshëm (pa pluginin kotlin-android); jvmTarget merret nga compileOptions (17)
     buildFeatures { compose = true }
+    // Pamjet e orës për Google Play (Robolectric + Roborazzi, pa orë): app/build/pamjet/ora-*.png (PamjetOraTest)
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            all {
+                it.systemProperty("robolectric.graphicsMode", "NATIVE")
+                it.systemProperty("roborazzi.test.record", "true")
+            }
+        }
+    }
     lint {
         checkReleaseBuilds = false
         abortOnError = false
@@ -68,4 +78,12 @@ dependencies {
     implementation("androidx.wear.watchface:watchface-complications-data-source-ktx:1.2.1")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.13")
+    testImplementation(platform("androidx.compose:compose-bom:2024.09.00"))
+    testImplementation("androidx.compose.ui:ui-test-junit4")
+    testImplementation("io.github.takahirom.roborazzi:roborazzi:1.32.2")
+    testImplementation("io.github.takahirom.roborazzi:roborazzi-compose:1.32.2")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
