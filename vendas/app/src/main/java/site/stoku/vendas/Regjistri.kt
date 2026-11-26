@@ -9,6 +9,7 @@ import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.delay
@@ -33,6 +34,7 @@ import site.stoku.logjika.jsNumber
 import site.stoku.logjika.kanonik
 import site.stoku.logjika.renditjaJs
 import site.stoku.logjika.siObj
+import site.stoku.vendas.ui.Toast
 import java.io.File
 
 /**
@@ -89,6 +91,14 @@ object Regjistri {
     private var kohezGrupi: Job? = null
     private var kohezMesimi: Job? = null
     private var nisur = false
+    // Administratori: produktet e kontrolluara që s'kanë arritur ende te regjistri (cloud) dhe arsyeja e dështimit të fundit
+    private val _paDerguar = MutableStateFlow(0)
+    val paDerguar: StateFlow<Int> get() = _paDerguar
+    private val _gabimi = MutableStateFlow("")
+    val gabimi: StateFlow<String> get() = _gabimi
+    private var riprovimet = 0
+    private var dukeDerguar = false
+    private var kohezLeximit: Job? = null
 
     @OptIn(FlowPreview::class)
     fun nis(ctx: Context) {
@@ -120,7 +130,8 @@ object Regjistri {
     private fun ndalRegjistrin() {
         dReg?.remove(); dPritje?.remove(); dReg = null; dPritje = null
         regjGati = false; regjGabim = false; regjRemote = emptyMap(); regjNdryshuar.clear(); pritjetQePresin = null
-        kohezReg?.cancel()
+        kohezReg?.cancel(); kohezLeximit?.cancel()
+        riprovimet = 0; _paDerguar.value = 0; _gabimi.value = ""
     }
 
     // ---------------- Regjistri i përbashkët (v242) ----------------
@@ -133,12 +144,32 @@ object Regjistri {
     }
 
     private fun nisRegjistrin() {
+        degjoRegjistrin()
+        // Administratori: pritja e të gjitha llogarive → "Produktet e reja"
+        if (admin) dPritje = db.collection("kujtesa_pritje").addSnapshotListener { s, e ->
+            if (e != null || s == null) { dPritje?.remove(); dPritje = null; return@addSnapshotListener }
+            val lista = s.documents.map { Triple(it.id, it.getString("emri").orEmpty(), it.get("p")) }
+            if (!regjGati && !regjGabim) pritjetQePresin = lista else zbatoPritjet(lista)
+        }
+    }
+
+    private fun degjoRegjistrin() {
+        dReg?.remove()
         dReg = db.collection("kujtesa").addSnapshotListener { s, e ->
-            if (e != null || s == null) { // rregullat para v242: mbetet kujtesa e pajisjes
+            if (e != null || s == null) {
+                // P.sh. pa internet, token i skaduar: mbetet kujtesa e pajisjes. Para rregullimit (2026-11-26) dëgjimi mbetej i
+                // ndalur deri në rihapje dhe ruajtjet e administratorit s'dërgoheshin fare; tani provohet sërish pas 1 minute.
                 regjGabim = true
+                if (admin) _gabimi.value = "s'u lexua regjistri: " + arsyeja(e)
                 pritjetQePresin?.let { pritjetQePresin = null; zbatoPritjet(it) }
+                dReg?.remove(); dReg = null
+                val u = uid
+                kohezLeximit?.cancel()
+                kohezLeximit = scope.launch { delay(60_000); if (u != null && uid == u && dReg == null) degjoRegjistrin() }
+                planifikoRegjistrin() // administratori dërgon edhe pa e lexuar regjistrin
                 return@addSnapshotListener
             }
+            regjGabim = false
             regjRemote = pjesetE(s.documents)
             val n = kujtesa.bashko(regjRemote)
             val iPari = !regjGati
@@ -148,12 +179,14 @@ object Regjistri {
             planifikoRegjistrin()
             if (n > 0 || iPari) _versioni.value++
         }
-        // Administratori: pritja e të gjitha llogarive → "Produktet e reja"
-        if (admin) dPritje = db.collection("kujtesa_pritje").addSnapshotListener { s, e ->
-            if (e != null || s == null) { dPritje?.remove(); dPritje = null; return@addSnapshotListener }
-            val lista = s.documents.map { Triple(it.id, it.getString("emri").orEmpty(), it.get("p")) }
-            if (!regjGati && !regjGabim) pritjetQePresin = lista else zbatoPritjet(lista)
-        }
+    }
+
+    /** Arsyeja e shkurtër e një gabimi të Firebase-it (për njoftimin e administratorit) */
+    private fun arsyeja(e: Exception?): String {
+        if (e == null) return "gabim i panjohur"
+        val kodi = (e as? com.google.firebase.firestore.FirebaseFirestoreException)?.code?.name
+        val m = (e.message ?: "").lineSequence().firstOrNull().orEmpty().take(160)
+        return listOfNotNull(kodi, m.ifEmpty { null } ?: e.javaClass.simpleName).distinct().joinToString(": ")
     }
 
     private fun nr(v: Any?): Double { val d = jsNumber(v); return if (d.isNaN()) 0.0 else d }
@@ -182,34 +215,62 @@ object Regjistri {
 
     private fun pjesa(b: String): String { val c = b.last(); return if (c in '0'..'9') "p$c" else "px" }
 
-    /** setDoc me merge te kujtesa/{pjesa} ose grupet/{g}/kujtesa/{pjesa} */
-    private suspend fun ruajNePjese(koleksioni: CollectionReference, hyrjet: Map<String, Any?>): Boolean {
+    /** setDoc me merge te kujtesa/{pjesa} ose grupet/{g}/kujtesa/{pjesa}. Kthen null kur u ruajt, përndryshe arsyen. */
+    private suspend fun ruajNePjese(koleksioni: CollectionReference, hyrjet: Map<String, Any?>): String? {
         val pjeset = LinkedHashMap<String, LinkedHashMap<String, Any?>>()
         hyrjet.forEach { (b, x) -> pjeset.getOrPut(pjesa(b)) { LinkedHashMap() }[b] = x }
         return try {
-            withTimeoutOrNull(30000) {
+            val ok = withTimeoutOrNull(30000) {
                 pjeset.forEach { (k, p) -> koleksioni.document(k).set(mapOf("p" to p, "ndryshuarSe" to System.currentTimeMillis()), SetOptions.merge()).await() }
                 true
-            } ?: false
-        } catch (e: Exception) { false }
+            }
+            if (ok == true) null else "serveri s'u përgjigj brenda 30 sekondave"
+        } catch (e: CancellationException) { throw e } // llogaria u ndërrua ose u mbyll: s'është dështim
+        catch (e: Exception) { arsyeja(e) }
     }
 
     private fun planifikoRegjistrin() {
-        if (!regjGati) return
+        if (!regjGati && !admin) return // të tjerët presin regjistrin (krahasimi); administratori dërgon çfarë ka kontrolluar
+        if (dukeDerguar) return // pas dërgimit të tanishëm planifikohet vetë sërish
         kohezReg?.cancel()
         kohezReg = scope.launch { delay(2500); dergoRegjistrin() }
     }
 
+    /** Administratori: provo tani të dërgosh çfarë s'ka arritur te regjistri */
+    fun provoTani() {
+        if (!admin || dukeDerguar) return
+        riprovimet = 0
+        kohezReg?.cancel()
+        kohezReg = scope.launch { dergoRegjistrin() }
+    }
+
     private suspend fun dergoRegjistrin() {
         val u = uid ?: return
-        if (!regjGati) return
+        if (!regjGati && !admin) return
         if (admin) {
             // Administratori: te regjistri vetëm çfarë ka kontrolluar (ruajtur ose fshirë prej tij), jo ato në pritje
             val bs = regjNdryshuar.toList(); regjNdryshuar.clear()
-            if (bs.isEmpty()) return
+            if (bs.isEmpty()) { _paDerguar.value = 0; return }
             val te = kujtesa.hyrjePerGrup(bs).filter { (_, x) -> x["s"] == 1L && (x["x"] == 1L || x["r"] != 1L) }
-            if (te.isEmpty()) return
-            if (!ruajNePjese(db.collection("kujtesa"), te)) regjNdryshuar.addAll(bs) // provohet me ndryshimin e radhës
+            if (te.isEmpty()) { _paDerguar.value = 0; return }
+            _paDerguar.value = te.size
+            dukeDerguar = true
+            val gabim = try { ruajNePjese(db.collection("kujtesa"), te) } finally { dukeDerguar = false }
+            if (uid != u) return
+            if (gabim == null) {
+                riprovimet = 0; _gabimi.value = ""; _paDerguar.value = 0
+                if (regjNdryshuar.isNotEmpty()) planifikoRegjistrin() // u ndryshua diçka gjatë dërgimit
+                return
+            }
+            // Para rregullimit (2026-11-26) provohej vetëm me ndryshimin e radhës dhe pa asnjë njoftim: tani provohet vetë
+            // (15 s, 30 s, 1 min, ... deri në 10 min) dhe administratori e sheh arsyen.
+            regjNdryshuar.addAll(bs)
+            _paDerguar.value = te.size
+            if (_gabimi.value.isEmpty() || riprovimet == 0) Toast.trego("Produktet s'u ruajtën në cloud ($gabim). Provohet sërish vetë.", 6000)
+            _gabimi.value = gabim
+            val pritja = minOf(600_000L, 15_000L shl minOf(riprovimet, 6))
+            riprovimet++
+            kohezReg = scope.launch { delay(pritja); dergoRegjistrin() }
             return
         }
         regjNdryshuar.clear()
@@ -252,7 +313,7 @@ object Regjistri {
             val bs = grupiPritje.toList()
             if (bs.isEmpty()) return@launch
             grupiPritje.clear()
-            if (!ruajNePjese(db.collection("grupet").document(g).collection("kujtesa"), kujtesa.hyrjePerGrup(bs))) grupiPritje.addAll(bs)
+            if (ruajNePjese(db.collection("grupet").document(g).collection("kujtesa"), kujtesa.hyrjePerGrup(bs)) != null) grupiPritje.addAll(bs)
         }
     }
 

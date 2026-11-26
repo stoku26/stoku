@@ -204,6 +204,7 @@ fun ProduktetFaqja(pritje: Boolean, mbrapa: () -> Unit) {
             else "Produktet e reja. I kontrollon administratori, pastaj kalojnë te Produktet.")
         else if (admin) "Emri dhe furnizuesi që Stoku i mban mend për çdo barkod; të gjitha llogaritë e Stoku-t i shohin kur skanojnë. Produktet e reja (të kujtdo, edhe ato që i shton ti) dalin këtu pasi t'i kontrollosh te Produktet e reja. Atë që e ndryshon ti s'e ndryshon askush tjetër. Prek një produkt për ta ndryshuar."
         else "Regjistri i Stoku-t: emri dhe furnizuesi për çdo barkod, i njëjtë për të gjitha llogaritë; plotësohen vetë kur skanon. Produktet e reja i kontrollon dhe i ndryshon vetëm administratori.")
+        if (admin) PaDerguarNeCloud()
         val q = kerkimi.trim().lowercase(SQ)
         if (!pritje && (lista.size >= 8 || q.isNotEmpty()))
             Fusha(kerkimi, { kerkimi = it; neEditim = null; saShfaqen = KUJ_MAKS }, Modifier.fillMaxWidth().padding(bottom = 10.dp), "Kërko emrin, barkodin ose furnizuesin", ikona = Ik.Kerko)
@@ -219,6 +220,21 @@ fun ProduktetFaqja(pritje: Boolean, mbrapa: () -> Unit) {
             }
             if (fil.size > saShfaqen) ButoniMeShume(saShfaqen, fil.size, true) { saShfaqen += KUJ_MAKS }
         }
+    }
+}
+
+/** Administratori: produktet e kontrolluara që s'kanë arritur ende te regjistri (cloud), me arsyen dhe "Provo tani" */
+@Composable
+private fun PaDerguarNeCloud() {
+    val n by Regjistri.paDerguar.collectAsState()
+    val gabimi by Regjistri.gabimi.collectAsState()
+    if (n <= 0 && gabimi.isEmpty()) return
+    Column(Modifier.fillMaxWidth().padding(start = 4.dp, end = 4.dp, bottom = 14.dp)) {
+        if (n > 0) Text(if (n == 1) "1 produkt i kontrolluar s'ka arritur ende në cloud." else "$n produkte të kontrolluara s'kanë arritur ende në cloud.",
+            style = tx(14, 600, N.exp))
+        if (gabimi.isNotEmpty()) Text("Arsyeja: $gabimi", style = txR(13f, 400, N.ink4))
+        Text("Provohet sërish vetë.", style = txR(13f, 400, N.ink4))
+        Lidhje("Provo tani", { Regjistri.provoTani() })
     }
 }
 
