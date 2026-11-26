@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Vetëm versioni "github" (APK te Releases): ora instalon vetë versionin e ri (Perditesimi.kt). Versioni "play" s'e ka (rregullat e Play). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+</manifest>

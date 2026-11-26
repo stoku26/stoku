@@ -9,6 +9,7 @@ on:
       - '!ora/**/*.md' # vetëm dokumentimi: pa APK të re (përndryshe çdo aplikacion ofronte "version të ri" të njëjtë)
       - '.github/workflows/ora-apk.yml'
       - '.github/apk/nenshkruaj.sh'
+      - '.github/apk/aab.sh'
   workflow_dispatch:
 
 # Ndërtimi lexon vetëm; leja për të shkruar (Release) i jepet vetëm hapit të publikimit, në main, pa kodin e projektit
@@ -28,16 +29,28 @@ jobs:
         with:
           gradle-version: '9.6.0'
       - name: Ndërto APK
-        run: gradle -p ora assembleRelease --stacktrace --no-daemon
+        run: gradle -p ora :app:assembleGithubRelease --stacktrace --no-daemon
       # Me vulën e re (pasi ta krijojë apk-celesat.yml një herë): v3 + zinxhiri i ndërrimit; pa të: si e nënshkroi Gradle-i
       - name: Nënshkrimi
         env:
           P: ${{ secrets.APK_FJALEKALIMI }}
-        run: bash .github/apk/nenshkruaj.sh ora ora/app/build/outputs/apk/release/app-release.apk stoku-ora-${{ github.run_number }}.apk
+        run: bash .github/apk/nenshkruaj.sh ora ora/app/build/outputs/apk/github/release/app-github-release.apk stoku-ora-${{ github.run_number }}.apk
+      # Google Play (pronari 26.11.2026): ora si AAB te i njëjti aplikacion si telefoni (paketa app.stoku.android), e nënshkruar me të
+      # njëjtin "çelës ngarkimi" si AAB-ja e telefonit (aab.sh: tel/celesi-i-ri.p12.enc); te Play Console shkon te "Wear OS"
+      - name: Ndërto AAB për Google Play (ora)
+        run: gradle -p ora :app:bundlePlayRelease --stacktrace --no-daemon
+      - name: Nënshkrimi i AAB-së së orës (çelësi i ngarkimit)
+        env:
+          P: ${{ secrets.APK_FJALEKALIMI }}
+        run: bash .github/apk/aab.sh ora/app/build/outputs/bundle/playRelease/app-play-release.aab stoku-ora-play-${{ github.run_number }}.aab
       - uses: actions/upload-artifact@v5
         with:
           name: stoku-ora-apk
           path: stoku-ora-${{ github.run_number }}.apk
+      - uses: actions/upload-artifact@v5
+        with:
+          name: stoku-ora-play-aab
+          path: stoku-ora-play-${{ github.run_number }}.aab
 
   # Kontrolli automatik i Android-it (lint) vetëm në degët e punës: gabimet dhe paralajmërimet dalin në log (nuk e ndalin CI-në)
   lint:
@@ -82,10 +95,15 @@ jobs:
       - uses: actions/download-artifact@v5
         with:
           name: stoku-ora-apk
+      - uses: actions/download-artifact@v5
+        with:
+          name: stoku-ora-play-aab
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ora-v${{ github.run_number }}
           name: Stoku për orë ${{ github.run_number }}
-          body: Aplikacioni Stoku për Galaxy Watch (Wear OS). Instalimi përshkruhet te ora/README.md.
-          files: stoku-ora-${{ github.run_number }}.apk
+          body: Aplikacioni Stoku për Galaxy Watch (Wear OS). Instalimi përshkruhet te ora/README.md. Për Google Play (Wear OS, i njëjti aplikacion si telefoni) ngarkohet stoku-ora-play-NN.aab.
+          files: |
+            stoku-ora-${{ github.run_number }}.apk
+            stoku-ora-play-${{ github.run_number }}.aab

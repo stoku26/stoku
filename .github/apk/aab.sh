@@ -61,7 +61,7 @@ python3 - "$TMP/a.aab" <<'PY'
 import struct, sys, zipfile
 z = zipfile.ZipFile(sys.argv[1]); keq = []
 for i in z.infolist():
-    if not (i.filename.endswith('.so') and '/arm64-v8a/' in i.filename): continue
+    if not (i.filename.endswith('.so') and ('/arm64-v8a/' in i.filename or '/x86_64/' in i.filename)): continue
     b = z.read(i.filename)
     if b[:4] != b'\x7fELF' or b[4] != 2: continue
     phoff = struct.unpack_from('<Q', b, 0x20)[0]; phentsize, phnum = struct.unpack_from('<HH', b, 0x36)
@@ -77,7 +77,8 @@ if awk '/^com\.google\.mlkit[^ ]* -> /{ if ($1 != substr($3, 1, length($3) - 1))
 fi
 # Play Console: simbolet e kodit native (pa to del paralajmërimi "you've not uploaded debug symbols")
 grep 'debugsymbols' "$TMP/lista.txt" || true
-if ! grep -q 'BUNDLE-METADATA/com.android.tools.build.debugsymbols/' "$TMP/lista.txt"; then
+# (vetëm kur AAB-ja ka kod native: ora mund të mos ketë fare)
+if grep -q 'base/lib/.*\.so$' "$TMP/lista.txt" && ! grep -q 'BUNDLE-METADATA/com.android.tools.build.debugsymbols/' "$TMP/lista.txt"; then
   echo "::error::AAB-ja s'i ka simbolet e kodit native (debugSymbolLevel)."; exit 1
 fi
 cp "$TMP/a.aab" "$OUT"

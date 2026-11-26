@@ -35,6 +35,15 @@ android {
         }
         debug { signingConfig = signingConfigs.getByName("stoku") }
     }
+    // Google Play (pronari 26.11.2026: "Krejt 100% identik ... edhe e qesmi bashk me telefon"): dy versione nga i njëjti kod, si te vendas/.
+    // "github" = si deri tani (APK te Releases "ora-vNN", përditësimi vetë). "play" = AAB për Google Play te i njëjti aplikacion si telefoni:
+    // e njëjta paketë app.stoku.android (Play i bashkon telefonin dhe orën vetëm me paketë të njëjtë), përditësimi vetëm nga Play,
+    // versionCode 1 000 000 + numri (çdo AAB i një aplikacioni në Play duhet numër tjetër; telefoni është në qindëshe).
+    flavorDimensions += "shperndarja"
+    productFlavors {
+        create("github") { dimension = "shperndarja"; isDefault = true }
+        create("play") { dimension = "shperndarja"; applicationId = "app.stoku.android"; versionCode = 1_000_000 + numri }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
