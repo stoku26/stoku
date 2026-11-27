@@ -9,7 +9,9 @@ json.dump(d, open(os.path.join(RR, 'perkthimi', 'en.json'), 'w', encoding='utf-8
 with open(os.path.join(RR, 'perkthimi-en.js'), 'w', encoding='utf-8') as f:
     f.write('/* Krijuar nga teste/perkthimi-gjenero.py prej perkthimi/en.json: mos e ndrysho me dorë. */\n')
     f.write('window.STOKU_FJALORI_EN = ' + json.dumps(d, ensure_ascii=False, separators=(',', ':')) + ';\n')
-os.makedirs(os.path.join(RR, 'vendas', 'app', 'src', 'main', 'assets'), exist_ok=True)
-with open(os.path.join(RR, 'vendas', 'app', 'src', 'main', 'assets', 'en.json'), 'w', encoding='utf-8') as f:
-    json.dump({'fjalet': d['fjalet'], 'modelet': d.get('modelet', [])}, f, ensure_ascii=False, separators=(',', ':'))
+# Android: telefoni (vendas) dhe ora (ora, 27.11.2026) e lexojnë të njëjtin fjalor nga assets
+for app in (('vendas', 'app'), ('ora', 'app')):
+    os.makedirs(os.path.join(RR, *app, 'src', 'main', 'assets'), exist_ok=True)
+    with open(os.path.join(RR, *app, 'src', 'main', 'assets', 'en.json'), 'w', encoding='utf-8') as f:
+        json.dump({'fjalet': d['fjalet'], 'modelet': d.get('modelet', [])}, f, ensure_ascii=False, separators=(',', ':'))
 print('fjalet', len(d['fjalet']), 'modelet', len(d.get('modelet', [])))

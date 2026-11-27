@@ -50,7 +50,6 @@ import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -558,7 +557,7 @@ fun KerkoEkrani(krejt: Krejt?, duke: Boolean, gabim: String?, pyetja: String, ku
         if (t != null) kurNdryshon(t.trim())
     }
     fun hapHyrjen() {
-        val ri = RemoteInput.Builder(CELESI_KERKIMIT).setLabel("Produkti, furnizuesi ose barkodi").build()
+        val ri = RemoteInput.Builder(CELESI_KERKIMIT).setLabel(Gjuha.t("Produkti, furnizuesi ose barkodi")).build()
         val i = Intent("android.support.wearable.input.action.REMOTE_INPUT")
             .putExtra("android.support.wearable.input.extra.REMOTE_INPUTS", arrayOf<Parcelable>(ri))
             .putExtra("android.support.wearable.input.extra.TITLE", "Kërko")
@@ -819,6 +818,16 @@ fun Cilesimet(emri: String, iRiFillim: Pair<Int, String>?, kurGjendetIRi: (Pair<
                     label = { Text(if (pyetShkeputje) "Prek sërish për ta shkëputur" else "Shkëput orën", fontSize = 13.sp) },
                     secondaryLabel = { Text("Ora s'e sheh më llogarinë", color = Gri, maxLines = 1) },
                     colors = if (pyetShkeputje) ChipDefaults.chipColors(backgroundColor = Kuqe, contentColor = Color.Black) else ChipDefaults.secondaryChipColors(),
+                )
+            }
+            // Gjuha (27.11.2026): shqip / anglisht, si te telefoni (Cilësimet → Pamja → Gjuha)
+            item {
+                Chip(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { (ctx as? android.app.Activity)?.let { Gjuha.nderro(it) } },
+                    label = { Text("Gjuha", fontSize = 13.sp) },
+                    secondaryLabel = { Text(if (Gjuha.en) "English" else "Shqip", color = Gri, maxLines = 1) },
+                    colors = ChipDefaults.secondaryChipColors(),
                 )
             }
             // Në fund: llogaria dhe versioni (si "Stoku 1.x" te telefoni)

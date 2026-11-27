@@ -10,6 +10,7 @@ on:
       - '.github/workflows/ora-apk.yml'
       - '.github/apk/nenshkruaj.sh'
       - '.github/apk/aab.sh'
+      - '.github/apk/shenimet-play.py'
   workflow_dispatch:
 
 # Ndërtimi lexon vetëm; leja për të shkruar (Release) i jepet vetëm hapit të publikimit, në main, pa kodin e projektit
@@ -47,10 +48,15 @@ jobs:
         with:
           name: stoku-ora-apk
           path: stoku-ora-${{ github.run_number }}.apk
+      # Google Play "What's new" (anglisht): ora/play-te-rejat.txt, paragrafi i parë
+      - name: Shënimet e versionit për Play (ora)
+        run: python3 .github/apk/shenimet-play.py ora whatsnew
       - uses: actions/upload-artifact@v5
         with:
           name: stoku-ora-play-aab
-          path: stoku-ora-play-${{ github.run_number }}.aab
+          path: |
+            stoku-ora-play-${{ github.run_number }}.aab
+            whatsnew/
 
   # Pamjet e orës për Google Play (Robolectric, pa orë), vetëm në degët e punës: çdo PNG ruhet si blob i git-it dhe "sha"-të dalin si
   # shënim (si te vendas-apk.yml), që të merren me API-në e GitHub-it
@@ -164,6 +170,7 @@ jobs:
           serviceAccountJson: ${{ steps.google.outputs.credentials_file_path }}
           packageName: app.stoku.android
           releaseFiles: stoku-ora-play-${{ github.run_number }}.aab
+          whatsNewDirectory: whatsnew
           track: wear:${{ vars.PLAY_TRACK || 'internal' }}
           status: completed
       - name: Google Play (ora, si draft)
@@ -174,5 +181,6 @@ jobs:
           serviceAccountJson: ${{ steps.google.outputs.credentials_file_path }}
           packageName: app.stoku.android
           releaseFiles: stoku-ora-play-${{ github.run_number }}.aab
+          whatsNewDirectory: whatsnew
           track: wear:${{ vars.PLAY_TRACK || 'internal' }}
           status: draft

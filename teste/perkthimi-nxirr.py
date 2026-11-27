@@ -38,7 +38,9 @@ def mblidh(lloji):
                 for u in (html('>' + t + '<') if ('<' in t and '>' in t) else [t]): d.setdefault(u, set()).add(f)
     if lloji in ('android', 'krejt'):
         # main + versionet github/play (jo testet)
-        for f in [x for d in ('main', 'github', 'play') for x in glob.glob(os.path.join(RR, 'vendas/app/src', d, 'java/site/stoku/vendas/**/*.kt'), recursive=True)]:
+        # 27.11.2026: edhe ora (ora/app/src/{main,github,play})
+        for f in [x for d in ('main', 'github', 'play') for x in glob.glob(os.path.join(RR, 'vendas/app/src', d, 'java/site/stoku/vendas/**/*.kt'), recursive=True)
+                  + glob.glob(os.path.join(RR, 'ora/app/src', d, 'java/site/stoku/ora/**/*.kt'), recursive=True)]:
             s = pa_komente_js(open(f, encoding='utf-8').read())
             # "Çfarë ka të re" (Android): 10 hyrjet e fundit duhet të kenë anglisht (në anglisht shfaqen vetëm hyrjet e përkthyera)
             if f.endswith('TeRejat.kt'):

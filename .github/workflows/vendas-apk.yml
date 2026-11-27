@@ -12,6 +12,7 @@ on:
       - '.github/workflows/vendas-apk.yml'
       - '.github/apk/nenshkruaj.sh'
       - '.github/apk/aab.sh'
+      - '.github/apk/shenimet-play.py'
   workflow_dispatch:
 
 permissions:
@@ -60,6 +61,8 @@ jobs:
           pathlib.Path('shenimet.md').write_text('\n'.join(d) + '\n', encoding='utf-8')
           print('\n'.join(d))
           PY
+          # Google Play "What's new" (anglisht, gjuha bazë e Play-it), nga TeRejat.kt + perkthimi/en.json
+          python3 .github/apk/shenimet-play.py tel whatsnew
       - uses: actions/upload-artifact@v5
         with:
           name: stoku-apk
@@ -69,7 +72,9 @@ jobs:
       - uses: actions/upload-artifact@v5
         with:
           name: stoku-play-aab
-          path: stoku-play-${{ github.run_number }}.aab
+          path: |
+            stoku-play-${{ github.run_number }}.aab
+            whatsnew/
 
   # Pamjet e ekraneve (Robolectric, pa telefon) vetëm në degët e punës: çdo PNG ruhet si blob i git-it (pa prekur asnjë degë)
   # dhe "sha"-të dalin si shënim (annotation), që të lexohen me API-në e GitHub-it dhe të krahasohen me pamjet e web-it.
@@ -199,6 +204,7 @@ jobs:
           serviceAccountJson: ${{ steps.google.outputs.credentials_file_path }}
           packageName: app.stoku.android
           releaseFiles: stoku-play-${{ github.run_number }}.aab
+          whatsNewDirectory: whatsnew
           track: ${{ vars.PLAY_TRACK || 'internal' }}
           status: completed
       - name: Google Play (telefoni, si draft)
@@ -209,5 +215,6 @@ jobs:
           serviceAccountJson: ${{ steps.google.outputs.credentials_file_path }}
           packageName: app.stoku.android
           releaseFiles: stoku-play-${{ github.run_number }}.aab
+          whatsNewDirectory: whatsnew
           track: ${{ vars.PLAY_TRACK || 'internal' }}
           status: draft

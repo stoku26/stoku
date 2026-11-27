@@ -335,6 +335,8 @@ fun OraFaqja(mbrapa: () -> Unit) {
                 if (gati && oret.isEmpty()) Column(Modifier.padding(bottom = 12.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(n.surface2).border(1.dp, n.line, RoundedCornerShape(14.dp))
                     .padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Aplikacioni Stoku në orë", style = tx(18, 700, n.ink, -0.01))
+                    // 27.11.2026: versioni nga Google Play: aplikacioni i orës vjen nga Play Store i orës (i njëjti aplikacion te Play)
+                    if (site.stoku.vendas.BuildConfig.PLAY) Text("Instaloje Stoku në orë nga Google Play: në orë hap Play Store dhe kërko \"Stoku\".", style = txR(12.5f, 400, n.muted))
                     Text("Hape Stoku në orë: del një kod me 6 shifra (ndërrohet çdo 15 sekonda). Shkruaje këtu që ora të lidhet me llogarinë tënde.", style = txR(12.5f, 400, n.muted))
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                         Fusha(kodi, { kodi = it.filter { c -> c.isDigit() }.take(6) }, Modifier.weight(1f), "Kodi nga ora", tastiera = KeyboardType.NumberPassword,
