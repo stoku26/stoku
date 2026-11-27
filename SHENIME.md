@@ -56,6 +56,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **Cloudflare me lidhje të plotë (27.11.2026)**. Pronari lidhi "Cloudflare API" (mcp.cloudflare.com, full access). Kontrolli vetëm
+   me lexim: llogaria 1, zona stoku.site, Worker-at `stoku-push` dhe `stoku-afatet` live = IDENTIKË bajt për bajt me `worker/*.js`
+   (sha256 e pjesës `worker.js` te `GET /accounts/{id}/workers/scripts/{emri}/content/v2`, përgjigje multipart); rregulla "Siguria"
+   (`/zones/{id}/rulesets/phases/http_response_headers_transform/entrypoint`) e ndezur, CSP = `CSP_CLOUDFLARE` (sha256 e njëjtë).
+   Tani Worker-at dhe CSP-në i përditëson Claude (pas testeve), jo më pronari me dorë; Firebase-i ende jo (pa lidhje).
+
 0000000. **Ora play: R8 (27.11.2026, pa version web-i)**. Play Console (foto, ora 1.0.89): "DEX code optimization is below our threshold ...
    Obfuscation (1%) ... Fix by Feb 2027" + "critical note" te androidx.wear.tiles 1.4.0 dhe protolayout-proto 1.2.0. Ora s'kishte fare R8.
    Tani (`ora/app/build.gradle.kts`, si telefoni): release `isMinifyEnabled` + `isShrinkResources`, `proguard-rules.pro` (i përbashkët),

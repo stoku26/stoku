@@ -26,8 +26,10 @@ Përditësoje në të njëjtin PR me çdo ndryshim domethënës.
 - `vendas/logjika` = bashkimi.js/ruajtja.js/afatet.js (edhe importi nga Excel)/lejet.js/marketet.js/xlsx.js + pjesa e pastër e ekipa.js (GrupiLogjika)
   + barkodet e JsBarcode-it (etiketat PDF) në Kotlin: kur ndryshon ndonjëri, `node teste/vendas-fikstura.js` (përdor Playwright)
   dhe përshtat Kotlinin (testet e krahasojnë me web-in).
-- stoku.site = GitHub Pages pas Cloudflare. Worker-in, rregullat e Firebase-it dhe Cloudflare-in i vendos **pronari**
-  (unë s'kam qasje): jepja kodin ose hapat.
+- stoku.site = GitHub Pages pas Cloudflare. Rregullat e Firebase-it i vendos **pronari** (s'kam qasje): jepja skedarin.
+  Cloudflare (27.11.2026, pronari: "e ndreqa cloudflare hina full access"): lidhja "Cloudflare API" (mcp.cloudflare.com) jep
+  qasje të plotë te llogaria (Worker-at stoku-push/stoku-afatet, zona stoku.site, rregulla "Siguria"). Publiko vetëm pasi të kalojnë
+  testet, pastaj krahaso kodin live me GitHub-in (sha256 e `worker.js` te `/workers/scripts/{emri}/content/v2`) dhe tregoja pronarit.
 - Rregullat e Firebase (pronari, 17.11.2026: "Qoma gjithmon fajlin per firebase hi aty e mar"): sa herë ndryshojnë, dërgoja
   GJITHMONË si skedar krejt rregullat (`node teste/emu/rregullat.js > rregullat-firestore.txt` te scratchpad + SendUserFile), jo
   vetëm pjesën e re dhe jo të kopjuara me dorë në chat (në chat u gabua një herë 'lista' → 'lemma').
