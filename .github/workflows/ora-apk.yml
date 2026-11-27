@@ -124,6 +124,8 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    env:
+      PLAY_SA: ${{ secrets.PLAY_SA_JSON }}
     permissions:
       contents: write
     steps:
@@ -142,3 +144,27 @@ jobs:
           files: |
             stoku-ora-${{ github.run_number }}.apk
             stoku-ora-play-${{ github.run_number }}.aab
+      # Google Play automatikisht (pronari 27.11.2026: "kur boj updates me i qit automatikisht"): AAB-ja ngarkohet vetë te Play Console me
+      # service account-in (sekreti PLAY_SA_JSON). Pa sekretin hapi kalohet (ngarkimi mbetet me dorë). Track-u: ndryshorja PLAY_TRACK e repo-s
+      # (internal, alpha, production...; pa të = internal). Kur aplikacioni s'është publikuar ende asnjëherë, Play pranon vetëm "draft":
+      # atëherë provohet sërish si draft dhe pronari e shtyp vetë "Save and publish". Udhëzimi: vendas/PLAY.md.
+      - name: Google Play (ora)
+        id: play
+        if: env.PLAY_SA != ''
+        continue-on-error: true
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SA_JSON }}
+          packageName: app.stoku.android
+          releaseFiles: stoku-ora-play-${{ github.run_number }}.aab
+          track: wear:${{ vars.PLAY_TRACK || 'internal' }}
+          status: completed
+      - name: Google Play (ora, si draft)
+        if: env.PLAY_SA != '' && steps.play.outcome == 'failure'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SA_JSON }}
+          packageName: app.stoku.android
+          releaseFiles: stoku-ora-play-${{ github.run_number }}.aab
+          track: wear:${{ vars.PLAY_TRACK || 'internal' }}
+          status: draft

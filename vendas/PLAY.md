@@ -61,9 +61,28 @@ sekretin `APK_FJALEKALIMI`; `.github/apk/aab.sh`). Gjurmët e tij (publike):
    - CI (`.github/apk/aab.sh`) e ndal AAB-në kur: ka lejen REQUEST_INSTALL_PACKAGES, kod të vetë-përditësimit (GitHub/APK), paketë tjetër
      nga `app.stoku.android`, ose libraritë arm64 pa faqe 16 KB (Google Play i refuzon që nga nëntori 2025).
 
-## Përditësimet e mëvonshme
-Pas çdo ndryshimi në `main`: merr `stoku-play-NN.aab` nga Release-i më i ri dhe ngarkoje te Play Console si release i ri. Numri i versionit
-(`versionCode`) rritet vetë me çdo ndërtim. Telefonat me versionin nga Play e marrin përditësimin vetëm nga Play.
+## Përditësimet e mëvonshme (automatikisht)
+Pas çdo ndryshimi në `main`, GitHub Actions e ndërton `stoku-play-NN.aab` (dhe `stoku-ora-play-NN.aab` për orën) dhe, kur ekziston
+sekreti **`PLAY_SA_JSON`**, i ngarkon vetë te Google Play (hapi "Google Play" te punët `release` të `vendas-apk.yml` dhe `ora-apk.yml`).
+Pa sekretin, hapi kalohet dhe ngarkimi mbetet me dorë si më parë. Numri i versionit (`versionCode`) rritet vetë me çdo ndërtim.
+Telefonat me versionin nga Play e marrin përditësimin vetëm nga Play.
+
+- **Track-u:** ndryshorja e repo-s `PLAY_TRACK` (GitHub → Settings → Secrets and variables → Actions → *Variables*): `internal`
+  (pa ndryshore), `alpha` (Closed testing), `production`. Ora shkon te i njëjti track i Wear OS (`wear:...`).
+- **Statusi:** provohet `completed` (publikohet menjëherë te track-u). Nëse aplikacioni s'është publikuar ende asnjëherë, Play pranon vetëm
+  `draft`: atëherë ngarkohet si draft dhe pronari e shtyp vetë *Save and publish* te Play Console. Për Production, Google e rishikon
+  sërish çdo version (zakonisht disa orë deri në disa ditë).
+
+### Service account (një herë, e bën pronari)
+1. https://console.cloud.google.com → projekti (p.sh. `stoku-appi`) → *APIs & Services → Library* → **Google Play Android Developer API**
+   → *Enable*.
+2. *IAM & Admin → Service Accounts → Create service account*, emri `stoku-play` → *Done*. Hape → *Keys → Add key → Create new key → JSON*:
+   shkarkohet një skedar `.json`. Mos e dërgo në chat dhe mos e fut në repo.
+3. Play Console → *Users and permissions → Invite new users* → email-i i service account-it (`stoku-play@...iam.gserviceaccount.com`) →
+   *App permissions → Add app → Stoku* → lejet **Release to testing tracks** dhe **Release to production...** (ose *Admin*) → *Invite user*.
+4. GitHub → stoku26/stoku → *Settings → Secrets and variables → Actions → New repository secret*: emri **`PLAY_SA_JSON`**, vlera
+   krejt përmbajtja e skedarit `.json` (hape me Notepad, Ctrl+A, Ctrl+C). Pas kësaj skedarin `.json` mund ta fshish nga kompjuteri.
+5. Prova: GitHub → *Actions → Stoku APK → Run workflow* (dega `main`).
 
 ## Versioni github dhe ai i Play-it në të njëjtin telefon
 Kanë paketa të ndryshme (`site.stoku.vendas` dhe `app.stoku.android`), prandaj për telefonin janë dy aplikacione të ndara: mund të
