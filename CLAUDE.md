@@ -72,6 +72,9 @@ Ndryshimet vetëm në `vendas/` ose `ora/` (Kotlin): pa version të web-it, vet�
 GitHub Actions (në push të degës për kontroll, në main për publikim).
 `vendas/` ka dy versione (v351): `github` (APK + përditësimi vetë, mos e fshi) dhe `play` (AAB për Google Play, përditësimi vetëm nga Play);
 udhëzuesi `vendas/PLAY.md`.
+Google Play automatikisht (27.11.2026): çdo push në `main` që prek `vendas/` ose `ora/` i ngarkon vetë AAB-të te Play (track `internal`,
+ose ndryshorja e repo-s `PLAY_TRACK`), pa çelës/sekret (Workload Identity, service account `stoku-play`). Mos shto çelës JSON as sekret
+`PLAY_SA_JSON`; mos e fshi lidhjen. Detajet dhe çka ndryshohet ku: `vendas/PLAY.md` → "Përditësimet e mëvonshme".
 
 ## Testet (`teste/`)
 - Playwright + Firestore i rremë (`fs-server.js`); `teste/wp/` për Worker-in. Herën e parë në kontejner të ri:
