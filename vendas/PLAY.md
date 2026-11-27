@@ -61,9 +61,35 @@ sekretin `APK_FJALEKALIMI`; `.github/apk/aab.sh`). Gjurmët e tij (publike):
    - CI (`.github/apk/aab.sh`) e ndal AAB-në kur: ka lejen REQUEST_INSTALL_PACKAGES, kod të vetë-përditësimit (GitHub/APK), paketë tjetër
      nga `app.stoku.android`, ose libraritë arm64 pa faqe 16 KB (Google Play i refuzon që nga nëntori 2025).
 
-## Përditësimet e mëvonshme
-Pas çdo ndryshimi në `main`: merr `stoku-play-NN.aab` nga Release-i më i ri dhe ngarkoje te Play Console si release i ri. Numri i versionit
+## Përditësimet e mëvonshme (automatikisht)
+Pas çdo ndryshimi në `main`, GitHub Actions e ndërton `stoku-play-NN.aab` (dhe `stoku-ora-play-NN.aab` për orën) dhe i ngarkon vetë te
+Google Play (hapat "Hyrja te Google" dhe "Google Play" te punët `release` të `vendas-apk.yml` dhe `ora-apk.yml`). Numri i versionit
 (`versionCode`) rritet vetë me çdo ndërtim. Telefonat me versionin nga Play e marrin përditësimin vetëm nga Play.
+
+- **Pa çelës, pa sekret:** GitHub hyn te Google me *Workload Identity Federation* (27.11.2026): projekti `stoku-appi` (nr. 107114545225),
+  pool `github`, provider `stoku` (OIDC `https://token.actions.githubusercontent.com`, kushti `assertion.repository=='stoku26/stoku'`),
+  si service account-i `stoku-play@stoku-appi.iam.gserviceaccount.com` (roli *Workload Identity User* për repo-n stoku26/stoku).
+  Te Play Console ky email është i ftuar te *Users and permissions* me lejet e release për Stoku. Asnjë skedar JSON s'është krijuar.
+- **Track-u:** ndryshorja e repo-s `PLAY_TRACK` (GitHub → Settings → Secrets and variables → Actions → *Variables*): `internal`
+  (pa ndryshore), `alpha` (Closed testing), `production`. Ora shkon te i njëjti track i Wear OS (`wear:...`).
+- **Statusi:** provohet `completed` (publikohet menjëherë te track-u). Nëse aplikacioni s'është publikuar ende asnjëherë, Play pranon vetëm
+  `draft`: atëherë ngarkohet si draft dhe pronari e shtyp vetë *Save and publish*. Për Production, Google e rishikon çdo version.
+- Nëse ngarkimi dështon, Release-i në GitHub krijohet njësoj (hapat e Play-it s'e ndalin punën); AAB-ja mund të ngarkohet me dorë.
+
+### Ku është konfiguruar krejt (për ta gjetur ose ndryshuar më vonë)
+| Ku | Çka | Adresa |
+|---|---|---|
+| Google Cloud, projekti `stoku-appi` | *Google Play Android Developer API* dhe *IAM Service Account Credentials API* të aktivizuara | https://console.cloud.google.com/apis/dashboard?project=stoku-appi |
+| Google Cloud → IAM → Service Accounts | `stoku-play@stoku-appi.iam.gserviceaccount.com` (pa asnjë çelës) | https://console.cloud.google.com/iam-admin/serviceaccounts?project=stoku-appi |
+| Google Cloud → IAM → Workload Identity Federation | pool `github`, provider `stoku` (OIDC GitHub, kushti `assertion.repository=='stoku26/stoku'`, mapping `google.subject=assertion.sub`, `attribute.repository=assertion.repository`); *Connected service accounts*: `stoku-play` për `repository = stoku26/stoku` | https://console.cloud.google.com/iam-admin/workload-identity-pools/pool/github?project=stoku-appi |
+| Play Console (llogaria "Duli", mendurb@gmail.com) → Users and permissions | `stoku-play@...` aktiv, vetëm aplikacioni Stoku, lejet: *View app information*, *Edit and delete draft apps*, *Release to production...*, *Release apps to testing tracks* (asnjë financë, s'është admin) | https://play.google.com/console/u/0/developers/6334670304860510181/users-and-permissions |
+| GitHub stoku26/stoku | workflow-et `.github/workflows/vendas-apk.yml` dhe `ora-apk.yml` (puna `release`, `id-token: write`); ndryshorja opsionale `PLAY_TRACK` (s'është vendosur: track-u është `internal`) | https://github.com/stoku26/stoku/settings/variables/actions |
+
+- **Prova e parë (27.11.2026):** "Stoku APK" run 369 dhe "Stoku Ora APK" run 95: të dy hapat "Google Play" me sukses, si `completed` te
+  Internal testing (telefoni) dhe Wear OS Internal testing (ora).
+- **Për ta ndalur ngarkimin automatik:** te Play Console hiqe `stoku-play` nga Users and permissions (ose te Google Cloud fshije lidhjen e
+  pool-it `github`). Release-t në GitHub vazhdojnë njësoj.
+- **Për ta dërguar te Closed testing / Production:** ndryshorja `PLAY_TRACK` = `alpha` (ose emri i track-ut të krijuar) / `production`.
 
 ## Versioni github dhe ai i Play-it në të njëjtin telefon
 Kanë paketa të ndryshme (`site.stoku.vendas` dhe `app.stoku.android`), prandaj për telefonin janë dy aplikacione të ndara: mund të
