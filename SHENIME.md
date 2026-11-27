@@ -56,6 +56,19 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v362 (27.11.2026): PËRDITËSIMI PA RINDEZJE TË KOTË + EKRANI I PËRDITËSIMIT**. Pronari: "kur ruhet cache, edhe hyn prap mas
+   ni kohe ... logoja e gjithqka fillon qysh ka pas mbet tana mas refreshit ... bohet komplet refresh ... me bo njo kishe osht tu u
+   mush ose loading". Shkaku: faqja hapet nga interneti (sw.js network-first për index/pc.html) pra është TASHMË versioni i ri, por
+   service worker-i i ri instalohej pas `load` dhe `controllerchange` e rindizte prapë faqen pas disa sekondash. Tani (app-tel.js,
+   app-pc.js): te `controllerchange` krahasohet `StokuVersioni.v` me cache-in e SW-së së re (`caches.keys()` → `stoku-vNN`; të
+   vjetrat fshihen te activate): faqja e re → pa rindezje. KUJDES: `CACHE` te sw.js dhe `v` te versioni.js duhet të jenë gjithmonë i
+   njëjti numër (teste/v362.js e kontrollon). Kur rindezja duhet vërtet (faqja e hapur para publikimit), del ekrani i përditësimit
+   (`html.stk-perditesim`: logoja `logo/stoku-icon.svg` (tani te SHELL) + rrethi, CSS te index/pc.html) para rindezjes dhe, me
+   `sessionStorage['stoku:perditesimi']`, edhe pas saj (fillimi-*.js) derisa `load` + 0,5 s, pastaj zbehet (siguria 8 s). Kthimi te
+   Stoku i hapur > 1 min kur ka dalë versioni i ri: ekrani del te `updatefound` (20 s siguria). fillimi-tel.js s'e merr shenjën kur
+   kalon te pc.html (adresa e PC-së është "/", rifreskimi kalon nga index.html). Test: `teste/v362.js` (kopje e faqes në dosje të
+   përkohshme, "publikimi" = rritet CACHE + v; tel + PC).
+
 0000000. **v361 / Android Hyrja 121 (26.11.2026): RUAJTJA NË CLOUD PROVOHET VETË SËRISH**. Pronari: "Edhe kontrollo stoku.site
    faqen 100% pas qdo ndryshimi me u rujt qdo sen ne cloud, gjithashtu edhe ne appet". Kontrolli: sinkronizimi kryesor (dyqane/{uid},
    afatet/malli/folderat) kishte tashmë riprovim çdo 15 s (web tel `kryeSinkronizimin`, PC `sink.riprovo`, Android `Sinkronizimi.kt`)

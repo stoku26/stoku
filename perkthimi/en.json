@@ -1117,6 +1117,8 @@
   "Kujt t'ia kërkosh": "Who to ask",
   "Kur Stoku është hapur": "When Stoku is open",
   "Kur dikush heq nga rafti, ose shton afate, del këtu.": "When someone removes from the shelf or adds expiry dates, it shows here.",
+  "Kur hap Stoku-n pas një versioni të ri, faqja s'rindizet më pas pak sekondash (logoja dhe krejt nga fillimi).": "When you open Stoku after a new version, the page no longer restarts a few seconds later (the logo and everything from the beginning).",
+  "Kur përditësimi kërkon rindezje, del një ekran i shkurtër me logon derisa versioni i ri të jetë gati.": "When an update needs a restart, a short screen with the logo appears until the new version is ready.",
   "Kur ruajtja në cloud dështon për një moment (p.sh. pa internet), Stoku provon vetë sërish derisa të ruhet, pa pritur ndryshimin tjetër.": "When saving to the cloud fails for a moment (e.g. no internet), Stoku retries by itself until it's saved, without waiting for the next change.",
   "Kur skadojnë produktet, sipas ditëve": "When products expire, by day",
   "Kur është ndezur: ekrani kyçet në portret (pa u rrotulluar anash ose përmbys), fshihet butoni i kamerës dhe kursori qëndron te fusha e barkodit.": "When it's on: the screen locks in portrait (without rotating sideways or upside down), the camera button is hidden and the cursor stays in the barcode field.",
@@ -1615,6 +1617,7 @@
   "Për ta dërguar në PC duhet llogari (e njëjta edhe në kompjuter).": "To send it to the PC you need an account (the same one on the computer).",
   "Për të vazhduar, duhet t'i lexoni dhe t'i pranoni Kushtet e përdorimit.": "To continue, you need to read and accept the Terms of use.",
   "Përditësimet e fundit": "Recent updates",
+  "Përditësimi pa rindezje": "Updates without restarting",
   "Përditëso Stoku-n": "Update Stoku",
   "Përditëso tani": "Update now",
   "Përditësohen": "They get updated",
@@ -3103,6 +3106,7 @@
   " paralajm",
   " ri",
   " rrezik",
+  " sb-days__big--sot",
   " sb-row__qty--exp",
   " sb-stat__value--exp",
   " shkarkuar",
@@ -3977,6 +3981,7 @@
   "reader",
   "readonly",
   "readwrite",
+  "redundant",
   "refuzoi",
   "refuzuar",
   "regjistri",
@@ -4086,6 +4091,7 @@
   "square",
   "src",
   "st",
+  "statechange",
   "statistika",
   "statusi",
   "stock",
@@ -4176,6 +4182,7 @@
   "unused",
   "update",
   "updateMask.fieldPaths=",
+  "updatefound",
   "uppercase",
   "url",
   "url(\"",
@@ -4231,7 +4238,6 @@
   "zoomend",
   "zvarritet",
   "{\"image\":\"",
-  "| Esri, Vantor, Earthstar Geographics, and the GIS User Community",
-  " sb-days__big--sot"
+  "| Esri, Vantor, Earthstar Geographics, and the GIS User Community"
  ]
 }

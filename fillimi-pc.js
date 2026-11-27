@@ -48,3 +48,20 @@
   v.observe(document.documentElement, { childList: true, subtree: true });
   document.addEventListener('DOMContentLoaded', function () { provo(); v.disconnect(); });
 })();
+
+// v362 (pronari: "logoja e krejt ja nisin prap prej fillimi ... me bo njo kishe osht tu u mush ose loading"): pas rinisjes për versionin
+// e ri, ekrani i përditësimit (logoja + rrethi, CSS te faqja) mbetet derisa faqja e re të jetë gati, pastaj zbehet.
+(function () {
+  var po = false;
+  try { po = sessionStorage.getItem('stoku:perditesimi') === '1'; sessionStorage.removeItem('stoku:perditesimi'); } catch (e) { /* ok */ }
+  if (!po) return;
+  var h = document.documentElement, hequr = false;
+  h.classList.add('stk-perditesim');
+  function hiq() {
+    if (hequr) return; hequr = true;
+    h.classList.add('stk-perditesim-fund');
+    setTimeout(function () { h.classList.remove('stk-perditesim', 'stk-perditesim-fund'); }, 400);
+  }
+  window.addEventListener('load', function () { setTimeout(hiq, 500); });
+  setTimeout(hiq, 8000); // siguria: s'mbetet kurrë mbi faqe
+})();

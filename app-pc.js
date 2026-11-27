@@ -7158,18 +7158,52 @@
       if (sink.duke || sink.kohez) return false;
       return true;
     };
+    // v362: versioni i faqes (versioni.js) kundrejt versionit të service worker-it të ri (cache 'stoku-vNN'; të vjetrat fshihen
+    // te activate). Kur faqja u hap nga interneti, është tashmë e reja: më parë rindizej prapë pas pak sekondash (logoja nga fillimi).
+    var versioniIRi = function () {
+      if (!window.caches || !caches.keys) return Promise.resolve(0);
+      return caches.keys().then(function (k) {
+        var n = 0; k.forEach(function (x) { var m = /^stoku-v(\d+)$/.exec(x); if (m) n = Math.max(n, Number(m[1])); }); return n;
+      }).catch(function () { return 0; });
+    };
+    var faqjaEshteERe = function (n) { return !!(n && window.StokuVersioni && window.StokuVersioni.v >= n); };
+    // Ekrani i përditësimit (logoja + rrethi, CSS te faqja); fillimi-*.js e mban edhe pas rinisjes derisa faqja e re të jetë gati
+    var ekraniIPerditesimit = function (po) {
+      var h = document.documentElement;
+      if (po) { h.classList.remove('stk-perditesim-fund'); h.classList.add('stk-perditesim'); }
+      else if (h.classList.contains('stk-perditesim')) { h.classList.add('stk-perditesim-fund'); setTimeout(function () { h.classList.remove('stk-perditesim', 'stk-perditesim-fund'); }, 400); }
+    };
+    var rinisMeEkran = function () {
+      if (!document.hidden) { ekraniIPerditesimit(true); try { sessionStorage.setItem('stoku:perditesimi', '1'); } catch (e) { /* ok */ } }
+      location.reload();
+    };
     var rinisKurTeJeteQete = function () {
       if (!__perditesimGati) return;
       // Në sfond: rinis menjëherë, por jo ndërsa një ruajtje në cloud është në rrugë
-      if (document.hidden ? !(sink.duke || sink.kohez) : eshteCastIQete()) { location.reload(); return; }
+      if (document.hidden ? !(sink.duke || sink.kohez) : eshteCastIQete()) { rinisMeEkran(); return; }
       clearTimeout(__perditesimKohez);
       __perditesimKohez = setTimeout(rinisKurTeJeteQete, 10000);
     };
     navigator.serviceWorker.addEventListener('controllerchange', function () {
       if (!__kishteKontrollues) { __kishteKontrollues = true; return; } // instalimi i parë: faqja është tashmë e reja
-      __perditesimGati = true;
-      rinisKurTeJeteQete();
+      versioniIRi().then(function (n) {
+        if (faqjaEshteERe(n)) { ekraniIPerditesimit(false); return; } // v362: s'ka nevojë për rinisje
+        __perditesimGati = true;
+        rinisKurTeJeteQete();
+      });
     });
+    // v362: kthehesh te Stoku i hapur kohë më parë dhe ka dalë version i ri: ekrani i përditësimit del menjëherë (jo faqja e
+    // vjetër që pas pak rindizet). Vetëm kur faqja është hapur > 1 min (përndryshe zakonisht është tashmë e reja) dhe s'po punon.
+    navigator.serviceWorker.getRegistration().then(function (r) {
+      if (!r) return;
+      r.addEventListener('updatefound', function () {
+        if (document.hidden || performance.now() < 60000 || !eshteCastIQete()) return;
+        ekraniIPerditesimit(true);
+        var w = r.installing;
+        if (w) w.addEventListener('statechange', function () { if (w.state === 'redundant') ekraniIPerditesimit(false); });
+        setTimeout(function () { if (!__perditesimGati) ekraniIPerditesimit(false); }, 20000); // siguria
+      });
+    }).catch(function () { /* ok */ });
     document.addEventListener('visibilitychange', function () {
       if (document.hidden) rinisKurTeJeteQete(); else kontrolloPerditesimin();
     });

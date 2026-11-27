@@ -11,7 +11,7 @@
 <style id="paKornize">html{display:none!important}</style>
 <script src="kornize.js?v=238"></script>
 <script src="vjeter.js?v=1"></script>
-<script src="perkthimi.js?v=361"></script>
+<script src="perkthimi.js?v=362"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stoku • Kompjuter</title>
 <link rel="manifest" href="manifest.webmanifest?v=90">
@@ -20,7 +20,7 @@
 <link rel="icon" href="logo/favicon-32.png?v=5" sizes="32x32">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=5">
 <meta name="theme-color" content="#f6f5f2" id="metaTema">
-<script src="fillimi-pc.js?v=314"></script>
+<script src="fillimi-pc.js?v=362"></script>
 <style>
   :root {
     color-scheme: light;
@@ -99,6 +99,14 @@
 
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; }
+  /* v362: ekrani i përditësimit (logoja + rrethi): para dhe pas rinisjes për versionin e ri, që faqja të mos shihet duke u rindezur */
+  html.stk-perditesim::after { content: ''; position: fixed; inset: 0; z-index: 2147483646; pointer-events: all;
+    background: var(--sfond, #f4f5f7) url(logo/stoku-icon.svg) center calc(50% - 24px) / 84px 84px no-repeat; transition: opacity .35s ease; }
+  html.stk-perditesim::before { content: ''; position: fixed; left: 50%; top: calc(50% + 46px); width: 24px; height: 24px; margin-left: -15px;
+    border-radius: 50%; border: 3px solid var(--vije, rgba(128,128,128,.25)); border-top-color: var(--primar, #2f6fec); z-index: 2147483647;
+    animation: stkPerdRr .8s linear infinite; transition: opacity .35s ease; }
+  html.stk-perditesim-fund::after, html.stk-perditesim-fund::before { opacity: 0; }
+  @keyframes stkPerdRr { to { transform: rotate(360deg); } }
   body {
     font-family: var(--shkronja); font-size: 14px; color: var(--tekst); background: var(--sfond);
     display: grid; grid-template-rows: auto 1fr; overflow: hidden;
@@ -2135,9 +2143,9 @@
 <script src="harta.js?v=281"></script>
 <script src="ekipa.js?v=361"></script>
 <script src="temat.js?v=2"></script>
-<script src="versioni.js?v=361"></script>
-<script src="teRejat.js?v=361"></script>
-<script src="app-pc.js?v=358"></script>
+<script src="versioni.js?v=362"></script>
+<script src="teRejat.js?v=362"></script>
+<script src="app-pc.js?v=362"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js" integrity="sha384-vmcSy8TM1KhZWBIKMKTR8AxbrJQCuConAolGY+42odu9ZGIzw8L8xAT/u7ul4X2U" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
 

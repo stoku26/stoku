@@ -21,6 +21,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 362, versioni: '1.76.7', data: '2026-11-27', titulli: 'Përditësimi pa rindezje', pikat: [
+      'Kur hap Stoku-n pas një versioni të ri, faqja s\'rindizet më pas pak sekondash (logoja dhe krejt nga fillimi).',
+      'Kur përditësimi kërkon rindezje, del një ekran i shkurtër me logon derisa versioni i ri të jetë gati.'
+    ] },
     { v: 361, versioni: '1.76.6', data: '2026-11-26', titulli: 'Ruajtja në cloud më e sigurt', pikat: [
       'Kur ruajtja në cloud dështon për një moment (p.sh. pa internet), Stoku provon vetë sërish derisa të ruhet, pa pritur ndryshimin tjetër.',
       'Kjo vlen për produktet e kontrolluara nga administratori, produktet e grupit dhe afatet e mallin që i shohin kolegët.'
