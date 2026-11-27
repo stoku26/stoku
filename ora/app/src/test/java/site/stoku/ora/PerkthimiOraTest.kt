@@ -5,6 +5,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.io.File
 
 /**
@@ -13,6 +14,7 @@ import java.io.File
  * Robolectric: org.json i Android-it (në JVM-në e thjeshtë s'ka implementim).
  */
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34]) // si PamjetOraTest: Robolectric s'e njeh ende targetSdk 36
 class PerkthimiOraTest {
     private val burimet = File("../../vendas/logjika/src/test/resources")
 
