@@ -1,0 +1,44 @@
+# Rregullat e Firestore-it (burimi: SHENIME.md → "## Rregullat e Firestore", teste/emu/rregullat.js) publikohen vetë te Firebase,
+# pa çelës (Workload Identity, stoku-play me rolin "Firebase Rules Admin"). Në push te main: publikohen VETËM kur
+# firebase/publiko-automatikisht.txt është "po" dhe kur dallojnë nga live; ndryshe vetëm krahasohen. Me dorë (workflow_dispatch): menyra.
+name: Rregullat e Firebase
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'SHENIME.md'
+      - 'teste/emu/rregullat.js'
+      - 'firebase/**'
+  workflow_dispatch:
+    inputs:
+      menyra:
+        description: "krahaso (vetëm lexim) ose publiko"
+        default: krahaso
+        type: choice
+        options: [krahaso, publiko]
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  rregullat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Rregullat nga SHENIME.md
+        run: node teste/emu/rregullat.js > firestore.rules && wc -c firestore.rules && grep -q "rules_version" firestore.rules
+      - name: Hyrja te Google (pa çelës)
+        id: google
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/107114545225/locations/global/workloadIdentityPools/github/providers/stoku
+          service_account: stoku-play@stoku-appi.iam.gserviceaccount.com
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/cloud-platform
+      - name: Krahaso / publiko
+        env:
+          GOOGLE_TOKEN: ${{ steps.google.outputs.access_token }}
+        run: |
+          M="${{ github.event.inputs.menyra }}"
+          if [ -z "$M" ]; then M=krahaso; [ "$(tr -d '[:space:]' < firebase/publiko-automatikisht.txt 2>/dev/null)" = "po" ] && M=publiko; fi
+          echo "Mënyra: $M"
+          python3 firebase/rregullat-publiko.py firestore.rules "$M"
