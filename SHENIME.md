@@ -56,6 +56,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **Ora play: R8 (27.11.2026, pa version web-i)**. Play Console (foto, ora 1.0.89): "DEX code optimization is below our threshold ...
+   Obfuscation (1%) ... Fix by Feb 2027" + "critical note" te androidx.wear.tiles 1.4.0 dhe protolayout-proto 1.2.0. Ora s'kishte fare R8.
+   Tani (`ora/app/build.gradle.kts`, si telefoni): release `isMinifyEnabled` + `isShrinkResources`, `proguard-rules.pro` (i përbashkët),
+   `proguard-play.pro` (R8 i plotë) dhe `proguard-github.pro` (-dontshrink/-dontoptimize/-dontobfuscate: APK-ja e GitHub-it si më parë).
+   tiles 1.4.0 → 1.5.0, protolayout 1.2.0 → 1.3.0. `aab.sh` e ndal AAB-në nëse R8 riemërton klasat e manifestit (tile, komplikacioni).
+   Pas publikimit: provo në orë listën, kërkimin, tile-in dhe komplikacionin (R8 s'provohet dot këtu pa orë).
+
 0000000. **Kontrolli i versioneve Play, telefoni + ora (27.11.2026, pa version web-i)**. Pronari: "versionet playstore te dyjat 100%
    kontrolloj per bugs ... edhe tel edhe te ores". U kontrolluan AAB-të e publikuara (telefoni 371, ora 95): manifesti (paketa
    app.stoku.android, lejet, uses-feature, komponentët, pa REQUEST_INSTALL_PACKAGES), simbolet native, 16 KB, mapping-u i R8-it (asnjë

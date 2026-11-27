@@ -30,7 +30,12 @@ android {
     }
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // Play Console (27.11.2026, ora 1.0.89: "DEX code optimization is below our threshold ... Obfuscation (1%)", afati shkurt 2027):
+            // R8 i plotë dhe heqja e burimeve të papërdorura VETËM te versioni play (proguard-play.pro), si te telefoni (vendas). Versioni
+            // github (APK-ja e orës te GitHub) mbetet si më parë: proguard-github.pro i fik ndryshimet e R8-it. AAB-ja e mban vetë "mapping"-un.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("stoku")
         }
         debug { signingConfig = signingConfigs.getByName("stoku") }
@@ -41,8 +46,8 @@ android {
     // versionCode 1 000 000 + numri (çdo AAB i një aplikacioni në Play duhet numër tjetër; telefoni është në qindëshe).
     flavorDimensions += "shperndarja"
     productFlavors {
-        create("github") { dimension = "shperndarja"; isDefault = true }
-        create("play") { dimension = "shperndarja"; applicationId = "app.stoku.android"; versionCode = 1_000_000 + numri }
+        create("github") { dimension = "shperndarja"; isDefault = true; proguardFiles("proguard-github.pro") }
+        create("play") { dimension = "shperndarja"; applicationId = "app.stoku.android"; versionCode = 1_000_000 + numri; proguardFiles("proguard-play.pro") }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -73,8 +78,8 @@ dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.wear.compose:compose-material:1.4.0")
     implementation("androidx.wear.compose:compose-foundation:1.4.0")
-    implementation("androidx.wear.tiles:tiles:1.4.0")
-    implementation("androidx.wear.protolayout:protolayout:1.2.0")
+    implementation("androidx.wear.tiles:tiles:1.5.0") // Play: "critical note" te 1.4.0
+    implementation("androidx.wear.protolayout:protolayout:1.3.0") // Play: "critical note" te protolayout-proto 1.2.0
     implementation("androidx.wear.watchface:watchface-complications-data-source-ktx:1.2.1")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
