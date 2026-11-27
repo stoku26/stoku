@@ -1,7 +1,7 @@
 # Ndërton aplikacionin Stoku për Android (vendas/, pa WebView): provon logjikën (vendas/logjika, e njëjtë me web-in) dhe e vendos
 # APK-në si "artifact"; në main edhe si Release "vendas-vNN" (aplikacioni e gjen vetë versionin e ri).
 # Play Store (21.11.2026): ndërtohet edhe AAB-ja e versionit "play" (pa përditësimin e vetvetishëm), artifact "stoku-play-aab"
-# dhe skedar te i njëjti Release; në main ngarkohet vetë te Google Play kur ka sekretin PLAY_SA_JSON. Udhëzimi: vendas/PLAY.md.
+# dhe skedar te i njëjti Release; në main ngarkohet vetë te Google Play (pa çelës, Workload Identity). Udhëzimi: vendas/PLAY.md.
 name: Stoku APK
 
 on:
@@ -159,10 +159,9 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    env:
-      PLAY_SA: ${{ secrets.PLAY_SA_JSON }}
     permissions:
       contents: write
+      id-token: write # Google Play pa çelës (Workload Identity)
     steps:
       - uses: actions/download-artifact@v5
         with:
@@ -179,26 +178,35 @@ jobs:
           files: |
             stoku-${{ github.run_number }}.apk
             stoku-play-${{ github.run_number }}.aab
-      # Google Play automatikisht (pronari 27.11.2026: "kur boj updates me i qit automatikisht"): AAB-ja ngarkohet vetë te Play Console me
-      # service account-in (sekreti PLAY_SA_JSON). Pa sekretin hapi kalohet (ngarkimi mbetet me dorë). Track-u: ndryshorja PLAY_TRACK e repo-s
-      # (internal, alpha, production...; pa të = internal). Kur aplikacioni s'është publikuar ende asnjëherë, Play pranon vetëm "draft":
-      # atëherë provohet sërish si draft dhe pronari e shtyp vetë "Save and publish". Udhëzimi: vendas/PLAY.md.
+      # Google Play automatikisht (pronari 27.11.2026: "kur boj updates me i qit automatikisht"): AAB-ja ngarkohet vetë te Play Console.
+      # Pa asnjë çelës/sekret: GitHub hyn te Google me Workload Identity (projekti stoku-appi, pool "github", provider "stoku", i lejuar
+      # vetëm për repo-n stoku26/stoku) si service account-i stoku-play, që te Play Console ka lejet e release. Track-u: ndryshorja PLAY_TRACK
+      # e repo-s (internal, alpha, production...; pa të = internal). Kur aplikacioni s'është publikuar ende asnjëherë, Play pranon vetëm
+      # "draft": atëherë provohet sërish si draft. Nëse Google/Play s'përgjigjet, Release-i në GitHub mbetet (hapat s'e ndalin punën).
+      - name: Hyrja te Google (pa çelës)
+        id: google
+        continue-on-error: true
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/107114545225/locations/global/workloadIdentityPools/github/providers/stoku
+          service_account: stoku-play@stoku-appi.iam.gserviceaccount.com
       - name: Google Play (telefoni)
         id: play
-        if: env.PLAY_SA != ''
+        if: steps.google.outcome == 'success'
         continue-on-error: true
         uses: r0adkll/upload-google-play@v1
         with:
-          serviceAccountJsonPlainText: ${{ secrets.PLAY_SA_JSON }}
+          serviceAccountJson: ${{ steps.google.outputs.credentials_file_path }}
           packageName: app.stoku.android
           releaseFiles: stoku-play-${{ github.run_number }}.aab
           track: ${{ vars.PLAY_TRACK || 'internal' }}
           status: completed
       - name: Google Play (telefoni, si draft)
-        if: env.PLAY_SA != '' && steps.play.outcome == 'failure'
+        if: steps.google.outcome == 'success' && steps.play.outcome == 'failure'
+        continue-on-error: true
         uses: r0adkll/upload-google-play@v1
         with:
-          serviceAccountJsonPlainText: ${{ secrets.PLAY_SA_JSON }}
+          serviceAccountJson: ${{ steps.google.outputs.credentials_file_path }}
           packageName: app.stoku.android
           releaseFiles: stoku-play-${{ github.run_number }}.aab
           track: ${{ vars.PLAY_TRACK || 'internal' }}
