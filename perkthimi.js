@@ -16,7 +16,7 @@
   try { gjuha = localStorage.getItem(KEY) === 'en' ? 'en' : 'sq'; } catch (e) { /* ok */ }
   // Fjalori (perkthimi-en.js, 150 KB) ngarkohet vetëm kur gjuha është anglisht: document.write e fut menjëherë pas këtij skedari,
   // para pjesës tjetër të faqes. Kur ndryshon perkthimi-en.js, rrite VERSIONI_FJALORIT këtu dhe te SHELL i sw.js.
-  var VERSIONI_FJALORIT = 362;
+  var VERSIONI_FJALORIT = 363;
   var FJ = {}, MOD = [], MODG = [], FRAG = null, MEMO = Object.create(null), gati = false;
   function ngarko() {
     if (gati) return; gati = true;
