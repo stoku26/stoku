@@ -777,7 +777,7 @@ fun HiqKrejt(n: Int, kurPo: () -> Unit, mbrapa: () -> Unit) {
 fun Cilesimet(emri: String, iRiFillim: Pair<Int, String>?, kurGjendetIRi: (Pair<Int, String>?) -> Unit, kurShkeputet: () -> Unit, mbrapa: () -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
-    val versioni = remember { try { ctx.packageManager.getPackageInfo(ctx.packageName, 0).longVersionCode.toInt() } catch (e: Exception) { 0 } }
+    val versioni = remember { Api.versioni(ctx) } // pa pjesën e Play-it (1 000 000 + numri)
     var iRi by remember { mutableStateOf(iRiFillim) }
     var duke by remember { mutableStateOf(false) }
     var mesazh by remember { mutableStateOf<String?>(null) }
@@ -799,14 +799,15 @@ fun Cilesimet(emri: String, iRiFillim: Pair<Int, String>?, kurGjendetIRi: (Pair<
                                 } else {
                                     val r = Perditesimi.kontrollo(ctx, detyro = true)
                                     iRi = r; kurGjendetIRi(r)
-                                    mesazh = if (r != null) null else if (Perditesimi.deshtoi) "S'u kontrollua: s'ka internet." else "Ke versionin më të ri ✓"
+                                    // Versioni play: u hap Google Play (s'kontrollohet këtu); më parë shkruante gabimisht "Ke versionin më të ri ✓"
+                                    mesazh = if (r != null || Perditesimi.NGA_PLAY) null else if (Perditesimi.deshtoi) "S'u kontrollua: s'ka internet." else "Ke versionin më të ri ✓"
                                 }
                                 duke = false
                             }
                         }
                     },
-                    label = { Text(if (duke) (if (v != null) "Duke shkarkuar…" else "Duke kontrolluar…") else if (v != null) "Përditëso tani" else "Kontrollo për përditësim", fontWeight = FontWeight.Bold) },
-                    secondaryLabel = { Text(if (v != null) "Version i ri: 1.0.${v.first}" else "Version i ri i aplikacionit", color = if (v != null) Color.Black else Gri, maxLines = 1) },
+                    label = { Text(if (Perditesimi.NGA_PLAY) "Përditësimet" else if (duke) (if (v != null) "Duke shkarkuar…" else "Duke kontrolluar…") else if (v != null) "Përditëso tani" else "Kontrollo për përditësim", fontWeight = FontWeight.Bold) },
+                    secondaryLabel = { Text(if (Perditesimi.NGA_PLAY) "Hap Google Play" else if (v != null) "Version i ri: 1.0.${v.first}" else "Version i ri i aplikacionit", color = if (v != null) Color.Black else Gri, maxLines = 1) },
                     colors = if (v != null) ChipDefaults.primaryChipColors() else ChipDefaults.secondaryChipColors(),
                 )
             }

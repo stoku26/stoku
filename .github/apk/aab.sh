@@ -75,6 +75,45 @@ unzip -p "$TMP/a.aab" 'BUNDLE-METADATA/com.android.tools.build.obfuscation/progu
 if awk '/^com\.google\.mlkit[^ ]* -> /{ if ($1 != substr($3, 1, length($3) - 1)) { print "riemërtuar: " $0; k = 1 } } END { exit !k }' "$TMP/map.txt"; then
   echo "::error::R8 e ka riemërtuar ML Kit-in (kamera mbyllet). Shih vendas/app/proguard-play.pro."; exit 1
 fi
+# R8 (27.11.2026, kontrolli i versioneve Play): asnjë klasë që e përmend manifesti (aktivitetet, shërbimet, regjistruesit e
+# Firebase-it/ML Kit-it te meta-data) s'duhet riemërtuar: Android/Firebase i kërkojnë me emër dhe aplikacioni do të rrëzohej.
+unzip -p "$TMP/a.aab" 'base/manifest/AndroidManifest.xml' > "$TMP/manifest-pb.bin"
+python3 - "$TMP/manifest-pb.bin" "$TMP/map.txt" <<'PY'
+import re, sys
+b = open(sys.argv[1], 'rb').read()
+def varint(i):
+    r = s = 0
+    while True:
+        c = b[i]; i += 1; r |= (c & 0x7f) << s; s += 7
+        if c < 0x80: return r, i
+# Krejt vargjet (string) e protobuf-it të manifestit, me rekursion (elementet, atributet, vlerat)
+vargjet = []
+def lexo(a, z):
+    i = a
+    while i < z:
+        k, i = varint(i); t = k & 7
+        if t == 0: _, i = varint(i)
+        elif t == 2:
+            n, i = varint(i)
+            try: lexo(i, i + n)
+            except Exception: pass
+            try: vargjet.append(b[i:i + n].decode())
+            except Exception: pass
+            i += n
+        elif t == 5: i += 4
+        elif t == 1: i += 8
+        else: raise ValueError(t)
+lexo(0, len(b))
+klasat = set()
+for v in vargjet: klasat.update(re.findall(r'[A-Za-z_]\w*(?:\.\w+)+\.[A-Z][\w$]*', v))
+ren = {}
+for l in open(sys.argv[2], encoding='utf-8', errors='replace'):
+    if not l.startswith(' ') and ' -> ' in l:
+        a, z = l.rstrip(':\n').split(' -> ', 1); ren[a] = z
+keq = sorted(k for k in klasat if k in ren and ren[k] != k)
+print('Klasat e manifestit te mapping-u: %d, të riemërtuara: %d' % (sum(1 for k in klasat if k in ren), len(keq)))
+if ren and keq: print('::error::R8 i riemërtoi klasat e manifestit (aplikacioni rrëzohet): ' + ', '.join('%s -> %s' % (k, ren[k]) for k in keq)); sys.exit(1)
+PY
 # Play Console: simbolet e kodit native (pa to del paralajmërimi "you've not uploaded debug symbols")
 grep 'debugsymbols' "$TMP/lista.txt" || true
 # (vetëm kur AAB-ja ka kod native: ora mund të mos ketë fare)
