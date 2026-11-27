@@ -61,7 +61,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    dhëna). `.github/workflows/firebase-rregullat.yml` (push te main kur ndryshon SHENIME.md / rregullat.js / firebase/, ose me dorë):
    `node teste/emu/rregullat.js` → `firebase/rregullat-publiko.py` (API firebaserules v1: lexon releases/cloud.firestore, krahason; publiko
    = POST rulesets + PATCH release + kontroll live = repo). Fillimisht `firebase/publiko-automatikisht.txt` = "jo" (vetëm krahasim);
-   pasi të shihet që live = SHENIME, bëhet "po". `firebase/` s'publikohet në stoku.site (`_config.yml`).
+   pasi të shihet që live = SHENIME, bëhet "po". `firebase/` s'publikohet në stoku.site (`_config.yml`). Krahasimi i parë (run 1):
+   live = repo, 22 595 shkronja (ruleset i 21.11.2026) → `publiko-automatikisht.txt` = "po": tani çdo ndryshim i bllokut te SHENIME
+   publikohet vetë pas bashkimit në main (pas testeve te teste/emu), pa e kopjuar pronari me dorë.
 
 0000000. **Cloudflare me lidhje të plotë (27.11.2026)**. Pronari lidhi "Cloudflare API" (mcp.cloudflare.com, full access). Kontrolli vetëm
    me lexim: llogaria 1, zona stoku.site, Worker-at `stoku-push` dhe `stoku-afatet` live = IDENTIKË bajt për bajt me `worker/*.js`
