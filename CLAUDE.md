@@ -26,7 +26,9 @@ Përditësoje në të njëjtin PR me çdo ndryshim domethënës.
 - `vendas/logjika` = bashkimi.js/ruajtja.js/afatet.js (edhe importi nga Excel)/lejet.js/marketet.js/xlsx.js + pjesa e pastër e ekipa.js (GrupiLogjika)
   + barkodet e JsBarcode-it (etiketat PDF) në Kotlin: kur ndryshon ndonjëri, `node teste/vendas-fikstura.js` (përdor Playwright)
   dhe përshtat Kotlinin (testet e krahasojnë me web-in).
-- stoku.site = GitHub Pages pas Cloudflare. Rregullat e Firebase-it i vendos **pronari** (s'kam qasje): jepja skedarin.
+- stoku.site = GitHub Pages pas Cloudflare. Rregullat e Firebase-it (28.11.2026): `.github/workflows/firebase-rregullat.yml` i
+  krahason/publikon vetë nga SHENIME.md (stoku-play, "Firebase Rules Admin"); publikim automatik vetëm kur
+  `firebase/publiko-automatikisht.txt` = "po", përndryshe me dorë (workflow_dispatch, menyra=publiko). Pa këtë: jepja pronarit skedarin.
   Cloudflare (27.11.2026, pronari: "e ndreqa cloudflare hina full access"): lidhja "Cloudflare API" (mcp.cloudflare.com) jep
   qasje të plotë te llogaria (Worker-at stoku-push/stoku-afatet, zona stoku.site, rregulla "Siguria"). Publiko vetëm pasi të kalojnë
   testet, pastaj krahaso kodin live me GitHub-in (sha256 e `worker.js` te `/workers/scripts/{emri}/content/v2`) dhe tregoja pronarit.

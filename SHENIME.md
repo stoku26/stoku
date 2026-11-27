@@ -56,6 +56,13 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **Rregullat e Firebase-it nga GitHub (28.11.2026)**. Pronari: "Qysh me mujt edhe firebase me lidh?" Pa connector Firebase: pronari i
+   dha service account-it `stoku-play@stoku-appi` (Workload Identity, si Play) rolin IAM **Firebase Rules Admin** (vetëm rregullat, pa të
+   dhëna). `.github/workflows/firebase-rregullat.yml` (push te main kur ndryshon SHENIME.md / rregullat.js / firebase/, ose me dorë):
+   `node teste/emu/rregullat.js` → `firebase/rregullat-publiko.py` (API firebaserules v1: lexon releases/cloud.firestore, krahason; publiko
+   = POST rulesets + PATCH release + kontroll live = repo). Fillimisht `firebase/publiko-automatikisht.txt` = "jo" (vetëm krahasim);
+   pasi të shihet që live = SHENIME, bëhet "po". `firebase/` s'publikohet në stoku.site (`_config.yml`).
+
 0000000. **Cloudflare me lidhje të plotë (27.11.2026)**. Pronari lidhi "Cloudflare API" (mcp.cloudflare.com, full access). Kontrolli vetëm
    me lexim: llogaria 1, zona stoku.site, Worker-at `stoku-push` dhe `stoku-afatet` live = IDENTIKË bajt për bajt me `worker/*.js`
    (sha256 e pjesës `worker.js` te `GET /accounts/{id}/workers/scripts/{emri}/content/v2`, përgjigje multipart); rregulla "Siguria"
