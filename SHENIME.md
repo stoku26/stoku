@@ -4019,6 +4019,9 @@ Meqë s'ka akses te Firebase-i i vërtetë as te pajisje fizike, çdo veçori te
 - Çdo PR duhet përshkrim të plotë shqip: çka ndryshoi, si u testua, çfarë numrash versioni u prekën.
 
 ## Gjëra që përdoruesi i ka refuzuar/anuluar shprehimisht (mos i propozo/rikthe pa pyetur)
+- **Rinovimi automatik i domenit stoku.site te Hostinger (28.11.2026)**: domeni është "non_renewing", skadon 25.09.2027. Pronari:
+  "Kshillen 1 jo mos e bon e boj vet kur te afrohet koha. Edhe maje men mos e permen mo". MOS e ndiz rinovimin dhe MOS e përmend më
+  (as si paralajmërim, as si këshillë).
 - **v352 (22.11.2026): tabet e ndaluara poshtë si butona të zbehur me dry + "Nuk ke qasje në këtë shërbim."** (u kthye me v353: "spom pelqen").
 - **Butonat e shpejtë te Ballina (18.11.2026, v336 / Hyrja 97)**: Skano, Afat i ri, Skanim i shpejtë, PDF (web tel + Android), edhe si pjesë
   te "Përshtat faqen". Pronari: "hiqi qato mos i le as te opsionet e as te widgets nqosh ku o". Mos i rikthe.
