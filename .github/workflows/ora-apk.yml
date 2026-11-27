@@ -126,6 +126,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write # Google Play pa çelës (Workload Identity)
     steps:
       - uses: actions/download-artifact@v5
         with:
@@ -142,3 +143,36 @@ jobs:
           files: |
             stoku-ora-${{ github.run_number }}.apk
             stoku-ora-play-${{ github.run_number }}.aab
+      # Google Play automatikisht (pronari 27.11.2026: "kur boj updates me i qit automatikisht"): AAB-ja ngarkohet vetë te Play Console.
+      # Pa asnjë çelës/sekret: GitHub hyn te Google me Workload Identity (projekti stoku-appi, pool "github", provider "stoku", i lejuar
+      # vetëm për repo-n stoku26/stoku) si service account-i stoku-play, që te Play Console ka lejet e release. Track-u: ndryshorja PLAY_TRACK
+      # e repo-s (internal, alpha, production...; pa të = internal). Kur aplikacioni s'është publikuar ende asnjëherë, Play pranon vetëm
+      # "draft": atëherë provohet sërish si draft. Nëse Google/Play s'përgjigjet, Release-i në GitHub mbetet (hapat s'e ndalin punën).
+      - name: Hyrja te Google (pa çelës)
+        id: google
+        continue-on-error: true
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/107114545225/locations/global/workloadIdentityPools/github/providers/stoku
+          service_account: stoku-play@stoku-appi.iam.gserviceaccount.com
+      - name: Google Play (ora)
+        id: play
+        if: steps.google.outcome == 'success'
+        continue-on-error: true
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJson: ${{ steps.google.outputs.credentials_file_path }}
+          packageName: app.stoku.android
+          releaseFiles: stoku-ora-play-${{ github.run_number }}.aab
+          track: wear:${{ vars.PLAY_TRACK || 'internal' }}
+          status: completed
+      - name: Google Play (ora, si draft)
+        if: steps.google.outcome == 'success' && steps.play.outcome == 'failure'
+        continue-on-error: true
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJson: ${{ steps.google.outputs.credentials_file_path }}
+          packageName: app.stoku.android
+          releaseFiles: stoku-ora-play-${{ github.run_number }}.aab
+          track: wear:${{ vars.PLAY_TRACK || 'internal' }}
+          status: draft

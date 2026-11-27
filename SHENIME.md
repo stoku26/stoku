@@ -56,6 +56,12 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **Google Play automatikisht (27.11.2026, pa version web-i)**. Pronari: "kur boj updates me i qit automatikisht" (AAB-të te Play
+   pa i ngarku me dorë). Punët `release` të `vendas-apk.yml` dhe `ora-apk.yml`: "Hyrja te Google" (`google-github-actions/auth@v2`,
+   Workload Identity, PA çelës JSON) + "Google Play" (`r0adkll/upload-google-play@v1`, paketa `app.stoku.android`). Track-u nga ndryshorja
+   `PLAY_TRACK` (pa të `internal`; ora `wear:` + i njëjti). Provohet `completed`, e nëse dështon (aplikacioni draft) si `draft`. Krejt
+   hapat `continue-on-error`. Konfigurimi te Google Cloud/Play Console: `vendas/PLAY.md` → "Përditësimet e mëvonshme".
+
 0000000. **v361 / Android Hyrja 121 (26.11.2026): RUAJTJA NË CLOUD PROVOHET VETË SËRISH**. Pronari: "Edhe kontrollo stoku.site
    faqen 100% pas qdo ndryshimi me u rujt qdo sen ne cloud, gjithashtu edhe ne appet". Kontrolli: sinkronizimi kryesor (dyqane/{uid},
    afatet/malli/folderat) kishte tashmë riprovim çdo 15 s (web tel `kryeSinkronizimin`, PC `sink.riprovo`, Android `Sinkronizimi.kt`)
