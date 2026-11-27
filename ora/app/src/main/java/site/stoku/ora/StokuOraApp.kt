@@ -7,5 +7,6 @@ class StokuOraApp : Application() {
     override fun onCreate() {
         super.onCreate()
         KohaKosoves.nis(this)
+        Gjuha.nis(this) // edhe pllaka dhe komplikacioni (shërbimet) e marrin gjuhën
     }
 }

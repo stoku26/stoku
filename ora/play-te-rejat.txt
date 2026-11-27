@@ -1,0 +1,4 @@
+• The watch app is now also in English (Settings → Language).
+• Settings show the correct app version.
+• "Updates" opens Stoku in the Play Store; updates come from Google Play.
+

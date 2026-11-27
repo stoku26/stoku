@@ -50,7 +50,7 @@ class StokuTile : TileService() {
 
     private fun teksti(t: String, madhesia: Float, ngjyra: Int, trashe: Boolean = false) =
         LayoutElementBuilders.Text.Builder()
-            .setText(t)
+            .setText(Gjuha.t(t))
             .setMaxLines(2)
             .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_CENTER)
             .setFontStyle(

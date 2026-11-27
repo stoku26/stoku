@@ -10,6 +10,8 @@ import android.net.Uri
  * Google Play; "Kontrollo për përditësim" te Cilësimet e hap faqen e Stoku-t te Play Store i orës.
  */
 object Perditesimi {
+    /** Cilësimet: butoni hap Google Play (pa "Ke versionin më të ri ✓", që s'kontrollohet këtu) */
+    const val NGA_PLAY = true
     @Volatile var deshtoi = false
 
     /** Play e përditëson vetë: s'ka kurrë "version të ri" për t'u shkarkuar këtu. detyro (Cilësimet): hapet Play Store. */

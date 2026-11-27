@@ -80,7 +80,9 @@ object Api {
     // v316 (Worker 173): modeli i orës dhe versioni i aplikacionit, që telefoni t'i tregojë te "Ora e dorës" (ora e lidhur)
     fun modeli(ctx: Context): String = (try { android.provider.Settings.Global.getString(ctx.contentResolver, "device_name") } catch (e: Exception) { null })
         ?.takeIf { it.isNotBlank() } ?: android.os.Build.MODEL.orEmpty()
-    fun versioni(ctx: Context): Int = try { ctx.packageManager.getPackageInfo(ctx.packageName, 0).longVersionCode.toInt() } catch (e: Exception) { 0 }
+    /** Numri i ndërtimit (95). Versioni play e ka versionCode 1 000 000 + numri (Play: i ndryshëm nga telefoni): hiqet pjesa e Play-it,
+     *  përndryshe Cilësimet shkruanin "1.0.1000095" dhe Worker-i (numerOres < 100 000) e hidhte, telefoni tregonte "Versioni në orë: –". */
+    fun versioni(ctx: Context): Int = try { (ctx.packageManager.getPackageInfo(ctx.packageName, 0).longVersionCode % 1_000_000L).toInt() } catch (e: Exception) { 0 }
 
     // Shkëputja (Cilësimet → Shkëput orën): këtu fshihet menjëherë krejt (sekreti, lista, radha) dhe krijohet sekret i ri, që ora
     // të mos e lexojë më llogarinë e vjetër; serveri njoftohet në sfond me sekretin e vjetër dhe e fshin lidhjen. Më parë ora priste

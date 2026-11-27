@@ -17,6 +17,8 @@ import java.net.URL
  * Ora e kontrollon vetë (më së shumti një herë në 6 orë) dhe e tregon te lista; instalimi kërkon konfirmim.
  */
 object Perditesimi {
+    /** Versioni github: përditësimi shkarkohet nga GitHub (versioni play e ka true) */
+    const val NGA_PLAY = false
     private const val RELEASES = "https://api.github.com/repos/stoku26/stoku/releases?per_page=100&page="
     /** Kontrolli i fundit dështoi (pa internet / GitHub s'u përgjigj). */
     @Volatile var deshtoi = false

@@ -10,6 +10,11 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(122, "2026-11-27", "Ora e dorës", listOf(
+            "Aplikacioni Stoku në orë tani është edhe anglisht (Cilësimet e orës → Gjuha).",
+            "Ora tregon versionin e saktë; versioni nga Google Play përditësohet nga Play Store.",
+            "Te Cilësimet → Ora e dorës, versioni nga Google Play tregon si instalohet Stoku në orë."
+        )),
         Hyrja(121, "2026-11-26", "Ruajtja në cloud më e sigurt", listOf(
             "Kur ruajtja në cloud dështon për një moment (p.sh. pa internet), Stoku provon vetë sërish derisa të ruhet, pa pritur ndryshimin tjetër.",
             "Te \"Produktet e reja\" administratori sheh sa produkte s'kanë arritur ende në cloud, arsyen dhe butonin \"Provo tani\"."

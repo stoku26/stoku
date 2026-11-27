@@ -30,7 +30,7 @@ class StokuKomplikacion : SuspendingComplicationDataSourceService() {
         val tekst = n?.toString() ?: "–"
         return ShortTextComplicationData.Builder(
             PlainComplicationText.Builder(tekst).build(),
-            PlainComplicationText.Builder(if (n == null) "Stoku" else "Për t'u hequr nga rafti: $n").build(),
+            PlainComplicationText.Builder(if (n == null) "Stoku" else Gjuha.t("Për t'u hequr nga rafti: $n")).build(),
         )
             .setTitle(PlainComplicationText.Builder("STOKU").build())
             .setTapAction(hap)

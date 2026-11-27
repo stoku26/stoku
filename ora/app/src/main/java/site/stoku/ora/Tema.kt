@@ -80,7 +80,7 @@ fun ButoniRifresko(duke: Boolean, onClick: () -> Unit) {
         modifier = Modifier.size(ButtonDefaults.DefaultButtonSize),
         colors = ButtonDefaults.buttonColors(backgroundColor = Kartela, contentColor = if (duke) Verdhe else Color.White),
     ) {
-        Icon(imageVector = IkonaRifresko, contentDescription = "Rifresko", modifier = Modifier.size(22.dp).rotate(kendi.value))
+        Icon(imageVector = IkonaRifresko, contentDescription = Gjuha.t("Rifresko"), modifier = Modifier.size(22.dp).rotate(kendi.value))
     }
 }
 
@@ -104,7 +104,7 @@ fun ButoniKerko(onClick: () -> Unit) {
         modifier = Modifier.size(ButtonDefaults.DefaultButtonSize),
         colors = ButtonDefaults.buttonColors(backgroundColor = Kartela, contentColor = Color.White),
     ) {
-        Icon(imageVector = IkonaKerko, contentDescription = "Kërko", modifier = Modifier.size(22.dp))
+        Icon(imageVector = IkonaKerko, contentDescription = Gjuha.t("Kërko"), modifier = Modifier.size(22.dp))
     }
 }
 
@@ -117,7 +117,7 @@ fun ButoniCilesimet(kaTeRe: Boolean, onClick: () -> Unit) {
             modifier = Modifier.size(ButtonDefaults.DefaultButtonSize),
             colors = ButtonDefaults.buttonColors(backgroundColor = Kartela, contentColor = Color.White),
         ) {
-            Icon(imageVector = IkonaCilesimet, contentDescription = "Cilësimet", modifier = Modifier.size(24.dp))
+            Icon(imageVector = IkonaCilesimet, contentDescription = Gjuha.t("Cilësimet"), modifier = Modifier.size(24.dp))
         }
         if (kaTeRe) Box(Modifier.size(12.dp).background(Verdhe, CircleShape))
     }

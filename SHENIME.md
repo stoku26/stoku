@@ -56,6 +56,25 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **Kontrolli i versioneve Play, telefoni + ora (27.11.2026, pa version web-i)**. Pronari: "versionet playstore te dyjat 100%
+   kontrolloj per bugs ... edhe tel edhe te ores". U kontrolluan AAB-të e publikuara (telefoni 371, ora 95): manifesti (paketa
+   app.stoku.android, lejet, uses-feature, komponentët, pa REQUEST_INSTALL_PACKAGES), simbolet native, 16 KB, mapping-u i R8-it (asnjë
+   nga 80 klasat e manifestit s'është riemërtuar), kodi play (PerditesimiPlay, Perditesimi stub, pa GitHub/APK te kodi i përbashkët).
+   Gabimet e gjetura (vetëm ora play): (1) versionCode i Play-it është 1 000 000 + numri: Cilësimet shkruanin "1.0.1000095" dhe Worker-i
+   (`numerOres` < 100 000) e hidhte, telefoni/web-i tregonin "Versioni në orë: –" → `Api.versioni()` = versionCode % 1 000 000;
+   (2) "Kontrollo për përditësim" hapte Play Store dhe njëkohësisht shkruante "Ke versionin më të ri ✓" pa kontrolluar → versioni play
+   (`Perditesimi.NGA_PLAY`): "Përditësimet · Hap Google Play", pa atë mesazh. CI: `.github/apk/aab.sh` ndal AAB-në kur R8 riemërton
+   ndonjë klasë të manifestit (lexon manifestin protobuf pa bundletool).
+   Pastaj (pronari: "bone edhe release notes me i shkru sakt se ... nuk pat kurgjo sa e bona update ne 371 ... po boni qato qka tha"):
+   (a) **Shënimet "What's new" te Play** (më parë bosh): `.github/apk/shenimet-play.py` → `whatsnew/whatsnew-en-US` (gjuha bazë e
+   listimit është en-US; ≤ 500 shkronja): telefoni nga 3 hyrjet e fundit të `TeRejat.kt` të përkthyera me `perkthimi/en.json`, ora nga
+   paragrafi i parë i `ora/play-te-rejat.txt` (anglisht: SHKRUAJE kur ndryshon ora). `whatsNewDirectory: whatsnew` te të dy hapat e
+   ngarkimit (completed + draft). (b) **Ora anglisht**: `ora/.../Gjuha.kt` (Gjuha + `Text` që përkthen + kopja e motorit `Perkthyesi`
+   me org.json), fjalori te `ora/app/src/main/assets/en.json` (e shkruan `perkthimi-gjenero.py`), `perkthimi-nxirr.py krejt` lexon edhe
+   orën; play nis anglisht, github shqip; Cilësimet e orës → "Gjuha"; pllaka dhe komplikacioni përkthehen (`Gjuha.nis` te StokuOraApp).
+   Test CI: `PerkthimiOraTest` (ora = web, rastet e telefonit). (c) Telefoni (play): te Cilësimet → Ora e dorës "Instaloje Stoku në orë
+   nga Google Play". Android Hyrja 122.
+
 0000000. **v362 (27.11.2026): PËRDITËSIMI PA RINDEZJE TË KOTË + EKRANI I PËRDITËSIMIT**. Pronari: "kur ruhet cache, edhe hyn prap mas
    ni kohe ... logoja e gjithqka fillon qysh ka pas mbet tana mas refreshit ... bohet komplet refresh ... me bo njo kishe osht tu u
    mush ose loading". Shkaku: faqja hapet nga interneti (sw.js network-first për index/pc.html) pra është TASHMË versioni i ri, por
