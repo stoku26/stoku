@@ -17,7 +17,7 @@ class PerkthimiOraTest {
     private val burimet = File("../../vendas/logjika/src/test/resources")
 
     @Test fun siWebi() {
-        val p = Perkthyesi.ngaJson(File(burimet, "en.json").readText())
+        val p = Perkthyesi.ngaJson(File("../../perkthimi/en.json").readText()) // si PerkthimiTest (resources.srcDir("../../perkthimi"))
         val raste = JSONObject(File(burimet, "perkthimi-raste.json").readText()).getJSONArray("raste")
         var gabime = 0
         for (i in 0 until raste.length()) {
