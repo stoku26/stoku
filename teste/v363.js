@@ -66,8 +66,8 @@ for (const [s, e] of PRITET) { const r = t(s); ok(r === e, '1-4. ' + JSON.string
 ok(t('Kos 500g') !== 'Kos 500g' && t("agim s'e pranoi afatin: Kos 500g. E ke te lista jote.").includes('Kos 500g'), '3. emri i produktit mbetet në njoftim');
 // 5. versioni
 const v = +/stoku-v(\d+)/.exec(lx('sw.js'))[1];
-ok(v === 363 && +/v: (\d+)/.exec(lx('versioni.js'))[1] === v && +/VERSIONI_FJALORIT = (\d+)/.exec(lx('perkthimi.js'))[1] === v, '5. CACHE = versioni.js = VERSIONI_FJALORIT', v);
-ok(lx('sw.js').includes("'./perkthimi-en.js?v=363'") && lx('index.html').includes('perkthimi.js?v=363') && lx('pc.html').includes('perkthimi.js?v=363'), '5a. ?v= e fjalorit');
+ok(v >= 363 && +/v: (\d+)/.exec(lx('versioni.js'))[1] === v && +/VERSIONI_FJALORIT = (\d+)/.exec(lx('perkthimi.js'))[1] === v, '5. CACHE = versioni.js = VERSIONI_FJALORIT', v);
+ok(lx('sw.js').includes("'./perkthimi-en.js?v=" + v + "'") && lx('index.html').includes('perkthimi.js?v=' + v) && lx('pc.html').includes('perkthimi.js?v=' + v), '5a. ?v= e fjalorit');
 ok(/\{ v: 363, versioni: '1\.76\.8'/.test(lx('teRejat.js')) && /Hyrja\(123, /.test(lx('vendas/app/src/main/java/site/stoku/vendas/TeRejat.kt')), '5b. hyrjet "Çfarë ka të re"');
 // Kopjet e fjalorit (web, telefoni, ora) janë të njëjta me perkthimi/en.json
 const d = JSON.parse(lx('perkthimi/en.json')), a1 = JSON.parse(lx('vendas/app/src/main/assets/en.json')), a2 = JSON.parse(lx('ora/app/src/main/assets/en.json'));

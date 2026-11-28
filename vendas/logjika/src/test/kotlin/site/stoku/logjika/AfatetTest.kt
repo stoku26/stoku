@@ -52,6 +52,7 @@ class AfatetTest {
     @Test fun datatDheSasite() {
         f["datat"].siListe().forEach { x -> val r = x.siObj()!!; assertEquals("data " + r["t"], r["iso"], Afatet.lexoDaten(r["t"])) }
         f["shkrimi"].siListe().forEach { x -> val r = x.siObj()!!; assertEquals("shkrimi " + r["t"], r["v"], Afatet.formatoDatenGjateShkrimit(r["t"] as String)) }
+        f["gabimiDates"].siListe().forEach { x -> val r = x.siObj()!!; assertEquals("gabimiDates " + r["t"], r["g"], Afatet.gabimiIDates(r["t"] as String)) }
         f["sasite"].siListe().forEach { x ->
             val r = x.siObj()!!
             assertEquals("sasia " + r["v"], kanonik(r["s"]), kanonik(Afatet.lexoSasine(r["v"])))

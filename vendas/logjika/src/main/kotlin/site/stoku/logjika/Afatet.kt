@@ -239,6 +239,25 @@ object Afatet {
         return if (Regex("^\\d{1,2}[./-]\\d{1,2}[./-](\\d{2}|\\d{4})$").matches(t)) lexoDaten(t) else null
     }
 
+    /** Pronari (28.11.2026): arsyeja pse data e fushës s'është e saktë ("" kur është në rregull ose gjysmë e shkruar). Binjaku: gabimiIDates te afatet.js. */
+    fun gabimiIDates(v: String?): String {
+        val t = (v ?: "").trim()
+        if (t.isEmpty()) return ""
+        val p = t.split(Regex("[./-]"))
+        if (p.size > 3 || p.any { !Regex("^\\d*$").matches(it) }) return "Shkruaje datën si DD-MM-VV, p.sh. 31-12-26."
+        val d = p[0]; val m = if (p.size > 1) p[1] else ""; val y = if (p.size > 2) p[2] else ""
+        fun nr(x: String) = if (x.isEmpty()) 0 else x.toLong()
+        if (d.length > 2 || (d.length == 2 && nr(d) < 1) || nr(d) > 31) return "Dita duhet të jetë nga 1 deri 31."
+        if (m.length > 2 || (m.length == 2 && nr(m) < 1) || nr(m) > 12) return "Muaji duhet të jetë nga 1 deri 12."
+        if (y.length == 3 || y.length > 4) return "Viti shkruhet me 2 shifra (26) ose me 4 (2026)."
+        if (d.isEmpty() || m.isEmpty() || (y.length != 2 && y.length != 4) || lexoDatenEFushes(t) != null) return ""
+        if (nr(d) < 1) return "Dita duhet të jetë nga 1 deri 31."
+        if (nr(m) < 1) return "Muaji duhet të jetë nga 1 deri 12."
+        val dite = java.time.YearMonth.of(vitiPlote(y), nr(m).toInt()).lengthOfMonth()
+        if (nr(d) > dite) return "Ky muaj ka vetëm $dite ditë."
+        return "Kjo datë s'ekziston."
+    }
+
     fun idERe(tani: Long = System.currentTimeMillis()): String {
         val r = (1..5).map { "0123456789abcdefghijklmnopqrstuvwxyz"[Random.nextInt(36)] }.joinToString("")
         return "a" + tani.toString(36) + r

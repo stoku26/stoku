@@ -6140,6 +6140,11 @@
     inp.dispatchEvent(new Event('input'));
   }
   AF.lidhFushenEDates($('afdData'));
+  // v364 (pronari): data e pasaktë tregon pse që në shkrim (p.sh. "33-05-26" → "Dita duhet të jetë nga 1 deri 31.")
+  $('afdData').addEventListener('input', function () {
+    var g = $('afdData').readOnly ? '' : AF.gabimiIDates($('afdData').value);
+    if (g || $('afdGabim').getAttribute('data-data') === '1') { $('afdGabim').textContent = g; $('afdGabim').setAttribute('data-data', g ? '1' : ''); }
+  });
   $('afdSasia').addEventListener('change', function () { vendosRezultatinESasise($('afdSasia')); });
   function ruajAfatinPc() {
     if (!leja(afdId ? 'afatetNdrysho' : 'afatetShto')) return;
@@ -6152,7 +6157,7 @@
     var sasia = AF.lexoSasine(sasiaTx);
     if (sasiaTx && sasia === '') { $('afdGabim').textContent = 'Sasia duhet të jetë numër i plotë (p.sh. 12).'; $('afdSasia').focus(); return; }
     if (!b && !emri) { $('afdGabim').textContent = 'Shkruaj barkodin ose emrin e produktit.'; $('afdBarkodi').focus(); return; }
-    if (!data) { $('afdGabim').textContent = 'Shkruaj datën e skadimit, p.sh. 31-12-26.'; $('afdData').focus(); return; }
+    if (!data) { $('afdGabim').textContent = AF.gabimiIDates($('afdData').value) || 'Shkruaj datën e skadimit, p.sh. 31-12-26.'; $('afdData').focus(); return; }
     var mkId = kaMarkete() ? $('afdMarketi').value : null; // v241
     var perKolegun = !afdId && afdPerKolegun ? afdPerKolegun : null; // v297
     if (kaMarkete() && !afdId && !mkId && !perKolegun) { $('afdGabim').textContent = 'Zgjidh marketin ku është ky produkt.'; $('afdMarketi').focus(); return; }
@@ -6857,7 +6862,7 @@
           var iso = AF.lexoDatenEFushes(v) || '';
           r.data = iso; r.dyshim = false;
           tr.className = iso ? AF.statusi({ data: iso }) : '';
-          sh.textContent = iso ? AF.pershkrimi({ data: iso }) : 'Shkruaj datën, p.sh. 31-12-26';
+          sh.textContent = iso ? AF.pershkrimi({ data: iso }) : AF.gabimiIDates(v) || 'Shkruaj datën, p.sh. 31-12-26'; // v364: pse s'është e saktë
           sh.className = iso ? '' : 'paralajm';
         });
         AF.lidhFushenEDates(qd.inp);

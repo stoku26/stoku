@@ -10,6 +10,11 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(125, "2026-11-28", "Data dhe furnizuesi më të qartë", listOf(
+            "Kur data e skadimit s'është e saktë (p.sh. 33-05-26), Stoku të thotë menjëherë pse: dita 1 deri 31, muaji 1 deri 12, sa ditë ka ai muaj.",
+            "Lista e furnizuesve s'ka më \"Mbyll\": del kur shkruan, mbyllet vetë kur i fshin krejt shkronjat dhe del mbi fushë, jo nën tastierë.",
+            "\"Kontrollo fletën\": shiriti lart ka ngjyrën e aplikacionit dhe butonat \"Anulo\" e \"Ruaj\" s'fshihen më poshtë ekranit."
+        )),
         Hyrja(124, "2026-11-28", "Ballina më e lehtë", listOf(
             "Ballina: kartat s'kanë më \"Hape\" dhe \"Krejt\". Prek kartën ose numrin dhe hapet pikërisht ajo që tregon (p.sh. \"Të skaduara\" hap afatet e skaduara, një muaj te grafiku hap afatet e atij muaji).",
             "Gjuha tani është te Cilësimet si rresht më vete, jo te Pamja.",

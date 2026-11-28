@@ -503,7 +503,7 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
         val s = Afatet.lexoSasine(st)
         if (st.isNotEmpty() && s == "") { Toast.trego("Sasia duhet të jetë numër i plotë (p.sh. 12)."); return }
         if (b.isEmpty() && em.isEmpty()) { Toast.trego("Shkruaj barkodin ose emrin e produktit."); fBarkodi.requestFocus(); return }
-        if (iso.isEmpty()) { Toast.trego("Shkruaj datën e skadimit, p.sh. 31-12-26."); fData.requestFocus(); return }
+        if (iso.isEmpty()) { Toast.trego(Afatet.gabimiIDates(data).ifEmpty { "Shkruaj datën e skadimit, p.sh. 31-12-26." }); fData.requestFocus(); return }
         val koleg = if (a == null) perKolegun else null
         if (kaM && a == null && mk == null && koleg == null) { Toast.trego("Zgjidh marketin ku është ky produkt."); return }
         val afPara = id?.let { Dyqani.afati(it) }
@@ -603,6 +603,9 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
         Fusha(data, { data = it }, Modifier.fillMaxWidth(), "DD-MM-VV",
             tastiera = KeyboardType.Number, fokusi = fData, vetemLexim = vetemLexim, veprimi = ImeAction.Next,
             formato = { v, para -> if (v.length < para.length) v else Afatet.formatoDatenGjateShkrimit(v) })
+        // Pronari (28.11.2026): data e pasaktë (p.sh. 33-05-426) tregon pse, me të kuqe, që në shkrim
+        val gabimiDates = remember(data) { Afatet.gabimiIDates(data) }
+        if (gabimiDates.isNotEmpty() && !vetemLexim) Text(gabimiDates, style = tx(13, 600, n.exp), modifier = Modifier.semantics { androidx.compose.ui.semantics.liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite })
         Afatet.lexoDatenEFushes(data)?.let { iso ->
             val d = Afatet.ditetDeri(iso)!!
             Text(when { d < -1 -> "Ka skaduar para " + Afatet.ditetParaTekst(-d) + "."; d == -1 -> "Skadoi dje."; d == 0 -> "Skadon sot."; d == 1 -> "Skadon nesër."; else -> "Skadon për " + Afatet.ditetTekst(d) + "." },
@@ -632,8 +635,8 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
             val sugjDuken = sugjerimet && !vetemLexim
             LaunchedEffect(sugjDuken, furn) { if (sugjDuken) { kotlinx.coroutines.delay(120); try { bivr.bringIntoView() } catch (e: Exception) { } } }
             Column(Modifier.fillMaxWidth().bringIntoViewRequester(bivr), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (sugjDuken) SugjerimetEFurnizuesit(furn, { furn = it; sugjerimet = false }) { sugjerimet = false }
-                Fusha(furn, { furn = it; sugjerimet = true }, Modifier.fillMaxWidth().onFocusChanged { if (it.isFocused && !vetemLexim) sugjerimet = true },
+                if (sugjDuken) SugjerimetEFurnizuesit(furn) { furn = it; sugjerimet = false }
+                Fusha(furn, { furn = it; sugjerimet = true }, Modifier.fillMaxWidth().onFocusChanged { sugjerimet = it.isFocused && !vetemLexim },
                     "Furnizuesi (zgjidh ose shkruaj)", vetemLexim = vetemLexim, kurVeprim = { sugjerimet = false; ruaj() })
             }
         }
@@ -758,17 +761,18 @@ private fun AfatetEkzistuese(lista: List<Obj>, kaM: Boolean, zgjidh: (Obj) -> Un
     }
 }
 
-/** Sugjerimet e furnizuesit (v252): lista, "+ Furnizues i ri", "Mbyll" */
+/** Sugjerimet e furnizuesit (v252): lista dhe "+ Furnizues i ri". Pronari (28.11.2026): pa "Mbyll"; lista del vetëm kur ka shkronja
+ *  (kur i fshin krejt, mbyllet vetë) dhe mbyllet kur zgjedh, shtyp "Done"/Enter ose del nga fusha; më së shumti 5, që të mos zërë ekranin. */
 @Composable
-fun SugjerimetEFurnizuesit(q0: String, zgjidh: (String) -> Unit, mbyll: () -> Unit) {
+fun SugjerimetEFurnizuesit(q0: String, zgjidh: (String) -> Unit) {
     val n = N
     val q = q0.replace(Regex("\\s+"), " ").trim(); val ql = q.lowercase()
-    val te = Dyqani.furnizuesitPerSugjerim().filter { ql.isEmpty() || it.lowercase().contains(ql) }
+    if (q.isEmpty()) return
+    val te = Dyqani.furnizuesitPerSugjerim().filter { it.lowercase().contains(ql) }
     val sakte = te.any { it.lowercase() == ql }
-    if (te.isEmpty() && q.isEmpty()) return
+    if (sakte && te.size == 1) return // e shkrove saktë: s'ka çfarë të sugjerohet
     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(n.surface).border(1.dp, n.line, RoundedCornerShape(14.dp)).padding(6.dp)) {
-        te.take(8).forEach { f -> Text(f, style = tx(15, 500, n.ink), modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).clickable { zgjidh(f) }.padding(12.dp)) }
+        te.take(5).forEach { f -> Text(f, style = tx(15, 500, n.ink), modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).clickable { zgjidh(f) }.padding(12.dp)) }
         if (q.isNotEmpty() && !sakte) Text("+ Furnizues i ri: \"$q\"", style = tx(15, 600, n.accentText), modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).clickable { zgjidh(q) }.padding(12.dp))
-        Text("Mbyll", style = tx(14, 500, n.muted), modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).clickable(onClick = mbyll).padding(12.dp))
     }
 }

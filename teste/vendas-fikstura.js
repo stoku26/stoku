@@ -128,6 +128,8 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
   const renditur = afatet.slice().sort((a, b) => A.krahaso(a, b)).map(a => a.id);
   global.Date = DataE;
   const datat = ['12.10.2026', '12/10/26', '12-10-2026', '2026-10-12', '1.2.27', '10/2026', '10.26', '12 nëntor 26', 'nov 2027', '311226', '31.02.2026', 'abc', '', '05 tet 2026', 'dhj.27', '3/27'].map(t => ({ t, iso: A.lexoDaten(t) }));
+  // Pronari (28.11.2026): arsyeja e datës së pasaktë (Afatet.gabimiIDates)
+  const gabimiDates = ['33-05-426', '33', '3', '31-1', '31-13', '00-05-26', '31-04-26', '29-02-27', '29-02-28', '31-12-202', '31-12-2026', '1a-2', '31-12-26', '0', '05-0', '1-2-3-4', '30-02-2026', '12-10-26', '', '31.06.26', '31/12/1999'].map(t => ({ t, g: A.gabimiIDates(t) }));
   const shkrimi = ['1', '12', '1-', '121', '1210', '12102', '121026', '1.10.26', '01102026', '1-10-2026x', 'ab12'].map(t => ({ t, v: A.formatoDatenGjateShkrimit(t) }));
   const sasite = ['3', ' 60 + 30 ', '5 copë', '12pcs', '-2', '1234567', 'abc', '', null, 7, '2+x'].map(v => ({ v, s: A.lexoSasine(v), shume: A.sasiaSiShume(v), pranueshme: A.sasiaEPranueshme(v) }));
   const furn = A.furnizuesitELista(afatet).map(f => [f.celes, f.n, f.emri]);
@@ -165,7 +167,7 @@ console.log('OK ' + sk + ' ' + (fs.statSync(sk).size / 1024 | 0) + ' KB; pjesët
     ['999', '2026-12-01', 'x', false], ['3830000622349', '', '', false], ['', '2026-12-01', '', false]
   ].map(([b, d, m, mm]) => { const a = A.afatiINjejte(lista295, b, d, m, mm); return { b, d, m, mm, id: a ? a.id : null }; });
   const bashkimi295 = [[6, 3], ['', 3], [6, ''], ['', ''], ['4', 1], [null, 2], ['abc', 5], [7, ' 60+30 ']].map(([a, b]) => ({ a, b, s: A.sasiaEBashkuar(a, b) }));
-  dalja.afatet = { TANI_A, rastet, renditur, datat, shkrimi, sasite, furn, ikonat, lejet, numero: n, ai: JSON.parse(JSON.stringify(ai)),
+  dalja.afatet = { TANI_A, rastet, renditur, datat, shkrimi, gabimiDates, sasite, furn, ikonat, lejet, numero: n, ai: JSON.parse(JSON.stringify(ai)),
     lista295, barkodet295, njejte295, bashkimi295 };
   fs.writeFileSync(sk, JSON.stringify(dalja));
   console.log('afatet: ' + rastet.length + ' raste');

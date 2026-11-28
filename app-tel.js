@@ -8477,9 +8477,9 @@
   }
   // v211: sugjerimet e furnizuesit për këdo: afatet e mia + furnizuesit e miratuar të grupit + lista e administratorit
   // (e lexon çdo përdorues i kyçur, edhe jashtë grupit). Shfletuesi i filtron sipas shkronjave që shtyp.
-  // v252: sugjerimet e furnizuesit nën fushë (në vend të <datalist>: te Android-i ajo hapej si listë ku s'shkruhej një
-  // furnizues i ri dhe s'mbyllej). Shkruan çfarë të duash; lista vetëm ndihmon dhe mbyllet me "Mbyll", Enter, ose kur del
-  // nga fusha.
+  // v252: sugjerimet e furnizuesit mbi fushë (në vend të <datalist>: te Android-i ajo hapej si listë ku s'shkruhej një
+  // furnizues i ri dhe s'mbyllej). Shkruan çfarë të duash; lista vetëm ndihmon dhe mbyllet kur zgjedh, me Enter/Escape, kur
+  // del nga fusha ose (v364) kur i fshin krejt shkronjat.
   function sugjerimetEFurnizuesit(inp, lista) {
     function mbyll() { lista.hidden = true; lista.textContent = ''; }
     function butoni(tekst, kl, kurPreket) {
@@ -8491,14 +8491,15 @@
     }
     function vizato() {
       if (inp.readOnly || paFurnizues()) { mbyll(); return; }
+      // Pronari (28.11.2026): pa "Mbyll"; lista del vetëm kur ka shkronja (kur i fshin krejt, mbyllet vetë), më së shumti 5
       var q = inp.value.replace(/\s+/g, ' ').trim(), ql = q.toLocaleLowerCase('sq');
-      var te = furnizuesitPerSugjerim().filter(function (f) { return !ql || f.toLocaleLowerCase('sq').indexOf(ql) !== -1; });
+      if (!q) { mbyll(); return; }
+      var te = furnizuesitPerSugjerim().filter(function (f) { return f.toLocaleLowerCase('sq').indexOf(ql) !== -1; });
       var sakte = te.some(function (f) { return f.toLocaleLowerCase('sq') === ql; });
       lista.textContent = '';
-      if (!te.length && !q) { mbyll(); return; }
-      te.slice(0, 8).forEach(function (f) { butoni(f, '', function () { inp.value = f; mbyll(); inp.dispatchEvent(new Event('change')); }); });
+      if (sakte && te.length === 1) { mbyll(); return; } // e shkrove saktë: s'ka çfarë të sugjerohet
+      te.slice(0, 5).forEach(function (f) { butoni(f, '', function () { inp.value = f; mbyll(); inp.dispatchEvent(new Event('change')); }); });
       if (q && !sakte) butoni('+ Furnizues i ri: "' + q + '"', 'sugj-ri', function () { inp.value = q; mbyll(); inp.dispatchEvent(new Event('change')); });
-      butoni('Mbyll', 'sugj-mbyll', mbyll);
       lista.hidden = false;
     }
     inp.addEventListener('focus', vizato);
@@ -8708,7 +8709,7 @@
     var sasia = AF.lexoSasine(sasiaTx);
     if (sasiaTx && sasia === '') { toast('Sasia duhet të jetë numër i plotë (p.sh. 12).'); $('afatSasia').focus(); return; }
     if (!b && !emri) { toast('Shkruaj barkodin ose emrin e produktit.'); $('afatBarkodi').focus(); return; }
-    if (!data) { toast('Shkruaj datën e skadimit, p.sh. 31-12-26.'); $('afatData').focus(); return; }
+    if (!data) { toast(AF.gabimiIDates($('afatData').value) || 'Shkruaj datën e skadimit, p.sh. 31-12-26.'); $('afatData').focus(); return; }
     var mkId = kaMarkete() ? $('afatMarketi').value : null; // v241
     var perKolegun = !afatNeDialog && afatPerKolegun ? afatPerKolegun : null; // v297
     if (kaMarkete() && !afatNeDialog && !mkId && !perKolegun) { toast('Zgjidh marketin ku është ky produkt.'); $('afatMarketi').focus(); return; }
@@ -8841,7 +8842,10 @@
   function rifreskoDatenEAfatit() {
     var iso = AF.lexoDatenEFushes($('afatData').value);
     var n = iso ? AF.ditetDeri(iso) : null;
-    $('afatDataHint').textContent = n === null ? '' : n < -1 ? 'Ka skaduar para ' + AF.ditetParaTekst(-n) + '.' :
+    // v364 (pronari: "nese shkrun dat tpasakt ... nuk te thot hiq"): data e pasaktë tregon pse, me të kuqe
+    var gab = $('afatData').readOnly ? '' : AF.gabimiIDates($('afatData').value);
+    $('afatDataHint').classList.toggle('gabim', !!gab);
+    $('afatDataHint').textContent = gab ? gab : n === null ? '' : n < -1 ? 'Ka skaduar para ' + AF.ditetParaTekst(-n) + '.' :
       n === -1 ? 'Skadoi dje.' : n === 0 ? 'Skadon sot.' : n === 1 ? 'Skadon nesër.' : 'Skadon për ' + AF.ditetTekst(n) + '.';
   }
   $('afatData').addEventListener('input', rifreskoDatenEAfatit);
@@ -9056,6 +9060,7 @@
         var iso = AF.lexoDatenEFushes(v) || '';
         r.data = iso; r.dyshim = false;
         d.className = 'lx-rresht ' + (iso ? AF.statusi({ data: iso }) : '');
+        gd.textContent = AF.gabimiIDates(v); gd.hidden = !gd.textContent; // v364: pse data s'është e saktë
         nr.textContent = 'Rreshti ' + (i + 1);
       });
       AF.lidhFushenEDates(fd.inp);
@@ -9070,7 +9075,9 @@
       if (ff) (ff.w || ff).classList.add('furn-vetem'); // v252
       ff.inp.setAttribute('list', 'afFurnizuesit');
       dy.appendChild(fd.w); dy.appendChild(fs.w);
-      d.appendChild(fb.w); d.appendChild(fe.w); d.appendChild(dy); d.appendChild(ff.w);
+      var gd = document.createElement('div'); gd.className = 'lx-shenim paralajm'; gd.setAttribute('aria-live', 'polite');
+      gd.textContent = r.data ? '' : AF.gabimiIDates(fd.inp.value); gd.hidden = !gd.textContent;
+      d.appendChild(fb.w); d.appendChild(fe.w); d.appendChild(dy); d.appendChild(gd); d.appendChild(ff.w);
       if (r.dataOrigjinale || (r.data && !r.iRi)) {
         var sh = document.createElement('div');
         sh.className = 'lx-shenim' + (!r.data ? ' paralajm' : '');

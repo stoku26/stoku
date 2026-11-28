@@ -29,10 +29,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.runtime.SideEffect
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -325,7 +328,27 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, stok: Boolean = false, kurRuhet: (S
     }
 
     Dialog(onDismissRequest = { anuloLeximin() }, properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
-        Column(Modifier.fillMaxSize().background(n.bg).statusBarsPadding().navigationBarsPadding().imePadding()) {
+        // Pronari (28.11.2026, foto e "Kontrollo fletën"): shiriti i statusit dilte i zi dhe butonat "Anulo"/"Ruaj" gjysmë nën shiritin
+        // e navigimit. Dritarja e dialogut s'i merrte gjithmonë hapësirat e sistemit (0 poshtë) dhe s'ishte e tejdukshme si aplikacioni:
+        // tani vizatohet nën shiritat (si MainActivity, enableEdgeToEdge), me ngjyrat e temës, dhe hapësirat merren edhe nga dritarja
+        // e aktivitetit (rezervë), që butonat të jenë gjithmonë mbi shiritin e navigimit.
+        val dritarja = (androidx.compose.ui.platform.LocalView.current.parent as? androidx.compose.ui.window.DialogWindowProvider)?.window
+        val erret = n.erret
+        SideEffect {
+            dritarja?.let { w ->
+                androidx.core.view.WindowCompat.setDecorFitsSystemWindows(w, false)
+                @Suppress("DEPRECATION") run { w.statusBarColor = android.graphics.Color.TRANSPARENT; w.navigationBarColor = android.graphics.Color.TRANSPARENT }
+                if (android.os.Build.VERSION.SDK_INT >= 29) { w.isStatusBarContrastEnforced = false; w.isNavigationBarContrastEnforced = false }
+                androidx.core.view.WindowInsetsControllerCompat(w, w.decorView).apply { isAppearanceLightStatusBars = !erret; isAppearanceLightNavigationBars = !erret }
+            }
+        }
+        val shiritat = remember(ctx) {
+            val ri = (ctx as? android.app.Activity)?.window?.decorView?.let { androidx.core.view.ViewCompat.getRootWindowInsets(it) }
+                ?.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars() or androidx.core.view.WindowInsetsCompat.Type.displayCutout())
+            androidx.compose.foundation.layout.WindowInsets(ri?.left ?: 0, ri?.top ?: 0, ri?.right ?: 0, ri?.bottom ?: 0)
+        }.let { androidx.compose.foundation.layout.WindowInsets.systemBars.union(it) }
+        val anash = androidx.compose.foundation.layout.WindowInsetsSides.Top + androidx.compose.foundation.layout.WindowInsetsSides.Horizontal
+        Column(Modifier.fillMaxSize().background(n.bg).windowInsetsPadding(shiritat.only(anash)).imePadding()) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                 ButonIkone(Ik.Mbrapa, "Anulo", { anuloLeximin() }, madhesia = 40.dp)
                 Spacer(Modifier.width(12.dp))
@@ -358,7 +381,8 @@ fun FletaEkrani(uri: Uri, mbyll: () -> Unit, stok: Boolean = false, kurRuhet: (S
                 rreshtat.forEachIndexed { i, r -> KartaERreshtit(i, r, paFurnizues, stok) { rreshtat.remove(r) } }
                 if (!punon) Buton("+ Shto rresht me dorë", { shtoRresht() }, Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 16.dp), lloji = "dyte")
             }
-            Row(Modifier.fillMaxWidth().background(n.surface).padding(horizontal = 20.dp, vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(Modifier.fillMaxWidth().background(n.surface).windowInsetsPadding(shiritat.only(androidx.compose.foundation.layout.WindowInsetsSides.Bottom))
+                .padding(horizontal = 20.dp, vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Buton("Anulo", { anuloLeximin() }, Modifier.weight(1f), lloji = "tekst")
                 val nr = rreshtat.size
                 val teksti = if (stok) (if (nr == 0) "Importo" else if (nr == 1) "Importo 1 produkt" else "Importo $nr produkte")
@@ -442,6 +466,8 @@ private fun KartaERreshtit(i: Int, r: Rreshti, paFurnizues: Boolean, stok: Boole
                 Fusha(r.sasia, { r.sasia = it.take(30) }, Modifier.weight(1f), "Sasia", tastiera = KeyboardType.Phone, lartesia = 44.dp, veprimi = ImeAction.Next,
                     kurVeprim = { Afatet.lexoSasine(r.sasia).let { s -> if (s != "") r.sasia = s.toString() } })
             }
+            // Pronari (28.11.2026): data e pasaktë tregon pse (si te "Afat i ri")
+            if (!stok) Afatet.gabimiIDates(r.data).takeIf { it.isNotEmpty() }?.let { Text(it, style = tx(12, 700, n.exp), modifier = Modifier.padding(start = 2.dp)) }
             if (!paFurnizues) Fusha(r.furnizuesi, { r.furnizuesi = it }, Modifier.fillMaxWidth(), "Furnizuesi", lartesia = 44.dp)
             if (r.dataOrigjinale.isNotEmpty() || (iso.isNotEmpty() && !r.iRi)) {
                 Text((if (r.dataOrigjinale.isNotEmpty()) "Në fletë: \"" + r.dataOrigjinale + "\"" else "") +

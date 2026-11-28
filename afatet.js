@@ -249,6 +249,24 @@
     var t = String(v || '').trim();
     return /^\d{1,2}[.\/-]\d{1,2}[.\/-](\d{2}|\d{4})$/.test(t) ? lexoDaten(t) : null;
   }
+  // Pronari (28.11.2026): "nese shkrun dat tpasakt ... nuk te thot hiq qe so mir cili muj i ka 33 dit": arsyeja pse data e fushës
+  // s'është e saktë ('' kur është në rregull ose ende gjysmë e shkruar). Binjaku: Afatet.gabimiIDates (vendas/logjika).
+  function gabimiIDates(v) {
+    var t = String(v || '').trim();
+    if (!t) return '';
+    var p = t.split(/[.\/-]/);
+    if (p.length > 3 || p.some(function (x) { return !/^\d*$/.test(x); })) return 'Shkruaje datën si DD-MM-VV, p.sh. 31-12-26.';
+    var d = p[0], m = p.length > 1 ? p[1] : '', y = p.length > 2 ? p[2] : '';
+    if (d.length > 2 || (d.length === 2 && +d < 1) || +d > 31) return 'Dita duhet të jetë nga 1 deri 31.';
+    if (m.length > 2 || (m.length === 2 && +m < 1) || +m > 12) return 'Muaji duhet të jetë nga 1 deri 12.';
+    if (y.length === 3 || y.length > 4) return 'Viti shkruhet me 2 shifra (26) ose me 4 (2026).';
+    if (!d || !m || (y.length !== 2 && y.length !== 4) || lexoDatenEFushes(t)) return '';
+    if (+d < 1) return 'Dita duhet të jetë nga 1 deri 31.';
+    if (+m < 1) return 'Muaji duhet të jetë nga 1 deri 12.';
+    var dite = new Date(vitiPlote(y), +m, 0).getDate();
+    if (+d > dite) return 'Ky muaj ka vetëm ' + dite + ' ditë.';
+    return 'Kjo datë s\'ekziston.';
+  }
   function lidhFushenEDates(inp) {
     inp.type = 'text';
     inp.inputMode = 'numeric';
@@ -1134,7 +1152,7 @@
     get AI_URL() { return adresaAI(); },
     DITET_PARALAJMERIMI: DITET_PARALAJMERIMI,
     sot: sot, isoNgaData: isoNgaData, dataKs: dataKs, oraKs: oraKs, msNgaKs: msNgaKs, vendosZonen: vendosZonen, zona: zona, ditetDeri: ditetDeri, statusi: statusi, formato: formato,
-    pershkrimi: pershkrimi, lexoDaten: lexoDaten, lexoDatenEFushes: lexoDatenEFushes, lidhFushenEDates: lidhFushenEDates,
+    pershkrimi: pershkrimi, lexoDaten: lexoDaten, lexoDatenEFushes: lexoDatenEFushes, gabimiIDates: gabimiIDates, lidhFushenEDates: lidhFushenEDates,
     formatoDatenGjateShkrimit: formatoDatenGjateShkrimit, formatoPerFushe: formatoPerFushe, idERe: idERe, krahaso: krahaso, numero: numero,
     pergatitFoton: pergatitFoton, fotoPerDergim: fotoPerDergim, lexoMeAI: lexoMeAI,
     normalizoRreshtin: normalizoRreshtin, EMRAT_MUAJVE: EMRAT_MUAJVE, muajiNgaEmri: muajiNgaEmri, celesiMuajit: celesiMuajit, emriMuajit: emriMuajit,

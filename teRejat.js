@@ -21,6 +21,10 @@
   'use strict';
 
   var LISTA = [
+    { v: 364, versioni: '1.76.9', data: '2026-11-28', titulli: 'Data dhe furnizuesi më të qartë', pikat: [
+      'Kur data e skadimit s\'është e saktë (p.sh. 33-05-26), Stoku të thotë menjëherë pse: dita 1 deri 31, muaji 1 deri 12, sa ditë ka ai muaj.',
+      'Lista e furnizuesve (telefoni) s\'ka më "Mbyll": del kur shkruan dhe mbyllet vetë kur i fshin krejt shkronjat.'
+    ] },
     { v: 363, versioni: '1.76.8', data: '2026-11-27', titulli: 'Anglishtja më e saktë', pikat: [
       'Në anglisht, aktiviteti i grupit dhe njoftimet s\'kanë më fjalë shqip (p.sh. "You removed it from the shelf").',
       'Te njoftimet, emrat e produkteve mbeten siç i ke shkruar, edhe kur gjuha është anglisht.',

@@ -56,6 +56,25 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v364 (1.76.9) + Android Hyrja 125 (28.11.2026): data e pasaktë, sugjerimet e furnizuesit, "Kontrollo fletën"**. Pronari
+   (foto nga 0.1.380): "Kshyre nalt ngjyren e status barit. Edhe butonat posht ... jan gjysa e butonave nen ekran"; "nese shkrun dat
+   tpasakt ... nuk te thot hiq qe so mir cili muj i ka 33 dit"; "hiqe mbyll kur i fshin krejt shkronjat mu mshel vet ... mos e le me ra
+   ner tastier"; "Kshyre mos osht ky prb edhe ne faqe te pc ose tel".
+   - `gabimiIDates(v)` te afatet.js = `Afatet.gabimiIDates` (logjika, fikstura "gabimiDates" + AfatetTest): "Dita duhet të jetë nga 1
+     deri 31." / "Muaji ... 1 deri 12." / "Viti shkruhet me 2 shifra (26) ose me 4 (2026)." / "Ky muaj ka vetëm N ditë." / "Kjo datë
+     s'ekziston." / "Shkruaje datën si DD-MM-VV…"; '' kur është në rregull ose gjysmë e shkruar. Del me të kuqe nën fushë (tel
+     #afatDataHint.gabim, PC #afdGabim, Android Text n.exp) dhe te rreshtat e "Kontrollo fletën" (tel/PC/Android); edhe mesazhi i Ruaj.
+   - Sugjerimet e furnizuesit (web tel `sugjerimetEFurnizuesit`, Android `SugjerimetEFurnizuesit`): pa "Mbyll" (u hoq edhe CSS
+     .sugj-mbyll), vetëm kur ka shkronja (zbrazja e fushës e mbyll), më së shumti 5, s'del kur emri është i saktë dhe i vetëm;
+     Android: mbyllet kur fusha humb fokusin; te Produktet (RegjistriUI) lista u kalua MBI fushë. PC: <datalist> i shfletuesit (pa "Mbyll").
+     v252.js u përshtat (pa "Mbyll"; Escape; zbrazja e mbyll; data 33-05-26 dhe 31-04-27).
+   - Android FletaEkrani: Dialog-u (decorFitsSystemWindows=false) s'i merrte hapësirat e sistemit: tani dritarja e dialogut me shirita
+     të tejdukshëm + ngjyrat e temës (DialogWindowProvider), hapësirat = systemBars ∪ ato të dritares së aktivitetit; shiriti i
+     butonave e merr hapësirën poshtë brenda sfondit të vet.
+   - Pronari: "Edhe per playstore version e bon veq. Jo te apk": kodi është i përbashkët; publikimi në main e ngarkon te Play (edhe
+     Release-i i APK-së del vetë nga workflow-i; s'u ndryshua). Regresioni u nis me Google të bllokuar (HTTPS_PROXY=127.0.0.1:9), shih v363.
+   Testi `teste/v364.js`. S'është testuar në pajisje.
+
 0000000. **Android (Hyrja 124, 28.11.2026): Ballina pa "Hape"/"Krejt", Gjuha te Cilësimet, "Kontrollo te Google Play"**. Pronari (me foto
    të 0.1.378): "qato qe i kam rretheku nuk e kryjn funksionin qe shkrun. Heki krejt edhe bone kur e prek ne widget me dal qaty ku jan
    qato info"; "heke gjuhen prej pamja, qite gjuha te cilesimet edhe aty me kon nveti"; "ceke qe me kontrollu ne playstore per perditsim".

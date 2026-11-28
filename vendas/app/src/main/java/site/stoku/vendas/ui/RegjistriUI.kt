@@ -257,9 +257,10 @@ private fun NdryshoProduktin(x: Kujtesa.Produkti, mbyll: () -> Unit) {
     }, mbyll, { ruaj() }) {
         Fusha(emri, { emri = it.take(120) }, Modifier.fillMaxWidth(), "Emri i produktit", lartesia = 46.dp, fokusi = fEmri,
             veprimi = androidx.compose.ui.text.input.ImeAction.Next, kurVeprim = { try { fFurn.requestFocus() } catch (e: Exception) { } })
+        // Pronari (28.11.2026): lista MBI fushë (si te "Afat i ri"), që të mos bjerë nën tastierë
+        if (sugjerimet) SugjerimetEFurnizuesit(furn) { furn = it; sugjerimet = false }
         Fusha(furn, { furn = it.take(80); sugjerimet = true }, Modifier.fillMaxWidth(), "Furnizuesi", lartesia = 46.dp, fokusi = fFurn,
             kurVeprim = { sugjerimet = false; ruaj() })
-        if (sugjerimet) SugjerimetEFurnizuesit(furn, { furn = it; sugjerimet = false }) { sugjerimet = false }
     }
     LaunchedEffect(x.barkodi) { kotlinx.coroutines.delay(80); try { fEmri.requestFocus() } catch (e: Exception) { } }
 }

@@ -660,7 +660,7 @@ html.sb:not([data-tema="dark"]) .sb-stat__value--exp { color: var(--sb-exp, #d04
   font: inherit; font-size: 15px; text-align: left; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sb .sugj-lista button:active { background: var(--sb-surface-2); }
 .sb .sugj-lista .sugj-ri { color: var(--sb-accent); font-weight: 600; }
-.sb .sugj-lista .sugj-mbyll { color: var(--sb-muted); font-size: 13px; text-align: center; min-height: 36px; }
+.sb .sb-hint.gabim { color: var(--sb-exp); font-weight: 600; } /* v364: data e pasaktë */
 .pa-furnizues .furn-vetem { display: none !important; }
 
 /* v268: madhësitë e telefonit si në aplikacionin Android (vendas): butonat, fushat, shiriti poshtë, titujt */
