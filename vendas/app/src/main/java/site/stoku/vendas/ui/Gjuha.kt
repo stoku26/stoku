@@ -23,7 +23,7 @@ import site.stoku.vendas.StokuApp
 
 /*
  * v355 (pronari: "A munesh gjuhen anglisht 100% ... edhe android app, edhe android app qe o per playstore"): gjuha e pamjes,
- * Shqip / English (Cilësimet → Pamja → Gjuha), e ruajtur në këtë telefon (pref "gjuha", si "stoku:gjuha" te web-i). Kodi mbetet shqip:
+ * Shqip / English (Cilësimet → Gjuha), e ruajtur në këtë telefon (pref "gjuha", si "stoku:gjuha" te web-i). Kodi mbetet shqip:
  * vetëm tekstet që shfaqen përkthehen, me fjalorin e përbashkët perkthimi/en.json (assets) dhe motorin site.stoku.logjika.Perkthyesi
  * (binjaku i perkthimi.js). Çdo `Text(...)` i aplikacionit kalon nga mbështjellësi më poshtë (jo material3.Text drejtpërdrejt), edhe
  * Toast-i, butonat dhe fushat. Ndërrimi i gjuhës e rihap ekranin (si rifreskimi i faqes te web-i).
@@ -34,7 +34,7 @@ object Gjuha {
         private set
 
     fun nis(ctx: Context) {
-        // Pronari (24.11.2026): versioni i Play-it nis në anglisht (kush do shqip e ndërron te Cilësimet → Pamja → Gjuha)
+        // Pronari (24.11.2026): versioni i Play-it nis në anglisht (kush do shqip e ndërron te Cilësimet → Gjuha)
         en = StokuApp.prefs(ctx).getString("gjuha", if (site.stoku.vendas.BuildConfig.PLAY) "en" else "sq") == "en"
         if (en && perkthyesi == null) {
             perkthyesi = try { Perkthyesi.ngaJson(ctx.assets.open("en.json").bufferedReader(Charsets.UTF_8).use { it.readText() }) } catch (e: Exception) { null }
