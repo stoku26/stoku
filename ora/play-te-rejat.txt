@@ -1,3 +1,6 @@
+• Clearer English texts on the watch and in the phone notifications.
+• In notifications, product names stay exactly as you wrote them.
+
 • The watch app is now also in English (Settings → Language).
 • Settings show the correct app version.
 • "Updates" opens Stoku in the Play Store; updates come from Google Play.

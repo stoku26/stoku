@@ -202,7 +202,7 @@
   " rreshta. Krahasoji": " rows. Compare them",
   " s'do ta shohë më grupin (afatet e kolegëve dhe aktivitetin) derisa ta ftosh sërish. Malli dhe afatet e tij s'preken.": " won't see the group anymore (colleagues' expiry dates and activity) until you invite them again. Their stock and expiry dates aren't affected.",
   " s'e pranoi afatin: ": " didn't accept the expiry date: ",
-  " s'e pranoi brenda 10 ditëve afatin: ": " didn't accept within 10 days the expiry date: ",
+  " s'e pranoi brenda 10 ditëve afatin: ": " didn't accept the expiry date within 10 days: ",
   " s'ka më asnjë leje.": " no longer has any permissions.",
   " s'u lexuan": " couldn't be read",
   " s'është më në grup.": " is no longer in the group.",
@@ -424,7 +424,7 @@
   "Afatet lexohen nga foto automatikisht": "Expiry dates are read from the photo automatically",
   "Afatet në 6 muajt e ardhshëm": "Expiry dates in the next 6 months",
   "Afatet nën kontroll": "Expiry dates under control",
-  "Afatet që skadojnë dhe kërkesat e grupit": "Expiring dates and group requests",
+  "Afatet që skadojnë dhe kërkesat e grupit": "Expiry dates and group requests",
   "Afatet s'u morën. Kontrollo internetin dhe provo sërish.": "The expiry dates couldn't be loaded. Check the internet and try again.",
   "Afatet sipas marketeve, me GPS. E zgjedh vetë kur hap llogarinë (\"Punoj si merchandiser\"); këtu ia ndez ose ia fik.": "Expiry dates by market, with GPS. They choose it themselves when creating the account (\"I work as a merchandiser\"); here you turn it on or off.",
   "Afatet: ": "Expiry dates: ",
@@ -454,6 +454,7 @@
   "Aktivizo njoftimet": "Turn on notifications",
   "Akull": "Ice",
   "Ametisti": "Amethyst",
+  "Anglishtja më e saktë": "More accurate English",
   "Anulo": "Cancel",
   "Anulo importin": "Cancel import",
   "Anulo kërkesën": "Cancel request",
@@ -565,6 +566,7 @@
   "Dil gjithsesi": "Sign out anyway",
   "Dil nga llogaria": "Sign out",
   "Disa s'u shkëputën. Kontrollo internetin.": "Some weren't disconnected. Check the internet.",
+  "Disa tekste anglisht u bënë më të qarta (US English).": "Some English texts were made clearer (US English).",
   "Ditët e mbetura": "Days left",
   "Ditët e skanimit": "Scan days",
   "Diçka s'shkoi mirë. Provo përsëri.": "Something went wrong. Try again.",
@@ -574,14 +576,14 @@
   "Djathtas": "Right",
   "Djathë i bardhë 400g": "White cheese 400g",
   "Dje": "Yesterday",
-  "Do të eksportohen ": "Will be exported: ",
+  "Do të eksportohen ": "To be exported: ",
   "Do të fshihen ": "Will be deleted: ",
-  "Do të fshihen të gjitha ": "All will be deleted: ",
+  "Do të fshihen të gjitha ": "To be deleted: all ",
   "Do të fshihet 1 produkt": "1 product will be deleted",
   "Do të fshihet 1 produkt nga folderi \"": "1 product will be deleted from the folder \"",
-  "Do të fshihet folderi \"": "The folder will be deleted \"",
+  "Do të fshihet folderi \"": "The folder will be deleted: \"",
   "Do të fshihet folderi bashkë me ": "The folder will be deleted together with ",
-  "Do të zëvendësohen të gjitha ": "All will be replaced: ",
+  "Do të zëvendësohen të gjitha ": "To be replaced: all ",
   "Do të zëvendësohet produkti aktual": "The current product will be replaced",
   "Drejtoje kamerën te barkodi": "Point the camera at the barcode",
   "Drita": "Light",
@@ -690,7 +692,7 @@
   "Eksporto të gjithë stokun": "Export all stock",
   "Eksporto të zgjedhurat në Excel": "Export the selected to Excel",
   "Eksporto…": "Export…",
-  "Ekzistojnë": "Already exist",
+  "Ekzistojnë": "Existing",
   "Ekzistojnë (kalohen)": "Already exist (skipped)",
   "Ekziston tashmë një folder me këtë emër.": "A folder with this name already exists.",
   "Ekziston tashmë në këtë folder: sasia do t'i shtohet asaj ekzistuese. Gjendet në:": "Already exists in this folder: the quantity will be added to the existing one. Found in:",
@@ -777,7 +779,7 @@
   "Fjalëkalimi aktual s'është i saktë.": "The current password is incorrect.",
   "Fjalëkalimi duhet të ketë të paktën 6 shenja.": "The password must have at least 6 characters.",
   "Fjalëkalimi duhet të ketë të paktën 6 shkronja/numra.": "The password must have at least 6 letters/numbers.",
-  "Fjalëkalimi i harruar": "Forgotten password",
+  "Fjalëkalimi i harruar": "Forgot password",
   "Fjalëkalimi i ri": "New password",
   "Fjalëkalimi s'është i saktë.": "The password is incorrect.",
   "Fjalëkalimi u ndryshua.": "The password was changed.",
@@ -1187,6 +1189,8 @@
   "Ky shfletues është shumë i vjetër për hyrjen në Stoku. Përditëso Chrome (dhe \"Android System WebView\" nga Play Store) ose Safari, pastaj hape sërish.": "This browser is too old to sign in to Stoku. Update Chrome (and \"Android System WebView\" from the Play Store) or Safari, then open it again.",
   "Ky skedar nuk është foto.": "This file isn't a photo.",
   "Ky telefon s'e shfaq dot hartën. Lista e pikave është më poshtë.": "This phone can't show the map. The list of points is below.",
+  "Ky veprim NUK mund të kthehet.": "This CAN'T be undone.",
+  "Ky veprim nuk kthehet.": "This can't be undone.",
   "Ky është PDA (skaner i brendshëm)": "This is a PDA (built-in scanner)",
   "Ky është emri yt.": "This is your name.",
   "Kyçe iPhone-in: njoftimet e Stoku-t (afatet, kërkesat, Grupi) dalin edhe në orë.": "Lock the iPhone: Stoku notifications (expiry dates, requests, Group) also appear on the watch.",
@@ -1239,7 +1243,7 @@
   "Këto afate nuk gjenden më. Mund të jenë fshirë ose ndryshuar.": "These expiry dates can't be found anymore. They may have been deleted or changed.",
   "Këto janë të dhëna shembull dhe ruhen vetëm në këtë telefon: provo lirisht. Me llogari ruhen në cloud, i sheh në çdo pajisje dhe punon me Grupin. Kur hyn, prova fshihet.": "This is sample data and it's saved only on this phone: try freely. With an account it's saved in the cloud, you see it on every device and you work with the Group. When you sign in, the trial is deleted.",
   "Këtu të del kur një koleg heq nga rafti një nga produktet e tua që ka skaduar.": "This shows when a colleague removes one of your expired products from the shelf.",
-  "Këtu është tashmë marketi \"": "The market is already here \"",
+  "Këtu është tashmë marketi \"": "A market is already here: \"",
   "Këtë javë": "This week",
   "Laps i kuq: vizato mbi foto rreshtat që i ke kontrolluar": "Red pencil: draw over the rows you've checked on the photo",
   "Largohesh nga grupi \"": "Leave the group \"",
@@ -1342,7 +1346,7 @@
   "Me afate të skaduara": "With expired dates",
   "Me gabim": "With errors",
   "Me gabim (kalohen)": "With errors (skipped)",
-  "Me llogari punon bashkë me kolegët: afatet e përbashkëta dhe aktiviteti. Si vizitor provon Stoku-n dhe Afatet.": "With an account you work together with colleagues: shared expiry dates and activity. As a visitor you try Stock and Expiry dates.",
+  "Me llogari punon bashkë me kolegët: afatet e përbashkëta dhe aktiviteti. Si vizitor provon Stoku-n dhe Afatet.": "With an account you work together with colleagues: shared expiry dates and activity. As a guest you can try Stock and Expiry dates.",
   "Me llogari, të dhënat ruhen në cloud, i sheh në telefon, PDA dhe kompjuter, dhe punon me kolegët te Grupi. Kur hyn, prova fshihet.": "With an account, the data is saved in the cloud, you see it on phone, PDA and computer, and you work with colleagues in Group. When you sign in, the trial is deleted.",
   "Me më shumë produkte që skadojnë": "With the most expiring products",
   "Me sasi 0": "With quantity 0",
@@ -1471,6 +1475,7 @@
   "Në anglisht janë përkthyer edhe tekstet që kishin mbetur shqip (p.sh. \"Krejt\", muajt, ditët e javës, emrat e ngjyrave).": "Texts that had stayed in Albanian are now translated into English too (e.g. \"All\", the months, the days of the week, the color names).",
   "Në anglisht përkthehen edhe përshkrimet për lexuesin e ekranit, njoftimet e vogla dhe skedarët Excel, PDF e foto.": "In English, the screen reader descriptions, the short messages and the Excel, PDF and photo files are translated too.",
   "Në anglisht përkthehen edhe tekstet me emra dhe numra (p.sh. \"3 foldera dhe 45 produkte u fshinë…\", kodi i rivendosjes së fjalëkalimit, butonat me numërim).": "In English, texts with names and numbers are now translated too (e.g. \"3 folders and 45 products deleted…\", the password reset code, buttons with a countdown).",
+  "Në anglisht, aktiviteti i grupit dhe njoftimet s'kanë më fjalë shqip (p.sh. \"You removed it from the shelf\").": "In English, the group activity and the notifications no longer have Albanian words (e.g. \"You removed it from the shelf\").",
   "Në anglisht, fjala \"Today\" te kutia e ditëve të afatit s'ndahet më në dy rreshta.": "In English, the word \"Today\" in the expiry date box no longer breaks onto two lines.",
   "Në cilin folder?": "Which folder?",
   "Në cilin market je?": "Which market are you in?",
@@ -1641,7 +1646,7 @@
   "Produkti · Furnizuesi": "Product · Supplier",
   "Produkti, furnizuesi ose barkodi": "Product, supplier or barcode",
   "Prova filloi nga e para.": "The trial started over.",
-  "Prova jote si vizitor është ende në këtë pajisje (kujdes: të dhënat nuk ruhen në cloud).": "Your visitor trial is still on this device (note: the data isn't saved in the cloud).",
+  "Prova jote si vizitor është ende në këtë pajisje (kujdes: të dhënat nuk ruhen në cloud).": "Your guest trial is still on this device (note: the data isn't saved in the cloud).",
   "Provo një emër tjetër.": "Try another name.",
   "Provo një kërkim tjetër ose hiq filtrin.": "Try another search or remove the filter.",
   "Provo një kërkim tjetër.": "Try another search.",
@@ -2119,6 +2124,7 @@
   "Te Cilësimet → **Njoftimet** shtyp **Aktivizo njoftimet** dhe lejoji.": "In Settings → **Notifications** tap **Turn on notifications** and allow them.",
   "Te Cilësimet → Ora e dorës, versioni nga Google Play tregon si instalohet Stoku në orë.": "In Settings → Watch, the Google Play version shows how to install Stoku on the watch.",
   "Te hyrja janë shtuar lidhjet \"Privatësia\" dhe \"Kushtet e përdorimit\".": "The sign-in screen now has the \"Privacy\" and \"Terms of use\" links.",
+  "Te njoftimet, emrat e produkteve mbeten siç i ke shkruar, edhe kur gjuha është anglisht.": "In notifications, product names stay as you wrote them, even when the language is English.",
   "Te telefoni: Cilësimet → Ora e dorës → Lidh orën": "On the phone: Settings → Watch → Link the watch",
   "Telefoni": "Phone",
   "Telefoni s'është lidhur ende me shërbimin e njoftimeve të Google-it. Provo pas pak.": "The phone isn't connected to Google's notification service yet. Try again in a moment.",
@@ -2355,10 +2361,10 @@
   "duke ngarkuar…": "loading…",
   "dërgoi ": "sent ",
   "e fshiu": "deleted it",
-  "e fshive": "you deleted it",
-  "e hoqe": "you removed it",
-  "e hoqe nga rafti": "you removed it from the shelf",
-  "e hoqe ti": "you removed it",
+  "e fshive": "deleted it",
+  "e hoqe": "removed it",
+  "e hoqe nga rafti": "removed it from the shelf",
+  "e hoqe ti": "removed by you",
   "e hoqi": "removed it",
   "e hoqi ": "removed by ",
   "e hoqi nga rafti": "removed it from the shelf",
@@ -2366,14 +2372,14 @@
   "e kishte hequr ": "had been removed by ",
   "e ktheu": "returned it",
   "e ktheu në raft": "returned it to the shelf",
-  "e ktheve": "you returned it",
-  "e ktheve në raft": "you returned it to the shelf",
+  "e ktheve": "returned it",
+  "e ktheve në raft": "returned it to the shelf",
   "e lajmëroi": "notified",
-  "e lajmërove": "you notified",
+  "e lajmërove": "notified",
   "e pranoi": "accepted it",
-  "e pranove": "you accepted it",
+  "e pranove": "accepted it",
   "e refuzoi": "declined it",
-  "e refuzove": "you declined it",
+  "e refuzove": "declined it",
   "ekziston, kalohet": "exists, skipped",
   "emri bosh": "empty name",
   "emrin e përdoruesit dhe fjalëkalimin.": "the username and password.",
@@ -2384,19 +2390,21 @@
   "i gjithë grupi": "the whole group",
   "i paplotë ": "incomplete ",
   "i përket: ": "belongs to: ",
+  "i përket: kolegut": "belongs to: a colleague",
   "i ri": "new",
   "jo çdo minutë": "not every minute",
   "ka mbetur 1 provë.": "1 attempt left.",
   "ka skaduar": "has expired",
   "kanë mbetur ": "left: ",
   "kanë skaduar": "have expired",
+  "kolegut": "a colleague",
   "kolegë": "colleagues",
   "kthehet si aktiv në raft": "returns as active on the shelf",
   "kthye në raft": "returned to the shelf",
   "kudo për këtë listë.": "everywhere for this list.",
   "kërkoi": "requested",
   "kërkon të hyjë në grup": "wants to join the group",
-  "kërkove": "you requested",
+  "kërkove": "requested",
   "këtë javë": "this week",
   "mbetet në raft · ": "stays on the shelf · ",
   "me kërkesë të ": "at the request of ",
@@ -2440,7 +2448,10 @@
   "pas orës ": "after ",
   "plotëso": "fill in",
   "pranuar nga ": "accepted by ",
+  "pranuar nga administratori": "accepted by the administrator",
+  "pranuar nga ti": "accepted by you",
   "pret miratimin": "waiting for approval",
+  "produkt": "product",
   "produkt i yti": "your product",
   "produkt mbeti": "product left",
   "produkte mbetën": "products left",
@@ -2449,8 +2460,11 @@
   "për kërkesat dhe njoftimet e": "for the requests and notifications of",
   "për kërkesat dhe njoftimet e ": "for the requests and notifications of ",
   "për këtë llogari.\n\nKy veprim nuk kthehet.": "for this account.\n\nThis can't be undone.",
+  "për miratim": "for approval",
+  "për një koleg": "for a colleague",
   "për produktet që": "for the products that",
   "për produktet që ": "for the products that ",
+  "për ty": "for you",
   "për të gjithë grupin": "for the whole group",
   "që të mos humbet nëse fshihet aplikacioni ose ndërrohet telefoni.": "so it isn't lost if the app is deleted or the phone is changed.",
   "s'u lexua regjistri: ": "couldn't read the registry: ",
@@ -2476,11 +2490,11 @@
   "të skaduara": "expired",
   "të skaduara në raft": "expired on the shelf",
   "të skaduara ose afër skadimit": "expired or close to expiry",
-  "u bashkove me grupin": "you joined the group",
+  "u bashkove me grupin": "joined the group",
   "u bashkua me grupin": "joined the group",
   "u hoq nga ": "was removed from ",
   "u kyç ": "locked ",
-  "u pranove në grup": "you were accepted into the group",
+  "u pranove në grup": "were accepted into the group",
   "} brenda tij.\n\nKy veprim NUK mund të kthehet.": "} inside it.\n\nThis CAN'T be undone.",
   "} njoftohet.": "} is notified.",
   "} u njoftua.": "} was notified.",
@@ -2524,6 +2538,246 @@
   "✕ Pastro": "✕ Clear"
  },
  "modelet": [
+  [
+   "^([^·]+?) s'e pranoi brenda 10 ditëve afatin: ([^·]+?) · (.+)\\. E ke te lista jote\\.$",
+   "@1 didn't accept the expiry date within 10 days: $2 · @3. It's back in your list."
+  ],
+  [
+   "^([^·]+?) s'e pranoi brenda 10 ditëve afatin: (.+)\\. E ke te lista jote\\.$",
+   "@1 didn't accept the expiry date within 10 days: $2. It's back in your list."
+  ],
+  [
+   "^([^·]+?) s'e pranoi afatin: ([^·]+?) · (.+)\\. E ke te lista jote\\.$",
+   "@1 didn't accept the expiry date: $2 · @3. It's back in your list."
+  ],
+  [
+   "^([^·]+?) s'e pranoi afatin: (.+)\\. E ke te lista jote\\.$",
+   "@1 didn't accept the expiry date: $2. It's back in your list."
+  ],
+  [
+   "^([^·]+?) i kërkon grupit ta heqë nga rafti: (\\d+) produkte \\((.+) e (\\d+) të tjera\\)(.*)$",
+   "@1 asks the group to remove from the shelf: $2 products ($3 and $4 more)$5"
+  ],
+  [
+   "^([^·]+?) i kërkon grupit ta heqë nga rafti: (\\d+) produkte \\((.+) e 1 tjetër\\)(.*)$",
+   "@1 asks the group to remove from the shelf: $2 products ($3 and 1 more)$4"
+  ],
+  [
+   "^([^·]+?) (shtove .+|shtoi .+|kërkove .+|kërkoi .+|e pranove heqjen .+|e pranoi heqjen .+|e refuzove heqjen .+|e refuzoi heqjen .+|e lajmërove .+|e lajmëroi .+|e ktheve .+|e ktheu .+|e hoqe .+|e hoqi nga .+|e fshive: .+|e fshiu: .+|ndryshove: .+|ndryshoi: .+|u pranove .+|u bashkove .+|u bashkua .+)$",
+   "@1 @2"
+  ],
+  [
+   "^e (?:hoqe|hoqi) nga rafti: produkt$",
+   "removed it from the shelf: product"
+  ],
+  [
+   "^e (?:hoqe|hoqi) nga rafti: produkt · (.+)$",
+   "removed it from the shelf: product · @1"
+  ],
+  [
+   "^e (?:hoqe|hoqi) nga rafti: ([^·]+?) · (.+)$",
+   "removed it from the shelf: $1 · @2"
+  ],
+  [
+   "^e (?:hoqe|hoqi) nga rafti: (.+)$",
+   "removed it from the shelf: $1"
+  ],
+  [
+   "^e (?:ktheve|ktheu) në raft: produkt$",
+   "returned it to the shelf: product"
+  ],
+  [
+   "^e (?:ktheve|ktheu) në raft: produkt · (.+)$",
+   "returned it to the shelf: product · @1"
+  ],
+  [
+   "^e (?:ktheve|ktheu) në raft: ([^·]+?) · (.+)$",
+   "returned it to the shelf: $1 · @2"
+  ],
+  [
+   "^e (?:ktheve|ktheu) në raft: (.+)$",
+   "returned it to the shelf: $1"
+  ],
+  [
+   "^e (?:pranove|pranoi) heqjen nga rafti: produkt$",
+   "accepted the shelf removal: product"
+  ],
+  [
+   "^e (?:pranove|pranoi) heqjen nga rafti: produkt · (.+)$",
+   "accepted the shelf removal: product · @1"
+  ],
+  [
+   "^e (?:pranove|pranoi) heqjen nga rafti: ([^·]+?) · (.+)$",
+   "accepted the shelf removal: $1 · @2"
+  ],
+  [
+   "^e (?:pranove|pranoi) heqjen nga rafti: (.+)$",
+   "accepted the shelf removal: $1"
+  ],
+  [
+   "^e (?:refuzove|refuzoi) heqjen nga rafti: produkt$",
+   "declined the shelf removal: product"
+  ],
+  [
+   "^e (?:refuzove|refuzoi) heqjen nga rafti: produkt · (.+)$",
+   "declined the shelf removal: product · @1"
+  ],
+  [
+   "^e (?:refuzove|refuzoi) heqjen nga rafti: ([^·]+?) · (.+)$",
+   "declined the shelf removal: $1 · @2"
+  ],
+  [
+   "^e (?:refuzove|refuzoi) heqjen nga rafti: (.+)$",
+   "declined the shelf removal: $1"
+  ],
+  [
+   "^(?:kërkove|kërkoi) heqjen nga rafti: (\\d+ produkte|1 produkt)(.*)$",
+   "requested shelf removal: @1@2"
+  ],
+  [
+   "^(?:kërkove|kërkoi) heqjen nga rafti: produkt$",
+   "requested shelf removal: product"
+  ],
+  [
+   "^(?:kërkove|kërkoi) heqjen nga rafti: produkt · (.+)$",
+   "requested shelf removal: product · @1"
+  ],
+  [
+   "^(?:kërkove|kërkoi) heqjen nga rafti: ([^·]+?) · (.+)$",
+   "requested shelf removal: $1 · @2"
+  ],
+  [
+   "^(?:kërkove|kërkoi) heqjen nga rafti: (.+)$",
+   "requested shelf removal: $1"
+  ],
+  [
+   "^e (?:lajmërove|lajmëroi) furnizuesin (.+)$",
+   "notified the supplier $1"
+  ],
+  [
+   "^e (?:fshive|fshiu): produkt$",
+   "deleted: product"
+  ],
+  [
+   "^e (?:fshive|fshiu): produkt · (.+)$",
+   "deleted: product · @1"
+  ],
+  [
+   "^e (?:fshive|fshiu): ([^·]+?) · (.+)$",
+   "deleted: $1 · @2"
+  ],
+  [
+   "^e (?:fshive|fshiu): (.+)$",
+   "deleted: $1"
+  ],
+  [
+   "^(?:ndryshove|ndryshoi): produkt$",
+   "changed: product"
+  ],
+  [
+   "^(?:ndryshove|ndryshoi): produkt · (.+)$",
+   "changed: product · @1"
+  ],
+  [
+   "^(?:ndryshove|ndryshoi): ([^·]+?) · (.+)$",
+   "changed: $1 · @2"
+  ],
+  [
+   "^(?:ndryshove|ndryshoi): (.+)$",
+   "changed: $1"
+  ],
+  [
+   "^(?:shtove|shtoi) 1 afat të ri$",
+   "added 1 new expiry date"
+  ],
+  [
+   "^(?:shtove|shtoi) (\\d+) afate të reja$",
+   "added $1 new expiry dates"
+  ],
+  [
+   "^e hoqi (?!nga rafti)(.+)$",
+   "removed by @1"
+  ],
+  [
+   "^mbetet në raft · (.+)$",
+   "stays on the shelf · @1"
+  ],
+  [
+   "^e kishte hequr (.+)$",
+   "had been removed by @1"
+  ],
+  [
+   "^pranuar nga (.+)$",
+   "accepted by $1"
+  ],
+  [
+   "^për (?!miratim$)([^\\s·]+)$",
+   "for $1"
+  ],
+  [
+   "^Do të fshihet folderi \"(.+)\" bashkë me 1 produktin brenda tij\\.\\n\\nKy veprim NUK mund të kthehet\\.$",
+   "The folder \"$1\" will be deleted along with the 1 product inside it.\n\nThis CAN'T be undone."
+  ],
+  [
+   "^Do të fshihet folderi \"(.+)\" bashkë me (\\d+) produktet brenda tij\\.\\n\\nKy veprim NUK mund të kthehet\\.$",
+   "The folder \"$1\" will be deleted along with the $2 products inside it.\n\nThis CAN'T be undone."
+  ],
+  [
+   "^Do të fshihet folderi \"(.+)\"\\. Është bosh\\.$",
+   "The folder \"$1\" will be deleted. It's empty."
+  ],
+  [
+   "^Do të fshihen të gjitha (\\d+) produktet nga folderi \"(.+)\"\\. Ky veprim NUK mund të kthehet\\.$",
+   "All $1 products in the folder \"$2\" will be deleted. This CAN'T be undone."
+  ],
+  [
+   "^Do të zëvendësohen të gjitha (\\d+) produktet aktuale me ato të ruajtura në cloud për këtë llogari\\.\\n\\nKy veprim nuk kthehet\\.$",
+   "All $1 current products will be replaced with the ones saved in the cloud for this account.\n\nThis can't be undone."
+  ],
+  [
+   "^Do të zëvendësohet produkti aktual me atë të ruajtur në cloud për këtë llogari\\.\\n\\nKy veprim nuk kthehet\\.$",
+   "The current product will be replaced with the one saved in the cloud for this account.\n\nThis can't be undone."
+  ],
+  [
+   "^Do të eksportohen (1 afat|\\d+ afate)$",
+   "@1 will be exported"
+  ],
+  [
+   "^Do të eksportohen (1 afat|\\d+ afate) \\(([^()]+)\\)$",
+   "@1 (@2) will be exported"
+  ],
+  [
+   "^Do të eksportohen (1 afat|\\d+ afate) të furnizuesit (.+)$",
+   "@1 from the supplier $2 will be exported"
+  ],
+  [
+   "^Do të eksportohen (1 afat|\\d+ afate) \\(([^()]+)\\) të furnizuesit (.+)$",
+   "@1 (@2) from the supplier $3 will be exported"
+  ],
+  [
+   "^S'ka afate (.+) për këtë zgjedhje$",
+   "No @1 expiry dates for this selection"
+  ],
+  [
+   "^\"(.+)\" \\(i përket: (.+)\\) (shënohet si i hequr nga rafti|kthehet si aktiv në raft|fshihet krejt)\\. Kolegu njoftohet\\.$",
+   "\"$1\" (belongs to: @2) @3. Your colleague will be notified."
+  ],
+  [
+   "^\"(.+)\" \\(i përket: (.+)\\) (shënohet si i hequr nga rafti|kthehet si aktiv në raft|fshihet krejt)\\. (.+) njoftohet\\.$",
+   "\"$1\" (belongs to: @2) @3. $4 will be notified."
+  ],
+  [
+   "^\"(.+)\" \\((.+)\\) dhe \"(.+)\" \\((.+)\\) do të bashkohen në një furnizues: \"(.+)\"\\.$",
+   "\"$1\" (@2) and \"$3\" (@4) will be merged into one supplier: \"$5\"."
+  ],
+  [
+   "^Këtu është tashmë marketi \"(.+)\" \\((\\d+) m\\)\\. Vendose shenjën mbi marketin e ri\\.$",
+   "The market \"$1\" is already here ($2 m). Place the pin on the new market."
+  ],
+  [
+   "^Këtu është tashmë marketi \"(.+)\"\\. Tani je te ai\\.$",
+   "The market \"$1\" is already here. You're there now."
+  ],
   [
    "^Kod i ri pas (\\d+) s$",
    "New code in $1 s"
@@ -3235,6 +3489,10 @@
   [
    "([^A-Za-zËÇëç]|^)(\\d+) faqe A4(?![A-Za-zËÇëç])",
    "$1$2 A4 pages"
+  ],
+  [
+   "(: )produkt(?= · |$)",
+   "$1product"
   ]
  ],
  "injoro": [

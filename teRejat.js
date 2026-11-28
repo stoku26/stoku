@@ -21,6 +21,11 @@
   'use strict';
 
   var LISTA = [
+    { v: 363, versioni: '1.76.8', data: '2026-11-27', titulli: 'Anglishtja më e saktë', pikat: [
+      'Në anglisht, aktiviteti i grupit dhe njoftimet s\'kanë më fjalë shqip (p.sh. "You removed it from the shelf").',
+      'Te njoftimet, emrat e produkteve mbeten siç i ke shkruar, edhe kur gjuha është anglisht.',
+      'Disa tekste anglisht u bënë më të qarta (US English).'
+    ] },
     { v: 362, versioni: '1.76.7', data: '2026-11-27', titulli: 'Përditësimi pa rindezje', pikat: [
       'Kur hap Stoku-n pas një versioni të ri, faqja s\'rindizet më pas pak sekondash (logoja dhe krejt nga fillimi).',
       'Kur përditësimi kërkon rindezje, del një ekran i shkurtër me logon derisa versioni i ri të jetë gati.'

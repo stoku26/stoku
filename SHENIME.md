@@ -56,6 +56,24 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **v363 (1.76.8): anglishtja e telefonit, orës dhe web-it (28.11.2026)**. Pronari: "Appin e telefonit edhe ores qe jan per
+   playstore ... e kontrollon per drejtshkrim ne anglisht ... nese ka hala fjal shqip ... edhe i publikon meniher dyjat nplay console".
+   U lexuan krejt 1479 tekstet e Android-it + orës në anglisht. Gjetjet (krejt te `perkthimi/en.json`, i njëjti fjalor për web/tel/orë):
+   - Aktiviteti i grupit: subjekti ("Ti" → "You") përkthehet veç nga teksti (Compose AnnotatedString / `<b>` te web-i), prandaj
+     "e hoqe nga rafti" etj. tani janë PA "you" ("You removed it…", jo "You you removed it…"). Kur janë bashkë në një rresht (Ballina,
+     app-tel 4831, app-pc 968) i kap modeli `^([^·]+?) (shtove .+|…|e fshiu: .+|…)$` → "@1 @2". Modele për çdo `cfare` të
+     GrupiLogjika.tekstiNgjarjes / ekipa.js (e fshiu/ndryshoi/kërkoi/shtoi N afate/pranuar nga/për X/mbetet në raft · …).
+   - Njoftimet e Worker-it: "s'e pranoi (brenda 10 ditëve) afatin: X. E ke te lista jote." → "…It's back in your list.",
+     "e N të tjera)"/"e 1 tjetër)" → "and N more)", fallback-u "produkt" → "product".
+   - RREGULL: emrat e produkteve te modelet merren me `$` (jo `@`): me `@` "Kos 500g" (produkt shembull i vizitorit te fjalori)
+     do të bëhej "Yogurt 500g" edhe te njoftimet e vërteta. Vetëm pjesa pas " · " (data, copët, koha) përkthehet (`@`).
+   - Pyetjet: fshirja e folderit, rikthimi nga cloud, eksporti, bashkimi i furnizuesve, marketi ekzistues, "Do të fshihet…".
+   - US English: "Forgot password", "Expiry dates and group requests", "Existing", "guest" (jo "visitor").
+   Regresioni (28.11.2026, 00:xx): v323/v327/v329/v331 dështuan njësoj edhe me kodin e v362: rrjeti i kontejnerit tani e lejon
+   www.gstatic.com, ndaj Firebase-i i vërtetë ngarkohet, e zëvendëson `__stokuCloud` e rremë dhe hap portën e hyrjes. Me Google të
+   bllokuar (`HTTPS_PROXY=http://127.0.0.1:9 NO_PROXY=127.0.0.1,localhost node vNNN.js`) kalojnë të katërt. S'është gabim i kodit.
+   Testi `teste/v363.js` (44 raste). TeRejat.kt Hyrja 123 + `ora/play-te-rejat.txt` (Play "What's new"). S'është testuar në pajisje.
+
 0000000. **Rregullat e Firebase-it nga GitHub (28.11.2026)**. Pronari: "Qysh me mujt edhe firebase me lidh?" Pa connector Firebase: pronari i
    dha service account-it `stoku-play@stoku-appi` (Workload Identity, si Play) rolin IAM **Firebase Rules Admin** (vetëm rregullat, pa të
    dhëna). `.github/workflows/firebase-rregullat.yml` (push te main kur ndryshon SHENIME.md / rregullat.js / firebase/, ose me dorë):
