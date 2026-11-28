@@ -605,7 +605,7 @@ fun AfatiFlete(id: String?, barkodiISkanuar: String, skano: ((String) -> Unit) -
             formato = { v, para -> if (v.length < para.length) v else Afatet.formatoDatenGjateShkrimit(v) })
         // Pronari (28.11.2026): data e pasaktë (p.sh. 33-05-426) tregon pse, me të kuqe, që në shkrim
         val gabimiDates = remember(data) { Afatet.gabimiIDates(data) }
-        if (gabimiDates.isNotEmpty() && !vetemLexim) Text(gabimiDates, style = tx(13, 600, n.exp), modifier = Modifier.semantics { androidx.compose.ui.semantics.liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite })
+        if (gabimiDates.isNotEmpty() && !vetemLexim) Text(gabimiDates, style = tx(13, 600, n.exp))
         Afatet.lexoDatenEFushes(data)?.let { iso ->
             val d = Afatet.ditetDeri(iso)!!
             Text(when { d < -1 -> "Ka skaduar para " + Afatet.ditetParaTekst(-d) + "."; d == -1 -> "Skadoi dje."; d == 0 -> "Skadon sot."; d == 1 -> "Skadon nesër."; else -> "Skadon për " + Afatet.ditetTekst(d) + "." },
