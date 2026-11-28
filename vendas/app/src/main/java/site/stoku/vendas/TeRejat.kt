@@ -12,7 +12,7 @@ object TeRejat {
     val LISTA = listOf(
         Hyrja(123, "2026-11-27", "Anglishtja më e saktë", listOf(
             "Në anglisht, aktiviteti i grupit dhe njoftimet s'kanë më fjalë shqip (p.sh. \"You removed it from the shelf\").",
-            "Emrat e produkteve mbeten siç i ke shkruar, edhe kur gjuha është anglisht.",
+            "Te njoftimet, emrat e produkteve mbeten siç i ke shkruar, edhe kur gjuha është anglisht.",
             "Disa tekste anglisht u bënë më të qarta (US English)."
         )),
         Hyrja(122, "2026-11-27", "Ora e dorës", listOf(

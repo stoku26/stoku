@@ -69,6 +69,9 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
      do të bëhej "Yogurt 500g" edhe te njoftimet e vërteta. Vetëm pjesa pas " · " (data, copët, koha) përkthehet (`@`).
    - Pyetjet: fshirja e folderit, rikthimi nga cloud, eksporti, bashkimi i furnizuesve, marketi ekzistues, "Do të fshihet…".
    - US English: "Forgot password", "Expiry dates and group requests", "Existing", "guest" (jo "visitor").
+   Regresioni (28.11.2026, 00:xx): v323/v327/v329/v331 dështuan njësoj edhe me kodin e v362: rrjeti i kontejnerit tani e lejon
+   www.gstatic.com, ndaj Firebase-i i vërtetë ngarkohet, e zëvendëson `__stokuCloud` e rremë dhe hap portën e hyrjes. Me Google të
+   bllokuar (`HTTPS_PROXY=http://127.0.0.1:9 NO_PROXY=127.0.0.1,localhost node vNNN.js`) kalojnë të katërt. S'është gabim i kodit.
    Testi `teste/v363.js` (44 raste). TeRejat.kt Hyrja 123 + `ora/play-te-rejat.txt` (Play "What's new"). S'është testuar në pajisje.
 
 0000000. **Rregullat e Firebase-it nga GitHub (28.11.2026)**. Pronari: "Qysh me mujt edhe firebase me lidh?" Pa connector Firebase: pronari i
