@@ -56,6 +56,24 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **Android Hyrja 126 + Worker "nl" (28.11.2026): llojet e njoftimeve, "Kërko gjithçka", dritarja e njoftimeve, shkronjat**.
+   Pronari (foto nga 0.1.380): "shto opsionet per krejta llojet e njoftimeve qe mun stoku mi qu ... me mujt ti me selektu se qka po do
+   met njoftu e qka jo"; "rregulloje qat problem me shkronjat qoshin e majt posht"; "kerko kudo ... e len thjesht kerko gjithqka ...
+   anglisht search everything ... me mujt me lyp qaty edhe settings e krejta"; "kur po i pranon njoftimet e detyrushme faqja ... rrin
+   dikun 5 sekonda".
+   - Njoftimet.kt: `LLOJET` (ditor e fjalekalimi të detyrueshëm; kerkesa, heqje, afate, admini, grupi me çelës, pref "njoftimi_<k>",
+     parazgjedhur po), `llojiINjoftimit(nl, tag, lloji, titulli)`; FcmSherbimi s'e shfaq llojin e fikur (ora i merr nga telefoni).
+     Cilësimet → Njoftimet → "Llojet e njoftimeve". Grupi.kt: afati i kthyer vendor vetëm kur "afate" lejohet.
+   - Worker stoku-push.js: çdo push ka `nl` (lloji i dokumentit: kerkese-heqje/kerkese-kryer, hequr, heqje-*, afat-*, admin-afat,
+     lajmerim, admin-i-ri, ftese, kerkese-grupi, fjalekalimi, ditor); `nl` futet te data e FCM. Pa `nl` (Worker i vjetër): sipas
+     tag-ut (ek-kerkese-, ek-ft-, ek-kr-, stoku-ditor), njoftimet e grupit dalin gjithmonë.
+   - Ballina: "Kërko gjithçka" ("Search everything"); kërkimi i Cilësimeve me fjalë për çdo faqe (tema, gjuha, PDA, kamera, njoftimi
+     ditor, ora, harta, renditja, fjalëkalimi, pajisjet…), shqip dhe anglisht (Gjuha.t). TreNumra/grafiku pa `clip` (priste shkronjat
+     majtas poshtë, gabim i Hyrjes 124).
+   - NjoftimetUI: dritarja e detyrueshme mbyllet sapo leja jepet (më parë priste 8 s për kontrollin e njoftimit ditor).
+   - Përkthimi: "✓ Serveri punon. Njoftimi i radhës: nesër në 08:00." (model i ri; "nesër në" dilte shqip).
+   Vetëm Android (+ Worker); web-i s'u prek. S'është testuar në pajisje.
+
 0000000. **v364 (1.76.9) + Android Hyrja 125 (28.11.2026): data e pasaktë, sugjerimet e furnizuesit, "Kontrollo fletën"**. Pronari
    (foto nga 0.1.380): "Kshyre nalt ngjyren e status barit. Edhe butonat posht ... jan gjysa e butonave nen ekran"; "nese shkrun dat
    tpasakt ... nuk te thot hiq qe so mir cili muj i ka 33 dit"; "hiqe mbyll kur i fshin krejt shkronjat mu mshel vet ... mos e le me ra

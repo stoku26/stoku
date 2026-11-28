@@ -131,7 +131,7 @@ const W = {
           tekst = kush + ' e hoqi nga rafti: ' + produkti + ' (kërkesa jote)';
           perKe = a => a.uid !== uid && a.uid === k.kerkuesUid;
         }
-        ngarkesa = { lloji: 'kerkese', titulli: 'Stoku · Hiqe nga rafti', teksti: tekst.length > 180 ? tekst.slice(0, 177) + '…' : tekst, tag: 'ek-kerkese-' + id, koha: Number(k.koha) || Date.now(), pamja: 'njoftimet' };
+        ngarkesa = { lloji: 'kerkese', nl: String(k.lloji || 'kerkese-heqje'), titulli: 'Stoku · Hiqe nga rafti', teksti: tekst.length > 180 ? tekst.slice(0, 177) + '…' : tekst, tag: 'ek-kerkese-' + id, koha: Number(k.koha) || Date.now(), pamja: 'njoftimet' };
       } else if (rruga === '/njoftim') {
         // v161: njoftimet personale të grupit (heqje në pritje të miratimit, pranim/refuzim, ndryshime nga administratori,
         // njoftimi për krejt grupin) te pajisjet e marrësit, edhe me Stoku të mbyllur. Njoftimi lexohet ME TOKENIN E
@@ -151,7 +151,7 @@ const W = {
         // v169: afati për një koleg: regjistrohet për kthimin te dërguesi pas 10 ditëve pa vendim (Cron, edhe me Stoku të mbyllur)
         if (n.lloji === 'afat-dergim' && env.FOTO) { try { await regjistroAfatinPerKolegun(env, id, per, uid, grupi, n); } catch (e) { console.error('stoku-push afat-kolegu:', String(e && e.message || e)); } }
         // tag-u i njëjtë me njoftimin që e nxjerr vetë aplikacioni ("ek-nj-" + id): s'del dy herë, njëri e zëvendëson tjetrin
-        ngarkesa = { lloji: 'njoftim', titulli: 'Stoku · Grupi', teksti: tekst.length > 180 ? tekst.slice(0, 177) + '…' : tekst, tag: 'ek-nj-' + id, koha: Number(n.koha) || Date.now(), pamja: 'njoftimet' };
+        ngarkesa = { lloji: 'njoftim', nl: String(n.lloji || ''), titulli: 'Stoku · Grupi', teksti: tekst.length > 180 ? tekst.slice(0, 177) + '…' : tekst, tag: 'ek-nj-' + id, koha: Number(n.koha) || Date.now(), pamja: 'njoftimet' };
         perKe = a => a.uid === per;
       } else {
         return pergjigju({ ok: false, arsye: 'rruga' }, 404);
@@ -601,7 +601,7 @@ async function dergoNjoftimetDitore(env, tani, shprehja) {
       const nj = njoftimiDitor(afatetPerUid[rek.uid], lok.dita);
       if (!nj) { x.rez = 'asgje'; x.dita = lok.dita; delete x.prova; delete x.provaDita; continue; }
       if (!vapid) vapid = await pergatitVapid(env);
-      const ng = { lloji: 'afatet', titulli: nj.titulli, teksti: nj.teksti, tag: 'stoku-ditor', koha: tani,
+      const ng = { lloji: 'afatet', nl: 'ditor', titulli: nj.titulli, teksti: nj.teksti, tag: 'stoku-ditor', koha: tani,
         url: rek.platforma === 'pc' ? './pc.html#/afatet' : './index.html#afatet' };
       const st = await dergoPush(rek.pajisja, ng, vapid);
       x.rez = st >= 200 && st < 300 ? 'derguar' : 'gabim-' + st;
@@ -701,7 +701,7 @@ async function ktheAfatetEKolegeve(env, tani) {
         // vetëm krijim: nëse kolegu e refuzoi ndërkohë (i njëjti id), s'dyfishohet
         if (await shkruajDoc('perdoruesit/' + x.uid + '/njoftimet', 'k' + id, nj, at)) {
           kthyer++;
-          await dergoPushPerdoruesit(env, at, x.uid, x.g, { lloji: 'njoftim', titulli: 'Stoku · Grupi', teksti: tekstiINjoftimit(nj), tag: 'ek-nj-k' + id, koha: tani, pamja: 'njoftimet' });
+          await dergoPushPerdoruesit(env, at, x.uid, x.g, { lloji: 'njoftim', nl: String(nj.lloji || 'afat-kthyer'), titulli: 'Stoku · Grupi', teksti: tekstiINjoftimit(nj), tag: 'ek-nj-k' + id, koha: tani, pamja: 'njoftimet' });
         }
       }
       delete ind[id]; ndryshoi = true;
@@ -733,7 +733,7 @@ async function trajtoGrupin(env, token, uid, trupi, pergjigju) {
     let g = '';
     try { const p = await lexoDoc('perdoruesit/' + d.uid, at); g = p && /^[A-Za-z0-9_-]{2,64}$/.test(String(p.grupi || '')) ? String(p.grupi) : ''; } catch (e) { /* ok */ }
     if (!g) return pergjigju({ ok: true, derguar: 0, arsye: 'pa-grup' }); // pa grup: pajisjet s'janë të regjistruara askund
-    await dergoPushPerdoruesit(env, at, d.uid, g, { lloji: 'njoftim', titulli: 'Stoku · Ftesë në grup', tag: 'ek-ft-' + id, koha: Number(d.koha) || Date.now(), pamja: 'anetaret',
+    await dergoPushPerdoruesit(env, at, d.uid, g, { lloji: 'njoftim', nl: 'ftese', titulli: 'Stoku · Ftesë në grup', tag: 'ek-ft-' + id, koha: Number(d.koha) || Date.now(), pamja: 'anetaret',
       teksti: (String(d.ngaEmri || '').slice(0, 40) || 'Dikush') + ' të fton në grupin "' + emriG + '". Hape Grupin për ta pranuar.' });
     n = 1;
   } else {
@@ -741,7 +741,7 @@ async function trajtoGrupin(env, token, uid, trupi, pergjigju) {
     let pronaret = [];
     try { pronaret = (await listoAnetaret(at, 'grupet/' + d.gid + '/anetaret')).filter(a => a.roli === 'pronar' && a.id !== uid).map(a => a.id).slice(0, 5); } catch (e) { /* ok */ }
     for (const p of pronaret) {
-      await dergoPushPerdoruesit(env, at, p, d.gid, { lloji: 'njoftim', titulli: 'Stoku · Kërkesë për grupin', tag: 'ek-kr-' + id, koha: Number(d.koha) || Date.now(), pamja: 'anetaret',
+      await dergoPushPerdoruesit(env, at, p, d.gid, { lloji: 'njoftim', nl: 'kerkese-grupi', titulli: 'Stoku · Kërkesë për grupin', tag: 'ek-kr-' + id, koha: Number(d.koha) || Date.now(), pamja: 'anetaret',
         teksti: (String(d.emri || '').slice(0, 40) || 'Dikush') + ' kërkon të hyjë në grupin tënd. Hape Grupin për ta pranuar.' });
       n++;
     }
@@ -887,6 +887,7 @@ function vleraNga(v) {
 }
 function objektNga(fields) { const o = {}; for (const k in fields) o[k] = vleraNga(fields[k]); return o; }
 // Teksti i një njoftimi personal të grupit (i njëjtë me tekstiNjoftimit te ekipa.js)
+// 28.11.2026: çdo push ka edhe "nl" (lloji i njoftimit), që telefoni t'i shfaqë vetëm llojet e zgjedhura (Cilësimet → Njoftimet)
 const FJALA_E_VEPRIMIT = { hiq: 'e hoqi nga rafti', kthe: 'e ktheu në raft', fshij: 'e fshiu' };
 function dataShkurtNjoftimi(iso) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || '')); return m ? m[3] + '.' + m[2] + '.' + m[1] : ''; }
 // v169: afati për një koleg (nj.afat): "Kos Vita · 30.11.2026 · 6 copë" (si produktiIAfatitDerguar te ekipa.js)
@@ -1048,7 +1049,7 @@ async function njoftoAdminin(env, at, teksti, push) {
   pajisjet = pajisjet.filter(a => !pare.has(a.endpoint) && pare.add(a.endpoint)).slice(0, 10);
   const meVapid = !!(env.VAPID_PUBLIC && env.VAPID_PRIVATE);
   const vapid = meVapid ? await pergatitVapid(env) : { env };
-  const ng = { lloji: 'njoftim', titulli: 'Stoku · Fjalëkalimi', teksti, tag: 'ek-nj-' + id, koha, pamja: 'njoftimet' };
+  const ng = { lloji: 'njoftim', nl: 'fjalekalimi', titulli: 'Stoku · Fjalëkalimi', teksti, tag: 'ek-nj-' + id, koha, pamja: 'njoftimet' };
   await Promise.all(pajisjet.map(async a => {
     if (!a.fcm && !meVapid) return;
     try {
@@ -1195,7 +1196,7 @@ async function dergoFcm(env, tokeni, ng) {
   let at;
   try { at = await tokeniFcm(env); } catch (e) { return 503; }
   const data = {};
-  for (const k of ['lloji', 'titulli', 'teksti', 'tag', 'url', 'pamja']) if (ng[k] !== undefined && ng[k] !== null) data[k] = String(ng[k]);
+  for (const k of ['lloji', 'nl', 'titulli', 'teksti', 'tag', 'url', 'pamja']) if (ng[k] !== undefined && ng[k] !== null) data[k] = String(ng[k]);
   // Android: adresa relative ndaj stoku.site (si te telefoni)
   if (data.url && /pc\.html/.test(data.url)) data.url = data.pamja === 'njoftimet' ? './index.html#ekipa-njoftimet' : './index.html';
   const r = await fetch('https://fcm.googleapis.com/v1/projects/' + (fcmCache.projekti || PROJEKTI) + '/messages:send', {

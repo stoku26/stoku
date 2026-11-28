@@ -10,6 +10,12 @@ object TeRejat {
     class Hyrja(val nr: Int, val data: String, val titulli: String, val pikat: List<String>)
 
     val LISTA = listOf(
+        Hyrja(126, "2026-11-28", "Njoftimet sipas zgjedhjes", listOf(
+            "Te Cilësimet → Njoftimet zgjedh cilat lloje njoftimesh të vijnë: kërkesat për heqje nga rafti, heqjet, afatet nga kolegët, administratori, ftesat e grupit.",
+            "Kërkimi te Ballina quhet \"Kërko gjithçka\" dhe gjen edhe cilësimet (p.sh. tema, gjuha, PDA, fjalëkalimi).",
+            "Kur i lejon njoftimet, dritarja e njoftimeve mbyllet menjëherë.",
+            "Ballina: shkronjat e numrave s'priten më në qoshe."
+        )),
         Hyrja(125, "2026-11-28", "Data dhe furnizuesi më të qartë", listOf(
             "Kur data e skadimit s'është e saktë (p.sh. 33-05-26), Stoku të thotë menjëherë pse: dita 1 deri 31, muaji 1 deri 12, sa ditë ka ai muaj.",
             "Lista e furnizuesve s'ka më \"Mbyll\": del kur shkruan, mbyllet vetë kur i fshin krejt shkronjat dhe del mbi fushë, jo nën tastierë.",

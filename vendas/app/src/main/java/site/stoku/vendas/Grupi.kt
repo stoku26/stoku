@@ -738,7 +738,7 @@ object Grupi {
                 val gjE = if (nj != null) GrupiLogjika.gjendjaEAfatitKolegut(nj, tani) else if (pranuar) "pranuar" else "skadoi"
                 if (gjE == "pranuar") { hiqDergimin(id); continue }
                 if (gjE == "pritet") continue
-                if (ktheAfatinTek(id, x["afat"])) Njoftimet.shfaq(StokuApp.app, "Stoku · Grupi",
+                if (ktheAfatinTek(id, x["afat"]) && Njoftimet.lejohetLloji("afate")) Njoftimet.shfaq(StokuApp.app, "Stoku · Grupi",
                     GrupiLogjika.tekstiNjoftimit(obj("lloji" to "afat-kthyer", "arsye" to if (gjE == "refuzuar") "refuzoi" else "skadoi", "emri" to (x["perEmri"] ?: ""), "afat" to x["afat"])), "ek-nj-k$id", "./index.html#ekipa-njoftimet")
             }
         } finally { dergimetDukeKontrolluar = false }

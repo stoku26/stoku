@@ -249,6 +249,20 @@ fun NjoftimetFaqja(mbrapa: () -> Unit) {
                     .background(sf).padding(horizontal = 12.dp, vertical = 10.dp))
             }
         }
+        // Pronari (28.11.2026): "shto opsionet per krejta llojet e njoftimeve qe mun stoku mi qu"
+        if (perdoruesi != null) {
+            TitulliGrupit("Llojet e njoftimeve")
+            GrupiOps {
+                var ndezur by remember { mutableStateOf(Njoftimet.LLOJET.associate { it.k to Njoftimet.lejohetLloji(it.k) }) }
+                Njoftimet.LLOJET.forEachIndexed { i, l ->
+                    RreshtNdezes(null, "blu", l.titulli, l.pershkrimi,
+                        ndezur[l.k] == true, vije = i > 0, aktiv = !l.iDetyrueshem) { po ->
+                        Njoftimet.vendosLlojin(l.k, po); ndezur = ndezur + (l.k to po)
+                    }
+                }
+            }
+            Text("Zgjedhja ruhet në këtë telefon dhe vlen edhe për orën e dorës.", style = txR(12.5f, 400, n.muted), modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 8.dp))
+        }
     }
 }
 
@@ -447,6 +461,9 @@ fun PyetjaENjoftimeve() {
             kotlinx.coroutines.delay(1500)
         }
         gjendja = "lejuar"
+        // Pronari (28.11.2026): "kur po i pranon njoftimet e detyrushme faqja njoftimeve spo heket po po rrin dikun 5 sekonda":
+        // dritarja mbyllet sapo leja jepet (më parë mbetej hapur gjatë pritjes 8 s për njoftimin ditor)
+        duhet = false; ditor = false
         if (pritiLejen) pasLejes() else ndizDitorinNjeHere()
         // 2) njoftimi ditor
         kotlinx.coroutines.delay(if (pritiLejen) 8000 else 2000)
@@ -459,6 +476,7 @@ fun PyetjaENjoftimeve() {
     val kerko = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { po ->
         StokuApp.vendosPrefB("njoftimet_pyetur", true)
         gjendja = Njoftimet.gjendja(ctx)
+        if (gjendja == "lejuar") { duhet = false; ditor = false } // mbyllet menjëherë, pa pritur kontrollin e radhës (1.5 s)
         if (!po && gjendja != "lejuar") Toast.trego("Pa njoftimet s'mund të vazhdosh. Lejoji kur të pyet telefoni, ose te cilësimet.", 5000)
     }
     if (!duhet) return

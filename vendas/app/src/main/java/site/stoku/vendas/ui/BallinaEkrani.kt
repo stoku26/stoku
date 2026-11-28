@@ -161,7 +161,7 @@ fun BallinaEkrani(skano: ((String) -> Unit) -> Unit, hapTabin: (String) -> Unit,
             }
         }
         // v327 (pronari): "qite ni search bar qe kur te lyp qaty diqka ne krejt projektin me ta qit qaty"
-        item(key = "kerkimi") { Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), "Kërko kudo: barkod, produkt, afat…", ikona = Ik.Kerko) }
+        item(key = "kerkimi") { Fusha(kerkimi, { kerkimi = it }, Modifier.fillMaxWidth(), "Kërko gjithçka", ikona = Ik.Kerko) }
         if (kerkimi.isNotBlank()) {
             val rz = rezultatet
             if (rz != null && rz.isEmpty()) item { Text("S'u gjet asgjë për \"" + kerkimi.trim() + "\".", style = tx(14, 400, n.muted), textAlign = TextAlign.Center,
@@ -281,7 +281,8 @@ private fun TreNumra(vararg numrat: Numri) {
     Row(Modifier.fillMaxWidth()) {
         numrat.forEach { x ->
             val (v, e, c) = Triple(x.v, x.e, x.c)
-            Column(Modifier.weight(1f).clip(RoundedCornerShape(10.dp)).then(if (x.prek != null) Modifier.clickable(onClick = x.prek) else Modifier)) {
+            // Pronari (28.11.2026): pa clip (priste shkronjat majtas poshtë, p.sh. "Të skaduara", "Pa datë", "Produkte")
+            Column(Modifier.weight(1f).then(if (x.prek != null) Modifier.clickable(onClick = x.prek) else Modifier)) {
                 Text(v, style = tx(26, 700, c))
                 Text(e, style = tx(12, 400, n.muted), modifier = Modifier.padding(top = 2.dp))
             }
@@ -331,7 +332,7 @@ private fun GrafikuIMuajve(te: List<Obj>, prekMuajin: (String) -> Unit) {
     Row(Modifier.fillMaxWidth().height(120.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Bottom) {
         muajt.forEach { (emriK, nr, ky) ->
             val emri = emriK.substringBefore('|')
-            Column(Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(8.dp)).clickable { prekMuajin(emriK.substringAfter('|')) }, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Bottom) {
+            Column(Modifier.weight(1f).fillMaxHeight().clickable { prekMuajin(emriK.substringAfter('|')) }, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Bottom) {
                 Text(nr.toString(), style = tx(11, 700, if (nr > 0) n.ink2 else n.faint))
                 Spacer(Modifier.height(4.dp))
                 Box(Modifier.fillMaxWidth().height((70f * nr / max).coerceAtLeast(3f).dp).clip(RoundedCornerShape(6.dp))
@@ -554,16 +555,28 @@ fun kerkoKudo(q: String): List<GrupiIRezultateve> {
             Rezultati((it["emri"] as? String).orEmpty(), "Market", Veprimi.Cilesimi("marketet"))
         }))
     }
-    val ci = listOfNotNull(
-        "pamja" to "Pamja", "gjuha" to "Gjuha", "skenimi" to "Skenimi", "njoftimet" to "Njoftimet",
-        if (Llogaria.leja("ora")) "ora" to "Ora e dorës" else null,
-        if (Llogaria.leja("marketet") || Llogaria.eshteAdmin()) "marketet" to "Marketet" else null,
-        if (Llogaria.leja("stoku")) "lista" to "Malli" else null,
-        if (Llogaria.leja("stoku")) "furnizuesit" to "Furnizuesit" else null,
-        if (Llogaria.leja("stoku")) "produktet" to "Produktet" else null,
-        if (site.stoku.vendas.Admini.eshteAdmin()) "perdoruesit" to "Përdoruesit" else null,
-        if (Llogaria.perdoruesi.value != null || Llogaria.eshteVizitor()) "llogaria" to "Llogaria" else null
-    ).filter { ka(it.second) }
-    if (ci.isNotEmpty()) l.add(GrupiIRezultateve("Cilësimet", Ik.Cilesimet, "gri", ci.size, ci.take(MAX).map { Rezultati(it.second, "Cilësimet", Veprimi.Cilesimi(it.first)) }))
+    // Pronari (28.11.2026): "me mujt me lyp ... edhe settings e krejta tmujshme": çdo faqe e Cilësimeve me fjalët e saj
+    // (p.sh. "tema", "PDA", "fjalëkalimi"), në shqip dhe në anglisht
+    val faqet = listOfNotNull(
+        Triple("pamja", "Pamja", listOf("Tema", "E errët", "E çelët", "Automatike", "Ngjyrat", "Madhësia e shkronjave")),
+        Triple("gjuha", "Gjuha", listOf("Shqip", "English", "Anglisht")),
+        Triple("skenimi", "Skenimi", listOf("PDA", "Kamera", "Tingulli", "Skaneri", "Tastiera", "Kursori")),
+        Triple("njoftimet", "Njoftimet", listOf("Njoftimi ditor", "Ora e njoftimit", "Llojet e njoftimeve")),
+        if (Llogaria.leja("ora")) Triple("ora", "Ora e dorës", listOf("Galaxy Watch", "Apple Watch", "Lidh orën")) else null,
+        if (Llogaria.leja("marketet") || Llogaria.eshteAdmin()) Triple("marketet", "Marketet", listOf("Harta", "GPS")) else null,
+        if (Llogaria.leja("stoku")) Triple("lista", "Malli", listOf("Renditja e produkteve", "Produktet e reja")) else null,
+        if (Llogaria.leja("stoku")) Triple("furnizuesit", "Furnizuesit", emptyList()) else null,
+        if (Llogaria.leja("stoku")) Triple("produktet", "Produktet", emptyList()) else null,
+        if (site.stoku.vendas.Admini.eshteAdmin()) Triple("perdoruesit", "Përdoruesit", listOf("Lejet")) else null,
+        if (Llogaria.perdoruesi.value != null || Llogaria.eshteVizitor()) Triple("llogaria", "Llogaria",
+            listOf("Ndrysho fjalëkalimin", "Fjalëkalimi", "Dil nga llogaria", "Pajisjet", "Fshi llogarinë", "Foto e profilit")) else null
+    )
+    fun kaT(t: String) = ka(t) || ka(Gjuha.t(t))
+    val ci = ArrayList<Rezultati>()
+    faqet.forEach { (faqja, titulli, fjalet) ->
+        if (kaT(titulli)) ci.add(Rezultati(titulli, "Cilësimet", Veprimi.Cilesimi(faqja)))
+        else fjalet.filter { kaT(it) }.forEach { ci.add(Rezultati(it, "Cilësimet · $titulli", Veprimi.Cilesimi(faqja))) }
+    }
+    if (ci.isNotEmpty()) l.add(GrupiIRezultateve("Cilësimet", Ik.Cilesimet, "gri", ci.size, ci.take(MAX)))
     return l
 }
