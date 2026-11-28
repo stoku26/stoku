@@ -15,7 +15,7 @@ Versioni **github** mbetet i pandryshuar (paketa `site.stoku.vendas`, nis në sh
 (namespace `site.stoku.vendas`, klasat) s'ndryshon dhe çdo vend që do paketën e merr nga `packageName` / `${applicationId}`
 (FileProvider `app.stoku.android.skedaret`, ikonat e jashtme, lidhja e Play-it). Në telefon është aplikacion më vete nga versioni github
 (mund të jenë të dy të instaluar). Pasi të publikohet në Play, paketa s'mund të ndryshohet më kurrë.
-**Gjuha:** versioni play nis në anglisht (kur s'ka zgjedhje të ruajtur); shqipja te Settings → Appearance → Language.
+**Gjuha:** versioni play nis në anglisht (kur s'ka zgjedhje të ruajtur); shqipja te Settings → Language (Cilësimet → Gjuha, faqe më vete që nga 28.11.2026).
 Testi `PlayTest` (vetëm play, CI "Versioni Play") e kontrollon paketën, anglishten dhe që asnjë ekran s'ka tekst shqip.
 
 ## Ku e gjen skedarin .aab

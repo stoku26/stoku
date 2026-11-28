@@ -136,7 +136,7 @@ class PamjetTest {
         Llogaria.vendosLejetPerProve(null)
     }
 
-    /** Web v355: gjuha anglisht (Cilësimet → Pamja → Gjuha): tabet dhe faqet në anglisht, të dhënat e përdoruesit si janë */
+    /** Web v355: gjuha anglisht (Cilësimet → Gjuha): tabet dhe faqet në anglisht, të dhënat e përdoruesit si janë */
     @Test fun anglisht() {
         mbush()
         StokuApp.prefs(StokuApp.app).edit().putString("gjuha", "en").commit()
@@ -145,8 +145,9 @@ class PamjetTest {
             org.junit.Assert.assertEquals("Expiry dates", site.stoku.vendas.ui.Gjuha.t("Afatet"))
             r.setContent { StokuTema("light") { Rrenja("light") {} } }
             fotoEkrani("light-44-en-ballina")
-            r.onAllNodesWithText("All")[0].assertExists() // web v356: "Krejt" te "Expiring first"
-            r.onAllNodesWithText("Krejt").assertCountEquals(0)
+            r.onAllNodesWithText("Expiring first")[0].assertExists()
+            // Pronari (28.11.2026): pa lidhjet "Hape"/"Krejt" te kartat e Ballinës (e gjithë karta hapet me prekje)
+            r.onAllNodesWithText("Krejt").assertCountEquals(0); r.onAllNodesWithText("Open").assertCountEquals(0); r.onAllNodesWithText("All").assertCountEquals(0)
             kliko("Stock")
             foto("light-45-en-malli")
             kliko("Drinks") // folderi i parazgjedhur "Pije" del anglisht (Play, kontrolli 25.11.2026)
@@ -349,6 +350,7 @@ class PamjetTest {
     }
     @Test fun cilesimetSkanimi() = cilesimi("Skenimi", "14-skanimi")
     @Test fun cilesimetPamja() = cilesimi("Pamja", "15-pamja")
+    @Test fun cilesimetGjuha() = cilesimi("Gjuha", "15b-gjuha") // pronari 28.11.2026: faqe më vete, jo te Pamja
     @Test fun cilesimetLlogaria() = cilesimi("Llogaria", "16-llogaria")
     @Test fun cilesimetNjoftimet() = cilesimi("Njoftimet", "22-njoftimet")
     @Test fun cilesimetOra() = cilesimi("Ora e dorës", "23-ora")

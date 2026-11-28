@@ -113,6 +113,8 @@ fun CilesimetEkrani(tema: String, ndryshoTemen: (String) -> Unit) {
 
     when (faqja) {
         "pamja" -> FaqjaECilesimeve("Pamja", mbrapa) { Pamja(tema, ndryshoTemen) }
+        // Pronari (28.11.2026): "heke gjuhen prej pamja, qite gjuha te cilesimet edhe aty me kon nveti"
+        "gjuha" -> FaqjaECilesimeve("Gjuha", mbrapa) { ZgjedhjaEGjuhes() }
         "skenimi" -> FaqjaECilesimeve("Skenimi", mbrapa) { Skenimi() }
         "njoftimet" -> NjoftimetFaqja(mbrapa)
         "ora" -> OraFaqja(mbrapa)
@@ -155,6 +157,7 @@ private fun Menyja(tema: String, hap: (String) -> Unit, hapTeRejat: () -> Unit) 
     // Rreshtat e "Aplikacioni" (si #kategoriMenu te web-i), vetëm ata që lejohen
     val rreshtat = listOfNotNull(
         RreshtiMenyse(Ik.Hena, "vjollce", "Pamja", TEMAT.first { it.first == tema }.second, false) { hap("pamja") },
+        RreshtiMenyse(Ik.Gjuha, "blu", "Gjuha", if (Gjuha.en) "English" else "Shqip", false) { hap("gjuha") },
         RreshtiMenyse(Ik.Skano, "blu", "Skenimi", if (pda) "PDA i ndezur" else "PDA i fikur", false) { hap("skenimi") },
         RreshtiMenyse(Ik.Zile, "vjollce", "Njoftimet", stNj, false) { hap("njoftimet") },
         if (Llogaria.leja("ora")) RreshtiMenyse(Ik.Ora, "blu", "Ora e dorës", "Galaxy Watch, Apple Watch", false) { hap("ora") } else null,
@@ -211,7 +214,8 @@ private fun Menyja(tema: String, hap: (String) -> Unit, hapTeRejat: () -> Unit) 
                 .padding(horizontal = 16.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Ik.Telefon, null, Modifier.size(16.dp), tint = n.muted)
                 Spacer(Modifier.width(7.dp))
-                Text("Kontrollo për përditësim", style = tx(13, 600, n.ink2))
+                // Pronari (28.11.2026): versioni Play kontrollon te Google Play (in-app update; ose hap faqen e Stoku-t te Play Store)
+                Text(if (site.stoku.vendas.BuildConfig.PLAY) "Kontrollo te Google Play" else "Kontrollo për përditësim", style = tx(13, 600, n.ink2))
             }
             // .ops-fundi
             Text(buildAnnotatedString {
@@ -307,7 +311,13 @@ private fun Pamja(tema: String, ndryshoTemen: (String) -> Unit) {
         }
         Text("Rrit pak madhësinë e gjithë tekstit dhe butonave, për lexueshmëri më të lehtë.", style = txR(12.5f, 400, n.muted), modifier = Modifier.padding(top = 12.dp))
     }
-    // web v355 (pronari): gjuha e pamjes, Shqip / English (Gjuha.kt); emrat e gjuhëve s'përkthehen; ndërrimi e rihap ekranin
+}
+
+/** Cilësimet → Gjuha (web v355: Shqip / English, Gjuha.kt); emrat e gjuhëve s'përkthehen; ndërrimi e rihap ekranin.
+ *  Pronari (28.11.2026): faqe më vete te Cilësimet, jo më te Pamja. */
+@Composable
+private fun ZgjedhjaEGjuhes() {
+    val n = N
     val ctx = LocalContext.current
     KartaOps {
         Text("Gjuha", style = tx(15, 700, n.ink, -0.005), modifier = Modifier.padding(bottom = 12.dp))

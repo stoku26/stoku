@@ -97,6 +97,9 @@ fun AfatetEkrani(skano: ((String) -> Unit) -> Unit) {
         when {
             v == "pdf" -> if (Llogaria.leja("eksportPdf")) pdf = true
             v.startsWith("kerko:") -> { kerkimi = v.removePrefix("kerko:"); filtri = "aktive"; muaji = "" } // v327: kërkimi kudo → furnizuesi
+            // Ballina (pronari 28.11.2026: "kur e prek ne widget me dal qaty ku jan qato info"): filtri ose muaji që tregon numri i prekur
+            v.startsWith("filtri:") -> { filtri = v.removePrefix("filtri:"); kerkimi = ""; muaji = ""; zgjedhja = null }
+            v.startsWith("muaji:") -> { filtri = "aktive"; kerkimi = ""; muaji = v.removePrefix("muaji:"); zgjedhja = null }
             v.startsWith("i-ri") -> if (Llogaria.leja("afatetShto")) { skanuar = v.removePrefix("i-ri").removePrefix(":"); hapur = "" }
         }
     }

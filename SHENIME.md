@@ -56,6 +56,20 @@ telefonit/PDA-së skanojnë mallin. Të dhënat sinkronizohen automatikisht mes 
    i dritares: "Ekipa • Përmbledhja • Stoku"). Qelizë bosh në tabelë: "–" (vizë e shkurtër). Te komentet e kodit
    s'ka rëndësi. Kontrolli: `gjej-vizat.js` (scratchpad) duhet të japë "gjithsej 0".
 
+0000000. **Android (Hyrja 124, 28.11.2026): Ballina pa "Hape"/"Krejt", Gjuha te Cilësimet, "Kontrollo te Google Play"**. Pronari (me foto
+   të 0.1.378): "qato qe i kam rretheku nuk e kryjn funksionin qe shkrun. Heki krejt edhe bone kur e prek ne widget me dal qaty ku jan
+   qato info"; "heke gjuhen prej pamja, qite gjuha te cilesimet edhe aty me kon nveti"; "ceke qe me kontrollu ne playstore per perditsim".
+   - BallinaEkrani.kt: `PjesaEBallines` pa lidhje; karta hap Afatet me `veprimiIAfateve` "filtri:aktive" (më parë hapAfatin(null) e
+     linte filtrin/kërkimin e mbetur, ndaj "Hape" dukej sikur s'bën gjë). Numrat: Të skaduara/Pa datë → "filtri:skaduar", Skadojnë së
+     shpejti → "filtri:afer"; shtylla e grafikut → "muaji:VVVV-MM"; furnizuesi → "kerko:emri"; Malli → tabi Malli; Ora → Cilësimet → Ora.
+     AfatetEkrani.kt i pranon "filtri:" dhe "muaji:".
+   - CilesimetEkrani.kt: rreshti "Gjuha" (Ik.Gjuha, globi) pas Pamjes, faqja "gjuha" (ZgjedhjaEGjuhes); hiqet nga Pamja; kërkimi kudo
+     e gjen "Gjuha". PamjetTest: cilesimetGjuha + pa "Krejt"/"Open"/"All" te Ballina anglisht.
+   - Versioni play: butoni "Kontrollo te Google Play" (BuildConfig.PLAY), toast "Duke kontrolluar te Google Play…" / "Ke versionin më
+     të ri nga Google Play"; logjika (Play in-app update IMMEDIATE, ose faqja e Play Store) s'ndryshoi. Versioni github: si më parë.
+   - Vetëm Android (web-i s'u prek: Ballina e web-it ka ende "Hape"; perkthimi-en.js mori vetëm 7 fjalë të reja të Android-it).
+   S'është testuar në pajisje.
+
 0000000. **v363 (1.76.8): anglishtja e telefonit, orës dhe web-it (28.11.2026)**. Pronari: "Appin e telefonit edhe ores qe jan per
    playstore ... e kontrollon per drejtshkrim ne anglisht ... nese ka hala fjal shqip ... edhe i publikon meniher dyjat nplay console".
    U lexuan krejt 1479 tekstet e Android-it + orës në anglisht. Gjetjet (krejt te `perkthimi/en.json`, i njëjti fjalor për web/tel/orë):

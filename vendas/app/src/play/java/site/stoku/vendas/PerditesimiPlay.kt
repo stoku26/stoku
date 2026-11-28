@@ -24,6 +24,7 @@ object PerditesimiPlay {
         if (!detyro && System.currentTimeMillis() - pr.getLong("perditesimi_play_koha", 0) < PUSHIMI_MS) return
         if (dukeKontrolluar) return
         dukeKontrolluar = true
+        if (detyro) toast(a, "Duke kontrolluar te Google Play…")
         val m = try { AppUpdateManagerFactory.create(a.applicationContext) } catch (e: Exception) { dukeKontrolluar = false; return }
         m.appUpdateInfo.addOnSuccessListener { info ->
             dukeKontrolluar = false
@@ -35,7 +36,7 @@ object PerditesimiPlay {
                 ka && info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE) ->
                     try { m.startUpdateFlow(info, a, AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()) } catch (e: Exception) { hapPlay(a) }
                 ka -> if (detyro) hapPlay(a)
-                detyro -> toast(a, "Aplikacioni është i përditësuar")
+                detyro -> toast(a, "Ke versionin më të ri nga Google Play")
             }
         }.addOnFailureListener {
             dukeKontrolluar = false

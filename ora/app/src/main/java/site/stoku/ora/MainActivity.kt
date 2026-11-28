@@ -820,7 +820,7 @@ fun Cilesimet(emri: String, iRiFillim: Pair<Int, String>?, kurGjendetIRi: (Pair<
                     colors = if (pyetShkeputje) ChipDefaults.chipColors(backgroundColor = Kuqe, contentColor = Color.Black) else ChipDefaults.secondaryChipColors(),
                 )
             }
-            // Gjuha (27.11.2026): shqip / anglisht, si te telefoni (Cilësimet → Pamja → Gjuha)
+            // Gjuha (27.11.2026): shqip / anglisht, si te telefoni (Cilësimet → Gjuha)
             item {
                 Chip(
                     modifier = Modifier.fillMaxWidth(),

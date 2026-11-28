@@ -34,6 +34,7 @@ object Ik {
     val Kamera = ikona("M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z", "M9 13a3 3 0 1 0 6 0a3 3 0 1 0 -6 0Z")
     val Barkod = ikona("M3 5v14", "M7 5v14", "M11 5v14", "M14 5v14", "M18 5v14", "M21 5v14")
     val Hena = ikona("M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z")
+    val Gjuha = ikona("M2 12a10 10 0 1 0 20 0a10 10 0 1 0 -20 0Z", "M2 12h20", "M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z") // globi (Cilësimet → Gjuha)
     val Skano = ikona("M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2", "M8 7v10M12 7v10M16 7v10")
     val Rrufe = ikona("M13 2 3 14h9l-1 8 10-12h-9l1-8z") // Skanimi i shpejtë
     val Zile = ikona("M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9", "M10.3 21a1.94 1.94 0 0 0 3.4 0")
